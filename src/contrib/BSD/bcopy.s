@@ -50,7 +50,7 @@ www.cornfed.com
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id: bcopy.s,v 1.1 2001/06/21 06:32:39 greg Exp $
+ *	$Id: bcopy.s,v 1.1.1.1 2001/06/21 06:32:39 greg Exp $
  */
 
 #include "npx.h"

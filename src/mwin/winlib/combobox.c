@@ -27,9 +27,9 @@
 **  Functions defined:
 **    
 **------------------------- < Revision Information > -----------------------
-** $Header: /usr/cvs/microwin/src/mwin/winlib/combobox.c,v 1.1 2001/06/21 06:32:42 greg Exp $
-** $Header: /usr/cvs/microwin/src/mwin/winlib/combobox.c,v 1.1 2001/06/21 06:32:42 greg Exp $
-** $Header: /usr/cvs/microwin/src/mwin/winlib/combobox.c,v 1.1 2001/06/21 06:32:42 greg Exp $
+** $Header: /usr/cvs/microwin/src/mwin/winlib/combobox.c,v 1.1.1.1 2001/06/21 06:32:42 greg Exp $
+** $Header: /usr/cvs/microwin/src/mwin/winlib/combobox.c,v 1.1.1.1 2001/06/21 06:32:42 greg Exp $
+** $Header: /usr/cvs/microwin/src/mwin/winlib/combobox.c,v 1.1.1.1 2001/06/21 06:32:42 greg Exp $
 **
 **      Full Revision history at bottom of file
 **      
@@ -1769,8 +1769,8 @@ static void CBoxDrawStatic(COMBOBOX *lp, HWND hWnd, UINT uiKey)
 
 /*------------------------- < Full Revision History > ----------------------
 ** $Log: combobox.c,v $
-** Revision 1.1  2001/06/21 06:32:42  greg
-** Initial revision
+** Revision 1.1.1.1  2001/06/21 06:32:42  greg
+** Microwindows pre8 with patches
 **
 ** Revision 1.1.1.1  2001/06/05 03:44:01  root
 ** First import of 5/5/2001 Microwindows to CVS

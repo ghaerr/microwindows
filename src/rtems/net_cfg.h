@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Header: /usr/cvs/microwin/src/rtems/net_cfg.h,v 1.1 2001/06/21 06:32:42 greg Exp $
+ * $Header: /usr/cvs/microwin/src/rtems/net_cfg.h,v 1.1.1.1 2001/06/21 06:32:42 greg Exp $
  *
  * MODULE DESCRIPTION: This module specializes the RTEMS Network configuration 
  *                     for the omniORB examples. It could be used as a starting
@@ -18,8 +18,8 @@
  * MODIFICATION/HISTORY:
  *
  * $Log: net_cfg.h,v $
- * Revision 1.1  2001/06/21 06:32:42  greg
- * Initial revision
+ * Revision 1.1.1.1  2001/06/21 06:32:42  greg
+ * Microwindows pre8 with patches
  *
  * Revision 1.1.1.1  2001/06/05 03:44:03  root
  * First import of 5/5/2001 Microwindows to CVS

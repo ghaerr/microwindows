@@ -209,7 +209,7 @@ SCREEN_DEPTH             = 4
 
 # You may want to turn this on for XFree86 4.x or if your backing store
 # isn't functioning properly
-USE_EXPOSURE		 = N
+USE_EXPOSURE		 = Y
 
 else
 

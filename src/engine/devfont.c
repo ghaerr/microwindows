@@ -632,6 +632,14 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 				--cc;
 		}
 #endif
+#if HAVE_KSC5601_SUPPORT
+		/* Korean KSC5601 decoding */
+		if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
+			 (*str >= 0xA1 && *str <= 0xFE)) {
+				ch = (ch << 8) | *str++;
+				--cc;
+		}
+#endif
 		pfont->fontprocs->GetTextBits(pfont, ch, bitmap, &width,
 			&height, &base);
 

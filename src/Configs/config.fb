@@ -170,6 +170,12 @@ HAVE_BIG5_SUPPORT        = N
 HAVE_GB2312_SUPPORT      = N
 
 ####################################################################
+# Korean HANGUL font support (jo16x16.c)
+####################################################################
+HAVE_KSC5601_SUPPORT     = N
+HANGUL_FONT_DIR          = "fonts/korean"
+
+####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
 NOFONTSORCLIPPING        = N
@@ -220,7 +226,7 @@ SCREEN_DEPTH             = 4
 
 # You may want to turn this on for XFree86 4.x or if your backing store
 # isn't functioning properly
-USE_EXPOSURE		 = N
+USE_EXPOSURE		 = Y
 
 else
 

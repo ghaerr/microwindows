@@ -47,6 +47,10 @@ ifeq ($(HAVE_GB2312_SUPPORT), Y)
 OBJS += chinese/gb2312font.o
 endif
 
+ifeq ($(HAVE_KSC5601_SUPPORT), Y)
+OBJS += korean/jo16x16.o korean/ksjo_tbl.o
+endif
+
 %.c:%.bdf
 	echo "Generating $@ from font file ..."
 	./convbdf $< > $@

@@ -14,6 +14,12 @@
 #include "device.h"
 #include "genfont.h"
 
+/* Make compiler happy */
+#if HAVE_KSC5601_SUPPORT
+extern unsigned short convert_ksc_to_johab( unsigned char CH, unsigned char CL);
+extern int	get_han_image(int mc, char *retmap );
+#endif
+
 /* compiled in fonts*/
 extern MWCFONT font_rom8x16, font_rom8x8;
 extern MWCFONT font_winFreeSansSerif11x13;
@@ -118,7 +124,17 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 					width += 12;	/* FIXME*/
 			} else
 #endif
-			    if(c >= pf->firstchar && c < pf->firstchar+pf->size)
+#if HAVE_KSC5601_SUPPORT
+			/* Korean KSC5601 decoding */
+			if (c >= 0xA1 && c <= 0xFE && cc >= 1 &&
+			 	(*str >= 0xA1 && *str <= 0xFE)) {
+					--cc;
+					++str;
+					width += 16;	/* FIXME*/
+			} else
+#endif
+
+                            if(c >= pf->firstchar && c < pf->firstchar+pf->size)
                                 width += pf->width[c - pf->firstchar];
 		}
 	}
@@ -209,6 +225,24 @@ gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
 	    return;
 	}
 #endif /* HAVE_GB2312_SUPPORT*/
+
+#if HAVE_KSC5601_SUPPORT
+	int CH = ((unsigned int)ch) >> 8, CL = ((unsigned int)ch) & 0xFF;
+	int	mc;
+
+	if ( CH>= 0xA1 &&  CH<= 0xFE && (CL >= 0xA1 && CL <= 0xFE))
+	{
+		mc = convert_ksc_to_johab( CH, CL);
+		if ( mc )	
+			get_han_image(mc, retmap );
+
+		/* Fix me */
+		*pwidth = width = 16;
+		*pheight = 16;
+		*pbase = 0;
+		return;
+	}
+#endif
 
 	/* if char not in font, map to first character by default*/
 	if(ch < pf->firstchar || ch >= pf->firstchar+pf->size)

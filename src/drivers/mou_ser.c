@@ -44,14 +44,17 @@
 #define	MOUSE_TYPE	"ms"
 #else
 #if ELKS
-#define	MOUSE_PORT	"/dev/ttys0"	/* default mouse tty port */
+#define	MOUSE_PORT	"/dev/ttys0"
 #else
-/*#define MOUSE_PORT	"/dev/ttyS1"	/* default mouse tty port */*/
-#define MOUSE_PORT	"/dev/psaux"	/* default mouse tty port*/
+/* default mouse tty port: /dev/psaux or /dev/ttyS1 */
+#define MOUSE_PORT	"/dev/psaux"
+/*#define MOUSE_PORT	"/dev/ttyS1"*/
 #endif
-/*#define MOUSE_TYPE	"pc"		/* default mouse type "ms","pc","ps2" */
-#define MOUSE_TYPE	"ps2"		/* default mouse type "ms","pc","ps2" */
+/* default mouse type: ms, pc, logi, or ps2 */
+#define MOUSE_TYPE	"ps2"
+/*#define MOUSE_TYPE	"pc"*/
 #endif
+
 #define MAX_BYTES	128		/* number of bytes for buffer */
 
 /* states for the mouse*/

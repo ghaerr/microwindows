@@ -170,9 +170,9 @@ mwlirc_read_line(void)
 	while (NULL == (eol = strchr(mwlirc_buf, '\n'))) {
 		int space = mwlirc_buf_size - mwlirc_buf_used - 1;
 		
-		/*printf("mwlirc_read_line(): No newline in '%s'\n", mwlirc_buf);*/
+		/*DPRINTF("mwlirc_read_line(): No newline in '%s'\n", mwlirc_buf);*/
 		
-		/*printf("mwlirc_read_line(): At top of loop\n");*/
+		/*EPRINTF("mwlirc_read_line(): At top of loop\n");*/
 		if (space < 30) {
 			char *p =
 				GdRealloc(mwlirc_buf, mwlirc_buf_size, mwlirc_buf_size * 2);
@@ -183,34 +183,37 @@ mwlirc_read_line(void)
 			mwlirc_buf_size = mwlirc_buf_size * 2;
 		}
 		do {
-			/*printf("mwlirc_read_line(): Doing read()\n");*/
+			/*DPRINTF("mwlirc_read_line(): Doing read()\n");*/
 			n = read(mwlirc_fd,
 				 mwlirc_buf + mwlirc_buf_used, space);
 		} while ((n < 0) && (errno == EINTR));
 		if (n < 0) {
 			if (errno == EAGAIN) {
+				/*DPRINTF("mwlirc_read_line(): Would block\n");*/
 				return MWLIRC_ERROR_AGAIN;
 			}
-			printf("mwlirc_read_line(): Error in read\n");
+			EPRINTF("mwlirc_read_line(): Error in read\n");
 			return MWLIRC_ERROR_SOCKET;
 		}
 		if (n == 0) {
-			printf("mwlirc_read_line(): EOF\n");
+			EPRINTF("mwlirc_read_line(): EOF\n");
 			return MWLIRC_ERROR_SOCKET;
 		}
 		mwlirc_buf_used += n;
 		mwlirc_buf[mwlirc_buf_used] = '\0';
 		while (mwlirc_buf_used != (n = strlen(mwlirc_buf))) {
-			printf("mwlirc_read_line(): Error: Embedded NUL in input string!  Skipping past it.  (Context: '%s' NUL '%s')\n",
-				mwlirc_buf, mwlirc_buf + n + 1);
+			EPRINTF("mwlirc_read_line(): Error: Embedded NUL in input string!  Skipping past it.  (Context: '%s' NUL '%s') (buf_used=%d != strlen()=%d)\n",
+				mwlirc_buf, mwlirc_buf + n + 1, mwlirc_buf_used, n);
 			mwlirc_buf_used -= (n + 1);
 			memmove(mwlirc_buf, mwlirc_buf + n + 1,
 				mwlirc_buf_used + 1);
 		}
-		/*printf("mwlirc_read_line(): Got '%s'\n", mwlirc_buf);*/
+		/*DPRINTF("mwlirc_read_line(): Got '%s'\n", mwlirc_buf);*/
 	}
 	*eol = '\0';
 	mwlirc_buf_line_len = eol - mwlirc_buf + 1;
+
+	/*DPRINTF("mwlirc_read_line(): Returning string '%s'\n", mwlirc_buf);*/
 
 	return 0;
 }
@@ -229,9 +232,9 @@ mwlirc_read_key(void)
 	int err;
 
 	for (;;) {
-		/*printf("mwlirc_read_key(): At top of loop\n");*/
+		/*DPRINTF("mwlirc_read_key(): At top of loop\n");*/
 		err = mwlirc_read_line();
-		/*printf("mwlirc_read_key(): Got line, err=%d\n", err);*/
+		/*DPRINTF("mwlirc_read_key(): Got line, err=%d\n", err);*/
 		if (err) {
 			return err;
 		}
@@ -242,7 +245,7 @@ mwlirc_read_key(void)
 					MWLIRC_EXPECT_COMMAND;
 				break;
 			}
-			/*printf("mwlirc_read_key(): Got line OK, returning it\n");*/
+			/*DPRINTF("mwlirc_read_key(): Got line OK, returning it\n");*/
 			return 0;
 
 		case MWLIRC_EXPECT_COMMAND:
@@ -306,7 +309,7 @@ mwlirc_read_keystroke(mwlirc_keystroke * key)
 	int repeatcount;
 
 	int err = mwlirc_read_key();
-	/*printf("mwlirc_read_keystroke(): got line, err=%d\n", err);*/
+	/*DPRINTF("mwlirc_read_keystroke(): got line, err=%d\n", err);*/
 	if (err) {
 		return err;
 	}
@@ -350,7 +353,7 @@ mwlirc_read_keystroke(mwlirc_keystroke * key)
 	key->name[MWLIRC_KEY_NAME_LENGTH - 1] = '\0';
 	key->rc[MWLIRC_RC_NAME_LENGTH - 1] = '\0';
 
-	/*printf("mwlirc_read_keystroke(): got key: remote=%s, key=%s, repeat=%d\n", remote, keyname, repeatcount);*/
+	/*DPRINTF("mwlirc_read_keystroke(): got key: remote=%s, key=%s, repeat=%d\n", remote, keyname, repeatcount);*/
 
 	return 0;
 }

@@ -19,7 +19,7 @@ In the config file:
 - set the LIBJPEG to the jpeg directory
 - compile the project
 
-See demo3 if you want to see an example demo.
+See demos/nanox/nxview.c (nxview.sh) if you want to see an example demo.
 
 Martin Jolcoeur
 martinj@visuaide.com

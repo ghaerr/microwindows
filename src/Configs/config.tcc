@@ -105,6 +105,11 @@ SCREEN_PIXTYPE           = MWPF_TRUECOLOR0888
 LINK_APP_INTO_SERVER     = N
 
 ####################################################################
+# Shared memory support for Nano-X client/server protocol speedup
+####################################################################
+HAVE_SHAREDMEM_SUPPORT   = N
+
+####################################################################
 #
 # File I/O support
 # Supporting either below drags in libc stdio, which may not be wanted
@@ -157,12 +162,6 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
 HAVE_PCFGZ_SUPPORT       = Y
-LIBZ                     = /usr/lib/libz.a
-
-####################################################################
-# Shared memory support for Nano-X client/server protocol speedup
-####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
 
 ####################################################################
 # Chinese Han Zi Ku font support
@@ -189,7 +188,6 @@ HAVE_JISX0213_SUPPORT    = N
 # Korean HANGUL font support (jo16x16.c)
 ####################################################################
 HAVE_KSC5601_SUPPORT     = N
-HANGUL_FONT_DIR          = "fonts/korean"
 
 ####################################################################
 # Japanese EUC-JP support using MGL font

@@ -1816,6 +1816,79 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 }
 
 /**
+ * GrGetFontList:
+ * @fonts: pointer used to return an array of font names.
+ * @numfonts: pointer used to return the number of names found.
+ *
+ * Returns an array of strings containing the names of available fonts and an
+ * integer that specifies the number of strings returned. 
+ */
+void 
+GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
+{
+	nxGetFontListReq *req;
+	char *tmpstr;
+	GR_FONTLIST **flist;
+	int num, len, i;
+
+	req = AllocReq(GetFontList);
+
+	GrTypedReadBlock(&num, sizeof(int), GrNumGetFontList);
+	
+	*numfonts = num;
+
+	if(num == -1)
+		return;
+
+	flist = (GR_FONTLIST**)malloc(num * sizeof(GR_FONTLIST*));
+
+	for(i = 0; i < num; i++) 
+		flist[i] = (GR_FONTLIST*)malloc(sizeof(GR_FONTLIST*));
+
+	for(i = 0; i < num; i++) {
+		GrReadBlock(&len, sizeof(int));
+		tmpstr = (char*)malloc(len * sizeof(char));
+		GrReadBlock(tmpstr, len * sizeof(char));
+		flist[i]->ttname = tmpstr;
+
+		GrReadBlock(&len, sizeof(int));
+		tmpstr = (char*)malloc(len * sizeof(char));
+		GrReadBlock(tmpstr, len * sizeof(char));
+		flist[i]->mwname = tmpstr;
+		
+	}
+
+	*fonts = flist;
+}
+
+/**
+ * GrFreeFontList:
+ * @fonts: pointer to array returned by GrGetFontList
+ * @numfonts: the number of font names in the array
+ *
+ * free's the specified array.
+ */
+void
+GrFreeFontList(GR_FONTLIST ***fonts, int n)
+{
+	int i;
+	MWFONTLIST *g, **list = *fonts;
+
+	for (i = 0; i < n; i++) {
+		g = list[i];
+		if(g) {
+			if(g->mwname) 
+				free(g->mwname);
+			if(g->ttname) 
+				free(g->ttname);
+			free(g);
+		}
+	}
+	free(list);
+	*fonts = 0;
+}
+
+/**
  * GrSetFontSize:
  * @fontid: the ID number of the font to change the size of
  * @fontsize: the size to change the font to

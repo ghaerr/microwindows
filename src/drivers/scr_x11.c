@@ -35,7 +35,6 @@
 #endif
 #endif
 
-
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH 200
 #endif
@@ -114,6 +113,7 @@ unsigned int x11_event_mask;
 static int   x11_colormap_installed = 0;
 static SCREENDEVICE savebits;	/* permanent offscreen drawing buffer*/
 
+DEFINE_applyOpR			/* define inline rop calculator*/
 
 /* Color cache for true color lookups
 ** FIXME: for 24 bit i belive we could do the pixel direct but...

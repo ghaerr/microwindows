@@ -37,6 +37,8 @@ typedef MWLOGFONT	GR_LOGFONT;	/* logical font descriptor*/
 typedef MWPALENTRY	GR_PALENTRY;	/* palette entry*/
 typedef MWPOINT		GR_POINT;	/* definition of a point*/
 typedef MWTIMEOUT	GR_TIMEOUT;	/* timeout value */
+typedef MWFONTLIST	GR_FONTLIST;	/* list of fonts */
+typedef MWKBINFO	GR_KBINFO;	/* keyboard information  */
 
 /* Basic typedefs. */
 typedef int 		GR_COUNT;	/* number of items */
@@ -602,6 +604,8 @@ void		GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 void		GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 GR_FONT_ID	GrCreateFont(GR_CHAR *name, GR_COORD height,
 			GR_LOGFONT *plogfont);
+void		GrGetFontList(GR_FONTLIST ***fonts, int *numfonts);
+void		GrFreeFontList(GR_FONTLIST ***fonts, int num);
 void		GrSetFontSize(GR_FONT_ID fontid, GR_COORD size);
 void		GrSetFontRotation(GR_FONT_ID fontid, int tenthsdegrees);
 void		GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags);

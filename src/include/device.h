@@ -481,6 +481,8 @@ PMWFONT	GdSetFont(PMWFONT pfont);
 PMWFONT GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		const PMWLOGFONT plogfont);
 MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD fontsize);
+void GdGetFontList(MWFONTLIST ***list, int *num);
+void GdFreeFontList(MWFONTLIST ***list, int num);
 int	GdSetFontRotation(PMWFONT pfont, int tenthdegrees);
 int	GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags);
 void	GdDestroyFont(PMWFONT pfont);

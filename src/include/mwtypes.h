@@ -248,6 +248,12 @@ typedef struct {
 	MWUCHAR	widths[256];	/* table of character widths */
 } MWFONTINFO, *PMWFONTINFO;
 
+/* GetFontList structure */
+typedef struct {
+	char *ttname;		/* TrueType name, eg "Times New Roman Bold" */
+	char *mwname;		/* microwin name, eg "timesb" */
+} MWFONTLIST, *PMWFONTLIST;
+
 /* logical font descriptor*/
 
 /* font classes - used internally*/
@@ -632,10 +638,26 @@ typedef unsigned int	MWKEYMOD;
 #define MWKMOD_NUM   		0x1000
 #define MWKMOD_CAPS  		0x2000
 #define MWKMOD_ALTGR 		0x4000
+#define MWKMOD_SCR		0x8000
 
 #define MWKMOD_CTRL	(MWKMOD_LCTRL|MWKMOD_RCTRL)
 #define MWKMOD_SHIFT	(MWKMOD_LSHIFT|MWKMOD_RSHIFT)
 #define MWKMOD_ALT	(MWKMOD_LALT|MWKMOD_RALT)
 #define MWKMOD_META	(MWKMOD_LMETA|MWKMOD_RMETA)
 
+#define MWKINFO_LED_MASK	(1 << 0)
+#define MWKINFO_LED_MODE_MASK	(1 << 1)
+
+/* Keyboard info values */
+#define MWKINFO_LED_CAP		(1 << 0)
+#define MWKINFO_LED_NUM		(1 << 1)
+#define MWKINFO_LED_SCR		(1 << 2)
+
+#define MWKINFO_LED_MODE_ON	(1 << 3)
+#define MWKINFO_LED_MODE_OFF	(1 << 4)
+
+typedef struct {
+	int led;
+	int led_mode;
+} MWKBINFO, *PMWKBINFO;
 #endif /* _MWTYPES_H*/

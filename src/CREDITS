@@ -27,6 +27,7 @@ RTEMS port			Rosimildo daSilva
 DJGPP/GRX port			Victor Rogachev
 C++ objects framework		Chris Johns
 Arc clipping routines		Eero Tamminen
+Mozilla kbd,rops,font enum	Matthew Wlazlo
 
 Contact Info
 Jay Carlson		<nop@nop.com>
@@ -46,3 +47,4 @@ Tony Rogvall		<tony@bluetail.com>
 Morten Rolland		<mortenro@screenmedia.no>
 Rosimildo daSilva	<rosimildo@xoommail.com>
 Eero Tamminen		<oak@welho.com>
+Matthew Wlazlo		<mattw@igelaus.com.au>

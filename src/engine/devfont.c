@@ -298,7 +298,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		pfont = (PMWFONT)hzk_createfont(name, height, fontattr);
 		if(pfont)		
 			return pfont;
-		printf("hzk_createfont: %s not found\n", name);
+		fprintf(stderr, "hzk_createfont: %s not found\n", name);
 	}
 #endif
 
@@ -2075,7 +2075,7 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 	if(strcmp(name,"HZKFONT")!=0 && strcmp(name,"HZXFONT")!=0)
 		return FALSE;
 
-printf("hzk_createfont(%s,%d)\n",name,height);
+	//printf("hzk_createfont(%s,%d)\n",name,height);
 
 	use_big5=name[2]-'K';
 
@@ -2446,7 +2446,7 @@ GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 		if (TT_Load_Glyph (pf->instance, pf->glyph, curchar,
 			TTLOAD_SCALE_GLYPH|TTLOAD_HINT_GLYPH) != TT_Err_Ok)			
 		{		
-		     printf("Unable to load glyph with index=%d\n",curchar);    
+		     fprintf(stderr, "Unable to load glyph with index=%d\n",curchar);    
 			return 0;
 		}
 		TT_Get_Glyph_Metrics (pf->glyph, &metrics);
@@ -2486,3 +2486,198 @@ GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 	return 0;
 #endif
 }
+
+#ifdef HAVE_FREETYPE_SUPPORT
+#include <dirent.h>
+/* 
+ * This function is taken almost verbatim from ftdump.c from 
+ * the freetype library (version 1.3.1)
+ */
+static char *
+tt_lookup_name(TT_Face face)
+{
+	TT_Face_Properties prop;
+	unsigned short i, n;
+	unsigned short platform, encoding, language, id;
+	char *string;
+	char *name_buffer;
+	unsigned short string_len;
+	int j, found;
+	int index = 4; /* I dont know why as yet.. */
+	int name_len;
+
+
+	TT_Get_Face_Properties(face, &prop);
+	n = prop.num_Names;
+
+	for ( i = 0; i < n; i++ ) {
+		TT_Get_Name_ID( face, i, &platform, &encoding, &language, &id );
+		TT_Get_Name_String( face, i, &string, &string_len );
+
+		if (id == index ) {
+			/* The following code was inspired from Mark Leisher's */
+			/* ttf2bdf package                                     */
+			found = 0;
+
+			/* Try to find a Microsoft English name */
+			if ( platform == 3 )
+				for ( j = 1; j >= 0; j-- )
+					if ( encoding == j )  /* Microsoft ? */
+						if ( (language & 0x3FF) == 0x009 ) {
+							/* English language */
+							found = 1;
+							break;
+						}
+
+			if ( !found && platform == 0 && language == 0 )
+				found = 1;
+
+			/* Found a Unicode Name. */
+			if ( found ) {
+				if ( string_len > 512 )
+					string_len = 512;
+
+				name_len = 0;
+				name_buffer = (char*)malloc((string_len / 2) + 1);
+
+				for ( i = 1; i < string_len; i += 2 )
+					name_buffer[name_len++] = string[i];
+
+				name_buffer[name_len] = '\0';
+
+				return name_buffer;
+			}
+		}
+	}
+
+	/* Not found */
+	return NULL;
+}
+
+static char *
+get_tt_name(char *p)
+{
+	TT_Face face;
+	char *ret;
+
+	//printf("Trying to open: %s!\n",p);
+
+	if (TT_Open_Face(engine, p, &face) != TT_Err_Ok) {
+		fprintf(stderr, "Error opening font: %s\n", p);
+		return NULL;
+	}
+
+	ret = tt_lookup_name(face);
+
+	TT_Close_Face(face);
+
+	return ret;
+}
+
+void
+GdFreeFontList(MWFONTLIST ***fonts, int n)
+{
+	int i;
+	MWFONTLIST *g, **list = *fonts;
+
+	for (i = 0; i < n; i++) {
+		g = list[i];
+		if(g) {
+			if(g->mwname) 
+				free(g->mwname);
+			if(g->ttname) 
+				free(g->ttname);
+			free(g);
+		}
+	}
+	free(list);
+	*fonts = 0;
+}
+
+void
+GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
+{
+	DIR *dir;
+	struct dirent *dent;
+	char *p, *ftmp;
+	int pl, idx = 0;
+	MWFONTLIST **list;
+	
+
+	if (TT_Err_Ok != TT_Init_FreeType(&engine)) {
+		fprintf(stderr, "Unable to initialize freetype\n");
+		*numfonts = -1;
+		return ;
+	}
+
+	dir = opendir(FREETYPE_FONT_DIR);
+
+	if (dir <= 0) {
+		fprintf(stderr, "Error opening font directory\n");
+		*numfonts = -1;
+		return ;
+	}
+
+	/* get the number of strings we need to allocate */
+	while ((dent = readdir(dir)) != NULL) {
+		p = strrchr(dent->d_name, '.');
+		if (strcasecmp(p, ".ttf") == 0)
+			idx++;
+	}
+
+	*numfonts = idx;
+	rewinddir(dir);
+
+	/* allocate strings */
+	list = (MWFONTLIST**)malloc(idx * sizeof(MWFONTLIST*));
+	for (pl = 0; pl < idx; pl++)
+		list[pl] = (MWFONTLIST*)malloc(sizeof(MWFONTLIST));
+
+	*fonts = list;
+
+	idx = 0;
+
+	while ((dent = readdir(dir)) != NULL) {
+		/* check extension */
+		p = strrchr(dent->d_name, '.');
+
+		if (strcasecmp(p, ".ttf") == 0) {
+			
+			/* get full path */
+			p = 0;
+			pl = strlen(FREETYPE_FONT_DIR) + strlen(dent->d_name) *	
+						sizeof(char) + 2;
+			p = (char*)malloc(pl);
+			p = (char*)memset(p, '\0', pl);
+			p = (char*)strcat(p, FREETYPE_FONT_DIR);
+			p = (char*)strcat(p, "/");
+			p = (char*)strcat(p, dent->d_name);
+
+
+			if((ftmp = get_tt_name(p)) != NULL) {
+				list[idx]->ttname = ftmp;
+				list[idx]->mwname = malloc(strlen(dent->d_name) + 1);
+				list[idx]->mwname = strcpy(list[idx]->mwname, dent->d_name);
+
+				idx++;
+			}
+
+			free(p);
+		}
+	}
+	
+	closedir(dir);
+}
+#else /* !HAVE_FREETYPE_SUPPORT*/
+
+void
+GdFreeFontList(MWFONTLIST ***fonts, int n)
+{
+}
+
+void
+GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
+{
+	*numfonts = -1;
+}
+#endif /* !HAVE_FREETYPE_SUPPORT*/

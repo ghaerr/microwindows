@@ -2177,7 +2177,9 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	}
 #endif
 	/* perform blit*/
+	GdCheckCursor(srcpsd, srcx, srcy, srcx+width, srcy+height); /* FIXME*/
 	GdBlit(dp->psd, dp->x+x, dp->y+y, width, height, srcpsd, srcx, srcy,op);
+	GdFixCursor(srcpsd); /* FIXME*/
 }
 
 
@@ -2747,6 +2749,18 @@ GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
 	}
 	wp->bgpixmap = pp;
 	wp->bgpixmapflags = flags;
+}
+
+void
+GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
+{
+	GdGetFontList(fonts,numfonts);
+}
+
+void 
+GrFreeFontList(GR_FONTLIST ***fonts, int num)
+{
+	GdFreeFontList(fonts, num);
 }
 
 /*

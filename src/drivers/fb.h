@@ -93,7 +93,8 @@ typedef unsigned long *		ADDR32;
 }
 
 /* applyOp w/return value*/
-#define	applyOpR(op, src, dst)			\
+#define DEFINE_applyOpR				\
+static inline int applyOpR(op, src, dst)	\
 {						\
 	switch (op) {				\
 	case MWMODE_XOR:			\
@@ -127,6 +128,7 @@ typedef unsigned long *		ADDR32;
 	case MWMODE_COPY:			\
 		return (src);			\
 	case MWMODE_NOOP:			\
+	default:				\
 		return (dst);			\
 	}					\
 }

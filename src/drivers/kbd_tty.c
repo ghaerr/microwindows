@@ -34,7 +34,7 @@ KBDDEVICE kbddev = {
 	TTY_GetModifierInfo,
 	TTY_Read,
 #if _MINIX
-	TTY_Poll,
+	TTY_Poll
 #else
 	NULL
 #endif

@@ -1083,8 +1083,7 @@ typedef struct {
 } nxQueryTreeReq;
 
 #define GrNumCreateTimer	98
-typedef struct 
-{
+typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
@@ -1093,8 +1092,7 @@ typedef struct
 } nxCreateTimerReq;
 
 #define GrNumDestroyTimer	99
-typedef struct 
-{
+typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
@@ -1102,8 +1100,7 @@ typedef struct
 } nxDestroyTimerReq;
 
 #define GrNumSetPortraitMode	100
-typedef struct 
-{
+typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
@@ -1113,49 +1110,52 @@ typedef struct
 #define GrNumImageBufferAlloc   101
 
 typedef struct {
-  BYTE8	 reqType;
-  BYTE8	 hilength;
-  UINT16 length;
-
-  UINT32 size;
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	UINT32	size;
 } nxImageBufferAllocReq;
 
-#define GrNumImageBufferSend   102
+#define GrNumImageBufferSend    102
 
 typedef struct {
-  BYTE8	 reqType;
-  BYTE8	 hilength;
-  UINT16 length;
-
-  UINT32 buffer_id;
-  UINT32 size;
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	UINT32	buffer_id;
+	UINT32	size;
 } nxImageBufferSendReq;
 
-#define GrNumLoadImageFromBuffer     103
+#define GrNumLoadImageFromBuffer 103
 typedef struct {
-  BYTE8	 reqType;
-  BYTE8	 hilength;
-  UINT16 length;
-
-  UINT32  buffer;
-  INT16	 flags;
-  INT16	 pad;
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	UINT32	buffer;
+	INT16	flags;
+	INT16	pad;
 } nxLoadImageFromBufferReq;
 
-#define GrNumDrawImageFromBuffer     105
+#define GrNumDrawImageFromBuffer 105
 typedef struct {
-  BYTE8	reqType;
-  BYTE8	hilength;
-  UINT16 length;
-  IDTYPE drawid;
-  IDTYPE gcid;
-  INT16	x;
-  INT16	y;
-  INT16	width;
-  INT16	height;
-  
-  UINT32  buffer;
-  IDTYPE flags;
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE	drawid;
+	IDTYPE	gcid;
+	INT16	x;
+	INT16	y;
+	INT16	width;
+	INT16	height;
+	UINT32	buffer;
+	IDTYPE	flags;
 } nxDrawImageFromBufferReq;
 
-#define GrTotalNumCalls         105
+#define GrNumGetFontList        106
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+} nxGetFontListReq;
+
+#define GrTotalNumCalls         107

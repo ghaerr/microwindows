@@ -1296,6 +1296,36 @@ GrReqShmCmdsWrapper(void *r)
 #endif /* HAVE_SHAREDMEM_SUPPORT*/
 }
 
+static void 
+GrGetFontListWrapper(void *r)
+{
+	MWFONTLIST **list;
+	int num;
+	int i, ttlen, mwlen;
+
+	GrGetFontList(&list, &num);
+
+	GsWriteType(current_fd, GrNumGetFontList);
+
+	/* the number of strings comming in */
+	GsWrite(current_fd, &num, sizeof(int));
+
+	if(num != -1) {
+		for(i = 0; i < num; i++) {
+			ttlen = strlen(list[i]->ttname) + 1;
+			mwlen = strlen(list[i]->mwname) + 1;
+
+			GsWrite(current_fd, &ttlen, sizeof(int));
+			GsWrite(current_fd, list[i]->ttname, ttlen * sizeof(char));
+
+			GsWrite(current_fd, &mwlen, sizeof(int));
+			GsWrite(current_fd, list[i]->mwname, mwlen * sizeof(char));
+		}
+		
+		GrFreeFontList(&list, num);
+	}
+}
+
 void GrShmCmdsFlushWrapper(void *r);
 
 /*
@@ -1409,7 +1439,8 @@ struct GrFunction {
 	/* 101 */ {GrImageBufferAllocWrapper, "GrImageBufferAlloc"},
 	/* 102 */ {GrImageBufferSendWrapper, "GrImageBufferSend"},
 	/* 103 */ {GrLoadImageFromBufferWrapper, "GrLoadImageFromBuffer"},
-	/* 104 */ {GrDrawImageFromBufferWrapper, "GrDrawImageFromBuffer"}
+	/* 104 */ {GrDrawImageFromBufferWrapper, "GrDrawImageFromBuffer"},
+	/* 105 */ {GrGetFontListWrapper, "GrGetFontList"},
 };
 
 void

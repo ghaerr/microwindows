@@ -10,7 +10,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <X11/XKBlib.h>
 #include "device.h"
 
 static int  X11_Open(KBDDEVICE *pkd);
@@ -18,8 +20,9 @@ static void X11_Close(void);
 static void X11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 static int  X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 
-/* note, numlock and capslock state not initialized properly*/
-static MWKEYMOD key_modstate = MWKMOD_NUM;
+static int init_modstate();
+
+static MWKEYMOD key_modstate;
 extern int escape_quits;
 
 extern Display*     x11_dpy;
@@ -29,6 +32,9 @@ extern Window       x11_win;
 extern GC           x11_gc;
 extern int          x11_setup_display();
 
+#define X_SCR_MASK 0x80
+#define X_CAP_MASK 0x2
+#define X_NUM_MASK 0x10
 
 KBDDEVICE kbddev = {
     X11_Open,
@@ -49,6 +55,10 @@ X11_Open(KBDDEVICE *pkd)
 {
     if (x11_setup_display() < 0)
 	return -1;
+
+    if(init_modstate() < 0)
+    	return -1;
+    
     /* return the x11 file descriptor for select */
     return ConnectionNumber(x11_dpy);  
 }
@@ -86,6 +96,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	XEvent ev;
 	MWKEY mwkey;
+
 	static int grabbed = 0;
 	static int x11_accel_num;
 	static int x11_accel_den;
@@ -99,13 +110,19 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	    return -1;
 
 	/* calculate kbd modifiers*/
-	key_modstate &= (MWKMOD_NUM|MWKMOD_CAPS);
+	key_modstate &= (MWKMOD_NUM|MWKMOD_CAPS|MWKMOD_SCR); 
 	if (ev.xkey.state & ControlMask)
-		key_modstate |= MWKMOD_CTRL;
+		key_modstate |= MWKMOD_CTRL; 
 	if (ev.xkey.state & ShiftMask)
 		key_modstate |= MWKMOD_SHIFT;
 	if (ev.xkey.state & Mod1Mask)
 		key_modstate |= MWKMOD_ALT;
+	if (ev.xkey.state & X_CAP_MASK)
+		key_modstate |= MWKMOD_CAPS;
+	if (ev.xkey.state & X_SCR_MASK)
+		key_modstate |= MWKMOD_SCR;
+	if (ev.xkey.state & X_NUM_MASK)
+		key_modstate |= MWKMOD_NUM;
 
 	if (sym == XK_Escape) {
 	    mwkey = MWKEY_ESCAPE;
@@ -292,7 +309,10 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		    	key_modstate ^= MWKMOD_CAPS;
 		    return 0;
 	    case XK_Scroll_Lock:
-		    mwkey = MWKEY_SCROLLOCK;
+		    /* not sent, used only for state*/
+		    if (ev.xkey.type == KeyRelease)
+		    	key_modstate ^= MWKMOD_SCR;
+		    return 0;
 		    break;
 	    case XK_Shift_L:
 		    mwkey = MWKEY_LSHIFT;
@@ -330,22 +350,16 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			break;
 		    default:
 		    	if (sym & 0xFF00)
-			    printf("Unhandled X11 keysym: %04x\n", (int)sym);
+			    fprintf(stderr, "Unhandled X11 keysym: %04x\n", (int)sym);
 		    }
 
+		    XLookupString(&ev.xkey, &mwkey, 1, &sym, NULL );
+
 		    if (key_modstate & MWKMOD_CTRL)
-			    mwkey = sym & 0x1f;
-#if 0
-		    else if (key_modstate & (MWKMOD_SHIFT|MWKMOD_CAPS)) {
-			    if (mwkey >= 'a' && mwkey <= 'z')
-			    	mwkey = mwkey - 'a' + 'A';
-		    }
-#endif
-		    else {
-		 	    sym = XLookupKeysym(&ev.xkey,
-				ev.xkey.state & (MWKMOD_SHIFT|MWKMOD_CAPS));
-		    	    mwkey = sym & 0xff;	/* convert to ASCII*/
-		    }
+				mwkey = sym & 0x1f;	/* Control code */ 
+			else
+				mwkey = sym & 0xff;	/* ASCII*/
+
 		    break;
 
 	    }
@@ -389,8 +403,43 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	    *modifiers = key_modstate;
 	    *scancode = ev.xkey.keycode;
 	    *kbuf = mwkey;
-	    return (ev.xkey.type == KeyPress)? 1: 2;
+
+	    //printf("mods: 0x%x  scan: 0x%x  key: 0x%x\n",*modifiers
+	    //						,*scancode
+	    //						,*kbuf);
+	    return (ev.xkey.type == KeyPress)? 1 : 2;
 	}
     }
     return 0;
 }
+
+#define NUM_LOCK_MASK    0x00000002
+#define CAPS_LOCK_MASK   0x00000001
+#define SCROLL_LOCK_MASK 0x00000004
+
+/* initialise key_modstate */ 
+static int init_modstate ()
+{
+	unsigned int state;
+	int capsl, numl, scrolll;
+
+	if(XkbGetIndicatorState (x11_dpy, XkbUseCoreKbd, &state) != Success) {
+		fprintf(stderr, "Error reading Indicator status\n");
+		return -1; 
+	} 
+	capsl = state & CAPS_LOCK_MASK;
+	numl = state & NUM_LOCK_MASK;
+	scrolll = state & SCROLL_LOCK_MASK;
+
+	if(numl != 0)
+		key_modstate |= MWKMOD_NUM;
+
+	if(capsl != 0)
+		key_modstate |= MWKMOD_CAPS;
+
+	if(scrolll != 0)
+		key_modstate |= MWKMOD_SCR;
+
+	return 0;
+}
+

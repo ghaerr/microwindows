@@ -20,7 +20,7 @@ main(int ac,char **av)
 	/* pass errors through main loop*/
 	GrSetErrorHandler(NULL);
 
-#define WIDTH	300
+#define WIDTH	320
 #define HEIGHT	240
 	w = GrNewWindow(GR_ROOT_WINDOW_ID, 20, 20, WIDTH, HEIGHT,
 		0, GREEN, BLACK);
@@ -53,6 +53,7 @@ main(int ac,char **av)
 			GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPTEXT));
 			GrSetGCUseBackground(gc, GR_FALSE);
 			GrText(w, gc, 10, 30, "Hello World", -1, GR_TFASCII);
+GrRect(w, gc, 5, 5, 300, 60);
 			break;
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();

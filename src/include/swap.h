@@ -67,7 +67,15 @@
  (*(unsigned char *)(addr+2) << 16) | \
  (*(unsigned char *)(addr+3) << 24))
 
+#elif defined(__CYGWIN__)
+/* Cygwin on Win32 - always little-endian */
+
+#define wswap(x) (x)
+#define dwswap(x) (x)
+#define dwread(addr) (*(unsigned long *)(addr))
+
 #else
+
 #error Need to define byte swapping macros for this machine
 
 #endif /* !linux*/

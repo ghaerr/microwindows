@@ -938,7 +938,7 @@ RECOGNIZER_FINALIZE(r)
 ************************************************** */
 
 /*#include <assert.h>*/
-#ifdef __ECOS
+#if defined(__ECOS) || defined(__CYGWIN__)
 #define MAXINT 0x7FFFFFFF
 #else
 #include <values.h>

@@ -71,6 +71,13 @@
 /* This needs to be global so the signal handler can get to it. */
 pid_t sspid;
 
+#ifndef WAIT_ANY
+/* For Cygwin.  See:
+ * http://www.opengroup.org/onlinepubs/007908799/xsh/wait.html
+ */
+#define WAIT_ANY (pid_t)-1
+#endif
+
 void reaper(int signum) {
 	pid_t pid;
 

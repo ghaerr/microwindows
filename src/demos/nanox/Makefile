@@ -85,7 +85,7 @@ OBJS =	demo.o \
 
 TARGETS = \
 	$(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
-	$(TOP)/bin/world $(TOP)/bin/nxclock $(TOP)/bin/nxterm \
+	$(TOP)/bin/world $(TOP)/bin/nxclock \
 	$(TOP)/bin/nxlsclients $(TOP)/bin/nxev \
 	$(TOP)/bin/npanel $(TOP)/bin/nterm \
 	$(TOP)/bin/demo2 $(TOP)/bin/demo5 $(TOP)/bin/demo6 \
@@ -102,6 +102,11 @@ TARGETS = \
 #	$(TOP)/bin/oneshot $(TOP)/bin/periodic \
 #	$(TOP)/bin/ipcserver $(TOP)/bin/ipcclient \
 #	$(TOP)/bin/nanocal 
+
+ifneq ($(ARCH),CYGWIN)
+TARGETS += \
+	$(TOP)/bin/nxterm
+endif
 
 # Require MW_FEATURE_IMAGES support:
 TARGETS += \

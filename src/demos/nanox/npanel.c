@@ -86,6 +86,13 @@ mwin * in_motion = NULL;
 GR_COORD	move_xoff;
 GR_COORD	move_yoff;
 
+#ifndef WAIT_ANY
+/* For Cygwin.  See:
+ * http://www.opengroup.org/onlinepubs/007908799/xsh/wait.html
+ */
+#define WAIT_ANY (pid_t)-1
+#endif
+
 /*
  * Reap the dead children whenever we get a SIGCHLD.
  */

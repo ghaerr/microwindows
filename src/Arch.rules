@@ -167,6 +167,22 @@ ifeq ($(ARCH), ECOS)
     LDFLAGS += -nostdlib
 endif
 
+ifeq ($(ARCH), CYGWIN)
+ifeq ($(USE_CCACHE), 1)
+COMPILER = ccache gcc
+else
+COMPILER = gcc
+endif
+CXX_COMPILER = g++
+TOOLSPREFIX =
+#Note: to detect from C code, do "#ifdef __CYGWIN__"
+DEFINES += -DUNIX=1
+CFLAGS += -Wall $(OPTFLAGS)
+LDFLAGS +=
+# include the following line for static libraries
+#LDFLAGS += -static
+endif
+
 ifeq ($(BIGENDIAN), Y)
 DEFINES += -DMW_CPU_BIG_ENDIAN=1
 endif

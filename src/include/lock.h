@@ -34,6 +34,22 @@ typedef pthread_mutex_t	MWMUTEX;
  * include these routines, and add -lpthreads to your applications link line.
  */
 #define LOCK_DECLARE(name)	MWMUTEX name
+#if defined(__CYGWIN__)
+/*
+ * Use portable version.
+ *
+ * FIXME - This test is the wrong way around: Should use the portable
+ * code by default, and the non-portable (_NP) code only if needed.
+ */
+#define LOCK_INIT(m)	\
+	{ \
+	pthread_mutexattr_t attr; \
+	pthread_mutexattr_init(&attr); \
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); \
+	pthread_mutex_init((m), &attr); \
+	}
+#else
+/* Use old non-portable function name */
 #define LOCK_INIT(m)	\
 	{ \
 	pthread_mutexattr_t attr; \
@@ -41,6 +57,7 @@ typedef pthread_mutex_t	MWMUTEX;
 	pthread_mutexattr_setkind_np(&attr, PTHREAD_MUTEX_RECURSIVE_NP); \
 	pthread_mutex_init((m), &attr); \
 	}
+#endif
 #endif
 
 #define LOCK_EXTERN(name)	extern MWMUTEX name

@@ -21,7 +21,7 @@
 #include <fcntl.h>
 #endif
 
-#if LINUX | DOS_DJGPP
+#if LINUX || DOS_DJGPP || defined(__CYGWIN__)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

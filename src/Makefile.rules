@@ -41,8 +41,17 @@ endif
 
 ifeq ($(X11), Y)
 CFLAGS += -DX11=1
+ifneq ($(ARCH),CYGWIN)
+# Cygwin can't use this - the -lX11 needs to be specified
+# *after* the object files that use it, but this inserts
+# it at the start.  For Cygwin, we will add libX11.a to the
+# library list - but later in this file, not here.
 LDFLAGS += -L/usr/X11R6/lib -lX11
+endif
 ifeq ($(ARCH),FREEBSD-X86)
+INCLUDEDIRS += -I/usr/X11R6/include
+endif
+ifeq ($(ARCH),CYGWIN)
 INCLUDEDIRS += -I/usr/X11R6/include
 endif
 endif
@@ -61,12 +70,16 @@ DEFINES += -DHAVE_FILEIO
 
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 DEFINES += -DHAVE_JPEG_SUPPORT=1
+ifneq ($(INCJPEG),)
 INCLUDEDIRS += -I$(INCJPEG)
+endif
 endif
 
 ifeq ($(HAVE_PNG_SUPPORT), Y)
 DEFINES += -DHAVE_PNG_SUPPORT=1
+ifneq ($(INCPNG),)
 INCLUDEDIRS += -I$(INCPNG)
+endif
 endif
 
 ifeq ($(HAVE_FNT_SUPPORT), Y)
@@ -76,13 +89,17 @@ endif
 
 ifeq ($(HAVE_T1LIB_SUPPORT), Y)
 DEFINES += -DHAVE_T1LIB_SUPPORT=1
+ifneq ($(INCT1LIB),)
 INCLUDEDIRS += -I$(INCT1LIB)
+endif
 endif
 
 ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
 DEFINES += -DHAVE_FREETYPE_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
+ifneq ($(INCFTLIB),)
 INCLUDEDIRS += -I$(INCFTLIB)
+endif
 endif
 
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
@@ -91,7 +108,18 @@ $(error Having both FreeType 1 and FreeType 2 support is not allowed.)
 endif
 DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
-INCLUDEDIRS += -I$(INCFT2LIB) -I$(INCFT2LIB)/freetype2
+# GCC 3.2 complains if system directories (e.g. /usr/include) are
+# specified with "-I".  For most INCxxx, we simply allow the
+# value to be set to empty to mean "no -I required".
+# Since FT2 requires $(INCFT2LIB)/freetype2 to always be
+# specified, we take a slightly different (and less reliable)
+# approach and simply skip the well-known system directories.
+ifneq ($(INCFT2LIB),/usr/include)
+ifneq ($(INCFT2LIB),/usr/local/include)
+INCLUDEDIRS += -I$(INCFT2LIB)
+endif
+endif
+INCLUDEDIRS += -I$(INCFT2LIB)/freetype2
 endif
 
 ifeq ($(HAVE_PCF_SUPPORT), Y)
@@ -250,6 +278,21 @@ NANOXSERVERLIBS += $(TOP)/lib/libmwengine.a $(TOP)/lib/libmwdrivers.a\
 	$(TOP)/lib/libmwfonts.a
 CCNANOXSERVERLIBS += -lmwengine -lmwdrivers -lmwfonts
 
+ifeq ($(X11), Y)
+ifeq ($(ARCH),CYGWIN)
+MWINLIBS += /usr/X11R6/lib/libX11.a
+CCMWINLIBS += /usr/X11R6/lib/libX11.a
+NANOXLIBS += /usr/X11R6/lib/libX11.a
+NANOXSERVERLIBS += /usr/X11R6/lib/libX11.a
+ifeq ($(SHAREDLIBS), Y)
+	CCNANOXSERVERLIBS += /usr/X11R6/lib/libX11.a
+endif
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+	NANOXCLIENTLIBS += /usr/X11R6/lib/libX11.a
+endif
+endif
+endif
+
 ifeq ($(HAVE_FILEIO), Y)
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 MWINLIBS += $(LIBJPEG)
@@ -367,9 +410,9 @@ export TOP ARCH CONFIG
 # It looks for sub-directories with makefiles in it and tries to execute them
 #
 ifeq ($(SHAREDLIBS), Y)
-default: subdirs $(OBJS) $(CXXOBJS) $(TOP)/lib/$(LIBNAME) $(TOP)/lib/$(LIBNAMESO)
+default: subdirs $(TOP)/lib/$(LIBNAME) $(TOP)/lib/$(LIBNAMESO)
 else
-default: subdirs $(OBJS) $(CXXOBJS) $(ASMOBJS) $(TOP)/lib/$(LIBNAME)
+default: subdirs $(TOP)/lib/$(LIBNAME)
 endif
 
 # 'dirs' can be pre-specified

@@ -1,3 +1,4 @@
+	* added very cool support for Cygwin X11 (Nano-X on X11 on Win32!) (Jon)
 	* re-inserted special hack for portait mode pixmap handling in genmem.c
 	* added auto UC16 conversion to handle large (non-ASCII) bdf fonts
 		- requires loading converted bdf file as .fnt file

@@ -1,4 +1,6 @@
-Version 0.89pre9 - 12 Sep 2002 - greg@censoft.com
+Version 0.89pre9 - 05 Oct 2002 - greg@censoft.com
+	* added automatic GetNextEvent after 0 PeekEvent for GTK+ select
+	(12 Sep 02)
 	* fixed NOKBD option, X11 can't connect message
 	* removed nested static procedures in jpeg decoder
 	* reoriented MWTF_ bits, moved to long MWTEXTFLAGS type for expansion

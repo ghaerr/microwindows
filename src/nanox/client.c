@@ -103,7 +103,6 @@ static void QueueEvent(GR_EVENT *ep);
 static void GetNextQueuedEvent(GR_EVENT *ep);
 static void _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 static int  _GrPeekEvent(GR_EVENT * ep);
-static void _GrPeekWaitEvent(GR_EVENT * ep);
 
 /*
  * Read n bytes of data from the server into block *b.  Make sure the data
@@ -131,7 +130,7 @@ ReadBlock(void *b, int n)
 				 */
 				EPRINTF("nxclient: lost connection to Nano-X "
 					"server\n");
-				exit(1);
+				_exit(1);
 			}
 			if ( errno == EINTR || errno == EAGAIN )
 				continue;
@@ -196,22 +195,9 @@ CheckBlockType(short packettype)
 			return b;
 
 		if (b == GrNumGetNextEvent) {
-			/*EPRINTF("nxclient %d: Storing event (expected %d)\n",
+			/*DPRINTF("nxclient %d: Storing event (expected %d)\n",
 				getpid(), packettype);*/
 
-#if 0
-			/* We only need to handle one event, since the next
-			 * event won't arrive until the next GrPrepareSelect()
-			 * has been called, and by then we have already
-			 * handled this event in GrServiceSelect(). If
-			 * GrPrepareSelect() is never called, then we should
-			 * never get here either, so that is cool too.
-			 */
-			ReadBlock(&storedevent_data,
-				    sizeof(storedevent_data));
-			CheckForClientData(&storedevent_data);
-			storedevent = 1;
-#endif
 			/* read event and queue it for later processing*/
 			ReadBlock(&event, sizeof(event));
 			QueueEvent(&event);
@@ -237,7 +223,7 @@ TypedReadBlock(void *b, int n, int type)
 	r = CheckBlockType(type);
 	if (r != type)
 		return -1;
-	return ReadBlock(b,n);
+	return ReadBlock(b, n);
 }
 
 /*
@@ -366,8 +352,8 @@ static void
 mySignalhandler(int sig)
 {
 	if (sig == SIGALRM) {
-		printf("Oops! nxFlushReq() timed out, exiting\n");
-		exit(127);
+		EPRINTF("Oops! nxFlushReq() timed out, exiting\n");
+		_exit(127);
 	}
 }
 #endif
@@ -939,6 +925,7 @@ GrPeekEvent(GR_EVENT *ep)
 		UNLOCK(&nxGlobalLock);
 		return 1;
 	}
+
 	ret = _GrPeekEvent(ep);
 	UNLOCK(&nxGlobalLock);
 	return ret;
@@ -954,7 +941,7 @@ _GrPeekEvent(GR_EVENT * ep)
 	CheckForClientData(ep);
 	ret = ReadByte();
 	CheckErrorEvent(ep);
-	return ret;
+	return (ret > 0);	/* -1 ReadByte counts as 0 (no event)*/
 }
 
 /**
@@ -966,6 +953,8 @@ _GrPeekEvent(GR_EVENT * ep)
 void
 GrPeekWaitEvent(GR_EVENT *ep)
 {
+	EVENT_LIST *	elp;
+
 	ACCESS_PER_THREAD_DATA()
 
 	LOCK(&nxGlobalLock);
@@ -975,15 +964,6 @@ GrPeekWaitEvent(GR_EVENT *ep)
 		UNLOCK(&nxGlobalLock);
 		return;
 	}
-
-	_GrPeekWaitEvent(ep);
-	UNLOCK(&nxGlobalLock);
-}
-
-static void
-_GrPeekWaitEvent(GR_EVENT * ep)
-{
-	EVENT_LIST *	elp;
 
 	/* wait for next event*/
 	GrGetNextEvent(ep);
@@ -997,6 +977,8 @@ _GrPeekWaitEvent(GR_EVENT * ep)
 
 	/* peek at it*/
 	GrPeekEvent(ep);
+
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2279,7 +2261,8 @@ GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
 	LOCK(&nxGlobalLock);
 	req = AllocReq(GetFontList);
 
-	TypedReadBlock(&num, sizeof(int), GrNumGetFontList);
+	if (TypedReadBlock(&num, sizeof(int), GrNumGetFontList) == -1)
+		num = 0;
 	
 	*numfonts = num;
 

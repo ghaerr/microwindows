@@ -549,6 +549,12 @@ GrPeekEventWrapper(void *r)
 		} cde->datalen = 0;
 	}
 	GsWrite(current_fd, &ret, sizeof(GR_CHAR));
+
+	/* EXPERIMENTAL CODE for GTK+ select wait*/
+	if (ret == 0) {
+		/* tell main loop to call Finish routine on event*/
+		curclient->waiting_for_event = TRUE;
+	}
 }
 
 static void

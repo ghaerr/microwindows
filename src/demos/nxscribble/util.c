@@ -21,7 +21,7 @@ the full agreement.
 #include <ctype.h>
 #include <setjmp.h>
 #include <string.h>
-#include <stdlib.h>
+/*#include <stdlib.h>*/ /* removed for conflicting 'error' inline in RH 8.0?*/
 
 extern char* li_err_msg;
 static char err_msg[BUFSIZ];

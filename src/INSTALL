@@ -211,8 +211,8 @@ pacific.
 Framebuffer notes:
 If you haven't used any of the Linux 2.2 or 2.4 framebuffer drivers before,
 it can be a little daunting at first. Alex Buell has written a
-Framebuffer HOWTO, which is available on his website at
-http://www.tahallah.demon.co.uk/ which goes into detail about the
+Framebuffer HOWTO, which is available at
+http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html which goes into detail about the
 various drivers, command line options, and the fbset utility.
 For any frame buffer other than the Vesa framebuffer
 (which can only change modes at bootup because it needs to

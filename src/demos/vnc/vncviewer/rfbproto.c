@@ -172,7 +172,7 @@ InitialiseRFBConnection(int sock)
 	if (passwdFile) {
 	    passwd = vncDecryptPasswdFromFile(passwdFile);
 	} else {
-	    static char pass[32] = {"foobar2"};
+	    static char pass[32] = {"password"};
 	    passwd = pass;
 	    /* passwd = getpass("Password: "); */
 	    if (strlen(passwd) == 0) {

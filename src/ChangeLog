@@ -1,3 +1,4 @@
+	* changed default vncviewer password to "password"
 	* added check for "Exif" header in jpeg files for digital cam pics
 	* fixed nested comments in mou_ser.c
 	* fixed EUCJP output with MGL fonts for values > 256

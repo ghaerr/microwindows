@@ -1,4 +1,5 @@
 Version 0.89pre8 - 4 July 2001 - greg@censoft.com
+	* add patches for compiling with libc5 and default t1lib Latin1 encoding from Tomasz
 	* added Korean Hangul KSC5601 encoded font support and 16x16 fixed text font from Kevin O
 	* add byte swap in devimage.c, X11 driver changes, DPRINTF defaults to no output
 		GrRegisterInput/GrUnregisterInput use fd_set, -s on debug only from Steve Hein

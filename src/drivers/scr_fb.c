@@ -18,8 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #ifndef ARCH_LINUX_POWERPPC
+#ifdef __GLIBC__
 #include <sys/io.h>
-/*#include <asm/io.h>*/
+#else
+#include <asm/io.h>
+#endif
 #endif
 #include <sys/ioctl.h>
 #include <sys/mman.h>

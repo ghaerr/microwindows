@@ -2515,7 +2515,7 @@ static void lialg_compute_lpf_parameters() {
 
     for (i = LP_FILTER_WIDTH; i >= 0; i--) {
 	float x = 0.04 * (i * i);
-#ifdef ARM_LINUX
+#if defined(ARM_LINUX) || !defined(__GLIBC__)
 	double tmp = 100.0 * exp((double)x);
 #else
 	float tmp = 100.0 * expf(x);

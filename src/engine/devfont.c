@@ -744,6 +744,7 @@ alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 static int
 t1lib_init(PSD psd)
 {
+	char **encoding;
 	static int inited = 0;
 
 	if (inited)
@@ -752,6 +753,11 @@ t1lib_init(PSD psd)
 	T1_SetBitmapPad(8);
 	if (!T1_InitLib(0))
 		return 0;
+
+	/* set default Latin1 encoding*/
+	encoding = T1_LoadEncoding("IsoLatin1.enc");
+	T1_SetDefaultEncoding(encoding);
+
 #ifdef T1LIB_USE_AA_HIGH	 
 	T1_AASetLevel(T1_AA_HIGH);
 #else

@@ -49,7 +49,9 @@
 #if hpux
 #include <sys/time.h>
 #else
+#ifdef __GLIBC__
 #include <sys/select.h>
+#endif
 #endif
 #endif
 #include "nano-X.h"

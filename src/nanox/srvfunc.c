@@ -2739,6 +2739,18 @@ nochildren:
 
 static int next_timer_id = 1000;
 
+/**
+ * GrCreateTimer:
+ * @wid: the ID of the window to use as a destination for GR_TIMER_EVENT
+ *	events that result from this timer.
+ * @period: the timer period in milliseconds
+ * @Returns: the ID of the newly created timer, or 0 if failure.
+ *
+ * Creates a Nano-X timer with the specified period.
+ * NOTE: There is a potential for more GR_TIMER_EVENTS to be queued
+ * in the connection between the Nano-X server and client.  The client
+ * should be able to handle late arriving GR_TIMER_EVENTs.
+ */
 GR_TIMER_ID
 GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 {
@@ -2774,6 +2786,12 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
     return timer->id;
 }
 
+/**
+ * GrDestroyTimer:
+ * @tid: the ID of the timer to destroy
+ *
+ * Destroys a timer previously created with GrCreateTimer().
+ */
 void
 GrDestroyTimer (GR_TIMER_ID tid)
 {

@@ -105,8 +105,10 @@ TARGETS = $(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
 #	$(TOP)/bin/nanocal 
 
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
+ifneq ($(X11), Y)
 OBJS +=	snap_jpg.o
 TARGETS += $(TOP)/bin/snap_jpg
+endif
 endif
 
 endif

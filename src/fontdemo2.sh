@@ -1,3 +1,3 @@
-bin/nano-X & bin/nanowm & \
-#bin/logfont $1 & \
-bin/ftdemo
+
+# Nano-X applications, press <BREAK> key to exit
+bin/nano-X & bin/nanowm & bin/ftdemo

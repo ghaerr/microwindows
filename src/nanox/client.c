@@ -200,6 +200,7 @@ CheckBlockType(short packettype)
 
 			/* read event and queue it for later processing*/
 			ReadBlock(&event, sizeof(event));
+			CheckForClientData(&event);
 			QueueEvent(&event);
 		} else {
 			EPRINTF("nxclient %d: Wrong packet type %d "

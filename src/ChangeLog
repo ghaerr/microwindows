@@ -1,4 +1,6 @@
-Version 0.89pre9 - 05 Oct 2002 - greg@censoft.com
+Version 0.89 - 20 Nov 2002 - greg@censoft.com
+	* check for additional client data before queing event data
+	(05 Oct 02)
 	* added automatic GetNextEvent after 0 PeekEvent for GTK+ select
 	(12 Sep 02)
 	* fixed NOKBD option, X11 can't connect message

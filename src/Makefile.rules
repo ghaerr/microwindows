@@ -350,7 +350,7 @@ endif
 # If a library name is specified,
 # a library of that name will be created with objects in that directory
 #
-ifneq ($(LIBNAME), )
+ifneq ($(LIBNAME),)
 $(TOP)/lib/$(LIBNAME): $(OBJS) $(CXXOBJS)
 	@echo "Creating library $@ ..."
 	$(AR) $(ARFLAGS) $(TOP)/lib/$(LIBNAME) $(OBJS) $(CXXOBJS) $(ASMOBJS)

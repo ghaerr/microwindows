@@ -158,8 +158,8 @@ GsWpRealizeWindow(GR_WINDOW *wp, GR_BOOL temp)
 		GsError(GR_ERROR_ILLEGAL_ON_ROOT_WINDOW, wp->id);
 		return;
 	}
-printf("RealizeWindow %d, map %d realized %d, parent_realized %d\n",
-wp->id, wp->mapped, wp->realized, wp->parent->realized);
+/*printf("RealizeWindow %d, map %d realized %d, parent_realized %d\n",
+wp->id, wp->mapped, wp->realized, wp->parent->realized);*/
 
 #define OLDWAY 0
 #if OLDWAY /* old way, doesn't quite work with unmap/map yourself*/

@@ -1,5 +1,5 @@
 
-#
+# Nano-X applications, press <BREAK> key to exit
 # PCF loadable compressed font demo
 #
 #bin/nano-X & bin/nanowm & bin/pcfdemo /usr/lib/X11/fonts/misc/jc7x14.pcf.gz

@@ -1,3 +1,4 @@
+	* fix SVGAlib compile bug
 	* fix NOKBD support
 Version 0.89pre9 - 21 Nov 2001 - greg@censoft.com
 	* fixed FreeBSD support

@@ -1,3 +1,5 @@
+Version 0.89pl14 - 7 May 2003 - greg@censoft.com
+	* removed various auto-generated mwin/bmp/*.c files, fonts/*.c files
 	* fixed GrPeekEvent no-select() bug in LINK_APP_INTO_SERVER case
 	* added Doxygen-created source documentation & Makefile (Jonathan)
 	* added newbuild.diff (Jonathan)

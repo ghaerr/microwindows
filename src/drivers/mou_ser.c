@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -211,7 +211,11 @@ MOU_Open(MOUSEDEVICE *pmd)
 	termios.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
 	termios.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT | IGNBRK);
 	termios.c_cflag &= ~(CSIZE | PARENB);
-	termios.c_cflag |= CS8;
+	/* MS and logi mice use 7 bits*/
+	if (!strcmp(type, "ps2") || !strcmp(type, "pc"))
+		termios.c_cflag |= CS8;
+	else
+		termios.c_cflag |= CS7;
 	termios.c_cc[VMIN] = 0;
 	termios.c_cc[VTIME] = 0;
 

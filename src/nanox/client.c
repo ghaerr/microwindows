@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999, 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -467,7 +467,7 @@ GrDelay(GR_TIMEOUT msecs)
 	struct timeval timeval;
 
 	timeval.tv_sec = msecs / 1000;
-	timeval.tv_usec = msecs % 1000;
+	timeval.tv_usec = (msecs % 1000) * 1000;
 	select(0, NULL, NULL, NULL, &timeval);
 }
 

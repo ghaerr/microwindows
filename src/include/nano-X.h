@@ -647,6 +647,12 @@ void		GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
 			GR_COORD y, GR_SIZE width, GR_SIZE height,
 			char *path, int flags);
 GR_IMAGE_ID	GrLoadImageFromFile(char *path, int flags);
+
+void		GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
+			GR_COORD y, GR_SIZE width, GR_SIZE height,
+			void *buffer, int size, int flags);
+GR_IMAGE_ID	GrLoadImageFromBuffer(void *buffer, int size, int flags);
+
 void		GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
 			GR_COORD y, GR_SIZE width, GR_SIZE height,
 			GR_IMAGE_ID imageid);

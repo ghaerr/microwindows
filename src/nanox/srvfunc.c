@@ -166,8 +166,8 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 	wp = GsFindWindow(wid);
 	if (wp) {
 		infoptr->wid = wid;
-		infoptr->x = wp->x;
-		infoptr->y = wp->y;
+		infoptr->x = wp->x - ( wp->parent ? wp->parent->x : 0 );
+		infoptr->y = wp->y - ( wp->parent ? wp->parent->y : 0 );
 		infoptr->width = wp->width;
 		infoptr->height = wp->height;
 		infoptr->parent = wp->parent? wp->parent->id: 0;
@@ -1978,6 +1978,51 @@ GrLoadImageFromFile(char *path, int flags)
 	return 0;
 #endif 
 }
+
+/* Draw an image from a buffer */
+
+void
+GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+		      GR_SIZE width, GR_SIZE height,
+		      void *buffer, int size, int flags)
+{
+  GR_DRAWABLE	*dp;
+
+  switch (GsPrepareDrawing(id, gc, &dp)) {
+  case GR_DRAW_TYPE_WINDOW:
+  case GR_DRAW_TYPE_PIXMAP:
+    GdDrawImageFromBuffer(dp->psd, dp->x + x, dp->y + y,
+			width, height, buffer, size, flags);
+    break;
+  }
+}
+
+/* load image from the given buffer and cache it*/
+
+GR_IMAGE_ID
+GrLoadImageFromBuffer(void *buffer, int size, int flags)
+{
+  GR_IMAGE_ID	id;
+  GR_IMAGE *	imagep;
+
+  id = GdLoadImageFromBuffer(&scrdev, buffer, size, flags);
+  if (!id) return(0);
+  
+  imagep = (GR_IMAGE *) malloc(sizeof(GR_IMAGE));
+  if (imagep == NULL) {
+    GsError(GR_ERROR_MALLOC_FAILED, 0);
+    GdFreeImage(id);
+    return 0;
+  }
+	
+  imagep->id = id;
+  imagep->owner = curclient;
+  imagep->next = listimagep;
+  
+  listimagep = imagep;
+  return id;
+}
+
 
 /* draw cached image*/
 void

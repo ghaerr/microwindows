@@ -17,7 +17,7 @@ CFLAGS += -I./bitmaps
 # Preprocessor flags OTHER than defines
 CPPFLAGS +=
 # Linking flags
-LDFLAGS +=
+LDFLAGS += -lm
 
 ############################# targets section ################################
 

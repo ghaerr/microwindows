@@ -1106,6 +1106,132 @@ GrCreateTimerWrapper(void *r)
     GsWrite(current_fd, &timerid, sizeof (timerid));
 }
 
+typedef struct image_list {
+ void *data;
+ int id;
+ int size;
+ int offset;
+
+ struct image_list *next;
+} imagelist_t;
+
+static imagelist_t *imageListHead = 0;
+static imagelist_t *imageListTail = 0;
+static int imageListId = 0;
+
+static void freeImageBuffer(imagelist_t *buffer) {
+
+ imagelist_t *prev = 0;
+ imagelist_t *ptr = imageListHead;
+
+ while(ptr) {
+   if (ptr == buffer) {
+     if (prev) 
+	prev->next = buffer->next;
+     else 
+	imageListHead = buffer->next;
+     
+     if (!imageListHead) imageListTail = 0;
+     
+     free(buffer->data);
+     free(buffer);
+     return;
+   }
+   
+   prev = ptr;
+   ptr = ptr->next;
+ }  
+}
+
+static void GrImageBufferAllocWrapper(void *r) {
+ nxImageBufferAllocReq *req = r;
+ 
+ /* Add a new buffer to the end of the list */
+
+ if (!imageListTail) {
+   imageListHead = imageListTail = (imagelist_t *) malloc(sizeof(imagelist_t));
+ }
+ else {
+   imageListTail->next = (imagelist_t *) malloc(sizeof(imagelist_t));
+   imageListTail = imageListTail->next;
+ }
+
+ imageListTail->id = ++imageListId;
+ imageListTail->data = (void *) malloc(req->size);
+ imageListTail->size = req->size;
+ imageListTail->offset = 0;
+
+ imageListTail->next = 0;
+
+ GsWriteType(current_fd,GrNumImageBufferAlloc);
+ GsWrite(current_fd, &imageListTail->id, sizeof(int));
+}
+
+static void GrImageBufferSendWrapper(void *r) {
+
+ int csize = 0;
+
+ imagelist_t *buffer = 0;
+ nxImageBufferSendReq *req = r;
+
+ for(buffer = imageListHead; buffer; buffer = buffer->next)
+   if (buffer->id == req->buffer_id) break;
+
+ if (!buffer) return;
+
+ if (buffer->offset + req->size >= buffer->size) 
+   csize = buffer->size - buffer->offset;
+ else
+   csize = req->size;
+
+ if (!csize) return;
+
+ memcpy((void *) (buffer->data + buffer->offset), 
+	 GetReqData(req), csize);
+ 
+ buffer->offset += csize;
+}
+
+void GrLoadImageFromBufferWrapper(void *r) {
+
+ GR_IMAGE_ID		id;
+ imagelist_t *buffer = 0;
+
+ nxLoadImageFromBufferReq *req = r;
+ 
+ for(buffer = imageListHead; buffer; buffer = buffer->next)
+   if (buffer->id == req->buffer) break;
+ 
+ if (!buffer) return;
+
+ id = GrLoadImageFromBuffer(buffer->data, buffer->size, req->flags);
+
+ GsWriteType(current_fd, GrNumLoadImageFromBuffer);
+ GsWrite(current_fd, &id, sizeof(id));
+
+ freeImageBuffer(buffer);
+}
+
+void GrDrawImageFromBufferWrapper(void *r) {
+
+ imagelist_t *buffer = 0;
+
+ nxDrawImageFromBufferReq *req = r;
+ 
+ for(buffer = imageListHead; buffer; buffer = buffer->next)
+   if (buffer->id == req->buffer) break;
+ 
+ if (!buffer) return;
+
+ GrDrawImageFromBuffer(req->drawid, req->gcid, req->x, req->y, req->width, 
+			req->height, buffer->data, buffer->size, 
+			req->flags);
+ 
+ freeImageBuffer(buffer);
+}
+
+ 
+
 static void
 GrDestroyTimerWrapper(void *r)
 {
@@ -1280,7 +1406,11 @@ struct GrFunction {
 	/*  97 */ {GrQueryTreeWrapper, "GrQueryTree"},
 	/*  98 */ {GrCreateTimerWrapper, "GrCreateTimer"},
 	/*  99 */ {GrDestroyTimerWrapper, "GrDestroyTimer"},
-	/* 100 */ {GrSetPortraitModeWrapper, "GrSetPortraitMode"}
+	/* 100 */ {GrSetPortraitModeWrapper, "GrSetPortraitMode"},
+	/* 101 */ {GrImageBufferAllocWrapper, "GrImageBufferAlloc"},
+	/* 102 */ {GrImageBufferSendWrapper, "GrImageBufferSend"},
+	/* 103 */ {GrLoadImageFromBufferWrapper, "GrLoadImageFromBuffer"},
+	/* 104 */ {GrDrawImageFromBufferWrapper, "GrDrawImageFromBuffer"}
 };
 
 void
@@ -1374,8 +1504,7 @@ GsOpenSocket(void)
 	sckt.sin_port = htons(6600);
 	sckt.sin_addr.s_addr = INADDR_ANY;
 #else
-	/* Check if the file already exists: */
-	if(!stat(GR_NAMED_SOCKET, &s)) {
+	if (access(GR_NAMED_SOCKET, F_OK) == 0) {
 		/* FIXME: should try connecting to see if server is active */
 		if(unlink(GR_NAMED_SOCKET))
 			return -1;

@@ -2325,6 +2325,95 @@ GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 	GrTypedReadBlock(iip, sizeof(GR_IMAGE_INFO), GrNumGetImageInfo);
 }
 
+static int sendImageBuffer(void *buffer, int size) {
+
+  int bufid;
+  int bufsize = size;
+  void *bufptr = buffer;
+
+  nxImageBufferAllocReq *alloc;
+  nxImageBufferSendReq *send;
+
+  /* Step 1 - Allocate a buffer on the other side */
+
+  alloc = AllocReq(ImageBufferAlloc);
+  alloc->size = size;
+
+  GrTypedReadBlock(&bufid, sizeof(bufid), GrNumImageBufferAlloc);
+  
+  if (bufid < 0) return(0);
+  
+  /* step 2 - Send the buffer across */
+
+  while(bufsize > 0) {
+    int chunk = (MAXREQUESTSZ - sizeof(nxImageBufferSendReq));
+    if (chunk > bufsize) chunk=bufsize;
+    
+    send = AllocReqExtra(ImageBufferSend, chunk);
+    send->buffer_id = bufid;
+    send->size = chunk;
+
+    memcpy(GetReqData(send), bufptr, chunk);
+    bufptr += chunk;
+    bufsize -= chunk;
+  }
+
+  return(bufid);
+}
+
+GR_IMAGE_ID GrLoadImageFromBuffer(void *buffer, int size, int flags) {
+  
+  int bufid;
+  nxLoadImageFromBufferReq *req;
+  GR_IMAGE_ID imageid;
+
+  /* Step 1 - Send the buffer to the other side */
+  bufid = sendImageBuffer(buffer, size);
+
+  if (!bufid) return(0);
+  
+  /* Step 2 - Send the command to load the image */
+  /* Note - This will free the buffer automagically */
+
+  req = AllocReq(LoadImageFromBuffer);
+  req->flags = flags;
+  req->buffer = bufid;
+
+  if(GrTypedReadBlock(&imageid, sizeof(imageid),
+		      GrNumLoadImageFromBuffer) == -1)
+    return(0);
+  else
+    return(imageid);
+}
+
+void GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+			   GR_SIZE width, GR_SIZE height, 
+			   void *buffer, int size, int flags) {
+
+  int bufid;
+  nxDrawImageFromBufferReq *req;
+  
+  /* Step 1 - Send the buffer to the other side */
+  bufid = sendImageBuffer(buffer, size);
+
+  if (!bufid) return;
+  
+  /* Step 2 - Send the command to load/draw the image */
+  /* Note - This will free the buffer automagically */
+
+  req = AllocReq(DrawImageFromBuffer);
+  req->flags = flags;
+  req->drawid = id;
+  req->gcid = gc;
+  req->x = x;
+  req->y = y;
+  req->width = width;
+  req->height = height;
+  req->flags = flags;
+  req->buffer = bufid;
+}
+
+
 /*
  * Draw a rectangular area in the specified drawable using the specified
  * graphics context.  This differs from rectangle drawing in that the

@@ -556,6 +556,12 @@ int  	GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 extern KBDDEVICE kbddev;
 
 /* devimage.c */
+
+int GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
+
+void GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
+			   MWCOORD height, void *buffer, int size, int flags);
+
 void	GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 		MWCOORD height, char *path, int flags);
 int	GdLoadImageFromFile(PSD psd, char *path, int flags);

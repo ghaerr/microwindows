@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 			exit(0);
 	      }
 
-	      sleep(1);
+	      //sleep(1);
 
 	      MWLF_Clear(&lf);
 	      description[0] = '\0';

@@ -2,7 +2,6 @@ check whether font previously loaded, cache pfont return?
 move image decoders to library
 remove internal server image format, use pixmaps instead
 add amortized background text clear for other subengines
-add rockbox loadable .fnt format
 
 add GrSetLocale flag for text?
 add PIXIL screentop window manager

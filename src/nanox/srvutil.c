@@ -1003,9 +1003,17 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 	 * device driver about it.
 	 */
 	if (gcp->changed) {
-		PSD psd = (wp ? wp->psd : pp->psd);
-		unsigned long	mask = gcp->dashmask;
-		int		count = gcp->dashcount;
+		PSD		psd = (wp ? wp->psd : pp->psd);
+		unsigned long	mask;
+		int		count;
+
+		if (gcp->linestyle == GR_LINE_SOLID) {
+			mask = 0;
+			count = 0;
+		} else {
+			mask = gcp->dashmask;
+			count = gcp->dashcount;
+		}
 
 		if (gcp->fgispixelval)
 			GdSetForegroundPixelVal(psd, gcp->foreground);

@@ -1,3 +1,4 @@
+	* fixed TS offset bug, solid linestyle bug (Felix)
 Version 0.89pl9 - 01 Mar 2003 - greg@censoft.com
 	* renamed GdSetForeground to GdSetForegroundPixelVal (and GdSetBackground)
 	* added AF_INET client/server, NXDISPLAY env variable

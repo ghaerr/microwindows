@@ -2392,7 +2392,7 @@ GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
 	gcp = GsFindGC(gc);
 	if (gcp) {
 		gcp->ts_offset.x = xoff;
-		gcp->ts_offset.x = yoff;
+		gcp->ts_offset.y = yoff;
 		gcp->changed = GR_TRUE;
 	}
 

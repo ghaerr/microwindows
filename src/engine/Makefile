@@ -30,6 +30,10 @@ OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 	devpal1.o devpal2.o devimage.o devlist.o selfont.o error.o \
 	devrgn2.o devarc.o devpoly.o
 
+ifeq ($(HAVE_PCF_SUPPORT), Y)
+OBJS += devfontpcf.o
+endif
+
 #ifeq ($(UNIX), 1)
 OBJS += devtimer.o
 #endif

@@ -338,6 +338,18 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
   	}
 #endif
 
+#ifdef HAVE_PCF_SUPPORT
+	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
+	  extern PMWCFONT pcf_createfont(char *name);
+
+	  pfont = (PMWFONT) pcf_createfont(fontname);
+	  if (pfont) {
+	    printf("pcf_createfont: using font %s\n", fontname);
+	    return(pfont);
+	  }
+	}
+#endif
+
 	/* find builtin font closest in height*/
 	if(height != 0) {
 		fontno = 0;

@@ -129,7 +129,7 @@ LIBJPEG                  = /usr/lib/libjpeg.a
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = N
-INCPNG                   = .
+INCPNG                   = /usr/include
 LIBPNG                   = /usr/lib/libpng.a
 LIBZ                     = /usr/lib/libz.a
 
@@ -147,6 +147,15 @@ HAVE_FREETYPE_SUPPORT    = N
 INCFTLIB                 = /usr/include
 LIBFTLIB                 = /usr/lib/libttf.so
 FREETYPE_FONT_DIR        = "/usr/local/microwin/fonts"
+
+####################################################################
+# PCF font support 
+# Selecting HAVE_PCFGZ_SUPPORT will allow you to directly read
+# .pcf.gz files, but it will add libz to the size of the server
+####################################################################
+HAVE_PCF_SUPPORT         = N
+HAVE_PCFGZ_SUPPORT       = N
+LIBZ                     = /usr/lib/libz.a
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup

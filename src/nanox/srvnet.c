@@ -304,6 +304,13 @@ GrSetGCClipOriginWrapper(void *r)
 }
 
 static void
+GrSetGCGraphicsExposureWrapper(void *r)
+{
+	nxSetGCGraphicsExposureReq *req = r;
+	GrSetGCGraphicsExposure(req->gcid, req->exposure);
+}
+
+static void
 GrGetRegionBoxWrapper(void *r)
 {
 	nxRectInRegionReq *req = r;
@@ -1449,6 +1456,7 @@ struct GrFunction {
 	/* 104 */ {GrDrawImageFromBufferWrapper, "GrDrawImageFromBuffer"},
 	/* 105 */ {GrGetFontListWrapper, "GrGetFontList"},
 	/* 106 */ {GrSetGCClipOriginWrapper, "GrSetGCClipOrigin"},
+	/* 107 */ {GrSetGCGraphicsExposureWrapper, "GrSetGCGraphicsExposure"},
 };
 
 void

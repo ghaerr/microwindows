@@ -1304,6 +1304,24 @@ GrSetGCClipOrigin(GR_GC_ID gc, int x, int y)
 }
 
 /**
+ * GrSetGCGraphicsExposure:
+ * @gc: the ID of the graphics context
+ * @exposure: exposure boolean
+ *
+ * Controls if GR_EVENT_TYPE_EXPOSURE events are sent as a 
+ * result of GrCopyArea using the specified graphics context.
+ */
+void 
+GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
+{
+	nxSetGCGraphicsExposureReq *req;
+
+	req = AllocReq(SetGCGraphicsExposure);
+	req->gcid = gc;
+	req->exposure = exposure;
+}
+
+/**
  * GrPointInRegion:
  * @region: the ID of the region to examine
  * @x: the X coordinate of the point to test for

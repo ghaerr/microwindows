@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
+#include "device.h"	/* for ALLOCA definition*/
 
 /*
  * Create new window with passed style, title and location.
@@ -195,4 +196,67 @@ GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, GR_COLOR foreground,
 		GrDestroyGC(gc);
 	}
 	return pid;
+}
+
+/*
+ * Create a bitmap from a specified pixmap 
+ */
+
+GR_BITMAP *
+GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, int x, int y, GR_SIZE width,
+	GR_SIZE height)
+{
+  int w, h;
+  int size = 1;
+  int bwidth;
+  unsigned char *buffer, *ptr;
+  GR_BITMAP *bitmap;
+  GR_SCREEN_INFO sinfo;
+
+  GrGetScreenInfo(&sinfo);
+
+  /* FIXME:  Use the current depth of the window, not the whole screen */
+  
+  if (sinfo.bpp <= 8) size = 1;
+  else if (sinfo.bpp == 16) size = 2;
+  else if (sinfo.bpp >= 24) size = 4;
+
+  buffer = (unsigned char *) ALLOCA(width * height * size);
+
+  bwidth = (width+7)/8;	
+  bitmap = (GR_BITMAP *) malloc(((bwidth + 1) & ~01) * height);
+
+  /* Now, read in the pixmap and do the math */
+  GrReadArea(pixmap, x, y, width, height, (void *) buffer);
+
+  ptr = buffer;
+
+  for(h = 0; h < height; h++) 
+    for(w = 0; w < width; w++) {
+      unsigned char bit = 0;
+
+      switch(sinfo.bpp) {
+      case 8:
+	bit = (*((unsigned char *) ptr)) ? 1 : 0;
+	ptr++;
+	break;
+      case 16:
+	bit = (*((unsigned short *) ptr)) ? 1: 0;
+	ptr += 2;
+	break;
+
+      case 24:
+      case 32:
+	bit = (*((unsigned long *) ptr)) ? 1 :0;
+	ptr += 4;
+      }
+      
+      if (bit) {
+	int pos = (h * bwidth) + (w / 8);
+	bitmap[pos] |= (1 << (7 - (w % 8)));
+      }
+    }
+
+   FREEA(buffer);
+   return(bitmap);
 }

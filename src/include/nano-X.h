@@ -232,6 +232,7 @@ typedef struct {
   GR_COLOR foreground;		/* foreground color */
   GR_COLOR background;		/* background color */
   GR_BOOL usebackground;	/* use background in bitmaps */
+  GR_BOOL exposure;		/* send exposure events on GrCopyArea*/
 } GR_GC_INFO;
 
 /* color palette*/
@@ -587,6 +588,7 @@ void		GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 			GR_REGION_ID src_rgn2);
 void		GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region);
 void		GrSetGCClipOrigin(GR_GC_ID gc, int x, int y);
+void            GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure);
 GR_BOOL		GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y);
 int		GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y,
 			GR_COORD w, GR_COORD h);
@@ -735,6 +737,8 @@ GR_BITMAP *	GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_widt
 GR_WINDOW_ID    GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, 
 			GR_COLOR foreground, GR_COLOR background, void * bits,
 			int flags);
+GR_BITMAP *	GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, int x, int y, GR_SIZE width,
+			GR_SIZE height);
 
 /* direct client-side framebuffer mapping routines*/
 unsigned char * GrOpenClientFramebuffer(void);

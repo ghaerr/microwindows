@@ -263,7 +263,8 @@ typedef struct {
 #define MWLF_CLASS_BUILTIN	1	/* Builtin fonts (bitmaps) */
 #define MWLF_CLASS_FREETYPE	2	/* FreeType fonts in TT format */
 #define MWLF_CLASS_T1LIB	3	/* T1LIB outlined Adobe Type 1 fonts */
-#define MWLF_CLASS_ANY		4	/* Any font*/
+#define MWLF_CLASS_PCF		4	/* XFree86 PCF fonts */
+#define MWLF_CLASS_ANY		5	/* Any font*/
 
 #define MWLF_FACESIZE		64	/* max facename size*/
 

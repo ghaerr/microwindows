@@ -1169,4 +1169,14 @@ typedef struct {
 	UINT32  yoff;
 } nxSetGCClipOriginReq;
 
-#define GrTotalNumCalls         107
+#define GrNumSetGCGraphicsExposure 107
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE  gcid;
+        UINT16  exposure;
+} nxSetGCGraphicsExposureReq;
+
+#define GrTotalNumCalls         108

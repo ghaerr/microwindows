@@ -683,6 +683,7 @@ GrNewGC(void)
 	gcp->foreground = WHITE;
 	gcp->background = BLACK;
 	gcp->usebackground = GR_TRUE;
+	gcp->exposure = GR_TRUE;
 	gcp->changed = GR_TRUE;
 	gcp->owner = curclient;
 	gcp->next = listgcp;
@@ -786,6 +787,7 @@ GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
 	gcip->foreground = gcp->foreground;
 	gcip->background = gcp->background;
 	gcip->usebackground = gcp->usebackground;
+	gcip->exposure = gcp->exposure;
 }
 
 static int nextregionid = 1000;
@@ -1022,6 +1024,22 @@ GrSetGCClipOrigin(GR_GC_ID gc, int xoff, int yoff)
 
 	gcp->xoff = xoff;
 	gcp->yoff = yoff;
+	gcp->changed = GR_TRUE;
+}
+
+/* 
+ * Booloean that sets if we send EXPOSE events on a GrCopyArea */
+
+void 
+GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
+{
+	GR_GC		*gcp;
+
+	gcp = GsFindGC(gc);
+	if(gcp == NULL)
+		return;
+
+	gcp->exposure = exposure;
 	gcp->changed = GR_TRUE;
 }
 
@@ -2146,6 +2164,9 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, GR_DRAW_ID source,
 	GR_COORD srcx, GR_COORD srcy, int op)
 {
+  	GR_GC		*gcp;
+	GR_BOOL         exposure = GR_TRUE;
+
 	GR_DRAWABLE	*dp;
         GR_WINDOW	*swp;
         GR_PIXMAP	*spp = NULL;
@@ -2171,7 +2192,11 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
         if (!srcpsd)
 		return;
 
-#if DYNAMICREGIONS
+#if DYNAMICREGIONS  
+	gcp = GsFindGC(gc);
+	if (gcp)
+		exposure = gcp->exposure;
+	
 	/*
 	 * Skip blit and send expose event if window is partly
 	 * obscured and source and destination are onscreen.
@@ -2179,7 +2204,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	 * selected for expose events.  This keeps brain-dead
 	 * programs that don't process exposure events somewhat working.
 	 */
-	if (swp && (srcpsd == dp->psd) && swp->eventclients &&
+	if (exposure && swp && (srcpsd == dp->psd) && swp->eventclients &&
 	    (swp->eventclients->eventmask & GR_EVENT_MASK_EXPOSURE)) {
 		MWRECT 		rc;
 		extern MWCLIPREGION *clipregion;

@@ -5,8 +5,8 @@
  */
 
 #include <endian.h>
-#include <byteswap.h>
 #if __BYTE_ORDER == __BIG_ENDIAN
+#include <byteswap.h>
 #define wswap(x)	bswap_16(x)
 #define dwswap(x)	bswap_32(x)
 /* read little endian format from buffer*/

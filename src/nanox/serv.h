@@ -177,6 +177,7 @@ struct gr_gc {
 	GR_COLOR	foreground;	/* foreground color */
 	GR_COLOR	background;	/* background color */
 	GR_BOOL		usebackground;	/* actually display the background */
+        GR_BOOL         exposure;       /* send expose events on GrCopyArea */
 	GR_BOOL		changed;	/* graphics context has been changed */
 	GR_CLIENT 	*owner;		/* client that created it */
 	GR_GC		*next;		/* next graphics context */

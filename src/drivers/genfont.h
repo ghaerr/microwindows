@@ -3,7 +3,7 @@
  *
  * Screen Driver Utilities
  * 
- * MicroWindows Proportional Font Routine Header (proportional font format)
+ * Microwindows Proportional Font Routine Header (proportional font format)
  *
  * These routines are screen driver entry points.
  */

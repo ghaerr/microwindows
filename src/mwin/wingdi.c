@@ -777,6 +777,11 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 			GdSetBackgroundColor(hdc->psd, hdc->bkcolor);
 	}
 
+	if (cbCount == 0) {
+		/* Special case - no text.  Used to fill rectangle. */
+		return TRUE;
+	}
+
 	/* nyi: lpDx*/
 
 	/* draw text in current text foreground and background color*/

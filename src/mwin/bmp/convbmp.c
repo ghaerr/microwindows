@@ -84,7 +84,9 @@ typedef struct {
 } BMPCOREHEAD;
 #pragma pack()
 
+char * StripPath(char *buffer);
 int	ConvBMP(FILE *fp,char *name);
+int ConvBMPFile(char *infilename, char *outfilename);
 void	outline(UCHAR *linebuffer, int bitdepth, int linesize, int y);
 int	DecodeRLE8(UCHAR *buf,FILE *fp);
 int	DecodeRLE4(UCHAR *buf,FILE *fp);
@@ -92,12 +94,14 @@ void	put4(int b);
 
 int	s_flag = 0;
 
+#define MAX_FILENAME_LEN 256
+
 int main(int argc,char *argv[])
 {
-FILE	*fp;
+int	o_flag = 0;
 char 	*p;
-char	name[64];
-char	oname[64];
+char	name[MAX_FILENAME_LEN];
+char	oname[MAX_FILENAME_LEN];
 
    /* skip the program name */
    argc--;
@@ -110,42 +114,108 @@ char	oname[64];
 	argv++;
    }
 
+   /* check for -o flag */
+   if(argc && strcmp(*argv, "-o") == 0) {
+	o_flag = -1;
+	argc--;
+	argv++;
+   }
+
    /* need at least one file to convert */
-   if(argc == 0) {
-	fprintf(stderr, "Usage: convbmp [-s] <bmpfile>\n");
+   if((argc == 0) || (o_flag && (argc != 2))) {
+	fprintf(stderr, "Usage: convbmp [-s] <bmpfile>...\n"
+	                "   OR: convbmp [-s] -o <outfile> <bmpfile>\n");
 	return(-1);
    }
 
+   if (o_flag) {
+   	if (strlen(argv[0]) > MAX_FILENAME_LEN - 3) {
+   		fprintf(stderr, "Filename too long (%d bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
+   		return 1;
+   	}
+   	if (strlen(argv[1]) > MAX_FILENAME_LEN - 3) {
+   		fprintf(stderr, "Filename too long (%d bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
+   		return 1;
+   	}
+   	if(ConvBMPFile(argv[1], argv[0])) {
+   		return 1;
+   	}
+      return(0);
+   }
+   
    /* go back one since the first thing in the loop is to increment */
    argv--;
    while(argc--) {
 	argv++;
-	if((p = strrchr(*argv, '.')) != (char *)NULL)
-		*p = '\0';
+	if (strlen(*argv) > MAX_FILENAME_LEN - 3) {
+	   /* The 3 is for ".c\0" */
+		fprintf(stderr, "Filename too long (%d bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
+		return 1;
+	}
 	strcpy(name, *argv);
 	strcpy(oname, *argv);
+	if((p = strrchr(oname, '.')) != (char *)NULL)
+		*p = '\0';
 	if(s_flag)
 		strcat(oname, ".s");
 	else
 		strcat(oname, ".c");
-	if(p != (char *)NULL)
-		*p = '.';
-	if((fp = fopen(*argv, "rb")) == (FILE *)NULL) {
-		fprintf(stderr, "Can't open file: %s\n", *argv);
-		continue;
+	if(ConvBMPFile(name, oname)) {
+		return 1;
 	}
-	if(freopen(oname, "w", stdout) == (FILE *)NULL) {
-		fclose(fp);
-		fprintf(stderr, "Could not open output file %s\n", oname);
-		continue;
-	}
+   }
+   return(0);
+}
 
+int ConvBMPFile(char *infilename, char *outfilename)
+{
+char	namebuf[MAX_FILENAME_LEN];
+char *p;
+char *name;
+FILE	*fp;
+
+   strcpy(namebuf, infilename);
+	if((p = strrchr(namebuf, '.')) != (char *)NULL)
+		*p = '\0';
    /* 
       let's strip any directory from the path passed in.
       This prevent problems if this utility is given 
       path is not for the curent directory.
    */
-   p = name;
+   name = StripPath(namebuf);
+	
+	if((fp = fopen(infilename, "rb")) == (FILE *)NULL) {
+		fprintf(stderr, "Can't open file: %s\n", infilename);
+		return 1;
+	}
+	if(freopen(outfilename, "w", stdout) == (FILE *)NULL) {
+		fclose(fp);
+		fprintf(stderr, "Could not open output file %s\n", outfilename);
+		return 1;
+	}
+
+	if(ConvBMP(fp, name)) {
+		fprintf(stderr, "Conversion failed: %s\n", infilename);
+		fclose(fp);
+		return 1;
+	}
+	fclose(fp);
+	
+	return 0;
+}
+
+/* 
+    let's strip any directory from the path passed in.
+    This prevent problems if this utility is given 
+    path is not for the curent directory.
+    
+    This function changes buffer.
+    It returns a pointer to the result, which will be in
+    buffer (but not always at the beginning of buffer).
+*/
+char * StripPath(char *buffer)
+{
+   char *p = buffer;
    while( 1 )
    {
       char *p1 = p;
@@ -159,14 +229,7 @@ char	oname[64];
           break;
       }
    }
-	if(ConvBMP(fp, p)) {
-		fprintf(stderr, "Conversion failed: %s\n", *argv);
-		fclose(fp);
-		continue;
-	}
-	fclose(fp);
-   }
-   return(0);
+   return(p);
 }
 
 /* decode a bmp file*/

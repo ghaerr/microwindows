@@ -523,7 +523,7 @@ endif
 #
 %.c:%.bmp $(TOP)/mwin/bmp/convbmp.c
 	echo "Generating $@ from bitmap file ..."
-	if [ -x $(TOP)/bin/convbmp ]; then $(TOP)/bin/convbmp $< > $@; fi;
+	if [ -x $(TOP)/bin/convbmp ]; then $(TOP)/bin/convbmp -o $@ $< ; fi;
 
 xconfig:
 	./xconfigure
@@ -540,7 +540,7 @@ clean: cleandepend-notsubdir
 	@echo "Cleaning directory       $(CURDIR) ..."
 	$(RM) core *~ *.bak *.o TAGS
 	$(RM) $(TOP)/lib/*.a $(TOP)/lib/*.so
-	$(shell cd $(TOP)/bin; \
+	$(shell cd $(TOP)/bin && \
 		for file in `\ls`; do if [ ! -d $$file ]; \
 		then $(RM) $$file; fi; done; cd $(TOP))
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)

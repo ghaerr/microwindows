@@ -315,9 +315,9 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 	subwid = wp->id;
 
 	if (grabbuttonwp) {
+#if 0
 		while ((wp != rootwp) && (wp != grabbuttonwp))
 			wp = wp->parent;
-#if 0
 		if (wp != grabbuttonwp)
 			subwid = grabbuttonwp->id;
 #endif
@@ -342,7 +342,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 			{
 				tempmask = GR_EVENT_MASK_BUTTON_UP;
 				if (ecp->eventmask & tempmask) {
-/*DPRINTF("nano-X: implicit grab on window %d\n", wp->id);*/
+					DPRINTF("nano-X: implicit grab on window %d\n", wp->id);
 					grabbuttonwp = wp;
 				}
 			}
@@ -371,6 +371,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 		 */
 		if (grabbuttonwp) {
 			if (buttons == 0) {
+				DPRINTF("nano-X: implicit ungrab on window %d\n", grabbuttonwp->id);
 				grabbuttonwp = NULL;
 				GrMoveCursor(cursorx, cursory);
 			}
@@ -415,9 +416,9 @@ void GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers)
 	subwid = wp->id;
 
 	if (grabbuttonwp) {
+#if 0
 		while ((wp != rootwp) && (wp != grabbuttonwp))
 			wp = wp->parent;
-#if 0
 		if (wp != grabbuttonwp)
 			subwid = grabbuttonwp->id;
 #endif

@@ -2912,6 +2912,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		 * exposure event instead for proper display.
 		 */
 		if (GdRectInRegion(clipregion, &rc) != MWRECT_ALLIN) {
+EPRINTF("nano-X: skipping blit, sending expose event\n");
 			GsDeliverExposureEvent(swp, dp->x+x, dp->y+y,
 				width, height);
 			SERVER_UNLOCK();

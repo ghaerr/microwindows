@@ -563,6 +563,9 @@ drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
 	int bitcount;			/* number of bits left in bitmap word */
 
+	if (width <= 0 || height <= 0)
+		return;
+
 	if (gr_usebg)
 		psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
 			gr_background);
@@ -603,6 +606,9 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	MWPIXELVAL savecolor;		/* saved foreground color */
 	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
 	int bitcount;			/* number of bits left in bitmap word */
+
+	if (width <= 0 || height <= 0)
+		return;
 
 	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:

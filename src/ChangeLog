@@ -1,3 +1,4 @@
+	* protect 0 width bitmaps in GdBitmap, drawbitmap (from PCF fonts)
 	* enhance nanowm to handle client programmatic resize requests
 	* send UPDATE_SIZE event before EXPOSURE event for fltk
 Version 0.90rc1 - 18 May 2003 - greg@censoft.com

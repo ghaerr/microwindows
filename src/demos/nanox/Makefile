@@ -106,8 +106,10 @@ TARGETS = $(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
 
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 ifneq ($(X11), Y)
+ifneq ($(LINK_APP_INTO_SERVER), Y)
 OBJS +=	snap_jpg.o
 TARGETS += $(TOP)/bin/snap_jpg
+endif
 endif
 endif
 

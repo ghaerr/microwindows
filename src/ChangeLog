@@ -1,3 +1,4 @@
+	* fix GrCheckNextEvent return no event for X11/LINK_APP_TO_SERVER case
 	* changed pcf debug output, firstchar calculation, count calc
 	* corrected include files for RH 7.x
 Version 0.89 - 20 Nov 2002 - greg@censoft.com

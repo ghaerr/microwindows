@@ -555,6 +555,8 @@ GsSelect(GR_TIMEOUT timeout)
 		 * Timeout has occured.  Currently return
 		 * a timeout event regardless of whether
 		 * client has selected for it.
+		 * Note: this will be changed back to GR_EVENT_TYPE_NONE
+		 * for the GrCheckNextEvent/LINK_APP_TO_SERVER case
 		 */
 		if(GdTimeout() == TRUE) {
 			GR_EVENT_GENERAL *	gp;

@@ -13,7 +13,7 @@
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
-static void CheckNextEvent(GR_EVENT *ep, GR_BOOL doSelect);
+static void CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent);
  
 /*
  * Return information about the screen for clients to use.
@@ -115,7 +115,7 @@ GrCheckNextEvent(GR_EVENT *ep)
 }
 
 static void
-CheckNextEvent(GR_EVENT *ep, GR_BOOL doSelect)
+CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 {
 	GR_EVENT_LIST *	elp;
 
@@ -123,8 +123,8 @@ CheckNextEvent(GR_EVENT *ep, GR_BOOL doSelect)
 	/* Since we're bound to server, select() is only called 
 	 * thru here
 	 */
-	if(doSelect)
-		GsSelect(0L);
+	if (doCheckEvent)
+		GsSelect(1L);
 #endif
 	/* Copy first event if any*/
 	if(!GrPeekEvent(ep))
@@ -132,6 +132,12 @@ CheckNextEvent(GR_EVENT *ep, GR_BOOL doSelect)
 
 	/* Get first event again*/
 	elp = curclient->eventhead;
+
+#if NONETWORK
+	/* if GrCheckEvent, turn timeouts into no event*/
+	if (doCheckEvent && elp->event.type == GR_EVENT_TYPE_TIMEOUT)
+		ep->type = GR_EVENT_TYPE_NONE;
+#endif
 
 	/* Remove first event from queue*/
 	curclient->eventhead = elp->next;

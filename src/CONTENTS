@@ -1,0 +1,50 @@
+CORE PACKAGES
+microwindows-0.89pre9.tar.gz		base distribution
+microwindows-fonts-0.89pre9.tar.gz	free truetype, chinese, japanese, korean fonts
+freetype-X.X.tar.gz			libttf.so - freetype font engine
+jpeg6b.tgz				libjpeg.a - JPEG image library
+png-1.0.5.tar.gz			libpng.a - PNG image library
+zlib-X-X.tar.gz				libz.a - compression lib for loadable pcf.gz fonts/png files
+t1lib-X.X.tar.gz			libt1.a - T1 font engine
+alpha.diff				alpha blending patch (not yet fully MPL)
+ime-X.X.patch				chinese input method editor (untested)
+
+DEMONSTRATION SCRIPTS
+chess.sh	chess game demo
+demo.sh		win32 api (singly linked apps w/server) demos
+demo2.sh	simple multiple apps demo
+fontdemo.sh	freetype font demo, clipped/rotated ft demo
+fontdemo2.sh	logical font descriptors, ft/t1 antialias and rotation demo
+fontdemo3.sh	PCF loadable font demo (uses /usr/lib/X11/fonts dir)
+grdemo.sh	graphics operations demo
+indent.sh	Microwindows coding style indentation reformatter
+launcher.sh	sample desktop with great screensavers (wait 10 secs)
+mouse.sh	start gpm mouse driver
+nxterm.sh	terminal emulator, screen kbd demo
+nxview.sh	image viewer demo
+pcfdemo.sh	PCF loadable font demo
+scribble.sh	terminal emulator, handwriting recognition
+vnc.sh
+
+OPTIONAL LIBRARIES
+sdl-1.1.3c.tar.gz			NX SDL library
+flnx-X.X.tar.gz				NX FLTK library
+nxlib-0.4.tar.gz			X11 -> NX conversion library
+qt-x11.2.3.1.tar.gz			X11 C++ Qt library w/qtconf.sh, qtfix.sh
+Nanogtk-1.0.tar.gz			GTK+ port to NX
+tinywidgets-X.X.tar.gz			NX C widget library
+
+APPS
+dvdview-1.1.0c.tar.gz			NX mpeg player (single threaded, direct fb map) (16-32bpp)
+smpeg-0.4.0c.tar.gz			NX/SDL mpeg player (multi-threaded)
+nxdoom					NX Doom (8bpp only) (includes wad file)
+nxfreecell				NX freecell (desktop and iPAQ versions?)
+nxzilla-source-0.9.4.tar.bz2		NX mozilla
+nxzilla-devel-X.X.tar.gz		mozilla development kit
+nxrwin-X.X.tar.gz			NX microsoft RDP client
+viewml-X.X.tar.gz			NX ViewML web browser
+
+APPS (requires nxlib X11 library)
+xsunclock				X11 sunclock
+xsaver					X11 screen saver graphics demos
+xfreecell				X11 freecell

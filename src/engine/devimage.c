@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include "device.h"
 #include "swap.h"
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 #include <sys/mman.h>
 #endif
 
@@ -278,7 +278,7 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
     return(0);
   }
   
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
   buffer = mmap(0, s.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
   if (!buffer) {
@@ -304,7 +304,7 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
   binit(&src, buffer, s.st_size);
   id = GdDecodeImage(psd, &src, path, flags);
   
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
   munmap(buffer, s.st_size);
 #else
   free(buffer);

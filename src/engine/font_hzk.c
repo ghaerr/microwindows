@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
  *
+ * Supports dynamically loading HZK font files
  * Han Zi Ku routines contributed by Tanghao and Jauming
  */
 /*#define NDEBUG*/

@@ -1,6 +1,9 @@
 /*
- * EUC Japanese text drawing using MGL font for Microwindows/Nano-X
  * Copyright (c) Koichi Mori
+ * Copyright (c) 2002 Greg Haerr <greg@censoft.com>
+ *
+ * EUC Japanese text drawing using MGL fonts for Microwindows
+ * Supports dynamically loading MGL font files
  */
 /*#define NDEBUG*/
 #include <stdio.h>

@@ -26,6 +26,9 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
+ifeq ($(NANOX), Y)
+ifeq ($(NANOXDEMO), Y)
+
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
 
@@ -45,6 +48,9 @@ TARGET = $(MW_DIR_BIN)/nxkbd
 endif
 
 all: default $(TARGET)
+
+endif
+endif
 
 ######################### Makefile.rules section #############################
 
@@ -69,3 +75,4 @@ $(MW_DIR_BIN)/nxkbd: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif
 endif
+

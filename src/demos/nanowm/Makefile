@@ -26,6 +26,7 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
+ifeq ($(NANOX), Y)
 ifeq ($(NANOWM), Y)
 
 # If you want to create a library with the objects files, define the name here
@@ -47,6 +48,7 @@ endif
 
 all: default $(TARGET)
 
+endif
 endif
 
 ######################### Makefile.rules section #############################

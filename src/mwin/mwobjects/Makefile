@@ -11,11 +11,13 @@ MW_DIR_RELATIVE := mwin/mwobjects/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
+ifeq ($(OBJFRAMEWORK), Y)
+
 LIBNAME = libmwobjects.a
 #LIBNAMESO = libmwobjects.so
 
-ifeq ($(OBJFRAMEWORK), Y)
 CXXOBJS := $(MW_DIR_OBJ)/mwin/mwobjects/mwobjects.o
+
 endif
 
 ######################### Makefile.rules section #############################

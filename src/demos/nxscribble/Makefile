@@ -27,6 +27,7 @@ LDFLAGS +=
 ############################# targets section ################################
 
 ifeq ($(NANOX), Y)
+ifeq ($(NANOXDEMO), Y)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
@@ -56,6 +57,7 @@ all: default $(TARGET)
 		$(MW_DIR_SRC)/demos/nxscribble/punc.cl \
 		$(MW_DIR_BIN)
 
+endif
 endif
 
 ######################### Makefile.rules section #############################

@@ -133,11 +133,16 @@ endif
 
 ######################## Tools targets section ###############################
 
-# These demos use a hardcoded link line.
-NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
-	$(MW_DIR_BIN)/snap_jpg \
+# These demos need -lm
+NANOX_DEMOS_WITH_LIBM_LINK := \
 	$(MW_DIR_BIN)/nxeyes \
 	$(MW_DIR_BIN)/grabdemo \
+	$(MW_DIR_BIN)/nsaver
+
+# These demos use a hardcoded link line.
+NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
+	$(NANOX_DEMOS_WITH_LIBM_LINK) \
+	$(MW_DIR_BIN)/snap_jpg \
 	$(MW_DIR_BIN)/convpbm
 
 # All other demos use a standard link line, that just
@@ -150,6 +155,11 @@ $(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
 
+# Link rule used for demos with libm.
+$(NANOX_DEMOS_WITH_LIBM_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
+
 $(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBJPEG)
@@ -157,14 +167,6 @@ $(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) 
 $(MW_DIR_BIN)/convpbm: $(MW_DIR_OBJ)/demos/nanox/convpbm.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-
-$(MW_DIR_BIN)/nxeyes: $(MW_DIR_OBJ)/demos/nanox/nxeyes.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
-
-$(MW_DIR_BIN)/grabdemo: $(MW_DIR_OBJ)/demos/nanox/grabdemo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
 
 ifeq ($(ARCH), ECOS)
 # Special build rules for linked in applications

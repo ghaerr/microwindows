@@ -27,7 +27,8 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
-ifeq ($(NANOWM), Y)
+ifeq ($(NANOX), Y)
+ifeq ($(NANOXDEMO), Y)
 ifneq ($(ARCH), LINUX-TCC)
 
 # If you want to create a library with the objects files, define the name here
@@ -47,6 +48,7 @@ TARGET = $(MW_DIR_BIN)/tuxchess
 
 all: default $(TARGET)
 
+endif
 endif
 endif
 

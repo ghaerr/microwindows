@@ -1,3 +1,4 @@
+	* fixed various Makefiles for proper NANOWM, NANOX, NANOXDEMO builds
 	* added quick clean mechanism when obj/ dir specified seperately
 	* changed default object directory to obj/ next to bin/ and lib/
 	* reduced libraries required for nano-X and win32 api links (Jonathan)

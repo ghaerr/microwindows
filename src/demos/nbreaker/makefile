@@ -10,6 +10,10 @@ endif
 
 include $(CONFIG)
 
+ifeq (This file is,broken)
+ifeq ($(NANOX), Y)
+ifeq ($(NANOXDEMO), Y)
+
 ######################## Additional Flags section ############################
 
 # Directories list for header files
@@ -46,4 +50,8 @@ $(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
 else
 $(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
+endif
+
+endif
+endif
 endif

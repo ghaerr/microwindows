@@ -26,7 +26,8 @@ LDFLAGS += -lm
 
 ############################# targets section ################################
 
-ifeq ($(NANOWM), Y)
+ifeq ($(NANOX), Y)
+ifeq ($(NANOXDEMO), Y)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
@@ -36,6 +37,7 @@ OBJS := $(MW_DIR_OBJ)/demos/nxroach/nxroach.o
 
 all: default $(MW_DIR_BIN)/nxroach
 
+endif
 endif
 
 ######################### Makefile.rules section #############################

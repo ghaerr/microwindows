@@ -171,7 +171,7 @@ CFLAGS += -DTOUCHSCREEN_IPAQ=1
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
 endif
 
-ifeq ($(TUXSCREENMOUSE), Y)
+ifeq ($(TUXMOUSE), Y)
 CFLAGS += -DTOUCHSCREEN_TUXSCREEN=1
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
 endif

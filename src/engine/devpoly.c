@@ -52,6 +52,7 @@ GdPoly(PSD psd, int count, MWPOINT *points)
   GdFixCursor(psd);
 }
 
+#if 1 /* improved convex polygon fill routine*/
 /***********************************************************
 Copyright (c) 1987  X Consortium
 
@@ -361,8 +362,16 @@ GdFillPoly(PSD psd, int count, MWPOINT *pointtable)
     FREEA(FirstPoint);
     GdFixCursor(psd);
 }
+#endif
 
-#if 0
+#if 0 /* original convex only polygon fill routine*/
+/*
+ * Fill a polygon in the foreground color, applying clipping if necessary.
+ * The last point may be a duplicate of the first point, but this is
+ * not required.
+ * Note: this routine currently only correctly fills convex polygons.
+ */
+
 /* Utility routine for filling polygons.  Find the intersection point (if
  * any) of a horizontal line with an arbitrary line, and extend the current
  * minimum and maximum x values as needed to include the intersection point.
@@ -412,12 +421,6 @@ extendrow(MWCOORD y,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
   if (*maxxptr < x) *maxxptr = x;
 }
 
-/*
- * Fill a polygon in the foreground color, applying clipping if necessary.
- * The last point may be a duplicate of the first point, but this is
- * not required.
- * Note: this routine currently only correctly fills convex polygons.
- */
 void
 GdFillPoly(PSD psd, int count, MWPOINT *points)
 {

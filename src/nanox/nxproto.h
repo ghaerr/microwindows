@@ -274,10 +274,10 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;
 	IDTYPE	windowid;
-	UINT16	x;
-	UINT16	y;
-	UINT16	width;
-	UINT16	height;
+	INT16	x;
+	INT16	y;
+	INT16	width;
+	INT16	height;
 	UINT16	exposeflag;
 } nxClearAreaReq;
 
@@ -1224,10 +1224,9 @@ typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;  
-        IDTYPE  gcid;
-        UINT16  type;
-        UINT16  width;
-        UINT16  height;
+        IDTYPE	gcid;
+        INT16	width;
+        INT16	height;
 } nxSetGCStippleReq;
 
 #define GrNumSetGCTSOffset      113
@@ -1236,9 +1235,9 @@ typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;  
-        IDTYPE  gcid;
-        UINT16  xoffset;
-        UINT16  yoffset;
+        IDTYPE	gcid;
+        INT16	xoffset;
+        INT16	yoffset;
 } nxSetGCTSOffsetReq;
 
 #define GrNumSetGCTile          114

@@ -2295,7 +2295,7 @@ GrSetGCFillMode(GR_GC_ID gc, int fillmode)
 }
 
 void
-GrSetGCStipple(GR_GC_ID gc, GR_BITMAP * bitmap, int width, int height)
+GrSetGCStipple(GR_GC_ID gc, GR_BITMAP * bitmap, GR_SIZE width, GR_SIZE height)
 {
 	GR_GC *gcp;
 
@@ -2331,7 +2331,7 @@ GrSetGCStipple(GR_GC_ID gc, GR_BITMAP * bitmap, int width, int height)
 }
 
 void
-GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, int width, int height)
+GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, GR_SIZE width, GR_SIZE height)
 {
 	GR_WINDOW *win;
 	GR_GC *gcp;
@@ -2376,7 +2376,7 @@ GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, int width, int height)
 }
 
 void
-GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
+GrSetGCTSOffset(GR_GC_ID gc, GR_COORD xoff, GR_COORD yoff)
 {
 	GR_GC *gcp;
 

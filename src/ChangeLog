@@ -1,3 +1,4 @@
+	* cleaned up some nxproto.h signed/unsigned int16 values and Gr* params
 	* add MW_FEATURES_TIMERS and MW_FEATURES_IMAGES (set in device.h) (Jon)
 		APIs are now _not_ available at compile time when option not set
 		free server timers on client disconnect

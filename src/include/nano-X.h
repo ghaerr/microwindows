@@ -1,6 +1,6 @@
 #ifndef	_NANO_X_H
 #define	_NANO_X_H
-/* Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+/* Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -648,16 +648,12 @@ void		GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
 void		GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask);
 void		GrGetNextEvent(GR_EVENT *ep);
 int             GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, 
-				GR_UPDATE_TYPE mask_up,GR_EVENT * ep, int block);
+			GR_UPDATE_TYPE mask_up,GR_EVENT * ep, int block);
 int             GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, 
-				    GR_UPDATE_TYPE mask_up,
-				    GR_EVENT * ep, 
-				    int block, 
-				    int (*CheckFunction)(GR_WINDOW_ID, 
-							 GR_EVENT_MASK,
-							 GR_UPDATE_TYPE,
-							 GR_EVENT*, void * ),
-				    void * arg);
+			GR_UPDATE_TYPE mask_up, GR_EVENT * ep, int block, 
+			int (*CheckFunction)(GR_WINDOW_ID, GR_EVENT_MASK,
+				GR_UPDATE_TYPE, GR_EVENT*, void *),
+			void * arg);
 void		GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 void		GrCheckNextEvent(GR_EVENT *ep);
 int		GrPeekEvent(GR_EVENT *ep);
@@ -695,10 +691,9 @@ void		GrSetGCMode(GR_GC_ID gc, int mode);
 void            GrSetGCLineAttributes(GR_GC_ID, int);
 void            GrSetGCDash(GR_GC_ID, char *, int);
 void            GrSetGCFillMode(GR_GC_ID, int);
-
-void            GrSetGCStipple(GR_GC_ID, GR_BITMAP *, int, int);
-void            GrSetGCTile(GR_GC_ID, GR_WINDOW_ID, int, int);
-void            GrSetGCTSOffset(GR_GC_ID, int, int);
+void            GrSetGCStipple(GR_GC_ID, GR_BITMAP *, GR_SIZE, GR_SIZE);
+void            GrSetGCTile(GR_GC_ID, GR_WINDOW_ID, GR_SIZE, GR_SIZE);
+void            GrSetGCTSOffset(GR_GC_ID, GR_COORD, GR_COORD);
   
 void            GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure);
 void		GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font);
@@ -713,9 +708,9 @@ void            GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
 			GR_COORD srcx, GR_COORD srcy, unsigned long op);
 void		GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1,
-				   GR_COORD dy1, GR_COORD dx2, GR_COORD dy2,
-				   GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1,
-				   GR_COORD sx2, GR_COORD sy2, unsigned long op);
+			GR_COORD dy1, GR_COORD dx2, GR_COORD dy2,
+			GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1,
+			GR_COORD sx2, GR_COORD sy2, unsigned long op);
 void		GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_BITMAP *imagebits);
 void		GrDrawImageBits(GR_DRAW_ID id,GR_GC_ID gc,GR_COORD x,GR_COORD y,
@@ -764,10 +759,10 @@ void		GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did,
 void		GrBell(void);
 void		GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap,
 			int flags);
-void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
-			GR_COUNT *nchildren);
-
-  void            GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask);
+void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid,
+			GR_WINDOW_ID **children, GR_COUNT *nchildren);
+void		GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y,
+			unsigned int *bmask);
 
 GR_TIMER_ID	GrCreateTimer(GR_WINDOW_ID wid, GR_TIMEOUT period);
 void		GrDestroyTimer(GR_TIMER_ID tid);

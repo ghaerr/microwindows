@@ -215,30 +215,27 @@ struct gr_gc {
 	GR_GC_ID	id;		/* graphics context id */
 	int		mode;		/* drawing mode */
 	GR_REGION_ID	regionid;	/* current clipping region */
- 	int             xoff;           /* X offset for the clip region */
-	int             yoff;           /* Y offset for the clip region */
+ 	GR_COORD	xoff;           /* X offset for the clip region */
+	GR_COORD	yoff;           /* Y offset for the clip region */
 	GR_FONT_ID	fontid;		/* current font id*/
 	GR_COLOR	foreground;	/* foreground RGB color or pixel value*/
 	GR_COLOR	background;	/* background RGB color or pixel value*/
 	GR_BOOL		fgispixelval;	/* TRUE if 'foreground' is actually a GR_PIXELVAL */
 	GR_BOOL		bgispixelval;	/* TRUE if 'background' is actually a GR_PIXELVAL */
 	GR_BOOL		usebackground;	/* actually display the background */
+        GR_BOOL		exposure;     	/* send expose events on GrCopyArea */
 
-        GR_BOOL         exposure;     /* Indicates if we should send expose events on a GrCopyArea*/
-
-        int             linestyle;
+        int             linestyle;	/* GR_LINE_SOLID, GR_LINE_ONOFF_DASH */
         unsigned long   dashmask;
         char            dashcount;
    
-        int             fillmode;
-        GR_STIPPLE      stipple;
-
+        int             fillmode;	/* GR_FILL_SOLID, STIPPLE, OPAQUE_STIPPLE, TILE */
+        GR_STIPPLE      stipple;	/* width,height,bitmap*/
         struct {
-	  PSD psd;
-	  int width;
-	  int height;
+		PSD psd;
+		GR_SIZE width;
+		GR_SIZE height;
 	} tile;
-   
         GR_POINT        ts_offset;
 
 	GR_BOOL		changed;	/* graphics context has been changed */

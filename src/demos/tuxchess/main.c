@@ -144,11 +144,17 @@ int get_ms()
 /*************************************************************/
 static void gprintf(char s[])
 {
+	static char lasttext[128];
+
         GrSetGCForeground(text_gc,BLACK);
         GrFillRect(text, text_gc, 0, 0, 394,20);
         GrSetGCForeground(text_gc,WHITE);
         GrSetGCBackground(text_gc,BLACK);
+	if (!s)
+		s = lasttext;
         GrText(text, text_gc, 5, 14, s, strlen(s),0);
+	if (s != lasttext)
+		strcpy(lasttext, s);
 }     
 
 
@@ -297,6 +303,7 @@ int main(int argc, char* argv[])
 				/* no return*/
 			case GR_EVENT_TYPE_EXPOSURE:
 				print_board();
+				gprintf(NULL);
 				break;
 			case GR_EVENT_TYPE_BUTTON_DOWN:
 				mouse_hit(event.button.x, event.button.y);

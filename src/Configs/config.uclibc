@@ -39,7 +39,6 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 BIGENDIAN                = N
-NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
@@ -52,7 +51,7 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = Y
+DEBUG                    = N
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
@@ -64,7 +63,7 @@ GPROF                    = N
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-SHAREDLIBS               = N
+SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
 
 
@@ -134,9 +133,9 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
-LIBJPEG                  = /usr/lib/libjpeg.a
+LIBJPEG                  = /usr/lib/libjpeg.so
 
 ####################################################################
 # PNG support via libpng and libz
@@ -157,7 +156,7 @@ LIBTIFF                  = /usr/lib/libtiff.a
 # native .fnt loadable font support
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = Y
+HAVE_FNTGZ_SUPPORT       = N
 FNT_FONT_DIR             = "fonts/bdf"
 
 ####################################################################
@@ -165,12 +164,12 @@ FNT_FONT_DIR             = "fonts/bdf"
 ####################################################################
 HAVE_T1LIB_SUPPORT       = N
 INCT1LIB                 = .
-LIBT1LIB                 = /usr/local/lib/libt1.a
+LIBT1LIB                 = /usr/lib/libt1.a
 
 ####################################################################
 # TrueType font support thru FreeType 1.x
 ####################################################################
-HAVE_FREETYPE_SUPPORT    = Y
+HAVE_FREETYPE_SUPPORT    = N
 INCFTLIB                 = /usr/include/freetype1
 LIBFTLIB                 = /usr/lib/libttf.so
 FREETYPE_FONT_DIR        = "fonts/truetype"
@@ -189,7 +188,7 @@ LIBFT2LIB                = /usr/lib/libfreetype.a
 # .pcf.gz files, but it will add libz to the size of the server
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
-HAVE_PCFGZ_SUPPORT       = Y
+HAVE_PCFGZ_SUPPORT       = N
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
@@ -276,8 +275,8 @@ else
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
-FBVGA                    = Y
-VTSWITCH                 = Y
+FBVGA                    = N
+VTSWITCH                 = N
 FBREVERSE                = N
 
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.

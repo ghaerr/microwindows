@@ -39,6 +39,7 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 BIGENDIAN                = N
+NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
@@ -140,7 +141,7 @@ LIBJPEG                  = /usr/lib/libjpeg.a
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = N
-INCPNG                   = /usr/include
+INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.a
 LIBZ                     = /usr/lib/libz.a
 
@@ -148,22 +149,22 @@ LIBZ                     = /usr/lib/libz.a
 # TIFF support through libtiff
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
-INCTIFF                  = /usr/include
+INCTIFF                  = .
 LIBTIFF                  = /usr/lib/libtiff.a
 
 ####################################################################
 # native .fnt loadable font support
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = N
+HAVE_FNTGZ_SUPPORT       = Y
 FNT_FONT_DIR             = "fonts/bdf"
 
 ####################################################################
 # T1 adobe type1 font support thru t1lib
 ####################################################################
 HAVE_T1LIB_SUPPORT       = N
-INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.a
+INCT1LIB                 = .
+LIBT1LIB                 = /usr/local/lib/libt1.a
 
 ####################################################################
 # TrueType font support thru FreeType 1.x
@@ -178,7 +179,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 # Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = N
-INCFT2LIB                = /usr/include
+INCFT2LIB                = .
 LIBFT2LIB                = /usr/lib/libfreetype.a
 
 ####################################################################

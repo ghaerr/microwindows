@@ -414,7 +414,9 @@ draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1, int mode)
 static void
 drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 {
-  unsigned long dm = 0, dc = 0;
+	unsigned long dm = 0;
+	int dc = 0;
+
 	switch (slice->type) {
 	case MWELLIPSEFILL:
 		/* draw ellipse fill segment*/
@@ -425,10 +427,10 @@ drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 	    ts_drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0+yp);
 	  }
 	  else {
-	    GdSetDash(&dm, (int *) &dc); /* Must turn off the dash settings because of drawrow() */
+	    GdSetDash(&dm, &dc); /* Must turn off the dash settings because of drawrow() */
 	    drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0-yp);
 	    drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0+yp);
-	    GdSetDash(&dm, (int *) &dc);
+	    GdSetDash(&dm, &dc);
 	  }
 
 	  return;
@@ -444,10 +446,10 @@ drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 
 	case MWPIE:
 		/* draw top and bottom halfs of pie*/
-	        if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, (int *) &dc);
+	        if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, &dc);
 		draw_line(slice, -xp, -yp, +xp, 1);
 		draw_line(slice, -xp, +yp, +xp, 1);
-		if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, (int *) &dc);
+		if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, &dc);
 		return;
 
 	default:	/* MWARC, MWARCOUTLINE*/

@@ -492,7 +492,8 @@ GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 void
 GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 {
-	unsigned long dm = 0, dc = 0;
+	unsigned long dm = 0;
+	int dc = 0;
 
 	MWCOORD x2 = x1 + width - 1;
 	MWCOORD y2 = y1 + height - 1;
@@ -524,14 +525,14 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 
 
 	/* Quickly save off the dash settings to avoid problems with drawrow */
-	GdSetDash(&dm, (int *) &dc);
+	GdSetDash(&dm, &dc);
 
 	/* The rectangle may be partially obstructed. So do it line by line. */
 	while (y1 <= y2)
 		drawrow(psd, x1, x2, y1++);
 
 	/* Restore the dash settings */
-	GdSetDash(&dm, (int *) &dc);
+	GdSetDash(&dm, &dc);
 
 	GdFixCursor(psd);
 }

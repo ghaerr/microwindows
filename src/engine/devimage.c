@@ -234,31 +234,29 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
   buffer_t src;
   
   fd = open(path, O_RDONLY);
-  if (fd <= 0) {
+  if (fd < 0 || fstat(fd, &s) < 0) {
     EPRINTF("GdLoadImageFromFile: can't open image: %s\n", path);
     return(0);
   }
   
-  fstat(fd, &s);
-
 #ifdef HAVE_MMAP
   buffer = mmap(0, s.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
   if (!buffer) {
-    EPRINTF("GdLoadImageFromFile:  Couldn't map image %s\n", path);
+    EPRINTF("GdLoadImageFromFile: Couldn't map image %s\n", path);
     close(fd);
     return(0);
   }
 #else
   buffer = malloc(s.st_size);
   if (!buffer) {
-     EPRINTF("GdLoadImageFromFile:  Couldn't load image %s\n", path);
+     EPRINTF("GdLoadImageFromFile: Couldn't load image %s\n", path);
      close(fd);
      return(0);
   }
   
   if (read(fd, buffer, s.st_size) != s.st_size) {
-    EPRINTF("GdLoadImageFromFile:  Couldn't load image %s\n", path);
+    EPRINTF("GdLoadImageFromFile: Couldn't load image %s\n", path);
     close(fd);
     return(0);
   }
@@ -319,8 +317,7 @@ GdDecodeImage(PSD psd, buffer_t * src, int flags)
 #endif
 
 	if (loadOK == 0) {
-		EPRINTF("GdLoadImageFromFile: unknown image type:\n");
-	  //		EPRINTF("GdLoadImageFromFile: unknown image type: \n", path);
+		EPRINTF("GdLoadImageFromFile: unknown image type\n");
 		goto err;		/* image loading error*/
 	}
 	if (loadOK != 1)
@@ -719,13 +716,13 @@ LoadJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
     return;
   }
 
-  static void skip_input_data(j_compress_ptr dinfo, int num_bytes) {
+  static void skip_input_data(j_compress_ptr dinfo, long num_bytes) {
     if (num_bytes >= src->size) return;
     smgr.next_input_byte += num_bytes;
     smgr.bytes_in_buffer -= num_bytes;
   }
 
-  static int resync_to_restart(j_compress_ptr dinfo, int desired ) {
+  static boolean resync_to_restart(j_decompress_ptr dinfo, int desired) {
     return(jpeg_resync_to_restart(dinfo, desired));
   }
 
@@ -764,11 +761,11 @@ LoadJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
   
   /* Step 2:  Setup the source manager */
 
-  smgr.init_source = init_source;
-  smgr.fill_input_buffer = fill_input_buffer;
-  smgr.skip_input_data = skip_input_data;
-  smgr.resync_to_restart = resync_to_restart;
-  smgr.term_source = term_source;
+  smgr.init_source = (void *)init_source;
+  smgr.fill_input_buffer = (void *)fill_input_buffer;
+  smgr.skip_input_data = (void *)skip_input_data;
+  smgr.resync_to_restart = (void *)resync_to_restart;
+  smgr.term_source = (void *)term_source;
   
   cinfo.src = &smgr;
 
@@ -925,7 +922,7 @@ LoadPNG(buffer_t * src, PMWIMAGEHDR pimage)
 		return 2;
 	}
 
-	png_init_io(state, fp);
+	png_init_io(state, src);
 	png_set_sig_bytes(state, 8);
 	png_read_info(state, pnginfo);
 	png_get_IHDR(state, pnginfo, &width, &height, &bit_depth, &colourtype,
@@ -1973,7 +1970,7 @@ static int LoadPNM(buffer_t *src, PMWIMAGEHDR pimage)
 					if((ch = bgetc(src)) == EOF)
 						goto baddata;
 				} else {
-				  //					if(fscanf(fp, "%i", &ch) != 1)
+				  /*if(fscanf(fp, "%i", &ch) != 1)*/
 						goto baddata;
 				}
 				*p++ = ch << scale;
@@ -1986,8 +1983,7 @@ static int LoadPNM(buffer_t *src, PMWIMAGEHDR pimage)
 					 	((col3 = bgetc(src)) == EOF))
 						goto baddata;
 				} else {
-				  //					if(fscanf(fp, "%i %i %i", &col1, &col2,
-				  //								&col3) != 3)
+				  /*if(fscanf(fp, "%i %i %i", &col1, &col2, &col3) != 3)*/
 						goto baddata;
 				}
 				*p++ = col1 << scale;

@@ -1,4 +1,6 @@
-Version 0.89pre8 - 16 Sep 2001 - greg@censoft.com
+Version 0.89pre8 - 18 Sep 2001 - greg@censoft.com
+	* added patch to change mouse position when cursor moved with GrMoveCursor
+	* removed incorrect GrReparent code with regards to child mapcount (temp fix)
 	* added direct client-side framebuffer mapped window routines:
 		GrOpenClientFramebuffer, GrCloseClientFramebuffer, GrGetWindowFBInfo
 	* added rgb mask values, fb driver type to SCREENINFO struct

@@ -626,7 +626,9 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 	wp->siblings = pwp->children;
 	pwp->children = wp;
 	OffsetWindow(wp, offx, offy);
-
+#if 1	/* temp fix to bad mapcount reparenting code below*/
+	GsWpMapWindow(wp, GR_FALSE);
+#else
 	/*
 	 * If parent mapped and window was mapped, set unmapcount
 	 * to 0 and remap window.
@@ -639,6 +641,7 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 			SetUnmapCountTree(wp, pwp->unmapcount, GR_FALSE);
 		else SetUnmapCountTree(wp, pwp->unmapcount+1, GR_FALSE);
 	}
+#endif
 }
 
 static int nextgcid = 1000;
@@ -1638,6 +1641,7 @@ GrSetWindowCursor(GR_WINDOW_ID wid, GR_CURSOR_ID cid)
  * The cursor's appearance is changed to that defined for the window
  * in which the cursor is moved to.  In addition, mouse enter, mouse
  * exit, focus in, and focus out events are generated if necessary.
+ * The current mouse location is also changed.
  */
 void
 GrMoveCursor(GR_COORD x, GR_COORD y)
@@ -1648,10 +1652,9 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 	 */
 	if ((x != cursorx) || (y != cursory)) {
 		if(curcursor) {
-			int newx = x - curcursor->cursor.hotx;
-			int newy = y - curcursor->cursor.hoty;
-
-			GdMoveCursor(newx, newy);
+			GdMoveCursor(x - curcursor->cursor.hotx,
+				y - curcursor->cursor.hoty);
+			GdMoveMouse(x, y);
 		}
 		cursorx = x;
 		cursory = y;

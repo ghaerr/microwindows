@@ -997,7 +997,7 @@ X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 		XFillRectangle(x11_dpy, x11_win, x11_gc, x1, y1,
 			       (x2 - x1) + 1, (y2 - y1) + 1);
 	} else {
-		update_from_savebits(x1, y1, x2, y2);
+		update_from_savebits(x1, y1, (x2-x1)+1, (y2-y1)+1);
 	}
 }
 

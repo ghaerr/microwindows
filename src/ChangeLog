@@ -1,3 +1,4 @@
+	* fixed broken x11 blit scroll code (Jonathan)
 Version 0.89pl7 - 24 Feb 2003 - greg@censoft.com
 	* APPLIED mw_phillips_fontnetworkbug.diff (Jonathan)
 	  Contributed by Koninklijke Philips Electronics N.V.
@@ -77,7 +78,6 @@ Version 0.89pl7 - 24 Feb 2003 - greg@censoft.com
 	  problems in XOR and alpha-blending drawing modes.
 
 	* APPLIED mw_phillips_x11.diff (Jonathan)
-FIX - introduces crash of demo2.sh when scrolling
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* Major speed enhancements to X11 screen driver.
 	* Resizing the window caused an assert() fail and

@@ -425,7 +425,7 @@ static int init_modstate ()
 
 	if(XkbGetIndicatorState (x11_dpy, XkbUseCoreKbd, &state) != Success) {
 		fprintf(stderr, "Error reading Indicator status\n");
-		return -1; 
+		/* don't return error*/
 	} 
 	capsl = state & CAPS_LOCK_MASK;
 	numl = state & NUM_LOCK_MASK;

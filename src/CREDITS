@@ -26,6 +26,7 @@ BMP and JPEG file read/display	Martin Jolicoeur
 RTEMS port			Rosimildo daSilva
 DJGPP/GRX port			Victor Rogachev
 C++ objects framework		Chris Johns
+Arc clipping routines		Eero Tamminen
 
 Contact Info
 Jay Carlson		<nop@nop.com>
@@ -44,3 +45,4 @@ Victor Rogachev		<rogach@sut.ru>
 Tony Rogvall		<tony@bluetail.com>
 Morten Rolland		<mortenro@screenmedia.no>
 Rosimildo daSilva	<rosimildo@xoommail.com>
+Eero Tamminen		<oak@welho.com>

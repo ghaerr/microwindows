@@ -2,6 +2,7 @@ Version 0.89pre8 - 6 Nov 2001 - greg@censoft.com
 	* changed check for /tmp/.nano-X to use access(), not stat()
 	* revised reported x, y event values to be parent-relative
 	* added Century's GrLoadImageFromBuffer, GrDrawImageFromBuffer
+	* removed GPL restriction to Arc clipping routines w/permission Eero
 	(24 Sep 2001)
 	* added pid to GR_WINDOW_INFO for window ownership identification (Century)
 	* fixed MWPIXELFORMAT for TRUECOLOR555

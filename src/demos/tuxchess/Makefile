@@ -4,6 +4,10 @@
 # Modified for TuxChess, 2002, Steven J. Merrifield
 ##############################################################################
 
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
+endif
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
@@ -32,7 +36,7 @@ LIBNAME =
 OBJS = main.o board.o data.o eval.o search.o images.o
 
 # Requires: MW_FEATURE_IMAGES, HAVE_FILEIO
-TARGET = $(TOP)/bin/tuxchess
+TARGET = $(MW_DIR_BIN)/tuxchess
 
 all: default $(TARGET)
 
@@ -41,15 +45,15 @@ endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
 ifeq ($(SHAREDLIBS), Y)
-$(TOP)/bin/tuxchess: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/tuxchess: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
 else
-$(TOP)/bin/tuxchess: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/tuxchess: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif
 

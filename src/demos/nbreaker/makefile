@@ -3,9 +3,9 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
-ifndef TOP
-TOP = ../..
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
+CONFIG = $(MW_DIR_SRC)/config
 endif
 
 include $(CONFIG)
@@ -32,18 +32,18 @@ LIBNAME =
 # List of objects to compile
 OBJS = animate.o ball.o bat.o brick.o cheat.o draw.o dump.o event.o game.o \
 	init.o levels.o loader.o misc.o nbreaker.o powers.o scores.o sprite.o
-all: default $(TOP)/bin/nbreaker
+all: default $(MW_DIR_SRC)/bin/nbreaker
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
 ifeq ($(SHAREDLIBS), Y)
-$(TOP)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
 else
-$(TOP)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif

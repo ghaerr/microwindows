@@ -3,11 +3,10 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
-ifndef TOP
-TOP = ../..
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
 endif
-
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
@@ -35,9 +34,9 @@ LIBNAME =
 OBJS = nanowm.o events.o wlist.o clients.o actions.o
 
 ifeq ($(ARCH), ECOS)
-TARGET = $(TOP)/bin/nanowm.o
+TARGET = $(MW_DIR_BIN)/nanowm.o
 else
-TARGET = $(TOP)/bin/nanowm
+TARGET = $(MW_DIR_BIN)/nanowm
 endif
 
 all: default $(TARGET)
@@ -46,20 +45,20 @@ endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 ifeq ($(SHAREDLIBS), Y)
-$(TOP)/bin/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
 else
 ifeq ($(ARCH), ECOS)
-$(TOP)/bin/nanowm.o: $(OBJS) $(TOP)/config
+$(MW_DIR_BIN)/nanowm.o: $(OBJS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nanowm_main=main -o XX.o
-	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(TOP)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
+	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 else
-$(TOP)/bin/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif
 endif

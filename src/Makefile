@@ -1,18 +1,12 @@
 ##############################################################################
-# Microwindows template Makefile
+# Microwindows top-level Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
-TOP = $(shell pwd)
-
-# See if the user has a local config file. If so use that else
-# use the one provided in the distribution.
-ifeq ($(HOME)/microwin/config,$(wildcard $(HOME)/microwin/config))
-CONFIG = $(HOME)/microwin/config
-else
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = $(shell pwd)
 endif
-
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ############################# targets section ################################
@@ -72,6 +66,6 @@ doc-clean:
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################

@@ -3,11 +3,10 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
-ifndef TOP
-TOP = ../..
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
 endif
-
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
@@ -37,33 +36,33 @@ OBJS = nxscribble.o scribwidget.o\
 
 ifeq ($(ARCH), ECOS)
 DEFINES += -DREC_DEFAULT_USER_DIR=\"/bin\"
-TARGET = $(TOP)/bin/nxscribble.o
+TARGET = $(MW_DIR_BIN)/nxscribble.o
 else
-TARGET = $(TOP)/bin/nxscribble
+TARGET = $(MW_DIR_BIN)/nxscribble
 endif
 
 all: default $(TARGET)
-	$(CP) letters.cl digits.cl punc.cl $(TOP)/bin
+	$(CP) letters.cl digits.cl punc.cl $(MW_DIR_BIN)
 
 endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
 ifeq ($(SHAREDLIBS), Y)
-$(TOP)/bin/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) -lm
 else
 ifeq ($(ARCH), ECOS)
-$(TOP)/bin/nxscribble.o: $(OBJS) $(TOP)/config
+$(MW_DIR_BIN)/nxscribble.o: $(OBJS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nxscribble_main=main -o XX.o
-	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(TOP)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
+	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 else
-$(TOP)/bin/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) -lm
 endif
 endif

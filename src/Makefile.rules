@@ -5,7 +5,7 @@
 #
 # This makefile should be placed at the top of a project hierarchy
 #
-# NOTE: The TOP environment variable should be set to that top directory
+# NOTE: The MW_DIR_SRC environment variable should be set to that top directory
 ##############################################################################
 
 ifeq ($(ARCH), DJGPP)
@@ -36,7 +36,7 @@ INSTALL_BIN   = install -c -m 755 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
 DEFINES += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
 
 # Includes
-INCLUDEDIRS += -I. -I$(TOP)/include
+INCLUDEDIRS += -I. -I$(MW_DIR_SRC)/include
 
 # Libraries required for the 'engine' functionality.
 MW_CORE_LIBS :=
@@ -354,7 +354,7 @@ endif
 CFLAGS += $(INCLUDEDIRS)
 HOSTCFLAGS := $(INCLUDEDIRS)
 CPPFLAGS += $(DEFINES)
-LDFLAGS += -L$(TOP)/lib
+LDFLAGS += -L$(MW_DIR_LIB)
 ifeq ($(ARCH), TRIMEDIA)
 ARFLAGS = r
 else
@@ -377,7 +377,7 @@ LINKER = ld
 ifeq ($(HOME)/microwin/Arch.rules,$(wildcard $(HOME)/microwin/Arch.rules))
 include $(HOME)/microwin/Arch.rules
 else
-include $(TOP)/Arch.rules
+include $(MW_DIR_SRC)/Arch.rules
 endif
 
 # Tools ...
@@ -399,32 +399,32 @@ MV = mv
 ##############################################################################
 
 MWINLIBS = \
-	$(TOP)/lib/libmwin.a \
-	$(TOP)/lib/libmwinlib.a\
-	$(TOP)/lib/libmwengine.a \
-	$(TOP)/lib/libmwdrivers.a \
-	$(TOP)/lib/libmwfonts.a \
-	$(TOP)/lib/libmwimages.a \
+	$(MW_DIR_LIB)/libmwin.a \
+	$(MW_DIR_LIB)/libmwinlib.a\
+	$(MW_DIR_LIB)/libmwengine.a \
+	$(MW_DIR_LIB)/libmwdrivers.a \
+	$(MW_DIR_LIB)/libmwfonts.a \
+	$(MW_DIR_LIB)/libmwimages.a \
 	$(MW_CORE_LIBS)
 CCMWINLIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwin -lmwimages -lm $(MW_CORE_LIBS)
 
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 NANOXCLIENTLIBS += \
-	$(TOP)/lib/libnano-X.a \
-	$(TOP)/lib/libmwengine.a \
-	$(TOP)/lib/libmwdrivers.a \
-	$(TOP)/lib/libmwfonts.a \
+	$(MW_DIR_LIB)/libnano-X.a \
+	$(MW_DIR_LIB)/libmwengine.a \
+	$(MW_DIR_LIB)/libmwdrivers.a \
+	$(MW_DIR_LIB)/libmwfonts.a \
 	$(MW_CORE_LIBS)
 CCNANOXCLIENTLIBS += -lnano-X -lmwengine -lmwdrivers -lmwfonts $(MW_CORE_LIBS)
 else
-NANOXCLIENTLIBS += $(TOP)/lib/libnano-X.a
+NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
 CCNANOXCLIENTLIBS += -lnano-X
 endif
 
 NANOXSERVERLIBS += \
-	$(TOP)/lib/libmwengine.a \
-	$(TOP)/lib/libmwdrivers.a \
-	$(TOP)/lib/libmwfonts.a \
+	$(MW_DIR_LIB)/libmwengine.a \
+	$(MW_DIR_LIB)/libmwdrivers.a \
+	$(MW_DIR_LIB)/libmwfonts.a \
 	$(MW_CORE_LIBS)
 CCNANOXSERVERLIBS += -lmwengine -lmwdrivers -lmwfonts
 ifeq ($(SHAREDLIBS), Y)
@@ -458,16 +458,16 @@ endif
 .PHONY: default subdirs clean cleandepend cleandepend-notsubdir xconfig makedestdirs
 
 # Add any exportable variable here
-export TOP ARCH CONFIG
+export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB ARCH CONFIG
 
 #
 # This is the default target
 # It looks for sub-directories with makefiles in it and tries to execute them
 #
 ifeq ($(SHAREDLIBS), Y)
-default: $(TOP)/bin $(TOP)/lib subdirs $(TOP)/lib/$(LIBNAME) $(TOP)/lib/$(LIBNAMESO)
+default: $(MW_DIR_BIN) $(MW_DIR_LIB) subdirs $(MW_DIR_LIB)/$(LIBNAME) $(MW_DIR_LIB)/$(LIBNAMESO)
 else
-default: $(TOP)/bin $(TOP)/lib subdirs $(TOP)/lib/$(LIBNAME)
+default: $(MW_DIR_BIN) $(MW_DIR_LIB) subdirs $(MW_DIR_LIB)/$(LIBNAME)
 endif
 
 # 'dirs' can be pre-specified
@@ -505,12 +505,12 @@ ifeq ($(ARCH), DJGPP)
 	$(shell set CURDIR=$(pwd);)
 
 	$(shell \
-	if [ ! -d $(TOP)/bin ]; \
-	then mkdir $(TOP)/bin; fi;)
+	if [ ! -d $(MW_DIR_BIN) ]; \
+	then mkdir $(MW_DIR_BIN); fi;)
 
 	$(shell \
-	if [ ! -d $(TOP)/lib ]; \
-	then mkdir $(TOP)/lib; fi;)
+	if [ ! -d $(MW_DIR_LIB) ]; \
+	then mkdir $(MW_DIR_LIB); fi;)
 
 endif
 	@#
@@ -520,16 +520,16 @@ endif
 # a library of that name will be created with objects in that directory
 #
 ifneq ($(LIBNAME),)
-$(TOP)/lib/$(LIBNAME): $(OBJS) $(CXXOBJS)
+$(MW_DIR_LIB)/$(LIBNAME): $(OBJS) $(CXXOBJS)
 	@echo "Creating library $@ ..."
-	$(AR) $(ARFLAGS) $(TOP)/lib/$(LIBNAME) $(OBJS) $(CXXOBJS) $(ASMOBJS)
+	$(AR) $(ARFLAGS) $(MW_DIR_LIB)/$(LIBNAME) $(OBJS) $(CXXOBJS) $(ASMOBJS)
 endif
 
 #
 # If a shared object library name is specified, link this object
 #
 ifeq ($(SHAREDLIBS), Y)
-$(TOP)/lib/$(LIBNAMESO): $(TOP)/lib/$(LIBNAME)
+$(MW_DIR_LIB)/$(LIBNAMESO): $(MW_DIR_LIB)/$(LIBNAME)
 	@echo "Creating shared library $@ ..."
 	$(LD) -shared -o $@ --whole-archive $^
 endif
@@ -537,7 +537,7 @@ endif
 #
 # Make sure that bin and lib directories exist
 #
-$(TOP)/bin $(TOP)/lib: 
+$(MW_DIR_BIN) $(MW_DIR_LIB): 
 	@mkdir -p $@
 
 #
@@ -546,7 +546,7 @@ $(TOP)/bin $(TOP)/lib:
 .depend: $(OBJS:.o=.c) $(CXXOBJS:.o=.cc)
 	@echo "Updating dependencies in $(CURDIR) ..."
 	$(SHELL) -ec '$(HOSTCC) -MM $(CPPFLAGS) $(HOSTCFLAGS) $(OBJS:.o=.c) \
-	| sed '\''s/\($*\)\.o[ :]*/\1.o \$@ : $$(TOP)\/config /g'\'' > $@; \
+	| sed '\''s/\($*\)\.o[ :]*/\1.o \$@ : $$(CONFIG) /g'\'' > $@; \
 	[ -s $@ ] || rm -f $@'
 
 #
@@ -567,28 +567,28 @@ $(TOP)/bin $(TOP)/lib:
 #
 # Compilation target for bmp file conversion
 #
-%.c:%.bmp $(TOP)/bin/convbmp
+%.c:%.bmp $(MW_DIR_BIN)/convbmp
 	echo "Generating $@ from bitmap file ..."
-	$(TOP)/bin/convbmp -o $@ $<
+	$(MW_DIR_BIN)/convbmp -o $@ $<
 
 #
 # Compilation target for tool that does bmp file conversion
 #
-$(TOP)/bin/convbmp: $(TOP)/mwin/bmp/convbmp.c
+$(MW_DIR_BIN)/convbmp: $(MW_DIR_SRC)/mwin/bmp/convbmp.c
 	echo "Building $@ tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
 #
 # Compilation target for bdf font file conversion
 #
-%.c:%.bdf $(TOP)/bin/convbdf
+%.c:%.bdf $(MW_DIR_BIN)/convbdf
 	echo "Generating $@ from font file ..."
-	$(TOP)/bin/convbdf -c -o $@ $<
+	$(MW_DIR_BIN)/convbdf -c -o $@ $<
 
 #
 # Compilation target for tool that does bdf font file conversion
 #
-$(TOP)/bin/convbdf: $(TOP)/fonts/convbdf.c
+$(MW_DIR_BIN)/convbdf: $(MW_DIR_SRC)/fonts/convbdf.c
 	echo "Building $@ tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
@@ -606,10 +606,10 @@ cleanapps: cleandepend-notsubdir
 clean: cleandepend-notsubdir
 	@echo "Cleaning directory       $(CURDIR) ..."
 	$(RM) core *~ *.bak *.o TAGS
-	$(RM) $(TOP)/lib/*.a $(TOP)/lib/*.so
-	$(shell cd $(TOP)/bin && \
+	$(RM) $(MW_DIR_LIB)/*.a $(MW_DIR_LIB)/*.so
+	$(shell cd $(MW_DIR_BIN) && \
 		for file in `\ls`; do if [ ! -d $$file ]; \
-		then $(RM) $$file; fi; done; cd $(TOP))
+		then $(RM) $$file; fi; done; cd $(MW_DIR_SRC))
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 

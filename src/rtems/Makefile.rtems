@@ -7,18 +7,17 @@
 #
 ##############################################################################
 
-ifndef TOP
-TOP = ..
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ..
 endif
-
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
 
 # Directories list for header files
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
-INCLUDEDIRS += -I$(TOP)/jpeg-6b
+INCLUDEDIRS += -I$(MW_DIR_SRC)/jpeg-6b
 endif
 # Defines for preprocessor
 DEFINES +=
@@ -33,7 +32,7 @@ CFLAGS +=
 CPPFLAGS +=
 # Linking flags
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
-LDFLAGS += -L$(TOP)/jpeg-6b
+LDFLAGS += -L$(MW_DIR_SRC)/jpeg-6b
 endif
 
 # PC386 specific stuff...
@@ -90,7 +89,7 @@ all: default $(RTEMS_TARGET).bt
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 # let's adjust the libraries to match the API that you are using.

@@ -4,11 +4,10 @@
 # Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
 ##############################################################################
 
-ifndef TOP
-TOP = ..
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ..
 endif
-
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ############################# targets section ################################
@@ -43,9 +42,9 @@ endif
 endif
 
 ifeq ($(ARCH), ECOS) 
-TARGET = $(TOP)/bin/nano-X.o
+TARGET = $(MW_DIR_BIN)/nano-X.o
 else
-TARGET = $(TOP)/bin/nano-X
+TARGET = $(MW_DIR_BIN)/nano-X
 endif
 all: default $(TARGET)
 endif
@@ -54,24 +53,24 @@ endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
 # Server binary ...
 ifeq ($(SHAREDLIBS), Y)
-$(TOP)/bin/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
 	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(CCNANOXSERVERLIBS)
 else
-$(TOP)/bin/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
 	@echo "Linking $@ ..."
 #	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--retain-symbols-file -Wl,nanox.syms -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--defsym -Wl,nanox_main=main -o XX.o
-	$(NM) XX.o | grep -v _main | grep -v Gr | grep -v nx | grep ' T' | awk -f $(TOP)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
+	$(NM) XX.o | grep -v _main | grep -v Gr | grep -v nx | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 #	rm -f XX.o
 
-$(TOP)/bin/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(TOP)/config
+$(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
 	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS)
 endif

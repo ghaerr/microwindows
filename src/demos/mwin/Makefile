@@ -3,6 +3,10 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
+endif
+include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
@@ -32,15 +36,15 @@ OBJS =	mdemo.o mterm.o malpha.o mtest.o mine.o mtest2.o
 MINEIMAGES = mineflag.o mineface.o minefacelost.o minebomb.o minedone.o\
 	minehitfalse.o
 
-DEMOS = $(TOP)/bin/mdemo\
-	$(TOP)/bin/mterm\
-	$(TOP)/bin/malpha\
-	$(TOP)/bin/mtest\
-	$(TOP)/bin/mtest2\
-	$(TOP)/bin/mine
+DEMOS = $(MW_DIR_BIN)/mdemo\
+	$(MW_DIR_BIN)/mterm\
+	$(MW_DIR_BIN)/malpha\
+	$(MW_DIR_BIN)/mtest\
+	$(MW_DIR_BIN)/mtest2\
+	$(MW_DIR_BIN)/mine
 
 ifneq ($(ARCH), ELKS)
-DEMOS += $(TOP)/bin/muserfd
+DEMOS += $(MW_DIR_BIN)/muserfd
 endif
 
 all: default $(DEMOS)
@@ -50,28 +54,28 @@ endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-$(TOP)/bin/mdemo: mdemo.o $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/mdemo: mdemo.o $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) mdemo.o -o $@ $(CCMWINLIBS)
 
-$(TOP)/bin/mterm: mterm.o $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/mterm: mterm.o $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) mterm.o -o $@ $(CCMWINLIBS)
 
-$(TOP)/bin/malpha: malpha.o $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/malpha: malpha.o $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) malpha.o -o $@ $(CCMWINLIBS)
 
-$(TOP)/bin/mtest: mtest.o $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/mtest: mtest.o $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) mtest.o -o $@ $(CCMWINLIBS)
 
-$(TOP)/bin/mtest2: mtest2.o $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/mtest2: mtest2.o $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) mtest2.o -o $@ $(CCMWINLIBS)
 
-$(TOP)/bin/mine: mine.o $(MINEIMAGES) $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/mine: mine.o $(MINEIMAGES) $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) mine.o $(MINEIMAGES) -o $@ $(CCMWINLIBS)
 
-$(TOP)/bin/muserfd: muserfd.o $(MWINLIBS) $(TOP)/config
+$(MW_DIR_BIN)/muserfd: muserfd.o $(MWINLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) muserfd.o -o $@ $(CCMWINLIBS)
 

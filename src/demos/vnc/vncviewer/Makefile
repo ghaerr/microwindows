@@ -3,6 +3,11 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
+endif
+include $(MW_DIR_SRC)/Path.rules
+
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
@@ -34,20 +39,20 @@ OBJS =	args.o \
 	vncviewer.o \
 	nanox.o
 	
-all: default $(TOP)/bin/vnc
+all: default $(MW_DIR_BIN)/vnc
 
 endif
 endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-NANOXCLIENTLIBS += $(TOP)/lib/libvncauth.a
+NANOXCLIENTLIBS += $(MW_DIR_LIB)/libvncauth.a
 
 
-$(TOP)/bin/vnc: $(OBJS) $(NANOXCLIENTLIBS) $(TOP)/config
+$(MW_DIR_BIN)/vnc: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 

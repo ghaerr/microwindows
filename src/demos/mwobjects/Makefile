@@ -6,6 +6,11 @@
 #
 ##############################################################################
 
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
+endif
+include $(MW_DIR_SRC)/Path.rules
+
 include $(CONFIG)
 
 # Do nothing for RTEMS 
@@ -32,19 +37,19 @@ ifeq ($(OBJFRAMEWORK), Y)
 # List of objects to compile
 CXOBJS = mwo-test.o
 
-all: default $(TOP)/bin/mwo-test
+all: default $(MW_DIR_BIN)/mwo-test
 
 endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
 CCMWINLIBS = -lmwobjects -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
 
-$(TOP)/bin/mwo-test: mwo-test.o
+$(MW_DIR_BIN)/mwo-test: mwo-test.o
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(CCMWINLIBS)
 
 

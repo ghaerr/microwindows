@@ -1,0 +1,23 @@
+##############################################################################
+# Microwindows Path rules Makefile
+# Copyright (c) 2003 by Koninklijke Philips Electronics N.V.
+##############################################################################
+
+# set the locations of the bin and lib output directories
+ifndef MW_DIR_BIN
+MW_DIR_BIN := $(MW_DIR_SRC)/bin
+endif
+ifndef MW_DIR_LIB
+MW_DIR_LIB := $(MW_DIR_SRC)/lib
+endif
+
+# See if the user has a local config file. If so use that else
+# use the one provided in the distribution.
+ifndef CONFIG
+ifeq ($(HOME)/microwin/config,$(wildcard $(HOME)/microwin/config))
+CONFIG = $(HOME)/microwin/config
+else
+CONFIG = $(MW_DIR_SRC)/config
+endif
+endif
+

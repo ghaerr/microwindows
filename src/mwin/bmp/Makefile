@@ -3,14 +3,14 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
-ifndef TOP
-TOP = ../..
-CONFIG = $(TOP)/config
+ifndef MW_DIR_SRC
+MW_DIR_SRC = ../..
 endif
+include $(MW_DIR_SRC)/Path.rules
 
 include $(CONFIG)
 
-#all: $(TOP)/bin/convbmp
+#all: $(MW_DIR_BIN)/convbmp
 #HOSTCC=gcc
 #HOSTCFLAGS=-I../../include
 
@@ -26,13 +26,13 @@ LIBNAMESO = libmwimages.so
 OBJS = car8.o min4.o max4.o close4.o under4.o\
 	zion208.o cs1.o rle8.o microwin.o penguin.o
 
-all: $(TOP)/bin/convbmp $(TOP)/bin/makebmp default
+all: $(MW_DIR_BIN)/convbmp $(MW_DIR_BIN)/makebmp default
 
 endif
 
 ######################### Makefile.rules section #############################
 
-include $(TOP)/Makefile.rules
+include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
@@ -40,6 +40,6 @@ realclean: clean
 	$(RM) car8.c min4.c max4.c close4.c under4.c zion208.c cs1.c rle8.c \
 	microwin.c penguin.c
 
-$(TOP)/bin/makebmp: $(TOP)/mwin/bmp/makebmp.c
+$(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/mwin/bmp/makebmp.c
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 

@@ -1140,3 +1140,71 @@ void GsWpSetFocus(GR_WINDOW *wp)
 	GsDeliverGeneralEvent(wp, GR_EVENT_TYPE_FOCUS_IN, oldfocus);
 	GsWpNotifyActivate(focuswp);
 }
+
+/*
+ * Set dynamic portrait mode and redraw screen.
+ */
+void
+GsSetPortraitMode(int mode)
+{
+	GdSetPortraitMode(&scrdev, mode);
+	GdRestrictMouse(0, 0, scrdev.xvirtres - 1, scrdev.yvirtres - 1);
+
+	/* reset clip and root window size*/
+	clipwp = NULL;
+	rootwp->width = scrdev.xvirtres;
+	rootwp->height = scrdev.yvirtres;
+	GsRedrawScreen();
+}
+
+/*
+ * Check mouse coordinates and possibly set indicated portrait
+ * mode from mouse position.
+ */
+void
+GsSetPortraitModeFromXY(GR_COORD rootx, GR_COORD rooty)
+{
+	int newmode;
+
+	if (rootx == 0) {
+		/* rotate left*/
+		switch (scrdev.portrait) {
+		case MWPORTRAIT_NONE:
+		default:
+			newmode = MWPORTRAIT_LEFT;
+			break;
+		case MWPORTRAIT_LEFT:
+			newmode = MWPORTRAIT_DOWN;
+			break;
+		case MWPORTRAIT_DOWN:
+			newmode = MWPORTRAIT_RIGHT;
+			break;
+		case MWPORTRAIT_RIGHT:
+			newmode = MWPORTRAIT_NONE;
+			break;
+		}
+		GsSetPortraitMode(newmode);
+		GrMoveCursor(5, rooty);
+		GdMoveMouse(5, rooty);
+	} else if (rootx == scrdev.xvirtres-1) {
+		/* rotate right*/
+		switch (scrdev.portrait) {
+		case MWPORTRAIT_NONE:
+		default:
+			newmode = MWPORTRAIT_RIGHT;
+			break;
+		case MWPORTRAIT_LEFT:
+			newmode = MWPORTRAIT_NONE;
+			break;
+		case MWPORTRAIT_DOWN:
+			newmode = MWPORTRAIT_LEFT;
+			break;
+		case MWPORTRAIT_RIGHT:
+			newmode = MWPORTRAIT_DOWN;
+			break;
+		}
+		GsSetPortraitMode(newmode);
+		GrMoveCursor(scrdev.xvirtres-5, rooty);
+		GdMoveMouse(scrdev.xvirtres-5, rooty);
+	}
+}

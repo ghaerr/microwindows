@@ -351,6 +351,8 @@ void		GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
 void		GsWpUnmapWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
 void		GsWpMapWindow(GR_WINDOW *wp, GR_BOOL temp);
 void		GsWpDestroyWindow(GR_WINDOW *wp);
+void		GsSetPortraitMode(int mode);
+void		GsSetPortraitModeFromXY(GR_COORD rootx, GR_COORD rooty);
 void		GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion,
 			int flags);
 void		GsHandleMouseStatus(GR_COORD newx, GR_COORD newy,

@@ -680,6 +680,7 @@ void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **child
 			GR_COUNT *nchildren);
 GR_TIMER_ID	GrCreateTimer(GR_WINDOW_ID wid, GR_TIMEOUT period);
 void		GrDestroyTimer(GR_TIMER_ID tid);
+void		GrSetPortraitMode(int portraitmode);
 
 void		GrRegisterInput(int fd);
 void		GrUnregisterInput(int fd);

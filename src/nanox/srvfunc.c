@@ -1647,9 +1647,12 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 	 * place the hot spot at the specified coordinates.
 	 */
 	if ((x != cursorx) || (y != cursory)) {
-		if(curcursor)
-			GdMoveCursor(x - curcursor->cursor.hotx,
-				y - curcursor->cursor.hoty);
+		if(curcursor) {
+			int newx = x - curcursor->cursor.hotx;
+			int newy = y - curcursor->cursor.hoty;
+
+			GdMoveCursor(newx, newy);
+		}
 		cursorx = x;
 		cursory = y;
 	}
@@ -2827,4 +2830,16 @@ GrDestroyTimer (GR_TIMER_ID tid)
         prev_timer->next = timer->next;
     }
     free (timer);
+}
+
+/**
+ * GrSetPortraitMode
+ * @newmode: new portrait mode
+ *
+ * Sets new server portrait mode and redraws all windows.
+ */
+void
+GrSetPortraitMode(int portraitmode)
+{
+	GsSetPortraitMode(portraitmode);
 }

@@ -133,68 +133,6 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	return &elp->event;
 }
 
-void
-GsSetPortraitModeFromXY(GR_COORD rootx, GR_COORD rooty)
-{
-	if (rootx == 0) {
-		int newmode;
-		/* rotate left*/
-		switch (scrdev.portrait) {
-		case MWPORTRAIT_NONE:
-		default:
-			newmode = MWPORTRAIT_LEFT;
-			break;
-		case MWPORTRAIT_LEFT:
-			newmode = MWPORTRAIT_DOWN;
-			break;
-		case MWPORTRAIT_DOWN:
-			newmode = MWPORTRAIT_RIGHT;
-			break;
-		case MWPORTRAIT_RIGHT:
-			newmode = MWPORTRAIT_NONE;
-			break;
-		}
-		fb_setportrait(&scrdev, newmode);
-		GdRestrictMouse(0, 0, scrdev.xvirtres - 1, scrdev.yvirtres - 1);
-		GrMoveCursor(5, rooty);
-		GdMoveMouse(5, rooty);
-
-		/* reset clip and root window size*/
-		clipwp = NULL;
-		rootwp->width = scrdev.xvirtres;
-		rootwp->height = scrdev.yvirtres;
-		GsRedrawScreen();
-	} else if (rootx == scrdev.xvirtres-1) {
-		int newmode;
-		/* rotate right*/
-		switch (scrdev.portrait) {
-		case MWPORTRAIT_NONE:
-		default:
-			newmode = MWPORTRAIT_RIGHT;
-			break;
-		case MWPORTRAIT_LEFT:
-			newmode = MWPORTRAIT_NONE;
-			break;
-		case MWPORTRAIT_DOWN:
-			newmode = MWPORTRAIT_LEFT;
-			break;
-		case MWPORTRAIT_RIGHT:
-			newmode = MWPORTRAIT_DOWN;
-			break;
-		}
-		fb_setportrait(&scrdev, newmode);
-		GdRestrictMouse(0, 0, scrdev.xvirtres - 1, scrdev.yvirtres - 1);
-		GrMoveCursor(scrdev.xvirtres-5, rooty);
-		GdMoveMouse(scrdev.xvirtres-5, rooty);
-
-		/* reset clip and root window size*/
-		clipwp = NULL;
-		rootwp->width = scrdev.xvirtres;
-		rootwp->height = scrdev.yvirtres;
-		GsRedrawScreen();
-	}
-}
-
 /*
  * Update mouse status and issue events on it if necessary.
  * This function doesn't block, but is normally only called when

@@ -1095,10 +1095,10 @@ GrCreateTimerWrapper(void *r)
     nxCreateTimerReq *req = r;
     GR_TIMER_ID  timerid;
 
-    timerid = GrCreateTimer (req->wid, req->period);
+    timerid = GrCreateTimer(req->wid, req->period);
 
-    GsWriteType (current_fd, GrNumCreateTimer);
-    GsWrite (current_fd, &timerid, sizeof (timerid));
+    GsWriteType(current_fd, GrNumCreateTimer);
+    GsWrite(current_fd, &timerid, sizeof (timerid));
 }
 
 static void
@@ -1106,9 +1106,16 @@ GrDestroyTimerWrapper(void *r)
 {
     nxDestroyTimerReq *req = r;
     
-    GrDestroyTimer (req->timerid);
+    GrDestroyTimer(req->timerid);
 }
 
+static void
+GrSetPortraitModeWrapper(void *r)
+{
+    nxSetPortraitModeReq *req = r;
+    
+    GrSetPortraitMode(req->portraitmode);
+}
 
 /*
  * This function makes the Nano-X server set up a shared memory segment
@@ -1267,7 +1274,8 @@ struct GrFunction {
 	/*  96 */ {GrDestroyCursorWrapper, "GrDestroyCursor"},
 	/*  97 */ {GrQueryTreeWrapper, "GrQueryTree"},
 	/*  98 */ {GrCreateTimerWrapper, "GrCreateTimer"},
-	/*  99 */ {GrDestroyTimerWrapper, "GrDestroyTimer"}
+	/*  99 */ {GrDestroyTimerWrapper, "GrDestroyTimer"},
+	/* 100 */ {GrSetPortraitModeWrapper, "GrSetPortraitMode"}
 };
 
 void

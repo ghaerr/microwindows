@@ -1100,4 +1100,13 @@ typedef struct
 	IDTYPE	timerid;
 } nxDestroyTimerReq;
 
-#define GrTotalNumCalls         100
+#define GrNumSetPortraitMode	100
+typedef struct 
+{
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	UINT32	portraitmode;
+} nxSetPortraitModeReq;
+
+#define GrTotalNumCalls         101

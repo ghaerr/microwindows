@@ -35,7 +35,6 @@
 /*static*/ MWPALENTRY	gr_palette[256];    /* current palette*/
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/
-	int	gr_portraitmode;    /* current portrait mode*/
 static int	gr_pixtype;	    /* screen pixel format*/
 static long	gr_ncolors;	    /* screen # colors*/
 
@@ -155,10 +154,10 @@ GdCloseScreen(PSD psd)
 int
 GdSetPortraitMode(PSD psd, int portraitmode)
 {
-	extern int fb_setportrait(PSD psd, int portraitmode);
-
-	fb_setportrait(psd, portraitmode);
-	return gr_portraitmode;
+	/* set portrait mode if supported*/
+	if (psd->SetPortrait)
+		psd->SetPortrait(psd, portraitmode);
+	return psd->portrait;
 }
 
 /*

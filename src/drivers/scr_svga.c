@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Screen Driver using SVGA Library
  *
@@ -53,7 +53,9 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	NULL,			/* MapMemGC*/
-	NULL			/* FreeMemGC*/
+	NULL,			/* FreeMemGC*/
+	NULL,			/* StretchBlit subdriver*/
+	NULL			/* SetPortrait*/
 };
 
 extern int gr_mode;	/* temp kluge*/
@@ -281,4 +283,3 @@ setfadelevel(PSD psd, int f)
 	}
    SVGA_setpalette( psd, 0,256,local_palette );
 }
-

@@ -45,10 +45,10 @@
 
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
+static void fb_setportrait(PSD psd, int portraitmode);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
-void fb_setportrait(PSD psd, int portraitmode);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -69,7 +69,8 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	fb_mapmemgc,
 	gen_freememgc,
-	NULL			/* StretchBlit subdriver*/
+	NULL,			/* StretchBlit subdriver*/
+	fb_setportrait		/* SetPortrait*/
 };
 
 /* static variables*/
@@ -283,7 +284,7 @@ fb_close(PSD psd)
 	close(fb);
 }
 
-void
+static void
 fb_setportrait(PSD psd, int portraitmode)
 {
 	psd->portrait = portraitmode;

@@ -736,8 +736,8 @@ GsInitialize(void)
 	/* 
 	 * Force the cursor to appear on the screen at startup.
 	 * (not required with above GsRedrawScreen)
-	GdHideCursor(&scrdev);
-	GdShowCursor(&scrdev);
+	GdHideCursor(psd);
+	GdShowCursor(psd);
 	 */
 
 	/*

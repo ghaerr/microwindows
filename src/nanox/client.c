@@ -3180,12 +3180,12 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
     nxCreateTimerReq  *req;
     GR_TIMER_ID  timerid;
 
-    req = AllocReq (CreateTimer);
+    req = AllocReq(CreateTimer);
 
     req->wid = wid;
     req->period = period;
 
-    if (GrTypedReadBlock (&timerid, sizeof (timerid), GrNumCreateTimer) == -1)
+    if (GrTypedReadBlock(&timerid, sizeof (timerid), GrNumCreateTimer) == -1)
         return 0;
     return timerid;
 }
@@ -3195,7 +3195,15 @@ GrDestroyTimer (GR_TIMER_ID tid)
 {
     nxDestroyTimerReq *req;
     
-    req = AllocReq (DestroyTimer);
+    req = AllocReq(DestroyTimer);
     req->timerid = tid;
 }
 
+void
+GrSetPortraitMode(int portraitmode)
+{
+    nxSetPortraitModeReq *req;
+    
+    req = AllocReq(SetPortraitMode);
+    req->portraitmode = portraitmode;
+}

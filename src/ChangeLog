@@ -1,5 +1,7 @@
-Version 0.89pre8 - 4 Sep 2001 - greg@censoft.com
-	* revised GdFillPoly algorithm for correctness
+Version 0.89pre8 - 6 Sep 2001 - greg@censoft.com
+	* added GrSetPortraitMode
+	* added GsSetPortraitMode, GsSetPortraitModeFromXY, screen driver SetPortrait entrypoint
+	* reimplemented GdFillPoly algorithm for correctness
 	(4th July 2001)
 	* added DJGPP changes from Victor
 	* added check for CONSOLE env var for /dev/tty to open, GrCopyArea fix and

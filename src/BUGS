@@ -1,3 +1,6 @@
+possible Mapwindow bug in demo2 app when wm running
+blit slow when moving windows in portrait mode
+
 add offscreen pixmap rotates when portrait changes (remove assert in GdBlit)
 remove FIXME kluge in fb.c mapmem, fix offscreen rotation orientation for blits
 add subdrivers above driver level for x11

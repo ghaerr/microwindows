@@ -97,7 +97,9 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	fb_mapmemgc,
-	gen_freememgc
+	gen_freememgc,
+	NULL,			/* StretchBlit subdriver*/
+	NULL			/* SetPortrait*/
 };
 
 /* called from keyboard/mouse/screen */
@@ -902,11 +904,4 @@ static void
 X11_preselect(PSD psd)
 {
 	XFlush(x11_dpy);
-}
-
-// temp hack
-void
-fb_setportrait(PSD psd, int portraitmode)
-{
-	psd->portrait = portraitmode;
 }

@@ -183,6 +183,7 @@ typedef struct _mwscreendevice {
 	void	(*StretchBlit)(PSD destpsd,MWCOORD destx,MWCOORD desty,
 			MWCOORD destw,MWCOORD desth,PSD srcpsd,MWCOORD srcx,
 			MWCOORD srcy,MWCOORD srcw,MWCOORD srch,long op);
+	void	(*SetPortrait)(PSD psd,int portraitmode);
 	int	portrait;	 /* screen portrait mode*/
 	PSUBDRIVER orgsubdriver; /* original subdriver for portrait modes*/
 } SCREENDEVICE;

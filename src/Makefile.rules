@@ -137,6 +137,11 @@ ifeq ($(OPTIMIZE), Y)
 OPTFLAGS += -O3
 endif
 
+ifeq ($(THREADSAFE), Y)
+DEFINES += -DTHREADSAFE=1
+LDFLAGS += -lpthread
+endif
+
 ifeq ($(DEBUG), Y)
 OPTFLAGS += -ggdb
 else

@@ -864,6 +864,7 @@ typedef struct {
  */
 typedef struct {                                // Init to:
     int                 _nxSocket;              //  -1
+    MWMUTEX	 	_nxGlobalLock;
     int                 _storedevent;           // 0
     GR_EVENT            _storedevent_data;      // no init(0)
     int                 _regfdmax;              // -1
@@ -884,6 +885,7 @@ extern int     ecos_nanox_client_data_index;
         ecos_nanox_client_data *dptr = malloc(sizeof(ecos_nanox_client_data));  \
         ecos_nanox_client_data_index = data;                                    \
         dptr->_nxSocket = -1;                                                   \
+	dptr->nxGlobalLock = 0;
         dptr->_storedevent = 0;                                                 \
         dptr->_regfdmax = -1;                                                   \
         FD_ZERO(&dptr->_regfdset);                                              \
@@ -896,6 +898,7 @@ extern int     ecos_nanox_client_data_index;
     }
 
 #define nxSocket                (data->_nxSocket)
+#define nxGlobalLock            (data->_nxGlobalLock)
 #define storedevent             (data->_storedevent)
 #define storedevent_data        (data->_storedevent_data)
 #define regfdmax                (data->_regfdmax)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2002 Greg Haerr <greg@censoft.com>
  *
  * Nano-X Core Protocol Client Request Handling Routines
  */ 
@@ -11,6 +11,7 @@
 #include <string.h>
 #include "serv.h"
 #include "nxproto.h"
+#include "lock.h"
 
 #define SZREQBUF	2048	/* initial request buffer size*/
 
@@ -18,6 +19,7 @@
 static REQBUF	reqbuf;		/* request buffer*/
 extern int 	nxSocket;
 extern char *	nxSharedMem;
+extern MWMUTEX	nxGlobalLock;
 #endif
 
 /* Allocate a request buffer of passed size and fill in header fields*/
@@ -103,10 +105,12 @@ void
 nxFlushReq(long newsize, int reply_needed)
 {
         ACCESS_PER_THREAD_DATA();
+	LOCK(&nxGlobalLock);
 
 	/* handle one-time initialization case*/
 	if(reqbuf.buffer == NULL) {
 		nxAllocReqbuffer(newsize);
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 
@@ -166,6 +170,7 @@ nxFlushReq(long newsize, int reply_needed)
 				EPRINTF("nxFlushReq: shm region too small\n");
 				exit(1);
 			}
+			UNLOCK(&nxGlobalLock);
 			return;
 		}
 #endif /* HAVE_SHAREDMEM_SUPPORT*/
@@ -185,6 +190,7 @@ nxFlushReq(long newsize, int reply_needed)
 		reqbuf.bufptr = reqbuf.buffer;
 		reqbuf.bufmax = reqbuf.buffer + newsize;
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /* calc # bytes required for passed string according to encoding*/

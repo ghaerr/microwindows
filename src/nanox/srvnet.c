@@ -1740,7 +1740,7 @@ GsDestroyClientResources(GR_CLIENT * client)
 	GR_EVENT_CLIENT *pecp = NULL;
 	GR_EVENT_LIST	*evp;
 
-printf("Destroy client %d resources\n", client->id);
+DPRINTF("Destroy client %d resources\n", client->id);
 	/* search window list, destroy windows owned by client*/
 	for(wp=listwp; wp; wp=nwp) {
 		nwp = wp->next;
@@ -1751,7 +1751,7 @@ printf("Destroy client %d resources\n", client->id);
 		while (ecp) {
 			necp = ecp->next;
 			if (ecp->client == client) {
-printf( "  Destroy window %d eventclient mask %08lx\n", wp->id, ecp->eventmask);
+DPRINTF( "  Destroy window %d eventclient mask %08lx\n", wp->id, ecp->eventmask);
 				if (ecp == wp->eventclients)
 					wp->eventclients = ecp->next;
 				else
@@ -1762,7 +1762,7 @@ printf( "  Destroy window %d eventclient mask %08lx\n", wp->id, ecp->eventmask);
 			ecp = necp;
 		}
 		if (wp->owner == client) {
-printf("  Destroy window %d\n", wp->id);
+DPRINTF("  Destroy window %d\n", wp->id);
 			GrDestroyWindow(wp->id);
 		}
 	}
@@ -1771,7 +1771,7 @@ printf("  Destroy window %d\n", wp->id);
 	for(pp=listpp; pp; pp=npp) {
 		npp = pp->next;
 		if (pp->owner == client) {
-printf("  Destroy pixmap %d\n", pp->id);
+DPRINTF("  Destroy pixmap %d\n", pp->id);
 			GrDestroyWindow(pp->id);
 		}
 	}
@@ -1780,7 +1780,7 @@ printf("  Destroy pixmap %d\n", pp->id);
 	for(gp=listgcp; gp; gp=ngp) {
 		ngp = gp->next;
 		if (gp->owner == client) {
-printf("  Destroy gc %d\n", gp->id);
+DPRINTF("  Destroy gc %d\n", gp->id);
 			GrDestroyGC(gp->id);
 		}
 	}
@@ -1789,7 +1789,7 @@ printf("  Destroy gc %d\n", gp->id);
 	for(fp=listfontp; fp; fp=nfp) {
 		nfp = fp->next;
 		if (fp->owner == client) {
-printf("  Destroy font %d\n", fp->id);
+DPRINTF("  Destroy font %d\n", fp->id);
 			GrDestroyFont(fp->id);
 		}
 	}
@@ -1798,7 +1798,7 @@ printf("  Destroy font %d\n", fp->id);
 	for(rp=listregionp; rp; rp=nrp) {
 		nrp = rp->next;
 		if (rp->owner == client) {
-printf("  Destroy region %d\n", rp->id);
+DPRINTF("  Destroy region %d\n", rp->id);
 			GrDestroyRegion(rp->id);
 		}
 	}
@@ -1807,7 +1807,7 @@ printf("  Destroy region %d\n", rp->id);
 	for(ip=listimagep; ip; ip=nip) {
 		nip = ip->next;
 		if (ip->owner == client) {
-printf("  Destroy image %d\n", ip->id);
+DPRINTF("  Destroy image %d\n", ip->id);
 			GrFreeImage(ip->id);
 		}
 	}
@@ -1816,7 +1816,7 @@ printf("  Destroy image %d\n", ip->id);
 	for(cp=listcursorp; cp; cp=ncp) {
 		ncp = cp->next;
 		if (cp->owner == client) {
-printf("  Destroy cursor %d\n", cp->id);
+DPRINTF("  Destroy cursor %d\n", cp->id);
 			GrDestroyCursor(cp->id);
 		}
 	}
@@ -1824,7 +1824,7 @@ printf("  Destroy cursor %d\n", cp->id);
 	/* Free events associated with client*/
 	evp = client->eventhead;
 	while (evp) {
-printf("  Destroy event %d\n", evp->event.type);
+DPRINTF("  Destroy event %d\n", evp->event.type);
 		client->eventhead = evp->next;
 		evp->next = eventfree;
 		eventfree = evp;
@@ -1846,31 +1846,31 @@ GsPrintResources(void)
 	GR_IMAGE *ip;
 
 	/* window list*/
-	printf("Window list:\n");
+	DPRINTF("Window list:\n");
 	for(wp=listwp; wp; wp=wp->next) {
-		printf("%d(%d),", wp->id, wp->owner? wp->owner->id: 0);
+		DPRINTF("%d(%d),", wp->id, wp->owner? wp->owner->id: 0);
 	}
-	printf("\nPixmap list:\n");
+	DPRINTF("\nPixmap list:\n");
 	for(pp=listpp; pp; pp=pp->next) {
-		printf("%d(%d),", pp->id, pp->owner->id);
+		DPRINTF("%d(%d),", pp->id, pp->owner->id);
 	}
-	printf("\nGC list:\n");
+	DPRINTF("\nGC list:\n");
 	for(gp=listgcp; gp; gp=gp->next) {
-		printf("%d(%d),", gp->id, gp->owner->id);
+		DPRINTF("%d(%d),", gp->id, gp->owner->id);
 	}
-	printf("\nFont list:\n");
+	DPRINTF("\nFont list:\n");
 	for(fp=listfontp; fp; fp=fp->next) {
-		printf("%d(%d),", fp->id, fp->owner->id);
+		DPRINTF("%d(%d),", fp->id, fp->owner->id);
 	}
-	printf("\nRegion list:\n");
+	DPRINTF("\nRegion list:\n");
 	for(rp=listregionp; rp; rp=rp->next) {
-		printf("%d(%d),", rp->id, rp->owner->id);
+		DPRINTF("%d(%d),", rp->id, rp->owner->id);
 	}
-	printf("\nImage list:\n");
+	DPRINTF("\nImage list:\n");
 	for(ip=listimagep; ip; ip=ip->next) {
-		printf("%d(%d),", ip->id, ip->owner->id);
+		DPRINTF("%d(%d),", ip->id, ip->owner->id);
 	}
-	printf("\n");
+	DPRINTF("\n");
 }
 
 /*

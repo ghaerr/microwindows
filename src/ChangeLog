@@ -1,5 +1,7 @@
+Version 0.89pre9 - 24 Aug 2002 - greg@censoft.com
+	* added multi-threading safety to nano-X, THREADSAFE option to config
+		this currently requires pthreads, see include/lock.h
 	* fixed .bmp->.c conversion rule for broken building from CVS
-Version 0.89pre9 - 22 Aug 2002 - greg@censoft.com
 	* added VGA16 screen->offscreen blit (Alex)
 	* added XSynchronizeDisplay to X11 driver to bugfix fb emulation
 	* fixed mem leak in client.c::GetNextQueuedEvent()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1999, 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Copyright (c) 2000 Vidar Hokstad
@@ -58,6 +58,7 @@
 #include "nano-X.h"
 #include "serv.h"
 #include "nxproto.h"
+#include "lock.h"
 
 #define GR_CLOSE_FIX	1	/* dirty hack attempts to fix GrClose hang bug*/
 
@@ -66,6 +67,7 @@
 #ifndef __ECOS
 /* exported global data */
 int 	   nxSocket = -1;	/* The network socket descriptor */
+MWMUTEX	   nxGlobalLock;	/* global lock for threads safety*/
 #if HAVE_SHAREDMEM_SUPPORT
 char *	   nxSharedMem = 0;	/* Address of shared memory segment*/
 static int nxSharedMemSize;	/* Size in bytes of shared mem segment*/
@@ -97,51 +99,11 @@ int ecos_nanox_client_data_index = CYGNUM_KERNEL_THREADS_DATA_MAX;
 
 #endif
 
-static int _GrPeekEvent(GR_EVENT * ep);
+static void QueueEvent(GR_EVENT *ep);
+static void GetNextQueuedEvent(GR_EVENT *ep);
 static void _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
-
-/*
- * Queue an event in FIFO for later retrieval.
- */
-static void
-QueueEvent(GR_EVENT *ep)
-{
-	EVENT_LIST *	elp;
-	EVENT_LIST *	prevelp;
-        ACCESS_PER_THREAD_DATA()
-
-	elp = malloc(sizeof(EVENT_LIST));
-	if (elp) {
-		elp->event = *ep;
-		elp->next = NULL;
-
-		/* add as last entry on list*/
-		if (!evlist) {
-			evlist = elp;
-			return;
-		}
-		prevelp = evlist;
-		while (prevelp->next)
-			prevelp = prevelp->next;
-		prevelp->next = elp;
-	}
-}
-
-/*
- * Retrieve first event in FIFO event queue.
- */
-static void
-GetNextQueuedEvent(GR_EVENT *ep)
-{
-	EVENT_LIST	*elp;
-
-        ACCESS_PER_THREAD_DATA()
-
-	*ep = evlist->event;
-	elp = evlist;
-	evlist = evlist->next;
-	free(elp);
-}
+static int  _GrPeekEvent(GR_EVENT * ep);
+static void _GrPeekWaitEvent(GR_EVENT * ep);
 
 /*
  * Read n bytes of data from the server into block *b.  Make sure the data
@@ -150,7 +112,8 @@ GetNextQueuedEvent(GR_EVENT *ep)
  * with the Typed version of this function. Returns 0 on success or -1 on
  * failure.
  */
-static int GrReadBlock(void *b, int n)
+static int
+ReadBlock(void *b, int n)
 {
 	int i = 0;
 	char *v;
@@ -185,11 +148,12 @@ static int GrReadBlock(void *b, int n)
 /*
  * Read a byte of data from the server.
  */
-static int GrReadByte()
+static int
+ReadByte(void)
 {
 	unsigned char c;
 
-	if(GrReadBlock(&c, 1) == -1)
+	if(ReadBlock(&c, 1) == -1)
 		return -1;
 	else return (int) c;
 }
@@ -200,7 +164,8 @@ static int GrReadByte()
  * address of it (or NULL if the malloc() fails). We also don't try to read
  * any data if datalen is 0.
  */
-static void GrCheckForClientData(GR_EVENT *evp)
+static void
+CheckForClientData(GR_EVENT *evp)
 {
 	GR_EVENT_CLIENT_DATA *event;
 
@@ -211,7 +176,7 @@ static void GrCheckForClientData(GR_EVENT *evp)
 			return;
 		}
 		if(!(event->data = malloc(event->datalen))) return;
-		GrReadBlock(event->data, event->datalen);
+		ReadBlock(event->data, event->datalen);
 	}
 }
 
@@ -220,12 +185,13 @@ static void GrCheckForClientData(GR_EVENT *evp)
  * must be done in order to avoid reading an event as part of the response
  * from the server to a command that requires a reply.
  */
-static int GrCheckBlockType(short packettype)
+static int
+CheckBlockType(short packettype)
 {
 	short		b;
 	GR_EVENT	event;
 
-	while (GrReadBlock(&b,sizeof(b)) != -1) {
+	while (ReadBlock(&b,sizeof(b)) != -1) {
 		if (b == packettype)
 			return b;
 
@@ -241,13 +207,13 @@ static int GrCheckBlockType(short packettype)
 			 * GrPrepareSelect() is never called, then we should
 			 * never get here either, so that is cool too.
 			 */
-			GrReadBlock(&storedevent_data,
+			ReadBlock(&storedevent_data,
 				    sizeof(storedevent_data));
-			GrCheckForClientData(&storedevent_data);
+			CheckForClientData(&storedevent_data);
 			storedevent = 1;
 #endif
 			/* read event and queue it for later processing*/
-			GrReadBlock(&event, sizeof(event));
+			ReadBlock(&event, sizeof(event));
 			QueueEvent(&event);
 		} else {
 			EPRINTF("nxclient %d: Wrong packet type %d "
@@ -259,18 +225,19 @@ static int GrCheckBlockType(short packettype)
 }
 
 /*
- * Actually read a response from the server, much like the GrReadBlock but
+ * Actually read a response from the server, much like the ReadBlock but
  * make sure the response is of the right kind, e.g. store the event that
  * may have sneaked into the stream.
  */
-static int GrTypedReadBlock(void *b, int n, int type)
+static int
+TypedReadBlock(void *b, int n, int type)
 {
 	int r;
    
-	r = GrCheckBlockType(type);
+	r = CheckBlockType(type);
 	if (r != type)
 		return -1;
-	return GrReadBlock(b,n);
+	return ReadBlock(b,n);
 }
 
 /*
@@ -294,27 +261,6 @@ CheckErrorEvent(GR_EVENT *ep)
 			ep->type = GR_EVENT_TYPE_NONE;
 		}
 	}
-}
-
-/**
- * GrFlush:
- *
- * Flush the message buffer of any messages it may contain.
- */
-void 
-GrFlush(void)
-{
-	GR_EVENT event;
-
-	nxFlushReq(0L,1);
-  
-#ifdef NOTUSED
-	/* And stick any incoming events on the local queue */
-	while (_GrPeekEvent(&event)) {
-		_GrGetNextEventTimeout(&event, 0L);
-		QueueEvent(&event);
-	}
-#endif
 }
 
 /**
@@ -342,14 +288,16 @@ GrOpen(void)
 #endif
 	ACCESS_PER_THREAD_DATA()
 	
-	if (nxSocket == -1) {
-		if((nxSocket = socket(ADDR_FAM, SOCK_STREAM, 0)) == -1) {
-			nxSocket = -1;
-			return -1;
-		}
-        } else {
-            return nxSocket;
-        }
+	/* check already open*/
+	if (nxSocket >= 0)
+        	return nxSocket;
+
+	/* try to get socket*/
+	if ((nxSocket = socket(ADDR_FAM, SOCK_STREAM, 0)) == -1)
+		return -1;
+
+	/* initialize global critical section lock*/
+	LOCK_INIT(&nxGlobalLock);
 
 #if ELKS
 	name.sun_family = AF_NANO;
@@ -434,19 +382,45 @@ void
 GrClose(void)
 {
 	ACCESS_PER_THREAD_DATA()
+
 #if GR_CLOSE_FIX
 	/* allow 1 second to flush*/
 	void * oldSignalHandler = signal(SIGALRM, mySignalhandler);
 	alarm(1);
 #endif
+	LOCK(&nxGlobalLock);
 	AllocReq(Close);
 	GrFlush();
+	UNLOCK(&nxGlobalLock);
+
 #if GR_CLOSE_FIX
 	alarm(0);
 	signal(SIGALRM, oldSignalHandler);
 #endif
 	close(nxSocket);
 	nxSocket = -1;
+	LOCK_FREE(&nxGlobalLock);
+}
+
+/**
+ * GrFlush:
+ *
+ * Flush the message buffer of any messages it may contain.
+ */
+void 
+GrFlush(void)
+{
+	nxFlushReq(0L,1);
+  
+#ifdef NOTUSED
+	GR_EVENT event;
+
+	/* And stick any incoming events on the local queue */
+	while (_GrPeekEvent(&event)) {
+		_GrGetNextEventTimeout(&event, 0L);
+		QueueEvent(&event);
+	}
+#endif
 }
 
 /**
@@ -482,10 +456,13 @@ GrDefaultErrorHandler(GR_EVENT *ep)
 GR_FNCALLBACKEVENT
 GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
 {
+	GR_FNCALLBACKEVENT orig;
 	ACCESS_PER_THREAD_DATA()
-	GR_FNCALLBACKEVENT orig = ErrorFunc;
 
+	LOCK(&nxGlobalLock);
+	orig = ErrorFunc;
 	ErrorFunc = fncb;
+	UNLOCK(&nxGlobalLock);
 	return orig;
 }
 
@@ -515,8 +492,10 @@ GrDelay(GR_TIMEOUT msecs)
 void 
 GrGetScreenInfo(GR_SCREEN_INFO *sip)
 {
+	LOCK(&nxGlobalLock);
 	AllocReq(GetScreenInfo);
-	GrTypedReadBlock(sip, sizeof(GR_SCREEN_INFO),GrNumGetScreenInfo);
+	TypedReadBlock(sip, sizeof(GR_SCREEN_INFO),GrNumGetScreenInfo);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -535,10 +514,12 @@ GrGetSysColor(int index)
 	nxGetSysColorReq *req;
 	GR_COLOR color;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetSysColor);
 	req->index = index;
-	if(GrTypedReadBlock(&color, sizeof(color),GrNumGetSysColor) == -1)
-		return 0;
+	if(TypedReadBlock(&color, sizeof(color),GrNumGetSysColor) == -1)
+		color = 0;
+	UNLOCK(&nxGlobalLock);
 	return color;
 }
 
@@ -555,9 +536,11 @@ GrGetFontInfo(GR_FONT_ID fontno, GR_FONT_INFO *fip)
 {
 	nxGetFontInfoReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetFontInfo);
 	req->fontid = fontno;
-	GrTypedReadBlock(fip, sizeof(GR_FONT_INFO),GrNumGetFontInfo);
+	TypedReadBlock(fip, sizeof(GR_FONT_INFO),GrNumGetFontInfo);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -568,13 +551,16 @@ GrGetFontInfo(GR_FONT_ID fontno, GR_FONT_INFO *fip)
  * Fills in the specified GR_GC_INFO structure with information regarding the
  * specified graphics context.
  */
-void GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
+void
+GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
 {
 	nxGetGCInfoReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetGCInfo);
 	req->gcid = gc;
-	GrTypedReadBlock(gcip, sizeof(GR_GC_INFO),GrNumGetGCInfo);
+	TypedReadBlock(gcip, sizeof(GR_GC_INFO),GrNumGetGCInfo);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -591,7 +577,8 @@ void GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
  * and flags in the specified graphics context. The count argument can be -1
  * if the string is null terminated.
  */
-void GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
+void
+GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
 	GR_SIZE *retwidth, GR_SIZE *retheight, GR_SIZE *retbase)
 {
 	nxGetGCTextSizeReq *req;
@@ -602,13 +589,15 @@ void GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
 
 	size = nxCalcStringBytes(str, count, flags);
 
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(GetGCTextSize, size);
 	req->gcid = gc;
 	req->flags = flags;
 	memcpy(GetReqData(req), str, size);
-	GrTypedReadBlock(retwidth, sizeof(*retwidth),GrNumGetGCTextSize);
-	GrReadBlock(retheight, sizeof(*retheight));
-	GrReadBlock(retbase, sizeof(*retbase));
+	TypedReadBlock(retwidth, sizeof(*retwidth),GrNumGetGCTextSize);
+	ReadBlock(retheight, sizeof(*retheight));
+	ReadBlock(retbase, sizeof(*retbase));
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -626,8 +615,11 @@ GrRegisterInput(int fd)
 
 	if (fd < 0)
 		return;
+
+	LOCK(&nxGlobalLock);
 	FD_SET(fd, &regfdset);
 	if (fd > regfdmax) regfdmax = fd + 1;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -641,13 +633,15 @@ void
 GrUnregisterInput(int fd)
 {
 	int i, max;
-
 	ACCESS_PER_THREAD_DATA()
+
+	LOCK(&nxGlobalLock);
 
 	/* unregister all inputs if fd is -1 */
 	if (fd == -1) {
 		FD_ZERO(&regfdset);
 		regfdmax = -1;
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 
@@ -656,6 +650,7 @@ GrUnregisterInput(int fd)
 	for (i = 0, max = regfdmax, regfdmax = -1; i < max; i++)
 		if (FD_ISSET(i, &regfdset))
 			regfdmax = i + 1;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -679,6 +674,7 @@ GrPrepareSelect(int *maxfd,void *rfdset)
 
 	ACCESS_PER_THREAD_DATA()
 
+	LOCK(&nxGlobalLock);
 	AllocReq(GetNextEvent);
 	GrFlush();
 
@@ -693,6 +689,7 @@ GrPrepareSelect(int *maxfd,void *rfdset)
 			if (fd > *maxfd) *maxfd = fd;
 		}
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -712,6 +709,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 	GR_EVENT 	ev;
 
 	ACCESS_PER_THREAD_DATA()
+	LOCK(&nxGlobalLock);
 
         /* Clean out any event that might have arrived while waiting
 	 * for other data, for instance by doing Nano-X requests
@@ -727,8 +725,8 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 	}
 	else {
 		if(FD_ISSET(nxSocket, rfds)) {
-			GrTypedReadBlock(&ev, sizeof(ev),GrNumGetNextEvent);
-			GrCheckForClientData(&ev);
+			TypedReadBlock(&ev, sizeof(ev),GrNumGetNextEvent);
+			CheckForClientData(&ev);
 			CheckErrorEvent(&ev);
 			fncb(&ev);
 		}
@@ -742,6 +740,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 			fncb(&ev);
 		}
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -766,6 +765,49 @@ GrMainLoop(GR_FNCALLBACKEVENT fncb)
 	}
 }
 
+/*
+ * Queue an event in FIFO for later retrieval.
+ */
+static void
+QueueEvent(GR_EVENT *ep)
+{
+	EVENT_LIST *	elp;
+	EVENT_LIST *	prevelp;
+        ACCESS_PER_THREAD_DATA()
+
+	elp = malloc(sizeof(EVENT_LIST));
+	if (elp) {
+		elp->event = *ep;
+		elp->next = NULL;
+
+		/* add as last entry on list*/
+		if (!evlist) {
+			evlist = elp;
+			return;
+		}
+		prevelp = evlist;
+		while (prevelp->next)
+			prevelp = prevelp->next;
+		prevelp->next = elp;
+	}
+}
+
+/*
+ * Retrieve first event in FIFO event queue.
+ */
+static void
+GetNextQueuedEvent(GR_EVENT *ep)
+{
+	EVENT_LIST	*elp;
+
+        ACCESS_PER_THREAD_DATA()
+
+	*ep = evlist->event;
+	elp = evlist;
+	evlist = evlist->next;
+	free(elp);
+}
+
 /**
  * GrGetNextEvent:
  * @ep: pointer to the GR_EVENT structure to return the event in
@@ -781,6 +823,33 @@ GrGetNextEvent(GR_EVENT *ep)
 	GrGetNextEventTimeout(ep, 0L);
 }
 
+/**
+ * GrGetNextEventTimeout:
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ * @timeout: the number of milliseconds to wait before timing out
+ *
+ * Gets the next event from the event queue and places it in the specified
+ * GR_EVENT structure. If the queue is currently empty, we sleep until the
+ * next event arrives from the server, input is read on a file descriptor
+ * previously specified by GrRegisterInput(), or a timeout occurs. Note
+ * that a value of 0 for the timeout parameter doesn't mean "timeout after 0
+ * milliseconds" but is in fact a magic number meaning "never time out".
+ */
+void
+GrGetNextEventTimeout(GR_EVENT * ep, GR_TIMEOUT timeout)
+{
+	LOCK(&nxGlobalLock);
+	if (evlist) {
+		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
+		GetNextQueuedEvent(ep);
+		CheckErrorEvent(ep);
+		UNLOCK(&nxGlobalLock);
+		return;
+	}
+
+	_GrGetNextEventTimeout(ep,timeout);
+	UNLOCK(&nxGlobalLock);
+}
 
 static void
 _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
@@ -816,8 +885,8 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 			 * This will never be GR_EVENT_NONE with the current
 			 * implementation.
 			 */
-		        GrTypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
-			GrCheckForClientData(ep);
+		        TypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
+			CheckForClientData(ep);
 			CheckErrorEvent(ep);
 			return;
 		}
@@ -849,72 +918,6 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 }
 
 /**
- * GrGetNextEventTimeout:
- * @ep: pointer to the GR_EVENT structure to return the event in
- * @timeout: the number of milliseconds to wait before timing out
- *
- * Gets the next event from the event queue and places it in the specified
- * GR_EVENT structure. If the queue is currently empty, we sleep until the
- * next event arrives from the server, input is read on a file descriptor
- * previously specified by GrRegisterInput(), or a timeout occurs. Note
- * that a value of 0 for the timeout parameter doesn't mean "timeout after 0
- * milliseconds" but is in fact a magic number meaning "never time out".
- */
-void
-GrGetNextEventTimeout(GR_EVENT * ep, GR_TIMEOUT timeout)
-{
-	if (evlist) {
-		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
-		GetNextQueuedEvent(ep);
-		CheckErrorEvent(ep);
-		return;
-	}
-
-
-	_GrGetNextEventTimeout(ep,timeout);
-}
-
-
-/**
- * GrCheckNextEvent:
- * @ep: pointer to the GR_EVENT structure to return the event in
- *
- * Gets the next event from the event queue if there is one, or returns
- * immediately with an event type of GR_EVENT_TYPE_NONE if it is empty.
- */
-void 
-GrCheckNextEvent(GR_EVENT *ep)
-{
-	ACCESS_PER_THREAD_DATA()
-
-	if (evlist) {
-		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
-		GetNextQueuedEvent(ep);
-		CheckErrorEvent(ep);
-		return;
-	}
-
-	AllocReq(CheckNextEvent);
-	GrTypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
-	GrCheckForClientData(ep);
-	CheckErrorEvent(ep);
-}
-
-
-static int
-_GrPeekEvent(GR_EVENT * ep)
-{
-        int ret;
-
-	AllocReq(PeekEvent);
-	GrTypedReadBlock(ep, sizeof(*ep),GrNumPeekEvent);
-	GrCheckForClientData(ep);
-	ret = GrReadByte();
-	CheckErrorEvent(ep);
-	return ret;
-}
-
-/**
  * GrPeekEvent:
  * @ep: pointer to the GR_EVENT structure to return the event in
  * @Returns: 1 if an event was returned, or 0 if the queue was empty
@@ -926,14 +929,55 @@ _GrPeekEvent(GR_EVENT * ep)
 int 
 GrPeekEvent(GR_EVENT *ep)
 {
+	int ret;
 	ACCESS_PER_THREAD_DATA()
 
+	LOCK(&nxGlobalLock);
 	if (evlist) {
 		*ep = evlist->event;
 		CheckErrorEvent(ep);
+		UNLOCK(&nxGlobalLock);
 		return 1;
 	}
-	return _GrPeekEvent(ep);
+	ret = _GrPeekEvent(ep);
+	UNLOCK(&nxGlobalLock);
+	return ret;
+}
+
+static int
+_GrPeekEvent(GR_EVENT * ep)
+{
+        int ret;
+
+	AllocReq(PeekEvent);
+	TypedReadBlock(ep, sizeof(*ep),GrNumPeekEvent);
+	CheckForClientData(ep);
+	ret = ReadByte();
+	CheckErrorEvent(ep);
+	return ret;
+}
+
+/**
+ * GrPeekWaitEvent:
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ *
+ * Wait until an event is available for a client, and then peek at it.
+ */
+void
+GrPeekWaitEvent(GR_EVENT *ep)
+{
+	ACCESS_PER_THREAD_DATA()
+
+	LOCK(&nxGlobalLock);
+	if (evlist) {
+		*ep = evlist->event;
+		CheckErrorEvent(ep);
+		UNLOCK(&nxGlobalLock);
+		return;
+	}
+
+	_GrPeekWaitEvent(ep);
+	UNLOCK(&nxGlobalLock);
 }
 
 static void
@@ -956,24 +1000,127 @@ _GrPeekWaitEvent(GR_EVENT * ep)
 }
 
 /**
- * GrPeekWaitEvent:
+ * GrCheckNextEvent:
  * @ep: pointer to the GR_EVENT structure to return the event in
  *
- * Wait until an event is available for a client, and then peek at it.
+ * Gets the next event from the event queue if there is one, or returns
+ * immediately with an event type of GR_EVENT_TYPE_NONE if it is empty.
  */
-void
-GrPeekWaitEvent(GR_EVENT *ep)
+void 
+GrCheckNextEvent(GR_EVENT *ep)
 {
 	ACCESS_PER_THREAD_DATA()
 
+	LOCK(&nxGlobalLock);
 	if (evlist) {
-		*ep = evlist->event;
+		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
+		GetNextQueuedEvent(ep);
 		CheckErrorEvent(ep);
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 
-	_GrPeekWaitEvent(ep);
+	AllocReq(CheckNextEvent);
+	TypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
+	CheckForClientData(ep);
+	CheckErrorEvent(ep);
+	UNLOCK(&nxGlobalLock);
 }
+
+static int
+_CheckTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
+	GR_EVENT * ep, void * arg)
+{
+	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
+
+printf("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, mask, update, ep->general.wid, ep->type);
+
+	// FIXME: not all events have wid field here...
+	if (wid && (wid != ep->general.wid))
+		return 0;
+
+	if (mask) {
+		if ((mask & emask) == 0)
+			return 0;
+
+		if (update && ((mask & emask) == GR_EVENT_MASK_UPDATE))
+			if (update != ep->update.utype)
+				return 0;
+	}
+
+	return 1;
+}
+
+/**
+ * GrGetTypedEvent
+ * @wid: window id for which to check events. 0 means no window
+ * @mask: event mask of events for which to check. 0 means no check for mask
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ * @block: specifies whether or not to block, 1 blocks, 0 does not
+ * @Returns: GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
+ * if no events match
+ *
+ * Fills in the specified event structure with a copy of the next event on the
+ * queue that matches the type parameters passed and removes it from the queue.
+ * An event type of GR_EVENT_TYPE_NONE is given if the queue is empty; else,
+ * the event type is returned.
+ */
+int
+GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
+	GR_EVENT * ep, int block)
+{
+	return GrGetTypedEventPred(wid, mask, mask_up, ep, block, _CheckTypedEvent, 0);
+}
+
+int
+GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
+	GR_EVENT *ep, int block, 
+	int (*CheckFunction)(GR_WINDOW_ID, GR_EVENT_MASK, 
+		GR_UPDATE_TYPE, GR_EVENT *, void *),
+	void *arg)
+{
+	EVENT_LIST *elp, *prevelp;
+	GR_EVENT event;
+
+	ACCESS_PER_THREAD_DATA();
+  
+	LOCK(&nxGlobalLock);
+	/* First, suck up all events and place them into the event queue */
+	while(_GrPeekEvent(&event)) {
+getevent:
+		_GrGetNextEventTimeout(&event, 0L);
+		QueueEvent(&event);
+	}
+
+	/* Now, run through the event queue, looking for matches for the typed
+	 * info that was passed.
+	 */
+	prevelp = NULL;
+	elp = evlist;
+	while (elp) {
+		if ((*CheckFunction)(wid, mask, mask_up, &elp->event, arg)) {
+			/* remove event from queue, return it*/
+			if (prevelp == NULL)
+				evlist = elp->next;
+			else prevelp->next = elp->next;
+			*ep = elp->event;
+
+			UNLOCK(&nxGlobalLock);
+			return ep->type;
+		}
+		prevelp = elp;
+		elp = elp->next;
+	}
+
+	/* if event still not found and waiting ok, then wait*/
+	if (block)
+		goto getevent;
+
+	/* return no event*/
+	ep->type = GR_EVENT_TYPE_NONE;
+	UNLOCK(&nxGlobalLock);
+	return GR_EVENT_TYPE_NONE;
+} 
 
 /**
  * GrSelectEvents:
@@ -987,9 +1134,11 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 {
 	nxSelectEventsReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SelectEvents);
 	req->windowid = wid;
 	req->eventmask = eventmask;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1014,6 +1163,7 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
 	nxNewWindowReq *req;
 	GR_WINDOW_ID 	wid;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(NewWindow);
 	req->parentid = parent;
 	req->x = x;
@@ -1023,8 +1173,9 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
 	req->backgroundcolor = background;
 	req->bordercolor = bordercolor;
 	req->bordersize = bordersize;
-	if(GrTypedReadBlock(&wid, sizeof(wid),GrNumNewWindow) == -1)
-		return 0;
+	if(TypedReadBlock(&wid, sizeof(wid),GrNumNewWindow) == -1)
+		wid = 0;
+	UNLOCK(&nxGlobalLock);
 	return wid;
 }
    
@@ -1047,11 +1198,13 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void *addr)
 	nxNewPixmapReq *req;
 	GR_WINDOW_ID 	wid;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(NewPixmap);
 	req->width = width;
 	req->height = height;
-	if(GrTypedReadBlock(&wid, sizeof(wid), GrNumNewPixmap) == -1)
-		return 0;
+	if(TypedReadBlock(&wid, sizeof(wid), GrNumNewPixmap) == -1)
+		wid = 0;
+	UNLOCK(&nxGlobalLock);
 	return wid;
 }
 
@@ -1074,14 +1227,16 @@ GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
 	nxNewInputWindowReq *req;
 	GR_WINDOW_ID 	     wid;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(NewInputWindow);
 	req->parentid = parent;
 	req->x = x;
 	req->y = y;
 	req->width = width;
 	req->height = height;
-	if(GrTypedReadBlock(&wid, sizeof(wid), GrNumNewInputWindow) == -1)
-		return 0;
+	if(TypedReadBlock(&wid, sizeof(wid), GrNumNewInputWindow) == -1)
+		wid = 0;
+	UNLOCK(&nxGlobalLock);
 	return wid;
 }
 
@@ -1097,8 +1252,10 @@ GrDestroyWindow(GR_WINDOW_ID wid)
 {
 	nxDestroyWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(DestroyWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1114,9 +1271,11 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 {
 	nxGetWindowInfoReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetWindowInfo);
 	req->windowid = wid;
-	GrTypedReadBlock(infoptr, sizeof(GR_WINDOW_INFO), GrNumGetWindowInfo);
+	TypedReadBlock(infoptr, sizeof(GR_WINDOW_INFO), GrNumGetWindowInfo);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1131,9 +1290,11 @@ GrNewGC(void)
 {
 	GR_GC_ID    gc;
 
+	LOCK(&nxGlobalLock);
 	AllocReq(NewGC);
-	if(GrTypedReadBlock(&gc, sizeof(gc),GrNumNewGC) == -1)
-		return 0;
+	if(TypedReadBlock(&gc, sizeof(gc),GrNumNewGC) == -1)
+		gc = 0;
+	UNLOCK(&nxGlobalLock);
 	return gc;
 }
 
@@ -1151,10 +1312,12 @@ GrCopyGC(GR_GC_ID gc)
 	nxCopyGCReq *req;
 	GR_GC_ID     newgc;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(CopyGC);
 	req->gcid = gc;
-	if(GrTypedReadBlock(&newgc, sizeof(newgc),GrNumCopyGC) == -1)
-		return 0;
+	if(TypedReadBlock(&newgc, sizeof(newgc),GrNumCopyGC) == -1)
+		newgc = 0;
+	UNLOCK(&nxGlobalLock);
 	return newgc;
 }
 
@@ -1169,8 +1332,10 @@ GrDestroyGC(GR_GC_ID gc)
 {
 	nxDestroyGCReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(DestroyGC);
 	req->gcid = gc;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1185,9 +1350,11 @@ GrNewRegion(void)
 {
 	GR_REGION_ID    region;
 
+	LOCK(&nxGlobalLock);
 	AllocReq(NewRegion);
-	if(GrTypedReadBlock(&region, sizeof(region),GrNumNewRegion) == -1)
-		return 0;
+	if(TypedReadBlock(&region, sizeof(region),GrNumNewRegion) == -1)
+		region = 0;
+	UNLOCK(&nxGlobalLock);
 	return region;
 }
 
@@ -1202,8 +1369,10 @@ GrDestroyRegion(GR_REGION_ID region)
 {
 	nxDestroyRegionReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(DestroyRegion);
 	req->regionid = region;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1219,10 +1388,12 @@ GrUnionRectWithRegion(GR_REGION_ID region, GR_RECT *rect)
 {
 	nxUnionRectWithRegionReq *req;
 
+	LOCK(&nxGlobalLock);
  	req = AllocReq(UnionRectWithRegion);
  	if(rect)
  		memcpy(&req->rect, rect, sizeof(*rect));
  	req->regionid = region;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1240,10 +1411,12 @@ GrUnionRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 {
 	nxUnionRegionReq *req;
 
+	LOCK(&nxGlobalLock);
  	req = AllocReq(UnionRegion);
  	req->regionid = dst_rgn;
  	req->srcregionid1 = src_rgn1;
  	req->srcregionid2 = src_rgn2;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1261,10 +1434,12 @@ GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 {
 	nxSubtractRegionReq *req;
 
+	LOCK(&nxGlobalLock);
  	req = AllocReq(SubtractRegion);
  	req->regionid = dst_rgn;
  	req->srcregionid1 = src_rgn1;
  	req->srcregionid2 = src_rgn2;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1283,10 +1458,12 @@ GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 {
 	nxXorRegionReq *req;
 
+	LOCK(&nxGlobalLock);
  	req = AllocReq(XorRegion);
  	req->regionid = dst_rgn;
  	req->srcregionid1 = src_rgn1;
  	req->srcregionid2 = src_rgn2;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1305,10 +1482,12 @@ GrIntersectRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 {
 	nxIntersectRegionReq *req;
 
+	LOCK(&nxGlobalLock);
  	req = AllocReq(IntersectRegion);
  	req->regionid = dst_rgn;
  	req->srcregionid1 = src_rgn1;
  	req->srcregionid2 = src_rgn2;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1326,9 +1505,11 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
 {
 	nxSetGCRegionReq *req;
 	
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCRegion);
 	req->gcid = gc;
 	req->regionid = region;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1345,10 +1526,12 @@ GrSetGCClipOrigin(GR_GC_ID gc, int x, int y)
 {
 	nxSetGCClipOriginReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCClipOrigin);
 	req->gcid = gc;
 	req->xoff = x;
 	req->yoff = y;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1364,9 +1547,11 @@ GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
 {
 	nxSetGCGraphicsExposureReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCGraphicsExposure);
 	req->gcid = gc;
 	req->exposure = exposure;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1385,13 +1570,15 @@ GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y)
 	nxPointInRegionReq *req;
 	GR_BOOL             ret_value;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(PointInRegion);
 	req->regionid = region;
 	req->x = x;
 	req->y = y;
-	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
-		GrNumPointInRegion) == -1)
-		return GR_FALSE;
+	if(TypedReadBlock(&ret_value, sizeof(ret_value),
+	    GrNumPointInRegion) == -1)
+		ret_value = GR_FALSE;
+	UNLOCK(&nxGlobalLock);
 	return ret_value;
 }
 
@@ -1416,15 +1603,17 @@ GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y, GR_COORD w,
 	nxRectInRegionReq *req;
 	unsigned short	   ret_value;
 	
+	LOCK(&nxGlobalLock);
 	req = AllocReq(RectInRegion);
 	req->regionid = region;
 	req->x = x;
 	req->y = y;
 	req->w = w;
 	req->h = h;
- 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
-		GrNumRectInRegion) == -1)
-		return 0;
+ 	if(TypedReadBlock(&ret_value, sizeof(ret_value),
+	    GrNumRectInRegion) == -1)
+		ret_value = 0;
+	UNLOCK(&nxGlobalLock);
 	return (int)ret_value;
 }
 
@@ -1442,11 +1631,13 @@ GrEmptyRegion(GR_REGION_ID region)
 	nxEmptyRegionReq *req;
 	GR_BOOL 	  ret_value;
 	
+	LOCK(&nxGlobalLock);
 	req = AllocReq(EmptyRegion);
 	req->regionid = region;
- 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
-		GrNumEmptyRegion) == -1)
-		return GR_FALSE;
+ 	if(TypedReadBlock(&ret_value, sizeof(ret_value),
+	    GrNumEmptyRegion) == -1)
+		ret_value = GR_FALSE;
+	UNLOCK(&nxGlobalLock);
 	return ret_value;
 }
 
@@ -1465,12 +1656,14 @@ GrEqualRegion(GR_REGION_ID rgn1, GR_REGION_ID rgn2)
 	nxEqualRegionReq *req;
 	GR_BOOL 	  ret_value;
 	
+	LOCK(&nxGlobalLock);
 	req = AllocReq(EqualRegion);
 	req->region1 = rgn1;
 	req->region2 = rgn2;
- 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
-		GrNumEqualRegion) == -1)
-		return GR_FALSE;
+ 	if(TypedReadBlock(&ret_value, sizeof(ret_value),
+	    GrNumEqualRegion) == -1)
+		ret_value = GR_FALSE;
+	UNLOCK(&nxGlobalLock);
 	return ret_value;
 }
 
@@ -1487,10 +1680,12 @@ GrOffsetRegion(GR_REGION_ID region, GR_SIZE dx, GR_SIZE dy)
 {
 	nxOffsetRegionReq *req;
 	
+	LOCK(&nxGlobalLock);
 	req = AllocReq(OffsetRegion);
 	req->region = region;
 	req->dx = dx;
 	req->dy = dy;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1511,13 +1706,16 @@ GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
 	
 	if (!rect)
 		return GR_FALSE;
+
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetRegionBox);
 	req->regionid = region;
- 	if(GrTypedReadBlock(rect, sizeof(*rect), GrNumGetRegionBox) == -1)
+ 	if(TypedReadBlock(rect, sizeof(*rect), GrNumGetRegionBox) == -1)
 		return GR_FALSE;
- 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
-		GrNumGetRegionBox) == -1)
-		return GR_FALSE;
+ 	if(TypedReadBlock(&ret_value, sizeof(ret_value),
+	    GrNumGetRegionBox) == -1)
+		ret_value = GR_FALSE;
+	UNLOCK(&nxGlobalLock);
 	return ret_value;
 }
 
@@ -1544,15 +1742,17 @@ GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
 	if(points == NULL)
 		return 0;
 
+	LOCK(&nxGlobalLock);
 	size = (long)count * sizeof(GR_POINT);
 	req = AllocReqExtra(NewPolygonRegion, size);
 	req->mode = mode;
 	/* FIXME: unportable method, depends on sizeof(int) in GR_POINT*/
 	memcpy(GetReqData(req), points, size);
 
-	if(GrTypedReadBlock(&region, sizeof(region),
-		GrNumNewPolygonRegion) == -1)
-		return 0;
+	if(TypedReadBlock(&region, sizeof(region),
+	    GrNumNewPolygonRegion) == -1)
+		region = 0;
+	UNLOCK(&nxGlobalLock);
 	return region;
 }
 
@@ -1570,8 +1770,10 @@ GrMapWindow(GR_WINDOW_ID wid)
 {
 	nxMapWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(MapWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1585,9 +1787,11 @@ void
 GrUnmapWindow(GR_WINDOW_ID wid)
 {
 	nxUnmapWindowReq *req;
-
+	
+	LOCK(&nxGlobalLock);
 	req = AllocReq(UnmapWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1602,8 +1806,10 @@ GrRaiseWindow(GR_WINDOW_ID wid)
 {
 	nxRaiseWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(RaiseWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1618,8 +1824,10 @@ GrLowerWindow(GR_WINDOW_ID wid)
 {
 	nxLowerWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(LowerWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1636,10 +1844,12 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 {
 	nxMoveWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(MoveWindow);
 	req->windowid = wid;
 	req->x = x;
 	req->y = y;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1655,10 +1865,12 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 {
 	nxResizeWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(ResizeWindow);
 	req->windowid = wid;
 	req->width = width;
 	req->height = height;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1677,11 +1889,13 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 {
 	nxReparentWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(ReparentWindow);
 	req->windowid = wid;
 	req->parentid = pwid;
 	req->x = x;
 	req->y = y;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1699,6 +1913,7 @@ GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
 {
 	nxClearAreaReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(ClearArea);
 	req->windowid = wid;
 	req->x = x;
@@ -1706,6 +1921,7 @@ GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
 	req->width = width;
 	req->height = height;
 	req->exposeflag = exposeflag;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1719,9 +1935,11 @@ GrGetFocus(void)
 {
 	GR_WINDOW_ID    wid;
 
+	LOCK(&nxGlobalLock);
 	AllocReq(GetFocus);
-	if(GrTypedReadBlock(&wid, sizeof(wid), GrNumGetFocus) == -1)
-		return 0;
+	if(TypedReadBlock(&wid, sizeof(wid), GrNumGetFocus) == -1)
+		wid = 0;
+	UNLOCK(&nxGlobalLock);
 	return wid;
 }
 
@@ -1736,8 +1954,10 @@ GrSetFocus(GR_WINDOW_ID wid)
 {
 	nxSetFocusReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetFocus);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1756,9 +1976,11 @@ GrSetWindowCursor(GR_WINDOW_ID wid, GR_CURSOR_ID cid)
 {
 	nxSetWindowCursorReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetWindowCursor);
 	req->windowid = wid;
 	req->cursorid = cid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1785,6 +2007,7 @@ GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx, GR_COORD hoty,
 	GR_CURSOR_ID	cursorid;
 
 	bitmapsize = GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(NewCursor, bitmapsize*2);
 	req->width = width;
 	req->height = height;
@@ -1796,8 +2019,9 @@ GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx, GR_COORD hoty,
 	memcpy(data, fgbitmap, bitmapsize);
 	memcpy(data+bitmapsize, bgbitmap, bitmapsize);
 
-	if(GrTypedReadBlock(&cursorid, sizeof(cursorid), GrNumNewCursor) == -1)
-		return 0;
+	if(TypedReadBlock(&cursorid, sizeof(cursorid), GrNumNewCursor) == -1)
+		cursorid = 0;
+	UNLOCK(&nxGlobalLock);
 	return cursorid;
 }
 
@@ -1818,9 +2042,11 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 {
 	nxMoveCursorReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(MoveCursor);
 	req->x = x;
 	req->y = y;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1836,9 +2062,11 @@ GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
 {
 	nxSetGCForegroundReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCForeground);
 	req->gcid = gc;
 	req->color = foreground;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1854,9 +2082,11 @@ GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
 {
 	nxSetGCBackgroundReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCBackground);
 	req->gcid = gc;
 	req->color = background;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1872,9 +2102,11 @@ GrSetGCMode(GR_GC_ID gc, int mode)
 {
 	nxSetGCModeReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCMode);
 	req->gcid = gc;
 	req->mode = mode;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1890,72 +2122,84 @@ GrSetGCLineAttributes(GR_GC_ID gc, int line_style)
 {
 	nxSetGCLineAttributesReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCLineAttributes);
 	req->gcid = gc;
 	req->line_style = line_style;
+	UNLOCK(&nxGlobalLock);
 }
 
 void 
 GrSetGCDash(GR_GC_ID gc, char *dashes, char count)
 {
-  nxSetGCDashReq *req;
+	nxSetGCDashReq *req;
+	int size;
 
-  req = AllocReqExtra(SetGCDash, count * sizeof(char));
-  req->gcid = gc;
-  req->count = count;
-
-  memcpy(GetReqData(req), dashes, count * sizeof(char));
+	size = count * sizeof(char);
+	LOCK(&nxGlobalLock);
+	req = AllocReqExtra(SetGCDash, size);
+	req->gcid = gc;
+	req->count = count;
+	memcpy(GetReqData(req), dashes, size);
+	UNLOCK(&nxGlobalLock);
 }
 
 void
-GrSetGCFillMode(GR_GC_ID gc, int fill_mode) {
+GrSetGCFillMode(GR_GC_ID gc, int fill_mode)
+{
   	nxSetGCFillModeReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCFillMode);
 	req->gcid = gc;
 	req->fill_mode = fill_mode;
+	UNLOCK(&nxGlobalLock);
 }
 
 void
-GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height) {
+GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height)
+{
+	nxSetGCStippleReq *req;
+	int size;
 
-  nxSetGCStippleReq *req;
-
-  req = AllocReqExtra(SetGCStipple, 
-		      GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
-
-  req->gcid = gc;
-  req->width = width;
-  req->height = height;
-
-  memcpy(GetReqData(req), bitmap, 
-	 GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
+	size = GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	LOCK(&nxGlobalLock);
+	req = AllocReqExtra(SetGCStipple, size);
+	req->gcid = gc;
+	req->width = width;
+	req->height = height;
+	memcpy(GetReqData(req), bitmap, size);
+	UNLOCK(&nxGlobalLock);
 }
 
 void
-GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pid, int width, int height) {
+GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pid, int width, int height)
+{
+	nxSetGCTileReq *req;
 
-  nxSetGCTileReq *req;
+printf("SET GC TILE %d, %d, %d\n", pid, width, height);
 
-  /* FIXME:  Set a size restriction here? */
-  req = AllocReq(SetGCTile);
-
-  printf("SET GC TILE %d, %d, %d\n", pid, width, height);
-
-  req->gcid = gc;
-  req->pid = pid;
-  req->width = width;
-  req->height = height;
+	LOCK(&nxGlobalLock);
+	/* FIXME:  Set a size restriction here? */
+	req = AllocReq(SetGCTile);
+	req->gcid = gc;
+	req->pid = pid;
+	req->width = width;
+	req->height = height;
+	UNLOCK(&nxGlobalLock);
 }
 
 void
-GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff) {
-  nxSetGCTSOffsetReq *req;
-	
+GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
+{
+	nxSetGCTSOffsetReq *req;
+
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCTSOffset);
 	req->gcid = gc;
 	req->xoffset = xoff;
 	req->yoffset = yoff;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1972,9 +2216,11 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
 {
 	nxSetGCUseBackgroundReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCUseBackground);
 	req->gcid = gc;
 	req->flag = flag;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -1998,6 +2244,7 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 	nxCreateFontReq *req;
 	GR_FONT_ID	fontid;
 
+	LOCK(&nxGlobalLock);
  	req = AllocReq(CreateFont);
  	if (plogfont) {
  		memcpy(&req->lf, plogfont, sizeof(*plogfont));
@@ -2011,8 +2258,9 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
  		req->lf_used = 0;
 	}
   
-	if(GrTypedReadBlock(&fontid, sizeof(fontid),GrNumCreateFont) == -1)
-		return 0;
+	if(TypedReadBlock(&fontid, sizeof(fontid),GrNumCreateFont) == -1)
+		fontid = 0;
+	UNLOCK(&nxGlobalLock);
 	return fontid;
 }
 
@@ -2032,9 +2280,10 @@ GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
 	GR_FONTLIST **flist;
 	int num, len, i;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetFontList);
 
-	GrTypedReadBlock(&num, sizeof(int), GrNumGetFontList);
+	TypedReadBlock(&num, sizeof(int), GrNumGetFontList);
 	
 	*numfonts = num;
 
@@ -2047,19 +2296,20 @@ GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
 		flist[i] = (GR_FONTLIST*)malloc(sizeof(GR_FONTLIST*));
 
 	for(i = 0; i < num; i++) {
-		GrReadBlock(&len, sizeof(int));
+		ReadBlock(&len, sizeof(int));
 		tmpstr = (char*)malloc(len * sizeof(char));
-		GrReadBlock(tmpstr, len * sizeof(char));
+		ReadBlock(tmpstr, len * sizeof(char));
 		flist[i]->ttname = tmpstr;
 
-		GrReadBlock(&len, sizeof(int));
+		ReadBlock(&len, sizeof(int));
 		tmpstr = (char*)malloc(len * sizeof(char));
-		GrReadBlock(tmpstr, len * sizeof(char));
+		ReadBlock(tmpstr, len * sizeof(char));
 		flist[i]->mwname = tmpstr;
 		
 	}
 
 	*fonts = flist;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2075,6 +2325,7 @@ GrFreeFontList(GR_FONTLIST ***fonts, int n)
 	int i;
 	MWFONTLIST *g, **list = *fonts;
 
+	LOCK(&nxGlobalLock);
 	for (i = 0; i < n; i++) {
 		g = list[i];
 		if(g) {
@@ -2087,6 +2338,7 @@ GrFreeFontList(GR_FONTLIST ***fonts, int n)
 	}
 	free(list);
 	*fonts = 0;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2101,9 +2353,11 @@ GrSetFontSize(GR_FONT_ID fontid, GR_COORD fontsize)
 {
 	nxSetFontSizeReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetFontSize);
 	req->fontid = fontid;
 	req->fontsize = fontsize;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2118,9 +2372,11 @@ GrSetFontRotation(GR_FONT_ID fontid, int tenthdegrees)
 {
 	nxSetFontRotationReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetFontRotation);
 	req->fontid = fontid;
 	req->tenthdegrees = tenthdegrees;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2137,10 +2393,12 @@ GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags)
 {
 	nxSetFontAttrReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetFontAttr);
 	req->fontid = fontid;
 	req->setflags = setflags;
 	req->clrflags = clrflags;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2156,8 +2414,10 @@ GrDestroyFont(GR_FONT_ID fontid)
 {
 	nxDestroyFontReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(DestroyFont);
 	req->fontid = fontid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2173,9 +2433,11 @@ GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
 {
 	nxSetGCFontReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCFont);
 	req->gcid = gc;
 	req->fontid = font;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2196,6 +2458,7 @@ GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1, GR_COORD x2,
 {
 	nxLineReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(Line);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2203,6 +2466,7 @@ GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1, GR_COORD x2,
 	req->y1 = y1;
 	req->x2 = x2;
 	req->y2 = y2;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2223,6 +2487,7 @@ GrRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 {
 	nxRectReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(Rect);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2230,6 +2495,7 @@ GrRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	req->y = y;
 	req->width = width;
 	req->height = height;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2250,6 +2516,7 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxFillRectReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(FillRect);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2257,6 +2524,7 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->y = y;
 	req->width = width;
 	req->height = height;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2277,6 +2545,7 @@ GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
 {
 	nxEllipseReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(Ellipse);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2284,6 +2553,7 @@ GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
 	req->y = y;
 	req->rx = rx;
 	req->ry = ry;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2304,6 +2574,7 @@ GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxFillEllipseReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(FillEllipse);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2311,6 +2582,7 @@ GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->y = y;
 	req->rx = rx;
 	req->ry = ry;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2339,6 +2611,7 @@ GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxArcReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(Arc);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2351,6 +2624,7 @@ GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->bx = bx;
 	req->by = by;
 	req->type = type;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2377,6 +2651,7 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxArcAngleReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(ArcAngle);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2387,6 +2662,7 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->angle1 = angle1;
 	req->angle2 = angle2;
 	req->type = type;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2413,6 +2689,7 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	long 	     bitmapsize;
 
 	bitmapsize = (long)GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(Bitmap, bitmapsize);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2421,6 +2698,7 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	req->width = width;
 	req->height = height;
 	memcpy(GetReqData(req), bitmaptable, bitmapsize);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2446,6 +2724,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 	imagesize = pimage->pitch * pimage->height;
 	palsize = pimage->palsize * sizeof(MWPALENTRY);
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(DrawImageBits, imagesize + palsize);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2464,6 +2743,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	addr = GetReqData(req);
 	memcpy(addr, pimage->imagebits, imagesize);
 	memcpy(addr+imagesize, pimage->palette, palsize);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2494,6 +2774,7 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxDrawImageFromFileReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(DrawImageFromFile, strlen(path)+1);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2503,6 +2784,7 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->height = height;
 	req->flags = flags;
 	memcpy(GetReqData(req), path, strlen(path)+1);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2525,13 +2807,15 @@ GrLoadImageFromFile(char *path, int flags)
 	nxLoadImageFromFileReq *req;
 	GR_IMAGE_ID		imageid;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(LoadImageFromFile, strlen(path)+1);
 	req->flags = flags;
 	memcpy(GetReqData(req), path, strlen(path)+1);
 
-	if(GrTypedReadBlock(&imageid, sizeof(imageid),
-		GrNumLoadImageFromFile) == -1)
-			return 0;
+	if(TypedReadBlock(&imageid, sizeof(imageid),
+	    GrNumLoadImageFromFile) == -1)
+			imageid = 0;
+	UNLOCK(&nxGlobalLock);
 	return imageid;
 }
 
@@ -2556,6 +2840,7 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxDrawImageToFitReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(DrawImageToFit);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2564,6 +2849,7 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->width = width;
 	req->height = height;
 	req->imageid = imageid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2577,8 +2863,10 @@ GrFreeImage(GR_IMAGE_ID id)
 {
 	nxFreeImageReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(FreeImage);
 	req->id = id;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2594,97 +2882,106 @@ GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 {
 	nxGetImageInfoReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetImageInfo);
 	req->id = id;
-	GrTypedReadBlock(iip, sizeof(GR_IMAGE_INFO), GrNumGetImageInfo);
+	TypedReadBlock(iip, sizeof(GR_IMAGE_INFO), GrNumGetImageInfo);
+	UNLOCK(&nxGlobalLock);
 }
 
-static int sendImageBuffer(void *buffer, int size) {
+static int
+sendImageBuffer(void *buffer, int size)
+{
+	int bufid;
+	int bufsize = size;
+	void *bufptr = buffer;
+	nxImageBufferAllocReq *alloc;
+	nxImageBufferSendReq *send;
 
-  int bufid;
-  int bufsize = size;
-  void *bufptr = buffer;
+	/* Step 1 - Allocate a buffer on the other side */
+	alloc = AllocReq(ImageBufferAlloc);
+	alloc->size = size;
+	TypedReadBlock(&bufid, sizeof(bufid), GrNumImageBufferAlloc);
 
-  nxImageBufferAllocReq *alloc;
-  nxImageBufferSendReq *send;
+	if (bufid < 0)
+		return 0;
 
-  /* Step 1 - Allocate a buffer on the other side */
+	/* step 2 - Send the buffer across */
+	while(bufsize > 0) {
+		int chunk = (MAXREQUESTSZ - sizeof(nxImageBufferSendReq));
+		if (chunk > bufsize)
+			chunk = bufsize;
 
-  alloc = AllocReq(ImageBufferAlloc);
-  alloc->size = size;
+		send = AllocReqExtra(ImageBufferSend, chunk);
+		send->buffer_id = bufid;
+		send->size = chunk;
 
-  GrTypedReadBlock(&bufid, sizeof(bufid), GrNumImageBufferAlloc);
-  
-  if (bufid < 0) return(0);
-  
-  /* step 2 - Send the buffer across */
+		memcpy(GetReqData(send), bufptr, chunk);
+		bufptr += chunk;
+		bufsize -= chunk;
+	}
 
-  while(bufsize > 0) {
-    int chunk = (MAXREQUESTSZ - sizeof(nxImageBufferSendReq));
-    if (chunk > bufsize) chunk=bufsize;
-    
-    send = AllocReqExtra(ImageBufferSend, chunk);
-    send->buffer_id = bufid;
-    send->size = chunk;
-
-    memcpy(GetReqData(send), bufptr, chunk);
-    bufptr += chunk;
-    bufsize -= chunk;
-  }
-
-  return(bufid);
+	return bufid;
 }
 
-GR_IMAGE_ID GrLoadImageFromBuffer(void *buffer, int size, int flags) {
-  
-  int bufid;
-  nxLoadImageFromBufferReq *req;
-  GR_IMAGE_ID imageid;
+GR_IMAGE_ID
+GrLoadImageFromBuffer(void *buffer, int size, int flags)
+{
+	nxLoadImageFromBufferReq *req;
+	int bufid;
+	GR_IMAGE_ID imageid;
 
-  /* Step 1 - Send the buffer to the other side */
-  bufid = sendImageBuffer(buffer, size);
+	LOCK(&nxGlobalLock);
+	/* Step 1 - Send the buffer to the other side */
+	bufid = sendImageBuffer(buffer, size);
 
-  if (!bufid) return(0);
-  
-  /* Step 2 - Send the command to load the image */
-  /* Note - This will free the buffer automagically */
+	if (!bufid) {
+		UNLOCK(&nxGlobalLock);
+		return 0;
+	}
 
-  req = AllocReq(LoadImageFromBuffer);
-  req->flags = flags;
-  req->buffer = bufid;
+	/* Step 2 - Send the command to load the image */
+	/* Note - This will free the buffer automagically */
+	req = AllocReq(LoadImageFromBuffer);
+	req->flags = flags;
+	req->buffer = bufid;
 
-  if(GrTypedReadBlock(&imageid, sizeof(imageid),
-		      GrNumLoadImageFromBuffer) == -1)
-    return(0);
-  else
-    return(imageid);
+	if (TypedReadBlock(&imageid, sizeof(imageid),
+	    GrNumLoadImageFromBuffer) == -1)
+		imageid = 0;
+	UNLOCK(&nxGlobalLock);
+	return imageid;
 }
 
-void GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-			   GR_SIZE width, GR_SIZE height, 
-			   void *buffer, int size, int flags) {
+void
+GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+      GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
+{
+	nxDrawImageFromBufferReq *req;
+	int bufid;
 
-  int bufid;
-  nxDrawImageFromBufferReq *req;
-  
-  /* Step 1 - Send the buffer to the other side */
-  bufid = sendImageBuffer(buffer, size);
+	LOCK(&nxGlobalLock);
+	/* Step 1 - Send the buffer to the other side */
+	bufid = sendImageBuffer(buffer, size);
 
-  if (!bufid) return;
-  
-  /* Step 2 - Send the command to load/draw the image */
-  /* Note - This will free the buffer automagically */
+	if (!bufid) {
+		UNLOCK(&nxGlobalLock);
+		return;
+	}
 
-  req = AllocReq(DrawImageFromBuffer);
-  req->flags = flags;
-  req->drawid = id;
-  req->gcid = gc;
-  req->x = x;
-  req->y = y;
-  req->width = width;
-  req->height = height;
-  req->flags = flags;
-  req->buffer = bufid;
+	/* Step 2 - Send the command to load/draw the image */
+	/* Note - This will free the buffer automagically */
+	req = AllocReq(DrawImageFromBuffer);
+	req->flags = flags;
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	req->flags = flags;
+	req->buffer = bufid;
+	UNLOCK(&nxGlobalLock);
 }
 
 
@@ -2759,6 +3056,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 		return;
 	}
 
+	LOCK(&nxGlobalLock);
 	/* Break request into MAXREQUESTSZ size packets*/
 	while(height > 0) {
 		chunk_y = (MAXREQUESTSZ - sizeof(nxAreaReq)) /
@@ -2779,6 +3077,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 		y += chunk_y;
 		height -= chunk_y;
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2805,6 +3104,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 {
 	nxCopyAreaReq *req;
 
+	LOCK(&nxGlobalLock);
         req = AllocReq(CopyArea);
         req->drawid = id;
         req->gcid = gc;
@@ -2816,6 +3116,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
         req->srcx = srcx;
         req->srcy = srcy;
         req->op = op;
+	UNLOCK(&nxGlobalLock);
 }
    
 /**
@@ -2841,6 +3142,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 	nxReadAreaReq *req;
 	long           size;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(ReadArea);
 	req->drawid = id;
 	req->x = x;
@@ -2848,7 +3150,8 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 	req->width = width;
 	req->height = height;
 	size = (long)width * height * sizeof(MWPIXELVAL);
-	GrTypedReadBlock(pixels, size, GrNumReadArea);
+	TypedReadBlock(pixels, size, GrNumReadArea);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2866,12 +3169,13 @@ GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y)
 {
 	nxPointReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(Point);
 	req->drawid = id;
 	req->gcid = gc;
 	req->x = x;
 	req->y = y;
-
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2891,10 +3195,12 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	long	size;
 
 	size = (long)count * sizeof(GR_POINT);
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(Points, size);
 	req->drawid = id;
 	req->gcid = gc;
 	memcpy(GetReqData(req), pointtable, size);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2915,11 +3221,13 @@ GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	nxPolyReq *req;
 	long       size;
 
+	LOCK(&nxGlobalLock);
 	size = (long)count * sizeof(GR_POINT);
 	req = AllocReqExtra(Poly, size);
 	req->drawid = id;
 	req->gcid = gc;
 	memcpy(GetReqData(req), pointtable, size);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2940,11 +3248,13 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
 	nxFillPolyReq *req;
 	long           size;
 
+	LOCK(&nxGlobalLock);
 	size = (long)count * sizeof(GR_POINT);
 	req = AllocReqExtra(FillPoly, size);
 	req->drawid = id;
 	req->gcid = gc;
 	memcpy(GetReqData(req), pointtable, size);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -2973,6 +3283,7 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 
 	size = nxCalcStringBytes(str, count, flags);
 
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(Text, size);
 	req->drawid = id;
 	req->gcid = gc;
@@ -2981,6 +3292,7 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 	req->count = count;
 	req->flags = flags;
 	memcpy(GetReqData(req), str, size);
+	UNLOCK(&nxGlobalLock);
 }
 
 
@@ -2994,8 +3306,10 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 void
 GrGetSystemPalette(GR_PALETTE *pal)
 {
+	LOCK(&nxGlobalLock);
 	AllocReq(GetSystemPalette);
-	GrTypedReadBlock(pal, sizeof(*pal), GrNumGetSystemPalette);
+	TypedReadBlock(pal, sizeof(*pal), GrNumGetSystemPalette);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3011,10 +3325,12 @@ GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
 {
 	nxSetSystemPaletteReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetSystemPalette);
 	req->first = first;
 	req->count = pal->count;
 	memcpy(req->palette, pal->palette, sizeof(GR_PALENTRY) * pal->count);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3031,9 +3347,11 @@ GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
 {
 	nxFindColorReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(FindColor);
 	req->color = c;
-	GrTypedReadBlock(retpixel, sizeof(*retpixel), GrNumFindColor);
+	TypedReadBlock(retpixel, sizeof(*retpixel), GrNumFindColor);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3059,39 +3377,44 @@ GrReqShmCmds(long shmsize)
 	nxReqShmCmdsReq	req;
 	int key, shmid;
 
-	if ( nxSharedMem != 0 )
+	if (nxSharedMem != 0)
 		return;
 
+	LOCK(&nxGlobalLock);
 	GrFlush();
 
 	shmsize = (shmsize+SHM_BLOCK_SIZE-1) & ~(SHM_BLOCK_SIZE-1);
-
 	req.reqType = GrNumReqShmCmds;
 	req.hilength = 0;
 	req.length = sizeof(req);
 	req.size = shmsize;
 
 	nxWriteSocket((char *)&req,sizeof(req));
-	GrReadBlock(&key,sizeof(key));
+	ReadBlock(&key,sizeof(key));
 
-	if ( !key ) {
+	if (!key) {
 		EPRINTF("nxclient: no shared memory support on server\n");
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 
-	shmid = shmget(key,shmsize,0);
-	if ( shmid == -1 ) {
+	shmid = shmget(key, shmsize, 0);
+	if (shmid == -1) {
 		EPRINTF("nxclient: Can't shmget key %d: %m\n", key);
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 
-	nxSharedMem = shmat(shmid,0,0);
+	nxSharedMem = shmat(shmid, 0, 0);
 	shmctl(shmid,IPC_RMID,0);	/* Prevent other from attaching */
-	if ( nxSharedMem == (char *)-1 )
+	if (nxSharedMem == (char *)-1) {
+		UNLOCK(&nxGlobalLock);
 		return;
+	}
 
 	nxSharedMemSize = shmsize;
 	nxAssignReqbuffer(nxSharedMem, shmsize);
+	UNLOCK(&nxGlobalLock);
 #endif /* HAVE_SHAREDMEM_SUPPORT*/
 }
 
@@ -3112,6 +3435,7 @@ GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
 {
 	nxInjectEventReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(InjectEvent);
 	req->event_type = GR_INJECT_EVENT_POINTER;
 	req->event.pointer.visible = visible;
@@ -3119,7 +3443,8 @@ GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
 	req->event.pointer.y = y;
 	req->event.pointer.button = button;
 
-	GrFlush();
+	GrFlush();	/* FIXME?*/
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3142,6 +3467,7 @@ GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
 {
 	nxInjectEventReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(InjectEvent);
 	req->event_type = GR_INJECT_EVENT_KEYBOARD;
 	req->event.keyboard.wid = wid;
@@ -3150,7 +3476,8 @@ GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
 	req->event.keyboard.scancode = scancode;
 	req->event.keyboard.pressed = pressed;
 
-	GrFlush();
+	GrFlush();	/* FIXME?*/
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3172,12 +3499,14 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 		s = strlen(props->title) + 1;
 	else s = 0;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(SetWMProperties, s + sizeof(GR_WM_PROPERTIES));
 	req->windowid = wid;
 	addr = GetReqData(req);
 	memcpy(addr, props, sizeof(GR_WM_PROPERTIES));
 	if (s)
 		memcpy(addr + sizeof(GR_WM_PROPERTIES), props->title, s);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3197,22 +3526,26 @@ GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 	UINT16 textlen;
 	GR_CHAR c;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetWMProperties);
 	req->windowid = wid;
 
-	GrTypedReadBlock(props, sizeof(GR_WM_PROPERTIES), GrNumGetWMProperties);
-	GrReadBlock(&textlen, sizeof(textlen));
+	TypedReadBlock(props, sizeof(GR_WM_PROPERTIES), GrNumGetWMProperties);
+	ReadBlock(&textlen, sizeof(textlen));
 	if(!textlen) {
 		props->title = NULL;
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 	if(!(props->title = malloc(textlen))) {
 		/* Oh dear, we're out of memory but still have to purge the
 		   requested data (and throw it away) */
-		while(textlen--) GrReadBlock(&c, 1);
+		while(textlen--)
+			ReadBlock(&c, 1);
 	} else {
-		GrReadBlock(props->title, textlen);
+		ReadBlock(props->title, textlen);
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3229,8 +3562,10 @@ GrCloseWindow(GR_WINDOW_ID wid)
 {
 	nxCloseWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(CloseWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3246,8 +3581,10 @@ GrKillWindow(GR_WINDOW_ID wid)
 {
 	nxKillWindowReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(KillWindow);
 	req->windowid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3264,8 +3601,10 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 {
 	nxSetScreenSaverTimeoutReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetScreenSaverTimeout);
 	req->timeout = timeout;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3292,6 +3631,7 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 	char *p;
 	int len;
 
+	LOCK(&nxGlobalLock);
 	if(wid) {
 		len = strlen(typelist) + 1;
 		req = AllocReqExtra(SetSelectionOwner, len);
@@ -3302,6 +3642,7 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 	}
 
 	req->wid = wid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3326,19 +3667,22 @@ GrGetSelectionOwner(GR_CHAR **typelist)
 	GR_CHAR c;
 	GR_WINDOW_ID wid;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(GetSelectionOwner);
-	GrTypedReadBlock(&wid, sizeof(wid), GrNumGetSelectionOwner);
+	TypedReadBlock(&wid, sizeof(wid), GrNumGetSelectionOwner);
 	if(wid) {
-		GrReadBlock(&textlen, sizeof(textlen));
+		ReadBlock(&textlen, sizeof(textlen));
 		if(!(*typelist = malloc(textlen))) {
 			/* Oh dear, we're out of memory but still have to
 			purge the requested data (and throw it away) */
-			while(textlen--) GrReadBlock(&c, 1);
+			while(textlen--)
+				ReadBlock(&c, 1);
 		} else {
-			GrReadBlock(*typelist, textlen);
+			ReadBlock(*typelist, textlen);
 		}
 	}
 
+	UNLOCK(&nxGlobalLock);
 	return wid;
 }
 
@@ -3369,11 +3713,13 @@ GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial,
 {
 	nxRequestClientDataReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(RequestClientData);
 	req->wid = wid;
 	req->rid = rid;
 	req->serial = serial;
 	req->mimetype = mimetype;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3403,6 +3749,7 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 	char *p;
 	GR_LENGTH l, pos = 0;
 
+	LOCK(&nxGlobalLock);
 	while(pos < len) {
 		l = MAXREQUESTSZ - sizeof(nxSendClientDataReq);
 		if(l > (len - pos)) l = len - pos;
@@ -3415,6 +3762,7 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 		memcpy(p, data + pos, l);
 		pos += l;
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3427,7 +3775,9 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 void
 GrBell(void)
 {
+	LOCK(&nxGlobalLock);
 	AllocReq(Bell);
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3447,10 +3797,12 @@ GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
 {
 	nxSetBackgroundPixmapReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetBackgroundPixmap);
 	req->wid = wid;
 	req->pixmap = pixmap;
 	req->flags = flags;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3465,8 +3817,10 @@ GrDestroyCursor(GR_CURSOR_ID cid)
 {
 	nxDestroyCursorReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(DestroyCursor);
 	req->cursorid = cid;
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3487,13 +3841,15 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
 	GR_COUNT	count;
 	GR_WINDOW_ID	dummy;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(QueryTree);
 	req->windowid = wid;
 
-	GrTypedReadBlock(parentid, sizeof(*parentid), GrNumQueryTree);
-	GrReadBlock(nchildren, sizeof(*nchildren));
+	TypedReadBlock(parentid, sizeof(*parentid), GrNumQueryTree);
+	ReadBlock(nchildren, sizeof(*nchildren));
 	if (!*nchildren) {
 		*children = NULL;
+		UNLOCK(&nxGlobalLock);
 		return;
 	}
 	count = *nchildren;
@@ -3501,10 +3857,11 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
 		/* We're out of memory but still have to purge the
 		   requested data (and throw it away) */
 		while(count--)
-			GrReadBlock(&dummy, sizeof(GR_WINDOW_ID));
+			ReadBlock(&dummy, sizeof(GR_WINDOW_ID));
 	} else {
-		GrReadBlock(*children, count * sizeof(GR_WINDOW_ID));
+		ReadBlock(*children, count * sizeof(GR_WINDOW_ID));
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 #if YOU_WANT_TO_IMPLEMENT_DRAG_AND_DROP
@@ -3515,7 +3872,7 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
  * @typelist: list of mime types the drag and drop data can be supplied as
  *
  * Enables the specified window to be used as a drag and drop source. The
-2 * specified pixmap will be used as the icon shown whilst dragging, and the
+ * specified pixmap will be used as the icon shown whilst dragging, and the
  * null terminated, newline seperated list of mime types which the data can
  * be supplied as is specified by the typelist argument. At least one type
  * (typically text/plain for plain ASCII or text/uri-list for a filename or
@@ -3529,137 +3886,49 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
  * on the Root window if it is desired to allow dropping icons on the desktop.
  */
 void
-GrRegisterDragAndDropWindow(GR_WINDOW_ID wid, GR_WINDOW_ID iid,
-				GR_CHAR *typelist)
+GrRegisterDragAndDropWindow(GR_WINDOW_ID wid, GR_WINDOW_ID iid, GR_CHAR *typelist)
 {
 }
 #endif
 
-
 GR_TIMER_ID
 GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 {
-    nxCreateTimerReq  *req;
-    GR_TIMER_ID  timerid;
+	nxCreateTimerReq  *req;
+	GR_TIMER_ID  timerid;
 
-    req = AllocReq(CreateTimer);
+	LOCK(&nxGlobalLock);
+	req = AllocReq(CreateTimer);
+	req->wid = wid;
+	req->period = period;
 
-    req->wid = wid;
-    req->period = period;
-
-    if (GrTypedReadBlock(&timerid, sizeof (timerid), GrNumCreateTimer) == -1)
-        return 0;
-    return timerid;
+	if(TypedReadBlock(&timerid, sizeof (timerid), GrNumCreateTimer) == -1)
+		timerid = 0;
+	UNLOCK(&nxGlobalLock);
+	return timerid;
 }
 
 void
 GrDestroyTimer (GR_TIMER_ID tid)
 {
-    nxDestroyTimerReq *req;
-    
-    req = AllocReq(DestroyTimer);
-    req->timerid = tid;
+	nxDestroyTimerReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(DestroyTimer);
+	req->timerid = tid;
+	UNLOCK(&nxGlobalLock);
 }
 
 void
 GrSetPortraitMode(int portraitmode)
 {
-    nxSetPortraitModeReq *req;
-    
-    req = AllocReq(SetPortraitMode);
-    req->portraitmode = portraitmode;
+	nxSetPortraitModeReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(SetPortraitMode);
+	req->portraitmode = portraitmode;
+	UNLOCK(&nxGlobalLock);
 }
-
-static int
-_CheckTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
-	GR_EVENT * ep, void * arg)
-{
-	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
-
-printf("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, mask, update, ep->general.wid, ep->type);
-
-	// FIXME: not all windows have wid field here...
-	if (wid && (wid != ep->general.wid))
-		return 0;
-
-	if (mask) {
-		if ((mask & emask) == 0)
-			return 0;
-
-		if (update && ((mask & emask) == GR_EVENT_MASK_UPDATE))
-			if (update != ep->update.utype)
-				return 0;
-	}
-
-	return 1;
-}
-
-/**
- * GrGetTypedEvent
- * @wid: window id for which to check events. 0 means no window
- * @mask: event mask of events for which to check. 0 means no check for mask
- * @ep: pointer to the GR_EVENT structure to return the event in
- * @block: specifies whether or not to block, 1 blocks, 0 does not
- * @Returns: GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
- * if no events match
- *
- * Fills in the specified event structure with a copy of the next event on the
- * queue that matches the type parameters passed and removes it from the queue.
- * An event type of GR_EVENT_TYPE_NONE is given if the queue is empty; else,
- * the event type is returned.
- */
-int
-GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
-	GR_EVENT * ep, int block)
-{
-	return GrGetTypedEventPred(wid, mask, mask_up, ep, block, _CheckTypedEvent, 0);
-}
-
-int
-GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
-	GR_EVENT *ep, int block, 
-	int (*CheckFunction)(GR_WINDOW_ID, GR_EVENT_MASK, 
-		GR_UPDATE_TYPE, GR_EVENT *, void *),
-	void *arg)
-{
-	EVENT_LIST *elp, *prevelp;
-	GR_EVENT event;
-
-	ACCESS_PER_THREAD_DATA();
-  
-	/* First, suck up all events and place them into the event queue */
-	while(_GrPeekEvent(&event)) {
-getevent:
-		_GrGetNextEventTimeout(&event, 0L);
-		QueueEvent(&event);
-	}
-
-	/* Now, run through the event queue, looking for matches for the typed
-	 * info that was passed.
-	 */
-	prevelp = NULL;
-	elp = evlist;
-	while (elp) {
-		if ((*CheckFunction)(wid, mask, mask_up, &elp->event, arg)) {
-			/* remove event from queue, return it*/
-			if (prevelp == NULL)
-				evlist = elp->next;
-			else prevelp->next = elp->next;
-			*ep = elp->event;
-			return ep->type;
-		}
-		prevelp = elp;
-		elp = elp->next;
-	}
-
-	/* if event still not found and waiting ok, then wait*/
-	if (block)
-		goto getevent;
-
-	/* return no event*/
-	ep->type = GR_EVENT_TYPE_NONE;
-	return GR_EVENT_TYPE_NONE;
-} 
 
 /**
  * GrQueryPointer
@@ -3676,11 +3945,13 @@ GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask)
 {
 	nxQueryPointerReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(QueryPointer);
-	GrTypedReadBlock(mwin, sizeof(*mwin), GrNumQueryPointer);
-	GrReadBlock(x, sizeof(*x));
-	GrReadBlock(y, sizeof(*y));
-	GrReadBlock(bmask, sizeof(*bmask));
+	TypedReadBlock(mwin, sizeof(*mwin), GrNumQueryPointer);
+	ReadBlock(x, sizeof(*x));
+	ReadBlock(y, sizeof(*y));
+	ReadBlock(bmask, sizeof(*bmask));
+	UNLOCK(&nxGlobalLock);
 }
 
 /**
@@ -3695,9 +3966,11 @@ GrQueueLength(void)
 	EVENT_LIST *p;
 
 	ACCESS_PER_THREAD_DATA();
+	LOCK(&nxGlobalLock);
 	for(p = evlist; p; p = p->next)
 		++count;
 
+	UNLOCK(&nxGlobalLock);
 	return count;
 }
 
@@ -3721,14 +3994,16 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
 
 	size = sizeof(GR_BITMAP) * height * (((width - 1) / 16) + 1); //FIXME
 
+	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(NewBitmapRegion, size);
 	req->width = width;
 	req->height = height;
 	memcpy(GetReqData(req), bitmap, size);
 
-	if(GrTypedReadBlock(&region, sizeof(region), GrNumNewBitmapRegion) < 0)
-		return 0;
-	else return region;
+	if(TypedReadBlock(&region, sizeof(region), GrNumNewBitmapRegion) < 0)
+		region = 0;
+	UNLOCK(&nxGlobalLock);
+	return region;
 }
 
 /**
@@ -3770,8 +4045,10 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 {
 	nxSetWindowRegionReq *req;
 
+	LOCK(&nxGlobalLock);
 	req = AllocReq(SetWindowRegion);
 	req->wid = wid;
 	req->rid = rid;
 	req->type = type;
+	UNLOCK(&nxGlobalLock);
 }

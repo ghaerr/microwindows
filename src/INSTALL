@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-August 21, 2002 g haerr <greg@censoft.com>
+August 24, 2002 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -80,6 +80,11 @@ and set:
 	HAVE_T1LIB_SUPPORT=Y
 in the config file.  The ftdemo and t1demo programs demonstrate
 use of both truetype and type 1 fonts (see fontdemo*.sh)
+
+If compiling for use with multi-threaded applications, set
+	THREADSAFE=Y
+which enables a global mutex around all GrXXX() functions.
+This is necessary when using Nano-X with the SDL library and SMPEG.
 
 All the demos are built in the microwin/src/bin directory. 
 See the *.sh shell scripts and the src/demos/nanox directories

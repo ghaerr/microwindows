@@ -427,6 +427,7 @@ typedef struct {
   GR_KEYMOD modifiers;		/**< modifiers (MWKMOD_SHIFT, etc)*/
   GR_KEY ch;			/**< 16-bit unicode key value, MWKEY_xxx */
   GR_SCANCODE scancode;		/**< OEM scancode value if available*/
+  GR_BOOL hotkey;		/**< TRUE if generated from GrGrabKey(GR_GRAB_HOTKEY_x) */
 } GR_EVENT_KEYSTROKE;
 
 /**

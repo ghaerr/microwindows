@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -522,9 +522,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 				if (ep == NULL)
 					continue;
 
-				ep->type = ((type == GR_EVENT_TYPE_KEY_DOWN) ?
-					    GR_EVENT_TYPE_HOTKEY_DOWN :
-					    GR_EVENT_TYPE_HOTKEY_UP);
+				ep->type = type;
 				ep->wid = keygrab->wid;
 				ep->subwid = keygrab->wid;
 				ep->rootx = cursorx;
@@ -535,6 +533,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 				ep->modifiers = modifiers;
 				ep->ch = keyvalue;
 				ep->scancode = scancode;
+				ep->hotkey = GR_TRUE;
 				if (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)
 					return;	/* only one client gets it */
 			} else {
@@ -625,6 +624,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 			ep->modifiers = modifiers;
 			ep->ch = keyvalue;
 			ep->scancode = scancode;
+			ep->hotkey = GR_FALSE;
 			return;			/* only one client gets it */
 		}
 

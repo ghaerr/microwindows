@@ -614,8 +614,11 @@ void GsDeliverUpdateEvent(GR_WINDOW *wp, GR_UPDATE_TYPE utype, GR_COORD x,
 	GR_WINDOW_ID		id = wp->id;
 	int			lcount = 0;
 
-        x -= ( wp->parent ? wp->parent->x : 0 );
-        y -= ( wp->parent ? wp->parent->y : 0 );
+	/* adjust reported x,y to be parent-relative*/
+	if (wp->parent) {
+		x -= wp->parent->x;
+		y -= wp->parent->y;
+	}
 
 update_again:
 	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {

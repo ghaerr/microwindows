@@ -166,8 +166,9 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 	wp = GsFindWindow(wid);
 	if (wp) {
 		infoptr->wid = wid;
-		infoptr->x = wp->x - ( wp->parent ? wp->parent->x : 0 );
-		infoptr->y = wp->y - ( wp->parent ? wp->parent->y : 0 );
+		/* report parent-relative x,y coordinates*/
+		infoptr->x = wp->x - (wp->parent ? wp->parent->x : 0);
+		infoptr->y = wp->y - (wp->parent ? wp->parent->y : 0);
 		infoptr->width = wp->width;
 		infoptr->height = wp->height;
 		infoptr->parent = wp->parent? wp->parent->id: 0;

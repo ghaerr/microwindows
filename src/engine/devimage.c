@@ -45,8 +45,8 @@ typedef struct {
 static MWLISTHEAD imagehead;		/* global image list*/
 static int nextimageid = 1;
 
-typedef struct {
-  void *start;   /* The pointer to the beginning of the buffer */
+typedef struct {  /* structure for reading images from buffer   */
+  void *start;    /* The pointer to the beginning of the buffer */
   int offset;     /* The current offset within the buffer       */
   int size;       /* The total size of the buffer               */
 } buffer_t;
@@ -61,107 +61,117 @@ static int  LoadJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd,
 		MWBOOL fast_grayscale);
 #endif
 #if defined(HAVE_PNG_SUPPORT)
-static int  LoadPNG(buffer_t * src, PMWIMAGEHDR pimage);
+static int  LoadPNG(buffer_t *src, PMWIMAGEHDR pimage);
 #endif
 #if defined(HAVE_GIF_SUPPORT)
-static int  LoadGIF(buffer_t * src, PMWIMAGEHDR pimage);
+static int  LoadGIF(buffer_t *src, PMWIMAGEHDR pimage);
 #endif
 #if defined(HAVE_PNM_SUPPORT)
-static int LoadPNM(buffer_t *fp, PMWIMAGEHDR pimage);
+static int LoadPNM(buffer_t *src, PMWIMAGEHDR pimage);
 #endif
 #if defined(HAVE_XPM_SUPPORT)
-static int LoadXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd) ;
+static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd) ;
 #endif
 
-/* JHC (10/02/01) 
-  * These are some special functions that I wrote up to make the buffer
-  * interaction appear to be similar to that of file reading            
-  * So as to change as little code as possible below  
-  */
- 
-static void binit(void *in, int size, buffer_t *dest) {
-  dest->start = in;
-  dest->offset = 0;
-  dest->size = size;
+/*
+ * Buffered input functions to replace stdio functions
+ */
+static void
+binit(void *in, int size, buffer_t *dest)
+{
+	dest->start = in;
+	dest->offset = 0;
+	dest->size = size;
 }
  
-static int bseek(buffer_t *buffer, int offset, int whence) {
+static int
+bseek(buffer_t *buffer, int offset, int whence)
+{
+	int new;
+
+	switch(whence) {
+	case SEEK_SET:
+		if (offset >= buffer->size || offset < 0)
+			return(-1);
+		buffer->offset = offset;
+		return(0);
+
+	case SEEK_CUR:
+		new = buffer->offset + offset;
+		if (new >= buffer->size || new < 0)
+			return(-1);
+		buffer->offset = new;
+		return(0);
+
+	case SEEK_END:
+		if (offset >= buffer->size || offset > 0)
+			return(-1);
+		buffer->offset = (buffer->size - 1) - offset;
+		return(0);
+
+	default:
+		return(-1);
+	}
+}
    
-  int new;
- 
-  switch(whence) {
-  case SEEK_SET:
-    if (offset >= buffer->size || offset < 0) return(-1);
-    buffer->offset = offset;
-    return(0);
-     
-  case SEEK_CUR:
-    new = buffer->offset + offset;
-    if (new >= buffer->size || new < 0) return(-1);
-    buffer->offset = new;
-    return(0);
- 
-  case SEEK_END:
-    if (offset >= buffer->size || offset > 0) return(-1);
-    buffer->offset = (buffer->size - 1) - offset;
-    return(0);
- 
-  default:
-    return(-1);
-  }
-}
-   
-static int bread(buffer_t *buffer, void *dest, int size) {
- 
-  int copysize = size;
- 
-  if (buffer->offset == buffer->size) return(0);
- 
-  if (buffer->offset + size > buffer->size) 
-    copysize = (buffer->size - buffer->offset);
-   
-  memcpy((void *) dest, (void *) (buffer->start + buffer->offset), copysize);
- 
-  buffer->offset += copysize;
-  return(copysize);
+static int
+bread(buffer_t *buffer, void *dest, int size)
+{
+	int copysize = size;
+
+	if (buffer->offset == buffer->size)
+		return(0);
+
+	if (buffer->offset + size > buffer->size) 
+		copysize = (buffer->size - buffer->offset);
+
+	memcpy((void *)dest, (void *)(buffer->start + buffer->offset),copysize);
+
+	buffer->offset += copysize;
+	return(copysize);
 }
  
-static char bgetc(buffer_t *buffer) {
-   
-  char ch;
- 
-  if (buffer->offset == buffer->size) 
-    return(EOF);
- 
-  ch = *((char *) (buffer->start + buffer->offset));
-  buffer->offset++;
-  return(ch);
+static int
+bgetc(buffer_t *buffer)
+{
+	int ch;
+
+	if (buffer->offset == buffer->size) 
+		return(EOF);
+
+	ch = *((unsigned char *) (buffer->start + buffer->offset));
+	buffer->offset++;
+	return(ch);
 }
  
-static char* bgets(buffer_t *buffer, char *dest, int size) {
- 
-  int i,o;
-  int copysize = size - 1;
- 
-  if (buffer->offset == buffer->size) 
-    return(0);
- 
-  if (buffer->offset + copysize > buffer->size) 
-    copysize = buffer->size - buffer->offset;
- 
-  for(o = 0, i = buffer->offset; i < buffer->offset + copysize; i++, o++) {
-    dest[o] = *((char *) (buffer->start + i));
-    if (dest[o] == '\n') break;
-  }
- 
-  buffer->offset = i + 1;
-  dest[o + 1] = 0;
- 
-  return(dest);
+static char *
+bgets(buffer_t *buffer, char *dest, int size)
+{
+	int i,o;
+	int copysize = size - 1;
+
+	if (buffer->offset == buffer->size) 
+		return(0);
+
+	if (buffer->offset + copysize > buffer->size) 
+		copysize = buffer->size - buffer->offset;
+
+	for(o=0, i=buffer->offset; i < buffer->offset + copysize; i++, o++) {
+		dest[o] = *((char *) (buffer->start + i));
+		if (dest[o] == '\n')
+			break;
+	}
+
+	buffer->offset = i + 1;
+	dest[o + 1] = 0;
+
+	return(dest);
 }
  
-static int beof(buffer_t *buffer) {
-  return( (buffer->offset == buffer->size) );
+static int
+beof(buffer_t *buffer)
+{
+	return (buffer->offset == buffer->size);
 }
  
 /*
@@ -177,27 +187,29 @@ static int beof(buffer_t *buffer) {
 
 static int GdDecodeImage(PSD psd, buffer_t *src, int flags);
 
-int GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags) {
+int
+GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags)
+{
+	buffer_t src;
+	binit(buffer, size, &src);
 
-  buffer_t src;
-  binit(buffer, size, &src);
-
-  return(GdDecodeImage(psd, &src, flags));
+	return(GdDecodeImage(psd, &src, flags));
 }
 
-void GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-			   MWCOORD height, void *buffer, int size, int flags) {
+void
+GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
+	MWCOORD height, void *buffer, int size, int flags)
+{
+	int id;
+	buffer_t src;
 
-  int id;
-  buffer_t src;
+	binit(buffer, size, &src);
+	id = GdDecodeImage(psd, &src, flags);
 
-  binit(buffer, size, &src);
-  id = GdDecodeImage(psd, &src, flags);
-
-  if (id) {
-    GdDrawImageToFit(psd, x, y, width, height, id);
-    GdFreeImage(id);
-  }
+	if (id) {
+		GdDrawImageToFit(psd, x, y, width, height, id);
+		GdFreeImage(id);
+	}
 }
 
 void
@@ -213,8 +225,9 @@ GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	}
 }
 
-int GdLoadImageFromFile(PSD psd, char *path, int flags) {
-  
+int
+GdLoadImageFromFile(PSD psd, char *path, int flags)
+{
   int fd, id;
   struct stat s;
   void *buffer = 0;
@@ -264,8 +277,8 @@ int GdLoadImageFromFile(PSD psd, char *path, int flags) {
   return(id);
 }
 
-
-static int GdDecodeImage(PSD psd, buffer_t * src, int flags)
+static int
+GdDecodeImage(PSD psd, buffer_t * src, int flags)
 {
         int         loadOK = 0;
         PMWIMAGEHDR pimage;

@@ -65,6 +65,15 @@ static struct timeval current_time;
 static void calculate_timeval(struct timeval *tv, MWTIMEOUT to); 
 static signed long time_to_expiry(struct timeval *t);
 
+/**
+ * Create a new one-shot timer.
+ *
+ * @param timeout number of milliseconds before the timer should activate
+ * @param callback Callback function to call when timer fires.
+ * @param arg Opaque argument to pass to callback function.
+ * @return Timer handle.  NOTE that this is automatically destroyed
+ * after the callback function has been called.
+ */
 MWTIMER *GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
 {
 	MWTIMER *newtimer;
@@ -87,6 +96,14 @@ MWTIMER *GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
 	return newtimer;
 }
 
+/**
+ * Create a new periodic (repeating) timer.
+ *
+ * @param timeout number of milliseconds between activations.
+ * @param callback Callback function to call when timer fires.
+ * @param arg Opaque argument to pass to callback function.
+ * @return Timer handle.
+ */
 MWTIMER *GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
 {
     MWTIMER *newtimer;
@@ -109,6 +126,11 @@ MWTIMER *GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
     return newtimer;
 }
 
+/**
+ * Destroy a timer.
+ *
+ * @param timer Timer to destroy.
+ */
 void GdDestroyTimer(MWTIMER *timer)
 {
 	if(timer->next) timer->next->prev = timer->prev;
@@ -120,6 +142,12 @@ void GdDestroyTimer(MWTIMER *timer)
 	free(timer);
 }
 
+/**
+ * Find the timer associated with a specific callback paramater.
+ *
+ * @param arg The argument passed to the callback function.
+ * @return Timer handle, or NULL.
+ */
 MWTIMER *GdFindTimer(void *arg)
 {
 	MWTIMER *t = timerlist;
@@ -132,6 +160,13 @@ MWTIMER *GdFindTimer(void *arg)
 	return t;
 }
 
+/**
+ * ?? Internal function.
+ *
+ * @param tv ??
+ * @param timeout ??
+ * @return ??
+ */
 MWBOOL GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout)
 {
 	signed long i, lowest_timeout;
@@ -167,6 +202,11 @@ MWBOOL GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout)
 	return TRUE;
 }
 
+/**
+ * ?? Internal function.
+ *
+ * @return ??
+ */
 MWBOOL GdTimeout(void)
 {
 	MWTIMER *n, *t = timerlist;

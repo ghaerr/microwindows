@@ -1,0 +1,73 @@
+/**
+ * @defgroup nanox Nano-X public API
+ *
+ * This is the API which Nano-X applications use.
+ *
+ * @{
+ */
+/**
+ * @defgroup nanox_color     Nano-X color/palette management API.
+ *
+ * Functions for querying and modifying the palette on palette-based
+ * Nano-X systems.
+ */
+/**
+ * @defgroup nanox_cursor    Nano-X cursor API.
+ *
+ * Functions for controlling the appearance of the mouse pointer.
+ */
+/**
+ * @defgroup nanox_draw      Nano-X drawing API.
+ *
+ * Functions for actually drawing primitive shapes on the screen.
+ */
+/**
+ * @defgroup nanox_event     Nano-X events API.
+ *
+ * The Nano-X event mechanism.
+ */
+/**
+ * @defgroup nanox_font      Nano-X font API.
+ *
+ * Functions for handling fonts and drawing text.
+ */
+/**
+ * @defgroup nanox_general   Nano-X basic API.
+ *
+ * Functions to initialise and close Nano-X.
+ */
+/**
+ * @defgroup nanox_image     Nano-X image file API.
+ *
+ * Functions to draw images from standard image file formats.
+ */
+/**
+ * @defgroup nanox_misc      Nano-X miscellaneous APIs.
+ *
+ * Functions that didn't fit anywhere else.
+ */
+/**
+ * @defgroup nanox_region    Nano-X region API.
+ *
+ * Functions for handling clipping regions - these are used
+ * for clipping drawing, and for non-rectangular windows.
+ */
+/**
+ * @defgroup nanox_selection Nano-X clipboard API.
+ *
+ * Functions for handling the current selection on the clipboard.
+ */
+/**
+ * @defgroup nanox_timer     Nano-X timer API.
+ *
+ * Functions for handling timers and delays.
+ */
+/**
+ * @defgroup nanox_window    Nano-X window API.
+ *
+ * Functions for handling windows on the screen.
+ */
+/**
+ * @}
+ */
+

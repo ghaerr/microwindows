@@ -174,7 +174,7 @@ main(int ac, char **av)
 			0xa6, 0x6c, 0x49, 0, 0
 		};
 
-		/***static unsigned short buffer[] = {
+		/* *static unsigned short buffer[] = {
 			0x496c, 0x8b73, 0xd179, 0x8062, 0x0061,
 			0x0041, 0xa100, 0xa600, 0x496c, 0
 		};***/

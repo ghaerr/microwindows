@@ -22,12 +22,15 @@ MWCOORD clipmaxy;		/* maximum y value of cache rectangle */
 static MWBOOL	clipresult;	/* whether clip rectangle is plottable */
 MWCLIPREGION *clipregion = NULL;
 
-/*
+/**
  * Set a clip region for future drawing actions.
  * Each pixel will be drawn only if lies in one or more of the contained
  * clip rectangles.  All clip rectangles are modified
  * if necessary to lie within the device area.  Call only after device
  * has been initialized.
+ *
+ * @param psd Drawing surface.
+ * @param reg New clipping region.
  */
 void
 GdSetClipRegion(PSD psd, MWCLIPREGION *reg)
@@ -98,7 +101,8 @@ GdSetClipRegion(PSD psd, MWCLIPREGION *reg)
 }
 
 
-/* Check a point against the list of clip rectangles.
+/**
+ * Check a point against the list of clip rectangles.
  * Returns TRUE if the point is within one or more rectangles and thus
  * can be plotted, or FALSE if the point is not within any rectangle and
  * thus cannot be plotted.  Also remembers the coordinates of a clip cache
@@ -107,6 +111,11 @@ GdSetClipRegion(PSD psd, MWCLIPREGION *reg)
  * rectangle after a call to this routine, the caller can efficiently
  * check many nearby points without needing any further calls.  If the
  * point lies within the cursor, then the cursor is removed.
+ *
+ * @param psd Drawing surface
+ * @param x X-co-ordinate
+ * @param y Y-co-ordinate
+ * @return TRUE iff the point is visible.
  */
 MWBOOL
 GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
@@ -221,7 +230,8 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
 }
 
 
-/* Check the area determined by the specified pair of points against the
+/**
+ * Check the area determined by the specified pair of points against the
  * list of clip rectangles.  The area will either be totally visible,
  * totally invisible, or possibly partially visible.  This routine updates
  * the clip cache rectangle, and returns one of the following values:
@@ -230,6 +240,13 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
  *	CLIP_PARTIAL		The rectangle may be partially visible
  * In the case that the area is totally visible, the cursor is removed
  * if it overlaps the clip area.
+ *
+ * @param psd Drawing surface
+ * @param x1 Left edge of rectangle to check
+ * @param y1 Top edge of rectangle to check
+ * @param x2 Right edge of rectangle to check
+ * @param y2 Bottom edge of rectangle to check
+ * @return CLIP_VISIBLE, CLIP_INVISIBLE, or CLIP_PARTIAL
  */
 int
 GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2)

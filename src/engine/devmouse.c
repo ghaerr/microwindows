@@ -60,10 +60,11 @@ static int filter_relrotate(int, int *xpos, int *ypos, int x, int y);
 static int filter_absrotate(int, int *xpos, int *ypos);
 static int filter_transform(int, int *, int *);
 
-/*
+/**
  * Initialize the mouse.
  * This sets its position to (0, 0) with no boundaries and no buttons pressed.
- * Returns < 0 on error, or mouse fd on success
+ *
+ * @return < 0 on error, or mouse fd on success
  */
 int
 GdOpenMouse(void)
@@ -101,7 +102,8 @@ GdOpenMouse(void)
 	return fd;
 }
 
-/*
+/**
+ *
  * Terminate the use of the mouse.
  */
 void
@@ -110,14 +112,25 @@ GdCloseMouse(void)
 	mousedev.Close();
 }
 
+/**
+ * Gets the buttons which are supported by the mouse.
+ *
+ * @param buttons On return, a bitmask indicating the buttons which are
+ * supported by the mouse.
+ */
 void
 GdGetButtonInfo(int *buttons)
 {
 	*buttons = mousedev.GetButtonInfo();
 }
 
-/*
+/**
  * Restrict the coordinates of the mouse to the specified coordinates.
+ *
+ * @param newminx Minimum X co-ordinate.
+ * @param newminy Minimum Y co-ordinate.
+ * @param newmaxx Maximum X co-ordinate.
+ * @param newmaxy Maximum Y co-ordinate.
  */
 void
 GdRestrictMouse(MWCOORD newminx, MWCOORD newminy, MWCOORD newmaxx,
@@ -131,7 +144,7 @@ GdRestrictMouse(MWCOORD newminx, MWCOORD newminy, MWCOORD newmaxx,
 	GdMoveMouse(xpos, ypos);
 }
 
-/*
+/**
  * Set the acceleration threshhold and scale factors.
  * Acceleration makes the cursor move further for faster movements.
  * Basically, at mouse speeds above the threshold, the excess distance
@@ -140,6 +153,9 @@ GdRestrictMouse(MWCOORD newminx, MWCOORD newminy, MWCOORD newmaxx,
  * modified mouse movements:
  *	input:		0	4	5	6	9	20
  *	output:		0	4	5	8	17	50
+ *
+ * @param newthresh Threshold where acceleration starts
+ * @param newscale Acceleration factor.
  */
 void
 GdSetAccelMouse(int newthresh, int newscale)
@@ -152,9 +168,12 @@ GdSetAccelMouse(int newthresh, int newscale)
 	scale = newscale;
 }
 
-/*
+/**
  * Move the mouse to the specified coordinates.
  * The location is limited by the current mouse coordinate restrictions.
+ *
+ * @param newx New X co-ordinate.
+ * @param newy New Y co-ordinate.
  */
 void
 GdMoveMouse(MWCOORD newx, MWCOORD newy)
@@ -179,7 +198,7 @@ GdMoveMouse(MWCOORD newx, MWCOORD newy)
 	ypos = newy;
 }
 
-/*
+/**
  * Read the current location and button states of the mouse.
  * Returns -1 on read error.
  * Returns 0 if no new data is available from the mouse driver,
@@ -188,6 +207,11 @@ GdMoveMouse(MWCOORD newx, MWCOORD newy)
  * or position. Button state and position are always both returned,
  * even if only one or the other changes.
  * Do not block.
+ *
+ * @param px On return, holds the mouse X co-ordinate.
+ * @param py On return, holds the mouse Y co-ordinate.
+ * @param pb On return, holds the buttons status.
+ * @return -1 on error, 0 if mouse has not moved, 1 if mouse has moved.
  */
 int
 GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
@@ -271,8 +295,11 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	return 1;
 }
 
-/*
+/**
  * Set the cursor position.
+ *
+ * @param newx New X co-ordinate.
+ * @param newy New Y co-ordinate.
  */
 void
 GdMoveCursor(MWCOORD newx, MWCOORD newy)
@@ -296,7 +323,13 @@ GdMoveCursor(MWCOORD newx, MWCOORD newy)
 	GdShowCursor(&scrdev);
 }
 
-/* return current mouse position in x, y*/
+/**
+ * return current mouse position in x, y
+ *
+ * @param px On return, holds the cursor X co-ordinate.
+ * @param py On return, holds the cursor Y co-ordinate.
+ * @return TRUE iff cursor is visible.
+ */
 MWBOOL
 GdGetCursorPos(MWCOORD *px, MWCOORD *py)
 {
@@ -305,8 +338,10 @@ GdGetCursorPos(MWCOORD *px, MWCOORD *py)
 	return curvisible > 0;	/* return TRUE if visible*/
 }
 
-/*
+/**
  * Set the cursor size and bitmaps.
+ *
+ * @param pcursor New mouse cursor.
  */
 void
 GdSetCursor(PMWCURSOR pcursor)
@@ -329,9 +364,12 @@ GdSetCursor(PMWCURSOR pcursor)
 }
 
 
-/*
+/**
  * Draw the mouse pointer.  Save the screen contents underneath
  * before drawing. Returns previous cursor state.
+ *
+ * @param psd Drawing surface.
+ * @return 1 iff the cursor was visible, else <= 0
  */
 int
 GdShowCursor(PSD psd)
@@ -394,8 +432,11 @@ GdShowCursor(PSD psd)
 	return prevcursor;
 }
 
-/*
+/**
  * Restore the screen overwritten by the cursor.
+ *
+ * @param psd Drawing surface.
+ * @return 1 iff the cursor was visible, else <= 0
  */
 int
 GdHideCursor(PSD psd)
@@ -423,10 +464,18 @@ GdHideCursor(PSD psd)
 	return prevcursor;
 }
 
-/* Check to see if the mouse pointer is about to be overwritten.
+/**
+ * Check to see if the mouse pointer is about to be overwritten.
  * If so, then remove the cursor so that the graphics operation
  * works correctly.  If the cursor is removed, then this fact will
  * be remembered and a later call to GdFixCursor will restore it.
+ *
+ * @param psd Drawing surface.  If it is not onscreen, this call has
+ * no effect.
+ * @param x1 Left edge of rectangle to check.
+ * @param y1 Top edge of rectangle to check.
+ * @param x2 Right edge of rectangle to check.
+ * @param y2 Bottom edge of rectangle to check.
  */
 void
 GdCheckCursor(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2)
@@ -454,7 +503,12 @@ GdCheckCursor(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2)
 }
 
 
-/* Redisplay the cursor if it was removed because of a graphics operation. */
+/**
+ * Redisplay the cursor if it was removed because of a graphics operation.
+ *
+ * @param psd Drawing surface.  If it is not onscreen, this call has
+ * no effect.
+ */
 void
 GdFixCursor(PSD psd)
 {

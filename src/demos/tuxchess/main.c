@@ -127,7 +127,7 @@ char st_sq[3];
 int from = 999;
 int to = 999;
 
-/*************************************************************/
+/* ***********************************************************/
 /* get_ms() returns the milliseconds elapsed since midnight,
    January 1, 1970. */
 BOOL ftime_ok = FALSE;  /* does ftime return milliseconds? */
@@ -141,7 +141,7 @@ int get_ms()
 }
 
  
-/*************************************************************/
+/* ***********************************************************/
 static void gprintf(char s[])
 {
 	static char lasttext[128];
@@ -158,7 +158,7 @@ static void gprintf(char s[])
 }     
 
 
-/*************************************************************/
+/* ***********************************************************/
 static void process_scancode(int scancode)
 {
 	char sq[3];
@@ -195,7 +195,7 @@ static void process_scancode(int scancode)
 	}
 }
 
-/*************************************************************/
+/* ***********************************************************/
 /* borrowed from nxkbd */
 static void mouse_hit(int x, int y) 
 {
@@ -221,7 +221,7 @@ static void mouse_hit(int x, int y)
 }
 
 
-/*************************************************************/
+/* ***********************************************************/
 int main(int argc, char* argv[])
 {
         GR_EVENT event;
@@ -358,7 +358,7 @@ int main(int argc, char* argv[])
 
 
 
-/*************************************************************/
+/* ***********************************************************/
 /* move_str returns a string with move m in coordinate notation */
 char *move_str(move_bytes m)
 {
@@ -397,7 +397,7 @@ char *move_str(move_bytes m)
 }
 
 
-/*************************************************************/
+/* ***********************************************************/
 void print_board(void)
 {
 	int row,column,i,x,y;
@@ -488,7 +488,7 @@ void print_board(void)
 }
 
 
-/*************************************************************/
+/* ***********************************************************/
 /* print_result() checks to see if the game is over */
 void print_result()
 {

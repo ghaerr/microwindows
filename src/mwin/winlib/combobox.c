@@ -83,7 +83,7 @@ typedef struct  {
 
 #define BOWNERDRAW(l) ((l)->wStyle & (CBS_OWNERDRAWFIXED|CBS_OWNERDRAWVARIABLE))
 
-/**********************************************
+/* ********************************************
     Styles:
 
     CBS_AUTOHSCROLL     passed to the edit control
@@ -102,7 +102,7 @@ typedef struct  {
 
 *********************************************/
 
-/**********************************************
+/* ********************************************
     CBN_xxx messages to be added
 
     from mouse tracking...
@@ -482,7 +482,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
            mis.itemID = (UINT)-1;
            mis.itemData = 0L;
            SendMessage(lpcs->hwndParent, WM_MEASUREITEM, (WPARAM)lpcs->hMenu, (LPARAM)&mis);
-           /*** wEditHeight = (WORD)mis.itemHeight + 2; ***/
+           /* * wEditHeight = (WORD)mis.itemHeight + 2; ***/
            }
 #endif	/* ownerdraw */
 
@@ -493,7 +493,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         /* allow different fonts to fit, don't hard code */
         /* otherwise big fonts won't fit. */
-        /*****wEditHeight = ((tm.tmHeight - tm.tmInternalLeading)*7)/4;*****/
+        /* ***wEditHeight = ((tm.tmHeight - tm.tmInternalLeading)*7)/4;*****/
         wEditHeight = tm.tmHeight + tm.tmInternalLeading * 3;
 
         lp->uHeight = (UINT)wEditHeight;
@@ -1187,9 +1187,9 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         return (LRESULT)0;
 
 #if 0	/* jmt: fix: no ownerdraw */
-    /*********************************************/
+    /* *******************************************/
     /* ownerdraw stuff               */
-    /*********************************************/
+    /* *******************************************/
     case WM_DRAWITEM:
         lpdis = (LPDRAWITEMSTRUCT)lParam;
         lpdis->CtlType = ODT_COMBOBOX;
@@ -1231,7 +1231,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return rc;
 }
 
-/************************************************************************
+/* **********************************************************************
 **
 ************************************************************************/
 static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1244,9 +1244,9 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     lp = (COMBOBOX *) hWnd->userdata/*GetWindowLong(hWnd,CWD_LPCBDATA)*/;
     switch(uMsg) {
-        /*********************************************/
+        /* *******************************************/
         /* messages specific to the list box control */
-        /*********************************************/
+        /* *******************************************/
         case CB_ADDSTRING:
             lp->nListItems++;  /* shd. test for successful return */
             return SendMessage(lp->ListBoxControl,LB_ADDSTRING,
@@ -1302,9 +1302,9 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             return SendMessage(lp->ListBoxControl,LB_SETITEMDATA,
                 wParam,lParam);
             
-        /*********************************************/
+        /* *******************************************/
         /* messages specific to the edit control */
-        /*********************************************/
+        /* *******************************************/
         case CB_GETEDITSEL:
             return SendMessage(lp->EditControl,EM_GETSEL,0,0);
                 
@@ -1316,9 +1316,9 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             return SendMessage(lp->EditControl,EM_SETSEL,
                 wParam,lParam);
 
-        /*********************************************/
+        /* *******************************************/
         /* messages handled by the combobox          */
-        /*********************************************/
+        /* *******************************************/
         case CB_GETDROPPEDCONTROLRECT:
             CopyRect((LPRECT)lParam,&lp->ListBoxRect);
             break;
@@ -1421,9 +1421,9 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              }
             return 1L;
 
-        /*********************************************/
+        /* *******************************************/
         /* messages handled by the defwindowproc.... */
-        /*********************************************/
+        /* *******************************************/
         default:
             return DefWindowProc( hWnd, uMsg, wParam, lParam);
     }
@@ -1526,7 +1526,7 @@ CBoxDrawButton(HWND hWnd,UINT wState,COMBOBOX *lp)
 }
 
 #if 0	/* jmt: fix: no COMBOLBOX */
-/************************************************************************
+/* **********************************************************************
 **
 ************************************************************************/
 LRESULT DefCOMBOLBOXProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1538,7 +1538,7 @@ LRESULT DefCOMBOLBOXProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-/************************************************************************
+/* **********************************************************************
 **
 ************************************************************************/
 static void CBoxSendMouseToLBox(COMBOBOX *lp, UINT uiMsg, WPARAM wParam, POINT ptScreen)
@@ -1576,7 +1576,7 @@ static void CBoxSendMouseToLBox(COMBOBOX *lp, UINT uiMsg, WPARAM wParam, POINT p
     }
 }
 
-/************************************************************************
+/* **********************************************************************
 **
 ************************************************************************/
 static void CBoxCapture(HWND hWnd, WORD wFunc)
@@ -1603,7 +1603,7 @@ static void CBoxCapture(HWND hWnd, WORD wFunc)
          }
 }
 
-/************************************************************************
+/* **********************************************************************
 **
 ************************************************************************/
 static void CBoxDrawEdit(COMBOBOX *lp, HWND hWnd, UINT uiKey)
@@ -1659,7 +1659,7 @@ static void CBoxDrawEdit(COMBOBOX *lp, HWND hWnd, UINT uiKey)
 #endif	/* ownerdraw */
 }
 
-/************************************************************************
+/* **********************************************************************
 **
 ************************************************************************/
 static void CBoxDrawStatic(COMBOBOX *lp, HWND hWnd, UINT uiKey)

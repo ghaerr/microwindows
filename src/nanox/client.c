@@ -64,10 +64,21 @@
 #include "lock.h"
 
 #ifndef ADDR_FAM
-#define ADDR_FAM AF_UNIX	/* default to unix socket for client/server*/
+/**
+ * Default to unix socket for client/server.
+ * @internal
+ */
+#define ADDR_FAM AF_UNIX
 #endif
 
 #define GR_CLOSE_FIX	1	/* dirty hack attempts to fix GrClose hang bug*/
+
+/**
+ * The granularity of the shared memory allocation.  The requested size
+ * will be rounded up to a multiple of this many bytes.
+ *
+ * @internal
+ */
 #define SHM_BLOCK_SIZE	4096
 
 #ifndef __ECOS
@@ -82,7 +93,9 @@ static int nxSharedMemSize;	/* Size in bytes of shared mem segment*/
 static int regfdmax = -1;	/* GrRegisterInput globals*/
 static fd_set regfdset;
 
-/* readable error strings*/
+/**
+ * Human-readable error strings.
+ */
 char *nxErrorStrings[] = {
 	GR_ERROR_STRINGS
 };
@@ -110,12 +123,16 @@ static void GetNextQueuedEvent(GR_EVENT *ep);
 static void _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 static int  _GrPeekEvent(GR_EVENT * ep);
 
-/*
+/**
  * Read n bytes of data from the server into block *b.  Make sure the data
  * you are about to read are actually of the correct type - e.g. make a
  * check for the first block of data you read as a response to a command
- * with the Typed version of this function. Returns 0 on success or -1 on
- * failure.
+ * with the Typed version of this function.
+ *
+ * @param b Destination for read.
+ * @param n Number of bytes to read.
+ * @return  0 on success or -1 on failure.
+ * @internal
  */
 static int
 ReadBlock(void *b, int n)
@@ -150,8 +167,12 @@ ReadBlock(void *b, int n)
 	return 0;
 }
 
-/*
+/**
  * Read a byte of data from the server.
+ *
+ * @return The unsigned character read from the server, or -1 on error.
+ *
+ * @internal
  */
 static int
 ReadByte(void)
@@ -163,11 +184,15 @@ ReadByte(void)
 	else return (int) c;
 }
 
-/*
+/**
  * Check if this is a CLIENT_DATA event, in which case we need to read the
  * data for the event into a buffer and set the event data pointer to the
  * address of it (or NULL if the malloc() fails). We also don't try to read
  * any data if datalen is 0.
+ *
+ * @param evp Event to check
+ *
+ * @internal
  */
 static void
 CheckForClientData(GR_EVENT *evp)
@@ -185,10 +210,15 @@ CheckForClientData(GR_EVENT *evp)
 	}
 }
 
-/*
+/**
  * Check if the data we are about to read is of the correct type. This
  * must be done in order to avoid reading an event as part of the response
  * from the server to a command that requires a reply.
+ *
+ * @param packettype Expected type.
+ * @return           packettype on success, -1 on error.
+ *
+ * @internal
  */
 static int
 CheckBlockType(short packettype)
@@ -217,10 +247,17 @@ CheckBlockType(short packettype)
 	return -1;
 }
 
-/*
+/**
  * Actually read a response from the server, much like the ReadBlock but
  * make sure the response is of the right kind, e.g. store the event that
  * may have sneaked into the stream.
+ *
+ * @param b    Destination for read data.
+ * @param n    Number of bytes to read.
+ * @param type The required packet type.
+ * @return     0 on success or -1 on failure.
+ *
+ * @internal
  */
 static int
 TypedReadBlock(void *b, int n, int type)
@@ -233,12 +270,16 @@ TypedReadBlock(void *b, int n, int type)
 	return ReadBlock(b, n);
 }
 
-/*
+/**
  * Check if the passed event is an error event, and call the error handler if
  * there is one. After calling the handler (if it returns), the event type is
  * set to a non-event so that we don't return an error event through the
  * GetEvent() mechanism. This solution is simpler than creating a client-side
  * event queue.
+ *
+ * @param ep The event to check.
+ *
+ * @internal
  */
 static void
 CheckErrorEvent(GR_EVENT *ep)
@@ -257,10 +298,11 @@ CheckErrorEvent(GR_EVENT *ep)
 }
 
 /**
- * GrOpen:
- * @Returns: the fd of the connection to the server or -1 on failure
- *
  * Open a connection to the graphics server.
+ *
+ * @return the fd of the connection to the server or -1 on failure
+ *
+ * @ingroup nanox_general
  */
 int 
 GrOpen(void)
@@ -384,12 +426,12 @@ mySignalhandler(int sig)
 }
 #endif
 
-/**
- * GrClose:
- *
- * Close the graphics device, flushing any waiting messages.
- */
 /* Vladimir Cotfas: hang in GrFlush() --> nxFlushReq(0L,1); */
+/**
+ * Close the graphics device.  Flushes any waiting messages.
+ *
+ * @ingroup nanox_general
+ */
 void 
 GrClose(void)
 {
@@ -415,9 +457,9 @@ GrClose(void)
 }
 
 /**
- * GrFlush:
- *
  * Flush the message buffer of any messages it may contain.
+ *
+ * @ingroup nanox_general
  */
 void 
 GrFlush(void)
@@ -436,14 +478,15 @@ GrFlush(void)
 }
 
 /**
- * GrDefaultErrorHandler:
- * @ep: the error event structure
- * 
- * The default error handler which is called when the server reports an error
- * event and the client hasn't set up a handler of it's own.
+ * The default error handler.  This is called when the server reports an
+ * error event and the client hasn't set up a handler of it's own.
  *
  * Generates a human readable error message describing what error
  * occurred and what function it occured in, then exits.
+ *
+ * @param ep The error event structure.
+ *
+ * @ingroup nanox_general
  */
 void 
 GrDefaultErrorHandler(GR_EVENT *ep)
@@ -457,13 +500,14 @@ GrDefaultErrorHandler(GR_EVENT *ep)
 }
 
 /**
- * GrSetErrorHandler:
- * @fncb: the function to call to handle error events
- * @Returns: the address of the previous error handler
- *
  * Sets an error handling routine that will be called on any errors from
  * the server (assuming the client has asked to receive them). If zero is
  * used as the argument, errors will be returned as regular events instead.
+ *
+ * @param fncb the function to call to handle error events
+ * @return     the address of the previous error handler
+ *
+ * @ingroup nanox_general
  */
 GR_FNCALLBACKEVENT
 GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
@@ -479,11 +523,12 @@ GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
 }
 
 /**
- * GrDelay:
- * @msecs: number of milliseconds to delay
- *
  * This function suspends execution of the program for the specified
  * number of milliseconds.
+ *
+ * @param msecs Number of milliseconds to delay.
+ *
+ * @ingroup nanox_timer
  */
 void
 GrDelay(GR_TIMEOUT msecs)
@@ -496,10 +541,11 @@ GrDelay(GR_TIMEOUT msecs)
 }
 
 /**
- * GrGetScreenInfo:
- * @sip: pointer to a GR_SCREEN_INFO structure
- *
  * Fills in the specified GR_SCREEN_INFO structure.
+ *
+ * @param sip Pointer to a GR_SCREEN_INFO structure
+ *
+ * @ingroup nanox_general
  */
 void 
 GrGetScreenInfo(GR_SCREEN_INFO *sip)
@@ -511,14 +557,15 @@ GrGetScreenInfo(GR_SCREEN_INFO *sip)
 }
 
 /**
- * GrGetSysColor:
- * @index: an index into the server's colour look up table
- * @Returns: the colour found at the specified index
- *
- * Returns the colour at the specified index into the server's colour look
+ * Returns the colour at the specified index into the server's color look
  * up table. The colours in the table are those with names like
  * "GR_COLOR_DESKTOP", "GR_COLOR_ACTIVECAPTION", "GR_COLOR_APPWINDOW", etc.
  * as listed in nano-X.h
+ *
+ * @param index An index into the server's colour look up table.
+ * @return      The color found at the specified index.
+ *
+ * @ingroup nanox_color
  */
 GR_COLOR
 GrGetSysColor(int index)
@@ -536,12 +583,12 @@ GrGetSysColor(int index)
 }
 
 /**
- * GrGetFontInfo:
- * @fontno: the font ID number
- * @fip: pointer to a GR_FONT_INFO structure
+ * Gets information about a font.
  *
- * Fills in the specified GR_FONT_INFO structure with information regarding
- * the specified font.
+ * @param fontno The font ID to query.
+ * @param fip    Pointer to the GR_FONT_INFO structure to store the result.
+ *
+ * @ingroup nanox_font
  */
 void 
 GrGetFontInfo(GR_FONT_ID fontno, GR_FONT_INFO *fip)
@@ -556,12 +603,13 @@ GrGetFontInfo(GR_FONT_ID fontno, GR_FONT_INFO *fip)
 }
 
 /**
- * GrGetGCInfo:
- * @gc: a graphics context
- * @gcip: pointer to a GR_GC_INFO structure
- *
  * Fills in the specified GR_GC_INFO structure with information regarding the
  * specified graphics context.
+ *
+ * @param gc   A graphics context.
+ * @param gcip Pointer to a GR_GC_INFO structure to store the result.
+ *
+ * @ingroup nanox_draw
  */
 void
 GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
@@ -576,18 +624,19 @@ GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
 }
 
 /**
- * GrGetGCTextSize:
- * @gc: the graphics context
- * @str: pointer to a text string
- * @count: the length of the string
- * @flags: text rendering flags (GR_TF*)
- * @retwidth: pointer to the variable the width will be returned in
- * @retheight: pointer to the variable the height will be returned in
- * @retbase: pointer to the variable the baseline height will be returned in
- *
- * Calculates the dimensions of the specified text string using the current font
+ * Calculates the dimensions of a specified text string.  Uses the current font
  * and flags in the specified graphics context. The count argument can be -1
  * if the string is null terminated.
+ *
+ * @param gc        The graphics context.
+ * @param str       Pointer to a text string.
+ * @param count     The length of the string.
+ * @param flags     Text rendering flags. (GR_TF*).
+ * @param retwidth  Pointer to the variable the width will be returned in.
+ * @param retheight Pointer to the variable the height will be returned in.
+ * @param retbase   Pointer to the variable the baseline height will be returned in.
+ *
+ * @ingroup nanox_font
  */
 void
 GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
@@ -615,12 +664,13 @@ GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
 }
 
 /**
- * GrRegisterInput:
- * @fd: the file descriptor to monitor
- *
  * Register an extra file descriptor to monitor in the main select() call.
  * An event will be returned when the fd has data waiting to be read if that
  * event has been selected for.
+ *
+ * @param fd The file descriptor to monitor.
+ *
+ * @ingroup nanox_event
  */
 void 
 GrRegisterInput(int fd)
@@ -637,11 +687,12 @@ GrRegisterInput(int fd)
 }
 
 /**
- * GrUnregisterInput:
- * @fd: the file descriptor to stop monitoring
+ * Stop monitoring a file descriptor previously registered with
+ * GrRegisterInput().
  *
- * Stop monitoring a file descriptor (previously registered with
- * GrRegisterInput()) in the main select() call.
+ * @param fd The file descriptor to stop monitoring.
+ *
+ * @ingroup nanox_event
  */
 void
 GrUnregisterInput(int fd)
@@ -668,17 +719,29 @@ GrUnregisterInput(int fd)
 }
 
 /**
- * GrPrepareSelect:
- * @maxfd: pointer to a variable which the highest in use fd will be written to
- * @rfdset: pointer to the file descriptor set structure to use
- *
- * Prepare for a GrServiceSelect function by asking the server to send the next
- * event but not waiting around for it to arrive and initialising the
+ * Prepare for the client to call select().  Asks the server to send the next
+ * event but does not wait around for it to arrive.  Initializes the
  * specified fd_set structure with the client/server socket descriptor and any
- * previously registered external file descriptors. Also compares the current
+ * previously registered external file descriptors.  Also compares the current
  * contents of maxfd, the client/server socket descriptor, and the previously
  * registered external file descriptors, and returns the highest of them in
  * maxfd.
+ *
+ * Usually used in conjunction with GrServiceSelect().
+ *
+ * Note that in a multithreaded client, the application must ensure that
+ * no Nano-X calls are made between the calls to GrPrepareSelect() and
+ * GrServiceSelect(), else there will be race conditions.
+ *
+ * @param maxfd  Pointer to a variable which the highest in use fd will be
+ *               written to.  Must contain a valid value on input - will only
+ *               be overwritten if the new value is higher than the old
+ *               value.
+ * @param rfdset Pointer to the file descriptor set structure to use.  Must
+ *               be valid on input - file descriptors will be added to this
+ *               set without clearing the previous contents.
+ *
+ * @ingroup nanox_event
  */
 void
 GrPrepareSelect(int *maxfd,void *rfdset)
@@ -707,13 +770,18 @@ GrPrepareSelect(int *maxfd,void *rfdset)
 }
 
 /**
- * GrServiceSelect:
- * @rfdset: pointer to the file descriptor set to monitor
- * @fncb: pointer to the function to call when an event needs handling
+ * Handles events after the client has done a select() call.
  *
- * Used by GrMainLoop() to call the specified callback function when an
- * event arrives or there is data waiting on an external fd specified by
- * GrRegisterInput().
+ * Calls the specified callback function is an event has arrived, or if
+ * there is data waiting on an external fd specified by GrRegisterInput().
+ *
+ * Used by GrMainLoop().
+ *
+ * @param rfdset Pointer to the file descriptor set containing those file
+ *               descriptors that are ready for reading.
+ * @param fncb   Pointer to the function to call when an event needs handling.
+ *
+ * @ingroup nanox_event
  */
 void
 GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
@@ -758,12 +826,13 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 }
 
 /**
- * GrMainLoop:
- * @fncb:
+ * An infinite loop that dispatches events.  Calls the specified callback
+ * function whenever an event arrives or there is data to be read on a file
+ * descriptor registered with GrRegisterInput(). Never returns.
  *
- * A convenience function which calls the specified callback function whenever
- * an event arrives or there is data to be read on a file descriptor previously
- * specified by GrRegisterInput(). Currently never returns.
+ * @param fncb Pointer to the function to call when an event needs handling.
+ *
+ * @ingroup nanox_event
  */
 void
 GrMainLoop(GR_FNCALLBACKEVENT fncb)
@@ -779,8 +848,12 @@ GrMainLoop(GR_FNCALLBACKEVENT fncb)
 	}
 }
 
-/*
+/**
  * Queue an event in FIFO for later retrieval.
+ *
+ * @param ep The event to queue
+ *
+ * @internal
  */
 static void
 QueueEvent(GR_EVENT *ep)
@@ -806,8 +879,12 @@ QueueEvent(GR_EVENT *ep)
 	}
 }
 
-/*
- * Retrieve first event in FIFO event queue.
+/**
+ * Retrieve first event in FIFO event queue.  FIFO must not be empty.
+ *
+ * @param ep Destination for event.
+ *
+ * @internal
  */
 static void
 GetNextQueuedEvent(GR_EVENT *ep)
@@ -823,13 +900,13 @@ GetNextQueuedEvent(GR_EVENT *ep)
 }
 
 /**
- * GrGetNextEvent:
- * @ep: pointer to the GR_EVENT structure to return the event in
+ * Gets the next event from the event queue.  If the queue is currently
+ * empty, sleeps until the next event arrives from the server or input
+ * is read on a file descriptor previously specified by GrRegisterInput().
  *
- * Gets the next event from the event queue and places it in the specified
- * GR_EVENT structure. If the queue is currently empty, we sleep until the
- * next event arrives from the server or input is read on a file descriptor
- * previously specified by GrRegisterInput().
+ * @param ep Pointer to the GR_EVENT structure to return the event in.
+ *
+ * @ingroup nanox_event
  */
 void 
 GrGetNextEvent(GR_EVENT *ep)
@@ -838,16 +915,20 @@ GrGetNextEvent(GR_EVENT *ep)
 }
 
 /**
- * GrGetNextEventTimeout:
- * @ep: pointer to the GR_EVENT structure to return the event in
- * @timeout: the number of milliseconds to wait before timing out
+ * Gets the next event from the event queue, with a time limit.  If the
+ * queue is currently empty, we sleep until the next event arrives from
+ * the server, input is read on a file descriptor previously specified
+ * by GrRegisterInput(), or a timeout occurs.
  *
- * Gets the next event from the event queue and places it in the specified
- * GR_EVENT structure. If the queue is currently empty, we sleep until the
- * next event arrives from the server, input is read on a file descriptor
- * previously specified by GrRegisterInput(), or a timeout occurs. Note
- * that a value of 0 for the timeout parameter doesn't mean "timeout after 0
- * milliseconds" but is in fact a magic number meaning "never time out".
+ * Note that a value of 0 for the timeout parameter doesn't mean "timeout
+ * after 0 milliseconds" but is in fact a magic number meaning "never time
+ * out".
+ *
+ * @param ep      Pointer to the GR_EVENT structure to return the event in.
+ * @param timeout The number of milliseconds to wait before timing out, or
+ *                0 for forever.
+ *
+ * @ingroup nanox_event
  */
 void
 GrGetNextEventTimeout(GR_EVENT * ep, GR_TIMEOUT timeout)
@@ -865,6 +946,25 @@ GrGetNextEventTimeout(GR_EVENT * ep, GR_TIMEOUT timeout)
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * Sleep until the next event arrives, possibly with a time limit.
+ * The SERVER_LOCK() must be held and the event queue must be empty
+ * before calling this function.
+ *
+ * Sleeps until the next event arrives from the server, input is read
+ * on a file descriptor previously specified by GrRegisterInput(), or
+ * a timeout occurs.
+ *
+ * Note that a value of 0 for the timeout parameter doesn't mean "timeout
+ * after 0 milliseconds" but is in fact a magic number meaning "never time
+ * out".
+ *
+ * @param ep      Pointer to the GR_EVENT structure to return the event in.
+ * @param timeout The number of milliseconds to wait before timing out, or
+ *                0 for forever.
+ *
+ * @internal
+ */
 static void
 _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 {
@@ -932,13 +1032,14 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 }
 
 /**
- * GrPeekEvent:
- * @ep: pointer to the GR_EVENT structure to return the event in
- * @Returns: 1 if an event was returned, or 0 if the queue was empty
- *
- * Fills in the specified event structure with a copy of the next event on the
- * queue, without actually removing it from the queue. An event type of
+ * Gets a copy of the next event on the queue, without actually
+ * removing it from the queue.  Does not block - an event type of
  * GR_EVENT_TYPE_NONE is given if the queue is empty.
+ *
+ * @param ep Pointer to the GR_EVENT structure to return the event in.
+ * @return   1 if an event was returned, or 0 if the queue was empty.
+ *
+ * @ingroup nanox_event
  */
 int 
 GrPeekEvent(GR_EVENT *ep)
@@ -973,10 +1074,11 @@ _GrPeekEvent(GR_EVENT * ep)
 }
 
 /**
- * GrPeekWaitEvent:
- * @ep: pointer to the GR_EVENT structure to return the event in
- *
  * Wait until an event is available for a client, and then peek at it.
+ *
+ * @param ep Pointer to the GR_EVENT structure to return the event in.
+ *
+ * @ingroup nanox_event
  */
 void
 GrPeekWaitEvent(GR_EVENT *ep)
@@ -1010,11 +1112,13 @@ GrPeekWaitEvent(GR_EVENT *ep)
 }
 
 /**
- * GrCheckNextEvent:
- * @ep: pointer to the GR_EVENT structure to return the event in
+ * Gets the next event from the event queue if there is one.  Returns
+ * immediately with an event type of GR_EVENT_TYPE_NONE if the queue
+ * is empty.
  *
- * Gets the next event from the event queue if there is one, or returns
- * immediately with an event type of GR_EVENT_TYPE_NONE if it is empty.
+ * @param ep Pointer to the GR_EVENT structure to return the event in.
+ *
+ * @ingroup nanox_event
  */
 void 
 GrCheckNextEvent(GR_EVENT *ep)
@@ -1062,18 +1166,23 @@ printf("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, mask
 }
 
 /**
- * GrGetTypedEvent
- * @wid: window id for which to check events. 0 means no window
- * @mask: event mask of events for which to check. 0 means no check for mask
- * @ep: pointer to the GR_EVENT structure to return the event in
- * @block: specifies whether or not to block, 1 blocks, 0 does not
- * @Returns: GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
- * if no events match
- *
  * Fills in the specified event structure with a copy of the next event on the
  * queue that matches the type parameters passed and removes it from the queue.
  * An event type of GR_EVENT_TYPE_NONE is given if the queue is empty; else,
  * the event type is returned.
+ *
+ * @param wid     Window id for which to check events. 0 means no window.
+ * @param mask    Event mask of events for which to check. 0 means no check for mask.
+ * @param mask_up FIXME what is this?
+ * @param ep      Pointer to the GR_EVENT structure to return the event in.
+ * @param block   Specifies whether or not to block, 1 blocks, 0 does not.
+ * @return        GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
+ *                if no events match.
+ *
+ * @todo FIXME Need better summary doc above.
+ * @todo FIXME Document mask_up paramater.
+ *
+ * @ingroup nanox_event
  */
 int
 GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
@@ -1082,6 +1191,21 @@ GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
 	return GrGetTypedEventPred(wid, mask, mask_up, ep, block, _CheckTypedEvent, 0);
 }
 
+/**
+ * FIXME
+ *
+ * @param wid           FIXME
+ * @param mask          FIXME
+ * @param mask_up       FIXME
+ * @param ep            FIXME
+ * @param block         FIXME
+ * @param CheckFunction FIXME
+ * @param arg           FIXME
+ *
+ * @todo FIXME document this.
+ *
+ * @ingroup nanox_event
+ */
 int
 GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
 	GR_EVENT *ep, int block, 
@@ -1133,11 +1257,12 @@ getevent:
 } 
 
 /**
- * GrSelectEvents:
- * @wid: the ID of the window to set the event mask of
- * @eventmask: a bit field specifying the desired event mask
- *
  * Select the event types which should be returned for the specified window.
+ *
+ * @param wid       The ID of the window to set the event mask of.
+ * @param eventmask A bit field specifying the desired event mask.
+ *
+ * @ingroup nanox_event
  */
 void 
 GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
@@ -1152,18 +1277,19 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 }
 
 /**
- * GrNewWindow:
- * @parent: the ID of the parent window
- * @x: the X coordinate of the new window relative to the parent window
- * @y: the Y coordinate of the new window relative to the parent window
- * @width: the width of the new window
- * @height: the height of the new window
- * @bordersize: the width of the window border
- * @background: the colour of the window background
- * @bordercolor: the colour of the window border
- * @Returns: the ID of the newly created window
+ * Create a new window.
  *
- * Create a new window with the specified parent and window attributes.
+ * @param parent      The ID of the parent window.
+ * @param x           The X coordinate of the new window relative to the parent window.
+ * @param y           The Y coordinate of the new window relative to the parent window.
+ * @param width       The width of the new window.
+ * @param height      The height of the new window.
+ * @param bordersize  The width of the window border.
+ * @param background  The color of the window background.
+ * @param bordercolor The color of the window border.
+ * @return            The ID of the newly created window.
+ *
+ * @ingroup nanox_window
  */
 GR_WINDOW_ID
 GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
@@ -1191,17 +1317,18 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
    
    
 /**
- * GrNewPixmap:
- * @width: the width of the pixmap
- * @height: the height of the pixmap
- * @addr: currently unused in client/server mode
- * @Returns: the ID of the newly created pixmap
+ * Create a new server side pixmap.  This is an offscreen drawing area which
+ * can be copied into a window using a GrCopyArea call.
  *
- * Create a new server side pixmap (an offscreen drawing area which can be
- * copied into a window using a GrCopyArea call) of the specified width and
- * height.
+ * @param width  The width of the pixmap.
+ * @param height The height of the pixmap.
+ * @param addr   Currently unused in client/server mode.
+ * @return       The ID of the newly created pixmap.
+ *
+ * @todo FIXME Add support for shared memory...
+ *
+ * @ingroup nanox_window
  */
-/* FIXME: Add support for shared memory... */
 GR_WINDOW_ID
 GrNewPixmap(GR_SIZE width, GR_SIZE height, void *addr)
 {
@@ -1219,16 +1346,17 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void *addr)
 }
 
 /**
- * GrNewInputWindow:
- * @parent: the ID of the window to use as the parent of the new window
- * @x: the X coordinate of the new window relative to the parent window
- * @y: the Y coordinate of the new window relative to the parent window
- * @width: the width of the new window
- * @height: the height of the new window
- * @Returns: the ID of the newly created window
- *
  * Create a new input-only window with the specified dimensions which is a
  * child of the specified parent window.
+ *
+ * @param parent The ID of the window to use as the parent of the new window.
+ * @param x      The X coordinate of the new window relative to the parent window.
+ * @param y      The Y coordinate of the new window relative to the parent window.
+ * @param width  The width of the new window.
+ * @param height The height of the new window.
+ * @return       The ID of the newly created window.
+ *
+ * @ingroup nanox_window
  */
 GR_WINDOW_ID
 GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
@@ -1251,11 +1379,14 @@ GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
 }
 
 /**
- * GrDestroyWindow:
- * @wid: the ID of the window to destroy
+ * Destroys a window and all of it's children.
  *
  * Recursively unmaps and frees the data structures associated with the
  * specified window and all of its children.
+ *
+ * @param wid The ID of the window to destroy.
+ *
+ * @ingroup nanox_window
  */
 void 
 GrDestroyWindow(GR_WINDOW_ID wid)
@@ -1269,12 +1400,12 @@ GrDestroyWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrGetWindowInfo:
- * @wid: the ID of the window to retrieve information about
- * @infoptr: pointer to a GR_WINDOW_INFO structure to return the information in
+ * Fills in a GR_WINDOW_INFO structure with information regarding a window.
  *
- * Fills in a GR_WINDOW_INFO structure with information regarding the window
- * with the specified window ID.
+ * @param wid     The ID of the window to retrieve information about.
+ * @param infoptr Pointer to a GR_WINDOW_INFO structure to return the information in.
+ *
+ * @ingroup nanox_window
  */
 void 
 GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
@@ -1289,11 +1420,12 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 }
 
 /**
- * GrNewGC:
- * @Returns: the ID of the newly created graphics context or 0 on error
+ * Creates a new graphics context structure. The structure is initialised
+ * with a set of default parameters.
  *
- * Creates a new graphics context structure and returns the ID used to refer
- * to it. The structure is initialised with a set of default parameters.
+ * @return The ID of the newly created graphics context or 0 on error.
+ *
+ * @ingroup nanox_draw
  */
 GR_GC_ID 
 GrNewGC(void)
@@ -1309,12 +1441,13 @@ GrNewGC(void)
 }
 
 /**
- * GrCopyGC:
- * @gc: the already existing graphics context to copy the parameters from
- * @Returns: the ID of the newly created graphics context or 0 on error
+ * Creates a new graphics context structure and copies the settings
+ * from an already existing graphics context.
  *
- * Creates a new graphics context structure and fills it in with the values
- * from the specified already existing graphics context.
+ * @param gc The already existing graphics context to copy the parameters from.
+ * @return   The ID of the newly created graphics context or 0 on error.
+ *
+ * @ingroup nanox_draw
  */
 GR_GC_ID 
 GrCopyGC(GR_GC_ID gc)
@@ -1332,10 +1465,11 @@ GrCopyGC(GR_GC_ID gc)
 }
 
 /**
- * GrDestroyGC:
- * @gc: the ID of the graphics context structure to destroy
+ * Destroys a graphics context structure.
  *
- * Destroys the graphics context structure with the specified ID.
+ * @param gc the ID of the graphics context structure to destroy
+ *
+ * @ingroup nanox_draw
  */
 void
 GrDestroyGC(GR_GC_ID gc)
@@ -1349,11 +1483,12 @@ GrDestroyGC(GR_GC_ID gc)
 }
 
 /**
- * GrNewRegion:
- * @Returns: the ID of the newly created region
- *
- * Creates a new region structure and returns the ID used to refer to it.
+ * Creates a new region structure.
  * The structure is initialised with a set of default parameters.
+ *
+ * @return the ID of the newly created region
+ *
+ * @ingroup nanox_region
  */
 GR_REGION_ID 
 GrNewRegion(void)
@@ -1369,10 +1504,11 @@ GrNewRegion(void)
 }
 
 /**
- * GrDestroyRegion:
- * @region: the ID of the region structure to destroy
+ * Destroys a region structure.
  *
- * Destroys the region structure with the specified ID.
+ * @param region The ID of the region structure to destroy.
+ *
+ * @ingroup nanox_region
  */
 void
 GrDestroyRegion(GR_REGION_ID region)
@@ -1386,12 +1522,13 @@ GrDestroyRegion(GR_REGION_ID region)
 }
 
 /**
- * GrUnionRectWithRegion:
- * @region: the ID of the region to modify
- * @rect: a pointer to the rectangle to add to the region
+ * Makes a union of the specified region and the specified rectangle.
+ * Places the result back in the source region.
  *
- * Makes a union of the specified region and the specified rectangle and
- * places the result back in the source region.
+ * @param region The ID of the region to modify.
+ * @param rect   A pointer to the rectangle to add to the region.
+ *
+ * @ingroup nanox_region
  */
 void
 GrUnionRectWithRegion(GR_REGION_ID region, GR_RECT *rect)
@@ -1407,13 +1544,14 @@ GrUnionRectWithRegion(GR_REGION_ID region, GR_RECT *rect)
 }
 
 /**
- * GrUnionRegion:
- * @dst_rgn: the ID of the destination region
- * @src_rgn1: the ID of the first source region
- * @src_rgn2: the ID of the second source region
- *
- * Makes a union of the specified source regions and places the result in the
+ * Makes a union of two regions. Places the result in the
  * specified destination region.
+ *
+ * @param dst_rgn  The ID of the destination region.
+ * @param src_rgn1 The ID of the first source region.
+ * @param src_rgn2 The ID of the second source region.
+ *
+ * @ingroup nanox_region
  */
 void
 GrUnionRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
@@ -1430,13 +1568,14 @@ GrUnionRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 }
 
 /**
- * GrSubtractRegion:
- * @dst_rgn: the ID of the destination region
- * @src_rgn1: the ID of the first source region
- * @src_rgn2: the ID of the second source region
- *
  * Subtracts the second source region from the first source region and places
  * the result in the specified destination region.
+ *
+ * @param dst_rgn  The ID of the destination region.
+ * @param src_rgn1 The ID of the first source region.
+ * @param src_rgn2 The ID of the second source region.
+ *
+ * @ingroup nanox_region
  */
 void
 GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
@@ -1453,14 +1592,15 @@ GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 }
 
 /**
- * GrXorRegion:
- * @dst_rgn: the ID of the destination region
- * @src_rgn1: the ID of the first source region
- * @src_rgn2: the ID of the second source region
- *
  * Performs a logical exclusive OR operation on the specified source regions
  * and places the result in the destination region. The destination region
  * will contain only the parts of the source regions which do not overlap.
+ *
+ * @param dst_rgn  The ID of the destination region.
+ * @param src_rgn1 The ID of the first source region.
+ * @param src_rgn2 The ID of the second source region.
+ *
+ * @ingroup nanox_region
  */
 void
 GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
@@ -1477,14 +1617,15 @@ GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 }
 
 /**
- * GrIntersectRegion:
- * @dst_rgn: the ID of the destination region
- * @src_rgn1: the ID of the first source region
- * @src_rgn2: the ID of the second source region
- *
  * Calculates the intersection of the two specified source regions and places
  * the result in the specified destination region. The destination region
  * will contain only the parts of the source regions which overlap each other.
+ *
+ * @param dst_rgn  The ID of the destination region.
+ * @param src_rgn1 The ID of the first source region.
+ * @param src_rgn2 The ID of the second source region.
+ *
+ * @ingroup nanox_region
  */
 void
 GrIntersectRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
@@ -1501,14 +1642,15 @@ GrIntersectRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 }
 
 /**
- * GrSetGCRegion:
- * @gc: the ID of the graphics context to set the clip mask of
- * @region: the ID of the region to use as the clip mask
- *
  * Sets the clip mask of the specified graphics context to the specified
  * region. Subsequent drawing operations using this graphics context will not
  * draw outside the specified region. The region ID can be set to 0 to remove
  * the clipping region from the specified graphics context.
+ *
+ * @param gc     The ID of the graphics context to set the clip mask of.
+ * @param region The ID of the region to use as the clip mask, or 0 for none.
+ *
+ * @ingroup nanox_region
  */
 void
 GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
@@ -1523,13 +1665,14 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
 }
 
 /**
- * GrSetGCClipOrigin:
- * @gc: the ID of the graphics context with user clip region
- * @xoff: new X offset of user clip region
- * @xoff: new Y offset of user clip region
- *
  * Sets the X,Y origin of the user clip region in the specified
  * graphics context.
+ *
+ * @param gc The ID of the graphics context with user clip region.
+ * @param x  New X offset of user clip region.
+ * @param y  New Y offset of user clip region.
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCClipOrigin(GR_GC_ID gc, int x, int y)
@@ -1545,12 +1688,13 @@ GrSetGCClipOrigin(GR_GC_ID gc, int x, int y)
 }
 
 /**
- * GrSetGCGraphicsExposure:
- * @gc: the ID of the graphics context
- * @exposure: exposure boolean
- *
  * Controls if GR_EVENT_TYPE_EXPOSURE events are sent as a 
  * result of GrCopyArea using the specified graphics context.
+ *
+ * @param gc       The ID of the graphics context
+ * @param exposure TRUE to send events, FALSE otherwise.
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
@@ -1565,14 +1709,15 @@ GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
 }
 
 /**
- * GrPointInRegion:
- * @region: the ID of the region to examine
- * @x: the X coordinate of the point to test for
- * @y: the Y coordinate of the point to test for
- * @Returns: True if the point is within the region, or False otherwise
- *
  * Tests whether the specified point is within the specified region, and
  * then returns either True or False depending on the result.
+ *
+ * @param region the ID of the region to examine.
+ * @param x      the X coordinate of the point to test for.
+ * @param y      the Y coordinate of the point to test for.
+ * @return       TRUE if the point is within the region, otherwise FALSE.
+ *
+ * @ingroup nanox_region
  */
 GR_BOOL
 GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y)
@@ -1593,18 +1738,19 @@ GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y)
 }
 
 /**
- * GrRectInRegion:
- * @region: the ID of the region to examine
- * @x: the X coordinates of the rectangle to test
- * @y: the Y coordinates of the rectangle to test
- * @w: the width of the rectangle to test
- * @h: the height of the rectangle to test
- * @Returns: GR_RECT_PARTIN, GR_RECT_ALLIN, or GR_RECT_OUT
- *
  * Tests whether the specified rectangle is contained within the specified
  * region. Returns GR_RECT_OUT if it is not inside it at all, GR_RECT_ALLIN
  * if it is completely contained within the region, or GR_RECT_PARTIN if
  * it is partially contained within the region.
+ *
+ * @param region The ID of the region to examine.
+ * @param x      The X coordinates of the rectangle to test.
+ * @param y      The Y coordinates of the rectangle to test.
+ * @param w      The width of the rectangle to test.
+ * @param h      The height of the rectangle to test.
+ * @return       GR_RECT_PARTIN, GR_RECT_ALLIN, or GR_RECT_OUT.
+ *
+ * @ingroup nanox_region
  */
 int
 GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y, GR_COORD w,
@@ -1628,12 +1774,12 @@ GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y, GR_COORD w,
 }
 
 /**
- * GrEmptyRegion:
- * @region: the ID of the region to examine
- * @Returns: GR_TRUE if the region is empty, or GR_FALSE if it is not
+ * Determines whether the specified region is empty.
  *
- * Determines whether the specified region is empty, and returns GR_TRUE
- * if it is, or GR_FALSE otherwise.
+ * @param region The ID of the region to examine.
+ * @return       GR_TRUE if the region is empty, or GR_FALSE if it is not.
+ *
+ * @ingroup nanox_region
  */
 GR_BOOL
 GrEmptyRegion(GR_REGION_ID region)
@@ -1652,13 +1798,14 @@ GrEmptyRegion(GR_REGION_ID region)
 }
 
 /**
- * GrEqualRegion:
- * @rgn1: the ID of the first region to examine
- * @rgn2: the ID of the second region to examine
- * @Returns: GR_TRUE if the regions are equal, or GR_FALSE otherwise
- *
  * Determines whether the specified regions are identical, and returns GR_TRUE
  * if it is, or GR_FALSE otherwise.
+ *
+ * @param rgn1 The ID of the first region to examine.
+ * @param rgn2 The ID of the second region to examine.
+ * @return     GR_TRUE if the regions are equal, or GR_FALSE otherwise
+ *
+ * @ingroup nanox_region
  */
 GR_BOOL
 GrEqualRegion(GR_REGION_ID rgn1, GR_REGION_ID rgn2)
@@ -1678,12 +1825,13 @@ GrEqualRegion(GR_REGION_ID rgn1, GR_REGION_ID rgn2)
 }
 
 /**
- * GrOffsetRegion:
- * @region: the ID of the region to offset
- * @dx: the distance to offset the region by in the X axis
- * @dy: the distance to offset the region by in the Y axis
- *
  * Offsets the specified region by the specified distance.
+ *
+ * @param region The ID of the region to offset
+ * @param dx     The distance to offset the region by in the X axis
+ * @param dy     The distance to offset the region by in the Y axis
+ *
+ * @ingroup nanox_region
  */
 void
 GrOffsetRegion(GR_REGION_ID region, GR_SIZE dx, GR_SIZE dy)
@@ -1699,14 +1847,17 @@ GrOffsetRegion(GR_REGION_ID region, GR_SIZE dx, GR_SIZE dy)
 }
 
 /**
- * GrGetRegionBox:
- * @region: the ID of the region to get the bounding box of
- * @rect: pointer to a rectangle structure
- * @Returns: the region type
- *
  * Fills in the specified rectangle structure with a bounding box that would
  * completely enclose the specified region, and also returns the type of the
  * specified region. 
+ *
+ * @param region The ID of the region to get the bounding box of
+ * @param rect   Pointer to a rectangle structure
+ * @return       The region type
+ *
+ * @todo FIXME check Doxygen comments from this point down.
+ *
+ * @ingroup nanox_region
  */
 int
 GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
@@ -1730,14 +1881,15 @@ GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
 }
 
 /**
- * GrNewPolygonRegion:
- * @mode: the polygon mode to use (GR_POLY_EVENODD or GR_POLY_WINDING)
- * @count: the number of points in the polygon
- * @points: pointer to an array of point structures describing the polygon
- * @Returns: the ID of the newly allocated region structure, or 0 on error
- *
  * Creates a new region structure, fills it with the region described by the
  * specified polygon, and returns the ID used to refer to it.
+ *
+ * @param mode  the polygon mode to use (GR_POLY_EVENODD or GR_POLY_WINDING)
+ * @param count  the number of points in the polygon
+ * @param points  pointer to an array of point structures describing the polygon
+ * @return the ID of the newly allocated region structure, or 0 on error
+ *
+ * @ingroup nanox_region
  */
 GR_REGION_ID 
 GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
@@ -1767,13 +1919,14 @@ GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
 }
 
 /**
- * GrMapWindow:
- * @wid: the ID of the window to map
- *
  * Recursively maps (makes visible) the specified window and all of the
  * child windows which have a sufficient map count. The border and background
  * of the window are painted, and an exposure event is generated for the
  * window and every child which becomes visible.
+ *
+ * @param wid  the ID of the window to map
+ *
+ * @ingroup nanox_window
  */
 void 
 GrMapWindow(GR_WINDOW_ID wid)
@@ -1788,10 +1941,12 @@ GrMapWindow(GR_WINDOW_ID wid)
 
 /**
  * GrUnmapWindow:
- * @wid: the ID of the window to unmap
+ * @param wid  the ID of the window to unmap
  *
  * Recursively unmaps (makes invisible) the specified window and all of the
  * child windows.
+ *
+ * @ingroup nanox_window
  */
 void 
 GrUnmapWindow(GR_WINDOW_ID wid)
@@ -1805,11 +1960,12 @@ GrUnmapWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrRaiseWindow:
- * @wid: the ID of the window to raise
- *
  * Places the specified window at the top of its parents drawing stack, above
  * all of its sibling windows.
+ *
+ * @param wid  the ID of the window to raise
+ *
+ * @ingroup nanox_window
  */
 void 
 GrRaiseWindow(GR_WINDOW_ID wid)
@@ -1823,11 +1979,12 @@ GrRaiseWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrLowerWindow:
- * @wid: the ID of the window to lower
- *
  * Places the specified window at the bottom of its parents drawing stack,
  * below all of its sibling windows.
+ *
+ * @param wid  the ID of the window to lower
+ *
+ * @ingroup nanox_window
  */
 void 
 GrLowerWindow(GR_WINDOW_ID wid)
@@ -1841,13 +1998,14 @@ GrLowerWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrMoveWindow:
- * @wid: the ID of the window to move
- * @x: the X coordinate to move the window to relative to its parent.
- * @y: the Y coordinate to move the window to relative to its parent.
- * 
  * Moves the specified window to the specified position relative to its
  * parent window.
+ *
+ * @param wid  the ID of the window to move
+ * @param x  the X coordinate to move the window to relative to its parent.
+ * @param y  the Y coordinate to move the window to relative to its parent.
+ *
+ * @ingroup nanox_window
  */
 void 
 GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
@@ -1863,12 +2021,13 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 }
 
 /**
- * GrResizeWindow:
- * @wid: the ID of the window to resize
- * @width: the width to resize the window to
- * @height: the height to resize the window to
- *
  * Resizes the specified window to be the specified width and height.
+ *
+ * @param wid  the ID of the window to resize
+ * @param width  the width to resize the window to
+ * @param height  the height to resize the window to
+ *
+ * @ingroup nanox_window
  */
 void 
 GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
@@ -1884,15 +2043,16 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 }
 
 /**
- * GrReparentWindow:
- * @wid: the ID of the window to reparent
- * @pwid: the ID of the new parent window
- * @x: the X coordinate to place the window at relative to the new parent
- * @y: the Y coordinate to place the window at relative to the new parent
- *
  * Changes the parent window of the specified window to the specified parent
  * window and places it at the specified coordinates relative to the new
  * parent.
+ *
+ * @param wid  the ID of the window to reparent
+ * @param pwid  the ID of the new parent window
+ * @param x  the X coordinate to place the window at relative to the new parent
+ * @param y  the Y coordinate to place the window at relative to the new parent
+ *
+ * @ingroup nanox_window
  */
 void 
 GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
@@ -1909,13 +2069,18 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 }
 
 /**
- * GrClearArea:
- * @wid: window ID
- * @exposeflag: a flag indicating whether to also generate an exposure event
- *
  * Clears the specified window by to its background color or pixmap.
  * If exposeflag is non zero, an exposure event is generated for
  * the window after it has been cleared.
+ *
+ * @param wid        Window ID.
+ * @param x          X co-ordinate of rectangle to clear.
+ * @param y          Y co-ordinate of rectangle to clear.
+ * @param width      Width of rectangle to clear.
+ * @param height     Height of rectangle to clear.
+ * @param exposeflag A flag indicating whether to also generate an exposure event.
+ *
+ * @ingroup nanox_draw
  */
 void
 GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
@@ -1935,10 +2100,11 @@ GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
 }
 
 /**
- * GrGetFocus:
- * @Returns: the ID of the window which currently has the keyboard focus
- *
  * Returns the ID of the window which currently has the keyboard focus.
+ *
+ * @return the ID of the window which currently has the keyboard focus
+ *
+ * @ingroup nanox_window
  */
 GR_WINDOW_ID
 GrGetFocus(void)
@@ -1954,10 +2120,11 @@ GrGetFocus(void)
 }
 
 /**
- * GrSetFocus:
- * @wid: the ID of the window to set the focus to
- *
  * Sets the keyboard focus to the specified window.
+ *
+ * @param wid  the ID of the window to set the focus to
+ *
+ * @ingroup nanox_window
  */
 void 
 GrSetFocus(GR_WINDOW_ID wid)
@@ -1971,15 +2138,16 @@ GrSetFocus(GR_WINDOW_ID wid)
 }
 
 /**
- * GrSetWindowCursor:
- * @wid: the ID of the window to set the cursor for
- * @cid: the cursor ID
- *
  * Specify a cursor for a window.
  * This cursor will only be used within that window, and by default
  * for its new children.  If the cursor is currently within this
  * window, it will be changed to the new one immediately.
  * If the new cursor ID is 0, revert to the root window cursor.
+ *
+ * @param wid  the ID of the window to set the cursor for
+ * @param cid  the cursor ID
+ *
+ * @ingroup nanox_cursor
  */
 void
 GrSetWindowCursor(GR_WINDOW_ID wid, GR_CURSOR_ID cid)
@@ -1994,17 +2162,18 @@ GrSetWindowCursor(GR_WINDOW_ID wid, GR_CURSOR_ID cid)
 }
 
 /**
- * GrNewCursor:
- * @width: the width of the pointer bitmap
- * @height: the height of the pointer bitmap
- * @hotx: the X coordinate within the bitmap used as the target of the pointer
- * @hoty: the Y coordinate within the bitmap used as the target of the pointer
- * @foreground: the colour to use for the foreground of the pointer
- * @background: the colour to use for the background of the pointer
- * @fgbitmap: pointer to bitmap data specifying the foreground of the pointer
- * @bgbitmap: pointer to bitmap data specifying the background of the pointer
- *
  * Creates a server-based cursor (mouse graphic) resource.
+ *
+ * @param width  the width of the pointer bitmap
+ * @param height  the height of the pointer bitmap
+ * @param hotx  the X coordinate within the bitmap used as the target of the pointer
+ * @param hoty  the Y coordinate within the bitmap used as the target of the pointer
+ * @param foreground  the colour to use for the foreground of the pointer
+ * @param background  the colour to use for the background of the pointer
+ * @param fgbitmap  pointer to bitmap data specifying the foreground of the pointer
+ * @param bgbitmap  pointer to bitmap data specifying the background of the pointer
+ *
+ * @ingroup nanox_cursor
  */
 GR_CURSOR_ID
 GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx, GR_COORD hoty,
@@ -2036,16 +2205,17 @@ GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx, GR_COORD hoty,
 }
 
 /**
- * GrMoveCursor:
- * @x: the X coordinate to move the pointer to
- * @y: the Y coordinate to move the pointer to
- *
  * Moves the cursor (mouse pointer) to the specified coordinates.
  * The coordinates are relative to the root window, where (0,0) is the upper
  * left hand corner of the screen. The reference point used for the pointer
  * is that of the "hot spot". After moving the pointer, the graphic used for
  * the pointer will change to the graphic defined for use in the window which
  * it is over.
+ *
+ * @param x  the X coordinate to move the pointer to
+ * @param y  the Y coordinate to move the pointer to
+ *
+ * @ingroup nanox_cursor
  */
 void 
 GrMoveCursor(GR_COORD x, GR_COORD y)
@@ -2060,12 +2230,13 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 }
 
 /**
- * GrSetGCForeground:
- * @gc: the ID of the graphics context to set the foreground colour of
- * @foreground: the RGB colour to use as the new foreground colour
- *
  * Changes the foreground colour of the specified graphics context to the
  * specified RGB colour.
+ *
+ * @param gc  the ID of the graphics context to set the foreground colour of
+ * @param foreground  the RGB colour to use as the new foreground colour
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
@@ -2080,12 +2251,13 @@ GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
 }
 
 /**
- * GrSetGCBackground:
- * @gc: the ID of the graphics context to set the background colour of
- * @background: the RGB colour to use as the new background colour
- *
  * Changes the background colour of the specified graphics context to the
  * specified RGB colour.
+ *
+ * @param gc  the ID of the graphics context to set the background colour of
+ * @param background  the RGB colour to use as the new background colour
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
@@ -2100,13 +2272,14 @@ GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
 }
 
 /**
- * GrSetGCForegroundPixelVal:
- * @gc: the ID of the graphics context to set the foreground colour of
- * @foreground: the GR_PIXELVAL (i.e. hardware pixel value) to use as the new
- *              foreground colour.
- *
  * Changes the foreground colour of the specified graphics context to the
  * specified hardware pixel value.
+ *
+ * @param gc         The ID of the graphics context to set the foreground colour of.
+ * @param foreground The GR_PIXELVAL (i.e. hardware pixel value) to use as the new
+ *                   foreground colour.
+ *
+ * @ingroup nanox_draw
  */
 void
 GrSetGCForegroundPixelVal(GR_GC_ID gc, GR_PIXELVAL foreground)
@@ -2121,13 +2294,14 @@ GrSetGCForegroundPixelVal(GR_GC_ID gc, GR_PIXELVAL foreground)
 }
 
 /**
- * GrSetGCBackgroundPixelVal:
- * @gc: the ID of the graphics context to set the background colour of
- * @background: the GR_PIXELVAL (i.e. hardware pixel value) to use as the new
- *              background colour
- *
  * Changes the background colour of the specified graphics context to the
  * specified hardware pixel value.
+ *
+ * @param gc  the ID of the graphics context to set the background colour of
+ * @param background  the GR_PIXELVAL (i.e. hardware pixel value) to use as the new
+ *              background colour
+ *
+ * @ingroup nanox_draw
  */
 void
 GrSetGCBackgroundPixelVal(GR_GC_ID gc, GR_PIXELVAL background)
@@ -2142,12 +2316,13 @@ GrSetGCBackgroundPixelVal(GR_GC_ID gc, GR_PIXELVAL background)
 }
 
 /**
- * GrSetGCMode:
- * @gc: the ID of the graphics context to set the drawing mode of
- * @mode: the new drawing mode
- *
  * Changes the drawing mode (SET, XOR, OR, AND, etc.) of the specified
  * graphics context to the specified mode.
+ *
+ * @param gc  the ID of the graphics context to set the drawing mode of
+ * @param mode  the new drawing mode
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCMode(GR_GC_ID gc, int mode)
@@ -2162,11 +2337,12 @@ GrSetGCMode(GR_GC_ID gc, int mode)
 }
 
 /**
- * GrSetGCLineAttributes:
- * @gc: the ID of the graphics context to set the drawing mode of
- * @linestyle:  The new style of the line
- *
  * Changes the line style to either SOLID or ON OFF DASHED 
+ *
+ * @param gc  the ID of the graphics context to set the drawing mode of
+ * @param linestyle   The new style of the line
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCLineAttributes(GR_GC_ID gc, int linestyle)
@@ -2180,6 +2356,17 @@ GrSetGCLineAttributes(GR_GC_ID gc, int linestyle)
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * FIXME
+ *
+ * @param gc     FIXME
+ * @param dashes FIXME
+ * @param count  FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_draw
+ */
 void 
 GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 {
@@ -2195,6 +2382,16 @@ GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * FIXME
+ *
+ * @param gc       FIXME
+ * @param fillmode FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_draw
+ */
 void
 GrSetGCFillMode(GR_GC_ID gc, int fillmode)
 {
@@ -2207,6 +2404,18 @@ GrSetGCFillMode(GR_GC_ID gc, int fillmode)
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * FIXME
+ *
+ * @param gc     FIXME
+ * @param bitmap FIXME
+ * @param width  FIXME
+ * @param height FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_draw
+ */
 void
 GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height)
 {
@@ -2223,6 +2432,18 @@ GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height)
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * FIXME
+ *
+ * @param gc     FIXME
+ * @param pixmap FIXME
+ * @param width  FIXME
+ * @param height FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_draw
+ */
 void
 GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, int width, int height)
 {
@@ -2237,6 +2458,17 @@ GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, int width, int height)
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * FIXME
+ *
+ * @param gc   FIXME
+ * @param xoff FIXME
+ * @param yoff FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_draw
+ */
 void
 GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
 {
@@ -2251,13 +2483,14 @@ GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
 }
 
 /**
- * GrSetGCUseBackground:
- * @gc: the ID of the graphics context to change the "use background" flag of
- * @flag: flag specifying whether to use the background colour or not
- *
  * Sets the flag which chooses whether or not the background colour is used
  * when drawing bitmaps and text using the specified graphics context to the
  * specified value.
+ *
+ * @param gc  the ID of the graphics context to change the "use background" flag of
+ * @param flag  flag specifying whether to use the background colour or not
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
@@ -2272,12 +2505,6 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
 }
 
 /**
- * GrCreateFont:
- * @name: string containing the name of a built in font to look for
- * @height: the desired height of the font
- * @plogfont: pointer to a LOGFONT structure
- * @Returns: a font ID number which can be used to refer to the font
- *
  * Attempts to locate a font with the desired attributes and returns a font
  * ID number which can be used to refer to it. If the plogfont argument is
  * not NULL, the values in that structure will be used to choose a font.
@@ -2285,6 +2512,13 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
  * height to that specified will be used. If the height is zero, the built
  * in font with the specified name will be used. If the desired font is not
  * found, the first built in font will be returned as a last resort.
+ *
+ * @param name  string containing the name of a built in font to look for
+ * @param height  the desired height of the font
+ * @param plogfont  pointer to a LOGFONT structure
+ * @return a font ID number which can be used to refer to the font
+ *
+ * @ingroup nanox_font
  */
 GR_FONT_ID
 GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
@@ -2322,12 +2556,13 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 }
 
 /**
- * GrGetFontList:
- * @fonts: pointer used to return an array of font names.
- * @numfonts: pointer used to return the number of names found.
- *
  * Returns an array of strings containing the names of available fonts and an
  * integer that specifies the number of strings returned. 
+ *
+ * @param fonts  pointer used to return an array of font names.
+ * @param numfonts  pointer used to return the number of names found.
+ *
+ * @ingroup nanox_font
  */
 void 
 GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
@@ -2371,11 +2606,12 @@ GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
 }
 
 /**
- * GrFreeFontList:
- * @fonts: pointer to array returned by GrGetFontList
- * @numfonts: the number of font names in the array
+ * Frees the specified font list array.
  *
- * free's the specified array.
+ * @param fonts Pointer to array returned by GrGetFontList().
+ * @param n     The number of font names in the array.
+ *
+ * @ingroup nanox_font
  */
 void
 GrFreeFontList(GR_FONTLIST ***fonts, int n)
@@ -2400,11 +2636,12 @@ GrFreeFontList(GR_FONTLIST ***fonts, int n)
 }
 
 /**
- * GrSetFontSize:
- * @fontid: the ID number of the font to change the size of
- * @fontsize: the size to change the font to
- *
  * Changes the size of the specified font to the specified size.
+ *
+ * @param fontid  the ID number of the font to change the size of
+ * @param fontsize  the size to change the font to
+ *
+ * @ingroup nanox_font
  */
 void
 GrSetFontSize(GR_FONT_ID fontid, GR_COORD fontsize)
@@ -2419,11 +2656,12 @@ GrSetFontSize(GR_FONT_ID fontid, GR_COORD fontsize)
 }
 
 /**
- * GrSetFontRotation:
- * @fontid: the ID number of the font to rotate
- * @tenthdegrees: the angle to set the rotation to in tenths of a degree
- *
  * Changes the rotation of the specified font to the specified angle.
+ *
+ * @param fontid  the ID number of the font to rotate
+ * @param tenthdegrees  the angle to set the rotation to in tenths of a degree
+ *
+ * @ingroup nanox_font
  */
 void
 GrSetFontRotation(GR_FONT_ID fontid, int tenthdegrees)
@@ -2438,13 +2676,14 @@ GrSetFontRotation(GR_FONT_ID fontid, int tenthdegrees)
 }
 
 /**
- * GrSetFontAttr:
- * @fontid: the ID of the font to set the attributes of
- * @setflags: mask specifying attribute flags to set
- * @clrflags: mask specifying attribute flags to clear
- *
  * Changes the attributes (GR_TFKERNING, GR_TFANTIALIAS, GR_TFUNDERLINE, etc.)
  * of the specified font according to the set and clear mask arguments.
+ *
+ * @param fontid  the ID of the font to set the attributes of
+ * @param setflags  mask specifying attribute flags to set
+ * @param clrflags  mask specifying attribute flags to clear
+ *
+ * @ingroup nanox_font
  */
 void
 GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags)
@@ -2460,12 +2699,13 @@ GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags)
 }
 
 /**
- * GrDestroyFont:
- * @fontid: the ID of the font to destroy
- *
  * Frees all resources associated with the specified font ID, and if the font
  * is a non built in type and this is the last ID referring to it, unloads the
  * font from memory.
+ *
+ * @param fontid  the ID of the font to destroy
+ *
+ * @ingroup nanox_font
  */
 void
 GrDestroyFont(GR_FONT_ID fontid)
@@ -2479,12 +2719,13 @@ GrDestroyFont(GR_FONT_ID fontid)
 }
 
 /**
- * GrSetGCFont:
- * @gc: the ID of the graphics context to set the font of
- * @font: the ID of the font
- *
  * Sets the font to be used for text drawing in the specified graphics
  * context to the specified font ID.
+ *
+ * @param gc  the ID of the graphics context to set the font of
+ * @param font  the ID of the font
+ *
+ * @ingroup nanox_font
  */
 void
 GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
@@ -2499,16 +2740,17 @@ GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
 }
 
 /**
- * GrLine:
- * @id: the ID of the drawable to draw the line on
- * @gc: the ID of the graphics context to use when drawing the line
- * @x1: the X coordinate of the start of the line relative to the drawable
- * @y1: the Y coordinate of the start of the line relative to the drawable
- * @x2: the X coordinate of the end of the line relative to the drawable
- * @y2: the Y coordinate of the end of the line relative to the drawable
- *
  * Draws a line using the specified graphics context on the specified drawable
  * from (x1, y1) to (x2, y2), with coordinates given relative to the drawable.
+ *
+ * @param id  the ID of the drawable to draw the line on
+ * @param gc  the ID of the graphics context to use when drawing the line
+ * @param x1  the X coordinate of the start of the line relative to the drawable
+ * @param y1  the Y coordinate of the start of the line relative to the drawable
+ * @param x2  the X coordinate of the end of the line relative to the drawable
+ * @param y2  the Y coordinate of the end of the line relative to the drawable
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1, GR_COORD x2,
@@ -2528,16 +2770,17 @@ GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1, GR_COORD x2,
 }
 
 /**
- * GrRect:
- * @id: the ID of the drawable to draw the rectangle on
- * @gc: the ID of the graphics context to use when drawing the rectangle
- * @x: the X coordinate of the rectangle relative to the drawable
- * @y: the Y coordinate of the rectangle relative to the drawable
- * @width: the width of the rectangle
- * @height: the height of the rectangle
- *
  * Draw the boundary of a rectangle of the specified dimensions and position
  * on the specified drawable using the specified graphics context.
+ *
+ * @param id  the ID of the drawable to draw the rectangle on
+ * @param gc  the ID of the graphics context to use when drawing the rectangle
+ * @param x  the X coordinate of the rectangle relative to the drawable
+ * @param y  the Y coordinate of the rectangle relative to the drawable
+ * @param width  the width of the rectangle
+ * @param height  the height of the rectangle
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
@@ -2557,16 +2800,17 @@ GrRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 }
 
 /**
- * GrFillRect:
- * @id: the ID of the drawable to draw the rectangle on
- * @gc: the ID of the graphics context to use when drawing the rectangle
- * @x: the X coordinate of the rectangle relative to the drawable
- * @y: the Y coordinate of the rectangle relative to the drawable
- * @width: the width of the rectangle
- * @height: the height of the rectangle
- *
  * Draw a filled rectangle of the specified dimensions and position on the
  * specified drawable using the specified graphics context.
+ *
+ * @param id  the ID of the drawable to draw the rectangle on
+ * @param gc  the ID of the graphics context to use when drawing the rectangle
+ * @param x  the X coordinate of the rectangle relative to the drawable
+ * @param y  the Y coordinate of the rectangle relative to the drawable
+ * @param width  the width of the rectangle
+ * @param height  the height of the rectangle
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2586,16 +2830,17 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 /**
- * GrEllipse:
- * @id: the ID of the drawable to draw the ellipse on
- * @gc: the ID of the graphics context to use when drawing the ellipse
- * @x: the X coordinate to draw the ellipse at relative to the drawable
- * @y: the Y coordinate to draw the ellipse at relative to the drawable
- * @rx: the radius of the ellipse on the X axis
- * @ry: the radius of the ellipse on the Y axis
- *
  * Draws the boundary of ellipse at the specified position using the specified
  * dimensions and graphics context on the specified drawable.
+ *
+ * @param id  the ID of the drawable to draw the ellipse on
+ * @param gc  the ID of the graphics context to use when drawing the ellipse
+ * @param x  the X coordinate to draw the ellipse at relative to the drawable
+ * @param y  the Y coordinate to draw the ellipse at relative to the drawable
+ * @param rx  the radius of the ellipse on the X axis
+ * @param ry  the radius of the ellipse on the Y axis
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
@@ -2615,16 +2860,17 @@ GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
 }
 
 /**
- * GrFillEllipse:
- * @id: the ID of the drawable to draw the filled ellipse on
- * @gc: the ID of the graphics context to use when drawing the ellipse
- * @x: the X coordinate to draw the ellipse at relative to the drawable
- * @y: the Y coordinate to draw the ellipse at relative to the drawable
- * @rx: the radius of the ellipse on the X axis
- * @ry: the radius of the ellipse on the Y axis
- *
  * Draws a filled ellipse at the specified position using the specified
  * dimensions and graphics context on the specified drawable.
+ *
+ * @param id  the ID of the drawable to draw the filled ellipse on
+ * @param gc  the ID of the graphics context to use when drawing the ellipse
+ * @param x  the X coordinate to draw the ellipse at relative to the drawable
+ * @param y  the Y coordinate to draw the ellipse at relative to the drawable
+ * @param rx  the radius of the ellipse on the X axis
+ * @param ry  the radius of the ellipse on the Y axis
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2644,23 +2890,24 @@ GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 /**
- * GrArc:
- * @id: the ID of the drawable to draw the arc on
- * @gc: the graphics context to use when drawing the arc
- * @x: the X coordinate to draw the arc at relative to the drawable
- * @y: the Y coordinate to draw the arc at relative to the drawable
- * @rx: the radius of the arc on the X axis
- * @ry: the radius of the arc on the Y axis
- * @ax: the X coordinate of the start of the arc relative to the drawable
- * @ay: the Y coordinate of the start of the arc relative to the drawable
- * @bx: the X coordinate of the end of the arc relative to the drawable
- * @by: the Y coordinate of the end of the arc relative to the drawable
- * @type: the fill style to use when drawing the arc
- *
  * Draws an arc with the specified dimensions at the specified position
  * on the specified drawable using the specified graphics context.
  * The type specifies the fill type. Possible values include GR_ARC and
  * GR_PIE.
+ *
+ * @param id  the ID of the drawable to draw the arc on
+ * @param gc  the graphics context to use when drawing the arc
+ * @param x  the X coordinate to draw the arc at relative to the drawable
+ * @param y  the Y coordinate to draw the arc at relative to the drawable
+ * @param rx  the radius of the arc on the X axis
+ * @param ry  the radius of the arc on the Y axis
+ * @param ax  the X coordinate of the start of the arc relative to the drawable
+ * @param ay  the Y coordinate of the start of the arc relative to the drawable
+ * @param bx  the X coordinate of the end of the arc relative to the drawable
+ * @param by  the Y coordinate of the end of the arc relative to the drawable
+ * @param type  the fill style to use when drawing the arc
+ *
+ * @ingroup nanox_draw
  */
 void	
 GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2686,22 +2933,23 @@ GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 /**
- * GrArcAngle:
- * @id: the ID of the drawable to draw the arc on
- * @gc: the graphics context to use when drawing the arc
- * @x: the X coordinate to draw the arc at relative to the drawable
- * @y: the Y coordinate to draw the arc at relative to the drawable
- * @rx: the radius of the arc on the X axis
- * @ry: the radius of the arc on the Y axis
- * @angle1: the angle of the start of the arc
- * @angle2: the angle of the end of the arc
- * @type: the fill style to use when drawing the arc
- *
  * Draws an arc with the specified dimensions at the specified position
  * on the specified drawable using the specified graphics context.
  * The type specifies the fill type. Possible values include GR_ARC and
  * GR_PIE. This function requires floating point support, and is slightly
  * slower than the GrArc() function which does not require floating point.
+ *
+ * @param id  the ID of the drawable to draw the arc on
+ * @param gc  the graphics context to use when drawing the arc
+ * @param x  the X coordinate to draw the arc at relative to the drawable
+ * @param y  the Y coordinate to draw the arc at relative to the drawable
+ * @param rx  the radius of the arc on the X axis
+ * @param ry  the radius of the arc on the Y axis
+ * @param angle1  the angle of the start of the arc
+ * @param angle2  the angle of the end of the arc
+ * @param type  the fill style to use when drawing the arc
+ *
+ * @ingroup nanox_draw
  */
 void
 GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2724,20 +2972,21 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 /**
- * GrBitmap:
- * @id: the ID of the drawable to draw the bitmap onto
- * @gc: the ID of the graphics context to use when drawing the bitmap
- * @x: the X coordinate to draw the bitmap at relative to the drawable
- * @y: the Y coordinate to draw the bitmap at relative to the drawable
- * @width: the width of the bitmap
- * @height: the height of the bitmap
- * @bitmaptable: pointer to the bitmap data
- *
  * Draws the monochrome bitmap data provided in the bitmaptable argument
  * at the specified position on the specified drawable using the specified
  * graphics context. Note that the bitmap data should be an array of aligned
  * 16 bit words. The usebackground flag in the graphics context specifies
  * whether to draw the background colour wherever a bit value is zero.
+ *
+ * @param id  the ID of the drawable to draw the bitmap onto
+ * @param gc  the ID of the graphics context to use when drawing the bitmap
+ * @param x  the X coordinate to draw the bitmap at relative to the drawable
+ * @param y  the Y coordinate to draw the bitmap at relative to the drawable
+ * @param width  the width of the bitmap
+ * @param height  the height of the bitmap
+ * @param bitmaptable  pointer to the bitmap data
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
@@ -2760,16 +3009,17 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 }
 
 /**
- * GrDrawImageBits:
- * @id: the ID of the drawable to draw the image onto
- * @gc: the ID of the graphics context to use when drawing the image
- * @x: the X coordinate to draw the image at relative to the drawable
- * @y: the Y coordinate to draw the image at relative to the drawable
- * @pimage: pointer to the image structure
- *
  * Draws the image contained in the specified image structure onto the
  * specified drawable at the specified coordinates using the specified
  * graphics context.
+ *
+ * @param id  the ID of the drawable to draw the image onto
+ * @param gc  the ID of the graphics context to use when drawing the image
+ * @param x  the X coordinate to draw the image at relative to the drawable
+ * @param y  the Y coordinate to draw the image at relative to the drawable
+ * @param pimage  pointer to the image structure
+ *
+ * @ingroup nanox_draw
  */
 void
 GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2806,16 +3056,6 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 #if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 /**
- * GrDrawImageFromFile:
- * @id: the ID of the drawable to draw the image onto
- * @gc: the ID of the graphics context to use when drawing the image
- * @x: the X coordinate to draw the image at relative to the drawable
- * @y: the Y coordinate to draw the image at relative to the drawable
- * @width: the maximum image width
- * @height: the maximum image height
- * @path: string containing the filename of the image to load
- * @flags: flags specific to the particular image loader
- *
  * Loads the specified image file and draws it at the specified position
  * on the specified drawable using the specified graphics context. The
  * width and height values specify the size of the image to draw- if the
@@ -2826,6 +3066,17 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * variants of PBM, PGM, and PPM. However the image types supported by a
  * particular server depend on which image types were enabled in the server
  * configuration at build time. 
+ *
+ * @param id  the ID of the drawable to draw the image onto
+ * @param gc  the ID of the graphics context to use when drawing the image
+ * @param x  the X coordinate to draw the image at relative to the drawable
+ * @param y  the Y coordinate to draw the image at relative to the drawable
+ * @param width  the maximum image width
+ * @param height  the maximum image height
+ * @param path  string containing the filename of the image to load
+ * @param flags  flags specific to the particular image loader
+ *
+ * @ingroup nanox_image
  */
 void
 GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2849,11 +3100,6 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 #if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 /**
- * GrLoadImageFromFile:
- * @path: string containing the filename of the image to load
- * @flags: flags specific to the particular image loader
- * @Returns: ID of the image buffer the image was loaded into
- *
  * Loads the specified image file into a newly created server image buffer
  * and returns the ID of the buffer. The image type is automatically detected
  * using the magic numbers in the image header (ie. the filename extension is
@@ -2861,6 +3107,12 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * BMP, PNG, XPM, and both ascii and binary variants of PBM, PGM, and PPM.
  * However the image types supported by a particular server depend on which
  * image types were enabled in the server configuration at build time. 
+ *
+ * @param path  string containing the filename of the image to load
+ * @param flags  flags specific to the particular image loader
+ * @return ID of the image buffer the image was loaded into
+ *
+ * @ingroup nanox_image
  */
 GR_IMAGE_ID
 GrLoadImageFromFile(char *path, int flags)
@@ -2883,19 +3135,20 @@ GrLoadImageFromFile(char *path, int flags)
 
 #if MW_FEATURE_IMAGES
 /**
- * GrDrawImageToFit:
- * @id: the ID of the drawable to draw the image onto
- * @gc: the ID of the graphics context to use when drawing the image
- * @x: the X coordinate to draw the image at relative to the drawable
- * @y: the Y coordinate to draw the image at relative to the drawable
- * @width: the maximum image width
- * @height: the maximum image height
- * @imageid: the ID of the image buffer containing the image to display
- *
  * Draws the image from the specified image buffer at the specified position
  * on the specified drawable using the specified graphics context. The
  * width and height values specify the size of the image to draw- if the
  * actual image is a different size, it will be scaled to fit.
+ *
+ * @param id  the ID of the drawable to draw the image onto
+ * @param gc  the ID of the graphics context to use when drawing the image
+ * @param x  the X coordinate to draw the image at relative to the drawable
+ * @param y  the Y coordinate to draw the image at relative to the drawable
+ * @param width  the maximum image width
+ * @param height  the maximum image height
+ * @param imageid  the ID of the image buffer containing the image to display
+ *
+ * @ingroup nanox_image
  */ 
 void
 GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -2918,10 +3171,11 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 #if MW_FEATURE_IMAGES
 /**
- * GrFreeImage:
- * @id: ID of the image buffer to free
- *
  * Destroys the specified image buffer and reclaims the memory used by it.
+ *
+ * @param id  ID of the image buffer to free
+ *
+ * @ingroup nanox_image
  */
 void
 GrFreeImage(GR_IMAGE_ID id)
@@ -2937,12 +3191,13 @@ GrFreeImage(GR_IMAGE_ID id)
 
 #if MW_FEATURE_IMAGES
 /**
- * GrGetImageInfo:
- * @id: ID of an image buffer
- * @iip: pointer to a GR_IMAGE_INFO structure
- *
  * Fills in the specified image information structure with the details of the
  * specified image buffer.
+ *
+ * @param id  ID of an image buffer
+ * @param iip  pointer to a GR_IMAGE_INFO structure
+ *
+ * @ingroup nanox_image
  */
 void
 GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
@@ -2957,6 +3212,13 @@ GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 }
 #endif /* MW_FEATURE_IMAGES */
 
+/**
+ * Send a large buffer (typically an image) from the client to the server.
+ *
+ * @param buffer The buffer to send.
+ * @param size   The size of the buffer, in bytes.
+ * @return       A buffer ID allocated by the server, or 0 on error.
+ */
 static int
 sendImageBuffer(const void *buffer, int size)
 {
@@ -2993,6 +3255,17 @@ sendImageBuffer(const void *buffer, int size)
 }
 
 #if MW_FEATURE_IMAGES
+/**
+ * FIXME
+ *
+ * @param buffer FIXME
+ * @param size   FIXME
+ * @param flags  FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_image
+ */
 GR_IMAGE_ID
 GrLoadImageFromBuffer(void *buffer, int size, int flags)
 {
@@ -3024,6 +3297,23 @@ GrLoadImageFromBuffer(void *buffer, int size, int flags)
 #endif /* MW_FEATURE_IMAGES */
 
 #if MW_FEATURE_IMAGES
+/**
+ * FIXME
+ *
+ * @param id     FIXME
+ * @param gc     FIXME
+ * @param x      FIXME
+ * @param y      FIXME
+ * @param width  FIXME
+ * @param height FIXME
+ * @param buffer FIXME
+ * @param size   FIXME
+ * @param flags  FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_image
+ */
 void
 GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
       GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
@@ -3058,6 +3348,8 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 
 /*
+ * FIXME ... what does this comment relate to?
+ *
  * Draw a rectangular area in the specified drawable using the specified
  * graphics context.  This differs from rectangle drawing in that the
  * color values for each pixel in the rectangle are specified.
@@ -3078,20 +3370,21 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * MWPF_TRUECOLOR332	unsigned char
  */
 /**
- * GrArea:
- * @id: the ID of the drawable to draw the area onto
- * @gc: the ID of the graphics context to use when drawing the area
- * @x: the X coordinate to draw the area at relative to the drawable
- * @y: the Y coordinate to draw the area at relative to the drawable
- * @width: the width of the area
- * @height: the height of the area
- * @pixels: pointer to an array containing the pixel data
- * @pixtype: the format of the pixel data
- *
  * Draws the specified pixel array of the specified size and format onto the
  * specified drawable using the specified graphics context at the specified
  * position. Note that colour conversion is currently only performed when using
  * the GR_PF_RGB format, which is an unsigned long containing RGBX data.
+ *
+ * @param id  the ID of the drawable to draw the area onto
+ * @param gc  the ID of the graphics context to use when drawing the area
+ * @param x  the X coordinate to draw the area at relative to the drawable
+ * @param y  the Y coordinate to draw the area at relative to the drawable
+ * @param width  the width of the area
+ * @param height  the height of the area
+ * @param pixels  pointer to an array containing the pixel data
+ * @param pixtype  the format of the pixel data
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
@@ -3153,21 +3446,22 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 }
 
 /**
- * GrCopyArea:
- * @id: the ID of the drawable to copy the area to
- * @gc: the ID of the graphics context to use when copying the area
- * @x: the X coordinate to copy the area to within the destination drawable
- * @y: the Y coordinate to copy the area to within the destination drawable
- * @width: the width of the area to copy
- * @height: the height of the area to copy
- * @srcid: the ID of the drawable to copy the area from
- * @srcx: the X coordinate to copy the area from within the source drawable
- * @srcy: the Y coordinate to copy the area from within the source drawable
- * @op: the ROP codes to pass to the blitter when performing the copy
- *
  * Copies the specified area of the specified size between the specified
  * drawables at the specified positions using the specified graphics context
  * and ROP codes. 0 is a sensible default ROP code in most cases.
+ *
+ * @param id  the ID of the drawable to copy the area to
+ * @param gc  the ID of the graphics context to use when copying the area
+ * @param x  the X coordinate to copy the area to within the destination drawable
+ * @param y  the Y coordinate to copy the area to within the destination drawable
+ * @param width  the width of the area to copy
+ * @param height  the height of the area to copy
+ * @param srcid  the ID of the drawable to copy the area from
+ * @param srcx  the X coordinate to copy the area from within the source drawable
+ * @param srcy  the Y coordinate to copy the area from within the source drawable
+ * @param op  the ROP codes to pass to the blitter when performing the copy
+ *
+ * @ingroup nanox_draw
  */
 void
 GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -3192,20 +3486,21 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
    
 /**
- * GrReadArea:
- * @id: the ID of the drawable to read an area from
- * @x: the X coordinate to read the area from relative to the drawable
- * @y: the Y coordinate to read the area from relative to the drawable
- * @width: the width of the area to read
- * @height: the height of the area to read
- * @pixels: pointer to an area of memory to place the pixel data in
- *
  * Reads the pixel data of the specified size from the specified position on
  * the specified drawable into the specified pixel array. If the drawable is
  * a window, the data returned will be the pixel values from the relevant
  * position on the screen regardless of whether the window is obscured by other
  * windows. If the window is unmapped, or partially or fully outside a window
  * boundary, black pixel values will be returned.
+ *
+ * @param id  the ID of the drawable to read an area from
+ * @param x  the X coordinate to read the area from relative to the drawable
+ * @param y  the Y coordinate to read the area from relative to the drawable
+ * @param width  the width of the area to read
+ * @param height  the height of the area to read
+ * @param pixels  pointer to an area of memory to place the pixel data in
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
@@ -3227,14 +3522,15 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 }
 
 /**
- * GrPoint:
- * @id: the ID of the drawable to draw a point on
- * @gc: the ID of the graphics context to use when drawing the point
- * @x: the X coordinate to draw the point at relative to the drawable
- * @y: the Y coordinate to draw the point at relative to the drawable
- *
  * Draws a point using the specified graphics context at the specified position
  * on the specified drawable.
+ *
+ * @param id  the ID of the drawable to draw a point on
+ * @param gc  the ID of the graphics context to use when drawing the point
+ * @param x  the X coordinate to draw the point at relative to the drawable
+ * @param y  the Y coordinate to draw the point at relative to the drawable
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y)
@@ -3251,14 +3547,15 @@ GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y)
 }
 
 /**
- * GrPoints:
- * @id: the ID of the drawable to draw a point on
- * @gc: the ID of the graphics context to use when drawing the point
- * @count: the number of points in the point table
- * @pointtable: pointer to a GR_POINT array which lists the points to draw
- *
  * Draws a set of points using the specified graphics context at the positions
  * specified by the point table on the specified drawable.
+ *
+ * @param id  the ID of the drawable to draw a point on
+ * @param gc  the ID of the graphics context to use when drawing the point
+ * @param count  the number of points in the point table
+ * @param pointtable  pointer to a GR_POINT array which lists the points to draw
+ *
+ * @ingroup nanox_draw
  */
 void
 GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
@@ -3276,16 +3573,17 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 }
 
 /**
- * GrPoly:
- * @id: the ID of the drawable to draw the polygon onto
- * @gc: the ID of the graphics context to use when drawing the polygon
- * @count: the number of points in the point array
- * @pointtable: pointer to an array of points describing the polygon
- *
  * Draws an unfilled polygon on the specified drawable using the specified
  * graphics context. The polygon is specified by an array of point structures.
  * The polygon is not automatically closed- if a closed polygon is desired,
  * the last point must be the same as the first.
+ *
+ * @param id  the ID of the drawable to draw the polygon onto
+ * @param gc  the ID of the graphics context to use when drawing the polygon
+ * @param count  the number of points in the point array
+ * @param pointtable  pointer to an array of points describing the polygon
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
@@ -3303,16 +3601,17 @@ GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 }
 
 /**
- * GrFillPoly:
- * @id: the ID of the drawable to draw the polygon onto
- * @gc: the ID of the graphics context to use when drawing the polygon
- * @count: the number of points in the point array
- * @pointtable: pointer to an array of points describing the polygon
- *
  * Draws a filled polygon on the specified drawable using the specified
  * graphics context. The polygon is specified by an array of point structures.
  * The polygon is automatically closed- the last point need not be the same as
  * the first in order for the polygon to be closed.
+ *
+ * @param id  the ID of the drawable to draw the polygon onto
+ * @param gc  the ID of the graphics context to use when drawing the polygon
+ * @param count  the number of points in the point array
+ * @param pointtable  pointer to an array of points describing the polygon
+ *
+ * @ingroup nanox_draw
  */
 void 
 GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
@@ -3330,18 +3629,19 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
 }
 
 /**
- * GrText:
- * @id: the ID of the drawable to draw the text string onto
- * @gc: the ID of the graphics context to use when drawing the text string
- * @x: the X coordinate to draw the string at relative to the drawable
- * @y: the Y coordinate to draw the string at relative to the drawable
- * @str: the text string to draw
- * @count: the number of characters (not bytes) in the string
- * @flags: flags specifying text encoding, alignment, etc.
- *
  * Draws the specified text string at the specified position on the specified
  * drawable using the specified graphics context and flags. The default flags
  * specify ASCII encoding and baseline alignment.
+ *
+ * @param id  the ID of the drawable to draw the text string onto
+ * @param gc  the ID of the graphics context to use when drawing the text string
+ * @param x  the X coordinate to draw the string at relative to the drawable
+ * @param y  the Y coordinate to draw the string at relative to the drawable
+ * @param str  the text string to draw
+ * @param count  the number of characters (not bytes) in the string
+ * @param flags  flags specifying text encoding, alignment, etc.
+ *
+ * @ingroup nanox_font
  */
 void 
 GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
@@ -3370,11 +3670,12 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 
 
 /**
- * GrGetSystemPalette:
- * @pal: pointer to a palette structure to fill in with the system palette
- *
  * Retrieves the system palette and places it in the specified palette
  * structure.
+ *
+ * @param pal  pointer to a palette structure to fill in with the system palette
+ *
+ * @ingroup nanox_color
  */
 void
 GrGetSystemPalette(GR_PALETTE *pal)
@@ -3386,12 +3687,13 @@ GrGetSystemPalette(GR_PALETTE *pal)
 }
 
 /**
- * GrSetSystemPalette:
- * @first: the first palette value to set
- * @pal: pointer to a palette structure containing the new values
- *
  * Sets the system palette to the values stored in the specified palette
  * structure. The values before the specified first value are not set.
+ *
+ * @param first  the first palette value to set
+ * @param pal  pointer to a palette structure containing the new values
+ *
+ * @ingroup nanox_color
  */
 void
 GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
@@ -3407,13 +3709,14 @@ GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
 }
 
 /**
- * GrFindColor:
- * @c: the colour value to find
- * @retpixel: pointer to the returned pixel value
- *
  * Calculates the pixel value to use to display the specified colour value.
  * The colour value is specified as a GR_COLOR, which is a 32 bit truecolour
  * value stored as RGBX. The pixel value size depends on the architecture.
+ *
+ * @param c  the colour value to find
+ * @param retpixel  pointer to the returned pixel value
+ *
+ * @ingroup nanox_color
  */
 void
 GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
@@ -3428,9 +3731,6 @@ GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
 }
 
 /**
- * GrReqShmCmds:
- * @shmsize: the size of the shared memory area to allocate
- *
  * Requests a shared memory area of the specified size to use for transferring
  * command arguments. This is faster but less portable than the standard BSD
  * sockets method of communication (and of course will only work if the client
@@ -3441,7 +3741,11 @@ GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
  * function even if shared memory support is not compiled in; it will simply
  * do nothing.
  *
- * FIXME: how does the user decide what size of shared memory area to allocate?
+ * @param shmsize  the size of the shared memory area to allocate
+ *
+ * @todo FIXME: how does the user decide what size of shared memory area to allocate?
+ *
+ * @ingroup nanox_misc
  */
 void
 GrReqShmCmds(long shmsize)
@@ -3492,16 +3796,17 @@ GrReqShmCmds(long shmsize)
 }
 
 /**
- * GrInjectPointerEvent:
- * @x: the X coordinate of the pointer event relevant to the root window
- * @y: the Y coordinate of the pointer event relevant to the root window
- * @button: the pointer button status
- * @visible: whether to display the pointer after the event
- *
  * Sets the pointer invisible if the visible parameter is GR_FALSE, or visible
  * if it is GR_TRUE, then moves the pointer to the specified position and
  * generates a mouse event with the specified button status. Also performs
  * a GrFlush() so that the event takes effect immediately.
+ *
+ * @param x  the X coordinate of the pointer event relevant to the root window
+ * @param y  the Y coordinate of the pointer event relevant to the root window
+ * @param button  the pointer button status
+ * @param visible  whether to display the pointer after the event
+ *
+ * @ingroup nanox_misc
  */
 void
 GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
@@ -3521,18 +3826,18 @@ GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
 }
 
 /**
- * GrInjectKeyboardEvent:
- * @wid: ID of the window to send the event to, or 0
- * @uch: 32 bit Unicode keystroke value to inject
- * @ch: 8 bit ascii keystroke value to inject
- * @modifier: modifiers (shift, ctrl, alt, etc.) to inject
- * @special: special keys to inject
- * @content: mask specifying which arguments are valid
- *
  * Sends a keyboard event to the specified window, or to the window with the
  * current keyboard focus if 0 is used as the ID. The other arguments
  * correspond directly to the fields of the same names in the keyboard event
  * structure.
+ *
+ * @param wid      ID of the window to send the event to, or 0.
+ * @param keyvalue Unicode keystroke value to inject.
+ * @param modifier Modifiers (shift, ctrl, alt, etc.) to inject.
+ * @param scancode The key scan code to inject.
+ * @param pressed  TRUE for a key press, FALSE for a key release.
+ *
+ * @ingroup nanox_misc
  */
 void
 GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
@@ -3554,12 +3859,13 @@ GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
 }
 
 /**
- * GrSetWMProperties:
- * @wid: the ID of the window to set the WM properties of
- * @props: pointer to a GR_WM_PROPERTIES structure
- *
  * Copies the provided GR_WM_PROPERTIES structure into the the GR_WM_PROPERTIES
  * structure of the specified window id.
+ *
+ * @param wid  the ID of the window to set the WM properties of
+ * @param props  pointer to a GR_WM_PROPERTIES structure
+ *
+ * @ingroup nanox_window
  */
 void
 GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
@@ -3583,14 +3889,15 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 }
 
 /**
- * GrGetWMProperties:
- * @wid: the ID of the window to retreive the WM properties of
- * @props: pointer to a GR_WM_PROPERTIES structure to fill in
- *
  * Reads the GR_WM_PROPERTIES structure for the window with the specified
  * id and fills in the provided structure with the information.
  * It is the callers responsibility to free the title member as it is allocated
  * dynamically. The title field will be set to NULL if the window has no title.
+ *
+ * @param wid  the ID of the window to retreive the WM properties of
+ * @param props  pointer to a GR_WM_PROPERTIES structure to fill in
+ *
+ * @ingroup nanox_window
  */
 void
 GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
@@ -3622,13 +3929,14 @@ GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 }
 
 /**
- * GrCloseWindow:
- * @wid: the ID of the window to send the CLOSE_REQ event to
- *
  * Sends a CLOSE_REQ event to the specified window if the client has selected
  * to receive CLOSE_REQ events on this window. Used to request an application
  * to shut down but not force it to do so immediately, so the application can
  * ask whether to save changed files before shutting down cleanly.
+ *
+ * @param wid  the ID of the window to send the CLOSE_REQ event to
+ *
+ * @ingroup nanox_window
  */
 void 
 GrCloseWindow(GR_WINDOW_ID wid)
@@ -3642,12 +3950,13 @@ GrCloseWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrKillWindow:
- * @wid: the ID of the window to kill
- *
  * Forcibly disconnects the client which owns this window with the specified
  * ID number. Used to kill an application which has locked up and is not
  * responding to CLOSE_REQ events.
+ *
+ * @param wid  the ID of the window to kill
+ *
+ * @ingroup nanox_window
  */
 void 
 GrKillWindow(GR_WINDOW_ID wid)
@@ -3661,13 +3970,14 @@ GrKillWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrSetScreenSaverTimeout:
- * @timeout: the number of seconds of inactivity before screen saver activates
- *
  * Sets the number of seconds of inactivity before a screen saver activate
  * event is sent to the root window ID. A value of 0 activates the
  * screen saver immediately, and a value of -1 disables the screen saver
  * function.
+ *
+ * @param timeout  the number of seconds of inactivity before screen saver activates
+ *
+ * @ingroup nanox_misc
  */
 void 
 GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
@@ -3681,10 +3991,6 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 }
 
 /**
- * GrSetSelectionOwner:
- * @wid: the ID of the window to set the selection owner to
- * @typelist: list of mime types selection data can be supplied as
- *
  * Sets the current selection (otherwise known as the clipboard) ownership
  * to the specified window. Specifying an owner of 0 disowns the selection.
  * The typelist argument is a list of mime types (seperated by space
@@ -3696,6 +4002,11 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
  * SELECTION_LOST events (received when another window takes ownership of the
  * selection) and CLIENT_DATA_REQ events (received when a client wishes to
  * retreive the selection data).
+ *
+ * @param wid  the ID of the window to set the selection owner to
+ * @param typelist  list of mime types selection data can be supplied as
+ *
+ * @ingroup nanox_selection
  */
 void
 GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
@@ -3719,10 +4030,6 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 }
 
 /**
- * GrGetSelectionOwner:
- * @typelist: pointer used to return the list of available mime types 
- * @Returns: the ID of the window which currently owns the selection, or 0
- *
  * Finds the window which currently owns the selection and returns its ID,
  * or 0 if no window currently owns the selection. A pointer to the list of
  * mime types the selection owner is capable of supplying is placed in the
@@ -3731,6 +4038,11 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
  * responsibility to free the typelist string, as it is allocated dynamically.
  * If the allocation fails, it will be set to a NULL pointer, so remember to
  * check the value of it before using it.
+ *
+ * @param typelist  pointer used to return the list of available mime types 
+ * @return the ID of the window which currently owns the selection, or 0
+ *
+ * @ingroup nanox_selection
  */
 GR_WINDOW_ID
 GrGetSelectionOwner(GR_CHAR **typelist)
@@ -3760,12 +4072,6 @@ GrGetSelectionOwner(GR_CHAR **typelist)
 }
 
 /**
- * GrRequestClientData:
- * @wid: the ID of the window requesting the data
- * @rid: the ID of the window to request the data from
- * @serial: the serial number of the request
- * @mimetype: the number of the desired mime type to request
- *
  * Sends a CLIENT_DATA_REQ event to the specified window. Used for requesting
  * both selection and "drag and drop" data. The mimetype argument specifies
  * the format of the data you would like to receive, as an index into the list
@@ -3779,6 +4085,13 @@ GrGetSelectionOwner(GR_CHAR **typelist)
  * CLIENT_DATA events as they are dynamically allocated. Also note that if
  * the allocation fails the data field will be set to NULL, so you should
  * check the value before using it.
+ *
+ * @param wid  the ID of the window requesting the data
+ * @param rid  the ID of the window to request the data from
+ * @param serial  the serial number of the request
+ * @param mimetype  the number of the desired mime type to request
+ *
+ * @ingroup nanox_selection
  */
 void
 GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial,
@@ -3796,14 +4109,6 @@ GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial,
 }
 
 /**
- * GrSendClientData:
- * @wid: the ID of the window sending the data
- * @did: the ID of the destination window
- * @sid: the serial number of the request
- * @len: the number of bytes of data to transfer
- * @thislen: the number of bytes in this packet
- * @data: pointer to the data to transfer
- *
  * Used as the response to a CLIENT_DATA_REQ event. Sends the specified data
  * of the specified length to the specified window using the specified source
  * window ID and transfer serial number. Any fragmentation of the data into
@@ -3812,7 +4117,15 @@ GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial,
  * CLIENT_DATA_REQ event. The thislen parameter is used internally to split
  * the data up into packets. It should be set to the same value as the len
  * parameter.
- * 
+ *
+ * @param wid     The ID of the window sending the data.
+ * @param did     The ID of the destination window.
+ * @param serial  The serial number of the request.
+ * @param len     Number of bytes of data to transfer.
+ * @param thislen Number of bytes in this packet.
+ * @param data    Pointer to the data to transfer.
+ *
+ * @ingroup nanox_selection
  */
 void
 GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
@@ -3839,11 +4152,11 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 }
 
 /**
- * GrBell:
- *
  * Asks the server to ring the console bell on behalf of the client (intended
  * for terminal apps to be able to ring the bell on the server even if they
  * are running remotely).
+ *
+ * @ingroup nanox_misc
  */
 void
 GrBell(void)
@@ -3854,16 +4167,17 @@ GrBell(void)
 }
 
 /**
- * GrSetBackgroundPixmap:
- * @wid: ID of the window to set the background of
- * @pixmap: ID of the pixmap to use as the background
- * @flags: flags specifying how to draw the pixmap onto the window
- *
  * Sets the background of the specified window to the specified pixmap.
  * The flags which specify how to draw the pixmap (in the top left of the
  * window, in the centre of the window, tiled, etc.) are those which start with
  * GR_BACKGROUND_ in nano-X.h. If the pixmap value is 0, the server will
  * disable the background pixmap and return to using a solid colour fill.
+ *
+ * @param wid  ID of the window to set the background of
+ * @param pixmap  ID of the pixmap to use as the background
+ * @param flags  flags specifying how to draw the pixmap onto the window
+ *
+ * @ingroup nanox_window
  */
 void
 GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
@@ -3879,11 +4193,12 @@ GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
 }
 
 /**
- * GrDestroyCursor:
- * @id: ID of the cursor to destory
- *
  * Destroys the specified server-based cursor and
  * reclaims the memory used by it.
+ *
+ * @param cid  ID of the cursor to destory
+ *
+ * @ingroup nanox_cursor
  */
 void
 GrDestroyCursor(GR_CURSOR_ID cid)
@@ -3897,14 +4212,15 @@ GrDestroyCursor(GR_CURSOR_ID cid)
 }
 
 /**
- * GrQueryTree:
- * @wid: window ID for query
- * @parentid: returned parent ID
- * @children: returned children ID list
- * @nchildren: returned children count
- *
  * Return window parent and list of children.
  * Caller must free() children list after use.
+ *
+ * @param wid  window ID for query
+ * @param parentid  returned parent ID
+ * @param children  returned children ID list
+ * @param nchildren  returned children count
+ *
+ * @ingroup nanox_window
  */
 void
 GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
@@ -3938,12 +4254,7 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
 }
 
 #if YOU_WANT_TO_IMPLEMENT_DRAG_AND_DROP
-/**
- * GrRegisterDragAndDropWindow:
- * @wid: the ID of the window to use as the drag and drop source window
- * @iid: the ID of the pixmap to use as the drag and drop icon
- * @typelist: list of mime types the drag and drop data can be supplied as
- *
+/*
  * Enables the specified window to be used as a drag and drop source. The
  * specified pixmap will be used as the icon shown whilst dragging, and the
  * null terminated, newline seperated list of mime types which the data can
@@ -3957,6 +4268,12 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
  * window. Remember to free the typelist field of the DROP event as it is
  * dynamically allocated. It is possible for a client to select for DROP events
  * on the Root window if it is desired to allow dropping icons on the desktop.
+ *
+ * @param wid  the ID of the window to use as the drag and drop source window
+ * @param iid  the ID of the pixmap to use as the drag and drop icon
+ * @param typelist  list of mime types the drag and drop data can be supplied as
+ *
+ * @ingroup nanox_window
  */
 void
 GrRegisterDragAndDropWindow(GR_WINDOW_ID wid, GR_WINDOW_ID iid, GR_CHAR *typelist)
@@ -3966,6 +4283,17 @@ GrRegisterDragAndDropWindow(GR_WINDOW_ID wid, GR_WINDOW_ID iid, GR_CHAR *typelis
 
 
 #if MW_FEATURE_TIMERS
+/**
+ * FIXME
+ *
+ * @param wid    FIXME
+ * @param period FIXME
+ * @return       FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_timer
+ */
 GR_TIMER_ID
 GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 {
@@ -3985,6 +4313,15 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 #endif /* MW_FEATURE_TIMERS */
 
 #if MW_FEATURE_TIMERS
+/**
+ * FIXME
+ *
+ * @param tid    FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_timer
+ */
 void
 GrDestroyTimer (GR_TIMER_ID tid)
 {
@@ -3997,6 +4334,15 @@ GrDestroyTimer (GR_TIMER_ID tid)
 }
 #endif /* MW_FEATURE_TIMERS */
 
+/**
+ * FIXME
+ *
+ * @param portraitmode FIXME
+ *
+ * @todo FIXME document this
+ *
+ * @ingroup nanox_misc
+ */
 void
 GrSetPortraitMode(int portraitmode)
 {
@@ -4009,15 +4355,15 @@ GrSetPortraitMode(int portraitmode)
 }
 
 /**
- * GrQueryPointer
- * @mwin:   Window the mouse is current in
- * @x:      Current X pos of mouse (from root)
- * @y:      Current Y pos of mouse (from root)
- * @bmask:  Current button mask 
- *
  * Returns the current information for the pointer
+ *
+ * @param mwin    Window the mouse is current in
+ * @param x       Current X pos of mouse (from root)
+ * @param y       Current Y pos of mouse (from root)
+ * @param bmask   Current button mask 
+ *
+ * @ingroup nanox_misc
  */
-
 void 
 GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask)
 {
@@ -4033,9 +4379,11 @@ GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask)
 }
 
 /**
- * GrQueueLength
+ * Returns the current length of the client side queue.
  *
- * Returns the current length of the client side queue
+ * @return The current length of the client side queue.
+ *
+ * @ingroup nanox_event
  */
 int 
 GrQueueLength(void)
@@ -4053,15 +4401,16 @@ GrQueueLength(void)
 }
 
 /**
- * GrNewBitmapRegion
- * @bitmap: pointer to a GR_BITMAP array specifying the region mask
- * @width: the width of the bitmap
- * @height: the height of the bitmap
- * @Returns: the ID of the newly allocated region structure, or 0 on error
- *
  * Creates a new region structure, fills it with the region described by the
  * specified polygon, and returns the ID used to refer to it. 1 bits in the
  * bitmap specify areas inside the region and 0 bits specify areas outside it.
+ *
+ * @param bitmap  pointer to a GR_BITMAP array specifying the region mask
+ * @param width  the width of the bitmap
+ * @param height  the height of the bitmap
+ * @return the ID of the newly allocated region structure, or 0 on error
+ *
+ * @ingroup nanox_region
  */
 GR_REGION_ID
 GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
@@ -4085,11 +4434,6 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
 }
 
 /**
- * GrSetWindowRegion
- * @wid: the ID of the window to set the clipping region of
- * @rid: the ID of the region to assign to the specified window
- * @type: region type, bounding or clip mask
- *
  * Sets the bounding region of the specified window, not
  * to be confused with a GC clip region.  The bounding region
  * is used to implement non-rectangular windows.
@@ -4117,6 +4461,12 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
  * container window behind yours and spoil the desired effect. Also note that
  * shaped windows must always have a border size of 0. If you need a border
  * around a shaped window, add it to the clipping region and draw it yourself.
+ *
+ * @param wid  the ID of the window to set the clipping region of
+ * @param rid  the ID of the region to assign to the specified window
+ * @param type  region type, bounding or clip mask
+ *
+ * @ingroup nanox_window
  */
 void
 GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
@@ -4132,21 +4482,7 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 }
 
 /**
- * GrStretchArea:
- * @dstid: the ID of the drawable to copy the area to
- * @gc: the ID of the graphics context to use when copying the area
- * @dx1: the X coordinate of the first point describing the destination area
- * @dy1: the Y coordinate of the first point describing the destination area
- * @dx2: the X coordinate of the second point describing the destination area
- * @dy2: the Y coordinate of the second point describing the destination area
- * @srcid: the ID of the drawable to copy the area from
- * @sx1: the X coordinate of the first point describing the source area
- * @sy1: the Y coordinate of the first point describing the source area
- * @sx2: the X coordinate of the second point describing the source area
- * @sy2: the Y coordinate of the second point describing the source area
- * @op: the ROP codes to pass to the blitter when performing the copy
- *
- * Copies a region from one drawsable to another.  Can stretch and/or flip
+ * Copies a region from one drawable to another.  Can stretch and/or flip
  * the image.  The stretch/flip maps (sx1,sy1) in the source to (dx1,dy1)
  * in the destination, and similarly (sx2,sy2) in the source maps to
  * (dx2,dy2) in the destination.  Both horizontal and vertical flips are
@@ -4156,6 +4492,21 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
  * target of (0,0)-(2,2) will not draw pixels with y=2 or x=2.
  *
  * 0 is a sensible default ROP code in most cases.
+ *
+ * @param dstid the ID of the drawable to copy the area to
+ * @param gc    the ID of the graphics context to use when copying the area
+ * @param dx1   the X coordinate of the first point describing the destination area
+ * @param dy1   the Y coordinate of the first point describing the destination area
+ * @param dx2   the X coordinate of the second point describing the destination area
+ * @param dy2   the Y coordinate of the second point describing the destination area
+ * @param srcid the ID of the drawable to copy the area from
+ * @param sx1   the X coordinate of the first point describing the source area
+ * @param sy1   the Y coordinate of the first point describing the source area
+ * @param sx2   the X coordinate of the second point describing the source area
+ * @param sy2   the Y coordinate of the second point describing the source area
+ * @param op    the ROP codes to pass to the blitter when performing the copy
+ *
+ * @ingroup nanox_draw
  */
 void
 GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
@@ -4187,8 +4538,12 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 
 /**
  * Grab a key for a specific window.
- * @id window to send event to.
- * @key MWKEY value.
+ *
+ * @param id  Window to send event to.
+ * @param key MWKEY value.
+ * @return    FIXME
+ *
+ * @ingroup nanox_misc
  */
 int
 GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
@@ -4213,8 +4568,11 @@ GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
 
 /**
  * Ungrab a key for a specific window.
- * @id window to stop key grab.
- * @key MWKEY value.
+ *
+ * @param id  Window to stop key grab.
+ * @param key MWKEY value.
+ *
+ * @ingroup nanox_misc
  */
 void
 GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
@@ -4230,11 +4588,12 @@ GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 }
 
 /**
- * GrSetTransform
- * @mode, if zero, then disable the transform filter, otherwise use the data
- * @data, a GR_TRANSFORM structure that contains the transform data for teh filter
- *
  * This passes transform data to the mouse input engine. 
+ *
+ * @param trans A GR_TRANSFORM structure that contains the transform data
+ *              for the filter, or NULL to disable.
+ *
+ * @ingroup nanox_misc
  */
 void
 GrSetTransform(GR_TRANSFORM *trans)
@@ -4261,16 +4620,6 @@ GrSetTransform(GR_TRANSFORM *trans)
 
 #if HAVE_FREETYPE_2_SUPPORT
 /**
- * GrCreateFontFromBuffer:
- * @buffer: The buffer containing the font data.  May not
- *          be NULL.
- * @length: The buffer length, in bytes.
- * @format: A string describing the format of the data in
- *          the buffer.  NULL or "" request the font driver
- *          to autodetect.  Otherwise, a file extension such
- *          as "TTF" or "PFR".
- * @height  The desired height of the font, in pixels.
- *
  * Creates a font from a buffer in memory.  This call copies
  * the buffer, so the caller may free or re-use it.
  *
@@ -4293,6 +4642,17 @@ GrSetTransform(GR_TRANSFORM *trans)
  * backed by the same buffer.  In this case, the internal
  * buffer will be reference-counted, and freed when all
  * the font objects that use it are destroyed.
+ *
+ * @param buffer  The buffer containing the font data.  May not
+ *                be NULL.
+ * @param length  The buffer length, in bytes.
+ * @param format  A string describing the format of the data in
+ *                the buffer.  NULL or "" request the font driver
+ *                to autodetect.  Otherwise, a file extension such
+ *                as "TTF" or "PFR".
+ * @param height  The desired height of the font, in pixels.
+ *
+ * @ingroup nanox_font
  */
 GR_FONT_ID
 GrCreateFontFromBuffer(const void *buffer, unsigned length,
@@ -4331,14 +4691,15 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
 }
 
 /**
- * GrCopyFont:
- * @fointid: The font to copy.
- * @height:  The size of the new copy, or 0 to make the copy the
- *           same size as the original font.
- *
  * Creates a copy of a font, optionally using a different size.
  *
  * For the rationale behind this function, see GrCreateFontFromBuffer().
+ *
+ * @param fointid  The font to copy.
+ * @param height   The size of the new copy, or 0 to make the copy the
+ *                 same size as the original font.
+ *
+ * @ingroup nanox_font
  */
 GR_FONT_ID
 GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
@@ -4358,3 +4719,6 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
 	return result;
 }
 #endif /*HAVE_FREETYPE_2_SUPPORT*/
+
+
+

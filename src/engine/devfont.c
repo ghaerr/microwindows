@@ -3,15 +3,14 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  */
 /**
- * @file
- *
- * Device-independent font and text drawing routines
- *
  * These routines do the necessary range checking, clipping, and cursor
  * overwriting checks, and then call the lower level device dependent
  * routines to actually do the drawing.  The lower level routines are
  * only called when it is known that all the pixels to be drawn are
  * within the device area and are visible.
+ *
+ *
+ * Device-independent font and text drawing routines
  */
 /*#define NDEBUG*/
 #include <stdio.h>
@@ -947,7 +946,9 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 	 * extension - e.g. TTF, PFR, ...)
 	 */
 
-	pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height);
+	if (freetype2_init(psd)) {
+		pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height);
+	}
 	if (!pfont)
 		EPRINTF("GdCreateFontFromBuffer: create failed.\n");
 

@@ -493,7 +493,7 @@ int WINAPI	GetSystemMetrics(int nIndex);
 
 HWND WINAPI	GetDlgItem(HWND hDlg, int nIDDlgItem);
 
-/**************************** Caret support **********************************/
+/* ************************** Caret support **********************************/
 BOOL WINAPI CreateCaret(HWND hwnd, HBITMAP hBitmap, int nWidth, int nHeight);
 BOOL WINAPI DestroyCaret(VOID);
 BOOL WINAPI HideCaret (HWND hwnd);

@@ -181,6 +181,13 @@ beof(buffer_t *buffer)
 
 static int GdDecodeImage(PSD psd, buffer_t *src, int flags);
 
+/**
+ * Load an image from a memory buffer.
+ *
+ * @param buffer The buffer containing the image data.
+ * @param size The size of the buffer.
+ * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
+ */
 int
 GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags)
 {
@@ -190,6 +197,20 @@ GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags)
 	return(GdDecodeImage(psd, &src, flags));
 }
 
+/**
+ * Draw an image from a memory buffer.
+ *
+ * @param psd Drawing surface.
+ * @param x X destination co-ordinate.
+ * @param y Y destination co-ordinate.
+ * @param width If >=0, the image will be scaled to this width.
+ * If <0, the image will not be scaled horiziontally.
+ * @param height If >=0, the image will be scaled to this height.
+ * If <0, the image will not be scaled vertically.
+ * @param buffer The buffer containing the image data.
+ * @param size The size of the buffer.
+ * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
+ */
 void
 GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	MWCOORD height, void *buffer, int size, int flags)
@@ -207,6 +228,19 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 }
 
 #if defined(HAVE_FILEIO)
+/**
+ * Draw an image from a file.
+ *
+ * @param psd Drawing surface.
+ * @param x X destination co-ordinate.
+ * @param y Y destination co-ordinate.
+ * @param width If >=0, the image will be scaled to this width.
+ * If <0, the image will not be scaled horiziontally.
+ * @param height If >=0, the image will be scaled to this height.
+ * If <0, the image will not be scaled vertically.
+ * @param path The file containing the image data.
+ * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
+ */
 void
 GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	MWCOORD height, char *path, int flags)
@@ -222,6 +256,13 @@ GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 #endif /* defined(HAVE_FILEIO) */
 
 #if defined(HAVE_FILEIO)
+/**
+ * Load an image from a file.
+ *
+ * @param psd Drawing surface.
+ * @param path The file containing the image data.
+ * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
+ */
 int
 GdLoadImageFromFile(PSD psd, char *path, int flags)
 {
@@ -351,6 +392,18 @@ findimage(int id)
 	return NULL;
 }
 
+/**
+ * Draw an image.
+ *
+ * @param psd Drawing surface.
+ * @param x X destination co-ordinate.
+ * @param y Y destination co-ordinate.
+ * @param width If >=0, the image will be scaled to this width.
+ * If <0, the image will not be scaled horiziontally.
+ * @param height If >=0, the image will be scaled to this height.
+ * If <0, the image will not be scaled vertically.
+ * @param id Image to draw.
+ */
 void
 GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	int id)
@@ -405,6 +458,11 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		GdDrawImage(psd, x, y, pimage);
 }
 
+/**
+ * Destroy an image.
+ *
+ * @param id Image to free.
+ */
 void
 GdFreeImage(int id)
 {
@@ -427,6 +485,13 @@ GdFreeImage(int id)
 	}
 }
 
+/**
+ * Get information about an image.
+ *
+ * @param id Image to query.
+ * @param pii Destination for image information.
+ * @return TRUE on success, FALSE on error.
+ */
 MWBOOL
 GdGetImageInfo(int id, PMWIMAGEINFO pii)
 {
@@ -567,7 +632,14 @@ static void copy_row3(unsigned char *src, int src_w, unsigned char *dst,
 	}
 }
 
-/* Perform a stretch blit between two image structs of the same format.*/
+/**
+ * Perform a stretch blit between two image structs of the same format.
+ *
+ * @param src Source image.
+ * @param srcrect Source rectangle.
+ * @param dst Destination image.
+ * @param dstrect Destination rectangle.
+ */
 void
 GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
 	MWCLIPRECT *dstrect)
@@ -724,6 +796,14 @@ term_source(j_decompress_ptr cinfo)
 	return;
 }
 
+/*
+ * GdDecodeImage:
+ * @psd: Drawing surface.
+ * @src: The image data.
+ * @flags: If nonzero, JPEG images will be loaded as grayscale.  Yuck!
+ *
+ * Load an image.
+ */
 static int
 LoadJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 {

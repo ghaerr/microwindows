@@ -1,4 +1,4 @@
-/***************************************************************************
+/* *************************************************************************
  * MODULE DESCRIPTION: This module specializes the RTEMS Network configuration 
  *                     for the omniORB examples. It could be used as a starting
  *                     point of an application using omniORB and RTEMS.

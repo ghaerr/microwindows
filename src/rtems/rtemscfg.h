@@ -1,4 +1,4 @@
-/***************************************************************************
+/* *************************************************************************
  * Copyright (c) 1999 ConnectTel, Inc. All Rights Reserved.
  *  
  * MODULE DESCRIPTION: RTEMS configuration file. This file should be

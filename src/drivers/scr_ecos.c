@@ -87,8 +87,8 @@ fb_open(PSD psd)
     psd->yres = psd->yvirtres = li.height;
 #if PORTRAIT
     /* automatic portrait mode if y resolution is greater than x res*/
-    /*** commented out, PORTRAIT_MODE=[R,L] used for compile time option***/
-    /***if(psd->yres > psd->xres)
+    /* * commented out, PORTRAIT_MODE=[R,L] used for compile time option***/
+    /* *if(psd->yres > psd->xres)
         gr_portraitmode = 1;***/
 #endif
     /* set planes from fb type*/

@@ -39,8 +39,11 @@ extern int        gr_fillmode;
 /*static*/ void drawrow(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y);
 static void drawcol(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2);
 
-/*
+/**
  * Set the drawing mode for future calls.
+ *
+ * @param mode New drawing mode.
+ * @return Old drawing mode.
  */
 int
 GdSetMode(int mode)
@@ -60,8 +63,11 @@ GdSetFillMode(int mode)
 	return oldmode;
 }
 
-/*
+/**
  * Set whether or not the background is used for drawing pixmaps and text.
+ *
+ * @param flag Flag indicating whether or not to draw the background.
+ * @return Old value of flag.
  */
 MWBOOL
 GdSetUseBackground(MWBOOL flag)
@@ -97,8 +103,11 @@ GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg)
 	return oldbg;
 }
 
-/*
+/**
  * Set the foreground color for drawing from passed RGB color value.
+ *
+ * @param fg Foreground RGB color to use for drawing.
+ * @return Old foreground color.
  */
 MWPIXELVAL
 GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
@@ -109,9 +118,12 @@ GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
 	return oldfg;
 }
 
-/*
+/**
  * Set the background color for bitmap and text backgrounds
  * from passed RGB color value.
+ *
+ * @param bg Background color to use for drawing.
+ * @return Old background color.
  */
 MWPIXELVAL
 GdSetBackgroundColor(PSD psd, MWCOLORVAL bg)
@@ -139,8 +151,12 @@ GdSetDash(unsigned long *mask, int *count)
 	*count = oldc;
 }
 
-/*
+/**
  * Draw a point using the current clipping region and foreground color.
+ *
+ * @param psd Drawing surface.
+ * @param x X co-ordinate to draw point.
+ * @param y Y co-ordinate to draw point.
  */
 void
 GdPoint(PSD psd, MWCOORD x, MWCOORD y)
@@ -151,7 +167,7 @@ GdPoint(PSD psd, MWCOORD x, MWCOORD y)
 	}
 }
 
-/*
+/**
  * Draw an arbitrary line using the current clipping region and foreground color
  * If bDrawLastPoint is FALSE, draw up to but not including point x2, y2.
  *
@@ -160,6 +176,13 @@ GdPoint(PSD psd, MWCOORD x, MWCOORD y)
  * in a line, and those that draw up to the last point.  All other local
  * routines draw the last point.  This gives this routine a bit more overhead,
  * but keeps overall complexity down.
+ *
+ * @param psd Drawing surface.
+ * @param x1 Start X co-ordinate
+ * @param y1 Start Y co-ordinate
+ * @param x2 End X co-ordinate
+ * @param y2 End Y co-ordinate
+ * @param bDrawLastPoint TRUE to draw the point at (x2, y2).  FALSE to omit it.
  */
 void
 GdLine(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
@@ -406,9 +429,16 @@ drawcol(PSD psd, MWCOORD x,MWCOORD y1,MWCOORD y2)
 	}
 }
 
-/* Draw a rectangle in the foreground color, applying clipping if necessary.
+/**
+ * Draw a rectangle in the foreground color, applying clipping if necessary.
  * This is careful to not draw points multiple times in case the rectangle
  * is being drawn using XOR.
+ *
+ * @param psd Drawing surface.
+ * @param x Left edge of rectangle.
+ * @param y Top edge of rectangle.
+ * @param width Width of rectangle.
+ * @param height Height of rectangle.
  */
 void
 GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
@@ -433,8 +463,15 @@ GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	GdFixCursor(psd);
 }
 
-/* Draw a filled in rectangle in the foreground color, applying
+/**
+ * Draw a filled in rectangle in the foreground color, applying
  * clipping if necessary.
+ *
+ * @param psd Drawing surface.
+ * @param x Left edge of rectangle.
+ * @param y Top edge of rectangle.
+ * @param width Width of rectangle.
+ * @param height Height of rectangle.
  */
 void
 GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
@@ -483,15 +520,23 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 	GdFixCursor(psd);
 }
 
-/*
+/**
  * Draw a rectangular area using the current clipping region and the
  * specified bit map.  This differs from rectangle drawing in that the
  * rectangle is drawn using the foreground color and possibly the background
  * color as determined by the bit map.  Each row of bits is aligned to the
  * next bitmap word boundary (so there is padding at the end of the row).
+ * (I.e. each row begins at the start of a new MWIMAGEBITS value).
  * The background bit values are only written if the gr_usebg flag
  * is set.
  * The function drawbitmap performs no clipping, GdBitmap clips.
+ *
+ * @param psd Drawing surface.
+ * @param x Left edge of destination rectangle.
+ * @param y Top edge of destination rectangle.
+ * @param width Width of bitmap.  Equal to width of destination rectangle.
+ * @param height Height of bitmap.  Equal to height of destination rectangle.
+ * @param imagebits The bitmap to draw.
  */
 void
 drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
@@ -585,8 +630,13 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	GdFixCursor(psd);
 }
 
-/*
+/**
  * Return true if color is in palette
+ *
+ * @param cr Color to look for.
+ * @param palette Palette to look in.
+ * @param palsize Size of the palette.
+ * @return TRUE iff the color is in palette.
  */
 MWBOOL
 GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize)
@@ -599,10 +649,21 @@ GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize)
 	return FALSE;
 }
 
-/*
+/**
  * Create a MWPIXELVAL conversion table between the passed palette
  * and the in-use palette.  The system palette is loaded/merged according
  * to fLoadType.
+ *
+ * FIXME: LOADPALETTE and MERGEPALETTE are defined in "device.h"
+ *
+ * @param psd Drawing surface.
+ * @param palette Palette to look in.
+ * @param palsize Size of the palette.
+ * @param convtable Destination for the conversion table.  Will hold palsize
+ * entries.
+ * @param fLoadType LOADPALETTE to set the surface's palette to the passed
+ * palette, MERGEPALETTE to add the passed colors to the surface
+ * palette without removing existing colors, or 0.
  */
 void
 GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
@@ -668,14 +729,19 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 	}
 }
 
-/*
+/**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
  * Microwindows color image format is DWORD padded bytes, with
- * the upper bits corresponding to the left side (identical to 
+ * the upper bits corresponding to the left side (identical to
  * the MS Windows format).  This format is currently different
  * than the MWIMAGEBITS format, which uses word-padded bits
  * for monochrome display only, where the upper bits in the word
  * correspond with the left side.
+ *
+ * @param psd Drawing surface.
+ * @param x Destination X co-ordinate for left of image.
+ * @param y Destination Y co-ordinate for top of image.
+ * @param pimage Structure describing the image.
  */
 void
 GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
@@ -964,9 +1030,16 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	GdFixCursor(psd);
 }
 
-/*
- * Read a rectangular area of the screen.  
+/**
+ * Read a rectangular area of the screen.
  * The color table is indexed row by row.
+ *
+ * @param psd Drawing surface.
+ * @param x Left edge of rectangle to read.
+ * @param y Top edge of rectangle to read.
+ * @param width Width of rectangle to read.
+ * @param height Height of rectangle to read.
+ * @param pixels Destination for screen grab.
  */
 void
 GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
@@ -1097,7 +1170,8 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 	return;
 }
 
-/* Draw a rectangle of color values, clipping if necessary.
+/**
+ * Draw a rectangle of color values, clipping if necessary.
  * If a color matches the background color,
  * then that pixel is only drawn if the gr_usebg flag is set.
  *
@@ -1115,7 +1189,7 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
  * MWPF_TRUECOLOR332	unsigned char
  *
  * NOTE: Currently, no translation is performed if the pixtype
- * is not MWPF_RGB.  Pixtype is only then used to determine the 
+ * is not MWPF_RGB.  Pixtype is only then used to determine the
  * packed size of the pixel data, and is then stored unmodified
  * in a MWPIXELVAL and passed to the screen driver.  Virtually,
  * this means there's only three reasonable options for client
@@ -1124,6 +1198,14 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
  * screen driver is running, or (3) pass data as packed values
  * in the format the screen driver is running.  Options 2 and 3
  * are identical except for the packing structure.
+ *
+ * @param psd Drawing surface.
+ * @param x Left edge of rectangle to blit to.
+ * @param y Top edge of rectangle to blit to.
+ * @param width Width of image to blit.
+ * @param height Height of image to blit.
+ * @param pixels Image data.
+ * @param pixtype Format of pixels.
  */
 void
 GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixels,
@@ -1374,7 +1456,20 @@ GdCopyArea(PSD psd, MWCOORD srcx, MWCOORD srcy, MWCOORD width, MWCOORD height,
 #endif
 
 extern MWCLIPREGION *clipregion;
-/* Copy source rectangle of pixels to destination rectangle quickly*/
+
+/**
+ * Copy source rectangle of pixels to destination rectangle quickly
+ *
+ * @param dstpsd Drawing surface to draw to.
+ * @param dstx Destination X co-ordinate.
+ * @param dsty Destination Y co-ordinate.
+ * @param width Width of rectangle to copy.
+ * @param height Height of rectangle to copy.
+ * @param srcpsd Drawing surface to copy from.
+ * @param srcx Source X co-ordinate.
+ * @param srcy Source Y co-ordinate.
+ * @param rop Raster operation.
+ */
 void
 GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long rop)
@@ -1483,8 +1578,24 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 }
 
 /* experimental globals for ratio bug when src != 0*/
+/* Only used by fblin16.c */
 int g_row_inc, g_col_inc;
-/* Stretch source rectangle of pixels to destination rectangle quickly*/
+
+/**
+ * Stretch source rectangle of pixels to destination rectangle quickly
+ *
+ * @param dstpsd Drawing surface to draw to.
+ * @param dstx Destination X co-ordinate.
+ * @param dsty Destination Y co-ordinate.
+ * @param dstw Width of destination rectangle.
+ * @param dsth Height of destination rectangle.
+ * @param srcpsd Drawing surface to copy from.
+ * @param srcx Source X co-ordinate.
+ * @param srcy Source Y co-ordinate.
+ * @param srcw Width of source rectangle.
+ * @param srch Height of source rectangle.
+ * @param rop Raster operation.
+ */
 void
 GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
@@ -1623,19 +1734,6 @@ g_col_inc = (srcw << 16) / dstw;
 }
 
 /**
- * GdStretchBlitEx:
- * @dstpsd: Drawing surface to draw to.
- * @d1_x: Destination X co-ordinate of first corner.
- * @d1_y: Destination Y co-ordinate of first corner.
- * @d2_x: Destination X co-ordinate of second corner.
- * @d2_y: Destination Y co-ordinate of second corner.
- * @srcpsd: Drawing surface to copy from.
- * @s1_x: Source X co-ordinate of first corner.
- * @s1_y: Source Y co-ordinate of first corner.
- * @s2_x: Source X co-ordinate of second corner.
- * @s2_y: Source Y co-ordinate of second corner.
- * @rop: Raster operation.
- *
  * A proper stretch blit.  Supports flipping the image.
  * Paramaters are co-ordinates of two points in the source, and
  * two corresponding points in the destination.  The image is scaled
@@ -1649,6 +1747,18 @@ g_col_inc = (srcw << 16) / dstw;
  * drivers for details.
  *
  * Note that we do not support overlapping blits.
+ *
+ * @param dstpsd Drawing surface to draw to.
+ * @param d1_x Destination X co-ordinate of first corner.
+ * @param d1_y Destination Y co-ordinate of first corner.
+ * @param d2_x Destination X co-ordinate of second corner.
+ * @param d2_y Destination Y co-ordinate of second corner.
+ * @param srcpsd Drawing surface to copy from.
+ * @param s1_x Source X co-ordinate of first corner.
+ * @param s1_y Source Y co-ordinate of first corner.
+ * @param s2_x Source X co-ordinate of second corner.
+ * @param s2_y Source Y co-ordinate of second corner.
+ * @param rop Raster operation.
  */
 void
 GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
@@ -2057,7 +2167,8 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 	return 1;
 }
 
-/* Translate a rectangle of color values
+/**
+ * Translate a rectangle of color values
  *
  * The pixels are packed according to inpixtype/outpixtype:
  *
@@ -2071,6 +2182,15 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
  * MWPF_TRUECOLOR332	unsigned char
+ *
+ * @param width Width of rectangle to translate.
+ * @param height Height of rectangle to translate.
+ * @param in Source pixels buffer.
+ * @param inpixtype Source pixel type.
+ * @param inpitch Source pitch.
+ * @param out Destination pixels buffer.
+ * @param outpixtype Destination pixel type.
+ * @param outpitch Destination pitch.
  */
 void
 GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,

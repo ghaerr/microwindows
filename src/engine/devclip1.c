@@ -22,13 +22,17 @@ static MWBOOL	clipresult;	/* whether clip rectangle is plottable */
 int 	clipcount;		/* number of clip rectangles */
 MWCLIPRECT cliprects[MAX_CLIPRECTS];	/* clip rectangles */
 
-/*
+/**
  * Set an array of clip rectangles for future drawing actions.
  * Each pixel will be drawn only if lies in one or more of the specified
  * clip rectangles.  As a special case, specifying no rectangles implies
  * clipping is for the complete screen.  All clip rectangles are modified
  * if necessary to lie within the device area.  Call only after device
  * has been initialized.
+ *
+ * @param psd Drawing surface.
+ * @param count Number of clip rectangles
+ * @param table Clipping rectangles.
  */
 void
 GdSetClipRects(PSD psd,int count, MWCLIPRECT *table)
@@ -97,7 +101,8 @@ GdSetClipRects(PSD psd,int count, MWCLIPRECT *table)
 }
 
 
-/* Check a point against the list of clip rectangles.
+/**
+ * Check a point against the list of clip rectangles.
  * Returns TRUE if the point is within one or more rectangles and thus
  * can be plotted, or FALSE if the point is not within any rectangle and
  * thus cannot be plotted.  Also remembers the coordinates of a clip cache
@@ -106,6 +111,11 @@ GdSetClipRects(PSD psd,int count, MWCLIPRECT *table)
  * rectangle after a call to this routine, the caller can efficiently
  * check many nearby points without needing any further calls.  If the
  * point lies within the cursor, then the cursor is removed.
+ *
+ * @param psd Drawing surface.
+ * @param x X co-ordintat of point to check.
+ * @param y Y co-ordinate of point to check.
+ * @return TRUE iff the point is visible.
  */
 MWBOOL
 GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
@@ -220,7 +230,8 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
 }
 
 
-/* Check the area determined by the specified pair of points against the
+/**
+ * Check the area determined by the specified pair of points against the
  * list of clip rectangles.  The area will either be totally visible,
  * totally visible, or possibly partially visible.  This routine updates
  * the clip cache rectangle, and returns one of the following values:
@@ -229,6 +240,13 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
  *	CLIP_PARTIAL		The rectangle may be partially visible
  * In the case that the area is totally visible, the cursor is removed
  * if it overlaps the clip area.
+ *
+ * @param psd Drawing surface.
+ * @param x1 Left of rectangle.
+ * @param y1 Top of rectangle.
+ * @param x2 Right of rectangle.
+ * @param y2 Bottom of rectangle.
+ * @return CLIP_VISIBLE, CLIP_INVISIBLE, or CLIP_PARTIAL.
  */
 int
 GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2)

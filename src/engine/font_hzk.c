@@ -245,7 +245,7 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
 	return i;
 }
 
-/************************** functions definition ******************************/
+/* ************************ functions definition ******************************/
 
 static int hzk_id( PMWHZKFONT pf )
 {

@@ -495,14 +495,14 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		return;
 	}
 
-	/*** move algorithms not requiring unmap/map ***/
+	/* * move algorithms not requiring unmap/map ***/
 #if 1
 	/* perform screen blit if topmost and mapped - no flicker!*/
 	if (wp->mapped && wp == wp->parent->children
 		&& wp->parent->id == GR_ROOT_WINDOW_ID
 
 		/* temp don't blit in portrait mode, still buggy*/
-		/***&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))***/
+		/* *&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))***/
 
 		/* don't blit if window has custom frame, background not right*/
 		&& !wp->clipregion
@@ -3846,16 +3846,15 @@ nochildren:
 static int next_timer_id = 1000;
 
 /**
- * GrCreateTimer:
- * @wid: the ID of the window to use as a destination for GR_TIMER_EVENT
- *	events that result from this timer.
- * @period: the timer period in milliseconds
- * @Returns: the ID of the newly created timer, or 0 if failure.
- *
  * Creates a Nano-X timer with the specified period.
  * NOTE: There is a potential for more GR_TIMER_EVENTS to be queued
  * in the connection between the Nano-X server and client.  The client
  * should be able to handle late arriving GR_TIMER_EVENTs.
+ *
+ * @param wid the ID of the window to use as a destination for GR_TIMER_EVENT
+ *	events that result from this timer.
+ * @param period the timer period in milliseconds
+ * @return the ID of the newly created timer, or 0 if failure.
  */
 GR_TIMER_ID
 GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
@@ -3902,10 +3901,9 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 }
 
 /**
- * GrDestroyTimer:
- * @tid: the ID of the timer to destroy
- *
  * Destroys a timer previously created with GrCreateTimer().
+ *
+ * @param tid the ID of the timer to destroy
  */
 void
 GrDestroyTimer (GR_TIMER_ID tid)
@@ -3953,10 +3951,9 @@ GrDestroyTimer (GR_TIMER_ID tid)
 
 
 /**
- * GrSetPortraitMode
- * @newmode: new portrait mode
- *
  * Sets new server portrait mode and redraws all windows.
+ *
+ * @param newmode new portrait mode
  */
 void
 GrSetPortraitMode(int portraitmode)
@@ -3967,13 +3964,12 @@ GrSetPortraitMode(int portraitmode)
 }
 
 /**
- * GrQueryPointer
- * @mwin:   Window the mouse is current in
- * @x:      Current X pos of mouse (from root)
- * @y:      Current Y pos of mouse (from root)
- * @bmask:  Current button mask 
- *
  * Returns the current information for the pointer
+ *
+ * @param mwin Window the mouse is current in
+ * @param x Current X pos of mouse (from root)
+ * @param y Current Y pos of mouse (from root)
+ * @param bmask Current button mask
  */
 void 
 GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask) {
@@ -3986,12 +3982,11 @@ GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask) {
 }
 
 /**
- * GrNewBitmapRegion
- * @bitmap	monochrome source bitmap
- * @width	width of source bitmap
- * @height	height of source bitmap
- *
  * Creates a new region from a bitmap mask.
+ *
+ * @param bitmap	monochrome source bitmap
+ * @param width	width of source bitmap
+ * @param height	height of source bitmap
  */
 GR_REGION_ID
 GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
@@ -4025,11 +4020,6 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
 }
 
 /**
- * GrSetWindowRegion
- * @wid		window id
- * @rid		region id
- * @type	region type, bounding or clip mask
- *
  * Sets the bounding region of the specified window, not
  * to be confused with a GC clip region.  The bounding region
  * is used to implement non-rectangular windows.
@@ -4041,6 +4031,10 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
  * the bounding region and the clip region is defined to be the
  * border of the window.
  * Currently, only the window bounding region is implemented.
+ *
+ * @param wid		window id
+ * @param rid		region id
+ * @param type	region type, bounding or clip mask
  */
 void
 GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
@@ -4085,11 +4079,10 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 }
 
 /**
- * GrSetTransform
- * @trans, the GR_TRANSFORM structure that contains the transform data
- * for the filter, or NULL for raw mode.
+ * This passes transform data to the mouse input engine.
  *
- * This passes transform data to the mouse input engine. 
+ * @param trans the GR_TRANSFORM structure that contains the transform data
+ * for the filter, or NULL for raw mode.
  */
 void
 GrSetTransform(GR_TRANSFORM *trans)

@@ -52,8 +52,10 @@ MWPOINT    gr_ts_offset;
 static int	gr_pixtype;	    /* screen pixel format*/
 static long	gr_ncolors;	    /* screen # colors*/
 
-/*
- * Open low level graphics driver
+/**
+ * Open low level graphics driver.
+ *
+ * @return The screen drawing surface.
  */
 PSD
 GdOpenScreen(void)
@@ -162,8 +164,10 @@ GdOpenScreen(void)
 	return psd;
 }
 
-/*
+/**
  * Close low level graphics driver
+ *
+ * @param psd Screen drawing surface.
  */
 void 
 GdCloseScreen(PSD psd)
@@ -171,7 +175,13 @@ GdCloseScreen(PSD psd)
 	psd->Close(psd);
 }
 
-/* Set dynamic screen portrait mode, return new mode*/
+/**
+ * Set dynamic screen portrait mode, return new mode
+ *
+ * @param psd Screen drawing surface.
+ * @param portraitmode New portrait mode requested.
+ * @return New portrait mode actually set.
+ */
 int
 GdSetPortraitMode(PSD psd, int portraitmode)
 {
@@ -181,8 +191,11 @@ GdSetPortraitMode(PSD psd, int portraitmode)
 	return psd->portrait;
 }
 
-/*
- * Return about the screen.
+/**
+ * Get information about the screen (resolution etc).
+ *
+ * @param psd Screen drawing surface.
+ * @param psi Destination for screen information.
  */
 void
 GdGetScreenInfo(PSD psd, PMWSCREENINFO psi)
@@ -193,7 +206,10 @@ GdGetScreenInfo(PSD psd, PMWSCREENINFO psi)
 	GdGetCursorPos(&psi->xpos, &psi->ypos);
 }
 
-/* reset palette to empty except for system colors*/
+/**
+ *
+ * reset palette to empty except for system colors
+ */
 void
 GdResetPalette(void)
 {
@@ -203,7 +219,14 @@ GdResetPalette(void)
 	gr_nextpalentry = gr_firstuserpalentry;
 }
 
-/* set the system palette section to the passed palette entries*/
+/**
+ * Set the system palette section to the passed palette entries
+ *
+ * @param psd Screen device.
+ * @param first First palette entry to set.
+ * @param count Number of palette entries to set.
+ * @param palette New palette entries (array of size @param count).
+ */
 void
 GdSetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
 {
@@ -225,7 +248,14 @@ GdSetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
 	}
 }
 
-/* get system palette entries, return count*/
+/**
+ * Get system palette entries
+ *
+ * @param psd Screen device.
+ * @param first First palette index to get.
+ * @param count Number of palette entries to retrieve.
+ * @param palette Recieves palette entries (array of size @param count).
+ */
 int
 GdGetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
 {
@@ -246,8 +276,11 @@ GdGetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
 	return count;
 }
 
-/*
+/**
  * Convert a palette-independent value to a hardware color
+ *
+ * @param c 24-bit RGB color
+ * @return Hardware-specific color.
  */
 MWPIXELVAL
 GdFindColor(PSD psd, MWCOLORVAL c)
@@ -287,9 +320,13 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 	return GdFindNearestColor(gr_palette, (int)gr_ncolors, c);
 }
 
-/*
+/**
  * Search a palette to find the nearest color requested.
  * Uses a weighted squares comparison.
+ *
+ * @param pal Palette to search.
+ * @param size Size of palette (number of entries).
+ * @param cr Color to look for.
  */
 MWPIXELVAL
 GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
@@ -328,11 +365,10 @@ GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
 }
 
 /**
- * GdGetColorRGB:
- * @pixel: Hardware-specific color.
- * @Returns: 24-bit RGB color
- *
  * Convert a color from a driver-dependent PIXELVAL to a COLORVAL.
+ *
+ * @param pixel Hardware-specific color.
+ * @return 24-bit RGB color
  */
 MWCOLORVAL
 GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
@@ -445,7 +481,12 @@ putdw(unsigned long dw, FILE *ofp)
 }
 #endif /* HAVE_FILEIO*/
 
-/* create .bmp file from framebuffer data*/
+/**
+ * Create .bmp file from framebuffer data
+ *
+ * @param path Output file.
+ * @return 0 on success, nonzero on error.
+ */
 int
 GdCaptureScreen(char *path)
 {

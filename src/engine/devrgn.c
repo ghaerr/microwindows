@@ -10,7 +10,7 @@
  * Copyright 1993, 1994, 1995 Alexandre Julliard
  * Modifications and additions: Copyright 1998 Huw Davies
  */
-/************************************************************************
+/* **********************************************************************
 
 Copyright (c) 1987, 1988  X Consortium
 
@@ -131,7 +131,14 @@ typedef void (*REGION_NonOverlapBandFunctionPtr) (MWCLIPREGION * pReg, MWRECT * 
         ( ((r).bottom >  y)) && \
         ( ((r).top <= y)) )
 
-/* return TRUE if point is in region*/
+/**
+ * return TRUE if point is in region
+ *
+ * @param rgn Region.
+ * @param x X co-ordinate of point to check.
+ * @param y Y co-ordinate of point to check.
+ * @return TRUE iff point is in region
+ */
 MWBOOL
 GdPtInRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y)
 {
@@ -144,7 +151,13 @@ GdPtInRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y)
     return FALSE;
 }
 
-/* return whether rectangle is all in, partly in, or out of region*/
+/**
+ * return whether rectangle is all in, partly in, or out of region
+ *
+ * @param rgn Region.
+ * @param rect Rectangle to check.
+ * @return MWRECT_PARTIN, MWRECT_ALLIN, or MWRECT_OUT.
+ */
 int 
 GdRectInRegion(MWCLIPREGION *rgn, const MWRECT *rect)
 {
@@ -259,6 +272,13 @@ EQUALRECT(MWRECT *r1, MWRECT *r2)
 		(r1->top == r2->top) && (r1->bottom == r2->bottom));
 }
 
+/**
+ * Test if two regions are identical.
+ *
+ * @param r1 First region.
+ * @param r2 Second region.
+ * @return TRUE iff the regions are exactly the same.
+ */
 MWBOOL
 GdEqualRegion(MWCLIPREGION *r1, MWCLIPREGION *r2)
 {
@@ -277,14 +297,22 @@ GdEqualRegion(MWCLIPREGION *r1, MWCLIPREGION *r2)
 	return TRUE;
 }
 
+/**
+ * Test if a region is empty.
+ *
+ * @param rgn Region.
+ * @return TRUE iff the region is empty.
+ */
 MWBOOL
 GdEmptyRegion(MWCLIPREGION *rgn)
 {
 	return rgn->numRects == 0;
 }
 
-/*
+/**
  *            Create a new empty MWCLIPREGION.
+ *
+ * @return A new region.
  */
 MWCLIPREGION *
 GdAllocRegion(void)    
@@ -304,6 +332,15 @@ GdAllocRegion(void)
     return NULL;
 }
 
+/**
+ * Create a new MWCLIPREGION which is a rectangular region.
+ *
+ * @param left Left edge of region.
+ * @param top Top edge of region.
+ * @param right Right edge of region.
+ * @param bottom Bottom edge of region.
+ * @return A new region.
+ */
 MWCLIPREGION *
 GdAllocRectRegion(MWCOORD left, MWCOORD top, MWCOORD right, MWCOORD bottom)
 {
@@ -315,12 +352,28 @@ GdAllocRectRegion(MWCOORD left, MWCOORD top, MWCOORD right, MWCOORD bottom)
 	return rgn;
 }
 
+/**
+ * Create a new MWCLIPREGION which is a rectangular region.
+ *
+ * @param prc Rectangle defining the region.
+ * @return A new region.
+ */
 MWCLIPREGION *
 GdAllocRectRegionIndirect(MWRECT *prc)
 {
 	return GdAllocRectRegion(prc->left, prc->top, prc->right, prc->bottom);
 }
 
+/**
+ * Redefine a region to be just a simple rectangular region.
+ * The previous contents of the region are destroyed.
+ *
+ * @param rgn A region.
+ * @param left Left edge of region.
+ * @param top Top edge of region.
+ * @param right Right edge of region.
+ * @param bottom Bottom edge of region.
+ */
 void
 GdSetRectRegion(MWCLIPREGION *rgn, MWCOORD left, MWCOORD top, MWCOORD right,
 	MWCOORD bottom)
@@ -336,12 +389,24 @@ GdSetRectRegion(MWCLIPREGION *rgn, MWCOORD left, MWCOORD top, MWCOORD right,
 		EMPTY_REGION(rgn);
 }
 
+/**
+ * Redefine a region to be just a simple rectangular region.
+ * The previous contents of the region are destroyed.
+ *
+ * @param rgn A region.
+ * @param prc Rectangle defining the region.
+ */
 void
 GdSetRectRegionIndirect(MWCLIPREGION *rgn, MWRECT *prc)
 {
 	GdSetRectRegion(rgn, prc->left, prc->top, prc->right, prc->bottom);
 }
 
+/**
+ * Destroy a region.  Similar to free().
+ *
+ * @param rgn The region to destroy.
+ */
 void
 GdDestroyRegion(MWCLIPREGION *rgn)
 {
@@ -351,6 +416,13 @@ GdDestroyRegion(MWCLIPREGION *rgn)
 	}
 }
 
+/**
+ * Translate a region by a specified offset.
+ *
+ * @param rgn The region to translate.
+ * @param x The X offset.
+ * @param y The Y offset.
+ */
 void
 GdOffsetRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y)
 {
@@ -372,7 +444,15 @@ GdOffsetRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y)
 	}
 }
 
-/* get bounding box for region, return region type*/
+/**
+ * get bounding box for region, return region type
+ *
+ * @param rgn The region to query.
+ * @param prc On exit, contains the bounding box for the region.
+ * @return The region type.  One of MWREGION_NULL (empty region),
+ * MWREGION_SIMPLE (rectangular region), or MWREGION_COMPLEX (non-rectangular
+ * region).
+ */
 int
 GdGetRegionBox(MWCLIPREGION *rgn, MWRECT *prc)
 {
@@ -380,9 +460,11 @@ GdGetRegionBox(MWCLIPREGION *rgn, MWRECT *prc)
 	return rgn->type;
 }
 
-/***********************************************************************
- *           GdUnionRectWithRegion
+/**
  *           Adds a rectangle to a MWCLIPREGION
+ *
+ * @param rect Rectangle to add to the region.
+ * @param rgn The clip region to modify.
  */
 void
 GdUnionRectWithRegion(const MWRECT *rect, MWCLIPREGION *rgn)
@@ -397,9 +479,11 @@ GdUnionRectWithRegion(const MWRECT *rect, MWCLIPREGION *rgn)
     GdUnionRegion(rgn, rgn, &region);
 }
 
-/***********************************************************************
- *           GdSubtractRectWithRegion
+/**
  *           Subtracts a rectangle from a MWCLIPREGION
+ *
+ * @param rect Rectangle to remove from the region.
+ * @param rgn The clip region to modify.
  */
 void
 GdSubtractRectFromRegion(const MWRECT *rect, MWCLIPREGION *rgn)
@@ -415,8 +499,11 @@ GdSubtractRectFromRegion(const MWRECT *rect, MWCLIPREGION *rgn)
 }
 
 
-/***********************************************************************
- *           GdCopyRegion
+/**
+ * Modify a region so that it is identical to another region.
+ *
+ * @param dst Region to copy to.
+ * @param src Region to copy from.
  */
 void
 GdCopyRegion(MWCLIPREGION *dst, MWCLIPREGION *src)
@@ -442,7 +529,7 @@ GdCopyRegion(MWCLIPREGION *dst, MWCLIPREGION *src)
 }
 
 
-/***********************************************************************
+/* *********************************************************************
  *           REGION_SetExtents
  *           Re-calculate the extents of a region
  */
@@ -487,7 +574,7 @@ REGION_SetExtents (MWCLIPREGION *pReg)
 }
 
 
-/***********************************************************************
+/* *********************************************************************
  *           REGION_Coalesce
  *
  *      Attempt to merge the rects in the current band with those in the
@@ -625,7 +712,7 @@ REGION_Coalesce (
     return (curStart);
 }
 
-/***********************************************************************
+/* *********************************************************************
  *           REGION_RegionOp
  *
  *      Apply an operation to two regions. Called by GdUnion,
@@ -916,12 +1003,12 @@ REGION_RegionOp(
     free( oldRects );
 }
 
-/***********************************************************************
+/* *********************************************************************
  *          Region Intersection
  ***********************************************************************/
 
 
-/***********************************************************************
+/* *********************************************************************
  *	     REGION_IntersectO
  *
  * Handle an overlapping band for REGION_Intersect.
@@ -987,8 +1074,13 @@ REGION_IntersectO(MWCLIPREGION *pReg,  MWRECT *r1, MWRECT *r1End,
     }
 }
 
-/***********************************************************************
- *	     GdIntersectRegion
+/**
+ * Finds the intersection of two regions - i.e. the places where
+ * they overlap.
+ *
+ * @param newReg Output region.  May be one of the source regions.
+ * @param reg1 Source region.
+ * @param reg2 Source region.
  */
 void
 GdIntersectRegion(MWCLIPREGION *newReg, MWCLIPREGION *reg1, MWCLIPREGION *reg2)
@@ -1011,11 +1103,11 @@ GdIntersectRegion(MWCLIPREGION *newReg, MWCLIPREGION *reg1, MWCLIPREGION *reg2)
     newReg->type = (newReg->numRects) ? MWREGION_COMPLEX : MWREGION_NULL ;
 }
 
-/***********************************************************************
+/* *********************************************************************
  *	     Region Union
  ***********************************************************************/
 
-/***********************************************************************
+/* *********************************************************************
  *	     REGION_UnionNonO
  *
  *      Handle a non-overlapping band for the union operation. Just
@@ -1051,7 +1143,7 @@ REGION_UnionNonO(MWCLIPREGION *pReg,MWRECT *r,MWRECT *rEnd,MWCOORD top,
     }
 }
 
-/***********************************************************************
+/* *********************************************************************
  *	     REGION_UnionO
  *
  *      Handle an overlapping band for the union operation. Picks the
@@ -1121,8 +1213,13 @@ REGION_UnionO(MWCLIPREGION *pReg, MWRECT *r1, MWRECT *r1End,
     }
 }
 
-/***********************************************************************
- *	     GdUnionRegion
+/**
+ * Finds the union of two regions - i.e. the places which are
+ * in either reg1 or reg2 or both.
+ *
+ * @param newReg Output region.  May be one of the source regions.
+ * @param reg1 Source region.
+ * @param reg2 Source region.
  */
 void
 GdUnionRegion(MWCLIPREGION *newReg, MWCLIPREGION *reg1, MWCLIPREGION *reg2)
@@ -1187,11 +1284,11 @@ GdUnionRegion(MWCLIPREGION *newReg, MWCLIPREGION *reg1, MWCLIPREGION *reg2)
     newReg->type = (newReg->numRects) ? MWREGION_COMPLEX : MWREGION_NULL ;
 }
 
-/***********************************************************************
+/* *********************************************************************
  *	     Region Subtraction
  ***********************************************************************/
 
-/***********************************************************************
+/* *********************************************************************
  *	     REGION_SubtractNonO1
  *
  *      Deal with non-overlapping band for subtraction. Any parts from
@@ -1226,7 +1323,7 @@ REGION_SubtractNonO1(MWCLIPREGION *pReg, MWRECT *r, MWRECT *rEnd,
 }
 
 
-/***********************************************************************
+/* *********************************************************************
  *	     REGION_SubtractO
  *
  *      Overlapping band subtraction. x1 is the left-most point not yet
@@ -1354,18 +1451,13 @@ REGION_SubtractO(MWCLIPREGION *pReg, MWRECT *r1, MWRECT *r1End,
     }
 }
 	
-/***********************************************************************
- *	     GdSubtractRegion
+/**
+ * Finds the difference of two regions (regM - regS) - i.e. the
+ * places which are in regM but not regS.
  *
- *      Subtract regS from regM and leave the result in regD.
- *      S stands for subtrahend, M for minuend and D for difference.
- *
- * Results:
- *      TRUE.
- *
- * Side Effects:
- *      regD is overwritten.
- *
+ * @param regD Output (Difference) region.  May be one of the source regions.
+ * @param regM Source (Minuend) region - the region to subtract from.
+ * @param regS Source (Subtrahend) region - the region we subtract.
  */
 void
 GdSubtractRegion(MWCLIPREGION *regD, MWCLIPREGION *regM, MWCLIPREGION *regS )
@@ -1392,8 +1484,13 @@ GdSubtractRegion(MWCLIPREGION *regD, MWCLIPREGION *regM, MWCLIPREGION *regS )
     regD->type = (regD->numRects) ? MWREGION_COMPLEX : MWREGION_NULL ;
 }
 
-/***********************************************************************
- *	     GdXorRegion
+/**
+ * Finds the XOR of two regions - i.e. the places which are
+ * in either reg1 or reg2 but not both.
+ *
+ * @param dr Output region.  May be one of the source regions.
+ * @param sra Source region.
+ * @param srb Source region.
  */
 void
 GdXorRegion(MWCLIPREGION *dr, MWCLIPREGION *sra, MWCLIPREGION *srb)
@@ -1458,7 +1555,7 @@ GdAllocBitmapRegion(MWIMAGEBITS *bitmap, MWCOORD width,	MWCOORD height)
 }
 
 #if 0
-/***********************************************************************
+/* *********************************************************************
  *            DumpRegion
  *            Outputs the contents of a MWCLIPREGION
  */

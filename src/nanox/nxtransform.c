@@ -77,7 +77,7 @@ exit_load:
 	return ret;
 }
 
-/***** Calibration routines *****/
+/* *** Calibration routines *****/
 
 /* 
    Note:  These have had an interesting history.  They were originally

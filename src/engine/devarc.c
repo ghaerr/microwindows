@@ -209,9 +209,24 @@ FLOAT QSIN(FLOAT a)
 #endif /* HIGHPRECISION*/
 #endif /* HAVEFLOAT*/
 
-/* 
+/**
  * Draw an arc or pie, angles are specified in 64th's of a degree.
  * This function requires floating point, use GdArc for integer only.
+ *
+ * @param psd Destination surface.
+ * @param x0 Center of arc (X co-ordinate).
+ * @param y0 Center of arc (Y co-ordinate).
+ * @param rx Radius of arc in X direction.
+ * @param ry Radius of arc in Y direction.
+ * @param angle1 Start of arc.  In 64ths of a degree, anticlockwise from
+ * the +x axis.
+ * @param angle2 End of arc.  In 64ths of a degree, anticlockwise from
+ * the +x axis.
+ * @param type Type of arc:
+ * MWARC is a curved line.
+ * MWARCOUTLINE is a curved line plus straight lines joining the ends
+ * to the center of the arc.
+ * MWPIE is a filled shape, like a section of a pie chart.
  */
 void
 GdArcAngle(PSD psd, MWCOORD x0, MWCOORD y0, MWCOORD rx, MWCOORD ry,
@@ -382,7 +397,16 @@ draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1, int mode)
 	  drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0 + y);
 }
 
-/* draw one line segment or set of points, called from drawarc routine*/
+/*
+ * draw one line segment or set of points, called from drawarc routine
+ *
+ * Note that this is called for all rows in one quadrant of the ellipse.
+ * It mirrors vertically & horizontally to get the entire ellipse.
+ *
+ * It passes on co-ordinates for the *entire* ellipse - for pie and
+ * arc, clipping is done later to ensure that only the requested angle
+ * gets drawn.
+ */
 static void
 drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 {
@@ -523,10 +547,25 @@ drawarc(SLICE *slice)
 
 }
 
-/* 
+/**
  * Draw an arc or pie using start/end points.
- * Integer only routine.  To specify start/end angles, 
+ * Integer only routine.  To specify start/end angles,
  * use GdArcAngle, which requires floating point.
+ *
+ * @param psd Destination surface.
+ * @param x0 Center of arc (X co-ordinate).
+ * @param y0 Center of arc (Y co-ordinate).
+ * @param rx Radius of arc in X direction.
+ * @param ry Radius of arc in Y direction.
+ * @param ax Start of arc (X co-ordinate).
+ * @param ay Start of arc (Y co-ordinate).
+ * @param bx End of arc (X co-ordinate).
+ * @param by End of arc (Y co-ordinate).
+ * @param type Type of arc:
+ * MWARC is a curved line.
+ * MWARCOUTLINE is a curved line plus straight lines joining the ends
+ * to the center of the arc.
+ * MWPIE is a filled shape, like a section of a pie chart.
  */
 void
 GdArc(PSD psd, MWCOORD x0, MWCOORD y0, MWCOORD rx, MWCOORD ry,
@@ -612,10 +651,17 @@ GdArc(PSD psd, MWCOORD x0, MWCOORD y0, MWCOORD rx, MWCOORD ry,
 	GdFixCursor(psd);
 }
 
-/*
+/**
  * Draw an ellipse using the current clipping region and foreground color.
  * This draws in the outline of the ellipse, or fills it.
  * Integer only routine.
+ *
+ * @param psd Destination surface.
+ * @param x Center of ellipse (X co-ordinate).
+ * @param y Center of ellipse (Y co-ordinate).
+ * @param rx Radius of ellipse in X direction.
+ * @param ry Radius of ellipse in Y direction.
+ * @param fill Nonzero for a filled ellipse, zero for an outline.
  */
 void
 GdEllipse(PSD psd, MWCOORD x, MWCOORD y, MWCOORD rx, MWCOORD ry, MWBOOL fill)

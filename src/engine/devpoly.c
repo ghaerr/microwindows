@@ -34,11 +34,16 @@ void drawrow(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y);
 extern int 	  gr_mode; 	      /* drawing mode */
 extern int gr_fillmode;
 
-/* Draw a polygon in the foreground color, applying clipping if necessary.
+/**
+ * Draw a polygon in the foreground color, applying clipping if necessary.
  * The polygon is only closed if the first point is repeated at the end.
  * Some care is taken to plot the endpoints correctly if the current
  * drawing mode is XOR.  However, internal crossings are not handled
  * correctly.
+ *
+ * @param psd Drawing surface.
+ * @param count Number of points in polygon.
+ * @param points The array of points.
  */
 void
 GdPoly(PSD psd, int count, MWPOINT *points)
@@ -70,7 +75,7 @@ GdPoly(PSD psd, int count, MWPOINT *points)
 }
 
 #if X11POLYFILL /* improved convex polygon fill routine*/
-/***********************************************************
+/* *********************************************************
 Copyright (c) 1987  X Consortium
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -571,6 +576,13 @@ edge_cmp(const void *lvp, const void *rvp)
 	return 0;
 }
 
+/**
+ * Draw a filled polygon.
+ *
+ * @param psd Drawing surface.
+ * @param count Number of points in polygon.
+ * @param points The array of points.
+ */
 void
 GdFillPoly(PSD psd, int count, MWPOINT * pointtable)
 {

@@ -1,4 +1,4 @@
-/***********************************************************************
+/* *********************************************************************
 
 sc.c - creates classifiers from feature vectors of examples, as well as
    classifying example feature vectors.

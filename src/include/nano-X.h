@@ -23,21 +23,21 @@ extern "C" {
 typedef MWCOORD 	GR_COORD;	/* coordinate value */
 typedef MWCOORD 	GR_SIZE;	/* size value */
 typedef MWCOLORVAL 	GR_COLOR;	/* full color value */
-typedef MWPIXELVAL 	GR_PIXELVAL;	/* hw pixel value*/
+typedef MWPIXELVAL 	GR_PIXELVAL;	/* hw pixel value */
 typedef MWIMAGEBITS 	GR_BITMAP;	/* bitmap unit */
 typedef MWUCHAR 	GR_CHAR;	/* filename, window title */
-typedef MWTEXTFLAGS	GR_TEXTFLAGS;	/* text encoding flags*/
-typedef MWKEY	 	GR_KEY;		/* keystroke value*/
-typedef MWSCANCODE	GR_SCANCODE;	/* oem keystroke scancode value*/
-typedef MWKEYMOD	GR_KEYMOD;	/* keystroke modifiers*/
-typedef MWSCREENINFO	GR_SCREEN_INFO;	/* screen information*/
-typedef MWWINDOWFBINFO	GR_WINDOW_FB_INFO; /* direct client-mapped window info*/
-typedef MWFONTINFO	GR_FONT_INFO;	/* font information*/
-typedef MWIMAGEINFO	GR_IMAGE_INFO;	/* image information*/
-typedef MWIMAGEHDR	GR_IMAGE_HDR;	/* multicolor image representation*/
-typedef MWLOGFONT	GR_LOGFONT;	/* logical font descriptor*/
-typedef MWPALENTRY	GR_PALENTRY;	/* palette entry*/
-typedef MWPOINT		GR_POINT;	/* definition of a point*/
+typedef MWTEXTFLAGS	GR_TEXTFLAGS;	/* text encoding flags */
+typedef MWKEY	 	GR_KEY;		/* keystroke value */
+typedef MWSCANCODE	GR_SCANCODE;	/* oem keystroke scancode value */
+typedef MWKEYMOD	GR_KEYMOD;	/* keystroke modifiers */
+typedef MWSCREENINFO	GR_SCREEN_INFO;	/* screen information */
+typedef MWWINDOWFBINFO	GR_WINDOW_FB_INFO; /* direct client-mapped window info */
+typedef MWFONTINFO	GR_FONT_INFO;	/* font information */
+typedef MWIMAGEINFO	GR_IMAGE_INFO;	/* image information */
+typedef MWIMAGEHDR	GR_IMAGE_HDR;	/* multicolor image representation */
+typedef MWLOGFONT	GR_LOGFONT;	/* logical font descriptor */
+typedef MWPALENTRY	GR_PALENTRY;	/* palette entry */
+typedef MWPOINT		GR_POINT;	/* definition of a point */
 typedef MWTIMEOUT	GR_TIMEOUT;	/* timeout value */
 typedef MWFONTLIST	GR_FONTLIST;	/* list of fonts */
 typedef MWKBINFO	GR_KBINFO;	/* keyboard information  */
@@ -57,7 +57,7 @@ typedef GR_ID		GR_IMAGE_ID;	/* image id */
 typedef GR_ID		GR_TIMER_ID;	/* timer id */
 typedef GR_ID		GR_CURSOR_ID;	/* cursor id */
 typedef unsigned short	GR_BOOL;	/* boolean value */
-typedef int		GR_ERROR;	/* error types*/
+typedef int		GR_ERROR;	/* error types */
 typedef int		GR_EVENT_TYPE;	/* event types */
 typedef int		GR_UPDATE_TYPE;	/* window update types */
 typedef unsigned long	GR_EVENT_MASK;	/* event masks */
@@ -66,9 +66,9 @@ typedef unsigned long	GR_WM_PROPS;	/* window property flags */
 typedef unsigned long	GR_SERIALNO;	/* Selection request ID number */
 typedef unsigned short	GR_MIMETYPE;	/* Index into mime type list */
 typedef unsigned long	GR_LENGTH;	/* Length of a block of data */
-typedef unsigned int	GR_BUTTON;	/* mouse button value*/
+typedef unsigned int	GR_BUTTON;	/* mouse button value */
 
-/* Nano-X rectangle, different from MWRECT*/
+/** Nano-X rectangle, different from MWRECT */
 typedef struct {
 	GR_COORD x;
 	GR_COORD y;
@@ -79,11 +79,11 @@ typedef struct {
 /* The root window id. */
 #define	GR_ROOT_WINDOW_ID	((GR_WINDOW_ID) 1)
 
-/* GR_COLOR color constructor*/
+/* GR_COLOR color constructor */
 #define GR_RGB(r,g,b)		MWRGB(r,g,b)
 #define GR_ARGB(a,r,g,b)	MWARGB(a,r,g,b)
 
-/* Drawing modes for GrSetGCMode*/
+/* Drawing modes for GrSetGCMode */
 #define	GR_MODE_COPY		MWMODE_COPY		/* src*/
 #define	GR_MODE_SET		MWMODE_COPY		/* obsolete, use GR_MODE_COPY*/
 #define	GR_MODE_XOR		MWMODE_XOR		/* src ^ dst*/
@@ -211,62 +211,72 @@ typedef struct {
 #define GR_WM_FLAGS_BORDERSIZE	0x0008	/* Border size*/
 #define GR_WM_FLAGS_BORDERCOLOR	0x0010	/* Border color*/
 
-/* Window manager properties used by the Gr[GS]etWMProperties calls. */
 /* NOTE: this struct must be hand-packed to a DWORD boundary for nxproto.h*/
+/**
+ * Window manager properties used by the GrGetWMProperties()/GrSetWMProperties() calls.
+ */
 typedef struct {
-  GR_WM_PROPS flags;		/* Which properties valid in struct for set*/
-  GR_WM_PROPS props;		/* Window property bits*/
-  GR_CHAR *title;		/* Window title*/
-  GR_COLOR background;		/* Window background color*/
-  GR_SIZE bordersize;		/* Window border size*/
-  GR_COLOR bordercolor;		/* Window border color*/
+  GR_WM_PROPS flags;		/**< Which properties valid in struct for set*/
+  GR_WM_PROPS props;		/**< Window property bits*/
+  GR_CHAR *title;		/**< Window title*/
+  GR_COLOR background;		/**< Window background color*/
+  GR_SIZE bordersize;		/**< Window border size*/
+  GR_COLOR bordercolor;		/**< Window border color*/
 } GR_WM_PROPERTIES;
 
-/* Window properties returned by the GrGetWindowInfo call. */
+/**
+ * Window properties returned by the GrGetWindowInfo() call.
+ */
 typedef struct {
-  GR_WINDOW_ID wid;		/* window id (or 0 if no such window) */
-  GR_WINDOW_ID parent;		/* parent window id */
-  GR_WINDOW_ID child;		/* first child window id (or 0) */
-  GR_WINDOW_ID sibling;		/* next sibling window id (or 0) */
-  GR_BOOL inputonly;		/* TRUE if window is input only */
-  GR_BOOL mapped;		/* TRUE if window is mapped */
-  GR_BOOL realized;		/* TRUE if window is mapped and visible */
-  GR_COORD x;			/* parent-relative x position of window */
-  GR_COORD y;			/* parent-relative  y position of window */
-  GR_SIZE width;		/* width of window */
-  GR_SIZE height;		/* height of window */
-  GR_SIZE bordersize;		/* size of border */
-  GR_COLOR bordercolor;		/* color of border */
-  GR_COLOR background;		/* background color */
-  GR_EVENT_MASK eventmask;	/* current event mask for this client */
-  GR_WM_PROPS props;		/* window properties */
-  GR_CURSOR_ID cursor;		/* cursor id*/
-  unsigned long processid;	/* process id of owner*/
+  GR_WINDOW_ID wid;		/**< window id (or 0 if no such window) */
+  GR_WINDOW_ID parent;		/**< parent window id */
+  GR_WINDOW_ID child;		/**< first child window id (or 0) */
+  GR_WINDOW_ID sibling;		/**< next sibling window id (or 0) */
+  GR_BOOL inputonly;		/**< TRUE if window is input only */
+  GR_BOOL mapped;		/**< TRUE if window is mapped */
+  GR_BOOL realized;		/**< TRUE if window is mapped and visible */
+  GR_COORD x;			/**< parent-relative x position of window */
+  GR_COORD y;			/**< parent-relative  y position of window */
+  GR_SIZE width;		/**< width of window */
+  GR_SIZE height;		/**< height of window */
+  GR_SIZE bordersize;		/**< size of border */
+  GR_COLOR bordercolor;		/**< color of border */
+  GR_COLOR background;		/**< background color */
+  GR_EVENT_MASK eventmask;	/**< current event mask for this client */
+  GR_WM_PROPS props;		/**< window properties */
+  GR_CURSOR_ID cursor;		/**< cursor id*/
+  unsigned long processid;	/**< process id of owner*/
 } GR_WINDOW_INFO;
 
-/* Graphics context properties returned by the GrGetGCInfo call. */
+/**
+ * Graphics context properties returned by the GrGetGCInfo() call.
+ */
 typedef struct {
-  GR_GC_ID gcid;		/* GC id (or 0 if no such GC) */
-  int mode;			/* drawing mode */
-  GR_REGION_ID region;		/* user region */
-  int xoff;			/* x offset of user region*/
-  int yoff;			/* y offset of user region*/
-  GR_FONT_ID font;		/* font number */
-  GR_COLOR foreground;		/* foreground RGB color or pixel value*/
-  GR_COLOR background;		/* background RGB color or pixel value*/
-  GR_BOOL fgispixelval;		/* TRUE if 'foreground' is actually a GR_PIXELVAL */
-  GR_BOOL bgispixelval;		/* TRUE if 'background' is actually a GR_PIXELVAL */
-  GR_BOOL usebackground;	/* use background in bitmaps */
-  GR_BOOL exposure;		/* send exposure events on GrCopyArea*/
+  GR_GC_ID gcid;		/**< GC id (or 0 if no such GC) */
+  int mode;			/**< drawing mode */
+  GR_REGION_ID region;		/**< user region */
+  int xoff;			/**< x offset of user region */
+  int yoff;			/**< y offset of user region */
+  GR_FONT_ID font;		/**< font number */
+  GR_COLOR foreground;		/**< foreground RGB color or pixel value */
+  GR_COLOR background;		/**< background RGB color or pixel value */
+  GR_BOOL fgispixelval;		/**< TRUE if 'foreground' is actually a GR_PIXELVAL */
+  GR_BOOL bgispixelval;		/**< TRUE if 'background' is actually a GR_PIXELVAL */
+  GR_BOOL usebackground;	/**< use background in bitmaps */
+  GR_BOOL exposure;		/**< send exposure events on GrCopyArea */
 } GR_GC_INFO;
 
-/* color palette*/
+/**
+ * color palette
+ */
 typedef struct {
-  GR_COUNT count;		/* # valid entries*/
-  GR_PALENTRY palette[256];	/* palette*/
+  GR_COUNT count;		/**< # valid entries */
+  GR_PALENTRY palette[256];	/**< palette */
 } GR_PALETTE;
 
-/* Calibration data */
+/**
+ * Calibration data
+ */
 typedef struct {
   int xres, yres;
   int minx, miny, maxx, maxy;
@@ -363,7 +373,8 @@ typedef struct {
 #define GR_UPDATE_DESTROY	7
 #define GR_UPDATE_REPARENT      8
 
-/* Event for errors detected by the server.
+/**
+ * Event for errors detected by the server.
  * These events are not delivered to GrGetNextEvent, but instead call
  * the user supplied error handling function.  Only the first one of
  * these errors at a time is saved for delivery to the client since
@@ -371,152 +382,175 @@ typedef struct {
  * and exit.
  */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_FUNC_NAME name;		/* function name which failed */
-  GR_ERROR code;		/* error code */
-  GR_ID id;			/* resource id (maybe useless) */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_FUNC_NAME name;		/**< function name which failed */
+  GR_ERROR code;		/**< error code */
+  GR_ID id;			/**< resource id (maybe useless) */
 } GR_EVENT_ERROR;
 
-/* Event for a mouse button pressed down or released. */
+/**
+ * Event for a mouse button pressed down or released.
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* window id event delivered to */
-  GR_WINDOW_ID subwid;		/* sub-window id (pointer was in) */
-  GR_COORD rootx;		/* root window x coordinate */
-  GR_COORD rooty;		/* root window y coordinate */
-  GR_COORD x;			/* window x coordinate of mouse */
-  GR_COORD y;			/* window y coordinate of mouse */
-  GR_BUTTON buttons;		/* current state of all buttons */
-  GR_BUTTON changebuttons;	/* buttons which went down or up */
-  GR_KEYMOD modifiers;		/* modifiers (MWKMOD_SHIFT, etc)*/
-  GR_TIMEOUT time;		/* tickcount time value*/
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< window id event delivered to */
+  GR_WINDOW_ID subwid;		/**< sub-window id (pointer was in) */
+  GR_COORD rootx;		/**< root window x coordinate */
+  GR_COORD rooty;		/**< root window y coordinate */
+  GR_COORD x;			/**< window x coordinate of mouse */
+  GR_COORD y;			/**< window y coordinate of mouse */
+  GR_BUTTON buttons;		/**< current state of all buttons */
+  GR_BUTTON changebuttons;	/**< buttons which went down or up */
+  GR_KEYMOD modifiers;		/**< modifiers (MWKMOD_SHIFT, etc)*/
+  GR_TIMEOUT time;		/**< tickcount time value*/
 } GR_EVENT_BUTTON;
 
-/* Event for a keystroke typed for the window with has focus. */
+/**
+ * Event for a keystroke typed for the window with has focus.
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* window id event delived to */
-  GR_WINDOW_ID subwid;		/* sub-window id (pointer was in) */
-  GR_COORD rootx;		/* root window x coordinate */
-  GR_COORD rooty;		/* root window y coordinate */
-  GR_COORD x;			/* window x coordinate of mouse */
-  GR_COORD y;			/* window y coordinate of mouse */
-  GR_BUTTON buttons;		/* current state of buttons */
-  GR_KEYMOD modifiers;		/* modifiers (MWKMOD_SHIFT, etc)*/
-  GR_KEY ch;			/* 16-bit unicode key value, MWKEY_xxx */
-  GR_SCANCODE scancode;		/* OEM scancode value if available*/
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< window id event delived to */
+  GR_WINDOW_ID subwid;		/**< sub-window id (pointer was in) */
+  GR_COORD rootx;		/**< root window x coordinate */
+  GR_COORD rooty;		/**< root window y coordinate */
+  GR_COORD x;			/**< window x coordinate of mouse */
+  GR_COORD y;			/**< window y coordinate of mouse */
+  GR_BUTTON buttons;		/**< current state of buttons */
+  GR_KEYMOD modifiers;		/**< modifiers (MWKMOD_SHIFT, etc)*/
+  GR_KEY ch;			/**< 16-bit unicode key value, MWKEY_xxx */
+  GR_SCANCODE scancode;		/**< OEM scancode value if available*/
 } GR_EVENT_KEYSTROKE;
 
-/* Event for exposure for a region of a window. */
+/**
+ * Event for exposure for a region of a window.
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* window id */
-  GR_COORD x;			/* window x coordinate of exposure */
-  GR_COORD y;			/* window y coordinate of exposure */
-  GR_SIZE width;		/* width of exposure */
-  GR_SIZE height;		/* height of exposure */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< window id */
+  GR_COORD x;			/**< window x coordinate of exposure */
+  GR_COORD y;			/**< window y coordinate of exposure */
+  GR_SIZE width;		/**< width of exposure */
+  GR_SIZE height;		/**< height of exposure */
 } GR_EVENT_EXPOSURE;
 
-/* General events for focus in or focus out for a window, or mouse enter
+/**
+ * General events for focus in or focus out for a window, or mouse enter
  * or mouse exit from a window, or window unmapping or mapping, etc.
  * Server portrait mode changes are also sent using this event to
  * all windows that request it.
  */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* window id */
-  GR_WINDOW_ID otherid;		/* new/old focus id for focus events*/
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< window id */
+  GR_WINDOW_ID otherid;		/**< new/old focus id for focus events*/
 } GR_EVENT_GENERAL;
 
-/* Events for mouse motion or mouse position. */
+/**
+ * Events for mouse motion or mouse position.
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* window id event delivered to */
-  GR_WINDOW_ID subwid;		/* sub-window id (pointer was in) */
-  GR_COORD rootx;		/* root window x coordinate */
-  GR_COORD rooty;		/* root window y coordinate */
-  GR_COORD x;			/* window x coordinate of mouse */
-  GR_COORD y;			/* window y coordinate of mouse */
-  GR_BUTTON buttons;		/* current state of buttons */
-  GR_KEYMOD modifiers;		/* modifiers (MWKMOD_SHIFT, etc)*/
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< window id event delivered to */
+  GR_WINDOW_ID subwid;		/**< sub-window id (pointer was in) */
+  GR_COORD rootx;		/**< root window x coordinate */
+  GR_COORD rooty;		/**< root window y coordinate */
+  GR_COORD x;			/**< window x coordinate of mouse */
+  GR_COORD y;			/**< window y coordinate of mouse */
+  GR_BUTTON buttons;		/**< current state of buttons */
+  GR_KEYMOD modifiers;		/**< modifiers (MWKMOD_SHIFT, etc)*/
 } GR_EVENT_MOUSE;
 
-/* GrRegisterInput event*/
+/**
+ * GrRegisterInput() event.
+ */
 typedef struct {
   GR_EVENT_TYPE type;		/* event type */
   int		fd;		/* input fd*/
 } GR_EVENT_FDINPUT;
 
-/* GR_EVENT_TYPE_UPDATE */
+/**
+ * GR_EVENT_TYPE_UPDATE
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* select window id*/
-  GR_WINDOW_ID subwid;		/* update window id (=wid for UPDATE event)*/
-  GR_COORD x;			/* new window x coordinate */
-  GR_COORD y;			/* new window y coordinate */
-  GR_SIZE width;		/* new width */
-  GR_SIZE height;		/* new height */
-  GR_UPDATE_TYPE utype;		/* update_type */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< select window id*/
+  GR_WINDOW_ID subwid;		/**< update window id (=wid for UPDATE event)*/
+  GR_COORD x;			/**< new window x coordinate */
+  GR_COORD y;			/**< new window y coordinate */
+  GR_SIZE width;		/**< new width */
+  GR_SIZE height;		/**< new height */
+  GR_UPDATE_TYPE utype;		/**< update_type */
 } GR_EVENT_UPDATE;
 
-/* GR_EVENT_TYPE_SCREENSAVER */
+/**
+ * GR_EVENT_TYPE_SCREENSAVER
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_BOOL activate;		/* true = activate, false = deactivate */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_BOOL activate;		/**< true = activate, false = deactivate */
 } GR_EVENT_SCREENSAVER;
 
-/* GR_EVENT_TYPE_CLIENT_DATA_REQ */
+/**
+ * GR_EVENT_TYPE_CLIENT_DATA_REQ
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* ID of requested window */
-  GR_WINDOW_ID rid;		/* ID of window to send data to */
-  GR_SERIALNO serial;		/* Serial number of transaction */
-  GR_MIMETYPE mimetype;		/* Type to supply data as */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< ID of requested window */
+  GR_WINDOW_ID rid;		/**< ID of window to send data to */
+  GR_SERIALNO serial;		/**< Serial number of transaction */
+  GR_MIMETYPE mimetype;		/**< Type to supply data as */
 } GR_EVENT_CLIENT_DATA_REQ;
 
-/* GR_EVENT_TYPE_CLIENT_DATA */
+/**
+ * GR_EVENT_TYPE_CLIENT_DATA
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID wid;		/* ID of window data is destined for */
-  GR_WINDOW_ID rid;		/* ID of window data is from */
-  GR_SERIALNO serial;		/* Serial number of transaction */
-  unsigned long len;		/* Total length of data */
-  unsigned long datalen;	/* Length of following data */
-  void *data;			/* Pointer to data (filled in on client side) */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID wid;		/**< ID of window data is destined for */
+  GR_WINDOW_ID rid;		/**< ID of window data is from */
+  GR_SERIALNO serial;		/**< Serial number of transaction */
+  unsigned long len;		/**< Total length of data */
+  unsigned long datalen;	/**< Length of following data */
+  void *data;			/**< Pointer to data (filled in on client side) */
 } GR_EVENT_CLIENT_DATA;
 
-/* GR_EVENT_TYPE_SELECTION_CHANGED */
+/**
+ * GR_EVENT_TYPE_SELECTION_CHANGED
+ */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  GR_WINDOW_ID new_owner;	/* ID of new selection owner */
+  GR_EVENT_TYPE type;		/**< event type */
+  GR_WINDOW_ID new_owner;	/**< ID of new selection owner */
 } GR_EVENT_SELECTION_CHANGED;
 
-/* GR_EVENT_TYPE_TIMER */
+/**
+ * GR_EVENT_TYPE_TIMER
+ */
 typedef struct {
-  GR_EVENT_TYPE  type;		/* event type, GR_EVENT_TYPE_TIMER */
-  GR_WINDOW_ID   wid;		/* ID of window timer is destined for */
-  GR_TIMER_ID    tid;		/* ID of expired timer */
+  GR_EVENT_TYPE  type;		/**< event type, GR_EVENT_TYPE_TIMER */
+  GR_WINDOW_ID   wid;		/**< ID of window timer is destined for */
+  GR_TIMER_ID    tid;		/**< ID of expired timer */
 } GR_EVENT_TIMER;
 
-/*
+/**
  * Union of all possible event structures.
- * This is the structure returned by the GrGetNextEvent and similar routines.
+ * This is the structure returned by GrGetNextEvent() and similar routines.
  */
 typedef union {
-  GR_EVENT_TYPE type;			/* event type */
-  GR_EVENT_ERROR error;			/* error event */
-  GR_EVENT_GENERAL general;		/* general window events */
-  GR_EVENT_BUTTON button;		/* button events */
-  GR_EVENT_KEYSTROKE keystroke;		/* keystroke events */
-  GR_EVENT_EXPOSURE exposure;		/* exposure events */
-  GR_EVENT_MOUSE mouse;			/* mouse motion events */
-  GR_EVENT_FDINPUT fdinput;		/* fd input events*/
-  GR_EVENT_UPDATE update;		/* window update events */
-  GR_EVENT_SCREENSAVER screensaver; 	/* Screen saver events */
-  GR_EVENT_CLIENT_DATA_REQ clientdatareq; /* Request for client data events */
-  GR_EVENT_CLIENT_DATA clientdata;	/* Client data events */
-  GR_EVENT_SELECTION_CHANGED selectionchanged; /* Selection owner changed */
-  GR_EVENT_TIMER timer;
+  GR_EVENT_TYPE type;			/**< event type */
+  GR_EVENT_ERROR error;			/**< error event */
+  GR_EVENT_GENERAL general;		/**< general window events */
+  GR_EVENT_BUTTON button;		/**< button events */
+  GR_EVENT_KEYSTROKE keystroke;		/**< keystroke events */
+  GR_EVENT_EXPOSURE exposure;		/**< exposure events */
+  GR_EVENT_MOUSE mouse;			/**< mouse motion events */
+  GR_EVENT_FDINPUT fdinput;		/**< fd input events*/
+  GR_EVENT_UPDATE update;		/**< window update events */
+  GR_EVENT_SCREENSAVER screensaver; 	/**< Screen saver events */
+  GR_EVENT_CLIENT_DATA_REQ clientdatareq; /**< Request for client data events */
+  GR_EVENT_CLIENT_DATA clientdata;	  /**< Client data events */
+  GR_EVENT_SELECTION_CHANGED selectionchanged; /**< Selection owner changed */
+  GR_EVENT_TIMER timer;                 /**< Timer events */
 } GR_EVENT;
 
 typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
@@ -566,7 +600,9 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 #define GR_COLOR_MENUTEXT          18
 #define GR_COLOR_MENU              19
 
-/* Error strings per error number*/
+/**
+ * Error strings per error number
+ */
 #define GR_ERROR_STRINGS		\
 	"",				\
 	"Bad window id: %d\n",		\

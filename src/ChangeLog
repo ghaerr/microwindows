@@ -1,3 +1,4 @@
+	* added Doxygen-created source documentation & Makefile (Jonathan)
 	* added newbuild.diff (Jonathan)
 	  Enabled lots of warnings for GCC.
 	  (src/Arch.rules, src/Makefile.rules):

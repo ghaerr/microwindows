@@ -23,7 +23,7 @@
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
 
 #ifdef HAVE_BETTER_COMPILER
-/*** GCC compiler-only macro magic to save space ***/
+/* * GCC compiler-only macro magic to save space ***/
 #define EPRINTF(str, args...)   fprintf(stderr, str, ##args)
 #define DPRINTF(str, ...)
 #else
@@ -322,7 +322,7 @@ typedef struct _mwscreendevice {
 			MWPIXELVAL c);
 	PMWCOREFONT builtin_fonts;
 
-	/***void (*DrawText)(PSD psd,MWCOORD x,MWCOORD y,const MWUCHAR *str,
+	/* *void (*DrawText)(PSD psd,MWCOORD x,MWCOORD y,const MWUCHAR *str,
 			int count, MWPIXELVAL fg, PMWFONT pfont);***/
 
 	void	(*Blit)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,

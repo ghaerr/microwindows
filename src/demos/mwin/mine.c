@@ -712,7 +712,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SetRect (&bombnumber, x_bomnum, 0,
                      x_bomnum + WIDTH_BOMNUM, HEIGHT_BOMNUM);
                      
-               /**************initial bomb value************** */
+               /* ************initial bomb value************** */
                
               for (i = 0; i < sg_boxnumx; i++)
                 for (j = 0; j < sg_boxnumy; j++)
@@ -871,7 +871,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (!bTimer)
                 bTimer = TRUE;
                 
-           /*****RBUTTONDOWN & LBUTTONDOWN******/
+           /* ***RBUTTONDOWN & LBUTTONDOWN******/
             
                 BothButtonDownProc(hWnd,adrx,adry); 
 		break;
@@ -895,7 +895,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (!bTimer)
                 bTimer = TRUE;
                 
-           /*****RBUTTONDOWN & LBUTTONDOWN******/
+           /* ***RBUTTONDOWN & LBUTTONDOWN******/
             
 #if 0
             if (GetShiftKeyStatus() & 0x00000100){
@@ -904,7 +904,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 BothButtonDownProc(hWnd,adrx,adry); 
                 break; 
             }    
-           /*******  only  rbuttondown   *******/
+           /* *****  only  rbuttondown   *******/
                 
             if (bom[adrx][adry].test)
                break;
@@ -1054,7 +1054,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
     return 0;
 }
 
-/**********   create a hosted about window****/
+/* ********   create a hosted about window****/
 LRESULT AbHostedWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
@@ -1102,7 +1102,7 @@ void InitAbHostedCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
     pCreateInfo->hHosting  = hHosting;
 }
 
-/*************************** High Scores Window ******************************/
+/* ************************* High Scores Window ******************************/
 #define IDC_RESET  110
 LRESULT HighScoreWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1200,7 +1200,7 @@ void InitHighScoreCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
     pCreateInfo->hHosting  = hHosting;
 }
 
-/************************* Congratulation Window *****************************/
+/* *********************** Congratulation Window *****************************/
 
 #define IDC_CTRL_NAME       100
 

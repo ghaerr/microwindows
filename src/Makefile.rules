@@ -133,27 +133,6 @@ endif
 LDFLAGS += -lm
 endif
 
-ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
-ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
-$(error Having both FreeType 1 and FreeType 2 support is not allowed.)
-endif
-DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
-DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
-MW_CORE_LIBS += $(LIBFT2LIB)
-# GCC 3.2 complains if system directories (e.g. /usr/include) are
-# specified with "-I".  For most INCxxx, we simply allow the
-# value to be set to empty to mean "no -I required".
-# Since FT2 requires $(INCFT2LIB)/freetype2 to always be
-# specified, we take a slightly different (and less reliable)
-# approach and simply skip the well-known system directories.
-ifneq ($(INCFT2LIB),/usr/include)
-ifneq ($(INCFT2LIB),/usr/local/include)
-INCLUDEDIRS += -I$(INCFT2LIB)
-endif
-endif
-INCLUDEDIRS += -I$(INCFT2LIB)/freetype2
-endif
-
 ifeq ($(HAVE_PCF_SUPPORT), Y)
 DEFINES += -DHAVE_PCF_SUPPORT=1
 DEFINES += -DPCF_FONT_DIR="\"$(PCF_FONT_DIR)"\"
@@ -205,6 +184,30 @@ ifeq ($(HAVE_XPM_SUPPORT), Y)
 DEFINES += -DHAVE_XPM_SUPPORT=1
 endif
 
+endif
+
+# NOTE: Don't need FILEIO support for FreeType 2, since it can load
+# from memory buffers.
+
+ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
+ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
+$(error Having both FreeType 1 and FreeType 2 support is not allowed.)
+endif
+DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
+DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
+MW_CORE_LIBS += $(LIBFT2LIB)
+# GCC 3.2 complains if system directories (e.g. /usr/include) are
+# specified with "-I".  For most INCxxx, we simply allow the
+# value to be set to empty to mean "no -I required".
+# Since FT2 requires $(INCFT2LIB)/freetype2 to always be
+# specified, we take a slightly different (and less reliable)
+# approach and simply skip the well-known system directories.
+ifneq ($(INCFT2LIB),/usr/include)
+ifneq ($(INCFT2LIB),/usr/local/include)
+INCLUDEDIRS += -I$(INCFT2LIB)
+endif
+endif
+INCLUDEDIRS += -I$(INCFT2LIB)/freetype2
 endif
 
 ifeq ($(NOFONTSORCLIPPING), Y)

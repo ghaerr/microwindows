@@ -21,6 +21,7 @@
 #define USE_ALLOCA	1			/* alloca() is available */
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
+#define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 
 #if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
 #define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage* / GdDrawImage* */

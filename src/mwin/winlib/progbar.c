@@ -28,23 +28,23 @@
 **  provisions of the MPL License are applicable instead of those above.
 */
 
-// Copyright (C) 1999, 2000, Wei Yongming.
-//
-// Note:
-//   Originally by Zhao Jianghua. 
-//
-// Create date: 1999/8/29
-//
-// Modify records:
-//
-//  Who             When        Where       For What                Status
-//-----------------------------------------------------------------------------
-//  WEI Yongming    1999/10/27  Tsinghua    unsigned int            Finished
-//  WEI Yongming    1999/10/27  Tsinghua    FPException fixing      Finished
-//  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
-//  Kevin Tseng     2000/05/24  gv          port to microwin        ported
-//  Greg Haerr      2000/06/15  Utah        removed floats          Finished
-//
+/* Copyright (C) 1999, 2000, Wei Yongming.
+**
+** Note:
+**   Originally by Zhao Jianghua. 
+**
+** Create date: 1999/8/29
+**
+** Modify records:
+**
+**  Who             When        Where       For What                Status
+**-----------------------------------------------------------------------------
+**  WEI Yongming    1999/10/27  Tsinghua    unsigned int            Finished
+**  WEI Yongming    1999/10/27  Tsinghua    FPException fixing      Finished
+**  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
+**  Kevin Tseng     2000/05/24  gv          port to microwin        ported
+**  Greg Haerr      2000/06/15  Utah        removed floats          Finished
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -161,33 +161,41 @@ void pbarOnDraw (HWND hwnd, HDC hdc, PROGRESSDATA* pData, BOOL fVertical,
     if(whOne >= 4) {
         if (fVertical) {
             for (i = 0, iy = y + h - 1; i < nNowPart; ++i) {
-                //if ((iy - whOne) < y) 
-                    //whOne = iy - y;
+#if 0
+                if ((iy - whOne) < y) 
+                    whOne = iy - y;
+#endif
 
 		FillBox (hdc, x, iy - whOne, w, whOne - 1, BLUE);
 
                 iy -= whOne + 1;
-                //if(nRem > 0) {
-                    //iy --;
-                    //nRem --;
-                //}
+#if 0
+                if(nRem > 0) {
+                    iy --;
+                    nRem --;
+                }
+#endif
             }
         }
         else {
             for (i = 0, ix = x + 1; i < nNowPart; ++i) {
-                //if ((ix + whOne) > (x + w)) 
-                    //whOne = x + w - ix;
+#if 0
+                if ((ix + whOne) > (x + w)) 
+                    whOne = x + w - ix;
+#endif
 		FillBox (hdc, ix, y, whOne - 1, h, BLUE);
                 ix += whOne + 1;
-                //if(nRem > 0) {
-                    //ix ++;
-                    //nRem --;
-                //}
+#if 0
+                if(nRem > 0) {
+                    ix ++;
+                    nRem --;
+                }
+#endif
             }
         }
     }
     else {
-        // no vertical support
+        /* no vertical support */
         int d = nNowPart*100/nAllPart;
 	int maxw = GetSysCharWidth (hdc) << 2;
 	int charh = GetSysCharHeight (hdc);

@@ -28,24 +28,25 @@
 **  provisions of the MPL License are applicable instead of those above.
 */
 
-// Note:
-//  Although there was a version by Zhao Jianghua, this version of
-//  EDIT control is written by Wei Yongming from scratch.
-//
-// Create date: 1999/8/26
-//
-// Modify records:
-//
-//  Who             When        Where       For What                Status
-//-----------------------------------------------------------------------------
-//  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
-//  Kevin Tseng     2000/05/30  gv          port to microwin        ported
-//  Greg Haerr      2000/06/16  Utah        3d look, bug fixes      Finished
-//  Kevin Tseng     2000/06/22  gv          port to mw-nanox        ported
-//
-// TODO:
-//    * Selection.
-//    * Undo.
+/* Note:
+**  Although there was a version by Zhao Jianghua, this version of
+**  EDIT control is written by Wei Yongming from scratch.
+**
+** Create date: 1999/8/26
+**
+** Modify records:
+**
+**  Who             When        Where       For What                Status
+**-----------------------------------------------------------------------------
+**  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
+**  Kevin Tseng     2000/05/30  gv          port to microwin        ported
+**  Greg Haerr      2000/06/16  Utah        3d look, bug fixes      Finished
+**  Kevin Tseng     2000/06/22  gv          port to mw-nanox        ported
+**
+** TODO:
+**    * Selection.
+**    * Undo.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,7 +58,9 @@
 
 #define USE_BIG5
 
-//#define DEFAULT_FONT	DEFAULT_GUI_FONT
+#if 0
+#define DEFAULT_FONT	DEFAULT_GUI_FONT
+#endif
 #define DEFAULT_FONT	SYSTEM_FIXED_FONT
 
 #define WIDTH_EDIT_BORDER       2
@@ -80,32 +83,32 @@
 #define EDIT_OP_REPLACE 0x03
 
 typedef struct tagSLEDITDATA {
-    HFONT   hFont;          // hFont used
-    int     bufferLen;      // length of buffer
+    HFONT   hFont;          /* hFont used */
+    int     bufferLen;      /* length of buffer */
 
-    int     dataEnd;        // data end position
-    int     editPos;        // current edit position
-    int     caretOff;       // caret offset in box
-    int     startPos;       // start display position
+    int     dataEnd;        /* data end position */
+    int     editPos;        /* current edit position */
+    int     caretOff;       /* caret offset in box */
+    int     startPos;       /* start display position */
     
-    int     selStart;       // selection start position
-    int     selEnd;         // selection end position
+    int     selStart;       /* selection start position */
+    int     selEnd;         /* selection end position */
     
-    int     passwdChar;     // password character
+    int     passwdChar;     /* password character */
     
-    int     leftMargin;     // left margin
-    int     topMargin;      // top margin
-    int     rightMargin;    // right margin
-    int     bottomMargin;   // bottom margin
+    int     leftMargin;     /* left margin */
+    int     topMargin;      /* top margin */
+    int     rightMargin;    /* right margin */
+    int     bottomMargin;   /* bottom margin */
     
-    int     hardLimit;      // hard limit
+    int     hardLimit;      /* hard limit */
 
-    int     lastOp;         // last operation
-    int     lastPos;        // last operation position
-    int     affectedLen;    // affected len of last operation
-    int     undoBufferLen;  // undo buffer len
-    char    undoBuffer [LEN_SLEDIT_UNDOBUFFER];	// Undo buffer;
-    char    buffer [LEN_SLEDIT_BUFFER];		// buffer
+    int     lastOp;         /* last operation */
+    int     lastPos;        /* last operation position */
+    int     affectedLen;    /* affected len of last operation */
+    int     undoBufferLen;  /* undo buffer len */
+    char    undoBuffer [LEN_SLEDIT_UNDOBUFFER];	/* Undo buffer; */
+    char    buffer [LEN_SLEDIT_BUFFER];		/* buffer */
 } SLEDITDATA, *PSLEDITDATA;
 
 static LRESULT CALLBACK
@@ -185,18 +188,18 @@ static int edtGetStartDispPosAtEnd (const HWND pCtrl, PSLEDITDATA pSLEditData)
     const char* buffer = pSLEditData->buffer;
 
     while (TRUE) {
-        if ((endPos - newStartPos) * GetSysCharWidth (pCtrl) < nOutWidth)//+
+        if ((endPos - newStartPos) * GetSysCharWidth (pCtrl) < nOutWidth)
             break;
         
 	/* FIXME: #ifdef GB2312?*/
-        if ((BYTE)buffer [newStartPos] > 0xA0)//1st:gb:a1-f7,big5:a1-f9 
-	{//+
+        if ((BYTE)buffer [newStartPos] > 0xA0)	/* 1st:gb:a1-f7,big5:a1-f9 */
+	{
             newStartPos ++;
             if (newStartPos < pSLEditData->dataEnd) 
 	    {
 #ifndef USE_BIG5
                 if ((BYTE)buffer [newStartPos] > 0xA0)
-#else//2nd:gb:a1-fe,big5:40-7e,a1-fe
+#else	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
                 if ( ((BYTE)buffer [newStartPos] >= 0x40 && (BYTE)buffer[newStartPos] <= 0x7e) ||
                      ((BYTE)buffer [newStartPos] >= 0xa1 && (BYTE)buffer[newStartPos] <= 0xfe)) 
 #endif
@@ -220,19 +223,19 @@ static int edtGetDispLen (const HWND pCtrl)
 
     for (i = pSLEditData->startPos; i < pSLEditData->dataEnd; i++) {
 	/* FIXME #ifdef GB2312?*/
-        if ((BYTE)buffer [i] > 0xA0)//1st:gb:a1-f7,big5:a1-f9 
-	{//+
+        if ((BYTE)buffer [i] > 0xA0)	/* st:gb:a1-f7,big5:a1-f9 */
+	{
             i++;
             if (i < pSLEditData->dataEnd) 
 	    {
 #ifndef USE_BIG5
-                if ((BYTE)buffer [i] > 0xA0)//2nd:gb:a1-fe,big5:40-7e,a1-fe 
-#else//2nd:gb:a1-fe,big5:40-7e,a1-fe
+                if ((BYTE)buffer [i] > 0xA0)	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
+#else	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
                 if ( ((BYTE)buffer [i] >= 0x40 && (BYTE)buffer[i] <= 0x7e) ||
                      ((BYTE)buffer [i] >= 0xa1 && (BYTE)buffer[i] <= 0xfe))
 #endif
-		{//+
-                    nTextWidth += GetSysCCharWidth (pCtrl);//+
+		{
+                    nTextWidth += GetSysCCharWidth (pCtrl);
                     n += 2;
                 }
                 else
@@ -240,13 +243,13 @@ static int edtGetDispLen (const HWND pCtrl)
             }
             else 
             {
-                nTextWidth += GetSysCharWidth (pCtrl);//+
+                nTextWidth += GetSysCharWidth (pCtrl);
                 n++;
             }
         }
         else 
         {
-            nTextWidth += GetSysCharWidth (pCtrl);//+
+            nTextWidth += GetSysCharWidth (pCtrl);
             n++;
         }
 
@@ -257,7 +260,7 @@ static int edtGetDispLen (const HWND pCtrl)
     return n;
 }
 
-static int edtGetOffset (HWND hwnd,const SLEDITDATA* pSLEditData, int x)//+
+static int edtGetOffset (HWND hwnd,const SLEDITDATA* pSLEditData, int x)
 {
     int i;
     int newOff = 0;
@@ -266,23 +269,23 @@ static int edtGetOffset (HWND hwnd,const SLEDITDATA* pSLEditData, int x)//+
 
     x -= pSLEditData->leftMargin;
     for (i = pSLEditData->startPos; i < pSLEditData->dataEnd; i++) {
-        if ((nTextWidth + (GetSysCharWidth(hwnd) >> 1)) >= x)//+
+        if ((nTextWidth + (GetSysCharWidth(hwnd) >> 1)) >= x)
             break;
 
 	/* FIXME #ifdef GB2312?*/
-        if ((BYTE)buffer [i] > 0xA0)//1st:gb:a1-f7,big5:a1-f9 
-	{//+
+        if ((BYTE)buffer [i] > 0xA0)	/* 1st:gb:a1-f7,big5:a1-f9 */
+	{
             i++;
             if (i < pSLEditData->dataEnd) 
 	    {
 #ifndef USE_BIG5
-                if ((BYTE)buffer [i] > 0xA0)//2nd:gb:a1-fe,big5:40-7e,a1-fe 
-#else//2nd:gb:a1-fe,big5:40-7e,a1-fe
+                if ((BYTE)buffer [i] > 0xA0)	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
+#else	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
                 if ( ((BYTE)buffer [i] >= 0x40 && (BYTE)buffer[i] <= 0x7e) || 
                      ((BYTE)buffer [i] >= 0xa1 && (BYTE)buffer[i] <= 0xfe))
 #endif
-		{//+
-                    nTextWidth += GetSysCCharWidth (hwnd);//+
+		{
+                    nTextWidth += GetSysCCharWidth (hwnd);
                     newOff += 2;
                 }
                 else
@@ -290,13 +293,13 @@ static int edtGetOffset (HWND hwnd,const SLEDITDATA* pSLEditData, int x)//+
             }
             else 
             {
-                nTextWidth += GetSysCharWidth (hwnd);//+
+                nTextWidth += GetSysCharWidth (hwnd);
                 newOff ++;
             }
         }
         else 
         {
-            nTextWidth += GetSysCharWidth (hwnd);//+
+            nTextWidth += GetSysCharWidth (hwnd);
             newOff ++;
         }
 
@@ -310,7 +313,7 @@ static BOOL edtIsACCharBeforePosition (const char* string, int pos)
     if (pos < 2)
         return FALSE;
 
-//1st:gb:a1-f7,big5:a1-f9//2nd:gb:a1-fe,big5:40-7e,a1-fe
+/* 1st:gb:a1-f7,big5:a1-f9  2nd:gb:a1-fe,big5:40-7e,a1-fe */
 #ifndef USE_BIG5
     /* FIXME #ifdef GB2312?*/
     if ((BYTE)string [pos - 2] > 0xA0 && (BYTE)string [pos - 1] > 0xA0)
@@ -332,7 +335,7 @@ static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
     if (pos > (len - 2))
         return FALSE;
 
-//1st:gb:a1-f7,big5:a1-f9//2nd:gb:a1-fe,big5:40-7e,a1-fe
+/* 1st:gb:a1-f7,big5:a1-f9  2nd:gb:a1-fe,big5:40-7e,a1-fe */
 #ifndef USE_BIG5
     if ((BYTE)string [pos] > 0xA0 && (BYTE)string [pos + 1] > 0xA0)
         return TRUE;
@@ -340,10 +343,11 @@ static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
     if ((BYTE)string [pos] > 0xA0)
     {
 	if ( ((BYTE)string [pos + 1] >= 0x40 && (BYTE)string [pos + 1] <= 0x7e) ||
-	     ((BYTE)string [pos + 1] >= 0xa1 && (BYTE)string [pos + 1] <= 0xfe))
-	    //fprintf(stderr,"true\n");
-	    //fflush(stderr);
+	     ((BYTE)string [pos + 1] >= 0xa1 && (BYTE)string [pos + 1] <= 0xfe)) {
+	    /*fprintf(stderr,"true\n");
+	    fflush(stderr);*/
 	    return TRUE;
+	}
     }
 #endif
 
@@ -387,7 +391,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             pSLEditData->hardLimit      = -1;
             
-            // undo information
+            /* undo information */
             pSLEditData->lastOp         = EDIT_OP_NONE;
             pSLEditData->lastPos        = 0;
             pSLEditData->affectedLen    = 0;
@@ -419,7 +423,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 #endif
 
-#if 1//jmt: for edit: chinese support
+#if 1	/* jmt: for edit: chinese support */
         case WM_SETFONT:
 	{
 		pSLEditData = (PSLEDITDATA) (pCtrl->userdata2);
@@ -464,7 +468,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             pCtrl->userdata |= EST_FOCUSED;
 
             pSLEditData = (PSLEDITDATA) (pCtrl->userdata2);
-            // only implemented for ES_LEFT align format.
+            /* only implemented for ES_LEFT align format. */
 
             CreateCaret (hWnd, NULL, 1 /*+ GetSysCharWidth(hWnd)*/,
 		    hWnd->clirect.bottom-hWnd->clirect.top-2);
@@ -573,17 +577,17 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             dispBuffer [dispLen] = '\0';
 
-            // only implemented ES_LEFT align format for single line edit.
+            /* only implemented ES_LEFT align format for single line edit. */
             rect.left += pSLEditData->leftMargin;
             rect.top += pSLEditData->topMargin;
             rect.right -= pSLEditData->rightMargin;
             rect.bottom -= pSLEditData->bottomMargin;
 
-#if 0//fix: no ClipRectIntersect()
+#if 0	/* FIXME no ClipRectIntersect() */
 #if 0            
             ClipRectIntersect (hdc, &rect);
 #else
-	    GdSetClipRects(hdc->psd,1,&rect);//??==ClipRectIntersect??
+	    GdSetClipRects(hdc->psd,1,&rect);	/*??==ClipRectIntersect??*/
 #endif
 #endif
 
@@ -607,7 +611,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	    FREEA(dispBuffer);
         }
         break;
-#if 1//jmt+
+#if 1	/* jmt+ */
         case WM_KEYDOWN:
         {
             BOOL    bChange = FALSE;
@@ -617,52 +621,52 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             pSLEditData = (PSLEDITDATA) (pCtrl->userdata2);
         
-            switch ((int)(wParam))//(LOWORD (wParam))
+            switch ((int)(wParam))	/* (LOWORD (wParam)) */
             {
 #if 0
-//                case SCANCODE_ENTER:
-//                    SendMessage (GetParent (hWnd), WM_COMMAND, 
-//		    	(WPARAM) MAKELONG (pCtrl->id, EN_ENTER), (LPARAM) hWnd);
-//                return 0;
-//
-//                case SCANCODE_HOME:
-//                    if (pSLEditData->editPos == 0)
-//                        return 0;
-//
-//                    pSLEditData->editPos  = 0;
-//                    pSLEditData->caretOff = 0;
-//
-//                    SetCaretPos (pSLEditData->caretOff * GetSysCharWidth (hWnd) 
-//                        + pSLEditData->leftMargin, pSLEditData->topMargin);
-//                    if (pSLEditData->startPos != 0)
-//                        InvalidateRect (hWnd, NULL, FALSE);
-//                    
-//                    pSLEditData->startPos = 0;
-//                return 0;
-//           
-//                case SCANCODE_END:
-//                {
-//                    int newStartPos;
-//                   
-//                    if (pSLEditData->editPos == pSLEditData->dataEnd)
-//                        return 0;
-//
-//                    newStartPos = edtGetStartDispPosAtEnd (pCtrl, pSLEditData);
-//                    
-//                    pSLEditData->editPos = pSLEditData->dataEnd;
-//                    pSLEditData->caretOff = pSLEditData->editPos - newStartPos;
-//
-//                   SetCaretPos (pSLEditData->caretOff * GetSysCharWidth (hWnd)
-//                        + pSLEditData->leftMargin, pSLEditData->topMargin);
-//                   if (pSLEditData->startPos != newStartPos)
-//                        InvalidateRect (hWnd, NULL, FALSE);
-//                    
-//                    pSLEditData->startPos = newStartPos;
-//                }
-//                return 0;
+                case SCANCODE_ENTER:
+                    SendMessage (GetParent (hWnd), WM_COMMAND, 
+		    	(WPARAM) MAKELONG (pCtrl->id, EN_ENTER), (LPARAM) hWnd);
+                return 0;
+
+                case SCANCODE_HOME:
+                    if (pSLEditData->editPos == 0)
+                        return 0;
+
+                    pSLEditData->editPos  = 0;
+                    pSLEditData->caretOff = 0;
+
+                    SetCaretPos (pSLEditData->caretOff * GetSysCharWidth (hWnd) 
+                        + pSLEditData->leftMargin, pSLEditData->topMargin);
+                    if (pSLEditData->startPos != 0)
+                        InvalidateRect (hWnd, NULL, FALSE);
+                    
+                    pSLEditData->startPos = 0;
+                return 0;
+           
+                case SCANCODE_END:
+                {
+                    int newStartPos;
+                   
+                    if (pSLEditData->editPos == pSLEditData->dataEnd)
+                        return 0;
+
+                    newStartPos = edtGetStartDispPosAtEnd (pCtrl, pSLEditData);
+                    
+                    pSLEditData->editPos = pSLEditData->dataEnd;
+                    pSLEditData->caretOff = pSLEditData->editPos - newStartPos;
+
+                   SetCaretPos (pSLEditData->caretOff * GetSysCharWidth (hWnd)
+                        + pSLEditData->leftMargin, pSLEditData->topMargin);
+                   if (pSLEditData->startPos != newStartPos)
+                        InvalidateRect (hWnd, NULL, FALSE);
+                    
+                    pSLEditData->startPos = newStartPos;
+                }
+                return 0;
 #endif
 
-                case VK_LEFT: //SCANCODE_CURSORBLOCKLEFT:
+                case VK_LEFT: /* SCANCODE_CURSORBLOCKLEFT: */
                 {
                     BOOL bScroll = FALSE;
                     int  scrollStep;
@@ -713,7 +717,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 return 0;
                 
-                case VK_RIGHT: //SCANCODE_CURSORBLOCKRIGHT:
+                case VK_RIGHT: /* SCANCODE_CURSORBLOCKRIGHT: */
                 {
                     BOOL bScroll = FALSE;
                     int  scrollStep, moveStep;
@@ -782,14 +786,14 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 return 0;
 #if 0                
-//                case SCANCODE_INSERT:
-//                    pCtrl->userdata ^= EST_REPLACE;
-//                break;
+                case SCANCODE_INSERT:
+                    pCtrl->userdata ^= EST_REPLACE;
+                break;
 #endif
-                case VK_DELETE: //SCANCODE_REMOVE:
+                case VK_DELETE: /* SCANCODE_REMOVE: */
                     if ((pCtrl->userdata & EST_READONLY)
                             || (pSLEditData->editPos == pSLEditData->dataEnd)){
-	#if 0//fix: no ping()                        
+	#if 0	/* fix: no ping() */
 			Ping ();
 	#endif
                         return 0;
@@ -818,10 +822,12 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     InvalidateRect (hWnd, &InvRect, FALSE);
                 break;
 
-                case VK_BACK: //SCANCODE_BACKSPACE:
+                case VK_BACK: /* SCANCODE_BACKSPACE: */
                     if ((pCtrl->userdata & EST_READONLY)
                             || (pSLEditData->editPos == 0)) {
-                        //-Ping ();//fix: no ping
+#if 0 	/* fix: no ping */
+                        Ping ();
+#endif
                         return 0;
                     }
 
@@ -896,7 +902,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (dwStyle & ES_READONLY) {
 
-#if 0//fix: no ping()
+#if 0	/* fix: no ping() */
                 Ping();
 #endif
                 return 0;
@@ -915,15 +921,15 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (chars == 1) {
                 switch (charBuffer [0])
                 {
-                    case 0x00:  // NULL
-                    case 0x07:  // BEL
-                    case 0x08:  // BS
-                    case 0x09:  // HT
-                    case 0x0A:  // LF
-                    case 0x0B:  // VT
-                    case 0x0C:  // FF
-                    case 0x0D:  // CR
-                    case 0x1B:  // Escape
+                    case 0x00:  /* NULL */
+                    case 0x07:  /* BEL */
+                    case 0x08:  /* BS */
+                    case 0x09:  /* HT */
+                    case 0x0A:  /* LF */
+                    case 0x0B:  /* VT */
+                    case 0x0C:  /* FF */
+                    case 0x0D:  /* CR */
+                    case 0x1B:  /* Escape */
                     return 0;
                 }
             }
@@ -949,10 +955,10 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             else
                 inserting = chars;
 
-            // check space
+            /* check space */
             if (pSLEditData->dataEnd + inserting > pSLEditData->bufferLen) {
 
-#if 0//fix: no ping()
+#if 0	/* fix: no ping() */
                 Ping ();
 #endif
                 SendMessage (GetParent (hWnd), WM_COMMAND,
@@ -962,7 +968,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             else if ((pSLEditData->hardLimit >= 0) 
                         && ((pSLEditData->dataEnd + inserting) 
                             > pSLEditData->hardLimit)) {
-#if 0//fix: no ping()
+#if 0	/* fix: no ping() */
                 Ping ();
 #endif
                 SendMessage (GetParent (hWnd), WM_COMMAND,

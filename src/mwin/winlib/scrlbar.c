@@ -5,14 +5,13 @@
  *
  * Microwindows win32 Scrollbars control
  */
-
-#define MWINCLUDECOLORS//jmt: for color macros
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MWINCLUDECOLORS	/* jmt: for color macros */
 #include "windows.h"
 #include "wintern.h"
 #include "wintools.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>//printf
 
 /* scrollbar status/positions*/
 #define SBS_UNKNOWN		0x0000
@@ -31,8 +30,8 @@
 #define SBS_HIDE		0x8000
 
 
-#define MWM_DEFBARLEN	18//
-#define MWM_MINBARLEN	8//
+#define MWM_DEFBARLEN	18
+#define MWM_MINBARLEN	8
 
 static LRESULT CALLBACK
 ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -79,7 +78,7 @@ wndGetVScrollBarRect (HWND hwnd, RECT* rcVBar)
     	MWSCROLLBARINFO* pData;
 	
         pData = (MWSCROLLBARINFO *)hwnd->userdata;
-	rc = hwnd->winrect;//
+	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
@@ -99,7 +98,7 @@ wndGetHScrollBarRect (HWND hwnd, RECT* rcHBar)
     	MWSCROLLBARINFO* pData;
 	
         pData = (MWSCROLLBARINFO *)hwnd->userdata;
-	rc = hwnd->winrect;//
+	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
@@ -130,7 +129,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
     	MWSCROLLBARINFO* pData;
 	
         pData = (MWSCROLLBARINFO *)hwnd->userdata;
-	rc = hwnd->winrect;//
+	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
@@ -159,7 +158,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 		Draw3dUpDownState(hdc, rc.left,rc.bottom-cx,
 			cx, cx,
 			pData->status & SBS_DOWNARROW);
-//jmt: draw arrows
+/* jmt: draw arrows */
 		SelectObject(hdc,GetStockObject(BLACK_BRUSH));
 		/* up */
 		p3[0].x= rc.left + (cx/2) - 1;
@@ -178,11 +177,11 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 		p3[2].y= rc.bottom-cx + 2 + shrink;
 		Polygon(hdc,p3,3);
 
-        	// draw moving bar
+        	/* draw moving bar */
 
     		wndGetVScrollBarRect (hwnd, &rcVBar);
     		rcVBar.left -- ;
-    		//rcVBar.right -- ;
+    		/*rcVBar.right -- ;*/
 
         	start = rcVBar.top + cx + pData->barStart;
                     
@@ -206,11 +205,9 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 
         	Draw3dUpFrame (hdc, rcVBar.left, start, rcVBar.right,
 	    		start + pData->barLen);
-#if 0
-		printf("barv:(l,t,r,b):(%d,%d,%d,%d)\n",
+		/*printf("barv:(l,t,r,b):(%d,%d,%d,%d)\n",
         		rcVBar.left, start, rcVBar.right,
-	    		start + pData->barLen);
-#endif
+	    		start + pData->barLen);*/
 
 	}
 	if (horzbar) {
@@ -232,7 +229,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 		Draw3dUpDownState(hdc, rc.right-cy, rc.top,
 			cy, cy,
 			pData->status & SBS_RIGHTARROW);
-//jmt: draw arrows
+/* jmt: draw arrows */
 		SelectObject(hdc,GetStockObject(BLACK_BRUSH));
 		/* left */
 		p3[0].x= rc.left + 2 + shrink;
@@ -251,11 +248,11 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 		p3[2].y= rc.bottom - 4 - shrink + 1;
 		Polygon(hdc,p3,3);
 
-        	// draw moving bar.
+        	/* draw moving bar. */
 
     		wndGetHScrollBarRect (hwnd, &rcHBar);
     		rcHBar.top -- ;
-    		//rcHBar.bottom -- ;
+    		/*rcHBar.bottom -- ;*/
 
         	start = rcHBar.left + cy + pData->barStart;
 
@@ -279,11 +276,9 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 
         	Draw3dUpFrame (hdc, start, rcHBar.top, start + pData->barLen,
 	    		rcHBar.bottom);
-#if 0
-		printf("barh:(l,t,r,b):(%d,%d,%d,%d)\n",
+		/*printf("barh:(l,t,r,b):(%d,%d,%d,%d)\n",
         		start, rcHBar.top, start + pData->barLen,
-	    		rcHBar.bottom);
-#endif
+	    		rcHBar.bottom);*/
 	}
 
 	if (fGotDC)
@@ -292,7 +287,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 
 /* handle a non-client message for a scrollbar*/
 void
-MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWORD style)//
+MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWORD style)
 {
 	int	pos = SBS_UNKNOWN;
 	BOOL	vertbar = (style==SBS_VERT);
@@ -303,18 +298,18 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 
 	static BOOL bDraw;
 
-    	static int downPos = SBS_UNKNOWN;//
+    	static int downPos = SBS_UNKNOWN;
     	static int sbCode;
     	int newThumbPos;
 
-	int itemMoveable,itemCount,itemVisible,moveRange;//jmt:2k0819
-	int moveTop,moveBottom,moveLeft,moveRight;//jmt:2k0819
+	int itemMoveable,itemCount,itemVisible,moveRange;	/* jmt:2k0819 */
+	int moveTop,moveBottom,moveLeft,moveRight;	/* jmt:2k0819 */
 
 	int cx,cy;
     	MWSCROLLBARINFO* pData;
 	
         pData = (MWSCROLLBARINFO *)hwnd->userdata;
-	rc = hwnd->winrect;//
+	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
@@ -323,14 +318,14 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 		if (vertbar) 
 		{
 			pStat = &pData->status;
-			rc = hwnd->winrect;//
+			rc = hwnd->winrect;
 			rc.bottom = rc.top + cx;
 			if (PtInRect(&rc, pt)) 
 			{
 				pos = SBS_UPARROW;
 				break;
 			}
-			rc.bottom = hwnd->winrect.bottom;//
+			rc.bottom = hwnd->winrect.bottom;
 			rc.top = rc.bottom - cx;
 			if (PtInRect(&rc, pt)) 
 			{
@@ -341,13 +336,13 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 		} else if (horzbar) 
 		{
 			pStat = &pData->status;
-			rc = hwnd->winrect;//
+			rc = hwnd->winrect;
 			rc.right = rc.left + cy;
 			if (PtInRect(&rc, pt)) {
 				pos = SBS_LEFTARROW;
 				break;
 			}
-			rc.right = hwnd->winrect.right;//
+			rc.right = hwnd->winrect.right;
 			rc.left = rc.right - cy;
 			if (PtInRect(&rc, pt)) {
 				pos = SBS_RIGHTARROW;
@@ -364,7 +359,7 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 
 	*pStat &= ~SBS_MASK;		/* remove stray mouse states*/
 
-	if (msg == WM_NCLBUTTONDOWN || msg == WM_NCLBUTTONDBLCLK)//
+	if (msg == WM_NCLBUTTONDOWN || msg == WM_NCLBUTTONDBLCLK)
 		*pStat |= pos;
 	else *pStat &= ~pos;
 
@@ -374,19 +369,19 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 	if (bDraw)
 		MwPaintScrollbars(hwnd, NULL,style);
 
-        if (pos == SBS_UPARROW || pos == SBS_LEFTARROW)//jmt:2k0820 
+        if (pos == SBS_UPARROW || pos == SBS_LEFTARROW)	/* jmt:2k0820 */
 	{
                 if (pData->curPos != pData->minPos)
 			sbCode = SB_LINEUP;
         }
-        else if (pos == SBS_DOWNARROW || pos == SBS_RIGHTARROW)//jmt:2k0820 
+        else if (pos == SBS_DOWNARROW || pos == SBS_RIGHTARROW)	/* jmt:2k0820 */
 	{
                 if (pData->curPos != pData->maxPos)
 			sbCode = SB_LINEDOWN;
         }
-        else if (pos == SBS_VERTTHUMB || pos == SBS_HORZTHUMB)// 
+        else if (pos == SBS_VERTTHUMB || pos == SBS_HORZTHUMB)
 	{
-                sbCode = SB_THUMBTRACK;//
+                sbCode = SB_THUMBTRACK;
         }
 
 	switch(msg)
@@ -399,13 +394,13 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
         case WM_NCMOUSEMOVE:
 	    if (vertbar) 
 	    {
-		if (sbCode == SB_THUMBTRACK && downPos == SBS_VERTTHUMB)// 
+		if (sbCode == SB_THUMBTRACK && downPos == SBS_VERTTHUMB)
 	    	{
-			//jmt(2k0819): new algorithm for SB_THUMBTRACK
+			/* jmt(2k0819): new algorithm for SB_THUMBTRACK */
 
-			rc = hwnd->winrect;//
+			rc = hwnd->winrect;
 			moveTop = rc.top + cx;
-			moveBottom = hwnd->winrect.bottom - cx;//
+			moveBottom = hwnd->winrect.bottom - cx;
 			moveRange = moveBottom - moveTop;
 
 			itemCount = pData->maxPos - pData->minPos + 1;
@@ -415,7 +410,6 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 			newThumbPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
 				pt.y,moveTop,itemMoveable,moveRange,newThumbPos);
-			//#
 
                 	if ( newThumbPos >= pData->minPos &&
                     	     newThumbPos <= pData->maxPos)
@@ -431,9 +425,9 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 	    }
 	    if (horzbar) 
 	    {
-		if (sbCode == SB_THUMBTRACK && downPos == SBS_HORZTHUMB)// 
+		if (sbCode == SB_THUMBTRACK && downPos == SBS_HORZTHUMB)
 		{
-			//jmt(2k0819): new algorithm for SB_THUMBTRACK
+			/* jmt(2k0819): new algorithm for SB_THUMBTRACK */
 
 			rc = hwnd->winrect;
 			moveLeft = rc.left + cy;
@@ -447,7 +441,6 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 			newThumbPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
 				pt.y,moveLeft,itemMoveable,moveRange,newThumbPos);
-			//#
 			    
 			if ( newThumbPos >= pData->minPos &&
 			     newThumbPos <= pData->maxPos)
@@ -465,13 +458,13 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 
 	case WM_NCLBUTTONUP:
 	    bDraw=FALSE;
-	    downPos = SBS_UNKNOWN;//
+	    downPos = SBS_UNKNOWN;
 
 	    if (sbCode==SB_THUMBTRACK)
 	    {
 		    if (vertbar) 
 		    {
-			//jmt(2k0819): new algorithm for SB_THUMBTRACK
+			/* jmt(2k0819): new algorithm for SB_THUMBTRACK */
 
 			rc = hwnd->winrect;
 			moveTop = rc.top + cx;
@@ -485,7 +478,6 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 			newThumbPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
 				pt.y,moveTop,itemMoveable,moveRange,newThumbPos);
-			//#
 
 			if ( newThumbPos >= pData->minPos &&
 			     newThumbPos <= pData->maxPos)
@@ -496,11 +488,11 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 				SendMessage (GetParent(hwnd),
 					WM_VSCROLL, SB_THUMBTRACK, newThumbPos);
 			}
-			break;//case
+			break;	/* case */
 		    }
 		    if (horzbar) 
 		    {
-			//jmt(2k0819): new algorithm for SB_THUMBTRACK
+			/* jmt(2k0819): new algorithm for SB_THUMBTRACK */
 
 			rc = hwnd->winrect;
 			moveLeft = rc.left + cy;
@@ -514,7 +506,6 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 			newThumbPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
 				pt.y,moveLeft,itemMoveable,moveRange,newThumbPos);
-			//#
 				    
 			if ( newThumbPos >= pData->minPos &&
 			     newThumbPos <= pData->maxPos)
@@ -525,7 +516,7 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 			    SendMessage (GetParent(hwnd),
 					WM_HSCROLL, SB_THUMBTRACK, newThumbPos);
 			}
-			break;//case
+			break;	/* case */
 		    }
 	    }
 	    else
@@ -557,14 +548,14 @@ PtInRect2(const RECT *lprc, int x, int y)
 }
 
 static void
-wndScrollBarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)//jmt: 2k0820
+wndScrollBarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)	/* jmt: 2k0820 */
 {
     UINT moveRange;
     PMWSCROLLBARINFO pSBar;
     int cx,cy;
     RECT rc;
 	
-    rc = hwnd->winrect;//
+    rc = hwnd->winrect;
     cx=rc.right-rc.left;
     cy=rc.bottom-rc.top;
     pSBar = (MWSCROLLBARINFO *)hwnd->userdata;
@@ -607,7 +598,7 @@ wndScrollBarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)//jmt: 2k0820
         pSBar->barStart = 0;
 }
 
-static PMWSCROLLBARINFO wndGetScrollBar (HWND pWin)//jmt: 2k0820
+static PMWSCROLLBARINFO wndGetScrollBar (HWND pWin)	/* jmt: 2k0820 */
 {
     	MWSCROLLBARINFO* pData;
 	
@@ -619,18 +610,18 @@ static PMWSCROLLBARINFO wndGetScrollBar (HWND pWin)//jmt: 2k0820
     		return NULL;
 }
 
-BOOL EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)//jmt: iSBar not used
+BOOL EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
     BOOL bPrevState;
     RECT rcBar;
     
-    DWORD dwStyle;//jmt:2k0820
+    DWORD dwStyle;	/* jmt:2k0820 */
 
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )//ok
+    if ( !(pSBar = wndGetScrollBar (pWin)) )
         return FALSE;
 
     bPrevState = !(pSBar->status & SBS_DISABLED);
@@ -642,9 +633,9 @@ BOOL EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)//jmt: iSBar not used
     else
         return FALSE;
 
-    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);//jmt: 2k0820
+    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);	/* jmt: 2k0820 */
 
-    if (dwStyle == SBS_VERT)//
+    if (dwStyle == SBS_VERT)
     {
         wndGetVScrollBarRect (pWin, &rcBar);
         rcBar.left --;
@@ -659,13 +650,13 @@ BOOL EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)//jmt: iSBar not used
 #if 0
     SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
 #else
-    MwPaintScrollbars(hWnd,NULL,dwStyle);//a must
+    MwPaintScrollbars(hWnd,NULL,dwStyle);	/* a must */
 #endif
 
     return TRUE;
 }
 
-BOOL GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)//jmt: iSBar not used
+BOOL GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -679,7 +670,7 @@ BOOL GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)//jmt: iSBar not used
     return TRUE;
 }
 
-BOOL GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)//jmt: iSBar not used
+BOOL GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -694,13 +685,13 @@ BOOL GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)//jmt: i
     return TRUE;
 }
 
-BOOL SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)//jmt: iSBar not used
+BOOL SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
     RECT rcBar;
     
-    DWORD dwStyle;//jmt:2k0820
+    DWORD dwStyle;	/* jmt:2k0820 */
 
     pWin = (HWND)hWnd;
     
@@ -720,7 +711,7 @@ BOOL SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)//jmt: iSBar not used
             pSBar->curPos = max;
     }
     
-    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);//jmt: 2k0820
+    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);	/* jmt: 2k0820 */
 
     if (dwStyle == SBS_VERT)
     {
@@ -740,18 +731,18 @@ BOOL SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)//jmt: iSBar not used
 #if 0
     SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
 #else
-    MwPaintScrollbars(hWnd,NULL,dwStyle);//a must
+    MwPaintScrollbars(hWnd,NULL,dwStyle);	/* a must */
 #endif
     return TRUE;
 }
 
-BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)//jmt: iSBar not used
+BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
     RECT rcBar;
     
-    DWORD dwStyle;//jmt:2k0820
+    DWORD dwStyle;	/* jmt:2k0820 */
 
     pWin = (HWND)hWnd;
     
@@ -761,7 +752,7 @@ BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)//jmt: iSB
     pSBar->minPos = (iMinPos < iMaxPos)?iMinPos:iMaxPos;
     pSBar->maxPos = (iMinPos > iMaxPos)?iMinPos:iMaxPos;
     
-    // validate parameters.
+    /* validate parameters. */
     if (pSBar->curPos < pSBar->minPos)
         pSBar->curPos = pSBar->minPos;
 
@@ -778,7 +769,7 @@ BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)//jmt: iSB
             pSBar->curPos = max;
     }
 
-    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);//jmt: 2k0820
+    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);	/* jmt: 2k0820 */
 
     if (dwStyle == SBS_VERT)
     {
@@ -797,20 +788,20 @@ BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)//jmt: iSB
 #if 0
     SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
 #else
-    MwPaintScrollbars(hWnd,NULL,dwStyle);//a must
+    MwPaintScrollbars(hWnd,NULL,dwStyle);	/* a must */
 #endif
 
     return TRUE;
 }
 
 BOOL SetScrollInfoEx (HWND hWnd, int iSBar, 
-                LPCSCROLLINFO lpsi, BOOL fRedraw)//jmt: iSBar not used
+                LPCSCROLLINFO lpsi, BOOL fRedraw)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
     RECT rcBar;
     
-    DWORD dwStyle;//jmt:2k0820
+    DWORD dwStyle;	/* jmt:2k0820 */
 
     pWin = (HWND)hWnd;
     
@@ -829,7 +820,7 @@ BOOL SetScrollInfoEx (HWND hWnd, int iSBar,
     if( lpsi->fMask & SIF_PAGE )
         pSBar->pageStep = lpsi->nPage;
 
-    // validate parameters.
+    /* validate parameters. */
     if (pSBar->curPos < pSBar->minPos)
         pSBar->curPos = pSBar->minPos;
 
@@ -846,7 +837,7 @@ BOOL SetScrollInfoEx (HWND hWnd, int iSBar,
             pSBar->curPos = max;
     }
 
-    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);//jmt: 2k0820
+    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);	/* jmt: 2k0820 */
 
     if(fRedraw)
     {
@@ -867,14 +858,14 @@ BOOL SetScrollInfoEx (HWND hWnd, int iSBar,
 #if 0
         SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
 #else
-	MwPaintScrollbars(hWnd,NULL,dwStyle);//a must
+	MwPaintScrollbars(hWnd,NULL,dwStyle);	/* a must */
 #endif
     }
     
     return TRUE;
 }
 
-BOOL GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)//jmt: iSBar not used
+BOOL GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -901,14 +892,14 @@ BOOL GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)//jmt: iSBar not us
     return TRUE;
 }
 
-BOOL ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)//jmt: iSBar not used
+BOOL ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
     BOOL bPrevState;
     RECT rcBar;
     
-    DWORD dwStyle;//jmt:2k0820
+    DWORD dwStyle;	/* jmt:2k0820 */
 
     pWin = (HWND)hWnd;
     
@@ -924,11 +915,11 @@ BOOL ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)//jmt: iSBar not used
     else
         return FALSE;
 
-#if 0//fix: no WM_CHANGESIZE
+#if 0	/* fix: no WM_CHANGESIZE */
     SendMessage (hWnd, WM_CHANGESIZE, 0, 0);
 #endif
 
-    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);//jmt: 2k0820
+    dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);	/* jmt: 2k0820 */
 
     if (dwStyle == SBS_VERT)
         wndGetVScrollBarRect (pWin, &rcBar);
@@ -944,7 +935,7 @@ BOOL ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)//jmt: iSBar not used
         rcClient.top  = 0;
         rcClient.right = pWin->clirect.right - pWin->clirect.left;
         rcClient.bottom = pWin->clirect.bottom - pWin->clirect.top;
-#if 0//fix: no WM_SIZECHANGED
+#if 0	/* fix: no WM_SIZECHANGED */
         SendMessage (hWnd, WM_SIZECHANGED, 
             (WPARAM)&rcWin, (LPARAM)&rcClient);
 #endif
@@ -965,7 +956,7 @@ BOOL ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)//jmt: iSBar not used
     return TRUE;
 }
 
-static void sbSetScrollInfo (HWND hwnd, PMWSCROLLBARINFO pData, BOOL fRedraw)//jmt:2k0820
+static void sbSetScrollInfo (HWND hwnd, PMWSCROLLBARINFO pData, BOOL fRedraw)	/* jmt:2k0820 */
 {
     SCROLLINFO si;
 
@@ -976,8 +967,8 @@ static void sbSetScrollInfo (HWND hwnd, PMWSCROLLBARINFO pData, BOOL fRedraw)//j
 
     if (itemVisibles >= itemCount) 
     {
-	SetScrollPosEx (hwnd, 0, 0);//jmt: arg2 not used
-	EnableScrollBarEx (hwnd, 0, FALSE);//jmt: arg2 not used
+	SetScrollPosEx (hwnd, 0, 0);	/* jmt: arg2 not used */
+	EnableScrollBarEx (hwnd, 0, FALSE);	/* jmt: arg2 not used */
         return;
     }
     
@@ -985,16 +976,16 @@ static void sbSetScrollInfo (HWND hwnd, PMWSCROLLBARINFO pData, BOOL fRedraw)//j
     si.nMax = itemCount - 1;
     si.nMin = 0;
 
-    si.nPage = itemVisibles;//jmt(2k0819): new algorithm for SB_THUMBTRACK
+    si.nPage = itemVisibles;	/* jmt(2k0819): new algorithm for SB_THUMBTRACK */
 
     si.nPos = pData->curPos;
 
-    SetScrollInfoEx (hwnd, 0, &si, fRedraw);//jmt: arg2 not used
-    EnableScrollBarEx (hwnd, 0, TRUE);//jmt: arg2 not used
+    SetScrollInfoEx (hwnd, 0, &si, fRedraw);	/* jmt: arg2 not used */
+    EnableScrollBarEx (hwnd, 0, TRUE);	/* jmt: arg2 not used */
 }
 
 static LRESULT CALLBACK
-ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)//jmt:2k0820
+ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* jmt:2k0820 */
 {
     	DWORD dwStyle;
     	MWSCROLLBARINFO* pData;
@@ -1042,8 +1033,8 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)//jm
 		pData->barStart=0;           /* start pixel of bar.*/
 		pData->barLen=MWM_MINBARLEN; /* length of bar.*/
 		pData->status=SBS_UNKNOWN;   /* status of scroll bar.*/
-#if 0//jmt: must handle WM_MOVE
-		//?pData->rc=hwnd->winrect;   /* screen coordinates position*/
+#if 0	/* jmt: must handle WM_MOVE */
+		pData->rc=hwnd->winrect;   /* screen coordinates position*/
 #endif
             	hwnd->userdata = (DWORD)pData;
 
@@ -1059,7 +1050,7 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)//jm
 		    rcBar.top --;
 		    rcBar.bottom --;
 		}
-		//adjust pData->barLen
+		/* adjust pData->barLen */
 		wndScrollBarPos (hwnd, dwStyle == SBS_HORZ, &rcBar);
 
         	break;
@@ -1083,7 +1074,6 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)//jm
         case WM_VSCROLL:
         {
             int newTop,itemCount,itemVisibles;
-            //int scrollHeight = 0;
 
 	    pData = (MWSCROLLBARINFO *)hwnd->userdata;
             newTop = pData->curPos;

@@ -28,19 +28,19 @@
 **  provisions of the MPL License are applicable instead of those above.
 */
 
-// Create date: 1999/5/22
-//
-// Modify records:
-//
-//  Who             When        Where       For What                Status
-//-----------------------------------------------------------------------------
-//  WEI Yongming    1999/8/21   Tsinghua    Rearrangment            Finished
-//  WEI Yongming    1999/10/27  Tsinghua    SETTEXT bug             Finished
-//  WEI Yongming    1999/10/27  Tsinghua    SETTEXT bug             Finished
-//  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
-//  Kevin Tseng     2000/06/26  gv          port to microwin        ported
-//  Greg Haerr      2000/07/05  Utah        bug fixes               Finished
-//
+/* Create date: 1999/5/22
+**
+** Modify records:
+**
+**  Who             When        Where       For What                Status
+**-----------------------------------------------------------------------------
+**  WEI Yongming    1999/8/21   Tsinghua    Rearrangment            Finished
+**  WEI Yongming    1999/10/27  Tsinghua    SETTEXT bug             Finished
+**  WEI Yongming    1999/10/27  Tsinghua    SETTEXT bug             Finished
+**  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
+**  Kevin Tseng     2000/06/26  gv          port to microwin        ported
+**  Greg Haerr      2000/07/05  Utah        bug fixes               Finished
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,6 +49,9 @@
 #include "windows.h"	/* windef.h, winuser.h */
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
+
+/* jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX() */
+#define FONT_NAME	SYSTEM_FIXED_FONT	/* was DEFAULT_GUI_FONT*/
 
 static LRESULT CALLBACK
 StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -94,7 +97,7 @@ static char *GetWindowCaption (HWND hwnd)
 
 static void SetWindowCaption (HWND hwnd,char *caption)
 {
-	if (strlen(caption)<=63)//mw: szTitle[64]
+	if (strlen(caption)<=63)	/* mw: szTitle[64] */
 		strcpy(hwnd->szTitle,caption);
 	else
 	{
@@ -110,11 +113,9 @@ static int GetSysCharHeight (HWND hwnd)
 
     	hdc = GetDC(hwnd);
 
-//jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX()
-	//-SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
-	SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
+	SelectObject(hdc, GetStockObject(FONT_NAME));
 
-#if MWCLIENT//nanox client
+#if MWCLIENT	/* nanox client */
     	GrGetGCTextSize(hdc->gc, "X", 1, MWTF_ASCII, &xw, &xh, &xb);
 #else
     	GdGetTextSize(hdc->font->pfont,"X",1, &xw,&xh,&xb,MWTF_ASCII);
@@ -131,11 +132,9 @@ static int GetSysCharWidth (HWND hwnd)
 
     	hdc = GetDC(hwnd);
 
-//jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX()
-	//-SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
-	SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
+	SelectObject(hdc, GetStockObject(FONT_NAME));
 
-#if MWCLIENT//nanox client
+#if MWCLIENT	/* nanox client */
     	GrGetGCTextSize(hdc->gc, "X", 1, MWTF_ASCII, &xw, &xh, &xb);
 #else
     	GdGetTextSize(hdc->font->pfont,"X",1, &xw,&xh,&xb,MWTF_ASCII);
@@ -151,7 +150,6 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     RECT        rcClient;
     HDC         hdc;
-    //?HICON       hIcon;//fix
     char*       spCaption;
     HWND    	pCtrl;
     UINT        uFormat;
@@ -192,7 +190,7 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             GetClientRect (hwnd, &rcClient);
 
-	    FastFillRect(hdc, &rcClient, GetSysColor(COLOR_BTNFACE));//cms+
+	    FastFillRect(hdc, &rcClient, GetSysColor(COLOR_BTNFACE));
 
             dwStyle = GetWindowStyle (hwnd);
 
@@ -220,14 +218,14 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
                 
                 case SS_BITMAP:
-#if 0//jmt: fix: no FillBoxWithBitmap()
+#if 0	/* jmt: fix: no FillBoxWithBitmap() */
                     FillBoxWithBitmap(hdc, 0, 0, 0, 0,
                         (PBITMAP)(pCtrl->userdata));
 #endif
                 break;
                 
                 case SS_ICON:
-#if 0//jmt: fix: no DrawIcon
+#if 0	/* jmt: fix: no DrawIcon */
                     hIcon = (HICON)(pCtrl->userdata);
                     DrawIcon (hdc, 0, 0, 0, 0, hIcon);
 #endif
@@ -247,14 +245,11 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         SetTextColor (hdc, DKGRAY);
                     else
                         SetTextColor (hdc, BLACK);
-
-                    //-SetBkColor (hdc, GetWindowBkColor (hwnd));//ok
-		    SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));//cms+
+		    SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
                     spCaption = GetWindowCaption (hwnd);
                     if (spCaption)
 		    {
-	    		//-SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
-	    		SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
+	    		SelectObject(hdc, GetStockObject(FONT_NAME));
                         TextOut (hdc, 0, 0, spCaption, -1); 
 		    }
                 break; 
@@ -278,16 +273,17 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                     else
                         SetTextColor (hdc, BLACK);
 
-                    //-SetBkColor (hdc, GetWindowBkColor (hwnd));//ok
-		    SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));//cms+
+#if 0
+                    SetBkColor (hdc, GetWindowBkColor (hwnd));
+#endif
+		    SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
                     spCaption = GetWindowCaption (hwnd);
                     if (dwStyle & SS_NOPREFIX)
                         uFormat |= DT_NOPREFIX;
                         
                     if (spCaption)
 		    {
-	    		//-SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
-	    		SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
+	    		SelectObject(hdc, GetStockObject(FONT_NAME));
                         DrawText (hdc, spCaption, -1, &rcClient, uFormat);
 		    }
                 break;
@@ -308,13 +304,14 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                     else
                         SetTextColor (hdc, BLACK);
 
-                    //-SetBkColor(hdc, GetWindowBkColor (GetParent (hwnd)));
-		    SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));//cms+
+#if 0
+                    SetBkColor(hdc, GetWindowBkColor (GetParent (hwnd)));
+#endif
+		    SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
                     spCaption = GetWindowCaption (hwnd);
                     if (spCaption)
 		    {
-	    		//-SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
-	    		SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
+	    		SelectObject(hdc, GetStockObject(FONT_NAME));
                         TextOut (hdc, GetSysCharWidth (hwnd), 2, spCaption, -1);
 		    }
                 break;
@@ -323,7 +320,7 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
             break;
 
-#if 0//jmt: SS_NOTIFY isn't standard in win32
+#if 0	/* jmt: SS_NOTIFY isn't standard in win32 */
         case WM_LBUTTONDBLCLK:
             if (GetWindowStyle (hwnd) & SS_NOTIFY)
                 SendMessage (GetParent(hwnd), WM_COMMAND, 
@@ -345,7 +342,7 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             if ((dwStyle & SS_TYPEMASK) == SS_GROUPBOX)
                 return HTTRANSPARENT;
 
-#if 0//jmt: SS_NOTIFY isn't standard in win32
+#if 0	/* jmt: SS_NOTIFY isn't standard in win32 */
             if (GetWindowStyle (hwnd) & SS_NOTIFY)
                 return HTCLIENT;
             else
@@ -354,7 +351,7 @@ StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
 
-#if 0//jmt: fix: no WM_GETFONT/WM_SETFONT
+#if 0	/* jmt: fix: no WM_GETFONT/WM_SETFONT */
         case WM_GETFONT:
             break;
         case WM_SETFONT:

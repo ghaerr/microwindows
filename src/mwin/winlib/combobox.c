@@ -1758,12 +1758,7 @@ static void CBoxDrawStatic(COMBOBOX *lp, HWND hWnd, UINT uiKey)
 
 
 /*------------------------- < Full Revision History > ----------------------
-** $Log: combobox.c,v $
-** Revision 1.3  2001/11/15 22:49:26  greg
-** Removed cpp comments
-**
 ** Revision 1.2  2001/11/06 23:35:46  greg
-** *** empty log message ***
 **
 ** Revision 1.1.1.1  2001/06/21 06:32:42  greg
 ** Microwindows pre8 with patches

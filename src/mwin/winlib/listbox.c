@@ -28,31 +28,31 @@
 **  provisions of the MPL License are applicable instead of those above.
 */
 
-// Note:
-//  Although there was a version by Zhao Jianghua, this version of
-//  LISTBOX control is written by Wei Yongming from scratch.
-//
-// Modify records:
-//
-//  Who             When        Where       For What                Status
-//-----------------------------------------------------------------------------
-//  Wei Yongming    1999/10/18  Tsinghua    Item Additional Data    Finished
-//  Wei Yongming    1999/10/31  Tsinghua    Space bar for checkmark Finished
-//  Wei Yongming    1999/10/31  Tsinghua    Character match item    Finished
-//  Wei Yongming    1999/11/07  Tsinghua    Character match item    Bug fixing
-//  WEI Yongming    2000/01/20  Tsinghua    Thumb dragging          Finished
-//  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
-//  Kevin Tseng     2000/05/26  gv          port to microwin        ported
-//  Greg Haerr      2000/06/15  Utah        3d look, bug fixes      Finished
-//  Kevin Tseng     2000/06/22  gv          port to mw-nanox        ported
-//  Kevin Tseng     2000/06/22  gv          fixed bug if no item    Finished
-//  Kevin Tseng     2000/08/08  gv          enable scrollbar(V)     porting
-//  Kevin Tseng     2000/08/10  gv          enable scrollbar(V)     ported
-//  Kevin Tseng     2000/08/10  gv          WM_CHAR, WM_KEYDOWN     ported
-//
-// TODO:
-// 1. Multiple columns support.
-//
+/* Note:
+**  Although there was a version by Zhao Jianghua, this version of
+**  LISTBOX control is written by Wei Yongming from scratch.
+**
+** Modify records:
+**
+**  Who             When        Where       For What                Status
+**-----------------------------------------------------------------------------
+**  Wei Yongming    1999/10/18  Tsinghua    Item Additional Data    Finished
+**  Wei Yongming    1999/10/31  Tsinghua    Space bar for checkmark Finished
+**  Wei Yongming    1999/10/31  Tsinghua    Character match item    Finished
+**  Wei Yongming    1999/11/07  Tsinghua    Character match item    Bug fixing
+**  WEI Yongming    2000/01/20  Tsinghua    Thumb dragging          Finished
+**  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
+**  Kevin Tseng     2000/05/26  gv          port to microwin        ported
+**  Greg Haerr      2000/06/15  Utah        3d look, bug fixes      Finished
+**  Kevin Tseng     2000/06/22  gv          port to mw-nanox        ported
+**  Kevin Tseng     2000/06/22  gv          fixed bug if no item    Finished
+**  Kevin Tseng     2000/08/08  gv          enable scrollbar(V)     porting
+**  Kevin Tseng     2000/08/10  gv          enable scrollbar(V)     ported
+**  Kevin Tseng     2000/08/10  gv          WM_CHAR, WM_KEYDOWN     ported
+**
+** TODO:
+** 1. Multiple columns support.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,18 +75,18 @@
 #define CMFLAG_CHECKED      1
 #define CMFLAG_PARTCHECKED  2
 typedef struct _LISTBOXITEMINFO {
-    int     insPos;         // insert position
-    char*   string;         // item string
-    int     cmFlag;         // check mark flag
-    HICON   hIcon;          // handle of icon
+    int     insPos;         /* insert position */
+    char*   string;         /* item string */
+    int     cmFlag;         /* check mark flag */
+    HICON   hIcon;          /* handle of icon */
 } LISTBOXITEMINFO, *PLISTBOXITEMINFO;
 
 typedef struct _LISTBOXITEM {
-    char*   key;                // item sort key
-    DWORD   dwFlags;            // item flags
-    DWORD   dwData;             // item data
-    DWORD   dwAddData;          // item additional data
-    struct  _LISTBOXITEM* next;  // next item
+    char*   key;                /* item sort key */
+    DWORD   dwFlags;            /* item flags */
+    DWORD   dwData;             /* item data */
+    DWORD   dwAddData;          /* item additional data */
+    struct  _LISTBOXITEM* next;  /* next item */
 } LISTBOXITEM, *PLISTBOXITEM;
 
 #define DEF_LB_BUFFER_LEN       5
@@ -95,21 +95,21 @@ typedef struct _LISTBOXITEM {
 #define LBF_NOTHINGSELECTED	0x0002
 
 typedef struct _LISTBOXDATA {
-    DWORD dwFlags;          // listbox flags
+    DWORD dwFlags;          /* listbox flags */
 
-    int itemCount;          // items count
-    int itemTop;            // start display item
-    int itemVisibles;       // number of visible items
+    int itemCount;          /* items count */
+    int itemTop;            /* start display item */
+    int itemVisibles;       /* number of visible items */
 
-    int itemHilighted;      // current hilighted item
-    int itemHeight;         // item height
+    int itemHilighted;      /* current hilighted item */
+    int itemHeight;         /* item height */
 
-    LISTBOXITEM* head;      // items linked list head
+    LISTBOXITEM* head;      /* items linked list head */
 
-    int buffLen;            // buffer length
-    LISTBOXITEM* buffStart; // buffer start
-    LISTBOXITEM* buffEnd;   // buffer end
-    LISTBOXITEM* freeList;  // free list in buffer 
+    int buffLen;            /* buffer length */
+    LISTBOXITEM* buffStart; /* buffer start */
+    LISTBOXITEM* buffEnd;   /* buffer end */
+    LISTBOXITEM* freeList;  /* free list in buffer */
 } LISTBOXDATA, *PLISTBOXDATA;
 
 void ListboxControlCleanup ();
@@ -167,15 +167,15 @@ static BOOL lstInitListBoxData (HWND hwnd,LISTBOXDATA* pData, int len)
     
     memset (pData, 0, sizeof (LISTBOXDATA));
 #if 0
-//- pData->itemHeight = GetSysCharHeight ();
+    pData->itemHeight = GetSysCharHeight ();
 #else
     hdc=GetDC(hwnd);
-#if MWCLIENT//nanox client
-    GrSetGCFont(hdc->gc,hdc->font->fontid);//+
+#if MWCLIENT	/* nanox client */
+    GrSetGCFont(hdc->gc,hdc->font->fontid);
     GrGetGCTextSize(hdc->gc,"X",1,
 		MWTF_ASCII,&xw,&xh,&xb);
 #else
-    GdSetFont(hdc->font->pfont);//+
+    GdSetFont(hdc->font->pfont);
     GdGetTextSize(hdc->font->pfont,"X",1,
 		&xw,&xh,&xb,MWTF_ASCII);
 #endif
@@ -185,7 +185,7 @@ static BOOL lstInitListBoxData (HWND hwnd,LISTBOXDATA* pData, int len)
     pData->itemHilighted = 0;
     pData->dwFlags = LBF_NOTHINGSELECTED;
 
-    // init item buffer.
+    /* init item buffer. */
     if (!(pData->buffStart = malloc (len * sizeof (LISTBOXITEM))))
         return FALSE;
 
@@ -229,7 +229,9 @@ static void lstResetListBoxContent (PLISTBOXDATA pData)
     pData->itemCount = 0;
     pData->itemTop = 0;
     pData->itemHilighted = 0;
-//    pData->itemVisibles = 0;
+#if 0
+    pData->itemVisibles = 0;
+#endif
 
     plbi = pData->head;
     while (plbi) {
@@ -530,7 +532,7 @@ static void lstOnDrawSListBoxItems (HDC hdc, DWORD dwStyle,
                 offset = LST_WIDTH_CHECKMARK << 1;
             else
                 offset = LST_WIDTH_CHECKMARK;
-#if 0//fix: no bitmap            
+#if 0	/* fix: no bitmap */
             FillBoxWithBitmapPart (hdc, 
                 x, y + ((pData->itemHeight - LST_HEIGHT_CHECKMARK)>>1),
                 LST_WIDTH_CHECKMARK, LST_HEIGHT_CHECKMARK,
@@ -540,7 +542,7 @@ static void lstOnDrawSListBoxItems (HDC hdc, DWORD dwStyle,
 #endif
             x += LST_WIDTH_CHECKMARK + LST_INTER_BMPTEXT;
         }
-#if 0//fix: no icon
+#if 0	/* fix: no icon */
         if (dwStyle & LBS_USEICON && plbi->dwData) {
             DrawIcon (hdc, 
                 x, y, pData->itemHeight, pData->itemHeight, 
@@ -549,8 +551,10 @@ static void lstOnDrawSListBoxItems (HDC hdc, DWORD dwStyle,
         }
 #endif
 
-//jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX()
-	//-SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
+/* jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX() */
+#if 0
+	SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
+#endif
 	SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
         TextOut (hdc, x+2, y, plbi->key,-1);
 
@@ -565,7 +569,7 @@ static int lstSelectItem (DWORD dwStyle, PLISTBOXDATA pData, int newSel)
     int index;
     
     newItem = lstGetItem (pData, newSel);
-#if 1//jmt: fixed if no item added
+#if 1	/* jmt: fixed if no item added */
     if (!newItem) return -1;
 #endif 
 #ifdef _DEBUG
@@ -609,16 +613,21 @@ static void lstDrawFocusRect (HDC hdc, PLISTBOXDATA pData, RECT* rc)
 
     if (pData->dwFlags & LBF_FOCUS) {
         lstGetItemsRect (pData, pData->itemHilighted, pData->itemHilighted, rc);
-        //InflateRect (rc, -1, -1);
 #if 0
+        InflateRect (rc, -1, -1);
+
         FocusRect (hdc, rc->left - 1, rc->top, rc->right, rc->bottom);
 #else
 	oldbrush=SelectObject(hdc, GetStockObject(NULL_BRUSH));
 	oldpen=SelectObject(hdc, CreatePen(PS_SOLID, 1,
 				GetSysColor(COLOR_BTNHIGHLIGHT)));
-	//GdSetMode(MWMODE_XOR);
+#if 0
+	GdSetMode(MWMODE_XOR);
+#endif
         Rectangle (hdc, rc->left, rc->top, rc->right, rc->bottom);
-	//GdSetMode(MWMODE_SET);
+#if 0
+	GdSetMode(MWMODE_SET);
+#endif
 	SelectObject(hdc,oldbrush);
 	DeleteObject(SelectObject(hdc,oldpen));
 #endif
@@ -630,7 +639,7 @@ static void lstCalcParams (const RECT* rcClient, PLISTBOXDATA pData)
 #define RECTHP(prc)  (prc->bottom - prc->top)
     pData->itemVisibles = (RECTHP (rcClient)) / pData->itemHeight;
 
-#if 1//test calculation of itemVisibles
+#if 1	/* test calculation of itemVisibles */
     if( ((RECTHP (rcClient)) % pData->itemHeight) )
     	pData->itemVisibles++;
 #endif
@@ -639,7 +648,7 @@ static void lstCalcParams (const RECT* rcClient, PLISTBOXDATA pData)
 extern BOOL SetScrollPos (HWND hWnd, int iSBar, int iNewPos);
 extern BOOL EnableScrollBar (HWND hWnd, int iSBar, BOOL bEnable);
 
-static void lstSetVScrollInfo (HWND hwnd, PLISTBOXDATA pData, BOOL fRedraw)//ok
+static void lstSetVScrollInfo (HWND hwnd, PLISTBOXDATA pData, BOOL fRedraw)
 {
     SCROLLINFO si;
 
@@ -1346,7 +1355,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (pData->itemHilighted != hit) 
 	    {
-                hdc = GetDC(hwnd); //hdc = GetClientDC (hwnd);
+                hdc = GetDC(hwnd); /* hdc = GetClientDC (hwnd); */
 
                 lstDrawFocusRect (hdc, pData, &rcInv);
                 ReleaseDC (hwnd,hdc);
@@ -1355,7 +1364,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (dwStyle & LBS_CHECKBOX) {
                 if (mouseX > 0 && mouseX < LST_WIDTH_CHECKMARK) {
-                    NotifyParent (hwnd, pCtrl->id, LBN_CLICKCHECKMARK);//?
+                    NotifyParent (hwnd, pCtrl->id, LBN_CLICKCHECKMARK);
                     
                     if (dwStyle & LBS_AUTOCHECK) {
                         PLISTBOXITEM plbi;
@@ -1397,12 +1406,12 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             newSel = pData->itemHilighted;
             switch (LOWORD (wParam))
             {
-                case VK_HOME://SCANCODE_HOME:
+                case VK_HOME:	/* SCANCODE_HOME: */
                     newSel = 0;
                     newTop = 0;
                 break;
                 
-                case VK_END://SCANCODE_END:
+                case VK_END:	/* SCANCODE_END: */
                     newSel = pData->itemCount - 1;
                     if (pData->itemCount > pData->itemVisibles)
                         newTop = pData->itemCount - pData->itemVisibles;
@@ -1410,7 +1419,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         newTop = 0;
                 break;
                 
-                case VK_DOWN://SCANCODE_CURSORBLOCKDOWN:
+                case VK_DOWN:	/* SCANCODE_CURSORBLOCKDOWN: */
                     newSel ++;
                     if (newSel >= pData->itemCount)
                         return 0;
@@ -1418,7 +1427,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         newTop ++;
                 break;
                 
-                case VK_UP://SCANCODE_CURSORBLOCKUP:
+                case VK_UP:	/* SCANCODE_CURSORBLOCKUP: */
                     newSel --;
                     if (newSel < 0)
                         return 0;
@@ -1426,7 +1435,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         newTop --;
                 break;
                 
-                case VK_NEXT://SCANCODE_PAGEDOWN:
+                case VK_NEXT:	/* SCANCODE_PAGEDOWN: */
                     newSel += pData->itemVisibles;
                     if (newSel >= pData->itemCount)
                         newSel = pData->itemCount - 1;
@@ -1437,7 +1446,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         newTop = max (pData->itemCount-pData->itemVisibles, 0);
                 break;
 
-                case VK_PRIOR://SCANCODE_PAGEUP:
+                case VK_PRIOR:	/* SCANCODE_PAGEUP: */
                     newSel -= pData->itemVisibles;
                     if (newSel < 0)
                         newSel = 0;
@@ -1484,7 +1493,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         lstGetItemsRect (pData, pData->itemHilighted,
                                                 pData->itemHilighted, &rcInv);
 
-                	hdc = GetDC(hwnd); //hdc = GetClientDC (hwnd);
+                	hdc = GetDC(hwnd); /* hdc = GetClientDC (hwnd); */
 
                         lstDrawFocusRect (hdc, pData, &rcInv);
                         ReleaseDC (hwnd,hdc);
@@ -1495,7 +1504,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }
                     else 
 		    {
-                	hdc = GetDC(hwnd); //hdc = GetClientDC (hwnd);
+                	hdc = GetDC(hwnd); /* hdc = GetClientDC (hwnd); */
 
                         lstDrawFocusRect (hdc, pData, &rcInv);
                         pData->itemHilighted = newSel;
@@ -1504,7 +1513,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         ReleaseDC (hwnd,hdc);
                     }
                 }
-                lstSetVScrollInfo (hwnd, pData, TRUE);//
+                lstSetVScrollInfo (hwnd, pData, TRUE);
             }
         }
         break;
@@ -1590,7 +1599,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 case SB_LINEDOWN:
 
-#if 0//test itemVisibles
+#if 0	/* test itemVisibles */
 		    printf("itemVisibles:%d\n",pData->itemVisibles);
 		    printf("SB_LINEDOWN:(%d:%d)\n",
                     	ITEM_BOTTOM (pData),(pData->itemCount - 1 )); 
@@ -1598,7 +1607,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                     if (ITEM_BOTTOM (pData) < (pData->itemCount - 1 )) 
 		    {
                         newTop ++;
-                        scrollHeight = -pData->itemHeight;//for ScrollWindow()
+                        scrollHeight = -pData->itemHeight;	/* for ScrollWindow() */
                     }
                 break;
                 
@@ -1642,7 +1651,7 @@ ListboxCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (scrollHeight) 
 	    {
                 pData->itemTop = newTop;
-#if 0//!!: fix: no scroll
+#if 0	/* !!: fix: no scroll */
                 ScrollWindow (hwnd, 0, scrollHeight, NULL, NULL);
 #endif
                 SendMessage (hwnd, WM_PAINT, 0, 0);

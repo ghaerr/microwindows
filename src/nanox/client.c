@@ -338,8 +338,8 @@ GrOpen(void)
 	size = sizeof(struct sockaddr_na);
 #elif defined(__ECOS)
 	name.sin_family = AF_INET;
-	name.sin_port = htons(6600);                    // Nano-X server port
-	name.sin_addr.s_addr = inet_addr("127.0.0.1");  // Loopback address
+	name.sin_port = htons(6600);                    /* Nano-X server port*/
+	name.sin_addr.s_addr = inet_addr("127.0.0.1");  /* Loopback address*/
 	size = sizeof(struct sockaddr_in);
 #else
 	name.sun_family = AF_UNIX;

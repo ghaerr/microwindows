@@ -1,11 +1,9 @@
-// $Id: medit.c,v 1.1 2001/06/21 06:32:42 greg Exp $
-//
-// medit.c: the Multi Line Edit Control module.
-//
-// Copyright (C) 1999, 2000, Wei Yongming.
-// 
-// Current maintainer: Wei Yongming.
-//
+/*
+ * Copyright (C) 1999, 2000, Wei Yongming.
+ * Portions Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ *
+ * Multi Line Edit Control for Microwindows win32 api.
+ */
 
 /*
 **  This library is free software; you can redistribute it and/or
@@ -30,33 +28,35 @@
 **  provisions of the MPL License are applicable instead of those above.
 */
 
-// Note:
-//  Although there was a version by Zhao Jianghua, this version of
-//  EDIT control is written by Wei Yongming from scratch.
-//
-// Create date: 1999/8/26
-//
-// Modify records:
-//
-//  Who             When        Where       For What                Status
-//-----------------------------------------------------------------------------
-//  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
-//  Kevin Tseng     2000/08/30  gv          port to microwin        ported
-//
-//
-// TODO:
-//    * Selection.
-//    * Undo.
+/* Note:
+**  Although there was a version by Zhao Jianghua, this version of
+**  EDIT control is written by Wei Yongming from scratch.
+**
+** Create date: 1999/8/26
+**
+** Modify records:
+**
+**  Who             When        Where       For What                Status
+**-----------------------------------------------------------------------------
+**  WEI Yongming    2000/02/24  Tsinghua    Add MPL License         Finished
+**  Kevin Tseng     2000/08/30  gv          port to microwin        ported
+**
+**
+** TODO:
+**    * Selection.
+**    * Undo.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #define MWINCLUDECOLORS
 #include "windows.h"	/* windef.h, winuser.h */
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
 
-#include <sys/time.h>
+#define USE_BIG5
 
 #define WIDTH_MEDIT_BORDER       2
 #define MARGIN_MEDIT_LEFT        1
@@ -77,99 +77,56 @@
 #define MEDIT_OP_INSERT  0x02
 #define MEDIT_OP_REPLACE 0x03
 
-#define USE_BIG5
-
-/*typedef struct tagMLEDITDATA
-{
-    int     bufferLen;      // length of buffer
-
-    int     dataEnd;        // data end position
-    int     editPos;        // current edit position
-	int     editLine;		// current eidt line
-    int     caretOff;       // caret offset in box
-	int     caretLine;
-    int     startPos;       // start display position
-    
-    int     selStart;       // selection start position
-	int     selStartLine;   // selection start line
-    int     selEnd;         // selection end position
-	int     selEndLine;     // selection end line
-    
-    int     passwdChar;     // password character
-    
-    int     leftMargin;     // left margin
-    int     topMargin;      // top margin
-    int     rightMargin;    // right margin
-    int     bottomMargin;   // bottom margin
-    
-    int     hardLimit;      // hard limit
-
-    int     lastOp;         // last operation
-    int     lastPos;        // last operation position
-	int     lastLine;       // last operation line
-    int     affectedLen;    // affected len of last operation
-    int     undoBufferLen;  // undo buffer len
-    char    undoBuffer [LEN_MLEDIT_UNDOBUFFER];
-                            // Undo buffer;
-    
-    char    buffer [LEN_MLEDIT_BUFFER];
-                            // buffer
-}MLEDITDATA;
-typedef MLEDITDATA* PMLEDITDATA;
-  */  
-
-typedef struct tagLINEDATA
-{
-	int     lineNO;	                  // 行号
+typedef struct tagLINEDATA {
+	int     lineNO;	                  /* 行号 */
 	int     dataEnd; 
-	struct  tagLINEDATA *previous;    // 前一行
-	struct  tagLINEDATA *next;        // 后一行 
+	struct  tagLINEDATA *previous;    /* 前一行 */
+	struct  tagLINEDATA *next;        /* 后一行 */
 	char    buffer[LEN_MLEDIT_BUFFER+1];
 }LINEDATA;
 typedef    LINEDATA*     PLINEDATA;
 
-#define ATTENG 0//english
-#define ATTCHL 1//chinese left(1st) byte
-#define ATTCHR 2//chinese right(2nd) byte
+#define ATTENG 0	/* english */
+#define ATTCHL 1	/* chinese left(1st) byte */
+#define ATTCHR 2	/* chinese right(2nd) byte */
 static char attr[LEN_MLEDIT_BUFFER];
 
-typedef struct tagMLEDITDATA
-{
-    int     totalLen;      // length of buffer,可能没有用
+typedef struct tagMLEDITDATA {
+    int     totalLen;      /* length of buffer,可能没有用 */
 
-    int     editPos;        // current edit position
-    int     caretPos;       // caret offset in box
-	int     editLine;		// current eidt line
-	int     dispPos;        // 开始显示的位置
-	int     StartlineDisp;  // start line displayed
-    int     EndlineDisp;    // end line displayed
-    int     linesDisp;      // 需要显示的行数
-	int     lines;		    // 总的行数`
-	int     MaxlinesDisp;    // 最大显示的行数.
+    int     editPos;        /* current edit position */
+    int     caretPos;       /* caret offset in box */
+    int     editLine;		/* current eidt line */
+    int     dispPos;        /* 开始显示的位置 */
+    int     StartlineDisp;  /* start line displayed */
+    int     EndlineDisp;    /* end line displayed */
+    int     linesDisp;      /* 需要显示的行数 */
+    int     lines;		    /* 总的行数` */
+    int     MaxlinesDisp;    /* 最大显示的行数. */
 							
-    int     selStartPos;    // selection start position
-	int     selStartLine;   // selection start line
-    int     selEndPos;      // selection end position
-	int     selEndLine;     // selection end line
+    int     selStartPos;    /* selection start position */
+    int     selStartLine;   /* selection start line */
+    int     selEndPos;      /* selection end position */
+    int     selEndLine;     /* selection end line */
     
-    int     passwdChar;     // password character
+    int     passwdChar;     /* password character */
     
-    int     leftMargin;     // left margin
-    int     topMargin;      // top margin
-    int     rightMargin;    // right margin
-    int     bottomMargin;   // bottom margin
+    int     leftMargin;     /* left margin */
+    int     topMargin;      /* top margin */ 
+    int     rightMargin;    /* right margin */
+    int     bottomMargin;   /* bottom margin */
     
-    int     hardLimit;      // hard limit
+    int     hardLimit;      /* hard limit */
 
-    int     lastOp;         // last operation
-    int     lastPos;        // last operation position
-	int     lastLine;       // last operation line
-    int     affectedLen;    // affected len of last operation
-    int     undoBufferLen;  // undo buffer len
+    int     lastOp;         /* last operation */
+    int     lastPos;        /* last operation position */
+    int     lastLine;       /* last operation line */
+    int     affectedLen;    /* affected len of last operation */
+    int     undoBufferLen;  /* undo buffer len */
     char    undoBuffer [LEN_MLEDIT_UNDOBUFFER];
-                            // Undo buffer;
-   	PLINEDATA   head;       // buffer
-	PLINEDATA   tail;       // 可能不需要
+                            /* Undo buffer; */
+    PLINEDATA   head;       /* buffer */
+    PLINEDATA   tail;       /* 可能不需要 */
 }MLEDITDATA;
 typedef MLEDITDATA* PMLEDITDATA;
 
@@ -221,17 +178,17 @@ static int GetSysCCharWidth (HWND hwnd)
 {
 	return (2*GetSysCharWidth(hwnd));
 }
-char* GetWindowCaption (HWND hWnd)//ok
+char* GetWindowCaption (HWND hWnd)
 {
     return hWnd->szTitle;
 }
 
-DWORD GetWindowAdditionalData (HWND hWnd)//ok
+DWORD GetWindowAdditionalData (HWND hWnd)
 {
         return hWnd->userdata;
 }
 
-DWORD SetWindowAdditionalData (HWND hWnd, DWORD newData)//ok
+DWORD SetWindowAdditionalData (HWND hWnd, DWORD newData)
 {
     DWORD    oldOne = 0L;
 
@@ -241,12 +198,12 @@ DWORD SetWindowAdditionalData (HWND hWnd, DWORD newData)//ok
     return oldOne;
 }
 
-DWORD GetWindowAdditionalData2 (HWND hWnd)//ok
+DWORD GetWindowAdditionalData2 (HWND hWnd)
 {
         return hWnd->userdata2;
 }
 
-DWORD SetWindowAdditionalData2 (HWND hWnd, DWORD newData)//ok
+DWORD SetWindowAdditionalData2 (HWND hWnd, DWORD newData)
 {
     DWORD    oldOne = 0L;
 
@@ -256,12 +213,12 @@ DWORD SetWindowAdditionalData2 (HWND hWnd, DWORD newData)//ok
     return oldOne;
 }
 
-DWORD GetWindowStyle (HWND hWnd)//ok
+DWORD GetWindowStyle (HWND hWnd)
 {
         return hWnd->style;
 }
 
-BOOL ExcludeWindowStyle (HWND hWnd, DWORD dwStyle)//ok
+BOOL ExcludeWindowStyle (HWND hWnd, DWORD dwStyle)
 {
     	if (hWnd == rootwp/*HWND_DESKTOP*/)
         	return FALSE;
@@ -270,7 +227,7 @@ BOOL ExcludeWindowStyle (HWND hWnd, DWORD dwStyle)//ok
         return TRUE;
 }
 
-BOOL IncludeWindowStyle (HWND hWnd, DWORD dwStyle)//ok
+BOOL IncludeWindowStyle (HWND hWnd, DWORD dwStyle)
 {
 
     	if (hWnd == rootwp/*HWND_DESKTOP*/)
@@ -324,15 +281,15 @@ static int edtGetStartDispPosAtEnd (HWND hWnd,
         if ((endPos - newStartPos) * GetSysCharWidth (hWnd) < nOutWidth)
             break;
         
-        //1st:gb:a1-f7,big5:a1-f9 
-        if ((BYTE)buffer [newStartPos] > 0xA0)//ok 
+        /* 1st:gb:a1-f7,big5:a1-f9 */
+        if ((BYTE)buffer [newStartPos] > 0xA0)
 	{
             newStartPos ++;
             if (newStartPos < pLineData->dataEnd) 
 	    {
 #ifndef USE_BIG5
-                if ((BYTE)buffer [newStartPos] > 0xA0)//ok
-#else//2nd:gb:a1-fe,big5:40-7e,a1-fe
+                if ((BYTE)buffer [newStartPos] > 0xA0)
+#else	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
                 if ( ((BYTE)buffer [newStartPos] >= 0x40 && (BYTE)buffer[newStartPos] <= 0x7e) ||
                      ((BYTE)buffer [newStartPos] >= 0xa1 && (BYTE)buffer[newStartPos] <= 0xfe)) 
 #endif
@@ -358,15 +315,15 @@ static int edtGetDispLen (HWND hWnd,PLINEDATA pLineData)
 	
     for (i = pMLEditData->dispPos; i < pLineData->dataEnd; i++) 
     {
-        //1st:gb:a1-f7,big5:a1-f9 
-        if ((BYTE)buffer [i] > 0xA0)//ok 
+        /* 1st:gb:a1-f7,big5:a1-f9 */
+        if ((BYTE)buffer [i] > 0xA0)
    	{
             i++;
             if (i < pLineData->dataEnd) 
 	    {
 #ifndef USE_BIG5
-                if ((BYTE)buffer [i] > 0xA0)//2nd:gb:a1-fe,big5:40-7e,a1-fe 
-#else//2nd:gb:a1-fe,big5:40-7e,a1-fe
+                if ((BYTE)buffer [i] > 0xA0)	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
+#else	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
                 if ( ((BYTE)buffer [i] >= 0x40 && (BYTE)buffer[i] <= 0x7e) ||
                      ((BYTE)buffer [i] >= 0xa1 && (BYTE)buffer[i] <= 0xfe))
 #endif
@@ -411,8 +368,8 @@ static int edtGetOffset (HWND hwnd,const MLEDITDATA* pMLEditData, PLINEDATA pLin
         if ((nTextWidth + (GetSysCharWidth(hwnd) >> 1)) >= x)
             break;
 
-        //1st:gb:a1-f7,big5:a1-f9 
-        if ((BYTE)buffer [i] > 0xA0)//ok 
+        /* 1st:gb:a1-f7,big5:a1-f9 */
+        if ((BYTE)buffer [i] > 0xA0)
 	{
             i++;
 
@@ -422,8 +379,8 @@ static int edtGetOffset (HWND hwnd,const MLEDITDATA* pMLEditData, PLINEDATA pLin
             if (i < pLineData->dataEnd) 
 	    {
 #ifndef USE_BIG5
-                if ((BYTE)buffer [i] > 0xA0)//2nd:gb:a1-fe,big5:40-7e,a1-fe 
-#else//2nd:gb:a1-fe,big5:40-7e,a1-fe
+                if ((BYTE)buffer [i] > 0xA0)	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
+#else	/* 2nd:gb:a1-fe,big5:40-7e,a1-fe */
                 if ( ((BYTE)buffer [i] >= 0x40 && (BYTE)buffer[i] <= 0x7e) || 
                      ((BYTE)buffer [i] >= 0xa1 && (BYTE)buffer[i] <= 0xfe))
 #endif
@@ -461,30 +418,31 @@ static int edtGetLineNO (HWND hwnd,const MLEDITDATA* pMLEditData, int x)
 	return -1;
 }
 
-static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)//ok
+static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
 {
     if (pos > (len - 2))
         return FALSE;
 
-//1st:gb:a1-f7,big5:a1-f9//2nd:gb:a1-fe,big5:40-7e,a1-fe
+/* 1st:gb:a1-f7,big5:a1-f9  2nd:gb:a1-fe,big5:40-7e,a1-fe */
 #ifndef USE_BIG5
-    if ((BYTE)string [pos] > 0xA0 && (BYTE)string [pos + 1] > 0xA0)//ok
+    if ((BYTE)string [pos] > 0xA0 && (BYTE)string [pos + 1] > 0xA0)
         return TRUE;
 #else
-    if ((BYTE)string [pos] > 0xA0)//ok
+    if ((BYTE)string [pos] > 0xA0)
     {
 	if ( ((BYTE)string [pos + 1] >= 0x40 && (BYTE)string [pos + 1] <= 0x7e) ||
-	     ((BYTE)string [pos + 1] >= 0xa1 && (BYTE)string [pos + 1] <= 0xfe))
-	    //fprintf(stderr,"true\n");
-	    //fflush(stderr);
+	     ((BYTE)string [pos + 1] >= 0xa1 && (BYTE)string [pos + 1] <= 0xfe)) {
+	    /*fprintf(stderr,"true\n");
+	    fflush(stderr);*/
 	    return TRUE;
+	}
     }
 #endif
 
     return FALSE;
 }
 
-static void str2attr(const char* str,int len)//ok
+static void str2attr(const char* str,int len)
 {
     int i=0;
     do
@@ -503,26 +461,26 @@ static void str2attr(const char* str,int len)//ok
     }while(i<len);
 }
 
-static BOOL edtIsACCharBeforePosition (const char* string,int len, int pos)//##
+static BOOL edtIsACCharBeforePosition (const char* string,int len, int pos)
 {
     if (pos < 2)
         return FALSE;
 
-//1st:gb:a1-f7,big5:a1-f9//2nd:gb:a1-fe,big5:40-7e,a1-fe
+/* 1st:gb:a1-f7,big5:a1-f9  2nd:gb:a1-fe,big5:40-7e,a1-fe */
 #ifndef USE_BIG5
     /* FIXME #ifdef GB2312?*/
-    if ((BYTE)string [pos - 2] > 0xA0 && (BYTE)string [pos - 1] > 0xA0)//ok
+    if ((BYTE)string [pos - 2] > 0xA0 && (BYTE)string [pos - 1] > 0xA0)
         return TRUE;
 #else
 #if 0
-    if ((BYTE)string [pos - 2] > 0xA0)//!!
+    if ((BYTE)string [pos - 2] > 0xA0)
     {
 	if ( ((BYTE)string [pos - 1] >= 0x40 && (BYTE)string[pos - 1] <= 0x7e) ||
 	     ((BYTE)string [pos - 1] >= 0xa1 && (BYTE)string[pos - 1] <= 0xfe))
             return TRUE;
     }
 #else
-    str2attr(string,len);//ok
+    str2attr(string,len);
     if (attr[pos-1]==ATTENG) return FALSE;
     else return TRUE;
 #endif
@@ -622,7 +580,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-        case WM_CREATE://
+        case WM_CREATE:
 	{
             if (!(pMLEditData = malloc (sizeof (MLEDITDATA)))) {
                 fprintf (stderr, "EDIT: malloc error!\n");
@@ -652,7 +610,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 
             pMLEditData->hardLimit      = -1;
             
-            // undo information
+            /* undo information */
             pMLEditData->lastOp         = MEDIT_OP_NONE;
             pMLEditData->lastPos        = 0;
             pMLEditData->affectedLen    = 0;
@@ -662,7 +620,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 			SetWindowAdditionalData(hWnd,(DWORD)0);
             break;
 	}
-        case WM_DESTROY://
+        case WM_DESTROY:
         {
 		PLINEDATA temp;
 		pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
@@ -670,7 +628,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 		pLineData = pMLEditData->head;	
 		while(pLineData)
 		{
-//			printf("delete lineNO = %d,buffer=%s\n",pLineData->lineNO,pLineData->buffer);
+			/*printf("delete lineNO = %d,buffer=%s\n",pLineData->lineNO,pLineData->buffer);*/
 			temp = pLineData->next;
 			free(pLineData);
 			pLineData = temp;
@@ -679,26 +637,26 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 	}
         break;
         
-    	/*  
-//-	case WM_SIZECHANGED://
-//-     {
-//-     }
-//-     return 0;
-	*/
-        case WM_SETFONT://
+        case WM_SETFONT:
         break;
         
-        case WM_GETFONT://
+        case WM_GETFONT:
         break;
-#if 0//fix: no WM_SETCURSOR        
-        case WM_SETCURSOR://
+
+#if 0	/* fix: no WM_SETCURSOR */
+        case WM_SETCURSOR:
             if (dwStyle & WS_DISABLED) {
-                //SetCursor (GetSystemCursor (IDC_ARROW));//fix: no IDC_ARROW
+                SetCursor (GetSystemCursor (IDC_ARROW));
                 return 0;
             }
         break;
+
+   	case WM_SIZECHANGED:
+        {
+        }
+        return 0;
 #endif
-        case WM_KILLFOCUS://
+        case WM_KILLFOCUS:
 	{
 	    dw= GetWindowAdditionalData(hWnd);
             dw&= ~EST_FOCUSED;
@@ -714,7 +672,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 	}
         break;
         
-        case WM_SETFOCUS://
+        case WM_SETFOCUS:
 		{
 			dw= GetWindowAdditionalData(hWnd);
             if (dw & EST_FOCUSED)
@@ -725,7 +683,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 
             pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
 
-            // only implemented for ES_LEFT align format.
+            /* only implemented for ES_LEFT align format. */
 
             CreateCaret (hWnd, NULL, 1, /*GetSysCharWidth(hWnd)+1,*/
 		    hWnd->clirect.bottom-hWnd->clirect.top-2);
@@ -740,7 +698,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 		}
         break;
         
-        case WM_ENABLE://
+        case WM_ENABLE:
             if ( (!(dwStyle & WS_DISABLED) && !wParam)
                     || ((dwStyle & WS_DISABLED) && wParam) ) {
                 if (wParam)
@@ -752,7 +710,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             }
         return 0;
 
-        case WM_NCPAINT://
+        case WM_NCPAINT:
 	{
 	    RECT rc;
 #if 0
@@ -760,8 +718,10 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                 hdc = (HDC)wParam;
             else
                 hdc = GetDC (hWnd);
-            //if (lParam)//fix: no ClipRectIntersect()
-            //    ClipRectIntersect (hdc, (RECT*)lParam);
+#if 0	/* fix: no ClipRectIntersect() */
+            if (lParam)
+            ClipRectIntersect (hdc, (RECT*)lParam);
+#endif
 #else
             hdc = wParam? (HDC)wParam: GetWindowDC (hWnd);
 	    GetWindowRect(hWnd, &rc);
@@ -780,13 +740,13 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 			rc.right-rc.left, rc.bottom-rc.top);
 #endif
 	    }
-            if (!wParam)
-                //!ReleaseDC (hdc);
+            if (!wParam) {
 		ReleaseDC(hWnd,hdc);
+		}
 	}
         return 0;
 
-        case WM_PAINT://
+        case WM_PAINT:
         {
             int     dispLen,i;
             char*   dispBuffer;
@@ -794,29 +754,18 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 	    PAINTSTRUCT ps;
 	    HGDIOBJ oldfont=NULL;
             
-            //!hdc = BeginPaint (hWnd);
             hdc = BeginPaint (hWnd,&ps);
             GetClientRect (hWnd, &rect);
     
             if (dwStyle & WS_DISABLED)
             {
-#if 0
-                SetBrushColor (hdc, LTGRAY/*PIXEL_lightgray*/);
-                FillBox (hdc, 0, 0, rect.right, rect.bottom);
-#else
 		rc.left=0; rc.top=0; rc.bottom=rect.bottom; rc.right=rect.right;
 		FillRect(hdc,&rc,GetStockObject(LTGRAY_BRUSH));
-#endif
                 SetBkColor (hdc, LTGRAY/*PIXEL_lightgray*/);
             }
             else {
-#if 0
-                SetBrushColor (hdc, WHITE/*PIXEL_lightwhite*/);
-                FillBox (hdc, 0, 0, rect.right, rect.bottom);
-#else
 		rc.left=0; rc.top=0; rc.bottom=rect.bottom; rc.right=rect.right;
 		FillRect(hdc,&rc,GetStockObject(WHITE_BRUSH));
-#endif
                 SetBkColor (hdc, WHITE/*PIXEL_lightwhite*/);
             }
 
@@ -841,19 +790,22 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                 if (dwStyle & ES_PASSWORD)
                     memset (dispBuffer, '*', pLineData->dataEnd);
 				    memcpy (dispBuffer, 
-                   	    pLineData->buffer,// +pMLEditData->dispPos,
-						pLineData->dataEnd);// - pMLEditData->dispPos);
+                   	    pLineData->buffer,	/* +pMLEditData->dispPos, */
+						pLineData->dataEnd);	/* - pMLEditData->dispPos); */
                		dispBuffer[pLineData->dataEnd] = '\0';
 
-            // only implemented ES_LEFT align format for single line edit.
+            /* only implemented ES_LEFT align format for single line edit. */
                 rect.left = pMLEditData->leftMargin;
                 rect.top = pMLEditData->topMargin ;
                 rect.right = pMLEditData->rightMargin;
                 rect.bottom = pMLEditData->bottomMargin;
-//				printf("lineNO=%d,lines=%d,editLine=%d\n",pLineData->lineNO,pMLEditData->lines,
-//							pMLEditData->editLine);
-	//			printf("--dispBuffer=%s--\n",dispBuffer);
-                //ClipRectIntersect (hdc, &rect);//fix: no ClipRectIntersect()
+#if 0
+		printf("lineNO=%d,lines=%d,editLine=%d\n",pLineData->lineNO,pMLEditData->lines,
+			pMLEditData->editLine);
+		printf("--dispBuffer=%s--\n",dispBuffer);
+                ClipRectIntersect (hdc, &rect);	/* fix: no ClipRectIntersect() */
+#endif
+
 #ifdef USE_BIG5	    
 	    oldfont=SelectObject(hdc,CreateFont(12,
 			0,0,0,0,0,0,0,0,0,0,0,
@@ -864,21 +816,19 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 				pMLEditData->leftMargin - pMLEditData->dispPos * GetSysCharWidth(hWnd) ,
 				GetSysCharHeight(hWnd)*(pLineData->lineNO - pMLEditData->StartlineDisp) 
 					+ pMLEditData->topMargin,
-				dispBuffer,-1);//
+				dispBuffer,-1);
 			}
 #ifdef USE_BIG5	    
     	    DeleteObject(SelectObject(hdc,oldfont));
 #endif
-            //!EndPaint (hWnd, hdc);
 	    EndPaint (hWnd, &ps);
         }
         break;
 
-        case WM_KEYDOWN://
+        case WM_KEYDOWN:
         {
             BOOL    bChange = FALSE;
             int     i;
-       //     RECT    InvRect;
             int     deleted;
 			PLINEDATA temp = NULL;
 			char *  tempP = NULL;
@@ -888,7 +838,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             switch (LOWORD (wParam))
             {
 				
-                case VK_RETURN: //SCANCODE_ENTER:
+                case VK_RETURN: 	/* SCANCODE_ENTER: */
 				{
 					pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
 					if (pMLEditData->editPos < pLineData->dataEnd)
@@ -941,7 +891,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
     	            InvalidateRect (hWnd, NULL, FALSE);
         	        return 0;
 				}
-                case VK_HOME: //SCANCODE_HOME:
+                case VK_HOME: 	/* SCANCODE_HOME: */
 				{
 					PLINEDATA temp;
                     if (pMLEditData->editPos == 0)
@@ -961,7 +911,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 					}
                		return 0;
             	}
-                case VK_END: //SCANCODE_END:
+                case VK_END: /* SCANCODE_END: */
                 {
                     int newStartPos;
                     pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
@@ -983,7 +933,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                 }
                 return 0;
 
-                case VK_LEFT: //SCANCODE_CURSORBLOCKLEFT:
+                case VK_LEFT: /* SCANCODE_CURSORBLOCKLEFT: */
                 {
                     BOOL bScroll = FALSE;
                     int  scrollStep,newStartPos;
@@ -1051,7 +1001,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                 }
                 return 0;
                 
-		case VK_RIGHT: //SCANCODE_CURSORBLOCKRIGHT:
+		case VK_RIGHT: /* SCANCODE_CURSORBLOCKRIGHT: */
                 {
                     BOOL bScroll = FALSE;
                     int  scrollStep, moveStep;
@@ -1134,7 +1084,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                 }
                 return 0;
                	
-		case VK_UP: //SCANCODE_CURSORBLOCKUP:
+		case VK_UP: /* SCANCODE_CURSORBLOCKUP: */
 		{
                     BOOL bScroll = FALSE;
                     int  newStartPos;
@@ -1185,7 +1135,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 						InvalidateRect(hWnd,NULL,FALSE);	
 				}
 				break;
-		case VK_DOWN: //SCANCODE_CURSORBLOCKDOWN:
+		case VK_DOWN: /* SCANCODE_CURSORBLOCKDOWN: */
 		{
                     BOOL bScroll = FALSE;
                     int  newStartPos;
@@ -1237,19 +1187,21 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 		
 				}
 				break;
-                case VK_INSERT: //SCANCODE_INSERT:
+                case VK_INSERT: /* SCANCODE_INSERT: */
 					dw = GetWindowAdditionalData(hWnd);	
                     dw ^= EST_REPLACE;
 					SetWindowAdditionalData(hWnd,dw);
                 break;
 
-                case VK_DELETE: //SCANCODE_REMOVE:
+                case VK_DELETE: /* SCANCODE_REMOVE: */
 				{
 					PLINEDATA temp;
 					int leftLen;
 					pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
                     if ((GetWindowAdditionalData(hWnd) & EST_READONLY) ){
-                        //Ping ();//fix: no Ping()
+#if 0	/* fix: no ping() */
+                        ping ();
+#endif
                         return 0;
                     }
                    	temp = pLineData->next; 
@@ -1323,12 +1275,14 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 				}
                 break;
 
-                case VK_BACK: //SCANCODE_BACKSPACE:
+                case VK_BACK: /* SCANCODE_BACKSPACE: */
 				{
 					PLINEDATA temp;
 					int leftLen,tempEnd;
                     if ((GetWindowAdditionalData(hWnd) & EST_READONLY) ){
-                        //Ping ();//fix: no Ping()
+#if 0	 /* fix: no Ping() */
+                        Ping ();
+#endif
                         return 0;
                     }
 					pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
@@ -1383,7 +1337,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 						pMLEditData->editLine--;
 						pMLEditData->editPos = tempEnd;
 						pMLEditData->dispPos = tempEnd;
-						//当编辑位置不为0,caret位置为0的时候,移动caret位置.
+						/* 当编辑位置不为0,caret位置为0的时候,移动caret位置. */
            		        if (pMLEditData->caretPos == 0 
                 	            && pMLEditData->editPos != 0) {
         	                if (edtIsACCharBeforePosition (pLineData->buffer, 
@@ -1455,19 +1409,20 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
-        case WM_CHAR://
+        case WM_CHAR:
         {
             char charBuffer [2];
             int  i, chars, scrollStep, inserting;
 			UINT format;
-      //      RECT InvRect;
 	
             pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
 
 			pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
 
             if (dwStyle & ES_READONLY) {
-                //Ping();//fix: no Ping()
+#if 0	 /* fix: no Ping() */
+                Ping ();
+#endif
                 return 0;
             }
             if (HIBYTE (wParam)) {
@@ -1483,15 +1438,15 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             if (chars == 1) {
                 switch (charBuffer [0])
                 {
-                    case 0x00:  // NULL
-                    case 0x07:  // BEL
-                    case 0x08:  // BS
-                    case 0x09:  // HT
-                    case 0x0A:  // LF
-                    case 0x0B:  // VT
-                    case 0x0C:  // FF
-                    case 0x0D:  // CR
-                    case 0x1B:  // Escape
+                    case 0x00:  /* NULL */
+                    case 0x07:  /* BEL */
+                    case 0x08:  /* BS */
+                    case 0x09:  /* HT */ 
+                    case 0x0A:  /* LF */
+                    case 0x0B:  /* VT */
+                    case 0x0C:  /* FF */
+                    case 0x0D:  /* CR */
+                    case 0x1B:  /* Escape */
                     return 0;
                 }
             }
@@ -1516,9 +1471,11 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             else
                 inserting = chars;
 
-            // check space
+            /* check space */
             if (pLineData->dataEnd + inserting > pMLEditData->totalLen) {
-                //Ping ();//fix: no Ping()
+#if 0	/* fix no ping */
+                Ping ();
+#endif
                 SendMessage (GetParent (hWnd), WM_COMMAND,
                             (WPARAM) MAKELONG (GetDlgCtrlID(hWnd), EN_MAXTEXT),
                             (LPARAM) hWnd);
@@ -1527,7 +1484,9 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             else if ((pMLEditData->hardLimit >= 0) 
                         && ((pLineData->dataEnd + inserting) 
                             > pMLEditData->hardLimit)) {
-                //Ping ();//fix: no Ping()
+#if 0	/* fix no ping */
+                Ping ();
+#endif
                 SendMessage (GetParent (hWnd), WM_COMMAND,
                             (WPARAM) MAKELONG (GetDlgCtrlID(hWnd), EN_MAXTEXT),
                             (LPARAM) hWnd);
@@ -1590,7 +1549,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         }
         return 0;
 
-        case WM_GETTEXTLENGTH://
+        case WM_GETTEXTLENGTH:
 		{
 			PLINEDATA temp;
 			int    lineNO = (int)wParam;
@@ -1604,7 +1563,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 			}
         return -1;
         }
-		case WM_GETTEXT://
+		case WM_GETTEXT:
 		{
 			PLINEDATA temp;
 			int len,total = 0,lineNO;
@@ -1622,9 +1581,9 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 					
 		}
 		return 0;
-//can i add it to message define ?
-/*
-        case WM_GETLINETEXT://
+/* can i add it to message define ? */
+#if 0
+        case WM_GETLINETEXT:
         {
 			PLINEDATA temp;
             char*   buffer = (char*)lParam;
@@ -1643,14 +1602,15 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             return -1;
         }
         break;
-		case WM_SETTEXT://
+		case WM_SETTEXT:
 		{
 			MLEditInitBuffer(pMLEditData,(char *)lParam);
 		}
 		return 0;
-*/
-//can i add it to message defined?
-/*        case WM_SETLINETEXT://
+#endif
+/* can i add it to message defined? */
+#if 0
+        case WM_SETLINETEXT:
         {
             int len,lineNO;
 			PLINEDATA temp;
@@ -1682,11 +1642,11 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             InvalidateRect (hWnd, NULL, FALSE);
         }
         return 0;
-*/
-        case WM_LBUTTONDBLCLK://
+#endif
+        case WM_LBUTTONDBLCLK:
         break;
         
-        case WM_LBUTTONDOWN://
+        case WM_LBUTTONDOWN:
         {
             int newOff,lineNO;
 			PLINEDATA temp;
@@ -1722,13 +1682,13 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         }
         break;
 
-        case WM_LBUTTONUP://
+        case WM_LBUTTONUP:
         break;
         
-        case WM_MOUSEMOVE://
+        case WM_MOUSEMOVE:
         break;
         
-        case WM_GETDLGCODE://
+        case WM_GETDLGCODE:
         return DLGC_WANTCHARS | DLGC_HASSETSEL | DLGC_WANTARROWS;
         
         case EM_SETREADONLY:
@@ -1779,6 +1739,6 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         break;
     } 
 
-    return 0;//!DefaultControlProc (hWnd, message, wParam, lParam);
+    return 0;	/* !DefaultControlProc (hWnd, message, wParam, lParam); */
 }
 

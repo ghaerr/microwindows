@@ -6,6 +6,7 @@
  *
  * /dev/tty TTY Keyboard Driver
  */
+#include <stdlib.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -51,9 +52,17 @@ static	struct termios	old;		/* original terminal modes */
 static int
 TTY_Open(KBDDEVICE *pkd)
 {
-	struct termios	new;	/* new terminal modes */
+  char *env;
 
-	fd = open(KEYBOARD, O_NONBLOCK);
+	int		i;
+	int		ledstate = 0;
+	struct termios	new;
+
+	/* Open "CONSOLE" or /dev/tty device*/
+	if(!(env = getenv("CONSOLE")))
+		fd = open(KEYBOARD, O_NONBLOCK);
+	else
+		fd = open(env, O_NONBLOCK);
 	if (fd < 0)
 		return -1;
 

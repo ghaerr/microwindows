@@ -594,6 +594,12 @@ X11_open(PSD psd)
 	    psd->bpp = 8;
 	    break;
     }
+
+    /* Calculate the correct linelen here */
+
+    GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
+		     psd->bpp, &size, &psd->linelen);
+    
     psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
     psd->flags   = PSF_SCREEN | PSF_HAVEBLIT;
     psd->size = 0;
@@ -610,6 +616,8 @@ X11_open(PSD psd)
 	    return NULL;
 
     /* calc size and linelen of savebits alloc*/
+    /* JHC - Is this redundant now?? */
+
     GdCalcMemGCAlloc(&savebits, savebits.xvirtres, savebits.yvirtres, 0, 0,
 		&size, &linelen);
     savebits.linelen = linelen;

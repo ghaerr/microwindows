@@ -615,7 +615,7 @@ typedef struct {
 	IDTYPE	srcid;
 	INT16	srcx;
 	INT16	srcy;
-	INT16	op;
+	UINT32	op;
 } nxCopyAreaReq;
 
 #define GrNumSetFontSize        52

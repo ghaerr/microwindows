@@ -4,6 +4,7 @@
  * Microwindows /dev/tty console scancode keyboard driver for Linux
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -89,12 +90,17 @@ static MWBOOL	switch_vt(unsigned short which);
 static int
 TTY_Open(KBDDEVICE *pkd)
 {
+  char *env;
+
 	int		i;
 	int		ledstate = 0;
 	struct termios	new;
 
-	/* Open /dev/tty device*/
-	fd = open(KEYBOARD, O_NONBLOCK);
+	/* Open "CONSOLE" or /dev/tty device*/
+	if(!(env = getenv("CONSOLE")))
+		fd = open(KEYBOARD, O_NONBLOCK);
+	else
+		fd = open(env, O_NONBLOCK);
 	if (fd < 0)
 		return -1;
 
@@ -446,7 +452,7 @@ TranslateScancode(int scancode, MWKEYMOD modstate)
 		break;
 	}
 
-//printf("TranslateScancode %02x to mwkey %d\n", scancode, mwkey);
+	/* printf("TranslateScancode %02x to mwkey %d\n", scancode, mwkey); */
 	return mwkey;
 }
 

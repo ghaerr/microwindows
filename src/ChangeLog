@@ -1,4 +1,6 @@
 Version 0.89pre8 - 4 July 2001 - greg@censoft.com
+	* added check for CONSOLE env var for /dev/tty to open, GrCopyArea fix and
+		X11 scanline calc bug from Jordan Crouse
 	* add patches for compiling with libc5 and default t1lib Latin1 encoding from Tomasz
 	* added Korean Hangul KSC5601 encoded font support and 16x16 fixed text font from Kevin O
 	* add byte swap in devimage.c, X11 driver changes, DPRINTF defaults to no output

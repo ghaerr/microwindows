@@ -42,6 +42,7 @@ typedef MWTIMEOUT	GR_TIMEOUT;	/* timeout value */
 typedef MWFONTLIST	GR_FONTLIST;	/* list of fonts */
 typedef MWKBINFO	GR_KBINFO;	/* keyboard information  */
 typedef MWSTIPPLE       GR_STIPPLE;     /* Stipple information   */
+typedef MWTRANSFORM     GR_TRANSFORM;   /* Transform information */
 
 /* Basic typedefs. */
 typedef int 		GR_COUNT;	/* number of items */
@@ -264,6 +265,13 @@ typedef struct {
   GR_COUNT count;		/* # valid entries*/
   GR_PALENTRY palette[256];	/* palette*/
 } GR_PALETTE;
+
+/* Calibration data */
+typedef struct {
+  int xres, yres;
+  int minx, miny, maxx, maxy;
+  GR_BOOL xswap, yswap;
+} GR_CAL_DATA;
 
 /* Error codes */
 #define	GR_ERROR_BAD_WINDOW_ID		1
@@ -694,7 +702,7 @@ void            GrSetGCFillMode(GR_GC_ID, int);
 void            GrSetGCStipple(GR_GC_ID, GR_BITMAP *, GR_SIZE, GR_SIZE);
 void            GrSetGCTile(GR_GC_ID, GR_WINDOW_ID, GR_SIZE, GR_SIZE);
 void            GrSetGCTSOffset(GR_GC_ID, GR_COORD, GR_COORD);
-  
+
 void            GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure);
 void		GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font);
 void		GrGetGCTextSize(GR_GC_ID gc, void *str, int count,
@@ -759,10 +767,12 @@ void		GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did,
 void		GrBell(void);
 void		GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap,
 			int flags);
-void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid,
-			GR_WINDOW_ID **children, GR_COUNT *nchildren);
 void		GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y,
 			unsigned int *bmask);
+void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid,
+			GR_WINDOW_ID **children, GR_COUNT *nchildren);
+int             GrGrabKey(GR_WINDOW_ID wid, GR_KEY key);
+void            GrUngrabKey(GR_WINDOW_ID wid, GR_KEY key);
 
 GR_TIMER_ID	GrCreateTimer(GR_WINDOW_ID wid, GR_TIMEOUT period);
 void		GrDestroyTimer(GR_TIMER_ID tid);
@@ -780,6 +790,13 @@ void		GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb);
 
 /* Client side queue count - available only with client/server */
 int             GrQueueLength(void);
+
+void            GrSetTransform(GR_TRANSFORM *);
+
+/* nxtransform.c - mouse utility routines (requires floating point)*/
+int             GrCalcTransform(GR_CAL_DATA *, GR_TRANSFORM *);
+int             GrLoadTransformData(char *filename, GR_TRANSFORM *);
+int             GrSaveTransformData(GR_TRANSFORM *, char *filename);
 
 /* nxutil.c - utility routines*/
 GR_WINDOW_ID	GrNewWindowEx(GR_WM_PROPS props, GR_CHAR *title,

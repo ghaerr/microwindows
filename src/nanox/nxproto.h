@@ -1321,4 +1321,29 @@ typedef struct {
 	UINT32 op;
 } nxStretchAreaReq;
 
-#define GrTotalNumCalls         121
+#define GrNumGrabKey            121
+typedef struct {
+        BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+        IDTYPE	wid;
+        UINT16	ungrab;
+        UINT16	key;  
+} nxGrabKeyReq;
+
+#define GrNumSetTransform       122
+typedef struct {
+        BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	UINT32	mode;
+	UINT32	trans_a;
+	UINT32	trans_b;
+	UINT32	trans_c;
+	UINT32	trans_d;
+	UINT32	trans_e;
+	UINT32	trans_f;
+	UINT32	trans_s;
+} nxSetTransformReq;
+  
+#define GrTotalNumCalls         123

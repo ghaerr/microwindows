@@ -4005,3 +4005,71 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 	SERVER_UNLOCK();
 #endif
 }
+
+/**
+ * GrSetTransform
+ * @trans, the GR_TRANSFORM structure that contains the transform data
+ * for the filter, or NULL for raw mode.
+ *
+ * This passes transform data to the mouse input engine. 
+ */
+void
+GrSetTransform(GR_TRANSFORM *trans)
+{
+	SERVER_LOCK();
+	GdSetTransform(trans);
+	SERVER_UNLOCK();
+}
+
+/* FIXME - bad static design*/
+static GR_WINDOW_ID ascii_keys[256];
+static GR_WINDOW_ID nonascii_keys[256];
+
+/**
+ * Grab a key for a specific window.
+ * @id window to send event to.
+ * @key MWKEY value.
+ */
+int
+GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
+{
+	GR_WINDOW_ID *array = (key & MWKEY_NONASCII_MASK)?
+		nonascii_keys: ascii_keys;
+
+	SERVER_LOCK();
+
+	if (array[key & 0xff]) {
+		SERVER_UNLOCK();
+		return -1;	/* Already taken */
+	}
+	array[key & 0xff] = id;
+
+	SERVER_UNLOCK();
+	return 0;
+}
+
+/**
+ * Ungrab a key for a specific window.
+ * @id window to stop key grab.
+ * @key MWKEY value.
+ */
+void
+GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
+{
+	GR_WINDOW_ID *array = (key & MWKEY_NONASCII_MASK)?
+		nonascii_keys: ascii_keys;
+
+	SERVER_LOCK();
+	if (array[key & 0xff] == id)
+		array[key & 0xff] = 0;
+	SERVER_UNLOCK();
+}
+
+GR_WINDOW_ID
+GsGetGrabbedKey(MWKEY mwkey)
+{
+	GR_WINDOW_ID *array = (mwkey & MWKEY_NONASCII_MASK)?
+		nonascii_keys: ascii_keys;
+
+	return array[mwkey & 0xff];
+}

@@ -105,7 +105,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
  			if(!strcmpi(pf[i].name, fontname)) {
   				pf[i].fontsize = pf[i].cfont->height;
 				pf[i].fontattr = fontattr;
-printf("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
+DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
   				return (PMWFONT)&pf[i];
   			}
   		}
@@ -242,12 +242,12 @@ printf("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 		}
 		pf[fontno].fontsize = pf[fontno].cfont->height;
 		pf[fontno].fontattr = fontattr;
-printf("createfont: (height != 0) using builtin font %s (%d)\n", pf[fontno].name, fontno);
+DPRINTF("createfont: (height != 0) using builtin font %s (%d)\n", pf[fontno].name, fontno);
 		return (PMWFONT)&pf[fontno];
 	}
 
 	/* no font matched: don't load font, return 0*/
-printf("createfont: no font found, returning NULL\n");
+DPRINTF("createfont: no font found, returning NULL\n");
 	return 0;
 }
 

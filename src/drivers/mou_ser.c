@@ -117,10 +117,11 @@ MOUSEDEVICE mousedev = {
 	MOU_GetDefaultAccel,
 	MOU_Read,
 #if _MINIX
-	MOU_Poll
+	MOU_Poll,
 #else
-	NULL
+	NULL,
 #endif
+	MOUSE_NORMAL	/* flags*/
 };
 
 /*

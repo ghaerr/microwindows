@@ -1526,6 +1526,39 @@ GrStretchAreaWrapper(void *r)
 		      req->op);
 }
 
+/* handle both GrGrabKey and GrUngrabKey*/
+static void
+GrGrabKeyWrapper(void *r)
+{
+        nxGrabKeyReq *req = r;
+
+	if (req->ungrab == GR_FALSE) {   /* GrGrabKey */
+		int ret = GrGrabKey(req->wid, req->key);
+		GsWriteType(current_fd, GrNumGrabKey);
+		GsWrite(current_fd, &ret, sizeof(ret));
+	} else
+		GrUngrabKey(req->wid, req->key);
+}
+
+static void
+GrSetTransformWrapper(void *r) 
+{
+	nxSetTransformReq *req = r;
+	GR_TRANSFORM trans;
+
+	if (req->mode) {
+		trans.a = req->trans_a;
+		trans.b = req->trans_b;
+		trans.c = req->trans_c;
+		trans.d = req->trans_d;
+		trans.e = req->trans_e;
+		trans.f = req->trans_f;
+		trans.s = req->trans_s;
+		GrSetTransform(&trans);
+	} else
+		GrSetTransform(NULL);
+}
+
 void GrShmCmdsFlushWrapper(void *r);
 
 /*
@@ -1656,6 +1689,8 @@ struct GrFunction {
 	/* 118 */ {GrSetGCBackgroundPixelValWrapper, "GrSetGCBackgroundPixelVal"},
 	/* 119 */ {GrCreateLogFontWrapper, "GrCreateLogFont"},
 	/* 120 */ {GrStretchAreaWrapper, "GrStretchArea"},
+	/* 121 */ {GrGrabKeyWrapper, "GrGrabKey" },
+	/* 122 */ {GrSetTransformWrapper, "GrSetTransform" },
 };
 
 void

@@ -16,6 +16,8 @@ char *nxErrorStrings[] = {
 	GR_ERROR_STRINGS
 };
 
+extern MOUSEDEVICE mousedev;
+
 #if NONETWORK
 /* [copied from client.c]
  * The following is the user defined function for handling errors.
@@ -211,6 +213,7 @@ GR_BOOL GsCheckKeyboardEvent(void)
 				GdCaptureScreen("screen.bmp");
 			break;
 		}
+				
 		GsDeliverKeyboardEvent(0,
 			(keystatus==1?
 			GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
@@ -229,8 +232,14 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 {
 	int	 changebuttons;	/* buttons that have changed */
 	MWKEYMOD modifiers;	/* latest modifiers */
-
+	
 	GdGetModifierInfo(NULL, &modifiers); /* Read kbd modifiers */
+
+	/* If we are currently in raw mode, then just deliver the raw event */
+	if (mousedev.flags & MOUSE_RAW) { 
+		GsDeliverRawMouseEvent(newx, newy, newbuttons, modifiers);
+		return;
+	}
 
 	/*
 	 * First, if the mouse has moved, then position the cursor to the
@@ -242,6 +251,7 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	if ((newx != cursorx) || (newy != cursory)) {
 		GsResetScreenSaver();
 		GrMoveCursor(newx, newy);
+
 		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_MOTION,
 			newbuttons, modifiers);
 		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_POSITION,
@@ -251,6 +261,7 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	/*
 	 * Next, generate a button up event if any buttons have been released.
 	 */
+
 	changebuttons = (curbuttons & ~newbuttons);
 	if (changebuttons) {
 
@@ -483,6 +494,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 	GR_WINDOW_ID		subwid;		/* subwindow id event is for */
 	GR_EVENT_MASK		eventmask;	/* event mask */
 	GR_WINDOW		*kwp;
+	GR_WINDOW_ID            grabbed;
 
 	eventmask = GR_EVENTMASK(type);
 	if (eventmask == 0)
@@ -490,28 +502,45 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 
 	GsResetScreenSaver();
 
-	/* if window id passed, use it, otherwise focus window*/
-	if (wid) {
-		kwp = GsFindWindow(wid);
-		if (!kwp)
-			return;
-	} else
-		kwp = focuswp;
-	wp = mousewp;
-	subwid = wp->id;
-
-	/*
-	 * See if the actual window the pointer is in is a descendant of
-	 * the focus window.  If not, then ignore it, and force the input
-	 * into the focus window itself.
+	/* Handle a grabbed key:
+	 * The associated window must be an ancestor of the focused window,
+	 * or a descendent that contains the pointer.
 	 */
-	tempwp = wp;
-	while ((tempwp != kwp) && (tempwp != rootwp))
-		tempwp = tempwp->parent;
+	if ((grabbed = GsGetGrabbedKey(keyvalue)) != 0) {
+		wp = GsFindWindow(grabbed);
+		kwp = focuswp;
 
-	if (tempwp != kwp) {
-		wp = kwp;
+		/* See if the window is an ancestor */
+		while (kwp != wp && kwp != rootwp)
+			kwp = kwp->parent;
+
+		if (kwp != wp && wp != mousewp)
+			return;
 		subwid = wp->id;
+	} else {
+		/* if window id passed, use it, otherwise focus window */
+		if (wid) {
+			kwp = GsFindWindow(wid);
+			if (!kwp)
+				return;
+		} else
+			kwp = focuswp;
+		wp = mousewp;
+		subwid = wp->id;
+
+		/*
+		 * See if the actual window the pointer is in is a descendant of
+		 * the focus window.  If not, then ignore it, and force the input
+		 * into the focus window itself.
+		 */
+		tempwp = wp;
+		while (tempwp != kwp && tempwp != rootwp)
+			tempwp = tempwp->parent;
+
+		if (tempwp != kwp) {
+			wp = kwp;
+			subwid = wp->id;
+		}
 	}
 
 	/*
@@ -521,6 +550,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 	 */
 	for (;;) {
 		for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
+
 			if ((ecp->eventmask & eventmask) == 0)
 				continue;
 
@@ -895,27 +925,128 @@ GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner)
 	}
 }
 
+/* This is a bit of a misnomer - this will deliver the normal events
+   but it doesn't bother doing any sort of bounds checking or anything,
+   we just start at the "focus" window and try to deliver events to the path
+*/
 void
-GsDeliverTimerEvent (GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
+GsDeliverRawMouseEvent(int rx, int ry, int buttons, int modifiers)
 {
-    GR_EVENT_TIMER    *event;           /* general event */
-    GR_EVENT_CLIENT   *ecp;             /* current event client */
-    GR_WINDOW         *wp;              /* current window */
-    
-    if ((wp = GsFindWindow (wid)) == NULL)
-        return;
+	int i;
 
-    for (ecp = wp->eventclients; ecp != NULL; ecp = ecp->next) 
-    {
-        if ((ecp->client == client) && ((ecp->eventmask & GR_EVENT_MASK_TIMER) != 0))
-        {
-            event = (GR_EVENT_TIMER*) GsAllocEvent (client);
-            if (event == NULL)
-                break;
-        
-            event->type = GR_EVENT_TYPE_TIMER;
-            event->wid  = wid;
-            event->tid  = tid;
-        }
-    }
+	GR_WINDOW *wp;		/* current window */
+	GR_CLIENT *client;	/* current client */
+	GR_WINDOW_ID subwid;	/* subwindow id event is for */
+
+	GR_EVENT_CLIENT *ecp;
+
+	/* Start with the "focus" window and move up */
+	/* Since the raw mouse position doesn't match the actual
+	   geometry, this is all we can do */
+	wp = mousewp;
+	subwid = wp->id;
+
+	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
+		GR_EVENT_MOUSE *ep;
+
+		if ((ecp->eventmask & GR_EVENT_MASK_MOUSE_POSITION) == 0)
+			continue;
+
+		client = ecp->client;
+
+		GsFreePositionEvent(client, wp->id, subwid);
+
+		ep = (GR_EVENT_MOUSE *) GsAllocEvent(client);
+		if (ep == NULL)
+			continue;
+
+		ep->type = GR_EVENT_TYPE_MOUSE_POSITION;
+		ep->wid = wp->id;
+		ep->subwid = subwid;
+		ep->rootx = rx;
+		ep->rooty = ry;
+		ep->x = 0;	/* These make no sense in raw mode */
+		ep->y = 0;
+		ep->buttons = buttons;
+		ep->modifiers = modifiers;
+
+		if ((wp == rootwp)
+		    || (wp->nopropmask & GR_EVENT_MASK_MOUSE_POSITION))
+			break;
+
+		wp = wp->parent;
+	}
+
+	/* Deliver button events if we have to */
+	for (i = 0; i < 2; i++) {
+		GR_EVENT_BUTTON *gp;
+		unsigned long cbuttons = 0;
+		GR_EVENT_TYPE etype = (i == 0) ? GR_EVENT_TYPE_BUTTON_DOWN :
+			GR_EVENT_TYPE_BUTTON_UP;
+
+		if (i == 0)
+			cbuttons = (curbuttons & ~buttons);
+		else
+			cbuttons = (~buttons & curbuttons);
+		if (!cbuttons)
+			continue;
+
+		wp = mousewp;
+		subwid = wp->id;
+
+		for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
+			client = ecp->client;
+
+			if ((ecp->eventmask & GR_EVENTMASK(etype)) == 0)
+				continue;
+
+			gp = (GR_EVENT_BUTTON *) GsAllocEvent(ecp->client);
+
+			if (gp == NULL)
+				continue;
+
+			gp->type = etype;
+			gp->wid = wp->id;
+			gp->subwid = subwid;
+			gp->rootx = rx;
+			gp->rooty = ry;
+			gp->x = 0;
+			gp->y = 0;
+			gp->buttons = buttons;
+			gp->changebuttons = cbuttons;
+			gp->modifiers = modifiers;
+			gp->time = GsGetTickCount();
+
+			if ((wp == rootwp) || (wp->nopropmask & GR_EVENTMASK(etype)))
+				break;
+
+			wp = wp->parent;
+		}
+	}
+
+	curbuttons = buttons;
+}
+
+void
+GsDeliverTimerEvent(GR_CLIENT * client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
+{
+	GR_EVENT_TIMER *event;	/* general event */
+	GR_EVENT_CLIENT *ecp;	/* current event client */
+	GR_WINDOW *wp;		/* current window */
+
+	if ((wp = GsFindWindow(wid)) == NULL)
+		return;
+
+	for (ecp = wp->eventclients; ecp != NULL; ecp = ecp->next) {
+		if ((ecp->client == client)
+		    && ((ecp->eventmask & GR_EVENT_MASK_TIMER) != 0)) {
+			event = (GR_EVENT_TIMER *) GsAllocEvent(client);
+			if (event == NULL)
+				break;
+
+			event->type = GR_EVENT_TYPE_TIMER;
+			event->wid = wid;
+			event->tid = tid;
+		}
+	}
 }

@@ -693,6 +693,13 @@ typedef struct {
 	MWIMAGEBITS	mask[MWMAX_CURSOR_SIZE*2];/* cursor mask bits*/
 } MWCURSOR, *PMWCURSOR;
 
+/* touchscreen device transform coefficients for GdSetTransform*/
+typedef struct {
+	int	a, b, c;	/* xpos = (a*jitx + b*jity + c)/denom */
+	int	d, e, f;	/* ypos = (d*jitx + e*jity + f)/denom */
+	int	s;		/* denom*/
+} MWTRANSFORM;
+
 typedef struct _mwfont *	PMWFONT;
 
 /* outline and filled arc and pie types*/
@@ -827,7 +834,8 @@ typedef unsigned short	MWSCANCODE;
 #define MWKEY_CANCEL		0xF847
 #define MWKEY_APP1		0xF848
 #define MWKEY_APP2		0xF849
-#define MWKEY_LAST		0xF849
+#define MWKEY_SUSPEND           0xF84A
+#define MWKEY_LAST		0xF84A
 
 /* Keyboard state modifiers*/
 #define MWKMOD_NONE  		0x0000

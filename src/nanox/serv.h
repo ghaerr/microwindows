@@ -448,6 +448,7 @@ void		GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type,
 			GR_WINDOW *other);
 void		GsDeliverPortraitChangedEvent(void);
 void		GsDeliverScreenSaverEvent(GR_BOOL activate);
+void		GsDeliverRawMouseEvent(int x, int y, int buttons, int);
 void		GsDeliverClientDataReqEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 			GR_SERIALNO serial, GR_MIMETYPE mimetype);
 void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
@@ -493,6 +494,8 @@ void		GsHandleClient(int fd);
 void		GsResetScreenSaver(void);
 void		GsActivateScreenSaver(void *arg);
 void		GrGetNextEventWrapperFinish(int);
+
+GR_WINDOW_ID    GsGetGrabbedKey(MWKEY);
 
 /*
  * External data definitions.

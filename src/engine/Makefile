@@ -24,7 +24,7 @@ LDFLAGS +=
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME = libmwengine.a
-LIBNAMESO = libmwengine.so
+#LIBNAMESO = libmwengine.so
 
 # List of objects to compile
 OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \

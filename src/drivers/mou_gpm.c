@@ -35,7 +35,8 @@ MOUSEDEVICE mousedev = {
 	GPM_GetButtonInfo,
 	MOU_GetDefaultAccel,
 	GPM_Read,
-	NULL
+	NULL,
+	MOUSE_NORMAL	/* flags*/
 };
 
 static int mouse_fd;

@@ -76,12 +76,7 @@ OBJS =	demo.o \
 	nsaver.o \
 	nxeyes.o \
 	tux.o \
-#	pressure.o \
-#	oneshot.o \
-#	periodic.o \
-#	ipcserver.o \
-#	ipcclient.o \
-#	nanocal.o \
+	nanocal.o 
 
 TARGETS = \
 	$(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
@@ -97,11 +92,8 @@ TARGETS = \
 	$(TOP)/bin/arcdemo $(TOP)/bin/polydemo $(TOP)/bin/snap_ppm \
 	$(TOP)/bin/bmpdemo $(TOP)/bin/rgndemo \
 	$(TOP)/bin/convpbm \
-	$(TOP)/bin/nsaver
-#	$(TOP)/bin/pressure 
-#	$(TOP)/bin/oneshot $(TOP)/bin/periodic \
-#	$(TOP)/bin/ipcserver $(TOP)/bin/ipcclient \
-#	$(TOP)/bin/nanocal 
+	$(TOP)/bin/nsaver \
+	$(TOP)/bin/nanocal 
 
 ifneq ($(ARCH),CYGWIN)
 TARGETS += \

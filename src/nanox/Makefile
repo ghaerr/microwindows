@@ -63,7 +63,7 @@ else
 OBJS =
 endif
 
-OBJS += client.o nxproto.o error.o $(UTILFILES)
+OBJS += client.o nxproto.o nxtransform.o error.o $(UTILFILES)
 ifeq ($(ARCH), ECOS) 
 TARGET = $(TOP)/bin/nano-X.o
 else

@@ -21,12 +21,15 @@
 #define USE_ALLOCA	1			/* alloca() is available */
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
+
+#ifdef HAVE_BETTER_COMPILER
+/*** GCC compiler-only macro magic to save space ***/
+#define EPRINTF(str, args...)   fprintf(stderr, str, ##args)
+#define DPRINTF(str, ...)
+#else
 #define EPRINTF		GdError			/* error output*/
 #define DPRINTF		GdErrorNull		/* debug output*/
-/*** GCC compiler-only macro magic to save space
-#define EPRINTF(str, args...)	fprintf(stderr, str, ##args)
-#define DPRINTF(str, ...)
-***/
+#endif
 
 #if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
 #define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage* / GdDrawImage* */
@@ -360,8 +363,13 @@ typedef struct _mousedevice {
 	int	(*GetButtonInfo)(void);
 	void	(*GetDefaultAccel)(int *pscale,int *pthresh);
 	int	(*Read)(MWCOORD *dx,MWCOORD *dy,MWCOORD *dz,int *bp);
-	int	(*Poll)(void);		/* not required if have select()*/
+	int	(*Poll)(void);	/* not required if have select()*/
+        int     flags;		/* raw, normal, transform flags*/
 } MOUSEDEVICE;
+
+#define MOUSE_NORMAL		0x0000	/* mouse in normal mode*/
+#define MOUSE_RAW		0x0001	/* mouse in raw mode*/
+#define MOUSE_TRANSFORM		0x0002	/* perform transform*/
 
 /* Interface to Keyboard Device Driver*/
 typedef struct _kbddevice {
@@ -798,6 +806,8 @@ int 	GdShowCursor(PSD psd);
 int 	GdHideCursor(PSD psd);
 void	GdCheckCursor(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2);
 void 	GdFixCursor(PSD psd);
+void    GdSetTransform(MWTRANSFORM *);
+
 extern MOUSEDEVICE mousedev;
 
 /* devkbd.c*/

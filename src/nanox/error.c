@@ -10,6 +10,8 @@
 #endif
 #include "device.h"
 
+#ifndef HAVE_BETTER_COMPILER
+
 /* output error message and return -1*/
 int
 GdError(const char *format, ...)
@@ -30,3 +32,4 @@ GdErrorNull(const char *format, ...)
 {
 	return -1;
 }
+#endif /* HAVE_BETTER_COMPILER*/

@@ -4185,3 +4185,76 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 	UNLOCK(&nxGlobalLock);
 }
 
+/**
+ * Grab a key for a specific window.
+ * @id window to send event to.
+ * @key MWKEY value.
+ */
+int
+GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
+{
+	int ret = 0;
+	nxGrabKeyReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(GrabKey);
+	req->wid = id;
+	req->ungrab = GR_FALSE;
+	req->key = key;
+
+	/* GrGrabKey returns a value */
+
+	if (TypedReadBlock(&ret, sizeof(ret), GrNumGrabKey) < 0)
+		ret = -1;
+
+	UNLOCK(&nxGlobalLock);
+	return ret;
+}
+
+/**
+ * Ungrab a key for a specific window.
+ * @id window to stop key grab.
+ * @key MWKEY value.
+ */
+void
+GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
+{
+	nxGrabKeyReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(GrabKey);
+	req->wid = id;
+	req->ungrab = GR_TRUE;
+	req->key = key;
+	UNLOCK(&nxGlobalLock);
+}
+
+/**
+ * GrSetTransform
+ * @mode, if zero, then disable the transform filter, otherwise use the data
+ * @data, a GR_TRANSFORM structure that contains the transform data for teh filter
+ *
+ * This passes transform data to the mouse input engine. 
+ */
+void
+GrSetTransform(GR_TRANSFORM *trans)
+{
+	nxSetTransformReq *req;
+
+	LOCK(&nxGlobalLock);
+
+	req = AllocReq(SetTransform);
+	req->mode = trans? 1: 0;
+
+	if (trans) {
+		req->trans_a = trans->a;
+		req->trans_b = trans->b;
+		req->trans_c = trans->c;
+		req->trans_d = trans->d;
+		req->trans_e = trans->e;
+		req->trans_f = trans->f;
+		req->trans_s = trans->s;
+	}
+
+	UNLOCK(&nxGlobalLock);
+}

@@ -32,7 +32,8 @@ MOUSEDEVICE mousedev = {
     X11_GetButtonInfo,
     X11_GetDefaultAccel,
     X11_Read,
-    NULL
+    NULL,
+    MOUSE_NORMAL	/* flags*/
 };
 
 /*

@@ -32,7 +32,7 @@ LDFLAGS +=
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME = libmwdrivers.a
-LIBNAMESO = libmwdrivers.so
+#LIBNAMESO = libmwdrivers.so
 
 # List of objects to compile
 

@@ -7,7 +7,7 @@
 include $(CONFIG)
 
 LIBNAME = libmwobjects.a
-LIBNAMESO = libmwobjects.so
+#LIBNAMESO = libmwobjects.so
 
 ifeq ($(OBJFRAMEWORK), Y)
 CXXOBJS += mwobjects.o

@@ -54,6 +54,11 @@ static MWIMAGEBITS cursorcolor[MWMAX_CURSOR_BUFLEN];
 
 extern int gr_mode;
 
+/* Advance declarations */
+static int filter_relative(int, int, int, int *, int *, int, int);
+static int filter_rotate(int, int *x, int *y);
+static int filter_transform(int, int *, int *);
+
 /*
  * Initialize the mouse.
  * This sets its position to (0, 0) with no boundaries and no buttons pressed.
@@ -91,6 +96,7 @@ GdOpenMouse(void)
 	/* handle null mouse driver by hiding cursor*/
 	if(fd == -2)
 		GdHideCursor(&scrdev);
+
 	return fd;
 }
 
@@ -120,6 +126,7 @@ GdRestrictMouse(MWCOORD newminx, MWCOORD newminy, MWCOORD newmaxx,
 	miny = newminy;
 	maxx = newmaxx;
 	maxy = newmaxy;
+
 	GdMoveMouse(xpos, ypos);
 }
 
@@ -151,18 +158,22 @@ GdSetAccelMouse(int newthresh, int newscale)
 void
 GdMoveMouse(MWCOORD newx, MWCOORD newy)
 {
-	if (newx < minx)
-		newx = minx;
-	if (newx > maxx)
-		newx = maxx;
-	if (newy < miny)
-		newy = miny;
-	if (newy > maxy)
-		newy = maxy;
+	if (!(mousedev.flags & MOUSE_RAW)) {
+		if (newx < minx)
+			newx = minx;
+		if (newx > maxx)
+			newx = maxx;
+		if (newy < miny)
+			newy = miny;
+		if (newy > maxy)
+			newy = maxy;
+	}
+
 	if (newx == xpos && newy == ypos)
 		return;
 
 	changed = TRUE;
+
 	xpos = newx;
 	ypos = newy;
 }
@@ -182,8 +193,8 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 {
 	MWCOORD	x, y, z;
 	int	newbuttons;	/* new button state */
-	int	sign;		/* sign of change */
 	int	status;		/* status of reading mouse */
+	MWCOORD dx, dy;
 
 	*px = xpos;
 	*py = ypos;
@@ -203,63 +214,46 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	if (status == 0)
 		return 0;
 
-	/* has the button state changed? */
+	/* run data through mouse filter functions*/
+
+	/* for relative devices, translate through thresh and scale*/
+	if(status == 1) {
+		dx = xpos;
+		dy = ypos;
+		filter_relative(status, thresh, scale, &dx, &dy, x, y);  
+	} else {
+		dx = x;
+		dy = y;
+	}
+
+	/* if required, throw the data through the transform filter */
+	if (mousedev.flags & MOUSE_TRANSFORM) {
+		if (!filter_transform(status, &dx, &dy))
+			return 0;
+	}
+
+#if FLIP_MOUSE_IN_PORTRAIT_MODE
+	/* rotate the mouse data in portrait modes */
+	if (scrdev.portrait != MWPORTRAIT_NONE && !(mousedev.flags & MOUSE_RAW))
+		filter_rotate(status, &dx, &dy);
+#endif
+	
+	/* 
+	 * At this point, we should have a valid mouse point. Check the button
+	 * state and set the flags accordingly.  We do this *after* the filters,
+	 * because some of the filters (like the transform) need to be called
+	 * several times before we get valid data.
+	 */
 	if (buttons != newbuttons) {
 		changed = TRUE;
 		buttons = newbuttons;
 	}
 
-	/* depending on the kind of data that we have */
-	switch(status) {
-	case 1:	/* relative position change reported, figure new position */
-		sign = 1;
-		if (x < 0) {
-			sign = -1;
-			x = -x;
-		}
-		if (x > thresh)
-			x = thresh + (x - thresh) * scale;
-		x *= sign;
+	/* Finally, move the mouse */
+	if (status != 3)
+		GdMoveMouse(dx, dy);
 
-		sign = 1;
-		if (y < 0) {
-			sign = -1;
-			y = -y;
-		}
-		if (y > thresh)
-			y = thresh + (y - thresh) * scale;
-		y *= sign;
-
-#if FLIP_MOUSE_IN_PORTRAIT_MODE
-		if (scrdev.portrait == MWPORTRAIT_RIGHT)
-			GdMoveMouse(xpos + y, ypos - x);	/* right*/
-		else if (scrdev.portrait == MWPORTRAIT_LEFT)
-			GdMoveMouse(xpos - y, ypos + x);	/* left*/
-		else if (scrdev.portrait == MWPORTRAIT_DOWN)
-			GdMoveMouse(xpos + x, ypos - y);	/* down*/
-		else 
-#endif
-			GdMoveMouse(xpos + x, ypos + y);
-		break;
-
-	case 2:	/* absolute position reported */
-#if FLIP_MOUSE_IN_PORTRAIT_MODE
-		if (scrdev.portrait == MWPORTRAIT_RIGHT)
-			GdMoveMouse(y, scrdev.xres - x - 1);	/* right*/
-		else if (scrdev.portrait == MWPORTRAIT_LEFT)
-			GdMoveMouse(scrdev.yres - y - 1, x);	/* left*/
-		else if (scrdev.portrait == MWPORTRAIT_DOWN)
-			GdMoveMouse(x, scrdev.yres - y - 1);	/* down?*/
-		else 
-#endif
-			GdMoveMouse(x, y);
-		break;
-
-	case 3:	/* only button data is available */
-		break;
-	}
- 
-	/* didn't anything change? */
+	/* anything change? */
 	if (!changed)
 		return 0;
 
@@ -268,6 +262,7 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	*px = xpos;
 	*py = ypos;
 	*pb = buttons;
+
 	return 1;
 }
 
@@ -462,4 +457,137 @@ GdFixCursor(PSD psd)
 		GdShowCursor(psd);
 		curneedsrestore = FALSE;
 	}
+}
+
+/* Input filter routines - global mouse filtering is cool */
+#define JITTER_SHIFT_BITS	2
+#define JITTER_DEPTH		(1 << (JITTER_SHIFT_BITS))
+
+static MWTRANSFORM g_trans;	/* current transform*/
+
+static struct {
+	int x;
+	int y;
+	int count;
+} jitter = { 0, 0, 0};
+
+/* set mouse transform, raw mode if no transform specified*/
+void
+GdSetTransform(MWTRANSFORM *trans)
+{
+	if (trans) {
+		g_trans = *trans;
+		/*memcpy(&g_trans, trans, sizeof(MWTRANSFORM));*/
+		mousedev.flags &= ~MOUSE_RAW;
+	} else
+		mousedev.flags |= MOUSE_RAW;
+}
+
+/* These are the mouse input filters */
+static int
+filter_relative(int state, int thresh, int scale, int *xpos, int *ypos, int x,
+	int y)
+{
+	int sign = 1;
+
+	if (state != 1)
+		return 0;
+
+	if (x < 0) {
+		sign = -1;
+		x = -x;
+	}
+
+	if (x > thresh)
+		x = thresh + (x - thresh) * scale;
+	x *= sign;
+
+	sign = 1;
+
+	if (y < 0) {
+		sign = -1;
+		y = -y;
+	}
+
+	if (y > thresh)
+		y = thresh + (y - thresh) * scale;
+	y *= sign;
+
+	*xpos += x;
+	*ypos += y;
+
+	return 0;
+}
+
+static int
+filter_rotate(int state, int *xpos, int *ypos)
+{
+	int x = *xpos;
+	int y = *ypos;
+
+	if (state == 3)
+		return 0;
+
+	switch (scrdev.portrait) {
+	case MWPORTRAIT_RIGHT:
+		*xpos = y;
+		*ypos = scrdev.xres - x - 1;
+		break;
+
+	case MWPORTRAIT_LEFT:
+		*xpos = scrdev.yres - y - 1;
+		*ypos = x;
+		break;
+
+	case MWPORTRAIT_DOWN:
+		*xpos = x;
+		*ypos = scrdev.yres - y - 1;
+		break;
+
+	default:
+		*xpos = x;
+		*ypos = y;
+	}
+
+	return 0;
+}
+
+static int
+filter_transform(int state, int *xpos, int *ypos)
+{
+
+	/* No transform data is available, just return the raw values */
+	if (state == 3) {
+		jitter.count = jitter.x = jitter.y = 0;
+		return 1;
+	} else if (state == 1)
+		return 1;
+
+	if (jitter.count == JITTER_DEPTH) {
+		jitter.x = jitter.x >> JITTER_SHIFT_BITS;
+		jitter.y = jitter.y >> JITTER_SHIFT_BITS;
+
+		if (!(mousedev.flags & MOUSE_RAW)) {
+			*xpos = ((g_trans.a * jitter.x +
+				  g_trans.b * jitter.y +
+				  g_trans.c) / g_trans.s);
+			*ypos = ((g_trans.d * jitter.x +
+				  g_trans.e * jitter.y +
+				  g_trans.f) / g_trans.s);
+
+			jitter.count = jitter.x = jitter.y = 0;
+			return 1;
+		} else {
+			*xpos = jitter.x;
+			*ypos = jitter.y;
+
+			jitter.count = jitter.x = jitter.y = 0;
+			return 2;
+		}
+	}
+
+	jitter.x += *xpos;
+	jitter.y += *ypos;
+	jitter.count += 1;
+	return 0;		/* In other words, don't use the returned value */
 }

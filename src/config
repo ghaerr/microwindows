@@ -309,6 +309,7 @@ NOMOUSE                  = N
 TTYKBD                   = N
 SCANKBD                  = Y
 PIPEKBD                  = N
+IPAQKBD                  = N
 NOKBD                    = N
 
 endif

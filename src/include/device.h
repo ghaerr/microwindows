@@ -23,12 +23,29 @@
 #define EPRINTF		GdError			/* error output*/
 #define DPRINTF		GdErrorNull		/* debug output*/
 
+/* Which low-level psd->DrawArea routines to include. */
+#define MW_FEATURE_PSDOP_COPY                   0
+#define MW_FEATURE_PSDOP_ALPHAMAP               0
+#define MW_FEATURE_PSDOP_ALPHACOL               0
+#define MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST 0
+#define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 0
+
 /* max char height/width must be >= 16 and a multiple of sizeof(MWIMAGEBITS)*/
 #define MAX_CHAR_HEIGHT	128			/* maximum text bitmap height*/
 #define MAX_CHAR_WIDTH	128			/* maximum text bitmap width*/
 #define	MIN_MWCOORD	((MWCOORD) -32768)	/* minimum coordinate value */
 #define	MAX_MWCOORD	((MWCOORD) 32767)	/* maximum coordinate value */
 #define	MAX_CLIPRECTS 	200			/* max clip rects (obsolete)*/
+
+/* Override some of the above defines, for features which are required
+ * for the Microwindows FreeType 2 font driver
+ */
+#ifdef HAVE_FREETYPE_2_SUPPORT
+#undef  MW_FEATURE_PSDOP_ALPHACOL
+#define MW_FEATURE_PSDOP_ALPHACOL 1
+#undef  MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
+#define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 1
+#endif
 
 typedef struct _mwscreendevice *PSD;
 
@@ -94,12 +111,109 @@ typedef struct {
 } driver_gc_t;
 
 /* Operations for the Blitter/Area functions */
+
+#if MW_FEATURE_PSDOP_COPY
+
+/*
+ * FIXME Not Documented - see drivers/fblin16.c
+ */
 #define PSDOP_COPY	0
+
+/*
+ * FIXME Not Documented - see drivers/fblin16.c
+ */
 #define PSDOP_COPYALL	1
+
+/*
+ * FIXME Not Documented - see drivers/fblin16.c
+ */
 #define PSDOP_COPYTRANS 2
+
+#endif /* MW_FEATURE_PSDOP_COPY */
+
+#if MW_FEATURE_PSDOP_ALPHAMAP
+/*
+ * Copy an image to screen, using an alpha map.
+ * Params:
+ * dstx, dsty  - Destination for top left of image
+ * dstw, dsth  - Image size
+ * srcx, srcy  - Start co-ordinates in source image
+ * src_linelen - Source image stride, in pixels
+ * pixels      - Image to copy from.  Format: same color model as display.
+ * misc        - Alpha map.  Format: ADDR8, entries
+ *               are alpha values in range 0-255.
+ * gr_usebg    - Ignored.  FIXME If set, should blend to bg_color.
+ * bg_color    - Ignored.  FIXME Should be used if gr_usebg is set.
+ * fg_color    - Ignored.
+ */
 #define PSDOP_ALPHAMAP	3
+#endif /* MW_FEATURE_PSDOP_ALPHAMAP */
+
+#if MW_FEATURE_PSDOP_ALPHACOL
+/*
+ * Draws an alpha map to screen (e.g. an anti-aliased font).
+ * Params:
+ * dstx, dsty  - Destination for top left of image
+ * dstw, dsth  - Image size
+ * srcx, srcy  - Start co-ordinates in source alpha map
+ * src_linelen - Source image stride, in pixels
+ * misc        - Alpha map.  Format: ADDR8, entries
+ *               are alpha values in range 0-255.
+ * fg_color    - The color to draw in, in the display format.
+ * gr_usebg    - Ignored.  FIXME If set, should blend to bg_color.
+ * bg_color    - Ignored.  FIXME Should be used if gr_usebg is set.
+ * pixels      - Ignored.
+ */
 #define PSDOP_ALPHACOL	4
-#define PSDOP_PIXMAP_COPYALL	5
+#endif /* MW_FEATURE_PSDOP_ALPHACOL */
+
+#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
+/*
+ * Draws a mono bitmap to screen (e.g. a mono font).
+ * This variant takes the bitmap as an array of bytes,
+ * where the Least Significant Bit in each byte is
+ * used to set the left-most of the eight pixels
+ * controlled by that byte.  I.e:
+ *
+ * [ 1 1 1 1 0 0 0 1 ] == 0x8F
+ *
+ * Params:
+ * dstx, dsty  - Destination for top left of image
+ * dstw, dsth  - Image size
+ * srcx, srcy  - Start co-ordinates in source alpha map
+ * src_linelen - Source image stride, in pixels
+ * pixels      - The bitmap.  Format: ADDR8, LSB is drawn first.
+ * fg_color    - The color to draw "1" bits in, in the display format.
+ * bg_color    - The color to draw "0" bits in, in the display format.
+ * gr_usebg    - If zero, then "0" bits are transparent.  If nonzero,
+ *               then "0" bits are bg_color.
+ */
+#define PSDOP_BITMAP_BYTES_LSB_FIRST	5
+#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+
+#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
+/*
+ * Draws a mono bitmap to screen (e.g. a mono font).
+ * This variant takes the bitmap as an array of bytes,
+ * where the Most Significant Bit in each byte is
+ * used to set the left-most of the eight pixels
+ * controlled by that byte.  I.e:
+ *
+ * [ 1 1 1 1 0 0 0 1 ] == 0xF1
+ *
+ * Params:
+ * dstx, dsty  - Destination for top left of image
+ * dstw, dsth  - Image size
+ * srcx, srcy  - Start co-ordinates in source alpha map
+ * src_linelen - Source image stride, in pixels
+ * pixels      - The bitmap.  Format: ADDR8, MSB is drawn first.
+ * fg_color    - The color to draw "1" bits in, in the display format.
+ * bg_color    - The color to draw "0" bits in, in the display format.
+ * gr_usebg    - If zero, then "0" bits are transparent.  If nonzero,
+ *               then "0" bits are bg_color.
+ */
+#define PSDOP_BITMAP_BYTES_MSB_FIRST	6
+#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 /* common blitter parameter structure*/
 typedef struct {
@@ -539,6 +653,7 @@ void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		MWPIXELVAL *pixels);
 void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		void *pixels, int pixtype);
+void	GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op);
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		MWCOORD inpitch, void *out, int outpixtype, int outpitch);
 void	GdCopyArea(PSD psd,MWCOORD srcx,MWCOORD srcy,MWCOORD width,

@@ -76,6 +76,7 @@ static void X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 		     MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy,
 		     long op);
 static void X11_preselect(PSD psd);
+static void X11_drawarea(PSD psd, driver_gc_t * gc, int op);
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -91,7 +92,7 @@ SCREENDEVICE scrdev = {
 	gen_fonts,
 	X11_blit,
 	X11_preselect,
-	NULL,
+	X11_drawarea,
 	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
 	fb_mapmemgc,
@@ -1059,6 +1060,21 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 		 */
 		update_from_savebits(destx, desty, w, h);
 	}
+}
+
+static void
+X11_drawarea(PSD psd, driver_gc_t * gc, int op)
+{
+	assert(psd->addr != 0);
+	/*assert(gc->dstw <= gc->srcw); */
+	assert(gc->dstx >= 0 && gc->dstx + gc->dstw <= psd->xres);
+	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
+	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
+	assert(gc->srcy >= 0);
+
+	savebits.DrawArea(&savebits, gc, op);
+
+	update_from_savebits(gc->dstx, gc->dsty, gc->dstw, gc->dsth);
 }
 
 

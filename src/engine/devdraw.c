@@ -965,6 +965,114 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	GdFixCursor(psd);
 }
 
+/*
+ * A wrapper for psd->DrawArea which performs clipping.
+ * The gc->dst[x,y,w,h] values are clipped.  The gc->src[x,y]
+ * values are adjusted accordingly.
+ *
+ * This function does NOT have a fallback implementation
+ * if the function is not supported by the driver.
+ *
+ * It is the caller's responsibility to GdFixCursor(psd).
+ *
+ * This is a low-level function.
+ */
+void
+GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
+{
+	MWCOORD x = gc->dstx;
+	MWCOORD y = gc->dsty;
+	MWCOORD width = gc->dstw;
+	MWCOORD height = gc->dsth;
+	MWCOORD srcx;
+	MWCOORD srcy;
+	int clipped;
+	int rx1, rx2, ry1, ry2, rw, rh;
+	int count;
+#if DYNAMICREGIONS
+	MWRECT *prc;
+	extern MWCLIPREGION *clipregion;
+#else
+	MWCLIPRECT *prc;
+	extern MWCLIPRECT cliprects[];
+	extern int clipcount;
+#endif
+
+	if (!psd->DrawArea)
+		return;
+
+	/* Set up area clipping, and just return if nothing is visible */
+	clipped = GdClipArea(psd, x, y, x + width - 1, y + height - 1);
+	if (clipped == CLIP_INVISIBLE) {
+		return;
+	} else if (clipped == CLIP_VISIBLE) {
+		psd->DrawArea(psd, gc, op);
+		return;
+	}
+	/* Partially clipped. */
+
+	/* Save srcX/Y so we can change the originals. */
+	srcx = gc->srcx;
+	srcy = gc->srcy;
+
+#if DYNAMICREGIONS
+	prc = clipregion->rects;
+	count = clipregion->numRects;
+#else
+	prc = cliprects;
+	count = clipcount;
+#endif
+
+	while (count-- > 0) {
+#if DYNAMICREGIONS
+		rx1 = prc->left;
+		ry1 = prc->top;
+		rx2 = prc->right;
+		ry2 = prc->bottom;
+#else
+		/* New clip-code by Morten */
+		rx1 = prc->x;
+		ry1 = prc->y;
+		rx2 = prc->x + prc->width;
+		ry2 = prc->y + prc->height;
+#endif
+
+		/* Check if this rect intersects with the one we draw */
+		if (rx1 < x)
+			rx1 = x;
+		if (ry1 < y)
+			ry1 = y;
+		if (rx2 > x + width)
+			rx2 = x + width;
+		if (ry2 > y + height)
+			ry2 = y + height;
+
+		rw = rx2 - rx1;
+		rh = ry2 - ry1;
+
+		if (rw > 0 && rh > 0) {
+			gc->dstx = rx1;
+			gc->dsty = ry1;
+			gc->dstw = rw;
+			gc->dsth = rh;
+			gc->srcx = srcx + rx1 - x;
+			gc->srcy = srcy + ry1 - y;
+			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
+			psd->DrawArea(psd, gc, op);
+		}
+		prc++;
+	}
+
+	/* Reset everything, in case the caller re-uses it. */
+	gc->dstx = x;
+	gc->dsty = y;
+	gc->dstw = width;
+	gc->dsth = height;
+	gc->srcx = srcx;
+	gc->srcy = srcy;
+	return;
+}
+
 /* Draw a rectangle of color values, clipping if necessary.
  * If a color matches the background color,
  * then that pixel is only drawn if the gr_usebg flag is set.
@@ -1017,83 +1125,32 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	if ( GdClipArea(psd, minx, y, maxx, y + height - 1) == CLIP_INVISIBLE )
 		return;
 
-/* psd->DrawArea driver call temp removed, doesn't work with new blit routines*/
+/* psd->DrawArea driver call temp removed, hasn't been tested with new drawarea routines*/
 #if 0000
-{
-	driver_gc_t hwgc;
-	int px1, px2, py1, py2, pw, ph, rx1, rx2, ry1, ry2;
-#if DYNAMICREGIONS
-	MWRECT *prc;
-	extern MWCLIPREGION *clipregion;
-#else
-	MWCLIPRECT *prc;
-	extern MWCLIPRECT cliprects[];
-	extern int clipcount;
-#endif
+	if (pixtype == MWPF_PIXELVAL) {
+		driver_gc_t hwgc;
 
-#if HAVE_T1LIB_SUPPORT | HAVE_FREETYPE_SUPPORT
-	/* can't use drawarea driver in 16 bpp mode yet with font routines*/
-	goto fallback;
-#endif
-	if ( !(psd->flags & PSF_HAVEOP_COPY) )
-		goto fallback;
+		if (!(psd->flags & PSF_HAVEOP_COPY))
+			goto fallback;
 
-#if DYNAMICREGIONS
-	prc = clipregion->rects;
-	count = clipregion->numRects;
-#else
-	prc = cliprects;
-	count = clipcount;
-#endif
-
-	hwgc.pixels = PIXELS;
-	hwgc.src_linelen = width;
-	hwgc.gr_usebg = gr_usebg;
-	hwgc.bg_color = gr_background;
-
-	while ( count-- > 0 ) {
-#if DYNAMICREGIONS
-		rx1 = prc->left;
-		ry1 = prc->top;
-		rx2 = prc->right;
-		ry2 = prc->bottom;
-#else
-		/* New clip-code by Morten */
-		rx1 = prc->x;
-		ry1 = prc->y;
-		rx2 = prc->x + prc->width;
-		ry2 = prc->y + prc->height;
-#endif
-
-		/* Check if this rect intersects with the one we draw */
-		px1 = x;
-		py1 = y;
-		px2 = x + width;
-		py2 = y + height;
-		if ( px1 < rx1 ) px1 = rx1;
-		if ( py1 < ry1 ) py1 = ry1;
-		if ( px2 > rx2 ) px2 = rx2;
-		if ( py2 > ry2 ) py2 = ry2;
-
-		pw = px2 - px1;
-		ph = py2 - py1;
-
-		if ( pw > 0 && ph > 0 ) {
-			hwgc.dstx = px1;
-			hwgc.dsty = py1;
-			hwgc.dstw = pw;
-			hwgc.dsth = ph;
-			hwgc.srcx = px1 - x;
-			hwgc.srcy = py1 - y;
-			GdCheckCursor(psd,px1,py1,px1+pw-1,py1+ph-1);
-			psd->DrawArea(psd,&hwgc,PSDOP_COPY);
-		}
-		prc++;
+		hwgc.pixels = PIXELS;
+		hwgc.src_linelen = width;
+		hwgc.gr_usebg = gr_usebg;
+		hwgc.bg_color = gr_background;
+		hwgc.dstx = x;
+		hwgc.dsty = y;
+		hwgc.dstw = width;
+		hwgc.dsth = height;
+		hwgc.srcx = 0;
+		hwgc.srcy = 0;
+		GdDrawAreaInternal(psd, &hwgc, PSDOP_COPY);
+		GdFixCursor(psd);
+		return;
+	      fallback:
 	}
 	GdFixCursor(psd);
 	return;
  fallback:
-}
 #endif /* if 0000 temp removed*/
 
 	/* Calculate size of packed pixels*/

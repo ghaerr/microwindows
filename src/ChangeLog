@@ -1,5 +1,15 @@
 	(24 Feb 03)
+	* APPLIED mw_phillips_drawarea.diff (Jonathan)
+	  Contributed by Koninklijke Philips Electronics N.V.
+	* Added new DrawArea blitters.  Controlled by the defines
+	   MW_FEATURE_PSDOP_COPY, MW_FEATURE_PSDOP_ALPHAMAP,
+	   MW_FEATURE_PSDOP_ALPHACOL,
+	   MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST, and
+	   MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST in device.h.
+	   Usually called through GdDrawAreaInternal() in devdraw.c.
+
 	* fixed nxroach GrArea alpha bug (BLACK used in GrArea crash)
+
 	* APPLIED mw_phillips_alpha.diff (Jonathan)
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* Adds 8-bit alpha value to MWCOLORVAL value, new fblin32alpha.c

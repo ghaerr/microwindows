@@ -2,20 +2,16 @@
  * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
  *
  * Windows BMP to Microwindows image converter
- * 
- * 	Must manually #define BIGENDIAN on big endian systems... :-(
  *
- * 6/9/1999 g haerr
- *
+ * 9/24/2003 endian-neutral conversion
  * 05/01/2000 Michael Temari <Michael@TemWare.Com>
  * Modified to output .s ACK format for Minix
+ * 6/9/1999 g haerr
  */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "../../include/device.h"
-
-#define BIGENDIAN	0	/* FIXME should use MW_CPU_BIG_ENDIAN*/
 
 /* separators for DOS & Unix file systems */
 #define OS_FILE_SEPARATOR   "/\\"
@@ -30,31 +26,25 @@
 typedef unsigned char	UCHAR;
 typedef unsigned char	BYTE;
 
-#if !_MINIX
-typedef unsigned short WORD;
-typedef unsigned long  DWORD;
-typedef long           LONG;
-#if BIGENDIAN
-#define READWORD(x)	((((x) << 8) & 0xFF00U) | (((x) >> 8) & 0x00FFU))
-#define READDWORD(x)	((((x) << 24) & 0xFF000000UL) | \
-			 (((x) <<  8) & 0x00FF0000UL) | \
-			 (((x) >>  8) & 0x0000FF00UL) | \
-			 (((x) >> 24) & 0x000000FFUL))
-#define READLONG(x)	((long)READDWORD(x))
-#else
-#define	READWORD(x)	(x)
-#define	READDWORD(x)	(x)
-#define	READLONG(x)	(x)
-#endif
-#else
-/* The Minix ACK compiler cannot pack a structure so we do it the hardway */
+/* The Minix ACK compiler cannot pack a structure so we do it the hard way.
+ *
+ * We also do it this way for other platforms, since this is endian-neutral.
+ * It avoids us having to detect the platform's endianness, which is
+ * messy and platform-dependent.
+ * 
+ * This code is only used while compiling, so it is not speed- or
+ * size-critical.
+ */
 typedef unsigned char	WORD[2];
 typedef unsigned char	DWORD[4];
 typedef unsigned char	LONG[4];
-#define	READWORD(x)	(*(unsigned short *)&(x))
-#define	READDWORD(x)	(*(unsigned long *)&(x))
-#define	READLONG(x)	(*(long *)&(x))
-#endif
+#define READWORD(x)  (  ((unsigned short)(x)[0])       | \
+                       (((unsigned short)(x)[1]) << 8) )
+#define READDWORD(x) (  ((unsigned long)(x)[0])        | \
+                       (((unsigned long)(x)[1]) <<  8) | \
+                       (((unsigned long)(x)[2]) << 16) | \
+                       (((unsigned long)(x)[3]) << 24) )
+#define READLONG(x)	((long)READDWORD(x))
 
 #pragma pack(1)
 /* windows style*/

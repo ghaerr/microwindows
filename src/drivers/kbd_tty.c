@@ -324,12 +324,8 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 
 	if (mwkey == CTRL('P'))			/* ^P -> print*/
 		mwkey = MWKEY_PRINT;
-	/*else if (mwkey == 126)
-		mwkey = MWKEY_DELETE;*/
-	else if (mwkey == 127)			/* DEL -> backspace*/
-		mwkey = MWKEY_BACKSPACE;
-	else if (mwkey == CTRL('S') || mwkey == CTRL('Q'))
-		mwkey = MWKEY_SCROLLOCK;
+	/*else if (mwkey == CTRL('S') || mwkey == CTRL('Q'))
+		mwkey = MWKEY_SCROLLOCK;*/
 
 	if ((mwkey == MWKEY_ESCAPE) && escape_quits)
 		mwkey = MWKEY_QUIT;

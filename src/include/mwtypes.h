@@ -1,7 +1,7 @@
 #ifndef _MWTYPES_H
 #define _MWTYPES_H
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Exported Microwindows engine typedefs and defines
  */
@@ -264,7 +264,7 @@ typedef struct {
 	int	bpp;		/* bits per pixel*/
 	int	bytespp;	/* bytes per pixel*/
 	int	pitch;		/* bytes per scan line for window (=fb pitch)*/
-	int	x, y;		/* absolute window coordinates*/
+	MWCOORD	x, y;		/* absolute window coordinates*/
 	int	portrait_mode;	/* current portrait mode*/
 	MWCOORD	xres;		/* real framebuffer resolution*/
 	MWCOORD	yres;

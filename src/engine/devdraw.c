@@ -1202,11 +1202,16 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 
 	switch(GdClipArea(dstpsd, dstx, dsty, dstx+width-1, dsty+height-1)) {
 	case CLIP_VISIBLE:
-		/* check cursor in src region*/
+		/* check cursor in src region of both screen devices*/
 		GdCheckCursor(dstpsd, srcx, srcy, srcx+width-1, srcy+height-1);
+		if (dstpsd != srcpsd)
+			GdCheckCursor(srcpsd, srcx, srcy, srcx+width-1,
+				srcy+height-1);
 		dstpsd->Blit(dstpsd, dstx, dsty, width, height,
 			srcpsd, srcx, srcy, rop);
 		GdFixCursor(dstpsd);
+		if (dstpsd != srcpsd)
+			GdFixCursor(srcpsd);
 		return;
 
 	case CLIP_INVISIBLE:

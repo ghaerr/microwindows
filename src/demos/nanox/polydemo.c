@@ -1,129 +1,138 @@
 /*
  * polytest - polygon fill test program for Nano-X
  */
-#include <stdio.h>
+#define MWINCLUDECOLORS
 #include "nano-X.h"
+#include <stdio.h>
 
 void
 draw(GR_EVENT * e)
 {
-	GR_GC_ID gc;
+	GR_WINDOW_ID wid = ((GR_EVENT_EXPOSURE *)e)->wid;
+	GR_GC_ID gc = GrNewGC();
 	GR_POINT points[4];
-
 	int x = 10;
 	int y = 10;
 	int sz = 20;
 	int sz2 = 5;
 
-	gc = GrNewGC();
+	GrSetGCBackground(gc, BLACK);
 
-	GrSetGCBackground(gc, GR_RGB(0, 0, 0));
-	//GrSetGCMode(gc, GR_MODE_XOR);
-
+	/* fill poly #1*/
 	points[0].x = x;
 	points[0].y = y;
-
 	points[1].x = x + sz;
 	points[1].y = y;
-
 	points[2].x = x + (sz / 2);
 	points[2].y = y + sz;
-
-	GrSetGCForeground(gc, GR_RGB(255, 255, 255));
-	GrFillPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 3, points);
 	points[3].x = x;
 	points[3].y = y;
-	GrSetGCForeground(gc, GR_RGB(0, 255, 0));
-	GrPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 4, points);
 
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid, gc, 3, points);
+
+	/* outline poly #1*/
+	GrSetGCForeground(gc, GREEN);
+	GrPoly(wid, gc, 4, points);
+
+	/* fill poly #2*/
 	y += sz + 10;
-
 	points[0].x = x;
 	points[0].y = y;
-
 	points[1].x = x + sz + 1;
 	points[1].y = y;
-
 	points[2].x = x + (sz / 2);
 	points[2].y = y + sz;
-
-	GrSetGCForeground(gc, GR_RGB(255, 255, 255));
-	GrFillPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 3, points);
 	points[3].x = x;
 	points[3].y = y;
-	GrSetGCForeground(gc, GR_RGB(0, 255, 0));
-	GrPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 4, points);
 
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid, gc, 3, points);
+
+	/* outline poly #2*/
+	GrSetGCForeground(gc, GREEN);
+	GrPoly(wid, gc, 4, points);
+
+	/* fill poly #3*/
 	y += sz + 10;
-
 	points[0].x = x;
 	points[0].y = y;
-
 	points[1].x = x + sz - 1;
 	points[1].y = y;
-
 	points[2].x = x + (sz / 2);
 	points[2].y = y + sz;
-
-	GrSetGCForeground(gc, GR_RGB(255, 255, 255));
-	GrFillPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 3, points);
 	points[3].x = x;
 	points[3].y = y;
-	GrSetGCForeground(gc, GR_RGB(0, 255, 0));
-	GrPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 4, points);
 
-	/* draw right arrow */
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid, gc, 3, points);
+
+	/* outline poly #3*/
+	GrSetGCForeground(gc, GREEN);
+	GrPoly(wid, gc, 4, points);
+
+	/* fill right arrow #1*/
+	x = 60;
+	y = 60;
 	sz = 10;
 	sz2 = 8;
 
-	x = 60;
-	y = 60;
-
 	points[0].x = x;
 	points[0].y = y;
-
 	y -= sz;
-
 	points[1].x = x + sz2;
 	points[1].y = y;
-
 	y -= sz;
-
 	points[2].x = x;
 	points[2].y = y;
-
-	GrSetGCForeground(gc, GR_RGB(255, 255, 255));
-	GrFillPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 3, points);
-
 	points[3].x = x;
 	points[3].y = 60;
 
-	GrSetGCForeground(gc, GR_RGB(0, 255, 0));
-	GrPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 4, points);
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid, gc, 3, points);
 
-	GrSetGCForeground(gc, GR_RGB(255, 255, 255));
+	/* outline right arrow #1*/
+	GrSetGCForeground(gc, GREEN);
+	GrPoly(wid, gc, 4, points);
 
+	/* fill right arrow #2*/
 	x = 60;
 	y = 90;
-
 	points[0].x = x;
 	points[0].y = y;
-
 	y -= sz;
-
 	points[1].x = x + sz2;
 	points[1].y = y;
-
 	y -= sz;
-
 	points[2].x = x;
 	points[2].y = y;
-
-	GrSetGCForeground(gc, GR_RGB(255, 255, 255));
-	GrFillPoly(((GR_EVENT_EXPOSURE *) e)->wid, gc, 3, points);
 	points[3].x = x;
 	points[3].y = 90;
-	//GrPoly(((GR_EVENT_EXPOSURE*)e)->wid,gc,4,points);
+
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid, gc, 3, points);
+
+	/* concave polygon filling*/
+	{
+	static GR_POINT pt1[5] = {{10,120},{150,130},{120,220},{60,160},{15,200}};
+	static GR_POINT pt2[5] = {{10,220},{150,230},{120,320},{60,360},{15,300}};
+ 
+	/* concave poly fill #4 - fails with some algorithms*/
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid,gc,5,pt1);
+	 
+	/* concave poly outline #4 - ok*/
+	GrSetGCForeground(gc, GREEN);
+	GrPoly(wid,gc,5,pt1);
+
+	/* convex poly fill #5 - ok*/
+	GrSetGCForeground(gc, WHITE);
+	GrFillPoly(wid,gc,5,pt2);
+
+	/* convex poly outline #5 - ok*/
+	GrSetGCForeground(gc, GREEN);
+	GrPoly(wid,gc,5,pt2);
+	}
 
 	GrDestroyGC(gc);
 }
@@ -143,7 +152,7 @@ main(int ac, char **av)
 	w = GrNewWindowEx(GR_WM_PROPS_NOAUTOMOVE | GR_WM_PROPS_BORDER |
 			      GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX,
 			      "polydemo", GR_ROOT_WINDOW_ID, 
-			      10, 10, 100, 100, GR_RGB(0, 0, 0));
+			      10, 10, 220, 362, GR_RGB(0, 0, 0));
 	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(w);
 

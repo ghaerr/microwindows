@@ -489,6 +489,9 @@ int x11_setup_display()
 
 	set_mode(gr_mode);
 
+	/* synchronize display - required to simulate framebuffer*/
+	XSynchronizeDisplay(x11_dpy, True);
+
 	setup_needed = 0;
 	return 0;
     }

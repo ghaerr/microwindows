@@ -1,5 +1,5 @@
 //
-// Micro-Windows/Nano-X additional setup fo eCos
+// Microwindows/Nano-X additional setup for eCos
 //
 
 #include <pkgconf/kernel.h>
@@ -16,17 +16,9 @@
 #include <sys/time.h>
 
 #define MWINCLUDECOLORS
-#include <nano-X.h>
-#include <nwidgets.h>
+#include "nano-X.h"
 
 static bool closed = false;
-
-static void 
-do_close(NBUTTON * w, int b)
-{
-   printf("Button %d was clicked in widget %p\n",b,w);
-   closed = true;
-}
 
 // Display a number of ticks as microseconds
 // Note: for improved calculation significance, values are kept in ticks*1000
@@ -95,6 +87,15 @@ test_file_io(void)
     diag_printf("'read': %d bytes in ", len); show_ns(end_time-start_time);  diag_printf("ns\n");
 }
 
+#if NWIDGETS
+static void 
+do_close(NBUTTON * w, int b)
+{
+   printf("Button %d was clicked in widget %p\n",b,w);
+   closed = true;
+}
+#endif
+
 void
 ecos_nx_init(CYG_ADDRWORD data)
 {
@@ -120,7 +121,7 @@ ecos_nx_init(CYG_ADDRWORD data)
     GrGetScreenInfo(&si);
     GrGetFontInfo(0, &fi);
 
-#if 0
+#ifndef NWIDGETS
     mainwid = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0, si.cols, si.rows,
                           0, RED, WHITE);
 
@@ -138,8 +139,10 @@ ecos_nx_init(CYG_ADDRWORD data)
     GrDrawImageFromFile(mainwid, gct, 0, 0, si.cols, si.rows, "/redhat.logo", 0);
     GrText(mainwid, gct, 80, 350, "Tap all 4 corners", 17, GR_TFTOP);
     GrFlush();
-#endif
+    printf("Tap all four corners\n");
+    cyg_thread_delay(10*100);
 
+#else
     n_init_button_class();
     n_init_textfield_class();
 
@@ -174,9 +177,7 @@ ecos_nx_init(CYG_ADDRWORD data)
 
     n_widget_hide(w);
     n_object_cleanup(w);
-
-//    printf("Tap all four corners\n");
-//    cyg_thread_delay(10*100);
+#endif
 
     GrClose();
 }

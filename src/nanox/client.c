@@ -133,9 +133,14 @@ QueueEvent(GR_EVENT *ep)
 static void
 GetNextQueuedEvent(GR_EVENT *ep)
 {
+	EVENT_LIST	*elp;
+
         ACCESS_PER_THREAD_DATA()
+
 	*ep = evlist->event;
+	elp = evlist;
 	evlist = evlist->next;
+	free(elp);
 }
 
 /*

@@ -3,14 +3,30 @@
 #include "device.h"
 /*
  * Microwindows polygon outline and fill routines.
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1991 David I. Bell
  *
  * There are currently three implementations of the polygon
- * fill routine.  The version from X11 most properly
- * fills polygons that must also be outlined as well. All are
- * controlled with #if directive in this file.
+ * fill routine.  The desired routine is set using a
+ * #define after this comment.
+ * Issues with regards to polygon fill are 1) whether concave
+ * filling is supported, and 2) whether outlines match the
+ * polygon fill bresenham lines.  Each routine differs in these regards.
+ *
+ * X11POLYFILL most properly fills polygons that must also be
+ * outlined as well.
+ * EDGEPOLYFILL fills concave polygons, but outlines don't
+ * exactly match up.  Can use floating point, if set in device.h.
+ * BASICPOLYFILL won't fill concave polygons, but is small.
+ *
+ * FIXME - X11POLYFILL fails with the concave poly fills
+ * in demos/nanox/polydemo.c
  */
+
+/* set polygon fill routine*/
+#define EDGEPOLYFILL	1	/* edge table, malloc, qsort*/
+#define X11POLYFILL	0	/* X11-derived polygon fill*/
+#define BASICPOLYFILL	0	/* very basic, small polygon fill*/
 
 /* extern definitions*/
 void drawpoint(PSD psd,MWCOORD x, MWCOORD y);
@@ -53,7 +69,7 @@ GdPoly(PSD psd, int count, MWPOINT *points)
   GdFixCursor(psd);
 }
 
-#if 1 /* improved convex polygon fill routine*/
+#if X11POLYFILL /* improved convex polygon fill routine*/
 /***********************************************************
 Copyright (c) 1987  X Consortium
 
@@ -400,9 +416,9 @@ GdFillPoly(PSD psd, int count, MWPOINT *pointtable)
     FREEA(FirstPoint);
     GdFixCursor(psd);
 }
-#endif
+#endif /* X11POLYFILL*/
 
-#if 0 /* original convex only polygon fill routine*/
+#if BASICPOLYFILL /* original convex only polygon fill routine*/
 /*
  * Fill a polygon in the foreground color, applying clipping if necessary.
  * The last point may be a duplicate of the first point, but this is
@@ -506,9 +522,9 @@ GdFillPoly(PSD psd, int count, MWPOINT *points)
   }
   GdFixCursor(psd);
 }
-#endif
+#endif /* BASICPOLYFILL*/
 
-#if 0	/* irregular polygon fill, uses edge table, malloc, qsort*/
+#if EDGEPOLYFILL	/* irregular polygon fill, uses edge table, malloc, qsort*/
 /*
  * Fill a polygon in the foreground color, applying clipping if necessary.
  * The last point may be a duplicate of the first point, but this is
@@ -671,4 +687,4 @@ GdFillPoly(PSD psd, int count, MWPOINT * pointtable)
 
 	GdFixCursor(psd);
 }
-#endif
+#endif /* EDGEPOLYFILL*/

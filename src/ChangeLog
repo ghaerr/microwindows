@@ -1,3 +1,6 @@
+	* fixed GrGetGCTextSize char count calc bug (Jonathan)
+	* fixed off-by-one alpha calc in fblin32alpha.c (Jonathan)
+	* fixed void * arithmetic for non-GCC compilers
 	* fixed broken x11 blit scroll code (Jonathan)
 Version 0.89pl7 - 24 Feb 2003 - greg@censoft.com
 	* APPLIED mw_phillips_fontnetworkbug.diff (Jonathan)

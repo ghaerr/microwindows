@@ -53,7 +53,7 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 OPTIMIZE                 = Y
 DEBUG                    = Y
 VERBOSE                  = N
-THREADSAFE               = N
+THREADSAFE               = Y
 GPROF                    = N
 
 ####################################################################
@@ -248,7 +248,7 @@ GRAYPALETTE              = N
 ifneq ($(ARCH), ELKS)
 
 # X Window screen, mouse and kbd drivers
-X11                      = Y
+X11                      = N
 
 ifeq ($(X11), Y)
 # predefined model or select screen width, height, depth(palette mode only)

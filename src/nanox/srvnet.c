@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1999-2001 Greg Haerr <greg@censoft.com>
- * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
+ * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 2000 Vidar Hokstad
  * Copyright (c) 2000 Morten Rolland <mortenro@screenmedia.no>
@@ -819,7 +819,7 @@ GrGetGCTextSizeWrapper(void *r)
 	nxGetGCTextSizeReq *req = r;
 	GR_SIZE             retwidth, retheight, retbase;
 
-	GrGetGCTextSize(req->gcid, GetReqData(req), GetReqVarLen(req),
+	GrGetGCTextSize(req->gcid, GetReqData(req), req->charcount,
 		req->flags, &retwidth, &retheight, &retbase);
 
  	GsWriteType(current_fd,GrNumGetGCTextSize);

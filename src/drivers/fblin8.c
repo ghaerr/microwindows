@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 8bpp Linear Video Driver for Microwindows
@@ -160,8 +160,8 @@ linear8_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	dst = dstpsd->addr + dstx + dsty * dlinelen;
-	src = srcpsd->addr + srcx + srcy * slinelen;
+	dst = ((ADDR8)dstpsd->addr) + dstx + dsty * dlinelen;
+	src = ((ADDR8)srcpsd->addr) + srcx + srcy * slinelen;
 
 #if ALPHABLEND
 	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
@@ -274,8 +274,8 @@ linear8_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 			row_pos -= 0x10000L;
 		}
 
-		dst = dstpsd->addr + dstx + dsty*dlinelen;
-		src = srcpsd->addr + srcx + (srcy-1)*slinelen;
+		dst = ((ADDR8)dstpsd->addr) + dstx + dsty*dlinelen;
+		src = ((ADDR8)srcpsd->addr) + srcx + (srcy-1)*slinelen;
 
 		/* copy a row of pixels*/
 		col_pos = 0x10000;

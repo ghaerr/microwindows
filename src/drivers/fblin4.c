@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
  *
  * 4bpp Packed Linear Video Driver for Microwindows
  * 	This driver is written for the Vr41xx Palm PC machines
@@ -159,8 +159,8 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	dst = dstpsd->addr + (dstx>>1) + dsty * dlinelen;
-	src = srcpsd->addr + (srcx>>1) + srcy * slinelen;
+	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
+	src = ((ADDR8)srcpsd->addr) + (srcx>>1) + srcy * slinelen;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;

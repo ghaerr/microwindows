@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
- * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
+ * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  *
  * Nano-X Core Protocol Header
  * 
@@ -459,6 +459,7 @@ typedef struct {
 	UINT16	length;
 	IDTYPE	gcid;
 	UINT32	flags;
+	UINT32	charcount;
 	/*BYTE8	text[];*/
 } nxGetGCTextSizeReq;
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
- * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
+ * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999, 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Copyright (c) 2000 Vidar Hokstad
@@ -581,6 +581,7 @@ GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
 	req = AllocReqExtra(GetGCTextSize, size);
 	req->gcid = gc;
 	req->flags = flags;
+	req->charcount = count;
 	memcpy(GetReqData(req), str, size);
 	TypedReadBlock(retwidth, sizeof(*retwidth),GrNumGetGCTextSize);
 	ReadBlock(retheight, sizeof(*retheight));

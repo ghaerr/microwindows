@@ -7,7 +7,7 @@
  * Inspired from Ben Pfaff's BOGL <pfaffben@debian.org>
  *
  * Portions contributed by Koninklijke Philips Electronics N.V.
- * These portions are Copyright 2002 Koninklijke Philips Electronics
+ * These portions are Copyright 2002, 2003 Koninklijke Philips Electronics
  * N.V.  All Rights Reserved.  These portions are licensed under the
  * terms of the Mozilla Public License, version 1.1, or, at your
  * option, the GNU General Public License version 2.0.  Please see
@@ -574,7 +574,7 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 					d = (int) (unsigned char)
 						dst8[MWI_BYTE_OFFSET_ALPHA];
 					dst8[MWI_BYTE_OFFSET_ALPHA] =
-						(d + a - ((d * a) >> 8));
+						(a + ((d * (256 - a)) >> 8));
 				}
 				src8 += 4;
 				dst8 += 4;

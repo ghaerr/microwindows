@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Device-independent font and text drawing routines
  *
@@ -141,6 +142,27 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 				return pfont;
 			}
  			printf("freetype_createfont: %s,%d not found\n",
+				fontname, height);
+		}
+  	}
+#endif
+
+#if HAVE_FREETYPE_2_SUPPORT
+ 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
+		if (freetype2_init(psd)) {
+			/* FIXME auto antialias for height > 14 for kaffe*/
+			if (plogfont && plogfont->lfHeight > 14 &&
+				plogfont->lfQuality)
+					fontattr |= MWTF_ANTIALIAS;
+
+			pfont = (PMWFONT)freetype2_createfont(fontname, height,
+					fontattr);
+			if(pfont) {
+				/* FIXME kaffe kluge*/
+				pfont->fontattr |= MWTF_FREETYPE;
+				return pfont;
+			}
+ 			printf("freetype2_createfont: %s,%d not found\n",
 				fontname, height);
 		}
   	}

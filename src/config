@@ -153,12 +153,20 @@ INCT1LIB                 = /usr/include
 LIBT1LIB                 = /usr/lib/libt1.a
 
 ####################################################################
-# TrueType font support thru FreeType
+# TrueType font support thru FreeType 1.x
 ####################################################################
 HAVE_FREETYPE_SUPPORT    = Y
 INCFTLIB                 = /usr/include
 LIBFTLIB                 = /usr/lib/libttf.so
 FREETYPE_FONT_DIR        = "fonts/truetype"
+
+####################################################################
+# Support for many kinds of font thru FreeType 2.x
+# Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
+####################################################################
+HAVE_FREETYPE_2_SUPPORT  = N
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = /usr/lib/libfreetype.a
 
 ####################################################################
 # PCF font support 

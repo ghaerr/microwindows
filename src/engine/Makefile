@@ -1,6 +1,7 @@
 ##############################################################################
 # Microwindows template Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+# Portions Copyright (c) 2002 Koninklijke Philips Electronics N.V.
 ##############################################################################
 
 include $(CONFIG)
@@ -32,6 +33,10 @@ OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 
 ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
 OBJS += font_freetype.o
+endif
+
+ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
+OBJS += font_freetype2.o
 endif
 
 ifeq ($(HAVE_PCF_SUPPORT), Y)

@@ -1,4 +1,8 @@
 	(24 Feb 03)
+	* APPLIED mw_phillips_freetype2.diff (Jonathan)
+	  Contributed by Koninklijke Philips Electronics N.V.
+	* Added FreeType 2 support, HAVE_FREETYPE_2_SUPPORT in config
+
 	* APPLIED mw_phillips_drawarea.diff (Jonathan)
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* Added new DrawArea blitters.  Controlled by the defines

@@ -2,6 +2,7 @@
 #define _DEVFONT_H
 /*
  * Copyright (c) 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Font engine header file
  */
@@ -34,6 +35,14 @@ PMWT1LIBFONT t1lib_createfont(const char *name, MWCOORD height,int attr);
 typedef struct MWFREETYPEFONT 	*PMWFREETYPEFONT;
 int  freetype_init(PSD psd);
 PMWFREETYPEFONT freetype_createfont(const char *name, MWCOORD height, int attr);
+#endif
+
+#if HAVE_FREETYPE_2_SUPPORT
+typedef struct MWFREETYPE2FONT_STRUCT MWFREETYPE2FONT;
+typedef MWFREETYPE2FONT *PMWFREETYPE2FONT;
+int freetype2_init(PSD psd);
+PMWFREETYPE2FONT freetype2_createfont(const char *name, MWCOORD height,
+				      int attr);
 #endif
 
 #if HAVE_PCF_SUPPORT

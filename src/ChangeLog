@@ -1,4 +1,5 @@
 Version 0.89pre8 - 6 Nov 2001 - greg@censoft.com
+	* allow 0 timeout to cancel GrSetScreenSaverTimeout
 	* changed check for /tmp/.nano-X to use access(), not stat()
 	* revised reported x, y event values to be parent-relative
 	* added Century's GrLoadImageFromBuffer, GrDrawImageFromBuffer

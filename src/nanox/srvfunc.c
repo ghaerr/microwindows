@@ -2670,6 +2670,10 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 	if((timer = GdFindTimer(GsActivateScreenSaver)))
 		GdDestroyTimer(timer);
 
+	/* 0 timeout cancels timer*/
+	if (timeout == 0)
+		return;
+
 	GdAddTimer(screensaver_delay, GsActivateScreenSaver,
 					GsActivateScreenSaver);
 }

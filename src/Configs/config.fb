@@ -169,7 +169,7 @@ LIBT1LIB                 = /usr/lib/libt1.a
 # TrueType font support thru FreeType 1.x
 ####################################################################
 HAVE_FREETYPE_SUPPORT    = N
-INCFTLIB                 = /usr/include
+INCFTLIB                 = /usr/include/freetype1
 LIBFTLIB                 = /usr/lib/libttf.so
 FREETYPE_FONT_DIR        = "fonts/truetype"
 

@@ -1,4 +1,5 @@
 	* revised Makefile system, Path.rules allows mult arch makes (Jonathan)
+	* changed default freetype 1 include dir to /usr/include/freetype1
 	* changed default vncviewer password to "password"
 	* added check for "Exif" header in jpeg files for digital cam pics
 	* fixed nested comments in mou_ser.c

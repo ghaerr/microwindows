@@ -1592,13 +1592,13 @@ freetype2_gettextsize_fast(PMWFREETYPE2FONT pf,
  * @param pfont The font to use.
  * @param text  The string to measure, in 16-bit Unicode form.
  * @param cc    The number of characters (not bytes) in text.
+ * @param flags   Flags specifying the encoding of text.
  * @param pwidth  [out] the width in pixels
  * @param pheight [out] the height in pixels
  * @param pbase   [out] the base in pixels
  */
 static void
-freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,
-		      MWTEXTFLAGS flags,
+freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,MWTEXTFLAGS flags,
 		      MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;

@@ -6,6 +6,14 @@
  * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
  * 
  * Note: modify select_fb_driver() to add new framebuffer subdrivers
+ *
+ * Portions contributed by Koninklijke Philips Electronics N.V.
+ * These portions are Copyright 2002 Koninklijke Philips Electronics
+ * N.V.  All Rights Reserved.  These portions are licensed under the
+ * terms of the Mozilla Public License, version 1.1, or, at your
+ * option, the GNU General Public License version 2.0.  Please see
+ * the file "ChangeLog" for documentation regarding these
+ * contributions.
  */
 #define _GNU_SOURCE 1
 #include <assert.h>
@@ -31,8 +39,6 @@
 #ifdef ARCH_LINUX_SPARC
 #endif
 
-/* for Osprey and Embedded Planet boards, set HAVETEXTMODE=0*/
-#define HAVETEXTMODE	1	/* =0 for graphics only systems*/
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 
 #ifndef FB_TYPE_VGA_PLANES
@@ -91,6 +97,9 @@ fb_open(PSD psd)
 	char *	env;
 	int	type, visual;
 	PSUBDRIVER subdriver;
+#if HAVETEXTMODE
+	int tty;
+#endif
 #if EMBEDDEDPLANET
 	env = "/dev/lcd";
 	fb = open(env, O_RDWR);
@@ -115,7 +124,6 @@ fb_open(PSD psd)
 		goto fail;
 	}
 #else
-	int	tty;
 	struct fb_fix_screeninfo fb_fix;
 	struct fb_var_screeninfo fb_var;
 
@@ -283,7 +291,9 @@ fail:
 static void
 fb_close(PSD psd)
 {
+#if HAVETEXTMODE
 	int	tty;
+#endif
 
 	/* if not opened, return*/
 	if(status != 2)

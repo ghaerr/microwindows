@@ -1,6 +1,7 @@
 ##############################################################################
 # Microwindows rules Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+# Portions Copyright 2002 by Koninklijke Philips Electronics N.V.
 #
 # This makefile should be placed at the top of a project hierarchy
 #
@@ -14,13 +15,18 @@ SHELL = /bin/sh
 endif
 
 # install directories for headers and libraries
-INSTALL_PREFIX = /usr
+INSTALL_PREFIX  = /usr
+INSTALL_USER    = root
+INSTALL_GROUP   = root
+INSTALL_GROUP_2 = bin
 HDRINSTALLDIR = $(INSTALL_PREFIX)/include/microwin
 LIBINSTALLDIR = $(INSTALL_PREFIX)/lib
+BININSTALLDIR = $(INSTALL_PREFIX)/bin
 
-INSTALL_DIR   = install -c -m 755 -o root -g root -d
-INSTALL_HDR   = install -c -m 644 -o root -g bin
-INSTALL_LIB   = install -c -m 444 -o root -g bin
+INSTALL_DIR   = install -c -m 755 -o $(INSTALL_USER) -g $(INSTALL_GROUP) -d
+INSTALL_HDR   = install -c -m 644 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
+INSTALL_LIB   = install -c -m 644 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
+INSTALL_BIN   = install -c -m 755 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
 
 INCLUDEDIRS += -I. -I$(TOP)/include
 
@@ -133,12 +139,29 @@ ifeq ($(HAVE_SHAREDMEM_SUPPORT), Y)
 DEFINES += -DHAVE_SHAREDMEM_SUPPORT=1
 endif
 
+ifeq ($(FRAMEBUFFER), Y)
+ifeq ($(HAVETEXTMODE), Y)
+DEFINES += -DHAVETEXTMODE=1
+else
+DEFINES += -DHAVETEXTMODE=0
+endif
+endif
+
+ifneq ($(ARCH), TRIMEDIA)
+
 ifeq ($(SHAREDLIBS), Y)
 CFLAGS += -fpic
 endif
 
 ifeq ($(OPTIMIZE), Y)
 OPTFLAGS += -O3
+endif
+
+ifeq ($(GPROF), Y)
+OPTFLAGS += -pg
+LDFLAGS += -pg
+endif
+
 endif
 
 ifeq ($(THREADSAFE), Y)
@@ -153,10 +176,18 @@ else
 endif
 
 CFLAGS += $(INCLUDEDIRS)
+ifeq ($(ARCH), TRIMEDIA)
+HOSTCFLAGS := $(INCLUDEDIRS)
+else
 HOSTCFLAGS := $(CFLAGS)
+endif
 CPPFLAGS += $(DEFINES)
 LDFLAGS += -L$(TOP)/lib
+ifeq ($(ARCH), TRIMEDIA)
+ARFLAGS = r
+else
 ARFLAGS = rs
+endif
 
 # Tools (may be overridden by Arch.rules)
 HOSTCC = gcc
@@ -298,7 +329,7 @@ ifeq ($(VERBOSE), N)
 .SILENT:
 endif
 
-.PHONY: default subdirs clean cleandepend xconfig
+.PHONY: default subdirs clean cleandepend xconfig makedestdirs
 
 # Add any exportable variable here
 export TOP ARCH CONFIG
@@ -330,7 +361,19 @@ endif
 #
 # Subdirectories target
 #
-subdirs:
+# For each directory DIRNAME in $(dirs), we create a phony target
+# called "subdir-DIRNAME".  To build that target, we recurse into
+# the directory with "$(MAKE) -C DIRNAME".
+#
+.PHONY: subdirs $(dirs:%=subdir-%)
+
+subdirs: $(dirs:%=subdir-%)
+	@#
+
+$(dirs:%=subdir-%): makedestdirs
+	$(MAKE) -C $(subst subdir-,,$@)
+
+makedestdirs:
 ifeq ($(ARCH), DJGPP)
 
 	$(shell set CURDIR=$(pwd);)
@@ -344,7 +387,7 @@ ifeq ($(ARCH), DJGPP)
 	then mkdir $(TOP)/lib; fi;)
 
 endif
-	$(foreach dir, $(dirs), $(MAKE) -C $(dir);)
+	@#
 
 #
 # If a library name is specified,
@@ -433,6 +476,17 @@ install: default
 	$(INSTALL_LIB) lib/*.a $(LIBINSTALLDIR)
 ifeq ($(SHAREDLIBS), Y)
 	$(INSTALL_LIB) lib/*.so $(LIBINSTALLDIR)
+endif
+ifeq ($(NANOX), Y)
+ifeq ($(LINK_APP_INTO_SERVER), N)
+	echo "Copying binaries to $(BININSTALLDIR)"
+	$(INSTALL_DIR) $(BININSTALLDIR)
+	$(INSTALL_BIN) bin/nano-X $(BININSTALLDIR)
+else
+	rm -f $(BININSTALLDIR)/nano-X
+endif
+else
+	rm -f $(BININSTALLDIR)/nano-X
 endif
 	echo "Installation completed successfully."
 

@@ -24,10 +24,11 @@
 # LINUX-TCC
 # LINUX-ARM
 # LINUX-MIPS
-# LINUX-POWERPC
+# LINUX-POWERPC (BIGENDIAN=Y)
 # LINUX-SH
 # FREEBSD-X86
-# SOLARIS
+# SOLARIS (BIGENDIAN=Y)
+# TRIMEDIA
 # RTEMS
 # DJGPP
 # ELKS
@@ -36,6 +37,7 @@
 #
 ####################################################################
 ARCH                     = LINUX-NATIVE
+BIGENDIAN                = N
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
@@ -50,7 +52,8 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 OPTIMIZE                 = Y
 DEBUG                    = Y
 VERBOSE                  = N
-THREADSAFE               = Y
+THREADSAFE               = N
+GPROF                    = N
 
 ####################################################################
 #
@@ -235,7 +238,7 @@ GRAYPALETTE              = N
 ifneq ($(ARCH), ELKS)
 
 # X Window screen, mouse and kbd drivers
-X11                      = N
+X11                      = Y
 
 ifeq ($(X11), Y)
 # predefined model or select screen width, height, depth(palette mode only)
@@ -258,6 +261,11 @@ FRAMEBUFFER              = Y
 FBVGA                    = Y
 VTSWITCH                 = Y
 FBREVERSE                = N
+
+# set HAVETEXTMODE=Y for systems that can switch between text & graphics.
+# On a graphics-only embedded system, such as Osprey and Embedded
+# Planet boards, set HAVETEXTMODE=N
+HAVETEXTMODE             = Y
 
 # svgalib screen driver
 VGALIB                   = N

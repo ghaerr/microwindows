@@ -1,3 +1,23 @@
+	(24 Feb 03)
+	* applied mw_phillips_1.diff (Jonathan)
+	  Contributed by Koninklijke Philips Electronics N.V.
+	* Added .cvsignore for CVS
+	* Initial support for the TriMedia media processor.  Not complete.
+	* Added INSTALL_USER, INSTALL_GROUP, and INSTALL_GROUP_2 options.
+	* Correcting install target so that libraries
+	  are writable by the user who owns the file.
+	* Rewriting subdirs target so that the build stops on error.
+	* added config option HAVETEXTMODE, removed from scr_fb.c
+	* Added config option GPROF=Y for profiling support.
+	* Added config option BIGENDIAN=Y/N, may define BIGENDIAN to 1.
+	* Added various echo statements to demo and nanox link steps
+	* (demos/nanox/Makefile) Only compiling the snap_jpg demo if we
+	  have framebuffer support.
+	* Fixing a compiler warning in scr_x11.c
+	* Removing compiler warning about unused variable 'tty'
+	  if HAVETEXTMODE is disabled.
+
+	(08 Dec 02)
 	* fix GrCheckNextEvent return no event for X11/LINK_APP_TO_SERVER case
 	* changed pcf debug output, firstchar calculation, count calc
 	* corrected include files for RH 7.x

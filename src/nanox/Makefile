@@ -1,6 +1,7 @@
 ##############################################################################
 # Microwindows template Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+# Portions Copyright 2002 by Koninklijke Philips Electronics N.V.
 ##############################################################################
 
 ifndef TOP
@@ -82,14 +83,17 @@ include $(TOP)/Makefile.rules
 # Server binary ...
 ifeq ($(SHAREDLIBS), Y)
 $(TOP)/bin/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(TOP)/config
+	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(CCNANOXSERVERLIBS)
 else
 $(TOP)/bin/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(TOP)/config
+	@echo "Linking $@ ..."
 #	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--retain-symbols-file -Wl,nanox.syms -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep -v Gr | grep -v nx | grep ' T' | awk -f $(TOP)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 #	rm -f XX.o
 
 $(TOP)/bin/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(TOP)/config
+	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS)
 endif

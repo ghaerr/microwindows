@@ -1,6 +1,7 @@
 ##############################################################################
 # Microwindows Architecture rules Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+# Portions Copyright 2002 by Koninklijke Philips Electronics N.V.
 #
 # This makefile should be placed at the top of a project hierarchy
 #
@@ -96,6 +97,20 @@ CFLAGS += $(OPTFLAGS)
 LDFLAGS += -lsocket -lnsl -lrt
 endif
 
+ifeq ($(ARCH), TRIMEDIA)
+LUD_ROOT = ../../../../../../..
+COMPILER = cc
+CXX_COMPILER = CC
+TOOLSPREFIX = tm
+DEFINES += -DTRIMEDIA=1 -DTCS2 -DOSAL -DLUD_USE_MEMSPACE
+INCLUDEDIRS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
+HOSTCFLAGS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
+CFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconfig2.1 -B -Xdiag=1
+LDFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconfig2.1 -B -Xdiag=1
+# include the following line for static libraries
+#LDFLAGS += -static
+endif
+
 ifeq ($(ARCH), FREEBSD-X86)
 COMPILER = gcc
 CXX_COMPILER = g++
@@ -147,3 +162,8 @@ ifeq ($(ARCH), ECOS)
     CFLAGS += -mcpu=strongarm -Wall -ffunction-sections -fdata-sections -O2 -g
     LDFLAGS += -nostdlib
 endif
+
+ifeq ($(BIGENDIAN), Y)
+DEFINES += -DBIGENDIAN=1
+endif
+

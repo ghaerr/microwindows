@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Portions Copyright 2002 by Koninklijke Philips Electronics N.V.
  * Author: Tony Rogvall <tony@bluetail.com>
  *
  * Converted to scancode mode by Greg Haerr
@@ -98,6 +99,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	XEvent ev;
 	MWKEY mwkey;
+	char ignored_char;
 
 	static int grabbed = 0;
 	static int x11_accel_num;
@@ -355,7 +357,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			    fprintf(stderr, "Unhandled X11 keysym: %04x\n", (int)sym);
 		    }
 
-		    XLookupString(&ev.xkey, &mwkey, 1, &sym, NULL );
+		    XLookupString(&ev.xkey, &ignored_char, 1, &sym, NULL );
 
 		    if (key_modstate & MWKMOD_CTRL)
 				mwkey = sym & 0x1f;	/* Control code */ 

@@ -315,6 +315,8 @@ static FTC_CMapCache freetype2_cache_cmap;
  *
  * @param face_id The font ID.  This is a pointer to a freetype2_fontdata structure.
  * @param library the FreeType library instance.
+ * @param request_data FIXME
+ * @param aface FIXME
  */
 static FT_Error
 freetype2_face_requester(FTC_FaceID face_id,
@@ -1348,7 +1350,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
  * Measures text, which can be rotated.  This is slower than the
  * non-rotated version.
  *
- * @param pfont The font to use.
+ * @param pf    The font to use.
  * @param text  The string to measure, in 16-bit Unicode form.
  * @param cc    The number of characters (not bytes) in text.
  * @param pwidth  [out] the width in pixels
@@ -1484,7 +1486,7 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf,
  * rotated version.  This uses the cache system, if available, so
  * the caller must check that they CAN_USE_FT2_CACHE().
  *
- * @param pfont      The font to use.
+ * @param pf         The font to use.
  * @param text       The string to measure, in 16-bit Unicode form.
  * @param char_count The number of characters (not bytes) in text.
  * @param pwidth     [out] the width in pixels

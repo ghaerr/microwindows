@@ -54,6 +54,12 @@ GdSetMode(int mode)
 	return oldmode;
 }
 
+/**
+ * Set the fill mode for future calls.
+ *
+ * @param mode New fill mode.
+ * @return Old fill mode.
+ */
 int
 GdSetFillMode(int mode)
 {
@@ -80,6 +86,9 @@ GdSetUseBackground(MWBOOL flag)
 
 /*
  * Set the foreground color for drawing from passed pixel value.
+ *
+ * @param psd Screen device.
+ * @param bg Background pixel value.
  */
 MWPIXELVAL
 GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg)
@@ -93,6 +102,9 @@ GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg)
 /*
  * Set the background color for bitmap and text backgrounds
  * from passed pixel value.
+ *
+ * @param psd Screen device.
+ * @param bg Background pixel value.
  */
 MWPIXELVAL
 GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg)
@@ -106,6 +118,7 @@ GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg)
 /**
  * Set the foreground color for drawing from passed RGB color value.
  *
+ * @param psd Screen device.
  * @param fg Foreground RGB color to use for drawing.
  * @return Old foreground color.
  */
@@ -122,6 +135,7 @@ GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
  * Set the background color for bitmap and text backgrounds
  * from passed RGB color value.
  *
+ * @param psd Screen device.
  * @param bg Background color to use for drawing.
  * @return Old background color.
  */
@@ -134,7 +148,9 @@ GdSetBackgroundColor(PSD psd, MWCOLORVAL bg)
 	return oldbg;
 }
 
-/* Set the dash mode for future drawing */
+/**
+ * Set the dash mode for future drawing
+ */
 void
 GdSetDash(unsigned long *mask, int *count)
 {
@@ -468,8 +484,8 @@ GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
  * clipping if necessary.
  *
  * @param psd Drawing surface.
- * @param x Left edge of rectangle.
- * @param y Top edge of rectangle.
+ * @param x1 Left edge of rectangle.
+ * @param y1 Top edge of rectangle.
  * @param width Width of rectangle.
  * @param height Height of rectangle.
  */

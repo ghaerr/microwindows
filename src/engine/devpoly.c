@@ -581,7 +581,7 @@ edge_cmp(const void *lvp, const void *rvp)
  *
  * @param psd Drawing surface.
  * @param count Number of points in polygon.
- * @param points The array of points.
+ * @param pointtable The array of points.
  */
 void
 GdFillPoly(PSD psd, int count, MWPOINT * pointtable)

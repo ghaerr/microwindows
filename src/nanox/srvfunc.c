@@ -868,7 +868,7 @@ GrCopyGC(GR_GC_ID gc)
  * Return information about the specified graphics context.
  */
 void 
-GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
+GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
 {
 	GR_GC		*gcp;
 
@@ -877,7 +877,7 @@ GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
 	/*
 	 * Find the GC manually so that an error is not generated.
 	 */
-	for (gcp = listgcp; gcp && (gcp->id != gcid); gcp = gcp->next)
+	for (gcp = listgcp; gcp && (gcp->id != gc); gcp = gcp->next)
 		continue;
 
 	if (gcp == NULL) {
@@ -886,7 +886,7 @@ GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
 		return;
 	}
 
-	gcip->gcid = gcid;
+	gcip->gcid = gc;
 	gcip->mode = gcp->mode;
 	gcip->region = gcp->regionid;
 	gcip->xoff = gcp->xoff;
@@ -2281,7 +2281,7 @@ GrSetGCMode(GR_GC_ID gc, int mode)
  * Set the attributes of the line.  
  */
 void
-GrSetGCLineAttributes(GR_GC_ID gc, int line_style)
+GrSetGCLineAttributes(GR_GC_ID gc, int linestyle)
 {
 	GR_GC *gcp;
 
@@ -2293,10 +2293,10 @@ GrSetGCLineAttributes(GR_GC_ID gc, int line_style)
 		return;
 	}
 
-	switch (line_style) {
+	switch (linestyle) {
 	case GR_LINE_SOLID:
 	case GR_LINE_ONOFF_DASH:
-		gcp->linestyle = line_style;
+		gcp->linestyle = linestyle;
 		break;
 
 	default:
@@ -2930,7 +2930,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
  */
 void
 GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE width, GR_SIZE height, GR_DRAW_ID source,
+	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
 	GR_COORD srcx, GR_COORD srcy, unsigned long op)
 {
   	GR_GC		*gcp;
@@ -2946,7 +2946,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
    
         srcpsd = NULL;
 
-        swp = GsFindWindow(source);
+        swp = GsFindWindow(srcid);
         type = GsPrepareDrawing(id, gc, &dp);
 	if (type == GR_DRAW_TYPE_NONE) {
 		SERVER_UNLOCK();
@@ -2958,7 +2958,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		srcx += swp->x;
 		srcy += swp->y;
 	} else {
-	       spp = GsFindPixmap(source);
+	       spp = GsFindPixmap(srcid);
 	       if (spp)
 		     srcpsd = spp->psd;
 	}
@@ -3714,10 +3714,10 @@ GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
 }
 
 void 
-GrFreeFontList(GR_FONTLIST ***fonts, int num)
+GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
 {
 	SERVER_LOCK();
-	GdFreeFontList(fonts, num);
+	GdFreeFontList(fonts, numfonts);
 	SERVER_UNLOCK();
 }
 
@@ -3958,7 +3958,7 @@ GrDestroyTimer (GR_TIMER_ID tid)
 /**
  * Sets new server portrait mode and redraws all windows.
  *
- * @param newmode new portrait mode
+ * @param portraitmode New portrait mode.
  */
 void
 GrSetPortraitMode(int portraitmode)
@@ -4106,8 +4106,8 @@ static struct klist *khead = NULL;
 
 /**
  * Grab a key for a specific window.
- * @id window to send event to.
- * @key GR_KEY value.
+ * @param id window to send event to.
+ * @param key GR_KEY value.
  */
 int
 GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
@@ -4138,8 +4138,8 @@ GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
 
 /**
  * Ungrab a key for a specific window.
- * @id window to stop key grab.
- * @key GR_KEY value.
+ * @param id window to stop key grab.
+ * @param key GR_KEY value.
  */
 void
 GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)

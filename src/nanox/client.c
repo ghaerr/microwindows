@@ -585,19 +585,19 @@ GrGetSysColor(int index)
 /**
  * Gets information about a font.
  *
- * @param fontno The font ID to query.
+ * @param font The font ID to query.
  * @param fip    Pointer to the GR_FONT_INFO structure to store the result.
  *
  * @ingroup nanox_font
  */
 void 
-GrGetFontInfo(GR_FONT_ID fontno, GR_FONT_INFO *fip)
+GrGetFontInfo(GR_FONT_ID font, GR_FONT_INFO *fip)
 {
 	nxGetFontInfoReq *req;
 
 	LOCK(&nxGlobalLock);
 	req = AllocReq(GetFontInfo);
-	req->fontid = fontno;
+	req->fontid = font;
 	TypedReadBlock(fip, sizeof(GR_FONT_INFO),GrNumGetFontInfo);
 	UNLOCK(&nxGlobalLock);
 }
@@ -1322,7 +1322,7 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
  *
  * @param width  The width of the pixmap.
  * @param height The height of the pixmap.
- * @param addr   Currently unused in client/server mode.
+ * @param pixels Currently unused in client/server mode.
  * @return       The ID of the newly created pixmap.
  *
  * @todo FIXME Add support for shared memory...
@@ -1330,7 +1330,7 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
  * @ingroup nanox_window
  */
 GR_WINDOW_ID
-GrNewPixmap(GR_SIZE width, GR_SIZE height, void *addr)
+GrNewPixmap(GR_SIZE width, GR_SIZE height, void *pixels)
 {
 	nxNewPixmapReq *req;
 	GR_WINDOW_ID 	wid;
@@ -1669,21 +1669,21 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
  * graphics context.
  *
  * @param gc The ID of the graphics context with user clip region.
- * @param x  New X offset of user clip region.
- * @param y  New Y offset of user clip region.
+ * @param xoff  New X offset of user clip region.
+ * @param yoff  New Y offset of user clip region.
  *
  * @ingroup nanox_draw
  */
 void 
-GrSetGCClipOrigin(GR_GC_ID gc, int x, int y)
+GrSetGCClipOrigin(GR_GC_ID gc, int xoff, int yoff)
 {
 	nxSetGCClipOriginReq *req;
 
 	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCClipOrigin);
 	req->gcid = gc;
-	req->xoff = x;
-	req->yoff = y;
+	req->xoff = xoff;
+	req->yoff = yoff;
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -1940,11 +1940,10 @@ GrMapWindow(GR_WINDOW_ID wid)
 }
 
 /**
- * GrUnmapWindow:
- * @param wid  the ID of the window to unmap
- *
  * Recursively unmaps (makes invisible) the specified window and all of the
  * child windows.
+ *
+ * @param wid  the ID of the window to unmap
  *
  * @ingroup nanox_window
  */
@@ -2359,7 +2358,7 @@ GrSetGCLineAttributes(GR_GC_ID gc, int linestyle)
 /**
  * FIXME
  *
- * @param gc     FIXME
+ * @param gc     Graphics context ID.
  * @param dashes FIXME
  * @param count  FIXME
  *
@@ -2609,18 +2608,18 @@ GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
  * Frees the specified font list array.
  *
  * @param fonts Pointer to array returned by GrGetFontList().
- * @param n     The number of font names in the array.
+ * @param numfonts The number of font names in the array.
  *
  * @ingroup nanox_font
  */
 void
-GrFreeFontList(GR_FONTLIST ***fonts, int n)
+GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
 {
 	int i;
 	MWFONTLIST *g, **list = *fonts;
 
 	LOCK(&nxGlobalLock);
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < numfonts; i++) {
 		g = list[i];
 		if(g) {
 			if(g->mwname) 
@@ -2639,19 +2638,19 @@ GrFreeFontList(GR_FONTLIST ***fonts, int n)
  * Changes the size of the specified font to the specified size.
  *
  * @param fontid  the ID number of the font to change the size of
- * @param fontsize  the size to change the font to
+ * @param size  the size to change the font to
  *
  * @ingroup nanox_font
  */
 void
-GrSetFontSize(GR_FONT_ID fontid, GR_COORD fontsize)
+GrSetFontSize(GR_FONT_ID fontid, GR_COORD size)
 {
 	nxSetFontSizeReq *req;
 
 	LOCK(&nxGlobalLock);
 	req = AllocReq(SetFontSize);
 	req->fontid = fontid;
-	req->fontsize = fontsize;
+	req->fontsize = size;
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -2972,7 +2971,7 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 /**
- * Draws the monochrome bitmap data provided in the bitmaptable argument
+ * Draws the monochrome bitmap data provided in the imagebits argument
  * at the specified position on the specified drawable using the specified
  * graphics context. Note that the bitmap data should be an array of aligned
  * 16 bit words. The usebackground flag in the graphics context specifies
@@ -2984,13 +2983,13 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * @param y  the Y coordinate to draw the bitmap at relative to the drawable
  * @param width  the width of the bitmap
  * @param height  the height of the bitmap
- * @param bitmaptable  pointer to the bitmap data
+ * @param imagebits  pointer to the bitmap data
  *
  * @ingroup nanox_draw
  */
 void 
 GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE height, GR_BITMAP *bitmaptable)
+	GR_SIZE height, GR_BITMAP *imagebits)
 {
 	nxBitmapReq *req;
 	long 	     bitmapsize;
@@ -3004,7 +3003,7 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	req->y = y;
 	req->width = width;
 	req->height = height;
-	memcpy(GetReqData(req), bitmaptable, bitmapsize);
+	memcpy(GetReqData(req), imagebits, bitmapsize);
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -3833,7 +3832,7 @@ GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
  *
  * @param wid      ID of the window to send the event to, or 0.
  * @param keyvalue Unicode keystroke value to inject.
- * @param modifier Modifiers (shift, ctrl, alt, etc.) to inject.
+ * @param modifiers Modifiers (shift, ctrl, alt, etc.) to inject.
  * @param scancode The key scan code to inject.
  * @param pressed  TRUE for a key press, FALSE for a key release.
  *
@@ -3841,7 +3840,7 @@ GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
  */
 void
 GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
-	GR_KEYMOD modifier, GR_SCANCODE scancode, GR_BOOL pressed)
+	GR_KEYMOD modifiers, GR_SCANCODE scancode, GR_BOOL pressed)
 {
 	nxInjectEventReq *req;
 
@@ -3850,7 +3849,7 @@ GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
 	req->event_type = GR_INJECT_EVENT_KEYBOARD;
 	req->event.keyboard.wid = wid;
 	req->event.keyboard.keyvalue = keyvalue;
-	req->event.keyboard.modifier = modifier;
+	req->event.keyboard.modifier = modifiers;
 	req->event.keyboard.scancode = scancode;
 	req->event.keyboard.pressed = pressed;
 
@@ -4335,11 +4334,9 @@ GrDestroyTimer (GR_TIMER_ID tid)
 #endif /* MW_FEATURE_TIMERS */
 
 /**
- * FIXME
+ * Set server portrait mode.
  *
- * @param portraitmode FIXME
- *
- * @todo FIXME document this
+ * @param portraitmode New portrait mode.
  *
  * @ingroup nanox_misc
  */

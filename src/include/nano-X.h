@@ -70,10 +70,10 @@ typedef unsigned int	GR_BUTTON;	/* mouse button value */
 
 /** Nano-X rectangle, different from MWRECT */
 typedef struct {
-	GR_COORD x;
-	GR_COORD y;
-	GR_SIZE  width;
-	GR_SIZE  height;
+	GR_COORD x;		/**< upper left x coordinate*/
+	GR_COORD y;		/**< upper left y coordinate*/
+	GR_SIZE  width;		/**< rectangle width*/
+	GR_SIZE  height;	/**< rectangle height*/
 } GR_RECT;
 
 /* The root window id. */
@@ -276,9 +276,14 @@ typedef struct {
 
 /** Calibration data passed to GrCalcTransform */
 typedef struct {
-  int xres, yres;		/* X and Y resolution of the screen */
-  int minx, miny, maxx, maxy;	/* min and max raw values */
-  GR_BOOL xswap, yswap;		/* true if the x or the y component should be swapped */
+  int xres;			/**< X resolution of the screen */
+  int yres;			/**< Y resolution of the screen */
+  int minx;			/**< min raw X value */
+  int miny;			/**< min raw Y values */
+  int maxx;			/**< max raw X value */
+  int maxy;			/**< max raw Y value */
+  GR_BOOL xswap;		/**< true if the x component should be swapped */
+  GR_BOOL yswap;		/**< true if the y component should be swapped */
 } GR_CAL_DATA;
 
 /* Error codes */
@@ -463,8 +468,8 @@ typedef struct {
  * GrRegisterInput() event.
  */
 typedef struct {
-  GR_EVENT_TYPE type;		/* event type */
-  int		fd;		/* input fd*/
+  GR_EVENT_TYPE type;		/**< event type */
+  int		fd;		/**< input file descriptor*/
 } GR_EVENT_FDINPUT;
 
 /**
@@ -632,7 +637,7 @@ GR_COLOR	GrGetSysColor(int index);
 GR_WINDOW_ID	GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_SIZE bordersize,
 			GR_COLOR background, GR_COLOR bordercolor);
-GR_WINDOW_ID    GrNewPixmap(GR_SIZE width, GR_SIZE height, void * addr);
+GR_WINDOW_ID    GrNewPixmap(GR_SIZE width, GR_SIZE height, void *pixels);
 GR_WINDOW_ID	GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
 				GR_SIZE width, GR_SIZE height);
 void		GrDestroyWindow(GR_WINDOW_ID wid);
@@ -680,7 +685,7 @@ GR_FONT_ID	GrCreateFontFromBuffer(const void *buffer, unsigned length,
 			const char *format, GR_COORD height);
 GR_FONT_ID	GrCopyFont(GR_FONT_ID fontid, GR_COORD height);
 void		GrGetFontList(GR_FONTLIST ***fonts, int *numfonts);
-void		GrFreeFontList(GR_FONTLIST ***fonts, int num);
+void		GrFreeFontList(GR_FONTLIST ***fonts, int numfonts);
 void		GrSetFontSize(GR_FONT_ID fontid, GR_COORD size);
 void		GrSetFontRotation(GR_FONT_ID fontid, int tenthsdegrees);
 void		GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags);

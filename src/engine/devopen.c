@@ -279,7 +279,8 @@ GdGetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
 /**
  * Convert a palette-independent value to a hardware color
  *
- * @param c 24-bit RGB color
+ * @param psd Screen device
+ * @param c 24-bit RGB color.
  * @return Hardware-specific color.
  */
 MWPIXELVAL
@@ -367,8 +368,9 @@ GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
 /**
  * Convert a color from a driver-dependent PIXELVAL to a COLORVAL.
  *
+ * @param psd Screen device.
  * @param pixel Hardware-specific color.
- * @return 24-bit RGB color
+ * @return 24-bit RGB color.
  */
 MWCOLORVAL
 GdGetColorRGB(PSD psd, MWPIXELVAL pixel)

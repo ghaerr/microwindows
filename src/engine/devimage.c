@@ -184,6 +184,7 @@ static int GdDecodeImage(PSD psd, buffer_t *src, char *path, int flags);
 /**
  * Load an image from a memory buffer.
  *
+ * @param psd Screen device.
  * @param buffer The buffer containing the image data.
  * @param size The size of the buffer.
  * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!

@@ -605,7 +605,7 @@ filter_relrotate(int state, int *xpos, int *ypos, int x, int y)
 		break;
 
 	case MWPORTRAIT_DOWN:
-		*xpos += x;
+		*xpos -= x;
 		*ypos -= y;
 		break;
 

@@ -1,4 +1,4 @@
-	* fixed portrait-down mirror problem (Matthias)
+	* fixed portrait-down mirror display problem (Matthias), also mouse
 	* fixed .pcf file short offset problem with large fonts
 	* fixed .pcf file incorrect width mapping bug w/certain fonts
 	* fixed .fnt file font loader bug with certain fonts

@@ -337,7 +337,7 @@ typedef struct {
 
 /* create RGB colorval (0x00BBGGRR) from 3/3/2 format pixel*/
 #define PIXEL332TOCOLORVAL(p)	\
-	((((p) & 0xe0)) | (((p) & 0x18) << 11) | (((p) & 0x03) << 19))
+	((((p) & 0xe0)) | (((p) & 0x1c) << 11) | (((p) & 0x03) << 19))
 
 #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888)
 #define RGB2PIXEL(r,g,b)	RGB2PIXEL888(r,g,b)

@@ -114,8 +114,12 @@ SVGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
 	psi->ncolors = psd->ncolors;
-	psi->pixtype = psd->pixtype;
 	psi->fonts = NUMBER_FONTS;
+	psi->portrait = MWPF_PORTRAIT_NONE;
+	psi->pixtype = psd->pixtype;
+	psi->rmask 	= 0xff;
+	psi->gmask 	= 0xff;
+	psi->bmask	= 0xff;
 
 	if(psd->yvirtres > 480) {
 		/* SVGA 800x600*/

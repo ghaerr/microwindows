@@ -438,9 +438,39 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
 	psi->ncolors = psd->ncolors;
-	psi->pixtype = psd->pixtype;
-	psi->portrait = psd->portrait;
 	psi->fonts = NUMBER_FONTS;
+	psi->portrait = psd->portrait;
+
+	psi->pixtype = psd->pixtype;
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLOR0888:
+	case MWPF_TRUECOLOR888:
+		psi->rmask 	= 0xff0000;
+		psi->gmask 	= 0x00ff00;
+		psi->bmask	= 0x0000ff;
+		break;
+	case MWPF_TRUECOLOR565:
+		psi->rmask 	= 0xf800;
+		psi->gmask 	= 0x07e0;
+		psi->bmask	= 0x001f;
+		break;
+	case MWPF_TRUECOLOR555:
+		psi->rmask 	= 0x7c00;
+		psi->gmask 	= 0x03e0;
+		psi->bmask	= 0x001f;
+		break;
+	case MWPF_TRUECOLOR332:
+		psi->rmask 	= 0xe0;
+		psi->gmask 	= 0x1c;
+		psi->bmask	= 0x03;
+		break;
+	case MWPF_PALETTE:
+	default:
+		psi->rmask 	= 0xff;
+		psi->gmask 	= 0xff;
+		psi->bmask	= 0xff;
+		break;
+	}
 
 	if(psd->yvirtres > 480) {
 		/* SVGA 800x600*/

@@ -29,6 +29,7 @@ typedef MWKEY	 	GR_KEY;		/* keystroke value*/
 typedef MWSCANCODE	GR_SCANCODE;	/* oem keystroke scancode value*/
 typedef MWKEYMOD	GR_KEYMOD;	/* keystroke modifiers*/
 typedef MWSCREENINFO	GR_SCREEN_INFO;	/* screen information*/
+typedef MWWINDOWFBINFO	GR_WINDOW_FB_INFO; /* direct client-mapped window info*/
 typedef MWFONTINFO	GR_FONT_INFO;	/* font information*/
 typedef MWIMAGEINFO	GR_IMAGE_INFO;	/* image information*/
 typedef MWIMAGEHDR	GR_IMAGE_HDR;	/* multicolor image representation*/
@@ -707,6 +708,12 @@ GR_BITMAP *	GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_widt
 GR_WINDOW_ID    GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, 
 			GR_COLOR foreground, GR_COLOR background, void * bits,
 			int flags);
+
+/* direct client-side framebuffer mapping routines*/
+unsigned char * GrOpenClientFramebuffer(void);
+void		GrCloseClientFramebuffer(void);
+void		GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo);
+
 /* retrofit - no longer used*/
 GR_CURSOR_ID	GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
 			GR_COORD hotx, GR_COORD hoty, GR_COLOR foreground,

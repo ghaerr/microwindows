@@ -1,4 +1,7 @@
 Version 0.89pre8 - 6 Sep 2001 - greg@censoft.com
+	* added direct client-side framebuffer mapped window routines:
+		GrOpenClientFramebuffer, GrCloseClientFramebuffer, GrGetWindowFBInfo
+	* added rgb mask values to SCREENINFO struct
 	* updated mou_tp.c for Yopy (untested), can use mou_yopy.c
 	* fixed GrCheckNextEvent to return locally queued event first if any
 	* fixed FREETYPE_FONT_DIR

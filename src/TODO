@@ -1,5 +1,6 @@
-fixup wswap/dwswap macros and includes in engine/devimage.c
 check for HAVE_STRETCHBLIT before calling it...
+add psi->rmask, psi->portrait in all drivers/scr*.c
+
 
 send recursive UPDATE_MOVE events to child windows, correct wp->x, wp->y sent
 add WM_KEYDOWN/KEYUP bits to win32

@@ -1165,12 +1165,9 @@ GsCheckFocusWindow(void)
 {
 	GR_WINDOW		*wp;		/* current window */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
-	GR_EVENT_MASK		eventmask;	/* event mask */
 
 	if (focusfixed)
 		return;
-
-	eventmask = GR_EVENT_MASK_KEY_DOWN;
 
 	/*
 	 * Walk upwards from the current window containing the mouse
@@ -1180,12 +1177,12 @@ GsCheckFocusWindow(void)
 		if (wp->props & GR_WM_PROPS_NOFOCUS)
 			continue;
 		for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
-			if (ecp->eventmask & eventmask) {
+			if (ecp->eventmask & GR_EVENT_MASK_KEY_DOWN) {
 				GsWpSetFocus(wp);
 				return;
 			}
 		}
-		if ((wp == rootwp) || (wp->nopropmask & eventmask)) {
+		if ((wp == rootwp) || (wp->nopropmask & GR_EVENT_MASK_KEY_DOWN)) {
 			GsWpSetFocus(rootwp);
 			return;
 		}

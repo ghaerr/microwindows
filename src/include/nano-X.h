@@ -782,17 +782,17 @@ void		GrDestroyFont(GR_FONT_ID fontid);
 void		GrGetFontInfo(GR_FONT_ID font, GR_FONT_INFO *fip);
 GR_WINDOW_ID	GrGetFocus(void);
 void		GrSetFocus(GR_WINDOW_ID wid);
-void		GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
-			GR_SIZE height, GR_BOOL exposeflag);
+void		GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y,
+			GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
 void		GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask);
 void		GrGetNextEvent(GR_EVENT *ep);
 int             GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, 
-			GR_UPDATE_TYPE mask_up,GR_EVENT * ep, int block);
+			GR_UPDATE_TYPE update, GR_EVENT *ep, GR_BOOL block);
+typedef GR_BOOL (*GR_TYPED_EVENT_CALLBACK)(GR_WINDOW_ID, GR_EVENT_MASK,
+			GR_UPDATE_TYPE, GR_EVENT *, void *);
 int             GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, 
-			GR_UPDATE_TYPE mask_up, GR_EVENT * ep, int block, 
-			int (*CheckFunction)(GR_WINDOW_ID, GR_EVENT_MASK,
-				GR_UPDATE_TYPE, GR_EVENT*, void *),
-			void * arg);
+			GR_UPDATE_TYPE update, GR_EVENT * ep, GR_BOOL block, 
+			GR_TYPED_EVENT_CALLBACK matchfn, void *arg);
 void		GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 void		GrCheckNextEvent(GR_EVENT *ep);
 int		GrPeekEvent(GR_EVENT *ep);

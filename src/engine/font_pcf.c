@@ -411,7 +411,7 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 	for (n = 0; n < e->count; ++n) {
 		FREAD(file, &code, sizeof(code));
 		e->map[n] = wswap(code);
-		DPRINTF("ncode %x (%c) %x\n", n, n, e->map[n]);
+		/*DPRINTF("ncode %x (%c) %x\n", n, n, e->map[n]);*/
 	}
 	DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
 		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);

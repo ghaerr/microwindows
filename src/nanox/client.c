@@ -1141,13 +1141,14 @@ GrCheckNextEvent(GR_EVENT *ep)
 	UNLOCK(&nxGlobalLock);
 }
 
-static int
-_CheckTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
-	GR_EVENT * ep, void * arg)
+/* builtin callback function for GrGetTypedEvent*/
+static GR_BOOL
+GetTypedEventCallback(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
+	GR_EVENT *ep, void *arg)
 {
 	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
 
-DPRINTF("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, (unsigned)mask, update, ep->general.wid, ep->type);
+DPRINTF("GetTypedEventCallback: wid %d mask %x update %d from %d type %d\n", wid, (unsigned)mask, update, ep->general.wid, ep->type);
 
 	/* FIXME: not all events have wid field here... */
 	if (wid && (wid != ep->general.wid))
@@ -1168,50 +1169,51 @@ DPRINTF("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, (un
 /**
  * Fills in the specified event structure with a copy of the next event on the
  * queue that matches the type parameters passed and removes it from the queue.
- * An event type of GR_EVENT_TYPE_NONE is given if the queue is empty; else,
- * the event type is returned.
+ * If block is GR_TRUE, the call will block until a matching event is found.
+ * Otherwise, only the local queue is searched, and an event type of
+ * GR_EVENT_TYPE_NONE is returned if the a match is not found.
  *
  * @param wid     Window id for which to check events. 0 means no window.
  * @param mask    Event mask of events for which to check. 0 means no check for mask.
- * @param mask_up FIXME what is this?
+ * @param update  Update event subtype when event mask is GR_EVENT_MASK_UPDATE.
  * @param ep      Pointer to the GR_EVENT structure to return the event in.
- * @param block   Specifies whether or not to block, 1 blocks, 0 does not.
+ * @param block   Specifies whether or not to block, GR_TRUE blocks, GR_FALSE does not.
  * @return        GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
  *                if no events match.
  *
- * @todo FIXME Need better summary doc above.
- * @todo FIXME Document mask_up paramater.
- *
  * @ingroup nanox_event
  */
 int
-GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
-	GR_EVENT * ep, int block)
+GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
+	GR_EVENT *ep, GR_BOOL block)
 {
-	return GrGetTypedEventPred(wid, mask, mask_up, ep, block, _CheckTypedEvent, 0);
+	return GrGetTypedEventPred(wid, mask, update, ep, block,
+		GetTypedEventCallback, NULL);
 }
 
 /**
- * FIXME
+ * The specified callback function is called with the passed event type parameters
+ * for each event on the queue, until the callback function CheckFunction
+ * returns GR_TRUE.  The event is then removed from the queue and returned.
+ * If block is GR_TRUE, the call will block until a matching event is found.
+ * Otherwise, only the local queue is searched, and an event type of
+ * GR_EVENT_TYPE_NONE is returned if the a match is not found.
  *
- * @param wid           FIXME
- * @param mask          FIXME
- * @param mask_up       FIXME
- * @param ep            FIXME
- * @param block         FIXME
- * @param CheckFunction FIXME
- * @param arg           FIXME
- *
- * @todo FIXME document this.
+ * @param wid     Window id for which to check events. 0 means no window.
+ * @param mask    Event mask of events for which to check. 0 means no check for mask.
+ * @param update  Update event subtype when event mask is GR_EVENT_MASK_UPDATE.
+ * @param ep      Pointer to the GR_EVENT structure to return the event in.
+ * @param block   Specifies whether or not to block, GR_TRUE blocks, GR_FALSE does not.
+ * @param matchfn Specifies the callback function called for matching.
+ * @param arg     A programmer-specified argument passed to the callback function.
+ * @return        GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
+ *                if no events match.
  *
  * @ingroup nanox_event
  */
 int
-GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
-	GR_EVENT *ep, int block, 
-	int (*CheckFunction)(GR_WINDOW_ID, GR_EVENT_MASK, 
-		GR_UPDATE_TYPE, GR_EVENT *, void *),
-	void *arg)
+GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
+	GR_EVENT *ep, GR_BOOL block, GR_TYPED_EVENT_CALLBACK matchfn, void *arg)
 {
 	EVENT_LIST *elp, *prevelp;
 	GR_EVENT event;
@@ -1226,13 +1228,13 @@ getevent:
 		QueueEvent(&event);
 	}
 
-	/* Now, run through the event queue, looking for matches for the typed
+	/* Now, run through the event queue, looking for matches of the type
 	 * info that was passed.
 	 */
 	prevelp = NULL;
 	elp = evlist;
 	while (elp) {
-		if ((*CheckFunction)(wid, mask, mask_up, &elp->event, arg)) {
+		if (matchfn(wid, mask, update, &elp->event, arg)) {
 			/* remove event from queue, return it*/
 			if (prevelp == NULL)
 				evlist = elp->next;

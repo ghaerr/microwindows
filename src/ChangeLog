@@ -1,3 +1,4 @@
+	* added hardcoded fnkey support to non-scancode tty driver (Jonathan)
 	* fixed convbmp.c for bigendian systems w/ifdef (Jonathan)
 	* fixed various Makefiles for proper NANOWM, NANOX, NANOXDEMO builds
 	* added quick clean mechanism when obj/ dir specified seperately

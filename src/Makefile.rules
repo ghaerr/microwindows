@@ -351,8 +351,8 @@ else
 #OPTFLAGS += -DNDEBUG
 endif
 
-CFLAGS += $(INCLUDEDIRS)
-HOSTCFLAGS := $(INCLUDEDIRS)
+MAKEDEPCFLAGS :=
+HOSTCFLAGS :=
 CPPFLAGS += $(DEFINES)
 LDFLAGS += -L$(MW_DIR_LIB)
 ifeq ($(ARCH), TRIMEDIA)
@@ -390,6 +390,13 @@ STRIP = $(TOOLSPREFIX)strip
 OBJCOPY = $(TOOLSPREFIX)objcopy
 CP = cp
 MV = mv
+
+# Note: We don't put INCLUDEDIRS in HOSTCFLAGS.
+# When cross-compiling, we want to use the target headers for
+# generating dependencies (MAKEDEPCFLAGS), but the host's default
+# headers for compiling tools (HOSTCFLAGS).
+CFLAGS += $(INCLUDEDIRS)
+MAKEDEPCFLAGS += $(INCLUDEDIRS)
 
 ##############################################################################
 # Libraries.
@@ -556,7 +563,7 @@ $(MW_DIR_BIN) $(MW_DIR_LIB):
 # time the user runs make.
 #
 define MW_RULE_DEPEND_C
-	$(HOSTCC) -MM $(HOSTCFLAGS) $(DEFINES) $< \
+	$(HOSTCC) -MM $(MAKEDEPCFLAGS) $(DEFINES) $< \
 		| sed 's/.*\.o[ :]*/$(subst /,\/,$@) : /g' \
 		> $(basename $@).d \
 		|| (rm $@ $(basename $@).d ; exit 1)

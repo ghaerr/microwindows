@@ -74,7 +74,7 @@ GR_CLIENT	*curclient;		/* client currently executing for */
 GR_EVENT_LIST	*eventfree;		/* list of free events */
 GR_BOOL		focusfixed;		/* TRUE if focus is fixed on a window */
 PMWFONT		stdfont;		/* default font*/
-int		escape_quits = 1;	/* terminate when pressing ESC */
+int		escape_quits = TRUE;	/* terminate when pressing ESC */
 char		*progname;		/* Name of this program.. */
 
 int		current_fd;		/* the fd of the client talking to */
@@ -91,12 +91,14 @@ GR_BOOL		screensaver_active;	/* time before screensaver activates */
 GR_SELECTIONOWNER selection_owner;	/* the selection owner and typelist */
 GR_TIMEOUT	startTicks;		/* ms time server started*/
 int		autoportrait = FALSE;	/* auto portrait mode switching*/
+MWCOORD		nxres;			/* requested server x resolution*/
+MWCOORD		nyres;			/* requested server y resolution*/
 
 GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 GR_TIMER        *cache_timer;           /* cached timer */
 GR_TIMER        *list_timer;            /* list of all timers */
 
-static int	persistent_mode = 0;
+static int	persistent_mode = FALSE;
 static int	portraitmode = MWPORTRAIT_NONE;
 
 SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THREADSAFE) */
@@ -107,7 +109,7 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	printf("Usage: %s [-e] [-p] [-N] [-c <fontconfig-file> ...]\n",
+	printf("Usage: %s [-e] [-p] [-A] [-NLRD] [-x#] [-y#] [-c <fontconfig-file> ...]\n",
 		progname);
 	exit(1);
 }
@@ -120,53 +122,68 @@ int
 main(int argc, char *argv[])
 {
 	int t;
-	int read_configfile(char *file);
 
 	progname = argv[0];
 
 	t = 1;
 	while ( t < argc ) {
 		if ( !strcmp("-e",argv[t])) {
-			escape_quits = 0;
-			t++;
+			escape_quits = FALSE;
+			++t;
 			continue;
 		}
 		if ( !strcmp("-p",argv[t]) ) {
-			persistent_mode = 1;
-			t++;
+			persistent_mode = TRUE;
+			++t;
 			continue;
 		}
 		if ( !strcmp("-A",argv[t]) ) {
 			autoportrait = TRUE;
-			t++;
+			++t;
 			continue;
 		}
 		if ( !strcmp("-N",argv[t]) ) {
 			portraitmode = MWPORTRAIT_NONE;
-			t++;
+			++t;
 			continue;
 		}
 		if ( !strcmp("-L",argv[t]) ) {
 			portraitmode = MWPORTRAIT_LEFT;
-			t++;
+			++t;
 			continue;
 		}
 		if ( !strcmp("-R",argv[t]) ) {
 			portraitmode = MWPORTRAIT_RIGHT;
-			t++;
+			++t;
 			continue;
 		}
 		if ( !strcmp("-D",argv[t]) ) {
 			portraitmode = MWPORTRAIT_DOWN;
-			t++;
+			++t;
+			continue;
+		}
+		if ( !strcmp("-x",argv[t]) ) {
+			if (++t >= argc)
+				usage();
+			nxres = atoi(argv[t]);
+			++t;
+			continue;
+		}
+		if ( !strcmp("-y",argv[t]) ) {
+			if (++t >= argc)
+				usage();
+			nyres = atoi(argv[t]);
+			++t;
 			continue;
 		}
 #if FONTMAPPER
 		if ( !strcmp("-c",argv[t]) ) {
-			if ( t+1 >= argc )
+			int read_configfile(char *file);
+
+			if (++t >= argc)
 				usage();
-			read_configfile(argv[t+1]);
-			t += 2;
+			read_configfile(argv[t]);
+			++t;
 			continue;
 		}
 #endif

@@ -250,8 +250,7 @@ ifneq ($(ARCH), ELKS)
 X11                      = N
 
 ifeq ($(X11), Y)
-# predefined model or select screen width, height, depth(palette mode only)
-SCREEN_E15               = N
+# startup screen width, height, (depth for palette mode only)
 SCREEN_WIDTH             = 640
 SCREEN_HEIGHT            = 480
 SCREEN_DEPTH             = 4

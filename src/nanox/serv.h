@@ -1,8 +1,8 @@
 #ifndef	_SERV_H
 #define	_SERV_H
 /*
- * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -534,6 +534,8 @@ extern  GR_TIMER        *list_timer;            /* list of all timers */
 extern	GR_BOOL		screensaver_active;	/* screensaver is active */
 extern	GR_SELECTIONOWNER selection_owner;	/* the selection owner */
 extern  int		autoportrait;		/* auto portrait mode switching*/
+extern  MWCOORD		nxres;			/* requested server x res*/
+extern  MWCOORD		nyres;			/* requested server y res*/
 
 /*
  * The filename to use for the named socket.  The environment variable

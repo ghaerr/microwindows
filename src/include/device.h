@@ -23,6 +23,10 @@
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
 #define EPRINTF		GdError			/* error output*/
 #define DPRINTF		GdErrorNull		/* debug output*/
+/*** GCC compiler-only macro magic to save space
+#define EPRINTF(str, args...)	fprintf(stderr, str, ##args)
+#define DPRINTF(str, ...)
+***/
 
 /* Which low-level psd->DrawArea routines to include. */
 #define MW_FEATURE_PSDOP_COPY                   0

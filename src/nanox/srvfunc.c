@@ -26,20 +26,13 @@ GrGetScreenInfo(GR_SCREEN_INFO *sip)
 
 	GdGetScreenInfo(rootwp->psd, sip);
 
-	/* virtual/workspace screen sizing*/
-#if 0
-	/* force small screen for emulation purposes*/
-	sip->vs_width = 240;	/* PDA*/
-	sip->vs_height = 320;
-	sip->ws_width = 240;
-	sip->ws_height = 298;
-#else
-	/* set workspace equal to screen area minus 22 pixel taskbar*/
-	sip->vs_width = sip->cols;
-	sip->vs_height = sip->rows;
-	sip->ws_width = sip->cols;
-	sip->ws_height = sip->rows - 22;
-#endif
+	/* set virtual screen sizing (for PDA emulation on desktop)*/
+	sip->vs_width = nxres? nxres: sip->cols;
+	sip->vs_height = nyres? nyres: sip->rows;
+
+	/* set workspace equal to virtual screen area minus 22 pixel taskbar*/
+	sip->ws_width = sip->vs_width;
+	sip->ws_height = sip->vs_height - 22;
 
 	SERVER_UNLOCK();
 }

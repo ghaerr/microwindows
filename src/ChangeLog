@@ -1,3 +1,5 @@
+	* removed Casio E-15 config option, use general options instead
+	* added -x<#> and -y<#> virtual screen sizing option (Jordan)
 	* fixed TS offset bug, solid linestyle bug (Felix)
 Version 0.89pl9 - 01 Mar 2003 - greg@censoft.com
 	* renamed GdSetForeground to GdSetForegroundPixelVal (and GdSetBackground)

@@ -1,6 +1,6 @@
 /*
- * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 1999 Tony Rogvall <tony@bluetail.com>
  * 	Rewritten to avoid multiple function calls by Greg Haerr
  *      Alpha blending added by Erik Hill
@@ -20,22 +20,7 @@
 #include "genmem.h"
 #include "genfont.h"
 
-/* define the Casio E-15 (allow override) */
-#ifdef SCREEN_E15
-#ifndef SCREEN_WIDTH
-#define    SCREEN_WIDTH  200
-#endif
-#ifndef SCREEN_HEIGHT
-#define    SCREEN_HEIGHT 320
-#endif
-#ifndef SCREEN_DEPTH
-#define    SCREEN_DEPTH  4
-#endif
-#ifndef MWPIXEL_FORMAT
-#define    MWPIXEL_FORMAT MWPF_PALETTE
-#endif
-#endif
-
+/* SCREEN_WIDTH, SCREEN_HEIGHT and MWPIXEL_FORMAT define server X window*/
 #ifndef SCREEN_WIDTH
 #error SCREEN_WIDTH not defined
 #endif
@@ -48,16 +33,14 @@
 #error MWPIXEL_FORMAT not defined
 #endif
 
-#if MWPIXEL_FORMAT == MWPF_PALETTE
-#ifndef SCREEN_DEPTH
+/* SCREEN_DEPTH is used only for palette modes*/
+#if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
 #error SCREEN_DEPTH not defined - must be set for palette modes
 #endif
-#else
-/* Truecolor, SCREEN_DEPTH is unused */
-#ifndef SCREEN_DEPTH
-#define SCREEN_DEPTH 8		/* Unused */
-#endif
-#endif
+
+/* externally set override values from nanox/srvmain.c*/
+MWCOORD	nxres;			/* requested server x res*/
+MWCOORD	nyres;			/* requested server y res*/
 
 /* specific x11 driver entry points*/
 static PSD X11_open(PSD psd);
@@ -67,23 +50,19 @@ static void X11_setpalette(PSD psd, int first, int count, MWPALENTRY * pal);
 static void X11_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c);
 static MWPIXELVAL X11_readpixel(PSD psd, MWCOORD x, MWCOORD y);
 static void X11_drawhline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
-			  MWPIXELVAL c);
+		MWPIXELVAL c);
 static void X11_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
-			  MWPIXELVAL c);
+		MWPIXELVAL c);
 static void X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2,
-			 MWCOORD y2, MWPIXELVAL c);
+		MWCOORD y2, MWPIXELVAL c);
 static void X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
-		     MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy,
-		     long op);
+		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
 static void X11_preselect(PSD psd);
 static void X11_drawarea(PSD psd, driver_gc_t * gc, int op);
-static void X11_stretchblitex(PSD dstpsd, PSD srcpsd,
-				int dest_x_start, int dest_y_start,
-				int width, int height,
-				int x_denominator, int y_denominator,
-				int src_x_fraction, int src_y_fraction,
-				int x_step_fraction, int y_step_fraction,
-				long op);
+static void X11_stretchblitex(PSD dstpsd, PSD srcpsd, int dest_x_start,
+		int dest_y_start, int width, int height, int x_denominator,
+		int y_denominator, int src_x_fraction, int src_y_fraction,
+		int x_step_fraction, int y_step_fraction, long op);
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -120,8 +99,8 @@ Window x11_win;
 GC x11_gc;
 unsigned int x11_event_mask;
 
-/* Screen depth in bpp */
-static int x11_depth;
+static int x11_width, x11_height;
+static int x11_depth;		/* Screen depth in bpp */
 
 static int x11_is_palette;	/* Nonzero for palette, zero for true color */
 
@@ -136,11 +115,14 @@ static unsigned long x11_b_mask;
 static int x11_colormap_installed = 0;
 static SCREENDEVICE savebits;	/* permanent offscreen drawing buffer */
 
-/* Color cache for true color lookups */
+/* color palette for color indexe */
+static XColor x11_palette[256];
+static int x11_pal_max = 0;
+
 #if MWPIXEL_FORMAT != MWPF_PALETTE
+/* Color cache for true color lookups */
 #define COLOR_CACHE_SIZE 1001
-struct color_cache
-{
+struct color_cache {
 	int init;		/* 1 if first use */
 	unsigned short r;
 	unsigned short g;
@@ -148,13 +130,7 @@ struct color_cache
 	XColor c;
 };
 static struct color_cache ccache[COLOR_CACHE_SIZE];
-#endif
 
-/* color palette for color indexe */
-static XColor x11_palette[256];
-static int x11_pal_max = 0;
-
-#if MWPIXEL_FORMAT != MWPF_PALETTE
 static unsigned long
 lookup_color(unsigned short r, unsigned short g, unsigned short b)
 {
@@ -240,7 +216,6 @@ set_color(MWPIXELVAL c)
 }
 
 /* Minor optimizations - save a function call overhead 99% of the time */
-
 static int x11_old_mode = -1;
 
 #define set_mode(new_mode) do { \
@@ -557,6 +532,8 @@ x11_setup_display(void)
 
 		XSetErrorHandler(x11_error);
 
+		x11_width = nxres? nxres: SCREEN_WIDTH;
+		x11_height = nyres? nyres: SCREEN_HEIGHT;
 		x11_scr = XDefaultScreen(x11_dpy);
 		x11_vis = select_visual(x11_dpy, x11_scr);
 
@@ -689,7 +666,7 @@ X11_open(PSD psd)
 		return NULL;
 
 	x11_event_mask = ColormapChangeMask | FocusChangeMask;
-/*x11_event_mask |= EnterWindowMask | LeaveWindowMask;*/
+	/*x11_event_mask |= EnterWindowMask | LeaveWindowMask;*/
 
 	event_mask = x11_event_mask | ExposureMask | KeyPressMask |	/* handled by kbd_x11 */
 		KeyReleaseMask |	/* handled by kbd_x11 */
@@ -705,36 +682,35 @@ X11_open(PSD psd)
 #endif
 
 	attr.backing_store = Always;	/* auto expose */
-	attr.save_under = True;	/* popups ... */
+	attr.save_under = True;		/* popups ... */
 	attr.event_mask = event_mask;
 
 #if 1				/* Patch by Jon to try for 8-bit TrueColor */
-	x11_colormap = XCreateColormap(x11_dpy,
-				       XDefaultRootWindow(x11_dpy),
+	x11_colormap = XCreateColormap(x11_dpy, XDefaultRootWindow(x11_dpy),
 				       x11_vis, AllocNone);
 	attr.colormap = x11_colormap;
 	valuemask |= CWColormap;
 #endif
 
 	x11_win = XCreateWindow(x11_dpy, XDefaultRootWindow(x11_dpy), 100,	/* x */
-				100,	/* y */
-				SCREEN_WIDTH,	/* width */
-				SCREEN_HEIGHT,	/* height */
-				2,	/* border */
+				100,		/* y */
+				x11_width,	/* width */
+				x11_height,	/* height */
+				2,		/* border */
 				CopyFromParent,	/* depth */
 				InputOutput,	/* class */
 				x11_vis,	/* Visual */
 				valuemask,	/* valuemask */
-				&attr	/* attributes */
+				&attr		/* attributes */
 		);
 
 	sizehints = XAllocSizeHints();
 	if (sizehints != NULL) {
 		sizehints->flags = PMinSize | PMaxSize;
-		sizehints->min_width = SCREEN_WIDTH;
-		sizehints->min_height = SCREEN_HEIGHT;
-		sizehints->max_width = SCREEN_WIDTH;
-		sizehints->max_height = SCREEN_HEIGHT;
+		sizehints->min_width = x11_width;
+		sizehints->min_height = x11_height;
+		sizehints->max_width = x11_width;
+		sizehints->max_height = x11_height;
 		XSetWMNormalHints(x11_dpy, x11_win, sizehints);
 		XFree(sizehints);
 	}
@@ -785,15 +761,17 @@ X11_open(PSD psd)
 #endif
 	XInstallColormap(x11_dpy, x11_colormap);
 
-	psd->xres = psd->xvirtres = SCREEN_WIDTH;
-	psd->yres = psd->yvirtres = SCREEN_HEIGHT;
-	psd->linelen = SCREEN_WIDTH;
+	psd->xres = psd->xvirtres = x11_width;
+	psd->yres = psd->yvirtres = x11_height;
+	psd->linelen = x11_width;
 	psd->planes = 1;
 	psd->pixtype = MWPIXEL_FORMAT;
 	switch (psd->pixtype) {
+#if MWPIXEL_FORMAT == MWPF_PALETTE
 	case MWPF_PALETTE:
 		psd->bpp = SCREEN_DEPTH;
 		break;
+#endif
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR8888:
 	default:

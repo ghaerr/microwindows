@@ -36,6 +36,9 @@ endif
 ifeq ($(X11), Y)
 CFLAGS += -DX11=1
 LDFLAGS += -L/usr/X11R6/lib -lX11
+ifeq ($(ARCH),FREEBSD-X86)
+INCLUDEDIRS += -I/usr/X11R6/include
+endif
 endif
 
 ifeq ($(VGALIB), Y)
@@ -272,6 +275,11 @@ ifeq ($(ARCH), DJGPP)
 CCMWINLIBS += -lgrx20
 CCNANOXLIBS = $(NANOXLIBS) 
 NANOXCLIENTLIBS += -lgrx20
+endif
+
+ifeq ($(ARCH), FREEBSD-X86)
+# For forkpty in nxterm.
+NANOXCLIENTLIBS += -lutil
 endif
 
 ################## End of Libraries Section ##################

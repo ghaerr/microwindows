@@ -45,7 +45,13 @@ NANOXFILES += $(UTILFILES)
 OBJS = $(NANOXFILES)
 else
 NANOXFILES += $(NETFILES)
-OBJS = client.o clientfb.o nxproto.o error.o $(UTILFILES)
+ifeq ($(FRAMEBUFFER), Y)
+OBJS = clientfb.o
+else
+OBJS =
+endif
+
+OBJS += client.o nxproto.o error.o $(UTILFILES)
 ifeq ($(ARCH), ECOS) 
 TARGET = $(TOP)/bin/nano-X.o
 else

@@ -20,8 +20,8 @@ the full agreement.
 #include <stdio.h>
 #include <ctype.h>
 #include <setjmp.h>
-/* ari -- for strlen */
 #include <string.h>
+#include <stdlib.h>
 
 extern char* li_err_msg;
 static char err_msg[BUFSIZ];

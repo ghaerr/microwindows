@@ -1,4 +1,5 @@
 Version 0.89pre9 - 21 Nov 2001 - greg@censoft.com
+	* fixed FreeBSD support
 	* added GrSetGCGraphicsExposure, GrNewBitmapFromPixmap
 	* added .pcf and pcf.gz loadable font support (Jordan)
 	* fixed PNG support (may require -lm in Makefile.rules)

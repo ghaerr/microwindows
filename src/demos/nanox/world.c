@@ -14,6 +14,12 @@
 #include <fcntl.h>
 #endif
 
+#if defined(__FreeBSD__)
+#include <unistd.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#endif
+
 #if LINUX | DOS_DJGPP
 #include <sys/types.h>
 #include <sys/stat.h>

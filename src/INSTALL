@@ -121,6 +121,14 @@ Then, set the following line in the config file:
 	HAVEMSFONTS=Y
 
 
+FreeBSD
+=====
+FreeBSD users set the line below in the config file.
+ ARCH=FREEBSD-X86
+
+You must use GNU make.  The easiest way is to install the 
+ports/devel/gmake package and use a command line such as "gmake MAKE=gmake"
+
 ELKS
 ====
 ELKS users set the line below in the config file.

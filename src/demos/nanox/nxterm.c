@@ -80,7 +80,8 @@ static GR_WINDOW_INFO   wi;
 static GR_GC_INFO       gi;
 static GR_BOOL		havefocus = GR_FALSE;
 
-static short winw, winh, pid, console;
+static pid_t pid;
+static short winw, winh, console;
 static int pipeh;
 static short cblink = 0, visualbell = 0, debug = 0;
 #ifdef __FreeBSD__

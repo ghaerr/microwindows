@@ -635,8 +635,7 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;
 	INT16	height;
-	INT16	lf_used;
-	MWLOGFONT lf;
+	INT16	padding;
 } nxCreateFontReq;
 
 #define GrNumDestroyFont	54
@@ -1295,5 +1294,13 @@ typedef struct {
 	UINT32 color;
 } nxSetGCBackgroundUsingPaletteReq;
 
-#define GrTotalNumCalls         119
+#define GrNumCreateLogFont	119
+typedef struct {
+	BYTE8 reqType;
+	BYTE8 hilength;
+	UINT16 length;
+	MWLOGFONT lf;
+} nxCreateLogFontReq;
+
+#define GrTotalNumCalls         120
 

@@ -1,4 +1,13 @@
-	(24 Feb 03)
+Version 0.89pl7 - 24 Feb 2003 - greg@censoft.com
+	* APPLIED mw_phillips_fontnetworkbug.diff (Jonathan)
+	  Contributed by Koninklijke Philips Electronics N.V.
+	* Added GrCreateLogFont nxRequest.
+	* Removing the hardcoded 64-character limit on font names.
+	  This caused problems with FreeType 2, because the font names
+	  are just filenames.  The network layer no longer
+	  restricts font name length, but there is still a
+	  potential buffer overflow in devfont.c.
+
 	* APPLIED mw_phillips_freetype2.diff (Jonathan)
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* Added FreeType 2 support, HAVE_FREETYPE_2_SUPPORT in config

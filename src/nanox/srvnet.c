@@ -755,12 +755,21 @@ GrCreateFontWrapper(void *r)
 	nxCreateFontReq *req = r;
 	GR_FONT_ID 	fontid;
 
-	if(req->lf_used)
-		fontid = GrCreateFont(NULL, 0, &req->lf);
-	else
-		fontid = GrCreateFont(req->lf.lfFaceName, req->height, NULL);
+	fontid = GrCreateFont(GetReqData(req), req->height, NULL);
 
 	GsWriteType(current_fd,GrNumCreateFont);
+	GsWrite(current_fd, &fontid, sizeof(fontid));
+}
+
+static void
+GrCreateLogFontWrapper(void *r)
+{
+	nxCreateLogFontReq *req = r;
+	GR_FONT_ID fontid;
+
+	fontid = GrCreateFont(NULL, 0, &req->lf);
+
+	GsWriteType(current_fd, GrNumCreateLogFont);
 	GsWrite(current_fd, &fontid, sizeof(fontid));
 }
 
@@ -1588,6 +1597,7 @@ struct GrFunction {
 	/* 116 */ {GrSetWindowRegionWrapper, "GrSetWindowRegion"},
 	/* 117 */ {GrSetGCForegroundUsingPaletteWrapper, "GrSetGCFgPalette"},
 	/* 118 */ {GrSetGCBackgroundUsingPaletteWrapper, "GrSetGCBgPalette"},
+	/* 119 */ {GrCreateLogFontWrapper, "GrCreateLogFont"},
 };
 
 void

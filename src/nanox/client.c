@@ -2221,25 +2221,34 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
 GR_FONT_ID
 GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 {
-	nxCreateFontReq *req;
 	GR_FONT_ID	fontid;
 
 	LOCK(&nxGlobalLock);
- 	req = AllocReq(CreateFont);
- 	if (plogfont) {
- 		memcpy(&req->lf, plogfont, sizeof(*plogfont));
- 		req->height = 0;
- 		req->lf_used = 1;
- 	} else {
-		if (name)
-			strcpy(req->lf.lfFaceName, name);
-		else req->lf.lfFaceName[0] = '\0';
-  		req->height = height;
- 		req->lf_used = 0;
+
+	if (plogfont)
+	{
+		nxCreateLogFontReq *req;
+		req = AllocReq(CreateLogFont);
+		memcpy(&req->lf, plogfont, sizeof(*plogfont));
+
+		if (TypedReadBlock(&fontid, sizeof(fontid), GrNumCreateLogFont) == -1)
+			fontid = 0;
 	}
-  
-	if(TypedReadBlock(&fontid, sizeof(fontid),GrNumCreateFont) == -1)
-		fontid = 0;
+	else
+	{
+		nxCreateFontReq *req;
+
+		if (!name)
+			name = "";
+
+		req = AllocReqExtra(CreateFont, strlen(name) + 1);
+		req->height = height;
+		strcpy((char *)GetReqData(req), name);
+
+		if (TypedReadBlock(&fontid, sizeof(fontid), GrNumCreateFont) == -1)
+			fontid = 0;
+	}
+
 	UNLOCK(&nxGlobalLock);
 	return fontid;
 }

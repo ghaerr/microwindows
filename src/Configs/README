@@ -15,13 +15,11 @@ config.x11	Microwindows running on X11 (+jpeg,pcf,freetype)
 
 // Specific ports
 config.ads	ARM Linux FB for ADS Graphics Client
-config.big5	FB and Chinese Big5 fonts
 config.dj	DJGPP 32-bit MSDOS
 config.elks	ELKS 16-bit Linux (bcc compiler)
 config.freebsd	FreeBSD port
 config.harrier	MIPS Linux FB for NEC Harrier
 config.helio	MIPS Linux FB for VTech Helio
-config.hzk	FB and Chinese HZK fonts
 config.ipaq	ARM Linux FB for iPAQ
 config.l7200	ARM Linux FB for L7200
 config.ns	x86 Linux for National Semi Geode

@@ -1,4 +1,5 @@
-Version 0.89pre8 - 8 Nov 2001 - greg@censoft.com
+Version 0.89pre8 - 15 Nov 2001 - greg@censoft.com
+	* removed most cpp-style // comments (Simon), cleaned up source
 	* added GrPeekWaitEvent, blocks until at least one event is available, then peeks
 	* fix GrPeekEvent, was absorbing events
 	* added win32 VK_ key translations for scancode MWKEY_ values

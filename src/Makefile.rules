@@ -137,6 +137,10 @@ ARFLAGS = rs
 
 # Tools (may be overridden by Arch.rules)
 HOSTCC = gcc
+COMPILER = gcc
+CXX_COMPILER = g++
+ACHIVER = ar
+LINKER = ld
 
 # Include the rules for arch's
 # if the user has a specific arch local to their home load it
@@ -149,8 +153,8 @@ endif
 # Tools ...
 CC = $(TOOLSPREFIX)$(COMPILER)
 CXX = $(TOOLSPREFIX)$(CXX_COMPILER)
-AR = $(TOOLSPREFIX)ar
-LD = $(TOOLSPREFIX)ld
+AR = $(TOOLSPREFIX)$(ACHIVER)
+LD = $(TOOLSPREFIX)$(LINKER)
 NM = $(TOOLSPREFIX)nm
 STRIP = $(TOOLSPREFIX)strip
 OBJCOPY = $(TOOLSPREFIX)objcopy
@@ -330,7 +334,7 @@ endif
 #
 .depend: $(OBJS:.o=.c) $(CXXOBJS:.o=.cc)
 	@echo "Updating dependencies in $(CURDIR) ..."
-	$(SHELL) -ec '$(HOSTCC) -MM $(CPPFLAGS) $(CFLAGS) $(OBJS:.o=.c) \
+	$(SHELL) -ec '$(HOSTCC) -MM $(CPPFLAGS) $(HOSTCFLAGS) $(OBJS:.o=.c) \
 	| sed '\''s/\($*\)\.o[ :]*/\1.o \$@ : $$(TOP)\/config /g'\'' > $@; \
 	[ -s $@ ] || rm -f $@'
 

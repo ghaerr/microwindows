@@ -24,15 +24,18 @@ NANOXFILES = srvmain.o srvfunc.o srvutil.o srvevent.o srvclip.o
 NETFILES = srvnet.o
 UTILFILES = nxdraw.o nxutil.o
 
+OBJS =
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 NANOXFILES += $(UTILFILES)
-OBJS = $(NANOXFILES)
+OBJS += $(NANOXFILES)
 else
 NANOXFILES += $(NETFILES)
 ifeq ($(FRAMEBUFFER), Y)
-OBJS = clientfb.o
+OBJS += clientfb.o
 else
-OBJS =
+ifeq ($(X11), Y)
+OBJS += clientfb.o
+endif
 endif
 
 OBJS += client.o nxproto.o nxtransform.o error.o $(UTILFILES)

@@ -3207,30 +3207,39 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
 /**
  * GrSetWindowRegion
  * @wid		window id
- * @bounds_rid	window bounding region id (outer border)
- * @client_rid	window client clipping region id (inner drawable area)
+ * @rid		region id
+ * @type	region type, bounding or clip mask
  *
- * Sets the clipping region of the specified window.
+ * Sets the bounding region of the specified window, not
+ * to be confused with a GC clip region.  The bounding region
+ * is used to implement non-rectangular windows.
+ * A window is defined by two regions: the bounding region
+ * and the clip region.  The bounding region defines the area
+ * within the parent window that the window will occupy, including
+ * border.  The clip region is the subset of the bounding region
+ * that is available for subwindows and graphics.  The area between
+ * the bounding region and the clip region is defined to be the
+ * border of the window.
+ * Currently, only the window bounding region is implemented.
  */
 void
-GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID bounds_rid,
-	GR_REGION_ID client_rid)
+GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 {
 #if DYNAMICREGIONS
 	GR_WINDOW *wp;
 	GR_REGION *region;
 	MWCLIPREGION *newregion;
 
-	/*FIXME client window region not yet implemented*/
+	/*FIXME clip window region not yet implemented*/
 
 	if (!(wp = GsFindWindow(wid))) {
 		GsError(GR_ERROR_BAD_WINDOW_ID, wid);
 		return;
 	}
 
-	if (bounds_rid) {
-		if (!(region = GsFindRegion(bounds_rid))) {
-			GsError(GR_ERROR_BAD_REGION_ID, bounds_rid);
+	if (rid) {
+		if (!(region = GsFindRegion(rid))) {
+			GsError(GR_ERROR_BAD_REGION_ID, rid);
 			return;
 		}
 

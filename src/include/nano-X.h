@@ -143,6 +143,10 @@ typedef struct {
 #define GR_ARCOUTLINE	MWARCOUTLINE	/* arc + outline*/
 #define GR_PIE		MWPIE		/* pie (filled)*/
 
+/* GrSetWindowRegion types*/
+#define GR_WINDOW_BOUNDING_MASK	0	/* outer border*/
+#define GR_WINDOW_CLIP_MASK	1	/* inner border*/
+
 /* Booleans */
 #define	GR_FALSE		0
 #define	GR_TRUE			1
@@ -724,8 +728,7 @@ GR_CURSOR_ID	GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx,
 			GR_BITMAP *fgbitmap, GR_BITMAP *bgbitmap);
 void		GrDestroyCursor(GR_CURSOR_ID cid);
 void		GrSetWindowCursor(GR_WINDOW_ID wid, GR_CURSOR_ID cid);
-void		GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID bounds_rid,
-			GR_REGION_ID client_rid);
+void		GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type);
 void		GrMoveCursor(GR_COORD x, GR_COORD y);
 void		GrGetSystemPalette(GR_PALETTE *pal);
 void		GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal);

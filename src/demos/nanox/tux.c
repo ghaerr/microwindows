@@ -79,7 +79,7 @@ GR_WINDOW_ID init(char *tuxfile)
 	GrSetBackgroundPixmap(wid, pid, GR_BACKGROUND_TOPLEFT);
 
 	rid = GrNewBitmapRegion(tuxmask_bits, TUXMASK_WIDTH, TUXMASK_HEIGHT);
-	GrSetWindowRegion(wid, rid, rid);
+	GrSetWindowRegion(wid, rid, GR_WINDOW_BOUNDING_MASK);
 	GrDestroyRegion(rid);
 
 	props.flags = GR_WM_FLAGS_PROPS;

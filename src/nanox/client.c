@@ -3730,10 +3730,22 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
  * GrSetWindowRegion
  * @wid: the ID of the window to set the clipping region of
  * @rid: the ID of the region to assign to the specified window
+ * @type: region type, bounding or clip mask
  *
- * Copies the specified region and makes the copy be the clipping region used
- * for the specified window. The old clipping region associated with the window
- * will automatically be destroyed. After setting the clipping region, all
+ * Sets the bounding region of the specified window, not
+ * to be confused with a GC clip region.  The bounding region
+ * is used to implement non-rectangular windows.
+ * A window is defined by two regions: the bounding region
+ * and the clip region.  The bounding region defines the area
+ * within the parent window that the window will occupy, including
+ * border.  The clip region is the subset of the bounding region
+ * that is available for subwindows and graphics.  The area between
+ * the bounding region and the clip region is defined to be the
+ * border of the window.
+ * Currently, only the window bounding region is implemented.
+ *
+ * Copies the specified region and makes the copy be the bounding region used
+ * for the specified window.  After setting the clipping region, all
  * drawing within the window will be clipped to the specified region (including
  * the drawing of the window background by the server), and mouse events will
  * pass through parts of the window which are outside the clipping region to
@@ -3749,13 +3761,12 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
  * around a shaped window, add it to the clipping region and draw it yourself.
  */
 void
-GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID bounds_rid,
-	GR_REGION_ID client_rid)
+GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 {
 	nxSetWindowRegionReq *req;
 
 	req = AllocReq(SetWindowRegion);
 	req->wid = wid;
-	req->bounds_rid = bounds_rid;
-	req->client_rid = client_rid;
+	req->rid = rid;
+	req->type = type;
 }

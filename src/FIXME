@@ -1,3 +1,4 @@
+add release new fonts tar file
 *** fix config.ok
 ***lfHeight shouldn't have to be non-zero to work
 ***GrCopyArea gcp->exposure flag needs checking into
@@ -10,7 +11,6 @@ copy regions in GrSetGCRegion like GrSetWindowRegion
 must copy regions in GrSetGCRegion for X11 lib to work...
 	look into region copy on xoff/yoff != 0 in GsPrepareDrawing
 
-*** need extra parm in GrSetWindowRegion for clip and boundary
 notifyactivate in nanowm should check all child windows (qt bug)
 
 change to GrChangeGC instead of new GrSetXXX routines?
@@ -26,7 +26,6 @@ GetTypedEventPred - typedef CheckEvent, remove params??
 remove demo6, etc?
 add nanocal, oneshot, periodic, pressure, ipcclient, ipcserver demos
 add speed demo
-add chinese fonts, release new tar file
 
 change stipple/tile unsigned short to MWIMAGEBITS, use GdBitmap
 add UPDATE_TEMPMAP?

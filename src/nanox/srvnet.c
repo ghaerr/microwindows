@@ -1424,7 +1424,7 @@ GrSetWindowRegionWrapper(void *r)
 {
 	nxSetWindowRegionReq *req = r;
 
-	GrSetWindowRegion(req->wid, req->bounds_rid, req->client_rid);
+	GrSetWindowRegion(req->wid, req->rid, req->type);
 }
 
 void GrShmCmdsFlushWrapper(void *r);

@@ -1270,8 +1270,8 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;
 	IDTYPE	wid;
-	IDTYPE	bounds_rid;
-	IDTYPE	client_rid;
+	IDTYPE	rid;
+	UINT16	type;
 } nxSetWindowRegionReq;
 
 #define GrTotalNumCalls         117

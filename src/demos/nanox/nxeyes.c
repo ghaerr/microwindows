@@ -106,7 +106,7 @@ nxeyes_state *init(void)
 	rid2 = GrNewBitmapRegion(eyemask_bits, EYEMASK_WIDTH, EYEMASK_HEIGHT);
 	GrOffsetRegion(rid2, EYEMASK_WIDTH + EYE_SPACING, 0);
 	GrUnionRegion(rid1, rid1, rid2);
-	GrSetWindowRegion(state->wid, rid1, rid1);
+	GrSetWindowRegion(state->wid, rid1, GR_WINDOW_BOUNDING_MASK);
 	GrDestroyRegion(rid1);
 	GrDestroyRegion(rid2);
 

@@ -1,5 +1,34 @@
 	* added newbuild.diff (Jonathan)
-	* added minormakefixes.diff (Jonathan)
+	  Enabled lots of warnings for GCC.
+	  (src/Arch.rules, src/Makefile.rules):
+	  Tidying: Moved defines, libraries and compiler flags into these two
+	    files.
+	  Tidying: Simplified the layout, so libraries and headers for a
+	    specific config option are together (before they were separated).
+	  Tidying: Simplified how libraries are handled - now they only need to be
+	    added to one variable, rather than five.
+	  Bugfix: Corrected a few options that were added to CFLAGS rather than
+	    DEFINES or INCLUDES.
+	  (src/*/Makefile [but not src/demos/*]):
+	  Tidying: Removing options that were moved into Makefile.rules
+	  Tidying: Removing the (now empty) compiler flags section of these
+	    Makefiles.
+	  (src/fonts/*/Makefile):
+	  Tidying: Removing these Makefiles that did nothing.
+	* added minormakefixes.diff: (Jonathan)
+	  (src/mwin/bmp/convbmp.c):
+	  Bugfix: Display a fatal error if the specified filename is longer
+	    than the fixed-sized filename buffer, instead of crashing.
+	  Bugfix: Make the fixed-size filename buffer longer.
+	  Feature: Add -o option to specify the output file name.
+	    (Previously it always computed this from the input file name.
+	    The old behaviour still applies if you do not specify -o)
+	  (src/Makefile.rules):
+	  Bugfix: Don't redirect output of convbmp, it doesn't produce
+	    output on standard out (even before my modifications).
+	    Use the -o option to specify the output file.
+	  Bugfix: "make clean" would delete all files in src/ if the
+	    bin/ directory did not exist.
 	* clean up demo program declarations to eliminate warnings (Jonathan)
 	* added LIRC keyboard support, MWKEY_HAVI keys (LIRCKBD=Y) (Jonathan)
 	* added Gr/GdCreateFontFromBuffer, Gr/GdCopyFont API (Jonathan)

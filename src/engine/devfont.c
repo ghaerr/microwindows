@@ -77,7 +77,8 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 
 	/* if plogfont not specified, use passed name, height and any class*/
 	if (!plogfont) {
-		if (!name)	/* if name not specified, use first builtin*/
+		/* if name not specified, use first builtin*/
+		if (!name || !name[0])
 			name = pf->name;
 		strcpy(fontname, name);
 		fontclass = MWLF_CLASS_ANY;

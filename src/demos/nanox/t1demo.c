@@ -123,7 +123,7 @@ main(int ac, char **av)
 			exit(0);
 		}
 
-		fontid = GrCreateFont(names[RAND(MAXFONTS)], 20, NULL);
+		fontid = GrCreateFont(names[RAND(MAXFONTS)], 0, NULL);
 		GrSetFontSize(fontid, RAND(80) + 1);
 		GrSetFontRotation(fontid, 330);		/* 33 degrees */
 		GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);

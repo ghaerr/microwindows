@@ -12,7 +12,8 @@ and type "make clean; make".
 
 // Common configurations (also kept up-to-date with current options)
 config.fb	Basic Linux Framebuffer (FB)
-config.fb2	Linux Framebuffer (+jpeg,pcf,freetype,debug,threadsafe)
+config.fb2	Linux Framebuffer (+jpeg,pcf,freetype,threadsafe,debug)
+config.fb3	Linux Framebuffer (+jpeg,pcf,freetype,threadsafe,sharedlibs)
 config.x11	Microwindows running on X11 (+jpeg,pcf,freetype,debug)
 
 // Specific ports (not necessarily up-to-date with new options)
@@ -27,6 +28,7 @@ config.ipaq	ARM Linux FB for iPAQ
 config.l7200	ARM Linux FB for L7200
 config.ns	x86 Linux for National Semi Geode
 config.oti	PPC Linux for OTI
+config.pixil	Sample minimum requirements for PIXIL Operating Environment
 config.ppc	PPC Linux for Embedded Planet Linux Planet
 config.prisma	Prisma port
 config.psion	Psion port

@@ -21,12 +21,14 @@
 #define MWTF_UC32	0x00000004L	/* 32 bit packing, unicode 32*/
 #define MWTF_XCHAR2B	0x00000008L	/* 16 bit packing, X11 big endian PCF*/
 #define MWTF_PACKMASK	0x0000000FL	/* packing bits mask*/
-#define MWTF_DBCS_BIG5	0x00000100L	/* chinese big5 double-byte encoding*/
-#define MWTF_DBCS_GB	0x00000200L	/* chinese gb2312 double-byte encoding*/
-#define MWTF_DBCS_JIS	0x00000300L	/* japanese JIS double-byte encoding*/
-#define MWTF_DBCS_EUCJP	0x00000400L	/* japanese EUCJP double-byte encoding*/
-#define MWTF_DBCS_KSC	0x00000500L	/* korean KSC5601 double-byte encoding*/
-#define MWTF_DBCSMASK	0x00000700L	/* dbcs bits mask*/
+
+/* asian double-byte encodings*/
+#define MWTF_DBCS_BIG5	0x00000100L	/* chinese big5*/
+#define MWTF_DBCS_EUCCN	0x00000200L	/* chinese EUCCN (gb2312+0x80)*/
+#define MWTF_DBCS_EUCKR	0x00000300L	/* korean EUCKR (ksc5601+0x80)*/
+#define MWTF_DBCS_EUCJP	0x00000400L	/* japanese EUCJP*/
+#define MWTF_DBCS_JIS	0x00000500L	/* japanese JISX0213*/
+#define MWTF_DBCSMASK	0x00000700L	/* DBCS encodings bitmask*/
 
 /* Text alignment flags*/
 #define MWTF_TOP	0x01000000L	/* align on top*/

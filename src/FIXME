@@ -1,3 +1,5 @@
+add MWTF_ encoding flags in DrawTextA, MwDrawText, MwExtTextOut
+	fix USE_BIG5 in mwin/winlib/*.c
 PCF font indexing (MWTF_XCHAR2B) in t1demo.c needs looking into
 add PORTRAIT_HACK to config file
 optimize GdBitmap

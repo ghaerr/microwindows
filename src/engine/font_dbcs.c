@@ -60,7 +60,7 @@ big5_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
 
 #if HAVE_GB2312_SUPPORT
 static void
-gb_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
+euccn_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	unsigned int	CH = ch >> 8;
@@ -137,7 +137,7 @@ jis_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
 
 #if HAVE_KSC5601_SUPPORT
 static void
-ksc_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
+euckr_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	unsigned int	CH = ch >> 8;
@@ -175,18 +175,18 @@ dbcs_gettextbits(PMWFONT pfont, unsigned int ch, MWTEXTFLAGS flags,
 			break;
 #endif
 #if HAVE_GB2312_SUPPORT
-		case MWTF_DBCS_GB:
-			func = gb_gettextbits;
+		case MWTF_DBCS_EUCCN:
+			func = euccn_gettextbits;
+			break;
+#endif
+#if HAVE_KSC5601_SUPPORT
+		case MWTF_DBCS_EUCKR:
+			func = euckr_gettextbits;
 			break;
 #endif
 #if HAVE_JISX0213_SUPPORT
 		case MWTF_DBCS_JIS:
 			func = jis_gettextbits;
-			break;
-#endif
-#if HAVE_KSC5601_SUPPORT
-		case MWTF_DBCS_KSC:
-			func = ksc_gettextbits;
 			break;
 #endif
 		/*case MWTF_DBCS_EUCJP:*/
@@ -219,12 +219,12 @@ dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc,
 		if (c >= 0x0100) {	/* character was DBCS-encoded*/
 			switch (flags) {
 			case MWTF_DBCS_BIG5:
-			case MWTF_DBCS_GB:
+			case MWTF_DBCS_EUCCN:
 			case MWTF_DBCS_JIS:
 			/*case MWTF_DBCS_EUCJP:*/
 				width += 12;
 				continue;
-			case MWTF_DBCS_KSC:
+			case MWTF_DBCS_EUCKR:
 				width += 12;
 				continue;
 			}

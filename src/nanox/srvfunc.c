@@ -502,7 +502,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		&& wp->parent->id == GR_ROOT_WINDOW_ID
 
 		/* temp don't blit in portrait mode, still buggy*/
-		&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))
+		/***&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))***/
 
 		/* don't blit if window has custom frame, background not right*/
 		&& !wp->clipregion

@@ -718,9 +718,25 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 				--icc;
 			}
 			break;
-		case MWTF_DBCS_GB:	/* Chinese GB2312*/
+		case MWTF_DBCS_EUCCN:	/* Chinese EUCCN (GB2312+0x80)*/
 			ch = *istr8++;
 			if (ch >= 0xA1 && ch <= 0xF7 && icc &&
+			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+				ch = (ch << 8) | *istr8++;
+				--icc;
+			}
+			break;
+		case MWTF_DBCS_EUCKR:	/* Korean EUCKR (KSC5601+0x80)*/
+			ch = *istr8++;
+			if (ch >= 0xA1 && ch <= 0xFE && icc &&
+			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+				ch = (ch << 8) | *istr8++;
+				--icc;
+			}
+			break;
+		case MWTF_DBCS_EUCJP:	/* Japanese EUCJP*/
+			ch = *istr8++;
+			if (ch >= 0xA1 && ch <= 0xFE && icc &&
 			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
 				ch = (ch << 8) | *istr8++;
 				--icc;
@@ -738,22 +754,6 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 					--icc;
 			}
 
-			break;
-		case MWTF_DBCS_EUCJP:	/* Japanese EUCJP*/
-			ch = *istr8++;
-			if (ch >= 0xA1 && ch <= 0xFE && icc &&
-			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
-				ch = (ch << 8) | *istr8++;
-				--icc;
-			}
-			break;
-		case MWTF_DBCS_KSC:	/* Korean KSC5601*/
-			ch = *istr8++;
-			if (ch >= 0xA1 && ch <= 0xFE && icc &&
-			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
-				ch = (ch << 8) | *istr8++;
-				--icc;
-			}
 			break;
 		}
 		switch(oflags) {

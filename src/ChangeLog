@@ -1,3 +1,4 @@
+	* allow GrMoveWindow to use quick blit in portrait mode
 	* move to only two builtin fonts: MWFONT_SYSTEM_VAR, MWFONT_SYSTEM_FIXED
 		- original MWFONT_GUI_VAR moved to MWFONT_SYSTEM_VAR
 		- should change applications that request MWFONT_GUI_VAR to
@@ -35,8 +36,8 @@ Version 0.89pl11 - 07 Apr 2003 - greg@censoft.com
 	* slight speed increase on dashed drawing, reformatted devdraw.c
 	* increase text draw speed with no-clip drawbitmap internal function
 	* rewrote and moved all DBCS code into engine/devfont.c and font_dbcs.c
-		- added MWTF_DBCS_BIG5, MWTF_DBCS_GB, MWTF_DBCS_JIS,
-		MWTF_DBCS_EUCJP, MWTF_DBCS_KSC: must use w/GrText for builtin fonts
+		- added MWTF_DBCS_BIG5, MWTF_DBCS_EUCCN, MWTF_DBCS_EUCKR,
+		MWTF_DBCS_EUCJP, MWTF_DBCS_JIS: must use w/GrText for builtin fonts
 		- "count" parameter with dbcs is byte-length of dbcs string
 		- can use MWTF_DBCS_* flags with any (UC16-indexed) fonts now
 		- can use multiple DBCS encodings and fonts at same time

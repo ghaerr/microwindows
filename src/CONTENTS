@@ -1,9 +1,11 @@
-Updated 21 Nov 2002
+Updated 29 May 2003
 
 CORE PACKAGES
-microwindows-0.89.tar.gz		base distribution
-microwindows-fonts-0.89.tar.gz		free truetype, t1, chinese, japanese, korean fonts
-freetype-1.3.1.tar.gz			libttf.so - freetype font engine
+microwindows-src-0.90.tar.gz		base distribution
+microwindows-fonts-0.90.tar.gz		free truetype, t1, chinese, japanese, korean fonts
+microwindows-full-0.90.tar.gz		full distribution including fonts
+freetype-1.3.1.tar.gz			libttf.so - freetype 1 font engine
+freetype-2.1.3.tar.gz			libfreetype.so - freetype 2 font engine
 jpegsrc.v6b.tar.gz			libjpeg.a - JPEG image library
 png-1.0.5.tar.gz			libpng.a - PNG image library
 zlib-1.1.4.tar.gz			libz.a - compression lib for loadable pcf.gz fonts/png files
@@ -19,6 +21,7 @@ fontdemo.sh	freetype loadable font and variable height demo
 fontdemo2.sh	freetype/t1lib antialias and rotation demo
 fontdemo3.sh	pcf loadable font demo (uses /usr/lib/X11/fonts dir)
 fontdemo4.sh	loadable font (truetype,t1,pcf,hzk,mgl) drawing demo
+grabdemo.sh	hotkey grab demo
 grdemo.sh	graphics operations demo
 indent.sh	Microwindows coding style indentation reformatter
 launcher.sh	sample desktop with great screensavers (wait 10 secs)
@@ -38,25 +41,30 @@ EXTERNALLY AVAILABLE FONTS
 fontkit-1.1-src.tar.gz			Japanese EUCJP MGL fonts
 xorg-2.tar.gz				X11 PCF fonts
 
-OPTIONAL LIBRARIES
-sdl-1.2.4a.tar.gz			NX SDL library
-flnx-0.16.tar.gz			NX FLTK library
-Nanogtk-1.0.tar.gz			GTK+ port to NX
-TinyGL-0.4.tar.gz			NX Tiny GL library
-tinywidgets-0.1.tar.gz			NX C widget library
-nxlib-0.41.tar.gz			X11 -> NX conversion library (unreleased)
+OPTIONAL NANO-X LIBRARIES
+sdl-1.2.4a.tar.gz			Nano-X SDL library
+flnx-0.16.tar.gz			Nano-X FLTK library
+Nanogtk-1.0.tar.gz			GTK+ port to Nano-X
+TinyGL-0.4.tar.gz			Nano-X Tiny GL library
+tinywidgets-0.1.tar.gz			Nano-X C widget library
+
+OPTIONAL X11 LIBRARIES (use with nxlib)
+nxlib-0.44.tar.gz			NXLIB X11 -> Nano-X conversion library
+fltk-1.0.11.tar.gz			X11 C++ widget library
+fltk-1.1.3.tar.gz			X11 C++ widget library
 qt-x11-2.3.1.tar.gz			X11 C++ Qt library w/qtconf.sh, qtfix.sh
 
 APPS
-dvdview-1.1.0d.tar.gz			NX mpeg player (single threaded, direct fb map) (16-32bpp)
-smpeg-0.4.4b.tar.gz			NX/SDL mpeg player (multi-threaded)
-nxdoom-src.tar.gz			NX Doom (8bpp only) (seperate doom1.wad required)
-nxfreecell-0.1.tar.gz			NX freecell (desktop and iPAQ versions?)
-nxzilla-source-0.9.4.tar.bz2		NX mozilla
+dvdview-1.1.0d.tar.gz		      Nano-X mpeg player (single threaded, direct fb map) (16-32bpp)
+flash-0.4.10a.tar.gz			Nano-X Flash viewer
+nxdoom-src.tar.gz			Nano-X Doom (8bpp only) (seperate doom1.wad required)
+nxfreecell-0.1.tar.gz			Nano-X freecell (desktop and iPAQ versions?)
+nxzilla-source-0.9.4.tar.bz2		Nano-X mozilla
 mozilla-devel-0.9.5.tar.gz		mozilla development kit
-nxrwin-1.5.0a.tar.gz			NX microsoft RDP client
-viewml-0.21.tar.gz			NX ViewML web browser
-flash-0.4.10.tar.gz			NX Flash viewer
+nxrwin-1.5.0a.tar.gz			Nano-X microsoft RDP client
+pixil-1.2.2.tar.gz			Nano-X PIXIL Operating Environment
+smpeg-0.4.4b.tar.gz			Nano-X/SDL mpeg player (multi-threaded)
+viewml-0.21.tar.gz			Nano-X ViewML web browser
 
 APPS (requires nxlib X11 library)
 xsunclock-1.5				X11 sunclock

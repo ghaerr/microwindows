@@ -1,60 +1,42 @@
 /* 
  * PCF Reader for Microwindows 
- * This implements a quick and dirty .PCF font parser so that we can take advantage of 
- * dynamically loading XFree86 style fonts.  
-
+ * This implements a quick and dirty .PCF font parser so that we can take 
+ * advantage of dynamically loading XFree86 style fonts.  
+ *
  * Copyright 2001, Century Embedded Technologies
  * Written by:  Jordan Crouse
- *
  */
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-
-#ifdef HAVE_PCFGZ_SUPPORT
-#include <zlib.h>
-#endif
-
 #include "device.h"
+#include "../drivers/genfont.h"
 
 /* The user hase the option including ZLIB and being able to    */
 /* directly read compressed .pcf files, or to omit it and save  */
 /* space.  The following defines make life much easier          */
 
 #ifdef HAVE_PCFGZ_SUPPORT
-
+#include <zlib.h>
 #define FILEP gzFile
-
 #define FOPEN(path, mode)           gzopen(path, mode)
 #define FREAD(file, buffer, size)   gzread(file, buffer, size)
 #define FSEEK(file, offset, whence) gzseek(file, offset, whence)
 #define FCLOSE(file)                gzclose(file)
 
 #else
-#define FILEP  (FILE *)
-
+#define FILEP  FILE *
 #define FOPEN(path, mode)           fopen(path, mode)
 #define FREAD(file, buffer, size)   fread(buffer, size, 1, file)
 #define FSEEK(file, offset, whence) fseek(file, offset, whence)
 #define FCLOSE(file)                fclose(file)
 #endif
  
-
 /* Handling routines for MWPCFFONT */
 /* These are similar to MWCOREFONT, because they are essentially the same thing */
 
 static void pcf_unloadfont(PMWFONT font);
-
-extern MWBOOL	gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
-extern void	gen_gettextsize(PMWFONT pfont, const void *text, int cc,
-		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-extern void	gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
-		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-
-extern void	corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, int flags);
 
 static MWFONTPROCS pcf_fontprocs = {
   MWTF_ASCII,		/* routines expect ascii*/
@@ -180,8 +162,8 @@ static int pcf_get_offset(int item) {
   return(-1);
 }
 
+#if LATER
 /* Read the properties from the file */
-
 static int pcf_readprops(FILEP file, struct prop_entry **prop, struct string_table **strings) {
 
   int offset;
@@ -237,6 +219,7 @@ static int pcf_readprops(FILEP file, struct prop_entry **prop, struct string_tab
 
   return(num_props);
 }
+#endif
 
 /* Read the actual bitmaps into memory */
 
@@ -397,7 +380,7 @@ PMWCOREFONT pcf_createfont(char *name) {
   pf->fontprocs = &pcf_fontprocs;
   pf->fontsize = pf->fontrotation = pf->fontattr = 0;
  
-  if (!(pf->cfont = (PMWCFONT) malloc(sizeof(MWCFONT)))) {
+  if (!(pf->cfont = (PMWCFONT) calloc(sizeof(MWCFONT), 1))) {
     err = -1; goto leave_func; 
   }
   
@@ -504,7 +487,7 @@ PMWCOREFONT pcf_createfont(char *name) {
   if (toc) free(toc);  
   toc = 0; toc_size = 0;
   
-  FCLOSE(file);
+  if (file) FCLOSE(file);
 
   if (err == 0 && pf) return(pf);
 

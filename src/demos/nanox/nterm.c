@@ -282,8 +282,7 @@ void printg(char * text)
  * Here when a keyboard press occurs.
  */
 void
-do_keystroke(kp)
-	GR_EVENT_KEYSTROKE	*kp;
+do_keystroke(GR_EVENT_KEYSTROKE *kp)
 {
 	char foo;
 
@@ -296,8 +295,7 @@ do_keystroke(kp)
  * Here when a focus in event occurs.
  */
 void
-do_focusin(gp)
-	GR_EVENT_GENERAL	*gp;
+do_focusin(GR_EVENT_GENERAL *gp)
 {
 	if (gp->wid != w1)
 		return;
@@ -308,8 +306,7 @@ do_focusin(gp)
  * Here when a focus out event occurs.
  */
 void
-do_focusout(gp)
-	GR_EVENT_GENERAL	*gp;
+do_focusout(GR_EVENT_GENERAL *gp)
 {
 	if (gp->wid != w1)
 		return;
@@ -320,7 +317,7 @@ do_focusout(gp)
  * Here to read the shell input file descriptor.
  */
 void
-do_fdinput()
+do_fdinput(void)
 {
 	char	c;
 

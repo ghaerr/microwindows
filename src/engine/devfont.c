@@ -78,9 +78,9 @@ typedef MWPIXELVAL OUTPIXELVAL;
 #define FREETYPE_FONT_DIR "/usr/local/microwin/fonts"
 #endif
 
-#if TT_FREETYPE_MAJOR != 1 | TT_FREETYPE_MINOR < 3
-#error "You must link with freetype lib version 1.3.x +, and not freetype 2. \
-Download it at http://www.freetype.org or http://microwindows.org"
+#if TT_FREETYPE_MAJOR != 1 || TT_FREETYPE_MINOR < 3
+//#error "You must link with freetype lib version 1.3.x +, and not freetype 2.  \
+//Download it at http://www.freetype.org or http://microwindows.org"
 #endif
 
 typedef struct {

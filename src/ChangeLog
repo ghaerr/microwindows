@@ -1,3 +1,4 @@
+	* ansified C source for small very cool TCC compiler, created config.tcc
 Version 0.89pre9 - 24 Aug 2002 - greg@censoft.com
 	* added multi-threading safety to nano-X, THREADSAFE option to config
 		this currently requires pthreads, see include/lock.h

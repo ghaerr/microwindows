@@ -1,4 +1,4 @@
-Updated 21 August 2002
+Updated 26 August 2002
 
 CORE PACKAGES
 microwindows-0.89pre9.tar.gz		base distribution
@@ -37,6 +37,7 @@ OPTIONAL LIBRARIES
 sdl-1.1.3c.tar.gz			NX SDL library
 flnx-0.16.tar.gz			NX FLTK library
 Nanogtk-1.0.tar.gz			GTK+ port to NX
+TinyGL-0.4.tar.gz			NX Tiny GL library
 tinywidgets-0.1.tar.gz			NX C widget library
 nxlib-0.4.tar.gz			X11 -> NX conversion library (unreleased)
 qt-x11.2.3.1.tar.gz			X11 C++ Qt library w/qtconf.sh, qtfix.sh

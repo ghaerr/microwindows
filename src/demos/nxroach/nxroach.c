@@ -24,6 +24,7 @@ char Copyright[] = "nxroach\nCopyright 1991 J.T. Anderson";
 #define Pixmap	GR_WINDOW_ID
 #include "roachmap.h"
 
+#define PIXBUFSIZ	(48*48)		/* nxroach*.xbm width*height*/
 #define SCAMPER_EVENT	99
 
 typedef struct Roach {
@@ -349,8 +350,8 @@ DrawRoaches(void)
 	
 	if (!roach->hidden) {
 	    int size = roach->rp->width * roach->rp->height;
-	    GR_PIXELVAL roachbuf[size];
-	    GR_PIXELVAL screenbuf[size];
+	    GR_PIXELVAL roachbuf[PIXBUFSIZ];
+	    GR_PIXELVAL screenbuf[PIXBUFSIZ];
 	    int i;
 
 	    roach->intX = roach->x;

@@ -19,7 +19,9 @@ DEFINES +=
 
 # Compilation flags for C files OTHER than include directories
 # Some drivers use outb macro, requires -O optimization
+ifneq ($(ARCH), LINUX-TCC)
 CFLAGS += -O
+endif
 # Preprocessor flags OTHER than defines
 CPPFLAGS +=
 # Linking flags

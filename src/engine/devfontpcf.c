@@ -211,7 +211,7 @@ static int pcf_readprops(FILEP file, struct prop_entry **prop, struct string_tab
   
   /* Read the entire set of strings into memory */
 
-  spos = string_buffer = (unsigned char *) alloca(ssize);
+  spos = string_buffer = (unsigned char *)ALLOCA(ssize);
   FREAD(file, string_buffer, ssize);
   
   /* Allocate the group of strings */
@@ -229,6 +229,7 @@ static int pcf_readprops(FILEP file, struct prop_entry **prop, struct string_tab
     else s[i].value = 0;
   }
 
+  FREEA(string_buffer);
   return(num_props);
 }
 #endif

@@ -35,8 +35,6 @@ static	GR_WINDOW_ID	buttons;	/* id for buttons */
 static	GR_WINDOW_ID	tiles;		/* id for play area */
 static	GR_GC_ID	gc1;		/* graphics context for text */
 
-static  int	value[WIDTH_IN_TILES][HEIGHT_IN_TILES];
-
 /* function prototypes */
 static	void	HandleEvents();
 static	void	RefreshWindow();
@@ -296,8 +294,7 @@ RandomiseTiles()
 }
 
 void
-MoveTile(xpos, ypos)
-	int xpos, ypos;
+MoveTile(int xpos, int ypos)
 {
 	/* check all possible moves to see if there is the blank (N,E,S,W) */
 	if (ypos > 0 && value[xpos][ypos - 1] == MAX_TILES) {
@@ -366,8 +363,7 @@ MoveTile(xpos, ypos)
 
 
 void
-DrawTile(xpos, ypos)
-	int xpos, ypos;
+DrawTile(int xpos, int ypos)
 {
 	char text[]="00";
 

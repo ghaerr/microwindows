@@ -21,6 +21,7 @@
 # Valid ARCH values are:
 #
 # LINUX-NATIVE
+# LINUX-TCC
 # LINUX-ARM
 # LINUX-MIPS
 # LINUX-POWERPC
@@ -34,7 +35,7 @@
 # note: ELKS can't build client/server nano-X, nor widget lib
 #
 ####################################################################
-ARCH                     = LINUX-NATIVE
+ARCH                     = LINUX-TCC
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
@@ -49,7 +50,7 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 OPTIMIZE                 = Y
 DEBUG                    = Y
 VERBOSE                  = N
-THREADSAFE               = Y
+THREADSAFE               = N
 
 ####################################################################
 #
@@ -122,7 +123,7 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.a
 
@@ -256,7 +257,7 @@ else
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
-FBVGA                    = Y
+FBVGA                    = N
 VTSWITCH                 = Y
 FBREVERSE                = N
 

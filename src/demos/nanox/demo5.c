@@ -39,16 +39,16 @@ static	GR_COORD	xorypos;	/* y position for xor line */
 static	GR_BOOL		lineok;		/* ok to draw line */
 static	GR_SCREEN_INFO	si;		/* information about screen */
 
-void do_buttondown();
-void do_buttonup();
-void do_motion();
-void do_keystroke();
-void do_exposure();
-void do_focusin();
-void do_focusout();
-void do_enter();
-void do_exit();
-void do_idle();
+void do_buttondown(GR_EVENT_BUTTON	*bp);
+void do_buttonup(GR_EVENT_BUTTON	*bp);
+void do_motion(GR_EVENT_MOUSE		*mp);
+void do_keystroke(GR_EVENT_KEYSTROKE	*kp);
+void do_exposure(GR_EVENT_EXPOSURE	*ep);
+void do_focusin(GR_EVENT_GENERAL	*gp);
+void do_focusout(GR_EVENT_GENERAL	*gp);
+void do_enter(GR_EVENT_GENERAL		*gp);
+void do_exit(GR_EVENT_GENERAL		*gp);
+void do_idle(void);
 
 int
 main(int argc,char **argv)
@@ -201,8 +201,7 @@ main(int argc,char **argv)
  * Here when a button is pressed.
  */
 void
-do_buttondown(bp)
-	GR_EVENT_BUTTON	*bp;
+do_buttondown(GR_EVENT_BUTTON	*bp)
 {
 	GR_PIXELVAL	intable[W2_WIDTH * W2_HEIGHT];
 	GR_PIXELVAL	outtable[W2_WIDTH * W2_HEIGHT * 6];
@@ -287,8 +286,7 @@ do_buttondown(bp)
  * Here when a button is released.
  */
 void
-do_buttonup(bp)
-	GR_EVENT_BUTTON	*bp;
+do_buttonup(GR_EVENT_BUTTON	*bp)
 {
 	if (bp->wid == w4) {
 		if (lineok) {
@@ -311,8 +309,7 @@ do_buttonup(bp)
  * Here when the mouse has a motion event.
  */
 void
-do_motion(mp)
-	GR_EVENT_MOUSE	*mp;
+do_motion(GR_EVENT_MOUSE	*mp)
 {
 	if (mp->wid == w4) {
 		if (lineok) {
@@ -335,8 +332,7 @@ do_motion(mp)
  * Here when a keyboard press occurs.
  */
 void
-do_keystroke(kp)
-	GR_EVENT_KEYSTROKE	*kp;
+do_keystroke(GR_EVENT_KEYSTROKE	*kp)
 {
 	GR_SIZE		width;		/* width of character */
 	GR_SIZE		height;		/* height of character */
@@ -374,8 +370,7 @@ do_keystroke(kp)
  * Here when an exposure event occurs.
  */
 void
-do_exposure(ep)
-	GR_EVENT_EXPOSURE	*ep;
+do_exposure(GR_EVENT_EXPOSURE	*ep)
 {
 	GR_POINT	points[3];
 
@@ -397,8 +392,7 @@ do_exposure(ep)
  * Here when a focus in event occurs.
  */
 void
-do_focusin(gp)
-	GR_EVENT_GENERAL	*gp;
+do_focusin(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w1)
 		return;
@@ -409,8 +403,7 @@ do_focusin(gp)
  * Here when a focus out event occurs.
  */
 void
-do_focusout(gp)
-	GR_EVENT_GENERAL	*gp;
+do_focusout(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w1)
 		return;
@@ -422,8 +415,7 @@ do_focusout(gp)
  * Here when a enter window event occurs.
  */
 void
-do_enter(gp)
-	GR_EVENT_GENERAL	*gp;
+do_enter(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w5)
 		return;
@@ -436,8 +428,7 @@ do_enter(gp)
  * Here when a exit window event occurs.
  */
 void
-do_exit(gp)
-	GR_EVENT_GENERAL	*gp;
+do_exit(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w5)
 		return;
@@ -451,7 +442,7 @@ do_exit(gp)
  * Just draw a randomly colored filled circle in the small window.
  */
 void
-do_idle()
+do_idle(void)
 {
 	GR_COORD	x;
 	GR_COORD	y;

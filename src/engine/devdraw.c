@@ -1158,6 +1158,7 @@ GdCopyArea(PSD psd, MWCOORD srcx, MWCOORD srcy, MWCOORD width, MWCOORD height,
 }
 #endif
 
+extern MWCLIPREGION *clipregion;
 /* Copy source rectangle of pixels to destination rectangle quickly*/
 void
 GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
@@ -1169,7 +1170,6 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	int count;
 #if DYNAMICREGIONS
 	MWRECT *	prc;
-	extern MWCLIPREGION *clipregion;
 #else
 	MWCLIPRECT *	prc;
 	extern MWCLIPRECT cliprects[];

@@ -22,6 +22,9 @@ cleanup nanox/srvfunc.c GrSetGCLineAttr etc
 char count in GrText with other than MWTF_ASCII incorrect
 bytelen in srvnet.c::GrText() incorrect
 
+tcc: engine/devfont.c:://#error ... \
+tcc: tuxchess can't compile due to CRLF source
+
 LIBZ in config fix, contrib/jpeg/README fix
 GetTypedEventPred - typedef CheckEvent, remove params??
 remove demo6, etc?

@@ -10,7 +10,7 @@ and type "make clean; make".
 
 // Common configurations
 config.fb	Basic Linux Framebuffer (FB)
-config.fb2	Linux Framebuffer (+jpeg,pcf,freetype,debug)
+config.fb2	Linux Framebuffer (+jpeg,pcf,freetype,debug,threadsafe)
 config.x11	Microwindows running on X11 (+jpeg,pcf,freetype)
 
 // Specific ports
@@ -33,4 +33,5 @@ config.rtems	RTEMS port
 config.sparc.fb	Basic Linux Framebuffer (FB) (linux-sparc)
 config.sparc.x11 Microwindows running on X11 (linux-sparc)
 config.svga	x86 Linux SVGALib screen driver
+config.tcc	TCC very small C compiler port (non-gcc)
 config.yopy	ARM Linux FB for G.Mate YOPY

@@ -960,8 +960,7 @@ DEFINE_HEXTILE(32)
  */
 
 void
-PrintPixelFormat(format)
-    rfbPixelFormat *format;
+PrintPixelFormat(rfbPixelFormat *format)
 {
     if (format->bitsPerPixel == 1) {
 	fprintf(stderr,"Single bit per pixel.\n");

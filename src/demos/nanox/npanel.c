@@ -220,8 +220,7 @@ mwin * NewWindow(GR_WINDOW_ID wid)
 }
 
 void
-do_update(ep)
-	GR_EVENT_UPDATE	*ep;
+do_update(GR_EVENT_UPDATE *ep)
 {
 	mwin *	mwp;
 	mwin *	tmwp;
@@ -282,8 +281,8 @@ do_update(ep)
 /*
  * Handle mouse position events
  */
-void do_mouse(ep)
-	GR_EVENT_MOUSE *ep;
+void
+do_mouse(GR_EVENT_MOUSE *ep)
 {
 #ifdef SHOW_WINDOW_MOTION
 	GR_WINDOW_INFO winfo;
@@ -303,8 +302,7 @@ void do_mouse(ep)
  * Here when an exposure event occurs.
  */
 void
-do_exposure(ep)
-	GR_EVENT_EXPOSURE	*ep;
+do_exposure(GR_EVENT_EXPOSURE *ep)
 {
 	struct app_info	* act;
 	int app_no;
@@ -323,8 +321,7 @@ do_exposure(ep)
 extern char ** environ;
 
 void
-do_buttondown(ep)
-	GR_EVENT_BUTTON	*ep;
+do_buttondown(GR_EVENT_BUTTON *ep)
 {
 	mwin *	mwp;
 	static int app_no;
@@ -354,8 +351,7 @@ do_buttondown(ep)
 }
  
 void
-do_buttonup(ep)
-GR_EVENT_BUTTON	*ep;
+do_buttonup(GR_EVENT_BUTTON *ep)
 {
 #ifdef SHOW_WINDOW_MOTION
 	in_motion = NULL;

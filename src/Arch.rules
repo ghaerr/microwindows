@@ -20,6 +20,18 @@ LDFLAGS +=
 #LDFLAGS += -static
 endif
 
+ifeq ($(ARCH), LINUX-TCC)
+COMPILER = tcc
+CXX_COMPILER = tcc
+TOOLSPREFIX =
+DEFINES += -DLINUX=1 -DUNIX=1
+CFLAGS += -Dlinux=1
+#CFLAGS += -Wall $(OPTFLAGS)
+LDFLAGS +=
+# include the following line for static libraries
+#LDFLAGS += -static
+endif
+
 ifeq ($(ARCH), LINUX-ARM)
 COMPILER = gcc
 CXX_COMPILER = g++

@@ -23,6 +23,7 @@ LDFLAGS +=
 ############################# targets section ################################
 
 ifeq ($(NANOWM), Y)
+ifneq ($(ARCH), LINUX-TCC)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
@@ -34,6 +35,7 @@ TARGET = $(TOP)/bin/tuxchess
 
 all: default $(TARGET)
 
+endif
 endif
 
 ######################### Makefile.rules section #############################

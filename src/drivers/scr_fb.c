@@ -354,9 +354,12 @@ static void
 fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 {
 	int 	i;
-	unsigned short 	red[count];
-	unsigned short 	green[count];
-	unsigned short 	blue[count];
+	unsigned short 	red[256];
+	unsigned short 	green[256];
+	unsigned short 	blue[256];
+
+	if (count > 256)
+		count = 256;
 
 	/* convert palette to framebuffer format*/
 	for(i=0; i < count; i++) {

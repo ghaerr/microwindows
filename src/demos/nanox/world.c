@@ -155,19 +155,17 @@ static	GR_COLOR	code_colors[] = {
 	BLACK, GREEN, RED, BLACK, BROWN, GREEN, BLUE, BLUE
 };
 
-
-static	void	load();
-static	void	setzoom();
-static	void	checkevent();
-static	void	doexposure();
-static	void	dobuttondown();
-static	void	dobuttonup();
-static	void	doposition();
-static	void	dokeydown();
-static	void	showselection();
-static	void	showcoords();
-static	void	mintostr();
-
+static void checkevent(void);
+static void doexposure(GR_EVENT_EXPOSURE *ep);
+static void dobuttondown(GR_EVENT_BUTTON *bp);
+static void dobuttonup(GR_EVENT_BUTTON *bp);
+static void doposition(GR_EVENT_MOUSE *mp);
+static void dokeydown(GR_EVENT_KEYSTROKE *kp);
+static void showselection(GR_BOOL show);
+static void showcoords(GR_BOOL show);
+static void mintostr(char *buf, long minutes);
+static void setzoom(FLOAT newzoom);
+static void load(char *fn);
 
 int
 main(int argc, char **argv)
@@ -237,7 +235,7 @@ ROWS = si.rows - 80;
 
 
 static void
-checkevent()
+checkevent(void)
 {
 	GR_EVENT	event;
 
@@ -266,8 +264,7 @@ checkevent()
 
 
 static void
-doexposure(ep)
-	GR_EVENT_EXPOSURE	*ep;
+doexposure(GR_EVENT_EXPOSURE *ep)
 {
 	if (ep->wid != mapwid)
 		return;
@@ -283,8 +280,7 @@ doexposure(ep)
 
 
 static void
-dobuttondown(bp)
-	GR_EVENT_BUTTON	*bp;
+dobuttondown(GR_EVENT_BUTTON *bp)
 {
 	if (bp->wid != mapwid)
 		return;
@@ -312,8 +308,7 @@ dobuttondown(bp)
 
 
 static void
-dobuttonup(bp)
-	GR_EVENT_BUTTON	*bp;
+dobuttonup(GR_EVENT_BUTTON *bp)
 {
 	if (bp->wid != mapwid)
 		return;
@@ -341,8 +336,7 @@ dobuttonup(bp)
 
 
 static void
-doposition(mp)
-	GR_EVENT_MOUSE	*mp;
+doposition(GR_EVENT_MOUSE *mp)
 {
 	GR_SIZE	temp;
 
@@ -384,8 +378,7 @@ doposition(mp)
 
 
 static void
-dokeydown(kp)
-	GR_EVENT_KEYSTROKE	*kp;
+dokeydown(GR_EVENT_KEYSTROKE *kp)
 {
 	if (kp->wid != mapwid)
 		return;
@@ -430,8 +423,7 @@ dokeydown(kp)
  * same drawing operation because of the XOR operation.
  */
 static void
-showselection(show)
-	GR_BOOL	show;		/* TRUE if show the selection */
+showselection(GR_BOOL show)
 {
 	if ((show == 0) == (selectvisible == 0))
 		return;
@@ -448,8 +440,7 @@ showselection(show)
  * Both of these are the same operation because of the XOR operation.
  */
 static void
-showcoords(show)
-	GR_BOOL	show;		/* TRUE if show the coordinates */
+showcoords(GR_BOOL show)
 {
 	long	curlong;
 	long	curlat;
@@ -486,9 +477,7 @@ showcoords(show)
  * into the indicated buffer.
  */
 static void
-mintostr(buf, minutes)
-	char	*buf;
-	long	minutes;
+mintostr(char *buf, long minutes)
 {
 	if (minutes < 0) {
 		minutes = -minutes;
@@ -503,8 +492,7 @@ mintostr(buf, minutes)
  * Convert "ddd'mm" to mins
  */
 static long
-degtomin(s)
-	char	*s;
+degtomin(char *s)
 {
 	int	deg, minutes;
 	char	str[10],*strchr(),*cp;
@@ -527,8 +515,7 @@ degtomin(s)
  * The factors 3 and 4 are here to compensate for the screen aspect ratio.
  */
 static void
-setzoom(newzoom)
-	FLOAT	newzoom;
+setzoom(FLOAT newzoom)
 {
 	zoom = newzoom;
 
@@ -546,8 +533,7 @@ setzoom(newzoom)
  * Read the database file and draw the world.
  */
 static void
-load(fn)
-	char	*fn;
+load(char *fn)
 {
 	register DBPOINT	*pp;
 	DBPOINT		*pend;

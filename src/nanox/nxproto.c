@@ -19,7 +19,7 @@
 static REQBUF	reqbuf;		/* request buffer*/
 extern int 	nxSocket;
 extern char *	nxSharedMem;
-extern MWMUTEX	nxGlobalLock;
+LOCK_EXTERN(nxGlobalLock);	/* global lock for threads safety*/
 #endif
 
 /* Allocate a request buffer of passed size and fill in header fields*/

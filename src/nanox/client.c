@@ -67,7 +67,7 @@
 #ifndef __ECOS
 /* exported global data */
 int 	   nxSocket = -1;	/* The network socket descriptor */
-MWMUTEX	   nxGlobalLock;	/* global lock for threads safety*/
+LOCK_DECLARE(nxGlobalLock);	/* global lock for threads safety*/
 #if HAVE_SHAREDMEM_SUPPORT
 char *	   nxSharedMem = 0;	/* Address of shared memory segment*/
 static int nxSharedMemSize;	/* Size in bytes of shared mem segment*/

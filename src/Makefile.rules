@@ -139,7 +139,7 @@ endif
 
 ifeq ($(THREADSAFE), Y)
 DEFINES += -DTHREADSAFE=1
-LDFLAGS += -lpthread
+#LDFLAGS += -lpthread
 endif
 
 ifeq ($(DEBUG), Y)

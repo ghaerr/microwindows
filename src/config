@@ -49,7 +49,7 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 OPTIMIZE                 = Y
 DEBUG                    = Y
 VERBOSE                  = N
-THREADSAFE               = N
+THREADSAFE               = Y
 
 ####################################################################
 #

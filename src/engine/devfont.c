@@ -120,7 +120,7 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 		pfont = (PMWFONT)eucjp_createfont(name, height, fontattr);
 		if (pfont)             
 			return pfont;
-		fprintf(stderr, "eucjp_createfont: %s not found. Use default font.\n", name);
+		fprintf(stderr, "eucjp_createfont: %s not found\n", name);
 	}
 #endif
 

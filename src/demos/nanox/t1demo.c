@@ -1,6 +1,10 @@
 /*
- * font demo for Nano-X
- * also includes region clipping demo
+ * Copyright (c) 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ *
+ * Loadable font demo for Microwindows
+ *
+ * Loads MGL, HZK, T1LIB, FREETYPE, and PCF fonts
+ * Must be recompiled when src/config changes
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,18 +14,26 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
+#define CLIP_POLYGON	0	/* =1 for polygonal region test*/
+#define BIG5		0	/* =1 for big5 encoding test*/
+
 #define MAXW 		340
 #define MAXH 		340
-#define CLIP_POLYGON	0	/* =1 for polygonal region test*/
 
-#if HAVE_HZK_SUPPORT
-#define BIG5
+#if HAVE_EUCJP_SUPPORT
+#define MAXFONTS 4
+#define FONT1 "k12x10.fnt"
+#define FONT2 "k12x12.fnt"
+#define FONT3 "k16x16.fnt"
+#define FONT4 "k24x24.fnt"
+#define FONT5 ""
+#elif HAVE_HZK_SUPPORT
 #define MAXFONTS 1
 #define FONT1 "HZXFONT"
-#define FONT2 "HZXFONT"
-#define FONT3 "HZXFONT"
-#define FONT4 "HZXFONT"
-#define FONT5 "HZXFONT"
+#define FONT2 ""
+#define FONT3 ""
+#define FONT4 ""
+#define FONT5 ""
 #elif HAVE_T1LIB_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "bchr"
@@ -36,13 +48,20 @@
 #define FONT3 "times"
 #define FONT4 "cour"
 #define FONT5 "timesi"
-#else
-#define MAXFONTS 1
+#elif HAVE_PCF_SUPPORT
+#define MAXFONTS 5
 #define FONT1 "/usr/lib/X11/fonts/misc/7x14.pcf.gz"
-#define FONT2 "7x14"
-#define FONT3 "7x14"
-#define FONT4 "7x14"
-#define FONT5 "7x14"
+#define FONT2 "/usr/lib/X11/fonts/misc/6x13.pcf.gz"
+#define FONT3 "/usr/lib/X11/fonts/misc/9x15.pcf.gz"
+#define FONT4 "/usr/lib/X11/fonts/misc/vga.pcf.gz"
+#define FONT5 "/usr/lib/X11/fonts/100dpi/helvB12.pcf.gz"
+#else
+#define MAXFONTS 5
+#define FONT1 ""
+#define FONT2 ""
+#define FONT3 ""
+#define FONT4 ""
+#define FONT5 ""
 #endif
 
 static char * names[5] = { FONT1, FONT2, FONT3, FONT4, FONT5 };
@@ -67,8 +86,9 @@ int main()
         srand(time(0));
    
         GrOpen();
-	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "t1demo",
-			GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, BLACK);
+	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
+		"t1demo loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
+		GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, BLACK);
 	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(window);
 
@@ -103,7 +123,7 @@ int main()
 
 #if HAVE_HZK_SUPPORT
              {	/* to test Unicode 16 chinese characters display ,use HZK font Bitmap font (Metrix font). */
-#ifndef BIG5		
+#if !BIG5		
 		char buffer[256];
 		buffer[0]=0x6c;
 		buffer[1]=0x49;
@@ -144,7 +164,7 @@ int main()
 #endif
 	      }
 
-#ifndef BIG5
+#if !BIG5
 	      x=0;y=16;
 	      /* HZK Metrix font test, includes Chinese and English*/
 	      GrText(window, gc,x,y, "Microwindows,欢迎使用中英文点阵字体",

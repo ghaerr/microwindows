@@ -1,3 +1,4 @@
+	* added sample MGL fonts for EUCJP testing, t1demo.c supports MGL fonts
 Version 0.89pre9 - 28 Aug 2002 - greg@censoft.com
 	* added fonts/t1lib directory with sample t1lib fonts and config file
 	* moved font engine sources into separate engine/font*.c files
@@ -18,7 +19,7 @@ Version 0.89pre9 - 28 Aug 2002 - greg@censoft.com
 	* send UPDATE_ACTIVATE event to force redraw on title changes
 	* added FASTJPEG and HAVE_MMAP to include/device.h configuration
 	* corrected MAP_UPDATE event in GsWpRealizeWindow, may need tweaking
-	* default configuration includes freetype and pcf.gz fonts, libpng
+	* default configuration includes freetype and pcf.gz fonts
 	* use static fontid in window manager titlebar updating
 	* corrected GrCopyArea rop parm definition to unsigned long
 	* fixed dash mode/mask on gc change
@@ -55,7 +56,7 @@ Version 0.89pre9 - 28 Aug 2002 - greg@censoft.com
 	* padded MWPALENTRY, changed MWSCANCODE to unsigned short for network alignment issues
 	* added LINUX-SPARC config (Sparc Linux support), SUNMOUSE config option added
 	* added HAVE_EUCJP_SUPPORT config option (Japanese EUC JP Kanji encoding) (Koichi)
-(must add fontkit to microwindows-japanese-fonts-0.89pre9.tar.gz)
+		includes support for any MGL fonts
 	* added HAVE_JISX0213_SUPPORT config option (Japanese JISX0213 compiled in font support)
 	* added Simons patch for slider kbd support
 	* added Jordan's patches: (122701) (021102)

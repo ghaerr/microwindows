@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-August 24, 2002 g haerr <greg@censoft.com>
+August 28, 2002 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -12,7 +12,7 @@ To build Microwindows for desktop demonstration:
    The default configuration is for framebuffer (Configs/config.fb2)
    	Type "cp Configs/config.x11 config" for the X11 configuration.
 
-   See CONTENTS file for more information.
+   See CONTENTS and Configs/README for more information.
 
 3. Type "make"
 

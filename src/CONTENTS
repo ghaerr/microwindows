@@ -1,4 +1,4 @@
-Updated 26 August 2002
+Updated 28 August 2002
 
 CORE PACKAGES
 microwindows-0.89pre9.tar.gz		base distribution
@@ -32,6 +32,9 @@ bin/mterm	Microwindows terminal emulator (win32 api)
 bin/malpha	Microwindows alpha blending (win32 api)
 bin/nano-X	Nano-X server (must be run before Nano-X demos) (see *.sh)
 bin/nanowm	Nano-X Window Manager (run after nano-X, see *.sh)
+
+FONTS
+fontkit-1.1-src.tar.gz			Japanese EUCJP MGL fonts
 
 OPTIONAL LIBRARIES
 sdl-1.1.3c.tar.gz			NX SDL library

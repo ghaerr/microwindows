@@ -1,19 +1,21 @@
 The config files in this directory are pre-built for ease
-in building Microwindows on various systems.  One config file,
-config.fb, is kept up with the latest configuration options.
-Use it if you are building a configuration from scratch for
-your system.  The configuration config.fb2 contains more
-options, still running on framebuffer.
+in building Microwindows on various systems.  Three config files,
+are kept up with the latest configuration options.
+Use config.fb it if you are building a configuration from scratch for
+framebuffer.  The configuration config.fb2 contains more
+options, still running on framebuffer. Use config.x11 if
+you are building to run on top of X11. You must use config.x11
+if your kernel doesn't support framebuffer (errmsg: Can't open /dev/fb).
 
 To build Microwindows, copy one of these files to microwin/src/config,
 and type "make clean; make".
 
-// Common configurations
+// Common configurations (also kept up-to-date with current options)
 config.fb	Basic Linux Framebuffer (FB)
 config.fb2	Linux Framebuffer (+jpeg,pcf,freetype,debug,threadsafe)
-config.x11	Microwindows running on X11 (+jpeg,pcf,freetype)
+config.x11	Microwindows running on X11 (+jpeg,pcf,freetype,debug)
 
-// Specific ports
+// Specific ports (not necessarily up-to-date with new options)
 config.ads	ARM Linux FB for ADS Graphics Client
 config.dj	DJGPP 32-bit MSDOS
 config.elks	ELKS 16-bit Linux (bcc compiler)

@@ -2,7 +2,7 @@
 gpm -k
 
 # start mouse driver in repeater mode
-#
+
 # RH 6
 # gpm -R -t ps2
 

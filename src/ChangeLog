@@ -1,4 +1,5 @@
 Version 0.89pre8 - 13th June 2001 - greg@censoft.com
+	* add GrCreateTimer, GrDestroyTimer from Gary James
 	* added MWPACKED attribute packing define in mwtypes.h
 	* added eCos port by Gary Thomas
 	* ntetris game orientation patch (Xiang Lee)

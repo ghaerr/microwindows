@@ -266,7 +266,8 @@ doexposure(ep)
 	if (ep->wid != mapwid)
 		return;
 
-	GrClearWindow(mapwid, GR_FALSE);
+	/* removed: helps with blink with nanowm*/
+	/*GrClearWindow(mapwid, GR_FALSE);*/
 	selectvisible = GR_FALSE;
 	coordvisible = GR_FALSE;
 	load(MAPFILE);

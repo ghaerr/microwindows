@@ -1,3 +1,4 @@
+	* added maxascent,maxdescent,descent(=baseline) to MWFONTINFO (Jonathan)
 	* fixed byte-swap bug in GrNewBitmapFromData/GrNewPixmapFromData
 	* added mwsystem.h, GdRealloc, memfix.sh for alt mem mgmt (Jonathan)
 Version 0.89pl8 - 25 Feb 2003 - greg@censoft.com

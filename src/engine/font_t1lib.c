@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * T1lib Adobe type1 routines originally contributed by Vidar Hokstad
  */
@@ -265,7 +266,14 @@ t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	GdGetTextSize(pfont, "A", 1, &width, &height, &baseline, MWTF_ASCII);
 	pfontinfo->height = height;
 	pfontinfo->maxwidth = width;
-	pfontinfo->baseline = 0;
+	pfontinfo->baseline = baseline;
+
+	/* FIXME: Even worse guesses */
+	pfontinfo->linespacing = pfontinfo->height;
+	pfontinfo->descent = pfontinfo->height - pfontinfo->baseline;
+	pfontinfo->maxascent = pfontinfo->baseline;
+	pfontinfo->maxdescent = pfontinfo->descent;
+
 	pfontinfo->firstchar = 32;
 	pfontinfo->lastchar = 255;
 	pfontinfo->fixed = TRUE;
@@ -287,6 +295,7 @@ t1lib_gettextsize(PMWFONT pfont, const void *text, int cc,
 			(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0, pf->fontsize * 1.0, 0);
 	*pwidth = g->metrics.rightSideBearing - g->metrics.leftSideBearing;
 	*pheight = g->metrics.ascent - g->metrics.descent;
+	*pbase = g->metrics.ascent;
 	if(g && g->bits) {
 		free(g->bits);
 		g->bits = 0;

@@ -1019,6 +1019,7 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	FT_BBox *bbox;
 	FT_Size_Metrics *metrics;
 	int ch;
+	int leading;
 #if HAVE_FREETYPE_2_CACHE
 	FT_Error error;
 #endif
@@ -1052,11 +1053,20 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 
 	/* Fill up the fields */
 	pfontinfo->maxwidth = ROUND_26_6_TO_INT(metrics->max_advance);
-	pfontinfo->baseline = ROUND_26_6_TO_INT(metrics->ascender);
-	pfontinfo->height = pfontinfo->baseline + ROUND_26_6_TO_INT(abs(metrics->descender));
+
+	pfontinfo->maxascent =
+		ROUND_26_6_TO_INT(FT_MulFix(bbox->yMax, metrics->y_scale));
+	pfontinfo->maxdescent =
+		ROUND_26_6_TO_INT(FT_MulFix(-bbox->yMin, metrics->y_scale));
 
 	pfontinfo->fixed =
 		((face->face_flags & FT_FACE_FLAG_FIXED_WIDTH) != 0);
+
+	pfontinfo->baseline = ROUND_26_6_TO_INT(metrics->ascender);
+	pfontinfo->descent = ROUND_26_6_TO_INT(abs(metrics->descender));
+	pfontinfo->height = pfontinfo->baseline + pfontinfo->descent;
+	leading = ROUND_26_6_TO_INT(metrics->height - (metrics->ascender + abs(metrics->descender)));
+	pfontinfo->linespacing = pfontinfo->height + leading;
 
 	//DPRINTF("Nano-X-Freetype2: Font metrics:"
 	//    "\n    maxwidth = %3d"

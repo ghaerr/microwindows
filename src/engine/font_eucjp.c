@@ -1,6 +1,7 @@
 /*
  * Copyright (c) Koichi Mori
- * Copyright (c) 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * EUC Japanese text drawing using MGL fonts for Microwindows
  * Supports dynamically loading MGL font files
@@ -147,6 +148,13 @@ eucjp_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	pfontinfo->height = pf->height;
 	pfontinfo->maxwidth = pf->width;
 	pfontinfo->baseline = pf->height - 2;
+
+	/* FIXME: calculate these properly: */
+	pfontinfo->linespacing = pfontinfo->height;
+	pfontinfo->descent = pfontinfo->height - pfontinfo->baseline;
+	pfontinfo->maxascent = pfontinfo->baseline;
+	pfontinfo->maxdescent = pfontinfo->descent;
+
 	pfontinfo->firstchar = 0;
 	pfontinfo->lastchar = 0;
 	pfontinfo->fixed = TRUE;

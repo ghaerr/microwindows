@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Supports dynamically loading HZK font files
  * Han Zi Ku routines contributed by Tanghao and Jauming
@@ -702,7 +703,14 @@ hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 
 	pfontinfo->height = pf->font_height;
 	pfontinfo->maxwidth = pf->cfont_width;
-	pfontinfo->baseline = pf->font_height-2;
+	pfontinfo->baseline = pf->font_height - 2;
+
+	/* FIXME: calculate these properly: */
+	pfontinfo->linespacing = pfontinfo->height;
+	pfontinfo->descent = pfontinfo->height - pfontinfo->baseline;
+	pfontinfo->maxascent = pfontinfo->baseline;
+	pfontinfo->maxdescent = pfontinfo->descent;
+
 	pfontinfo->firstchar = 0;
 	pfontinfo->lastchar = 0;
 	pfontinfo->fixed = TRUE;

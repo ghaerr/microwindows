@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Caching freetype routines - permanently broken
  * Written by Scott D. Robinson
@@ -864,6 +865,13 @@ freetype_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	pfontinfo->firstchar = TT_CharMap_First(pf->char_map, NULL);
 	pfontinfo->lastchar = TT_CharMap_Last(pf->char_map, NULL);
 	pfontinfo->fixed = properties.postscript->isFixedPitch;
+
+	/* FIXME: Wild guesses - should be possible to get these properly
+	 * from the library. */
+	pfontinfo->linespacing = pfontinfo->height + 2;
+	pfontinfo->descent = pfontinfo->height - pfontinfo->baseline;
+	pfontinfo->maxascent = pfontinfo->baseline;
+	pfontinfo->maxdescent = pfontinfo->descent;
 		
 	last_glyph_index = properties.num_Glyphs > 255 ? 255: properties.num_Glyphs-1;
 

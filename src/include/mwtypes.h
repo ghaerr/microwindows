@@ -346,15 +346,92 @@ typedef struct {
 	MWCOORD	yvirtres;
 } MWWINDOWFBINFO;
 
-/* GetFontInfo structure*/
+/**
+ * Structure returned by GetFontInfo.
+ *
+ * All sizes are in pixels.
+ *
+ * Some of the sizes are limits for "most characters".  With built-in bitmap
+ * fonts, "most characters" means "all characters".  Otherwise, the
+ * definition of "most characters" depends on the person who designed the
+ * font.  Typically it is the alphanumeric characters, and it may or may not
+ * include accented characters.
+ */
 typedef struct {
-	int 	maxwidth;	/* maximum width of any char */
-	int 	height;		/* height of font in pixels*/
-	int 	baseline;	/* baseline (ascent) of font */
-	int	firstchar;	/* first character in font*/
-	int	lastchar;	/* last character in font*/
-	MWBOOL	fixed;		/* TRUE if font is fixed width */
-	MWUCHAR	widths[256];	/* table of character widths */
+	/**
+	 * Maximum advance width of any character.
+	 */
+	int maxwidth;
+
+	/**
+	 * Height of "most characters" in the font. This does not include any
+	 * leading (blank space between lines of text).
+	 * Always equal to (baseline+descent).
+	 */
+	int height;
+
+	/**
+	 * The ascent (height above the baseline) of "most characters" in
+	 * the font.
+	 *
+	 * Note: This member variable should be called "ascent", to be
+	 * consistent with FreeType 2, and also to be internally consistent
+	 * with the "descent" member.  It has not been renamed because that
+	 * would break backwards compatibility.  FIXME
+	 */
+	int baseline;
+
+	/**
+	 * The descent (height below the baseline) of "most characters" in
+	 * the font.
+	 *
+	 * Should be a POSITIVE number.
+	 */
+	int descent;
+
+	/**
+	 * Maximum height of any character above the baseline.
+	 */
+	int maxascent;
+
+	/**
+	 * Maximum height of any character below the baseline.
+	 *
+	 * Should be a POSITIVE number.
+	 */
+	int maxdescent;
+
+	/**
+	 * The distance between the baselines of two consecutive lines of text.
+	 * This is usually height plus some font-specific "leading" value.
+	 */
+	int linespacing;
+
+	/**
+	 * First character in the font.
+	 */
+	int firstchar;
+
+	/**
+	 * Last character in the font.
+	 */
+	int lastchar;
+
+	/**
+	 * True (nonzero) if font is fixed width.  In that case, maxwidth
+	 * gives the width for every character in the font.
+	 */
+	MWBOOL fixed;
+
+	/**
+	 * Table of character advance widths for characters 0-255.
+	 * Note that fonts can contain characters with codes >255 - in that
+	 * case this table contains the advance widths for some but not all
+	 * characters.  Also note that if the font contains kerning
+	 * information, the advance width of the string "AV" may differ from
+	 * the sum of the advance widths for the characters 'A' and 'V'.
+	 */
+	MWUCHAR widths[256];
 } MWFONTINFO, *PMWFONTINFO;
 
 

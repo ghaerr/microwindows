@@ -29,6 +29,7 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, char *file)
 {
 	int y;
 	FILE *fp;
+	unsigned long colorval = 0;
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 
@@ -56,7 +57,6 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, char *file)
 
 	for (y = 0; y < info->yres; y++) {
 		JSAMPROW row[1];
-		unsigned long colorval;
 
 		int x;
 		unsigned char *dest = alloca(info->xres * 3);

@@ -392,7 +392,7 @@ endif
 #
 %.c:%.bmp $(TOP)/mwin/bmp/convbmp.c
 	echo "Generating $@ from bitmap file ..."
-	$(TOP)/bin/convbmp $< > $@
+	if [ -x $(TOP)/bin/convbmp ]; then $(TOP)/bin/convbmp $< > $@; fi;
 
 xconfig:
 	./xconfigure

@@ -1,5 +1,6 @@
 #define MWINCLUDECOLORS
 #include <stdio.h>
+#include <stdlib.h>
 #include "nano-X.h"
 
 #include <signal.h>

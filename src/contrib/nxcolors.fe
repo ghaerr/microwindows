@@ -1,0 +1,52 @@
+#!/usr/bin/env ferite
+
+// Copyright (c) 2002 Alex Holden <alex@alexholden.net>
+
+uses String;
+uses Console;
+uses Array;
+uses File;
+
+string line;
+array elements;
+object infile = new File();
+object outfile = new File();
+number i;
+
+if(infile->open("rgb.txt", "r", "") != 0) {
+	Console.println("Failed to open rgb.txt");
+	return;
+}
+
+if(outfile->open("nxcolors.h", "w", "rw-rw-rw-") != 0) {
+	Console.printfln("Failed to open output file, nxcolors.h");
+	return;
+}
+
+outfile->writeln("#ifndef NXCOLORS_H");
+outfile->writeln("#define NXCOLORS_H");
+outfile->writeln("");
+outfile->writeln("/*");
+outfile->writeln(" * Automatically generated from rgb.txt by nxcolors.fe");
+outfile->writeln(" *");
+outfile->writeln(" * Defines the full set of X11 colours.");
+outfile->writeln(" */");
+outfile->writeln("");
+outfile->writeln("#include \"mwtypes.h\" /* For MWRGB() */");
+outfile->writeln("");
+
+while(line = infile->readln(128) && !infile->eof()) {
+	elements = String.toArray(line, " \t");
+	if(Array.size(elements) != 4) continue;
+	for(i = 0; i < 4; i++)
+		elements[i] = String.postTrim(elements[i], " \t\r\n");
+	elements[3] = String.toUpper(elements[3]);
+	outfile->write("#define GR_COLOR_" + elements[3] + " MWRGB("
+		+ elements[0] + "," + elements[1] + "," + elements[2] + ")\n");
+}
+
+outfile->writeln("");
+outfile->writeln("#endif /* NXCOLORS_H */");
+
+infile->close();
+outfile->close();

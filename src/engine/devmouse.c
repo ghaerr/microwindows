@@ -56,7 +56,8 @@ extern int gr_mode;
 
 /* Advance declarations */
 static int filter_relative(int, int, int, int *, int *, int, int);
-static int filter_rotate(int, int *x, int *y);
+static int filter_relrotate(int, int *xpos, int *ypos, int x, int y);
+static int filter_absrotate(int, int *xpos, int *ypos);
 static int filter_transform(int, int *, int *);
 
 /*
@@ -218,9 +219,11 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 
 	/* for relative devices, translate through thresh and scale*/
 	if(status == 1) {
+		int rx, ry;
+		filter_relative(status, thresh, scale, &rx, &ry, x, y);  
 		dx = xpos;
 		dy = ypos;
-		filter_relative(status, thresh, scale, &dx, &dy, x, y);  
+		filter_relrotate(status, &dx, &dy, rx, ry);
 	} else {
 		dx = x;
 		dy = y;
@@ -233,9 +236,11 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	}
 
 #if FLIP_MOUSE_IN_PORTRAIT_MODE
-	/* rotate the mouse data in portrait modes */
-	if (scrdev.portrait != MWPORTRAIT_NONE && !(mousedev.flags & MOUSE_RAW))
-		filter_rotate(status, &dx, &dy);
+	/* rotate the mouse data for portrait modes */
+	if (!(mousedev.flags & MOUSE_RAW)) {
+		if (status != 1)
+			filter_absrotate(status, &dx, &dy);
+	}
 #endif
 	
 	/* 
@@ -513,14 +518,44 @@ filter_relative(int state, int thresh, int scale, int *xpos, int *ypos, int x,
 		y = thresh + (y - thresh) * scale;
 	y *= sign;
 
-	*xpos += x;
-	*ypos += y;
+	*xpos = x;
+	*ypos = y;
+	return 0;
+}
+
+#if FLIP_MOUSE_IN_PORTRAIT_MODE
+static int
+filter_relrotate(int state, int *xpos, int *ypos, int x, int y)
+{
+	if (state == 3)
+		return 0;
+
+	switch (scrdev.portrait) {
+	case MWPORTRAIT_RIGHT:
+		*xpos += y;
+		*ypos -= x;
+		break;
+
+	case MWPORTRAIT_LEFT:
+		*xpos -= y;
+		*ypos += x;
+		break;
+
+	case MWPORTRAIT_DOWN:
+		*xpos += x;
+		*ypos -= y;
+		break;
+
+	default:
+		*xpos += x;
+		*ypos += y;
+	}
 
 	return 0;
 }
 
 static int
-filter_rotate(int state, int *xpos, int *ypos)
+filter_absrotate(int state, int *xpos, int *ypos)
 {
 	int x = *xpos;
 	int y = *ypos;
@@ -551,6 +586,7 @@ filter_rotate(int state, int *xpos, int *ypos)
 
 	return 0;
 }
+#endif /* FLIP_MOUSE_IN_PORTRAIT_MODE*/
 
 static int
 filter_transform(int state, int *xpos, int *ypos)

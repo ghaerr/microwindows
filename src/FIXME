@@ -1,3 +1,4 @@
+fix kluge rotate filters
 nanocal doesn't work on fb
 remove GsDeliverRawMouseEvent
 rewrite GrGrabKey implementation

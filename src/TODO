@@ -1,5 +1,5 @@
 check for HAVE_STRETCHBLIT before calling it...
-add psi->rmask, psi->portrait in all drivers/scr*.c
+add psi->fbdriver, psi->rmask, psi->portrait in all drivers/scr*.c
 
 
 send recursive UPDATE_MOVE events to child windows, correct wp->x, wp->y sent

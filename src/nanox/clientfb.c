@@ -13,6 +13,7 @@
 #include <linux/fb.h>
 #include "nano-X.h"
 
+/* globals: assumes use of non-shared libnano-X.a for now*/
 static int 		frame_fd;	/* client side framebuffer fd*/
 static unsigned char *	frame_map;	/* client side framebuffer mmap'd addr*/
 static int 		frame_len;	/* client side framebuffer length*/
@@ -31,7 +32,21 @@ GrOpenClientFramebuffer(void)
 	if (physpixels)
 		return physpixels;
 
-	// FIXME check whether running fb or X??
+	/*
+	 * For now, we'll just check whether or not Microwindows
+	 * is running its framebuffer driver to determine whether
+	 * to allow direct client-side framebuffer mapping.  In
+	 * the future, we could allow direct mapping for Microwindows
+	 * running on top of X, and finding the address of the 
+	 * window within the Microwindows X window.
+	 */
+	GrGetScreenInfo(&sinfo);
+	if (!sinfo.fbdriver)
+		return NULL;
+
+	/*
+	 * Try to open the framebuffer directly.
+	 */
 	if (!(fbdev = getenv("FRAMEBUFFER")))
 		fbdev = "/dev/fb0";
 	frame_fd = open(fbdev, O_RDWR);
@@ -105,10 +120,13 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 {
 	int			physoffset;
 	GR_WINDOW_INFO		info;
+	static int		last_portrait = -1;
 
-	// FIXME need re-get on auto-portrait switch
-	if (sinfo.cols == 0)
+	/* re-get screen info on auto-portrait switch*/
+	if (sinfo.cols == 0 || last_portrait != sinfo.portrait)
 		GrGetScreenInfo(&sinfo);
+	last_portrait = sinfo.portrait;
+
 	/* must get window position anew each time*/
 	GrGetWindowInfo(wid, &info);
 

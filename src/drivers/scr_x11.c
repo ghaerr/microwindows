@@ -486,7 +486,7 @@ X11_open(PSD psd)
     unsigned int  event_mask;
     XColor color;
     Cursor cursor;
-    XEvent ev;
+    /*XEvent ev;*/
     PSUBDRIVER subdriver;
     int size, linelen;
 
@@ -661,6 +661,7 @@ X11_getscreeninfo(PSD psd,PMWSCREENINFO psi)
     psi->ydpcm = (DisplayHeight(x11_dpy,x11_scr)*10)/
 	    DisplayHeightMM(x11_dpy,x11_scr);
 
+	psi->fbdriver = FALSE;	/* not running fb driver, no direct map*/
 	psi->pixtype = psd->pixtype;
 	switch (psd->pixtype) {
 	case MWPF_TRUECOLOR0888:

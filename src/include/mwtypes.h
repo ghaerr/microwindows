@@ -175,6 +175,7 @@ typedef struct {
 	int	 modifiers;	/* modifiers which are implemented */
 	int	 pixtype;	/* format of pixel value*/
 	int	 portrait;	/* current portrait mode*/
+	MWBOOL	 fbdriver;	/* true if running mwin fb screen driver*/
 	unsigned long rmask;	/* red mask bits in pixel*/
 	unsigned long gmask;	/* green mask bits in pixel*/
 	unsigned long bmask;	/* blue mask bits in pixel*/

@@ -116,6 +116,7 @@ SVGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->ncolors = psd->ncolors;
 	psi->fonts = NUMBER_FONTS;
 	psi->portrait = MWPF_PORTRAIT_NONE;
+	psi->fbdriver = FALSE;	/* not running fb driver, no direct map*/
 	psi->pixtype = psd->pixtype;
 	psi->rmask 	= 0xff;
 	psi->gmask 	= 0xff;

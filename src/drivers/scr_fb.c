@@ -440,6 +440,7 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->ncolors = psd->ncolors;
 	psi->fonts = NUMBER_FONTS;
 	psi->portrait = psd->portrait;
+	psi->fbdriver = TRUE;	/* running fb driver, can direct map*/
 
 	psi->pixtype = psd->pixtype;
 	switch (psd->pixtype) {

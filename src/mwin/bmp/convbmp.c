@@ -1,18 +1,21 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
  *
  * Windows BMP to Microwindows image converter
+ * 
+ * 	Must manually #define BIGENDIAN on big endian systems... :-(
  *
  * 6/9/1999 g haerr
  *
  * 05/01/2000 Michael Temari <Michael@TemWare.Com>
  * Modified to output .s ACK format for Minix
  */
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "../../include/device.h"
+
+#define BIGENDIAN	0	/* FIXME should use MW_CPU_BIG_ENDIAN*/
 
 /* separators for DOS & Unix file systems */
 #define OS_FILE_SEPARATOR   "/\\"
@@ -28,20 +31,29 @@ typedef unsigned char	UCHAR;
 typedef unsigned char	BYTE;
 
 #if !_MINIX
-typedef unsigned short	WORD;
-typedef unsigned long	DWORD;
-typedef long		LONG;
-#define	CASTWORD
-#define	CASTDWORD
-#define	CASTLONG
+typedef unsigned short WORD;
+typedef unsigned long  DWORD;
+typedef long           LONG;
+#if BIGENDIAN
+#define READWORD(x)	((((x) << 8) & 0xFF00U) | (((x) >> 8) & 0x00FFU))
+#define READDWORD(x)	((((x) << 24) & 0xFF000000UL) | \
+			 (((x) <<  8) & 0x00FF0000UL) | \
+			 (((x) >>  8) & 0x0000FF00UL) | \
+			 (((x) >> 24) & 0x000000FFUL))
+#define READLONG(x)	((long)READDWORD(x))
+#else
+#define	READWORD(x)	(x)
+#define	READDWORD(x)	(x)
+#define	READLONG(x)	(x)
+#endif
 #else
 /* The Minix ACK compiler cannot pack a structure so we do it the hardway */
 typedef unsigned char	WORD[2];
 typedef unsigned char	DWORD[4];
 typedef unsigned char	LONG[4];
-#define	CASTWORD	*(unsigned short *)&
-#define	CASTDWORD	*(unsigned long *)&
-#define	CASTLONG	*(long *)&
+#define	READWORD(x)	(*(unsigned short *)&(x))
+#define	READDWORD(x)	(*(unsigned long *)&(x))
+#define	READLONG(x)	(*(long *)&(x))
 #endif
 
 #pragma pack(1)
@@ -254,22 +266,22 @@ UCHAR *p = (UCHAR *)&l;
    }
 
    /* might be windows or os/2 header*/
-   if(CASTDWORD bmp.BiSize == 12) {
+   if(READDWORD(bmp.BiSize) == 12) {
 	bmc = (BMPCOREHEAD *)&bmp;
-	cx = (int)CASTWORD bmc->bcWidth;
-	cy = (int)CASTWORD bmc->bcHeight;
-	bitdepth = CASTWORD bmc->bcBitCount;
+	cx = (int)READWORD(bmc->bcWidth);
+	cy = (int)READWORD(bmc->bcHeight);
+	bitdepth = READWORD(bmc->bcBitCount);
 	palsize = 1 << bitdepth;
 	compression = BI_RGB;
 	fseek(fp, sizeof(BMPCOREHEAD), SEEK_SET);
    } else {
-	cx = (int)CASTLONG bmp.BiWidth;
-	cy = (int)CASTLONG bmp.BiHeight;
-	bitdepth = CASTWORD bmp.BiBitCount;
-	palsize = (int)CASTDWORD bmp.BiClrUsed;
+	cx = (int)READLONG(bmp.BiWidth);
+	cy = (int)READLONG(bmp.BiHeight);
+	bitdepth = READWORD(bmp.BiBitCount);
+	palsize = (int)READDWORD(bmp.BiClrUsed);
 	if(palsize == 0)
 		palsize = 1 << bitdepth;
-	compression = CASTDWORD bmp.BiCompression;
+	compression = READDWORD(bmp.BiCompression);
    }
 
    if(bitdepth > 8)
@@ -322,7 +334,7 @@ UCHAR *p = (UCHAR *)&l;
 		cmap[i].b = fgetc(fp);
 		cmap[i].g = fgetc(fp);
 		cmap[i].r = fgetc(fp);
-		if(CASTDWORD bmp.BiSize != 12)
+		if(READDWORD(bmp.BiSize) != 12)
 			fgetc(fp);
 	}
 
@@ -362,7 +374,7 @@ UCHAR *p = (UCHAR *)&l;
    }
 
    /* decode image data*/
-   fseek(fp, CASTDWORD bmp.bfOffBits, SEEK_SET);
+   fseek(fp, READDWORD(bmp.bfOffBits), SEEK_SET);
    if(compression == BI_RLE8) {
 	for(i = cy-1; i>= 0; i--) {
 		if(!DecodeRLE8(linebuffer, fp))

@@ -83,27 +83,41 @@ OBJS =	demo.o \
 #	ipcclient.o \
 #	nanocal.o \
 
-TARGETS = $(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
+TARGETS = \
+	$(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
 	$(TOP)/bin/world $(TOP)/bin/nxclock $(TOP)/bin/nxterm \
-	$(TOP)/bin/nxview $(TOP)/bin/nxlsclients $(TOP)/bin/nxev \
-	$(TOP)/bin/nxmag $(TOP)/bin/npanel $(TOP)/bin/nterm \
+	$(TOP)/bin/nxlsclients $(TOP)/bin/nxev \
+	$(TOP)/bin/npanel $(TOP)/bin/nterm \
 	$(TOP)/bin/demo2 $(TOP)/bin/demo5 $(TOP)/bin/demo6 \
 	$(TOP)/bin/t1demo $(TOP)/bin/ftdemo $(TOP)/bin/logfont \
-	$(TOP)/bin/slider $(TOP)/bin/ntetris \
+	$(TOP)/bin/ntetris \
 	$(TOP)/bin/getselection $(TOP)/bin/setselection \
-	$(TOP)/bin/dashdemo $(TOP)/bin/tsdemo $(TOP)/bin/pcfdemo \
+	$(TOP)/bin/dashdemo $(TOP)/bin/pcfdemo \
 	$(TOP)/bin/fontdemo $(TOP)/bin/setportrait \
 	$(TOP)/bin/arcdemo $(TOP)/bin/polydemo $(TOP)/bin/snap_ppm \
 	$(TOP)/bin/bmpdemo $(TOP)/bin/rgndemo \
 	$(TOP)/bin/convpbm \
-	$(TOP)/bin/launcher \
-	$(TOP)/bin/nsaver \
-	$(TOP)/bin/nxeyes \
-	$(TOP)/bin/tux \
+	$(TOP)/bin/nsaver
 #	$(TOP)/bin/pressure 
 #	$(TOP)/bin/oneshot $(TOP)/bin/periodic \
 #	$(TOP)/bin/ipcserver $(TOP)/bin/ipcclient \
 #	$(TOP)/bin/nanocal 
+
+# Require MW_FEATURE_IMAGES support:
+TARGETS += \
+	$(TOP)/bin/nxview \
+	$(TOP)/bin/slider \
+	$(TOP)/bin/tsdemo \
+	$(TOP)/bin/tux
+
+# Require MW_FEATURE_TIMERS support:
+TARGETS += \
+	$(TOP)/bin/nxmag \
+	$(TOP)/bin/nxeyes
+
+# Require both MW_FEATURE_IMAGES and MW_FEATURE_TIMERS support:
+TARGETS += \
+	$(TOP)/bin/launcher \
 
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 ifeq ($(FRAMEBUFFER), Y)

@@ -56,6 +56,8 @@
 #include <stdlib.h>
 #include "device.h"
 
+#if MW_FEATURE_TIMERS
+
 static MWTIMER *timerlist = NULL;
 static struct timeval mainloop_timeout;
 static struct timeval current_time;
@@ -213,3 +215,5 @@ static signed long time_to_expiry(struct timeval *t)
 
 	return ret;
 }
+
+#endif /* MW_FEATURE_TIMERS */

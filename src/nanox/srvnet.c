@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999-2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999-2001, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 2000 Vidar Hokstad
@@ -52,6 +52,16 @@ static int GsWriteType(int,short);
 /*
  * Wrapper functions called after full packet read
  */
+
+
+#if (!MW_FEATURE_TIMERS) || (!MW_FEATURE_IMAGES) || (!defined(HAVE_FILEIO))
+static void
+GrNotImplementedWrapper(void *r)
+{
+    EPRINTF("nano-X: Function %s() not implemented\n", curfunc);
+}
+#endif
+
 static void 
 GrOpenWrapper(void *r)
 {
@@ -1059,6 +1069,7 @@ GrKillWindowWrapper(void *r)
 	GrKillWindow(req->windowid);
 }
 
+#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 static void
 GrDrawImageFromFileWrapper(void *r)
 {
@@ -1078,7 +1089,12 @@ GrLoadImageFromFileWrapper(void *r)
 	GsWriteType(current_fd, GrNumLoadImageFromFile);
 	GsWrite(current_fd, &id, sizeof(id));
 }
+#else /* if ! (MW_FEATURE_IMAGES && defined(HAVE_FILEIO)) */
+#define GrDrawImageFromFileWrapper GrNotImplementedWrapper
+#define GrLoadImageFromFileWrapper GrNotImplementedWrapper
+#endif
 
+#if MW_FEATURE_IMAGES
 static void
 GrDrawImageToFitWrapper(void *r)
 {
@@ -1106,6 +1122,11 @@ GrGetImageInfoWrapper(void *r)
 	GsWriteType(current_fd, GrNumGetImageInfo);
 	GsWrite(current_fd, &info, sizeof(info));
 }
+#else /* if ! MW_FEATURE_IMAGES */
+#define GrDrawImageToFitWrapper GrNotImplementedWrapper
+#define GrFreeImageWrapper GrNotImplementedWrapper
+#define GrGetImageInfoWrapper GrNotImplementedWrapper
+#endif
 
 static void
 GrSetScreenSaverTimeoutWrapper(void *r)
@@ -1199,6 +1220,7 @@ GrQueryTreeWrapper(void *r)
 	}
 }
 
+#if MW_FEATURE_TIMERS
 static void
 GrCreateTimerWrapper(void *r)
 {
@@ -1210,6 +1232,9 @@ GrCreateTimerWrapper(void *r)
     GsWriteType(current_fd, GrNumCreateTimer);
     GsWrite(current_fd, &timerid, sizeof (timerid));
 }
+#else /* if ! MW_FEATURE_TIMERS */
+#define GrCreateTimerWrapper GrNotImplementedWrapper
+#endif
 
 typedef struct image_list {
  void *data;
@@ -1224,8 +1249,19 @@ static imagelist_t *imageListHead = 0;
 static imagelist_t *imageListTail = 0;
 static int imageListId = 0;
 
-static void freeImageBuffer(imagelist_t *buffer) {
+static imagelist_t *findImageBuffer(int buffer_id)
+{
+	imagelist_t *buffer = 0;
 
+	for(buffer = imageListHead; buffer; buffer = buffer->next)
+		if (buffer->id == buffer_id)
+			break;
+
+	return buffer;
+}
+
+static void freeImageBuffer(imagelist_t *buffer)
+{
  imagelist_t *prev = 0;
  imagelist_t *ptr = imageListHead;
 
@@ -1248,7 +1284,9 @@ static void freeImageBuffer(imagelist_t *buffer) {
  }  
 }
 
-static void GrImageBufferAllocWrapper(void *r) {
+static void
+GrImageBufferAllocWrapper(void *r)
+{
  nxImageBufferAllocReq *req = r;
  
  /* Add a new buffer to the end of the list */
@@ -1272,15 +1310,14 @@ static void GrImageBufferAllocWrapper(void *r) {
  GsWrite(current_fd, &imageListTail->id, sizeof(int));
 }
 
-static void GrImageBufferSendWrapper(void *r) {
-
- int csize = 0;
-
- imagelist_t *buffer = 0;
+static void
+GrImageBufferSendWrapper(void *r)
+{
+ int csize;
+ imagelist_t *buffer;
  nxImageBufferSendReq *req = r;
 
- for(buffer = imageListHead; buffer; buffer = buffer->next)
-   if (buffer->id == req->buffer_id) break;
+ buffer = findImageBuffer(req->buffer_id);
 
  if (!buffer) return;
 
@@ -1291,21 +1328,21 @@ static void GrImageBufferSendWrapper(void *r) {
 
  if (!csize) return;
 
- memcpy((void *) (buffer->data + buffer->offset), 
+ memcpy((void *) (((char *)buffer->data) + buffer->offset), 
 	 GetReqData(req), csize);
  
  buffer->offset += csize;
 }
 
-void GrLoadImageFromBufferWrapper(void *r) {
-
+#if MW_FEATURE_IMAGES
+static void
+GrLoadImageFromBufferWrapper(void *r)
+{
  GR_IMAGE_ID		id;
- imagelist_t *buffer = 0;
-
+ imagelist_t *buffer;
  nxLoadImageFromBufferReq *req = r;
  
- for(buffer = imageListHead; buffer; buffer = buffer->next)
-   if (buffer->id == req->buffer) break;
+ buffer = findImageBuffer(req->buffer);
  
  if (!buffer) return;
 
@@ -1317,14 +1354,13 @@ void GrLoadImageFromBufferWrapper(void *r) {
  freeImageBuffer(buffer);
 }
 
-void GrDrawImageFromBufferWrapper(void *r) {
-
- imagelist_t *buffer = 0;
-
+static void
+GrDrawImageFromBufferWrapper(void *r)
+{
+ imagelist_t *buffer;
  nxDrawImageFromBufferReq *req = r;
  
- for(buffer = imageListHead; buffer; buffer = buffer->next)
-   if (buffer->id == req->buffer) break;
+ buffer = findImageBuffer(req->buffer);
  
  if (!buffer) return;
 
@@ -1334,9 +1370,13 @@ void GrDrawImageFromBufferWrapper(void *r) {
  
  freeImageBuffer(buffer);
 }
+#else /* if ! MW_FEATURE_IMAGES */
+#define GrLoadImageFromBufferWrapper GrNotImplementedWrapper
+#define GrDrawImageFromBufferWrapper GrNotImplementedWrapper
+#endif
 
- 
 
+#if MW_FEATURE_TIMERS
 static void
 GrDestroyTimerWrapper(void *r)
 {
@@ -1344,6 +1384,9 @@ GrDestroyTimerWrapper(void *r)
     
     GrDestroyTimer(req->timerid);
 }
+#else /* if ! MW_FEATURE_TIMERS */
+#define GrDestroyTimerWrapper GrNotImplementedWrapper
+#endif
 
 static void
 GrSetPortraitModeWrapper(void *r)
@@ -1794,7 +1837,12 @@ GsDestroyClientResources(GR_CLIENT * client)
 	GR_GC 	      * gp, *ngp;
 	GR_REGION     * rp, *nrp;
 	GR_FONT       * fp, *nfp;
+#if MW_FEATURE_IMAGES
 	GR_IMAGE      * ip, *nip;
+#endif
+#if MW_FEATURE_TIMERS
+	GR_TIMER      * tp, *ntp;
+#endif
 	GR_CURSOR     *	cp, *ncp;
 	GR_EVENT_CLIENT *ecp, *necp;
 	GR_EVENT_CLIENT *pecp = NULL;
@@ -1863,6 +1911,7 @@ DPRINTF("  Destroy region %d\n", rp->id);
 		}
 	}
 
+#if MW_FEATURE_IMAGES
 	/* free images owned by client*/
 	for(ip=listimagep; ip; ip=nip) {
 		nip = ip->next;
@@ -1871,6 +1920,18 @@ DPRINTF("  Destroy image %d\n", ip->id);
 			GrFreeImage(ip->id);
 		}
 	}
+#endif
+
+#if MW_FEATURE_TIMERS
+	/* free timers owned by client*/
+	for(tp=list_timer; tp; tp=ntp) {
+		ntp = tp->next;
+		if (tp->owner == client) {
+DPRINTF("  Destroy timer %d\n", tp->id);
+			GrDestroyTimer(tp->id);
+		}
+	}
+#endif
 
 	/* free cursors owned by client*/
 	for(cp=listcursorp; cp; cp=ncp) {
@@ -1903,7 +1964,12 @@ GsPrintResources(void)
 	GR_GC *gp;
 	GR_REGION *rp;
 	GR_FONT *fp;
+#if MW_FEATURE_IMAGES
 	GR_IMAGE *ip;
+#endif
+#if MW_FEATURE_TIMERS
+	GR_TIMER *tp;
+#endif
 
 	/* window list*/
 	DPRINTF("Window list:\n");
@@ -1926,10 +1992,18 @@ GsPrintResources(void)
 	for(rp=listregionp; rp; rp=rp->next) {
 		DPRINTF("%d(%d),", rp->id, rp->owner->id);
 	}
+#if MW_FEATURE_IMAGES
 	DPRINTF("\nImage list:\n");
 	for(ip=listimagep; ip; ip=ip->next) {
 		DPRINTF("%d(%d),", ip->id, ip->owner->id);
 	}
+#endif
+#if MW_FEATURE_TIMERS
+	DPRINTF("\nTimer list:\n");
+	for(tp=list_timer; tp; tp=tp->next) {
+		DPRINTF("%d(%d),", tp->id, tp->owner->id);
+	}
+#endif
 	DPRINTF("\n");
 }
 

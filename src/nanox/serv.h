@@ -270,16 +270,6 @@ struct gr_font {
 };
 
 /*
- * Structure to remember images.
- */
-typedef struct gr_image	GR_IMAGE;
-struct gr_image {
-	GR_IMAGE_ID	id;
-	GR_CLIENT *	owner;		/* client that created it */
-	GR_IMAGE *	next;
-};
- 
-/*
  * Cursor structure.
  */
 typedef struct gr_cursor GR_CURSOR;
@@ -299,6 +289,19 @@ typedef struct {
 } GR_SELECTIONOWNER;
 
 
+#if MW_FEATURE_IMAGES
+/*
+ * Structure to remember images.
+ */
+typedef struct gr_image	GR_IMAGE;
+struct gr_image {
+	GR_IMAGE_ID	id;
+	GR_CLIENT *	owner;		/* client that created it */
+	GR_IMAGE *	next;
+};
+#endif /* MW_FEATURE_IMAGES */
+ 
+#if MW_FEATURE_TIMERS
 /*
  * Structure to remember timers.
  */
@@ -311,6 +314,7 @@ struct gr_timer
     MWTIMER       *timer;    /* Device independent layer timer */
     GR_TIMER      *next;
 };
+#endif /* MW_FEATURE_TIMERS */
 
 /*
  * Drawable structure.  This structure must be the first
@@ -452,8 +456,13 @@ void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 			void *data);
 void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
 			GR_WINDOW_ID new_owner);
+#if MW_FEATURE_TIMERS
 void		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
 			GR_TIMER_ID tid);
+GR_TIMER	*GsFindTimer(GR_TIMER_ID timer_id);
+void            GsTimerCB(void *arg);
+#endif /* MW_FEATURE_TIMERS */
+
 void		GsCheckMouseWindow(void);
 void		GsCheckFocusWindow(void);
 GR_DRAW_TYPE	GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid,
@@ -465,7 +474,6 @@ GR_PIXMAP 	*GsFindPixmap(GR_WINDOW_ID id);
 GR_GC		*GsFindGC(GR_GC_ID gcid);
 GR_REGION	*GsFindRegion(GR_REGION_ID regionid);
 GR_FONT 	*GsFindFont(GR_FONT_ID fontid);
-GR_TIMER	*GsFindTimer(GR_TIMER_ID timer_id);
 GR_CURSOR 	*GsFindCursor(GR_CURSOR_ID cursorid);
 GR_WINDOW	*GsPrepareWindow(GR_WINDOW_ID wid);
 GR_WINDOW	*GsFindVisibleWindow(GR_COORD x, GR_COORD y);
@@ -486,7 +494,6 @@ void		GsHandleClient(int fd);
 void		GsResetScreenSaver(void);
 void		GsActivateScreenSaver(void *arg);
 void		GrGetNextEventWrapperFinish(int);
-void            GsTimerCB(void *arg);
 
 /*
  * External data definitions.
@@ -499,7 +506,9 @@ extern	GR_GC		*cachegcp;		/* cached graphics context */
 extern	GR_GC		*listgcp;		/* list of all gc */
 extern	GR_REGION	*listregionp;		/* list of all regions */
 extern	GR_FONT		*listfontp;		/* list of all fonts */
+#if MW_FEATURE_IMAGES
 extern	GR_IMAGE	*listimagep;		/* list of all images */
+#endif
 extern	GR_CURSOR	*listcursorp;		/* list of all cursors */
 extern	GR_CURSOR	*stdcursor;		/* root window cursor */
 extern	GR_GC		*curgcp;		/* current graphics context */
@@ -525,11 +534,13 @@ extern	GR_SCREEN_INFO	sinfo;			/* screen information */
 extern	PMWFONT		stdfont;		/* default font*/
 extern	int		escape_quits;		/* terminate when pressing ESC*/
 extern	int		connectcount;		/* # of connections to server */
+#if MW_FEATURE_TIMERS
 extern	GR_TIMEOUT	screensaver_delay;	/* time before screensaver */
 						/* activates */
 extern  GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 extern  GR_TIMER        *cache_timer;           /* cached timer */
 extern  GR_TIMER        *list_timer;            /* list of all timers */
+#endif /* MW_FEATURE_TIMERS */
 
 extern	GR_BOOL		screensaver_active;	/* screensaver is active */
 extern	GR_SELECTIONOWNER selection_owner;	/* the selection owner */

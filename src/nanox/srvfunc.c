@@ -2639,13 +2639,12 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-#if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
+#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 /* Load an image file from disk and display it at the specified coordinates*/
 void
 GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, char* path, int flags)
 {
-#if defined(HAVE_FILEIO)
 	GR_DRAWABLE	*dp;
 
 	SERVER_LOCK();
@@ -2659,14 +2658,12 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	}
 
 	SERVER_UNLOCK();
-#endif
 }
 
 /* load image from file and cache it*/
 GR_IMAGE_ID
 GrLoadImageFromFile(char *path, int flags)
 {
-#if defined(HAVE_FILEIO)
 	GR_IMAGE_ID	id;
 	GR_IMAGE *	imagep;
 
@@ -2693,13 +2690,11 @@ GrLoadImageFromFile(char *path, int flags)
 
 	SERVER_UNLOCK();
 	return id;
-#else
-	return 0;
-#endif 
 }
+#endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
 
+#if MW_FEATURE_IMAGES
 /* Draw an image from a buffer */
-
 void
 GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
@@ -2720,7 +2715,6 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 /* load image from the given buffer and cache it*/
-
 GR_IMAGE_ID
 GrLoadImageFromBuffer(void *buffer, int size, int flags)
 {
@@ -2753,13 +2747,11 @@ GrLoadImageFromBuffer(void *buffer, int size, int flags)
 	return id;
 }
 
-
 /* draw cached image*/
 void
 GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, GR_IMAGE_ID imageid)
 {
-#if defined(HAVE_FILEIO)
 	GR_DRAWABLE	*dp;
 
 	SERVER_LOCK();
@@ -2774,14 +2766,12 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	}
 
 	SERVER_UNLOCK();
-#endif
 }
 
 /* free cached image*/
 void
 GrFreeImage(GR_IMAGE_ID id)
 {
-#if defined(HAVE_FILEIO)
 	GR_IMAGE	*imagep;
 	GR_IMAGE	*previmagep;
 
@@ -2808,7 +2798,6 @@ GrFreeImage(GR_IMAGE_ID id)
 	}
 
 	SERVER_UNLOCK();
-#endif
 }
 
 /* return cached image information*/
@@ -2816,14 +2805,10 @@ void
 GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 {
 	SERVER_LOCK();
-#if defined(HAVE_FILEIO)
 	GdGetImageInfo(id, iip);
-#else
-	memset(iip, 0, sizeof(GR_IMAGE_INFO));
-#endif
 	SERVER_UNLOCK();
 }
-#endif /* !defined (DOS_DJGPP)|| (__PACIFIC__) || (DOS_TURBOC)) */
+#endif /* MW_FEATURE_IMAGES */
 
 /*
  * Draw a rectangular area in the specified drawable using the specified
@@ -3512,6 +3497,7 @@ GrGetSysColor(int index)
 void
 GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 {
+#if MW_FEATURE_TIMERS
 	MWTIMER *timer;
 
 	SERVER_LOCK();
@@ -3531,6 +3517,7 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 					GsActivateScreenSaver);
 
 	SERVER_UNLOCK();
+#endif /* MW_FEATURE_TIMERS */
 }
 
 void
@@ -3769,6 +3756,7 @@ nochildren:
 }
 
 
+#if MW_FEATURE_TIMERS
 static int next_timer_id = 1000;
 
 /**
@@ -3875,6 +3863,8 @@ GrDestroyTimer (GR_TIMER_ID tid)
 
 	SERVER_UNLOCK();
 }
+#endif /* MW_FEATURE_TIMERS */
+
 
 /**
  * GrSetPortraitMode

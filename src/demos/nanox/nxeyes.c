@@ -182,6 +182,10 @@ void timer_event(GR_EVENT_TIMER *ev, nxeyes_state *state)
 {
 	if(ev->tid != state->tid) return;
 
+	/* Must free timer - even though it's fired, the handle and data structure live on. */
+	GrDestroyTimer(state->tid);
+	state->tid = 0;
+	
 	if(state->eyes_closed) {
 		state->eyes_closed = 0;
 		start_blink_timer(state);

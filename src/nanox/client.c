@@ -2803,6 +2803,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	UNLOCK(&nxGlobalLock);
 }
 
+#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 /**
  * GrDrawImageFromFile:
  * @id: the ID of the drawable to draw the image onto
@@ -2843,7 +2844,9 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	memcpy(GetReqData(req), path, strlen(path)+1);
 	UNLOCK(&nxGlobalLock);
 }
+#endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
 
+#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 /**
  * GrLoadImageFromFile:
  * @path: string containing the filename of the image to load
@@ -2875,7 +2878,9 @@ GrLoadImageFromFile(char *path, int flags)
 	UNLOCK(&nxGlobalLock);
 	return imageid;
 }
+#endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
 
+#if MW_FEATURE_IMAGES
 /**
  * GrDrawImageToFit:
  * @id: the ID of the drawable to draw the image onto
@@ -2908,7 +2913,9 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->imageid = imageid;
 	UNLOCK(&nxGlobalLock);
 }
+#endif /* MW_FEATURE_IMAGES */
 
+#if MW_FEATURE_IMAGES
 /**
  * GrFreeImage:
  * @id: ID of the image buffer to free
@@ -2925,7 +2932,9 @@ GrFreeImage(GR_IMAGE_ID id)
 	req->id = id;
 	UNLOCK(&nxGlobalLock);
 }
+#endif /* MW_FEATURE_IMAGES */
 
+#if MW_FEATURE_IMAGES
 /**
  * GrGetImageInfo:
  * @id: ID of an image buffer
@@ -2945,13 +2954,14 @@ GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 	TypedReadBlock(iip, sizeof(GR_IMAGE_INFO), GrNumGetImageInfo);
 	UNLOCK(&nxGlobalLock);
 }
+#endif /* MW_FEATURE_IMAGES */
 
 static int
-sendImageBuffer(void *buffer, int size)
+sendImageBuffer(const void *buffer, int size)
 {
 	int bufid;
 	int bufsize = size;
-	void *bufptr = buffer;
+	const char *bufptr = (const char *)buffer;
 	nxImageBufferAllocReq *alloc;
 	nxImageBufferSendReq *send;
 
@@ -2981,6 +2991,7 @@ sendImageBuffer(void *buffer, int size)
 	return bufid;
 }
 
+#if MW_FEATURE_IMAGES
 GR_IMAGE_ID
 GrLoadImageFromBuffer(void *buffer, int size, int flags)
 {
@@ -3009,7 +3020,9 @@ GrLoadImageFromBuffer(void *buffer, int size, int flags)
 	UNLOCK(&nxGlobalLock);
 	return imageid;
 }
+#endif /* MW_FEATURE_IMAGES */
 
+#if MW_FEATURE_IMAGES
 void
 GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
       GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
@@ -3040,6 +3053,7 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->buffer = bufid;
 	UNLOCK(&nxGlobalLock);
 }
+#endif /* MW_FEATURE_IMAGES */
 
 
 /*
@@ -3948,6 +3962,8 @@ GrRegisterDragAndDropWindow(GR_WINDOW_ID wid, GR_WINDOW_ID iid, GR_CHAR *typelis
 }
 #endif
 
+
+#if MW_FEATURE_TIMERS
 GR_TIMER_ID
 GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 {
@@ -3964,7 +3980,9 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 	UNLOCK(&nxGlobalLock);
 	return timerid;
 }
+#endif /* MW_FEATURE_TIMERS */
 
+#if MW_FEATURE_TIMERS
 void
 GrDestroyTimer (GR_TIMER_ID tid)
 {
@@ -3975,6 +3993,7 @@ GrDestroyTimer (GR_TIMER_ID tid)
 	req->timerid = tid;
 	UNLOCK(&nxGlobalLock);
 }
+#endif /* MW_FEATURE_TIMERS */
 
 void
 GrSetPortraitMode(int portraitmode)

@@ -31,6 +31,7 @@ LIBNAME =
 # List of objects to compile
 OBJS = main.o board.o data.o eval.o search.o images.o
 
+# Requires: MW_FEATURE_IMAGES, HAVE_FILEIO
 TARGET = $(TOP)/bin/tuxchess
 
 all: default $(TARGET)

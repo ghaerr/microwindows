@@ -30,6 +30,7 @@
 #include "windows.h"
 #include "wintern.h"
 #include "device.h"
+
 /*
  * External definitions defined here.
  */
@@ -304,7 +305,12 @@ MwSelect(void)
 			timeout = 40;
 #endif
 if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
+#if MW_FEATURE_TIMERS
 		GdGetNextTimeout(&to, timeout);
+#else /* if ! MW_FEATURE_TIMERS */
+		to.tv_sec = timeout / 1000;
+		to.tv_usec = (timeout % 1000) * 1000;
+#endif /* ! MW_FEATURE_TIMERS */
 	}
 
 	/* Wait for some input on any of the fds in the set or a timeout: */
@@ -334,8 +340,10 @@ if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
 	} 
 	else if(e == 0) {
 		/* timeout has occured*/
+#if MW_FEATURE_TIMERS
 		if(GdTimeout() == FALSE)
 			return;
+#endif /* MW_FEATURE_TIMERS */
 #if ANIMATEPALETTE
 		if(fade <= 100) {
 			setfadelevel(&scrdev, fade);

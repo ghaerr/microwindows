@@ -42,20 +42,25 @@ GsActivateScreenSaver(void *arg)
 void
 GsResetScreenSaver(void)
 {
+#if MW_FEATURE_TIMERS
 	MWTIMER *timer;
+#endif /* MW_FEATURE_TIMERS */
 
 	if(screensaver_active == GR_TRUE) {
 		screensaver_active = GR_FALSE;
 		GsDeliverScreenSaverEvent(GR_FALSE);
 	}
+#if MW_FEATURE_TIMERS
 	if(screensaver_delay) {
 		if((timer = GdFindTimer(GsActivateScreenSaver)))
 			GdDestroyTimer(timer);
 		GdAddTimer(screensaver_delay, GsActivateScreenSaver,
 			GsActivateScreenSaver);
 	}
+#endif /* MW_FEATURE_TIMERS */
 }
 
+#if MW_FEATURE_TIMERS
 void
 GsTimerCB (void *arg) 
 {
@@ -63,6 +68,7 @@ GsTimerCB (void *arg)
 
     GsDeliverTimerEvent (timer->owner, timer->wid, timer->id);
 }
+#endif /* MW_FEATURE_TIMERS */
 
 
 /*
@@ -866,6 +872,7 @@ GsFindCursor(GR_CURSOR_ID cursorid)
 	return NULL;
 }
 
+#if MW_FEATURE_TIMERS
 GR_TIMER *
 GsFindTimer (GR_TIMER_ID timer_id)
 {
@@ -891,6 +898,7 @@ GsFindTimer (GR_TIMER_ID timer_id)
     }
     return NULL;
 }
+#endif /* MW_FEATURE_TIMERS */
 
 
 /*

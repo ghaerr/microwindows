@@ -1,5 +1,3 @@
-#if defined(HAVE_FILEIO)	/* temp for entire file*/
-
 /*
  * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
@@ -27,7 +25,9 @@
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
- 
+
+#if MW_FEATURE_IMAGES /* whole file */
+
 /* cached image list*/
 typedef struct {
 	MWLIST		link;		/* link list*/
@@ -77,7 +77,7 @@ binit(void *in, int size, buffer_t *dest)
 	dest->offset = 0;
 	dest->size = size;
 }
- 
+
 static int
 bseek(buffer_t *buffer, int offset, int whence)
 {
@@ -206,6 +206,7 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	}
 }
 
+#if defined(HAVE_FILEIO)
 void
 GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	MWCOORD height, char *path, int flags)
@@ -218,7 +219,9 @@ GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 		GdFreeImage(id);
 	}
 }
+#endif /* defined(HAVE_FILEIO) */
 
+#if defined(HAVE_FILEIO)
 int
 GdLoadImageFromFile(PSD psd, char *path, int flags)
 {
@@ -268,6 +271,7 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
   close(fd);
   return(id);
 }
+#endif /* defined(HAVE_FILEIO) */
 
 static int
 GdDecodeImage(PSD psd, buffer_t * src, int flags)
@@ -655,7 +659,7 @@ GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
 	}
 }
 
-#if defined(HAVE_FILEIO) && defined(HAVE_JPEG_SUPPORT)
+#if defined(HAVE_JPEG_SUPPORT)
 #include "jpeglib.h"
 /*
  * JPEG decompression routine
@@ -873,9 +877,9 @@ err:
 	 */
 	return ret;
 }
-#endif /* defined(HAVE_FILEIO) && defined(HAVE_JPEG_SUPPORT)*/
+#endif /* defined(HAVE_JPEG_SUPPORT)*/
 
-#if defined(HAVE_FILEIO) && defined(HAVE_PNG_SUPPORT)
+#if defined(HAVE_PNG_SUPPORT)
 #include <png.h>
 /* png_jmpbuf() macro is not defined prior to libpng-1.0.6*/
 #ifndef png_jmpbuf
@@ -973,9 +977,9 @@ nomem:
 	EPRINTF("LoadPNG: Out of memory\n");
 	return 2;
 }
-#endif /* defined(HAVE_FILEIO) && defined(HAVE_PNG_SUPPORT)*/
+#endif /* defined(HAVE_PNG_SUPPORT)*/
 
-#if defined(HAVE_FILEIO) && defined(HAVE_BMP_SUPPORT)
+#if defined(HAVE_BMP_SUPPORT)
 /* BMP stuff*/
 #define BI_RGB		0L
 #define BI_RLE8		1L
@@ -1290,7 +1294,7 @@ DecodeRLE4(MWUCHAR *buf, buffer_t *src)
 	  }
 	}
 }
-#endif /* defined(HAVE_FILEIO) && defined(HAVE_BMP_SUPPORT)*/
+#endif /* defined(HAVE_BMP_SUPPORT)*/
 
 #if 0
 void print_image(PMWIMAGEHDR image)
@@ -1314,7 +1318,7 @@ void print_image(PMWIMAGEHDR image)
 }
 #endif
 
-#if defined(HAVE_FILEIO) && defined(HAVE_GIF_SUPPORT)
+#if defined(HAVE_GIF_SUPPORT)
 /* Code for GIF decoding has been adapted from XPaint:                   */
 /* +-------------------------------------------------------------------+ */
 /* | Copyright 1990, 1991, 1993 David Koblas.			       | */
@@ -1829,9 +1833,9 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
 fini:
     return 1;
 }
-#endif /* defined(HAVE_FILEIO) && defined(HAVE_GIF_SUPPORT)*/
+#endif /* defined(HAVE_GIF_SUPPORT)*/
 
-#if defined(HAVE_FILEIO) && defined(HAVE_PNM_SUPPORT)
+#if defined(HAVE_PNM_SUPPORT)
 enum {
 	PNM_TYPE_NOTPNM,
 	PNM_TYPE_PBM,
@@ -2010,9 +2014,9 @@ baddata:
 	if(pimage->palette) free(pimage->palette);
 	return 2;
 }
-#endif /* defined(HAVE_FILEIO) && defined(HAVE_PNM_SUPPORT) */
+#endif /* defined(HAVE_PNM_SUPPORT) */
 
-#if defined(HAVE_FILEIO) && defined(HAVE_XPM_SUPPORT)
+#if defined(HAVE_XPM_SUPPORT)
 struct xpm_cmap {
   char mapstr[3];
   long palette_entry;
@@ -2452,6 +2456,6 @@ static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd)
     return(-1);
   return(1);
 }
-#endif /* defined(HAVE_FILEIO) && defined(HAVE_XPM_SUPPORT)*/
+#endif /* defined(HAVE_XPM_SUPPORT)*/
 
-#endif /* defined(HAVE_FILEIO)*/
+#endif /* MW_FEATURE_IMAGES - whole file */

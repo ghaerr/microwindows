@@ -34,10 +34,6 @@
 #endif
 #endif
 
-#if DOS_DJGPP
-typedef unsigned long DWORD;	/* FIXME why is this here?*/
-#endif
-
 #if ELKS
 #include <linuxmt/posix_types.h>
 #include <linuxmt/time.h>
@@ -58,7 +54,9 @@ GR_WINDOW	*rootwp;		/* root window pointer */
 GR_GC		*listgcp;		/* list of all gc */
 GR_REGION	*listregionp;		/* list of all regions */
 GR_FONT		*listfontp;		/* list of all fonts */
+#if MW_FEATURE_IMAGES
 GR_IMAGE	*listimagep;		/* list of all images */
+#endif
 GR_CURSOR	*listcursorp;		/* list of all cursors */
 GR_CURSOR	*stdcursor;		/* root window cursor */
 GR_GC		*curgcp;		/* currently enabled gc */
@@ -86,7 +84,6 @@ int		current_shm_cmds_size;
 int		keyb_fd;		/* the keyboard file descriptor */
 int		mouse_fd;		/* the mouse file descriptor */
 char		*curfunc;		/* the name of the current server func*/
-GR_TIMEOUT	screensaver_delay;	/* time before screensaver activates */
 GR_BOOL		screensaver_active;	/* time before screensaver activates */
 GR_SELECTIONOWNER selection_owner;	/* the selection owner and typelist */
 GR_TIMEOUT	startTicks;		/* ms time server started*/
@@ -94,9 +91,12 @@ int		autoportrait = FALSE;	/* auto portrait mode switching*/
 MWCOORD		nxres;			/* requested server x resolution*/
 MWCOORD		nyres;			/* requested server y resolution*/
 
+#if MW_FEATURE_TIMERS
+GR_TIMEOUT	screensaver_delay;	/* time before screensaver activates */
 GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 GR_TIMER        *cache_timer;           /* cached timer */
 GR_TIMER        *list_timer;            /* list of all timers */
+#endif /* MW_FEATURE_TIMERS */
 
 static int	persistent_mode = FALSE;
 static int	portraitmode = MWPORTRAIT_NONE;
@@ -486,7 +486,10 @@ GsSelect(GR_TIMEOUT timeout)
 	fd_set	rfds;
 	int 	e;
 	int	setsize = 0;
-	struct timeval tout, *to;
+#if MW_FEATURE_TIMERS
+	struct timeval tout;
+#endif
+	struct timeval *to;
 #if NONETWORK
 	int	fd;
 #endif
@@ -533,9 +536,12 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 #endif /* NONETWORK */
 	/* Set up the timeout for the main select(): */
+#if MW_FEATURE_TIMERS
 	if(GdGetNextTimeout(&tout, timeout) == TRUE)
 		to = &tout;
-	else to = NULL;
+	else
+#endif /* MW_FEATURE_TIMERS */
+		to = NULL;
 
 	/* Wait for some input on any of the fds in the set or a timeout: */
 	if((e = select(setsize+1, &rfds, NULL, NULL, to)) > 0) {
@@ -591,14 +597,19 @@ GsSelect(GR_TIMEOUT timeout)
 		 * Note: this will be changed back to GR_EVENT_TYPE_NONE
 		 * for the GrCheckNextEvent/LINK_APP_TO_SERVER case
 		 */
-		if(GdTimeout() == TRUE) {
+#if MW_FEATURE_TIMERS
+		if(GdTimeout() == TRUE)
+#endif
+		{
 			GR_EVENT_GENERAL *	gp;
 			gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient);
 			if(gp)
 				gp->type = GR_EVENT_TYPE_TIMEOUT;
 		}
 #else /* not NONETWORK */
+#if MW_FEATURE_TIMERS
 		GdTimeout();
+#endif
 #endif /* NONETWORK */
 	} else
 		if(errno != EINTR)
@@ -653,7 +664,9 @@ GsInitialize(void)
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)GsTerminate);
 
+#if MW_FEATURE_TIMERS
 	screensaver_delay = 0;
+#endif
 	screensaver_active = GR_FALSE;
 
 	selection_owner.wid = 0;
@@ -813,12 +826,12 @@ GsGetTickCount(void)
 {
 #if MSDOS
 #include <time.h>
-	return (DWORD)(clock() * 1000 / CLOCKS_PER_SEC);
+	return (unsigned long)(clock() * 1000 / CLOCKS_PER_SEC);
 #else
 #if _MINIX
 	struct tms	t;
 	
-	return (DWORD)times(&t) * 16;
+	return (unsigned long)times(&t) * 16;
 #else
 #if UNIX
 	struct timeval t;

@@ -28,6 +28,18 @@
 #define DPRINTF(str, ...)
 ***/
 
+#if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
+#define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage* / GdDrawImage* */
+#else
+#define MW_FEATURE_IMAGES 0		/* platform doesn't support images*/
+#endif
+
+#if UNIX || DOS_DJGPP
+#define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
+#else
+#define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
+#endif
+
 /* Which low-level psd->DrawArea routines to include. */
 #define MW_FEATURE_PSDOP_COPY                   0
 #define MW_FEATURE_PSDOP_ALPHAMAP               0
@@ -50,6 +62,11 @@
 #define MW_FEATURE_PSDOP_ALPHACOL 1
 #undef  MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 #define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 1
+#endif
+
+/* Sanity check: VTSWITCH involves a timer. */
+#if VTSWITCH && !MW_FEATURE_TIMERS
+#error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in this file
 #endif
 
 typedef struct _mwscreendevice *PSD;
@@ -792,6 +809,7 @@ extern KBDDEVICE kbddev;
 
 /* devimage.c */
 
+#if MW_FEATURE_IMAGES
 int	GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
 void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 		 MWCOORD height, void *buffer, int size, int flags);
@@ -804,6 +822,7 @@ void	GdFreeImage(int id);
 MWBOOL	GdGetImageInfo(int id, PMWIMAGEINFO pii);
 void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
 		MWCLIPRECT *dstrect);
+#endif /* MW_FEATURE_IMAGES */
 
 /* devlist.c*/
 /* field offset*/
@@ -827,7 +846,7 @@ void set_ts_origin(int x, int y);
 /* return base item address from list ptr*/
 #define GdItemAddr(p,type,list)	((type *)((long)p - MWITEM_OFFSET(type,list)))
 
-#if UNIX || DOS_DJGPP
+#if MW_FEATURE_TIMERS
 
 #include <sys/time.h>
 
@@ -854,7 +873,7 @@ MWTIMER		*GdFindTimer(void *arg);
 MWBOOL		GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout);
 MWBOOL		GdTimeout(void);
 
-#endif
+#endif /* MW_FEATURE_TIMERS */
 
 /* error.c*/
 int	GdError(const char *format, ...);

@@ -16,17 +16,16 @@ endif
 
 # install directories for headers and libraries
 INSTALL_PREFIX  = /usr
-INSTALL_USER    = root
-INSTALL_GROUP   = root
-INSTALL_GROUP_2 = bin
+INSTALL_OWNER1  = -o root -g root
+INSTALL_OWNER2  = -o root -g bin
 HDRINSTALLDIR = $(INSTALL_PREFIX)/include/microwin
 LIBINSTALLDIR = $(INSTALL_PREFIX)/lib
 BININSTALLDIR = $(INSTALL_PREFIX)/bin
 
-INSTALL_DIR   = install -c -m 755 -o $(INSTALL_USER) -g $(INSTALL_GROUP) -d
-INSTALL_HDR   = install -c -m 644 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
-INSTALL_LIB   = install -c -m 644 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
-INSTALL_BIN   = install -c -m 755 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
+INSTALL_DIR   = install -c -m 755 $(INSTALL_OWNER1) -d
+INSTALL_HDR   = install -c -m 644 $(INSTALL_OWNER2)
+INSTALL_LIB   = install -c -m 644 $(INSTALL_OWNER2)
+INSTALL_BIN   = install -c -m 755 $(INSTALL_OWNER2)
 
 ##############################################################################
 # Defines, includes, and core libraries.  Controlled by the config file.

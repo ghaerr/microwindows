@@ -1,6 +1,8 @@
-	* added GrGrabKey, GrUngrabKey
+Version 0.89pl13 - 1 May 2003 - greg@censoft.com
+	* added GrGrabKey, GrUngrabKey (Jordan)
 	* added mousedev.flags member, jitter transform, rotate filters (Jordan)
-	* rewrote nanocal including new server transform routines: (Jordan)
+	* added nxcal standard Microwindows calibrator  (Jordan)
+		new server transform routines:
 		GrSetTransform, GdSetTransform (server)
 		GrCalcTransform, GrLoadTransform, GrSaveTransform (client)
 	* added ucbx100 touchscreen driver (Alex, Jordan)

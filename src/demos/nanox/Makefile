@@ -76,7 +76,7 @@ OBJS =	demo.o \
 	nsaver.o \
 	nxeyes.o \
 	tux.o \
-	nanocal.o 
+	nxcal.o 
 
 TARGETS = \
 	$(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
@@ -93,7 +93,7 @@ TARGETS = \
 	$(TOP)/bin/bmpdemo $(TOP)/bin/rgndemo \
 	$(TOP)/bin/convpbm \
 	$(TOP)/bin/nsaver \
-	$(TOP)/bin/nanocal 
+	$(TOP)/bin/nxcal 
 
 ifneq ($(ARCH),CYGWIN)
 TARGETS += \
@@ -304,7 +304,7 @@ $(TOP)/bin/snap_jpg: snap_jpg.o $(NANOXCLIENTLIBS) $(TOP)/config
 	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBJPEG)
 
-$(TOP)/bin/nanocal: nanocal.o $(NANOXCLIENTLIBS) $(TOP)/config
+$(TOP)/bin/nxcal: nxcal.o $(NANOXCLIENTLIBS) $(TOP)/config
 	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
 

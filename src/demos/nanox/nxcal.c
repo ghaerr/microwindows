@@ -1,5 +1,7 @@
 /*
- * Standard screen calibrator for Nano-X
+ * nxcal: Standard screen calibrator for Nano-X
+ * 
+ * Copyright (c) 2003 Century Embedded Technologies <http://embedded.censoft.com>
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +10,7 @@
 #include "nano-X.h"
 #include "nxcolors.h"
 
-#define DEFAULT_DATA_FILE "./cal.data"
+#define DEFAULT_DATA_FILE "nxcal.dat"
 
 #define FIXED_SHIFT 11
 
@@ -33,7 +35,7 @@ static int state = 0;
 void
 usage(void)
 {
-	printf("Usage: nanocal [-f] [-d <datafile>]\n");
+	printf("Usage: nxcal [-f] [-d <datafile>]\n");
 	exit(0);
 }
 

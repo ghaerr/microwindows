@@ -898,8 +898,8 @@ void		GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did,
 void		GrBell(void);
 void		GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap,
 			int flags);
-void		GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y,
-			unsigned int *bmask);
+void		GrQueryPointer(GR_WINDOW_ID *mwin, GR_COORD *x, GR_COORD *y,
+			GR_BUTTON *bmask);
 void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid,
 			GR_WINDOW_ID **children, GR_COUNT *nchildren);
 GR_BOOL         GrGrabKey(GR_WINDOW_ID wid, GR_KEY key, int type);

@@ -1401,18 +1401,18 @@ GrSetPortraitModeWrapper(void *r)
 static void
 GrQueryPointerWrapper(void *r)
 {
-  GR_WINDOW_ID	mwin;
-  int x, y;
-  unsigned int bmask;
-  
-  GrQueryPointer(&mwin, &x, &y, &bmask);
+	GR_WINDOW_ID	mwin;
+	GR_COORD	x, y;
+	GR_BUTTON	bmask;
 
-  GsWriteType(current_fd, GrNumQueryPointer);
+	GrQueryPointer(&mwin, &x, &y, &bmask);
 
-  GsWrite(current_fd, &mwin, sizeof(mwin));
-  GsWrite(current_fd, &x, sizeof(x));
-  GsWrite(current_fd, &y, sizeof(y));
-  GsWrite(current_fd, &bmask, sizeof(bmask));
+	GsWriteType(current_fd, GrNumQueryPointer);
+
+	GsWrite(current_fd, &mwin, sizeof(mwin));
+	GsWrite(current_fd, &x, sizeof(x));
+	GsWrite(current_fd, &y, sizeof(y));
+	GsWrite(current_fd, &bmask, sizeof(bmask));
 }
 
 /*

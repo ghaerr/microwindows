@@ -1,3 +1,4 @@
+	* cleaned up various function prototypes
 	* fixed XPM transparency drawing bug
 	* added ADS7846 touchscreen support (PSI OMAP Innovator) (Dave)
 Version 0.89pl15 - 13 May 2003 - greg@censoft.com

@@ -67,7 +67,7 @@ GR_WINDOW	*grabbuttonwp;		/* window grabbed by button */
 GR_CURSOR	*curcursor;		/* currently enabled cursor */
 GR_COORD	cursorx;		/* current x position of cursor */
 GR_COORD	cursory;		/* current y position of cursor */
-int		curbuttons;		/* current state of buttons */
+GR_BUTTON	curbuttons;		/* current state of buttons */
 GR_CLIENT	*curclient;		/* client currently executing for */
 GR_EVENT_LIST	*eventfree;		/* list of free events */
 GR_BOOL		focusfixed;		/* TRUE if focus is fixed on a window */

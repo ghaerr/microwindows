@@ -4364,7 +4364,7 @@ GrSetPortraitMode(int portraitmode)
  * @ingroup nanox_misc
  */
 void 
-GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask)
+GrQueryPointer(GR_WINDOW_ID *mwin, GR_COORD *x, GR_COORD *y, GR_BUTTON *bmask)
 {
 	nxQueryPointerReq *req;
 

@@ -3971,13 +3971,14 @@ GrSetPortraitMode(int portraitmode)
 /**
  * Returns the current information for the pointer
  *
- * @param mwin Window the mouse is current in
- * @param x Current X pos of mouse (from root)
- * @param y Current Y pos of mouse (from root)
+ * @param mwin	Window the mouse is current in
+ * @param x	Current X pos of mouse (from root)
+ * @param y	Current Y pos of mouse (from root)
  * @param bmask Current button mask
  */
 void 
-GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask) {
+GrQueryPointer(GR_WINDOW_ID *mwin, GR_COORD *x, GR_COORD *y, GR_BUTTON *bmask)
+{
 	SERVER_LOCK();
 	*mwin = mousewp->id;
 	*x = cursorx;
@@ -3990,7 +3991,7 @@ GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask) {
  * Creates a new region from a bitmap mask.
  *
  * @param bitmap	monochrome source bitmap
- * @param width	width of source bitmap
+ * @param width		width of source bitmap
  * @param height	height of source bitmap
  */
 GR_REGION_ID

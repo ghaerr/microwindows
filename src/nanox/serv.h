@@ -536,7 +536,7 @@ extern	GR_WINDOW	*grabbuttonwp;		/* window grabbed by button */
 extern	GR_CURSOR	*curcursor;		/* currently enabled cursor */
 extern	GR_COORD	cursorx;		/* x position of cursor */
 extern	GR_COORD	cursory;		/* y position of cursor */
-extern	int		curbuttons;		/* current state of buttons */
+extern	GR_BUTTON	curbuttons;		/* current state of buttons */
 extern	GR_CLIENT	*curclient;		/* current client */
 extern	char		*current_shm_cmds;
 extern	int		current_shm_cmds_size;

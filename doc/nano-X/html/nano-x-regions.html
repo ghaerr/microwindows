@@ -1,0 +1,1994 @@
+<HTML
+><HEAD
+><TITLE
+>regions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="colours"
+HREF="nano-x-colours.html"><LINK
+REL="NEXT"
+TITLE="selections"
+HREF="nano-x-selections.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-colours.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-selections.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+>regions</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2529"
+></A
+><H2
+>Name</H2
+>regions &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2532"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> <A
+HREF="nano-x-regions.html#GRNEWREGION"
+>GrNewRegion</A
+>                    (void);
+void        <A
+HREF="nano-x-regions.html#GRDESTROYREGION"
+>GrDestroyRegion</A
+>                 (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region);
+void        <A
+HREF="nano-x-regions.html#GRUNIONRECTWITHREGION"
+>GrUnionRectWithRegion</A
+>           (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-RECT-CAPS"
+>GR_RECT</GTKDOCLINK
+> *rect);
+void        <A
+HREF="nano-x-regions.html#GRUNIONREGION"
+>GrUnionRegion</A
+>                   (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);
+void        <A
+HREF="nano-x-regions.html#GRSUBTRACTREGION"
+>GrSubtractRegion</A
+>                (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);
+void        <A
+HREF="nano-x-regions.html#GRXORREGION"
+>GrXorRegion</A
+>                     (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);
+void        <A
+HREF="nano-x-regions.html#GRINTERSECTREGION"
+>GrIntersectRegion</A
+>               (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);
+void        <A
+HREF="nano-x-regions.html#GRSETGCREGION"
+>GrSetGCRegion</A
+>                   (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region);
+<GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+>     <A
+HREF="nano-x-regions.html#GRPOINTINREGION"
+>GrPointInRegion</A
+>                 (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);
+int         <A
+HREF="nano-x-regions.html#GRRECTINREGION"
+>GrRectInRegion</A
+>                  (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> w,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> h);
+<GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+>     <A
+HREF="nano-x-regions.html#GREMPTYREGION"
+>GrEmptyRegion</A
+>                   (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region);
+<GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+>     <A
+HREF="nano-x-regions.html#GREQUALREGION"
+>GrEqualRegion</A
+>                   (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> rgn2);
+void        <A
+HREF="nano-x-regions.html#GROFFSETREGION"
+>GrOffsetRegion</A
+>                  (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> dx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> dy);
+int         <A
+HREF="nano-x-regions.html#GRGETREGIONBOX"
+>GrGetRegionBox</A
+>                  (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-RECT-CAPS"
+>GR_RECT</GTKDOCLINK
+> *rect);
+<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> <A
+HREF="nano-x-regions.html#GRNEWPOLYGONREGION"
+>GrNewPolygonRegion</A
+>             (int mode,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *points);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2590"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2593"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2595"
+></A
+><H3
+><A
+NAME="GRNEWREGION"
+></A
+>GrNewRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> GrNewRegion                    (void);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new region structure and returns the ID used to refer to it.
+The structure is initialised with a set of default parameters.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the newly created region</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2611"
+></A
+><H3
+><A
+NAME="GRDESTROYREGION"
+></A
+>GrDestroyRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDestroyRegion                 (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Destroys the region structure with the specified ID.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region structure to destroy</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2627"
+></A
+><H3
+><A
+NAME="GRUNIONRECTWITHREGION"
+></A
+>GrUnionRectWithRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrUnionRectWithRegion           (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-RECT-CAPS"
+>GR_RECT</GTKDOCLINK
+> *rect);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Makes a union of the specified region and the specified rectangle and
+places the result back in the source region.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to modify</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rect</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> a pointer to the rectangle to add to the region</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2648"
+></A
+><H3
+><A
+NAME="GRUNIONREGION"
+></A
+>GrUnionRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrUnionRegion                   (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Makes a union of the specified source regions and places the result in the
+specified destination region.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>dst_rgn</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the destination region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the first source region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the second source region</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2674"
+></A
+><H3
+><A
+NAME="GRSUBTRACTREGION"
+></A
+>GrSubtractRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSubtractRegion                (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Subtracts the second source region from the first source region and places
+the result in the specified destination region.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>dst_rgn</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the destination region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the first source region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the second source region</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2700"
+></A
+><H3
+><A
+NAME="GRXORREGION"
+></A
+>GrXorRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrXorRegion                     (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Performs a logical exclusive OR operation on the specified source regions
+and places the result in the destination region. The destination region
+will contain only the parts of the source regions which do not overlap.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>dst_rgn</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the destination region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the first source region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the second source region</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2726"
+></A
+><H3
+><A
+NAME="GRINTERSECTREGION"
+></A
+>GrIntersectRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrIntersectRegion               (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> dst_rgn,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> src_rgn2);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Calculates the intersection of the two specified source regions and places
+the result in the specified destination region. The destination region
+will contain only the parts of the source regions which overlap each other.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>dst_rgn</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the destination region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the first source region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>src_rgn2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the second source region</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2752"
+></A
+><H3
+><A
+NAME="GRSETGCREGION"
+></A
+>GrSetGCRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCRegion                   (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the clip mask of the specified graphics context to the specified
+region. Subsequent drawing operations using this graphics context will not
+draw outside the specified region. The region ID can be set to 0 to remove
+the clipping region from the specified graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to set the clip mask of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to use as the clip mask</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2773"
+></A
+><H3
+><A
+NAME="GRPOINTINREGION"
+></A
+>GrPointInRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+>     GrPointInRegion                 (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Tests whether the specified point is within the specified region, and
+then returns either True or False depending on the result.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to examine</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the point to test for</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the point to test for</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> True if the point is within the region, or False otherwise</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2804"
+></A
+><H3
+><A
+NAME="GRRECTINREGION"
+></A
+>GrRectInRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>int         GrRectInRegion                  (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> w,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> h);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Tests whether the specified rectangle is contained within the specified
+region. Returns GR_RECT_OUT if it is not inside it at all, GR_RECT_ALLIN
+if it is completely contained within the region, or GR_RECT_PARTIN if
+it is partially contained within the region.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to examine</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinates of the rectangle to test</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinates of the rectangle to test</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>w</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the rectangle to test</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>h</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the rectangle to test</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> GR_RECT_PARTIN, GR_RECT_ALLIN, or GR_RECT_OUT</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2844"
+></A
+><H3
+><A
+NAME="GREMPTYREGION"
+></A
+>GrEmptyRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+>     GrEmptyRegion                   (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Determines whether the specified region is empty, and returns GR_TRUE
+if it is, or GR_FALSE otherwise.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to examine</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> GR_TRUE if the region is empty, or GR_FALSE if it is not</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2865"
+></A
+><H3
+><A
+NAME="GREQUALREGION"
+></A
+>GrEqualRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+>     GrEqualRegion                   (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> rgn1,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> rgn2);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Determines whether the specified regions are identical, and returns GR_TRUE
+if it is, or GR_FALSE otherwise.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rgn1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the first region to examine</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rgn2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the second region to examine</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> GR_TRUE if the regions are equal, or GR_FALSE otherwise</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2891"
+></A
+><H3
+><A
+NAME="GROFFSETREGION"
+></A
+>GrOffsetRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrOffsetRegion                  (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> dx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> dy);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Offsets the specified region by the specified distance.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to offset</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>dx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the distance to offset the region by in the X axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>dy</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the distance to offset the region by in the Y axis</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2917"
+></A
+><H3
+><A
+NAME="GRGETREGIONBOX"
+></A
+>GrGetRegionBox ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>int         GrGetRegionBox                  (<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> region,
+                                             <GTKDOCLINK
+HREF="GR-RECT-CAPS"
+>GR_RECT</GTKDOCLINK
+> *rect);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Fills in the specified rectangle structure with a bounding box that would
+completely enclose the specified region, and also returns the type of the
+specified region.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>region</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to get the bounding box of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rect</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a rectangle structure</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the region type</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2942"
+></A
+><H3
+><A
+NAME="GRNEWPOLYGONREGION"
+></A
+>GrNewPolygonRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> GrNewPolygonRegion             (int mode,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *points);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new region structure, fills it with the region described by the
+specified polygon, and returns the ID used to refer to it.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>mode</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the polygon mode to use (GR_POLY_EVENODD or GR_POLY_WINDING)</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of points in the polygon</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>points</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to an array of point structures describing the polygon</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the newly allocated region structure, or 0 on error</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-colours.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-selections.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>colours</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>selections</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

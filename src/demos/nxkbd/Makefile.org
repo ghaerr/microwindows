@@ -1,0 +1,36 @@
+# Copyright (C) 2000 by VTech Informations LTD.
+# Vladimir Cotfas <vladimircotfas@vtech.ca> Aug 31, 2000
+
+CC = gcc
+CC_FLAGS = -O2 -Wall
+#CC_FLAGS =  -g -O0   
+LINKER = gcc
+
+MWIN_DIR = /home/greg/net/microwin/src
+MWIN_INCLUDE = $(MWIN_DIR)/include
+MWIN_LIB = $(MWIN_DIR)/lib
+
+CC_INCLUDES = -I$(MWIN_INCLUDE)
+nxkbd_LIBS = -L$(MWIN_LIB) -lnano-X
+#nxkbd_LIBS = -L$(MWIN_LIB) -lnano-X -lmwengine -lmwdrivers -lmwfonts -L/usr/X11R6/lib -lX11
+nxkbd_OBJECTS = nxkbd.o srvconn.o keynorm.o keyctrl.o keyshft.o keynum.o
+
+all: nxkbd
+
+nxkbd: $(nxkbd_OBJECTS)
+	$(LINKER) -o nxkbd $(LINKER_ENTRY) $(LINKER_FLAGS) $(nxkbd_OBJECTS) $(nxkbd_LIBS)
+
+.c.o:
+	$(CC) -c $< $(CC_FLAGS) $(CC_DEFINES) $(CC_INCLUDES)
+
+%.c:%.bmp $(MWIN_DIR)/mwin/bmp/convbmp.c
+	echo "Generating $@ from bitmap file ..."
+	$(MWIN_DIR)/bin/convbmp $< > $@
+
+stripped: nxkbd
+	strip nxkbd
+
+clean:
+	rm -f *.o
+	rm -f nxkbd
+

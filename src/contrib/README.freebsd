@@ -1,0 +1,17 @@
+I have added files to this package to get it to run on a FreeBSD
+console. Some changes, particularly to the Makefiles are not particularly
+clean, and could probably be done a lot better (but hey, it's what I got
+done in about a day d8)
+
+2000/07/01
+I've added a terminal 'wterm'. At least it has a termcap so you can
+run curses based stuff, and it scrolls (scroll speed depends on the
+speed of your blitter, the FreeBSD blitter is completely stupid at
+the moment).
+
+--
+Totally Holistic Enterprises Internet|  P:+61 7 3870 0066   |  Andrew
+The Internet (Aust) Pty Ltd          |  F:+61 7 3870 4477   |  Milton
+ACN: 082 081 472                     |  M:+61 416 022 411   |72 Col .Sig
+PO Box 837 Indooroopilly QLD 4068    |akm@theinternet.com.au|Specialist
+

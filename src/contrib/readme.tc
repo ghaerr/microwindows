@@ -1,0 +1,102 @@
+For compile Microwindows for DOS & TURBO C 
+you should have the following:
+====================================================
+1. Microwin 0.87  - microwindows.censoft.com
+2. Turbo C++ ver. 1.0 or Borland C ver. 3.1 
+      
+      
+You should do the following:
+----------------------------
+
+- copy mwin-tcn.prj to microwin\src\
+- copy mwin-tcw.prj to microwin\src\
+
+- run tc or bc IDE
+- load the project
+
+
+You should check the next:
+-------------------------
+
+- correct paths
+- settings defines in : 
+	options | compiler | code generation - defines :
+
+	ERASEMOVE=1;
+	MSDOS=1;
+	DOS_TURBOC=1;
+      
+  
+MAKE !
+====================================================
+
+- mwin-pcw.prj = mwin demo
+- mwin-pcn.prj = nanox demo
+
+For nanox add next defines:
+	NONETWORK=1;
+	SCREEN_PIXTYPE=PF_PALETTE;
+
+
+! NOT all demos have been tested.
+====================================================
+
+The project for mwin demo must have next files:
+
+\DEMOS\MWIN\DEMO.C
+\DRIVERS\GENFONT.C
+\DRIVERS\KBD_TC.C
+\DRIVERS\MOU_DOS.C
+\DRIVERS\SCR_TC.C
+\FONTS\ROM8X16.C
+\FONTS\ROM8X8.C
+\FONTS\WINFRE~1.C
+\FONTS\WINFRE~2.C
+\ENGINE\DEVCLIP.C
+\ENGINE\DEVDRAW.C
+\ENGINE\DEVKBD.C
+\ENGINE\DEVMOUSE.C
+\ENGINE\DEVPAL1.C
+\ENGINE\DEVPAL2.C
+\ENGINE\DEVPAL4.C
+\MWIN\WINCLIP.C
+\MWIN\WINDEFW.C
+\MWIN\WINEVENT.C
+\MWIN\WINEXPOS.C
+\MWIN\WINMAIN.C
+\MWIN\WINUSER.C
+\MWIN\WINGDI.C
+\MWIN\LIST.C
+\MWIN\WINLIB\BUTTON.C
+\MWIN\WINLIB\DRAW3D.C
+\MWIN\WINLIB\FASTFILL.C
+\MWIN\WINLIB\GRAPH3D.C
+\MWIN\WINLIB\INSETR.C
+\MWIN\WINLIB\PTINSID.C
+\MWIN\BMP\CS1.C
+
+The project for nanox demo must have next files:
+
+\DEMOS\NANOX\DEMO.C
+\DRIVERS\GENFONT.C
+\DRIVERS\KBD_TC.C
+\DRIVERS\MOU_DOS.C
+\DRIVERS\SCR_TC.C
+\FONTS\ROM8X16.C
+\FONTS\ROM8X8.C
+\FONTS\WINFRE~1.C
+\ENGINE\DEVCLIP.C
+\ENGINE\DEVDRAW.C
+\ENGINE\DEVKBD.C
+\ENGINE\DEVMOUSE.C
+\ENGINE\DEVPAL1.C
+\ENGINE\DEVPAL2.C
+\ENGINE\DEVPAL4.C
+\NANOX\SRVEVENT.C
+\NANOX\SRVFUNC.C
+\NANOX\SRVMAIN.C
+\NANOX\SRVUTIL.C
+\NANOX\STUBS.C
+
+====================================================
+Victor Rogachev <rogach@sut.ru>

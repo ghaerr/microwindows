@@ -1,0 +1,31 @@
+<!doctype book PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+<!entity general SYSTEM "sgml/general.sgml">
+<!entity window SYSTEM "sgml/window.sgml">
+<!entity graphics SYSTEM "sgml/graphics.sgml">
+<!entity events SYSTEM "sgml/events.sgml">
+<!entity fonts SYSTEM "sgml/fonts.sgml">
+<!entity pointer SYSTEM "sgml/pointer.sgml">
+<!entity colours SYSTEM "sgml/colours.sgml">
+<!entity regions SYSTEM "sgml/regions.sgml">
+<!entity selections SYSTEM "sgml/selections.sgml">
+<!entity misc SYSTEM "sgml/misc.sgml">
+]>
+<book>
+  <?dbhtml filename="index.html">
+  <bookinfo>
+    <title>Nano-X API Reference Manual</title>
+  </bookinfo>
+  <chapter id="libnano-X">
+    <title>libnano-X</title>
+    &general;
+    &window;
+    &graphics;
+    &events;
+    &fonts;
+    &pointer;
+    &colours;
+    &regions;
+    &selections;
+    &misc;
+  </chapter>
+</book>

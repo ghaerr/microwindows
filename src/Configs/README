@@ -1,0 +1,35 @@
+The config files in this directory are pre-built for ease
+in building Microwindows on various systems.  One config file,
+config.fb, is kept up with the latest configuration options.
+Use it if you are building a configuration from scratch for
+your system.
+
+To build Microwindows, copy one of these files to microwin/src/config,
+and type "make clean; make".
+
+// Common configurations
+config.fb	Basic Linux Framebuffer (FB)
+config.x11	Microwindows running on X11
+config.ft	FB and Freetype font rendering
+config.tt	FB and T1Lib font rendering
+config.xtt	X11 and Freetype font rendering
+
+// Specific ports
+config.ads	ARM Linux FB for ADS Graphics Client
+config.big5	FB and Chinese Big5 fonts
+config.dj	DJGPP 32-bit MSDOS
+config.elks	ELKS 16-bit Linux (bcc compiler)
+config.freebsd	FreeBSD port
+config.harrier	MIPS Linux FB for NEC Harrier
+config.helio	MIPS Linux FB for VTech Helio
+config.hzk	FB and Chinese HZK fonts
+config.ipaq	ARM Linux FB for iPAQ
+config.l7200	ARM Linux FB for L7200
+config.ns	x86 Linux for National Semi Geode
+config.oti	PPC Linux for OTI
+config.ppc	PPC Linux for Embedded Planet Linux Planet
+config.prisma	Prisma port
+config.psion	Psion port
+config.rtems	RTEMS port
+config.svga	x86 Linux SVGALib screen driver
+config.yopy	ARM Linux FB for G.Mate YOPY

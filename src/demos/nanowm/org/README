@@ -1,0 +1,27 @@
+29th May 2000- NanoWM Version 0.1.
+
+This is a first cut at a window manager for NanoGUI.
+Many things are as yet unimplemented, unfinished, ugly and/or inefficient.
+
+Currently working:
+	Windows get reparented when they appear.
+	They are placed in a (unintelligent) stacking order.
+	They are decorated with a title bar (no title as yet though), four
+	buttons, and resizing borders.
+	Windows can be dragged using the title bar (currently only solid
+	window dragging is supported).
+	The buttons can be clicked, causing them to change to a different image
+	which is supposed to look like they are pressed in (I'm not an artist,
+	okay).
+	Callbacks get called when the buttons are released, but nothing is in
+	the callbacks yet.
+	The resizing bars can be dragged and the overall window resizes
+	correctly, but the contents of the window don't yet reflow to fit the
+	new size.
+	Clicking on a window brings it to the front.
+	Moving a mouse over a window calls a callback which is intended to
+	change the look of the window somehow to indicate that it is in focus.
+	When a client exits, the parent window and it's children are
+	correctly destroyed.
+	The mouse pointer changes when over the resize bars to indicate the
+	direction in which the window will be resized on dragging it.

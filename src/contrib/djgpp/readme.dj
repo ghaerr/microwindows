@@ -1,0 +1,36 @@
+For porting Microwindows to DOS + DJGPP you should have the following:
+=====================================================================
+1. Microwin 0.8 pre7  - (microwindows.censoft.com)
+2. DJGPP ver. 2.01    - (www.delorie.com)
+3. GRX ver. 2.3       - (www.gnu.de/software/grx  or  www.delorie.com)
+
+
+You should do the following:
+===============================
+1. save all old files:  
+	config
+2. ren config.dj         to config
+
+do MAKE !!!
+===============
+
+I made it on Windows 95 in DJGPP bash ver. 1147, gcc ver. 2.7.2.1.
+and make ver. 377.
+
+File grx20.h should be in djgpp\include and file libgrx20.a
+should be in djgpp\lib.
+
+For using long file names you should set LFN=y in file djgpp.env
+under Windows 95, or rename some files to 8.3 under DOS.
+
+Program MWINDEMO work at DOS box Windows 95 and pure DOS,
+in videomodes 640x480x16 and 800x600x256.
+
+For NANOXDEMO use LINK_APP_INTO_SERVER.
+
+Program NANOXDEMO demo work at DOS box Windows 95 and pure DOS.
+
+! NOT all demos have been tested (or debugged) for DJGPP.
+===============================================
+
+Victor Rogachev <rogach@sut.ru>

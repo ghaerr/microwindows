@@ -1,0 +1,15 @@
+/* 4 Mar 93*/
+#include <ver.h>
+#include "version.h"		//zzz fix
+/*
+ * Generic Windows Application RC file
+ */
+
+/* version info*/
+#define DESCRIPTION             Test Application
+#define EXE_NAME                TEST
+#define ORIGINAL_NAME           TEST
+#define PRODUCT_NAME            TEST
+#define TRADEMARKS		Copyright 1994 by Century Software, Inc.
+#include <exe.rcv>
+

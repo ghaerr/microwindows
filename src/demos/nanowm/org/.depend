@@ -1,0 +1,6 @@
+nanowm.o .depend : $(TOP)/config nanowm.c nanowm.h
+bitmaps.o .depend : $(TOP)/config bitmaps.c
+events.o .depend : $(TOP)/config events.c nanowm.h
+wlist.o .depend : $(TOP)/config wlist.c nanowm.h
+clients.o .depend : $(TOP)/config clients.c nanowm.h
+actions.o .depend : $(TOP)/config actions.c nanowm.h

@@ -1,0 +1,825 @@
+Version 0.89pre8 - 13th June 2001 - greg@censoft.com
+	* added MWPACKED attribute packing define in mwtypes.h
+	* added eCos port by Gary Thomas
+	* ntetris game orientation patch (Xiang Lee)
+	* translate 127 (DEL) to MWKEY_BACKSPACE in tty scancode (L.C. Chang)
+	* fixed non-inited sizing field in nanowm (L.C. Chang)
+	* added Microtouch rs232 touch panel driver mou_mt.c (Holger)
+	* fix multiple GrClose bug (Gary)
+	* update kbd_pipe.c (Murphy)
+	* free memory in MwDestroyWindow
+	(4th June 2001)
+	* removed Nano-X widget directory (obsoleted)
+	(15th May 2001)
+	* temp removed driver DrawArea() calls in GdArea code (blit bug)
+	* fix clip bug in GdReadArea
+	* added portrait mode member to screeninfo struct (change all dr/scr*.c)
+	* added down portrait mode
+	* added dynamic portrait mode, nano-X [-ANLRD] startup portrait modes
+	(13th Apr 2001)
+	* implemented GR_BACKGROUND_STRETCH in GrSetBackgroundPixmap
+	* fixed startup VTSWITCH time delay bug in win32
+	* added StretchBlt, new screen driver stretchblit entry point
+	* added direct .bmp file create on PRINT, added 16,24,32 bpp output
+	(27th Jan 2001)
+	* added GrDelay for msec delay
+	* added GrQueryTree to obtain window parent/children list
+	* ported nxroach! (run nxkbd.sh)
+	* replaced GrClearWindow with GrClearArea, created GrClearWindow macro
+	* experimental fix to GrReparentWindow when parent not mapped
+	* added cursor id to GR_WINDOW_INFO
+	* added server-side cursors, GrNewCursor, GrDestroyCursor, GrSetWindowCursor
+	* removed GrSetBorderColor, changed to GrSetWindowBorderColor
+	* added GrNewBitmapFromData
+Version 0.89pre7 - 21st Jan 2001 - greg@censoft.com
+	* moved config.* files to Configs directory and added README
+	* moved caching devfont.c to devfont.caching.c (breaks ftdemo)
+	* added extensive gtkdoc sgml/html/pdf nano-X documentation from Alex
+	* wrote Xlib to Nano-X macro hdr file for easier porting (XtoNX.h)
+	* added Alex's improved server timeout routines (no alarms)
+	* converted demo3 to nxview image viewer
+	* added time field in GR_EVENT_BUTTON for double-click determination
+	* fixed fast window move blit bug with non-root child windows
+	* added GR_WM_PROPS_BORDERCOLOR
+	* added useful macro functions: GrSetWindowTitle,GrSetWindowBorderColor,
+		GrSetWindowBorderSize, GrSetWindowBackgroundColor
+	* ported xfreecell to nano-X
+	* added GrNewPixmapFromData to create pixmap from bitmap data
+	* added Alex's GrSetBackgroundPixmap, GrBell
+	* added Alex's cool screensaver app nsaver, GrSetScreenSaverTimeout
+	* added Alex's getselection/setselection demos,
+		Gr[GS]etSelectOwner, GrRequestClientData, GrSendClientData
+	* enhanced nxclock and ftdemo
+	* fix shared library bug w/GetSysCharHeight function
+	* fixed MwRegisterInput/Output/Except bug (Yang)
+	* fixed Arch.rules for Solaris 7
+	* fix antialiasing bug when both T1lib and Freetype enabled (Murphy)
+	* fixed GrReadArea offset bug (Dave Tubbs)
+	* added MWPF_TRUECOLOR555 for 16 bpp 5/5/5 packed pixels
+	* fixed PIXEL565TOCOLORVAL and PIXEL332TOCOLORVAL macros
+	* fixed 5/5/5 driver for ATI card
+Version 0.89pre6c (unreleased) 8th Dec 2000 - greg@censoft.com
+	* new scancode kbd driver: ESC never quits, pause/break quits
+		select with SCANKBD=Y in config (default)
+	* added Brent's changes for VxWorks port
+	* added PNG image decoding from Alex
+	* fixed GrGetNextEvent returning event twice when signal caught (Alex)
+	* fixed XPM loader errmsg on non-XPM images from Alex
+	* added launcher application from Alex
+	* added HAVE_PNM_SUPPORT for PBM,PGM,PPM ascii&binary images from Alex
+	* added ntetris game from Alex
+	* fixed FREETYPE_FONT_DIR in engine/Makefile
+	* added freetype font caching to devfont.c (experimental) (huge speedup)
+	* added -mstructure-size-boundary=8 for ARM compiles and structure bugs
+	* changed MOUSE_POSITION to ..._MOTION in scribble for better recognizer
+	* fixed nasty slow blitting code in X11 driver
+	* added USE_EXPOSE config option for XFree4.0 backing store expose fix
+	* added iPAQ scancode keyboard driver
+	* added YOPY mouse driver and YOPY build support
+	* fixed dropped events bug in client/server!!
+	* send UPDATE_MOVE to all children on window move
+	* finished fast screen blit move algorithm for topmost windows
+	* auto calculation of virtual screen size
+	* change GR_EVENT_MOUSE subwid to always be mouse window (Peter)
+	* added auto-repeat to scancode tty driver
+	* fixed buggy GrGetRegionBox
+	* fixed X11 screen->offscreen blit
+	* fixed blit with negative src clipping
+	* added GR_MODE_EXCLUDECHILDREN clip mode to GrSetGCMode
+	* added window resize to nanowm and #define OUTLINE_MOVE
+	* changed GrInjectPointerEvent visible arg semantics
+	* converted x11 kbd driver to scancode
+	* added MWKEY_* defines, changed kbd modifiers
+		removed GR_MODIFIER_*, GR_SPECIAL_*, GR_KEYSTROKE_* defines
+		api change: GR_EVENT_KEYSTROKE to return unicode only values
+		api change: GrInjectKeyboardEvent
+	* complete keyboard driver rewrite: scancode, up/down events
+	* ported Doom! to Microwindows
+	* fixed overlapping blit for 8/16 bpp
+	* added current mouse coords in SCREENINFO struct
+	* started on Wt widget set port
+Version 0.89pre6 - 12th Nov 2000 - greg@censoft.com
+	* added Peter's driver blit fix for dst in src rectangle
+	* added Scott's correct GdFillPoly routine (uses malloc/qsort)
+		works for irregular polygons, concave, convex with holes
+	* added config.ipaq for pre-built ipaq build configuration
+	* added -lm to LDFLAGS when T1LIB or FREETYPE is used
+	* added FLIP_MOUSE_IN_PORTRAIT_MODE #define to engine/devmouse.c
+	* added Vladimir's nxlsclients and nxev programs
+	* GrCopyArea optimization fix for windows with no eventclients (slider)
+	* added Kim's SH3 reversed order fblin4sh3.c driver
+	* added support for SuperH compilations (LINUX-SH)
+	* added Jordan's convxpm.perl xpm to rgb converter
+	* added Brent's alloca patch
+	* fix update map/unmap events sent only on actual unmap/map
+	* fix window manager to map parent before reparent for unmapcount bug
+	* allow GdStretchBlit to width/height of 0 without error
+	* remove GsError for GrNewPixmap of 0 width or height
+	* change to service all kbd data in single poll loop
+	* change low level clipping to always clip child windows
+	* fix server clear allocated pixmaps before drawing to them
+	* fix blit code after xor in X11 driver for nxterm
+Version 0.89pre5 - 2nd Nov 2000 - greg@censoft.com
+	* add GdCaptureScreen screen capture for later makebmp processing
+	* temp #define FASTJPEG in engine/devimage.c for 8bpp fast jpeg display
+	* free server images on client disconnect
+	* wrote experimental non-flick blit-move routine when window is topmost
+	* fixed GrCopyArea with offscreen source wid
+	* fixed UPDATE_MAP x, y, values
+	* fixed transparent color drawing in GdDrawImage,
+		unique color no longer required
+	* fix imagehdr free in GdFreeImage
+	* added xpm image support from Jordan, (HAVE_XPM_SUPPORT)
+	* added UPDATE_DESTROY update event subtype
+	* changed update map/unmap semantics: update sent on all child
+		windows of map/unmap
+	* send update unmap event on auto server-destroyed windows
+	* change GrDestroyWindow to send always send update unmap event
+	* change GR_EVENT_TYPE_CHLD_UPDATE message wid member, added subwid
+		now properly sends CHLD_UPDATE messages
+	* added GrDrawLines util function
+	* added virtual and workspace width/height GR_SCREEN_INFO members
+	* added GR_WM_PROPS_NOAUTORESIZE and GR_WM_PROPS_MAXIMIZE window props
+	* fixed cursor on when in source blit rectangle
+	* fixed GrCopyArea copy garbage on clipped src area,sends expose instead
+	* fix DestroyRegion code in GsDestroyClientResources
+	* added Kaben's clipping fix for GdBlit
+	* Kaben's clip region fix when alternating between on/offscreen windows
+	* remove GsError on bad GrCloseWindow
+	* fix negative text coordinate offsets for freetype
+	* consolidated GrNewWindow/GrNewInputWindow
+	* disallow auto-focus to windows with GR_PROPS_NOFOCUS set
+Version 0.89pre4 - 26th October 2000 - greg@censoft.com
+	* added aggregated expose events for better paint appearance
+	* added cleanapps Makefile entry
+	* fixed T1Lib Makefile.rules bug
+	* removed strdup definition for mips in nxscribble
+	* fixed constant timeout event returned when linked with server
+	* rewrote error handling completely, new GrDefaultErrorHandler,
+		GrSetErrorHandler type/semantics. Removed nanox/stubs.c
+	* don't revert to mouse enter/leave focus after window destroy once set
+	* fix GrCopyArea drawing on unmapped window crash
+	* fix crash on bad GrGetWMProperties call
+	* return all 0 info for any invalid id GrGet* functions
+	* fix GrGetWMProperties to return flags 0 on invalid window id
+	* free gc, region and font resources on client exit
+Version 0.89pre3 - 17th October 2000 - greg@censoft.com
+	* turned off alpha blending in X11 screen driver for 8bpp
+	* added Nano-X draw library nxPaintNCArea, nxDraw3dShadow, etc
+	* added Vladimir's GR_CLOSE_FIX in nanox/client.c fixing client hang bug
+	* fix for GrGetWindowInfo crashing Vtech after GrCloseWindow/ncPaint
+	* added NEC Harrier port from Century Software
+	* some include file changes for VxWorks port from Brent
+	* cleaned up nanowm window move/closebox/raisewindow routine and policy
+	* added GrNewWindowEx to specify title and props at window create time
+	* implemented window draw styles GR_WM_PROPS_APPWINDOW, APPFRAME,
+		BORDER, CAPTION, CLOSEBOX, default style set by window manager
+	* implemented GR_WM_PROPS_NOMOVE, NORAISE, NOAUTOMOVE, NODECORATE
+		don't decorate if not direct child of root window
+	* extended GrGetWindowInfo to return window properties
+	* fixed LINK_APP_INTO_SERVER makes
+	* added FBREVERSE=Y and PSIONMOUSE=Y config options for Psion 5 port
+		Justin Davies contributed Psion 5 touchscreen/screen driver
+	* added PIPEKBD option for named pipe keyboard driver (kbd_pipe.c)
+	* added nxterm patch for FreeBSD from Andrew
+	* fixed sharedlibs link for nxkbd, nxscribble and nanowm apps
+	* fixed make bug when SHAREDLIBS=Y and FREETYPE/T1LIB=Y from Murphy
+Version 0.89pre2 - 3rd October 2000 - greg@censoft.com
+	* added nxscribble handwriting recognition from Century Software
+	* added nxkbd popup keyboard for Nano-X (original from Jay & Vladimir)
+	* added SIGHUP ignore to Nano-X, removed GrRedrawScreen dropclient bug
+	* implemented GrReadArea for pixmaps from Peter
+	* added free truetype fonts to distribution (Arial, Times, Courier)
+	* added FREETYPE_FONT_DIR config for truetype font search path, .ttf ext
+	* enhanced nxclock no polling, nxterm better focus handling
+	* added GR_UPDATE_UNMAPTEMP and GR_UPDATE_ACTIVATE update events
+	* added GrGetNextEventTimeout and GR_EVENT_TYPE_TIMEOUT event
+	* reworked NanoWM for 3d window decorations for Nano-X applications
+		removed multi-window decorations, uses only one window now
+	* fixed user clip region parent offset bug from Peter
+	* added GrGetFocus call for use with nxkbd and nxscribble
+	* added GrGetSysColor for system-defined color schemes
+	* fixed focus semantics during window move/resize/reparent
+	* added Makefile INSTALL_PREFIX variable
+	* added GrPoints function from Murphy
+	* rewrote window manager property struct, added set background color
+		added props, flags, title, background, bordersize get/set
+	* added kbd_soft.c named pipe keyboard driver from Vladimir
+	* added touch panel mods to mou_tp.c driver for Helio (TPHELIO=Y)
+	* added inverted 4bpp screen driver for Helio (INVERT4BPP=Y)
+	* added changes to Makefile for shared libs for Helio
+	* added kbd modifier info for X11, nano-X hdr changes from Jordan
+	* generate Nano-X root window expose event repaint on startup
+	* removed termios errchk in serial/ps2 mouse driver
+	* fixed DT_CENTER DrawText and MSDOS GetTickCount from Robert Sharp
+	* fixed Makefile.rules .depend target errmsg
+	* start work on Nano-X drawing library for 3d look/feel
+	* added GrDrawImageBits, .bmp file conversion for Nano-X
+		must change MAXREQSIZE in nxproto.h
+	* add title display to nanoWM
+	* fix SetWMProperties title memcpy/wrapper bugs
+	* fix many NanoWM bugs:
+		window move offset, mousedn on client loses title data
+	* ported nxkbd software keyboard to Nano-X
+	* added FREEBSD-X86 to config file as ARCH option
+Version 0.89pre1 - 18th September 2000 - greg@censoft.com
+	* added map-update events to be batched to any application that selects
+		for child update events on the root window (window managers)
+		this allows a window manager to get a list of all mapped
+		windows without a special API call
+	* updated nanowm bitmaps from Vladimir
+	* eliminate need for sleep after nano-X startup, multiple connect trys
+	* print nano-X server error messages rather than numbers
+	* force nano-X cursor to appear on startup
+	* fix cursor change without mouse movement
+	* moved apps/nanowm to demos/nanowm to fix Makefile build problem
+	* fix bad MIPS sys header define for SOCK_STREAM
+	* fix free() bug in GrSetWMProperties from Vladimir
+	* added alpha RGB444 12bpp fb driver for EP7211 from Julian
+	* fixed uninitialized transparent color in devimage.c from Jamie
+	* fixed mouse in abs mode for iPAQ touchscreen in portrait mode
+	* renamed demos/mwin/demo.c to mdemo.c
+	* added changes for compiled in HAVE_BIG5_SUPPORT
+		packhz12 program
+		bugfixed hzx12 big5 chinese font
+	* added changes to win32 controls:
+		listbox control with scrollbars
+		edit control w/chinese support and caret
+		combobox enhancements
+		new scrollbar (client) control, smooth scrolling thumbs
+		mtest2 demo program
+		multiline edit control
+	* wrote caret handling for win32
+	* added Roman's changes for Kaffe port to win32 api:
+		GetTextExtentExPoint, GetTextExtentPoint, DrawTextA
+		SRCAND, SRCINVERT, BLACKNESS
+		added blit AND, INVERT, BLACKNESS to x11 and 16bpp drivers
+		GdGetTextSizeEx (freetype only for now)
+		automatically append B/I for bold/italic in CreateFont
+		fix delete pen/brush but not font resources in ReleaseDC
+		change default TOP alignment to BASELINE in MwExtTextOut
+		enhanced glyph width calculations for freetype in devfont.c
+		auto antialias for freetype at height > 14
+		not added (kaffe port):
+			TextOut defaults to UTF8, not ASCII
+			no SetForegroundWindow on NCLBUTTONDOWN on HTCLIENT area
+	* enhanced demo2.c for upcoming Linux Journal article (Dec)
+Version 0.88patch1 - 21st August 2000 - greg@censoft.com
+	* temp hack scribble to window #2, remove srvutil.c id!=1 hack
+	* fixed nanowm window move flicker
+	* added window id parm to GrInjectKeyboardEvent
+	* added otherid to nano-X focus window events
+	* fixed BOOL decl in scr_bios.c
+	* add WM_NCHITTEST fix to tpcal calibrator
+	* fix ADS and iPAQ touch screen drivers for kernel driver select bug
+	* added right/left portrait mode mouse fixups, -N cmd line startups
+	* fixed GsError with no clients core dump
+	* added transparent color to MWIMAGEHDR format, GdDrawImage, GIF decode
+Version 0.88 - 3rd August 2000 - greg@censoft.com
+	* added iPAQ mouse support from Century Software, config IPAQMOUSE
+	* changed config option TSMOUSE to ADSMOUSE
+	* added HAVE_GIF_SUPPORT to config, added GIF decoder
+	* changed image decode algorithms, image is kept in core until drawn
+	* added GrDrawImageFromFile, GrLoadImageFromFile, GrDrawImageToFit,
+		GrFreeImage, GrGetImageInfo for GIF, BMP and JPEG
+	* removed GrJPEG/GdJPEG, GrBMP/GdBMP
+	* modified MWIMAGEHDR structure, added pitch and bytesperpixel
+	* wrote decoder for 24bpp .bmp files, enhanced convbmp
+	* added stretch blit, rewrote image routines in Nano-X for ViewML
+	* corrected nano-X demo makefiles to work with LINK_APP_INTO_SERVER
+
+	* Patches recieved from ScreenMedia: Jan Vehusheia
+	* nanox/srvnet.c  Free allocated events to freelist when destroying
+	  a client.
+	* nanox/srvutil.c Correctly reassign mouse pointer information when
+	  an application crashes while a mouse button is held pressed down.
+
+	* Patches recieved from ScreenMedia: Jon K Hellan  <hellan@acm.org>
+	* nanox/srvmain.c (GsInitialize): Initialize wp->owner to NULL.
+	* drivers/kbd_x11.c (X11_Read): Initialize modifiers also when no
+	  key press pending.
+	* demos/nanox/demo5.c (main): Correct height of bitmap2(fg|bg) in
+	  GrSetCursor call.
+
+	* added Kevin's patch for destroying eventclient structures
+	* added Jiwon's patch for NULL name strcpy in devfont.c
+	* added Kyle's makefile patches, PORTRAIT_MODE=R or L in config
+Version 0.88pre11 (IBM OTI java&Kaffe ports) - 10th July 2000 - greg@censoft.com
+	* added set palette patch from Joe for Embedded Planet /dev/lcd driver
+	* started adding win32 keyboard support (not working yet)
+	* added Andrew's port to FreeBSD, Wt wterm terminal emulator port
+	* fixed convbdf font size error
+	* added Kevin's not working combobox control
+	* added George's Isicad Prisma screen driver and config
+	* added Simon's flipped portrait mode driver (we now have two)
+	* added updated BC5 makefiles from Ming-Lin Kao
+	* added HZK font patches from kevin
+	* added checkbox, radio button and static controls by kevin/cms
+	* changed GrSetFontAttr,GdSetFontAttr api
+	* added underlining to font rendering with GrSetFontAttr/MWTF_UNDERLINE
+	* fix WS_POPUP parent clipping, add owner window handling
+	* fix delete pen/brush/font resources in ReleaseDC, use DeleteObject
+	* fix memory leak in GetDCEx using CS_OWNDC
+	* added nofont.c for null font support
+	* added NOFONTSORCLIPPING config option for screen driver interface only
+	* separated engine open and draw routines for small driver interface
+	* IBM OTI Microview port: no ALPHABLEND, VTSWITCH, FBVGA, EPRINTF chg
+Version 0.88pre10 (fltk-nx port) - 18th June 2000 - greg@censoft.com
+	* started adding win32 non-client area scrollbars
+	* added Simon's contributed slider game (slider.sh)
+	* added Nano-X GrEqualRegion, GrEmptyRegion, GrOffsetRegion
+	* added GdEqualRegion, GdEmptyRegion
+	* changed GdRectInRegion to return partial intersection values
+	* fixed Nano-X clipping regions relative to drawable
+	* changed GR_RECT struct to match X, not win32
+	* changed GrRectInRegion, GrGetRegionBox, GrUnionRectWithRegion parms
+		to match X
+	* applied Kevin's HZK font sizing fix
+	* removed floating point, ldiv from ported progress bar, fixed bugs
+	* fixed listbox multi-element display code, initial state
+	* fixed PIXELVALTOCOLORVAL macro typo
+Version 0.88pre9 - 15th June 2000 - greg@censoft.com
+	* added Chinese Han Zi Ku font support from Tanghao and Jauming
+		12x12 and 16x16 ascii and chinese fonts
+		Big5, Unicode-16 and GB2312 encoding supported
+		set with config option HAVE_HZK_SUPPORT
+	* added Guo's Chinese GB2312 decoding routines, fonts/gb2312font.c
+		set with config option HAVE_GB2312_SUPPORT
+	* added Jin ke xue's gb16x16song.c font file (no support yet) (and .bdf)
+	* fixed C++ objects to compile
+	* added Rosimildo's RTEMS changes, convbmp allows full paths
+	* added Alex's VERY COOL nano-X window manager! (great job!!) nanowm.sh
+	* added GrSetWMProperties,GrGetWMProperties,GrCloseWindow, GrKillWindow
+	* added Alex's npanel enhancements (solid dragging, zombies)
+	* added Alex's cpu usage reduction to nclock, npanel
+	* added Alex's patch to get nano-widgets to compile
+	* added Alex's PPM file decoder demo6
+	* implemented DT_CENTER, DT_RIGHT for DrawText
+	* added changes in tpcal.c for MIPS Osprey board port, dblclk changes
+	* HAVETEXTMODE #define for Osprey and Embedded Planet ports
+	* added Michael's MINIX port updates
+	* added George's setpalette changes to VNC
+	* added GdAllocPolygonRegion, GrNewPolygonRegion, CreatePolygonRgn
+	* fixed nasty #if UPDATEREGIONS in windows.h compile problem
+	* added Kevin's port of edit, listbox and progressbar from MiniGUI
+	* added GdGetRegionBox, GrGetRegionBox
+	* fixed update regions calc bug
+	* combined GdEllipse and GdFillEllipse and Arc/Pie routines
+	* wrote pie, arc, outline arc routines, win32 Arc,Pie, GrArc,GrArcAngle
+	* added George's patch to fix X11 screen driver setpalette function
+	* added Murphy's region code for Nano-X, also polygon regions
+Version 0.88pre8 - 23rd May 2000 - greg@censoft.com
+	* added Murphy's X vs Microwindows speed tester in contrib/speedtst
+	* fixed convbdf to not emit nonascii characters
+	* added Victor's DJGPP port
+	* removed automatic portrait mode
+	* added extern "C" to nano-X.h
+	* added Kao's patches for BC5, enhanced scr_tc.c, some bug fixes
+	* fixed win32 top/baseline/bottom positioning
+	* added Morten's GrInjectKeyboard/GrInjectPointer patches
+	* added Kevin Lin's fix to Nano-X persisent mode curclient crash
+	* changed GdCreateFont name,height semantics
+	* added Morten's font picker algorithm, turn on w/#define FONTMAPPER 1
+		Note: font selection is currently under development
+		and will likely change
+	* cleaned up source for Michael's MINIX port, replaced convbmp.c -s opt
+	* fixed XYPOINT in mou_tp.c, changes for embedded planet tp driver
+	* added PIXELVALTOCOLORVAL, COLORVALTOPIXELVAL macros, GdTranslateArea
+	* fixed multiple GsSelect() call in GrGetNextEvent in linked client/serv
+	* continued port of VNC to Nano-X, contributed by George
+	* added Rosimildo's patch for RTEMS, MW* fixes, svgalib fade
+Version 0.88pre7 - 15th April 2000 - greg@censoft.com
+	* added LINUX-POWERPC port for embedded planet linux box
+	* fixed Polygon routine fill/draw reversed, AdjustWindowRectEx
+	* fixed no root window paint without background bitmap
+	* added bitmaps to minesweeper, polished up
+	* added middle button handling for mwin
+	* added GrSetSystemPalette
+	* added user-replaceable GdError, removed all fprintf/printf's
+	* added EPRINTF for all error printfs, DPRINTF for debug printfs
+	* removed HAVE_PERROR config option
+	* changed memmove to memcpy
+Version 0.88pre6b - 5th April 2000 - greg@censoft.com
+	* added PostThreadMessage
+	* started porting minesweeper game
+	* fixed -p persistent mode
+	* added Kao's BC 5.02 fixes, other pre6 fixes from name changes
+	* added Steven's patch for polling drivers, HAVE_PERROR config option
+	* added Erik Hill's alpha blending for X11
+	* fixed jpeg compile bug
+	* removed include <asm/io.h> patch from Shane
+Version 0.88pre6 - 2nd April 2000 - greg@censoft.com
+	* major header file cleanup, fixing namespace pollution
+		API		typdef	procs		data
+		Nano-X:		GR_*	Gr*,nx*,(Gs*)	nx*
+		Microwindows:	MW*	Mw*		mw*
+		Engine: 	MW*	Gd*,Mw*		gr_*, fb*
+	* changed all Nano-X structures and defines to be GR_ prefixed
+		added GR_PIXELVAL, GR_RGB, GR_LOGFONT
+	* MW prefixed all exported typedefs for name space cleanup,
+		split device.h into mwtypes.h for exports
+	* added MWLOGFONT font descriptions
+	* removed BUTTON, MODE, MODIFIER typedefs
+	* added Martin's updates to FreeType renderer, updated ftdemo
+	* added Martin's updated xconfigure for X-based configuration
+	* renamed GrUnloadFont to GrDestroyFont, GdDestroyFont
+	* clean up various unwanted nano-X client library symbol exports
+	* redraw windows on nano-X client disconnect
+	* added -p for nano-x persistent mode, no exit on client disconnect
+	* added Timo's fix in GsAcceptClientFd, ignore SIGPIPE, mult GrClose bug
+	* added automatic portrait mode if screen y resolution > x res
+	* fixed GrReqShmCmds for linked client/server case
+	* implemented freetype renderer ascent/descent calculations
+	* added ascent field to compiled fonts, GrText uses TF_BASELINE default
+	* added 5x7, 6x13 compiled (bdf) fonts, FONT_SYSTEM_FIXED is now 6x13
+	* fixed typo in fonts/convbdf $IMAGEBITS incorrect
+	* added #include <asm/io.h> for outb in 2.3.x systems
+	* added AdjustWindowRectEx, WM_ACTIVATE, IsWindowEnabled
+	* completed GetPixel, added PIXELVAL to COLORVAL conversion macros
+Version 0.88pre5b - 23rd March 2000 - greg@censoft.com
+	* added GetSystemMetrics, SM_CYSCREEN, SM_CXSCREEN, SM_CYMENU
+	* added GetParent, GetDeviceCaps LOGPIXELSX
+	* added EnableWindow, WM_ENABLE
+	* added MapWindowPoints, WM_WINDOWPOSCHANGED
+	* defaulted ANIMATEDPALETTE to off (change in include/device.h)
+	* added RTEMS patches for svgalib, GsSelect timeout handling (Rosimildo)
+	* created shared libs for all libraries with SHAREDLIBS=Y config option
+	* patched setfadelevel out for non framebuffer
+	* patched client/server shm code (Morten)
+Version 0.88pre5 (opera, kaffe) - 22nd March 2000 - greg@censoft.com
+	* added GetDlgItem, GetWindowTextLength, WM_GETTEXTLENGTH
+	* added GetPixel (needs rgb backconversion still)
+	* implemented GWL_WNDPROC, CallWindowProc, GetRValue, GetGValue etc
+	* added GrSetFontSize, GrSetFontRotation, GrSetFontAttr, and GdXXX
+		works on a per-font basis, rather than on GC
+	* added HAVE_SHAREDMEM_SUPPORT config option to compile in shmem support
+	* added shared memory support for Nano-X client/server protocol (Morten)
+	* added -e option to Nano-X server to stop terminate on ESC
+	* fixed psd->DrawArea crash after vt switch, GdArea cursor update
+	* added SHAREDLIBS config option for shared libs (nano-x only now)
+	* applied Morten's patch to fix Nano-X client/server protocol bug
+	* added UTF-8 encoding/decoding for fonts and text
+	* fixed FreeType memory leak (thanks Martin)
+	* added ExtTextOutW, DrawTextW for unicode win32 support
+Version 0.88pre4 (truetype/t1 fonts) - 19th March 2000 - greg@censoft.com
+	* implemented text drawing in ascii, utf8, unicode 16 and unicode 32
+	* added font id's for Nano-X, added GrCreateFont, GrUnloadFont
+	* rewrote font subsystem heavily
+	* added alphablender for antialiased fonts for 8, 16, 24 and 32bpp
+	* added GrText, GrGetGCTextSize flags, CreateFontIndirect
+	* added GdText TF_ flags for 8,16,32 bit packing, top/bottom alignment
+	* added Martin's FreeType TrueType font support
+	* added Vidar's t1lib adobe type1 font support, t1demo for Nano-X
+		use HAVE_FREETYPE_SUPPORT config option
+		use HAVE_T1LIB_SUPPORT config option
+	* renamed min/max to mwmin/mwmax
+	* added Fabio's xconfigure patch for VTSWITCH
+	* fixed WM_CREATE lparam bug
+	* added mou_ts.c touch screen driver for ADS ARM port
+	* added GrSetGCFontSize, GdSetFontSize, GdCreateFont, GdUnloadFont
+	* added GWL_USERDATA to Get/SetWindowLong
+	* turboc port screen driver fixes
+	* added nonclient region special paint handling to avoid flicker
+	* added null kbd driver, set with NOKBD=Y
+Version 0.88pre3d (fltk port) - 12th March 2000 - greg@censoft.com
+	* changed FONTINFO struct, added firstchar, lastchar
+	* added Shane's fonts patches, added CreateFont, GetTextMetrics,
+		GetCharWidth, SetAlignText
+	* debugged nasty VTSWITCH palette changed bug
+	* experimental #define ANIMATEPALETTE for cool fade in
+	* added Kyle's patch to get portrait mode working again
+	* fix SetClipRgn/ExtSetClipRgn to take client coords (win32 api doc bug)
+	* added WM_SHOWWINDOW msg
+	* fixed coords to WM_MOVE msg for WS_CHILD windows
+	* added PeekMessage, Ellipse
+	* added Rosimildo's rtemscfg.h patch
+	* added GetUpdateRgn, GetUpdateRect, GdOffsetRegion
+	* added Kyle's GdCopyArea fix
+Version 0.88pre3c (fltk port) - 8th March 2000 - greg@censoft.com
+	* added CS_OWNDC private DC's
+	* added SetActiveWindow, SetForegroundWindow, BringWindowToTop
+	* added Polygon, PolyPolygon (filled and outline)
+Version 0.88pre3b (fltk port) - 6th March 2000 - greg@censoft.com
+	* added GetDeviceCaps, Polyline
+	* added extern "C" in windows.h
+	* fixed loop bug in CreateRoundRectRgn
+	* added penguin to bin/mdemo
+	* added ValidateRect, ValidateRgn, InvalidateRgn
+	* completely rewrote UPDATEREGIONS handling for new region fns
+	* added DCX_EXCLUDEUPDATE handling to window clipping
+	* sped up WndSetClipWindow, GsSetClipWindow
+	* added GdSetRectRegionIndirect, GdSubtractRectFromRegion
+	* added SetWindowPos for size,move,show,hide,repaint,zorder
+Version 0.88pre3 - 5th March 2000 - greg@censoft.com
+	* added contributed DOS TURBOC port by Victor
+	* modified bin/mdemo to clip 3d drawing into a circle, added penguin
+	* added GdAllocRectRegion, GdAllocRectRegionIndirect, 
+	* added GdSetRectRegion, GdAllocRegion, GdDestroyRegion
+	* added SelectClipRgn, ExtSelectClipRgn, user clip regions!
+	* added DYNAMICREGIONS define for dynamic vs static (small) clip code
+	* added win32 HRGN object and region routines
+	* added GetCursorPos
+	* added Al's update event patches for Nano-X client window manager
+	* added Rosimildo's RTEMS patches for uniform input devices
+	* added George's partial mouse data read fixes (upper level only)
+Version 0.88pre2 - 29th February 2000 - greg@censoft.com
+	* added Al's npanel Nano-X program exec'er (cool)
+	* added Al's patch to cleanup windows on Nano-X client exit
+	* added Al's ignore sigpipe for ELKS
+	* added Morten's jpeg grayscale patch
+	* create dword-aligned offscreen bitmaps for speed
+	* removed much of global scrdev
+	* changed screen driver open routine to return psd
+	* added Vidar's patch for offscreen drawing in Nano-X, added
+		GrNewPixmap, GrCopyArea.  GrDestroyWindow destroys pixmaps
+Version 0.88pre1b - 23rd February 2000 - greg@censoft.com
+	* added Kyle's bug fix for 16 and 32bpp jpeg support
+Version 0.88pre1 - 22nd February 2000 - greg@censoft.com
+	* added PSD to GdClip routines, fixing potential offscreen write bug
+	* renamed libraries, added "make install", hdrs to /usr/include/microwin
+		and libs to /usr/lib/libmw*.a and libnano-X.a
+	* renamed RECT, POINT, CLIPRECT and CLIPREGION types to MWxxx
+	* added Al's ELKS patches for client/server Nano-X on ELKS
+	* renamed xconfigure, updated INSTALL with make instructions
+	* rewrote all fb drivers for speed eliminating multiple function calls
+	* allow GdText count == -1 for strlen()
+	* added GdCalcMemGCAlloc to calculate offscreen allocate size
+	* added three offscreen memory allocation entry points to screen driver
+	* rewrote vga16 driver to use outw rather than outb for speed
+	* adjusted fb drivers to always draw last point for drawhorz/drawvert
+	* rewrote VT switching code, removed from fb driver to separate file
+	* added SetIOPermissions in scrdev for pthreads create i/o bitmap bug
+	* fixed parms named "min" in demos for ELKS bcc compiler
+	* changed VT switch signal to SIGUNUSED for pthreads compatibility
+	* added Brad's touch panel/mouse calibrator to contrib/GPL/tpcal
+	* fixed up SVGAlib driver for 256 colors, added screen to screen blit
+	* process all mouse messages before next select: better mouse speed
+	* added HTBORDER hit testing
+	* fixed FBVGA blitting, wrong scrdev used on memdc
+Version 0.87 - 13th February 2000 - greg@censoft.com
+	* added VTSWITCH in config to include virtual terminal switch code
+	* added support for 24bpp, wrote 24bpp fb driver
+	* fixed 8/8/8 color macros: RGB2PIXEL888, COLOR2PIXEL888, PIXEL888RED
+	* fixed 32bpp fb bug with psd->ncolors, 32bpp alpha blit bugs
+	* added fb driver support for FB_VISUAL_DIRECTCOLOR cards (ATI)
+	* sped up 16, 32bpp blitters by using memcpy
+	* added large font patches from Kyle
+	* added PACIFIC C compiler support from Victor
+	* default UPDATEREGIONS=N in config file for alpha blend demo
+	* removed XORMOVE from config, requires only ERASEMOVE=N
+	* wrote alpha blending demo (requires UPDATEREGIONS=N)
+	* rewrote void *pixels in devdraw.c, won't compile on ansi compilers
+	* fixed PF_TRUECOLOR0888 bug in GdArea
+	* added DJGPP as config ARCH option, Victor's patches for DJGPP
+	* finalized alpha blending blit routines for 8, 16, and 32bpp
+	* added SetTimer/KillTimer api (single timer only)
+	* added Chris' SetSysColor api, C++ object frameworks patch to mwin/
+	* added Rosimildo's make patches for RTEMS
+	* added Martin's make/configure patches
+Version 0.87pre6 - 31st January 2000 - greg@censoft.com
+	* added C++ objects framework from Chris
+	* added support for multiple read/write/except fd's from Chris
+	* added Martin's X11 configure program and various Makefile fixes
+	* added compile time warnings patches from Chris
+	* added Morten's drawarea patch pre5mr1
+	* added experimental 8, 16 and 32bpp constant alpha blending to bitblit
+		(#define ALPHABLEND in device.h and run bin/mterm for demo)
+	* changed distance-cubed find nearest color to use abs() for speed
+	* fixed max character height/width alloc; max now 128x128 (configurable)
+	* small bugfix DRAWON/DRAWOFF in mempl4.c
+Version 0.87pre5 - 26th January 2000 - greg@censoft.com
+	* prepared prebuilt config files for fb, x11, svga
+	* added Morten's drawarea driver patch (16bpp only)
+	* fixed XOR drawing for 1, 2, 4bpp, improved speed with x>>2 not x/4
+	* applied Chris' FBVGA patch
+	* applied Rosilmildo's RTEMS compiling patch
+	* applied Morten's SCREEN_PIXTYPE X11 Makefile patch
+	* added Chris' SetWindowLong and $(HOME)config and Arch.rules patch
+	* completed fix for DJGPP compiled mou_dos.c driver
+	* added Kyle's patches for arbitrarily wide text chars
+Version 0.87pre4 - 18th January 2000 - greg@censoft.com
+	* added Martin's new config-based Makefile system
+	* added Martin's JPEG and BMP file reading/display routines
+	* added Morten's variable PIXELVAL size mods
+	* added contributed DJGPP/GRX port by Victor Rogachev
+	* fixed 16bpp and 32bpp fb blit routines, by Kyle Harris
+	* added Rosimildo's RTEMS changes, scr_bios now runs without bios
+	* added Dan's GrReparentWindow, fixed GetWindowInfo bug
+	* added PF_TRUECOLOR0888 for 4 byte packing
+	* updated doc directory with html faq, architecture
+Version 0.87pre3 - 19th December 1999 - greg@censoft.com
+	* started directory reorganization
+	* changed LINUX meaning in Makefile, added UNIX for SOLARIS
+	* fix negative blit index bug found under X11 by Piotr
+	* set rootwp->parent = NULL for nano-X, fixes GrMoveWindow clip bug
+	* added COLORVAL<->PIXELVAL conversion macros
+	* modified GrArea to take packed pixel values of 8, 16 and 24 bits
+	* modified GrArea to take RGB COLORVALs as well as PIXELVALs
+	* renamed PF_TRUECOLOR24 to PF_TRUECOLOR888
+	* added tunable MAXREQUESTSZ to limit max request length
+	* modified Nano-X demo.c to GrArea() > 64k pixelvals for testing
+	* fix client/server 64k length bug (request can be 24 bits in length)
+	* fixed portrait mode in CreateCompatibleBitmap
+Version 0.87pre2 - 14th December 1999 - greg@censoft.com
+	* added fixes to run on big-endian machines
+	* integrated rtems port, protected mode vga driver
+	* added ARM SA1100 4bpp LCD controller driver
+	* added portrait mode fb driver from Martin Jolicoeur
+	* fixed GrMoveWindow for child windows, MoveWindow for grandchildren
+	* added nanox move.c window move test program from Daniel
+	* rtems portability fixes, use <stdlib.h> rather than <malloc.h>
+	* fixed mterm demo pty bug under X11
+Version 0.87pre1 - 2nd December 1999 - greg@censoft.com
+	* added GrMainLoop convenience function
+	* added passive library entry points GrPrepareSelect,GrServiceSelect
+	* completely rewrote nano-X client/server networking layer for speed
+	* removed nano-X stubs file, rename Gs* routines to Gr*
+	* added GrFindColor function to convert RGB color to pixel value
+	* added GetSystemPaletteEntries, GrGetSystemPalette functions
+	* added null mouse driver (NOMOUSE)
+ 	* added X11 driver by Tony Rogvall <tony@bluetail.com>, fixed colors
+Version 0.86 - 28th October 1999 - greg@censoft.com
+	* merged framebuffer, elks and msdos vga 16 color 4 planes drivers
+	* wrote vga bitbit routines (a herculean effort)
+	* optimized bitblit by traversing window clip region
+	* added experimental multi-rectangle dynamically allocated regions
+	* wrote scrolling terminal emulator demo for microwindows
+	* added WM_FDINPUT msg, WndRegisterFdInput call for terminal emulator
+	* changed SCREENINFO struct, removed black/white, added bpp, planes
+	* added offscreen (memory DC) drawing to microwindows
+	* added BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC
+	* retired BOGL library, must use new interface for blitting
+	* converted framebuffer, svgalib, elks and msdos screen drivers
+	* (we need blit routines for herc and svgalib still)
+	* major screen driver interface change, old drivers not compatible
+Version 0.85 - 14th October 1999 - greg@censoft.com
+	* ported microwindows to Casio and Clio palm pc's (thanks Brad)
+	* ported microwindows to Everex Freestyle palm pc
+	* changed ncolors in SCREENINFO user struct to long
+	* system automatically supports 1, 2, 4, 8bpp palette
+		and 8, 16 and 24 bpp truecolor systems (332, 565, 888 packing)
+	* removed F_PALINDEX from std colors, std colors now RGB
+	* wrote 16bpp, 32bpp fb drivers, 2bpp, 4bpp for palm pc
+	* removed requirement for bogl library, wrote direct framebuffer driver
+	* started screen driver rearchitecture for bitblit
+	* experimental bitblt
+	* added touchscreen device from Brad LaRonde
+	* enhanced nano-X terminal emulator, added scrolling,bitblit
+	* added GrRegisterInput for terminal emulator without polling
+	* rewrote GrGetNextEvent to not require polling
+	* added CREDITS file
+	* integrated Vidar's nanoWidgets 0.2
+	* added screenshot capability: read /dev/fb0 on exit
+	* wrote makebmp utility to convert fb data to bmp file
+Version 0.84 - 3rd October 1999 - greg@censoft.com
+	* integrated Vidar's nanoWidgets 0.1, changed color constants
+	* integrated Brad LaRonde's MIPS LinuxCE port cross-compile changes
+	* integrated Alex's nano-X-0.5pre3 changes except dir/filename changes
+	* added support for 8 to 32 bit truecolor systems
+	* reorganized Makefile for nanoX and linked/non-linked nano-X servers
+	* reorganized Makefiles for gcc, bcc and other compilers
+	* reorganized nano-X.h header file for client programs
+	* fixed GrSetGCFont,GrGetGCTextSize,ReadArea,Area client/server bugs
+	* fix bug in nanoX network select code for client attach
+	* workaround for GrGetNextEvent in nanoX client lib
+	* wrote asm version of VGA driver for ELKS
+	* added optimized herc hline routine from thomas_d_stewart@hotmail.com
+	* added contributed terminal emulator demo for nano-X,
+		(from Alistair Riddoch, requires linked server)
+Version 0.83 - 14th July 1999 - greg@censoft.com
+	* wrote sample untested hercules driver for ELKS
+	* tweaked window repaint code to paint child windows last for ELKS
+	* fixed code for pass-by-structure for bcc/ELKS
+	* added TEST= for select() code in ELKS
+Version 0.82 - 5th July 1999 - greg@censoft.com
+	* added contributed clock demo for nano-X from Alistair Riddoch
+	* added update region calculation for window painting
+	* fixed GdColorInPalette, GdSetPalette, various palette bugs
+	* added double click to maximize/restore windows
+	* added mouse double click processing
+	* added GetTickCount() api, requires OS millisecond time fn
+	* fixed some expose region calculations
+	* combined Makefile builds both/either Micro-Windows and Nano-X
+	* wrote XORMOVE window move algorithm for slow cpu's
+	* added GetDCEx(), SetROP2() and various rect api
+	* change to single toplevel Makefile mod for ELKS or LINUX
+	* changed default ELKS mouse port to /dev/ttys0, type to "pc"
+	* changed tgmath.h to math.h
+Version 0.81 - 22nd June 1999 - greg@censoft.com
+	* added Free System font
+	* removed mswin4 background
+	* changed nano directory
+	* changed vgaplan4 unsigned int fix for ELKS screen bug
+	* set default rom character height to 14 for scr_bios driver
+	* added -ansi option for bcc (I'll post my ansi compiling bcc shortly)
+Version 0.8 - 20th June 1999 - greg@censoft.com
+	* added 3d graphics library for demo app
+	* removed ms windows grabbed fonts, added FreeSansSerif font
+	* added color bitmap support
+	* wrote windows bmp file converter
+	* drawing color bitmaps in 1, 4 and 8 bpp supported
+	* added support for loading partial palettes
+	* added MakePaletteConversionTable function
+	* added support for sophisticated palette optimization
+	* implemented optimized window redraw algorithms during window moves
+	* added child window support
+	* wrote button control
+	* added more sophisticated focus routines on create/destroy
+	* added support for type 1 and type 2 line drawing requests in GdLine
+	* added multiple window color schemes
+	* added desktop wallpaper
+Version 0.7 - 8th June 1999 - greg@censoft.com
+	* created new win32 api: Micro-Win
+	* created window manager and overlapped window border drawcode
+	* added software cursor structure to device layer
+	* changed nano-x and micro-win color model to RGB for user programs
+	* added setpalette driver entry point, 16 and 256 color std palettes
+	* fixed console refresh bug for BOGL
+	* fixed expose bug bad return;
+	* fixed ELKS cols,rows bug in scr_bios.c
+	* disallow console switching for ELKS while in graphics mode
+	* added EGAMODE and CHARHEIGHT environment variables for ELKS/DOS
+Version 0.6 - 23rd May 1999 - greg@censoft.com
+	* Updated bugs from new mini-x distribution
+	* Wrote int33 mouse driver for dos
+	* Wrote a portable vga 4 plane driver for dos, elks
+	* Updated dos driver to support XOR,AND,OR draw modes
+	* Wrote routines for ELKS port, compiled with bcc
+		uses new serial mouse driver, vga 4 plane driver and bios kbd
+	* Added check for FRAMEBUFFER environment variable for /dev/fbX open
+	* Added clipped text output routines, using bitmaps
+	* Added GetCharBits device driver entry point, removed DrawText
+	* Added new nano-X font format, wrote conversion programs to
+		convert bdf fonts and PC ROM bios fonts.  There is no longer
+		any dependency on the BOGL font structure.  Any number
+		of fonts are supported.  Fonts use min 16 bits/scanline.
+		Convbdf and convrom.exe are included.
+	* Created rom 8x16, 8x16 fonts.
+	* Entire nano-X can run on only drawpixel and readpixel if required
+	* Documented scr_bogl.c (bogl), and scr_bios.c (bios) drivers.
+	* Ported world program to 16 bit systems
+	* Added pc, microsoft and logitech direct serial driver mouse support
+	* Wrote SVGAlib screen driver, will now run on *any* linux system,
+		not just v2.x framebuffer systems.  scr_svga.c.
+	* Nano-X is now completely self contained, if desired, in that
+		there are hw drivers for screen, mouse, and keyboard
+		that don't require other software to be running
+Version 0.5 - 18th May 1999 - greg@censoft.com
+	* Rewrote cursor routines
+	* Separated mouse from cursor routines
+	* Removed DrawCursor from device driver
+	* Added ReadPixel to device driver
+	* Made demo programs work with cursor changes
+	* Added polygon draw and fill routines
+	* Added area pixel reading/writing, removed 8-bit limit for colors
+	* Reworked color model
+	* Added direct hardware 640x480x16 support for VGA real mode systems
+	* Made api backwards compatible with mini-x
+	* Ported mini-x world demo program to examples library
+
+Version 0.4 - 12th May 1999 - greg@censoft.com
+	* Added XOR drawing mode to screen drivers
+	* Fixed rectangle, fillrect, and line off-by-one bugs
+	* Commented example drivers better
+	* Implemented text clipping
+	* Fixed VT switch code and redraw
+	* Hacked physical/virtual 0,0 mapping on linux framebuffer startup
+	* Added 256 color and 16 color explicit palette to bogl driver
+	* Added GetFontInfo and GetScreenInfo to drivers
+
+Version 0.3 - 9th May 1999 - greg@censoft.com
+	* Release 0.3 is heavy rewrite of lower-level/mid-level routines
+	* cursor clipping implemented
+	* screen, mouse and kbd driver APIs created
+	* includes GPM mouse driver, /dev/tty keyboard driver
+	* all device-dependent code is in drivers/ directory
+	* intended as evaluation for standalone and other OS ports
+	* should be easy to write an int 10h driver for real mode operation
+	* should be easy to add any other kbd, mouse or screen drivers
+	* quick port with MSC 5.10 for MSDOS created
+	
+Version 0.2 - 5th May 1999 - greg@censoft.com
+	* Made release 0.1 operational for evaluation
+	* Added event processing
+	* Made demo programs work
+	* Fixed numerous bugs
+	* Added client direct link stub routines for non networked systems/test
+	* Started screen device driver api and bogl integration rewrite
+	* printf debug code is still included, this is an interim release
+		for strawman evaluation
+
+Version 0.1 - 25th April 1999 - alex@linuxhacker.org
+Initial release, based on Alan Cox's combination of mini-X and Bogl, and some more work
+by myself. Changes since Alan's release include:
+
+	* Client library and server process are seperate.
+	* Mouse driver rewritten to take the output of GPM in repeater mode.
+	* Mouse pointer code added to the bogl cfb8 driver.
+	* K & R parameter declarations converted to ANSI.
+	* Main control loop uses select() instead of busy waiting.
+	* Beginning of code to redraw screen on switching to graphics console.
+	* Client data is stored in a dynamic linked list instead of a fixed size array.
+	* Some minor bugs fixed.
+	* Many major bugs added.
+	* ChangeLog, TODO, BUGS, README, INSTALL, etc. written.
+	* Probably various other things I've forgotten about now.

@@ -1,0 +1,86 @@
+
+--- demos/microwin/mterm.c.old Fri Dec  3 07:03:39 1999
++++ demos/microwin/mterm.c Fri Dec  3 07:16:23 1999
+@@ -248,15 +248,16 @@
+  char * argv[2];
+ 
+ again:
+- sprintf(pty_name, "/dev/ptyp%d", n);
+- if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
+- if ((errno == EBUSY) && (n < 3)) {
+- ++n;
+- goto again;
+- }
+- fprintf(stderr, "Can't create pty %s\n", pty_name);
++        if ((tfd = getpt())<0) {
++ fprintf(stderr, "Can't create master pty\n");
+  return -1;
+  }
++
++        if (grantpt(tfd)) 
++                perror("failure");
++        if (unlockpt(tfd)) 
++                perror("failure");
++
+  signal(SIGCHLD, ptysignaled);
+  signal(SIGINT, ptysignaled);
+  if ((pid = fork()) == -1) {
+@@ -264,13 +265,13 @@
+  return -1;
+  }
+  if (!pid) {
++                ptsname_r(tfd, pty_name, 12);
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+  close(tfd);
+  
+  setsid();
+- pty_name[5] = 't';
+  if ((tfd = open(pty_name, O_RDWR)) < 0) {
+  fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+  exit(1);
+--- demos/nanox/nterm.c.old Fri Dec  3 07:03:39 1999
++++ demos/nanox/nterm.c Fri Dec  3 07:16:20 1999
+@@ -162,15 +162,16 @@
+  pid_t pid;
+ 
+ again:
+- sprintf(pty_name, "/dev/ptyp%d", n);
+- if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
+- if ((errno == EBUSY || errno == EIO) && n < 10) {
+- n++;
+- goto again;
+- }
+- fprintf(stderr, "Can't create pty %s\n", pty_name);
++        if ((tfd = getpt())<0) {
++ fprintf(stderr, "Can't create master pty\n");
+  return -1;
+  }
++
++        if (grantpt(tfd)) 
++                perror("failure");
++        if (unlockpt(tfd)) 
++                perror("failure");
++
+  signal(SIGCHLD, sigchild);
+  signal(SIGINT, sigchild);
+  if ((pid = fork()) == -1) {
+@@ -178,13 +179,13 @@
+  return -1;
+  }
+  if (!pid) {
++                ptsname_r(tfd, pty_name, 12);
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+  close(tfd);
+  
+  setsid();
+- pty_name[5] = 't';
+  if ((tfd = open(pty_name, O_RDWR)) < 0) {
+  fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+  exit(1);
+
+
+-- 

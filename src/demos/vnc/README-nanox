@@ -1,0 +1,62 @@
+               README for the nano-X VNC viewer
+
+What is VNC ?
+-------------
+VNC is Virtual Network Computing, you have a 'viewer' running on one
+machine which allows you to control the desktop of a different
+machine via the VNC 'server'. The design allows the viewer and server
+to run on different hardware and different operating systems yet
+still work together. What this means in practice is that you can have
+a Windoze desktop in a window on your X display or vice-versa.
+The viewer has also been designed to be small and portable so it
+seemed like a good candidate for a nano-X application.
+
+More info, source and binaries can be found at:
+
+    http://www.uk.research.att.com/vnc/
+
+
+Status of the nano-X port
+-------------------------
+The nano-X port is based on the VNC viewer for X, version 3.3.2.
+This is the 2nd work-in-progress release, the main differences
+from the previous release are:
+
++ Now uses GrSetSystemPalette() to handle 8-bit palette displays.
++ Builds for Microwindows 0.88pre8.
+
+The features / limitations of this release are:
+
++ Compiled with Microwindows version 0.88pre8
++ Viewer tested on uClinux running on an Isicad Prisma 700
+  workstation with the serial mouse driver, the tty keyboard driver
+  and my own screen driver. The Prisma has a 1280 x 1024, 256 colour
+  display but it is not accessible as a frame buffer so needs a 
+  custom microwindows screen driver.
++ Also tested with the X11 screen driver on Slackware Linux.
++ Tested with VNC servers running on NetBSD-Amiga and Slackware
+  Linux.
++ Only tested with an 8-bit palette display.
++ Keyboard handling is working but only for simple ASCII text, no
+  shift-clicking.
++ Mouse seems to work OK.
++ No way to scroll the screen if the viewer window is smaller than 
+  the server's screen.
++ Runs very slowly on the Prisma, most likely due to the Prisma's
+  weird graphics interface.
+
+Installation
+------------
+The tarball is intended to be unpacked in the src/demos subdirectory
+of the Microwindows distribution. The makefiles have been adapted
+from those used by the rest of the demo programs so it should build
+from the top level 'make'. The resulting binary will appear as
+src/bin/vnc. You will need a network connection to a VNC server
+to do anything with it :-)
+
+
+George Harvey
+fr30@dial.pipex.com
+13th June 2000
+
+

@@ -1,0 +1,24 @@
+BOGL_CFB8_FB=1
+BOGL_VGA16_FB=1
+
+CFLAGS += -Wall -O3 -DSMALLBOGL=1
+LDFLAGS =
+LIB=libbogl.a
+OBJECTS=bogl.o fbvt.o
+
+ifdef BOGL_CFB8_FB
+OBJECTS += bogl-cfb8.o
+CFLAGS += -DBOGL_CFB8_FB=1
+endif
+ifdef BOGL_VGA16_FB
+OBJECTS += bogl-vga16.o
+CFLAGS += -DBOGL_VGA16_FB=1
+endif
+
+all: $(LIB)
+
+clean:
+	rm -f *.o *.a core
+
+$(LIB): $(OBJECTS)
+	$(AR) rcs $(LIB) $(OBJECTS)

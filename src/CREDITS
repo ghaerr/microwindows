@@ -1,0 +1,46 @@
+Microwindows project
+Copyright (c) 1999-2001 Greg Haerr <greg@censoft.com>
+
+CREDITS
+Thanks to everyone who has contributed to this project.
+Some of the more active contributors are listed below.
+If I've missed you, please remind me or submit something!
+
+Contributors
+Engine				Greg Haerr, David Bell, Morten Rolland
+Win32 api			Greg Haerr
+Nano-X api			David Bell, Alan Cox, Alex Holden, Greg Haerr
+Nano-X window manager		Alex Holden, Greg Haerr
+Nano-X popup keyboard		Vladimir Cotfas, Jay Carlson, Greg Haerr
+Nano-X scribble handwriting	Greg Haerr
+Network code, Nano-X client lib	Greg Haerr, Alex Holden
+MIPS LinuxCE port, touch device	Brad LaRonde
+ELKS port			Greg Haerr, Al Riddoch
+NanoWidget set			Vidar Hokstad
+Bogl library			Ben Pfaff
+Fonts				Darran D. Rimron, Greg Haerr
+Font Subsystems			Greg Haerr, Martin Jolicoeur, Vidar Hokstad
+X11 driver			Tony Rogvall
+Portrait mode fb driver		Martin Jolicoeur
+BMP and JPEG file read/display	Martin Jolicoeur
+RTEMS port			Rosimildo daSilva
+DJGPP/GRX port			Victor Rogachev
+C++ objects framework		Chris Johns
+
+Contact Info
+Jay Carlson		<nop@nop.com>
+Vladimir Cotfas		<vladimircotfas@vtech.ca>
+Alan Cox		<alan@lxorguk.ukuu.org.uk>
+Greg Haerr		<greg@censoft.com>
+Vidar Hokstad		<vidarh@screenmedia.no> <vidar@hokstad.com>
+Alex Holden		<alex@linuxhacker.org>
+Brad LaRonde		<brad@ltc.com>
+Chris Johns		<ccj@acm.org>
+Martin Jolicoeur	<martinj@visuaide.com>
+Ben Pfaff		<pfaffben@debian.org>
+Al Riddoch		<ajr@ecs.soton.ac.uk>
+Darran D. Rimron	<darran@rimron.co.uk>
+Victor Rogachev		<rogach@sut.ru>
+Tony Rogvall		<tony@bluetail.com>
+Morten Rolland		<mortenro@screenmedia.no>
+Rosimildo daSilva	<rosimildo@xoommail.com>

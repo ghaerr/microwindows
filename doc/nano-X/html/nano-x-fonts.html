@@ -1,0 +1,876 @@
+<HTML
+><HEAD
+><TITLE
+>fonts</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="events"
+HREF="nano-x-events.html"><LINK
+REL="NEXT"
+TITLE="pointer"
+HREF="nano-x-pointer.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-events.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-pointer.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+>fonts</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2120"
+></A
+><H2
+>Name</H2
+>fonts &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2123"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+>  <A
+HREF="nano-x-fonts.html#GRCREATEFONT"
+>GrCreateFont</A
+>                    (<GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *name,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-LOGFONT-CAPS"
+>GR_LOGFONT</GTKDOCLINK
+> *plogfont);
+void        <A
+HREF="nano-x-fonts.html#GRSETFONTSIZE"
+>GrSetFontSize</A
+>                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> size);
+void        <A
+HREF="nano-x-fonts.html#GRSETFONTROTATION"
+>GrSetFontRotation</A
+>               (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid,
+                                             int tenthsdegrees);
+void        <A
+HREF="nano-x-fonts.html#GRSETFONTATTR"
+>GrSetFontAttr</A
+>                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid,
+                                             int setflags,
+                                             int clrflags);
+void        <A
+HREF="nano-x-fonts.html#GRDESTROYFONT"
+>GrDestroyFont</A
+>                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid);
+void        <A
+HREF="nano-x-fonts.html#GRGETFONTINFO"
+>GrGetFontInfo</A
+>                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> font,
+                                             <GTKDOCLINK
+HREF="GR-FONT-INFO-CAPS"
+>GR_FONT_INFO</GTKDOCLINK
+> *fip);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2143"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2146"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2148"
+></A
+><H3
+><A
+NAME="GRCREATEFONT"
+></A
+>GrCreateFont ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+>  GrCreateFont                    (<GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *name,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-LOGFONT-CAPS"
+>GR_LOGFONT</GTKDOCLINK
+> *plogfont);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Attempts to locate a font with the desired attributes and returns a font
+ID number which can be used to refer to it. If the plogfont argument is
+not NULL, the values in that structure will be used to choose a font.
+Otherwise, if the height is non zero, the built in font with the closest
+height to that specified will be used. If the height is zero, the built
+in font with the specified name will be used. If the desired font is not
+found, the first built in font will be returned as a last resort.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>name</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> string containing the name of a built in font to look for</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the desired height of the font</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>plogfont</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a LOGFONT structure</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> a font ID number which can be used to refer to the font</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2179"
+></A
+><H3
+><A
+NAME="GRSETFONTSIZE"
+></A
+>GrSetFontSize ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetFontSize                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> size);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the size of the specified font to the specified size.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fontid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID number of the font to change the size of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>size</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2200"
+></A
+><H3
+><A
+NAME="GRSETFONTROTATION"
+></A
+>GrSetFontRotation ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetFontRotation               (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid,
+                                             int tenthsdegrees);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the rotation of the specified font to the specified angle.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fontid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID number of the font to rotate</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>tenthsdegrees</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2220"
+></A
+><H3
+><A
+NAME="GRSETFONTATTR"
+></A
+>GrSetFontAttr ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetFontAttr                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid,
+                                             int setflags,
+                                             int clrflags);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the attributes (GR_TFKERNING, GR_TFANTIALIAS, GR_TFUNDERLINE, etc.)
+of the specified font according to the set and clear mask arguments.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fontid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the font to set the attributes of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>setflags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> mask specifying attribute flags to set</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>clrflags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> mask specifying attribute flags to clear</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2244"
+></A
+><H3
+><A
+NAME="GRDESTROYFONT"
+></A
+>GrDestroyFont ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDestroyFont                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> fontid);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Frees all resources associated with the specified font ID, and if the font
+is a non built in type and this is the last ID referring to it, unloads the
+font from memory.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fontid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the font to destroy</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2260"
+></A
+><H3
+><A
+NAME="GRGETFONTINFO"
+></A
+>GrGetFontInfo ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetFontInfo                   (<GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> font,
+                                             <GTKDOCLINK
+HREF="GR-FONT-INFO-CAPS"
+>GR_FONT_INFO</GTKDOCLINK
+> *fip);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Fills in the specified GR_FONT_INFO structure with information regarding
+the specified font.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>font</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fip</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a GR_FONT_INFO structure</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-events.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-pointer.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>events</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>pointer</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

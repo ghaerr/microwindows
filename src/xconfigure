@@ -1,0 +1,1436 @@
+#!/usr/bin/wish -f
+#
+# Microwindows configuration interface: X11 version
+#
+# wish is available at http://dev.scriptics.com/software/tcltck
+#
+# (C) Martin Jolicoeur, 1999
+#
+# Thu Mar 16 14:33:08 CET 2000, Fabio Parodi, <fabio.parodi@iname.com>
+#       added VTSWITCH button
+#
+#
+
+set configfile 0;
+
+# Configurable options
+variable arch;
+variable armtoolsprefix;
+variable mipstoolsprefix;
+variable rtemstoolsprefix;
+variable optimize;
+variable debug;
+variable verbose
+variable microwin;
+variable nanox;
+variable shlibs;
+variable objframe;
+variable nwidget;
+variable microwindemo;
+variable nanoxdemo;
+variable screenpixtype;
+variable server;
+variable sharedmem;
+variable havefileio;
+variable havebmp;
+variable havejpg;
+variable incjpg;
+variable libjpg;
+variable haveft;
+variable incft;
+variable libft;
+variable havet1;
+variable inct1;
+variable libt1;
+
+variable havehzk;
+variable hzkdir;
+variable hzkfontsize;
+
+variable updateregions;
+variable erasemove;
+variable havemsfonts;
+variable graypalette;
+variable screenlinux;
+variable vgafb;
+variable portraitfb;
+variable x11e15;
+variable x11screenwidth;
+variable x11screenheight;
+variable x11screendepth;
+variable mouselinux;
+variable keyblinux;
+variable vtswitch;
+variable sa1100ltlend;
+variable rtemsbuild;
+variable rtemsbsp;
+variable screenelks;
+
+
+wm title . "Microwindows configuration"
+wm geometry . +100+100
+
+# Create main menu
+frame .main
+frame .main.col1
+frame .main.col2
+button .main.col1.compile -text "Compiling options" -command "compileoptions;"
+button .main.col1.platform -text "Platform" -command "platformoptions;"
+button .main.col1.lib -text "Libraries to compile" -command "liboptions;"
+button .main.col2.colors -text "Color options" -command "colorsoptions;"
+button .main.col2.io -text "I/O" -command "iooptions;"
+button .main.col2.misc -text "Miscellaneous options" -command "miscoptions;"
+pack .main.col1.compile .main.col1.platform .main.col1.lib -side top -fill x
+pack .main.col2.colors .main.col2.io .main.col2.misc -side top -fill x
+pack .main.col1 .main.col2 -side left
+
+# Create ok, cancel, help buttons
+frame .buttons
+pack .buttons -side bottom -fill x -pady 2m
+button .buttons.ok -text "Save & Exit" -command "writeconfig; destroy ."
+button .buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+button .buttons.cancel -text "Cancel" -command "destroy ."
+pack .buttons.cancel .buttons.help .buttons.ok -side right -expand 1
+
+pack .main .buttons -side bottom
+
+
+################################################################################
+#
+# Show the "compile" options dialog
+#
+################################################################################
+proc compileoptions {} {
+
+   toplevel .compile
+   wm title .compile "Compiling options"
+   wm geometry .compile +100+100
+
+   frame .compile.buttons
+   pack .compile.buttons -side bottom -fill x -pady 2m
+   button .compile.buttons.ok -text "Ok" -command "destroy .compile"
+   button .compile.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .compile.buttons.help .compile.buttons.ok -side right -expand 1
+
+   frame .compile.a0
+   frame .compile.a1
+   frame .compile.a2
+   checkbutton .compile.a0.b0 -text "Optimize" -variable optimize -relief flat
+   checkbutton .compile.a1.b1 -text "Debug" -variable debug -relief flat
+   checkbutton .compile.a2.b2 -text "Verbose" -variable verbose -relief flat
+   pack .compile.a0.b0 -side left
+   pack .compile.a1.b1 -side left
+   pack .compile.a2.b2 -side left
+   pack .compile.a0  -side top -pady 2 -anchor w -fill x
+   pack .compile.a1  -side top -pady 2 -anchor w -fill x
+   pack .compile.a2  -side top -pady 2 -anchor w -fill x
+   pack .compile.a0 .compile.a1 .compile.a2 -side top -anchor e
+}
+
+
+################################################################################
+#
+# Show the "platform" options dialog
+#
+################################################################################
+proc platformoptions {} {
+
+   toplevel .platform
+   wm title .platform "Platform options"
+   wm geometry .platform +100+100
+
+   frame .platform.buttons
+   pack .platform.buttons -side bottom -fill x -pady 2m
+   button .platform.buttons.ok -text "Ok" -command "destroy .platform"
+   button .platform.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .platform.buttons.help .platform.buttons.ok -side right -expand 1
+
+   frame .platform.a0
+   frame .platform.a1
+   frame .platform.a2
+   frame .platform.a3
+   frame .platform.a4
+   frame .platform.a5
+
+   radiobutton .platform.a0.b0 -text "Linux (native)" -variable arch -relief flat -value 0 -anchor w
+   button .platform.a0.options -text "Options" -command {nativelinuxoptions;};
+   radiobutton .platform.a1.b1 -text "Linux-ARM (x-compile)" -variable arch -relief flat -value 1 -anchor w
+   button .platform.a1.options -text "Options" -command {armlinuxoptions;};
+   radiobutton .platform.a2.b2 -text "Linux-MIPS (x-compile)" -variable arch -relief flat -value 2 -anchor w
+   button .platform.a2.options -text "Options" -command {mipslinuxoptions;};
+   radiobutton .platform.a3.b3 -text "RTEMS" -variable arch -relief flat -value 3 -anchor w
+   button .platform.a3.options -text "Options" -command {rtemsoptions;};
+   radiobutton .platform.a4.b4 -text "Solaris" -variable arch -relief flat -value 4 -anchor w
+   button .platform.a4.options -text "Options" -command {nativelinuxoptions;};
+   radiobutton .platform.a5.b5 -text "ELKS" -variable arch -relief flat -value 5 -anchor w
+   button .platform.a5.options -text "Options" -command {elksoptions;};
+   pack .platform.a0.b0 .platform.a0.options -side left
+   pack .platform.a1.b1 .platform.a1.options -side left
+   pack .platform.a2.b2 .platform.a2.options -side left
+   pack .platform.a3.b3 .platform.a3.options -side left
+   pack .platform.a4.b4 .platform.a4.options -side left
+   pack .platform.a5.b5 .platform.a5.options -side left
+   pack .platform.a0  -side top -pady 2 -anchor w -fill x
+   pack .platform.a1  -side top -pady 2 -anchor w -fill x
+   pack .platform.a2  -side top -pady 2 -anchor w -fill x
+   pack .platform.a3  -side top -pady 2 -anchor w -fill x
+   pack .platform.a4  -side top -pady 2 -anchor w -fill x
+   pack .platform.a5  -side top -pady 2 -anchor w -fill x
+   pack .platform.a0.options .platform.a1.options .platform.a2.options \
+   .platform.a3.options .platform.a4.options .platform.a5.options -side top -anchor e
+}
+
+
+################################################################################
+#
+# Show the "libraries" options dialog
+#
+################################################################################
+proc liboptions {} {
+
+   toplevel .lib
+   wm title .lib "Libraries to compile"
+   wm geometry .lib +100+100
+
+   frame .lib.buttons
+   pack .lib.buttons -side bottom -fill x -pady 2m
+   button .lib.buttons.ok -text "Ok" -command "destroy .lib"
+   button .lib.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .lib.buttons.help .lib.buttons.ok -side right -expand 1
+
+   frame .lib.a0
+   frame .lib.a1
+   frame .lib.a2
+   frame .lib.a3
+   checkbutton .lib.a0.b0 -text "NanoX" -variable nanox -relief flat
+   button .lib.a0.options -text "Options" -command {nanoxoptions;};
+   checkbutton .lib.a1.b1 -text "Microwindows" -variable microwin -relief flat
+   button .lib.a1.options -text "Options" -command {mwinoptions;};
+   checkbutton .lib.a2.b2 -text "Shared libs" -variable shlibs -relief flat
+   checkbutton .lib.a3.b3 -text "C++ obj framework" -variable objframe -relief flat
+
+   pack .lib.a0.b0 .lib.a0.options -side left
+   pack .lib.a1.b1 .lib.a1.options -side left
+   pack .lib.a2.b2 -side left
+   pack .lib.a3.b3 -side left
+   pack .lib.a0  -side top -pady 2 -anchor w -fill x
+   pack .lib.a1  -side top -pady 2 -anchor w -fill x
+   pack .lib.a2  -side top -pady 2 -anchor w -fill x
+   pack .lib.a3  -side top -pady 2 -anchor w -fill x
+   pack .lib.a0.options .lib.a1.options -side top -anchor e
+}
+
+
+################################################################################
+#
+# Show the "colors" options dialog
+#
+################################################################################
+proc colorsoptions {} {
+   global screenpixtype;
+
+   toplevel .colors
+   wm title .colors "Colors options"
+   wm geometry .colors +100+100
+
+   frame .colors.buttons
+   pack .colors.buttons -side bottom -fill x -pady 2m
+   button .colors.buttons.ok -text "Ok" -command "colorsoptions_ok; destroy .colors"
+   button .colors.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .colors.buttons.help .colors.buttons.ok -side right -expand 1
+
+   frame .colors.a0
+   frame .colors.a1
+   label .colors.a0.label -text "ScreenPixType:" -anchor e
+   entry .colors.a0.pixtype -width 25 -relief sunken
+   checkbutton .colors.a1.b1 -text "Gray Palette (4bpp only)" -variable graypalette -relief flat
+   pack .colors.a0.label .colors.a0.pixtype -side left
+   pack .colors.a1.b1 -side left
+   pack .colors.a0  -side top -pady 2 -anchor w -fill x
+   pack .colors.a1  -side top -pady 2 -anchor w -fill x
+   pack .colors.a0 .colors.a1 -side top -anchor e
+   .colors.a0.pixtype insert 0 $screenpixtype;
+}
+
+proc colorsoptions_ok {} {
+   global screenpixtype;
+   set screenpixtype [.colors.a0.pixtype get];
+}
+
+
+################################################################################
+#
+# Show the "I/O" options dialog
+#
+################################################################################
+proc iooptions {} {
+   global havebmp;
+   global havejpg;
+   global haveft;
+   global havet1;
+
+	global havehzk;
+
+   toplevel .io
+   wm title .io "I/O options"
+   wm geometry .io +100+100
+
+   frame .io.buttons
+   pack .io.buttons -side bottom -fill x -pady 2m
+   button .io.buttons.ok -text "Ok" -command "destroy .io"
+   button .io.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .io.buttons.help .io.buttons.ok -side right -expand 1
+
+   frame .io.a0
+   frame .io.a1
+   frame .io.a2
+   frame .io.a3
+   frame .io.a4
+
+   frame .io.a5
+
+   checkbutton .io.a0.b0 -text "Have File I/O" -variable havefileio -relief flat
+   label .io.a0.label -text "(If the above is disabled, this will disable all the features below)" -anchor e
+   checkbutton .io.a1.b0 -text "Have bmp support" -variable havebmp -relief flat
+   checkbutton .io.a2.b0 -text "Have jpeg support" -variable havejpg -relief flat
+   button .io.a2.options -text "Options" -command {jpegoptions;};
+   checkbutton .io.a3.b0 -text "Have freetype support (truetype fonts)" -variable haveft -relief flat
+   button .io.a3.options -text "Options" -command {ftoptions;};
+   checkbutton .io.a4.b0 -text "Have t1lib support (type 1 fonts)" -variable havet1 -relief flat
+   button .io.a4.options -text "Options" -command {t1options;};
+
+   checkbutton .io.a5.b0 -text "Have HZK support (Bitmap(Metrix) fonts)" -variable havehzk -relief flat
+   button .io.a5.options -text "Options" -command {hzkoptions;};
+
+   pack .io.a0.b0  .io.a0.label -side top -pady 2 -anchor w
+   pack .io.a1.b0  -side top -pady 2 -anchor w
+   pack .io.a2.b0 .io.a2.options -side left
+   pack .io.a3.b0 .io.a3.options -side left
+   pack .io.a4.b0 .io.a4.options -side left
+   pack .io.a5.b0 .io.a5.options -side left
+
+   pack .io.a0  -side top -pady 2 -anchor w -fill x
+   pack .io.a1  -side top -pady 2 -anchor w -fill x
+   pack .io.a2  -side top -pady 2 -anchor w -fill x
+   pack .io.a3  -side top -pady 2 -anchor w -fill x
+   pack .io.a4  -side top -pady 2 -anchor w -fill x
+   pack .io.a5  -side top -pady 2 -anchor w -fill x
+
+   pack .io.a2.options .io.a3.options .io.a4.options .io.a5.options -side top -anchor e
+}
+
+
+################################################################################
+#
+# Show the "Miscellaneous" options dialog
+#
+################################################################################
+proc miscoptions {} {
+
+   toplevel .misc
+   wm title .misc "Miscellaneous options"
+   wm geometry .misc +100+100
+
+   frame .misc.buttons
+   pack .misc.buttons -side bottom -fill x -pady 2m
+   button .misc.buttons.ok -text "Ok" -command "destroy .misc"
+   button .misc.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .misc.buttons.help .misc.buttons.ok -side right -expand 1
+
+   checkbutton .misc.b0 -text "Have MS fonts" -variable havemsfonts -relief flat
+   pack .misc.b0  -side top -pady 2 -anchor w
+}
+
+
+################################################################################
+#
+# Show nanox options dialog
+#
+################################################################################
+proc nanoxoptions {} {
+
+   toplevel .optnanox
+   wm title .optnanox "NanoX options"
+   wm geometry .optnanox +100+100
+
+   frame .optnanox.buttons
+   pack .optnanox.buttons -side bottom -fill x -pady 2m
+   button .optnanox.buttons.ok -text "Ok" -command "destroy .optnanox"
+   button .optnanox.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optnanox.buttons.help .optnanox.buttons.ok -side right -expand 1
+
+   frame .optnanox.a0
+   checkbutton .optnanox.a0.server -text "Link app into server" -variable server -relief flat
+   checkbutton .optnanox.a0.sharedmem -text "Enable shared mem support (app/server only)" -variable sharedmem -relief flat
+   checkbutton .optnanox.a0.nwidget -text "Compile Nwidget library" -variable nwidget -relief flat
+   checkbutton .optnanox.a0.demo -text "Compile demos" -variable nanoxdemo -relief flat
+   pack .optnanox.a0.server  -side top -pady 2 -anchor w
+   pack .optnanox.a0.sharedmem  -side top -pady 2 -anchor w
+   pack .optnanox.a0.nwidget  -side top -pady 2 -anchor w
+   pack .optnanox.a0.demo  -side top -pady 2 -anchor w
+   pack .optnanox.a0  -side top -pady 2 -anchor w -fill x
+}
+
+
+################################################################################
+#
+# Show microwindows options dialog
+#
+################################################################################
+proc mwinoptions {} {
+
+   toplevel .optmwin
+   wm title .optmwin "MicroWindows options"
+   wm geometry .optmwin +100+100
+
+   frame .optmwin.buttons
+   pack .optmwin.buttons -side bottom -fill x -pady 2m
+   button .optmwin.buttons.ok -text "Ok" -command "destroy .optmwin"
+   button .optmwin.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optmwin.buttons.help .optmwin.buttons.ok -side right -expand 1
+
+   frame .optmwin.algo -borderwidth 1 -relief solid
+   frame .optmwin.demo -borderwidth 1 -relief solid
+   pack .optmwin.algo .optmwin.demo -side top -fill x -pady .5c -padx .5c
+
+   frame .optmwin.algo.a0
+   frame .optmwin.algo.a1
+   label .optmwin.algo.label -text "Window move agorithm options"
+   pack .optmwin.algo.label -side top
+   checkbutton .optmwin.algo.a0.b0 -text "Update regions" -variable updateregions -relief flat
+   checkbutton .optmwin.algo.a1.b1 -text "Erase Move" -variable erasemove -relief flat
+   pack .optmwin.algo.a0.b0  -side top -pady 2 -anchor w
+   pack .optmwin.algo.a1.b1  -side top -pady 2 -anchor w
+   pack .optmwin.algo.a0  -side top -pady 2 -anchor w -fill x
+   pack .optmwin.algo.a1  -side top -pady 2 -anchor w -fill x
+
+   frame .optmwin.demo.a0
+   label .optmwin.demo.label -text "Other options"
+   pack .optmwin.demo.label -side top
+   checkbutton .optmwin.demo.a0.b0 -text "Compile demos" -variable microwindemo -relief flat
+   pack .optmwin.demo.a0.b0  -side top -pady 2 -anchor w
+   pack .optmwin.demo.a0  -side top -pady 2 -anchor w -fill x
+}
+
+
+################################################################################
+#
+# Show native linux/Solaris options dialog
+#
+################################################################################
+proc nativelinuxoptions {} {
+
+   toplevel .optnatlinux
+   wm title .optnatlinux "Native Linux/Solaris options"
+   wm geometry .optnatlinux +100+100
+
+   frame .optnatlinux.buttons
+   pack .optnatlinux.buttons -side bottom -fill x -pady 2m
+   button .optnatlinux.buttons.ok -text "Ok" -command "destroy .optnatlinux"
+   button .optnatlinux.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optnatlinux.buttons.help .optnatlinux.buttons.ok -side right -expand 1
+
+   button .optnatlinux.screen -text "Screen driver" -command "screenoptions;"
+   button .optnatlinux.mouse -text "Mouse driver" -command "mouseoptions;"
+   button .optnatlinux.kbd -text "Keyboard driver" -command "kbdoptions;"
+   pack .optnatlinux.screen .optnatlinux.mouse .optnatlinux.kbd -side top -fill x
+}
+
+
+################################################################################
+#
+# Show arm linux options dialog
+#
+################################################################################
+proc armlinuxoptions {} {
+   global screenlinux;
+   global armtoolsprefix;
+
+   toplevel .optarmlinux
+   wm title .optarmlinux "ARM Linux options"
+   wm geometry .optarmlinux +100+100
+
+   frame .optarmlinux.buttons
+   pack .optarmlinux.buttons -side bottom -fill x -pady 2m
+   button .optarmlinux.buttons.ok -text "Ok" -command "armlinuxoptions_ok; destroy .optarmlinux"
+   button .optarmlinux.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optarmlinux.buttons.help .optarmlinux.buttons.ok -side right -expand 1
+
+   frame .optarmlinux.comp -borderwidth 1 -relief solid
+   pack .optarmlinux.comp -side top -fill x -pady .5c -padx .5c
+
+   frame .optarmlinux.comp.a0
+   label .optarmlinux.comp.label -text "Compiler options"
+   pack .optarmlinux.comp.label -side top
+   label .optarmlinux.comp.a0.label -text "Tools Prefix:" -anchor e
+   entry .optarmlinux.comp.a0.prefix -width 25 -relief sunken
+   checkbutton .optarmlinux.comp.a0.sa1100ltlend \
+-text "SA1100 Little endian option (for 4 bpp only)" -variable sa1100ltlend -relief flat
+   pack .optarmlinux.comp.a0.label  -side top -pady 2 -anchor w
+   pack .optarmlinux.comp.a0.prefix  -side top -pady 2 -anchor c
+   pack .optarmlinux.comp.a0.sa1100ltlend  -side top -pady 2 -anchor c
+   pack .optarmlinux.comp.a0  -side top -pady 2 -anchor w -fill x
+   .optarmlinux.comp.a0.prefix insert 0 $armtoolsprefix;
+
+   button .optarmlinux.screen -text "Screen driver" -command "screenoptions;"
+   button .optarmlinux.mouse -text "Mouse driver" -command "mouseoptions;"
+   button .optarmlinux.kbd -text "Keyboard driver" -command "kbdoptions;"
+   pack .optarmlinux.comp .optarmlinux.screen .optarmlinux.mouse .optarmlinux.kbd -side top -fill x
+}
+
+proc armlinuxoptions_ok {} {
+   global armtoolsprefix;
+   set armtoolsprefix [.optarmlinux.comp.a0.prefix get];
+}
+
+
+################################################################################
+#
+# Show mips linux options dialog
+#
+################################################################################
+proc mipslinuxoptions {} {
+   global screenlinux;
+   global mipstoolsprefix;
+
+   toplevel .optmipslinux
+   wm title .optmipslinux "MIPS Linux options"
+   wm geometry .optmipslinux +100+100
+
+   frame .optmipslinux.buttons
+   pack .optmipslinux.buttons -side bottom -fill x -pady 2m
+   button .optmipslinux.buttons.ok -text "Ok" -command "mipslinuxoptions_ok; destroy .optmipslinux"
+   button .optmipslinux.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optmipslinux.buttons.help .optmipslinux.buttons.ok -side right -expand 1
+
+   frame .optmipslinux.comp -borderwidth 1 -relief solid
+   pack .optmipslinux.comp -side top -fill x -pady .5c -padx .5c
+
+   frame .optmipslinux.comp.a0
+   label .optmipslinux.comp.label -text "Compiler options"
+   pack .optmipslinux.comp.label -side top
+   label .optmipslinux.comp.a0.label -text "Tools Prefix:" -anchor e
+   entry .optmipslinux.comp.a0.prefix -width 25 -relief sunken
+   pack .optmipslinux.comp.a0.label  -side top -pady 2 -anchor w
+   pack .optmipslinux.comp.a0.prefix  -side top -pady 2 -anchor c
+   pack .optmipslinux.comp.a0  -side top -pady 2 -anchor w -fill x
+   .optmipslinux.comp.a0.prefix insert 0 $mipstoolsprefix;
+
+   button .optmipslinux.screen -text "Screen driver" -command "screenoptions;"
+   button .optmipslinux.mouse -text "Mouse driver" -command "mouseoptions;"
+   button .optmipslinux.kbd -text "Keyboard driver" -command "kbdoptions;"
+   pack .optmipslinux.comp .optmipslinux.screen .optmipslinux.mouse .optmipslinux.kbd -side top -fill x
+}
+
+proc mipslinuxoptions_ok {} {
+   global mipstoolsprefix;
+   set mipstoolsprefix [.optmipslinux.comp.a0.prefix get];
+}
+
+
+################################################################################
+#
+# Show rtems options dialog
+#
+################################################################################
+proc rtemsoptions {} {
+   global rtemstoolsprefix;
+   global rtemsbuild;
+   global rtemsbsp;
+
+   toplevel .optrtems
+   wm title .optrtems "RTEMS options"
+   wm geometry .optrtems +100+100
+
+   frame .optrtems.buttons
+   pack .optrtems.buttons -side bottom -fill x -pady 2m
+   button .optrtems.buttons.ok -text "Ok" -command "rtemsoptions_ok; destroy .optrtems"
+   button .optrtems.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optrtems.buttons.help .optrtems.buttons.ok -side right -expand 1
+
+   frame .optrtems.comp -borderwidth 1 -relief solid
+   pack .optrtems.comp -side top -fill x -pady .5c -padx .5c
+
+   frame .optrtems.comp.a0
+   frame .optrtems.comp.a1
+   frame .optrtems.comp.a2
+   label .optrtems.comp.label -text "Compiler options"
+   pack .optrtems.comp.label -side top
+   label .optrtems.comp.a0.label -text "Tools Prefix:" -anchor e
+   entry .optrtems.comp.a0.prefix -width 25 -relief sunken
+   label .optrtems.comp.a1.label -text "Build:" -anchor e
+   entry .optrtems.comp.a1.build -width 25 -relief sunken
+   label .optrtems.comp.a2.label -text "BSP:" -anchor e
+   entry .optrtems.comp.a2.bsp -width 25 -relief sunken
+   pack .optrtems.comp.a0.label  -side top -pady 2 -anchor w
+   pack .optrtems.comp.a0.prefix  -side top -pady 2 -anchor c
+   pack .optrtems.comp.a1.label .optrtems.comp.a1.build -side top -pady 2 -anchor w
+   pack .optrtems.comp.a2.label .optrtems.comp.a2.bsp -side top -pady 2 -anchor w
+   pack .optrtems.comp.a0  -side top -pady 2 -anchor w -fill x
+   pack .optrtems.comp.a1  -side top -pady 2 -anchor w -fill x
+   pack .optrtems.comp.a2  -side top -pady 2 -anchor w -fill x
+   pack .optrtems.comp.a0.prefix .optrtems.comp.a1.build .optrtems.comp.a2.bsp  -side top -anchor e
+   .optrtems.comp.a0.prefix insert 0 $rtemstoolsprefix;
+   .optrtems.comp.a1.build insert 0 $rtemsbuild;
+   .optrtems.comp.a2.bsp insert 0 $rtemsbsp;
+
+   button .optrtems.screen -text "Screen driver" -command "screenoptions;"
+   button .optrtems.mouse -text "Mouse driver" -command "mouseoptions;"
+   button .optrtems.kbd -text "Keyboard driver" -command "kbdoptions;"
+   pack .optrtems.comp .optrtems.screen .optrtems.mouse .optrtems.kbd -side top -fill x
+}
+
+proc rtemsoptions_ok {} {
+   global rtemstoolsprefix;
+   global rtemsbuild;
+   global rtemsbsp;
+   set rtemstoolsprefix [.optrtems.comp.a0.prefix get];
+   set rtemsbuild [.optrtems.comp.a1.build get];
+   set rtemsbsp [.optrtems.comp.a2.bsp get];
+}
+
+
+################################################################################
+#
+# Show jpeg options dialog
+#
+################################################################################
+proc jpegoptions {} {
+   global incjpg;
+   global libjpg;
+
+   toplevel .optjpeg
+   wm title .optjpeg "JPEG support options"
+   wm geometry .optjpeg +100+100
+
+   frame .optjpeg.buttons
+   pack .optjpeg.buttons -side bottom -fill x -pady 2m
+   button .optjpeg.buttons.ok -text "Ok" -command "jpegoptions_ok; destroy .optjpeg"
+   button .optjpeg.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optjpeg.buttons.help .optjpeg.buttons.ok -side right -expand 1
+
+   frame .optjpeg.a0
+   frame .optjpeg.a1
+   label .optjpeg.a0.label -text "Libjpeg include dir:" -anchor e
+   entry .optjpeg.a0.incjpg -width 40 -relief sunken
+   label .optjpeg.a1.label -text "Libjpeg path:" -anchor e
+   entry .optjpeg.a1.libjpg -width 40 -relief sunken
+   pack .optjpeg.a0.label  -side top -pady 2 -anchor w
+   pack .optjpeg.a0.incjpg  -side top -pady 2 -anchor w
+   pack .optjpeg.a1.label  -side top -pady 2 -anchor w
+   pack .optjpeg.a1.libjpg  -side top -pady 2 -anchor w
+   pack .optjpeg.a0  -side top -pady 2 -anchor w -fill x
+   pack .optjpeg.a1  -side top -pady 2 -anchor w -fill x
+
+   pack .optjpeg.a0.incjpg .optjpeg.a1.libjpg  -side top -anchor e
+
+   .optjpeg.a0.incjpg insert 0 $incjpg;
+   .optjpeg.a1.libjpg insert 0 $libjpg;
+}
+
+
+proc jpegoptions_ok {} {
+   global incjpg;
+   global libjpg;
+   set incjpg [.optjpeg.a0.incjpg get];
+   set libjpg [.optjpeg.a1.libjpg get];
+}
+
+
+################################################################################
+#
+# Show freetype options dialog
+#
+################################################################################
+proc ftoptions {} {
+   global incft;
+   global libft;
+
+   toplevel .optft
+   wm title .optft "Freetype support options"
+   wm geometry .optft +100+100
+
+   frame .optft.buttons
+   pack .optft.buttons -side bottom -fill x -pady 2m
+   button .optft.buttons.ok -text "Ok" -command "ftoptions_ok; destroy .optft"
+   button .optft.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optft.buttons.help .optft.buttons.ok -side right -expand 1
+
+   frame .optft.a0
+   frame .optft.a1
+   label .optft.a0.label -text "Freetype include dir:" -anchor e
+   entry .optft.a0.incft -width 40 -relief sunken
+   label .optft.a1.label -text "Freetype lib path:" -anchor e
+   entry .optft.a1.libft -width 40 -relief sunken
+   pack .optft.a0.label  -side top -pady 2 -anchor w
+   pack .optft.a0.incft  -side top -pady 2 -anchor w
+   pack .optft.a1.label  -side top -pady 2 -anchor w
+   pack .optft.a1.libft  -side top -pady 2 -anchor w
+   pack .optft.a0  -side top -pady 2 -anchor w -fill x
+   pack .optft.a1  -side top -pady 2 -anchor w -fill x
+
+   pack .optft.a0.incft .optft.a1.libft  -side top -anchor e
+
+   .optft.a0.incft insert 0 $incft;
+   .optft.a1.libft insert 0 $libft;
+}
+
+
+proc ftoptions_ok {} {
+   global incft;
+   global libft;
+   set incft [.optft.a0.incft get];
+   set libft [.optft.a1.libft get];
+}
+
+
+################################################################################
+#
+# Show t1lib options dialog
+#
+################################################################################
+proc t1options {} {
+   global inct1;
+   global libt1;
+
+   toplevel .optt1
+   wm title .optt1 "T1Lib support options"
+   wm geometry .optt1 +100+100
+
+   frame .optt1.buttons
+   pack .optt1.buttons -side bottom -fill x -pady 2m
+   button .optt1.buttons.ok -text "Ok" -command "t1options_ok; destroy .optt1"
+   button .optt1.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optt1.buttons.help .optt1.buttons.ok -side right -expand 1
+
+   frame .optt1.a0
+   frame .optt1.a1
+   label .optt1.a0.label -text "T1lib include dir:" -anchor e
+   entry .optt1.a0.inct1 -width 40 -relief sunken
+   label .optt1.a1.label -text "T1lib path:" -anchor e
+   entry .optt1.a1.libt1 -width 40 -relief sunken
+   pack .optt1.a0.label  -side top -pady 2 -anchor w
+   pack .optt1.a0.inct1  -side top -pady 2 -anchor w
+   pack .optt1.a1.label  -side top -pady 2 -anchor w
+   pack .optt1.a1.libt1  -side top -pady 2 -anchor w
+   pack .optt1.a0  -side top -pady 2 -anchor w -fill x
+   pack .optt1.a1  -side top -pady 2 -anchor w -fill x
+
+   pack .optt1.a0.inct1 .optt1.a1.libt1  -side top -anchor e
+
+   .optt1.a0.inct1 insert 0 $inct1;
+   .optt1.a1.libt1 insert 0 $libt1;
+}
+
+
+proc t1options_ok {} {
+   global inct1;
+   global libt1;
+   set inct1 [.optt1.a0.inct1 get];
+   set libt1 [.optt1.a1.libt1 get];
+}
+
+################################################################################
+#
+# Show hzk dir options dialog
+#
+################################################################################
+proc hzkoptions {} {
+   global hzkdir;
+	 global hzkfontsize;
+
+   toplevel .opthzk
+   wm title .opthzk "HZK support options"
+   wm geometry .opthzk +100+100
+
+   frame .opthzk.buttons
+   pack .opthzk.buttons -side bottom -fill x -pady 2m
+   button .opthzk.buttons.ok -text "Ok" -command "hzkoptions_ok; destroy .opthzk"
+   button .opthzk.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .opthzk.buttons.help .opthzk.buttons.ok -side right -expand 1
+
+   frame .opthzk.a0
+   frame .opthzk.a1
+   label .opthzk.a0.label -text "HZK fonts dir:" -anchor e
+   entry .opthzk.a0.hzkdir -width 40 -relief sunken
+   label .opthzk.a1.label -text "HZK fonts Size:(16 or 12 ,now)" -anchor e
+   entry .opthzk.a1.hzksize -width 40 -relief sunken
+   pack .opthzk.a0.label  -side top -pady 2 -anchor w
+   pack .opthzk.a0.hzkdir -side top -pady 2 -anchor w
+   pack .opthzk.a1.label  -side top -pady 2 -anchor w
+   pack .opthzk.a1.hzksize -side top -pady 2 -anchor w
+   pack .opthzk.a0  -side top -pady 2 -anchor w -fill x
+   pack .opthzk.a1  -side top -pady 2 -anchor w -fill x
+
+	 pack .opthzk.a0.hzkdir .opthzk.a1.hzksize -side top -anchor e
+
+   .opthzk.a0.hzkdir insert 0 $hzkdir;
+   .opthzk.a1.hzksize insert 0 $hzkfontsize;
+}
+
+
+proc hzkoptions_ok {} {
+   global hzkdir;
+   global hzkfontsize;
+   set hzkdir [.opthzk.a0.hzkdir get];
+   set hzkfontsize [.opthzk.a1.hzksize get];
+
+}
+
+
+################################################################################
+#
+# Show screen driver options dialog
+#
+################################################################################
+proc screenoptions {} {
+
+   toplevel .optscreen
+   wm title .optscreen "Screen driver options"
+   wm geometry .optscreen +100+100
+
+   frame .optscreen.buttons
+   pack .optscreen.buttons -side bottom -fill x -pady 2m
+   button .optscreen.buttons.ok -text "Ok" -command "destroy .optscreen"
+   button .optscreen.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optscreen.buttons.help .optscreen.buttons.ok -side right -expand 1
+
+   frame .optscreen.a0
+   frame .optscreen.a1
+   frame .optscreen.a2
+   frame .optscreen.a3
+   radiobutton .optscreen.a0.b0 -text "Framebuffer" -variable screenlinux -relief flat -value 0 -anchor w
+   button .optscreen.a0.options -text "Options" -command {fboptions;};
+   radiobutton .optscreen.a1.b1 -text "X11" -variable screenlinux -relief flat -value 1 -anchor w
+   button .optscreen.a1.options -text "Options" -command {x11options;};
+   radiobutton .optscreen.a2.b2 -text "VgaLib" -variable screenlinux -relief flat -value 2 -anchor w
+   radiobutton .optscreen.a3.b3 -text "HW Vga" -variable screenlinux -relief flat -value 3 -anchor w
+   pack .optscreen.a0.b0 .optscreen.a0.options -side left
+   pack .optscreen.a1.b1  .optscreen.a1.options -side left
+   pack .optscreen.a2.b2  -side top -pady 2 -anchor w
+   pack .optscreen.a3.b3  -side top -pady 2 -anchor w
+   pack .optscreen.a0  -side top -pady 2 -anchor w -fill x
+   pack .optscreen.a1  -side top -pady 2 -anchor w -fill x
+   pack .optscreen.a2  -side top -pady 2 -anchor w -fill x
+   pack .optscreen.a3  -side top -pady 2 -anchor w -fill x
+   pack .optscreen.a0.options .optscreen.a1.options  -side top -anchor e
+}
+
+
+################################################################################
+#
+# Show mouse options dialog
+#
+################################################################################
+proc mouseoptions {} {
+
+   toplevel .optmouse
+   wm title .optmouse "Mouse driver options"
+   wm geometry .optmouse +100+100
+
+   frame .optmouse.buttons
+   pack .optmouse.buttons -side bottom -fill x -pady 2m
+   button .optmouse.buttons.ok -text "Ok" -command "destroy .optmouse"
+   button .optmouse.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optmouse.buttons.help .optmouse.buttons.ok -side right -expand 1
+
+   frame .optmouse.a0
+   frame .optmouse.a1
+   frame .optmouse.a2
+   frame .optmouse.a3
+   frame .optmouse.a4
+   radiobutton .optmouse.a0.b0 -text "GPM mouse" -variable mouselinux -relief flat -value 0 -anchor w
+   radiobutton .optmouse.a1.b1 -text "Serial mouse" -variable mouselinux -relief flat -value 1 -anchor w
+   radiobutton .optmouse.a2.b2 -text "Touch Pad" -variable mouselinux -relief flat -value 2 -anchor w
+   radiobutton .optmouse.a3.b3 -text "Touch screen" -variable mouselinux -relief flat -value 3 -anchor w
+   radiobutton .optmouse.a4.b4 -text "No Mouse" -variable mouselinux -relief flat -value 4 -anchor w
+   pack .optmouse.a0.b0  -side top -pady 2 -anchor w
+   pack .optmouse.a1.b1  -side top -pady 2 -anchor w
+   pack .optmouse.a2.b2  -side top -pady 2 -anchor w
+   pack .optmouse.a3.b3  -side top -pady 2 -anchor w
+   pack .optmouse.a4.b4  -side top -pady 2 -anchor w
+   pack .optmouse.a0  -side top -pady 2 -anchor w -fill x
+   pack .optmouse.a1  -side top -pady 2 -anchor w -fill x
+   pack .optmouse.a2  -side top -pady 2 -anchor w -fill x
+   pack .optmouse.a3  -side top -pady 2 -anchor w -fill x
+   pack .optmouse.a4  -side top -pady 2 -anchor w -fill x
+}
+
+
+################################################################################
+#
+# Show keyboard options dialog
+#
+################################################################################
+proc kbdoptions {} {
+
+   toplevel .optkbd
+   wm title .optkbd "Keyboard driver options"
+   wm geometry .optkbd +100+100
+
+   frame .optkbd.buttons
+   pack .optkbd.buttons -side bottom -fill x -pady 2m
+   button .optkbd.buttons.ok -text "Ok" -command "destroy .optkbd"
+   button .optkbd.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optkbd.buttons.help .optkbd.buttons.ok -side right -expand 1
+
+   frame .optkbd.a0
+   frame .optkbd.a1
+   radiobutton .optkbd.a0.b0 -text "TTY" -variable keyblinux -relief flat -value 0 -anchor w
+   radiobutton .optkbd.a1.b0 -text "No keyboard" -variable keyblinux -relief flat -value 1 -anchor w
+   pack .optkbd.a0.b0  -side top -pady 2 -anchor w
+   pack .optkbd.a1.b0  -side top -pady 2 -anchor w
+   pack .optkbd.a0  -side top -pady 2 -anchor w -fill x
+   pack .optkbd.a1  -side top -pady 2 -anchor w -fill x
+}
+
+
+################################################################################
+#
+# Show framebuffer options dialog
+#
+################################################################################
+proc fboptions {} {
+
+   toplevel .optfb
+   wm title .optfb "Framebuffer options"
+   wm geometry .optfb +100+100
+
+   frame .optfb.buttons
+   pack .optfb.buttons -side bottom -fill x -pady 2m
+   button .optfb.buttons.ok -text "Ok" -command "destroy .optfb"
+   button .optfb.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optfb.buttons.help .optfb.buttons.ok -side right -expand 1
+
+   frame .optfb.a0
+   frame .optfb.a1
+   frame .optfb.a2
+   checkbutton .optfb.a0.vgafb -text "VGA fb" -variable vgafb -relief flat
+   checkbutton .optfb.a1.portrait -text "Portrait mode" -variable portraitfb -relief flat
+   checkbutton .optfb.a2.vt -text "VTerm Switch code included" -variable vtswitch -relief flat
+   pack .optfb.a0.vgafb  -side top -pady 2 -anchor w
+   pack .optfb.a1.portrait  -side top -pady 2 -anchor w
+   pack .optfb.a2.vt  -side top -pady 2 -anchor w
+   pack .optfb.a0 .optfb.a1 .optfb.a2 -side top -pady 2 -anchor w -fill x
+}
+
+
+################################################################################
+#
+# Show X11 options dialog
+#
+################################################################################
+proc x11options {} {
+   global x11screenwidth;
+   global x11screenheight;
+   global x11screendepth;
+   global x11e15;
+
+   toplevel .optx11
+   wm title .optx11 "X11 options"
+   wm geometry .optx11 +100+100
+
+   frame .optx11.buttons
+   pack .optx11.buttons -side bottom -fill x -pady 2m
+   button .optx11.buttons.ok -text "Ok" -command "x11options_ok; destroy .optx11"
+   button .optx11.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optx11.buttons.help .optx11.buttons.ok -side right -expand 1
+
+   frame .optx11.a0
+   frame .optx11.a1
+   frame .optx11.a2
+   frame .optx11.a3
+   label .optx11.a0.label -text "Screen width:" -anchor e
+   entry .optx11.a0.width -width 5 -relief sunken
+   label .optx11.a1.label -text "Screen height:" -anchor e
+   entry .optx11.a1.height -width 5 -relief sunken
+   label .optx11.a2.label -text "Screen depth:" -anchor e
+   entry .optx11.a2.depth -width 5 -relief sunken
+   checkbutton .optx11.a3.x11e15 -text "Use predefined model E15" -variable x11e15 -relief flat
+   pack .optx11.a0.label .optx11.a0.width  -side left
+   pack .optx11.a1.label .optx11.a1.height -side left
+   pack .optx11.a2.label .optx11.a2.depth -side left
+   pack .optx11.a3.x11e15  -side top -pady 2 -anchor w
+   pack .optx11.a0  -side top -pady 2 -anchor w -fill x
+   pack .optx11.a1  -side top -pady 2 -anchor w -fill x
+   pack .optx11.a2  -side top -pady 2 -anchor w -fill x
+   pack .optx11.a3  -side top -pady 2 -anchor w -fill x
+   pack .optx11.a0.width .optx11.a1.height .optx11.a2.depth -side top -anchor e
+   .optx11.a0.width insert 0 $x11screenwidth;
+   .optx11.a1.height insert 0 $x11screenheight;
+   .optx11.a2.depth insert 0 $x11screendepth;
+}
+
+proc x11options_ok {} {
+   global x11screenwidth;
+   global x11screenheight;
+   global x11screendepth;
+   set x11screenwidth [.optx11.a0.width get];
+   set x11screenheight [.optx11.a1.height get];
+   set x11screendepth [.optx11.a2.depth get];
+}
+
+
+################################################################################
+#
+# Show elks options dialog
+#
+################################################################################
+proc elksoptions {} {
+   global screenelks;
+
+   toplevel .optelks
+   wm title .optelks "ELKS options"
+   wm geometry .optelks +100+100
+
+   frame .optelks.buttons
+   pack .optelks.buttons -side bottom -fill x -pady 2m
+   button .optelks.buttons.ok -text "Ok" -command "destroy .optelks"
+   button .optelks.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optelks.buttons.help .optelks.buttons.ok -side right -expand 1
+
+   frame .optelks.sd -borderwidth 1 -relief solid
+   pack .optelks.sd -side top -fill x -pady .5c -padx .5c
+
+   frame .optelks.sd.a0
+   frame .optelks.sd.a1
+   frame .optelks.sd.a2
+   label .optelks.sd.label -text "Screen driver"
+   pack .optelks.sd.label -side top
+   radiobutton .optelks.sd.a0.b0 -text "ASM VGA (faster)" -variable screenelks -relief flat -value 0 -anchor w
+   radiobutton .optelks.sd.a1.b1 -text "C VGA " -variable screenelks -relief flat -value 1 -anchor w
+   radiobutton .optelks.sd.a2.b2 -text "Hercule" -variable screenelks -relief flat -value 2 -anchor w
+   pack .optelks.sd.a0.b0  -side top -pady 2 -anchor w
+   pack .optelks.sd.a1.b1  -side top -pady 2 -anchor w
+   pack .optelks.sd.a2.b2  -side top -pady 2 -anchor w
+   pack .optelks.sd.a0  -side top -pady 2 -anchor w -fill x
+   pack .optelks.sd.a1  -side top -pady 2 -anchor w -fill x
+   pack .optelks.sd.a2  -side top -pady 2 -anchor w -fill x
+}
+
+
+################################################################################
+#
+# Read data from the configuration file
+#
+################################################################################
+proc readconfig {} {
+   global configfile;
+
+   global arch;
+   global armtoolsprefix;
+   global mipstoolsprefix;
+   global rtemstoolsprefix;
+   global optimize;
+   global debug;
+   global verbose
+   global microwin;
+   global nanox;
+   global shlibs;
+   global objframe;
+   global nwidget;
+   global microwindemo;
+   global nanoxdemo;
+   global screenpixtype;
+   global server;
+   global sharedmem;
+   global havefileio;
+   global havebmp;
+   global havejpg;
+   global incjpg;
+   global libjpg;
+   global haveft;
+   global incft;
+   global libft;
+   global havet1;
+   global inct1;
+   global libt1;
+   global havehzk;
+   global hzkdir;	
+   global hzkfontsize;
+   global updateregions;
+   global erasemove;
+   global havemsfonts;
+   global graypalette;
+   global screenlinux;
+   global vgafb;
+   global portraitfb;
+   global x11e15;
+   global x11screenwidth;
+   global x11screenheight;
+   global x11screendepth;
+   global mouselinux;
+   global keyblinux;
+   global vtswitch;
+   global sa1100ltlend;
+   global rtemsbuild;
+   global rtemsbsp;
+   global screenelks;
+
+   set configfile [open "config" r+]
+
+   set armtoolsprefix [getvalue "ARMTOOLSPREFIX" 0];
+   set mipstoolsprefix [getvalue "MIPSTOOLSPREFIX" 0];
+   set rtemstoolsprefix [getvalue "RTEMSTOOLSPREFIX" 0];
+
+   set arch [getvalue "ARCH" 0];
+   switch -exact $arch {
+        LINUX-NATIVE {set arch 0;}
+        LINUX-ARM {set arch 1;}
+        LINUX-MIPS {set arch 2;}
+        RTEMS {set arch 3;}
+        SOLARIS {set arch 4;}
+        ELKS {set arch 5;}
+        default {set arch 0}
+   }
+
+   set optimize [getvalue "OPTIMIZE" 1];
+   set debug [getvalue "DEBUG" 1];
+   set verbose [getvalue "VERBOSE" 1];
+   
+   set vtswitch [getvalue "VTSWITCH" 1];
+
+   set microwin [getvalue "MICROWIN" 1];
+   set nanox [getvalue "NANOX" 1];
+   set shlibs [getvalue "SHAREDLIBS" 1];
+   set objframe [getvalue "OBJFRAMEWORK" 1];
+   set nwidget [getvalue "NWIDGET" 1];
+
+   set microwindemo [getvalue "MICROWINDEMO" 1]
+   set nanoxdemo [getvalue "NANOXDEMO" 1];
+
+   set screenpixtype [getvalue "SCREEN_PIXTYPE" 0]
+   set server [getvalue "LINK_APP_INTO_SERVER" 1];
+   set sharedmem [getvalue "HAVE_SHAREDMEM_SUPPORT" 1];
+
+   set havefileio [getvalue "HAVE_FILEIO" 1];
+   set havebmp [getvalue "HAVE_BMP_SUPPORT" 1];
+   set havejpg [getvalue "HAVE_JPEG_SUPPORT" 1];
+   set incjpg [getvalue "INCJPEG" 0];
+   set libjpg [getvalue "LIBJPEG" 0];
+   set haveft [getvalue "HAVE_FREETYPE_SUPPORT" 1];
+   set incft [getvalue "INCFTLIB" 0];
+   set libft [getvalue "LIBFTLIB" 0];
+   set havet1 [getvalue "HAVE_T1LIB_SUPPORT" 1];
+   set inct1 [getvalue "INCT1LIB" 0];
+   set libt1 [getvalue "LIBT1LIB" 0];
+
+   set havehzk [getvalue "HAVE_HZK_SUPPORT" 1];
+   set hzkdir		[getvalue "HZK_FONT_DIR" 0];	
+   set hzkfontsize [getvalue "HZK_FONT_SIZE" 0];
+
+   set updateregions [getvalue "UPDATEREGIONS" 1]
+   set erasemove [getvalue "ERASEMOVE" 1]
+
+   set havemsfonts [getvalue "HAVEMSFONTS" 1];
+
+   set graypalette [getvalue "GRAYPALETTE" 1];
+
+   set vgafb [getvalue "FBVGA" 1]
+   set portraitfb [getvalue "PORTRAIT_MODE" 1]
+
+   set x11e15 [getvalue "SCREEN_E15 1" 1]
+   set x11screenwidth [getvalue "SCREEN_WIDTH" 0]
+   set x11screenheight [getvalue "SCREEN_HEIGHT" 0]
+   set x11screendepth [getvalue "SCREEN_DEPTH" 0]
+
+   set sa1100ltlend [getvalue "SA1100_LCD_LTLEND" 1]
+   set rtemsbuild [getvalue "RTEMS_BUILD" 0]
+   set rtemsbsp [getvalue "RTEMS_BSP" 0]
+
+   if {[getvalue "FRAMEBUFFER" 1] == 1} {set screenlinux 0;}
+   if {[getvalue "X11" 1] == 1} {set screenlinux 1}
+   if {[getvalue "VGALIB" 1] == 1} {set screenlinux 2}
+   if {[getvalue "HWVGA" 1] == 1} {set screenlinux 3}
+
+   if {[getvalue "GPMMOUSE" 1] == 1} {set mouselinux 0;}
+   if {[getvalue "SERMOUSE" 1] == 1} {set mouselinux 1}
+   if {[getvalue "TPMOUSE" 1] == 1} {set mouselinux 2}
+   if {[getvalue "TSMOUSE" 1] == 1} {set mouselinux 3}
+   if {[getvalue "NOMOUSE" 1] == 1} {set mouselinux 4}
+
+   if {[getvalue "TTYKBD" 1] == 1} {set keyblinux 0;}
+   if {[getvalue "NOKBD" 1] == 1} {set keyblinux 1;}
+
+   if {[getvalue "ASMVGADRIVER" 1] == 1} {set screenelks 0;}
+   if {[getvalue "CVGADRIVER" 1] == 1} {set screenelks 1}
+   if {[getvalue "HERCDRIVER" 1] == 1} {set screenelks 2}
+
+   close $configfile;
+}
+
+
+################################################################################
+#
+# Get a value from the config file
+#
+################################################################################
+proc getvalue {name isyesorno} {
+   global configfile;
+
+   set line 0;
+
+   seek $configfile 0 start;
+
+   while {[eof $configfile] == 0} {
+      set line [gets $configfile];
+
+      if {[regexp ($name)(\ |\t)*(=)(\ |\t)*(.*) $line all a b c d e] == 1} {
+         set $e [string trim $e]
+
+         if {$isyesorno == 1} {
+            switch -exact $e {
+            N {return 0;}
+            Y {return 1;}
+            default {return 0}
+            }
+         }
+
+         return $e
+      }
+   }
+}
+
+
+################################################################################
+#
+# Write data to the configuration file
+#
+################################################################################
+proc writeconfig {} {
+   global arch;
+   global armtoolsprefix;
+   global mipstoolsprefix;
+   global rtemstoolsprefix;
+   global optimize;
+   global debug;
+   global verbose
+   global microwin;
+   global nanox;
+   global shlibs;
+   global objframe;
+   global nwidget;
+   global microwindemo;
+   global nanoxdemo;
+   global screenpixtype;
+   global server;
+   global sharedmem;
+   global havefileio;
+   global havebmp;
+   global havejpg;
+   global incjpg;
+   global libjpg;
+   global haveft;
+   global incft;
+   global libft;
+   global havet1;
+   global inct1;
+   global libt1;
+   global havehzk;
+   global hzkdir;
+   global hzkfontsize;
+   global updateregions;
+   global erasemove;
+   global havemsfonts;
+   global graypalette;
+   global screenlinux;
+   global vgafb;
+   global portraitfb;
+   global x11e15;
+   global x11screenwidth;
+   global x11screenheight;
+   global x11screendepth;
+   global mouselinux;
+   global keyblinux;
+   global vtswitch;
+   global sa1100ltlend;
+   global rtemsbuild;
+   global rtemsbsp;
+   global screenelks;
+
+   if {$arch == 0} {putvalue "ARCH" "LINUX-NATIVE"
+   } elseif {$arch == 1} {putvalue "ARCH" "LINUX-ARM"
+   } elseif {$arch == 2} {putvalue "ARCH" "LINUX-MIPS"
+   } elseif {$arch == 3} {putvalue "ARCH" "RTEMS"
+   } elseif {$arch == 4} {putvalue "ARCH" "SOLARIS"
+   } elseif {$arch == 5} {putvalue "ARCH" "ELKS"}
+
+   putvalue "ARMTOOLSPREFIX" $armtoolsprefix;
+   putvalue "MIPSTOOLSPREFIX" $mipstoolsprefix;
+   putvalue "RTEMSTOOLSPREFIX" $rtemstoolsprefix;
+   putvalue "OPTIMIZE" $optimize;
+   putvalue "DEBUG" $debug;
+   putvalue "VERBOSE" $verbose;
+   putvalue "MICROWIN" $microwin
+   putvalue "NANOX" $nanox;
+   putvalue "SHAREDLIBS" $shlibs;
+   putvalue "OBJFRAMEWORK" $objframe;
+   putvalue "NWIDGET" $nwidget;
+   putvalue "MICROWINDEMO" $microwindemo;
+   putvalue "NANOXDEMO" $nanoxdemo;
+   putvalue "SCREEN_PIXTYPE" $screenpixtype;
+   putvalue "LINK_APP_INTO_SERVER" $server;
+   putvalue "HAVE_SHAREDMEM_SUPPORT" $sharedmem;
+   putvalue "HAVE_FILEIO" $havefileio;
+   putvalue "HAVE_BMP_SUPPORT" $havebmp;
+   putvalue "HAVE_JPEG_SUPPORT" $havejpg;
+   putvalue "INCJPEG" $incjpg;
+   putvalue "LIBJPEG" $libjpg;
+   putvalue "HAVE_FREETYPE_SUPPORT" $haveft;
+   putvalue "INCFTLIB" $incft;
+   putvalue "LIBFTLIB" $libft;
+   putvalue "HAVE_T1LIB_SUPPORT" $havet1;
+   putvalue "INCT1LIB" $inct1;
+   putvalue "LIBT1LIB" $libt1;
+   putvalue "HAVE_HZK_SUPPORT" $havehzk;
+   putvalue "HZK_FONT_DIR"		$hzkdir;
+   putvalue "HZK_FONT_SIZE"		$hzkfontsize;
+
+   putvalue "UPDATEREGIONS" $updateregions;
+   putvalue "ERASEMOVE" $erasemove;
+   putvalue "HAVEMSFONTS" $havemsfonts;
+   putvalue "GRAYPALETTE" $graypalette;
+   putvalue "PORTRAIT_MODE" $portraitfb;
+   putvalue "FBVGA" $vgafb;
+   putvalue "SCREEN_E15" $x11e15;
+   putvalue "SCREEN_WIDTH" $x11screenwidth;
+   putvalue "SCREEN_HEIGHT" $x11screenheight;
+   putvalue "SCREEN_DEPTH" $x11screendepth;
+   putvalue "RTEMS_BUILD" $rtemsbuild;
+   putvalue "RTEMS_BSP" $rtemsbsp;
+   putvalue "SA1100_LCD_LTLEND" $sa1100ltlend;
+
+   if {$screenlinux == 0} {
+      putvalue "FRAMEBUFFER" 1;
+      putvalue "X11" 0;
+      putvalue "VGALIB" 0;
+      putvalue "HWVGA" 0;
+   } elseif {$screenlinux == 1} {
+      putvalue "FRAMEBUFFER" 0;
+      putvalue "X11" 1;
+      putvalue "VGALIB" 0;
+      putvalue "HWVGA" 0;
+   } elseif {$screenlinux == 2} {
+      putvalue "FRAMEBUFFER" 0;
+      putvalue "X11" 0;
+      putvalue "VGALIB" 1;
+      putvalue "HWVGA" 0;
+   } elseif {$screenlinux == 2} {
+      putvalue "FRAMEBUFFER" 0;
+      putvalue "X11" 0;
+      putvalue "VGALIB" 0;
+      putvalue "HWVGA" 1;
+   }
+
+   if {$mouselinux == 0} {
+      putvalue "GPMMOUSE" 1;
+      putvalue "SERMOUSE" 0;
+      putvalue "TPMOUSE" 0;
+      putvalue "TSMOUSE" 0;
+      putvalue "NOMOUSE" 0;
+   } elseif {$mouselinux == 1} {
+      putvalue "GPMMOUSE" 0;
+      putvalue "SERMOUSE" 1;
+      putvalue "TPMOUSE" 0;
+      putvalue "TSMOUSE" 0;
+      putvalue "NOMOUSE" 0;
+   } elseif {$mouselinux == 2} {
+      putvalue "GPMMOUSE" 0;
+      putvalue "SERMOUSE" 0;
+      putvalue "TPMOUSE" 1;
+      putvalue "TSMOUSE" 0;
+      putvalue "NOMOUSE" 0;
+   } elseif {$mouselinux == 3} {
+      putvalue "GPMMOUSE" 0;
+      putvalue "SERMOUSE" 0;
+      putvalue "TPMOUSE" 0;
+      putvalue "TSMOUSE" 1;
+      putvalue "NOMOUSE" 0;
+   } elseif {$mouselinux == 4} {
+      putvalue "GPMMOUSE" 0;
+      putvalue "SERMOUSE" 0;
+      putvalue "TPMOUSE" 0;
+      putvalue "TSMOUSE" 0;
+      putvalue "NOMOUSE" 1;
+   }
+
+   if {$keyblinux == 0} {
+      putvalue "TTYKBD" 1;
+      putvalue "NOKBD" 0;
+   } elseif {$keyblinux == 1} {
+      putvalue "TTYKBD" 0;
+      putvalue "NOKBD" 1;
+   }
+
+   putvalue "VTSWITCH" $vtswitch;
+
+   if {$screenelks == 0} {
+      putvalue "ASMVGADRIVER" 1;
+      putvalue "CVGADRIVER" 0;
+      putvalue "HERCDRIVER" 0;
+   } elseif {$screenelks == 1} {
+      putvalue "ASMVGADRIVER" 0;
+      putvalue "CVGADRIVER" 1;
+      putvalue "HERCDRIVER" 0;
+   } elseif {$screenelks == 2} {
+      putvalue "ASMVGADRIVER" 0;
+      putvalue "CVGADRIVER" 0;
+      putvalue "HERCDRIVER" 1;
+   }
+
+   puts "Now type `make` ... Enjoy"
+}
+
+
+################################################################################
+#
+# Write a value to the configuration file
+#
+################################################################################
+proc putvalue {name value} {
+   global configfile;
+
+   set found 0;
+   set configfile [open "config" r+]
+   set tempconfigfile [open "config~" w+]
+
+   if {$value == "0"} {set value "N"} elseif {$value == "1"} {set value "Y"}
+
+   seek $configfile 0 start;
+   seek $tempconfigfile 0 start;
+
+   while {[eof $configfile] == 0} {
+      set linelength [gets $configfile line];
+
+      if {[regexp ($name)(\ |\t)*(=)(\ |\t)*(.*) $line all a b c d e] == 1 && $found == 0} {
+         set $e [string trim $e]
+
+         puts -nonewline $tempconfigfile $name
+
+         set padding [expr 25 - [string length $name]]
+
+         for {set i 0} {$i < $padding} {incr i} {
+            puts  -nonewline $tempconfigfile " "
+         }
+
+         puts $tempconfigfile "= $value"
+
+         set found 1;
+      } else {
+         if {[eof $configfile] == 0} {
+            puts $tempconfigfile $line
+         } else {
+            puts -nonewline $tempconfigfile $line
+         }
+      }
+   }
+
+
+   close $tempconfigfile;
+   close $configfile;
+
+   file rename -force "config~" "config"  
+}
+
+# Initialization ...
+readconfig;

@@ -1,0 +1,171 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title></title>
+</head>
+
+<body>
+
+<h1><img border="0" src="file:///C:/My%20Documents/My%20Webs/myweb2/images/evearth.gif" WIDTH="36" HEIGHT="36">&nbsp; Microwindows Frequently Asked
+Questions</h1>
+
+<p>1999/12/04 Microwindows FAQ - <a href="mailto:greg@censoft.com">greg@censoft.com</a></p>
+
+<h3>What is Microwindows?</h3>
+
+<p>Microwindows is an Open Source project that brings some of the features of modern
+graphical windowing systems to the programming community not wanting or requiring the
+large disk and ram requirements of higher-end windowing systems like Microsoft Windows or
+the X Window System.&nbsp; Microwindows does not require any operating system or other
+graphics system support, as it writes directly to the display hardware, although it runs
+well on Linux framebuffer systems.&nbsp; Microwindows is designed to be portable, and can
+run in a wide variety of hardware and software environments.&nbsp; One the of more
+interesting targets is the emerging market of portable handheld and pocket PC's running
+Linux, also known as LinuxCE. </p>
+
+<h3>What does Microwindows run on?</h3>
+
+<p>Microwindows currently runs on 32-bit Linux systems with kernel framebuffer support, or
+through the popular SVGAlib library.&nbsp; In addition, it has been ported to 16-bit Linux
+ELKS, and real-mode MSDOS.&nbsp; Microwindows screen drivers for 1, 2, 4, 8, 16 and 32
+bits-per-pixel have been written, as well as a VGA 16 color 4 planes driver.&nbsp;
+Microwindows has been ported to a number of Handheld and Pocket PC's, as well.&nbsp; The
+Microwindows graphics engine is capable of running on any system that supports readpixel,
+writepixel, drawhorzline and drawvertline, and setpalette.&nbsp; Blitting support is
+optional, but if implemented allows enhanced functionality.&nbsp; All bitmap, font, cursor
+and color support is implemented on top of these routines.&nbsp; Support for 8, 15, 16 and
+32 bit truecolor systems as well as 1, 2, 4 and 8bpp palletized systems is implemented.<br>
+<br>
+Recently, an X11 driver was completed that allows Microwindows applications to be run on
+top of the X Window desktop.&nbsp; This driver emulates all of Microwindows' truecolor and
+palette modes so that an application can be previewed using the target system's display
+characteristics directly on the desktop display, regardless of the desktop display
+characteristics.</p>
+
+<h3>What CPU's are supported?</h3>
+
+<p>Microwindows is extremely portable, and completely written in C, although some routines
+have been recoded in assembly for speed.&nbsp; It has been ported to the Intel 16 and 32
+bit cpu's, as well as MIPS R4000 (NEC Vr41xx) and ARM chips found on popular handheld and
+pocket PC's.</p>
+
+<h3>How big is Microwindows?</h3>
+
+<p>On 16 bit systems, the entire system, including screen, mouse and keyboard drivers runs
+in less than 64k.&nbsp; On 32-bit systems, support includes proportional fonts and
+applications are typically less than 100k.</p>
+
+<h3>What is Microwindows' architecture and what API's are supported?</h3>
+
+<p>Microwindows is essentially a layered design that allows different layers to be used or
+rewritten to suite the needs of the implementation.&nbsp; At the lowest level, screen,
+mouse/touchpad and keyboard drivers provide access to the actual display and other
+user-input hardware.&nbsp; At the mid level, a portable graphics engine is implemented,
+providing support for line draws, area fills, polygons, clipping and color models.&nbsp;
+At the upper level, various API's are implemented providing access to the graphics
+applications programmer.&nbsp; These APIs may or may not provide desktop and/or window
+look and feel.&nbsp; Currently, Microwindows supports the Win32 and Nano-X APIs.&nbsp;
+These APIs provide close compatibility with the Win32 and X Window systems, allowing
+programs to be ported from other systems easily.</p>
+
+<h3>What's the difference between Microwindows and NanoGUI?</h3>
+
+<p>Microwindows' origin is with NanoGUI.&nbsp; NanoGUI was created by Alex Holden by
+taking David Bell's mini-X server and Alan Cox's modifications and adding client/server
+networking.&nbsp; Greg Haerr then took interest in the NanoGUI project and began making
+extensive enhancements and modifications to NanoGUI.&nbsp; Around version 0.5, Greg Haerr
+added support for multiple API's, and began distributing Microwindows.&nbsp; In
+Microwindows 0.84, all previous NanoGUI changes were incorporated and since then
+Microwindows has been the combined NanoGUI/Microwindows distribution.</p>
+
+<h3>What is Nano-X?</h3>
+
+<p>Nano-X is the X-like API that Microwindows supports.&nbsp; It is based on David Bell's
+mini-X server API, and includes X-like primitives for low-level window and graphics
+operations.&nbsp; Window management is not included, and the window look and feel must be
+created through a widget set or directly by the applications programmer.&nbsp; Currently,
+there are a number of people working on widget sets for Nano-X.&nbsp; There is some
+discussion about converting the Nano-X API to be X Window System compatible.</p>
+
+<h3>What is the Microwindows API?</h3>
+
+<p>Microwindows supports an API based on the Win32 graphics device interface
+module, and implements a large portion of it. The function calls try to be 100%
+compatible, so that code compiled for other operating systems can usually be
+compiled with no source code changes.&nbsp; In addition, a portion of the Win32
+USER module is implemented, which contains routines for window dragging, title
+bars,&nbsp; message passing, and generating required window messages.&nbsp;
+Because of this, window manager support is built into the system, and a single
+API for applications programs can be used that doesn't change based on the
+widget set being used.<br>
+<br>
+Since the WinCE API is mostly a subset of the Win32 API for graphics-related
+functions, the Microwindows API is also WinCE compatible, and can be used to
+implement WinCE graphics functions on platforms Microwindows is running on.</p>
+
+<h3>What are Microwindows' graphics features?</h3>
+
+<p>Microwindows features full RGB color support, color mapping, optimized palette bitmap
+drawing, truecolor and palletized displays, and a 3d look-and-feel. Overlapped and child
+windows are supported, with complete window and client area clipping. Proportional and
+fixed fonts are supported, along with utilities for converting fonts or bitmap files.
+Optimized painting algorithms are used to allow maximum response while the user is moving
+windows on the screen.&nbsp; Offscreen drawing and bit-blit routines are implemented for
+flicker-free drawing and animation. Polygon draws, fills and arbitrary region clipping are
+also supported.</p>
+
+<h3>What license is Microwindows under?</h3>
+
+<p>The project is licensed under the MPL.&nbsp; Alternatively, the software can be
+licensed under the GPL, if desired.&nbsp; This means that the standard Microwindows
+distribution can be used for commercial purposes, and supports the needs of developers
+working under non-disclosure or writing proprietary device drivers.&nbsp; Modifications to
+source code supplied in the standard distribution must stay open source.&nbsp; Or the
+entire project can be converted to GPL, with files added by a developer considered GPL
+only.</p>
+
+<h3>Where is the most current source?</h3>
+
+<p>The FTP site <a href="ftp://microwindows.censoft.com/pub/microwindows">ftp://microwindows.censoft.com/pub/microwindows</a>
+is the primary distribution point for all releases.&nbsp; The home web site is at <a href="http://microwindows.censoft.com">http://microwindows.censoft.com</a>.&nbsp; I can be
+reached at <a href="mailto:greg@censoft.com">greg@censoft.com</a>.&nbsp; I am working on
+getting the development tree moved to CVS, stay tuned.</p>
+
+<h3>Are there screenshots and/or demos available?</h3>
+
+<p>There are demos for Linux, ELKS and MSDOS, as well as screenshots, available at:</p>
+
+<blockquote>
+  <p><a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/ScreenShots</a></p>
+  <p><a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/LinuxExamples</a>&nbsp;&nbsp;&nbsp;
+  <a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/ElksExamples</a>&nbsp;&nbsp;&nbsp;
+  <a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/DosExamples</a></p>
+</blockquote>
+
+<h3>Is there a mailing list?</h3>
+
+<p>The mailing list is <a href="mailto:nanogui@linuxhacker.org">nanogui@linuxhacker.org</a></p>
+
+<p>To subscribe, send an empty email to:</p>
+
+<p>&nbsp;&nbsp;&nbsp; <a href="mailto:nanogui-subscribe@linuxhacker.org">nanogui-subscribe@linuxhacker.org</a></p>
+
+<p>To unsubscribe, send an empty email to:</p>
+
+<p>&nbsp;&nbsp;&nbsp; <a href="mailto:nanogui-unsubscribe@linuxhacker.org">nanogui-unsubscribe@linuxhacker.org</a></p>
+
+<h3>What can I do to help?</h3>
+
+<p>We need help in all sorts of areas.&nbsp; There are currently projects to port base
+level widget sets and custom controls to Microwindows.&nbsp; Fast screen drivers and
+blitting routines are also on the list.&nbsp; There are lots of folks interested in
+getting the system to run on one of the many new Handheld or Pocket PC's.&nbsp; Please
+join the list and join the fun.</p>
+
+<p>&nbsp;</p>
+</body>
+</html>

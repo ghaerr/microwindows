@@ -1,0 +1,60 @@
+Microwindows is an Open Source project aimed at bringing
+the features of modern graphical windowing environments
+to smaller devices.  Microwindows' genesis was with the
+NanoGUI project, and is now the primary distribution for
+both the Microwindows and Nano-X codebase.  Microwindows
+currently runs on Linux, UNIX, X11, ELKS, MSDOS, RTEMS
+and bare VGA hardware.  It uses the same device-
+independent graphics engine built for the NanoGUI project.
+Microwindows compiles a sample application and the WinCE 
+graphics api in about 42k.
+
+The architecture of Microwindows allows it to be ported
+or run on a wide variety of systems.  Cross-compilation
+for MIPS, ARM and x86 processors is supported. There are currently
+screen drivers for Linux 2.2.x framebuffers and Linux 2.0.x
+svgalib, as well as an X11 driver that allows applications
+to be built and tested under X11 before running on the
+target platform.  There exists a portable 4-planes VGA driver
+that will run on bare hardware, ELKS, MSDOS, or RTEMS.
+There are mouse drivers written for bare hardware, direct
+serial port, Linux GPM driver, and touchpads.  The Microwindows
+graphics engine is capable of running on any system that
+support readpixel, writepixel, drawhline and drawvline,
+although more advanced bit blit routines are provided.
+
+Microwindows features full RGB color support, optimized
+palette bitmap drawing, and a 3d look-and-feel.
+Overlapped and child windows are supported, with complete
+window and client area clipping.  Proportional and fixed
+fonts are supported, along with utilities for converting
+any MS Windows font or .bmp file.  Optimized painting
+algorithms are used to allow maximum response while the
+user is moving windows on the screen.
+
+In addition, the Nano-X server can also be built on top of
+the device-independent graphics engine.
+
+The main Microwindows web site is at
+	http://microwindows.org/
+
+An HTML based FAQ and Architecture document are available from
+the web site.
+
+Microwindows may be downloaded at
+	ftp://microwindows.org/pub/microwindows
+
+The chief maintainer of the project is Greg Haerr <greg@censoft.com>
+
+Microwindows and Nano-X are discussed on the NanoGUI mailing
+list.  To subscribe, send mail to nanogui-subscribe@linuxhacker.org.
+The list is nanogui@linuxhacker.org.
+
+Mailing list archives are available at
+	http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/0
+
+The ELKS mailing list is linux-8086@vger.rutgers.edu.  To subscribe,
+send a message to majordomo@vger.rutgers.edu containing the words
+subscribe linux-8086 in the body.
+
+

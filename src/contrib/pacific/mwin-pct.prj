@@ -1,0 +1,97 @@
+;Project file: C:\DEVELOP\MICROWIN\SRC\MWIN-PCT.PRJ for Pacific C MS-DOS V7.51
+
+List: Object Files	Abs Auto
+Entry: $(LIB)\RT86--DL.OBJ
+Endlist:
+
+List: CPP Include Paths	Abs Auto
+Entry: c:\develop\microwin\src\include
+Entry: $(INC)
+Endlist:
+
+List: CPP Pre-defined Symbols	Abs Auto
+Entry: -DDOS
+Entry: -D_HOSTED
+Entry: -Di8086
+Entry: -D__PACIFIC__
+Entry: -DHI_TECH_C
+Entry: -DLARGE_CODE
+Entry: -SP4,4,4,4,4,4,4
+Entry: -S1,2,2,4,4,8
+Entry: -DLARGE_DATA
+Entry: -DLARGE_MODEL
+Entry: -DERASEMOVE=1
+Entry: -DMSDOS=1
+Endlist:
+
+List: Source Files	Abs Auto
+Entry: C:\DEVELOP\MICROWIN\SRC\DEMOS\TEST\TEST.C
+Entry: C:\DEVELOP\MICROWIN\SRC\DRIVERS\KBD_PAC.C
+Entry: C:\DEVELOP\MICROWIN\SRC\DRIVERS\MOU_DOS.C
+Entry: C:\DEVELOP\MICROWIN\SRC\DRIVERS\INT10_PC.C
+Entry: C:\DEVELOP\MICROWIN\SRC\DRIVERS\ROMFONT.C
+Entry: C:\DEVELOP\MICROWIN\SRC\DRIVERS\SCR_BIOS.C
+Entry: C:\DEVELOP\MICROWIN\SRC\DRIVERS\VGAPLAN4.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVCLIP.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVDRAW.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVKBD.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVMOUSE.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVPAL1.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVPAL2.C
+Entry: C:\DEVELOP\MICROWIN\SRC\ENGINE\DEVPAL4.C
+Endlist:
+
+List: Libraries	Abs Auto
+Entry: $(LIB)\86--DLC.LIB
+Endlist:
+
+List: Linker options	Abs Auto
+Entry: -lm
+Entry: -p_TEXT,text,CODE=0/,LDATA=0/,LBSS=0/,NVRAM=0/,data=0/,bss,stack=0/
+Endlist:
+
+List: Objtohex options	Abs Auto
+Entry: -lDos_hdr
+Entry: -E02048h
+Endlist:
+
+
+Int: OuputFormat: 0
+Int: Warnlevel: 20
+Int: IdLength: 31
+Int: DebugBaud: 0
+Int: ComPort: 0
+Int: GlobOptLevel: 1
+Int: Rom_addr: 1015808
+Int: Init_addr: 1048560
+Int: Bss_addr: 256
+Int: Bss_size: 32512
+Int: Nvram_addr: 32768
+Int: Modelno: 1
+Int: Chiptype: 1
+Int: Heapsize: 8264
+Int: Falign: 0
+Int: Jalign: 0
+Int: Lalign: 0
+
+Bool: Globopt: 0
+Bool: Postopt: 0
+Bool: Assemopt: 0
+Bool: Symbolic_debug: 1
+Bool: Nolocal: 0
+Bool: Usefloat: 0
+Bool: Autoload: 0
+Bool: Cppasm: 0
+Bool: Genlist: 0
+Bool: GenSrclist: 0
+Bool: Gotadrs: 1
+Bool: Multirom: 0
+Bool: Stopwarn: 0
+Bool: Hardfloat: 0
+Bool: Wildcards: 0
+Bool: I80188eb: 0
+Bool: V25: 0
+
+String: Outfile:C:\DEVELOP\MICROWIN\SRC\MWIN-PCT.EXE
+String: Mapfile:
+String: Symfile:

@@ -1,0 +1,780 @@
+<HTML
+><HEAD
+><TITLE
+>pointer</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="fonts"
+HREF="nano-x-fonts.html"><LINK
+REL="NEXT"
+TITLE="colours"
+HREF="nano-x-colours.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-fonts.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-colours.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+>pointer</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2286"
+></A
+><H2
+>Name</H2
+>pointer &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2289"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+void        <A
+HREF="nano-x-pointer.html#GRSETCURSOR"
+>GrSetCursor</A
+>                     (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> hotx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> hoty,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> foreground,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> background,
+                                             <GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *fbbitmap,
+                                             <GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *bgbitmap);
+void        <A
+HREF="nano-x-pointer.html#GRMOVECURSOR"
+>GrMoveCursor</A
+>                    (<GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);
+void        <A
+HREF="nano-x-pointer.html#GRINJECTPOINTEREVENT"
+>GrInjectPointerEvent</A
+>            (<GTKDOCLINK
+HREF="MWCOORD-CAPS"
+>MWCOORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="MWCOORD-CAPS"
+>MWCOORD</GTKDOCLINK
+> y,
+                                             int button,
+                                             int visible);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2308"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2311"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2313"
+></A
+><H3
+><A
+NAME="GRSETCURSOR"
+></A
+>GrSetCursor ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetCursor                     (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> hotx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> hoty,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> foreground,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> background,
+                                             <GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *fbbitmap,
+                                             <GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *bgbitmap);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Specifies a cursor (mouse pointer graphic) to display when the mouse
+pointer is over the specified window and subsequently created children.
+Points in the bitmap which have neither the foreground or background bits
+set are not painted.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window to set the cursor of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the pointer bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the pointer bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>hotx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate within the bitmap used as the target of the pointer</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>hoty</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate within the bitmap used as the target of the pointer</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>foreground</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the colour to use for the foreground of the pointer</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>background</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the colour to use for the background of the pointer</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fbbitmap</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bgbitmap</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to bitmap data specifying the background of the pointer</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2369"
+></A
+><H3
+><A
+NAME="GRMOVECURSOR"
+></A
+>GrMoveCursor ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrMoveCursor                    (<GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Moves the cursor (mouse pointer) to the specified coordinates.
+The coordinates are relative to the root window, where (0,0) is the upper
+left hand corner of the screen. The reference point used for the pointer
+is that of the "hot spot". After moving the pointer, the graphic used for
+the pointer will change to the graphic defined for use in the window which
+it is over.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to move the pointer to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to move the pointer to</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2390"
+></A
+><H3
+><A
+NAME="GRINJECTPOINTEREVENT"
+></A
+>GrInjectPointerEvent ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrInjectPointerEvent            (<GTKDOCLINK
+HREF="MWCOORD-CAPS"
+>MWCOORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="MWCOORD-CAPS"
+>MWCOORD</GTKDOCLINK
+> y,
+                                             int button,
+                                             int visible);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the pointer invisible if the visible parameter is GR_FALSE, or visible
+if it is GR_TRUE, then moves the pointer to the specified position and
+generates a mouse event with the specified button status. Also performs
+a <A
+HREF="nano-x-general.html#GRFLUSH"
+>GrFlush</A
+>() so that the event takes effect immediately.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the pointer event relevant to the root window</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the pointer event relevant to the root window</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>button</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the pointer button status</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>visible</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> whether to display the pointer after the event</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-fonts.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-colours.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>fonts</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>colours</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,412 @@
+##############################################################################
+# Microwindows rules Makefile
+# Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+#
+# This makefile should be placed at the top of a project hierarchy
+#
+# NOTE: The TOP environment variable should be set to that top directory
+##############################################################################
+
+ifeq ($(ARCH), DJGPP)
+SHELL = bash
+else
+SHELL = /bin/sh
+endif
+
+# install directories for headers and libraries
+INSTALL_PREFIX = /usr
+HDRINSTALLDIR = $(INSTALL_PREFIX)/include/microwin
+LIBINSTALLDIR = $(INSTALL_PREFIX)/lib
+
+INSTALL_DIR   = install -c -m 755 -o root -g root -d
+INSTALL_HDR   = install -c -m 644 -o root -g bin
+INSTALL_LIB   = install -c -m 444 -o root -g bin
+
+INCLUDEDIRS += -I. -I$(TOP)/include
+
+#
+# General configuration setup (see config file)
+#
+DEFINES += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
+
+ifeq ($(VTSWITCH), Y)
+DEFINES += -DVTSWITCH=1
+endif
+
+ifeq ($(X11), Y)
+CFLAGS += -DX11=1
+LDFLAGS += -L/usr/X11R6/lib -lX11
+endif
+
+ifeq ($(VGALIB), Y)
+LDFLAGS += -lvga
+endif
+
+ifeq ($(ARCH),FREEBSD-X86)
+LDFLAGS += -lvgl
+endif
+
+ifeq ($(HAVE_FILEIO), Y)
+
+DEFINES += -DHAVE_FILEIO
+
+ifeq ($(HAVE_JPEG_SUPPORT), Y)
+DEFINES += -DHAVE_JPEG_SUPPORT=1
+INCLUDEDIRS += -I$(INCJPEG)
+endif
+
+ifeq ($(HAVE_PNG_SUPPORT), Y)
+DEFINES += -DHAVE_PNG_SUPPORT=1
+INCLUDEDIRS += -I$(INCPNG)
+endif
+
+ifeq ($(HAVE_T1LIB_SUPPORT), Y)
+DEFINES += -DHAVE_T1LIB_SUPPORT=1
+INCLUDEDIRS += -I$(INCT1LIB)
+endif
+
+ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
+DEFINES += -DHAVE_FREETYPE_SUPPORT=1
+INCLUDEDIRS += -I$(INCFTLIB)
+endif
+
+ifeq ($(HAVE_HZK_SUPPORT), Y)
+DEFINES += -DHAVE_HZK_SUPPORT=1
+DEFINES += -DHZK_FONT_DIR="\"$(HZK_FONT_DIR)"\"
+endif
+
+ifeq ($(HAVE_BIG5_SUPPORT), Y)
+DEFINES += -DHAVE_BIG5_SUPPORT=1
+endif
+
+ifeq ($(HAVE_GB2312_SUPPORT), Y)
+DEFINES += -DHAVE_GB2312_SUPPORT=1
+endif
+
+ifeq ($(HAVE_BMP_SUPPORT), Y)
+DEFINES += -DHAVE_BMP_SUPPORT=1
+endif
+
+ifeq ($(HAVE_GIF_SUPPORT), Y)
+DEFINES += -DHAVE_GIF_SUPPORT=1
+endif
+
+ifeq ($(HAVE_PNM_SUPPORT), Y)
+DEFINES += -DHAVE_PNM_SUPPORT=1
+endif
+
+ifeq ($(HAVE_XPM_SUPPORT), Y)
+DEFINES += -DHAVE_XPM_SUPPORT=1
+endif
+
+endif
+
+ifeq ($(NOFONTSORCLIPPING), Y)
+CFLAGS += -DNOFONTSORCLIPPING=1
+endif
+
+ifeq ($(HAVE_SHAREDMEM_SUPPORT), Y)
+DEFINES += -DHAVE_SHAREDMEM_SUPPORT=1
+endif
+
+ifeq ($(SHAREDLIBS), Y)
+CFLAGS += -fpic
+endif
+
+ifeq ($(OPTIMIZE), Y)
+OPTFLAGS += -O3
+endif
+
+ifeq ($(DEBUG), Y)
+OPTFLAGS += -ggdb
+endif
+
+CFLAGS += $(INCLUDEDIRS)
+HOSTCFLAGS := $(CFLAGS)
+CPPFLAGS += $(DEFINES)
+LDFLAGS += -L$(TOP)/lib
+ARFLAGS = rs
+
+# Tools (may be overridden by Arch.rules)
+HOSTCC = gcc
+
+# Include the rules for arch's
+# if the user has a specific arch local to their home load it
+ifeq ($(HOME)/microwin/Arch.rules,$(wildcard $(HOME)/microwin/Arch.rules))
+include $(HOME)/microwin/Arch.rules
+else
+include $(TOP)/Arch.rules
+endif
+
+# Tools ...
+CC = $(TOOLSPREFIX)$(COMPILER)
+CXX = $(TOOLSPREFIX)$(CXX_COMPILER)
+AR = $(TOOLSPREFIX)ar
+LD = $(TOOLSPREFIX)ld
+NM = $(TOOLSPREFIX)nm
+STRIP = $(TOOLSPREFIX)strip
+OBJCOPY = $(TOOLSPREFIX)objcopy
+CP = cp
+MV = mv
+
+################## Libraries Section ##################
+
+MWINLIBS = $(TOP)/lib/libmwin.a $(TOP)/lib/libmwinlib.a\
+	$(TOP)/lib/libmwengine.a $(TOP)/lib/libmwdrivers.a\
+	$(TOP)/lib/libmwfonts.a $(TOP)/lib/libmwimages.a
+CCMWINLIBS = -lmwin -lmwinlib -lmwin -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
+
+ifeq ($(NWIDGET), Y)
+NANOXCLIENTLIBS += $(TOP)/lib/libnwidget.a
+#ifeq ($(LINK_APP_INTO_SERVER), Y)
+#NANOXSERVERLIBS += $(TOP)/lib/libnwidget.a
+#endif
+endif
+
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+NANOXCLIENTLIBS += $(TOP)/lib/libnano-X.a $(TOP)/lib/libmwengine.a\
+	$(TOP)/lib/libmwdrivers.a $(TOP)/lib/libmwfonts.a
+CCNANOXCLIENTLIBS += -lnano-X -lmwengine -lmwdrivers -lmwfonts
+else
+NANOXCLIENTLIBS += $(TOP)/lib/libnano-X.a
+CCNANOXCLIENTLIBS += -lnano-X
+endif
+
+NANOXSERVERLIBS += $(TOP)/lib/libmwengine.a $(TOP)/lib/libmwdrivers.a\
+	$(TOP)/lib/libmwfonts.a
+CCNANOXSERVERLIBS += -lmwengine -lmwdrivers -lmwfonts
+
+ifeq ($(HAVE_FILEIO), Y)
+ifeq ($(HAVE_JPEG_SUPPORT), Y)
+MWINLIBS += $(LIBJPEG)
+CCMWINLIBS += $(LIBJPEG)
+NANOXLIBS += $(LIBJPEG)
+NANOXSERVERLIBS += $(LIBJPEG)
+ifeq ($(SHAREDLIBS), Y)
+	CCNANOXSERVERLIBS += $(LIBJPEG)
+endif
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+	NANOXCLIENTLIBS += $(LIBJPEG)
+endif
+endif
+ifeq ($(HAVE_PNG_SUPPORT), Y)
+MWINLIBS += $(LIBPNG) $(LIBZ)
+CCMWINLIBS += $(LIBPNG) $(LIBZ)
+NANOXLIBS += $(LIBPNG) $(LIBZ)
+NANOXSERVERLIBS += $(LIBPNG) $(LIBZ)
+ifeq ($(SHAREDLIBS), Y)
+	CCNANOXSERVERLIBS += $(LIBPNG) $(LIBZ)
+endif
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+	NANOXCLIENTLIBS += $(LIBPNG) $(LIBZ)
+endif
+endif
+
+endif
+
+ifeq ($(HAVE_T1LIB_SUPPORT), Y)
+MWINLIBS += $(LIBT1LIB)
+CCMWINLIBS += $(LIBT1LIB)
+NANOXLIBS += $(LIBT1LIB)
+NANOXSERVERLIBS += $(LIBT1LIB)
+ifeq ($(SHAREDLIBS), Y)
+	CCNANOXSERVERLIBS += $(LIBT1LIB)
+endif
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+	NANOXCLIENTLIBS += $(LIBT1LIB)
+endif
+LDFLAGS += -lm
+endif
+
+ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
+MWINLIBS += $(LIBFTLIB)
+CCMWINLIBS += $(LIBFTLIB)
+NANOXLIBS += $(LIBFTLIB)
+NANOXSERVERLIBS += $(LIBFTLIB)
+ifeq ($(SHAREDLIBS), Y)
+	CCNANOXSERVERLIBS += $(LIBFTLIB)
+endif
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+	NANOXCLIENTLIBS += $(LIBFTLIB)
+endif
+LDFLAGS += -lm
+endif
+
+ifeq ($(ARCH), ELKS)
+CCMWINLIBS = $(MWINLIBS)
+CCNANOXLIBS = $(NANOXLIBS)
+endif
+
+ifeq ($(ARCH), DJGPP)
+CCMWINLIBS = $(MWINLIBS) -lgrx20
+CCNANOXLIBS = $(NANOXLIBS) 
+NANOXCLIENTLIBS += -lgrx20
+endif
+
+################## End of Libraries Section ##################
+
+# If you dont want to see every executed command ...
+ifeq ($(VERBOSE), N)
+.SILENT:
+endif
+
+.PHONY: default subdirs clean cleandepend xconfig
+
+# Add any exportable variable here
+export TOP ARCH CONFIG
+
+#
+# This is the default target
+# It looks for sub-directories with makefiles in it and tries to execute them
+#
+ifeq ($(SHAREDLIBS), Y)
+default: subdirs $(OBJS) $(CXXOBJS) $(TOP)/lib/$(LIBNAME) $(TOP)/lib/$(LIBNAMESO)
+else
+default: subdirs $(OBJS) $(CXXOBJS) $(ASMOBJS) $(TOP)/lib/$(LIBNAME)
+endif
+
+# 'dirs' can be pre-specified
+ifeq ($(dirs), )
+dirs =	$(shell for file in `\ls`; \
+	do if [ -d $$file -a $$file != "demos" ]; then \
+	if [ -f $$file/Makefile ]; then echo $$file; fi; fi; done)
+endif
+
+# 'demos' can be pre-specified
+ifeq ($(demos), )
+demos =	$(shell for file in `\ls`; \
+	do if [ -d $$file -a $$file = "demos" ]; then \
+	if [ -f $$file/Makefile ]; then echo $$file; fi; fi; done)
+endif
+
+#
+# Subdirectories target
+#
+subdirs:
+ifeq ($(ARCH), DJGPP)
+
+	$(shell set CURDIR=$(pwd);)
+
+	$(shell \
+	if [ ! -d $(TOP)/bin ]; \
+	then mkdir $(TOP)/bin; fi;)
+
+	$(shell \
+	if [ ! -d $(TOP)/lib ]; \
+	then mkdir $(TOP)/lib; fi;)
+
+endif
+	$(foreach dir, $(dirs), $(MAKE) -C $(dir);)
+
+#
+# If a library name is specified,
+# a library of that name will be created with objects in that directory
+#
+ifneq ($(LIBNAME), )
+$(TOP)/lib/$(LIBNAME): $(OBJS) $(CXXOBJS)
+	@echo "Creating library $@ ..."
+	$(AR) $(ARFLAGS) $(TOP)/lib/$(LIBNAME) $(OBJS) $(CXXOBJS) $(ASMOBJS)
+endif
+
+#
+# If a shared object library name is specified, link this object
+#
+ifeq ($(SHAREDLIBS), Y)
+$(TOP)/lib/$(LIBNAMESO): $(TOP)/lib/$(LIBNAME)
+	@echo "Creating shared library $@ ..."
+	$(LD) -shared -o $@ --whole-archive $^
+endif
+
+#
+# Dependencies target for C files
+#
+.depend: $(OBJS:.o=.c) $(CXXOBJS:.o=.cc)
+	@echo "Updating dependencies in $(CURDIR) ..."
+	$(SHELL) -ec '$(HOSTCC) -MM $(CPPFLAGS) $(CFLAGS) $(OBJS:.o=.c) \
+	| sed '\''s/\($*\)\.o[ :]*/\1.o \$@ : $$(TOP)\/config /g'\'' > $@; \
+	[ -s $@ ] || rm -f $@'
+
+#
+# Compilation target for C files
+#
+%.o:%.c
+	@echo "Compiling $< ..."
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+
+#
+# Compilation target for C++ files
+#
+%.o:%.cc
+	@echo "C++ compiling $< ..."
+	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
+
+#
+# Compilation target for bmp file conversion
+#
+%.c:%.bmp $(TOP)/mwin/bmp/convbmp.c
+	echo "Generating $@ from bitmap file ..."
+	$(TOP)/bin/convbmp $< > $@
+
+xconfig:
+	./xconfigure
+
+# don't clean lib dir
+cleanapps: cleandepend
+	@echo "Cleaning directory $(CURDIR) ..."
+	$(RM) core *~ *.bak *.o TAGS
+	$(RM) bin/*
+	$(foreach dir, $(dirs), $(MAKE) -C $(dir) cleanapps;)
+	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleanapps;)
+
+clean: cleandepend
+	@echo "Cleaning directory $(CURDIR) ..."
+	$(RM) core *~ *.bak *.o TAGS
+	$(RM) $(TOP)/lib/*.a $(TOP)/lib/*.so
+	$(shell cd $(TOP)/bin; \
+		for file in `\ls`; do if [ ! -d $$file ]; \
+		then $(RM) $$file; fi; done; cd $(TOP))
+	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
+	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
+
+
+cleandepend:
+	@echo "Cleaning dependencies in directory $(CURDIR) ..."
+	$(RM) .depend
+	$(foreach dir, $(dirs), $(MAKE) -C $(dir) cleandepend;)	
+	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleandepend;)	
+
+install: default
+	$(INSTALL_DIR) $(HDRINSTALLDIR)
+	echo "Copying hdrs to $(HDRINSTALLDIR)"
+	$(INSTALL_HDR) include/*.h $(HDRINSTALLDIR)
+	echo "Copying libs to $(LIBINSTALLDIR)"
+	$(INSTALL_DIR) $(LIBINSTALLDIR)
+	$(INSTALL_LIB) lib/*.a $(LIBINSTALLDIR)
+ifeq ($(SHAREDLIBS), Y)
+	$(INSTALL_LIB) lib/*.so $(LIBINSTALLDIR)
+endif
+	echo "Installation completed successfully."
+
+tags:
+	-rm -f TAGS
+	etags --language=c++ --append \
+		`find . \( -name '*.h' -o -name '*.cc' \) -print`
+	etags --language=c --append `find . -name \*.[hc] -print`
+	etags --language=asm --append `find . -name \*.[Ss] -print`
+
+#
+# Included dependency files
+#
+ifneq ($(MAKECMDGOALS), clean)
+ifneq ($(MAKECMDGOALS), cleandepend)
+ifneq ($(MAKECMDGOALS), realclean)
+ifneq ($(MAKECMDGOALS), xconfig)
+ifneq ($(OBJS),)
+-include .depend
+endif
+endif
+endif
+endif
+endif
+

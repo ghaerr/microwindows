@@ -1,0 +1,700 @@
+<HTML
+><HEAD
+><TITLE
+>events</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="graphics"
+HREF="nano-x-graphics.html"><LINK
+REL="NEXT"
+TITLE="fonts"
+HREF="nano-x-fonts.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-graphics.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-fonts.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+>events</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1996"
+></A
+><H2
+>Name</H2
+>events &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1999"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+void        <A
+HREF="nano-x-events.html#GRSELECTEVENTS"
+>GrSelectEvents</A
+>                  (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-EVENT-MASK-CAPS"
+>GR_EVENT_MASK</GTKDOCLINK
+> eventmask);
+void        <A
+HREF="nano-x-events.html#GRGETNEXTEVENT"
+>GrGetNextEvent</A
+>                  (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep);
+void        <A
+HREF="nano-x-events.html#GRGETNEXTEVENTTIMEOUT"
+>GrGetNextEventTimeout</A
+>           (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep,
+                                             <GTKDOCLINK
+HREF="GR-TIMEOUT-CAPS"
+>GR_TIMEOUT</GTKDOCLINK
+> timeout);
+void        <A
+HREF="nano-x-events.html#GRCHECKNEXTEVENT"
+>GrCheckNextEvent</A
+>                (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep);
+int         <A
+HREF="nano-x-events.html#GRPEEKEVENT"
+>GrPeekEvent</A
+>                     (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2014"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2017"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2019"
+></A
+><H3
+><A
+NAME="GRSELECTEVENTS"
+></A
+>GrSelectEvents ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSelectEvents                  (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-EVENT-MASK-CAPS"
+>GR_EVENT_MASK</GTKDOCLINK
+> eventmask);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Select the event types which should be returned for the specified window.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window to set the event mask of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>eventmask</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> a bit field specifying the desired event mask</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2040"
+></A
+><H3
+><A
+NAME="GRGETNEXTEVENT"
+></A
+>GrGetNextEvent ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetNextEvent                  (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Gets the next event from the event queue and places it in the specified
+GR_EVENT structure. If the queue is currently empty, we sleep until the
+next event arrives from the server or input is read on a file descriptor
+previously specified by <A
+HREF="nano-x-misc.html#GRREGISTERINPUT"
+>GrRegisterInput</A
+>().</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ep</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the GR_EVENT structure to return the event in</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2057"
+></A
+><H3
+><A
+NAME="GRGETNEXTEVENTTIMEOUT"
+></A
+>GrGetNextEventTimeout ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetNextEventTimeout           (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep,
+                                             <GTKDOCLINK
+HREF="GR-TIMEOUT-CAPS"
+>GR_TIMEOUT</GTKDOCLINK
+> timeout);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Gets the next event from the event queue and places it in the specified
+GR_EVENT structure. If the queue is currently empty, we sleep until the
+next event arrives from the server, input is read on a file descriptor
+previously specified by <A
+HREF="nano-x-misc.html#GRREGISTERINPUT"
+>GrRegisterInput</A
+>(), or a timeout occurs. Note
+that a value of 0 for the timeout parameter doesn't mean "timeout after 0
+milliseconds" but is in fact a magic number meaning "never time out".</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ep</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the GR_EVENT structure to return the event in</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>timeout</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of milliseconds to wait before timing out</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2079"
+></A
+><H3
+><A
+NAME="GRCHECKNEXTEVENT"
+></A
+>GrCheckNextEvent ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrCheckNextEvent                (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Gets the next event from the event queue if there is one, or returns
+immediately with an event type of GR_EVENT_TYPE_NONE if it is empty.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ep</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the GR_EVENT structure to return the event in</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2095"
+></A
+><H3
+><A
+NAME="GRPEEKEVENT"
+></A
+>GrPeekEvent ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>int         GrPeekEvent                     (<GTKDOCLINK
+HREF="GR-EVENT-CAPS"
+>GR_EVENT</GTKDOCLINK
+> *ep);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Fills in the specified event structure with a copy of the next event on the
+queue, without actually removing it from the queue. An event type of
+GR_EVENT_TYPE_NONE is given if the queue is empty.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ep</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the GR_EVENT structure to return the event in</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> 1 if an event was returned, or 0 if the queue was empty</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-graphics.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-fonts.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>graphics</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>fonts</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,2083 @@
+/*
+ * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000 Alex Holden <alex@linuxhacker.org>
+ * Copyright (c) 1991 David I. Bell
+ * Copyright (c) 2000 Vidar Hokstad
+ * Copyright (c) 2000 Morten Rolland <mortenro@screenmedia.no>
+ *
+ * Permission is granted to use, distribute, or modify this source,
+ * provided that this copyright notice remains intact.
+ *
+ * Client routines to do graphics with windows and graphics contexts.
+ *
+ * Rewritten heavily for speed by Greg Haerr
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stddef.h>
+#include <errno.h>
+#include <time.h>
+#if HAVE_SHAREDMEM_SUPPORT
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#endif
+#include <sys/time.h>
+#include <sys/socket.h>
+#if ELKS
+#include <linuxmt/na.h>
+#include <linuxmt/time.h>
+#else
+#include <sys/un.h>
+#if hpux
+#include <sys/time.h>
+#else
+#include <sys/select.h>
+#endif
+#endif
+#include <signal.h> 
+#include "nano-X.h"
+#include "serv.h"
+#include "nxproto.h"
+
+#define GR_CLOSE_FIX	1	/* dirty hack attempts to fix GrClose hang bug*/
+
+#define SHM_BLOCK_SIZE	4096
+
+/* exported global data*/
+int 	   nxSocket = -1;	/* The network socket descriptor */
+#if HAVE_SHAREDMEM_SUPPORT
+char *	   nxSharedMem = 0;	/* Address of shared memory segment*/
+static int nxSharedMemSize;	/* Size in bytes of shared mem segment*/
+#endif
+
+/* readable error strings*/
+char *nxErrorStrings[] = {
+	GR_ERROR_STRINGS
+};
+
+static int storedevent = 0;
+static GR_EVENT storedevent_data;
+
+/*
+ * The following is the user defined function for handling errors.
+ * If this is not set, then the default action is to close the connection
+ * to the server, describe the error, and then exit.  This error function
+ * will only be called when the client asks for events.
+ */
+static GR_FNCALLBACKEVENT ErrorFunc = GrDefaultErrorHandler;
+
+/* 
+ * The default error handler which is called when the server
+ * reports an error event and the client hasn't set a handler for error events.
+ */
+void 
+GrDefaultErrorHandler(GR_EVENT *ep)
+{
+	if (ep->type == GR_EVENT_TYPE_ERROR) {
+		EPRINTF("nxclient %d: Error (%s) ", getpid(), ep->error.name);
+		EPRINTF(nxErrorStrings[ep->error.code], ep->error.id);
+		GrClose();
+		exit(1);
+	}
+}
+
+/*
+ * Set an error handling routine, which will be called on any errors from
+ * the server (when events are asked for by the client).  If zero is given,
+ * then errors will be returned as regular events.  
+ * Returns the previous error handler.
+ */
+GR_FNCALLBACKEVENT
+GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
+{
+	GR_FNCALLBACKEVENT orig = ErrorFunc;
+
+	ErrorFunc = fncb;
+	return orig;
+}
+
+/*
+ * Check if the passed event is an error event, and call
+ * error handler if registered.  Error event is then converted
+ * to a null event in case it's later processed by the main loop.
+ * This solution is simpler than creating a client-side event queue.
+ */
+static void
+CheckErrorEvent(GR_EVENT *ep)
+{
+	if (ep->type == GR_EVENT_TYPE_ERROR) {
+		if (ErrorFunc) {
+			/* call error handler*/
+			ErrorFunc(ep);
+
+			/* then convert to null event*/
+			ep->type = GR_EVENT_TYPE_NONE;
+		}
+	}
+}
+
+/*
+ * Read n bytes of data from the server into block *b.  Make sure the data
+ * you are about to read are actually of the correct type - e.g. make a
+ * check for the first block of data you read as a response to a command
+ * with the Typed version of this function. Returns 0 on success or -1 on
+ * failure.
+ */
+static int GrReadBlock(void *b, int n)
+{
+	int i = 0;
+	char *v;
+
+	v = (char *) b;
+
+	nxFlushReq(0L,0);
+	while(v < ((char *) b + n)) {
+		i = read(nxSocket, v, ((char *) b + n - v));
+		if ( i <= 0 ) {
+			if ( i == 0 ) {
+				/* We should maybe produce an event here,
+				 * if possible.
+				 */
+				EPRINTF("nxclient: lost connection to Nano-X server\n");
+				exit(1);
+			}
+			if ( errno == EINTR || errno == EAGAIN )
+				continue;
+
+			EPRINTF("nxclient: bad readblock %d\n", i);
+			return -1;
+		}
+		v += i;
+	}
+
+	return 0;
+}
+
+/*
+ * Read a byte of data from the server.
+ */
+static int GrReadByte()
+{
+	unsigned char c;
+
+	if(GrReadBlock(&c, 1) == -1)
+		return -1;
+	else return (int) c;
+}
+
+
+/* Check if the data we are about to read are of the correct type.  This
+ * must be done in order to avoid reading an event as part of the response
+ * from the server to a command that requires a reply.
+ */
+
+static int GrCheckBlockType(short packettype)
+{
+	short b;
+	while (GrReadBlock(&b,sizeof(b)) != -1) {
+		if (b == packettype)
+			return b;
+
+		if (b == GrNumGetNextEvent) {
+			/*EPRINTF("nxclient %d: Storing event (expected %d)\n",
+				getpid(), packettype);*/
+
+			/* We only need to handle one event, since the next
+			 * event won't arrive until the next GrPrepareSelect()
+			 * has been called, and by then we have already
+			 * handled this event in GrServiceSelect(). If
+			 * GrPrepareSelect() is never called, then we should
+			 * never get here either, so that is cool too.
+			 */
+if (storedevent) printf("\7ERROR\n");
+			GrReadBlock(&storedevent_data,
+				    sizeof(storedevent_data));
+			storedevent = 1;
+		} else {
+			EPRINTF("nxclient %d: Wrong packet type %d "
+				"(expected %d)\n", getpid(),b, packettype);
+		}
+	}
+	EPRINTF("nxclient %d: Corrupted packet\n", getpid());
+	return -1;
+}
+
+/* Actually read a response from the server, much like the GrReadBlock but
+ * make sure the response is of the right kind, e.g. store the event that
+ * may have sneaked into the stream.
+ */
+
+static int GrTypedReadBlock(void *b, int n, int type)
+{
+	int r;
+   
+	r = GrCheckBlockType(type);
+	if (r != type)
+		return -1;
+	return GrReadBlock(b,n);
+}
+
+#if 0000
+/*
+ * Read an error event structure from the server and deliver it to the client.
+ */
+static int GrDeliverErrorEvent(void)
+{
+	GR_EVENT_ERROR err;
+
+	if(GrReadBlock(&err, sizeof(err)) == -1)
+		return -1;
+
+	GrErrorFunc(err);
+
+	return 0;
+}
+
+/*
+ * Send a block of data to the server and read it's reply.
+ */
+static int GrSendBlock(void *b, long n)
+{
+	int i = 0;
+	unsigned char *c;
+
+	c = (unsigned char *) b;
+
+	/* FIXME: n > 64k will fail here if sizeof(int) == 2*/
+	while(c < ((unsigned char *) b + n)) {
+		i = write(nxSocket, c, ((unsigned char *) b + n - c));
+		if(i <= 0)
+			return -1;
+		c += i;
+	}
+
+#if 0
+	do {
+		int	z;
+
+		if((i = GrReadByte()) < 0) return -1;
+		else if(i == GrRetESig) {
+			z = GrReadByte();
+			if(z == -1) return -1;
+EPRINTF("nxclient: bad GrSendBlock\r\n");
+			raise(z);
+		}
+		else if(i == GrRetErrorPending) {
+			if(GrDeliverErrorEvent() == -1) return -1;
+		} else if (i == GrEventFollows) {
+		   
+		}
+
+	} while((i == GrRetESig) | (i == GrRetErrorPending));
+	return((int) i);
+#endif
+	return 0;
+}
+
+/*
+ * Send a single byte to the server and read the reply.
+ */
+static int GrSendByte(unsigned char c)
+{
+	return GrSendBlock(&c, 1);
+}
+#endif
+
+/*
+ * Flush the message buffer of any messages it may contain.
+ */
+void 
+GrFlush(void)
+{
+	nxFlushReq(0L,1);
+}
+
+/*
+ * Open a connection to the graphics server.
+ * Returns the fd of the connection to the server if successful,
+ * or -1 on failure.
+ */
+int 
+GrOpen(void)
+{
+	size_t 		size;
+	nxOpenReq	req;
+	int		tries;
+	int		ret;
+#if ELKS
+	struct sockaddr_na name;
+#else
+	struct sockaddr_un name;
+#endif
+	
+	if(nxSocket == -1)
+#if ELKS
+		if((nxSocket = socket(AF_NANO, SOCK_STREAM, 0)) == -1) {
+#else
+		if((nxSocket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+#endif
+			nxSocket = -1;
+			return -1;
+		}
+
+#if ELKS
+	name.sun_family = AF_NANO;
+	name.sun_no = GR_NUMB_SOCKET;
+	size = sizeof(struct sockaddr_na);
+#else
+	name.sun_family = AF_UNIX;
+	strcpy(name.sun_path, GR_NAMED_SOCKET);
+	size = (offsetof(struct sockaddr_un, sun_path) +
+		strlen(name.sun_path) + 1);
+#endif
+	/*
+	 * Try to open the connection for up to a second,
+	 * waiting 1/10 second between attempts.
+	 */
+	for (tries=1; tries<=10; ++tries) {
+		struct timespec req;
+
+		ret = connect(nxSocket, (struct sockaddr *) &name, size);
+		if (ret >= 0)
+			break;
+		req.tv_sec = 0;
+		req.tv_nsec = 100000000L;
+		nanosleep(&req, NULL);
+		EPRINTF("nxclient: retry connect attempt %d\n", tries);
+	}
+	if (ret == -1) {
+		close(nxSocket);
+		nxSocket = -1;
+		return -1;
+	}
+
+	/* By Performing the 'GrOpen' without allocating a buffer, just
+	 * shuffeling the struct over the wire, we can postpone the
+	 * allocation of the client size command buffer, which will never be
+	 * allocated if the first command after GrOpen() is
+	 * GrReqShmCmds() which allocates a replacement shared memory
+	 * segment.
+	 * So: Calling GrReqShmCmds() right after GrOpen will prevent the
+	 * traditional command queue buffer from being allocated from
+	 * the process heap - and only the shared memory segment is
+	 * allocated.
+	 */
+	req.reqType = GrNumOpen;
+	req.hilength = 0;
+	req.length = sizeof(req);
+
+	nxWriteSocket((char *)&req,sizeof(req));
+	return nxSocket;
+}
+
+/*
+ * Close the graphics device, flushing any waiting messages.
+ * Vladimir Cotfas: 
+ *  - hang in GrFlush() --> nxFlushReq(0L,1);
+ *
+ */
+#if GR_CLOSE_FIX
+static void
+mySignalhandler(int sig)
+{
+	if (sig == SIGALRM) {
+	    printf("Oops! nxFlushReq() timed out, cowardly chickening out!\n");
+	    exit(127);
+	}
+}
+#endif
+
+void 
+GrClose(void)
+{
+#if GR_CLOSE_FIX
+	/* allow 1 second to flush*/
+	void * oldSignalHandler = signal(SIGALRM, mySignalhandler);
+	alarm(1);
+#endif
+	AllocReq(Close);
+	GrFlush();
+#if GR_CLOSE_FIX
+	alarm(0); 
+	signal(SIGALRM, oldSignalHandler);
+#endif
+	close(nxSocket);
+}
+
+/*
+ * Return useful information about the screen.
+ * Returns -1 on failure or 0 on success.
+ */
+void 
+GrGetScreenInfo(GR_SCREEN_INFO *sip)
+{
+	AllocReq(GetScreenInfo);
+	GrTypedReadBlock(sip, sizeof(GR_SCREEN_INFO),GrNumGetScreenInfo);
+}
+
+/* Return system-defined color*/
+GR_COLOR
+GrGetSysColor(int index)
+{
+	nxGetSysColorReq *req;
+	GR_COLOR color;
+
+	req = AllocReq(GetSysColor);
+	req->index = index;
+	if(GrTypedReadBlock(&color, sizeof(color),GrNumGetSysColor) == -1)
+		return 0;
+	return color;
+}
+
+/*
+ * Return useful information about the specified font.
+ */
+void 
+GrGetFontInfo(GR_FONT_ID fontno, GR_FONT_INFO *fip)
+{
+	nxGetFontInfoReq *req;
+
+	req = AllocReq(GetFontInfo);
+	req->fontid = fontno;
+	GrTypedReadBlock(fip, sizeof(GR_FONT_INFO),GrNumGetFontInfo);
+}
+
+/*
+ * Return information about the specified graphics context.
+ */
+void GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
+{
+	nxGetGCInfoReq *req;
+
+	req = AllocReq(GetGCInfo);
+	req->gcid = gc;
+	GrTypedReadBlock(gcip, sizeof(GR_GC_INFO),GrNumGetGCInfo);
+}
+
+/*
+ * Return the size of a text string for the font in a graphics context.
+ * This is the width of the string, the height of the string,
+ * and the height above the bottom of the font of the baseline for the font.
+ */
+void GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
+	GR_SIZE *retwidth, GR_SIZE *retheight, GR_SIZE *retbase)
+{
+	nxGetGCTextSizeReq *req;
+	int		    size;
+
+	if(count == -1 && (flags&MWTF_PACKMASK) == MWTF_ASCII)
+		count = strlen((char *)str);
+
+	size = nxCalcStringBytes(str, count, flags);
+
+	req = AllocReqExtra(GetGCTextSize, size);
+	req->gcid = gc;
+	req->flags = flags;
+	memcpy(GetReqData(req), str, size);
+	GrTypedReadBlock(retwidth, sizeof(*retwidth),GrNumGetGCTextSize);
+	GrReadBlock(retheight, sizeof(*retheight));
+	GrReadBlock(retbase, sizeof(*retbase));
+}
+
+/*
+ * Register the specified file descriptor to return an event
+ * when input is ready.
+ * FIXME: only one external file descriptor works
+ */
+static int regfd = -1;
+
+void 
+GrRegisterInput(int fd)
+{
+	regfd = fd;
+}
+
+/* Passive library entry points*/
+
+/* The GrPrepareSelect function serves two purposes:  It puts the server into
+ * a mode where it will send the first event that arrives for this connection
+ * directly to the client.  It also initializes a fd_set so that a 'select'
+ * system call will wake up when this first event arrives.
+ *
+ * The 'maxfd' is used to find the value of the biggest filedescriptor in
+ * use - it will be updated if Nano-X uses a filedescriptor with a larger
+ * value.
+ */
+void
+GrPrepareSelect(int *maxfd,void *rfdset)
+{
+	fd_set *rfds = rfdset;
+
+	AllocReq(GetNextEvent);
+	GrFlush();
+
+	FD_SET(nxSocket, rfds);
+	if(nxSocket > *maxfd)
+		*maxfd = nxSocket;
+	if(regfd != -1) {
+		FD_SET(regfd, rfds);
+		if(regfd > *maxfd)
+			*maxfd = regfd;
+	}
+}
+
+void
+GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
+{
+	fd_set *	rfds = rfdset;
+	GR_EVENT 	ev;
+
+        /* Clean out any event that might have arrived while waiting
+	 * for other data, for instance by doing Nano-X requests
+	 * between GrPrepareSelect() and GrServiceSelect(), or when
+	 * an event is generated in Nano-X at the same time as the
+	 * client wakes up for some reason and calls Nano-X functions.
+	 */
+	if (storedevent) {
+		/*DPRINTF("nxclient: Handling stored event\n");*/
+		CheckErrorEvent(&storedevent_data);
+		fncb(&storedevent_data);
+		storedevent = 0;
+	} else {
+		if(FD_ISSET(nxSocket, rfds)) {
+			GrTypedReadBlock(&ev, sizeof(ev),GrNumGetNextEvent);
+			CheckErrorEvent(&ev);
+			fncb(&ev);
+		}
+	}
+
+#if 0 
+	/* Morten - remove this if you want*/
+	while ( GrPeekEvent(&ev) )
+		CheckErrorEvent(&ev);
+		fncb(&ev);
+#endif
+
+	if(regfd != -1 && FD_ISSET(regfd, rfds)) {
+		ev.type = GR_EVENT_TYPE_FDINPUT;
+		ev.fdinput.fd = regfd;
+		fncb(&ev);
+	}
+}
+
+void
+GrMainLoop(GR_FNCALLBACKEVENT fncb)
+{
+	fd_set	rfds;
+	int	setsize = 0;
+
+	for(;;) {
+		FD_ZERO(&rfds);
+		GrPrepareSelect(&setsize, &rfds);
+		if(select(setsize+1, &rfds, NULL, NULL, NULL) > 0)
+			GrServiceSelect(&rfds, fncb);
+	}
+}
+
+/*
+ * Return the next event from the event queue.
+ * This waits for a new one if one is not ready.
+ */
+void 
+GrGetNextEvent(GR_EVENT *ep)
+{
+	GrGetNextEventTimeout(ep, 0L);
+}
+
+/*
+ * Return the next event from the event queue, or
+ * wait for a new one if one is not ready.  If timeout
+ * is nonzero, return timeout event if time elapsed.
+ */
+void
+GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
+{
+	fd_set 		rfds;
+	int		setsize = 0;
+	int		e;
+	struct timeval 	to;
+
+	if (storedevent) {
+		/*DPRINTF("nxclient %d: Returning stored event\n",getpid());*/
+		memcpy(ep,&storedevent_data,sizeof(*ep));
+		storedevent = 0;
+		CheckErrorEvent(ep);
+		return;
+	}
+
+	FD_ZERO(&rfds);
+	GrPrepareSelect(&setsize, &rfds);
+	if (timeout) {
+		to.tv_sec = timeout / 1000;
+		to.tv_usec = (timeout % 1000) * 1000;
+	}
+
+	if ((e = select(setsize+1, &rfds, NULL, NULL, timeout? &to: NULL)) > 0){
+		if(FD_ISSET(nxSocket, &rfds)) {
+			/* this will never be GR_EVENT_NONE
+			 * with current implementation
+			 */
+		        GrTypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
+			CheckErrorEvent(ep);
+			return;
+		}
+		if(regfd != -1 && FD_ISSET(regfd, &rfds)) {
+			ep->type = GR_EVENT_TYPE_FDINPUT;
+			ep->fdinput.fd = regfd;
+			return;
+		}
+	}
+	else if (e == 0) {
+		/* 
+		 * Timeout has occured.  Currently return
+		 * a timeout event regardless of whether
+		 * client has selected for it.
+		 */
+		ep->type = GR_EVENT_TYPE_TIMEOUT;
+	}
+}
+
+/*
+ * Return the next event from the event queue if one is ready.
+ * If one is not ready, then the type GR_EVENT_TYPE_NONE is returned.
+ * If it is an error event, then a user-specified routine is called
+ * if it was defined, otherwise we clean up and exit.
+ */
+void 
+GrCheckNextEvent(GR_EVENT *ep)
+{
+	AllocReq(CheckNextEvent);
+	GrTypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
+	CheckErrorEvent(ep);
+}
+
+/*
+ * Return the next event from the event queue if available.
+ * If there is no event, then a null event type is returned.
+ */
+int 
+GrPeekEvent(GR_EVENT *ep)
+{
+	int	ret;
+
+	if (storedevent) {
+		*ep = storedevent_data;
+		storedevent = 0;
+		return 1;
+	}
+	AllocReq(PeekEvent);
+	GrTypedReadBlock(ep, sizeof(*ep),GrNumPeekEvent);
+	ret = GrReadByte();
+	CheckErrorEvent(ep);
+	return ret;
+}
+
+/*
+ * Select events for a window for this client.
+ * The events are a bitmask for the events desired.
+ * Error events are always returned/handled regardless of mask.
+ */
+void 
+GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
+{
+	
+	nxSelectEventsReq *req;
+
+	req = AllocReq(SelectEvents);
+	req->windowid = wid;
+	req->eventmask = eventmask;
+}
+
+/*
+ * Allocate a new window which is a child of the specified window.
+ * The window inherits the cursor of the parent window.
+ */
+GR_WINDOW_ID
+GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
+	GR_SIZE height, GR_SIZE bordersize, GR_COLOR background,
+	GR_COLOR bordercolor)
+{
+	nxNewWindowReq *req;
+	GR_WINDOW_ID 	wid;
+
+	req = AllocReq(NewWindow);
+	req->parentid = parent;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	req->backgroundcolor = background;
+	req->bordercolor = bordercolor;
+	req->bordersize = bordersize;
+	if(GrTypedReadBlock(&wid, sizeof(wid),GrNumNewWindow) == -1)
+		return 0;
+	return wid;
+}
+   
+   
+/*
+ * Allocate a new pixmap
+ * FIXME: Add support for shared memory...
+ */
+GR_WINDOW_ID
+GrNewPixmap(GR_SIZE width, GR_SIZE height, void *addr)
+{
+	nxNewPixmapReq *req;
+	GR_WINDOW_ID 	wid;
+
+	req = AllocReq(NewPixmap);
+	req->width = width;
+	req->height = height;
+	if(GrTypedReadBlock(&wid, sizeof(wid), GrNumNewPixmap) == -1)
+		return 0;
+	return wid;
+}
+
+/*
+ * Allocate a new input-only window which is a child of the specified window.
+ * The window inherits the cursor of the parent window.
+ */
+GR_WINDOW_ID
+GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
+	GR_SIZE height)
+{
+	nxNewInputWindowReq *req;
+	GR_WINDOW_ID 	     wid;
+
+	req = AllocReq(NewInputWindow);
+	req->parentid = parent;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	if(GrTypedReadBlock(&wid, sizeof(wid), GrNumNewInputWindow) == -1)
+		return 0;
+	return wid;
+}
+
+/*
+ * Destroy an existing window.
+ */
+void 
+GrDestroyWindow(GR_WINDOW_ID wid)
+{
+	nxDestroyWindowReq *req;
+
+	req = AllocReq(DestroyWindow);
+	req->windowid = wid;
+}
+
+/*
+ * Return information about a window id.
+ */
+void 
+GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
+{
+	nxGetWindowInfoReq *req;
+
+	req = AllocReq(GetWindowInfo);
+	req->windowid = wid;
+	GrTypedReadBlock(infoptr, sizeof(GR_WINDOW_INFO), GrNumGetWindowInfo);
+}
+
+/*
+ * Allocate a new GC with default parameters.
+ */
+GR_GC_ID 
+GrNewGC(void)
+{
+	GR_GC_ID    gc;
+
+	AllocReq(NewGC);
+	if(GrTypedReadBlock(&gc, sizeof(gc),GrNumNewGC) == -1)
+		return 0;
+	return gc;
+}
+
+/*
+ * Allocate a new GC which is a copy of another one.
+ */
+GR_GC_ID 
+GrCopyGC(GR_GC_ID gc)
+{
+	nxCopyGCReq *req;
+	GR_GC_ID     newgc;
+
+	req = AllocReq(CopyGC);
+	req->gcid = gc;
+	if(GrTypedReadBlock(&newgc, sizeof(newgc),GrNumCopyGC) == -1)
+		return 0;
+	return newgc;
+}
+
+/*
+ * Destroy an existing graphics context.
+ */
+void
+GrDestroyGC(GR_GC_ID gc)
+{
+	nxDestroyGCReq *req;
+
+	req = AllocReq(DestroyGC);
+	req->gcid = gc;
+}
+
+/*
+ * Allocate a new region.
+ */
+GR_REGION_ID 
+GrNewRegion(void)
+{
+	GR_REGION_ID    region;
+
+	AllocReq(NewRegion);
+	if(GrTypedReadBlock(&region, sizeof(region),GrNumNewRegion) == -1)
+		return 0;
+	return region;
+}
+
+/*
+ * Destroy an existing region.
+ */
+void
+GrDestroyRegion(GR_REGION_ID region)
+{
+	nxDestroyRegionReq *req;
+
+	req = AllocReq(DestroyRegion);
+	req->regionid = region;
+}
+
+/*
+ * Updates the region from a union of the specified rectangle
+ * and the original region.
+ */
+void
+GrUnionRectWithRegion(GR_REGION_ID region, GR_RECT *rect)
+{
+	nxUnionRectWithRegionReq *req;
+
+ 	req = AllocReq(UnionRectWithRegion);
+ 	if(rect) {
+ 		memcpy(&req->rect, rect, sizeof(*rect));
+ 	}
+ 	req->regionid = region;
+}
+
+/*
+ * Updates the region from a union of two regions.
+ */
+void
+GrUnionRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
+	GR_REGION_ID src_rgn2)
+{
+	nxUnionRegionReq *req;
+
+ 	req = AllocReq(UnionRegion);
+ 	req->regionid = dst_rgn;
+ 	req->srcregionid1 = src_rgn1;
+ 	req->srcregionid2 = src_rgn2;
+}
+
+/*
+ * Updates the region by subtracting a region from another.
+ */
+void
+GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
+	GR_REGION_ID src_rgn2)
+{
+	nxSubtractRegionReq *req;
+
+ 	req = AllocReq(SubtractRegion);
+ 	req->regionid = dst_rgn;
+ 	req->srcregionid1 = src_rgn1;
+ 	req->srcregionid2 = src_rgn2;
+}
+
+/*
+ * Updates the region to the difference of two regions.
+ */
+void
+GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
+	GR_REGION_ID src_rgn2)
+{
+	nxXorRegionReq *req;
+
+ 	req = AllocReq(XorRegion);
+ 	req->regionid = dst_rgn;
+ 	req->srcregionid1 = src_rgn1;
+ 	req->srcregionid2 = src_rgn2;
+}
+
+/*
+ * Updates the region from a intersection of two regions.
+ */
+void
+GrIntersectRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
+	GR_REGION_ID src_rgn2)
+{
+	nxIntersectRegionReq *req;
+
+ 	req = AllocReq(IntersectRegion);
+ 	req->regionid = dst_rgn;
+ 	req->srcregionid1 = src_rgn1;
+ 	req->srcregionid2 = src_rgn2;
+}
+
+/*
+ * Sets the clip-mask in the GC to the specified region.
+ */
+void
+GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
+{
+	nxSetGCRegionReq *req;
+	
+	req = AllocReq(SetGCRegion);
+	req->gcid = gc;
+	req->regionid = region;
+}
+
+/*
+ * Determines whether a specified point resides in a region.
+ */
+GR_BOOL
+GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y)
+{
+	nxPointInRegionReq *req;
+	GR_BOOL             ret_value;
+
+	req = AllocReq(PointInRegion);
+	req->regionid = region;
+	req->x = x;
+	req->y = y;
+	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
+		GrNumPointInRegion) == -1)
+		return GR_FALSE;
+	return ret_value;
+}
+
+/*
+ * Determines whether a specified rectangle at least partly resides
+ * in a region.
+ */
+int
+GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y, GR_COORD w,
+	GR_COORD h)
+{
+	nxRectInRegionReq *req;
+	unsigned short	   ret_value;
+	
+	req = AllocReq(RectInRegion);
+	req->regionid = region;
+	req->x = x;
+	req->y = y;
+	req->w = w;
+	req->h = h;
+ 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
+		GrNumRectInRegion) == -1)
+		return 0;
+	return (int)ret_value;
+}
+
+/*
+ * Return GR_TRUE if a region is empty.
+ */ 
+GR_BOOL
+GrEmptyRegion(GR_REGION_ID region)
+{
+	nxEmptyRegionReq *req;
+	GR_BOOL 	  ret_value;
+	
+	req = AllocReq(EmptyRegion);
+	req->regionid = region;
+ 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
+		GrNumEmptyRegion) == -1)
+		return GR_FALSE;
+	return ret_value;
+}
+
+/*
+ * Return GR_TRUE if two regions are identical.
+ */ 
+GR_BOOL
+GrEqualRegion(GR_REGION_ID rgn1, GR_REGION_ID rgn2)
+{
+	nxEqualRegionReq *req;
+	GR_BOOL 	  ret_value;
+	
+	req = AllocReq(EqualRegion);
+	req->region1 = rgn1;
+	req->region2 = rgn2;
+ 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
+		GrNumEqualRegion) == -1)
+		return GR_FALSE;
+	return ret_value;
+}
+
+/*
+ * Offset a region by dx, dy.
+ */ 
+void
+GrOffsetRegion(GR_REGION_ID region, GR_SIZE dx, GR_SIZE dy)
+{
+	nxOffsetRegionReq *req;
+	
+	req = AllocReq(OffsetRegion);
+	req->region = region;
+	req->dx = dx;
+	req->dy = dy;
+}
+
+/*
+ * Return the bounding box for the specified region.
+ */
+int
+GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
+{
+	nxGetRegionBoxReq *req;
+	unsigned short	   ret_value;
+	
+	if (!rect)
+		return GR_FALSE;
+	req = AllocReq(GetRegionBox);
+	req->regionid = region;
+ 	if(GrTypedReadBlock(rect, sizeof(*rect), GrNumGetRegionBox) == -1)
+		return GR_FALSE;
+ 	if(GrTypedReadBlock(&ret_value, sizeof(ret_value),
+		GrNumGetRegionBox) == -1)
+		return GR_FALSE;
+	return ret_value;
+}
+
+/*
+ * Allocate a new region from a set of points interpreted as a polygon.
+ */
+GR_REGION_ID 
+GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
+{
+	nxNewPolygonRegionReq	*req;
+	long			size;
+	GR_REGION_ID		region;
+
+	if(count == 0)
+		return GrNewRegion();
+	
+	if(points == NULL)
+		return 0;
+
+	size = (long)count * sizeof(GR_POINT);
+	req = AllocReqExtra(NewPolygonRegion, size);
+	req->mode = mode;
+	/* FIXME: unportable method, depends on sizeof(int) in GR_POINT*/
+	memcpy(GetReqData(req), points, size);
+
+	if(GrTypedReadBlock(&region, sizeof(region),
+		GrNumNewPolygonRegion) == -1)
+		return 0;
+	return region;
+}
+
+/*
+ * Map the window to make it (and possibly its children) visible on the screen.
+ * This paints the border and background of the window, and creates an
+ * exposure event to tell the client to draw into it.
+ */
+void 
+GrMapWindow(GR_WINDOW_ID wid)
+{
+	nxMapWindowReq *req;
+
+	req = AllocReq(MapWindow);
+	req->windowid = wid;
+}
+
+/*
+ * Unmap the window to make it and its children invisible on the screen.
+ */
+void 
+GrUnmapWindow(GR_WINDOW_ID wid)
+{
+	nxUnmapWindowReq *req;
+
+	req = AllocReq(UnmapWindow);
+	req->windowid = wid;
+}
+
+/*
+ * Raise the window to the highest level among its siblings.
+ */
+void 
+GrRaiseWindow(GR_WINDOW_ID wid)
+{
+	nxRaiseWindowReq *req;
+
+	req = AllocReq(RaiseWindow);
+	req->windowid = wid;
+}
+
+/*
+ * Lower the window to the lowest level among its siblings.
+ */
+void 
+GrLowerWindow(GR_WINDOW_ID wid)
+{
+	nxLowerWindowReq *req;
+
+	req = AllocReq(LowerWindow);
+	req->windowid = wid;
+}
+
+/*
+ * Move the window to the specified position relative to its parent.
+ */
+void 
+GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
+{
+	nxMoveWindowReq *req;
+
+	req = AllocReq(MoveWindow);
+	req->windowid = wid;
+	req->x = x;
+	req->y = y;
+}
+
+/*
+ * Resize the window to be the specified size.
+ */
+void 
+GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
+{
+	nxResizeWindowReq *req;
+
+	req = AllocReq(ResizeWindow);
+	req->windowid = wid;
+	req->width = width;
+	req->height = height;
+}
+
+/*
+ * Reparent window to new parent, position at passed x, y
+ */
+void 
+GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
+{
+	nxReparentWindowReq *req;
+
+	req = AllocReq(ReparentWindow);
+	req->windowid = wid;
+	req->parentid = pwid;
+	req->x = x;
+	req->y = y;
+}
+
+/*
+ * Clear the specified window by setting it to its background color.
+ * If the exposeflag is nonzero, then this also creates an exposure
+ * event for the window.
+ */
+void 
+GrClearWindow(GR_WINDOW_ID wid, GR_BOOL exposeflag)
+{
+	nxClearWindowReq *req;
+
+	req = AllocReq(ClearWindow);
+	req->windowid = wid;
+	req->exposeflag = exposeflag;
+}
+
+/* Return window with keyboard focus.*/
+GR_WINDOW_ID
+GrGetFocus(void)
+{
+	GR_WINDOW_ID	wid;
+
+	AllocReq(GetFocus);
+	if(GrTypedReadBlock(&wid, sizeof(wid), GrNumGetFocus) == -1)
+		return 0;
+	return wid;
+}
+
+/*
+ * Set the focus to a particular window.
+ * This makes keyboard events only visible to that window or children of it,
+ * depending on the pointer location.
+ */
+void 
+GrSetFocus(GR_WINDOW_ID wid)
+{
+	nxSetFocusReq *req;
+
+	req = AllocReq(SetFocus);
+	req->windowid = wid;
+}
+
+/*
+ * Set the border of a window to the specified color.
+ */
+void 
+GrSetBorderColor(GR_WINDOW_ID wid, GR_COLOR colour)
+{
+	nxSetBorderColorReq *req;
+
+	req = AllocReq(SetBorderColor);
+	req->windowid = wid;
+	req->color = colour;
+}
+
+/*
+ * Specify a cursor for a window.
+ * This cursor will only be used within that window, and by default
+ * for its new children.  If the cursor is currently within this
+ * window, it will be changed to the new one immediately.
+ */
+void
+GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height, GR_COORD hotx,
+	GR_COORD hoty, GR_COLOR foreground, GR_COLOR background,
+	GR_BITMAP *fgbitmap, GR_BITMAP *bgbitmap)
+{
+	nxSetCursorReq *req;
+	int 	     	bitmapsize;
+	char *	     	data;
+
+	bitmapsize = GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	req = AllocReqExtra(SetCursor, bitmapsize*2);
+	req->windowid = wid;
+	req->width = width;
+	req->height = height;
+	req->hotx = hotx;
+	req->hoty = hoty;
+	req->fgcolor = foreground;
+	req->bgcolor = background;
+	data = GetReqData(req);
+	memcpy(data, fgbitmap, bitmapsize);
+	memcpy(data+bitmapsize, bgbitmap, bitmapsize);
+}
+
+/*
+ * Move the cursor to the specified absolute screen coordinates.
+ * The coordinates are that of the defined hot spot of the cursor.
+ * The cursor's appearance is changed to that defined for the window
+ * in which the cursor is moved to.
+ */
+void 
+GrMoveCursor(GR_COORD x, GR_COORD y)
+{
+	nxMoveCursorReq *req;
+
+	req = AllocReq(MoveCursor);
+	req->x = x;
+	req->y = y;
+}
+
+/*
+ * Set the foreground color in a graphics context.
+ */
+void 
+GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
+{
+	nxSetGCForegroundReq *req;
+
+	req = AllocReq(SetGCForeground);
+	req->gcid = gc;
+	req->color = foreground;
+}
+
+/*
+ * Set the background color in a graphics context.
+ */
+void 
+GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
+{
+	nxSetGCBackgroundReq *req;
+
+	req = AllocReq(SetGCBackground);
+	req->gcid = gc;
+	req->color = background;
+}
+
+/*
+ * Set the drawing mode in a graphics context.
+ */
+void 
+GrSetGCMode(GR_GC_ID gc, int mode)
+{
+	nxSetGCModeReq *req;
+
+	req = AllocReq(SetGCMode);
+	req->gcid = gc;
+	req->mode = mode;
+}
+
+/*
+ * Set whether or not the background color is drawn in bitmaps and text.
+ */
+void 
+GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
+{
+	nxSetGCUseBackgroundReq *req;
+
+	req = AllocReq(SetGCUseBackground);
+	req->gcid = gc;
+	req->flag = flag;
+}
+
+GR_FONT_ID
+GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
+{
+	nxCreateFontReq *req;
+	GR_FONT_ID	fontid;
+
+ 	req = AllocReq(CreateFont);
+ 	if (plogfont) {
+ 		memcpy(&req->lf, plogfont, sizeof(*plogfont));
+ 		req->height = 0;
+ 		req->lf_used = 1;
+ 	} else {
+		if (name)
+			strcpy(req->lf.lfFaceName, name);
+		else req->lf.lfFaceName[0] = '\0';
+  		req->height = height;
+ 		req->lf_used = 0;
+	}
+  
+	if(GrTypedReadBlock(&fontid, sizeof(fontid),GrNumCreateFont) == -1)
+		return 0;
+	return fontid;
+}
+
+void
+GrSetFontSize(GR_FONT_ID fontid, GR_COORD fontsize)
+{
+	nxSetFontSizeReq *req;
+
+	req = AllocReq(SetFontSize);
+	req->fontid = fontid;
+	req->fontsize = fontsize;
+}
+
+void
+GrSetFontRotation(GR_FONT_ID fontid, int tenthdegrees)
+{
+	nxSetFontRotationReq *req;
+
+	req = AllocReq(SetFontRotation);
+	req->fontid = fontid;
+	req->tenthdegrees = tenthdegrees;
+}
+
+void
+GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags)
+{
+	nxSetFontAttrReq *req;
+
+	req = AllocReq(SetFontAttr);
+	req->fontid = fontid;
+	req->setflags = setflags;
+	req->clrflags = clrflags;
+}
+
+void
+GrDestroyFont(GR_FONT_ID fontid)
+{
+	nxDestroyFontReq *req;
+
+	req = AllocReq(DestroyFont);
+	req->fontid = fontid;
+}
+
+/*
+ * Set the font used for text drawing in a graphics context.
+ * The font is a number identifying one of several fonts.
+ * Font number 0 is always available, and is the default font.
+ */
+void
+GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
+{
+	nxSetGCFontReq *req;
+
+	req = AllocReq(SetGCFont);
+	req->gcid = gc;
+	req->fontid = font;
+}
+
+/*
+ * Draw a line in the specified drawable using the specified graphics context.
+ */
+void 
+GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1, GR_COORD x2,
+	GR_COORD y2)
+{
+	nxLineReq *req;
+
+	req = AllocReq(Line);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x1 = x1;
+	req->y1 = y1;
+	req->x2 = x2;
+	req->y2 = y2;
+}
+
+/*
+ * Draw the boundary of a rectangle in the specified drawable using the
+ * specified graphics context.
+ */
+void 
+GrRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
+	GR_SIZE height)
+{
+	nxRectReq *req;
+
+	req = AllocReq(Rect);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+}
+
+/*
+ * Fill a rectangle in the specified drawable using the specified
+ * graphics context.
+ */
+void 
+GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE width, GR_SIZE height)
+{
+	nxFillRectReq *req;
+
+	req = AllocReq(FillRect);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+}
+
+/*
+ * Draw the boundary of an ellipse in the specified drawable with
+ * the specified graphics context.
+ */
+void 
+GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
+	GR_SIZE ry)
+{
+	nxEllipseReq *req;
+
+	req = AllocReq(Ellipse);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->rx = rx;
+	req->ry = ry;
+}
+
+/*
+ * Fill an ellipse in the specified drawable using the specified
+ * graphics context.
+ */
+void 
+GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE rx, GR_SIZE ry)
+{
+	nxFillEllipseReq *req;
+
+	req = AllocReq(FillEllipse);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->rx = rx;
+	req->ry = ry;
+}
+
+/*
+ * Draw an arc, pie or ellipse in the specified drawable using
+ * the specified graphics context.  Integer only.
+ */
+void	
+GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE rx, GR_SIZE ry, GR_COORD ax, GR_COORD ay,
+	GR_COORD bx, GR_COORD by, int type)
+{
+	nxArcReq *req;
+
+	req = AllocReq(Arc);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->rx = rx;
+	req->ry = ry;
+	req->ax = ax;
+	req->ay = ay;
+	req->bx = bx;
+	req->by = by;
+	req->type = type;
+}
+
+/*
+ * Draw an arc or pie in the specified drawable using
+ * the specified graphics context.  Requires floating point.
+ */
+void
+GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE rx, GR_SIZE ry, GR_COORD angle1, GR_COORD angle2, int type)
+{
+	nxArcAngleReq *req;
+
+	req = AllocReq(ArcAngle);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->rx = rx;
+	req->ry = ry;
+	req->angle1 = angle1;
+	req->angle2 = angle2;
+	req->type = type;
+}
+
+/*
+ * Draw a rectangular area in the specified drawable using the specified
+ * graphics, as determined by the specified bit map.  This differs from
+ * rectangle drawing in that the rectangle is drawn using the foreground
+ * color and possibly the background color as determined by the bit map.
+ * Each row of bits is aligned to the next bitmap word boundary (so there
+ * is padding at the end of the row).  The background bit values are
+ * only written if the usebackground flag is set in the GC.
+ */
+void 
+GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
+	GR_SIZE height, GR_BITMAP *bitmaptable)
+{
+	nxBitmapReq *req;
+	long 	     bitmapsize;
+
+	bitmapsize = (long)GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	req = AllocReqExtra(Bitmap, bitmapsize);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	memcpy(GetReqData(req), bitmaptable, bitmapsize);
+}
+
+/* Draw multicolor image from image structure*/
+void 
+GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_IMAGE_HDR *pimage)
+{
+	nxDrawImageBitsReq *req;
+	int		    imagesize;
+	int		    palsize;
+	char *		    addr;
+
+	imagesize = pimage->pitch * pimage->height;
+	palsize = pimage->palsize * sizeof(MWPALENTRY);
+	req = AllocReqExtra(DrawImageBits, imagesize + palsize);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	/* fill MWIMAGEHDR items passed externally*/
+	req->width = pimage->width;
+	req->height = pimage->height;
+	req->planes = pimage->planes;
+	req->bpp = pimage->bpp;
+	req->pitch = pimage->pitch;
+	req->bytesperpixel = pimage->bytesperpixel;
+	req->compression = pimage->compression;
+	req->palsize = pimage->palsize;
+	req->transcolor = pimage->transcolor;
+	addr = GetReqData(req);
+	memcpy(addr, pimage->imagebits, imagesize);
+	memcpy(addr+imagesize, pimage->palette, palsize);
+}
+
+/* Load an image file from disk and display it at the specified coordinates*/
+void
+GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE width, GR_SIZE height, char* path, int flags)
+{
+	nxDrawImageFromFileReq *req;
+
+	req = AllocReqExtra(DrawImageFromFile, strlen(path)+1);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	req->flags = flags;
+	memcpy(GetReqData(req), path, strlen(path)+1);	
+}
+
+/* load image from file and cache it*/
+GR_IMAGE_ID
+GrLoadImageFromFile(char *path, int flags)
+{
+	nxLoadImageFromFileReq *req;
+	GR_IMAGE_ID		imageid;
+
+	req = AllocReqExtra(LoadImageFromFile, strlen(path)+1);
+	req->flags = flags;
+	memcpy(GetReqData(req), path, strlen(path)+1);	
+
+	if(GrTypedReadBlock(&imageid, sizeof(imageid),
+		GrNumLoadImageFromFile) == -1)
+			return 0;
+	return imageid;
+}
+
+/* draw cached image*/
+void
+GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE width, GR_SIZE height, GR_IMAGE_ID imageid)
+{
+	nxDrawImageToFitReq *req;
+
+	req = AllocReq(DrawImageToFit);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	req->imageid = imageid;
+}
+
+/* free cached image*/
+void
+GrFreeImage(GR_IMAGE_ID id)
+{
+	nxFreeImageReq *req;
+
+	req = AllocReq(FreeImage);
+	req->id = id;
+}
+
+/* return cached image information*/
+void
+GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
+{
+	nxGetImageInfoReq *req;
+
+	req = AllocReq(GetImageInfo);
+	req->id = id;
+	GrTypedReadBlock(iip, sizeof(GR_IMAGE_INFO), GrNumGetImageInfo);
+}
+
+/*
+ * Draw a rectangular area in the specified drawable using the specified
+ * graphics context.  This differs from rectangle drawing in that the
+ * color values for each pixel in the rectangle are specified.
+ * The color table is indexed
+ * row by row.  Values whose color matches the background color are only
+ * written if the usebackground flag is set in the GC.
+ *
+ * The pixels are packed according to pixtype:
+ *
+ * pixtype		array of
+ * MWPF_RGB		MWCOLORVAL (unsigned long)
+ * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
+ * MWPF_PALETTE		unsigned char
+ * MWPF_TRUECOLOR0888	unsigned long
+ * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
+ * MWPF_TRUECOLOR565	unsigned short
+ * MWPF_TRUECOLOR332	unsigned char
+ */
+void 
+GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
+	GR_SIZE height, void *pixels, int pixtype)
+{
+	nxAreaReq *req;
+	long       size;
+	long       chunk_y;
+	int        pixsize;
+
+	/* Calculate size of packed pixels*/
+	switch(pixtype) {
+	case MWPF_RGB:
+		pixsize = sizeof(MWCOLORVAL);
+		break;
+	case MWPF_PIXELVAL:
+		pixsize = sizeof(MWPIXELVAL);
+		break;
+	case MWPF_PALETTE:
+	case MWPF_TRUECOLOR332:
+		pixsize = sizeof(unsigned char);
+		break;
+	case MWPF_TRUECOLOR0888:
+		pixsize = sizeof(unsigned long);
+		break;
+	case MWPF_TRUECOLOR888:
+		pixsize = 3;
+		break;
+	case MWPF_TRUECOLOR565:
+		pixsize = sizeof(unsigned short);
+		break;
+	default:
+		return;
+	}
+
+	/* Break request into MAXREQUESTSZ size packets*/
+	while(height > 0) {
+		chunk_y = (MAXREQUESTSZ - sizeof(nxAreaReq)) /
+			((long)width * pixsize);
+		if(chunk_y > height)
+			chunk_y = height;
+		size = chunk_y * ((long)width * pixsize);
+		req = AllocReqExtra(Area, size);
+		req->drawid = id;
+		req->gcid = gc;
+		req->x = x;
+		req->y = y;
+		req->width = width;
+		req->height = chunk_y;
+		req->pixtype = pixtype;
+		memcpy(GetReqData(req), pixels, size);
+		pixels = (void *)(((char *)pixels) + size);
+		y += chunk_y;
+		height -= chunk_y;
+	}
+}
+
+void
+GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
+	GR_COORD srcx, GR_COORD srcy, int op)
+{
+	nxCopyAreaReq *req;
+
+        req = AllocReq(CopyArea);
+        req->drawid = id;
+        req->gcid = gc;
+        req->x = x;
+        req->y = y;
+        req->width = width;
+        req->height = height;
+        req->srcid = srcid;
+        req->srcx = srcx;
+        req->srcy = srcy;
+        req->op = op;
+}
+   
+   
+/*
+ * Read the color values from the specified rectangular area of the
+ * specified drawable into a supplied buffer.  If the drawable is a
+ * window which is obscured by other windows, then the returned values
+ * will include the values from the covering windows.  Regions outside
+ * of the screen boundaries, or unmapped windows will return black.
+ */
+void 
+GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
+	GR_SIZE height, GR_PIXELVAL *pixels)
+{
+	nxReadAreaReq *req;
+	long           size;
+
+	req = AllocReq(ReadArea);
+	req->drawid = id;
+	req->x = x;
+	req->y = y;
+	req->width = width;
+	req->height = height;
+	size = (long)width * height * sizeof(MWPIXELVAL);
+	GrTypedReadBlock(pixels, size, GrNumReadArea);
+}
+
+/*
+ * Draw a point in the specified drawable using the specified
+ * graphics context.
+ */
+void 
+GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y)
+{
+	nxPointReq *req;
+
+	req = AllocReq(Point);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+
+}
+
+/*
+ * Draw points in the specified drawable using the specified
+ * graphics context.
+ */
+void 
+GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
+{
+	nxPointsReq *req;
+	long       size;
+
+	size = (long)count * sizeof(GR_POINT);
+	req = AllocReqExtra(Points, size);
+	req->drawid = id;
+	req->gcid = gc;
+	memcpy(GetReqData(req), pointtable, size);
+}
+
+/*
+ * Draw a polygon in the specified drawable using the specified
+ * graphics context.  The polygon is only complete if the first
+ * point is repeated at the end.
+ */
+void 
+GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
+{
+	nxPolyReq *req;
+	long       size;
+
+	size = (long)count * sizeof(GR_POINT);
+	req = AllocReqExtra(Poly, size);
+	req->drawid = id;
+	req->gcid = gc;
+	memcpy(GetReqData(req), pointtable, size);
+}
+
+/*
+ * Draw a filled polygon in the specified drawable using the specified
+ * graphics context.  The last point may be a duplicate of the first
+ * point, but this is not required.
+ */
+void 
+GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
+{
+	nxFillPolyReq *req;
+	long           size;
+
+	size = (long)count * sizeof(GR_POINT);
+	req = AllocReqExtra(FillPoly, size);
+	req->drawid = id;
+	req->gcid = gc;
+	memcpy(GetReqData(req), pointtable, size);
+}
+
+/*
+ * Draw a text string in the specified drawable using the specified
+ * graphics context.  The background of the characters are only drawn
+ * if the usebackground flag in the GC is set.
+ */
+void 
+GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
+	GR_COUNT count, int flags)
+{
+	nxTextReq *req;
+	int	   size;
+
+	if(count == -1 && (flags&MWTF_PACKMASK) == MWTF_ASCII)
+		count = strlen((char *)str);
+
+	size = nxCalcStringBytes(str, count, flags);
+
+	req = AllocReqExtra(Text, size);
+	req->drawid = id;
+	req->gcid = gc;
+	req->x = x;
+	req->y = y;
+	req->count = count;
+	req->flags = flags;
+	memcpy(GetReqData(req), str, size);
+}
+
+/* Return the system palette entries*/
+void
+GrGetSystemPalette(GR_PALETTE *pal)
+{
+	AllocReq(GetSystemPalette);
+	GrTypedReadBlock(pal, sizeof(*pal), GrNumGetSystemPalette);
+}
+
+/* Set the system palette entries from first for count*/
+void
+GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
+{
+	nxSetSystemPaletteReq *req;
+
+	req = AllocReq(SetSystemPalette);
+	req->first = first;
+	req->count = pal->count;
+	memcpy(req->palette, pal->palette, sizeof(GR_PALENTRY) * pal->count);
+}
+
+/* Convert passed color value to pixel value, depending on system mode*/
+void
+GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
+{
+	nxFindColorReq *req;
+
+	req = AllocReq(FindColor);
+	req->color = c;
+	GrTypedReadBlock(retpixel, sizeof(*retpixel), GrNumFindColor);
+}
+
+void
+GrReqShmCmds(long shmsize)
+{
+#if HAVE_SHAREDMEM_SUPPORT
+	nxReqShmCmdsReq	req;
+	int key, shmid;
+
+	if ( nxSharedMem != 0 )
+		return;
+
+	GrFlush();
+
+	shmsize = (shmsize+SHM_BLOCK_SIZE-1) & ~(SHM_BLOCK_SIZE-1);
+
+	req.reqType = GrNumReqShmCmds;
+	req.hilength = 0;
+	req.length = sizeof(req);
+	req.size = shmsize;
+
+	nxWriteSocket((char *)&req,sizeof(req));
+	GrReadBlock(&key,sizeof(key));
+
+	if ( !key ) {
+		EPRINTF("nxclient: no shared memory support on server\n");
+		return;
+	}
+
+	shmid = shmget(key,shmsize,0);
+	if ( shmid == -1 ) {
+		EPRINTF("nxclient: Can't shmget key %d: %m\n", key);
+		return;
+	}
+
+	nxSharedMem = shmat(shmid,0,0);
+	shmctl(shmid,IPC_RMID,0);	/* Prevent other from attaching */
+	if ( nxSharedMem == (char *)-1 )
+		return;
+
+	nxSharedMemSize = shmsize;
+	nxAssignReqbuffer(nxSharedMem, shmsize);
+#endif /* HAVE_SHAREDMEM_SUPPORT*/
+}
+
+void
+GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
+{
+	nxInjectEventReq *req;
+
+	req = AllocReq(InjectEvent);
+	req->event_type = GR_INJECT_EVENT_POINTER;
+	req->event.pointer.visible = visible;
+	req->event.pointer.x = x;
+	req->event.pointer.y = y;
+	req->event.pointer.button = button;
+
+	GrFlush();
+}
+
+void
+GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
+	GR_KEYMOD modifier, GR_SCANCODE scancode, GR_BOOL pressed)
+{
+	nxInjectEventReq *req;
+
+	req = AllocReq(InjectEvent);
+	req->event_type = GR_INJECT_EVENT_KEYBOARD;
+	req->event.keyboard.wid = wid;
+	req->event.keyboard.keyvalue = keyvalue;
+	req->event.keyboard.modifier = modifier;
+	req->event.keyboard.scancode = scancode;
+	req->event.keyboard.pressed = pressed;
+
+	GrFlush();
+}
+
+/*
+ * Send the GR_WM_PROPERTIES structure for the specified window id.
+ */
+void
+GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
+{
+	nxSetWMPropertiesReq *req;
+	char 		     *addr;
+	int 		      s;
+
+	if ((props->flags & GR_WM_FLAGS_TITLE) && props->title)
+		s = strlen(props->title) + 1;
+	else s = 0;
+
+	req = AllocReqExtra(SetWMProperties, s + sizeof(GR_WM_PROPERTIES));
+	req->windowid = wid;
+	addr = GetReqData(req);
+	memcpy(addr, props, sizeof(GR_WM_PROPERTIES));
+	if (s)
+		memcpy(addr + sizeof(GR_WM_PROPERTIES), props->title, s);
+}
+
+/*
+ * Read the GR_WM_PROPERTIES structure for the specified window id.
+ * The caller needs to remember to free the returned title before freeing
+ * the structure (we allocate it dynamically because we don't know how
+ * big it is in advance). We set the title to NULL if there isn't one.
+ * The title will also be set to NULL if we can't allocate enough memory
+ * to store it.
+ */
+void
+GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
+{
+	nxGetWMPropertiesReq *req;
+	UINT16 		      textlen;
+	GR_CHAR 	      c;
+
+	req = AllocReq(GetWMProperties);
+	req->windowid = wid;
+
+	GrTypedReadBlock(props, sizeof(GR_WM_PROPERTIES), GrNumGetWMProperties);
+	GrReadBlock(&textlen, sizeof(textlen));
+	if(!textlen) {
+		props->title = NULL;
+		return;
+	}
+	if(!(props->title = malloc(textlen))) {
+		/* Oh dear, we're out of memory but still have to purge the
+		   requested data (and throw it away) */
+		while(textlen--)
+			GrReadBlock(&c, 1);
+	} else {
+		GrReadBlock(props->title, textlen);
+	}
+}
+
+/*
+ * Send a CLOSE_REQ event to the specified window (assuming they've selected
+ * for it). This is used to politely ask an application to shut down when the
+ * user clicks the window close button.
+ */
+void 
+GrCloseWindow(GR_WINDOW_ID wid)
+{
+	nxCloseWindowReq *req;
+
+	req = AllocReq(CloseWindow);
+	req->windowid = wid;
+}
+
+/*
+ * Forcibly disconnect the client which owns this window. Used to kill an
+ * application which has locked up and is not responding to CLOSE_REQ events.
+ */
+void 
+GrKillWindow(GR_WINDOW_ID wid)
+{
+	nxKillWindowReq *req;
+
+	req = AllocReq(KillWindow);
+	req->windowid = wid;
+}

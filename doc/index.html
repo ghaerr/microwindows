@@ -1,0 +1,201 @@
+<html>
+
+<head>
+<title>Greg Haerr's Microwindows and NanoGUI Page</title>
+</head>
+
+<body BGCOLOR="#ffffff">
+
+<table border="0" cellpadding="4" cellspacing="10">
+  <tr>
+    <td valign="top"><img border="0" src="file:///C:/My%20Documents/My%20Webs/myweb2/images/cat.gif" width="85" height="41"> </td>
+    <td><h1 align="center">Microwindows and NanoGUI Projects</h1>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><!--left-column contents --> <p><b>Downloads</b> <br>
+    <a href="ftp://microwindows.censoft.com/pub/microwindows/">Microwindows</a> <br>
+    <a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">Screen&nbsp;Shots</a>
+    <br>
+    <a href="ftp://microwindows.censoft.com/pub/microwindows/LinuxExamples">Linux&nbsp;Binaries</a>
+    <br>
+    <a href="ftp://microwindows.censoft.com/pub/microwindows/ElksExamples">ELKS&nbsp;Binaries</a>
+    <br>
+    <a href="ftp://microwindows.censoft.com/pub/microwindows/DosExamples">MSDOS&nbsp;Binaries</a>
+    </p>
+    <p><b>Docs</b> <br>
+    <a href="faq.html">FAQ</a> <br>
+    <a href="microwindows_architecture.html">Architecture</a> </p>
+    <p><b>Links</b> <br>
+    <a href="http://www.linuxhacker.org/nanogui/">NanoGUI</a> <br>
+    <a href="http://www.linuxce.org/">Linux&nbsp;CE</a> <br>
+    <a href="http://www.elks.ecs.soton.ac.uk/">ELKS</a> <br>
+    <a href="http://ltc.com/linux-mips">Brad's&nbsp;Linux MIPS&nbsp;Pages</a> <!--end left-column contents --> <br>
+    <a href="http://members.xoom.com/rosimildo/rtems_gui.html">RTEMS Port</a></td>
+    <td><!--main contents --> <h3>Welcome</h3>
+    <p>Microwindows is an Open Source project aimed at bringing the features of modern
+    graphical windowing environments to smaller devices and platforms.&nbsp; Microwindows
+    allows applications to be built and tested on the Linux desktop, as well as cross-compiled
+    for the target device.&nbsp; Microwindows' genesis was with the NanoGUI project, and has
+    now been combined into a single distribution.&nbsp; The Win32 API implementation is known
+    as Microwindows, and the Xlib-like API implementation is known as Nano-X. Please read the <a href="faq.html">FAQ</a> for more information.&nbsp; An extensive <a href="microwindows_architecture.html">Architecture</a> document is also available. &nbsp;
+    To get involved, please join <a href="http://www.linuxhacker.org/nanogui/">the NanoGUI
+    mailing list.</a></p>
+    <h3>News</h3>
+    <h3>Version 0.87pre2 release</h3>
+      <p>December 14, 1999<br>
+      The second prerelease for version 0.87 has just been released, and is
+      available for download at:<br>
+      <a href="ftp://microwindows.censoft.com/pub/microwindows/microwindows-0.87pre2.tar.gz">ftp://microwindows.censoft.com/pub/microwindows/microwindows-0.87pre2.tar.gz</a>&nbsp;
+      This release is primarily intended for inspection and testing of the
+      changes before the directory tree reorganization, planned next.<br>
+      The major enhancements include:</p>
+      <ul>
+        <li>Portrait mode driver for framebuffer systems.&nbsp; This is a big
+          win for handhelds and palmtops, many of which require portrait mode
+          for normal operation.&nbsp; All graphics output, including mouse
+          movement, hotspots, and text output, are rotated and displayed in
+          portrait mode.&nbsp; In addition, your Microwindows applications can
+          be viewed in portrait mode on the desktop.&nbsp; Try moving the mouse
+          without holding your head sideways!</li>
+        <li>The RTEMS operating system port source has been integrated with the
+          main tree.</li>
+        <li>Fixes to allow Microwindows to be run on big-endian machines are now
+          included.</li>
+        <li>Various bug fixes including the Microwindows terminal emulator pty
+          fix for X11, and Nano-X GrMovewindow fixes for child windows.&nbsp;
+          There are still some issues relating to Nano-X clipping during window
+          movement.</li>
+      </ul>
+    <h3>RTEMS Port</h3>
+    <p>December 3, 1999<br>
+    There's been alot of interest and development with Microwindows lately.&nbsp; Rosimildo
+    daSilva has ported Microwindows 0.86 to the RTEMS operating system, available at <a href="http://members.xoom.com/rosimildo/rtems_gui.htm">http://members.xoom.com/rosimildo/rtems_gui.htm</a>.
+    &nbsp; <a href="http://www.oarcorp.com/">RTEMS</a> is a POSIX-threads compliant real time
+    multitasking operating system which runs on Intel, Motorola, Hitachi, Mips, and many other
+    CPUs.</p>
+    <h3>Version 0.87pre1 release</h3>
+    <p>December 2, 1999<br>
+    I have prepared an interim release of Microwindows and Nano-X enhancements, which
+    completes many things folks have asked for, version 0.87pre1. This is available for
+    download at <a href="ftp://microwindows.censoft.com/pub/microwindows/microwindows-0.87pre1.tar.gz">ftp://microwindows.censoft.com/pub/microwindows/microwindows-0.87pre1.tar.gz</a>
+    <br>
+    The major enhancements include:<ul>
+      <li>Support for running under X11. Microwindows and Nano-X can now run as a user-defined
+        (default 640x480) window under X Windows. The graphics output and look and feel are
+        identical to framebuffer, but will run on any X display server.</li>
+    </ul>
+    <ul>
+      <li>Compile-time options allow configuration to emulate any of the Microwindows truecolor or
+        palette modes, in any pixel depth, including grayscale. This allows a Microwindows or
+        Nano-X application to be emulated exactly, regardless of the host's or target's
+        framebuffer characteristics. Thanks to Tony Rogvall for the X11 driver.<br>
+      </li>
+      <li>The client/server network code has been completely rewritten for speed!!!
+        I studied the
+        X11 Xlib implementation and came up with a similar implementation. By queuing all client
+        data until an event or reply is required, Nano-X now runs at extremely high speed.
+        For benchmarking, use the world demo, which plots several thousand
+        points.&nbsp; This demo now runs extremely quickly.&nbsp; Unlike
+        the Xlib implementation, Nano-X still runs synchronously per client, meaning that once a
+        client request packet is sent, the server waits until the whole packet has arrived until
+        servicing another client. This keeps the server code immensely simpler, while still
+        running very quickly.&nbsp; I urge interested folks to check out the implementation, in
+        mwin/src/nanox/nxproto.{ch}, and mwin/src/nanox/client.c.<br>
+      </li>
+      <li>Routines were added to allow Nano-X to be used as a &quot;passive library&quot;, meaning
+        that an application with it's own main loop can now call into Nano-X occasionally
+        (after a
+        select returns a file descriptor that Nano-X is interested in), and it will all work. This
+        was done for Morten. See mwin/src/nanox/client.c, functions GrPrepareSelect(),
+        GrServiceSelect(), GrMainLoop(). <br>
+      </li>
+      <li>Routines were added to get the system palette, and translate an RGB color to a PIXELVAL
+        palette index. This was for Richard and the Opera browser. See mwin/src/nanox/srvfunc.c,
+        functions GrGetSystemPalette, GrFindColor(). <br>
+      </li>
+      <li>A null mouse driver was added for systems without a mouse, by setting NOMOUSE=1 in
+        Makefile.<br>
+        <br>
+        This is released as 0.87pre1 because I still haven't finished the directory tree
+        reorganization, and adding Martin's cool X11 graphics makefile configuration tool. The
+        client/server code rewrite took alot more time than expected. I am also working on getting
+        all source on CVS. </li>
+    </ul>
+    <h3>NanoGUI combined with Microwindows</h3>
+    <p>November 13, 1999<br>
+    Alex Holden, the originator of the NanoGUI project, officially handed over his role to
+    Greg Haerr, so that the NanoGUI and Microwindows projects can officially be available as a
+    single distribution.&nbsp; Alex continues to host the Microwindows/NanoGUI mailing list.
+    &nbsp; Although the releases have been maintained for some time by Greg Haerr, the
+    official distribution site is now moved here.&nbsp; A big thanks goes to Alex for thinking
+    up the NanoGUI idea and hosting the initial web site.</p>
+    <h3>Opera Web Browser ported to Microwindows</h3>
+    <p>November 11, 1999<br>
+    <a href="http://www.opera.com">The Opera Web Browser</a>, a browser known for it's small
+    footprint and operation on different operating systems, including Windows, BeOS, Linux,
+    Solaris, MacOS and OS/2, has announced they have completed initial work porting Opera to
+    Microwindows.&nbsp; This is a crticial milestone for Microwindows, since it shows that
+    larger, graphics intensive applications can run on top of the Microwindows graphics
+    engine.&nbsp; The Opera port uses the Nano-X api and features jpeg and gif image support,
+    as well as transparent image drawing.&nbsp; The codefile size is 670k.&nbsp; The current
+    Microwindows footprint is less than 100k with no compiled-in images.</p>
+    <h3>Version 0.86 release</h3>
+    <p>October 28, 1999<br>
+    Thanks to Brad LaRonde for helping me get this web page out.&nbsp; I have posted an update
+    v0.86 to Microwindows/Nano-X at: </p>
+    <blockquote>
+      <a href="ftp://microwindows.censoft.com/pub/microwindows/microwindows-0.86.tar.gz"><p>ftp://microwindows.censoft.com/pub/microwindows/microwindows-0.86.tar.gz</a>
+      </p>
+    </blockquote>
+    <p>This version completes a major effort, that of implementing off-screen drawing, as well
+    as screen-to-screen blitting. The screen driver interface had to change to accommodate
+    this, and I had to rewrite all the screen drivers. In addition, the blitting routines were
+    written for 1, 2, 4, 8, 16 and 32bpp linear framebuffer devices, as well as the 16 color 4
+    planes vga (this was a royal pain...) The blitting uses a clipping region traversal
+    algorithm so that blitting is always high speed, even when the destination window is
+    partly obscured. </p>
+    <p>This release also auto-detects most Linux framebuffer implementations, and should have
+    a compiled in driver for it. </p>
+    <p>The standard Microwindows demo is now a graphical terminal emulator, mterm. (No, it
+    doesn't run vi yet, and it doesn't repaint it's screen contents, but it will ;-) This demo
+    requires screen-to-screen blitting for scrolling. The 3d graphics demo now uses offscreen
+    blitting to enhance (read no flicker) the display. Check it out. </p>
+    <p>There is also some experimental full-blown region handling code included, which uses
+    X11's y-x banding region algorithms. (This stuff is truly for those with extra time and
+    brains). It is currently not compiled in, but can be included by replacing devclip.c with
+    devclip2.c. In the next release, arbitrary multi-rectangle clipping regions will be
+    available. I also plan on implementing separate clip regions from update regions for
+    windows, with the system computing the update region as a subset of the clip region.
+    Anyway, this sophisticated region handling is required for smart window painting as well
+    as higher end graphics primitives. Eventually, this will also allow separate source and
+    destination clipping for bitblit operations. Only destination clipping is working now. </p>
+    <p>The next release will have a reorganized directory structure, allowing separate
+    development of Nano-X, widgets, core engine, and Microwindows. I plan on moving the whole
+    thing to a CVS soon. BTW, Microwindows now supports three processor families, according to
+    reports emailed me. We've got i386, 8086, MIPS Vr41xx, and ARM families running ;-) </p>
+    <p>Following is a summary of the ChangeLog: <br>
+    Version 0.86 - 28th October 1999 - greg@censoft.com <ul>
+      <li>merged framebuffer, elks and msdos vga 16 color 4 planes drivers </li>
+      <li>wrote vga bitbit routines (a herculean effort) </li>
+      <li>optimized bitblit by traversing window clip region </li>
+      <li>added experimental multi-rectangle dynamically allocated regions </li>
+      <li>wrote scrolling terminal emulator demo for microwindows </li>
+      <li>added WM_FDINPUT msg, WndRegisterFdInput call for terminal emulator </li>
+      <li>changed SCREENINFO struct, removed black/white, added bpp, planes </li>
+      <li>added offscreen (memory DC) drawing to microwindows </li>
+      <li>added BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC </li>
+      <li>retired BOGL library, must use new interface for blitting </li>
+      <li>converted framebuffer, svgalib, elks and msdos screen drivers (we need blit routines for
+        herc and svgalib still) </li>
+      <li>major screen driver interface change, old drivers not compatible </li>
+    </ul>
+    <p>Page maintained by Greg Haerr &lt;<a href="mailto:greg@censoft.com">greg@censoft.com</a>&gt;</td>
+  </tr>
+  <tr>
+    <td valign="top"></td>
+    <td></td>
+  </tr>
+</table>
+</body>
+</html>

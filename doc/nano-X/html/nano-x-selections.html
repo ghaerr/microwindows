@@ -1,0 +1,824 @@
+<HTML
+><HEAD
+><TITLE
+>selections</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="regions"
+HREF="nano-x-regions.html"><LINK
+REL="NEXT"
+TITLE="misc"
+HREF="nano-x-misc.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-regions.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-misc.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+>selections</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2977"
+></A
+><H2
+>Name</H2
+>selections &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2980"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+void        <A
+HREF="nano-x-selections.html#GRSETSELECTIONOWNER"
+>GrSetSelectionOwner</A
+>             (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *typelist);
+<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> <A
+HREF="nano-x-selections.html#GRGETSELECTIONOWNER"
+>GrGetSelectionOwner</A
+>            (<GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> **typelist);
+void        <A
+HREF="nano-x-selections.html#GRREQUESTCLIENTDATA"
+>GrRequestClientData</A
+>             (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> rid,
+                                             <GTKDOCLINK
+HREF="GR-SERIALNO-CAPS"
+>GR_SERIALNO</GTKDOCLINK
+> serial,
+                                             <GTKDOCLINK
+HREF="GR-MIMETYPE-CAPS"
+>GR_MIMETYPE</GTKDOCLINK
+> mimetype);
+void        <A
+HREF="nano-x-selections.html#GRSENDCLIENTDATA"
+>GrSendClientData</A
+>                (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> did,
+                                             <GTKDOCLINK
+HREF="GR-SERIALNO-CAPS"
+>GR_SERIALNO</GTKDOCLINK
+> serial,
+                                             <GTKDOCLINK
+HREF="GR-LENGTH-CAPS"
+>GR_LENGTH</GTKDOCLINK
+> len,
+                                             <GTKDOCLINK
+HREF="GR-LENGTH-CAPS"
+>GR_LENGTH</GTKDOCLINK
+> thislen,
+                                             void *data);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3000"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3003"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3005"
+></A
+><H3
+><A
+NAME="GRSETSELECTIONOWNER"
+></A
+>GrSetSelectionOwner ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetSelectionOwner             (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *typelist);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the current selection (otherwise known as the clipboard) ownership
+to the specified window. Specifying an owner of 0 disowns the selection.
+The typelist argument is a list of mime types (seperated by space
+characters) which the window is able to supply the data as. At least one
+type must be specified unless you are disowning the selection (typically
+text/plain for plain ASCII text or text/uri-list for a filename).</P
+><P
+>The window which owns the current selection must be prepared to handle
+SELECTION_LOST events (received when another window takes ownership of the
+selection) and CLIENT_DATA_REQ events (received when a client wishes to
+retreive the selection data).</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window to set the selection owner to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>typelist</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> list of mime types selection data can be supplied as</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3027"
+></A
+><H3
+><A
+NAME="GRGETSELECTIONOWNER"
+></A
+>GrGetSelectionOwner ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> GrGetSelectionOwner            (<GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> **typelist);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Finds the window which currently owns the selection and returns its ID,
+or 0 if no window currently owns the selection. A pointer to the list of
+mime types the selection owner is capable of supplying is placed in the
+pointer specified by the typelist argument. The typelist is null terminated,
+and the fields are seperated by space characters. It is the callers
+responsibility to free the typelist string, as it is allocated dynamically.
+If the allocation fails, it will be set to a NULL pointer, so remember to
+check the value of it before using it.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>typelist</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer used to return the list of available mime types </TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window which currently owns the selection, or 0</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3048"
+></A
+><H3
+><A
+NAME="GRREQUESTCLIENTDATA"
+></A
+>GrRequestClientData ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrRequestClientData             (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> rid,
+                                             <GTKDOCLINK
+HREF="GR-SERIALNO-CAPS"
+>GR_SERIALNO</GTKDOCLINK
+> serial,
+                                             <GTKDOCLINK
+HREF="GR-MIMETYPE-CAPS"
+>GR_MIMETYPE</GTKDOCLINK
+> mimetype);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sends a CLIENT_DATA_REQ event to the specified window. Used for requesting
+both selection and "drag and drop" data. The mimetype argument specifies
+the format of the data you would like to receive, as an index into the list
+returned by GrGetSelectionOwner (the first type in the list is index 0).
+The server makes no guarantees as to when, or even if, the client will
+reply to the request. If the client does reply, the reply will take the
+form of one or more CLIENT_DATA events. The request serial number is
+typically a unique ID which the client can assign to a request in order for
+it to be able to keep track of transfers (CLIENT_DATA events contain the
+same number in the sid field). Remember to free the data field of the
+CLIENT_DATA events as they are dynamically allocated. Also note that if
+the allocation fails the data field will be set to NULL, so you should
+check the value before using it.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window requesting the data</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window to request the data from</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>serial</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the serial number of the request</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>mimetype</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of the desired mime type to request</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3079"
+></A
+><H3
+><A
+NAME="GRSENDCLIENTDATA"
+></A
+>GrSendClientData ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSendClientData                (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> did,
+                                             <GTKDOCLINK
+HREF="GR-SERIALNO-CAPS"
+>GR_SERIALNO</GTKDOCLINK
+> serial,
+                                             <GTKDOCLINK
+HREF="GR-LENGTH-CAPS"
+>GR_LENGTH</GTKDOCLINK
+> len,
+                                             <GTKDOCLINK
+HREF="GR-LENGTH-CAPS"
+>GR_LENGTH</GTKDOCLINK
+> thislen,
+                                             void *data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Used as the response to a CLIENT_DATA_REQ event. Sends the specified data
+of the specified length to the specified window using the specified source
+window ID and transfer serial number. Any fragmentation of the data into
+multiple CLIENT_DATA events which is required is handled automatically.
+The serial number should always be set to the value supplied by the
+CLIENT_DATA_REQ event. The thislen parameter is used internally to split
+the data up into packets. It should be set to the same value as the len
+parameter.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window sending the data</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>did</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the destination window</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>serial</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>len</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of bytes of data to transfer</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>thislen</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of bytes in this packet</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the data to transfer</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-regions.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-misc.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>regions</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>misc</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

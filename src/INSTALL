@@ -1,0 +1,218 @@
+Microwindows Installation Documentation
+January 21, 2001 g haerr <greg@censoft.com>
+
+- For notes on Intel Assabet, see bottom of file -
+
+Microwindows compiles and runs on Linux, UNIX, ELKS, MSDOS, 
+RTEMS, X11 and bare hardware.  There is support for the MIPS,
+ARM, and x86 cpu's using the GNU C cross compiler.
+
+Microwindows can be compiled to use different screen, 
+mouse and keyboard drivers for a given operating system environment.
+Most options are set using configuration file (microwin/src/config) options.
+These options can be manually editted, or if running X11,
+by running a graphical configuration program that will read and 
+write the config file if desired by running "make xconfig".
+Other options are set in the graphics drawing engine's header
+file microwin/src/include/device.h.
+
+After changing any options in microwin/src/config, Microwindows
+is built by typing "make clean; make".
+
+Microwindows' header files can be written to /usr/lib/microwin,
+and libraries to /usr/lib by typing "make install".  This
+is not required unless using Microwindows to build other
+applications, however.  All demos build using the headers
+and libraries built in the source tree.
+
+Config options are detailed in the config file itself and
+following each operating environment below.  Setting the line
+	MICROWIN=Y
+will build Microwindows.  The line
+	NANOX=Y
+will build Nano-X.  Both are built by default.
+
+Setting OPTIMIZE=Y will run an the compiler's -O switch.
+Setting DEBUG=Y will add -g.  Setting VERBOSE=Y will display
+the full compiler command line when making.  When cross-compiling
+for different platforms, the various XXXTOOLSPREFIX values
+must be set accordingly.
+
+The Nano-X server can be built with a compiled-in application,
+or use UNIX sockets to allow seperately compiled applications
+to connect to the server.  Setting the line
+	LINK_APP_INTO_SERVER=Y
+will build a linked application/server, which is useful for debugging
+and speed.  The client/server networking code has been rewritten for speed.
+
+We now have support for scaled, rotated, and antialiased
+fonts with both truetype and adobe type 1 fonts.  To include
+support for truetype fonts, download freetype-1.3.1.tar.gz from
+either microwindows.org or www.freetype.org, and set:
+	HAVE_FREETYPE_SUPPORT=Y
+in the config file. For Adobe Type 1 font support, download
+t1lib-1.0.tar.tz from microwindows.org or 
+ftp://ftp.neuroinformatik.ruhr-uni-bochum.de/pub/software/t1lib/
+and set:
+	HAVE_T1LIB_SUPPORT=Y
+in the config file.  The ftdemo and t1demo programs demonstrate
+use of both truetype and type 1 fonts.
+
+To build the experimental NanoWidget library, set 
+	NWIDGET=Y
+in the config file.  Note that ELKS bcc can't currently compile
+the widget set, due to it's use of the ## token pasting preprocessor
+operator.  The demo application and server runs using ./demo.sh.
+
+All the demos are built in the microwin/src/bin directory.  Following
+are the current demos:
+
+mdemo		Microwindows 3d demo
+mterm		Microwindows terminal emulator
+demo		Nano-X demo
+demo3		Nano-X .bmp and .jpeg display demo
+landmine	Nano-X landmine game
+world		Nano-X world graph demo
+nterm		Nano-X terminal emulator
+nclock		Nano-X clock
+nano-X		Nano-X server (must be run before Nano-X demo)
+		(see demo*.sh)
+
+Linux
+=====
+Linux users set the line below in the config file.
+	ARCH=LINUX-NATIVE
+
+Linux users have the choice of running framebuffer screen drivers,
+which require kernel 2.2.x, the svgalib screen driver for
+Linux 2.0.x users, or X Windows.  The framebuffer driver runs on
+1, 2, 4, 8, 16 and 32bpp systems.  Both linear and VGA memory
+layouts are supported.  To choose between the framebuffer,
+svgalib driver or X Windows, (should run on all Linux systems),
+set one of the following lines in the config file:
+	FRAMEBUFFER=Y		(for 1, 2, 4, 8, 16 or 32 bpp linear fb access)
+	VGALIB=Y		(svgalib vga access)
+	HWVGA=Y			(hardware vga access for rtems)
+	X11=Y			(for X11)
+
+If FRAMEBUFFER is set, the following line enables the optional
+4 planes VGA non-linear driver:
+	FBVGA=Y			(for 4 planes VGA 16 color framebuffer)
+For MIPS and SuperH compilations, set FBVGA=N, since system header
+files don't contain outb() and outw() macros.
+
+When building the X11 version, it is very important to 
+set the SCREEN_PIXTYPE value correctly, as Microwindows
+will emulate the target pixel depth in X11.  See the
+config file for more details.
+
+Linux users can use either the GPM mouse driver, or a "bare"
+serial mouse driver that decodes the mouse directly from the 
+serial port.  Set either line in the config file.
+	GPMMOUSE=Y	or
+	SERMOUSE=Y
+	NOMOUSE=Y		(for no mouse)
+
+Note that to use the GPM driver, you must start GPM with
+the -R option, and usually specify the mouse type with -t.
+See mouse.sh for an example.  If using the direct serial
+mouse driver, the serial port may have to be specified in
+microwin/src/drivers/mou_ser.c, as it defaults to /dev/ttyS1.
+
+I have written a utility that converts MS fonts, for exact
+MS-Windows look and feel.  You must own a MS license in order
+to use an MS font.  To use the MS fonts, run mwin/src/fonts/convfnt32.exe
+on a Windows system, and it will create the win*.c font tables.
+Then, set the following line in the config file:
+	HAVEMSFONTS=Y
+
+
+ELKS
+====
+ELKS users set the line below in the config file.
+	ARCH=ELKS
+
+The NWIDGET=N line must be set, as bcc can't handle
+ansi C's token paste operator, used in the widget library.
+
+The serial mouse driver is in microwin/src/drivers/mou_ser.c.
+The default mouse port and type can be changed with the following
+environment variables, or changed in the driver.
+
+Environment Var		Default		Allowed
+MOUSE_TYPE		pc		ms, pc, logi(same as pc)
+MOUSE_PORT		/dev/ttys0	any serial port
+
+It might also be a good idea to use the XOR frame-redraw window
+move algorithm, by setting the following lines in the config file.
+The XOR algorithm redraws only after the window move is
+completed, which works well on slower cpu's.
+	ERASEMOVE=N
+	UPDATEREGIONS=N
+
+Since ELKS doesn't currently have a floating point library,
+the 3d demo is automatically compiled out of
+microwin/src/demos/microwin/demo.c:
+	#define GRAPH3D	0
+	#define IMAGE	0
+The IMAGE define is set to 0 as bringing in most
+images will break the 64k data segment limit.  The ELKS
+version also doesn't include the button control or wallpaper
+in the demo to keep the text/data sizes down.
+
+The latest version of the ELKS kernel supports a variant
+of UNIX sockets, using numbers rather than names.  To
+build a client/server version of Nano-X for ELKS, the config line
+	LINK_APP_INTO_SERVER=y
+must be set.  In addition, the bcc compiler doesn't support
+the ANSI C '##' token pasting operator which is used
+in the client request code, client.c.  Run the following
+perl script to preprocess the client.c source file:
+
+	cd microwin/src/nanox
+	mv client.c client.dist
+	./elkspatch.pl < client.dist > client.c
+
+MSDOS
+=====
+Microwindows is currently ported using MSC v5.10, and MASM.
+The file mcmwin.mak will build microwin.exe, and mcnanox.mak
+will build nanox.exe.  The DEMO= line can be changed to build
+different nano-X demos.
+
+There are contributed DJGPP and PACIFIC C ports.  Instructions
+are in microwin/src/contrib/djgpp and pacific.
+
+Framebuffer notes:
+If you haven't used any of the Linux 2.2 framebuffer drivers before,
+it can be a little daunting at first. Alex Buell has written a
+Framebuffer HOWTO, which is available on his website at
+http://www.tahallah.demon.co.uk/ which goes into detail about the
+various drivers, command line options, and the fbset utility.
+For any frame buffer other than the Vesa framebuffer
+(which can only change modes at bootup because it needs to
+execute the code in the video card's ROM in real mode),
+you can change bits per pixel with the command 'fbset -depth {8|16|24|32}'.
+Another very useful framebuffer site is http://www.linux-fbdev.org
+
+Intel Assabet
+-------------
+Microwindows compiles up fine on the StrongARM-based Intel
+Assabet.  The following information is known to work:
+
+1. Kernel version - linux-2.4.0-test11
+2. Patches - patch-2.4.0-test11-rmk1, diff-2.4.0-test11-rmk1-np3
+3. Set IPAQMOUSE=Y in Microwindows' config file
+4. "mknod /dev/h3600_ts c 11 0" to create the touchscreen device file
+5. If your screen isn't calibrated, you'll have to edit the Linux kernel:
+	- edit drivers/char/ucb1200_ts.c
+	- search for x_rev = 0 [around line 190]
+	- change x_rev and y_rev both to 1
+	- recompile the kernel
+6. More help is available at
+	http://www.cs.cmu.edu/~wearable/software/assabet.html
+
+Have fun!
+
+Greg Haerr
+<greg@censoft.com>

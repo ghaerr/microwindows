@@ -1,0 +1,41 @@
+For compile Microwindows for DOS & PACIFIC C you should have the following:
+=====================================================================
+1. Microwin 0.87 pre6     - microwindows.censoft.com
+2. PACIFIC C ver. 7.51    - www.hitech.com or www.freedos.org
+            
+You should do the following:
+----------------------------
+
+- EDIT files *.prj to correct paths
+- copy microwin\src\contrib\pacific\mwin-pct.prj microwin\src\mwin-pct.prj
+- copy microwin\src\contrib\pacific\mwin-pcw.prj microwin\src\mwin-pcw.prj
+- copy microwin\src\contrib\pacific\mwin-pcn.prj microwin\src\mwin-pcn.prj
+
+- you should check the next:
+	options | memory model.. | memory model = (*) Large L
+	options | heap size | = 2048
+	options | output file type | (*) MS-DOS Executable Type
+	make | CPP predifined symbols | -DERASEMOVE=1 -DMSDOS=1 -DNONETWORK=1
+	make | CPP include paths | c:\develop\microwin\src\include
+
+RUN ppd, load project and compile !
+
+=====================================================================
+
+For NANOXDEMO use -DNONETWORK=1
+
+- mwin-pct.prj = test demo
+- mwin-pcw.prj = mwin demo
+- mwin-pcn.prj = nanox demo
+
+! NOT all demos have been tested.
+
+=====================================================================
+TO COMPILE with PACIFIC C :
+
+You === SHOULD == check to include header's files only ONE time.
+PACIFIC C doesn't check it. 
+If you do include, PACIFIC C may gives quite strange errors.
+
+=====================================================================
+Victor Rogachev <rogach@sut.ru>

@@ -1,0 +1,1085 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>MicroWindows Architecture</title>
+</head>
+
+<body>
+
+<h1 align="left"><img border="0" src="file:///C:/My%20Documents/My%20Webs/myweb2/images/clouds.gif" width="72" height="33">Microwindows Architecture</h1>
+
+<p align="left">1999/12/04 Copyright (c) 1999 Greg Haerr &lt;<a href="mailto:greg@censoft.com">greg@censoft.com</a>&gt; All Rights Reserved.</p>
+
+<p align="left">This is my first cut at getting the architecture and implementation
+spilled out.&nbsp; Please let me know if there's more detail needed in some areas, or
+whether you're confused by my explanations.&nbsp; This document is for educational and
+porting purposes, so please read on.</p>
+
+<h3>Contents</h3>
+
+<p>1. Architecture<br>
+&nbsp;&nbsp;&nbsp; 1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Layered Design<br>
+&nbsp;&nbsp;&nbsp; 1.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Device Drivers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.2.1&nbsp;&nbsp;&nbsp;&nbsp; Screen Driver<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.2.2&nbsp;&nbsp;&nbsp;&nbsp; Mouse Driver<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.2.3&nbsp;&nbsp;&nbsp;&nbsp; Keyboard Driver<br>
+&nbsp;&nbsp;&nbsp; 1.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MicroGUI - Device
+Independent Graphics Engine&nbsp;<br>
+&nbsp;&nbsp;&nbsp; 1.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Applications Programmer
+Interfaces<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.4.1&nbsp;&nbsp;&nbsp; Microwindows API<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.4.2&nbsp;&nbsp;&nbsp; Nano-X API</p>
+
+<p>2. Device-Independent Engine Features<br>
+&nbsp;&nbsp;&nbsp; 2.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Graphics Engine Features
+and Implementation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.1&nbsp;&nbsp;&nbsp; Regions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.2&nbsp;&nbsp;&nbsp; Clipping<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.3&nbsp;&nbsp;&nbsp; Line Drawing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.4&nbsp;&nbsp;&nbsp; Rectangles, Circles,
+Ellipses<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.5&nbsp;&nbsp;&nbsp; Polygons<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.6&nbsp;&nbsp;&nbsp; Area Fills<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.7&nbsp;&nbsp;&nbsp; Fonts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.8&nbsp;&nbsp;&nbsp; Text Drawing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.9&nbsp;&nbsp;&nbsp; Color model and
+palettes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.10&nbsp; Image Drawing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.11&nbsp; Blitting</p>
+
+<p>3. Microwindows API<br>
+&nbsp;&nbsp;&nbsp; 3.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Message-passing
+architecture<br>
+&nbsp;&nbsp;&nbsp; 3.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window creation and
+destruction<br>
+&nbsp;&nbsp;&nbsp; 3.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window showing, hiding
+and moving<br>
+&nbsp;&nbsp;&nbsp; 3.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window painting<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.4.1&nbsp;&nbsp;&nbsp; Client and screen
+coordinates<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.4.2&nbsp;&nbsp;&nbsp; Device contexts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.4.3&nbsp;&nbsp;&nbsp; Graphics drawing API<br>
+&nbsp;&nbsp;&nbsp; 3.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Utility functions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.5.1&nbsp;&nbsp;&nbsp; Setting window focus<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.5.2&nbsp;&nbsp;&nbsp; Mouse capture<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.5.3&nbsp;&nbsp;&nbsp; Rectangle and Region
+management</p>
+
+<p>4. Nano-X API<br>
+&nbsp;&nbsp;&nbsp; 4.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Client/Server model<br>
+&nbsp;&nbsp;&nbsp; 4.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Events<br>
+&nbsp;&nbsp;&nbsp; 4.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window creation and
+destruction<br>
+&nbsp;&nbsp;&nbsp; 4.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window showing, hiding
+and moving<br>
+&nbsp;&nbsp;&nbsp; 4.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Drawing to a window<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.5.1&nbsp;&nbsp;&nbsp; Graphics contexts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.5.2&nbsp;&nbsp;&nbsp; Graphics drawing API<br>
+&nbsp;&nbsp;&nbsp; 4.6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Utility functions</p>
+
+<h3>1. Architecture</h3>
+
+<h3>1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Layered Design</h3>
+
+<p>Microwindows is essentially a layered design that allows different layers to be used or
+rewritten to suite the needs of the implementation.&nbsp; At the lowest level, screen,
+mouse/touchpad and keyboard drivers provide access to the actual display and other
+user-input hardware.&nbsp; At the mid level, a portable graphics engine is implemented,
+providing support for line draws, area fills, polygons, clipping and color models.&nbsp;
+At the upper level, various API's are implemented providing access to the graphics
+applications programmer.&nbsp; These APIs may or may not provide desktop and/or window
+look and feel.&nbsp; Currently, Microwindows supports the ECMA APIW and Nano-X APIs.&nbsp;
+These APIs provide close compatibility with the Win32 and X Window systems, allowing
+programs to be ported from other systems easily.</p>
+
+<h3>1.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Device Drivers</h3>
+
+<p>The device driver interfaces are defined in device.h.&nbsp; A given implementation of
+Microwindows will link at least one screen, mouse and keyboard driver into the
+system.&nbsp; The mid level routines in the device-independent graphics engine core then
+call the device driver directly to perform the hardware-specific operations.&nbsp; This
+setup allows varying hardware devices to be added to the Microwindows system without
+affecting the way the entire system works.</p>
+
+<h3>1.2.1&nbsp;&nbsp;&nbsp;&nbsp; Screen Driver</h3>
+
+<p>There are currently screen drivers written for Linux 2.2.x framebuffer systems, as well
+as 16-bit ELKS and MSDOS drivers for real-mode VGA cards.&nbsp; The real mode drivers
+(scr_bios.c, vgaplan4.c, mempl4.c, scr_her.c) can be configured to initialize the VGA
+hardware directly, or utilize the PC BIOS to begin and end graphics mode.&nbsp; The
+framebuffer drivers (scr_fb.c, fb.c, fblin?.c) have routines for 1, 2, 4 and 8bpp
+palletized displays, as well as 8, 15, 16, and 32 bpp truecolor displays.&nbsp; The
+framebuffer system works in Linux by opening /dev/fd0 (or getenv(&quot;FRAMEBUFFER&quot;))
+and mmap()ing the display memory into a linear buffer in memory.&nbsp; Some display modes,
+like the VGA 4 planes mode, require that OUT instructions be issued by the screen driver,
+while packed pixel drivers typically can get away with just reading and writing the
+framebuffer only.&nbsp; All the graphics mode initialization and deinitialization is
+handled by the Linux kernel.&nbsp; Getting this set up can be a real pain.</p>
+
+<p>The screen driver is the most complex driver in the system, but was designed so that it
+can be extremely easy to port new hardware to Microwindows.&nbsp; For this reason, there
+are but a few entry points that must actually talk to the hardware, while other routines
+are provided that allow just the small set of core routines to be used, if desired.&nbsp;
+For example, a screen driver must implement ReadPixel, DrawPixel, DrawHorzLine, and
+DrawVertLine.&nbsp; These routines read and write a pixel from display memory, as well as
+draw a horizontal and vertical line.&nbsp; Clipping is handled at the device-independent
+layer.&nbsp; Currently, all mouse movement, text drawing, and bitmap drawing run on top of
+these low level functions.&nbsp; In the future, entry points will be provided for fast
+text and bitmap drawing capabilities.&nbsp; If the display is palletized, a SetPalette
+routine must be included, unless a static palette that matches the system palette is
+linked into the system.&nbsp; The screen driver, on initialization, returns values telling
+the system the x,y size of the screen, along with the color model supported.</p>
+
+<p>Two font models are currently provided, to be linked in at your desire.&nbsp; The
+proportional font model has in-core font tables built from .bdf and other font conversion
+utilities provided.&nbsp; The rom-based font uses the PC BIOS to find the character
+generator table address and has routines to draw that fixed-pitch font format.</p>
+
+<p>The screen driver can choose to implement bitblitting, by ORing in PSF_HAVEBLIT into
+the returned flags field.&nbsp; When present, bit blitting allows Microwindows to perform
+off-screen drawing.&nbsp; Microwindows allows any graphics operation that can be performed
+on a physical screen to be performed off-screen, and then copied (bit-blitted) to the
+physical screen.&nbsp; Implementing a blitting screen driver can be fairly complex.&nbsp;
+The first consideration in implementing a blitting driver is whether the low-level display
+hardware can be passed a hardware address for a framebuffer.&nbsp; If so, then the same
+routines that draw to the physical screen can be used to draw to off-screen buffers.&nbsp;
+This is the method used for the linear framebuffer drivers provided for Linux packed-pixel
+displays.&nbsp; The system replaces the mmap()'d physical framebuffer address with a
+malloc()'d memory address and calls the original screen driver entry point.&nbsp; In the
+case where the system doesn't use an actual physical memory address, like when running on
+top of X or MS Windows, then two sets of routines must be written; one to write the the
+underlying graphics system hardware, and another to write to memory addresses.&nbsp; In
+addition, the blit entry point must then know how to copy both ways between the two
+formats.&nbsp; In fact, all four operations, screen-to-memory, memory-to-screen,
+memory-to-memory, and screen-to-screen are supported by Microwindows and may need to be
+performed.&nbsp; And of course the bit blitting routine must be _fast_.&nbsp; See the
+files fblin8.c and mempl4.c for examples of supporting both types of display hardware.</p>
+
+<p>If writing your first screen driver, I would recommend you start with the PC BIOS real
+mode driver, scr_bios.c, or take a look at the framebuffer driver, scr_fb.c, which is
+essentially a wrapper around all the fblin?.c routines to read and write various
+framebuffer formats.&nbsp; Don't set the PSF_HAVEBLIT flag at first, and you won't have to
+write a bitblit routine from the start.</p>
+
+<p>Note that currently, all SCREENDEVICE function pointers must be filled in to at least a
+void function.&nbsp; For speed reasons, the system always assumes that the function
+pointers are valid.&nbsp; Thus, even if not implementing bitblit, a do-nothing bit-blit
+procedure must be provided.</p>
+
+<h3>1.2.2&nbsp;&nbsp;&nbsp;&nbsp; Mouse Driver</h3>
+
+<p>There are three mouse drivers currently included in Microwindows.&nbsp; A GPM driver
+for Linux, mou_gpm.c, as well as a serial port mouse driver for Linux and ELKS,
+mou_ser.c.&nbsp; For MSDOS, an int33 driver mou_dos.c is provided.&nbsp; The provided
+mouse drivers decode MS, PC and Logitech mice formats.&nbsp; A mouse driver's basic
+function is to decode the mouse data and return either relative or absolute data for the
+mouse position and buttons.</p>
+
+<p>In addition, Brad LaRonde has written a touch panel driver mou_tp.c, which masquerades
+as a mouse driver.&nbsp; It returns the value of x, y value of the pen on the display
+surface, and can be used like a mouse.</p>
+
+<p>Under Linux, the main loop of Microwindows is a select() statement, with file
+descriptors for the mouse and keyboard driver always passed in.&nbsp; If the system that
+Microwindows is running on doesn't support select() or doesn't pass mouse data through a
+file descriptor, a Poll() entry point is provided.</p>
+
+<h3>1.2.3&nbsp;&nbsp;&nbsp;&nbsp; Keyboard Driver</h3>
+
+<p>There are two keyboard drivers provided.&nbsp; The first, kbd_tty.c, is used for Linux
+and ELKS systems where the keyboard is opened and read as through a file descriptor.&nbsp;
+The second, kbd_bios.c, read the PC BIOS for keystrokes and is used in MSDOS real
+mode.&nbsp; The keyboard driver currently returns 8-bit data from the keyboard, but
+doesn't decode multi-character function key codes. This functionality will need to be
+added soon, by reading termcap files or the like.</p>
+
+<h3>1.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MicroGUI - Device Independent Graphics
+Engine</h3>
+
+<p>&nbsp;The core graphics functionality of Microwindows resides in the device independent
+graphics engine, which calls the screen, mouse and keyboard drivers to interface with the
+hardware.&nbsp; User applications programs never all the core graphics engine routines
+directly, but rather through the programmer API's, discussed in the next sections.&nbsp;
+The core engine routines are separated from the applications API's is for a variety of
+reasons.&nbsp; The core routines will always reside on the server in a client/server
+environment.&nbsp; Also, the core routines use internal text font and bitmap formats that
+are designed for speed and may or may not be the same as the structures used in standard
+API's.&nbsp; In addition, the core routines always use pointers, never ID's, and can then
+be used together to implement more complex functions without always converting handles,
+etc.</p>
+
+<p>In Microwindows, the core routines all begin as GdXXX() functions, and are concerned
+with graphics output, not window management.&nbsp; In addition, all clipping and color
+conversion is handled within this layer.&nbsp; The following files comprise the core
+modules of Microwindows:</p>
+
+<p>&nbsp;&nbsp;&nbsp; devdraw.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Core graphics
+routines for line, circle, polygon draw and fill, text and bitmap drawing, color
+conversion</p>
+
+<p>&nbsp;&nbsp;&nbsp; devclip.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Core
+clipping routines.&nbsp; (devclip2.c is the new y-x-banding algorithm, devclip1.c an older
+method)</p>
+
+<p>&nbsp;&nbsp;&nbsp; devrgn.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+New dynamically allocated routines for intersect/union/subtract/xor region creation.</p>
+
+<p>&nbsp;&nbsp;&nbsp; devmouse.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Core routines for keeping
+the mouse pointer updated or clipped from the screen.</p>
+
+<p>&nbsp;&nbsp;&nbsp; devkbd.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Core
+keyboard handling routines.</p>
+
+<p>&nbsp;&nbsp;&nbsp; devpalX.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Linked in
+static palettes for 1, 2, 4 and 8bpp palletized systems.</p>
+
+<p>Section 2 following discusses the MicroGUI graphics engine routines in detail.</p>
+
+<h3>1.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Applications Programmer Interfaces</h3>
+
+<p>Microwindows currently supports two different application programming interfaces.&nbsp;
+This set of routines handles client/server activity, window manager activities like
+drawing title bars, close boxes, etc, as well as, of course, handling the programmer's
+requests for graphics output.&nbsp; Both the API's run on top of the core graphics engine
+routines and device drivers. </p>
+
+<p>The basic model of any API on top of Microwindows is to hang in initialize the screen,
+keyboard and mouse drivers, then hang in a select() loop waiting for an event.&nbsp; When
+an event occurs, if it's a system event like keyboard or mouse activity, then this
+information is passed to the user program converted to an expose event, paint message,
+etc.&nbsp; If it's a user requesting a graphics operation, then the parameters are decoded
+and passed to the appropriate GdXXX engine routine.&nbsp; Note that the concept of a
+window versus raw graphics operations are handled at this API level.&nbsp; That is, the
+API defines the concepts of what a window is, what the coordinate systems are, etc, and
+then the coordinates are all converted to &quot;screen coordinates&quot; and passed to the
+core GdXXX engine routines to do the real work.&nbsp; This level also defines graphics or
+display contexts and passes that information, including clipping information, to the core
+engine routines.</p>
+
+<p>Currently, the Microwindows API code is in win*.c, while the Nano-X API code is in
+nanox/srv*.c.</p>
+
+<h3>1.4.1&nbsp;&nbsp;&nbsp; Microwindows API</h3>
+
+<p>The Microwindows API tries to be compliant with the European ECMA APIW standard.&nbsp;
+Currently, there is support for most of the graphics drawing and clipping routines, as
+well as automatic window title bar drawing and dragging windows for movement. The
+Microwindows API is message-based, and allows programs to be written without regard to the
+eventual window management policies implemented by the system.&nbsp; The Microwindows API
+is not currently client/server, and will be discussed in more detail in section 4.</p>
+
+<h3>1.4.2&nbsp;&nbsp;&nbsp; Nano-X API</h3>
+
+<p>The Nano-X API is modeled after the mini-x server written initially by David Bell,
+which was a reimplementation of X on the MINIX operating system.&nbsp; It loosely follows
+the X Window System Xlib API, but the names all being with GrXXX() rather than
+X...().&nbsp; Currently, the Nano-X API is client/server, but does not have any provisions
+for automatic window dressings, title bars, or user window moves.&nbsp; There are several
+groups writing widget sets currently, which will provide such things.&nbsp; Unfortunately,
+the user programs must also then write only to a specific widget set API, rather than
+using the Nano-X API directly, which means that only the functionality provided by the
+widget set will be upwardly available to the applications programmer.&nbsp; (Although this
+could be considerable, in the case that, say Gdk was ported.)</p>
+
+<h3>2. Device-Independent Engine Features</h3>
+
+<p>This section discusses in the capabilities and implementation of Microwindows' core
+graphics engine in detail.&nbsp; It's purpose is both educational and to allow extending
+an API by understanding how the engine works.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 2.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Graphics Engine
+Features and Implementation</h3>
+
+<p>These routines concern themselves with drawing operations to off-screen or screen
+surfaces.&nbsp; Each routine starts with Gd... and is passed a pointer to the SCREENDEVICE
+structure (PSD) as it's first parameter.&nbsp; The PSD parameter specifies the low level
+display details, like the x, y size of the device and the color model used by the
+hardware, for example.&nbsp; In addition, the actual routines to perform drawing are
+function pointers in this structure.&nbsp; All screen coordinates are of type COORD, and
+specified in device coordinates, that is, offsets from the upper left corner of the
+screen.</p>
+
+<p>Colors are always specified as an RGB COLORVAL value into the graphics engine.&nbsp;
+They are then possibly converted to palette indices and sent to the display hardware as
+PIXELVAL values.&nbsp; In the case of 32bpp truecolor displays, no conversion is
+required.&nbsp; The color model will be discussed in detail below.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.1&nbsp;&nbsp;&nbsp; Regions</h3>
+
+<p>Regions are used to describe arbitrary sets of pixels on the screen.&nbsp; A simple,
+square region of pixels can be described by a single rectangle.&nbsp; More complex sets of
+pixels require more complex data structures.&nbsp; In Microwindows, regions are described
+by an array of non-overlapping rectangles.&nbsp; Currently, there are two different
+implementations of regions in Microwindows, as I've been enhancing the capabilities in
+this area.&nbsp; The original design used a single static array of CLIPRECTs to describe
+complex regions.&nbsp; Any point within any rectangle in the array was considered to be in
+the region.&nbsp; The array wasn't sorted in any particular order, but was always
+guaranteed to contain non-overlapping rectangles.&nbsp; Another global variable,
+clipcount, specified the number of rectangles in the array.&nbsp; This original design had
+no engine entry points for region management, the entire array was passed to the clipping
+functions, described below. </p>
+
+<p>In the new design, any number of regions can be created, as the regions (CLIPREGION *)
+are stored as dynamically allocated arrays of rectangles.&nbsp; In this implementation,
+the non-overlapping rectangles are always kept in &quot;y-x&quot; sorted bands, such that
+each band's y height is the same for all rectangles in the band.&nbsp; This means that
+only the x position and width of the rectangles in each band varied.&nbsp; Because of
+this, it is easier to create a set of functions for combining regions, since effectively
+only a single dimension had to be compared for each region operation.&nbsp; The new region
+handling routines allow for creating and destroying regions, as well as combining
+rectangles and regions with regions using Intersection, Union, Subtraction, and Exclusive
+Or.&nbsp; This model allows regions to be implemented apart from the clipping routines,
+unlike the first version.&nbsp; Following are the new region routines:</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+GdAllocRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Create a region<br>
+&nbsp;&nbsp;&nbsp;
+GdDestroyRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Destroy a region<br>
+&nbsp;&nbsp;&nbsp;
+GdCopyRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Copy a region<br>
+&nbsp;&nbsp;&nbsp; GdUnionRectWithRegion&nbsp;&nbsp;&nbsp;&nbsp; - Union a rectangle with
+a region<br>
+&nbsp;&nbsp;&nbsp;
+GdIntersectRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Create a region from the intersection of two regions<br>
+&nbsp;&nbsp;&nbsp;
+GdSubtractRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Create a region from the difference of two regions<br>
+&nbsp;&nbsp;&nbsp;
+GdUnionRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Create a region from the union of two regions<br>
+&nbsp;&nbsp;&nbsp;
+GdXorRegion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Create a region from the XOR of two regions<br>
+&nbsp;&nbsp;&nbsp; </p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.2&nbsp;&nbsp;&nbsp; Clipping</h3>
+
+<p>Clipping in Microwindows is closely tied to the region management code.&nbsp; At any
+point in time, the graphics engine has a single clipping region, that is a set of
+rectangles, defined for any graphics operation.&nbsp; A point is drawn if it is
+&quot;inside&quot; any of the current set of clip rectangles.&nbsp; Two slightly modified
+versions of the clipping algorithm are supplied, devclip1.c for the original, static
+rectangle array, and devclip2.c for the newer dynamically allocated array.&nbsp; A single
+entry point GdSetClipRects, takes the passed region and specifies it's use for all
+subsequent graphics operations.&nbsp; All the drawing routines then use the two additional
+routines to determine whether or not to draw.&nbsp; GdClipPoint takes an x,y point in
+screen coordinates and returns TRUE if the point can be drawn, that is, the point is
+within one of the region rectangles.&nbsp; GdClipArea takes an upper left and lower right
+point, and returns one of the following: CLIP_VISIBLE, if the specified area is completely
+within the region, CLIP_INVISIBLE, if the area is completely not in the region, which
+means that no drawing should be performed, or CLIP_PARTIAL, if a part but not the whole
+area is within the region.&nbsp; A typical graphics primitive will call the screen driver
+with unmodified passed inputs if CLIP_VISIBLE is returned, or return if CLIP_INIVISIBLE is
+returned.&nbsp; In the CLIP_PARTIAL case, the primitive must break up the original request
+into areas that are within the clip region before calling the screen driver.&nbsp; This
+slows down the operation considerably.</p>
+
+<p>Because the clipping code is called constantly before drawing operations, Microwindows
+keeps a global cache rectangle of the last rectangle checked with GdClipArea, for speed
+and also to allow the mid level to quickly calculate how partial drawing lengths.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.3&nbsp;&nbsp;&nbsp; Line Drawing</h3>
+
+<p>Line drawing is the simplest of graphics operations.&nbsp; Microwindows supports
+GdPoint to draw a point, and GdLine to draw a horizontal, vertical or diagonal (using
+Bresenham algorithm) line.&nbsp; Just before any call to the screen driver, a call to
+GdCheckCursor assures that the software cursor is removed prior to drawing.&nbsp;
+GdFixCursor restores the cursor if previously visible.</p>
+
+<p>There is a tricky part to line drawing that had to be added during the support for
+multiple API's.&nbsp; This has to do with whether or not the last point in specified line
+segment is drawn or not.&nbsp; There are two schools of thought on this, and to make it
+short, Microwindows supports both of them.&nbsp; The last parameter to GdLine specifies
+whether or not to draw the last point.&nbsp; The Microwindows API doesn't draw the last
+point, but the Nano-X API does.</p>
+
+<p>Most drawing functions, including line drawing draw using the &quot;current&quot;
+foreground color, specified using GdSetForeground.&nbsp; In addition a drawing mode,
+currently either MODE_SET or MODE_XOR can be specified using GdSetMode.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.4&nbsp;&nbsp;&nbsp; Rectangles,
+Circles, Ellipses</h3>
+
+<p>Rectangles, circles and ellipses are drawn using the GdRect and GdEllipse
+routines.&nbsp; A circle is an ellipse with the same x and y radius.&nbsp; As with lines,
+rectangles and ellipses are drawn using the current foreground color and mode.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.5&nbsp;&nbsp;&nbsp; Polygons</h3>
+
+<p>Microwindows supports polygon drawing by specifying an array of x, y points.&nbsp; The
+points are then connected using the GdLine function.&nbsp; The current foreground color,
+drawing mode, and clip region is used during output.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.6&nbsp;&nbsp;&nbsp; Area Fills</h3>
+
+<p>Microwindows supports filled rectangular areas using the GdFillRect function.&nbsp; The
+rectangle's outline and contents are filled using the current foreground color.&nbsp;
+Filled circles and ellipses are performed with GdFillEllipse, and polygon fills with
+GdFillPoly.&nbsp; Area filling is implemented through successive calls to the DrawHorzLine
+in the screen driver, and are much faster if fully not clipped.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.7&nbsp;&nbsp;&nbsp; Fonts</h3>
+
+<p>Both fixed pitch and proportional fonts are supported in Microwindows.&nbsp; Because of
+potentially large differences in display hardware, the actual font format is known only to
+the screen driver, although a set of standard functions are supplied for dealing with
+converted .bdf fonts and Microsoft Windows fonts, if you have a license.&nbsp; The engine
+function GdSetFont specifies a font number that is passed to the driver and used to index
+a static array of linked in fonts.&nbsp; Screen driver entry points GetTextSize return the
+font height and width for a passed string, and GetTextBits returns an individual character
+bitmap.&nbsp; The engine layer uses these values to calculate a clipping region for text
+drawing, as well as to draw the character as a monochrome bitmap.</p>
+
+<p>The screen drivers currently supplied implement both fixed pitch PC ROM based fonts, as
+well as a proportional font format that is linked into the screen driver.&nbsp; A few
+conversion programs allow conversion of fonts from different formats to the driver
+format.&nbsp; Bdftobogl converts X Window System .bdf files to Microwindows format.&nbsp;
+Convfnt32 converts raster and truetype Microsoft Windows fonts, if you have a license, to
+Microwindows format.&nbsp; Convrom converts PC ROM bios fonts.</p>
+
+<p>A number of free fonts are supplied with the system, a heavier proportional 14x16
+system font, and a sans-serif 11x13 font for title bar and edit box displays.&nbsp; Any
+number of fonts can be linked into the system, and it's fairly easy to dynamically load
+fonts if one writes the routines for it.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.8&nbsp;&nbsp;&nbsp; Text Drawing</h3>
+
+<p>Text output is performed by first selecting the desired font with GdSetFont, and then
+calling the GdText function.&nbsp; Full text clipping is performed, although currently
+there is no &quot;fast&quot; text output entry point in the screen driver, so each
+character bitmap is grabbed using the GetTextBits entrypoint and then drawn using
+Drawpixel.&nbsp; While this will have to remain the same for partially clipped text, a
+screen driver entry point to draw fast text will probably be required shortly.</p>
+
+<p>Text is drawn using the current foreground color.&nbsp; The background is drawn if the
+current &quot;use background&quot; mode set via GdUseBackground is TRUE.&nbsp; In this
+case the background is drawn using the current background color set via
+GdSetBackground.&nbsp; The GdText function also takes a bottomAlign parameter that
+specifies whether the text is to be bottom or top aligned, to help with differing API's.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.9&nbsp;&nbsp;&nbsp; Color model and
+palettes</h3>
+
+<p>The Microwindows graphics engine requires all colors to be specified as either 24-bit
+RGB color values, or in rare cases, as palette indices for speed.&nbsp; The palette index
+method will only work on systems that have hardware palettes, so it's not
+recommended.&nbsp; All of the upper-level color parameters are specified to the engine
+routines using a COLORVAL value, which is a long containing the desired RGB color, created
+using the RGB() macro.&nbsp; The engine then converts the COLORVAL to a PIXELVAL value,
+which is normally a long also, but on some smaller systems can be compiled as an unsigned
+char.&nbsp; The PIXELVAL value is the actual value passed to any screen driver entry point
+requiring a color.&nbsp; So the mid level routines all work with RGB COLORVALs, while the
+device driver routines all work with PIXELVALs.&nbsp; The graphics engine converts these
+values using two routines, GdFindColor and GdFindNearestColor, described below.</p>
+
+<p>GdFindColor takes a hardware independent RGB value and converts it to a hardware
+dependent PIXELVAL pixel value.&nbsp; In the case of 32bpp display drivers, no conversion
+is required.&nbsp; Otherwise for truecolor systems, Microwindows converts the RGB value to
+a 5/5/5 15-bit or 5/6/5 16 bit truecolor value.&nbsp; For 8bpp truecolor displays, the RGB
+value is converted to 3/3/2.&nbsp; For palletized displays, the GdFindNearestColor
+function is called to convert the RGB color to the nearest palette index in the current
+system palette.&nbsp; GdFindNearestColor uses a weighted distance-cubed method to find the
+palette value nearest to the requested color, and returns it.&nbsp; Standard palettes for
+1, 2, 4 and 8bpp are included in the files devpal1, devpal2, devpal4 and devpal8.c.&nbsp;
+These palettes associate an RGB value with an index, but may be overwritten.</p>
+
+<p>The GdSetPalette function determines whether there are any free entries in the system
+palette (discussed shortly) and if so, adds entries to the system palette, and calls the
+screen driver SetPalette entry point to set the hardware palette.&nbsp; There is a single
+global variable, gr_firstuserpalentry, that contains the index of the next available
+system palette entry.&nbsp; Initially, this is set to 24.&nbsp; Thus, systems with less
+than 24 total palette entries will never have an available palette entry to remap.&nbsp;
+On systems that do, like 256 color systems, then images requiring more color entries keep
+calling GdSetPalette until the system palette is full.&nbsp; To reset marker, the function
+GdResetPalette is called.&nbsp; This allows upper level API's to distinguish between
+different images and force the system palette to be rewritten.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.10&nbsp; Image Drawing</h3>
+
+<p>Microwindows supports two styles of images, monochrome and palettized.&nbsp; Monochrome
+images are specified with an IMAGEBITS structure, which is an array of words with 1 bits
+specifying the foreground color and 0 bits the background.&nbsp; The IMAGEBITS bits are
+short-word padded to the width of the bitmap.&nbsp; The GdBitmap routine draws monochrome
+bitmaps, similar to GdText, by drawing all the 1 bits in the foreground color, and the 0
+bits in the background color if the &quot;use background&quot; set by GdUseBackground is
+TRUE.</p>
+
+<p>Color bitmaps are specified using a 1, 4 or 8bpp image palette, and an array of indices
+into this palette, all stuffed into an IMAGEHDR structure, and drawn via
+GdDrawImage.&nbsp; First, the system creates a conversion palette by calling
+GdMakePaletteConversionTable, which converts the images' palette entries into system
+indices.&nbsp; At the same time, the system attempts to increase the system palette if
+necessary by calling the GdSetPalette function described above.&nbsp; At the end of this
+operation, the image has a converted palette which necessarily corresponds to the system
+palette.&nbsp; In the case of truecolor hardware, the image's palette entries are
+converted to hardware truecolor pixel values, and output directly.</p>
+
+<p>After converting the image color entries the GdDrawImage determines the whether the
+image is clipped, and outputs the image, pixel by pixel.&nbsp; In the future, a blitting
+routine could be used for faster image drawing.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.1.11&nbsp; Blitting</h3>
+
+<p>Blitting functionality is required in the screen driver for offscreen drawing
+capability, discussed earlier in the screen drivers section.&nbsp; The engine function
+GdBlit allows upper level APIs to implement copy operations from offscreen memory to the
+display, or vice versa.&nbsp; The blit format is driver specific, and generally only works
+for memory images created by the screen driver during runtime.&nbsp; The upper level APIs
+implement this by allocating a new SCREENDRIVER structure, copying an existing
+SCREENDRIVER structure into it, replacing the address field with a malloc()'d value, and
+setting the PSF_MEMORY bit, which indicates to the display driver that this is now an
+offscreen surface.&nbsp; Any subsequent calls to the engine routines then draw onto this
+surface.&nbsp; When it is desired to copy the offscreen surface back to the physical
+display, the GdBlit routine is called.&nbsp; Currently, only SRCCOPY operations are
+performed, but future plans will add blitting opcodes.</p>
+
+<p>&nbsp;</p>
+
+<h3>3. Microwindows API</h3>
+
+<h3>&nbsp;&nbsp;&nbsp; 3.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Message-passing
+architecture</h3>
+
+<p>The fundamental communications mechanism in the Microwindows API is the message.&nbsp;
+A message consists of a well-known message number, and two parameters, known as wParam and
+lParam.&nbsp; Messages are stored in an application's message-queue, and retrieved via the
+GetMessage function.&nbsp; The application blocks while waiting for a message.&nbsp; There
+are messages that correspond to hardware events, like WM_CHAR for keyboard input or
+WM_LBUTTONDOWN for mouse button down.&nbsp; In addtiion, events signaling window creation
+and destruction WM_CREATE and WM_DESTROY are sent.&nbsp; In most cases, a message is
+associated with a window, identified as an HWND.&nbsp; After retrieving the message, the
+application sends the message to the associated window's handling procedure using
+DispatchMessage.&nbsp; When a window class is created, it's associated message handling
+procedure is specified, so the system knows where to send the message.</p>
+
+<p>The message-passing architecture allows the core API to manage many system functions by
+sending messages on all sorts of events, like window creation, painting needed, moving,
+etc.&nbsp; By default, the associated window handling function gets a &quot;first
+pass&quot; at the message, and then calls the DefWindowProc function, which handles
+default actions for all the messages.&nbsp; In this way, all windows can behave the same
+way when dragged, etc, unless specifically overridden by the user.&nbsp; Major window
+management policies can be redefined by merely re-implementing DefWindowProc, rather than
+making changes throughout the system.</p>
+
+<p>The following functions deal with messages directly:</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+SendMessage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Send a message directly to a window<br>
+&nbsp;&nbsp;&nbsp;
+PostMessage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Queue a message on the application's message queue for later dispatch<br>
+&nbsp;&nbsp;&nbsp; PostQuitMessage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Queue a WM_QUIT message telling the application to terminate when read<br>
+&nbsp;&nbsp;&nbsp;
+GetMessage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Block until a message is queued for this application<br>
+&nbsp;&nbsp;&nbsp; TranslateMessage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Translate up/down keystrokes to WM_CHAR messages<br>
+&nbsp;&nbsp;&nbsp;
+DispatchMessage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Send a
+messages to it's associated window procedure</p>
+
+<p>A Microwindows application's entry point is the function WinMain, rather than main.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 3.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window creation and
+destruction</h3>
+
+<p>The basic unit of screen organization in Microwindows API is the window.&nbsp; Windows
+describe an area of the screen to draw onto, as well as an associate &quot;window
+procedure&quot; for handling messages destined for this window.&nbsp; Applications
+programmers can create windows from pre-defined classes, like buttons, edit boxes, and the
+like, or define their own window classes.&nbsp; In both cases, the method of creating and
+communicating with the windows remains exactly the same.&nbsp; The following functions
+deal with window registration, creation, and destruction:</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+RegisterClass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Define a new window class name and associated window procedure<br>
+&nbsp;&nbsp;&nbsp;
+UnRegisterClass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Undefine
+a window class<br>
+&nbsp;&nbsp;&nbsp; CreateWindowEx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Create
+an instance of a window of a certain class<br>
+&nbsp;&nbsp;&nbsp;
+DestroyWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Destroy a
+window instance</p>
+
+<p>The WM_CREATE message is just after window creation, before returning from
+CreateWindowEx.&nbsp; The WM_DESTROY message is sent just before destroying a window with
+DestroyWindow. </p>
+
+<p>When a window is registered, extra bytes can be allocated to the window structure when
+created.&nbsp; The GetWindowLong, GetWindowWord, SetWindowLong and SetWindowWord
+manipulate these bytes.&nbsp; In addition, a fixed number of extra bytes per window class
+can be allocated on registration and retrieved via the GetClassLong function.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 3.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window showing,
+hiding and moving</h3>
+
+<p>The ShowWindow function allows windows to be made visible or hidden.&nbsp; In addition,
+this can be specified during the creation of the window, through CreateWindowEx.&nbsp;
+MoveWindow is called to change a window's position or size.&nbsp; A WM_MOVE message is
+sent if the window's position changes, and WM_SIZE is sent on size changes.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 3.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window painting</h3>
+
+<p>The Microwindows system determines when a window needs to be initially painted or
+repainted as the result of other window movement, and a WM_PAINT message is sent to the
+associated window procedure.&nbsp; At this point, it's up the the application to use the
+graphics primitives available to paint the window, described below.&nbsp; Microwindows
+keeps track of a windows' &quot;update&quot; region, and sends WM_PAINT whenever the
+region is non-empty.&nbsp; For speed reasons, the WM_PAINT message is only sent when there
+are no other messages in the application's queue.&nbsp; This allows the application to
+repaint in one, rather than possibly many, steps.&nbsp; To force a repaint rather than
+waiting, the UpdateWindow function can be called.&nbsp; The InvalidateRect function
+specifies a rectangle to add to the update region, causing a subsequent WM_PAINT.</p>
+
+<p>The window title is automatically painted and is set with the SetWindowText function,
+and retrieved with the GetWindowText function.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.4.1&nbsp;&nbsp;&nbsp; Client and screen
+coordinates</h3>
+
+<p>Every window is drawn on the screen using the device global screen coordinate system
+for absolute reference to any pixel on the screen.&nbsp; The Microwindows API allows
+applications programmers to be concerned with only the relative coordinates from the upper
+left portion of their window, not including the title bar and 3d effects.&nbsp; This
+coordinate system is called &quot;client coordinates.&quot;&nbsp; As will be explained
+below, the Microwindows programmer has the option of getting a device context in either
+screen or client coordinates.&nbsp; If device coordinates are specified, then the
+coordinate system is device-based and includes the title area and 3d areas of the
+window.&nbsp; Otherwise, the drawable region is clipped to just that&nbsp; area that is
+reserved by the system for the application's drawing.&nbsp; The GetClientRect and
+GetWindowRect functions return client or screen coordinates for the passed window.&nbsp;
+ClientToScreen and ScreenToClient can be called to translate between window coordinate
+systems.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.4.2&nbsp;&nbsp;&nbsp; Device contexts</h3>
+
+<p>An applications programmer must obtain a &quot;device context&quot; before calling any
+graphics drawing API functions.&nbsp; As explained above, this specifies to the system
+which window and what coordinate system are desired, so that these don't have to be passed
+to every graphics function.&nbsp; In addition, various other attributes like foreground
+and background color are also set in a device context, so that these parameters don't have
+to be specified for every graphics operation.&nbsp; The device context selects the
+appropriate clipping region based on the window specified and the coordinate system.&nbsp;
+When a device context is obtained, various graphics values are set to default values.</p>
+
+<p>To obtain a client device context, call GetDC.&nbsp; To obtain a screen device context,
+required when drawing onto title bars and the like, call GetWindowDC.&nbsp; In addition,
+fancy clipping operations and child/sibling window clipping can be specified if GetDCEx is
+called.&nbsp; When finished drawing, the ReleaseDC function must be called to deallocate
+the DC.</p>
+
+<p>On receipt of the WM_PAINT message, two special calls, BeginPaint and EndPaint are
+called, that serve as replacements to the GetDC/ReleaseDC functions.&nbsp; These functions
+essentially allocate a DC but also validate the update region so that no subsequent
+WM_PAINT messages are generated.&nbsp; BeginPaint also combines the update region and the
+clipping region so that user output will only occur where previously invalidated.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.4.3&nbsp;&nbsp;&nbsp; Graphics drawing
+API</h3>
+
+<p>There are many graphics drawing API's in the Microwindows API.&nbsp; Following is a
+list, most of these match up to the engine GdXXX functions discussed in section 2.</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+SetTextColor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the foreground text color in a DC<br>
+&nbsp;&nbsp;&nbsp;
+SetBkColor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the background color in a DC<br>
+&nbsp;&nbsp;&nbsp;
+GetSysColor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Get the system color defined for the current look and feel scheme<br>
+&nbsp;&nbsp;&nbsp;
+SetBkMode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the use background flag in a DC<br>
+&nbsp;&nbsp;&nbsp;
+SetROP2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the drawing mode (XOR, SET, etc) for drawing<br>
+&nbsp;&nbsp;&nbsp;
+SetPixel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a pixel in the current fg color<br>
+&nbsp;&nbsp;&nbsp;
+MoveToEx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Prepare to draw a line<br>
+&nbsp;&nbsp;&nbsp;
+LineTo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a line from the last location to this one in the current fg color<br>
+&nbsp;&nbsp;&nbsp;
+Rectangle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a rectangle in the current pen color<br>
+&nbsp;&nbsp;&nbsp;
+FillRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fill a rectangle with the current brush color<br>
+&nbsp;&nbsp;&nbsp;
+TextOut&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw text in the current fg/bg color<br>
+&nbsp;&nbsp;&nbsp;
+ExtTextOut&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw text in the current fg/bg color<br>
+&nbsp;&nbsp;&nbsp;
+DrawText&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw text or compute text height and width sizes<br>
+&nbsp;&nbsp;&nbsp;
+DrawDIB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a color bitmap<br>
+&nbsp;&nbsp;&nbsp;
+SelectObject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Select a pen, brush or font to use in a DC<br>
+&nbsp;&nbsp;&nbsp;
+GetStockObject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Get a predefined standard pen, brush or font<br>
+&nbsp;&nbsp;&nbsp;
+CreatePen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Create a pen of a certain color<br>
+&nbsp;&nbsp;&nbsp;
+CreateSolidBrush&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Create a brush of a certain color<br>
+&nbsp;&nbsp;&nbsp; CreateCompatibleBitmap&nbsp; Create an offscreen area to draw onto<br>
+&nbsp;&nbsp;&nbsp;
+DeleteObject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Delete a pen, brush or bitmap<br>
+&nbsp;&nbsp;&nbsp; CreateCompatibleDC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Create an
+offscreen DC<br>
+&nbsp;&nbsp;&nbsp;
+DeleteDC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Delete an offscreen DC<br>
+&nbsp;&nbsp;&nbsp;
+BitBlit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Copy from one bitmap in a DC to another<br>
+&nbsp;&nbsp;&nbsp; GetSystemPaletteEntries&nbsp;&nbsp;&nbsp; Get the currently in-use
+system palette entries<br>
+&nbsp;&nbsp; </p>
+
+<h3>&nbsp;&nbsp;&nbsp; 3.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Utility functions</h3>
+
+<p>A number of routines are provided for various purposes, described below.&nbsp; In
+addition, Microwindows currently exports some helper routines, named WndXXX, that are
+useful but subject to change.&nbsp; These are detailed following:</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+WndSetDesktopWallpaper&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the desktop background image<br>
+&nbsp;&nbsp;&nbsp;
+WndSetCursor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the cursor for a window<br>
+&nbsp;&nbsp;&nbsp;
+WndRaiseWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Raise a window's z-order<br>
+&nbsp;&nbsp;&nbsp;
+WndLowerWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Lower a window's z-order<br>
+&nbsp;&nbsp;&nbsp;
+WndGetTopWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return the topmost window's handle<br>
+&nbsp;&nbsp;&nbsp;
+WndRegisterFdInput&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Register to send a message when file descriptor has read data available<br>
+&nbsp;&nbsp;&nbsp;
+WndUnregisterFdInput&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Unregister file descriptor for read data messages</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+GetTickCount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return # milliseconds elapsed since startup<br>
+&nbsp;&nbsp;&nbsp;
+Sleep&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Delay processing for specified milliseconds</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.5.1&nbsp;&nbsp;&nbsp; Setting window
+focus</h3>
+
+<p>The SetFocus routine is used to pass keyboard focus from one window to another.&nbsp;
+Keystrokes are always sent to the window with focus.&nbsp; The WM_SETFOCUS and
+WM_KILLFOCUS messages are sent to windows just receiving and losing focus.&nbsp; The
+GetActiveWindow routines returns the first non-child ancestor of the focus window, which
+is the window that is currently highlighted.&nbsp; The GetDesktopWindow routine returns
+the window handle of the desktop window.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.5.2&nbsp;&nbsp;&nbsp; Mouse capture</h3>
+
+<p>Normally, Microwindows sends WM_MOUSEMOVE messages to the window the mouse is currently
+moving over.&nbsp; If desired, the 7applications programmer can &quot;capture&quot; the
+mouse and receive all mouse move messages by calling SetCapture.&nbsp; ReleaseCapture
+returns the processing to normal.&nbsp; In addition, the GetCapture function will return
+the window with capture, if any.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3.5.3&nbsp;&nbsp;&nbsp; Rectangle and
+Region management</h3>
+
+<p>There are a number of functions that are used for rectangles and regions.&nbsp;
+Following is the group:</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+SetRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Define a rectangle structure<br>
+&nbsp;&nbsp;&nbsp;
+SetRectEmpty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Define an empty rectangle<br>
+&nbsp;&nbsp;&nbsp;
+CopyRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Copy a rectangle<br>
+&nbsp;&nbsp;&nbsp;
+IsRectEmpty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return TRUE if empty rectangle<br>
+&nbsp;&nbsp;&nbsp;
+InflateRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Enlarge a rectangle<br>
+&nbsp;&nbsp;&nbsp;
+OffsetRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Move a rectangle<br>
+&nbsp;&nbsp;&nbsp;
+PtInRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Determine if a point is in a rectangle<br>
+&nbsp;&nbsp; </p>
+
+<p>A large number of region management routines are defined and declared in the winrgn.c
+file. </p>
+
+<p>&nbsp;</p>
+
+<h3>4. Nano-X API</h3>
+
+<p>The Nano-X API was originally designed by David Bell, with his mini-x package for the
+MINIX operating system.&nbsp; Nano-X is now running on top of the core graphics engine
+routines discussed in section 2.&nbsp; Nano-X was designed for a client/server
+environment, as no pointers to structures are passed to the API routines, instead a call
+is made to the server to get an ID, which is passed to the API functions and is used to
+reference the data on the server.&nbsp; In addition, Nano-X is not message-oriented,
+instead modeled after the X protocol which was designed for speed on systems where the
+client and server machines were different.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 4.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Client/Server model</h3>
+
+<p>In Nano-X, there are two linking mechanisms that can be used for applications
+programs.&nbsp; In the client/server model, the application program is linked with a
+client library that forms a UNIX socket connection with the Nano-X server, a separate
+process.&nbsp; Each application then communicates all parameters over the UNIX
+socket.&nbsp; For speed and debugging, it is sometimes desirable to link the application
+directly with the server.&nbsp; In this case, a stub library is provided that just passes
+the client routines parameters to the server function.</p>
+
+<p>The Nano-X naming convention uses GrXXX to designate client side callable routines,
+with a marshalling layer implemented in the files nanox/client.c, nanox/nxproto.c, and
+nanox/srvnet.c. &nbsp; The client/server network layer currently uses a fast approach to
+marshalling the data from the Gr routine into a buffer, and sent all at once to the
+receiving stubs in nanox/srvnet.c, before calling the server drawing routines in
+nanox/srvfunc.c.&nbsp; In the linked application scenario, the Nano-X client links
+directly with the functions in nanox/srvfunc.c, and the nanox/client.c and nanox/srvnet.c
+files are not required.</p>
+
+<p>A Nano-X application must call GrOpen before calling any other Nano-X function, and
+call GrClose before exiting.&nbsp; These functions establish a connection with the server
+when running the client/server model, and return an error status if the server can't be
+found or isn't currently running.</p>
+
+<p>The main loop in a Nano-X application is to create some windows, define the events you
+want with GrSelectEvents, and then wait for an event with GrGetNextEvent.&nbsp; If it is
+desired to merely check for an event, but not wait if there isn't one, GrCheckNextEvent
+can be used.&nbsp; GrPeekEvent can be used to examine the next event without removing it
+from the queue.</p>
+
+<p>When running Nano-X programs in the client/server model, it's currently necessary to
+run the server first in a shell script, then wait a second, then run the
+application.&nbsp; Some rewriting is needed to fire up the server when an application
+requires it, I believe.</p>
+
+<h3>&nbsp;4.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Events</h3>
+
+<p>Nano-X applications specify which events they would like to see on a per-window basis
+using GrSelectEvents.&nbsp; Then, in the main loop, the application calls GrGetNextEvent
+and waits for one of the event types selected for in any of the windows.&nbsp; Typically,
+a switch statement is used to determine what to do after receiving the event.&nbsp; This
+is similar to the Microwindows's API GetMessage/DispatchMessage loop, except that in
+Microwindows API, DispatchMessage is used to send the event to the window's handling
+procedure, typically located with the window object.&nbsp; In Nano-X, all the event
+handling code for each of the windows must be placed together in the main event loop,
+there is no automatic dispatching.&nbsp; Of course, widget sets serve to provide
+object-orientation, but this is in addition to the Nano-X API.</p>
+
+<p>Following are the event types that Nano-X programs can recieve:</p>
+
+<p>&nbsp;&nbsp;&nbsp; GR_EVENT_TYPE_NONE, ERROR, EXPOSURE, BUTTON_DOWN, BUTTON_UP,
+MOUSE_ENTER, MOUSE_EXIT, MOUSE_MOTION, MOUSE_POSITION, KEY_UP, KEY_DOWN, FOCUS_IN,
+FOCUS_OUT, FDINPUT</p>
+
+<p>Note that Nano-X API provides mouse enter and exit events whereas Microwindows API does
+not.&nbsp; Also, the exposure events are calculated and sent immediately by the server,
+and not combined and possibly delayed for better paint throughput as in the Microwindows
+API.</p>
+
+<h3>&nbsp;4.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window creation and destruction</h3>
+
+<p>Windows are created in Nano-X with the GrNewWindow function.&nbsp; Windows can be
+specified to be input-only, in which case the GrNewInputWindow function is used.&nbsp; The
+window border and color is specified in these calls, but will have to be rewritten when
+fancier window dressings are required.&nbsp; The return value from these functions is an
+ID that can be used in later calls to get a graphics context or perform window
+manipulation.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 4.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window showing,
+hiding and moving</h3>
+
+<p>Windows are shown by calling the GrMapWindow function, and hidden using
+GrUnmapWindow.&nbsp; Mapping a window is required for all ancestors of a window in order
+for it to be visible.&nbsp; The GrRaiseWindow call is used to raise the Z order of a
+window, while GrLowerWindow is used to lower the Z order.&nbsp; GrMoveWindow is used to
+change the position of a window, and GrResizeWindow is used to resize a window.</p>
+
+<h3>&nbsp;&nbsp;&nbsp; 4.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Drawing to a window</h3>
+
+<p>Nano-X requires both a window ID and a graphics context ID in order to draw to a
+window.&nbsp; Nano-X sends expose events to the application when a window needs to be
+redrawn.&nbsp; Unlike the Microwindows API, Nano-X clients are typically required to
+create their drawing graphics contexts early on and keep them for the duration of the
+application.&nbsp; Like Microwindows though, the graphics contexts record information like
+the current background and foreground colors so they don't have to be specified in every
+graphics API call.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.5.1&nbsp;&nbsp;&nbsp; Graphics contexts</h3>
+
+<p>To allocate a graphics context for a window, call GrNewGC.&nbsp; On termination, call
+GrDestroyGC.&nbsp; GrCopyGC can be used to copy on GC to another.&nbsp; GrGetGCInfo is
+used to retrieve the settings contained in a GC.&nbsp; After creating a graphics context,
+the server returns a graphics context ID.&nbsp; This is then used as a parameter in all
+the graphics drawing API functions.&nbsp; In Nano-X programs, the current clipping region
+and window coordinate system aren't stored with the GC, as they are in Microwindows'
+DCs.&nbsp; This is because, first, Nano-X doesn't support dual coordinate systems for
+drawing to the &quot;window dressing&quot; area versus the &quot;user&quot; area of the
+window (window and client coordinates in Microwindows).&nbsp; User programs can't draw the
+border area of the window, only a single color and width can be specified.&nbsp; Although
+resembling X, this will have to change, so that widget sets can specify the look and feel
+of all aspects of the windows they maintain.&nbsp; Since the clipping region isn't
+maintained with the graphics context, but instead with the window data structure, Nano-X
+applications must specify both a window ID and a graphics context ID when calling any
+graphics API function.&nbsp; Because of this, many Nano-X applications allocate all
+graphics contexts in the beginning of the program, and hold them throughout execution,
+since the graphics contexts hold only things like foreground color, etc, and no window
+information.&nbsp; This cannot be done with Microwindows API because the DC's contain
+window clipping information and must be released before processing the next message.</p>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.5.2&nbsp;&nbsp;&nbsp; Graphics drawing
+API</h3>
+
+<p>Following are the graphics drawing functions available with Nano-X.&nbsp; Like
+Microwindows API, these all match up eventually to the graphics engine GdXXX routines.</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+GrGetGCTextSize&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return text width and height information<br>
+&nbsp;&nbsp;&nbsp;
+GrClearWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clear a window to it's background color<br>
+&nbsp;&nbsp;&nbsp;
+GrSetGCForeground&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the foreground color in a graphics context<br>
+&nbsp;&nbsp;&nbsp;
+GrSetGCBackground&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the background color in a graphics context<br>
+&nbsp;&nbsp;&nbsp; GrSetGCUseBackground&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the &quot;use background color&quot; in a graphics context<br>
+&nbsp;&nbsp;&nbsp;
+GrSetGCMode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the drawing mode<br>
+&nbsp;&nbsp;&nbsp;
+GrSetGCFont&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the font<br>
+&nbsp;&nbsp;&nbsp;
+GrPoint&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a point in the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrLine&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a line in the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a rectangle in passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrFillRect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fill a rectangle with the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrEllipse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a circle or ellipse with the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrFillEllipse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fill a circle or ellipse with the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrPoly&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a polygon using the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrFillPoly&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fill a polygon using the passed gc's foreground color<br>
+&nbsp;&nbsp;&nbsp;
+GrText&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a text string using the foreground and possibly background colors<br>
+&nbsp;&nbsp;&nbsp;
+GrBitmap&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw an image using a passed monocrhome bitmap, use fb/bg colors<br>
+&nbsp;&nbsp;&nbsp;
+GrArea&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Draw a rectangular area using the passed device-dependent pixels<br>
+&nbsp;&nbsp;&nbsp;
+GrReadArea&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Read the pixel values from the screen and return them<br>
+&nbsp;&nbsp;&nbsp; GrGetSystemPaletteEntries&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get
+the currently in-use system palette entries<br>
+&nbsp;&nbsp;&nbsp; GrFindColor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Translate an RGB color value to a PIXELVAL pixel value<br>
+</p>
+
+<h3>&nbsp;&nbsp; 4.6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Utility functions</h3>
+
+<p>Various functions serve as utility functions to manipulate windows and provide other
+information.&nbsp; These include the following:</p>
+
+<p>&nbsp;&nbsp;&nbsp;
+GrSetBorderColor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the border color of a window.&nbsp; Not suitable for 3d look and feel.<br>
+&nbsp;&nbsp;&nbsp;
+GrSetCursor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the cursor bitmap for the window.<br>
+&nbsp;&nbsp;&nbsp;
+GrMoveCursor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Move the cursor to absolute screen coordinates.<br>
+&nbsp;&nbsp;&nbsp;
+GrSetFocus&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set the keyboard input focus window.<br>
+&nbsp;&nbsp;&nbsp;
+GrRedrawScreen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Redraw the entire screen.<br>
+&nbsp;&nbsp;&nbsp;
+GrGetScreenInfo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return information about the size of the physical display.<br>
+&nbsp;&nbsp;&nbsp;
+GrGetWindowInfo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return information about the passed window.<br>
+&nbsp;&nbsp;&nbsp;
+GrGetGCInfo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return information about the passed graphics context.<br>
+&nbsp;&nbsp;&nbsp;
+GrGetFontInfo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Return information about the passed font number.<br>
+&nbsp;&nbsp;&nbsp;
+GrRegisterInput&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Register a file descriptor to return an event when read data available<br>
+&nbsp;&nbsp;&nbsp; GrPrepareSelect
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Prepare the fd_set and maxfd variables for using Nano-X as a passive library<br>
+&nbsp;&nbsp;&nbsp; GrServiceSelect
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Callback the passed GetNextEvent routine when Nano-X has events requiring processing<br>
+&nbsp;&nbsp;&nbsp; GrMainLoop
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A convenience routine for a typical Nano-X application main loop</p>
+</body>
+</html>

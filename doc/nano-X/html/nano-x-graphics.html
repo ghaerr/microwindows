@@ -1,0 +1,5504 @@
+<HTML
+><HEAD
+><TITLE
+>graphics</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="window"
+HREF="nano-x-window.html"><LINK
+REL="NEXT"
+TITLE="events"
+HREF="nano-x-events.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-window.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-events.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+></TABLE
+></DIV
+><H1
+>graphics</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN707"
+></A
+><H2
+>Name</H2
+>graphics &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN710"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+>    <A
+HREF="nano-x-graphics.html#GRNEWGC"
+>GrNewGC</A
+>                         (void);
+<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+>    <A
+HREF="nano-x-graphics.html#GRCOPYGC"
+>GrCopyGC</A
+>                        (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc);
+void        <A
+HREF="nano-x-graphics.html#GRGETGCINFO"
+>GrGetGCInfo</A
+>                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-GC-INFO-CAPS"
+>GR_GC_INFO</GTKDOCLINK
+> *gcip);
+void        <A
+HREF="nano-x-graphics.html#GRDESTROYGC"
+>GrDestroyGC</A
+>                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc);
+void        <A
+HREF="nano-x-graphics.html#GRLINE"
+>GrLine</A
+>                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x1,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y1,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x2,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y2);
+void        <A
+HREF="nano-x-graphics.html#GRPOINT"
+>GrPoint</A
+>                         (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);
+void        <A
+HREF="nano-x-graphics.html#GRPOINTS"
+>GrPoints</A
+>                        (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *pointtable);
+void        <A
+HREF="nano-x-graphics.html#GRRECT"
+>GrRect</A
+>                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height);
+void        <A
+HREF="nano-x-graphics.html#GRFILLRECT"
+>GrFillRect</A
+>                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height);
+void        <A
+HREF="nano-x-graphics.html#GRPOLY"
+>GrPoly</A
+>                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *pointtable);
+void        <A
+HREF="nano-x-graphics.html#GRFILLPOLY"
+>GrFillPoly</A
+>                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *pointtable);
+void        <A
+HREF="nano-x-graphics.html#GRELLIPSE"
+>GrEllipse</A
+>                       (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry);
+void        <A
+HREF="nano-x-graphics.html#GRFILLELLIPSE"
+>GrFillEllipse</A
+>                   (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry);
+void        <A
+HREF="nano-x-graphics.html#GRARC"
+>GrArc</A
+>                           (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ax,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ay,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> bx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> by,
+                                             int type);
+void        <A
+HREF="nano-x-graphics.html#GRARCANGLE"
+>GrArcAngle</A
+>                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> angle1,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> angle2,
+                                             int type);
+void        <A
+HREF="nano-x-graphics.html#GRSETGCFOREGROUND"
+>GrSetGCForeground</A
+>               (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> foreground);
+void        <A
+HREF="nano-x-graphics.html#GRSETGCBACKGROUND"
+>GrSetGCBackground</A
+>               (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> background);
+void        <A
+HREF="nano-x-graphics.html#GRSETGCUSEBACKGROUND"
+>GrSetGCUseBackground</A
+>            (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> flag);
+void        <A
+HREF="nano-x-graphics.html#GRSETGCMODE"
+>GrSetGCMode</A
+>                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             int mode);
+void        <A
+HREF="nano-x-graphics.html#GRSETGCFONT"
+>GrSetGCFont</A
+>                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> font);
+void        <A
+HREF="nano-x-graphics.html#GRGETGCTEXTSIZE"
+>GrGetGCTextSize</A
+>                 (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             void *str,
+                                             int count,
+                                             int flags,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> *retwidth,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> *retheight,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> *retbase);
+void        <A
+HREF="nano-x-graphics.html#GRREADAREA"
+>GrReadArea</A
+>                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-PIXELVAL-CAPS"
+>GR_PIXELVAL</GTKDOCLINK
+> *pixels);
+void        <A
+HREF="nano-x-graphics.html#GRAREA"
+>GrArea</A
+>                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             void *pixels,
+                                             int pixtype);
+void        <A
+HREF="nano-x-graphics.html#GRCOPYAREA"
+>GrCopyArea</A
+>                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> srcid,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcy,
+                                             int op);
+void        <A
+HREF="nano-x-graphics.html#GRBITMAP"
+>GrBitmap</A
+>                        (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *imagebits);
+void        <A
+HREF="nano-x-graphics.html#GRFREEIMAGE"
+>GrFreeImage</A
+>                     (<GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> id);
+void        <A
+HREF="nano-x-graphics.html#GRGETIMAGEINFO"
+>GrGetImageInfo</A
+>                  (<GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-IMAGE-INFO-CAPS"
+>GR_IMAGE_INFO</GTKDOCLINK
+> *iip);
+void        <A
+HREF="nano-x-graphics.html#GRDRAWIMAGEFROMFILE"
+>GrDrawImageFromFile</A
+>             (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             char *path,
+                                             int flags);
+<GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> <A
+HREF="nano-x-graphics.html#GRLOADIMAGEFROMFILE"
+>GrLoadImageFromFile</A
+>             (char *path,
+                                             int flags);
+void        <A
+HREF="nano-x-graphics.html#GRDRAWIMAGETOFIT"
+>GrDrawImageToFit</A
+>                (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> imageid);
+void        <A
+HREF="nano-x-graphics.html#GRDRAWIMAGEBITS"
+>GrDrawImageBits</A
+>                 (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-IMAGE-HDR-CAPS"
+>GR_IMAGE_HDR</GTKDOCLINK
+> *pimage);
+void        <A
+HREF="nano-x-graphics.html#GRTEXT"
+>GrText</A
+>                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             void *str,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             int flags);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN883"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN886"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN888"
+></A
+><H3
+><A
+NAME="GRNEWGC"
+></A
+>GrNewGC ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+>    GrNewGC                         (void);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new graphics context structure and returns the ID used to refer
+to it. The structure is initialised with a set of default parameters.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the newly created graphics context or 0 on error</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN904"
+></A
+><H3
+><A
+NAME="GRCOPYGC"
+></A
+>GrCopyGC ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+>    GrCopyGC                        (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new graphics context structure and fills it in with the values
+from the specified already existing graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the already existing graphics context to copy the parameters from</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the newly created graphics context or 0 on error</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN925"
+></A
+><H3
+><A
+NAME="GRGETGCINFO"
+></A
+>GrGetGCInfo ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetGCInfo                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-GC-INFO-CAPS"
+>GR_GC_INFO</GTKDOCLINK
+> *gcip);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Fills in the specified GR_GC_INFO structure with information regarding the
+specified graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> a graphics context</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gcip</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a GR_GC_INFO structure</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN946"
+></A
+><H3
+><A
+NAME="GRDESTROYGC"
+></A
+>GrDestroyGC ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDestroyGC                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Destroys the graphics context structure with the specified ID.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context structure to destroy</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN962"
+></A
+><H3
+><A
+NAME="GRLINE"
+></A
+>GrLine ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrLine                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x1,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y1,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x2,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y2);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws a line using the specified graphics context on the specified drawable
+from (x1, y1) to (x2, y2), with coordinates given relative to the drawable.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the line on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the line</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the start of the line relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the start of the line relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the end of the line relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the end of the line relative to the drawable</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1003"
+></A
+><H3
+><A
+NAME="GRPOINT"
+></A
+>GrPoint ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrPoint                         (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws a point using the specified graphics context at the specified position
+on the specified drawable.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw a point on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the point</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the point at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the point at relative to the drawable</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1034"
+></A
+><H3
+><A
+NAME="GRPOINTS"
+></A
+>GrPoints ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrPoints                        (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *pointtable);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws a set of points using the specified graphics context at the positions
+specified by the point table on the specified drawable.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw a point on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the point</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of points in the point table</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pointtable</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a GR_POINT array which lists the points to draw</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1065"
+></A
+><H3
+><A
+NAME="GRRECT"
+></A
+>GrRect ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrRect                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draw the boundary of a rectangle of the specified dimensions and position
+on the specified drawable using the specified graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the rectangle on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the rectangle</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the rectangle relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the rectangle relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the rectangle</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the rectangle</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1106"
+></A
+><H3
+><A
+NAME="GRFILLRECT"
+></A
+>GrFillRect ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrFillRect                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draw a filled rectangle of the specified dimensions and position on the
+specified drawable using the specified graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the rectangle on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the rectangle</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the rectangle relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the rectangle relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the rectangle</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the rectangle</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1147"
+></A
+><H3
+><A
+NAME="GRPOLY"
+></A
+>GrPoly ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrPoly                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *pointtable);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws an unfilled polygon on the specified drawable using the specified
+graphics context. The polygon is specified by an array of point structures.
+The polygon is not automatically closed- if a closed polygon is desired,
+the last point must be the same as the first.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the polygon onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the polygon</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of points in the point array</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pointtable</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to an array of points describing the polygon</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1178"
+></A
+><H3
+><A
+NAME="GRFILLPOLY"
+></A
+>GrFillPoly ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrFillPoly                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             <GTKDOCLINK
+HREF="GR-POINT-CAPS"
+>GR_POINT</GTKDOCLINK
+> *pointtable);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws a filled polygon on the specified drawable using the specified
+graphics context. The polygon is specified by an array of point structures.
+The polygon is automatically closed- the last point need not be the same as
+the first in order for the polygon to be closed.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the polygon onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the polygon</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of points in the point array</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pointtable</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to an array of points describing the polygon</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1209"
+></A
+><H3
+><A
+NAME="GRELLIPSE"
+></A
+>GrEllipse ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrEllipse                       (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws the boundary of ellipse at the specified position using the specified
+dimensions and graphics context on the specified drawable.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the ellipse on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the ellipse</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the ellipse at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the ellipse at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the ellipse on the X axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ry</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the ellipse on the Y axis</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1250"
+></A
+><H3
+><A
+NAME="GRFILLELLIPSE"
+></A
+>GrFillEllipse ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrFillEllipse                   (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws a filled ellipse at the specified position using the specified
+dimensions and graphics context on the specified drawable.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the filled ellipse on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the ellipse</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the ellipse at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the ellipse at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the ellipse on the X axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ry</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the ellipse on the Y axis</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1291"
+></A
+><H3
+><A
+NAME="GRARC"
+></A
+>GrArc ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrArc                           (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ax,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ay,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> bx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> by,
+                                             int type);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws an arc with the specified dimensions at the specified position
+on the specified drawable using the specified graphics context.
+The type specifies the fill type. Possible values include GR_ARC and
+GR_PIE.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the arc on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the graphics context to use when drawing the arc</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the arc at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the arc at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the arc on the X axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ry</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the arc on the Y axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ax</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the start of the arc relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ay</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the start of the arc relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate of the end of the arc relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>by</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate of the end of the arc relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>type</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the fill style to use when drawing the arc</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1356"
+></A
+><H3
+><A
+NAME="GRARCANGLE"
+></A
+>GrArcAngle ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrArcAngle                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> rx,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> ry,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> angle1,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> angle2,
+                                             int type);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws an arc with the specified dimensions at the specified position
+on the specified drawable using the specified graphics context.
+The type specifies the fill type. Possible values include GR_ARC and
+GR_PIE. This function requires floating point support, and is slightly
+slower than the <A
+HREF="nano-x-graphics.html#GRARC"
+>GrArc</A
+>() function which does not require floating point.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the arc on</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the graphics context to use when drawing the arc</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the arc at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the arc at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the arc on the X axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ry</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the radius of the arc on the Y axis</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>angle1</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the angle of the start of the arc</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>angle2</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the angle of the end of the arc</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>type</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the fill style to use when drawing the arc</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1412"
+></A
+><H3
+><A
+NAME="GRSETGCFOREGROUND"
+></A
+>GrSetGCForeground ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCForeground               (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> foreground);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the foreground colour of the specified graphics context to the
+specified colour.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to set the foreground colour of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>foreground</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the colour to use as the new foreground colour</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1433"
+></A
+><H3
+><A
+NAME="GRSETGCBACKGROUND"
+></A
+>GrSetGCBackground ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCBackground               (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COLOR-CAPS"
+>GR_COLOR</GTKDOCLINK
+> background);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the background colour of the specified graphics context to the
+specified colour.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to set the background colour of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>background</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the colour to use as the new background colour</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1454"
+></A
+><H3
+><A
+NAME="GRSETGCUSEBACKGROUND"
+></A
+>GrSetGCUseBackground ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCUseBackground            (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> flag);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the flag which chooses whether or not the background colour is used
+when drawing bitmaps and text using the specified graphics context to the
+specified value.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to change the "use background" flag of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flag</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> flag specifying whether to use the background colour or not</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1475"
+></A
+><H3
+><A
+NAME="GRSETGCMODE"
+></A
+>GrSetGCMode ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCMode                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             int mode);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the drawing mode (SET, XOR, OR, AND, etc.) of the specified
+graphics context to the specified mode.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to set the drawing mode of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>mode</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the new drawing mode</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1495"
+></A
+><H3
+><A
+NAME="GRSETGCFONT"
+></A
+>GrSetGCFont ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCFont                     (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-FONT-ID-CAPS"
+>GR_FONT_ID</GTKDOCLINK
+> font);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the font to be used for text drawing in the specified graphics
+context to the specified font ID.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to set the font of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>font</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the font</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1516"
+></A
+><H3
+><A
+NAME="GRGETGCTEXTSIZE"
+></A
+>GrGetGCTextSize ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetGCTextSize                 (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             void *str,
+                                             int count,
+                                             int flags,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> *retwidth,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> *retheight,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> *retbase);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Calculates the dimensions of the specified text string using the current font
+and flags in the specified graphics context. The count argument can be -1
+if the string is null terminated.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the graphics context</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>str</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a text string</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the length of the string</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> text rendering flags (GR_TF*)</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>retwidth</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the variable the width will be returned in</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>retheight</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the variable the height will be returned in</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>retbase</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the variable the baseline height will be returned in</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1559"
+></A
+><H3
+><A
+NAME="GRREADAREA"
+></A
+>GrReadArea ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrReadArea                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-PIXELVAL-CAPS"
+>GR_PIXELVAL</GTKDOCLINK
+> *pixels);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Reads the pixel data of the specified size from the specified position on
+the specified drawable into the specified pixel array. If the drawable is
+a window, the data returned will be the pixel values from the relevant
+position on the screen regardless of whether the window is obscured by other
+windows. If the window is unmapped, or partially or fully outside a window
+boundary, black pixel values will be returned.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to read an area from</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to read the area from relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to read the area from relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the area to read</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the area to read</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixels</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to an area of memory to place the pixel data in</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1600"
+></A
+><H3
+><A
+NAME="GRAREA"
+></A
+>GrArea ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrArea                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             void *pixels,
+                                             int pixtype);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws the specified pixel array of the specified size and format onto the
+specified drawable using the specified graphics context at the specified
+position. Note that colour conversion is currently only performed when using
+the GR_PF_RGB format, which is an unsigned long containing RGBX data.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the area onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the area</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the area at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the area at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the area</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the area</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixels</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to an array containing the pixel data</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixtype</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the format of the pixel data</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1649"
+></A
+><H3
+><A
+NAME="GRCOPYAREA"
+></A
+>GrCopyArea ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrCopyArea                      (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> srcid,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcy,
+                                             int op);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Copies the specified area of the specified size between the specified
+drawables at the specified positions using the specified graphics context
+and ROP codes. 0 is a sensible default ROP code in most cases.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to copy the area to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when copying the area</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to copy the area to within the destination drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to copy the area to within the destination drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the area to copy</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the area to copy</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>srcid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to copy the area from</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>srcx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to copy the area from within the source drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>srcy</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to copy the area from within the source drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>op</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ROP codes to pass to the blitter when performing the copy</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1709"
+></A
+><H3
+><A
+NAME="GRBITMAP"
+></A
+>GrBitmap ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrBitmap                        (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *imagebits);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws the monochrome bitmap data provided in the bitmaptable argument
+at the specified position on the specified drawable using the specified
+graphics context. Note that the bitmap data should be an array of aligned
+16 bit words. The usebackground flag in the graphics context specifies
+whether to draw the background colour wherever a bit value is zero.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the bitmap onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the bitmap at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the bitmap at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>imagebits</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1755"
+></A
+><H3
+><A
+NAME="GRFREEIMAGE"
+></A
+>GrFreeImage ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrFreeImage                     (<GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> id);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Destroys the specified image buffer and reclaims the memory used by it.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> ID of the image buffer to free</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1771"
+></A
+><H3
+><A
+NAME="GRGETIMAGEINFO"
+></A
+>GrGetImageInfo ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetImageInfo                  (<GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-IMAGE-INFO-CAPS"
+>GR_IMAGE_INFO</GTKDOCLINK
+> *iip);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Fills in the specified image information structure with the details of the
+specified image buffer.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> ID of an image buffer</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>iip</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a GR_IMAGE_INFO structure</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1792"
+></A
+><H3
+><A
+NAME="GRDRAWIMAGEFROMFILE"
+></A
+>GrDrawImageFromFile ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDrawImageFromFile             (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             char *path,
+                                             int flags);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Loads the specified image file and draws it at the specified position
+on the specified drawable using the specified graphics context. The
+width and height values specify the size of the image to draw- if the
+actual image is a different size, it will be scaled to fit. The image type
+is automatically detected using the magic numbers in the image header (ie.
+the filename extension is irrelevant). The currently supported image types
+include GIF, JPEG, Windows BMP, PNG, XPM, and both ascii and binary
+variants of PBM, PGM, and PPM. However the image types supported by a
+particular server depend on which image types were enabled in the server
+configuration at build time.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the image onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the image</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum image width</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum image height</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>path</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> string containing the filename of the image to load</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> flags specific to the particular image loader</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1841"
+></A
+><H3
+><A
+NAME="GRLOADIMAGEFROMFILE"
+></A
+>GrLoadImageFromFile ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> GrLoadImageFromFile             (char *path,
+                                             int flags);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Loads the specified image file into a newly created server image buffer
+and returns the ID of the buffer. The image type is automatically detected
+using the magic numbers in the image header (ie. the filename extension is
+irrelevant). The currently supported image types include GIF, JPEG, Windows
+BMP, PNG, XPM, and both ascii and binary variants of PBM, PGM, and PPM.
+However the image types supported by a particular server depend on which
+image types were enabled in the server configuration at build time.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>path</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> string containing the filename of the image to load</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> flags specific to the particular image loader</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> ID of the image buffer the image was loaded into</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1865"
+></A
+><H3
+><A
+NAME="GRDRAWIMAGETOFIT"
+></A
+>GrDrawImageToFit ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDrawImageToFit                (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> imageid);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws the image from the specified image buffer at the specified position
+on the specified drawable using the specified graphics context. The
+width and height values specify the size of the image to draw- if the
+actual image is a different size, it will be scaled to fit.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the image onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the image</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum image width</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum image height</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>imageid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the image buffer containing the image to display</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1911"
+></A
+><H3
+><A
+NAME="GRDRAWIMAGEBITS"
+></A
+>GrDrawImageBits ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDrawImageBits                 (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-IMAGE-HDR-CAPS"
+>GR_IMAGE_HDR</GTKDOCLINK
+> *pimage);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws the image contained in the specified image structure onto the
+specified drawable at the specified coordinates using the specified
+graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the image onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the image</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pimage</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the image structure</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1947"
+></A
+><H3
+><A
+NAME="GRTEXT"
+></A
+>GrText ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrText                          (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             void *str,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> count,
+                                             int flags);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Draws the specified text string at the specified position on the specified
+drawable using the specified graphics context and flags. The default flags
+specify ASCII encoding and baseline alignment.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the text string onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the text string</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the string at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the string at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>str</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the text string to draw</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of characters (not bytes) in the string</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> flags specifying text encoding, alignment, etc.</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-window.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+><A
+HREF="nano-x-events.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Next Page &#62;&#62;&#62;</B
+></FONT
+></A
+></TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>window</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>events</B
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,863 @@
+<HTML
+><HEAD
+><TITLE
+>misc</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+REL="HOME"
+TITLE="Nano-X API Reference Manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libnano-X"
+HREF="libnano-x.html"><LINK
+REL="PREVIOUS"
+TITLE="selections"
+HREF="nano-x-selections.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="4"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="5"
+>Nano-X API Reference Manual</FONT
+></TH
+></TR
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-selections.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+><H1
+>misc</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3124"
+></A
+><H2
+>Name</H2
+>misc &#8212; </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3127"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="SYNOPSIS"
+>&#13;
+
+void        <A
+HREF="nano-x-misc.html#GRREQSHMCMDS"
+>GrReqShmCmds</A
+>                    (<GTKDOCLINK
+HREF="LONG"
+>long</GTKDOCLINK
+> shmsize);
+void        <A
+HREF="nano-x-misc.html#GRINJECTKEYBOARDEVENT"
+>GrInjectKeyboardEvent</A
+>           (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-UNICODE-CAPS"
+>GR_UNICODE</GTKDOCLINK
+> uch,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> ch,
+                                             int modif,
+                                             int special,
+                                             unsigned char content);
+void        <A
+HREF="nano-x-misc.html#GRREGISTERINPUT"
+>GrRegisterInput</A
+>                 (int fd);
+void        <A
+HREF="nano-x-misc.html#GRPREPARESELECT"
+>GrPrepareSelect</A
+>                 (int *maxfd,
+                                             void *rfdset);
+void        <A
+HREF="nano-x-misc.html#GRSERVICESELECT"
+>GrServiceSelect</A
+>                 (void *rfdset,
+                                             <GTKDOCLINK
+HREF="GR-FNCALLBACKEVENT-CAPS"
+>GR_FNCALLBACKEVENT</GTKDOCLINK
+> fncb);
+void        <A
+HREF="nano-x-misc.html#GRBELL"
+>GrBell</A
+>                          (void);
+void        <A
+HREF="nano-x-misc.html#GRSETSCREENSAVERTIMEOUT"
+>GrSetScreenSaverTimeout</A
+>         (<GTKDOCLINK
+HREF="GR-TIMEOUT-CAPS"
+>GR_TIMEOUT</GTKDOCLINK
+> timeout);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3143"
+></A
+><H2
+>Description</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3146"
+></A
+><H2
+>Details</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3148"
+></A
+><H3
+><A
+NAME="GRREQSHMCMDS"
+></A
+>GrReqShmCmds ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrReqShmCmds                    (<GTKDOCLINK
+HREF="LONG"
+>long</GTKDOCLINK
+> shmsize);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Requests a shared memory area of the specified size to use for transferring
+command arguments. This is faster but less portable than the standard BSD
+sockets method of communication (and of course will only work if the client
+and server are on the same machine). Apart from the initial allocation of
+the area using this call, the use of shared memory is completely
+transparent. Additionally, if the allocation fails we silently and
+automatically fall back on socket communication. It is safe to call this
+function even if shared memory support is not compiled in; it will simply
+do nothing.</P
+><P
+>FIXME: how does the user decide what size of shared memory area to allocate?</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>shmsize</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the size of the shared memory area to allocate</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3165"
+></A
+><H3
+><A
+NAME="GRINJECTKEYBOARDEVENT"
+></A
+>GrInjectKeyboardEvent ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrInjectKeyboardEvent           (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-UNICODE-CAPS"
+>GR_UNICODE</GTKDOCLINK
+> uch,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> ch,
+                                             int modif,
+                                             int special,
+                                             unsigned char content);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sends a keyboard event to the specified window, or to the window with the
+current keyboard focus if 0 is used as the ID. The other arguments
+correspond directly to the fields of the same names in the keyboard event
+structure.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> ID of the window to send the event to, or 0</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>uch</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> 32 bit Unicode keystroke value to inject</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ch</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> 8 bit ascii keystroke value to inject</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>modif</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>special</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> special keys to inject</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>content</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> mask specifying which arguments are valid</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3203"
+></A
+><H3
+><A
+NAME="GRREGISTERINPUT"
+></A
+>GrRegisterInput ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrRegisterInput                 (int fd);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Register an extra file descriptor to monitor in the main <GTKDOCLINK
+HREF="SELECT"
+>select</GTKDOCLINK
+>() call.
+An event will be returned when the fd has data waiting to be read if that
+event has been selected for.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fd</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the file descriptor to monitor</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3219"
+></A
+><H3
+><A
+NAME="GRPREPARESELECT"
+></A
+>GrPrepareSelect ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrPrepareSelect                 (int *maxfd,
+                                             void *rfdset);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Prepare for a GrServiceSelect function by asking the server to send the next
+event but not waiting around for it to arrive and initialising the
+specified fd_set structure with the client/server socket descriptor and any
+previously registered external file descriptors. Also compares the current
+contents of maxfd, the client/server socket descriptor, and the previously
+registered external file descriptors, and returns the highest of them in
+maxfd.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>maxfd</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a variable which the highest in use fd will be written to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rfdset</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the file descriptor set structure to use</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3238"
+></A
+><H3
+><A
+NAME="GRSERVICESELECT"
+></A
+>GrServiceSelect ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrServiceSelect                 (void *rfdset,
+                                             <GTKDOCLINK
+HREF="GR-FNCALLBACKEVENT-CAPS"
+>GR_FNCALLBACKEVENT</GTKDOCLINK
+> fncb);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Used by <A
+HREF="nano-x-general.html#GRMAINLOOP"
+>GrMainLoop</A
+>() to call the specified callback function when an
+event arrives or there is data waiting on an external fd specified by
+<A
+HREF="nano-x-misc.html#GRREGISTERINPUT"
+>GrRegisterInput</A
+>().</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rfdset</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the file descriptor set to monitor</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fncb</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to the function to call when an event needs handling</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3260"
+></A
+><H3
+><A
+NAME="GRBELL"
+></A
+>GrBell ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrBell                          (void);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Asks the server to ring the console bell on behalf of the client (intended
+for terminal apps to be able to ring the bell on the server even if they
+are running remotely).</P
+><P
+></P
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3266"
+></A
+><H3
+><A
+NAME="GRSETSCREENSAVERTIMEOUT"
+></A
+>GrSetScreenSaverTimeout ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetScreenSaverTimeout         (<GTKDOCLINK
+HREF="GR-TIMEOUT-CAPS"
+>GR_TIMEOUT</GTKDOCLINK
+> timeout);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the number of seconds of inactivity before a screen saver activate
+event is sent to the root window ID. A value of 0 activates the
+screen saver immediately, and a value of -1 disables the screen saver
+function.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>timeout</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the number of seconds of inactivity before screen saver activates</TD
+></TR
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR
+CLEAR="all"><BR><TABLE
+WIDTH="100%"
+BORDER="0"
+BGCOLOR="#000000"
+CELLPADDING="1"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="left"
+><A
+HREF="nano-x-selections.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>&#60;&#60;&#60; Previous Page</B
+></FONT
+></A
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#0000C0"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="index.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Home</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#00C000"
+ALIGN="center"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+><A
+HREF="libnano-x.html"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>Up</B
+></FONT
+></A
+></B
+></FONT
+></TD
+><TD
+WIDTH="25%"
+BGCOLOR="#C00000"
+ALIGN="right"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+COLSPAN="2"
+ALIGN="left"
+><FONT
+COLOR="#FFFFFF"
+SIZE="3"
+><B
+>selections</B
+></FONT
+></TD
+><TD
+COLSPAN="2"
+ALIGN="right"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

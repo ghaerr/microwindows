@@ -1,0 +1,55 @@
+# Sample launcher configuration file
+
+# These are the screen savers to use:
+# A simple screen blanker:
+# $screensaver bin/nsaver 1
+# Draws random dots:
+$screensaver bin/nsaver 2
+# Draws random lines:
+$screensaver bin/nsaver 3
+# Draws worms that crawl randomly around the screen:
+$screensaver bin/nsaver 4
+# Draws a star field accelerating towards the viewer:
+$screensaver bin/nsaver 5
+# Draws a simulated lightning storm:
+$screensaver bin/nsaver 6
+# Draws an orbiting planet simulation:
+$screensaver bin/nsaver 7
+# Draws a moire interference pattern:
+$screensaver bin/nsaver 8
+
+# This is the screen saver timeout delay (in seconds):
+$screensaver_timeout 300
+
+# This is the file to use as the root window background image:
+$window_background_image bin/tux.gif
+
+# This is the mode to use for the window background:
+# 0 = tile across screen
+# 1 = draw once in centre of screen
+# 2 = draw once at top left of screen
+$window_background_mode 0
+
+# This is the background colour to use for the root window:
+# Possible values are:
+# BLACK, BLUE, GREEN, RED, MAGENTA, BROWN, LTGRAY, GRAY, LTBLUE, LTGREEN,
+# LTCYAN, LTRED, LTMAGENTA, YELLOW, WHITE.
+# $window_background_colour GREEN
+
+# These are the launcher panel items. Each line is in the format:
+
+# The item name must not contain any spaces.
+# <item name> <icon filename> <command> <first argument> <second argument> <...>
+# The item name must not contain any spaces.
+# The icon filename can be the letter '-' to specify no icon.
+
+Tetris bin/ntetris.ppm bin/ntetris
+Landmine - bin/landmine
+Slider - bin/slider demos/nanox/slidebmp.bmp
+Terminal - bin/nxterm
+Clock - bin/nxclock
+Map - bin/world
+Scribble - bin/nxscribble
+SoftKeyboard - bin/nxkbd
+Logo - bin/nxview bin/nanogui.ppm
+Roach - bin/nxroach -roaches 10

@@ -1,0 +1,215 @@
+RTEMS Setup
+===========
+
+This file provide instructions on how to configure and build Microwindows
+for RTEMS.  It is assumed that you are familiar enough with RTEMS and Microwindows,
+and have a development environment that works with both systems. If you are not,
+it is encouraged to play around with each one these packages first, separately,
+before you start mixing them together. 
+
+
+NOTE: Microwindows code does not compile when ITRON API is enabled  -- need fix
+
+
+a) RTEMS --- Patching & Building
+==========================
+
+ + Download RTEMS source (rtems-4.5.0-beta3.tgz) from Oarcorp.
+
+ + make a build directory
+       mkdir work
+
+ + untar rtems beta3
+      cd work
+      tar xzf rtems-4.5.0-beta3.tgz 
+
+ + Download rtems and microwindows patches from Rosimildo's site.
+  - rtems-4.5.0beta2-microwin-0.88.patch
+  - microwin-088pre7-rtems.patch
+
+ + Apply rtems-4.5.0beta3-microwin-0.88.patch.
+   cd rtems-4.5.0-beta3
+   patch -p1  <../rtems-4.5.0beta3-microwin-0.88.patch 
+
+  NOTE:  find . -name "*.rej", t check for rejects.
+
+  # Regenerate some RTEMS build structure.  You may need to update
+  # autoconf and automake packages on your machine.
+  ./bootstrap
+
+
+  + Mouse driver setup: 
+This needs to be improved later. Right now this is utter complex.
+It reminds me setting up GRUB. :-).
+
+You need to edit the device driver table in rtemscfg.h, around line 61.
+There are two "/dev/mouse" drivers on RTEMS. Only one of them can be
+loaded on the system. Select the one that fits your needs.
+
+    i) for PS/2 mouse:
+Select to load PAUX_DRIVER_TABLE_ENTRY in the device driver table. You
+would do this, defining PS2_MOUSE in the file rtemscfg.h before the
+device driver table.
+
+#define PS2_MOUSE
+
+   ii) Serial Mouse 
+   
+-- Select the mouse type: "ms", "pc". Most serial mouses are microsoft ( "ms" )
+compatible. This is the default selection.
+
+
+-- Select serial port -- defaul is COM1
+
+Both selections are made in the header file: 
+       $RTEMS_SOURCE)/c/src/lib/libbsp/i386/pc386/console/serial_mouse.h
+around line 72.
+
+[snip from $RTEMS_SOURCE)/c/src/lib/libbsp/i386/pc386/console/serial_mouse.h ]
+/* Select the mouse type:  "ms","pc","ps2" */
+#define  MOUSE_TYPE        "ms"  
+
+/* Select the serial port used by the mouse driver */
+#define  SERIAL_MOUSE_COM1  1
+/* #define  SERIAL_MOUSE_COM2  1  */
+
+IMPORTANT: Any change on one of these settings, requires recompilation of RTEMS.
+
+
+
+Configure and install RTEMS.  This assumes RPMs are installed
+and tools are available as /opt/rtems.  You will need to
+be able to write into the /opt/rtems directory so you will
+likely have to be root to do the "make install" step.
+I am using the c build scripts and you should look
+at user.cfg to make sure it is OK for you.
+
+  ./bit_rtems i386 pc386
+  # takes a while and ends up with /opt/rtems/pc386 installed
+
+
+b) MicroWindows --- Patching & Building
+=======================================
+
+ + Downloaded Microwindows source (microwindows-0.88pre7.tar.gz) from censoft.
+
+ + make a build directory
+       mkdir work
+
+ + untar microwindows
+      cd work
+      tar xzf microwindows-0.88pre7.tar.gz
+
+ + Apply microwin-088pre7-rtems.patch.
+  cd microwin
+  patch -p1  <../microwin-088pre7-rtems.patch 
+
+Found readme.rtems in microwin source:
+
+  bash$ find . -name "readme.rtems"
+  ./src/rtems/readme.rtems
+
+Per readme.rtems use config.rtems for Microwindows.
+
+  cd microwin
+  cd src
+  cp config config.SHIP
+  cp config.rtems config
+
+
+Edit config to localize it.  Make sure these variables are 
+set as shown below:
+
+  RTEMSTOOLSPREFIX         = i386-rtems-
+  RTEMS_BUILD              = /opt/rtems
+
+Now build microwindows:
+
+  cd src
+  make 
+
+  NOTE:  This does not build the demos.
+
+Now build the demos.
+
+  src/rtems/Makefile.rtems is intended to be used to each of the
+  demos.  You have a couple of issues...
+
+   + This builds whatever demo is selected by the definition 
+     of MAIN_OBJ around line 52 of Makefile.rtems.
+
+   + This produces rtems.exe for each demo.  It is quite large
+     so you might want to strip it like this:
+
+bash$ cp rtems.exe rtems_nosym.exe
+bash$ i386-rtems-strip rtems_nosym.exe 
+
+
+
+c) Microwindows Configuration
+=============================
+
+NOTE: You can use the default configuration for RTEMS -- 
+      copy config.rtems to config
+
+  --> or
+
+1. Select the architecture to be RTEMS. :-)
+ARCH                     = RTEMS
+
+2. No demos are built for RTEMS. Later, using the Makefile under the
+rtems directory you can select whatever you need to build. This is because
+RTEMS requires special configuration tables, and a definition of the 
+"Init" task.
+
+  + A demo is selected by the definition of MAIN_OBJ around line 52 
+of Makefile.rtems.
+
+MICROWINDEMO             = N
+NANOXDEMO                = N
+
+
+3. color scheme  -- ( unless you wrote the super-duper video driver for RTEMS )
+SCREEN_PIXTYPE           = PF_PALETTE
+
+
+4. Nano-X server linked with client as a single executable
+LINK_APP_INTO_SERVER     = Y
+
+
+5.1. Enable the Micro FrameBuffer interface.
+FRAMEBUFFER              = Y
+FBVGA                    = Y
+
+  ==> or
+
+5.2. For SVGALIB -- This requires you have the SVGALIB support under RTEMS.
+Please go to this site for more information:
+http://members/xoom.com/rosimildo/rtems_svga.html
+
+LIBVGA                   = Y
+
+
+
+c) KBD & MOUSE Test
+===================
+
+A test program has been added to help debugging the input devices. It is 
+called rtems/mw_uid_test.cc. Modify the Makefile to build it. It'll help
+making sure that mouse&kbd works.
+
+
+
+
+Credits
+=======
+
+I'd like to Thank Joel Sherrill for going over the original notes, and
+prividing me with his own notes to be merged here.
+
+
+
+
+Good Luck !!!.
+
+Rosimildo.

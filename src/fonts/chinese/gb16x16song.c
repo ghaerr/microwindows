@@ -130850,6 +130850,8 @@ static MWIMAGEBITS gb16x16song_bits[]={
 0x22fe,
 0x4200,
 };
+
+#if 0
 static unsigned short gb16x16song_offset[]={
 0, 
 16, 
@@ -139030,6 +139032,9 @@ static unsigned short gb16x16song_offset[]={
 130816, 
 130832,
 };
+#endif
+
+#if 0
 /* character width data. */
 static unsigned char gb16x16song_width[]={
 16, 
@@ -147211,6 +147216,8 @@ static unsigned char gb16x16song_width[]={
 16, 
 16,
 };
+#endif
+
 /* Export structure definition */
 MWCFONT font_gb16x16song={
 	"gb16x16song",
@@ -147220,6 +147227,6 @@ MWCFONT font_gb16x16song={
 	0,
 	8178,
 	gb16x16song_bits,
-	gb16x16song_offset,
-	gb16x16song_width,
+	0 /*gb16x16song_offset*/,
+	0 /*gb16x16song_width*/,
 };

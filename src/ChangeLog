@@ -1,3 +1,8 @@
+	* added enhanced fonts/convbdf, fonts/convbdf.c:
+		- allows fonts with > 256 chars
+		- allows fonts with bitmap offsets > 64k (offset now long array)
+		- offset and widths list not generated when not required
+		- start, limit options & defaultchar
 	* removed HAVEMSFONTS option
 	* slight speed increase on dashed drawing, reformatted devdraw.c
 	* increase text draw speed with no-clip drawbitmap internal function

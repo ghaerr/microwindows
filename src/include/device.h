@@ -75,13 +75,15 @@ typedef struct _mwscreendevice *PSD;
 typedef struct {
 	char *		name;		/* font name*/
 	int		maxwidth;	/* max width in pixels*/
-	int		height;		/* height in pixels*/
+	unsigned int	height;		/* height in pixels*/
 	int		ascent;		/* ascent (baseline) height*/
 	int		firstchar;	/* first character in bitmap*/
 	int		size;		/* font size in characters*/
 	MWIMAGEBITS *	bits;		/* 16-bit right-padded bitmap data*/
-	unsigned short *offset;		/* 256 offsets into bitmap data*/
+	unsigned long *offset;		/* 256 offsets into bitmap data*/
 	unsigned char *	width;		/* 256 character widths or 0 if fixed*/
+	int		defaultchar;	/* default char (not glyph index)*/
+	long		bits_size;	/* # words of MWIMAGEBITS bits*/
 } MWCFONT, *PMWCFONT;
 
 /* draw procs associated with fonts.  Strings are [re]packed using defencoding*/

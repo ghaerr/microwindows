@@ -610,7 +610,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			MWRGB(imagebits[1], imagebits[0], bitvalue);
                  
 		/* Include the upper bits for transcolor stuff */
-		if (imagebits[2])	// FIXME: 24bpp error
+		if (imagebits[2])	/* FIXME: 24bpp error*/
 		    trans = cr | 0x01000000L;
 
 		if (pimage->bpp == 32)

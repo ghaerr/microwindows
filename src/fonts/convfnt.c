@@ -84,16 +84,16 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 		hfont = GetFont(hdc, arg, 8, 0);
 		break;
 	case 1:
-		hfont = GetStockObject(DEFAULT_GUI_FONT);	// winMSSansSerif11x13
+		hfont = GetStockObject(DEFAULT_GUI_FONT);	/* winMSSansSerif11x13 */
 		break;
 	case 2:
-		hfont = GetStockObject(SYSTEM_FONT);		// winSystem14x16
+		hfont = GetStockObject(SYSTEM_FONT);		/* winSystem14x16 */
 		break;
 	case 3:
-		hfont = GetStockObject(OEM_FIXED_FONT);	// winTerminal8x12
+		hfont = GetStockObject(OEM_FIXED_FONT);		/* winTerminal8x12 */
 		break;
 	case 4:
-		hfont = GetStockObject(ANSI_VAR_FONT);	// winMSSansSerif11x13
+		hfont = GetStockObject(ANSI_VAR_FONT);		/* winMSSansSerif11x13 */
 		break;
 	}
 	ReleaseDC(NULL, hdc);

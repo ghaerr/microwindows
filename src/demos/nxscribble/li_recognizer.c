@@ -409,7 +409,6 @@ li_recognizer_get_example (recognizer	r,
 static int li_recognizer_load(recognizer r,char* dir,char* filename)
 { 
     FILE *fd;
-    //int ftype;
     char* pathname;
     li_recognizer* rec;
     rClassifier* rc;
@@ -785,8 +784,6 @@ RECOGNIZER_INITIALIZE(ri)
 {
     recognizer r;
     li_recognizer* rec;
-    //char* homedir;
-    //char rechomedir[BUFSIZ];
     int i;
 
     /*Check that locale matches.*/
@@ -794,7 +791,9 @@ RECOGNIZER_INITIALIZE(ri)
     if( strcmp(ri->ri_locale,LI_SUPPORTED_LOCALE) != 0 ) {
 	li_err_msg = "Not a supported locale";
 fprintf(stderr, "Locale error.\n");
-	//return(NULL);
+#if 0
+	return(NULL);
+#endif
     }
 
     /*
@@ -819,7 +818,7 @@ fprintf(stderr, "charset error.\n");
 	     
 /* ari */
     r = make_recognizer(ri);
-//fprintf(stderr, "past make_recognizer.\n");
+    /*fprintf(stderr, "past make_recognizer.\n");*/
 
     if( r == NULL ) {
 	li_err_msg = "Can't allocate storage";
@@ -1076,8 +1075,8 @@ static char *lialg_recognize_stroke(rClassifier *rec, point_list *stroke) {
     int best_score = WORST_SCORE;
     char *curr_name;
     point_list *curr_dompts = NULL;
-    //struct timeval stv, etv;
-    //int	elapsed;
+    /*struct timeval stv, etv;
+    int	elapsed;*/
 
     /*    (void)gettimeofday(&stv, NULL);*/
 
@@ -1621,7 +1620,6 @@ static point_list *lialg_compute_dompts(point_list *pts, region_list *regions) {
     int *cas = NULL;
     int nonplain;
     region_list *r;
-    //int i;
 
     /* Compute contour angle set. */
     cas = lialg_compute_contour_angle_set(pts, regions);
@@ -1700,7 +1698,6 @@ static int *lialg_compute_contour_angle_set(point_list *pts,
     int *V = NULL;
     region_list *curr_reg, *prev_reg;
     int i;
-    //int j;
 
     /*    V = (int *)safe_malloc(pts->npts * sizeof(int));*/
     V = allocate(pts->npts, int);
@@ -1998,7 +1995,6 @@ static int lialg_compute_distance(point_list *input_dompts,
  *************************************************************/
 
 static int lialg_read_classifier_digest(rClassifier *rec) {
-    //int i;
     int nclasses;
     FILE *fp = NULL;
 

@@ -9,7 +9,8 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 /* Uncomment this if you want debugging output from this file */
-//#define DEBUG
+/*#define DEBUG*/
+
 #include "nanowm.h"
 
 void do_exposure(GR_EVENT_EXPOSURE *event)

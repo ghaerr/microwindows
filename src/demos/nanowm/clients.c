@@ -10,7 +10,8 @@
 #include "nano-X.h"
 #include "nxdraw.h"
 /* Uncomment this if you want debugging output from this file */
-//#define DEBUG
+/*#define DEBUG*/
+
 #include "nanowm.h"
 
 /* default window style for GR_WM_PROPS_APPWINDOW*/

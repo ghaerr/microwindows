@@ -44,8 +44,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                           WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                           CW_USEDEFAULT,
                           CW_USEDEFAULT,
-                          width,//80,
-                          height,//80,
+                          width,	/* 80, */
+                          height,	/* 80, */
                           NULL,
                           NULL,
                           NULL,
@@ -106,19 +106,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	hcombo = CreateWindowEx(0L, "COMBOBOX",
 		 "Combobox",
 #if 0
-		 CBS_SIMPLE | //edit+list
-#else
-#if 0
-		 CBS_DROPDOWNLIST | //static+pop
-#else
-		 CBS_DROPDOWN | //edit+pop
+		 CBS_SIMPLE | 		/* edit+list */
 #endif
+#if 0
+		 CBS_DROPDOWNLIST | 	/* static+pop */
+#endif
+#if 1
+		 CBS_DROPDOWN | 	/* edit+pop */
 #endif
 
-#if 1
-		 WS_VSCROLL|
-#endif
-		 WS_CHILD | WS_VISIBLE,
+		 WS_VSCROLL | WS_CHILD | WS_VISIBLE,
 		 width * 5 / 8, 106+14+4+18+4, 100, (18*5),
 		 hwnd, (HMENU)10, NULL, NULL);
 
@@ -161,9 +158,8 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {       
         HDC hdc;
         PAINTSTRUCT ps;
-        RECT rect,rc;
+        RECT rect;
 	HGDIOBJ oldfont;
-	//int i;
         
         switch (iMsg) {
         case WM_CREATE:
@@ -171,9 +167,11 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         case WM_PAINT:
         /*case WM_MOUSEFIRST:*/
                 hdc=BeginPaint(hwnd,&ps);
-                GetClientRect(hwnd,&rc);
-		//Arc(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);
-		//Pie(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);
+
+                /*GetClientRect(hwnd,&rc);*/
+		/*Arc(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);*/
+		/*Pie(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);*/
+
                 GetClientRect(hwnd,&rect);
 	        oldfont=SelectObject(hdc,CreateFont(12,
 			0,0,0,0,0,0,0,0,0,0,0,
@@ -182,8 +180,10 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                 DrawText(hdc, "Hola, NOS, ¤¤¤å´ú¸Õ", -1, &rect,
                          DT_SINGLELINE|DT_CENTER|DT_VCENTER);
 		DeleteObject(SelectObject(hdc,oldfont));
-		//for (i=0;i<100;i++)
-			//SetPixel(hdc,i,i,BLUE);
+
+		/*for (i=0;i<100;i++)
+			SetPixel(hdc,i,i,BLUE);*/
+
                 EndPaint(hwnd,&ps);
                 break;
         case WM_DESTROY:

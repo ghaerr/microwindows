@@ -160,7 +160,7 @@ gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
 	int CH = ((unsigned int)ch) >> 8, CL = ((unsigned int)ch) & 0xFF;
 	if (CH >= 0xA1 && CH <= 0xF9 && ((CL >= 0x40 && CL <= 0x7E) || (CL >= 0xA1 && CL <= 0xFE)) ) 
 	{
-	    int Pos;//!= ((CH - 0xA1) * 94 + (CL - 0xA1)) * 18;
+	    int Pos;	/* != ((CH - 0xA1) * 94 + (CL - 0xA1)) * 18; */
 
 	    int i;
 	    extern unsigned char JMT_BIG5_12X12_FONT_BITMAP[];
@@ -168,18 +168,18 @@ gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
 	    int seq;
 	    {
 		seq=0;
-		//ladd=loby-(if(loby<127)?64:98)
+		/* ladd=loby-(if(loby<127)?64:98) */
 		CL/*c2*/-=(CL/*c2*/<127?64:98);   
 
-		//hadd=(hiby-164)*157
-		if (CH/*c1*/>=0xa4)//standard font
+		/* hadd=(hiby-164)*157 */
+		if (CH/*c1*/>=0xa4)	/* standard font */
 		{
 			seq=(((CH/*c1*/-164)*157)+CL/*c2*/);
 			if (seq>=5809) seq-=408;
 		}
 
-		//hadd=(hiby-161)*157
-		if (CH/*c1*/<=0xa3)//special font
+		/* hadd=(hiby-161)*157 */
+		if (CH/*c1*/<=0xa3)	/* special font */
 			seq=(((CH/*c1*/-161)*157)+CL/*c2*/)+13094;
 	    }
 	    Pos=seq*18;

@@ -58,7 +58,7 @@ SCREENDEVICE	scrdev = {
 	NULL			/* FreeMemGC*/
 };
 
-//add by mlkao
+/* add by mlkao */
 extern int gr_mode;	/* temp kluge*/
 static struct linesettingstype lineinfo;
 static struct palettetype bgi_pal;
@@ -78,10 +78,10 @@ BGI_open(PSD psd)
 	psd->yres = psd->yvirtres = getmaxy()+1;
 	psd->linelen = lineinfo.thickness;
 	psd->planes = 1;
-	psd->bpp = 4;		// FIXME??
+	psd->bpp = 4;		/* FIXME?? */
 	psd->ncolors = getmaxcolor() + 1;
 	psd->flags = PSF_SCREEN;
-	psd->addr = 0;		// FIXME
+	psd->addr = 0;		/* FIXME */
 
 	/* note: must change psd->pixtype here for truecolor systems*/
 	psd->pixtype = MWPF_PALETTE;

@@ -47,12 +47,11 @@ int main(int argc, char **argv)
 			exit(0);
 	      }
 
-	      //sleep(1);
+	      /*sleep(1);*/
 
 	      MWLF_Clear(&lf);
 	      description[0] = '\0';
-
-	      // lf.lfSerif = 1;
+	      /*lf.lfSerif = 1;*/
 
 	      if ( rnd & 1 ) {
 		      lf.lfWeight = MWLF_WEIGHT_BOLD;

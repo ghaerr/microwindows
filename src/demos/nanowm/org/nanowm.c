@@ -59,7 +59,9 @@ int main(int argc, char *argv[])
 
 		switch(event.type) {
 			case GR_EVENT_TYPE_ERROR:
-				//GrDefaultErrorHandler(event.error);
+#if 0
+				GrDefaultErrorHandler(event.error);
+#endif
 				break;
 			case GR_EVENT_TYPE_EXPOSURE:
 				do_exposure(&event.exposure);

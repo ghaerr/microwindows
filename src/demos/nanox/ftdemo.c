@@ -8,13 +8,17 @@
 
 #if HAVE_T1LIB_SUPPORT
 #define FONTNAME "bchr"
-//#define FONTNAME "bchb"
-//#define FONTNAME "dcr10"
-//#define FONTNAME "dcbx10"
+#if 0
+#define FONTNAME "bchb"
+#define FONTNAME "dcr10"
+#define FONTNAME "dcbx10"
+#endif
 #elif HAVE_FREETYPE_SUPPORT
 #define FONTNAME "lt1-r-omega-serif"
-//#define FONTNAME "times"
-//#define FONTNAME "cour"
+#if 0
+#define FONTNAME "times"
+#define FONTNAME "cour"
+#endif
 #else
 #define FONTNAME GR_FONT_SYSTEM_VAR
 #endif

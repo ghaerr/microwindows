@@ -120,7 +120,7 @@ main(int argc, char* argv[])
         }
 
 	for (w = 0; w < LIMIT; w++) {
-		info.wid = -1; // self-sabotaged like CCCP
+		info.wid = -1; /* self-sabotaged like CCCP */
 		
 		GrGetWindowInfo(w, &info);
 		
@@ -129,7 +129,9 @@ main(int argc, char* argv[])
 			continue;
 		}
 		if (info.wid == 0) {
-			//printf("Query wid = %d --> does not exist\n", w);
+#if 0
+			printf("Query wid = %d --> does not exist\n", w);
+#endif
 			continue;
 		}
 		printf("Window id = %d\n", info.wid);
@@ -170,7 +172,7 @@ main(int argc, char* argv[])
 				printf("\t\tGR_EVENT_MASK_NONE (?!?!?)\n");
 		}
 
-		// We don't use info.props, use GrGetWMProperties() intead
+		/* We don't use info.props, use GrGetWMProperties() intead */
 		printf("\tWM Properties:\n");
 		{
 			GR_WM_PROPERTIES wm_props;

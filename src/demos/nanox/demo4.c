@@ -6,9 +6,7 @@
 #include "nano-X.h"
 #include "device.h"
 
-static	GR_WINDOW_ID	w1;		/* id for large window */
 static	GR_GC_ID	gc1;		/* graphics context for text */
-static	GR_GC_ID	gc2;		/* graphics context for text */
 static	GR_SCREEN_INFO	si;		/* information about screen */
 
 #define GRAY14		MWRGB( 17, 17, 17 )
@@ -38,25 +36,19 @@ main(int argc,char **argv)
 	
 	GrGetScreenInfo(&si);
 
-//	w1 = GrNewWindow(GR_ROOT_WINDOW_ID, 99, 49, 440, 380, 4, BLACK, WHITE);
-//	GrSelectEvents(w1, GR_EVENT_MASK_CLOSE_REQ);
-
-//	GrMapWindow(w1);
-
 	gc1 = GrNewGC();
-//	gc2 = GrNewGC();
 
 	GrSetGCForeground(gc1, WHITE);
-//	GrFillRect(GR_ROOT_WINDOW_ID, gc, 0, 0, 240, 320);
+	/*GrFillRect(GR_ROOT_WINDOW_ID, gc, 0, 0, 240, 320);*/
 
 	GrLine(GR_ROOT_WINDOW_ID, gc1, 4, 4, 634, 4);
 	GrLine(GR_ROOT_WINDOW_ID, gc1, 4, 4, 4, 474);
 	GrLine(GR_ROOT_WINDOW_ID, gc1, 634, 4, 634, 474);
 	GrLine(GR_ROOT_WINDOW_ID, gc1, 4, 474, 634, 474);
 
-//	GrJPEG(w1, gc2, 0, 0, 400, 400, "/home/mart/nov9_pic1.jpg");
+	/*GrJPEG(GR_ROOT_WINDOW_ID, gc, 0, 0, 400, 400, "/home/mart/nov9_pic1.jpg");*/
 
-// Bitblit function
+/* Bitblit function */
 {
 	PSD	mempsd;
 	int	linelen, size;
@@ -69,13 +61,13 @@ main(int argc,char **argv)
 	mempsd->MapMemGC(mempsd, 50, 100, scrdev.planes, scrdev.bpp,
 		linelen, size, pixels);
 
-	// Draw some stuff on offscreen
+	/* Draw some stuff on offscreen */
 	GdSetForeground(GdFindColor(GREEN));
 	GdFillRect(mempsd, 0, 0, 50, 100);
 	GdSetForeground(GdFindColor(RED));
 	GdFillRect(mempsd, 5, 20, 40, 60);
 
-	// blit
+	/* blit */
 	GdBlit(&scrdev, 10, 10, 50, 100, mempsd, 0, 0, 0);
 }
 /*	GrSetGCForeground(gc, BLACK);

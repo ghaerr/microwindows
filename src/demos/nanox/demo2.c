@@ -39,11 +39,11 @@ main(int ac,char **av)
 		| GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_KEY_UP);
 	GrMapWindow(w);
 	GrSetFocus(w);
-	// serious bug here: when wm running, w2 is mapped anyway!!
-	//GrMapWindow(w2);
+	/* serious bug here: when wm running, w2 is mapped anyway!!*/
+	/*GrMapWindow(w2);*/
 
 	for (;;) {
-		//GR_EVENT_KEYSTROKE *kev;
+		/*GR_EVENT_KEYSTROKE *kev;*/
 
 		GrGetNextEvent(&event);
 		switch (event.type) {

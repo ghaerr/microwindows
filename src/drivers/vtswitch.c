@@ -25,7 +25,7 @@ static int visible = 1;		/* VT visible flag*/
 static struct vt_mode mode;	/* terminal mode*/
 static SUBDRIVER save;		/* saved subdriver when VT switched*/
 
-extern SCREENDEVICE	scrdev;	//FIXME
+extern SCREENDEVICE	scrdev;	/* FIXME */
 
 /* entry points*/
 int 	MwInitVt(void);

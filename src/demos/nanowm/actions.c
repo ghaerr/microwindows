@@ -10,11 +10,12 @@
 #include "nano-X.h"
 #include "nxdraw.h"
 /* Uncomment this if you want debugging output from this file */
-//#define DEBUG
+/*#define DEBUG*/
+
 #include "nanowm.h"
 
 /* uncomment this line to perform outline move operations*/
-//#define OUTLINE_MOVE
+/*#define OUTLINE_MOVE*/
 
 void redraw_ncarea(win *window)
 {
@@ -120,7 +121,7 @@ void container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  window->sizing = GR_TRUE;
 	  pos = (struct pos_size*)window->data;
 	  
-	  // save off the width/height offset from the window manager
+	  /* save off the width/height offset from the window manager */
 	  GrGetWindowInfo(window->clientid,&info);
 	  pos->xoff = -info.width;
 	  pos->yoff = -info.height;
@@ -134,7 +135,7 @@ void container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  GrRect(GR_ROOT_WINDOW_ID,gc,info.x, info.y, info.width, info.height);
 	  GrDestroyGC(gc);
 
-	  // save this rectangle's width/height so we can erase it later
+	  /* save this rectangle's width/height so we can erase it later */
 	  pos->width = info.width;
 	  pos->height = info.height;
 
@@ -246,15 +247,15 @@ void container_mousemoved(win *window, GR_EVENT_MOUSE *event)
 	  gc = GrNewGC();
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 
-	  // erase old rectangle
+	  /* erase old rectangle */
 	  GrRect(GR_ROOT_WINDOW_ID,gc,info.x, info.y, pos->width, pos->height);
-	  // draw new one
+	  /* draw new one */
 	  GrRect(GR_ROOT_WINDOW_ID,gc,info.x, info.y, 
 		 event->rootx - info.x, event->rooty - info.y);
 	  GrDestroyGC(gc);
 
-	  // save this new rectangle's width, height
-	  // I know, this shouldn't be stored in x/y, but...
+	  /* save this new rectangle's width, height */
+	  /* I know, this shouldn't be stored in x/y, but... */
 	  pos->width = event->rootx - info.x;
 	  pos->height = event->rooty - info.y;
 

@@ -51,7 +51,6 @@ scopy(s)
 char *s;
 {
 	register char *p = allocate(strlen(s) + 1, char);
-	//char *strcpy();
 	(void) strcpy(p, s);
 	return p;
 }

@@ -144,10 +144,10 @@ typedef struct {
 } HZKFONT;
 
 static int use_big5=1;
-static HZKFONT CFont[2];//font cache
-static HZKFONT AFont[2];//font cache
+static HZKFONT CFont[2];	/* font cache*/
+static HZKFONT AFont[2];	/* font cache*/
 
-//jmt: moved inside MWHZKFONT
+/* jmt: moved inside MWHZKFONT*/
 static int afont_width = 8;
 static int cfont_width = 16;
 static int font_height = 16;
@@ -174,13 +174,15 @@ static PMWHZKFONT hzk_createfont(const char *name, MWCOORD height,int fontattr);
 static MWBOOL hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void hzk_gettextsize(PMWFONT pfont, const void *text,
 		int cc, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-//static void hzk_gettextbits(PMWFONT pfont, int ch, IMAGEBITS *retmap,
-//		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+#if 0
+static void hzk_gettextbits(PMWFONT pfont, int ch, IMAGEBITS *retmap,
+		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+static void hzk_setfontrotation(PMWFONT pfont, int tenthdegrees);
+#endif
 static void hzk_destroyfont(PMWFONT pfont);
 static void hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, int flags);
 static void hzk_setfontsize(PMWFONT pfont, MWCOORD fontsize);
-//static void hzk_setfontrotation(PMWFONT pfont, int tenthdegrees);
 		
 /* handling routines for MWHZKFONT*/
 static MWFONTPROCS hzk_procs = {
@@ -1797,7 +1799,7 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
 			}
 			else
 			{
-			//*	 to find the place of unicode charater .二分法匹配
+			/* to find the place of unicode charater .二分法匹配*/
             		{
 				int p1=0,p2=length-4,p;
 				unsigned int c1,c2,c,d;
@@ -1820,16 +1822,16 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
 				{
 					p=(((p2-p1)/2+p1)>>2)<<2;
 					c=((unsigned int )filebuffer[p])*0x100+(filebuffer[p+1]);
-					if(d==c)	//find it
+					if(d==c)	/* find it*/
 					{
 						ascii[i]=filebuffer[p+2];
 						ascii[i+1]=filebuffer[p+3];
 						break;
           	   	   		}
-					else if(p2<=p1+4) //can't find.
+					else if(p2<=p1+4)	/* can't find.*/
 					{
-						ascii[i]='.';//*((uc16p)+j);
-						ascii[i+1]='.';//*((uc16p)+j+1);
+						ascii[i]='.';	/* ((uc16p)+j);*/
+						ascii[i+1]='.';	/* ((uc16p)+j+1);*/
 						break;
 					}
 					else if(d<c)
@@ -1850,7 +1852,7 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
 			}
 		}
 	}
-	}//jmt+
+	}
 	free(filebuffer);
 
 	return i;
@@ -1906,7 +1908,7 @@ static MWBOOL GetCFontInfo( PMWHZKFONT pf )
 		strcat(pf->CFont.file,"/hzk12");
 	}
 
-    	if (use_big5)//jmt+
+    	if (use_big5)
     	{
 		CFont[hzk_id(pf)].file[strlen(pf->CFont.file)-3]+=use_big5;
 		pf->CFont.file[strlen(pf->CFont.file)-3]+=use_big5;
@@ -1915,7 +1917,7 @@ static MWBOOL GetCFontInfo( PMWHZKFONT pf )
     	return TRUE;
 }
 
-// This function get ASCII font info from etc file.
+/* This function get ASCII font info from etc file.*/
 static MWBOOL GetAFontInfo( PMWHZKFONT pf )
 {
     	AFont[hzk_id(pf)].width = pf->afont_width;
@@ -1947,7 +1949,7 @@ static MWBOOL GetAFontInfo( PMWHZKFONT pf )
     	return TRUE;
 }
 
-// This function load system font into memory.
+/* This function load system font into memory.*/
 static MWBOOL LoadFont( PMWHZKFONT pf )
 {
     	FILE* fp;
@@ -1957,18 +1959,18 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 		fprintf (stderr, "Get Chinese HZK font info failure!\n");
 		return FALSE;
 	}
-    	if(CFont[hzk_id(pf)].pFont == NULL)//check font cache
+    	if(CFont[hzk_id(pf)].pFont == NULL)	/* check font cache*/
 	{
 		
 
- 	   	// Allocate system memory for Chinese font.
+ 	   	/* Allocate system memory for Chinese font.*/
  		if( !(CFont[hzk_id(pf)].pFont = (char *)malloc(pf->CFont.size)) )
  		{
 	 	       	fprintf (stderr, "Allocate memory for Chinese HZK font failure.\n");
 		        return FALSE;
 	 	}
  	
-		// Open font file and read information to the system memory.
+		/* Open font file and read information to the system memory.*/
  		fprintf (stderr, "Loading Chinese HZK font from file(%s)..." ,pf->CFont.file);
 		if(!(fp = fopen(CFont[hzk_id(pf)].file, "rb"))) 
 		{
@@ -1984,7 +1986,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 
 		fclose(fp);
 
-		CFont[hzk_id(pf)].use_count=0;//
+		CFont[hzk_id(pf)].use_count=0;
 
 		fprintf (stderr, "done.\n" );
 
@@ -1993,18 +1995,18 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 	pf->cfont_address = CFont[hzk_id(pf)].pFont;
 	pf->CFont.pFont = CFont[hzk_id(pf)].pFont;
 
-	CFont[hzk_id(pf)].use_count++;//jmt+
+	CFont[hzk_id(pf)].use_count++;
 
 	if(!GetAFontInfo(pf))
 	{
 	       fprintf (stderr, "Get ASCII HZK font info failure!\n");
 	       return FALSE;
 	}
-    	if(AFont[hzk_id(pf)].pFont == NULL)//check font cache
+    	if(AFont[hzk_id(pf)].pFont == NULL)	/* check font cache*/
 	{
 		
  		
- 		// Allocate system memory for ASCII font.
+ 		/* Allocate system memory for ASCII font.*/
  		if( !(AFont[hzk_id(pf)].pFont = (char *)malloc(pf->AFont.size)) )
  		{
  		       	fprintf (stderr, "Allocate memory for ASCII HZK font failure.\n");
@@ -2013,7 +2015,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 			return FALSE;
  		}
  	
-	 	// Load ASCII font information to the near memory.
+	 	/* Load ASCII font information to the near memory.*/
  		fprintf (stderr, "Loading ASCII HZK font..." );
  		if(!(fp = fopen(AFont[hzk_id(pf)].file, "rb"))) 
 		{
@@ -2029,7 +2031,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
  	
  		fclose(fp);
  	
-		AFont[hzk_id(pf)].use_count=0;//
+		AFont[hzk_id(pf)].use_count=0;
 
 		fprintf (stderr, "done.\n" );
 
@@ -2038,12 +2040,12 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 	pf->afont_address = AFont[hzk_id(pf)].pFont;
 	pf->AFont.pFont = AFont[hzk_id(pf)].pFont;
 
-	AFont[hzk_id(pf)].use_count++;//jmt+
+	AFont[hzk_id(pf)].use_count++;
 
   	return TRUE;
 }
 
-// This function unload system font from memory.
+/* This function unload system font from memory.*/
 static void UnloadFont( PMWHZKFONT pf )
 {
 	CFont[hzk_id(pf)].use_count--;
@@ -2075,7 +2077,7 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 	if(strcmp(name,"HZKFONT")!=0 && strcmp(name,"HZXFONT")!=0)
 		return FALSE;
 
-	//printf("hzk_createfont(%s,%d)\n",name,height);
+	/*printf("hzk_createfont(%s,%d)\n",name,height);*/
 
 	use_big5=name[2]-'K';
 
@@ -2086,7 +2088,9 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 	pf->fontprocs = &hzk_procs;
 
 	pf->fontsize=height;
-	//GdSetFontSize((PMWFONT)pf, height);
+#if 0
+	GdSetFontSize((PMWFONT)pf, height);
+#endif
 	GdSetFontRotation((PMWFONT)pf, 0);
 	GdSetFontAttr((PMWFONT)pf, attr, 0);
 
@@ -2111,14 +2115,14 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 		pf->font_height = 16;
 	}
 
-    	// Load the font library to the system memory.
+    	/* Load the font library to the system memory.*/
 	if(!LoadFont(pf))
   	      	return FALSE;
 
 	return pf;
 }
 
-int IsBig5(int i)//jmt+
+int IsBig5(int i)
 {
 	if ((i>=0xa140 && i<=0xa3bf) || /* a140-a3bf(!a3e0) */
 	    (i>=0xa440 && i<=0xc67e) || /* a440-c67e        */
@@ -2171,21 +2175,21 @@ expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVAL* bitmap)
 
    	c1 = c[0];
     	c2 = c[1];
-	if (use_big5)//jmt+
+	if (use_big5)
 	{
 		seq=0;
-		//ladd=loby-(if(loby<127)?64:98)
+		/* ladd=loby-(if(loby<127)?64:98)*/
 		c2-=(c2<127?64:98);   
 
-		//hadd=(hiby-164)*157
-		if (c1>=0xa4)//standard font
+		/* hadd=(hiby-164)*157*/
+		if (c1>=0xa4)	/* standard font*/
 		{
 			seq=(((c1-164)*157)+c2);
 			if (seq>=5809) seq-=408;
 		}
 
-		//hadd=(hiby-161)*157
-		if (c1<=0xa3)//special font
+		/* hadd=(hiby-161)*157*/
+		if (c1<=0xa3)	/* special font*/
 			seq=(((c1-161)*157)+c2)+13094;
 	}
 	else
@@ -2268,7 +2272,7 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
                             c, bitmap);
 			/* Now draw the bitmap ... */
 			
-			if (flags&MWTF_TOP)//jmt+ 
+			if (flags&MWTF_TOP)
 				GdArea(psd,ax, ay, pf->cfont_width,
 					pf->font_height, bitmap, MWPF_PIXELVAL);
 			else
@@ -2365,11 +2369,13 @@ hzk_gettextsize(PMWFONT pfont, const void *text, int cc,
            		s += 1;
            		ax += pf->afont_width;
         	}
-		if(s>=sbegin+cc)break;
-		//	fprintf(stderr,"s=%x,sbegin=%x,cc=%x\n",s,sbegin,cc);
+		if(s>=sbegin+cc) {
+			/*fprintf(stderr,"s=%x,sbegin=%x,cc=%x\n",s,sbegin,cc);*/
+			break;
+		}
 
     	}
-//	fprintf(stderr,"ax=%d,\n",ax);
+	/*fprintf(stderr,"ax=%d,\n",ax);*/
 
 	*pwidth = ax;
 	*pheight = pf->font_height;
@@ -2388,9 +2394,9 @@ static void
 hzk_setfontsize(PMWFONT pfont, MWCOORD fontsize)
 {
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;
-	//jmt: hzk_setfontsize not supported
-	//jmt: & pf->fontsize can't be changed
-	//jmt: because of hzk_id() :p
+	/* jmt: hzk_setfontsize not supported*/
+	/* & pf->fontsize can't be changed*/
+	/* because of hzk_id() :p*/
 	pf->fontsize=pf->font_height;
 }
 #endif /* HAVE_HZK_SUPPORT*/
@@ -2476,7 +2482,7 @@ GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 	                imetrics.y_scale)/ 0x10000) >> 6) -
 			    (((properties.horizontal->Descender * 
 			    imetrics.y_scale)/ 0x10000) >> 6);
-	//FIXME: is it what's required ??
+	/* FIXME: is it what's required ??*/
 	if (pbase)
 		*pbase = (((-properties.horizontal->Descender) * 
 			    imetrics.y_scale)/ 0x10000) >> 6;
@@ -2560,7 +2566,7 @@ get_tt_name(char *p)
 	TT_Face face;
 	char *ret;
 
-	//printf("Trying to open: %s!\n",p);
+	/*printf("Trying to open: %s!\n",p);*/
 
 	if (TT_Open_Face(engine, p, &face) != TT_Err_Ok) {
 		fprintf(stderr, "Error opening font: %s\n", p);

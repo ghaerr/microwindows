@@ -559,17 +559,16 @@ static void linear16_drawarea(PSD psd, driver_gc_t *gc, int op)
 	unsigned short pcol;
 
 	assert(psd->addr != 0);
-	// assert(gc->dstw <= gc->srcw);
-
+	/*assert(gc->dstw <= gc->srcw);*/
 	assert(gc->dstx >= 0 && gc->dstx+gc->dstw <= psd->xres);
-	// assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres);
-
-	// assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw);
+	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres);*/
+	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw);*/
 	assert(gc->srcy >= 0);
 
-	// op = GD_AREA_COPY;
-
-	// printf("DrawArea op=%d x=%d y=%d\n",op,gc->x,gc->y);
+#if 0
+	op = GD_AREA_COPY;
+	printf("DrawArea op=%d x=%d y=%d\n",op,gc->x,gc->y);
+#endif
 
 	if ( op == PSDOP_COPY )
 		op = gc->gr_usebg ? PSDOP_COPYALL : PSDOP_COPYTRANS;

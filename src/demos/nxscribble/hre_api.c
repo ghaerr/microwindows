@@ -77,10 +77,14 @@ static char rif_name[] = "__recognizer_internal_finalize";  */
 
 /*Local functions*/
 
-//static char* shared_library_name(char* directory,char* locale,char* name);
+#if 0
+static char* shared_library_name(char* directory,char* locale,char* name);
+#endif
 static rec_info* make_rec_info(char* directory,char* name,char** subset);
 static void delete_rec_info(rec_info* ri);
-//static int check_for_user_home();
+#if 0
+static int check_for_user_home();
+#endif
 static void intl_initialize();
 
 static void cleanup_rec_element(rec_element* re,bool delete_points_p);
@@ -115,7 +119,9 @@ recognizer
 recognizer_load(char* directory,char* name,char** subset)
 {
     recognizer rec;                     /*the recognizer*/
-    //recognizer_internal_initialize rii; /*the initialization function*/
+#if 0
+    recognizer_internal_initialize rii; /*the initialization function*/
+#endif
     rec_info* rinf;                     /*rec_info for recognizer information*/
     static bool intl_init = false;	/*true if recog. manager initted.*/
 
@@ -133,14 +139,14 @@ recognizer_load(char* directory,char* name,char** subset)
 		   "Ran out of memory during prelinking initialization.");
 	return((recognizer)NULL);
     } 
-//fprintf(stderr, "Got past make_rec_info.\n");
+    /*fprintf(stderr, "Got past make_rec_info.\n");*/
 
     /*Let recognition code create recognizer and initialize*/
     rec = __recognizer_internal_initialize(rinf);
     if (rec == NULL) {
 	return((recognizer)NULL);
     }
-//fprintf(stderr, "Did rii.\n");
+    /*fprintf(stderr, "Did rii.\n");*/
     /*Check whether it's been correctly initialized*/
 
     if( rec->recognizer_load_state == NULL ||
@@ -188,7 +194,7 @@ fprintf(stderr, "Unloading b/c null function pointer.\n");
  *   }
  */
     /*We got it!*/
-//fprintf(stderr, "Done.\n");
+    /*fprintf(stderr, "Done.\n");*/
 
     return(rec);
 }
@@ -200,7 +206,9 @@ fprintf(stderr, "Unloading b/c null function pointer.\n");
 int
 recognizer_unload(recognizer rec)
 {
-    //recognizer_internal_finalize rif;
+#if 0
+    recognizer_internal_finalize rif;
+#endif
     
     /*Make sure magic numbers right.*/
     

@@ -14,7 +14,6 @@
 #include "fb.h"
 
 int gr_mode=MWMODE_XOR;
-//int gr_mode=0;
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
@@ -244,8 +243,8 @@ linear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	ADDR8	dst = dstpsd->addr;
 	ADDR8	src = srcpsd->addr;
 
-//if ((srcx & 0x01) || (dstx & 0x01))
- 
+	/*if ((srcx & 0x01) || (dstx & 0x01))*/
+	/* FIXME where is this if supposed to end?? */
 
 	DRAWON;
         dst+=((dstx*3+1)/2)+480*dsty;
@@ -268,18 +267,18 @@ linear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
         if((srcx & 0x01) && !(dstx & 0x01))
 	  {
 	  src+=1;
-	  //w-=1;
+	  /*w-=1;*/
           }
 
         if(!(srcx & 0x01) && (dstx & 0x01))
 	  {
 	  dst+=1;
-	  //w-=1;
+	  /*w-=1;*/
           }
 
         if((srcx & 0x01) && (dstx & 0x01))
 	  {
-	  //w-=1;
+	  /*w-=1;*/
           }
 
 

@@ -31,11 +31,6 @@
 typedef unsigned int wchar_t;
 #endif
 
-#ifndef ARM_LINUX  /* SEP - no X on the itsy yet */
-/* ari  -- for Time */
-//#include <X11/X.h>
-#endif
-
 /* Scalar Type Definitions */
 
 /*For better readibility.*/

@@ -39,7 +39,7 @@ KBDDEVICE kbddev = {
 static	int		fd;		/* file descriptor for keyboard */
 static	struct termios	old;		/* original terminal modes */
 static  int 		old_kbd_mode;
-static unsigned char 	key_state[MWKEY_LAST];	//FIXME - make sparse array
+static unsigned char 	key_state[MWKEY_LAST];	/* FIXME - make sparse array */
 static MWKEYMOD 	key_modstate;
 
 /* kernel unicode tables per shiftstate and scancode*/
@@ -217,12 +217,11 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 		pressed = (*buf & 0x80) ? RELEASED: PRESSED;
 		scancode = *buf & 0x7f;
 		mwkey = keymap[scancode];
-#if 0
-		if(pressed) {
-		printf("scan %02x really: %08x\n", *buf&0x7F, *buf);
-		printf("mwkey: %02x (%c)\n", mwkey, mwkey);
-		}
-#endif
+
+		/**if(pressed) {
+			printf("scan %02x really: %08x\n", *buf&0x7F, *buf);
+			printf("mwkey: %02x (%c)\n", mwkey, mwkey);
+		}**/
 
 		/* Handle Alt-FN for vt switch */
 		switch (mwkey) {
@@ -331,12 +330,10 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 		*modifiers = key_modstate;
 		*pscancode = scancode;
 
-#if 0
-		if(pressed) {
+		/**if(pressed) {
 			printf("Returning: mwkey: 0x%04x, mods: 0x%x,
 				sc:0x%04x\n\n", *kbuf, *modifiers, *pscancode);
-		}
-#endif
+		}**/
 		return pressed ? 1 : 2;
 	}
 

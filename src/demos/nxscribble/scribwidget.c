@@ -212,7 +212,9 @@ static int
 graffiti_load_recognizers(struct graffiti *pg)
 {
 	bool usingDefault;
-	//char* homedir;
+#if 0
+	char* homedir;
+#endif
 	int i;
 	rec_fn *fns;
 
@@ -232,15 +234,19 @@ graffiti_load_recognizers(struct graffiti *pg)
 	}
 
 	/* ...then figure out where the classifiers are... */
-	//if ( (homedir = (char*)getenv("HOME")) == NULL ) {
+#if 0
+	if ( (homedir = (char*)getenv("HOME")) == NULL ) {
+#endif
 		strcpy(pg->cldir, REC_DEFAULT_USER_DIR);
 		usingDefault = true;
-	//} else {
-		//strcpy(pg->cldir, homedir);
-		//strcat(pg->cldir, "/"); 
-		//strcat(pg->cldir, CLASSIFIER_DIR); 
-		//usingDefault = false;
-	//}
+#if 0
+	} else {
+		strcpy(pg->cldir, homedir);
+		strcat(pg->cldir, "/"); 
+		strcat(pg->cldir, CLASSIFIER_DIR); 
+		usingDefault = false;
+	}
+#endif
 
 	/* ...then load the classifiers... */
 	for (i = 0; i < NUM_RECS; i++) {
@@ -360,7 +366,9 @@ Recognize (ScribbleWidget w)
     w->lastchar = 0;
 
     c = do_recognize(graf, ps, w->puncShift ? CS_PUNCTUATION : w->curCharSet);
-//printf("class %c (%d)\n", c, c);
+
+    /*printf("class %c (%d)\n", c, c);*/
+
     switch (c) {
     case '\000':
 msg("[Error]");

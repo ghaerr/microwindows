@@ -132,7 +132,7 @@ BOOL WINAPI
 SetCaretBlinkTime(UINT uMSeconds)
 {
 	sysCaret.nBlinkTime = uMSeconds;
-	//SetSysTimer
+	/* SetSysTimer */
 	return TRUE;
 }
 

@@ -323,10 +323,10 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		GetWindowRect(hwnd, &rc);
 		rc.top += 13;
 		InflateRect(&rc, -3, -3);
-		//Ellipse(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top);
-		//Arc(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);
-		//Pie(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);
-#if 1
+		/*Ellipse(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top);*/
+		/*Arc(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);*/
+		/*Pie(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);*/
+
 		x = rc.left;
 		y = rc.top;
 		w = rc.right - rc.left;
@@ -338,9 +338,8 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		GdSetForeground(GdFindColor(RGB(0,0,0)));
 		GdArcAngle(hdc->psd, x+w/2, y+h/2, w/2, h/2, startdegrees*64,
 			enddegrees*64, MWARCOUTLINE);
-		//GdSetForeground(GdFindColor(RGB(255,255,255)));
-		//GdPoint(hdc->psd, x+w/2, y+h/2);
-#endif
+		/*GdSetForeground(GdFindColor(RGB(255,255,255)));*/
+		/*GdPoint(hdc->psd, x+w/2, y+h/2);*/
 	}
 	EndPaint(hwnd, &ps);
 	break;
@@ -354,8 +353,8 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			rose(1.0, 7, 13);
 			break;
 		case 1:
-			//look3(0.5, 0.7, 1.5);
-			//look3(0.2, -2 * gy, 1.0+gx);
+			/*look3(0.5, 0.7, 1.5);*/
+			/*look3(0.2, -2 * gy, 1.0+gx);*/
 			look3(-2 * gx, -2 * gy, 1.2);
 			drawgrid(-8.0, 8.0, 10, -8.0, 8.0, 10);
 			break;

@@ -10,7 +10,7 @@
 #include <nano-X.h>
 
 /* Uncomment this to get debugging output from this file */
-//#define DEBUG
+/*#define DEBUG*/
 #include "nanowm.h"
 
 win *windows = NULL;

@@ -5,7 +5,7 @@
 /*
  * Minesweeper for Microwindows, adapted from MiniGUI
  */
-extern int mwCurrentButtons;	// FIXME
+extern int mwCurrentButtons;	/* FIXME */
 
 
 #ifdef __rtems__
@@ -110,23 +110,29 @@ void DrawDigit(HDC hdc, char* buffer, int CLOCK);
 #define  WIDTH_BOX       18
 #define  HEIGHT_BOX      18
 
-//static int winwidth = WIDTH_LARGEWIN;	// change this for startup mine size
-//static int winheight = HEIGHT_LARGEWIN;
-//static int sg_boxnumx = 30;
-//static int sg_boxnumy = 18;
-//static int bombnum = 99;
+#if 0
+static int winwidth = WIDTH_LARGEWIN;	/* change this for startup mine size */
+static int winheight = HEIGHT_LARGEWIN;
+static int sg_boxnumx = 30;
+static int sg_boxnumy = 18;
+static int bombnum = 99;
+#endif
 
-static int winwidth = WIDTH_MIDDLEWIN;	// change this for startup mine size
+#if 1
+static int winwidth = WIDTH_MIDDLEWIN;	/* change this for startup mine size */
 static int winheight = HEIGHT_MIDDLEWIN;
 static int sg_boxnumx = 16;
 static int sg_boxnumy = 16;
 static int bombnum = 40;
+#endif
 
-//static int winwidth = WIDTH_SMALLWIN;	// change this for startup mine size
-//static int winheight = HEIGHT_SMALLWIN;
-//static int sg_boxnumx = 8;
-//static int sg_boxnumy = 8;
-//static int bombnum = 10;
+#if 0
+static int winwidth = WIDTH_SMALLWIN;	/* change this for startup mine size */
+static int winheight = HEIGHT_SMALLWIN;
+static int sg_boxnumx = 8;
+static int sg_boxnumy = 8;
+static int bombnum = 10;
+#endif
 
 static BOM bom[30][18];
 static NO NoAdr[540];
@@ -564,58 +570,61 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static RECT bombregion, face, onerect, bombnumber, clock; 
     static RECT winposition;
     MAINWINCREATE  CreateInfo;
-    //FILE* pHighscore;
-    //char  buffer[256];
+
     PAINTSTRUCT ps;
     switch (message) {
       
         case WM_CREATE:
-            //if( LoadBitmap(&bmpbom,"res/lei.bmp")<0)
-                //fprintf(stderr,"bitmap error");
-            //else
-                //fValidbom = TRUE;
+#if 0
+    	    FILE* pHighscore;
+    	    char  buffer[256];
+            if( LoadBitmap(&bmpbom,"res/lei.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidbom = TRUE;
   
-            //if( LoadBitmap(&bmpface,"res/face1.bmp")<0)
-                //fprintf(stderr,"bitmap error");
-            //else
-                //fValidface = TRUE;
+            if( LoadBitmap(&bmpface,"res/face1.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidface = TRUE;
                 
-            //if( LoadBitmap(&bitmap1,"res/face.bmp")<0)
-                //fprintf(stderr,"bitmap error");
-            //else
-                //fValid1 = TRUE;
+            if( LoadBitmap(&bitmap1,"res/face.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValid1 = TRUE;
                 
-            //if( LoadBitmap(&bmpflag,"res/flag.bmp")<0)
-                //fprintf(stderr,"bitmap error");
-            //else
-                //fValidflag = TRUE;   
+            if( LoadBitmap(&bmpflag,"res/flag.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidflag = TRUE;   
                 
-            //if( LoadBitmap(&bmpfinalface,"res/finished.bmp")<0)
-                //fprintf(stderr,"bitmap error");
-            //else
-                //fValidfinalface = TRUE;   
+            if( LoadBitmap(&bmpfinalface,"res/finished.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidfinalface = TRUE;   
+               
+            if( LoadBitmap(&bmphitfalse,"res/hitfalse.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidhitfalse = TRUE;   
                 
-            //if( LoadBitmap(&bmphitfalse,"res/hitfalse.bmp")<0)
-                //fprintf(stderr,"bitmap error");
-            //else
-                //fValidhitfalse = TRUE;   
-                
-            //for (i = 0; i < 10; i++){
-                //sprintf(buffer, "res/%d.bmp", i);
-                //LoadBitmap(sg_bmpDigit + i, buffer);
-            //}
+            for (i = 0; i < 10; i++){
+                sprintf(buffer, "res/%d.bmp", i);
+                LoadBitmap(sg_bmpDigit + i, buffer);
+            }
 
-            //if ((pHighscore = fopen("res/.highscore.bomb","r"))){
-                //for (i = 0; i < 3; i++)
-                    //fscanf(pHighscore, "%d, %s",
-                            //&score[i].highscore, score[i].name);
-                //fclose(pHighscore);
-            //}
-            //else
-                //for (i = 0; i < 3; i++){
-                    //score[i].highscore = 999;
-                    //strcpy(score[i].name, "unknown");
-                //}    
+            if ((pHighscore = fopen("res/.highscore.bomb","r"))){
+                for (i = 0; i < 3; i++)
+                    fscanf(pHighscore, "%d, %s",
+                            &score[i].highscore, score[i].name);
+                fclose(pHighscore);
+            }
+            else
+                for (i = 0; i < 3; i++){
+                    score[i].highscore = 999;
+                    strcpy(score[i].name, "unknown");
+                }    
+#endif
             SetTimer(hWnd, ID_CLOCK, FREQ_CLOCK, NULL);
             
             PostMessage(hWnd,WM_COMMAND,ID_NEW,0);
@@ -703,7 +712,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SetRect (&bombnumber, x_bomnum, 0,
                      x_bomnum + WIDTH_BOMNUM, HEIGHT_BOMNUM);
                      
-               //**************initial bomb value**************
+               /**************initial bomb value************** */
                
               for (i = 0; i < sg_boxnumx; i++)
                 for (j = 0; j < sg_boxnumy; j++)
@@ -805,7 +814,9 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (bom[adrx][adry].hit)
                 break;
 
-            //if (GetShiftKeyStatus() & 0x00000200) {
+#if 0
+            if (GetShiftKeyStatus() & 0x00000200) {
+#endif
 	    if(mwCurrentButtons & MWBUTTON_R) {
                 BothButtonDownProc(hWnd,adrx,adry);
                 break;
@@ -866,7 +877,9 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
         case WM_RBUTTONDOWN:
-           //  SetCapture (hWnd);
+#if 0
+             SetCapture (hWnd);
+#endif
              oldx = LOWORD (lParam);
              oldy = HIWORD (lParam);
              adrx = (oldx-offsetx)/WIDTH_BOX;
@@ -884,7 +897,9 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 
            /*****RBUTTONDOWN & LBUTTONDOWN******/
             
-            //if (GetShiftKeyStatus() & 0x00000100){
+#if 0
+            if (GetShiftKeyStatus() & 0x00000100){
+#endif
 	    if(mwCurrentButtons & MWBUTTON_L) {
                 BothButtonDownProc(hWnd,adrx,adry); 
                 break; 
@@ -923,7 +938,9 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             if (flag_finished)
 		DrawDIB(hdc, x_face+1, 1, &image_minedone);
-                //DrawMyBitmap (hdc, fValidfinalface?&bmpfinalface:NULL,
+#if 0
+                DrawMyBitmap (hdc, fValidfinalface?&bmpfinalface:NULL,
+#endif
             else 
                 if (flag_bombout)
 		    DrawDIB(hdc, x_face, 0, &image_minefacelost);
@@ -994,8 +1011,8 @@ void InitMyWinCreateInfo(PMAINWINCREATE pCreateInfo)
 {
     pCreateInfo->dwStyle = WS_CAPTION | WS_BORDER | WS_SYSMENU |  WS_VISIBLE;
     pCreateInfo->spCaption="Microwindows Minesweeper";
-    pCreateInfo->hMenu = 0; //createmenu1();
-    pCreateInfo->hCursor = 0; //GetSystemCursor(0);
+    pCreateInfo->hMenu = 0; 	/* createmenu1(); */
+    pCreateInfo->hCursor = 0; 	/* GetSystemCursor(0); */
     pCreateInfo->hIcon = 0;
     pCreateInfo->MainWindowProc = TestMyWinProc;
     pCreateInfo->lx = 0;
@@ -1073,7 +1090,7 @@ void InitAbHostedCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
     pCreateInfo->dwStyle   = WS_BORDER | WS_CAPTION | WS_VISIBLE;
     pCreateInfo->spCaption = "The about window" ;
     pCreateInfo->hMenu = 0;
-    pCreateInfo->hCursor = 0; //GetSystemCursor(0);
+    pCreateInfo->hCursor = 0; 	/* GetSystemCursor(0); */
     pCreateInfo->hIcon = 0;
     pCreateInfo->MainWindowProc = AbHostedWinProc;
     pCreateInfo->lx = 100; 
@@ -1110,7 +1127,6 @@ LRESULT HighScoreWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case WM_COMMAND:
         {
             int id = LOWORD(wParam);
-            //FILE* pHighscore;
             int i;
 
             if (id == IDC_RESET && HIWORD(wParam) == BN_CLICKED) {
@@ -1119,12 +1135,15 @@ LRESULT HighScoreWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     strcpy(score[i].name, "unknown");
                 }    
                 
-                //if ((pHighscore = fopen("res/.highscore.bomb", "w+"))){
-                    //for (i = 0; i < 3; i++)
-                        //fprintf(pHighscore, "%d, %s\n", 
-                                    //score[i].highscore,score[i].name);
-                    //fclose(pHighscore);
-                //}    
+#if 0
+                FILE* pHighscore;
+                if ((pHighscore = fopen("res/.highscore.bomb", "w+"))){
+                    for (i = 0; i < 3; i++)
+                        fprintf(pHighscore, "%d, %s\n", 
+                                    score[i].highscore,score[i].name);
+                    fclose(pHighscore);
+                }    
+#endif
                 InvalidateRect(hWnd, NULL, TRUE);
             }
             if (id == IDOK && HIWORD(wParam) == BN_CLICKED)
@@ -1169,7 +1188,7 @@ void InitHighScoreCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
     pCreateInfo->dwStyle   = WS_BORDER | WS_CAPTION;
     pCreateInfo->spCaption = "High Score" ;
     pCreateInfo->hMenu = 0;
-    pCreateInfo->hCursor   = 0; //GetSystemCursor(0);
+    pCreateInfo->hCursor   = 0; 	/* GetSystemCursor(0); */
     pCreateInfo->hIcon = 0;
     pCreateInfo->MainWindowProc = HighScoreWinProc;
     pCreateInfo->lx = 100; 
@@ -1213,19 +1232,21 @@ LRESULT CongratulationWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         case WM_COMMAND:
         {
             int id = LOWORD(wParam);
-            //FILE* pHighscore;
-            //int i;
 
             if (id == IDOK && HIWORD(wParam) == BN_CLICKED) {
                 score[flag_size].highscore = second;
                 SendMessage (hName, WM_GETTEXT,
                                 19, (LPARAM)score[flag_size].name);
-                //if ((pHighscore = fopen("res/.highscore.bomb", "w+"))){
-                    //for (i = 0; i < 3; i++)
-                        //fprintf(pHighscore, "%d, %s\n", 
-                                    //score[i].highscore,score[i].name);
-                    //fclose(pHighscore);
-                //}    
+#if 0
+                FILE* pHighscore;
+                int i;
+                if ((pHighscore = fopen("res/.highscore.bomb", "w+"))){
+                    for (i = 0; i < 3; i++)
+                        fprintf(pHighscore, "%d, %s\n", 
+                                    score[i].highscore,score[i].name);
+                    fclose(pHighscore);
+                }    
+#endif
                 PostMessage (hWnd, WM_CLOSE, 0, 0);
             }
         }
@@ -1247,7 +1268,7 @@ void InitCongratulationCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
     pCreateInfo->dwStyle   = WS_BORDER | WS_CAPTION | WS_VISIBLE;
     pCreateInfo->spCaption = "Congratulation" ;
     pCreateInfo->hMenu = 0;
-    pCreateInfo->hCursor   = 0; //GetSystemCursor(0);
+    pCreateInfo->hCursor   = 0; 	/* GetSystemCursor(0); */
     pCreateInfo->hIcon = 0;
     pCreateInfo->MainWindowProc = CongratulationWinProc;
     pCreateInfo->lx = 50; 

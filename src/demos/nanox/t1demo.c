@@ -105,7 +105,7 @@ int main()
 	      y = (int) ((MAXH * 1.0) *rand()/(RAND_MAX+1.0));
 
 #if HAVE_HZK_SUPPORT
-             {//to test Unicode 16 chinese characters display ,use HZK font Bitmap font (Metrix font).
+             {	/* to test Unicode 16 chinese characters display ,use HZK font Bitmap font (Metrix font). */
 #ifndef BIG5		
 		char buffer[256];
 		buffer[0]=0x6c;

@@ -233,9 +233,11 @@ set_directcolor_palette(PSD psd)
 	if(psd->bpp == 16) {
 		/* FIXME: this still doesn't work*/
 		for(i=0; i<32; ++i) {
-			//r[i] = g[i] = b[i] = ((i<<11)|(i<<6)|i)<<8;
-			//r[i] = g[i] = b[i] = ((i<<5)|i)<<10;
-			//r[i] = g[i] = b[i] = i<<11;
+#if 0
+			r[i] = g[i] = b[i] = ((i<<11)|(i<<6)|i)<<8;
+			r[i] = g[i] = b[i] = ((i<<5)|i)<<10;
+			r[i] = g[i] = b[i] = i<<11;
+#endif
 			r[i] = g[i] = b[i] = (i<<11) | (i<<3);
 		}
 		ioctl_setpalette(0, 32, r, g, b);

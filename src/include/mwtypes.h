@@ -192,6 +192,9 @@ typedef struct _mwlisthead {
 	struct _mwlist *tail;		/* last item*/
 } MWLISTHEAD, *PMWLISTHEAD;
 
+/* Keyboard state modifiers*/
+typedef unsigned int	MWKEYMOD;
+
 /* GetScreenInfo structure*/
 typedef struct {
 	MWCOORD  rows;		/* number of rows on screen */
@@ -203,7 +206,7 @@ typedef struct {
 	long	 ncolors;	/* hw number of colors supported*/
 	int 	 fonts;		/* number of built-in fonts */
 	int 	 buttons;	/* buttons which are implemented */
-	int	 modifiers;	/* modifiers which are implemented */
+	MWKEYMOD modifiers;	/* modifiers which are implemented */
 	int	 pixtype;	/* format of pixel value*/
 	int	 portrait;	/* current portrait mode*/
 	MWBOOL	 fbdriver;	/* true if running mwin fb screen driver*/
@@ -624,8 +627,6 @@ typedef unsigned char	MWSCANCODE;
 #define MWKEY_LAST		0xF849
 
 /* Keyboard state modifiers*/
-typedef unsigned int	MWKEYMOD;
-
 #define MWKMOD_NONE  		0x0000
 #define MWKMOD_LSHIFT		0x0001
 #define MWKMOD_RSHIFT		0x0002

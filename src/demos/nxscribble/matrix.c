@@ -343,8 +343,7 @@ Matrix ym, rm;
 			for(j = 0; j < n; j++)
 				rm[i][j] = ym[i][j];
 
-
-	//if(DebugInvertMatrix) PrintMatrix(rm, "Inverting (det=%g)\n", det);
+	/*if(DebugInvertMatrix) PrintMatrix(rm, "Inverting (det=%g)\n", det);*/
 
     /* Allocate permutation vectors for l and m, with the same origin
        as the matrix. */

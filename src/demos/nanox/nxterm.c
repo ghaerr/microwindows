@@ -72,7 +72,7 @@
 static GR_WINDOW_ID	w1;	/* id for window */
 static GR_GC_ID		gc1;	/* graphics context */
 static GR_FONT_ID       regFont;
-//static GR_FONT_ID       boldFont;
+/*static GR_FONT_ID       boldFont;*/
 
 static GR_SCREEN_INFO	si;	/* screen info */
 static GR_FONT_INFO     fi;     /* Font Info */

@@ -65,7 +65,7 @@ NUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
  * This is a non-blocking call.
  */
 static int
-NUL_Read(MWUCHAR *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
+NUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	return 0;
 }

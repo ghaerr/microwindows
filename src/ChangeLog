@@ -1,3 +1,5 @@
+Version 0.89pl8 - 24 Feb 2003 - greg@censoft.com
+	* added THREADSAFE support with LINK_APP_INTO_SERVER (Jonathan)
 	* changed _exit to exit() in client.c
 	* added various freetype 2 changes (Jonathan)
 	* added 4bpp nibble-flipped driver (fblin4orion.c) (David)

@@ -19,15 +19,26 @@ draw(GR_EVENT *ep)
 	int ry = 30;
 	int xoff = (rx + 10) * 2;
 
-	GrSetGCForeground(gc, GREEN);
-
+#if 1
 	/* filled arc*/
+	GrSetGCForeground(gc, GREEN);
+	GrArcAngle(wid, gc, x, y, 3, 3, 0, 0, GR_PIE);
+
+	GrSetGCForeground(gc, BLACK);
+	GrArcAngle(wid, gc, x, y, 3, 3, 0, 0, GR_ARC);
+
+	GrSetGCForeground(gc, BLACK);
+	GrPoint(wid, gc, x, y);
+#else
+	GrSetGCForeground(gc, GREEN);
 	GrArc(wid, gc, x, y, rx, ry, 0, -30, -30, 0, GR_PIE);
 	GrArc(wid, gc, x+5, y, rx, ry, 30, 0, 0, -30, GR_PIE);
 	GrArc(wid, gc, x, y+5, rx, ry, -30, 0, 0, 30, GR_PIE);
 	GrArc(wid, gc, x+5, y+5, rx, ry, 0, 30, 30, 0, GR_PIE);
+#endif
 
 	/* outlined arc*/
+	GrSetGCForeground(gc, GREEN);
 	x += xoff;
 	GrArc(wid, gc, x, y, rx, ry, 0, -30, -30, 0, GR_ARCOUTLINE);
 	GrArc(wid, gc, x+5, y, rx, ry, 30, 0, 0, -30, GR_ARCOUTLINE);

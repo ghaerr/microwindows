@@ -245,6 +245,10 @@ GdArcAngle(PSD psd, MWCOORD x0, MWCOORD y0, MWCOORD rx, MWCOORD ry,
 	ay = a * ry;
 	by = b * ry;
 
+	/* fix nxlib error with very small angles becoming whole circle*/
+	if (ax == bx && ay == by && angle1 != angle2)
+		return;
+
 	/* call integer routine*/
 	GdArc(psd, x0, y0, rx, ry, ax, ay, bx, by, type);
 #endif /* HAVEFLOAT*/

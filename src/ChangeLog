@@ -1,3 +1,4 @@
+	* fixed GdArcAngle problem with small angles becoming whole circle
 	* fixed portrait-down mirror display problem (Matthias), also mouse
 	* fixed .pcf file short offset problem with large fonts
 	* fixed .pcf file incorrect width mapping bug w/certain fonts

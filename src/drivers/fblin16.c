@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * 16bpp Linear Video Driver for Microwindows
  *
@@ -17,6 +17,8 @@
 
 #include "device.h"
 #include "fb.h"
+
+#define USE_DRAWAREA	0	/* =1 to implement temp removed DrawArea code*/
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
@@ -42,10 +44,10 @@ linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 
 	DRAWON;
-	if(gr_mode == MWMODE_XOR)
-		addr[x + y * psd->linelen] ^= c;
-	else
+	if(gr_mode == MWMODE_COPY)
 		addr[x + y * psd->linelen] = c;
+	else
+		applyOp(gr_mode, c, &addr[x + y * psd->linelen], ADDR16);
 	DRAWOFF;
 }
 
@@ -77,13 +79,16 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += x1 + y * psd->linelen;
-	if(gr_mode == MWMODE_XOR) {
-		while(x1++ <= x2)
-			*addr++ ^= c;
-	} else
-		//FIXME: memsetw(dst, c, x2-x1+1)?
+	if(gr_mode == MWMODE_COPY) {
+		/* FIXME: memsetw(dst, c, x2-x1+1)*/
 		while(x1++ <= x2)
 			*addr++ = c;
+	} else {
+		while (x1++ <= x2) {
+			applyOp(gr_mode, c, addr, ADDR16);
+			++addr;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -103,16 +108,17 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 	DRAWON;
 	addr += x + y1 * linelen;
-	if(gr_mode == MWMODE_XOR)
-		while(y1++ <= y2) {
-			*addr ^= c;
-			addr += linelen;
-		}
-	else
+	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
 			addr += linelen;
 		}
+	} else {
+		while (y1++ <= y2) {
+			applyOp(gr_mode, c, addr, ADDR16);
+			addr += linelen;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -152,28 +158,48 @@ linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		goto stdblit;
 	alpha = op & 0xff;
 
-	while(--h >= 0) {
-		for(i=0; i<w; ++i) {
-			unsigned int s = *src++;
-			unsigned int d = *dst;
-			unsigned int t = d & 0xf800;
-			unsigned int m1, m2, m3;
-			m1 = (((((s & 0xf800) - t)*alpha)>>8) & 0xf800) + t;
-			t = d & 0x07e0;
-			m2 = (((((s & 0x07e0) - t)*alpha)>>8) & 0x07e0) + t;
-			t = d & 0x001f;
-			m3 = (((((s & 0x001f) - t)*alpha)>>8) & 0x001f) + t;
-			*dst++ = m1 | m2 | m3;
+	if (dstpsd->pixtype == MWPF_TRUECOLOR565) {
+		while(--h >= 0) {
+			for(i=0; i<w; ++i) {
+				unsigned int s = *src++;
+				unsigned int d = *dst;
+				unsigned int t = d & 0xf800;
+				unsigned int m1, m2, m3;
+				m1 = (((((s & 0xf800) - t)*alpha)>>8) & 0xf800) + t;
+				t = d & 0x07e0;
+				m2 = (((((s & 0x07e0) - t)*alpha)>>8) & 0x07e0) + t;
+				t = d & 0x001f;
+				m3 = (((((s & 0x001f) - t)*alpha)>>8) & 0x001f) + t;
+				*dst++ = m1 | m2 | m3;
+			}
+			dst += dlinelen - w;
+			src += slinelen - w;
 		}
-		dst += dlinelen - w;
-		src += slinelen - w;
+	} else {
+		/* 5/5/5 format*/
+		while(--h >= 0) {
+			for(i=0; i<w; ++i) {
+				unsigned int s = *src++;
+				unsigned int d = *dst;
+				unsigned int t = d & 0x7c00;
+				unsigned int m1, m2, m3;
+				m1 = (((((s & 0x7c00) - t)*alpha)>>8) & 0x7c00) + t;
+				t = d & 0x03e0;
+				m2 = (((((s & 0x03e0) - t)*alpha)>>8) & 0x03e0) + t;
+				t = d & 0x001f;
+				m3 = (((((s & 0x001f) - t)*alpha)>>8) & 0x001f) + t;
+				*dst++ = m1 | m2 | m3;
+			}
+			dst += dlinelen - w;
+			src += slinelen - w;
+		}
 	}
 	DRAWOFF;
 	return;
 stdblit:
 #endif
-	switch (op) {
-	case MWROP_SRCCOPY:
+
+	if (op == MWROP_COPY) {
 		/* copy from bottom up if dst in src rectangle*/
 		/* memmove is used to handle x case*/
 		if (srcy < dsty) {
@@ -182,35 +208,22 @@ stdblit:
 			slinelen *= -1;
 			dlinelen *= -1;
 		}
-		while(--h >= 0) {
-			/* a _fast_ memmove is a _must_ in this routine*/
+		while (--h >= 0) {
+			/* a _fast_ memcpy is a _must_ in this routine*/
 			memmove(dst, src, w<<1);
 			dst += dlinelen;
 			src += slinelen;
 		}
-		break;
-	case MWROP_SRCAND:
-		while(--h >= 0) {
-			for(i=0; i<w; ++i)
-				*dst++ &= *src++;
+	} else {
+		while (--h >= 0) {
+			for (i=0; i<w; i++) {
+				applyOp(MWROP_TO_MODE(op), *src, dst, ADDR16);
+				++src;
+				++dst;
+			}
 			dst += dlinelen - w;
 			src += slinelen - w;
 		}
-		break;
-	case MWROP_SRCINVERT:
-		while(--h >= 0) {
-			for(i=0; i<w; ++i)
-				*dst++ ^= *src++;
-			dst += dlinelen - w;
-			src += slinelen - w;
-		}
-		break;
-	case MWROP_BLACKNESS:
-		while(--h >= 0) {
-			memset(dst, 0, w<<1);
-			dst += dlinelen;
-		}
-		break;
 	}
 	DRAWOFF;
 }
@@ -284,6 +297,8 @@ if (g_col_inc) col_inc = g_col_inc; else
 	DRAWOFF;
 }
 
+#if USE_DRAWAREA
+/* temporarily removed DrawArea entry point code*/
 static void init_alpha_lookup(unsigned short **low, unsigned short **high)
 {
         unsigned short a, x, *lo, *hi;
@@ -596,13 +611,13 @@ static void linear16_drawarea(PSD psd, driver_gc_t *gc, int op)
 			drawarea_alphacol(psd,gc);
 			break;
 
-
 		case PSDOP_PIXMAP_COPYALL:
 			pixmap_copyall(psd,gc);
 			break;
 
 	}
 }
+#endif /* USE_DRAWAREA*/
 
 SUBDRIVER fblinear16 = {
 	linear16_init,
@@ -612,6 +627,10 @@ SUBDRIVER fblinear16 = {
 	linear16_drawvertline,
 	gen_fillrect,
 	linear16_blit,
+#if USE_DRAWAREA
 	linear16_drawarea,
+#else
+	NULL,
+#endif
 	linear16_stretchblit
 };

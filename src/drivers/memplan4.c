@@ -263,7 +263,7 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	set_op(0);		/* modetable[MWMODE_SET]*/
+	set_op(0);		/* modetable[MWMODE_COPY]*/
 	dst = SCREENBASE(dstpsd) + (dstx>>3) + dsty * BYTESPERLINE(dstpsd);
 	src = (char *)srcpsd->addr + (srcx>>1) + srcy * slinelen;
 	while(--h >= 0) {

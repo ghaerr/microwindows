@@ -216,7 +216,7 @@ void show_cursor (void)
 	GrSetGCForeground(gc1, WHITE);
 	GrFillRect(w1, gc1, curx*fonw, cury*fonh+1, fonw, fonh-1);
 	GrSetGCForeground(gc1, gi.foreground);
-	GrSetGCMode(gc1,GR_MODE_SET);
+	GrSetGCMode(gc1,GR_MODE_COPY);
 }
 
 

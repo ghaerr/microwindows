@@ -82,7 +82,7 @@ int main()
 	gc = GrNewGC();
         GrSetGCForeground(gc, WHITE);
 	GrSetGCBackground(gc, BLACK);
-	GrSetGCMode(gc, GR_MODE_SET);
+	GrSetGCMode(gc, GR_MODE_COPY);
 #endif
 
 

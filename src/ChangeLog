@@ -1,6 +1,10 @@
+Version 0.89pre8 - 7 Nov 2001 - greg@censoft.com
+	* implement all src/dst copy modes in fb/x11 blitters and win32 SetROP2/BitBlt codes
+		use MWMODE_COPY instead of MWMODE_SET
+	* implement all 16 src/dst MWMODE_xxx operations (Matthew Wlazlo)
+	* fixed alphablending for truecolor 555 systems
 	* fix GdTimeout bug when usecs only specified (David Erickson)
 	* check GC changed before fixing clip in GsPrepareDrawing, clip sometimes incorrect
-Version 0.89pre8 - 6 Nov 2001 - greg@censoft.com
 	* allow 0 timeout to cancel GrSetScreenSaverTimeout
 	* changed check for /tmp/.nano-X to use access(), not stat()
 	* revised reported x, y event values to be parent-relative

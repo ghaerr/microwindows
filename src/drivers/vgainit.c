@@ -79,7 +79,7 @@ ega_hwinit(void)
 void
 ega_hwterm(void)
 {
-  setmode(MWMODE_SET);
+  setmode(MWMODE_COPY);
 
   /* Copy character table from ROM back into bit plane 2 before turning
    * off graphics.
@@ -145,7 +145,10 @@ out_word(unsigned int p,unsigned int d)
 
 /* Values for the data rotate register to implement drawing modes. */
 static unsigned char mode_table[MWMODE_MAX + 1] = {
-  0x00, 0x18, 0x10, 0x08
+  0x00, 0x18, 0x10, 0x08,	/* COPY, XOR, AND, OR implemented*/
+  0x00, 0x00, 0x00, 0x00,	/* no VGA HW for other modes*/
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
 };
 
 /* Set the drawing mode.

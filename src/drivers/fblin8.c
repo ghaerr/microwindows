@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * 8bpp Linear Video Driver for Microwindows
  * 	00/01/26 added alpha blending with lookup tables (64k total)
@@ -14,7 +14,6 @@
 #define __OPTIMIZE__
 #endif
 #include <string.h>
-#include <stdlib.h>
 
 #include "device.h"
 #include "fb.h"
@@ -57,10 +56,10 @@ linear8_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 
 	DRAWON;
-	if(gr_mode == MWMODE_XOR)
-		addr[x + y * psd->linelen] ^= c;
-	else
+	if(gr_mode == MWMODE_COPY)
 		addr[x + y * psd->linelen] = c;
+	else
+		applyOp(gr_mode, c, &addr[ x + y * psd->linelen], ADDR8);
 	DRAWOFF;
 }
 
@@ -92,11 +91,14 @@ linear8_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += x1 + y * psd->linelen;
-	if(gr_mode == MWMODE_XOR) {
-		while(x1++ <= x2)
-			*addr++ ^= c;
-	} else
+	if(gr_mode == MWMODE_COPY)
 		memset(addr, c, x2 - x1 + 1);
+	else {
+		while(x1++ <= x2) {
+			applyOp(gr_mode, c, addr, ADDR8);
+			++addr;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -116,16 +118,17 @@ linear8_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 	DRAWON;
 	addr += x + y1 * linelen;
-	if(gr_mode == MWMODE_XOR)
-		while(y1++ <= y2) {
-			*addr ^= c;
-			addr += linelen;
-		}
-	else
+	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
 			addr += linelen;
 		}
+	} else {
+		while(y1++ <= y2) {
+			applyOp(gr_mode, c, addr, ADDR8);
+			addr += linelen;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -196,21 +199,33 @@ linear8_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	return;
 stdblit:
 #endif
+	if (op == MWROP_COPY) {
+		/* copy from bottom up if dst in src rectangle*/
+		/* memmove is used to handle x case*/
+		if (srcy < dsty) {
+			src += (h-1) * slinelen;
+			dst += (h-1) * dlinelen;
+			slinelen *= -1;
+			dlinelen *= -1;
+		}
 
-	/* copy from bottom up if dst in src rectangle*/
-	/* memmove is used to handle x case*/
-	if (srcy < dsty) {
-		src += (h-1) * slinelen;
-		dst += (h-1) * dlinelen;
-		slinelen *= -1;
-		dlinelen *= -1;
-	}
-
-	while(--h >= 0) {
-		/* a _fast_ memcpy is a _must_ in this routine*/
-		memmove(dst, src, w);
-		dst += dlinelen;
-		src += slinelen;
+		while(--h >= 0) {
+			/* a _fast_ memcpy is a _must_ in this routine*/
+			memmove(dst, src, w);
+			dst += dlinelen;
+			src += slinelen;
+		}
+	} else {
+		while (--h >= 0) {
+			int i;
+			for (i=0; i<w; i++) {
+				applyOp(MWROP_TO_MODE(op), *src, dst, ADDR8);
+				++src;
+				++dst;
+			}
+			dst += dlinelen - w;
+			src += slinelen - w;
+		}
 	}
 	DRAWOFF;
 }

@@ -165,8 +165,8 @@ static unsigned long
 PIXELVAL_to_pixel(MWPIXELVAL c, int type)
 {
 	assert (type == MWPIXEL_FORMAT);
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR0888 || MWPIXELFORMAT == MWPF_TRUECOLOR888
+	
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR888)
 	/* calc truecolor conversions directly*/
 	if (x11_vis->class >= TrueColor) {
 		switch (x11_vis->bits_per_rgb) {
@@ -309,10 +309,22 @@ static void set_mode(int new_mode)
     if (new_mode != old_mode) {
 	int func = GXcopy;
 	switch(new_mode) {
-	case MWMODE_SET: func = GXcopy; break;
-	case MWMODE_XOR: func = GXxor; break;
-	case MWMODE_OR:  func = GXor; break;
-	case MWMODE_AND: func = GXand; break;
+	case MWMODE_COPY: 		func = GXcopy; break;
+	case MWMODE_XOR: 		func = GXxor; break;
+	case MWMODE_OR:  		func = GXor; break;
+	case MWMODE_AND: 		func = GXand; break;
+	case MWMODE_CLEAR:		func = GXclear; break;
+	case MWMODE_SETTO1:		func = GXset; break;
+	case MWMODE_EQUIV:		func = GXequiv; break;
+	case MWMODE_NOR	:		func = GXnor; break;
+	case MWMODE_NAND:		func = GXnand; break;
+	case MWMODE_INVERT:		func = GXinvert; break;
+	case MWMODE_COPYINVERTED:	func = GXcopyInverted; break;
+	case MWMODE_ORINVERTED:		func = GXorInverted; break;
+	case MWMODE_ANDINVERTED:	func = GXandInverted; break;
+	case MWMODE_ORREVERSE:		func = GXorReverse; break;
+	case MWMODE_ANDREVERSE:		func = GXandReverse; break;
+	case MWMODE_NOOP:		func = GXnoop; break;
 	default: return;
 	}
 	XSetFunction(x11_dpy, x11_gc, func);
@@ -375,6 +387,10 @@ void x11_handle_event(XEvent* ev)
 	    XInstallColormap(x11_dpy, x11_colormap);
 	    inited = 1;
 	}
+    }
+    else if(ev->type == MappingNotify) {
+	DPRINTF("Refreshing keyboard mapping\n");
+	XRefreshKeyboardMapping(&ev->xmapping);
     }
 #if 0
     else if (ev->type == EnterNotify) {
@@ -846,28 +862,17 @@ X11_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 
 		for (y = 0; y < h; y++) {
 	    		for (x = 0; x < w; x++) {
-				switch (op) {
-				case MWROP_SRCCOPY:
+				if (op == MWROP_COPY)
 					c = srcpsd->ReadPixel(srcpsd,srcx+x,srcy+y);
+				else {
+					c = applyOpR(op,
+						srcpsd->ReadPixel(srcpsd,srcx+x,srcy+y),
+						dstpsd->ReadPixel(dstpsd,destx+x,desty+y));
 					pixel = PIXELVAL_to_pixel(c, srcpsd->pixtype);
 					XPutPixel(img, x, y, pixel);
-					break;
-				case MWROP_SRCAND:
-					c = (srcpsd->ReadPixel(srcpsd,srcx+x,srcy+y)) & (dstpsd->ReadPixel(dstpsd,destx+x,desty+y));
-					pixel = PIXELVAL_to_pixel(c, srcpsd->pixtype);
-					XPutPixel(img, x, y, pixel);
-					break;
-				case MWROP_SRCINVERT:
-					c = (srcpsd->ReadPixel(srcpsd,srcx+x,srcy+y)) ^ (dstpsd->ReadPixel(dstpsd,destx+x,desty+y));
-					pixel = PIXELVAL_to_pixel(c, srcpsd->pixtype);
-					XPutPixel(img, x, y, pixel);
-					break;
-				case MWROP_BLACKNESS:
-					c = 0;
-					pixel = PIXELVAL_to_pixel(c, srcpsd->pixtype);
-					XPutPixel(img, x, y, pixel);
-					break;
 				}
+				pixel = PIXELVAL_to_pixel(c, srcpsd->pixtype);
+				XPutPixel(img, x, y, pixel);
 
 				/* update screen savebits*/
 				savebits.DrawPixel(&savebits, destx+x, desty+y, c);

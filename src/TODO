@@ -1,3 +1,4 @@
+obsolete MWMODE_SET, MWROP_SRCCOPY, change MWMODE_SETTO1 before 0.89 final
 check for HAVE_STRETCHBLIT before calling it...
 add psi->fbdriver, psi->rmask, psi->portrait in all drivers/scr*.c
 

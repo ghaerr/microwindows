@@ -453,11 +453,11 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		GdHideCursor(rootwp->psd);
 
 		/* turn off clipping of root's children*/
-		GrSetGCMode(gc, GR_MODE_SET|GR_MODE_EXCLUDECHILDREN);
+		GrSetGCMode(gc, GR_MODE_COPY|GR_MODE_EXCLUDECHILDREN);
 
 		/* copy topmost window contents offscreen*/
 		GrCopyArea(pixid, gc, 0, 0, wp->width, wp->height,
-			GR_ROOT_WINDOW_ID, oldx, oldy, MWROP_SRCCOPY);
+			GR_ROOT_WINDOW_ID, oldx, oldy, MWROP_COPY);
 
 		/* calc new window offsets*/
 		OffsetWindow(wp, offx, offy);
@@ -467,7 +467,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 
 		/* copy window bits to new location*/
 		GrCopyArea(GR_ROOT_WINDOW_ID, gc, wp->x, wp->y, wp->width,
-			wp->height, pixid, 0, 0, MWROP_SRCCOPY);
+			wp->height, pixid, 0, 0, MWROP_COPY);
 
 		/*
 		 * If any portion of the window was offscreen
@@ -664,7 +664,7 @@ GrNewGC(void)
 	}
 
 	gcp->id = nextgcid++;
-	gcp->mode = GR_MODE_SET;
+	gcp->mode = GR_MODE_COPY;
 	gcp->regionid = 0;	/* no region*/
 	gcp->fontid = 0;	/* 0 is default font*/
 	gcp->foreground = WHITE;

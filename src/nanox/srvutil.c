@@ -357,9 +357,9 @@ void GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
 			GdStretchBlit(wp->psd, destx + wp->x, desty + wp->y,
 				destwidth, destheight, pm->psd, fromx, fromy,
-				pm->width, pm->height, MWROP_SRCCOPY);
+				pm->width, pm->height, MWROP_COPY);
 		} else GdBlit(wp->psd, destx + wp->x, desty + wp->y, destwidth,
-			destheight, pm->psd, fromx, fromy, MWROP_SRCCOPY);
+			destheight, pm->psd, fromx, fromy, MWROP_COPY);
 	}
 
 	if(wp->bgpixmapflags & (GR_BACKGROUND_TRANS|GR_BACKGROUND_STRETCH))
@@ -474,7 +474,7 @@ GsWpTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x, GR_COORD y,
 
 			if((cwidth > 0) && (cheight > 0)) {
 				GdBlit(wp->psd, cx, cy, cwidth, cheight,
-					pm->psd, fromx, fromy, MWROP_SRCCOPY);
+					pm->psd, fromx, fromy, MWROP_COPY);
 			}
 		}
 	}
@@ -524,7 +524,7 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	GsSetClipWindow(wp, NULL, 0);
 	curgcp = NULL;
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
-		GdSetMode(GR_MODE_SET);
+		GdSetMode(GR_MODE_COPY);
 		GdSetForeground(GdFindColor(wp->background));
 		if (wp->bgpixmap) {
 			GsWpDrawBackgroundPixmap(wp, wp->bgpixmap, x, y,
@@ -626,7 +626,7 @@ void GsDrawBorder(GR_WINDOW *wp)
 	clipwp = NULL;
 	GsSetClipWindow(wp, NULL, 0);
 	curgcp = NULL;
-	GdSetMode(GR_MODE_SET);
+	GdSetMode(GR_MODE_COPY);
 	GdSetForeground(GdFindColor(wp->bordercolor));
 
 	if (bs == 1) {

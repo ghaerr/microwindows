@@ -48,7 +48,7 @@ DrawXORFrame(HWND hwnd,int x, int y, BOOL bDrawCurrent)
 		Rectangle(hdc, lastrc.left, lastrc.top, lastrc.right,
 			lastrc.bottom);
 	ReleaseDC(NULL, hdc);
-	GdSetMode(MWMODE_SET);
+	GdSetMode(MWMODE_COPY);
 }
 
 /*

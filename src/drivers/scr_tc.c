@@ -130,7 +130,7 @@ static void
 BGI_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	switch(gr_mode) {
-		case MWMODE_SET: break;
+		case MWMODE_COPY: break;
 		case MWMODE_XOR: c ^= getpixel(x, y); break;
 		case MWMODE_OR:  c |= getpixel(x, y); break;
 		case MWMODE_AND: c &= getpixel(x, y); break;
@@ -157,7 +157,7 @@ BGI_drawhline(PSD psd,MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	setcolor(c);
 	switch(gr_mode) {
-		case MWMODE_SET:
+		case MWMODE_COPY:
 			setwritemode(COPY_PUT);
 			break;
 		case MWMODE_XOR:
@@ -188,7 +188,7 @@ BGI_drawvline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 	setcolor(c);
 	switch(gr_mode) {
-		case MWMODE_SET:
+		case MWMODE_COPY:
 			setwritemode(COPY_PUT);
 			break;
 		case MWMODE_XOR:
@@ -224,7 +224,7 @@ BGI_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	}
 
 	switch(gr_mode) {
-		case MWMODE_SET:
+		case MWMODE_COPY:
 			setfillstyle(1,c);
 			bar(x1, y1, x2, y2);
 			break;

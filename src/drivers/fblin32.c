@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * 32bpp Linear Video Driver for Microwindows
  *
@@ -35,10 +35,10 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 
 	DRAWON;
-	if(gr_mode == MWMODE_XOR)
-		addr[x + y * psd->linelen] ^= c;
-	else
+	if (gr_mode == MWMODE_COPY)
 		addr[x + y * psd->linelen] = c;
+	else
+		applyOp(gr_mode, c, &addr[x + y * psd->linelen], ADDR32);
 	DRAWOFF;
 }
 
@@ -70,13 +70,16 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += x1 + y * psd->linelen;
-	if(gr_mode == MWMODE_XOR) {
-		while(x1++ <= x2)
-			*addr++ ^= c;
-	} else
-		//FIXME: memsetl(dst, c, x2-x1+1)?
+	if(gr_mode == MWMODE_COPY) {
+		/* FIXME: memsetl(dst, c, x2-x1+1)*/
 		while(x1++ <= x2)
 			*addr++ = c;
+	} else {
+		while(x1++ <= x2) {
+			applyOp(gr_mode, c, addr, ADDR32);
+			++addr;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -96,16 +99,17 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 	DRAWON;
 	addr += x + y1 * linelen;
-	if(gr_mode == MWMODE_XOR)
-		while(y1++ <= y2) {
-			*addr ^= c;
-			addr += linelen;
-		}
-	else
+	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
 			addr += linelen;
 		}
+	} else {
+		while(y1++ <= y2) {
+			applyOp(gr_mode, c, addr, ADDR32);
+			addr += linelen;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -173,27 +177,30 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	return;
 stdblit:
 #endif
-	/* copy from bottom up if dst in src rectangle*/
-	/* memmove is used to handle x case*/
-	if (srcy < dsty) {
-		src += (h-1) * slinelen;
-		dst += (h-1) * dlinelen;
-		slinelen *= -1;
-		dlinelen *= -1;
-	}
 
-	while(--h >= 0) {
-#if 1
-		/* a _fast_ memmove is a _must_ in this routine*/
-		memmove(dst, src, w<<2);
-		dst += dlinelen;
-		src += slinelen;
-#else
-		for(i=0; i<w; ++i)
-			*dst++ = *src++;
+	if (op == MWROP_COPY) {
+		/* copy from bottom up if dst in src rectangle*/
+		/* memmove is used to handle x case*/
+		if (srcy < dsty) {
+			src += (h-1) * slinelen;
+			dst += (h-1) * dlinelen;
+			slinelen *= -1;
+			dlinelen *= -1;
+		}
+		while(--h >= 0) {
+			/* a _fast_ memmove is a _must_ in this routine*/
+			memmove(dst, src, w<<2);
+			dst += dlinelen;
+			src += slinelen;
+		}
+	} else {
+		for(i=0; i < w; ++i) {
+			applyOp(MWROP_TO_MODE(op), *src, dst, ADDR32);
+			++src;
+			++dst;
+		}
 		dst += dlinelen - w;
 		src += slinelen - w;
-#endif
 	}
 	DRAWOFF;
 }

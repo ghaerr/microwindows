@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * Win32 API upper level graphics drawing routines
  */
@@ -286,18 +286,11 @@ SetROP2(HDC hdc, int fnDrawMode)
 {
 	int	newmode, oldmode;
 
-	if(!hdc)
+	if(!hdc || (fnDrawMode <= 0 || fnDrawMode > R2_LAST))
 		return 0;
 
 	oldmode = hdc->drawmode;
-	switch(fnDrawMode) {
-	case R2_XORPEN:
-		newmode = MWMODE_XOR;
-		break;
-	case R2_COPYPEN:
-	default:
-		newmode = MWMODE_SET;
-	}
+	newmode = fnDrawMode - 1;	/* map to MWMODE_xxx*/
 	hdc->drawmode = newmode;
 	GdSetMode(newmode);
 	return oldmode;

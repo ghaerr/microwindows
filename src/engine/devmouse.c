@@ -348,7 +348,7 @@ GdShowCursor(PSD psd)
 	if(++curvisible != 1)
 		return prevcursor;
 	oldmode = gr_mode;
-	gr_mode = MWMODE_SET;
+	gr_mode = MWMODE_COPY;
 
 	saveptr = cursavbits;
 	cursavx = curminx;
@@ -395,7 +395,7 @@ GdHideCursor(PSD psd)
 	if(curvisible-- <= 0)
 		return prevcursor;
 	oldmode = gr_mode;
-	gr_mode = MWMODE_SET;
+	gr_mode = MWMODE_COPY;
 
 	saveptr = cursavbits;
 	for (y = cursavy; y <= cursavy2; y++) {

@@ -125,15 +125,15 @@ GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_width, GR_SIZE b
 	unsigned char *	inbuf = bits;
 	unsigned char *	p;
 	GR_BITMAP *	buf;
-	int		size;
+	/*int		size;*/
 
 	/* 
 	 * bit reverse or byte-swap short words in image
 	 * and pad to 16 bits for GrBitmap()
 	 */
 	xb = (width+7)/8;	/* FIXME: may not be in packed-8bit format*/
-	//size  = ((xb+1)&~01) * height;
-	//buf = (GR_BITMAP *)malloc(size);
+	/*size  = ((xb+1)&~01) * height;*/
+	/*buf = (GR_BITMAP *)malloc(size);*/
 	buf = (GR_BITMAP *)malloc(((xb+1)&~01) * height);
 	if (!buf)
 		return NULL;

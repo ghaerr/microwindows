@@ -20,7 +20,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
 #if HAVE_SHAREDMEM_SUPPORT
 #include <sys/types.h>
@@ -1467,7 +1466,6 @@ GrShmCmdsFlushWrapper(void *r)
 int 
 GsOpenSocket(void)
 {
-	struct stat s;
 #if ELKS
 	struct sockaddr_na sckt;
 #ifndef SUN_LEN

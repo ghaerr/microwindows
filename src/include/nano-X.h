@@ -77,10 +77,24 @@ typedef struct {
 #define GR_RGB(r,g,b)		MWRGB(r,g,b)
 
 /* Drawing modes for GrSetGCMode*/
-#define	GR_MODE_SET		MWMODE_SET
-#define	GR_MODE_XOR		MWMODE_XOR
-#define	GR_MODE_OR		MWMODE_OR
-#define	GR_MODE_AND		MWMODE_AND
+#define	GR_MODE_COPY		MWMODE_COPY		/* src*/
+#define	GR_MODE_SET		MWMODE_COPY		/* obsolete, use GR_MODE_COPY*/
+#define	GR_MODE_XOR		MWMODE_XOR		/* src ^ dst*/
+#define	GR_MODE_OR		MWMODE_OR		/* src | dst*/
+#define	GR_MODE_AND		MWMODE_AND		/* src & dst*/
+#define	GR_MODE_CLEAR 		MWMODE_CLEAR		/* 0*/
+#define	GR_MODE_SETTO1		MWMODE_SETTO1		/* 11111111*/ /* will be GR_MODE_SET*/
+#define	GR_MODE_EQUIV		MWMODE_EQUIV		/* ~(src ^ dst)*/
+#define	GR_MODE_NOR		MWMODE_NOR		/* ~(src | dst)*/
+#define	GR_MODE_NAND		MWMODE_NAND		/* ~(src & dst)*/
+#define	GR_MODE_INVERT		MWMODE_INVERT		/* ~dst*/
+#define	GR_MODE_COPYINVERTED	MWMODE_COPYINVERTED	/* ~src*/
+#define	GR_MODE_ORINVERTED	MWMODE_ORINVERTED	/* ~src | dst*/
+#define	GR_MODE_ANDINVERTED	MWMODE_ANDINVERTED	/* ~src & dst*/
+#define GR_MODE_ORREVERSE	MWMODE_ORREVERSE	/* src | ~dst*/
+#define	GR_MODE_ANDREVERSE	MWMODE_ANDREVERSE	/* src & ~dst*/
+#define	GR_MODE_NOOP		MWMODE_NOOP		/* dst*/
+
 #define GR_MODE_DRAWMASK	0x00FF
 #define GR_MODE_EXCLUDECHILDREN	0x0100		/* exclude children on clip*/
 

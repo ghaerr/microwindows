@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * 24bpp Linear Video Driver for Microwindows
  */
@@ -38,14 +38,14 @@ linear24_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	b = PIXEL888BLUE(c);
 	addr += (x + y * psd->linelen) * 3;
 	DRAWON;
-	if(gr_mode == MWMODE_XOR) {
-		*addr++ ^= b;
-		*addr++ ^= g;
-		*addr ^= r;
-	} else {
+	if(gr_mode == MWMODE_COPY) {
 		*addr++ = b;
 		*addr++ = g;
 		*addr = r;
+	} else {
+		applyOp(gr_mode, b, addr, ADDR8); ++addr;
+		applyOp(gr_mode, g, addr, ADDR8); ++addr;
+		applyOp(gr_mode, r, addr, ADDR8);
 	}
 	DRAWOFF;
 }
@@ -83,18 +83,19 @@ linear24_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	b = PIXEL888BLUE(c);
 	addr += (x1 + y * psd->linelen) * 3;
 	DRAWON;
-	if(gr_mode == MWMODE_XOR) {
-		while(x1++ <= x2) {
-			*addr++ ^= b;
-			*addr++ ^= g;
-			*addr++ ^= r;
-		}
-	} else
+	if(gr_mode == MWMODE_COPY) {
 		while(x1++ <= x2) {
 			*addr++ = b;
 			*addr++ = g;
 			*addr++ = r;
 		}
+	} else {
+		while (x1++ <= x2) {
+			applyOp(gr_mode, b, addr, ADDR8); ++addr;
+			applyOp(gr_mode, g, addr, ADDR8); ++addr;
+			applyOp(gr_mode, r, addr, ADDR8); ++addr;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -118,20 +119,21 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	b = PIXEL888BLUE(c);
 	addr += (x + y1 * psd->linelen) * 3;
 	DRAWON;
-	if(gr_mode == MWMODE_XOR)
-		while(y1++ <= y2) {
-			addr[0] ^= b;
-			addr[1] ^= g;
-			addr[2] ^= r;
-			addr += linelen;
-		}
-	else
+	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
 			addr[0] = b;
 			addr[1] = g;
 			addr[2] = r;
 			addr += linelen;
 		}
+	} else {
+		while (y1++ <= y2) {
+			applyOp(gr_mode, b, &addr[0], ADDR8);
+			applyOp(gr_mode, g, &addr[1], ADDR8);
+			applyOp(gr_mode, r, &addr[2], ADDR8);
+			addr += linelen;
+		}
+	}
 	DRAWOFF;
 }
 
@@ -192,21 +194,30 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	return;
 stdblit:
 #endif
-	while(--h >= 0) {
-#if 1
-		/* a _fast_ memcpy is a _must_ in this routine*/
-		memcpy(dst, src, w*3);
-		dst += dlinelen;
-		src += slinelen;
-#else
-		for(i=0; i<w; ++i) {
-			*dst++ = *src++;
-			*dst++ = *src++;
-			*dst++ = *src++;
+
+	if (op == MWROP_COPY) {
+		/* copy from bottom up if dst in src rectangle*/
+		/* memmove is used to handle x case*/
+		if (srcy < dsty) {
+			src += (h-1) * slinelen;
+			dst += (h-1) * dlinelen;
+			slinelen *= -1;
+			dlinelen *= -1;
+		}
+		while(--h >= 0) {
+			/* a _fast_ memcpy is a _must_ in this routine*/
+			memmove(dst, src, w*3);
+			dst += dlinelen;
+			src += slinelen;
+		}
+	} else {
+		for(i=w*3; i>=0; --i) {
+			applyOp(MWROP_TO_MODE(op), *src, dst, ADDR8);
+			++src;
+			++dst;
 		}
 		dst += dlinelen_minus_w;
 		src += slinelen_minus_w;
-#endif
 	}
 	DRAWOFF;
 }

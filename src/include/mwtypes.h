@@ -31,11 +31,23 @@
 #define MWTF_UNDERLINE	0x4000	/* draw underline*/
 
 /* Drawing modes*/
-#define	MWMODE_SET	0	/* draw pixels as given (default) */
-#define	MWMODE_XOR	1	/* draw pixels using XOR */
-#define	MWMODE_OR	2	/* draw pixels using OR (notimp)*/
-#define	MWMODE_AND	3	/* draw pixels using AND (notimp)*/
-#define MWMODE_MAX	3
+#define	MWMODE_COPY		0	/* src*/
+#define	MWMODE_XOR		1	/* src ^ dst*/
+#define	MWMODE_OR		2	/* src | dst*/
+#define	MWMODE_AND		3	/* src & dst*/
+#define	MWMODE_CLEAR		4	/* 0*/
+#define	MWMODE_SETTO1		5	/* 11111111*/ /* obsolete name, will be MWMODE_SET*/
+#define	MWMODE_EQUIV		6	/* ~(src ^ dst)*/
+#define	MWMODE_NOR		7	/* ~(src | dst)*/
+#define	MWMODE_NAND		8	/* ~(src & dst)*/
+#define	MWMODE_INVERT		9	/* ~dst*/
+#define	MWMODE_COPYINVERTED	10	/* ~src*/
+#define	MWMODE_ORINVERTED	11	/* ~src | dst*/
+#define	MWMODE_ANDINVERTED	12	/* ~src & dst*/
+#define MWMODE_ORREVERSE	13	/* src | ~dst*/
+#define	MWMODE_ANDREVERSE	14	/* src & ~dst*/
+#define	MWMODE_NOOP		15	/* dst*/
+#define	MWMODE_MAX		15
 
 /* Mouse button bits*/
 #define MWBUTTON_L	04
@@ -50,31 +62,50 @@
 #define MWPALINDEX(x)	((MWCOLORVAL)MWF_PALINDEX | (x))
 
 /* 
- * ROP blitter opcodes
+ * ROP blitter opcodes (extensions < 0x10000000 are MWMODE_xxx blit ops)
  */
 #define MWROP_EXTENSION		0xff000000L	/* rop extension bits*/
 
-/* copy src -> dst*/
-#define MWROP_SRCCOPY		0x00000000L
-
 /* copy src -> dst except for transparent color in src*/
-#define MWROP_SRCTRANSCOPY	0x01000000L
+#define MWROP_SRCTRANSCOPY	0x11000000L
 
 /* alpha blend src -> dst with constant alpha, alpha value in low 8 bits*/
-#define MWROP_BLENDCONSTANT	0x02000000L
+#define MWROP_BLENDCONSTANT	0x12000000L
 
 /* alpha blend fg/bg color -> dst with src as alpha channel*/
-#define MWROP_BLENDFGBG		0x03000000L
+#define MWROP_BLENDFGBG		0x13000000L
 
 /* alpha blend src -> dst with separate per pixel alpha channel*/
-#define MWROP_BLENDCHANNEL	0x04000000L
+#define MWROP_BLENDCHANNEL	0x14000000L
 
 /* stretch src -> dst*/
-#define MWROP_STRETCH		0x05000000L
+#define MWROP_STRETCH		0x15000000L
 
-#define MWROP_SRCAND		0x06000000L
-#define MWROP_SRCINVERT		0x07000000L
-#define MWROP_BLACKNESS     	0x08000000L
+/* blits rops based on src/dst binary operations*/
+#define MWROP_COPY		(MWMODE_COPY << 24L)
+#define	MWROP_XOR		(MWMODE_XOR << 24L)
+#define	MWROP_OR		(MWMODE_OR << 24L)
+#define MWROP_AND		(MWMODE_AND << 24L)
+#define	MWROP_CLEAR		(MWMODE_CLEAR << 24L)
+#define	MWROP_SET		(MWMODE_SETTO1 << 24L)
+#define	MWROP_EQUIV		(MWMODE_EQUIV << 24L)
+#define	MWROP_NOR		(MWMODE_NOR << 24L)
+#define	MWROP_NAND		(MWMODE_NAND << 24L)
+#define	MWROP_INVERT		(MWMODE_INVERT << 24L)
+#define	MWROP_COPYINVERTED	(MWMODE_COPYINVERTED << 24L)
+#define	MWROP_ORINVERTED	(MWMODE_ORINVERTED << 24L)
+#define	MWROP_ANDINVERTED	(MWMODE_ANDINVERTED << 24L)
+#define MWROP_ORREVERSE		(MWMODE_ORREVERSE << 24L)
+#define	MWROP_ANDREVERSE	(MWMODE_ANDREVERSE << 24L)
+#define	MWROP_NOOP		(MWMODE_NOOP << 24L)
+
+#define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
+#define MWROP_SRCAND		MWROP_AND	/* obsolete*/
+#define MWROP_SRCINVERT		MWROP_XOR	/* obsolete*/
+#define MWROP_BLACKNESS     	MWROP_CLEAR	/* obsolete*/
+
+/* convert an MWROP to drawing mode MWMODE value*/
+#define MWROP_TO_MODE(op)	((op) >> 24)
 
 /* 
  * Pixel formats

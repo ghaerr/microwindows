@@ -32,7 +32,7 @@
        MWPIXELVAL gr_foreground;      /* current foreground color */
        MWPIXELVAL gr_background;      /* current background color */
        MWBOOL 	gr_usebg;    	    /* TRUE if background drawn in pixmaps */
-       int 	gr_mode = MWMODE_SET; 	    /* drawing mode */
+       int 	gr_mode = MWMODE_COPY; 	    /* drawing mode */
 /*static*/ MWPALENTRY	gr_palette[256];    /* current palette*/
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/
@@ -124,7 +124,7 @@ GdOpenScreen(void)
 
 #if !NOFONTSORCLIPPING
 	/* init local vars*/
-	GdSetMode(MWMODE_SET);
+	GdSetMode(MWMODE_COPY);
 	GdSetForeground(GdFindColor(MWRGB(255, 255, 255)));	/* WHITE*/
 	GdSetBackground(GdFindColor(MWRGB(0, 0, 0)));		/* BLACK*/
 	GdSetUseBackground(TRUE);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999-2001 Greg Haerr <greg@censoft.com>
  *
  * 1bpp Packed Linear Video Driver for Microwindows
  *
@@ -10,6 +10,10 @@
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+
+/* This file doesn't have full drawing mode functionality using
+ * the applyOp() macro from fb.h
+ */
 
 static unsigned char notmask[8] = {
 	0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe};

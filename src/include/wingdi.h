@@ -1,6 +1,6 @@
 /* wingdi.h*/
 /*
- * Copyright (c) 1999,2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999,2000,2001 Greg Haerr <greg@censoft.com>
  *
  * Win32 GDI structures and API
  */
@@ -96,23 +96,23 @@ COLORREF WINAPI	SetBkColor(HDC, COLORREF);
 int WINAPI 	SetBkMode(HDC, int);
 UINT WINAPI     SetTextAlign(HDC hdc, UINT fMode);
 
-/* Binary raster ops */
-#define R2_BLACK            1   /*  0       */
-#define R2_NOTMERGEPEN      2   /* DPon     */
-#define R2_MASKNOTPEN       3   /* DPna     */
-#define R2_NOTCOPYPEN       4   /* PN       */
-#define R2_MASKPENNOT       5   /* PDna     */
-#define R2_NOT              6   /* Dn       */
-#define R2_XORPEN           7   /* DPx      */
-#define R2_NOTMASKPEN       8   /* DPan     */
-#define R2_MASKPEN          9   /* DPa      */
-#define R2_NOTXORPEN        10  /* DPxn     */
-#define R2_NOP              11  /* D        */
-#define R2_MERGENOTPEN      12  /* DPno     */
-#define R2_COPYPEN          13  /* P        */
-#define R2_MERGEPENNOT      14  /* PDno     */
-#define R2_MERGEPEN         15  /* DPo      */
-#define R2_WHITE            16  /*  1       */
+/* Binary raster ops*/
+#define R2_BLACK            (MWMODE_CLEAR+1)		/*  0       */
+#define R2_NOTMERGEPEN      (MWMODE_NOR+1)		/* DPon     */
+#define R2_MASKNOTPEN       (MWMODE_ANDINVERTED+1)	/* DPna     */
+#define R2_NOTCOPYPEN       (MWMODE_COPYINVERTED+1)	/* Pn       */
+#define R2_MASKPENNOT       (MWMODE_ANDREVERSE+1)	/* PDna     */
+#define R2_NOT              (MWMODE_INVERT+1)		/* Dn       */
+#define R2_XORPEN           (MWMODE_XOR+1)		/* DPx      */
+#define R2_NOTMASKPEN       (MWMODE_NAND+1)		/* DPan     */
+#define R2_MASKPEN          (MWMODE_AND+1)		/* DPa      */
+#define R2_NOTXORPEN        (MWMODE_EQUIV+1)		/* DPxn     */
+#define R2_NOP              (MWMODE_NOOP+1)		/* D        */
+#define R2_MERGENOTPEN      (MWMODE_ORINVERTED+1)	/* DPno     */
+#define R2_COPYPEN          (MWMODE_COPY+1)		/* P        */
+#define R2_MERGEPENNOT      (MWMODE_ORREVERSE+1)	/* PDno     */
+#define R2_MERGEPEN         (MWMODE_OR+1)		/* DPo      */
+#define R2_WHITE            (MWMODE_SETTO1+1)		/*  1       */
 #define R2_LAST             16
 
 int WINAPI	SetROP2(HDC hdc, int fnDrawMode);
@@ -285,10 +285,23 @@ HBITMAP WINAPI	CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight);
 HDC WINAPI	CreateCompatibleDC(HDC hdc);
 
 /* BitBlit raster opcodes*/
-#define SRCCOPY		(DWORD)MWROP_SRCCOPY	/* win32 is 0x00CC0020*/
-#define SRCAND		(DWORD)MWROP_SRCAND
-#define SRCINVERT	(DWORD)MWROP_SRCINVERT
-#define BLACKNESS   	(DWORD)MWROP_BLACKNESS
+#define SRCCOPY         (DWORD)MWROP_COPY	  /* source                   */
+#define SRCPAINT        (DWORD)MWROP_OR		  /* source OR dest           */
+#define SRCAND          (DWORD)MWROP_AND	  /* source AND dest          */
+#define SRCINVERT       (DWORD)MWROP_XOR	  /* source XOR dest          */
+#define SRCERASE        (DWORD)MWROP_ANDREVERSE	  /* source AND (NOT dest )   */
+#define NOTSRCCOPY      (DWORD)MWROP_COPYINVERTED /* (NOT source)             */
+#define NOTSRCERASE     (DWORD)MWROP_NOR	  /* (NOT src) AND (NOT dest) */
+#define MERGEPAINT      (DWORD)MWROP_ORINVERTED   /* (NOT source) OR dest     */
+#define DSTINVERT       (DWORD)MWROP_INVERT	  /* (NOT dest)               */
+#define BLACKNESS       (DWORD)MWROP_CLEAR	  /* BLACK                    */
+#define WHITENESS       (DWORD)MWROP_SET	  /* WHITE                    */
+#if 0
+#define MERGECOPY       (DWORD)0x00C000CA /* (source AND pattern)     */
+#define PATCOPY         (DWORD)0x00F00021 /* pattern                  */
+#define PATPAINT        (DWORD)0x00FB0A09 /* DPSnoo                   */
+#define PATINVERT       (DWORD)0x005A0049 /* pattern XOR dest         */
+#endif
 
 BOOL WINAPI	BitBlt(HDC hdcDest,int nXDest,int nYDest,int nWidth,int nHeight,
 			HDC hdcSrc,int nXSrc,int nYSrc,DWORD dwRop);

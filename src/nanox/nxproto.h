@@ -1158,4 +1158,15 @@ typedef struct {
 	UINT16	length;
 } nxGetFontListReq;
 
-#define GrTotalNumCalls         106
+#define GrNumSetGCClipOrigin    106
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE  gcid;
+	UINT32  xoff;
+	UINT32  yoff;
+} nxSetGCClipOriginReq;
+
+#define GrTotalNumCalls         107

@@ -930,12 +930,28 @@ GR_DRAW_TYPE GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 		 * then make it the current one and define its clip rectangles.
 		 */
 	        if (wp != clipwp || gcp->changed) {
-			  /* find user region for intersect*/
-			  if (gcp->regionid)
+			/* find user region for intersect*/
+			if (gcp->regionid)
 				regionp = GsFindRegion(gcp->regionid);
-			  else regionp = NULL;
-			  GsSetClipWindow(wp, regionp? regionp->rgn: NULL,
-				gcp->mode & ~GR_MODE_DRAWMASK);
+			else regionp = NULL;
+
+			/*
+			 * Special handling if user region is not at offset 0,0
+			 */
+			if (regionp && (gcp->xoff || gcp->yoff)) {
+				MWCLIPREGION *local = GdAllocRegion();
+
+				GdCopyRegion(local, regionp->rgn);
+				GdOffsetRegion(local, gcp->xoff, gcp->yoff);
+
+				GsSetClipWindow(wp, local,  
+					gcp->mode & ~GR_MODE_DRAWMASK);
+
+				GdDestroyRegion(local);
+			  } else {
+				GsSetClipWindow(wp, regionp? regionp->rgn: NULL,
+					gcp->mode & ~GR_MODE_DRAWMASK);
+			  }
 		}
 	}
 

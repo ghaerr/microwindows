@@ -1284,6 +1284,26 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
 }
 
 /**
+ * GrSetGCClipOrigin:
+ * @gc: the ID of the graphics context with user clip region
+ * @xoff: new X offset of user clip region
+ * @xoff: new Y offset of user clip region
+ *
+ * Sets the X,Y origin of the user clip region in the specified
+ * graphics context.
+ */
+void 
+GrSetGCClipOrigin(GR_GC_ID gc, int x, int y)
+{
+	nxSetGCClipOriginReq *req;
+
+	req = AllocReq(SetGCClipOrigin);
+	req->gcid = gc;
+	req->xoff = x;
+	req->yoff = y;
+}
+
+/**
  * GrPointInRegion:
  * @region: the ID of the region to examine
  * @x: the X coordinate of the point to test for

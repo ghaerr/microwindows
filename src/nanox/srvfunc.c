@@ -677,6 +677,8 @@ GrNewGC(void)
 	gcp->id = nextgcid++;
 	gcp->mode = GR_MODE_COPY;
 	gcp->regionid = 0;	/* no region*/
+	gcp->xoff = 0;		/* no offset*/
+	gcp->yoff = 0;
 	gcp->fontid = 0;	/* 0 is default font*/
 	gcp->foreground = WHITE;
 	gcp->background = BLACK;
@@ -778,6 +780,8 @@ GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
 	gcip->gcid = gcid;
 	gcip->mode = gcp->mode;
 	gcip->region = gcp->regionid;
+	gcip->xoff = gcp->xoff;
+	gcip->yoff = gcp->yoff;
 	gcip->font = gcp->fontid;
 	gcip->foreground = gcp->foreground;
 	gcip->background = gcp->background;
@@ -1001,6 +1005,23 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
 		return;
 	
 	gcp->regionid = region;
+	gcp->changed = GR_TRUE;
+}
+
+/*
+ * Set the x,y origin of user clip region in GC.
+ */
+void
+GrSetGCClipOrigin(GR_GC_ID gc, int xoff, int yoff)
+{
+	GR_GC		*gcp;
+
+	gcp = GsFindGC(gc);
+	if(gcp == NULL)
+		return;
+
+	gcp->xoff = xoff;
+	gcp->yoff = yoff;
 	gcp->changed = GR_TRUE;
 }
 

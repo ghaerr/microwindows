@@ -171,6 +171,8 @@ struct gr_gc {
 	GR_GC_ID	id;		/* graphics context id */
 	int		mode;		/* drawing mode */
 	GR_REGION_ID	regionid;	/* current clipping region */
+ 	int             xoff;           /* X offset for the clip region */
+	int             yoff;           /* Y offset for the clip region */
 	GR_FONT_ID	fontid;		/* current font id*/
 	GR_COLOR	foreground;	/* foreground color */
 	GR_COLOR	background;	/* background color */

@@ -226,6 +226,8 @@ typedef struct {
   GR_GC_ID gcid;		/* GC id (or 0 if no such GC) */
   int mode;			/* drawing mode */
   GR_REGION_ID region;		/* user region */
+  int xoff;			/* x offset of user region*/
+  int yoff;			/* y offset of user region*/
   GR_FONT_ID font;		/* font number */
   GR_COLOR foreground;		/* foreground color */
   GR_COLOR background;		/* background color */
@@ -584,6 +586,7 @@ void		GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 void		GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 			GR_REGION_ID src_rgn2);
 void		GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region);
+void		GrSetGCClipOrigin(GR_GC_ID gc, int x, int y);
 GR_BOOL		GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y);
 int		GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y,
 			GR_COORD w, GR_COORD h);

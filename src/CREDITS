@@ -13,6 +13,7 @@ Nano-X api			David Bell, Alan Cox, Alex Holden, Greg Haerr
 Nano-X window manager		Alex Holden, Greg Haerr
 Nano-X popup keyboard		Vladimir Cotfas, Jay Carlson, Greg Haerr
 Nano-X scribble handwriting	Greg Haerr
+Nano-X enhancements, bugfixes	Jordan Crouse
 Network code, Nano-X client lib	Greg Haerr, Alex Holden
 MIPS LinuxCE port, touch device	Brad LaRonde
 ELKS port			Greg Haerr, Al Riddoch
@@ -33,6 +34,7 @@ Contact Info
 Jay Carlson		<nop@nop.com>
 Vladimir Cotfas		<vladimircotfas@vtech.ca>
 Alan Cox		<alan@lxorguk.ukuu.org.uk>
+Jordan Crouse		<jordanc@censoft.com>
 Greg Haerr		<greg@censoft.com>
 Vidar Hokstad		<vidarh@screenmedia.no> <vidar@hokstad.com>
 Alex Holden		<alex@linuxhacker.org>

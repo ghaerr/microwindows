@@ -1,4 +1,5 @@
 Version 0.89pre8 - 15 Nov 2001 - greg@censoft.com
+	* added MicroTouch DynaPro SC3 touchscreen driver and calibrator (Jordan)
 	* added GrSetGCClipOrigin
 	* removed most C++ style comments (Simon), cleaned up source tree
 	* added GrPeekWaitEvent, blocks until at least one event is available, then peeks

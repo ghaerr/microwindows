@@ -3683,6 +3683,81 @@ GrFreeFontList(GR_FONTLIST ***fonts, int num)
 }
 
 /*
+ * Copy and stretch a rectangle.
+ */
+void
+GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
+	      GR_COORD dx1, GR_COORD dy1,
+	      GR_COORD dx2, GR_COORD dy2,
+	      GR_DRAW_ID srcid,
+	      GR_COORD sx1, GR_COORD sy1,
+	      GR_COORD sx2, GR_COORD sy2,
+	      unsigned long op)
+{
+	GR_DRAWABLE *dp;
+	GR_WINDOW *swp;
+	GR_PIXMAP *spp = NULL;
+	GR_DRAW_TYPE type;
+	PSD srcpsd;
+
+	SERVER_LOCK();
+
+	srcpsd = NULL;
+
+	type = GsPrepareDrawing(dstid, gc, &dp);
+	if (type == GR_DRAW_TYPE_NONE) {
+		SERVER_UNLOCK();
+		return;
+	}
+
+	dx1 += dp->x;
+	dy1 += dp->y;
+	dx2 += dp->x;
+	dy2 += dp->y;
+
+	swp = GsFindWindow(srcid);
+	if (swp) {
+		srcpsd = swp->psd;
+		sx1 += swp->x;
+		sy1 += swp->y;
+		sx2 += swp->x;
+		sy2 += swp->y;
+	} else {
+		spp = GsFindPixmap(srcid);
+		if (spp)
+			srcpsd = spp->psd;
+	}
+	if (!srcpsd) {
+		SERVER_UNLOCK();
+		return;
+	}
+
+	if (op == MWROP_USE_GC_MODE) {
+		GR_GC *gcp;
+		gcp = GsFindGC(gc);
+		if (gcp == NULL) {
+			op = MWROP_COPY;
+		} else {
+			op = MWMODE_TO_ROP(gcp->mode);
+		}
+	}
+
+	/* perform blit */
+
+	//printf("JGF-Nano-X: GrStretchArea() calling GdStretchBlit()\n");
+	//GdCheckCursor(srcpsd, s1x, s1y, s2x, s2y); /* FIXME*/
+	/*GdStretchBlit(dp->psd, dx, dy, dw, dh,
+	   srcpsd,  sx, sy, sw, sh,
+	   op); */
+	GdStretchBlitEx(dp->psd, dx1, dy1, dx2, dy2,
+			srcpsd, sx1, sy1, sx2, sy2, op);
+	//printf("JGF-Nano-X: GrStretchArea() done GdStretchBlitEx()\n");
+	//GdFixCursor(srcpsd); /* FIXME*/
+
+	SERVER_UNLOCK();
+}
+
+/*
  * Return window parent and list of children.
  * Caller must free() children list after use.
  */

@@ -1,7 +1,7 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Engine-level Screen, Mouse and Keyboard device driver API's and types
@@ -246,9 +246,21 @@ typedef struct {
 	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
 	void	 (*DrawArea)(PSD psd, driver_gc_t *gc, int op);
+	
+	/* Note: StretchBlit() is deprecated, callers should prefer
+	 * StretchBlitEx() if available.  Drivers should just
+	 * implement StretchBlitEx().
+	 */
 	void	 (*StretchBlit)(PSD destpsd, MWCOORD destx, MWCOORD desty,
 			MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
 			MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op);
+	void (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
+				 int dest_x_start, int dest_y_start,
+				 int width, int height,
+				 int x_denominator, int y_denominator,
+				 int src_x_fraction, int src_y_fraction,
+				 int x_step_fraction, int y_step_fraction,
+				 long op);
 } SUBDRIVER, *PSUBDRIVER;
 
 /*
@@ -302,6 +314,13 @@ typedef struct _mwscreendevice {
 	void	(*SetPortrait)(PSD psd,int portraitmode);
 	int	portrait;	 /* screen portrait mode*/
 	PSUBDRIVER orgsubdriver; /* original subdriver for portrait modes*/
+	void 	(*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
+			MWCOORD dest_x_start, MWCOORD dest_y_start,
+			MWCOORD width, MWCOORD height,
+			int x_denominator, int y_denominator,
+			int src_x_fraction, int src_y_fraction,
+			int x_step_fraction, int y_step_fraction,
+			long op);
 } SCREENDEVICE;
 
 /* PSD flags*/
@@ -664,6 +683,9 @@ void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width,
 void	GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 		MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy,
 		MWCOORD srcw, MWCOORD srch, long rop);
+void GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
+		     MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
+		     MWCOORD s2_x, MWCOORD s2_y, long rop);
 int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
 		int planes, int bpp, int *size, int *linelen);
 extern SCREENDEVICE scrdev;

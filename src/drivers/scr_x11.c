@@ -1,6 +1,6 @@
 /*
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
- * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1999 Tony Rogvall <tony@bluetail.com>
  * 	Rewritten to avoid multiple function calls by Greg Haerr
  *      Alpha blending added by Erik Hill
@@ -77,6 +77,13 @@ static void X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 		     long op);
 static void X11_preselect(PSD psd);
 static void X11_drawarea(PSD psd, driver_gc_t * gc, int op);
+static void X11_stretchblitex(PSD dstpsd, PSD srcpsd,
+				int dest_x_start, int dest_y_start,
+				int width, int height,
+				int x_denominator, int y_denominator,
+				int src_x_fraction, int src_y_fraction,
+				int x_step_fraction, int y_step_fraction,
+				long op);
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -99,8 +106,9 @@ SCREENDEVICE scrdev = {
 	gen_freememgc,
 	NULL,			/* StretchBlit subdriver */
 	NULL,			/* SetPortrait */
-	0,				/* int portrait */
+	0,			/* int portrait */
 	NULL,			/* orgsubdriver */
+	X11_stretchblitex,	/* StretchBlitEx subdriver*/
 };
 
 /* called from keyboard/mouse/screen */
@@ -1060,6 +1068,52 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 		 */
 		update_from_savebits(destx, desty, w, h);
 	}
+}
+
+static void
+X11_stretchblitex(PSD dstpsd, PSD srcpsd,
+		    int dest_x_start, int dest_y_start,
+		    int width, int height,
+		    int x_denominator, int y_denominator,
+		    int src_x_fraction, int src_y_fraction,
+		    int x_step_fraction, int y_step_fraction, long op)
+{
+	if (op == MWMODE_NOOP) {
+		return;
+	}
+
+	printf("JGF-Nano-X: X11_stretchblitex( dest=(%d,%d) %dx%d )\n",
+	       dest_x_start, dest_y_start, width, height);
+
+	if (srcpsd->flags & PSF_SCREEN) {
+		/* Use offscreen equivalent as the source */
+		srcpsd = &savebits;
+	}
+
+	if (!(dstpsd->flags & PSF_SCREEN)) {
+		/* memory to memory blit, use offscreen blitter */
+		dstpsd->StretchBlitEx(dstpsd, srcpsd,
+					dest_x_start, dest_y_start,
+					width, height,
+					x_denominator, y_denominator,
+					src_x_fraction, src_y_fraction,
+					x_step_fraction, y_step_fraction, op);
+		return;
+	}
+
+	/* Update "savebits" off-screen buffer */
+	savebits.StretchBlitEx(&savebits, srcpsd,
+				 dest_x_start, dest_y_start,
+				 width, height,
+				 x_denominator, y_denominator,
+				 src_x_fraction, src_y_fraction,
+				 x_step_fraction, y_step_fraction, op);
+
+	/* Since we've already done this into
+	 * the offscreen buffer, we can simply copy it over.
+	 */
+
+	update_from_savebits(dest_x_start, dest_y_start, width, height);
 }
 
 static void

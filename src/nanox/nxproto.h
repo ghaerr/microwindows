@@ -1303,5 +1303,24 @@ typedef struct {
 	MWLOGFONT lf;
 } nxCreateLogFontReq;
 
-#define GrTotalNumCalls         120
+#define GrNumStretchArea           120
+typedef struct {
+	BYTE8 reqType;
+	BYTE8 hilength;
+	UINT16 length;
+	IDTYPE drawid;
+	IDTYPE gcid;
+	INT16 dx1;
+	INT16 dy1;
+	INT16 dx2;
+	INT16 dy2;
+	IDTYPE srcid;
+	INT16 sx1;
+	INT16 sy1;
+	INT16 sx2;
+	INT16 sy2;
+	UINT32 op;
+} nxStretchAreaReq;
+
+#define GrTotalNumCalls         121
 

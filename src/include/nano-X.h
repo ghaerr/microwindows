@@ -712,6 +712,10 @@ void		GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 void            GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
 			GR_COORD srcx, GR_COORD srcy, unsigned long op);
+void		GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1,
+				   GR_COORD dy1, GR_COORD dx2, GR_COORD dy2,
+				   GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1,
+				   GR_COORD sx2, GR_COORD sy2, unsigned long op);
 void		GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_BITMAP *imagebits);
 void		GrDrawImageBits(GR_DRAW_ID id,GR_GC_ID gc,GR_COORD x,GR_COORD y,

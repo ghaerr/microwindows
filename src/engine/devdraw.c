@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -1476,6 +1476,18 @@ GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	extern int clipcount;
 #endif
 
+#if 1 /* FIXME*/
+	/* Use new improved stretchblit if the driver supports it */
+	if (dstpsd->StretchBlitEx) {
+		GdStretchBlitEx(dstpsd, dstx, dsty,
+				dstx + dstw, dsty + dsth,
+				srcpsd, srcx, srcy,
+				srcx + srcw, srcy + srch,
+				rop);
+		return;
+	}
+#endif
+
 g_row_inc = g_col_inc = 0;
 
 	/* check for driver stretch blit implementation*/
@@ -1584,6 +1596,368 @@ g_col_inc = (srcw << 16) / dstw;
 		++prc;
 	}
 	GdFixCursor(dstpsd);
+}
+
+/**
+ * GdStretchBlitEx:
+ * @dstpsd: Drawing surface to draw to.
+ * @d1_x: Destination X co-ordinate of first corner.
+ * @d1_y: Destination Y co-ordinate of first corner.
+ * @d2_x: Destination X co-ordinate of second corner.
+ * @d2_y: Destination Y co-ordinate of second corner.
+ * @srcpsd: Drawing surface to copy from.
+ * @s1_x: Source X co-ordinate of first corner.
+ * @s1_y: Source Y co-ordinate of first corner.
+ * @s2_x: Source X co-ordinate of second corner.
+ * @s2_y: Source Y co-ordinate of second corner.
+ * @rop: Raster operation.
+ *
+ * A proper stretch blit.  Supports flipping the image.
+ * Paramaters are co-ordinates of two points in the source, and
+ * two corresponding points in the destination.  The image is scaled
+ * and flipped as needed to make the two points correspond.  The
+ * top-left corner is drawn, the bottom right one isn't [i.e.
+ * (0,0)-(2,2) specifies a 2x2 rectangle consisting of the points
+ * at (0,0), (0,1), (1,0), (1,1).  It does not include the points
+ * where x=2 or y=2.]
+ *
+ * Raster ops are not yet fully implemented - see the low-level
+ * drivers for details.
+ *
+ * Note that we do not support overlapping blits.
+ */
+void
+GdStretchBlitEx(PSD dstpsd,
+		MWCOORD d1_x, MWCOORD d1_y,
+		MWCOORD d2_x, MWCOORD d2_y,
+		PSD srcpsd,
+		MWCOORD s1_x, MWCOORD s1_y,
+		MWCOORD s2_x, MWCOORD s2_y, long rop)
+{
+	/* Scale factors (as fractions, numerator/denominator) */
+	int src_x_step_numerator;
+	int src_x_step_denominator;
+	int src_y_step_numerator;
+	int src_y_step_denominator;
+
+	/* Clipped dest co-ords */
+	int c1_x;
+	int c1_y;
+	int c2_x;
+	int c2_y;
+
+	/* Initial source co-ordinates, as a fraction (denominators as above) */
+	int src_x_start_exact;
+	int src_y_start_exact;
+
+	/* Used by the clipping code. */
+#if DYNAMICREGIONS
+	int count;
+	MWRECT *prc;
+
+	extern MWCLIPREGION *clipregion;
+#else
+	int count;
+	MWCLIPRECT *prc;
+
+	extern MWCLIPRECT cliprects[];
+	extern int clipcount;
+#endif
+
+	assert(srcpsd);
+	assert(dstpsd);
+
+	/* DPRINTF("Nano-X: GdStretchBlitEx(dst=%x (%d,%d)-(%d,%d), src=%x (%d,%d)-(%d,%d), op=0x%lx\n",
+	           (int) dstpsd, (int) d1_x, (int) d1_y, (int) d2_x, (int) d2_y,
+	           (int) srcpsd, (int) s1_x, (int) s1_y, (int) s2_x, (int) s2_y, rop); */
+
+	/* Sort co-ordinates so d1 is top left, d2 is bottom right. */
+	if (d1_x > d2_x) {
+		register MWCOORD tmp;
+		tmp = d2_x;
+		d2_x = d1_x;
+		d1_x = tmp;
+		tmp = s2_x;
+		s2_x = s1_x;
+		s1_x = tmp;
+	}
+
+	if (d1_y > d2_y) {
+		register MWCOORD tmp;
+		tmp = d2_y;
+		d2_y = d1_y;
+		d1_y = tmp;
+		tmp = s2_y;
+		s2_y = s1_y;
+		s1_y = tmp;
+	}
+
+	if ((d2_x < 0)
+	    || (d2_y < 0)
+	    || (d1_x > dstpsd->xvirtres)
+	    || (d1_y > dstpsd->yvirtres)
+	    || (d1_x == d2_x)
+	    || (d1_y == d2_y)) {
+		/* Destination rectangle is entirely off screen,
+		 * or is zero-sized - bail ASAP
+		 */
+		/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (dest rect offscreen or 0)\n"); */
+		return;
+	}
+
+	/* If we're not stretching or flipping, use the standard blit
+	 * (faster).
+	 */
+	if ((d2_x - d1_x == s2_x - s1_x) && (d2_y - d1_y == s2_y - s1_y)) {
+		GdBlit(dstpsd, d1_x, d1_y, d2_x - d1_x, d2_y - d1_y,
+		       srcpsd, s1_x, s1_y, rop);
+		return;
+	}
+
+	if (!dstpsd->StretchBlitEx) {
+		EPRINTF("GdStretchBlitEx NOT SUPPORTED on this target\n");
+		return;
+	}
+
+	/* Need to preserve original values, so make a copy we can clip. */
+	c1_x = d1_x;
+	c1_y = d1_y;
+	c2_x = d2_x;
+	c2_y = d2_y;
+
+	/* Calculate how far in source co-ordinates is
+	 * equivalent to one pixel in dest co-ordinates.
+	 * This is stored as a fraction (numerator/denominator).
+	 * The numerator may be > denominator.  The numerator
+	 * may be negative, the denominator is always positive.
+	 *
+	 * We need half this distance for some purposes,
+	 * hence the *2.
+	 *
+	 * The +1s are because we care about *sizes*, not
+	 * deltas.  (Without the +1s it just doesn't
+	 * work properly.)
+	 */
+	src_x_step_numerator = (s2_x - s1_x + 1) << 1;
+	src_x_step_denominator = (d2_x - d1_x + 1) << 1;
+	src_y_step_numerator = (s2_y - s1_y + 1) << 1;
+	src_y_step_denominator = (d2_y - d1_y + 1) << 1;
+
+	/* Clip the image so that the destination X co-ordinates
+	 * in c1_x and c2_x map to a point on the source image.
+	 */
+	if ((s1_x < 0) || (s1_x > srcpsd->xvirtres)
+	    || (s2_x < 0) || (s2_x > srcpsd->xvirtres)) {
+		/* Calculate where the left of the source image will end up,
+		 * in dest co-ordinates.
+		 */
+		int i1_x = d1_x - (s1_x * src_x_step_denominator) / src_x_step_numerator;
+
+		/* Calculate where the right of the source image will end up,
+		 * in dest co-ordinates.
+		 */
+		int i2_x = d1_x + ((srcpsd->xvirtres - s1_x) * src_x_step_denominator + src_x_step_denominator - 1) / src_x_step_numerator;
+
+		/* Since we may be doing a flip, "left" and "right" in the statements
+		 * above do not necessarily correspond to "left" and "right" in the
+		 * destination image, which is where we're clipping.  So sort the
+		 * X co-ordinates.
+		 */
+		if (i1_x > i2_x) {
+			register int temp;
+			temp = i1_x;
+			i1_x = i2_x;
+			i2_x = temp;
+		}
+
+		/* Check for total invisibility */
+		if ((c2_x < i1_x) || (c1_x > i2_x)) {
+			/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (source X checks)\n"); */
+			return;
+		}
+
+		/* Perform partial clip */
+		if (c1_x < i1_x)
+			c1_x = i1_x;
+		if (c2_x > i2_x)
+			c2_x = i2_x;
+	}
+
+	/* Clip the image so that the destination Y co-ordinates
+	 * in c1_y and c2_y map to a point on the source image.
+	 */
+	if ((s1_y < 0) || (s1_y > srcpsd->yvirtres)
+	    || (s2_y < 0) || (s2_y > srcpsd->yvirtres)) {
+		/* Calculate where the top of the source image will end up,
+		 * in dest co-ordinates.
+		 */
+		int i1_y = d1_y - (s1_y * src_y_step_denominator) / src_y_step_numerator;
+
+		/* Calculate where the bottom of the source image will end up,
+		 * in dest co-ordinates.
+		 */
+		int i2_y = d1_y + ((srcpsd->yvirtres - s1_y) * src_y_step_denominator + src_y_step_denominator - 1) / src_y_step_numerator;
+
+		/* Since we may be doing a flip, "top" and bottom" in the statements
+		 * above do not necessarily correspond to "top" and bottom" in the
+		 * destination image, which is where we're clipping.  So sort the
+		 * Y co-ordinates.
+		 */
+		if (i1_y > i2_y) {
+			register int temp;
+			temp = i1_y;
+			i1_y = i2_y;
+			i2_y = temp;
+		}
+
+		/* Check for total invisibility */
+		if ((c2_y < i1_y) || (c1_y > i2_y)) {
+			/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (source Y checks)\n"); */
+			return;
+		}
+
+		/* Perform partial clip */
+		if (c1_y < i1_y)
+			c1_y = i1_y;
+		if (c2_y > i2_y)
+			c2_y = i2_y;
+	}
+
+	/* Clip against dest window (NOT dest clipping region). */
+	if (c1_x < 0)
+		c1_x = 0;
+	if (c1_y < 0)
+		c1_y = 0;
+	if (c2_x > dstpsd->xvirtres)
+		c2_x = dstpsd->xvirtres;
+	if (c2_y > dstpsd->yvirtres)
+		c2_y = dstpsd->yvirtres;
+
+	/* Final fully-offscreen check */
+	if ((c1_x >= c2_x)
+	    || (c1_y >= c2_y)) {
+		/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (final check)\n"); */
+		return;
+	}
+
+	/* Well, if we survived that lot, then we now have a destination
+	 * rectangle defined in (c1_x,c1_y)-(c2_x,c2_y).
+	 */
+
+	/* DPRINTF("Nano-X: GdStretchBlitEx: Clipped rect: (%d,%d)-(%d,%d)\n",
+	       (int) c1_x, (int) c1_y, (int) c2_x, (int) c2_y); */
+
+	/* Calculate the position in the source rectange that is equivalent
+	 * to the top-left of the destination rectangle.
+	 */
+	src_x_start_exact = s1_x * src_x_step_denominator
+		+ (c1_x - d1_x) * src_x_step_numerator;
+	src_y_start_exact = s1_y * src_y_step_denominator
+		+ (c1_y - d1_y) * src_y_step_numerator;
+
+	/* OK, clipping so far has been against physical bounds, we now have
+	 * to worry about user defined clip regions.
+	 */
+	switch (GdClipArea(dstpsd, c1_x, c1_y, c2_x - 1, c2_y - 1)) {
+	case CLIP_INVISIBLE:
+		/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (GdClipArea check)\n"); */
+		return;
+	case CLIP_VISIBLE:
+		/* FIXME: check cursor in src region */
+		/* GdCheckCursor(srcpsd, c1_x, c1_y, c2_x-1, c2_y-1); */
+		/* DPRINTF("Nano-X: GdStretchBlitEx: no more clipping needed\n"); */
+		dstpsd->StretchBlitEx(dstpsd,
+					srcpsd,
+					c1_x,
+					c1_y,
+					c2_x - c1_x,
+					c2_y - c1_y,
+					src_x_step_denominator,
+					src_y_step_denominator,
+					src_x_start_exact,
+					src_y_start_exact,
+					src_x_step_numerator,
+					src_y_step_numerator, rop);
+		/* GdFixCursor(srcpsd); */
+		GdFixCursor(dstpsd);
+		return;
+
+	}
+	/* DPRINTF("Nano-X: GdStretchBlitEx: complex clipping needed\n"); */
+
+	/* FIXME: check cursor in src region */
+	/* GdCheckCursor(srcpsd, c1_x, c1_y, c2_x-1, c2_y-1); */
+
+
+	/* Partly clipped, we'll blit using destination clip
+	 * rectangles, and offset the blit accordingly.
+	 * Since the destination is already clipped, we
+	 * only need to clip the source here.
+	 */
+#if DYNAMICREGIONS
+	prc = clipregion->rects;
+	count = clipregion->numRects;
+#else
+	prc = cliprects;
+	count = clipcount;
+#endif
+	while (--count >= 0) {
+		int r1_x, r2_x, r1_y, r2_y;
+
+#if DYNAMICREGIONS
+		r1_x = prc->left;
+		r1_y = prc->top;
+		r2_x = prc->right;
+		r2_y = prc->bottom;
+#else
+		r1_x = prc->x;
+		r1_y = prc->y;
+		r2_x = prc->x + prc->width;
+		r2_y = prc->y + prc->height;
+#endif
+
+		/* Check:  does this rect intersect the one we want to draw? */
+		/* Clip r1-r2 so it's inside c1-c2 */
+		if (r1_x < c1_x)
+			r1_x = c1_x;
+		if (r1_y < c1_y)
+			r1_y = c1_y;
+		if (r2_x > c2_x)
+			r2_x = c2_x;
+		if (r2_y > c2_y)
+			r2_y = c2_y;
+
+		if ((r1_x < r2_x) && (r1_y < r2_y)) {
+			/* So we're drawing to:
+			 * destination rectangle (r1_x, r1_y) - (r2_x, r2_y)
+			 * source start co-ords:
+			 * x = src_x_start_exact + (r1_x - c1_x)*src_x_step_numerator
+			 * y = src_y_start_exact + (r1_y - c1_y)*src_y_step_numerator
+			 */
+
+			/* check cursor in dest region */
+			GdCheckCursor(dstpsd, r1_x, r1_y, r2_x - 1,
+					  r2_y - 1);
+			dstpsd->StretchBlitEx(dstpsd,
+						srcpsd,
+						r1_x,
+						r1_y,
+						r2_x - r1_x,
+						r2_y - r1_y,
+						src_x_step_denominator,
+						src_y_step_denominator,
+						src_x_start_exact + (r1_x - c1_x) * src_x_step_numerator,
+						src_y_start_exact + (r1_y - c1_y) * src_y_step_numerator,
+						src_x_step_numerator,
+						src_y_step_numerator,
+						rop);
+		}
+		++prc;
+	}
+	GdFixCursor(dstpsd);
+	/* GdFixCursor(srcpsd); */
+
+	return;
 }
 
 /*

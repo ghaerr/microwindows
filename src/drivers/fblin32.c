@@ -159,6 +159,10 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	slinelen_minus_w4 = (slinelen - w) * 4;
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
+			/* FIXME: This doesn't look endian-neutral.
+			 * I don't think this'll work on PowerPC,
+			 * but I don't have one to test it.
+			 */
 			register unsigned long s = *src8++;
 			register unsigned long d = *dst8;
 			*dst8++ = (unsigned char)(((s - d)*alpha)>>8) + d;
@@ -270,6 +274,267 @@ linear32_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	DRAWOFF;
 }
 
+
+/*
+ * This stretchblit code was originally written for the TriMedia
+ * VLIW CPU.  Therefore it uses RESTRICT pointers, and the special
+ * one-assembler-opcode pseudo-functions SIGN and ABS.
+ *
+ * (The 'restrict' extension is in C99, so for a C99 compiler you
+ * could "#define RESTRICT restrict" or put
+ * "CFLAGS += -DRESTRICT=restrict" in the makefile).
+ *
+ * Compatibility definitions:
+ */
+#ifndef RESTRICT
+#define RESTRICT
+#endif
+#ifndef SIGN
+#define SIGN(x) (((x) > 0) ? 1 : (((x) == 0) ? 0 : -1))
+#endif
+#ifndef ABS
+#define ABS(x) (((x) >= 0) ? (x) : -(x))
+#endif
+
+/* Blit a 32-bit image.
+ * Can stretch the image by any X and/or Y scale factor.
+ * Can flip the image in the X and/or Y axis.
+ *
+ * This is the faster version with no per-pixel multiply and a single
+ * decision tree for the inner loop, by Jon.  Based on Alex's original
+ * all-integer version.
+ *
+ * Paramaters:
+ * srf              - Dest surface
+ * dest_x_start
+ * dest_y_start    - Top left corner of dest rectangle
+ * width, height   - Size in dest co-ordinates.
+ * x_denominator   - Denominator for source X value fractions.  Note that
+ *                   this must be even, and all the numerators must also be
+ *                   even, so we can easily divide by 2.
+ * y_denominator   - Denominator for source Y value fractions.  Note that
+ *                   this must be even, and all the numerators must also be
+ *                   even, so we can easily divide by 2.
+ * src_x_fraction  -
+ * src_y_fraction  - Point in source that corresponds to the top left corner
+ *                   of the pixel (dest_x_start, dest_y_start).  This is a
+ *                   fraction - to get a float, divide by y_denominator.
+ * x_step_fraction - X step in src for an "x++" step in dest.  May be negative
+ *                   (for a flip).  Expressed as a fraction - divide it by
+ *                   x_denominator for a float.
+ * y_step_fraction - Y step in src for a  "y++" step in dest.  May be negative
+ *                   (for a flip).  Expressed as a fraction - divide it by
+ *                   y_denominator for a float.
+ * image           - Source image.
+ * op              - Raster operation, currently ignored.
+ */
+static void
+linear32_stretchblitex(PSD dstpsd,
+			 PSD srcpsd,
+			 int dest_x_start,
+			 int dest_y_start,
+			 int width,
+			 int height,
+			 int x_denominator,
+			 int y_denominator,
+			 int src_x_fraction,
+			 int src_y_fraction,
+			 int x_step_fraction,
+			 int y_step_fraction,
+			 long op)
+{
+	/* Pointer to the current pixel in the source image */
+	unsigned long *RESTRICT src_ptr;
+
+	/* Pointer to x=xs1 on the next line in the source image */
+	unsigned long *RESTRICT next_src_ptr;
+
+	/* Pointer to the current pixel in the dest image */
+	unsigned long *RESTRICT dest_ptr;
+
+	/* Pointer to x=xd1 on the next line in the dest image */
+	unsigned long *next_dest_ptr;
+
+	/* Keep track of error in the source co-ordinates */
+	int x_error;
+	int y_error;
+
+	/* 1-unit steps "forward" through the source image, as steps in the image
+	 * byte array.
+	 */
+	int src_x_step_one;
+	int src_y_step_one;
+
+	/* normal steps "forward" through the source image, as steps in the image
+	 * byte array.
+	 */
+	int src_x_step_normal;
+	int src_y_step_normal;
+
+	/* 1-unit steps "forward" through the source image, as steps in the image
+	 * byte array.
+	 */
+	int x_error_step_normal;
+	int y_error_step_normal;
+
+	/* Countdown to the end of the destination image */
+	int x_count;
+	int y_count;
+
+	/* Start position in source, in whole pixels */
+	int src_x_start;
+	int src_y_start;
+
+	/* Error values for start X position in source */
+	int x_error_start;
+
+	/* 1-unit step down dest, in bytes. */
+	int dest_y_step;
+
+	/*printf("JGF-Nano-X: linear32_stretchflipblit( dest=(%d,%d) %dx%d )\n",
+	       dest_x_start, dest_y_start, width, height);*/
+
+	/* We add half a dest pixel here so we're sampling from the middle of
+	 * the dest pixel, not the top left corner.
+	 */
+	src_x_fraction += (x_step_fraction >> 1);
+	src_y_fraction += (y_step_fraction >> 1);
+
+	/* Seperate the whole part from the fractions.
+	 *
+	 * Also, We need to do lots of comparisons to see if error values are
+	 * >= x_denominator.  So subtract an extra x_denominator for speed - then
+	 * we can just check if it's >= 0.
+	 */
+	src_x_start = src_x_fraction / x_denominator;
+	src_y_start = src_y_fraction / y_denominator;
+	x_error_start = src_x_fraction - (src_x_start + 1) * x_denominator;
+	y_error = src_y_fraction - (src_y_start + 1) * y_denominator;
+
+	/* precalculate various deltas */
+
+	src_x_step_normal = x_step_fraction / x_denominator;
+	src_x_step_one = SIGN(x_step_fraction);
+	x_error_step_normal =
+		ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
+
+	src_y_step_normal = y_step_fraction / y_denominator;
+	src_y_step_one = SIGN(y_step_fraction) * srcpsd->linelen;
+	y_error_step_normal =
+		ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
+	src_y_step_normal *= srcpsd->linelen;
+
+	/* printf("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
+	   src_x_step_one, x_denominator, src_x_step_normal, x_error_step_normal,
+	   src_y_step_one, y_denominator, src_y_step_normal, y_error_step_normal);
+	 */
+
+	/* Pointer to the first source pixel */
+	next_src_ptr =
+		((unsigned long *) srcpsd->addr) +
+		src_y_start * srcpsd->linelen + src_x_start;
+
+	/* Cache the width of a scanline in dest */
+	dest_y_step = dstpsd->linelen;
+
+	/* Pointer to the first dest pixel */
+	next_dest_ptr =
+		((unsigned long *) dstpsd->addr) +
+		(dest_y_start * dest_y_step) + dest_x_start;
+
+	/*
+	 * Note: The MWROP_SRC case below is a simple expansion of the
+	 * default case.  It can be removed without significant speed
+	 * penalty if you need to reduce code size.
+	 *
+	 * The MWROP_CLEAR case could be removed.  But it is a large
+	 * speed increase for a small quantity of code.
+	 */
+	switch (op & MWROP_EXTENSION) {
+	case MWROP_SRC:
+		/* Benchmarking shows that this while loop is faster than the equivalent
+		 * for loop: for(y_count=0; y_count<height; y_count++) { ... }
+		 */
+		y_count = height;
+		while (y_count-- > 0) {
+			src_ptr = next_src_ptr;
+			dest_ptr = next_dest_ptr;
+
+			x_error = x_error_start;
+
+			x_count = width;
+			while (x_count-- > 0) {
+				*dest_ptr++ = *src_ptr;
+
+				src_ptr += src_x_step_normal;
+				x_error += x_error_step_normal;
+
+				if (x_error >= 0) {
+					src_ptr += src_x_step_one;
+					x_error -= x_denominator;
+				}
+			}
+
+			next_dest_ptr += dest_y_step;
+
+			next_src_ptr += src_y_step_normal;
+			y_error += y_error_step_normal;
+
+			if (y_error >= 0) {
+				next_src_ptr += src_y_step_one;
+				y_error -= y_denominator;
+			}
+		}
+		break;
+
+	case MWROP_CLEAR:
+		y_count = height;
+		while (y_count-- > 0) {
+			dest_ptr = next_dest_ptr;
+			x_count = width;
+			while (x_count-- > 0) {
+				*dest_ptr++ = 0;
+			}
+			next_dest_ptr += dest_y_step;
+		}
+		break;
+
+	default:
+		y_count = height;
+		while (y_count-- > 0) {
+			src_ptr = next_src_ptr;
+			dest_ptr = next_dest_ptr;
+
+			x_error = x_error_start;
+
+			x_count = width;
+			while (x_count-- > 0) {
+				applyOp(MWROP_TO_MODE(op), *src_ptr, dest_ptr, ADDR32);
+				dest_ptr++;
+
+				src_ptr += src_x_step_normal;
+				x_error += x_error_step_normal;
+
+				if (x_error >= 0) {
+					src_ptr += src_x_step_one;
+					x_error -= x_denominator;
+				}
+			}
+
+			next_dest_ptr += dest_y_step;
+
+			next_src_ptr += src_y_step_normal;
+			y_error += y_error_step_normal;
+
+			if (y_error >= 0) {
+				next_src_ptr += src_y_step_one;
+				y_error -= y_denominator;
+			}
+		}
+		break;
+
+	}
+}
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 /* psd->DrawArea operation PSDOP_BITMAP_BYTES_LSB_FIRST which
@@ -844,5 +1109,6 @@ SUBDRIVER fblinear32 = {
 	gen_fillrect,
 	linear32_blit,
 	linear32_drawarea,
-	linear32_stretchblit
+	linear32_stretchblit,
+	linear32_stretchblitex,
 };

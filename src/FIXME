@@ -1,3 +1,5 @@
+change int to MWCOORD in StretchBlitEx parms, fix StretchBlitEx
+	remove StretchBlit
 eliminate FS_FREETYPE
 add GdGetTextSizeEx, add entry points for GdGetFontList, GdFreeFontList
 add release new fonts tar file

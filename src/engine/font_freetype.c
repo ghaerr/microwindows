@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Freetype TrueType routines originally contributed by Martin Jolicoeur

@@ -1469,6 +1469,20 @@ GrSetGCBackgroundUsingPaletteWrapper(void *r)
 	GrSetGCBackgroundUsingPalette(req->gcid, req->color);
 }
 
+static void
+GrStretchAreaWrapper(void *r)
+{
+	nxStretchAreaReq *req = r;
+
+	GrStretchArea(req->drawid, req->gcid,
+		      req->dx1, req->dy1,
+		      req->dx2, req->dy2,
+		      req->srcid,
+		      req->sx1, req->sy1,
+		      req->sx2, req->sy2,
+		      req->op);
+}
+
 void GrShmCmdsFlushWrapper(void *r);
 
 /*
@@ -1598,6 +1612,7 @@ struct GrFunction {
 	/* 117 */ {GrSetGCForegroundUsingPaletteWrapper, "GrSetGCFgPalette"},
 	/* 118 */ {GrSetGCBackgroundUsingPaletteWrapper, "GrSetGCBgPalette"},
 	/* 119 */ {GrCreateLogFontWrapper, "GrCreateLogFont"},
+	/* 120 */ {GrStretchAreaWrapper, "GrStretchArea"},
 };
 
 void

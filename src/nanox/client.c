@@ -4085,3 +4085,58 @@ GrSetGCBackgroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL background)
 	req->color = background;
 	UNLOCK(&nxGlobalLock);
 }
+
+/**
+ * GrStretchArea:
+ * @dstid: the ID of the drawable to copy the area to
+ * @gc: the ID of the graphics context to use when copying the area
+ * @dx1: the X coordinate of the first point describing the destination area
+ * @dy1: the Y coordinate of the first point describing the destination area
+ * @dx2: the X coordinate of the second point describing the destination area
+ * @dy2: the Y coordinate of the second point describing the destination area
+ * @srcid: the ID of the drawable to copy the area from
+ * @sx1: the X coordinate of the first point describing the source area
+ * @sy1: the Y coordinate of the first point describing the source area
+ * @sx2: the X coordinate of the second point describing the source area
+ * @sy2: the Y coordinate of the second point describing the source area
+ * @op: the ROP codes to pass to the blitter when performing the copy
+ *
+ * Copies a region from one drawsable to another.  Can stretch and/or flip
+ * the image.  The stretch/flip maps (sx1,sy1) in the source to (dx1,dy1)
+ * in the destination, and similarly (sx2,sy2) in the source maps to
+ * (dx2,dy2) in the destination.  Both horizontal and vertical flips are
+ * supported.
+ *
+ * Note that the bottom and right rows of pixels are excluded - i.e. a
+ * target of (0,0)-(2,2) will not draw pixels with y=2 or x=2.
+ *
+ * 0 is a sensible default ROP code in most cases.
+ */
+void
+GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
+	      GR_COORD dx1, GR_COORD dy1,
+	      GR_COORD dx2, GR_COORD dy2,
+	      GR_DRAW_ID srcid,
+	      GR_COORD sx1, GR_COORD sy1,
+	      GR_COORD sx2, GR_COORD sy2,
+	      unsigned long op)
+{
+	nxStretchAreaReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(StretchArea);
+	req->drawid = dstid;
+	req->gcid = gc;
+	req->dx1 = dx1;
+	req->dy1 = dy1;
+	req->dx2 = dx2;
+	req->dy2 = dy2;
+	req->srcid = srcid;
+	req->sx1 = sx1;
+	req->sy1 = sy1;
+	req->sx2 = sx2;
+	req->sy2 = sy2;
+	req->op = op;
+	UNLOCK(&nxGlobalLock);
+}
+

@@ -51,6 +51,15 @@ static void	null_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,
 			long op) {}
 static void 	null_drawarea(PSD psd, driver_gc_t *gc, int op) {}
+static void	null_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty,
+			MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
+			MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op) {}
+static void	null_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
+			MWCOORD dest_y_start, MWCOORD width, MWCOORD height,
+			int x_denominator, int y_denominator,
+			int src_x_fraction, int src_y_fraction,
+			int x_step_fraction, int y_step_fraction, long op) {}
+
 static SUBDRIVER nulldriver = {
 	NULL,
 	null_drawpixel,
@@ -59,7 +68,9 @@ static SUBDRIVER nulldriver = {
 	null_drawvertline,
 	null_fillrect,
 	null_blit,
-	null_drawarea
+	null_drawarea,
+	null_stretchblit,
+	null_stretchblitex
 };
 
 static void

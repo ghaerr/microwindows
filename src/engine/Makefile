@@ -39,6 +39,10 @@ ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
 OBJS += font_freetype2.o
 endif
 
+ifeq ($(HAVE_FNT_SUPPORT), Y)
+OBJS += font_fnt.o
+endif
+
 ifeq ($(HAVE_PCF_SUPPORT), Y)
 OBJS += font_pcf.o
 endif

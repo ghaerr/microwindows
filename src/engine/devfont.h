@@ -25,6 +25,8 @@ void alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 	unsigned char *alpha, int count);
 
 /* font engine entry points*/
+PMWCOREFONT fnt_createfont(char *name, MWCOORD height, int attr);
+
 #if HAVE_T1LIB_SUPPORT
 typedef struct MWT1LIBFONT 	*PMWT1LIBFONT;
 int  t1lib_init(PSD psd);

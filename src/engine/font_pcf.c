@@ -624,18 +624,7 @@ leave_func:
 	if (err == 0 && pf)
 		return pf;
 
-	if (pf->cfont) {
-		if (pf->cfont->bits)
-			free(pf->cfont->bits);
-		if (pf->cfont->offset)
-			free(pf->cfont->offset);
-		if (pf->cfont->width)
-			free(pf->cfont->width);
-
-		free(pf->cfont);
-	}
-
-	free(pf);
+	pcf_unloadfont((PMWFONT)pf);
 	return 0;
 }
 

@@ -109,6 +109,17 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 			goto first;
   	}
 
+#ifdef HAVE_FNT_SUPPORT
+	if (fontclass == MWLF_CLASS_ANY) {
+		pfont = (PMWFONT) fnt_createfont(fontname, height, fontattr);
+		if (pfont) {
+			printf("fnt_createfont: using font %s\n", fontname);
+			return(pfont);
+		}
+		printf("fnt_createfont: %s,%d not found\n", fontname, height);
+	}
+#endif
+
 #if HAVE_HZK_SUPPORT
         /* Make sure the library is initialized */
 	if (hzk_init(psd)) {

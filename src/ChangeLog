@@ -1,4 +1,5 @@
 Version 0.89pl11 - 06 Apr 2003 - greg@censoft.com
+	* added native loadable .fnt support (use fonts/convbdf.c -f to create)
 	* added enhanced fonts/convbdf, fonts/convbdf.c:
 		- allows fonts with > 256 chars
 		- allows fonts with bitmap offsets > 64k (offset now long array)

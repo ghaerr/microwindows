@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  *
  * Loadable font demo for Microwindows
  *
@@ -30,6 +30,13 @@
 #elif HAVE_HZK_SUPPORT
 #define MAXFONTS 1
 #define FONT1 "HZXFONT"
+#define FONT2 ""
+#define FONT3 ""
+#define FONT4 ""
+#define FONT5 ""
+#elif HAVE_FNT_SUPPORT
+#define MAXFONTS 1
+#define FONT1 "/tmp/helvB12.fnt"
 #define FONT2 ""
 #define FONT3 ""
 #define FONT4 ""

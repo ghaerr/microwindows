@@ -78,6 +78,13 @@ void GsError(GR_ERROR code, GR_ID id)
 	if (!curclient)
 		return;
 
+	/* 
+	 * If we ran out of memory, another call to GsAllocEvent will
+	 * simply get us back here, so don't bother trying to report the event.
+	 */
+	if (code == GR_ERROR_MALLOC_FAILED)
+		return;
+
 	/* queue the error event regardless of GrSelectEvents*/
 	ep = (GR_EVENT_ERROR *)GsAllocEvent(curclient);
 	ep->type = GR_EVENT_TYPE_ERROR;

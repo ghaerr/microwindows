@@ -1,3 +1,4 @@
+	* added various freetype 2 changes (Jonathan)
 	* added 4bpp nibble-flipped driver (fblin4orion.c) (David)
 	* fixed GsAllocEvent/GsError OOM recursive loop (Aaron)
 	* added big-endian support for PCF fonts (Jordan, Klaus)

@@ -14,6 +14,18 @@
  * contributions.
  */
 
+/*
+ * Note on FreeType versions:
+ * 2.0.9 - worked (not tested recently)
+ * 2.1.0 - not tested
+ * 2.1.1 - worked (switch CONFIG_OPTION_USE_CMAPS off if your fonts are
+ *         rejected as invalid).
+ * 2.1.2 - avoid this release.  Rotations were the wrong way.  There is
+ *         no way to test for this and correct it, because this version of
+ *         the library mis-reports the version number as 2.1.1.
+ * 2.1.3 - works.
+ */
+
 /*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,9 +54,9 @@ extern MWBOOL gr_usebg;
  *
  * It is STRONGLY recommended that you turn this option on,
  * as to will give a HUGE speed boost.  If you are using many
- * MicroWindows font objects, this can also save memory.
- * (There is a single cache shared across the system, and it
- * has a fixed memory usage.  Without caching, memory use is
+ * Microwindows font objects, this can also save memory (since
+ * there is a single cache with a fixed size shared across
+ * the system, but the memory use without caching is
  * proportional to the number of MWFREETYPE2FONT objects).
  *
  * FIXME: This option should be in the config file.
@@ -84,14 +96,53 @@ extern MWBOOL gr_usebg;
 # endif
 #endif
 
-/*
+/* Checking FreeType version numbers */
+
+/**
+ * Change a major.minor.patch version number into a single number, which
+ * is much simpler to compare.
+ *
+ * If the paramaters are compile-time constants, then the result is also
+ * a compile-time constant (and so can be used in #if statements).
+ *
+ * @param major Version number part
+ * @param minor Version number part
+ * @param patch Version number part
+ * @return Single version number
+ */
+#define SIMPLIFY_VERSION_NUMBER(major,minor,patch) \
+	((major)*0x01000000UL + (minor)*0x01000UL + (patch)*0x01UL)
+
+/**
+ * The FreeType version number, in simplified format.
+ */
+#define FREETYPE_VERSION_NUMBER_SIMPLE \
+	SIMPLIFY_VERSION_NUMBER(FREETYPE_MAJOR,FREETYPE_MINOR,FREETYPE_PATCH)
+
+/**
+ * TRUE if the FreeType version number is equal to or greater than the
+ * specified version.
+ *
+ * If the paramaters are compile-time constants, then the result is also
+ * a compile-time constant (and so can be used in #if statements).
+ *
+ * @param major Version number part
+ * @param minor Version number part
+ * @param patch Version number part
+ * @return Single version number
+ */
+#define HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(major,minor,patch) \
+	(FREETYPE_VERSION_NUMBER_SIMPLE >= SIMPLIFY_VERSION_NUMBER(major,minor,patch))
+
+
+#ifndef FREETYPE_FONT_DIR
+/**
  * The default Freetype font directory.
  */
-#ifndef FREETYPE_FONT_DIR
 #define FREETYPE_FONT_DIR "/usr/local/microwin/fonts"
 #endif
 
-/*
+/**
  * The Freetype 2 font directory.
  */
 char *freetype2_font_dir;
@@ -132,7 +183,11 @@ struct MWFREETYPE2FONT_STRUCT
 	char *filename;		/* NULL if buffered */
 	freetype2_fontdata *faceid;	/* only used if HAVE_FREETYPE_2_CACHE or buffered. */
 #if HAVE_FREETYPE_2_CACHE
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
+	FTC_ImageTypeRec imagedesc;
+#else
 	FTC_ImageDesc imagedesc;
+#endif
 #if HAVE_FREETYPE_2_CMAP_CACHE
 	FTC_CMapDescRec cmapdesc;
 #endif
@@ -157,7 +212,10 @@ static void freetype2_setfontattr(PMWFONT pfont, int setflags, int clrflags);
 static PMWFONT freetype2_duplicate(PMWFONT psrcfont, MWCOORD fontsize);
 #endif
 
-/* handling routines for MWFREETYPE2FONT*/
+
+/**
+ * The virtual method table for FreeType 2 fonts (i.e. class MWFREETYPE2FONT).
+ */
 static MWFONTPROCS freetype2_procs = {
 	MWTF_UC16,		/* routines expect unicode 16 */
 	freetype2_getfontinfo,
@@ -170,34 +228,19 @@ static MWFONTPROCS freetype2_procs = {
 	freetype2_setfontattr,
 };
 
-static FT_Library freetype2_library = NULL;	/* THE ONLY freetype library instance */
-
-
-/****************************************************************************/
-/* FreeType 2.x                                                             */
-/****************************************************************************/
-
-#if 0				/* Old fake anti-aliasing */
-/* 16 colors to use for alpha blending, from
- * freetype2_gray_palette[0]   = background to
- * freetype2_gray_palette[15] = foreground.
- */
-static OUTPIXELVAL freetype2_gray_palette[16];
-
-
-static unsigned char freetype2_alpha_levels[16] = {
-	0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-	0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
-};
-#endif /* Old fake anti-aliasing */
-
 
 static PMWFREETYPE2FONT
 freetype2_createfont_internal(freetype2_fontdata * faceid,
 			      char *filename, MWCOORD height);
 
+
+/**
+ * The freetype library instance - a singleton.
+ */
+static FT_Library freetype2_library = NULL;
+
 #if HAVE_FREETYPE_2_CACHE
-/*
+/**
  * The Freetype 2 cache subsystem requires a 1-1 mapping
  * between "void *" pointers and actual font files.  The
  * only almost-sane way to do this is to have a linked list
@@ -207,12 +250,73 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
  */
 static freetype2_fontdata *freetype2_fonts = NULL;
 
+/**
+ * The FreeType 2 cache.
+ */
 static FTC_Manager freetype2_cache_manager;
+
+/**
+ * The FreeType 2 cache for glyph bitmaps.
+ */
 static FTC_SBitCache freetype2_cache_sbit;
+
 #if HAVE_FREETYPE_2_CMAP_CACHE
+/**
+ * The FreeType 2 cache for charater->glyph mappings.
+ */
 static FTC_CMapCache freetype2_cache_cmap;
 #endif
 
+
+#if HAVE_FREETYPE_2_CMAP_CACHE
+/**
+ * Look up a glyph index from a character code.
+ * There are two implementations of this macro, which one is used
+ * depends on the setting of HAVE_FREETYPE_2_CMAP_CACHE
+ *
+ * @param pf_   The Microwindows font
+ * @param face_ The equivalent FreeType 2 font
+ * @param ch_   The character to look up
+ * @return      The glyph index.
+ */
+#define LOOKUP_CHAR(pf_,face_,ch_) \
+	(FTC_CMapCache_Lookup(freetype2_cache_cmap, \
+	&((pf_)->cmapdesc), \
+	(ch_)))
+
+#else
+#define LOOKUP_CHAR(pf_,face_,ch_) \
+	(FT_Get_Char_Index((face_), (ch_)))
+#endif
+
+/**
+ * The FreeType 2 sbit cache does not support bitmaps >256x256.
+ * For fonts up to and including the following height, use the cache.
+ * For larger fonts, do it the slow way.
+ *
+ * Note: Should probably detect this using the maximum ascent and
+ *       maximum descent values.  FIXME.
+ */
+#define FREETYPE2_CACHE_FONT_SIZE_LIMIT 100
+
+/**
+ * Test if a font can use the FreeType 2 cache.
+ *
+ * To use the cache, there must be no rotation, and the font must be
+ * small enough for the bitmaps to be supported (i.e. it must be under
+ * FREETYPE2_CACHE_FONT_SIZE_LIMIT).
+ */
+#define CAN_USE_FT2_CACHE(pf_) \
+    (((pf_)->fontrotation == 0) && \
+     ((pf_)->fontsize < FREETYPE2_CACHE_FONT_SIZE_LIMIT))
+
+
+/**
+ * Called from the FreeType 2 cache to load a font file.
+ *
+ * @param face_id The font ID.  This is a pointer to a freetype2_fontdata structure.
+ * @param library the FreeType library instance.
+ */
 static FT_Error
 freetype2_face_requester(FTC_FaceID face_id,
 			 FT_Library library,
@@ -220,26 +324,35 @@ freetype2_face_requester(FTC_FaceID face_id,
 {
 	freetype2_fontdata *fontdata = (freetype2_fontdata *) face_id;	// simple typecast
 
+	assert(fontdata);
+
 	if (fontdata->isBuffer) {
-		/*char * buffer = fontdata->data.buffer.data;
-		   printf ("Font magic = '%c%c%c%c', len = %u @ freetype2_face_requester\n", 
+		unsigned char * buffer = fontdata->data.buffer.data;
+		unsigned length = fontdata->data.buffer.length;
+		/* DPRINTF("Font magic = '%c%c%c%c', len = %u @ freetype2_face_requester\n", 
 		   (char)buffer[0], (char)buffer[1],
 		   (char)buffer[2], (char)buffer[3],
-		   (unsigned)fontdata->data.buffer.length); */
-		return FT_New_Memory_Face(library, fontdata->data.buffer.data,
-					  fontdata->data.buffer.length, 0,
-					  aface);
+		   length); */
+		assert(buffer);
+		return FT_New_Memory_Face(library, buffer, length, 0, aface);
 	} else {
-		/*printf ("Loading font from file '%s' @ freetype2_face_requester\n", 
-		   fontdata->data.filename); */
-		return FT_New_Face(library, fontdata->data.filename, 0,
-				   aface);
+		char * filename = fontdata->data.filename;
+		/* DPRINTF("Loading font from file '%s' @ freetype2_face_requester\n", 
+		   filename); */
+		assert(filename);
+		return FT_New_Face(library, filename, 0, aface);
 	}
 }
 #endif
 
 
-/* Initialization */
+/**
+ * Initialize the FreeType 2 driver.  If successful, this is a one-time
+ * operation. Subsequent calls will do nothing, successfully.
+ *
+ * @param psd Unused.
+ * @return 0 on error, nonzero on success.
+ */
 int
 freetype2_init(PSD psd)
 {
@@ -311,6 +424,16 @@ freetype2_init(PSD psd)
 	return 1;
 }
 
+/**
+ * Create a font from a disk file.
+ *
+ * @param name The font file name or path.  If no directory is specified,
+ *             freetype2_font_dir will be prepended.  If no extension is
+ *             specified, ".ttf" will be added.
+ * @param height The height of the font, in pixels.
+ * @param attr The font attributes - a bitmask.
+ * @return The new font, or NULL on error.
+ */
 PMWFREETYPE2FONT
 freetype2_createfont(const char *name, MWCOORD height, int attr)
 {
@@ -349,14 +472,14 @@ freetype2_createfont(const char *name, MWCOORD height, int attr)
 		strcat(fontname, ".ttf");
 	}
 #if HAVE_FREETYPE_2_CACHE
-	for (faceid = freetype2_fonts; (faceid != NULL)
-	     && (0 != strcmpi(faceid->data.filename, fontname));
-	     faceid = faceid->next) {
-		/* No-op (loop condition and step do everything we need) */
+	faceid = freetype2_fonts;
+	while ( (faceid != NULL) && (0 != strcmpi(faceid->data.filename, fontname)) )
+	{
+		faceid = faceid->next;
 	}
 	if (faceid == NULL) {
 		/* Not found in list, so add it. */
-		printf("JGF-Nano-X: Adding new font: %s\n", fontname);
+		DPRINTF("Nano-X-Freetype2: Adding new font: %s\n", fontname);
 		faceid = (freetype2_fontdata *) calloc(sizeof(*faceid), 1);
 		if (faceid == NULL) {
 			free(fontname);
@@ -402,13 +525,23 @@ freetype2_createfont(const char *name, MWCOORD height, int attr)
 }
 
 #if 0 /* FIXME Nano-X doesn't have an API for this feature */
+/**
+ * Create a font from a memory buffer.
+ *
+ * @param buffer The font data.  This will be copied by this function.
+ * @param length The length of the font data.
+ * @param height The height of the font, in pixels.
+ * @return The new font, or NULL on error.
+ */
 PMWFREETYPE2FONT
-freetype2_createfontfrombuffer(unsigned char *buffer,
+freetype2_createfontfrombuffer(const unsigned char *buffer,
 			       unsigned length, MWCOORD height)
 {
 	PMWFREETYPE2FONT pf;
 	freetype2_fontdata *faceid = NULL;
 	unsigned char *buffercopy;
+
+	assert(buffer);
 
 	/* Initialization */
 	if (freetype2_library == NULL) {
@@ -434,7 +567,7 @@ freetype2_createfontfrombuffer(unsigned char *buffer,
 	faceid->data.buffer.data = buffercopy;
 	faceid->refcount = 1;
 
-	/*printf ("Font magic = '%c%c%c%c', len = %u @ freetype2_createfontfrombuffer\n", 
+	/*DPRINTF("Font magic = '%c%c%c%c', len = %u @ freetype2_createfontfrombuffer\n", 
 	   (char)buffercopy[0], (char)buffercopy[1],
 	   (char)buffercopy[2], (char)buffercopy[3],
 	   length); */
@@ -448,11 +581,30 @@ freetype2_createfontfrombuffer(unsigned char *buffer,
 }
 #endif
 
+/**
+ * Finish loading a font.  This is used for both disk-based and
+ * memory-based fonts.
+ *
+ * Allocates the actual PMWFREETYPE2FONT structure, fills it in, and
+ * actually loads the font using FreeType 2 to check the font is valid.
+ *
+ * @param faceid   Information on how to load the font.
+ * @param filename The filename, or NULL if loaded from memory.
+ * @param height   The font height in pixels.
+ * @return The new font, or NULL on error.
+ *
+ * @internal
+ */
 static PMWFREETYPE2FONT
 freetype2_createfont_internal(freetype2_fontdata * faceid,
 			      char *filename, MWCOORD height)
 {
 	PMWFREETYPE2FONT pf;
+#if HAVE_FREETYPE_2_CACHE
+	FT_Face face;
+	FT_Size size;
+#endif
+	FT_Error error;
 
 	/* allocate font structure */
 	pf = (PMWFREETYPE2FONT) calloc(sizeof(MWFREETYPE2FONT), 1);
@@ -467,7 +619,11 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 	pf->imagedesc.font.face_id = faceid;
 	pf->imagedesc.font.pix_width = 0;	/* Will be set by GdSetFontSize */
 	pf->imagedesc.font.pix_height = 0;	/* Will be set by GdSetFontSize */
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
+	pf->imagedesc.flags = 0;	/* Will be set by GdSetFontAttr */
+#else
 	pf->imagedesc.type = 0;	/* Will be set by GdSetFontAttr */
+#endif
 #if HAVE_FREETYPE_2_CMAP_CACHE
 	pf->cmapdesc.face_id = faceid;
 	pf->cmapdesc.type = FTC_CMAP_BY_ENCODING;
@@ -476,24 +632,28 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 #else
 	/* Load face */
 	if (filename) {
-		if (FT_New_Face(freetype2_library, filename, 0, &pf->face) !=
-		    FT_Err_Ok) {
-			EPRINTF("JGF-Nano-X: Can't load font from file \"%s\"\n", filename);
+		error = FT_New_Face(freetype2_library, filename, 0, &pf->face);
+		if (error != FT_Err_Ok) {
+			EPRINTF("Nano-X-Freetype2: Can't load font from file \"%s\" - %lx\n",
+			        filename, (unsigned long) error);
 			goto out;
 		}
-		/*printf("JGF-Nano-X: Loading font from file \"%s\"\n", filename); */
+		/*DPRINTF("Nano-X-Freetype2: Loading font from file \"%s\"\n", filename); */
 	} else {
-		if (FT_New_Memory_Face
-		    (freetype2_library, buffer, length, 0,
-		     &pf->face) != FT_Err_Ok) {
-			EPRINTF("JGF-Nano-X: Can't load font from memory\n");
+		error = FT_New_Memory_Face(freetype2_library,
+		    buffer, length, 0, &pf->face);
+		if (error != FT_Err_Ok) {
+			EPRINTF("Nano-X-Freetype2: Can't load font from memory - %lx\n",
+			    (unsigned long) error);
 			goto out;
 		}
-		/*printf("JGF-Nano-X: Loading font from memory\n"); */
+		/*DPRINTF("Nano-X-Freetype2: Loading font from memory\n"); */
 	}
 
-	if (FT_Select_Charmap(pf->face, ft_encoding_unicode) != FT_Err_Ok) {
-		EPRINTF("freetype2_createfont: no unicode map table\n");
+	error = FT_Select_Charmap(pf->face, ft_encoding_unicode);
+	if (error != FT_Err_Ok) {
+		EPRINTF("freetype2_createfont: no unicode map table - %lx\n",
+		    (unsigned long) error);
 		goto out;
 	}
 #endif
@@ -503,16 +663,15 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 	GdSetFontAttr((PMWFONT) pf, 0, 0);
 
 #if HAVE_FREETYPE_2_CACHE
-	{
-		FT_Face face;
-		FT_Size size;
-		if (FTC_Manager_Lookup_Size
-		    (freetype2_cache_manager, &(pf->imagedesc.font), &face,
-		     &size)) {
-			/*DPRINTF("Freetype 2 error trying to load font.\n"); */
-			free(pf);
-			return NULL;
-		}
+	/* Check that the font file exists and is valid */
+	/*DPRINTF("freetype2_createfont_internal(): testing\n");*/
+	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
+	    &(pf->imagedesc.font), &face, &size);
+	if (error != FT_Err_Ok) {
+		EPRINTF("Nano-X-Freetype2: Freetype 2 error %lx trying to load font.\n",
+		    (unsigned long)error);
+		free(pf);
+		return NULL;
 	}
 #endif
 
@@ -528,10 +687,17 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 #endif
 }
 
+/**
+ * Frees a font.
+ *
+ * @param pfont The font to free.  Must not be NULL.
+ */
 static void
 freetype2_destroyfont(PMWFONT pfont)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;
+
+	assert(pf);
 
 #if ! HAVE_FREETYPE_2_CACHE
 	FT_Done_Face(pf->face);
@@ -555,11 +721,28 @@ freetype2_destroyfont(PMWFONT pfont)
 
 
 #if 0 /* FIXME Nano-X doesn't have an API for this feature */
+/**
+ * Duplicates a font.  Makes a new font that has the same face, attributes
+ * and rotation as the source font.  The height can be copied or a new
+ * height can be specified.
+ *
+ * If the old font is a memory font, then this function does not copy the
+ * actual buffer of font data, it merely adds another reference to it.
+ * The reference count ensures that the buffer of font data is freed
+ * correctly when the last font using it is freed.
+ *
+ * @param psrcfont The font to copy.
+ * @param height   The height of the new font, in pixels, or 0 to copy from
+ *                 the source font.
+ * @return A new font, or NULL on error.
+ */
 static PMWFONT
 freetype2_duplicate(PMWFONT psrcfont, MWCOORD height)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) psrcfont;
 	PMWFREETYPE2FONT pnewf;
+
+	assert(pf);
 
 	if (height == 0) {
 		height = pf->fontsize;
@@ -609,23 +792,39 @@ static void
 freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;
+	MWCOORD pixel_height;
+	MWCOORD pixel_width;
+
+	assert(pf);
 
 	pf->fontsize = fontsize;
 
+	/* In future, set these differently to support different aspect ratios. */
+	pixel_height = fontsize;
+	pixel_width = fontsize;
+
 #if HAVE_FREETYPE_2_CACHE
-	pf->imagedesc.font.pix_height = fontsize;
-	pf->imagedesc.font.pix_width = fontsize;
+	pf->imagedesc.font.pix_width  = pixel_width;
+	pf->imagedesc.font.pix_height = pixel_height;
 #else
 	/* We want real pixel sizes ... not points ... */
-	FT_Set_Pixel_Sizes(pf->face, 0, fontsize);
+	FT_Set_Pixel_Sizes(pf->face, pixel_width, pixel_height);
 #endif
 }
 
 
+/**
+ * Set the rotation of a font.  Caller must update pfont->fontrotation.
+ *
+ * @param pfont        The font to update.
+ * @param tenthdegrees The new rotation in tenths of degrees.
+ */
 static void
 freetype2_setfontrotation(PMWFONT pfont, int tenthdegrees)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;
+
+	assert(pf);
 
 	/* Normalize so that 0 <= tenthdegrees < 3600 */
 	if ((tenthdegrees < 0) || (tenthdegrees >= 3600)) {
@@ -655,20 +854,161 @@ freetype2_setfontrotation(PMWFONT pfont, int tenthdegrees)
 }
 
 
+/**
+ * Set the attributes of a font.  Caller must update pfont->fontattr
+ * before calling this function.
+ *
+ * @param pfont    The font to update.
+ * @param setflags Bits being set.  Overrides clrflags.
+ * @param clrflags Bits being cleared.
+ */
 static void
 freetype2_setfontattr(PMWFONT pfont, int setflags, int clrflags)
 {
 #if HAVE_FREETYPE_2_CACHE
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;
 
+	assert(pf);
+
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
+	pf->imagedesc.flags = FT_LOAD_DEFAULT;
+	if (!(pf->fontattr & MWTF_ANTIALIAS))
+	{
+		pf->imagedesc.flags |= (FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO);
+	}
+#else
 	pf->imagedesc.type = ((pf->fontattr & MWTF_ANTIALIAS)
 			      ? ftc_image_grays : ftc_image_mono);
+#endif
+#else
+	/* No cache.  Nothing to do, just check paramater is valid. */
+	assert(pfont);
 #endif
 }
 
 
-/*
+#define ROUND_26_6_TO_INT(valuetoround) (((valuetoround) + 63) >> 6)
+
+/**
+ * Get the advance width, ascent and descent of a character.
+ * Complicated by the need to use the cache if possible, and to handle rotated text.
+ *
+ * The face and pf arguments must refer to the same font.
+ *
+ * Any of the output paramater pointers may be NULL if you only care
+ * about some of the values.
+ *
+ * @param pf          The font to use
+ * @param face        A FreeType2 face generated from pf
+ * @param glyph_index The glyph to measure
+ * @param padvance    [out] advance width.
+ * @param pascent     [out] character ascent.
+ * @param pdescent    [out] character descent.
+ * @return            FreeType error code (0 on success).
+ */
+static FT_Error
+freetype2_get_glyph_size(PMWFREETYPE2FONT pf,
+                         FT_Face face,
+                         int glyph_index,
+                         int *padvance,
+                         int *pascent,
+                         int *pdescent)
+{
+	FT_Error error;
+
+	assert (pf);
+	assert (face);
+	
+#if HAVE_FREETYPE_2_CACHE
+	if (CAN_USE_FT2_CACHE(pf))
+	{
+		FTC_SBit sbit;
+
+		error = FTC_SBitCache_Lookup(freetype2_cache_sbit,
+					     &(pf->imagedesc),
+					     glyph_index, &sbit, NULL);
+		if (error)
+			return error;
+		
+		/*DPRINTF("sbit->top = %d, sbit->height = %d\n", sbit->top, sbit->height);*/
+		
+		if (padvance)
+			*padvance = sbit->xadvance;
+		if (pascent)
+			*pascent = sbit->top;
+		if (pdescent)
+			*pdescent = sbit->height - sbit->top;
+		return 0;
+	}
+	else
+#endif
+	{
+		error = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT);
+		if (error)
+			return error;
+
+		if (padvance)
+			*padvance = ROUND_26_6_TO_INT(face->glyph->advance.x);
+		if (pascent || pdescent)
+		{
+			FT_Glyph glyph;
+			FT_BBox bbox;
+			
+			error = FT_Get_Glyph(face->glyph, &glyph);
+			if (error)
+				return error;
+			
+			FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_pixels, &bbox);
+			
+			FT_Done_Glyph(glyph);
+			
+			if (pascent)
+				*pascent = bbox.yMax;
+			if (pdescent)
+				*pdescent = -bbox.yMin;
+		}
+		
+		return 0;
+	}
+}
+
+
+/**
+ * Get the advance width, ascent and descent of a character.
+ * Complicated by the need to use the cache if possible, and to handle rotated text.
+ *
+ * The face and pf arguments must refer to the same font.
+ *
+ * Any of the output paramater pointers may be NULL if you only care
+ * about some of the values.
+ *
+ * @param pf       The font to use
+ * @param face     A FreeType2 face generated from pf
+ * @param ch       The character to measure
+ * @param padvance [out] advance width.
+ * @param pascent  [out] character ascent.
+ * @param pdescent [out] character descent.
+ * @return         FreeType error code (0 on success).
+ */
+static FT_Error
+freetype2_get_char_size(PMWFREETYPE2FONT pf,
+                        FT_Face face,
+                        int ch,
+                        int *padvance,
+                        int *pascent,
+                        int *pdescent)
+{
+	int glyph = LOOKUP_CHAR(pf, face, ch);
+	return freetype2_get_glyph_size(pf, face, glyph, padvance, pascent, pdescent);
+}
+
+
+/**
  * Return information about a specified font.
+ *
+ * @param pfont     The font to query
+ * @param pfontinfo The destination for the font metrics information.
+ * @return TRUE on success, FALSE on error.
  */
 static MWBOOL
 freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
@@ -678,11 +1018,19 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	FT_Size size;
 	FT_BBox *bbox;
 	FT_Size_Metrics *metrics;
-	int i;
-
+	int ch;
 #if HAVE_FREETYPE_2_CACHE
 	FT_Error error;
+#endif
+#if MW_FEATURE_DO_NOT_TRUST_FONT_ASCENT_AND_DESCENT
+	int font_ascent;
+	int font_descent;
+#endif
 
+	assert(pf);
+	assert(pfontinfo);
+
+#if HAVE_FREETYPE_2_CACHE
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
 					&(pf->imagedesc.font), &face, &size);
 	if (error) {
@@ -703,14 +1051,14 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	}
 
 	/* Fill up the fields */
-	pfontinfo->maxwidth = (metrics->max_advance + 63) >> 6;
-	pfontinfo->baseline = (metrics->ascender + 63) >> 6;
-	pfontinfo->height = pfontinfo->baseline + ((abs(metrics->descender) + 63) >> 6);
+	pfontinfo->maxwidth = ROUND_26_6_TO_INT(metrics->max_advance);
+	pfontinfo->baseline = ROUND_26_6_TO_INT(metrics->ascender);
+	pfontinfo->height = pfontinfo->baseline + ROUND_26_6_TO_INT(abs(metrics->descender));
 
 	pfontinfo->fixed =
 		((face->face_flags & FT_FACE_FLAG_FIXED_WIDTH) != 0);
 
-	//printf("JGF-Nano-X: Font metrics:"
+	//DPRINTF("Nano-X-Freetype2: Font metrics:"
 	//    "\n    maxwidth = %3d"
 	//    "\n    baseline = %3d        max_ascent   = %3d"
 	//    "\n    descent  = %3d        max_descent  = %3d"
@@ -726,182 +1074,35 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	pfontinfo->firstchar = 0;
 	pfontinfo->lastchar = 0xFFFFU;
 
-#if HAVE_FREETYPE_2_CACHE
-	if ((pf->fontrotation != 0) || (pf->fontsize > 200)) {
-		/* Cache does not support bitmaps >256x256 */
-#endif
-		for (i = 0; i < 256; i++) {
-			/* FIXME: Should use an image cache, if caching is
-			 * enabled.
-			 */
-			pfontinfo->widths[i] =
-				(FT_Load_Char(face, i, FT_LOAD_DEFAULT)
-				 ? pfontinfo->maxwidth
-				 : ((face->glyph->advance.x +
-				     ((1 << 6) - 1)) >> 6));
-			//printf("pfontinfo->widths[%d]=%d\n", i, pfontinfo->widths[i]);
+	for (ch = 0; ch < 256; ch++) {
+		int advance;
+		if (freetype2_get_char_size(pf, face, ch, &advance, NULL, NULL))
+		{
+			/* Error - assume default */
+			pfontinfo->widths[ch] = pfontinfo->maxwidth;
 		}
-#if HAVE_FREETYPE_2_CACHE
-	} else {
-		int curchar;
-		FTC_SBit sbit;
-
-		/* Get bitmaps from cache. */
-		for (i = 0; i < 256; i++) {
-#if HAVE_FREETYPE_2_CMAP_CACHE
-			curchar = FTC_CMapCache_Lookup(freetype2_cache_cmap,
-						       &(pf->cmapdesc), i);
-#else
-			curchar = FT_Get_Char_Index(face, i);
-#endif
-			error = FTC_SBitCache_Lookup(freetype2_cache_sbit,
-						     &(pf->imagedesc),
-						     curchar, &sbit, NULL);
-			pfontinfo->widths[i] =
-				error ? pfontinfo->maxwidth : sbit->xadvance;
+		else
+		{
+			/* OK, found the value. */
+			pfontinfo->widths[ch] = advance;
 		}
+		//EPRINTF("pfontinfo->widths[%d]=%d\n", i, pfontinfo->widths[i]);
 	}
-#endif
+
 	return TRUE;
 }
 
 
-
-#if 1
-/* Optimized! */
-#define freetype2_draw_bitmap_mono(psd,blit_instructions) \
-	GdDrawAreaInternal((psd), (blit_instructions), PSDOP_BITMAP_BYTES_MSB_FIRST)
-
-#else
-
-/*
- * Render a simple bitmap.
+/**
+ * Draws text onto a screen or pixmap.
  *
- * pitch is specified in bytes, and may be negative to
- * indicate that the bitmap is upside down.
- */
-static void
-freetype2_draw_bitmap_mono(PSD psd, driver_gc_t * blit_instructions)
-{
-#if 1
-	GdDrawAreaInternal(psd, blit_instructions,
-			   PSDOP_BITMAP_BYTES_MSB_FIRST);
-
-#elif 0
-	int x, y, z, zmax;
-	unsigned char v;
-	MWPIXELVAL *dst;
-	MWPIXELVAL *bitmap;
-	int end_of_row_skip;
-	unsigned char *src = blit_instructions->pixels;
-	int width = blit_instructions->dstw;
-	int height = blit_instructions->dsth;
-	int pitch = blit_instructions->src_linelen;
-	int x_offset = blit_instructions->dstx;
-	int y_offset = blit_instructions->dsty;
-
-	bitmap = malloc(width * height * sizeof(MWPIXELVAL));
-	if (bitmap == 0) {
-		return;
-	}
-
-	if (pitch < 0) {
-		src = src + (-pitch) * (height - 1);
-		y_offset -= height;
-	}
-	end_of_row_skip = pitch - ((width + 7) >> 3);
-
-	dst = bitmap;
-
-	for (y = 0; y < height; y++) {
-		for (x = width; x > 0; x -= 8) {
-			v = *src++;
-			zmax = (x > 8 ? 8 : x);
-			for (z = 0; z < zmax; z++) {
-				*dst++ = (v & 0x80) ? gr_foreground :
-					gr_background;
-				v <<= 1;
-			}
-		}
-		src += end_of_row_skip;
-	}
-
-	/* FIXME: GdArea problem if fg == bg */
-
-	/* Now draw the bitmap ... */
-	GdArea(psd, x_offset, y_offset, width, height, bitmap, MWPF_PIXELVAL);
-
-	free(bitmap);
-
-#else /* 0 */
-	unsigned char *dst;
-	unsigned char *imagebits;
-	int width_bytes;
-	int destpitch;
-	int x;
-	int y;
-	unsigned char *src = blit_instructions->pixels;
-	int width = blit_instructions->dstw;
-	int height = blit_instructions->dsth;
-	int pitch = blit_instructions->src_linelen;
-	int x_offset = blit_instructions->dstx;
-	int y_offset = blit_instructions->dsty;
-
-	width_bytes = ((width + 7) >> 3);
-
-	/* destpitch is measured in bytes. */
-	destpitch =
-		(width_bytes +
-		 (sizeof(MWIMAGEBITS) - 1)) & ~(sizeof(MWIMAGEBITS) - 1);
-
-	printf("JGF-Nano-X: freetype2_draw_bitmap_mono(): h=%d, w=%d, w_bytes=%d, srcpitch=%d, destpitch=%d\n", height, width, width_bytes, srcpitch, destpitch);
-
-	imagebits = (unsigned char *) malloc(destpitch * height);
-	if (imagebits == 0) {
-		EPRINTF("Out of memory in freetype2_draw_bitmap_mono()\n");
-		return;
-	}
-
-	if (pitch < 0) {
-		src = src + (-pitch) * (height - 1);
-		y_offset -= height;
-	}
-	dst = imagebits;
-
-	for (y = 0; y < height; y++) {
-		for (x = width; x > 0; x -= 8) {
-#if 0
-			static char s[9];
-			s[0] = ((*src & (1 << 7)) ? '1' : '0');
-			s[1] = ((*src & (1 << 6)) ? '1' : '0');
-			s[2] = ((*src & (1 << 5)) ? '1' : '0');
-			s[3] = ((*src & (1 << 4)) ? '1' : '0');
-			s[4] = ((*src & (1 << 3)) ? '1' : '0');
-			s[5] = ((*src & (1 << 2)) ? '1' : '0');
-			s[6] = ((*src & (1 << 1)) ? '1' : '0');
-			s[7] = ((*src & (1)) ? '1' : '0');
-			s[8] = '\0';
-			printf("JGF-Nano-X: freetype2_draw_bitmap_mono(): (%2d,%2d) = %02x  %s\n", x, y, *src, s);
-#endif
-			*dst++ = *src++;
-		}
-		src += pitch - width_bytes;
-		dst += destpitch - width_bytes;
-	}
-
-	printf("JGF-Nano-X: freetype2_draw_bitmap_mono() calling GdBitmap(psd=0x%x, x=%d, y=%d, w=%d, h=%d, bits=0x%x)\n", (int) psd, x_offset, y_offset, width, height, (int) imagebits);
-	GdBitmap(psd, x_offset, y_offset, width, height,
-		 (MWIMAGEBITS *) imagebits);
-
-	free(imagebits);
-
-#endif
-}
-#endif /* End of #if 0 around freetype2_draw_bitmap_mono */
-
-
-/*
- * Draw unicode 16 text string using FREETYPE2 type font
+ * @param pfont The font to use.
+ * @param psd   The device to draw on.
+ * @param ax    The destination X co-ordinate.
+ * @param ay    The destination Y co-ordinate.
+ * @param text  The string to display, in 16-bit Unicode form.
+ * @param cc    The number of characters (not bytes) in text.
+ * @param flags Flags.
  */
 static void
 freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
@@ -920,8 +1121,13 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	int use_kerning;
 	int last_glyph_code = 0;	/* Used for kerning */
 	driver_gc_t blit_instructions;
+	int blit_op;
 
-	//printf("JGF-Nano-X: freetype2_drawtext(x=%d, y=%d) called\n", ax, ay);
+	assert(pf);
+	assert(psd);
+	assert(text);
+
+	//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(x=%d, y=%d) called\n", ax, ay);
 
 #if HAVE_FREETYPE_2_CACHE
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
@@ -946,6 +1152,12 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	blit_instructions.srcy = 0;
 	blit_instructions.dst_linelen = 0;	/* Unused. */
 
+	if (pf->fontattr & MWTF_ANTIALIAS) {
+		blit_op = PSDOP_ALPHACOL;
+	} else {
+		blit_op = PSDOP_BITMAP_BYTES_MSB_FIRST;
+	}
+
 	/*
 	 * Offset the starting point if necessary,
 	 * FreeType always aligns at baseline
@@ -958,18 +1170,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		pos.y = 0;
 	}
 
-#if 0				/* Old fake anti-aliasing */
-	/* Set the "graylevels" */
-	if (pf->fontattr & MWTF_ANTIALIAS) {
-		alphablend(psd, freetype2_gray_palette, gr_foreground,
-			   gr_background, freetype2_alpha_levels, 16);
-	}
-#endif
-
 #if 1
 	if ((pf->fontrotation != 0)
 #if HAVE_FREETYPE_2_CACHE
-	    || (pf->fontsize > 200)	/* Cache does not support bitmaps >256x256 */
+	    || (!CAN_USE_FT2_CACHE(pf))	/* Cache does not support bitmaps >256x256 */
 #endif
 		) {
 		/* Use slow routine for rotated text */
@@ -981,24 +1185,18 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			 fontattr & MWTF_ANTIALIAS) ? ft_render_mode_normal :
 			ft_render_mode_mono;
 
-		/*printf("JGF-Nano-X: freetype2_drawtext() using SLOW routine\n"); */
+		/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext() using SLOW routine\n"); */
 		pos.x = 0;
 		for (i = 0; i < cc; i++) {
-#if HAVE_FREETYPE_2_CMAP_CACHE
-			curchar = FTC_CMapCache_Lookup(freetype2_cache_cmap,
-						       &(pf->cmapdesc),
-						       str[i]);
-#else
-			curchar = FT_Get_Char_Index(face, str[i]);
-#endif
+			curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 			if (use_kerning && last_glyph_code && curchar) {
 				FT_Get_Kerning(face, last_glyph_code, curchar,
 					       ft_kerning_default,
 					       &kerning_delta);
 
-				//printf("JGF-Nano-X: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n",
-				//       (int)kerning_delta.x, (int)kerning_delta.x/64);
+				//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n",
+				//        (int)kerning_delta.x, (int)kerning_delta.x/64);
 				pos.x += kerning_delta.x & (~63);
 			}
 			last_glyph_code = curchar;
@@ -1018,7 +1216,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			// translate the glyph image now..
 			FT_Glyph_Transform(glyph, 0, &pos);
 
-			//printf("JGF-Nano-X: freetype2_drawtext(): glyph->advance.x=%d, >>16=%d\n", (int)glyph->advance.x, (int)glyph->advance.x>>16);
+			//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): glyph->advance.x=%d, >>16=%d\n", (int)glyph->advance.x, (int)glyph->advance.x>>16);
 
 			pos.x += (glyph->advance.x >> 10) & (~63);
 
@@ -1044,20 +1242,12 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 				blit_instructions.pixels = bitmap->buffer;
 				blit_instructions.misc = bitmap->buffer;
 
-				//printf("JGF-Nano-X: freetype2_draw_bitmap_%s(ax=%d, ay=%d, gl->l=%d, gl->t=%d)\n",
+				//DPRINTF("Nano-X-Freetype2: freetype2_draw_bitmap_%s(ax=%d, ay=%d, gl->l=%d, gl->t=%d)\n",
 				//        ((pf->fontattr & MWTF_ANTIALIAS) ? "alpha" : "mono"), ax, ay, bitmapglyph->left, bitmapglyph->top);
 
 				if ((blit_instructions.dstw > 0)
 				    && (blit_instructions.dsth > 0)) {
-					if (pf->fontattr & MWTF_ANTIALIAS) {
-						GdDrawAreaInternal(psd,
-								   &blit_instructions,
-								   PSDOP_ALPHACOL);
-					} else {
-						freetype2_draw_bitmap_mono
-							(psd,
-							 &blit_instructions);
-					}
+					GdDrawAreaInternal(psd, &blit_instructions, blit_op);
 				}
 
 				FT_Done_Glyph(glyph);
@@ -1075,13 +1265,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		ay += (pos.y >> 6);
 
 		for (i = 0; i < cc; i++) {
-#if HAVE_FREETYPE_2_CMAP_CACHE
-			curchar = FTC_CMapCache_Lookup(freetype2_cache_cmap,
-						       &(pf->cmapdesc),
-						       str[i]);
-#else
-			curchar = FT_Get_Char_Index(face, str[i]);
-#endif
+			curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 			if (use_kerning && last_glyph_code && curchar) {
 				FT_Get_Kerning(face, last_glyph_code, curchar,
@@ -1096,6 +1280,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			error = FTC_SBitCache_Lookup(freetype2_cache_sbit,
 						     &(pf->imagedesc),
 						     curchar, &sbit, NULL);
+			if (error)
+				continue;
 
 			blit_instructions.dstx = ax + sbit->left;
 			blit_instructions.dsty = ay - sbit->top;
@@ -1135,14 +1321,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			if ((blit_instructions.dstw > 0)
 			    && (blit_instructions.dsth > 0)) {
-				if (pf->fontattr & MWTF_ANTIALIAS) {
-					GdDrawAreaInternal(psd,
-							   &blit_instructions,
-							   PSDOP_ALPHACOL);
-				} else {
-					freetype2_draw_bitmap_mono(psd,
-								   &blit_instructions);
-				}
+				GdDrawAreaInternal(psd, &blit_instructions, blit_op);
 			}
 
 		}
@@ -1156,12 +1335,25 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 //                GdLine(psd, startx, starty, x, y, FALSE);
 }
 
+/**
+ * Measures text, which can be rotated.  This is slower than the
+ * non-rotated version.
+ *
+ * @param pfont The font to use.
+ * @param text  The string to measure, in 16-bit Unicode form.
+ * @param cc    The number of characters (not bytes) in text.
+ * @param pwidth  [out] the width in pixels
+ * @param pheight [out] the height in pixels
+ * @param pbase   [out] the base in pixels
+ *
+ * @internal
+ */
 static void
-freetype2_gettextsize_rotated(PMWFONT pfont, const void *text, int cc,
-			      MWCOORD * pwidth, MWCOORD * pheight,
-			      MWCOORD * pbase)
+freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf,
+                              const void *text, int cc,
+                              MWCOORD * pwidth, MWCOORD * pheight,
+                              MWCOORD * pbase)
 {
-	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;
 	FT_Face face;
 	FT_Size size;
 	const unsigned short *str = text;
@@ -1207,12 +1399,7 @@ freetype2_gettextsize_rotated(PMWFONT pfont, const void *text, int cc,
 	pos.y = 0;
 
 	for (i = 0; i < cc; i++) {
-#if HAVE_FREETYPE_2_CMAP_CACHE
-		curchar = FTC_CMapCache_Lookup(freetype2_cache_cmap,
-					       &(pf->cmapdesc), str[i]);
-#else
-		curchar = FT_Get_Char_Index(face, str[i]);
-#endif
+		curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 		if (use_kerning && last_glyph_code && curchar) {
 			FT_Get_Kerning(face, last_glyph_code, curchar,
@@ -1233,7 +1420,7 @@ freetype2_gettextsize_rotated(PMWFONT pfont, const void *text, int cc,
 		if (error)
 			continue;
 
-		//printf("JGF-Nano-X: freetype2_gettextsize(): glyph '%c' at %d,%d, advance=%d\n",
+		//DPRINTF("Nano-X-Freetype2: freetype2_gettextsize(): glyph '%c' at %d,%d, advance=%d\n",
 		//       str[i], (pos.x>>6), (pos.y>>6), (glyph->advance.x >> 16));
 
 		// translate the glyph image now..
@@ -1252,9 +1439,9 @@ freetype2_gettextsize_rotated(PMWFONT pfont, const void *text, int cc,
 			FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_pixels,
 					  &glyph_bbox);
 
-			//printf("JGF-Nano-X: freetype2_gettextsize(): glyph cbox (%d,%d)-(%d,%d)\n",
-			//       (glyph_bbox.xMin/*>>6*/), (glyph_bbox.yMin/*>>6*/),
-			//       (glyph_bbox.xMax/*>>6*/), (glyph_bbox.yMax/*>>6*/));
+			//DPRINTF("Nano-X-Freetype2: freetype2_gettextsize(): glyph cbox (%d,%d)-(%d,%d)\n",
+			//        (glyph_bbox.xMin/*>>6*/), (glyph_bbox.yMin/*>>6*/),
+			//        (glyph_bbox.xMax/*>>6*/), (glyph_bbox.yMax/*>>6*/));
 
 			if (glyph_bbox.xMin < bbox.xMin)
 				bbox.xMin = glyph_bbox.xMin;
@@ -1270,144 +1457,156 @@ freetype2_gettextsize_rotated(PMWFONT pfont, const void *text, int cc,
 		}
 		FT_Done_Glyph(glyph);
 
-		//printf("JGF-Nano-X: freetype2_gettextsize(): total cbox (%d,%d)-(%d,%d)\n",
-		//       (bbox.xMin/*>>6*/), (bbox.yMin/*>>6*/), (bbox.xMax/*>>6*/), (bbox.yMax/*>>6*/));
+		//DPRINTF("Nano-X-Freetype2: freetype2_gettextsize(): total cbox (%d,%d)-(%d,%d)\n",
+		//        (bbox.xMin/*>>6*/), (bbox.yMin/*>>6*/), (bbox.xMax/*>>6*/), (bbox.yMax/*>>6*/));
 	}
 
 	*pwidth = bbox.xMax /*>> 6 */ ;
 	*pheight = (bbox.yMax - bbox.yMin) /*>> 6 */ ;
 	*pbase = -(bbox.yMin /*>> 6 */ );
 
-	//printf("JGF-Nano-X: freetype2_gettextsize(): numchars = %d, w = %d, h = %d, base = %d\n",
-	//       cc, *pwidth, *pheight, *pbase);
+	//DPRINTF("Nano-X-Freetype2: freetype2_gettextsize(): numchars = %d, w = %d, h = %d, base = %d\n",
+	//        cc, *pwidth, *pheight, *pbase);
 }
 
 
+/**
+ * Measures text, which must not be rotated.  This is faster than the
+ * rotated version.  This uses the cache system, if available, so
+ * the caller must check that they CAN_USE_FT2_CACHE().
+ *
+ * @param pfont      The font to use.
+ * @param text       The string to measure, in 16-bit Unicode form.
+ * @param char_count The number of characters (not bytes) in text.
+ * @param pwidth     [out] the width in pixels
+ * @param pheight    [out] the height in pixels
+ * @param pbase      [out] the base in pixels
+ *
+ * @internal
+ */
+static void
+freetype2_gettextsize_fast(PMWFREETYPE2FONT pf,
+                           const void *text, int char_count,
+                           MWCOORD * pwidth, MWCOORD * pheight,
+                           MWCOORD * pbase)
+{
+	FT_Face face;
+	FT_Size size;
+	const unsigned short *str = text;
+	int char_index;
+	int total_advance;
+	int max_ascent;
+	int max_descent;
+	int advance;
+	int ascent;
+	int descent;
+	FT_Error error;
+	FT_Vector kerning_delta;
+	int use_kerning;
+	int cur_glyph_code;
+	int last_glyph_code = 0;	/* Used for kerning */
+
+#if HAVE_FREETYPE_2_CACHE
+	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
+					&(pf->imagedesc.font), &face,
+					&size);
+	if (error) {
+		EPRINTF("Freetype 2 error 0x%x getting font info.\n",
+			error);
+		*pwidth = 0;
+		*pheight = 0;
+		*pbase = 0;
+		return;
+	}
+#else
+	face = pf->face;
+	size = face->size;
+#endif
+
+	use_kerning = ((pf->fontattr & MWTF_KERNING)
+			   && FT_HAS_KERNING(face));
+
+
+	/*
+	 * Starting point
+	 */
+	total_advance = 0;
+	max_ascent  = 0;
+	max_descent = 0;
+
+	for (char_index = 0; char_index < char_count; char_index++) {
+		cur_glyph_code = LOOKUP_CHAR(pf, face, str[char_index]);
+
+		if (use_kerning && last_glyph_code && cur_glyph_code) {
+			FT_Get_Kerning(face, last_glyph_code, cur_glyph_code,
+					   ft_kerning_default,
+					   &kerning_delta);
+
+			/*EPRINTF("Nano-X-Freetype2: freetype2_gettextsize(): %d + kerning %d (delta was %d unscaled).\n",
+			   (int)ax, (int)(kerning_delta.x >> 6), (int)kerning_delta.x); */
+			total_advance += (kerning_delta.x >> 6);
+		}
+		last_glyph_code = cur_glyph_code;
+
+		error = freetype2_get_glyph_size(pf, face, cur_glyph_code, &advance, &ascent, &descent);
+		if (error)
+			continue;
+
+		total_advance += advance;
+		if (max_ascent < ascent)
+			max_ascent = ascent;
+		if (max_descent < descent)
+			max_descent = descent;
+	}
+
+	*pwidth = total_advance;
+	*pheight = max_ascent + max_descent;
+	*pbase = max_ascent;
+
+	/*EPRINTF("Nano-X-Freetype2: freetype2_gettextsize(): numchars = %d, w = %d, h = %d, base = %d\n",
+	   cc, *pwidth, *pheight, *pbase); */
+}
+
+
+/**
+ * Measures text.
+ *
+ * @param pfont The font to use.
+ * @param text  The string to measure, in 16-bit Unicode form.
+ * @param cc    The number of characters (not bytes) in text.
+ * @param pwidth  [out] the width in pixels
+ * @param pheight [out] the height in pixels
+ * @param pbase   [out] the base in pixels
+ */
 static void
 freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,
 		      MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;
+
+	assert(pf);
+	assert(text);
+	assert(pwidth);
+	assert(pheight);
+	assert(pbase);
+
 	if ((pf->fontrotation != 0)
 #if HAVE_FREETYPE_2_CACHE
-	    || (pf->fontsize > 200)	/* Cache does not support bitmaps >256x256 */
+	    || (!CAN_USE_FT2_CACHE(pf))
 #endif
 		) {
 		/* Use slow routine for rotated text */
-		/* printf("JGF-Nano-X: freetype2_gettextsize() using SLOW routine\n"); */
-		freetype2_gettextsize_rotated(pfont, text, cc, pwidth,
+		/* EPRINTF("Nano-X-Freetype2: freetype2_gettextsize() using SLOW routine\n"); */
+		freetype2_gettextsize_rotated(pf, text, cc, pwidth,
 					      pheight, pbase);
-		return;
 	} else {
-		FT_Face face;
-		FT_Size size;
-		const unsigned short *str = text;
-		int i;
-		int ax;
-		int yMin;
-		int yMax;
-#if HAVE_FREETYPE_2_CACHE
-		FTC_SBit sbit;
-#else
-		FT_BBox glyph_bbox;
-#endif
-		FT_Error error;
-		FT_Vector kerning_delta;
-		int curchar;
-		int use_kerning;
-		int last_glyph_code = 0;	/* Used for kerning */
-
-#if HAVE_FREETYPE_2_CACHE
-		error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-						&(pf->imagedesc.font), &face,
-						&size);
-		if (error) {
-			EPRINTF("Freetype 2 error 0x%x getting font info.\n",
-				error);
-			*pwidth = 0;
-			*pheight = 0;
-			*pbase = 0;
-			return;
-		}
-#else
-		face = pf->face;
-		size = face->size;
-#endif
-
-		use_kerning = ((pf->fontattr & MWTF_KERNING)
-			       && FT_HAS_KERNING(face));
-
-
-		/*
-		 * Starting point
-		 */
-		ax = 0;
-		yMin = 0;
-		yMax = 0;
-
-		for (i = 0; i < cc; i++) {
-#if HAVE_FREETYPE_2_CMAP_CACHE
-			curchar = FTC_CMapCache_Lookup(freetype2_cache_cmap,
-						       &(pf->cmapdesc),
-						       str[i]);
-#else
-			curchar = FT_Get_Char_Index(face, str[i]);
-#endif
-
-			if (use_kerning && last_glyph_code && curchar) {
-				FT_Get_Kerning(face, last_glyph_code, curchar,
-					       ft_kerning_default,
-					       &kerning_delta);
-
-				/*printf("JGF-Nano-X: freetype2_gettextsize(): %d + kerning %d (delta was %d unscaled).\n",
-				   (int)ax, (int)(kerning_delta.x >> 6), (int)kerning_delta.x); */
-				ax += (kerning_delta.x >> 6);
-			}
-			last_glyph_code = curchar;
-
-#if HAVE_FREETYPE_2_CACHE
-			error = FTC_SBitCache_Lookup(freetype2_cache_sbit,
-						     &(pf->imagedesc),
-						     curchar, &sbit, NULL);
-
-			/*printf("JGF-Nano-X: freetype2_gettextsize(): %d + char(%c #%d) %d.\n",
-			   (int)ax, (char)(((str[i] >= 32) && (str[i] < 127)) ? str[i] : '?'), (int)str[i], (int)sbit->xadvance); */
-			ax += sbit->xadvance;
-
-			if (sbit->top < yMin)
-				yMin = sbit->top;
-
-			if (sbit->top + sbit->height > yMax)
-				yMax = sbit->top + sbit->height;
-
-#else
-			error = FT_Load_Glyph(face, curchar, FT_LOAD_DEFAULT);
-			if (error)
-				continue;
-
-			ax += (glyph->advance.x >> 16);
-
-			FT_Glyph_Get_CBox(face->glyph, ft_glyph_bbox_pixels,
-					  &glyph_bbox);
-
-			if (glyph_bbox.yMin < yMin)
-				yMin = glyph_bbox.yMin;
-
-			if (glyph_bbox.yMax > yMax)
-				yMax = glyph_bbox.yMax;
-#endif
-		}
-
-		*pwidth = ax;
-		*pheight = (yMax - yMin);
-		*pbase = -yMin;
-
-		/*printf("JGF-Nano-X: freetype2_gettextsize(): numchars = %d, w = %d, h = %d, base = %d\n",
-		   cc, *pwidth, *pheight, *pbase); */
+		freetype2_gettextsize_fast(pf, text, cc, pwidth,
+					      pheight, pbase);
 	}
 }
 
 
+#if 0 /* FIXME not yet used */
 /*
  * Get the human-readable name of a font, given it's filename.
  *
@@ -1419,6 +1618,8 @@ freetype2_get_name(const char *filename)
 {
 	FT_Face face;
 	char *result = NULL;
+
+	assert(filename);
 
 	/* Load face */
 	if (FT_New_Face(freetype2_library, filename, 0, &face) == FT_Err_Ok) {
@@ -1432,3 +1633,4 @@ freetype2_get_name(const char *filename)
 
 	return result;
 }
+#endif

@@ -43,6 +43,11 @@ typedef MWFREETYPE2FONT *PMWFREETYPE2FONT;
 int freetype2_init(PSD psd);
 PMWFREETYPE2FONT freetype2_createfont(const char *name, MWCOORD height,
 				      int attr);
+#if 0
+PMWFREETYPE2FONT freetype2_createfontfrombuffer(const unsigned char *buffer,
+						unsigned length,
+						MWCOORD height);
+#endif
 #endif
 
 #if HAVE_PCF_SUPPORT

@@ -18,8 +18,15 @@ ifeq ($(MICROWIN), Y)
 LIBNAME = libmwin.a
 LIBNAMESO = libmwin.so
 
+# Get list of core files (engine, fonts and drivers).
+MW_CORE_OBJS :=
+include $(MW_DIR_SRC)/engine/Objects.rules
+include $(MW_DIR_SRC)/fonts/Objects.rules
+include $(MW_DIR_SRC)/drivers/Objects.rules
+
 # List of objects to compile
 OBJS := \
+	$(MW_CORE_OBJS) \
 	$(MW_DIR_OBJ)/mwin/winmain.o \
 	$(MW_DIR_OBJ)/mwin/winuser.o \
 	$(MW_DIR_OBJ)/mwin/wingdi.o \
@@ -30,6 +37,27 @@ OBJS := \
 	$(MW_DIR_OBJ)/mwin/winrgn.o \
 	$(MW_DIR_OBJ)/mwin/winfont.o \
 	$(MW_DIR_OBJ)/mwin/winsbar.o
+
+OBJS += \
+	$(MW_DIR_OBJ)/mwin/winlib/draw3d.o \
+	$(MW_DIR_OBJ)/mwin/winlib/ptinsid.o \
+	$(MW_DIR_OBJ)/mwin/winlib/insetr.o \
+	$(MW_DIR_OBJ)/mwin/winlib/fastfill.o \
+	$(MW_DIR_OBJ)/mwin/winlib/graph3d.o \
+	$(MW_DIR_OBJ)/mwin/winlib/mwuser.o
+
+ifneq ($(ARCH), ELKS)
+OBJS += \
+	$(MW_DIR_OBJ)/mwin/winlib/button.o \
+	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
+	$(MW_DIR_OBJ)/mwin/winlib/listbox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/progbar.o \
+	$(MW_DIR_OBJ)/mwin/winlib/static.o \
+	$(MW_DIR_OBJ)/mwin/winlib/combobox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/caret.o \
+	$(MW_DIR_OBJ)/mwin/winlib/scrlbar.o \
+	$(MW_DIR_OBJ)/mwin/winlib/medit.o
+endif
 
 endif
 

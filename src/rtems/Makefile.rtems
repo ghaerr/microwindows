@@ -110,10 +110,10 @@ NLIBS += -lmwobjects
 endif
 
 ifeq ($(MICROWIN), Y)
-NLIBS += -lmwin -lmwinlib
+NLIBS += -lmwin
 endif
 
-NLIBS += -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
+NLIBS += -lmwimages -lm
 
 ifeq ($(VGALIB), Y)
 NLIBS += -lvga

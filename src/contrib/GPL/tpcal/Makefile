@@ -1,7 +1,7 @@
 #CC = mipsel-linux-gcc -msoft-float -s
 CC = gcc
 CFLAGS = -Wall -I../../../include -I../../../drivers -L../../../lib
-LIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts
+LIBS = -lmwin
 OBJECTS = tpcal.o transform.o
 
 all: tpcal

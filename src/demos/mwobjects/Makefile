@@ -44,7 +44,7 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-CCMWINLIBS = -lmwobjects -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
+CCMWINLIBS = -lmwobjects -lmwin -lmwimages -lm
 
 $(MW_DIR_BIN)/mwo-test: $(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."

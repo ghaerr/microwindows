@@ -400,25 +400,15 @@ MV = mv
 
 MWINLIBS = \
 	$(MW_DIR_LIB)/libmwin.a \
-	$(MW_DIR_LIB)/libmwinlib.a\
-	$(MW_DIR_LIB)/libmwengine.a \
-	$(MW_DIR_LIB)/libmwdrivers.a \
-	$(MW_DIR_LIB)/libmwfonts.a \
 	$(MW_DIR_LIB)/libmwimages.a \
 	$(MW_CORE_LIBS)
-CCMWINLIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwin -lmwimages -lm $(MW_CORE_LIBS)
+CCMWINLIBS = -lmwin -lmwimages -lm $(MW_CORE_LIBS)
 
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-NANOXCLIENTLIBS += \
-	$(MW_DIR_LIB)/libnano-X.a \
-	$(MW_DIR_LIB)/libmwengine.a \
-	$(MW_DIR_LIB)/libmwdrivers.a \
-	$(MW_DIR_LIB)/libmwfonts.a \
-	$(MW_CORE_LIBS)
-CCNANOXCLIENTLIBS += -lnano-X -lmwengine -lmwdrivers -lmwfonts $(MW_CORE_LIBS)
-else
 NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
 CCNANOXCLIENTLIBS += -lnano-X
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+NANOXCLIENTLIBS += $(MW_CORE_LIBS)
+CCNANOXCLIENTLIBS += $(MW_CORE_LIBS)
 endif
 
 NANOXSERVERLIBS += \

@@ -19,8 +19,15 @@ ifeq ($(NANOX), Y)
 LIBNAME = libnano-X.a
 LIBNAMESO = libnano-X.so
 
+# Get list of core files (engine, fonts and drivers).
+MW_CORE_OBJS :=
+include $(MW_DIR_SRC)/engine/Objects.rules
+include $(MW_DIR_SRC)/fonts/Objects.rules
+include $(MW_DIR_SRC)/drivers/Objects.rules
+
 # Nano-X server files
 NANOXFILES := \
+	$(MW_CORE_OBJS) \
 	$(MW_DIR_OBJ)/nanox/srvmain.o \
 	$(MW_DIR_OBJ)/nanox/srvfunc.o \
 	$(MW_DIR_OBJ)/nanox/srvutil.o \

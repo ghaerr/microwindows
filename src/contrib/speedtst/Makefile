@@ -7,7 +7,7 @@ speed.o : speed.c
 
 speed: speed.o
 	$(CC) -DX11=1 $< -o $@ \
-		-lnano-X -lmwengine -lmwfonts -lmwdrivers \
+		-lnano-X \
 		-L/usr/X11R6/lib -lX11
 
 xspeed.o : speed.c

@@ -20,7 +20,6 @@
 
 #if TT_FREETYPE_MAJOR != 1 || TT_FREETYPE_MINOR < 3
 //#error "You must link with freetype lib version 1.3.x +, and not freetype 2.
-//Download it at http://www.freetype.org or http://microwindows.org"
 #endif
 
 typedef struct MWFREETYPEFONT {
@@ -599,7 +598,7 @@ freetype_gettextsize(PMWFONT pfont, const void *text, int cc,
 	                imetrics.y_scale)/ 0x10000) >> 6) -
 	            (((properties.horizontal->Descender * 
 	            imetrics.y_scale)/ 0x10000) >> 6);
-    	/* FIXME: is it what's required ?? */
+	/* FIXME: is it what's required ?? */
 	*pbase = (((-properties.horizontal->Descender) * 
 	            imetrics.y_scale)/ 0x10000) >> 6;
 }
@@ -698,7 +697,7 @@ GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 		if (TT_Load_Glyph (pf->instance, pf->glyph, curchar,
 			TTLOAD_SCALE_GLYPH|TTLOAD_HINT_GLYPH) != TT_Err_Ok)			
 		{		
-		     fprintf(stderr, "Unable to load glyph with index=%d\n",curchar);    
+			printf("Unable to load glyph with index=%d\n",curchar);    
 			return 0;
 		}
 		TT_Get_Glyph_Metrics (pf->glyph, &metrics);
@@ -809,7 +808,7 @@ get_tt_name(char *p)
 	/*printf("Trying to open: %s!\n",p);*/
 
 	if (TT_Open_Face(engine, p, &face) != TT_Err_Ok) {
-		fprintf(stderr, "Error opening font: %s\n", p);
+		printf("Error opening font: %s\n", p);
 		return NULL;
 	}
 
@@ -851,7 +850,7 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 	
 
 	if (TT_Err_Ok != TT_Init_FreeType(&engine)) {
-		fprintf(stderr, "Unable to initialize freetype\n");
+		printf("Unable to initialize freetype\n");
 		*numfonts = -1;
 		return ;
 	}
@@ -859,7 +858,7 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 	dir = opendir(FREETYPE_FONT_DIR);
 
 	if (dir <= 0) {
-		fprintf(stderr, "Error opening font directory\n");
+		printf("Error opening font directory\n");
 		*numfonts = -1;
 		return ;
 	}

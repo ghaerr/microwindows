@@ -39,6 +39,7 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 BIGENDIAN                = N
+NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-

@@ -1,3 +1,5 @@
+To build Microwindows, see src/INSTALL and src/CONTENTS.
+
 Microwindows is an Open Source project aimed at bringing
 the features of modern graphical windowing environments
 to smaller devices.  Microwindows' genesis was with the
@@ -35,6 +37,8 @@ user is moving windows on the screen.
 In addition, the Nano-X server can also be built on top of
 the device-independent graphics engine.
 
+WEB SITE
+========
 The main Microwindows web site is at
 	http://microwindows.org/
 
@@ -46,6 +50,8 @@ Microwindows may be downloaded at
 
 The chief maintainer of the project is Greg Haerr <greg@censoft.com>
 
+MAILING LIST
+============
 Microwindows and Nano-X are discussed on the NanoGUI mailing
 list.  To subscribe, send mail to nanogui-subscribe@linuxhacker.org.
 The list is nanogui@linuxhacker.org.
@@ -53,8 +59,8 @@ The list is nanogui@linuxhacker.org.
 Mailing list archives are available at
 	http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/0
 
+ELKS
+====
 The ELKS mailing list is linux-8086@vger.rutgers.edu.  To subscribe,
 send a message to majordomo@vger.rutgers.edu containing the words
 subscribe linux-8086 in the body.
-
-

@@ -146,7 +146,7 @@ LIBT1LIB                 = /usr/lib/libt1.a
 HAVE_FREETYPE_SUPPORT    = N
 INCFTLIB                 = /usr/include
 LIBFTLIB                 = /usr/lib/libttf.so
-FREETYPE_FONT_DIR        = "/usr/local/microwin/fonts"
+FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
 # PCF font support 
@@ -179,10 +179,21 @@ HAVE_BIG5_SUPPORT        = N
 HAVE_GB2312_SUPPORT      = N
 
 ####################################################################
+# Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+####################################################################
+HAVE_JISX0213_SUPPORT    = N
+
+####################################################################
 # Korean HANGUL font support (jo16x16.c)
 ####################################################################
 HAVE_KSC5601_SUPPORT     = N
 HANGUL_FONT_DIR          = "fonts/korean"
+
+####################################################################
+# Japanese EUC-JP support using MGL font
+####################################################################
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
 
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping

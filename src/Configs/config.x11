@@ -1,7 +1,7 @@
 ####################################################################
 # Microwindows and Nano-X configuration file
 #
-# This package can be configured to run on Linux (MIPS, ARM, x86)
+# This package can be configured to run on Linux (MIPS, ARM, POWERPC or x86)
 # UNIX, ELKS, DJGPP, or RTEMS.
 # On Linux, we've got drivers for Linux 2.x framebuffers, X11, or,
 # svgalib for VGA hardware.
@@ -23,6 +23,9 @@
 # LINUX-NATIVE
 # LINUX-ARM
 # LINUX-MIPS
+# LINUX-POWERPC
+# LINUX-SH
+# FREEBSD-X86
 # SOLARIS
 # RTEMS
 # DJGPP
@@ -34,6 +37,8 @@
 ARCH                     = LINUX-NATIVE
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
+POWERPCTOOLSPREFIX       = powerpc-linux-
+SHTOOLSPREFIX            = sh-linux-gnu
 RTEMSTOOLSPREFIX         = i386-rtemself-
 
 ####################################################################
@@ -42,7 +47,7 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = N
+DEBUG                    = Y
 VERBOSE                  = N
 
 ####################################################################
@@ -82,6 +87,7 @@ NANOWM                   = Y
 # define MWPF_TRUECOLOR0888 /* pixel is packed 32 bits 8/8/8 truecolor*/
 # define MWPF_TRUECOLOR888  /* pixel is packed 24 bits 8/8/8 truecolor*/
 # define MWPF_TRUECOLOR565  /* pixel is packed 16 bits 5/6/5 truecolor*/
+# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits 5/5/5 truecolor*/
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits 3/3/2 truecolor*/
 #
 ####################################################################
@@ -115,7 +121,7 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = N
+HAVE_JPEG_SUPPORT        = Y
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.a
 
@@ -137,10 +143,10 @@ LIBT1LIB                 = /usr/lib/libt1.a
 ####################################################################
 # TrueType font support thru FreeType
 ####################################################################
-HAVE_FREETYPE_SUPPORT    = N
+HAVE_FREETYPE_SUPPORT    = Y
 INCFTLIB                 = /usr/include
 LIBFTLIB                 = /usr/lib/libttf.so
-FREETYPE_FONT_DIR        = "/usr/local/microwin/fonts"
+FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
 # PCF font support 
@@ -163,9 +169,31 @@ HAVE_HZK_SUPPORT         = N
 HZK_FONT_DIR             = "fonts/chinese"
 
 ####################################################################
+# Chinese BIG5 compiled in font support (big5font.c)
+####################################################################
+HAVE_BIG5_SUPPORT        = N
+
+####################################################################
 # Chinese GB2312 compiled in font support (gb2312font.c)
 ####################################################################
 HAVE_GB2312_SUPPORT      = N
+
+####################################################################
+# Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+####################################################################
+HAVE_JISX0213_SUPPORT    = N
+
+####################################################################
+# Korean HANGUL font support (jo16x16.c)
+####################################################################
+HAVE_KSC5601_SUPPORT     = N
+HANGUL_FONT_DIR          = "fonts/korean"
+
+####################################################################
+# Japanese EUC-JP support using MGL font
+####################################################################
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
 
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping
@@ -224,9 +252,12 @@ else
 
 # framebuffer screen driver (linear and/or vga 4 planes)
 # set VTSWITCH to include virtual terminal switch code
+# set FBREVERSE to reverse bit orders in 1,2,4 bpp
+# set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
 FBVGA                    = Y
 VTSWITCH                 = Y
+FBREVERSE                = N
 
 # svgalib screen driver
 VGALIB                   = N
@@ -237,36 +268,40 @@ HWVGA                    = N
 ####################################################################
 # Mouse or touch screen driver
 # TPMOUSE for Linux-VR and Embedded Planet
+# TPHELIO for VTech Helio
 # ADSMOUSE for ADS Graphics Client
 # IPAQMOUSE for Compaq iPAQ,Intel Assabet, ARM ucb1200 (/dev/h3600_ts 11,0)
+# HARRIERMOUSE for NEC Harrier
+# PSIONMOUSE for the Psion 5
+# MTMOUSE for Microtouch touchpanel controller at RS232 port
 ####################################################################
 GPMMOUSE                 = Y
 SUNMOUSE                 = N
 SERMOUSE                 = N
 TPMOUSE                  = N
+TPHELIO                  = N
 ADSMOUSE                 = N
 IPAQMOUSE                = N
+HARRIERMOUSE             = N
+PSIONMOUSE               = N
+MTMOUSE                  = N
 NOMOUSE                  = N
 
-# keyboard type
-TTYKBD                   = Y
+# keyboard or null kbd driver
+TTYKBD                   = N
+SCANKBD                  = Y
 PIPEKBD                  = N
 NOKBD                    = N
 
 endif
 
 ####################################################################
-#
-# If the platform is a LINUX-ARM box ....
-#
+# Screen driver specific configuration
+# SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
+# INVERT4BPP 4bpp inverted pixel driver for VTech Helio
 ####################################################################
-ifeq ($(ARCH), LINUX-ARM)
-
-# If 4bpp driver with arm SA1100 LCD controller is used ...
 SA1100_LCD_LTLEND        = N
-
-endif
-
+INVERT4BPP               = N
 
 ####################################################################
 #
@@ -295,6 +330,7 @@ ifeq ($(ARCH), ELKS)
 ASMVGADRIVER             = Y
 CVGADRIVER               = N
 HERCDRIVER               = N
+DBGDRIVER                = N
 
 # Mouse support
 SERMOUSE                 = Y

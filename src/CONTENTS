@@ -1,13 +1,15 @@
+Updated 21 August 2002
+
 CORE PACKAGES
 microwindows-0.89pre9.tar.gz		base distribution
 microwindows-fonts-0.89pre9.tar.gz	free truetype, chinese, japanese, korean fonts
-freetype-X.X.tar.gz			libttf.so - freetype font engine
-jpeg6b.tgz				libjpeg.a - JPEG image library
+freetype-1.3.1.tar.gz			libttf.so - freetype font engine
+jpegsrc.v6b.tar.gz			libjpeg.a - JPEG image library
 png-1.0.5.tar.gz			libpng.a - PNG image library
 zlib-X-X.tar.gz				libz.a - compression lib for loadable pcf.gz fonts/png files
-t1lib-X.X.tar.gz			libt1.a - T1 font engine
-alpha.diff				alpha blending patch (not yet fully MPL)
-ime-X.X.patch				chinese input method editor (untested)
+t1lib-1.0.tar.gz			libt1.a - T1 font engine
+ime-beta-1.patch			chinese input method editor (untested)
+alpha.diff				alpha blending patch (soon to be included core)
 
 DEMONSTRATION SCRIPTS
 chess.sh	chess game demo
@@ -22,29 +24,34 @@ launcher.sh	sample desktop with great screensavers (wait 10 secs)
 mouse.sh	start gpm mouse driver
 nxterm.sh	terminal emulator, screen kbd demo
 nxview.sh	image viewer demo
-pcfdemo.sh	PCF loadable font demo
-scribble.sh	terminal emulator, handwriting recognition
-vnc.sh
+vnc.sh		VNC client demo
+
+BINARIES (run in demo scripts above)
+bin/mdemo	Microwindows 3d demo (win32 api)
+bin/mterm	Microwindows terminal emulator (win32 api)
+bin/malpha	Microwindows alpha blending (win32 api)
+bin/nano-X	Nano-X server (must be run before Nano-X demos) (see *.sh)
+bin/nanowm	Nano-X Window Manager (run after nano-X, see *.sh)
 
 OPTIONAL LIBRARIES
 sdl-1.1.3c.tar.gz			NX SDL library
-flnx-X.X.tar.gz				NX FLTK library
-nxlib-0.4.tar.gz			X11 -> NX conversion library
-qt-x11.2.3.1.tar.gz			X11 C++ Qt library w/qtconf.sh, qtfix.sh
+flnx-0.16.tar.gz			NX FLTK library
 Nanogtk-1.0.tar.gz			GTK+ port to NX
-tinywidgets-X.X.tar.gz			NX C widget library
+tinywidgets-0.1.tar.gz			NX C widget library
+nxlib-0.4.tar.gz			X11 -> NX conversion library (unreleased)
+qt-x11.2.3.1.tar.gz			X11 C++ Qt library w/qtconf.sh, qtfix.sh
 
 APPS
 dvdview-1.1.0c.tar.gz			NX mpeg player (single threaded, direct fb map) (16-32bpp)
 smpeg-0.4.0c.tar.gz			NX/SDL mpeg player (multi-threaded)
-nxdoom					NX Doom (8bpp only) (includes wad file)
-nxfreecell				NX freecell (desktop and iPAQ versions?)
+nxdoom-src.tar.gz			NX Doom (8bpp only) (seperate doom1.wad required)
+nxfreecell-0.1.tar.gz			NX freecell (desktop and iPAQ versions?)
 nxzilla-source-0.9.4.tar.bz2		NX mozilla
-nxzilla-devel-X.X.tar.gz		mozilla development kit
-nxrwin-X.X.tar.gz			NX microsoft RDP client
-viewml-X.X.tar.gz			NX ViewML web browser
+mozilla-devel-0.9.5.tar.gz		mozilla development kit
+nxrwin-1.5.0a.tar.gz			NX microsoft RDP client
+viewml-0.21.tar.gz			NX ViewML web browser
 
 APPS (requires nxlib X11 library)
-xsunclock				X11 sunclock
-xsaver					X11 screen saver graphics demos
-xfreecell				X11 freecell
+xsunclock-1.5				X11 sunclock
+xscreensaver-3.26			X11 screen saver graphics demos
+xfreecell-1.0.5a			X11 freecell

@@ -345,6 +345,10 @@ fnt_load_font(const char *path)
 	for (i=0; i<nbits; ++i)
 		if (!READSHORT(ifp, &pf->bits[i]))
 			goto errout;
+	/* pad to longword boundary*/
+	if (ftell(ifp) & 02)
+		if (!READSHORT(ifp, &pf->bits[i]))
+			goto errout;
 	if (noffset)
 		for (i=0; i<pf->size; ++i)
 			if (!READLONG(ifp, &pf->offset[i]))

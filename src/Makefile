@@ -33,6 +33,10 @@ ifeq ($(ARCH), ECOS)
 	$(MAKE) -C ecos
 endif
 
+realclean: clean
+	$(MAKE) -C fonts realclean
+	$(MAKE) -C mwin/bmp realclean
+
 #
 # Documentation targets:
 #

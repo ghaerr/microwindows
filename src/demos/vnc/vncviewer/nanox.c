@@ -1,5 +1,6 @@
 /*
  *  Copyright (C) 1997, 1998 Olivetti & Oracle Research Laboratory
+ *  Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -240,10 +241,9 @@ XChangeGC(Display *dpy, GR_GC_ID gc, unsigned long vmask, GR_GC_INFO *gcv)
 /*	printf("XChangeGC: foreground=%08x\n", gcv->foreground); */
 	if (pixtype == MWPF_PALETTE) {
 		/*
-		 * The MWF_PALINDEX bit tells GdFindColor() to skip the palette
-		 * lookup. This is OK because we have already set the palette.
+		 * This is OK because we have already set the palette.
 		 */
-		GrSetGCForeground(gc, gcv->foreground | MWF_PALINDEX);
+		GrSetGCForegroundUsingPalette(gc, gcv->foreground);
 	} else {
 		GrSetGCForeground(gc, gcv->foreground);
 	}

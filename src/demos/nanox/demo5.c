@@ -1,5 +1,6 @@
 /*
  * Demonstration program for off screen drawing with Nano-X. Based on demo.c
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -457,6 +458,6 @@ do_idle(void)
 	
 	color = rand() % si.ncolors;
 
-	GrSetGCForeground(gc3, MWPALINDEX(color));
+	GrSetGCForegroundUsingPalette(gc3, color);
 	GrFillEllipse(w2, gc3, x, y, rx, ry);	
 }

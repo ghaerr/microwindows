@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -15,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "device.h"
 #include "swap.h"
 
@@ -138,8 +140,8 @@ GdOpenScreen(void)
 	GdSetMode(MWMODE_COPY);
 	GdSetFillMode(MWFILL_SOLID);  /* Set the fill mode to solid */
 
-	GdSetForeground(GdFindColor(MWRGB(255, 255, 255)));	/* WHITE*/
-	GdSetBackground(GdFindColor(MWRGB(0, 0, 0)));		/* BLACK*/
+	GdSetForegroundColor(psd, MWRGB(255, 255, 255));	/* WHITE*/
+	GdSetBackgroundColor(psd, MWRGB(0, 0, 0));		/* BLACK*/
 	GdSetUseBackground(TRUE);
 	GdSetFont(GdCreateFont(psd, MWFONT_SYSTEM_VAR, 0, NULL));
 
@@ -247,13 +249,13 @@ GdGetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
  * Convert a palette-independent value to a hardware color
  */
 MWPIXELVAL
-GdFindColor(MWCOLORVAL c)
+GdFindColor(PSD psd, MWCOLORVAL c)
 {
 	/*
 	 * Handle truecolor displays.  Note that the MWF_PALINDEX
 	 * bit is ignored when running truecolor drivers.
 	 */
-	switch(gr_pixtype) {
+	switch(psd->pixtype) {
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR888:
 		/* create 24 bit 8/8/8 pixel (0x00RRGGBB) from RGB colorval*/
@@ -327,6 +329,41 @@ GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
 		}
 	}
 	return best;
+}
+
+/**
+ * GdGetColorRGB:
+ * @pixel: Hardware-specific color.
+ * @Returns: 24-bit RGB color
+ *
+ * Convert a color from a driver-dependent PIXELVAL to a COLORVAL.
+ */
+MWCOLORVAL
+GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
+{
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLOR0888:
+		return PIXEL888TOCOLORVAL(pixel);
+
+	case MWPF_TRUECOLOR888:
+		return PIXEL888TOCOLORVAL(pixel);
+
+	case MWPF_TRUECOLOR565:
+		return PIXEL565TOCOLORVAL(pixel);
+
+	case MWPF_TRUECOLOR555:
+		return PIXEL555TOCOLORVAL(pixel);
+
+	case MWPF_TRUECOLOR332:
+		return PIXEL332TOCOLORVAL(pixel);
+
+	case MWPF_PALETTE:
+		return GETPALENTRY(gr_palette, pixel);
+
+	default:
+		assert(FALSE);
+		return 0;
+	}
 }
 
 #if !VXWORKS

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999, 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Copyright (c) 2000 Vidar Hokstad
@@ -4030,5 +4031,47 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 	req->wid = wid;
 	req->rid = rid;
 	req->type = type;
+	UNLOCK(&nxGlobalLock);
+}
+
+/**
+ * GrSetGCForegroundUsingPalette:
+ * @gc: the ID of the graphics context to set the foreground colour of.
+ * @foreground: the GR_PIXELVAL (i.e. palette index) to use as the new
+ *              foreground colour.
+ *
+ * Changes the foreground colour of the specified graphics context to the
+ * specified colour.
+ */
+void
+GrSetGCForegroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL foreground)
+{
+	nxSetGCForegroundUsingPaletteReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(SetGCForegroundUsingPalette);
+	req->gcid = gc;
+	req->color = foreground;
+	UNLOCK(&nxGlobalLock);
+}
+
+/**
+ * GrSetGCBackgroundUsingPalette:
+ * @gc: the ID of the graphics context to set the background colour of
+ * @background: the GR_PIXELVAL (i.e. palette index) to use as the new
+ *              background colour
+ *
+ * Changes the background colour of the specified graphics context to the
+ * specified colour.
+ */
+void
+GrSetGCBackgroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL background)
+{
+	nxSetGCBackgroundUsingPaletteReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(SetGCBackgroundUsingPalette);
+	req->gcid = gc;
+	req->color = background;
 	UNLOCK(&nxGlobalLock);
 }

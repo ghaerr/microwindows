@@ -1,8 +1,8 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 /*
- * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Engine-level Screen, Mouse and Keyboard device driver API's and types
  *
@@ -481,8 +481,10 @@ void	GdCloseScreen(PSD psd);
 int	GdSetPortraitMode(PSD psd, int portraitmode);
 int	GdSetMode(int mode);
 MWBOOL	GdSetUseBackground(MWBOOL flag);
-MWPIXELVAL GdSetForeground(MWPIXELVAL fg);
-MWPIXELVAL GdSetBackground(MWPIXELVAL bg);
+MWPIXELVAL GdSetForeground(PSD psd, MWPIXELVAL fg);
+MWPIXELVAL GdSetBackground(PSD psd, MWPIXELVAL bg);
+MWPIXELVAL GdSetForegroundColor(PSD psd, MWCOLORVAL fg);
+MWPIXELVAL GdSetBackgroundColor(PSD psd, MWCOLORVAL bg);
 
 void GdSetDash(unsigned long *mask, int *count);
 void GdSetStippleBitmap(MWIMAGEBITS *stipple, int width, int height);
@@ -493,7 +495,8 @@ void GdSetTilePixmap(PSD src, int width, int height);
 void	GdResetPalette(void);
 void	GdSetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
 int	GdGetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
-MWPIXELVAL GdFindColor(MWCOLORVAL c);
+MWCOLORVAL GdGetColorRGB(PSD psd, MWPIXELVAL pixel);
+MWPIXELVAL GdFindColor(PSD psd, MWCOLORVAL c);
 MWPIXELVAL GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr);
 int	GdCaptureScreen(char *path);
 void	GdGetScreenInfo(PSD psd,PMWSCREENINFO psi);

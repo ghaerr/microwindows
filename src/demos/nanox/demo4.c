@@ -1,5 +1,6 @@
 /*
  * Demonstration program for Nano-X blitting
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,9 +63,9 @@ main(int argc,char **argv)
 		linelen, size, pixels);
 
 	/* Draw some stuff on offscreen */
-	GdSetForeground(GdFindColor(GREEN));
+	GdSetForegroundColor(mempsd, GREEN);
 	GdFillRect(mempsd, 0, 0, 50, 100);
-	GdSetForeground(GdFindColor(RED));
+	GdSetForegroundColor(mempsd, RED);
 	GdFillRect(mempsd, 5, 20, 40, 60);
 
 	/* blit */

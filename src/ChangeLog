@@ -1,5 +1,27 @@
 	(24 Feb 03)
+	* APPLIED mw_phillips_color.c (Jonathan)
+	  Contributed by Koninklijke Philips Electronics N.V.
+	* Use new GrSetGCForegroundUsingPalette() API rather than the
+	  deprecated MWPALINDEX() macro.
+	* Added foregroundispixelval and backgroundispixelval flags to
+	  GR_GC and GR_GC_INFO structures.
+	* Added GrSetGCForegroundUsingPalette, GrSetGCBackgroundUsingPalette
+	* Added new functions GdSetForegroundColor() and GdSetBackgroundColor
+		GdSetForeground/GdSetBackground now takes MWPIXELVAL only.
+	* Added a PSD parameter to GdSetForeground() and GdSetBackground(),
+		GdFindColor().  Allows multiple color depths to be supported
+		at the same time by different PSDs
+	* (wingdi.c) Using GdGetColorRGB() instead of a switch()
+	  statement that duplicated it's functionality.
+	* Replacing GdSetForeground(GdFindColor(c))
+	  with GdSetForegroundColor(psd,c) - note the extra PSD
+	  parameter.  Similarly for GdSetBackgroundColor().
+	* New function GdGetColorRGB(), the inverse of GdFindColor().
+	* Preventing multiple arc draws - this was causing
+	  problems in XOR and alpha-blending drawing modes.
+
 	* APPLIED mw_phillips_x11.c (Jonathan)
+FIX - introduces crash of demo2.sh when scrolling
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* Resizing the window caused an assert() fail and
 	  crash.  Added a call to set size hints on the window, indicating

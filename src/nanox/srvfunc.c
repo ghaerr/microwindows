@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -670,7 +671,9 @@ GrNewGC(void)
 	gcp->yoff = 0;
 	gcp->fontid = 0;	/* 0 is default font*/
 	gcp->foreground = WHITE;
+	gcp->foregroundispixelval = GR_FALSE;
 	gcp->background = BLACK;
+	gcp->backgroundispixelval = GR_FALSE;
 	gcp->usebackground = GR_TRUE;
 
 	gcp->exposure = GR_TRUE;
@@ -796,6 +799,8 @@ GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
 	gcip->font = gcp->fontid;
 	gcip->foreground = gcp->foreground;
 	gcip->background = gcp->background;
+	gcip->foregroundispixelval = gcp->foregroundispixelval;
+	gcip->backgroundispixelval = gcp->backgroundispixelval;
 	gcip->usebackground = gcp->usebackground;
 	gcip->exposure = gcp->exposure;
 }
@@ -1728,10 +1733,12 @@ GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
 	GR_GC		*gcp;		/* graphics context */
 
 	gcp = GsFindGC(gc);
-	if (!gcp || gcp->foreground == foreground)
+	if (!gcp || (!gcp->foregroundispixelval &&
+	             gcp->foreground == foreground))
 		return;
 
 	gcp->foreground = foreground;
+	gcp->foregroundispixelval = GR_FALSE;
 	gcp->changed = GR_TRUE;
 }
 
@@ -1744,10 +1751,48 @@ GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
 	GR_GC		*gcp;		/* graphics context */
 
 	gcp = GsFindGC(gc);
-	if (!gcp || gcp->background == background)
+	if (!gcp || (!gcp->backgroundispixelval &&
+	              gcp->background == background))
 		return;
 
 	gcp->background = background;
+	gcp->backgroundispixelval = GR_FALSE;
+	gcp->changed = GR_TRUE;
+}
+
+/*
+ * Set the foreground color in a graphics context.
+ */
+void
+GrSetGCForegroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL foreground)
+{
+	GR_GC *gcp;		/* graphics context */
+
+	gcp = GsFindGC(gc);
+	if (!gcp || (gcp->foregroundispixelval &&
+	             gcp->foreground == foreground))
+		return;
+
+	gcp->foreground = foreground;
+	gcp->foregroundispixelval = GR_TRUE;
+	gcp->changed = GR_TRUE;
+}
+
+/*
+ * Set the background color in a graphics context.
+ */
+void
+GrSetGCBackgroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL background)
+{
+	GR_GC *gcp;		/* graphics context */
+
+	gcp = GsFindGC(gc);
+	if (!gcp || (gcp->backgroundispixelval &&
+	             gcp->background == background))
+		return;
+
+	gcp->background = background;
+	gcp->backgroundispixelval = GR_TRUE;
 	gcp->changed = GR_TRUE;
 }
 
@@ -2651,7 +2696,7 @@ GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
 void
 GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
 {
-	*retpixel = GdFindColor(c);
+	*retpixel = GdFindColor(&scrdev, c);
 }
 
 /* visible =0, no cursor change; =1, show; else hide*/

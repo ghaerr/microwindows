@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Demo program for Microwindows
  */
@@ -332,13 +333,13 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		w = rc.right - rc.left;
 		h = rc.bottom - rc.top;
 		w += 10;
-		GdSetForeground(GdFindColor(RGB(0,255,0)));
+		GdSetForegroundColor(hdc->psd, RGB(0,255,0));
 		GdArcAngle(hdc->psd, x+w/2, y+h/2, w/2, h/2, startdegrees*64,
 			enddegrees*64, MWPIE);
-		GdSetForeground(GdFindColor(RGB(0,0,0)));
+		GdSetForegroundColor(hdc->psd, RGB(0,0,0));
 		GdArcAngle(hdc->psd, x+w/2, y+h/2, w/2, h/2, startdegrees*64,
 			enddegrees*64, MWARCOUTLINE);
-		/*GdSetForeground(GdFindColor(RGB(255,255,255)));*/
+		/*GdSetForegroundColor(hdc->psd, RGB(255,255,255)));*/
 		/*GdPoint(hdc->psd, x+w/2, y+h/2);*/
 	}
 	EndPaint(hwnd, &ps);

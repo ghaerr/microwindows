@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Nano-X Core Protocol Header
  * 
@@ -1274,5 +1275,25 @@ typedef struct {
 	UINT16	type;
 } nxSetWindowRegionReq;
 
-#define GrTotalNumCalls         117
+#define GrNumSetGCForegroundUsingPalette    117
+
+typedef struct {
+	BYTE8 reqType;
+	BYTE8 hilength;
+	UINT16 length;
+	IDTYPE gcid;
+	UINT32 color;
+} nxSetGCForegroundUsingPaletteReq;
+
+#define GrNumSetGCBackgroundUsingPalette    118
+
+typedef struct {
+	BYTE8 reqType;
+	BYTE8 hilength;
+	UINT16 length;
+	IDTYPE gcid;
+	UINT32 color;
+} nxSetGCBackgroundUsingPaletteReq;
+
+#define GrTotalNumCalls         119
 

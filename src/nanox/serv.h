@@ -1,6 +1,7 @@
 #ifndef	_SERV_H
 #define	_SERV_H
 /*
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -189,6 +190,8 @@ struct gr_gc {
 	GR_FONT_ID	fontid;		/* current font id*/
 	GR_COLOR	foreground;	/* foreground color */
 	GR_COLOR	background;	/* background color */
+	GR_BOOL		foregroundispixelval;	/* TRUE if 'foreground' is actually a GR_PIXELVAL */
+	GR_BOOL		backgroundispixelval;	/* TRUE if 'background' is actually a GR_PIXELVAL */
 	GR_BOOL		usebackground;	/* actually display the background */
 
         GR_BOOL         exposure;             /* Indicates if we should send expose events on a GrCopyArea */

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Win32 API upper level graphics drawing routines
  */
@@ -377,7 +378,6 @@ GetPixel(HDC hdc, int x, int y)
 	HWND		hwnd;
 	POINT		pt;
 	MWPIXELVAL	pixel;
-	MWPALENTRY	rgb;
 
 	hwnd = MwPrepareDC(hdc);
 	if(!hwnd)
@@ -390,29 +390,7 @@ GetPixel(HDC hdc, int x, int y)
 	/* read pixel value*/
 	GdReadArea(hdc->psd, pt.x, pt.y, 1, 1, &pixel);
 
-	switch(hdc->psd->pixtype) {
-	case MWPF_TRUECOLOR0888:
-	case MWPF_TRUECOLOR888:
-		/* create RGB colorval from 8/8/8 pixel*/
-		return PIXEL888TOCOLORVAL(pixel);
-
-	case MWPF_TRUECOLOR565:
-		/* create RGB colorval from 5/6/5 pixel*/
-		return PIXEL565TOCOLORVAL(pixel);
-
-	case MWPF_TRUECOLOR555:
-		/* create RGB colorval from 5/5/5 pixel*/
-		return PIXEL555TOCOLORVAL(pixel);
-
-	case MWPF_TRUECOLOR332:
-		/* create RGB colorval from 3/3/2 pixel*/
-		return PIXEL332TOCOLORVAL(pixel);
-
-	case MWPF_PALETTE:
-		if(GdGetPalette(hdc->psd, pixel, 1, &rgb))
-			return RGB(rgb.r, rgb.g, rgb.b);
-	}
-	return CLR_INVALID;
+	return GdGetColorRGB(hdc->psd, pixel);
 }
 
 COLORREF WINAPI
@@ -430,7 +408,7 @@ SetPixel(HDC hdc, int x, int y, COLORREF crColor)
 		ClientToScreen(hwnd, &pt);
 
 	/* draw point in passed color*/
-	GdSetForeground(GdFindColor(crColor));
+	GdSetForegroundColor(hdc->psd, crColor);
 	GdPoint(hdc->psd, pt.x, pt.y);
 	return 0;		/* doesn't return previous color*/
 }
@@ -468,7 +446,7 @@ LineTo(HDC hdc, int x, int y)
 
 	/* draw line in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
-		GdSetForeground(GdFindColor(hdc->pen->color));
+		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		/* don't draw last point*/
 		GdLine(hdc->psd, beg.x, beg.y, end.x, end.y, FALSE);
 	}
@@ -495,7 +473,7 @@ Polyline(HDC hdc, CONST POINT *lppt, int cPoints)
 		return TRUE;
 
 	/* draw line in current pen color*/
-	GdSetForeground(GdFindColor(hdc->pen->color));
+	GdSetForegroundColor(hdc->psd, hdc->pen->color);
 
 	beg = *lppt++;
 	if(MwIsClientDC(hdc))
@@ -529,7 +507,7 @@ Rectangle(HDC hdc, int nLeft, int nTop, int nRight, int nBottom)
 
 	/* draw rectangle in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
-		GdSetForeground(GdFindColor(hdc->pen->color));
+		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		GdRect(hdc->psd, rc.left, rc.top,
 			rc.right - rc.left, rc.bottom - rc.top);
 	}
@@ -537,7 +515,7 @@ Rectangle(HDC hdc, int nLeft, int nTop, int nRight, int nBottom)
 	/* fill rectangle in current brush color*/
 	if(hdc->brush->style != BS_NULL) {
 		InflateRect(&rc, -1, -1);
-		GdSetForeground(GdFindColor(hdc->brush->color));
+		GdSetForegroundColor(hdc->psd, hdc->brush->color);
 		GdFillRect(hdc->psd, rc.left, rc.top, rc.right - rc.left,
 			rc.bottom - rc.top);
 	}
@@ -568,13 +546,13 @@ Ellipse(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
 	/* fill ellipse in current brush color*/
 	if(hdc->brush->style != BS_NULL) {
 		InflateRect(&rc, -1, -1);
-		GdSetForeground(GdFindColor(hdc->brush->color));
+		GdSetForegroundColor(hdc->psd, hdc->brush->color);
 		GdEllipse(hdc->psd, rc.left, rc.top, rx, ry, TRUE);
 	}
 
 	/* draw ellipse outline in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
-		GdSetForeground(GdFindColor(hdc->pen->color));
+		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		GdEllipse(hdc->psd, rc.left, rc.top, rx, ry, FALSE);
 	}
 
@@ -607,14 +585,14 @@ dopiearc(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
 
 	/* fill ellipse in current brush color*/
 	if(hdc->brush->style != BS_NULL && type == MWPIE) {
-		GdSetForeground(GdFindColor(hdc->brush->color));
+		GdSetForegroundColor(hdc->psd, hdc->brush->color);
 		GdArc(hdc->psd, rc.left, rc.top, rx, ry,
 			rc2.left, rc2.top, rc2.right, rc2.bottom, MWPIE);
 	}
 
 	/* draw ellipse outline in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
-		GdSetForeground(GdFindColor(hdc->pen->color));
+		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		if(type == MWPIE)
 			type = MWARC;	/* MWARCOUTLINE?*/
 		GdArc(hdc->psd, rc.left, rc.top, rx, ry,
@@ -665,13 +643,13 @@ Polygon(HDC hdc, CONST POINT *lpPoints, int nCount)
 
 	/* fill polygon in current brush color*/
 	if(hdc->brush->style != BS_NULL) {
-		GdSetForeground(GdFindColor(hdc->brush->color));
+		GdSetForegroundColor(hdc->psd, hdc->brush->color);
 		GdFillPoly(hdc->psd, nCount, pp);
 	}
 
 	/* draw polygon outline in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
-		GdSetForeground(GdFindColor(hdc->pen->color));
+		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		GdPoly(hdc->psd, nCount, pp);
 	}
 
@@ -726,7 +704,7 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 	}
 
 	/* fill rectangle in passed brush color*/
-	GdSetForeground(GdFindColor(crFill));
+	GdSetForegroundColor(hdc->psd, crFill);
 	GdFillRect(hdc->psd, rc.left, rc.top,
 		rc.right - rc.left, rc.bottom - rc.top);
 	return TRUE;
@@ -784,7 +762,7 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 			MapWindowPoints(hwnd, NULL, (LPPOINT)&rc, 2);
 
 		/* fill rectangle with current background color*/
-		GdSetForeground(GdFindColor(hdc->bkcolor));
+		GdSetForegroundColor(hdc->psd, hdc->bkcolor);
 		GdFillRect(hdc->psd, rc.left, rc.top, rc.right - rc.left,
 			rc.bottom - rc.top);
 		GdSetUseBackground(FALSE);
@@ -796,13 +774,13 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 		 * if gr_usebg is false...
 		 */
 		/*if(hdc->bkmode == OPAQUE)*/
-			GdSetBackground(GdFindColor(hdc->bkcolor));
+			GdSetBackgroundColor(hdc->psd, hdc->bkcolor);
 	}
 
 	/* nyi: lpDx*/
 
 	/* draw text in current text foreground and background color*/
-	GdSetForeground(GdFindColor(hdc->textcolor));
+	GdSetForegroundColor(hdc->psd, hdc->textcolor);
 	GdSetFont(hdc->font->pfont);
 
 	/* this whole text alignment thing needs rewriting*/

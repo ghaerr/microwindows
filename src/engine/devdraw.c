@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -75,7 +76,7 @@ GdSetUseBackground(MWBOOL flag)
  * Set the foreground color for drawing.
  */
 MWPIXELVAL
-GdSetForeground(MWPIXELVAL fg)
+GdSetForeground(PSD psd, MWPIXELVAL fg)
 {
 	MWPIXELVAL	oldfg = gr_foreground;
 
@@ -87,11 +88,35 @@ GdSetForeground(MWPIXELVAL fg)
  * Set the background color for bitmap and text backgrounds.
  */
 MWPIXELVAL
-GdSetBackground(MWPIXELVAL bg)
+GdSetBackground(PSD psd, MWPIXELVAL bg)
 {
 	MWPIXELVAL	oldbg = gr_background;
 
 	gr_background = bg;
+	return oldbg;
+}
+
+/*
+ * Set the foreground color for drawing.
+ */
+MWPIXELVAL
+GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
+{
+	MWPIXELVAL oldfg = gr_foreground;
+
+	gr_foreground = GdFindColor(psd, fg);
+	return oldfg;
+}
+
+/*
+ * Set the background color for bitmap and text backgrounds.
+ */
+MWPIXELVAL
+GdSetBackgroundColor(PSD psd, MWCOLORVAL bg)
+{
+	MWPIXELVAL oldbg = gr_background;
+
+	gr_background = GdFindColor(psd, bg);
 	return oldbg;
 }
 
@@ -615,7 +640,7 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 	 */
 	for(i=0; i<palsize; ++i) {
 		cr = GETPALENTRY(palette, i);
-		convtable[i] = GdFindColor(cr);
+		convtable[i] = GdFindColor(psd, cr);
 	}
 }
 
@@ -741,7 +766,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		switch(psd->pixtype) {
 		case MWPF_PALETTE:
 		default:
-			pixel = GdFindColor(cr);
+			pixel = GdFindColor(psd, cr);
 			break;
 		case MWPF_TRUECOLOR0888:
 		case MWPF_TRUECOLOR888:
@@ -999,7 +1024,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	case MWPF_RGB:
 		rgbcolor = *(MWCOLORVAL *)PIXELS;
 		PIXELS += sizeof(MWCOLORVAL);
-		gr_foreground = GdFindColor(rgbcolor);
+		gr_foreground = GdFindColor(psd, rgbcolor);
 		break;
 	case MWPF_PIXELVAL:
 		gr_foreground = *(MWPIXELVAL *)PIXELS;

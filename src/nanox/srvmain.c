@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -727,7 +728,7 @@ GsInitialize(void)
 	GdAddTimer(50, CheckVtChange, NULL);
 #endif
 	psd->FillRect(psd, 0, 0, psd->xvirtres-1, psd->yvirtres-1,
-		GdFindColor(BLACK));
+		GdFindColor(psd, BLACK));
 
 	/*
 	 * Tell the mouse driver some things.

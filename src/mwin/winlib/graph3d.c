@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 3D Graphics Library for Micro-Windows
  */
@@ -128,7 +129,7 @@ polyfill(int n, vec2 points[])
 			/*pv[i].x = fx(points[i].x + xoff);*/
 			/*pv[i].y = fy(points[i].y + yoff);*/
 		}
-		GdSetForeground(GdFindColor(hdc->pen->color));
+		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		GdFillPoly(hdc->psd, n, pv);
 	}
 }

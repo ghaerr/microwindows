@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (C) 1999 Bradley D. LaRonde (brad@ltc.com)
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -316,8 +317,8 @@ GdSetCursor(PMWCURSOR pcursor)
 	curmaxx = curminx + pcursor->width - 1;
 	curmaxy = curminy + pcursor->height - 1;
 
-	curfg = GdFindColor(pcursor->fgcolor);
-	curbg = GdFindColor(pcursor->bgcolor);
+	curfg = GdFindColor(&scrdev, pcursor->fgcolor);
+	curbg = GdFindColor(&scrdev, pcursor->bgcolor);
 
 	bytes = MWIMAGE_SIZE(pcursor->width, pcursor->height) * sizeof(MWIMAGEBITS);
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -561,7 +562,7 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
 		GdSetMode(GR_MODE_COPY);
-		GdSetForeground(GdFindColor(wp->background));
+		GdSetForegroundColor(wp->psd, wp->background);
 		if (wp->bgpixmap) {
 			GsWpDrawBackgroundPixmap(wp, wp->bgpixmap, x, y,
 				width, height);
@@ -665,7 +666,7 @@ GsDrawBorder(GR_WINDOW *wp)
 	GsSetClipWindow(wp, NULL, 0);
 	curgcp = NULL;
 	GdSetMode(GR_MODE_COPY);
-	GdSetForeground(GdFindColor(wp->bordercolor));
+	GdSetForegroundColor(wp->psd, wp->bordercolor);
 	GdSetDash(0, 0);
 	GdSetFillMode(GR_FILL_SOLID);
 
@@ -1002,11 +1003,20 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 	 * device driver about it.
 	 */
 	if (gcp->changed) {
+		PSD psd = (wp ? wp->psd : pp->psd);
 		unsigned long	mask = gcp->dashmask;
 		int		count = gcp->dashcount;
 
-		GdSetForeground(GdFindColor(gcp->foreground));
-		GdSetBackground(GdFindColor(gcp->background));
+		if (gcp->foregroundispixelval)
+			GdSetForeground(psd, gcp->foreground);
+		else
+			GdSetForegroundColor(psd, gcp->foreground);
+
+		if (gcp->backgroundispixelval)
+			GdSetBackground(psd, gcp->background);
+		else
+			GdSetBackgroundColor(psd, gcp->background);
+
 		GdSetMode(gcp->mode & GR_MODE_DRAWMASK);
 		GdSetUseBackground(gcp->usebackground);
 		

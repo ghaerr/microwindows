@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1999-2001 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 2000 Vidar Hokstad
  * Copyright (c) 2000 Morten Rolland <mortenro@screenmedia.no>
@@ -1442,6 +1443,22 @@ GrSetWindowRegionWrapper(void *r)
 
 	GrSetWindowRegion(req->wid, req->rid, req->type);
 }
+ 
+static void
+GrSetGCForegroundUsingPaletteWrapper(void *r)
+{
+	nxSetGCForegroundUsingPaletteReq *req = r;
+
+	GrSetGCForegroundUsingPalette(req->gcid, req->color);
+}
+
+static void
+GrSetGCBackgroundUsingPaletteWrapper(void *r)
+{
+	nxSetGCBackgroundUsingPaletteReq *req = r;
+
+	GrSetGCBackgroundUsingPalette(req->gcid, req->color);
+}
 
 void GrShmCmdsFlushWrapper(void *r);
 
@@ -1569,6 +1586,8 @@ struct GrFunction {
 	/* 114 */ {GrSetGCTileWrapper, "GrSetGCTile" },
 	/* 115 */ {GrNewBitmapRegionWrapper, "GrNewBitmapRegion"},
 	/* 116 */ {GrSetWindowRegionWrapper, "GrSetWindowRegion"},
+	/* 117 */ {GrSetGCForegroundUsingPaletteWrapper, "GrSetGCFgPalette"},
+	/* 118 */ {GrSetGCBackgroundUsingPaletteWrapper, "GrSetGCBgPalette"},
 };
 
 void

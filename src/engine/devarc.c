@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000-2001 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Device-independent arc, pie and ellipse routines.
  * GdArc is integer only and requires start/end points.
@@ -421,7 +422,6 @@ drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 	        if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, (int *) &dc);
 		draw_line(slice, -xp, -yp, +xp, 1);
 		draw_line(slice, -xp, +yp, +xp, 1);
-		draw_line(slice, -xp, -yp, +xp, 1);
 		if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, (int *) &dc);
 		return;
 
@@ -473,13 +473,26 @@ drawarc(SLICE *slice)
 
 	while (dx < dy) {
 
-    	        if (gr_dashcount) {
-	          drawon = (gr_dashmask & (1 << bit)) ? 1 : 0;
-		  bit = (bit + 1) % gr_dashcount;
-		}
-	        else drawon = 1;
+		/*
+		 * Only draw if one of the following conditions holds:
+		 * - We're drawing an outline - i.e. slice->type is
+		 *   not MWPIE or MWELLIPSEFILL
+		 * - We're about to move on to the next Y co-ordinate
+		 *   (i.e. we're drawing a filled shape and we're at
+		 *   the widest point for this Y co-ordinate).
+		 *   This is the case if d (the error term) is >0
+		 * Otherwise, we draw multiple times, which messes up
+		 * with SRC_OVER or XOR modes.
+		 */
+		if ((d > 0) || ((slice->type != MWPIE) && (slice->type != MWELLIPSEFILL))) {
+			if (gr_dashcount) {
+				drawon = (gr_dashmask & (1 << bit)) ? 1 : 0;
+				bit = (bit + 1) % gr_dashcount;
+			} else
+				drawon = 1;
 
-		drawarcsegment(slice, xp, yp, drawon);
+			drawarcsegment(slice, xp, yp, drawon);
+		}
 
 		if (d > 0) {
 			yp--;

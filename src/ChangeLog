@@ -1,3 +1,4 @@
+	* updated iPAQ mouse/kbd driver, ucbx100 driver
 Version 0.89pl12 - 13 Apr 2003 - greg@censoft.com
 	* added compressed native font format (.fnt.gz) (HAVE_FNTGZ_SUPPORT)
 	* move to portable locking mechanism in lock.h as default (Jon)

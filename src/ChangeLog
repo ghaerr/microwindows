@@ -1,3 +1,4 @@
+	* fix TIF image decoder (added alpha channel bit)
 	* allow freetype 2 support from mem buffers w/o file i/o (Jonathan)
 	* added hardcoded fnkey support to non-scancode tty driver (Jonathan)
 	* fixed convbmp.c for bigendian systems w/ifdef (Jonathan)

@@ -2582,7 +2582,8 @@ LoadTIFF(char *path, PMWIMAGEHDR pimage)
 	pimage->palette = NULL;
 
 	/* upside down, RGB order (with alpha)*/
-	pimage->compression = MWIMAGE_RGB | MWIMAGE_UPSIDEDOWN;
+	pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL |
+		MWIMAGE_UPSIDEDOWN;
 
 	/* Allocate image */
 	if ((pimage->imagebits = malloc(size * sizeof(uint32))) == NULL)

@@ -894,6 +894,15 @@ err:
  * type and depth and acting accordingly. Similarly, > 8 bits per channel,
  * gamma correction, etc. are not supported.
  */
+
+/* This is a quick user defined function to read from the buffer instead of from the file pointer */
+
+static void
+png_read_buffer(png_structp pstruct, png_bytep pointer, png_size_t size)
+{
+	bread(pstruct->io_ptr, pointer, size);
+}
+
 static int
 LoadPNG(buffer_t * src, PMWIMAGEHDR pimage)
 {
@@ -922,7 +931,10 @@ LoadPNG(buffer_t * src, PMWIMAGEHDR pimage)
 		return 2;
 	}
 
-	png_init_io(state, src);
+	/* Set up the input function */
+	png_set_read_fn(state, src, png_read_buffer);
+	/* png_init_io(state, src); */
+
 	png_set_sig_bytes(state, 8);
 	png_read_info(state, pnginfo);
 	png_get_IHDR(state, pnginfo, &width, &height, &bit_depth, &colourtype,

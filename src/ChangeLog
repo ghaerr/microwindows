@@ -1,3 +1,6 @@
+	* better X11 can't connect errmsg
+	* partially fixed PCF font reading
+	(10 Jul 02)
 	* fix X11 driver indicator status init problem
 	* fix SVGAlib compile bug
 	* fix NOKBD support

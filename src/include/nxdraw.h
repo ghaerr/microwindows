@@ -20,6 +20,7 @@ void		nxDraw3dPushDown(GR_DRAW_ID id, int x, int y, int w, int h);
 void		nxDraw3dUpDownState(GR_DRAW_ID id, int x, int y, int w, int h,
 			GR_BOOL fDown);
 void		nxDraw3dUpFrame(GR_DRAW_ID id, int l, int t, int r, int b);
+void		nxDraw3dShadow(GR_DRAW_ID id, int x, int y, int w, int h, GR_COLOR crTop, GR_COLOR crBottom);
 
 /* nxPaintNCArea offsets*/
 #define CXBORDER	3				/* 3d border width*/

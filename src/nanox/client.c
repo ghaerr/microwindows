@@ -131,7 +131,7 @@ ReadBlock(void *b, int n)
 				 */
 				EPRINTF("nxclient: lost connection to Nano-X "
 					"server\n");
-				_exit(1);
+				exit(1);
 			}
 			if ( errno == EINTR || errno == EAGAIN )
 				continue;
@@ -355,7 +355,7 @@ mySignalhandler(int sig)
 {
 	if (sig == SIGALRM) {
 		EPRINTF("Oops! nxFlushReq() timed out, exiting\n");
-		_exit(127);
+		exit(127);
 	}
 }
 #endif

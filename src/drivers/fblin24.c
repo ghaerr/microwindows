@@ -268,8 +268,8 @@ linear24_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 			row_pos -= 0x10000L;
 		}
 
-		dst = dstpsd->addr + (dstx + dsty*dlinelen) * 3;
-		src = srcpsd->addr + (srcx + (srcy-1)*slinelen) * 3;
+		dst = ((ADDR8)dstpsd->addr) + (dstx + dsty*dlinelen) * 3;
+		src = ((ADDR8)srcpsd->addr) + (srcx + (srcy-1)*slinelen) * 3;
 
 		/* copy a row of pixels*/
 		col_pos = 0x10000;

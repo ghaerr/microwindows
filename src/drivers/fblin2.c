@@ -143,8 +143,8 @@ linear2_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	dst = dstpsd->addr + (dstx>>2) + dsty * dlinelen;
-	src = srcpsd->addr + (srcx>>2) + srcy * slinelen;
+	dst = ((ADDR8)dstpsd->addr) + (dstx>>2) + dsty * dlinelen;
+	src = ((ADDR8)srcpsd->addr) + (srcx>>2) + srcy * slinelen;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;

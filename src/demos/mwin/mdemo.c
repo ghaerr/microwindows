@@ -183,7 +183,12 @@ ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		/* redirect painting to offscreen dc, then use blit function*/
 		hdcMem = CreateCompatibleDC(ps.hdc);
-		hbmp = CreateCompatibleBitmap(hdcMem, rc.right, rc.bottom);
+		/*
+		 * Note: rc.right, rc.bottom happens to be smaller than image
+		 * width/height.  We use the image size, so we can stretchblit
+		 * from the whole image.
+		 */
+		hbmp = CreateCompatibleBitmap(hdcMem, image->width, image->height);
 		hbmpOrg = SelectObject(hdcMem, hbmp);
 
 		/* draw onto offscreen dc*/

@@ -123,6 +123,11 @@ CFLAGS += -DTOUCHSCREEN_ADS=1
 OBJS += mou_touchscreen.o
 endif
 
+ifeq ($(ADS7846MOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_ADS7846=1
+OBJS += mou_touchscreen.o
+endif
+
 ifeq ($(IPAQMOUSE), Y)
 CFLAGS += -DTOUCHSCREEN_IPAQ=1
 OBJS += mou_touchscreen.o

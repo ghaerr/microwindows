@@ -10,6 +10,7 @@
    TOUCHSCREEN_IPAQ - Compaq Ipaq 3x00
    TOUCHSCREEN_TUXSCREEN - Shannon IS2630
    TOUCHSCREEN_ADS - Applied Data Systems Graphics Client+ devices
+   TOUCHSCREEN_ADS7846 - TI ADS6847 (PSI OMAP Innovator)
 */
 
 /* To add a new device, add a new item to the config file
@@ -34,6 +35,10 @@
 
 #ifdef TOUCHSCREEN_ADS
 #include "touchscreen_ads.h"
+#endif
+
+#ifdef TOUCHSCREEN_ADS7846
+#include "touchscreen_ads7846.h"
 #endif
 
 /* The tuxscreen just uses the generic ucb1x00 driver */
@@ -105,7 +110,7 @@ static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb, int mode)
 	*px = event.x;
 	*py = event.y;
 
-#ifdef TOUCHSCREEN_IPAQ
+#if defined(TOUCHSCREEN_IPAQ) || defined(TOUCHSCREEN_ADS7846)
 	*pb = (event.pressure) ? MWBUTTON_L : 0;
 #else
 	*pb = (event.pressure > 50) ? MWBUTTON_L : 0;

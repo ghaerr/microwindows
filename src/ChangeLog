@@ -1,3 +1,4 @@
+	* added big-endian support for PCF fonts (Jordan, Klaus)
 	* fixed usec calc bug in GrDelay (Marc)
 	* fixed 7-bit requirement for MS mouse (Murphy)
 	* fixed GrGetGCTextSize char count calc bug (Jonathan)

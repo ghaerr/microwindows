@@ -1,17 +1,21 @@
 /* 
  * PCF font engine for Microwindows
+ * Copyright (c) 2002, 2003 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2001, 2002 by Century Embedded Technologies
- * Copyright (c) 2002 Greg Haerr <greg@censoft.com>
  *
  * Supports dynamically loading .pcf and pcf.gz X11 fonts
  *
  * Written by Jordan Crouse
  * Bugfixed by Greg Haerr
+ *
+ * 28.01.2003:
+ *   Patch for big-endian-machines by Klaus Fuerth <Fuerth.ELK@gmx.de>
  */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include "swap.h"
 #include "device.h"
 #include "devfont.h"
 #include "../drivers/genfont.h"
@@ -72,6 +76,9 @@ static unsigned long toc_size;
 #define PCF_BDF_ACCELERATORS	(1 << 8)
 #define PCF_FORMAT_MASK		0xFFFFFF00
 #define PCF_DEFAULT_FORMAT	0x00000000
+
+#define PCF_LSB_FIRST 0x01
+#define PCF_MSB_FIRST 0x02
 
 /* A few structures that define the various fields within the file */
 struct toc_entry {
@@ -147,6 +154,17 @@ static unsigned char _reverse_byte[0x100] = {
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
 };
 
+#if MW_CPU_BIG_ENDIAN
+/* Reverse the bits of size bytes */
+static void
+reverse(unsigned char *buf, int size)
+{
+        unsigned int i;
+	for (i=0; i < size; i++)
+	  buf[i] = _reverse_byte[buf[i]];
+}
+#endif
+
 /* Reverse and swap a short */
 static void
 word_reverse_swap(unsigned char *buf)
@@ -157,7 +175,6 @@ word_reverse_swap(unsigned char *buf)
 	buf[0] = _reverse_byte[buf[1]];
 	buf[1] = t;
 }
-
 
 /* Get the offset of the given field */
 static int
@@ -244,33 +261,43 @@ pcf_readprops(FILEP file, struct prop_entry **prop,
 /* Read the actual bitmaps into memory */
 static int
 pcf_readbitmaps(FILEP file, unsigned char **bits, int *bits_size,
-	unsigned long **offsets)
+	int *endian, unsigned long **offsets)
 {
 	unsigned long *o;
 	unsigned char *b;
 	unsigned long bmsize[4];
 	unsigned int format, num_glyphs, offset;
 	unsigned int pad;
+	unsigned int i;
 
 	if ((offset = pcf_get_offset(PCF_BITMAPS)) == -1)
 		return (-1);
 	FSEEK(file, offset, SEEK_SET);
 
 	FREAD(file, &format, sizeof(format));
+	format = dwswap(format);
+
+	if (format & 8) *endian = PCF_LSB_FIRST;
+	else *endian = PCF_MSB_FIRST;
+
 	FREAD(file, &num_glyphs, sizeof(num_glyphs));
+	num_glyphs = dwswap(num_glyphs);
 
 	o = *offsets =
 		(unsigned long *) malloc(num_glyphs * sizeof(unsigned long));
 	FREAD(file, o, sizeof(unsigned long) * num_glyphs);
+	for (i=0; i < num_glyphs; i++)
+	    o[i] = dwswap(o[i]);
 
 	FREAD(file, bmsize, sizeof(bmsize));
+	for (i=0; i < (sizeof(bmsize)/sizeof(bmsize[0])); i++)
+	    bmsize[i] = dwswap(bmsize[i]);
 
 	pad = format & (3 << 0);
 	*bits_size = bmsize[pad] ? bmsize[pad] : 1;
 
 	b = *bits = (unsigned char *) malloc(*bits_size);
 	FREAD(file, b, *bits_size);
-
 	return num_glyphs;
 }
 
@@ -282,27 +309,39 @@ pcf_readmetrics(FILE * file, struct metric_entry **metrics)
 	int format;
 
 	if ((offset = pcf_get_offset(PCF_METRICS)) == -1)
-		return (-1);
+		return -1;
 	FSEEK(file, offset, SEEK_SET);
 	FREAD(file, &format, sizeof(format));
+	format = dwswap(format);
 
 	if ((format & PCF_FORMAT_MASK) == PCF_DEFAULT_FORMAT) {
 		unsigned long size;
 		struct metric_entry *m;
+		int i;
 
 		FREAD(file, &size, sizeof(size));	/* 32 bits - Number of metrics */
+		size = dwswap(size);
 
 		m = *metrics = (struct metric_entry *) malloc(size *
 			sizeof(struct metric_entry));
 
 		FREAD(file, m, sizeof(struct metric_entry) * size);
-		return (size);
+		for (i=0; i < size; i++) {
+			m[i].leftBearing = dwswap(m[i].leftBearing);
+			m[i].rightBearing = dwswap(m[i].rightBearing);
+			m[i].width = dwswap(m[i].width);
+			m[i].ascent = dwswap(m[i].ascent);
+			m[i].descent = dwswap(m[i].descent);
+			m[i].attributes = dwswap(m[i].attributes);
+		}
+		return size;
 	} else {
 		unsigned short size;
 		int i;
 		struct metric_entry *m;
 
 		FREAD(file, &size, sizeof(size));	/* 16 bits - Number of metrics */
+		size = wswap(size);
 
 		m = *metrics = (struct metric_entry *) malloc(size *
 			sizeof(struct metric_entry));
@@ -337,6 +376,7 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 		return -1;
 	FSEEK(file, offset, SEEK_SET);
 	FREAD(file, &format, sizeof(format));
+	format = dwswap(format);
 
 	e = *encoding = (struct encoding_entry *)
 		malloc(sizeof(struct encoding_entry));
@@ -345,6 +385,11 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 	FREAD(file, &e->min_byte1, sizeof(e->min_byte1));
 	FREAD(file, &e->max_byte1, sizeof(e->max_byte1));
 	FREAD(file, &e->defaultchar, sizeof(e->defaultchar));
+	e->min_byte2 = wswap(e->min_byte2);
+	e->max_byte2 = wswap(e->max_byte2);
+	e->min_byte1 = wswap(e->min_byte1);
+	e->max_byte1 = wswap(e->max_byte1);
+	e->defaultchar = wswap(e->defaultchar);
 	e->count = (e->max_byte2 - e->min_byte2 + 1) *
 		(e->max_byte1 - e->min_byte1 + 1);
 	e->map = (unsigned short *) malloc(e->count * sizeof(unsigned short));
@@ -352,8 +397,8 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 
 	for (n = 0; n < e->count; ++n) {
 		FREAD(file, &code, sizeof(code));
-		e->map[n] = code;
-		DPRINTF("ncode %x (%c) %x\n", n, n, code);
+		e->map[n] = wswap(code);
+		DPRINTF("ncode %x (%c) %x\n", n, n, e->map[n]);
 	}
 	DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
 		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);
@@ -378,6 +423,7 @@ pcf_read_toc(FILE * file, struct toc_entry **toc, unsigned long *size)
 	}
 
 	FREAD(file, size, sizeof(*size));
+	*size = dwswap(*size);
 	*toc = (struct toc_entry *) calloc(sizeof(struct toc_entry), *size);
 
 	if (!*toc)
@@ -408,6 +454,7 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 	int glyph_count;
 	unsigned short *goffset = 0;
 	unsigned char *gwidth = 0;
+	int endian;
 
 	/* Try to open the file */
 	if (!(file = FOPEN(name, "r")))
@@ -433,9 +480,15 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 		err = -1;
 		goto leave_func;
 	}
-
+	for (i=0; i < toc_size; i++) {
+		toc[i].type = dwswap(toc[i].type);
+		toc[i].format = dwswap(toc[i].format);
+		toc[i].size = dwswap(toc[i].size);
+		toc[i].offset = dwswap(toc[i].offset);
+	}
 	/* Now, read in the bitmaps */
-	glyph_count = pcf_readbitmaps(file, &glyphs, &bsize, &glyphs_offsets);
+	glyph_count = pcf_readbitmaps(file, &glyphs, &bsize, &endian,
+				      &glyphs_offsets);
 
 	if (glyph_count == -1) {
 		err = -1;
@@ -505,7 +558,15 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 			unsigned short *val = (unsigned short *) ptr;
 
 			for (w = 0; w < lwidth; w++) {
-				word_reverse_swap((unsigned char *) &val[w]);
+#if MW_CPU_BIG_ENDIAN
+				if (endian == PCF_LSB_FIRST)
+					word_reverse_swap((unsigned char *) &val[w]);
+				else
+					reverse((unsigned char *)&val[w],sizeof(val[w]));
+#else
+				if (endian == PCF_MSB_FIRST)
+					word_reverse_swap((unsigned char *) &val[w]);
+#endif
 				*output++ = val[w];
 			}
 

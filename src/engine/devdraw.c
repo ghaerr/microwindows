@@ -165,12 +165,12 @@ void
 GdLine(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
        MWBOOL bDrawLastPoint) 
 {
-	unsigned int xdelta;	/* width of rectangle around line */
-	unsigned int ydelta;	/* height of rectangle around line */
-	unsigned int xinc;	/* increment for moving x coordinate */
-	unsigned int yinc;	/* increment for moving y coordinate */
-	unsigned int rem;	/* current remainder */
-	unsigned int bit = 0;	/* Used for dashed lines */
+	int xdelta;		/* width of rectangle around line */
+	int ydelta;		/* height of rectangle around line */
+	int xinc;		/* increment for moving x coordinate */
+	int yinc;		/* increment for moving y coordinate */
+	int rem;		/* current remainder */
+	unsigned int bit = 0;	/* used for dashed lines */
 	MWCOORD temp;
 
 	/* See if the line is horizontal or vertical. If so, then call

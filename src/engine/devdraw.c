@@ -929,9 +929,15 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			imagebits += 3;
 
 			if (bpp == 32) {
-				if (*imagebits++ != 0) {
-					trans |= 0x01000000;
-				}
+				/*
+				 * FIXME Currently, XPM is the only image
+				 * decoder that creates 32bpp images with
+				 * transparency. This is done specifying the
+				 * transparent color 0x01000000, using 0x01
+				 * in the alpha channel as the indicator.
+				 */
+				if (*imagebits++ == 0x01)
+					trans = 0x01000000;
 			}
 
 			/* handle transparent color */

@@ -2379,8 +2379,9 @@ static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd)
 	    }
 	  else
 	    {
-	      if (n->color == -1)
+	      if (n->color == -1) {
 		n->color = XPM_TRANSCOLOR;
+	      }
 	    }
 
 	  if (++in_color == colors)
@@ -2458,7 +2459,6 @@ static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd)
 		  dwordcolor = (long) n->palette_entry;
 		else
 		  dwordcolor = n->color;
-		
 		c += cpp;
 	      }
 

@@ -1,3 +1,5 @@
+XPM transparent color uses alpha channel
+add alpha channel into GdDrawImage handling
 fix fast gray palette handling for jpegs
 check incorrect jpeg decode when !FASTJPEG
 where is MWIMAGE_ALPHA_CHANNEL used?

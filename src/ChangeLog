@@ -1,4 +1,5 @@
 Version 0.89pre8 - 7 Nov 2001 - greg@censoft.com
+	* added USE_16BIT_ACCESS to fblin16.c to draw using short word stores only
 	* implement all src/dst copy modes in fb/x11 blitters and win32 SetROP2/BitBlt codes
 		use MWMODE_COPY instead of MWMODE_SET
 		use MWROP_COPY instead of MWROP_SRCCOPY

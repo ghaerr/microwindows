@@ -1,7 +1,7 @@
 obsolete MWMODE_SET, MWROP_SRCCOPY, change MWMODE_SETTO1 before 0.89 final
 check for HAVE_STRETCHBLIT before calling it...
 add psi->fbdriver, psi->rmask, psi->portrait in all drivers/scr*.c
-
+ability to link in only specified fb Xbpp drivers
 
 send recursive UPDATE_MOVE events to child windows, correct wp->x, wp->y sent
 add WM_KEYDOWN/KEYUP bits to win32

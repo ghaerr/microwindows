@@ -18,7 +18,19 @@
 #include "device.h"
 #include "fb.h"
 
-#define USE_DRAWAREA	0	/* =1 to implement temp removed DrawArea code*/
+#define USE_DRAWAREA	 0	/* =1 to implement temp removed DrawArea code*/
+#define USE_16BIT_ACCESS 0	/* =1 to force 16 bit display access*/
+
+#if USE_16BIT_ACCESS
+#define memcpy(d,s,nbytes)	memcpy16(d,s,(nbytes)>>1)
+#define memmove(d,s,nbytes)	memcpy16(d,s,(nbytes)>>1)
+static void
+memcpy16(unsigned short *dst, unsigned short *src, int nwords)
+{
+	while (--nwords >= 0)
+		*dst++ = *src++;
+}
+#endif
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int

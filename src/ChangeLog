@@ -1,3 +1,4 @@
+	* fixed .pcf file incorrect width mapping bug w/certain fonts
 	* fixed .fnt file font loader bug with certain fonts
 Version 0.90 - 30 May 2003 - greg@censoft.com
 	* remove scancode hack in ttyscan.c (loses mozilla X compatibility)

@@ -13,6 +13,7 @@ main(int ac,char **av)
 	GR_GC_ID	gc;
 	GR_EVENT 	event;
 	GR_WM_PROPERTIES props;
+	GR_FONT_ID	font;
 
 	if (GrOpen() < 0) {
 		printf("Can't open graphics\n");
@@ -35,6 +36,9 @@ main(int ac,char **av)
 	GrSetWMProperties(w, &props);
 
 	gc = GrNewGC();
+	/*font = GrCreateFont("/tmp/lubI24.fnt", 0, NULL);*/
+	font = GrCreateFont("fonts/pcf/lubI24.pcf", 0, NULL);
+	GrSetGCFont(gc, font);
 
 	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ
 		| GR_EVENT_MASK_BUTTON_DOWN
@@ -55,7 +59,7 @@ main(int ac,char **av)
 				event.exposure.width, event.exposure.height);
 			GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPTEXT));
 			GrSetGCUseBackground(gc, GR_FALSE);
-			GrText(w, gc, 10, 30, "Hello World", -1, GR_TFASCII);
+			GrText(w, gc, 10, 30, "Hello World @MNOPmn", -1, GR_TFASCII);
 GrRect(w, gc, 5, 5, 300, 60);
 			break;
 		case GR_EVENT_TYPE_CLOSE_REQ:

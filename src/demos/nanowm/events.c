@@ -155,11 +155,10 @@ void do_focus_in(GR_EVENT_GENERAL *event)
 void do_key_down(GR_EVENT_KEYSTROKE *event)
 {
 	Dprintf("do_key_down: wid %d, subwid %d, rootx %d, rooty %d, x %d, "
-		"y %d, buttons %d, modifiers %d, uch %lu, special %d, "
-		"ch %d, content %d\n", event->wid, event->subwid, event->rootx,
+		"y %d, buttons %d, modifiers %d, ch %u, scancode %d\n",
+		event->wid, event->subwid, event->rootx,
 		event->rooty, event->x, event->y, event->buttons,
-		event->modifiers, event->uch, event->special, event->ch,
-		event->content);
+		event->modifiers, event->ch, event->scancode);
 
 	/* FIXME: Implement keyboard shortcuts */
 }
@@ -167,11 +166,10 @@ void do_key_down(GR_EVENT_KEYSTROKE *event)
 void do_key_up(GR_EVENT_KEYSTROKE *event)
 {
 	Dprintf("do_key_up: wid %d, subwid %d, rootx %d, rooty %d, x %d, "
-		"y %d, buttons %d, modifiers %d, uch %lu, special %d, "
-		"ch %d, content %d\n", event->wid, event->subwid, event->rootx,
+		"y %d, buttons %d, modifiers %d, ch %u, scancode %d\n",
+		event->wid, event->subwid, event->rootx,
 		event->rooty, event->x, event->y, event->buttons,
-		event->modifiers, event->uch, event->special, event->ch,
-		event->content);
+		event->modifiers, event->ch, event->scancode);
 }
 
 void do_update(GR_EVENT_UPDATE *event)

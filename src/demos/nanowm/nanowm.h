@@ -6,7 +6,7 @@
 #ifndef __NANOWM_H
 #define __NANOWM_H
 
-#ifdef DEBUG
+#ifdef WMDEBUG
 #define Dprintf printf
 #else
 #define Dprintf(ignore...)

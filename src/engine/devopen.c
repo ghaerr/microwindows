@@ -365,6 +365,7 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 }
 
 #if !VXWORKS
+#if defined(HAVE_FILEIO)
 #include <unistd.h>
 #include <fcntl.h>
 /*
@@ -420,7 +421,6 @@ typedef struct {
 #define GMASK888	0x00ff00
 #define BMASK888	0x0000ff
 
-#if defined(HAVE_FILEIO)
 static void
 putsw(unsigned long dw, FILE *ofp)
 {

@@ -87,7 +87,10 @@ SOFTWARE.
 #include <string.h>
 #include "device.h"
 
-typedef void (*voidProcp)();
+typedef void (*REGION_OverlapBandFunctionPtr) (MWCLIPREGION * pReg, MWRECT * r1,
+    MWRECT * r1End, MWRECT * r2, MWRECT * r2End, MWCOORD top, MWCOORD bottom);
+typedef void (*REGION_NonOverlapBandFunctionPtr) (MWCLIPREGION * pReg, MWRECT * r,
+    MWRECT * end, MWCOORD top, MWCOORD bottom);
 
 /*  1 if two RECTs overlap.
  *  0 if two RECTs do not overlap.
@@ -652,9 +655,9 @@ REGION_RegionOp(
 	    MWCLIPREGION *newReg, /* Place to store result */
 	    MWCLIPREGION *reg1,   /* First region in operation */
             MWCLIPREGION *reg2,   /* 2nd region in operation */
-	    void (*overlapFunc)(),     /* Function to call for over-lapping bands */
-	    void (*nonOverlap1Func)(), /* Function to call for non-overlapping bands in region 1 */
-	    void (*nonOverlap2Func)()  /* Function to call for non-overlapping bands in region 2 */
+	    REGION_OverlapBandFunctionPtr overlapFunc,     /* Function to call for over-lapping bands */
+	    REGION_NonOverlapBandFunctionPtr nonOverlap1Func, /* Function to call for non-overlapping bands in region 1 */
+	    REGION_NonOverlapBandFunctionPtr nonOverlap2Func  /* Function to call for non-overlapping bands in region 2 */
 ) {
     MWRECT *r1;                         /* Pointer into first region */
     MWRECT *r2;                         /* Pointer into 2d region */
@@ -995,8 +998,7 @@ GdIntersectRegion(MWCLIPREGION *newReg, MWCLIPREGION *reg1, MWCLIPREGION *reg2)
 	(!EXTENTCHECK(&reg1->extents, &reg2->extents)))
 	newReg->numRects = 0;
     else
-	REGION_RegionOp (newReg, reg1, reg2, 
-	 (voidProcp) REGION_IntersectO, (voidProcp) NULL, (voidProcp) NULL);
+	REGION_RegionOp (newReg, reg1, reg2,  REGION_IntersectO, NULL, NULL);
     
     /*
      * Can't alter newReg's extents before we call miRegionOp because
@@ -1175,8 +1177,8 @@ GdUnionRegion(MWCLIPREGION *newReg, MWCLIPREGION *reg1, MWCLIPREGION *reg2)
 	return;
     }
 
-    REGION_RegionOp (newReg, reg1, reg2, (voidProcp) REGION_UnionO, 
-		(voidProcp) REGION_UnionNonO, (voidProcp) REGION_UnionNonO);
+	REGION_RegionOp (newReg, reg1, reg2, REGION_UnionO, 
+		REGION_UnionNonO, REGION_UnionNonO);
 
     newReg->extents.left = MWMIN(reg1->extents.left, reg2->extents.left);
     newReg->extents.top = MWMIN(reg1->extents.top, reg2->extents.top);
@@ -1376,8 +1378,8 @@ GdSubtractRegion(MWCLIPREGION *regD, MWCLIPREGION *regM, MWCLIPREGION *regS )
 	return;
     }
  
-    REGION_RegionOp (regD, regM, regS, (voidProcp) REGION_SubtractO, 
-		(voidProcp) REGION_SubtractNonO1, (voidProcp) NULL);
+    REGION_RegionOp (regD, regM, regS, REGION_SubtractO, 
+		REGION_SubtractNonO1, NULL);
 
     /*
      * Can't alter newReg's extents before we call miRegionOp because

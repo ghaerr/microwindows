@@ -12,8 +12,11 @@
 #include <asm/page.h>		/* For definition of PAGE_SIZE */
 #include <linux/fb.h>
 #include "nano-X.h"
+#include "lock.h"
 
 #define CG6_RAM    	0x70016000	/* for Sun systems*/
+
+LOCK_EXTERN(nxGlobalLock);	/* global lock for threads safety*/
 
 /* globals: assumes use of non-shared libnano-X.a for now*/
 static int 		frame_fd;	/* client side framebuffer fd*/
@@ -30,9 +33,13 @@ GrOpenClientFramebuffer(void)
 	char *	fbdev;
 	struct fb_fix_screeninfo finfo;
 
+	LOCK(&nxGlobalLock);
+
 	/* if already open, return fb address*/
-	if (physpixels)
+	if (physpixels) {
+		UNLOCK(&nxGlobalLock);
 		return physpixels;
+	}
 
 	/*
 	 * For now, we'll just check whether or not Microwindows
@@ -43,8 +50,10 @@ GrOpenClientFramebuffer(void)
 	 * window within the Microwindows X window.
 	 */
 	GrGetScreenInfo(&sinfo);
-	if (!sinfo.fbdriver)
+	if (!sinfo.fbdriver) {
+		UNLOCK(&nxGlobalLock);
 		return NULL;
+	}
 
 	/*
 	 * Try to open the framebuffer directly.
@@ -54,6 +63,7 @@ GrOpenClientFramebuffer(void)
 	frame_fd = open(fbdev, O_RDWR);
 	if (frame_fd < 0) {
 		printf("Can't open framebuffer device\n");
+		UNLOCK(&nxGlobalLock);
 		return NULL;
 	}
 
@@ -92,16 +102,19 @@ GrOpenClientFramebuffer(void)
 		goto err;
 	}
 	physpixels = frame_map + frame_offset;
+	UNLOCK(&nxGlobalLock);
 	return physpixels;
 
 err:
 	close(frame_fd);
+	UNLOCK(&nxGlobalLock);
 	return NULL;
 }
 
 void
 GrCloseClientFramebuffer(void)
 {
+	LOCK(&nxGlobalLock);
 	if (frame_fd >= 0) {
 		if (frame_map) {
 			munmap(frame_map, frame_len);
@@ -114,6 +127,7 @@ GrCloseClientFramebuffer(void)
 		/* reset sinfo struct*/
 		sinfo.cols = 0;
 	}
+	UNLOCK(&nxGlobalLock);
 }
 
 /*
@@ -129,6 +143,8 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 	int			x, y;
 	GR_WINDOW_INFO		info;
 	static int		last_portrait = -1;
+
+	LOCK(&nxGlobalLock);
 
 	/* re-get screen info on auto-portrait switch*/
 	if (sinfo.cols == 0 || last_portrait != sinfo.portrait)
@@ -181,4 +197,6 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 	/* winpixels only valid for non-portrait modes*/
 	physoffset = fbinfo->y*fbinfo->pitch + fbinfo->x*fbinfo->bytespp;
 	fbinfo->winpixels = physpixels? (physpixels + physoffset): NULL;
+
+	UNLOCK(&nxGlobalLock);
 }

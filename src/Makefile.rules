@@ -351,7 +351,7 @@ ifeq ($(VERBOSE), N)
 .SILENT:
 endif
 
-.PHONY: default subdirs clean cleandepend xconfig makedestdirs
+.PHONY: default subdirs clean cleandepend cleandepend-notsubdir xconfig makedestdirs
 
 # Add any exportable variable here
 export TOP ARCH CONFIG
@@ -465,15 +465,15 @@ xconfig:
 	./xconfigure
 
 # don't clean lib dir
-cleanapps: cleandepend
-	@echo "Cleaning directory $(CURDIR) ..."
+cleanapps: cleandepend-notsubdir
+	@echo "Cleaning directory       $(CURDIR) ..."
 	$(RM) core *~ *.bak *.o TAGS
 	$(RM) bin/*
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) cleanapps;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleanapps;)
 
-clean: cleandepend
-	@echo "Cleaning directory $(CURDIR) ..."
+clean: cleandepend-notsubdir
+	@echo "Cleaning directory       $(CURDIR) ..."
 	$(RM) core *~ *.bak *.o TAGS
 	$(RM) $(TOP)/lib/*.a $(TOP)/lib/*.so
 	$(shell cd $(TOP)/bin; \
@@ -483,9 +483,11 @@ clean: cleandepend
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 
 
-cleandepend:
-	@echo "Cleaning dependencies in directory $(CURDIR) ..."
+cleandepend-notsubdir:
+	@echo "Cleaning dependencies in $(CURDIR) ..."
 	$(RM) .depend
+
+cleandepend: cleandepend-notsubdir
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) cleandepend;)	
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleandepend;)	
 

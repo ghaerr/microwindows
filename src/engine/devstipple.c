@@ -32,7 +32,7 @@ static int ts_origin_y = 0;
 	(data[(h * SPITCH) + (w / MWIMAGE_BITSPERIMAGE)] & (1 << ((MWIMAGE_BITSPERIMAGE - 1) - (w % MWIMAGE_BITSPERIMAGE))))
 
 void
-GdSetStippleBitmap(MWIMAGEBITS *stipple, int width, int height)
+GdSetStippleBitmap(MWIMAGEBITS *stipple, MWCOORD width, MWCOORD height)
 {
 	int x, y;
 	int size;
@@ -70,7 +70,7 @@ GdSetStippleBitmap(MWIMAGEBITS *stipple, int width, int height)
 }
 
 void
-GdSetTilePixmap(PSD src, int width, int height)
+GdSetTilePixmap(PSD src, MWCOORD width, MWCOORD height)
 {
 	gr_tile.psd = src;
 	if (!src) {

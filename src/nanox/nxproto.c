@@ -194,7 +194,6 @@ nxFlushReq(long newsize, int reply_needed)
 }
 
 /* calc # bytes required for passed string according to encoding*/
-/* FIXME: broken for double-byte encodings...*/
 int
 nxCalcStringBytes(void *str, int count, GR_TEXTFLAGS flags)
 {
@@ -206,7 +205,7 @@ nxCalcStringBytes(void *str, int count, GR_TEXTFLAGS flags)
 	else if(flags & MWTF_UC32)
 		nbytes = count * 4;
 	else
-		nbytes = count;
+		nbytes = count;	/* count is byte count for ascii & dbcs*/
 
 	return nbytes;
 }

@@ -663,12 +663,6 @@ MWPIXELVAL GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg);
 MWPIXELVAL GdSetForegroundColor(PSD psd, MWCOLORVAL fg);
 MWPIXELVAL GdSetBackgroundColor(PSD psd, MWCOLORVAL bg);
 
-void GdSetDash(unsigned long *mask, int *count);
-void GdSetStippleBitmap(MWIMAGEBITS *stipple, int width, int height);
-void GdSetTSOffset(int xoff, int yoff);
-int GdSetFillMode(int mode);
-void GdSetTilePixmap(PSD src, int width, int height);
-
 void	GdResetPalette(void);
 void	GdSetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
 int	GdGetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
@@ -704,12 +698,17 @@ void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width,
 void	GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 		MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy,
 		MWCOORD srcw, MWCOORD srch, long rop);
-void GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
-		     MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
-		     MWCOORD s2_x, MWCOORD s2_y, long rop);
+void	GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
+		MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
+		MWCOORD s2_x, MWCOORD s2_y, long rop);
 int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
 		int planes, int bpp, int *size, int *linelen);
+void	drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+		const MWIMAGEBITS *imagebits);
+void	drawpoint(PSD psd, MWCOORD x, MWCOORD y);
+void	drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y);
 extern SCREENDEVICE scrdev;
+
 
 /* devarc.c*/
 /* requires float*/
@@ -808,7 +807,6 @@ int  	GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 extern KBDDEVICE kbddev;
 
 /* devimage.c */
-
 #if MW_FEATURE_IMAGES
 int	GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
 void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
@@ -836,18 +834,20 @@ void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 #define GdItemFree(ptr)	free((void *)ptr)
 
 /* devstipple.c */
-
-void ts_drawpoint(PSD psd, MWCOORD x, MWCOORD y);
-void ts_drawrow(PSD psd, MWCOORD x1, MWCOORD x2,  MWCOORD y);
-void ts_fillrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h);
-
-void set_ts_origin(int x, int y);
+void	GdSetDash(unsigned long *mask, int *count);
+void	GdSetStippleBitmap(MWIMAGEBITS *stipple, MWCOORD width, MWCOORD height);
+void	GdSetTSOffset(int xoff, int yoff);
+int	GdSetFillMode(int mode);
+void	GdSetTilePixmap(PSD src, MWCOORD width, MWCOORD height);
+void	ts_drawpoint(PSD psd, MWCOORD x, MWCOORD y);
+void	ts_drawrow(PSD psd, MWCOORD x1, MWCOORD x2,  MWCOORD y);
+void	ts_fillrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h);
+void	set_ts_origin(int x, int y);
 
 /* return base item address from list ptr*/
 #define GdItemAddr(p,type,list)	((type *)((long)p - MWITEM_OFFSET(type,list)))
 
 #if MW_FEATURE_TIMERS
-
 #include <sys/time.h>
 
 typedef void (*MWTIMERCB)(void *);

@@ -1,3 +1,12 @@
+	* increase text draw speed with no-clip drawbitmap internal function
+	* rewrote and moved all DBCS code into engine/devfont.c and font_dbcs.c
+		- added MWTF_DBCS_BIG5, MWTF_DBCS_GB, MWTF_DBCS_JIS,
+		MWTF_DBCS_EUCJP, MWTF_DBCS_KSC: must use w/GrText for builtin fonts
+		- "count" parameter with dbcs is byte-length of dbcs string
+		- can use MWTF_DBCS_* flags with any (UC16-indexed) fonts now
+		- can use multiple DBCS encodings and fonts at same time
+		- can use DBCS encoding with non-compiled-in fonts, encoding is
+		seperate from specially-compiled-in fonts.
 	* fixed BIG5, GB2312, JISX0213, KSC5601 from previous GetTextBits retmap change
 Version 0.89pl10 - 04 Apr 2003 - greg@censoft.com
 	* fix GrRegisterInput bug for successive file descriptors (Chen)

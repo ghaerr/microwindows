@@ -123,10 +123,6 @@ else
 OBJS += genfont.o
 endif
 
-ifeq ($(SCREEN_E15), Y)
-CFLAGS += -DSCREEN_E15=1
-endif
-
 ifeq ($(USE_EXPOSURE), Y)
 CFLAGS += -DUSE_EXPOSURE
 endif

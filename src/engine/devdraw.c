@@ -502,22 +502,21 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
  * next bitmap word boundary (so there is padding at the end of the row).
  * The background bit values are only written if the gr_usebg flag
  * is set.
+ * The function drawbitmap performs no clipping, GdBitmap clips.
  */
 void
-GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	const MWIMAGEBITS *imagebits)
 {
-  MWCOORD minx;
-  MWCOORD maxx;
-  MWPIXELVAL savecolor;		/* saved foreground color */
-  MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
-  int bitcount;			/* number of bits left in bitmap word */
+	MWCOORD minx;
+	MWCOORD maxx;
+	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
+	int bitcount;			/* number of bits left in bitmap word */
 
-  switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-      case CLIP_VISIBLE:
 	if (gr_usebg)
 		psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
 			gr_background);
+
 	/* FIXME think of the speedups if this existed...
 	psd->DrawBitmap(psd, x, y, width, height, imagebits, gr_foreground);
 	return;
@@ -543,6 +542,21 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 			bitcount = 0;
 			}
 	}
+}
+
+void
+GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+	const MWIMAGEBITS *imagebits)
+{
+  MWCOORD minx;
+  MWCOORD maxx;
+  MWPIXELVAL savecolor;		/* saved foreground color */
+  MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
+  int bitcount;			/* number of bits left in bitmap word */
+
+  switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+      case CLIP_VISIBLE:
+	drawbitmap(psd, x, y, width, height, imagebits);
 	GdFixCursor(psd);
 	return;
 

@@ -672,6 +672,7 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	MWCOORD		startx, starty;
 	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
 	MWBOOL		bgstate;
+	int		clip;
 
 	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
 
@@ -683,7 +684,7 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	starty = y + base;
 	bgstate = gr_usebg;
 
-	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
 		/* clear background once for all characters*/
 		if (gr_usebg)
@@ -713,8 +714,10 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
 			&height, &base);
 
-		/* note: change to bitmap */
-		GdBitmap(psd, x, y, width, height, bitmap);
+		if (clip == CLIP_VISIBLE)
+			drawbitmap(psd, x, y, width, height, bitmap);
+		else
+			GdBitmap(psd, x, y, width, height, bitmap);
 		x += width;
 	}
 

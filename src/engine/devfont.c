@@ -24,6 +24,8 @@ extern MWPIXELVAL gr_foreground;
 extern MWPIXELVAL gr_background;
 extern MWBOOL gr_usebg;
 
+void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+		const void *text, int cc, MWTEXTFLAGS flags);
 static int  utf8_to_utf16(const unsigned char *utf8, int cc,
 		unsigned short *unicode16);
 
@@ -292,24 +294,42 @@ void
 GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 {
 	const void *	text;
-	unsigned long	buf[256];
 	int		defencoding = gr_pfont->fontprocs->encoding;
+	unsigned long	buf[256];
+
+	/*
+	 * DBCS encoding is handled a little special: if the selected
+	 * font is a builtin, then we'll force a conversion to UC16
+	 * rather than converting to the renderer specification.  This is
+	 * because we allow DBCS-encoded strings to draw in the the
+	 * specially-compiled-in font if the character is not ASCII.
+	 * This is specially handled in corefont_drawtext below.
+	 *
+	 * If the font is not builtin, then the drawtext routine must handle
+	 * all glyph output, including ASCII.
+	 */
+	if (flags & MWTF_DBCSMASK) {
+		/* force double-byte sequences to UC16 if builtin font only*/
+		if (gr_pfont->fontprocs->DrawText == corefont_drawtext)
+			defencoding = MWTF_UC16;
+	}
 
 	/* convert encoding if required*/
-	if((flags & MWTF_PACKMASK) != defencoding) {
+	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
 		cc = GdConvertEncoding(str, flags, cc, buf, defencoding);
-		flags &= ~MWTF_PACKMASK;
+		flags &= ~MWTF_PACKMASK;	/* keep DBCS bits for drawtext*/
 		flags |= defencoding;
 		text = buf;
 	} else text = str;
 
+	/* use strlen for char count when ascii or dbcs*/
 	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
 		cc = strlen((char *)str);
 
 	if(cc <= 0 || !gr_pfont->fontprocs->DrawText)
 		return;
 
-	/* draw text string*/
+	/* draw text string, DBCS flags may still be set*/
 	gr_pfont->fontprocs->DrawText(gr_pfont, psd, x, y, text, cc, flags);
 }
 
@@ -321,14 +341,18 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	const unsigned char *str = text;
+	const unsigned short *istr = text;
 	MWCOORD		width;			/* width of text area */
 	MWCOORD 	height;			/* height of text area */
 	MWCOORD		base;			/* baseline of text*/
 	MWCOORD		startx, starty;
 	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
 	MWBOOL		bgstate;
+	int		clip;
 
-	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
+	if (flags & MWTF_DBCSMASK)
+		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
+	else pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
 	
 	if (flags & MWTF_BASELINE)
 		y -= base;
@@ -338,7 +362,7 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	starty = y + base;
 	bgstate = gr_usebg;
 
-	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
 		/* clear background once for all characters*/
 		if (gr_usebg)
@@ -363,61 +387,25 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	/* Get the bitmap for each character individually, and then display
 	 * them possibly using clipping for each one.
 	 */
+
+	/*
+	 * If the string was marked as DBCS, then we've forced the conversion
+	 * to UC16 in GdText.  Here we special-case the non-ASCII values and
+	 * get the bitmaps from the specially-compiled-in font.  Otherwise,
+	 * we draw them using the normal pfont->fontprocs->GetTextBits.
+	 */
 	while (--cc >= 0 && x < psd->xvirtres) {
-		unsigned int ch = *str++;
-#if HAVE_BIG5_SUPPORT
-		/* chinese big5 decoding*/
-		if (ch >= 0xA1 && ch <= 0xF9 && cc >= 1 &&
-			((*str >= 0x40 && *str <= 0x7E) ||
-			 (*str >= 0xA1 && *str <= 0xFE)) ) {
-				ch = (ch << 8) | *str++;
-				--cc;
-		}
-#endif
-#if HAVE_GB2312_SUPPORT
-		/* chinese gb2312 decoding*/
-		if (ch >= 0xA1 && ch < 0xF8 && cc >= 1 &&
-			*str >= 0xA1 && *str < 0xFF) {
-				ch = (ch << 8) | *str++;
-				--cc;
-		}
-#endif
-#if HAVE_JISX0213_SUPPORT
-	/* decode Japanese JISX0213*/
-		if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
-			*str >= 0xA1 && *str <= 0xFE) {
-				ch = (ch << 8) | *str++;
-				--cc;
-		}else
-		if (((ch >= 0x81 && ch <= 0x9F) || (ch >= 0xE0 && ch <= 0xEF)) && cc >= 1)
-				if (*str >= 0x40 && *str <= 0xFC && (*str != 0x7F)){
-				ch = (ch << 8) | *str++;
-				--cc;
-		}
-
-#endif
-
-#if HAVE_KSC5601_SUPPORT
-		/* Korean KSC5601 decoding */
-		if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
-			 (*str >= 0xA1 && *str <= 0xFE)) {
-				ch = (ch << 8) | *str++;
-				--cc;
-		}
-#endif
-#if HAVE_EUCJP_SUPPORT
-                /* EUC JP Kanji decoding */
-                if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
-                         (*str >= 0xA1 && *str <= 0xFE)) {
-                                ch = (ch << 8) | *str++;
-                                --cc;
-                }
-#endif
-		pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
+		if (flags & MWTF_DBCSMASK)
+			dbcs_gettextbits(pfont, *istr++, flags, &bitmap, &width,
+				&height, &base);
+		else pfont->fontprocs->GetTextBits(pfont, *str++, &bitmap, &width,
 			&height, &base);
 
-		/* note: change to bitmap*/
-		GdBitmap(psd, x, y, width, height, bitmap);
+
+		if (clip == CLIP_VISIBLE)
+			drawbitmap(psd, x, y, width, height, bitmap);
+		else
+			GdBitmap(psd, x, y, width, height, bitmap);
 		x += width;
 	}
 
@@ -555,10 +543,10 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 	int			icc;
 	unsigned short		buf16[512];
 
-	iflags &= MWTF_PACKMASK;
-	oflags &= MWTF_PACKMASK;
+	iflags &= MWTF_PACKMASK|MWTF_DBCSMASK;
+	oflags &= MWTF_PACKMASK|MWTF_DBCSMASK;
 
-	/* allow -1 for len with ascii*/
+	/* allow -1 for len with ascii or dbcs*/
 	if(cc == -1 && (iflags == MWTF_ASCII))
 		cc = strlen((char *)istr);
 
@@ -585,6 +573,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 #endif
 
 	icc = cc;
+	cc = 0;
 	istr8 = istr;
 	istr16 = istr;
 	istr32 = istr;
@@ -609,6 +598,53 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			break;
 		case MWTF_UC32:
 			ch = *istr32++;
+			break;
+		case MWTF_DBCS_BIG5:	/* Chinese BIG5*/
+			ch = *istr8++;
+			if (ch >= 0xA1 && ch <= 0xF9 && icc &&
+			    ((*istr8 >= 0x40 && *istr8 <= 0x7E) ||
+			     (*istr8 >= 0xA1 && *istr8 <= 0xFE))) {
+				ch = (ch << 8) | *istr8++;
+				--icc;
+			}
+			break;
+		case MWTF_DBCS_GB:	/* Chinese GB2312*/
+			ch = *istr8++;
+			if (ch >= 0xA1 && ch <= 0xF7 && icc &&
+			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+				ch = (ch << 8) | *istr8++;
+				--icc;
+			}
+			break;
+		case MWTF_DBCS_JIS:	/* Japanese JISX0213*/
+			ch = *istr8++;
+			if (icc && (
+			    (ch >= 0xA1 && ch <= 0xFE && *istr8 >= 0xA1 && *istr8 <= 0xFE)
+			    ||
+			    (((ch >= 0x81 && ch <= 0x9F) || (ch >= 0xE0 && ch <= 0xEF)) &&
+			     (*istr8 >= 0x40 && *istr8 <= 0xFC && *istr8 != 0x7F))
+			            )) {
+					ch = (ch << 8) | *istr8++;
+					--icc;
+			}
+
+			break;
+		case MWTF_DBCS_EUCJP:	/* Japanese EUCJP*/
+			ch = *istr8++;
+			if (ch >= 0xA1 && ch <= 0xFE && icc &&
+			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+				ch = (ch << 8) | *istr8++;
+				--icc;
+			}
+			break;
+		case MWTF_DBCS_KSC:	/* Korean KSC5601*/
+			ch = *istr8++;
+			if (ch >= 0xA1 && ch <= 0xFE && icc &&
+			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+				ch = (ch << 8) | *istr8++;
+				--icc;
+			}
+			break;
 		}
 		switch(oflags) {
 		default:
@@ -623,7 +659,9 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			break;
 		case MWTF_UC32:
 			*ostr32++ = ch;
+			break;
 		}
+		++cc;
 	}
 	return cc;
 }
@@ -634,17 +672,25 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags)
 {
 	const void *	text;
-	unsigned long	buf[256];
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
+	unsigned long	buf[256];
+
+	/* DBCS handled specially: see comment in GdText*/
+	if (flags & MWTF_DBCSMASK) {
+		/* force double-byte sequences to UC16 if builtin font only*/
+		if (pfont->fontprocs->DrawText == corefont_drawtext)
+			defencoding = MWTF_UC16;
+	}
 
 	/* convert encoding if required*/
-	if((flags & MWTF_PACKMASK) != defencoding) {
+	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
 		cc = GdConvertEncoding(str, flags, cc, buf, defencoding);
-		flags &= ~MWTF_PACKMASK;
+		flags &= ~MWTF_PACKMASK; /* keep DBCS bits for gettextsize*/
 		flags |= defencoding;
 		text = buf;
 	} else text = str;
 
+	/* use strlen for char count when ascii or dbcs*/
 	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
 		cc = strlen((char *)str);
 
@@ -654,7 +700,9 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	}
 
 	/* calc height and width of string*/
-	pfont->fontprocs->GetTextSize(pfont, text, cc, pwidth, pheight, pbase);
+	if ((flags & MWTF_DBCSMASK) && (flags&MWTF_PACKMASK) == MWTF_UC16)
+		dbcs_gettextsize(pfont, text, cc, flags, pwidth, pheight, pbase);
+	else pfont->fontprocs->GetTextSize(pfont, text, cc, pwidth, pheight, pbase);
 }
 
 /* UTF-8 to UTF-16 conversion.  Surrogates are handeled properly, e.g.

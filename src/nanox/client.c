@@ -596,6 +596,7 @@ GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
 	nxGetGCTextSizeReq *req;
 	int size;
 
+	/* use strlen as char count when ascii or dbcs*/
 	if(count == -1 && (flags&MWTF_PACKMASK) == MWTF_ASCII)
 		count = strlen((char *)str);
 
@@ -3349,6 +3350,7 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 	nxTextReq *req;
 	int	   size;
 
+	/* use strlen as char count when ascii or dbcs*/
 	if(count == -1 && (flags&MWTF_PACKMASK) == MWTF_ASCII)
 		count = strlen((char *)str);
 

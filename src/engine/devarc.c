@@ -246,9 +246,6 @@ typedef struct {
 	int	type;
 } SLICE;
 
-extern void drawpoint(PSD psd, MWCOORD x, MWCOORD y);
-extern void drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y);
-
 /*
  * Clip a line segment for arc or pie drawing.
  * Returns 0 if line is clipped or on acceptable side, 1 if it's vertically

@@ -1,7 +1,7 @@
 #ifndef _DEVFONT_H
 #define _DEVFONT_H
 /*
- * Copyright (c) 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Font engine header file
@@ -70,5 +70,12 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
 /* entry point for font selection*/
 int select_font(const PMWLOGFONT plogfont, char *physname);
 #endif
+
+/* DBCS routines*/
+void dbcs_gettextbits(PMWFONT pfont, unsigned int ch, MWTEXTFLAGS flags,
+	const MWIMAGEBITS **retmap, MWCOORD *pwidth, MWCOORD *pheight,
+	MWCOORD *pbase);
+void dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc, MWTEXTFLAGS flags,
+	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 
 #endif /* _DEVFONT_H*/

@@ -1049,10 +1049,10 @@ GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 		return 0;
 	}
 	/* convert encoding if required*/
-	if((flags & MWTF_PACKMASK) != defencoding) 
+	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) 
 	{
 		cc = GdConvertEncoding(str, flags, cc, buf, defencoding);
-		flags &= ~MWTF_PACKMASK;
+		flags &= ~(MWTF_PACKMASK|MWTF_DBCSMASK);
 		flags |= defencoding;
 		text=buf;
 	} else text =(unsigned short*)str;

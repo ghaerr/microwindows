@@ -29,7 +29,7 @@ LIBNAMESO = libmwengine.so
 # List of objects to compile
 OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 	devpal1.o devpal2.o devimage.o devlist.o selfont.o error.o \
-	devrgn2.o devarc.o devpoly.o devstipple.o
+	devrgn2.o devarc.o devpoly.o devstipple.o font_dbcs.o
 
 ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
 OBJS += font_freetype.o

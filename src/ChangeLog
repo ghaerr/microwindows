@@ -1,3 +1,4 @@
+	* fixed EUCJP output with MGL fonts for values > 256
 	* patched nterm.c to work with uClinux (Mark)
 	* fixed 32 bpp alpha framebuffer driver sign extension bug (Jonathan)
 	* added IR trackpoint mouse support (LIRCMOUSE=Y) (Jonathan)

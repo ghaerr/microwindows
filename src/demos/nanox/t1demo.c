@@ -194,6 +194,9 @@ main(int ac, char **av)
 #elif HAVE_GB2312_SUPPORT
 		/* encoding GB2312 test BD A1 BD A1 */
 		GrText(window, gc, x, y, "\275\241\275\241", 4, MWTF_DBCS_GB);
+#elif HAVE_EUCJP_SUPPORT
+		/* encoding EUC_JP test A2 A1 */
+		GrText(window, gc, x, y, "\242\241", 2, MWTF_DBCS_EUCJP);
 #elif HAVE_JISX0213_SUPPORT
 		/* encoding JISX0213 test A2 A1 */
 		GrText(window, gc, x, y, "\242\241", 2, MWTF_DBCS_JIS);

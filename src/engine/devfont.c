@@ -501,9 +501,15 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		if (flags & MWTF_DBCSMASK)
 			dbcs_gettextbits(pfont, *istr++, flags, &bitmap, &width,
 				&height, &base);
-		else pfont->fontprocs->GetTextBits(pfont, *str++, &bitmap, &width,
-			&height, &base);
+		else {
+			int ch;
 
+			if (pfont->fontprocs->encoding == MWTF_UC16)
+				ch = *istr++;
+			else ch = *str++;
+			pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
+				&height, &base);
+		}
 
 		if (clip == CLIP_VISIBLE)
 			drawbitmap(psd, x, y, width, height, bitmap);

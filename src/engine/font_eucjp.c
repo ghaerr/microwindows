@@ -50,7 +50,7 @@ static void eucjp_destroyfont(PMWFONT pfont);
 
 /* handling routines for MWEUCJPFONT*/
 static MWFONTPROCS eucjp_procs = {
-	MWTF_ASCII,		/* routines expect ascii :-( */
+	MWTF_UC16,		/* routines expect unicode index*/
 	eucjp_getfontinfo,
 	eucjp_gettextsize,
 	eucjp_gettextbits,
@@ -199,9 +199,7 @@ eucjp_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		fptn = &(pf->font_base[pf->aoffset + pf->abytes * ch]);
 		bytewidth = pf->awidth;
 	} else {
-		int kix =
-			(((ch >> 8) & 0xff) - 0xA1) * 96 + ((ch & 0xff) -
-							    0xA0);
+		int kix = (((ch >> 8) & 0xff) - 0xA1) * 96 + ((ch & 0xff) - 0xA0);
 		if (kix < 0 || 8000 <= kix)
 			kix = 0;
 

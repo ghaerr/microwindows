@@ -57,7 +57,7 @@ VERBOSE                  = N
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-SHAREDLIBS               = Y
+SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
 
@@ -121,7 +121,7 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.a
 

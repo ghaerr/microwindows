@@ -583,8 +583,8 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 	}
 
 	/* reorder offsets and width according to encoding map */
-	pf->cfont->offset = (unsigned short *) malloc(encoding->count *
-		sizeof(unsigned short));
+	pf->cfont->offset = (unsigned long *) malloc(encoding->count *
+		sizeof(unsigned long));
 	pf->cfont->width = (unsigned char *) malloc(encoding->count *
 		 sizeof(unsigned char));
 	for (i = 0; i < encoding->count; ++i) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * Demo program for Microwindows
  */
@@ -23,7 +23,7 @@ unsigned _stklen = 4096;
 #define ARCDEMO		1	/* arc drawing demo*/
 #define CHILD 		1	/* child window demo*/
 #define CLIENT3D	0	/* old client draw test*/
-#define USEBLIT		0	/* use blit rather than DrawDIB()*/
+#define USEBLIT		1	/* use blit rather than DrawDIB()*/
 
 #if GRAPH3D
 #include "graph3d.h"
@@ -121,12 +121,12 @@ CreateAppWindow(void)
 		CreateWindowEx(0L, APPCHILD,
 			"",
 			WS_BORDER | WS_CHILD | WS_VISIBLE,
-			4, 4, width / 3, height / 3,
+			4, 4, width / 3-6, height / 3,
 			hwnd, (HMENU)2, NULL, NULL);
 		CreateWindowEx(0L, APPCHILD,
 			"",
 			WS_BORDER | WS_CHILD | WS_VISIBLE,
-			width / 3, height / 3, width / 3, height / 3,
+			width / 3, height / 3, width / 3-6, height / 3,
 			hwnd, (HMENU)3, NULL, NULL);
 		CreateWindowEx(0L, APPCHILD,
 			"",
@@ -192,7 +192,7 @@ ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		/*BitBlt(ps.hdc, 0, 0, rc.right, rc.bottom, hdcMem,
 			0, 0, MWROP_SRCCOPY);*/
 		StretchBlt(ps.hdc, 0, 0, rc.right, rc.bottom, hdcMem,
-			0, 0, image->width/2, image->height/2, MWROP_SRCCOPY);
+			0, 0, image->width/3*5, image->height/3*4, MWROP_SRCCOPY);
 		DeleteObject(SelectObject(hdcMem, hbmpOrg));
 		DeleteDC(hdcMem);
 }

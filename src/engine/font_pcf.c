@@ -36,7 +36,7 @@ extern MWBOOL gr_usebg;
 #else
 #define FILEP  FILE *
 #define FOPEN(path, mode)           fopen(path, mode)
-#define FREAD(file, buffer, size)   fread(buffer, size, 1, file)
+#define FREAD(file, buffer, size)   fread(buffer, 1, size, file)
 #define FSEEK(file, offset, whence) fseek(file, offset, whence)
 #define FCLOSE(file)                fclose(file)
 #endif

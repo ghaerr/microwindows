@@ -1,3 +1,4 @@
+	* added compressed native font format (.fnt.gz) (HAVE_FNTGZ_SUPPORT)
 	* move to portable locking mechanism in lock.h as default (Jon)
 	* allow GrMoveWindow to use quick blit in portrait mode
 	* move to only two builtin fonts: MWFONT_SYSTEM_VAR, MWFONT_SYSTEM_FIXED

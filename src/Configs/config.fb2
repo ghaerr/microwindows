@@ -149,6 +149,7 @@ LIBZ                     = /usr/lib/libz.a
 # native .fnt loadable font support
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
+HAVE_FNTGZ_SUPPORT       = N
 FNT_FONT_DIR             = "fonts/bdf"
 
 ####################################################################

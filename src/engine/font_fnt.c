@@ -38,6 +38,24 @@
 /* loadable font magic and version #*/
 #define VERSION		"RB11"
 
+/* The user hase the option including ZLIB and being able to    */
+/* directly read compressed .fnt files, or to omit it and save  */
+/* space.  The following defines make life much easier          */
+#ifdef HAVE_FNTGZ_SUPPORT
+#include <zlib.h>
+#define FILEP gzFile
+#define FOPEN(path, mode)           gzopen(path, mode)
+#define FREAD(file, buffer, size)   gzread(file, buffer, size)
+#define FSEEK(file, offset, whence) gzseek(file, offset, whence)
+#define FCLOSE(file)                gzclose(file)
+#else
+#define FILEP  FILE *
+#define FOPEN(path, mode)           fopen(path, mode)
+#define FREAD(file, buffer, size)   fread(buffer, 1, size, file)
+#define FSEEK(file, offset, whence) fseek(file, offset, whence)
+#define FCLOSE(file)                fclose(file)
+#endif
+
 /* Handling routines for FNT fonts, use MWCOREFONT structure */
 static void fnt_unloadfont(PMWFONT font);
 static PMWCFONT fnt_load_font(char *path);
@@ -119,19 +137,34 @@ fnt_unloadfont(PMWFONT font)
 }
 
 static int
-READBYTE(FILE *fp, unsigned char *cp)
+READBYTE(FILEP fp, unsigned char *cp)
 {
+#ifdef HAVE_FNTGZ_SUPPORT
+	unsigned char buf[1];
+
+	if (FREAD(fp, buf, 1) != 1)
+		return 0;
+	*cp = buf[0];
+#else
 	int c;
 
 	if ((c = getc(fp)) == EOF)
 		return 0;
 	*cp = (unsigned char)c;
+#endif
 	return 1;
 }
 
 static int
-READSHORT(FILE *fp, unsigned short *sp)
+READSHORT(FILEP fp, unsigned short *sp)
 {
+#ifdef HAVE_FNTGZ_SUPPORT
+	unsigned char buf[2];
+
+	if (FREAD(fp, buf, 2) != 2)
+		return 0;
+	*sp = buf[0] | (buf[1] << 8);
+#else
 	int c;
 	unsigned short s;
 
@@ -141,12 +174,20 @@ READSHORT(FILE *fp, unsigned short *sp)
 	if ((c = getc(fp)) == EOF)
 		return 0;
 	*sp = (c << 8) | s;
+#endif
 	return 1;
 }
 
 static int
-READLONG(FILE *fp, unsigned long *lp)
+READLONG(FILEP fp, unsigned long *lp)
 {
+#ifdef HAVE_FNTGZ_SUPPORT
+	unsigned char buf[4];
+
+	if (FREAD(fp, buf, 4) != 4)
+		return 0;
+	*lp = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
+#else
 	int c;
 	unsigned long l;
 
@@ -162,24 +203,25 @@ READLONG(FILE *fp, unsigned long *lp)
 	if ((c = getc(fp)) == EOF)
 		return 0;
 	*lp = (c << 24) | l;
+#endif
 	return 1;
 }
 
 /* read count bytes*/
 static int
-READSTR(FILE *fp, char *buf, int count)
+READSTR(FILEP fp, char *buf, int count)
 {
-	return fread(buf, 1, count, fp);
+	return FREAD(fp, buf, count);
 }
 
 /* read totlen bytes, return NUL terminated string*/
 /* may write 1 past buf[totlen]; removes blank pad*/
 static int
-READSTRPAD(FILE *fp, char *buf, int totlen)
+READSTRPAD(FILEP fp, char *buf, int totlen)
 {
 	char *p;
 
-	if (fread(buf, 1, totlen, fp) != totlen)
+	if (FREAD(fp, buf, totlen) != totlen)
 		return 0;
 	p = &buf[totlen];
 	*p-- = 0;
@@ -192,7 +234,7 @@ READSTRPAD(FILE *fp, char *buf, int totlen)
 static PMWCFONT
 fnt_load_font(char *path)
 {
-	FILE *ifp;
+	FILEP ifp;
 	PMWCFONT pf = NULL;
 	int i;
 	unsigned short maxwidth, height, ascent, pad;
@@ -203,11 +245,11 @@ fnt_load_font(char *path)
 	char copyright[256+1];
 	char fname[256];
 
-	ifp = fopen(path, "rb");
+	ifp = FOPEN(path, "rb");
 	if (!ifp) {
 		strcpy(fname, FNT_FONT_DIR "/");
 		strcpy(fname + sizeof(FNT_FONT_DIR), path);
-		ifp = fopen(fname, "rb");
+		ifp = FOPEN(fname, "rb");
 	}
 	if (!ifp)
 		return NULL;
@@ -297,11 +339,11 @@ fnt_load_font(char *path)
 			if (!READBYTE(ifp, &pf->width[i]))
 				goto errout;
 	
-	fclose(ifp);
+	FCLOSE(ifp);
 	return pf;	/* success!*/
 
 errout:
-	fclose(ifp);
+	FCLOSE(ifp);
 	if (!pf)
 		return NULL;
 	if (pf->name)

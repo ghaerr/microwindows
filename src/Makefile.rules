@@ -561,9 +561,9 @@ $(TOP)/bin/convbmp: $(TOP)/mwin/bmp/convbmp.c
 #
 # Compilation target for bdf font file conversion
 #
-%.c:%.bdf $(TOP)/fonts/convbdf
+%.c:%.bdf $(TOP)/bin/convbdf
 	echo "Generating $@ from font file ..."
-	$(TOP)/fonts/convbdf $< -o $@
+	$(TOP)/bin/convbdf -c -o $@ $<
 
 #
 # Compilation target for tool that does bdf font file conversion

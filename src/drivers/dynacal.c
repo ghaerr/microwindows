@@ -155,12 +155,10 @@ void drawText(GR_WINDOW_ID id, char **text, int count) {
   int i;
   
   GR_GC_ID gc = GrNewGC();
-  GR_FONT_ID font = GrCreateFont(GR_FONT_GUI_VAR, 12, 0);
   GR_WINDOW_INFO info;
 
   GrGetWindowInfo(id, &info);
 
-  GrSetGCFont(gc, font);
   GrSetGCForeground(gc, FGCOLOR);
   GrSetGCBackground(gc, BGCOLOR);
 
@@ -180,7 +178,6 @@ void drawText(GR_WINDOW_ID id, char **text, int count) {
   }
 
   GrDestroyGC(gc);
-  GrDestroyFont(font);
 }
 
 int doPoints(GR_WINDOW_ID id, int fd) {

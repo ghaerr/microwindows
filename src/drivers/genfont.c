@@ -17,10 +17,11 @@
 #include "genfont.h"
 
 /* compiled in fonts*/
-extern MWCFONT font_winFreeSansSerif11x13;
-extern MWCFONT font_winFreeSystem14x16;
-extern MWCFONT font_rom8x16, font_rom8x8;
-extern MWCFONT font_X5x7, font_X6x13;
+extern MWCFONT font_winFreeSansSerif11x13;	/* new MWFONT_SYSTEM_VAR (was MWFONT_GUI_VAR)*/
+extern MWCFONT font_X6x13;			/* MWFONT_SYSTEM_FIXED (should be ansi)*/
+/*extern MWCFONT font_winFreeSystem14x16;*/	/* deprecated MWFONT_SYSTEM_VAR*/
+/*extern MWCFONT font_rom8x16;*/		/* deprecated MWFONT_OEM_FIXED*/
+/*extern MWCFONT font_rom8x8, font_X5x7;*/	/* unused*/
 
 /* handling routines for MWCOREFONT*/
 static MWFONTPROCS fontprocs = {
@@ -35,12 +36,31 @@ static MWFONTPROCS fontprocs = {
 	NULL,			/* setfontattr*/
 };
 
+/*
+ * Starting in v0.89pl12, we've moved to just two standard fonts,
+ * MWFONT_SYSTEM_VAR, and MWFONT_SYSTEM_FIXED in order to reduce
+ * the core Microwindows size.  The original, slightly smaller
+ * MWFONT_GUI_VAR (ansi) is used as MWFONT_SYSTEM_VAR.  The original
+ * MWFONT_SYSTEM_VAR (ansi) and MWFONT_OEM_FIXED are removed.
+ * However, we redirect requests for the deprecated MWFONT_GUI_VAR
+ * and MWFONT_OEM_FIXED to the included system variable and fixed
+ * pitch fonts, respectively, to keep older programs running as expected.
+ *
+ * Additional builtin fonts can be added here by extending the 
+ * gen_fonts array.  An better alternative, if running on a filesystem
+ * is to use the new HAVE_FNT_SUPPORT .fnt file loader, which operates
+ * internally exactly the same way after the fonts are loaded.  BDF
+ * fonts can be converted to either .c format for use here or .fnt 
+ * format for use by the .fnt loader using the fonts/convbdf.c program.
+ */
+
 /* first font is default font*/
 MWCOREFONT gen_fonts[NUMBER_FONTS] = {
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSystem14x16},
-	{&fontprocs, 0, 0, 0, MWFONT_GUI_VAR,      &font_winFreeSansSerif11x13},
-	{&fontprocs, 0, 0, 0, MWFONT_OEM_FIXED,    &font_rom8x16},
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13}
+	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSansSerif11x13},
+	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13},
+	/* deprecated redirections for the time being*/
+	{&fontprocs, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
+	{&fontprocs, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
 };
 
 /*

@@ -16,7 +16,7 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, GR_CHAR *title, GR_BOOL active,
 	int		y = 0;
 	GR_GC_ID	gc = GrNewGC();
 	GR_RECT		r;
-	static GR_FONT_ID fontid = 0;
+	/***static GR_FONT_ID fontid = 0;***/
 
 
 	if (props & GR_WM_PROPS_APPFRAME) {
@@ -50,9 +50,10 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, GR_CHAR *title, GR_BOOL active,
 			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT:
 				GR_COLOR_INACTIVECAPTIONTEXT));
 		GrSetGCUseBackground(gc, GR_FALSE);
+		/*** no need to create special font now...
 		if (!fontid)
 			fontid = GrCreateFont(GR_FONT_GUI_VAR, 0, NULL);
-		GrSetGCFont(gc, fontid);
+		GrSetGCFont(gc, fontid);***/
 		GrText(id, gc, x+4, y-1, title, -1, GR_TFASCII|GR_TFTOP);
 	}
 	y += CYCAPTION;

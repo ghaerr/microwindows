@@ -9,10 +9,10 @@
 #define MWPACKED	__attribute__ ((aligned(1), packed))
 
 /* builtin font std names*/
-#define MWFONT_SYSTEM_VAR	"System"	/* winSystem 14x16 (ansi)*/
-#define MWFONT_GUI_VAR		"Helvetica"	/* winMSSansSerif 11x13 (ansi)*/
-#define MWFONT_OEM_FIXED	"Terminal"	/* rom8x16 (oem)*/
+#define MWFONT_SYSTEM_VAR	"System"	/* winFreeSansSerif 11x13 (ansi)*/
 #define MWFONT_SYSTEM_FIXED	"SystemFixed"	/* X6x13 (should be ansi)*/
+#define MWFONT_GUI_VAR		"System"	/* deprecated (was "Helvetica")*/
+#define MWFONT_OEM_FIXED	"SystemFixed"	/* deprecated (was "Terminal")*/
 
 /* Text/GetTextSize encoding flags*/
 #define MWTF_ASCII	0x00000000L	/* 8 bit packing, ascii*/

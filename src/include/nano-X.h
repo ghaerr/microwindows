@@ -119,9 +119,9 @@ typedef struct {
 
 /* builtin font std names*/
 #define GR_FONT_SYSTEM_VAR	MWFONT_SYSTEM_VAR
-#define GR_FONT_GUI_VAR		MWFONT_GUI_VAR
-#define GR_FONT_OEM_FIXED	MWFONT_OEM_FIXED
 #define GR_FONT_SYSTEM_FIXED	MWFONT_SYSTEM_FIXED
+#define GR_FONT_GUI_VAR		MWFONT_GUI_VAR		/* deprecated*/
+#define GR_FONT_OEM_FIXED	MWFONT_OEM_FIXED	/* deprecated*/
 
 /* GrText/GrGetTextSize encoding flags*/
 #define GR_TFASCII		MWTF_ASCII

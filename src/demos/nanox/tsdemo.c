@@ -69,7 +69,6 @@ static GR_BITMAP g_stipple4[] = {
 
 int g_x;
 GR_WINDOW_ID g_main, g_pixmap;
-GR_FONT_ID g_font;
 
 void
 draw_set(char *name, int mode)
@@ -82,7 +81,6 @@ draw_set(char *name, int mode)
 	GrSetGCForeground(gc, WHITE);
 	GrSetGCBackground(gc, GRAY);
 
-	GrSetGCFont(gc, g_font);
 	GrGetGCTextSize(gc, name, -1, GR_TFTOP, &tw, &th, &tb);
 
 	x = g_x + (tw - 50) / 2;
@@ -152,8 +150,6 @@ main(int argc, char **argv)
 
 	COLS = 480;
 	ROWS = 300;
-
-	g_font = GrCreateFont(GR_FONT_GUI_VAR, 12, 0);
 
 	load_pixmap();
 

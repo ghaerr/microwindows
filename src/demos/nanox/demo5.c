@@ -449,15 +449,15 @@ do_idle(void)
 	GR_COORD	y;
 	GR_SIZE		rx;
 	GR_SIZE		ry;
-	GR_COLOR	color;
+	GR_PIXELVAL	pixelval;
 
 	x = rand() % 70;
 	y = rand() % 40;
 	rx = (rand() % 10) + 5;
 	ry = (rx * si.ydpcm) / si.xdpcm;	/* make it appear circular */
 	
-	color = rand() % si.ncolors;
+	pixelval = rand() % si.ncolors;
 
-	GrSetGCForegroundUsingPalette(gc3, color);
+	GrSetGCForegroundPixelVal(gc3, pixelval);
 	GrFillEllipse(w2, gc3, x, y, rx, ry);	
 }

@@ -2061,10 +2061,10 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 /**
  * GrSetGCForeground:
  * @gc: the ID of the graphics context to set the foreground colour of
- * @foreground: the colour to use as the new foreground colour
+ * @foreground: the RGB colour to use as the new foreground colour
  *
  * Changes the foreground colour of the specified graphics context to the
- * specified colour.
+ * specified RGB colour.
  */
 void 
 GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
@@ -2081,10 +2081,10 @@ GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
 /**
  * GrSetGCBackground:
  * @gc: the ID of the graphics context to set the background colour of
- * @background: the colour to use as the new background colour
+ * @background: the RGB colour to use as the new background colour
  *
  * Changes the background colour of the specified graphics context to the
- * specified colour.
+ * specified RGB colour.
  */
 void 
 GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
@@ -2095,6 +2095,48 @@ GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
 	req = AllocReq(SetGCBackground);
 	req->gcid = gc;
 	req->color = background;
+	UNLOCK(&nxGlobalLock);
+}
+
+/**
+ * GrSetGCForegroundPixelVal:
+ * @gc: the ID of the graphics context to set the foreground colour of
+ * @foreground: the GR_PIXELVAL (i.e. hardware pixel value) to use as the new
+ *              foreground colour.
+ *
+ * Changes the foreground colour of the specified graphics context to the
+ * specified hardware pixel value.
+ */
+void
+GrSetGCForegroundPixelVal(GR_GC_ID gc, GR_PIXELVAL foreground)
+{
+	nxSetGCForegroundPixelValReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(SetGCForegroundPixelVal);
+	req->gcid = gc;
+	req->pixelval = foreground;
+	UNLOCK(&nxGlobalLock);
+}
+
+/**
+ * GrSetGCBackgroundPixelVal:
+ * @gc: the ID of the graphics context to set the background colour of
+ * @background: the GR_PIXELVAL (i.e. hardware pixel value) to use as the new
+ *              background colour
+ *
+ * Changes the background colour of the specified graphics context to the
+ * specified hardware pixel value.
+ */
+void
+GrSetGCBackgroundPixelVal(GR_GC_ID gc, GR_PIXELVAL background)
+{
+	nxSetGCBackgroundPixelValReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(SetGCBackgroundPixelVal);
+	req->gcid = gc;
+	req->pixelval = background;
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -4065,48 +4107,6 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 	req->wid = wid;
 	req->rid = rid;
 	req->type = type;
-	UNLOCK(&nxGlobalLock);
-}
-
-/**
- * GrSetGCForegroundUsingPalette:
- * @gc: the ID of the graphics context to set the foreground colour of.
- * @foreground: the GR_PIXELVAL (i.e. palette index) to use as the new
- *              foreground colour.
- *
- * Changes the foreground colour of the specified graphics context to the
- * specified colour.
- */
-void
-GrSetGCForegroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL foreground)
-{
-	nxSetGCForegroundUsingPaletteReq *req;
-
-	LOCK(&nxGlobalLock);
-	req = AllocReq(SetGCForegroundUsingPalette);
-	req->gcid = gc;
-	req->color = foreground;
-	UNLOCK(&nxGlobalLock);
-}
-
-/**
- * GrSetGCBackgroundUsingPalette:
- * @gc: the ID of the graphics context to set the background colour of
- * @background: the GR_PIXELVAL (i.e. palette index) to use as the new
- *              background colour
- *
- * Changes the background colour of the specified graphics context to the
- * specified colour.
- */
-void
-GrSetGCBackgroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL background)
-{
-	nxSetGCBackgroundUsingPaletteReq *req;
-
-	LOCK(&nxGlobalLock);
-	req = AllocReq(SetGCBackgroundUsingPalette);
-	req->gcid = gc;
-	req->color = background;
 	UNLOCK(&nxGlobalLock);
 }
 

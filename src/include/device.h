@@ -637,8 +637,8 @@ void	GdCloseScreen(PSD psd);
 int	GdSetPortraitMode(PSD psd, int portraitmode);
 int	GdSetMode(int mode);
 MWBOOL	GdSetUseBackground(MWBOOL flag);
-MWPIXELVAL GdSetForeground(PSD psd, MWPIXELVAL fg);
-MWPIXELVAL GdSetBackground(PSD psd, MWPIXELVAL bg);
+MWPIXELVAL GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg);
+MWPIXELVAL GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg);
 MWPIXELVAL GdSetForegroundColor(PSD psd, MWCOLORVAL fg);
 MWPIXELVAL GdSetBackgroundColor(PSD psd, MWCOLORVAL bg);
 

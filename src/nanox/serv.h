@@ -218,13 +218,13 @@ struct gr_gc {
  	int             xoff;           /* X offset for the clip region */
 	int             yoff;           /* Y offset for the clip region */
 	GR_FONT_ID	fontid;		/* current font id*/
-	GR_COLOR	foreground;	/* foreground color */
-	GR_COLOR	background;	/* background color */
-	GR_BOOL		foregroundispixelval;	/* TRUE if 'foreground' is actually a GR_PIXELVAL */
-	GR_BOOL		backgroundispixelval;	/* TRUE if 'background' is actually a GR_PIXELVAL */
+	GR_COLOR	foreground;	/* foreground RGB color or pixel value*/
+	GR_COLOR	background;	/* background RGB color or pixel value*/
+	GR_BOOL		fgispixelval;	/* TRUE if 'foreground' is actually a GR_PIXELVAL */
+	GR_BOOL		bgispixelval;	/* TRUE if 'background' is actually a GR_PIXELVAL */
 	GR_BOOL		usebackground;	/* actually display the background */
 
-        GR_BOOL         exposure;             /* Indicates if we should send expose events on a GrCopyArea */
+        GR_BOOL         exposure;     /* Indicates if we should send expose events on a GrCopyArea*/
 
         int             linestyle;
         unsigned long   dashmask;

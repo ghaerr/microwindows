@@ -241,9 +241,9 @@ XChangeGC(Display *dpy, GR_GC_ID gc, unsigned long vmask, GR_GC_INFO *gcv)
 /*	printf("XChangeGC: foreground=%08x\n", gcv->foreground); */
 	if (pixtype == MWPF_PALETTE) {
 		/*
-		 * This is OK because we have already set the palette.
+		 * Pass the palette value as a pixel value directly.
 		 */
-		GrSetGCForegroundUsingPalette(gc, gcv->foreground);
+		GrSetGCForegroundPixelVal(gc, gcv->foreground);
 	} else {
 		GrSetGCForeground(gc, gcv->foreground);
 	}

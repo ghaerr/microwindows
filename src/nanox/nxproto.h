@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2003 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  *
@@ -1275,27 +1275,27 @@ typedef struct {
 	UINT16	type;
 } nxSetWindowRegionReq;
 
-#define GrNumSetGCForegroundUsingPalette    117
+#define GrNumSetGCForegroundPixelVal    117
 
 typedef struct {
 	BYTE8 reqType;
 	BYTE8 hilength;
 	UINT16 length;
 	IDTYPE gcid;
-	UINT32 color;
-} nxSetGCForegroundUsingPaletteReq;
+	UINT32 pixelval;
+} nxSetGCForegroundPixelValReq;
 
-#define GrNumSetGCBackgroundUsingPalette    118
+#define GrNumSetGCBackgroundPixelVal    118
 
 typedef struct {
 	BYTE8 reqType;
 	BYTE8 hilength;
 	UINT16 length;
 	IDTYPE gcid;
-	UINT32 color;
-} nxSetGCBackgroundUsingPaletteReq;
+	UINT32 pixelval;
+} nxSetGCBackgroundPixelValReq;
 
-#define GrNumCreateLogFont	119
+#define GrNumCreateLogFont      119
 typedef struct {
 	BYTE8 reqType;
 	BYTE8 hilength;
@@ -1303,7 +1303,7 @@ typedef struct {
 	MWLOGFONT lf;
 } nxCreateLogFontReq;
 
-#define GrNumStretchArea           120
+#define GrNumStretchArea        120
 typedef struct {
 	BYTE8 reqType;
 	BYTE8 hilength;
@@ -1323,4 +1323,3 @@ typedef struct {
 } nxStretchAreaReq;
 
 #define GrTotalNumCalls         121
-

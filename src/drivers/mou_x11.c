@@ -165,9 +165,6 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		/* We need to remove the released button from the button mask*/
 		button &= ~released; 
 
-		printf("!Releasing button: 0x%x, state: 0x%x, button: 0x%x\n",
-			button,ev.xbutton.state, ev.xbutton.button);
-
 		*bp = button;
 		*dx = ev.xbutton.x;
 		*dy = ev.xbutton.y;

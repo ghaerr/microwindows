@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -747,9 +747,9 @@ GrNewGC(void)
 	gcp->yoff = 0;
 	gcp->fontid = 0;	/* 0 is default font*/
 	gcp->foreground = WHITE;
-	gcp->foregroundispixelval = GR_FALSE;
 	gcp->background = BLACK;
-	gcp->backgroundispixelval = GR_FALSE;
+	gcp->fgispixelval = GR_FALSE;
+	gcp->bgispixelval = GR_FALSE;
 	gcp->usebackground = GR_TRUE;
 
 	gcp->exposure = GR_TRUE;
@@ -816,7 +816,8 @@ GrDestroyGC(GR_GC_ID gc)
 		prevgcp->next = gcp->next;
 	}
 
-	if (gcp->stipple.bitmap) free(gcp->stipple.bitmap);
+	if (gcp->stipple.bitmap)
+		free(gcp->stipple.bitmap);
 	free(gcp);
 
 	SERVER_UNLOCK();
@@ -895,8 +896,8 @@ GrGetGCInfo(GR_GC_ID gcid, GR_GC_INFO *gcip)
 	gcip->font = gcp->fontid;
 	gcip->foreground = gcp->foreground;
 	gcip->background = gcp->background;
-	gcip->foregroundispixelval = gcp->foregroundispixelval;
-	gcip->backgroundispixelval = gcp->backgroundispixelval;
+	gcip->fgispixelval = gcp->fgispixelval;
+	gcip->bgispixelval = gcp->bgispixelval;
 	gcip->usebackground = gcp->usebackground;
 	gcip->exposure = gcp->exposure;
 
@@ -1186,14 +1187,11 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
 	SERVER_LOCK();
 	
 	gcp = GsFindGC(gc);
-	if(gcp == NULL) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp) {
+		gcp->regionid = region;
+		gcp->changed = GR_TRUE;
 	}
-	
-	gcp->regionid = region;
-	gcp->changed = GR_TRUE;
-	
+
 	SERVER_UNLOCK();
 }
 
@@ -1208,14 +1206,11 @@ GrSetGCClipOrigin(GR_GC_ID gc, int xoff, int yoff)
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if(gcp == NULL) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp) {
+		gcp->xoff = xoff;
+		gcp->yoff = yoff;
+		gcp->changed = GR_TRUE;
 	}
-
-	gcp->xoff = xoff;
-	gcp->yoff = yoff;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
@@ -1227,7 +1222,7 @@ GR_BOOL
 GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y)
 {
 	GR_REGION	*regionp;
-	GR_BOOL result;
+	GR_BOOL		result;
 	
 	SERVER_LOCK();
 	
@@ -1850,9 +1845,11 @@ GR_WINDOW_ID
 GrGetFocus(void)
 {
 	GR_WINDOW_ID id;
+
 	SERVER_LOCK();
 	id = focuswp->id;
 	SERVER_UNLOCK();
+
 	return id;
 }
 
@@ -2048,7 +2045,7 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 	 * Move the cursor only if necessary, offsetting it to
 	 * place the hot spot at the specified coordinates.
 	 */
-	if ((x != cursorx) || (y != cursory)) {
+	if (x != cursorx || y != cursory) {
 		if(curcursor) {
 			GdMoveCursor(x - curcursor->cursor.hotx,
 				y - curcursor->cursor.hoty);
@@ -2071,7 +2068,7 @@ GrMoveCursor(GR_COORD x, GR_COORD y)
 }
 
 /*
- * Set the foreground color in a graphics context.
+ * Set the foreground color in a graphics context from a passed RGB color value.
  */
 void
 GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
@@ -2081,21 +2078,17 @@ GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground)
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if (!gcp || (!gcp->foregroundispixelval &&
-	             gcp->foreground == foreground)) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp && ((gcp->foreground != foreground) || gcp->fgispixelval)) {
+		gcp->foreground = foreground;
+		gcp->fgispixelval = GR_FALSE;
+		gcp->changed = GR_TRUE;
 	}
-
-	gcp->foreground = foreground;
-	gcp->foregroundispixelval = GR_FALSE;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
 
 /*
- * Set the background color in a graphics context.
+ * Set the background color in a graphics context from a passed RGB color value.
  */
 void
 GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
@@ -2105,61 +2098,51 @@ GrSetGCBackground(GR_GC_ID gc, GR_COLOR background)
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if (!gcp || (!gcp->backgroundispixelval &&
-	              gcp->background == background)) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp && ((gcp->background != background) || gcp->bgispixelval)) {
+		gcp->background = background;
+		gcp->bgispixelval = GR_FALSE;
+		gcp->changed = GR_TRUE;
 	}
-
-	gcp->background = background;
-	gcp->backgroundispixelval = GR_FALSE;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
 
 /*
- * Set the foreground color in a graphics context.
+ * Set the foreground color in a graphics context from a passed pixel value.
  */
 void
-GrSetGCForegroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL foreground)
-{
-	GR_GC *gcp;		/* graphics context */
-
-	gcp = GsFindGC(gc);
-	if (!gcp || (gcp->foregroundispixelval &&
-	             gcp->foreground == foreground)) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	gcp->foreground = foreground;
-	gcp->foregroundispixelval = GR_TRUE;
-	gcp->changed = GR_TRUE;
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Set the background color in a graphics context.
- */
-void
-GrSetGCBackgroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL background)
+GrSetGCForegroundPixelVal(GR_GC_ID gc, GR_PIXELVAL foreground)
 {
 	GR_GC *gcp;		/* graphics context */
 
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if (!gcp || (gcp->backgroundispixelval &&
-	             gcp->background == background)) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp && ((gcp->foreground != foreground) || !gcp->fgispixelval)) {
+		gcp->foreground = foreground;
+		gcp->fgispixelval = GR_TRUE;
+		gcp->changed = GR_TRUE;
 	}
 
-	gcp->background = background;
-	gcp->backgroundispixelval = GR_TRUE;
-	gcp->changed = GR_TRUE;
+	SERVER_UNLOCK();
+}
+
+/*
+ * Set the background color in a graphics context from a passed pixel value.
+ */
+void
+GrSetGCBackgroundPixelVal(GR_GC_ID gc, GR_PIXELVAL background)
+{
+	GR_GC *gcp;		/* graphics context */
+
+	SERVER_LOCK();
+
+	gcp = GsFindGC(gc);
+	if (gcp && ((gcp->background != background) || !gcp->bgispixelval)) {
+		gcp->background = background;
+		gcp->bgispixelval = GR_TRUE;
+		gcp->changed = GR_TRUE;
+	}
 
 	SERVER_UNLOCK();
 }
@@ -2176,13 +2159,10 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
 
 	flag = (flag != 0);
 	gcp = GsFindGC(gc);
-	if (!gcp || gcp->usebackground == flag) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp && gcp->usebackground != flag) {
+		gcp->usebackground = flag;
+		gcp->changed = GR_TRUE;
 	}
-
-	gcp->usebackground = flag;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
@@ -2410,14 +2390,11 @@ GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if (!gcp) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp) {
+		gcp->ts_offset.x = xoff;
+		gcp->ts_offset.x = yoff;
+		gcp->changed = GR_TRUE;
 	}
-
-	gcp->ts_offset.x = xoff;
-	gcp->ts_offset.x = yoff;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
@@ -2433,13 +2410,10 @@ GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if(gcp == NULL) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp) {
+		gcp->exposure = exposure;
+		gcp->changed = GR_TRUE;
 	}
-
-	gcp->exposure = exposure;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
@@ -2452,19 +2426,14 @@ void
 GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
 {
 	GR_GC		*gcp;
-	GR_FONT		*fontp;
 
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if (!gcp || gcp->fontid == font) {
-		SERVER_UNLOCK();
-		return;
+	if (gcp && gcp->fontid != font) {
+		gcp->fontid = font;
+		gcp->changed = GR_TRUE;
 	}
-
-	fontp = GsFindFont(font);
-	gcp->fontid = font;
-	gcp->changed = GR_TRUE;
 
 	SERVER_UNLOCK();
 }
@@ -2717,7 +2686,7 @@ GrLoadImageFromFile(char *path, int flags)
 	}
 
 	imagep = (GR_IMAGE *) malloc(sizeof(GR_IMAGE));
-	if (imagep == NULL) {
+	if (!imagep) {
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		GdFreeImage(id);
 		SERVER_UNLOCK();
@@ -2727,11 +2696,9 @@ GrLoadImageFromFile(char *path, int flags)
 	imagep->id = id;
 	imagep->owner = curclient;
 	imagep->next = listimagep;
-
 	listimagep = imagep;
 
 	SERVER_UNLOCK();
-
 	return id;
 #else
 	return 0;
@@ -2742,20 +2709,20 @@ GrLoadImageFromFile(char *path, int flags)
 
 void
 GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-		      GR_SIZE width, GR_SIZE height,
-		      void *buffer, int size, int flags)
+	GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
 {
-  GR_DRAWABLE	*dp;
+	GR_DRAWABLE	*dp;
 
 	SERVER_LOCK();
 
-  switch (GsPrepareDrawing(id, gc, &dp)) {
-  case GR_DRAW_TYPE_WINDOW:
-  case GR_DRAW_TYPE_PIXMAP:
-    GdDrawImageFromBuffer(dp->psd, dp->x + x, dp->y + y,
+	switch (GsPrepareDrawing(id, gc, &dp)) {
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdDrawImageFromBuffer(dp->psd, dp->x + x, dp->y + y,
 			width, height, buffer, size, flags);
-    break;
-  }
+		break;
+	}
+
 	SERVER_UNLOCK();
 }
 
@@ -2764,32 +2731,33 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 GR_IMAGE_ID
 GrLoadImageFromBuffer(void *buffer, int size, int flags)
 {
-  GR_IMAGE_ID	id;
-  GR_IMAGE *	imagep;
+	GR_IMAGE_ID	id;
+	GR_IMAGE *	imagep;
 
-  SERVER_LOCK();
-  id = GdLoadImageFromBuffer(&scrdev, buffer, size, flags);
-  if (!id) {
-    SERVER_UNLOCK();
-    return 0;
-  }
-  
-  imagep = (GR_IMAGE *) malloc(sizeof(GR_IMAGE));
-  if (imagep == NULL) {
-    GsError(GR_ERROR_MALLOC_FAILED, 0);
-    GdFreeImage(id);
-    SERVER_UNLOCK();
-    return 0;
-  }
-	
-  imagep->id = id;
-  imagep->owner = curclient;
-  imagep->next = listimagep;
-  
-  listimagep = imagep;
-  
-  SERVER_UNLOCK();
-  return id;
+	SERVER_LOCK();
+
+	id = GdLoadImageFromBuffer(&scrdev, buffer, size, flags);
+	if (!id) {
+		SERVER_UNLOCK();
+		return 0;
+	}
+
+	imagep = (GR_IMAGE *) malloc(sizeof(GR_IMAGE));
+	if (!imagep) {
+		GsError(GR_ERROR_MALLOC_FAILED, 0);
+		GdFreeImage(id);
+		SERVER_UNLOCK();
+		return 0;
+	}
+
+	imagep->id = id;
+	imagep->owner = curclient;
+	imagep->next = listimagep;
+	listimagep = imagep;
+
+	SERVER_UNLOCK();
+
+	return id;
 }
 
 

@@ -674,6 +674,22 @@ GrSetGCBackgroundWrapper(void *r)
 }
 
 static void
+GrSetGCForegroundPixelValWrapper(void *r)
+{
+	nxSetGCForegroundPixelValReq *req = r;
+
+	GrSetGCForegroundPixelVal(req->gcid, req->pixelval);
+}
+
+static void
+GrSetGCBackgroundPixelValWrapper(void *r)
+{
+	nxSetGCBackgroundPixelValReq *req = r;
+
+	GrSetGCBackgroundPixelVal(req->gcid, req->pixelval);
+}
+
+static void
 GrSetGCUseBackgroundWrapper(void *r)
 {
 	nxSetGCUseBackgroundReq *req = r;
@@ -1454,22 +1470,6 @@ GrSetWindowRegionWrapper(void *r)
 }
  
 static void
-GrSetGCForegroundUsingPaletteWrapper(void *r)
-{
-	nxSetGCForegroundUsingPaletteReq *req = r;
-
-	GrSetGCForegroundUsingPalette(req->gcid, req->color);
-}
-
-static void
-GrSetGCBackgroundUsingPaletteWrapper(void *r)
-{
-	nxSetGCBackgroundUsingPaletteReq *req = r;
-
-	GrSetGCBackgroundUsingPalette(req->gcid, req->color);
-}
-
-static void
 GrStretchAreaWrapper(void *r)
 {
 	nxStretchAreaReq *req = r;
@@ -1609,8 +1609,8 @@ struct GrFunction {
 	/* 114 */ {GrSetGCTileWrapper, "GrSetGCTile" },
 	/* 115 */ {GrNewBitmapRegionWrapper, "GrNewBitmapRegion"},
 	/* 116 */ {GrSetWindowRegionWrapper, "GrSetWindowRegion"},
-	/* 117 */ {GrSetGCForegroundUsingPaletteWrapper, "GrSetGCFgPalette"},
-	/* 118 */ {GrSetGCBackgroundUsingPaletteWrapper, "GrSetGCBgPalette"},
+	/* 117 */ {GrSetGCForegroundPixelValWrapper, "GrSetGCForegroundPixelVal"},
+	/* 118 */ {GrSetGCBackgroundPixelValWrapper, "GrSetGCBackgroundPixelVal"},
 	/* 119 */ {GrCreateLogFontWrapper, "GrCreateLogFont"},
 	/* 120 */ {GrStretchAreaWrapper, "GrStretchArea"},
 };

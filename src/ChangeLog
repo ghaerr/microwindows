@@ -1,3 +1,5 @@
+Version 0.89pl9 - 01 Mar 2003 - greg@censoft.com
+	* renamed GdSetForeground to GdSetForegroundPixelVal (and GdSetBackground)
 	* added AF_INET client/server, NXDISPLAY env variable
 	* added text speedup patch, no per-point clipping in visible
 		case in GdBitmap and corefont_textdraw.  Also clear
@@ -74,23 +76,22 @@ Version 0.89pl7 - 24 Feb 2003 - greg@censoft.com
 	* Adding GR_ARGB() - just calls MWARGB().
 	* Rewriting MWRGB() to set the alpha to 255 (opaque).
 	* Adding MWARGB() macro
-	* *** NON-BACKWARDS-COMPATIBLE API CHANGE: ***
+	* Use new GrSetGCForegroundPixelVal() API rather than the
+	  deprecated MWPALINDEX() macro.
+	  *** NON-BACKWARDS-COMPATIBLE API CHANGE: ***
 	  Removing MWF_PALINDEX and MWPALINDEX().  They don't work
 	  due to the alpha blending changes.  Clients should be
-	  modified to use GrSetGCForegroundUsingPalette(index) instead
+	  modified to use GrSetGCForegroundPixelVal(index) instead
 	  of GrSetGCForeground(MWPALINDEX(index)), and similarly to use
-	  GrSetGCBackgroundUsingPalette() to set the background color.
+	  GrSetGCBackgroundPixelVal() to set the background color.
 
 	* APPLIED mw_phillips_color.diff (Jonathan)
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* API changes to allow later alpha patch.
-	* Use new GrSetGCForegroundUsingPalette() API rather than the
-	  deprecated MWPALINDEX() macro.
-	* Added foregroundispixelval and backgroundispixelval flags to
-	  GR_GC and GR_GC_INFO structures.
-	* Added GrSetGCForegroundUsingPalette, GrSetGCBackgroundUsingPalette
+	* Added GrSetGCForegroundPixelVal, GrSetGCBackgroundPixelVal
 	* Added new functions GdSetForegroundColor() and GdSetBackgroundColor
 		GdSetForeground/GdSetBackground now takes MWPIXELVAL only.
+	* Added fgispixelval and bgispixelval flags to GR_GC and GR_GC_INFO.
 	* Added a PSD parameter to GdSetForeground() and GdSetBackground(),
 		GdFindColor().  Allows multiple color depths to be supported
 		at the same time by different PSDs

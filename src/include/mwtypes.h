@@ -104,17 +104,6 @@
 #define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* rgb full alpha*/
 #define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb no alpha*/
 
-#if 0
-/*
- * Not supported due to alpha blending changes!
- *
- * If you're using Nano-X, then use the new functions
- * GrSetGCForegroundUsingPalette and GrSetGCBackgroundUsingPalette.
- */
-#define MWF_PALINDEX	0x01000000
-#define MWPALINDEX(x)	((MWCOLORVAL)MWF_PALINDEX | (x))
-#endif
-
 
 /* convert an MWROP to drawing mode MWMODE value*/
 #define MWROP_TO_MODE(op)	((op) >> 24)

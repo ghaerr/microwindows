@@ -251,10 +251,10 @@ typedef struct {
   int xoff;			/* x offset of user region*/
   int yoff;			/* y offset of user region*/
   GR_FONT_ID font;		/* font number */
-  GR_COLOR foreground;		/* foreground color */
-  GR_COLOR background;		/* background color */
-  GR_BOOL foregroundispixelval;	/* TRUE if 'foreground' is actually a GR_PIXELVAL */
-  GR_BOOL backgroundispixelval;	/* TRUE if 'background' is actually a GR_PIXELVAL */
+  GR_COLOR foreground;		/* foreground RGB color or pixel value*/
+  GR_COLOR background;		/* background RGB color or pixel value*/
+  GR_BOOL fgispixelval;		/* TRUE if 'foreground' is actually a GR_PIXELVAL */
+  GR_BOOL bgispixelval;		/* TRUE if 'background' is actually a GR_PIXELVAL */
   GR_BOOL usebackground;	/* use background in bitmaps */
   GR_BOOL exposure;		/* send exposure events on GrCopyArea*/
 } GR_GC_INFO;
@@ -686,9 +686,9 @@ void		GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE rx, GR_SIZE ry, GR_COORD angle1,
 			GR_COORD angle2, int type); /* floating point required*/
 void		GrSetGCForeground(GR_GC_ID gc, GR_COLOR foreground);
-void		GrSetGCForegroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL foreground);
+void		GrSetGCForegroundPixelVal(GR_GC_ID gc, GR_PIXELVAL foreground);
 void		GrSetGCBackground(GR_GC_ID gc, GR_COLOR background);
-void		GrSetGCBackgroundUsingPalette(GR_GC_ID gc, GR_PIXELVAL background);
+void		GrSetGCBackgroundPixelVal(GR_GC_ID gc, GR_PIXELVAL background);
 void		GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag);
 void		GrSetGCMode(GR_GC_ID gc, int mode);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -252,8 +252,7 @@ MWPIXELVAL
 GdFindColor(PSD psd, MWCOLORVAL c)
 {
 	/*
-	 * Handle truecolor displays.  Note that the MWF_PALINDEX
-	 * bit is ignored when running truecolor drivers.
+	 * Handle truecolor displays.
 	 */
 	switch(psd->pixtype) {
 	case MWPF_TRUECOLOR8888:
@@ -282,15 +281,6 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 	}
 
 	/* case MWPF_PALETTE: must be running 1, 2, 4 or 8 bit palette*/
-
-#if 0	/* Not supported due to alpha blending changes */
-	/*
-	 * Check if color is a palette index.  Note that the index
-	 * isn't error checked against the system palette, for speed.
-	 */
-	if(c & MWF_PALINDEX)
-		return (c & 0xff);
-#endif
 
 	/* search palette for closest match*/
 	return GdFindNearestColor(gr_palette, (int)gr_ncolors, c);

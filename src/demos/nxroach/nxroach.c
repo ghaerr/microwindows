@@ -162,7 +162,7 @@ main(int ac, char **av)
 			MoveRoach(rx);
 		}
 		DrawRoaches();
-		GrDelay(100);
+		GrDelay(10);
 		break;
 		
 	    case GR_EVENT_TYPE_EXPOSURE:

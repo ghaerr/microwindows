@@ -28,7 +28,7 @@ extern MWPALENTRY gr_palette[256];    /* current palette*/
 extern int	  gr_firstuserpalentry;/* first user-changable palette entry*/
 extern int 	  gr_nextpalentry;    /* next available palette entry*/
 
-/* JHC - These support drawing dashed lines */
+/* These support drawing dashed lines */
 extern unsigned long gr_dashmask;     /* An actual bitmask of the dash values */
 extern unsigned long gr_dashcount;    /* The number of bits defined in the dashmask */
 
@@ -73,10 +73,10 @@ GdSetUseBackground(MWBOOL flag)
 }
 
 /*
- * Set the foreground color for drawing.
+ * Set the foreground color for drawing from passed pixel value.
  */
 MWPIXELVAL
-GdSetForeground(PSD psd, MWPIXELVAL fg)
+GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg)
 {
 	MWPIXELVAL	oldfg = gr_foreground;
 
@@ -85,10 +85,11 @@ GdSetForeground(PSD psd, MWPIXELVAL fg)
 }
 
 /*
- * Set the background color for bitmap and text backgrounds.
+ * Set the background color for bitmap and text backgrounds
+ * from passed pixel value.
  */
 MWPIXELVAL
-GdSetBackground(PSD psd, MWPIXELVAL bg)
+GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg)
 {
 	MWPIXELVAL	oldbg = gr_background;
 
@@ -97,7 +98,7 @@ GdSetBackground(PSD psd, MWPIXELVAL bg)
 }
 
 /*
- * Set the foreground color for drawing.
+ * Set the foreground color for drawing from passed RGB color value.
  */
 MWPIXELVAL
 GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
@@ -109,7 +110,8 @@ GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
 }
 
 /*
- * Set the background color for bitmap and text backgrounds.
+ * Set the background color for bitmap and text backgrounds
+ * from passed RGB color value.
  */
 MWPIXELVAL
 GdSetBackgroundColor(PSD psd, MWCOLORVAL bg)

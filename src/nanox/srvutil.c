@@ -1007,13 +1007,13 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 		unsigned long	mask = gcp->dashmask;
 		int		count = gcp->dashcount;
 
-		if (gcp->foregroundispixelval)
-			GdSetForeground(psd, gcp->foreground);
+		if (gcp->fgispixelval)
+			GdSetForegroundPixelVal(psd, gcp->foreground);
 		else
 			GdSetForegroundColor(psd, gcp->foreground);
 
-		if (gcp->backgroundispixelval)
-			GdSetBackground(psd, gcp->background);
+		if (gcp->bgispixelval)
+			GdSetBackgroundPixelVal(psd, gcp->background);
 		else
 			GdSetBackgroundColor(psd, gcp->background);
 

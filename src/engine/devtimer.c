@@ -189,7 +189,7 @@ MWBOOL GdTimeout(void)
 		t = n;
 	}
 
-	if(mainloop_timeout.tv_sec > 0)
+	if(mainloop_timeout.tv_sec > 0 || mainloop_timeout.tv_usec > 0)
 		if(time_to_expiry(&mainloop_timeout) <= 0)
 			return TRUE;
 

@@ -874,6 +874,15 @@ GR_DRAW_TYPE GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 		return GR_DRAW_TYPE_NONE;
 
 	/*
+	 * If the graphics context is not the current one, then
+	 * make it the current one and remember to update it.
+	 */
+	if (gcp != curgcp) {
+		curgcp = gcp;
+		gcp->changed = GR_TRUE;
+	}
+
+	/*
 	 * Look for window or pixmap id
 	 */
         pp = NULL;
@@ -928,15 +937,6 @@ GR_DRAW_TYPE GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 			  GsSetClipWindow(wp, regionp? regionp->rgn: NULL,
 				gcp->mode & ~GR_MODE_DRAWMASK);
 		}
-	}
-
-	/*
-	 * If the graphics context is not the current one, then
-	 * make it the current one and remember to update it.
-	 */
-	if (gcp != curgcp) {
-		curgcp = gcp;
-		gcp->changed = GR_TRUE;
 	}
 
 	/*

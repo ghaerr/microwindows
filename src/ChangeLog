@@ -1,3 +1,5 @@
+	* fix GdTimeout bug when usecs only specified (David Erickson)
+	* check GC changed before fixing clip in GsPrepareDrawing, clip sometimes incorrect
 Version 0.89pre8 - 6 Nov 2001 - greg@censoft.com
 	* allow 0 timeout to cancel GrSetScreenSaverTimeout
 	* changed check for /tmp/.nano-X to use access(), not stat()

@@ -445,7 +445,7 @@ ifeq ($(VERBOSE), N)
 .SILENT:
 endif
 
-.PHONY: default subdirs clean xconfig makedestdirs
+.PHONY: default subdirs clean cleanapps xconfig makedestdirs
 
 # Add any exportable variable here
 export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB MW_DIR_OBJ ARCH CONFIG
@@ -646,6 +646,12 @@ xconfig:
 
 # don't clean lib dir
 cleanapps:
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@echo "Cleaning $(MW_DIR_RELATIVE) ..."
+	$(RM) -rf $(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)
+#	$(RM) -rf $(MW_DIR_BIN)/
+#	mkdir $(MW_DIR_BIN)
+endif
 	@echo "Cleaning directory $(MW_DIR_RELATIVE) ..."
 	$(RM) \
 		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)core \
@@ -659,6 +665,13 @@ cleanapps:
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleanapps;)
 
 clean:
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@echo "Cleaning $(MW_DIR_RELATIVE) ..."
+	$(RM) -rf $(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)
+#	$(RM) -rf $(MW_DIR_BIN)/ $(MW_DIR_LIB)/
+#	mkdir $(MW_DIR_BIN)
+#	mkdir $(MW_DIR_LIB)
+endif
 	@echo "Cleaning directory $(MW_DIR_RELATIVE) ..."
 	$(RM) \
 		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)core \
@@ -676,7 +689,6 @@ clean:
 	done
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
-
 
 install: default
 	$(INSTALL_DIR) $(HDRINSTALLDIR)

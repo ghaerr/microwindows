@@ -33,9 +33,13 @@ ifeq ($(ARCH), ECOS)
 	$(MAKE) -C $(MW_DIR_SRC)/ecos
 endif
 
+.PHONY: realclean
+
 realclean: clean
+ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	$(MAKE) -C $(MW_DIR_SRC)/fonts realclean
 	$(MAKE) -C $(MW_DIR_SRC)/mwin/bmp realclean
+endif
 
 #
 # Documentation targets:

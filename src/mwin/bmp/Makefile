@@ -45,7 +45,10 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
+.PHONY: realclean
+
 realclean: clean
+ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	$(RM) \
 		$(MW_DIR_OBJ)/mwin/bmp/car8.c \
 		$(MW_DIR_OBJ)/mwin/bmp/min4.c \
@@ -57,6 +60,7 @@ realclean: clean
 		$(MW_DIR_OBJ)/mwin/bmp/rle8.c \
 		$(MW_DIR_OBJ)/mwin/bmp/microwin.c \
 		$(MW_DIR_OBJ)/mwin/bmp/penguin.c
+endif
 
 $(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/mwin/bmp/makebmp.c
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@

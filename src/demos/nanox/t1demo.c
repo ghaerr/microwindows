@@ -50,11 +50,11 @@
 #define FONT5 "timesi"
 #elif HAVE_PCF_SUPPORT
 #define MAXFONTS 5
-#define FONT1 "/usr/lib/X11/fonts/misc/7x14.pcf.gz"
-#define FONT2 "/usr/lib/X11/fonts/misc/6x13.pcf.gz"
-#define FONT3 "/usr/lib/X11/fonts/misc/9x15.pcf.gz"
-#define FONT4 "/usr/lib/X11/fonts/misc/vga.pcf.gz"
-#define FONT5 "/usr/lib/X11/fonts/100dpi/helvB12.pcf.gz"
+#define FONT1 "7x14.pcf.gz"
+#define FONT2 "6x13.pcf.gz"
+#define FONT3 "9x15.pcf.gz"
+#define FONT4 "vga.pcf.gz"
+#define FONT5 "helvB12.pcf.gz"
 #elif HAVE_FNT_SUPPORT
 #define MAXFONTS 2
 #define FONT1 "/tmp/helvB12.fnt"

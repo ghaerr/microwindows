@@ -216,7 +216,7 @@ printf("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_MGL) {
 		pfont = (PMWFONT)eucjp_createfont(fontname, height, fontattr);
 		if (pfont) {
-			printf("pcf_createfont: using font %s\n", fontname);
+			printf("eujcp_createfont: using font %s\n", fontname);
 			return pfont;
 		}
 		printf("eucjp_createfont: %s,%d not found\n", fontname, height);

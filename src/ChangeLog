@@ -1,3 +1,4 @@
+	* added default font dir handling to pcf and fnt files (set in config)
 Version 0.89pl11 - 07 Apr 2003 - greg@censoft.com
 	* change to allow GrCreateFont w/height=0 to work with loadable fonts
 		- if height=0 specified with scalable fonts, must call

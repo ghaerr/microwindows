@@ -182,8 +182,14 @@ fnt_load_font(char *path)
 	char version[4+1];
 	char name[64+1];
 	char copyright[256+1];
+	char fname[256];
 
 	ifp = fopen(path, "rb");
+	if (!ifp) {
+		strcpy(fname, FNT_FONT_DIR "/");
+		strcpy(fname + sizeof(FNT_FONT_DIR), path);
+		ifp = fopen(fname, "rb");
+	}
 	if (!ifp)
 		return NULL;
 

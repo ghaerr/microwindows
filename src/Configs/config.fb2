@@ -149,6 +149,7 @@ LIBZ                     = /usr/lib/libz.a
 # native .fnt loadable font support
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
+FNT_FONT_DIR             = "fonts/bdf"
 
 ####################################################################
 # T1 adobe type1 font support thru t1lib
@@ -180,6 +181,7 @@ LIBFT2LIB                = /usr/lib/libfreetype.a
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
 HAVE_PCFGZ_SUPPORT       = Y
+PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
 # Chinese Han Zi Ku loadable font support

@@ -458,10 +458,17 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 	unsigned short *goffset = 0;
 	unsigned char *gwidth = 0;
 	int endian;
+	char fname[256];
 
 	/* Try to open the file */
-	if (!(file = FOPEN(name, "r")))
-		return 0;
+	file = FOPEN(name, "rb");
+	if (!file) {
+		strcpy(fname, PCF_FONT_DIR "/");
+		strcpy(fname + sizeof(PCF_FONT_DIR), name);
+		file = FOPEN(fname, "rb");
+	}
+	if (!file)
+		return NULL;
 
 	if (!(pf = (MWCOREFONT *) malloc(sizeof(MWCOREFONT)))) {
 		err = -1;

@@ -61,11 +61,12 @@ static MWFONTPROCS eucjp_procs = {
 };
 
 /*
- * Create PMWFONT structure from fone "name"
+ * Load MGL binary font
  *
  * Many thanks to MGL fontkit/mgl_fontinfo.c
  */
-PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
+PMWEUCJPFONT
+eucjp_createfont(const char *name, MWCOORD height, int attr)
 {
 	PMWEUCJPFONT pf;
 	int fd, r;
@@ -79,12 +80,10 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
 	if (!pf)
 		return NULL;
 
-	pf->fontprocs = &eucjp_procs;
 	fd = open(name, O_RDONLY);
 	if (fd < 0) {
-		int prefixlen = strlen(EUCJP_FONT_DIR) + 1;
 		strcpy(fname, EUCJP_FONT_DIR "/");
-		strcpy(fname + prefixlen, name);
+		strcpy(fname + sizeof(EUCJP_FONT_DIR), name);
 		fd = open(fname, O_RDONLY);
 	}
 	if (fd < 0)
@@ -92,7 +91,7 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
 
 	r = read(fd, buf, 256);
 	if (r != 256) {
-		printf("FONT_EUCJP: can't read %s.\n", name);
+		printf("FONT_EUCJP: can't read %s\n", name);
 		goto EUCJP_FAIL;
 	}
 
@@ -104,6 +103,11 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
 		printf("FONT_EUCJP: magic is missing.\n");
 		goto EUCJP_FAIL;
 	}
+
+	pf->fontprocs = &eucjp_procs;
+	pf->fontsize = height;
+	pf->fontrotation = 0;
+	pf->fontattr = attr;
 
 	pf->height = mfh;
 	pf->width = mfw;
@@ -125,10 +129,6 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
 		printf("FONT_EUCJP: Can't mmap font data.\n");
 		goto EUCJP_FAIL;
 	}
-
-	pf->fontsize = height;
-	pf->fontrotation = 0;
-	pf->fontattr = attr;
 
 	return pf;
 

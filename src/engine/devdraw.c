@@ -849,8 +849,6 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	if ((bpp == 32)
 	    && ((pimage->compression & MWIMAGE_ALPHA_CHANNEL) != 0)) {
 		long *data = (long *) imagebits;
-		/* 32bpp RGB rather than BGR byte order? */
-		rgborder = pimage->compression & MWIMAGE_RGB;
 
 		/* DPRINTF("Nano-X: GdDrawImage (%d,%d) %dx%d x=%d-%d\n  ",
 		   x,y,width,height,minx,maxx); */
@@ -918,13 +916,10 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		}
 		/* printf("End of image\n"); */
 	} else if ((bpp == 24) || (bpp == 32)) {
-		/* RGB rather than BGR byte order? */
 		long trans;
 
-		rgborder = pimage->compression & MWIMAGE_RGB;
-
 		while (height > 0) {
-
+			/* RGB rather than BGR byte order? */
 			trans = cr = rgborder
 				? MWRGB(imagebits[0], imagebits[1],
 					imagebits[2])

@@ -19,7 +19,7 @@
 #define ANIMATEPALETTE	0			/* =1 animated palette test*/
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
-#define FASTJPEG	0			/* =1 for temp quick jpeg 8bpp*/
+#define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
 
 #if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))

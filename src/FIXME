@@ -1,4 +1,7 @@
-remove GR_GRAB_SPECIAL, check HOTKEY event
+fix fast gray palette handling for jpegs
+check incorrect jpeg decode when !FASTJPEG
+where is MWIMAGE_ALPHA_CHANNEL used?
+remove GR_GRAB_EXCLUSIVE_MOUSE?, check HOTKEY event
 fixup GsDeliverRawMouseEvent, remove internal button handling
 fonts/*/Makefile removed: *.o created with config.dbcs
 MWCOORD_MAX possibly incorrect, int vs uint16 for MWCOORD in nxproto.h

@@ -6,6 +6,11 @@
  *
  * Image load/cache/resize/display routines
  *
+ * If FASTJPEG is defined, JPEG images are decoded to
+ * a 256 color standardized palette (mwstdpal8). Otherwise,
+ * the images are decoded depending on their output
+ * components (usually 24bpp).
+ *
  * GIF, BMP, JPEG, PPM, PGM, PBM, PNG, XPM and TIFF formats are supported.
  * JHC:  Instead of working with a file, we work with a buffer
  *       (either provided by the user or through mmap).  This
@@ -464,7 +469,7 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		rcDst.width = width;
 		rcDst.height = height;
 
-		/* Stretch full soruce to destination rectangle*/
+		/* Stretch full source to destination rectangle*/
 		GdStretchImage(pimage, NULL, &image2, &rcDst);
 		GdDrawImage(psd, x, y, &image2);
 		free(image2.imagebits);
@@ -868,10 +873,8 @@ LoadJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 #if FASTJPEG
 	goto fastjpeg;
 #endif
-	if (!fast_grayscale)
-	{
-		if (psd->pixtype == MWPF_PALETTE)
-		{
+	if (!fast_grayscale) {
+		if (psd->pixtype == MWPF_PALETTE) {
 fastjpeg:
 			cinfo.quantize_colors = TRUE;
 #if FASTJPEG
@@ -889,8 +892,7 @@ fastjpeg:
 				(JDIMENSION)3);
 
 			/* Set colormap from system palette */
-			for(i = 0; i < cinfo.actual_number_of_colors; ++i)
-			{
+			for(i = 0; i < cinfo.actual_number_of_colors; ++i) {
 #if FASTJPEG
 				cinfo.colormap[0][i] = mwstdpal8[i].r;
 				cinfo.colormap[1][i] = mwstdpal8[i].g;
@@ -902,13 +904,11 @@ fastjpeg:
 #endif
 			}
 		}
-	}
-	else 
-	{
+	} else {
 		/* Grayscale output asked */
 		cinfo.quantize_colors = TRUE;
 		cinfo.out_color_space = JCS_GRAYSCALE;
-		cinfo.desired_number_of_colors = psd->ncolors;
+		cinfo.desired_number_of_colors = 256;
 	}
 	jpeg_calc_output_dimensions(&cinfo);
 
@@ -929,15 +929,26 @@ fastjpeg:
 	if(!pimage->imagebits)
 		goto err;
 	pimage->palette = NULL;
-#if FASTJPEG
-	if(pimage->bpp == 8) {
+
+	if(pimage->bpp <= 8) {
 		pimage->palette = malloc(256*sizeof(MWPALENTRY));
 		if(!pimage->palette)
 			goto err;
-		for (i=0; i<256; ++i)
-			pimage->palette[i] = mwstdpal8[i];
-	}
+		if (fast_grayscale) {
+			for (i=0; i<256; ++i) {
+				MWPALENTRY pe;
+				/* FIXME could use static palette here*/
+				pe.r = pe.g = pe.b = i;
+				pimage->palette[i] = pe;
+			}
+		} else {
+#if FASTJPEG
+			/* FASTJPEG case only, normal uses hw palette*/
+			for (i=0; i<256; ++i)
+				pimage->palette[i] = mwstdpal8[i];
 #endif
+		}
+	}
 
 	/* Step 5: Start decompressor */
 	jpeg_start_decompress (&cinfo);

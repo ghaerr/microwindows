@@ -1351,9 +1351,9 @@ typedef struct {
 	BYTE8 reqType;
 	BYTE8 hilength;
 	UINT16 length;
-	UINT32	buffer_id;
+	UINT32 buffer_id;
 	BYTE8 format[16];
-	UINT16 height;
+	INT16 height;
 	UINT16 padding;
 } nxCreateFontFromBufferReq;
 
@@ -1363,7 +1363,7 @@ typedef struct {
 	BYTE8 hilength;
 	UINT16 length;
 	IDTYPE fontid;
-	UINT16 height;
+	INT16 height;
 } nxCopyFontReq;
 
 #define GrTotalNumCalls         125

@@ -158,7 +158,7 @@ ReadBlock(void *b, int n)
 			if ( errno == EINTR || errno == EAGAIN )
 				continue;
 
-			EPRINTF("nxclient: bad readblock %d\n", i);
+			EPRINTF("nxclient: bad readblock %d, errno %d\n", i, errno);
 			return -1;
 		}
 		v += i;

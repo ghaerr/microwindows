@@ -51,7 +51,7 @@ RTEMSTOOLSPREFIX         = i386-rtemself-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = Y
+DEBUG                    = N
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
@@ -63,7 +63,7 @@ GPROF                    = N
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-SHAREDLIBS               = N
+SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
 
 
@@ -135,7 +135,7 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 HAVE_JPEG_SUPPORT        = Y
 INCJPEG                  = .
-LIBJPEG                  = /usr/lib/libjpeg.a
+LIBJPEG                  = /usr/lib/libjpeg.so
 
 ####################################################################
 # PNG support via libpng and libz

@@ -39,11 +39,13 @@
 #if ELKS
 #include <linuxmt/na.h>
 #include <linuxmt/time.h>
+#define ADDR_FAM AF_NANO
 #elif __ECOS
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <cyg/kernel/kapi.h>
+#define ADDR_FAM AF_INET
 #define _NO_SVR_MAPPING
 #define getpid()	((int)cyg_thread_self())
 #else
@@ -61,8 +63,11 @@
 #include "nxproto.h"
 #include "lock.h"
 
-#define GR_CLOSE_FIX	1	/* dirty hack attempts to fix GrClose hang bug*/
+#ifndef ADDR_FAM
+#define ADDR_FAM AF_UNIX	/* default to unix socket for client/server*/
+#endif
 
+#define GR_CLOSE_FIX	1	/* dirty hack attempts to fix GrClose hang bug*/
 #define SHM_BLOCK_SIZE	4096
 
 #ifndef __ECOS
@@ -264,15 +269,23 @@ GrOpen(void)
 	nxOpenReq	req;
 	int		tries;
 	int		ret = 0;
-#if ELKS
+#if ADDR_FAM == AF_NANO
 	struct sockaddr_na name;
-#define ADDR_FAM AF_NANO
-#elif defined(__ECOS)
+#elif ADDR_FAM == AF_INET
 	struct sockaddr_in name;
-#define ADDR_FAM AF_INET
-#else
+	struct hostent *he;
+	/* allow specification of remote nano-X server address*/
+	char *sockaddr = getenv("NXDISPLAY");
+	if (!sockaddr)
+		sockaddr = "127.0.0.1";		/* loopback address*/
+#elif ADDR_FAM == AF_UNIX
 	struct sockaddr_un name;
-#define ADDR_FAM AF_UNIX
+	/* allow override of named UNIX socket (default /tmp/.nano-X)*/
+	char *sockname = getenv("NXDISPLAY");
+	if (!sockname)
+		sockname = GR_NAMED_SOCKET;
+#else
+#error "ADDR_FAM not defined to AF_NANO, AF_INET or AF_UNIX"
 #endif
 	ACCESS_PER_THREAD_DATA()
 	
@@ -287,25 +300,31 @@ GrOpen(void)
 	/* initialize global critical section lock*/
 	LOCK_INIT(&nxGlobalLock);
 
-#if ELKS
+#if ADDR_FAM == AF_NANO
 	name.sun_family = AF_NANO;
-	name.sun_no = GR_NUMB_SOCKET;
+	name.sun_no = GR_ELKS_SOCKET;		/* AF_NANO socket 79*/
 	size = sizeof(struct sockaddr_na);
-#elif defined(__ECOS)
+#elif ADDR_FAM == AF_INET
 	name.sin_family = AF_INET;
-	name.sin_port = htons(6600);                    /* Nano-X server port*/
-	name.sin_addr.s_addr = inet_addr("127.0.0.1");  /* Loopback address*/
+	name.sin_port = htons(GR_NUM_SOCKET);	/* AF_INET socket 6600*/
+	if (!(he = gethostbyname(sockaddr))) {
+		EPRINTF("nxclient: Can't resolve address for server %s\n", sockaddr);
+		close(nxSocket);
+		nxSocket = -1;
+		return -1;
+	}
+	name.sin_addr = *(struct in_addr *)he->h_addr_list[0];
 	size = sizeof(struct sockaddr_in);
-#else
+#elif ADDR_FAM == AF_UNIX
 	name.sun_family = AF_UNIX;
-	strcpy(name.sun_path, GR_NAMED_SOCKET);
+	strcpy(name.sun_path, sockname);
 	size = (offsetof(struct sockaddr_un, sun_path) +
 		strlen(name.sun_path) + 1);
 #endif
 
 	/*
-	 * Try to open the connection for up to a second,
-	 * waiting 1/10 second between attempts.
+	 * Try to open the connection ten times,
+	 * waiting 0.1 or 2.0 seconds between attempts.
 	 */
 	for (tries=1; tries<=10; ++tries) {
 		struct timespec req;
@@ -313,8 +332,13 @@ GrOpen(void)
 		ret = connect(nxSocket, (struct sockaddr *) &name, size);
 		if (ret >= 0)
 			break;
+#if ADDR_FAM == AF_INET
 		req.tv_sec = 0;
 		req.tv_nsec = 100000000L;
+#else
+		req.tv_sec = 2;
+		req.tv_nsec = 0;
+#endif
 		nanosleep(&req, NULL);
 		EPRINTF("nxclient: retry connect attempt %d\n", tries);
 	}

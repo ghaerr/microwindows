@@ -2,7 +2,7 @@
 #define	_SERV_H
 /*
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -536,11 +536,13 @@ extern	GR_SELECTIONOWNER selection_owner;	/* the selection owner */
 extern  int		autoportrait;		/* auto portrait mode switching*/
 
 /*
- * The filename to use for the named socket. If we ever support multiple
- * servers on one machine, the last digit will be that of the FB used for it.
+ * The filename to use for the named socket.  The environment variable
+ * NXDISPLAY will override GR_NAMED_SOCKET for the AF_UNIX case, or
+ * specify the nano-X server address in the AF_INET case (default 127.0.0.1)
  */
-#define GR_NAMED_SOCKET "/tmp/.nano-X"
-#define GR_NUMB_SOCKET 79
+#define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
+#define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
+#define GR_ELKS_SOCKET	79			/* AF_NANO socket number*/
 
 #if VTSWITCH
 /* temp framebuffer vt switch stuff at upper level

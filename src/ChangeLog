@@ -1,3 +1,4 @@
+	* added AF_INET client/server, NXDISPLAY env variable
 	* added text speedup patch, no per-point clipping in visible
 		case in GdBitmap and corefont_textdraw.  Also clear
 		background once not per char.  Changed GetTextBits

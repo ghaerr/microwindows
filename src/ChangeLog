@@ -1,3 +1,4 @@
+	* removed nested static procedures in jpeg decoder
 	* reoriented MWTF_ bits, moved to long MWTEXTFLAGS type for expansion
 	* added sample MGL fonts for EUCJP testing, t1demo.c supports MGL fonts
 Version 0.89pre9 - 28 Aug 2002 - greg@censoft.com

@@ -19,7 +19,7 @@
 #include "devfont.h"
 
 #if TT_FREETYPE_MAJOR != 1 || TT_FREETYPE_MINOR < 3
-//#error "You must link with freetype lib version 1.3.x +, and not freetype 2.
+#error "You must link with freetype lib version 1.3.x +, and not freetype 2."
 #endif
 
 typedef struct MWFREETYPEFONT {

@@ -684,91 +684,93 @@ GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
  * On some systems you may need to set up a signal handler to ensure that
  * temporary files are deleted if the program is interrupted.  See libjpeg.doc.
  */
-static int
-LoadJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
-{
-  int 	i;
-  int	ret = 2;	/* image load error*/
-  unsigned char magic[4];
+static buffer_t *inptr;
 
+static void
+init_source(j_decompress_ptr cinfo)
+{
+	cinfo->src->next_input_byte = inptr->start;
+	cinfo->src->bytes_in_buffer = inptr->size;
+}
+
+static void
+fill_input_buffer(j_decompress_ptr cinfo)
+{
+	return;
+}
+
+static void
+skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+	if (num_bytes >= inptr->size)
+		return;
+	cinfo->src->next_input_byte += num_bytes;
+	cinfo->src->bytes_in_buffer -= num_bytes;
+}
+
+static boolean
+resync_to_restart(j_decompress_ptr cinfo, int desired)
+{
+	return jpeg_resync_to_restart(cinfo, desired);
+}
+
+static void
+term_source(j_decompress_ptr cinfo)
+{
+	return;
+}
+
+static int
+LoadJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
+{
+	int i;
+	int ret = 2;		/* image load error */
+	unsigned char magic[8];
+	struct jpeg_source_mgr smgr;
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
 #if FASTJPEG
-  extern MWPALENTRY mwstdpal8[256];
+	extern MWPALENTRY mwstdpal8[256];
 #else
-  MWPALENTRY palette[256];
+	MWPALENTRY palette[256];
 #endif
 
-  struct jpeg_source_mgr smgr;
-  struct jpeg_decompress_struct cinfo;
-  struct jpeg_error_mgr jerr;
-  
-  static void init_source(j_compress_ptr dinfo) {
-    smgr.next_input_byte = src->start;
-    smgr.bytes_in_buffer = src->size;
-  }
+	/* first determine if JPEG file since decoder will error if not */
+	bseek(src, 0, SEEK_SET);
+	if (!bread(src, magic, 2))
+		return 0;
+	if (magic[0] != 0xFF || magic[1] != 0xD8)
+		return 0;	/* not JPEG image */
 
-  static void fill_input_buffer(j_compress_ptr dinfo) {
-    return;
-  }
+	bread(src, magic, 8);
+	if (strncmp(magic+4, "JFIF", 4) != 0)
+		return 0;	/* not JPEG image */
 
-  static void skip_input_data(j_compress_ptr dinfo, long num_bytes) {
-    if (num_bytes >= src->size) return;
-    smgr.next_input_byte += num_bytes;
-    smgr.bytes_in_buffer -= num_bytes;
-  }
+	bread(src, 0, SEEK_SET);
+	pimage->imagebits = NULL;
+	pimage->palette = NULL;
 
-  static boolean resync_to_restart(j_decompress_ptr dinfo, int desired) {
-    return(jpeg_resync_to_restart(dinfo, desired));
-  }
+	/* Step 1: allocate and initialize JPEG decompression object */
+	/* We set up the normal JPEG error routines. */
+	cinfo.err = jpeg_std_error(&jerr);
 
-  static void term_source(j_compress_ptr dinfo) {
-    return;
-  }
-	      
-  /* first determine if JPEG file since decoder will error if not*/
-  bseek(src, 0, SEEK_SET);
-  
-  if (!bread(src, magic, 2)) 
-    return(0);
-  
-  if (magic[0] != 0xFF || magic[1] != 0xD8) 
-    return(0);		/* not JPEG image*/
-  
-  
-  bread(src, magic, 4);
-  bread(src, magic, 4);
-  
-  if (strncmp(magic, "JFIF", 4) != 0) 
-    return(0);		/* not JPEG image*/
-  
-  bread(src, 0, SEEK_SET);
-  pimage->imagebits = NULL;
-  pimage->palette = NULL;
-  
-  /* Step 1: allocate and initialize JPEG decompression object */
-  
-  /* We set up the normal JPEG error routines. */
-  cinfo.err = jpeg_std_error (&jerr);
-  
-  /* Now we can initialize the JPEG decompression object. */
-  jpeg_create_decompress (&cinfo);
-     
-  
-  /* Step 2:  Setup the source manager */
+	/* Now we can initialize the JPEG decompression object. */
+	jpeg_create_decompress(&cinfo);
 
-  smgr.init_source = (void *)init_source;
-  smgr.fill_input_buffer = (void *)fill_input_buffer;
-  smgr.skip_input_data = (void *)skip_input_data;
-  smgr.resync_to_restart = (void *)resync_to_restart;
-  smgr.term_source = (void *)term_source;
-  
-  cinfo.src = &smgr;
+	/* Step 2:  Setup the source manager */
+	smgr.init_source = (void *) init_source;
+	smgr.fill_input_buffer = (void *) fill_input_buffer;
+	smgr.skip_input_data = (void *) skip_input_data;
+	smgr.resync_to_restart = (void *) resync_to_restart;
+	smgr.term_source = (void *) term_source;
+	cinfo.src = &smgr;
+	inptr = src;
 
-  /* Step 2: specify data source (eg, a file) */
-  /* jpeg_stdio_src (&cinfo, fp); */
-  
-  /* Step 3: read file parameters with jpeg_read_header() */
-  jpeg_read_header (&cinfo, TRUE);
+	/* Step 2: specify data source (eg, a file) */
+	/* jpeg_stdio_src (&cinfo, fp); */
 
+	/* Step 3: read file parameters with jpeg_read_header() */
+	jpeg_read_header(&cinfo, TRUE);
 	/* Step 4: set parameters for decompression */
 	cinfo.out_color_space = fast_grayscale? JCS_GRAYSCALE: JCS_RGB;
 	cinfo.quantize_colors = FALSE;
@@ -782,7 +784,6 @@ LoadJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 		{
 fastjpeg:
 			cinfo.quantize_colors = TRUE;
-
 #if FASTJPEG
 			cinfo.actual_number_of_colors = 256;
 #else
@@ -875,7 +876,7 @@ err:
 #endif /* defined(HAVE_FILEIO) && defined(HAVE_JPEG_SUPPORT)*/
 
 #if defined(HAVE_FILEIO) && defined(HAVE_PNG_SUPPORT)
-#include "png.h"
+#include <png.h>
 /* png_jmpbuf() macro is not defined prior to libpng-1.0.6*/
 #ifndef png_jmpbuf
 #define png_jmpbuf(png_ptr)	((png_ptr)->jmpbuf)
@@ -890,7 +891,6 @@ err:
  */
 
 /* This is a quick user defined function to read from the buffer instead of from the file pointer */
-
 static void
 png_read_buffer(png_structp pstruct, png_bytep pointer, png_size_t size)
 {

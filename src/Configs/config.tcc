@@ -128,7 +128,7 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = N
+HAVE_JPEG_SUPPORT        = Y
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.a
 

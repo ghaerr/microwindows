@@ -259,20 +259,42 @@ GsDropClient(int fd)
 #endif
 
 #if UNIX | DOS_DJGPP
-#if NONETWORK
+#if NONETWORK && defined(HAVESELECT)
 /*
  * Register the specified file descriptor to return an event
  * when input is ready.
- * FIXME: only one external file descriptor works
  */
-static int regfd = -1;
+
+static int regfdmax = -1;
+static fd_set regfdset;
 
 void
 GrRegisterInput(int fd)
 {
-	regfd = fd;
+	FD_SET(fd, &regfdset);
+	if (fd > regfdmax) regfdmax = fd + 1;
 }
-#endif /* NONETWORK*/
+
+void
+GrUnregisterInput(int fd)
+{
+	int i, max;
+
+	/* unregister all inputs if the FD is -1 */
+	if (fd == -1) {
+		FD_ZERO(&regfdset);
+		regfdmax = -1;
+		return;
+	}
+
+	FD_CLR(fd, &regfdset);
+	/* recalculate the max file descriptor */
+	for (i = 0, max = regfdmax, regfdmax = -1; i < max; i++)
+		if (FD_ISSET(i, &regfdset))
+			regfdmax = i + 1;
+}
+
+#endif /* NONETWORK && HAVESELECT */
 #endif /* UNIX | DOS_DJGPP*/
 
 /*
@@ -428,6 +450,9 @@ GsSelect(GR_TIMEOUT timeout)
 	int 	e;
 	int	setsize = 0;
 	struct timeval tout, *to;
+#if NONETWORK
+	int	fd;
+#endif
 
 	/* perform pre-select duties, if any*/
 	if(rootwp->psd->PreSelect)
@@ -447,9 +472,12 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 #if NONETWORK
 	/* handle registered input file descriptors*/
-	if (regfd != -1) {
-		FD_SET(regfd, &rfds);
-		if (regfd > setsize) setsize = regfd;
+	for (fd = 0; fd < regfdmax; fd++) {
+		if (!FD_ISSET(fd, &regfdset))
+			continue;
+
+		FD_SET(fd, &rfds);
+		if (fd > setsize) setsize = fd;
 	}
 #else /* not NONETWORK */
 	/* handle client socket connections*/
@@ -485,16 +513,21 @@ GsSelect(GR_TIMEOUT timeout)
 				continue;
 
 #if NONETWORK
-		/* If registered input descriptor, handle it*/
-		if(regfd != -1 && FD_ISSET(regfd, &rfds)) {
+		/* check for input on registered file descriptors */
+		for (fd = 0; fd < regfdmax; fd++) {
 			GR_EVENT_FDINPUT *	gp;
-			gp = (GR_EVENT_FDINPUT *)GsAllocEvent(curclient);
+
+			if (!FD_ISSET(fd, &regfdset)  ||  !FD_ISSET(fd, &rfds))
+				continue;
+
+			gp =(GR_EVENT_FDINPUT *)GsAllocEvent(curclient);
 			if(gp) {
 				gp->type = GR_EVENT_TYPE_FDINPUT;
-				gp->fd = regfd;
+				gp->fd = fd;
 			}
 		}
 #else /* not NONETWORK */
+
 		/* If a client is trying to connect, accept it: */
 		if(FD_ISSET(un_sock, &rfds))
 			GsAcceptClient();

@@ -1,4 +1,6 @@
-Version 0.89pre8 - 13th June 2001 - greg@censoft.com
+Version 0.89pre8 - 4 July 2001 - greg@censoft.com
+	* add byte swap in devimage.c, X11 driver changes, DPRINTF defaults to no output
+		GrRegisterInput/GrUnregisterInput use fd_set, -s on debug only from Steve Hein
 	* add GrCreateTimer, GrDestroyTimer periodic timers from Gary James
 	* added MWPACKED attribute packing define in mwtypes.h
 	* added eCos port by Gary Thomas

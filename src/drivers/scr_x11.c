@@ -564,8 +564,10 @@ X11_open(PSD psd)
      * The following code insures that the colormap
      * is installed before display
      */
+#if 0
     XMaskEvent(x11_dpy, x11_event_mask, &ev);
     XPutBackEvent(x11_dpy, &ev);
+#endif
     XInstallColormap(x11_dpy, x11_colormap);
 
     psd->xres    = psd->xvirtres    = SCREEN_WIDTH;

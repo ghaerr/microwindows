@@ -380,7 +380,7 @@ void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 			void *data);
 void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
 			GR_WINDOW_ID new_owner);
-voidi		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
+void		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
 			GR_TIMER_ID tid);
 void		GsCheckMouseWindow(void);
 void		GsCheckFocusWindow(void);

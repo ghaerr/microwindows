@@ -23,3 +23,10 @@ GdError(const char *format, ...)
 	write(2, buf, strlen(buf));
 	return -1;
 }
+
+/* null routine to consume messages */
+int
+GdErrorNull(const char *format, ...)
+{
+	return -1;
+}

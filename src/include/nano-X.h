@@ -682,6 +682,7 @@ GR_TIMER_ID	GrCreateTimer(GR_WINDOW_ID wid, GR_TIMEOUT period);
 void		GrDestroyTimer(GR_TIMER_ID tid);
 
 void		GrRegisterInput(int fd);
+void		GrUnregisterInput(int fd);
 void		GrMainLoop(GR_FNCALLBACKEVENT fncb);
 GR_FNCALLBACKEVENT GrSetErrorHandler(GR_FNCALLBACKEVENT fncb);
 void		GrDefaultErrorHandler(GR_EVENT *ep);
@@ -759,6 +760,7 @@ typedef struct {
 } REQBUF;
 
 #ifdef __ECOS
+#include <sys/select.h>
 /*
  * In a single process, multi-threaded environment, we need to keep
  * all static data of shared code in a structure, with a pointer to
@@ -768,7 +770,8 @@ typedef struct {                                // Init to:
     int                 _nxSocket;              //  -1
     int                 _storedevent;           // 0
     GR_EVENT            _storedevent_data;      // no init(0)
-    int                 _regfd;                 // -1
+    int                 _regfdmax;              // -1
+    fd_set		regfdset;		// FD_ZERO
     GR_FNCALLBACKEVENT  _GrErrorFunc;           // GrDefaultErrorHandler
     REQBUF              _reqbuf;
     EVENT_LIST          *_evlist;
@@ -786,7 +789,8 @@ extern int     ecos_nanox_client_data_index;
         ecos_nanox_client_data_index = data;                                    \
         dptr->_nxSocket = -1;                                                   \
         dptr->_storedevent = 0;                                                 \
-        dptr->_regfd = -1;                                                      \
+        dptr->_regfdmax = -1;                                                   \
+        FD_ZERO(&dptr->_regfdset);                                              \
         dptr->_GrErrorFunc = GrDefaultErrorHandler;                             \
         dptr->_reqbuf.bufptr = NULL;                                            \
         dptr->_reqbuf.bufmax = NULL;                                            \
@@ -798,7 +802,8 @@ extern int     ecos_nanox_client_data_index;
 #define nxSocket                (data->_nxSocket)
 #define storedevent             (data->_storedevent)
 #define storedevent_data        (data->_storedevent_data)
-#define regfd                   (data->_regfd)
+#define regfdmax                (data->_regfdmax)
+#define regfdset                (data->_regfdset)
 #define ErrorFunc               (data->_GrErrorFunc)
 #define reqbuf                  (data->_reqbuf)
 #define evlist                  (data->_evlist)

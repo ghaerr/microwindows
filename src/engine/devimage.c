@@ -19,6 +19,17 @@
 #include <ctype.h>
 #include "device.h"
 
+/* includes to support swapping little-endian bitmaps (Windows) to big-endian */
+#include <endian.h>
+#include <byteswap.h>
+#if __BYTE_ORDER == __BIG_ENDIAN
+#define wswap(x)   bswap_16 (x)
+#define dwswap(x)   bswap_32 (x)
+#else
+#define wswap(x)   (x)
+#define dwswap(x)  (x)
+#endif
+
 /* cached image list*/
 typedef struct {
 	MWLIST		link;		/* link list*/
@@ -817,16 +828,16 @@ LoadBMP(FILE *fp, PMWIMAGEHDR pimage)
 	bmpf.bfType[1] = headbuffer[1];
 
 	/* Is it really a bmp file ? */
-	if (*(WORD*)&bmpf.bfType[0] != 0x4D42) /* 'BM' */
+	if (*(WORD*)&bmpf.bfType[0] != wswap(0x4D42)) /* 'BM' */
 		return 0;	/* not bmp image*/
 
-// Note: this doesn't work on ARM platforms (and possibly others!)
-	bmpf.bfSize = *(DWORD*)&headbuffer[2];
-	bmpf.bfOffBits = *(DWORD*)&headbuffer[10];
+	bmpf.bfSize = dwswap(*(DWORD*)&headbuffer[2]);
+	bmpf.bfOffBits = dwswap(*(DWORD*)&headbuffer[10]);
 
 	/* Read remaining header size */
 	if (fread(&headsize, 1, sizeof(DWORD), fp) != sizeof(DWORD))
 		return 0;	/* not bmp image*/
+	headsize = dwswap(headsize);
 
 	/* might be windows or os/2 header */
 	if(headsize == COREHEADSIZE) {
@@ -837,10 +848,10 @@ LoadBMP(FILE *fp, PMWIMAGEHDR pimage)
 				return 0;	/* not bmp image*/
 
 		/* Get data */
-		bmpc.bcWidth = *(WORD*)&headbuffer[0];
-		bmpc.bcHeight = *(WORD*)&headbuffer[2];
-		bmpc.bcPlanes = *(WORD*)&headbuffer[4];
-		bmpc.bcBitCount = *(WORD*)&headbuffer[6];
+		bmpc.bcWidth = wswap(*(WORD*)&headbuffer[0]);
+		bmpc.bcHeight = wswap(*(WORD*)&headbuffer[2]);
+		bmpc.bcPlanes = wswap(*(WORD*)&headbuffer[4]);
+		bmpc.bcBitCount = wswap(*(WORD*)&headbuffer[6]);
 		
 		pimage->width = (int)bmpc.bcWidth;
 		pimage->height = (int)bmpc.bcHeight;
@@ -856,16 +867,16 @@ LoadBMP(FILE *fp, PMWIMAGEHDR pimage)
 				return 0;	/* not bmp image*/
 
 		/* Get data */
-		bmpi.BiWidth = *(DWORD*)&headbuffer[0];
-		bmpi.BiHeight = *(DWORD*)&headbuffer[4];
-		bmpi.BiPlanes = *(WORD*)&headbuffer[8];
-		bmpi.BiBitCount = *(WORD*)&headbuffer[10];
-		bmpi.BiCompression = *(DWORD*)&headbuffer[12];
-		bmpi.BiSizeImage = *(DWORD*)&headbuffer[16];
-		bmpi.BiXpelsPerMeter = *(DWORD*)&headbuffer[20];
-		bmpi.BiYpelsPerMeter = *(DWORD*)&headbuffer[24];
-		bmpi.BiClrUsed = *(DWORD*)&headbuffer[28];
-		bmpi.BiClrImportant = *(DWORD*)&headbuffer[32];
+		bmpi.BiWidth = dwswap(*(DWORD*)&headbuffer[0]);
+		bmpi.BiHeight = dwswap(*(DWORD*)&headbuffer[4]);
+		bmpi.BiPlanes = wswap(*(WORD*)&headbuffer[8]);
+		bmpi.BiBitCount = wswap(*(WORD*)&headbuffer[10]);
+		bmpi.BiCompression = dwswap(*(DWORD*)&headbuffer[12]);
+		bmpi.BiSizeImage = dwswap(*(DWORD*)&headbuffer[16]);
+		bmpi.BiXpelsPerMeter = dwswap(*(DWORD*)&headbuffer[20]);
+		bmpi.BiYpelsPerMeter = dwswap(*(DWORD*)&headbuffer[24]);
+		bmpi.BiClrUsed = dwswap(*(DWORD*)&headbuffer[28]);
+		bmpi.BiClrImportant = dwswap(*(DWORD*)&headbuffer[32]);
 
 		pimage->width = (int)bmpi.BiWidth;
 		pimage->height = (int)bmpi.BiHeight;

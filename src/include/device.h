@@ -18,7 +18,7 @@
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
 #define EPRINTF		GdError			/* error output*/
-#define DPRINTF		GdError			/* debug output*/
+#define DPRINTF		GdErrorNull		/* debug output*/
 
 /* max char height/width must be >= 16 and a multiple of sizeof(MWIMAGEBITS)*/
 #define MAX_CHAR_HEIGHT	128			/* maximum text bitmap height*/
@@ -610,6 +610,7 @@ MWBOOL		GdTimeout(void);
 
 /* error.c*/
 int	GdError(const char *format, ...);
+int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
 
 #ifdef USE_ALLOCA
 /* alloca() is available, so use it for better performance */

@@ -44,7 +44,10 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(MIPSTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -msoft-float -s -Wall $(OPTFLAGS)
+CFLAGS += -msoft-float -Wall $(OPTFLAGS)
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
 LDFLAGS +=
 endif
 
@@ -53,7 +56,10 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(POWERPCTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -msoft-float -s -Wall $(OPTFLAGS)
+CFLAGS += -msoft-float -Wall $(OPTFLAGS)
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
 LDFLAGS +=
 endif
 

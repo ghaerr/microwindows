@@ -85,6 +85,7 @@ X11_GetDefaultAccel(int *pscale,int *pthresh)
 static int
 X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
+    static int noevent_count = 0;
     XEvent ev;
     int events = 0;
     long mask = x11_event_mask | 
@@ -141,7 +142,21 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	    x11_handle_event(&ev);
 	}
     }
-    if (events == 0)
+    if (events == 0) {
+	/* after a bunch of consecutive noevent calls here
+           (meaning select() says there's something to read but nothing
+            is returned......), force an event read (which will
+            most likely terminate the connection) */
+	if (++noevent_count >= 50) {
+            while(XNextEvent(x11_dpy, &ev)) {
+                /* if we return, then we got an event...put it back
+                   so we can properly process it next time through */
+                XPutBackEvent(x11_dpy, &ev);
+            }
+            noevent_count = 0;
+	}
 	return 0;
+    }
+    noevent_count = 0;
     return 2;		/* absolute position returned*/
 }

@@ -2659,8 +2659,10 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 {
 	void *p;
 
-	if(!(p = malloc(len)))
+	if(!(p = malloc(len))) {
 		GsError(GR_ERROR_MALLOC_FAILED, wid);
+		return;		/* FIXME note no error to application*/
+	}
 	memcpy(p, data, thislen);
 
 	GsDeliverClientDataEvent(did, wid, serial, len, thislen, p);

@@ -68,6 +68,9 @@ char *	   nxSharedMem = 0;	/* Address of shared memory segment*/
 static int nxSharedMemSize;	/* Size in bytes of shared mem segment*/
 #endif
 
+static int regfdmax = -1;	/* GrRegisterInput globals*/
+static fd_set regfdset;
+
 /* readable error strings*/
 char *nxErrorStrings[] = {
 	GR_ERROR_STRINGS
@@ -83,9 +86,7 @@ static EVENT_LIST *	evlist;
  */
 static GR_FNCALLBACKEVENT ErrorFunc = GrDefaultErrorHandler;
 
-static int regfd = -1;
-
-#else // __ECOS
+#else /* __ECOS*/
 /*
  * eCos uses a thread data pointer to store all statics in...
  */
@@ -593,15 +594,41 @@ void GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
  * An event will be returned when the fd has data waiting to be read if that
  * event has been selected for.
  */
-/* FIXME: only one extra file descriptor can be monitored */
 void 
 GrRegisterInput(int fd)
 {
 	ACCESS_PER_THREAD_DATA()
 
-	regfd = fd;
+	FD_SET(fd, &regfdset);
+	if (fd > regfdmax) regfdmax = fd + 1;
 }
 
+/**
+ * GrUnregisterInput:
+ * @fd: the file descriptor to stop monitoring
+ *
+ * Stop monitoring a file descriptor (previously registered with
+ * GrRegisterInput()) in the main select() call.
+ */
+void
+GrUnregisterInput(int fd)
+{
+	int i, max;
+
+	/* unregister all inputs if fd is -1 */
+	if (fd == -1) {
+		FD_ZERO(&regfdset);
+		regfdmax = -1;
+		return;
+	}
+
+	FD_CLR(fd, &regfdset);
+	/* recalculate the max file descriptor */
+	for (i = 0, max = regfdmax, regfdmax = -1; i < max; i++)
+		if (FD_ISSET(i, &regfdset))
+			regfdmax = i + 1;
+}
+  
 /**
  * GrPrepareSelect:
  * @maxfd: pointer to a variable which the highest in use fd will be written to
@@ -619,6 +646,8 @@ void
 GrPrepareSelect(int *maxfd,void *rfdset)
 {
 	fd_set *rfds = rfdset;
+	int fd;
+
 	ACCESS_PER_THREAD_DATA()
 
 	AllocReq(GetNextEvent);
@@ -627,10 +656,14 @@ GrPrepareSelect(int *maxfd,void *rfdset)
 	FD_SET(nxSocket, rfds);
 	if(nxSocket > *maxfd)
 		*maxfd = nxSocket;
-	if(regfd != -1) {
-		FD_SET(regfd, rfds);
-		if(regfd > *maxfd)
-			*maxfd = regfd;
+
+	/* handle registered input file descriptors*/
+	for (fd = 0; fd < regfdmax; fd++) {
+		if (!FD_ISSET(fd, &regfdset))
+			continue;
+
+		FD_SET(fd, rfds);
+		if (fd > *maxfd) *maxfd = fd;
 	}
 }
 
@@ -647,7 +680,9 @@ void
 GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 {
 	fd_set *	rfds = rfdset;
+	int		fd;
 	GR_EVENT 	ev;
+
 	ACCESS_PER_THREAD_DATA()
 
         /* Clean out any event that might have arrived while waiting
@@ -678,9 +713,13 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 		fncb(&ev);
 #endif
 
-	if(regfd != -1 && FD_ISSET(regfd, rfds)) {
+	/* check for input on registered file descriptors */
+	for (fd = 0; fd < regfdmax; fd++) {
+		if (!FD_ISSET(fd, &regfdset)  ||  !FD_ISSET(fd, rfds))
+			continue;
+
 		ev.type = GR_EVENT_TYPE_FDINPUT;
-		ev.fdinput.fd = regfd;
+		ev.fdinput.fd = fd;
 		fncb(&ev);
 	}
 }
@@ -767,6 +806,8 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	}
 
 	if((e = select(setsize+1, &rfds, NULL, NULL, timeout ? &to : NULL))>0) {
+		int fd;
+
 		if(FD_ISSET(nxSocket, &rfds)) {
 			/*
 			 * This will never be GR_EVENT_NONE with the current
@@ -777,10 +818,14 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 			CheckErrorEvent(ep);
 			return;
 		}
-		if(regfd != -1 && FD_ISSET(regfd, &rfds)) {
+
+		/* check for input on registered file descriptors */
+		for (fd = 0; fd < regfdmax; fd++) {
+			if (!FD_ISSET(fd, &regfdset)  ||  !FD_ISSET(fd, &rfds))
+				continue;
+
 			ep->type = GR_EVENT_TYPE_FDINPUT;
-			ep->fdinput.fd = regfd;
-			return;
+			ep->fdinput.fd = fd;
 		}
 	}
 	else if (e == 0) {

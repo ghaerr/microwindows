@@ -1,3 +1,4 @@
+fixup wswap/dwswap macros and includes in engine/devimage.c
 check for HAVE_STRETCHBLIT before calling it...
 
 send recursive UPDATE_MOVE events to child windows, correct wp->x, wp->y sent

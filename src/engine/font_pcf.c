@@ -497,7 +497,7 @@ pcf_createfont(const char *name, MWCOORD height, int attr)
 	unsigned long *glyphs_offsets = 0;
 	int max_width = 0, max_descent = 0, max_ascent = 0, max_height = 0;
 	int glyph_count;
-	unsigned short *goffset = NULL;
+	unsigned long *goffset = NULL;
 	unsigned char *gwidth = NULL;
 	int uc16;
 	char fname[256];
@@ -568,8 +568,8 @@ pcf_createfont(const char *name, MWCOORD height, int attr)
 
 	pf->cfont->bits = (MWIMAGEBITS *) calloc((max_height *
 		(sizeof(MWIMAGEBITS) * bwidth)), glyph_count);
-	goffset = (unsigned short *) malloc(glyph_count *
-		sizeof(unsigned short));
+	goffset = (unsigned long *) malloc(glyph_count *
+		sizeof(unsigned long));
 	gwidth = (unsigned char *) malloc(glyph_count * sizeof(unsigned char));
 
 	output = (MWIMAGEBITS *) pf->cfont->bits;

@@ -14,11 +14,11 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#define CLIP_POLYGON	0	/* =1 for polygonal region test*/
-#define BIG5		0	/* =1 for big5 encoding test*/
+#define CLIP_POLYGON	0	/* =1 for polygonal region test */
+#define HZKBIG5		1	/* =1 for big5 encoding test with HZKFONT*/
 
-#define MAXW 		340
-#define MAXH 		340
+#define WIDTH 		340
+#define HEIGHT 		340
 
 #if HAVE_EUCJP_SUPPORT
 #define MAXFONTS 4
@@ -64,144 +64,127 @@
 #define FONT5 ""
 #endif
 
-static char * names[5] = { FONT1, FONT2, FONT3, FONT4, FONT5 };
+#define RAND(max)	((int) (((float)(max)) * rand() / (RAND_MAX + 1.0)))
 
-int main()
+static char *names[5] = { FONT1, FONT2, FONT3, FONT4, FONT5 };
+
+int
+main(int ac, char **av)
 {
-	GR_WINDOW_ID 	window;
-	GR_EVENT 	event;
-        GR_GC_ID 	gc;
-	GR_FONT_ID	fontid;
-        int 		i, x, y;
-	GR_REGION_ID	regionid = 0;
+	GR_WINDOW_ID window;
+	GR_GC_ID gc;
+	GR_FONT_ID fontid;
+	int x, y;
+	GR_REGION_ID regionid;
 #if CLIP_POLYGON
-	GR_POINT	points[]={ {20, 20},
-				{300, 20},
-				{300, 300},
-				{20, 300}};
+	GR_POINT points[] = { {20, 20}, {300, 20}, {300, 300}, {20, 300} };
 #else
-	GR_RECT		clip_rect={20,20,300,300};
+	GR_RECT clip_rect = { 20, 20, 300, 300 };
 #endif
-   
-        srand(time(0));
-   
-        GrOpen();
+
+	if (GrOpen() < 0)
+		exit(1);
+
 	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
 		"t1demo loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
-		GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, BLACK);
-	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ);
+		GR_ROOT_WINDOW_ID, 50, 50, WIDTH, HEIGHT, BLACK);
+	GrSelectEvents(window,
+		GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(window);
 
-        gc = GrNewGC();
+	gc = GrNewGC();
+	GrSetGCUseBackground(gc, GR_FALSE);
+	GrSetGCBackground(gc, BLACK);
 
 #if CLIP_POLYGON
-	/* polygon clip region*/
+	/* polygon clip region */
 	regionid = GrNewPolygonRegion(MWPOLY_EVENODD, 3, points);
 #else
-	/* rectangle clip region*/
-        regionid = GrNewRegion();
+	/* rectangle clip region */
+	regionid = GrNewRegion();
 	GrUnionRectWithRegion(regionid, &clip_rect);
 #endif
-
 	GrSetGCRegion(gc, regionid);
-	
-        GrSetGCUseBackground(gc,GR_FALSE);
-	GrSetGCBackground(gc, GR_RGB(0, 0, 0));
-	while(1) {
-	      GrCheckNextEvent(&event);
-	   
-	      i = (int)((float)MAXFONTS * rand() / (RAND_MAX + 1.0));
-	      fontid = GrCreateFont(names[i], 20, NULL);
-	      GrSetFontSize(fontid, 1+(int)(80.0 * rand() / (RAND_MAX+1.0)));
-	      GrSetFontRotation(fontid, 330);	/* 33 degrees*/
-  	      GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
-  	      GrSetGCFont(gc, fontid);
-	      /*GrSetGCBackground(gc, rand() & 0xffffff);*/
- 	      GrSetGCForeground(gc, rand() & 0xffffff);
-	      x = (int) ((MAXW * 1.0) *rand()/(RAND_MAX+1.0));
-	      y = (int) ((MAXH * 1.0) *rand()/(RAND_MAX+1.0));
+
+	srand(time(0));
+	while (1) {
+		GR_EVENT event;
+
+		GrCheckNextEvent(&event);
+		if (event.type == GR_EVENT_TYPE_CLOSE_REQ) {
+			GrClose();
+			exit(0);
+		}
+
+		fontid = GrCreateFont(names[RAND(MAXFONTS)], 20, NULL);
+		GrSetFontSize(fontid, RAND(80) + 1);
+		GrSetFontRotation(fontid, 330);		/* 33 degrees */
+		GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
+		GrSetGCFont(gc, fontid);
+
+		GrSetGCForeground(gc, rand() & 0xffffff);
+		/*GrSetGCBackground(gc, rand() & 0xffffff); */
+
+		x = RAND(WIDTH);
+		y = RAND(HEIGHT);
 
 #if HAVE_HZK_SUPPORT
-             {	/* to test Unicode 16 chinese characters display ,use HZK font Bitmap font (Metrix font). */
-#if !BIG5		
-		char buffer[256];
-		buffer[0]=0x6c;
-		buffer[1]=0x49;
-		buffer[2]=0x73;
-		buffer[3]=0x8b;
-		buffer[4]=0x79;
-		buffer[5]=0xd1;
-		buffer[6]=0x62;
-		buffer[7]=0x80;
-		buffer[8]=0x61;
-		buffer[9]=0x00;
-		buffer[10]=0x41;
-		buffer[11]=0x00;
+		{
+#if HZKBIG5
+		/* hzk big5 unicode-16 test*/
+		static unsigned short buffer[] = {
+		    0x9060, 0x898b, 0x79d1, 0x6280, 0x0061, 0x0041, 0
+		};
+		GrText(window, gc, x, y, buffer, 7, GR_TFUC16);
 
-		buffer[12]=0x00;
-		buffer[13]=0xa1;
-		buffer[14]=0x00;
-		buffer[15]=0xa6;
-		buffer[16]=0x6c;
-		buffer[17]=0x49;
-		buffer[18]=0x0;
-		buffer[19]=0x0;
-		GrText(window, gc,x,y+20, buffer,17, GR_TFUC16);
-		x=0;y=16;
-		GrText(window, gc,x,y+20, buffer,17, GR_TFUC16);
+		/* hzk big5 dbcs test #1*/
+		x = RAND(WIDTH);
+		y = RAND(HEIGHT);
+		GrText(window, gc, x, y,
+		       "Microwindows,舧ㄏノい璣ゅ翴皚砰", -1, GR_TFASCII);
+
+		/* hzk big5 dbcs test #2*/
+		x = RAND(WIDTH);
+		y = RAND(HEIGHT);
+		GrText(window, gc, x, y, "８９：", -1, GR_TFASCII);
 #else
-		unsigned short buffer[7];
-		buffer[0]=0x9060;
-		buffer[1]=0x898b;
-		buffer[2]=0x79d1;
-		buffer[3]=0x6280;
-		buffer[4]=0x0061;
-		buffer[5]=0x0041;
-		buffer[6]=0x0;
-		GrText(window, gc,x,y+20, buffer,7, GR_TFUC16);
-		x=0;y=16;
-		GrText(window, gc,x,y+20, buffer,7, GR_TFUC16);
-#endif
-	      }
+	#if 0
+		/* hzk test #1*/
+		static char buffer[] = {
+			0x6c, 0x49, 0x73, 0x8b, 0x79,
+			0xd1, 0x62, 0x80, 0x61, 0x00,
+			0x41, 0x00, 0x00, 0xa1, 0x00,
+			0xa6, 0x6c, 0x49, 0, 0
+		};
 
-#if !BIG5
-	      x=0;y=16;
-	      /* HZK Metrix font test, includes Chinese and English*/
-	      GrText(window, gc,x,y, "Microwindows,欢迎使用中英文点阵字体",
-		      -1, GR_TFASCII);
-#else	
-	      GrText(window, gc,x,y, "Microwindows,舧ㄏノい璣ゅ翴皚砰",
-		      -1, GR_TFASCII);
-	      x=0;y=16*3+4;
-	      GrText(window, gc,x,y, "８９：", -1, GR_TFASCII);
-#endif
-	      GrFlush();
+		/***static unsigned short buffer[] = {
+			0x496c, 0x8b73, 0xd179, 0x8062, 0x0061,
+			0x0041, 0xa100, 0xa600, 0x496c, 0
+		};***/
 
-#else /* !HZK_FONT_SUPPORT*/
-
-#if HAVE_BIG5_SUPPORT
-	      /* ENCODING_BIG5 test*/
-	      GrText(window, gc,x,y, "眃眃", -1, GR_TFASCII);
+		GrText(window, gc, x, y, buffer, 9, GR_TFUC16);
+	#endif
+		/* HZK Metrix font test, includes Chinese and English */
+		x = RAND(WIDTH);
+		y = RAND(HEIGHT);
+		GrText(window, gc, x, y,
+		       "Microwindows,欢迎使用中英文点阵字体", -1, GR_TFASCII);
+#endif /* HZKBIG5*/
+		}
+#elif HAVE_BIG5_SUPPORT
+		/* encoding BIG5 test */
+		GrText(window, gc, x, y, "眃眃", -1, GR_TFASCII);
+#elif HAVE_GB2312_SUPPORT
+		/* encoding GB2312 test */
+		GrText(window, gc, x, y, "\275\241\275\241", -1, GR_TFASCII);
 #else
-#if HAVE_GB2312_SUPPORT
-	      /* ENCODING_GB2312 test*/
-	      GrText(window, gc,x,y, "\275\241\275\241", -1, GR_TFASCII);
-#else
-	      /* ASCII test*/
-	      GrText(window, gc,x,y, "Microwindows", -1, GR_TFASCII);
+		/* ASCII test */
+		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);
 #endif
-#endif
-
-#endif /* HZK_FONT_SUPPORT*/
-
-	      GrDestroyFont(fontid);
-
-	      if(event.type == GR_EVENT_TYPE_CLOSE_REQ) {
-		  GrClose();
-		  exit(0);
-	      }
+		GrFlush();
+		GrDestroyFont(fontid);
 	}
-
 	GrDestroyRegion(regionid);
 	GrClose();
+	return 0;
 }

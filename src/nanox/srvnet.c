@@ -683,53 +683,63 @@ GrSetGCModeWrapper(void *r)
 }
 
 static void
-GrSetGCLineAttributesWrapper(void *r) {
-  nxSetGCLineAttributesReq *req = r;
-  GrSetGCLineAttributes(req->gcid, req->line_style);
+GrSetGCLineAttributesWrapper(void *r)
+{
+	nxSetGCLineAttributesReq *req = r;
+
+	GrSetGCLineAttributes(req->gcid, req->linestyle);
 }
 
 static void
-GrSetGCDashWrapper(void *r) {
-  
-  nxSetGCDashReq *req = r;
-  char *buffer = ALLOCA(req->count);
+GrSetGCDashWrapper(void *r)
+{
+	nxSetGCDashReq *req = r;
+	char *buffer = ALLOCA(req->count);
 
-  memcpy((void *) buffer, GetReqData(req), req->count);
-  GrSetGCDash(req->gcid, buffer, req->count);
+	memcpy((void *) buffer, GetReqData(req), req->count);
+	GrSetGCDash(req->gcid, buffer, req->count);
+	FREEA(buffer);
 }
 
 
 static void
-GrSetGCFillModeWrapper(void *r) {
-  nxSetGCFillModeReq *req = r;
-  GrSetGCFillMode(req->gcid, req->fill_mode);
+GrSetGCFillModeWrapper(void *r)
+{
+	nxSetGCFillModeReq *req = r;
+
+	GrSetGCFillMode(req->gcid, req->fillmode);
 }
 
 static void
-GrSetGCStippleWrapper(void *r) {
+GrSetGCStippleWrapper(void *r)
+{
+	nxSetGCStippleReq *req = r;
+	GR_BITMAP *buffer;
+	
+	buffer = ALLOCA(GR_BITMAP_SIZE(req->width, req->height) *
+		sizeof(GR_BITMAP));
 
-  nxSetGCStippleReq *req = r;
+	memcpy((void *) buffer, GetReqData(req),
+	       GR_BITMAP_SIZE(req->width, req->height) * sizeof(GR_BITMAP));
 
-  GR_BITMAP *buffer = ALLOCA(GR_BITMAP_SIZE(req->width, req->height) * sizeof(GR_BITMAP));
-
-  memcpy((void *) buffer, GetReqData(req),  
-	 GR_BITMAP_SIZE(req->width, req->height) * sizeof(GR_BITMAP));
-    
-  GrSetGCStipple(req->gcid, (GR_BITMAP *) buffer, req->width, req->height);
+	GrSetGCStipple(req->gcid, (GR_BITMAP *)buffer, req->width, req->height);
+	FREEA(buffer);
 }
 
 static void
-GrSetGCTileWrapper(void *r) {
+GrSetGCTileWrapper(void *r)
+{
+	nxSetGCTileReq *req = r;
 
-  nxSetGCTileReq *req = r;
-
-  GrSetGCTile(req->gcid, req->pid, req->width, req->height);
+	GrSetGCTile(req->gcid, req->pixmap, req->width, req->height);
 }
 
 static void
-GrSetGCTSOffsetWrapper(void *r) {
-  nxSetGCTSOffsetReq *req = r;
-  GrSetGCTSOffset(req->gcid, req->xoffset, req->yoffset);
+GrSetGCTSOffsetWrapper(void *r)
+{
+	nxSetGCTSOffsetReq *req = r;
+
+	GrSetGCTSOffset(req->gcid, req->xoffset, req->yoffset);
 }
 
 static void

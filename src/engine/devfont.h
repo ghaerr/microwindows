@@ -36,10 +36,14 @@ int  freetype_init(PSD psd);
 PMWFREETYPEFONT freetype_createfont(const char *name, MWCOORD height, int attr);
 #endif
 
+#if HAVE_PCF_SUPPORT
+PMWCOREFONT pcf_createfont(char *name, MWCOORD height, int attr);
+#endif
+
 #if HAVE_HZK_SUPPORT
 typedef struct MWHZKFONT 	*PMWHZKFONT;
 int  hzk_init(PSD psd);
-PMWHZKFONT hzk_createfont(const char *name, MWCOORD height,int fontattr);
+PMWHZKFONT hzk_createfont(const char *name, MWCOORD height, int fontattr);
 int UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii);
 #endif
 

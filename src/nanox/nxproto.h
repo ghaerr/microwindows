@@ -1194,7 +1194,7 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;  
   	IDTYPE	gcid;
-        UINT32  line_style;
+        UINT16  linestyle;
 } nxSetGCLineAttributesReq;
 
 #define GrNumSetGCDash          110
@@ -1203,8 +1203,8 @@ typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;  
-        IDTYPE gcid;
-        UINT32  count;
+        IDTYPE	gcid;
+        UINT16	count;
 } nxSetGCDashReq;
 
 #define GrNumSetGCFillMode      111
@@ -1213,8 +1213,8 @@ typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;  
-        IDTYPE  gcid;
-        UINT32  fill_mode;
+        IDTYPE	gcid;
+        UINT16	fillmode;
 } nxSetGCFillModeReq;
 
 #define GrNumSetGCStipple       112
@@ -1224,9 +1224,9 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;  
         IDTYPE  gcid;
-        UINT32  type;
-        UINT32  width;
-        UINT32  height;
+        UINT16  type;
+        UINT16  width;
+        UINT16  height;
 } nxSetGCStippleReq;
 
 #define GrNumSetGCTSOffset      113
@@ -1236,8 +1236,8 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;  
         IDTYPE  gcid;
-        UINT32  xoffset;
-        UINT32  yoffset;
+        UINT16  xoffset;
+        UINT16  yoffset;
 } nxSetGCTSOffsetReq;
 
 #define GrNumSetGCTile          114
@@ -1247,9 +1247,9 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;  
         IDTYPE  gcid;
-        IDTYPE  pid;
-        UINT32  width;
-        UINT32  height;
+        IDTYPE  pixmap;
+        INT16	width;
+        INT16	height;
 } nxSetGCTileReq;
 
 #define GrNumNewBitmapRegion    115

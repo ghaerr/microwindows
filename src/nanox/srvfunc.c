@@ -1784,176 +1784,169 @@ GrSetGCMode(GR_GC_ID gc, int mode)
 
 /* 
  * Set the attributes of the line.  
- * Don't call this function directly, use the macro which will ensure
- * compatability later on
  */
-void 
-GrSetGCLineAttributes(GR_GC_ID gc, int line_style) {
-  
-  GR_GC		*gcp;		/* graphics context */
-  gcp = GsFindGC(gc);
+void
+GrSetGCLineAttributes(GR_GC_ID gc, int line_style)
+{
+	GR_GC *gcp;
 
-  if (!gcp) return;
+	gcp = GsFindGC(gc);
+	if (!gcp)
+		return;
 
-  switch(line_style) {
-  case GR_LINE_SOLID:
-  case GR_LINE_ONOFF_DASH:
-    gcp->linestyle = line_style;
-    break;
-    
-  default:
-    GsError(GR_ERROR_BAD_LINE_ATTRIBUTE, gc);
-    return;
-  }
+	switch (line_style) {
+	case GR_LINE_SOLID:
+	case GR_LINE_ONOFF_DASH:
+		gcp->linestyle = line_style;
+		break;
 
-  gcp->changed = GR_TRUE;
+	default:
+		GsError(GR_ERROR_BAD_LINE_ATTRIBUTE, gc);
+		return;
+	}
+	gcp->changed = GR_TRUE;
 }
 
-/* Set the dash mode 
+/*
+ * Set the dash mode 
  * A series of numbers are passed indicating the on / off state 
  * for example { 3, 1 } indicates 3 on and 1 off 
-*/
-
+ */
 void
-GrSetGCDash(GR_GC_ID gc, char *dashes, char count)
+GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 {
-  unsigned long dmask = 0;
+	GR_GC *gcp;
+	unsigned long dmask = 0;
+	int dcount = 0;
+	int onoff = 1;
+	int i;
 
-  char dcount = 0;
-  int onoff = 1;
-  int i;
+	gcp = GsFindGC(gc);
+	if (!gcp)
+		return;
 
-  GR_GC		*gcp;		/* graphics context */
+	/* Build the bitmask (up to 32 bits) */
+	for (i = 0; i < count; i++) {
+		int b = 0;
 
-  gcp = GsFindGC(gc);
-  if (!gcp) return;
-	
-  /* Build the bitmask (up to 32 bits) */
-  for(i = 0; i < count; i++) {
-    int b = 0;
+		for (; b < dashes[i]; b++) {
+			if (onoff)
+				dmask |= (1 << dcount);
+			if ((++dcount) == 32)
+				break;
+		}
 
-    for(; b < dashes[i]; b++) {
-      if (onoff) dmask |= (1 << dcount);
-      if ((++dcount) == 32) break;
-    }
-
-    onoff = (onoff + 1) % 2;
-    if (dcount == 32) break;
-  }
-
-  gcp->dashmask = dmask;
-  gcp->dashcount = dcount;
-  
-  gcp->changed = GR_TRUE;
-}
-
-void 
-GrSetGCFillMode(GR_GC_ID gc, int fill_mode) {
-  
-  GR_GC		*gcp;		/* graphics context */
-  gcp = GsFindGC(gc);
-
-  if (!gcp) return;
-
-  switch(fill_mode) {
-  case GR_FILL_SOLID:
-  case GR_FILL_STIPPLE:
-  case GR_FILL_OPAQUE_STIPPLE:
-  case GR_FILL_TILE:
-    gcp->fillmode = fill_mode;
-    break;
-    
-  default:
-    GsError(GR_ERROR_BAD_FILL_MODE, gc);
-    return;
-  }
-
-  gcp->changed = GR_TRUE;
+		onoff = (onoff + 1) % 2;
+		if (dcount == 32)
+			break;
+	}
+	gcp->dashmask = dmask;
+	gcp->dashcount = dcount;
+	gcp->changed = GR_TRUE;
 }
 
 void
-GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height) {
+GrSetGCFillMode(GR_GC_ID gc, int fillmode)
+{
+	GR_GC *gcp;
 
-  GR_GC		*gcp;		/* graphics context */
-    
-  gcp = GsFindGC(gc);
-  if (!gcp) return;
+	gcp = GsFindGC(gc);
+	if (!gcp)
+		return;
 
+	switch (fillmode) {
+	case GR_FILL_SOLID:
+	case GR_FILL_STIPPLE:
+	case GR_FILL_OPAQUE_STIPPLE:
+	case GR_FILL_TILE:
+		gcp->fillmode = fillmode;
+		break;
 
-  if (gcp->stipple.bitmap) free(gcp->stipple.bitmap);
-
-  if (!bitmap) {
-    gcp->stipple.bitmap = 0;
-    gcp->stipple.width = gcp->stipple.height = 0;
-
-    gcp->changed = GR_TRUE;
-    return;
-  }
-
-  gcp->stipple.bitmap = malloc(GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
-  memcpy(gcp->stipple.bitmap, bitmap, 
-	 GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
-
-  gcp->stipple.width = width;
-  gcp->stipple.height = height;
-
-  gcp->changed = GR_TRUE;
+	default:
+		GsError(GR_ERROR_BAD_FILL_MODE, gc);
+		return;
+	}
+	gcp->changed = GR_TRUE;
 }
 
 void
-GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pid, int width, int height) {
+GrSetGCStipple(GR_GC_ID gc, GR_BITMAP * bitmap, int width, int height)
+{
+	GR_GC *gcp;
 
-  GR_WINDOW *win;
+	gcp = GsFindGC(gc);
+	if (!gcp)
+		return;
 
-  GR_GC		*gcp;		/* graphics context */
-    
-  gcp = GsFindGC(gc);
-  if (!gcp) return;
+	if (gcp->stipple.bitmap)
+		free(gcp->stipple.bitmap);
 
-  printf("Setting %d, %d and %d\n", pid, width, height);
+	if (!bitmap) {
+		gcp->stipple.bitmap = 0;
+		gcp->stipple.width = gcp->stipple.height = 0;
+		gcp->changed = GR_TRUE;
+		return;
+	}
 
-  if (!pid) {
-    gcp->tile.psd = 0;
-    gcp->tile.width = gcp->tile.height = 0;
-    gcp->changed = GR_TRUE;
-    return;
-  }
+	gcp->stipple.bitmap =
+		malloc(GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
+	memcpy(gcp->stipple.bitmap, bitmap,
+	       GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
 
-  win = GsFindWindow(pid);
-
-  if (win) {
-    gcp->tile.psd = win->psd;
-  }
-  else {
-    GR_PIXMAP *pix = GsFindPixmap(pid);
-    if (!pix) {
-      gcp->tile.psd = 0;
-      gcp->tile.width = gcp->tile.height = 0;
-      gcp->changed = GR_TRUE;
-      return;
-    }
-    
-    gcp->tile.psd = pix->psd;
-  }
-
-  gcp->tile.width = width;
-  gcp->tile.height = height;
-
-  gcp->changed = GR_TRUE;
+	gcp->stipple.width = width;
+	gcp->stipple.height = height;
+	gcp->changed = GR_TRUE;
 }
 
 void
-GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff) {
+GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, int width, int height)
+{
+	GR_WINDOW *win;
+	GR_GC *gcp;
 
-  GR_GC		*gcp;		/* graphics context */
-  
-  gcp = GsFindGC(gc);
-  if (!gcp) return;
+	gcp = GsFindGC(gc);
+	if (!gcp)
+		return;
 
-  gcp->ts_offset.x = xoff;
-  gcp->ts_offset.x = yoff;
+	if (!pixmap) {
+		gcp->tile.psd = NULL;
+		gcp->tile.width = gcp->tile.height = 0;
+		gcp->changed = GR_TRUE;
+		return;
+	}
 
-  gcp->changed = GR_TRUE;
+	win = GsFindWindow(pixmap);
+	if (win)
+		gcp->tile.psd = win->psd;
+	else {
+		GR_PIXMAP *pix = GsFindPixmap(pixmap);
+		if (!pix) {
+			gcp->tile.psd = NULL;
+			gcp->tile.width = gcp->tile.height = 0;
+			gcp->changed = GR_TRUE;
+			return;
+		}
+		gcp->tile.psd = pix->psd;
+	}
+
+	/* FIXME:  Set a size restriction here? */
+	gcp->tile.width = width;
+	gcp->tile.height = height;
+	gcp->changed = GR_TRUE;
+}
+
+void
+GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
+{
+	GR_GC *gcp;
+
+	gcp = GsFindGC(gc);
+	if (!gcp)
+		return;
+
+	gcp->ts_offset.x = xoff;
+	gcp->ts_offset.x = yoff;
+	gcp->changed = GR_TRUE;
 }
 
 /* 
@@ -1978,7 +1971,7 @@ GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
 void
 GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
 {
-	GR_GC		*gcp;		/* graphics context */
+	GR_GC		*gcp;
 	GR_FONT		*fontp;
 
 	gcp = GsFindGC(gc);
@@ -3154,7 +3147,6 @@ GrSetPortraitMode(int portraitmode)
 {
 	GsSetPortraitMode(portraitmode);
 }
-
 
 /**
  * GrQueryPointer

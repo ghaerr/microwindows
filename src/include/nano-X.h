@@ -687,7 +687,7 @@ void		GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag);
 void		GrSetGCMode(GR_GC_ID gc, int mode);
 
 void            GrSetGCLineAttributes(GR_GC_ID, int);
-void            GrSetGCDash(GR_GC_ID, char *, char);
+void            GrSetGCDash(GR_GC_ID, char *, int);
 void            GrSetGCFillMode(GR_GC_ID, int);
 
 void            GrSetGCStipple(GR_GC_ID, GR_BITMAP *, int, int);

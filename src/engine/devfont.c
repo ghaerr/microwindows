@@ -108,19 +108,19 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 #if HAVE_HZK_SUPPORT
         /* Make sure the library is initialized */
 	if (hzk_init(psd)) {
-		pfont = (PMWFONT)hzk_createfont(name, height, fontattr);
+		pfont = (PMWFONT)hzk_createfont(fontname, height, fontattr);
 		if(pfont)		
 			return pfont;
-		fprintf(stderr, "hzk_createfont: %s not found\n", name);
+		printf("hzk_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
 #if HAVE_EUCJP_SUPPORT
         {
-		pfont = (PMWFONT)eucjp_createfont(name, height, fontattr);
+		pfont = (PMWFONT)eucjp_createfont(fontname, height, fontattr);
 		if (pfont)             
 			return pfont;
-		fprintf(stderr, "eucjp_createfont: %s not found\n", name);
+		printf("eucjp_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
@@ -152,7 +152,7 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 					fontattr);
 			if(pfont)
 				return pfont;
-			DPRINTF("t1lib_createfont: %s,%d not found\n",
+			printf("t1lib_createfont: %s,%d not found\n",
 				fontname, height);
 		}
   	}
@@ -160,9 +160,7 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 
 #ifdef HAVE_PCF_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
-		extern PMWCFONT pcf_createfont(char *name);
-
-		pfont = (PMWFONT) pcf_createfont(fontname);
+		pfont = (PMWFONT) pcf_createfont(fontname, height, fontattr);
 		if (pfont) {
 			printf("pcf_createfont: using font %s\n", fontname);
 			return(pfont);

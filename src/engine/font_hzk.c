@@ -4,11 +4,8 @@
  * Supports dynamically loading HZK font files
  * Han Zi Ku routines contributed by Tanghao and Jauming
  */
-/*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include <string.h>
 #include "device.h"
 #include "devfont.h"
@@ -119,14 +116,14 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
     		strcat(buffer,"/UGB2GB.KU");
 	if(!(fp = fopen(buffer, "rb"))) 
 	{
-   	  	 fprintf (stderr, "Error.\nThe %s file can not be found!\n",buffer);
+   	  	 printf ("Error.\nThe %s file can not be found!\n",buffer);
    		 return -1;
     	}
 
 	filebuffer= (unsigned char *)malloc ( length);
 
 	if(fread(filebuffer, sizeof(char),length, fp) < length) {
-	   	  fprintf (stderr, "Error in reading ugb2gb.ku file!\n");
+	   	  printf ("Error in reading ugb2gb.ku file!\n");
 	   	  fclose(fp);
  	     	  return -1;
 	}
@@ -346,7 +343,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 
 	if(!GetCFontInfo(pf))
 	{
-		fprintf (stderr, "Get Chinese HZK font info failure!\n");
+		printf ("Get Chinese HZK font info failure!\n");
 		return FALSE;
 	}
     	if(CFont[hzk_id(pf)].pFont == NULL)	/* check font cache*/
@@ -356,20 +353,20 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
  	   	/* Allocate system memory for Chinese font.*/
  		if( !(CFont[hzk_id(pf)].pFont = (char *)malloc(pf->CFont.size)) )
  		{
-	 	       	fprintf (stderr, "Allocate memory for Chinese HZK font failure.\n");
+	 	       	printf ("Allocate memory for Chinese HZK font failure.\n");
 		        return FALSE;
 	 	}
  	
 		/* Open font file and read information to the system memory.*/
- 		fprintf (stderr, "Loading Chinese HZK font from file(%s)..." ,pf->CFont.file);
+ 		printf ("hzk_createfont: loading '%s'\n", pf->CFont.file);
 		if(!(fp = fopen(CFont[hzk_id(pf)].file, "rb"))) 
 		{
-   		  	fprintf (stderr, "Error.\nThe Chinese HZK font file can not be found!\n");
+   		  	printf ("Error.\nThe Chinese HZK font file can not be found!\n");
    	    	 	return FALSE;
     		}
 	    	if(fread(CFont[hzk_id(pf)].pFont, sizeof(char), pf->CFont.size, fp) < pf->CFont.size) 
 		{
-	      	  	fprintf (stderr, "Error in reading Chinese HZK font file!\n");
+	      	  	printf ("Error in reading Chinese HZK font file!\n");
 	 	     	fclose(fp);
  	       		return FALSE;
 		}
@@ -377,8 +374,6 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 		fclose(fp);
 
 		CFont[hzk_id(pf)].use_count=0;
-
-		fprintf (stderr, "done.\n" );
 
 	}
 	cfont_address = CFont[hzk_id(pf)].pFont;
@@ -389,7 +384,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 
 	if(!GetAFontInfo(pf))
 	{
-	       fprintf (stderr, "Get ASCII HZK font info failure!\n");
+	       printf ("Get ASCII HZK font info failure!\n");
 	       return FALSE;
 	}
     	if(AFont[hzk_id(pf)].pFont == NULL)	/* check font cache*/
@@ -399,22 +394,22 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
  		/* Allocate system memory for ASCII font.*/
  		if( !(AFont[hzk_id(pf)].pFont = (char *)malloc(pf->AFont.size)) )
  		{
- 		       	fprintf (stderr, "Allocate memory for ASCII HZK font failure.\n");
+ 		       	printf ("Allocate memory for ASCII HZK font failure.\n");
  		       	free(CFont[hzk_id(pf)].pFont);
  		       	CFont[hzk_id(pf)].pFont = NULL;
 			return FALSE;
  		}
  	
 	 	/* Load ASCII font information to the near memory.*/
- 		fprintf (stderr, "Loading ASCII HZK font..." );
+ 		printf ("hzk_createfont: loading '%s'\n", pf->AFont.file );
  		if(!(fp = fopen(AFont[hzk_id(pf)].file, "rb"))) 
 		{
- 		       	fprintf (stderr, "Error.\nThe ASCII HZK font file can not be found!\n");
+ 		       	printf ("Error.\nThe ASCII HZK font file can not be found!\n");
  		       	return FALSE;
  		}
 	 	if(fread(AFont[hzk_id(pf)].pFont, sizeof(char), pf->AFont.size, fp) < pf->AFont.size) 
 		{
- 		       	fprintf (stderr, "Error in reading ASCII HZK font file!\n");
+ 		       	printf ("Error in reading ASCII HZK font file!\n");
  		       	fclose(fp);
  		       	return FALSE;
 	 	}
@@ -422,8 +417,6 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
  		fclose(fp);
  	
 		AFont[hzk_id(pf)].use_count=0;
-
-		fprintf (stderr, "done.\n" );
 
   	}
 	afont_address = AFont[hzk_id(pf)].pFont;
@@ -760,12 +753,12 @@ hzk_gettextsize(PMWFONT pfont, const void *text, int cc,
            		ax += pf->afont_width;
         	}
 		if(s>=sbegin+cc) {
-			/*fprintf(stderr,"s=%x,sbegin=%x,cc=%x\n",s,sbegin,cc);*/
+			/*printf("s=%x,sbegin=%x,cc=%x\n",s,sbegin,cc);*/
 			break;
 		}
 
     	}
-	/*fprintf(stderr,"ax=%d,\n",ax);*/
+	/*printf("ax=%d,\n",ax);*/
 
 	*pwidth = ax;
 	*pheight = pf->font_height;

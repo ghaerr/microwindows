@@ -56,7 +56,11 @@
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
 
+#if HAVE_HZK_SUPPORT || HAVE_BIG5_SUPPORT
 #define USE_BIG5
+#else
+#define DEFAULT_FONT	DEFAULT_GUI_FONT
+#endif
 
 #define WIDTH_MEDIT_BORDER       2
 #define MARGIN_MEDIT_LEFT        1
@@ -752,7 +756,9 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             char*   dispBuffer;
             RECT    rect,rc;
 	    PAINTSTRUCT ps;
+#ifdef USE_BIG5	    
 	    HGDIOBJ oldfont=NULL;
+#endif
             
             hdc = BeginPaint (hWnd,&ps);
             GetClientRect (hWnd, &rect);

@@ -430,7 +430,7 @@ GrFlush(void)
  * The default error handler which is called when the server reports an error
  * event and the client hasn't set up a handler of it's own.
  *
- * Generates a human readable error message on stderr describing what error
+ * Generates a human readable error message describing what error
  * occurred and what function it occured in, then exits.
  */
 void 
@@ -2112,25 +2112,24 @@ GrSetGCMode(GR_GC_ID gc, int mode)
 /**
  * GrSetGCLineAttributes:
  * @gc: the ID of the graphics context to set the drawing mode of
- * @line_style:  The new style of the line
+ * @linestyle:  The new style of the line
  *
  * Changes the line style to either SOLID or ON OFF DASHED 
  */
-
 void 
-GrSetGCLineAttributes(GR_GC_ID gc, int line_style)
+GrSetGCLineAttributes(GR_GC_ID gc, int linestyle)
 {
 	nxSetGCLineAttributesReq *req;
 
 	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCLineAttributes);
 	req->gcid = gc;
-	req->line_style = line_style;
+	req->linestyle = linestyle;
 	UNLOCK(&nxGlobalLock);
 }
 
 void 
-GrSetGCDash(GR_GC_ID gc, char *dashes, char count)
+GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 {
 	nxSetGCDashReq *req;
 	int size;
@@ -2145,14 +2144,14 @@ GrSetGCDash(GR_GC_ID gc, char *dashes, char count)
 }
 
 void
-GrSetGCFillMode(GR_GC_ID gc, int fill_mode)
+GrSetGCFillMode(GR_GC_ID gc, int fillmode)
 {
   	nxSetGCFillModeReq *req;
 
 	LOCK(&nxGlobalLock);
 	req = AllocReq(SetGCFillMode);
 	req->gcid = gc;
-	req->fill_mode = fill_mode;
+	req->fillmode = fillmode;
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -2173,17 +2172,14 @@ GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height)
 }
 
 void
-GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pid, int width, int height)
+GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, int width, int height)
 {
 	nxSetGCTileReq *req;
 
-printf("SET GC TILE %d, %d, %d\n", pid, width, height);
-
 	LOCK(&nxGlobalLock);
-	/* FIXME:  Set a size restriction here? */
 	req = AllocReq(SetGCTile);
 	req->gcid = gc;
-	req->pid = pid;
+	req->pixmap = pixmap;
 	req->width = width;
 	req->height = height;
 	UNLOCK(&nxGlobalLock);

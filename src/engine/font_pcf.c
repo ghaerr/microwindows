@@ -390,7 +390,7 @@ pcf_read_toc(FILE * file, struct toc_entry **toc, unsigned long *size)
 }
 
 PMWCOREFONT
-pcf_createfont(char *name)
+pcf_createfont(char *name, MWCOORD height, int attr)
 {
 	FILE *file = 0;
 	MWCOREFONT *pf = 0;

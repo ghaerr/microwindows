@@ -56,12 +56,12 @@
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
 
+#if HAVE_HZK_SUPPORT || HAVE_BIG5_SUPPORT
 #define USE_BIG5
-
-#if 0
+#define DEFAULT_FONT	SYSTEM_FIXED_FONT
+#else
 #define DEFAULT_FONT	DEFAULT_GUI_FONT
 #endif
-#define DEFAULT_FONT	SYSTEM_FIXED_FONT
 
 #define WIDTH_EDIT_BORDER       2
 #define MARGIN_EDIT_LEFT        1

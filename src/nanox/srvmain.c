@@ -104,7 +104,7 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	fprintf(stderr,"Usage: %s [-e] [-p] [-N] [-c <fontconfig-file> ...]\n",
+	printf("Usage: %s [-e] [-p] [-N] [-c <fontconfig-file> ...]\n",
 		progname);
 	exit(1);
 }

@@ -1,6 +1,5 @@
 eliminate FS_FREETYPE
 add GdGetTextSizeEx, add entry points for GdGetFontList, GdFreeFontList
-need korean, japanese font test program
 add release new fonts tar file
 ***lfHeight shouldn't have to be non-zero to work
 ***GrCopyArea gcp->exposure flag needs checking into
@@ -16,11 +15,14 @@ must copy regions in GrSetGCRegion for X11 lib to work...
 
 notifyactivate in nanowm should check all child windows (qt bug)
 
+change stipple/tile unsigned short to MWIMAGEBITS, use GdBitmap
+seperate out dashed and stipple in config file and devdraw.c
+
 change to GrChangeGC instead of new GrSetXXX routines?
 ***typedef CheckEvent in nanox/client.c
+GetTypedEventPred - typedef CheckEvent, remove params??
 ***GrCopyGC broken for stipple allocs, etc
 add 1bpp pixmap flag??
-cleanup nanox/srvfunc.c GrSetGCLineAttr etc
 
 char count in GrText with other than MWTF_ASCII incorrect
 bytelen in srvnet.c::GrText() incorrect
@@ -28,13 +30,12 @@ bytelen in srvnet.c::GrText() incorrect
 tcc: engine/devfont.c:://#error ... \
 tcc: tuxchess can't compile due to CRLF source
 
-contrib/jpeg/README fix
-GetTypedEventPred - typedef CheckEvent, remove params??
+need korean, japanese font test program
+
 remove demo6, etc?
 add nanocal, oneshot, periodic, pressure, ipcclient, ipcserver demos
 add speed demo
 
-change stipple/tile unsigned short to MWIMAGEBITS, use GdBitmap
 add UPDATE_TEMPMAP?
 check unrealize/realize ok in move, resize, reborder routines
 test fontmapping?
@@ -45,21 +46,10 @@ cache nanowm title draw font creation
 
 think about GrReadArea return value based on MWPF_ pixel format
 
-
 add EVENT_CHILD_REDIRECT
 add nanowm linked in (callouts)
 
-add PIXIL nanowm scrtop, nxcal
-
-fix serv.h, add ecos SVR_xxx defines, add new Gr*, try ecos compile?
-	add ACCESS_THREAD_DATA to new routines
-
-change printf to DPRINTF in srvnet.c
-GsDestroyClientResources(GR_CLIENT * client) and 
-GsPrintResources(void)
-
-DPRINTF in scr_x11.c
-seperate out dashed and stipple in config file and devdraw.c
+try ecos compile,  add ACCESS_THREAD_DATA to new routines
 
 
 fix nanowm: can't let two copies run at once...

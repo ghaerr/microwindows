@@ -612,8 +612,9 @@ GsFreeExposureEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_COORD x,
 /*
  * Try to deliver an update event to the clients which have selected for it.
  */
-void GsDeliverUpdateEvent(GR_WINDOW *wp, GR_UPDATE_TYPE utype, GR_COORD x,
-			GR_COORD y, GR_SIZE width, GR_SIZE height)
+void
+GsDeliverUpdateEvent(GR_WINDOW *wp, GR_UPDATE_TYPE utype, GR_COORD x,
+	GR_COORD y, GR_SIZE width, GR_SIZE height)
 {
 	GR_EVENT_MASK		cmask = GR_EVENT_MASK_UPDATE;
 	GR_EVENT_UPDATE		*ep;		/* update event */
@@ -664,7 +665,8 @@ update_again:
  * or mouse exit to the clients which have selected for it.  These events
  * only have the window id as data, and do not propagate upwards.
  */
-void GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
+void
+GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
 {
 	GR_EVENT_GENERAL	*gp;		/* general event */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
@@ -694,7 +696,8 @@ void GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
  * Deliver a portrait mode changed event to all windows which
  * have selected for it.
  */
-void GsDeliverPortraitChangedEvent(void)
+void
+GsDeliverPortraitChangedEvent(void)
 {
 	GR_WINDOW		*wp;
 	GR_EVENT_GENERAL	*gp;
@@ -723,7 +726,8 @@ void GsDeliverPortraitChangedEvent(void)
  * program which starts the screen saver on an activate event might not also
  * be the screen saver program which wants to catch the deactivate event).
  */
-void GsDeliverScreenSaverEvent(GR_BOOL activate)
+void
+GsDeliverScreenSaverEvent(GR_BOOL activate)
 {
 	GR_EVENT_SCREENSAVER	*gp;		/* screensaver event */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
@@ -747,13 +751,14 @@ void GsDeliverScreenSaverEvent(GR_BOOL activate)
  */
 void
 GsDeliverClientDataReqEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
-			GR_SERIALNO serial, GR_MIMETYPE mimetype)
+	GR_SERIALNO serial, GR_MIMETYPE mimetype)
 {
 	GR_EVENT_CLIENT_DATA_REQ *gp;		/* client data request event */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
 	GR_WINDOW *wp;
 
-	if(!(wp = GsFindWindow(wid))) return;
+	if(!(wp = GsFindWindow(wid)))
+		return;
 
 	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
 		if ((ecp->eventmask & GR_EVENT_MASK_CLIENT_DATA_REQ) == 0)
@@ -784,7 +789,8 @@ GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
 	GR_WINDOW *wp;
 
-	if(!(wp = GsFindWindow(wid))) return;
+	if(!(wp = GsFindWindow(wid)))
+		return;
 
 	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
 		if ((ecp->eventmask & GR_EVENT_MASK_CLIENT_DATA) == 0)
@@ -852,20 +858,20 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
  * to receive GR_EVENT_TYPE_SELECTION_CHANGED events for the window of the
  * _previous_ selection owner.
  */
-void GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
-					GR_WINDOW_ID new_owner)
+void
+GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner)
 {
 	GR_EVENT_SELECTION_CHANGED *gp;		/* selection changed event */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
 	GR_WINDOW *wp;
 
-	if(!(wp = GsFindWindow(old_owner))) return;
+	if(!(wp = GsFindWindow(old_owner)))
+		return;
 
 	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
 		if ((ecp->eventmask & GR_EVENT_MASK_SELECTION_CHANGED) == 0)
 			continue;
 
-		fprintf(stderr, "Delivering a selection changed event\n");
 		gp = (GR_EVENT_SELECTION_CHANGED *) GsAllocEvent(ecp->client);
 		if (gp == NULL)
 			continue;
@@ -875,16 +881,15 @@ void GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
 	}
 }
 
-void GsDeliverTimerEvent (GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
+void
+GsDeliverTimerEvent (GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
 {
     GR_EVENT_TIMER    *event;           /* general event */
     GR_EVENT_CLIENT   *ecp;             /* current event client */
     GR_WINDOW         *wp;              /* current window */
     
     if ((wp = GsFindWindow (wid)) == NULL)
-    {
         return;
-    }
 
     for (ecp = wp->eventclients; ecp != NULL; ecp = ecp->next) 
     {
@@ -892,9 +897,7 @@ void GsDeliverTimerEvent (GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
         {
             event = (GR_EVENT_TIMER*) GsAllocEvent (client);
             if (event == NULL)
-            {
                 break;
-            }
         
             event->type = GR_EVENT_TYPE_TIMER;
             event->wid  = wid;
@@ -902,4 +905,3 @@ void GsDeliverTimerEvent (GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
         }
     }
 }
-

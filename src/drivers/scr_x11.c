@@ -426,11 +426,11 @@ static void show_visual(Visual* v)
 {
     char* name = ((v->class < 0) || (v->class > 5)) ? "???" : 
 	classnm[v->class];
-    printf("  Visual  class: %s (%d)\n", name, v->class);
-    printf("             id: %ld\n", v->visualid);
-    printf("   bits_per_rgb: %d\n", v->bits_per_rgb);
-    printf("          masks: %x,%x,%x\n", v->red_mask, v->green_mask, v->blue_mask);
-    printf("    map_entries: %d\n", v->map_entries);
+    DPRINTF("  Visual  class: %s (%d)\n", name, v->class);
+    DPRINTF("             id: %ld\n", v->visualid);
+    DPRINTF("   bits_per_rgb: %d\n", v->bits_per_rgb);
+    DPRINTF("          masks: %x,%x,%x\n", v->red_mask, v->green_mask, v->blue_mask);
+    DPRINTF("    map_entries: %d\n", v->map_entries);
 }
 
 static Visual* select_visual(Display* dpy, int scr)
@@ -439,14 +439,14 @@ static Visual* select_visual(Display* dpy, int scr)
     Screen* screen = XScreenOfDisplay(dpy, scr);
     int d;
 
-    printf("XDefaultVisual:\n");
+    DPRINTF("XDefaultVisual:\n");
     show_visual(vis);
 
-    printf("DefaultDepth %d\n", XDefaultDepth(dpy, 0));
-    printf("Screen RootDepth: %d\n", screen->root_depth);
-    printf("Depth: %d\n", screen->depths->depth);
+    DPRINTF("DefaultDepth %d\n", XDefaultDepth(dpy, 0));
+    DPRINTF("Screen RootDepth: %d\n", screen->root_depth);
+    DPRINTF("Depth: %d\n", screen->depths->depth);
     
-    printf("Screen RootVisual\n");
+    DPRINTF("Screen RootVisual\n");
     show_visual(screen->root_visual);
     
     /* print all depths/visuals */

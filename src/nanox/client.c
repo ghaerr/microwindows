@@ -603,6 +603,8 @@ GrRegisterInput(int fd)
 {
 	ACCESS_PER_THREAD_DATA()
 
+	if (fd < 0)
+		return;
 	FD_SET(fd, &regfdset);
 	if (fd > regfdmax) regfdmax = fd + 1;
 }

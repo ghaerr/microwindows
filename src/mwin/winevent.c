@@ -221,20 +221,10 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 {
 	WPARAM VK_Code = keyvalue;	/* default no translation*/
 
-	/* Keysyms from 32-126 are mapped to ASCII*/
-	if (keyvalue < 32 || keyvalue > 126)
+	/* Keysyms from 1-255 are mapped to ASCII*/
+	if (keyvalue < 1 || keyvalue > 255)
 	  switch(keyvalue) {
 
-	/* Following special control keysyms are 
-	 * already mapped to ASCII
-	 */
-	case MWKEY_BACKSPACE:
-	case MWKEY_TAB:
-	case MWKEY_ENTER:
-	case MWKEY_ESCAPE:
-		break;
-
-	/* Following keysyms are mapped to private use portion of Unicode-16*/
 	/* arrows + home/end pad*/
 	case MWKEY_LEFT:
 		VK_Code = VK_LEFT;

@@ -1136,7 +1136,7 @@ typedef struct {
 	INT16	pad;
 } nxLoadImageFromBufferReq;
 
-#define GrNumDrawImageFromBuffer 105
+#define GrNumDrawImageFromBuffer 104
 typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
@@ -1151,11 +1151,11 @@ typedef struct {
 	IDTYPE	flags;
 } nxDrawImageFromBufferReq;
 
-#define GrNumGetFontList        106
+#define GrNumGetFontList        105
 typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
 } nxGetFontListReq;
 
-#define GrTotalNumCalls         107
+#define GrTotalNumCalls         106

@@ -97,6 +97,7 @@ int add_window(win *window);
 int remove_window(win *window);
 int remove_window_and_children(win *window);
 int new_client_window(GR_WINDOW_ID wid);
+void client_window_resize(win *window);
 void client_window_destroy(win *window);
 
 void client_window_remap(win *window);

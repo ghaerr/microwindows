@@ -378,6 +378,46 @@ void client_window_unmap(win *window) {
   GrUnmapWindow(pwin->wid);
 }
 
+void
+client_window_resize(win *window)
+{
+	win *pwin;
+	GR_COORD width, height;
+	GR_WM_PROPS style;
+	GR_WINDOW_INFO winfo;
+
+	Dprintf("client_window_resize %d (parent %d)\n", window->wid, window->pid);
+	if(!(pwin = find_window(window->pid))) {
+		fprintf(stderr, "Couldn't find parent of resize window %d\n", window->wid);
+		return;
+	}
+
+	/* get client window style and size, determine new container size*/
+	GrGetWindowInfo(pwin->clientid, &winfo);
+	style = winfo.props;
+
+	if (style & GR_WM_PROPS_APPFRAME) {
+		width = winfo.width + CXFRAME;
+		height = winfo.height + CYFRAME;
+	} else if (style & GR_WM_PROPS_BORDER) {
+		width = winfo.width + 2;
+		height = winfo.height + 2;
+	} else {
+		width = winfo.width;
+		height = winfo.height;
+	}
+	if (style & GR_WM_PROPS_CAPTION) {
+		height += CYCAPTION;
+		if (style & GR_WM_PROPS_APPFRAME) {
+			/* extra line under caption with appframe*/
+			++height;
+		}
+	}
+
+	/* resize container window based on client size*/
+	GrResizeWindow(pwin->wid, width, height);
+}
+
 /*
  * We've just received an event notifying us that a client window has been
  * unmapped, so we need to destroy all of the decorations.

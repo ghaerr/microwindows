@@ -1,3 +1,5 @@
+	* enhance nanowm to handle client programmatic resize requests
+	* send UPDATE_SIZE event before EXPOSURE event for fltk
 Version 0.90rc1 - 18 May 2003 - greg@censoft.com
 	* changed GR_EVENT_TYPE_HOTKEY_* to data member in GR_EVENT_KEYSTROKE
 	* cleaned up various function prototypes

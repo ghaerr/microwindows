@@ -648,8 +648,9 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	GsWpUnrealizeWindow(wp, GR_TRUE);
 	wp->width = width;
 	wp->height = height;
-	GsWpRealizeWindow(wp, GR_FALSE);
+	/* send size update before expose event*/
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
+	GsWpRealizeWindow(wp, GR_FALSE);
 
 	SERVER_UNLOCK();
 }

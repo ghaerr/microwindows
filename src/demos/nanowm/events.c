@@ -195,5 +195,6 @@ void do_update(GR_EVENT_UPDATE *event)
 	  if(event->utype == GR_UPDATE_MAP) client_window_remap(window);
 	  if(event->utype == GR_UPDATE_DESTROY) client_window_destroy(window);
 	  if(event->utype == GR_UPDATE_UNMAP) client_window_unmap(window);
+	  if(event->utype == GR_UPDATE_SIZE) client_window_resize(window);
 	}
 }

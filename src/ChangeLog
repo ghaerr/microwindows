@@ -1,3 +1,9 @@
+	* added text speedup patch, no per-point clipping in visible
+		case in GdBitmap and corefont_textdraw.  Also clear
+		background once not per char.  Changed GetTextBits
+		driver entry point to not copy font data. 60% improvment (Aaron)
+		Note this change eliminates max fixed font sizes for all
+		fonts except those requiring textbits copy (e.g. font_eujp.c)
 	* added USE_CCACHE=1 environment variable check for cached builds
 	* added StretchBlitEx driver entry point, GdStretchBlitEx,
 		GrStretchArea (experimental) (Jonathan)

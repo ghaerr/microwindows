@@ -20,6 +20,9 @@
 #include "devfont.h"
 #include "../drivers/genfont.h"
 
+extern MWPIXELVAL gr_background;
+extern MWBOOL gr_usebg;
+
 /* The user hase the option including ZLIB and being able to    */
 /* directly read compressed .pcf files, or to omit it and save  */
 /* space.  The following defines make life much easier          */
@@ -663,12 +666,12 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	const unsigned short *str = text;
-	MWCOORD width;		/* width of text area */
-	MWCOORD height;		/* height of text area */
-	MWCOORD base;		/* baseline of text */
-	MWCOORD startx, starty;
-	/* bitmap for characters */
-	MWIMAGEBITS bitmap[MAX_CHAR_HEIGHT * MAX_CHAR_WIDTH / MWIMAGE_BITSPERIMAGE];
+	MWCOORD		width;			/* width of text area */
+	MWCOORD		height;			/* height of text area */
+	MWCOORD		base;			/* baseline of text */
+	MWCOORD		startx, starty;
+	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
+	MWBOOL		bgstate;
 
 	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
 
@@ -678,20 +681,24 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		y -= (height - 1);
 	startx = x;
 	starty = y + base;
+	bgstate = gr_usebg;
 
 	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
-		/*
-		 * For size considerations, there's no low-level text
-		 * draw, so we've got to draw all text
-		 * with per-point clipping for the time being
-		 if (gr_usebg)
-		 psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
-		 gr_background);
-		 psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
-		 GdFixCursor(psd);
-		 return;
-		 */
+		/* clear background once for all characters*/
+		if (gr_usebg)
+			psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
+				gr_background);
+
+		/* FIXME if we had a low-level text drawer, plug in here:
+		psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
+		GdFixCursor(psd);
+		return;
+		*/
+
+		/* save state for combined routine below*/
+		bgstate = gr_usebg;
+		gr_usebg = FALSE;
 		break;
 
 	case CLIP_INVISIBLE:
@@ -703,8 +710,8 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	 */
 	while (--cc >= 0 && x < psd->xvirtres) {
 		unsigned int ch = *str++;
-		pfont->fontprocs->GetTextBits(pfont, ch, bitmap, &width,
-					      &height, &base);
+		pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
+			&height, &base);
 
 		/* note: change to bitmap */
 		GdBitmap(psd, x, y, width, height, bitmap);
@@ -713,6 +720,9 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 
 	if (pfont->fontattr & MWTF_UNDERLINE)
 		GdLine(psd, startx, starty, x, starty, FALSE);
+
+	/* restore background draw state*/
+	gr_usebg = bgstate;
 
 	GdFixCursor(psd);
 }

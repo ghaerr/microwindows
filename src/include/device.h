@@ -69,7 +69,7 @@ typedef struct {
 	MWBOOL	(*GetFontInfo)(PMWFONT pfont, PMWFONTINFO pfontinfo);
 	void 	(*GetTextSize)(PMWFONT pfont, const void *text, int cc,
 			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-	void	(*GetTextBits)(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
+	void	(*GetTextBits)(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 	void	(*DestroyFont)(PMWFONT pfont);
 	void	(*DrawText)(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
@@ -662,7 +662,7 @@ void	GdLine(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
 void	GdRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 void	GdFillRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		MWIMAGEBITS *imagebits);
+		const MWIMAGEBITS *imagebits);
 MWBOOL	GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize);
 void	GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 		MWPIXELVAL *convtable,int fLoadType);

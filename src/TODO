@@ -1,3 +1,7 @@
+add amortized background text clear for other subengines
+add low-level text draw (DrawText/DrawBitmap) for speed
+add rockbox font extensions for small incore font size, .fnt format
+
 add GrSetLocale flag for text?
 add PIXIL screentop window manager
 add PIXIL calibration utility

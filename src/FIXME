@@ -1,3 +1,4 @@
+optimize GdBitmap
 change int to MWCOORD in StretchBlitEx parms, fix StretchBlitEx
 	remove StretchBlit
 eliminate FS_FREETYPE

@@ -503,7 +503,7 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
  */
 void
 GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	MWIMAGEBITS *imagebits)
+	const MWIMAGEBITS *imagebits)
 {
   MWCOORD minx;
   MWCOORD maxx;
@@ -513,17 +513,36 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 
   switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
       case CLIP_VISIBLE:
-	/*
-	 * For size considerations, there's no low-level bitmap
-	 * draw so we've got to draw everything with per-point
-	 * clipping for the time being.
 	if (gr_usebg)
 		psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
 			gr_background);
+	/* FIXME think of the speedups if this existed...
 	psd->DrawBitmap(psd, x, y, width, height, imagebits, gr_foreground);
 	return;
 	*/
-	break;
+
+	minx = x;
+	maxx = x + width - 1;
+	bitcount = 0;
+	while (height > 0) {
+		if (bitcount <= 0) {
+			bitcount = MWIMAGE_BITSPERIMAGE;
+			bitvalue = *imagebits++;
+		}
+		/* draw without clipping*/
+		if (MWIMAGE_TESTBIT(bitvalue))
+			psd->DrawPixel(psd, x, y, gr_foreground);
+		bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
+		bitcount--;
+		if (x++ == maxx) {
+			x = minx;
+			y++;
+			height--;
+			bitcount = 0;
+			}
+	}
+	GdFixCursor(psd);
+	return;
 
       case CLIP_INVISIBLE:
 	return;

@@ -41,7 +41,7 @@ typedef struct MWEUCJPFONT {
 
 PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
 static MWBOOL eucjp_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
-static void eucjp_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS * retmap,
+static void eucjp_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
 static void eucjp_gettextsize(PMWFONT pfont, const void *text, int cc,
 	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
@@ -178,15 +178,18 @@ eucjp_gettextsize(PMWFONT pfont, const void *text, int cc,
 	*pbase = pf->height - 2;
 }
 
-/* copy bitmap from MGL font bitmap data */
+/* return character bitmap from MGL font bitmap data */
 static void
-eucjp_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS * retmap,
+eucjp_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase)
 {
 	PMWEUCJPFONT pf = (PMWEUCJPFONT) pfont;
 	char *fptn;
 	int i, bytewidth;
+	static MWIMAGEBITS map[MAX_CHAR_HEIGHT * MAX_CHAR_WIDTH / MWIMAGE_BITSPERIMAGE];
+	MWIMAGEBITS *bitmap = map;
 
+	*retmap = map;
 	*pheight = pf->height;
 	*pbase = pf->height - 2;
 	if (ch < 256) {
@@ -210,27 +213,27 @@ eucjp_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS * retmap,
 		switch (bytewidth) {
 		case 1:
 			ptn0 = *(fptn) & 0xFF;
-			*retmap++ = *(fptn) << 8;
+			*bitmap++ = *(fptn) << 8;
 			break;
 		case 2:
 			ptn0 = *(fptn) & 0xFF;
 			ptn1 = *(fptn + 1) & 0xFF;
-			*retmap++ = ptn0 << 8 | ptn1;
+			*bitmap++ = ptn0 << 8 | ptn1;
 			break;
 		case 3:
 			ptn0 = *(fptn) & 0xFF;
 			ptn1 = *(fptn + 1) & 0xFF;
 			ptn2 = *(fptn + 2) & 0xFF;
-			*retmap++ = ptn0 << 8 | ptn1;
-			*retmap++ = ptn2 << 8;
+			*bitmap++ = ptn0 << 8 | ptn1;
+			*bitmap++ = ptn2 << 8;
 			break;
 		case 4:
 			ptn0 = *(fptn) & 0xFF;
 			ptn1 = *(fptn + 1) & 0xFF;
 			ptn2 = *(fptn + 2) & 0xFF;
 			ptn3 = *(fptn + 3) & 0xFF;
-			*retmap++ = ptn0 << 8 | ptn1;
-			*retmap++ = ptn2 << 8 | ptn3;
+			*bitmap++ = ptn0 << 8 | ptn1;
+			*bitmap++ = ptn2 << 8 | ptn3;
 			break;
 		default:
 			/*

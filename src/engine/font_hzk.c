@@ -58,7 +58,7 @@ static MWBOOL hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void hzk_gettextsize(PMWFONT pfont, const void *text,
 		int cc, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 #if 0
-static void hzk_gettextbits(PMWFONT pfont, int ch, IMAGEBITS *retmap,
+static void hzk_gettextbits(PMWFONT pfont, int ch, const IMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 static void hzk_setfontrotation(PMWFONT pfont, int tenthdegrees);
 #endif

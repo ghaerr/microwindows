@@ -14,7 +14,7 @@
 MWBOOL	gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 void	gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-void	gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
+void	gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 void	gen_unloadfont(PMWFONT pfont);
 

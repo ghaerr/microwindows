@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
  *
  * Screen Driver Utilities
  * 
@@ -163,12 +163,12 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
  * with a character.  Handles fixed and proportional fonts.
  */
 void
-gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
+gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWCFONT	pf = ((PMWCOREFONT)pfont)->cfont;
-	int 		n, count, width;
-	MWIMAGEBITS *	bits;
+	int 		count, width;
+	const MWIMAGEBITS *	bits;
 
 #if HAVE_BIG5_SUPPORT
 	/* decode chinese big5*/
@@ -337,9 +337,7 @@ gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
  	width = pf->width ? pf->width[ch] : pf->maxwidth;
 	count = MWIMAGE_WORDS(width) * pf->height; 
 
-	for(n=0; n<count; ++n) {
-	  *retmap++ = *bits++;
-	}
+	*retmap = bits;
 
 	/* return width depending on fixed pitch or not*/
 	*pwidth = width; 
@@ -366,12 +364,12 @@ gen_drawtext(PMWFONT pfont,PSD psd,MWCOORD x,MWCOORD y,const void *text,
 	const unsigned char *	str = text;
 	MWCOORD 		width;		/* width of character */
 	MWCOORD 		height;		/* height of character */
-	IMAGEBITS   bitmap[MAX_CHAR_HEIGHT*MAX_CHAR_WIDTH/MWIMAGE_BITSPERIMAGE];
+	const MWIMAGEBITS *	bitmap;
 
 	/* x, y is bottom left corner*/
 	y -= pf->height - 1;
 	while (n-- > 0) {
-		pfont->GetTextBits(pfont, *s++, bitmap, &width, &height);
+		pfont->GetTextBits(pfont, *s++, &bitmap, &width, &height);
 		gen_drawbitmap(psd, x, y, width, height, bitmap, fg);
 		x += width;
 	}
@@ -389,7 +387,7 @@ gen_drawbitmap(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
   MWCOORD minx;
   MWCOORD maxx;
   MWIMAGEBITS bitvalue;	/* bitmap word value */
-  int bitcount;			/* number of bits left in bitmap word */
+  int bitcount;		/* number of bits left in bitmap word */
 
   minx = x;
   maxx = x + width - 1;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
  *
  * Screen Driver Utilities
  * 
@@ -98,17 +98,20 @@ pcrom_gettextsize(PMWFONT pfont, const void *str, int cc,
  * with a character.  Handles bios ROM font only.
  */
 void
-pcrom_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
+pcrom_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	FARADDR	bits;
 	int	n;
-
+	static MWIMAGEBITS map[MAX_ROM_HEIGHT * ROM_CHAR_WIDTH / MWIMAGE_BITSPERIMAGE];
+	MWIMAGEBITS *bitmap = map;
+ 
 	/* read character bits from rom*/
 	bits = rom_char_addr + ch * ROM_CHAR_HEIGHT;
 	for(n=0; n<ROM_CHAR_HEIGHT; ++n)
-		*retmap++ = GETBYTE_FP(bits++) << 8;
+		*bitmap++ = GETBYTE_FP(bits++) << 8;
 
+	*retmap = map;
 	*pwidth = ROM_CHAR_WIDTH;
 	*pheight = ROM_CHAR_HEIGHT;
 	*pbase = ROM_CHAR_HEIGHT;
@@ -132,12 +135,12 @@ pcrom_drawtext(PMWFONT pfont, PSD psd, COORD x, COORD y,
 	const unsigned char *	str = text;
 	COORD 			width;		/* width of character */
 	COORD 			height;		/* height of character */
-	IMAGEBITS 	bitmap[MAX_ROM_HEIGHT];	/* bitmap for character */
+	const MWIMAGEBITS *	bitmap;
 
  	/* x,y is bottom left corner*/
 	y -= (ROM_CHAR_HEIGHT - 1);
 	while (n-- > 0) {
-		pfont->GetTextBits(pfont, *s++, bitmap, &width, &height);
+		pfont->GetTextBits(pfont, *s++, &bitmap, &width, &height);
 		gen_drawbitmap(psd, x, y, width, height, bitmap, fg);
 		x += width;
 	}
@@ -150,7 +153,7 @@ pcrom_drawtext(PMWFONT pfont, PSD psd, COORD x, COORD y,
  */
 void
 gen_drawbitmap(PSD psd,COORD x, COORD y, COORD width, COORD height,
-	IMAGEBITS *table, PIXELVAL fgcolor)
+	const IMAGEBITS *table, PIXELVAL fgcolor)
 {
   COORD minx;
   COORD maxx;

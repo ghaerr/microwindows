@@ -4258,3 +4258,103 @@ GrSetTransform(GR_TRANSFORM *trans)
 
 	UNLOCK(&nxGlobalLock);
 }
+
+#if HAVE_FREETYPE_2_SUPPORT
+/**
+ * GrCreateFontFromBuffer:
+ * @buffer: The buffer containing the font data.  May not
+ *          be NULL.
+ * @length: The buffer length, in bytes.
+ * @format: A string describing the format of the data in
+ *          the buffer.  NULL or "" request the font driver
+ *          to autodetect.  Otherwise, a file extension such
+ *          as "TTF" or "PFR".
+ * @height  The desired height of the font, in pixels.
+ *
+ * Creates a font from a buffer in memory.  This call copies
+ * the buffer, so the caller may free or re-use it.
+ *
+ * Returns 0 if the font data is corrupt, or if the data format
+ * is not recognised.
+ *
+ * This is useful for:
+ * - Web browsers supporting downloading fonts from the web.
+ * - Interactive digital TV recievers which support downloading
+ *   fonts from the broadcast channel.
+ *
+ * This call obviously has to allocate "length" bytes of
+ * memory, so excessive use should be avoided on low-memory
+ * devices.
+ *
+ * Note that if you want several fonts created from the same
+ * buffer (e.g. different sizes or styles), the best way to
+ * do it is to create one using this call, and then use
+ * GrCopyFont() to create copies which are (likely to be)
+ * backed by the same buffer.  In this case, the internal
+ * buffer will be reference-counted, and freed when all
+ * the font objects that use it are destroyed.
+ */
+GR_FONT_ID
+GrCreateFontFromBuffer(const void *buffer, unsigned length,
+		       const char *format, GR_COORD height)
+{
+	GR_FONT_ID result;
+	nxCreateFontFromBufferReq *req;
+	int bufid;
+
+	LOCK(&nxGlobalLock);
+
+	/* Step 1 - Send the buffer to the other side */
+	bufid = sendImageBuffer(buffer, length);
+
+	if (!bufid) {
+		UNLOCK(&nxGlobalLock);
+		return 0;
+	}
+
+	req = AllocReq(CreateFontFromBuffer);
+	req->height = height;
+	req->buffer_id = bufid;
+
+	if (format == NULL)
+		format = "";
+
+	strncpy(req->format, format, sizeof(req->format) - 1);
+	req->format[sizeof(req->format) - 1] = '\0';
+
+	if (TypedReadBlock
+	    (&result, sizeof(result), GrNumCreateFontFromBuffer) == -1)
+		result = 0;
+
+	UNLOCK(&nxGlobalLock);
+	return result;
+}
+
+/**
+ * GrCopyFont:
+ * @fointid: The font to copy.
+ * @height:  The size of the new copy, or 0 to make the copy the
+ *           same size as the original font.
+ *
+ * Creates a copy of a font, optionally using a different size.
+ *
+ * For the rationale behind this function, see GrCreateFontFromBuffer().
+ */
+GR_FONT_ID
+GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
+{
+	GR_FONT_ID result;
+	nxCopyFontReq *req;
+
+	LOCK(&nxGlobalLock);
+	req = AllocReq(CopyFont);
+	req->fontid = fontid;
+	req->height = height;
+
+	if (TypedReadBlock(&result, sizeof(result), GrNumCopyFont) == -1)
+		result = 0;
+
+	UNLOCK(&nxGlobalLock);
+	return result;
+}
+#endif /*HAVE_FREETYPE_2_SUPPORT*/

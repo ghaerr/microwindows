@@ -1,3 +1,8 @@
+	* added LIRC keyboard support, MWKEY_HAVI keys (LIRCKBD=Y) (Jonathan)
+	* added Gr/GdCreateFontFromBuffer, Gr/GdCopyFont API (Jonathan)
+	* add comments to font code (Jonathan)
+	* accept Java's relaxed UTF8 variant (U+0000 as 2 chars) (Jonathan)
+	* fix buffer overflow in GdCreateFont w/long pathnames (Jonathan)
 Version 0.89pl13 - 1 May 2003 - greg@censoft.com
 	* added GrGrabKey, GrUngrabKey (Jordan)
 	* added mousedev.flags member, jitter transform, rotate filters (Jordan)

@@ -58,7 +58,7 @@
 
 /* Handling routines for FNT fonts, use MWCOREFONT structure */
 static void fnt_unloadfont(PMWFONT font);
-static PMWCFONT fnt_load_font(char *path);
+static PMWCFONT fnt_load_font(const char *path);
 
 /* these procs used when font ASCII indexed*/
 static MWFONTPROCS fnt_fontprocs = {
@@ -71,6 +71,7 @@ static MWFONTPROCS fnt_fontprocs = {
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
+	NULL,			/* duplicate not supported */
 };
 
 /* these procs used when font requires UC16 index*/
@@ -84,10 +85,11 @@ static MWFONTPROCS fnt_fontprocs16 = {
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
+	NULL,			/* duplicate not supported */
 };
 
 PMWCOREFONT
-fnt_createfont(char *name, MWCOORD height, int attr)
+fnt_createfont(const char *name, MWCOORD height, int attr)
 {
 	PMWCOREFONT	pf;
 	PMWCFONT	cfont;
@@ -232,7 +234,7 @@ READSTRPAD(FILEP fp, char *buf, int totlen)
 
 /* read and load font, return incore font structure*/
 static PMWCFONT
-fnt_load_font(char *path)
+fnt_load_font(const char *path)
 {
 	FILEP ifp;
 	PMWCFONT pf = NULL;

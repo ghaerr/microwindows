@@ -359,6 +359,7 @@ static MWFONTPROCS freetype_procs = {
 	freetype_setfontsize,
 	freetype_setfontrotation,
 	NULL,				/* setfontattr*/
+	NULL,				/* duplicate not yet implemented */
 };
 
 static TT_Engine 	engine;		/* THE ONLY freetype engine */

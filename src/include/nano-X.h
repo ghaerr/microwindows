@@ -642,6 +642,9 @@ void		GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 void		GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 GR_FONT_ID	GrCreateFont(GR_CHAR *name, GR_COORD height,
 			GR_LOGFONT *plogfont);
+GR_FONT_ID	GrCreateFontFromBuffer(const void *buffer, unsigned length,
+			const char *format, GR_COORD height);
+GR_FONT_ID	GrCopyFont(GR_FONT_ID fontid, GR_COORD height);
 void		GrGetFontList(GR_FONTLIST ***fonts, int *numfonts);
 void		GrFreeFontList(GR_FONTLIST ***fonts, int num);
 void		GrSetFontSize(GR_FONT_ID fontid, GR_COORD size);

@@ -25,7 +25,7 @@ void alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 	unsigned char *alpha, int count);
 
 /* font engine entry points*/
-PMWCOREFONT fnt_createfont(char *name, MWCOORD height, int attr);
+PMWCOREFONT fnt_createfont(const char *name, MWCOORD height, int attr);
 
 #if HAVE_T1LIB_SUPPORT
 typedef struct MWT1LIBFONT 	*PMWT1LIBFONT;
@@ -45,15 +45,13 @@ typedef MWFREETYPE2FONT *PMWFREETYPE2FONT;
 int freetype2_init(PSD psd);
 PMWFREETYPE2FONT freetype2_createfont(const char *name, MWCOORD height,
 				      int attr);
-#if 0
 PMWFREETYPE2FONT freetype2_createfontfrombuffer(const unsigned char *buffer,
 						unsigned length,
 						MWCOORD height);
 #endif
-#endif
 
 #if HAVE_PCF_SUPPORT
-PMWCOREFONT pcf_createfont(char *name, MWCOORD height, int attr);
+PMWCOREFONT pcf_createfont(const char *name, MWCOORD height, int attr);
 #endif
 
 #if HAVE_HZK_SUPPORT
@@ -70,7 +68,7 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
 
 #if FONTMAPPER
 /* entry point for font selection*/
-int select_font(const PMWLOGFONT plogfont, char *physname);
+int select_font(const PMWLOGFONT plogfont, const char **physname);
 #endif
 
 /* DBCS routines*/

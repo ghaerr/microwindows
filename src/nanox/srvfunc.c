@@ -1404,6 +1404,84 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 	return fontp->id;
 }
 
+#if HAVE_FREETYPE_2_SUPPORT
+/*
+ * Create a new font from memory.
+ * The font is owned by the current client.
+ */
+GR_FONT_ID
+GrCreateFontFromBuffer(const void *buffer, unsigned length,
+		       const char *format, GR_COORD height)
+{
+	GR_FONT *fontp;
+
+	SERVER_LOCK();
+	
+	fontp = (GR_FONT *) GdMalloc(sizeof(GR_FONT));
+	if (fontp == NULL) {
+		GsError(GR_ERROR_MALLOC_FAILED, 0);
+		SERVER_UNLOCK();
+		return 0;
+	}
+
+	/* DPRINTF("Font magic = '%c%c%c%c', len = %u @ GrCreateFontFromBuffer\n",
+	 *         (char) buffer[0], (char) buffer[1],
+	 *         (char) buffer[2], (char) buffer[3], length);
+	 */
+
+	fontp->pfont = GdCreateFontFromBuffer(&scrdev, buffer, length, format,
+				       height);
+	if (fontp->pfont == NULL) {
+		/* Error loading font, probably corrupt data or unsupported format. */
+		GdFree(fontp);
+		SERVER_UNLOCK();
+		return 0;
+	}
+
+	fontp->id = nextfontid++;
+	fontp->owner = curclient;
+	fontp->next = listfontp;
+	listfontp = fontp;
+
+	SERVER_UNLOCK();
+	return fontp->id;
+}
+
+/*
+ * Create a new font from memory.
+ * The font is owned by the current client.
+ */
+GR_FONT_ID
+GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
+{
+	GR_FONT *srcfontp;
+	GR_FONT *fontp;
+
+	SERVER_LOCK();
+
+	fontp = (GR_FONT *) GdMalloc(sizeof(GR_FONT));
+	if (fontp == NULL) {
+		GsError(GR_ERROR_MALLOC_FAILED, 0);
+		SERVER_UNLOCK();
+		return 0;
+	}
+
+	srcfontp = GsFindFont(fontid);
+	if (srcfontp)
+		fontp->pfont = GdDuplicateFont(&scrdev, srcfontp->pfont,height);
+	else
+		fontp->pfont = GdCreateFont(&scrdev, NULL, height, NULL);
+
+	fontp->id = nextfontid++;
+	fontp->owner = curclient;
+	fontp->next = listfontp;
+	listfontp = fontp;
+	
+	SERVER_UNLOCK();
+	return fontp->id;
+}
+#endif /*HAVE_FREETYPE_2_SUPPORT*/
+
 /* Set the font size for the passed font*/
 void
 GrSetFontSize(GR_FONT_ID fontid, GR_COORD size)

@@ -58,6 +58,7 @@ static MWFONTPROCS eucjp_procs = {
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
+	NULL,			/* duplicate not yet implemented */
 };
 
 /*

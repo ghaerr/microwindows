@@ -230,6 +230,10 @@ ifeq ($(ARCH), FREEBSD-X86)
 OBJS += kbd_tty.o
 endif
 
+ifeq ($(LIRCKBD), Y)
+OBJS += mwlirc.o kbd_lirc.o
+endif
+
 ifeq ($(NOKBD), Y)
 OBJS += kbd_null.o
 endif

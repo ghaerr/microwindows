@@ -1,6 +1,9 @@
 /*
  * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
+ */
+/**
+ * @file
  *
  * Device-independent font and text drawing routines
  *
@@ -18,7 +21,10 @@
 #include "devfont.h"
 #include "../drivers/genfont.h"
 
-static PMWFONT	gr_pfont;            	/* current font*/
+/**
+ * The current font.
+ */
+static PMWFONT	gr_pfont;
 
 /* temp extern decls*/
 extern MWPIXELVAL gr_foreground;
@@ -30,8 +36,11 @@ void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 static int  utf8_to_utf16(const unsigned char *utf8, int cc,
 		unsigned short *unicode16);
 
-/*
+/**
  * Set the font for future calls.
+ *
+ * @param pfont The font to use.  If NULL, the font is not changed.
+ * @return The old font.
  */
 PMWFONT
 GdSetFont(PMWFONT pfont)
@@ -43,7 +52,7 @@ GdSetFont(PMWFONT pfont)
 	return oldfont;
 }
 
-/*
+/**
  * Select a font, based on various parameters.
  * If plogfont is specified, name and height parms are ignored
  * and instead used from MWLOGFONT.
@@ -57,6 +66,14 @@ GdSetFont(PMWFONT pfont)
  * If height not 0, perform same match based on name,
  * but return builtin font best match from height if
  * not otherwise found.
+ *
+ * @param psd      The screen that this font will be displayed on.
+ * @param name     The name of the font.  May be NULL.  Ignored if
+ *                 plogfont is specified.
+ * @param height   The height of the font in pixels.  Ignored if
+ *                 plogfont is specified.
+ * @param plogfont A structure describing the font, or NULL.
+ * @return         A new font, or NULL on error.
  */
 PMWFONT
 GdCreateFont(PSD psd, const char *name, MWCOORD height,
@@ -71,7 +88,10 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 	PMWCOREFONT	pf = psd->builtin_fonts;
 	MWFONTINFO	fontinfo;
 	MWSCREENINFO 	scrinfo;
- 	char		fontname[128];
+	const char *	fontname;
+#if !FONTMAPPER
+	char 		fontmapper_fontname[MWLF_FACESIZE + 1];
+#endif
 
 	GdGetScreenInfo(psd, &scrinfo);
 
@@ -80,17 +100,23 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		/* if name not specified, use first builtin*/
 		if (!name || !name[0])
 			name = pf->name;
-		strcpy(fontname, name);
+		fontname = name;
 		fontclass = MWLF_CLASS_ANY;
 	} else {
 		/* otherwise, use MWLOGFONT name, height and class*/
 #if FONTMAPPER
- 		fontclass = select_font(plogfont, fontname);
+		fontname = NULL; /* Paranoia */
+ 		fontclass = select_font(plogfont, &fontname);
 #else
-		name = plogfont->lfFaceName;
-		if (!name[0])	/* if name not specified, use first builtin*/
-			name = pf->name;
-		strcpy(fontname, name);
+		/* Copy the name from plogfont->lfFaceName to fontmapper_fontname
+		 * Note that it may not be NUL terminated in the source string,
+		 * so we're careful to NUL terminate it here.
+		 */
+		strncpy(fontmapper_fontname, plogfont->lfFaceName, MWLF_FACESIZE);
+		fontmapper_fontname[MWLF_FACESIZE] = '\0';
+		fontname = fontmapper_fontname;
+		if (!fontname[0])	/* if name not specified, use first builtin*/
+			fontname = pf->name;
 		fontclass = plogfont->lfClass;
 #endif
 		height = plogfont->lfHeight;
@@ -98,7 +124,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 			fontattr = MWTF_UNDERLINE;
 	}
 	height = abs(height);
- 
+
 	/* check builtin fonts first for speed*/
  	if (!height && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
   		for(i = 0; i < scrinfo.fonts; ++i) {
@@ -251,12 +277,17 @@ DPRINTF("createfont: no font found, returning NULL\n");
 	return 0;
 }
 
-/* Set the font size for the passed font*/
+/**
+ * Set the size of a font.
+ *
+ * @param pfont    The font to modify.
+ * @param fontsize The new size.
+ * @return         The old size.
+ */
 MWCOORD
 GdSetFontSize(PMWFONT pfont, MWCOORD fontsize)
 {
 	MWCOORD oldfontsize = pfont->fontsize;
-
 	pfont->fontsize = fontsize;
 
 	if (pfont->fontprocs->SetFontSize)
@@ -265,12 +296,17 @@ GdSetFontSize(PMWFONT pfont, MWCOORD fontsize)
 	return oldfontsize;
 }
 
-/* Set the font rotation angle in tenths of degrees for the passed font*/
+/**
+ * Set the rotation angle of a font.
+ *
+ * @param pfont        The font to modify.
+ * @param tenthdegrees The new rotation angle, in tenths of degrees.
+ * @return             The old rotation angle, in tenths of degrees.
+ */
 int
 GdSetFontRotation(PMWFONT pfont, int tenthdegrees)
 {
 	MWCOORD oldrotation = pfont->fontrotation;
-
 	pfont->fontrotation = tenthdegrees;
 
 	if (pfont->fontprocs->SetFontRotation)
@@ -279,9 +315,14 @@ GdSetFontRotation(PMWFONT pfont, int tenthdegrees)
 	return oldrotation;
 }
 
-/*
+/**
  * Set/reset font attributes (MWTF_KERNING, MWTF_ANTIALIAS)
- * for the passed font.
+ * for a font.
+ *
+ * @param pfont    The font to modify.
+ * @param setflags The flags to set.  Overrides clrflags.
+ * @param clrflags The flags to clear.
+ * @return         The old font attributes.
  */
 int
 GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags)
@@ -297,7 +338,12 @@ GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags)
 	return oldattr;
 }
 
-/* Unload and deallocate font*/
+/**
+ * Unload and deallocate a font.  Do not use the font once it has been
+ * destroyed.
+ *
+ * @param pfont The font to deallocate.
+ */
 void
 GdDestroyFont(PMWFONT pfont)
 {
@@ -305,7 +351,13 @@ GdDestroyFont(PMWFONT pfont)
 		pfont->fontprocs->DestroyFont(pfont);
 }
 
-/* Return information about a specified font*/
+/**
+ * Return information about a specified font.
+ *
+ * @param pfont The font to query.
+ * @param pfontinfo Recieves the result of the query
+ * @return TRUE on success, FALSE on error.
+ */
 MWBOOL
 GdGetFontInfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 {
@@ -315,10 +367,26 @@ GdGetFontInfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	return pfont->fontprocs->GetFontInfo(pfont, pfontinfo);
 }
 
-/* Draw a text string at a specifed coordinates in the foreground color
- * (and possibly the background color), applying clipping if necessary.
+/**
+ * Draws text onto a drawing surface (e.g. the screen or a double-buffer).
+ * Uses the current font, current foreground color, and possibly the
+ * current background color.  Applies clipping if necessary.
  * The background color is only drawn if the gr_usebg flag is set.
- * Use the current font.
+ *
+ * @param psd   The destination drawing surface.  Non-NULL.
+ * @param x     The X co-ordinate to draw the text.
+ * @param y     The Y co-ordinate to draw the text.  The flags specify
+ *              whether this is the top (MWTF_TOP), bottom (MWTF_BOTTOM),
+ *              or baseline (MWTF_BASELINE) of the text.
+ * @param str   The string to display.  Non-NULL.
+ * @param cc    The length of str.  For Asian DBCS encodings, this is
+ *              specified in bytes.  For all other encodings such as ASCII,
+ *              UTF8 and UC16, it is specified in characters.  For ASCII
+ *              and DBCS encodings, this may be set to -1, and the length
+ *              will be calculated automatically.
+ * @param flags Flags specifying the encoding of str and the position of the
+ *              text.  Specifying the vertical position is mandatory.
+ *              The encoding of str defaults to ASCII if not specified.
  */
 void
 GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
@@ -634,10 +702,21 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 }
 #endif /* !HAVE_FREETYPE_SUPPORT*/
 
-/*
- * Convert from one encoding to another
- * Input cc and returned cc is character count, not bytes
- * Return < 0 on error or can't translate
+/**
+ * Convert text from one encoding to another.
+ * Input cc and returned cc is character count, not bytes.
+ * Return < 0 on error or can't translate.
+ *
+ * @param istr   Input string.
+ * @param iflags Encoding of istr, as MWTF_xxx constants.
+ * @param cc     The length of istr.  For Asian DBCS encodings, this is
+ *               specified in bytes.  For all other encodings such as ASCII,
+ *               UTF8 and UC16, it is specified in characters.  For ASCII
+ *               and DBCS encodings, this may be set to -1, and the length
+ *               will be calculated automatically.
+ * @param ostr   Output string.
+ * @param oflags Encoding of ostr, as MWTF_xxx constants.
+ * @return       Number of characters (not bytes) converted.
  */
 int
 GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
@@ -776,7 +855,23 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 	return cc;
 }
 
-/* Get the width and height of passed text string in the passed font*/
+/**
+ * Gets the size of some text in a specified font.
+ *
+ * @param pfont   The font to measure.  Non-NULL.
+ * @param str     The string to measure.  Non-NULL.
+ * @param cc      The length of str.  For Asian DBCS encodings, this is
+ *                specified in bytes.  For all other encodings such as ASCII,
+ *                UTF8 and UC16, it is specified in characters.  For ASCII
+ *                and DBCS encodings, this may be set to -1, and the length
+ *                will be calculated automatically.
+ * @param pwidth  On return, holds the width of the text.
+ * @param pheight On return, holds the height of the text.
+ * @param pbase   On return, holds the baseline of the text.
+ * @param flags   Flags specifying the encoding of str and the position of the
+ *                text.  Specifying the vertical position is mandatory.
+ *                The encoding of str defaults to ASCII if not specified.
+ */
 void
 GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags)
@@ -819,7 +914,69 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	else pfont->fontprocs->GetTextSize(pfont, text, cc, pwidth, pheight, pbase);
 }
 
-/* UTF-8 to UTF-16 conversion.  Surrogates are handeled properly, e.g.
+#if HAVE_FREETYPE_2_SUPPORT
+/**
+ * Create a new font, from a buffer.
+ *
+ * @param psd    Drawing surface.
+ * @param buffer The data to create the font from.  This should be an
+ *               in-memory copy of a font file.
+ * @param length The length of the buffer, in bytes.
+ * @param format Buffer format, or NULL or "" to auto-detect.
+ *               Currently unused, since only FreeType 2 fonts are
+ *               currently supported, and FreeType 2 always
+ *               autodetects.
+ * @param height The font height in pixels.
+ * @return       New font, or NULL on error.
+ */
+PMWFONT
+GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
+		       unsigned length, const char *format, MWCOORD height)
+{
+	PMWFONT pfont = NULL;
+
+	//assert(buffer);
+
+	/* EPRINTF("Nano-X: Font magic = '%c%c%c%c' @ GdCreateFontFromBuffer\n",
+	 * (char) buffer[0], (char) buffer[1], (char) buffer[2], (char) buffer[3]);
+	 */
+
+	/*
+	 * If we had multiple font drivers, we'd have to do select one
+	 * based on 'format' here.  (Suggestion: 'format' is the file
+	 * extension - e.g. TTF, PFR, ...)
+	 */
+
+	pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height);
+	if (!pfont)
+		EPRINTF("GdCreateFontFromBuffer: create failed.\n");
+
+	return pfont;
+}
+
+/**
+ * Create a new font, which is a copy of an old font.
+ *
+ * @param psd      Drawing surface.
+ * @param psrcfont Font to copy from.
+ * @param fontsize Size of new font, or 0 for unchanged.
+ * @return         New font.
+ */
+PMWFONT
+GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD fontsize)
+{
+	//assert(psd);
+	//assert(psrcfont);
+
+	if (psrcfont->fontprocs->Duplicate)
+		return psrcfont->fontprocs->Duplicate(psrcfont, fontsize);
+
+	return psrcfont;
+}
+#endif /*HAVE_FREETYPE_2_SUPPORT*/
+
+/**
+ * UTF-8 to UTF-16 conversion.  Surrogates are handeled properly, e.g.
  * a single 4-byte UTF-8 character is encoded into a surrogate pair.
  * On the other hand, if the UTF-8 string contains surrogate values, this
  * is considered an error and returned as such.
@@ -828,7 +985,17 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
  * as there are ASCII characters in the UTF-8 string.  This in case all UTF-8
  * characters are ASCII characters.  No more will be needed.
  *
- * Copyright (c) 2000 Morten Rolland, Screen Media
+ * This function will also accept Java's variant of UTF-8.  This encodes
+ * U+0000 as two characters rather than one, so the UTF-8 does not contain
+ * any zeroes.
+ *
+ * @author Copyright (c) 2000 Morten Rolland, Screen Media
+ *
+ * @param utf8      Input string in UTF8 format.
+ * @param cc        Number of bytes to convert.
+ * @param unicode16 Destination buffer.
+ * @return          Number of characters converted, or -1 if input is not
+ *                  valid UTF8.
  */
 static int
 utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16)
@@ -866,7 +1033,7 @@ utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16)
 
 		if ( !(c0 & 0x20) ) {
 			/* Two bytes UTF-8 */
-			if ( scalar < 0x80 )
+			if ( (scalar != 0) && (scalar < 0x80) )
 				return -1;	/* Overlong encoding */
 			*unicode16++ = scalar & 0x7ff;
 			count++;

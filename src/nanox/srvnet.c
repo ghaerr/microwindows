@@ -1559,6 +1559,42 @@ GrSetTransformWrapper(void *r)
 		GrSetTransform(NULL);
 }
 
+static void
+GrCreateFontFromBufferWrapper(void *r)
+{
+#if HAVE_FREETYPE_2_SUPPORT
+	imagelist_t *buffer;
+	nxCreateFontFromBufferReq *req = r;
+	GR_FONT_ID result;
+	
+	buffer = findImageBuffer(req->buffer_id);
+	if (!buffer) {
+		result = 0;
+	} else {
+		result = GrCreateFontFromBuffer(buffer->data, buffer->size,
+			(const char *)req->format, req->height);
+		
+		freeImageBuffer(buffer);
+	}
+	
+	GsWriteType(current_fd, GrNumCreateFontFromBuffer);
+	GsWrite(current_fd, &result, sizeof(result));
+#endif /*HAVE_FREETYPE_2_SUPPORT*/
+}
+
+static void
+GrCopyFontWrapper(void *r)
+{
+#if HAVE_FREETYPE_2_SUPPORT
+	nxCopyFontReq *req = r;
+	GR_FONT_ID result = GrCopyFont(req->fontid, req->height);
+
+	GsWriteType(current_fd, GrNumCopyFont);
+	GsWrite(current_fd, &result, sizeof(result));
+#endif /*HAVE_FREETYPE_2_SUPPORT*/
+}
+
+
 void GrShmCmdsFlushWrapper(void *r);
 
 /*
@@ -1691,6 +1727,8 @@ struct GrFunction {
 	/* 120 */ {GrStretchAreaWrapper, "GrStretchArea"},
 	/* 121 */ {GrGrabKeyWrapper, "GrGrabKey" },
 	/* 122 */ {GrSetTransformWrapper, "GrSetTransform" },
+	/* 123 */ {GrCreateFontFromBufferWrapper, "GrCreateFontFromBuffer"},
+	/* 124 */ {GrCopyFontWrapper, "GrCopyFont"},
 };
 
 void

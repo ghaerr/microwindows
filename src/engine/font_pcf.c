@@ -68,6 +68,7 @@ static MWFONTPROCS pcf_fontprocs16 = {
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
+	NULL,			/* duplicate not yet implemented */
 };
 
 /* These are maintained statically for ease FIXME*/
@@ -447,7 +448,7 @@ pcf_read_toc(FILE * file, struct toc_entry **toc, unsigned long *size)
 }
 
 PMWCOREFONT
-pcf_createfont(char *name, MWCOORD height, int attr)
+pcf_createfont(const char *name, MWCOORD height, int attr)
 {
 	FILE *file = 0;
 	MWCOREFONT *pf = 0;

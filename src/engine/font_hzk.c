@@ -76,6 +76,7 @@ static MWFONTPROCS hzk_procs = {
 	NULL,				/* setfontsize*/
 	NULL, 				/* setfontrotation*/
 	NULL,				/* setfontattr*/
+	NULL,				/* duplicate not yet implemented */
 };
 
 /* temp extern decls*/

@@ -75,6 +75,8 @@ static int decode_font_class(const char *class)
 		return MWLF_CLASS_T1LIB;
 	if ( !strcmp("FT",class) )
 		return MWLF_CLASS_FREETYPE;
+	if ( !strcmp("FT2",class) )
+		return MWLF_CLASS_FREETYPE;
 	if ( !strcmp("MWF",class) )
 		return MWLF_CLASS_BUILTIN;
 	return 0;
@@ -394,7 +396,13 @@ static struct available_font *find_suitable_font(const char *foundry,
 }
 
 
-int select_font(const PMWLOGFONT plogfont, char *physname)
+/**
+ * The return value in *physname may be a pointer into plogfont, or
+ * it may be a pointer to the global font list.  Use it quickly.
+ * Do not use *physname after deallocating plogfont or after calling
+ * GdClearFontList().
+ */
+int select_font(const PMWLOGFONT plogfont, const char **physname)
 {
 	struct available_font *font;
 	char fndry[128], *foundry;
@@ -432,7 +440,7 @@ int select_font(const PMWLOGFONT plogfont, char *physname)
 
 		if ( fontclass ) {
 			/* The font is a "physical" font, use it directly */
-			strcpy(physname,fontname);
+			*physname = fontname;
 			return fontclass;
 		}
 
@@ -458,7 +466,7 @@ int select_font(const PMWLOGFONT plogfont, char *physname)
 
  default_font:
 
-	strcpy(physname, MWFONT_SYSTEM_VAR);
+	*physname = MWFONT_SYSTEM_VAR;
 	return MWLF_CLASS_BUILTIN;
 }
 
@@ -511,13 +519,25 @@ GdAddFont(char *fndry, char *fmly, char *fontname, PMWLOGFONT lf,
 	}
 
 	if ( !strncmp(physname,"FT,",3) ) {
-#if HAVE_FREETYPE_SUPPORT
-		/* Can handle FreeType fonts */
+#if HAVE_FREETYPE_SUPPORT || HAVE_FREETYPE_2_SUPPORT
+		/* Can handle Truetype (i.e. FreeType 1) fonts */
 		physname += 3;
 		fontclass = MWLF_CLASS_FREETYPE;
 		goto do_font;
 #else
-		/* Can't handle Type 1 fonts */
+		/* Can't handle FreeType fonts */
+		return -1;
+#endif
+	}
+
+	if ( !strncmp(physname,"FT2,",4) ) {
+#if HAVE_FREETYPE_2_SUPPORT
+		/* Can handle FreeType 2 fonts (PFR etc) */
+		physname += 3;
+		fontclass = MWLF_CLASS_FREETYPE;
+		goto do_font;
+#else
+		/* Can't handle FreeType 2 fonts */
 		return -1;
 #endif
 	}

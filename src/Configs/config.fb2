@@ -310,6 +310,7 @@ TTYKBD                   = N
 SCANKBD                  = Y
 PIPEKBD                  = N
 IPAQKBD                  = N
+LIRCKBD                  = N
 NOKBD                    = N
 
 endif

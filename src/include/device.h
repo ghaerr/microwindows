@@ -103,6 +103,7 @@ typedef struct {
 	void    (*SetFontSize)(PMWFONT pfont, MWCOORD fontsize);
 	void    (*SetFontRotation)(PMWFONT pfont, int tenthdegrees);
 	void    (*SetFontAttr)(PMWFONT pfont, int setflags, int clrflags);
+	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD fontsize);
 } MWFONTPROCS, *PMWFONTPROCS;
 
 /* new multi-renderer font struct*/
@@ -752,6 +753,9 @@ int	GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,
 		MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);	
 void	GdText(PSD psd,MWCOORD x,MWCOORD y,const void *str,int count,
 		MWTEXTFLAGS flags);
+PMWFONT	GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
+		unsigned length, const char *format, MWCOORD height);
+PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD fontsize);
 
 /* devclip1.c*/
 void 	GdSetClipRects(PSD psd,int count,MWCLIPRECT *table);

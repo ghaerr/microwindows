@@ -824,8 +824,8 @@ typedef unsigned short	MWSCANCODE;
 #define MWKEY_REDRAW		0xF83A	/* virtual key*/
 
 /* Handheld function keys*/
-#define MWKEY_RECORD		0xF840
-#define MWKEY_PLAY		0xF841
+/* #define MWKEY_RECORD		0xF840 -- Replaced by HAVi code */
+/* #define MWKEY_PLAY		0xF841 -- Replaced by HAVi code */
 #define MWKEY_CONTRAST		0xF842
 #define MWKEY_BRIGHTNESS	0xF843
 #define MWKEY_SELECTUP		0xF844
@@ -835,7 +835,100 @@ typedef unsigned short	MWSCANCODE;
 #define MWKEY_APP1		0xF848
 #define MWKEY_APP2		0xF849
 #define MWKEY_SUSPEND           0xF84A
-#define MWKEY_LAST		0xF84A
+#define MWKEY_END_NORMAL	0xF84A	/* insert additional keys before this*/
+
+/*
+ * The following keys are useful for remote controls on consumer
+ * electronics devices (e.g. TVs, videos, DVD players, cable
+ * boxes, satellite boxes, digital terrestrial recievers, ...)
+ *
+ * The codes are taken from the HAVi specification:
+ *   HAVi Level 2 User Interface version 1.1, May 15th 2001
+ * They are listed in section 8.7.
+ *
+ * For more information see http://www.havi.org/
+ */
+
+/* MWKEY code for first HAVi key */
+#define MWKEY_HAVI_KEY_BASE   (MWKEY_END_NORMAL+1)
+
+/* HAVi code for first HAVi key */
+#define MWKEY_HAVI_CODE_FIRST  403
+
+/* HAVi code for last HAVi key */
+#define MWKEY_HAVI_CODE_LAST   460
+
+/* HRcEvent.VK_... code to MWKEY_... code */
+#define MWKEY_FROM_HAVI_CODE(h) ((h) + (MWKEY_HAVI_KEY_BASE - MWKEY_HAVI_CODE_FIRST))
+
+/* MWKEY_... code to HRcEvent.VK_... code */
+#define MWKEY_TO_HAVI_CODE(m)   ((m) - (MWKEY_HAVI_KEY_BASE - MWKEY_HAVI_CODE_FIRST))
+
+/* Can an MWKEY_... code be converted into a HRcEvent.VK_... code? */
+#define MWKEY_IS_HAVI_CODE(m)   (  (unsigned)((m) - MWKEY_HAVI_KEY_BASE) \
+               <= (unsigned)(MWKEY_HAVI_CODE_LAST - MWKEY_HAVI_CODE_FIRST) )
+
+
+#define MWKEY_COLORED_KEY_0         MWKEY_FROM_HAVI_CODE(403)
+#define MWKEY_COLORED_KEY_1         MWKEY_FROM_HAVI_CODE(404)
+#define MWKEY_COLORED_KEY_2         MWKEY_FROM_HAVI_CODE(405)
+#define MWKEY_COLORED_KEY_3         MWKEY_FROM_HAVI_CODE(406)
+#define MWKEY_COLORED_KEY_4         MWKEY_FROM_HAVI_CODE(407)
+#define MWKEY_COLORED_KEY_5         MWKEY_FROM_HAVI_CODE(408)
+#define MWKEY_POWER                 MWKEY_FROM_HAVI_CODE(409)
+#define MWKEY_DIMMER                MWKEY_FROM_HAVI_CODE(410)
+#define MWKEY_WINK                  MWKEY_FROM_HAVI_CODE(411)
+#define MWKEY_REWIND                MWKEY_FROM_HAVI_CODE(412)
+#define MWKEY_STOP                  MWKEY_FROM_HAVI_CODE(413)
+#define MWKEY_EJECT_TOGGLE          MWKEY_FROM_HAVI_CODE(414)
+#define MWKEY_PLAY                  MWKEY_FROM_HAVI_CODE(415)
+#define MWKEY_RECORD                MWKEY_FROM_HAVI_CODE(416)
+#define MWKEY_FAST_FWD              MWKEY_FROM_HAVI_CODE(417)
+#define MWKEY_PLAY_SPEED_UP         MWKEY_FROM_HAVI_CODE(418)
+#define MWKEY_PLAY_SPEED_DOWN       MWKEY_FROM_HAVI_CODE(419)
+#define MWKEY_PLAY_SPEED_RESET      MWKEY_FROM_HAVI_CODE(420)
+#define MWKEY_RECORD_SPEED_NEXT     MWKEY_FROM_HAVI_CODE(421)
+#define MWKEY_GO_TO_START           MWKEY_FROM_HAVI_CODE(422)
+#define MWKEY_GO_TO_END             MWKEY_FROM_HAVI_CODE(423)
+#define MWKEY_TRACK_PREV            MWKEY_FROM_HAVI_CODE(424)
+#define MWKEY_TRACK_NEXT            MWKEY_FROM_HAVI_CODE(425)
+#define MWKEY_RANDOM_TOGGLE         MWKEY_FROM_HAVI_CODE(426)
+#define MWKEY_CHANNEL_UP            MWKEY_FROM_HAVI_CODE(427)
+#define MWKEY_CHANNEL_DOWN          MWKEY_FROM_HAVI_CODE(428)
+#define MWKEY_STORE_FAVORITE_0      MWKEY_FROM_HAVI_CODE(429)
+#define MWKEY_STORE_FAVORITE_1      MWKEY_FROM_HAVI_CODE(430)
+#define MWKEY_STORE_FAVORITE_2      MWKEY_FROM_HAVI_CODE(431)
+#define MWKEY_STORE_FAVORITE_3      MWKEY_FROM_HAVI_CODE(432)
+#define MWKEY_RECALL_FAVORITE_0     MWKEY_FROM_HAVI_CODE(433)
+#define MWKEY_RECALL_FAVORITE_1     MWKEY_FROM_HAVI_CODE(434)
+#define MWKEY_RECALL_FAVORITE_2     MWKEY_FROM_HAVI_CODE(435)
+#define MWKEY_RECALL_FAVORITE_3     MWKEY_FROM_HAVI_CODE(436)
+#define MWKEY_CLEAR_FAVORITE_0      MWKEY_FROM_HAVI_CODE(437)
+#define MWKEY_CLEAR_FAVORITE_1      MWKEY_FROM_HAVI_CODE(438)
+#define MWKEY_CLEAR_FAVORITE_2      MWKEY_FROM_HAVI_CODE(439)
+#define MWKEY_CLEAR_FAVORITE_3      MWKEY_FROM_HAVI_CODE(440)
+#define MWKEY_SCAN_CHANNELS_TOGGLE  MWKEY_FROM_HAVI_CODE(441)
+#define MWKEY_PINP_TOGGLE           MWKEY_FROM_HAVI_CODE(442)
+#define MWKEY_SPLIT_SCREEN_TOGGLE   MWKEY_FROM_HAVI_CODE(443)
+#define MWKEY_DISPLAY_SWAP          MWKEY_FROM_HAVI_CODE(444)
+#define MWKEY_SCREEN_MODE_NEXT      MWKEY_FROM_HAVI_CODE(445)
+#define MWKEY_VIDEO_MODE_NEXT       MWKEY_FROM_HAVI_CODE(446)
+#define MWKEY_VOLUME_UP             MWKEY_FROM_HAVI_CODE(447)
+#define MWKEY_VOLUME_DOWN           MWKEY_FROM_HAVI_CODE(448)
+#define MWKEY_MUTE                  MWKEY_FROM_HAVI_CODE(449)
+#define MWKEY_SURROUND_MODE_NEXT    MWKEY_FROM_HAVI_CODE(450)
+#define MWKEY_BALANCE_RIGHT         MWKEY_FROM_HAVI_CODE(451)
+#define MWKEY_BALANCE_LEFT          MWKEY_FROM_HAVI_CODE(452)
+#define MWKEY_FADER_FRONT           MWKEY_FROM_HAVI_CODE(453)
+#define MWKEY_FADER_REAR            MWKEY_FROM_HAVI_CODE(454)
+#define MWKEY_BASS_BOOST_UP         MWKEY_FROM_HAVI_CODE(455)
+#define MWKEY_BASS_BOOST_DOWN       MWKEY_FROM_HAVI_CODE(456)
+#define MWKEY_INFO                  MWKEY_FROM_HAVI_CODE(457)
+#define MWKEY_GUIDE                 MWKEY_FROM_HAVI_CODE(458)
+#define MWKEY_TELETEXT              MWKEY_FROM_HAVI_CODE(459)
+#define MWKEY_SUBTITLE              MWKEY_FROM_HAVI_CODE(460)
+
+#define MWKEY_LAST                  MWKEY_SUBTITLE
 
 /* Keyboard state modifiers*/
 #define MWKMOD_NONE  		0x0000

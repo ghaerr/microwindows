@@ -208,9 +208,7 @@ static void freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 static void freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize);
 static void freetype2_setfontrotation(PMWFONT pfont, int tenthdegrees);
 static void freetype2_setfontattr(PMWFONT pfont, int setflags, int clrflags);
-#if 0 /* FIXME Nano-X doesn't have an API for this feature */
 static PMWFONT freetype2_duplicate(PMWFONT psrcfont, MWCOORD fontsize);
-#endif
 
 
 /**
@@ -226,6 +224,7 @@ static MWFONTPROCS freetype2_procs = {
 	freetype2_setfontsize,
 	freetype2_setfontrotation,
 	freetype2_setfontattr,
+	freetype2_duplicate,
 };
 
 
@@ -524,7 +523,6 @@ freetype2_createfont(const char *name, MWCOORD height, int attr)
 	return pf;
 }
 
-#if 0 /* FIXME Nano-X doesn't have an API for this feature */
 /**
  * Create a font from a memory buffer.
  *
@@ -579,7 +577,6 @@ freetype2_createfontfrombuffer(const unsigned char *buffer,
 
 	return pf;
 }
-#endif
 
 /**
  * Finish loading a font.  This is used for both disk-based and
@@ -720,7 +717,6 @@ freetype2_destroyfont(PMWFONT pfont)
 }
 
 
-#if 0 /* FIXME Nano-X doesn't have an API for this feature */
 /**
  * Duplicates a font.  Makes a new font that has the same face, attributes
  * and rotation as the source font.  The height can be copied or a new
@@ -786,7 +782,6 @@ freetype2_duplicate(PMWFONT psrcfont, MWCOORD height)
 
 	return (PMWFONT) pnewf;
 }
-#endif
 
 static void
 freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize)

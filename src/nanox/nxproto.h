@@ -1346,4 +1346,24 @@ typedef struct {
 	UINT32	trans_s;
 } nxSetTransformReq;
   
-#define GrTotalNumCalls         123
+#define GrNumCreateFontFromBuffer	123
+typedef struct {
+	BYTE8 reqType;
+	BYTE8 hilength;
+	UINT16 length;
+	UINT32	buffer_id;
+	BYTE8 format[16];
+	UINT16 height;
+	UINT16 padding;
+} nxCreateFontFromBufferReq;
+
+#define GrNumCopyFont		124
+typedef struct {
+	BYTE8 reqType;
+	BYTE8 hilength;
+	UINT16 length;
+	IDTYPE fontid;
+	UINT16 height;
+} nxCopyFontReq;
+
+#define GrTotalNumCalls         125

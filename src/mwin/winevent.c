@@ -219,9 +219,217 @@ void
 MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	BOOL pressed)
 {
-	/* FIXME no modifiers, must translate key values*/
+	WPARAM VK_Code = keyvalue;	/* default no translation*/
+
+	/* Keysyms from 32-126 are mapped to ASCII*/
+	if (keyvalue < 32 || keyvalue > 126)
+	  switch(keyvalue) {
+
+	/* Following special control keysyms are 
+	 * already mapped to ASCII
+	 */
+	case MWKEY_BACKSPACE:
+	case MWKEY_TAB:
+	case MWKEY_ENTER:
+	case MWKEY_ESCAPE:
+		break;
+
+	/* Following keysyms are mapped to private use portion of Unicode-16*/
+	/* arrows + home/end pad*/
+	case MWKEY_LEFT:
+		VK_Code = VK_LEFT;
+		break;
+	case MWKEY_RIGHT:
+		VK_Code = VK_RIGHT;
+		break;
+	case MWKEY_UP:
+		VK_Code = VK_UP;
+		break;
+	case MWKEY_DOWN:
+		VK_Code =  VK_DOWN;
+		break;
+	case MWKEY_INSERT:
+		VK_Code = VK_INSERT;
+		break;
+	case MWKEY_DELETE:
+		VK_Code = VK_DELETE;
+		break;
+	case MWKEY_HOME:
+		VK_Code = VK_HOME;
+		break;
+	case MWKEY_END:
+		VK_Code = VK_END;
+		break;
+	case MWKEY_PAGEUP:
+		VK_Code = VK_PRIOR;
+		break;
+	case MWKEY_PAGEDOWN:
+		VK_Code = VK_NEXT;
+		break;
+
+	/* Numeric keypad*/
+	case MWKEY_KP0:
+		VK_Code = VK_NUMPAD0;
+		break;
+	case MWKEY_KP1:
+		VK_Code = VK_NUMPAD1;
+		break;
+	case MWKEY_KP2:
+		VK_Code = VK_NUMPAD2;
+		break;
+	case MWKEY_KP3:
+		VK_Code = VK_NUMPAD3;
+		break;
+	case MWKEY_KP4:
+		VK_Code = VK_NUMPAD4;
+		break;
+	case MWKEY_KP5:
+		VK_Code = VK_NUMPAD5;
+		break;
+	case MWKEY_KP6:
+		VK_Code = VK_NUMPAD6;
+		break;
+	case MWKEY_KP7:
+		VK_Code = VK_NUMPAD7;
+		break;
+	case MWKEY_KP8:
+		VK_Code = VK_NUMPAD8;
+		break;
+	case MWKEY_KP9:
+		VK_Code = VK_NUMPAD9;
+		break;
+	case MWKEY_KP_PERIOD:
+		VK_Code = VK_DECIMAL;
+		break;
+	case MWKEY_KP_DIVIDE:
+		VK_Code = VK_DIVIDE;
+		break;
+	case MWKEY_KP_MULTIPLY:
+		VK_Code = VK_MULTIPLY;
+		break;
+	case MWKEY_KP_MINUS:
+		VK_Code = VK_SUBTRACT;
+		break;
+	case MWKEY_KP_PLUS:
+		VK_Code = VK_ADD;
+		break;
+	case MWKEY_KP_ENTER:
+		VK_Code = VK_RETURN;
+		break;
+	
+	/* Function keys */
+	case MWKEY_F1:
+		VK_Code = VK_F1;
+		break;
+	case MWKEY_F2:
+		VK_Code = VK_F2;
+		break;
+	case MWKEY_F3:
+		VK_Code = VK_F3;
+		break;
+	case MWKEY_F4:
+		VK_Code = VK_F4;
+		break;
+	case MWKEY_F5:
+		VK_Code = VK_F5;
+		break;
+	case MWKEY_F6:
+		VK_Code = VK_F6;
+		break;
+	case MWKEY_F7:
+		VK_Code = VK_F7;
+		break;
+	case MWKEY_F8:
+		VK_Code = VK_F8;
+		break;
+	case MWKEY_F9:
+		VK_Code = VK_F9;
+		break;
+	case MWKEY_F10:
+		VK_Code = VK_F10;
+		break;
+	case MWKEY_F11:
+		VK_Code = VK_F11;
+		break;
+	case MWKEY_F12:
+		VK_Code = VK_F12;
+		break;
+
+	/* Key state modifier keys*/
+	case MWKEY_NUMLOCK:
+		VK_Code = VK_NUMLOCK;
+		break;
+	case MWKEY_CAPSLOCK:
+		VK_Code = VK_CAPITAL;
+		break;
+	case MWKEY_SCROLLOCK:
+		VK_Code = VK_CAPITAL;
+		break;
+	case MWKEY_LSHIFT:
+		VK_Code = VK_LSHIFT;
+		break;
+	case MWKEY_RSHIFT:
+		VK_Code = VK_RSHIFT;
+		break;
+	case MWKEY_LCTRL:
+		VK_Code = VK_LCONTROL;
+		break;
+	case MWKEY_RCTRL:
+		VK_Code = VK_RCONTROL;
+		break;
+	case MWKEY_LALT:
+		VK_Code = VK_MENU;
+		break;
+	case MWKEY_RALT:
+		VK_Code = VK_MENU;
+		break;
+
+	/* Misc function keys*/
+	case MWKEY_PRINT:
+		VK_Code = VK_PRINT;
+		break;
+	case MWKEY_PAUSE:
+		VK_Code = VK_PAUSE;
+		break;
+	case MWKEY_MENU:
+		VK_Code = VK_LMENU;	/* virtual key*/
+		break;
+
+	/* questionable mappings or no mappings...*/
+	case MWKEY_KP_EQUALS:
+		VK_Code = '=';	/* FIXME*/
+		break;
+
+	/* map all non-handled MWKEY values to VK_NONAME*/
+#if 0
+	case MWKEY_UNKNOWN:
+	case MWKEY_SYSREQ:
+	case MWKEY_BREAK
+	case MWKEY_QUIT:
+	case MWKEY_REDRAW:
+	case MWKEY_LMETA:
+	case MWKEY_RMETA:
+	case MWKEY_ALTGR:
+	/* Handheld function keys*/
+	case MWKEY_RECORD:
+	case MWKEY_PLAY:
+	case MWKEY_CONTRAST:
+	case MWKEY_BRIGHTNESS:
+	case MWKEY_SELECTUP:
+	case MWKEY_SELECTDOWN:
+	case MWKEY_ACCEPT:
+	case MWKEY_CANCEL:
+	case MWKEY_APP1:
+	case MWKEY_APP2:
+	case MWKEY_LAST:
+#endif
+	default:
+		VK_Code = VK_NONAME;
+		break;
+	}
+
 	if (pressed)
-		SendMessage(focuswp, WM_CHAR, (WPARAM)keyvalue, 0L);
+		SendMessage(focuswp, WM_CHAR, VK_Code, 0L);
 }
 
 /*

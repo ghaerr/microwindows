@@ -6,7 +6,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-void
+static void
 draw(GR_EVENT * e)
 {
 	GR_WINDOW_ID wid = ((GR_EVENT_EXPOSURE *)e)->wid;

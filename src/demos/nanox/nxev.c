@@ -78,7 +78,7 @@ static struct XLAT table[] = {
 
 #define	table_SZ	(sizeof(table) / sizeof(table[0]))
 
-char* 
+static char* 
 lookupEvent(int type)
 {
 	int i;

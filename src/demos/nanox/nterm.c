@@ -36,19 +36,17 @@ static GR_COORD		ypos;	/* y coord for text */
 static GR_SCREEN_INFO	si;	/* screen info */
 static int 		tfd;
 
-void do_buttondown();
-void do_buttonup();
-void do_motion();
-void text_init();
-int term_init();
-void do_keystroke();
-void do_focusin();
-void do_focusout();
-void do_enter();
-void do_exit();
-void do_fdinput();
-void printg();
+void text_init(void);
+int term_init(void);
+void do_keystroke(GR_EVENT_KEYSTROKE *kp);
+void do_focusin(GR_EVENT_GENERAL *gp);
+void do_focusout(GR_EVENT_GENERAL *gp);
+void do_fdinput(void);
+void printg(char * text);
 void HandleEvent(GR_EVENT *ep);
+void char_del(GR_COORD x, GR_COORD y);
+void char_out(GR_CHAR ch);
+void sigchild(int signo);
 
 int main(int argc, char ** argv)
 {
@@ -170,7 +168,7 @@ void sigchild(int signo)
 	exit(0);
 }
 
-int term_init()
+int term_init(void)
 {
 	char pty_name[12];
 	int n = 0;
@@ -218,7 +216,7 @@ GR_SIZE		width;		/* width of character */
 GR_SIZE		height;		/* height of character */
 GR_SIZE		base;		/* height of baseline */
 
-void text_init()
+void text_init(void)
 {
 	GrGetGCTextSize(gc1, "A", 1, GR_TFASCII, &width, &height, &base);
 }

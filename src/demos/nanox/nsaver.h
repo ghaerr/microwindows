@@ -197,6 +197,8 @@ void saver6_setvertices(s6state *s, int bolt, int fork, int vert, GR_COORD x,
 								GR_COORD y);
 void saver6_makefork(nstate *state, s6state *s, int bolt, int fork, GR_COORD x,
 								GR_COORD y);
+int saver6_makeforks(nstate *state, s6state *s, int bolt, int fork,
+						int *vert, int *nextfork);
 void saver6_perturb(nstate *state, GR_COORD *x, GR_COORD *y, int maxperturb);
 void saver6_makebolt(nstate *state, s6state *s, int bolt);
 void saver6_newbolt(nstate *state, s6state *s);
@@ -244,6 +246,11 @@ typedef struct {
 void saver7_init(nstate *state);
 void saver7_exposure(nstate *state);
 void saver7_animate(nstate *state);
+
+void saver7_drawstar(nstate *state, s7state *s);
+void saver7_drawplanet(nstate *state, s7state *s, int planet, int erase);
+void saver7_calc_planet_position(nstate *state, s7state *s, int planet);
+void saver7_moveplanet(nstate *state, s7state *s, int planet);
 
 /* The algorithm used in saver8 is based on that found at:
    http://www.go2net.com/internet/deep/1997/04/16/body.html */
@@ -347,6 +354,7 @@ typedef struct {
 void saver13_init(nstate *state);
 void saver13_exposure(nstate *state);
 void saver13_animate(nstate *state);
+void saver13_move_portal(nstate *state);
 
 typedef void(*saver_function)(nstate *);
 

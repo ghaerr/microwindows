@@ -21,7 +21,7 @@ GR_GC_ID gc;		/* Graphics context */
 int width, height;	/* Size of image */
 unsigned char *data;	/* Local copy of image data */
 
-void do_exposure(GR_EVENT_EXPOSURE *event)
+static void do_exposure(GR_EVENT_EXPOSURE *event)
 {
 	/* The window has been exposed so redraw it */
 #ifdef USE_PIXMAPS
@@ -31,7 +31,7 @@ void do_exposure(GR_EVENT_EXPOSURE *event)
 #endif
 }
 
-void errorhandler(GR_EVENT *ep)
+static void errorhandler(GR_EVENT *ep)
 {
 	printf("Error (%s) code %d id %d", ep->error.name, 
 		ep->error.code, ep->error.id);

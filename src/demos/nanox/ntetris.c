@@ -497,7 +497,7 @@ void rotate_block(nstate *state, int direction)
 	}
 }
 
-int drop_block_1(nstate *state)
+static int drop_block_1(nstate *state)
 {
 	if(will_collide(state, state->current_shape.x,
 				(state->current_shape.y + 1),

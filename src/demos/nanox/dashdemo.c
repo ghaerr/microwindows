@@ -6,7 +6,7 @@
 int COLS, ROWS;
 GR_WINDOW_ID g_main;
 
-void
+static void
 draw_screen(void)
 {
 	GR_POINT tri[4] = { {5, 115}, {105, 115}, {55, 200}, {5, 115} };

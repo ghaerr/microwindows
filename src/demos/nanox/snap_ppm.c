@@ -49,12 +49,12 @@ struct snap_state {
 };
 typedef struct snap_state snapstate;
 
-void oom(void)
+static void oom(void)
 {
 	fprintf(stderr, "Out of memory\n");
 }
 
-snapstate *init(int argc, char *argv[])
+static snapstate *init(int argc, char *argv[])
 {
 	snapstate *state;
 
@@ -87,7 +87,7 @@ snapstate *init(int argc, char *argv[])
 	return(state);
 }
 
-int writeout(snapstate *state)
+static int writeout(snapstate *state)
 {
 	FILE *fp;
 	int x, y;
@@ -171,7 +171,7 @@ badwrite:
 	return 1;
 }
 
-void cleanup(snapstate *state)
+static void cleanup(snapstate *state)
 {
 	if(state) {
 		if(state->pixels) free(state->pixels);

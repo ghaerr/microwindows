@@ -10,7 +10,7 @@ GR_FONT_ID font = 0;
 GR_WINDOW_ID main_wid;
 GR_FONT_INFO finfo;
 
-void
+static void
 draw_string(void)
 {
 	int count = 0;

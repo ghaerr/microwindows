@@ -92,7 +92,31 @@ static struct winsize winsz;
 #define fonh fi.height
 #define fonw fi.maxwidth
 
-int term_init();
+int term_init(void);
+void maximize(void);
+void sigpipe(int sig);
+void sigchld(int sig);
+void sigquit(int sig);
+void sflush(void);
+void lineRedraw(void);
+void sadd (char c);
+void show_cursor (void);
+void draw_cursor (void);
+void hide_cursor (void);
+void vscroll(int lines);
+void esc5(unsigned char c);
+void esc4(unsigned char c);
+void esc3(unsigned char c);
+void esc2(unsigned char c);
+void esc1(unsigned char c);
+void esc0(unsigned char c);
+void printc(unsigned char c);
+void init(void);
+void term(void);
+void usage(char *s);
+void *mysignal(int signum, void *handler);
+void sigchild(int signo);
+
 
 /****************************************************************************/
 
@@ -656,7 +680,7 @@ void printc(unsigned char c)
 }
 
 
-void init()
+void init(void)
 {
     curx = savx = 0;
     cury = savy = 0;
@@ -1079,7 +1103,7 @@ void sigchild(int signo)
 	exit(0);
 }
 
-int term_init()
+int term_init(void)
 {
 	int tfd;
 	int n = 0;

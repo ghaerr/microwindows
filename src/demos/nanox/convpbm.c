@@ -12,6 +12,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+char *strdup_toupper(char *in);
+void out_word(unsigned short word);
+
 char *strdup_toupper(char *in)
 {
 	char *p, *out;

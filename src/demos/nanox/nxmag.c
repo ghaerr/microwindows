@@ -73,13 +73,13 @@ typedef struct {
 	GR_PIXELVAL *outbuf;
 } nmstate;
 
-void read_input(nmstate *state)
+static void read_input(nmstate *state)
 {
 	GrReadArea(GR_ROOT_WINDOW_ID, state->x, state->y, state->width,
 			state->height, state->inbuf);
 }
 
-void magnify(nmstate *state)
+static void magnify(nmstate *state)
 {
 	int x, y, i;
 	GR_PIXELVAL pix, *p, *pp = state->outbuf;
@@ -94,13 +94,13 @@ void magnify(nmstate *state)
 	}
 }
 
-void draw_output(nmstate *state)
+static void draw_output(nmstate *state)
 {
 	GrArea(state->wid, state->gc, 0, 0, state->pwidth, state->pheight,
 			state->outbuf, MWPF_PIXELVAL);
 }
 
-void do_update(nmstate *state)
+static void do_update(nmstate *state)
 {
 	if(state->x == state->lx && state->y == state->ly &&
 			state->forceupdate && --state->fu)
@@ -115,13 +115,13 @@ void do_update(nmstate *state)
 	state->fu = state->forceupdate;
 }
 
-void mouse_moved(nmstate *state, GR_EVENT_MOUSE *ev)
+static void mouse_moved(nmstate *state, GR_EVENT_MOUSE *ev)
 {
 	state->x = ev->rootx - state->width / 2;
 	state->y = ev->rooty - state->height / 2;
 }
 
-nmstate *init(int argc, char **argv)
+static nmstate *init(int argc, char **argv)
 {
 	int i;
 	char *p;

@@ -20,7 +20,7 @@ GR_GC_ID	gc;
 GR_FONT_ID	font;
 GR_BOOL		aa = GR_TRUE;
 
-void
+static void
 do_paint(GR_EVENT_EXPOSURE *ep)
 {
 	int	i, y = 0;

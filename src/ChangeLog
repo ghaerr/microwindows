@@ -1,3 +1,4 @@
+	* clean up demo program declarations to eliminate warnings (Jonathan)
 	* added LIRC keyboard support, MWKEY_HAVI keys (LIRCKBD=Y) (Jonathan)
 	* added Gr/GdCreateFontFromBuffer, Gr/GdCopyFont API (Jonathan)
 	* add comments to font code (Jonathan)

@@ -8,7 +8,7 @@
 static int bytes_received = 0;
 static char *data = NULL;
 
-int got_client_data(GR_EVENT *event)
+static int got_client_data(GR_EVENT *event)
 {
 	GR_EVENT_CLIENT_DATA *ev = &event->clientdata;
 

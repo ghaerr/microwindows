@@ -15,6 +15,15 @@
 #define WINDOW_HEIGHT 305
 #define NUMGCS 5
 
+
+void redraw(GR_WINDOW_ID wid, GR_GC_ID *gc);
+GR_GC_ID setup_single_rect_region(void);
+GR_GC_ID setup_multi_rect_region(void);
+GR_GC_ID setup_simple_poly_region(void);
+GR_GC_ID setup_bitmap_region(void);
+GR_GC_ID setup_complex_poly_region(void);
+
+
 void redraw(GR_WINDOW_ID wid, GR_GC_ID *gc)
 {
 	int i, y;

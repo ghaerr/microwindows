@@ -40,7 +40,7 @@ static COLOURS colour_table[] = {
 };
 #define NR_COLOURS	(sizeof(colour_table) / sizeof(colour_table[0]))
 
-char*
+static char*
 lookupColour(unsigned long c)
 {
 	int i;

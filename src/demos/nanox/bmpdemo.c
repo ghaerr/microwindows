@@ -21,6 +21,8 @@
 #define TUX_WIDTH 32
 #define TUX_HEIGHT 32
 	
+void redraw(GR_WINDOW_ID wid, GR_GC_ID gc);
+
 static GR_BITMAP tux_bits[] = {
 BMAP(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),BMAP(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
 BMAP(0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1),BMAP(1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0),

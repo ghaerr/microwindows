@@ -39,7 +39,7 @@ int n;
 void Render(GR_WINDOW_ID window);
 
 int
-main()
+main(void)
 {
   FILE *file;
   GR_EVENT event;

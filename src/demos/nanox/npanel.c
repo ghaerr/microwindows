@@ -46,11 +46,11 @@ static	int		fwidth, fheight;
 static	int		fbase;
 static	int		num_apps = 0;
 
-void do_exposure();
-void do_buttondown();
-void do_buttonup();
-void do_update();
-void do_mouse();
+static void do_exposure(GR_EVENT_EXPOSURE *ep);
+static void do_buttondown(GR_EVENT_BUTTON *ep);
+static void do_buttonup(GR_EVENT_BUTTON *ep);
+static void do_update(GR_EVENT_UPDATE *ep);
+static void do_mouse(GR_EVENT_MOUSE *ep);
 
 struct app_info {
 	char		app_id[10];
@@ -96,7 +96,7 @@ GR_COORD	move_yoff;
 /*
  * Reap the dead children whenever we get a SIGCHLD.
  */
-void reaper(int signum) { while(waitpid(WAIT_ANY, NULL, WNOHANG) > 0); }
+static void reaper(int signum) { while(waitpid(WAIT_ANY, NULL, WNOHANG) > 0); }
 
 int
 main(int argc,char **argv)
@@ -192,7 +192,7 @@ main(int argc,char **argv)
 	}
 }
 
-mwin * IsDecoration(GR_WINDOW_ID wid)
+static mwin * IsDecoration(GR_WINDOW_ID wid)
 {
 	mwin * mwp;
 	for(mwp = mwins; mwp; mwp = mwp->next) {
@@ -203,7 +203,7 @@ mwin * IsDecoration(GR_WINDOW_ID wid)
 	return NULL;
 }
 	
-mwin * FindWindow(GR_WINDOW_ID wid)
+static mwin * FindWindow(GR_WINDOW_ID wid)
 {
 	mwin * mwp;
 	for(mwp = mwins; mwp; mwp = mwp->next) {
@@ -214,7 +214,7 @@ mwin * FindWindow(GR_WINDOW_ID wid)
 	return NULL;
 }
 
-mwin * NewWindow(GR_WINDOW_ID wid)
+static mwin * NewWindow(GR_WINDOW_ID wid)
 {
 	mwin * mwp = malloc(sizeof(mwin));
 
@@ -226,7 +226,7 @@ mwin * NewWindow(GR_WINDOW_ID wid)
 	return mwp;
 }
 
-void
+static void
 do_update(GR_EVENT_UPDATE *ep)
 {
 	mwin *	mwp;
@@ -288,7 +288,7 @@ do_update(GR_EVENT_UPDATE *ep)
 /*
  * Handle mouse position events
  */
-void
+static void
 do_mouse(GR_EVENT_MOUSE *ep)
 {
 #ifdef SHOW_WINDOW_MOTION
@@ -308,7 +308,7 @@ do_mouse(GR_EVENT_MOUSE *ep)
 /*
  * Here when an exposure event occurs.
  */
-void
+static void
 do_exposure(GR_EVENT_EXPOSURE *ep)
 {
 	struct app_info	* act;
@@ -327,7 +327,7 @@ do_exposure(GR_EVENT_EXPOSURE *ep)
 
 extern char ** environ;
 
-void
+static void
 do_buttondown(GR_EVENT_BUTTON *ep)
 {
 	mwin *	mwp;
@@ -357,7 +357,7 @@ do_buttondown(GR_EVENT_BUTTON *ep)
  	}
 }
  
-void
+static void
 do_buttonup(GR_EVENT_BUTTON *ep)
 {
 #ifdef SHOW_WINDOW_MOTION

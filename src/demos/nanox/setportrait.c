@@ -9,7 +9,7 @@
 
 #include <nano-X.h>
 
-void usage(void)
+static void usage(void)
 {
 	fprintf(stderr, "Usage: setportrait <none|left|right|down>\n");
 	exit(-1);

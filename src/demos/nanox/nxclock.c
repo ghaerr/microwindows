@@ -42,10 +42,14 @@ static unsigned char trig[91] =
 	244, 246, 247, 248, 249, 250, 251, 252, 252, 253, 254, 254, 255, 255,
 	255, 255, 255, 255}; 
 
-void do_exposure();
-void do_clock();
-void do_idle();
-void errorcatcher();			/* routine to handle errors */
+void do_exposure(GR_EVENT_EXPOSURE *ep);
+void do_clock(void);
+#if 0
+void do_idle(void);
+#endif
+int bsin(int angle);
+int bcos(int angle);
+void draw_time(int hour, int minutes, int sec, GR_GC_ID gc);
 
 int
 main(int ac, char **av)

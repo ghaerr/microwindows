@@ -191,13 +191,6 @@ MWINLIBS = $(TOP)/lib/libmwin.a $(TOP)/lib/libmwinlib.a\
 	$(TOP)/lib/libmwfonts.a $(TOP)/lib/libmwimages.a
 CCMWINLIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwin -lmwimages -lm
 
-ifeq ($(NWIDGET), Y)
-NANOXCLIENTLIBS += $(TOP)/lib/libnwidget.a
-#ifeq ($(LINK_APP_INTO_SERVER), Y)
-#NANOXSERVERLIBS += $(TOP)/lib/libnwidget.a
-#endif
-endif
-
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 NANOXCLIENTLIBS += $(TOP)/lib/libnano-X.a $(TOP)/lib/libmwengine.a\
 	$(TOP)/lib/libmwdrivers.a $(TOP)/lib/libmwfonts.a

@@ -197,7 +197,7 @@ typedef unsigned long	MWTEXTFLAGS;	/* MWTF_ text flag*/
 
 /* MWIMAGEBITS macros*/
 #define MWIMAGE_WORDS(x)	(((x)+15)/16)
-#define MWIMAGE_BYTES(x)	(((x)+7)/8)
+#define MWIMAGE_BYTES(x)	(MWIMAGE_WORDS(x)*sizeof(MWIMAGEBITS))
 /* size of image in words*/
 #define	MWIMAGE_SIZE(width, height)  	\
 	((height) * (((width) + MWIMAGE_BITSPERIMAGE - 1) / MWIMAGE_BITSPERIMAGE))

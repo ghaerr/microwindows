@@ -636,9 +636,8 @@ GsInitialize(void)
 	}
 #endif
 
-	if ((keyb_fd = GdOpenKeyboard()) < 0) {
-		if (keyb_fd == -1)
-			EPRINTF("Cannot initialise keyboard\n");
+	if ((keyb_fd = GdOpenKeyboard()) == -1) {
+		EPRINTF("Cannot initialise keyboard\n");
 		/*GsCloseSocket();*/
 		free(wp);
 		return -1;

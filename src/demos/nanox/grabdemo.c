@@ -185,11 +185,13 @@ main(int argc,char **argv)
 			break;
 		case GR_EVENT_TYPE_KEY_DOWN:
 			if (event.keystroke.hotkey)
-				sprintf(message4, "%03d Hotkey %d ('%c') pressed\n",
-					getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
+				sprintf(message4, "%03d Hotkey %d ('%c') scan %d pressed\n",
+					getSerialNumber(), event.keystroke.ch,
+					keyToChar(event.keystroke.ch), event.keystroke.scancode);
 			else
-				sprintf(message2, "%03d Key %d ('%c') pressed\n",
-					getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
+				sprintf(message2, "%03d Key %d ('%c') scan %d pressed\n",
+					getSerialNumber(), event.keystroke.ch,
+					keyToChar(event.keystroke.ch), event.keystroke.scancode);
 			repaintAll();
 			break;
 		case GR_EVENT_TYPE_KEY_UP:

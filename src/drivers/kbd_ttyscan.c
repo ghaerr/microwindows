@@ -238,7 +238,8 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 				/*printf("Modifier only\n");*/
 				/*mwkey = 0;*/
 			}
-			
+
+#if 0000 /* insert for X11<->microwindows scancode compatibility (mozilla port)*/
 			/* XXX Hack to get scancodes to come out the same as 
 			   everything else */
 			switch(scancode) {
@@ -302,6 +303,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 				default: 
 					break;
 			}
+#endif
 			break;
 		}	
 		*kbuf = mwkey;

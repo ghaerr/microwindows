@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
@@ -46,9 +46,11 @@
 #if ELKS
 #define	MOUSE_PORT	"/dev/ttys0"	/* default mouse tty port */
 #else
-#define	MOUSE_PORT	"/dev/ttyS1"	/* default mouse tty port */
+/*#define MOUSE_PORT	"/dev/ttyS1"	/* default mouse tty port */*/
+#define MOUSE_PORT	"/dev/psaux"	/* default mouse tty port*/
 #endif
-#define	MOUSE_TYPE	"pc"		/* default mouse type "ms","pc","ps2" */
+/*#define MOUSE_TYPE	"pc"		/* default mouse type "ms","pc","ps2" */
+#define MOUSE_TYPE	"ps2"		/* default mouse type "ms","pc","ps2" */
 #endif
 #define MAX_BYTES	128		/* number of bytes for buffer */
 
@@ -236,10 +238,9 @@ err:
 static void
 MOU_Close(void)
 {
-	if (mouse_fd > 0) {
+	if (mouse_fd > 0)
 		close(mouse_fd);
-	}
-	mouse_fd = 0;
+	mouse_fd = -1;
 }
 
 /*

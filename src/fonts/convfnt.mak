@@ -1,13 +1,38 @@
-#
-# TEST2 makefile for Windows (SCROLLCREDITS)
-#
-MODEL=M
-CFLAGS=-DSTRICT -W3
-LFLAGS32=/map:convfnt.map
-OBJS=convfnt.obj
-WINPROG=convfnt
-xLIBS32=fwiniow.lib futilw.lib jpeg\fjpgw.lib
+!include <ntwin32.mak>
 
-all: $(WINPROG).exe
+FILENAME        = Makefile
 
-include <stddefs.mak>
+CX		= $(cc)
+
+#LD		= $(link) /debug:full
+LD		= $(link)
+
+MAKE		= nmake
+
+#CXFLAGS		= $(cflags) $(cvars) -Zi -Od -W3
+CXFLAGS		= $(cflags) $(cvars) -W3
+
+LDFLAGS		= $(guiflags)
+
+LIBS		= 
+
+STDLIBS		= $(guilibs)
+
+SRC1BASE	= convfnt
+
+OBJS		= $(SRC1BASE).obj
+
+PROGRAM		= $(SRC1BASE)32.exe
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -out:$@ $(OBJS) $(LIBS) $(STDLIBS)
+	@echo Done.
+
+$(OBJS): $$(@B).c
+	$(CX) $(CXFLAGS) $(@B).c
+
+clean::
+	@del $(OBJS)
+	@del $(PROGRAM)

@@ -152,7 +152,7 @@ main(int argc, char* argv[])
 		printf("\t%sinput-only, ", (info.inputonly == TRUE)?"": "not ");
 		printf("%smapped", (info.mapped == TRUE)?"": "not ");
 		if (info.mapped != TRUE)
-			printf(", unmapcount = %d", info.unmapcount);
+			printf(", realized = %d", info.realized);
 		printf("\n");
 
 		printf("\tEvent mask (0x%08lX):\n", info.eventmask);
@@ -181,9 +181,12 @@ main(int argc, char* argv[])
 			
 			printf("\t\tTitle: ");	
 			if ((wm_props.flags & GR_WM_FLAGS_TITLE ) == GR_WM_FLAGS_TITLE) 
-				printf("'%s'\n", (char*)wm_props.title?:"(null)");
+				printf("'%s'\n", (char*)wm_props.title ?
+						(char *)wm_props.title : "(null)");
 			else
 				printf("<untitled>\n");
+			if (wm_props.title)
+				free(wm_props.title);
 
 			printf("\t\tBackground colour: ");
 			if ((wm_props.flags & GR_WM_FLAGS_BACKGROUND) == GR_WM_FLAGS_BACKGROUND)

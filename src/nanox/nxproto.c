@@ -194,7 +194,7 @@ nxCalcStringBytes(void *str, int count, int flags)
 	int	nbytes;
 
 	/* calc byte length of data*/
-	if(flags & MWTF_UC16)
+	if(flags & (MWTF_UC16|MWTF_XCHAR2B))
 		nbytes = count * 2;
 	else if(flags & MWTF_UC32)
 		nbytes = count * 4;

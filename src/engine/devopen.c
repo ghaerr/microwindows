@@ -14,6 +14,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "device.h"
 #include "swap.h"
 
@@ -36,6 +37,16 @@
 /*static*/ MWPALENTRY	gr_palette[256];    /* current palette*/
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/
+
+unsigned long gr_dashmask;     /* An actual bitmask of the dash values */
+unsigned long gr_dashcount;    /* The number of bits defined in the dashmask */
+
+int        gr_fillmode;
+MWSTIPPLE  gr_stipple;
+MWTILE     gr_tile;
+
+MWPOINT    gr_ts_offset;
+
 static int	gr_pixtype;	    /* screen pixel format*/
 static long	gr_ncolors;	    /* screen # colors*/
 
@@ -125,10 +136,16 @@ GdOpenScreen(void)
 #if !NOFONTSORCLIPPING
 	/* init local vars*/
 	GdSetMode(MWMODE_COPY);
+	GdSetFillMode(MWFILL_SOLID);  /* Set the fill mode to solid */
+
 	GdSetForeground(GdFindColor(MWRGB(255, 255, 255)));	/* WHITE*/
 	GdSetBackground(GdFindColor(MWRGB(0, 0, 0)));		/* BLACK*/
 	GdSetUseBackground(TRUE);
 	GdSetFont(GdCreateFont(psd, MWFONT_SYSTEM_VAR, 0, NULL));
+
+	GdSetDash(0, 0);  /* No dashing to start */
+	GdSetStippleBitmap(0,0,0);  /* No stipple to start */
+
 #if DYNAMICREGIONS
 	GdSetClipRegion(psd, 
 		GdAllocRectRegion(0, 0, psd->xvirtres, psd->yvirtres));

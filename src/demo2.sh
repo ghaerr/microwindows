@@ -1,1 +1,1 @@
-bin/nano-X -p & bin/demo2; sleep 10000
+bin/nano-X & bin/nanowm & bin/nxview bin/mwlogo.ppm & bin/nxclock & bin/nxmag & sleep 10000

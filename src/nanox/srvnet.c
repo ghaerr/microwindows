@@ -683,6 +683,56 @@ GrSetGCModeWrapper(void *r)
 }
 
 static void
+GrSetGCLineAttributesWrapper(void *r) {
+  nxSetGCLineAttributesReq *req = r;
+  GrSetGCLineAttributes(req->gcid, req->line_style);
+}
+
+static void
+GrSetGCDashWrapper(void *r) {
+  
+  nxSetGCDashReq *req = r;
+  char *buffer = ALLOCA(req->count);
+
+  memcpy((void *) buffer, GetReqData(req), req->count);
+  GrSetGCDash(req->gcid, buffer, req->count);
+}
+
+
+static void
+GrSetGCFillModeWrapper(void *r) {
+  nxSetGCFillModeReq *req = r;
+  GrSetGCFillMode(req->gcid, req->fill_mode);
+}
+
+static void
+GrSetGCStippleWrapper(void *r) {
+
+  nxSetGCStippleReq *req = r;
+
+  GR_BITMAP *buffer = ALLOCA(GR_BITMAP_SIZE(req->width, req->height) * sizeof(GR_BITMAP));
+
+  memcpy((void *) buffer, GetReqData(req),  
+	 GR_BITMAP_SIZE(req->width, req->height) * sizeof(GR_BITMAP));
+    
+  GrSetGCStipple(req->gcid, (GR_BITMAP *) buffer, req->width, req->height);
+}
+
+static void
+GrSetGCTileWrapper(void *r) {
+
+  nxSetGCTileReq *req = r;
+
+  GrSetGCTile(req->gcid, req->pid, req->width, req->height);
+}
+
+static void
+GrSetGCTSOffsetWrapper(void *r) {
+  nxSetGCTSOffsetReq *req = r;
+  GrSetGCTSOffset(req->gcid, req->xoffset, req->yoffset);
+}
+
+static void
 GrCreateFontWrapper(void *r)
 {
 	nxCreateFontReq *req = r;
@@ -754,7 +804,7 @@ GrGetGCTextSizeWrapper(void *r)
 
 /* FIXME: fails with size > 64k if sizeof(int) == 2*/
 static void
-GsReadAreaWrapper(void *r)
+GrReadAreaWrapper(void *r)
 {
 	nxReadAreaReq *req = r;
 	int            size;
@@ -1261,6 +1311,23 @@ GrSetPortraitModeWrapper(void *r)
     GrSetPortraitMode(req->portraitmode);
 }
 
+static void
+GrQueryPointerWrapper(void *r)
+{
+  GR_WINDOW_ID	mwin;
+  int x, y;
+  unsigned int bmask;
+  
+  GrQueryPointer(&mwin, &x, &y, &bmask);
+
+  GsWriteType(current_fd, GrNumQueryPointer);
+
+  GsWrite(current_fd, &mwin, sizeof(mwin));
+  GsWrite(current_fd, &x, sizeof(x));
+  GsWrite(current_fd, &y, sizeof(y));
+  GsWrite(current_fd, &bmask, sizeof(bmask));
+}
+
 /*
  * This function makes the Nano-X server set up a shared memory segment
  * that the client can use when feeding the Nano-X server with requests.
@@ -1340,6 +1407,26 @@ GrGetFontListWrapper(void *r)
 	}
 }
 
+static void
+GrNewBitmapRegionWrapper(void *r)
+{
+	GR_REGION_ID region;
+	nxNewBitmapRegionReq *req = r;
+
+	region = GrNewBitmapRegion(GetReqData(req), req->width, req->height);
+
+	GsWriteType(current_fd, GrNumNewBitmapRegion);
+	GsWrite(current_fd, &region, sizeof(region));
+}
+
+static void
+GrSetWindowRegionWrapper(void *r)
+{
+	nxSetWindowRegionReq *req = r;
+
+	GrSetWindowRegion(req->wid, req->bounds_rid, req->client_rid);
+}
+
 void GrShmCmdsFlushWrapper(void *r);
 
 /*
@@ -1388,7 +1475,7 @@ struct GrFunction {
 	/*  36 */ {GrSetGCModeWrapper, "GrSetGCMode"},
 	/*  37 */ {GrSetGCFontWrapper, "GrSetGCFont"},
 	/*  38 */ {GrGetGCTextSizeWrapper, "GrGetGCTextSize"},
-	/*  39 */ {GsReadAreaWrapper, "GsReadArea"},
+	/*  39 */ {GrReadAreaWrapper, "GrReadArea"},
 	/*  40 */ {GrAreaWrapper, "GrArea"},
 	/*  41 */ {GrBitmapWrapper, "GrBitmap"},
 	/*  42 */ {GrTextWrapper, "GrText"},
@@ -1457,6 +1544,15 @@ struct GrFunction {
 	/* 105 */ {GrGetFontListWrapper, "GrGetFontList"},
 	/* 106 */ {GrSetGCClipOriginWrapper, "GrSetGCClipOrigin"},
 	/* 107 */ {GrSetGCGraphicsExposureWrapper, "GrSetGCGraphicsExposure"},
+	/* 108 */ {GrQueryPointerWrapper, "GrQueryPointer"},
+	/* 109 */ {GrSetGCLineAttributesWrapper, "GretGCLineAttributes"},
+	/* 110 */ {GrSetGCDashWrapper, "GrSetGCDash"},
+	/* 111 */ {GrSetGCFillModeWrapper, "GrSetGCFillMode"},
+	/* 112 */ {GrSetGCStippleWrapper, "GrSetGCStipple"},
+	/* 113 */ {GrSetGCTSOffsetWrapper, "GrSetGCTSOffset"},
+	/* 114 */ {GrSetGCTileWrapper, "GrSetGCTile" },
+	/* 115 */ {GrNewBitmapRegionWrapper, "GrNewBitmapRegion"},
+	/* 116 */ {GrSetWindowRegionWrapper, "GrSetWindowRegion"},
 };
 
 void
@@ -1595,7 +1691,7 @@ GsAcceptClient(void)
 #else
 	struct sockaddr_un sckt;
 #endif
-	size_t size = sizeof(sckt);
+	socklen_t size = sizeof(sckt);
 
 	if((i = accept(un_sock, (struct sockaddr *) &sckt, &size)) == -1) {
 		EPRINTF("nano-X: Error accept failed (%d)\n", errno);

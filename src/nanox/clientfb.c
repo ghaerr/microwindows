@@ -1,7 +1,7 @@
 /*
  * Microwindows direct client-side framebuffer mapping routines
  *
- * Copyright (c) 2001 by Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2001, 2002 by Greg Haerr <greg@censoft.com>
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +12,8 @@
 #include <asm/page.h>		/* For definition of PAGE_SIZE */
 #include <linux/fb.h>
 #include "nano-X.h"
+
+#define CG6_RAM    	0x70016000	/* for Sun systems*/
 
 /* globals: assumes use of non-shared libnano-X.a for now*/
 static int 		frame_fd;	/* client side framebuffer fd*/
@@ -78,7 +80,12 @@ GrOpenClientFramebuffer(void)
 		(((long)finfo.smem_start)&~(PAGE_SIZE-1)));
 	frame_len = finfo.smem_len + frame_offset;
 	frame_map = (unsigned char *)mmap(NULL, frame_len, PROT_READ|PROT_WRITE,
-		MAP_SHARED, frame_fd, 0);
+		MAP_SHARED, frame_fd,
+#ifdef ARCH_LINUX_SPARC
+		CG6_RAM);
+#else
+		0);
+#endif
 	if (frame_map == (unsigned char *)-1) {
 		printf("Unable to memory map the video hardware\n");
 		frame_map = NULL;
@@ -119,6 +126,7 @@ void
 GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 {
 	int			physoffset;
+	int			x, y;
 	GR_WINDOW_INFO		info;
 	static int		last_portrait = -1;
 
@@ -133,8 +141,6 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 	fbinfo->bpp = sinfo.bpp;
 	fbinfo->bytespp = (sinfo.bpp+7)/8;
 	fbinfo->pixtype = sinfo.pixtype;
-	fbinfo->x = info.x;
-	fbinfo->y = info.y;
 	fbinfo->portrait_mode = sinfo.portrait;
 
 	switch (fbinfo->portrait_mode) {
@@ -158,10 +164,21 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 	fbinfo->yvirtres = sinfo.rows;
 	fbinfo->pitch = fbinfo->xres * fbinfo->bytespp;
 
+	/* calc absolute window coords*/
+	x = info.x;
+	y = info.y;
+	while (info.parent != 0) {
+		GrGetWindowInfo(info.parent, &info);
+		x += info.x;
+		y += info.y;
+	}
+	fbinfo->x = x;
+	fbinfo->y = y;
+
 	/* fill in memory mapped addresses*/
 	fbinfo->physpixels = physpixels;
 
 	/* winpixels only valid for non-portrait modes*/
-	physoffset = info.y*fbinfo->pitch + info.x*fbinfo->bytespp;
+	physoffset = fbinfo->y*fbinfo->pitch + fbinfo->x*fbinfo->bytespp;
 	fbinfo->winpixels = physpixels? (physpixels + physoffset): NULL;
 }

@@ -256,6 +256,7 @@ HWVGA                    = N
 # MTMOUSE for Microtouch touchpanel controller at RS232 port
 ####################################################################
 GPMMOUSE                 = Y
+SUNMOUSE                 = N
 SERMOUSE                 = N
 TPMOUSE                  = N
 TPHELIO                  = N

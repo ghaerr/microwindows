@@ -1,7 +1,7 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Engine-level Screen, Mouse and Keyboard device driver API's and types
  * 
@@ -17,6 +17,8 @@
 #define ANIMATEPALETTE	0			/* =1 animated palette test*/
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
+#define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
+#define HAVE_MMAP       1       		/* =1 to use mmap if available*/
 #define EPRINTF		GdError			/* error output*/
 #define DPRINTF		GdErrorNull		/* debug output*/
 
@@ -69,6 +71,7 @@ typedef struct _mwfont {		/* common hdr for all font structures*/
 
 /* fontattr flags*/
 #define FS_FREETYPE      0x0800
+#define FS_MAPPED	 0x8000		/* encode mapped (PCF) font*///FIXME
 
 /* builtin core font struct*/
 typedef struct {
@@ -80,6 +83,7 @@ typedef struct {
 	char *		name;		/* Microwindows font name*/
 	PMWCFONT	cfont;		/* builtin font data*/
 } MWCOREFONT, *PMWCOREFONT;
+
 
 /* This structure is used to pass parameters into the low
  * level device driver functions.
@@ -228,6 +232,12 @@ typedef struct {
 	MWCOORD 	height;		/* height of rectangle */
 } MWCLIPRECT;
 
+typedef struct {
+	MWCOORD	width;
+	MWCOORD	height;
+	PSD	psd;
+} MWTILE;
+
 #ifndef TRUE
 #define TRUE			1
 #endif
@@ -237,16 +247,6 @@ typedef struct {
 
 #define	MWMIN(a,b)		((a) < (b) ? (a) : (b))
 #define	MWMAX(a,b) 		((a) > (b) ? (a) : (b))
-
-/* MWIMAGEBITS macros*/
-#define	MWIMAGE_SIZE(width, height)  ((height) * (((width) + MWIMAGE_BITSPERIMAGE - 1) / MWIMAGE_BITSPERIMAGE))
-#define MWIMAGE_WORDS(x)	(((x)+15)/16)
-#define MWIMAGE_BYTES(x)	(((x)+7)/8)
-#define	MWIMAGE_BITSPERIMAGE	(sizeof(MWIMAGEBITS) * 8)
-#define	MWIMAGE_FIRSTBIT	((MWIMAGEBITS) 0x8000)
-#define	MWIMAGE_NEXTBIT(m)	((MWIMAGEBITS) ((m) >> 1))
-#define	MWIMAGE_TESTBIT(m)	((m) & MWIMAGE_FIRSTBIT)  /* use with shiftbit*/
-#define	MWIMAGE_SHIFTBIT(m)	((MWIMAGEBITS) ((m) << 1))  /* for testbit*/
 
 /* color and palette defines*/
 #define RGBDEF(r,g,b)	{r, g, b}
@@ -426,6 +426,13 @@ int	GdSetMode(int mode);
 MWBOOL	GdSetUseBackground(MWBOOL flag);
 MWPIXELVAL GdSetForeground(MWPIXELVAL fg);
 MWPIXELVAL GdSetBackground(MWPIXELVAL bg);
+
+void GdSetDash(unsigned long *mask, int *count);
+void GdSetStippleBitmap(unsigned short *stipple, int width, int height);
+void GdSetTSOffset(int xoff, int yoff);
+int GdSetFillMode(int mode);
+void GdSetTilePixmap(PSD src, int width, int height);
+
 void	GdResetPalette(void);
 void	GdSetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
 int	GdGetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
@@ -526,6 +533,7 @@ void GdIntersectRegion(MWCLIPREGION *d, MWCLIPREGION *s1, MWCLIPREGION *s2);
 void GdUnionRegion(MWCLIPREGION *d, MWCLIPREGION *s1, MWCLIPREGION *s2);
 void GdSubtractRegion(MWCLIPREGION *d, MWCLIPREGION *s1, MWCLIPREGION *s2);
 void GdXorRegion(MWCLIPREGION *d, MWCLIPREGION *s1, MWCLIPREGION *s2);
+MWCLIPREGION *GdAllocBitmapRegion(MWIMAGEBITS *bitmap, MWCOORD width, MWCOORD height);
 
 /* devrgn2.c*/
 MWCLIPREGION *GdAllocPolygonRegion(MWPOINT *points, int count, int mode);
@@ -583,6 +591,14 @@ void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 #define GdItemNew(type)	((type *)GdItemAlloc(sizeof(type)))
 #define GdItemFree(ptr)	free((void *)ptr)
 
+/* devstipple.c */
+
+void ts_drawpoint(PSD psd, MWCOORD x, MWCOORD y);
+void ts_drawrow(PSD psd, MWCOORD x1, MWCOORD x2,  MWCOORD y);
+void ts_fillrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h);
+
+void set_ts_origin(int x, int y);
+
 /* return base item address from list ptr*/
 #define GdItemAddr(p,type,list)	((type *)((long)p - MWITEM_OFFSET(type,list)))
 
@@ -619,7 +635,7 @@ MWBOOL		GdTimeout(void);
 int	GdError(const char *format, ...);
 int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
 
-#ifdef USE_ALLOCA
+#if USE_ALLOCA
 /* alloca() is available, so use it for better performance */
 #define ALLOCA(size)	alloca(size)
 #define FREEA(pmem)

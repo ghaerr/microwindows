@@ -4,7 +4,7 @@
 >window</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="graphics"
 HREF="nano-x-graphics.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,7 +115,10 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->window</H1
+><A
+NAME="NANO-X-WINDOW"
+>window</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
@@ -119,7 +126,7 @@ NAME="AEN137"
 ></A
 ><H2
 >Name</H2
->window &#8212; </DIV
+>window&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
@@ -348,17 +355,10 @@ HREF="GR-WINDOW-ID-CAPS"
 HREF="nano-x-window.html#GRGETFOCUS"
 >GrGetFocus</A
 >                     (void);
-void        <A
+#define     <A
 HREF="nano-x-window.html#GRSETBORDERCOLOR"
 >GrSetBorderColor</A
->                (<GTKDOCLINK
-HREF="GR-WINDOW-ID-CAPS"
->GR_WINDOW_ID</GTKDOCLINK
-> wid,
-                                             <GTKDOCLINK
-HREF="GR-COLOR-CAPS"
->GR_COLOR</GTKDOCLINK
-> color);
+>
 void        <A
 HREF="nano-x-window.html#GRSETBACKGROUNDPIXMAP"
 >GrSetBackgroundPixmap</A
@@ -371,17 +371,10 @@ HREF="GR-WINDOW-ID-CAPS"
 >GR_WINDOW_ID</GTKDOCLINK
 > pixmap,
                                              int flags);
-void        <A
+#define     <A
 HREF="nano-x-window.html#GRCLEARWINDOW"
 >GrClearWindow</A
->                   (<GTKDOCLINK
-HREF="GR-WINDOW-ID-CAPS"
->GR_WINDOW_ID</GTKDOCLINK
-> wid,
-                                             <GTKDOCLINK
-HREF="GR-BOOL-CAPS"
->GR_BOOL</GTKDOCLINK
-> exposeflag);
+>                   (wid,exposeflag)
 void        <A
 HREF="nano-x-window.html#GRCLOSEWINDOW"
 >GrCloseWindow</A
@@ -403,7 +396,7 @@ HREF="GR-WINDOW-ID-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN213"
+NAME="AEN209"
 ></A
 ><H2
 >Description</H2
@@ -413,14 +406,14 @@ NAME="AEN213"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN216"
+NAME="AEN212"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN218"
+NAME="AEN214"
 ></A
 ><H3
 ><A
@@ -475,11 +468,20 @@ HREF="GR-COLOR-CAPS"
 ></TR
 ></TABLE
 ><P
->Create a new window with the specified parent and window attributes.</P
+>Create a new window with the specified parent and window attributes.
+Note that if one or both of the X and Y coordinates are set to GR_OFF_SCREEN
+the window will be created outside the bounds of the screen. This is useful
+to prevent the window from flickering onto the screen in one place before
+being instantly moved to another place by the window manager. Before using
+this feature, it is a good idea to check that there is a window manager
+running first by looking for the WINDOW_MANAGER window property.</P
 ><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN229"
+></A
 ><P
 ></P
 ><TABLE
@@ -489,6 +491,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -640,6 +643,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly created window</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -648,7 +652,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN274"
+NAME="AEN270"
 ></A
 ><H3
 ><A
@@ -687,6 +691,9 @@ height.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN279"
+></A
 ><P
 ></P
 ><TABLE
@@ -696,6 +703,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -762,6 +770,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly created pixmap</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -770,7 +779,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN304"
+NAME="AEN300"
 ></A
 ><H3
 ><A
@@ -819,6 +828,9 @@ child of the specified parent window.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN312"
+></A
 ><P
 ></P
 ><TABLE
@@ -828,6 +840,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -928,6 +941,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly created window</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -936,7 +950,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN345"
+NAME="AEN341"
 ></A
 ><H3
 ><A
@@ -966,6 +980,9 @@ specified window and all of its children.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN348"
+></A
 ><P
 ></P
 ><TABLE
@@ -975,6 +992,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -992,6 +1010,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to destroy</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1000,7 +1019,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN361"
+NAME="AEN357"
 ></A
 ><H3
 ><A
@@ -1032,6 +1051,9 @@ window and every child which becomes visible.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN364"
+></A
 ><P
 ></P
 ><TABLE
@@ -1041,6 +1063,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1058,6 +1081,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to map</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1066,7 +1090,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN377"
+NAME="AEN373"
 ></A
 ><H3
 ><A
@@ -1096,6 +1120,9 @@ child windows.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN380"
+></A
 ><P
 ></P
 ><TABLE
@@ -1105,6 +1132,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1122,6 +1150,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to unmap</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1130,7 +1159,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN393"
+NAME="AEN389"
 ></A
 ><H3
 ><A
@@ -1160,6 +1189,9 @@ all of its sibling windows.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN396"
+></A
 ><P
 ></P
 ><TABLE
@@ -1169,6 +1201,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1186,6 +1219,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to raise</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1194,7 +1228,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN409"
+NAME="AEN405"
 ></A
 ><H3
 ><A
@@ -1224,6 +1258,9 @@ below all of its sibling windows.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN412"
+></A
 ><P
 ></P
 ><TABLE
@@ -1233,6 +1270,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1250,6 +1288,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to lower</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1258,7 +1297,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN425"
+NAME="AEN421"
 ></A
 ><H3
 ><A
@@ -1296,6 +1335,9 @@ parent window.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN430"
+></A
 ><P
 ></P
 ><TABLE
@@ -1305,6 +1347,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1356,6 +1399,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the Y coordinate to move the window to relative to its parent.</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1364,7 +1408,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN451"
+NAME="AEN447"
 ></A
 ><H3
 ><A
@@ -1401,6 +1445,9 @@ HREF="GR-SIZE-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN456"
+></A
 ><P
 ></P
 ><TABLE
@@ -1410,6 +1457,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1461,6 +1509,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the height to resize the window to</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1469,7 +1518,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN477"
+NAME="AEN473"
 ></A
 ><H3
 ><A
@@ -1512,6 +1561,9 @@ parent.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN483"
+></A
 ><P
 ></P
 ><TABLE
@@ -1521,6 +1573,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1589,6 +1642,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the Y coordinate to place the window at relative to the new parent</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1597,7 +1651,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN508"
+NAME="AEN504"
 ></A
 ><H3
 ><A
@@ -1631,6 +1685,9 @@ with the specified window ID.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN512"
+></A
 ><P
 ></P
 ><TABLE
@@ -1640,6 +1697,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1674,6 +1732,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_WINDOW_INFO structure to return the information in</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1682,7 +1741,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN529"
+NAME="AEN525"
 ></A
 ><H3
 ><A
@@ -1716,6 +1775,9 @@ structure of the specified window id.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN533"
+></A
 ><P
 ></P
 ><TABLE
@@ -1725,6 +1787,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1759,6 +1822,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_WM_PROPERTIES structure</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1767,7 +1831,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN550"
+NAME="AEN546"
 ></A
 ><H3
 ><A
@@ -1803,6 +1867,9 @@ dynamically. The title field will be set to NULL if the window has no title.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN554"
+></A
 ><P
 ></P
 ><TABLE
@@ -1812,6 +1879,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1846,6 +1914,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_WM_PROPERTIES structure to fill in</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1854,7 +1923,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN571"
+NAME="AEN567"
 ></A
 ><H3
 ><A
@@ -1883,6 +1952,9 @@ HREF="GR-WINDOW-ID-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN574"
+></A
 ><P
 ></P
 ><TABLE
@@ -1892,6 +1964,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1909,6 +1982,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to set the focus to</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1917,7 +1991,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN587"
+NAME="AEN583"
 ></A
 ><H3
 ><A
@@ -1946,6 +2020,9 @@ HREF="GR-WINDOW-ID-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN590"
+></A
 ><P
 ></P
 ><TABLE
@@ -1955,6 +2032,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1970,6 +2048,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window which currently has the keyboard focus</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1978,13 +2057,13 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN603"
+NAME="AEN599"
 ></A
 ><H3
 ><A
 NAME="GRSETBORDERCOLOR"
 ></A
->GrSetBorderColor ()</H3
+>GrSetBorderColor</H3
 ><TABLE
 BORDER="0"
 BGCOLOR="#D6E8FF"
@@ -1994,75 +2073,17 @@ CELLPADDING="6"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void        GrSetBorderColor                (<GTKDOCLINK
-HREF="GR-WINDOW-ID-CAPS"
->GR_WINDOW_ID</GTKDOCLINK
-> wid,
-                                             <GTKDOCLINK
-HREF="GR-COLOR-CAPS"
->GR_COLOR</GTKDOCLINK
-> color);</PRE
+>#define     GrSetBorderColor</PRE
 ></TD
 ></TR
 ></TABLE
 ><P
->Sets the border colour of the specified window to the specified colour.</P
-><P
 ></P
-><DIV
-CLASS="INFORMALTABLE"
-><P
-></P
-><TABLE
-BORDER="0"
-WIDTH="100%"
-BGCOLOR="#FFD0D0"
-CELLSPACING="0"
-CELLPADDING="4"
-CLASS="CALSTABLE"
-><TR
-><TD
-WIDTH="20%"
-ALIGN="RIGHT"
-VALIGN="TOP"
-><TT
-CLASS="PARAMETER"
-><I
->wid</I
-></TT
->&nbsp;:</TD
-><TD
-WIDTH="80%"
-ALIGN="LEFT"
-VALIGN="TOP"
-> the ID of the window to set the border colour of</TD
-></TR
-><TR
-><TD
-WIDTH="20%"
-ALIGN="RIGHT"
-VALIGN="TOP"
-><TT
-CLASS="PARAMETER"
-><I
->color</I
-></TT
->&nbsp;:</TD
-><TD
-WIDTH="80%"
-ALIGN="LEFT"
-VALIGN="TOP"
->&nbsp;</TD
-></TR
-></TABLE
-><P
-></P
-></DIV
 ></DIV
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN624"
+NAME="AEN604"
 ></A
 ><H3
 ><A
@@ -2100,6 +2121,9 @@ disable the background pixmap and return to using a solid colour fill.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN612"
+></A
 ><P
 ></P
 ><TABLE
@@ -2109,6 +2133,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2160,6 +2185,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > flags specifying how to draw the pixmap onto the window</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2168,13 +2194,13 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN649"
+NAME="AEN629"
 ></A
 ><H3
 ><A
 NAME="GRCLEARWINDOW"
 ></A
->GrClearWindow ()</H3
+>GrClearWindow()</H3
 ><TABLE
 BORDER="0"
 BGCOLOR="#D6E8FF"
@@ -2184,25 +2210,17 @@ CELLPADDING="6"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void        GrClearWindow                   (<GTKDOCLINK
-HREF="GR-WINDOW-ID-CAPS"
->GR_WINDOW_ID</GTKDOCLINK
-> wid,
-                                             <GTKDOCLINK
-HREF="GR-BOOL-CAPS"
->GR_BOOL</GTKDOCLINK
-> exposeflag);</PRE
+>#define     GrClearWindow(wid,exposeflag)</PRE
 ></TD
 ></TR
 ></TABLE
 ><P
->Clears the specified window by setting it to its background color.
-If the exposeflag parameter is non zero, an exposure event is generated for
-the window after it has been cleared.</P
-><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN634"
+></A
 ><P
 ></P
 ><TABLE
@@ -2212,6 +2230,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2227,7 +2246,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the ID of the window to clear</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -2244,8 +2263,9 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> a flag indicating whether to also generate an exposure event</TD
+>&nbsp;</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2254,7 +2274,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN670"
+NAME="AEN647"
 ></A
 ><H3
 ><A
@@ -2286,6 +2306,9 @@ ask whether to save changed files before shutting down cleanly.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN654"
+></A
 ><P
 ></P
 ><TABLE
@@ -2295,6 +2318,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2312,6 +2336,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to send the CLOSE_REQ event to</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2320,7 +2345,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN686"
+NAME="AEN663"
 ></A
 ><H3
 ><A
@@ -2351,6 +2376,9 @@ responding to CLOSE_REQ events.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN670"
+></A
 ><P
 ></P
 ><TABLE
@@ -2360,6 +2388,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2377,6 +2406,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window to kill</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P

@@ -1,5 +1,5 @@
 Microwindows project
-Copyright (c) 1999-2001 Greg Haerr <greg@censoft.com>
+Copyright (c) 1999-2002 Greg Haerr <greg@censoft.com>
 
 CREDITS
 Thanks to everyone who has contributed to this project.
@@ -7,13 +7,14 @@ Some of the more active contributors are listed below.
 If I've missed you, please remind me or submit something!
 
 Contributors
-Engine				Greg Haerr, David Bell, Morten Rolland
+Engine				Greg Haerr, David Bell, Morten Rolland, Alex Holden
 Win32 api			Greg Haerr
 Nano-X api			David Bell, Alan Cox, Alex Holden, Greg Haerr
 Nano-X window manager		Alex Holden, Greg Haerr
 Nano-X popup keyboard		Vladimir Cotfas, Jay Carlson, Greg Haerr
 Nano-X scribble handwriting	Greg Haerr
-Nano-X enhancements, bugfixes	Jordan Crouse
+Nano-X enhancements, bugfixes	Jordan Crouse, Alex Holden
+Nano-X api documentation	Alex Holden
 Network code, Nano-X client lib	Greg Haerr, Alex Holden
 MIPS LinuxCE port, touch device	Brad LaRonde
 ELKS port			Greg Haerr, Al Riddoch
@@ -37,10 +38,10 @@ Alan Cox		<alan@lxorguk.ukuu.org.uk>
 Jordan Crouse		<jordanc@censoft.com>
 Greg Haerr		<greg@censoft.com>
 Vidar Hokstad		<vidarh@screenmedia.no> <vidar@hokstad.com>
-Alex Holden		<alex@linuxhacker.org>
-Brad LaRonde		<brad@ltc.com>
+Alex Holden		<alex@alexholden.net> http://www.alexholden.net/
 Chris Johns		<ccj@acm.org>
 Martin Jolicoeur	<martinj@visuaide.com>
+Brad LaRonde		<brad@ltc.com>
 Ben Pfaff		<pfaffben@debian.org>
 Al Riddoch		<ajr@ecs.soton.ac.uk>
 Darran D. Rimron	<darran@rimron.co.uk>

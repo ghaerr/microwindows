@@ -3,6 +3,11 @@
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 ##############################################################################
 
+ifndef TOP
+TOP = ../..
+CONFIG = $(TOP)/config
+endif
+
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
@@ -21,8 +26,6 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
-ifeq ($(NANOWM), Y)
-
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
 
@@ -36,8 +39,6 @@ TARGET = $(TOP)/bin/nxkbd
 endif
 
 all: default $(TARGET)
-
-endif
 
 ######################### Makefile.rules section #############################
 

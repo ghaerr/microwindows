@@ -4,7 +4,7 @@
 >fonts</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="pointer"
 HREF="nano-x-pointer.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,19 +115,22 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->fonts</H1
+><A
+NAME="NANO-X-FONTS"
+>fonts</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN2120"
+NAME="AEN2343"
 ></A
 ><H2
 >Name</H2
->fonts &#8212; </DIV
+>fonts&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN2123"
+NAME="AEN2346"
 ></A
 ><H2
 >Synopsis</H2
@@ -166,7 +173,7 @@ HREF="GR-FONT-ID-CAPS"
                                              <GTKDOCLINK
 HREF="GR-COORD-CAPS"
 >GR_COORD</GTKDOCLINK
-> size);
+> fontsize);
 void        <A
 HREF="nano-x-fonts.html#GRSETFONTROTATION"
 >GrSetFontRotation</A
@@ -174,7 +181,7 @@ HREF="nano-x-fonts.html#GRSETFONTROTATION"
 HREF="GR-FONT-ID-CAPS"
 >GR_FONT_ID</GTKDOCLINK
 > fontid,
-                                             int tenthsdegrees);
+                                             int tenthdegrees);
 void        <A
 HREF="nano-x-fonts.html#GRSETFONTATTR"
 >GrSetFontAttr</A
@@ -197,11 +204,19 @@ HREF="nano-x-fonts.html#GRGETFONTINFO"
 >                   (<GTKDOCLINK
 HREF="GR-FONT-ID-CAPS"
 >GR_FONT_ID</GTKDOCLINK
-> font,
+> fontno,
                                              <GTKDOCLINK
 HREF="GR-FONT-INFO-CAPS"
 >GR_FONT_INFO</GTKDOCLINK
-> *fip);</PRE
+> *fip);
+void        <A
+HREF="nano-x-fonts.html#GRGETFONTLIST"
+>GrGetFontList</A
+>                   (<GTKDOCLINK
+HREF="GR-FONTLIST-CAPS"
+>GR_FONTLIST</GTKDOCLINK
+> ***fonts,
+                                             int *numfonts);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -209,7 +224,7 @@ HREF="GR-FONT-INFO-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2143"
+NAME="AEN2368"
 ></A
 ><H2
 >Description</H2
@@ -219,14 +234,14 @@ NAME="AEN2143"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2146"
+NAME="AEN2371"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2148"
+NAME="AEN2373"
 ></A
 ><H3
 ><A
@@ -272,6 +287,9 @@ found, the first built in font will be returned as a last resort.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2383"
+></A
 ><P
 ></P
 ><TABLE
@@ -281,6 +299,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -347,6 +366,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > a font ID number which can be used to refer to the font</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -355,7 +375,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2179"
+NAME="AEN2404"
 ></A
 ><H3
 ><A
@@ -378,7 +398,7 @@ HREF="GR-FONT-ID-CAPS"
                                              <GTKDOCLINK
 HREF="GR-COORD-CAPS"
 >GR_COORD</GTKDOCLINK
-> size);</PRE
+> fontsize);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -388,6 +408,9 @@ HREF="GR-COORD-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2412"
+></A
 ><P
 ></P
 ><TABLE
@@ -397,6 +420,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -422,15 +446,16 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->size</I
+>fontsize</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
->&nbsp;</TD
+> the size to change the font to</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -439,7 +464,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2200"
+NAME="AEN2425"
 ></A
 ><H3
 ><A
@@ -459,7 +484,7 @@ CLASS="PROGRAMLISTING"
 HREF="GR-FONT-ID-CAPS"
 >GR_FONT_ID</GTKDOCLINK
 > fontid,
-                                             int tenthsdegrees);</PRE
+                                             int tenthdegrees);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -469,6 +494,9 @@ HREF="GR-FONT-ID-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2432"
+></A
 ><P
 ></P
 ><TABLE
@@ -478,6 +506,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -503,15 +532,16 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->tenthsdegrees</I
+>tenthdegrees</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
->&nbsp;</TD
+> the angle to set the rotation to in tenths of a degree</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -520,7 +550,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2220"
+NAME="AEN2445"
 ></A
 ><H3
 ><A
@@ -552,6 +582,9 @@ of the specified font according to the set and clear mask arguments.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2452"
+></A
 ><P
 ></P
 ><TABLE
@@ -561,6 +594,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -612,6 +646,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > mask specifying attribute flags to clear</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -620,7 +655,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2244"
+NAME="AEN2469"
 ></A
 ><H3
 ><A
@@ -651,6 +686,9 @@ font from memory.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2476"
+></A
 ><P
 ></P
 ><TABLE
@@ -660,6 +698,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -677,6 +716,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the font to destroy</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -685,7 +725,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2260"
+NAME="AEN2485"
 ></A
 ><H3
 ><A
@@ -704,7 +744,7 @@ CLASS="PROGRAMLISTING"
 >void        GrGetFontInfo                   (<GTKDOCLINK
 HREF="GR-FONT-ID-CAPS"
 >GR_FONT_ID</GTKDOCLINK
-> font,
+> fontno,
                                              <GTKDOCLINK
 HREF="GR-FONT-INFO-CAPS"
 >GR_FONT_INFO</GTKDOCLINK
@@ -719,6 +759,9 @@ the specified font.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2493"
+></A
 ><P
 ></P
 ><TABLE
@@ -728,6 +771,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -736,14 +780,14 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->font</I
+>fontno</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
->&nbsp;</TD
+> the font ID number</TD
 ></TR
 ><TR
 ><TD
@@ -762,6 +806,93 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_FONT_INFO structure</TD
 ></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2506"
+></A
+><H3
+><A
+NAME="GRGETFONTLIST"
+></A
+>GrGetFontList ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrGetFontList                   (<GTKDOCLINK
+HREF="GR-FONTLIST-CAPS"
+>GR_FONTLIST</GTKDOCLINK
+> ***fonts,
+                                             int *numfonts);</PRE
+></TD
+></TR
+></TABLE
+><P
+></P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2513"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fonts</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer used to return an array of font names.</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>numfonts</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer used to return the number of names found.</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P

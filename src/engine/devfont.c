@@ -201,6 +201,10 @@ static int
 UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii);
 #endif /* HAVE_HZK_SUPPORT*/
 
+#if HAVE_EUCJP_SUPPORT
+extern PMWFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
+#endif
+
 static PMWFONT	gr_pfont;            	/* current font*/
 
 /* temp extern decls*/
@@ -264,6 +268,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		/* otherwise, use MWLOGFONT name and height*/
  		fontclass = select_font(plogfont, fontname);
 #else
+		name = plogfont->lfFaceName;
 		if (!name)
 			name = MWFONT_SYSTEM_VAR;
 		strcpy(fontname, name);
@@ -285,6 +290,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
  			if(!strcmpi(pf[i].name, fontname)) {
   				pf[i].fontsize = pf[i].cfont->height;
 				pf[i].fontattr = fontattr;
+printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
   				return (PMWFONT)&pf[i];
   			}
   		}
@@ -304,6 +310,15 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 	}
 #endif
 
+#if HAVE_EUCJP_SUPPORT
+        {
+		pfont = (PMWFONT)eucjp_createfont(name, height, fontattr);
+		if (pfont)             
+			return pfont;
+		fprintf(stderr, "eucjp_createfont: %s not found. Use default font.\n", name);
+	}
+#endif
+
 #if HAVE_FREETYPE_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
 		if (freetype_init(psd)) {
@@ -319,7 +334,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 				pfont->fontattr |= FS_FREETYPE;
 				return pfont;
 			}
- 			DPRINTF("freetype_createfont: %s,%d not found\n",
+ 			printf("freetype_createfont: %s,%d not found\n",
 				fontname, height);
 		}
   	}
@@ -365,6 +380,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		}
 		pf[fontno].fontsize = pf[fontno].cfont->height;
 		pf[fontno].fontattr = fontattr;
+printf("createfont: (height != 0) using builtin font %s (%d)\n", pf[fontno].name, fontno);
 		return (PMWFONT)&pf[fontno];
 	}
 
@@ -372,6 +388,7 @@ first:
 	/* Return first builtin font*/
 	pf->fontsize = pf->cfont->height;
 	pf->fontattr = fontattr;
+printf("createfont: (first) using builtin font %s\n", pf[0].name);
 	return (PMWFONT)&pf[0];
 }
 
@@ -505,6 +522,10 @@ GdConvertEncoding(const void *istr, int iflags, int cc, void *ostr, int oflags)
 		case MWTF_UC16:
 			ch = *istr16++;
 			break;
+		case MWTF_XCHAR2B:
+			ch = *istr8++ << 8;
+			ch |= *istr8++;
+			break;
 		case MWTF_UC32:
 			ch = *istr32++;
 		}
@@ -514,6 +535,10 @@ GdConvertEncoding(const void *istr, int iflags, int cc, void *ostr, int oflags)
 			break;
 		case MWTF_UC16:
 			*ostr16++ = (unsigned short)ch;
+			break;
+		case MWTF_XCHAR2B:
+			*ostr8++ = (unsigned char)(ch >> 8);
+			*ostr8++ = (unsigned char)ch;
 			break;
 		case MWTF_UC32:
 			*ostr32++ = ch;
@@ -646,6 +671,21 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 				--cc;
 		}
 #endif
+#if HAVE_JISX0213_SUPPORT
+	/* decode Japanese JISX0213*/
+		if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
+			*str >= 0xA1 && *str <= 0xFE) {
+				ch = (ch << 8) | *str++;
+				--cc;
+		}else
+		if (((ch >= 0x81 && ch <= 0x9F) || (ch >= 0xE0 && ch <= 0xEF)) && cc >= 1)
+				if (*str >= 0x40 && *str <= 0xFC && (*str != 0x7F)){
+				ch = (ch << 8) | *str++;
+				--cc;
+		}
+
+#endif
+
 #if HAVE_KSC5601_SUPPORT
 		/* Korean KSC5601 decoding */
 		if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
@@ -653,6 +693,14 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 				ch = (ch << 8) | *str++;
 				--cc;
 		}
+#endif
+#if HAVE_EUCJP_SUPPORT
+                /* EUC JP Kanji decoding */
+                if (ch >= 0xA1 && ch <= 0xFE && cc >= 1 &&
+                         (*str >= 0xA1 && *str <= 0xFE)) {
+                                ch = (ch << 8) | *str++;
+                                --cc;
+                }
 #endif
 		pfont->fontprocs->GetTextBits(pfont, ch, bitmap, &width,
 			&height, &base);

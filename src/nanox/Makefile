@@ -15,6 +15,12 @@ include $(CONFIG)
 # Directories list for header files
 INCLUDEDIRS +=
 
+# Added define to avoid compiler error for SPARC
+ifeq ($(ARCH), LINUX-SPARC)
+CFLAGS += -DARCH_LINUX_SPARC=1
+endif
+
+
 # Defines for preprocessor
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 DEFINES += -DNONETWORK=1
@@ -26,6 +32,11 @@ CFLAGS +=
 CPPFLAGS +=
 # Linking flags
 LDFLAGS +=
+
+ifeq ($(EM8400), Y)
+CFLAGS += -I$(EM8400_DIR)/include
+LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
+endif
 
 ############################# targets section ################################
 

@@ -4,7 +4,7 @@
 >misc</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -15,8 +15,12 @@ REL="PREVIOUS"
 TITLE="selections"
 HREF="nano-x-selections.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -99,19 +103,22 @@ ALIGN="right"
 ></TABLE
 ></DIV
 ><H1
->misc</H1
+><A
+NAME="NANO-X-MISC"
+>misc</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN3124"
+NAME="AEN3516"
 ></A
 ><H2
 >Name</H2
->misc &#8212; </DIV
+>misc&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN3127"
+NAME="AEN3519"
 ></A
 ><H2
 >Synopsis</H2
@@ -141,16 +148,21 @@ HREF="GR-WINDOW-ID-CAPS"
 >GR_WINDOW_ID</GTKDOCLINK
 > wid,
                                              <GTKDOCLINK
-HREF="GR-UNICODE-CAPS"
->GR_UNICODE</GTKDOCLINK
-> uch,
+HREF="GR-KEY-CAPS"
+>GR_KEY</GTKDOCLINK
+> keyvalue,
                                              <GTKDOCLINK
-HREF="GR-CHAR-CAPS"
->GR_CHAR</GTKDOCLINK
-> ch,
-                                             int modif,
-                                             int special,
-                                             unsigned char content);
+HREF="GR-KEYMOD-CAPS"
+>GR_KEYMOD</GTKDOCLINK
+> modifier,
+                                             <GTKDOCLINK
+HREF="GR-SCANCODE-CAPS"
+>GR_SCANCODE</GTKDOCLINK
+> scancode,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> pressed);
 void        <A
 HREF="nano-x-misc.html#GRREGISTERINPUT"
 >GrRegisterInput</A
@@ -178,7 +190,92 @@ HREF="nano-x-misc.html#GRSETSCREENSAVERTIMEOUT"
 >         (<GTKDOCLINK
 HREF="GR-TIMEOUT-CAPS"
 >GR_TIMEOUT</GTKDOCLINK
-> timeout);</PRE
+> timeout);
+void        <A
+HREF="nano-x-misc.html#GRQUERYTREE"
+>GrQueryTree</A
+>                     (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> *parentid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> **children,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> *nchildren);
+void        <A
+HREF="nano-x-misc.html#GRSETPORTRAITMODE"
+>GrSetPortraitMode</A
+>               (int portraitmode);
+void        <A
+HREF="nano-x-misc.html#GRCHANGEPROPERTY"
+>GrChangeProperty</A
+>                (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *property,
+                                             <GTKDOCLINK
+HREF="GR-PROP-CAPS"
+>GR_PROP</GTKDOCLINK
+> *data,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> len);
+<GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+>    <A
+HREF="nano-x-misc.html#GRGETWINDOWPROPERTY"
+>GrGetWindowProperty</A
+>             (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *property,
+                                             <GTKDOCLINK
+HREF="GR-PROP-CAPS"
+>GR_PROP</GTKDOCLINK
+> **data);
+<GTKDOCLINK
+HREF="GR-TIMER-ID-CAPS"
+>GR_TIMER_ID</GTKDOCLINK
+> <A
+HREF="nano-x-misc.html#GRCREATETIMER"
+>GrCreateTimer</A
+>                   (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-TIMEOUT-CAPS"
+>GR_TIMEOUT</GTKDOCLINK
+> period,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> periodic);
+void        <A
+HREF="nano-x-misc.html#GRDESTROYTIMER"
+>GrDestroyTimer</A
+>                  (<GTKDOCLINK
+HREF="GR-TIMER-ID-CAPS"
+>GR_TIMER_ID</GTKDOCLINK
+> tid);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -186,7 +283,7 @@ HREF="GR-TIMEOUT-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN3143"
+NAME="AEN3560"
 ></A
 ><H2
 >Description</H2
@@ -196,14 +293,14 @@ NAME="AEN3143"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN3146"
+NAME="AEN3563"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3148"
+NAME="AEN3565"
 ></A
 ><H3
 ><A
@@ -242,6 +339,9 @@ do nothing.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3573"
+></A
 ><P
 ></P
 ><TABLE
@@ -251,6 +351,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -268,6 +369,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the size of the shared memory area to allocate</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -276,7 +378,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3165"
+NAME="AEN3582"
 ></A
 ><H3
 ><A
@@ -297,16 +399,21 @@ HREF="GR-WINDOW-ID-CAPS"
 >GR_WINDOW_ID</GTKDOCLINK
 > wid,
                                              <GTKDOCLINK
-HREF="GR-UNICODE-CAPS"
->GR_UNICODE</GTKDOCLINK
-> uch,
+HREF="GR-KEY-CAPS"
+>GR_KEY</GTKDOCLINK
+> keyvalue,
                                              <GTKDOCLINK
-HREF="GR-CHAR-CAPS"
->GR_CHAR</GTKDOCLINK
-> ch,
-                                             int modif,
-                                             int special,
-                                             unsigned char content);</PRE
+HREF="GR-KEYMOD-CAPS"
+>GR_KEYMOD</GTKDOCLINK
+> modifier,
+                                             <GTKDOCLINK
+HREF="GR-SCANCODE-CAPS"
+>GR_SCANCODE</GTKDOCLINK
+> scancode,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> pressed);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -319,6 +426,9 @@ structure.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3593"
+></A
 ><P
 ></P
 ><TABLE
@@ -328,6 +438,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -353,14 +464,14 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->uch</I
+>keyvalue</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> 32 bit Unicode keystroke value to inject</TD
+> the value of the key event to inject</TD
 ></TR
 ><TR
 ><TD
@@ -370,14 +481,14 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->ch</I
+>modifier</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> 8 bit ascii keystroke value to inject</TD
+> modifiers (shift, ctrl, alt, etc.) to inject</TD
 ></TR
 ><TR
 ><TD
@@ -387,14 +498,14 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->modif</I
+>scancode</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
->&nbsp;</TD
+> the scancode of the key event to inject</TD
 ></TR
 ><TR
 ><TD
@@ -404,32 +515,16 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->special</I
+>pressed</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> special keys to inject</TD
+> whether to inject a key pressed or key released event</TD
 ></TR
-><TR
-><TD
-WIDTH="20%"
-ALIGN="RIGHT"
-VALIGN="TOP"
-><TT
-CLASS="PARAMETER"
-><I
->content</I
-></TT
->&nbsp;:</TD
-><TD
-WIDTH="80%"
-ALIGN="LEFT"
-VALIGN="TOP"
-> mask specifying which arguments are valid</TD
-></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -438,7 +533,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3203"
+NAME="AEN3618"
 ></A
 ><H3
 ><A
@@ -469,6 +564,9 @@ event has been selected for.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3625"
+></A
 ><P
 ></P
 ><TABLE
@@ -478,6 +576,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -495,6 +594,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the file descriptor to monitor</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -503,7 +603,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3219"
+NAME="AEN3634"
 ></A
 ><H3
 ><A
@@ -536,6 +636,9 @@ maxfd.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3640"
+></A
 ><P
 ></P
 ><TABLE
@@ -545,6 +648,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -579,6 +683,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the file descriptor set structure to use</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -587,7 +692,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3238"
+NAME="AEN3653"
 ></A
 ><H3
 ><A
@@ -625,6 +730,9 @@ HREF="nano-x-misc.html#GRREGISTERINPUT"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3662"
+></A
 ><P
 ></P
 ><TABLE
@@ -634,6 +742,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -668,6 +777,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the function to call when an event needs handling</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -676,7 +786,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3260"
+NAME="AEN3675"
 ></A
 ><H3
 ><A
@@ -706,7 +816,7 @@ are running remotely).</P
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3266"
+NAME="AEN3681"
 ></A
 ><H3
 ><A
@@ -738,6 +848,9 @@ function.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3688"
+></A
 ><P
 ></P
 ><TABLE
@@ -747,6 +860,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -764,6 +878,702 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the number of seconds of inactivity before screen saver activates</TD
 ></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3697"
+></A
+><H3
+><A
+NAME="GRQUERYTREE"
+></A
+>GrQueryTree ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrQueryTree                     (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> *parentid,
+                                             <GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> **children,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> *nchildren);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Return the ID of the specified windows parent window and a list of the IDs
+of all its child windows. It is the callers responsibility to free the
+list of child windows when it is no longer required. On failure, the
+children pointer will be set to NULL.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3707"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the window ID to start the tree from</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>parentid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a variable to return the parent ID in</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>children</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a pointer to put the returned child window ID list in</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>nchildren</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a variable to put the returned child window count in</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3728"
+></A
+><H3
+><A
+NAME="GRSETPORTRAITMODE"
+></A
+>GrSetPortraitMode ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetPortraitMode               (int portraitmode);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the orientation of the screen. The four possible values are
+GR_PORTRAIT_NONE (no rotation), GR_PORTRAIT_LEFT (rotate left),
+GR_PORTRAIT_RIGHT (rotate right), and GR_PORTRAIT_DOWN (upside down).
+The window is automatically redrawn after changing the portrait mode.
+The current portrait mode can be discovered by retrieving the screeninfo
+structure using the  <A
+HREF="nano-x-general.html#GRGETSCREENINFO"
+>GrGetScreenInfo</A
+>() call, and looking at the value of
+the portrait member.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3735"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>portraitmode</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the value to set the portrait mode to</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3744"
+></A
+><H3
+><A
+NAME="GRCHANGEPROPERTY"
+></A
+>GrChangeProperty ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrChangeProperty                (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *property,
+                                             <GTKDOCLINK
+HREF="GR-PROP-CAPS"
+>GR_PROP</GTKDOCLINK
+> *data,
+                                             <GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+> len);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Changes the data stored in the specified property attached to the
+specified window. If the property does not already exist, it will be
+created. The property name should be a zero terminated string. To
+create a global property, attach it the root window
+(GR_ROOT_WINDOW_ID). If data is a null pointer but len is &gt;= 1, the
+property is created with no data block attached to it. If len is 0,
+the property is deleted.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3754"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window the property is attached to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>property</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the name of the property</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the data to be stored in the property</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>len</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the length of the data to be stored in the property</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3775"
+></A
+><H3
+><A
+NAME="GRGETWINDOWPROPERTY"
+></A
+>GrGetWindowProperty ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-COUNT-CAPS"
+>GR_COUNT</GTKDOCLINK
+>    GrGetWindowProperty             (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-CHAR-CAPS"
+>GR_CHAR</GTKDOCLINK
+> *property,
+                                             <GTKDOCLINK
+HREF="GR-PROP-CAPS"
+>GR_PROP</GTKDOCLINK
+> **data);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Searches for a property with the specified name in the list of
+properties attached to the specified window and returns the data
+block associated with the property. If no such property is found, the
+length is zero and the a null pointer is stored in the data pointer.
+If the property exists but no data block is associated with it, 1 is
+returned for the length and the data pointer is set to NULL. The data
+block is allocated with <GTKDOCLINK
+HREF="MALLOC"
+>malloc</GTKDOCLINK
+>() at call time, and it is the callers
+responsibility to free it when no longer needed. If the <GTKDOCLINK
+HREF="MALLOC"
+>malloc</GTKDOCLINK
+>() call
+fails the data pointer will be set to null.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3787"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window the property is attached to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>property</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the name of the property</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a pointer to hold the address of the returned data</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the length of the returned data block</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3808"
+></A
+><H3
+><A
+NAME="GRCREATETIMER"
+></A
+>GrCreateTimer ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-TIMER-ID-CAPS"
+>GR_TIMER_ID</GTKDOCLINK
+> GrCreateTimer                   (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-TIMEOUT-CAPS"
+>GR_TIMEOUT</GTKDOCLINK
+> period,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> periodic);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new timer which will generate a GR_EVENT_TYPE_TIMER event after
+the specified period. The timer can be destroyed before it expires if
+required using the <A
+HREF="nano-x-misc.html#GRDESTROYTIMER"
+>GrDestroyTimer</A
+>() call. If you want to make a timer which
+will keep generating events every period ms instead of generating a single
+event, set periodic to GR_TRUE instead of GR_FALSE.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3819"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window the timeout event should be delivered to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>period</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the period in ms before the timer should expire</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>periodic</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> if true, make a periodic timer instead of a one shot</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the timer</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3840"
+></A
+><H3
+><A
+NAME="GRDESTROYTIMER"
+></A
+>GrDestroyTimer ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDestroyTimer                  (<GTKDOCLINK
+HREF="GR-TIMER-ID-CAPS"
+>GR_TIMER_ID</GTKDOCLINK
+> tid);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Destroys the specified timer. Note that it is possible for there to be one
+or more undelivered timer events already in the queue when <A
+HREF="nano-x-misc.html#GRDESTROYTIMER"
+>GrDestroyTimer</A
+>()
+is called, and they will still be delivered anyway.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3848"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>tid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the timer to destroy</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P

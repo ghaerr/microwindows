@@ -18,23 +18,29 @@
 // that server functions which are represented by dispatchers in
 // the client code need to have unique names, thus this remapping.
 //
+#define nxErrorStrings		SVR_nxErrorStrings
 #define GrArcAngle              SVR_GrArcAngle
 #define GrArc                   SVR_GrArc
 #define GrArea                  SVR_GrArea
 #define GrBell                  SVR_GrBell
 #define GrBitmap                SVR_GrBitmap
 #define GrCheckNextEvent        SVR_GrCheckNextEvent
-#define GrClearWindow           SVR_GrClearWindow
+#define GrClearArea             SVR_GrClearArea
 #define GrClose                 SVR_GrClose
 #define GrCloseWindow           SVR_GrCloseWindow
 #define GrCopyArea              SVR_GrCopyArea
 #define GrCopyGC                SVR_GrCopyGC
 #define GrCreateFont            SVR_GrCreateFont
+#define GrCreateTimer		SVR_GrCreateTimer        
+#define GrDelay			SVR_GrDelay
+#define GrDestroyCursor		SVR_GrDestroyCursor      
 #define GrDestroyFont           SVR_GrDestroyFont
 #define GrDestroyGC             SVR_GrDestroyGC
 #define GrDestroyRegion         SVR_GrDestroyRegion
+#define GrDestroyTimer		SVR_GrDestroyTimer       
 #define GrDestroyWindow         SVR_GrDestroyWindow
 #define GrDrawImageBits         SVR_GrDrawImageBits
+#define GrDrawImageFromBuffer	SVR_GrDrawImageFromBuffer
 #define GrDrawImageFromFile     SVR_GrDrawImageFromFile
 #define GrDrawImageToFit        SVR_GrDrawImageToFit
 #define GrEllipse               SVR_GrEllipse
@@ -44,9 +50,11 @@
 #define GrFillPoly              SVR_GrFillPoly
 #define GrFillRect              SVR_GrFillRect
 #define GrFindColor             SVR_GrFindColor
+#define GrFreeFontList		SVR_GrFreeFontList       
 #define GrFreeImage             SVR_GrFreeImage
 #define GrGetFocus              SVR_GrGetFocus
 #define GrGetFontInfo           SVR_GrGetFontInfo
+#define GrGetFontList		SVR_GrGetFontList        
 #define GrGetGCInfo             SVR_GrGetGCInfo
 #define GrGetGCTextSize         SVR_GrGetGCTextSize
 #define GrGetImageInfo          SVR_GrGetImageInfo
@@ -67,6 +75,7 @@
 #define GrMapWindow             SVR_GrMapWindow
 #define GrMoveCursor            SVR_GrMoveCursor
 #define GrMoveWindow            SVR_GrMoveWindow
+#define GrNewCursor		SVR_GrNewCursor          
 #define GrNewGC                 SVR_GrNewGC
 #define GrNewInputWindow        SVR_GrNewInputWindow
 #define GrNewPixmap             SVR_GrNewPixmap
@@ -80,6 +89,7 @@
 #define GrPoints                SVR_GrPoints
 #define GrPoint                 SVR_GrPoint
 #define GrPoly                  SVR_GrPoly
+#define GrQueryTree		SVR_GrQueryTree          
 #define GrRaiseWindow           SVR_GrRaiseWindow
 #define GrReadArea              SVR_GrReadArea
 #define GrRectInRegion          SVR_GrRectInRegion
@@ -90,21 +100,24 @@
 #define GrSelectEvents          SVR_GrSelectEvents
 #define GrSendClientData        SVR_GrSendClientData
 #define GrSetBackgroundPixmap   SVR_GrSetBackgroundPixmap
-#define GrSetBorderColor        SVR_GrSetBorderColor
 #define GrSetCursor             SVR_GrSetCursor
 #define GrSetFocus              SVR_GrSetFocus
 #define GrSetFontAttr           SVR_GrSetFontAttr
 #define GrSetFontRotation       SVR_GrSetFontRotation
 #define GrSetFontSize           SVR_GrSetFontSize
 #define GrSetGCBackground       SVR_GrSetGCBackground
+#define GrSetGCClipOrigin	SVR_GrSetGCClipOrigin
 #define GrSetGCFont             SVR_GrSetGCFont
 #define GrSetGCForeground       SVR_GrSetGCForeground
+#define GrSetGCGraphicsExposure	SVR_GrSetGCGraphicsExposure
 #define GrSetGCMode             SVR_GrSetGCMode
 #define GrSetGCRegion           SVR_GrSetGCRegion
 #define GrSetGCUseBackground    SVR_GrSetGCUseBackground
+#define GrSetPortraitMode	SVR_GrSetPortraitMode
 #define GrSetScreenSaverTimeout SVR_GrSetScreenSaverTimeout
 #define GrSetSelectionOwner     SVR_GrSetSelectionOwner
 #define GrSetSystemPalette      SVR_GrSetSystemPalette
+#define GrSetWindowCursor	SVR_GrSetWindowCursor    
 #define GrSetWMProperties       SVR_GrSetWMProperties
 #define GrSubtractRegion        SVR_GrSubtractRegion
 #define GrText                  SVR_GrText
@@ -177,7 +190,24 @@ struct gr_gc {
 	GR_COLOR	foreground;	/* foreground color */
 	GR_COLOR	background;	/* background color */
 	GR_BOOL		usebackground;	/* actually display the background */
-        GR_BOOL         exposure;       /* send expose events on GrCopyArea */
+
+        GR_BOOL         exposure;             /* Indicates if we should send expose events on a GrCopyArea */
+
+        int             linestyle;
+        unsigned long   dashmask;
+        char            dashcount;
+   
+        int             fillmode;
+        GR_STIPPLE      stipple;
+
+        struct {
+	  PSD psd;
+	  int width;
+	  int height;
+	} tile;
+   
+        GR_POINT        ts_offset;
+
 	GR_BOOL		changed;	/* graphics context has been changed */
 	GR_CLIENT 	*owner;		/* client that created it */
 	GR_GC		*next;		/* next graphics context */
@@ -293,11 +323,12 @@ struct gr_window {
 	GR_EVENT_MASK	nopropmask;	/* events not to be propagated */
 	GR_EVENT_CLIENT	*eventclients;	/* clients interested in events */
 	GR_CURSOR_ID	cursorid;	/* cursor for this window */
-	GR_BOOL		mapped;		/* TRUE if explicitly mapped */
-	GR_COUNT	unmapcount;	/* count of reasons not really mapped */
+	GR_BOOL		mapped;		/* TRUE means requested to be mapped */
+	GR_BOOL		realized;	/* TRUE means window is visible */
 	GR_BOOL		output;		/* TRUE if window can do output */
 	GR_WM_PROPS	props;		/* window properties*/
 	GR_CHAR		*title;		/* window title*/
+	MWCLIPREGION	*clipregion;	/* window clipping region */
 };
 
 /*
@@ -345,6 +376,7 @@ void		GsCloseKeyboard(void);
 void		GsExposeArea(GR_WINDOW *wp, GR_COORD rootx, GR_COORD rooty,
 			GR_SIZE width, GR_SIZE height, GR_WINDOW *stopwp);
 void		GsCheckCursor(void);
+void		GsWpNotifyActivate(GR_WINDOW *wp);
 void		GsWpSetFocus(GR_WINDOW *wp);
 void		GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
@@ -352,8 +384,8 @@ void		GsWpTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
-void		GsWpUnmapWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
-void		GsWpMapWindow(GR_WINDOW *wp, GR_BOOL temp);
+void		GsWpUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
+void		GsWpRealizeWindow(GR_WINDOW *wp, GR_BOOL temp);
 void		GsWpDestroyWindow(GR_WINDOW *wp);
 void		GsSetPortraitMode(int mode);
 void		GsSetPortraitModeFromXY(GR_COORD rootx, GR_COORD rooty);

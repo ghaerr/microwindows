@@ -1,10 +1,11 @@
 /* 
  * PCF Reader for Microwindows 
- * This implements a quick and dirty .PCF font parser so that we can take 
- * advantage of dynamically loading XFree86 style fonts.  
- *
- * Copyright 2001, Century Embedded Technologies
+ * This implements a quick and dirty .PCF font parser so that we can take advantage of 
+ * dynamically loading XFree86 style fonts.  
+
+ * Copyright 2001, 2002 by Century Embedded Technologies
  * Written by:  Jordan Crouse
+ * Bugfixed by: Greg Haerr
  */
 #include <stdio.h>
 #include <string.h>
@@ -33,18 +34,21 @@
 #define FCLOSE(file)                fclose(file)
 #endif
  
-/* Handling routines for MWPCFFONT */
-/* These are similar to MWCOREFONT, because they are essentially the same thing */
+void gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+		const void *text, int cc, int flags);
+void gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
+		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 
+/* Handling routines for PCF fonts, use MWCOREFONT structure */
 static void pcf_unloadfont(PMWFONT font);
 
 static MWFONTPROCS pcf_fontprocs = {
-  MWTF_ASCII,		/* routines expect ascii*/
+  MWTF_UC16,		/* routines expect unicode 16*/
   gen_getfontinfo,
-  gen_gettextsize,
+  gen16_gettextsize,
   gen_gettextbits,
   pcf_unloadfont,
-  corefont_drawtext,
+  gen16_drawtext,
   NULL,			/* setfontsize*/
   NULL,			/* setfontrotation*/
   NULL,			/* setfontattr*/
@@ -95,6 +99,16 @@ struct metric_entry {
   short attributes;
 };
 
+struct encoding_entry {
+  unsigned short firstcol;		/* min_char or min_byte 2*/
+  unsigned short lastcol;		/* max_char or max_byte 2*/
+  unsigned short firstrow;		/* min_byte 1 (hi order)*/
+  unsigned short lastrow;		/* max_byte 1 (hi order)*/
+  unsigned short defaultchar;
+  unsigned short count;			/* count of map entries*/
+  unsigned short *map;			/* font index -> glyph index*/
+};
+
 /* This is used to quickly reverse the bits in a field */
 
 static unsigned char _reverse_byte[0x100] = {
@@ -136,13 +150,11 @@ static unsigned char _reverse_byte[0x100] = {
 
 static void word_reverse_swap(unsigned char *buf) {
   
-  unsigned char *ch = buf;
   unsigned char t;
 
-  int count = 2;
-
-  for(; --count >= 0; ch++) *ch = _reverse_byte[*ch];
-  t = buf[0]; buf[0] = buf[1]; buf[1] = t;
+  t = _reverse_byte[buf[0]];
+  buf[0] = _reverse_byte[buf[1]];
+  buf[1] = t;
 }
 
 
@@ -300,25 +312,37 @@ static int pcf_readmetrics(FILE *file, struct metric_entry **metrics) {
   }
 }
 
-static int pcf_read_firstchar(FILE *file) {
+static int pcf_read_encoding(FILE *file, struct encoding_entry **encoding) {
 
-  int offset;
-
-  struct encode_entry {
-    unsigned short firstcol;
-    unsigned short lastcol;
-    unsigned short firstrow;
-    unsigned short lastrow;
-    unsigned short def;
-    unsigned short nencode;
-  } encode;
+  int offset, n;
+  unsigned short code;
+  unsigned long format;
+  struct encoding_entry *e;
 
   if ((offset = pcf_get_offset(PCF_BDF_ENCODINGS)) == -1) return(-1);
   FSEEK(file, offset, SEEK_SET);
 
-  FREAD(file, &encode, sizeof(encode));
-	 
-  return(encode.firstrow);
+  FREAD(file, &format, sizeof(format));
+
+  e = *encoding = (struct encoding_entry *) malloc(sizeof(struct encoding_entry));
+  FREAD(file, &e->firstcol, sizeof(e->firstcol));
+  FREAD(file, &e->lastcol, sizeof(e->lastcol));
+  FREAD(file, &e->firstrow, sizeof(e->firstrow));
+  FREAD(file, &e->lastrow, sizeof(e->lastrow));
+  FREAD(file, &e->defaultchar, sizeof(e->defaultchar));
+  e->count = (e->lastcol - e->firstcol+1) * (e->lastrow - e->firstrow+1);
+  e->map = (unsigned short *)malloc(e->count * sizeof(unsigned short));
+  DPRINTF("max count %d (%x)\n", e->count, e->count);
+  DPRINTF("def char %d (%x)\n", e->defaultchar, e->defaultchar);
+
+  for (n=0; n<e->count; ++n) {
+    FREAD(file, &code, sizeof(code));
+    e->map[n] = code;
+    DPRINTF("ncode %x (%c) %x\n", n, n, code);
+  }
+  DPRINTF("firstrow %d, firstcol %d\n", e->firstrow, e->firstcol);
+  DPRINTF("lastrow %d, lastcol %d\n", e->lastrow, e->lastcol);
+  return(e->count);
 }
 
 /* It should come in reversed */
@@ -336,10 +360,10 @@ static int pcf_read_toc(FILE *file, struct toc_entry **toc,
 
   /* Verify the version */
   if (strcmp(version, PCF_VERSION)) {
-    printf("Bad .PCF file\n");
-    printf("Got %2.2x %2.2x %2.2x %2.2x and I expected %2.2x %2.2x %2.2x %2.2x\n",
+    DPRINTF("Bad .PCF file\n");
+    DPRINTF("Got %2.2x %2.2x %2.2x %2.2x and I expected %2.2x %2.2x %2.2x %2.2x\n",
 	   version[0], version[1], version[2], version[3], 'p', 'c', 'f', '\0');
-    return(-1);
+    return -1;
   }
 
   FREAD(file, size, sizeof(*size));  
@@ -356,15 +380,18 @@ PMWCOREFONT pcf_createfont(char *name) {
 
   FILE *file = 0;
   MWCOREFONT *pf = 0;
+  int offset;
 
   int i;
   int count;
   int bsize;
+  int bwidth;
 
   int err = 0;
 
   /* Various structures that we will go out and search */
   struct metric_entry *metrics = 0;
+  struct encoding_entry *encoding = 0;
   MWIMAGEBITS *output;
 
   unsigned char *glyphs = 0;
@@ -372,24 +399,27 @@ PMWCOREFONT pcf_createfont(char *name) {
   
   int max_width = 0, max_descent = 0, max_ascent = 0, max_height = 0;
   int glyph_count;
+  unsigned short *goffset = 0;
+  unsigned char *gwidth = 0;
 
-  /* Check the filename */
+  /* Try to open the file */
 
-  if (!(pf = (MWCOREFONT *) malloc(sizeof(MWCOREFONT)))) return(0);
+  if (!(file = FOPEN(name, "r")))
+    return(0);
+
+  if (!(pf = (MWCOREFONT *) malloc(sizeof(MWCOREFONT)))) {
+    err = -1; goto leave_func; 
+  }
 
   pf->fontprocs = &pcf_fontprocs;
   pf->fontsize = pf->fontrotation = pf->fontattr = 0;
+  pf->name = "PCF";
  
   if (!(pf->cfont = (PMWCFONT) calloc(sizeof(MWCFONT), 1))) {
     err = -1; goto leave_func; 
   }
   
-  /* open the file */
 
-  if (!(file = FOPEN(name, "r"))) { 
-    err = -1; goto leave_func; 
-  }
-  
   /* Read the table of contents */
   if (pcf_read_toc(file, &toc, &toc_size) == -1) {
     err = -1; goto leave_func; 
@@ -404,82 +434,95 @@ PMWCOREFONT pcf_createfont(char *name) {
     err = -1; goto leave_func; 
   }
   
-  pf->cfont->firstchar = pcf_read_firstchar(file);
-  if (pf->cfont->firstchar == -1) { 
+  if (pcf_read_encoding(file, &encoding) == -1) {
     err = -1; goto leave_func; 
   }
 
-  /* Read in the metrics */
+  pf->cfont->firstchar = encoding->firstcol;
 
+  /* Read in the metrics */
   count = pcf_readmetrics(file, &metrics);
   
   /* Calculate the various values */
 
   for(i = 0; i < count; i++) {
-    if (metrics[i].width > max_width) {
-      max_width = metrics[i].width;
-    }
-
-    if (metrics[i].descent > max_descent) {
-      max_descent = metrics[i].descent;
-    }
-    
-    if (metrics[i].ascent > max_ascent) {
-      max_ascent = metrics[i].ascent;
-    }
+    if (metrics[i].width > max_width) max_width = metrics[i].width;
+    if (metrics[i].ascent > max_ascent) max_ascent = metrics[i].ascent;
+    if (metrics[i].descent > max_descent) max_descent = metrics[i].descent;    
   }
 
   max_height = max_ascent + max_descent;
-
+  
   pf->cfont->maxwidth = max_width;
   pf->cfont->height = max_height;
   pf->cfont->ascent = max_ascent;
-  pf->cfont->size = glyph_count;
+  DPRINTF("glyph_count = %d (%x)\n", glyph_count, glyph_count);
   
   /* Allocate enough room to hold all of the files and the offsets */
-  pf->cfont->bits = (MWIMAGEBITS *) malloc((max_height * sizeof(MWIMAGEBITS)) * glyph_count);
-  pf->cfont->offset = (unsigned short *) malloc(glyph_count * sizeof(unsigned short));
-  pf->cfont->width = (unsigned char *) malloc(glyph_count * sizeof(unsigned char));
+  
+  bwidth = (max_width + 15) / 16;
+
+  pf->cfont->bits = (MWIMAGEBITS *) 
+    calloc((max_height * (sizeof(MWIMAGEBITS) * bwidth)), glyph_count);
+
+  goffset = (unsigned short *) malloc(glyph_count * sizeof(unsigned short));
+  gwidth = (unsigned char *) malloc(glyph_count * sizeof(unsigned char));
 
   output = (MWIMAGEBITS *) pf->cfont->bits;
-
-  /* Ok, so now we need to convert each char */
+  offset = 0;
 
   for(i = 0; i < glyph_count; i++) {
+    int y = max_height;
+    int h, w, lwidth;
+    unsigned long *ptr = (unsigned long *) (glyphs + glyphs_offsets[i]);
 
-    int h;
-    unsigned char *cptr = glyphs + glyphs_offsets[i];
-    unsigned long *ptr = (unsigned long *) cptr;
+    lwidth = (metrics[i].width + 15) / 16;
+    
+    gwidth[i] = (unsigned char) metrics[i].width;    
+    goffset[i] = offset;
 
-    pf->cfont->offset[i] = (unsigned short) 
-      ((unsigned short *) output - (unsigned short *) pf->cfont->bits);
-
-    pf->cfont->width[i] = (unsigned char) metrics[i].width;
-
-    for(h = max_ascent; h > 0; h--) {
-      if (h > metrics[i].ascent) 
-	*output++ = 0x0000;
-      else {
-	unsigned short val = (unsigned short) *ptr;
-	word_reverse_swap((unsigned char *) &val);
-	*output++ = val;
-	ptr++;
-      }
+    offset += (lwidth * max_height);
+          
+    for(h = 0; h < (max_ascent - metrics[i].ascent); h++) { 
+      for(w = 0; w < lwidth; w++) *output++ = 0;
+      y--; 
     }
 
-    for(h = max_descent; h > 0; h--) {
-      if (h > metrics[i].descent) *output++ = 0;
-      else {
-	unsigned short val = (unsigned short) *ptr;
-	word_reverse_swap((unsigned char *) &val);
-	*output++ = val;
-	ptr++;
+    for(h = 0; h < (metrics[i].ascent + metrics[i].descent); h++) {
+      unsigned short *val = (unsigned short *) ptr;
+      
+      for(w = 0; w < lwidth; w++) {
+	word_reverse_swap((unsigned char *) &val[w]);
+	*output++ = val[w];
       }
+
+      ptr += (lwidth + 1) / 2;
+      y--;
     }
+
+    for(; y > 0; y--) for(w = 0; w < lwidth; w++) *output++ = 0;
   }
 
+  /* reorder offsets and width according to encoding map*/
+  pf->cfont->offset = (unsigned short *)malloc(encoding->count * sizeof(unsigned short));
+  pf->cfont->width = (unsigned char *)malloc(encoding->count * sizeof(unsigned char));
+  for(i=0; i<encoding->count; ++i) {
+	  unsigned short n = encoding->map[i];
+	  if (n == 0xffff)	/* map non-existent chars to default char*/
+		  n = encoding->map[encoding->defaultchar];
+	  pf->cfont->offset[i] = goffset[n];
+	  pf->cfont->width[i] = gwidth[n];
+  }
+  pf->cfont->size = encoding->count;
+   
  leave_func:
 
+  if(goffset) free(goffset);
+  if(gwidth) free(gwidth);
+  if(encoding) {
+  	  if(encoding->map) free(encoding->map);
+	  free(encoding);
+  }
   if(metrics) free(metrics);
   if(glyphs) free(glyphs);
   if(glyphs_offsets) free(glyphs_offsets);
@@ -516,4 +559,94 @@ void pcf_unloadfont(PMWFONT font) {
   }
   
   free(font);
+}
+
+/*
+ * Draw MWTF_UC16 text using COREFONT type font.
+ */
+void
+gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+	const void *text, int cc, int flags)
+{
+	const unsigned short *str = text;
+	MWCOORD		width;			/* width of text area */
+	MWCOORD 	height;			/* height of text area */
+	MWCOORD		base;			/* baseline of text*/
+	MWCOORD		startx, starty;
+						/* bitmap for characters */
+	MWIMAGEBITS bitmap[MAX_CHAR_HEIGHT*MAX_CHAR_WIDTH/MWIMAGE_BITSPERIMAGE];
+
+	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
+	
+	if(flags & MWTF_BASELINE)
+		y -= base;
+	else if(flags & MWTF_BOTTOM)
+		y -= (height - 1);
+	startx = x;
+	starty = y + base;
+
+	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	case CLIP_VISIBLE:
+		/*
+		 * For size considerations, there's no low-level text
+		 * draw, so we've got to draw all text
+		 * with per-point clipping for the time being
+		if (gr_usebg)
+			psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
+				gr_background);
+		psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
+		GdFixCursor(psd);
+		return;
+		*/
+		break;
+
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+	/* Get the bitmap for each character individually, and then display
+	 * them using clipping for each one.
+	 */
+	while (--cc >= 0 && x < psd->xvirtres) {
+		unsigned int ch = *str++;
+		pfont->fontprocs->GetTextBits(pfont, ch, bitmap, &width,
+			&height, &base);
+
+		/* note: change to bitmap*/
+		GdBitmap(psd, x, y, width, height, bitmap);
+		x += width;
+	}
+
+	if (pfont->fontattr & MWTF_UNDERLINE)
+		GdLine(psd, startx, starty, x, starty, FALSE);
+
+	GdFixCursor(psd);
+}
+
+/*
+ * Routine to calc bounding box for text output.
+ * Handles both fixed and proportional fonts.  Passed MWTF_UC16 string.
+ */
+void
+gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
+	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
+{
+	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
+	const unsigned short *	str = text;
+	unsigned int		c;
+	int			width;
+
+	if(pf->width == NULL)
+		width = cc * pf->maxwidth;
+	else {
+		width = 0;
+		while(--cc >= 0) {
+			c = *str++;
+			if(c >= pf->firstchar && c < pf->firstchar+pf->size)
+				width += pf->width[c - pf->firstchar];
+		}
+	}
+	*pwidth = width;
+	*pheight = pf->height;
+	*pbase = pf->ascent;
 }

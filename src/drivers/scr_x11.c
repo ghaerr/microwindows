@@ -426,10 +426,11 @@ static void show_visual(Visual* v)
 {
     char* name = ((v->class < 0) || (v->class > 5)) ? "???" : 
 	classnm[v->class];
-    DPRINTF("  Visual  class: %s (%d)\n", name, v->class);
-    DPRINTF("             id: %ld\n", v->visualid);
-    DPRINTF("   bits_per_rgb: %d\n", v->bits_per_rgb);
-    DPRINTF("    map_entries: %d\n", v->map_entries);
+    printf("  Visual  class: %s (%d)\n", name, v->class);
+    printf("             id: %ld\n", v->visualid);
+    printf("   bits_per_rgb: %d\n", v->bits_per_rgb);
+    printf("          masks: %x,%x,%x\n", v->red_mask, v->green_mask, v->blue_mask);
+    printf("    map_entries: %d\n", v->map_entries);
 }
 
 static Visual* select_visual(Display* dpy, int scr)
@@ -438,12 +439,14 @@ static Visual* select_visual(Display* dpy, int scr)
     Screen* screen = XScreenOfDisplay(dpy, scr);
     int d;
 
-    DPRINTF("XDefaultVisual:\n");
+    printf("XDefaultVisual:\n");
     show_visual(vis);
 
-    DPRINTF("Screen RootDepth: %d\n", screen->root_depth);
+    printf("DefaultDepth %d\n", XDefaultDepth(dpy, 0));
+    printf("Screen RootDepth: %d\n", screen->root_depth);
+    printf("Depth: %d\n", screen->depths->depth);
     
-    DPRINTF("Screen RootVisual\n");
+    printf("Screen RootVisual\n");
     show_visual(screen->root_visual);
     
     /* print all depths/visuals */
@@ -590,7 +593,6 @@ X11_open(PSD psd)
 
     psd->xres    = psd->xvirtres    = SCREEN_WIDTH;
     psd->yres    = psd->yvirtres    = SCREEN_HEIGHT;
-    psd->linelen = SCREEN_WIDTH;
     psd->planes  = 1;
     psd->pixtype = x11_pixtype = MWPIXEL_FORMAT;
     switch(psd->pixtype) {
@@ -613,8 +615,8 @@ X11_open(PSD psd)
 	    break;
     }
 
+    /*psd->linelen = SCREEN_WIDTH;*/
     /* Calculate the correct linelen here */
-
     GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
 		     psd->bpp, &size, &psd->linelen);
     
@@ -634,8 +636,6 @@ X11_open(PSD psd)
 	    return NULL;
 
     /* calc size and linelen of savebits alloc*/
-    /* JHC - Is this redundant now?? */
-
     GdCalcMemGCAlloc(&savebits, savebits.xvirtres, savebits.yvirtres, 0, 0,
 		&size, &linelen);
     savebits.linelen = linelen;

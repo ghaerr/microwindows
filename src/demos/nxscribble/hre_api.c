@@ -31,7 +31,8 @@
 #include <locale.h>
 #include <stdlib.h>
 /*#include <libintl.h>*/
-#include <hre_internal.h>   /* includes hre.h */
+#include "hre_internal.h"   /* includes hre.h */
+#include "util.h"
 
 /* ari -- prototype for rii function */
 recognizer __recognizer_internal_initialize(rec_info* ri);
@@ -69,6 +70,8 @@ char* REC_VERSION = "2.0";
 
 /* static char rii_name[] = "__recognizer_internal_initialize";
 static char rif_name[] = "__recognizer_internal_finalize";  */
+
+extern int __recognizer_internal_finalize(recognizer r);
 
 /*User home directory for recognizer info.*/
 /* ari -- changed USERRECHOME from ".recognizers" */

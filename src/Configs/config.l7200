@@ -238,6 +238,7 @@ HWVGA                    = N
 # PSIONMOUSE for the Psion 5
 ####################################################################
 GPMMOUSE                 = N
+SUNMOUSE                 = N
 SERMOUSE                 = N
 TPMOUSE                  = N
 TPHELIO                  = N

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2002 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1999 Alex Holden
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -18,7 +18,7 @@
 #include <fcntl.h>
 #include "device.h"
 
-#define	SCALE		3	/* default scaling factor for acceleration */
+#define	SCALE		2	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
 
 #define GPM_DEV_FILE	"/dev/gpmdata"
@@ -61,7 +61,7 @@ GPM_Close(void)
 {
 	if (mouse_fd > 0)
 		close(mouse_fd);
-	mouse_fd = 0;
+	mouse_fd = -1;
 }
 
 /*

@@ -4,7 +4,7 @@
 >selections</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="misc"
 HREF="nano-x-misc.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,19 +115,22 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->selections</H1
+><A
+NAME="NANO-X-SELECTIONS"
+>selections</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN2977"
+NAME="AEN3369"
 ></A
 ><H2
 >Name</H2
->selections &#8212; </DIV
+>selections&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN2980"
+NAME="AEN3372"
 ></A
 ><H2
 >Synopsis</H2
@@ -192,7 +199,7 @@ HREF="GR-WINDOW-ID-CAPS"
                                              <GTKDOCLINK
 HREF="GR-SERIALNO-CAPS"
 >GR_SERIALNO</GTKDOCLINK
-> serial,
+> sid,
                                              <GTKDOCLINK
 HREF="GR-LENGTH-CAPS"
 >GR_LENGTH</GTKDOCLINK
@@ -209,7 +216,7 @@ HREF="GR-LENGTH-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN3000"
+NAME="AEN3392"
 ></A
 ><H2
 >Description</H2
@@ -219,14 +226,14 @@ NAME="AEN3000"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN3003"
+NAME="AEN3395"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3005"
+NAME="AEN3397"
 ></A
 ><H3
 ><A
@@ -269,6 +276,9 @@ retreive the selection data).</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3406"
+></A
 ><P
 ></P
 ><TABLE
@@ -278,6 +288,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -312,6 +323,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > list of mime types selection data can be supplied as</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -320,7 +332,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3027"
+NAME="AEN3419"
 ></A
 ><H3
 ><A
@@ -359,6 +371,9 @@ check the value of it before using it.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3427"
+></A
 ><P
 ></P
 ><TABLE
@@ -368,6 +383,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -400,6 +416,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the window which currently owns the selection, or 0</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -408,7 +425,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3048"
+NAME="AEN3440"
 ></A
 ><H3
 ><A
@@ -461,6 +478,9 @@ check the value before using it.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3450"
+></A
 ><P
 ></P
 ><TABLE
@@ -470,6 +490,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -538,6 +559,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the number of the desired mime type to request</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -546,7 +568,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN3079"
+NAME="AEN3471"
 ></A
 ><H3
 ><A
@@ -573,7 +595,7 @@ HREF="GR-WINDOW-ID-CAPS"
                                              <GTKDOCLINK
 HREF="GR-SERIALNO-CAPS"
 >GR_SERIALNO</GTKDOCLINK
-> serial,
+> sid,
                                              <GTKDOCLINK
 HREF="GR-LENGTH-CAPS"
 >GR_LENGTH</GTKDOCLINK
@@ -599,6 +621,9 @@ parameter.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3482"
+></A
 ><P
 ></P
 ><TABLE
@@ -608,6 +633,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -650,14 +676,14 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->serial</I
+>sid</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
->&nbsp;</TD
+> the serial number of the request</TD
 ></TR
 ><TR
 ><TD
@@ -710,6 +736,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the data to transfer</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P

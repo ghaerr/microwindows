@@ -33,7 +33,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 	GR_COORD	x, y, width, height;
 	MWCLIPREGION	*vis, *r;
 
-	if (wp->unmapcount || !wp->output)
+	if (!wp->realized || !wp->output)
 		return;
 
 	clipwp = wp;
@@ -87,9 +87,15 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 	}
 
 	/*
-	 * Allocate region to clipped size of window
+	 * Allocate region to clipped size of window,
+	 * intersect with user window clip region.
 	 */
 	vis = GdAllocRectRegion(x, y, x+width, y+height);
+	if (wp->clipregion) {
+		GdOffsetRegion(wp->clipregion, wp->x, wp->y);
+		GdIntersectRegion(vis, vis, wp->clipregion);
+		GdOffsetRegion(wp->clipregion, -wp->x, -wp->y);
+	}
 
 	/* 
 	 * Allocate temp region
@@ -121,7 +127,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 		}
 
 		for (; sibwp != wp; sibwp = sibwp->siblings) {
-			if (sibwp->unmapcount || !sibwp->output)
+			if (!sibwp->realized || !sibwp->output)
 				continue;
 
 			bs = sibwp->bordersize;
@@ -132,6 +138,15 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 
 			GdSetRectRegion(r, minx, miny, maxx, maxy);
 			GdSubtractRegion(vis, vis, r);
+			/* FIXME: shaped windows with borders won't work */
+			if (sibwp->clipregion) {
+				// FIXME: can user set invalid clipregion here?
+				GdOffsetRegion(sibwp->clipregion,
+					sibwp->x, sibwp->y);
+				GdSubtractRegion(vis, vis, sibwp->clipregion);
+				GdOffsetRegion(sibwp->clipregion,
+					-sibwp->x, -sibwp->y);
+			}
 		}
 
 		/* if not clipping the root window, stop when you reach it*/
@@ -146,7 +161,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 	 */
 	if(wp != rootwp && !(flags & GR_MODE_EXCLUDECHILDREN)) {
 		for (sibwp=wp->children; sibwp; sibwp = sibwp->siblings) {
-			if (sibwp->unmapcount || !sibwp->output)
+			if (!sibwp->realized || !sibwp->output)
 				continue;
 
 			bs = sibwp->bordersize;
@@ -157,6 +172,15 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 
 			GdSetRectRegion(r, minx, miny, maxx, maxy);
 			GdSubtractRegion(vis, vis, r);
+			/* FIXME: shaped windows with borders won't work */
+			if (wp->clipregion) {
+				// FIXME: can user set invalid clipregion here?
+				GdOffsetRegion(sibwp->clipregion,
+					sibwp->x, sibwp->y);
+				GdSubtractRegion(vis, vis, sibwp->clipregion);
+				GdOffsetRegion(sibwp->clipregion,
+					-sibwp->x, -sibwp->y);
+			}
 		}
 	}
 

@@ -226,6 +226,7 @@ HWVGA                    = N
 # IPAQMOUSE for Compaq iPAQ
 ####################################################################
 GPMMOUSE                 = N
+SUNMOUSE                 = N
 SERMOUSE                 = N
 TPMOUSE                  = Y
 ADSMOUSE                 = N

@@ -40,6 +40,7 @@
 #include <linuxmt/time.h>
 #elif __ECOS
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/select.h>
 #include <cyg/kernel/kapi.h>
 #define _NO_SVR_MAPPING
@@ -95,6 +96,9 @@ static GR_FNCALLBACKEVENT ErrorFunc = GrDefaultErrorHandler;
 int ecos_nanox_client_data_index = CYGNUM_KERNEL_THREADS_DATA_MAX;
 
 #endif
+
+static int _GrPeekEvent(GR_EVENT * ep);
+static void _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 
 /*
  * Queue an event in FIFO for later retrieval.
@@ -277,7 +281,7 @@ CheckErrorEvent(GR_EVENT *ep)
         ACCESS_PER_THREAD_DATA()
 
 	if (ep->type == GR_EVENT_TYPE_ERROR) {
-		if (ErrorFunc) {
+	    if (ErrorFunc) {
 			/* call error handler*/
 			ErrorFunc(ep);
 
@@ -295,7 +299,17 @@ CheckErrorEvent(GR_EVENT *ep)
 void 
 GrFlush(void)
 {
+	GR_EVENT event;
+
 	nxFlushReq(0L,1);
+  
+#ifdef NOTUSED
+	/* And stick any incoming events on the local queue */
+	while (_GrPeekEvent(&event)) {
+		_GrGetNextEventTimeout(&event, 0L);
+		QueueEvent(&event);
+	}
+#endif
 }
 
 /**
@@ -369,6 +383,9 @@ GrOpen(void)
 		return -1;
 	}
 
+	setbuf(stdout, NULL);
+	setbuf(stderr, NULL);
+
 	/*
 	 * By Performing the 'GrOpen' without allocating a buffer, just
 	 * shuffeling the struct over the wire, we can postpone the
@@ -396,8 +413,7 @@ static void
 mySignalhandler(int sig)
 {
 	if (sig == SIGALRM) {
-		printf("Oops! nxFlushReq() timed out, cowardly chickening "
-								"out!\n");
+		printf("Oops! nxFlushReq() timed out, exiting\n");
 		exit(127);
 	}
 }
@@ -621,6 +637,8 @@ GrUnregisterInput(int fd)
 {
 	int i, max;
 
+	ACCESS_PER_THREAD_DATA()
+
 	/* unregister all inputs if fd is -1 */
 	if (fd == -1) {
 		FD_ZERO(&regfdset);
@@ -758,20 +776,9 @@ GrGetNextEvent(GR_EVENT *ep)
 	GrGetNextEventTimeout(ep, 0L);
 }
 
-/**
- * GrGetNextEventTimeout:
- * @ep: pointer to the GR_EVENT structure to return the event in
- * @timeout: the number of milliseconds to wait before timing out
- *
- * Gets the next event from the event queue and places it in the specified
- * GR_EVENT structure. If the queue is currently empty, we sleep until the
- * next event arrives from the server, input is read on a file descriptor
- * previously specified by GrRegisterInput(), or a timeout occurs. Note
- * that a value of 0 for the timeout parameter doesn't mean "timeout after 0
- * milliseconds" but is in fact a magic number meaning "never time out".
- */
-void
-GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
+
+static void
+_GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 {
 	fd_set		rfds;
 	int		setsize = 0;
@@ -779,12 +786,6 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	struct timeval	to;
 	ACCESS_PER_THREAD_DATA()
 
-	if (evlist) {
-		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
-		GetNextQueuedEvent(ep);
-		CheckErrorEvent(ep);
-		return;
-	}
 
 	FD_ZERO(&rfds);
 	/*
@@ -843,6 +844,33 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 }
 
 /**
+ * GrGetNextEventTimeout:
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ * @timeout: the number of milliseconds to wait before timing out
+ *
+ * Gets the next event from the event queue and places it in the specified
+ * GR_EVENT structure. If the queue is currently empty, we sleep until the
+ * next event arrives from the server, input is read on a file descriptor
+ * previously specified by GrRegisterInput(), or a timeout occurs. Note
+ * that a value of 0 for the timeout parameter doesn't mean "timeout after 0
+ * milliseconds" but is in fact a magic number meaning "never time out".
+ */
+void
+GrGetNextEventTimeout(GR_EVENT * ep, GR_TIMEOUT timeout)
+{
+	if (evlist) {
+		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
+		GetNextQueuedEvent(ep);
+		CheckErrorEvent(ep);
+		return;
+	}
+
+
+	_GrGetNextEventTimeout(ep,timeout);
+}
+
+
+/**
  * GrCheckNextEvent:
  * @ep: pointer to the GR_EVENT structure to return the event in
  *
@@ -852,6 +880,8 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 void 
 GrCheckNextEvent(GR_EVENT *ep)
 {
+	ACCESS_PER_THREAD_DATA()
+
 	if (evlist) {
 		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
 		GetNextQueuedEvent(ep);
@@ -863,6 +893,20 @@ GrCheckNextEvent(GR_EVENT *ep)
 	GrTypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
 	GrCheckForClientData(ep);
 	CheckErrorEvent(ep);
+}
+
+
+static int
+_GrPeekEvent(GR_EVENT * ep)
+{
+        int ret;
+
+	AllocReq(PeekEvent);
+	GrTypedReadBlock(ep, sizeof(*ep),GrNumPeekEvent);
+	GrCheckForClientData(ep);
+	ret = GrReadByte();
+	CheckErrorEvent(ep);
+	return ret;
 }
 
 /**
@@ -877,7 +921,6 @@ GrCheckNextEvent(GR_EVENT *ep)
 int 
 GrPeekEvent(GR_EVENT *ep)
 {
-	int ret;
 	ACCESS_PER_THREAD_DATA()
 
 	if (evlist) {
@@ -885,34 +928,15 @@ GrPeekEvent(GR_EVENT *ep)
 		CheckErrorEvent(ep);
 		return 1;
 	}
-
-	AllocReq(PeekEvent);
-	GrTypedReadBlock(ep, sizeof(*ep),GrNumPeekEvent);
-	GrCheckForClientData(ep);
-	ret = GrReadByte();
-	CheckErrorEvent(ep);
-	return ret;
+	return _GrPeekEvent(ep);
 }
 
-/**
- * GrPeekWaitEvent:
- * @ep: pointer to the GR_EVENT structure to return the event in
- *
- * Wait until an event is available for a client, and then peek at it.
- */
-void
-GrPeekWaitEvent(GR_EVENT *ep)
+static void
+_GrPeekWaitEvent(GR_EVENT * ep)
 {
 	EVENT_LIST *	elp;
-	ACCESS_PER_THREAD_DATA()
 
-	if (evlist) {
-		*ep = evlist->event;
-		CheckErrorEvent(ep);
-		return;
-	}
-
-	/* no events, wait for next event*/
+	/* wait for next event*/
 	GrGetNextEvent(ep);
 
 	/* add event back on head of list*/
@@ -927,6 +951,26 @@ GrPeekWaitEvent(GR_EVENT *ep)
 }
 
 /**
+ * GrPeekWaitEvent:
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ *
+ * Wait until an event is available for a client, and then peek at it.
+ */
+void
+GrPeekWaitEvent(GR_EVENT *ep)
+{
+	ACCESS_PER_THREAD_DATA()
+
+	if (evlist) {
+		*ep = evlist->event;
+		CheckErrorEvent(ep);
+		return;
+	}
+
+	_GrPeekWaitEvent(ep);
+}
+
+/**
  * GrSelectEvents:
  * @wid: the ID of the window to set the event mask of
  * @eventmask: a bit field specifying the desired event mask
@@ -936,7 +980,6 @@ GrPeekWaitEvent(GR_EVENT *ep)
 void 
 GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 {
-	
 	nxSelectEventsReq *req;
 
 	req = AllocReq(SelectEvents);
@@ -1830,6 +1873,87 @@ GrSetGCMode(GR_GC_ID gc, int mode)
 }
 
 /**
+ * GrSetGCLineAttributes:
+ * @gc: the ID of the graphics context to set the drawing mode of
+ * @line_style:  The new style of the line
+ *
+ * Changes the line style to either SOLID or ON OFF DASHED 
+ */
+
+void 
+GrSetGCLineAttributes(GR_GC_ID gc, int line_style)
+{
+	nxSetGCLineAttributesReq *req;
+
+	req = AllocReq(SetGCLineAttributes);
+	req->gcid = gc;
+	req->line_style = line_style;
+}
+
+void 
+GrSetGCDash(GR_GC_ID gc, char *dashes, char count)
+{
+  nxSetGCDashReq *req;
+
+  req = AllocReqExtra(SetGCDash, count * sizeof(char));
+  req->gcid = gc;
+  req->count = count;
+
+  memcpy(GetReqData(req), dashes, count * sizeof(char));
+}
+
+void
+GrSetGCFillMode(GR_GC_ID gc, int fill_mode) {
+  	nxSetGCFillModeReq *req;
+
+	req = AllocReq(SetGCFillMode);
+	req->gcid = gc;
+	req->fill_mode = fill_mode;
+}
+
+void
+GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height) {
+
+  nxSetGCStippleReq *req;
+
+  req = AllocReqExtra(SetGCStipple, 
+		      GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
+
+  req->gcid = gc;
+  req->width = width;
+  req->height = height;
+
+  memcpy(GetReqData(req), bitmap, 
+	 GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
+}
+
+void
+GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pid, int width, int height) {
+
+  nxSetGCTileReq *req;
+
+  /* FIXME:  Set a size restriction here? */
+  req = AllocReq(SetGCTile);
+
+  printf("SET GC TILE %d, %d, %d\n", pid, width, height);
+
+  req->gcid = gc;
+  req->pid = pid;
+  req->width = width;
+  req->height = height;
+}
+
+void
+GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff) {
+  nxSetGCTSOffsetReq *req;
+	
+	req = AllocReq(SetGCTSOffset);
+	req->gcid = gc;
+	req->xoffset = xoff;
+	req->yoffset = yoff;
+}
+
+/**
  * GrSetGCUseBackground:
  * @gc: the ID of the graphics context to change the "use background" flag of
  * @flag: flag specifying whether to use the background colour or not
@@ -2672,7 +2796,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 void
 GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
-	GR_COORD srcx, GR_COORD srcy, int op)
+	GR_COORD srcx, GR_COORD srcy, unsigned long op)
 {
 	nxCopyAreaReq *req;
 
@@ -2688,7 +2812,6 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
         req->srcy = srcy;
         req->op = op;
 }
-   
    
 /**
  * GrReadArea:
@@ -3387,7 +3510,7 @@ GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
  * @typelist: list of mime types the drag and drop data can be supplied as
  *
  * Enables the specified window to be used as a drag and drop source. The
- * specified pixmap will be used as the icon shown whilst dragging, and the
+2 * specified pixmap will be used as the icon shown whilst dragging, and the
  * null terminated, newline seperated list of mime types which the data can
  * be supplied as is specified by the typelist argument. At least one type
  * (typically text/plain for plain ASCII or text/uri-list for a filename or
@@ -3440,4 +3563,199 @@ GrSetPortraitMode(int portraitmode)
     
     req = AllocReq(SetPortraitMode);
     req->portraitmode = portraitmode;
+}
+
+static int
+_CheckTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
+	GR_EVENT * ep, void * arg)
+{
+	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
+
+printf("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, mask, update, ep->general.wid, ep->type);
+
+	// FIXME: not all windows have wid field here...
+	if (wid && (wid != ep->general.wid))
+		return 0;
+
+	if (mask) {
+		if ((mask & emask) == 0)
+			return 0;
+
+		if (update && ((mask & emask) == GR_EVENT_MASK_UPDATE))
+			if (update != ep->update.utype)
+				return 0;
+	}
+
+	return 1;
+}
+
+/**
+ * GrGetTypedEvent
+ * @wid: window id for which to check events. 0 means no window
+ * @mask: event mask of events for which to check. 0 means no check for mask
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ * @block: specifies whether or not to block, 1 blocks, 0 does not
+ * @Returns: GR_EVENT_TYPE if an event was returned, or GR_EVENT_TYPE_NONE 
+ * if no events match
+ *
+ * Fills in the specified event structure with a copy of the next event on the
+ * queue that matches the type parameters passed and removes it from the queue.
+ * An event type of GR_EVENT_TYPE_NONE is given if the queue is empty; else,
+ * the event type is returned.
+ */
+int
+GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
+	GR_EVENT * ep, int block)
+{
+	return GrGetTypedEventPred(wid, mask, mask_up, ep, block, _CheckTypedEvent, 0);
+}
+
+int
+GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE mask_up,
+	GR_EVENT *ep, int block, 
+	int (*CheckFunction)(GR_WINDOW_ID, GR_EVENT_MASK, 
+		GR_UPDATE_TYPE, GR_EVENT *, void *),
+	void *arg)
+{
+	EVENT_LIST *elp, *prevelp;
+	GR_EVENT event;
+
+	ACCESS_PER_THREAD_DATA();
+  
+	/* First, suck up all events and place them into the event queue */
+	while(_GrPeekEvent(&event)) {
+getevent:
+		_GrGetNextEventTimeout(&event, 0L);
+		QueueEvent(&event);
+	}
+
+	/* Now, run through the event queue, looking for matches for the typed
+	 * info that was passed.
+	 */
+	prevelp = NULL;
+	elp = evlist;
+	while (elp) {
+		if ((*CheckFunction)(wid, mask, mask_up, &elp->event, arg)) {
+			/* remove event from queue, return it*/
+			if (prevelp == NULL)
+				evlist = elp->next;
+			else prevelp->next = elp->next;
+			*ep = elp->event;
+			return ep->type;
+		}
+		prevelp = elp;
+		elp = elp->next;
+	}
+
+	/* if event still not found and waiting ok, then wait*/
+	if (block)
+		goto getevent;
+
+	/* return no event*/
+	ep->type = GR_EVENT_TYPE_NONE;
+	return GR_EVENT_TYPE_NONE;
+} 
+
+/**
+ * GrQueryPointer
+ * @mwin:   Window the mouse is current in
+ * @x:      Current X pos of mouse (from root)
+ * @y:      Current Y pos of mouse (from root)
+ * @bmask:  Current button mask 
+ *
+ * Returns the current information for the pointer
+ */
+
+void 
+GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask)
+{
+	nxQueryPointerReq *req;
+
+	req = AllocReq(QueryPointer);
+	GrTypedReadBlock(mwin, sizeof(*mwin), GrNumQueryPointer);
+	GrReadBlock(x, sizeof(*x));
+	GrReadBlock(y, sizeof(*y));
+	GrReadBlock(bmask, sizeof(*bmask));
+}
+
+/**
+ * GrQueueLength
+ *
+ * Returns the current length of the client side queue
+ */
+int 
+GrQueueLength(void)
+{
+	int count = 0;
+	EVENT_LIST *p;
+
+	ACCESS_PER_THREAD_DATA();
+	for(p = evlist; p; p = p->next)
+		++count;
+
+	return count;
+}
+
+/**
+ * GrNewBitmapRegion
+ * @bitmap: pointer to a GR_BITMAP array specifying the region mask
+ * @width: the width of the bitmap
+ * @height: the height of the bitmap
+ * @Returns: the ID of the newly allocated region structure, or 0 on error
+ *
+ * Creates a new region structure, fills it with the region described by the
+ * specified polygon, and returns the ID used to refer to it. 1 bits in the
+ * bitmap specify areas inside the region and 0 bits specify areas outside it.
+ */
+GR_REGION_ID
+GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
+{
+	int			size;
+	GR_REGION_ID		region;
+	nxNewBitmapRegionReq *	req;
+
+	size = sizeof(GR_BITMAP) * height * (((width - 1) / 16) + 1); //FIXME
+
+	req = AllocReqExtra(NewBitmapRegion, size);
+	req->width = width;
+	req->height = height;
+	memcpy(GetReqData(req), bitmap, size);
+
+	if(GrTypedReadBlock(&region, sizeof(region), GrNumNewBitmapRegion) < 0)
+		return 0;
+	else return region;
+}
+
+/**
+ * GrSetWindowRegion
+ * @wid: the ID of the window to set the clipping region of
+ * @rid: the ID of the region to assign to the specified window
+ *
+ * Copies the specified region and makes the copy be the clipping region used
+ * for the specified window. The old clipping region associated with the window
+ * will automatically be destroyed. After setting the clipping region, all
+ * drawing within the window will be clipped to the specified region (including
+ * the drawing of the window background by the server), and mouse events will
+ * pass through parts of the window which are outside the clipping region to
+ * whatever is underneath them. Also, windows underneath the areas which are
+ * outside the clipping region will be able to draw to the screen as if those
+ * areas of the window were not there (in other words, you can see through the
+ * gaps in the window). This is most commonly used to implement shaped windows
+ * (ie. windows which are some shape other than a simple rectangle). Note that
+ * if you are using this feature you will probably want to disable window
+ * manager decorations so that the window manager does not draw its own
+ * container window behind yours and spoil the desired effect. Also note that
+ * shaped windows must always have a border size of 0. If you need a border
+ * around a shaped window, add it to the clipping region and draw it yourself.
+ */
+void
+GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID bounds_rid,
+	GR_REGION_ID client_rid)
+{
+	nxSetWindowRegionReq *req;
+
+	req = AllocReq(SetWindowRegion);
+	req->wid = wid;
+	req->bounds_rid = bounds_rid;
+	req->client_rid = client_rid;
 }

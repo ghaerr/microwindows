@@ -1,6 +1,3 @@
-#define FASTJPEG	1	/* =1 for temp quick jpeg 8bpp display */
-#define HAVE_MMAP       1       /* =1 to use mmap if available         */
-
 #if defined(HAVE_FILEIO)	/* temp for entire file*/
 
 /*
@@ -17,7 +14,6 @@
  *	 improves speed, and provides a mechanism by which the
  *	 client can send image data directly to the engine 
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,14 +22,12 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
- 
+#include "device.h"
+#include "swap.h"
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
  
-#include "device.h"
-#include "swap.h"
-
 /* cached image list*/
 typedef struct {
 	MWLIST		link;		/* link list*/

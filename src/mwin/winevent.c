@@ -419,7 +419,9 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	}
 
 	if (pressed)
-		SendMessage(focuswp, WM_CHAR, VK_Code, 0L);
+		PostMessage(focuswp, WM_KEYDOWN, VK_Code, 0L);
+	else
+		PostMessage(focuswp, WM_KEYUP, VK_Code, 0L);
 }
 
 /*

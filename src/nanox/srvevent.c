@@ -123,9 +123,13 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	 * Add the event to the end of the event list.
 	 */
 	if (client->eventhead)
-		client->eventtail->next = elp;
+	  if (!client->eventtail)
+	    client->eventtail = elp;
+	  else
+	    client->eventtail->next = elp;
 	else
-		client->eventhead = elp;
+	  client->eventhead = elp;
+	
 	client->eventtail = elp;
 	elp->next = NULL;
 	elp->event.type = GR_EVENT_TYPE_NONE;
@@ -236,9 +240,10 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	 */
 	changebuttons = (curbuttons & ~newbuttons);
 	if (changebuttons) {
-		GsResetScreenSaver();
-		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP,
-			newbuttons, changebuttons, modifiers);
+
+	  GsResetScreenSaver();
+	  GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP,
+			       newbuttons, changebuttons, modifiers);
 	}
 
 	/*
@@ -247,6 +252,8 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	 */
 	changebuttons = (~curbuttons & newbuttons);
 	if (changebuttons) {
+if ((newbuttons&(GR_BUTTON_L|GR_BUTTON_R)) == (GR_BUTTON_L|GR_BUTTON_R))
+GsTerminate();
 		GsResetScreenSaver();
 		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN,
 			newbuttons, changebuttons, modifiers);
@@ -541,7 +548,7 @@ GsDeliverExposureEvent(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
 	GR_EVENT_EXPOSURE	*ep;		/* exposure event */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
 
-	if (wp->unmapcount || !wp->output)
+	if (!wp->realized || !wp->output)
 		return;
 
 	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {

@@ -91,17 +91,15 @@ static MWBOOL	switch_vt(unsigned short which);
 static int
 TTY_Open(KBDDEVICE *pkd)
 {
-  char *env;
-
 	int		i;
 	int		ledstate = 0;
+	char *		kbd;
 	struct termios	new;
 
 	/* Open "CONSOLE" or /dev/tty device*/
-	if(!(env = getenv("CONSOLE")))
-		fd = open(KEYBOARD, O_NONBLOCK);
-	else
-		fd = open(env, O_NONBLOCK);
+	if(!(kbd = getenv("CONSOLE")))
+		kbd = KEYBOARD;
+	fd = open(kbd, O_NONBLOCK);
 	if (fd < 0)
 		return -1;
 

@@ -124,6 +124,21 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 					width += 12;	/* FIXME*/
 			} else
 #endif
+#if HAVE_JISX0213_SUPPORT
+	/* decode Japanese JISX0213*/
+			if (c >= 0xA1 && c <= 0xFE && cc >= 1 &&
+				*str >= 0xA1 && *str <= 0xFE) {
+					--cc;
+					++str;
+					width += 12;	/* FIXME*/
+			} else
+			if (((c >= 0x81 && c <= 0x9F) || (c >= 0xE0 && c <= 0xEF)) && cc >= 1)
+				if (*str >= 0x40 && *str <= 0xFC && (*str != 0x7F)){
+					--cc;
+					++str;
+					width += 12;	/* FIXME*/
+			}else
+#endif
 #if HAVE_KSC5601_SUPPORT
 			/* Korean KSC5601 decoding */
 			if (c >= 0xA1 && c <= 0xFE && cc >= 1 &&
@@ -226,6 +241,72 @@ gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
 	}
 #endif /* HAVE_GB2312_SUPPORT*/
 
+#if HAVE_JISX0213_SUPPORT
+	/* decode Japanese JISX0213*/
+	int CH = ((unsigned int)ch) >> 8, CL = ((unsigned int)ch) & 0xFF;
+	/*EUC-JISX0213*/
+	if (CH >= 0xA1 && CH <= 0xFE && CL >= 0xA1 && CL <= 0xFE){
+	int EH = CH - 0xA1;
+	int EL = CL - 0xA1;
+	int pos = EH*94 + EL;
+	int height,i;
+	extern unsigned short JP_JISX0213_12X12_FONT_BITMAP[];
+	unsigned short *FontBitmap = JP_JISX0213_12X12_FONT_BITMAP + pos*12;
+
+	    *pwidth = width = 12;
+	    *pheight = height = 12;
+	    *pbase = 0;
+
+
+	    for (i = 0;i<width;i++)
+		*retmap++ = *FontBitmap++;
+
+	    return;
+	}
+	/*SHIFT-JISX0213*/
+       if ((CH >= 0x81 && CH <= 0x9F) || (CH >= 0xE0 && CH <= 0xEF)){
+	   int EH = 0;
+	   int EL = 0;
+	   int pos = 0;
+	   int height,i;
+	   extern unsigned short JP_JISX0213_12X12_FONT_BITMAP[];
+          unsigned short *FontBitmap;
+	   
+          if (CH >= 0x81 && CH <= 0x9F)
+  		if (CL >= 0x40 && CL <= 0xFC && (CL != 0x7F))
+  		{
+			EH = CH - 0x81;
+			if (CL >= 0x40 && CL <= 0x7E){
+		  	   EL = CL - 0x40;
+			}else if (CL >= 0x80 && CL <= 0xFC){
+			   EL = CL - 0x40 - 1;
+			}   
+			pos = EH*188 + EL;
+ 		}
+	   if (CH >= 0xE0 && CH <= 0xEF)
+	       if (CL >= 0x40 && CL <= 0xFC && (CL != 0x7F))
+	       {
+			EH = CH - 0xE0 + (0x9F - 0x81);
+			if (CL >= 0x40 && CL <= 0x7E){
+		  	   EL = CL - 0x40;
+			}else if (CL >= 0x80 && CL <= 0xFC){
+			   EL = CL - 0x40 - 1;
+			}   
+			pos = EH*188 + EL;		
+		}
+	    *pwidth = width = 12;
+	    *pheight = height = 12;
+	    *pbase = 0;
+
+	    FontBitmap = (unsigned short*)(JP_JISX0213_12X12_FONT_BITMAP + pos*width);
+	    
+	    for (i = 0;i<width;i++)
+		*retmap++ = *FontBitmap++;
+
+	    return;
+       }   
+#endif /*HAVE_JISX0213_SUPPORT*/
+
 #if HAVE_KSC5601_SUPPORT
 	int CH = ((unsigned int)ch) >> 8, CL = ((unsigned int)ch) & 0xFF;
 	int	mc;
@@ -251,16 +332,19 @@ gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
 	ch -= pf->firstchar;
 
 	/* get font bitmap depending on fixed pitch or not*/
+
 	bits = pf->bits + (pf->offset? pf->offset[ch]: (pf->height * ch));
-	width = pf->width ? pf->width[ch] : pf->maxwidth;
-	count = MWIMAGE_WORDS(width) * pf->height;
-	for(n=0; n<count; ++n)
-		*retmap++ = *bits++;
+ 	width = pf->width ? pf->width[ch] : pf->maxwidth;
+	count = MWIMAGE_WORDS(width) * pf->height; 
+
+	for(n=0; n<count; ++n) {
+	  *retmap++ = *bits++;
+	}
 
 	/* return width depending on fixed pitch or not*/
-	*pwidth = width;
+	*pwidth = width; 
 	*pheight = pf->height;
-	*pbase = pf->ascent;
+	*pbase = pf->ascent; 
 }
 
 void

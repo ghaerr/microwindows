@@ -80,7 +80,8 @@ usage()
 	    "usage: %s [<options>] <host>:<display#>\n"
 	    "       %s [<options>] -listen [<display#>]\n"
 	    "\n"
-	    "<options> are:\n"
+	    "<options> are:\n" ,programName,programName);
+    fprintf(stderr,
 	    "              [-display <display>] [-shared] [-viewonly]\n"
 	    "              [-raw] [-copyrect] [-rre] [-corre] [-hextile]\n"
 	    "              [-nocopyrect] [-norre] [-nocorre] [-nohextile]\n"
@@ -90,8 +91,8 @@ usage()
 	    "              [-passwd <passwd-file>]\n"
 	    "              [-period <ms>]\n"
 	    "              [-region <x> <y> <width> <height>]\n"
-	    "              [-rawdelay <ms>] [-copyrectdelay <ms>] [-debug]\n\n"
-	    ,programName,programName);
+	    "              [-rawdelay <ms>] [-copyrectdelay <ms>] [-debug]\n"
+	    "\n");
     exit(1);
 }
 

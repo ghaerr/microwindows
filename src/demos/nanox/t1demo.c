@@ -10,28 +10,18 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#define MAXW 		(630-50)
-#define MAXH 		(470-50)
-
+#define MAXW 		340
+#define MAXH 		340
 #define CLIP_POLYGON	0	/* =1 for polygonal region test*/
 
 #if HAVE_HZK_SUPPORT
 #define BIG5
-
 #define MAXFONTS 1
-#ifndef BIG5 
-#define FONT1 "HZKFONT"
-#define FONT2 "HZKFONT"
-#define FONT3 "HZKFONT"
-#define FONT4 "HZKFONT"
-#define FONT5 "HZKFONT"
-#else
 #define FONT1 "HZXFONT"
 #define FONT2 "HZXFONT"
 #define FONT3 "HZXFONT"
 #define FONT4 "HZXFONT"
 #define FONT5 "HZXFONT"
-#endif
 #elif HAVE_T1LIB_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "bchr"
@@ -39,14 +29,20 @@
 #define FONT3 "dcr10"
 #define FONT4 "dcbx10"
 #define FONT5 "bchri"
-#else
-/* truetype*/
+#elif HAVE_FREETYPE_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "lt1-r-omega-serif"
 #define FONT2 "arial"
 #define FONT3 "times"
 #define FONT4 "cour"
 #define FONT5 "timesi"
+#else
+#define MAXFONTS 1
+#define FONT1 "/usr/lib/X11/fonts/misc/7x14.pcf.gz"
+#define FONT2 "7x14"
+#define FONT3 "7x14"
+#define FONT4 "7x14"
+#define FONT5 "7x14"
 #endif
 
 static char * names[5] = { FONT1, FONT2, FONT3, FONT4, FONT5 };
@@ -60,18 +56,20 @@ int main()
         int 		i, x, y;
 	GR_REGION_ID	regionid = 0;
 #if CLIP_POLYGON
-	GR_POINT	points[]={ {100, 100},
-				{300, 100},
+	GR_POINT	points[]={ {20, 20},
+				{300, 20},
 				{300, 300},
-				{100, 300}};
+				{20, 300}};
 #else
-	GR_RECT		clip_rect={100,100,300,300};
+	GR_RECT		clip_rect={20,20,300,300};
 #endif
    
         srand(time(0));
    
         GrOpen();
-	window = GrNewWindow(GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, 4, BLACK,BLUE);
+	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "t1demo",
+			GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, BLACK);
+	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(window);
 
         gc = GrNewGC();
@@ -87,7 +85,6 @@ int main()
 
 	GrSetGCRegion(gc, regionid);
 	
-        GrSelectEvents(window,GR_EVENT_MASK_ALL);
         GrSetGCUseBackground(gc,GR_FALSE);
 	GrSetGCBackground(gc, GR_RGB(0, 0, 0));
 	while(1) {
@@ -177,13 +174,12 @@ int main()
 
 #endif /* HZK_FONT_SUPPORT*/
 
-
 	      GrDestroyFont(fontid);
 
-		if(event.type == GR_EVENT_TYPE_CLOSE_REQ) {
-			GrClose();
-			exit(0);
-		}
+	      if(event.type == GR_EVENT_TYPE_CLOSE_REQ) {
+		  GrClose();
+		  exit(0);
+	      }
 	}
 
 	GrDestroyRegion(regionid);

@@ -1,13 +1,95 @@
+Version 0.89pre9 - 17 Aug 2002 - greg@censoft.com
+	* send UPDATE_ACTIVATE event to force redraw on title changes
+	* added FASTJPEG and HAVE_MMAP to include/device.h configuration
+	* corrected MAP_UPDATE event in GsWpRealizeWindow, may need tweaking
+	* default configuration includes freetype and pcf.gz fonts, libpng
+	* use static fontid in window manager titlebar updating
+	* corrected GrCopyArea rop parm definition to unsigned long
+	* fixed dash mode/mask on gc change
+	(04 Aug 02)
+	* fixed GrGetTypedEventPred to remove returned event from queue
+	(26 Jul 02)
+	* added indent.sh std coding formatter for Microwindows
+	* wrote GrNewRegionFromPixmap
+	* added GrNewBitmapRegion, GrSetWindowRegion, first-pass shaped windows (Alex)
+	* enhanced nanowm, doesn't require parent map before child reparent now
+		fix props.title leaks after any GrGetWMProperties call
+	* fixed GrReparentWindow finally: rewrote map/unmap algorithm (no unmapcount)
+		changed GR_WINDOW_INFO unmapcount member name to realized
+	* extended GrText flags parameter to 32 bits over wire
+	* added many demo programs: arcdemo, bmapdemo, rgndemo, convpbm (Alex)
+		nxmag, nxeyes, setportrait, snap_ppm, tux (Alex)
+		pcfdemo, tsdemo, dashdemo, polydemo, snap_jpg (Jordan)
+		tuxchess (Steve)
+		fontdemo (Greg)
+		rearranged many *.sh demo scripts
+	* added nxcolors.h (converted rgb.txt), nxcolors.fe, rgb.txt to contrib (Alex)
+	* updated html documentation (Alex)
+	(18 Jul 02)
+	* allow user clip regions in offscreen memory DC's for win32 API (Tom)
+	* fix bug with SYSTEM_VAR font selected when plogfont passed to GdCreateFont
+	* fixup ecos port SVR_Gr defines, Makefile.rules CPPFLAGS, NANOXSERVERLIBS changes
+		rejected CPPFLAGS change
+	* added BS_BITMAP style to button control (Phat)
+	* added WM_KEYDOWN/WM_KEYUP messages,
+		WM_CHAR in TranslateMessage, use PostMessage instead
+	* added enhanced convfnt MS font convertor (Tom)
+	* added EM8400 realmagic chip port of nano-X server (Peter)
+	* fixed GrArc ax,ay bx,by argument offset bug (Alex)
+	* padded MWPALENTRY, changed MWSCANCODE to unsigned short for network alignment issues
+	* added LINUX-SPARC config (Sparc Linux support), SUNMOUSE config option added
+	* added HAVE_EUCJP_SUPPORT config option (Japanese EUC JP Kanji encoding) (Koichi)
+(must add fontkit to microwindows-japanese-fonts-0.89pre9.tar.gz)
+	* added HAVE_JISX0213_SUPPORT config option (Japanese JISX0213 compiled in font support)
+	* added Simons patch for slider kbd support
+	* added Jordan's patches: (122701) (021102)
+		add tiles, stipples, dashed lines, fill mode support
+			GrSetGCLineAttributes, GrSetGCDash, GrSetGCFillMode
+			GrSetGCTile, GrSetGCStipple, GrSetGCTSOffset
+			MWFILL_SOLID, STIPPLE, OPAQUE_STIPPLE, TILE, GR_FILL_xxx
+			MWTILE, MWSTIPPLE, GR_STIPPLE
+			GR_LINE_xxx?
+			GdSetDash, GdSetFillMode, GdSetStippleBitmap, GdSetTilePixmap
+			GdSetTSOffset
+			set_ts_origin
+			gr_dashmask, gr_dashcount, gr_stipple, gr_tile, gr_ts_offset
+			ts_drawpoint, ts_drawrow, ts_fillrect
+			fillmode support to GdArc routines, all line drawing routines
+		added GR_UPDATE_REPARENT subevent
+		added routines for NX11 library:
+			GrGetTypedEvent, GrGetTypedEventPred
+			GrQueryPointer, GrQueueLength, GrNewBitmapFromPixmap
+_GrPeekEvent, _GrGetNextEventTimeout, _GrPeekWaitEvent (where is free?)
+(look at serv.h, check TILE struct), exposure?, GrNewGC
+(lookat srvfunc.c, GrSetGCLineAttributes, GrQueryPointer
+(lookat srvnet.c
+(lookat srvutil.c GR_LINE_ONOFF_DASH, #964
+add option for tile/stipple support
+		fix nanowm map/unmap behaviour
+		remove #include <sys/io.h> from scr_fb.c
+		(030801)
+		open CONSOLE instead of /dev/tty if set
+		fix X11 driver psd->linelen calculation
+		fix GrCopyAreaReq sizeof(op) in nxproto.h
+	(17 Jul 02)
+	* tidy'd up MWIMAGEBITS macros, not dependent on fixed sizeof(MWIMAGEBITS)
+	* increased max cursor size to 32
+	* fixed Jordan's patch GrNewBitmapFromPixmap: GrReadArea return based on MWPF_xxx
+	* fixed GrRegisterInput for successive fd's
+	* fixed GrGetWindowFBInfo to return absolute x,y coords.
+		GrGetWindowInfo still returns relative coords, changed src comments
+	* added MWTF_XCHAR2B encoding
 	* better X11 can't connect errmsg
-	* partially fixed PCF font reading
+	* completely fixed PCF/PCF.GZ font reading
+	* added Jordan's tile/stipple code (GrXXx
 	(10 Jul 02)
 	* fix X11 driver indicator status init problem
 	* fix SVGAlib compile bug
 	* fix NOKBD support
-Version 0.89pre9 - 21 Nov 2001 - greg@censoft.com
+	(21 Nov 01)
 	* fixed FreeBSD support
 	* added GrSetGCGraphicsExposure, GrNewBitmapFromPixmap
-	* added .pcf and pcf.gz loadable font support (Jordan)
+	* added .pcf and pcf.gz loadable font support (requires libz) (Jordan)
 	* fixed PNG support (may require -lm in Makefile.rules)
 Version 0.89pre8 - 15 Nov 2001 - greg@censoft.com
 	* added MicroTouch DynaPro SC3 touchscreen driver and calibrator (Jordan)

@@ -1,7 +1,7 @@
 /*
  * nano-X launcher/window manager program
  * (C) 1999 Alistair Riddoch <ajr@ecs.soton.ac.uk>
- * (C) 2000 Alex Holden <alex@linuxhacker.org>
+ * (C) 2000 Alex Holden <alex@alexholden.net>
  */
 
 /*
@@ -62,7 +62,7 @@ struct app_info {
 	{"demo", "/root/demo"},
 	{"demo2", "/root/demo2"},
 #else
-	{"clock", "bin/nclock"},
+	{"clock", "bin/nxclock"},
 	{"term", "bin/nterm"},
 	{"demo", "bin/demo"},
 	{"demo2", "bin/demo2"},

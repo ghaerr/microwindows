@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include "device.h"
@@ -29,6 +28,7 @@
 #include "genmem.h"
 #include "fb.h"
 #include <cyg/hal/lcd_support.h>
+#include <cyg/infra/diag.h>
 
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);

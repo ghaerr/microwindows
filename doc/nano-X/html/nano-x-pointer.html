@@ -4,7 +4,7 @@
 >pointer</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="colours"
 HREF="nano-x-colours.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,19 +115,22 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->pointer</H1
+><A
+NAME="NANO-X-POINTER"
+>pointer</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN2286"
+NAME="AEN2531"
 ></A
 ><H2
 >Name</H2
->pointer &#8212; </DIV
+>pointer&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN2289"
+NAME="AEN2534"
 ></A
 ><H2
 >Synopsis</H2
@@ -138,10 +145,13 @@ CELLPADDING="6"
 CLASS="SYNOPSIS"
 >&#13;
 
-void        <A
+<GTKDOCLINK
+HREF="GR-CURSOR-ID-CAPS"
+>GR_CURSOR_ID</GTKDOCLINK
+> <A
 HREF="nano-x-pointer.html#GRSETCURSOR"
 >GrSetCursor</A
->                     (<GTKDOCLINK
+>                    (<GTKDOCLINK
 HREF="GR-WINDOW-ID-CAPS"
 >GR_WINDOW_ID</GTKDOCLINK
 > wid,
@@ -200,7 +210,50 @@ HREF="MWCOORD-CAPS"
 >MWCOORD</GTKDOCLINK
 > y,
                                              int button,
-                                             int visible);</PRE
+                                             int visible);
+void        <A
+HREF="nano-x-pointer.html#GRDESTROYCURSOR"
+>GrDestroyCursor</A
+>                 (<GTKDOCLINK
+HREF="GR-CURSOR-ID-CAPS"
+>GR_CURSOR_ID</GTKDOCLINK
+> cid);
+void        <A
+HREF="nano-x-pointer.html#GRCALIBRATEMOUSE"
+>GrCalibrateMouse</A
+>                (int mode,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> xmin,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> xmax,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ymin,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ymax,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> xswap,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> yswap,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> zthresh,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> showcursor);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -208,7 +261,7 @@ HREF="MWCOORD-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2308"
+NAME="AEN2565"
 ></A
 ><H2
 >Description</H2
@@ -218,14 +271,14 @@ NAME="AEN2308"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2311"
+NAME="AEN2568"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2313"
+NAME="AEN2570"
 ></A
 ><H3
 ><A
@@ -241,7 +294,10 @@ CELLPADDING="6"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->void        GrSetCursor                     (<GTKDOCLINK
+><GTKDOCLINK
+HREF="GR-CURSOR-ID-CAPS"
+>GR_CURSOR_ID</GTKDOCLINK
+> GrSetCursor                    (<GTKDOCLINK
 HREF="GR-WINDOW-ID-CAPS"
 >GR_WINDOW_ID</GTKDOCLINK
 > wid,
@@ -281,14 +337,12 @@ HREF="GR-BITMAP-CAPS"
 ></TR
 ></TABLE
 ><P
->Specifies a cursor (mouse pointer graphic) to display when the mouse
-pointer is over the specified window and subsequently created children.
-Points in the bitmap which have neither the foreground or background bits
-set are not painted.</P
-><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2585"
+></A
 ><P
 ></P
 ><TABLE
@@ -298,6 +352,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -313,7 +368,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the ID of the window to set the cursor of</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -330,7 +385,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the width of the pointer bitmap</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -347,7 +402,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the height of the pointer bitmap</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -364,7 +419,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the X coordinate within the bitmap used as the target of the pointer</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -381,7 +436,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the Y coordinate within the bitmap used as the target of the pointer</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -398,7 +453,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the colour to use for the foreground of the pointer</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -415,7 +470,7 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> the colour to use for the background of the pointer</TD
+>&nbsp;</TD
 ></TR
 ><TR
 ><TD
@@ -449,8 +504,24 @@ CLASS="PARAMETER"
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
-> pointer to bitmap data specifying the background of the pointer</TD
+>&nbsp;</TD
 ></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -459,7 +530,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2369"
+NAME="AEN2630"
 ></A
 ><H3
 ><A
@@ -497,6 +568,9 @@ it is over.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2638"
+></A
 ><P
 ></P
 ><TABLE
@@ -506,6 +580,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -540,6 +615,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the Y coordinate to move the pointer to</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -548,7 +624,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2390"
+NAME="AEN2651"
 ></A
 ><H3
 ><A
@@ -589,6 +665,9 @@ HREF="nano-x-general.html#GRFLUSH"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2660"
+></A
 ><P
 ></P
 ><TABLE
@@ -598,6 +677,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -666,6 +746,315 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > whether to display the pointer after the event</TD
 ></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2681"
+></A
+><H3
+><A
+NAME="GRDESTROYCURSOR"
+></A
+>GrDestroyCursor ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDestroyCursor                 (<GTKDOCLINK
+HREF="GR-CURSOR-ID-CAPS"
+>GR_CURSOR_ID</GTKDOCLINK
+> cid);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Destroys the specified cursor.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2688"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>cid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the cursor to destroy</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2697"
+></A
+><H3
+><A
+NAME="GRCALIBRATEMOUSE"
+></A
+>GrCalibrateMouse ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrCalibrateMouse                (int mode,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> xmin,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> xmax,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ymin,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> ymax,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> xswap,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> yswap,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> zthresh,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> showcursor);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the mouse calibration to the specified values, and puts it into the
+specified mode. The possible modes are GR_MOUSEMODE_RAW and
+GR_MOUSEMODE_COOKED. In raw mode, the values returned for mouse events
+are the direct numbers returned by the hardware. In cooked mode, the
+values are scaled, filtered, and if necessary inverted according to the
+previously specified calibration values. Raw mode is intended to be used
+only by the calibration program to obtain the parameters of the touch
+panel in use so that it can calculate the calibration values.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2711"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>mode</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the mode to run the mouse interface in (raw or cooked)</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>xmin</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the minimum raw X value this device can generate</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>xmax</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum raw X value this device can generate</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ymin</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the minimum raw Y value this device can generate</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ymax</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum raw Y value this device can generate</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>xswap</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> boolean specifying whether or not to invert the X values</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>yswap</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> boolean specifying whether or not to invert the Y values</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>zthresh</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the pressure value which indicates that the pen is down</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>showcursor</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> boolean specifying whether the cursor should be shown</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P

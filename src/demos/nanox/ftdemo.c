@@ -49,14 +49,15 @@ main()
 	exit(1);
   }
 
-  window = GrNewWindow(GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, 4, BLACK, WHITE);
+  window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "ftdemo",
+  	GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, WHITE);
   GrMapWindow(window);
 
   gid = GrNewGC ();
   GrSelectEvents(window, GR_EVENT_MASK_KEY_DOWN |
 		GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_EXPOSURE);
 
-  if ((file = fopen("ftdemo.txt", "r")) == NULL) {
+  if ((file = fopen("bin/ftdemo.txt", "r")) == NULL) {
 	printf("Can't open text file\n");
 	return (-1);
   }

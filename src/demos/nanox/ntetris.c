@@ -12,8 +12,8 @@
  * The Original Code is NanoTetris.
  * 
  * The Initial Developer of the Original Code is Alex Holden.
- * Portions created by Alex Holden are Copyright (C) 2000
- * Alex Holden <alex@linuxhacker.org>. All Rights Reserved.
+ * Portions created by Alex Holden are Copyright (C) 2000, 2002
+ * Alex Holden <alex@alexholden.net>. All Rights Reserved.
  * 
  * Contributor(s):
  * 
@@ -73,6 +73,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -86,8 +87,8 @@
 #define srandom srand
 #endif
 
-#define MWINCLUDECOLORS
 #include <nano-X.h>
+#include <nxcolors.h>
 
 #include "ntetris.h"
 
@@ -165,9 +166,9 @@ void write_hiscore(nstate *state)
 		return;
 	}
 
-	if((fprintf(f, "%d", state->hiscore)) == -1) {
+	if((fprintf(f, "%d", state->hiscore)) == -1)
 		perror("Couldn't write to high score file");
-	}
+	else state->fhiscore = state->hiscore;
 
 	fclose(f);
 }
@@ -412,7 +413,7 @@ void delete_line(nstate *state, int line)
 
 void block_reached_bottom(nstate *state)
 {
-	int x, y;
+	int x, y, nr;
 
 	if(!block_is_all_in_well(state)) {
 		state->state = STATE_STOPPED;
@@ -420,8 +421,14 @@ void block_reached_bottom(nstate *state)
 	}
 
 	for(y = WELL_HEIGHT - 1; y; y--) {
-		for(x = 0; x < WELL_WIDTH; x++)
-			if(!state->blocks[0][y][x]) goto nr;
+		nr = 0;
+		for(x = 0; x < WELL_WIDTH; x++) {
+			if(!state->blocks[0][y][x]) {
+				nr = 1;
+				break;
+			}
+		}
+		if(nr) continue;
 		msleep(DELETE_LINE_DELAY);
 		delete_line(state, y);
 		state->score += SCORE_INCREMENT;
@@ -430,7 +437,6 @@ void block_reached_bottom(nstate *state)
 			state->level++;
 		draw_score(state);
 		y++;
-		nr:
 	}
 
 	choose_new_shape(state);
@@ -688,16 +694,6 @@ void clear_well(nstate *state)
 		}
 }
 
-/* Dirty hack alert- this is to avoid using any floating point math */
-int random8(int limit)
-{
-	int ret;
-
-	do { ret = random() & 7; } while(ret > limit);
-
-	return ret;
-}
-
 void choose_new_shape(nstate *state)
 {
 	state->current_shape.type = state->next_shape.type;
@@ -707,9 +703,10 @@ void choose_new_shape(nstate *state)
 	state->current_shape.y = WELL_NOTVISIBLE -
 			shape_sizes[state->next_shape.type]
 				[state->next_shape.orientation][1] - 1;
-	state->next_shape.type = random8(MAXSHAPES - 1);
-	state->next_shape.orientation = random8(MAXORIENTATIONS - 1);
-	state->next_shape.colour = block_colours[random8(MAX_BLOCK_COLOUR)];
+	state->next_shape.type = random() % MAXSHAPES;
+	state->next_shape.orientation = random() % MAXORIENTATIONS;
+	state->next_shape.colour = block_colours[random() %
+						(MAX_BLOCK_COLOUR + 1)];
 }
 
 void new_game(nstate *state)
@@ -727,22 +724,30 @@ void new_game(nstate *state)
 
 void init_game(nstate *state)
 {
+	//GR_PROP *prop;
 	GR_WM_PROPERTIES props;
+	GR_COORD x = MAIN_WINDOW_X_POSITION;
 
 	if(GrOpen() < 0) {
 		fprintf(stderr, "Couldn't connect to Nano-X server\n");
 		exit(1);
 	}
 
-	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID,
-					MAIN_WINDOW_X_POSITION,
+#if 0
+	if(GrGetWindowProperty(GR_ROOT_WINDOW_ID, "WINDOW_MANAGER", &prop)) {
+		free(prop);
+		x = GR_OFF_SCREEN;
+	}
+#endif
+	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, x,
 					MAIN_WINDOW_Y_POSITION,
 					MAIN_WINDOW_WIDTH,
 					MAIN_WINDOW_HEIGHT, 0,
 					MAIN_WINDOW_BACKGROUND_COLOUR, 0);
 	/* set title */
 	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION;
+	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION |
+			GR_WM_PROPS_CLOSEBOX;
 	props.title = "Nano-Tetris";
 	GrSetWMProperties(state->main_window, &props);
 	GrSelectEvents(state->main_window, GR_EVENT_MASK_EXPOSURE |

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "device.h"
+#include "../../include/device.h"
 
 /* separators for DOS & Unix file systems */
 #define OS_FILE_SEPARATOR   "/\\"

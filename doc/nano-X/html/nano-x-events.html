@@ -4,7 +4,7 @@
 >events</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="fonts"
 HREF="nano-x-fonts.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,19 +115,22 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->events</H1
+><A
+NAME="NANO-X-EVENTS"
+>events</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN1996"
+NAME="AEN2219"
 ></A
 ><H2
 >Name</H2
->events &#8212; </DIV
+>events&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN1999"
+NAME="AEN2222"
 ></A
 ><H2
 >Synopsis</H2
@@ -188,7 +195,7 @@ HREF="GR-EVENT-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2014"
+NAME="AEN2237"
 ></A
 ><H2
 >Description</H2
@@ -198,14 +205,14 @@ NAME="AEN2014"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2017"
+NAME="AEN2240"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2019"
+NAME="AEN2242"
 ></A
 ><H3
 ><A
@@ -238,6 +245,9 @@ HREF="GR-EVENT-MASK-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2250"
+></A
 ><P
 ></P
 ><TABLE
@@ -247,6 +257,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -281,6 +292,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > a bit field specifying the desired event mask</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -289,7 +301,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2040"
+NAME="AEN2263"
 ></A
 ><H3
 ><A
@@ -324,6 +336,9 @@ HREF="nano-x-misc.html#GRREGISTERINPUT"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2271"
+></A
 ><P
 ></P
 ><TABLE
@@ -333,6 +348,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -350,6 +366,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the GR_EVENT structure to return the event in</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -358,7 +375,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2057"
+NAME="AEN2280"
 ></A
 ><H3
 ><A
@@ -399,6 +416,9 @@ milliseconds" but is in fact a magic number meaning "never time out".</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2289"
+></A
 ><P
 ></P
 ><TABLE
@@ -408,6 +428,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -442,6 +463,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the number of milliseconds to wait before timing out</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -450,7 +472,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2079"
+NAME="AEN2302"
 ></A
 ><H3
 ><A
@@ -480,6 +502,9 @@ immediately with an event type of GR_EVENT_TYPE_NONE if it is empty.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2309"
+></A
 ><P
 ></P
 ><TABLE
@@ -489,6 +514,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -506,6 +532,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the GR_EVENT structure to return the event in</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -514,7 +541,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2095"
+NAME="AEN2318"
 ></A
 ><H3
 ><A
@@ -545,6 +572,9 @@ GR_EVENT_TYPE_NONE is given if the queue is empty.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2325"
+></A
 ><P
 ></P
 ><TABLE
@@ -554,6 +584,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -586,6 +617,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > 1 if an event was returned, or 0 if the queue was empty</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P

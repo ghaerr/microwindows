@@ -4,7 +4,7 @@
 >regions</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="selections"
 HREF="nano-x-selections.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,19 +115,22 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->regions</H1
+><A
+NAME="NANO-X-REGIONS"
+>regions</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN2529"
+NAME="AEN2861"
 ></A
 ><H2
 >Name</H2
->regions &#8212; </DIV
+>regions&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN2532"
+NAME="AEN2864"
 ></A
 ><H2
 >Synopsis</H2
@@ -339,7 +346,36 @@ HREF="GR-COUNT-CAPS"
                                              <GTKDOCLINK
 HREF="GR-POINT-CAPS"
 >GR_POINT</GTKDOCLINK
-> *points);</PRE
+> *points);
+<GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> <A
+HREF="nano-x-regions.html#GRNEWBITMAPREGION"
+>GrNewBitmapRegion</A
+>              (<GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *bitmap,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height);
+void        <A
+HREF="nano-x-regions.html#GRSETWINDOWREGION"
+>GrSetWindowRegion</A
+>               (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> rid);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -347,7 +383,7 @@ HREF="GR-POINT-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2590"
+NAME="AEN2930"
 ></A
 ><H2
 >Description</H2
@@ -357,14 +393,14 @@ NAME="AEN2590"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2593"
+NAME="AEN2933"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2595"
+NAME="AEN2935"
 ></A
 ><H3
 ><A
@@ -394,6 +430,9 @@ The structure is initialised with a set of default parameters.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2942"
+></A
 ><P
 ></P
 ><TABLE
@@ -403,6 +442,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -418,6 +458,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly created region</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -426,7 +467,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2611"
+NAME="AEN2951"
 ></A
 ><H3
 ><A
@@ -455,6 +496,9 @@ HREF="GR-REGION-ID-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2958"
+></A
 ><P
 ></P
 ><TABLE
@@ -464,6 +508,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -481,6 +526,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the region structure to destroy</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -489,7 +535,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2627"
+NAME="AEN2967"
 ></A
 ><H3
 ><A
@@ -523,6 +569,9 @@ places the result back in the source region.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2975"
+></A
 ><P
 ></P
 ><TABLE
@@ -532,6 +581,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -566,6 +616,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > a pointer to the rectangle to add to the region</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -574,7 +625,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2648"
+NAME="AEN2988"
 ></A
 ><H3
 ><A
@@ -612,6 +663,9 @@ specified destination region.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2997"
+></A
 ><P
 ></P
 ><TABLE
@@ -621,6 +675,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -672,6 +727,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the second source region</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -680,7 +736,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2674"
+NAME="AEN3014"
 ></A
 ><H3
 ><A
@@ -718,6 +774,9 @@ the result in the specified destination region.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3023"
+></A
 ><P
 ></P
 ><TABLE
@@ -727,6 +786,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -778,6 +838,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the second source region</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -786,7 +847,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2700"
+NAME="AEN3040"
 ></A
 ><H3
 ><A
@@ -825,6 +886,9 @@ will contain only the parts of the source regions which do not overlap.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3049"
+></A
 ><P
 ></P
 ><TABLE
@@ -834,6 +898,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -885,6 +950,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the second source region</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -893,7 +959,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2726"
+NAME="AEN3066"
 ></A
 ><H3
 ><A
@@ -932,6 +998,9 @@ will contain only the parts of the source regions which overlap each other.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3075"
+></A
 ><P
 ></P
 ><TABLE
@@ -941,6 +1010,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -992,6 +1062,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the second source region</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1000,7 +1071,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2752"
+NAME="AEN3092"
 ></A
 ><H3
 ><A
@@ -1036,6 +1107,9 @@ the clipping region from the specified graphics context.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3100"
+></A
 ><P
 ></P
 ><TABLE
@@ -1045,6 +1119,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1079,6 +1154,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the region to use as the clip mask</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1087,7 +1163,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2773"
+NAME="AEN3113"
 ></A
 ><H3
 ><A
@@ -1128,6 +1204,9 @@ then returns either True or False depending on the result.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3123"
+></A
 ><P
 ></P
 ><TABLE
@@ -1137,6 +1216,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1203,6 +1283,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > True if the point is within the region, or False otherwise</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1211,7 +1292,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2804"
+NAME="AEN3144"
 ></A
 ><H3
 ><A
@@ -1259,6 +1340,9 @@ it is partially contained within the region.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3155"
+></A
 ><P
 ></P
 ><TABLE
@@ -1268,6 +1352,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1368,6 +1453,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > GR_RECT_PARTIN, GR_RECT_ALLIN, or GR_RECT_OUT</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1376,7 +1462,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2844"
+NAME="AEN3184"
 ></A
 ><H3
 ><A
@@ -1409,6 +1495,9 @@ if it is, or GR_FALSE otherwise.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3192"
+></A
 ><P
 ></P
 ><TABLE
@@ -1418,6 +1507,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1450,6 +1540,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > GR_TRUE if the region is empty, or GR_FALSE if it is not</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1458,7 +1549,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2865"
+NAME="AEN3205"
 ></A
 ><H3
 ><A
@@ -1495,6 +1586,9 @@ if it is, or GR_FALSE otherwise.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3214"
+></A
 ><P
 ></P
 ><TABLE
@@ -1504,6 +1598,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1553,6 +1648,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > GR_TRUE if the regions are equal, or GR_FALSE otherwise</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1561,7 +1657,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2891"
+NAME="AEN3231"
 ></A
 ><H3
 ><A
@@ -1598,6 +1694,9 @@ HREF="GR-SIZE-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3240"
+></A
 ><P
 ></P
 ><TABLE
@@ -1607,6 +1706,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1658,6 +1758,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the distance to offset the region by in the Y axis</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1666,7 +1767,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2917"
+NAME="AEN3257"
 ></A
 ><H3
 ><A
@@ -1701,6 +1802,9 @@ specified region.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3265"
+></A
 ><P
 ></P
 ><TABLE
@@ -1710,6 +1814,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1759,6 +1864,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the region type</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1767,7 +1873,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN2942"
+NAME="AEN3282"
 ></A
 ><H3
 ><A
@@ -1805,6 +1911,9 @@ specified polygon, and returns the ID used to refer to it.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN3291"
+></A
 ><P
 ></P
 ><TABLE
@@ -1814,6 +1923,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1880,6 +1990,241 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly allocated region structure, or 0 on error</TD
 ></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3312"
+></A
+><H3
+><A
+NAME="GRNEWBITMAPREGION"
+></A
+>GrNewBitmapRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> GrNewBitmapRegion              (<GTKDOCLINK
+HREF="GR-BITMAP-CAPS"
+>GR_BITMAP</GTKDOCLINK
+> *bitmap,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Creates a new region structure, fills it with the region described by the
+specified polygon, and returns the ID used to refer to it. 1 bits in the
+bitmap specify areas inside the region and 0 bits specify areas outside it.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3322"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bitmap</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a GR_BITMAP array specifying the region mask</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the newly allocated region structure, or 0 on error</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN3343"
+></A
+><H3
+><A
+NAME="GRSETWINDOWREGION"
+></A
+>GrSetWindowRegion ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetWindowRegion               (<GTKDOCLINK
+HREF="GR-WINDOW-ID-CAPS"
+>GR_WINDOW_ID</GTKDOCLINK
+> wid,
+                                             <GTKDOCLINK
+HREF="GR-REGION-ID-CAPS"
+>GR_REGION_ID</GTKDOCLINK
+> rid);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Copies the specified region and makes the copy be the clipping region used
+for the specified window. The old clipping region associated with the window
+will automatically be destroyed. After setting the clipping region, all
+drawing within the window will be clipped to the specified region (including
+the drawing of the window background by the server), and mouse events will
+pass through parts of the window which are outside the clipping region to
+whatever is underneath them. Also, windows underneath the areas which are
+outside the clipping region will be able to draw to the screen as if those
+areas of the window were not there (in other words, you can see through the
+gaps in the window). This is most commonly used to implement shaped windows
+(ie. windows which are some shape other than a simple rectangle). Note that
+if you are using this feature you will probably want to disable window
+manager decorations so that the window manager does not draw its own
+container window behind yours and spoil the desired effect. Also note that
+shaped windows must always have a border size of 0. If you need a border
+around a shaped window, add it to the clipping region and draw it yourself.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3351"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the window to set the clipping region of</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the region to assign to the specified window</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P

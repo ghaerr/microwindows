@@ -223,7 +223,7 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
 
 /* Check the area determined by the specified pair of points against the
  * list of clip rectangles.  The area will either be totally visible,
- * totally visible, or possibly partially visible.  This routine updates
+ * totally invisible, or possibly partially visible.  This routine updates
  * the clip cache rectangle, and returns one of the following values:
  *	CLIP_VISIBLE		The whole rectangle is visible
  *	CLIP_INVISIBLE		The whole rectangle is invisible

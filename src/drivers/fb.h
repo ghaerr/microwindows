@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Framebuffer drivers header file for Microwindows Screen Drivers
  */
@@ -43,7 +43,7 @@ typedef unsigned long *		ADDR32;
 		CHECK("CLEAR", *d);		\
 		break;				\
 	case MWMODE_SETTO1:			\
-		*d = -1;			\
+		*d = ~0;			\
 		CHECK("SETTO1", *d);		\
 		break;				\
 	case MWMODE_EQUIV:			\
@@ -106,7 +106,7 @@ static inline int applyOpR(op, src, dst)	\
 	case MWMODE_CLEAR:			\
 		return 0;			\
 	case MWMODE_SETTO1:			\
-		return -1;			\
+		return ~0;			\
 	case MWMODE_EQUIV:			\
 		return ~((src) ^ (dst));	\
 	case MWMODE_NOR:			\

@@ -12,8 +12,8 @@
  * The Original Code is NanoLauncher.
  *
  * The Initial Developer of the Original Code is Alex Holden.
- * Portions created by Alex Holden are Copyright (C) 2000
- * Alex Holden <alex@linuxhacker.org>. All Rights Reserved.
+ * Portions created by Alex Holden are Copyright (C) 2000, 2002
+ * Alex Holden <alex@alexholden.net>. All Rights Reserved.
  *
  * Contributor(s):
  *
@@ -34,9 +34,9 @@
 
 #define ITEM_WIDTH 100
 #define ITEM_HEIGHT 60
-#define ITEM_TEXT_COLOUR BLACK
-#define ITEM_BORDER_COLOUR BLACK
-#define ITEM_BACKGROUND_COLOUR LTGRAY
+#define ITEM_TEXT_COLOUR GR_COLOR_BLACK
+#define ITEM_BORDER_COLOUR GR_COLOR_BLACK
+#define ITEM_BACKGROUND_COLOUR GR_COLOR_GRAY80
 #define ICON_WIDTH 32
 #define ICON_HEIGHT 32
 #define ICON_X_POSITION ((ITEM_WIDTH - ICON_WIDTH) / 2)
@@ -61,11 +61,12 @@ struct launcher_item {
 };
 typedef struct launcher_item litem;
 
-struct screensaver_item {
+struct prog_list {
 	prog_item *prog;
-	struct screensaver_item *next;
+	struct prog_list *next;
 };
-typedef struct screensaver_item sitem;
+typedef struct prog_list ssitem;
+typedef struct prog_list stitem;
 
 struct launcher_state {
 	char *config_file;
@@ -73,8 +74,13 @@ struct launcher_state {
 	litem *litems;
 	litem *lastlitem;
 	int numlitems;
-	sitem *sitems;
-	sitem *cursitem;
+	ssitem *ssitems;
+	ssitem *curssitem;
+	int numssitems;
+	int randomss;
+	int rotatess;
+	GR_TIMER_ID ssrotatetimer;
+	stitem *stitems;
 	GR_GC_ID gc;
 	GR_EVENT event;
 	int window_background_mode;
@@ -86,17 +92,23 @@ typedef struct launcher_state lstate;
 void reaper(int signum);
 void *my_malloc(size_t size);
 void usage(void);
+void free_prog_item(prog_item *item);
 prog_item *make_prog_item(char *command, int lineno);
 void set_window_background_colour(char *buf, int lineno);
 void parse_config_line(lstate *state, char *buf, int lineno);
 void read_config(lstate *state);
 void draw_item(lstate *state, litem *item);
 void handle_exposure_event(lstate *state);
-void launch_program(prog_item *prog);
+pid_t launch_program(prog_item *prog);
 void handle_mouse_event(lstate *state);
+void choose_random_screensaver(lstate *state);
+void activate_screensaver(lstate *state);
+void deactivate_screensaver(lstate *state);
 void handle_screensaver_event(lstate *state);
+void handle_timer_event(lstate *state);
 void handle_event(lstate *state);
 void do_event_loop(lstate *state);
+void do_startups(lstate *state);
 void initialise(lstate *state);
 
 #endif

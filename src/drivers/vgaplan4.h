@@ -19,10 +19,12 @@
 #endif
 
 #if LINUX
+#if !(defined(ARCH_LINUX_POWERPPC) || defined(ARCH_LINUX_SPARC))
 #ifdef __GLIBC__
 #include <sys/io.h>		/* for outb def's, requires -O */
 #else
 #include <asm/io.h>		/* for outb def's on 2.3.x*/
+#endif
 #endif
 #include <unistd.h>
 #define HAVEFARPTR	1

@@ -40,7 +40,8 @@ char	*myalloc();	/* Do not call this function directly */
 char	*scopy();	/* allocates memory for a string */
 void	debug();	/* printf on stderr -
 			   setting DebugFlag = 0 turns off debugging */
-void	error();	/* printf on stderr, then dies */
+void	error();	/* printf on stderr */
+void	exit_error();	/* printf on stderr, then die */
 int	ucstrcmp();	/* strcmp, upper case = lower case */
 char	*tempstring();	/* returns a pointer to space that will reused soon */
 

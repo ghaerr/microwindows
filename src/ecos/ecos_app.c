@@ -37,6 +37,11 @@
 #include <cyg/kernel/kapi.h>            /* All the kernel specific stuff */
 #include <cyg/hal/hal_arch.h>           /* CYGNUM_HAL_STACK_SIZE_TYPICAL */
 #include <sys/time.h>
+#include <ctype.h>
+#include <network.h>
+#ifdef USE_ROMDISK
+#include <cyg/fileio/fileio.h>
+#endif
 
 #define STACKSIZE ( 65536 )
 

@@ -174,7 +174,7 @@ InitialiseRFBConnection(int sock)
 	} else {
 	    static char pass[32] = {"foobar2"};
 	    passwd = pass;
-	    //passwd = getpass("Password: ");
+	    /* passwd = getpass("Password: "); */
 	    if (strlen(passwd) == 0) {
 		fprintf(stderr,"%s: Reading password failed\n",programName);
 		return False;
@@ -191,7 +191,7 @@ InitialiseRFBConnection(int sock)
 	    passwd[i] = '\0';
 	}
 
-	if (!WriteExact(sock, challenge, CHALLENGESIZE)) return False;
+	if (!WriteExact(sock, (char *)challenge, CHALLENGESIZE)) return False;
 
 	if (!ReadExact(sock, (char *)&authResult, 4)) return False;
 
@@ -446,7 +446,7 @@ HandleRFBServerMessage()
 	    xc.green = Swap16IfLE(rgb[1]);
 	    xc.blue = Swap16IfLE(rgb[2]);
 	    xc.flags = DoRed|DoGreen|DoBlue;
-//printf("XStoreColor (%d,%d,%d) = %d\n", xc.red>>8, xc.green>>8, xc.blue>>8, xc.pixel);
+/* printf("XStoreColor (%d,%d,%d) = %d\n", xc.red>>8, xc.green>>8, xc.blue>>8, xc.pixel); */
 	    XStoreColor(dpy, cmap, &xc);
 	}
 

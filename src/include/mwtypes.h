@@ -18,7 +18,8 @@
 #define MWTF_UTF8	0x0001	/* 8 bit packing, utf8*/
 #define MWTF_UC16	0x0002	/* 16 bit packing, unicode 16*/
 #define MWTF_UC32	0x0004	/* 32 bit packing, unicode 32*/
-#define MWTF_PACKMASK	0x0007	/* packing mask*/
+#define MWTF_XCHAR2B	0x0008	/* 16 bit packing, X11 big endian PCF*/
+#define MWTF_PACKMASK	0x000f	/* packing mask*/
 
 /* Text alignment flags*/
 #define MWTF_TOP	0x0010	/* align on top*/
@@ -48,6 +49,18 @@
 #define	MWMODE_ANDREVERSE	14	/* src & ~dst*/
 #define	MWMODE_NOOP		15	/* dst*/
 #define	MWMODE_MAX		15
+
+/* Line modes */
+#define MWLINE_SOLID      0
+#define MWLINE_ONOFF_DASH 1
+
+/* FUTURE: MWLINE_DOUBLE_DASH */
+
+/* Fill mode  */
+#define MWFILL_SOLID          0  
+#define MWFILL_STIPPLE        1  
+#define MWFILL_OPAQUE_STIPPLE 2  
+#define MWFILL_TILE           3
 
 /* Mouse button bits*/
 #define MWBUTTON_L	04
@@ -180,6 +193,25 @@ typedef unsigned long	MWCOLORVAL;	/* device-independent color value*/
 typedef unsigned short	MWIMAGEBITS;	/* bitmap image unit size*/
 typedef unsigned long	MWTIMEOUT;	/* timeout value */
 
+/* MWIMAGEBITS macros*/
+#define MWIMAGE_WORDS(x)	(((x)+15)/16)
+#define MWIMAGE_BYTES(x)	(((x)+7)/8)
+/* size of image in words*/
+#define	MWIMAGE_SIZE(width, height)  	\
+	((height) * (((width) + MWIMAGE_BITSPERIMAGE - 1) / MWIMAGE_BITSPERIMAGE))
+#define	MWIMAGE_BITSPERIMAGE	(sizeof(MWIMAGEBITS) * 8)
+#define	MWIMAGE_BITVALUE(n)	((MWIMAGEBITS) (((MWIMAGEBITS) 1) << (n)))
+#define	MWIMAGE_FIRSTBIT	(MWIMAGE_BITVALUE(MWIMAGE_BITSPERIMAGE - 1))
+#define	MWIMAGE_NEXTBIT(m)	((MWIMAGEBITS) ((m) >> 1))
+#define	MWIMAGE_TESTBIT(m)	((m) & MWIMAGE_FIRSTBIT)  /* use with shiftbit*/
+#define	MWIMAGE_SHIFTBIT(m)	((MWIMAGEBITS) ((m) << 1))  /* for testbit*/
+
+typedef struct {
+	MWCOORD width;
+	MWCOORD height;
+	unsigned short *bitmap;
+} MWSTIPPLE;
+
 /* dbl linked list data structure*/
 typedef struct _mwlist {		/* LIST must be first decl in struct*/
 	struct _mwlist *next;		/* next item*/
@@ -232,7 +264,7 @@ typedef struct {
 	int	bpp;		/* bits per pixel*/
 	int	bytespp;	/* bytes per pixel*/
 	int	pitch;		/* bytes per scan line for window (=fb pitch)*/
-	int	x, y;		/* absolute virtual window coordinates*/
+	int	x, y;		/* absolute window coordinates*/
 	int	portrait_mode;	/* current portrait mode*/
 	MWCOORD	xres;		/* real framebuffer resolution*/
 	MWCOORD	yres;
@@ -250,6 +282,7 @@ typedef struct {
 	MWBOOL	fixed;		/* TRUE if font is fixed width */
 	MWUCHAR	widths[256];	/* table of character widths */
 } MWFONTINFO, *PMWFONTINFO;
+
 
 /* GetFontList structure */
 typedef struct {
@@ -442,6 +475,7 @@ typedef struct {
 	MWUCHAR	r;
 	MWUCHAR	g;
 	MWUCHAR	b;
+	MWUCHAR _padding;
 } MWPALENTRY;
 
 /* In-core mono and color image structure*/
@@ -477,7 +511,8 @@ typedef struct {
 	MWPALENTRY 	palette[256];	/* palette*/
 } MWIMAGEINFO, *PMWIMAGEINFO;
 
-#define	MWMAX_CURSOR_SIZE 16		/* maximum cursor x and y size*/
+#define	MWMAX_CURSOR_SIZE	32		/* maximum cursor x and y size*/
+#define	MWMAX_CURSOR_BUFLEN	MWIMAGE_SIZE(MWMAX_CURSOR_SIZE,MWMAX_CURSOR_SIZE)
 
 /* In-core software cursor structure*/
 typedef struct {
@@ -487,8 +522,8 @@ typedef struct {
 	MWCOORD		hoty;			/* relative y pos of hot spot*/
 	MWCOLORVAL	fgcolor;		/* foreground color*/
 	MWCOLORVAL	bgcolor;		/* background color*/
-	MWIMAGEBITS	image[MWMAX_CURSOR_SIZE];/* cursor image bits*/
-	MWIMAGEBITS	mask[MWMAX_CURSOR_SIZE];/* cursor mask bits*/
+	MWIMAGEBITS	image[MWMAX_CURSOR_SIZE*2];/* cursor image bits*/
+	MWIMAGEBITS	mask[MWMAX_CURSOR_SIZE*2];/* cursor mask bits*/
 } MWCURSOR, *PMWCURSOR;
 
 typedef struct _mwfont *	PMWFONT;
@@ -533,7 +568,7 @@ typedef struct _mwfont *	PMWFONT;
 
 /* Keyboard values*/
 typedef unsigned short	MWKEY;
-typedef unsigned char	MWSCANCODE;
+typedef unsigned short	MWSCANCODE;
 
 #define MWKEY_UNKNOWN		0
 /* Following special control keysyms are mapped to ASCII*/

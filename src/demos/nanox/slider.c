@@ -98,7 +98,8 @@ main(int argc,char **argv)
 
 	RandomiseTiles();
 	
-	GrSelectEvents(master, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ);
+	GrSelectEvents(master, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ|
+		GR_EVENT_MASK_KEY_DOWN);
 	GrSelectEvents(buttons, GR_EVENT_MASK_BUTTON_DOWN); 
 	GrSelectEvents(tiles, GR_EVENT_MASK_BUTTON_DOWN);
 
@@ -119,6 +120,9 @@ main(int argc,char **argv)
 void
 HandleEvents(GR_EVENT *ep)
 {
+int hole_x_pos, hole_y_pos;
+int tempx, tempy;
+
 	switch (ep->type) {
 		case GR_EVENT_TYPE_BUTTON_DOWN:
 			if (ep->button.wid == buttons) {
@@ -141,6 +145,64 @@ HandleEvents(GR_EVENT *ep)
 				/* Try to move selected tile */
 				MoveTile( (int)(ep->button.x / tile_width),
 					(int)(ep->button.y / tile_height) );
+			}
+			break;
+
+		case GR_EVENT_TYPE_KEY_DOWN:
+			if (ep->keystroke.wid == master) {
+				hole_x_pos = 0;
+				hole_y_pos = 0;
+
+				/* Find hole position */
+				for (tempx = 0; tempx < WIDTH_IN_TILES; tempx++)
+					for (tempy = 0; tempy < HEIGHT_IN_TILES; tempy++)
+						if (value[tempx][tempy] == MAX_TILES) {
+							hole_x_pos = tempx;
+							hole_y_pos = tempy;
+						}
+	
+				switch (ep->keystroke.ch) {
+					case 'q':
+					case 'Q':
+					case MWKEY_CANCEL:
+						GrClose();
+#if USE_IMAGE
+						if (using_image)
+							free(image_addr);
+#endif
+						exit(0);
+
+					case 'r':
+					case 'R':
+						RandomiseTiles();
+						RefreshWindow();
+						break;
+
+					/* remember you are moving the tile. not the hole */
+					case MWKEY_DOWN:
+						if (hole_y_pos != 0) {
+							MoveTile(hole_x_pos, hole_y_pos - 1);
+						}
+						break;
+							
+					case MWKEY_UP:
+						if (hole_y_pos != (HEIGHT_IN_TILES-1) ) {
+							MoveTile(hole_x_pos, hole_y_pos + 1);
+						}
+						break;
+
+					case MWKEY_RIGHT:
+						if (hole_x_pos != 0) {
+							MoveTile(hole_x_pos - 1, hole_y_pos);
+						}
+						break;
+
+					case MWKEY_LEFT:
+						if (hole_x_pos != (WIDTH_IN_TILES-1) ) {
+							MoveTile(hole_x_pos + 1, hole_y_pos);
+						}
+						break;
+				}
 			}
 			break;
 

@@ -145,10 +145,11 @@ int new_client_window(GR_WINDOW_ID wid)
 		| GR_EVENT_MASK_BUTTON_UP | GR_EVENT_MASK_BUTTON_DOWN
 		| GR_EVENT_MASK_MOUSE_POSITION | GR_EVENT_MASK_EXPOSURE);
 
-	/* reparent client to container window*/
-	/* must map before reparent (nano-x bug)*/
-	GrMapWindow(pid);
+	/* reparent client to container window (child is already mapped)*/
 	GrReparentWindow(wid, pid, xoffset, yoffset);
+
+	/* map container window*/
+	GrMapWindow(pid);
 
 	GrSetFocus(wid);	/* force fixed focus*/
 
@@ -345,6 +346,36 @@ int new_client_window(GR_WINDOW_ID wid)
 	GrMapWindow(nid);
 #endif
 	return 0;
+}
+
+void client_window_remap(win *window) {
+
+  GR_WINDOW_INFO winfo;
+  win *pwin;
+
+  if(!(pwin = find_window(window->pid))) {
+    fprintf(stderr, "Couldn't find parent of destroyed window "
+	    "%d\n", window->wid);
+    return;
+  }
+  
+  Dprintf("client_window_remap %d (parent %d)\n", window->wid, window->pid);
+  GrGetWindowInfo(pwin->wid, &winfo);
+  if (winfo.mapped == GR_FALSE) GrMapWindow(pwin->wid);
+}
+
+/* If the client chooses to unmap the window, then we should also unmap the container */
+
+void client_window_unmap(win *window) {
+  win *pwin;
+
+  if(!(pwin = find_window(window->pid))) {
+    fprintf(stderr, "Couldn't find parent of destroyed window "
+	    "%d\n", window->wid);
+    return;
+  }
+  
+  GrUnmapWindow(pwin->wid);
 }
 
 /*

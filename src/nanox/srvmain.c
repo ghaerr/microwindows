@@ -276,7 +276,7 @@ void
 GrRegisterInput(int fd)
 {
 	FD_SET(fd, &regfdset);
-	if (fd > regfdmax) regfdmax = fd + 1;
+	if (fd >= regfdmax) regfdmax = fd + 1;
 }
 
 void
@@ -604,6 +604,9 @@ GsInitialize(void)
 	      0x073e, 0x021f, 0x000e, 0x0004
 	};
 
+	setbuf(stdout, NULL);
+	setbuf(stderr, NULL);
+
 	wp = (GR_WINDOW *) malloc(sizeof(GR_WINDOW));
 	if (wp == NULL) {
 		EPRINTF("Cannot allocate root window\n");
@@ -633,8 +636,9 @@ GsInitialize(void)
 	}
 #endif
 
-	if ((keyb_fd = GdOpenKeyboard()) == -1) {
-		EPRINTF("Cannot initialise keyboard\n");
+	if ((keyb_fd = GdOpenKeyboard()) < 0) {
+		if (keyb_fd == -1)
+			EPRINTF("Cannot initialise keyboard\n");
 		/*GsCloseSocket();*/
 		free(wp);
 		return -1;
@@ -661,7 +665,7 @@ GsInitialize(void)
 	/*
 	 * Create std font.
 	 */
-#if (HAVE_BIG5_SUPPORT | HAVE_GB2312_SUPPORT)
+#if (HAVE_BIG5_SUPPORT | HAVE_GB2312_SUPPORT | HAVE_JISX0213_SUPPORT)
 	/* system fixed font looks better when mixed with chinese fonts*/
 	stdfont = GdCreateFont(psd, MWFONT_SYSTEM_FIXED, 0, NULL);
 #else
@@ -691,10 +695,11 @@ GsInitialize(void)
 	wp->eventclients = NULL;
 	wp->cursorid = 0;
 	wp->mapped = GR_TRUE;
-	wp->unmapcount = 0;
+	wp->realized = GR_TRUE;
 	wp->output = GR_TRUE;
 	wp->props = 0;
 	wp->title = NULL;
+	wp->clipregion = NULL;
 
         listpp = NULL;
 	listwp = wp;

@@ -25,7 +25,7 @@ main(int ac,char **av)
 	w = GrNewWindow(GR_ROOT_WINDOW_ID, 20, 20, WIDTH, HEIGHT,
 		0, GREEN, BLACK);
 
-	w2 = GrNewWindow(w, 20, 20, 40, 40, 0, WHITE, BLACK);
+	w2 = GrNewWindow(w, 20, 20, 40, 40, 0, BLUE, BLACK);
 
 	props.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
 	props.props = GR_WM_PROPS_NOBACKGROUND;
@@ -64,6 +64,14 @@ GrRect(w, gc, 5, 5, 300, 60);
 			printf("\7demo2: Error (%s) ", event.error.name);
 			printf(nxErrorStrings[event.error.code],event.error.id);
 			break;
+#if 1
+		case GR_EVENT_TYPE_BUTTON_DOWN:
+			GrUnmapWindow(w);
+			GrFlush();
+			sleep(1);
+			GrMapWindow(w);
+			break;
+#endif
 #if 0
 		case GR_EVENT_TYPE_BUTTON_DOWN:
 			/* test server error on bad syscall*/

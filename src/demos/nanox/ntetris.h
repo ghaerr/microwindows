@@ -15,8 +15,8 @@
  * The Original Code is NanoTetris.
  * 
  * The Initial Developer of the Original Code is Alex Holden.
- * Portions created by Alex Holden are Copyright (C) 2000
- * Alex Holden <alex@linuxhacker.org>. All Rights Reserved.
+ * Portions created by Alex Holden are Copyright (C) 2000, 2002
+ * Alex Holden <alex@alexholden.net>. All Rights Reserved.
  * 
  * Contributor(s):
  * 
@@ -48,8 +48,8 @@
 #define CONTROL_BAR_WIDTH 90
 #define BUTTON_HEIGHT 20
 #define BUTTON_WIDTH (CONTROL_BAR_WIDTH - BORDER_WIDTH)
-#define BUTTON_BACKGROUND_COLOUR LTGRAY
-#define BUTTON_FOREGROUND_COLOUR BLACK
+#define BUTTON_BACKGROUND_COLOUR GR_COLOR_GRAY75
+#define BUTTON_FOREGROUND_COLOUR GR_COLOR_BLACK
 #define MOVEMENT_BUTTON_WIDTH ((BUTTON_WIDTH / 2) - 1)
 #define TEXT_X_POSITION 5
 #define TEXT_Y_POSITION 15
@@ -73,21 +73,21 @@
 					(WELL_WIDTH * BLOCK_SIZE))
 #define MAIN_WINDOW_HEIGHT ((2 * BORDER_WIDTH) + \
 					(WELL_VISIBLE_HEIGHT * BLOCK_SIZE))
-#define MAIN_WINDOW_BACKGROUND_COLOUR BLUE
+#define MAIN_WINDOW_BACKGROUND_COLOUR GR_COLOR_NAVYBLUE
 
 #define SCORE_WINDOW_WIDTH BUTTON_WIDTH
 #define SCORE_WINDOW_HEIGHT 35
 #define SCORE_WINDOW_X_POSITION BORDER_WIDTH
 #define SCORE_WINDOW_Y_POSITION BORDER_WIDTH
-#define SCORE_WINDOW_BACKGROUND_COLOUR BLACK
-#define SCORE_WINDOW_FOREGROUND_COLOUR LTGREEN
+#define SCORE_WINDOW_BACKGROUND_COLOUR GR_COLOR_BLACK
+#define SCORE_WINDOW_FOREGROUND_COLOUR GR_COLOR_GREEN
 
 #define NEXT_SHAPE_WINDOW_SIZE 6
 #define NEXT_SHAPE_WINDOW_WIDTH (NEXT_SHAPE_WINDOW_SIZE * BLOCK_SIZE)
 #define NEXT_SHAPE_WINDOW_HEIGHT (NEXT_SHAPE_WINDOW_SIZE * BLOCK_SIZE)
 #define NEXT_SHAPE_WINDOW_X_POSITION (BORDER_WIDTH + 10)
 #define NEXT_SHAPE_WINDOW_Y_POSITION ((2 * BORDER_WIDTH) + SCORE_WINDOW_HEIGHT)
-#define NEXT_SHAPE_WINDOW_BACKGROUND_COLOUR BLACK
+#define NEXT_SHAPE_WINDOW_BACKGROUND_COLOUR GR_COLOR_BLACK
 
 #define NEW_GAME_BUTTON_WIDTH BUTTON_WIDTH
 #define NEW_GAME_BUTTON_HEIGHT BUTTON_HEIGHT
@@ -135,7 +135,7 @@
 #define WELL_WINDOW_HEIGHT (BLOCK_SIZE * WELL_VISIBLE_HEIGHT)
 #define WELL_WINDOW_X_POSITION (CONTROL_BAR_WIDTH + BORDER_WIDTH)
 #define WELL_WINDOW_Y_POSITION BORDER_WIDTH
-#define WELL_WINDOW_BACKGROUND_COLOUR BLACK
+#define WELL_WINDOW_BACKGROUND_COLOUR GR_COLOR_BLACK
 
 enum {
 	STATE_STOPPED,
@@ -217,7 +217,6 @@ void handle_mouse_event(nstate *state);
 void handle_keyboard_event(nstate *state);
 void handle_event(nstate *state);
 void clear_well(nstate *state);
-int random8(int limit);
 void choose_new_shape(nstate *state);
 void new_game(nstate *state);
 void init_game(nstate *state);
@@ -234,7 +233,7 @@ static const int delays[] = {600, 550, 500, 450, 400, 350,
 				300, 250, 200, 150, 100, 50};
 #define MAX_BLOCK_COLOUR 3
 static const GR_COLOR block_colours[] = {
-	LTRED, LTGREEN, LTBLUE, YELLOW
+	GR_COLOR_RED, GR_COLOR_GREEN, GR_COLOR_BLUE, GR_COLOR_YELLOW
 };
 
 /*

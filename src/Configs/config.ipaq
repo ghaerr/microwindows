@@ -225,6 +225,7 @@ HWVGA                    = N
 # IPAQMOUSE for Compaq iPAQ and Intel Assabet (/dev/h3600_ts 11,0)
 ####################################################################
 GPMMOUSE                 = N
+SUNMOUSE                 = N
 SERMOUSE                 = N
 TPMOUSE                  = N
 ADSMOUSE                 = N

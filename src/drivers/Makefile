@@ -37,6 +37,12 @@ LIBNAMESO = libmwdrivers.so
 ifneq ($(ARCH), ELKS)
 ifneq ($(ARCH), DJGPP)
 
+ifeq ($(EM8400), Y)
+CFLAGS += -I$(EM8400_DIR)/include
+LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
+OBJS += scr_em84xx.o genfont.o genmem.o
+endif
+
 ifeq ($(FRAMEBUFFER), Y)
 OBJS += fblin8.o fblin16.o fblin24.o fblin32.o genmem.o fb.o
 
@@ -84,6 +90,11 @@ endif
 # Added define to avoid compiler error for PPC
 ifeq ($(ARCH), LINUX-POWERPC)
 CFLAGS += -DARCH_LINUX_POWERPPC=1
+endif
+
+# Added define to avoid compiler error for SPARC
+ifeq ($(ARCH), LINUX-SPARC)
+CFLAGS += -DARCH_LINUX_SPARC=1
 endif
 
 endif # FRAMEBUFER
@@ -147,6 +158,10 @@ endif
 ifneq ($(X11), Y)
 ifeq ($(GPMMOUSE), Y)
 OBJS += mou_gpm.o
+endif
+
+ifeq ($(SUNMOUSE), Y)
+OBJS += mou_sun.o
 endif
 
 ifeq ($(SERMOUSE), Y)

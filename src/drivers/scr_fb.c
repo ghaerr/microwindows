@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Screen Driver for Linux kernel framebuffers
  *
@@ -17,13 +17,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef ARCH_LINUX_POWERPPC
-#ifdef __GLIBC__
-#include <sys/io.h>
-#else
-#include <asm/io.h>
-#endif
-#endif
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -34,6 +27,9 @@
 #include "genfont.h"
 #include "genmem.h"
 #include "fb.h"
+
+#ifdef ARCH_LINUX_SPARC
+#endif
 
 /* for Osprey and Embedded Planet boards, set HAVETEXTMODE=0*/
 #define HAVETEXTMODE	1	/* =0 for graphics only systems*/
@@ -143,8 +139,13 @@ fb_open(PSD psd)
 	visual = fb_fix.visual;
 
 	psd->portrait = MWPORTRAIT_NONE;
+#ifdef ARCH_LINUX_SPARC
+	psd->xres = psd->xvirtres = fb_var.xres_virtual;
+	psd->yres = psd->yvirtres = fb_var.yres_virtual;
+#else
 	psd->xres = psd->xvirtres = fb_var.xres;
 	psd->yres = psd->yvirtres = fb_var.yres;
+#endif
 
 	/* set planes from fb type*/
 	if (type == FB_TYPE_VGA_PLANES)
@@ -236,7 +237,28 @@ fb_open(PSD psd)
 	/* mmap framebuffer into this address space*/
 	psd->size = (psd->size + getpagesize () - 1)
 			/ getpagesize () * getpagesize ();
+#ifdef ARCH_LINUX_SPARC
+#define CG3_MMAP_OFFSET 	0x4000000
+#define CG6_RAM    		0x70016000
+#define TCX_RAM8BIT             0x00000000
+#define TCX_RAM24BIT            0x01000000
+        switch (fb_fix.accel) {
+            case FB_ACCEL_SUN_CGTHREE:
+	         psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG3_MMAP_OFFSET);
+                 break;
+            case FB_ACCEL_SUN_CGSIX:
+	         psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG6_RAM);
+                 break;
+	    case FB_ACCEL_SUN_TCX:
+	         psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,TCX_RAM24BIT);
+                 break;
+            default:
+		EPRINTF("Don;t know how to mmap %s with accel %d\n", env, fb_fix.accel);
+		goto fail;
+        }
+#else
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,0);
+#endif
 	if(psd->addr == NULL || psd->addr == (unsigned char *)-1) {
 		EPRINTF("Error mmaping %s: %m\n", env);
 		goto fail;

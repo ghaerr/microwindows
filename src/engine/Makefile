@@ -28,7 +28,7 @@ LIBNAMESO = libmwengine.so
 # List of objects to compile
 OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 	devpal1.o devpal2.o devimage.o devlist.o selfont.o error.o \
-	devrgn2.o devarc.o devpoly.o
+	devrgn2.o devarc.o devpoly.o devstipple.o
 
 ifeq ($(HAVE_PCF_SUPPORT), Y)
 OBJS += devfontpcf.o
@@ -47,6 +47,13 @@ OBJS += devpalgray4.o
 else
 OBJS += devpal4.o
 endif
+
+ifeq ($(HAVE_EUCJP_SUPPORT), Y)
+DEFINES += -DHAVE_EUCJP_SUPPORT=1
+DEFINES += -DEUCJP_FONT_DIR=\"$(EUCJP_FONT_DIR)\"
+OBJS += devfont_eucjp.o
+endif
+
 
 ######################### Makefile.rules section #############################
 

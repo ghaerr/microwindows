@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Win32 API upper level graphics drawing routines
  */
@@ -321,14 +321,46 @@ MwPrepareDC(HDC hdc)
 		/* clip memory dc's to the bitmap size*/
 		if(hdc->psd->flags&PSF_MEMORY) {
 #if DYNAMICREGIONS
-			GdSetClipRegion(hdc->psd,
-				GdAllocRectRegion(0, 0, hdc->psd->xvirtres,
-					hdc->psd->yvirtres));
+			/* If hdc has a clip region, use it! */
+			if (hdc->region != NULL && hdc->region->rgn != NULL
+			    && hdc->region->rgn->size != 0) {
+				LPRECT rptr = &(hdc->region->rgn->extents);
+				MWCOORD left, top;
+
+				/* Bound left,top to 0,0 if they are negative
+				 * to avoid an assertion later.
+				 */
+				left = (rptr->left <= 0) ? 0 : rptr->left;
+				top = (rptr->top <= 0) ? 0 : rptr->top;
+				GdSetClipRegion(hdc->psd,
+					GdAllocRectRegion(rptr->left, rptr->top,
+						rptr->right, rptr->bottom));
+			} else {
+				GdSetClipRegion(hdc->psd,
+					GdAllocRectRegion(0, 0,
+						hdc->psd->xvirtres, hdc->psd->yvirtres));
+			}
 #else
 			static MWCLIPRECT crc = {0, 0, 0, 0};
 
-			crc.width = hdc->psd->xvirtres;
-			crc.height = hdc->psd->yvirtres;
+			/* If hdc has a clip region, use it! */
+			if (hdc->region != NULL && hdc->region->rgn != NULL
+			    && hdc->region->rgn->size != 0) {
+				LPRECT rptr = &(hdc->region->rgn->extents);
+
+				/* Bound left,top to 0,0 if they are negative
+				 * to avoid an assertion later.
+				 */
+				if (rptr->left > 0)
+					crc.x = rptr->left;
+				if (rptr->top > 0)
+					crc.y = rptr->top;
+				crc.width = rptr->right;
+				crc.height = rptr->bottom;
+			} else {
+				crc.width = hdc->psd->xvirtres;
+				crc.height = hdc->psd->yvirtres;
+			}
 			GdSetClipRects(hdc->psd, 1, &crc);
 #endif
 		} else MwSetClipWindow(hdc);

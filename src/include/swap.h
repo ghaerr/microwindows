@@ -56,4 +56,18 @@
 #define dwread(addr) (*(unsigned long *)(addr))
 #endif /* FreeBSD*/
 
+#elif __ECOS
+#include <machine/endian.h>
+
+#define wswap(x) letoh16(x)
+#define dwswap(x) letoh32(x)
+/* read little endian format from buffer*/
+#define dwread(addr) ((*(unsigned char *)(addr)) | \
+ (*(unsigned char *)(addr+1) << 8) | \
+ (*(unsigned char *)(addr+2) << 16) | \
+ (*(unsigned char *)(addr+3) << 24))
+
+#else
+#error Need to define byte swapping macros for this machine
+
 #endif /* !linux*/

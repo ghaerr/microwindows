@@ -432,7 +432,7 @@ CalcRootVisible(void)
     covered = GrNewRegion();
     for (wx=0; wx<nChildren; wx++) {
 	GrGetWindowInfo(children[wx], &info);
-	if (info.unmapcount == 0) {
+	if (info.realized) {
 	    rect.x = info.x;
 	    rect.y = info.y;
 	    rect.width = info.width;

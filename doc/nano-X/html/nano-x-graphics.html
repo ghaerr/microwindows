@@ -4,7 +4,7 @@
 >graphics</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.33"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.59"><LINK
 REL="HOME"
 TITLE="Nano-X API Reference Manual"
 HREF="index.html"><LINK
@@ -18,8 +18,12 @@ REL="NEXT"
 TITLE="events"
 HREF="nano-x-events.html"></HEAD
 ><BODY
+CLASS="REFENTRY"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -111,19 +115,22 @@ SIZE="3"
 ></TABLE
 ></DIV
 ><H1
->graphics</H1
+><A
+NAME="NANO-X-GRAPHICS"
+>graphics</A
+></H1
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN707"
+NAME="AEN684"
 ></A
 ><H2
 >Name</H2
->graphics &#8212; </DIV
+>graphics&nbsp;--&nbsp;</DIV
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN710"
+NAME="AEN687"
 ></A
 ><H2
 >Synopsis</H2
@@ -539,6 +546,32 @@ HREF="GR-SIZE-CAPS"
 >GR_SIZE</GTKDOCLINK
 > *retbase);
 void        <A
+HREF="nano-x-graphics.html#GRSETGCCLIPORIGIN"
+>GrSetGCClipOrigin</A
+>               (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);
+void        <A
+HREF="nano-x-graphics.html#GRSETGCGRAPHICSEXPOSURE"
+>GrSetGCGraphicsExposure</A
+>         (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> exposure);
+void        <A
 HREF="nano-x-graphics.html#GRREADAREA"
 >GrReadArea</A
 >                      (<GTKDOCLINK
@@ -633,7 +666,57 @@ HREF="GR-COORD-CAPS"
 HREF="GR-COORD-CAPS"
 >GR_COORD</GTKDOCLINK
 > srcy,
-                                             int op);
+                                             <GTKDOCLINK
+HREF="LONG"
+>long</GTKDOCLINK
+> op);
+void        <A
+HREF="nano-x-graphics.html#GRCOPYAREAALPHA"
+>GrCopyAreaAlpha</A
+>                 (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> srcid,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcy,
+                                             <GTKDOCLINK
+HREF="LONG"
+>long</GTKDOCLINK
+> op);
 void        <A
 HREF="nano-x-graphics.html#GRBITMAP"
 >GrBitmap</A
@@ -664,7 +747,7 @@ HREF="GR-SIZE-CAPS"
                                              <GTKDOCLINK
 HREF="GR-BITMAP-CAPS"
 >GR_BITMAP</GTKDOCLINK
-> *imagebits);
+> *bitmaptable);
 void        <A
 HREF="nano-x-graphics.html#GRFREEIMAGE"
 >GrFreeImage</A
@@ -711,7 +794,11 @@ HREF="GR-SIZE-CAPS"
 >GR_SIZE</GTKDOCLINK
 > height,
                                              char *path,
-                                             int flags);
+                                             int flags,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha);
 <GTKDOCLINK
 HREF="GR-IMAGE-ID-CAPS"
 >GR_IMAGE_ID</GTKDOCLINK
@@ -750,7 +837,54 @@ HREF="GR-SIZE-CAPS"
                                              <GTKDOCLINK
 HREF="GR-IMAGE-ID-CAPS"
 >GR_IMAGE_ID</GTKDOCLINK
-> imageid);
+> imageid,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha);
+<GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> <A
+HREF="nano-x-graphics.html#GRLOADIMAGEFROMBUFFER"
+>GrLoadImageFromBuffer</A
+>           (void *buffer,
+                                             int size,
+                                             int flags);
+void        <A
+HREF="nano-x-graphics.html#GRDRAWIMAGEFROMBUFFER"
+>GrDrawImageFromBuffer</A
+>           (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             void *buffer,
+                                             int size,
+                                             int flags,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha);
 void        <A
 HREF="nano-x-graphics.html#GRDRAWIMAGEBITS"
 >GrDrawImageBits</A
@@ -806,7 +940,7 @@ HREF="GR-COUNT-CAPS"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN883"
+NAME="AEN892"
 ></A
 ><H2
 >Description</H2
@@ -816,14 +950,14 @@ NAME="AEN883"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN886"
+NAME="AEN895"
 ></A
 ><H2
 >Details</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN888"
+NAME="AEN897"
 ></A
 ><H3
 ><A
@@ -853,6 +987,9 @@ to it. The structure is initialised with a set of default parameters.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN904"
+></A
 ><P
 ></P
 ><TABLE
@@ -862,6 +999,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -877,6 +1015,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly created graphics context or 0 on error</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -885,7 +1024,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN904"
+NAME="AEN913"
 ></A
 ><H3
 ><A
@@ -918,6 +1057,9 @@ from the specified already existing graphics context.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN921"
+></A
 ><P
 ></P
 ><TABLE
@@ -927,6 +1069,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -959,6 +1102,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the newly created graphics context or 0 on error</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -967,7 +1111,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN925"
+NAME="AEN934"
 ></A
 ><H3
 ><A
@@ -1001,6 +1145,9 @@ specified graphics context.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN942"
+></A
 ><P
 ></P
 ><TABLE
@@ -1010,6 +1157,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1044,6 +1192,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_GC_INFO structure</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1052,7 +1201,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN946"
+NAME="AEN955"
 ></A
 ><H3
 ><A
@@ -1081,6 +1230,9 @@ HREF="GR-GC-ID-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN962"
+></A
 ><P
 ></P
 ><TABLE
@@ -1090,6 +1242,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1107,6 +1260,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the graphics context structure to destroy</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1115,7 +1269,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN962"
+NAME="AEN971"
 ></A
 ><H3
 ><A
@@ -1165,6 +1319,9 @@ from (x1, y1) to (x2, y2), with coordinates given relative to the drawable.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN983"
+></A
 ><P
 ></P
 ><TABLE
@@ -1174,6 +1331,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1276,6 +1434,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the Y coordinate of the end of the line relative to the drawable</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1284,7 +1443,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1003"
+NAME="AEN1012"
 ></A
 ><H3
 ><A
@@ -1326,6 +1485,9 @@ on the specified drawable.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1022"
+></A
 ><P
 ></P
 ><TABLE
@@ -1335,6 +1497,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1403,6 +1566,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the Y coordinate to draw the point at relative to the drawable</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1411,7 +1575,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1034"
+NAME="AEN1043"
 ></A
 ><H3
 ><A
@@ -1453,6 +1617,9 @@ specified by the point table on the specified drawable.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1053"
+></A
 ><P
 ></P
 ><TABLE
@@ -1462,6 +1629,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1530,6 +1698,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_POINT array which lists the points to draw</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1538,7 +1707,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1065"
+NAME="AEN1074"
 ></A
 ><H3
 ><A
@@ -1588,6 +1757,9 @@ on the specified drawable using the specified graphics context.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1086"
+></A
 ><P
 ></P
 ><TABLE
@@ -1597,6 +1769,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1699,6 +1872,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the height of the rectangle</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1707,7 +1881,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1106"
+NAME="AEN1115"
 ></A
 ><H3
 ><A
@@ -1757,6 +1931,9 @@ specified drawable using the specified graphics context.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1127"
+></A
 ><P
 ></P
 ><TABLE
@@ -1766,6 +1943,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1868,6 +2046,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the height of the rectangle</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -1876,7 +2055,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1147"
+NAME="AEN1156"
 ></A
 ><H3
 ><A
@@ -1920,6 +2099,9 @@ the last point must be the same as the first.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1166"
+></A
 ><P
 ></P
 ><TABLE
@@ -1929,6 +2111,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -1997,6 +2180,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to an array of points describing the polygon</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2005,7 +2189,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1178"
+NAME="AEN1187"
 ></A
 ><H3
 ><A
@@ -2049,6 +2233,9 @@ the first in order for the polygon to be closed.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1197"
+></A
 ><P
 ></P
 ><TABLE
@@ -2058,6 +2245,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2126,6 +2314,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to an array of points describing the polygon</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2134,7 +2323,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1209"
+NAME="AEN1218"
 ></A
 ><H3
 ><A
@@ -2184,6 +2373,9 @@ dimensions and graphics context on the specified drawable.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1230"
+></A
 ><P
 ></P
 ><TABLE
@@ -2193,6 +2385,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2295,6 +2488,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the radius of the ellipse on the Y axis</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2303,7 +2497,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1250"
+NAME="AEN1259"
 ></A
 ><H3
 ><A
@@ -2353,6 +2547,9 @@ dimensions and graphics context on the specified drawable.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1271"
+></A
 ><P
 ></P
 ><TABLE
@@ -2362,6 +2559,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2464,6 +2662,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the radius of the ellipse on the Y axis</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2472,7 +2671,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1291"
+NAME="AEN1300"
 ></A
 ><H3
 ><A
@@ -2541,6 +2740,9 @@ GR_PIE.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1316"
+></A
 ><P
 ></P
 ><TABLE
@@ -2550,6 +2752,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2737,6 +2940,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the fill style to use when drawing the arc</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2745,7 +2949,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1356"
+NAME="AEN1365"
 ></A
 ><H3
 ><A
@@ -2805,11 +3009,15 @@ GR_PIE. This function requires floating point support, and is slightly
 slower than the <A
 HREF="nano-x-graphics.html#GRARC"
 >GrArc</A
->() function which does not require floating point.</P
+>() function which does not require floating point.
+The angle is specified in 64ths of a degree.</P
 ><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1380"
+></A
 ><P
 ></P
 ><TABLE
@@ -2819,6 +3027,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -2972,6 +3181,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the fill style to use when drawing the arc</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -2980,7 +3190,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1412"
+NAME="AEN1421"
 ></A
 ><H3
 ><A
@@ -3014,6 +3224,9 @@ specified colour.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1429"
+></A
 ><P
 ></P
 ><TABLE
@@ -3023,6 +3236,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3057,6 +3271,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the colour to use as the new foreground colour</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3065,7 +3280,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1433"
+NAME="AEN1442"
 ></A
 ><H3
 ><A
@@ -3099,6 +3314,9 @@ specified colour.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1450"
+></A
 ><P
 ></P
 ><TABLE
@@ -3108,6 +3326,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3142,6 +3361,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the colour to use as the new background colour</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3150,7 +3370,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1454"
+NAME="AEN1463"
 ></A
 ><H3
 ><A
@@ -3185,6 +3405,9 @@ specified value.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1471"
+></A
 ><P
 ></P
 ><TABLE
@@ -3194,6 +3417,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3228,6 +3452,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > flag specifying whether to use the background colour or not</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3236,7 +3461,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1475"
+NAME="AEN1484"
 ></A
 ><H3
 ><A
@@ -3261,12 +3486,15 @@ HREF="GR-GC-ID-CAPS"
 ></TR
 ></TABLE
 ><P
->Changes the drawing mode (SET, XOR, OR, AND, etc.) of the specified
-graphics context to the specified mode.</P
+>Changes the drawing mode (GR_MODE_SET, GR_MODE_XOR, GR_MODE_OR, GR_MODE_AND,
+etc.) of the specified graphics context to the specified mode.</P
 ><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1491"
+></A
 ><P
 ></P
 ><TABLE
@@ -3276,6 +3504,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3310,6 +3539,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the new drawing mode</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3318,7 +3548,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1495"
+NAME="AEN1504"
 ></A
 ><H3
 ><A
@@ -3352,6 +3582,9 @@ context to the specified font ID.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1512"
+></A
 ><P
 ></P
 ><TABLE
@@ -3361,6 +3594,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3395,6 +3629,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the font</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3403,7 +3638,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1516"
+NAME="AEN1525"
 ></A
 ><H3
 ><A
@@ -3449,6 +3684,9 @@ if the string is null terminated.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1535"
+></A
 ><P
 ></P
 ><TABLE
@@ -3458,6 +3696,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3577,6 +3816,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the variable the baseline height will be returned in</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3585,7 +3825,208 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1559"
+NAME="AEN1568"
+></A
+><H3
+><A
+NAME="GRSETGCCLIPORIGIN"
+></A
+>GrSetGCClipOrigin ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCClipOrigin               (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Sets the origin of the user clip region in the specified graphics context
+to the specified X and Y coordinates.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1577"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context with user clip region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> new X offset of user clip region</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> new Y offset of user clip region</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1594"
+></A
+><H3
+><A
+NAME="GRSETGCGRAPHICSEXPOSURE"
+></A
+>GrSetGCGraphicsExposure ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrSetGCGraphicsExposure         (<GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-BOOL-CAPS"
+>GR_BOOL</GTKDOCLINK
+> exposure);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Controls whether GR_EVENT_TYPE_EXPOSURE events are sent as a result of
+GrCopyArea calls which use the specified graphics context.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1602"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>exposure</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> exposure boolean</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1615"
 ></A
 ><H3
 ><A
@@ -3639,6 +4080,9 @@ boundary, black pixel values will be returned.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1627"
+></A
 ><P
 ></P
 ><TABLE
@@ -3648,6 +4092,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3750,6 +4195,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to an area of memory to place the pixel data in</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3758,7 +4204,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1600"
+NAME="AEN1656"
 ></A
 ><H3
 ><A
@@ -3812,6 +4258,9 @@ the GR_PF_RGB format, which is an unsigned long containing RGBX data.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1668"
+></A
 ><P
 ></P
 ><TABLE
@@ -3821,6 +4270,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -3957,6 +4407,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the format of the pixel data</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -3965,7 +4416,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1649"
+NAME="AEN1705"
 ></A
 ><H3
 ><A
@@ -4017,7 +4468,10 @@ HREF="GR-COORD-CAPS"
 HREF="GR-COORD-CAPS"
 >GR_COORD</GTKDOCLINK
 > srcy,
-                                             int op);</PRE
+                                             <GTKDOCLINK
+HREF="LONG"
+>long</GTKDOCLINK
+> op);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -4029,6 +4483,9 @@ and ROP codes. 0 is a sensible default ROP code in most cases.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1721"
+></A
 ><P
 ></P
 ><TABLE
@@ -4038,6 +4495,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -4208,6 +4666,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ROP codes to pass to the blitter when performing the copy</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -4216,7 +4675,288 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1709"
+NAME="AEN1766"
+></A
+><H3
+><A
+NAME="GRCOPYAREAALPHA"
+></A
+>GrCopyAreaAlpha ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrCopyAreaAlpha                 (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             <GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> srcid,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcx,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> srcy,
+                                             <GTKDOCLINK
+HREF="LONG"
+>long</GTKDOCLINK
+> op);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Copies the specified area of the specified size between the specified
+drawables at the specified positions using the specified graphics context
+and ROP codes. 0 is a sensible default ROP code in most cases. The alpha
+channel can be specified as 0 if you do not want to perform alpha blending.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1783"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to copy the area to</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when copying the area</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>alpha</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the alpha channel to use when blending the area</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to copy the area to within the destination drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to copy the area to within the destination drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the width of the area to copy</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the height of the area to copy</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>srcid</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to copy the area from</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>srcx</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to copy the area from within the source drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>srcy</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to copy the area from within the source drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>op</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ROP codes to pass to the blitter when performing the copy</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN1832"
 ></A
 ><H3
 ><A
@@ -4259,7 +4999,7 @@ HREF="GR-SIZE-CAPS"
                                              <GTKDOCLINK
 HREF="GR-BITMAP-CAPS"
 >GR_BITMAP</GTKDOCLINK
-> *imagebits);</PRE
+> *bitmaptable);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -4273,6 +5013,9 @@ whether to draw the background colour wherever a bit value is zero.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1845"
+></A
 ><P
 ></P
 ><TABLE
@@ -4282,6 +5025,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -4392,15 +5136,16 @@ VALIGN="TOP"
 ><TT
 CLASS="PARAMETER"
 ><I
->imagebits</I
+>bitmaptable</I
 ></TT
 >&nbsp;:</TD
 ><TD
 WIDTH="80%"
 ALIGN="LEFT"
 VALIGN="TOP"
->&nbsp;</TD
+> pointer to the bitmap data</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -4409,7 +5154,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1755"
+NAME="AEN1878"
 ></A
 ><H3
 ><A
@@ -4438,6 +5183,9 @@ HREF="GR-IMAGE-ID-CAPS"
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1885"
+></A
 ><P
 ></P
 ><TABLE
@@ -4447,6 +5195,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -4464,6 +5213,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > ID of the image buffer to free</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -4472,7 +5222,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1771"
+NAME="AEN1894"
 ></A
 ><H3
 ><A
@@ -4506,6 +5256,9 @@ specified image buffer.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1902"
+></A
 ><P
 ></P
 ><TABLE
@@ -4515,6 +5268,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -4549,6 +5303,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to a GR_IMAGE_INFO structure</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -4557,7 +5312,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1792"
+NAME="AEN1915"
 ></A
 ><H3
 ><A
@@ -4598,7 +5353,11 @@ HREF="GR-SIZE-CAPS"
 >GR_SIZE</GTKDOCLINK
 > height,
                                              char *path,
-                                             int flags);</PRE
+                                             int flags,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -4612,11 +5371,30 @@ the filename extension is irrelevant). The currently supported image types
 include GIF, JPEG, Windows BMP, PNG, XPM, and both ascii and binary
 variants of PBM, PGM, and PPM. However the image types supported by a
 particular server depend on which image types were enabled in the server
-configuration at build time.</P
+configuration at build time. Note that there is no way for you to tell
+if this call fails. If you need error detection, do seperate
+<A
+HREF="nano-x-graphics.html#GRLOADIMAGEFROMFILE"
+>GrLoadImageFromFile</A
+>() and <A
+HREF="nano-x-graphics.html#GRDRAWIMAGETOFIT"
+>GrDrawImageToFit</A
+>() calls. If an alpha channel is
+specified, it will be filled in with the transparency or an alpha
+information contained in the image. If the image file does not contain any
+transparency or alpha information, the alpha channel will be filled with
+maximum opacity values (ie. it is assumed to be not translucent at all).
+Note that filling in an alpha channel when drawing to a window is unlikely
+to have the desired effect as the part of the alpha channel that is drawn to
+depends on the absolute location of the window on the screen. If in doubt
+draw to a pixmap instead of directly to the screen.</P
 ><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1930"
+></A
 ><P
 ></P
 ><TABLE
@@ -4626,6 +5404,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -4762,6 +5541,24 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > flags specific to the particular image loader</TD
 ></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>alpha</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the id of the alpha channel to fill in or 0 if no alpha channel</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -4770,7 +5567,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1841"
+NAME="AEN1971"
 ></A
 ><H3
 ><A
@@ -4801,11 +5598,15 @@ using the magic numbers in the image header (ie. the filename extension is
 irrelevant). The currently supported image types include GIF, JPEG, Windows
 BMP, PNG, XPM, and both ascii and binary variants of PBM, PGM, and PPM.
 However the image types supported by a particular server depend on which
-image types were enabled in the server configuration at build time.</P
+image types were enabled in the server configuration at build time. If the
+load fails, an image ID of 0 is returned.</P
 ><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN1978"
+></A
 ><P
 ></P
 ><TABLE
@@ -4815,6 +5616,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -4864,6 +5666,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > ID of the image buffer the image was loaded into</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -4872,7 +5675,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1865"
+NAME="AEN1995"
 ></A
 ><H3
 ><A
@@ -4915,7 +5718,11 @@ HREF="GR-SIZE-CAPS"
                                              <GTKDOCLINK
 HREF="GR-IMAGE-ID-CAPS"
 >GR_IMAGE_ID</GTKDOCLINK
-> imageid);</PRE
+> imageid,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha);</PRE
 ></TD
 ></TR
 ></TABLE
@@ -4923,11 +5730,22 @@ HREF="GR-IMAGE-ID-CAPS"
 >Draws the image from the specified image buffer at the specified position
 on the specified drawable using the specified graphics context. The
 width and height values specify the size of the image to draw- if the
-actual image is a different size, it will be scaled to fit.</P
+actual image is a different size, it will be scaled to fit. If an alpha
+channel is specified, it will be filled in with the transparency or an alpha
+information contained in the image. If the image file does not contain any
+transparency or alpha information, the alpha channel will be filled with
+maximum opacity values (ie. it is assumed to be not translucent at all).
+Note that filling in an alpha channel when drawing to a window is unlikely
+to have the desired effect as the part of the alpha channel that is drawn to
+depends on the absolute location of the window on the screen. If in doubt
+draw to a pixmap instead of directly to the screen.</P
 ><P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2009"
+></A
 ><P
 ></P
 ><TABLE
@@ -4937,6 +5755,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -5056,6 +5875,24 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > the ID of the image buffer containing the image to display</TD
 ></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>alpha</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the id of the alpha channel to fill in or 0 if no alpha channel</TD
+></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -5064,7 +5901,406 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1911"
+NAME="AEN2046"
+></A
+><H3
+><A
+NAME="GRLOADIMAGEFROMBUFFER"
+></A
+>GrLoadImageFromBuffer ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+><GTKDOCLINK
+HREF="GR-IMAGE-ID-CAPS"
+>GR_IMAGE_ID</GTKDOCLINK
+> GrLoadImageFromBuffer           (void *buffer,
+                                             int size,
+                                             int flags);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Loads the image in the specified buffer into a newly created server image
+buffer and returns the ID of the buffer. The image type is automatically
+detected using the magic numbers in the image header. The currently
+supported image types include GIF, JPEG, Windows BMP, PNG, XPM, and both
+ascii and binary variants of PBM, PGM, and PPM. However the image types
+supported by a particular server depend on which image types were enabled
+in the server configuration at build time. If the load fails, an image ID
+of 0 is returned.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2053"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a buffer containing the image data to load</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>size</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> size in bytes of the image</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> flags specific to the particular image loader</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><I
+CLASS="EMPHASIS"
+>Returns</I
+> :</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> ID of the image buffer the image was loaded into</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2074"
+></A
+><H3
+><A
+NAME="GRDRAWIMAGEFROMBUFFER"
+></A
+>GrDrawImageFromBuffer ()</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#D6E8FF"
+WIDTH="100%"
+CELLPADDING="6"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>void        GrDrawImageFromBuffer           (<GTKDOCLINK
+HREF="GR-DRAW-ID-CAPS"
+>GR_DRAW_ID</GTKDOCLINK
+> id,
+                                             <GTKDOCLINK
+HREF="GR-GC-ID-CAPS"
+>GR_GC_ID</GTKDOCLINK
+> gc,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> x,
+                                             <GTKDOCLINK
+HREF="GR-COORD-CAPS"
+>GR_COORD</GTKDOCLINK
+> y,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> width,
+                                             <GTKDOCLINK
+HREF="GR-SIZE-CAPS"
+>GR_SIZE</GTKDOCLINK
+> height,
+                                             void *buffer,
+                                             int size,
+                                             int flags,
+                                             <GTKDOCLINK
+HREF="GR-ALPHA-ID-CAPS"
+>GR_ALPHA_ID</GTKDOCLINK
+> alpha);</PRE
+></TD
+></TR
+></TABLE
+><P
+>Loads the image in the specified buffer and draws it at the specified
+position on the specified drawable using the specified graphics context.
+The width and height values specify the size of the image to draw- if the
+actual image is a different size, it will be scaled to fit. The image type
+is automatically detected using the magic numbers in the image header the
+filename extension is irrelevant). The currently supported image types
+include GIF, JPEG, Windows BMP, PNG, XPM, and both ascii and binary
+variants of PBM, PGM, and PPM. However the image types supported by a
+particular server depend on which image types were enabled in the server
+configuration at build time. Note that there is no way for you to tell
+if this call fails. If you need error detection, do seperate
+<A
+HREF="nano-x-graphics.html#GRLOADIMAGEFROMBUFFER"
+>GrLoadImageFromBuffer</A
+>() and <A
+HREF="nano-x-graphics.html#GRDRAWIMAGETOFIT"
+>GrDrawImageToFit</A
+>() calls. If an alpha channel
+is specified, it will be filled in with the transparency or an alpha
+information contained in the image. If the image file does not contain any
+transparency or alpha information, the alpha channel will be filled with
+maximum opacity values (ie. it is assumed to be not translucent at all).
+Note that filling in an alpha channel when drawing to a window is unlikely
+to have the desired effect as the part of the alpha channel that is drawn to
+depends on the absolute location of the window on the screen. If in doubt
+draw to a pixmap instead of directly to the screen.</P
+><P
+></P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2089"
+></A
+><P
+></P
+><TABLE
+BORDER="0"
+WIDTH="100%"
+BGCOLOR="#FFD0D0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the drawable to draw the image onto</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the ID of the graphics context to use when drawing the image</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the X coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the Y coordinate to draw the image at relative to the drawable</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum image width</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the maximum image height</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> pointer to a buffer containing the image data to load</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>size</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> size in bytes of the image</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> flags specific to the particular image loader</TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="RIGHT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>alpha</I
+></TT
+>&nbsp;:</TD
+><TD
+WIDTH="80%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> the id of the alpha channel to fill in or 0 if no alpha channel</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><HR><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN2134"
 ></A
 ><H3
 ><A
@@ -5111,6 +6347,9 @@ graphics context.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2145"
+></A
 ><P
 ></P
 ><TABLE
@@ -5120,6 +6359,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -5205,6 +6445,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > pointer to the image structure</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P
@@ -5213,7 +6454,7 @@ VALIGN="TOP"
 ><HR><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN1947"
+NAME="AEN2170"
 ></A
 ><H3
 ><A
@@ -5262,6 +6503,9 @@ specify ASCII encoding and baseline alignment.</P
 ></P
 ><DIV
 CLASS="INFORMALTABLE"
+><A
+NAME="AEN2181"
+></A
 ><P
 ></P
 ><TABLE
@@ -5271,6 +6515,7 @@ BGCOLOR="#FFD0D0"
 CELLSPACING="0"
 CELLPADDING="4"
 CLASS="CALSTABLE"
+><TBODY
 ><TR
 ><TD
 WIDTH="20%"
@@ -5390,6 +6635,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 > flags specifying text encoding, alignment, etc.</TD
 ></TR
+></TBODY
 ></TABLE
 ><P
 ></P

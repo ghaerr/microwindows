@@ -1,3 +1,6 @@
+/*
+ * logical font descriptor demo for Nano-X
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +10,9 @@
 #endif
 #define MWINCLUDECOLORS
 #include "nano-X.h"
+
+#define FONT	"arial.ttf"
+
 /*
  * logical font demo for Nano-X
  */
@@ -27,12 +33,13 @@ int main(int argc, char **argv)
         srand(time(0));
    
         GrOpen();
-	window = GrNewWindow(GR_ROOT_WINDOW_ID, 5, 5, MAXW, MAXH, 4, BLACK, BLUE);
+	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "logfont",
+		GR_ROOT_WINDOW_ID, 5, 5, MAXW, MAXH, BLACK);
+	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(window);
 
         gc = GrNewGC();
 
-        GrSelectEvents(window,GR_EVENT_MASK_ALL);
         GrSetGCUseBackground(gc,GR_FALSE);
 	GrSetGCBackground(gc, GR_RGB(0, 0, 0));
 
@@ -52,12 +59,12 @@ int main(int argc, char **argv)
 	      MWLF_Clear(&lf);
 	      description[0] = '\0';
 	      /*lf.lfSerif = 1;*/
+	      lf.lfHeight = 12;	// FIXME will change this requirement
 
 	      if ( rnd & 1 ) {
 		      lf.lfWeight = MWLF_WEIGHT_BOLD;
 		      strcat(description,"Bold ");
 	      }
-	      
 
 	      if ( rnd & 2 ) {
 		      lf.lfItalic = 1;
@@ -79,12 +86,12 @@ int main(int argc, char **argv)
 	      if ( argc > 1 )
 		      strcpy(lf.lfFaceName,argv[1]);
 	      else
-		      strcpy(lf.lfFaceName,"fantasy");
+		      strcpy(lf.lfFaceName, FONT);
 
 	      fontid = GrCreateFont(0, 0, &lf);
 	      /* GrSetFontSize(fontid, 1+(int)(80.0 * rand() / (RAND_MAX+1.0))); */
 	      GrSetFontSize(fontid,26);
-	      GrSetFontRotation(fontid, 330);	/* 33 degrees*/
+	      //GrSetFontRotation(fontid, 330);	/* 33 degrees*/
   	      GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
   	      GrSetGCFont(gc, fontid);
 	      /*GrSetGCBackground(gc, rand() & 0xffffff);*/
@@ -92,8 +99,7 @@ int main(int argc, char **argv)
 	      /* x = (int) ((MAXW * 1.0) *rand()/(RAND_MAX+1.0));
 		 y = (int) ((MAXH * 1.0) *rand()/(RAND_MAX+1.0)); */
 
-	      GrText(window, gc,x,y, description, -1, GR_TFASCII);
-
+	      GrText(window, gc,x,y, description, -1, GR_TFTOP|GR_TFASCII);
 	      GrDestroyFont(fontid);
 
 	      rnd++;

@@ -16,6 +16,7 @@
 void drawpoint(PSD psd,MWCOORD x, MWCOORD y);
 void drawrow(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y);
 extern int 	  gr_mode; 	      /* drawing mode */
+extern int gr_fillmode;
 
 /* Draw a polygon in the foreground color, applying clipping if necessary.
  * The polygon is only closed if the first point is repeated at the end.
@@ -215,6 +216,33 @@ getPolyYBounds(MWPOINT *pts, int n, int *by, int *ty)
     return(ptMin-ptsStart);
 }
 
+static int
+getPolyXBounds(MWPOINT *pts, int n, int *bx, int *tx)
+{
+    MWPOINT *ptMin;
+    int xmin, xmax;
+    MWPOINT *ptsStart = pts;
+
+    ptMin = pts;
+    xmin = xmax = (pts++)->x;
+
+    while (--n > 0) {
+        if (pts->x < xmin)
+	{
+            ptMin = pts;
+            xmin = pts->x;
+        }
+	if(pts->x > xmax)
+            xmax = pts->x;
+
+        pts++;
+    }
+
+    *bx = xmin;
+    *tx = xmax;
+    return(ptMin-ptsStart);
+}
+
 void
 GdFillPoly(PSD psd, int count, MWPOINT *pointtable)
 {
@@ -239,7 +267,14 @@ GdFillPoly(PSD psd, int count, MWPOINT *pointtable)
      *  find leftx, bottomy, rightx, topy, and the index
      *  of bottomy.
      */
+
     imin = getPolyYBounds(pointtable, count, &ymin, &ymax);
+
+    if (gr_fillmode != MWFILL_SOLID) {
+      int xmin, xmax;
+      getPolyXBounds(pointtable, count, &xmin, &xmax);
+      set_ts_origin(xmin, ymin);
+    }
 
     dy = ymax - ymin + 1;
     if ((count < 3) || (dy < 0))
@@ -353,7 +388,10 @@ GdFillPoly(PSD psd, int count, MWPOINT *pointtable)
 	/* calc x extent from width*/
 	int e = *width++ - 1;
 	if (e >= 0) {
-    	    drawrow(psd, ptsOut->x, ptsOut->x + e, ptsOut->y);
+	  if (gr_fillmode != MWFILL_SOLID) 
+	    ts_drawrow(psd, ptsOut->x, ptsOut->x + e, ptsOut->y);
+	   else
+	     drawrow(psd, ptsOut->x, ptsOut->x + e, ptsOut->y);
 	}
 	++ptsOut;
     }

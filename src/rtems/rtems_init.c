@@ -1,7 +1,5 @@
 /*
 /////////////////////////////////////////////////////////////////////////////
-// $Header: /usr/cvs/microwin/src/rtems/rtems_init.c,v 1.1 2001/06/21 06:32:42 greg Exp $
-//
 // Copyright (c) 1999 ConnectTel, Inc. All Rights Reserved.
 //  
 // MODULE DESCRIPTION:
@@ -14,13 +12,7 @@
 //      http://www.connecttel.com
 //
 // MODIFICATION/HISTORY:
-// $Log: rtems_init.c,v $
-// Revision 1.1  2001/06/21 06:32:42  greg
-// Initial revision
-//
-// Revision 1.1.1.1  2001/06/05 03:44:03  root
-// First import of 5/5/2001 Microwindows to CVS
-//
+// Microwindows pre8 with patches
 //
 /////////////////////////////////////////////////////////////////////////////
 */

@@ -196,7 +196,7 @@ AcceptTcpConnection(int listenSock)
 {
     int sock;
     struct sockaddr_in addr;
-    int addrlen = sizeof(addr);
+    unsigned int addrlen = sizeof(addr);
     int one = 1;
 
     sock = accept(listenSock, (struct sockaddr *) &addr, &addrlen);
@@ -247,7 +247,7 @@ Bool
 SameMachine(int sock)
 {
     struct sockaddr_in peeraddr, myaddr;
-    int addrlen = sizeof(struct sockaddr_in);
+    unsigned int addrlen = sizeof(struct sockaddr_in);
 
     getpeername(sock, (struct sockaddr *)&peeraddr, &addrlen);
     getsockname(sock, (struct sockaddr *)&myaddr, &addrlen);

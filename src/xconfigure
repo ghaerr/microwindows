@@ -151,6 +151,7 @@ proc platformoptions {} {
    frame .platform.a3
    frame .platform.a4
    frame .platform.a5
+   frame .platform.a6
 
    radiobutton .platform.a0.b0 -text "Linux (native)" -variable arch -relief flat -value 0 -anchor w
    button .platform.a0.options -text "Options" -command {nativelinuxoptions;};
@@ -164,20 +165,24 @@ proc platformoptions {} {
    button .platform.a4.options -text "Options" -command {nativelinuxoptions;};
    radiobutton .platform.a5.b5 -text "ELKS" -variable arch -relief flat -value 5 -anchor w
    button .platform.a5.options -text "Options" -command {elksoptions;};
+   radiobutton .platform.a6.b6 -text "Linux-SPARC (x-compile)" -variable arch -relief flat -value 6 -anchor w
+   button .platform.a6.options -text "Options" -command {nativelinuxoptions;};
    pack .platform.a0.b0 .platform.a0.options -side left
    pack .platform.a1.b1 .platform.a1.options -side left
    pack .platform.a2.b2 .platform.a2.options -side left
    pack .platform.a3.b3 .platform.a3.options -side left
    pack .platform.a4.b4 .platform.a4.options -side left
    pack .platform.a5.b5 .platform.a5.options -side left
+   pack .platform.a6.b6 .platform.a6.options -side left
    pack .platform.a0  -side top -pady 2 -anchor w -fill x
    pack .platform.a1  -side top -pady 2 -anchor w -fill x
    pack .platform.a2  -side top -pady 2 -anchor w -fill x
    pack .platform.a3  -side top -pady 2 -anchor w -fill x
    pack .platform.a4  -side top -pady 2 -anchor w -fill x
    pack .platform.a5  -side top -pady 2 -anchor w -fill x
+   pack .platform.a6  -side top -pady 2 -anchor w -fill x
    pack .platform.a0.options .platform.a1.options .platform.a2.options \
-   .platform.a3.options .platform.a4.options .platform.a5.options -side top -anchor e
+   .platform.a3.options .platform.a4.options .platform.a5.options .platform.a6.options -side top -anchor e
 }
 
 
@@ -1081,6 +1086,7 @@ proc readconfig {} {
         RTEMS {set arch 3;}
         SOLARIS {set arch 4;}
         ELKS {set arch 5;}
+        LINUX-SPARC {set arch 6;}
         default {set arch 0}
    }
 
@@ -1251,6 +1257,7 @@ proc writeconfig {} {
    if {$arch == 0} {putvalue "ARCH" "LINUX-NATIVE"
    } elseif {$arch == 1} {putvalue "ARCH" "LINUX-ARM"
    } elseif {$arch == 2} {putvalue "ARCH" "LINUX-MIPS"
+   } elseif {$arch == 6} {putvalue "ARCH" "LINUX-SPARC"
    } elseif {$arch == 3} {putvalue "ARCH" "RTEMS"
    } elseif {$arch == 4} {putvalue "ARCH" "SOLARIS"
    } elseif {$arch == 5} {putvalue "ARCH" "ELKS"}

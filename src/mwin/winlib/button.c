@@ -420,15 +420,20 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	case BS_PUSHBUTTON:
 	case BS_DEFPUSHBUTTON:
 		if( wEnumState & PBS_FOCUSDOWN) {
+			if(dwStyle & BS_BITMAP)
+				DrawDIB(hdc, rc.left+1, rc.top+1, (PMWIMAGEHDR)hwnd->userdata);
 			Draw3dBox(hdc, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
 				GetSysColor(COLOR_WINDOWFRAME), GetSysColor(COLOR_WINDOWFRAME));
 			InsetR(&rc, 1, 1);
 			Draw3dBox(hdc, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
 				GetSysColor(COLOR_BTNSHADOW), GetSysColor(COLOR_BTNSHADOW));
 			InsetR(&rc, 1, 1);
-			FastFillRect(hdc, &rc, GetSysColor(COLOR_BTNFACE));
+			if(!(dwStyle & BS_BITMAP))
+				FastFillRect(hdc, &rc, GetSysColor(COLOR_BTNFACE));
 			iFaceOffset = 1;
 		} else {
+			if(dwStyle & BS_BITMAP)
+				DrawDIB(hdc, rc.left, rc.top, (PMWIMAGEHDR)hwnd->userdata);
 			if(wEnumState & PBS_DEFAULT) {
 				Draw3dBox(hdc, rc.left, rc.top,
 					rc.right-rc.left, rc.bottom-rc.top,
@@ -442,7 +447,8 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 			Draw3dBox(hdc, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
 				GetSysColor(COLOR_3DLIGHT), GetSysColor(COLOR_BTNSHADOW));
 			InsetR(&rc, 1, 1);
-			FastFillRect(hdc, &rc, GetSysColor(COLOR_BTNFACE));
+			if(!(dwStyle & BS_BITMAP))
+				FastFillRect(hdc, &rc, GetSysColor(COLOR_BTNFACE));
 			iFaceOffset = 0;
 		}
 		break;
@@ -773,6 +779,10 @@ LPARAM	lParam)
 		cenButton_FnEnd( hwnd, wStateOld);
 }
 #endif
+		return 0;
+	case BM_SETIMAGE:
+            	hwnd->userdata = (DWORD)wParam;
+            	InvalidateRect(hwnd, NULL, FALSE);
 		return 0;
 	}
 

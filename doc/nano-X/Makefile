@@ -1,3 +1,5 @@
+# Copyright (c) 2002 Alex Holden <alex@alexholden.net>
+#
 # Note! You need to have gtk-doc, docbook, jade, tex, and various other
 # things set up and playing nicely before you will be able to rebuild
 # this documentation. If you just want to read the docs, use the prebuilt
@@ -29,11 +31,13 @@ html: sgml $(MODULE)-docs.sgml
 ps: sgml $(MODULE)-docs.sgml
 	db2ps $(MODULE)-docs.sgml
 
-pdf: ps
-	ps2pdf $(MODULE)-docs.ps
+pdf: sgml $(MODULE)-docs.sgml
+	db2pdf $(MODULE)-docs.sgml
+#	pdftex nano-X.tex
+#	ps2pdf $(MODULE)-docs.ps
 
 cleanup:
-	rm -f sgml/* tmpl/* *.bak *.log $(MODULE)-unused.txt $(MODULE)-decl.txt $(MODULE)-decl-list.txt *.tex *.dvi *.aux
+	rm -f sgml/* tmpl/* *.bak *.log *.out $(MODULE)-unused.txt $(MODULE)-decl.txt $(MODULE)-decl-list.txt *.tex *.dvi *.aux
 	if test -d tmpl ; then rmdir tmpl ; fi
 	if test -d sgml ; then rmdir sgml ; fi
 

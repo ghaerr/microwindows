@@ -1,7 +1,4 @@
 /***************************************************************************
- *
- * $Header: /usr/cvs/microwin/src/rtems/rtemscfg.h,v 1.1 2001/06/21 06:32:42 greg Exp $
- *
  * Copyright (c) 1999 ConnectTel, Inc. All Rights Reserved.
  *  
  * MODULE DESCRIPTION: RTEMS configuration file. This file should be
@@ -13,13 +10,8 @@
  *
  * MODIFICATION/HISTORY:
  *
- * $Log: rtemscfg.h,v $
- * Revision 1.1  2001/06/21 06:32:42  greg
- * Initial revision
- *
- * Revision 1.1.1.1  2001/06/05 03:44:03  root
- * First import of 5/5/2001 Microwindows to CVS
- *
+ * Revision 1.1.1.1  2001/06/21 06:32:42  greg
+ * Microwindows pre8 with patches
  ****************************************************************************/
 
 

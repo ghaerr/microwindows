@@ -1,3 +1,8 @@
+add PIXIL screentop window manager
+add PIXIL calibration utility
+add PIXIL nxutil library
+
+fixup GrNewBitmapFromPixmap
 obsolete MWMODE_SET, MWROP_SRCCOPY, change MWMODE_SETTO1 before 0.89 final
 write X11 stretchblit driver entry point
 check for HAVE_STRETCHBLIT before calling it...

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -14,7 +14,7 @@
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
 static void CheckNextEvent(GR_EVENT *ep, GR_BOOL doSelect);
-
+ 
 /*
  * Return information about the screen for clients to use.
  */
@@ -186,7 +186,7 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 		infoptr->child = wp->children? wp->children->id: 0;
 		infoptr->sibling = wp->siblings? wp->siblings->id: 0;
 		infoptr->mapped = wp->mapped;
-		infoptr->unmapcount = wp->unmapcount;
+		infoptr->realized = wp->realized;
 		infoptr->inputonly = !wp->output;
 		infoptr->bordersize = wp->bordersize;
 		infoptr->bordercolor = wp->bordercolor;
@@ -215,7 +215,7 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 		infoptr->child = 0;
 		infoptr->sibling = 0;
 		infoptr->mapped = GR_FALSE;
-		infoptr->unmapcount = 0;
+		infoptr->realized = GR_TRUE;
 		infoptr->inputonly = GR_FALSE;
 		infoptr->bordersize = 0;
 		infoptr->bordercolor = 0;
@@ -335,7 +335,8 @@ GrRaiseWindow(GR_WINDOW_ID wid)
 /*
  * Lower a window to the lowest level among its siblings.
  */
-void GrLowerWindow(GR_WINDOW_ID wid)
+void
+GrLowerWindow(GR_WINDOW_ID wid)
 {
 	GR_WINDOW	*wp;		/* window structure */
 	GR_WINDOW	*prevwp;	/* previous window pointer */
@@ -452,6 +453,9 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 
 		/* temp don't blit in portrait mode, still buggy*/
 		&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))
+
+		/* don't blit if window has custom frame, background not right*/
+		&& !wp->clipregion
 	   ) {
 		int 		oldx = wp->x;
 		int 		oldy = wp->y;
@@ -533,9 +537,9 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 	 * This method will redraw the window entirely,
 	 * resulting in considerable flicker.
 	 */
-	GsWpUnmapWindow(wp, GR_TRUE);
+	GsWpUnrealizeWindow(wp, GR_TRUE);
 	OffsetWindow(wp, offx, offy);
-	GsWpMapWindow(wp, GR_FALSE);
+	GsWpRealizeWindow(wp, GR_FALSE);
 	DeliverUpdateMoveEventAndChildren(wp);
 }
 
@@ -562,7 +566,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	if ((wp->width == width) && (wp->height == height))
 		return;
 
-	if (wp->unmapcount || !wp->output) {
+	if (!wp->realized || !wp->output) {
 		wp->width = width;
 		wp->height = height;
 		return;
@@ -572,35 +576,15 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.
 	 */
-	GsWpUnmapWindow(wp, GR_TRUE);
+	GsWpUnrealizeWindow(wp, GR_TRUE);
 	wp->width = width;
 	wp->height = height;
-	GsWpMapWindow(wp, GR_FALSE);
+	GsWpRealizeWindow(wp, GR_FALSE);
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
-}
-
-/* set unmapcount for a window and all its children*/
-static void
-SetUnmapCountTree(GR_WINDOW *wp, int value, GR_BOOL increment)
-{
-	GR_WINDOW *	childwp;
-
-	if (increment)
-		wp->unmapcount += value;
-	else wp->unmapcount = value;
-
-	for (childwp = wp->children; childwp; childwp = childwp->siblings)
-		SetUnmapCountTree(childwp, value, increment);
 }
 
 /*
  * Reparent window to new parent, position at passed x, y
- *
- * NOTE: currently, the new parent must be mapped before
- * reparenting, or the children of the newly parented window
- * will have bad unmapcount values due to the GrMapWindow
- * being called on the parent afterwards, and chaining down
- * through the children.
  */
 void
 GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
@@ -609,53 +593,52 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 	GR_WINDOW	*pwp;		/* parent window structure */
 	GR_WINDOW	**mysibptr;	/* handle to my sibling ptr */
 	GR_COORD	offx, offy;
-	GR_BOOL		wasmapped;
 
 	wp = GsFindWindow(wid);
 	pwp = GsFindWindow(pwid);
-	if (wp == NULL || pwp == NULL || wp == pwp)
+	if (!wp || !pwp || wp == pwp)
 		return;
 	if (wp == rootwp) {
 		GsError(GR_ERROR_ILLEGAL_ON_ROOT_WINDOW, wid);
 		return;
 	}
 
+/*printf("grreparent: pid %d wid %d (oldpid %d) realized %d,%d\n", pwid, wid, wp->parent->id, pwp->realized, wp->realized);*/
 	x += pwp->x;
 	y += pwp->y;
 	offx = x - wp->x;
 	offy = y - wp->y;
 
-/*printf("pid %d wid %d (oldpid %d) %d,%d\n", pwid, wid, wp->parent->id, pwp->unmapcount, wp->unmapcount);*/
 	/* 
-	 * Always unmap window, can't hurt if not mapped.
+	 * Unrealize window and all children.  No effect if
+	 * this window isn't already realized.
 	 */
-	wasmapped = (wp->unmapcount == 0);
-	GsWpUnmapWindow(wp, GR_TRUE);
+	GsWpUnrealizeWindow(wp, GR_TRUE);
 
+	/* link window into new parent chain*/
 	for(mysibptr = &(wp->parent->children); *mysibptr != wp; 
 		mysibptr = &((*mysibptr)->siblings))
 			continue;
+
 	*mysibptr = wp->siblings;
 	wp->parent = pwp;
 	wp->siblings = pwp->children;
 	pwp->children = wp;
-	OffsetWindow(wp, offx, offy);
-#if 1	/* temp fix to bad mapcount reparenting code below*/
-	GsWpMapWindow(wp, GR_FALSE);
-#else
+
+	if (offx || offy)
+		OffsetWindow(wp, offx, offy);
+
 	/*
-	 * If parent mapped and window was mapped, set unmapcount
-	 * to 0 and remap window.
+	 * Realize window again. Window will become visible if
+	 * the parent window is realized and this window is mapped.
+	 *
+	 * Temp flag is set TRUE, no additional
+	 * UPDATE_MAP will be sent.
 	 */
-	if (!pwp->unmapcount && wasmapped) {
-		SetUnmapCountTree(wp, 0, GR_FALSE);
-		GsWpMapWindow(wp, GR_FALSE);
-	} else {
-		if (wasmapped)
-			SetUnmapCountTree(wp, pwp->unmapcount, GR_FALSE);
-		else SetUnmapCountTree(wp, pwp->unmapcount+1, GR_FALSE);
-	}
-#endif
+	GsWpRealizeWindow(wp, GR_TRUE);
+
+	/* send reparent update event*/
+	GsDeliverUpdateEvent(wp, GR_UPDATE_REPARENT, wp->x, wp->y, wp->width, wp->height);
 }
 
 static int nextgcid = 1000;
@@ -683,7 +666,26 @@ GrNewGC(void)
 	gcp->foreground = WHITE;
 	gcp->background = BLACK;
 	gcp->usebackground = GR_TRUE;
+
 	gcp->exposure = GR_TRUE;
+
+	gcp->linestyle = GR_LINE_SOLID;
+	gcp->fillmode = GR_FILL_SOLID;
+
+	gcp->dashcount = 0;
+	gcp->dashmask = 0;
+
+	gcp->stipple.bitmap = NULL;
+	gcp->stipple.width = 0;
+	gcp->stipple.height = 0;
+	
+	gcp->tile.psd = NULL;
+	gcp->tile.width = 0;
+	gcp->tile.height = 0;
+	
+	gcp->ts_offset.x = 0;
+	gcp->ts_offset.y = 0;
+
 	gcp->changed = GR_TRUE;
 	gcp->owner = curclient;
 	gcp->next = listgcp;
@@ -722,6 +724,8 @@ GrDestroyGC(GR_GC_ID gc)
 
 		prevgcp->next = gcp->next;
 	}
+
+	if (gcp->stipple.bitmap) free(gcp->stipple.bitmap);
 	free(gcp);
 }
 
@@ -1027,22 +1031,6 @@ GrSetGCClipOrigin(GR_GC_ID gc, int xoff, int yoff)
 	gcp->changed = GR_TRUE;
 }
 
-/* 
- * Booloean that sets if we send EXPOSE events on a GrCopyArea */
-
-void 
-GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
-{
-	GR_GC		*gcp;
-
-	gcp = GsFindGC(gc);
-	if(gcp == NULL)
-		return;
-
-	gcp->exposure = exposure;
-	gcp->changed = GR_TRUE;
-}
-
 /*
  * Determines whether a specified point resides in a region.
  */ 
@@ -1312,7 +1300,7 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 	 */
 	if (wid==GR_ROOT_WINDOW_ID && (eventmask & GR_EVENT_MASK_CHLD_UPDATE)) {
 		for (wp = listwp; wp; wp = wp->next) {
-			if (wp->unmapcount == 0)
+			if (wp->realized)
 				GsDeliverUpdateEvent(wp, GR_UPDATE_MAP,
 					wp->x, wp->y, wp->width, wp->height);
 		}
@@ -1357,10 +1345,11 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	wp->owner = curclient;
 	wp->cursorid = pwp->cursorid;
 	wp->mapped = GR_FALSE;
-	wp->unmapcount = pwp->unmapcount + 1;
+	wp->realized = GR_FALSE;
 	wp->output = GR_TRUE;
 	wp->props = 0;
 	wp->title = NULL;
+	wp->clipregion = NULL;
 
 	pwp->children = wp;
 	listwp = wp;
@@ -1500,7 +1489,7 @@ GrMapWindow(GR_WINDOW_ID wid)
 
 	wp->mapped = GR_TRUE;
 
-	GsWpMapWindow(wp, GR_FALSE);
+	GsWpRealizeWindow(wp, GR_FALSE);
 }
 
 /*
@@ -1515,7 +1504,7 @@ GrUnmapWindow(GR_WINDOW_ID wid)
 	if (!wp || !wp->mapped)
 		return;
 
-	GsWpUnmapWindow(wp, GR_FALSE);
+	GsWpUnrealizeWindow(wp, GR_FALSE);
 
 	wp->mapped = GR_FALSE;
 }
@@ -1561,7 +1550,7 @@ GrSetFocus(GR_WINDOW_ID wid)
 	if (wp == NULL)
 		return;
 
-	if (wp->unmapcount) {
+	if (!wp->realized) {
 		GsError(GR_ERROR_UNMAPPED_FOCUS_WINDOW, wid);
 		return;
 	}
@@ -1608,6 +1597,7 @@ GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx, GR_COORD hoty,
 	cp->cursor.hoty = hoty;
 	cp->cursor.fgcolor = foreground;
 	cp->cursor.bgcolor = background;
+
 	bytes = GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
 	memcpy(&cp->cursor.image, fgbitmap, bytes);
 	memcpy(&cp->cursor.mask, bgbitmap, bytes);
@@ -1792,6 +1782,196 @@ GrSetGCMode(GR_GC_ID gc, int mode)
 	gcp->changed = GR_TRUE;
 }
 
+/* 
+ * Set the attributes of the line.  
+ * Don't call this function directly, use the macro which will ensure
+ * compatability later on
+ */
+void 
+GrSetGCLineAttributes(GR_GC_ID gc, int line_style) {
+  
+  GR_GC		*gcp;		/* graphics context */
+  gcp = GsFindGC(gc);
+
+  if (!gcp) return;
+
+  switch(line_style) {
+  case GR_LINE_SOLID:
+  case GR_LINE_ONOFF_DASH:
+    gcp->linestyle = line_style;
+    break;
+    
+  default:
+    GsError(GR_ERROR_BAD_LINE_ATTRIBUTE, gc);
+    return;
+  }
+
+  gcp->changed = GR_TRUE;
+}
+
+/* Set the dash mode 
+ * A series of numbers are passed indicating the on / off state 
+ * for example { 3, 1 } indicates 3 on and 1 off 
+*/
+
+void
+GrSetGCDash(GR_GC_ID gc, char *dashes, char count)
+{
+  unsigned long dmask = 0;
+
+  char dcount = 0;
+  int onoff = 1;
+  int i;
+
+  GR_GC		*gcp;		/* graphics context */
+
+  gcp = GsFindGC(gc);
+  if (!gcp) return;
+	
+  /* Build the bitmask (up to 32 bits) */
+  for(i = 0; i < count; i++) {
+    int b = 0;
+
+    for(; b < dashes[i]; b++) {
+      if (onoff) dmask |= (1 << dcount);
+      if ((++dcount) == 32) break;
+    }
+
+    onoff = (onoff + 1) % 2;
+    if (dcount == 32) break;
+  }
+
+  gcp->dashmask = dmask;
+  gcp->dashcount = dcount;
+  
+  gcp->changed = GR_TRUE;
+}
+
+void 
+GrSetGCFillMode(GR_GC_ID gc, int fill_mode) {
+  
+  GR_GC		*gcp;		/* graphics context */
+  gcp = GsFindGC(gc);
+
+  if (!gcp) return;
+
+  switch(fill_mode) {
+  case GR_FILL_SOLID:
+  case GR_FILL_STIPPLE:
+  case GR_FILL_OPAQUE_STIPPLE:
+  case GR_FILL_TILE:
+    gcp->fillmode = fill_mode;
+    break;
+    
+  default:
+    GsError(GR_ERROR_BAD_FILL_MODE, gc);
+    return;
+  }
+
+  gcp->changed = GR_TRUE;
+}
+
+void
+GrSetGCStipple(GR_GC_ID gc, GR_BITMAP *bitmap, int width, int height) {
+
+  GR_GC		*gcp;		/* graphics context */
+    
+  gcp = GsFindGC(gc);
+  if (!gcp) return;
+
+
+  if (gcp->stipple.bitmap) free(gcp->stipple.bitmap);
+
+  if (!bitmap) {
+    gcp->stipple.bitmap = 0;
+    gcp->stipple.width = gcp->stipple.height = 0;
+
+    gcp->changed = GR_TRUE;
+    return;
+  }
+
+  gcp->stipple.bitmap = malloc(GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
+  memcpy(gcp->stipple.bitmap, bitmap, 
+	 GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
+
+  gcp->stipple.width = width;
+  gcp->stipple.height = height;
+
+  gcp->changed = GR_TRUE;
+}
+
+void
+GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pid, int width, int height) {
+
+  GR_WINDOW *win;
+
+  GR_GC		*gcp;		/* graphics context */
+    
+  gcp = GsFindGC(gc);
+  if (!gcp) return;
+
+  printf("Setting %d, %d and %d\n", pid, width, height);
+
+  if (!pid) {
+    gcp->tile.psd = 0;
+    gcp->tile.width = gcp->tile.height = 0;
+    gcp->changed = GR_TRUE;
+    return;
+  }
+
+  win = GsFindWindow(pid);
+
+  if (win) {
+    gcp->tile.psd = win->psd;
+  }
+  else {
+    GR_PIXMAP *pix = GsFindPixmap(pid);
+    if (!pix) {
+      gcp->tile.psd = 0;
+      gcp->tile.width = gcp->tile.height = 0;
+      gcp->changed = GR_TRUE;
+      return;
+    }
+    
+    gcp->tile.psd = pix->psd;
+  }
+
+  gcp->tile.width = width;
+  gcp->tile.height = height;
+
+  gcp->changed = GR_TRUE;
+}
+
+void
+GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff) {
+
+  GR_GC		*gcp;		/* graphics context */
+  
+  gcp = GsFindGC(gc);
+  if (!gcp) return;
+
+  gcp->ts_offset.x = xoff;
+  gcp->ts_offset.x = yoff;
+
+  gcp->changed = GR_TRUE;
+}
+
+/* 
+ * Boolean that sets if we send EXPOSE events on a GrCopyArea
+ */
+void 
+GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure)
+{
+	GR_GC		*gcp;
+
+	gcp = GsFindGC(gc);
+	if(gcp == NULL)
+		return;
+
+	gcp->exposure = exposure;
+	gcp->changed = GR_TRUE;
+}
+
 /*
  * Set the text font in a graphics context.
  */
@@ -1917,8 +2097,9 @@ GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	switch (GsPrepareDrawing(id, gc, &dp)) {
 		case GR_DRAW_TYPE_WINDOW:
 	        case GR_DRAW_TYPE_PIXMAP:
-			GdArc(dp->psd, dp->x + x, dp->y + y, rx, ry,
-				dp->x+ax, dp->y+ay, dp->x+bx, dp->y+by, type);
+			GdArc(dp->psd, dp->x + x, dp->y + y, rx, ry, ax, ay,
+					bx, by, type);
+
 			break;
 	}
 }
@@ -2162,7 +2343,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 void
 GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, GR_DRAW_ID source,
-	GR_COORD srcx, GR_COORD srcy, int op)
+	GR_COORD srcx, GR_COORD srcy, unsigned long op)
 {
   	GR_GC		*gcp;
 	GR_BOOL         exposure = GR_TRUE;
@@ -2260,7 +2441,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,GR_SIZE height,
 	}
 
 	if (wp != NULL) {
-		if (wp->unmapcount || (x >= wp->width) || (y >= wp->height) ||
+		if (!wp->realized || (x >= wp->width) || (y >= wp->height) ||
 		   (x + width <= 0) || (y + height <= 0)) {
 			/* long		count;
 			* GR_PIXELVAL	black;
@@ -2540,6 +2721,9 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 			else
 				memcpy(wp->title, props->title, tl);
 		}
+		
+		/* send UPDATE_ACTIVATE event to force redraw*/
+		GsWpNotifyActivate(focuswp);
 	}
 
 	/* Set window background*/
@@ -2554,9 +2738,10 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 	/* Set window border size*/
 	if (props->flags & GR_WM_FLAGS_BORDERSIZE) {
 		if (wp->bordersize != props->bordersize) {
-			GsWpUnmapWindow(wp, GR_TRUE);
+			/* FIXME: check if this works if not already realized*/
+			GsWpUnrealizeWindow(wp, GR_TRUE);
 			wp->bordersize = props->bordersize;
-			GsWpMapWindow(wp, GR_TRUE);
+			GsWpRealizeWindow(wp, GR_TRUE);
 		}
 	}
 
@@ -2968,4 +3153,97 @@ void
 GrSetPortraitMode(int portraitmode)
 {
 	GsSetPortraitMode(portraitmode);
+}
+
+
+/**
+ * GrQueryPointer
+ * @mwin:   Window the mouse is current in
+ * @x:      Current X pos of mouse (from root)
+ * @y:      Current Y pos of mouse (from root)
+ * @bmask:  Current button mask 
+ *
+ * Returns the current information for the pointer
+ */
+void 
+GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y, unsigned int *bmask) {
+	*mwin = mousewp->id;
+	*x = cursorx;
+	*y = cursory;
+	*bmask = curbuttons;
+}
+
+/**
+ * GrNewBitmapRegion
+ * @bitmap	monochrome source bitmap
+ * @width	width of source bitmap
+ * @height	height of source bitmap
+ *
+ * Creates a new region from a bitmap mask.
+ */
+GR_REGION_ID
+GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
+{
+#if DYNAMICREGIONS
+	GR_REGION *regionp;
+
+	if (!(regionp = malloc(sizeof(GR_REGION)))) {
+		GsError(GR_ERROR_MALLOC_FAILED, 0);
+		return 0;
+	}
+
+	regionp->rgn = GdAllocBitmapRegion(bitmap, width, height);
+	regionp->id = nextregionid++;
+	regionp->owner = curclient;
+	regionp->next = listregionp;
+
+	listregionp = regionp;
+	return regionp->id;
+#else
+	return 0;
+#endif
+}
+
+/**
+ * GrSetWindowRegion
+ * @wid		window id
+ * @bounds_rid	window bounding region id (outer border)
+ * @client_rid	window client clipping region id (inner drawable area)
+ *
+ * Sets the clipping region of the specified window.
+ */
+void
+GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID bounds_rid,
+	GR_REGION_ID client_rid)
+{
+#if DYNAMICREGIONS
+	GR_WINDOW *wp;
+	GR_REGION *region;
+	MWCLIPREGION *newregion;
+
+	/*FIXME client window region not yet implemented*/
+
+	if (!(wp = GsFindWindow(wid))) {
+		GsError(GR_ERROR_BAD_WINDOW_ID, wid);
+		return;
+	}
+
+	if (bounds_rid) {
+		if (!(region = GsFindRegion(bounds_rid))) {
+			GsError(GR_ERROR_BAD_REGION_ID, bounds_rid);
+			return;
+		}
+
+		if (!(newregion = GdAllocRegion())) {
+			GsError(GR_ERROR_MALLOC_FAILED, 0);
+			return;
+		}
+
+		GdCopyRegion(newregion, region->rgn);
+	} else newregion = NULL;
+
+	if (wp->clipregion)
+		GdDestroyRegion(wp->clipregion);
+	wp->clipregion = newregion;
+#endif
 }

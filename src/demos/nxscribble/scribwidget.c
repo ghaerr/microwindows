@@ -52,11 +52,13 @@ ResetStroke (ScribbleWidget w)
     ShowMode(w);
 }
 
+/*
 static void
 DisplayStroke (ScribbleWidget	w)
 {
     GrDrawLines(w->win, w->gc, w->pt, w->ps.ps_npts);
 }
+*/
 
 static void
 DisplayLast (ScribbleWidget w)

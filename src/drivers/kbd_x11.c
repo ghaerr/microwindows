@@ -53,8 +53,10 @@ KBDDEVICE kbddev = {
 static int
 X11_Open(KBDDEVICE *pkd)
 {
-    if (x11_setup_display() < 0)
-	return -1;
+    if (x11_setup_display() < 0) {
+	fprintf(stderr, "nano-X: Can't connect to X11 server\n");
+	return -2;	/* don't display another errmsg*/
+    }
 
     if(init_modstate() < 0)
     	return -1;
@@ -424,8 +426,8 @@ static int init_modstate ()
 	int capsl, numl, scrolll;
 
 	if(XkbGetIndicatorState (x11_dpy, XkbUseCoreKbd, &state) != Success) {
-		fprintf(stderr, "Error reading Indicator status\n");
-		/* don't return error*/
+		fprintf(stderr, "nano-X: Error reading kbd indicator status\n");
+		return 0;	/* no error*/
 	} 
 	capsl = state & CAPS_LOCK_MASK;
 	numl = state & NUM_LOCK_MASK;

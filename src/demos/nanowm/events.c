@@ -179,13 +179,12 @@ void do_update(GR_EVENT_UPDATE *event)
 	win *window;
 
 	Dprintf("do_update: wid %d, subwid %d, x %d, y %d, width %d, height %d, "
-		"utype %d\n", event->wid, event->subwid, event->x, event->y, event->width,
-		event->height, event->utype);
-
+	       "utype %d\n", event->wid, event->subwid, event->x, event->y, event->width,
+	       event->height, event->utype);
+	
 	if(!(window = find_window(event->subwid))) {
-		if (event->utype == GR_UPDATE_MAP)
-			new_client_window(event->subwid);
-		return;
+	  if (event->utype == GR_UPDATE_MAP) new_client_window(event->subwid);
+	  return;
 	}
 
 	if(window->type == WINDOW_TYPE_CONTAINER) {
@@ -194,9 +193,9 @@ void do_update(GR_EVENT_UPDATE *event)
 		return;
 	}
 
-	if(window->type != WINDOW_TYPE_CLIENT)
-		return;
-
-	if(event->utype == GR_UPDATE_DESTROY)
-		client_window_destroy(window);
+	if (window->type == WINDOW_TYPE_CLIENT) {
+	  if(event->utype == GR_UPDATE_MAP) client_window_remap(window);
+	  if(event->utype == GR_UPDATE_DESTROY) client_window_destroy(window);
+	  if(event->utype == GR_UPDATE_UNMAP) client_window_unmap(window);
+	}
 }

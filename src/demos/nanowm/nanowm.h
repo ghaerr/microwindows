@@ -98,6 +98,10 @@ int remove_window(win *window);
 int remove_window_and_children(win *window);
 int new_client_window(GR_WINDOW_ID wid);
 void client_window_destroy(win *window);
+
+void client_window_remap(win *window);
+void client_window_unmap(win *window);
+
 void redraw_ncarea(win *window);
 void do_exposure(GR_EVENT_EXPOSURE *event);
 void do_button_down(GR_EVENT_BUTTON *event);

@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include "device.h"
 
+extern int        gr_fillmode;
+
 #if HAVEFLOAT			/* =1 compiles in GdArcAngle*/
 #define HIGHPRECISION	0	/* =1 for high precision angles, uses mathlib*/
 
@@ -300,8 +302,10 @@ slice->ax, slice->ay, slice->bx, slice->by, slice->adir, slice->bdir);*/
 }
 
 /* relative offsets, direction from left to right. */
+/* Mode indicates if we are in filil mode (1) or line mode (0) */
+
 static void
-draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1)
+draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1, int mode)
 {
 	int	dbl = (slice->adir > 0 && slice->bdir < 0);
 	int 	discard, ret;
@@ -324,11 +328,18 @@ draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1)
 		} else {
 			if (!dbl) {
 				/* FIXME leaving in draws dot in center*/
-				drawpoint(slice->psd, slice->x0, slice->y0);
+
+			        if (gr_fillmode != MWFILL_SOLID && mode) 
+				  ts_drawpoint(slice->psd, slice->x0, slice->y0);
+				else 
+				  drawpoint(slice->psd, slice->x0, slice->y0);
 				return;
 			}
 		}
-		drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0);
+		if (gr_fillmode != MWFILL_SOLID && mode)
+		  ts_drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0);
+		else
+		  drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0);
 		return;
 	}
 
@@ -338,8 +349,13 @@ draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1)
 	if (dbl) {
 		if (!ret) {
 			/* edges separate line to two parts */
-			drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1,
-				slice->y0 + y);
+		        if (gr_fillmode != MWFILL_SOLID && mode)
+			  ts_drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1,
+				     slice->y0 + y);
+			else
+			  drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1,
+				  slice->y0 + y);
+
 			x0 = x2;
 			x1 = x3;
 		}
@@ -362,21 +378,37 @@ draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1)
 			return;
 		}
 	}
-	drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0 + y);
+	if (gr_fillmode != MWFILL_SOLID && mode)
+	  ts_drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0 + y);
+	else
+	  drawrow(slice->psd, slice->x0 + x0, slice->x0 + x1, slice->y0 + y);
 }
 
 /* draw one line segment or set of points, called from drawarc routine*/
 static void
-drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp)
+drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 {
+  unsigned long dm = 0, dc = 0;
 	switch (slice->type) {
 	case MWELLIPSEFILL:
 		/* draw ellipse fill segment*/
-		drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0-yp);
-		drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0+yp);
-		return;
+                /* First, save the dash settings, because we don't want to use them here */
+
+	  if (gr_fillmode != MWFILL_SOLID) {
+	    ts_drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0-yp);
+	    ts_drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0+yp);
+	  }
+	  else {
+	    GdSetDash(&dm, (int *) &dc); /* Must turn off the dash settings because of drawrow() */
+	    drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0-yp);
+	    drawrow(slice->psd, slice->x0-xp, slice->x0+xp, slice->y0+yp);
+	    GdSetDash(&dm, (int *) &dc);
+	  }
+
+	  return;
 
 	case MWELLIPSE:
+	  if (!drawon) return;
 		/* set four points symmetrically situated around a point*/
 		drawpoint(slice->psd, slice->x0 + xp, slice->y0 + yp);
 		drawpoint(slice->psd, slice->x0 - xp, slice->y0 + yp);
@@ -386,16 +418,20 @@ drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp)
 
 	case MWPIE:
 		/* draw top and bottom halfs of pie*/
-		draw_line(slice, -xp, -yp, +xp);
-		draw_line(slice, -xp, +yp, +xp);
+	        if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, (int *) &dc);
+		draw_line(slice, -xp, -yp, +xp, 1);
+		draw_line(slice, -xp, +yp, +xp, 1);
+		draw_line(slice, -xp, -yp, +xp, 1);
+		if (gr_fillmode == MWFILL_SOLID) GdSetDash(&dm, (int *) &dc);
 		return;
 
 	default:	/* MWARC, MWARCOUTLINE*/
 		/* set four points symmetrically around a point and clip*/
-		draw_line(slice, +xp, +yp, +xp);
-		draw_line(slice, -xp, +yp, -xp);
-		draw_line(slice, +xp, -yp, +xp);
-		draw_line(slice, -xp, -yp, -xp);
+
+		draw_line(slice, +xp, +yp, +xp, 0);
+		draw_line(slice, -xp, +yp, -xp, 0);
+		draw_line(slice, +xp, -yp, +xp, 0);
+		draw_line(slice, -xp, -yp, -xp, 0);
 		return;
 	}
 }
@@ -404,6 +440,9 @@ drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp)
 static void
 drawarc(SLICE *slice)
 {
+        extern unsigned long gr_dashmask;     
+        extern unsigned long gr_dashcount;    
+
 	MWCOORD xp, yp;		/* current point (based on center) */
 	MWCOORD rx, ry;
 	long Asquared;		/* square of x semi axis */
@@ -412,6 +451,9 @@ drawarc(SLICE *slice)
 	long TwoBsquared;
 	long d;
 	long dx, dy;
+
+	int bit  = 0;
+	int drawon = 1;
 
 	rx = slice->rx;
 	ry = slice->ry;
@@ -426,8 +468,19 @@ drawarc(SLICE *slice)
 	dx = 0;
 	dy = TwoAsquared * ry;
 
+	if (gr_fillmode != MWFILL_SOLID)
+	  set_ts_origin(slice->x0 - rx, slice->y0 - ry);
+
 	while (dx < dy) {
-		drawarcsegment(slice, xp, yp);
+
+    	        if (gr_dashcount) {
+	          drawon = (gr_dashmask & (1 << bit)) ? 1 : 0;
+		  bit = (bit + 1) % gr_dashcount;
+		}
+	        else drawon = 1;
+
+		drawarcsegment(slice, xp, yp, drawon);
+
 		if (d > 0) {
 			yp--;
 			dy -= TwoAsquared;
@@ -441,7 +494,13 @@ drawarc(SLICE *slice)
 	d += ((3L * (Asquared - Bsquared) / 2L - (dx + dy)) >> 1);
 
 	while (yp >= 0) {
-		drawarcsegment(slice, xp, yp);
+	        if (gr_dashcount) {
+	          drawon = (gr_dashmask & (1 << bit)) ? 1 : 0;
+		  bit = (bit + 1) % gr_dashcount;
+		}
+	        else drawon = 1;
+
+		drawarcsegment(slice, xp, yp, drawon);
 		if (d < 0) {
 			xp++;
 			dx += TwoBsquared;

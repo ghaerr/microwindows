@@ -12,8 +12,8 @@
  * The Original Code is NanoScreenSaver.
  *
  * The Initial Developer of the Original Code is Alex Holden.
- * Portions created by Alex Holden are Copyright (C) 2000
- * Alex Holden <alex@linuxhacker.org>. All Rights Reserved.
+ * Portions created by Alex Holden are Copyright (C) 2000, 2002
+ * Alex Holden <alex@alexholden.net>. All Rights Reserved.
  *
  * Contributor(s):
  *
@@ -32,14 +32,15 @@
  * A collection of screen savers for Nano-X by Alex Holden.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>
 
-#define MWINCLUDECOLORS
-#include "nano-X.h"
+#include <nano-X.h>
+#include <nxcolors.h>
 #include "nsaver.h"
 
 void *my_malloc(size_t size)
@@ -54,18 +55,109 @@ void *my_malloc(size_t size)
 	return ret;
 }
 
+GR_COLOR get_random_colour(int min_brightness)
+{
+	int r, g, b;
+
+	do {	
+		r = RANDRANGE(0, 255);
+		g = RANDRANGE(0, 255);
+		b = RANDRANGE(0, 255);
+	} while((r + g + b) / 3 < min_brightness);
+
+	return(MWRGB(r, g, b));
+}
+
 void get_random_point_on_screen(nstate *state, GR_COORD *x, GR_COORD *y,
 							GR_COLOR *c)
 {
-	if(x) {
-		*x = (int) RANDRANGE(0, (state->si.cols - 1.0));
+	if(x) *x = RANDRANGE(0, state->si.cols - 1);
+	if(y) *y = RANDRANGE(0, state->si.rows - 1);
+	if(c) *c = get_random_colour(GRP_MINBRIGHTNESS);
+}
+
+int not_square(int n)
+{
+	while(n) {
+		if(n & 1) {
+			if(n - 1) return 1;
+			else return 0;
+		}
+		n >>= 1;
 	}
-	if(y) {
-		*y = (int) RANDRANGE(0, (state->si.rows - 1.0));
+	return 1;
+}
+
+void make_random_square(nstate *state, int min_brightness, int min_size,
+			int max_size, int need_square, GR_COORD *retx,
+			GR_COORD *rety, GR_SIZE *retsize)
+{
+	int x1, x2, y, size, tmp;
+	GR_COLOR colour = get_random_colour(min_brightness); 
+
+	GrSetGCForeground(state->main_gc, colour);
+
+	do {
+		x1 = RANDRANGE(0, state->si.cols);
+		x2 = RANDRANGE(0, state->si.cols);
+		if(x1 > x2) {
+			tmp = x1;
+			x1 = x2;
+			x2 = tmp;
+		}
+		size = x2 - x1;
+	} while(size < min_size || size > max_size ||
+			(need_square && not_square(size)));
+
+	y = RANDRANGE(0, state->si.rows - size - 1);
+
+	*retx = x1;
+	*rety = y;
+	*retsize = size;
+}
+
+#ifdef HAVE_USLEEP
+void msleep(long ms)
+{
+	usleep(ms * 1000);
+}
+#else
+void msleep(long ms)
+{
+	struct timespec req, rem;
+
+	req.tv_sec = ms / 1000000;
+	req.tv_nsec = (ms % 1000000) * 1000000;
+
+	while(nanosleep(&req, &rem) == -1) {
+		if(errno == EINTR) {
+			req.tv_sec = rem.tv_sec;
+			req.tv_nsec = rem.tv_nsec;
+			continue;
+		} else {
+			perror("nanosleep() failed");
+			return;
+		}
 	}
-	if(c) {
-		*c = MWPALINDEX((int)RANDRANGE(0, (state->si.ncolors - 1)));
-	}
+}
+#endif
+
+GR_WINDOW_ID capture_screen(nstate *state)
+{
+	GR_WINDOW_ID pid;
+
+#if CAPTURESCREEN_DELAY
+	/* This is a hack to give the system enough time to redraw the screen
+	 * before capturing it when we switch from one screensaver to another.
+	 * without it, we often capture an only partially redrawn screen. */
+	msleep(CAPTURESCREEN_DELAY);
+#endif
+	
+	pid = GrNewPixmap(state->si.cols, state->si.rows, NULL);
+	GrCopyArea(pid, state->main_gc, 0, 0, state->si.cols,
+			state->si.rows, GR_ROOT_WINDOW_ID, 0, 0, 0);
+
+	return pid;
 }
 
 void saver1_init(nstate *state) {}
@@ -79,7 +171,9 @@ void saver1_animate(nstate *state) {}
 
 void saver2_init(nstate *state)
 {
-	(int)state->priv = SAVER2_MAXPIXELS;
+	s2state *s = my_malloc(sizeof(s2state));
+	state->priv = s;
+	s->pixels = SAVER2_MAXPIXELS;
 	state->animate_interval = SAVER2_DELAY;
 }
 
@@ -93,10 +187,11 @@ void saver2_animate(nstate *state)
 	GR_COORD x, y;
 	GR_COLOR c;
 	int pixels = SAVER2_PIXELS_PER_FRAME;
+	s2state *s = state->priv;
 
 	while(pixels--) {
-		if(!((int)state->priv--)) {
-			(int)state->priv = SAVER2_MAXPIXELS;
+		if(!(s->pixels--)) {
+			s->pixels = SAVER2_MAXPIXELS;
 			GrClearWindow(state->main_window, 0);
 		}
 		get_random_point_on_screen(state, &x, &y, &c);
@@ -144,6 +239,7 @@ void saver3_animate(nstate *state)
 void saver4_init(nstate *state)
 {
 	int i;
+	GR_COORD x, y;
 
 	s4state *s = my_malloc(sizeof(s4state));
 	state->priv = s;
@@ -152,9 +248,11 @@ void saver4_init(nstate *state)
 
 	for(i = 0; i < SAVER4_NUMWORMS; i++) {
 		s->tip = 0;
-		get_random_point_on_screen(state, &s->worms[i].points[0].x,
-						&s->worms[i].points[0].y,
-						&s->worms[i].colour);
+		get_random_point_on_screen(state, &x, &y, &s->worms[i].colour);
+		s->worms[i].x = x;
+		s->worms[i].points[0].x = x;
+		s->worms[i].y = y;
+		s->worms[i].points[0].y = y;	
 	}
 
 	state->animate_interval = SAVER4_DELAY;
@@ -176,66 +274,25 @@ void saver4_exposure(nstate *state)
 	}
 }
 
-void saver4_get_new_worm_position(nstate *state, s4state *s, int worm,
-						GR_COORD *newx, GR_COORD *newy)
+void saver4_get_new_worm_position(nstate *state, int worm, int newtip)
 {
-	int i;
-	GR_COORD oldx = s->worms[worm].points[s->tip].x;
-	GR_COORD oldy = s->worms[worm].points[s->tip].y;
+	s4state *s = state->priv;
+	s4worm *w = &s->worms[worm];
 
-	do {
-		i = (int)RANDRANGE(0, 3.0);
-		switch(i) {
-			case 0:
-				*newx = oldx + 1;
-				if(*newx == state->si.cols) *newx = 0;
-				break;
-			case 1:
-				*newx = oldx - 1;
-				if(*newx == -1) *newx = state->si.cols - 1;
-				break;
-			case 2:
-				*newx = oldx;
-				break;
-		}
-
-		i = (int)RANDRANGE(0, 3.0);
-		switch(i) {
-			case 0:
-				*newy = oldy + 1;
-				if(*newy == state->si.rows) *newy = 0;
-				break;
-			case 1:
-				*newy = oldy - 1;
-				if(*newy == -1) *newy = state->si.rows - 1;
-				break;
-			case 2:
-				*newy = oldy;
-				break;
-		}
-	} while((*newx == oldx) && (*newy == oldy));
-}
-
-int saver4_worm_collides(nstate *state, s4state *s, int x, int y, int thisworm,
-								int thispoint)
-{
-	int i, n;
-
-	for(i = 0; i < SAVER4_NUMWORMS; i++) {
-		for(n = 0; n < s->length; n++) {
-			if((i == thisworm) && (n == thispoint)) continue;
-			if((s->worms[i].points[n].x == x) &&
-					(s->worms[i].points[n].y) == y) {
-				return 1;
-			}
-		}
-	}
-	return 0;
+	w->d += FRANDRANGE(-SAVER4_MAXROTATION, SAVER4_MAXROTATION);
+	w->x += cos(w->d) * SAVER4_VELOCITY;
+	w->y += sin(w->d) * SAVER4_VELOCITY;
+	if(w->x < 0) w->x = state->si.cols - 1 + w->x;
+	if(w->x >= state->si.cols) w->x -= state->si.cols;
+	if(w->y < 0) w->y = state->si.rows - 1 + w->y;
+	if(w->y >= state->si.rows) w->y -= state->si.rows;
+	w->points[newtip].x = (GR_COORD)w->x;
+	w->points[newtip].y = (GR_COORD)w->y;
 }
 
 void saver4_animate(nstate *state)
 {
-	int i, newx, newy, tail, newtip, tries;
+	int i, tail, newtip;
 	s4state *s = state->priv;
 
 	if(s->length == SAVER4_WORMLENGTH) tail = s->tip + 1;
@@ -245,25 +302,19 @@ void saver4_animate(nstate *state)
 	if(newtip == SAVER4_WORMLENGTH) newtip = 0;
 	
 	for(i = 0; i < SAVER4_NUMWORMS; i++) {
-		if(!saver4_worm_collides(state, s, s->worms[i].points[tail].x,
-					s->worms[i].points[tail].y, i, tail)) {
-			GrSetGCForeground(state->main_gc, BLACK);
-			GrPoint(state->main_window, state->main_gc,
+		GrSetGCForeground(state->main_gc, GR_COLOR_BLACK);
+		GrFillRect(state->main_window, state->main_gc,
 					s->worms[i].points[tail].x,
-					s->worms[i].points[tail].y);
-		}
-		for(tries = SAVER4_COLLISION_RELUCTANCE; tries; tries--) {
-				saver4_get_new_worm_position(state, s, i, &newx,
-									&newy);
-			if(!saver4_worm_collides(state, s, newx, newy, -1, -1))
-				break;
-		}
-		s->worms[i].points[newtip].x = newx;
-		s->worms[i].points[newtip].y = newy;
-		if(tries) {
-			GrSetGCForeground(state->main_gc, s->worms[i].colour);
-			GrPoint(state->main_window, state->main_gc, newx, newy);
-		}
+					s->worms[i].points[tail].y,
+					SAVER4_WORMTHICKNESS,
+					SAVER4_WORMTHICKNESS);
+		saver4_get_new_worm_position(state, i, newtip);
+		GrSetGCForeground(state->main_gc, s->worms[i].colour);
+		GrFillRect(state->main_window, state->main_gc,
+					s->worms[i].points[newtip].x,
+					s->worms[i].points[newtip].y,
+					SAVER4_WORMTHICKNESS,
+					SAVER4_WORMTHICKNESS);
 	}
 
 	s->tip = newtip;
@@ -280,7 +331,7 @@ void saver5_init(nstate *state)
 	s->numstars = 0;
 
 	for(i = 0; i < SAVER5_NUMSTARS; i++) {
-		s->stars[i].angle = RANDRANGE(0, (2 * M_PI));
+		s->stars[i].angle = FRANDRANGE(0, (2 * M_PI));
 		s->stars[i].pos = 1;
 	}
 
@@ -292,8 +343,8 @@ int saver5_drawstar(nstate *state, s5state *s, int star, int delete)
 	int opp, adj;
 	GR_COORD x, y;
 
-	if(delete) GrSetGCForeground(state->main_gc, BLACK);
-	else GrSetGCForeground(state->main_gc, WHITE);
+	if(delete) GrSetGCForeground(state->main_gc, GR_COLOR_BLACK);
+	else GrSetGCForeground(state->main_gc, GR_COLOR_WHITE);
 
 	opp = (int)(sin(s->stars[star].angle) * s->stars[star].pos);
 	adj = (int)(cos(s->stars[star].angle) * s->stars[star].pos);
@@ -342,7 +393,7 @@ void saver5_animate(nstate *state)
 		s->stars[i].pos += (int) increment;
 		if(saver5_drawstar(state, s, i, 0)) {
 			s->stars[i].pos = 1;
-			s->stars[i].angle = RANDRANGE(0, (2 * M_PI));
+			s->stars[i].angle = FRANDRANGE(0, (2 * M_PI));
 			saver5_drawstar(state, s, i, 0);
 		}
 	}
@@ -371,12 +422,13 @@ void saver6_drawfork(nstate *state, s6state *s, int bolt, int fork, int delete)
 {
 	int i;
 
-	if(delete) GrSetGCForeground(state->main_gc, BLACK);
+	if(delete) GrSetGCForeground(state->main_gc, GR_COLOR_BLACK);
 	for(i = 0; i < SAVER6_THICKNESS; i++) {
 		if(!delete) {
 			if((i < 2) || (i >= SAVER6_THICKNESS - 2))
-				 GrSetGCForeground(state->main_gc, LTBLUE);
-			else GrSetGCForeground(state->main_gc, WHITE);
+				 GrSetGCForeground(state->main_gc,
+						 GR_COLOR_CORNFLOWERBLUE);
+			else GrSetGCForeground(state->main_gc, GR_COLOR_WHITE);
 		}
 		GrPoly(state->main_window, state->main_gc,
 				s->bolts[bolt].forks[fork].valid,
@@ -427,12 +479,12 @@ void saver6_setvertices(s6state *s, int bolt, int fork, int vert, GR_COORD x,
 
 void saver6_perturb(nstate *state, GR_COORD *x, GR_COORD *y, int maxperturb)
 {
-	*x += (int)RANDRANGE(0, (maxperturb - 1.0)) -
+	*x += (int)FRANDRANGE(0, (maxperturb - 1.0)) -
 				(double)(maxperturb / 2.0);
 	if(*x < 0) *x = 0;
 	if(*x > (state->si.cols - 1)) *x = state->si.cols - 1;
 
-	*y += (int)RANDRANGE(0, (maxperturb - 1.0)) -
+	*y += (int)FRANDRANGE(0, (maxperturb - 1.0)) -
 				(double)(maxperturb / 2.0);
 	if(*y < 0) *y = 0;
 	if(*y > (state->si.cols - 1)) *y = state->si.cols - 1;
@@ -449,7 +501,7 @@ void saver6_makefork(nstate *state, s6state *s, int bolt, int fork, GR_COORD x,
 
 	scale = (double)(state->si.rows - y) / (double)state->si.rows;
 
-	vertices = (int)(scale * RANDRANGE(SAVER6_MINFULLVERTICES,
+	vertices = (int)(scale * (double)RANDRANGE(SAVER6_MINFULLVERTICES,
 						SAVER6_MAXVERTICES));
 
 	if(vertices < SAVER6_MINVERTICES) vertices = SAVER6_MINVERTICES;
@@ -457,14 +509,14 @@ void saver6_makefork(nstate *state, s6state *s, int bolt, int fork, GR_COORD x,
 	s->bolts[bolt].forks[fork].valid = vertices;
 
 	ey = state->si.rows - SAVER6_MAXEND_Y +
-		(int)RANDRANGE(0, SAVER6_MAXEND_Y - 1.0);
+		(int)FRANDRANGE(0, SAVER6_MAXEND_Y - 1.0);
 	if((ey - y) <= 0) ey = SAVER6_MINDROP;
 	if(ey >= (state->si.rows - 1)) ey = state->si.rows - 1;
 
 	if(!fork) {
-		ex = x + (int)RANDRANGE(0, ((state->si.cols - 1.0) / 2.0));
+		ex = x + FRANDRANGE(0, ((state->si.cols - 1.0) / 2.0));
 	} else {
-		ex = x + (int)(RANDRANGE(0, (ey - y)) / 2.0) - ((ey - y) / 2.0);
+		ex = x + (FRANDRANGE(0, (ey - y)) / 2.0) - ((ey - y) / 2.0);
 	}
 
 	if(ex >= state->si.cols) ex = state->si.cols - 1;
@@ -478,7 +530,7 @@ void saver6_makefork(nstate *state, s6state *s, int bolt, int fork, GR_COORD x,
 	angle = atan(((double)xlen / (double)ylen));
 
 	for(i = vertices - 1; i ; i--) {
-		pos = (incr * (i - 1)) + (RANDRANGE(0, SAVER6_MAXZIGZAG) -
+		pos = (incr * (i - 1)) + (FRANDRANGE(0, SAVER6_MAXZIGZAG) -
 					((double)SAVER6_MAXZIGZAG / 2.0));
 		if(pos < 0) pos = 0;
 		if(pos > length) pos = length;
@@ -501,7 +553,7 @@ int saver6_makeforks(nstate *state, s6state *s, int bolt, int fork,
  	prob = (double)SAVER6_FORK_PROBABILITY * ((double)*vert /
 				(double)s->bolts[bolt].forks[fork].valid) *
 					(1.0 / ((double)fork + 1.0));
-	if(RANDRANGE(0, 1) < prob) {
+	if((double)FRANDRANGE(0, 1) < prob) {
 		thisfork = *nextfork;
 		saver6_makefork(state, s, bolt, thisfork,
 			s->bolts[bolt].forks[fork].vertices[0][*vert].x,
@@ -524,7 +576,7 @@ void saver6_makebolt(nstate *state, s6state *s, int bolt)
 	for(n = 0; n < SAVER6_MAXFORKS; n++)
 		s->bolts[bolt].forks[n].valid = 0;
 
-	x = (int)RANDRANGE(0, (state->si.cols - 1.0));
+	x = RANDRANGE(0, state->si.cols - 1);
 
 	saver6_makefork(state, s, bolt, 0, x, 0);
 
@@ -603,7 +655,7 @@ void saver7_drawstar(nstate *state, s7state *s)
 
 void saver7_drawplanet(nstate *state, s7state *s, int planet, int erase)
 {
-	if(erase) GrSetGCForeground(state->main_gc, BLACK);
+	if(erase) GrSetGCForeground(state->main_gc, GR_COLOR_BLACK);
 	else GrSetGCForeground(state->main_gc, s->planets[planet].colour);
 
 	if((s->planets[planet].ax < 0) || (s->planets[planet].ay < 0) ||
@@ -642,19 +694,19 @@ void saver7_init(nstate *state)
 	s->stary = state->si.rows / 2;
 
 	for(i = 0; i < SAVER7_PLANETS; i++) {
-		s->planets[i].r = RANDRANGE(SAVER7_MIN_STARTDIM,
+		s->planets[i].r = FRANDRANGE(SAVER7_MIN_STARTDIM,
 						SAVER7_MAX_STARTDIM);
-		s->planets[i].x = RANDRANGE(SAVER7_MIN_STARTDIM,
+		s->planets[i].x = FRANDRANGE(SAVER7_MIN_STARTDIM,
 						SAVER7_MAX_STARTDIM);
-		s->planets[i].y = RANDRANGE(SAVER7_MIN_STARTDIM,
+		s->planets[i].y = FRANDRANGE(SAVER7_MIN_STARTDIM,
 						SAVER7_MAX_STARTDIM);
-		s->planets[i].rv = RANDRANGE(SAVER7_MIN_STARTVEL,
+		s->planets[i].rv = FRANDRANGE(SAVER7_MIN_STARTVEL,
 						SAVER7_MAX_STARTVEL);
-		s->planets[i].xv = RANDRANGE(SAVER7_MIN_STARTVEL,
+		s->planets[i].xv = FRANDRANGE(SAVER7_MIN_STARTVEL,
 						SAVER7_MAX_STARTVEL);
-		s->planets[i].yv = RANDRANGE(SAVER7_MIN_STARTVEL,
+		s->planets[i].yv = FRANDRANGE(SAVER7_MIN_STARTVEL,
 						SAVER7_MAX_STARTVEL);
-		s->planets[i].colour = RANDRANGE(0, (state->si.ncolors - 1));
+		s->planets[i].colour = RANDRANGE(0, state->si.ncolors - 1);
 		saver7_calc_planet_position(state, s, i);
 		saver7_drawplanet(state, s, i, 0);
 	}
@@ -750,33 +802,49 @@ void saver8_init(nstate *state)
 	step = 512 / SAVER8_NUMCOLOURS;
 
 	for(green = 255; green > 0; green -= step, blue += step, i++)
-		s->colours[i] = GR_RGB(0, green, blue);
+		GrFindColor(GR_RGB(0, green, blue), &s->colours[i]);
 	for(blue = 255; blue > 0; blue -= step, red += step, i++)
-		s->colours[i] = GR_RGB(red, 0, blue);
-
-	state->animate_interval = SAVER8_DELAY;
+		GrFindColor(GR_RGB(red, 0, blue), &s->colours[i]);
+	
+	s->rows = my_malloc(sizeof(GR_PIXELVAL) * state->si.cols *
+			SAVER8_LINES_PER_FRAME);
+	
+	state->animate_interval = SAVER8_DELAY1;
 }
 
 void saver8_drawpattern(nstate *state)
 {
-	int x, col, lines = SAVER8_LINES_PER_FRAME;
+	int x, y, col, newfactor, lines = SAVER8_LINES_PER_FRAME;
 	s8state *s = state->priv;
+	GR_PIXELVAL *p = s->rows;
 
-	if(!s->current_line)
-		s->factor = RANDRANGE(SAVER8_MINFACTOR, SAVER8_MAXFACTOR);
+	if(!s->current_line) {
+		state->animate_interval = SAVER8_DELAY1;
+		do {
+			newfactor = RANDRANGE(SAVER8_MINFACTOR,
+					SAVER8_MAXFACTOR);
+		} while(newfactor == s->factor);
+		s->factor = newfactor;
+	}
 
+	y = s->current_line;
 	while(s->current_line < state->si.rows) {
-		if(!--lines) return;
+		if(!--lines) break;
 		for(x = 0; x < state->si.cols; x++) {
 			col = ((((x * x) + (s->current_line * s->current_line))
 					/ s->factor) % SAVER8_NUMCOLOURS);
-			GrSetGCForeground(state->main_gc, s->colours[col]);
-			GrPoint(state->main_window, state->main_gc, x,
-							s->current_line);
+			*p++ = s->colours[col];
 		}
 		s->current_line++;
 	}
-	s->current_line = 0;
+
+	GrArea(state->main_window, state->main_gc, 0, y, state->si.cols,
+			s->current_line - y, s->rows, MWPF_PIXELVAL);
+
+	if(lines) {
+		state->animate_interval = SAVER8_DELAY2;
+		s->current_line = 0;
+	}
 }
 
 void saver8_exposure(nstate *state)
@@ -793,6 +861,282 @@ void saver8_animate(nstate *state)
 	saver8_drawpattern(state);
 }
 
+/* saver9 is based on the melt mode of decay from xscreensaver. */
+
+void saver9_init(nstate *state)
+{
+	s9state *s = my_malloc(sizeof(s9state));
+	state->priv = s;
+
+	s->pid = capture_screen(state);
+
+	GrSetGCForeground(state->main_gc, GR_COLOR_BLACK);
+	GrLine(s->pid, state->main_gc, 0, 0, state->si.cols, 0);
+	
+	state->animate_interval = SAVER9_DELAY;
+}
+
+void saver9_exposure(nstate *state)
+{
+	s9state *s = state->priv;
+
+	GrCopyArea(state->main_window, state->main_gc, 0, 0, state->si.cols,
+			state->si.rows, s->pid, 0, 0, 0);
+}
+
+void saver9_animate(nstate *state)
+{
+	GR_COORD x, y;
+	GR_SIZE w, h;
+	s9state *s = state->priv;
+
+	x = RANDRANGE(0, state->si.cols - 2);
+	y = RANDRANGE(0, state->si.rows - 2);
+	w = RANDRANGE(1, state->si.cols - x);
+	h = RANDRANGE(1, state->si.rows - y);
+
+	GrCopyArea(s->pid, state->main_gc, x, y + 1, w, h, s->pid, x, y, 0);
+	GrCopyArea(state->main_window, state->main_gc, x, y + 1, w, h, s->pid,
+								x, y, 0);
+}
+
+/* saver10 is quite loosely based on spotlight from xscreensaver. */
+
+void saver10_init(nstate *state)
+{
+	s10state *s = my_malloc(sizeof(s10state));
+	state->priv = s;
+
+	s->screen = capture_screen(state);
+	s->spot = GrNewPixmap(SAVER10_SPOTDIA + SAVER10_OVERSIZE * 2,
+			SAVER10_SPOTDIA + SAVER10_OVERSIZE * 2, NULL);
+
+	s->x = RANDRANGE((SAVER10_SPOTDIA / 2) + SAVER10_OVERSIZE,
+			state->si.cols - 1 - (SAVER10_SPOTDIA / 2) -
+			SAVER10_OVERSIZE);
+	s->y = RANDRANGE((SAVER10_SPOTDIA / 2) + SAVER10_OVERSIZE,
+			state->si.rows - 1 - (SAVER10_SPOTDIA / 2) -
+			SAVER10_OVERSIZE);
+	s->direction = FRANDRANGE(0, 2 * PI) - PI;
+
+	state->animate_interval = SAVER10_DELAY;
+}
+
+void saver10_exposure(nstate *state)
+{
+	GrClearWindow(state->main_window, 0);
+}
+
+void saver10_animate(nstate *state)
+{
+	int i, x, y, w, xx, yy, retry;
+	s10state *s = state->priv;
+	double d, newx, newy;
+
+	do {
+		newx = s->x + cos(s->direction) * SAVER10_VELOCITY;
+		newy = s->y + sin(s->direction) * SAVER10_VELOCITY;
+		if((newx < (SAVER10_SPOTDIA / 2) + SAVER10_OVERSIZE) ||
+				(newx > state->si.cols - (SAVER10_SPOTDIA / 2)
+				 - SAVER10_OVERSIZE) ||
+				(newy < (SAVER10_SPOTDIA / 2) + 3) ||
+				(newy > state->si.rows - (SAVER10_SPOTDIA / 2)
+				 - SAVER10_OVERSIZE)) {
+			s->direction = FRANDRANGE(0, 2 * PI);
+			retry = 1;
+		} else retry = 0;
+	} while(retry);
+
+	s->x = newx;
+	s->y = newy;
+	
+	y = s->y - (SAVER10_SPOTDIA / 2);
+	yy = SAVER10_OVERSIZE;
+	for(i = 0; i < SAVER10_SPOTDIA; i++) {
+		d = sin(acos(((double)i/((double)SAVER10_SPOTDIA / 2.0)) - 1))
+			* (double)SAVER10_SPOTDIA / 2.0;
+		w = (int) 2 * d;
+		x = (int) s->x - d;
+		xx = (int) (SAVER10_SPOTDIA / 2) - d + SAVER10_OVERSIZE;
+		if(!w) continue;
+		GrCopyArea(s->spot, state->main_gc, xx, yy, w, 1, s->screen,
+								x, y, 0);
+		y++;
+		yy++;
+	}
+
+	x = s->x - (SAVER10_SPOTDIA / 2) - SAVER10_OVERSIZE;
+	y = s->y - (SAVER10_SPOTDIA / 2) - SAVER10_OVERSIZE;
+	if(x < 0) x = 0;
+	if(y < 0) y = 0;
+
+	GrCopyArea(state->main_window, state->main_gc, x, y, SAVER10_SPOTDIA +
+			2 * SAVER10_OVERSIZE, SAVER10_SPOTDIA +
+			2 * SAVER10_OVERSIZE, s->spot, 0, 0, 0);
+}
+
+void saver11_init(nstate *state)
+{
+	s11state *s = my_malloc(sizeof(s11state));
+	state->priv = s;
+
+	state->animate_interval = SAVER11_DELAY;
+}
+
+void saver11_exposure(nstate *state)
+{
+	s11state *s = state->priv;
+	
+	GrClearWindow(state->main_window, 0);
+
+	make_random_square(state, SAVER11_MIN_BRIGHTNESS, SAVER11_MIN_SIZE,
+			SAVER11_MAX_SIZE, 0, &s->x, &s->y, &s->size);
+}
+
+void saver11_animate(nstate *state)
+{
+	s11state *s = state->priv;
+
+	make_random_square(state, SAVER11_MIN_BRIGHTNESS, SAVER11_MIN_SIZE,
+			SAVER11_MAX_SIZE, 0, &s->x, &s->y, &s->size);
+
+	GrFillRect(state->main_window, state->main_gc, s->x, s->y, s->size,
+			s->size);
+}
+
+void saver12_new_shape(nstate *state)
+{
+	s12state *s = state->priv;
+
+	make_random_square(state, SAVER12_MIN_BRIGHTNESS, SAVER12_MIN_SIZE,
+			SAVER12_MAX_SIZE, 1, &s->x, &s->y, &s->size);
+
+	s->t = 0;
+	s->kt = RANDRANGE(0, s->size);
+}
+
+void saver12_init(nstate *state)
+{
+	s12state *s = my_malloc(sizeof(s12state));
+	state->priv = s;
+
+	saver12_new_shape(state);
+
+	state->animate_interval = SAVER12_DELAY;
+}
+
+void saver12_exposure(nstate *state)
+{
+	GrClearWindow(state->main_window, 0);
+
+	saver12_new_shape(state);
+}
+
+void saver12_animate(nstate *state)
+{
+	int x1, y1, x2, y2;
+	s12state *s = state->priv;
+
+	if(s->t >= s->size) saver12_new_shape(state);
+
+	for(x1 = 0; x1 < s->size; x1++) {
+		y1 = (x1 ^ ((s->t + s->kt) % s->size)) % s->size;
+		x2 = (x1 % s->size) + s->x;
+		y2 = y1 + s->y;
+		GrPoint(state->main_window, state->main_gc, x2, y2);
+	}
+
+	s->t++;
+}
+
+/* Zoom from xscreensavers was the inspiration for saver13 */
+
+void saver13_init(nstate *state)
+{
+	s13state *s = my_malloc(sizeof(s13state));
+	state->priv = s;
+
+	s->screen = my_malloc(sizeof(GR_PIXELVAL) * state->si.rows *
+							state->si.cols);
+	s->rows = my_malloc(sizeof(GR_PIXELVAL) * state->si.cols *
+			SAVER13_ZOOM_FACTOR * SAVER13_ROWS_BUFFER);
+	s->rownum = 0;
+
+	s->x = RANDRANGE(0, state->si.cols - (state->si.cols /
+			SAVER13_ZOOM_FACTOR));
+	s->x = RANDRANGE(0, state->si.rows - (state->si.rows /
+			SAVER13_ZOOM_FACTOR));
+	s->direction = FRANDRANGE(0, 2 * PI) - PI;
+
+	state->animate_interval = 1;
+
+#if CAPTURESCREEN_DELAY
+	msleep(CAPTURESCREEN_DELAY);
+#endif
+	
+	GrReadArea(GR_ROOT_WINDOW_ID, 0, 0, state->si.cols, state->si.rows,
+			s->screen);
+}
+
+void saver13_exposure(nstate *state)
+{
+	s13state *s = state->priv;
+	GrClearWindow(state->main_window, 0);
+	s->rownum = 0;
+}
+
+void saver13_move_portal(nstate *state)
+{
+	int retry;
+	double newx, newy;
+	s13state *s = state->priv;
+
+	do {
+		newx = s->x + cos(s->direction) * SAVER13_VELOCITY;
+		newy = s->y + sin(s->direction) * SAVER13_VELOCITY;
+		if(newx < 0 || newx > state->si.cols -
+				(state->si.cols / SAVER13_ZOOM_FACTOR) ||
+				newy < 0 || newy > state->si.rows -
+				(state->si.rows / SAVER13_ZOOM_FACTOR)) {
+			s->direction = FRANDRANGE(0, 2 * PI);
+			retry = 1;
+		} else retry = 0;
+	} while(retry);
+	s->x = newx;
+	s->y = newy;
+}
+
+void saver13_animate(nstate *state)
+{
+	int rows, r, y, i, n;
+	s13state *s = state->priv;
+	GR_PIXELVAL *src, *dst;
+
+	rows = (state->si.rows / SAVER13_ZOOM_FACTOR) - s->rownum;
+	if(rows > SAVER13_ROWS_BUFFER) rows = SAVER13_ROWS_BUFFER;
+	dst = s->rows;
+	y = s->y + s->rownum;
+	for(r = 0; r < rows; r++) {
+		src = &s->screen[(y++ * state->si.cols) + (int)s->x];
+		for(i = 0; i < SAVER13_ZOOM_FACTOR; i++)
+			for(n = 0; n < state->si.cols; n++)
+				*dst++ = src[n / SAVER13_ZOOM_FACTOR];
+	}
+
+	GrArea(state->main_window, state->main_gc, 0, s->rownum *
+			SAVER13_ZOOM_FACTOR, state->si.cols,
+			SAVER13_ZOOM_FACTOR * rows,
+			s->rows, MWPF_PIXELVAL);
+	
+	s->rownum += rows;
+	if(s->rownum >= state->si.rows / SAVER13_ZOOM_FACTOR) {
+		s->rownum = 0;
+		saver13_move_portal(state);
+		state->animate_interval = SAVER13_DELAY;
+	} else state->animate_interval = 1;
+
+}
+
 int init(nstate *state)
 {
 	GR_WM_PROPERTIES props;
@@ -806,7 +1150,7 @@ int init(nstate *state)
 	GrGetScreenInfo(&state->si);
 
 	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0,
-				state->si.cols, state->si.rows, 0, BLACK, 0);
+			state->si.cols, state->si.rows, 0, GR_COLOR_BLACK, 0);
 
 	GrSelectEvents(state->main_window, GR_EVENT_MASK_EXPOSURE |
 						GR_EVENT_MASK_BUTTON_UP |
@@ -823,8 +1167,8 @@ int init(nstate *state)
 	GrSetWMProperties(state->main_window, &props);
 
 	state->main_gc = GrNewGC();
-	GrSetGCForeground(state->main_gc, WHITE);
-	GrSetGCBackground(state->main_gc, BLACK);
+	GrSetGCForeground(state->main_gc, GR_COLOR_WHITE);
+	GrSetGCBackground(state->main_gc, GR_COLOR_BLACK);
 
 	state->animate_interval = 0;
 
@@ -917,12 +1261,12 @@ int handle_event(nstate *state)
 			if(do_screensaver_event(state)) return 0;
 			break;
 		case GR_EVENT_TYPE_CLOSE_REQ:
-		case GR_EVENT_MASK_BUTTON_UP:
-		case GR_EVENT_MASK_BUTTON_DOWN:
-		case GR_EVENT_MASK_MOUSE_MOTION:
-		case GR_EVENT_MASK_KEY_UP:
-		case GR_EVENT_MASK_KEY_DOWN:
-		case GR_EVENT_MASK_FOCUS_OUT:
+		case GR_EVENT_TYPE_BUTTON_UP:
+		case GR_EVENT_TYPE_BUTTON_DOWN:
+		case GR_EVENT_TYPE_MOUSE_MOTION:
+		case GR_EVENT_TYPE_KEY_UP:
+		case GR_EVENT_TYPE_KEY_DOWN:
+		case GR_EVENT_TYPE_FOCUS_OUT:
 			return 0;
 		default:
 			fprintf(stderr, "Got unknown event type %d\n",

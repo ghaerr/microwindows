@@ -514,7 +514,7 @@ typedef struct {
 	INT16	x;
 	INT16	y;
 	INT16	count;
-	INT16	flags;
+	UINT32	flags;
 	/*BYTE8	text[];*/
 } nxTextReq;
 
@@ -1179,4 +1179,100 @@ typedef struct {
         UINT16  exposure;
 } nxSetGCGraphicsExposureReq;
 
-#define GrTotalNumCalls         108
+#define GrNumQueryPointer       108
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+} nxQueryPointerReq;
+
+#define GrNumSetGCLineAttributes 109
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+  	IDTYPE	gcid;
+        UINT32  line_style;
+} nxSetGCLineAttributesReq;
+
+#define GrNumSetGCDash          110
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+        IDTYPE gcid;
+        UINT32  count;
+} nxSetGCDashReq;
+
+#define GrNumSetGCFillMode      111
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+        IDTYPE  gcid;
+        UINT32  fill_mode;
+} nxSetGCFillModeReq;
+
+#define GrNumSetGCStipple       112
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+        IDTYPE  gcid;
+        UINT32  type;
+        UINT32  width;
+        UINT32  height;
+} nxSetGCStippleReq;
+
+#define GrNumSetGCTSOffset      113
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+        IDTYPE  gcid;
+        UINT32  xoffset;
+        UINT32  yoffset;
+} nxSetGCTSOffsetReq;
+
+#define GrNumSetGCTile          114
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;  
+        IDTYPE  gcid;
+        IDTYPE  pid;
+        UINT32  width;
+        UINT32  height;
+} nxSetGCTileReq;
+
+#define GrNumNewBitmapRegion    115
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	INT16	width;
+	INT16	height;
+	/* GR_BITMAP bitmap[]*/
+} nxNewBitmapRegionReq;
+
+#define GrNumSetWindowRegion    116
+
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE	wid;
+	IDTYPE	bounds_rid;
+	IDTYPE	client_rid;
+} nxSetWindowRegionReq;
+
+#define GrTotalNumCalls         117
+

@@ -31,5 +31,7 @@ config.ppc	PPC Linux for Embedded Planet Linux Planet
 config.prisma	Prisma port
 config.psion	Psion port
 config.rtems	RTEMS port
+config.sparc.fb	Basic Linux Framebuffer (FB) (linux-sparc)
+config.sparc.x11 Microwindows running on X11 (linux-sparc)
 config.svga	x86 Linux SVGALib screen driver
 config.yopy	ARM Linux FB for G.Mate YOPY

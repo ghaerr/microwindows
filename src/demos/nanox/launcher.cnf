@@ -1,4 +1,5 @@
 # Sample launcher configuration file
+# Copyright (c) 2002 Alex Holden <alex@alexholden.net>
 
 # These are the screen savers to use:
 # A simple screen blanker:
@@ -17,12 +18,35 @@ $screensaver bin/nsaver 6
 $screensaver bin/nsaver 7
 # Draws a moire interference pattern:
 $screensaver bin/nsaver 8
+# Makes the screen appear to melt:
+$screensaver bin/nsaver 9
+# Blacks the screen out then bounces a hole to the desktop around the screen:
+$screensaver bin/nsaver 10
+# Draws random squares:
+$screensaver bin/nsaver 11
+# Draws random squares using the munch algorithm:
+$screensaver bin/nsaver 12
+# Draws a randomly panning magnified area of the desktop:
+$screensaver bin/nsaver 13
 
 # This is the screen saver timeout delay (in seconds):
-$screensaver_timeout 300
+$screensaver_timeout 10
+
+# Comment this out to start the screensavers in order instead of at random.
+$random_screensaver
+
+# Set this to the number of seconds between changing the screensaver. Set to 0
+# or comment out to never rotate screensavers.
+$screensaver_rotate_time 300
+
+# Run the screen calibrator at startup.
+# $startup bin/nanocal
+
+# Start the window manager
+$startup bin/nanowm
 
 # This is the file to use as the root window background image:
-$window_background_image bin/tux.gif
+$window_background_image bin/uponface.ppm
 
 # This is the mode to use for the window background:
 # 0 = tile across screen
@@ -30,10 +54,13 @@ $window_background_image bin/tux.gif
 # 2 = draw once at top left of screen
 $window_background_mode 0
 
-# This is the background colour to use for the root window:
-# Possible values are:
-# BLACK, BLUE, GREEN, RED, MAGENTA, BROWN, LTGRAY, GRAY, LTBLUE, LTGREEN,
-# LTCYAN, LTRED, LTMAGENTA, YELLOW, WHITE.
+# This is the background colour to use for the root window.
+# The current possible values are:
+# BLACK, WHITE, RED, GREEN, BLUE, CYAN, MAGNETA, YELLOW, BROWN, GRAY.
+# If you want a wider selection of colours, find the ones you want in
+# nxcolors.h and add them to the switch statement in launcher.c
+# set_window_background_colour(). If the exact colours you want aren't in
+# nxcolors.h you can define your own with the MWRGB(r,g,b) macro.
 # $window_background_colour GREEN
 
 # These are the launcher panel items. Each line is in the format:
@@ -44,12 +71,17 @@ $window_background_mode 0
 # The icon filename can be the letter '-' to specify no icon.
 
 Tetris bin/ntetris.ppm bin/ntetris
-Landmine - bin/landmine
-Slider - bin/slider demos/nanox/slidebmp.bmp
-Terminal - bin/nxterm
-Clock - bin/nxclock
-Map - bin/world
-Scribble - bin/nxscribble
-SoftKeyboard - bin/nxkbd
-Logo - bin/nxview bin/nanogui.ppm
-Roach - bin/nxroach -roaches 10
+NanoBreaker bin/nbreaker.ppm bin/nbreaker -d demos/nbreaker/gamedata
+Landmine bin/landmine.ppm bin/landmine
+Slider bin/slider.ppm bin/slider bin/slidebmp.bmp
+Terminal bin/nxterm.ppm bin/nxterm
+Clock bin/nxclock.pgm bin/nxclock
+# Map bin/world.ppm bin/world
+Magnifier bin/logo.ppm bin/nxmag
+Scribble bin/nxscribble.ppm bin/nxscribble
+SoftKeyboard bin/nxkbd.pgm bin/nxkbd
+Roach bin/nxroach.pgm bin/nxroach -roaches 10
+Tux bin/tux.ppm bin/tux
+NXEyes bin/nxeyes.pgm bin/nxeyes
+# Pressure - bin/pressure
+# Recalibrate bin/nanocal.ppm bin/nanocal -c

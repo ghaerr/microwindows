@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
  * Copyright (C) 1999 Bradley D. LaRonde (brad@ltc.com)
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -48,8 +48,8 @@ static MWCOORD	cursavy2;
 static MWPIXELVAL curfg;		/* foreground color of cursor */
 static MWPIXELVAL curbg;		/* background color of cursor */
 static MWPIXELVAL cursavbits[MWMAX_CURSOR_SIZE * MWMAX_CURSOR_SIZE];
-static MWIMAGEBITS cursormask[MWMAX_CURSOR_SIZE];
-static MWIMAGEBITS cursorcolor[MWMAX_CURSOR_SIZE];
+static MWIMAGEBITS cursormask[MWMAX_CURSOR_BUFLEN];
+static MWIMAGEBITS cursorcolor[MWMAX_CURSOR_BUFLEN];
 
 extern int gr_mode;
 
@@ -318,8 +318,9 @@ GdSetCursor(PMWCURSOR pcursor)
 
 	curfg = GdFindColor(pcursor->fgcolor);
 	curbg = GdFindColor(pcursor->bgcolor);
-	bytes = MWIMAGE_WORDS(pcursor->width) * pcursor->height
-			* sizeof(MWIMAGEBITS);
+
+	bytes = MWIMAGE_SIZE(pcursor->width, pcursor->height) * sizeof(MWIMAGEBITS);
+
 	memcpy(cursorcolor, pcursor->image, bytes);
 	memcpy(cursormask, pcursor->mask, bytes);
 
@@ -339,7 +340,7 @@ GdShowCursor(PSD psd)
 	MWPIXELVAL *	saveptr;
 	MWIMAGEBITS *	cursorptr;
 	MWIMAGEBITS *	maskptr;
-	MWIMAGEBITS 	curbit, cbits, mbits;
+	MWIMAGEBITS 	curbit, cbits = 0, mbits = 0;
 	MWPIXELVAL 	oldcolor;
 	MWPIXELVAL 	newcolor;
 	int 		oldmode;
@@ -358,10 +359,16 @@ GdShowCursor(PSD psd)
 	cursorptr = cursorcolor;
 	maskptr = cursormask;
 
+	/*
+	 * Loop through bits, resetting to firstbit at end of each row
+	 */
+	curbit = 0;
 	for (y = curminy; y <= curmaxy; y++) {
-		cbits = *cursorptr++;
-		mbits = *maskptr++;
-		curbit = MWIMAGE_FIRSTBIT;
+		if (curbit != MWIMAGE_FIRSTBIT) {
+			cbits = *cursorptr++;
+			mbits = *maskptr++;
+			curbit = MWIMAGE_FIRSTBIT;
+		}
 		for (x = curminx; x <= curmaxx; x++) {
 			if(x >= 0 && x < psd->xvirtres &&
 			   y >= 0 && y < psd->yvirtres) {
@@ -374,6 +381,11 @@ GdShowCursor(PSD psd)
 				*saveptr++ = oldcolor;
 			}
 			curbit = MWIMAGE_NEXTBIT(curbit);
+			if (!curbit) {	/* check > one MWIMAGEBITS wide*/
+				cbits = *cursorptr++;
+				mbits = *maskptr++;
+				curbit = MWIMAGE_FIRSTBIT;
+			}
 		}
 	}
 

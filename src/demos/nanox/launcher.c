@@ -12,8 +12,8 @@
  * The Original Code is NanoLauncher.
  * 
  * The Initial Developer of the Original Code is Alex Holden.
- * Portions created by Alex Holden are Copyright (C) 2000
- * Alex Holden <alex@linuxhacker.org>. All Rights Reserved.
+ * Portions created by Alex Holden are Copyright (C) 2000, 2002
+ * Alex Holden <alex@alexholden.net>. All Rights Reserved.
  * 
  * Contributor(s):
  * 
@@ -53,6 +53,7 @@
  * the side on portrait screens and on the bottom on landscape screens.
  */
 
+#include <time.h>
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -62,11 +63,20 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#define MWINCLUDECOLORS
-#include "nano-X.h"
+#include <nano-X.h>
+#include <nxcolors.h>
+
 #include "launcher.h"
 
-void reaper(int signum) { while(waitpid(WAIT_ANY, NULL, WNOHANG) > 0); }
+/* This needs to be global so the signal handler can get to it. */
+pid_t sspid;
+
+void reaper(int signum) {
+	pid_t pid;
+
+	while((pid = waitpid(WAIT_ANY, NULL, WNOHANG) > 0))
+		if(pid == sspid) sspid = -1;
+}
 
 void *my_malloc(size_t size)
 {
@@ -84,6 +94,16 @@ void usage(void)
 {
 	fprintf(stderr, "Usage: launcher <config-file>\n");
 	exit(3);
+}
+
+void free_prog_item(prog_item *prog)
+{
+	int n;
+
+	for(n = 0; n < MAX_ARGUMENTS; n++)
+		if(prog->argv[n]) free(prog->argv[n]);
+	free(prog->command);
+	free(prog);
 }
 
 prog_item *make_prog_item(char *buf, int lineno)
@@ -131,13 +151,7 @@ prog_item *make_prog_item(char *buf, int lineno)
 		pp = p;
 		while(*p && (!isspace(*p))) p++;
 		*p++ = 0;
-		if(!(prog->argv[n] = strdup(pp))) {
-			for(n = MAX_ARGUMENTS; n; n--)
-				if(prog->argv[n]) free(prog->argv[n]);
-			free(prog->command);
-			free(prog);
-			goto nomem;
-		}
+		if(!(prog->argv[n] = strdup(pp))) goto nomem;
 		if(++n == (MAX_ARGUMENTS - 1)) {
 			fprintf(stderr, "Too many arguments on line "
 				"%d of the config file\n", lineno);
@@ -168,22 +182,18 @@ void set_window_background_colour(char *buf, int lineno)
 	while(*p && (!isspace(*p))) p++;
 	*p = 0;
 
-	if(!strcmp(pp, "BLACK")) props.background = BLACK;
-	else if(!strcmp(pp, "BLUE")) props.background = BLUE;
-	else if(!strcmp(pp, "GREEN")) props.background = GREEN;
-	else if(!strcmp(pp, "CYAN")) props.background = CYAN;
-	else if(!strcmp(pp, "RED")) props.background = RED;
-	else if(!strcmp(pp, "MAGENTA")) props.background = MAGENTA;
-	else if(!strcmp(pp, "BROWN")) props.background = BROWN;
-	else if(!strcmp(pp, "LTGRAY")) props.background = LTGRAY;
-	else if(!strcmp(pp, "GRAY")) props.background = GRAY;
-	else if(!strcmp(pp, "LTBLUE")) props.background = LTBLUE;
-	else if(!strcmp(pp, "LTGREEN")) props.background = LTGREEN;
-	else if(!strcmp(pp, "LTCYAN")) props.background = LTCYAN;
-	else if(!strcmp(pp, "LTRED")) props.background = LTRED;
-	else if(!strcmp(pp, "LTMAGENTA")) props.background = LTMAGENTA;
-	else if(!strcmp(pp, "YELLOW")) props.background = YELLOW;
-	else if(!strcmp(pp, "WHITE")) props.background = WHITE;
+	/* FIXME: Pick out a wider selection of named colours, and perhaps add
+	 * support for specifying a hex triplet. */
+	if(!strcmp(pp, "BLACK")) props.background = GR_COLOR_BLACK;
+	else if(!strcmp(pp, "WHITE")) props.background = GR_COLOR_WHITE;
+	else if(!strcmp(pp, "RED")) props.background = GR_COLOR_RED;
+	else if(!strcmp(pp, "GREEN")) props.background = GR_COLOR_GREEN;
+	else if(!strcmp(pp, "BLUE")) props.background = GR_COLOR_BLUE;
+	else if(!strcmp(pp, "CYAN")) props.background = GR_COLOR_CYAN;
+	else if(!strcmp(pp, "MAGENTA")) props.background = GR_COLOR_MAGENTA;
+	else if(!strcmp(pp, "YELLOW")) props.background = GR_COLOR_YELLOW;
+	else if(!strcmp(pp, "BROWN")) props.background = GR_COLOR_BROWN;
+	else if(!strcmp(pp, "GRAY")) props.background = GR_COLOR_GRAY;
 	else {
 		fprintf(stderr, "Invalid colour \"%s\" on line %d of config "
 							"file\n", pp, lineno);
@@ -199,7 +209,8 @@ void parse_config_line(lstate *state, char *buf, int lineno)
 	char *p, *pp, *name, *icon;
 	int n;
 	litem *new_litem, *li;
-	sitem *new_sitem;
+	ssitem *new_ssitem, *tmp_ssitem;
+	stitem *new_stitem, *tmp_stitem;
 	GR_IMAGE_INFO imageinfo;
 
 	p = buf;
@@ -213,23 +224,44 @@ void parse_config_line(lstate *state, char *buf, int lineno)
 	*p++ = 0;
 
 	if(!strcmp(name, "$screensaver")) {
-		new_sitem = my_malloc(sizeof(sitem));
-		if(!(new_sitem->prog = make_prog_item(p, lineno))) {
-			free(new_sitem);
+		new_ssitem = my_malloc(sizeof(ssitem));
+		if(!(new_ssitem->prog = make_prog_item(p, lineno))) {
+			free(new_ssitem);
 			return;
 		}
-		new_sitem->next = NULL;
-		if(!state->sitems) {
-			state->sitems = new_sitem;
-			state->cursitem = new_sitem;
-		} else {
-			new_sitem->next = state->sitems;
-			state->sitems = new_sitem;
+		state->numssitems++;
+		new_ssitem->next = NULL;
+		if(!state->ssitems) state->ssitems = new_ssitem;
+		else {
+			tmp_ssitem = state->ssitems;
+			while(tmp_ssitem->next) tmp_ssitem = tmp_ssitem->next;
+			tmp_ssitem->next = new_ssitem;
+		}
+		return;
+	} else if(!strcmp(name, "$startup")) {
+		new_stitem = my_malloc(sizeof(stitem));
+		if(!(new_stitem->prog = make_prog_item(p, lineno))) {
+			free(new_stitem);
+			return;
+		}
+		new_stitem->next = NULL;
+		if(!state->stitems) state->stitems = new_stitem;
+		else {
+			tmp_stitem = state->stitems;
+			while(tmp_stitem->next) tmp_stitem = tmp_stitem->next;
+			tmp_stitem->next = new_stitem;
 		}
 		return;
 	} else if(!strcmp(name, "$screensaver_timeout")) {
 		n = strtol(p, NULL, 10);
 		GrSetScreenSaverTimeout(n);
+		return;
+	} else if(!strcmp(name, "$screensaver_rotate_time")) {
+		state->rotatess = strtol(p, NULL, 10);
+		return;
+	} else if(!strcmp(name, "$random_screensaver")) {
+		srand(time(0));
+		state->randomss = 1;
 		return;
 	} else if(!strcmp(name, "$window_background_image")) {
 		while(isspace(*p)) p++;
@@ -338,7 +370,11 @@ void read_config(lstate *state)
 
 	state->litems = NULL;
 	state->numlitems = 0;
-	state->sitems = NULL;
+	state->ssitems = NULL;
+	state->randomss = 0;
+	state->numssitems = 0;
+	state->stitems = NULL;
+	state->rotatess = 0;
 
 	while(fgets(buf, 256, fp)) {
 		parse_config_line(state, buf, lineno);
@@ -348,6 +384,9 @@ void read_config(lstate *state)
 	fclose(fp);
 	free(buf);
 
+	if(state->randomss) choose_random_screensaver(state);
+	else state->curssitem = state->ssitems;
+	
 	if(!state->numlitems) {
 		fprintf(stderr, "No valid launcher items in config file\n");
 		exit(5);
@@ -388,7 +427,7 @@ void handle_exposure_event(lstate *state)
 							event->wid);
 }
 
-void launch_program(prog_item *prog)
+pid_t launch_program(prog_item *prog)
 {
 	pid_t pid;
 
@@ -399,6 +438,8 @@ void launch_program(prog_item *prog)
 					prog->command, strerror(errno));
 		exit(7);
 	}
+
+	return pid;
 }
 
 void handle_mouse_event(lstate *state)
@@ -419,22 +460,70 @@ void handle_mouse_event(lstate *state)
 	fprintf(stderr, "Got mouse event for unknown window %d\n", event->wid);
 }
 
+void choose_random_screensaver(lstate *state)
+{
+	int i;
+	ssitem *s;
+
+	if(!state->numssitems) return;
+
+	do {
+		i = rand() % state->numssitems;
+		s = state->ssitems;
+		while(i--) s = s->next;
+	} while(s == state->curssitem);
+
+	state->curssitem = s;
+}
+
+void activate_screensaver(lstate *state)
+{
+	sspid = launch_program(state->curssitem->prog);
+
+	if(state->randomss) choose_random_screensaver(state);
+	else {
+		state->curssitem = state->curssitem->next;
+		if(!state->curssitem) state->curssitem = state->ssitems;
+	}
+}
+
+void deactivate_screensaver(lstate *state)
+{
+	if(sspid >= 0) kill(sspid, SIGINT);
+}
+
 void handle_screensaver_event(lstate *state)
 {
 	GR_EVENT_SCREENSAVER *event = &state->event.screensaver;
 
-	if(event->activate != GR_TRUE) return;
+	if(event->activate != GR_TRUE) {
+		if(state->ssrotatetimer > 0)
+			GrDestroyTimer(state->ssrotatetimer);
+		return;
+	}
 
-	if(!state->sitems) {
+	if(!state->ssitems) {
 		fprintf(stderr, "Got screensaver activate event with no "
 				"screensavers defined\n");
 		return;
 	}
 
-	state->cursitem = state->cursitem->next;
-	if(!state->cursitem) state->cursitem = state->sitems;
+	activate_screensaver(state);
 
-	launch_program(state->cursitem->prog);
+	if(state->rotatess) {
+		state->ssrotatetimer = GrCreateTimer(state->main_window,
+				state->rotatess * 1000 /*, GR_TRUE*/);
+	} else state->ssrotatetimer = -1;
+}
+
+void handle_timer_event(lstate *state)
+{
+	GR_EVENT_TIMER *event = &state->event.timer;
+
+	if(event->tid != state->ssrotatetimer) return;
+
+	deactivate_screensaver(state);
+	activate_screensaver(state);
 }
 
 void handle_event(lstate *state)
@@ -450,6 +539,9 @@ void handle_event(lstate *state)
 			break;
 		case GR_EVENT_TYPE_SCREENSAVER:
 			handle_screensaver_event(state);
+			break;
+		case GR_EVENT_TYPE_TIMER:
+			handle_timer_event(state);
 			break;
 		case GR_EVENT_TYPE_NONE:
 			break;
@@ -468,12 +560,25 @@ void do_event_loop(lstate *state)
 	} while(state->event.type != GR_EVENT_TYPE_CLOSE_REQ);
 }
 
+void do_startups(lstate *state)
+{
+	stitem *tmp, *st = state->stitems;
+
+	while(st) {
+		launch_program(st->prog);
+		tmp = st;
+		st = st->next;
+		free_prog_item(tmp->prog);
+		free(tmp);
+	}
+}
+
 void initialise(lstate *state)
 {
 	GR_SCREEN_INFO si;
 	GR_IMAGE_ID back_image;
 	GR_IMAGE_INFO imageinfo;
-	int rows = 1, columns = 1, width, height, x = 0, y = 1;
+	int rows = 1, columns = 1, width, height, x = 0, y = 0;
 	GR_WM_PROPERTIES props;
 	litem *i;
 
@@ -484,6 +589,7 @@ void initialise(lstate *state)
 
 	state->window_background_mode = 0;
 	state->window_background_image = NULL;
+	sspid = -1;
 
 	read_config(state);
 
@@ -540,12 +646,13 @@ void initialise(lstate *state)
 		}
 	}
 
-	if(state->sitems)
+	if(state->ssitems)
 		GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_SCREENSAVER);
 
 	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, 0, y, width, height,
 						0, ITEM_BACKGROUND_COLOUR, 0);
-	GrSelectEvents(state->main_window, GR_EVENT_MASK_CLOSE_REQ);
+	GrSelectEvents(state->main_window, GR_EVENT_MASK_CLOSE_REQ |
+					GR_EVENT_MASK_TIMER);
 	props.flags = GR_WM_FLAGS_PROPS;
 	props.props = GR_WM_PROPS_NOMOVE | GR_WM_PROPS_NODECORATE |
 			GR_WM_PROPS_NOAUTOMOVE | GR_WM_PROPS_NOAUTORESIZE;
@@ -572,6 +679,8 @@ void initialise(lstate *state)
 	GrMapWindow(state->main_window);
 
 	signal(SIGCHLD, &reaper);
+
+	do_startups(state);
 
 	return;
 

@@ -40,6 +40,10 @@ void redraw_ncarea(win *window)
 	active = (window->clientid == GrGetFocus());
 	nxPaintNCArea(window->wid, info.width, info.height, props.title,
 		active, props.props);
+
+	/* free title returned from GrGetWMProperties*/
+	if (props.title)
+		free(props.title);
 }
 
 void container_exposure(win *window, GR_EVENT_EXPOSURE *event)
@@ -293,9 +297,11 @@ void topbar_exposure(win *window, GR_EVENT_EXPOSURE *event)
 	Dprintf("topbar_exposure window %d\n", window->wid);
 
 	GrGetWMProperties(ci->cid, &prop);
-	if (prop.title)
+	if (prop.title) {
 		GrText(window->wid, buttonsgc, 0, 0, prop.title, -1,
 			GR_TFASCII|GR_TFTOP);
+		free(prop.title);
+	}
 }
 
 void closebutton_exposure(win *window, GR_EVENT_EXPOSURE *event)
@@ -400,6 +406,8 @@ void topbar_mousemoved(win *window, GR_EVENT_MOUSE *event)
 
 	/* turn off background erase draw while moving*/
 	GrGetWMProperties(window->pid, &props);
+	if (props.title)
+		free(props.title);
 	props.flags = GR_WM_FLAGS_PROPS;
 	props.props |= GR_WM_PROPS_NOBACKGROUND;
 	GrSetWMProperties(window->pid, &props);

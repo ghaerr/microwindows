@@ -11,7 +11,11 @@
 # Platform dependent flags & definitions
 
 ifeq ($(ARCH), LINUX-NATIVE)
+ifeq ($(USE_CCACHE), 1)
 COMPILER = ccache gcc
+else
+COMPILER = gcc
+endif
 CXX_COMPILER = g++
 TOOLSPREFIX =
 DEFINES += -DLINUX=1 -DUNIX=1

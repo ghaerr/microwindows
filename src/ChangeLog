@@ -1,3 +1,4 @@
+	* added USE_CCACHE=1 environment variable check for cached builds
 	* added StretchBlitEx driver entry point, GdStretchBlitEx,
 		GrStretchArea (experimental) (Jonathan)
 		StretchBlitEx is still broken in dest rectangle calc (FIXME)

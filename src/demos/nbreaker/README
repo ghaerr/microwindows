@@ -1,0 +1,65 @@
+NanoBreaker by Alex Holden <alex@alexholden.net>
+------------------------------------------------
+
+This game is a clone of Breakout. It has many similarities to another Breakout
+clone called Arkanoid. One of the main advances of the game over most other
+Breakout clones is its extensive use of alpha blending- all of the bricks,
+bats, the ball, and the splash graphics can be loaded from PNG files with
+alpha channels, and they will be blended onto the background screen with full
+translucency. Also, bricks which require multiple hits to destroy become more
+tranlucent with each subsequent hit, and when changing levels there is a
+gradual blended fade between the old level and the new one.
+
+The object of the game is to complete all of the levels. In order to complete
+each level it is necessary to destroy all of the bricks which it is possible to
+destroy (some bricks are indestructable and hence do not need to be destroyed
+to advance to the next level). The way to destroy bricks is to hit them with
+the ball (sometimes they only need to be hit once, sometimes they need to be
+hit several times). When you fail to hit the ball with your bat and it falls
+to the bottom of the screen, it is lost and you are given another ball from
+the row at the top of the screen. You only have a limited number of balls
+though, and if you run out then the game is lost. Every time you successfully
+complete a level, you are given some extra balls as a reward. Some bricks have
+power-ups or power-downs hidden behind them, which appear when the brick is
+destroyed. You must catch them as they fall down the screen in order to
+activate them.
+
+Several power-ups and power-downs are available in the game:
+WideBat makes the bat wider.
+SlowMotion makes the ball move more slowly.
+sTickyBat makes the ball stick to the bat every time it hits it.
+PowerBall makes the ball able to destroy multiple-hit bricks and even normally
+indestructable bricks with a single hit.
+NarrowBat makes the bat narrower.
+FastMotion make the ball move more quickly.
+
+The power-ups and power-downs all expire after some amount of time (configurable
+in the game file). Catching a power-up increases your score by some amount and
+catching a power-down decreases it. Destroying an ordinary brick increases
+your score by a small amount, but some bricks have bonusses hidden behind them
+which can increase your score by a much larger amount.
+
+There are two ways to control the game: with the mouse (or touchscreen) and
+with the keyboard (note that if you are using a PDA with some input buttons on
+it some of them may be configured to act as cursor keys).  With the mouse,
+clicking a button advances from the title screen to the first level, and then
+clicking it again launches the ball from the bat. Moving it left and right
+causes the bat to move left and right. With the keyboard, the space bar
+performs the same function as the mouse button, and the left and right cursor
+keys are used to move the bat left and right.
+
+There are two other keys which may be of use: F1 is used to pause and
+unpause the game, and F2 is used to forfeit the current ball (may be
+necessary in some advanced levels where it is possible for the ball to become
+caught in a trap of indestructable bricks).
+
+The game is described by an ASCII level file which allows new levels to be
+created very easily, and many aspects of the game to be easily modified.
+For example, the default game file is optimised for display at a resolution of
+640*480, but it is easy to make the bricks smaller or larger or to change the
+size of the brick area in the game by modifiying parameters in the game file.
+
+If you specify a filename on the command line, it will be used as the game file.
+If it is in a directory other than the default game directory, the directory in
+which it looks for the file (and for all the graphics files) can be given
+on the command line using the "-d <directory>" option.

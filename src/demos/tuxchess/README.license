@@ -1,0 +1,42 @@
+I have had some enquiries regarding the licensing of the chess engine.
+The original author was contacted, and permission was granted to distribute
+my version of TuxChess. The correspondence is included below...
+
+
+
+Subject: Re: Permission to distribute TSCP code?
+Date: Tue, 05 Feb 2002 02:44:36 -0700
+From: "Tom Kerrigan" <cu_ee@hotmail.com>
+To: steve@labyrinth.net.au
+
+
+Well, as long as you're not making any money off of it, I'm fine with it. 
+Good luck. :)
+-Tom
+
+
+>From: Steve Merrifield <steve@labyrinth.net.au>
+>To: thomas.kerrigan@colorado.edu
+>Subject: Permission to distribute TSCP code?
+>Date: Tue, 05 Feb 2002 20:26:57 +1100
+>
+>Hi Tom,
+>
+>I am seeking your permission to distribute a chess program based on
+>your TSCP code. Essentially, the chess engine remains unchanged, but
+>the user-interaction has been modified. I have adapted your code to
+>run on an embedded desktop phone (see http://tuxscreen.net)
+>
+>In my version, the current board position is displayed on a 256 color,
+>640x480 LCD, and the user moves pieces by pressing on a touch-screen
+>instead of typing in algebraic notation. All game-playing algorithms
+>remain unchanged.
+>
+>This project is purely for fun and educational value, and not for
+>commercial gain.
+>
+>Thanks in advance,
+>steve
+
+
+

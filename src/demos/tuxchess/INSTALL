@@ -1,0 +1,15 @@
+INSTALLATION:
+
+TuxChess has been designed to be incorporated into the standard
+MicroWindows source tree. 
+
+It should be untarred into microwin/src/demos/tuxchess.
+
+Typing 'make' in the src directory should build tuxchess and
+copy the binary into src/bin.
+
+By default, tuxchess requires all the image files to be available in
+/usr/local/images/tuxchess. You will have to manually copy all files
+from tuxchess/images to this directory. Alternatively, change the
+#define in images.c to something more suitable.
+

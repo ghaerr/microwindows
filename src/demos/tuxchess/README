@@ -1,0 +1,30 @@
+TuxChess is a graphical chess program for the MicroWindows environment.
+It was designed predominately to run on the TuxScreen, but will also
+run quite happily on other architectures.
+
+TuxChess is Copyright (c) 2002 by Steven J. Merrifield
+
+The chess engine is Copyright 1997 by Tom Kerrigan, and used with 
+permission (see README.chess)
+
+Essentially, I have taken Tom's chess engine, and bolted a GUI on the
+front end. Tom's code required a user to enter a move on the keyboard,
+and printed an ASCII art board. I have modified this so that a user now
+presses on a touchscreen to choose the piece they want to move, and where
+they want to move it to. Likewise, a full-color graphical display is used
+to show the current board position.
+
+The GUI was designed to be easily customised. The board and all pieces are
+individual GIF files allowing a user to easily replace the standard pieces
+with something they like. For example, instead of black versus white, why
+not try Simpsons versus Southpark?
+
+The user can choose to play either black or white - to play white, simply
+run "./tuxchess" without any arguments. However, to play black, at least
+one argument must be provided, "./tuxchess black" for example.
+
+See the TODO file for planned features.
+
+Steven J. Merrifield
+16 Feb 2002
+

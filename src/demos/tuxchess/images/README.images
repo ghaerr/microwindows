@@ -1,0 +1,16 @@
+board.gif	- board/background
+w_p.gif		- white pawn
+w_n.gif		- white knight
+w_b.gif		- white bishop
+w_r.gif		- white rook
+w_q.gif		- white queen
+w_k.gif		- white king
+b_p.gif		- black pawn
+b_n.gif		- black knight
+b_b.gif		- black bishop
+b_r.gif		- black rook
+b_q.gif		- black queen
+b_k.gif		- black king
+
+All pieces have a transparent (#FFFFFF) background.
+

@@ -1,0 +1,407 @@
+# This is the default distributed NanoBreaker game description file. The early
+# parts are heavily commented so it can be used as a template for writing your
+# own game description files.
+#
+# Copyright (c) 2002 Alex Holden <alex@alexholden.net>
+
+# Note: Lines beginning with a hash (#) and blank lines are ignored.
+
+# The image file to use as the background while in the title screen. If this is
+# not given or the file fails to load, the background will be plain black.
+TitleBackground nbbg8.png
+
+# Whether to tile the title screen background image across the background or
+# not. If you specify No, and the image is not the correct size for the area,
+# it will be stretched or shrunk to fit.
+TitleBackgroundTiled Yes
+
+# The image file to use as the splash screen graphic on the title screen. This
+# will be placed in the centre of the screen over the title screen background.
+# If it contains alpha channel data, it will be used. If this is not given or
+# the file fails to load, no screen graphic will be displayed.
+TitleSplash nbsp1.png
+
+# The image file to use as the splash screen graphic displayed when you win a
+# game. It will be displayed in the centre of the screen over the current level
+# screen, and if there is alpha channel information in the image it will be
+# used. If this is not given or the file fails to load, no game won splash
+# graphic will be displayed.
+GameWonSplash nbsp2.png
+
+# The image file to use as the splash screen graphic displayed when you lose a
+# game. It will be displayed in the centre of the screen over the current level
+# screen, and if there is alpha channel information in the image it will be
+# used. If this is not given or the file fails to load, no game lost splash
+# graphic will be displayed.
+GameLostSplash nbsp3.png
+
+# The rate to fade screens in at. The maximum allowable value is 255, but it
+# wouldn't really make any sense to set it as high as that. Set it to 0 to
+# disable fading screens. Doing that will significantly reduce the memory and
+# CPU usage (plus fading is pointless if your display only has transparency
+# capability rather than full alpha blending).
+FadeRate 10
+
+# Set the number of points gained for destroying a normal brick, one with a
+# small bonus, one with a medium bonus, one with a large bonus, and one with a
+# huge bonus. Also the number of points gained for collecting a power-up and
+# for collecting a power-down (usually negative).
+NormalPoints 1
+SmallBonusPoints 5
+MediumBonusPoints 25
+LargeBonusPoints 150
+HugeBonusPoints 1000
+PowerUpPoints 20
+PowerDownPoints -10
+
+# The number of balls to start a new game with.
+StartBalls 5
+
+# The number of new balls to be given as a bonus for finishing a level.
+NewLevelBalls 2
+
+# The image to use for the ball sprite. If it contains transparency or alpha
+# channel information it will be used when drawing the sprite. If the ball
+# image can not be loaded, a plain blue circle will be used.
+BallImage nbball1.png
+
+# The period in milliseconds between each animation frame:
+AnimatePeriod 20
+
+# The speed to move the bat at (in pixels per animation frame) when one of the
+# cursor keys is pressed down:
+BatVelocity 10
+
+# The speed to move the power-up and power-down boxes down the screen at:
+PowerVelocity 4
+
+# The speed to move the ball at (in pixels per animation frame) in normal mode,
+# SlowMotion, and FastMotion modes:
+SlowBallVelocity 4
+NormalBallVelocity 6
+FastBallVelocity 10
+
+# The size in pixels to draw the bricks as. If the brick images are not
+# actually this size, they will be scaled up or down accordingly.
+BrickWidth 40
+BrickHeight 20
+
+# The following lines define bricks that will be available to any level.
+# Individual levels can define their own bricks too, which will only be
+# available to that level. The syntax of the line is:
+# Brick <identifier> <imagefile> [flag]
+# The identifier can be almost any single ASCII character (but not a space/tab),
+# and is used to identify the brick when drawing the levels later. The image
+# file is the name of a graphics file to use for the brick. Transparency and
+# Alpha channel information in the image will be used when drawing the brick,
+# although the collision detection code always treats the brick as a solid
+# rectangle. The file name cannot contain spaces. If the image file fails to
+# load, a solid coloured rectangle will be drawn instead. If the image is not
+# the correct size, it will be scaled up or down to fit. Don't be afraid to
+# create multiple bricks with the same image but different flags- the image
+# cachine system ensures that each image file is only loaded once. The flag
+# field is optional, and if specified is one or more letters selected from the
+# list below (note that some combinations are illegal) which gives the brick
+# some special property. The possible flags are:
+# I = Immutable, ie. this brick can never be destroyed.
+# 2 = 2 hits, ie. this brick needs to be hit twice to destroy it.
+# 3 = 3 hits, ie. this brick needs to be hit three times to destroy it.
+# S = small bonus, ie. destroying this brick will give a small points bonus.
+# M = medium bonus.
+# L = large bonus.
+# H = huge bonus (only use this for really hard to get to bricks).
+Brick O nbb1.png
+Brick G nbb2.png
+Brick Y nbb3.png
+Brick P nbb4.png
+Brick p nbb5.png
+Brick B nbb6.png
+Brick T nbb7.png
+Brick R nbb9.png
+Brick * nbb8.png I
+
+# Set the game area size in bricks.
+Width 15
+Height 15
+
+# The height of the bats in pixels (all three must be the same height,
+# although if you want some to appear taller than others you could leave some
+# blank space at the bottom of the shorter ones). If the bat images are not
+# actually this height they will be scaled up or down accordingly.
+BatHeight 25
+
+# The width of each of the bats. As before, they will be scaled if necessary.
+# As such you could, if you wanted, just draw one bat image and let the game
+# scale it up and down to the other bat widths for you.
+NormalBatWidth 60
+SmallBatWidth 40
+LargeBatWidth 80
+
+# Set the image files to use for the normal, small, and large bats. Any
+# transparency or alpha channel information in the image will be used when
+# drawing it, although the collision detection code always treats the bat as a
+# solid rectangle. If the normal bat image can't be loaded, a plain coloured
+# rectangle will be used instead. If the bat images aren't the correct size,
+# they will be scaled up or down as necessary. If the small and large bat
+# images can't be loaded or aren't specifed, scaled versions of the normal bat
+# image will be used instead.
+NormalBat nbbat1.png
+SmallBat nbbat2.png
+LargeBat nbbat3.png
+
+# Set the image files to use for the power-ups and power-down sprites.
+# Transparency and alpha channel information will be used when drawing them.
+# If they are not specified or the image could not be loaded, power-ups will
+# be drawn as a green rectangle and power-downs as a red rectangle with the
+# letter of the power-up or power-down printed on them. The possible power-ups
+# are:
+# W = WideBat (makes the bat larger).
+# S = SlowMotion (makes the ball move more slowly).
+# T = sTickyBat (makes the ball stick to the bat).
+# P = PowerBall (makes the ball destroy multiple-hit squares in one hit)
+# The power-downs are:
+# N = NarrowBat (names the bat narrower).
+# F = FastMotion (makes the ball move faster).
+PowerSprite W nbpw.png
+PowerSprite S nbps.png
+PowerSprite T nbpt.png
+PowerSprite P nbpp.png
+PowerSprite N nbpn.png
+PowerSprite F nbpf.png
+
+# Set the amount of time that power-ups last for before they are disabled in
+# seconds. Set it to 0 to make them never time out.
+PowerUpTimeout 30
+
+# Set the amount of time that power-downs last for before they are disabled in
+# seconds. Set it to 0 to make them never time out.
+PowerDownTimeout 20
+
+# Cheats are useful in developing a game (and designing new levels) but if you
+# don't want the ability to cheat, comment out some or all of the following
+# lines.
+# Type this sequence to make a solid floor underneath the bat so you won't lose
+# the ball if you miss it. Type it again to turn the cheat off.
+SolidFloorCheat nbsf
+# Type this sequence to teleport yourself to the next level.
+TeleportCheat nbtp
+# Type this sequence to make the ball not bounce off bricks but travel straight
+# through them, destroying them as it goes. Type it again to turn it off.
+NoBounceCheat nbnb
+# Type this sequence to prevent any new power-downs you catch from taking
+# effect. Type it again to turn it off.
+NoPowerDownCheat nbnpd
+# Type this sequence to prevent power-ups from timing out. Type it again to
+# turn it off.
+NoPowerUpTimeoutCheat nbnputo
+
+# Begin defining the level
+BeginLevel
+
+# This level is a gentle introduction to the game with no power-ups or
+# power-downs.
+
+# The image file to use as the background for this level.
+LevelBackground nbbg2.png
+
+# Whether to tile the level background image across the background or not.
+LevelBackgroundTiled Yes
+
+# The following lines define bricks unique to this level. They cannot have the
+# same identifiers as already existing globally defined bricks, and they will
+# not be accessible from other level definitions. The syntax of the command is
+# the same as described above for global brick definitions.
+Brick C nbb3.png 2
+Brick D nbb4.png 2S
+
+# The following lines define the placement of the bricks in the level itself.
+# Each row consists of a number of brick identifiers and/or spaces (a space
+# means no brick is placed in that position). If the row ends before Width
+# bricks have been placed, it is assumed that the rest of the row does not have
+# any bricks in it. If you define less than Height rows, then it is assumed
+# that the rows at the bottom which you did not define are all blank.
+BeginRows
+  R R  D  R R
+ C C CD DC C C
+R B B RBR B B R
+
+pPRGYBOTOBYGRPp
+EndRows
+
+# The following lines define the placement of hidden power-ups and power-downs
+# in this level. They have to be hidden underneath a brick (ie. they must be
+# placed in the same location as a brick) or they will never be triggered. The
+# available power-ups are as defined above. The same rules for missing lines
+# and columns applies as for BeginRows/EndRows.
+BeginPowers
+EndPowers
+
+# Finish defining the level
+EndLevel
+
+# The rest of the levels won't be commented other than to say what the general
+# idea of the level is.
+
+BeginLevel
+
+# This level introduces the SlowMotion, WideBat, and sTickyBat power-ups.
+
+LevelBackground nbbg4.png
+LevelBackgroundTiled Yes
+Brick C nbb3.png 2S
+Brick D nbb9.png 3M
+
+BeginRows
+
+DC CD DCD DC CD
+  G  G   G  G
+ppBBBTTpTTBBBpp
+
+ pG  O   O  Gp
+ GB  G   G  BG
+EndRows
+
+BeginPowers
+
+W            S
+    T
+   S  W  T
+EndPowers
+
+EndLevel
+
+BeginLevel
+
+# This level introduces immutable bricks and the PowerBall power-up.
+# It also has some hard to destroy bricks behind the immutable bricks, which
+# should demonstrate how you can get rid of inconvenient immutable bricks
+# using the PowerBall.
+
+LevelBackground nbbg3.png
+LevelBackgroundTiled Yes
+Brick C nbb6.png 2S
+Brick D nbb4.png 3M
+Brick E nbb9.png 3L
+
+BeginRows
+
+DD TTDDEDDTT DD
+     CEEEC
+GGCCC*****CCCGG
+
+RGBBGRRGRRGBBGR
+R G BB G BB G R
+ R G B T B G R
+EndRows
+
+BeginPowers
+
+ P           P
+
+    W    T
+EndPowers
+
+EndLevel
+
+BeginLevel
+
+# This level introduces the NarrowBat and FastMotion power-downs.
+
+LevelBackground nbbg2.png
+LevelBackgroundTiled Yes
+Brick C nbb5.png 2S
+Brick D nbb6.png 3M
+Brick E nbb7.png 3L
+
+BeginRows
+ R C EE EE C R
+  B R DDD R B
+CC C*B* *B*C CC
+
+ppppRRGGGRRpppp
+ppRRRGGYGGRRRpp
+EndRows
+
+BeginPowers
+ P T     W
+
+  N  F
+
+
+ N    F
+EndPowers
+
+EndLevel
+
+BeginLevel
+
+# This level has a huge bonus hidden under an immutable brick in the middle of
+# some ordinary immutables.
+
+LevelBackground nbbg9.png
+LevelBackgroundTiled Yes
+Brick C nbb5.png 2S
+Brick D nbb4.png 3M
+Brick ! nbb8.png IH
+
+BeginRows
+
+pRRppRRpRRppRRp
+*  * BB!BB *  *
+ CC C  C  C CC
+DD   DD DD   DD
+ R  pppBppp  R
+   P   B   P
+  p  R   R  p
+GpGGGGRGRGGGGpG
+EndRows
+
+BeginPowers
+
+
+
+ W        P  F
+
+      PN
+       T
+
+  S
+EndPowers
+
+EndLevel
+
+BeginLevel
+
+# This level includes a pair of boxes made from indestructable bricks.
+
+LevelBackground nbbg10.png
+
+LevelBackgroundTiled Yes
+
+Brick C nbb4.png 3M
+
+BeginRows
+***** RRR *****
+*YYYY*RBR*GGGG*
+*YYY*RBpBR*GGG*
+*YY*RB p BR*GG*
+*C*RB p p BR*C*
+**RB p T p BR**
+RRB p  T  p BRR
+BBBBBBBBBBBBBBB
+YYYYYpppppGGGGG
+EndRows
+
+BeginPowers
+       S
+       P
+       T     P
+       W
+ P   P     N
+   F       P
+  T         W
+     W  N   F
+ S        T
+EndPowers
+
+EndLevel

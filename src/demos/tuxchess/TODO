@@ -1,0 +1,20 @@
+Things which I intend to do in the next release:
+
+Pawn promotion - the code is in the engine, but I need to
+make a window pop up and prompt the user to choose which
+piece they want. At the moment, it defaults to queen.
+
+Configurable Time/Depth - at the moment they are hard-coded,
+although it wouldn't be too difficult to read these from a 
+configuration file at startup.
+
+Ability to save/restore games.
+
+Ability to start a new game without killing/closing the window.
+
+Undo feature - the code is in the chess engine, I need to
+implement a button on the UI for it though.
+
+If the computer is playing white, swap the pieces so black is at
+the bottom.
+

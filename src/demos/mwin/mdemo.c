@@ -190,10 +190,10 @@ ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		DrawDIB(hdcMem, 0, 0, image);
 
 		/* blit offscreen with physical screen*/
-		/*BitBlt(ps.hdc, 0, 0, rc.right, rc.bottom, hdcMem,
-			0, 0, MWROP_SRCCOPY);*/
-		StretchBlt(ps.hdc, 0, 0, rc.right, rc.bottom, hdcMem,
-			0, 0, image->width/3*5, image->height/3*4, MWROP_SRCCOPY);
+		//BitBlt(ps.hdc, 0, 0, rc.right*4/5, rc.bottom*4/5, hdcMem,
+			//0, 0, MWROP_SRCCOPY);
+		StretchBlt(ps.hdc, 0, 0, rc.right*4/5, rc.bottom*4/5, hdcMem,
+			0, 0, image->width, image->height, MWROP_SRCCOPY);
 		DeleteObject(SelectObject(hdcMem, hbmpOrg));
 		DeleteDC(hdcMem);
 }

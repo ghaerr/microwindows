@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
  *
  * Nano-X Client utility routines
  *
@@ -161,12 +161,12 @@ GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_width,
 				} else {
 					/* no byte swapping */
 					unsigned char c = *inbuf++;
-					p[1] = brev ? revbyte[c] : c;
+					p[0] = brev ? revbyte[c] : c;
 					if (x < xb - 1) {
 						c = *inbuf++;
-						p[0] = brev ? revbyte[c] : c;
+						p[1] = brev ? revbyte[c] : c;
 					} else
-						p[0] = 0;
+						p[1] = 0;
 				}
 
 				x += 2;

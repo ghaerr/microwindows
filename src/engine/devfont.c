@@ -355,13 +355,14 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 
 #ifdef HAVE_PCF_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
-	  extern PMWCFONT pcf_createfont(char *name);
+		extern PMWCFONT pcf_createfont(char *name);
 
-	  pfont = (PMWFONT) pcf_createfont(fontname);
-	  if (pfont) {
-	    printf("pcf_createfont: using font %s\n", fontname);
-	    return(pfont);
-	  }
+		pfont = (PMWFONT) pcf_createfont(fontname);
+		if (pfont) {
+			printf("pcf_createfont: using font %s\n", fontname);
+			return(pfont);
+		}
+		printf("pcf_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 

@@ -30,8 +30,24 @@ OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 	devpal1.o devpal2.o devimage.o devlist.o selfont.o error.o \
 	devrgn2.o devarc.o devpoly.o devstipple.o
 
+ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
+OBJS += font_freetype.o
+endif
+
 ifeq ($(HAVE_PCF_SUPPORT), Y)
-OBJS += devfontpcf.o
+OBJS += font_pcf.o
+endif
+
+ifeq ($(HAVE_T1LIB_SUPPORT), Y)
+OBJS += font_t1lib.o
+endif
+
+ifeq ($(HAVE_HZK_SUPPORT), Y)
+OBJS += font_hzk.o
+endif
+
+ifeq ($(HAVE_EUCJP_SUPPORT), Y)
+OBJS += font_eucjp.o
 endif
 
 #ifeq ($(UNIX), 1)
@@ -47,13 +63,6 @@ OBJS += devpalgray4.o
 else
 OBJS += devpal4.o
 endif
-
-ifeq ($(HAVE_EUCJP_SUPPORT), Y)
-DEFINES += -DHAVE_EUCJP_SUPPORT=1
-DEFINES += -DEUCJP_FONT_DIR=\"$(EUCJP_FONT_DIR)\"
-OBJS += devfont_eucjp.o
-endif
-
 
 ######################### Makefile.rules section #############################
 

@@ -1,24 +1,11 @@
 /*
- * Copyright (c) Koichi Mori
- *
- * Device-independent font and text drawing routines
- *
  * EUC Japanese text drawing using MGL font for Microwindows/Nano-X
- *
+ * Copyright (c) Koichi Mori
  */
-
 /*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include <string.h>
-
-#include "device.h"
-#if (UNIX | DOS_DJGPP)
-#define strcmpi	strcasecmp
-#endif
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -26,12 +13,10 @@
 #ifndef MAP_FAILED
 #define MAP_FAILED  ((void *)-1)
 #endif
+#include "device.h"
+#include "devfont.h"
 
-
-extern void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,const void *text, int cc, int flags);
-/*
- */
-typedef struct {
+typedef struct MWEUCJPFONT {
 	PMWFONTPROCS	fontprocs;	/* common hdr*/
 	MWCOORD		fontsize;
 	int		fontrotation;
@@ -45,16 +30,16 @@ typedef struct {
         int aoffset;
         int awidth;
         int abytes;
-        int fd; /* file descriptor of font bitmap data */
+        int fd; 			/* file descriptor of font bitmap data*/
         char *font_base;
-} MWEUCJPFONT, *PMWEUCJPFONT;
+} MWEUCJPFONT;
 
+PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
 static MWBOOL eucjp_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void eucjp_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 static void eucjp_gettextsize(PMWFONT pfont, const void *text, int cc,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 static void eucjp_destroyfont(PMWFONT pfont);
-
 
 /* handling routines for MWEUCJPFONT*/
 static MWFONTPROCS eucjp_procs = {
@@ -63,25 +48,16 @@ static MWFONTPROCS eucjp_procs = {
 	eucjp_gettextsize,
 	eucjp_gettextbits,
 	eucjp_destroyfont,
-	//eucjp_drawtext,
 	corefont_drawtext,
 	NULL,				/* setfontsize*/
 	NULL,				/* setfontrotation*/
 	NULL,				/* setfontattr*/
 };
 
-
-/* initilize ... what? */
 /*
 static int
 eucjp_init(PSD psd)
 {
-	static int inited = 0;
-
-	if (inited)
-		return 1;
-
-	inited = 1;
 	return 1;
 }
 */
@@ -90,12 +66,11 @@ eucjp_init(PSD psd)
  * Create PMWFONT structure from fone "name"
  *
  * Many thanks to MGL fontkit/mgl_fontinfo.c
- *
  */
-PMWFONT
+PMWEUCJPFONT
 eucjp_createfont(const char *name, MWCOORD height, int attr)
 {
-  PMWEUCJPFONT	pf;
+	PMWEUCJPFONT	pf;
 
         int fd,r;
         int fsize;
@@ -163,7 +138,7 @@ eucjp_createfont(const char *name, MWCOORD height, int attr)
 	GdSetFontRotation((PMWFONT)pf, 0);
 	GdSetFontAttr((PMWFONT)pf, attr, 0);
 	free(fname);
-	return (PMWFONT)pf;
+	return pf;
 
  EUCJP_FAIL:
 	free(fname);
@@ -278,6 +253,4 @@ eucjp_destroyfont(PMWFONT pfont)
   munmap(pf->font_base, pf->koffset + pf->kbytes*8064);
   close(pf->fd);
   fprintf(stderr, "!\n");
-
 }
-

@@ -1,17 +1,19 @@
 /* 
- * PCF Reader for Microwindows 
- * This implements a quick and dirty .PCF font parser so that we can take advantage of 
- * dynamically loading XFree86 style fonts.  
-
- * Copyright 2001, 2002 by Century Embedded Technologies
- * Written by:  Jordan Crouse
- * Bugfixed by: Greg Haerr
+ * PCF font engine for Microwindows
+ * Copyright (c) 2001, 2002 by Century Embedded Technologies
+ * Copyright (c) 2002 Greg Haerr <greg@censoft.com>
+ *
+ * Supports dynamically loading .pcf and pcf.gz X11 fonts
+ *
+ * Written by Jordan Crouse
+ * Bugfixed by Greg Haerr
  */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
 #include "device.h"
+#include "devfont.h"
 #include "../drivers/genfont.h"
 
 /* The user hase the option including ZLIB and being able to    */

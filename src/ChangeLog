@@ -1,5 +1,7 @@
+Version 0.89pre9 - 28 Aug 2002 - greg@censoft.com
+	* added fonts/t1lib directory with sample t1lib fonts and config file
+	* moved font engine sources into separate engine/font*.c files
 	* ansified C source for small very cool TCC compiler, created config.tcc
-Version 0.89pre9 - 24 Aug 2002 - greg@censoft.com
 	* added multi-threading safety to nano-X, THREADSAFE option to config
 		this currently requires pthreads, see include/lock.h
 	* fixed .bmp->.c conversion rule for broken building from CVS

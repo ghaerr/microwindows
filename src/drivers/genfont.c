@@ -132,12 +132,12 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 					++str;
 					width += 12;	/* FIXME*/
 			} else
-			if (((c >= 0x81 && c <= 0x9F) || (c >= 0xE0 && c <= 0xEF)) && cc >= 1)
-				if (*str >= 0x40 && *str <= 0xFC && (*str != 0x7F)){
+			if (((c >= 0x81 && c <= 0x9F) || (c >= 0xE0 && c <= 0xEF)) && cc >= 1 &&
+				(*str >= 0x40 && *str <= 0xFC && (*str != 0x7F))) {
 					--cc;
 					++str;
 					width += 12;	/* FIXME*/
-			}else
+			} else
 #endif
 #if HAVE_KSC5601_SUPPORT
 			/* Korean KSC5601 decoding */

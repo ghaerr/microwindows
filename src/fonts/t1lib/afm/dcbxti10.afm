@@ -1,0 +1,2341 @@
+StartFontMetrics 2.0
+FontName dcbxti10
+FullName dcbxti10
+FamilyName dcbxti10
+Weight Medium
+ItalicAngle 0.000000
+IsFixedPitch false
+UnderlinePosition -133
+UnderlineThickness 20
+Version 1.0\(Level-B\)
+FontBBox -60, -308, 1261, 911
+Notice Copyright \(C\) 1994, Basil K. Malyshev. All Rights Reserved.\nBaKoMa Fonts Collection, Level-B.
+EncodingScheme FontSpecific
+CapHeight 686
+XHeight 444
+Descender -194
+Ascender 694
+StartCharMetrics 256
+C 0 ; WX 591 ; N grave ; B 272 500 455 699 ;
+C 1 ; WX 591 ; N acute ; B 342 500 578 699 ;
+C 2 ; WX 591 ; N circumflex ; B 246 521 562 694 ;
+C 3 ; WX 591 ; N tilde ; B 236 572 609 694 ;
+C 4 ; WX 591 ; N dieresis ; B 247 555 595 695 ;
+C 5 ; WX 591 ; N hungarumlaut ; B 252 504 609 702 ;
+C 6 ; WX 948.67 ; N ring ; B 462 544 701 711 ;
+C 7 ; WX 591 ; N caron ; B 259 500 572 642 ;
+C 8 ; WX 591 ; N breve ; B 263 513 600 694 ;
+C 9 ; WX 591 ; N macron ; B 218 557 603 611 ;
+C 10 ; WX 355.44 ; N dotaccent ; B 224 544 379 695 ;
+C 11 ; WX 532.11 ; N cedilla ; B 78 -189 383 19 ;
+C 12 ; WX 355.44 ; N ogonek ; B -29 -194 232 36 ;
+C 13 ; WX 355.44 ; N quotesinglbase ; B 52 -194 242 151 ;
+C 14 ; WX 532.11 ; N guilsinglleft ; B 159 40 452 432 ;
+C 15 ; WX 532.11 ; N guilsinglright ; B 115 40 447 432 ;
+C 16 ; WX 620.39 ; N quotedblleft ; B 231 349 663 694 ;
+C 17 ; WX 620.39 ; N quotedblright ; B 156 349 588 694 ;
+C 18 ; WX 620.39 ; N quotedblbase ; B 127 -194 559 151 ;
+C 19 ; WX 767.61 ; N guillemotleft ; B 159 40 688 432 ;
+C 20 ; WX 767.61 ; N guillemotright ; B 115 40 683 432 ;
+C 21 ; WX 591 ; N endash ; B 68 254 598 294 ; L hyphen emdash ;
+C 22 ; WX 1181.94 ; N emdash ; B 68 254 1127 294 ;
+C 23 ; WX 0 ; N compoundwordmark ; B 0 0 0 0 ;
+C 24 ; WX 473.22 ; N perthousand ; B 85 -56 400 347 ;
+C 25 ; WX 355.44 ; N dotlessi ; B 44 -8 360 452 ;
+C 26 ; WX 384.89 ; N dotlessj ; B -60 -202 346 452 ;
+C 27 ; WX 755.39 ; N ff ; B -49 -202 861 702 ; L i ffi ; L l ffl ;
+C 28 ; WX 674.28 ; N fi ; B -49 -202 679 702 ;
+C 29 ; WX 703.72 ; N fl ; B -49 -202 720 702 ;
+C 30 ; WX 1044.44 ; N ffi ; B -49 -202 1049 702 ;
+C 31 ; WX 1059.17 ; N ffl ; B -49 -202 1075 702 ;
+C 32 ; WX 591 ; N visiblespace ; B 19 -111 545 251 ;
+C 33 ; WX 386 ; N exclam ; B 104 0 400 711 ;
+C 34 ; WX 591 ; N quotedbl ; B 245 342 579 706 ;
+C 35 ; WX 944.22 ; N numbersign ; B 94 -194 913 694 ;
+C 36 ; WX 591 ; N dollar ; B 99 -56 606 750 ;
+C 37 ; WX 944.22 ; N percent ; B 141 -56 915 750 ;
+C 38 ; WX 885.33 ; N ampersand ; B 110 -17 865 711 ;
+C 39 ; WX 355.44 ; N quoteright ; B 192 349 385 694 ; L quoteright quotedblright ;
+C 40 ; WX 473.22 ; N parenleft ; B 136 -251 536 750 ;
+C 41 ; WX 473.22 ; N parenright ; B 0 -251 400 750 ;
+C 42 ; WX 591 ; N asterisk ; B 176 306 617 750 ;
+C 43 ; WX 885.33 ; N plus ; B 121 -104 826 603 ;
+C 44 ; WX 355.44 ; N comma ; B 56 -194 246 151 ; L comma quotedblbase ;
+C 45 ; WX 414.33 ; N hyphen ; B 60 174 356 271 ; L hyphen endash ;
+C 46 ; WX 355.44 ; N period ; B 88 0 243 151 ;
+C 47 ; WX 591 ; N slash ; B 2 -250 653 750 ;
+C 48 ; WX 591 ; N zero ; B 82 -17 607 661 ;
+C 49 ; WX 591 ; N one ; B 93 0 489 661 ;
+C 50 ; WX 591 ; N two ; B 57 -17 587 661 ;
+C 51 ; WX 591 ; N three ; B 77 -17 597 661 ;
+C 52 ; WX 591 ; N four ; B 23 -194 516 661 ;
+C 53 ; WX 591 ; N five ; B 88 -17 597 661 ;
+C 54 ; WX 591 ; N six ; B 101 -17 596 661 ;
+C 55 ; WX 591 ; N seven ; B 110 -17 677 661 ;
+C 56 ; WX 591 ; N eight ; B 79 -17 587 661 ;
+C 57 ; WX 591 ; N nine ; B 94 -17 590 661 ;
+C 58 ; WX 355.44 ; N colon ; B 88 0 316 444 ;
+C 59 ; WX 355.44 ; N semicolon ; B 56 -194 316 444 ;
+C 60 ; WX 885.33 ; N less ; B 150 -76 874 575 ; L less guillemotleft ;
+C 61 ; WX 885.33 ; N equal ; B 94 118 855 381 ;
+C 62 ; WX 885.33 ; N greater ; B 74 -76 797 575 ; L greater guillemotright ;
+C 63 ; WX 591 ; N question ; B 183 0 583 711 ;
+C 64 ; WX 885.33 ; N at ; B 133 -8 864 702 ;
+C 65 ; WX 865.33 ; N A ; B 22 0 755 711 ;
+C 66 ; WX 816.44 ; N B ; B 14 0 780 686 ;
+C 67 ; WX 826.44 ; N C ; B 132 -17 877 703 ;
+C 68 ; WX 875.33 ; N D ; B 14 0 834 686 ;
+C 69 ; WX 756.5 ; N E ; B 14 0 754 680 ;
+C 70 ; WX 727 ; N F ; B 14 0 740 680 ;
+C 71 ; WX 895.06 ; N G ; B 132 -17 877 703 ;
+C 72 ; WX 895.89 ; N H ; B 14 0 953 686 ;
+C 73 ; WX 471.56 ; N I ; B 7 0 537 686 ;
+C 74 ; WX 610.39 ; N J ; B 37 -17 659 686 ;
+C 75 ; WX 894.78 ; N K ; B 14 0 922 686 ;
+C 76 ; WX 697.61 ; N L ; B 14 0 638 686 ;
+C 77 ; WX 1072.5 ; N M ; B 14 0 1130 686 ;
+C 78 ; WX 895.89 ; N N ; B 14 0 953 686 ;
+C 79 ; WX 854.78 ; N O ; B 129 -17 834 703 ;
+C 80 ; WX 787 ; N P ; B 14 0 775 686 ;
+C 81 ; WX 854.78 ; N Q ; B 129 -194 834 703 ;
+C 82 ; WX 859.22 ; N R ; B 14 -17 800 686 ;
+C 83 ; WX 649.83 ; N S ; B 58 -17 672 703 ;
+C 84 ; WX 795.94 ; N T ; B 148 0 841 675 ;
+C 85 ; WX 880.61 ; N U ; B 168 -17 938 686 ;
+C 86 ; WX 865.33 ; N V ; B 167 -17 928 686 ;
+C 87 ; WX 1159.72 ; N W ; B 166 -17 1224 686 ;
+C 88 ; WX 865.33 ; N X ; B 16 0 877 686 ;
+C 89 ; WX 865.33 ; N Y ; B 161 0 934 686 ;
+C 90 ; WX 708.72 ; N Z ; B 63 0 756 686 ;
+C 91 ; WX 356 ; N bracketleft ; B 36 -250 454 750 ;
+C 92 ; WX 591 ; N backslash ; B 242 -250 413 750 ;
+C 93 ; WX 356 ; N bracketright ; B -35 -250 383 750 ;
+C 94 ; WX 708.72 ; N asciicircum ; B 231 452 662 632 ;
+C 95 ; WX 885.33 ; N underscore ; B 19 -308 666 -247 ;
+C 96 ; WX 355.44 ; N quoteleft ; B 169 349 362 694 ; L quoteleft quotedblleft ;
+C 97 ; WX 591 ; N a ; B 73 -8 596 452 ;
+C 98 ; WX 532.11 ; N b ; B 79 -8 508 694 ;
+C 99 ; WX 532.11 ; N c ; B 74 -8 505 452 ;
+C 100 ; WX 591 ; N d ; B 73 -8 606 694 ;
+C 101 ; WX 532.11 ; N e ; B 77 -8 505 452 ;
+C 102 ; WX 399.89 ; N f ; B -49 -202 506 702 ; L i fi ; L f ff ; L l fl ;
+C 103 ; WX 532.11 ; N g ; B 26 -202 534 452 ;
+C 104 ; WX 591 ; N h ; B 43 -8 596 694 ;
+C 105 ; WX 355.44 ; N i ; B 44 -8 360 694 ;
+C 106 ; WX 355.44 ; N j ; B -60 -202 383 694 ;
+C 107 ; WX 532.11 ; N k ; B 43 -8 537 694 ;
+C 108 ; WX 296.61 ; N l ; B 57 -8 312 694 ;
+C 109 ; WX 944.22 ; N m ; B 44 -8 949 452 ;
+C 110 ; WX 649.83 ; N n ; B 44 -8 655 452 ;
+C 111 ; WX 591 ; N o ; B 75 -8 566 452 ;
+C 112 ; WX 591 ; N p ; B -8 -194 567 452 ;
+C 113 ; WX 532.11 ; N q ; B 73 -194 546 452 ;
+C 114 ; WX 501.56 ; N r ; B 44 -8 529 452 ;
+C 115 ; WX 486.83 ; N s ; B 54 -8 455 452 ;
+C 116 ; WX 384.89 ; N t ; B 59 -8 390 643 ;
+C 117 ; WX 620.39 ; N u ; B 44 -8 625 452 ;
+C 118 ; WX 532.11 ; N v ; B 44 -8 524 453 ;
+C 119 ; WX 767.61 ; N w ; B 44 -8 760 453 ;
+C 120 ; WX 560.44 ; N x ; B 39 -8 570 452 ;
+C 121 ; WX 561.56 ; N y ; B 44 -202 566 452 ;
+C 122 ; WX 490.44 ; N z ; B 31 -8 509 452 ;
+C 123 ; WX 591 ; N braceleft ; B 129 -250 645 750 ;
+C 124 ; WX 355.44 ; N bar ; B 61 -250 357 750 ;
+C 125 ; WX 591 ; N braceright ; B 9 -250 525 750 ;
+C 126 ; WX 708.72 ; N asciitilde ; B 236 572 727 694 ;
+C 127 ; WX 414.33 ; N hyphen ; B 60 174 356 271 ;
+C 128 ; WX 865.33 ; N Abreve ; B 22 0 769 894 ;
+C 129 ; WX 865.33 ; N Aogonek ; B 22 -182 784 711 ;
+C 130 ; WX 826.44 ; N Cacute ; B 132 -17 877 899 ;
+C 131 ; WX 826.44 ; N Ccaron ; B 132 -17 877 843 ;
+C 132 ; WX 875.33 ; N Dcaron ; B 14 0 834 843 ;
+C 133 ; WX 756.5 ; N Ecaron ; B 14 0 754 843 ;
+C 134 ; WX 756.5 ; N Eogonek ; B 14 -182 754 680 ;
+C 135 ; WX 895.06 ; N Gbreve ; B 132 -17 877 894 ;
+C 136 ; WX 697.61 ; N Lacute ; B 14 0 674 899 ;
+C 137 ; WX 697.61 ; N Lquoteright ; B 14 0 764 686 ;
+C 138 ; WX 697.61 ; N Lslash ; B 14 0 638 686 ;
+C 139 ; WX 895.89 ; N Nacute ; B 14 0 953 899 ;
+C 140 ; WX 895.89 ; N Ncaron ; B 14 0 953 843 ;
+C 141 ; WX 837.56 ; N Eng ; B 22 -17 862 694 ;
+C 142 ; WX 854.78 ; N Ohungarumlaut ; B 129 -17 896 899 ;
+C 143 ; WX 859.22 ; N Racute ; B 14 -17 800 899 ;
+C 144 ; WX 859.22 ; N Rcaron ; B 14 -17 800 843 ;
+C 145 ; WX 649.83 ; N Sacute ; B 58 -17 672 899 ;
+C 146 ; WX 649.83 ; N Scaron ; B 58 -17 672 843 ;
+C 147 ; WX 649.83 ; N Scedilla ; B 58 -189 672 703 ;
+C 148 ; WX 795.94 ; N Tcaron ; B 148 0 841 843 ;
+C 149 ; WX 795.94 ; N Tcedilla ; B 148 -189 841 675 ;
+C 150 ; WX 880.61 ; N Uhungarumlaut ; B 168 -17 938 899 ;
+C 151 ; WX 880.61 ; N Uring ; B 168 -17 938 911 ;
+C 152 ; WX 865.33 ; N Ydieresis ; B 161 0 934 894 ;
+C 153 ; WX 708.72 ; N Zacute ; B 63 0 756 899 ;
+C 154 ; WX 708.72 ; N Zcaron ; B 63 0 756 843 ;
+C 155 ; WX 708.72 ; N Zdotaccent ; B 63 0 756 894 ;
+C 156 ; WX 1001.44 ; N IJ ; B 7 -17 1031 686 ;
+C 157 ; WX 471.56 ; N Idotaccent ; B 7 0 537 902 ;
+C 158 ; WX 591 ; N dbar ; B 73 -8 626 694 ;
+C 159 ; WX 549.33 ; N section ; B 66 -202 546 702 ;
+C 160 ; WX 591 ; N abreve ; B 73 -8 596 653 ;
+C 161 ; WX 591 ; N aogonek ; B 73 -194 596 452 ;
+C 162 ; WX 532.11 ; N cacute ; B 74 -8 539 658 ;
+C 163 ; WX 532.11 ; N ccaron ; B 74 -8 563 602 ;
+C 164 ; WX 591 ; N dquoteright ; B 73 -8 830 694 ;
+C 165 ; WX 532.11 ; N ecaron ; B 77 -8 533 602 ;
+C 166 ; WX 532.11 ; N eogonek ; B 77 -179 505 452 ;
+C 167 ; WX 532.11 ; N gbreve ; B 26 -202 561 653 ;
+C 168 ; WX 296.61 ; N lacute ; B 57 -8 485 908 ;
+C 169 ; WX 296.61 ; N lquoteright ; B 57 -8 536 694 ;
+C 170 ; WX 296.61 ; N lslash ; B 8 -8 338 694 ;
+C 171 ; WX 649.83 ; N nacute ; B 44 -8 655 658 ;
+C 172 ; WX 649.83 ; N ncaron ; B 44 -8 655 602 ;
+C 173 ; WX 649.83 ; N eng ; B 44 -202 575 452 ;
+C 174 ; WX 591 ; N ohungarumlaut ; B 75 -8 704 658 ;
+C 175 ; WX 501.56 ; N racute ; B 44 -8 529 658 ;
+C 176 ; WX 501.56 ; N rcaron ; B 44 -8 529 602 ;
+C 177 ; WX 486.83 ; N sacute ; B 54 -8 517 658 ;
+C 178 ; WX 486.83 ; N scaron ; B 54 -8 510 602 ;
+C 179 ; WX 486.83 ; N scedilla ; B 26 -189 455 452 ;
+C 180 ; WX 384.89 ; N tquoteright ; B 59 -8 529 708 ;
+C 181 ; WX 384.89 ; N tcedilla ; B 20 -189 390 643 ;
+C 182 ; WX 620.39 ; N uhungarumlaut ; B 44 -8 719 658 ;
+C 183 ; WX 620.39 ; N uring ; B 44 -8 625 670 ;
+C 184 ; WX 561.56 ; N ydieresis ; B 44 -202 570 652 ;
+C 185 ; WX 490.44 ; N zacute ; B 31 -8 518 658 ;
+C 186 ; WX 490.44 ; N zcaron ; B 31 -8 512 602 ;
+C 187 ; WX 490.44 ; N zdotaccent ; B 31 -8 509 694 ;
+C 188 ; WX 649.83 ; N ij ; B 44 -202 678 694 ;
+C 189 ; WX 386 ; N exclamdown ; B 50 -211 346 500 ;
+C 190 ; WX 591 ; N questiondown ; B 71 -211 471 500 ;
+C 191 ; WX 868.33 ; N sterling ; B 70 -8 753 708 ;
+C 192 ; WX 865.33 ; N Agrave ; B 22 0 755 899 ;
+C 193 ; WX 865.33 ; N Aacute ; B 22 0 755 899 ;
+C 194 ; WX 865.33 ; N Acircumflex ; B 22 0 755 894 ;
+C 195 ; WX 865.33 ; N Atilde ; B 22 0 777 894 ;
+C 196 ; WX 865.33 ; N Adieresis ; B 22 0 763 894 ;
+C 197 ; WX 865.33 ; N Aring ; B 22 0 755 870 ;
+C 198 ; WX 1022.56 ; N AE ; B 23 0 1022 686 ;
+C 199 ; WX 826.44 ; N Ccedilla ; B 132 -189 877 703 ;
+C 200 ; WX 756.5 ; N Egrave ; B 14 0 754 899 ;
+C 201 ; WX 756.5 ; N Eacute ; B 14 0 754 899 ;
+C 202 ; WX 756.5 ; N Ecircumflex ; B 14 0 754 894 ;
+C 203 ; WX 756.5 ; N Edieresis ; B 14 0 754 894 ;
+C 204 ; WX 471.56 ; N Igrave ; B 7 0 537 899 ;
+C 205 ; WX 471.56 ; N Iacute ; B 7 0 551 899 ;
+C 206 ; WX 471.56 ; N Icircumflex ; B 7 0 537 894 ;
+C 207 ; WX 471.56 ; N Idieresis ; B 7 0 566 894 ;
+C 208 ; WX 875.33 ; N Eth ; B 14 0 834 686 ;
+C 209 ; WX 895.89 ; N Ntilde ; B 14 0 953 894 ;
+C 210 ; WX 854.78 ; N Ograve ; B 129 -17 834 899 ;
+C 211 ; WX 854.78 ; N Oacute ; B 129 -17 834 899 ;
+C 212 ; WX 854.78 ; N Ocircumflex ; B 129 -17 834 894 ;
+C 213 ; WX 854.78 ; N Otilde ; B 129 -17 834 894 ;
+C 214 ; WX 854.78 ; N Odieresis ; B 129 -17 834 894 ;
+C 215 ; WX 1140.28 ; N OE ; B 130 -17 1139 703 ;
+C 216 ; WX 885.33 ; N Oslash ; B 130 -69 863 755 ;
+C 217 ; WX 880.61 ; N Ugrave ; B 168 -17 938 899 ;
+C 218 ; WX 880.61 ; N Uacute ; B 168 -17 938 899 ;
+C 219 ; WX 880.61 ; N Ucircumflex ; B 168 -17 938 894 ;
+C 220 ; WX 880.61 ; N Udieresis ; B 168 -17 938 894 ;
+C 221 ; WX 865.33 ; N Yacute ; B 161 0 934 899 ;
+C 222 ; WX 728.17 ; N Thorn ; B 14 0 688 686 ;
+C 223 ; WX 1238.61 ; N Germandbls ; B 58 -17 1261 703 ;
+C 224 ; WX 591 ; N agrave ; B 73 -8 596 658 ;
+C 225 ; WX 591 ; N aacute ; B 73 -8 596 658 ;
+C 226 ; WX 591 ; N acircumflex ; B 73 -8 596 653 ;
+C 227 ; WX 591 ; N atilde ; B 73 -8 596 694 ;
+C 228 ; WX 591 ; N adieresis ; B 73 -8 596 652 ;
+C 229 ; WX 591 ; N aring ; B 73 -8 596 670 ;
+C 230 ; WX 826.44 ; N ae ; B 56 -8 797 452 ;
+C 231 ; WX 532.11 ; N ccedilla ; B 74 -189 505 452 ;
+C 232 ; WX 532.11 ; N egrave ; B 77 -8 505 658 ;
+C 233 ; WX 532.11 ; N eacute ; B 77 -8 505 658 ;
+C 234 ; WX 532.11 ; N ecircumflex ; B 77 -8 518 653 ;
+C 235 ; WX 532.11 ; N edieresis ; B 77 -8 555 652 ;
+C 236 ; WX 355.44 ; N igrave ; B 44 -8 360 658 ;
+C 237 ; WX 355.44 ; N iacute ; B 44 -8 451 658 ;
+C 238 ; WX 355.44 ; N icircumflex ; B 44 -8 387 653 ;
+C 239 ; WX 355.44 ; N idieresis ; B 44 -8 466 652 ;
+C 240 ; WX 591 ; N eth ; B 75 -8 582 694 ;
+C 241 ; WX 649.83 ; N ntilde ; B 44 -8 655 694 ;
+C 242 ; WX 591 ; N ograve ; B 75 -8 566 658 ;
+C 243 ; WX 591 ; N oacute ; B 75 -8 569 658 ;
+C 244 ; WX 591 ; N ocircumflex ; B 75 -8 566 653 ;
+C 245 ; WX 591 ; N otilde ; B 75 -8 609 694 ;
+C 246 ; WX 591 ; N odieresis ; B 75 -8 584 652 ;
+C 247 ; WX 826.44 ; N oe ; B 73 -14 797 458 ;
+C 248 ; WX 591 ; N oslash ; B 44 -116 596 561 ;
+C 249 ; WX 620.39 ; N ugrave ; B 44 -8 625 658 ;
+C 250 ; WX 620.39 ; N uacute ; B 44 -8 625 658 ;
+C 251 ; WX 620.39 ; N ucircumflex ; B 44 -8 625 653 ;
+C 252 ; WX 620.39 ; N udieresis ; B 44 -8 625 652 ;
+C 253 ; WX 561.56 ; N yacute ; B 44 -202 566 658 ;
+C 254 ; WX 591 ; N thorn ; B -24 -194 560 694 ;
+C 255 ; WX 664.83 ; N germandbls ; B -43 -202 660 702 ;
+EndCharMetrics
+StartKernData 
+StartKernPairs 2061
+KPX A C -29.44
+KPX A Cacute -29.44
+KPX A Ccaron -29.44
+KPX A G -29.44
+KPX A Gbreve -29.44
+KPX A O -29.44
+KPX A Oacute -29.44
+KPX A Ocircumflex -29.44
+KPX A Odieresis -29.44
+KPX A Ograve -29.44
+KPX A Ohungarumlaut -29.44
+KPX A Oslash -29.44
+KPX A Otilde -29.44
+KPX A Q -29.44
+KPX A T -88.31
+KPX A Tcaron -88.31
+KPX A Tcedilla -88.31
+KPX A U -29.44
+KPX A Uacute -29.44
+KPX A Ucircumflex -29.44
+KPX A Udieresis -29.44
+KPX A Ugrave -29.44
+KPX A Uhungarumlaut -29.44
+KPX A Uring -29.44
+KPX A V -117.75
+KPX A W -117.75
+KPX A Y -88.31
+KPX A Ydieresis -88.31
+KPX A a -58.87
+KPX A aacute -58.87
+KPX A acircumflex -58.87
+KPX A acircumflex -58.87
+KPX A adieresis -58.87
+KPX A ae -58.87
+KPX A agrave -58.87
+KPX A aogonek -58.87
+KPX A aring -58.87
+KPX A atilde -58.87
+KPX A b -29.44
+KPX A c -58.87
+KPX A cacute -58.87
+KPX A cacute -58.87
+KPX A ccaron -58.87
+KPX A ccedilla -58.87
+KPX A d -58.87
+KPX A dbar -58.87
+KPX A e -58.87
+KPX A eacute -58.87
+KPX A ecaron -58.87
+KPX A ecircumflex -58.87
+KPX A edieresis -58.87
+KPX A egrave -58.87
+KPX A eogonek -58.87
+KPX A g -58.87
+KPX A gbreve -58.87
+KPX A h -29.44
+KPX A i -29.44
+KPX A iacute -29.44
+KPX A k -29.44
+KPX A l -29.44
+KPX A lacute -29.44
+KPX A lquoteright -29.44
+KPX A m -29.44
+KPX A n -29.44
+KPX A o -58.87
+KPX A oacute -58.87
+KPX A ocircumflex -58.87
+KPX A odieresis -58.87
+KPX A oe -58.87
+KPX A ograve -58.87
+KPX A ohungarumlaut -58.87
+KPX A oslash -58.87
+KPX A otilde -58.87
+KPX A q -58.87
+KPX A r -29.44
+KPX A t -29.44
+KPX A tcedilla -29.44
+KPX A tquoteright -29.44
+KPX A u -29.44
+KPX A uacute -29.44
+KPX A ucircumflex -29.44
+KPX A udieresis -29.44
+KPX A ugrave -29.44
+KPX A uhungarumlaut -29.44
+KPX A uring -29.44
+KPX A v -29.44
+KPX A w -29.44
+KPX Aacute C -29.44
+KPX Aacute Cacute -29.44
+KPX Aacute Ccaron -29.44
+KPX Aacute G -29.44
+KPX Aacute Gbreve -29.44
+KPX Aacute O -29.44
+KPX Aacute Oacute -29.44
+KPX Aacute Ocircumflex -29.44
+KPX Aacute Odieresis -29.44
+KPX Aacute Ograve -29.44
+KPX Aacute Ohungarumlaut -29.44
+KPX Aacute Oslash -29.44
+KPX Aacute Otilde -29.44
+KPX Aacute Q -29.44
+KPX Aacute T -88.31
+KPX Aacute Tcaron -88.31
+KPX Aacute Tcedilla -88.31
+KPX Aacute U -29.44
+KPX Aacute Uacute -29.44
+KPX Aacute Ucircumflex -29.44
+KPX Aacute Udieresis -29.44
+KPX Aacute Ugrave -29.44
+KPX Aacute Uhungarumlaut -29.44
+KPX Aacute Uring -29.44
+KPX Aacute V -117.75
+KPX Aacute W -117.75
+KPX Aacute Y -88.31
+KPX Aacute Ydieresis -88.31
+KPX Aacute a -58.87
+KPX Aacute aacute -58.87
+KPX Aacute acircumflex -58.87
+KPX Aacute acircumflex -58.87
+KPX Aacute adieresis -58.87
+KPX Aacute ae -58.87
+KPX Aacute agrave -58.87
+KPX Aacute aogonek -58.87
+KPX Aacute aring -58.87
+KPX Aacute atilde -58.87
+KPX Aacute b -29.44
+KPX Aacute c -58.87
+KPX Aacute cacute -58.87
+KPX Aacute cacute -58.87
+KPX Aacute ccaron -58.87
+KPX Aacute ccedilla -58.87
+KPX Aacute d -58.87
+KPX Aacute dbar -58.87
+KPX Aacute e -58.87
+KPX Aacute eacute -58.87
+KPX Aacute ecaron -58.87
+KPX Aacute ecircumflex -58.87
+KPX Aacute edieresis -58.87
+KPX Aacute egrave -58.87
+KPX Aacute eogonek -58.87
+KPX Aacute g -58.87
+KPX Aacute gbreve -58.87
+KPX Aacute h -29.44
+KPX Aacute i -29.44
+KPX Aacute iacute -29.44
+KPX Aacute k -29.44
+KPX Aacute l -29.44
+KPX Aacute lacute -29.44
+KPX Aacute lquoteright -29.44
+KPX Aacute m -29.44
+KPX Aacute n -29.44
+KPX Aacute o -58.87
+KPX Aacute oacute -58.87
+KPX Aacute ocircumflex -58.87
+KPX Aacute odieresis -58.87
+KPX Aacute oe -58.87
+KPX Aacute ograve -58.87
+KPX Aacute ohungarumlaut -58.87
+KPX Aacute oslash -58.87
+KPX Aacute otilde -58.87
+KPX Aacute q -58.87
+KPX Aacute r -29.44
+KPX Aacute t -29.44
+KPX Aacute tcedilla -29.44
+KPX Aacute tquoteright -29.44
+KPX Aacute u -29.44
+KPX Aacute uacute -29.44
+KPX Aacute ucircumflex -29.44
+KPX Aacute udieresis -29.44
+KPX Aacute ugrave -29.44
+KPX Aacute uhungarumlaut -29.44
+KPX Aacute uring -29.44
+KPX Aacute v -29.44
+KPX Aacute w -29.44
+KPX Abreve C -29.44
+KPX Abreve Cacute -29.44
+KPX Abreve Ccaron -29.44
+KPX Abreve G -29.44
+KPX Abreve Gbreve -29.44
+KPX Abreve O -29.44
+KPX Abreve Oacute -29.44
+KPX Abreve Ocircumflex -29.44
+KPX Abreve Odieresis -29.44
+KPX Abreve Ograve -29.44
+KPX Abreve Ohungarumlaut -29.44
+KPX Abreve Oslash -29.44
+KPX Abreve Otilde -29.44
+KPX Abreve Q -29.44
+KPX Abreve T -88.31
+KPX Abreve Tcaron -88.31
+KPX Abreve Tcedilla -88.31
+KPX Abreve U -29.44
+KPX Abreve Uacute -29.44
+KPX Abreve Ucircumflex -29.44
+KPX Abreve Udieresis -29.44
+KPX Abreve Ugrave -29.44
+KPX Abreve Uhungarumlaut -29.44
+KPX Abreve Uring -29.44
+KPX Abreve V -117.75
+KPX Abreve W -117.75
+KPX Abreve Y -88.31
+KPX Abreve Ydieresis -88.31
+KPX Abreve a -58.87
+KPX Abreve aacute -58.87
+KPX Abreve acircumflex -58.87
+KPX Abreve acircumflex -58.87
+KPX Abreve adieresis -58.87
+KPX Abreve ae -58.87
+KPX Abreve agrave -58.87
+KPX Abreve aogonek -58.87
+KPX Abreve aring -58.87
+KPX Abreve atilde -58.87
+KPX Abreve b -29.44
+KPX Abreve c -58.87
+KPX Abreve cacute -58.87
+KPX Abreve cacute -58.87
+KPX Abreve ccaron -58.87
+KPX Abreve ccedilla -58.87
+KPX Abreve d -58.87
+KPX Abreve dbar -58.87
+KPX Abreve e -58.87
+KPX Abreve eacute -58.87
+KPX Abreve ecaron -58.87
+KPX Abreve ecircumflex -58.87
+KPX Abreve edieresis -58.87
+KPX Abreve egrave -58.87
+KPX Abreve eogonek -58.87
+KPX Abreve g -58.87
+KPX Abreve gbreve -58.87
+KPX Abreve h -29.44
+KPX Abreve i -29.44
+KPX Abreve iacute -29.44
+KPX Abreve k -29.44
+KPX Abreve l -29.44
+KPX Abreve lacute -29.44
+KPX Abreve lquoteright -29.44
+KPX Abreve m -29.44
+KPX Abreve n -29.44
+KPX Abreve o -58.87
+KPX Abreve oacute -58.87
+KPX Abreve ocircumflex -58.87
+KPX Abreve odieresis -58.87
+KPX Abreve oe -58.87
+KPX Abreve ograve -58.87
+KPX Abreve ohungarumlaut -58.87
+KPX Abreve oslash -58.87
+KPX Abreve otilde -58.87
+KPX Abreve q -58.87
+KPX Abreve r -29.44
+KPX Abreve t -29.44
+KPX Abreve tcedilla -29.44
+KPX Abreve tquoteright -29.44
+KPX Abreve u -29.44
+KPX Abreve uacute -29.44
+KPX Abreve ucircumflex -29.44
+KPX Abreve udieresis -29.44
+KPX Abreve ugrave -29.44
+KPX Abreve uhungarumlaut -29.44
+KPX Abreve uring -29.44
+KPX Abreve v -29.44
+KPX Abreve w -29.44
+KPX Acircumflex C -29.44
+KPX Acircumflex Cacute -29.44
+KPX Acircumflex Ccaron -29.44
+KPX Acircumflex G -29.44
+KPX Acircumflex Gbreve -29.44
+KPX Acircumflex O -29.44
+KPX Acircumflex Oacute -29.44
+KPX Acircumflex Ocircumflex -29.44
+KPX Acircumflex Odieresis -29.44
+KPX Acircumflex Ograve -29.44
+KPX Acircumflex Ohungarumlaut -29.44
+KPX Acircumflex Oslash -29.44
+KPX Acircumflex Otilde -29.44
+KPX Acircumflex Q -29.44
+KPX Acircumflex T -88.31
+KPX Acircumflex Tcaron -88.31
+KPX Acircumflex Tcedilla -88.31
+KPX Acircumflex U -29.44
+KPX Acircumflex Uacute -29.44
+KPX Acircumflex Ucircumflex -29.44
+KPX Acircumflex Udieresis -29.44
+KPX Acircumflex Ugrave -29.44
+KPX Acircumflex Uhungarumlaut -29.44
+KPX Acircumflex Uring -29.44
+KPX Acircumflex V -117.75
+KPX Acircumflex W -117.75
+KPX Acircumflex Y -88.31
+KPX Acircumflex Ydieresis -88.31
+KPX Acircumflex a -58.87
+KPX Acircumflex aacute -58.87
+KPX Acircumflex acircumflex -58.87
+KPX Acircumflex acircumflex -58.87
+KPX Acircumflex adieresis -58.87
+KPX Acircumflex ae -58.87
+KPX Acircumflex agrave -58.87
+KPX Acircumflex aogonek -58.87
+KPX Acircumflex aring -58.87
+KPX Acircumflex atilde -58.87
+KPX Acircumflex b -29.44
+KPX Acircumflex c -58.87
+KPX Acircumflex cacute -58.87
+KPX Acircumflex cacute -58.87
+KPX Acircumflex ccaron -58.87
+KPX Acircumflex ccedilla -58.87
+KPX Acircumflex d -58.87
+KPX Acircumflex dbar -58.87
+KPX Acircumflex e -58.87
+KPX Acircumflex eacute -58.87
+KPX Acircumflex ecaron -58.87
+KPX Acircumflex ecircumflex -58.87
+KPX Acircumflex edieresis -58.87
+KPX Acircumflex egrave -58.87
+KPX Acircumflex eogonek -58.87
+KPX Acircumflex g -58.87
+KPX Acircumflex gbreve -58.87
+KPX Acircumflex h -29.44
+KPX Acircumflex i -29.44
+KPX Acircumflex iacute -29.44
+KPX Acircumflex k -29.44
+KPX Acircumflex l -29.44
+KPX Acircumflex lacute -29.44
+KPX Acircumflex lquoteright -29.44
+KPX Acircumflex m -29.44
+KPX Acircumflex n -29.44
+KPX Acircumflex o -58.87
+KPX Acircumflex oacute -58.87
+KPX Acircumflex ocircumflex -58.87
+KPX Acircumflex odieresis -58.87
+KPX Acircumflex oe -58.87
+KPX Acircumflex ograve -58.87
+KPX Acircumflex ohungarumlaut -58.87
+KPX Acircumflex oslash -58.87
+KPX Acircumflex otilde -58.87
+KPX Acircumflex q -58.87
+KPX Acircumflex r -29.44
+KPX Acircumflex t -29.44
+KPX Acircumflex tcedilla -29.44
+KPX Acircumflex tquoteright -29.44
+KPX Acircumflex u -29.44
+KPX Acircumflex uacute -29.44
+KPX Acircumflex ucircumflex -29.44
+KPX Acircumflex udieresis -29.44
+KPX Acircumflex ugrave -29.44
+KPX Acircumflex uhungarumlaut -29.44
+KPX Acircumflex uring -29.44
+KPX Acircumflex v -29.44
+KPX Acircumflex w -29.44
+KPX Adieresis C -29.44
+KPX Adieresis Cacute -29.44
+KPX Adieresis Ccaron -29.44
+KPX Adieresis G -29.44
+KPX Adieresis Gbreve -29.44
+KPX Adieresis O -29.44
+KPX Adieresis Oacute -29.44
+KPX Adieresis Ocircumflex -29.44
+KPX Adieresis Odieresis -29.44
+KPX Adieresis Ograve -29.44
+KPX Adieresis Ohungarumlaut -29.44
+KPX Adieresis Oslash -29.44
+KPX Adieresis Otilde -29.44
+KPX Adieresis Q -29.44
+KPX Adieresis T -88.31
+KPX Adieresis Tcaron -88.31
+KPX Adieresis Tcedilla -88.31
+KPX Adieresis U -29.44
+KPX Adieresis Uacute -29.44
+KPX Adieresis Ucircumflex -29.44
+KPX Adieresis Udieresis -29.44
+KPX Adieresis Ugrave -29.44
+KPX Adieresis Uhungarumlaut -29.44
+KPX Adieresis Uring -29.44
+KPX Adieresis V -117.75
+KPX Adieresis W -117.75
+KPX Adieresis Y -88.31
+KPX Adieresis Ydieresis -88.31
+KPX Adieresis a -58.87
+KPX Adieresis aacute -58.87
+KPX Adieresis acircumflex -58.87
+KPX Adieresis acircumflex -58.87
+KPX Adieresis adieresis -58.87
+KPX Adieresis ae -58.87
+KPX Adieresis agrave -58.87
+KPX Adieresis aogonek -58.87
+KPX Adieresis aring -58.87
+KPX Adieresis atilde -58.87
+KPX Adieresis b -29.44
+KPX Adieresis c -58.87
+KPX Adieresis cacute -58.87
+KPX Adieresis cacute -58.87
+KPX Adieresis ccaron -58.87
+KPX Adieresis ccedilla -58.87
+KPX Adieresis d -58.87
+KPX Adieresis dbar -58.87
+KPX Adieresis e -58.87
+KPX Adieresis eacute -58.87
+KPX Adieresis ecaron -58.87
+KPX Adieresis ecircumflex -58.87
+KPX Adieresis edieresis -58.87
+KPX Adieresis egrave -58.87
+KPX Adieresis eogonek -58.87
+KPX Adieresis g -58.87
+KPX Adieresis gbreve -58.87
+KPX Adieresis h -29.44
+KPX Adieresis i -29.44
+KPX Adieresis iacute -29.44
+KPX Adieresis k -29.44
+KPX Adieresis l -29.44
+KPX Adieresis lacute -29.44
+KPX Adieresis lquoteright -29.44
+KPX Adieresis m -29.44
+KPX Adieresis n -29.44
+KPX Adieresis o -58.87
+KPX Adieresis oacute -58.87
+KPX Adieresis ocircumflex -58.87
+KPX Adieresis odieresis -58.87
+KPX Adieresis oe -58.87
+KPX Adieresis ograve -58.87
+KPX Adieresis ohungarumlaut -58.87
+KPX Adieresis oslash -58.87
+KPX Adieresis otilde -58.87
+KPX Adieresis q -58.87
+KPX Adieresis r -29.44
+KPX Adieresis t -29.44
+KPX Adieresis tcedilla -29.44
+KPX Adieresis tquoteright -29.44
+KPX Adieresis u -29.44
+KPX Adieresis uacute -29.44
+KPX Adieresis ucircumflex -29.44
+KPX Adieresis udieresis -29.44
+KPX Adieresis ugrave -29.44
+KPX Adieresis uhungarumlaut -29.44
+KPX Adieresis uring -29.44
+KPX Adieresis v -29.44
+KPX Adieresis w -29.44
+KPX Agrave C -29.44
+KPX Agrave Cacute -29.44
+KPX Agrave Ccaron -29.44
+KPX Agrave G -29.44
+KPX Agrave Gbreve -29.44
+KPX Agrave O -29.44
+KPX Agrave Oacute -29.44
+KPX Agrave Ocircumflex -29.44
+KPX Agrave Odieresis -29.44
+KPX Agrave Ograve -29.44
+KPX Agrave Ohungarumlaut -29.44
+KPX Agrave Oslash -29.44
+KPX Agrave Otilde -29.44
+KPX Agrave Q -29.44
+KPX Agrave T -88.31
+KPX Agrave Tcaron -88.31
+KPX Agrave Tcedilla -88.31
+KPX Agrave U -29.44
+KPX Agrave Uacute -29.44
+KPX Agrave Ucircumflex -29.44
+KPX Agrave Udieresis -29.44
+KPX Agrave Ugrave -29.44
+KPX Agrave Uhungarumlaut -29.44
+KPX Agrave Uring -29.44
+KPX Agrave V -117.75
+KPX Agrave W -117.75
+KPX Agrave Y -88.31
+KPX Agrave Ydieresis -88.31
+KPX Agrave a -58.87
+KPX Agrave aacute -58.87
+KPX Agrave acircumflex -58.87
+KPX Agrave acircumflex -58.87
+KPX Agrave adieresis -58.87
+KPX Agrave ae -58.87
+KPX Agrave agrave -58.87
+KPX Agrave aogonek -58.87
+KPX Agrave aring -58.87
+KPX Agrave atilde -58.87
+KPX Agrave b -29.44
+KPX Agrave c -58.87
+KPX Agrave cacute -58.87
+KPX Agrave cacute -58.87
+KPX Agrave ccaron -58.87
+KPX Agrave ccedilla -58.87
+KPX Agrave d -58.87
+KPX Agrave dbar -58.87
+KPX Agrave e -58.87
+KPX Agrave eacute -58.87
+KPX Agrave ecaron -58.87
+KPX Agrave ecircumflex -58.87
+KPX Agrave edieresis -58.87
+KPX Agrave egrave -58.87
+KPX Agrave eogonek -58.87
+KPX Agrave g -58.87
+KPX Agrave gbreve -58.87
+KPX Agrave h -29.44
+KPX Agrave i -29.44
+KPX Agrave iacute -29.44
+KPX Agrave k -29.44
+KPX Agrave l -29.44
+KPX Agrave lacute -29.44
+KPX Agrave lquoteright -29.44
+KPX Agrave m -29.44
+KPX Agrave n -29.44
+KPX Agrave o -58.87
+KPX Agrave oacute -58.87
+KPX Agrave ocircumflex -58.87
+KPX Agrave odieresis -58.87
+KPX Agrave oe -58.87
+KPX Agrave ograve -58.87
+KPX Agrave ohungarumlaut -58.87
+KPX Agrave oslash -58.87
+KPX Agrave otilde -58.87
+KPX Agrave q -58.87
+KPX Agrave r -29.44
+KPX Agrave t -29.44
+KPX Agrave tcedilla -29.44
+KPX Agrave tquoteright -29.44
+KPX Agrave u -29.44
+KPX Agrave uacute -29.44
+KPX Agrave ucircumflex -29.44
+KPX Agrave udieresis -29.44
+KPX Agrave ugrave -29.44
+KPX Agrave uhungarumlaut -29.44
+KPX Agrave uring -29.44
+KPX Agrave v -29.44
+KPX Agrave w -29.44
+KPX Aogonek C -29.44
+KPX Aogonek Cacute -29.44
+KPX Aogonek Ccaron -29.44
+KPX Aogonek G -29.44
+KPX Aogonek Gbreve -29.44
+KPX Aogonek O -29.44
+KPX Aogonek Oacute -29.44
+KPX Aogonek Ocircumflex -29.44
+KPX Aogonek Odieresis -29.44
+KPX Aogonek Ograve -29.44
+KPX Aogonek Ohungarumlaut -29.44
+KPX Aogonek Oslash -29.44
+KPX Aogonek Otilde -29.44
+KPX Aogonek Q -29.44
+KPX Aogonek T -88.31
+KPX Aogonek Tcaron -88.31
+KPX Aogonek Tcedilla -88.31
+KPX Aogonek U -29.44
+KPX Aogonek Uacute -29.44
+KPX Aogonek Ucircumflex -29.44
+KPX Aogonek Udieresis -29.44
+KPX Aogonek Ugrave -29.44
+KPX Aogonek Uhungarumlaut -29.44
+KPX Aogonek Uring -29.44
+KPX Aogonek V -117.75
+KPX Aogonek W -117.75
+KPX Aogonek Y -88.31
+KPX Aogonek Ydieresis -88.31
+KPX Aogonek a -58.87
+KPX Aogonek aacute -58.87
+KPX Aogonek acircumflex -58.87
+KPX Aogonek acircumflex -58.87
+KPX Aogonek adieresis -58.87
+KPX Aogonek ae -58.87
+KPX Aogonek agrave -58.87
+KPX Aogonek aogonek -58.87
+KPX Aogonek aring -58.87
+KPX Aogonek atilde -58.87
+KPX Aogonek b -29.44
+KPX Aogonek c -58.87
+KPX Aogonek cacute -58.87
+KPX Aogonek cacute -58.87
+KPX Aogonek ccaron -58.87
+KPX Aogonek ccedilla -58.87
+KPX Aogonek d -58.87
+KPX Aogonek dbar -58.87
+KPX Aogonek e -58.87
+KPX Aogonek eacute -58.87
+KPX Aogonek ecaron -58.87
+KPX Aogonek ecircumflex -58.87
+KPX Aogonek edieresis -58.87
+KPX Aogonek egrave -58.87
+KPX Aogonek eogonek -58.87
+KPX Aogonek g -58.87
+KPX Aogonek gbreve -58.87
+KPX Aogonek h -29.44
+KPX Aogonek i -29.44
+KPX Aogonek iacute -29.44
+KPX Aogonek k -29.44
+KPX Aogonek l -29.44
+KPX Aogonek lacute -29.44
+KPX Aogonek lquoteright -29.44
+KPX Aogonek m -29.44
+KPX Aogonek n -29.44
+KPX Aogonek o -58.87
+KPX Aogonek oacute -58.87
+KPX Aogonek ocircumflex -58.87
+KPX Aogonek odieresis -58.87
+KPX Aogonek oe -58.87
+KPX Aogonek ograve -58.87
+KPX Aogonek ohungarumlaut -58.87
+KPX Aogonek oslash -58.87
+KPX Aogonek otilde -58.87
+KPX Aogonek q -58.87
+KPX Aogonek r -29.44
+KPX Aogonek t -29.44
+KPX Aogonek tcedilla -29.44
+KPX Aogonek tquoteright -29.44
+KPX Aogonek u -29.44
+KPX Aogonek uacute -29.44
+KPX Aogonek ucircumflex -29.44
+KPX Aogonek udieresis -29.44
+KPX Aogonek ugrave -29.44
+KPX Aogonek uhungarumlaut -29.44
+KPX Aogonek uring -29.44
+KPX Aogonek v -29.44
+KPX Aogonek w -29.44
+KPX Aring C -29.44
+KPX Aring Cacute -29.44
+KPX Aring Ccaron -29.44
+KPX Aring G -29.44
+KPX Aring Gbreve -29.44
+KPX Aring O -29.44
+KPX Aring Oacute -29.44
+KPX Aring Ocircumflex -29.44
+KPX Aring Odieresis -29.44
+KPX Aring Ograve -29.44
+KPX Aring Ohungarumlaut -29.44
+KPX Aring Oslash -29.44
+KPX Aring Otilde -29.44
+KPX Aring Q -29.44
+KPX Aring T -88.31
+KPX Aring Tcaron -88.31
+KPX Aring Tcedilla -88.31
+KPX Aring U -29.44
+KPX Aring Uacute -29.44
+KPX Aring Ucircumflex -29.44
+KPX Aring Udieresis -29.44
+KPX Aring Ugrave -29.44
+KPX Aring Uhungarumlaut -29.44
+KPX Aring Uring -29.44
+KPX Aring V -117.75
+KPX Aring W -117.75
+KPX Aring Y -88.31
+KPX Aring Ydieresis -88.31
+KPX Aring a -58.87
+KPX Aring aacute -58.87
+KPX Aring acircumflex -58.87
+KPX Aring acircumflex -58.87
+KPX Aring adieresis -58.87
+KPX Aring ae -58.87
+KPX Aring agrave -58.87
+KPX Aring aogonek -58.87
+KPX Aring aring -58.87
+KPX Aring atilde -58.87
+KPX Aring b -29.44
+KPX Aring c -58.87
+KPX Aring cacute -58.87
+KPX Aring cacute -58.87
+KPX Aring ccaron -58.87
+KPX Aring ccedilla -58.87
+KPX Aring d -58.87
+KPX Aring dbar -58.87
+KPX Aring e -58.87
+KPX Aring eacute -58.87
+KPX Aring ecaron -58.87
+KPX Aring ecircumflex -58.87
+KPX Aring edieresis -58.87
+KPX Aring egrave -58.87
+KPX Aring eogonek -58.87
+KPX Aring g -58.87
+KPX Aring gbreve -58.87
+KPX Aring h -29.44
+KPX Aring i -29.44
+KPX Aring iacute -29.44
+KPX Aring k -29.44
+KPX Aring l -29.44
+KPX Aring lacute -29.44
+KPX Aring lquoteright -29.44
+KPX Aring m -29.44
+KPX Aring n -29.44
+KPX Aring o -58.87
+KPX Aring oacute -58.87
+KPX Aring ocircumflex -58.87
+KPX Aring odieresis -58.87
+KPX Aring oe -58.87
+KPX Aring ograve -58.87
+KPX Aring ohungarumlaut -58.87
+KPX Aring oslash -58.87
+KPX Aring otilde -58.87
+KPX Aring q -58.87
+KPX Aring r -29.44
+KPX Aring t -29.44
+KPX Aring tcedilla -29.44
+KPX Aring tquoteright -29.44
+KPX Aring u -29.44
+KPX Aring uacute -29.44
+KPX Aring ucircumflex -29.44
+KPX Aring udieresis -29.44
+KPX Aring ugrave -29.44
+KPX Aring uhungarumlaut -29.44
+KPX Aring uring -29.44
+KPX Aring v -29.44
+KPX Aring w -29.44
+KPX Atilde C -29.44
+KPX Atilde Cacute -29.44
+KPX Atilde Ccaron -29.44
+KPX Atilde G -29.44
+KPX Atilde Gbreve -29.44
+KPX Atilde O -29.44
+KPX Atilde Oacute -29.44
+KPX Atilde Ocircumflex -29.44
+KPX Atilde Odieresis -29.44
+KPX Atilde Ograve -29.44
+KPX Atilde Ohungarumlaut -29.44
+KPX Atilde Oslash -29.44
+KPX Atilde Otilde -29.44
+KPX Atilde Q -29.44
+KPX Atilde T -88.31
+KPX Atilde Tcaron -88.31
+KPX Atilde Tcedilla -88.31
+KPX Atilde U -29.44
+KPX Atilde Uacute -29.44
+KPX Atilde Ucircumflex -29.44
+KPX Atilde Udieresis -29.44
+KPX Atilde Ugrave -29.44
+KPX Atilde Uhungarumlaut -29.44
+KPX Atilde Uring -29.44
+KPX Atilde V -117.75
+KPX Atilde W -117.75
+KPX Atilde Y -88.31
+KPX Atilde Ydieresis -88.31
+KPX Atilde a -58.87
+KPX Atilde aacute -58.87
+KPX Atilde acircumflex -58.87
+KPX Atilde acircumflex -58.87
+KPX Atilde adieresis -58.87
+KPX Atilde ae -58.87
+KPX Atilde agrave -58.87
+KPX Atilde aogonek -58.87
+KPX Atilde aring -58.87
+KPX Atilde atilde -58.87
+KPX Atilde b -29.44
+KPX Atilde c -58.87
+KPX Atilde cacute -58.87
+KPX Atilde cacute -58.87
+KPX Atilde ccaron -58.87
+KPX Atilde ccedilla -58.87
+KPX Atilde d -58.87
+KPX Atilde dbar -58.87
+KPX Atilde e -58.87
+KPX Atilde eacute -58.87
+KPX Atilde ecaron -58.87
+KPX Atilde ecircumflex -58.87
+KPX Atilde edieresis -58.87
+KPX Atilde egrave -58.87
+KPX Atilde eogonek -58.87
+KPX Atilde g -58.87
+KPX Atilde gbreve -58.87
+KPX Atilde h -29.44
+KPX Atilde i -29.44
+KPX Atilde iacute -29.44
+KPX Atilde k -29.44
+KPX Atilde l -29.44
+KPX Atilde lacute -29.44
+KPX Atilde lquoteright -29.44
+KPX Atilde m -29.44
+KPX Atilde n -29.44
+KPX Atilde o -58.87
+KPX Atilde oacute -58.87
+KPX Atilde ocircumflex -58.87
+KPX Atilde odieresis -58.87
+KPX Atilde oe -58.87
+KPX Atilde ograve -58.87
+KPX Atilde ohungarumlaut -58.87
+KPX Atilde oslash -58.87
+KPX Atilde otilde -58.87
+KPX Atilde q -58.87
+KPX Atilde r -29.44
+KPX Atilde t -29.44
+KPX Atilde tcedilla -29.44
+KPX Atilde tquoteright -29.44
+KPX Atilde u -29.44
+KPX Atilde uacute -29.44
+KPX Atilde ucircumflex -29.44
+KPX Atilde udieresis -29.44
+KPX Atilde ugrave -29.44
+KPX Atilde uhungarumlaut -29.44
+KPX Atilde uring -29.44
+KPX Atilde v -29.44
+KPX Atilde w -29.44
+KPX D A -29.44
+KPX D Aacute -29.44
+KPX D Abreve -29.44
+KPX D Acircumflex -29.44
+KPX D Adieresis -29.44
+KPX D Agrave -29.44
+KPX D Aogonek -29.44
+KPX D Aring -29.44
+KPX D Atilde -29.44
+KPX D V -29.44
+KPX D W -29.44
+KPX D X -29.44
+KPX D Y -29.44
+KPX D Yacute -29.44
+KPX Dcaron A -29.44
+KPX Dcaron Aacute -29.44
+KPX Dcaron Abreve -29.44
+KPX Dcaron Acircumflex -29.44
+KPX Dcaron Adieresis -29.44
+KPX Dcaron Agrave -29.44
+KPX Dcaron Aogonek -29.44
+KPX Dcaron Aring -29.44
+KPX Dcaron Atilde -29.44
+KPX Dcaron V -29.44
+KPX Dcaron W -29.44
+KPX Dcaron X -29.44
+KPX Dcaron Y -29.44
+KPX Dcaron Yacute -29.44
+KPX F A -117.75
+KPX F Aacute -117.75
+KPX F Abreve -117.75
+KPX F Acircumflex -117.75
+KPX F Adieresis -117.75
+KPX F Agrave -117.75
+KPX F Aogonek -117.75
+KPX F Aring -117.75
+KPX F Atilde -117.75
+KPX F C -29.44
+KPX F Cacute -29.44
+KPX F Ccaron -29.44
+KPX F G -29.44
+KPX F Gbreve -29.44
+KPX F O -29.44
+KPX F Oacute -29.44
+KPX F Ocircumflex -29.44
+KPX F Odieresis -29.44
+KPX F Ograve -29.44
+KPX F Ohungarumlaut -29.44
+KPX F Oslash -29.44
+KPX F Otilde -29.44
+KPX F Q -29.44
+KPX F a -88.31
+KPX F aogonek -88.31
+KPX F e -88.31
+KPX F eogonek -88.31
+KPX F o -88.31
+KPX F r -88.31
+KPX F u -88.31
+KPX K C -29.44
+KPX K Cacute -29.44
+KPX K Ccaron -29.44
+KPX K G -29.44
+KPX K Gbreve -29.44
+KPX K O -29.44
+KPX K Oacute -29.44
+KPX K Ocircumflex -29.44
+KPX K Odieresis -29.44
+KPX K Ograve -29.44
+KPX K Ohungarumlaut -29.44
+KPX K Oslash -29.44
+KPX K Otilde -29.44
+KPX K Q -29.44
+KPX L T -88.31
+KPX L Tcaron -88.31
+KPX L Tcedilla -88.31
+KPX L V -117.75
+KPX L W -117.75
+KPX L Y -88.31
+KPX L Ydieresis -88.31
+KPX L a -58.87
+KPX L aacute -58.87
+KPX L acircumflex -58.87
+KPX L acircumflex -58.87
+KPX L adieresis -58.87
+KPX L ae -58.87
+KPX L agrave -58.87
+KPX L aogonek -58.87
+KPX L aring -58.87
+KPX L atilde -58.87
+KPX L c -58.87
+KPX L cacute -58.87
+KPX L cacute -58.87
+KPX L ccaron -58.87
+KPX L ccedilla -58.87
+KPX L d -58.87
+KPX L dbar -58.87
+KPX L e -58.87
+KPX L eacute -58.87
+KPX L ecaron -58.87
+KPX L ecircumflex -58.87
+KPX L edieresis -58.87
+KPX L egrave -58.87
+KPX L eogonek -58.87
+KPX L g -58.87
+KPX L gbreve -58.87
+KPX L o -58.87
+KPX L oacute -58.87
+KPX L ocircumflex -58.87
+KPX L odieresis -58.87
+KPX L oe -58.87
+KPX L ograve -58.87
+KPX L ohungarumlaut -58.87
+KPX L oslash -58.87
+KPX L otilde -58.87
+KPX L q -58.87
+KPX O A -29.44
+KPX O Aacute -29.44
+KPX O Abreve -29.44
+KPX O Acircumflex -29.44
+KPX O Adieresis -29.44
+KPX O Agrave -29.44
+KPX O Aogonek -29.44
+KPX O Aring -29.44
+KPX O Atilde -29.44
+KPX O V -29.44
+KPX O W -29.44
+KPX O X -29.44
+KPX O Y -29.44
+KPX O Yacute -29.44
+KPX Oacute A -29.44
+KPX Oacute Aacute -29.44
+KPX Oacute Abreve -29.44
+KPX Oacute Acircumflex -29.44
+KPX Oacute Adieresis -29.44
+KPX Oacute Agrave -29.44
+KPX Oacute Aogonek -29.44
+KPX Oacute Aring -29.44
+KPX Oacute Atilde -29.44
+KPX Oacute V -29.44
+KPX Oacute W -29.44
+KPX Oacute X -29.44
+KPX Oacute Y -29.44
+KPX Oacute Yacute -29.44
+KPX Ocircumflex A -29.44
+KPX Ocircumflex Aacute -29.44
+KPX Ocircumflex Abreve -29.44
+KPX Ocircumflex Acircumflex -29.44
+KPX Ocircumflex Adieresis -29.44
+KPX Ocircumflex Agrave -29.44
+KPX Ocircumflex Aogonek -29.44
+KPX Ocircumflex Aring -29.44
+KPX Ocircumflex Atilde -29.44
+KPX Ocircumflex V -29.44
+KPX Ocircumflex W -29.44
+KPX Ocircumflex X -29.44
+KPX Ocircumflex Y -29.44
+KPX Ocircumflex Yacute -29.44
+KPX Odieresis A -29.44
+KPX Odieresis Aacute -29.44
+KPX Odieresis Abreve -29.44
+KPX Odieresis Acircumflex -29.44
+KPX Odieresis Adieresis -29.44
+KPX Odieresis Agrave -29.44
+KPX Odieresis Aogonek -29.44
+KPX Odieresis Aring -29.44
+KPX Odieresis Atilde -29.44
+KPX Odieresis V -29.44
+KPX Odieresis W -29.44
+KPX Odieresis X -29.44
+KPX Odieresis Y -29.44
+KPX Odieresis Yacute -29.44
+KPX Ograve A -29.44
+KPX Ograve Aacute -29.44
+KPX Ograve Abreve -29.44
+KPX Ograve Acircumflex -29.44
+KPX Ograve Adieresis -29.44
+KPX Ograve Agrave -29.44
+KPX Ograve Aogonek -29.44
+KPX Ograve Aring -29.44
+KPX Ograve Atilde -29.44
+KPX Ograve V -29.44
+KPX Ograve W -29.44
+KPX Ograve X -29.44
+KPX Ograve Y -29.44
+KPX Ograve Yacute -29.44
+KPX Ohungarumlaut A -29.44
+KPX Ohungarumlaut Aacute -29.44
+KPX Ohungarumlaut Abreve -29.44
+KPX Ohungarumlaut Acircumflex -29.44
+KPX Ohungarumlaut Adieresis -29.44
+KPX Ohungarumlaut Agrave -29.44
+KPX Ohungarumlaut Aogonek -29.44
+KPX Ohungarumlaut Aring -29.44
+KPX Ohungarumlaut Atilde -29.44
+KPX Ohungarumlaut V -29.44
+KPX Ohungarumlaut W -29.44
+KPX Ohungarumlaut X -29.44
+KPX Ohungarumlaut Y -29.44
+KPX Ohungarumlaut Yacute -29.44
+KPX Oslash A -29.44
+KPX Oslash Aacute -29.44
+KPX Oslash Abreve -29.44
+KPX Oslash Acircumflex -29.44
+KPX Oslash Adieresis -29.44
+KPX Oslash Agrave -29.44
+KPX Oslash Aogonek -29.44
+KPX Oslash Aring -29.44
+KPX Oslash Atilde -29.44
+KPX Oslash V -29.44
+KPX Oslash W -29.44
+KPX Oslash X -29.44
+KPX Oslash Y -29.44
+KPX Oslash Yacute -29.44
+KPX Otilde A -29.44
+KPX Otilde Aacute -29.44
+KPX Otilde Abreve -29.44
+KPX Otilde Acircumflex -29.44
+KPX Otilde Adieresis -29.44
+KPX Otilde Agrave -29.44
+KPX Otilde Aogonek -29.44
+KPX Otilde Aring -29.44
+KPX Otilde Atilde -29.44
+KPX Otilde V -29.44
+KPX Otilde W -29.44
+KPX Otilde X -29.44
+KPX Otilde Y -29.44
+KPX Otilde Yacute -29.44
+KPX P A -88.31
+KPX P Aacute -88.31
+KPX P Abreve -88.31
+KPX P Acircumflex -88.31
+KPX P Adieresis -88.31
+KPX P Agrave -88.31
+KPX P Aogonek -88.31
+KPX P Aring -88.31
+KPX P Atilde -88.31
+KPX R C -29.44
+KPX R Cacute -29.44
+KPX R Ccaron -29.44
+KPX R G -29.44
+KPX R Gbreve -29.44
+KPX R O -29.44
+KPX R Oacute -29.44
+KPX R Ocircumflex -29.44
+KPX R Odieresis -29.44
+KPX R Ograve -29.44
+KPX R Ohungarumlaut -29.44
+KPX R Oslash -29.44
+KPX R Otilde -29.44
+KPX R Q -29.44
+KPX R T -88.31
+KPX R Tcaron -88.31
+KPX R Tcedilla -88.31
+KPX R U -29.44
+KPX R Uacute -29.44
+KPX R Ucircumflex -29.44
+KPX R Udieresis -29.44
+KPX R Ugrave -29.44
+KPX R Uhungarumlaut -29.44
+KPX R Uring -29.44
+KPX R V -117.75
+KPX R W -117.75
+KPX R Y -88.31
+KPX R Ydieresis -88.31
+KPX R a -58.87
+KPX R aacute -58.87
+KPX R acircumflex -58.87
+KPX R acircumflex -58.87
+KPX R adieresis -58.87
+KPX R ae -58.87
+KPX R agrave -58.87
+KPX R aogonek -58.87
+KPX R aring -58.87
+KPX R atilde -58.87
+KPX R b -29.44
+KPX R c -58.87
+KPX R cacute -58.87
+KPX R cacute -58.87
+KPX R ccaron -58.87
+KPX R ccedilla -58.87
+KPX R d -58.87
+KPX R dbar -58.87
+KPX R e -58.87
+KPX R eacute -58.87
+KPX R ecaron -58.87
+KPX R ecircumflex -58.87
+KPX R edieresis -58.87
+KPX R egrave -58.87
+KPX R eogonek -58.87
+KPX R g -58.87
+KPX R gbreve -58.87
+KPX R h -29.44
+KPX R i -29.44
+KPX R iacute -29.44
+KPX R k -29.44
+KPX R l -29.44
+KPX R lacute -29.44
+KPX R lquoteright -29.44
+KPX R m -29.44
+KPX R n -29.44
+KPX R o -58.87
+KPX R oacute -58.87
+KPX R ocircumflex -58.87
+KPX R odieresis -58.87
+KPX R oe -58.87
+KPX R ograve -58.87
+KPX R ohungarumlaut -58.87
+KPX R oslash -58.87
+KPX R otilde -58.87
+KPX R q -58.87
+KPX R r -29.44
+KPX R t -29.44
+KPX R tcedilla -29.44
+KPX R tquoteright -29.44
+KPX R u -29.44
+KPX R uacute -29.44
+KPX R ucircumflex -29.44
+KPX R udieresis -29.44
+KPX R ugrave -29.44
+KPX R uhungarumlaut -29.44
+KPX R uring -29.44
+KPX R v -29.44
+KPX R w -29.44
+KPX Racute C -29.44
+KPX Racute Cacute -29.44
+KPX Racute Ccaron -29.44
+KPX Racute G -29.44
+KPX Racute Gbreve -29.44
+KPX Racute O -29.44
+KPX Racute Oacute -29.44
+KPX Racute Ocircumflex -29.44
+KPX Racute Odieresis -29.44
+KPX Racute Ograve -29.44
+KPX Racute Ohungarumlaut -29.44
+KPX Racute Oslash -29.44
+KPX Racute Otilde -29.44
+KPX Racute Q -29.44
+KPX Racute T -88.31
+KPX Racute Tcaron -88.31
+KPX Racute Tcedilla -88.31
+KPX Racute U -29.44
+KPX Racute Uacute -29.44
+KPX Racute Ucircumflex -29.44
+KPX Racute Udieresis -29.44
+KPX Racute Ugrave -29.44
+KPX Racute Uhungarumlaut -29.44
+KPX Racute Uring -29.44
+KPX Racute V -117.75
+KPX Racute W -117.75
+KPX Racute Y -88.31
+KPX Racute Ydieresis -88.31
+KPX Racute a -58.87
+KPX Racute aacute -58.87
+KPX Racute acircumflex -58.87
+KPX Racute acircumflex -58.87
+KPX Racute adieresis -58.87
+KPX Racute ae -58.87
+KPX Racute agrave -58.87
+KPX Racute aogonek -58.87
+KPX Racute aring -58.87
+KPX Racute atilde -58.87
+KPX Racute b -29.44
+KPX Racute c -58.87
+KPX Racute cacute -58.87
+KPX Racute cacute -58.87
+KPX Racute ccaron -58.87
+KPX Racute ccedilla -58.87
+KPX Racute d -58.87
+KPX Racute dbar -58.87
+KPX Racute e -58.87
+KPX Racute eacute -58.87
+KPX Racute ecaron -58.87
+KPX Racute ecircumflex -58.87
+KPX Racute edieresis -58.87
+KPX Racute egrave -58.87
+KPX Racute eogonek -58.87
+KPX Racute g -58.87
+KPX Racute gbreve -58.87
+KPX Racute h -29.44
+KPX Racute i -29.44
+KPX Racute iacute -29.44
+KPX Racute k -29.44
+KPX Racute l -29.44
+KPX Racute lacute -29.44
+KPX Racute lquoteright -29.44
+KPX Racute m -29.44
+KPX Racute n -29.44
+KPX Racute o -58.87
+KPX Racute oacute -58.87
+KPX Racute ocircumflex -58.87
+KPX Racute odieresis -58.87
+KPX Racute oe -58.87
+KPX Racute ograve -58.87
+KPX Racute ohungarumlaut -58.87
+KPX Racute oslash -58.87
+KPX Racute otilde -58.87
+KPX Racute q -58.87
+KPX Racute r -29.44
+KPX Racute t -29.44
+KPX Racute tcedilla -29.44
+KPX Racute tquoteright -29.44
+KPX Racute u -29.44
+KPX Racute uacute -29.44
+KPX Racute ucircumflex -29.44
+KPX Racute udieresis -29.44
+KPX Racute ugrave -29.44
+KPX Racute uhungarumlaut -29.44
+KPX Racute uring -29.44
+KPX Racute v -29.44
+KPX Racute w -29.44
+KPX T A -88.31
+KPX T Aacute -88.31
+KPX T Abreve -88.31
+KPX T Acircumflex -88.31
+KPX T Adieresis -88.31
+KPX T Agrave -88.31
+KPX T Aogonek -88.31
+KPX T Aring -88.31
+KPX T Atilde -88.31
+KPX T a -88.31
+KPX T e -88.31
+KPX T o -88.31
+KPX T r -88.31
+KPX T u -88.31
+KPX T y -88.31
+KPX Tcaron A -88.31
+KPX Tcaron Aacute -88.31
+KPX Tcaron Abreve -88.31
+KPX Tcaron Acircumflex -88.31
+KPX Tcaron Adieresis -88.31
+KPX Tcaron Agrave -88.31
+KPX Tcaron Aogonek -88.31
+KPX Tcaron Aring -88.31
+KPX Tcaron Atilde -88.31
+KPX Tcaron a -88.31
+KPX Tcaron e -88.31
+KPX Tcaron o -88.31
+KPX Tcaron r -88.31
+KPX Tcaron u -88.31
+KPX Tcaron y -88.31
+KPX Tcedilla A -88.31
+KPX Tcedilla Aacute -88.31
+KPX Tcedilla Abreve -88.31
+KPX Tcedilla Acircumflex -88.31
+KPX Tcedilla Adieresis -88.31
+KPX Tcedilla Agrave -88.31
+KPX Tcedilla Aogonek -88.31
+KPX Tcedilla Aring -88.31
+KPX Tcedilla Atilde -88.31
+KPX Tcedilla a -88.31
+KPX Tcedilla e -88.31
+KPX Tcedilla o -88.31
+KPX Tcedilla r -88.31
+KPX Tcedilla u -88.31
+KPX Tcedilla y -88.31
+KPX V A -117.75
+KPX V Aacute -117.75
+KPX V Abreve -117.75
+KPX V Acircumflex -117.75
+KPX V Adieresis -117.75
+KPX V Agrave -117.75
+KPX V Aogonek -117.75
+KPX V Aring -117.75
+KPX V Atilde -117.75
+KPX V C -29.44
+KPX V Cacute -29.44
+KPX V Ccaron -29.44
+KPX V G -29.44
+KPX V Gbreve -29.44
+KPX V O -29.44
+KPX V Oacute -29.44
+KPX V Ocircumflex -29.44
+KPX V Odieresis -29.44
+KPX V Ograve -29.44
+KPX V Ohungarumlaut -29.44
+KPX V Oslash -29.44
+KPX V Otilde -29.44
+KPX V Q -29.44
+KPX V a -88.31
+KPX V aogonek -88.31
+KPX V e -88.31
+KPX V eogonek -88.31
+KPX V o -88.31
+KPX V r -88.31
+KPX V u -88.31
+KPX W A -88.31
+KPX W Aacute -88.31
+KPX W Abreve -88.31
+KPX W Acircumflex -88.31
+KPX W Adieresis -88.31
+KPX W Agrave -88.31
+KPX W Aogonek -88.31
+KPX W Aring -88.31
+KPX W Atilde -88.31
+KPX X C -29.44
+KPX X Cacute -29.44
+KPX X Ccaron -29.44
+KPX X G -29.44
+KPX X Gbreve -29.44
+KPX X O -29.44
+KPX X Oacute -29.44
+KPX X Ocircumflex -29.44
+KPX X Odieresis -29.44
+KPX X Ograve -29.44
+KPX X Ohungarumlaut -29.44
+KPX X Oslash -29.44
+KPX X Otilde -29.44
+KPX X Q -29.44
+KPX Y A -88.31
+KPX Y Aacute -88.31
+KPX Y Abreve -88.31
+KPX Y Acircumflex -88.31
+KPX Y Adieresis -88.31
+KPX Y Agrave -88.31
+KPX Y Aogonek -88.31
+KPX Y Aring -88.31
+KPX Y Atilde -88.31
+KPX Y a -88.31
+KPX Y e -88.31
+KPX Y o -88.31
+KPX Y r -88.31
+KPX Y u -88.31
+KPX Yacute A -88.31
+KPX Yacute Aacute -88.31
+KPX Yacute Abreve -88.31
+KPX Yacute Acircumflex -88.31
+KPX Yacute Adieresis -88.31
+KPX Yacute Agrave -88.31
+KPX Yacute Aogonek -88.31
+KPX Yacute Aring -88.31
+KPX Yacute Atilde -88.31
+KPX Yacute a -88.31
+KPX Yacute e -88.31
+KPX Yacute o -88.31
+KPX Yacute r -88.31
+KPX Yacute u -88.31
+KPX b a -58.87
+KPX b aacute -58.87
+KPX b acircumflex -58.87
+KPX b acircumflex -58.87
+KPX b adieresis -58.87
+KPX b ae -58.87
+KPX b agrave -58.87
+KPX b aogonek -58.87
+KPX b aring -58.87
+KPX b atilde -58.87
+KPX b c -58.87
+KPX b cacute -58.87
+KPX b cacute -58.87
+KPX b ccaron -58.87
+KPX b ccedilla -58.87
+KPX b d -58.87
+KPX b dbar -58.87
+KPX b e -58.87
+KPX b eacute -58.87
+KPX b ecaron -58.87
+KPX b ecircumflex -58.87
+KPX b edieresis -58.87
+KPX b egrave -58.87
+KPX b eogonek -58.87
+KPX b g -58.87
+KPX b gbreve -58.87
+KPX b o -58.87
+KPX b oacute -58.87
+KPX b ocircumflex -58.87
+KPX b odieresis -58.87
+KPX b oe -58.87
+KPX b ograve -58.87
+KPX b ohungarumlaut -58.87
+KPX b oslash -58.87
+KPX b otilde -58.87
+KPX b q -58.87
+KPX c a -58.87
+KPX c aacute -58.87
+KPX c acircumflex -58.87
+KPX c acircumflex -58.87
+KPX c adieresis -58.87
+KPX c ae -58.87
+KPX c agrave -58.87
+KPX c aogonek -58.87
+KPX c aring -58.87
+KPX c atilde -58.87
+KPX c c -58.87
+KPX c cacute -58.87
+KPX c cacute -58.87
+KPX c ccaron -58.87
+KPX c ccedilla -58.87
+KPX c d -58.87
+KPX c dbar -58.87
+KPX c e -58.87
+KPX c eacute -58.87
+KPX c ecaron -58.87
+KPX c ecircumflex -58.87
+KPX c edieresis -58.87
+KPX c egrave -58.87
+KPX c eogonek -58.87
+KPX c g -58.87
+KPX c gbreve -58.87
+KPX c o -58.87
+KPX c oacute -58.87
+KPX c ocircumflex -58.87
+KPX c odieresis -58.87
+KPX c oe -58.87
+KPX c ograve -58.87
+KPX c ohungarumlaut -58.87
+KPX c oslash -58.87
+KPX c otilde -58.87
+KPX c q -58.87
+KPX cacute a -58.87
+KPX cacute aacute -58.87
+KPX cacute acircumflex -58.87
+KPX cacute acircumflex -58.87
+KPX cacute adieresis -58.87
+KPX cacute ae -58.87
+KPX cacute agrave -58.87
+KPX cacute aogonek -58.87
+KPX cacute aring -58.87
+KPX cacute atilde -58.87
+KPX cacute c -58.87
+KPX cacute cacute -58.87
+KPX cacute cacute -58.87
+KPX cacute ccaron -58.87
+KPX cacute ccedilla -58.87
+KPX cacute d -58.87
+KPX cacute dbar -58.87
+KPX cacute e -58.87
+KPX cacute eacute -58.87
+KPX cacute ecaron -58.87
+KPX cacute ecircumflex -58.87
+KPX cacute edieresis -58.87
+KPX cacute egrave -58.87
+KPX cacute eogonek -58.87
+KPX cacute g -58.87
+KPX cacute gbreve -58.87
+KPX cacute o -58.87
+KPX cacute oacute -58.87
+KPX cacute ocircumflex -58.87
+KPX cacute odieresis -58.87
+KPX cacute oe -58.87
+KPX cacute ograve -58.87
+KPX cacute ohungarumlaut -58.87
+KPX cacute oslash -58.87
+KPX cacute otilde -58.87
+KPX cacute q -58.87
+KPX ccaron a -58.87
+KPX ccaron aacute -58.87
+KPX ccaron acircumflex -58.87
+KPX ccaron acircumflex -58.87
+KPX ccaron adieresis -58.87
+KPX ccaron ae -58.87
+KPX ccaron agrave -58.87
+KPX ccaron aogonek -58.87
+KPX ccaron aring -58.87
+KPX ccaron atilde -58.87
+KPX ccaron c -58.87
+KPX ccaron cacute -58.87
+KPX ccaron cacute -58.87
+KPX ccaron ccaron -58.87
+KPX ccaron ccedilla -58.87
+KPX ccaron d -58.87
+KPX ccaron dbar -58.87
+KPX ccaron e -58.87
+KPX ccaron eacute -58.87
+KPX ccaron ecaron -58.87
+KPX ccaron ecircumflex -58.87
+KPX ccaron edieresis -58.87
+KPX ccaron egrave -58.87
+KPX ccaron eogonek -58.87
+KPX ccaron g -58.87
+KPX ccaron gbreve -58.87
+KPX ccaron o -58.87
+KPX ccaron oacute -58.87
+KPX ccaron ocircumflex -58.87
+KPX ccaron odieresis -58.87
+KPX ccaron oe -58.87
+KPX ccaron ograve -58.87
+KPX ccaron ohungarumlaut -58.87
+KPX ccaron oslash -58.87
+KPX ccaron otilde -58.87
+KPX ccaron q -58.87
+KPX d l 58.87
+KPX d lacute 58.87
+KPX d lquoteright 58.87
+KPX e a -58.87
+KPX e aacute -58.87
+KPX e acircumflex -58.87
+KPX e acircumflex -58.87
+KPX e adieresis -58.87
+KPX e ae -58.87
+KPX e agrave -58.87
+KPX e aogonek -58.87
+KPX e aring -58.87
+KPX e atilde -58.87
+KPX e c -58.87
+KPX e cacute -58.87
+KPX e cacute -58.87
+KPX e ccaron -58.87
+KPX e ccedilla -58.87
+KPX e d -58.87
+KPX e dbar -58.87
+KPX e e -58.87
+KPX e eacute -58.87
+KPX e ecaron -58.87
+KPX e ecircumflex -58.87
+KPX e edieresis -58.87
+KPX e egrave -58.87
+KPX e eogonek -58.87
+KPX e g -58.87
+KPX e gbreve -58.87
+KPX e o -58.87
+KPX e oacute -58.87
+KPX e ocircumflex -58.87
+KPX e odieresis -58.87
+KPX e oe -58.87
+KPX e ograve -58.87
+KPX e ohungarumlaut -58.87
+KPX e oslash -58.87
+KPX e otilde -58.87
+KPX e q -58.87
+KPX eacute a -58.87
+KPX eacute aacute -58.87
+KPX eacute acircumflex -58.87
+KPX eacute acircumflex -58.87
+KPX eacute adieresis -58.87
+KPX eacute ae -58.87
+KPX eacute agrave -58.87
+KPX eacute aogonek -58.87
+KPX eacute aring -58.87
+KPX eacute atilde -58.87
+KPX eacute c -58.87
+KPX eacute cacute -58.87
+KPX eacute cacute -58.87
+KPX eacute ccaron -58.87
+KPX eacute ccedilla -58.87
+KPX eacute d -58.87
+KPX eacute dbar -58.87
+KPX eacute e -58.87
+KPX eacute eacute -58.87
+KPX eacute ecaron -58.87
+KPX eacute ecircumflex -58.87
+KPX eacute edieresis -58.87
+KPX eacute egrave -58.87
+KPX eacute eogonek -58.87
+KPX eacute g -58.87
+KPX eacute gbreve -58.87
+KPX eacute o -58.87
+KPX eacute oacute -58.87
+KPX eacute ocircumflex -58.87
+KPX eacute odieresis -58.87
+KPX eacute oe -58.87
+KPX eacute ograve -58.87
+KPX eacute ohungarumlaut -58.87
+KPX eacute oslash -58.87
+KPX eacute otilde -58.87
+KPX eacute q -58.87
+KPX ecaron a -58.87
+KPX ecaron aacute -58.87
+KPX ecaron acircumflex -58.87
+KPX ecaron acircumflex -58.87
+KPX ecaron adieresis -58.87
+KPX ecaron ae -58.87
+KPX ecaron agrave -58.87
+KPX ecaron aogonek -58.87
+KPX ecaron aring -58.87
+KPX ecaron atilde -58.87
+KPX ecaron c -58.87
+KPX ecaron cacute -58.87
+KPX ecaron cacute -58.87
+KPX ecaron ccaron -58.87
+KPX ecaron ccedilla -58.87
+KPX ecaron d -58.87
+KPX ecaron dbar -58.87
+KPX ecaron e -58.87
+KPX ecaron eacute -58.87
+KPX ecaron ecaron -58.87
+KPX ecaron ecircumflex -58.87
+KPX ecaron edieresis -58.87
+KPX ecaron egrave -58.87
+KPX ecaron eogonek -58.87
+KPX ecaron g -58.87
+KPX ecaron gbreve -58.87
+KPX ecaron o -58.87
+KPX ecaron oacute -58.87
+KPX ecaron ocircumflex -58.87
+KPX ecaron odieresis -58.87
+KPX ecaron oe -58.87
+KPX ecaron ograve -58.87
+KPX ecaron ohungarumlaut -58.87
+KPX ecaron oslash -58.87
+KPX ecaron otilde -58.87
+KPX ecaron q -58.87
+KPX ecircumflex a -58.87
+KPX ecircumflex aacute -58.87
+KPX ecircumflex acircumflex -58.87
+KPX ecircumflex acircumflex -58.87
+KPX ecircumflex adieresis -58.87
+KPX ecircumflex ae -58.87
+KPX ecircumflex agrave -58.87
+KPX ecircumflex aogonek -58.87
+KPX ecircumflex aring -58.87
+KPX ecircumflex atilde -58.87
+KPX ecircumflex c -58.87
+KPX ecircumflex cacute -58.87
+KPX ecircumflex cacute -58.87
+KPX ecircumflex ccaron -58.87
+KPX ecircumflex ccedilla -58.87
+KPX ecircumflex d -58.87
+KPX ecircumflex dbar -58.87
+KPX ecircumflex e -58.87
+KPX ecircumflex eacute -58.87
+KPX ecircumflex ecaron -58.87
+KPX ecircumflex ecircumflex -58.87
+KPX ecircumflex edieresis -58.87
+KPX ecircumflex egrave -58.87
+KPX ecircumflex eogonek -58.87
+KPX ecircumflex g -58.87
+KPX ecircumflex gbreve -58.87
+KPX ecircumflex o -58.87
+KPX ecircumflex oacute -58.87
+KPX ecircumflex ocircumflex -58.87
+KPX ecircumflex odieresis -58.87
+KPX ecircumflex oe -58.87
+KPX ecircumflex ograve -58.87
+KPX ecircumflex ohungarumlaut -58.87
+KPX ecircumflex oslash -58.87
+KPX ecircumflex otilde -58.87
+KPX ecircumflex q -58.87
+KPX edieresis a -58.87
+KPX edieresis aacute -58.87
+KPX edieresis acircumflex -58.87
+KPX edieresis acircumflex -58.87
+KPX edieresis adieresis -58.87
+KPX edieresis ae -58.87
+KPX edieresis agrave -58.87
+KPX edieresis aogonek -58.87
+KPX edieresis aring -58.87
+KPX edieresis atilde -58.87
+KPX edieresis c -58.87
+KPX edieresis cacute -58.87
+KPX edieresis cacute -58.87
+KPX edieresis ccaron -58.87
+KPX edieresis ccedilla -58.87
+KPX edieresis d -58.87
+KPX edieresis dbar -58.87
+KPX edieresis e -58.87
+KPX edieresis eacute -58.87
+KPX edieresis ecaron -58.87
+KPX edieresis ecircumflex -58.87
+KPX edieresis edieresis -58.87
+KPX edieresis egrave -58.87
+KPX edieresis eogonek -58.87
+KPX edieresis g -58.87
+KPX edieresis gbreve -58.87
+KPX edieresis o -58.87
+KPX edieresis oacute -58.87
+KPX edieresis ocircumflex -58.87
+KPX edieresis odieresis -58.87
+KPX edieresis oe -58.87
+KPX edieresis ograve -58.87
+KPX edieresis ohungarumlaut -58.87
+KPX edieresis oslash -58.87
+KPX edieresis otilde -58.87
+KPX edieresis q -58.87
+KPX egrave a -58.87
+KPX egrave aacute -58.87
+KPX egrave acircumflex -58.87
+KPX egrave acircumflex -58.87
+KPX egrave adieresis -58.87
+KPX egrave ae -58.87
+KPX egrave agrave -58.87
+KPX egrave aogonek -58.87
+KPX egrave aring -58.87
+KPX egrave atilde -58.87
+KPX egrave c -58.87
+KPX egrave cacute -58.87
+KPX egrave cacute -58.87
+KPX egrave ccaron -58.87
+KPX egrave ccedilla -58.87
+KPX egrave d -58.87
+KPX egrave dbar -58.87
+KPX egrave e -58.87
+KPX egrave eacute -58.87
+KPX egrave ecaron -58.87
+KPX egrave ecircumflex -58.87
+KPX egrave edieresis -58.87
+KPX egrave egrave -58.87
+KPX egrave eogonek -58.87
+KPX egrave g -58.87
+KPX egrave gbreve -58.87
+KPX egrave o -58.87
+KPX egrave oacute -58.87
+KPX egrave ocircumflex -58.87
+KPX egrave odieresis -58.87
+KPX egrave oe -58.87
+KPX egrave ograve -58.87
+KPX egrave ohungarumlaut -58.87
+KPX egrave oslash -58.87
+KPX egrave otilde -58.87
+KPX egrave q -58.87
+KPX eogonek a -58.87
+KPX eogonek aacute -58.87
+KPX eogonek acircumflex -58.87
+KPX eogonek acircumflex -58.87
+KPX eogonek adieresis -58.87
+KPX eogonek ae -58.87
+KPX eogonek agrave -58.87
+KPX eogonek aogonek -58.87
+KPX eogonek aring -58.87
+KPX eogonek atilde -58.87
+KPX eogonek c -58.87
+KPX eogonek cacute -58.87
+KPX eogonek cacute -58.87
+KPX eogonek ccaron -58.87
+KPX eogonek ccedilla -58.87
+KPX eogonek d -58.87
+KPX eogonek dbar -58.87
+KPX eogonek e -58.87
+KPX eogonek eacute -58.87
+KPX eogonek ecaron -58.87
+KPX eogonek ecircumflex -58.87
+KPX eogonek edieresis -58.87
+KPX eogonek egrave -58.87
+KPX eogonek eogonek -58.87
+KPX eogonek g -58.87
+KPX eogonek gbreve -58.87
+KPX eogonek o -58.87
+KPX eogonek oacute -58.87
+KPX eogonek ocircumflex -58.87
+KPX eogonek odieresis -58.87
+KPX eogonek oe -58.87
+KPX eogonek ograve -58.87
+KPX eogonek ohungarumlaut -58.87
+KPX eogonek oslash -58.87
+KPX eogonek otilde -58.87
+KPX eogonek q -58.87
+KPX f bracketright 106.64
+KPX f exclam 106.64
+KPX f parenright 106.64
+KPX f question 106.64
+KPX f quoteright 106.64
+KPX ff bracketright 106.64
+KPX ff exclam 106.64
+KPX ff parenright 106.64
+KPX ff question 106.64
+KPX ff quoteright 106.64
+KPX l l 58.87
+KPX l lacute 58.87
+KPX l lquoteright 58.87
+KPX n quoteright -117.75
+KPX o a -58.87
+KPX o aacute -58.87
+KPX o acircumflex -58.87
+KPX o acircumflex -58.87
+KPX o adieresis -58.87
+KPX o ae -58.87
+KPX o agrave -58.87
+KPX o aogonek -58.87
+KPX o aring -58.87
+KPX o atilde -58.87
+KPX o c -58.87
+KPX o cacute -58.87
+KPX o cacute -58.87
+KPX o ccaron -58.87
+KPX o ccedilla -58.87
+KPX o d -58.87
+KPX o dbar -58.87
+KPX o e -58.87
+KPX o eacute -58.87
+KPX o ecaron -58.87
+KPX o ecircumflex -58.87
+KPX o edieresis -58.87
+KPX o egrave -58.87
+KPX o eogonek -58.87
+KPX o g -58.87
+KPX o gbreve -58.87
+KPX o o -58.87
+KPX o oacute -58.87
+KPX o ocircumflex -58.87
+KPX o odieresis -58.87
+KPX o oe -58.87
+KPX o ograve -58.87
+KPX o ohungarumlaut -58.87
+KPX o oslash -58.87
+KPX o otilde -58.87
+KPX o q -58.87
+KPX oacute a -58.87
+KPX oacute aacute -58.87
+KPX oacute acircumflex -58.87
+KPX oacute acircumflex -58.87
+KPX oacute adieresis -58.87
+KPX oacute ae -58.87
+KPX oacute agrave -58.87
+KPX oacute aogonek -58.87
+KPX oacute aring -58.87
+KPX oacute atilde -58.87
+KPX oacute c -58.87
+KPX oacute cacute -58.87
+KPX oacute cacute -58.87
+KPX oacute ccaron -58.87
+KPX oacute ccedilla -58.87
+KPX oacute d -58.87
+KPX oacute dbar -58.87
+KPX oacute e -58.87
+KPX oacute eacute -58.87
+KPX oacute ecaron -58.87
+KPX oacute ecircumflex -58.87
+KPX oacute edieresis -58.87
+KPX oacute egrave -58.87
+KPX oacute eogonek -58.87
+KPX oacute g -58.87
+KPX oacute gbreve -58.87
+KPX oacute o -58.87
+KPX oacute oacute -58.87
+KPX oacute ocircumflex -58.87
+KPX oacute odieresis -58.87
+KPX oacute oe -58.87
+KPX oacute ograve -58.87
+KPX oacute ohungarumlaut -58.87
+KPX oacute oslash -58.87
+KPX oacute otilde -58.87
+KPX oacute q -58.87
+KPX ocircumflex a -58.87
+KPX ocircumflex aacute -58.87
+KPX ocircumflex acircumflex -58.87
+KPX ocircumflex acircumflex -58.87
+KPX ocircumflex adieresis -58.87
+KPX ocircumflex ae -58.87
+KPX ocircumflex agrave -58.87
+KPX ocircumflex aogonek -58.87
+KPX ocircumflex aring -58.87
+KPX ocircumflex atilde -58.87
+KPX ocircumflex c -58.87
+KPX ocircumflex cacute -58.87
+KPX ocircumflex cacute -58.87
+KPX ocircumflex ccaron -58.87
+KPX ocircumflex ccedilla -58.87
+KPX ocircumflex d -58.87
+KPX ocircumflex dbar -58.87
+KPX ocircumflex e -58.87
+KPX ocircumflex eacute -58.87
+KPX ocircumflex ecaron -58.87
+KPX ocircumflex ecircumflex -58.87
+KPX ocircumflex edieresis -58.87
+KPX ocircumflex egrave -58.87
+KPX ocircumflex eogonek -58.87
+KPX ocircumflex g -58.87
+KPX ocircumflex gbreve -58.87
+KPX ocircumflex o -58.87
+KPX ocircumflex oacute -58.87
+KPX ocircumflex ocircumflex -58.87
+KPX ocircumflex odieresis -58.87
+KPX ocircumflex oe -58.87
+KPX ocircumflex ograve -58.87
+KPX ocircumflex ohungarumlaut -58.87
+KPX ocircumflex oslash -58.87
+KPX ocircumflex otilde -58.87
+KPX ocircumflex q -58.87
+KPX odieresis a -58.87
+KPX odieresis aacute -58.87
+KPX odieresis acircumflex -58.87
+KPX odieresis acircumflex -58.87
+KPX odieresis adieresis -58.87
+KPX odieresis ae -58.87
+KPX odieresis agrave -58.87
+KPX odieresis aogonek -58.87
+KPX odieresis aring -58.87
+KPX odieresis atilde -58.87
+KPX odieresis c -58.87
+KPX odieresis cacute -58.87
+KPX odieresis cacute -58.87
+KPX odieresis ccaron -58.87
+KPX odieresis ccedilla -58.87
+KPX odieresis d -58.87
+KPX odieresis dbar -58.87
+KPX odieresis e -58.87
+KPX odieresis eacute -58.87
+KPX odieresis ecaron -58.87
+KPX odieresis ecircumflex -58.87
+KPX odieresis edieresis -58.87
+KPX odieresis egrave -58.87
+KPX odieresis eogonek -58.87
+KPX odieresis g -58.87
+KPX odieresis gbreve -58.87
+KPX odieresis o -58.87
+KPX odieresis oacute -58.87
+KPX odieresis ocircumflex -58.87
+KPX odieresis odieresis -58.87
+KPX odieresis oe -58.87
+KPX odieresis ograve -58.87
+KPX odieresis ohungarumlaut -58.87
+KPX odieresis oslash -58.87
+KPX odieresis otilde -58.87
+KPX odieresis q -58.87
+KPX ograve a -58.87
+KPX ograve aacute -58.87
+KPX ograve acircumflex -58.87
+KPX ograve acircumflex -58.87
+KPX ograve adieresis -58.87
+KPX ograve ae -58.87
+KPX ograve agrave -58.87
+KPX ograve aogonek -58.87
+KPX ograve aring -58.87
+KPX ograve atilde -58.87
+KPX ograve c -58.87
+KPX ograve cacute -58.87
+KPX ograve cacute -58.87
+KPX ograve ccaron -58.87
+KPX ograve ccedilla -58.87
+KPX ograve d -58.87
+KPX ograve dbar -58.87
+KPX ograve e -58.87
+KPX ograve eacute -58.87
+KPX ograve ecaron -58.87
+KPX ograve ecircumflex -58.87
+KPX ograve edieresis -58.87
+KPX ograve egrave -58.87
+KPX ograve eogonek -58.87
+KPX ograve g -58.87
+KPX ograve gbreve -58.87
+KPX ograve o -58.87
+KPX ograve oacute -58.87
+KPX ograve ocircumflex -58.87
+KPX ograve odieresis -58.87
+KPX ograve oe -58.87
+KPX ograve ograve -58.87
+KPX ograve ohungarumlaut -58.87
+KPX ograve oslash -58.87
+KPX ograve otilde -58.87
+KPX ograve q -58.87
+KPX otilde a -58.87
+KPX otilde aacute -58.87
+KPX otilde acircumflex -58.87
+KPX otilde acircumflex -58.87
+KPX otilde adieresis -58.87
+KPX otilde ae -58.87
+KPX otilde agrave -58.87
+KPX otilde aogonek -58.87
+KPX otilde aring -58.87
+KPX otilde atilde -58.87
+KPX otilde c -58.87
+KPX otilde cacute -58.87
+KPX otilde cacute -58.87
+KPX otilde ccaron -58.87
+KPX otilde ccedilla -58.87
+KPX otilde d -58.87
+KPX otilde dbar -58.87
+KPX otilde e -58.87
+KPX otilde eacute -58.87
+KPX otilde ecaron -58.87
+KPX otilde ecircumflex -58.87
+KPX otilde edieresis -58.87
+KPX otilde egrave -58.87
+KPX otilde eogonek -58.87
+KPX otilde g -58.87
+KPX otilde gbreve -58.87
+KPX otilde o -58.87
+KPX otilde oacute -58.87
+KPX otilde ocircumflex -58.87
+KPX otilde odieresis -58.87
+KPX otilde oe -58.87
+KPX otilde ograve -58.87
+KPX otilde ohungarumlaut -58.87
+KPX otilde oslash -58.87
+KPX otilde otilde -58.87
+KPX otilde q -58.87
+KPX p a -58.87
+KPX p aacute -58.87
+KPX p acircumflex -58.87
+KPX p acircumflex -58.87
+KPX p adieresis -58.87
+KPX p ae -58.87
+KPX p agrave -58.87
+KPX p aogonek -58.87
+KPX p aring -58.87
+KPX p atilde -58.87
+KPX p c -58.87
+KPX p cacute -58.87
+KPX p cacute -58.87
+KPX p ccaron -58.87
+KPX p ccedilla -58.87
+KPX p d -58.87
+KPX p dbar -58.87
+KPX p e -58.87
+KPX p eacute -58.87
+KPX p ecaron -58.87
+KPX p ecircumflex -58.87
+KPX p edieresis -58.87
+KPX p egrave -58.87
+KPX p eogonek -58.87
+KPX p g -58.87
+KPX p gbreve -58.87
+KPX p o -58.87
+KPX p oacute -58.87
+KPX p ocircumflex -58.87
+KPX p odieresis -58.87
+KPX p oe -58.87
+KPX p ograve -58.87
+KPX p ohungarumlaut -58.87
+KPX p oslash -58.87
+KPX p otilde -58.87
+KPX p q -58.87
+KPX quoteright exclam 117.75
+KPX quoteright question 117.75
+KPX r a -58.87
+KPX r aacute -58.87
+KPX r acircumflex -58.87
+KPX r acircumflex -58.87
+KPX r adieresis -58.87
+KPX r ae -58.87
+KPX r agrave -58.87
+KPX r aogonek -58.87
+KPX r aring -58.87
+KPX r atilde -58.87
+KPX r c -58.87
+KPX r cacute -58.87
+KPX r cacute -58.87
+KPX r ccaron -58.87
+KPX r ccedilla -58.87
+KPX r d -58.87
+KPX r dbar -58.87
+KPX r e -58.87
+KPX r eacute -58.87
+KPX r ecaron -58.87
+KPX r ecircumflex -58.87
+KPX r edieresis -58.87
+KPX r egrave -58.87
+KPX r eogonek -58.87
+KPX r g -58.87
+KPX r gbreve -58.87
+KPX r o -58.87
+KPX r oacute -58.87
+KPX r ocircumflex -58.87
+KPX r odieresis -58.87
+KPX r oe -58.87
+KPX r ograve -58.87
+KPX r ohungarumlaut -58.87
+KPX r oslash -58.87
+KPX r otilde -58.87
+KPX r q -58.87
+KPX thorn a -58.87
+KPX thorn aacute -58.87
+KPX thorn acircumflex -58.87
+KPX thorn acircumflex -58.87
+KPX thorn adieresis -58.87
+KPX thorn ae -58.87
+KPX thorn agrave -58.87
+KPX thorn aogonek -58.87
+KPX thorn aring -58.87
+KPX thorn atilde -58.87
+KPX thorn c -58.87
+KPX thorn cacute -58.87
+KPX thorn cacute -58.87
+KPX thorn ccaron -58.87
+KPX thorn ccedilla -58.87
+KPX thorn d -58.87
+KPX thorn dbar -58.87
+KPX thorn e -58.87
+KPX thorn eacute -58.87
+KPX thorn ecaron -58.87
+KPX thorn ecircumflex -58.87
+KPX thorn edieresis -58.87
+KPX thorn egrave -58.87
+KPX thorn eogonek -58.87
+KPX thorn g -58.87
+KPX thorn gbreve -58.87
+KPX thorn o -58.87
+KPX thorn oacute -58.87
+KPX thorn ocircumflex -58.87
+KPX thorn odieresis -58.87
+KPX thorn oe -58.87
+KPX thorn ograve -58.87
+KPX thorn ohungarumlaut -58.87
+KPX thorn oslash -58.87
+KPX thorn otilde -58.87
+KPX thorn q -58.87
+KPX w l 58.87
+KPX w lacute 58.87
+KPX w lquoteright 58.87
+EndKernPairs
+EndKernData
+EndFontMetrics

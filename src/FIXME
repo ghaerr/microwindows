@@ -1,3 +1,4 @@
+need korean, japanese font test program
 add release new fonts tar file
 ***lfHeight shouldn't have to be non-zero to work
 ***GrCopyArea gcp->exposure flag needs checking into

@@ -838,7 +838,7 @@ LoadJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 		return 0;	/* not JPEG image */
 
 	bread(src, magic, 8);
-	if (strncmp(magic+4, "JFIF", 4) != 0)
+	if (strncmp(magic+4, "JFIF", 4) != 0 && strncmp(magic+4, "Exif", 4) != 0)
 		return 0;	/* not JPEG image */
 
 	bread(src, 0, SEEK_SET);

@@ -14,22 +14,23 @@
 #define MWFONT_SYSTEM_FIXED	"SystemFixed"	/* X6x13 (should be ansi)*/
 
 /* Text/GetTextSize encoding flags*/
-#define MWTF_ASCII	0x0000	/* 8 bit packing, ascii*/
-#define MWTF_UTF8	0x0001	/* 8 bit packing, utf8*/
-#define MWTF_UC16	0x0002	/* 16 bit packing, unicode 16*/
-#define MWTF_UC32	0x0004	/* 32 bit packing, unicode 32*/
-#define MWTF_XCHAR2B	0x0008	/* 16 bit packing, X11 big endian PCF*/
-#define MWTF_PACKMASK	0x000f	/* packing mask*/
+#define MWTF_ASCII	0x00000000L	/* 8 bit packing, ascii*/
+#define MWTF_UTF8	0x00000001L	/* 8 bit packing, utf8*/
+#define MWTF_UC16	0x00000002L	/* 16 bit packing, unicode 16*/
+#define MWTF_UC32	0x00000004L	/* 32 bit packing, unicode 32*/
+#define MWTF_XCHAR2B	0x00000008L	/* 16 bit packing, X11 big endian PCF*/
+#define MWTF_PACKMASK	0x00FFFFFFL	/* packing mask*/
 
 /* Text alignment flags*/
-#define MWTF_TOP	0x0010	/* align on top*/
-#define MWTF_BASELINE	0x0020	/* align on baseline*/
-#define MWTF_BOTTOM	0x0040	/* align on bottom*/
+#define MWTF_TOP	0x01000000L	/* align on top*/
+#define MWTF_BASELINE	0x02000000L	/* align on baseline*/
+#define MWTF_BOTTOM	0x04000000L	/* align on bottom*/
 
-/* SetFontAttr flags*/
-#define MWTF_KERNING	0x1000	/* font kerning*/
-#define MWTF_ANTIALIAS	0x2000	/* antialiased output*/
-#define MWTF_UNDERLINE	0x4000	/* draw underline*/
+/* SetFontAttr flags (no intersect with MWTF_ above)*/
+#define MWTF_KERNING	0x0001		/* font kerning*/
+#define MWTF_ANTIALIAS	0x0002		/* antialiased output*/
+#define MWTF_UNDERLINE	0x0004		/* draw underline*/
+#define MWTF_FREETYPE	0x1000		/* FIXME: remove*/
 
 /* Drawing modes*/
 #define	MWMODE_COPY		0	/* src*/
@@ -192,6 +193,7 @@ typedef unsigned char	MWUCHAR;	/* unsigned char*/
 typedef unsigned long	MWCOLORVAL;	/* device-independent color value*/
 typedef unsigned short	MWIMAGEBITS;	/* bitmap image unit size*/
 typedef unsigned long	MWTIMEOUT;	/* timeout value */
+typedef unsigned long	MWTEXTFLAGS;	/* MWTF_ text flag*/
 
 /* MWIMAGEBITS macros*/
 #define MWIMAGE_WORDS(x)	(((x)+15)/16)

@@ -127,7 +127,7 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 #if HAVE_FREETYPE_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
 		if (freetype_init(psd)) {
-		/* auto antialias for height > 14 for kaffe*/
+			/* FIXME auto antialias for height > 14 for kaffe*/
 			if (plogfont && plogfont->lfHeight > 14 &&
 				plogfont->lfQuality)
 					fontattr |= MWTF_ANTIALIAS;
@@ -135,8 +135,8 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 			pfont = (PMWFONT)freetype_createfont(fontname, height,
 					fontattr);
 			if(pfont) {
-				/* temp kaffe kluge*/
-				pfont->fontattr |= FS_FREETYPE;
+				/* FIXME kaffe kluge*/
+				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
  			printf("freetype_createfont: %s,%d not found\n",
@@ -268,7 +268,7 @@ GdGetFontInfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
  * Use the current font.
  */
 void
-GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc, int flags)
+GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 {
 	const void *	text;
 	unsigned long	buf[256];
@@ -297,7 +297,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc, int flags)
  */
 void
 corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, int flags)
+	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	const unsigned char *str = text;
 	MWCOORD		width;			/* width of text area */
@@ -490,7 +490,7 @@ alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 int
 GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 	int* lpnFit, int* alpDx,MWCOORD *pwidth,MWCOORD *pheight,
-	MWCOORD *pbase, int flags)
+	MWCOORD *pbase, MWTEXTFLAGS flags)
 {
 	*pwidth = *pheight = *pbase = 0;
 	return 0;
@@ -514,7 +514,8 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
  * Return < 0 on error or can't translate
  */
 int
-GdConvertEncoding(const void *istr, int iflags, int cc, void *ostr, int oflags)
+GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
+	MWTEXTFLAGS oflags)
 {
 	const unsigned char 	*istr8;
 	const unsigned short 	*istr16;
@@ -602,11 +603,11 @@ GdConvertEncoding(const void *istr, int iflags, int cc, void *ostr, int oflags)
 /* Get the width and height of passed text string in the passed font*/
 void
 GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
-	MWCOORD *pheight, MWCOORD *pbase, int flags)
+	MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags)
 {
 	const void *	text;
 	unsigned long	buf[256];
-	int		defencoding = pfont->fontprocs->encoding;
+	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
 
 	/* convert encoding if required*/
 	if((flags & MWTF_PACKMASK) != defencoding) {

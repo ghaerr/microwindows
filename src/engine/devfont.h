@@ -23,9 +23,6 @@ typedef MWPIXELVAL	OUTPIXELVAL;
 void alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 	unsigned char *alpha, int count);
 
-void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, int flags);
-
 /* font engine entry points*/
 #if HAVE_T1LIB_SUPPORT
 typedef struct MWT1LIBFONT 	*PMWT1LIBFONT;

@@ -46,7 +46,7 @@ typedef struct {
 
 /* draw procs associated with fonts.  Strings are [re]packed using defencoding*/
 typedef struct {
-	int	encoding;	/* routines expect this encoding*/
+	MWTEXTFLAGS	encoding;	/* routines expect this encoding*/
 	MWBOOL	(*GetFontInfo)(PMWFONT pfont, PMWFONTINFO pfontinfo);
 	void 	(*GetTextSize)(PMWFONT pfont, const void *text, int cc,
 			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
@@ -54,7 +54,7 @@ typedef struct {
 			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 	void	(*DestroyFont)(PMWFONT pfont);
 	void	(*DrawText)(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-			const void *str, int count, int flags);
+			const void *str, int count, MWTEXTFLAGS flags);
 	void    (*SetFontSize)(PMWFONT pfont, MWCOORD fontsize);
 	void    (*SetFontRotation)(PMWFONT pfont, int tenthdegrees);
 	void    (*SetFontAttr)(PMWFONT pfont, int setflags, int clrflags);
@@ -68,10 +68,6 @@ typedef struct _mwfont {		/* common hdr for all font structures*/
 	int		fontattr;	/* font attributes: kerning/antialias*/
 	/* font-specific rendering data here*/
 } MWFONT;
-
-/* fontattr flags*/
-#define FS_FREETYPE      0x0800
-#define FS_MAPPED	 0x8000		/* encode mapped (PCF) font*///FIXME
 
 /* builtin core font struct*/
 typedef struct {
@@ -494,14 +490,15 @@ int	GdSetFontRotation(PMWFONT pfont, int tenthdegrees);
 int	GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags);
 void	GdDestroyFont(PMWFONT pfont);
 MWBOOL	GdGetFontInfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
-int	GdConvertEncoding(const void *istr, int iflags, int cc, void *ostr,
-		int oflags);
+int	GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
+		MWTEXTFLAGS oflags);
 void	GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
-		MWCOORD *pheight, MWCOORD *pbase, int flags);
+		MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);
 int	GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,
 		int nMaxExtent, int *lpnFit, int *alpDx, MWCOORD *pwidth,
-		MWCOORD *pheight, MWCOORD *pbase, int flags);	
-void	GdText(PSD psd,MWCOORD x,MWCOORD y,const void *str,int count,int flags);
+		MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);	
+void	GdText(PSD psd,MWCOORD x,MWCOORD y,const void *str,int count,
+		MWTEXTFLAGS flags);
 
 /* devclip1.c*/
 void 	GdSetClipRects(PSD psd,int count,MWCLIPRECT *table);

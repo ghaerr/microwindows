@@ -18,6 +18,7 @@
 #endif
 #include "device.h"
 #include "devfont.h"
+#include "../drivers/genfont.h"
 
 typedef struct MWEUCJPFONT {
 	PMWFONTPROCS fontprocs;	/* common hdr */

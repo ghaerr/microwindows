@@ -47,7 +47,7 @@ static void freetype_gettextsize(PMWFONT pfont, const void *text,
 		int cc, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 static void freetype_destroyfont(PMWFONT pfont);
 static void freetype_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, int flags);
+		const void *text, int cc, MWTEXTFLAGS flags);
 static void freetype_setfontsize(PMWFONT pfont, MWCOORD fontsize);
 static void freetype_setfontrotation(PMWFONT pfont, int tenthdegrees);
 		
@@ -365,7 +365,7 @@ drawchar(PMWFREETYPEFONT pf, PSD psd, TT_Glyph glyph, int x_offset,
  */
 static void
 freetype_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
-	const void *text, int cc, int flags)
+	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	PMWFREETYPEFONT	pf = (PMWFREETYPEFONT)pfont;
 	const unsigned short *	str = text;
@@ -651,12 +651,12 @@ freetype_setfontrotation(PMWFONT pfont, int tenthdegrees)
 int
 GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 	int* lpnFit, int* alpDx,MWCOORD *pwidth,MWCOORD *pheight,
-	MWCOORD *pbase, int flags)
+	MWCOORD *pbase, MWTEXTFLAGS flags)
 {
 	unsigned short	buf[256];
 	unsigned short* text;
 	PMWFREETYPEFONT	pf = (PMWFREETYPEFONT)pfont;
-	int		defencoding = pf->fontprocs->encoding;
+	MWTEXTFLAGS	defencoding = pf->fontprocs->encoding;
 	int 		x = 0;
 	int 		i;
 	TT_UShort 	curchar;

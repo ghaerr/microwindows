@@ -25,6 +25,7 @@ typedef MWCOLORVAL 	GR_COLOR;	/* full color value */
 typedef MWPIXELVAL 	GR_PIXELVAL;	/* hw pixel value*/
 typedef MWIMAGEBITS 	GR_BITMAP;	/* bitmap unit */
 typedef MWUCHAR 	GR_CHAR;	/* filename, window title */
+typedef MWTEXTFLAGS	GR_TEXTFLAGS;	/* text encoding flags*/
 typedef MWKEY	 	GR_KEY;		/* keystroke value*/
 typedef MWSCANCODE	GR_SCANCODE;	/* oem keystroke scancode value*/
 typedef MWKEYMOD	GR_KEYMOD;	/* keystroke modifiers*/
@@ -695,8 +696,9 @@ void            GrSetGCTSOffset(GR_GC_ID, int, int);
   
 void            GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure);
 void		GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font);
-void		GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
-			GR_SIZE *retwidth, GR_SIZE *retheight,GR_SIZE *retbase);
+void		GrGetGCTextSize(GR_GC_ID gc, void *str, int count,
+			GR_TEXTFLAGS flags, GR_SIZE *retwidth,
+			GR_SIZE *retheight,GR_SIZE *retbase);
 void		GrReadArea(GR_DRAW_ID id, GR_COORD x, GR_COORD y, GR_SIZE width,
 			GR_SIZE height, GR_PIXELVAL *pixels);
 void		GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -722,7 +724,7 @@ void		GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
 void		GrFreeImage(GR_IMAGE_ID id);
 void		GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip);
 void		GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-			void *str, GR_COUNT count, int flags);
+			void *str, GR_COUNT count, GR_TEXTFLAGS flags);
 GR_CURSOR_ID	GrNewCursor(GR_SIZE width, GR_SIZE height, GR_COORD hotx,
 			GR_COORD hoty, GR_COLOR foreground, GR_COLOR background,
 			GR_BITMAP *fgbitmap, GR_BITMAP *bgbitmap);

@@ -35,7 +35,7 @@
 #endif
 
 void gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, int flags);
+	const void *text, int cc, MWTEXTFLAGS flags);
 void gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
 	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
 
@@ -600,7 +600,7 @@ pcf_unloadfont(PMWFONT font)
  */
 void
 gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, int flags)
+	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	const unsigned short *str = text;
 	MWCOORD width;		/* width of text area */

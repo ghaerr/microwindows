@@ -66,7 +66,7 @@ static void hzk_setfontrotation(PMWFONT pfont, int tenthdegrees);
 #endif
 static void hzk_destroyfont(PMWFONT pfont);
 static void hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, int flags);
+		const void *text, int cc, MWTEXTFLAGS flags);
 static void hzk_setfontsize(PMWFONT pfont, MWCOORD fontsize);
 		
 /* handling routines for MWHZKFONT*/
@@ -631,7 +631,7 @@ static void expandchar(PMWHZKFONT pf, int bg, int fg, int c, MWPIXELVAL* bitmap)
  */
 static void
 hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
-	const void *text, int cc, int flags)
+	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;
 

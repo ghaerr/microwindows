@@ -214,7 +214,7 @@ GetTextExtentExPoint(HDC hdc,	/* handle to DC*/
 	if (cchString<0)
 		cchString = strlen((char *)lpszStr);
 	attr=hdc->font->pfont->fontattr;
-	if (attr&FS_FREETYPE)
+	if (attr&MWTF_FREETYPE)
 	{ 
 		if (GdGetTextSizeEx(hdc->font->pfont,lpszStr,cchString,
 			nMaxExtent,lpnFit,alpDx,&width,&height,NULL,MWTF_UTF8))

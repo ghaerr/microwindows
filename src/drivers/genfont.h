@@ -19,7 +19,7 @@ void	gen_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
 void	gen_unloadfont(PMWFONT pfont);
 
 void	corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, int flags);
+		const void *text, int cc, MWTEXTFLAGS flags);
 
 /* local data*/
 extern MWCOREFONT gen_fonts[NUMBER_FONTS];

@@ -578,7 +578,7 @@ GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
  * if the string is null terminated.
  */
 void
-GrGetGCTextSize(GR_GC_ID gc, void *str, int count, int flags,
+GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
 	GR_SIZE *retwidth, GR_SIZE *retheight, GR_SIZE *retbase)
 {
 	nxGetGCTextSizeReq *req;
@@ -3273,7 +3273,7 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
  */
 void 
 GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
-	GR_COUNT count, int flags)
+	GR_COUNT count, GR_TEXTFLAGS flags)
 {
 	nxTextReq *req;
 	int	   size;

@@ -24,7 +24,7 @@ int  t1lib_init(PSD psd);
 PMWT1LIBFONT t1lib_createfont(const char *name, MWCOORD height,int attr);
 
 static void t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, int flags);
+		const void *text, int cc, MWTEXTFLAGS flags);
 static MWBOOL t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void t1lib_gettextsize(PMWFONT pfont, const void *text, int cc,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
@@ -123,7 +123,7 @@ t1lib_createfont(const char *name, MWCOORD height, int attr)
  */
 static void
 t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, int flags)
+	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	PMWT1LIBFONT	pf = (PMWT1LIBFONT)pfont;
 	const unsigned char *str = text;

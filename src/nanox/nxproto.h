@@ -79,7 +79,7 @@ void * 	nxAllocReq(int type, long size, long extra);
 void	nxFlushReq(long newsize, int reply_needed);
 void 	nxAssignReqbuffer(char *buffer, long size);
 void 	nxWriteSocket(char *buf, int todo);
-int	nxCalcStringBytes(void *str, int count, int flags);
+int	nxCalcStringBytes(void *str, int count, GR_TEXTFLAGS flags);
 
 #if notyet
 /* all replies share this header*/
@@ -457,8 +457,7 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;
 	IDTYPE	gcid;
-	UINT16	flags;
-	UINT16	pad;
+	UINT32	flags;
 	/*BYTE8	text[];*/
 } nxGetGCTextSizeReq;
 
@@ -514,6 +513,7 @@ typedef struct {
 	INT16	x;
 	INT16	y;
 	INT16	count;
+	INT16	pad;
 	UINT32	flags;
 	/*BYTE8	text[];*/
 } nxTextReq;

@@ -194,8 +194,9 @@ nxFlushReq(long newsize, int reply_needed)
 }
 
 /* calc # bytes required for passed string according to encoding*/
+/* FIXME: broken for double-byte encodings...*/
 int
-nxCalcStringBytes(void *str, int count, int flags)
+nxCalcStringBytes(void *str, int count, GR_TEXTFLAGS flags)
 {
 	int	nbytes;
 

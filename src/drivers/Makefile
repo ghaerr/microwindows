@@ -244,6 +244,10 @@ endif # RTEMS architecture
 
 endif # !X11
 
+ifeq ($(LIRCKBD2), Y)
+OBJS += mwlirc.o kbd_lirc.o
+endif
+
 endif # !DJGPP
 endif # !ELKS
 

@@ -275,7 +275,7 @@ UINT		keys)
 {
 	WORD		wState;
 	DWORD		dwStyle;
- 
+
 	dwStyle = GetWindowLong(hwnd, GWL_STYLE);
 	wState = cenButton_FnStart( hwnd);
 
@@ -324,7 +324,7 @@ UINT		keys)
 
 	WORD		wState;
 	DWORD		dwStyle;
-
+	
 	wState = cenButton_FnStart( hwnd);
 	dwStyle = GetWindowLong(hwnd, GWL_STYLE);
 	if( GET_PBCAPTURE( hwnd)) {
@@ -332,15 +332,20 @@ UINT		keys)
 			if( GET_PBWASINSIDE( hwnd)) {
 				cenButton_SetState( hwnd, PUSH_DOWN, FALSE);
 				SET_PBWASINSIDE( hwnd, FALSE );
+				ReleaseCapture();
+				cenButton_FnEnd( hwnd, wState);
 			}
 		} else {
 			if( !GET_PBWASINSIDE( hwnd) ) {
 				cenButton_SetState( hwnd, PUSH_DOWN, TRUE );
 				SET_PBWASINSIDE( hwnd, TRUE );
+				GetCapture();
+				cenButton_FnEnd( hwnd, wState);
 			}
 		}
 	}
 	cenButton_FnEnd( hwnd, wState);
+
 }
 
 static void WINAPI
@@ -490,7 +495,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 		InsetR(&rc, 1, 1);
 
 		SelectObject(hdc, GetStockObject(WHITE_BRUSH));
-		DeleteObject(SelectObject(hdc, 
+		DeleteObject(SelectObject(hdc,
 			CreatePen(PS_SOLID, 1,GetSysColor(COLOR_WINDOWFRAME))));
 		Ellipse(hdc,rc.left,rc.top, rc.right,rc.bottom);
 		DeleteObject(SelectObject(hdc, hOldPen));
@@ -524,7 +529,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 		default:
 			rect.left = (uiWidth - (rect.right - rect.left)) / 2
 				+ iFaceOffset;
-			break; 
+			break;
 		case BS_LEFT:
 			rect.left = uiWidthFrame + uiWidthShadow + 2
 				+ iFaceOffset;
@@ -587,7 +592,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	}
 
 #if 0
-	if( (!(wEnumState&PBS_CHECKED) && (wEnumState&PBS_FOCUSDOWN)) || 
+	if( (!(wEnumState&PBS_CHECKED) && (wEnumState&PBS_FOCUSDOWN)) ||
 						(wEnumState & PBS_FOCUSUP)) {
 		rect = rectClient;
 		uiWidth = uiWidthFrame + uiWidthShadow + 2;
@@ -737,7 +742,6 @@ LPARAM	lParam)
 	/* the drawing is accomplished in the DrawPushButton() function. */
 	/* The code below is mainly concerned with the keyboard and mouse  */
 	/* events that the control detects.								   */
-
 	switch( message) {
 	HANDLE_MSG( hwnd, WM_CREATE, cenButton_OnCreate);
 	/*HANDLE_MSG( hwnd, WM_ENABLE, cenButton_OnEnable);*/
@@ -762,7 +766,7 @@ LPARAM	lParam)
 	case BM_GETCHECK:
 #if 0
  		return cenButton_OnGetState(hwnd);
-#else 
+#else
 		return( ( GET_PBSTATE(hwnd) & PUSH_CHECKED) == PUSH_CHECKED);
 #endif
 
@@ -784,6 +788,12 @@ LPARAM	lParam)
             	hwnd->userdata = (DWORD)wParam;
             	InvalidateRect(hwnd, NULL, FALSE);
 		return 0;
+
+	case WM_NCMOUSEMOVE:
+		if (SendMessage(hwnd,WM_NCHITTEST,0,lParam) != HTCLIENT){
+			cenButton_OnMouseMove(hwnd,LOWORD (lParam),HIWORD (lParam),0);
+			return 0;
+		}
 	}
 
 	return DefWindowProc( hwnd, message, wParam, lParam);

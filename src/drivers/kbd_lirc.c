@@ -43,15 +43,36 @@ static void LIRC_GetModifierInfo(MWKEYMOD * modifiers,
 static int LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers,
 		     MWSCANCODE * scancode);
 
+#ifdef MW_LIRC_MOUSE
+static int  LIRC_MouseOpen(MOUSEDEVICE * pkd);
+static void LIRC_MouseClose(void);
+static int LIRC_MouseGetButtonInfo(void);
+static int LIRC_MouseRead(MWCOORD * dx, MWCOORD * dy, MWCOORD * dz,
+			  int *bptr);
+static void LIRC_MouseGetDefaultAccel(int *pscale, int *pthresh);
+#endif
+
+static int LIRC_mouseMovedPolar(int speed, int direction);
+static int LIRC_mouseMovedCartesian(int xdelta, int ydelta);
+static int LIRC_mouseButton(int button, MWBOOL isDown);
+
 static void LIRC_UpdateKeyState(MWBOOL isDown, MWKEY mwkey);
 
+static int remoteMouseHandler(mwlirc_keystroke * event, MWKEY * kbuf,
+			      MWSCANCODE * pscancode);
 static int remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 				 MWSCANCODE * pscancode);
 static int remoteControlHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 				MWSCANCODE * pscancode);
 
 
-KBDDEVICE kbddev = {
+KBDDEVICE
+#ifdef MW_FEATURE_TWO_KEYBOARDS
+    kbddev2
+#else
+    kbddev
+#endif
+    = {
 	LIRC_Open,
 	LIRC_Close,
 	LIRC_GetModifierInfo,
@@ -59,6 +80,18 @@ KBDDEVICE kbddev = {
 	NULL
 };
 
+
+#ifdef MW_LIRC_MOUSE
+MOUSEDEVICE mousedev = {
+	LIRC_MouseOpen,
+	LIRC_MouseClose,
+	LIRC_MouseGetButtonInfo,
+	LIRC_MouseGetDefaultAccel,
+	LIRC_MouseRead,
+	NULL,
+	MOUSE_NORMAL	/* flags*/
+};
+#endif
 
 /* If a driver wants to press & release a button at once, it should set
  * these to the release event, and then just return the press event.
@@ -84,12 +117,152 @@ remoteDriver_t;
  * List of remote control names.
  */
 static remoteDriver_t remoteDrivers[] = {
-	{"remote", remoteControlHandler},
-	{"keyboard", remoteKeyboardHandler},
+	{"mhp_rc", remoteControlHandler},
+	{"rcmm_kb", remoteKeyboardHandler},
+	{"rcmm_mouse", remoteMouseHandler},
 	{NULL, NULL}
 };
 
 static int LIRC_fd = -1;
+
+#ifdef MW_LIRC_MOUSE
+/* polar_to_cartesian_table[angle | (speed << 4)] =
+ *     ( speed<=1 ? 0 : (9*(speed-1)*cos(angle/8 * 2*PI))
+ *
+ * 0 <= speed <= 15
+ * 0 <= angle <= 15
+ */
+static signed char polar_to_cartesian_table[256] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	9, 8, 6, 3, 0, -3, -6, -8, -9, -8, -6, -3, 0, 3, 6, 8,
+	18, 17, 13, 7, 0, -7, -13, -17, -18, -17, -13, -7, 0, 7, 13, 17,
+	27, 25, 19, 10, 0, -10, -19, -25, -27, -25, -19, -10, 0, 10, 19, 25,
+	36, 33, 25, 14, 0, -14, -25, -33, -36, -33, -25, -14, 0, 14, 25, 33,
+	45, 42, 32, 17, 0, -17, -32, -42, -45, -42, -32, -17, 0, 17, 32, 42,
+	54, 50, 38, 21, 0, -21, -38, -50, -54, -50, -38, -21, 0, 21, 38, 50,
+	63, 58, 45, 24, 0, -24, -45, -58, -63, -58, -45, -24, 0, 24, 45, 58,
+	72, 67, 51, 28, 0, -28, -51, -67, -72, -67, -51, -28, 0, 28, 51, 67,
+	81, 75, 57, 31, 0, -31, -57, -75, -81, -75, -57, -31, 0, 31, 57, 75,
+	90, 83, 64, 34, 0, -34, -64, -83, -90, -83, -64, -34, 0, 34, 64, 83,
+	99, 91, 70, 38, 0, -38, -70, -91, -99, -91, -70, -38, 0, 38, 70, 91,
+	108, 100, 76, 41, 0, -41, -76, -100, -108, -100, -76, -41, 0, 41, 76,
+	100,
+	117, 108, 83, 45, 0, -45, -83, -108, -117, -108, -83, -45, 0, 45, 83,
+	108,
+	126, 116, 89, 48, 0, -48, -89, -116, -126, -116, -89, -48, 0, 48, 89,
+	116,
+};
+
+#define POLAR_TO_CARTESIAN_X(speed,angle) polar_to_cartesian_table[(angle) | ((speed) << 4)]
+#define POLAR_TO_CARTESIAN_Y(speed,angle) POLAR_TO_CARTESIAN_X((speed), ((angle) + 4) & 15)
+
+#define	SCALE		3	/* default scaling factor for acceleration */
+#define	THRESH		5	/* default threshhold for acceleration */
+
+static int LIRC_mouseDeltaX = 0;
+static int LIRC_mouseDeltaY = 0;
+static int LIRC_mouseButtonsReported = 0;
+static int LIRC_mouseButtons = 0;
+
+static int
+LIRC_MouseGetButtonInfo(void)
+{
+	return MWBUTTON_L | MWBUTTON_R;
+}
+
+static int
+LIRC_MouseRead(MWCOORD * dx, MWCOORD * dy, MWCOORD * dz, int *bptr)
+{
+	int buttonchange = LIRC_mouseButtons ^ LIRC_mouseButtonsReported;
+	LIRC_mouseButtonsReported = LIRC_mouseButtons;
+	*bptr = LIRC_mouseButtons;
+
+	*dx = LIRC_mouseDeltaX / 8;
+	LIRC_mouseDeltaX -= *dx * 8;
+
+	*dy = LIRC_mouseDeltaY / 8;
+	LIRC_mouseDeltaY -= *dy * 8;
+
+	*dz = 0;
+
+	return ((*dx == 0) && (*dy == 0) && (buttonchange == 0)) ? 0 : 1;
+}
+
+static void
+LIRC_MouseGetDefaultAccel(int *pscale, int *pthresh)
+{
+	*pscale = SCALE;
+	*pthresh = THRESH;
+}
+
+static int
+LIRC_MouseOpen(MOUSEDEVICE * pkd)
+{
+    return LIRC_fd;
+}
+
+static void
+LIRC_MouseClose(void)
+{
+}
+#endif /* def MW_LIRC_MOUSE */
+
+/* Hooks for a MW mouse driver. Called from the RC handler. */
+static int
+LIRC_mouseMovedPolar(int speed, int direction)
+{
+#ifdef MW_LIRC_MOUSE
+	int xdelta = POLAR_TO_CARTESIAN_X(speed, direction);
+	int ydelta = POLAR_TO_CARTESIAN_Y(speed, direction);
+	
+	/*printf("LIRC_mouseMoved() - speed %d, dir %d\n", speed, direction);*/
+	
+	return LIRC_mouseMovedCartesian(xdelta, ydelta);
+#else
+	return 0;
+#endif
+}
+
+/* Hooks for a MW mouse driver. Called from the RC handler. */
+static int
+LIRC_mouseMovedCartesian(int xdelta, int ydelta)
+{
+	/*printf("LIRC_mouseMoved() - (%d,%d)\n", xdelta, ydelta);*/
+#ifdef MW_LIRC_MOUSE
+	LIRC_mouseDeltaX += xdelta;
+	LIRC_mouseDeltaY += ydelta;
+
+	if (LIRC_mouseDeltaX >= 8
+	    || LIRC_mouseDeltaX <= -8
+	    || LIRC_mouseDeltaY >= 8 || LIRC_mouseDeltaY <= -8) {
+		return 3;
+	}
+#endif
+	return 0;
+}
+
+
+/* Hooks for a MW mouse driver. Called from the RC handler. */
+static int
+LIRC_mouseButton(int button, MWBOOL isDown)
+{
+	/*printf("LIRC_mouseButton() - button %d is %s\n", button, (isDown ? "down" : "up"));*/
+#ifdef MW_LIRC_MOUSE
+	if (isDown) {
+		if (!(LIRC_mouseButtons & button)) {
+			LIRC_mouseButtons |= button;
+			return 3;
+		}
+	} else {
+		if (LIRC_mouseButtons & button) {
+			LIRC_mouseButtons &= ~button;
+			return 3;
+		}
+	}
+#endif
+	return 0;
+}
 
 
 /*
@@ -103,6 +276,13 @@ LIRC_Open(KBDDEVICE * pkd)
 	LIRC_pending_keyrelease_ch = 0;
 	LIRC_pending_keyrelease_scan = 0;
 	LIRC_keymod = 0;
+
+#ifdef MW_LIRC_MOUSE
+	LIRC_mouseDeltaX = 0;
+	LIRC_mouseDeltaY = 0;
+	LIRC_mouseButtonsReported = 0;
+	LIRC_mouseButtons = 0;
+#endif
 
 	LIRC_fd = fd;
 	return fd;
@@ -215,11 +395,16 @@ LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers, MWSCANCODE * pscancode)
 	}
 
 	do {
-		/*printf("Calling mwlirc_read_keystroke()\n");*/
+		/*DPRINTF("Calling mwlirc_read_keystroke()\n");*/
 		err = mwlirc_read_keystroke_norepeat(event);
-		/*printf("Called  mwlirc_read_keystroke() - %d\n", err);*/
+		/*DPRINTF("Called  mwlirc_read_keystroke() - %d\n", err);*/
 		if (err != 0) {
-			return (err == MWLIRC_ERROR_AGAIN) ? 0 : -1;
+			if (err == MWLIRC_ERROR_AGAIN) {
+				return 0;
+			} else {
+				EPRINTF("Error returned by mwlirc_read_keystroke() - %d\n", err);
+				return -1;
+			}
 		}
 
 		driver = remoteDrivers;
@@ -228,10 +413,10 @@ LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers, MWSCANCODE * pscancode)
 			driver++;
 		}
 		if (driver->name) {
-			/*printf("LIRC_Read() - processing remote '%s', key '%s'\n", event->rc, event->name);*/
+			/*DPRINTF("LIRC_Read() - processing remote '%s', key '%s'\n", event->rc, event->name);*/
 			result = driver->handler(event, kbuf, pscancode);
 		} else {
-			printf("LIRC_Read() - Unrecognized remote control '%s'. (Key '%s')\n", event->rc, event->name);
+			EPRINTF("LIRC_Read() - Unrecognized remote control '%s'. (Key '%s')\n", event->rc, event->name);
 		}
 	}
 	while (result == 0);
@@ -242,6 +427,50 @@ LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers, MWSCANCODE * pscancode)
 
 /* ************************************************************************ */
 /* * End of generic IR code                                               * */
+/* ************************************************************************ */
+
+
+
+/* ************************************************************************ */
+/* * Start of IR mouse driver                                             * */
+/* ************************************************************************ */
+/*
+ * To use this driver, you must follow the following conventions
+ * when allocating key names in LIRC.
+ *
+ * Key names have the format:
+ *     "m_" <speed> "_" <direction>
+ * where speed and direction are decimal numbers:
+ *     0 <= speed <= 15, 0=stopped, 15=fast.
+ *     0 <= direction <= 15, 0=east, 4=north, 8=west, 12=south.
+ *
+ * i.e. this is a polar co-ordinate system.
+ *
+ * The name of this remote is "mouse"
+ */
+
+static int
+remoteMouseHandler(mwlirc_keystroke * event, MWKEY * kbuf,
+		   MWSCANCODE * pscancode)
+{
+	unsigned speed;
+	unsigned dir;
+	int len = 0;
+
+	if ((sscanf(event->name, "m_%u_%u%n", &speed, &dir, &len) < 2)
+	    || (len != strlen(event->name))
+	    || (dir > 15)
+	    || (speed > 15)) {
+		EPRINTF("LIRC_Read() - Invalid mouse event '%s'\n",
+		       event->name);
+		return 0;
+	}
+
+	return LIRC_mouseMovedPolar(speed, dir);
+}
+
+/* ************************************************************************ */
+/* * End of IR mouse driver                                               * */
 /* ************************************************************************ */
 
 
@@ -259,6 +488,8 @@ LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers, MWSCANCODE * pscancode)
  * The rest of the symbol must be one of the strings defined in keyboardKeys,
  * or one of these specials:
  *     "fn"  - "Fn" key
+ *     "lmb" - Left mouse button
+ *     "rmb" - Right mouse button
  *
  * The name of this remote is "keyboard"
  */
@@ -389,7 +620,7 @@ remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 
 	unsigned len = strlen(event->name);
 	if (len < 2) {
-		printf("LIRC_Read() - Invalid key '%s' - too short.  (Must be at least 2 characters!)\n", event->name);
+		EPRINTF("LIRC_Read() - Invalid key '%s' - too short.  (Must be at least 2 characters!)\n", event->name);
 		return 0;
 	}
 	len--;
@@ -401,7 +632,7 @@ remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 		isDown = 0;
 		break;
 	default:
-		printf("LIRC_Read() - Invalid key '%s' - no up/down (^ or \\) indicator\n", event->name);
+		EPRINTF("LIRC_Read() - Invalid key '%s' - no up/down (^ or \\) indicator\n", event->name);
 		return 0;
 	}
 	event->name[len] = '\0';
@@ -409,6 +640,10 @@ remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 	if (0 == strcmp(event->name, "fn")) {
 		LIRC_fn = isDown;
 		return 0;	/* Silent key */
+	} else if (0 == strcmp(event->name, "lmb")) {
+		return LIRC_mouseButton(MWBUTTON_L, isDown);
+	} else if (0 == strcmp(event->name, "rmb")) {
+		return LIRC_mouseButton(MWBUTTON_R, isDown);
 	}
 
 	k = keyboardKeys;
@@ -416,7 +651,7 @@ remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 	while (0 != strcmp(k->name, event->name)) {
 		k++;
 		if (NULL == k->name) {
-			printf("LIRC_Read() - Unrecognized key '%s'\n",
+			EPRINTF("LIRC_Read() - Unrecognized key '%s'\n",
 			       event->name);
 			return 0;	/* Unrecognized - treat as 'No data' */
 		}
@@ -446,7 +681,7 @@ remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 
 	LIRC_UpdateKeyState(isDown, ch);
 
-	/*printf("LIRC_Read() - Got key '%s', char '%c', code 0x%x\n", k->name, ch, scan);*/
+	/*DPRINTF("LIRC_Read() - Got key '%s', char '%c', code 0x%x\n", k->name, ch, scan);*/
 	*kbuf = ch;
 	*pscancode = scan;
 
@@ -584,19 +819,19 @@ remoteControlHandler(mwlirc_keystroke * event, MWKEY * kbuf,
 	if (len == 1) {
 		/* Should be a digit. */
 		ch = event->name[0];
-		/*printf("LIRC_Read() - Got key '%c', char '%c', code 0x%x\n", ch, ch, ch);*/
+		/*DPRINTF("LIRC_Read() - Got key '%c', char '%c', code 0x%x\n", ch, ch, ch);*/
 	} else {
 		/* FIXME: This is a linear search, should use a binary search instead (faster). */
 		const remoteKey_t *k = remoteKeys;
 		while (0 != strcmp(k->name, event->name)) {
 			k++;
 			if (NULL == k->name) {
-				printf("LIRC_Read() - Unrecognized key '%s'\n", event->name);
+				EPRINTF("LIRC_Read() - Unrecognized key '%s'\n", event->name);
 				return 0;	/* Unrecognized - treat as 'No data' */
 			}
 		}
 		ch = k->code;
-		/*printf("LIRC_Read() - Got key '%s', no char, code 0x%x\n", k->name, ch);*/
+		/*DPRINTF("LIRC_Read() - Got key '%s', no char, code 0x%x\n", k->name, ch);*/
 	}
 
 	*kbuf = ch;

@@ -875,34 +875,34 @@ linear32a_stretchblitex(PSD dstpsd,
 
 			x_count = width;
 			while (x_count-- > 0) {
-				int c;
+				unsigned long c;
+				unsigned long orig;
 				int a;
-				int s;
-				register int d;
-				int orig;
-				int result;
 				c = *src_ptr;
 				a = (c >> 24) & 0xFF;
 				if (a == 255) {
 					*dest_ptr = c;
 				} else if (a != 0) {
+					int s;
+					int d;
+					unsigned long result;
+					
 					orig = *dest_ptr;
-					d = (orig >> 24) & 0xFF;
-					result = ((d + a -
-						   ((d * a) >> 8)) << 24);
-					s = ((c >> 16) & 0xFF);
-					d = (orig >> 16) & 0xFF;
-					result |=
-						(((((s - d) * a) >> 8) +
-						  d) << 16);
-					s = ((c >> 8) & 0xFF);
-					d = (orig >> 8) & 0xFF;
-					result |=
-						(((((s - d) * a) >> 8) +
-						  d) << 8);
-					s = (c & 0xFF);
-					d = orig & 0xFF;
-					result |= ((((s - d) * a) >> 8) + d);
+					
+					s = (int)(c    >> 16) & 0xFF;
+					d = (int)(orig >> 16) & 0xFF;
+					result = ((unsigned long)((((s - d) * a) >> 8) + d) << 16);
+
+					s = (int)(c    >> 8) & 0xFF;
+					d = (int)(orig >> 8) & 0xFF;
+					result |= ((unsigned long)((((s - d) * a) >> 8) + d) << 8);
+
+					s = (int)c    & 0xFF;
+					d = (int)orig & 0xFF;
+					result |= ((unsigned long)(((s - d) * a) >> 8) + d);
+
+					d = (int)(orig >> 24) & 0xFF;
+					result |= ((unsigned long)(a + ((d * (256 - a)) >> 8)) << 24);
 					*dest_ptr = result;
 				}
 

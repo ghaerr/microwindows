@@ -22,14 +22,29 @@ GdOpenKeyboard(void)
 	return fd;
 }
 
+#ifdef MW_FEATURE_TWO_KEYBOARDS
 /**
+ * Open the second keyboard.
  *
+ * @return Fd (>0) on success, -1 on error, -2 if no keyboard.
+ */
+int
+GdOpenKeyboard2(void)
+{
+	return kbddev2.Open(&kbddev2);
+}
+#endif
+
+/**
  * Close the keyboard.
  */
 void
 GdCloseKeyboard(void)
 {
 	kbddev.Close();
+#ifdef MW_FEATURE_TWO_KEYBOARDS
+	kbddev2.Close();
+#endif
 }
 
 /**
@@ -41,7 +56,18 @@ GdCloseKeyboard(void)
 void
 GdGetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 {
+#ifdef MW_FEATURE_TWO_KEYBOARDS
+	MWKEYMOD modifiers2;
+	MWKEYMOD curmodifiers2;
+#endif
 	kbddev.GetModifierInfo(modifiers, curmodifiers);
+#ifdef MW_FEATURE_TWO_KEYBOARDS
+	kbddev2.GetModifierInfo(&modifiers2, &curmodifiers2);
+	if (modifiers)
+		*modifiers |= modifiers2;
+	if (curmodifiers)
+		*curmodifiers |= curmodifiers2;
+#endif
 }
 
 /**
@@ -59,5 +85,10 @@ GdGetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 int
 GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
-	return kbddev.Read(buf, modifiers, scancode);
+	int result = kbddev.Read(buf, modifiers, scancode);
+#ifdef MW_FEATURE_TWO_KEYBOARDS
+	if (result == 0)
+		result = kbddev2.Read(buf, modifiers, scancode);
+#endif
+	return result;
 }

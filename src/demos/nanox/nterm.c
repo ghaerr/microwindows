@@ -34,7 +34,7 @@ static GR_GC_ID		gc3;	/* graphics context */
 static GR_COORD		xpos;	/* x coord for text */
 static GR_COORD		ypos;	/* y coord for text */
 static GR_SCREEN_INFO	si;	/* screen info */
-static int 		tfd;
+static int 		tfdMaster,tfdSlave;
 
 void text_init(void);
 int term_init(void);
@@ -60,7 +60,7 @@ int main(int argc, char ** argv)
 	
 	GrGetScreenInfo(&si);
 
-	w1 = GrNewWindow(GR_ROOT_WINDOW_ID, 50, 30, si.cols - 120,
+	w1 = GrNewWindow(GR_ROOT_WINDOW_ID, 50, 30, si.cols - 10,
 		si.rows - 60, 1, WHITE, LTBLUE);
 
 	GrSelectEvents(w1, GR_EVENT_MASK_BUTTON_DOWN |
@@ -107,9 +107,8 @@ int main(int argc, char ** argv)
 		GrClose();
 		exit(1);
 	}
-
 	/* we want tfd events also*/
-	GrRegisterInput(tfd);
+	GrRegisterInput(tfdMaster);
 
 #if 1
 	GrMainLoop(HandleEvent);
@@ -176,7 +175,7 @@ int term_init(void)
 
 again:
 	sprintf(pty_name, "/dev/ptyp%d", n);
-	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
+	if ((tfdMaster = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
 		if ((errno == EBUSY || errno == EIO) && n < 10) {
 			n++;
 			goto again;
@@ -186,6 +185,11 @@ again:
 	}
 	signal(SIGCHLD, sigchild);
 	signal(SIGINT, sigchild);
+
+#ifdef __uClinux__
+#undef fork
+#define fork() vfork()
+#endif
 	if ((pid = fork()) == -1) {
 		fprintf(stderr, "No processes\n");
 		return -1;
@@ -194,17 +198,17 @@ again:
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
 		close(STDERR_FILENO);
-		close(tfd);
-		
+
+		close(tfdMaster);
 		setsid();
 		pty_name[5] = 't';
-		if ((tfd = open(pty_name, O_RDWR)) < 0) {
+		if ((tfdSlave = open(pty_name, O_RDWR)) < 0) {
 			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
-		dup2(tfd, STDIN_FILENO);
-		dup2(tfd, STDOUT_FILENO);
-		dup2(tfd, STDERR_FILENO);
+		dup2(tfdSlave, STDIN_FILENO);
+		dup2(tfdSlave, STDOUT_FILENO);
+		dup2(tfdSlave, STDERR_FILENO);
 		execv(nargv[0], nargv);
 		exit(1);
 	}
@@ -285,7 +289,7 @@ do_keystroke(GR_EVENT_KEYSTROKE *kp)
 	char foo;
 
 	foo = kp->ch;
-	write(tfd, &foo, 1);
+	write(tfdMaster, &foo, 1);
 }
 
 
@@ -319,6 +323,6 @@ do_fdinput(void)
 {
 	char	c;
 
-	if (read(tfd, &c, 1) == 1)
+	if (read(tfdMaster, &c, 1) == 1)
 		char_out(c);
 }

@@ -1,3 +1,7 @@
+	* patched nterm.c to work with uClinux (Mark)
+	* fixed 32 bpp alpha framebuffer driver sign extension bug (Jonathan)
+	* added IR trackpoint mouse support (LIRCMOUSE=Y) (Jonathan)
+	* added two keyboard support w/lirc driver (LIRCKBD2=Y) (Jonathan)
 	* fixed GdArcAngle problem with small angles becoming whole circle
 	* fixed portrait-down mirror display problem (Matthias), also mouse
 	* fixed .pcf file short offset problem with large fonts

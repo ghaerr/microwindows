@@ -324,6 +324,7 @@ MTMOUSE                  = N
 PSIONMOUSE               = N
 YOPYMOUSE                = N
 HARRIERMOUSE             = N
+LIRCMOUSE                = N
 
 # keyboard or null kbd driver
 TTYKBD                   = N
@@ -334,6 +335,11 @@ LIRCKBD                  = N
 NOKBD                    = N
 
 endif
+
+# Secondary keyboard drivers.
+# You may have a normal keyboard driver in addition to these
+# drivers, e.g. for both normal keyboard and IR input.
+LIRCKBD2                 = N
 
 ####################################################################
 # Screen driver specific configuration

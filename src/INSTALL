@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-August 28, 2002 g haerr <greg@censoft.com>
+Apr 6, 2003 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -138,8 +138,7 @@ I have written a utility that converts MS fonts, for exact
 MS-Windows look and feel.  You must own a MS license in order
 to use an MS font.  To use the MS fonts, run mwin/src/fonts/convfnt32.exe
 on a Windows system, and it will create the win*.c font tables.
-Then, set the following line in the config file:
-	HAVEMSFONTS=Y
+These fonts can then be linked in by modifying the drivers/genfont.c file.
 
 
 FreeBSD

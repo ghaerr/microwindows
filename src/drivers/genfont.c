@@ -3,7 +3,9 @@
  *
  * Screen Driver Utilities
  * 
- * Microwindows Proportional Font Routines (proportional font format)
+ * Microwindows Proportional Fonts & Routines (proportional font format)
+ *
+ * Modify this file to add/subtract builtin fonts from Microwindows
  *
  * This file contains the generalized low-level font/text
  * drawing routines.  Both fixed and proportional fonts are
@@ -15,13 +17,9 @@
 #include "genfont.h"
 
 /* compiled in fonts*/
-extern MWCFONT font_rom8x16, font_rom8x8;
 extern MWCFONT font_winFreeSansSerif11x13;
 extern MWCFONT font_winFreeSystem14x16;
-extern MWCFONT font_winSystem14x16;
-extern MWCFONT font_winMSSansSerif11x13;
-extern MWCFONT font_winTerminal8x12;
-extern MWCFONT font_helvB10, font_helvB12, font_helvR10;
+extern MWCFONT font_rom8x16, font_rom8x8;
 extern MWCFONT font_X5x7, font_X6x13;
 
 /* handling routines for MWCOREFONT*/
@@ -39,17 +37,10 @@ static MWFONTPROCS fontprocs = {
 
 /* first font is default font if no match*/
 MWCOREFONT gen_fonts[NUMBER_FONTS] = {
-#if HAVEMSFONTS
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR, &font_winSystem14x16},
-	{&fontprocs, 0, 0, 0, MWFONT_GUI_VAR, &font_winMSSansSerif11x13},
-	{&fontprocs, 0, 0, 0, MWFONT_OEM_FIXED, &font_winTerminal8x12},
+	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSystem14x16},
+	{&fontprocs, 0, 0, 0, MWFONT_GUI_VAR,      &font_winFreeSansSerif11x13},
+	{&fontprocs, 0, 0, 0, MWFONT_OEM_FIXED,    &font_rom8x16},
 	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13}
-#else
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR, &font_winFreeSystem14x16},
-	{&fontprocs, 0, 0, 0, MWFONT_GUI_VAR, &font_winFreeSansSerif11x13},
-	{&fontprocs, 0, 0, 0, MWFONT_OEM_FIXED, &font_rom8x16},
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13}
-#endif
 };
 
 /*
@@ -127,7 +118,6 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	ch -= pf->firstchar;
 
 	/* get font bitmap depending on fixed pitch or not*/
-
 	bits = pf->bits + (pf->offset? pf->offset[ch]: (pf->height * ch));
  	width = pf->width ? pf->width[ch] : pf->maxwidth;
 	count = MWIMAGE_WORDS(width) * pf->height; 

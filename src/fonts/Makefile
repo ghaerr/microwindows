@@ -35,10 +35,6 @@ OBJS =	helvB10.o helvB12.o helvR10.o symbol.o rom8x16.o rom8x8.o\
 	winFreeSansSerif11x13.o winFreeSystem14x16.o X5x7.o X6x13.o
 #	timBI18.o
 
-ifeq ($(HAVEMSFONTS), Y)
-OBJS += winMSSansSerif11x13.o winSystem14x16.o winTerminal8x12.o
-endif
-
 ifeq ($(HAVE_BIG5_SUPPORT), Y)
 OBJS += chinese/big5font.o
 endif

@@ -1,3 +1,5 @@
+	* removed HAVEMSFONTS option
+	* slight speed increase on dashed drawing, reformatted devdraw.c
 	* increase text draw speed with no-clip drawbitmap internal function
 	* rewrote and moved all DBCS code into engine/devfont.c and font_dbcs.c
 		- added MWTF_DBCS_BIG5, MWTF_DBCS_GB, MWTF_DBCS_JIS,

@@ -45,7 +45,7 @@ static void drawcol(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2);
 int
 GdSetMode(int mode)
 {
-	int	oldmode = gr_mode;
+	int oldmode = gr_mode;
 
 	gr_mode = mode;
 	return oldmode;
@@ -66,7 +66,7 @@ GdSetFillMode(int mode)
 MWBOOL
 GdSetUseBackground(MWBOOL flag)
 {
-	MWBOOL	oldusebg = gr_usebg;
+	MWBOOL oldusebg = gr_usebg;
 
 	gr_usebg = flag;
 	return oldusebg;
@@ -78,7 +78,7 @@ GdSetUseBackground(MWBOOL flag)
 MWPIXELVAL
 GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg)
 {
-	MWPIXELVAL	oldfg = gr_foreground;
+	MWPIXELVAL oldfg = gr_foreground;
 
 	gr_foreground = fg;
 	return oldfg;
@@ -91,7 +91,7 @@ GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg)
 MWPIXELVAL
 GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg)
 {
-	MWPIXELVAL	oldbg = gr_background;
+	MWPIXELVAL oldbg = gr_background;
 
 	gr_background = bg;
 	return oldbg;
@@ -160,150 +160,148 @@ GdPoint(PSD psd, MWCOORD x, MWCOORD y)
  * in a line, and those that draw up to the last point.  All other local
  * routines draw the last point.  This gives this routine a bit more overhead,
  * but keeps overall complexity down.
-
  */
-
 void
 GdLine(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
        MWBOOL bDrawLastPoint) 
-{ 
-  int xdelta;			/* width of rectangle around line */
-  int ydelta;			/* height of rectangle around line */
-  int xinc;			/* increment for moving x coordinate */
-  int yinc;			/* increment for moving y coordinate */
-  int rem;			/* current remainder */
-  MWCOORD temp;
-  
-  int bit = 0;                      /* Used for dashed lines */
+{
+	unsigned int xdelta;	/* width of rectangle around line */
+	unsigned int ydelta;	/* height of rectangle around line */
+	unsigned int xinc;	/* increment for moving x coordinate */
+	unsigned int yinc;	/* increment for moving y coordinate */
+	unsigned int rem;	/* current remainder */
+	unsigned int bit = 0;	/* Used for dashed lines */
+	MWCOORD temp;
 
-  /* See if the line is horizontal or vertical. If so, then call
-   * special routines.
-   */
-  if (y1 == y2) {
-	/*
-	 * Adjust coordinates if not drawing last point.  Tricky.
+	/* See if the line is horizontal or vertical. If so, then call
+	 * special routines.
 	 */
-	if(!bDrawLastPoint) {
-		if (x1 > x2) {
-			temp = x1;
-			x1 = x2 + 1;
-			x2 = temp;
-		} else
-			--x2;
-	}
-
-	/* call faster line drawing routine*/
-
-	drawrow(psd, x1, x2, y1);
-	GdFixCursor(psd);
-	return;
-  }
-  if (x1 == x2) {
-	/*
-	 * Adjust coordinates if not drawing last point.  Tricky.
-	 */
-	if(!bDrawLastPoint) {
-		if (y1 > y2) {
-			temp = y1;
-			y1 = y2 + 1;
-			y2 = temp;
-		} else
-			--y2;
-	}
-
-	/* call faster line drawing routine */
-	drawcol(psd, x1, y1, y2);
-	GdFixCursor(psd);
-	return;
-  }
-
-  /* See if the line is either totally visible or totally invisible. If
-   * so, then the line drawing is easy.
-   */
-  switch (GdClipArea(psd, x1, y1, x2, y2)) {
-      case CLIP_VISIBLE:
-	/*
-	 * For size considerations, there's no low-level bresenham
-	 * line draw, so we've got to draw all non-vertical
-	 * and non-horizontal lines with per-point
-	 * clipping for the time being
-	psd->Line(psd, x1, y1, x2, y2, gr_foreground);
-	GdFixCursor(psd);
-	return;
-	 */
-	break;
-      case CLIP_INVISIBLE:
-	return;
-  }
-
-  /* The line may be partially obscured. Do the draw line algorithm
-   * checking each point against the clipping regions.
-   */
-  xdelta = x2 - x1;
-  ydelta = y2 - y1;
-  if (xdelta < 0) xdelta = -xdelta;
-  if (ydelta < 0) ydelta = -ydelta;
-  xinc = (x2 > x1) ? 1 : -1;
-  yinc = (y2 > y1) ? 1 : -1;
-  if (GdClipPoint(psd, x1, y1))
-	  psd->DrawPixel(psd, x1, y1, gr_foreground);
-  if (xdelta >= ydelta) {
-	rem = xdelta / 2;
-	for(;;) {
-		if(!bDrawLastPoint && x1 == x2)
-			break;
-		x1 += xinc;
-		rem += ydelta;
-		if (rem >= xdelta) {
-			rem -= xdelta;
-			y1 += yinc;
+	if (y1 == y2) {
+		/*
+		 * Adjust coordinates if not drawing last point.  Tricky.
+		 */
+		if (!bDrawLastPoint) {
+			if (x1 > x2) {
+				temp = x1;
+				x1 = x2 + 1;
+				x2 = temp;
+			} else
+				--x2;
 		}
 
-		if (gr_dashcount) {
-		  if (GdClipPoint(psd, x1, y1) && (gr_dashmask & (1 << bit)))
-		    psd->DrawPixel(psd, x1, y1, gr_foreground);
-		  
-		  bit = (bit + 1) % gr_dashcount;
-		}
-		else {  /* No dashes */
-		if (GdClipPoint(psd, x1, y1))
-			psd->DrawPixel(psd, x1, y1, gr_foreground);
+		/* call faster line drawing routine */
+		drawrow(psd, x1, x2, y1);
+		GdFixCursor(psd);
+		return;
+	}
+	if (x1 == x2) {
+		/*
+		 * Adjust coordinates if not drawing last point.  Tricky.
+		 */
+		if (!bDrawLastPoint) {
+			if (y1 > y2) {
+				temp = y1;
+				y1 = y2 + 1;
+				y2 = temp;
+			} else
+				--y2;
 		}
 
-		if(bDrawLastPoint && x1 == x2)
-		  break;
-		
+		/* call faster line drawing routine */
+		drawcol(psd, x1, y1, y2);
+		GdFixCursor(psd);
+		return;
 	}
-  } else {
-	rem = ydelta / 2;
-	for(;;) {
-		if(!bDrawLastPoint && y1 == y2)
-			break;
-		y1 += yinc;
-		rem += xdelta;
-		if (rem >= ydelta) {
-			rem -= ydelta;
+
+	/* See if the line is either totally visible or totally invisible. If
+	 * so, then the line drawing is easy.
+	 */
+	switch (GdClipArea(psd, x1, y1, x2, y2)) {
+	case CLIP_VISIBLE:
+		/*
+		 * For size considerations, there's no low-level bresenham
+		 * line draw, so we've got to draw all non-vertical
+		 * and non-horizontal lines with per-point
+		 * clipping for the time being
+		 psd->Line(psd, x1, y1, x2, y2, gr_foreground);
+		 GdFixCursor(psd);
+		 return;
+		 */
+		break;
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+	/* The line may be partially obscured. Do the draw line algorithm
+	 * checking each point against the clipping regions.
+	 */
+	xdelta = x2 - x1;
+	ydelta = y2 - y1;
+	if (xdelta < 0)
+		xdelta = -xdelta;
+	if (ydelta < 0)
+		ydelta = -ydelta;
+	xinc = (x2 > x1)? 1 : -1;
+	yinc = (y2 > y1)? 1 : -1;
+
+	/* draw first point*/
+	if (GdClipPoint(psd, x1, y1))
+		psd->DrawPixel(psd, x1, y1, gr_foreground);
+
+	if (xdelta >= ydelta) {
+		rem = xdelta / 2;
+		for (;;) {
+			if (!bDrawLastPoint && x1 == x2)
+				break;
 			x1 += xinc;
-		}
+			rem += ydelta;
+			if (rem >= xdelta) {
+				rem -= xdelta;
+				y1 += yinc;
+			}
 
-		/* If we are trying to draw to a dash mask */
+			if (gr_dashcount) {
+				if ((gr_dashmask & (1 << bit)) && GdClipPoint(psd, x1, y1))
+					psd->DrawPixel(psd, x1, y1, gr_foreground);
 
-		if (gr_dashcount) {
-		  if (GdClipPoint(psd, x1, y1) && (gr_dashmask & (1 << bit)))
-		    psd->DrawPixel(psd, x1, y1, gr_foreground);
-		  
-		  bit = (bit + 1) % gr_dashcount;
-		}
-		else {  /* No dashes */
-		if (GdClipPoint(psd, x1, y1))
-			psd->DrawPixel(psd, x1, y1, gr_foreground);
-		}
+				bit = (bit + 1) % gr_dashcount;
+			} else {	/* No dashes */
+				if (GdClipPoint(psd, x1, y1))
+					psd->DrawPixel(psd, x1, y1, gr_foreground);
+			}
 
-		if(bDrawLastPoint && y1 == y2)
-		  break;
+			if (bDrawLastPoint && x1 == x2)
+				break;
+
+		}
+	} else {
+		rem = ydelta / 2;
+		for (;;) {
+			if (!bDrawLastPoint && y1 == y2)
+				break;
+			y1 += yinc;
+			rem += xdelta;
+			if (rem >= ydelta) {
+				rem -= ydelta;
+				x1 += xinc;
+			}
+
+			/* If we are trying to draw to a dash mask */
+			if (gr_dashcount) {
+				if ((gr_dashmask & (1 << bit)) && GdClipPoint(psd, x1, y1))
+					psd->DrawPixel(psd, x1, y1, gr_foreground);
+
+				bit = (bit + 1) % gr_dashcount;
+			} else {	/* No dashes */
+				if (GdClipPoint(psd, x1, y1))
+					psd->DrawPixel(psd, x1, y1, gr_foreground);
+			}
+
+			if (bDrawLastPoint && y1 == y2)
+				break;
+		}
 	}
-  }
-  GdFixCursor(psd);
+	GdFixCursor(psd);
 }
 
 /* Draw a point in the foreground color, applying clipping if necessary*/
@@ -320,49 +318,46 @@ drawpoint(PSD psd, MWCOORD x, MWCOORD y)
 /*static*/ void
 drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y)
 {
-  MWCOORD temp;
+	MWCOORD temp;
 
-  /* reverse endpoints if necessary*/
-  if (x1 > x2) {
-	temp = x1;
-	x1 = x2;
-	x2 = temp;
-  }
+	/* reverse endpoints if necessary */
+	if (x1 > x2) {
+		temp = x1;
+		x1 = x2;
+		x2 = temp;
+	}
 
-  /* clip to physical device*/
-  if (x1 < 0)
-	  x1 = 0;
-  if (x2 >= psd->xvirtres)
-	  x2 = psd->xvirtres - 1;
+	/* clip to physical device */
+	if (x1 < 0)
+		x1 = 0;
+	if (x2 >= psd->xvirtres)
+		x2 = psd->xvirtres - 1;
 
-  /* check cursor intersect once for whole line*/
-  GdCheckCursor(psd, x1, y, x2, y);
+	/* check cursor intersect once for whole line */
+	GdCheckCursor(psd, x1, y, x2, y);
 
-  /* If aren't trying to draw a dash, then head for the speed */
+	/* If aren't trying to draw a dash, then head for the speed */
 
-  if (!gr_dashcount) {
+	if (!gr_dashcount) {
+		while (x1 <= x2) {
+			if (GdClipPoint(psd, x1, y)) {
+				temp = MWMIN(clipmaxx, x2);
+				psd->DrawHorzLine(psd, x1, temp, y, gr_foreground);
+			} else
+				temp = MWMIN(clipmaxx, x2);
+			x1 = temp + 1;
+		}
+	} else {
+		unsigned int p, bit = 0;
 
-    while (x1 <= x2) {
-      if (GdClipPoint(psd, x1, y)) {
-	temp = MWMIN(clipmaxx, x2);
-	psd->DrawHorzLine(psd, x1, temp, y, gr_foreground);
-      } else
-	temp = MWMIN(clipmaxx, x2);
-      x1 = temp + 1;
-    }
-  }
-  else {
-    int p, bit = 0;
+		/* We want to draw a dashed line instead */
+		for (p = x1; p <= x2; p++) {
+			if ((gr_dashmask & (1 << bit)) && GdClipPoint(psd, p, y))
+				psd->DrawPixel(psd, p, y, gr_foreground);
 
-    /* We want to draw a dashed line instead */
-
-    for(p = x1; p <= x2; p++) {
-      if (GdClipPoint(psd, p, y) && (gr_dashmask & (1 << bit)))
-	psd->DrawPixel(psd, p, y, gr_foreground);
-    
-      bit = (bit + 1) % gr_dashcount;
-    }
-  }
+			bit = (bit + 1) % gr_dashcount;
+		}
+	}
 }
 
 /* Draw a vertical line from y1 to and including y2 in the
@@ -371,46 +366,44 @@ drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y)
 static void
 drawcol(PSD psd, MWCOORD x,MWCOORD y1,MWCOORD y2)
 {
-  MWCOORD temp;
+	MWCOORD temp;
 
-  /* reverse endpoints if necessary*/
-  if (y1 > y2) {
-	temp = y1;
-	y1 = y2;
-	y2 = temp;
-  }
+	/* reverse endpoints if necessary */
+	if (y1 > y2) {
+		temp = y1;
+		y1 = y2;
+		y2 = temp;
+	}
 
-  /* clip to physical device*/
-  if (y1 < 0)
-	  y1 = 0;
-  if (y2 >= psd->yvirtres)
-	  y2 = psd->yvirtres - 1;
+	/* clip to physical device */
+	if (y1 < 0)
+		y1 = 0;
+	if (y2 >= psd->yvirtres)
+		y2 = psd->yvirtres - 1;
 
-  /* check cursor intersect once for whole line*/
-  GdCheckCursor(psd, x, y1, x, y2);
+	/* check cursor intersect once for whole line */
+	GdCheckCursor(psd, x, y1, x, y2);
 
-  if (!gr_dashcount) {
-    while (y1 <= y2) {
-      if (GdClipPoint(psd, x, y1)) {
-	temp = MWMIN(clipmaxy, y2);
-	psd->DrawVertLine(psd, x, y1, temp, gr_foreground);
-      } else
-	temp = MWMIN(clipmaxy, y2);
-      y1 = temp + 1;
-    }
-  }
-  else {
-    int p, bit = 0;
-    
-    /* We want to draw a dashed line instead */
+	if (!gr_dashcount) {
+		while (y1 <= y2) {
+			if (GdClipPoint(psd, x, y1)) {
+				temp = MWMIN(clipmaxy, y2);
+				psd->DrawVertLine(psd, x, y1, temp, gr_foreground);
+			} else
+				temp = MWMIN(clipmaxy, y2);
+			y1 = temp + 1;
+		}
+	} else {
+		unsigned int p, bit = 0;
 
-    for(p = y1; p <= y2; p++) {
-      if (GdClipPoint(psd, x, p) && (gr_dashmask & (1 << bit)))
-	psd->DrawPixel(psd, x, p, gr_foreground);
-    
-      bit = (bit + 1) % gr_dashcount;
-    }
-  }
+		/* We want to draw a dashed line instead */
+		for (p = y1; p <= y2; p++) {
+			if ((gr_dashmask & (1<<bit)) && GdClipPoint(psd, x, p))
+				psd->DrawPixel(psd, x, p, gr_foreground);
+
+			bit = (bit + 1) % gr_dashcount;
+		}
+	}
 }
 
 /* Draw a rectangle in the foreground color, applying clipping if necessary.
@@ -420,24 +413,24 @@ drawcol(PSD psd, MWCOORD x,MWCOORD y1,MWCOORD y2)
 void
 GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
-  MWCOORD maxx;
-  MWCOORD maxy;
+	MWCOORD maxx;
+	MWCOORD maxy;
 
-  if (width <= 0 || height <= 0)
-	  return;
-  maxx = x + width - 1;
-  maxy = y + height - 1;
-  drawrow(psd, x, maxx, y);
-  if (height > 1)
-	  drawrow(psd, x, maxx, maxy);
-  if (height < 3)
-	  return;
-  y++;
-  maxy--;
-  drawcol(psd, x, y, maxy);
-  if (width > 1)
-	  drawcol(psd, maxx, y, maxy);
-  GdFixCursor(psd);
+	if (width <= 0 || height <= 0)
+		return;
+	maxx = x + width - 1;
+	maxy = y + height - 1;
+	drawrow(psd, x, maxx, y);
+	if (height > 1)
+		drawrow(psd, x, maxx, maxy);
+	if (height < 3)
+		return;
+	++y;
+	--maxy;
+	drawcol(psd, x, y, maxy);
+	if (width > 1)
+		drawcol(psd, maxx, y, maxy);
+	GdFixCursor(psd);
 }
 
 /* Draw a filled in rectangle in the foreground color, applying
@@ -446,52 +439,48 @@ GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 void
 GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 {
-  unsigned long dm = 0, dc = 0;
+	unsigned long dm = 0, dc = 0;
 
-  MWCOORD x2 = x1+width-1;
-  MWCOORD y2 = y1+height-1;
+	MWCOORD x2 = x1 + width - 1;
+	MWCOORD y2 = y1 + height - 1;
 
-  if (width <= 0 || height <= 0)
-	  return;
+	if (width <= 0 || height <= 0)
+		return;
 
-  /* Stipples and tiles have their own drawing routines */
-  
-  if (gr_fillmode != MWFILL_SOLID) {
-    set_ts_origin(x1, y1);
+	/* Stipples and tiles have their own drawing routines */
+	if (gr_fillmode != MWFILL_SOLID) {
+		set_ts_origin(x1, y1);
 
-    ts_fillrect(psd, x1, y1, width, height);
-    GdFixCursor(psd);
-    return;
-  }
+		ts_fillrect(psd, x1, y1, width, height);
+		GdFixCursor(psd);
+		return;
+	}
 
-  /* See if the rectangle is either totally visible or totally
-   * invisible. If so, then the rectangle drawing is easy.
-   */
+	/* See if the rectangle is either totally visible or totally
+	 * invisible. If so, then the rectangle drawing is easy.
+	 */
+	switch (GdClipArea(psd, x1, y1, x2, y2)) {
+	case CLIP_VISIBLE:
+		psd->FillRect(psd, x1, y1, x2, y2, gr_foreground);
+		GdFixCursor(psd);
+		return;
 
-  switch (GdClipArea(psd, x1, y1, x2, y2)) {
-      case CLIP_VISIBLE:
-	psd->FillRect(psd, x1, y1, x2, y2, gr_foreground);
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+
+	/* Quickly save off the dash settings to avoid problems with drawrow */
+	GdSetDash(&dm, (int *) &dc);
+
+	/* The rectangle may be partially obstructed. So do it line by line. */
+	while (y1 <= y2)
+		drawrow(psd, x1, x2, y1++);
+
+	/* Restore the dash settings */
+	GdSetDash(&dm, (int *) &dc);
+
 	GdFixCursor(psd);
-	return;
-
-      case CLIP_INVISIBLE:
-	return;
-  }
-
-  /* The rectangle may be partially obstructed. So do it line by line. */
-
-  /* Quickly save off the dash settings to avoid problems with drawrow */
-
-  GdSetDash(&dm, (int *) &dc);
-
-  while (y1 <= y2) 
-	  drawrow(psd, x1, x2, y1++);
-
-  /* Restore the dash settings */
-
-  GdSetDash(&dm, (int *) &dc);
-
-  GdFixCursor(psd);
 }
 
 /*
@@ -538,9 +527,9 @@ drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		if (x++ == maxx) {
 			x = minx;
 			y++;
-			height--;
+			--height;
 			bitcount = 0;
-			}
+		}
 	}
 }
 
@@ -548,52 +537,52 @@ void
 GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	const MWIMAGEBITS *imagebits)
 {
-  MWCOORD minx;
-  MWCOORD maxx;
-  MWPIXELVAL savecolor;		/* saved foreground color */
-  MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
-  int bitcount;			/* number of bits left in bitmap word */
+	MWCOORD minx;
+	MWCOORD maxx;
+	MWPIXELVAL savecolor;		/* saved foreground color */
+	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
+	int bitcount;			/* number of bits left in bitmap word */
 
-  switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-      case CLIP_VISIBLE:
-	drawbitmap(psd, x, y, width, height, imagebits);
+	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	case CLIP_VISIBLE:
+		drawbitmap(psd, x, y, width, height, imagebits);
+		GdFixCursor(psd);
+		return;
+
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+	/* The rectangle is partially visible, so must do clipping. First
+	 * fill a rectangle in the background color if necessary.
+	 */
+	if (gr_usebg) {
+		savecolor = gr_foreground;
+		gr_foreground = gr_background;
+		/* note: change to fillrect*/
+		GdFillRect(psd, x, y, width, height);
+		gr_foreground = savecolor;
+	}
+	minx = x;
+	maxx = x + width - 1;
+	bitcount = 0;
+	while (height > 0) {
+		if (bitcount <= 0) {
+			bitcount = MWIMAGE_BITSPERIMAGE;
+			bitvalue = *imagebits++;
+		}
+		if (MWIMAGE_TESTBIT(bitvalue) && GdClipPoint(psd, x, y))
+			psd->DrawPixel(psd, x, y, gr_foreground);
+			bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
+			bitcount--;
+		if (x++ == maxx) {
+			x = minx;
+			y++;
+			--height;
+			bitcount = 0;
+		}
+	}
 	GdFixCursor(psd);
-	return;
-
-      case CLIP_INVISIBLE:
-	return;
-  }
-
-  /* The rectangle is partially visible, so must do clipping. First
-   * fill a rectangle in the background color if necessary.
-   */
-  if (gr_usebg) {
-	savecolor = gr_foreground;
-	gr_foreground = gr_background;
-	/* note: change to fillrect*/
-	GdFillRect(psd, x, y, width, height);
-	gr_foreground = savecolor;
-  }
-  minx = x;
-  maxx = x + width - 1;
-  bitcount = 0;
-  while (height > 0) {
-	if (bitcount <= 0) {
-		bitcount = MWIMAGE_BITSPERIMAGE;
-		bitvalue = *imagebits++;
-	}
-	if (MWIMAGE_TESTBIT(bitvalue) && GdClipPoint(psd, x, y))
-		psd->DrawPixel(psd, x, y, gr_foreground);
-	bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
-	bitcount--;
-	if (x++ == maxx) {
-		x = minx;
-		y++;
-		height--;
-		bitcount = 0;
-	}
-  }
-  GdFixCursor(psd);
 }
 
 /*
@@ -1662,12 +1651,9 @@ g_col_inc = (srcw << 16) / dstw;
  * Note that we do not support overlapping blits.
  */
 void
-GdStretchBlitEx(PSD dstpsd,
-		MWCOORD d1_x, MWCOORD d1_y,
-		MWCOORD d2_x, MWCOORD d2_y,
-		PSD srcpsd,
-		MWCOORD s1_x, MWCOORD s1_y,
-		MWCOORD s2_x, MWCOORD s2_y, long rop)
+GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
+	MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y, MWCOORD s2_x,
+	MWCOORD s2_y, long rop)
 {
 	/* Scale factors (as fractions, numerator/denominator) */
 	int src_x_step_numerator;
@@ -1991,8 +1977,6 @@ GdStretchBlitEx(PSD dstpsd,
 	}
 	GdFixCursor(dstpsd);
 	/* GdFixCursor(srcpsd); */
-
-	return;
 }
 
 /*

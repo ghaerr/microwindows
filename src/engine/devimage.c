@@ -652,6 +652,10 @@ err:
 
 #if defined(HAVE_FILEIO) && defined(HAVE_PNG_SUPPORT)
 #include "png.h"
+/* png_jmpbuf() macro is not defined prior to libpng-1.0.6*/
+#ifndef png_jmpbuf
+#define png_jmpbuf(png_ptr)	((png_ptr)->jmpbuf)
+#endif
 /*
  * Load a PNG file.
  * Currently for simplicity we get the PNG library to convert the file to

@@ -857,6 +857,13 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 void 
 GrCheckNextEvent(GR_EVENT *ep)
 {
+	if (evlist) {
+		/*DPRINTF("nxclient %d: Returning queued event\n",getpid());*/
+		GetNextQueuedEvent(ep);
+		CheckErrorEvent(ep);
+		return;
+	}
+
 	AllocReq(CheckNextEvent);
 	GrTypedReadBlock(ep, sizeof(*ep),GrNumGetNextEvent);
 	GrCheckForClientData(ep);

@@ -34,8 +34,8 @@ OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 OBJS += devtimer.o
 #endif
 
-ifneq ($(FREETYPE_FONTS_DIR), )
-CFLAGS += -DFREETYPE_FONTS_DIR="\"$(FREETYPE_FONTS_DIR)"\"
+ifneq ($(FREETYPE_FONT_DIR), )
+CFLAGS += -DFREETYPE_FONT_DIR="\"$(FREETYPE_FONT_DIR)"\"
 endif
 
 ifneq ($(ARCH), ELKS)

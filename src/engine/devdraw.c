@@ -656,183 +656,288 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 void
 GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 {
-  MWCOORD minx;
-  MWCOORD maxx;
-  MWUCHAR bitvalue = 0;
-  int bitcount;
-  MWUCHAR *imagebits;
-  MWCOORD	height, width;
-  MWPIXELVAL pixel;
-  int clip;
-  int extra, linesize;
-  int	rgborder;
-  MWCOLORVAL cr;
-  MWCOORD yoff;
-  unsigned long transcolor;
-  MWPIXELVAL convtable[256];
+	MWCOORD minx;
+	MWCOORD maxx;
+	MWUCHAR bitvalue = 0;
+	int bitcount;
+	MWUCHAR *imagebits;
+	MWCOORD height, width;
+	int bpp;
+	MWPIXELVAL pixel;
+	int clip;
+	int extra, linesize;
+	int rgborder;
+	MWCOLORVAL cr;
+	MWCOORD yoff;
+	unsigned long transcolor;
+	MWPIXELVAL convtable[256];
 
-  height = pimage->height;
-  width = pimage->width;
+	assert(pimage);
 
-  /* determine if entire image is clipped out, save clipresult for later*/
-  clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1);
-  if(clip == CLIP_INVISIBLE)
-	return;
+	height = pimage->height;
+	width = pimage->width;
 
-  transcolor = pimage->transcolor;
+	/* determine if entire image is clipped out, save clipresult for later*/
+	clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1);
+	if(clip == CLIP_INVISIBLE)
+		return;
 
-  /*
-   * Merge the images's palette and build a palette index conversion table.
-   */
-  if (pimage->bpp <= 8) {
-	if(!pimage->palette) {
-		/* for jpeg's without a palette*/
-		for(yoff=0; yoff<pimage->palsize; ++yoff)
-			convtable[yoff] = yoff;
-	} else GdMakePaletteConversionTable(psd, pimage->palette,
-		pimage->palsize, convtable, MERGEPALETTE);
+	transcolor = pimage->transcolor;
+	bpp = pimage->bpp;
 
-	/* The following is no longer used.  One reason is that it required */
-	/* the transparent color to be unique, which was unnessecary        */
+	/*
+	 * Merge the images's palette and build a palette index conversion table.
+	 */
+	if (pimage->bpp <= 8) {
+		if(!pimage->palette) {
+			/* for jpeg's without a palette*/
+			for(yoff=0; yoff<pimage->palsize; ++yoff)
+				convtable[yoff] = yoff;
+		} else GdMakePaletteConversionTable(psd, pimage->palette,
+			pimage->palsize, convtable, MERGEPALETTE);
 
-	/* convert transcolor to converted palette index for speed*/
-	/* if (transcolor != -1L)
-	   transcolor = (unsigned long) convtable[transcolor];  */
-  }
+		/* The following is no longer used.  One reason is that it required */
+		/* the transparent color to be unique, which was unnessecary        */
 
-  minx = x;
-  maxx = x + width - 1;
-  imagebits = pimage->imagebits;
+		/* convert transcolor to converted palette index for speed*/
+		/* if (transcolor != -1L)
+		   transcolor = (unsigned long) convtable[transcolor];  */
+	}
 
-  /* check for bottom-up image*/
-  if(pimage->compression & MWIMAGE_UPSIDEDOWN) {
-	y += height - 1;
-	yoff = -1;
-  } else
-	yoff = 1;
+	minx = x;
+	maxx = x + width - 1;
+	imagebits = pimage->imagebits;
+
+	/* check for bottom-up image*/
+	if(pimage->compression & MWIMAGE_UPSIDEDOWN) {
+		y += height - 1;
+		yoff = -1;
+	} else
+		yoff = 1;
 
 #define PIX2BYTES(n)	(((n)+7)/8)
-  /* imagebits are dword aligned*/
-  switch(pimage->bpp) {
-  default:
-  case 8:
-	linesize = width;
-	break;
-  case 32:
-	linesize = width*4;
-	break;
-  case 24:
-	linesize = width*3;
-	break;
-  case 4:
-	linesize = PIX2BYTES(width<<2);
-	break;
-  case 1:
-	linesize = PIX2BYTES(width);
-	break;
-  }
-  extra = pimage->pitch - linesize;
-
-  /* 24bpp RGB rather than BGR byte order?*/
-  rgborder = pimage->compression & MWIMAGE_RGB; 
-
-  bitcount = 0;
-  while(height > 0) {
-	unsigned long trans = 0;
-
-	if (bitcount <= 0) {
-		bitcount = sizeof(MWUCHAR) * 8;
-		bitvalue = *imagebits++;
-	}
+	/* imagebits are dword aligned*/
 	switch(pimage->bpp) {
-	case 24:
-	case 32:
-		cr = rgborder? MWRGB(bitvalue, imagebits[0], imagebits[1]):
-			MWRGB(imagebits[1], imagebits[0], bitvalue);
-                 
-		/* Include the upper bits for transcolor stuff */
-		if (imagebits[2])	/* FIXME: 24bpp error*/
-		    trans = cr | 0x01000000L;
-
-		if (pimage->bpp == 32)
-			imagebits += 3;
-		else imagebits += 2;
-		bitcount = 0;
-
-		/* handle transparent color*/
-		if (transcolor == trans)
-		    goto next;
-
-		switch(psd->pixtype) {
-		case MWPF_PALETTE:
-		default:
-			pixel = GdFindColor(psd, cr);
-			break;
-		case MWPF_TRUECOLOR0888:
-		case MWPF_TRUECOLOR888:
-			pixel = COLOR2PIXEL888(cr);
-			break;
-		case MWPF_TRUECOLOR565:
-			pixel = COLOR2PIXEL565(cr);
-			break;
-		case MWPF_TRUECOLOR555:
-			pixel = COLOR2PIXEL555(cr);
-			break;
-		case MWPF_TRUECOLOR332:
-			pixel = COLOR2PIXEL332(cr);
-			break;
-		}
-		break;
 	default:
 	case 8:
-	  bitcount = 0;
-	  if (bitvalue == transcolor)
-	      goto next;
-
-	  pixel = convtable[bitvalue];
-	  break;
+		linesize = width;
+		break;
+	case 32:
+		linesize = width*4;
+		break;
+	case 24:
+		linesize = width*3;
+		break;
 	case 4:
-	  if (((bitvalue & 0xf0) >> 4) == transcolor) {
-	       bitvalue <<= 4;
-	       bitcount -= 4;
-	       goto next;
-	  }
-
-	  pixel = convtable[(bitvalue & 0xf0) >> 4];
-	  bitvalue <<= 4;
-	  bitcount -= 4;
-	  break;
+		linesize = PIX2BYTES(width<<2);
+		break;
 	case 1:
-	  --bitcount;
-	  if (((bitvalue & 0x80) ? 1 : 0) == transcolor) {
-	      bitvalue <<= 1;
-	      goto next;
-	    }
-	
-	  pixel = convtable[(bitvalue & 0x80)? 1: 0];
-	  bitvalue <<= 1;
-	  break;
+		linesize = PIX2BYTES(width);
+		break;
 	}
+	extra = pimage->pitch - linesize;
 
-	/* if((unsigned long)pixel != transcolor &&*/
-	if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y))
-	    psd->DrawPixel(psd, x, y, pixel);
-#if 0
-	/* fix: use clipmaxx to clip quicker*/
-	else if(clip != CLIP_VISIBLE && !clipresult && x > clipmaxx) {
-		x = maxx;
-	}
+	/* 24bpp RGB rather than BGR byte order?*/
+	rgborder = pimage->compression & MWIMAGE_RGB; 
+
+	if ((bpp == 32)
+	    && ((pimage->compression & MWIMAGE_ALPHA_CHANNEL) != 0)) {
+		long *data = (long *) imagebits;
+		/* 32bpp RGB rather than BGR byte order? */
+		rgborder = pimage->compression & MWIMAGE_RGB;
+
+		/* printf("JGF-Nano-X: GdDrawImage (%d,%d) %dx%d x=%d-%d\n  ",
+		   x,y,width,height,minx,maxx); */
+
+		while (height > 0) {
+
+			cr = *data++;
+#if MW_CPU_BIG_ENDIAN
+			if (rgborder)
+			{
+				/* Fix endian and swap R/B order */
+				cr =  ((cr & 0xFFFFFF00UL) >> 8)
+					| ((cr & 0x000000FFUL) << 24);
+			}
+			else
+			{
+				/* Fix endian */
+				cr =  ((cr & 0xFF000000UL) >> 24)
+					| ((cr & 0x00FF0000UL) >> 8)
+					| ((cr & 0x0000FF00UL) << 8)
+					| ((cr & 0x000000FFUL) << 24);
+			}
+#else /* little endian*/
+			if (rgborder) {
+				/* Swap R/B order */
+				cr = (cr & 0xFF00FF00UL)
+					| ((cr & 0x00FF0000UL) >> 16)
+					| ((cr & 0x000000FFUL) << 16);
+			}
 #endif
-next:
-	if(x++ == maxx) {
-		x = minx;
-		y += yoff;
-		height--;
+
+			switch (psd->pixtype) {
+			case MWPF_PALETTE:
+			default:
+				pixel = GdFindColor(psd, cr);
+				break;
+			case MWPF_TRUECOLOR8888:
+				pixel = COLOR2PIXEL8888(cr);
+				break;
+			case MWPF_TRUECOLOR0888:
+			case MWPF_TRUECOLOR888:
+				pixel = COLOR2PIXEL888(cr);
+				break;
+			case MWPF_TRUECOLOR565:
+				pixel = COLOR2PIXEL565(cr);
+				break;
+			case MWPF_TRUECOLOR555:
+				pixel = COLOR2PIXEL555(cr);
+				break;
+			case MWPF_TRUECOLOR332:
+				pixel = COLOR2PIXEL332(cr);
+				break;
+			}
+
+			if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y))
+				psd->DrawPixel(psd, x, y, pixel);
+
+			if (x++ == maxx) {
+				/* printf("EOL\n  "); */
+				x = minx;
+				y += yoff;
+				height--;
+				data = (long *) (((char *) data) + extra);
+			}
+		}
+		/* printf("End of image\n"); */
+	} else if ((bpp == 24) || (bpp == 32)) {
+		/* RGB rather than BGR byte order? */
+		long trans;
+
+		rgborder = pimage->compression & MWIMAGE_RGB;
+
+		while (height > 0) {
+
+			trans = cr = rgborder
+				? MWRGB(imagebits[0], imagebits[1],
+					imagebits[2])
+				: MWRGB(imagebits[2], imagebits[1],
+					imagebits[0]);
+
+			imagebits += 3;
+
+			if (bpp == 32) {
+				if (*imagebits++ != 0) {
+					trans |= 0x01000000;
+				}
+			}
+
+			/* handle transparent color */
+			if (transcolor != trans) {
+
+				switch (psd->pixtype) {
+				case MWPF_PALETTE:
+				default:
+					pixel = GdFindColor(psd, cr);
+					break;
+				case MWPF_TRUECOLOR8888:
+					pixel = COLOR2PIXEL8888(cr);
+					break;
+				case MWPF_TRUECOLOR0888:
+				case MWPF_TRUECOLOR888:
+					pixel = COLOR2PIXEL888(cr);
+					break;
+				case MWPF_TRUECOLOR565:
+					pixel = COLOR2PIXEL565(cr);
+					break;
+				case MWPF_TRUECOLOR555:
+					pixel = COLOR2PIXEL555(cr);
+					break;
+				case MWPF_TRUECOLOR332:
+					pixel = COLOR2PIXEL332(cr);
+					break;
+				}
+
+				if (clip == CLIP_VISIBLE
+				    || GdClipPoint(psd, x, y))
+					psd->DrawPixel(psd, x, y, pixel);
+#if 0
+				/* fix: use clipmaxx to clip quicker */
+				else if (clip != CLIP_VISIBLE && !clipresult
+					 && x > clipmaxx) {
+					x = maxx;
+				}
+#endif
+			}
+
+			if (x++ == maxx) {
+				x = minx;
+				y += yoff;
+				height--;
+				imagebits += extra;
+			}
+		}
+	} else {  /* bpp == 8, 4, or 1, palettized image. */
+
 		bitcount = 0;
-		imagebits += extra;
+		while (height > 0) {
+			if (bitcount <= 0) {
+				bitcount = sizeof(MWUCHAR) * 8;
+				bitvalue = *imagebits++;
+			}
+			switch (bpp) {
+			default:
+			case 8:
+				bitcount = 0;
+				if (bitvalue == transcolor)
+					goto next;
+
+				pixel = convtable[bitvalue];
+				break;
+			case 4:
+				if (((bitvalue & 0xf0) >> 4) == transcolor) {
+					bitvalue <<= 4;
+					bitcount -= 4;
+					goto next;
+				}
+
+				pixel = convtable[(bitvalue & 0xf0) >> 4];
+				bitvalue <<= 4;
+				bitcount -= 4;
+				break;
+			case 1:
+				--bitcount;
+				if (((bitvalue & 0x80) ? 1 : 0) == transcolor) {
+					bitvalue <<= 1;
+					goto next;
+				}
+
+				pixel = convtable[(bitvalue & 0x80) ? 1 : 0];
+				bitvalue <<= 1;
+				break;
+			}
+
+			if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y))
+				psd->DrawPixel(psd, x, y, pixel);
+#if 0
+			/* fix: use clipmaxx to clip quicker */
+			else if (clip != CLIP_VISIBLE && !clipresult
+				 && x > clipmaxx) {
+				x = maxx;
+			}
+#endif
+		      next:
+			if (x++ == maxx) {
+				x = minx;
+				y += yoff;
+				height--;
+				bitcount = 0;
+				imagebits += extra;
+			}
+		}
 	}
-  }
-  GdFixCursor(psd);
+	GdFixCursor(psd);
 }
 
 /*
@@ -870,6 +975,7 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
  * MWPF_RGB		MWCOLORVAL (unsigned long)
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
+ * MWPF_TRUECOLOR8888	unsigned long
  * MWPF_TRUECOLOR0888	unsigned long
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
@@ -1002,6 +1108,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	case MWPF_TRUECOLOR332:
 		pixsize = sizeof(unsigned char);
 		break;
+	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
 		pixsize = sizeof(unsigned long);
 		break;
@@ -1034,6 +1141,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	case MWPF_TRUECOLOR332:
 		gr_foreground = *PIXELS++;
 		break;
+	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
 		gr_foreground = *(unsigned long *)PIXELS;
 		PIXELS += sizeof(unsigned long);
@@ -1042,7 +1150,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		r = *PIXELS++;
 		g = *PIXELS++;
 		b = *PIXELS++;
-		gr_foreground = (MWPIXELVAL)MWRGB(r, g, b);
+		gr_foreground = RGB2PIXEL888(r, g, b);
 		break;
 	case MWPF_TRUECOLOR565:
 	case MWPF_TRUECOLOR555:
@@ -1079,6 +1187,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 				goto breakwhile;
 			++PIXELS;
 			break;
+		case MWPF_TRUECOLOR8888:
 		case MWPF_TRUECOLOR0888:
 			if(gr_foreground != *(unsigned long *)PIXELS)
 				goto breakwhile;
@@ -1088,7 +1197,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 			r = *(unsigned char *)PIXELS;
 			g = *(unsigned char *)(PIXELS + 1);
 			b = *(unsigned char *)(PIXELS + 2);
-			if(gr_foreground != (MWPIXELVAL)MWRGB(r, g, b))
+			if(gr_foreground != RGB2PIXEL888(r, g, b))
 				goto breakwhile;
 			PIXELS += 3;
 			break;
@@ -1506,6 +1615,7 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
  * MWPF_RGB		MWCOLORVAL (unsigned long)
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
+ * MWPF_TRUECOLOR8888	unsigned long
  * MWPF_TRUECOLOR0888	unsigned long
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
@@ -1556,6 +1666,11 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			colorval = PIXEL888TOCOLORVAL(pixelval);
 			inbuf += sizeof(unsigned long);
 			break;
+		case MWPF_TRUECOLOR8888:
+			pixelval = *(unsigned long *) inbuf;
+			colorval = PIXEL8888TOCOLORVAL(pixelval);
+			inbuf += sizeof(unsigned long);
+			break;
 		case MWPF_TRUECOLOR888:
 			r = *inbuf++;
 			g = *inbuf++;
@@ -1601,6 +1716,11 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			break;
 		case MWPF_TRUECOLOR0888:
 			*(unsigned long *)outbuf = COLOR2PIXEL888(colorval);
+			outbuf += sizeof(unsigned long);
+			break;
+		case MWPF_TRUECOLOR8888:
+			*(unsigned long *) outbuf =
+				COLOR2PIXEL8888(colorval);
 			outbuf += sizeof(unsigned long);
 			break;
 		case MWPF_TRUECOLOR888:

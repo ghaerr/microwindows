@@ -256,6 +256,9 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 	 * bit is ignored when running truecolor drivers.
 	 */
 	switch(psd->pixtype) {
+	case MWPF_TRUECOLOR8888:
+		return COLOR2PIXEL8888(c);
+
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR888:
 		/* create 24 bit 8/8/8 pixel (0x00RRGGBB) from RGB colorval*/
@@ -280,12 +283,14 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 
 	/* case MWPF_PALETTE: must be running 1, 2, 4 or 8 bit palette*/
 
+#if 0	/* Not supported due to alpha blending changes */
 	/*
 	 * Check if color is a palette index.  Note that the index
 	 * isn't error checked against the system palette, for speed.
 	 */
 	if(c & MWF_PALINDEX)
 		return (c & 0xff);
+#endif
 
 	/* search palette for closest match*/
 	return GdFindNearestColor(gr_palette, (int)gr_ncolors, c);
@@ -342,6 +347,9 @@ MWCOLORVAL
 GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 {
 	switch (psd->pixtype) {
+	case MWPF_TRUECOLOR8888:
+		return PIXEL8888TOCOLORVAL(pixel);
+
 	case MWPF_TRUECOLOR0888:
 		return PIXEL888TOCOLORVAL(pixel);
 
@@ -513,6 +521,7 @@ GdCaptureScreen(char *path)
 		} else {
 			/* write 3 r/g/b masks*/
 			switch (gr_pixtype) {
+			case MWPF_TRUECOLOR8888:
 			case MWPF_TRUECOLOR0888:
 			default:
 				rmask = RMASK888;

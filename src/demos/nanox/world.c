@@ -73,7 +73,7 @@ typedef struct {
 	short	Lon;		/* longitude in minutes */
 } MWPACKED DBPOINT;
 
-#if BIGENDIAN
+#if MW_CPU_BIG_ENDIAN
 #define SHORT_SWAP(p) (p = ((p & 0xff) << 8) | ((p >> 8) & 0xff))
 #define DBPOINT_CONVERT(p) (SHORT_SWAP(p->Code),SHORT_SWAP(p->Lat),SHORT_SWAP(p->Lon))
 #else

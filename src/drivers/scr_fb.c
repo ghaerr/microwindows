@@ -185,6 +185,11 @@ fb_open(PSD psd)
 			break;
 		case 32:
 			psd->pixtype = MWPF_TRUECOLOR0888;
+#if !EMBEDDEDPLANET
+			/* Check if we have alpha */
+			if (fb_var.transp.length == 8)
+				psd->pixtype = MWPF_TRUECOLOR8888;
+#endif
 			break;
 		default:
 			EPRINTF(
@@ -472,6 +477,7 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 
 	psi->pixtype = psd->pixtype;
 	switch (psd->pixtype) {
+	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR888:
 		psi->rmask 	= 0xff0000;

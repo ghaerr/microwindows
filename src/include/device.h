@@ -258,8 +258,16 @@ typedef struct {
 
 /* Truecolor color conversion and extraction macros*/
 /*
- * Conversion from RGB to MWPIXELVAL
+ * Conversion from 8-bit RGB components to MWPIXELVAL
  */
+/* create 32 bit 8/8/8/8 format pixel (0xAARRGGBB) from RGB triplet*/
+#define RGB2PIXEL8888(r,g,b)	\
+	(0xFF000000UL | ((r) << 16) | ((g) << 8) | (b))
+
+/* create 32 bit 8/8/8/8 format pixel (0xAARRGGBB) from ARGB triplet*/
+#define ARGB2PIXEL8888(a,r,g,b)	\
+	(((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
+
 /* create 24 bit 8/8/8 format pixel (0x00RRGGBB) from RGB triplet*/
 #define RGB2PIXEL888(r,g,b)	\
 	(((r) << 16) | ((g) << 8) | (b))
@@ -279,25 +287,40 @@ typedef struct {
 /*
  * Conversion from MWCOLORVAL to MWPIXELVAL
  */
+/* create 32 bit 8/8/8/8 format pixel from ARGB colorval (0xAABBGGRR)*/
+/* In this format, alpha is preserved. */
+#define COLOR2PIXEL8888(c)	\
+	((((c) & 0xff) << 16) | ((c) & 0xff00ff00ul) | (((c) & 0xff0000) >> 16))
+
 /* create 24 bit 8/8/8 format pixel from RGB colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
 #define COLOR2PIXEL888(c)	\
 	((((c) & 0xff) << 16) | ((c) & 0xff00) | (((c) & 0xff0000) >> 16))
 
 /* create 16 bit 5/6/5 format pixel from RGB colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
 #define COLOR2PIXEL565(c)	\
 	((((c) & 0xf8) << 8) | (((c) & 0xfc00) >> 5) | (((c) & 0xf80000) >> 19))
 
 /* create 16 bit 5/5/5 format pixel from RGB colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
 #define COLOR2PIXEL555(c)	\
 	((((c) & 0xf8) << 7) | (((c) & 0xf800) >> 6) | (((c) & 0xf80000) >> 19))
 
 /* create 8 bit 3/3/2 format pixel from RGB colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
 #define COLOR2PIXEL332(c)	\
 	(((c) & 0xe0) | (((c) & 0xe000) >> 11) | (((c) & 0xc00000) >> 22))
 
 /*
  * Conversion from MWPIXELVAL to red, green or blue components
  */
+/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
+#define PIXEL8888ALPHA(pixelval)	(((pixelval) >> 24) & 0xff)
+#define PIXEL8888RED(pixelval)  	(((pixelval) >> 16) & 0xff)
+#define PIXEL8888GREEN(pixelval)	(((pixelval) >> 8) & 0xff)
+#define PIXEL8888BLUE(pixelval) 	((pixelval) & 0xff)
+
 /* return 8/8/8 bit r, g or b component of 24 bit pixelval*/
 #define PIXEL888RED(pixelval)		(((pixelval) >> 16) & 0xff)
 #define PIXEL888GREEN(pixelval)		(((pixelval) >> 8) & 0xff)
@@ -381,20 +404,33 @@ typedef struct {
 /*
  * Conversion from MWPIXELVAL to MWCOLORVAL
  */
-/* create RGB colorval (0x00BBGGRR) from 8/8/8 format pixel*/
-#define PIXEL888TOCOLORVAL(p)	\
-	((((p) & 0xff0000) >> 16) | ((p) & 0xff00) | (((p) & 0xff) << 16))
+/* create RGB colorval (0xAABBGGRR) from 8/8/8/8 format pixel*/
+#define PIXEL8888TOCOLORVAL(p)	\
+	((((p) & 0xff0000ul) >> 16) | ((p) & 0xff00ff00ul) | (((p) & 0xffu) << 16) | 0xff000000ul)
 
-/* create RGB colorval (0x00BBGGRR) from 5/6/5 format pixel*/
+/* create RGB colorval (0xAABBGGRR) from 8/8/8 format pixel*/
+#define PIXEL888TOCOLORVAL(p)	\
+	(0xff000000ul | (((p) & 0xff0000ul) >> 16) | ((p) & 0xff00u) | (((p) & 0xffu) << 16) | 0xff000000ul)
+
+/* create RGB colorval (0xAABBGGRR) from 5/6/5 format pixel*/
 #define PIXEL565TOCOLORVAL(p)	\
-	((((p) & 0xf800) >> 8) | (((p) & 0x07e0) << 5) | (((p) & 0x1f) << 19))
+	(0xff000000ul | (((p) & 0xf800u) >> 8) | (((p) & 0x07e0u) << 5) | (((p) & 0x1ful) << 19) | 0xff000000ul)
 
 #define PIXEL555TOCOLORVAL(p)	\
-	((((p) & 0x7c00) >> 7) | (((p) & 0x03e0) << 6) | (((p) & 0x1f) << 19))
+	(0xff000000ul | (((p) & 0x7c00u) >> 7) | (((p) & 0x03e0u) << 6) | (((p) & 0x1ful) << 19) | 0xff000000ul)
 
-/* create RGB colorval (0x00BBGGRR) from 3/3/2 format pixel*/
+/* create RGB colorval (0xAABBGGRR) from 3/3/2 format pixel*/
 #define PIXEL332TOCOLORVAL(p)	\
-	((((p) & 0xe0)) | (((p) & 0x1c) << 11) | (((p) & 0x03) << 19))
+	(0xff000000ul | (((p) & 0xe0u)) | (((p) & 0x1cu) << 11) | (((p) & 0x03ul) << 19) | 0xff000000ul)
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR8888
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL8888(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL8888(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL8888TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL8888RED(p)
+#define PIXEL2GREEN(p)		PIXEL8888GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL8888BLUE(p)
+#endif
 
 #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888)
 #define RGB2PIXEL(r,g,b)	RGB2PIXEL888(r,g,b)
@@ -431,20 +467,6 @@ typedef struct {
 #define PIXEL2GREEN(p)		PIXEL332GREEN(p)
 #define PIXEL2BLUE(p)		PIXEL332BLUE(p)
 #endif
-
-/* Alpha blend two pixels using 8-bit alpha */
-/* FIXME this will be quite a bit faster as an inlined function */
-#define ALPHAPIXELRED(pixelvalsrc, pixelvaldest, alpha)	\
-	(unsigned char)((((PIXEL2RED(pixelvalsrc) - PIXEL2RED(pixelvaldest))\
-			  * alpha) >> 8) + PIXEL2RED(pixelvaldest))
-
-#define ALPHAPIXELGREEN(pixelvalsrc, pixelvaldest, alpha)	\
-	(unsigned char)((((PIXEL2GREEN(pixelvalsrc)-PIXEL2GREEN(pixelvaldest))\
-			  * alpha) >> 8) + PIXEL2GREEN(pixelvaldest))
-
-#define ALPHAPIXELBLUE(pixelvalsrc, pixelvaldest, alpha)	\
-	(unsigned char)((((PIXEL2BLUE(pixelvalsrc) - PIXEL2BLUE(pixelvaldest))\
-			  * alpha) >> 8) + PIXEL2BLUE(pixelvaldest))
 
 #if 0000
 /* colors assumed in first 16 palette entries*/

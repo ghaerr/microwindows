@@ -80,6 +80,7 @@ typedef struct {
 
 /* GR_COLOR color constructor*/
 #define GR_RGB(r,g,b)		MWRGB(r,g,b)
+#define GR_ARGB(a,r,g,b)	MWARGB(a,r,g,b)
 
 /* Drawing modes for GrSetGCMode*/
 #define	GR_MODE_COPY		MWMODE_COPY		/* src*/

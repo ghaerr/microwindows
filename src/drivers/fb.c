@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Screen Driver Utilities
  * 
@@ -28,6 +29,7 @@ select_fb_subdriver(PSD psd)
 	extern SUBDRIVER fblinear16;
 	extern SUBDRIVER fblinear24;
 	extern SUBDRIVER fblinear32;
+	extern SUBDRIVER fblinear32alpha;
 #if FBVGA
 	extern SUBDRIVER vgaplan4;
 	extern SUBDRIVER memplan4;
@@ -63,7 +65,11 @@ select_fb_subdriver(PSD psd)
 			driver = &fblinear24;
 			break;
 		case 32:
-			driver = &fblinear32;
+			if (psd->pixtype == MWPF_TRUECOLOR8888) {
+				driver = &fblinear32alpha;
+			} else {
+				driver = &fblinear32;
+			}
 			break;
 		}
 	}

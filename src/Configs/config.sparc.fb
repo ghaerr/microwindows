@@ -23,10 +23,11 @@
 # LINUX-NATIVE
 # LINUX-ARM
 # LINUX-MIPS
-# LINUX-POWERPC
+# LINUX-POWERPC (BIGENDIAN=Y)
+# LINUX-SPARC (BIGENDIAN=Y)
 # LINUX-SH
 # FREEBSD-X86
-# SOLARIS
+# SOLARIS (BIGENDIAN=Y)
 # RTEMS
 # DJGPP
 # ELKS
@@ -35,6 +36,7 @@
 #
 ####################################################################
 ARCH                     = LINUX-SPARC
+BIGENDIAN                = Y
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-

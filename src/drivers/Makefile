@@ -1,6 +1,7 @@
 ##############################################################################
 # Microwindows template Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+# Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
 ##############################################################################
 
 ifndef TOP
@@ -46,7 +47,7 @@ OBJS += scr_em84xx.o genfont.o genmem.o
 endif
 
 ifeq ($(FRAMEBUFFER), Y)
-OBJS += fblin8.o fblin16.o fblin24.o fblin32.o genmem.o fb.o
+OBJS += fblin8.o fblin16.o fblin24.o fblin32.o fblin32alpha.o genmem.o fb.o
 
 ifeq ($(FBREVERSE), Y)
 OBJS += fblin1rev.o fblin2rev.o
@@ -108,7 +109,7 @@ endif
 ifeq ($(X11), Y)
 OBJS += genmem.o fb.o scr_x11.o \
 	fblin1.o fblin2.o fblin4.o fblin8.o fblin16.o fblin24.o fblin32.o \
-	mou_x11.o 
+	fblin32alpha.o mou_x11.o 
 
 ifneq ($(PIPEKBD), Y)
 OBJS += kbd_x11.o

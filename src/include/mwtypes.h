@@ -2,6 +2,7 @@
 #define _MWTYPES_H
 /*
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Exported Microwindows engine typedefs and defines
  */
@@ -49,7 +50,34 @@
 #define MWMODE_ORREVERSE	13	/* src | ~dst*/
 #define	MWMODE_ANDREVERSE	14	/* src & ~dst*/
 #define	MWMODE_NOOP		15	/* dst*/
-#define	MWMODE_MAX		15
+#define	MWMODE_XOR_FGBG		16	/* src ^ background ^ dst (This is the Java XOR mode) */
+
+#define MWMODE_SIMPLE_MAX 16	/* Last "simple" (non-alpha) mode */
+
+/*
+ * Porter-Duff rules for alpha compositing.
+ *
+ * Only SRC, CLEAR, and SRC_OVER are commonly used.
+ * The rest are very uncommon, although a full Java implementation
+ * would require them.  (ATOP and XOR were introduced in JDK 1.4)
+ *
+ * Note that MWMODE_PORTERDUFF_XOR is *very* different from MWMODE_XOR.
+ */
+/* #define	MWMODE_CLEAR - already correctly defined */
+#define	MWMODE_SRC	MWMODE_COPY
+#define	MWMODE_DST	MWMODE_NOOP
+#define	MWMODE_SRC_OVER	17
+#define	MWMODE_DST_OVER	18
+#define	MWMODE_SRC_IN	19
+#define	MWMODE_DST_IN	20
+#define	MWMODE_SRC_OUT	21
+#define	MWMODE_DST_OUT	22
+#define	MWMODE_SRC_ATOP	23
+#define	MWMODE_DST_ATOP	24
+#define	MWMODE_PORTERDUFF_XOR	25
+
+#define	MWMODE_MAX		25
+
 
 /* Line modes */
 #define MWLINE_SOLID      0
@@ -69,57 +97,106 @@
 #define MWBUTTON_R	01
 
 /* Color defines*/
-#define MWRGB(r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
-				((unsigned short)((unsigned char)(g))<<8))|\
-				(((unsigned long)(unsigned char)(b))<<16)))
+#define MWARGB(a,r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
+				(((unsigned)(unsigned char)(g))<<8))|\
+				(((unsigned long)(unsigned char)(b))<<16)|\
+				(((unsigned long)(unsigned char)(a))<<24)))
+#define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* rgb full alpha*/
+#define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb no alpha*/
+
+#if 0
+/*
+ * Not supported due to alpha blending changes!
+ *
+ * If you're using Nano-X, then use the new functions
+ * GrSetGCForegroundUsingPalette and GrSetGCBackgroundUsingPalette.
+ */
 #define MWF_PALINDEX	0x01000000
 #define MWPALINDEX(x)	((MWCOLORVAL)MWF_PALINDEX | (x))
+#endif
+
+
+/* convert an MWROP to drawing mode MWMODE value*/
+#define MWROP_TO_MODE(op)	((op) >> 24)
+
+/* convert an MWMODE to blitting mode MWROP value*/
+#define MWMODE_TO_ROP(op)	(((long)(op)) << 24)
+
 
 /* 
- * ROP blitter opcodes (extensions < 0x10000000 are MWMODE_xxx blit ops)
+ * ROP blitter opcodes (extensions < 0x20000000 are reserved
+ * for MWMODE_xxx blit ops, although currently some of these
+ * are unused).
  */
 #define MWROP_EXTENSION		0xff000000L	/* rop extension bits*/
 
 /* copy src -> dst except for transparent color in src*/
-#define MWROP_SRCTRANSCOPY	0x11000000L
+#define MWROP_SRCTRANSCOPY	0x21000000L
 
 /* alpha blend src -> dst with constant alpha, alpha value in low 8 bits*/
-#define MWROP_BLENDCONSTANT	0x12000000L
+#define MWROP_BLENDCONSTANT	0x22000000L
 
 /* alpha blend fg/bg color -> dst with src as alpha channel*/
-#define MWROP_BLENDFGBG		0x13000000L
+#define MWROP_BLENDFGBG		0x23000000L
 
 /* alpha blend src -> dst with separate per pixel alpha channel*/
-#define MWROP_BLENDCHANNEL	0x14000000L
+#define MWROP_BLENDCHANNEL	0x24000000L
 
 /* stretch src -> dst*/
-#define MWROP_STRETCH		0x15000000L
+#define MWROP_STRETCH		0x25000000L
+
+/* Use the MWMODE value in the graphics context
+ * to choose the appropriate MWROP value.
+ * (This is only valid in calls to the Nano-X API,
+ * it is not valid for the lower level blitters) 
+ */
+#define MWROP_USE_GC_MODE	0xff000000L
 
 /* blits rops based on src/dst binary operations*/
-#define MWROP_COPY		(MWMODE_COPY << 24L)
-#define	MWROP_XOR		(MWMODE_XOR << 24L)
-#define	MWROP_OR		(MWMODE_OR << 24L)
-#define MWROP_AND		(MWMODE_AND << 24L)
-#define	MWROP_CLEAR		(MWMODE_CLEAR << 24L)
-#define	MWROP_SET		(MWMODE_SETTO1 << 24L)
-#define	MWROP_EQUIV		(MWMODE_EQUIV << 24L)
-#define	MWROP_NOR		(MWMODE_NOR << 24L)
-#define	MWROP_NAND		(MWMODE_NAND << 24L)
-#define	MWROP_INVERT		(MWMODE_INVERT << 24L)
-#define	MWROP_COPYINVERTED	(MWMODE_COPYINVERTED << 24L)
-#define	MWROP_ORINVERTED	(MWMODE_ORINVERTED << 24L)
-#define	MWROP_ANDINVERTED	(MWMODE_ANDINVERTED << 24L)
-#define MWROP_ORREVERSE		(MWMODE_ORREVERSE << 24L)
-#define	MWROP_ANDREVERSE	(MWMODE_ANDREVERSE << 24L)
-#define	MWROP_NOOP		(MWMODE_NOOP << 24L)
+#define MWROP_COPY		MWMODE_TO_ROP(MWMODE_COPY)
+#define	MWROP_XOR		MWMODE_TO_ROP(MWMODE_XOR)
+#define	MWROP_OR		MWMODE_TO_ROP(MWMODE_OR)
+#define MWROP_AND		MWMODE_TO_ROP(MWMODE_AND)
+#define	MWROP_CLEAR		MWMODE_TO_ROP(MWMODE_CLEAR)
+#define	MWROP_SET		MWMODE_TO_ROP(MWMODE_SETTO1)
+#define	MWROP_EQUIV		MWMODE_TO_ROP(MWMODE_EQUIV)
+#define	MWROP_NOR		MWMODE_TO_ROP(MWMODE_NOR)
+#define	MWROP_NAND		MWMODE_TO_ROP(MWMODE_NAND)
+#define	MWROP_INVERT		MWMODE_TO_ROP(MWMODE_INVERT)
+#define	MWROP_COPYINVERTED	MWMODE_TO_ROP(MWMODE_COPYINVERTED)
+#define	MWROP_ORINVERTED	MWMODE_TO_ROP(MWMODE_ORINVERTED)
+#define	MWROP_ANDINVERTED	MWMODE_TO_ROP(MWMODE_ANDINVERTED)
+#define MWROP_ORREVERSE		MWMODE_TO_ROP(MWMODE_ORREVERSE)
+#define	MWROP_ANDREVERSE	MWMODE_TO_ROP(MWMODE_ANDREVERSE)
+#define	MWROP_NOOP		MWMODE_TO_ROP(MWMODE_NOOP)
+#define	MWROP_XOR_FGBG		MWMODE_TO_ROP(MWMODE_XOR_FGBG)
+
+/*
+ * Porter-Duff rules for alpha compositing.
+ *
+ * Only SRC, CLEAR, and SRC_OVER are commonly used.
+ * The rest are very uncommon, although a full Java implementation
+ * would require them.
+ *
+ * Note that MWMODE_PORTERDUFF_XOR is very different from MWMODE_XOR.
+ */
+/* #define	MWMODE_CLEAR - already correctly defined */
+#define	MWROP_SRC	MWMODE_TO_ROP(MWMODE_SRC)
+#define	MWROP_DST	MWMODE_TO_ROP(MWMODE_DST)
+#define	MWROP_SRC_OVER	MWMODE_TO_ROP(MWMODE_SRC_OVER)
+#define	MWROP_DST_OVER	MWMODE_TO_ROP(MWMODE_DST_OVER)
+#define	MWROP_SRC_IN	MWMODE_TO_ROP(MWMODE_SRC_IN)
+#define	MWROP_DST_IN	MWMODE_TO_ROP(MWMODE_DST_IN)
+#define	MWROP_SRC_OUT	MWMODE_TO_ROP(MWMODE_SRC_OUT)
+#define	MWROP_DST_OUT	MWMODE_TO_ROP(MWMODE_DST_OUT)
+#define	MWROP_SRC_ATOP	MWMODE_TO_ROP(MWMODE_SRC_ATOP)
+#define	MWROP_DST_ATOP	MWMODE_TO_ROP(MWMODE_DST_ATOP)
+#define	MWROP_PORTERDUFF_XOR	MWMODE_TO_ROP(MWMODE_PORTERDUFF_XOR)
 
 #define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
 #define MWROP_SRCAND		MWROP_AND	/* obsolete*/
 #define MWROP_SRCINVERT		MWROP_XOR	/* obsolete*/
 #define MWROP_BLACKNESS     	MWROP_CLEAR	/* obsolete*/
-
-/* convert an MWROP to drawing mode MWMODE value*/
-#define MWROP_TO_MODE(op)	((op) >> 24)
 
 /* 
  * Pixel formats
@@ -136,6 +213,7 @@
 #define MWPF_TRUECOLOR565  5	/* pixel is packed 16 bits 5/6/5 truecolor*/
 #define MWPF_TRUECOLOR555  6	/* pixel is packed 16 bits 5/5/5 truecolor*/
 #define MWPF_TRUECOLOR332  7	/* pixel is packed 8 bits 3/3/2 truecolor*/
+#define MWPF_TRUECOLOR8888 8	/* pixel is packed 32 bits 8/8/8/8 truecolor with alpha */
 
 /*
  * MWPIXELVAL definition: changes based on target system
@@ -484,6 +562,7 @@ typedef struct {
 #define MWIMAGE_UPSIDEDOWN	01	/* compression flag: upside down image*/
 #define MWIMAGE_BGR		00	/* compression flag: BGR byte order*/
 #define MWIMAGE_RGB		02	/* compression flag: RGB not BGR bytes*/
+#define MWIMAGE_ALPHA_CHANNEL   04	/* compression flag: 32-bit w/alpha */
 
 typedef struct {
 	int		width;		/* image width in pixels*/

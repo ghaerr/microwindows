@@ -27,6 +27,7 @@ char Copyright[] = "nxroach\nCopyright 1991 J.T. Anderson";
 
 #define PIXBUFSIZ	(48*48)		/* nxroach*.xbm width*height*/
 #define SCAMPER_EVENT	99
+#define BLACK_PIXEL	MW0RGB(0,0,0)	/* can't use alpha with GrArea!*/
 
 typedef struct Roach {
     RoachMap *rp;
@@ -42,7 +43,7 @@ typedef struct Roach {
 
 GR_COORD display_width, display_height;
 GR_GC_ID gc;
-GR_COLOR roachColor = BLACK;
+GR_COLOR roachColor = BLACK_PIXEL;
 GR_REGION_ID rootVisible = 0;
 GR_BOOL done = GR_FALSE;
 GR_BOOL eventBlock = GR_FALSE;
@@ -378,7 +379,7 @@ DrawRoaches(void)
 
 	    /* convert fg roach bitmap bits to roach color on root window bits*/
 	    for (i=0; i<size; ++i)
-		    if (roachbuf[i] != BLACK)
+		    if (roachbuf[i] != BLACK_PIXEL)
 			    screenbuf[i] = roachColor;
 
 	    /* write root window*/

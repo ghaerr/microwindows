@@ -177,7 +177,7 @@ lookup_color(unsigned short r, unsigned short g, unsigned short b)
 
 #if MWPIXEL_FORMAT != MWPF_PALETTE
 
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888)
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
 #define PIXEL2RED8(p)           PIXEL888RED8(p)
 #define PIXEL2GREEN8(p)         PIXEL888GREEN8(p)
 #define PIXEL2BLUE8(p)          PIXEL888BLUE8(p)
@@ -365,7 +365,7 @@ update_from_savebits(int destx, int desty, int w, int h)
 			dbuf += linedelta;
 		}
 	}
-#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR0888
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
 	{
 		ADDR32 dbuf = ((ADDR32) savebits.addr)
 			+ destx + desty * savebits.linelen;
@@ -786,6 +786,7 @@ X11_open(PSD psd)
 		psd->bpp = SCREEN_DEPTH;
 		break;
 	case MWPF_TRUECOLOR0888:
+	case MWPF_TRUECOLOR8888:
 	default:
 		psd->bpp = 32;
 		break;
@@ -868,6 +869,7 @@ X11_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->pixtype = psd->pixtype;
 	switch (psd->pixtype) {
 	case MWPF_TRUECOLOR0888:
+	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR888:
 		psi->rmask = 0xff0000;
 		psi->gmask = 0x00ff00;

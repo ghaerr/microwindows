@@ -79,7 +79,7 @@ ifeq ($(ARCH), LINUX-SPARC)
 COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX =
-DEFINES += -DLINUX=1 -DUNIX=1 -DBIGENDIAN=1
+DEFINES += -DLINUX=1 -DUNIX=1 -DMW_CPU_BIG_ENDIAN=1
 CFLAGS += -Wall $(OPTFLAGS)
 LDFLAGS +=
 # include the following line for static libraries
@@ -92,7 +92,7 @@ COMPILER = gcc
 HOSTCC = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX =
-DEFINES += -DUNIX=1 -DBIGENDIAN=1
+DEFINES += -DUNIX=1 -DMW_CPU_BIG_ENDIAN=1
 CFLAGS += $(OPTFLAGS)
 LDFLAGS += -lsocket -lnsl -lrt
 endif
@@ -164,6 +164,6 @@ ifeq ($(ARCH), ECOS)
 endif
 
 ifeq ($(BIGENDIAN), Y)
-DEFINES += -DBIGENDIAN=1
+DEFINES += -DMW_CPU_BIG_ENDIAN=1
 endif
 

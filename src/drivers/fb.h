@@ -2,6 +2,14 @@
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Framebuffer drivers header file for Microwindows Screen Drivers
+ *
+ * Portions contributed by Koninklijke Philips Electronics N.V.
+ * These portions are Copyright 2002 Koninklijke Philips Electronics
+ * N.V.  All Rights Reserved.  These portions are licensed under the
+ * terms of the Mozilla Public License, version 1.1, or, at your
+ * option, the GNU General Public License version 2.0.  Please see
+ * the file "ChangeLog" for documentation regarding these
+ * contributions.
  */
 
 /* Linux framebuffer critical sections*/
@@ -17,6 +25,12 @@ extern volatile int mwdrawing;
 typedef unsigned char *		ADDR8;
 typedef unsigned short *	ADDR16;
 typedef unsigned long *		ADDR32;
+
+/* Note that the following ROP macro implements the
+ * Porter-Duff rules assuming that source and destination
+ * both have an alpha of 1.0.  Drivers that support alpha
+ * should provide a better implementation of these rules.
+ */
 
 /* ROP macro for 16 drawing modes*/
 #define CHECK(f,d)	
@@ -38,6 +52,9 @@ typedef unsigned long *		ADDR32;
 		*d |= (src);			\
 		CHECK("OR", *d);		\
 		break;				\
+	case MWMODE_SRC_OUT:		\
+	case MWMODE_DST_OUT:		\
+	case MWMODE_PORTERDUFF_XOR:		\
 	case MWMODE_CLEAR:			\
 		*d = 0;				\
 		CHECK("CLEAR", *d);		\
@@ -82,12 +99,22 @@ typedef unsigned long *		ADDR32;
 		*d = ~*d & (src);		\
 		CHECK("ANDREVERSE", *d);	\
 		break;				\
+	case MWMODE_SRC_OVER:		\
+	case MWMODE_SRC_IN:			\
+	case MWMODE_SRC_ATOP:		\
 	case MWMODE_COPY:			\
 		*d = (src);			\
 		CHECK("COPY", *d);		\
 		break;				\
+	case MWMODE_DST_OVER:		\
+	case MWMODE_DST_IN:			\
+	case MWMODE_DST_ATOP:		\
 	case MWMODE_NOOP:			\
 		CHECK("NOOP", *d);		\
+		break;				\
+	case MWMODE_XOR_FGBG:		\
+		*d ^= (src) ^ gr_background;	\
+		CHECK("XOR_FGBG", *d);		\
 		break;				\
 	}					\
 }
@@ -103,6 +130,9 @@ static inline int applyOpR(op, src, dst)	\
 		return (src) & (dst);		\
 	case MWMODE_OR:				\
 		return (src) | (dst);		\
+	case MWMODE_SRC_OUT:		\
+	case MWMODE_DST_OUT:		\
+	case MWMODE_PORTERDUFF_XOR:		\
 	case MWMODE_CLEAR:			\
 		return 0;			\
 	case MWMODE_SETTO1:			\
@@ -125,8 +155,16 @@ static inline int applyOpR(op, src, dst)	\
 		return (src) | ~(dst);		\
 	case MWMODE_ANDREVERSE:			\
 		return (src) & ~(dst);		\
+	case MWMODE_SRC_OVER:		\
+	case MWMODE_SRC_IN:			\
+	case MWMODE_SRC_ATOP:		\
 	case MWMODE_COPY:			\
 		return (src);			\
+	case MWMODE_XOR_FGBG:		\
+		return (src) ^ (dst) ^ gr_background;	\
+	case MWMODE_DST_OVER:		\
+	case MWMODE_DST_IN:			\
+	case MWMODE_DST_ATOP:		\
 	case MWMODE_NOOP:			\
 	default:				\
 		return (dst);			\
@@ -135,6 +173,7 @@ static inline int applyOpR(op, src, dst)	\
 
 /* global vars*/
 extern int 	gr_mode;	/* temp kluge*/
+extern MWPIXELVAL gr_background;
 
 /* entry points*/
 /* scr_fb.c*/

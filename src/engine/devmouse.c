@@ -540,7 +540,7 @@ static struct {
 void
 GdSetTransform(MWTRANSFORM *trans)
 {
-	if (!mousedev.flags & MOUSE_TRANSFORM)
+	if (!(mousedev.flags & MOUSE_TRANSFORM))
 		return;
 
 	if (trans) {

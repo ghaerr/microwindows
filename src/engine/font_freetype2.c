@@ -1598,6 +1598,7 @@ freetype2_gettextsize_fast(PMWFREETYPE2FONT pf,
  */
 static void
 freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,
+		      MWTEXTFLAGS flags,
 		      MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT) pfont;

@@ -63,6 +63,17 @@ ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 endif
 
 $(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/mwin/bmp/makebmp.c
+	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
+# Sigh.  Old versions of make are completely broken and need this.
+# They should be able to pick it up from the pattern rule in
+# Makefile.rules.
+$(OBJS): $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.c $(CONFIG)
+	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
+	@$(MW_RULE_MAKE_TARGET_DIR)
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(MW_RULE_DEPEND_C)
+
+$(OBJS:.o=.c):
 

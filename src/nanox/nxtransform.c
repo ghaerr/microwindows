@@ -97,18 +97,18 @@ CalcTransformationCoefficientsBetter(GR_CAL_DATA * samples,
 	 * This way takes into account inter-axis dependency like rotation and skew.
 	 */
 	int i, j, r, k;
-	double vector[3][2] = {
-		{0, 0},
-		{samples->xres, 0},
-		{samples->xres, samples->yres}
-	};
-	double matrix[3][3] = {
-		{samples->minx, samples->miny, 1.0},
-		{samples->maxx, samples->miny, 1.0},
-		{samples->maxx, samples->maxy, 1.0}
-	};
+	double vector[3][2];
+	double matrix[3][3];
 	double p, q;
 
+	vector[0][0] = 0.0;           vector[0][1] = 0.0;
+	vector[1][0] = samples->xres; vector[1][1] = 0.0;
+	vector[2][0] = samples->xres; vector[2][1] = samples->yres;
+	
+	matrix[0][0] = samples->minx; matrix[0][1] = samples->miny; matrix[0][2] = 1.0;
+	matrix[1][0] = samples->maxx; matrix[1][1] = samples->miny; matrix[1][2] = 1.0;
+	matrix[2][0] = samples->maxx; matrix[2][1] = samples->maxy; matrix[2][2] = 1.0;
+	
 	for (i = 0; i < 3; i++) {
 		p = matrix[i][i];
 

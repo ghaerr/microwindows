@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/nanowm/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -31,7 +32,12 @@ ifeq ($(NANOWM), Y)
 LIBNAME =
 
 # List of objects to compile
-OBJS = nanowm.o events.o wlist.o clients.o actions.o
+OBJS := \
+	$(MW_DIR_OBJ)/demos/nanowm/nanowm.o \
+	$(MW_DIR_OBJ)/demos/nanowm/events.o \
+	$(MW_DIR_OBJ)/demos/nanowm/wlist.o \
+	$(MW_DIR_OBJ)/demos/nanowm/clients.o \
+	$(MW_DIR_OBJ)/demos/nanowm/actions.o
 
 ifeq ($(ARCH), ECOS)
 TARGET = $(MW_DIR_BIN)/nanowm.o
@@ -50,15 +56,18 @@ include $(MW_DIR_SRC)/Makefile.rules
 ######################## Tools targets section ###############################
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
 else
 ifeq ($(ARCH), ECOS)
 $(MW_DIR_BIN)/nanowm.o: $(OBJS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nanowm_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 else
 $(MW_DIR_BIN)/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif
 endif

@@ -4,10 +4,10 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := mwin/bmp/
 include $(MW_DIR_SRC)/Path.rules
-
 include $(CONFIG)
 
 #all: $(MW_DIR_BIN)/convbmp
@@ -23,8 +23,17 @@ LIBNAME = libmwimages.a
 LIBNAMESO = libmwimages.so
 
 # List of objects to compile
-OBJS = car8.o min4.o max4.o close4.o under4.o\
-	zion208.o cs1.o rle8.o microwin.o penguin.o
+OBJS := \
+	$(MW_DIR_OBJ)/mwin/bmp/car8.o \
+	$(MW_DIR_OBJ)/mwin/bmp/min4.o \
+	$(MW_DIR_OBJ)/mwin/bmp/max4.o \
+	$(MW_DIR_OBJ)/mwin/bmp/close4.o \
+	$(MW_DIR_OBJ)/mwin/bmp/under4.o \
+	$(MW_DIR_OBJ)/mwin/bmp/zion208.o \
+	$(MW_DIR_OBJ)/mwin/bmp/cs1.o \
+	$(MW_DIR_OBJ)/mwin/bmp/rle8.o \
+	$(MW_DIR_OBJ)/mwin/bmp/microwin.o \
+	$(MW_DIR_OBJ)/mwin/bmp/penguin.o
 
 all: $(MW_DIR_BIN)/convbmp $(MW_DIR_BIN)/makebmp default
 
@@ -37,9 +46,19 @@ include $(MW_DIR_SRC)/Makefile.rules
 ######################## Tools targets section ###############################
 
 realclean: clean
-	$(RM) car8.c min4.c max4.c close4.c under4.c zion208.c cs1.c rle8.c \
-	microwin.c penguin.c
+	$(RM) \
+		$(MW_DIR_OBJ)/mwin/bmp/car8.c \
+		$(MW_DIR_OBJ)/mwin/bmp/min4.c \
+		$(MW_DIR_OBJ)/mwin/bmp/max4.c \
+		$(MW_DIR_OBJ)/mwin/bmp/close4.c \
+		$(MW_DIR_OBJ)/mwin/bmp/under4.c \
+		$(MW_DIR_OBJ)/mwin/bmp/zion208.c \
+		$(MW_DIR_OBJ)/mwin/bmp/cs1.c \
+		$(MW_DIR_OBJ)/mwin/bmp/rle8.c \
+		$(MW_DIR_OBJ)/mwin/bmp/microwin.c \
+		$(MW_DIR_OBJ)/mwin/bmp/penguin.c
 
 $(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/mwin/bmp/makebmp.c
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
 

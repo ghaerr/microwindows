@@ -5,8 +5,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ..
+MW_DIR_SRC := $(CURDIR)/..
 endif
+MW_DIR_RELATIVE := nanox/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -19,25 +20,36 @@ LIBNAME = libnano-X.a
 LIBNAMESO = libnano-X.so
 
 # Nano-X server files
-NANOXFILES = srvmain.o srvfunc.o srvutil.o srvevent.o srvclip.o
+NANOXFILES := \
+	$(MW_DIR_OBJ)/nanox/srvmain.o \
+	$(MW_DIR_OBJ)/nanox/srvfunc.o \
+	$(MW_DIR_OBJ)/nanox/srvutil.o \
+	$(MW_DIR_OBJ)/nanox/srvevent.o \
+	$(MW_DIR_OBJ)/nanox/srvclip.o
 
 # Nano-X client files
-OBJS = nxdraw.o nxutil.o nxtransform.o
+OBJS := \
+	$(MW_DIR_OBJ)/nanox/nxdraw.o \
+	$(MW_DIR_OBJ)/nanox/nxutil.o \
+	$(MW_DIR_OBJ)/nanox/nxtransform.o
 
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 OBJS += $(NANOXFILES)
 else
 
 # Nano-X server files (network only)
-NANOXFILES += srvnet.o
+NANOXFILES += $(MW_DIR_OBJ)/nanox/srvnet.o
 
 # Nano-X client files (network only)
-OBJS += client.o nxproto.o error.o
+OBJS += \
+	$(MW_DIR_OBJ)/nanox/client.o \
+	$(MW_DIR_OBJ)/nanox/nxproto.o \
+	$(MW_DIR_OBJ)/nanox/error.o
 ifeq ($(FRAMEBUFFER), Y)
-OBJS += clientfb.o
+OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
 else
 ifeq ($(X11), Y)
-OBJS += clientfb.o
+OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
 endif
 endif
 
@@ -60,17 +72,17 @@ include $(MW_DIR_SRC)/Makefile.rules
 # Server binary ...
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(CCNANOXSERVERLIBS)
 else
 $(MW_DIR_BIN)/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 #	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--retain-symbols-file -Wl,nanox.syms -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep -v Gr | grep -v nx | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 #	rm -f XX.o
 
 $(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS)
 endif

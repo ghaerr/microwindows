@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ..
+MW_DIR_SRC := $(CURDIR)/..
 endif
+MW_DIR_RELATIVE := mwin/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -18,8 +19,17 @@ LIBNAME = libmwin.a
 LIBNAMESO = libmwin.so
 
 # List of objects to compile
-OBJS = winmain.o winuser.o wingdi.o winexpos.o winclip.o winevent.o\
-	windefw.o winrgn.o winfont.o winsbar.o
+OBJS := \
+	$(MW_DIR_OBJ)/mwin/winmain.o \
+	$(MW_DIR_OBJ)/mwin/winuser.o \
+	$(MW_DIR_OBJ)/mwin/wingdi.o \
+	$(MW_DIR_OBJ)/mwin/winexpos.o \
+	$(MW_DIR_OBJ)/mwin/winclip.o \
+	$(MW_DIR_OBJ)/mwin/winevent.o \
+	$(MW_DIR_OBJ)/mwin/windefw.o \
+	$(MW_DIR_OBJ)/mwin/winrgn.o \
+	$(MW_DIR_OBJ)/mwin/winfont.o \
+	$(MW_DIR_OBJ)/mwin/winsbar.o
 
 endif
 

@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ..
+MW_DIR_SRC := $(CURDIR)/..
 endif
+MW_DIR_RELATIVE := demos/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 

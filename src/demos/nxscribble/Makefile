@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/nxscribble/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -31,8 +32,15 @@ ifeq ($(NANOX), Y)
 LIBNAME =
 
 # List of objects to compile
-OBJS = nxscribble.o scribwidget.o\
-	hre_api.o li_recognizer.o bitvector.o matrix.o sc.o util.o
+OBJS := \
+	$(MW_DIR_OBJ)/demos/nxscribble/nxscribble.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/scribwidget.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/hre_api.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/li_recognizer.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/bitvector.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/matrix.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/sc.o \
+	$(MW_DIR_OBJ)/demos/nxscribble/util.o
 
 ifeq ($(ARCH), ECOS)
 DEFINES += -DREC_DEFAULT_USER_DIR=\"/bin\"
@@ -42,7 +50,11 @@ TARGET = $(MW_DIR_BIN)/nxscribble
 endif
 
 all: default $(TARGET)
-	$(CP) letters.cl digits.cl punc.cl $(MW_DIR_BIN)
+	$(CP) \
+		$(MW_DIR_SRC)/demos/nxscribble/letters.cl \
+		$(MW_DIR_SRC)/demos/nxscribble/digits.cl \
+		$(MW_DIR_SRC)/demos/nxscribble/punc.cl \
+		$(MW_DIR_BIN)
 
 endif
 
@@ -54,15 +66,18 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) -lm
 else
 ifeq ($(ARCH), ECOS)
 $(MW_DIR_BIN)/nxscribble.o: $(OBJS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nxscribble_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 else
 $(MW_DIR_BIN)/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) -lm
 endif
 endif

@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := mwin/winlib/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -18,11 +19,25 @@ LIBNAME = libmwinlib.a
 LIBNAMESO = libmwinlib.so
 
 # List of objects to compile
-OBJS = draw3d.o ptinsid.o insetr.o fastfill.o graph3d.o mwuser.o
+OBJS := \
+	$(MW_DIR_OBJ)/mwin/winlib/draw3d.o \
+	$(MW_DIR_OBJ)/mwin/winlib/ptinsid.o \
+	$(MW_DIR_OBJ)/mwin/winlib/insetr.o \
+	$(MW_DIR_OBJ)/mwin/winlib/fastfill.o \
+	$(MW_DIR_OBJ)/mwin/winlib/graph3d.o \
+	$(MW_DIR_OBJ)/mwin/winlib/mwuser.o
 
 ifneq ($(ARCH), ELKS)
-OBJS += button.o edit.o listbox.o progbar.o static.o combobox.o caret.o \
-	scrlbar.o medit.o
+OBJS += \
+	$(MW_DIR_OBJ)/mwin/winlib/button.o \
+	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
+	$(MW_DIR_OBJ)/mwin/winlib/listbox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/progbar.o \
+	$(MW_DIR_OBJ)/mwin/winlib/static.o \
+	$(MW_DIR_OBJ)/mwin/winlib/combobox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/caret.o \
+	$(MW_DIR_OBJ)/mwin/winlib/scrlbar.o \
+	$(MW_DIR_OBJ)/mwin/winlib/medit.o
 endif
 
 endif

@@ -1,4 +1,7 @@
 	* revised Makefile system, Path.rules allows mult arch makes (Jonathan)
+		also allows bin, lib and obj directories to be seperate:
+		e.g. "make MW_DIR_BIN=... MW_DIR_LIB=... MW_DIR_OBJ=...
+			CONFIG=..."
 	* changed default freetype 1 include dir to /usr/include/freetype1
 	* changed default vncviewer password to "password"
 	* added check for "Exif" header in jpeg files for digital cam pics

@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/nxkbd/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -29,7 +30,13 @@ LDFLAGS +=
 LIBNAME =
 
 # List of objects to compile
-OBJS = nxkbd.o srvconn.o keynorm.o keyctrl.o keyshft.o keynum.o
+OBJS := \
+	$(MW_DIR_OBJ)/demos/nxkbd/nxkbd.o \
+	$(MW_DIR_OBJ)/demos/nxkbd/srvconn.o \
+	$(MW_DIR_OBJ)/demos/nxkbd/keynorm.o \
+	$(MW_DIR_OBJ)/demos/nxkbd/keyctrl.o \
+	$(MW_DIR_OBJ)/demos/nxkbd/keyshft.o \
+	$(MW_DIR_OBJ)/demos/nxkbd/keynum.o
 
 ifeq ($(ARCH), ECOS)
 TARGET = $(MW_DIR_BIN)/nxkbd.o
@@ -47,15 +54,18 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nxkbd: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
 else
 ifeq ($(ARCH), ECOS)
 $(MW_DIR_BIN)/nxkbd.o: $(OBJS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nxkbd_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 else
 $(MW_DIR_BIN)/nxkbd: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif
 endif

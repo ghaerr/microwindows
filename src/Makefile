@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = $(shell pwd)
+MW_DIR_SRC := $(CURDIR)
 endif
+MW_DIR_RELATIVE :=
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -19,17 +20,22 @@ LIBNAMESO =
 OBJS =	
 
 # demos should be built after the libs !
-dirs = drivers mwin engine fonts nanox
+dirs := \
+	$(MW_DIR_SRC)/drivers \
+	$(MW_DIR_SRC)/mwin \
+	$(MW_DIR_SRC)/engine \
+	$(MW_DIR_SRC)/fonts \
+	$(MW_DIR_SRC)/nanox
 
 all: default
-	-$(MAKE) -C demos
+	-$(MAKE) -C $(MW_DIR_SRC)/demos
 ifeq ($(ARCH), ECOS)
-	$(MAKE) -C ecos
+	$(MAKE) -C $(MW_DIR_SRC)/ecos
 endif
 
 realclean: clean
-	$(MAKE) -C fonts realclean
-	$(MAKE) -C mwin/bmp realclean
+	$(MAKE) -C $(MW_DIR_SRC)/fonts realclean
+	$(MAKE) -C $(MW_DIR_SRC)/mwin/bmp realclean
 
 #
 # Documentation targets:

@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ..
+MW_DIR_SRC := $(CURDIR)/..
 endif
+MW_DIR_RELATIVE := ecos/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -30,31 +31,33 @@ LIBNAME =
 LIBNAMESO =
 
 # List of objects to compile
-OBJS = ecos_app.o ecos_init.o
-NANO_OBJS = 
+OBJS := \
+	$(MW_DIR_OBJ)/ecos/ecos_app.o \
+	$(MW_DIR_OBJ)/ecos/ecos_init.o
+NANO_OBJS := 
 DEFINES += -DUSE_ROMDISK
-OBJS += nanox_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/nanox_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/nano-X.o $(MW_DIR_BIN)/nwidgets.o
-OBJS += nanowm_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/nanowm_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/nanowm.o
-OBJS += nxkbd_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/nxkbd_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/nxkbd.o
 DEFINES += -DUSE_NXSCRIBBLE
-OBJS += nxscribble_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/nxscribble_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/nxscribble.o 
 DEFINES += -DUSE_LANDMINE
-OBJS += landmine_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/landmine_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/landmine.o 
 DEFINES += -DUSE_NTETRIS
-OBJS += ntetris_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/ntetris_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/ntetris.o 
 DEFINES += -DUSE_WORLD
-OBJS += world_thread.o
+OBJS += $(MW_DIR_OBJ)/ecos/world_thread.o
 NANO_OBJS += $(MW_DIR_BIN)/world.o 
 
 
 # demos should be built after the libs !
-all: ecos_app
+all: $(MW_DIR_BIN)/ecos_app
 
 ######################### Makefile.rules section #############################
 
@@ -62,8 +65,9 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-ecos_app: $(OBJS) $(NANO_OBJS)
+# FIXME: Put a link rule for this binary.
+$(MW_DIR_BIN)/ecos_app: $(OBJS) $(NANO_OBJS)
 
-ecos_app.o: Makefile
+$(MW_DIR_OBJ)/ecos/ecos_app.o: $(MW_DIR_SRC)/ecos/Makefile
 
 

@@ -5,8 +5,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/nanox/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -33,51 +34,10 @@ ifeq ($(NANOXDEMO), Y)
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
 
-# List of objects to compile
+# List of binaries to compile
 ifeq ($(ARCH), ECOS)
-OBJS = landmine.o netris.o world.o
 TARGETS = $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
 else
-OBJS =	demo.o \
-	move.o \
-	landmine.o \
-	world.o \
-	nxclock.o \
-	nxterm.o \
-	nxview.o \
-	nxlsclients.o \
-	nxev.o \
-	nxmag.o \
-	npanel.o \
-	nterm.o \
-	demo2.o \
-	demo5.o \
-	demo6.o \
-	t1demo.o \
-	ftdemo.o \
-	logfont.o \
-	slider.o \
-	ntetris.o \
-	getselection.o \
-	setselection.o \
-	dashdemo.o \
-	tsdemo.o \
-	pcfdemo.o \
-	fontdemo.o \
-	setportrait.o \
-	arcdemo.o \
-	polydemo.o \
-	snap_ppm.o \
-	bmpdemo.o \
-	rgndemo.o \
-	convpbm.o \
-	launcher.o \
-	nsaver.o \
-	nxeyes.o \
-	tux.o \
-	nxcal.o \
-	grabdemo.o
-
 TARGETS = \
 	$(MW_DIR_BIN)/demo \
 	$(MW_DIR_BIN)/move \
@@ -135,7 +95,6 @@ TARGETS += \
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 ifeq ($(FRAMEBUFFER), Y)
 ifneq ($(LINK_APP_INTO_SERVER), Y)
-OBJS +=	snap_jpg.o
 TARGETS += $(MW_DIR_BIN)/snap_jpg
 endif
 endif
@@ -144,10 +103,20 @@ endif
 endif
 
 all: default $(TARGETS)	
-	$(CP) world.map launcher.cnf tux.gif slidebmp.bmp uponface.ppm \
-		mwlogo.ppm icons/*.ppm icons/*.pgm ftdemo.txt\
+	$(CP) \
+		$(MW_DIR_SRC)/demos/nanox/world.map \
+		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
+		$(MW_DIR_SRC)/demos/nanox/tux.gif \
+		$(MW_DIR_SRC)/demos/nanox/slidebmp.bmp \
+		$(MW_DIR_SRC)/demos/nanox/uponface.ppm \
+		$(MW_DIR_SRC)/demos/nanox/mwlogo.ppm \
+		$(MW_DIR_SRC)/demos/nanox/icons/*.ppm \
+		$(MW_DIR_SRC)/demos/nanox/icons/*.pgm \
+		$(MW_DIR_SRC)/demos/nanox/ftdemo.txt\
 		$(MW_DIR_BIN)
-#		transtest.gif alphatest.png \
+
+#		$(MW_DIR_SRC)/demos/nanox/transtest.gif
+#		$(MW_DIR_SRC)/demos/nanox/alphatest.png
 
 endif
 endif
@@ -164,207 +133,56 @@ endif
 
 ######################## Tools targets section ###############################
 
-$(MW_DIR_BIN)/demo: demo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+# These demos use a hardcoded link line.
+NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
+	$(MW_DIR_BIN)/snap_jpg \
+	$(MW_DIR_BIN)/nxeyes \
+	$(MW_DIR_BIN)/grabdemo \
+	$(MW_DIR_BIN)/convpbm
+
+# All other demos use a standard link line, that just
+# links against the Nano-X client libraries.
+NANOX_DEMOS_WITH_STANDARD_LINK := \
+	$(filter-out $(NANOX_DEMOS_WITH_NONSTANDARD_LINK),$(TARGETS))
+
+# Standard link rule used for most demos.
+$(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
 
-$(MW_DIR_BIN)/move: move.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/landmine: landmine.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/world: world.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxclock: nxclock.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxterm: nxterm.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxview: nxview.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxlsclients: nxlsclients.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxev: nxev.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxmag: nxmag.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/npanel: npanel.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nterm: nterm.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/demo2: demo2.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/demo5: demo5.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/demo6: demo6.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/t1demo: t1demo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/ftdemo: ftdemo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/logfont: logfont.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/slider: slider.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/ntetris: ntetris.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/launcher: launcher.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nsaver: nsaver.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
-
-$(MW_DIR_BIN)/getselection: getselection.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/setselection: setselection.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/dashdemo: dashdemo.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/tsdemo: tsdemo.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/pcfdemo: pcfdemo.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/fontdemo: fontdemo.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/pressure: pressure.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/setportrait: setportrait.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/oneshot: oneshot.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/periodic: periodic.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/windowproperties: windowproperties.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/ipcserver: ipcserver.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/ipcclient: ipcclient.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/arcdemo: arcdemo.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/polydemo: polydemo.o $($NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/snap_ppm: snap_ppm.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/snap_jpg: snap_jpg.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBJPEG)
 
-$(MW_DIR_BIN)/nxcal: nxcal.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/bmpdemo: bmpdemo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/rgndemo: rgndemo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/convpbm: convpbm.o
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/convpbm: $(MW_DIR_OBJ)/demos/nanox/convpbm.o
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 
-$(MW_DIR_BIN)/tux: tux.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
-
-$(MW_DIR_BIN)/nxeyes: nxeyes.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/nxeyes: $(MW_DIR_OBJ)/demos/nanox/nxeyes.o $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
 
-$(MW_DIR_BIN)/grabdemo: grabdemo.o $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/grabdemo: $(MW_DIR_OBJ)/demos/nanox/grabdemo.o $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
 
 ifeq ($(ARCH), ECOS)
 # Special build rules for linked in applications
-$(MW_DIR_BIN)/landmine.o: landmine.o
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/landmine.o: $(MW_DIR_OBJ)/demos/nanox/landmine.o
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 #	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--retain-symbols-file -Wl,landmine.syms -Wl,--defsym -Wl,landmine_main=main -o XX.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,landmine_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 
-$(MW_DIR_BIN)/ntetris.o: ntetris.o
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/ntetris.o: $(MW_DIR_OBJ)/demos/nanox/ntetris.o
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,ntetris_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 
-$(MW_DIR_BIN)/world.o: world.o
-	@echo "Linking $@ ..."
+$(MW_DIR_BIN)/world.o: $(MW_DIR_OBJ)/demos/nanox/world.o
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,world_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o

@@ -4,15 +4,16 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/nxroach/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
 
 # Directories list for header files
-INCLUDEDIRS += -I./bitmaps
+INCLUDEDIRS += -I$(MW_DIR_SRC)/demos/nxroach/bitmaps
 # Defines for preprocessor
 DEFINES +=
 
@@ -31,7 +32,7 @@ ifeq ($(NANOWM), Y)
 LIBNAME =
 
 # List of objects to compile
-OBJS = nxroach.o
+OBJS := $(MW_DIR_OBJ)/demos/nxroach/nxroach.o
 
 all: default $(MW_DIR_BIN)/nxroach
 
@@ -45,8 +46,10 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nxroach: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
 else
 $(MW_DIR_BIN)/nxroach: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
 endif

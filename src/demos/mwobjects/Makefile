@@ -7,10 +7,10 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/mwobjects/
 include $(MW_DIR_SRC)/Path.rules
-
 include $(CONFIG)
 
 # Do nothing for RTEMS 
@@ -34,9 +34,6 @@ LDFLAGS +=
 
 ifeq ($(OBJFRAMEWORK), Y)
 
-# List of objects to compile
-CXOBJS = mwo-test.o
-
 all: default $(MW_DIR_BIN)/mwo-test
 
 endif
@@ -49,7 +46,8 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 CCMWINLIBS = -lmwobjects -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
 
-$(MW_DIR_BIN)/mwo-test: mwo-test.o
+$(MW_DIR_BIN)/mwo-test: $(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(CCMWINLIBS)
 
 

@@ -4,16 +4,16 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/vnc/vncviewer/
 include $(MW_DIR_SRC)/Path.rules
-
 include $(CONFIG)
 
 ######################## Additional Flags section ############################
 
 # Directories list for header files
-INCLUDEDIRS += -I../include
+INCLUDEDIRS += -I$(MW_DIR_SRC)/demos/vnc/include
 # Defines for preprocessor
 DEFINES += -DNANOX=1
 
@@ -33,11 +33,12 @@ ifeq ($(NANOXDEMO), Y)
 LIBNAME =
 
 # List of objects to compile
-OBJS =	args.o \
-	rfbproto.o \
-	sockets.o \
-	vncviewer.o \
-	nanox.o
+OBJS := \
+	$(MW_DIR_OBJ)/demos/vnc/vncviewer/args.o \
+	$(MW_DIR_OBJ)/demos/vnc/vncviewer/rfbproto.o \
+	$(MW_DIR_OBJ)/demos/vnc/vncviewer/sockets.o \
+	$(MW_DIR_OBJ)/demos/vnc/vncviewer/vncviewer.o \
+	$(MW_DIR_OBJ)/demos/vnc/vncviewer/nanox.o
 	
 all: default $(MW_DIR_BIN)/vnc
 

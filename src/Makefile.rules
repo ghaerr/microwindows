@@ -455,10 +455,17 @@ ifeq ($(VERBOSE), N)
 .SILENT:
 endif
 
-.PHONY: default subdirs clean cleandepend cleandepend-notsubdir xconfig makedestdirs
+.PHONY: default subdirs clean xconfig makedestdirs
 
 # Add any exportable variable here
-export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB ARCH CONFIG
+export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB MW_DIR_OBJ ARCH CONFIG
+
+# Do not use standard rules such as .c.o
+.SUFFIXES:
+
+# Do not delete "intermediate" files, such as the .c
+# files created from bitmaps and fonts.
+.SECONDARY:
 
 #
 # This is the default target
@@ -472,16 +479,21 @@ endif
 
 # 'dirs' can be pre-specified
 ifeq ($(dirs), )
-dirs =	$(shell for file in `\ls`; \
-	do if [ -d $$file -a $$file != "demos" ]; then \
-	if [ -f $$file/Makefile ]; then echo $$file; fi; fi; done)
+# Look for all subdirectories that contain a Makefile,
+# but ignore the demos/ directory (if present).
+# Save the list of directory names to $(dirs) - this
+# variable is empty if the directories do not exist.
+dirs := $(dir $(wildcard $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)*/Makefile))
+dirs := $(filter-out $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)demos/,$(dirs))
 endif
 
 # 'demos' can be pre-specified
 ifeq ($(demos), )
-demos =	$(shell for file in `\ls`; \
-	do if [ -d $$file -a $$file = "demos" ]; then \
-	if [ -f $$file/Makefile ]; then echo $$file; fi; fi; done)
+# Look for the subdirectory demos/ that contains a Makefile,
+# if present.
+# Save the directory name to $(demos) - this variable is
+# empty if the directory does not exist.
+demos := $(dir $(wildcard $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)demos/Makefile))
 endif
 
 #
@@ -501,19 +513,18 @@ $(dirs:%=subdir-%): makedestdirs
 
 makedestdirs:
 ifeq ($(ARCH), DJGPP)
-
 	$(shell set CURDIR=$(pwd);)
-
-	$(shell \
-	if [ ! -d $(MW_DIR_BIN) ]; \
-	then mkdir $(MW_DIR_BIN); fi;)
-
-	$(shell \
-	if [ ! -d $(MW_DIR_LIB) ]; \
-	then mkdir $(MW_DIR_LIB); fi;)
-
+	[ -d $(MW_DIR_BIN) ] || mkdir $(MW_DIR_BIN)
+	[ -d $(MW_DIR_LIB) ] || mkdir $(MW_DIR_LIB)
 endif
 	@#
+
+#
+# This rule creates the directory for the target.
+#
+define MW_RULE_MAKE_TARGET_DIR
+[ -d $(dir $@) ] || mkdir -p $(dir $@)
+endef
 
 #
 # If a library name is specified,
@@ -521,7 +532,7 @@ endif
 #
 ifneq ($(LIBNAME),)
 $(MW_DIR_LIB)/$(LIBNAME): $(OBJS) $(CXXOBJS)
-	@echo "Creating library $@ ..."
+	@echo "Creating library $(patsubst $(MW_DIR_LIB)/%,%,$@) ..."
 	$(AR) $(ARFLAGS) $(MW_DIR_LIB)/$(LIBNAME) $(OBJS) $(CXXOBJS) $(ASMOBJS)
 endif
 
@@ -530,7 +541,7 @@ endif
 #
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_LIB)/$(LIBNAMESO): $(MW_DIR_LIB)/$(LIBNAME)
-	@echo "Creating shared library $@ ..."
+	@echo "Creating shared library $(patsubst $(MW_DIR_LIB)/%,%,$@) ..."
 	$(LD) -shared -o $@ --whole-archive $^
 endif
 
@@ -541,102 +552,157 @@ $(MW_DIR_BIN) $(MW_DIR_LIB):
 	@mkdir -p $@
 
 #
-# Dependencies target for C files
+# This rule generates a dependencies *.d file from a C or C++ source file.
+# The .d file is placed in the same directory as the .o file.
 #
-.depend: $(OBJS:.o=.c) $(CXXOBJS:.o=.cc)
-	@echo "Updating dependencies in $(CURDIR) ..."
-	$(SHELL) -ec '$(HOSTCC) -MM $(CPPFLAGS) $(HOSTCFLAGS) $(OBJS:.o=.c) \
-	| sed '\''s/\($*\)\.o[ :]*/\1.o \$@ : $$(CONFIG) /g'\'' > $@; \
-	[ -s $@ ] || rm -f $@'
+# The sed script replaces the short .o filename produced by gcc with the
+# full filename used by make.  This is only necessary if make is using
+# a filename including a directory part, since some [all?] versions of
+# gcc will remove the directory.  However, it does not hurt to always
+# use the sed script.
+#
+# Note that on error, this rule removes the (incomplete) .d file, and
+# also removes the .o file so that the rule will be run again next
+# time the user runs make.
+#
+define MW_RULE_DEPEND_C
+	$(HOSTCC) -MM $(HOSTCFLAGS) $(DEFINES) $< \
+		| sed 's/.*\.o[ :]*/$(subst /,\/,$@) : /g' \
+		> $(basename $@).d \
+		|| (rm $@ $(basename $@).d ; exit 1)
+endef
 
 #
 # Compilation target for C files
 #
-%.o:%.c
-	@echo "Compiling $< ..."
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.c $(CONFIG)
+	@echo "Compiling $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@$(MW_RULE_MAKE_TARGET_DIR)
+endif
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(MW_RULE_DEPEND_C)
 
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+#
+# Compilation target for generated C files
+# (e.g. C files generated from bitmaps, fonts, etc)
+#
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.c $(CONFIG)
+	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
+	@$(MW_RULE_MAKE_TARGET_DIR)
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(MW_RULE_DEPEND_C)
+endif
 
 #
 # Compilation target for C++ files
 #
-%.o:%.cc
-	@echo "C++ compiling $< ..."
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.cc $(CONFIG)
+	@echo "Compiling $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@$(MW_RULE_MAKE_TARGET_DIR)
+endif
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
+	$(MW_RULE_DEPEND_C)
+
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+#
+# Compilation target for generated C++ files
+#
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.cc $(CONFIG)
+	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
+	@$(MW_RULE_MAKE_TARGET_DIR)
+	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
+	$(MW_RULE_DEPEND_C)
+endif
 
 #
 # Compilation target for bmp file conversion
 #
-%.c:%.bmp $(MW_DIR_BIN)/convbmp
-	echo "Generating $@ from bitmap file ..."
+$(MW_DIR_OBJ)/%.c: $(MW_DIR_SRC)/%.bmp $(MW_DIR_BIN)/convbmp
+	echo "Converting $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@$(MW_RULE_MAKE_TARGET_DIR)
+endif
 	$(MW_DIR_BIN)/convbmp -o $@ $<
 
 #
 # Compilation target for tool that does bmp file conversion
 #
 $(MW_DIR_BIN)/convbmp: $(MW_DIR_SRC)/mwin/bmp/convbmp.c
-	echo "Building $@ tool ..."
+	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
 #
 # Compilation target for bdf font file conversion
 #
-%.c:%.bdf $(MW_DIR_BIN)/convbdf
-	echo "Generating $@ from font file ..."
+$(MW_DIR_OBJ)/%.c: $(MW_DIR_SRC)/%.bdf $(MW_DIR_BIN)/convbdf
+	echo "Converting $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@$(MW_RULE_MAKE_TARGET_DIR)
+endif
 	$(MW_DIR_BIN)/convbdf -c -o $@ $<
 
 #
 # Compilation target for tool that does bdf font file conversion
 #
 $(MW_DIR_BIN)/convbdf: $(MW_DIR_SRC)/fonts/convbdf.c
-	echo "Building $@ tool ..."
+	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
 xconfig:
 	./xconfigure
 
 # don't clean lib dir
-cleanapps: cleandepend-notsubdir
-	@echo "Cleaning directory       $(CURDIR) ..."
-	$(RM) core *~ *.bak *.o TAGS
-	$(RM) bin/*
+cleanapps:
+	@echo "Cleaning directory $(MW_DIR_RELATIVE) ..."
+	$(RM) \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)core \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*~ \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.bak \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.o \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.d \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)TAGS \
+		$(MW_DIR_BIN)/*
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) cleanapps;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleanapps;)
 
-clean: cleandepend-notsubdir
-	@echo "Cleaning directory       $(CURDIR) ..."
-	$(RM) core *~ *.bak *.o TAGS
-	$(RM) $(MW_DIR_LIB)/*.a $(MW_DIR_LIB)/*.so
-	$(shell cd $(MW_DIR_BIN) && \
-		for file in `\ls`; do if [ ! -d $$file ]; \
-		then $(RM) $$file; fi; done; cd $(MW_DIR_SRC))
+clean:
+	@echo "Cleaning directory $(MW_DIR_RELATIVE) ..."
+	$(RM) \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)core \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*~ \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.bak \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.o \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.d \
+		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)TAGS \
+		$(MW_DIR_LIB)/*.a \
+		$(MW_DIR_LIB)/*.so
+	for file in $(wildcard $(MW_DIR_BIN)/*); do \
+		if [ ! -d $$file ]; then \
+			$(RM) $$file; \
+		fi; \
+	done
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 
 
-cleandepend-notsubdir:
-	@echo "Cleaning dependencies in $(CURDIR) ..."
-	$(RM) .depend
-
-cleandepend: cleandepend-notsubdir
-	$(foreach dir, $(dirs), $(MAKE) -C $(dir) cleandepend;)	
-	$(foreach dir, $(demos), $(MAKE) -C $(dir) cleandepend;)	
-
 install: default
 	$(INSTALL_DIR) $(HDRINSTALLDIR)
 	echo "Copying hdrs to $(HDRINSTALLDIR)"
-	$(INSTALL_HDR) include/*.h $(HDRINSTALLDIR)
+	$(INSTALL_HDR) $(MW_DIR_SRC)/include/*.h $(HDRINSTALLDIR)
 	echo "Copying libs to $(LIBINSTALLDIR)"
 	$(INSTALL_DIR) $(LIBINSTALLDIR)
-	$(INSTALL_LIB) lib/*.a $(LIBINSTALLDIR)
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.a $(LIBINSTALLDIR)
 ifeq ($(SHAREDLIBS), Y)
-	$(INSTALL_LIB) lib/*.so $(LIBINSTALLDIR)
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
 endif
 ifeq ($(NANOX), Y)
 ifeq ($(LINK_APP_INTO_SERVER), N)
 	echo "Copying binaries to $(BININSTALLDIR)"
 	$(INSTALL_DIR) $(BININSTALLDIR)
-	$(INSTALL_BIN) bin/nano-X $(BININSTALLDIR)
+	$(INSTALL_BIN) $(MW_DIR_BIN)/nano-X $(BININSTALLDIR)
 else
 	rm -f $(BININSTALLDIR)/nano-X
 endif
@@ -660,8 +726,8 @@ ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), cleandepend)
 ifneq ($(MAKECMDGOALS), realclean)
 ifneq ($(MAKECMDGOALS), xconfig)
-ifneq ($(OBJS),)
--include .depend
+ifneq ($(wildcard $(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.d),)
+-include $(wildcard $(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.d)
 endif
 endif
 endif

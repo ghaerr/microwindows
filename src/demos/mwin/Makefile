@@ -4,8 +4,9 @@
 ##############################################################################
 
 ifndef MW_DIR_SRC
-MW_DIR_SRC = ../..
+MW_DIR_SRC := $(CURDIR)/../..
 endif
+MW_DIR_RELATIVE := demos/mwin/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
@@ -31,10 +32,14 @@ ifeq ($(MICROWINDEMO), Y)
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
 
-# List of objects to compile
-OBJS =	mdemo.o mterm.o malpha.o mtest.o mine.o mtest2.o
-MINEIMAGES = mineflag.o mineface.o minefacelost.o minebomb.o minedone.o\
-	minehitfalse.o
+# List of images for the mine demo.
+MINEIMAGES := \
+	$(MW_DIR_OBJ)/demos/mwin/mineflag.o \
+	$(MW_DIR_OBJ)/demos/mwin/mineface.o \
+	$(MW_DIR_OBJ)/demos/mwin/minefacelost.o \
+	$(MW_DIR_OBJ)/demos/mwin/minebomb.o \
+	$(MW_DIR_OBJ)/demos/mwin/minedone.o \
+	$(MW_DIR_OBJ)/demos/mwin/minehitfalse.o
 
 DEMOS = $(MW_DIR_BIN)/mdemo\
 	$(MW_DIR_BIN)/mterm\
@@ -58,24 +63,20 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-$(MW_DIR_BIN)/mdemo: mdemo.o $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) mdemo.o -o $@ $(CCMWINLIBS)
+# These demos use a hardcoded link line.
+MWIN_DEMOS_WITH_NONSTANDARD_LINK := \
+	$(MW_DIR_BIN)/mine
 
-$(MW_DIR_BIN)/mterm: mterm.o $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) mterm.o -o $@ $(CCMWINLIBS)
+# All other demos use a standard link line, that just
+# links against the Microwindows libraries.
+MWIN_DEMOS_WITH_STANDARD_LINK := \
+	$(filter-out $(MWIN_DEMOS_WITH_NONSTANDARD_LINK),$(DEMOS))
 
-$(MW_DIR_BIN)/malpha: malpha.o $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) malpha.o -o $@ $(CCMWINLIBS)
+$(MWIN_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/mwin/%.o $(MWINLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(CCMWINLIBS)
 
-$(MW_DIR_BIN)/mtest: mtest.o $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) mtest.o -o $@ $(CCMWINLIBS)
-
-$(MW_DIR_BIN)/mtest2: mtest2.o $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) mtest2.o -o $@ $(CCMWINLIBS)
-
-$(MW_DIR_BIN)/mine: mine.o $(MINEIMAGES) $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) mine.o $(MINEIMAGES) -o $@ $(CCMWINLIBS)
-
-$(MW_DIR_BIN)/muserfd: muserfd.o $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) muserfd.o -o $@ $(CCMWINLIBS)
+$(MW_DIR_BIN)/mine: $(MW_DIR_OBJ)/demos/mwin/mine.o $(MINEIMAGES) $(MWINLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $< $(MINEIMAGES) -o $@ $(CCMWINLIBS)
 

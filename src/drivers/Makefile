@@ -11,23 +11,6 @@ endif
 
 include $(CONFIG)
 
-######################## Additional Flags section ############################
-
-# Directories list for header files
-INCLUDEDIRS +=
-# Defines for preprocessor
-DEFINES +=
-
-# Compilation flags for C files OTHER than include directories
-# Some drivers use outb macro, requires -O optimization
-ifneq ($(ARCH), LINUX-TCC)
-CFLAGS += -O
-endif
-# Preprocessor flags OTHER than defines
-CPPFLAGS +=
-# Linking flags
-LDFLAGS +=
-
 ############################# targets section ################################
 
 # If you want to create a library with the objects files, define the name here
@@ -41,8 +24,6 @@ ifneq ($(ARCH), ELKS)
 ifneq ($(ARCH), DJGPP)
 
 ifeq ($(EM8400), Y)
-CFLAGS += -I$(EM8400_DIR)/include
-LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
 OBJS += scr_em84xx.o genfont.o genmem.o
 endif
 
@@ -56,7 +37,6 @@ OBJS += fblin1.o fblin2.o
 endif
 
 ifeq ($(FBVGA), Y)
-CFLAGS += -DFBVGA=1
 OBJS += vgaplan4.o memplan4.o
 endif
 
@@ -86,20 +66,6 @@ OBJS += fblin4.o
 endif
 endif
 
-ifeq ($(INVERT4BPP), Y)
-CFLAGS += -DINVERT4BPP=1
-endif
-
-# Added define to avoid compiler error for PPC
-ifeq ($(ARCH), LINUX-POWERPC)
-CFLAGS += -DARCH_LINUX_POWERPPC=1
-endif
-
-# Added define to avoid compiler error for SPARC
-ifeq ($(ARCH), LINUX-SPARC)
-CFLAGS += -DARCH_LINUX_SPARC=1
-endif
-
 endif # FRAMEBUFER
 
 ifeq ($(VTSWITCH), Y)
@@ -123,21 +89,6 @@ else
 OBJS += genfont.o
 endif
 
-ifeq ($(USE_EXPOSURE), Y)
-CFLAGS += -DUSE_EXPOSURE
-endif
-
-ifdef SCREEN_HEIGHT
-CFLAGS += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
-endif
-
-ifdef SCREEN_WIDTH
-CFLAGS += -DSCREEN_WIDTH=$(SCREEN_WIDTH)
-endif
-
-ifdef SCREEN_DEPTH
-CFLAGS += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
-endif
 endif # X11 stuff
 
 ifeq ($(ARCH), FREEBSD-X86)
@@ -260,8 +211,8 @@ endif # RTEMS architecture
 
 endif # !X11
 
-endif # !ELKS
 endif # !DJGPP
+endif # !ELKS
 
 # For DJGPP flavor
 ifeq ($(ARCH), DJGPP)

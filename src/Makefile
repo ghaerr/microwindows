@@ -15,20 +15,6 @@ endif
 
 include $(CONFIG)
 
-######################## Additional Flags section ############################
-
-# Directories list for header files
-INCLUDEDIRS +=
-# Defines for preprocessor
-DEFINES +=
-
-# Compilation flags for C files OTHER than include directories
-CFLAGS +=
-# Preprocessor flags OTHER than defines
-CPPFLAGS +=
-# Linking flags
-LDFLAGS +=
-
 ############################# targets section ################################
 
 # If you want to create a library with the objects files, define the name here

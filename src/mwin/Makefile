@@ -10,27 +10,6 @@ endif
 
 include $(CONFIG)
 
-######################## Additional Flags section ############################
-
-# Directories list for header files
-INCLUDEDIRS +=
-
-# Defines for preprocessor
-ifeq ($(ERASEMOVE), Y)
-DEFINES += -DERASEMOVE=1
-endif
-
-ifeq ($(UPDATEREGIONS), Y)
-DEFINES += -DUPDATEREGIONS=1
-endif
-
-# Compilation flags for C files OTHER than include directories
-CFLAGS +=
-# Preprocessor flags OTHER than defines
-CPPFLAGS +=
-# Linking flags
-LDFLAGS +=
-
 ############################# targets section ################################
 
 ifeq ($(MICROWIN), Y)

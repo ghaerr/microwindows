@@ -165,7 +165,9 @@ dbcs_gettextbits(PMWFONT pfont, unsigned int ch, MWTEXTFLAGS flags,
 	const MWIMAGEBITS **retmap, MWCOORD *pwidth, MWCOORD *pheight,
 	MWCOORD *pbase)
 {
-	void (*func)();		/* gettextbits function*/
+	/* gettextbits function*/
+	void (*func)(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
+		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 
 	if (ch >= 0x0100) {	/* character was DBCS-encoded*/
 		switch (flags & MWTF_DBCSMASK) {

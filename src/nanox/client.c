@@ -3832,7 +3832,7 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 		req->serial = serial;
 		req->len = len;
 		p = GetReqData(req);
-		memcpy(p, data + pos, l);
+		memcpy(p, ((char *)data + pos), l);
 		pos += l;
 	}
 	UNLOCK(&nxGlobalLock);

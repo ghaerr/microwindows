@@ -119,7 +119,7 @@ bread(buffer_t *buffer, void *dest, int size)
 	if (buffer->offset + size > buffer->size) 
 		copysize = (buffer->size - buffer->offset);
 
-	memcpy((void *)dest, (void *)(buffer->start + buffer->offset),copysize);
+	memcpy(dest, ((char *)buffer->start + buffer->offset),copysize);
 
 	buffer->offset += copysize;
 	return(copysize);
@@ -133,7 +133,7 @@ bgetc(buffer_t *buffer)
 	if (buffer->offset == buffer->size) 
 		return(EOF);
 
-	ch = *((unsigned char *) (buffer->start + buffer->offset));
+	ch = *((unsigned char *) ((char *)buffer->start + buffer->offset));
 	buffer->offset++;
 	return(ch);
 }
@@ -151,7 +151,7 @@ bgets(buffer_t *buffer, char *dest, int size)
 		copysize = buffer->size - buffer->offset;
 
 	for(o=0, i=buffer->offset; i < buffer->offset + copysize; i++, o++) {
-		dest[o] = *((char *) (buffer->start + i));
+		dest[o] = *((char *) ((char *)buffer->start + i));
 		if (dest[o] == '\n')
 			break;
 	}

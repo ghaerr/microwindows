@@ -8,6 +8,10 @@
 # NOTE: The TOP environment variable should be set to that top directory
 ##############################################################################
 
+# Standard set of warnings for all platforms that use GCC
+#GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes
+GCC_WARNINGS := -Wall -Wpointer-arith
+
 # Platform dependent flags & definitions
 
 ifeq ($(ARCH), LINUX-NATIVE)
@@ -19,7 +23,7 @@ endif
 CXX_COMPILER = g++
 TOOLSPREFIX =
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -Wall $(OPTFLAGS)
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS +=
 # include the following line for static libraries
 #LDFLAGS += -static
@@ -42,7 +46,7 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(ARMTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -Wall $(OPTFLAGS) -mstructure-size-boundary=8
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
 LDFLAGS +=
 endif
 
@@ -51,7 +55,7 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(MIPSTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -msoft-float -Wall $(OPTFLAGS)
+CFLAGS += -msoft-float $(GCC_WARNINGS) $(OPTFLAGS)
 ifneq ($(DEBUG), Y)
 CFLAGS += -s
 endif
@@ -63,11 +67,13 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(POWERPCTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -msoft-float -Wall $(OPTFLAGS)
+CFLAGS += -msoft-float $(GCC_WARNINGS) $(OPTFLAGS)
 ifneq ($(DEBUG), Y)
 CFLAGS += -s
 endif
 LDFLAGS +=
+# Added define to avoid compiler error for PPC
+DEFINES += -DARCH_LINUX_POWERPPC=1
 endif
 
 ifeq ($(ARCH), LINUX-SH)
@@ -75,7 +81,7 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX =$(SHTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -m1 -m3 -Wall $(OPTFLAGS)
+CFLAGS += -m1 -m3 $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS +=
 endif
 
@@ -84,10 +90,12 @@ COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX =
 DEFINES += -DLINUX=1 -DUNIX=1 -DMW_CPU_BIG_ENDIAN=1
-CFLAGS += -Wall $(OPTFLAGS)
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS +=
 # include the following line for static libraries
 #LDFLAGS += -static
+# Added define to avoid compiler error for SPARC
+DEFINES += -DARCH_LINUX_SPARC=1
 endif
 
 ifeq ($(ARCH), SOLARIS)
@@ -97,7 +105,7 @@ HOSTCC = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX =
 DEFINES += -DUNIX=1 -DMW_CPU_BIG_ENDIAN=1
-CFLAGS += $(OPTFLAGS)
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS += -lsocket -lnsl -lrt
 endif
 

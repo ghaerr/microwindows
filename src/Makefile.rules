@@ -28,25 +28,34 @@ INSTALL_HDR   = install -c -m 644 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
 INSTALL_LIB   = install -c -m 644 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
 INSTALL_BIN   = install -c -m 755 -o $(INSTALL_USER) -g $(INSTALL_GROUP_2)
 
+##############################################################################
+# Defines, includes, and core libraries.  Controlled by the config file.
+##############################################################################
+
+# Defines
+DEFINES += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
+
+# Includes
 INCLUDEDIRS += -I. -I$(TOP)/include
 
-#
-# General configuration setup (see config file)
-#
-DEFINES += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
+# Libraries required for the 'engine' functionality.
+MW_CORE_LIBS :=
+
 
 ifeq ($(VTSWITCH), Y)
 DEFINES += -DVTSWITCH=1
 endif
 
 ifeq ($(X11), Y)
-CFLAGS += -DX11=1
+DEFINES += -DX11=1
 ifneq ($(ARCH),CYGWIN)
 # Cygwin can't use this - the -lX11 needs to be specified
 # *after* the object files that use it, but this inserts
 # it at the start.  For Cygwin, we will add libX11.a to the
-# library list - but later in this file, not here.
+# library list instead.
 LDFLAGS += -L/usr/X11R6/lib -lX11
+else
+MW_CORE_LIBS += /usr/X11R6/lib/libX11.a
 endif
 ifeq ($(ARCH),FREEBSD-X86)
 INCLUDEDIRS += -I/usr/X11R6/include
@@ -70,6 +79,7 @@ DEFINES += -DHAVE_FILEIO
 
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 DEFINES += -DHAVE_JPEG_SUPPORT=1
+MW_CORE_LIBS += $(LIBJPEG)
 ifneq ($(INCJPEG),)
 INCLUDEDIRS += -I$(INCJPEG)
 endif
@@ -77,8 +87,12 @@ endif
 
 ifeq ($(HAVE_PNG_SUPPORT), Y)
 DEFINES += -DHAVE_PNG_SUPPORT=1
+MW_CORE_LIBS += $(LIBPNG) $(LIBZ) 
 ifneq ($(INCPNG),)
 INCLUDEDIRS += -I$(INCPNG)
+endif
+ifneq ($(ARCH), ECOS)
+LDFLAGS += -lm
 endif
 endif
 
@@ -87,22 +101,27 @@ DEFINES += -DHAVE_FNT_SUPPORT=1
 DEFINES += -DFNT_FONT_DIR="\"$(FNT_FONT_DIR)"\"
 ifeq ($(HAVE_FNTGZ_SUPPORT), Y)
 DEFINES += -DHAVE_FNTGZ_SUPPORT=1
+MW_CORE_LIBS += $(LIBZ)
 endif
 endif
 
 ifeq ($(HAVE_T1LIB_SUPPORT), Y)
 DEFINES += -DHAVE_T1LIB_SUPPORT=1
+MW_CORE_LIBS += $(LIBT1LIB)
 ifneq ($(INCT1LIB),)
 INCLUDEDIRS += -I$(INCT1LIB)
 endif
+LDFLAGS += -lm
 endif
 
 ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
 DEFINES += -DHAVE_FREETYPE_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
+MW_CORE_LIBS += $(LIBFTLIB)
 ifneq ($(INCFTLIB),)
 INCLUDEDIRS += -I$(INCFTLIB)
 endif
+LDFLAGS += -lm
 endif
 
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
@@ -111,6 +130,7 @@ $(error Having both FreeType 1 and FreeType 2 support is not allowed.)
 endif
 DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
+MW_CORE_LIBS += $(LIBFT2LIB)
 # GCC 3.2 complains if system directories (e.g. /usr/include) are
 # specified with "-I".  For most INCxxx, we simply allow the
 # value to be set to empty to mean "no -I required".
@@ -130,6 +150,7 @@ DEFINES += -DHAVE_PCF_SUPPORT=1
 DEFINES += -DPCF_FONT_DIR="\"$(PCF_FONT_DIR)"\"
 ifeq ($(HAVE_PCFGZ_SUPPORT), Y)
 DEFINES += -DHAVE_PCFGZ_SUPPORT=1
+MW_CORE_LIBS += $(LIBZ)
 endif
 endif
 
@@ -178,7 +199,7 @@ endif
 endif
 
 ifeq ($(NOFONTSORCLIPPING), Y)
-CFLAGS += -DNOFONTSORCLIPPING=1
+DEFINES += -DNOFONTSORCLIPPING=1
 endif
 
 ifeq ($(HAVE_SHAREDMEM_SUPPORT), Y)
@@ -192,6 +213,102 @@ else
 DEFINES += -DHAVETEXTMODE=0
 endif
 endif
+
+ifeq ($(THREADSAFE), Y)
+DEFINES += -DTHREADSAFE=1
+#LDFLAGS += -lpthread
+endif
+
+# Driver-specific stuff
+ifneq ($(ARCH), ELKS)
+ifneq ($(ARCH), DJGPP)
+
+ifeq ($(EM8400), Y)
+DEFINES += -I$(EM8400_DIR)/include
+LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
+endif
+
+ifeq ($(FRAMEBUFFER), Y)
+ifeq ($(FBVGA), Y)
+DEFINES += -DFBVGA=1
+endif
+
+ifeq ($(INVERT4BPP), Y)
+DEFINES += -DINVERT4BPP=1
+endif
+endif # FRAMEBUFER
+
+ifeq ($(X11), Y)
+ifeq ($(USE_EXPOSURE), Y)
+DEFINES += -DUSE_EXPOSURE
+endif
+
+ifdef SCREEN_HEIGHT
+DEFINES += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
+endif
+
+ifdef SCREEN_WIDTH
+DEFINES += -DSCREEN_WIDTH=$(SCREEN_WIDTH)
+endif
+
+ifdef SCREEN_DEPTH
+DEFINES += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
+endif
+endif # X11 stuff
+
+endif # !DJGPP
+endif # !ELKS
+
+ifeq ($(TPHELIO), Y)
+DEFINES += -DTPHELIO=1
+endif
+
+# Nano-X specific stuff
+ifeq ($(NANOX), Y)
+
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+DEFINES += -DNONETWORK=1
+endif
+
+endif # NANOX
+
+# Microwin-specific stuff
+ifeq ($(MICROWIN), Y)
+
+ifeq ($(ERASEMOVE), Y)
+DEFINES += -DERASEMOVE=1
+endif
+
+ifeq ($(UPDATEREGIONS), Y)
+DEFINES += -DUPDATEREGIONS=1
+endif
+
+endif
+
+
+##############################################################################
+# Extra compiler flags.
+#
+# Note: Do not set defines, includes or libraries here!
+##############################################################################
+
+# Some drivers use outb macro, requires -O optimization
+ifneq ($(ARCH), LINUX-TCC)
+ifneq ($(ARCH), DJGPP)
+ifeq ($(ARCH), ELKS)
+CFLAGS += -O
+else
+ifeq ($(FRAMEBUFFER), Y)
+ifeq ($(FBVGA), Y)
+CFLAGS += -O
+endif
+endif # FRAMEBUFER
+ifeq ($(HWVGA), Y)
+CFLAGS += -O
+endif
+endif # !ELKS
+endif # !DJGPP
+endif # !LINUX-TCC
 
 ifneq ($(ARCH), TRIMEDIA)
 
@@ -208,11 +325,6 @@ OPTFLAGS += -pg
 LDFLAGS += -pg
 endif
 
-endif
-
-ifeq ($(THREADSAFE), Y)
-DEFINES += -DTHREADSAFE=1
-#LDFLAGS += -lpthread
 endif
 
 ifeq ($(DEBUG), Y)
@@ -235,7 +347,11 @@ else
 ARFLAGS = rs
 endif
 
-# Tools (may be overridden by Arch.rules)
+##############################################################################
+# Tools
+##############################################################################
+
+# Default tools (may be overridden by Arch.rules)
 HOSTCC = gcc
 COMPILER = gcc
 CXX_COMPILER = g++
@@ -261,145 +377,53 @@ OBJCOPY = $(TOOLSPREFIX)objcopy
 CP = cp
 MV = mv
 
-################## Libraries Section ##################
+##############################################################################
+# Libraries.
+#
+# Note that libraries required by the engine (and only by the engine) are
+# already set in MW_CORE_LIBS.
+##############################################################################
 
-MWINLIBS = $(TOP)/lib/libmwin.a $(TOP)/lib/libmwinlib.a\
-	$(TOP)/lib/libmwengine.a $(TOP)/lib/libmwdrivers.a\
-	$(TOP)/lib/libmwfonts.a $(TOP)/lib/libmwimages.a
-CCMWINLIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwin -lmwimages -lm
+MWINLIBS = \
+	$(TOP)/lib/libmwin.a \
+	$(TOP)/lib/libmwinlib.a\
+	$(TOP)/lib/libmwengine.a \
+	$(TOP)/lib/libmwdrivers.a \
+	$(TOP)/lib/libmwfonts.a \
+	$(TOP)/lib/libmwimages.a \
+	$(MW_CORE_LIBS)
+CCMWINLIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwin -lmwimages -lm $(MW_CORE_LIBS)
 
 ifeq ($(LINK_APP_INTO_SERVER), Y)
-NANOXCLIENTLIBS += $(TOP)/lib/libnano-X.a $(TOP)/lib/libmwengine.a\
-	$(TOP)/lib/libmwdrivers.a $(TOP)/lib/libmwfonts.a
-CCNANOXCLIENTLIBS += -lnano-X -lmwengine -lmwdrivers -lmwfonts
+NANOXCLIENTLIBS += \
+	$(TOP)/lib/libnano-X.a \
+	$(TOP)/lib/libmwengine.a \
+	$(TOP)/lib/libmwdrivers.a \
+	$(TOP)/lib/libmwfonts.a \
+	$(MW_CORE_LIBS)
+CCNANOXCLIENTLIBS += -lnano-X -lmwengine -lmwdrivers -lmwfonts $(MW_CORE_LIBS)
 else
 NANOXCLIENTLIBS += $(TOP)/lib/libnano-X.a
 CCNANOXCLIENTLIBS += -lnano-X
 endif
 
-NANOXSERVERLIBS += $(TOP)/lib/libmwengine.a $(TOP)/lib/libmwdrivers.a\
-	$(TOP)/lib/libmwfonts.a
+NANOXSERVERLIBS += \
+	$(TOP)/lib/libmwengine.a \
+	$(TOP)/lib/libmwdrivers.a \
+	$(TOP)/lib/libmwfonts.a \
+	$(MW_CORE_LIBS)
 CCNANOXSERVERLIBS += -lmwengine -lmwdrivers -lmwfonts
-
-ifeq ($(X11), Y)
-ifeq ($(ARCH),CYGWIN)
-MWINLIBS += /usr/X11R6/lib/libX11.a
-CCMWINLIBS += /usr/X11R6/lib/libX11.a
-NANOXLIBS += /usr/X11R6/lib/libX11.a
-NANOXSERVERLIBS += /usr/X11R6/lib/libX11.a
 ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += /usr/X11R6/lib/libX11.a
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += /usr/X11R6/lib/libX11.a
-endif
-endif
+	CCNANOXSERVERLIBS += $(MW_CORE_LIBS)
 endif
 
-ifeq ($(HAVE_FILEIO), Y)
-ifeq ($(HAVE_JPEG_SUPPORT), Y)
-MWINLIBS += $(LIBJPEG)
-CCMWINLIBS += $(LIBJPEG)
-NANOXLIBS += $(LIBJPEG)
-NANOXSERVERLIBS += $(LIBJPEG)
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBJPEG)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBJPEG)
-endif
-endif
-ifeq ($(HAVE_PNG_SUPPORT), Y)
-MWINLIBS += $(LIBPNG) $(LIBZ) 
-CCMWINLIBS += $(LIBPNG) $(LIBZ)
-NANOXLIBS += $(LIBPNG) $(LIBZ)
-NANOXSERVERLIBS += $(LIBPNG) $(LIBZ)
-ifneq ($(ARCH), ECOS)
-	NANOXSERVERLIBS += -lm
-endif
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBPNG) $(LIBZ)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBPNG) $(LIBZ)
-endif
-endif
-
-ifeq ($(HAVE_PCFGZ_SUPPORT), Y)
-MWINLIBS += $(LIBZ)
-CCMWINLIBS += $(LIBZ)
-NANOXSERVERLIBS += $(LIBZ) 
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBZ)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBZ)
-endif
-endif
-
-ifeq ($(HAVE_FNTGZ_SUPPORT), Y)
-MWINLIBS += $(LIBZ)
-CCMWINLIBS += $(LIBZ)
-NANOXSERVERLIBS += $(LIBZ) 
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBZ)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBZ)
-endif
-endif
-
-endif
-
-ifeq ($(HAVE_T1LIB_SUPPORT), Y)
-MWINLIBS += $(LIBT1LIB)
-CCMWINLIBS += $(LIBT1LIB)
-NANOXLIBS += $(LIBT1LIB)
-NANOXSERVERLIBS += $(LIBT1LIB)
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBT1LIB)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBT1LIB)
-endif
-LDFLAGS += -lm
-endif
-
-ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
-MWINLIBS += $(LIBFTLIB)
-CCMWINLIBS += $(LIBFTLIB)
-NANOXLIBS += $(LIBFTLIB)
-NANOXSERVERLIBS += $(LIBFTLIB)
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBFTLIB)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBFTLIB)
-endif
-LDFLAGS += -lm
-endif
-
-ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
-MWINLIBS += $(LIBFT2LIB)
-CCMWINLIBS += $(LIBFT2LIB)
-NANOXLIBS += $(LIBFT2LIB)
-NANOXSERVERLIBS += $(LIBFT2LIB)
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(LIBFT2LIB)
-endif
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-	NANOXCLIENTLIBS += $(LIBFT2LIB)
-endif
-endif
 
 ifeq ($(ARCH), ELKS)
 CCMWINLIBS = $(MWINLIBS)
-CCNANOXLIBS = $(NANOXLIBS)
 endif
 
 ifeq ($(ARCH), DJGPP)
 CCMWINLIBS += -lgrx20
-CCNANOXLIBS = $(NANOXLIBS) 
 NANOXCLIENTLIBS += -lgrx20
 endif
 
@@ -408,7 +432,9 @@ ifeq ($(ARCH), FREEBSD-X86)
 NANOXCLIENTLIBS += -lutil
 endif
 
-################## End of Libraries Section ##################
+##############################################################################
+# Build rules
+##############################################################################
 
 # If you dont want to see every executed command ...
 ifeq ($(VERBOSE), N)
@@ -521,9 +547,30 @@ endif
 #
 # Compilation target for bmp file conversion
 #
-%.c:%.bmp $(TOP)/mwin/bmp/convbmp.c
+%.c:%.bmp $(TOP)/bin/convbmp
 	echo "Generating $@ from bitmap file ..."
-	if [ -x $(TOP)/bin/convbmp ]; then $(TOP)/bin/convbmp -o $@ $< ; fi;
+	$(TOP)/bin/convbmp -o $@ $<
+
+#
+# Compilation target for tool that does bmp file conversion
+#
+$(TOP)/bin/convbmp: $(TOP)/mwin/bmp/convbmp.c
+	echo "Building $@ tool ..."
+	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
+#
+# Compilation target for bdf font file conversion
+#
+%.c:%.bdf $(TOP)/fonts/convbdf
+	echo "Generating $@ from font file ..."
+	$(TOP)/fonts/convbdf $< -o $@
+
+#
+# Compilation target for tool that does bdf font file conversion
+#
+$(TOP)/bin/convbdf: $(TOP)/fonts/convbdf.c
+	echo "Building $@ tool ..."
+	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
 xconfig:
 	./xconfigure
@@ -585,9 +632,10 @@ tags:
 	etags --language=c --append `find . -name \*.[hc] -print`
 	etags --language=asm --append `find . -name \*.[Ss] -print`
 
-#
+##############################################################################
 # Included dependency files
-#
+##############################################################################
+
 ifneq ($(MAKECMDGOALS), clean)
 ifneq ($(MAKECMDGOALS), cleandepend)
 ifneq ($(MAKECMDGOALS), realclean)

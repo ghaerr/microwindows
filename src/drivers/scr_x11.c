@@ -59,8 +59,8 @@ static void X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
 static void X11_preselect(PSD psd);
 static void X11_drawarea(PSD psd, driver_gc_t * gc, int op);
-static void X11_stretchblitex(PSD dstpsd, PSD srcpsd, int dest_x_start,
-		int dest_y_start, int width, int height, int x_denominator,
+static void X11_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
+		MWCOORD dest_y_start, MWCOORD width, MWCOORD height, int x_denominator,
 		int y_denominator, int src_x_fraction, int src_y_fraction,
 		int x_step_fraction, int y_step_fraction, long op);
 
@@ -1050,8 +1050,8 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 
 static void
 X11_stretchblitex(PSD dstpsd, PSD srcpsd,
-		    int dest_x_start, int dest_y_start,
-		    int width, int height,
+		    MWCOORD dest_x_start, MWCOORD dest_y_start,
+		    MWCOORD width, MWCOORD height,
 		    int x_denominator, int y_denominator,
 		    int src_x_fraction, int src_y_fraction,
 		    int x_step_fraction, int y_step_fraction, long op)

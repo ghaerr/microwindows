@@ -6,7 +6,6 @@ SetWindowRegion still buggy under bounding box with bkgnd graphics
 SetWindowRegion doesn't work with borders
 blit slow when moving windows in portrait mode
 down portrait mode is not correct
-PCF reading code is little-endian dependent
 same fonts aren't cached by name in server
 freetype fonts character spacing incorrect when antialias on
 

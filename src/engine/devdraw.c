@@ -1662,10 +1662,10 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 	int src_y_step_denominator;
 
 	/* Clipped dest co-ords */
-	int c1_x;
-	int c1_y;
-	int c2_x;
-	int c2_y;
+	MWCOORD c1_x;
+	MWCOORD c1_y;
+	MWCOORD c2_x;
+	MWCOORD c2_y;
 
 	/* Initial source co-ordinates, as a fraction (denominators as above) */
 	int src_x_start_exact;

@@ -1,7 +1,5 @@
 optimize GdBitmap
-change int to MWCOORD in StretchBlitEx parms, fix StretchBlitEx
-	remove StretchBlit
-eliminate FS_FREETYPE
+remove StretchBlit, old engine stretchblitex
 add GdGetTextSizeEx, add entry points for GdGetFontList, GdFreeFontList
 add release new fonts tar file
 ***lfHeight shouldn't have to be non-zero to work
@@ -26,9 +24,6 @@ change to GrChangeGC instead of new GrSetXXX routines?
 GetTypedEventPred - typedef CheckEvent, remove params??
 ***GrCopyGC broken for stipple allocs, etc
 add 1bpp pixmap flag??
-
-char count in GrText with other than MWTF_ASCII incorrect
-bytelen in srvnet.c::GrText() incorrect
 
 tcc: engine/devfont.c:://#error ... \
 tcc: tuxchess can't compile due to CRLF source

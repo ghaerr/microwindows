@@ -277,13 +277,12 @@ typedef struct {
 	void	 (*StretchBlit)(PSD destpsd, MWCOORD destx, MWCOORD desty,
 			MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
 			MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op);
-	void (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
-				 int dest_x_start, int dest_y_start,
-				 int width, int height,
-				 int x_denominator, int y_denominator,
-				 int src_x_fraction, int src_y_fraction,
-				 int x_step_fraction, int y_step_fraction,
-				 long op);
+	void 	 (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
+			MWCOORD dest_x_start, int dest_y_start,
+			MWCOORD width, int height,
+			int x_denominator, int y_denominator,
+			int src_x_fraction, int src_y_fraction,
+			int x_step_fraction, int y_step_fraction, long op);
 } SUBDRIVER, *PSUBDRIVER;
 
 /*

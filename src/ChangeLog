@@ -1,4 +1,13 @@
-	* added default font dir handling to pcf and fnt files (set in config)
+	* re-inserted special hack for portait mode pixmap handling in genmem.c
+	* added auto UC16 conversion to handle large (non-ASCII) bdf fonts
+		- requires loading converted bdf file as .fnt file
+		- any BDF can now be used to display international chars
+			convert font using fonts/convbdf.c: "convbdf -f *.bdf"
+		- MWTF_DBCS_* flags can be used with font for DBCS encoding
+		- this is the new preferred method for Chinese,Japanese & Korean
+	* speed up PCF font output for ASCII fonts
+	* added default font dir handling with PCF and FNT files (set in config)
+	* fix GrCreateFont to return ID 0 when font not found
 Version 0.89pl11 - 07 Apr 2003 - greg@censoft.com
 	* change to allow GrCreateFont w/height=0 to work with loadable fonts
 		- if height=0 specified with scalable fonts, must call

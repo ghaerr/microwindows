@@ -1386,6 +1386,13 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 		fontp->pfont = GdCreateFont(&scrdev, NULL, 0, plogfont);
 	else
 		fontp->pfont = GdCreateFont(&scrdev, name, height, NULL);
+
+	/* if no font created, deallocate and return ID 0*/
+	if (!fontp->pfont) {
+		free(fontp);
+		return 0;
+	}
+
 	fontp->id = nextfontid++;
 	fontp->owner = curclient;
 	fontp->next = listfontp;

@@ -1,3 +1,5 @@
+PCF font indexing (MWTF_XCHAR2B) in t1demo.c needs looking into
+add PORTRAIT_HACK to config file
 optimize GdBitmap
 remove StretchBlit, old engine stretchblitex
 add GdGetTextSizeEx, add entry points for GdGetFontList, GdFreeFontList

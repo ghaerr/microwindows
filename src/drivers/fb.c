@@ -93,7 +93,7 @@ fb_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
 
 /* FIXME kluge for current portrait mode subdriver in scr_fbportrait.c*/
-//if(mempsd->portrait != MWPORTRAIT_NONE) return 1;
+if(mempsd->portrait != MWPORTRAIT_NONE) return 1;
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(mempsd);

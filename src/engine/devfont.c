@@ -255,7 +255,7 @@ printf("createfont: no font found, returning NULL\n");
 MWCOORD
 GdSetFontSize(PMWFONT pfont, MWCOORD fontsize)
 {
-	MWCOORD	oldfontsize = pfont->fontsize;
+	MWCOORD oldfontsize = pfont->fontsize;
 
 	pfont->fontsize = fontsize;
 
@@ -269,7 +269,7 @@ GdSetFontSize(PMWFONT pfont, MWCOORD fontsize)
 int
 GdSetFontRotation(PMWFONT pfont, int tenthdegrees)
 {
-	MWCOORD	oldrotation = pfont->fontrotation;
+	MWCOORD oldrotation = pfont->fontrotation;
 
 	pfont->fontrotation = tenthdegrees;
 
@@ -341,7 +341,8 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	 */
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (gr_pfont->fontprocs->GetTextBits == gen_gettextbits) {
+		if (gr_pfont->fontprocs->GetTextBits == gen_gettextbits &&
+		    gr_pfont->fontprocs->DrawText == corefont_drawtext) {
 			defencoding = MWTF_UC16;
 			force_uc16 = 1;
 		}
@@ -452,6 +453,80 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 
 	GdFixCursor(psd);
 }
+
+#if HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT
+/*
+ * Draw MWTF_UC16 text using COREFONT type font.
+ */
+void
+gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+	const void *text, int cc, MWTEXTFLAGS flags)
+{
+	const unsigned short *str = text;
+	MWCOORD		width;			/* width of text area */
+	MWCOORD		height;			/* height of text area */
+	MWCOORD		base;			/* baseline of text */
+	MWCOORD		startx, starty;
+	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
+	MWBOOL		bgstate;
+	int		clip;
+
+	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
+
+	if (flags & MWTF_BASELINE)
+		y -= base;
+	else if (flags & MWTF_BOTTOM)
+		y -= (height - 1);
+	startx = x;
+	starty = y + base;
+	bgstate = gr_usebg;
+
+	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	case CLIP_VISIBLE:
+		/* clear background once for all characters*/
+		if (gr_usebg)
+			psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
+				gr_background);
+
+		/* FIXME if we had a low-level text drawer, plug in here:
+		psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
+		GdFixCursor(psd);
+		return;
+		*/
+
+		/* save state for combined routine below*/
+		bgstate = gr_usebg;
+		gr_usebg = FALSE;
+		break;
+
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+	/* Get the bitmap for each character individually, and then display
+	 * them using clipping for each one.
+	 */
+	while (--cc >= 0 && x < psd->xvirtres) {
+		unsigned int ch = *str++;
+		pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
+			&height, &base);
+
+		if (clip == CLIP_VISIBLE)
+			drawbitmap(psd, x, y, width, height, bitmap);
+		else
+			GdBitmap(psd, x, y, width, height, bitmap);
+		x += width;
+	}
+
+	if (pfont->fontattr & MWTF_UNDERLINE)
+		GdLine(psd, startx, starty, x, starty, FALSE);
+
+	/* restore background draw state*/
+	gr_usebg = bgstate;
+
+	GdFixCursor(psd);
+}
+#endif /* HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT*/
 
 #if HAVE_T1LIB_SUPPORT | HAVE_FREETYPE_SUPPORT
 /*
@@ -714,7 +789,8 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (pfont->fontprocs->GetTextBits == gen_gettextbits) {
+		if (pfont->fontprocs->GetTextBits == gen_gettextbits &&
+		    pfont->fontprocs->DrawText == corefont_drawtext) {
 			defencoding = MWTF_UC16;
 			force_uc16 = 1;
 		}

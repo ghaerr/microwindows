@@ -41,15 +41,24 @@ extern MWBOOL gr_usebg;
 #define FCLOSE(file)                fclose(file)
 #endif
 
-void gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, MWTEXTFLAGS flags);
-void gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
-	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
-
 /* Handling routines for PCF fonts, use MWCOREFONT structure */
 static void pcf_unloadfont(PMWFONT font);
 
+/* these procs used when font ASCII indexed*/
 static MWFONTPROCS pcf_fontprocs = {
+	MWTF_ASCII,
+	gen_getfontinfo,
+	gen_gettextsize,
+	gen_gettextbits,
+	pcf_unloadfont,
+	corefont_drawtext,
+	NULL,			/* setfontsize */
+	NULL,			/* setfontrotation */
+	NULL,			/* setfontattr */
+};
+
+/* these procs used when font requires UC16 index*/
+static MWFONTPROCS pcf_fontprocs16 = {
 	MWTF_UC16,		/* routines expect unicode 16 */
 	gen_getfontinfo,
 	gen16_gettextsize,
@@ -457,7 +466,7 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 	int glyph_count;
 	unsigned short *goffset = 0;
 	unsigned char *gwidth = 0;
-	int endian;
+	int endian, uc16;
 	char fname[256];
 
 	/* Try to open the file */
@@ -474,10 +483,6 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 		err = -1;
 		goto leave_func;
 	}
-
-	pf->fontprocs = &pcf_fontprocs;
-	pf->fontsize = pf->fontrotation = pf->fontattr = 0;
-	pf->name = "PCF";
 
 	if (!(pf->cfont = (PMWCFONT) calloc(sizeof(MWCFONT), 1))) {
 		err = -1;
@@ -603,6 +608,12 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 	}
 	pf->cfont->size = encoding->count;
 
+	uc16 = pf->cfont->firstchar > 255 || 
+		(pf->cfont->firstchar + pf->cfont->size) > 255;
+	pf->fontprocs = uc16? &pcf_fontprocs16: &pcf_fontprocs;
+	pf->fontsize = pf->fontrotation = pf->fontattr = 0;
+	pf->name = "PCF";
+
 leave_func:
 	if (goffset)
 		free(goffset);
@@ -653,104 +664,4 @@ pcf_unloadfont(PMWFONT font)
 	}
 
 	free(font);
-}
-
-/*
- * Draw MWTF_UC16 text using COREFONT type font.
- */
-void
-gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, MWTEXTFLAGS flags)
-{
-	const unsigned short *str = text;
-	MWCOORD		width;			/* width of text area */
-	MWCOORD		height;			/* height of text area */
-	MWCOORD		base;			/* baseline of text */
-	MWCOORD		startx, starty;
-	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
-	MWBOOL		bgstate;
-	int		clip;
-
-	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
-
-	if (flags & MWTF_BASELINE)
-		y -= base;
-	else if (flags & MWTF_BOTTOM)
-		y -= (height - 1);
-	startx = x;
-	starty = y + base;
-	bgstate = gr_usebg;
-
-	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-	case CLIP_VISIBLE:
-		/* clear background once for all characters*/
-		if (gr_usebg)
-			psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
-				gr_background);
-
-		/* FIXME if we had a low-level text drawer, plug in here:
-		psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
-		GdFixCursor(psd);
-		return;
-		*/
-
-		/* save state for combined routine below*/
-		bgstate = gr_usebg;
-		gr_usebg = FALSE;
-		break;
-
-	case CLIP_INVISIBLE:
-		return;
-	}
-
-	/* Get the bitmap for each character individually, and then display
-	 * them using clipping for each one.
-	 */
-	while (--cc >= 0 && x < psd->xvirtres) {
-		unsigned int ch = *str++;
-		pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
-			&height, &base);
-
-		if (clip == CLIP_VISIBLE)
-			drawbitmap(psd, x, y, width, height, bitmap);
-		else
-			GdBitmap(psd, x, y, width, height, bitmap);
-		x += width;
-	}
-
-	if (pfont->fontattr & MWTF_UNDERLINE)
-		GdLine(psd, startx, starty, x, starty, FALSE);
-
-	/* restore background draw state*/
-	gr_usebg = bgstate;
-
-	GdFixCursor(psd);
-}
-
-/*
- * Routine to calc bounding box for text output.
- * Handles both fixed and proportional fonts.  Passed MWTF_UC16 string.
- */
-void
-gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
-	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
-{
-	PMWCFONT pf = ((PMWCOREFONT) pfont)->cfont;
-	const unsigned short *str = text;
-	unsigned int c;
-	int width;
-
-	if (pf->width == NULL)
-		width = cc * pf->maxwidth;
-	else {
-		width = 0;
-		while (--cc >= 0) {
-			c = *str++;
-			if (c >= pf->firstchar && c < pf->firstchar + pf->size)
-				width += pf->width[c - pf->firstchar];
-		}
-	}
-	*pwidth = width;
-	*pheight = pf->height;
-	*pbase = pf->ascent;
 }

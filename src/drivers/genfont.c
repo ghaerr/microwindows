@@ -99,6 +99,36 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 	*pbase = pf->ascent;
 }
 
+#if HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT
+/*
+ * Routine to calc bounding box for text output.
+ * Handles both fixed and proportional fonts.  Passed MWTF_UC16 string.
+ */
+void
+gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
+	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
+{
+	PMWCFONT		pf = ((PMWCOREFONT) pfont)->cfont;
+	const unsigned short *	str = text;
+	unsigned		int c;
+	int			width;
+
+	if (pf->width == NULL)
+		width = cc * pf->maxwidth;
+	else {
+		width = 0;
+		while (--cc >= 0) {
+			c = *str++;
+			if (c >= pf->firstchar && c < pf->firstchar + pf->size)
+				width += pf->width[c - pf->firstchar];
+		}
+	}
+	*pwidth = width;
+	*pheight = pf->height;
+	*pbase = pf->ascent;
+}
+#endif /* HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT*/
+
 /*
  * Generalized low level routine to get the bitmap associated
  * with a character.  Handles fixed and proportional fonts.

@@ -42,6 +42,7 @@
 static void fnt_unloadfont(PMWFONT font);
 static PMWCFONT fnt_load_font(char *path);
 
+/* these procs used when font ASCII indexed*/
 static MWFONTPROCS fnt_fontprocs = {
 	MWTF_ASCII,		/* routines expect ascii */
 	gen_getfontinfo,
@@ -54,11 +55,25 @@ static MWFONTPROCS fnt_fontprocs = {
 	NULL,			/* setfontattr */
 };
 
+/* these procs used when font requires UC16 index*/
+static MWFONTPROCS fnt_fontprocs16 = {
+	MWTF_UC16,		/* large font, expect UC16*/
+	gen_getfontinfo,
+	gen16_gettextsize,
+	gen_gettextbits,
+	fnt_unloadfont,
+	gen16_drawtext,
+	NULL,			/* setfontsize */
+	NULL,			/* setfontrotation */
+	NULL,			/* setfontattr */
+};
+
 PMWCOREFONT
 fnt_createfont(char *name, MWCOORD height, int attr)
 {
 	PMWCOREFONT	pf;
 	PMWCFONT	cfont;
+	int		uc16;
 
 	/* try to open file and read in font data*/
 	cfont = fnt_load_font(name);
@@ -70,7 +85,11 @@ fnt_createfont(char *name, MWCOORD height, int attr)
 		return NULL;
 	}
 
-	pf->fontprocs = &fnt_fontprocs;
+	/* determine if unicode-16 indexing required*/
+	uc16 = cfont->firstchar > 255 || 
+		(cfont->firstchar + cfont->size) > 255;
+	pf->fontprocs = uc16? &fnt_fontprocs16: &fnt_fontprocs;
+
 	pf->fontsize = pf->fontrotation = pf->fontattr = 0;
 	pf->name = "FNT";
 	pf->cfont = cfont;

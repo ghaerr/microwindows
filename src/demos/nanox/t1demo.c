@@ -3,8 +3,11 @@
  *
  * Loadable font demo for Microwindows
  *
- * Loads MGL, HZK, T1LIB, FREETYPE, and PCF fonts
+ * Loads FNT, PCF, FREETYPE, T1LIB, MGL and HZK fonts
  * Must be recompiled when src/config changes
+ *
+ * To test UC16 international FNT files, PCF and FREETYPE must be turned off,
+ * because of the #if defines following.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,17 +54,24 @@
 #elif HAVE_PCF_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "7x14.pcf.gz"
-#define FONT2 "6x13.pcf.gz"
-#define FONT3 "9x15.pcf.gz"
-#define FONT4 "vga.pcf.gz"
-#define FONT5 "helvB12.pcf.gz"
-#elif HAVE_FNT_SUPPORT
-#define MAXFONTS 2
-#define FONT1 "/tmp/helvB12.fnt"
-#define FONT2 "/tmp/clR6x8.fnt"
+#define FONT2 "9x15.pcf.gz"
+#define FONT3 "helvB12.pcf.gz"
+#define FONT4 "jiskan24.pcf.gz"
+#define FONT5 "gb24st.pcf.gz"
+#elif HAVE_BIG5_SUPPORT | HAVE_GB2312_SUPPORT | HAVE_JISX0213_SUPPORT | HAVE_KSC5601_SUPPORT
+#define MAXFONTS 5
+#define FONT1 ""
+#define FONT2 ""
 #define FONT3 ""
 #define FONT4 ""
 #define FONT5 ""
+#elif HAVE_FNT_SUPPORT
+#define MAXFONTS 5
+#define FONT1 "/tmp/helvB12.fnt"
+#define FONT2 "/tmp/clR6x8.fnt"
+#define FONT3 "/tmp/jiskan24.fnt"		/* UC16 font*/
+#define FONT4 "/tmp/jiskan16-2000-1.fnt"	/* UC16 font*/
+#define FONT5 "/tmp/gbk16-xke.fnt"		/* UC16 font*/
 #else
 #define MAXFONTS 5
 #define FONT1 ""
@@ -81,7 +91,7 @@ main(int ac, char **av)
 	GR_WINDOW_ID window;
 	GR_GC_ID gc;
 	GR_FONT_ID fontid;
-	int x, y;
+	int x, y, fnum;
 	GR_REGION_ID regionid;
 #if CLIP_POLYGON
 	GR_POINT points[] = { {20, 20}, {300, 20}, {300, 300}, {20, 300} };
@@ -123,7 +133,7 @@ main(int ac, char **av)
 			exit(0);
 		}
 
-		fontid = GrCreateFont(names[RAND(MAXFONTS)], 0, NULL);
+		fontid = GrCreateFont(names[fnum=RAND(MAXFONTS)], 0, NULL);
 		GrSetFontSize(fontid, RAND(80) + 1);
 		GrSetFontRotation(fontid, 330);		/* 33 degrees */
 		GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
@@ -190,6 +200,40 @@ main(int ac, char **av)
 #elif HAVE_KSC5601_SUPPORT
 		/* encoding KSC5601 test B0 B0 */
 		GrText(window, gc, x, y, "\273\273", 2, MWTF_DBCS_KSC);
+#elif HAVE_FREETYPE_SUPPORT
+		/* ASCII test */
+		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);
+#elif HAVE_PCF_SUPPORT
+		/* note: large PCF fonts require XCHAR2B, this is not
+		   figured out yet for these fonts.  FIXME */
+		if (fnum == 3) {
+			/* japanese jiskan24*/
+			unsigned short text[] =
+			    { 0x213a, 0x213b, 0x2170, 0x2276, 0x2339 };
+			GrText(window, gc, x,y, text, 5, GR_TFUC16);
+		} else if (fnum == 4) {
+			/* chinese gb24st*/
+			unsigned short text[] =
+			    /* FIXME: why doesn't first row index correctly?*/
+			    /*{ 0x7765, 0x7766, 0x7767, 0x777a, 0x777e };*/
+			    { 0x2129, 0x212a, 0x212b, 0x212c, 0x212d };
+			GrText(window, gc, x,y, text, 5, GR_TFUC16);
+		} else
+			GrText(window, gc, x,y, "Microwindows", -1, GR_TFASCII);
+#elif HAVE_FNT_SUPPORT
+		/* UC16 test */
+		if (fnum == 2 || fnum == 3) {
+			/* japanese jiskan24, jiskan16-2000-1*/
+			unsigned short text[] =
+			    { 0x213a, 0x213b, 0x2170, 0x2276, 0x2339 };
+			GrText(window, gc, x,y, text, 5, GR_TFUC16);
+		} else if (fnum == 4) {
+			/* chinese gbk16-xke*/
+			unsigned short text[] =
+			    { 0x8144, 0x8147, 0x8148, 0xfe4e, 0xfe4f };
+			GrText(window, gc, x,y, text, 5, GR_TFUC16);
+		} else
+			GrText(window, gc, x,y, "Microwindows", -1, GR_TFASCII);
 #else
 		/* ASCII test */
 		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);

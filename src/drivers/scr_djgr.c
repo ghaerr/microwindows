@@ -71,7 +71,7 @@ DJGR_open(PSD psd)
 
 	x = 640;
 	y = 480;
-	c = 16;
+	c = 256;
 
         GrSetMode(GR_width_height_color_graphics,x,y,c);
 

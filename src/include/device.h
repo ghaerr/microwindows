@@ -579,7 +579,7 @@ void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 /* return base item address from list ptr*/
 #define GdItemAddr(p,type,list)	((type *)((long)p - MWITEM_OFFSET(type,list)))
 
-#if UNIX
+#if UNIX || DJGPP
 
 #include <sys/time.h>
 

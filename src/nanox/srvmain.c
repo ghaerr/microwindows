@@ -33,6 +33,10 @@
 #endif
 #endif
 
+#if DOS_DJGPP
+typedef unsigned long DWORD;	/* FIXME why is this here?*/
+#endif
+
 #if ELKS
 #include <linuxmt/posix_types.h>
 #include <linuxmt/time.h>

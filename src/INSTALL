@@ -180,8 +180,9 @@ The file mcmwin.mak will build microwin.exe, and mcnanox.mak
 will build nanox.exe.  The DEMO= line can be changed to build
 different nano-X demos.
 
-There are contributed DJGPP and PACIFIC C ports.  Instructions
-are in microwin/src/contrib/djgpp and pacific.
+There are contributed DJGPP, TURBO C and PACIFIC C ports.  
+Instructions are in microwin/src/contrib/djgpp, turboc and 
+pacific.
 
 Framebuffer notes:
 If you haven't used any of the Linux 2.2 framebuffer drivers before,

@@ -1,4 +1,5 @@
 Version 0.89pre8 - 4 July 2001 - greg@censoft.com
+	* added DJGPP changes from Victor
 	* added check for CONSOLE env var for /dev/tty to open, GrCopyArea fix and
 		X11 scanline calc bug from Jordan Crouse
 	* add patches for compiling with libc5 and default t1lib Latin1 encoding from Tomasz

@@ -159,7 +159,7 @@ MV = mv
 MWINLIBS = $(TOP)/lib/libmwin.a $(TOP)/lib/libmwinlib.a\
 	$(TOP)/lib/libmwengine.a $(TOP)/lib/libmwdrivers.a\
 	$(TOP)/lib/libmwfonts.a $(TOP)/lib/libmwimages.a
-CCMWINLIBS = -lmwin -lmwinlib -lmwin -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
+CCMWINLIBS = -lmwin -lmwinlib -lmwengine -lmwdrivers -lmwfonts -lmwin -lmwimages -lm
 
 ifeq ($(NWIDGET), Y)
 NANOXCLIENTLIBS += $(TOP)/lib/libnwidget.a
@@ -243,7 +243,7 @@ CCNANOXLIBS = $(NANOXLIBS)
 endif
 
 ifeq ($(ARCH), DJGPP)
-CCMWINLIBS = $(MWINLIBS) -lgrx20
+CCMWINLIBS += -lgrx20
 CCNANOXLIBS = $(NANOXLIBS) 
 NANOXCLIENTLIBS += -lgrx20
 endif

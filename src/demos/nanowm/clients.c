@@ -1,7 +1,7 @@
 /*
  * NanoWM - Window Manager for Nano-X
  *
- * Copyright (C) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (C) 2000, 2003 Greg Haerr <greg@censoft.com>
  * Copyright (C) 2000 Alex Holden <alex@linuxhacker.org>
  */
 #include <stdio.h>

@@ -1327,7 +1327,7 @@ typedef struct {
 	BYTE8	hilength;
 	UINT16	length;
         IDTYPE	wid;
-        UINT16	ungrab;
+        INT16	type;
         UINT16	key;  
 } nxGrabKeyReq;
 

@@ -242,6 +242,8 @@ GsWpDestroyWindow(GR_WINDOW *wp)
 	GR_WINDOW	*prevwp;	/* previous window pointer */
 	GR_EVENT_CLIENT	*ecp;		/* selections for window */
 	GR_WINDOW_ID	oldwid;		/* old selection owner */
+	GR_GRABBED_KEY *keygrab;
+	GR_GRABBED_KEY **keygrab_prev_next;
 
 	if (wp == rootwp) {
 		GsError(GR_ERROR_ILLEGAL_ON_ROOT_WINDOW, wp->id);
@@ -252,7 +254,8 @@ GsWpDestroyWindow(GR_WINDOW *wp)
 	if(selection_owner.wid == wp->id) {
 		oldwid = selection_owner.wid;
 		selection_owner.wid = 0;
-		if(selection_owner.typelist) free(selection_owner.typelist);
+		if(selection_owner.typelist)
+			free(selection_owner.typelist);
 		GsDeliverSelectionChangedEvent(oldwid, 0);
 	}
 
@@ -331,6 +334,21 @@ GsWpDestroyWindow(GR_WINDOW *wp)
 		free(wp->title);
 	if (wp->clipregion)
 		GdDestroyRegion(wp->clipregion);
+
+	/* Remove any grabbed keys for this window. */
+	keygrab_prev_next = &list_grabbed_keys;
+	keygrab           =  list_grabbed_keys;
+	while (keygrab != NULL) {
+		if (keygrab->wid == wp->id){
+			/* Delete keygrab. */
+			*keygrab_prev_next = keygrab->next;
+			free(keygrab);
+			keygrab = *keygrab_prev_next;
+		} else {
+			keygrab_prev_next = &keygrab->next;
+			keygrab           =  keygrab->next;
+		}
+	}
 
 	free(wp);
 }

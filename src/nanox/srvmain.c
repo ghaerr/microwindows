@@ -97,6 +97,7 @@ GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 GR_TIMER        *cache_timer;           /* cached timer */
 GR_TIMER        *list_timer;            /* list of all timers */
 #endif /* MW_FEATURE_TIMERS */
+GR_GRABBED_KEY  *list_grabbed_keys = NULL;     /* list of all grabbed keys */
 
 static int	persistent_mode = FALSE;
 static int	portraitmode = MWPORTRAIT_NONE;

@@ -76,7 +76,8 @@ OBJS =	demo.o \
 	nsaver.o \
 	nxeyes.o \
 	tux.o \
-	nxcal.o 
+	nxcal.o \
+	grabdemo.o
 
 TARGETS = \
 	$(TOP)/bin/demo $(TOP)/bin/move $(TOP)/bin/landmine \
@@ -93,7 +94,8 @@ TARGETS = \
 	$(TOP)/bin/bmpdemo $(TOP)/bin/rgndemo \
 	$(TOP)/bin/convpbm \
 	$(TOP)/bin/nsaver \
-	$(TOP)/bin/nxcal 
+	$(TOP)/bin/nxcal \
+	$(TOP)/bin/grabdemo
 
 ifneq ($(ARCH),CYGWIN)
 TARGETS += \
@@ -325,6 +327,10 @@ $(TOP)/bin/tux: tux.o $(NANOXCLIENTLIBS) $(TOP)/config
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS)
 
 $(TOP)/bin/nxeyes: nxeyes.o $(NANOXCLIENTLIBS) $(TOP)/config
+	@echo "Linking $@ ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
+
+$(TOP)/bin/grabdemo: grabdemo.o $(NANOXCLIENTLIBS) $(TOP)/config
 	@echo "Linking $@ ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBM)
 

@@ -1,3 +1,6 @@
+	* reimplemented GrGrabKey, GrUngrabKey (Jonathan)
+		new events: GR_EVENT_TYPE_HOTKEY_UP,GR_EVENT_TYPE_HOTKEY_DOWN
+		added grabdemo demonstration program
 	* cleaned up // comments (Simon)
 	* added "make realclean" to remove generated .c files from .bdf & .bmp
 	* single touchscreen driver for Zaurus, iPAQ, tuxscreen, ADS (Jordan)

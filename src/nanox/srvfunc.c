@@ -1422,7 +1422,7 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
 
 	SERVER_LOCK();
 	
-	fontp = (GR_FONT *) GdMalloc(sizeof(GR_FONT));
+	fontp = (GR_FONT *)malloc(sizeof(GR_FONT));
 	if (fontp == NULL) {
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		SERVER_UNLOCK();
@@ -1438,7 +1438,7 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
 				       height);
 	if (fontp->pfont == NULL) {
 		/* Error loading font, probably corrupt data or unsupported format. */
-		GdFree(fontp);
+		free(fontp);
 		SERVER_UNLOCK();
 		return 0;
 	}
@@ -1464,7 +1464,7 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
 
 	SERVER_LOCK();
 
-	fontp = (GR_FONT *) GdMalloc(sizeof(GR_FONT));
+	fontp = (GR_FONT *)malloc(sizeof(GR_FONT));
 	if (fontp == NULL) {
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		SERVER_UNLOCK();
@@ -4097,76 +4097,118 @@ GrSetTransform(GR_TRANSFORM *trans)
 	SERVER_UNLOCK();
 }
 
-struct klist {
-	GR_KEY		key;
-	GR_WINDOW_ID	wid;
-	struct klist *	next;
-};
-static struct klist *khead = NULL;
-
 /**
  * Grab a key for a specific window.
- * @param id window to send event to.
- * @param key GR_KEY value.
+ *
+ * @param id Window to send event to.
+ * @param key MWKEY value.
+ * @param type The type of reservation to make.  Valid values are
+ *             #GR_GRAB_HOTKEY_EXCLUSIVE,
+ *             #GR_GRAB_HOTKEY, 
+ *             #GR_GRAB_EXCLUSIVE and
+ *             #GR_GRAB_EXCLUSIVE_MOUSE.
+ * @return #GR_TRUE on success, #GR_FALSE on error.
  */
-int
-GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
+GR_BOOL
+GrGrabKey(GR_WINDOW_ID id, GR_KEY key, int type)
 {
-	struct klist *k = khead;
-	struct klist *p = NULL;
-	struct klist *item = NULL;
+	GR_GRABBED_KEY *keygrab;
+	GR_GRABBED_KEY *last_keygrab;
+
+	if ((unsigned)type > GR_GRAB_MAX)
+		return GR_FALSE;
 
 	SERVER_LOCK();
 
-	for( ; k; p = k, k = k->next) {
-		if (k->key == key) {
-			SERVER_UNLOCK();
-			return -1;
+	/* Check we can do the grab. Look for previous grabs on the same key. */
+	last_keygrab = NULL;
+	for (keygrab = list_grabbed_keys; keygrab != NULL; 
+	     keygrab = keygrab->next) {
+	     	last_keygrab = keygrab; /* Save the last non-NULL pointer */
+		if (keygrab->key == key) {
+			if ((keygrab->wid == id)
+			 && (keygrab->type == type)
+			 && (keygrab->owner == curclient)) {
+				/*
+				 * Already there.  Success.
+				 */
+				SERVER_UNLOCK();
+				return GR_TRUE;
+			}
+			else if ((type != GR_GRAB_HOTKEY)
+			      && (keygrab->type != GR_GRAB_HOTKEY)) {
+				/*
+				 * Attempting to have two exclusive
+				 * reservations.  Fail.
+				 */
+				SERVER_UNLOCK();
+				return GR_FALSE;
+			}
 		}
 	}
-	item = (struct klist *)calloc(1, sizeof(struct klist));
-	item->key = key;
-	item->wid = id;
 
-	if (p)
-		p->next = item;
-	else khead = item;
+	/* Create a GR_GRABBED_KEY */
+	keygrab = (GR_GRABBED_KEY *)malloc(sizeof(GR_GRABBED_KEY));
+	if (keygrab == NULL) {
+		GsError(GR_ERROR_MALLOC_FAILED, 0);
+		SERVER_UNLOCK();
+		return GR_FALSE;
+	}
+
+	/* Fill in the structure. */
+	keygrab->key = key;
+	keygrab->wid = id;
+	keygrab->type = type;
+	keygrab->owner = curclient;
+	
+	/* 
+	 * Link into the servers list.  We must have all GR_GRAB_HOTKEY
+	 * events for a particular key after any other grabs for that
+	 * key.  We accomplish this simply by adding GR_GRAB_HOTKEY
+	 * grabs to the end of the list, and all other types to the
+	 * beginning.
+	 */
+	if ((type != GR_GRAB_HOTKEY) || (last_keygrab == NULL)) {
+		/* Add to start of list (or list is empty). */
+		keygrab->next = list_grabbed_keys;
+		list_grabbed_keys = keygrab;
+	} else {
+		/* Add to end of list. */
+		keygrab->next = NULL;
+		last_keygrab->next = keygrab;
+	}
 
 	SERVER_UNLOCK();
-	return 0;
+	return GR_TRUE;
 }
 
 /**
  * Ungrab a key for a specific window.
+ *
  * @param id window to stop key grab.
- * @param key GR_KEY value.
+ * @param key MWKEY value.
  */
 void
 GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 {
-	struct klist *k = khead;
-	struct klist *p = NULL;
+	GR_GRABBED_KEY *keygrab;
+	GR_GRABBED_KEY **keygrab_prev_next;
 
 	SERVER_LOCK();
 
-	for( ; k; p = k, k = k->next) {
-		if (k->key == key) {
-			if (p)
-				p->next = k->next;
-			else khead = p->next;
-			break;
+	keygrab_prev_next = &list_grabbed_keys;
+	keygrab           =  list_grabbed_keys;
+	while (keygrab != NULL) {
+		if ((keygrab->key == key) && (keygrab->wid == id) &&
+		    (keygrab->owner == curclient)) {
+			*keygrab_prev_next = keygrab->next;
+			free(keygrab);
+			SERVER_UNLOCK();
+			return;
 		}
+		keygrab_prev_next = &keygrab->next;
+		keygrab           =  keygrab->next;
 	}
+
 	SERVER_UNLOCK();
-}
-
-GR_WINDOW_ID
-GsGetGrabbedKey(MWKEY mwkey)
-{
-	struct klist *k = khead;
-
-	for( ; k; k = k->next)
-		if (k->key == mwkey) return k->wid;
-	
-	return 0;
 }

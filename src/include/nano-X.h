@@ -335,6 +335,8 @@ typedef struct {
 #define GR_EVENT_TYPE_SELECTION_CHANGED 20
 #define GR_EVENT_TYPE_TIMER             21
 #define GR_EVENT_TYPE_PORTRAIT_CHANGED  22
+#define	GR_EVENT_TYPE_HOTKEY_DOWN	23
+#define	GR_EVENT_TYPE_HOTKEY_UP		24
 
 /* Event masks */
 #define	GR_EVENTMASK(n)			(((GR_EVENT_MASK) 1) << (n))
@@ -363,6 +365,8 @@ typedef struct {
 #define GR_EVENT_MASK_SELECTION_CHANGED GR_EVENTMASK(GR_EVENT_TYPE_SELECTION_CHANGED)
 #define GR_EVENT_MASK_TIMER             GR_EVENTMASK(GR_EVENT_TYPE_TIMER)
 #define GR_EVENT_MASK_PORTRAIT_CHANGED  GR_EVENTMASK(GR_EVENT_TYPE_PORTRAIT_CHANGED)
+/* Event mask does not affect GR_EVENT_TYPE_HOTKEY_DOWN and
+ * GR_EVENT_TYPE_HOTKEY_UP, hence no masks for those events. */
 
 #define	GR_EVENT_MASK_ALL		((GR_EVENT_MASK) -1L)
 
@@ -567,6 +571,91 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 #define	GR_NEXTBIT(m)			MWIMAGE_NEXTBIT(m)
 #define	GR_TESTBIT(m)			MWIMAGE_TESTBIT(m)
 #define	GR_SHIFTBIT(m)			MWIMAGE_SHIFTBIT(m)
+
+/* GrGrabKey() types. */
+
+/**
+ * Key reservation type for GrGrabKey() - a key is reserved exclusively,
+ * and hotkey events are sent regardless of focus.
+ *
+ * Hotkey events are sent to the client that reserved the key.  The window
+ * ID passed to the GrGrabKey() call is passed as the source window.
+ *
+ * This type of reservation is useful for implementing a "main menu" key
+ * or similar hotkeys.
+ *
+ * This can be used to implement the MHP method
+ * org.dvb.event.EventManager.addUserEventListener(listener,client,events).
+ *
+ * @see GrGrabKey()
+ * @see GrUngrabKey()
+ */
+#define GR_GRAB_HOTKEY_EXCLUSIVE        0
+
+/**
+ * Key reservation type for GrGrabKey() - hotkey events are sent when a key
+ * is pressed, regardless of focus.  This is not an exclusive reservation,
+ * so the app that has the focus will get a normal key event.
+ *
+ * Hotkey events are sent to the client that reserved the key.  The window
+ * ID passed to the GrGrabKey() call is passed as the source window.
+ *
+ * Note that because this is not an exclusive grab, it does not stop
+ * other applications from grabbing the same key (using #GR_GRAB_HOTKEY
+ * or any other grab mode).  If an application has an exclusive grab on
+ * a key, then any grabs of type #GR_GRAB_HOTKEY will be ignored when
+ * dispatching that key event.
+ *
+ * This can be used to implement the MHP method
+ * org.dvb.event.EventManager.addUserEventListener(listener,events).
+ *
+ * @see GrGrabKey()
+ * @see GrUngrabKey()
+ */
+#define GR_GRAB_HOTKEY                  1
+
+/**
+ * Key reservation type for GrGrabKey() - a key is reserved exclusively,
+ * and normal key events are sent if the specified window has focus.
+ *
+ * This stops other applications from getting events on the specified key.
+ *
+ * For example, an application could use this to reserve the number
+ * keys before asking the user for a PIN, to prevent other applications
+ * stealing the PIN using #GR_GRAB_TYPE_HOTKEY.  (Note that this assumes
+ * the applications are running in a controlled environment, such as
+ * Java, so they can only interact with the platform in limited ways).
+ *
+ * This can be used to implement the MHP method
+ * org.dvb.event.EventManager.addExclusiveAccessToAWTEvent(client,events).
+ *
+ * @see GrGrabKey()
+ * @see GrUngrabKey()
+ */
+#define GR_GRAB_EXCLUSIVE               2
+
+/**
+ * Key reservation type for GrGrabKey() - a key is reserved exclusively,
+ * and normal key events are sent if the specified window has focus,
+ * or the mouse pointer is over the window.
+ *
+ * This stops other applications from getting events on the specified key.
+ *
+ * This is for compatibility with the first GrGrabKey() API, which only
+ * supported this kind of reservation.
+ *
+ * @see GrGrabKey()
+ * @see GrUngrabKey()
+ */
+#define GR_GRAB_EXCLUSIVE_MOUSE       3
+
+/**
+ * Highest legal value of any GR_GRAB_xxx constant.  (Lowest legal value 
+ * must be 0).
+ *
+ * @internal
+ */
+#define GR_GRAB_MAX                     GR_GRAB_EXCLUSIVE_MOUSE
 
 /* GrGetSysColor colors*/
 /* desktop background*/
@@ -813,7 +902,7 @@ void		GrQueryPointer(GR_WINDOW_ID *mwin, int *x, int *y,
 			unsigned int *bmask);
 void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid,
 			GR_WINDOW_ID **children, GR_COUNT *nchildren);
-int             GrGrabKey(GR_WINDOW_ID wid, GR_KEY key);
+GR_BOOL         GrGrabKey(GR_WINDOW_ID wid, GR_KEY key, int type);
 void            GrUngrabKey(GR_WINDOW_ID wid, GR_KEY key);
 
 GR_TIMER_ID	GrCreateTimer(GR_WINDOW_ID wid, GR_TIMEOUT period);

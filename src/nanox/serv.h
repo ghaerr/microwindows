@@ -384,6 +384,18 @@ struct gr_pixmap {
 	GR_CLIENT	*owner;		/* client that created it */
 };
 
+/**
+ * Structure to remember grabbed keys.
+ */
+typedef struct gr_grabbed_key GR_GRABBED_KEY;
+struct gr_grabbed_key {
+	GR_GRABBED_KEY	*next;	/**< Next entry in the linked list of all key grabs. */
+	GR_CLIENT	*owner;	/**< Client to send hotkey events to. */
+	int		type;	/**< The type parameter passed to GrGrabKey(). */
+	GR_WINDOW_ID	wid;	/**< Window to send events to. */
+	GR_KEY		key;	/**< 16-bit unicode key value, MWKEY_xxx. */
+};
+
 /*
  * Macros to obtain the client number from a resource id, and to
  * produce the first resource id to be used for a client number.
@@ -495,8 +507,6 @@ void		GsResetScreenSaver(void);
 void		GsActivateScreenSaver(void *arg);
 void		GrGetNextEventWrapperFinish(int);
 
-GR_WINDOW_ID    GsGetGrabbedKey(MWKEY);
-
 /*
  * External data definitions.
  */
@@ -543,6 +553,7 @@ extern  GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 extern  GR_TIMER        *cache_timer;           /* cached timer */
 extern  GR_TIMER        *list_timer;            /* list of all timers */
 #endif /* MW_FEATURE_TIMERS */
+extern  GR_GRABBED_KEY  *list_grabbed_keys;
 
 extern	GR_BOOL		screensaver_active;	/* screensaver is active */
 extern	GR_SELECTIONOWNER selection_owner;	/* the selection owner */

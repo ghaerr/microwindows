@@ -1532,8 +1532,8 @@ GrGrabKeyWrapper(void *r)
 {
         nxGrabKeyReq *req = r;
 
-	if (req->ungrab == GR_FALSE) {   /* GrGrabKey */
-		int ret = GrGrabKey(req->wid, req->key);
+	if (req->type != GR_GRAB_MAX + 1) {   /* GrGrabKey */
+		int ret = GrGrabKey(req->wid, req->key, req->type);
 		GsWriteType(current_fd, GrNumGrabKey);
 		GsWrite(current_fd, &ret, sizeof(ret));
 	} else
@@ -1910,16 +1910,17 @@ GsDestroyClientResources(GR_CLIENT * client)
 	GR_GC 	      * gp, *ngp;
 	GR_REGION     * rp, *nrp;
 	GR_FONT       * fp, *nfp;
+	GR_CURSOR     *	cp, *ncp;
+	GR_EVENT_CLIENT *ecp, *necp;
+	GR_EVENT_CLIENT *pecp = NULL;
+	GR_EVENT_LIST	*evp;
+	GR_GRABBED_KEY	*kp, *nkp;
 #if MW_FEATURE_IMAGES
 	GR_IMAGE      * ip, *nip;
 #endif
 #if MW_FEATURE_TIMERS
 	GR_TIMER      * tp, *ntp;
 #endif
-	GR_CURSOR     *	cp, *ncp;
-	GR_EVENT_CLIENT *ecp, *necp;
-	GR_EVENT_CLIENT *pecp = NULL;
-	GR_EVENT_LIST	*evp;
 
 DPRINTF("Destroy client %d resources\n", client->id);
 	/* search window list, destroy windows owned by client*/
@@ -2012,6 +2013,15 @@ DPRINTF("  Destroy timer %d\n", tp->id);
 		if (cp->owner == client) {
 DPRINTF("  Destroy cursor %d\n", cp->id);
 			GrDestroyCursor(cp->id);
+		}
+	}
+
+	/* Free key grabs associated with client*/
+	for (kp=list_grabbed_keys; kp; kp = nkp) {
+		nkp = kp->next;
+		if (kp->owner == curclient) {
+DPRINTF("  Destroy grabkey %d,%d\n", kp->wid, kp->key);
+			GrUngrabKey(kp->wid, kp->key);
 		}
 	}
 

@@ -1,3 +1,5 @@
+remove GR_GRAB_SPECIAL, check HOTKEY event
+fixup GsDeliverRawMouseEvent, remove internal button handling
 fonts/*/Makefile removed: *.o created with config.dbcs
 MWCOORD_MAX possibly incorrect, int vs uint16 for MWCOORD in nxproto.h
 	check LARGE_COORDINATES in devrgn2.c

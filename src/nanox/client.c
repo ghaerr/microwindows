@@ -4536,31 +4536,54 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 /**
  * Grab a key for a specific window.
  *
- * @param id  Window to send event to.
- * @param key MWKEY value.
- * @return    FIXME
+ * This function has two effects.  With any type other than
+ * #GR_GRAB_HOTKEY it attempts to reserve the specified key for
+ * exclusive use by the application.  In addition, with #GR_GRAB_HOTKEY
+ * or #GR_GRAB_HOTKEY_EXCLUSIVE it requests hotkey events be sent to the
+ * specified window whenever the specified key is pressed or released.
+ *
+ * A key can have any number of reservations of type #GR_GRAB_HOTKEY,
+ * but at most one reservation of another type.  This means that 
+ * grabs of type #GR_GRAB_HOTKEY always succeed, but grabs of
+ * any other type will fail if the key is already grabbed in any
+ * fashion except #GR_GRAB_HOTKEY.
+ *
+ * Note that all grabs are automatically released when the window
+ * specified in the id paramater is deleted, or when the client
+ * application closes it's connection to the Nano-X server.
+ *
+ * @param id   Window to send event to.
+ * @param key  MWKEY value.
+ * @param type The type of reservation to make.  Valid values are
+ *             #GR_GRAB_HOTKEY_EXCLUSIVE,
+ *             #GR_GRAB_HOTKEY, 
+ *             #GR_GRAB_EXCLUSIVE and
+ *             #GR_GRAB_EXCLUSIVE_MOUSE.
+ * @return     #GR_TRUE on success, #GR_FALSE on error.
  *
  * @ingroup nanox_misc
  */
-int
-GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
+GR_BOOL
+GrGrabKey(GR_WINDOW_ID id, GR_KEY key, int type)
 {
 	int ret = 0;
 	nxGrabKeyReq *req;
 
+	if ((unsigned)type > GR_GRAB_MAX)
+		return GR_FALSE;
+	
 	LOCK(&nxGlobalLock);
 	req = AllocReq(GrabKey);
 	req->wid = id;
-	req->ungrab = GR_FALSE;
+	req->type = type;
 	req->key = key;
 
 	/* GrGrabKey returns a value */
-
 	if (TypedReadBlock(&ret, sizeof(ret), GrNumGrabKey) < 0)
 		ret = -1;
 
 	UNLOCK(&nxGlobalLock);
-	return ret;
+	return (GR_BOOL)ret;
 }
 
 /**
@@ -4579,7 +4602,7 @@ GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 	LOCK(&nxGlobalLock);
 	req = AllocReq(GrabKey);
 	req->wid = id;
-	req->ungrab = GR_TRUE;
+	req->type = GR_GRAB_MAX + 1;
 	req->key = key;
 	UNLOCK(&nxGlobalLock);
 }

@@ -261,7 +261,6 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	/*
 	 * Next, generate a button up event if any buttons have been released.
 	 */
-
 	changebuttons = (curbuttons & ~newbuttons);
 	if (changebuttons) {
 
@@ -494,7 +493,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 	GR_WINDOW_ID		subwid;		/* subwindow id event is for */
 	GR_EVENT_MASK		eventmask;	/* event mask */
 	GR_WINDOW		*kwp;
-	GR_WINDOW_ID            grabbed;
+	GR_GRABBED_KEY		*keygrab;
 
 	eventmask = GR_EVENTMASK(type);
 	if (eventmask == 0)
@@ -502,20 +501,77 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 
 	GsResetScreenSaver();
 
+	/* Check for grabbed keystroke.
+	 * - GR_GRAB_HOTKEY events are sent (possibly multiple times) here,
+	 *   and the loop terminates normally with keygrab==NULL so the
+	 *   event is also delivered normally.
+	 * - GR_GRAB_HOTKEY_EXCLUSIVE sends the hotkey events then returns.
+	 * - Other exclusive events (GR_GRAB_EXCLUSIVE_MOUSE and GR_GRAB_EXCLUSIVE)
+	 *   cause the loop to terminate with keygrab != NULL.  The checking
+	 *   for these events happens after the loop.
+	 *
+	 * Note: This algorithm requires any GR_GRAB_HOTKEY grabs to be
+	 * listed _after_ any exclusive grabs for the same key.  The
+	 * GrGrabKey() and GrUngrabKey() methods ensure this property holds.
+	 */
+	for (keygrab = list_grabbed_keys; keygrab != NULL; keygrab = keygrab->next) {
+		if (keygrab->key == keyvalue) {
+			if ((keygrab->type == GR_GRAB_HOTKEY)
+			 || (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)) {
+				ep = (GR_EVENT_KEYSTROKE *) GsAllocEvent(keygrab->owner);
+				if (ep == NULL)
+					continue;
+
+				ep->type = ((type == GR_EVENT_TYPE_KEY_DOWN) ?
+					    GR_EVENT_TYPE_HOTKEY_DOWN :
+					    GR_EVENT_TYPE_HOTKEY_UP);
+				ep->wid = keygrab->wid;
+				ep->subwid = keygrab->wid;
+				ep->rootx = cursorx;
+				ep->rooty = cursory;
+				ep->x = cursorx;
+				ep->y = cursory;
+				ep->buttons = curbuttons;
+				ep->modifiers = modifiers;
+				ep->ch = keyvalue;
+				ep->scancode = scancode;
+				if (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)
+					return;	/* only one client gets it */
+			} else {
+				/* GR_GRAB_EXCLUSIVE or GR_GRAB_EXCLUSIVE_MOUSE */
+				break; /* found it, exit the loop. */
+			}
+		}
+	}
+
 	/* Handle a grabbed key:
 	 * The associated window must be an ancestor of the focused window,
-	 * or a descendent that contains the pointer.
+	 * or (for GR_GRAB_EXCLUSIVE_MOUSE only) a descendent that contains the
+	 * pointer.
 	 */
-	if ((grabbed = GsGetGrabbedKey(keyvalue)) != 0) {
-		wp = GsFindWindow(grabbed);
-		kwp = focuswp;
+	if (keygrab != NULL) {
+		/* The key grab must be of type GR_GRAB_EXCLUSIVE or
+		 * GR_GRAB_EXCLUSIVE_MOUSE
+		 */
 
-		/* See if the window is an ancestor */
+		/* Find the window that has the grab */
+		wp = GsFindWindow(keygrab->wid);
+		if (wp == NULL)
+			return; /* Key is reserved by window that doesn't exist. */
+
+		/* See if the grabbing window is an ancestor of the focussed window. */
+		kwp = focuswp;
 		while (kwp != wp && kwp != rootwp)
 			kwp = kwp->parent;
 
-		if (kwp != wp && wp != mousewp)
+		/* Want to send event if:
+		 * GR_GRAB_EXCLUSIVE: grabbing window is an ancestor of focussed window
+		 * GR_GRAB_EXCLUSIVE_MOUSE: same as GR_GRAB_EXCLUSIVE OR
+		 *                    the mouse is in the grabbing window.
+		 */
+		if (kwp != wp && (keygrab->type != GR_GRAB_EXCLUSIVE_MOUSE || wp != mousewp))
 			return;
+
 		subwid = wp->id;
 	} else {
 		/* if window id passed, use it, otherwise focus window */

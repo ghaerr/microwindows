@@ -1,4 +1,6 @@
-Version 0.89pre9 - 17 Aug 2002 - greg@censoft.com
+Version 0.89pre9 - 21 Aug 2002 - greg@censoft.com
+	* changed src/fonts directory: added chinese, korean, japanese and truetype
+	(17 Aug 02)
 	* send UPDATE_ACTIVATE event to force redraw on title changes
 	* added FASTJPEG and HAVE_MMAP to include/device.h configuration
 	* corrected MAP_UPDATE event in GsWpRealizeWindow, may need tweaking

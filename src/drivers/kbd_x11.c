@@ -1,6 +1,6 @@
 /*
+ * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
- * Portions Copyright 2002 by Koninklijke Philips Electronics N.V.
  * Author: Tony Rogvall <tony@bluetail.com>
  *
  * Converted to scancode mode by Greg Haerr

@@ -1,7 +1,7 @@
 ##############################################################################
 # Microwindows template Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
-# Portions Copyright 2002 by Koninklijke Philips Electronics N.V.
+# Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
 ##############################################################################
 
 ifndef TOP

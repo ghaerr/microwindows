@@ -1,19 +1,12 @@
 /*
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Microwindows Screen Driver for Linux kernel framebuffers
  *
  * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
  * 
  * Note: modify select_fb_driver() to add new framebuffer subdrivers
- *
- * Portions contributed by Koninklijke Philips Electronics N.V.
- * These portions are Copyright 2002 Koninklijke Philips Electronics
- * N.V.  All Rights Reserved.  These portions are licensed under the
- * terms of the Mozilla Public License, version 1.1, or, at your
- * option, the GNU General Public License version 2.0.  Please see
- * the file "ChangeLog" for documentation regarding these
- * contributions.
  */
 #define _GNU_SOURCE 1
 #include <assert.h>

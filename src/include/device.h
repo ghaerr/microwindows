@@ -1,10 +1,11 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 /*
+ * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
  *
  * Engine-level Screen, Mouse and Keyboard device driver API's and types
- * 
+ *
  * Contents of this file are not for general export
  */
 #include "mwtypes.h"				/* public export typedefs*/
@@ -316,6 +317,66 @@ typedef struct {
 #define PIXEL332RED(pixelval)		(((pixelval) >> 5) & 0x07)
 #define PIXEL332GREEN(pixelval)		(((pixelval) >> 2) & 0x07)
 #define PIXEL332BLUE(pixelval)		((pixelval) & 0x03)
+
+/*
+ * Conversion from MWPIXELVAL to normal 8-bit red, green or blue components
+ */
+/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
+#define PIXEL8888ALPHA8(pixelval)		(((pixelval) >> 24) & 0xff)
+#define PIXEL8888RED8(pixelval)		(((pixelval) >> 16) & 0xff)
+#define PIXEL8888GREEN8(pixelval)		(((pixelval) >> 8) & 0xff)
+#define PIXEL8888BLUE8(pixelval)		((pixelval) & 0xff)
+
+/* return 8 bit r, g or b component of 8/8/8 24 bit pixelval*/
+#define PIXEL888RED8(pixelval)          (((pixelval) >> 16) & 0xff)
+#define PIXEL888GREEN8(pixelval)        (((pixelval) >> 8) & 0xff)
+#define PIXEL888BLUE8(pixelval)         ((pixelval) & 0xff)
+
+/* return 8 bit r, g or b component of 5/6/5 16 bit pixelval*/
+#define PIXEL565RED8(pixelval)          (((pixelval) >> 8) & 0xf8)
+#define PIXEL565GREEN8(pixelval)        (((pixelval) >> 3) & 0xfc)
+#define PIXEL565BLUE8(pixelval)         (((pixelval) << 3) & 0xf8)
+
+/* return 8 bit r, g or b component of 5/5/5 16 bit pixelval*/
+#define PIXEL555RED8(pixelval)          (((pixelval) >> 7) & 0xf8)
+#define PIXEL555GREEN8(pixelval)        (((pixelval) >> 2) & 0xf8)
+#define PIXEL555BLUE8(pixelval)         (((pixelval) << 3) & 0xf8)
+
+/* return 8 bit r, g or b component of 3/3/2 8 bit pixelval*/
+#define PIXEL332RED8(pixelval)          ( (pixelval)       & 0xe0)
+#define PIXEL332GREEN8(pixelval)        (((pixelval) << 3) & 0xe0)
+#define PIXEL332BLUE8(pixelval)         (((pixelval) << 6) & 0xc0)
+
+/*
+ * Conversion from MWPIXELVAL to *32-bit* red, green or blue components
+ * (i.e. PIXEL888RED32(x) == (PIXEL888RED8(x) << 24).  These macros optimize
+ * out the extra shift.)
+ */
+/* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
+#define PIXEL8888ALPHA32(pixelval)        ( ((unsigned long)(pixelval))        & 0xff000000UL)
+#define PIXEL8888RED32(pixelval)          ((((unsigned long)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL8888GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL8888BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 24) & 0xff000000UL)
+
+/* return 32 bit r, g or b component of 8/8/8 24 bit pixelval*/
+#define PIXEL888RED32(pixelval)          ((((unsigned long)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL888GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL888BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 24) & 0xff000000UL)
+
+/* return 32 bit r, g or b component of 5/6/5 16 bit pixelval*/
+#define PIXEL565RED32(pixelval)          ((((unsigned long)(pixelval)) << 16) & 0xf8000000UL)
+#define PIXEL565GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 21) & 0xfc000000UL)
+#define PIXEL565BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 27) & 0xf8000000UL)
+
+/* return 32 bit r, g or b component of 5/5/5 16 bit pixelval*/
+#define PIXEL555RED32(pixelval)          ((((unsigned long)(pixelval)) << 17) & 0xf8000000UL)
+#define PIXEL555GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 22) & 0xf8000000UL)
+#define PIXEL555BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 27) & 0xf8000000UL)
+
+/* return 32 bit r, g or b component of 3/3/2 8 bit pixelval*/
+#define PIXEL332RED32(pixelval)          ((((unsigned long)(pixelval)) << 24) & 0xe0000000UL)
+#define PIXEL332GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 27) & 0xe0000000UL)
+#define PIXEL332BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 30) & 0xc0000000UL)
 
 /*
  * Conversion from MWPIXELVAL to MWCOLORVAL

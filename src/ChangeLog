@@ -1,5 +1,31 @@
 	(24 Feb 03)
-	* applied mw_phillips_1.diff (Jonathan)
+	* APPLIED mw_phillips_x11.c (Jonathan)
+	  Contributed by Koninklijke Philips Electronics N.V.
+	* Resizing the window caused an assert() fail and
+	  crash.  Added a call to set size hints on the window, indicating
+	  it's not resizable.
+	* Handle true color X modes correctly.  The previous
+	  code made the assumption that a X always lays out it's colors
+	  in exactly the same way as MicroWindows.  This is incorrect.
+	  For example, some Microsoft Windows based X servers use BGR
+	  rather than RGB ordering.
+	* If we are in true color mode, then we try hard to
+	  get a true color X window if the server can support it.  This
+	  is a huge speed boost with a 32-bit Nano-X app, properly
+	  antialiased fonts (so we use lots of colors) and an old 8-bit
+	  palettised display.  (In 3/3/2 RGB mode we can compute color
+	  values easily.  In 8-bit palettised mode we have to do a very
+	  expensive lookup).
+	* An alternative blit implementation.  Since we are
+	  maintaining a separate off-screen copy of the display, we
+	  perform all blits on this copy, then simply copy the offscreen
+	  data onto the screen.  The only exception are simple copies (no
+	  raster ops) between parts of the screen - these are handled by
+	  the server to save us having to send an image across the
+	  connection.
+	* Added PIXEL332RED8 and PIXEL332RED32 macros to device.h
+
+	* APPLIED mw_phillips_1.diff (Jonathan)
 	  Contributed by Koninklijke Philips Electronics N.V.
 	* Added .cvsignore for CVS
 	* Initial support for the TriMedia media processor.  Not complete.
@@ -17,6 +43,7 @@
 	* Removing compiler warning about unused variable 'tty'
 	  if HAVETEXTMODE is disabled.
 
+	* Commented out XSynchronize() in scr_x11.c (way slow)
 	(08 Dec 02)
 	* fix GrCheckNextEvent return no event for X11/LINK_APP_TO_SERVER case
 	* changed pcf debug output, firstchar calculation, count calc

@@ -9,7 +9,7 @@
 static int  NUL_Open(KBDDEVICE *pkd);
 static void NUL_Close(void);
 static void NUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
-static int  NUL_Read(MWUCHAR *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
+static int  NUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 static int  NUL_Poll(void);
 
 KBDDEVICE kbddev = {

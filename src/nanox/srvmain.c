@@ -486,9 +486,7 @@ GsSelect(GR_TIMEOUT timeout)
 	fd_set	rfds;
 	int 	e;
 	int	setsize = 0;
-#if MW_FEATURE_TIMERS
 	struct timeval tout;
-#endif
 	struct timeval *to;
 #if NONETWORK
 	int	fd;
@@ -536,12 +534,19 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 #endif /* NONETWORK */
 	/* Set up the timeout for the main select(): */
-#if MW_FEATURE_TIMERS
-	if(GdGetNextTimeout(&tout, timeout) == TRUE)
+	if (timeout == -1L) {
+		/* poll*/
+		tout.tv_sec = 0;
+		tout.tv_usec = 0;
 		to = &tout;
-	else
+	} else {
+#if MW_FEATURE_TIMERS
+		if(GdGetNextTimeout(&tout, timeout) == TRUE)
+			to = &tout;
+		else
 #endif /* MW_FEATURE_TIMERS */
-		to = NULL;
+			to = NULL;
+	}
 
 	/* Wait for some input on any of the fds in the set or a timeout: */
 	if((e = select(setsize+1, &rfds, NULL, NULL, to)) > 0) {

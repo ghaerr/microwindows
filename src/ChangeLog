@@ -1,3 +1,4 @@
+	* fixed GrPeekEvent no-select() bug in LINK_APP_INTO_SERVER case
 	* added Doxygen-created source documentation & Makefile (Jonathan)
 	* added newbuild.diff (Jonathan)
 	  Enabled lots of warnings for GCC.

@@ -127,10 +127,8 @@ CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 {
 	GR_EVENT_LIST *	elp;
 
-#if NONETWORK
-	/* Since we're bound to server, select() is only called 
-	 * thru here
-	 */
+#if 0 /* was NONETWORK*/
+	/* NOTE: select() now called through GrPeekEvent when bound to server*/
 	if (doCheckEvent)
 		GsSelect(1L);
 #endif
@@ -168,6 +166,13 @@ GrPeekEvent(GR_EVENT *ep)
 
 	SERVER_LOCK();
 	elp = curclient->eventhead;
+#if NONETWORK
+	/* if no events on queue, force select() event check*/
+	if (elp == NULL) {
+		GsSelect(-1L);	/* poll*/
+		elp = curclient->eventhead;
+	}
+#endif
 	if(elp == NULL) {
 		ep->type = GR_EVENT_TYPE_NONE;
 		SERVER_UNLOCK();

@@ -81,18 +81,19 @@ void
 fnt_unloadfont(PMWFONT font)
 {
 	PMWCOREFONT pf = (PMWCOREFONT)font;
+	PMWCFONT    pfc = pf->cfont;
 
-	if (pf->cfont) {
-		if (pf->cfont->bits)
-			free(pf->cfont->bits);
-		if (pf->cfont->offset)
-			free(pf->cfont->offset);
-		if (pf->cfont->width)
+	if (pfc) {
+		if (pfc->width)
 			free(pf->cfont->width);
-		if (pf->cfont->name)
+		if (pfc->offset)
+			free(pf->cfont->offset);
+		if (pfc->bits)
+			free(pf->cfont->bits);
+		if (pfc->name)
 			free(pf->cfont->name);
 
-		free(pf->cfont);
+		free(pfc);
 	}
 
 	free(font);

@@ -2,13 +2,13 @@ optimize GdBitmap
 remove StretchBlit, old engine stretchblitex
 add GdGetTextSizeEx, add entry points for GdGetFontList, GdFreeFontList
 add release new fonts tar file
-***lfHeight shouldn't have to be non-zero to work
 ***GrCopyArea gcp->exposure flag needs checking into
 	look at GrSetGCExposures, needs to send different type exposure
 ***still have mapping bug: xfreecell vs grabscreen, srvutil.c::GsRealizeWindow...
 	parenting issue with UPDATE_MAP events...
 ***	change OLDWAY
 
+should fixup and test win32 CreateFont for auto .ttf search/load
 copy regions in GrSetGCRegion like GrSetWindowRegion
 	use MWCLIPREGION *, instead of id
 must copy regions in GrSetGCRegion for X11 lib to work...

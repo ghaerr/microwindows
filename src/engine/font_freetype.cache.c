@@ -998,6 +998,10 @@ freetype_setfontsize(PMWFONT pfont, MWCOORD fontsize)
 	
 	pf->fontsize = fontsize;
 	
+	/* allow create font with height=0*/
+	if (!fontsize)
+		return;
+
 	/* We want real pixel sizes ... not points ...*/
 	TT_Set_Instance_PixelSizes( pf->instance, pf->fontsize,
                                 pf->fontsize, pf->fontsize * 64 );

@@ -799,6 +799,10 @@ freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize)
 
 	pf->fontsize = fontsize;
 
+	/* allow create font with height=0*/
+	if (!fontsize)
+		return;
+
 	/* In future, set these differently to support different aspect ratios. */
 	pixel_height = fontsize;
 	pixel_width = fontsize;

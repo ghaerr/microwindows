@@ -16,6 +16,7 @@
 #include <string.h>
 #include "device.h"
 #include "devfont.h"
+#include "../drivers/genfont.h"
 
 static PMWFONT	gr_pfont;            	/* current font*/
 
@@ -37,7 +38,8 @@ GdSetFont(PMWFONT pfont)
 {
 	PMWFONT	oldfont = gr_pfont;
 
-	gr_pfont = pfont;
+	if (pfont)
+		gr_pfont = pfont;
 	return oldfont;
 }
 
@@ -46,8 +48,15 @@ GdSetFont(PMWFONT pfont)
  * If plogfont is specified, name and height parms are ignored
  * and instead used from MWLOGFONT.
  * 
- * If height is 0, return builtin font from passed name.
- * Otherwise find builtin font best match based on height.
+ * If height is 0, match based on passed name, trying
+ * builtins first for speed, then other font renderers.
+ * If not found, return 0.  If height=0 is used for
+ * scalable font renderers, a call to GdSetFontSize with
+ * requested height must occur before rendering.
+ *
+ * If height not 0, perform same match based on name,
+ * but return builtin font best match from height if
+ * not otherwise found.
  */
 PMWFONT
 GdCreateFont(PSD psd, const char *name, MWCOORD height,
@@ -66,22 +75,22 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 
 	GdGetScreenInfo(psd, &scrinfo);
 
-	/* if plogfont not specified, use name and height*/
+	/* if plogfont not specified, use passed name, height and any class*/
 	if (!plogfont) {
-		if (!name)
-			name = MWFONT_SYSTEM_VAR;
+		if (!name)	/* if name not specified, use first builtin*/
+			name = pf->name;
 		strcpy(fontname, name);
 		fontclass = MWLF_CLASS_ANY;
 	} else {
+		/* otherwise, use MWLOGFONT name, height and class*/
 #if FONTMAPPER
-		/* otherwise, use MWLOGFONT name and height*/
  		fontclass = select_font(plogfont, fontname);
 #else
 		name = plogfont->lfFaceName;
-		if (!name)
-			name = MWFONT_SYSTEM_VAR;
+		if (!name[0])	/* if name not specified, use first builtin*/
+			name = pf->name;
 		strcpy(fontname, name);
-		fontclass = MWLF_CLASS_ANY;
+		fontclass = plogfont->lfClass;
 #endif
 		height = plogfont->lfHeight;
 		if (plogfont->lfUnderline)
@@ -89,28 +98,32 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 	}
 	height = abs(height);
  
- 	if (!fontclass)
- 		goto first;
- 
-	/* use builtin screen fonts, FONT_xxx, if height is 0 */
- 	if (height == 0 || fontclass == MWLF_CLASS_ANY ||
-	    fontclass == MWLF_CLASS_BUILTIN) {
+	/* check builtin fonts first for speed*/
+ 	if (!height && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
   		for(i = 0; i < scrinfo.fonts; ++i) {
  			if(!strcmpi(pf[i].name, fontname)) {
   				pf[i].fontsize = pf[i].cfont->height;
 				pf[i].fontattr = fontattr;
-printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
+printf("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
   				return (PMWFONT)&pf[i];
   			}
   		}
- 
-		/* return first builtin font*/
-		if (height == 0 || fontclass == MWLF_CLASS_BUILTIN)
-			goto first;
+		/* 
+		 * Specified height=0 and no builtin font matched name.
+		 * if not font found with other renderer, no font
+		 * will be loaded, and 0 returned.
+		 *
+		 * We used to return the first builtin font.  If a font
+		 * return needs to be guaranteed, specify a non-zero
+		 * height, and the closest builtin font to the specified
+		 * height will always be returned.
+		 */
   	}
 
+	/* try to load font (regardless of height) using other renderers*/
+
 #ifdef HAVE_FNT_SUPPORT
-	if (fontclass == MWLF_CLASS_ANY) {
+	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FNT) {
 		pfont = (PMWFONT) fnt_createfont(fontname, height, fontattr);
 		if (pfont) {
 			printf("fnt_createfont: using font %s\n", fontname);
@@ -120,22 +133,14 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
 	}
 #endif
 
-#if HAVE_HZK_SUPPORT
-        /* Make sure the library is initialized */
-	if (hzk_init(psd)) {
-		pfont = (PMWFONT)hzk_createfont(fontname, height, fontattr);
-		if(pfont)		
-			return pfont;
-		printf("hzk_createfont: %s,%d not found\n", fontname, height);
-	}
-#endif
-
-#if HAVE_EUCJP_SUPPORT
-        {
-		pfont = (PMWFONT)eucjp_createfont(fontname, height, fontattr);
-		if (pfont)             
-			return pfont;
-		printf("eucjp_createfont: %s,%d not found\n", fontname, height);
+#ifdef HAVE_PCF_SUPPORT
+	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
+		pfont = (PMWFONT) pcf_createfont(fontname, height, fontattr);
+		if (pfont) {
+			printf("pcf_createfont: using font %s\n", fontname);
+			return(pfont);
+		}
+		printf("pcf_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
@@ -194,19 +199,35 @@ printf("createfont: (height == 0) using builtin font %s (%d)\n", fontname, i);
   	}
 #endif
 
-#ifdef HAVE_PCF_SUPPORT
-	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
-		pfont = (PMWFONT) pcf_createfont(fontname, height, fontattr);
-		if (pfont) {
-			printf("pcf_createfont: using font %s\n", fontname);
-			return(pfont);
+#if HAVE_HZK_SUPPORT
+	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_HZK) {
+		/* Make sure the library is initialized */
+		if (hzk_init(psd)) {
+			pfont = (PMWFONT)hzk_createfont(fontname, height, fontattr);
+			if(pfont)		
+				return pfont;
+			printf("hzk_createfont: %s,%d not found\n", fontname, height);
 		}
-		printf("pcf_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
-	/* find builtin font closest in height*/
-	if(height != 0) {
+#if HAVE_EUCJP_SUPPORT
+ 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_MGL) {
+		pfont = (PMWFONT)eucjp_createfont(fontname, height, fontattr);
+		if (pfont) {
+			printf("pcf_createfont: using font %s\n", fontname);
+			return pfont;
+		}
+		printf("eucjp_createfont: %s,%d not found\n", fontname, height);
+	}
+#endif
+
+	/*
+	 * No font yet found.  If height specified, we'll return
+	 * a builtin font.  Otherwise 0 will be returned.
+	 */
+ 	if (height != 0 && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
+		/* find builtin font closest in height*/
 		fontno = 0;
 		height = abs(height);
 		fontht = MAX_MWCOORD;
@@ -224,12 +245,9 @@ printf("createfont: (height != 0) using builtin font %s (%d)\n", pf[fontno].name
 		return (PMWFONT)&pf[fontno];
 	}
 
-first:
-	/* Return first builtin font*/
-	pf->fontsize = pf->cfont->height;
-	pf->fontattr = fontattr;
-printf("createfont: (first) using builtin font %s\n", pf[0].name);
-	return (PMWFONT)&pf[0];
+	/* no font matched: don't load font, return 0*/
+printf("createfont: no font found, returning NULL\n");
+	return 0;
 }
 
 /* Set the font size for the passed font*/
@@ -306,13 +324,14 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 {
 	const void *	text;
 	int		defencoding = gr_pfont->fontprocs->encoding;
+	int		force_uc16 = 0;
 	unsigned long	buf[256];
 
 	/*
 	 * DBCS encoding is handled a little special: if the selected
 	 * font is a builtin, then we'll force a conversion to UC16
 	 * rather than converting to the renderer specification.  This is
-	 * because we allow DBCS-encoded strings to draw in the the
+	 * because we allow DBCS-encoded strings to draw using the
 	 * specially-compiled-in font if the character is not ASCII.
 	 * This is specially handled in corefont_drawtext below.
 	 *
@@ -321,8 +340,10 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	 */
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (gr_pfont->fontprocs->DrawText == corefont_drawtext)
+		if (gr_pfont->fontprocs->GetTextBits == gen_gettextbits) {
 			defencoding = MWTF_UC16;
+			force_uc16 = 1;
+		}
 	}
 
 	/* convert encoding if required*/
@@ -341,6 +362,8 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 		return;
 
 	/* draw text string, DBCS flags may still be set*/
+	if (!force_uc16)	/* remove DBCS flags if not needed*/
+		flags &= ~MWTF_DBCSMASK;
 	gr_pfont->fontprocs->DrawText(gr_pfont, psd, x, y, text, cc, flags);
 }
 
@@ -684,13 +707,16 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 {
 	const void *	text;
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
+	int		force_uc16 = 0;
 	unsigned long	buf[256];
 
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (pfont->fontprocs->DrawText == corefont_drawtext)
+		if (pfont->fontprocs->GetTextBits == gen_gettextbits) {
 			defencoding = MWTF_UC16;
+			force_uc16 = 1;
+		}
 	}
 
 	/* convert encoding if required*/
@@ -711,7 +737,7 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	}
 
 	/* calc height and width of string*/
-	if ((flags & MWTF_DBCSMASK) && (flags&MWTF_PACKMASK) == MWTF_UC16)
+	if (force_uc16)		/* if UC16 conversion forced, string is DBCS*/
 		dbcs_gettextsize(pfont, text, cc, flags, pwidth, pheight, pbase);
 	else pfont->fontprocs->GetTextSize(pfont, text, cc, pwidth, pheight, pbase);
 }

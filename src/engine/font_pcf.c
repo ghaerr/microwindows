@@ -632,14 +632,15 @@ void
 pcf_unloadfont(PMWFONT font)
 {
 	PMWCOREFONT pf = (PMWCOREFONT) font;
+	PMWCFONT    pfc = pf->cfont;
 
-	if (pf->cfont) {
-		if (pf->cfont->bits)
-			free(pf->cfont->bits);
-		if (pf->cfont->offset)
-			free(pf->cfont->offset);
-		if (pf->cfont->width)
+	if (pfc) {
+		if (pfc->width)
 			free(pf->cfont->width);
+		if (pfc->offset)
+			free(pf->cfont->offset);
+		if (pfc->bits)
+			free(pf->cfont->bits);
 
 		free(pf->cfont);
 	}

@@ -35,7 +35,7 @@ static MWFONTPROCS fontprocs = {
 	NULL,			/* setfontattr*/
 };
 
-/* first font is default font if no match*/
+/* first font is default font*/
 MWCOREFONT gen_fonts[NUMBER_FONTS] = {
 	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSystem14x16},
 	{&fontprocs, 0, 0, 0, MWFONT_GUI_VAR,      &font_winFreeSansSerif11x13},

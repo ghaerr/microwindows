@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
  * GetTextExtent*Point by Roman Guseynov
  * Original contributions by Shane Nay
  *
@@ -43,7 +43,6 @@ CreateFontIndirect(CONST LOGFONT *lplf)
 	MWFONTOBJ * 	hfont;
 	int		family, pitch;
 	MWLOGFONT	mwlf;
-	char	szFacename[32];
 
 	/* create a gdi font object*/
 	hfont = GdItemNew(MWFONTOBJ);
@@ -101,12 +100,19 @@ CreateFontIndirect(CONST LOGFONT *lplf)
 	/*mwlf.lfPitch = 0;*/
 
 	/* select a font based on facename, bold/italic and height*/
-	strncpy(szFacename, lplf->lfFaceName, sizeof(szFacename));
-	if (lplf->lfWeight==FW_BOLD)
-		strcat(szFacename, "B");
-	if (lplf->lfItalic)
-		strcat(szFacename, "I");
-	hfont->pfont = GdCreateFont(&scrdev, szFacename, lplf->lfHeight, &mwlf);
+	/* FIXME: should copy/build facename also?*/
+	if (mwlf.lfWeight == FW_BOLD && mwlf.lfItalic)
+		strcat(mwlf.lfFaceName, "z");
+	else {
+		if (mwlf.lfWeight == FW_BOLD)
+			strcat(mwlf.lfFaceName, "b");
+		if (mwlf.lfItalic)
+			strcat(mwlf.lfFaceName, "i");
+	}
+
+	hfont->pfont = GdCreateFont(&scrdev, NULL, 0, &mwlf);
+	if (!hfont->pfont)
+		hfont->pfont = GdCreateFont(&scrdev, NULL, 0, NULL);
 
 	return (HFONT)hfont;
 }
@@ -167,8 +173,8 @@ GetCharWidth(HDC hdc, UINT iFirstChar, UINT iLastChar, LPINT lpBuffer)
 	for(i=iFirstChar; i <= iLastChar; ++i)
 		if(i < fi.firstchar || i > fi.lastchar || i > 255)
 			lpBuffer[j++] = 0;
-		else lpBuffer[j++] = fi.widths[i];
-		lpBuffer[j++] = fi.widths[i];
+		else
+			lpBuffer[j++] = fi.widths[i];
 
 	return TRUE;
 }

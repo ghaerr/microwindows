@@ -47,7 +47,6 @@ GdHideCursor/ShowCursor still interferes with GdFixCursor
 	for X11 Enter/LeaveNotify auto-hiding of cursor
 add startup options: -portrait, -landscape
 t1lib UCS2->8859 conversion
-fix fonts/convbdf for > 126 chars, check for constant widths, omit width table
 auto swap x/y for autoportrait mode if y>x unless -portrait
 
 hwnd->update should be an HRGN, make things easier

@@ -1,7 +1,7 @@
 #ifndef _MWTYPES_H
 #define _MWTYPES_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Exported Microwindows engine typedefs and defines
@@ -438,12 +438,15 @@ typedef struct {
 
 /* logical font descriptor*/
 
-/* font classes - used internally*/
-#define MWLF_CLASS_BUILTIN	1	/* Builtin fonts (bitmaps) */
-#define MWLF_CLASS_FREETYPE	2	/* FreeType fonts in TT format */
-#define MWLF_CLASS_T1LIB	3	/* T1LIB outlined Adobe Type 1 fonts */
-#define MWLF_CLASS_PCF		4	/* XFree86 PCF fonts */
-#define MWLF_CLASS_ANY		5	/* Any font*/
+/* font classes - used to specify a particular renderer*/
+#define MWLF_CLASS_ANY		0	/* any font*/
+#define MWLF_CLASS_BUILTIN	1	/* builtin fonts*/
+#define MWLF_CLASS_FNT		2	/* FNT native fonts*/
+#define MWLF_CLASS_PCF		3	/* X11 PCF/PCF.GZ fonts*/
+#define MWLF_CLASS_FREETYPE	4	/* FreeType 1 or 2 fonts in TT format*/
+#define MWLF_CLASS_T1LIB	5	/* T1LIB outlined Adobe Type 1 fonts*/
+#define MWLF_CLASS_MGL		6	/* MGL (EUCJP) fonts*/
+#define MWLF_CLASS_HZK		7	/* chinese HZK fonts*/
 
 #define MWLF_FACESIZE		64	/* max facename size*/
 
@@ -488,6 +491,7 @@ typedef struct {
 /* flags for the GdAddFont function */
 #define MWLF_FLAGS_ALIAS	1
 
+/* windows-compatible MWLOGFONT structure*/
 typedef struct {
 	long	lfHeight;		/* desired height in pixels*/
 	long	lfWidth;		/* desired width in pixels or 0*/
@@ -501,8 +505,13 @@ typedef struct {
 	MWUCHAR	lfOutPrecision;		/* font type selection*/
 	MWUCHAR	lfClipPrecision;	/* not used*/
 	MWUCHAR	lfQuality;		/* not used*/
+	MWUCHAR lfPitchAndFamily;	/* not used*/
+	/* end of windows-compatibility*/
 
-	/* the following differs from windows font model*/
+	MWUCHAR lfClass;		/* font class (renderer) */
+
+	/* following only used by FONTMAPPER when enabled*/
+	MWUCHAR	lfPitch;		/* font pitch */
 	MWUCHAR	lfRoman;		/* =1 for Roman letters (upright) */
 	MWUCHAR	lfSerif;		/* =1 for Serifed font */
 	MWUCHAR	lfSansSerif;		/* =1 for Sans-serif font */
@@ -511,9 +520,10 @@ typedef struct {
 	MWUCHAR	lfProportional;		/* =1 for Proportional font */
 	MWUCHAR	lfOblique;		/* =1 for Oblique (kind of Italic) */
 	MWUCHAR	lfSmallCaps;		/* =1 for small caps */
-	MWUCHAR	lfPitch;		/* font pitch (width) */
 
-	char	lfFaceName[MWLF_FACESIZE];	/* font name, may be aliased*/
+	/* render-dependent full path or facename here*/
+	char	lfFaceName[MWLF_FACESIZE];/* font name, may be aliased*/
+
 } MWLOGFONT, *PMWLOGFONT;
 
 /*
@@ -529,6 +539,7 @@ typedef struct {
 		(lf)->lfOrientation = 0;		\
 		(lf)->lfWeight = MWLF_WEIGHT_REGULAR;	\
 		(lf)->lfPitch = 0;			\
+		(lf)->lfClass = MWLF_CLASS_ANY;		\
 		(lf)->lfItalic = 0;			\
 		(lf)->lfOblique = 0;			\
 		(lf)->lfRoman = 0;			\
@@ -544,6 +555,7 @@ typedef struct {
 		(lf)->lfOutPrecision = 0;		\
 		(lf)->lfClipPrecision = 0;		\
 		(lf)->lfQuality = 0;			\
+		(lf)->lfPitchAndFamily = 0;		\
 		(lf)->lfFaceName[0] = '\0';		\
 	} while (0)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Win32 API upper level graphics drawing routines
@@ -1065,6 +1065,9 @@ GetStockObject(int nObject)
 			if(pFont->pfont == NULL) {
 				pFont->pfont = GdCreateFont(&scrdev,
 					pFont->name, 0, NULL);
+				if (!pFont->pfont)
+					pFont->pfont = GdCreateFont(&scrdev,
+						NULL, 0, NULL);
 			}
 			return pObj;
 		}

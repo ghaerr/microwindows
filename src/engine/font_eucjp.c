@@ -23,7 +23,7 @@
 
 typedef struct MWEUCJPFONT {
 	PMWFONTPROCS fontprocs;	/* common hdr */
-	MWCOORD fontsize;
+	int fontsize;
 	int fontrotation;
 	int fontattr;
 
@@ -115,8 +115,7 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
 	pf->kbytes = pf->kwidth * mfh;	//height;
 	pf->fd = fd;
 	if (fsize != pf->koffset + pf->kbytes * 8064) {
-		printf
-			("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");
+		printf("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");
 		goto EUCJP_FAIL;
 	}
 	pf->font_base =
@@ -127,9 +126,10 @@ PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr)
 		goto EUCJP_FAIL;
 	}
 
-	GdSetFontSize((PMWFONT) pf, height);
-	GdSetFontRotation((PMWFONT) pf, 0);
-	GdSetFontAttr((PMWFONT) pf, attr, 0);
+	pf->fontsize = height;
+	pf->fontrotation = 0;
+	pf->fontattr = attr;
+
 	return pf;
 
 EUCJP_FAIL:

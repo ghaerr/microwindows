@@ -206,8 +206,8 @@ dbcs_gettextbits(PMWFONT pfont, unsigned int ch, MWTEXTFLAGS flags,
  * non-ASCII character, else use normally selected font.
  */
 void
-dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc, MWTEXTFLAGS flags,
-	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
+dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc,
+	MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWCFONT	pf = ((PMWCOREFONT)pfont)->cfont;
 	unsigned int	c;
@@ -229,7 +229,8 @@ dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc, MWTEXTFLAGS f
 				continue;
 			}
 		} else if(c >= pf->firstchar && c < pf->firstchar+pf->size)
-			width += pf->width[c - pf->firstchar];
+			width += pf->width? pf->width[c - pf->firstchar]:
+				pf->maxwidth;
 	}
 	*pwidth = width;
 	*pheight = pf->height;

@@ -34,13 +34,6 @@
 #define FONT3 ""
 #define FONT4 ""
 #define FONT5 ""
-#elif HAVE_FNT_SUPPORT
-#define MAXFONTS 1
-#define FONT1 "/tmp/helvB12.fnt"
-#define FONT2 ""
-#define FONT3 ""
-#define FONT4 ""
-#define FONT5 ""
 #elif HAVE_T1LIB_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "bchr"
@@ -62,6 +55,13 @@
 #define FONT3 "/usr/lib/X11/fonts/misc/9x15.pcf.gz"
 #define FONT4 "/usr/lib/X11/fonts/misc/vga.pcf.gz"
 #define FONT5 "/usr/lib/X11/fonts/100dpi/helvB12.pcf.gz"
+#elif HAVE_FNT_SUPPORT
+#define MAXFONTS 2
+#define FONT1 "/tmp/helvB12.fnt"
+#define FONT2 "/tmp/clR6x8.fnt"
+#define FONT3 ""
+#define FONT4 ""
+#define FONT5 ""
 #else
 #define MAXFONTS 5
 #define FONT1 ""

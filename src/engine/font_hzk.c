@@ -60,12 +60,10 @@ static void hzk_gettextsize(PMWFONT pfont, const void *text,
 #if 0
 static void hzk_gettextbits(PMWFONT pfont, int ch, const IMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-static void hzk_setfontrotation(PMWFONT pfont, int tenthdegrees);
 #endif
 static void hzk_destroyfont(PMWFONT pfont);
 static void hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
-static void hzk_setfontsize(PMWFONT pfont, MWCOORD fontsize);
 		
 /* handling routines for MWHZKFONT*/
 static MWFONTPROCS hzk_procs = {
@@ -75,7 +73,7 @@ static MWFONTPROCS hzk_procs = {
 	NULL,				/* hzk_gettextbits*/
 	hzk_destroyfont,
 	hzk_drawtext,
-	hzk_setfontsize,
+	NULL,				/* setfontsize*/
 	NULL, 				/* setfontrotation*/
 	NULL,				/* setfontattr*/
 };
@@ -471,12 +469,9 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 		return NULL;
 	pf->fontprocs = &hzk_procs;
 
-	pf->fontsize=height;
-#if 0
-	GdSetFontSize((PMWFONT)pf, height);
-#endif
-	GdSetFontRotation((PMWFONT)pf, 0);
-	GdSetFontAttr((PMWFONT)pf, attr, 0);
+	pf->fontsize = height;
+	pf->fontrotation = 0;
+	pf->fontattr = attr;
 
 	if(height==12)
 	{		
@@ -779,14 +774,4 @@ hzk_destroyfont(PMWFONT pfont)
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;
 	UnloadFont(pf);
 	free(pf);
-}
-
-static void
-hzk_setfontsize(PMWFONT pfont, MWCOORD fontsize)
-{
-	PMWHZKFONT pf=(PMWHZKFONT)pfont;
-	/* jmt: hzk_setfontsize not supported*/
-	/* & pf->fontsize can't be changed*/
-	/* because of hzk_id() :p*/
-	pf->fontsize=pf->font_height;
 }

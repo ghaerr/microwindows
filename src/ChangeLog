@@ -1,4 +1,12 @@
-Version 0.89pl11 - 06 Apr 2003 - greg@censoft.com
+Version 0.89pl11 - 07 Apr 2003 - greg@censoft.com
+	* change to allow GrCreateFont w/height=0 to work with loadable fonts
+		- if height=0 specified with scalable fonts, must call
+			GrSetFontSize with height before rendering
+		- if height=0 specified with non-scalable fonts,  height ignored
+		- if height specified, will always return some font
+		- if height=0 specified and font not found, may return 0 rather 
+			than builtin font
+	* added lfClass to MWLOGFONT, allows specifying renderer
 	* added native loadable .fnt support (use fonts/convbdf.c -f to create)
 	* added enhanced fonts/convbdf, fonts/convbdf.c:
 		- allows fonts with > 256 chars

@@ -19,7 +19,6 @@ stretchblit code needs recalc when src offset != 0 (precalc y/x)
 put back in DrawArea driver in GdArea
 There's still bugs with apps after closebox pressed
 
-Check out if (height == 0 || ... ) code in engine/devfont.c: bad select
 There's still some bugs in the Arc/Pie code - see FLTK valuators demo
 
 fblin16 DrawArea driver is commented out for font display currently

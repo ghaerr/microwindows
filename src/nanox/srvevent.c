@@ -49,9 +49,15 @@ GrDefaultErrorHandler(GR_EVENT *ep)
 GR_FNCALLBACKEVENT
 GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
 {
-	GR_FNCALLBACKEVENT orig = ErrorFunc;
+	GR_FNCALLBACKEVENT orig;
 
+	SERVER_LOCK();
+
+	orig = ErrorFunc;
 	ErrorFunc = fncb;
+
+	SERVER_UNLOCK();
+
 	return orig;
 }
 #endif /* NONETWORK*/

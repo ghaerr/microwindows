@@ -131,6 +131,33 @@
 #include "nano-X.h"
 #include "device.h"
 
+
+/*
+ * Define the server-side mutex code.  This is a regular mutex (as defined
+ * in lock.h) for linked-in mode, or a no-op for client/server mode.
+ */
+
+#if NONETWORK
+/* Use a server-side mutex. */
+
+#include "lock.h"
+
+LOCK_EXTERN(gr_server_mutex);
+
+#define SERVER_LOCK_DECLARE   LOCK_DECLARE(gr_server_mutex);
+#define SERVER_LOCK()         LOCK(&gr_server_mutex)
+#define SERVER_UNLOCK()       UNLOCK(&gr_server_mutex)
+
+#else /* !NONETWORK */
+/* The Nano-X server is single threaded, so disable the server-side mutex (for speed). */
+
+#define SERVER_LOCK_DECLARE /* no-op */
+#define SERVER_LOCK()       /* no-op */
+#define SERVER_UNLOCK()     /* no-op */
+
+#endif /* !NONETWORK*/
+
+
 /*
  * Drawing types.
  */

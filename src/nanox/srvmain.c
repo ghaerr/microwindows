@@ -99,6 +99,8 @@ GR_TIMER        *list_timer;            /* list of all timers */
 static int	persistent_mode = 0;
 static int	portraitmode = MWPORTRAIT_NONE;
 
+SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THREADSAFE) */
+
 #if !NONETWORK
 int		un_sock;		/* the server socket descriptor */
 
@@ -219,17 +221,21 @@ int
 GrOpen(void)
 {
 #if NONETWORK
+	SERVER_LOCK();
 	escape_quits = 1;
 
 	/* Client calls this routine once.  We 
 	 * init everything here
 	 */
 	if (connectcount <= 0) {
-		if(GsInitialize() < 0)
+		if(GsInitialize() < 0) {
+			SERVER_UNLOCK();
 			return -1;
+		}
 		GsAcceptClientFd(999);
 		curclient = root_client;
 	}
+	SERVER_UNLOCK();
 #endif
         return 1;
 }
@@ -240,7 +246,9 @@ GrOpen(void)
 void
 GrClose(void)
 {
+	SERVER_LOCK();
 	GsClose(current_fd);
+	SERVER_UNLOCK();
 }
 
 /*
@@ -276,8 +284,10 @@ static fd_set regfdset;
 void
 GrRegisterInput(int fd)
 {
+	SERVER_LOCK();
 	FD_SET(fd, &regfdset);
 	if (fd >= regfdmax) regfdmax = fd + 1;
+	SERVER_UNLOCK();
 }
 
 void
@@ -285,10 +295,13 @@ GrUnregisterInput(int fd)
 {
 	int i, max;
 
+	SERVER_LOCK();
+
 	/* unregister all inputs if the FD is -1 */
 	if (fd == -1) {
 		FD_ZERO(&regfdset);
 		regfdmax = -1;
+		SERVER_UNLOCK();
 		return;
 	}
 
@@ -297,6 +310,8 @@ GrUnregisterInput(int fd)
 	for (i = 0, max = regfdmax, regfdmax = -1; i < max; i++)
 		if (FD_ISSET(i, &regfdset))
 			regfdmax = i + 1;
+
+	SERVER_UNLOCK();
 }
 
 #endif /* NONETWORK && HAVESELECT */
@@ -803,5 +818,7 @@ GsGetTickCount(void)
 void
 GrBell(void)
 {
+	SERVER_LOCK();
 	write(2, "\7", 1);
+	SERVER_UNLOCK();
 }

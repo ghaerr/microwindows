@@ -1,6 +1,6 @@
 /*
  * Critical section locking definitions for Microwindows
- * Copyright (c) 2002 by Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2002, 2003 by Greg Haerr <greg@censoft.com>
  *
  * The current implementation uses pthreads included in libc
  *
@@ -21,8 +21,12 @@
 #include <pthread.h>
 typedef pthread_mutex_t	MWMUTEX;
 
-#if 1
-/* This definition doesn't require explicit initialization and -lpthread*/
+#if !defined(__CYGWIN__)
+/*
+ * This definition doesn't require explicit initialization and -lpthread
+ *
+ * It uses a common (but non-standard) pthreads extension.
+ */
 #define LOCK_DECLARE(name)	MWMUTEX name = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #define LOCK_INIT(m)
 #else
@@ -34,12 +38,12 @@ typedef pthread_mutex_t	MWMUTEX;
  * include these routines, and add -lpthreads to your applications link line.
  */
 #define LOCK_DECLARE(name)	MWMUTEX name
-#if defined(__CYGWIN__)
+#if 1
 /*
  * Use portable version.
  *
- * FIXME - This test is the wrong way around: Should use the portable
- * code by default, and the non-portable (_NP) code only if needed.
+ * Note: Older libraries may not have these UNIX98 functions.  You may need
+ * to use the old non-portable function name (see below).
  */
 #define LOCK_INIT(m)	\
 	{ \

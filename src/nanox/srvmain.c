@@ -650,6 +650,9 @@ GsInitialize(void)
 	      0x073e, 0x021f, 0x000e, 0x0004
 	};
 
+	/* If needed, initialize the server mutex. */
+	SERVER_LOCK_INIT();
+
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 

@@ -532,7 +532,7 @@ select_visual(Display * dpy, int scr)
 
 
 int
-x11_setup_display()
+x11_setup_display(void)
 {
 	static int setup_needed = 1;
 

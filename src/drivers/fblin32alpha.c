@@ -13,11 +13,6 @@
  * option, the GNU General Public License version 2.0.  Please see
  * the file "ChangeLog" for documentation regarding these
  * contributions.
- *
- * Modifications by Jon Foster <jonathan.foster@philips.com>:
- * - New file fblin32alpha.c based on fblin32.c
- * - Added alpha support.
- * - Added endianness defines and check.
  */
 /*#define NDEBUG*/
 #include <assert.h>

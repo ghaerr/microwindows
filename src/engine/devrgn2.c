@@ -676,7 +676,7 @@ static int REGION_PtsToRegion(int numFullPtBlocks, int iCurPtBlock,
 
     numRects = ((numFullPtBlocks * NUMPTSTOBUFFER) + iCurPtBlock) >> 1;
 
-    if (!(reg->rects = realloc( reg->rects, sizeof(MWRECT) * numRects )))
+    if (!(reg->rects = GdRealloc( reg->rects, sizeof(MWRECT) * reg->size, sizeof(MWRECT) * numRects )))
         return(0);
 
     reg->size = numRects;

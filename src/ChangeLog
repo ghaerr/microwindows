@@ -1,3 +1,4 @@
+	* added mwsystem.h, GdRealloc, memfix.sh for alt mem mgmt (Jonathan)
 Version 0.89pl8 - 25 Feb 2003 - greg@censoft.com
 	* added THREADSAFE support with LINK_APP_INTO_SERVER (Jonathan)
 	* changed _exit to exit() in client.c
@@ -43,7 +44,7 @@ Version 0.89pl7 - 24 Feb 2003 - greg@censoft.com
 	* Adding MWIMAGE_ALPHA_CHANNEL flag.
 	* Changes to GdDrawImage() to simplify, fix a
 	  24bpp bug, and to add the MWIMAGE_ALPHA_CHANNEL flag.
-	* Adding MWROP_USE_GC_MODE option.
+	* Adding MWROP_USE_GC_MODE option to GrCopyArea
 	* Adding a default implementation to fb.h for the new Porter-Duff
 	  blending rules, which assumes that both SRC and DST have
 	  alpha=1.0.  Drivers that actually support alpha should not

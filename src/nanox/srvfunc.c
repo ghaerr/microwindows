@@ -2973,6 +2973,17 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		}
 	}
 #endif
+
+	if (op == MWROP_USE_GC_MODE) {
+		GR_GC *gcp = GsFindGC(gc);
+
+		if (gcp == NULL) {
+			op = MWROP_COPY;
+		} else {
+			op = MWMODE_TO_ROP(gcp->mode);
+		}
+	}
+
 	/* perform blit*/
 	GdCheckCursor(srcpsd, srcx, srcy, srcx+width, srcy+height); /* FIXME*/
 	GdBlit(dp->psd, dp->x+x, dp->y+y, width, height, srcpsd, srcx, srcy,op);

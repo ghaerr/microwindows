@@ -12,6 +12,7 @@
 #include "windows.h"
 #include "wintern.h"
 #include "wintools.h"
+#include "mwsystem.h"
 
 /* scrollbar status/positions*/
 #define SBS_UNKNOWN		0x0000

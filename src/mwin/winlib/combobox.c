@@ -36,6 +36,7 @@
 #include <string.h>
 #include "windows.h"
 #include "windowsx.h"
+#include "mwsystem.h"
 
 #define WinMalloc(n)	malloc((n))
 #define WinFree(p)	free(p)

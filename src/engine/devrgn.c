@@ -103,8 +103,9 @@ typedef void (*voidProcp)();
  */
 #define MEMCHECK(reg, rect, firstrect){\
         if ((reg)->numRects >= ((reg)->size - 1)){\
-          (firstrect) = realloc(\
-           (firstrect), (2 * (sizeof(MWRECT)) * ((reg)->size)));\
+          (firstrect) = GdRealloc(\
+           (firstrect), ((sizeof(MWRECT)) * ((reg)->size)), \
+           (2 * (sizeof(MWRECT)) * ((reg)->size)));\
           if ((firstrect) == 0)\
             return;\
           (reg)->size *= 2;\
@@ -421,7 +422,7 @@ GdCopyRegion(MWCLIPREGION *dst, MWCLIPREGION *src)
     {  
 	if (dst->size < src->numRects)
 	{
-	    if (! (dst->rects = realloc( dst->rects, src->numRects * sizeof(MWRECT))))
+	    if (! (dst->rects = GdRealloc( dst->rects, dst->numRects * sizeof(MWRECT), src->numRects * sizeof(MWRECT))))
 		return;
 	    dst->size = src->numRects;
 	}
@@ -698,7 +699,7 @@ REGION_RegionOp(
      * is to allocate enough so the individual functions don't need to
      * reallocate and copy the array, which is time consuming, yet we don't
      * have to worry about using too much memory. I hope to be able to
-     * nuke the Xrealloc() at the end of this function eventually.
+     * nuke the GdRealloc() at the end of this function eventually.
      */
     newReg->size = MWMAX(reg1->numRects,reg2->numRects) * 2;
 
@@ -893,8 +894,8 @@ REGION_RegionOp(
 	if (REGION_NOT_EMPTY(newReg))
 	{
 	    MWRECT *prev_rects = newReg->rects;
+	    newReg->rects = GdRealloc( newReg->rects, sizeof(MWRECT) * newReg->size, sizeof(MWRECT) * newReg->numRects );
 	    newReg->size = newReg->numRects;
-	    newReg->rects = realloc( newReg->rects, sizeof(MWRECT) * newReg->size );
 	    if (! newReg->rects)
 		newReg->rects = prev_rects;
 	}

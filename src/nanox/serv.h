@@ -12,6 +12,9 @@
  * These definitions are not to be used by clients.
  */
 
+#include "mwsystem.h"
+
+
 #if defined(__ECOS) && !defined(_NO_SVR_MAPPING)
 //
 // Since eCos is a single task, multi-threaded environment, the

@@ -1017,7 +1017,7 @@ GrGetWMPropertiesWrapper(void *r)
 	GrGetWMProperties(req->windowid, &props);
 
 	if(props.title)
-		textlen = strlen(props.title) + 1;
+		textlen = strlen((const char *)props.title) + 1;
 	else textlen = 0;
 
 	GsWriteType(current_fd,GrNumGetWMProperties);
@@ -1119,7 +1119,7 @@ GrGetSelectionOwnerWrapper(void *r)
 	GsWrite(current_fd, &wid, sizeof(wid));
 
 	if(wid) {
-		len = strlen(typelist) + 1;
+		len = strlen((const char *)typelist) + 1;
 		GsWrite(current_fd, &len, sizeof(len));
 		GsWrite(current_fd, typelist, len);
 	}
@@ -1363,7 +1363,7 @@ GrQueryPointerWrapper(void *r)
 #define SHMKEY_BASE 1000000
 #define SHMKEY_MAX 256
 
-void
+static void
 GrReqShmCmdsWrapper(void *r)
 {
 #if HAVE_SHAREDMEM_SUPPORT
@@ -1880,7 +1880,7 @@ DPRINTF("  Destroy event %d\n", evp->event.type);
 /*
  * Display window, pixmap, gc, font, region lists
  */
-void
+static void
 GsPrintResources(void)
 {
 	GR_WINDOW *wp;
@@ -1970,7 +1970,7 @@ GsRead(int fd, void *buf, int c)
 	n = 0;
 
 	while(n < c) {
-		e = read(fd, (buf + n), (c - n));
+		e = read(fd, ((char *)buf) + n, c - n);
 		if(e <= 0) {
 			if (e == 0)
 				EPRINTF("nano-X: client closed socket: %d\n", fd);

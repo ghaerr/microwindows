@@ -9,6 +9,7 @@
  * Contents of this file are not for general export
  */
 #include "mwtypes.h"				/* public export typedefs*/
+#include "mwsystem.h"
 
 /* Changeable limits and options*/
 #define ALPHABLEND	1			/* =1 to include blending code*/

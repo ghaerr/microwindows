@@ -1,3 +1,7 @@
+	* fix swap.h::dwread macro to work on unaligned data
+	* added textflags to PSD GetTextSize function
+	* added TIFF decoder to devimage.c (HAVE_TIFF_SUPPORT=Y)
+	* changed LARGE_COORDINATE in devrgn2.c (more work needed here)
 Version 0.89pl14 - 7 May 2003 - greg@censoft.com
 	* removed various auto-generated mwin/bmp/*.c files, fonts/*.c files
 	* fixed GrPeekEvent no-select() bug in LINK_APP_INTO_SERVER case

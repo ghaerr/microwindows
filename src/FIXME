@@ -1,3 +1,7 @@
+MWCOORD_MAX possibly incorrect, int vs uint16 for MWCOORD in nxproto.h
+	check LARGE_COORDINATES in devrgn2.c
+use alpha channel with TIFF decode?
+add 32bpp BMP support?
 remove psd from GdDuplicateFont, GdCreateFontFromBuffer?
 fix kluge rotate filters
 nanocal doesn't work on fb

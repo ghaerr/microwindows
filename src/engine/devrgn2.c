@@ -1,5 +1,5 @@
 /*
- * Portions Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
  *	Somewhat less shamelessly ripped from the Wine distribution
  *	and the X Window System.
  *
@@ -329,8 +329,8 @@ typedef struct _ScanLineListBlock {
 
 
 
-#define LARGE_COORDINATE  0x7fffffff /* FIXME */
-#define SMALL_COORDINATE  0x80000000
+#define LARGE_COORDINATE  MWCOORD_MAX
+#define SMALL_COORDINATE  MWCOORD_MIN
 
 /*
  *     REGION_InsertEdgeInET

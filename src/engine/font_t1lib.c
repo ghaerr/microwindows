@@ -28,7 +28,8 @@ static void t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
 static MWBOOL t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void t1lib_gettextsize(PMWFONT pfont, const void *text, int cc,
-		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 static void t1lib_destroyfont(PMWFONT pfont);
 
 /* handling routines for MWT1LIBFONT*/
@@ -285,7 +286,7 @@ t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 
 /* Get the width and height of passed text string in the current font*/
 static void
-t1lib_gettextsize(PMWFONT pfont, const void *text, int cc,
+t1lib_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWT1LIBFONT		pf = (PMWT1LIBFONT)pfont;

@@ -1,3 +1,8 @@
+add scr_sgm.c, suifont.c, DrawBitmap
+add X11 mag driver
+wide border rects, ^R redisplay screen
+add MWTF_CENTER, MWTF_COLUMN, compound fonts?
+
 check whether font previously loaded, cache pfont return?
 move image decoders to library
 remove internal server image format, use pixmaps instead

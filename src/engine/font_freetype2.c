@@ -200,11 +200,11 @@ struct MWFREETYPE2FONT_STRUCT
 
 static MWBOOL freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,
-				  MWCOORD * pwidth, MWCOORD * pheight,
-				  MWCOORD * pbase);
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 static void freetype2_destroyfont(PMWFONT pfont);
 static void freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-			       const void *text, int cc, MWTEXTFLAGS flags);
+		const void *text, int cc, MWTEXTFLAGS flags);
 static void freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize);
 static void freetype2_setfontrotation(PMWFONT pfont, int tenthdegrees);
 static void freetype2_setfontattr(PMWFONT pfont, int setflags, int clrflags);

@@ -42,9 +42,10 @@ typedef struct MWEUCJPFONT {
 PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
 static MWBOOL eucjp_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void eucjp_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
-	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
+		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 static void eucjp_gettextsize(PMWFONT pfont, const void *text, int cc,
-	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 static void eucjp_destroyfont(PMWFONT pfont);
 
 /* handling routines for MWEUCJPFONT*/
@@ -169,7 +170,7 @@ eucjp_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 
 /* Get the width and height of passed text string in the current font*/
 static void
-eucjp_gettextsize(PMWFONT pfont, const void *text, int cc,
+eucjp_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase)
 {
 	PMWEUCJPFONT pf = (PMWEUCJPFONT) pfont;

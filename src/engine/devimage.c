@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
  * Portions Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Portions Copyright (c) Independant JPEG group (ijg)
  *
  * Image load/cache/resize/display routines
  *
- * GIF, BMP, JPEG, PPM, PGM, PBM, PNG, and XPM formats are supported.
+ * GIF, BMP, JPEG, PPM, PGM, PBM, PNG, XPM and TIFF formats are supported.
  * JHC:  Instead of working with a file, we work with a buffer
  *       (either provided by the user or through mmap).  This
  *	 improves speed, and provides a mechanism by which the
@@ -40,9 +40,9 @@ static MWLISTHEAD imagehead;		/* global image list*/
 static int nextimageid = 1;
 
 typedef struct {  /* structure for reading images from buffer   */
-  void *start;    /* The pointer to the beginning of the buffer */
-  int offset;     /* The current offset within the buffer       */
-  int size;       /* The total size of the buffer               */
+	unsigned char *start;	/* The pointer to the beginning of the buffer */
+	unsigned long offset;	/* The current offset within the buffer       */
+	unsigned long size;	/* The total size of the buffer               */
 } buffer_t;
  
 
@@ -64,102 +64,102 @@ static int  LoadGIF(buffer_t *src, PMWIMAGEHDR pimage);
 static int LoadPNM(buffer_t *src, PMWIMAGEHDR pimage);
 #endif
 #if defined(HAVE_XPM_SUPPORT)
-static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd) ;
+static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd);
+#endif
+#if defined(HAVE_TIFF_SUPPORT)
+static int LoadTIFF(char *path, PMWIMAGEHDR pimage);
 #endif
 
 /*
  * Buffered input functions to replace stdio functions
  */
 static void
-binit(void *in, int size, buffer_t *dest)
+binit(buffer_t *buffer, void *startdata, int size)
 {
-	dest->start = in;
-	dest->offset = 0;
-	dest->size = size;
+	buffer->start = startdata;
+	buffer->size = size;
+	buffer->offset = 0;
 }
 
-static int
-bseek(buffer_t *buffer, int offset, int whence)
+static long
+bseek(buffer_t *buffer, long offset, int whence)
 {
-	int new;
+	long new;
 
 	switch(whence) {
 	case SEEK_SET:
 		if (offset >= buffer->size || offset < 0)
-			return(-1);
+			return -1L;
 		buffer->offset = offset;
-		return(0);
+		break;
 
 	case SEEK_CUR:
 		new = buffer->offset + offset;
 		if (new >= buffer->size || new < 0)
-			return(-1);
+			return -1L;
 		buffer->offset = new;
-		return(0);
+		break;
 
 	case SEEK_END:
-		if (offset >= buffer->size || offset > 0)
-			return(-1);
-		buffer->offset = (buffer->size - 1) - offset;
-		return(0);
+		new = buffer->size - 1 + offset;
+		if (new >= buffer->size || new < 0)
+			return -1L;
+		buffer->offset = new;
+		break;
 
 	default:
-		return(-1);
+		return -1L;
 	}
+	return buffer->offset;
 }
    
 static int
-bread(buffer_t *buffer, void *dest, int size)
+bread(buffer_t *buffer, void *dest, unsigned long size)
 {
-	int copysize = size;
+	unsigned long copysize;
 
 	if (buffer->offset == buffer->size)
-		return(0);
+		return 0;	/* EOF*/
 
 	if (buffer->offset + size > buffer->size) 
-		copysize = (buffer->size - buffer->offset);
+		copysize = buffer->size - buffer->offset;
+	else copysize = size;
 
-	memcpy(dest, ((char *)buffer->start + buffer->offset),copysize);
+	memcpy(dest, buffer->start + buffer->offset, copysize);
 
 	buffer->offset += copysize;
-	return(copysize);
+	return copysize;
 }
  
 static int
 bgetc(buffer_t *buffer)
 {
-	int ch;
-
 	if (buffer->offset == buffer->size) 
-		return(EOF);
-
-	ch = *((unsigned char *) ((char *)buffer->start + buffer->offset));
-	buffer->offset++;
-	return(ch);
+		return EOF;
+	return buffer->start[buffer->offset++];
 }
  
 static char *
-bgets(buffer_t *buffer, char *dest, int size)
+bgets(buffer_t *buffer, char *dest, unsigned int size)
 {
 	int i,o;
-	int copysize = size - 1;
+	unsigned int copysize = size - 1;
 
 	if (buffer->offset == buffer->size) 
-		return(0);
+		return 0;
 
 	if (buffer->offset + copysize > buffer->size) 
 		copysize = buffer->size - buffer->offset;
 
 	for(o=0, i=buffer->offset; i < buffer->offset + copysize; i++, o++) {
-		dest[o] = *((char *) ((char *)buffer->start + i));
-		if (dest[o] == '\n')
+		if ((dest[o] = buffer->start[i]) == '\n')
 			break;
 	}
 
 	buffer->offset = i + 1;
 	dest[o + 1] = 0;
 
-	return(dest);
+	return dest;
 }
  
 static int
@@ -179,7 +179,7 @@ beof(buffer_t *buffer)
  *
  */
 
-static int GdDecodeImage(PSD psd, buffer_t *src, int flags);
+static int GdDecodeImage(PSD psd, buffer_t *src, char *path, int flags);
 
 /**
  * Load an image from a memory buffer.
@@ -192,9 +192,9 @@ int
 GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags)
 {
 	buffer_t src;
-	binit(buffer, size, &src);
 
-	return(GdDecodeImage(psd, &src, flags));
+	binit(&src, buffer, size);
+	return GdDecodeImage(psd, &src, NULL, flags);
 }
 
 /**
@@ -218,8 +218,8 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	int id;
 	buffer_t src;
 
-	binit(buffer, size, &src);
-	id = GdDecodeImage(psd, &src, flags);
+	binit(&src, buffer, size);
+	id = GdDecodeImage(psd, &src, NULL, flags);
 
 	if (id) {
 		GdDrawImageToFit(psd, x, y, width, height, id);
@@ -300,8 +300,8 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
   }
 #endif
 
-  binit(buffer, s.st_size, &src);
-  id = GdDecodeImage(psd, &src, flags);
+  binit(&src, buffer, s.st_size);
+  id = GdDecodeImage(psd, &src, path, flags);
   
 #ifdef HAVE_MMAP
   munmap(buffer, s.st_size);
@@ -314,8 +314,16 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
 }
 #endif /* defined(HAVE_FILEIO) */
 
+/*
+ * GdDecodeImage:
+ * @psd: Drawing surface.
+ * @src: The image data.
+ * @flags: If nonzero, JPEG images will be loaded as grayscale.  Yuck!
+ *
+ * Load an image.
+ */
 static int
-GdDecodeImage(PSD psd, buffer_t * src, int flags)
+GdDecodeImage(PSD psd, buffer_t * src, char *path, int flags)
 {
         int         loadOK = 0;
         PMWIMAGEHDR pimage;
@@ -330,6 +338,11 @@ GdDecodeImage(PSD psd, buffer_t * src, int flags)
 	pimage->palette = NULL;
 	pimage->transcolor = -1L;
 
+#if defined(HAVE_TIFF_SUPPORT)
+	/* must be first... no buffer support yet*/
+	if (path)
+		loadOK = LoadTIFF(path, pimage);
+#endif
 #if defined(HAVE_BMP_SUPPORT)
 	if (loadOK == 0) 
 		loadOK = LoadBMP(src, pimage);
@@ -796,14 +809,6 @@ term_source(j_decompress_ptr cinfo)
 	return;
 }
 
-/*
- * GdDecodeImage:
- * @psd: Drawing surface.
- * @src: The image data.
- * @flags: If nonzero, JPEG images will be loaded as grayscale.  Yuck!
- *
- * Load an image.
- */
 static int
 LoadJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 {
@@ -990,7 +995,7 @@ LoadPNG(buffer_t * src, PMWIMAGEHDR pimage)
 	png_uint_32 width, height;
 	int bit_depth, colourtype, i;
 
-	bseek(src, 0L, 0);
+	bseek(src, 0L, SEEK_SET);
 
 	if(bread(src, hdr, 8) != 8) return 0;
 
@@ -1928,7 +1933,7 @@ static int LoadPNM(buffer_t *src, PMWIMAGEHDR pimage)
 	int type = PNM_TYPE_NOTPNM, binary = 0, gothdrs = 0, scale = 0;
 	int ch, x = 0, y = 0, i, n, mask, col1, col2, col3;
 
-	bseek(src, 0L, 0);
+	bseek(src, 0L, SEEK_SET);
 
 	if(!bgets(src,buf, 4)) return 0;
 
@@ -2537,5 +2542,73 @@ static int LoadXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd)
   return(1);
 }
 #endif /* defined(HAVE_XPM_SUPPORT)*/
+
+#if defined(HAVE_TIFF_SUPPORT)
+#include <tiffio.h>
+
+static int
+LoadTIFF(char *path, PMWIMAGEHDR pimage)
+{
+	TIFF 	*tif;
+	int	w, h;
+	long	size;
+
+	tif = TIFFOpen(path, "r");
+	if (!tif)
+		return 0;
+
+	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
+	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
+	size = w * h;
+	pimage->width = w;
+	pimage->height = h;
+	pimage->bpp = 32;
+	pimage->pitch = w * sizeof(uint32);
+	pimage->bytesperpixel = 4;
+	pimage->planes = 1;
+	pimage->palsize = 0;
+	pimage->palette = NULL;
+
+	/* upside down, RGB order (with alpha)*/
+	pimage->compression = MWIMAGE_RGB | MWIMAGE_UPSIDEDOWN;
+
+	/* Allocate image */
+	if ((pimage->imagebits = malloc(size * sizeof(uint32))) == NULL)
+		goto err;
+
+	TIFFReadRGBAImage(tif, pimage->width, pimage->height,
+		(uint32 *)pimage->imagebits, 0);
+
+#if 0
+	{
+		/* FIXME alpha channel should be blended with destination*/
+		int i;
+		uint32	*rgba;
+		uint32	rgba_r, rgba_g, rgba_b, rgba_a;
+		rgba = (uint32 *)pimage->imagebits;
+		for (i = 0; i < size; ++i, ++rgba) {
+			if ((rgba_a = TIFFGetA(*rgba) + 1) == 256)
+				continue;
+			rgba_r = (TIFFGetR(*rgba) * rgba_a)>>8;
+			rgba_g = (TIFFGetG(*rgba) * rgba_a)>>8;
+			rgba_b = (TIFFGetB(*rgba) * rgba_a)>>8;
+			*rgba = 0xff000000|(rgba_b<<16)|(rgba_g<<8)|(rgba_r);
+		}
+	}
+#endif
+	TIFFClose(tif);
+	return 1;
+
+err:
+	EPRINTF("LoadTIFF: image loading error\n");
+	if (tif)
+		TIFFClose(tif);
+	if(pimage->imagebits)
+		free(pimage->imagebits);
+	if(pimage->palette)
+		free(pimage->palette);
+	return 2;		/* image error*/
+}
+#endif /* defined(HAVE_TIFF_SUPPORT)*/
 
 #endif /* MW_FEATURE_IMAGES - whole file */

@@ -13,15 +13,17 @@
 /* entry points*/
 MWBOOL	gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 void	gen_gettextsize(PMWFONT pfont, const void *text, int cc,
-		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 void	gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 void	gen_unloadfont(PMWFONT pfont);
 
-void gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, MWTEXTFLAGS flags);
-void gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
-	MWCOORD * pwidth, MWCOORD * pheight, MWCOORD * pbase);
+void	gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+		const void *text, int cc, MWTEXTFLAGS flags);
+void	gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 
 void	corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);

@@ -37,7 +37,7 @@
 #define MW_FEATURE_IMAGES 0		/* platform doesn't support images*/
 #endif
 
-#if UNIX || DOS_DJGPP
+#if UNIX || DOS_DJGPP || HAVE_TIMER_SUPPORT
 #define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
 #else
 #define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
@@ -94,7 +94,8 @@ typedef struct {
 	MWTEXTFLAGS	encoding;	/* routines expect this encoding*/
 	MWBOOL	(*GetFontInfo)(PMWFONT pfont, PMWFONTINFO pfontinfo);
 	void 	(*GetTextSize)(PMWFONT pfont, const void *text, int cc,
-			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+			MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+			MWCOORD *pbase);
 	void	(*GetTextBits)(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 	void	(*DestroyFont)(PMWFONT pfont);

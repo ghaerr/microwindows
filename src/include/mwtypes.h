@@ -270,6 +270,9 @@ typedef unsigned short	MWIMAGEBITS;	/* bitmap image unit size*/
 typedef unsigned long	MWTIMEOUT;	/* timeout value */
 typedef unsigned long	MWTEXTFLAGS;	/* MWTF_ text flag*/
 
+#define MWCOORD_MAX	0x7fff		/* maximum coordinate value*/
+#define MWCOORD_MIN	(-MWCOORD_MAX)	/* minimum coordinate value*/
+
 /* MWIMAGEBITS macros*/
 #define MWIMAGE_WORDS(x)	(((x)+15)/16)
 #define MWIMAGE_BYTES(x)	(MWIMAGE_WORDS(x)*sizeof(MWIMAGEBITS))

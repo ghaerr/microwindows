@@ -455,7 +455,7 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 
 	if (flags & MWTF_DBCSMASK)
 		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
-	else pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
+	else pfont->fontprocs->GetTextSize(pfont, str, cc, flags, &width, &height, &base);
 	
 	if (flags & MWTF_BASELINE)
 		y -= base;
@@ -538,7 +538,7 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	MWBOOL		bgstate;
 	int		clip;
 
-	pfont->fontprocs->GetTextSize(pfont, str, cc, &width, &height, &base);
+	pfont->fontprocs->GetTextSize(pfont, str, cc, flags, &width, &height, &base);
 
 	if (flags & MWTF_BASELINE)
 		y -= base;
@@ -910,7 +910,7 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	/* calc height and width of string*/
 	if (force_uc16)		/* if UC16 conversion forced, string is DBCS*/
 		dbcs_gettextsize(pfont, text, cc, flags, pwidth, pheight, pbase);
-	else pfont->fontprocs->GetTextSize(pfont, text, cc, pwidth, pheight, pbase);
+	else pfont->fontprocs->GetTextSize(pfont, text, cc, flags, pwidth, pheight, pbase);
 }
 
 #if HAVE_FREETYPE_2_SUPPORT

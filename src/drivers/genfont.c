@@ -96,7 +96,7 @@ gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
  * Handles both fixed and proportional fonts.  Passed ascii string.
  */
 void
-gen_gettextsize(PMWFONT pfont, const void *text, int cc,
+gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
@@ -125,7 +125,7 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
  * Handles both fixed and proportional fonts.  Passed MWTF_UC16 string.
  */
 void
-gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
+gen16_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWCFONT		pf = ((PMWCOREFONT) pfont)->cfont;

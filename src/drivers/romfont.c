@@ -85,7 +85,7 @@ pcrom_getfontinfo(PMWFONT pfont,PMWFONTINFO pfontinfo)
  * Handles bios ROM font only.
  */
 void
-pcrom_gettextsize(PMWFONT pfont, const void *str, int cc,
+pcrom_gettextsize(PMWFONT pfont, const void *str, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	*pwidth = ROM_CHAR_WIDTH * cc;

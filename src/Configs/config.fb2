@@ -146,6 +146,13 @@ LIBPNG                   = /usr/lib/libpng.a
 LIBZ                     = /usr/lib/libz.a
 
 ####################################################################
+# TIFF support through libtiff
+####################################################################
+HAVE_TIFF_SUPPORT        = N
+INCTIFF                  = /usr/include
+LIBTIFF                  = /usr/lib/libtiff.a
+
+####################################################################
 # native .fnt loadable font support
 ####################################################################
 HAVE_FNT_SUPPORT         = Y

@@ -44,8 +44,9 @@ int  freetype_init(PSD psd);
 PMWFREETYPEFONT freetype_createfont(const char *name, MWCOORD height, int attr);
 
 static MWBOOL freetype_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
-static void freetype_gettextsize(PMWFONT pfont, const void *text,
-		int cc, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+static void freetype_gettextsize(PMWFONT pfont, const void *text, int cc,
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 static void freetype_destroyfont(PMWFONT pfont);
 static void freetype_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
@@ -561,7 +562,7 @@ freetype_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 }
 
 static void
-freetype_gettextsize(PMWFONT pfont, const void *text, int cc,
+freetype_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWFREETYPEFONT	pf = (PMWFREETYPEFONT)pfont;

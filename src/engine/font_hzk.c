@@ -55,8 +55,9 @@ int  hzk_init(PSD psd);
 PMWHZKFONT hzk_createfont(const char *name, MWCOORD height,int fontattr);
 
 static MWBOOL hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
-static void hzk_gettextsize(PMWFONT pfont, const void *text,
-		int cc, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+static void hzk_gettextsize(PMWFONT pfont, const void *text, int cc,
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+		MWCOORD *pbase);
 #if 0
 static void hzk_gettextbits(PMWFONT pfont, int ch, const IMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
@@ -718,7 +719,7 @@ hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 }
 
 static void
-hzk_gettextsize(PMWFONT pfont, const void *text, int cc,
+hzk_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;

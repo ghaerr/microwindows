@@ -724,7 +724,6 @@ void new_game(nstate *state)
 
 void init_game(nstate *state)
 {
-	//GR_PROP *prop;
 	GR_WM_PROPERTIES props;
 	GR_COORD x = MAIN_WINDOW_X_POSITION;
 
@@ -733,12 +732,6 @@ void init_game(nstate *state)
 		exit(1);
 	}
 
-#if 0
-	if(GrGetWindowProperty(GR_ROOT_WINDOW_ID, "WINDOW_MANAGER", &prop)) {
-		free(prop);
-		x = GR_OFF_SCREEN;
-	}
-#endif
 	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, x,
 					MAIN_WINDOW_Y_POSITION,
 					MAIN_WINDOW_WIDTH,

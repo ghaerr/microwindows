@@ -198,7 +198,7 @@ ts_drawpoint(PSD psd, MWCOORD x, MWCOORD y)
 
 	switch (gr_fillmode) {
 	case MWFILL_OPAQUE_STIPPLE:
-		//FIXME: precompute bitset, don't do it twice
+		/* FIXME: precompute bitset, don't do it twice */
 		if (!BIT_SET(gr_stipple.bitmap, (bx % gr_stipple.width), (by % gr_stipple.height)))
 		     	psd->DrawPixel(psd, x, y, gr_background);
 

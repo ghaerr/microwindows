@@ -408,9 +408,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	    *scancode = ev.xkey.keycode;
 	    *kbuf = mwkey;
 
-	    //printf("mods: 0x%x  scan: 0x%x  key: 0x%x\n",*modifiers
-	    //						,*scancode
-	    //						,*kbuf);
+	    /*printf("mods: 0x%x  scan: 0x%x  key: 0x%x\n",*modifiers,*scancode, *kbuf);*/
 	    return (ev.xkey.type == KeyPress)? 1 : 2;
 	}
     }

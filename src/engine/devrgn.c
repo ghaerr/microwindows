@@ -1526,7 +1526,7 @@ GdAllocBitmapRegion(MWIMAGEBITS *bitmap, MWCOORD width,	MWCOORD height)
 		rect.bottom = y + 1;
 		for(x = 0; x < width; x++) {
 			if(!bitnum--) {
-				bitnum = 15;		//FIXME no hardcoded bits
+				bitnum = 15;		/* FIXME no hardcoded bits */
 				bits = bitmap[i++];
 			}
 			if(bits & 0x8000) {

@@ -6,14 +6,12 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-//#define FONTNAME	"lt1-r-omega-serif.ttf"
-//#define FONTNAME	"arial.ttf"
+/*#define FONTNAME	"lt1-r-omega-serif.ttf"*/
+/*#define FONTNAME	"arial.ttf"*/
 #define FONTNAME	"times.ttf"
 
 #define FGCOLOR		BLACK
 #define BGCOLOR		WHITE
-//#define FGCOLOR		WHITE
-//#define BGCOLOR		BLACK
 
 GR_WINDOW_ID	w;
 GR_GC_ID	gc;
@@ -32,7 +30,7 @@ do_paint(GR_EVENT_EXPOSURE *ep)
 		font = GrCreateFont(FONTNAME, i, NULL);
 		if (aa)
 			GrSetFontAttr(font, GR_TFANTIALIAS|GR_TFKERNING, 0);
-		//GrSetFontRotation(font, 150);
+		/*GrSetFontRotation(font, 150);*/
 		GrSetGCFont(gc, font);
 
 		sprintf(buf, "%d The Quick Brown Fox Jumped Over The Lazy Dog", i);

@@ -923,14 +923,14 @@ typedef struct {
  * all static data of shared code in a structure, with a pointer to
  * the structure to be stored in thread-local storage
  */
-typedef struct {                                // Init to:
-    int                 _nxSocket;              //  -1
+typedef struct {                                /* Init to: */
+    int                 _nxSocket;              /*  -1 */
     MWMUTEX	 	_nxGlobalLock;
-    int                 _storedevent;           // 0
-    GR_EVENT            _storedevent_data;      // no init(0)
-    int                 _regfdmax;              // -1
-    fd_set		_regfdset;		// FD_ZERO
-    GR_FNCALLBACKEVENT  _GrErrorFunc;           // GrDefaultErrorHandler
+    int                 _storedevent;           /* 0 */
+    GR_EVENT            _storedevent_data;      /* no init(0) */
+    int                 _regfdmax;              /* -1 */
+    fd_set		_regfdset;		/* FD_ZERO */
+    GR_FNCALLBACKEVENT  _GrErrorFunc;           /* GrDefaultErrorHandler */
     REQBUF              _reqbuf;
     EVENT_LIST          *_evlist;
 } ecos_nanox_client_data;

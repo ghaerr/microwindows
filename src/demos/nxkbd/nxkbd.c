@@ -306,13 +306,13 @@ main(int argc, char* argv[])
                           GR_EVENT_MASK_BUTTON_DOWN);
 
 #if 0	/* this code fails when link-app-into-server */
-	//if (props.title)	// can't free with link-into-server
-		//free(props.title);
+	if (props.title)	/* can't free with link-into-server*/
+		free(props.title);
 
 	/* title must be alloc'd and copied*/
-	//props.title = malloc(18);
-	//if (props.title)
-		//strcpy(props.title, TITLE);
+	props.title = malloc(18);
+	if (props.title)
+		strcpy(props.title, TITLE);
 
 	props.flags =
 		GR_WM_FLAG_NORESIZE   | /* don't let user resize window */

@@ -360,14 +360,14 @@ DrawRoaches(void)
 	    roach->intY = roach->y;
 	    roach->rp = &roachPix[roach->index];
 
-	    /*
-    	    //XSetForeground(display, gc, AllocNamedColor(roachColor, black));
-    	    //XSetFillStyle(display, gc, FillStippled);
-	    //XSetStipple(display, gc, roach->rp->pixmap);
-	    //XSetTSOrigin(display, gc, roach->intX, roach->intY);
-	    //XFillRectangle(display, rootWin, gc,
-		//roach->intX, roach->intY, roach->rp->width, roach->rp->height);
-	    */
+#if 0
+    	    XSetForeground(display, gc, AllocNamedColor(roachColor, black));
+    	    XSetFillStyle(display, gc, FillStippled);
+	    XSetStipple(display, gc, roach->rp->pixmap);
+	    XSetTSOrigin(display, gc, roach->intX, roach->intY);
+	    XFillRectangle(display, rootWin, gc,
+		roach->intX, roach->intY, roach->rp->width, roach->rp->height);
+#endif
 
 	    /* read roach bitmap*/
 	    GrReadArea(roach->rp->pixmap, 0, 0,

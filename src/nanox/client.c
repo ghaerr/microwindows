@@ -1149,7 +1149,7 @@ _CheckTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 
 printf("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, mask, update, ep->general.wid, ep->type);
 
-	// FIXME: not all events have wid field here...
+	/* FIXME: not all events have wid field here... */
 	if (wid && (wid != ep->general.wid))
 		return 0;
 
@@ -4419,7 +4419,7 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
 	GR_REGION_ID		region;
 	nxNewBitmapRegionReq *	req;
 
-	size = sizeof(GR_BITMAP) * height * (((width - 1) / 16) + 1); //FIXME
+	size = sizeof(GR_BITMAP) * height * (((width - 1) / 16) + 1); /* FIXME */
 
 	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(NewBitmapRegion, size);

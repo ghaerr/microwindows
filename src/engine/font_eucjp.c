@@ -118,7 +118,7 @@ eucjp_createfont(const char *name, MWCOORD height, int attr)
 	pf->abytes = pf->awidth * mfh;
 	pf->koffset = pf->aoffset + pf->abytes * 256;
 	pf->kwidth = (mfw + 7) / 8;
-	pf->kbytes = pf->kwidth * mfh;	//height;
+	pf->kbytes = pf->kwidth * mfh;	/* height; */
 	pf->fd = fd;
 	if (fsize != pf->koffset + pf->kbytes * 8064) {
 		printf("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");

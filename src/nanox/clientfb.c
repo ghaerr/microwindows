@@ -73,7 +73,7 @@ GrOpenClientFramebuffer(void)
 		goto err;
 	}
 
-	// FIXME remove when mwin returns fb or X
+	/* FIXME remove when mwin returns fb or X */
 	switch (finfo.visual) {
 		case FB_VISUAL_TRUECOLOR:
 		case FB_VISUAL_PSEUDOCOLOR:
@@ -167,7 +167,7 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 		 * back the virtual xres/yres, and we want
 		 * the physical xres/yres.
 		 */
-		// FIXME return xres and xvirtres in SCREENINFO?
+		/* FIXME return xres and xvirtres in SCREENINFO? */
 		fbinfo->xres = sinfo.rows;	/* reverse coords*/
 		fbinfo->yres = sinfo.cols;
 		break;

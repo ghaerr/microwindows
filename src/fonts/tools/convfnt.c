@@ -41,7 +41,6 @@ static char *Font_Style_String = "normal";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <util.h>
 
 #define MAX_BITS_HEIGHT	48	/* max character height*/
 #define MAX_BITS_WIDTH 	80	/* max character width*/
@@ -193,16 +192,16 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 		                Font_Width, Font_Style);
 		break;
 	case 1:
-		hfont = GetStockObject(DEFAULT_GUI_FONT);	// winMSSansSerif11x13
+		hfont = GetStockObject(DEFAULT_GUI_FONT);	/* winMSSansSerif11x13 */
 		break;
 	case 2:
-		hfont = GetStockObject(SYSTEM_FONT);		// winSystem14x16
+		hfont = GetStockObject(SYSTEM_FONT);		/* winSystem14x16 */
 		break;
 	case 3:
-		hfont = GetStockObject(OEM_FIXED_FONT);	// winTerminal8x12
+		hfont = GetStockObject(OEM_FIXED_FONT);	/* winTerminal8x12 */
 		break;
 	case 4:
-		hfont = GetStockObject(ANSI_VAR_FONT);	// winMSSansSerif11x13
+		hfont = GetStockObject(ANSI_VAR_FONT);	/* winMSSansSerif11x13 */
 		break;
 	}
 	ReleaseDC(NULL, hdc);
@@ -308,7 +307,6 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			doit(hdc);
 			fclose(fp);
 			TextOut(hdc, 0, 250, " DONE! ", 7);
-			// exit(1);
 		}
 		else
 		{

@@ -54,7 +54,7 @@ char* li_err_msg = NULL;
 char _zdebug_flag[128];
 
 #ifndef __ECOS
-// This is standard - defined in <stdlib.h>
+/* This is standard - defined in <stdlib.h> */
 #define bcopy(s1,s2,n) memcpy(s2,s1,n)
 #endif
 

@@ -1810,11 +1810,11 @@ GsOpenSocket(void)
 	sckt.sun_family = AF_NANO;
 	sckt.sun_no = GR_NUMB_SOCKET;
 #elif __ECOS
-	// Create the socket
-	if((un_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	/* Create the socket */
+	if((un_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
 	    return -1;
 
-	// Bind to any/all local IP addresses
+	/* Bind to any/all local IP addresses */
 	memset( &sckt, '\0', sizeof(sckt) );
 	sckt.sin_family = AF_INET;
 	sckt.sin_len = sizeof(sckt);

@@ -1,3 +1,4 @@
+	* cleaned up // comments (Simon)
 	* added "make realclean" to remove generated .c files from .bdf & .bmp
 	* single touchscreen driver for Zaurus, iPAQ, tuxscreen, ADS (Jordan)
 		(jitter and transform moved into engine/devmouse.c)

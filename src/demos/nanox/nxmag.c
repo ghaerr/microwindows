@@ -212,7 +212,7 @@ static nmstate *init(int argc, char **argv)
 
 	state->gc = GrNewGC();
 
-	GrCreateTimer(state->wid, updateperiod); //, GR_TRUE);
+	GrCreateTimer(state->wid, updateperiod); /*, GR_TRUE); */
 
 	do_update(state);
 

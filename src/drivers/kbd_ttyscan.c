@@ -235,19 +235,19 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 				/* translate scancode to key value*/
 				mwkey = TranslateScancode(scancode, key_modstate);
 			} else {
-				//printf("Modifier only\n");
-				//mwkey = 0;
+				/*printf("Modifier only\n");*/
+				/*mwkey = 0;*/
 			}
 			
 			/* XXX Hack to get scancodes to come out the same as 
 			   everything else */
 			switch(scancode) {
-				case 0x1:           /* esc 		*/
+				case 0x01:          /* esc 		*/
 
 				case 0x29:          /* `		*/
-				case 0x2  ... 0xe:  /* 1 - BackSpace 	*/
+				case 0x02 ... 0x0e:  /* 1 - BackSpace 	*/
 
-				case 0xf  ... 0x1b: /* TAB - ] 		*/
+				case 0x0f ... 0x1b: /* TAB - ] 		*/
 				case 0x2b:          /* \		*/
 
 				case 0x3a:	    /* Caps-Lock	*/
@@ -259,17 +259,19 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 				case 0x36:          /* RShift		*/
 
 				case 0x1d:          /* LCtrl		*/
-				//case 0x7d:          /* LWin		*/
 				case 0x38:          /* LAlt		*/
 				case 0x39:          /* Space		*/
-				//case 0x64:          /* RAlt		*/
-				//case 0x7e:          /* RWin		*/
-				//case 0x7f:          /* Win-PopupMenu	*/
-				//case 0x61:          /* RCtrl		*/
+#if 0
+				case 0x7d:          /* LWin		*/
+				case 0x64:          /* RAlt		*/
+				case 0x7e:          /* RWin		*/
+				case 0x7f:          /* Win-PopupMenu	*/
+				case 0x61:          /* RCtrl		*/
 
-				//case 0x63:          /* SysReq		*/
-				//case 0x46:          /* Scroll Lock	*/
-				//case 0x77:          /* Pause/Break	*/
+				case 0x63:          /* SysReq		*/
+				case 0x46:          /* Scroll Lock	*/
+				case 0x77:          /* Pause/Break	*/
+#endif
 					scancode += 8;
 					break;
 
@@ -324,7 +326,7 @@ UpdateKeyState(int pressed, MWKEY mwkey)
 {
 	MWKEYMOD modstate = key_modstate;
 
-	//printf("UpdateKeyState %02x %02x\n", pressed, mwkey);
+	/*printf("UpdateKeyState %02x %02x\n", pressed, mwkey);*/
 	if (pressed == PRESSED) {
 		switch (mwkey) {
 		case MWKEY_NUMLOCK:
@@ -435,7 +437,7 @@ TranslateScancode(int scancode, MWKEYMOD modstate)
 	unsigned short	mwkey = 0;
 	int		map = 0;
 
-	//printf("Translate: 0x%04x\n", scancode);
+	/*printf("Translate: 0x%04x\n", scancode);*/
 
 	/* determine appropriate kernel table*/
 	if (modstate & MWKMOD_SHIFT)

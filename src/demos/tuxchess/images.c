@@ -3,7 +3,6 @@
 #include <string.h>
 #include "nano-X.h"
 
-//#define IMAGE_PATH "/usr/local/images/tuxchess"
 #define IMAGE_PATH "demos/tuxchess/images"
 
 extern GR_IMAGE_ID     board_image_id;

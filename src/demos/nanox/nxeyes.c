@@ -175,7 +175,7 @@ void start_blink_timer(nxeyes_state *state)
 	else time = (rand() % (BLINK_MAX_OPEN_TIME - BLINK_MIN_OPEN_TIME)) +
 		BLINK_MIN_OPEN_TIME;
 
-	state->tid = GrCreateTimer(state->wid, time); //, GR_FALSE);
+	state->tid = GrCreateTimer(state->wid, time); /*, GR_FALSE); */
 }
 
 void timer_event(GR_EVENT_TIMER *ev, nxeyes_state *state)

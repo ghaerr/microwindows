@@ -668,7 +668,7 @@ GsDrawBorder(GR_WINDOW *wp)
 	wp->bordersize = 0;
 
 	clipwp = NULL;
-	//FIXME: window clipregion will fail here
+	/* FIXME: window clipregion will fail here */
 	GsSetClipWindow(wp, NULL, 0);
 	curgcp = NULL;
 	GdSetMode(GR_MODE_COPY);

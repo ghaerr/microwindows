@@ -16,12 +16,12 @@
 
 
 #if defined(__ECOS) && !defined(_NO_SVR_MAPPING)
-//
-// Since eCos is a single task, multi-threaded environment, the
-// server and the client code share the same namespace.  This means
-// that server functions which are represented by dispatchers in
-// the client code need to have unique names, thus this remapping.
-//
+/*
+ * Since eCos is a single task, multi-threaded environment, the
+ * server and the client code share the same namespace.  This means
+ * that server functions which are represented by dispatchers in
+ * the client code need to have unique names, thus this remapping.
+ */
 #define nxErrorStrings		SVR_nxErrorStrings
 #define GrArcAngle              SVR_GrArcAngle
 #define GrArc                   SVR_GrArc

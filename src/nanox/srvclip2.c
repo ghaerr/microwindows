@@ -140,7 +140,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 			GdSubtractRegion(vis, vis, r);
 			/* FIXME: shaped windows with borders won't work */
 			if (sibwp->clipregion) {
-				// FIXME: can user set invalid clipregion here?
+				/* FIXME: can user set invalid clipregion here? */
 				GdOffsetRegion(sibwp->clipregion,
 					sibwp->x, sibwp->y);
 				GdSubtractRegion(vis, vis, sibwp->clipregion);
@@ -174,7 +174,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 			GdSubtractRegion(vis, vis, r);
 			/* FIXME: shaped windows with borders won't work */
 			if (wp->clipregion) {
-				// FIXME: can user set invalid clipregion here?
+				/* FIXME: can user set invalid clipregion here? */
 				GdOffsetRegion(sibwp->clipregion,
 					sibwp->x, sibwp->y);
 				GdSubtractRegion(vis, vis, sibwp->clipregion);

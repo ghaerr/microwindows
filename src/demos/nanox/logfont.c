@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 	      MWLF_Clear(&lf);
 	      description[0] = '\0';
 	      /*lf.lfSerif = 1;*/
-	      lf.lfHeight = 12;	// FIXME will change this requirement
+	      lf.lfHeight = 12;	/* FIXME will change this requirement*/
 
 	      if ( rnd & 1 ) {
 		      lf.lfWeight = MWLF_WEIGHT_BOLD;
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	      fontid = GrCreateFont(0, 0, &lf);
 	      /* GrSetFontSize(fontid, 1+(int)(80.0 * rand() / (RAND_MAX+1.0))); */
 	      GrSetFontSize(fontid,26);
-	      //GrSetFontRotation(fontid, 330);	/* 33 degrees*/
+	      /*GrSetFontRotation(fontid, 330);*/ /* 33 degrees*/
   	      GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
   	      GrSetGCFont(gc, fontid);
 	      /*GrSetGCBackground(gc, rand() & 0xffffff);*/

@@ -89,8 +89,8 @@ int main()
 
 
 	
-	// Horizontal Line
-	////////////////////////////////////////////////
+	/* Horizontal Line
+	***********************************************/
 	printf("Horizontal Line(XDrawLine)\n");
 	start_timer();
 	for(c=0; c<count*20; c++)
@@ -111,8 +111,8 @@ int main()
 	GrClearWindow(window, GR_TRUE);
 #endif
 	
-	// Vertical Line
-	/////////////////////////////////////////////////
+	/* Vertical Line
+	***********************************************/
 	printf("Vertical Line(XDrawLine)\n");
 	start_timer();
 	for(c=0; c<count*19; c++)
@@ -133,8 +133,8 @@ int main()
 	GrClearWindow(window, GR_TRUE);
 #endif
 
-	// General Line
-	/////////////////////////////////////////////////
+	/* General Line
+	***********************************************/
 	printf("General Line(XDrawLine)\n");
 	start_timer();
 	for(c=0; c<count*22; c++)
@@ -158,8 +158,8 @@ int main()
 	GrClearWindow(window, GR_TRUE);
 #endif
 
-	// Point
-	//////////////////////////////////////////////////
+	/* Point
+	*************************************************/
 	printf("XPoint\n");
 	start_timer();
 	for(c=0; c<count*25; c++)
@@ -181,8 +181,8 @@ int main()
 	GrClearWindow(window, GR_TRUE);
 #endif
 
-	// Rectangle
-	//////////////////////////////////////////////////
+	/* Rectangle
+	*************************************************/
 	printf("XRectangle\n");
 	start_timer();
 	for(c=0; c<count*20; c++)
@@ -206,8 +206,8 @@ int main()
 	GrClearWindow(window, GR_TRUE);
 #endif
 
-	// FillRectangle
-	//////////////////////////////////////////////////
+	/* FillRectangle
+	*************************************************/
 	printf("XFillRectangle\n");
 	start_timer();
 	for(c=0; c<count*18; c++)
@@ -232,8 +232,8 @@ int main()
 	GrClearWindow(window, GR_TRUE);
 #endif
 
-	// FillPolygon
-	//////////////////////////////////////////////////
+	/* FillPolygon
+	*************************************************/
 	printf("XFillPolygon\n");
 	start_timer();
 	for(c=0; c<count; c++)
@@ -260,8 +260,8 @@ int main()
 #endif
 
 
-	// CopyArea
-	/////////////////////////////////////////////////
+	/* CopyArea
+	***********************************************/
 	printf("XCopyArea\n");
 	start_timer();
 	for(c=0; c<count*5; c++)

@@ -102,7 +102,7 @@ MakeBMP(FILE *ifp, FILE *ofp)
 	bmp.BiPlanes = 1;
 	bmp.BiBitCount = bitdepth;
 	bmp.BiCompression = BI_RGB;
-	//bmp.BiSizeImage = ??;
+	/*bmp.BiSizeImage = ??;*/
 	bmp.BiClrUsed = ncolors;
 	bmp.BiClrImportant = ncolors;
 

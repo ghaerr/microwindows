@@ -2497,21 +2497,12 @@ static void lialg_get_bounding_box(point_list *points,
     *pmaxy = maxy;
 }
 
-#ifdef __ECOS
-float
-expf(float x)
-{
-    return exp((double)x);
-}
-#endif
-
-
 static void lialg_compute_lpf_parameters() {
     int i;
 
     for (i = LP_FILTER_WIDTH; i >= 0; i--) {
 	float x = 0.04 * (i * i);
-#if defined(ARM_LINUX) || !defined(__GLIBC__)
+#if defined(ARM_LINUX) || !defined(__GLIBC__) || defined(__ECOS) || defined(__uclibc__)
 	double tmp = 100.0 * exp((double)x);
 #else
 	float tmp = 100.0 * expf(x);

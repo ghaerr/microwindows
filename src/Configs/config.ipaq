@@ -275,8 +275,8 @@ else
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
-FBVGA                    = Y
-VTSWITCH                 = Y
+FBVGA                    = N
+VTSWITCH                 = N
 FBREVERSE                = N
 
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.

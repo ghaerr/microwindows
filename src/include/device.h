@@ -34,9 +34,9 @@
 #define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
 #endif
 
-/* determine need for GdError error handling*/
+/* determine compiler capability for handling EPRINTF/DPRINTF macros*/
 #ifndef MW_FEATURE_GDERROR
-#if defined(__GNUC__) && (__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)
+#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95))
 #define MW_FEATURE_GDERROR	0		/* use fprintf instead of GdError*/
 #else
 #define MW_FEATURE_GDERROR	1		/* use GdError for errors*/
@@ -51,7 +51,9 @@
 #define DPRINTF			GdErrorNull	/* no debug output*/
 #endif
 #else
-/* * GCC compiler-only macro magic to save space ***/
+
+/* GCC compiler-only macro magic to save space */
+#include <stdio.h>    /* For stderr */
 #define EPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* error output*/
 #if DEBUG
 #define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/

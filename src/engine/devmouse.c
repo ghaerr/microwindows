@@ -665,7 +665,8 @@ filter_transform(int state, int *xpos, int *ypos)
 		jitter.x = jitter.x >> JITTER_SHIFT_BITS;
 		jitter.y = jitter.y >> JITTER_SHIFT_BITS;
 
-		if (!(mousedev.flags & MOUSE_RAW)) {
+		/* No translation if transform not setup yet*/
+		if (g_trans.s && !(mousedev.flags & MOUSE_RAW)) {
 			*xpos = ((g_trans.a * jitter.x +
 				  g_trans.b * jitter.y +
 				  g_trans.c) / g_trans.s);
@@ -686,6 +687,6 @@ filter_transform(int state, int *xpos, int *ypos)
 
 	jitter.x += *xpos;
 	jitter.y += *ypos;
-	jitter.count += 1;
+	++jitter.count;
 	return 0;		/* In other words, don't use the returned value */
 }

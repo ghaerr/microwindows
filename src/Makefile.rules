@@ -457,9 +457,9 @@ export TOP ARCH CONFIG
 # It looks for sub-directories with makefiles in it and tries to execute them
 #
 ifeq ($(SHAREDLIBS), Y)
-default: subdirs $(TOP)/lib/$(LIBNAME) $(TOP)/lib/$(LIBNAMESO)
+default: $(TOP)/bin $(TOP)/lib subdirs $(TOP)/lib/$(LIBNAME) $(TOP)/lib/$(LIBNAMESO)
 else
-default: subdirs $(TOP)/lib/$(LIBNAME)
+default: $(TOP)/bin $(TOP)/lib subdirs $(TOP)/lib/$(LIBNAME)
 endif
 
 # 'dirs' can be pre-specified
@@ -525,6 +525,12 @@ $(TOP)/lib/$(LIBNAMESO): $(TOP)/lib/$(LIBNAME)
 	@echo "Creating shared library $@ ..."
 	$(LD) -shared -o $@ --whole-archive $^
 endif
+
+#
+# Make sure that bin and lib directories exist
+#
+$(TOP)/bin $(TOP)/lib: 
+	@mkdir -p $@
 
 #
 # Dependencies target for C files

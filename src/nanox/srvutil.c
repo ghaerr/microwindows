@@ -1154,6 +1154,11 @@ GsSetPortraitMode(int mode)
 	clipwp = NULL;
 	rootwp->width = scrdev.xvirtres;
 	rootwp->height = scrdev.yvirtres;
+
+	/* deliver portrait changed event to all windows selecting it*/
+	GsDeliverPortraitChangedEvent();
+	
+	/* redraw screen - apps may redraw/resize again causing flicker*/
 	GsRedrawScreen();
 }
 

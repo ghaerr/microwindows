@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "device.h"
+#include "swap.h"
 
 #if MSDOS | ELKS
 #define NOSTDPAL8
@@ -430,17 +431,17 @@ GdCaptureScreen(char *path)
 	memset(&bmp, 0, sizeof(bmp));
 	bmp.bfType[0] = 'B';
 	bmp.bfType[1] = 'M';
-	bmp.bfSize = sizeof(bmp) + sizecolortable + (long)(cx+extra)*cy*bytespp;
-	bmp.bfOffBits = sizeof(bmp) + sizecolortable;
-	bmp.BiSize = 40;
-	bmp.BiWidth = cx;
-	bmp.BiHeight = cy;
-	bmp.BiPlanes = 1;
-	bmp.BiBitCount = bpp;
-	bmp.BiCompression = (bpp==16 || bpp==32)? BI_BITFIELDS: BI_RGB;
-	bmp.BiSizeImage = (long)(cx+extra)*cy*bytespp;
-	bmp.BiClrUsed = (bpp <= 8)? ncolors: 0;
-	bmp.BiClrImportant = 0;
+	bmp.bfSize = dwswap(sizeof(bmp) + sizecolortable + (long)(cx+extra)*cy*bytespp);
+	bmp.bfOffBits = dwswap(sizeof(bmp) + sizecolortable);
+	bmp.BiSize = dwswap(40);
+	bmp.BiWidth = dwswap(cx);
+	bmp.BiHeight = dwswap(cy);
+	bmp.BiPlanes = wswap(1);
+	bmp.BiBitCount = wswap(bpp);
+	bmp.BiCompression = dwswap((bpp==16 || bpp==32)? BI_BITFIELDS: BI_RGB);
+	bmp.BiSizeImage = dwswap((long)(cx+extra)*cy*bytespp);
+	bmp.BiClrUsed = dwswap((bpp <= 8)? ncolors: 0);
+	/*bmp.BiClrImportant = 0;*/
 
 	/* write header*/
 	fwrite(&bmp, sizeof(bmp), 1, ofp);

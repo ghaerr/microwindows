@@ -18,17 +18,7 @@
 #include <fcntl.h>
 #include <ctype.h>
 #include "device.h"
-
-/* includes to support swapping little-endian bitmaps (Windows) to big-endian */
-#include <endian.h>
-#include <byteswap.h>
-#if __BYTE_ORDER == __BIG_ENDIAN
-#define wswap(x)   bswap_16 (x)
-#define dwswap(x)   bswap_32 (x)
-#else
-#define wswap(x)   (x)
-#define dwswap(x)  (x)
-#endif
+#include "swap.h"
 
 /* cached image list*/
 typedef struct {
@@ -831,8 +821,8 @@ LoadBMP(FILE *fp, PMWIMAGEHDR pimage)
 	if (*(WORD*)&bmpf.bfType[0] != wswap(0x4D42)) /* 'BM' */
 		return 0;	/* not bmp image*/
 
-	bmpf.bfSize = dwswap(*(DWORD*)&headbuffer[2]);
-	bmpf.bfOffBits = dwswap(*(DWORD*)&headbuffer[10]);
+	/*bmpf.bfSize = dwswap(dwread(&headbuffer[2]));*/
+	bmpf.bfOffBits = dwswap(dwread(&headbuffer[10]));
 
 	/* Read remaining header size */
 	if (fread(&headsize, 1, sizeof(DWORD), fp) != sizeof(DWORD))

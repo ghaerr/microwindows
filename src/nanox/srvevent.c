@@ -678,6 +678,32 @@ void GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
 }
 
 /*
+ * Deliver a portrait mode changed event to all windows which
+ * have selected for it.
+ */
+void GsDeliverPortraitChangedEvent(void)
+{
+	GR_WINDOW		*wp;
+	GR_EVENT_GENERAL	*gp;
+	GR_EVENT_CLIENT		*ecp;
+
+	for (wp=listwp; wp; wp=wp->next) {
+		for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
+			if ((ecp->eventmask & GR_EVENT_MASK_PORTRAIT_CHANGED) == 0)
+				continue;
+
+			gp = (GR_EVENT_GENERAL *) GsAllocEvent(ecp->client);
+			if (gp == NULL)
+				continue;
+
+			gp->type = GR_EVENT_TYPE_PORTRAIT_CHANGED;
+			gp->wid = wp->id;
+			gp->otherid = 0;
+		}
+	}
+}
+
+/*
  * Deliver a Screen Saver event. There is only one parameter- activate the
  * screen saver or deactivate it. We only deliver it to the root window,
  * but we do send it to every client which has selected for it (because the

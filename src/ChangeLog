@@ -1,5 +1,6 @@
 Version 0.89pre8 - 6 Sep 2001 - greg@censoft.com
-	* added GrSetPortraitMode
+	* added swap.h little/big endian swapping macros, fixed alignment bugs in devimage.c
+	* added GrSetPortraitMode, GR_EVENT_TYPE_PORTRAIT_CHANGED
 	* added GsSetPortraitMode, GsSetPortraitModeFromXY, screen driver SetPortrait entrypoint
 	* reimplemented GdFillPoly algorithm for correctness
 	(4th July 2001)

@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-January 21, 2001 g haerr <greg@censoft.com>
+September 6, 2001 g haerr <greg@censoft.com>
 
 - For notes on Intel Assabet, see bottom of file -
 
@@ -57,12 +57,6 @@ and set:
 	HAVE_T1LIB_SUPPORT=Y
 in the config file.  The ftdemo and t1demo programs demonstrate
 use of both truetype and type 1 fonts.
-
-To build the experimental NanoWidget library, set 
-	NWIDGET=Y
-in the config file.  Note that ELKS bcc can't currently compile
-the widget set, due to it's use of the ## token pasting preprocessor
-operator.  The demo application and server runs using ./demo.sh.
 
 All the demos are built in the microwin/src/bin directory.  Following
 are the current demos:

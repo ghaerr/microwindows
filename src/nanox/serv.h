@@ -374,6 +374,7 @@ void		GsDeliverUpdateEvent(GR_WINDOW *wp, GR_UPDATE_TYPE utype,
 			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type,
 			GR_WINDOW *other);
+void		GsDeliverPortraitChangedEvent(void);
 void		GsDeliverScreenSaverEvent(GR_BOOL activate);
 void		GsDeliverClientDataReqEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 			GR_SERIALNO serial, GR_MIMETYPE mimetype);

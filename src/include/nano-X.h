@@ -265,6 +265,7 @@ typedef struct {
 #define GR_EVENT_TYPE_CLIENT_DATA	19
 #define GR_EVENT_TYPE_SELECTION_CHANGED 20
 #define GR_EVENT_TYPE_TIMER             21
+#define GR_EVENT_TYPE_PORTRAIT_CHANGED  22
 
 /* Event masks */
 #define	GR_EVENTMASK(n)			(((GR_EVENT_MASK) 1) << (n))
@@ -292,6 +293,7 @@ typedef struct {
 #define GR_EVENT_MASK_CLIENT_DATA	GR_EVENTMASK(GR_EVENT_TYPE_CLIENT_DATA)
 #define GR_EVENT_MASK_SELECTION_CHANGED GR_EVENTMASK(GR_EVENT_TYPE_SELECTION_CHANGED)
 #define GR_EVENT_MASK_TIMER             GR_EVENTMASK(GR_EVENT_TYPE_TIMER)
+#define GR_EVENT_MASK_PORTRAIT_CHANGED  GR_EVENTMASK(GR_EVENT_TYPE_PORTRAIT_CHANGED)
 #define	GR_EVENT_MASK_ALL		((GR_EVENT_MASK) -1L)
 
 /* update event types */
@@ -359,6 +361,8 @@ typedef struct {
 
 /* General events for focus in or focus out for a window, or mouse enter
  * or mouse exit from a window, or window unmapping or mapping, etc.
+ * Server portrait mode changes are also sent using this event to
+ * all windows that request it.
  */
 typedef struct {
   GR_EVENT_TYPE type;		/* event type */

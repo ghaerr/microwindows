@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include "device.h"
 
 extern MWPIXELVAL gr_foreground;	/* current foreground color */
@@ -22,41 +21,40 @@ static int ts_origin_x = 0;
 static int ts_origin_y = 0;
 
 /* Some useful macros */
-
-#define STIPPLE_SIZE(width, height) ((height) * \
-  (((width) + sizeof(unsigned short) * 8 - 1) / (sizeof(unsigned short) * 8)))
-
-#define BITWIDTH  (sizeof(unsigned short) * 8)
-#define SPITCH ((gr_stipple.width + (BITWIDTH - 1)) / BITWIDTH)
+#define SPITCH ((gr_stipple.width + (MWIMAGE_BITSPERIMAGE - 1)) / MWIMAGE_BITSPERIMAGE)
 
 /* This is when the bits are least significantly aligned */
-/* #define BIT_SET(data, w, h) (data[(h * SPITCH) + (w / BITWIDTH)] & (1 << (w % BITWIDTH))) */
+/* #define BIT_SET(data, w, h) \
+	(data[(h * SPITCH) + (w / MWIMAGE_BITSPERIMAGE)] & (1 << (w % MWIMAGE_BITSPERIMAGE))) */
 
 /* This is when the bits are most significantly aligned */
-#define BIT_SET(data, w, h) (data[(h * SPITCH) + (w / BITWIDTH)] & (1 << ((BITWIDTH - 1) - (w % BITWIDTH))))
+#define BIT_SET(data, w, h) \
+	(data[(h * SPITCH) + (w / MWIMAGE_BITSPERIMAGE)] & (1 << ((MWIMAGE_BITSPERIMAGE - 1) - (w % MWIMAGE_BITSPERIMAGE))))
 
 void
-GdSetStippleBitmap(unsigned short *stipple, int width, int height)
+GdSetStippleBitmap(MWIMAGEBITS *stipple, int width, int height)
 {
 	int x, y;
+	int size;
 
 	if (gr_stipple.bitmap)
 		free(gr_stipple.bitmap);
 
+	gr_stipple.width = 0;
+	gr_stipple.height = 0;
+
 	if (!stipple) {
 		gr_stipple.bitmap = 0;
-		gr_stipple.width = gr_stipple.height = 0;
 		return;
 	}
 
-	gr_stipple.bitmap =
-		calloc(STIPPLE_SIZE(width, height), sizeof(unsigned short));
-
-	memcpy(gr_stipple.bitmap, stipple,
-	       STIPPLE_SIZE(width, height) * sizeof(unsigned short));
-
+	size = MWIMAGE_SIZE(width, height) * sizeof(MWIMAGEBITS);
+	gr_stipple.bitmap = malloc(size);
+	if (!gr_stipple.bitmap)
+		return;
 	gr_stipple.width = width;
 	gr_stipple.height = height;
+	memcpy(gr_stipple.bitmap, stipple, size);
 
 	/* debug output*/
 	for (y = 0; y < height; y++) {
@@ -74,12 +72,11 @@ GdSetStippleBitmap(unsigned short *stipple, int width, int height)
 void
 GdSetTilePixmap(PSD src, int width, int height)
 {
+	gr_tile.psd = src;
 	if (!src) {
-		gr_tile.psd = 0;
 		gr_tile.width = 0;
 		gr_tile.height = 0;
 	} else {
-		gr_tile.psd = src;
 		gr_tile.width = width;
 		gr_tile.height = height;
 	}

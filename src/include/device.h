@@ -428,7 +428,7 @@ MWPIXELVAL GdSetForeground(MWPIXELVAL fg);
 MWPIXELVAL GdSetBackground(MWPIXELVAL bg);
 
 void GdSetDash(unsigned long *mask, int *count);
-void GdSetStippleBitmap(unsigned short *stipple, int width, int height);
+void GdSetStippleBitmap(MWIMAGEBITS *stipple, int width, int height);
 void GdSetTSOffset(int xoff, int yoff);
 int GdSetFillMode(int mode);
 void GdSetTilePixmap(PSD src, int width, int height);

@@ -206,12 +206,6 @@ typedef unsigned long	MWTIMEOUT;	/* timeout value */
 #define	MWIMAGE_TESTBIT(m)	((m) & MWIMAGE_FIRSTBIT)  /* use with shiftbit*/
 #define	MWIMAGE_SHIFTBIT(m)	((MWIMAGEBITS) ((m) << 1))  /* for testbit*/
 
-typedef struct {
-	MWCOORD width;
-	MWCOORD height;
-	unsigned short *bitmap;
-} MWSTIPPLE;
-
 /* dbl linked list data structure*/
 typedef struct _mwlist {		/* LIST must be first decl in struct*/
 	struct _mwlist *next;		/* next item*/
@@ -469,6 +463,12 @@ typedef struct {
 /* GdAllocPolyRegion types*/
 #define MWPOLY_EVENODD		1
 #define MWPOLY_WINDING		2
+
+typedef struct {
+	MWCOORD		width;
+	MWCOORD		height;
+	MWIMAGEBITS *	bitmap;
+} MWSTIPPLE;
 
 /* In-core color palette structure*/
 typedef struct {

@@ -1,3 +1,5 @@
+Version 0.89pre9 - 22 Aug 2002 - greg@censoft.com
+	* added VGA16 screen->offscreen blit (Alex)
 	* added XSynchronizeDisplay to X11 driver to bugfix fb emulation
 	* fixed mem leak in client.c::GetNextQueuedEvent()
 	* check cursor clip in GdBlit for srcpsd not just dstpsd
@@ -5,7 +7,6 @@
 		changed back from X11FILLPOLY to EDGEFILLPOLY default
 		(X11FILLPOLY still fails in bin/polydemo
 	* removed nwidgets.h requirement in ecos/ecos_init.c
-Version 0.89pre9 - 21 Aug 2002 - greg@censoft.com
 	* changed src/fonts directory: added chinese, korean, japanese and truetype
 	(17 Aug 02)
 	* send UPDATE_ACTIVATE event to force redraw on title changes

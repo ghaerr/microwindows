@@ -1,6 +1,6 @@
 filled polygons fail with polydemo - check devpoly.c algorithms...
 	should GrPoly close polygon if last point != first?
-cursor clipped above blit area with xteeve - check
+cursor clipped above blit area with xteevee - check
 shaped windows broken w/xfreecell: no bounding box, error w/anim
 SetWindowRegion still buggy under bounding box with bkgnd graphics
 SetWindowRegion doesn't work with borders

@@ -184,23 +184,21 @@ main(int argc,char **argv)
 			printf(nxErrorStrings[event.error.code],event.error.id);
 			break;
 		case GR_EVENT_TYPE_KEY_DOWN:
-			sprintf(message2, "%03d Key %d ('%c') pressed\n",
-				getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
+			if (event.keystroke.hotkey)
+				sprintf(message4, "%03d Hotkey %d ('%c') pressed\n",
+					getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
+			else
+				sprintf(message2, "%03d Key %d ('%c') pressed\n",
+					getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
 			repaintAll();
 			break;
 		case GR_EVENT_TYPE_KEY_UP:
-			sprintf(message3, "%03d Key %d ('%c') released\n",
-				getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
-			repaintAll();
-			break;
-		case GR_EVENT_TYPE_HOTKEY_DOWN:
-			sprintf(message4, "%03d Hotkey %d ('%c') pressed\n",
-				getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
-			repaintAll();
-			break;
-		case GR_EVENT_TYPE_HOTKEY_UP:
-			sprintf(message5, "%03d Hotkey %d ('%c') released\n",
-				getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
+			if (event.keystroke.hotkey)
+				sprintf(message5, "%03d Hotkey %d ('%c') released\n",
+					getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
+			else
+				sprintf(message3, "%03d Key %d ('%c') released\n",
+					getSerialNumber(), event.keystroke.ch, keyToChar(event.keystroke.ch));
 			repaintAll();
 			break;
 		}

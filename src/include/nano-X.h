@@ -335,8 +335,6 @@ typedef struct {
 #define GR_EVENT_TYPE_SELECTION_CHANGED 20
 #define GR_EVENT_TYPE_TIMER             21
 #define GR_EVENT_TYPE_PORTRAIT_CHANGED  22
-#define	GR_EVENT_TYPE_HOTKEY_DOWN	23
-#define	GR_EVENT_TYPE_HOTKEY_UP		24
 
 /* Event masks */
 #define	GR_EVENTMASK(n)			(((GR_EVENT_MASK) 1) << (n))

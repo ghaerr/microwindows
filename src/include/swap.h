@@ -12,6 +12,9 @@
  *	TRIMEDIA
  */
 
+#ifndef MW_SWAP_H_INCLUDED
+#define MW_SWAP_H_INCLUDED
+
 /* ********************************************************************* */
 /* First, the default (portable) implementation.                         */
 /* ********************************************************************* */
@@ -138,3 +141,7 @@
  */
 # warning You might want to define optimized byte swapping macros for this machine - if not, you can safely ignore this warning.
 #endif
+
+
+#endif /* ndef MW_SWAP_H_INCLUDED */
+

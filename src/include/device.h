@@ -861,6 +861,43 @@ void	GdFreeImage(int id);
 MWBOOL	GdGetImageInfo(int id, PMWIMAGEINFO pii);
 void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
 		MWCLIPRECT *dstrect);
+void	GdComputeImagePitch(int bpp, int width, int *pitch, int *bytesperpixel);
+
+/* Buffered input functions to replace stdio functions*/
+typedef struct {  /* structure for reading images from buffer   */
+	unsigned char *start;	/* The pointer to the beginning of the buffer */
+	unsigned long offset;	/* The current offset within the buffer       */
+	unsigned long size;	/* The total size of the buffer               */
+} buffer_t;
+void	GdImageBufferInit(buffer_t *buffer, void *startdata, int size);
+void	GdImageBufferSeekTo(buffer_t *buffer, unsigned long offset);
+int	GdImageBufferRead(buffer_t *buffer, void *dest, unsigned long size);
+int	GdImageBufferGetChar(buffer_t *buffer);
+char *	GdImageBufferGetString(buffer_t *buffer, char *dest, unsigned int size);
+int	GdImageBufferEOF(buffer_t *buffer);
+
+/* individual decoders*/
+#ifdef HAVE_BMP_SUPPORT
+int	GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage);
+#endif
+#ifdef HAVE_JPEG_SUPPORT
+int	GdDecodeJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale);
+#endif
+#ifdef HAVE_PNG_SUPPORT
+int	GdDecodePNG(buffer_t *src, PMWIMAGEHDR pimage);
+#endif
+#ifdef HAVE_GIF_SUPPORT
+int	GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage);
+#endif
+#ifdef HAVE_PNM_SUPPORT
+int	GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage);
+#endif
+#ifdef HAVE_XPM_SUPPORT
+int	GdDecodeXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd);
+#endif
+#ifdef HAVE_TIFF_SUPPORT
+int	GdDecodeTIFF(char *path, PMWIMAGEHDR pimage);
+#endif
 #endif /* MW_FEATURE_IMAGES */
 
 /* devlist.c*/

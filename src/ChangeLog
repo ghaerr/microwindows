@@ -1,3 +1,4 @@
+	* split devimage.c into individual decoder image_*.c files (Jonathan)
 	* made changes to compile with uClibc/buildroot v0.9.23
 	* added NATIVETOOLSPREFIX to allow multiply hosted local compilers
 	* fix TIF image decoder (added alpha channel bit)

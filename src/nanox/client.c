@@ -631,7 +631,7 @@ GrRegisterInput(int fd)
 
 	LOCK(&nxGlobalLock);
 	FD_SET(fd, &regfdset);
-	if (fd > regfdmax) regfdmax = fd + 1;
+	if (fd >= regfdmax) regfdmax = fd + 1;
 	UNLOCK(&nxGlobalLock);
 }
 

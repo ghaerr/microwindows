@@ -157,12 +157,12 @@ ifeq ($(ARCH), RTEMS)
 COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(RTEMSTOOLSPREFIX)
-INCLUDEDIRS += -I$(RTEMS_BUILD)/$(RTEMS_BSP)/lib/include \
--I$(RTEMS_BUILD)/$(RTEMS_BSP)/lib/include/networking \
--I$(RTEMS_BUILD)/$(RTEMS_BSP)/lib/include/sys
-DEFINES += -DUNIX=1
+INCLUDEDIRS += -I$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/include \
+ -I$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/include/networking \
+ -I$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/include/sys
+DEFINES += -DUNIX=1 -DRTEMS=1
 CFLAGS += -O4 -Wall -Wno-unused -fasm -g \
--B$(RTEMS_BUILD)/$(RTEMS_BSP)/lib/ -specs bsp_specs -qrtems
+-B$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/ -specs bsp_specs -qrtems
 endif
 
 ifeq ($(ARCH), ECOS)

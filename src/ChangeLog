@@ -1,3 +1,4 @@
+	* added changes for updated port to RTEMS 4.6.0pre5 (Andrey)
 	* split devimage.c into individual decoder image_*.c files (Jonathan)
 	* made changes to compile with uClibc/buildroot v0.9.23
 	* added NATIVETOOLSPREFIX to allow multiply hosted local compilers

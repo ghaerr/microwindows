@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2004 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Screen Driver for RTEMS (uses Microframebuffer api)
  *
@@ -63,10 +63,10 @@ static short saved_blue[16];
 /* local functions*/
 static void	set_directcolor_palette(PSD psd);
 #if 0
-static void 	ioctl_getpalette(int start, int len, short *red, short *green,
-			short *blue);
-static void	ioctl_setpalette(int start, int len, short *red, short *green,
-			short *blue);
+void ioctl_getpalette(int start, int len, short *red, short *green,
+		      short *blue);
+void ioctl_setpalette(int start, int len, short *red, short *green,
+		      short *blue);
 #endif
 
 /* init framebuffer*/
@@ -87,14 +87,14 @@ fb_open(PSD psd)
 	fb = open( env, O_RDWR);
 	if(fb < 0) {
 		EPRINTF("Error opening %s: %m\n", env);
-      return NULL;
-   }
+		return NULL;
+	}
    
-   if( ufb_get_screen_info( fb, &fb_info ) )
-   {
-      EPRINTF("Error getting screen info\n" );
-      return NULL;
-   }
+	if( ufb_get_screen_info( fb, &fb_info ) )
+	{
+	        EPRINTF("Error getting screen info\n" );
+		return NULL;
+	}
 	/* setup screen device from framebuffer info*/
 	type = fb_info.type;
 	visual = fb_info.visual;
@@ -148,13 +148,14 @@ fb_open(PSD psd)
 	} else psd->pixtype = MWPF_PALETTE;
 
 	psd->size = fb_info.smem_len;
-   /* maps FB memory to user space */
-   if( ufb_mmap_to_user_space( fb, &psd->addr, 
+
+	/* maps FB memory to user space */
+	if( ufb_mmap_to_user_space( fb, &psd->addr, 
                               ( void *)fb_info.smem_start, fb_info.smem_len ) )
-   {
-      EPRINTF("Error mapping FB memory to user space\n" );
-      goto fail;
-   }
+	{
+	        EPRINTF("Error mapping FB memory to user space\n" );
+		goto fail;
+	}
 
 	/*DPRINTF("%dx%dx%d linelen %d type %d visual %d bpp %d\n", psd->xres,
 	 	psd->yres, psd->ncolors, psd->linelen, type, visual,
@@ -168,11 +169,11 @@ fb_open(PSD psd)
 		goto fail;
 	}
 
-   if( ufb_enter_graphics( fb, 0 ) )
-   {
-      EPRINTF("Error entering graphics\n");
-      return NULL;
-   }
+	if( ufb_enter_graphics( fb, 0 ) )
+	{
+	        EPRINTF("Error entering graphics\n");
+		return NULL;
+	}
 
 	/*
 	 * set and initialize subdriver into screen driver
@@ -197,7 +198,7 @@ fb_open(PSD psd)
 
 fail:
 	close( fb );
-   return NULL;
+	return NULL;
 }
 
 /* close framebuffer*/
@@ -212,11 +213,11 @@ fb_close(PSD psd)
   	/* reset hw palette*/
 	ioctl_setpalette(0, 16, saved_red, saved_green, saved_blue);
 
-   /* unmaps memory from user's space */
-   ufb_unmmap_from_user_space( fb, psd->addr );
+	/* unmaps memory from user's space */
+	ufb_unmmap_from_user_space( fb, psd->addr );
 
-   /* restore TEXT mode */
-   ufb_exit_graphics( fb );
+	/* restore TEXT mode */
+	ufb_exit_graphics( fb );
   
 	/* close tty and framebuffer*/
 	close( fb );
@@ -276,7 +277,7 @@ fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 }
 
 /* get framebuffer palette*/
-static void
+void
 ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 {
 	struct fb_cmap cmap;
@@ -288,11 +289,11 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.blue = blue;
 	cmap.transp = NULL;
 
-   ufb_get_palette( fb, &cmap );
+	ufb_get_palette( fb, &cmap );
 }
 
 /* set framebuffer palette*/
-static void
+void
 ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 {
 	struct fb_cmap cmap;
@@ -304,7 +305,7 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.blue = blue;
 	cmap.transp = NULL;
 
-   ufb_set_palette( fb, &cmap );
+	ufb_set_palette( fb, &cmap );
 }
 
 static void

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2004 Greg Haerr <greg@censoft.com>
  *
  * Main module of Microwindows
  */
@@ -25,6 +25,10 @@
 #if ELKS
 #include <linuxmt/posix_types.h>
 #include <linuxmt/time.h>
+#endif
+
+#if RTEMS
+#include <rtems/mw_uid.h>
 #endif
 
 #include "windows.h"
@@ -356,6 +360,68 @@ if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
 			EPRINTF("Select() call in main failed\n");
 }
 #endif
+
+#if RTEMS
+extern MWBOOL MwCheckMouseEvent();
+extern MWBOOL MwCheckKeyboardEvent();
+extern struct MW_UID_MESSAGE m_kbd;
+extern struct MW_UID_MESSAGE m_mou;
+extern HWND  dragwp;     /* window user is dragging*/
+
+void MwSelect (void)
+{
+        struct MW_UID_MESSAGE m;
+	int rc;
+	unsigned int timeout = 0;
+
+	/* perform pre-select duties, if any*/
+	if (scrdev.PreSelect)
+		scrdev.PreSelect (&scrdev);
+
+	/* Set up the timeout for the main select().
+	 * If the mouse is captured we're probably moving a window,
+	 * so poll quickly to allow other windows to repaint while
+	 * checking for more event input.
+	 */
+	if (!dragwp) {
+	        timeout = MwGetNextTimeoutValue ();     /* returns ms*/
+		        if (timeout < 10)
+		                timeout = 10;       /* 10ms required for vt fb switch*/
+	}										
+	/* let's make sure that the type is invalid */
+	m.type = MV_UID_INVALID;
+	
+	/* wait up to 100 milisecons for events */
+	rc = uid_read_message (&m, timeout);
+
+	/* return if timed-out or something went wrong */
+	if (rc < 0) {
+	        if ( errno != ETIMEDOUT )
+		        EPRINTF (" rc= %d, errno=%d\n", rc, errno);
+		else {
+			MwHandleTimers ();
+		}
+		return;
+	}
+
+	/* let's pass the event up to microwindows */
+	switch (m.type) {
+	case MV_UID_REL_POS:	/* Mouse or Touch Screen event */
+	case MV_UID_ABS_POS:
+	        m_mou = m;
+		while (MwCheckMouseEvent ()) continue;
+		break;
+	case MV_UID_KBD:	/* KBD event */
+	        m_kbd = m;
+		MwCheckKeyboardEvent();
+		break;
+        case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
+	case MV_UID_INVALID:
+	default:
+	        break;
+	}
+}
+#endif /* RTEMS */
 
 #if VTSWITCH
 static void

@@ -2,8 +2,8 @@
 # Microwindows template Makefile
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 #
-# Rosimildo da Silva
-# Udapted to the RTEMS environment...
+# Rosimildo da Silva, Andrey Astafiev
+# Adapted to the RTEMS environment...
 #
 ##############################################################################
 
@@ -17,9 +17,6 @@ include $(CONFIG)
 ######################## Additional Flags section ############################
 
 # Directories list for header files
-ifeq ($(HAVE_JPEG_SUPPORT), Y)
-INCLUDEDIRS += -I$(MW_DIR_SRC)/jpeg-6b
-endif
 # Defines for preprocessor
 DEFINES +=
 # Defines for preprocessor
@@ -28,16 +25,15 @@ DEFINES += -DNONETWORK=1
 endif
 
 # Compilation flags for C files OTHER than include directories
-CFLAGS +=
+# CFLAGS += $(INCLUDEDIRS)
 # Preprocessor flags OTHER than defines
-CPPFLAGS +=
+# CPPFLAGS += $(INCLUDEDIRS)
 # Linking flags
-ifeq ($(HAVE_JPEG_SUPPORT), Y)
-LDFLAGS += -L$(MW_DIR_SRC)/jpeg-6b
-endif
+LDFLAGS +=
+
 
 # PC386 specific stuff...
-PROJECT_RELEASE     = $(RTEMS_BUILD)/$(RTEMS_BSP)
+PROJECT_RELEASE     = $(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)
 PROJECT_TOOLS       = $(PROJECT_RELEASE)/build-tools
 START16FILE         = $(PROJECT_RELEASE)/lib/start16.bin
 RELOCADDR           = 0x00100000
@@ -55,35 +51,34 @@ LIBNAME =
 
 # Name of the target which the image will be created to the downloaded to the
 # target box.
-RTEMS_TARGET=rtems
+RTEMS_TARGET=i386-rtems
 
 
 # Main module -- this module defines the "main()" routine to get compiled.
 # It basically selects which application is actually built to be loaded as
 # the RTEMS system. 
 # For example, select one:
-# MAIN_OBJ = mw_uid_test.o                  -- Mouse & KBD test driver
-# MAIN_OBJ = ../demos/nanox/demo.o          -- Nano-X demo
-# MAIN_OBJ = ../demos/mwobjects/mwo-test.o  -- C++ demo
-# MAIN_OBJ = ../demos/test/test.o           -- test driver
-
+# MAIN_OBJ = $(MW_DIR_OBJ)/rtems/mw_uid_test.o         -- Mouse & KBD test
+# MAIN_OBJ = $(MW_DIR_OBJ)/demos/nanox/demo5.o         -- Nano-X demo
+# MAIN_OBJ = $(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o  -- C++ demo
+# MAIN_OBJ = $(MW_DIR_OBJ)/demos/test/test.o           -- test driver
 
 # If you want to build the "mineswipper" game, use the modules below.
 # This should give you an idea of what you have to do to the others demos.
-#MINEIMAGES = ../demos/mwin/mineflag.o ../demos/mwin/mineface.o \
-#             ../demos/mwin/minefacelost.o ../demos/mwin/minebomb.o \
-#             ../demos/mwin/minedone.o ../demos/mwin/minehitfalse.o
-#MAIN_OBJ =../demos/mwin/mine.o $(MINEIMAGES)
-
-MAIN_OBJ = ../demos/mwin/demo.o
+MINEIMAGES = $(MW_DIR_OBJ)/demos/mwin/mineflag.o \
+		$(MW_DIR_OBJ)/demos/mwin/mineface.o \
+	 	$(MW_DIR_OBJ)/demos/mwin/minefacelost.o \
+		$(MW_DIR_OBJ)/demos/mwin/minebomb.o \
+		$(MW_DIR_OBJ)/demos/mwin/minedone.o \
+		$(MW_DIR_OBJ)/demos/mwin/minehitfalse.o
+MAIN_OBJ = $(MW_DIR_OBJ)/demos/mwin/mine.o $(MINEIMAGES)
 
 # List of objects always needed by a RTEMS application
-OBJS =	rtems_init.o 
+OBJS =	$(MW_DIR_OBJ)/rtems/rtems_init.o 
 
 # IMPORTANT NOTE: if MAIN_OBJ is a C++ code, add it to CXXOBJS instead.
 OBJS += $(MAIN_OBJ)
 # CXXOBJS += $(MAIN_OBJ)
-
 
 all: default $(RTEMS_TARGET).bt
 
@@ -110,10 +105,10 @@ NLIBS += -lmwobjects
 endif
 
 ifeq ($(MICROWIN), Y)
-NLIBS += -lmwin
+NLIBS += -lmwin -lmwinlib
 endif
 
-NLIBS += -lmwimages -lm
+NLIBS += -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
 
 ifeq ($(VGALIB), Y)
 NLIBS += -lvga
@@ -124,9 +119,9 @@ $(RTEMS_TARGET).bt: $(RTEMS_TARGET).exe
 	$(PROJECT_TOOLS)/bin2boot -v $(RTEMS_TARGET).bt $(HEADERADDR) $(START16FILE) \
 	$(START16ADDR) 0 $(RTEMS_TARGET).bin $(RELOCADDR) 0;
 	rm $(RTEMS_TARGET).bin
+	mv *.exe *.bt $(MW_DIR_OBJ)/rtems
 
 $(RTEMS_TARGET).exe: $(OBJS) $(CXXOBJS)
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(EXTRA_LFLAGS) $^ -o $@ $(NLIBS)
-
+	$(CXX) $(CFLAGS) $(INCLUDEDIRS) $(LDFLAGS) $(EXTRA_LFLAGS) $^ -o $@ $(NLIBS)
 
 endif

@@ -22,14 +22,14 @@
 /* entry points*/
 void	pcrom_init(PSD psd);
 MWBOOL	pcrom_getfontinfo(PMWFONT pfont,PMWFONTINFO pfontinfo);
-void	pcrom_gettextsize(PMWFONT pfont, const void *text, int cc,
+void	pcrom_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
-void	pcrom_gettextbits(PMWFONT pfont, int ch, MWIMAGEBITS *retmap,
+void	pcrom_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 void	pcrom_unloadfont(PMWFONT pfont);
 
 void	corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, int flags);
+		const void *text, int cc, MWTEXTFLAGS flags);
 
 /* local data*/
 extern int	ROM_CHAR_HEIGHT; /* number of scan lines in fonts in ROM */

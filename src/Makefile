@@ -28,7 +28,11 @@ dirs := \
 	$(MW_DIR_SRC)/nanox
 
 all: default
+ifeq ($(ARCH), RTEMS)
+	$(MAKE) -C $(MW_DIR_SRC)/rtems
+else
 	-$(MAKE) -C $(MW_DIR_SRC)/demos
+endif
 ifeq ($(ARCH), ECOS)
 	$(MAKE) -C $(MW_DIR_SRC)/ecos
 endif

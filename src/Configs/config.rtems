@@ -1,7 +1,7 @@
 ####################################################################
 # Microwindows and Nano-X configuration file
 #
-# This package can be configured to run on Linux (MIPS, ARM, x86)
+# This package can be configured to run on Linux (MIPS, ARM, POWERPC or x86)
 # UNIX, ELKS, DJGPP, or RTEMS.
 # On Linux, we've got drivers for Linux 2.x framebuffers, X11, or,
 # svgalib for VGA hardware.
@@ -21,9 +21,15 @@
 # Valid ARCH values are:
 #
 # LINUX-NATIVE
+# LINUX-TCC
 # LINUX-ARM
 # LINUX-MIPS
-# SOLARIS
+# LINUX-POWERPC (BIGENDIAN=Y)
+# LINUX-SPARC (BIGENDIAN=Y)
+# LINUX-SH
+# FREEBSD-X86
+# SOLARIS (BIGENDIAN=Y)
+# TRIMEDIA
 # RTEMS
 # DJGPP
 # ELKS
@@ -32,6 +38,7 @@
 #
 ####################################################################
 ARCH                     = RTEMS
+BIGENDIAN                = N
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 RTEMSTOOLSPREFIX         = i386-rtems-
@@ -44,6 +51,8 @@ RTEMSTOOLSPREFIX         = i386-rtems-
 OPTIMIZE                 = Y
 DEBUG                    = N
 VERBOSE                  = Y
+THREADSAFE               = N
+GPROF                    = N
 
 ####################################################################
 #
@@ -53,7 +62,6 @@ VERBOSE                  = Y
 MICROWIN                 = Y
 NANOX                    = Y
 SHAREDLIBS               = N
-NWIDGET                  = N
 OBJFRAMEWORK             = N
 
 
@@ -80,9 +88,11 @@ NANOWM                   = N
 # It also enables GdArea/GrArea for this particular pixel packing format.
 #
 # define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
+# define MWPF_TRUECOLOR8888 /* pixel is packed 32 bits 8/8/8/8 truecolor w/alpha*/
 # define MWPF_TRUECOLOR0888 /* pixel is packed 32 bits 8/8/8 truecolor*/
 # define MWPF_TRUECOLOR888  /* pixel is packed 24 bits 8/8/8 truecolor*/
 # define MWPF_TRUECOLOR565  /* pixel is packed 16 bits 5/6/5 truecolor*/
+# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits 5/5/5 truecolor*/
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits 3/3/2 truecolor*/
 #
 ####################################################################
@@ -98,6 +108,11 @@ SCREEN_PIXTYPE           = MWPF_PALETTE
 LINK_APP_INTO_SERVER     = Y
 
 ####################################################################
+# Shared memory support for Nano-X client/server protocol speedup
+####################################################################
+HAVE_SHAREDMEM_SUPPORT   = N
+
+####################################################################
 #
 # File I/O support
 # Supporting either below drags in libc stdio, which may not be wanted
@@ -111,6 +126,7 @@ HAVE_FILEIO              = Y
 HAVE_BMP_SUPPORT         = Y
 HAVE_GIF_SUPPORT         = Y
 HAVE_PNM_SUPPORT         = Y
+HAVE_XPM_SUPPORT         = Y
 
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
@@ -123,9 +139,23 @@ LIBJPEG                  = /usr/lib/libjpeg.a
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = N
-INCPNG                   = .
+INCPNG                   = /usr/include
 LIBPNG                   = /usr/lib/libpng.a
 LIBZ                     = /usr/lib/libz.a
+
+####################################################################
+# TIFF support through libtiff
+####################################################################
+HAVE_TIFF_SUPPORT        = N
+INCTIFF                  = /usr/include
+LIBTIFF                  = /usr/lib/libtiff.a
+
+####################################################################
+# native .fnt loadable font support
+####################################################################
+HAVE_FNT_SUPPORT         = N
+HAVE_FNTGZ_SUPPORT       = N
+FNT_FONT_DIR             = "fonts/bdf"
 
 ####################################################################
 # T1 adobe type1 font support thru t1lib
@@ -135,19 +165,23 @@ INCT1LIB                 = /usr/include
 LIBT1LIB                 = /usr/lib/libt1.a
 
 ####################################################################
-# TrueType font support thru FreeType
+# TrueType font support thru FreeType 1.x
 ####################################################################
 HAVE_FREETYPE_SUPPORT    = N
 INCFTLIB                 = /usr/include
 LIBFTLIB                 = /usr/lib/libttf.so
+FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
-# Shared memory support for Nano-X client/server protocol speedup
+# Support for many kinds of font thru FreeType 2.x
+# Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
 ####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
+HAVE_FREETYPE_2_SUPPORT  = N
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = /usr/lib/libfreetype.a
 
 ####################################################################
-# Chinese Han Zi Ku font support
+# Chinese Han Zi Ku loadable font support
 ####################################################################
 HAVE_HZK_SUPPORT         = N
 HZK_FONT_DIR             = "fonts/chinese"
@@ -172,13 +206,6 @@ UPDATEREGIONS            = Y
 
 ####################################################################
 #
-# Use MS fonts (default no)
-#
-####################################################################
-HAVEMSFONTS              = N
-
-####################################################################
-#
 # Link with Gray Palette (valid only for 4bpp modes)
 #
 ####################################################################
@@ -195,21 +222,30 @@ ifneq ($(ARCH), ELKS)
 X11                      = N
 
 ifeq ($(X11), Y)
-# predefined model or select screen width, height, depth(palette mode only)
-SCREEN_E15               = N
+# startup screen width, height, (depth for palette mode only)
 SCREEN_WIDTH             = 640
 SCREEN_HEIGHT            = 480
 SCREEN_DEPTH             = 4
+
+# You may want to turn this on for XFree86 4.x or if your backing store
+# isn't functioning properly
+USE_EXPOSURE		 = Y
 
 else
 
 # framebuffer screen driver (linear and/or vga 4 planes)
 # set VTSWITCH to include virtual terminal switch code
-# set PORTRAIT_MODE to L or R for left or right orientation
+# set FBREVERSE to reverse bit orders in 1,2,4 bpp
+# set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
 FBVGA                    = Y
 VTSWITCH                 = N
-PORTRAIT_MODE            = N
+FBREVERSE                = N
+
+# set HAVETEXTMODE=Y for systems that can switch between text & graphics.
+# On a graphics-only embedded system, such as Osprey and Embedded
+# Planet boards, set HAVETEXTMODE=N
+HAVETEXTMODE             = Y
 
 # svgalib screen driver
 VGALIB                   = N
@@ -218,37 +254,41 @@ VGALIB                   = N
 HWVGA                    = N
 
 ####################################################################
-# Mouse or touch screen driver
-# TPMOUSE for Linux-VR and Embedded Planet
-# ADSMOUSE for ADS Graphics Client
-# IPAQMOUSE for Compaq iPAQ
+# Mouse drivers
 ####################################################################
 GPMMOUSE                 = N
-SUNMOUSE                 = N
 SERMOUSE                 = N
-TPMOUSE                  = N
-ADSMOUSE                 = N
-IPAQMOUSE                = N
+SUNMOUSE                 = N
 NOMOUSE                  = N
+IPAQMOUSE                = N
+ZAURUSMOUSE              = N
+TUXMOUSE                 = N
+ADSMOUSE                 = N
+ADS7846MOUSE             = N
+EPMOUSE                  = N
+VHMOUSE                  = N
+MTMOUSE                  = N
+PSIONMOUSE               = N
+YOPYMOUSE                = N
+HARRIERMOUSE             = N
 
-# keyboard type
+# keyboard or null kbd driver
 TTYKBD                   = N
+SCANKBD                  = N
+PIPEKBD                  = N
+IPAQKBD                  = N
+LIRCKBD                  = N
 NOKBD                    = N
 
 endif
 
 ####################################################################
-#
-# If the platform is a LINUX-ARM box ....
-#
+# Screen driver specific configuration
+# SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
+# INVERT4BPP 4bpp inverted pixel driver for VTech Helio
 ####################################################################
-ifeq ($(ARCH), LINUX-ARM)
-
-# If 4bpp driver with arm SA1100 LCD controller is used ...
 SA1100_LCD_LTLEND        = N
-
-endif
-
+INVERT4BPP               = N
 
 ####################################################################
 #
@@ -258,10 +298,10 @@ endif
 ifeq ($(ARCH), RTEMS)
 
 # Location & BSP information of the RTEMS build
-RTEMS_BUILD              = /opt/rtems
-RTEMS_BSP                = pc486
+RTEMS_BUILD              = /opt/rtems-4.6
+RTEMS_BSP                = pc386
 LINK_APP_INTO_SERVER     = Y
-
+RTEMS_TARGET             = i386-rtems
 endif
 
 endif

@@ -193,7 +193,7 @@ fb_open(PSD psd)
 			break;
 		default:
 			EPRINTF(
-			"Unsupported %d color (%d bpp) truecolor framebuffer\n",
+			"Unsupported %ld color (%d bpp) truecolor framebuffer\n",
 				psd->ncolors, psd->bpp);
 			goto fail;
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003, 2004 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -37,6 +37,10 @@
 #if ELKS
 #include <linuxmt/posix_types.h>
 #include <linuxmt/time.h>
+#endif
+
+#if RTEMS
+#include <rtems/mw_uid.h>
 #endif
 
 /*
@@ -345,7 +349,7 @@ GrUnregisterInput(int fd)
 void
 GrDelay(GR_TIMEOUT msecs)
 {
-#if UNIX
+#if UNIX && defined(HAVESELECT)
 	struct timeval timeval;
 
 	timeval.tv_sec = msecs / 1000;
@@ -771,6 +775,55 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 #endif /* NONETWORK */
 
 #endif /* UNIX && defined(HAVESELECT)*/
+
+#if RTEMS
+extern struct MW_UID_MESSAGE m_kbd;
+extern struct MW_UID_MESSAGE m_mou;
+
+void
+GsSelect (GR_TIMEOUT timeout)
+{
+        struct MW_UID_MESSAGE m;
+	int rc;
+
+	/* perform pre-select duties, if any*/
+	if (scrdev.PreSelect)
+		scrdev.PreSelect (&scrdev);
+
+	/* let's make sure that the type is invalid */
+	m.type = MV_UID_INVALID;
+
+	/* wait up for events */
+	rc = uid_read_message (&m, timeout);
+
+	/* return if timed-out or something went wrong */
+	if (rc < 0) {
+	        if (errno != ETIMEDOUT)
+		        EPRINTF (" rc= %d, errno=%d\n", rc, errno);
+		else {
+		        /* timeout handling */
+		}
+		return;
+	}
+
+	/* let's pass the event up to Microwindows */
+	switch (m.type) {
+	case MV_UID_REL_POS:	/* Mouse or Touch Screen event */
+	case MV_UID_ABS_POS:
+	        m_mou = m;
+		while (GsCheckMouseEvent ()) continue;
+		break;
+	case MV_UID_KBD:	/* KBD event */
+	        m_kbd = m;
+		GsCheckKeyboardEvent ();
+		break;
+	case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
+	case MV_UID_INVALID:
+	default:
+	        break;
+	}
+}
+#endif /* RTEMS*/
 
 #if VTSWITCH
 static void

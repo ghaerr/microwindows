@@ -20,7 +20,12 @@
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
+#ifdef __rtems__
+#define HAVE_MMAP       0
+#else
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
+#endif
+
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 
 #if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))

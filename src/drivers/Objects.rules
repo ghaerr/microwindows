@@ -269,16 +269,8 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_pipe.o
 endif # PIPEKBD != Y
 
 ifeq ($(ARCH), RTEMS)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/input_rtems.o
-
-ifeq ($(NANOX), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/gsselect_rtems.o
-endif
-
-ifeq ($(MICROWIN), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mwselect_rtems.o
-endif
-
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_rtems.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_rtems.o
 endif # RTEMS architecture
 
 

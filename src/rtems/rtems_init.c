@@ -4,7 +4,7 @@
 //  
 // MODULE DESCRIPTION:
 //
-//  RTEMS Init Task for a MicroWindows application that 
+//  RTEMS Init Task for a Microwindows application that 
 //        may or may not use network functionality.
 //
 //  by: Rosimildo da Silva:
@@ -21,14 +21,14 @@
 #include <stdio.h>
 #include "rtemscfg.h"
 
-#ifndef  NONETWORK
+//#ifndef  NONETWORK
 #include "net_cfg.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#endif
+//#endif
 #include "device.h"  /* DPRINTF() macro */
 
 /* Enable the following define if you want to debug this application */
@@ -49,7 +49,7 @@ int cc_argc = sizeof( cc_argv ) / sizeof( cc_argv[ 0 ]  );
 extern int rtems_main(int argc, char **argv);
 
 /*
- * DESCRIPTION: Init task for any MicroWindows/RTEMS application.
+ * DESCRIPTION: Init task for any Microwindows/RTEMS application.
  */
 void *POSIX_Init( void *argument )
 {
@@ -65,7 +65,7 @@ void *POSIX_Init( void *argument )
 #ifndef NONETWORK
   /* Make all network initialization */
   rtems_bsdnet_initialize_network();
-  DPRINTF( "Netowrk Initialization is complete.\n\n" );
+  DPRINTF( "Network Initialization is complete.\n\n" );
 #endif
 
   st = _Thread_Executing->Start.Initial_stack.size;

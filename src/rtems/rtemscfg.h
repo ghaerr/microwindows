@@ -32,29 +32,29 @@ extern "C" {
 #define CONFIGURE_MAXIMUM_TIMERS                      32
 #define CONFIGURE_MAXIMUM_SEMAPHORES                  100
 #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES              20
-#define CONFIGURE_MAXIMUM_PARTITIONS                  10
-#define CONFIGURE_MAXIMUM_REGIONS                     10
+#define CONFIGURE_MAXIMUM_PARTITIONS                  100
+#define CONFIGURE_MAXIMUM_REGIONS                     100
 
 /* This seetings overwrite the ones defined in confdefs.h */
-#define CONFIGURE_MAXIMUM_POSIX_MUTEXES 		         32
-#define CONFIGURE_MAXIMUM_POSIX_CONDITION_VARIABLES  	32
-#define CONFIGURE_MAXIMUM_POSIX_KEYS         		   32
-#define CONFIGURE_MAXIMUM_POSIX_QUEUED_SIGNALS 		   10
-#define CONFIGURE_MAXIMUM_POSIX_THREADS      		   256
+#define CONFIGURE_MAXIMUM_POSIX_MUTEXES               32
+#define CONFIGURE_MAXIMUM_POSIX_CONDITION_VARIABLES   32
+#define CONFIGURE_MAXIMUM_POSIX_KEYS                  32
+#define CONFIGURE_MAXIMUM_POSIX_QUEUED_SIGNALS        10
+#define CONFIGURE_MAXIMUM_POSIX_THREADS               256
 #define CONFIGURE_MAXIMUM_POSIX_TIMERS                10
+#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS      200
 
 /* used by the input device driver */
-#define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES        10
+#define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES        20
 
 void *POSIX_Init( void *argument );
-#define CONFIGURE_INIT_TASK_STACK_SIZE	               (512*1024)
 #define CONFIGURE_POSIX_INIT_THREAD_STACK_SIZE        (512*1024)
 #define CONFIGURE_POSIX_INIT_THREAD_TABLE
 
-
 #define CONFIGURE_HAS_OWN_DEVICE_DRIVER_TABLE
-#define CONFIGURE_MICROSECONDS_PER_TICK	        1000
+#define CONFIGURE_MICROSECONDS_PER_TICK	              1000
 
+#define PS2_MOUSE 1
 
 /* List of device drivers loaded by RTEMS at boot time */
 rtems_driver_address_table Device_drivers[] = 

@@ -41,8 +41,11 @@ void GsSelect(void)
   {
     /* Mouse or Touch Screen event */
     case MV_UID_REL_POS:
+        printf( "REL Mouse: btns=%X, dx=%d, dy=%d, dz=%d\n",  
+                  m.m.pos.btns, m.m.pos.x, m.m.pos.y, m.m.pos.z );
+        break;
     case MV_UID_ABS_POS:
-        printf( "Mouse: btns=%X, dx=%d, dy=%d, dz=%d\n",  
+        printf( "ABS Mouse: btns=%X, dx=%d, dy=%d, dz=%d\n",  
                   m.m.pos.btns, m.m.pos.x, m.m.pos.y, m.m.pos.z );
         break;
 
@@ -61,11 +64,10 @@ void GsSelect(void)
   }
 }
 
-extern "C" int close( int );
-extern "C" int rtems_main(int argc, char **argv)
+extern int close( int );
+extern int rtems_main(int argc, char **argv)
 {
   int status;
-  printf( "Starting untar file.\n" ); 
   struct MW_UID_MESSAGE m;
 
   int rc;
@@ -85,7 +87,7 @@ extern "C" int rtems_main(int argc, char **argv)
   /* set keyboard to scanmode */
   rc = uid_set_kbd_mode( kbd_fd, MV_KEY_MODE_SCANCODE, &old_mode );
   printf( "Kbd OldMode=%X, rc=%d\n", old_mode, rc );
-  while( TRUE )
+  while( 1 )
   {
      GsSelect();
   }

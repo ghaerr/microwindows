@@ -1,5 +1,5 @@
-Microwindows project
-Copyright (c) 1999-2002 Greg Haerr <greg@censoft.com>
+The Microwindows Project
+Copyright (c) 1999-2003 Greg Haerr <greg@censoft.com>
 
 CREDITS
 Thanks to everyone who has contributed to this project.
@@ -13,7 +13,7 @@ Nano-X api			David Bell, Alan Cox, Alex Holden, Greg Haerr
 Nano-X window manager		Alex Holden, Greg Haerr
 Nano-X popup keyboard		Vladimir Cotfas, Jay Carlson, Greg Haerr
 Nano-X scribble handwriting	Greg Haerr
-Nano-X enhancements, bugfixes	Jordan Crouse, Alex Holden
+Nano-X enhancements, bugfixes	Jordan Crouse, Alex Holden, Jonathan Foster
 Nano-X api documentation	Alex Holden
 Network code, Nano-X client lib	Greg Haerr, Alex Holden
 MIPS LinuxCE port, touch device	Brad LaRonde
@@ -21,8 +21,9 @@ ELKS port			Greg Haerr, Al Riddoch
 NanoWidget set			Vidar Hokstad
 Bogl library			Ben Pfaff
 Fonts				Darran D. Rimron, Greg Haerr
-Font Subsystems			Greg Haerr, Martin Jolicoeur, Vidar Hokstad
-X11 driver			Tony Rogvall
+Font Subsystems			Greg Haerr, Martin Jolicoeur, Vidar Hokstad, Jonathan Foster
+Alpha blending support		Alex Holden, Jordan Crouse, Jonathan Foster
+X11 driver			Tony Rogvall, Jonathan Foster
 Portrait mode fb driver		Martin Jolicoeur
 BMP and JPEG file read/display	Martin Jolicoeur
 RTEMS port			Rosimildo daSilva
@@ -36,6 +37,7 @@ Jay Carlson		<nop@nop.com>
 Vladimir Cotfas		<vladimircotfas@vtech.ca>
 Alan Cox		<alan@lxorguk.ukuu.org.uk>
 Jordan Crouse		<jordanc@censoft.com>
+Jonathan Foster		<jonathan.foster@philips.com>
 Greg Haerr		<greg@censoft.com>
 Vidar Hokstad		<vidarh@screenmedia.no> <vidar@hokstad.com>
 Alex Holden		<alex@alexholden.net> http://www.alexholden.net/

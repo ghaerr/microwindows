@@ -202,6 +202,7 @@ typedef struct {
   GR_EVENT_MASK eventmask;	/* current event mask for this client */
   GR_WM_PROPS props;		/* window properties */
   GR_CURSOR_ID cursor;		/* cursor id*/
+  unsigned long processid;	/* process id of owner*/
 } GR_WINDOW_INFO;
 
 /* Graphics context properties returned by the GrGetGCInfo call. */

@@ -150,6 +150,7 @@ struct gr_client {
 	char		*shm_cmds;
 	int		shm_cmds_size;
 	int		shm_cmds_shmid;
+	unsigned long	processid;	/* client process id*/
 };
 
 /*

@@ -181,6 +181,7 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 		infoptr->background = wp->background;
 		infoptr->props = wp->props;
 		infoptr->cursor = wp->cursorid;
+		infoptr->processid = wp->owner? wp->owner->processid: 0;
 		infoptr->eventmask = 0;
 
 		for (evp = wp->eventclients; evp; evp = evp->next) {
@@ -209,6 +210,7 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 		infoptr->background = 0;
 		infoptr->eventmask = 0;
 		infoptr->cursor = 0;
+		infoptr->processid = pp->owner? pp->owner->processid: 0;
 		return;
 	}
 

@@ -99,6 +99,7 @@ typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
+	UINT32	pid;
 } nxOpenReq;
 
 #define GrNumClose              1

@@ -384,6 +384,8 @@ GrOpen(void)
 	req.reqType = GrNumOpen;
 	req.hilength = 0;
 	req.length = sizeof(req);
+	/* associate the process ID with the client*/
+	req.pid = getpid();
 
 	nxWriteSocket((char *)&req,sizeof(req));
 	return nxSocket;
@@ -630,7 +632,7 @@ GrUnregisterInput(int fd)
 		if (FD_ISSET(i, &regfdset))
 			regfdmax = i + 1;
 }
-  
+
 /**
  * GrPrepareSelect:
  * @maxfd: pointer to a variable which the highest in use fd will be written to
@@ -661,11 +663,10 @@ GrPrepareSelect(int *maxfd,void *rfdset)
 
 	/* handle registered input file descriptors*/
 	for (fd = 0; fd < regfdmax; fd++) {
-		if (!FD_ISSET(fd, &regfdset))
-			continue;
-
-		FD_SET(fd, rfds);
-		if (fd > *maxfd) *maxfd = fd;
+		if (FD_ISSET(fd, &regfdset)) {
+			FD_SET(fd, rfds);
+			if (fd > *maxfd) *maxfd = fd;
+		}
 	}
 }
 
@@ -708,21 +709,13 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 		}
 	}
 
-#if 0 
-	/* Morten - remove this if you want*/
-	while ( GrPeekEvent(&ev) )
-		CheckErrorEvent(&ev);
-		fncb(&ev);
-#endif
-
 	/* check for input on registered file descriptors */
 	for (fd = 0; fd < regfdmax; fd++) {
-		if (!FD_ISSET(fd, &regfdset)  ||  !FD_ISSET(fd, rfds))
-			continue;
-
-		ev.type = GR_EVENT_TYPE_FDINPUT;
-		ev.fdinput.fd = fd;
-		fncb(&ev);
+		if (FD_ISSET(fd, &regfdset) && FD_ISSET(fd, rfds)) {
+			ev.type = GR_EVENT_TYPE_FDINPUT;
+			ev.fdinput.fd = fd;
+			fncb(&ev);
+		}
 	}
 }
 
@@ -823,11 +816,11 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 
 		/* check for input on registered file descriptors */
 		for (fd = 0; fd < regfdmax; fd++) {
-			if (!FD_ISSET(fd, &regfdset)  ||  !FD_ISSET(fd, &rfds))
-				continue;
-
-			ep->type = GR_EVENT_TYPE_FDINPUT;
-			ep->fdinput.fd = fd;
+			if (FD_ISSET(fd, &regfdset) && FD_ISSET(fd, &rfds)) {
+				ep->type = GR_EVENT_TYPE_FDINPUT;
+				ep->fdinput.fd = fd;
+				break;
+			}
 		}
 	}
 	else if (e == 0) {

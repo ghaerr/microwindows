@@ -1,7 +1,7 @@
 #ifndef _MWTYPES_H
 #define _MWTYPES_H
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  *
  * Exported Microwindows engine typedefs and defines
  */
@@ -119,7 +119,7 @@
 #define MWPIXEL_FORMAT	MWPF_PALETTE
 #endif
 
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR565
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
 typedef unsigned short MWPIXELVAL;
 #else
   #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332

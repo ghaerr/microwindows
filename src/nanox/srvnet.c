@@ -55,6 +55,11 @@ static int GsWriteType(int,short);
 static void 
 GrOpenWrapper(void *r)
 {
+	nxOpenReq *req = r;
+
+	/* store process id of client*/
+	curclient->processid = req->pid;
+
 	GrOpen();
 }
 

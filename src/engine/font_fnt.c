@@ -248,10 +248,23 @@ fnt_load_font(const char *path)
 	char fname[256];
 
 	ifp = FOPEN(path, "rb");
+
 	if (!ifp) {
 		strcpy(fname, FNT_FONT_DIR "/");
 		strcpy(fname + sizeof(FNT_FONT_DIR), path);
 		ifp = FOPEN(fname, "rb");
+		
+		/* Try to grab it from the MWFONTDIR directory */
+		if (!ifp) {
+			char *env = getenv("MWFONTDIR");
+			if (env) {
+				sprintf(fname, "%s/%s", env, path);
+				
+				printf("Trying to get font from %s\n", fname);
+				ifp = FOPEN(fname, "rb");
+			}
+		}
+		
 	}
 	if (!ifp)
 		return NULL;

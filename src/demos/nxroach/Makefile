@@ -8,12 +8,12 @@ include $(CONFIG)
 ######################## Additional Flags section ############################
 
 # Directories list for header files
-INCLUDEDIRS +=
+INCLUDEDIRS += -I./bitmaps
 # Defines for preprocessor
 DEFINES +=
 
 # Compilation flags for C files OTHER than include directories
-CFLAGS += -I./bitmaps
+CFLAGS +=
 # Preprocessor flags OTHER than defines
 CPPFLAGS +=
 # Linking flags

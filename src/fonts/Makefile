@@ -14,7 +14,7 @@ include $(CONFIG)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME = libmwfonts.a
-LIBNAMESO = libmwfonts.so
+#LIBNAMESO = libmwfonts.so
 
 # List of objects to compile
 OBJS =	rom8x16.o rom8x8.o winFreeSansSerif11x13.o winFreeSystem14x16.o X6x13.o

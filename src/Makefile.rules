@@ -342,11 +342,7 @@ else
 endif
 
 CFLAGS += $(INCLUDEDIRS)
-ifeq ($(ARCH), TRIMEDIA)
 HOSTCFLAGS := $(INCLUDEDIRS)
-else
-HOSTCFLAGS := $(CFLAGS)
-endif
 CPPFLAGS += $(DEFINES)
 LDFLAGS += -L$(TOP)/lib
 ifeq ($(ARCH), TRIMEDIA)

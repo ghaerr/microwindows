@@ -274,13 +274,11 @@ typedef struct {
   GR_PALENTRY palette[256];	/**< palette */
 } GR_PALETTE;
 
-/**
- * Calibration data
- */
+/** Calibration data passed to GrCalcTransform */
 typedef struct {
-  int xres, yres;
-  int minx, miny, maxx, maxy;
-  GR_BOOL xswap, yswap;
+  int xres, yres;		/* X and Y resolution of the screen */
+  int minx, miny, maxx, maxy;	/* min and max raw values */
+  GR_BOOL xswap, yswap;		/* true if the x or the y component should be swapped */
 } GR_CAL_DATA;
 
 /* Error codes */

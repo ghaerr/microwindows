@@ -135,7 +135,7 @@ ecos_nx_init(CYG_ADDRWORD data)
 
     gct = GrNewGC();
     GrSetGCForeground(gct, WHITE);
-    GrSetGCFont(gct, GrCreateFont(GR_FONT_GUI_VAR, 0, NULL));
+    /*GrSetGCFont(gct, GrCreateFont(GR_FONT_GUI_VAR, 0, NULL));*/
     GrDrawImageFromFile(mainwid, gct, 0, 0, si.cols, si.rows, "/redhat.logo", 0);
     GrText(mainwid, gct, 80, 350, "Tap all 4 corners", 17, GR_TFTOP);
     GrFlush();

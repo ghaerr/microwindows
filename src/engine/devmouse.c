@@ -23,7 +23,9 @@
  * when in portrait mode (as is the case for the iPAQ), then
  * this define should be set on.
  */
+#ifndef FLIP_MOUSE_IN_PORTRAIT_MODE
 #define FLIP_MOUSE_IN_PORTRAIT_MODE	1
+#endif
 
 static MWCOORD	xpos;		/* current x position of mouse */
 static MWCOORD	ypos;		/* current y position of mouse */
@@ -56,9 +58,11 @@ extern int gr_mode;
 
 /* Advance declarations */
 static int filter_relative(int, int, int, int *, int *, int, int);
+static int filter_transform(int, int *, int *);
+#if FLIP_MOUSE_IN_PORTRAIT_MODE
 static int filter_relrotate(int, int *xpos, int *ypos, int x, int y);
 static int filter_absrotate(int, int *xpos, int *ypos);
-static int filter_transform(int, int *, int *);
+#endif
 
 /**
  * Initialize the mouse.
@@ -95,6 +99,9 @@ GdOpenMouse(void)
 	/* get default acceleration settings*/
 	mousedev.GetDefaultAccel(&scale, &thresh);
 
+	/* Force all mice to !RAW mode until the values are set */
+	mousedev.flags &= ~MOUSE_RAW;
+	
 	/* handle null mouse driver by hiding cursor*/
 	if(fd == -2)
 		GdHideCursor(&scrdev);
@@ -239,34 +246,33 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	if (status == 0)
 		return 0;
 
-	/* run data through mouse filter functions*/
-
-	/* for relative devices, translate through thresh and scale*/
-	if(status == 1) {
+	/* Relative mice have their own process */
+	if (status == 1) {
 		int rx, ry;
-		filter_relative(status, thresh, scale, &rx, &ry, x, y);  
+		filter_relative(status, thresh, scale, &rx, &ry, x, y);
+#if FLIP_MOUSE_IN_PORTRAIT_MODE
 		dx = xpos;
 		dy = ypos;
-		filter_relrotate(status, &dx, &dy, rx, ry);
+		filter_relrotate(status, &dx, &dy, x, y);
+#else
+		dx = xpos + rx;
+		dy = ypos + ry;
+#endif
 	} else {
 		dx = x;
 		dy = y;
-	}
 
-	/* if required, throw the data through the transform filter */
-	if (mousedev.flags & MOUSE_TRANSFORM) {
-		if (!filter_transform(status, &dx, &dy))
-			return 0;
-	}
-
+		/* Transformed coords should already have their rotation handled */
+		if (mousedev.flags & MOUSE_TRANSFORM)  {
+			if (!filter_transform(status, &dx, &dy))
+				return 0;
+		}
 #if FLIP_MOUSE_IN_PORTRAIT_MODE
-	/* rotate the mouse data for portrait modes */
-	if (!(mousedev.flags & MOUSE_RAW)) {
-		if (status != 1)
+		if (!(mousedev.flags & MOUSE_RAW))
 			filter_absrotate(status, &dx, &dy);
+#endif	
 	}
-#endif
-	
+
 	/* 
 	 * At this point, we should have a valid mouse point. Check the button
 	 * state and set the flags accordingly.  We do this *after* the filters,
@@ -415,7 +421,7 @@ GdShowCursor(PSD psd)
 				if (curbit & mbits) {
 					newcolor = (curbit&cbits)? curbg: curfg;
 					if (oldcolor != newcolor)
-					       psd->DrawPixel(psd, x, y, newcolor);
+						psd->DrawPixel(psd, x, y, newcolor);
 				}
 				*saveptr++ = oldcolor;
 			}
@@ -534,6 +540,9 @@ static struct {
 void
 GdSetTransform(MWTRANSFORM *trans)
 {
+	if (!mousedev.flags & MOUSE_TRANSFORM)
+		return;
+
 	if (trans) {
 		g_trans = *trans;
 		/*memcpy(&g_trans, trans, sizeof(MWTRANSFORM));*/
@@ -645,7 +654,6 @@ filter_absrotate(int state, int *xpos, int *ypos)
 static int
 filter_transform(int state, int *xpos, int *ypos)
 {
-
 	/* No transform data is available, just return the raw values */
 	if (state == 3) {
 		jitter.count = jitter.x = jitter.y = 0;

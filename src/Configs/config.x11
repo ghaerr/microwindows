@@ -291,26 +291,38 @@ VGALIB                   = N
 HWVGA                    = N
 
 ####################################################################
-# Mouse or touch screen driver
-# TPMOUSE for Linux-VR and Embedded Planet
-# TPHELIO for VTech Helio
-# ADSMOUSE for ADS Graphics Client
-# IPAQMOUSE for Compaq iPAQ,Intel Assabet, ARM ucb1200 (/dev/h3600_ts 11,0)
-# HARRIERMOUSE for NEC Harrier
-# PSIONMOUSE for the Psion 5
-# MTMOUSE for Microtouch touchpanel controller at RS232 port
+# Mouse drivers
+# GPMMOUSE	gpm mouse
+# SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# SUNMOUSE	Sun Workstation mouse (/dev/sunmouse)
+# NOMOUSE	no mouse driver
+#
+# Touchscreen drivers
+# IPAQMOUSE	Compaq iPAQ, Intel Assabet (/dev/h3600_tsraw)
+# ZAURUSMOUSE	Sharp Zaurus (/dev/sharp_ts)
+# TUXMOUSE	TuxScreen (/dev/ucb1x00-ts)
+# ADSMOUSE	Applied Data Systems GC+ (/dev/ts)
+# EPMOUSE	Embedded Planet (/dev/tpanel)
+# VHMOUSE	Vtech Helio (/dev/tpanel)
+# MTMOUSE	MicroTouch serial (/dev/ttyS1)
+# PSIONMOUSE	Psion 5 (/dev/touch_psion)
+# YOPYMOUSE	Yopy (/dev/yopy-ts)
+# HARRIERMOUSE	NEC Harrier (/dev/tpanel)
 ####################################################################
 GPMMOUSE                 = Y
-SUNMOUSE                 = N
 SERMOUSE                 = N
-TPMOUSE                  = N
-TPHELIO                  = N
-ADSMOUSE                 = N
-IPAQMOUSE                = N
-HARRIERMOUSE             = N
-PSIONMOUSE               = N
-MTMOUSE                  = N
+SUNMOUSE                 = N
 NOMOUSE                  = N
+IPAQMOUSE                = N
+ZAURUSMOUSE              = N
+TUXMOUSE                 = N
+ADSMOUSE                 = N
+EPMOUSE                  = N
+VHMOUSE                  = N
+MTMOUSE                  = N
+PSIONMOUSE               = N
+YOPYMOUSE                = N
+HARRIERMOUSE             = N
 
 # keyboard or null kbd driver
 TTYKBD                   = N

@@ -106,53 +106,76 @@ OBJS +=	scr_bios.o vgainit.o genfont.o genmem.o
 endif
 
 ifneq ($(X11), Y)
+
+### Desktop GPM mouse driver
 ifeq ($(GPMMOUSE), Y)
 OBJS += mou_gpm.o
+endif
+
+### serial mouse driver
+ifeq ($(SERMOUSE), Y)
+OBJS += mou_ser.o
+endif
+
+### Generic touchscreen driver
+ifeq ($(ADSMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_ADS=1
+OBJS += mou_touchscreen.o
+endif
+
+ifeq ($(IPAQMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_IPAQ=1
+OBJS += mou_touchscreen.o
+endif
+
+ifeq ($(TUXSCREENMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_TUXSCREEN=1
+OBJS += mou_touchscreen.o
+endif
+
+ifeq ($(ZAURUSMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_ZAURUS=1
+OBJS += mou_touchscreen.o
+endif
+
+### Embedded Planet touchscreen
+ifeq ($(EPMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_EPLANET
+OBJS += mou_vrlinux.o
+endif
+
+### Vtech Helio touchscreen
+ifeq ($(VHMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_HELIO=1
+OBJS += mou_vrlinux.o
+endif
+
+#### Yopy touchscreen
+ifeq ($(YOPYMOUSE), Y)
+OBJS += mou_yopy.o
+endif
+
+#### Psion 5 touchscreen
+ifeq ($(PSIONMOUSE), Y)
+OBJS += mou_ps5.o
+endif
+
+#### NEC Harrier touchscreen
+ifeq ($(HARRIERMOUSE), Y)
+OBJS += mou_harrier.o
+endif
+
+#### MicroTouch serial touchscreen
+ifeq ($(MTMOUSE), Y)
+OBJS += mou_mt.o
 endif
 
 ifeq ($(SUNMOUSE), Y)
 OBJS += mou_sun.o
 endif
 
-ifeq ($(SERMOUSE), Y)
-OBJS += mou_ser.o
-endif
-
-ifeq ($(PSIONMOUSE), Y)
-OBJS += mou_ps5.o
-endif
-
-ifeq ($(TPMOUSE), Y)
-OBJS += mou_tp.o
-endif
-
-ifeq ($(TPHELIO), Y)
-CFLAGS += -DTPHELIO=1
-OBJS += mou_tp.o
-endif
-
-ifeq ($(ADSMOUSE), Y)
-OBJS += mou_ads.o
-endif
-
-ifeq ($(YOPYMOUSE), Y)
-OBJS += mou_yopy.o
-endif
-
-ifeq ($(IPAQMOUSE), Y)
-OBJS += mou_ipaq.o
-endif
-
-ifeq ($(HARRIERMOUSE), Y)
-OBJS += mou_harrier.o
-endif
-
 ifeq ($(ARCH), FREEBSD-X86)
 OBJS += mou_fbsd.o
-endif
-
-ifeq ($(MTMOUSE), Y)
-OBJS += mou_mt.o
 endif
 
 ifeq ($(NOMOUSE), Y)
@@ -170,6 +193,11 @@ endif
 
 ifeq ($(IPAQKBD), Y)
 OBJS += kbd_ipaq.o
+endif
+
+ifeq ($(ZAURUSKBD),Y)
+CFLAGS += -DKBD_ZAURUS=1
+OBJS += kbd_ttyscan.o
 endif
 
 ifeq ($(SCANKBD), Y)

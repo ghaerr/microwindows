@@ -12,11 +12,6 @@
 
 #define DEFAULT_DATA_FILE "nxcal.dat"
 
-#define FIXED_SHIFT 11
-
-#define ftoi(a) ( (a) >> FIXED_SHIFT)
-#define itof(a) ( (a) << FIXED_SHIFT)
-
 struct point {
 	int x;
 	int y;
@@ -27,11 +22,13 @@ struct point {
 
 static struct point input[4];
 static struct point target[4];
+
 static GR_WINDOW_ID g_wid;
 static GR_SCREEN_INFO g_si;
-static int g_rotate = MWPORTRAIT_NONE;;
-static int state = 0;
 
+static int g_rotate = MWPORTRAIT_NONE;
+
+static int state = 0;
 void
 usage(void)
 {
@@ -40,56 +37,124 @@ usage(void)
 }
 
 void
+swapem(int *a, int *b)
+{
+	int t = *a;
+	*a = *b;
+	*b = t;
+}
+
+void
 calculate_transform(GR_TRANSFORM * trans)
 {
 
 	GR_CAL_DATA data;
 	double xdiff = 0, ydiff = 0;
+	int xyswap = 0;
+
+	/* Check to see if the touchscreen has been rotated or not */
+	/* Zaurus:  I'm looking at you */
+
+	switch (g_rotate) {
+	case MWPORTRAIT_NONE:
+	case MWPORTRAIT_DOWN:
+		if (abs(input[0].x - input[1].x) < 50)
+			xyswap = 1;
+		break;
+
+	case MWPORTRAIT_RIGHT:
+	case MWPORTRAIT_LEFT:
+		if (abs(input[1].x - input[2].x) < 50)
+			xyswap = 1;
+		break;
+	}
+
+	//printf("DEBUG:  xyswap is %d\n", xyswap);
+	//printf("INCOMING: ");
+
+	//for(i = 0; i < 4; i++) 
+	//printf("(%d,%d) ", input[i].x, input[i].y);
+	//printf("\n");
 
 	switch (g_rotate) {
 	case MWPORTRAIT_NONE:
 	case MWPORTRAIT_DOWN:
 
-		data.minx = (input[0].x + input[3].x) / 2;
-		data.maxx = (input[1].x + input[2].x) / 2;
+		if (!xyswap) {
+			data.minx = (input[0].x + input[3].x) / 2;
+			data.maxx = (input[1].x + input[2].x) / 2;
 
-		data.miny = (input[0].y + input[1].y) / 2;
-		data.maxy = (input[3].y + input[2].y) / 2;
+			data.miny = (input[0].y + input[1].y) / 2;
+			data.maxy = (input[3].y + input[2].y) / 2;
 
-		data.xswap =
-			(g_rotate == MWPORTRAIT_NONE) ? GR_FALSE : GR_TRUE;
-		data.yswap =
-			(g_rotate == MWPORTRAIT_NONE) ? GR_FALSE : GR_TRUE;
+			xdiff = (double) (data.maxx -
+					  data.minx) / (target[1].x -
+							target[0].x);
+			ydiff = (double) (data.maxy -
+					  data.miny) / (target[2].y -
+							target[1].y);
 
-		xdiff = (double) (data.maxx - data.minx) / (target[1].x -
-							    target[0].x);
-		ydiff = (double) (data.maxy - data.miny) / (target[2].y -
-							    target[1].y);
+			data.xres = g_si.cols;
+			data.yres = g_si.rows;
+		} else {
+			data.miny = (input[0].y + input[3].y) / 2;
+			data.maxy = (input[1].y + input[2].y) / 2;
 
-		data.xres = g_si.cols;
-		data.yres = g_si.rows;
+			data.minx = (input[0].x + input[1].x) / 2;
+			data.maxx = (input[3].x + input[2].x) / 2;
+
+			xdiff = (double) (data.maxx -
+					  data.minx) / (target[2].y -
+							target[1].y);
+			ydiff = (double) (data.maxy -
+					  data.miny) / (target[1].x -
+							target[0].x);
+			data.xres = g_si.rows;
+			data.yres = g_si.cols;
+		}
+
 		break;
 
 	case MWPORTRAIT_RIGHT:
 	case MWPORTRAIT_LEFT:
-		data.minx = (input[2].x + input[3].x) / 2;
-		data.maxx = (input[0].x + input[1].x) / 2;
 
-		data.miny = (input[0].y + input[3].y) / 2;
-		data.maxy = (input[1].y + input[2].y) / 2;
+		if (!xyswap) {
+			data.minx = (input[2].x + input[3].x) / 2;
+			data.maxx = (input[0].x + input[1].x) / 2;
 
-		data.xswap =
-			(g_rotate == MWPORTRAIT_RIGHT) ? GR_FALSE : GR_TRUE;
-		data.yswap =
-			(g_rotate == MWPORTRAIT_RIGHT) ? GR_FALSE : GR_TRUE;
+			data.miny = (input[0].y + input[3].y) / 2;
+			data.maxy = (input[1].y + input[2].y) / 2;
 
-		ydiff = (double) (data.maxx - data.minx) / (target[1].x -
-							    target[0].x);
-		xdiff = (double) (data.maxy - data.miny) / (target[2].y -
-							    target[1].y);
+			ydiff = (double) (data.maxy -
+					  data.miny) / (target[1].x -
+							target[0].x);
+			xdiff = (double) (data.maxx -
+					  data.minx) / (target[2].y -
+							target[1].y);
 
-		data.xres = g_si.rows;
-		data.yres = g_si.cols;
+			//ydiff = (double) (data.maxx - data.minx) / (target[1].x - target[0].x);
+			//xdiff = (double) (data.maxy - data.miny) / (target[2].y - target[1].y);
+
+			data.xres = g_si.rows;
+			data.yres = g_si.cols;
+		} else {
+			data.maxy = (input[2].y + input[3].y) / 2;
+			data.miny = (input[0].y + input[1].y) / 2;
+
+			data.minx = (input[0].x + input[3].x) / 2;
+			data.maxx = (input[1].x + input[2].x) / 2;
+
+			ydiff = (double) (data.maxy -
+					  data.miny) / (target[2].y -
+							target[1].y);
+			xdiff = (double) (data.maxx -
+					  data.minx) / (target[1].x -
+							target[0].x);
+
+			data.xres = g_si.cols;
+			data.yres = g_si.rows;
+		}
+
 		break;
 	}
 
@@ -98,6 +163,18 @@ calculate_transform(GR_TRANSFORM * trans)
 
 	data.maxx += (int) (xdiff * TARGET_DIST);
 	data.maxy += (int) (ydiff * TARGET_DIST);
+
+	//printf("DEBUG:  %d,%d,%d,%d\n", 
+	//data.minx, data.maxx, data.miny, data.maxy);
+
+	/* Here's a dirty little secret - xswap and yswap don't work.  */
+
+	if (g_rotate == MWPORTRAIT_DOWN || g_rotate == MWPORTRAIT_LEFT) {
+		swapem(&data.minx, &data.maxx);
+		swapem(&data.miny, &data.maxy);
+	}
+	//printf("TRANSFORM:  %d,%d,%d,%d\n", 
+	//data.minx, data.maxx, data.miny, data.maxy);
 
 	GrCalcTransform(&data, trans);
 }
@@ -112,21 +189,14 @@ draw_target(GR_WINDOW_ID wid, GR_GC_ID gc, int x, int y)
 		   CROSS_SIZE / 2);
 	GrFillRect(wid, gc, x - 1, y + 1, 2, CROSS_SIZE / 2);
 
-	GrFillRect(wid, gc, x - (CROSS_SIZE / 2) - 1, y - 1, CROSS_SIZE / 2,
-		   2);
+	GrFillRect(wid, gc, x - (CROSS_SIZE / 2) - 1, y - 1, CROSS_SIZE / 2, 2);
 	GrFillRect(wid, gc, x + 1, y - 1, CROSS_SIZE / 2, 2);
 }
 
 void
 draw_text(char *str, int row, GR_GC_ID gc)
 {
-	static GR_FONT_ID font = 0;
 	int tw, th, tb;
-
-	if (!font)
-		font = GrCreateFont(GR_FONT_GUI_VAR, 14, 0);
-
-	GrSetGCFont(gc, font);
 
 	GrGetGCTextSize(gc, str, -1, GR_TFTOP, &tw, &th, &tb);
 	GrText(g_wid, gc, (g_si.cols - tw) / 2, row, str, -1, GR_TFTOP);
@@ -142,7 +212,7 @@ redraw(void)
 	GrSetGCForeground(gc, GR_COLOR_WHITE);
 	GrSetGCBackground(gc, MWRGB(30, 30, 30));
 
-	draw_text("Touchscreen Calibration", 100, gc);
+	draw_text("Microwindows Calibration", 95, gc);
 	draw_text("Touch the cross hairs firmly to", 120, gc);
 	draw_text("calibrate your handheld", 140, gc);
 
@@ -153,7 +223,6 @@ redraw(void)
 int
 handle_pos(GR_EVENT_MOUSE * raw)
 {
-
 
 	if (raw->buttons & GR_BUTTON_L) {
 		input[state].x = raw->rootx;
@@ -174,6 +243,7 @@ handle_pos(GR_EVENT_MOUSE * raw)
 }
 
 /* The main calibration loop - this handles all the wierd stuff */
+
 void
 calibrate(GR_TRANSFORM * trans)
 {
@@ -194,7 +264,7 @@ calibrate(GR_TRANSFORM * trans)
 
 	GrSetTransform(NULL);
 
-	g_wid = GrNewWindowEx(GR_WM_PROPS_NODECORATE, "", GR_ROOT_WINDOW_ID,
+	g_wid = GrNewWindowEx(GR_WM_PROPS_NODECORATE, "nxcal", GR_ROOT_WINDOW_ID,
 			0, 0, g_si.cols, g_si.rows, GR_COLOR_BLACK);
 
 	GrSelectEvents(g_wid,
@@ -220,7 +290,6 @@ calibrate(GR_TRANSFORM * trans)
 int
 main(int argc, char **argv)
 {
-
 	int ret = 0;
 
 	int force_calibrate = 0;

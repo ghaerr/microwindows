@@ -4097,28 +4097,40 @@ GrSetTransform(GR_TRANSFORM *trans)
 	SERVER_UNLOCK();
 }
 
-/* FIXME - bad static design*/
-static GR_WINDOW_ID ascii_keys[256];
-static GR_WINDOW_ID nonascii_keys[256];
+struct klist {
+	GR_KEY		key;
+	GR_WINDOW_ID	wid;
+	struct klist *	next;
+};
+static struct klist *khead = NULL;
 
 /**
  * Grab a key for a specific window.
  * @id window to send event to.
- * @key MWKEY value.
+ * @key GR_KEY value.
  */
 int
 GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
 {
-	GR_WINDOW_ID *array = (key & MWKEY_NONASCII_MASK)?
-		nonascii_keys: ascii_keys;
+	struct klist *k = khead;
+	struct klist *p = NULL;
+	struct klist *item = NULL;
 
 	SERVER_LOCK();
 
-	if (array[key & 0xff]) {
-		SERVER_UNLOCK();
-		return -1;	/* Already taken */
+	for( ; k; p = k, k = k->next) {
+		if (k->key == key) {
+			SERVER_UNLOCK();
+			return -1;
+		}
 	}
-	array[key & 0xff] = id;
+	item = (struct klist *)calloc(1, sizeof(struct klist));
+	item->key = key;
+	item->wid = id;
+
+	if (p)
+		p->next = item;
+	else khead = item;
 
 	SERVER_UNLOCK();
 	return 0;
@@ -4127,25 +4139,34 @@ GrGrabKey(GR_WINDOW_ID id, GR_KEY key)
 /**
  * Ungrab a key for a specific window.
  * @id window to stop key grab.
- * @key MWKEY value.
+ * @key GR_KEY value.
  */
 void
 GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 {
-	GR_WINDOW_ID *array = (key & MWKEY_NONASCII_MASK)?
-		nonascii_keys: ascii_keys;
+	struct klist *k = khead;
+	struct klist *p = NULL;
 
 	SERVER_LOCK();
-	if (array[key & 0xff] == id)
-		array[key & 0xff] = 0;
+
+	for( ; k; p = k, k = k->next) {
+		if (k->key == key) {
+			if (p)
+				p->next = k->next;
+			else khead = p->next;
+			break;
+		}
+	}
 	SERVER_UNLOCK();
 }
 
 GR_WINDOW_ID
 GsGetGrabbedKey(MWKEY mwkey)
 {
-	GR_WINDOW_ID *array = (mwkey & MWKEY_NONASCII_MASK)?
-		nonascii_keys: ascii_keys;
+	struct klist *k = khead;
 
-	return array[mwkey & 0xff];
+	for( ; k; k = k->next)
+		if (k->key == mwkey) return k->wid;
+	
+	return 0;
 }

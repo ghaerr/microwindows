@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
  *
  * Microwindows /dev/tty console scancode keyboard driver for Linux
  */
@@ -46,35 +46,13 @@ static MWKEYMOD 	key_modstate;
 #define NUM_VGAKEYMAPS	(1<<KG_CAPSSHIFT)	/* kernel key maps*/
 static unsigned short	os_keymap[NUM_VGAKEYMAPS][NR_KEYS];
 
-/* PC scancode -> Microwindows key value mapping for non-Linux kernel values*/
-static MWKEY		keymap[128] = {
-MWKEY_UNKNOWN, MWKEY_ESCAPE, '1', '2', '3',				/* 0*/
-'4', '5', '6', '7', '8',						/* 5*/
-'9', '0', '-', '=', MWKEY_BACKSPACE,					/* 10*/
-MWKEY_TAB, 'q', 'w', 'e', 'r',						/* 15*/
-'t', 'y', 'u', 'i', 'o',						/* 20*/
-'o', '[', ']', MWKEY_ENTER, MWKEY_LCTRL,				/* 25*/
-'a', 's', 'd', 'f', 'g',						/* 30*/
-'h', 'j', 'k', 'l', ';',						/* 35*/
-'\'', '`', MWKEY_LSHIFT, '\\', 'z',					/* 40*/
-'x', 'c', 'v', 'b', 'n',						/* 45*/
-'m', ',', '.', '/', MWKEY_RSHIFT,					/* 50*/
-MWKEY_KP_MULTIPLY, MWKEY_LALT, ' ', MWKEY_CAPSLOCK, MWKEY_F1, 		/* 55*/
-MWKEY_F2, MWKEY_F3, MWKEY_F4, MWKEY_F5, MWKEY_F6, 			/* 60*/
-MWKEY_F7, MWKEY_F8, MWKEY_F9, MWKEY_F10, MWKEY_NUMLOCK, 		/* 65*/
-MWKEY_SCROLLOCK, MWKEY_KP7, MWKEY_KP8, MWKEY_KP9, MWKEY_KP_MINUS,	/* 70*/
-MWKEY_KP4, MWKEY_KP5, MWKEY_KP6, MWKEY_KP_PLUS, MWKEY_KP1, 		/* 75*/
-MWKEY_KP2, MWKEY_KP3, MWKEY_KP0, MWKEY_KP_PERIOD, MWKEY_UNKNOWN, 	/* 80*/
-MWKEY_UNKNOWN, MWKEY_UNKNOWN, MWKEY_F11, MWKEY_F12, MWKEY_UNKNOWN,	/* 85*/
-MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,	/* 90*/
-MWKEY_UNKNOWN, MWKEY_KP_ENTER, MWKEY_RCTRL, MWKEY_KP_DIVIDE,MWKEY_PRINT,/* 95*/
-MWKEY_RALT, MWKEY_BREAK, MWKEY_HOME, MWKEY_UP, MWKEY_PAGEUP,		/* 100*/
-MWKEY_LEFT, MWKEY_RIGHT, MWKEY_END, MWKEY_DOWN, MWKEY_PAGEDOWN,		/* 105*/
-MWKEY_INSERT, MWKEY_DELETE, MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,	/* 110*/
-MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_PAUSE,	/* 115*/
-MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,MWKEY_UNKNOWN,	/* 120*/
-MWKEY_LMETA, MWKEY_RMETA, MWKEY_MENU					/* 125*/
-};
+
+/* Pick the right scancode conversion table */
+#if KBD_ZAURUS
+#include "keymap_zaurus.h"
+#else
+#include "keymap_standard.h"
+#endif
 
 static MWBOOL	UpdateKeyState(int pressed, MWKEY mwkey);
 static void	UpdateLEDState(MWKEYMOD modstate);

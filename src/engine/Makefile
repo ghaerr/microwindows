@@ -12,6 +12,10 @@ include $(CONFIG)
 LIBNAME = libmwengine.a
 #LIBNAMESO = libmwengine.so
 
+ifeq ($(ZAURUSMOUSE), Y)
+CFLAGS += -DFLIP_MOUSE_IN_PORTRAIT_MODE=0
+endif
+
 # List of objects to compile
 OBJS =	devopen.o devdraw.o devfont.o devmouse.o devkbd.o devclip.o devrgn.o \
 	devpal1.o devpal2.o devimage.o devlist.o selfont.o error.o \

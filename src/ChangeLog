@@ -1,3 +1,26 @@
+	* single touchscreen driver for Zaurus, iPAQ, tuxscreen, ADS (Jordan)
+		(jitter and transform moved into engine/devmouse.c)
+		mou_touchscreen.c: (standardized kernel; ucb1x00 chip)
+			IPAQMOUSE=Y (Compaq iPAQ /dev/h3600_tsraw)
+			ZAURUSMOUSE=Y (Sharp Zaurus /dev/sharp_ts)
+			TUXMOUSE=Y (TuxScreen /dev/ucb1x00-ts)
+			ADSMOUSE=Y (Applied Data Systems GC+ /dev/ts)
+		mou_vrlinux.c: (VR-Linux distribution)
+			EPMOUSE=Y (Embedded Planet /dev/tpanel) (was TPMOUSE)
+			VHHELIO=Y (Vtech Helio /dev/tpanel) (was TPHELIO)
+		mou_yopy.c: YOPYMOUSE=Y (Yopy)
+		mou_mt.c: MTMOUSE=Y (MicroTouch serial /dev/ttyS0)
+		mou_ps5.c: PSIONMOUSE=Y (Psion 5 /dev/touch_psion)
+		mou_harrier.c: HARRIERMOUSE=Y (NEC Harrier)
+		(original drivers moved to src/drivers/old)
+	* mouse drivers:
+		mou_gpm.c: GPMMOUSE=Y (gpm mouse)
+		mou_ser.c: SERMOUSE=Y (serial MS, PC, Logitech, ps/2 mice)
+		mou_sun.c: SUNMOUSE=Y (Sun workstations /dev/sunmouse)
+		mou_null.c: NOMOUSE=Y (no mouse)
+	* added Zaurus support, config.zaurus (Jordan)
+	* added tuxscreen support, config.tuxscreen (Jordan)
+	* added MWFONTDIR environment variable for loading FNT files
 	* fix swap.h::dwread macro to work on unaligned data
 	* added textflags to PSD GetTextSize function
 	* added TIFF decoder to devimage.c (HAVE_TIFF_SUPPORT=Y)

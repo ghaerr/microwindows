@@ -10,7 +10,6 @@ add amortized background text clear for other subengines
 
 add GrSetLocale flag for text?
 add PIXIL screentop window manager
-add PIXIL calibration utility
 add PIXIL nxutil library
 
 TypedReadBlock not checked

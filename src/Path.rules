@@ -6,15 +6,18 @@
 # set the locations of the bin and lib output directories
 ifndef MW_DIR_BIN
 MW_DIR_BIN := $(MW_DIR_SRC)/bin
+# NOTE: In a future release this may change to: $(MW_DIR_SRC)/../bin
 endif
 ifndef MW_DIR_LIB
 MW_DIR_LIB := $(MW_DIR_SRC)/lib
+# NOTE: In a future release this may change to: $(MW_DIR_SRC)/../lib
 endif
 
 # The location to be used during the build for object and other
 # generated files 
 ifndef MW_DIR_OBJ
-MW_DIR_OBJ := $(MW_DIR_SRC)
+MW_DIR_OBJ := $(MW_DIR_SRC)/obj
+# NOTE: In a future release this may change to: $(MW_DIR_SRC)/../obj
 endif
 
 # See if the user has a local config file. If so use that else

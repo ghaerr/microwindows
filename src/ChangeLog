@@ -1,3 +1,4 @@
+	* changed default object directory to obj/ next to bin/ and lib/
 	* reduced libraries required for nano-X and win32 api links (Jonathan)
 		nano-X requires only -lnano-X regardless of LINK_APP_INTO_SERVER
 		win32 requires only -lmwin; obsolete mwinlib, mwengine,

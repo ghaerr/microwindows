@@ -785,6 +785,13 @@ freetype2_duplicate(PMWFONT psrcfont, MWCOORD height)
 	return (PMWFONT) pnewf;
 }
 
+
+/**
+ * Set the size of a font.  Caller must update pfont->fontsize.
+ *
+ * @param pfont    The font to update.
+ * @param fontsize The new height in pixels.
+ */
 static void
 freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize)
 {

@@ -33,7 +33,9 @@
 #include <netinet/in.h>
 
 #else
+#ifndef TRIMEDIA
 #include <sys/un.h>
+#endif
 #endif
 #include "serv.h"
 #include "nxproto.h"
@@ -1027,7 +1029,7 @@ GrSetWMPropertiesWrapper(void *r)
 	GR_WM_PROPERTIES *props = GetReqData(req);
 
 	if(GetReqVarLen(req) - sizeof(GR_WM_PROPERTIES)) 
-		props->title = (char *)props + sizeof(GR_WM_PROPERTIES);
+		props->title = (GR_CHAR *)props + sizeof(GR_WM_PROPERTIES);
 	else
 		props->title = NULL;
 	GrSetWMProperties(req->windowid, props);

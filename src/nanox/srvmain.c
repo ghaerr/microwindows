@@ -535,7 +535,7 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 #endif /* NONETWORK */
 	/* Set up the timeout for the main select(): */
-	if (timeout == -1L) {
+	if (timeout == (GR_TIMEOUT) -1L) {
 		/* poll*/
 		tout.tv_sec = 0;
 		tout.tv_usec = 0;
@@ -621,6 +621,130 @@ GsSelect(GR_TIMEOUT timeout)
 		if(errno != EINTR)
 			EPRINTF("Select() call in main failed\n");
 }
+
+#if NONETWORK
+/*
+ * Prepare for the client to call select().  Asks the server to send the next
+ * event but does not wait around for it to arrive.  Initializes the
+ * specified fd_set structure with the client/server socket descriptor and any
+ * previously registered external file descriptors.  Also compares the current
+ * contents of maxfd, the client/server socket descriptor, and the previously
+ * registered external file descriptors, and returns the highest of them in
+ * maxfd.
+ *
+ * Usually used in conjunction with GrServiceSelect().
+ *
+ * Note that in a multithreaded client, the application must ensure that
+ * no Nano-X calls are made between the calls to GrPrepareSelect() and
+ * GrServiceSelect(), else there will be race conditions.
+ *
+ * @param maxfd  Pointer to a variable which the highest in use fd will be
+ *               written to.  Must contain a valid value on input - will only
+ *               be overwritten if the new value is higher than the old
+ *               value.
+ * @param rfdset Pointer to the file descriptor set structure to use.  Must
+ *               be valid on input - file descriptors will be added to this
+ *               set without clearing the previous contents.
+ */
+void
+GrPrepareSelect(int *maxfd, void *rfdset)
+{
+	fd_set *rfds = (fd_set *) rfdset;
+	int fd;
+
+	SERVER_LOCK();
+
+	/* perform pre-select duties, if any*/
+	if(rootwp->psd->PreSelect)
+		rootwp->psd->PreSelect(rootwp->psd);
+
+	if(mouse_fd >= 0) {
+		FD_SET(mouse_fd, rfds);
+		if (mouse_fd > *maxfd)
+			*maxfd = mouse_fd;
+	}
+	if(keyb_fd >= 0) {
+		FD_SET(keyb_fd, rfds);
+		if (keyb_fd > *maxfd)
+			*maxfd = keyb_fd;
+	}
+
+	/* handle registered input file descriptors*/
+	for (fd = 0; fd < regfdmax; fd++) {
+		if (!FD_ISSET(fd, &regfdset))
+			continue;
+
+		FD_SET(fd, rfds);
+		if (fd > *maxfd)
+			*maxfd = fd;
+	}
+
+	SERVER_UNLOCK();
+}
+
+/*
+ * Handles events after the client has done a select() call.
+ *
+ * Calls the specified callback function is an event has arrived, or if
+ * there is data waiting on an external fd specified by GrRegisterInput().
+ *
+ * Used by GrMainLoop().
+ *
+ * @param rfdset Pointer to the file descriptor set containing those file
+ *               descriptors that are ready for reading.
+ * @param fncb   Pointer to the function to call when an event needs handling.
+ */
+void
+GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
+{
+	fd_set *	rfds = rfdset;
+	GR_EVENT_LIST *	elp;
+	GR_EVENT 	ev;
+	int fd;
+
+	SERVER_LOCK();
+
+	/* If data is present on the mouse fd, service it: */
+	if(mouse_fd >= 0 && FD_ISSET(mouse_fd, rfds))
+		while(GsCheckMouseEvent())
+			continue;
+
+	/* If data is present on the keyboard fd, service it: */
+	if(keyb_fd >= 0 && FD_ISSET(keyb_fd, rfds))
+		while(GsCheckKeyboardEvent())
+			continue;
+
+	/* Dispatch all queued events */
+	while((elp = curclient->eventhead) != NULL) {
+
+		ev = elp->event;
+
+		/* Remove first event from queue*/
+		curclient->eventhead = elp->next;
+		if (curclient->eventtail == elp)
+			curclient->eventtail = NULL;
+
+		elp->next = eventfree;
+		eventfree = elp;
+
+		fncb(&ev);
+	}
+
+	/* check for input on registered file descriptors */
+	for (fd = 0; fd < regfdmax; fd++) {
+		if (!FD_ISSET(fd, &regfdset) || !FD_ISSET(fd, rfds))
+			continue;
+
+		ev.type = GR_EVENT_TYPE_FDINPUT;
+		ev.fdinput.fd = fd;
+		fncb(&ev);
+	}
+
+	SERVER_UNLOCK();
+}
+
+#endif /* NONETWORK */
+
 #endif /* UNIX && defined(HAVESELECT)*/
 
 #if VTSWITCH
@@ -670,8 +794,10 @@ GsInitialize(void)
 
 	startTicks = GsGetTickCount();
 
+#ifndef DONT_HAVE_SIGNAL
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)GsTerminate);
+#endif
 
 #if MW_FEATURE_TIMERS
 	screensaver_delay = 0;
@@ -682,9 +808,11 @@ GsInitialize(void)
 	selection_owner.typelist = NULL;
 
 #if !NONETWORK
+#ifndef DONT_HAVE_SIGNAL
 	/* ignore pipe signal, sent when clients exit*/
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);
+#endif
 
 	if (GsOpenSocket() < 0) {
 		EPRINTF("Cannot bind to named socket\n");
@@ -744,7 +872,7 @@ GsInitialize(void)
 	wp->height = psd->yvirtres;
 	wp->bordersize = 0;
 	wp->background = BLACK;
-	wp->bordercolor = BLACK;
+	wp->bordercolor = wp->background;
 	wp->nopropmask = 0;
 	wp->bgpixmap = NULL;
 	wp->bgpixmapflags = GR_BACKGROUND_TILE;
@@ -782,7 +910,7 @@ GsInitialize(void)
 	GdAddTimer(50, CheckVtChange, NULL);
 #endif
 	psd->FillRect(psd, 0, 0, psd->xvirtres-1, psd->yvirtres-1,
-		GdFindColor(psd, BLACK));
+		GdFindColor(psd, wp->background));
 
 	/*
 	 * Tell the mouse driver some things.

@@ -1147,7 +1147,7 @@ _CheckTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 {
 	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
 
-printf("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, mask, update, ep->general.wid, ep->type);
+DPRINTF("_CheckTypedEvent: wid %d mask %x update %d from %d type %d\n", wid, (unsigned)mask, update, ep->general.wid, ep->type);
 
 	/* FIXME: not all events have wid field here... */
 	if (wid && (wid != ep->general.wid))

@@ -337,6 +337,7 @@ endif
 
 ifeq ($(DEBUG), Y)
 OPTFLAGS += -ggdb
+DEFINES += -DDEBUG=1
 else
 #OPTFLAGS += -DNDEBUG
 endif

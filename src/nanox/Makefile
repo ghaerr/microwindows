@@ -21,15 +21,19 @@ LIBNAMESO = libnano-X.so
 
 # Nano-X server files
 NANOXFILES = srvmain.o srvfunc.o srvutil.o srvevent.o srvclip.o
-NETFILES = srvnet.o
-UTILFILES = nxdraw.o nxutil.o
 
-OBJS =
+# Nano-X client files
+OBJS = nxdraw.o nxutil.o nxtransform.o
+
 ifeq ($(LINK_APP_INTO_SERVER), Y)
-NANOXFILES += $(UTILFILES)
 OBJS += $(NANOXFILES)
 else
-NANOXFILES += $(NETFILES)
+
+# Nano-X server files (network only)
+NANOXFILES += srvnet.o
+
+# Nano-X client files (network only)
+OBJS += client.o nxproto.o error.o
 ifeq ($(FRAMEBUFFER), Y)
 OBJS += clientfb.o
 else
@@ -38,7 +42,6 @@ OBJS += clientfb.o
 endif
 endif
 
-OBJS += client.o nxproto.o nxtransform.o error.o $(UTILFILES)
 ifeq ($(ARCH), ECOS) 
 TARGET = $(TOP)/bin/nano-X.o
 else

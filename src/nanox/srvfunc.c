@@ -1390,7 +1390,7 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 	if (plogfont)
 		fontp->pfont = GdCreateFont(&scrdev, NULL, 0, plogfont);
 	else
-		fontp->pfont = GdCreateFont(&scrdev, name, height, NULL);
+		fontp->pfont = GdCreateFont(&scrdev, (const char *)name, height, NULL);
 
 	/* if no font created, deallocate and return ID 0*/
 	if (!fontp->pfont) {
@@ -3370,7 +3370,7 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 
 		/* Calculate the space needed to store the new title */
 		if(props->title)
-			tl = strlen(props->title) + 1;
+			tl = strlen((const char *)props->title) + 1;
 
 		/* Check for empty title*/
 		if(!props->title || tl == 1) {
@@ -3623,7 +3623,7 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 	selection_owner.wid = wid;
 
 	if(wid) {
-		if(!(selection_owner.typelist = strdup(typelist))) {
+		if(!(selection_owner.typelist = (GR_CHAR *)strdup((const char *)typelist))) {
 			GsError(GR_ERROR_MALLOC_FAILED, wid);
 			selection_owner.wid = 0;
 		}
@@ -3783,14 +3783,14 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 
 	/* perform blit */
 
-	//printf("JGF-Nano-X: GrStretchArea() calling GdStretchBlit()\n");
+	/* DPRINTF("Nano-X: GrStretchArea() calling GdStretchBlit()\n"); */
 	//GdCheckCursor(srcpsd, s1x, s1y, s2x, s2y); /* FIXME*/
 	/*GdStretchBlit(dp->psd, dx, dy, dw, dh,
 	   srcpsd,  sx, sy, sw, sh,
 	   op); */
 	GdStretchBlitEx(dp->psd, dx1, dy1, dx2, dy2,
 			srcpsd, sx1, sy1, sx2, sy2, op);
-	//printf("JGF-Nano-X: GrStretchArea() done GdStretchBlitEx()\n");
+	/* DPRINTF("Nano-X: GrStretchArea() done GdStretchBlitEx()\n"); */
 	//GdFixCursor(srcpsd); /* FIXME*/
 
 	SERVER_UNLOCK();

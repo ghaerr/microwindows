@@ -852,7 +852,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		/* 32bpp RGB rather than BGR byte order? */
 		rgborder = pimage->compression & MWIMAGE_RGB;
 
-		/* printf("JGF-Nano-X: GdDrawImage (%d,%d) %dx%d x=%d-%d\n  ",
+		/* DPRINTF("Nano-X: GdDrawImage (%d,%d) %dx%d x=%d-%d\n  ",
 		   x,y,width,height,minx,maxx); */
 
 		while (height > 0) {

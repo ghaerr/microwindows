@@ -60,11 +60,11 @@ GdSetStippleBitmap(MWIMAGEBITS *stipple, MWCOORD width, MWCOORD height)
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			if (BIT_SET(gr_stipple.bitmap, x, y))
-				printf("X");
+				DPRINTF("X");
 			else
-				printf("_");
+				DPRINTF("_");
 		}
-		printf("\n");
+		DPRINTF("\n");
 	}
 
 }

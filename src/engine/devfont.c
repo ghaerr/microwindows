@@ -152,10 +152,10 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FNT) {
 		pfont = (PMWFONT) fnt_createfont(fontname, height, fontattr);
 		if (pfont) {
-			printf("fnt_createfont: using font %s\n", fontname);
+			DPRINTF("fnt_createfont: using font %s\n", fontname);
 			return(pfont);
 		}
-		printf("fnt_createfont: %s,%d not found\n", fontname, height);
+		EPRINTF("fnt_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
@@ -163,10 +163,10 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
 		pfont = (PMWFONT) pcf_createfont(fontname, height, fontattr);
 		if (pfont) {
-			printf("pcf_createfont: using font %s\n", fontname);
+			DPRINTF("pcf_createfont: using font %s\n", fontname);
 			return(pfont);
 		}
-		printf("pcf_createfont: %s,%d not found\n", fontname, height);
+		EPRINTF("pcf_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
@@ -185,7 +185,7 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
- 			printf("freetype_createfont: %s,%d not found\n",
+ 			EPRINTF("freetype_createfont: %s,%d not found\n",
 				fontname, height);
 		}
   	}
@@ -206,7 +206,7 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
- 			printf("freetype2_createfont: %s,%d not found\n",
+			EPRINTF("freetype2_createfont: %s,%d not found\n",
 				fontname, height);
 		}
   	}
@@ -219,7 +219,7 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 					fontattr);
 			if(pfont)
 				return pfont;
-			printf("t1lib_createfont: %s,%d not found\n",
+			EPRINTF("t1lib_createfont: %s,%d not found\n",
 				fontname, height);
 		}
   	}
@@ -232,7 +232,7 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 			pfont = (PMWFONT)hzk_createfont(fontname, height, fontattr);
 			if(pfont)		
 				return pfont;
-			printf("hzk_createfont: %s,%d not found\n", fontname, height);
+			EPRINTF("hzk_createfont: %s,%d not found\n", fontname, height);
 		}
 	}
 #endif
@@ -241,10 +241,10 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_MGL) {
 		pfont = (PMWFONT)eucjp_createfont(fontname, height, fontattr);
 		if (pfont) {
-			printf("eujcp_createfont: using font %s\n", fontname);
+			DPRINTF("eujcp_createfont: using font %s\n", fontname);
 			return pfont;
 		}
-		printf("eucjp_createfont: %s,%d not found\n", fontname, height);
+		EPRINTF("eucjp_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 

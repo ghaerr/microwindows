@@ -22,15 +22,6 @@
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
 
-#ifdef HAVE_BETTER_COMPILER
-/* * GCC compiler-only macro magic to save space ***/
-#define EPRINTF(str, args...)   fprintf(stderr, str, ##args)
-#define DPRINTF(str, ...)
-#else
-#define EPRINTF		GdError			/* error output*/
-#define DPRINTF		GdErrorNull		/* debug output*/
-#endif
-
 #if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
 #define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage* / GdDrawImage* */
 #else
@@ -42,6 +33,32 @@
 #else
 #define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
 #endif
+
+/* determine need for GdError error handling*/
+#ifndef MW_FEATURE_GDERROR
+#if defined(__GNUC__) && (__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)
+#define MW_FEATURE_GDERROR	0		/* use fprintf instead of GdError*/
+#else
+#define MW_FEATURE_GDERROR	1		/* use GdError for errors*/
+#endif
+#endif /* MW_FEATURE_GDERROR*/
+
+#if MW_FEATURE_GDERROR
+#define EPRINTF			GdError		/* error output*/
+#if DEBUG
+#define DPRINTF			GdError		/* debug output*/
+#else
+#define DPRINTF			GdErrorNull	/* no debug output*/
+#endif
+#else
+/* * GCC compiler-only macro magic to save space ***/
+#define EPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* error output*/
+#if DEBUG
+#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
+#else
+#define DPRINTF(str, ...)	/* no debug output*/
+#endif
+#endif /* MW_FEATURE_GDERROR*/
 
 /* Which low-level psd->DrawArea routines to include. */
 #define MW_FEATURE_PSDOP_COPY                   0

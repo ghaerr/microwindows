@@ -1,6 +1,11 @@
+	* added MW_FEATURE_GDERROR, removed DPRINTF code except when DEBUG=Y
+		automatic GCC detection for GdError or fprintf usage
+		added #ifdef DEBUG during compilation
+	* implement GrPrepareSelect/GrServiceSelect in linked server (Jonathan)
 	* reimplemented GrGrabKey, GrUngrabKey (Jonathan)
 		new events: GR_EVENT_TYPE_HOTKEY_UP,GR_EVENT_TYPE_HOTKEY_DOWN
 		added grabdemo demonstration program
+	* cleaned up printf/DPRINTF, added DONT_HAVE_SIGNAL for no signals
 	* cleaned up // comments (Simon)
 	* added "make realclean" to remove generated .c files from .bdf & .bmp
 	* single touchscreen driver for Zaurus, iPAQ, tuxscreen, ADS (Jordan)

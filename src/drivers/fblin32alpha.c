@@ -761,7 +761,7 @@ linear32a_stretchblitex(PSD dstpsd,
 	/* 1-unit step down dest, in bytes. */
 	int dest_y_step;
 
-	/*printf("JGF-Nano-X: linear32_stretchflipblit( dest=(%d,%d) %dx%d )\n",
+	/*DPRINTF("Nano-X: linear32_stretchflipblit( dest=(%d,%d) %dx%d )\n",
 	   dest_x_start, dest_y_start, width, height); */
 
 	/* We add half a dest pixel here so we're sampling from the middle of
@@ -794,7 +794,7 @@ linear32a_stretchblitex(PSD dstpsd,
 		ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
-	/* printf("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
+	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
 	   src_x_step_one, x_denominator, src_x_step_normal, x_error_step_normal,
 	   src_y_step_one, y_denominator, src_y_step_normal, y_error_step_normal);
 	 */
@@ -1556,11 +1556,7 @@ linear32a_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
 	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
 	assert(gc->srcy >= 0);
-
-#if 0
-	printf("linear32a_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx,
-	       gc->dsty);
-#endif
+	/*DPRINTF("linear32a_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
 

@@ -1027,7 +1027,7 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 		 * The raster op is one of the first 16 (the simple ones), so is
 		 * supported by X.
 		 */
-		//printf("JGF-Nano-X: X11_blit() doing onscreen copy\n");
+		/* DPRINTF("Nano-X: X11_blit() doing onscreen copy\n"); */
 		set_mode(op);
 		XCopyArea(x11_dpy, x11_win, x11_win, x11_gc,
 			  srcx, srcy, w, h, destx, desty);
@@ -1060,8 +1060,8 @@ X11_stretchblitex(PSD dstpsd, PSD srcpsd,
 		return;
 	}
 
-	printf("JGF-Nano-X: X11_stretchblitex( dest=(%d,%d) %dx%d )\n",
-	       dest_x_start, dest_y_start, width, height);
+	/* DPRINTF("Nano-X: X11_stretchblitex( dest=(%d,%d) %dx%d )\n",
+	       dest_x_start, dest_y_start, width, height); */
 
 	if (srcpsd->flags & PSF_SCREEN) {
 		/* Use offscreen equivalent as the source */

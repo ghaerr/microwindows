@@ -2,6 +2,7 @@
  * tsdemo - tile/stipple demo program for Nano-X
  */
 #define MWINCLUDECOLORS
+#include <stdlib.h>
 #include "nano-X.h"
 
 #define	_	((unsigned) 0)	/* off bits */

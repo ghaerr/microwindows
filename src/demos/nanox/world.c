@@ -6,6 +6,7 @@
  * ported to 16 bit systems by Greg Haerr
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #if (UNIX | DOS_DJGPP)
 #include <unistd.h>
 #endif

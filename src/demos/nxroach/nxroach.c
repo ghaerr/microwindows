@@ -13,9 +13,10 @@
 char Copyright[] = "nxroach\nCopyright 1991 J.T. Anderson";
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <signal.h>
-#include <stdlib.h>
 #include <time.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"

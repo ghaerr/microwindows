@@ -102,12 +102,12 @@ struct metric_entry {
 };
 
 struct encoding_entry {
-	unsigned short firstcol;	/* min_char or min_byte 2 */
-	unsigned short lastcol;		/* max_char or max_byte 2 */
-	unsigned short firstrow;	/* min_byte 1 (hi order) */
-	unsigned short lastrow;		/* max_byte 1 (hi order) */
+	unsigned short min_byte2;	/* min_char or min_byte2 */
+	unsigned short max_byte2;	/* max_char or max_byte2 */
+	unsigned short min_byte1;	/* min_byte1 (hi order) */
+	unsigned short max_byte1;	/* max_byte1 (hi order) */
 	unsigned short defaultchar;
-	unsigned short count;		/* count of map entries */
+	unsigned long count;		/* count of map entries */
 	unsigned short *map;		/* font index -> glyph index */
 };
 
@@ -340,15 +340,14 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 
 	e = *encoding = (struct encoding_entry *)
 		malloc(sizeof(struct encoding_entry));
-	FREAD(file, &e->firstcol, sizeof(e->firstcol));
-	FREAD(file, &e->lastcol, sizeof(e->lastcol));
-	FREAD(file, &e->firstrow, sizeof(e->firstrow));
-	FREAD(file, &e->lastrow, sizeof(e->lastrow));
+	FREAD(file, &e->min_byte2, sizeof(e->min_byte2));
+	FREAD(file, &e->max_byte2, sizeof(e->max_byte2));
+	FREAD(file, &e->min_byte1, sizeof(e->min_byte1));
+	FREAD(file, &e->max_byte1, sizeof(e->max_byte1));
 	FREAD(file, &e->defaultchar, sizeof(e->defaultchar));
-	e->count = (e->lastcol - e->firstcol + 1) *
-		(e->lastrow - e->firstrow + 1);
+	e->count = (e->max_byte2 - e->min_byte2 + 1) *
+		(e->max_byte1 - e->min_byte1 + 1);
 	e->map = (unsigned short *) malloc(e->count * sizeof(unsigned short));
-	DPRINTF("max count %d (%x)\n", e->count, e->count);
 	DPRINTF("def char %d (%x)\n", e->defaultchar, e->defaultchar);
 
 	for (n = 0; n < e->count; ++n) {
@@ -356,9 +355,9 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 		e->map[n] = code;
 		DPRINTF("ncode %x (%c) %x\n", n, n, code);
 	}
-	DPRINTF("firstrow %d, firstcol %d\n", e->firstrow, e->firstcol);
-	DPRINTF("lastrow %d, lastcol %d\n", e->lastrow, e->lastcol);
-	return (e->count);
+	DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
+		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);
+	return e->count;
 }
 
 static int
@@ -448,7 +447,7 @@ pcf_createfont(char *name, MWCOORD height, int attr)
 		goto leave_func;
 	}
 
-	pf->cfont->firstchar = encoding->firstcol;
+	pf->cfont->firstchar = encoding->min_byte2 * (encoding->min_byte1 + 1);
 
 	/* Read in the metrics */
 	count = pcf_readmetrics(file, &metrics);

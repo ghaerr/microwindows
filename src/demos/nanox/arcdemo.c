@@ -4,6 +4,7 @@
  * Copyright (C) 2002 Alex Holden <alex@alexholden.net>
  * Modified by G Haerr
  */
+#include <stdlib.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 

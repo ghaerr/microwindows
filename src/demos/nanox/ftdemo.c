@@ -3,6 +3,7 @@
  * Martin Jolicoeur 2000 martinj@visuaide.com.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 

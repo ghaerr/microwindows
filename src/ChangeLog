@@ -1,3 +1,5 @@
+	* changed pcf debug output, firstchar calculation, count calc
+	* corrected include files for RH 7.x
 Version 0.89 - 20 Nov 2002 - greg@censoft.com
 	* check for additional client data before queing event data
 	(05 Oct 02)
@@ -863,7 +865,7 @@ Version 0.82 - 5th July 1999 - greg@censoft.com
 	* added mouse double click processing
 	* added GetTickCount() api, requires OS millisecond time fn
 	* fixed some expose region calculations
-	* combined Makefile builds both/either Micro-Windows and Nano-X
+	* combined Makefile builds both/either Microwindows and Nano-X
 	* wrote XORMOVE window move algorithm for slow cpu's
 	* added GetDCEx(), SetROP2() and various rect api
 	* change to single toplevel Makefile mod for ELKS or LINUX

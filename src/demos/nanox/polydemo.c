@@ -1,9 +1,10 @@
 /*
  * polytest - polygon fill test program for Nano-X
  */
+#include <stdio.h>
+#include <stdlib.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
-#include <stdio.h>
 
 void
 draw(GR_EVENT * e)

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 #if UNIX | DOS_DJGPP
 #include <fcntl.h>
 #include <unistd.h>

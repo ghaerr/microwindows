@@ -11,6 +11,7 @@
  */
 /*#define NDEBUG*/
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "device.h"
 #include "devfont.h"

@@ -1,9 +1,10 @@
 /*
  * pcfdemo - demonstrate PCF font loading for Nano-X
  */
+#include <stdio.h>
+#include <stdlib.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
-#include <stdio.h>
 
 GR_FONT_ID font = 0;
 GR_WINDOW_ID main_wid;

@@ -2,6 +2,7 @@
  * fontdemo - freetype font demonstration program for Nano-X
  */
 #include <stdio.h>
+#include <stdlib.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 

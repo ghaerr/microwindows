@@ -794,7 +794,7 @@ GsInitialize(void)
 
 	startTicks = GsGetTickCount();
 
-#ifndef DONT_HAVE_SIGNAL
+#ifndef MW_NOSIGNALS
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)GsTerminate);
 #endif
@@ -808,7 +808,7 @@ GsInitialize(void)
 	selection_owner.typelist = NULL;
 
 #if !NONETWORK
-#ifndef DONT_HAVE_SIGNAL
+#ifndef MW_NOSIGNALS
 	/* ignore pipe signal, sent when clients exit*/
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);

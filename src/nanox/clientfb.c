@@ -1,16 +1,18 @@
 /*
  * Microwindows direct client-side framebuffer mapping routines
  *
- * Copyright (c) 2001, 2002 by Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2001, 2002, 2003 by Greg Haerr <greg@censoft.com>
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#ifdef LINUX
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <asm/page.h>		/* For definition of PAGE_SIZE */
 #include <linux/fb.h>
+#endif
 #include "nano-X.h"
 #include "lock.h"
 
@@ -19,16 +21,25 @@
 LOCK_EXTERN(nxGlobalLock);	/* global lock for threads safety*/
 
 /* globals: assumes use of non-shared libnano-X.a for now*/
-static int 		frame_fd;	/* client side framebuffer fd*/
-static unsigned char *	frame_map;	/* client side framebuffer mmap'd addr*/
-static int 		frame_len;	/* client side framebuffer length*/
-static unsigned char *	physpixels;	/* start address of pixels*/
+static unsigned char *	physpixels  = NULL;	/* start address of pixels*/
 static GR_SCREEN_INFO	sinfo;
+static GR_BOOL		sinfo_valid = GR_FALSE;	/* True if sinfo is initialized. */
+#ifdef LINUX
+static int 		frame_fd    = -1;	/* client side framebuffer fd*/
+static unsigned char *	frame_map   = NULL;	/* client side framebuffer mmap'd addr*/
+static int 		frame_len   = 0;	/* client side framebuffer length*/
+#endif
 
-/* map framebuffer address into client memory*/
+/**
+ * Map framebuffer address into client memory.
+ *
+ * @return Pointer to start of framebuffer,
+ * or NULL if framebuffer not directly accessible by client.
+ */
 unsigned char *
 GrOpenClientFramebuffer(void)
 {
+#ifdef LINUX
 	int 	frame_offset;
 	char *	fbdev;
 	struct fb_fix_screeninfo finfo;
@@ -50,6 +61,7 @@ GrOpenClientFramebuffer(void)
 	 * window within the Microwindows X window.
 	 */
 	GrGetScreenInfo(&sinfo);
+	sinfo_valid = GR_TRUE;
 	if (!sinfo.fbdriver) {
 		UNLOCK(&nxGlobalLock);
 		return NULL;
@@ -108,12 +120,17 @@ GrOpenClientFramebuffer(void)
 err:
 	close(frame_fd);
 	UNLOCK(&nxGlobalLock);
+#endif /* LINUX */
 	return NULL;
 }
 
+/**
+ * Unmap framebuffer, if mapped.
+ */
 void
 GrCloseClientFramebuffer(void)
 {
+#ifdef LINUX
 	LOCK(&nxGlobalLock);
 	if (frame_fd >= 0) {
 		if (frame_map) {
@@ -125,16 +142,20 @@ GrCloseClientFramebuffer(void)
 		frame_fd = -1;
 
 		/* reset sinfo struct*/
-		sinfo.cols = 0;
+		sinfo_valid = GR_FALSE;
 	}
 	UNLOCK(&nxGlobalLock);
+#endif
 }
 
-/*
+/**
  * Return client-side mapped framebuffer info for
  * passed window.  If not running framebuffer, the
  * physpixel and winpixel members will be NULL, and
  * everything else correct.
+ *
+ * @param wid    Window to query
+ * @param fbinfo Structure to store results.
  */
 void
 GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
@@ -147,8 +168,10 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 	LOCK(&nxGlobalLock);
 
 	/* re-get screen info on auto-portrait switch*/
-	if (sinfo.cols == 0 || last_portrait != sinfo.portrait)
+	if (!sinfo_valid || (last_portrait != sinfo.portrait)) {
 		GrGetScreenInfo(&sinfo);
+		sinfo_valid = GR_TRUE;
+	}
 	last_portrait = sinfo.portrait;
 
 	/* must get window position anew each time*/

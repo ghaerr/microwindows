@@ -115,7 +115,7 @@ COMPILER = cc
 CXX_COMPILER = CC
 TOOLSPREFIX = tm
 DEFINES += -DTRIMEDIA=1 -DTCS2 -DOSAL -DLUD_USE_MEMSPACE
-DEFINES += -DDONT_HAVE_SIGNAL -DMW_FEATURE_GDERROR=1
+DEFINES += -DMW_NOSIGNALS -DMW_FEATURE_GDERROR=1
 INCLUDEDIRS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
 HOSTCFLAGS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
 CFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconfig2.1 -B -Xdiag=1

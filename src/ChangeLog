@@ -1,6 +1,7 @@
-	* added MW_FEATURE_GDERROR, removed DPRINTF code except when DEBUG=Y
+	* removed DPRINTF code generation except when DEBUG=Y
 		automatic GCC detection for GdError or fprintf usage
-		added #ifdef DEBUG during compilation
+	* added -DDEBUG when DEBUG=Y
+	* added MW_NOSIGNALS, MW_FEATURE_GDERROR
 	* implement GrPrepareSelect/GrServiceSelect in linked server (Jonathan)
 	* reimplemented GrGrabKey, GrUngrabKey (Jonathan)
 		new events: GR_EVENT_TYPE_HOTKEY_UP,GR_EVENT_TYPE_HOTKEY_DOWN

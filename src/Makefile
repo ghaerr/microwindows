@@ -63,6 +63,8 @@ doc-nanox:
 	doxygen Doxyfile-nanox
 pdfdoc-nanox: doc-nanox
 	cd ../doc/nano-X/latex && $(MAKE)
+doc-clean:
+	rm -rf ../doc/nano-X ../doc/internal
 
 ######################### Makefile.rules section #############################
 

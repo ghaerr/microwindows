@@ -2,6 +2,11 @@ Version 0.89pl14 - 7 May 2003 - greg@censoft.com
 	* removed various auto-generated mwin/bmp/*.c files, fonts/*.c files
 	* fixed GrPeekEvent no-select() bug in LINK_APP_INTO_SERVER case
 	* added Doxygen-created source documentation & Makefile (Jonathan)
+		"make doc" to create docs in microwin/doc/nano-X/html
+		"make pdfdoc" for docs in microwin/doc/nano-X/latex
+		"make doc-clean" to clean docs and microwin/doc/internal
+		(requires Doxygen 1.3 or later from http://www.doxygen.org)
+		(requires LaTEX for pdf docs)
 	* added newbuild.diff (Jonathan)
 	  Enabled lots of warnings for GCC.
 	  (src/Arch.rules, src/Makefile.rules):

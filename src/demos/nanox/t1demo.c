@@ -172,11 +172,17 @@ main(int ac, char **av)
 #endif /* HZKBIG5*/
 		}
 #elif HAVE_BIG5_SUPPORT
-		/* encoding BIG5 test */
-		GrText(window, gc, x, y, "±d±d", -1, GR_TFASCII);
+		/* encoding BIG5 test B1 64 B1 64 */
+		GrText(window, gc, x, y, "\261\241\261\241", -1, GR_TFASCII);
 #elif HAVE_GB2312_SUPPORT
-		/* encoding GB2312 test */
+		/* encoding GB2312 test BD A1 BD A1 */
 		GrText(window, gc, x, y, "\275\241\275\241", -1, GR_TFASCII);
+#elif HAVE_JISX0213_SUPPORT
+		/* encoding JISX0213 test A2 A1 */
+		GrText(window, gc, x, y, "\242\241", -1, GR_TFASCII);
+#elif HAVE_KSC5601_SUPPORT
+		/* encoding KSC5601 test B0 B0 */
+		GrText(window, gc, x, y, "\273\273", -1, GR_TFASCII);
 #else
 		/* ASCII test */
 		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);

@@ -712,8 +712,8 @@ GsInitialize(void)
 	/*
 	 * Create std font.
 	 */
-#if (HAVE_BIG5_SUPPORT | HAVE_GB2312_SUPPORT | HAVE_JISX0213_SUPPORT)
-	/* system fixed font looks better when mixed with chinese fonts*/
+#if (HAVE_BIG5_SUPPORT | HAVE_GB2312_SUPPORT | HAVE_JISX0213_SUPPORT | HAVE_KSC5601_SUPPORT)
+	/* system fixed font looks better when mixed with builtin fixed fonts*/
 	stdfont = GdCreateFont(psd, MWFONT_SYSTEM_FIXED, 0, NULL);
 #else
 	stdfont = GdCreateFont(psd, MWFONT_SYSTEM_VAR, 0, NULL);

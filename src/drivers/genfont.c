@@ -14,12 +14,6 @@
 #include "device.h"
 #include "genfont.h"
 
-/* Make compiler happy */
-#if HAVE_KSC5601_SUPPORT
-extern unsigned short convert_ksc_to_johab( unsigned char CH, unsigned char CL);
-extern int	get_han_image(int mc, char *retmap );
-#endif
-
 /* compiled in fonts*/
 extern MWCFONT font_rom8x16, font_rom8x8;
 extern MWCFONT font_winFreeSansSerif11x13;
@@ -125,7 +119,7 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 			} else
 #endif
 #if HAVE_JISX0213_SUPPORT
-	/* decode Japanese JISX0213*/
+			/* decode Japanese JISX0213*/
 			if (c >= 0xA1 && c <= 0xFE && cc >= 1 &&
 				*str >= 0xA1 && *str <= 0xFE) {
 					--cc;
@@ -166,9 +160,10 @@ void
 gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
-	PMWCFONT	pf = ((PMWCOREFONT)pfont)->cfont;
-	int 		count, width;
+	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
+	int 			count, width;
 	const MWIMAGEBITS *	bits;
+	static MWIMAGEBITS	map[16];
 
 #if HAVE_BIG5_SUPPORT
 	/* decode chinese big5*/
@@ -176,35 +171,35 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	if (CH >= 0xA1 && CH <= 0xF9 && ((CL >= 0x40 && CL <= 0x7E) || (CL >= 0xA1 && CL <= 0xFE)) ) 
 	{
 	    int Pos;	/* != ((CH - 0xA1) * 94 + (CL - 0xA1)) * 18; */
-
 	    int i;
+	    int seq;
 	    extern unsigned char JMT_BIG5_12X12_FONT_BITMAP[];
 
-	    int seq;
 	    {
 		seq=0;
 		/* ladd=loby-(if(loby<127)?64:98) */
-		CL/*c2*/-=(CL/*c2*/<127?64:98);   
+		CL-=(CL<127?64:98);   
 
 		/* hadd=(hiby-164)*157 */
-		if (CH/*c1*/>=0xa4)	/* standard font */
+		if (CH>=0xa4)	/* standard font */
 		{
-			seq=(((CH/*c1*/-164)*157)+CL/*c2*/);
+			seq=(((CH-164)*157)+CL);
 			if (seq>=5809) seq-=408;
 		}
 
 		/* hadd=(hiby-161)*157 */
-		if (CH/*c1*/<=0xa3)	/* special font */
-			seq=(((CH/*c1*/-161)*157)+CL/*c2*/)+13094;
+		if (CH<=0xa3)	/* special font */
+			seq=(((CH-161)*157)+CL)+13094;
 	    }
 	    Pos=seq*18;
 
 	    *pwidth = width = 12;
 	    *pheight = 12;
 	    *pbase = 0;
+	    *retmap = map;
 
 	    for (i = 0; i < 6; i++) {
-		unsigned char *DstBitmap  = ((unsigned char *)retmap) + i * 4;
+		unsigned char *DstBitmap  = ((unsigned char *)map) + i * 4;
 		unsigned char *FontBitmap = JMT_BIG5_12X12_FONT_BITMAP +
 			Pos + i * 3;
 		DstBitmap[0] = FontBitmap[1];
@@ -227,9 +222,10 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	    *pwidth = width = 12;
 	    *pheight = 12;
 	    *pbase = 0;
+	    *retmap = map;
 
 	    for (i = 0; i < 6; i++) {
-		unsigned char *DstBitmap  = ((unsigned char *)retmap) + i * 4;
+		unsigned char *DstBitmap  = ((unsigned char *)map) + i * 4;
 		unsigned char *FontBitmap = GUO_GB2312_12X12_FONT_BITMAP +
 			Pos + i * 3;
 		DstBitmap[0] = FontBitmap[1];
@@ -249,18 +245,13 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	int EH = CH - 0xA1;
 	int EL = CL - 0xA1;
 	int pos = EH*94 + EL;
-	int height,i;
 	extern unsigned short JP_JISX0213_12X12_FONT_BITMAP[];
 	unsigned short *FontBitmap = JP_JISX0213_12X12_FONT_BITMAP + pos*12;
 
-	    *pwidth = width = 12;
-	    *pheight = height = 12;
+	    *pwidth = 12;
+	    *pheight = 12;
 	    *pbase = 0;
-
-
-	    for (i = 0;i<width;i++)
-		*retmap++ = *FontBitmap++;
-
+	    *retmap = (MWIMAGEBITS *)FontBitmap;
 	    return;
 	}
 	/*SHIFT-JISX0213*/
@@ -268,9 +259,8 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	   int EH = 0;
 	   int EL = 0;
 	   int pos = 0;
-	   int height,i;
+           unsigned short *FontBitmap;
 	   extern unsigned short JP_JISX0213_12X12_FONT_BITMAP[];
-          unsigned short *FontBitmap;
 	   
           if (CH >= 0x81 && CH <= 0x9F)
   		if (CL >= 0x40 && CL <= 0xFC && (CL != 0x7F))
@@ -294,15 +284,11 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 			}   
 			pos = EH*188 + EL;		
 		}
-	    *pwidth = width = 12;
-	    *pheight = height = 12;
+	    FontBitmap = (unsigned short*)(JP_JISX0213_12X12_FONT_BITMAP + pos*12);
+	    *pwidth = 12;
+	    *pheight = 12;
 	    *pbase = 0;
-
-	    FontBitmap = (unsigned short*)(JP_JISX0213_12X12_FONT_BITMAP + pos*width);
-	    
-	    for (i = 0;i<width;i++)
-		*retmap++ = *FontBitmap++;
-
+	    *retmap = (MWIMAGEBITS *)FontBitmap;
 	    return;
        }   
 #endif /*HAVE_JISX0213_SUPPORT*/
@@ -310,17 +296,19 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 #if HAVE_KSC5601_SUPPORT
 	int CH = ((unsigned int)ch) >> 8, CL = ((unsigned int)ch) & 0xFF;
 	int	mc;
+	extern unsigned short convert_ksc_to_johab( unsigned char CH, unsigned char CL);
+	extern int	get_han_image(int mc, char *retmap );
 
-	if ( CH>= 0xA1 &&  CH<= 0xFE && (CL >= 0xA1 && CL <= 0xFE))
+	if (CH>= 0xA1 &&  CH<= 0xFE && (CL >= 0xA1 && CL <= 0xFE))
 	{
-		mc = convert_ksc_to_johab( CH, CL);
-		if ( mc )	
-			get_han_image(mc, retmap );
+		mc = convert_ksc_to_johab(CH, CL);
+		if (mc)	
+			get_han_image(mc, (char *)map);
 
-		/* Fix me */
-		*pwidth = width = 16;
+		*pwidth = 16;
 		*pheight = 16;
 		*pbase = 0;
+		*retmap = map;
 		return;
 	}
 #endif

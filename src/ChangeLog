@@ -1,3 +1,4 @@
+	* fixed BIG5, GB2312, JISX0213, KSC5601 from previous GetTextBits retmap change
 Version 0.89pl10 - 04 Apr 2003 - greg@censoft.com
 	* fix GrRegisterInput bug for successive file descriptors (Chen)
 	* cleaned up some nxproto.h signed/unsigned int16 values and Gr* params

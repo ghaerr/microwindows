@@ -1,3 +1,5 @@
+	* added 4bpp nibble-flipped driver (fblin4orion.c) (David)
+	* fixed GsAllocEvent/GsError OOM recursive loop (Aaron)
 	* added big-endian support for PCF fonts (Jordan, Klaus)
 	* fixed usec calc bug in GrDelay (Marc)
 	* fixed 7-bit requirement for MS mouse (Murphy)

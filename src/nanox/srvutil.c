@@ -61,7 +61,16 @@ GsResetScreenSaver(void)
 			GsActivateScreenSaver);
 	}
 }
- 
+
+void
+GsTimerCB (void *arg) 
+{
+    GR_TIMER *timer = (GR_TIMER*) arg;
+
+    GsDeliverTimerEvent (timer->owner, timer->wid, timer->id);
+}
+
+
 /*
  * Unmap the window to make it and its children invisible on the screen.
  * This is a recursive routine which increments the unmapcount values for
@@ -814,6 +823,33 @@ GsFindCursor(GR_CURSOR_ID cursorid)
 	}
 	return NULL;
 }
+
+GR_TIMER *
+GsFindTimer (GR_TIMER_ID timer_id)
+{
+    GR_TIMER   *timer;
+    
+    /*
+     * See if this is the same graphics context as last time.
+     */
+    if ((timer_id == cache_timer_id) && timer_id)
+        return cache_timer;
+    
+    /*
+     * No, search for it and cache it for future calls.
+     */
+    for (timer = list_timer; timer != NULL; timer = timer->next) 
+    {
+        if (timer->id == timer_id) 
+        {
+            cache_timer_id = timer_id;
+            cache_timer = timer;
+            return timer;
+        }
+    }
+    return NULL;
+}
+
 
 /*
  * Prepare to do drawing in a window or pixmap using the specified

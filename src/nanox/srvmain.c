@@ -87,6 +87,10 @@ GR_SELECTIONOWNER selection_owner;	/* the selection owner and typelist */
 GR_TIMEOUT	startTicks;		/* ms time server started*/
 int		autoportrait = FALSE;	/* auto portrait mode switching*/
 
+GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
+GR_TIMER        *cache_timer;           /* cached timer */
+GR_TIMER        *list_timer;            /* list of all timers */
+
 static int	persistent_mode = 0;
 static int	portraitmode = MWPORTRAIT_NONE;
 

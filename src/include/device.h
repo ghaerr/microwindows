@@ -585,6 +585,9 @@ void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 
 typedef void (*MWTIMERCB)(void *);
 
+#define  MWTIMER_ONESHOT         0 
+#define  MWTIMER_PERIODIC        1
+
 typedef struct mw_timer MWTIMER;
 struct mw_timer {
 	struct timeval	timeout;
@@ -592,9 +595,12 @@ struct mw_timer {
 	void		*arg;
 	MWTIMER		*next;
 	MWTIMER		*prev;
+    int         type;     /* MWTIMER_ONESHOT or MWTIMER_PERIODIC */
+    MWTIMEOUT   period;
 };
 
 MWTIMER		*GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
+MWTIMER         *GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
 void		GdDestroyTimer(MWTIMER *timer);
 MWTIMER		*GdFindTimer(void *arg);
 MWBOOL		GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout);

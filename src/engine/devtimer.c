@@ -78,9 +78,33 @@ MWTIMER *GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
 	newtimer->arg = arg;
 	newtimer->next = timerlist;
 	newtimer->prev = NULL;
+        newtimer->type   = MWTIMER_ONESHOT;
+        newtimer->period = timeout;
 	timerlist = newtimer;
 
 	return newtimer;
+}
+
+MWTIMER *GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
+{
+    MWTIMER *newtimer;
+
+    if(!(newtimer = malloc(sizeof(MWTIMER)))) return NULL;
+
+    gettimeofday (&current_time, NULL);
+    
+    if (timerlist) timerlist->prev = newtimer;
+    
+    calculate_timeval (&newtimer->timeout, timeout);
+    newtimer->callback = callback;
+    newtimer->arg      = arg;
+    newtimer->next     = timerlist;
+    newtimer->prev     = NULL;
+    newtimer->type     = MWTIMER_PERIODIC;
+    newtimer->period   = timeout;
+    timerlist          = newtimer;
+    
+    return newtimer;
 }
 
 void GdDestroyTimer(MWTIMER *timer)
@@ -151,7 +175,16 @@ MWBOOL GdTimeout(void)
 		n = t->next;
 		if(time_to_expiry(&t->timeout) <= 0) {
 			t->callback(t->arg);
-			GdDestroyTimer(t);
+                        if (t->type == MWTIMER_ONESHOT)
+                        {
+                            /* One shot timer, is finished delete it now */
+                            GdDestroyTimer(t);
+                        }
+                        else
+                        {
+                            /* Periodic timer needs to be reset */
+                            calculate_timeval (&t->timeout, t->period);
+                        }
 		}
 		t = n;
 	}

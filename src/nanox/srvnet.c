@@ -1089,6 +1089,27 @@ GrQueryTreeWrapper(void *r)
 	}
 }
 
+static void
+GrCreateTimerWrapper(void *r)
+{
+    nxCreateTimerReq *req = r;
+    GR_TIMER_ID  timerid;
+
+    timerid = GrCreateTimer (req->wid, req->period);
+
+    GsWriteType (current_fd, GrNumCreateTimer);
+    GsWrite (current_fd, &timerid, sizeof (timerid));
+}
+
+static void
+GrDestroyTimerWrapper(void *r)
+{
+    nxDestroyTimerReq *req = r;
+    
+    GrDestroyTimer (req->timerid);
+}
+
+
 /*
  * This function makes the Nano-X server set up a shared memory segment
  * that the client can use when feeding the Nano-X server with requests.
@@ -1244,7 +1265,9 @@ struct GrFunction {
 	/*  94 */ {GrBellWrapper, "GrBell"},
 	/*  95 */ {GrSetBackgroundPixmapWrapper, "GrSetBackgroundPixmap"},
 	/*  96 */ {GrDestroyCursorWrapper, "GrDestroyCursor"},
-	/*  97 */ {GrQueryTreeWrapper, "GrQueryTree"}
+	/*  97 */ {GrQueryTreeWrapper, "GrQueryTree"},
+	/*  98 */ {GrCreateTimerWrapper, "GrCreateTimer"},
+	/*  99 */ {GrDestroyTimerWrapper, "GrDestroyTimer"}
 };
 
 void

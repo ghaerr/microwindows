@@ -231,6 +231,20 @@ typedef struct {
 	GR_CHAR *typelist;
 } GR_SELECTIONOWNER;
 
+
+/*
+ * Structure to remember timers.
+ */
+typedef struct gr_timer	GR_TIMER;
+struct gr_timer 
+{
+    GR_TIMER_ID    id;       /* This instances ID */
+    GR_CLIENT     *owner;    /* client that created it */
+    GR_WINDOW_ID   wid;
+    MWTIMER       *timer;    /* Device independent layer timer */
+    GR_TIMER      *next;
+};
+
 /*
  * Drawable structure.  This structure must be the first
  * elements in a GR_WINDOW or GR_PIXMAP, as GrPrepareWindow
@@ -329,11 +343,9 @@ void		GsExposeArea(GR_WINDOW *wp, GR_COORD rootx, GR_COORD rooty,
 void		GsCheckCursor(void);
 void		GsWpSetFocus(GR_WINDOW *wp);
 void		GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
-						GR_COORD x, GR_COORD y,
-						GR_SIZE width, GR_SIZE height);
+			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsWpTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
-						GR_COORD x, GR_COORD y,
-						GR_SIZE width, GR_SIZE height);
+			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
 void		GsWpUnmapWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
@@ -362,12 +374,14 @@ void		GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type,
 			GR_WINDOW *other);
 void		GsDeliverScreenSaverEvent(GR_BOOL activate);
 void		GsDeliverClientDataReqEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
-				GR_SERIALNO serial, GR_MIMETYPE mimetype);
+			GR_SERIALNO serial, GR_MIMETYPE mimetype);
 void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
-				GR_SERIALNO serial, GR_LENGTH len,
-				GR_LENGTH thislen, void *data);
+			GR_SERIALNO serial, GR_LENGTH len, GR_LENGTH thislen,
+			void *data);
 void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
-						GR_WINDOW_ID new_owner);
+			GR_WINDOW_ID new_owner);
+voidi		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
+			GR_TIMER_ID tid);
 void		GsCheckMouseWindow(void);
 void		GsCheckFocusWindow(void);
 GR_DRAW_TYPE	GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid,
@@ -379,6 +393,7 @@ GR_PIXMAP 	*GsFindPixmap(GR_WINDOW_ID id);
 GR_GC		*GsFindGC(GR_GC_ID gcid);
 GR_REGION	*GsFindRegion(GR_REGION_ID regionid);
 GR_FONT 	*GsFindFont(GR_FONT_ID fontid);
+GR_TIMER	*GsFindTimer(GR_TIMER_ID timer_id);
 GR_CURSOR 	*GsFindCursor(GR_CURSOR_ID cursorid);
 GR_WINDOW	*GsPrepareWindow(GR_WINDOW_ID wid);
 GR_WINDOW	*GsFindVisibleWindow(GR_COORD x, GR_COORD y);
@@ -399,6 +414,7 @@ void		GsHandleClient(int fd);
 void		GsResetScreenSaver(void);
 void		GsActivateScreenSaver(void *arg);
 void		GrGetNextEventWrapperFinish(int);
+void            GsTimerCB(void *arg);
 
 /*
  * External data definitions.
@@ -439,6 +455,10 @@ extern	int		escape_quits;		/* terminate when pressing ESC*/
 extern	int		connectcount;		/* # of connections to server */
 extern	GR_TIMEOUT	screensaver_delay;	/* time before screensaver */
 						/* activates */
+extern  GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
+extern  GR_TIMER        *cache_timer;           /* cached timer */
+extern  GR_TIMER        *list_timer;            /* list of all timers */
+
 extern	GR_BOOL		screensaver_active;	/* screensaver is active */
 extern	GR_SELECTIONOWNER selection_owner;	/* the selection owner */
 extern  int		autoportrait;		/* auto portrait mode switching*/

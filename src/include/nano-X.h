@@ -47,6 +47,7 @@ typedef GR_ID		GR_GC_ID;	/* graphics context id */
 typedef GR_ID		GR_REGION_ID;	/* region id */
 typedef GR_ID		GR_FONT_ID;	/* font id */
 typedef GR_ID		GR_IMAGE_ID;	/* image id */
+typedef GR_ID		GR_TIMER_ID;	/* timer id */
 typedef GR_ID		GR_CURSOR_ID;	/* cursor id */
 typedef unsigned short	GR_BOOL;	/* boolean value */
 typedef int		GR_ERROR;	/* error types*/
@@ -263,6 +264,7 @@ typedef struct {
 #define GR_EVENT_TYPE_CLIENT_DATA_REQ	18
 #define GR_EVENT_TYPE_CLIENT_DATA	19
 #define GR_EVENT_TYPE_SELECTION_CHANGED 20
+#define GR_EVENT_TYPE_TIMER             21
 
 /* Event masks */
 #define	GR_EVENTMASK(n)			(((GR_EVENT_MASK) 1) << (n))
@@ -289,6 +291,7 @@ typedef struct {
 #define GR_EVENT_MASK_CLIENT_DATA_REQ	GR_EVENTMASK(GR_EVENT_TYPE_CLIENT_DATA_REQ)
 #define GR_EVENT_MASK_CLIENT_DATA	GR_EVENTMASK(GR_EVENT_TYPE_CLIENT_DATA)
 #define GR_EVENT_MASK_SELECTION_CHANGED GR_EVENTMASK(GR_EVENT_TYPE_SELECTION_CHANGED)
+#define GR_EVENT_MASK_TIMER             GR_EVENTMASK(GR_EVENT_TYPE_TIMER)
 #define	GR_EVENT_MASK_ALL		((GR_EVENT_MASK) -1L)
 
 /* update event types */
@@ -426,6 +429,13 @@ typedef struct {
   GR_WINDOW_ID new_owner;	/* ID of new selection owner */
 } GR_EVENT_SELECTION_CHANGED;
 
+/* GR_EVENT_TYPE_TIMER */
+typedef struct {
+  GR_EVENT_TYPE  type;		/* event type, GR_EVENT_TYPE_TIMER */
+  GR_WINDOW_ID   wid;		/* ID of window timer is destined for */
+  GR_TIMER_ID    tid;		/* ID of expired timer */
+} GR_EVENT_TIMER;
+
 /*
  * Union of all possible event structures.
  * This is the structure returned by the GrGetNextEvent and similar routines.
@@ -444,6 +454,7 @@ typedef union {
   GR_EVENT_CLIENT_DATA_REQ clientdatareq; /* Request for client data events */
   GR_EVENT_CLIENT_DATA clientdata;	/* Client data events */
   GR_EVENT_SELECTION_CHANGED selectionchanged; /* Selection owner changed */
+  GR_EVENT_TIMER timer;
 } GR_EVENT;
 
 typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
@@ -667,6 +678,8 @@ void		GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap,
 			int flags);
 void		GrQueryTree(GR_WINDOW_ID wid, GR_WINDOW_ID *parentid, GR_WINDOW_ID **children,
 			GR_COUNT *nchildren);
+GR_TIMER_ID	GrCreateTimer(GR_WINDOW_ID wid, GR_TIMEOUT period);
+void		GrDestroyTimer(GR_TIMER_ID tid);
 
 void		GrRegisterInput(int fd);
 void		GrMainLoop(GR_FNCALLBACKEVENT fncb);

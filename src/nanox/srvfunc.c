@@ -2733,3 +2733,78 @@ nochildren:
 	*children = retarray;
 	*nchildren = n;
 }
+
+
+static int next_timer_id = 1000;
+
+GR_TIMER_ID
+GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
+{
+    GR_TIMER  *timer;
+
+    /* Create a nano-X layer timr */
+    timer = (GR_TIMER*) malloc (sizeof (GR_TIMER));
+    if (timer == NULL)
+    {
+        GsError (GR_ERROR_MALLOC_FAILED, 0);
+        return 0;
+    }
+
+    /* Create a device independent layer timer */
+    timer->timer = GdAddPeriodicTimer (period, GsTimerCB, timer);
+    if (timer->timer == NULL)
+    {
+        free (timer);
+        GsError (GR_ERROR_MALLOC_FAILED, 0);
+        return 0;
+    }
+
+    /* 
+     * Fill in the rest of the timer structure, and 
+     * link the new timer into the servers list of timers.
+     */
+    timer->id    = next_timer_id++;
+    timer->owner = curclient;
+    timer->wid   = wid;
+    timer->next  = list_timer;
+    list_timer   = timer;
+
+    return timer->id;
+}
+
+void
+GrDestroyTimer (GR_TIMER_ID tid)
+{
+    GR_TIMER  *timer;
+    GR_TIMER  *prev_timer;
+    
+    /* Find the timer structure that corresponds to "tid" */
+    timer = GsFindTimer (tid);
+    if (timer == NULL)
+        return;
+
+    if (tid == cache_timer_id) 
+    {
+        cache_timer_id = 0;
+        cache_timer = NULL;
+    }
+
+    /* Delete the timer from the device independent engine layer */
+    GdDestroyTimer (timer->timer);
+
+    /* Pull the timer out of the servers list */
+    if (list_timer == timer)
+    {
+        list_timer = timer->next;
+    }
+    else 
+    {
+        prev_timer = list_timer;
+        while (prev_timer->next != timer)
+        {
+            prev_timer = prev_timer->next;
+        }
+        prev_timer->next = timer->next;
+    }
+    free (timer);
+}

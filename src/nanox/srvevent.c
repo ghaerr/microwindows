@@ -897,3 +897,32 @@ void GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
 		gp->new_owner = new_owner;
 	}
 }
+
+void GsDeliverTimerEvent (GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid)
+{
+    GR_EVENT_TIMER    *event;           /* general event */
+    GR_EVENT_CLIENT   *ecp;             /* current event client */
+    GR_WINDOW         *wp;              /* current window */
+    
+    if ((wp = GsFindWindow (wid)) == NULL)
+    {
+        return;
+    }
+
+    for (ecp = wp->eventclients; ecp != NULL; ecp = ecp->next) 
+    {
+        if ((ecp->client == client) && ((ecp->eventmask & GR_EVENT_MASK_TIMER) != 0))
+        {
+            event = (GR_EVENT_TIMER*) GsAllocEvent (client);
+            if (event == NULL)
+            {
+                break;
+            }
+        
+            event->type = GR_EVENT_TYPE_TIMER;
+            event->wid  = wid;
+            event->tid  = tid;
+        }
+    }
+}
+

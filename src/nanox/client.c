@@ -3125,3 +3125,30 @@ GrRegisterDragAndDropWindow(GR_WINDOW_ID wid, GR_WINDOW_ID iid,
 {
 }
 #endif
+
+
+GR_TIMER_ID
+GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
+{
+    nxCreateTimerReq  *req;
+    GR_TIMER_ID  timerid;
+
+    req = AllocReq (CreateTimer);
+
+    req->wid = wid;
+    req->period = period;
+
+    if (GrTypedReadBlock (&timerid, sizeof (timerid), GrNumCreateTimer) == -1)
+        return 0;
+    return timerid;
+}
+
+void
+GrDestroyTimer (GR_TIMER_ID tid)
+{
+    nxDestroyTimerReq *req;
+    
+    req = AllocReq (DestroyTimer);
+    req->timerid = tid;
+}
+

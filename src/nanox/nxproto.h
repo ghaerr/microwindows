@@ -32,7 +32,7 @@
  * NOTE: MAXREQUESTSZ must be an _aligned_ multiple of 4, meaning
  * that MAXREQUESTSZ = (MAXREQUESTSZ + 3) & ~3.
  */
-#define MAXREQUESTSZ	10000		/* max request size (65532)*/
+#define MAXREQUESTSZ	30000		/* max request size (65532)*/
 
 typedef unsigned char	BYTE8;		/* 1 byte*/
 typedef unsigned short	UINT16;		/* 2 bytes*/
@@ -1081,4 +1081,23 @@ typedef struct {
 	IDTYPE	windowid;
 } nxQueryTreeReq;
 
-#define GrTotalNumCalls         98
+#define GrNumCreateTimer	98
+typedef struct 
+{
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE	wid;
+	UINT32	period;
+} nxCreateTimerReq;
+
+#define GrNumDestroyTimer	99
+typedef struct 
+{
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE	timerid;
+} nxDestroyTimerReq;
+
+#define GrTotalNumCalls         100

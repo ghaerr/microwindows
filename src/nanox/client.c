@@ -881,7 +881,7 @@ GrPeekEvent(GR_EVENT *ep)
 	ACCESS_PER_THREAD_DATA()
 
 	if (evlist) {
-		GetNextQueuedEvent(ep);
+		*ep = evlist->event;
 		CheckErrorEvent(ep);
 		return 1;
 	}
@@ -892,6 +892,38 @@ GrPeekEvent(GR_EVENT *ep)
 	ret = GrReadByte();
 	CheckErrorEvent(ep);
 	return ret;
+}
+
+/**
+ * GrPeekWaitEvent:
+ * @ep: pointer to the GR_EVENT structure to return the event in
+ *
+ * Wait until an event is available for a client, and then peek at it.
+ */
+void
+GrPeekWaitEvent(GR_EVENT *ep)
+{
+	EVENT_LIST *	elp;
+	ACCESS_PER_THREAD_DATA()
+
+	if (evlist) {
+		*ep = evlist->event;
+		CheckErrorEvent(ep);
+		return;
+	}
+
+	/* no events, wait for next event*/
+	GrGetNextEvent(ep);
+
+	/* add event back on head of list*/
+	elp = malloc(sizeof(EVENT_LIST));
+	if (elp) {
+		elp->event = *ep;
+		elp->next = evlist;
+	}
+
+	/* peek at it*/
+	GrPeekEvent(ep);
 }
 
 /**

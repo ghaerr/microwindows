@@ -620,6 +620,7 @@ void		GrGetNextEvent(GR_EVENT *ep);
 void		GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 void		GrCheckNextEvent(GR_EVENT *ep);
 int		GrPeekEvent(GR_EVENT *ep);
+void		GrPeekWaitEvent(GR_EVENT *ep);
 void		GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1,
 			GR_COORD x2, GR_COORD y2);
 void		GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y);

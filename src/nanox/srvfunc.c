@@ -89,6 +89,17 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 		GsSelect(timeout);
 	CheckNextEvent(ep, GR_FALSE);
 }
+
+/*
+ * Wait until an event is available for a client, and then peek at it.
+ */
+void
+GrPeekWaitEvent(GR_EVENT *ep)
+{
+	while(curclient->eventhead == NULL)
+		GsSelect(0L);
+	GrPeekEvent(ep);
+}
 #endif
 
 /*

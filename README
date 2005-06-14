@@ -1,17 +1,20 @@
-To build Microwindows, see src/INSTALL and src/CONTENTS.
+To build Nano-X/Microwindows, see src/INSTALL and src/CONTENTS.
 
-Microwindows is an Open Source project aimed at bringing
+The Microwindows Project has been renamed to The Nano-X
+Window System, due to conflicts with the Windows trademark
+registered by Microsoft, in 2005.
+
+Nano-X is an Open Source project aimed at bringing
 the features of modern graphical windowing environments
-to smaller devices.  Microwindows' genesis was with the
-NanoGUI project, and is now the primary distribution for
-both the Microwindows and Nano-X codebase.  Microwindows
-currently runs on Linux, UNIX, X11, ELKS, MSDOS, RTEMS
+to smaller devices.  Nano-X's genesis was with the
+NanoGUI project, and is now the primary distribution.
+Nano-X currently runs on Linux, UNIX, X11, ELKS, MSDOS, RTEMS
 and bare VGA hardware.  It uses the same device-
 independent graphics engine built for the NanoGUI project.
-Microwindows compiles a sample application and the WinCE 
+Nano-X compiles a sample application and the WinCE 
 graphics api in about 42k.
 
-The architecture of Microwindows allows it to be ported
+The architecture of Nano-X allows it to be ported
 or run on a wide variety of systems.  Cross-compilation
 for MIPS, ARM and x86 processors is supported. There are currently
 screen drivers for Linux 2.2.x framebuffers and Linux 2.0.x
@@ -20,12 +23,12 @@ to be built and tested under X11 before running on the
 target platform.  There exists a portable 4-planes VGA driver
 that will run on bare hardware, ELKS, MSDOS, or RTEMS.
 There are mouse drivers written for bare hardware, direct
-serial port, Linux GPM driver, and touchpads.  The Microwindows
+serial port, Linux GPM driver, and touchpads.  The Nano-X
 graphics engine is capable of running on any system that
 support readpixel, writepixel, drawhline and drawvline,
 although more advanced bit blit routines are provided.
 
-Microwindows features full RGB color support, optimized
+Nano-X features full RGB color support, optimized
 palette bitmap drawing, and a 3d look-and-feel.
 Overlapped and child windows are supported, with complete
 window and client area clipping.  Proportional and fixed
@@ -39,14 +42,14 @@ the device-independent graphics engine.
 
 WEB SITE
 ========
-The main Microwindows web site is at
-	http://microwindows.org/
+The main Nano-X web site is at
+	http://nano-x.org/
 
 An HTML based FAQ and Architecture document are available from
 the web site.
 
-Microwindows may be downloaded at
-	ftp://microwindows.org/pub/microwindows
+Nano-X may be downloaded at
+	ftp://nano-x.org/pub/microwindows
 
 The chief maintainer of the project is Greg Haerr <greg@censoft.com>
 
@@ -64,4 +67,3 @@ ELKS
 The ELKS mailing list is linux-8086@vger.rutgers.edu.  To subscribe,
 send a message to majordomo@vger.rutgers.edu containing the words
 subscribe linux-8086 in the body.
-

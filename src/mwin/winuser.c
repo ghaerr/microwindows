@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
  * Win32 API upper level window creation, management and msg routines
  */
@@ -450,7 +450,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 		if(pmsg->hwnd == wp) {
 			p = p->next;
 			GdListRemove(&mwMsgHead, &pmsg->link);
-			GdItemFree(p);
+			GdItemFree(pmsg);
 		} else
 			p = p->next;
 	}

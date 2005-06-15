@@ -856,7 +856,15 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 		x = (lpRect->left + lpRect->right - width) / 2;
 	else if(uFormat & DT_RIGHT)
 		x += lpRect->right - width;
-
+	
+	if(uFormat & DT_VCENTER)
+	    y = lpRect->bottom / 2;
+	
+	if(uFormat & DT_BOTTOM) {
+	    flags |= MWTF_BOTTOM;
+	    y = lpRect->bottom;
+	}    
+	
 	/* draw text at DT_TOP using current fg, bg and bkmode*/
 	MwExtTextOut(hdc, x, y, 0, NULL, lpString, nCount, NULL, flags);
 	return height;

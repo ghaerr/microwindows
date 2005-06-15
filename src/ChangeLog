@@ -1,3 +1,5 @@
+	* add DT_BOTTOM, DT_VCENTER to DrawText (Simon)
+	* fix bug in MwDestroyWindow causing crashes
 	* add DrawArea function to fblin4 driver for Freetype 2.1.4 (Steven)
 	* added support for iPod Linux (Bernard)
 		new config options: IPOD_LCD, INVERT2BB, config.ipod

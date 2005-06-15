@@ -383,7 +383,99 @@ GrReqShmCmds(long shmsize)
 #endif
 
 
-#if VXWORKS
+#if WIN32
+static void
+HandleKeyMessage(MSG *msg, GR_EVENT_TYPE keyType)
+{
+	int keystatus = -1;
+	MWKEY mwkey = msg->wParam; // virtual-key code
+	MWKEYMOD modifiers = 0;
+	unsigned char scanCode;
+	int repeat, extended, context, previous;
+
+	repeat = msg->lParam & 0xffff;
+	scanCode = (msg->lParam >> 16) & 0xff;
+	previous = msg->lParam & 0x40000000L;
+	context = msg->lParam & 0x20000000L;
+	extended = msg->lParam & 0x1000000L;
+	if (extended) {
+	}
+	GsDeliverKeyboardEvent(0, keyType, mwkey, modifiers, scanCode);
+}
+
+extern HWND winRootWindow;
+extern MSG *winMouseMsg;
+
+void
+GsSelect(GR_TIMEOUT timeout)
+{
+	MSG msg;
+	int mouseevents = 0;
+	int keybdevents = 0;
+	GR_EVENT_GENERAL *gp;
+
+	if (winRootWindow == NULL)
+		goto err_exit;
+
+	if (timeout == 0) {
+		if (!PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE)) {
+			Sleep(20);
+			return;
+		}
+	} else if (timeout == -1) {
+		if (GetMessage(&msg, winRootWindow, 0, 0) < 0)
+			goto err_exit;
+	} else {
+		while (1) {
+			if (PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE))
+				break;
+			Sleep(20);
+			if (timeout < 20) {
+				/* Timeout has occured.
+				** Currently return a timeout event regardless of whether client
+				** has selected for it.
+				*/
+				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
+					gp->type = GR_EVENT_TYPE_TIMEOUT;
+				return;
+			}
+			timeout -= 20;
+		}
+	}
+
+	switch (msg.message) {
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		HandleKeyMessage(&msg, GR_EVENT_TYPE_KEY_DOWN);
+		break;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		HandleKeyMessage(&msg, GR_EVENT_TYPE_KEY_UP);
+		break;
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_RBUTTONDBLCLK:
+		winMouseMsg = &msg;
+		GsCheckMouseEvent();
+		winMouseMsg = NULL;
+		break;
+	}
+
+	TranslateMessage(&msg);
+	DispatchMessage(&msg);
+	return;
+
+err_exit:
+	GsTerminate();
+}
+#elif VXWORKS
 
 #define POLLTIME	100   /* polling sleep interval (in msec) */
 #define MAX_MOUSEEVENTS	10    /* max number of mouse event to get in 1 select */

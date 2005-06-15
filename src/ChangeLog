@@ -1,6 +1,9 @@
+	* add DrawArea function to fblin4 driver for Freetype 2.1.4 (Steven)
 	* added support for iPod Linux (Bernard)
 		new config options: IPOD_LCD, INVERT2BB, config.ipod
 		new arch: UCLINUX-ARM
+		new screen driver fblin2revipod.c
+		fixed uClinux framebuffer mmap, ttyscan driver
 	* allow large transfers > MAXREQUESTSZ in GrDrawImageBits (Thomas)
 	* fixed positive leftBearing in PCF fonts (Thomas)
 	* fix no mmap under eCos

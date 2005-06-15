@@ -1,7 +1,7 @@
 #ifndef _MWTYPES_H
 #define _MWTYPES_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Exported Microwindows engine typedefs and defines
@@ -112,6 +112,8 @@
 #define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* rgb full alpha*/
 #define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb no alpha*/
 
+/* no color, used for transparency, should not by 0, -1 or any MWRGB color*/
+#define MWNOCOLOR	0x01000000L
 
 /* convert an MWROP to drawing mode MWMODE value*/
 #define MWROP_TO_MODE(op)	((op) >> 24)

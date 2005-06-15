@@ -52,7 +52,7 @@ main(int argc,char **argv)
 
 	sprintf(title, "nxview %s", argv[1]);
 	window_id = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, title,
-		GR_ROOT_WINDOW_ID, 0, 0, w, h, BLACK);
+		GR_ROOT_WINDOW_ID, 0, 0, w, h, GREEN);
 
 	GrSelectEvents(window_id,
 		GR_EVENT_MASK_CLOSE_REQ|GR_EVENT_MASK_EXPOSURE);

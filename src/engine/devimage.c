@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
  * Portions Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  *
@@ -279,7 +279,7 @@ GdDecodeImage(PSD psd, buffer_t * src, char *path, int flags)
 	}
 	pimage->imagebits = NULL;
 	pimage->palette = NULL;
-	pimage->transcolor = -1L;
+	pimage->transcolor = MWNOCOLOR;
 
 #if defined(HAVE_TIFF_SUPPORT)
 	/* must be first... no buffer support yet*/

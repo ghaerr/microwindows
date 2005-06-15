@@ -41,7 +41,8 @@ GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 	pimage->palette = NULL;
 
 	/* upside down, RGB order (with alpha)*/
-	pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL |
+	/* alpha removed for time being, since only handled by display hw*/
+	pimage->compression = MWIMAGE_RGB | /*MWIMAGE_ALPHA_CHANNEL |*/
 		MWIMAGE_UPSIDEDOWN;
 
 	/* Allocate image */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
  *
  * Image decode routine for GIF files
  *
@@ -72,7 +72,7 @@ struct {
 } GifScreen;
 
 static struct {
-    int transparent;
+    long transparent;
     int delayTime;
     int inputFlag;
     int disposal;
@@ -118,7 +118,7 @@ GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage)
 	EPRINTF("GdDecodeGIF: GIF version number not 87a or 89a\n");
         return 2;		/* image loading error*/
     }
-    Gif89.transparent = -1;
+    Gif89.transparent = MWNOCOLOR;
     Gif89.delayTime = -1;
     Gif89.inputFlag = -1;
     Gif89.disposal = 0;
@@ -467,7 +467,7 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
     pimage->planes = 1;
     pimage->bpp = 8;
     GdComputeImagePitch(8, len, &pimage->pitch, &pimage->bytesperpixel);
-    pimage->compression = 0;
+    pimage->compression = MWIMAGE_BGR;	/* right side up, BGR order*/
     pimage->palsize = cmapSize;
     pimage->palette = malloc(256*sizeof(MWPALENTRY));
     pimage->imagebits = malloc(height*pimage->pitch);

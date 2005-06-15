@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
@@ -850,28 +850,21 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	}
 	extra = pimage->pitch - linesize;
 
-	/* 24bpp RGB rather than BGR byte order?*/
+	/* RGB rather than BGR byte order?*/
 	rgborder = pimage->compression & MWIMAGE_RGB; 
 
-	if ((bpp == 32)
-	    && ((pimage->compression & MWIMAGE_ALPHA_CHANNEL) != 0)) {
-		long *data = (long *) imagebits;
-
-		/* DPRINTF("Nano-X: GdDrawImage (%d,%d) %dx%d x=%d-%d\n  ",
-		   x,y,width,height,minx,maxx); */
+	/* no transparent color handling with 32bpp alpha channel*/
+	if (pimage->compression & MWIMAGE_ALPHA_CHANNEL) {
+		long *data = (long *)imagebits;
 
 		while (height > 0) {
-
 			cr = *data++;
 #if MW_CPU_BIG_ENDIAN
-			if (rgborder)
-			{
+			if (rgborder) {
 				/* Fix endian and swap R/B order */
 				cr =  ((cr & 0xFFFFFF00UL) >> 8)
 					| ((cr & 0x000000FFUL) << 24);
-			}
-			else
-			{
+			} else {
 				/* Fix endian */
 				cr =  ((cr & 0xFF000000UL) >> 24)
 					| ((cr & 0x00FF0000UL) >> 8)
@@ -886,7 +879,6 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					| ((cr & 0x000000FFUL) << 16);
 			}
 #endif
-
 			switch (psd->pixtype) {
 			case MWPF_PALETTE:
 			default:
@@ -914,41 +906,33 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				psd->DrawPixel(psd, x, y, pixel);
 
 			if (x++ == maxx) {
-				/* printf("EOL\n  "); */
 				x = minx;
 				y += yoff;
 				height--;
 				data = (long *) (((char *) data) + extra);
 			}
 		}
-		/* printf("End of image\n"); */
-	} else if ((bpp == 24) || (bpp == 32)) {
-		long trans;
-
+	} else if (bpp == 24 || bpp == 32) {
 		while (height > 0) {
-			/* RGB rather than BGR byte order? */
-			trans = cr = rgborder
-				? MWRGB(imagebits[0], imagebits[1],
-					imagebits[2])
-				: MWRGB(imagebits[2], imagebits[1],
-					imagebits[0]);
-
-			imagebits += 3;
-
-			if (bpp == 32) {
-				/*
-				 * FIXME Currently, XPM is the only image
-				 * decoder that creates 32bpp images with
-				 * transparency. This is done specifying the
-				 * transparent color 0x01000000, using 0x01
-				 * in the alpha channel as the indicator.
-				 */
-				if (*imagebits++ == 0x01)
-					trans = 0x01000000;
+			/* get value in correct RGB or BGR byte order*/
+			if (bpp == 24) {
+				cr = rgborder
+					? MWRGB(imagebits[0], imagebits[1],
+						imagebits[2])
+					: MWRGB(imagebits[2], imagebits[1],
+						imagebits[0]);
+				imagebits += 3;
+			} else {
+				cr = rgborder
+					? MWARGB(imagebits[3],imagebits[0],
+						imagebits[1], imagebits[2])
+					: MWARGB(imagebits[3],imagebits[2],
+						imagebits[1], imagebits[0]);
+				imagebits += 4;
 			}
 
 			/* handle transparent color */
-			if (transcolor != trans) {
+			if (transcolor != cr) {
 
 				switch (psd->pixtype) {
 				case MWPF_PALETTE:
@@ -1041,7 +1025,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				x = maxx;
 			}
 #endif
-		      next:
+		next:
 			if (x++ == maxx) {
 				x = minx;
 				y += yoff;

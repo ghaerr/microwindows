@@ -20,7 +20,7 @@
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
-#ifdef __rtems__
+#if defined(__rtems__) || defined(__ECOS)
 #define HAVE_MMAP       0
 #else
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/

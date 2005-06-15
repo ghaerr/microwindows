@@ -1,3 +1,5 @@
+	* fix no mmap under eCos
+	* fix GrSendClientData mem leak
 Version 0.91 - 3 June 2005 (based on 28 Feb 2004 CVS) - greg@censoft.com
 	* added changes for updated port to RTEMS 4.6.0pre5 (Andrey)
 	* split devimage.c into individual decoder image_*.c files (Jonathan)

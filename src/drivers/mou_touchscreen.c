@@ -87,7 +87,7 @@ static void PD_GetDefaultAccel(int *pscale,int *pthresh)
 	*pthresh = 5;
 }
 
-static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb, int mode)
+static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb)
 {
 	struct ts_event event;
 	int bytes_read;

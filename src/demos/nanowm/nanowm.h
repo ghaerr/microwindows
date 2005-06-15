@@ -170,7 +170,6 @@ void rightresize_mousemoved(win *window, GR_EVENT_MOUSE *event);
 void rightbar_mousemoved(win *window, GR_EVENT_MOUSE *event);
 
 extern GR_SCREEN_INFO si;
-extern win *windows;
 extern GR_BITMAP utilitybutton_notpressed[];
 extern GR_BITMAP utilitybutton_pressed[];
 extern GR_BITMAP maximisebutton_notpressed[];

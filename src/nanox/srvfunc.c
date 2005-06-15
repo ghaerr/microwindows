@@ -3661,19 +3661,8 @@ void
 GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 				GR_LENGTH len, GR_LENGTH thislen, void *data)
 {
-	void *p;
-
 	SERVER_LOCK();
-
-	if(!(p = malloc(len))) {
-		GsError(GR_ERROR_MALLOC_FAILED, wid);
-		SERVER_UNLOCK();
-		return;		/* FIXME note no error to application*/
-	}
-	memcpy(p, data, thislen);
-
-	GsDeliverClientDataEvent(did, wid, serial, len, thislen, p);
-
+	GsDeliverClientDataEvent(did, wid, serial, len, thislen, data);
 	SERVER_UNLOCK();
 }
 

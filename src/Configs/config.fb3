@@ -144,6 +144,7 @@ LIBJPEG                  = /usr/lib/libjpeg.so
 HAVE_PNG_SUPPORT         = N
 INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.a
+INCZ                     = .
 LIBZ                     = /usr/lib/libz.a
 
 ####################################################################
@@ -342,6 +343,14 @@ endif
 # You may have a normal keyboard driver in addition to these
 # drivers, e.g. for both normal keyboard and IR input.
 LIRCKBD2                 = N
+
+####################################################################
+# VNC server support through libvncserver
+####################################################################
+HAVE_VNCSERVER_SUPPORT   = N
+VNCSERVER_PTHREADED      = N
+LIBVNC                   = /usr/local/lib/libvncserver.a
+INCVNC                   = /usr/local/include
 
 ####################################################################
 # Screen driver specific configuration

@@ -1,7 +1,7 @@
 /*
  * Convert BDF files to C source and/or Rockbox .fnt file format
  *
- * Copyright (c) 2002 by Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2002, 2005 by Greg Haerr <greg@censoft.com>
  *
  * What fun it is converting font data...
  *
@@ -169,7 +169,7 @@ getopts(int *pac, char ***pav)
 
 /* remove directory prefix and file suffix from full path*/
 char *
-basename(char *path)
+base_name(char *path)
 {
 	char *p, *b;
 	static char base[256];
@@ -202,7 +202,7 @@ convbdf(char *path)
 
 	if (gen_c) {
 		if (!oflag) {
-			strcpy(outfile, basename(path));
+			strcpy(outfile, base_name(path));
 			strcat(outfile, ".c");
 		}
 		ret |= gen_c_source(pf, outfile);
@@ -210,7 +210,7 @@ convbdf(char *path)
 
 	if (gen_fnt) {
 		if (!oflag) {
-			strcpy(outfile, basename(path));
+			strcpy(outfile, base_name(path));
 			strcat(outfile, ".fnt");
 		}
 		ret |= gen_fnt_file(pf, outfile);
@@ -283,7 +283,7 @@ bdf_read_font(char *path)
 	if (!pf)
 		goto errout;
 	
-	pf->name = strdup(basename(path));
+	pf->name = strdup(base_name(path));
 
 	if (!bdf_read_header(fp, pf)) {
 		fprintf(stderr, "Error reading font header\n");

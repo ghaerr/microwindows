@@ -68,6 +68,15 @@ ifeq ($(VGALIB), Y)
 LDFLAGS += -lvga
 endif
 
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
+INCLUDEDIRS += -I$(INCVNC) -I$(INCZ)
+DEFINES += -DHAVE_VNCSERVER=1
+ifeq ($(VNCSERVER_PTHREADED), Y)
+DEFINES += -DVNCSERVER_PTHREADED=1
+LDFLAGS += -lpthread 
+endif
+endif
+
 ifeq ($(ARCH),FREEBSD-X86)
 LDFLAGS += -lvgl
 endif

@@ -68,6 +68,10 @@ endif
 all: default $(TARGET)
 endif
 
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
+NANOXSERVERLIBS += $(LIBVNC) $(LIBJPEG) $(LIBZ)
+endif 
+
 endif
 
 ######################### Makefile.rules section #############################

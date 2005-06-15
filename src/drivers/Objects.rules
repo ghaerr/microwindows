@@ -20,6 +20,10 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/genmem.o
 endif
 
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vncserver.o
+endif
+
 ifeq ($(FRAMEBUFFER), Y)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \

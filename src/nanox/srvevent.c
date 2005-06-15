@@ -11,6 +11,11 @@
 #include <string.h>
 #include "serv.h"
 
+#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
+#include "lock.h"
+LOCK_DECLARE(eventMutex);
+#endif
+
 /* readable error strings*/
 char *nxErrorStrings[] = {
 	GR_ERROR_STRINGS
@@ -120,6 +125,9 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	 * Get a new event structure from the free list, or else
 	 * allocate it using malloc.
 	 */
+#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
+        UNLOCK(&eventMutex);
+#endif
 	elp = eventfree;
 	if (elp)
 		eventfree = elp->next;
@@ -130,6 +138,9 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 			curclient = client;
 			GsError(GR_ERROR_MALLOC_FAILED, 0);
 			curclient = oldcurclient;
+#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
+                        UNLOCK(&eventMutex);
+#endif
 			return NULL;
 		}
 	}
@@ -149,6 +160,9 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	elp->next = NULL;
 	elp->event.type = GR_EVENT_TYPE_NONE;
 
+#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
+        UNLOCK(&eventMutex);
+#endif
 	return &elp->event;
 }
 
@@ -927,6 +941,9 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
 	GR_EVENT_LIST	*elp;		/* current element list */
 	GR_EVENT_LIST	*prevelp;	/* previous element list */
 
+#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
+        LOCK(&eventMutex);
+#endif
 	prevelp = NULL;
 	for (elp = client->eventhead; elp; prevelp = elp, elp = elp->next) {
 		if (elp->event.type != GR_EVENT_TYPE_MOUSE_POSITION)
@@ -948,8 +965,11 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
 
 		elp->next = eventfree;
 		eventfree = elp;
-		return;
+		break;
 	}
+#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
+        UNLOCK(&eventMutex);
+#endif
 }
 
 /*

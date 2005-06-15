@@ -1,3 +1,4 @@
+	* added VNC server support, requires libvncserver 0.6 (Giampiero)
 	* fix mterm on Cygwin (David)
 	* add DT_BOTTOM, DT_VCENTER to DrawText (Simon)
 	* fix bug in MwDestroyWindow causing crashes

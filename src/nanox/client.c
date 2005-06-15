@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
+#include <assert.h>
 #if HAVE_SHAREDMEM_SUPPORT
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -3026,33 +3027,52 @@ void
 GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_IMAGE_HDR *pimage)
 {
-	nxDrawImageBitsReq	*req;
-	int			imagesize;
-	int			palsize;
-	char			*addr;
+	nxDrawImageBitsReq    *req;
+	int		      imagesize, blocksize;
+	int		      palsize, rest, step;
+	char                  *addr;
+	char		      *bits;
 
 	imagesize = pimage->pitch * pimage->height;
 	palsize = pimage->palsize * sizeof(MWPALENTRY);
-	LOCK(&nxGlobalLock);
-	req = AllocReqExtra(DrawImageBits, imagesize + palsize);
-	req->drawid = id;
-	req->gcid = gc;
-	req->x = x;
-	req->y = y;
-	/* fill MWIMAGEHDR items passed externally*/
-	req->width = pimage->width;
-	req->height = pimage->height;
-	req->planes = pimage->planes;
-	req->bpp = pimage->bpp;
-	req->pitch = pimage->pitch;
-	req->bytesperpixel = pimage->bytesperpixel;
-	req->compression = pimage->compression;
-	req->palsize = pimage->palsize;
-	req->transcolor = pimage->transcolor;
-	addr = GetReqData(req);
-	memcpy(addr, pimage->imagebits, imagesize);
-	memcpy(addr+imagesize, pimage->palette, palsize);
-	UNLOCK(&nxGlobalLock);
+	bits = pimage->imagebits;
+	rest = pimage->height;
+
+	/* so many lines can be transfered in one step */
+	step = (MAXREQUESTSZ - palsize -
+		sizeof(nxDrawImageBitsReq)) / pimage->pitch;
+	assert(step > 0);
+
+	while (rest > 0) {
+		if (rest < step)
+		    step = rest;
+		blocksize = pimage->pitch * step;
+
+		LOCK(&nxGlobalLock);
+		req = AllocReqExtra(DrawImageBits, blocksize + palsize);
+		req->drawid = id;
+		req->gcid = gc;
+		req->x = x;
+		req->y = y;
+		/* fill MWIMAGEHDR items passed externally*/
+		req->width = pimage->width;
+		req->height = step;
+		req->planes = pimage->planes;
+		req->bpp = pimage->bpp;
+		req->pitch = pimage->pitch;
+		req->bytesperpixel = pimage->bytesperpixel;
+		req->compression = pimage->compression;
+		req->palsize = pimage->palsize;
+		req->transcolor = pimage->transcolor;
+		addr = GetReqData(req);
+		memcpy(addr, bits, blocksize);
+		memcpy(addr+imagesize, pimage->palette, palsize);
+		UNLOCK(&nxGlobalLock);
+
+		y += step;
+		rest -= step;
+		bits += blocksize;
+	}
 }
 
 #if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)

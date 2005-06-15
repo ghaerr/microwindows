@@ -1,3 +1,4 @@
+	* allow large transfers > MAXREQUESTSZ in GrDrawImageBits (Thomas)
 	* fixed positive leftBearing in PCF fonts (Thomas)
 	* fix no mmap under eCos
 	* fix GrSendClientData mem leak

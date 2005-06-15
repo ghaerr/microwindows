@@ -50,6 +50,16 @@ CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
 LDFLAGS +=
 endif
 
+ifeq ($(ARCH), UCLINUX-ARM)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(ARMTOOLSPREFIX)
+DEFINES += -DLINUX=1 -DUNIX=1 -DARM_LINUX -D__uClinux__
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
+LDFLAGS += -elf2flt
+FLTFLAGS += -s 64000
+endif
+
 ifeq ($(ARCH), LINUX-MIPS)
 COMPILER = gcc
 CXX_COMPILER = g++

@@ -18,7 +18,11 @@
 #include "device.h"
 #include "fb.h"
 
+#ifndef __uClinux__
 #define KEYBOARD	"/dev/tty"	/* console kbd to open*/
+#else
+#define KEYBOARD	"/dev/console"
+#endif
 
 static int  TTY_Open(KBDDEVICE *pkd);
 static void TTY_Close(void);

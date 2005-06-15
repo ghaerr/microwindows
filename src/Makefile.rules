@@ -247,6 +247,10 @@ endif
 ifeq ($(INVERT4BPP), Y)
 DEFINES += -DINVERT4BPP=1
 endif
+
+ifeq ($(INVERT2BPP), Y)
+DEFINES += -DINVERT2BPP=1
+endif
 endif # FRAMEBUFER
 
 ifeq ($(X11), Y)

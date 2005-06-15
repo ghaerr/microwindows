@@ -31,13 +31,13 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fb.o
 
 ifeq ($(FBREVERSE), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/fblin1rev.o \
-	$(MW_DIR_OBJ)/drivers/fblin2rev.o
+ifeq ($(IPOD_LCD), Y)
+  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2revipod.o
 else
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/fblin1.o \
-	$(MW_DIR_OBJ)/drivers/fblin2.o
+  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2rev.o
+endif
+else
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin1.o $(MW_DIR_OBJ)/drivers/fblin2.o
 endif
 
 ifeq ($(FBVGA), Y)

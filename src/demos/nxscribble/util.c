@@ -18,6 +18,7 @@ the full agreement.
 
 #include "util.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <setjmp.h>
 #include <string.h>
@@ -71,11 +72,9 @@ char *a;
 /*
  * Print error message, exit.
 */
-
-
 /*VARARGS1*/
 void
-  exit_error(a, b, c, d, e, f, g, h, i, j)
+exit_error(a, b, c, d, e, f, g, h, i, j)
 char *a;
 {
 	fprintf(stderr, a, b, c, d, e, f, g, h, i, j);

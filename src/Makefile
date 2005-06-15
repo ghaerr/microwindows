@@ -22,10 +22,16 @@ OBJS =
 # demos should be built after the libs !
 dirs := \
 	$(MW_DIR_SRC)/drivers \
-	$(MW_DIR_SRC)/mwin \
 	$(MW_DIR_SRC)/engine \
-	$(MW_DIR_SRC)/fonts \
-	$(MW_DIR_SRC)/nanox
+	$(MW_DIR_SRC)/fonts
+
+ifeq ($(MICROWIN), Y)
+dirs += $(MW_DIR_SRC)/mwin
+endif
+
+ifeq ($(NANOX), Y)
+dirs += $(MW_DIR_SRC)/nanox
+endif
 
 all: default
 ifeq ($(ARCH), RTEMS)

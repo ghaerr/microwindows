@@ -600,12 +600,22 @@ pcf_createfont(const char *name, MWCOORD height, int attr)
 		}
 
 		for (h = 0; h < (metrics[i].ascent + metrics[i].descent); h++) {
-			unsigned short *val = (unsigned short *) ptr;
+				unsigned short *val = (unsigned short *) ptr;
+				int            bearing, carry_shift;
+				unsigned short carry = 0;
 
-			for (w = 0; w < lwidth; w++)
-				*output++ = val[w];
-			ptr += (xwidth + 1) / 2;
-			y--;
+				/* leftBearing correction*/
+				bearing = metrics[i].leftBearing;
+				if (bearing < 0)	/* negative bearing not handled yet*/
+					bearing = 0;
+				carry_shift = 16 - bearing;
+         
+				for (w = 0; w < lwidth; w++) {
+					*output++ = (val[w] >> bearing) | carry;
+					carry = val[w] << carry_shift;
+				}
+				ptr += (xwidth + 1) / 2;
+				y--;
 		}
 
 		for (; y > 0; y--)

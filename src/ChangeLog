@@ -1,3 +1,4 @@
+	* fixed positive leftBearing in PCF fonts (Thomas)
 	* fix no mmap under eCos
 	* fix GrSendClientData mem leak
 Version 0.91 - 3 June 2005 (based on 28 Feb 2004 CVS) - greg@censoft.com

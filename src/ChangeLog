@@ -1,3 +1,4 @@
+	* fix mterm on Cygwin (David)
 	* add DT_BOTTOM, DT_VCENTER to DrawText (Simon)
 	* fix bug in MwDestroyWindow causing crashes
 	* add DrawArea function to fblin4 driver for Freetype 2.1.4 (Steven)

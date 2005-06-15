@@ -1,3 +1,4 @@
+remove 2nd thislen parm in GrSendClientData
 italic wrap bug - lubI24.bdf 'r', 'M'
 XPM transparent color uses alpha channel
 add alpha channel into GdDrawImage handling

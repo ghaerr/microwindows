@@ -1569,52 +1569,52 @@ GetDlgItem(HWND hDlg, int nIDDlgItem)
 }
 
 
-BOOL WINAPI EnumChildWindows ( HWND hWndParent, WNDENUMPROC lpEnumFunc, LPARAM lParam )
+BOOL WINAPI
+EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc, LPARAM lParam)
 {
-	HWND *hchilds;
-    HWND hwnd = hWndParent->children;
-	int count = 0;
-	int i;
+	int	i;
+	HWND *	hchilds;
+	HWND	hwnd = hWndParent->children;
+	int	count = 0;
 	
-	//  Calculate the count of childs
-    while ( hwnd )
-		{
+	/*  Calculate the count of childs*/
+	while (hwnd) {
 		count++;
 		hwnd = hwnd->siblings;
-		}
-		
-	if( !count ) return FALSE;
-	//  Allocate an array of pointer, to store childs in reverse order
-	hchilds = (HWND*)malloc ( sizeof(HWND)*count );
-	if( hchilds == NULL ) return FALSE;
+	}
+	if (!count)
+		return FALSE;
+
+	/* Allocate an array of pointer, to store childs in reverse order*/
+	hchilds = (HWND *)malloc(sizeof(HWND)*count);
+	if (hchilds == NULL)
+		return FALSE;
 	
 	hwnd = hWndParent->children;
 	i = count;
-    while ( hwnd && (i > 0) ) {
+    	while (hwnd && (i > 0)) {
 		hchilds[--i] = hwnd;
 		hwnd = hwnd->siblings;
 	}
 		
-	//  Call lpEnumFunc with the right childs order
-	for ( ; i < count; i++ )
-		if( !lpEnumFunc(hchilds[i], lParam) )
+	/* Call lpEnumFunc with correct children order*/
+	for (; i < count; i++)
+		if (!lpEnumFunc(hchilds[i], lParam))
 			break;
-
-	free ( hchilds );
-    return TRUE;
+	free (hchilds);
+	return TRUE;
 }
 
-
-
-int WINAPI GetClassName ( HWND hWnd, LPTSTR lpClassName, int nMaxCount )
+int WINAPI
+GetClassName(HWND hWnd, LPTSTR lpClassName, int nMaxCount)
 {
-	int ln = 0;
-	if( (hWnd->pClass != NULL) && (hWnd->pClass->szClassName) )
-		{
-		ln = strlen ( hWnd->pClass->szClassName );
-		if( ln > nMaxCount ) ln = nMaxCount;
-		strncpy ( lpClassName, hWnd->pClass->szClassName, nMaxCount );
-		}
+	int	ln = 0;
 
+	if (hWnd->pClass && hWnd->pClass->szClassName) {
+		ln = strlen(hWnd->pClass->szClassName);
+		if (ln > nMaxCount)
+			ln = nMaxCount;
+		strncpy(lpClassName, hWnd->pClass->szClassName, nMaxCount);
+	}
 	return ln;
 }

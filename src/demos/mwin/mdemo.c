@@ -7,6 +7,7 @@
  *  GB: 10-14-2004: Modified to store degrees data on each window, 
  *                  for new Timers features.
  */
+#include <time.h>
 #define MWINCLUDECOLORS
 #include "windows.h"
 #include "wintern.h"		/* for MwSetDesktopWallpaper*/

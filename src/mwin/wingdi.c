@@ -210,8 +210,8 @@ BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
 		hdc = GetDCEx(hwnd, NULL, DCX_DEFAULTCLIP
 				|DCX_EXCLUDEUPDATE);	/* FIXME - bug*/
 
-		/* erase client background*/
-		if( hwnd->nEraseBkGnd > 0 )
+		/* erase client background, always w/alpha blending*/
+		if(hwnd->nEraseBkGnd > 0 || mwforceNCpaint)
 			lpPaint->fErase = !SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)hdc, 0L);
 		else
 			lpPaint->fErase = 0;

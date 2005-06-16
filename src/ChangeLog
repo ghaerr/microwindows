@@ -1,3 +1,5 @@
+	* added --no-whole-archive option to leave .so's dyn-linked (Hinko)
+	* fixed alpha blending demo when nEraseBkGnd zero
 	* added extremely extensive enhancements to win32 API: (Gabriele)
 	- New Dialog features:
 	- Added function EnumFonts

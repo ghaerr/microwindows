@@ -438,7 +438,7 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	if( VK_Code == -1 )
 	    VK_Code = keyvalue;
 	else
-	    lParam |= (1 << 24);	/* set control bit in lParam*/
+	    lParam |= (1 << 24);	/*GB: set control bit in lParam*/
 
 	if (pressed)
 		PostMessage(focuswp, WM_KEYDOWN, VK_Code, lParam);

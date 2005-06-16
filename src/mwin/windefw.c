@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
  * DefWindowProc implementation for Micro-Windows
  *	This file should ideally only include windows.h, and be built
  *	on top of regular win32 api calls.  For speed, however,
  *	certain knowledge of the internal hwnd is known...
  */
+#define MWINCLUDECOLORS
 #include "windows.h"
 #include "wintern.h"
 #include "device.h"
@@ -215,6 +216,10 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return HTNOWHERE;
 
 	case WM_NCLBUTTONDOWN:
+		/* Disabled windows don't process this message. */
+		if( !IsWindowEnabled(hwnd) )
+			break;
+			
 		/* Handle default actions for mouse down on window*/
 		if(wParam == HTCLOSE) {
 			SendMessage(hwnd, WM_CLOSE, 0, 0L);
@@ -346,12 +351,18 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return strzcpy((LPSTR)lParam, hwnd->szTitle, wParam);
 
 	case WM_SETTEXT:
+		{
 		/* Set window text.  This routine requires
 		 * knowledge of the internal window structure.
 		 * Note that setting text doesn't invalidate the window.
 		 */
-		strzcpy(hwnd->szTitle, (LPSTR)lParam, sizeof(hwnd->szTitle));
+		LPTSTR newTit = (LPTSTR) malloc ( 1+strlen((LPCSTR)lParam) );
+		if( newTit == NULL ) return FALSE;
+		free ( hwnd->szTitle );
+		hwnd->szTitle = newTit;
+		strcpy(hwnd->szTitle, (LPSTR)lParam);
 		return TRUE;
+		}
 
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
@@ -385,6 +396,68 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		EndPaint(hwnd, &ps);
 		break;
+
+	case WM_CTLCOLORMSGBOX:
+	case WM_CTLCOLOREDIT:
+	case WM_CTLCOLORLISTBOX:
+	case WM_CTLCOLORBTN:
+	case WM_CTLCOLORDLG:
+	case WM_CTLCOLORSCROLLBAR:
+	case WM_CTLCOLOR:
+		return NULL;
+
+	case WM_CTLCOLORSTATIC:
+		{
+		HWND hCtl = (HWND) lParam;
+		hdc = (HDC)wParam;
+		dwStyle = hCtl->style;
+		if (dwStyle & WS_DISABLED)
+			SetTextColor (hdc, DKGRAY);
+		else
+			SetTextColor (hdc, BLACK);
+		SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
+		SetBkMode(hdc, TRANSPARENT);
+		SelectObject(hdc, (HFONT)SendMessage(hCtl, WM_GETFONT, 0, 0));
+		SelectObject(hdc, GetStockObject(BLACK_PEN) );
+
+		switch ( dwStyle & SS_ETCTYPEMAKS )
+			{
+			/*  FIXME: Frames should use NULL_BRUSH, but with current
+			    microwindows version does not works... */
+			case SS_BLACKFRAME:
+				hCtl->paintBrush = CreateSolidBrush ( GetSysColor(COLOR_BTNFACE) );
+				return (LPARAM)hCtl->paintBrush;
+
+			case SS_GRAYFRAME:
+			case SS_ETCHEDFRAME:
+				hCtl->paintPen = CreatePen ( PS_SOLID, 1, GRAY );
+				SelectObject ( hdc, hCtl->paintPen );
+				hCtl->paintBrush = CreateSolidBrush ( GetSysColor(COLOR_BTNFACE) );
+				return (LPARAM)hCtl->paintBrush;
+
+			case SS_WHITEFRAME:
+				SelectObject ( hdc, GetStockObject(WHITE_PEN) );
+				hCtl->paintBrush = CreateSolidBrush ( GetSysColor(COLOR_BTNFACE) );
+				return (LPARAM)hCtl->paintBrush;
+
+			case SS_GRAYRECT:
+				return (LPARAM)GetStockObject(DKGRAY_BRUSH);
+
+			case SS_BLACKRECT:
+				return (LPARAM)GetStockObject(BLACK_BRUSH);
+
+			case SS_WHITERECT:
+				return (LPARAM)GetStockObject(WHITE_BRUSH);
+
+			case SS_SIMPLE:
+				hCtl->paintBrush = CreateSolidBrush(((MWBRUSHOBJ *)hCtl->pClass->hbrBackground)->color);
+				return (LPARAM)hCtl->paintBrush;
+
+			default:
+				hCtl->paintBrush = CreateSolidBrush ( GetSysColor(COLOR_BTNFACE) );
+				return (LPARAM)hCtl->paintBrush;
+			}
+		}
 	}
 	return 0;
 }

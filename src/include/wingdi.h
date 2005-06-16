@@ -138,6 +138,7 @@ BOOL WINAPI	Pie(HDC hdc, int nLeftRect, int nTopRect, int nRightRect,
 			int nXRadial2, int nYRadial2);
 BOOL WINAPI	Polygon(HDC hdc, CONST POINT *lpPoints, int nCount);
 int WINAPI	FillRect(HDC hDC, CONST RECT *lprc, HBRUSH hbr);
+BOOL WINAPI DrawFocusRect ( HDC hdc, LPRECT prect );
 
 /* ExTextOut options*/
 #define ETO_OPAQUE	0x0002
@@ -150,6 +151,10 @@ BOOL WINAPI	ExtTextOut(HDC hdc, int x, int y, UINT fuOptions,
 BOOL WINAPI	ExtTextOutW(HDC hdc, int x, int y, UINT fuOptions,
 			CONST RECT *lprc, LPCWSTR lpszString, UINT cbCount,
 			CONST INT *lpDx);
+LONG WINAPI TabbedTextOut ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+            int ntabs, LPINT lpTabStops, int nTabOrigin );
+DWORD WINAPI GetTabbedTextExtent ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+            int ntabs, LPINT lpTabStops );
 
 /* DrawText options*/
 #define DT_TOP              0x00000000

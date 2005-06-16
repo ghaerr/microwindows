@@ -1,5 +1,75 @@
-	* fixed v0.90 white display bug in 24/32bpp images
-	* fixed XPM support for large line size
+	* added extremely extensive enhancements to win32 API: (Gabriele)
+	- New Dialog features:
+	- Added function EnumFonts
+	- Added function EnumChildWindows
+	- Added function GetClassName
+	- Added function GetNextDlgGroupItem
+	- Added functions CreateDialog, CreateDialogParam, DialogBox, DialogBoxParam
+	- Added functions IsDialogMessage, SendDlgItemMessage
+	- Added functions FindResource, LoadResource, LockResource,
+	  UnlockResource, FreeResource, LoadString
+	  Can read dialog, string and bitmap resources from .res file
+	- Added function resLoadBitmap, that loads a bitmap from resource file in
+	  MWIMAGEHDR format.
+	- Added functions Set/GetDlgItemText, Set/GetDlgItemInt.
+	- Added functions IsDlgButtonChecked, CheckDlgButton. Fixed CheckRadioButton.
+	- Added functions GetDlgBaseUnits, MapDialogRect
+	- Implemented DrawFocusRect fn for controls focus highlight.
+	- Implemented WM_SYSCHAR message
+	- Implemented controls navigation for DIALOGS (arrows and tab).
+	- Implemented controls accelerator character (symbol '&' before character).
+	- New Control features:
+	- Static control: implemented WM_SETFONT message. The SS_BITMAP style shows bmp.
+	  The text for non SS_SIMPLE static control is automatically wrapped as needed.
+	  Implemented the WM_CTLCOLORSTATIC and fixed the SS_xxFRAME and SS_xxRECT styles.
+	- Button control: implemented WM_SETFONT and fixed mouse release outside bug
+	- Listbox: implemented WM_OWNERDRAWFIXED and WM_OWNERDRAWVARIABLE. Implemented
+	  WM_MEASUREITEM. Fixed some paint code. Implemented Horizontal scroll.
+	- Rewrote edit control, newedit.c new features:
+	    - horizontal scroll.
+	    - non-fixed fonts works without caret position problem.
+	    - selection (SHIFT+Arrowkeys or Home/End).
+	    - cut and paste (CTRL+INS, SHIFT+INS, SHIFT+DEL).
+	    - word skip if CTRL pressed when using arrows keys.
+	    - mouse selection and autoscroll.
+	    - mouse dblclick.
+	    - insert and replace mode, with different caret size.
+	    - ES_LOWERCASE/UPPERCASE
+	    TODO: multiline capability.
+	- Other bug fixes:
+	- anti-aliasing min font height now set in device.h using FTMINAA_HEIGHT
+	- global user_builtin_fonts
+	- added font cache for freetype fonts to speed up GetTextMetrics
+	- Caret blinking.
+	- WM_CHAR not sent if the key pressed is a control key (like VK_LEFT ecc.).
+	- WM_KEYDOWN: Bit 24 in lParam indicates that the key is a control key.
+	- Implemented TabbedTextOut and GetTabbedTextExtent.
+	- automatic underlined character using & marker
+	- framebuffers: fblin4rev.c should not reverse the c color pixel when in XOR mode.
+	- Now it's possible to activate any number of timers.
+	- Timers: remove timers associated to wnd when windows are destroyed.
+	- Windows caption is now dynamically allocated. Note that szCaption (member of HWND)
+	  is now a pointer, not an array! Never use sizeof(szCaption)!!!
+	- Window structure has some new items: lpfnWndProc, paintBrush, paintPen, hInstance.
+	- WinMain now has hInstance, szCmdLine
+	- Keep window erasebkgnd count
+	- Only post one kbd message to a window at a time, fixes new window post bugs
+	- Some architectures, like ARM, needs data to be 32bit aligned in GetWindowLong
+	  and SetWindowLong. Fixed it by rd/wr unaligned data as four bytes.
+	  The definition ARCH_NEED_ALIGN32 should be set in Makefile.rules if needed.
+	- The MwSelect function has been changed. An argument is passed to the function to
+	  indicates if the select may suspend or not the process. PeekMessage do not suspend,
+	  GetMessage suspend until a next timeout or user action.
+	- if MW_CALL_IDLE_HANDLER is defined, a function idle_handler is called
+	  (should be implemented in the application code). The idle_handler has
+	  the following prototype:  void WINAPI idle_handler ( void );
+	  This may be used in some embedded application to put CPU in idle state
+	  and save battery.
+	- The GetMessage function, when waiting for a message, call
+	  MwHandleTimers and if requested the idle_handler fn.
+	- In the drivers folder, the file mou_tp.h was missing. (Needed by mou_harrier)
+	* fixed v0.90 white display bug in 24/32bpp images (Greg)
+	* fixed XPM support for large line size (Greg)
 	* added VNC server support, requires libvncserver 0.6 (Giampiero)
 		added HAVE_VNCSERVER_SUPPORT, VNCSERVER_PTHREADED config opts
 		added INCZ zlib include config option

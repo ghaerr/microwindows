@@ -2,6 +2,8 @@
 #include "windowsx.h"
 #include "wintools.h"
 /*
+ * Copyright (c) 2005 Greg Haerr <greg@censoft.com>
+ *
  * WINCTL Custom Control Library
  * Push button Custom Control
  *	This control implements a custom pushbutton control.
@@ -9,17 +11,36 @@
  * 4/8/98 g haerr original version from control palette v2.00, Blaise Computing
  */
 
+/*
+** Modify records:
+**
+**  Who             When        Where       For What                Status
+**-----------------------------------------------------------------------------
+ * Gabriele Brugnoni 2003/08/30 Italy      WM_SETFONT implementation
+ * Gabriele Brugnoni 2003/08/30 Italy      Accelerator chr '&'
+ * Gabriele Brugnoni 2003/08/30 Italy      fixed some mouse events
+ * Gabriele Brugnoni 2003/08/30 Italy      Modified WM_GETDLGCODE event.
+ * Gabriele Brugnoni 2003/08/30 Italy      CheckRadioButton moved on windlg.c
+ * Gabriele Brugnoni 2004/07/13 Italy      Radio button vertical centered
+ */
+
+#define CONFIG_AUTORADIOBUTTONSIZE
+
 #define GET_PBSTATE(h)			(GetWindowWord(h, 0))
 #define GET_PBCAPTURE(h)		(GetWindowWord(h, 2))
 #define GET_PBWASINSIDE(h)		(GetWindowWord(h, 4))
 #define GET_PBDELETEFONT(h)		(GetWindowWord(h, 6))
 #define GET_PBFONT(h)			(GetWindowWord(h, 8))
+#define GET_WND_FONT(h)			((HFONT)GetWindowLong(h, 10))
+#define GET_PBTXTRECT(h,t)		{(t).left=GetWindowLong(h, 14); (t).right=GetWindowLong(h, 18);}
 
 #define SET_PBSTATE(h,x)		(SetWindowWord(h, 0, x))
 #define SET_PBCAPTURE(h,x)		(SetWindowWord(h, 2, x))
 #define SET_PBWASINSIDE(h,x)		(SetWindowWord(h, 4, x))
 #define SET_PBDELETEFONT(h,x)		(SetWindowWord(h, 6, x))
 #define SET_PBFONT(h,x)			(SetWindowWord(h, 8, x))
+#define SET_WND_FONT(h, f)		(SetWindowLong(h, 10, (LPARAM)(f)))
+#define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, 14, MAKELONG((t).left, (t).top)); SetWindowLong(h, 18, MAKELONG((t).right, (t).bottom)); }
 
 #define PARENT(hwnd)		((HWND)GetWindowLong(hwnd,GWL_HWNDPARENT))
 
@@ -60,9 +81,9 @@
 #define FORWARD_BM_SETSTYLE( hwnd, style, bRedraw, fn) \
 	(fn)((hwnd), BM_SETSTYLE, (WPARAM)style, MAKELPARAM(bRedraw, 0))
 
-/* entry points*/
-void WINAPI		CheckRadioButton(HWND hDlg, int nIDFirst,int nIDLast,
-				int nIDCheckButton);
+
+extern BOOL mwCheckUnderlineChar ( HDC hdc, char *text, int *pLen, LPRECT rcLine );
+
 
 /* local procs*/
 static void WINAPI	cenButton_FnEnd( HWND, WORD);
@@ -71,7 +92,7 @@ static BOOL WINAPI	cenButton_OnCreate( HWND, LPCREATESTRUCT);
 /*static void WINAPI	cenButton_OnDestroy( HWND);*/
 /*static void WINAPI	cenButton_OnEnable( HWND, BOOL);*/
 static BOOL WINAPI	cenButton_OnEraseBkgnd( HWND, HDC);
-/*static UINT WINAPI	cenButton_OnGetDlgCode( HWND, LPMSG);*/
+static UINT WINAPI	cenButton_OnGetDlgCode( HWND, LPMSG);
 static LONG WINAPI	cenButton_OnGetState( HWND);
 /*static void WINAPI	cenButton_OnKey( HWND, UINT, BOOL, int, UINT);*/
 static void WINAPI	cenButton_OnKillFocus( HWND, HWND);
@@ -117,6 +138,7 @@ LPCREATESTRUCT	lpCreate)
 	SET_PBSTATE( hwnd, PUSH_UP );
 	SET_PBCAPTURE( hwnd, FALSE );
 	SET_PBWASINSIDE( hwnd, FALSE );
+	SET_WND_FONT ( hwnd, GetStockObject(DEFAULT_GUI_FONT) );
 
 	if ((lpCreate->style & 0x0f) == BS_DEFPUSHBUTTON)
 		cenButton_SetState( hwnd, PUSH_DEFAULT, TRUE );
@@ -160,24 +182,44 @@ HDC			hdc)
 	return TRUE;
 }
 
-#if 0
 static UINT WINAPI
 cenButton_OnGetDlgCode(
 HWND	hwnd,
 LPMSG 	lpMsg)
 {
+	UINT flags = 0;
+	UINT type;
+	DWORD dwStyle;
+
 	/* WM_GETDLGCODE is sent by the dialog manager to find	   */
 	/* what type/style of control is responding and/or to	   */
 	/* determine what keystrokes the control wants to process  */
 	/* itself.	In this case, the pushbutton identifies itself */
 	/* and also indicates whether it is currently the default  */
 	/* pushbutton.											   */
+	/* If lpMsg is not null and message is WM_CHAR,            */
+	/* checks if the char is ' ' signal that we need it.       */
+	if( (lpMsg != NULL) && (lpMsg->message == WM_CHAR) &&
+		(lpMsg->wParam == ' ') )
+		flags = DLGC_WANTCHARS;
 
-	/*return( DLGC_BUTTON | ((GET_PBSTATE( hwnd) & PUSH_DEFAULT) ?
-				DLGC_DEFPUSHBUTTON : DLGC_UNDEFPUSHBUTTON));*/
-	return( DLGC_BUTTON);
+	dwStyle = GetWindowLong ( hwnd, GWL_STYLE );
+	switch((int)(dwStyle & 0x0f)) {
+		case BS_AUTORADIOBUTTON:
+		case BS_RADIOBUTTON:
+			type = DLGC_RADIOBUTTON;
+			break;
+		case BS_GROUPBOX:
+			type = DLGC_STATIC;
+			break;
+		default:
+			type = DLGC_BUTTON;
+			break;
+	}
+
+	return( flags | type | ((GET_PBSTATE( hwnd) & PUSH_DEFAULT) ?
+				DLGC_DEFPUSHBUTTON : DLGC_UNDEFPUSHBUTTON));
 }
-#endif
 
 static LONG WINAPI
 cenButton_OnGetState(
@@ -242,6 +284,17 @@ HWND		hwndNewFocus)
 	wState = cenButton_FnStart( hwnd);
 	cenButton_SetState( hwnd, PUSH_FOCUS, FALSE );
 	cenButton_FnEnd( hwnd, wState);
+
+	if( (hwnd->szTitle[0] != 0) && ((hwnd->style & (BS_FLAT/*|BS_NOFOCUSRECT*/)) == 0) )
+		{
+		RECT rect;
+		HDC hdc = GetDC ( hwnd );
+		GET_PBTXTRECT ( hwnd, rect );
+		rect.top = HIWORD(rect.left); rect.left=LOWORD(rect.left);
+		rect.bottom = HIWORD(rect.right); rect.right=LOWORD(rect.right);
+		DrawFocusRect ( hdc, &rect );
+		ReleaseDC ( hwnd, hdc );
+		}
 }
 
 static void WINAPI
@@ -253,6 +306,8 @@ UINT		y,
 UINT		keyState)
 {
 	WORD		wState;
+
+	if( !IsWindowEnabled(hwnd) ) return;
 
 	wState = cenButton_FnStart( hwnd);
 	/* capture the mouse*/
@@ -292,7 +347,7 @@ UINT		keys)
 			SendMessage(hwnd,BM_SETCHECK,(wState & PBS_CHECKED)?0:1,0L);
 			break;
 	        case BS_AUTORADIOBUTTON:
-			CheckRadioButton(PARENT(hwnd),0,0xffff,hwnd->id);
+			CheckRadioButton(PARENT(hwnd),-1,-1,hwnd->id);
 			break;
 		}
 		FORWARD_WM_COMMAND( PARENT( hwnd), GetDlgCtrlID( hwnd), hwnd,
@@ -404,6 +459,8 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	COLORREF	hOldColor;
 	PAINTSTRUCT	ps;
 	char		buf[256];
+	int			txtlen;
+	int			n;
 #define uiWidthFrame	0
 #define uiWidthShadow	2
 
@@ -411,7 +468,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	if(!hdc)
 		goto Return;
 
-	GetWindowText(hwnd, buf, sizeof(buf));
+	txtlen = GetWindowText(hwnd, buf, sizeof(buf));
 	GetClientRect( hwnd, &rectClient );
 	uiWidth	= rectClient.right - rectClient.left;
 	uiHeight = rectClient.bottom - rectClient.top;
@@ -482,10 +539,15 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
        	case BS_AUTORADIOBUTTON:
         case BS_RADIOBUTTON:
 		FastFillRect(hdc, &rc, GetSysColor(COLOR_BTNFACE));
+#ifdef CONFIG_AUTORADIOBUTTONSIZE
+		n = (uiHeight >= 20) ? 18 : 10;
+#else
+		n = 10;
+#endif
 		rc.left = 0;
-		rc.top += 1;
-		rc.right = rc.left + 10;
-		rc.bottom = rc.top + 10;
+		rc.top += (uiHeight - n) / 2;
+		rc.right = rc.left + n;
+		rc.bottom = rc.top + n;
 
 		SelectObject(hdc, GetStockObject(NULL_BRUSH));
 		hOldPen = SelectObject(hdc, CreatePen(PS_SOLID, 1,
@@ -501,9 +563,11 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 		DeleteObject(SelectObject(hdc, hOldPen));
 
 		iFaceOffset = 0;
-		if(wEnumState & PBS_CHECKED)
+		if(wEnumState & PBS_CHECKED) {
+			SelectObject ( hdc, GetStockObject(BLACK_BRUSH) );
 			Ellipse(hdc, rc.left+2, rc.top+2, rc.right-2,
 					rc.bottom-2);
+			}
 		break;
 	}
 
@@ -511,13 +575,18 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	 * draw text
 	 */
 	if(buf[ 0]) {
-		hNewFont = GetStockObject( DEFAULT_GUI_FONT);
+		RECT ulinePos;
+		BOOL bUline;
+		hNewFont = GET_WND_FONT ( hwnd );
 		hOldFont = SelectObject( hdc, hNewFont);
+
+		/* Check for underlined char */
+		bUline = mwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
 
 		/* calculate text bounding rect*/
 		rect.left = 0;
 		rect.top = 0;
-		DrawText( hdc, buf, -1, &rect, DT_CALCRECT | DT_LEFT |
+		DrawText( hdc, buf, txtlen, &rect, DT_CALCRECT | DT_LEFT |
 			DT_SINGLELINE | DT_TOP);
 		rectSave = rect;
 
@@ -545,7 +614,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 		case BS_AUTOCHECKBOX:
 		case BS_AUTORADIOBUTTON:
 		case BS_RADIOBUTTON:
-			rect.left = 12;
+			rect.left = uiHeight+2;
 			break;
 		}
 
@@ -577,14 +646,24 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 		rect.bottom += rect.top - rectSave.top;
 
 		oldBkMode = SetBkMode( hdc, TRANSPARENT);
-		if(wEnumState & PBS_DISABLED)
+		if( (wEnumState & PBS_DISABLED) || !IsWindowEnabled(hwnd) )
 			hOldColor = SetTextColor( hdc,
 				GetSysColor( COLOR_GRAYTEXT));
 		else
 			hOldColor = SetTextColor( hdc,
 				GetSysColor( COLOR_BTNTEXT));
 
-		DrawText( hdc, buf, -1, &rect,DT_LEFT | DT_SINGLELINE | DT_TOP);
+		SET_PBTXTRECT ( hwnd, rect );
+		OffsetRect ( &ulinePos, rect.left, rect.top );
+		DrawText( hdc, buf, txtlen, &rect,DT_LEFT | DT_SINGLELINE | DT_TOP);
+		if( bUline ) {
+			SelectObject ( hdc, GetStockObject(BLACK_PEN) );
+			MoveToEx ( hdc, ulinePos.left, ulinePos.bottom, NULL );
+			LineTo ( hdc, ulinePos.right, ulinePos.bottom );
+		}
+
+		if( (GetFocus() == hwnd) )
+			DrawFocusRect ( hdc, &rect );
 
 		SetBkMode( hdc, oldBkMode);
 		SetTextColor( hdc, hOldColor);
@@ -629,6 +708,19 @@ HWND		hwndOldFocus)
 	/*if(!IsWindowEnabled(hwnd))
 		cenButton_SetState( hwnd, PUSH_FOCUS, TRUE );*/
 	cenButton_FnEnd( hwnd, wState);
+
+	if(!IsWindowEnabled(hwnd)) return;
+
+	if( (hwnd->szTitle[0] != 0) && ((hwnd->style & (BS_FLAT/*|BS_NOFOCUSRECT*/)) == 0) )
+		{
+		RECT rect;
+		HDC hdc = GetDC ( hwnd );
+		GET_PBTXTRECT ( hwnd, rect );
+		rect.top = HIWORD(rect.left); rect.left=LOWORD(rect.left);
+		rect.bottom = HIWORD(rect.right); rect.right=LOWORD(rect.right);
+		DrawFocusRect ( hdc, &rect );
+		ReleaseDC ( hwnd, hdc );
+		}
 }
 
 static void WINAPI
@@ -763,11 +855,25 @@ LPARAM	lParam)
 	/*HANDLE_MSG( hwnd, WM_SETFONT, cenButton_OnSetFont);*/
 	HANDLE_MSG( hwnd, WM_SETTEXT, cenButton_OnSetText);
 
+	case WM_GETDLGCODE:
+		return cenButton_OnGetDlgCode ( hwnd, (LPMSG)lParam );
+
+	case WM_CHAR:
+	    if( (char)wParam == ' ' )
+			{
+			SendMessage ( hwnd, WM_LBUTTONDOWN, -1, -1 );
+			UpdateWindow ( hwnd );
+			SendMessage ( hwnd, WM_LBUTTONUP, -1, -1 );
+			UpdateWindow ( hwnd );
+			}
+	    else
+			return SendMessage ( GetParent(hwnd), message, wParam, lParam );
+
 	case BM_GETCHECK:
 #if 0
  		return cenButton_OnGetState(hwnd);
-#else
-		return( ( GET_PBSTATE(hwnd) & PUSH_CHECKED) == PUSH_CHECKED);
+#else 
+		return ((GET_PBSTATE(hwnd) & PUSH_CHECKED) == PUSH_CHECKED) ? BST_CHECKED : BST_UNCHECKED;
 #endif
 
 	case BM_SETCHECK:
@@ -783,16 +889,74 @@ LPARAM	lParam)
 		cenButton_FnEnd( hwnd, wStateOld);
 }
 #endif
-		return 0;
+		return 1;
 	case BM_SETIMAGE:
             	hwnd->userdata = (DWORD)wParam;
             	InvalidateRect(hwnd, NULL, FALSE);
 		return 0;
 
+	// if cursor exit from client area, remove pushed state
 	case WM_NCMOUSEMOVE:
-		if (SendMessage(hwnd,WM_NCHITTEST,0,lParam) != HTCLIENT){
-			cenButton_OnMouseMove(hwnd,LOWORD (lParam),HIWORD (lParam),0);
-			return 0;
+	    if( GetCapture() == hwnd )
+	    	{
+		int x = LOWORD(lParam);
+		int y = HIWORD(lParam);
+		if( !PtInsideWindowNC(hwnd, x, y) )
+		    {
+		    if( GET_PBWASINSIDE( hwnd))
+		        {
+			cenButton_SetState( hwnd, PUSH_DOWN, FALSE);
+			SET_PBWASINSIDE( hwnd, FALSE );
+			}
+		    }
+		else
+		    {
+		    if( !GET_PBWASINSIDE( hwnd) )
+		        {
+			cenButton_SetState( hwnd, PUSH_DOWN, TRUE );
+			SET_PBWASINSIDE( hwnd, TRUE );
+			}
+		    }
+		}
+	    break;
+
+	// if LBUTT go up when outside client area, reset state
+	case WM_NCLBUTTONUP:
+	    if( GetCapture() == hwnd )
+	    	{
+		int x = LOWORD(lParam);
+		int y = HIWORD(lParam);
+		if( !PtInsideWindowNC(hwnd, x, y) )
+		    {
+		    SET_PBCAPTURE( hwnd, FALSE );
+	            SET_PBWASINSIDE( hwnd, FALSE );
+		    ReleaseCapture();
+		    }
+		}
+	    break;
+
+	case WM_SETFONT:
+	    if( wParam == 0 ) break;
+	    SET_WND_FONT ( hwnd, (HFONT)wParam );
+	    if( LOWORD(lParam) != 0 )
+	    	InvalidateRect ( hwnd, NULL, TRUE );
+	    return 0;
+
+    case WM_GETFONT:
+		return (LRESULT) GET_WND_FONT ( hwnd );
+
+	case WM_ENABLE:
+		InvalidateRect ( hwnd, NULL, TRUE );
+		if( (wParam == FALSE) && (GetFocus() == hwnd) )
+			PostMessage ( GetParent(hwnd), WM_NEXTDLGCTL, 0, 0 );
+		break;
+
+	case WM_NCHITTEST:
+		{
+		DWORD dwStyle = GetWindowLong ( hwnd, GWL_STYLE );
+		if( (dwStyle & 0x0F) == BS_GROUPBOX )
+			return HTTRANSPARENT;
+		break;
 		}
 	}
 
@@ -814,7 +978,7 @@ MwRegisterButtonControl(HINSTANCE hInstance)
 	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc	= (WNDPROC)cenButtonWndFn;
 	wc.cbClsExtra	= 0;
-	wc.cbWndExtra	= 10;
+	wc.cbWndExtra	= 22;	/*GB: was 10*/
 	wc.hInstance	= hInstance;
 	wc.hIcon	= NULL;
 	wc.hCursor	= 0; /*LoadCursor(NULL, IDC_ARROW);*/
@@ -837,28 +1001,38 @@ DrawGroupBox(HWND hwnd,HDC hDCwParam,DWORD dwStyle)
 	char		buf[256];
 	HPEN		hPenTop, hPenBottom, holdPen;
 	COLORREF 	crTop,crBottom;
+	int			txtlen;
 
 
 	hdc = BeginPaint(hwnd, &ps);
 	if(!hdc)
 		goto Return;
 
-	GetWindowText(hwnd, buf, sizeof(buf));
+	txtlen = GetWindowText(hwnd, buf, sizeof(buf));
 	GetClientRect( hwnd, &rcClient );
 
-	hFont = GetStockObject( DEFAULT_GUI_FONT);
+	hFont = GET_WND_FONT ( hwnd );
 	if (hFont)
 		hFont = SelectObject(hdc,hFont);
 
 	rc.left = 0;
 	rc.top = 0;
 	DrawText( hdc, buf, -1, &rc, DT_CALCRECT);
+	FastFillRect(hdc, &rcClient, GetSysColor(COLOR_BTNFACE));
 
 	if(buf[ 0]) {
+		RECT ulinePos;
+		BOOL bUline = mwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
 		SetTextColor(hdc,GetSysColor(COLOR_WINDOWTEXT));
 		SetBkMode(hdc,TRANSPARENT);
 		SetRect(&rcText,8,2,rc.right+8,rc.bottom+2);
-		DrawText(hdc,buf,-1,&rcText,DT_CENTER);
+		OffsetRect ( &ulinePos, rcText.left, rcText.top );
+		DrawText(hdc,buf,txtlen,&rcText,DT_CENTER|DT_VCENTER);
+		if( bUline ) {
+			SelectObject ( hdc, GetStockObject(BLACK_PEN) );
+			MoveToEx ( hdc, ulinePos.left, ulinePos.bottom, NULL );
+			LineTo ( hdc, ulinePos.right, ulinePos.bottom );
+		}
 	}
 
 	crTop=GetSysColor(COLOR_BTNHIGHLIGHT);
@@ -895,24 +1069,3 @@ Return:
 	EndPaint(hwnd, &ps);
 }
 
-/* temporarily here, should move to winuser.c*/
-void WINAPI
-CheckRadioButton(HWND hDlg, int nIDFirst,int nIDLast,int nIDCheckButton)
-{
-	HWND	hWndCheck,hWndTemp;
-	DWORD 	dwStyle;
-
-	if (!(hWndCheck = GetDlgItem(hDlg,nIDCheckButton)))
-	    return;
-
-	for(hWndTemp=hDlg->children; hWndTemp; hWndTemp=hWndTemp->siblings) {
-		if(hWndCheck == hWndTemp) continue;
-		dwStyle = GetWindowLong(hWndTemp,GWL_STYLE);
-		if ((hWndTemp->id >= (WORD)nIDFirst) && 
-		    (hWndTemp->id <= (WORD)nIDLast) &&
-			((LOWORD(dwStyle) == BS_RADIOBUTTON) ||
-			 (LOWORD(dwStyle) == BS_AUTORADIOBUTTON)))
-			SendMessage(hWndTemp,BM_SETCHECK,FALSE,0);
-	}
-	SendMessage(hWndCheck,BM_SETCHECK,TRUE,0);
-}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
  * Screen Driver Utilities
  * 
@@ -11,6 +11,7 @@
 #define NUMBER_FONTS	4	/* number of compiled-in fonts*/
 
 /* entry points*/
+void	gen_setfontproc(MWCOREFONT *pf);
 MWBOOL	gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 void	gen_gettextsize(PMWFONT pfont, const void *text, int cc,
 		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,

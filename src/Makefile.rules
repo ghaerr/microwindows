@@ -360,7 +360,7 @@ endif
 endif
 
 ifeq ($(DEBUG), Y)
-OPTFLAGS += -ggdb
+OPTFLAGS += -ggdb -O0 -fvolatile
 DEFINES += -DDEBUG=1
 else
 #OPTFLAGS += -DNDEBUG

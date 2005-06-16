@@ -8,7 +8,7 @@ If I've missed you, please remind me or submit something!
 
 Contributors
 Engine				Greg Haerr, David Bell, Morten Rolland, Alex Holden
-Win32 api			Greg Haerr
+Win32 api			Greg Haerr, Gabriele Brugnoni
 Nano-X api			David Bell, Alan Cox, Alex Holden, Greg Haerr
 Nano-X window manager		Alex Holden, Greg Haerr
 Nano-X popup keyboard		Vladimir Cotfas, Jay Carlson, Greg Haerr
@@ -33,6 +33,7 @@ Arc clipping routines		Eero Tamminen
 Mozilla kbd,rops,font enum	Matthew Wlazlo
 
 Contact Info
+Gabriele Brugnoni	<gabrielebrugnoni@dveprojects.com>
 Jay Carlson		<nop@nop.com>
 Vladimir Cotfas		<vladimircotfas@vtech.ca>
 Alan Cox		<alan@lxorguk.ukuu.org.uk>

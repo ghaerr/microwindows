@@ -174,6 +174,7 @@ typedef struct hgdiobj *HRGN;
 typedef struct hgdiobj *HPALETTE;
 typedef HANDLE		HICON;
 typedef HANDLE		HINSTANCE;
+typedef HANDLE		HMODULE;
 typedef HANDLE		HMENU;
 
 /* moved to winuser.h for resource compiler*/

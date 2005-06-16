@@ -5,6 +5,10 @@
  * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Win32 API master public header file
+ * Modifications:
+ *  Date        Author                  Description
+ *  2004/12/07  Gabriele Brugnoni       added lpfnWndProc param on wnd struct, so
+ *                                      SetWindowLong(GWL_WNDPROC) may works on multiple wnd.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +20,9 @@ extern "C" {
 #include "winfont.h"
 #include "winkbd.h"
 #include "winuser.h"	/* now includes winctl.h for resource compiler*/
+#include "winres.h"
+#include "windlg.h"
+
 
 /* external routines*/
 int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -116,6 +123,7 @@ struct hwnd {
 	DWORD		style;		/* window style*/
 	DWORD		exstyle;	/* window extended style*/
 	PWNDCLASS	pClass;		/* window class*/
+    WNDPROC     lpfnWndProc;/* default window procedure (initialized from pClass) */
 	struct hwnd	*parent;	/* z-order parent window */
 	struct hwnd	*owner;		/* owner window*/
 	struct hwnd	*children;	/* first child window */
@@ -125,15 +133,19 @@ struct hwnd {
 	struct hdc *	owndc;		/* owndc if CS_OWNDC*/
 	int		unmapcount;	/* count of reasons not really mapped */
 	int		id;		/* window id */
-	CHAR		szTitle[64];	/* window title*/
+	LPTSTR	szTitle;	/* window title*/
 	int		gotPaintMsg;	/* window had WM_PAINT PostMessage*/
 	int		paintSerial;	/* experimental serial # for alphblend*/
 	int		paintNC;	/* experimental NC paint handling*/
+	int		nEraseBkGnd;	/* for InvalidateXX erase bkgnd flag */
+	HBRUSH	paintBrush;		/* brush created to paint some controls */
+	HPEN	paintPen;		/* pen created to paint some controls */
 	MWCLIPREGION *	update;		/* update region in screen coords*/
 	DWORD		userdata;	/* setwindowlong user data*/
 	DWORD		userdata2;	/* additional user data (will remove)*/
 	MWSCROLLBARINFO	hscroll;	/* NC scrollbars*/
 	MWSCROLLBARINFO	vscroll;
+	HINSTANCE	hInstance;	/* hInstance */
 	int		nextrabytes;	/* # window extra bytes*/
 	char		extrabytes[1];	/* window extra bytes - must be last*/
 };

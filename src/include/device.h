@@ -1,7 +1,7 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Engine-level Screen, Mouse and Keyboard device driver API's and types
@@ -25,6 +25,7 @@
 #else
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
 #endif
+#define FFMINAA_HEIGHT	0			/* min height for FT antialias*/
 
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 

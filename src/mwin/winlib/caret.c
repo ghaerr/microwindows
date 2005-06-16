@@ -1,9 +1,12 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2005 Greg Haerr <greg@censoft.com>
  *
  * Caret control for Microwindows win32 api.
  *
  * TODO: add SetSysTimer for blinking
+ * Modifications:
+ *  Date		Author					Description
+ *	2003/09/01	Gabriele Brugnoni		Implemented blinking using timers
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +28,7 @@ typedef struct {
 	BOOL	fShown;		/* caret is currently visible*/
 	int	nShowCount;	/* <= 0 for hidden caret*/
 	UINT	nBlinkTime;
+	UINT	nTimerID;	/* timer ID */
 } CARETINFO;
 
 /* local data*/
@@ -34,6 +38,25 @@ static CARETINFO sysCaret;	/* the system caret*/
 static void MwShowCaret(void);
 static void MwHideCaret(void);
 static void MwUpdateCaret(void);
+
+/* Timer function call for caret blinking */
+static void CALLBACK fnCaretBlink ( HWND hwnd, UINT uMsg, 
+									UINT idEvent, DWORD dwTime )
+{
+    static UINT lastBlinkTime = DEF_BLINK_TIME;
+
+    if( sysCaret.nShowCount > 0 )
+	{
+	MwUpdateCaret();
+	sysCaret.fShown = !sysCaret.fShown;
+	}
+    if( sysCaret.nBlinkTime != lastBlinkTime )
+	{
+	KillTimer ( hwnd, idEvent );
+	sysCaret.nTimerID = SetTimer ( NULL, 0, sysCaret.nBlinkTime, 
+					(TIMERPROC)fnCaretBlink );
+	}
+}
 
 BOOL WINAPI
 CreateCaret(HWND hwnd, HBITMAP hBitmap, int nWidth, int nHeight)
@@ -54,6 +77,8 @@ CreateCaret(HWND hwnd, HBITMAP hBitmap, int nWidth, int nHeight)
         sysCaret.fShown = FALSE;
         sysCaret.nShowCount = 0;
         sysCaret.nBlinkTime = DEF_BLINK_TIME;
+    sysCaret.nTimerID = SetTimer ( NULL, 0, sysCaret.nBlinkTime, 
+							       (TIMERPROC)fnCaretBlink );
 	return TRUE;
 }
 
@@ -62,6 +87,8 @@ DestroyCaret(VOID)
 {
 	if (sysCaret.fShown)
 		MwHideCaret();
+    if( sysCaret.nTimerID != 0 )
+	KillTimer ( NULL, sysCaret.nTimerID );
 	sysCaret.hwnd = NULL;
 	sysCaret.fShown = FALSE;
 	return TRUE;
@@ -88,7 +115,11 @@ ShowCaret(HWND hwnd)
 {
 	if (hwnd == NULL)
 		hwnd = sysCaret.hwnd;
-	if (hwnd == NULL || hwnd != sysCaret.hwnd || sysCaret.nShowCount < 0)
+    
+    /*GB: Why check nShowCount < 0 ? 
+      if we call HideCaret when nShowCount is 0, 
+      then it's never possible to show again caret.*/
+    if (hwnd == NULL || hwnd != sysCaret.hwnd /*|| sysCaret.nShowCount < 0*/ )
 		return FALSE;
 
 	if (++sysCaret.nShowCount > 1)

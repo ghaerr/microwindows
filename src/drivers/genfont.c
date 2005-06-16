@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003, 2005 Greg Haerr <greg@censoft.com>
  *
  * Screen Driver Utilities
  * 
@@ -62,6 +62,16 @@ MWCOREFONT gen_fonts[NUMBER_FONTS] = {
 	{&fontprocs, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
 	{&fontprocs, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
 };
+
+/*GB: pointer to an user builtin font table. */
+MWCOREFONT *user_builtin_fonts = NULL;
+
+/*  Sets the fontproc to fontprocs.  */
+void
+gen_setfontproc(MWCOREFONT *pf)
+{
+	pf->fontprocs = &fontprocs;
+}
 
 /*
  * Generalized low level get font info routine.  This
@@ -168,7 +178,15 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	ch -= pf->firstchar;
 
 	/* get font bitmap depending on fixed pitch or not*/
-	bits = pf->bits + (pf->offset? pf->offset[ch]: (pf->height * ch));
+	/* GB: automatically detect if offset is 16 or 32 bit */
+	if( pf->offset ) {
+		if( ((unsigned long*)pf->offset)[0] >= 0x00010000 )
+			bits = pf->bits + ((unsigned short*)pf->offset)[ch];
+		else
+			bits = pf->bits + ((unsigned long*)pf->offset)[ch];
+	} else
+		bits = pf->bits + (pf->height * ch);
+		
  	width = pf->width ? pf->width[ch] : pf->maxwidth;
 	count = MWIMAGE_WORDS(width) * pf->height; 
 

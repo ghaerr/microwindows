@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Win32 API upper level graphics drawing routines
@@ -211,10 +211,21 @@ BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
 				|DCX_EXCLUDEUPDATE);	/* FIXME - bug*/
 
 		/* erase client background*/
-		lpPaint->fErase = !SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)hdc,
-			0L);
+		if( hwnd->nEraseBkGnd > 0 )
+			lpPaint->fErase = !SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)hdc, 0L);
+		else
+			lpPaint->fErase = 0;
+
+		hwnd->nEraseBkGnd = 0;
 	}
 	lpPaint->hdc = hdc;
+
+	if( hwnd->paintBrush != NULL )
+		DeleteObject ( hwnd->paintBrush );
+	if( hwnd->paintPen != NULL )
+		DeleteObject ( hwnd->paintPen );
+	hwnd->paintBrush = NULL;
+	hwnd->paintPen = NULL;
 
 	GetUpdateRect(hwnd, &lpPaint->rcPaint, FALSE);
 	return hdc;
@@ -223,6 +234,18 @@ BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
 BOOL WINAPI 
 EndPaint(HWND hwnd, CONST PAINTSTRUCT *lpPaint)
 {
+	if( hwnd->paintBrush != NULL )
+		{
+		SelectObject ( lpPaint->hdc, GetStockObject(NULL_BRUSH) );
+		DeleteObject ( hwnd->paintBrush );
+		hwnd->paintBrush = NULL;
+		}
+	if( hwnd->paintPen != NULL )
+		{
+		SelectObject ( lpPaint->hdc, GetStockObject(BLACK_PEN) );
+		DeleteObject ( hwnd->paintPen );
+		hwnd->paintPen = NULL;
+		}
 	ReleaseDC(hwnd, lpPaint->hdc);
 #if UPDATEREGIONS
 	/* don't clear update region until done dragging*/
@@ -1461,4 +1484,148 @@ GetDeviceCaps(HDC hdc, int nIndex)
 		break;
 	}
 	return 0;
+}
+
+
+
+/*
+ *  Draw a rectangle indicating focus
+ */
+BOOL WINAPI DrawFocusRect ( HDC hdc, LPRECT prect )
+{
+	unsigned long dm = 0xAAAAAAAA;
+	int dc=32;
+    int oldmode = GdSetMode(MWMODE_XOR);
+	HPEN holdpen = SelectObject ( hdc, CreatePen(PS_SOLID, 1, RGB(255,255,255)) );
+	GdSetDash ( &dm, &dc );
+	SelectObject ( hdc, GetStockObject(NULL_BRUSH) );
+	Rectangle ( hdc, prect->left-1, prect->top, prect->right+1, prect->bottom );
+	GdSetDash ( &dm, &dc );
+	DeleteObject ( SelectObject(hdc, holdpen) );
+	GdSetMode ( oldmode );
+	return TRUE;
+}
+
+
+/* ascii*/
+static LONG
+mwTabbedTextOut ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+				  int ntabs, LPINT lpTabStops, int nTabOrigin, BOOL noDraw )
+{
+    TEXTMETRIC tm;
+	int count;
+	int tot;
+    int xw, xh, xb;
+	int tabPos = x;
+	int deftab = 32;
+	int orgx = x;
+	LPCTSTR pstr = lpszString;
+	LPINT pTab = lpTabStops;
+
+	if( GetTextMetrics(hdc, &tm) )
+		deftab = 8 * tm.tmAveCharWidth;
+
+	if( lpTabStops == NULL )
+		ntabs = 0;
+
+	if( ntabs == 1 )
+		{
+		deftab = *lpTabStops;
+		ntabs = 0;
+		}
+
+	if( cbString == -1 )
+		cbString = strlen ( lpszString );
+
+	tot = cbString;
+	GdSetFont(hdc->font->pfont);
+	while ( tot > 0 )
+		{
+		for ( count=0; (count < tot) && (pstr[count] != '\t'); count++ );
+		GdGetTextSize ( hdc->font->pfont, pstr, count,
+						&xw, &xh, &xb, MWTF_ASCII );
+
+		while ( (ntabs > 0) && (nTabOrigin + *lpTabStops <= (x + xw)) )
+        	{
+            lpTabStops++;
+            ntabs--;
+        	}
+
+		if( count == tot )
+            tabPos = x + xw;
+        else if( ntabs > 0 )
+            tabPos = nTabOrigin + *lpTabStops;
+        else
+            tabPos = nTabOrigin + ((x + xw - nTabOrigin) / deftab + 1) * deftab;
+
+		if( !noDraw )
+			{
+			RECT rect;
+			rect.left = x;
+			rect.top = y;
+			rect.right = x + tabPos;
+			rect.bottom = y + xh;
+			//TextOut ( hdc, x, y, pstr, count );
+			DrawText( hdc, pstr, count, &rect, DT_LEFT | DT_SINGLELINE | DT_TOP );
+			}
+
+		x = tabPos;
+		tot -= (count+1);
+		pstr += (count+1);
+		}
+
+	return MAKELONG ( (tabPos-orgx), xh );
+}
+
+
+/* ascii*/
+LONG WINAPI
+TabbedTextOut ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+                int ntabs, LPINT lpTabStops, int nTabOrigin )
+{
+	return mwTabbedTextOut ( hdc, x, y, lpszString, cbString, ntabs, lpTabStops, nTabOrigin, FALSE );
+}
+
+
+DWORD WINAPI
+GetTabbedTextExtent ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+                      int ntabs, LPINT lpTabStops )
+{
+	return mwTabbedTextOut ( hdc, x, y, lpszString, cbString, ntabs, lpTabStops, 0, TRUE );
+}
+
+
+/*
+ *  Internal:
+ *  Check in text for the '&' chr, remove it from text and sets rect for pos
+ */
+BOOL mwCheckUnderlineChar ( HDC hdc, char *text, int *pLen, LPRECT rcLine )
+{
+	int i;
+	int txtlen;
+
+	if( pLen )
+		txtlen = *pLen;
+	else
+		txtlen = strlen ( text );
+
+	for ( i=0; i < txtlen; i++ )
+		if( (text[i] == '&') && (i+1 < txtlen) && (text[i+1] != '&') )
+			{
+			SIZE sz;
+			TEXTMETRIC tm;
+			GetTextMetrics ( hdc, &tm );
+			GetTextExtentPoint ( hdc, text, i, &sz );
+			rcLine->left = sz.cx;
+			rcLine->top = 0;
+			rcLine->bottom = tm.tmAscent + 1;
+			GetTextExtentPoint ( hdc, text+i+1, 1, &sz );
+			rcLine->right = rcLine->left + sz.cx;
+			memmove ( text+i, text+i+1, txtlen-i );
+			txtlen--;
+			if( pLen ) *pLen = txtlen;
+			return TRUE;
+			}
+
+	return FALSE;
 }

@@ -36,7 +36,9 @@ OBJS := \
 	$(MW_DIR_OBJ)/mwin/windefw.o \
 	$(MW_DIR_OBJ)/mwin/winrgn.o \
 	$(MW_DIR_OBJ)/mwin/winfont.o \
-	$(MW_DIR_OBJ)/mwin/winsbar.o
+	$(MW_DIR_OBJ)/mwin/winsbar.o \
+	$(MW_DIR_OBJ)/mwin/winres.o \
+	$(MW_DIR_OBJ)/mwin/winresbmp.o 
 
 OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/draw3d.o \
@@ -48,8 +50,10 @@ OBJS += \
 
 ifneq ($(ARCH), ELKS)
 OBJS += \
+	$(MW_DIR_OBJ)/mwin/winlib/windlg.o \
 	$(MW_DIR_OBJ)/mwin/winlib/button.o \
 	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
+	$(MW_DIR_OBJ)/mwin/winlib/newedit.o \
 	$(MW_DIR_OBJ)/mwin/winlib/listbox.o \
 	$(MW_DIR_OBJ)/mwin/winlib/progbar.o \
 	$(MW_DIR_OBJ)/mwin/winlib/static.o \

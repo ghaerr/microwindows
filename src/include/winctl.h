@@ -13,10 +13,8 @@ int WINAPI	MwRegisterProgressBarControl(HINSTANCE hInstance);
 int WINAPI	MwRegisterComboboxControl(HINSTANCE hInstance);
 int WINAPI	MwRegisterScrollbarControl(HINSTANCE hInstance);
 int WINAPI	MwRegisterMEditControl(HINSTANCE hInstance);
+int WINAPI	MwRegisterOldEditControl(HINSTANCE hInstance); /* FIXME*/
 
-/* temporarily in button.c*/
-void WINAPI	CheckRadioButton(HWND hDlg, int nIDFirst,int nIDLast,
-			int nIDCheckButton);
 
 /* Dialog Codes*/
 #define DLGC_WANTARROWS     0x0001      /* Control wants arrow keys         */

@@ -25,3 +25,7 @@ void WINAPI	Draw3dUpFrame(HDC hDC, int l, int t, int r, int b);
 void WINAPI	FastFillRect(HDC hdc,LPRECT lprect,COLORREF cr);
 void WINAPI	InsetR(LPRECT lprc,int h,int v);
 BOOL WINAPI	PtInsideWindow(HWND hwnd,UINT x,UINT y);
+
+/*GB*/
+BOOL WINAPI	PtInsideWindowNC(HWND hwnd,UINT x,UINT y);
+/*/GB*/

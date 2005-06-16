@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  */
 /**
@@ -29,6 +29,7 @@ static PMWFONT	gr_pfont;
 extern MWPIXELVAL gr_foreground;
 extern MWPIXELVAL gr_background;
 extern MWBOOL gr_usebg;
+extern MWCOREFONT *user_builtin_fonts;
 
 void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
@@ -85,6 +86,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 	int		fontattr = 0;
 	PMWFONT		pfont;
 	PMWCOREFONT	pf = psd->builtin_fonts;
+	PMWCOREFONT	upf;
 	MWFONTINFO	fontinfo;
 	MWSCREENINFO 	scrinfo;
 	const char *	fontname;
@@ -130,7 +132,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
  			if(!strcmpi(pf[i].name, fontname)) {
   				pf[i].fontsize = pf[i].cfont->height;
 				pf[i].fontattr = fontattr;
-DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
+				DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
   				return (PMWFONT)&pf[i];
   			}
   		}
@@ -145,6 +147,20 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 		 * height will always be returned.
 		 */
   	}
+
+	/* check user builtin fonts next*/
+	upf = user_builtin_fonts;
+	while ( (upf != NULL) && (upf->name != NULL) ) {
+		if(!strcmpi(upf->name, fontname) && (upf->cfont->height == height) ) {
+			if( upf->fontprocs == NULL )
+				gen_setfontproc(upf);
+			upf->fontsize = upf->cfont->height;
+			upf->fontattr = fontattr;
+			DPRINTF("createfont: (height != 0) found user builtin font %s (%d)\n", fontname, height);
+			return (PMWFONT)upf;
+		}
+		upf++;
+	}
 
 	/* try to load font (regardless of height) using other renderers*/
 
@@ -173,8 +189,7 @@ DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
 #if HAVE_FREETYPE_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
 		if (freetype_init(psd)) {
-			/* FIXME auto antialias for height > 14 for kaffe*/
-			if (plogfont && plogfont->lfHeight > 14 &&
+			if (plogfont && abs(plogfont->lfHeight) > FFMINAA_HEIGHT &&
 				plogfont->lfQuality)
 					fontattr |= MWTF_ANTIALIAS;
 

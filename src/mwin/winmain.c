@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2004 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2004, 2005 Greg Haerr <greg@censoft.com>
  *
  * Main module of Microwindows
  */
@@ -33,6 +33,7 @@
 
 #include "windows.h"
 #include "wintern.h"
+#include "winres.h"
 #include "device.h"
 
 /*
@@ -55,6 +56,8 @@ int		escape_quits = 1;	/* terminate when pressing ESC */
 int
 main(int ac,char **av)
 {
+    HINSTANCE hInstance;
+
 	/* call user hook routine before anything*/
 	if(MwUserInit(ac, av) < 0)
 		exit(1);
@@ -62,9 +65,16 @@ main(int ac,char **av)
 	if(MwOpen() < 0)
 		exit(1);
 
-	/* call windows main program entry point*/
-	WinMain(NULL, NULL, NULL, SW_SHOW);
+	if( (hInstance=mwCreateInstance(ac, av)) == NULL )
+	    exit(1);
+		
+	rootwp->hInstance = hInstance;
 
+	/* call windows main program entry point*/
+	WinMain ( hInstance, NULL, 
+		  (LPSTR)((PMWAPPINSTANCE)hInstance)->szCmdLine, SW_SHOW );
+
+	mwFreeInstance ( hInstance );
 	MwClose();
 	return 0;
 }
@@ -230,7 +240,7 @@ MwUnregisterFdExcept(HWND hwnd, int fd)
 
 #if MSDOS | _MINIX
 void
-MwSelect(void)
+MwSelect(BOOL mayWait)
 {
 	/* If mouse data present, service it*/
 	if(mousedev.Poll())
@@ -252,7 +262,7 @@ static int fade = 0;
 #endif
 
 void
-MwSelect(void)
+MwSelect(BOOL mayWait)
 {
 	fd_set	rfds;
 	fd_set	wfds;
@@ -261,7 +271,8 @@ MwSelect(void)
 	int 	e;
 	int	setsize = 0;
 	UINT	timeout;
-	struct timeval to;
+	struct timeval to, *pto;
+	BOOL    maybeInfinite = TRUE;
 
 	/* perform pre-select duties, if any*/
 	if(scrdev.PreSelect)
@@ -300,25 +311,37 @@ MwSelect(void)
 	 * so poll quickly to allow other windows to repaint while
 	 * checking for more event input.
 	 */
-	if(dragwp)
-		timeout = to.tv_sec = to.tv_usec = 0L;
-	else {
+	timeout = to.tv_sec = to.tv_usec = 0L;
+	pto = &to;
+	if( !dragwp && mayWait ) {
 		timeout = MwGetNextTimeoutValue();	/* returns ms*/
+		if( (int)timeout == -1 ) // this means that no timers exists
+			timeout = 0;
+		else
+			maybeInfinite = FALSE;
 #if ANIMATEPALETTE
 		if(fade < 100)
 			timeout = 40;
 #endif
-if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
+//if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
 #if MW_FEATURE_TIMERS
-		GdGetNextTimeout(&to, timeout);
+		if( !GdGetNextTimeout(&to, timeout) ) {
+			to.tv_sec = timeout / 1000;
+			to.tv_usec = (timeout % 1000) * 1000;
+		} else
+			maybeInfinite = FALSE;
 #else /* if ! MW_FEATURE_TIMERS */
 		to.tv_sec = timeout / 1000;
 		to.tv_usec = (timeout % 1000) * 1000;
 #endif /* ! MW_FEATURE_TIMERS */
+		/*  If no timers are scheduled 
+		    so the select function will wait forever...  */
+		if( maybeInfinite && (to.tv_sec == 0) && (to.tv_usec == 0) )
+			pto = NULL;
 	}
-
+		
 	/* Wait for some input on any of the fds in the set or a timeout: */
-	if((e = select(setsize, &rfds, &wfds, &efds, &to)) > 0) {
+	if((e = select(setsize, &rfds, &wfds, &efds, pto)) > 0) {
 		
 		/* If data is present on the mouse fd, service it: */
 		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
@@ -327,8 +350,10 @@ if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
 
 		/* If data is present on the keyboard fd, service it: */
 		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
+			MwCheckKeyboardEvent();
+/*	GB: Only one key at a time is posted to focused window...
 			while(MwCheckKeyboardEvent())
-				continue;
+				continue;	*/
 
 		/* If registered descriptor, handle it */
 		fd = userregfd_head;
@@ -357,7 +382,7 @@ if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
 		MwHandleTimers();
 	} else
 		if(errno != EINTR)
-			EPRINTF("Select() call in main failed\n");
+			EPRINTF("Select() call in main failed. Errno=%d\n", errno);
 }
 #endif
 
@@ -536,6 +561,13 @@ MwInitialize(void)
 	wp->cursor = NULL;
 	wp->unmapcount = 0;
 	wp->id = 0;
+	wp->szTitle = (LPTSTR) malloc ( 64 );
+	wp->lpfnWndProc = wc.lpfnWndProc;
+	wp->hInstance = NULL;
+	wp->nEraseBkGnd = 1;
+	wp->paintBrush = NULL;
+	wp->paintPen = NULL;
+
 	strcpy(wp->szTitle, "Microwindows");
 	wp->gotPaintMsg = PAINT_PAINTED;
 #if UPDATEREGIONS

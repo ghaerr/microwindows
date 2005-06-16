@@ -54,13 +54,14 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 
-	INVERT(c);
 	DRAWON;
 	addr += (x>>1) + y * psd->linelen;
 	if(gr_mode == MWMODE_XOR)
 		*addr ^= c << ((1-(x&1))<<2);
-	else
+	else {
+		INVERT(c);
 		*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
+	}
 	DRAWOFF;
 }
 
@@ -94,7 +95,6 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 
-        INVERT(c);
 	DRAWON;
 	addr += (x1>>1) + y * psd->linelen;
 	if(gr_mode == MWMODE_XOR) {
@@ -104,6 +104,7 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 				++addr;
 		}
 	} else {
+		INVERT(c);
 		while(x1 <= x2) {
 			*addr = (*addr & notmask[x1&1]) | (c << ((1-(x1&1))<<2));
 			if((++x1 & 1) == 0)
@@ -127,19 +128,20 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert (y2 >= y1);
 	assert (c < psd->ncolors);
 
-        INVERT(c);
 	DRAWON;
 	addr += (x>>1) + y1 * linelen;
-	if(gr_mode == MWMODE_XOR)
+	if(gr_mode == MWMODE_XOR) {
 		while(y1++ <= y2) {
 			*addr ^= c << ((1-(x&1))<<2);
 			addr += linelen;
 		}
-	else
+	} else {
+		INVERT(c);
 		while(y1++ <= y2) {
 			*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
 			addr += linelen;
 		}
+	}
 	DRAWOFF;
 }
 

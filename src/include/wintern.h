@@ -104,7 +104,7 @@ extern BOOL	mwERASEMOVE;	/* default repaint algorithm*/
 /* winmain.c*/
 int		MwOpen(void);
 void		MwClose(void);
-void		MwSelect(void);
+void		MwSelect(BOOL mayWait);
 int		MwInitialize(void);
 void		MwTerminate(void);
 extern	HWND	listwp;			/* list of all windows */

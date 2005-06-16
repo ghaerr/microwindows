@@ -155,7 +155,7 @@ static int GetSysCCharWidth (HWND hwnd)
 	return (2*GetSysCharWidth(hwnd));
 }
 
-int WINAPI MwRegisterEditControl(HINSTANCE hInstance)
+int WINAPI MwRegisterOldEditControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 

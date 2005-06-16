@@ -8,7 +8,7 @@
 
 /* moved from windef.h for resource compiler*/
 typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
-typedef LRESULT (CALLBACK* DLGPROC)(HWND, UINT, WPARAM, LPARAM);
+typedef BOOL (CALLBACK* DLGPROC)(HWND, UINT, WPARAM, LPARAM);
 
 /* win api*/
 LRESULT WINAPI 	DefWindowProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
@@ -69,6 +69,7 @@ typedef struct tagMSG {
 #define WM_NULL                         0x0000
 #define WM_CREATE                       0x0001
 #define WM_DESTROY                      0x0002
+#define WM_NCDESTROY			WM_DESTROY
 #define WM_MOVE                         0x0003
 #define WM_SIZE                         0x0005
 #define WM_ACTIVATE                     0x0006
@@ -83,6 +84,10 @@ typedef struct tagMSG {
 #define WM_QUIT                         0x0012
 #define WM_ERASEBKGND                   0x0014
 #define WM_SHOWWINDOW                   0x0018
+#define WM_CTLCOLOR                     0x0019
+#define WM_NEXTDLGCTL                   0x0028
+#define WM_DRAWITEM                     0x002B
+#define WM_MEASUREITEM                  0x002C
 #define WM_SETFONT          		0x0030
 #define WM_GETFONT      		0x0031
 #define WM_WINDOWPOSCHANGED             0x0047
@@ -104,13 +109,24 @@ typedef struct tagMSG {
 #define WM_DEADCHAR                     0x0103	/* notimp*/
 #define WM_SYSKEYDOWN                   0x0104	/* nyi*/
 #define WM_SYSKEYUP                     0x0105	/* nyi*/
-#define WM_SYSCHAR                      0x0106	/* nyi*/
+#define WM_SYSCHAR                      0x0106
 #define WM_SYSDEADCHAR                  0x0107	/* notimp*/
 #define WM_KEYLAST                      0x0108
+#define WM_INITDIALOG	                0x0110
 #define WM_COMMAND                      0x0111
 #define WM_TIMER                        0x0113
 #define WM_HSCROLL                      0x0114
 #define WM_VSCROLL                      0x0115
+
+#define WM_ENTERIDLE                    0x0121
+
+#define WM_CTLCOLORMSGBOX               0x0132
+#define WM_CTLCOLOREDIT                 0x0133
+#define WM_CTLCOLORLISTBOX              0x0134
+#define WM_CTLCOLORBTN                  0x0135
+#define WM_CTLCOLORDLG                  0x0136
+#define WM_CTLCOLORSCROLLBAR            0x0137
+#define WM_CTLCOLORSTATIC               0x0138
 
 #define WM_MOUSEFIRST                   0x0200
 #define WM_MOUSEMOVE                    0x0200
@@ -502,3 +518,19 @@ BOOL WINAPI SetCaretPos(int nX, int nY);
 BOOL WINAPI GetCaretPos(LPPOINT lpPoint);
 UINT WINAPI GetCaretBlinkTime(VOID);
 BOOL WINAPI SetCaretBlinkTime(UINT uMSeconds);
+
+
+int WINAPI GetClassName(HWND hWnd, LPTSTR lpClassName, int nMaxCount);
+HWND WINAPI GetNextDlgGroupItem(HWND hDlg, HWND hCtl, BOOL bPrevious);
+
+/*
+ *  Windows enumeration functions
+ */
+typedef BOOL CALLBACK (*WNDENUMPROC)(HWND, LPARAM);
+
+BOOL WINAPI EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc,
+			       LPARAM lParam);
+
+#ifdef MW_CALL_IDLE_HANDLER
+void WINAPI idle_handler(void);
+#endif

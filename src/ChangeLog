@@ -1,6 +1,8 @@
 	* fixed v0.90 white display bug in 24/32bpp images
 	* fixed XPM support for large line size
 	* added VNC server support, requires libvncserver 0.6 (Giampiero)
+		added HAVE_VNCSERVER_SUPPORT, VNCSERVER_PTHREADED config opts
+		added INCZ zlib include config option
 	* fix mterm on Cygwin (David)
 	* add DT_BOTTOM, DT_VCENTER to DrawText (Simon)
 	* fix bug in MwDestroyWindow causing crashes

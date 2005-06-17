@@ -1,6 +1,6 @@
 /* winkbd.h*/
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2005 Greg Haerr <greg@censoft.com>
  *
  * Win32 keyboard defines and API
  */
@@ -126,3 +126,13 @@
 #define KF_ALTDOWN          0x2000
 #define KF_REPEAT           0x4000
 #define KF_UP               0x8000
+
+typedef BOOL (CALLBACK *LPFN_KEYBTRANSLATE)(WPARAM *pVK, LPARAM *pControlMask, BOOL *pressed);
+
+/*
+ *  Set, if not NULL, a function filter for keyboard translation.
+ *  The callback function will receive the virtual key and control mask,
+ *  (see WM_KEYDOWN specifications), and it may modify it. 
+ *  The callback should return nonzero if has made modifications.
+ */
+void WINAPI MwSetKeyboardTranslator(LPFN_KEYBTRANSLATE pFn);

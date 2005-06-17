@@ -7,6 +7,7 @@
 #include "windows.h"
 #include "wintern.h"
 #include "device.h"
+#include "intl.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,6 +19,9 @@ BOOL mwERASEMOVE = TRUE;	/* default XORMOVE repaint algorithm*/
 #else
 BOOL mwERASEMOVE = FALSE;	/* default ERASEMOVE repaint algorithm*/
 #endif
+
+/* current encoding for non-wide char text functions*/
+long mwTextCoding = MWTF_UTF8;	/* usually MWTF_ASCII or MWTF_UTF8*/
 
 /* cast a pointer to an integer*/
 #if DOS_TURBOC
@@ -733,22 +737,38 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 	return TRUE;
 }
 
-/* ascii*/
+
+/* set current input coding*/
+void WINAPI
+MwSetTextCoding(long mode)
+{
+	mwTextCoding = mode;
+}
+
+/* ascii or utf8 */
 BOOL WINAPI
 TextOut(HDC hdc, int x, int y, LPCSTR lpszString, int cbString)
 {
 	/* kaffe port wants MWTF_UTF8 here...*/
 	return MwExtTextOut(hdc, x, y, 0, NULL, lpszString, cbString, NULL,
-		MWTF_ASCII);
+		mwTextCoding);
 }
 
-/* ascii*/
+/* UC16 */
+BOOL WINAPI
+TextOutW(HDC hdc, int x, int y, LPCWSTR lpszString, int cbString)
+{
+	/* kaffe port wants MWTF_UTF8 here...*/
+	return MwExtTextOut(hdc, x, y, 0, NULL, lpszString, cbString, NULL, MWTF_UC16 );
+}
+
+/* ascii or utf8 */
 BOOL WINAPI
 ExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 	LPCSTR lpszString, UINT cbCount, CONST INT *lpDx)
 {
 	return MwExtTextOut(hdc, x, y, fuOptions, lprc, lpszString,
-		cbCount, lpDx, MWTF_ASCII);
+		cbCount, lpDx, mwTextCoding);
 }
 
 /* unicode*/
@@ -835,11 +855,12 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 	return TRUE;
 }
 
-/* ascii*/
+/* ascii or utf8 */
 int WINAPI
 DrawTextA(HDC hdc, LPCSTR lpString, int nCount, LPRECT lpRect, UINT uFormat)
 {
-	return MwDrawText(hdc, lpString, nCount, lpRect, uFormat, MWTF_ASCII);
+	return MwDrawText(hdc, lpString, nCount, lpRect, uFormat, 
+		mwTextCoding);
 }
 
 /* unicode*/
@@ -864,7 +885,7 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 		if(!hdc)
 			return 0;
 		GdGetTextSize(hdc->font->pfont, lpString, nCount,
-			&width, &height, &baseline, MWTF_ASCII);
+			&width, &height, &baseline, flags);
 	}
 	x = lpRect->left;
 	y = lpRect->top;
@@ -1486,146 +1507,186 @@ GetDeviceCaps(HDC hdc, int nIndex)
 	return 0;
 }
 
-
-
 /*
  *  Draw a rectangle indicating focus
  */
-BOOL WINAPI DrawFocusRect ( HDC hdc, LPRECT prect )
+BOOL WINAPI
+DrawFocusRect(HDC hdc, LPRECT prect)
 {
 	unsigned long dm = 0xAAAAAAAA;
-	int dc=32;
-    int oldmode = GdSetMode(MWMODE_XOR);
-	HPEN holdpen = SelectObject ( hdc, CreatePen(PS_SOLID, 1, RGB(255,255,255)) );
-	GdSetDash ( &dm, &dc );
-	SelectObject ( hdc, GetStockObject(NULL_BRUSH) );
-	Rectangle ( hdc, prect->left-1, prect->top, prect->right+1, prect->bottom );
-	GdSetDash ( &dm, &dc );
-	DeleteObject ( SelectObject(hdc, holdpen) );
-	GdSetMode ( oldmode );
+	int dc = 32;
+	int oldmode = GdSetMode(MWMODE_XOR);
+	HPEN holdpen = SelectObject(hdc,
+		CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
+
+	GdSetDash(&dm, &dc);
+	SelectObject(hdc, GetStockObject(NULL_BRUSH));
+	Rectangle(hdc, prect->left - 1, prect->top, prect->right + 1,
+		  prect->bottom);
+	GdSetDash(&dm, &dc);
+	DeleteObject(SelectObject(hdc, holdpen));
+	GdSetMode(oldmode);
 	return TRUE;
 }
 
 
-/* ascii*/
+/* ascii or utf8 */
 static LONG
-mwTabbedTextOut ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
-				  int ntabs, LPINT lpTabStops, int nTabOrigin, BOOL noDraw )
+mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+	int ntabs, LPINT lpTabStops, int nTabOrigin, BOOL noDraw)
 {
-    TEXTMETRIC tm;
+	TEXTMETRIC tm;
 	int count;
 	int tot;
-    int xw, xh, xb;
+	int xw, xh, xb;
 	int tabPos = x;
 	int deftab = 32;
 	int orgx = x;
-	LPCTSTR pstr = lpszString;
+	LPTSTR szShaped;
+	LPCTSTR pstr;
 	LPINT pTab = lpTabStops;
+	unsigned long attrib = 0;
 
-	if( GetTextMetrics(hdc, &tm) )
+	if (GetTextMetrics(hdc, &tm))
 		deftab = 8 * tm.tmAveCharWidth;
 
-	if( lpTabStops == NULL )
+	if (pTab == NULL)
 		ntabs = 0;
 
-	if( ntabs == 1 )
-		{
-		deftab = *lpTabStops;
+	if (ntabs == 1) {
+		deftab = *pTab;
 		ntabs = 0;
-		}
+	}
 
-	if( cbString == -1 )
-		cbString = strlen ( lpszString );
+	if (cbString == -1)
+		cbString = strlen(lpszString);
 
+	/* Duplicate text. If coding is UTF-8, generate it by checking shape/joining*/
+	if (mwTextCoding == MWTF_UTF8)
+		szShaped = doCharShape_UTF8(lpszString, cbString, &cbString,
+					 &attrib);
+	else
+		szShaped = strdup(lpszString);
+
+	if (szShaped == NULL)
+		return 0;
+
+	pstr = szShaped;
 	tot = cbString;
 	GdSetFont(hdc->font->pfont);
-	while ( tot > 0 )
-		{
-		for ( count=0; (count < tot) && (pstr[count] != '\t'); count++ );
-		GdGetTextSize ( hdc->font->pfont, pstr, count,
-						&xw, &xh, &xb, MWTF_ASCII );
+	while (tot > 0) {
+		for (count = 0; (count < tot) && (pstr[count] != '\t'); count++)
+		     continue;
 
-		while ( (ntabs > 0) && (nTabOrigin + *lpTabStops <= (x + xw)) )
-        	{
-            lpTabStops++;
-            ntabs--;
-        	}
+		GdGetTextSize(hdc->font->pfont, pstr, count, &xw, &xh, &xb,
+			      mwTextCoding);
 
-		if( count == tot )
-            tabPos = x + xw;
-        else if( ntabs > 0 )
-            tabPos = nTabOrigin + *lpTabStops;
-        else
-            tabPos = nTabOrigin + ((x + xw - nTabOrigin) / deftab + 1) * deftab;
+		while ((ntabs > 0) && (nTabOrigin + *pTab <= (x + xw))) {
+			pTab++;
+			ntabs--;
+		}
 
-		if( !noDraw )
-			{
+		if (count == tot)
+			tabPos = x + xw;
+		else if (ntabs > 0)
+			tabPos = nTabOrigin + *pTab;
+		else
+			tabPos = nTabOrigin +
+				((x + xw - nTabOrigin) / deftab + 1) * deftab;
+
+		if (!noDraw) {
 			RECT rect;
+
 			rect.left = x;
 			rect.top = y;
 			rect.right = x + tabPos;
 			rect.bottom = y + xh;
 			//TextOut ( hdc, x, y, pstr, count );
-			DrawText( hdc, pstr, count, &rect, DT_LEFT | DT_SINGLELINE | DT_TOP );
-			}
-
-		x = tabPos;
-		tot -= (count+1);
-		pstr += (count+1);
+			if (attrib & TEXTIP_EXTENDED) {
+				LPSTR virtText = doCharBidi_UTF8(pstr, count,
+							NULL, NULL, &attrib);
+				if (virtText) {
+					if ((attrib & TEXTIP_RTOL))
+						DrawTextA(hdc, virtText,
+							  count, &rect,
+							  DT_RIGHT |
+							  DT_SINGLELINE |
+							  DT_TOP);
+					else
+						DrawTextA(hdc, virtText,
+							  count, &rect,
+							  DT_LEFT |
+							  DT_SINGLELINE |
+							  DT_TOP);
+					free(virtText);
+				}
+			} else
+				DrawTextA(hdc, pstr, count, &rect,
+					  DT_LEFT | DT_SINGLELINE | DT_TOP);
 		}
 
-	return MAKELONG ( (tabPos-orgx), xh );
+		x = tabPos;
+		tot -= (count + 1);
+		pstr += (count + 1);
+	}
+
+	free(szShaped);
+	return MAKELONG((tabPos - orgx), xh);
 }
 
 
-/* ascii*/
+/* ascii or utf8 */
 LONG WINAPI
-TabbedTextOut ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
-                int ntabs, LPINT lpTabStops, int nTabOrigin )
+TabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+	int ntabs, LPINT lpTabStops, int nTabOrigin)
 {
-	return mwTabbedTextOut ( hdc, x, y, lpszString, cbString, ntabs, lpTabStops, nTabOrigin, FALSE );
+	return mwTabbedTextOut(hdc, x, y, lpszString, cbString, ntabs,
+			       lpTabStops, nTabOrigin, FALSE);
 }
 
 
 DWORD WINAPI
-GetTabbedTextExtent ( HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
-                      int ntabs, LPINT lpTabStops )
+GetTabbedTextExtent(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+	int ntabs, LPINT lpTabStops)
 {
-	return mwTabbedTextOut ( hdc, x, y, lpszString, cbString, ntabs, lpTabStops, 0, TRUE );
+	return mwTabbedTextOut(hdc, x, y, lpszString, cbString, ntabs,
+			       lpTabStops, 0, TRUE);
 }
 
 
 /*
- *  Internal:
  *  Check in text for the '&' chr, remove it from text and sets rect for pos
  */
-BOOL mwCheckUnderlineChar ( HDC hdc, char *text, int *pLen, LPRECT rcLine )
+BOOL
+MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine)
 {
 	int i;
 	int txtlen;
 
-	if( pLen )
+	if (pLen)
 		txtlen = *pLen;
 	else
-		txtlen = strlen ( text );
+		txtlen = strlen(text);
 
-	for ( i=0; i < txtlen; i++ )
-		if( (text[i] == '&') && (i+1 < txtlen) && (text[i+1] != '&') )
-			{
+	for (i = 0; i < txtlen; i++) {
+		if ((text[i] == '&') && (i + 1 < txtlen)
+		    && (text[i + 1] != '&')) {
 			SIZE sz;
 			TEXTMETRIC tm;
-			GetTextMetrics ( hdc, &tm );
-			GetTextExtentPoint ( hdc, text, i, &sz );
+
+			GetTextMetrics(hdc, &tm);
+			GetTextExtentPoint(hdc, text, i, &sz);
 			rcLine->left = sz.cx;
 			rcLine->top = 0;
 			rcLine->bottom = tm.tmAscent + 1;
-			GetTextExtentPoint ( hdc, text+i+1, 1, &sz );
+			GetTextExtentPoint(hdc, text + i + 1, 1, &sz);
 			rcLine->right = rcLine->left + sz.cx;
-			memmove ( text+i, text+i+1, txtlen-i );
+			memmove(text + i, text + i + 1, txtlen - i);
 			txtlen--;
-			if( pLen ) *pLen = txtlen;
+			if (pLen)
+				*pLen = txtlen;
 			return TRUE;
-			}
-
+		}
+	}
 	return FALSE;
 }

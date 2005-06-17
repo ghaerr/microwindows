@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1999, 2000, Wei Yongming.
- * Portions Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2000, 2005 Greg Haerr <greg@censoft.com>
  *
  * Static control for Microwindows win32 api.
  */
@@ -44,22 +44,21 @@
 ** Gabriele Brugnoni 2003/09/10 Italy      Style SS_BITMAP loads bmp from resources.
 ** Gabriele Brugnoni 2003/09/10 Italy      Static text now support '\n' and word wrap
 ** Gabriele Brugnoni 2003/09/10 Italy      Implemented WM_CTLCOLORSTATIC
+** Gabriele Brugnoni 2004/12/27 Italy      Implemented UTF8 and internationalizations.
 */
-
-
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS
 #include "windows.h"	/* windef.h, winuser.h */
+#include "wintern.h"
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
+#include "intl.h"
 
 /* jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX() */
 #define FONT_NAME	SYSTEM_FIXED_FONT	/* was DEFAULT_GUI_FONT*/
-
-extern BOOL mwCheckUnderlineChar ( HDC hdc, char *text, int *pLen, LPRECT rcLine );
 
 static LRESULT CALLBACK
 StaticControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -155,6 +154,7 @@ static void ssDrawStaticLabel ( HWND hwnd, HDC hdc, LPRECT pRcClient )
 	int y, maxy;
 	SIZE sz;
 	DWORD dwStyle = hwnd->style;
+	unsigned long attrib = 0;
 
 	rc = *pRcClient;
 	maxy = rc.bottom - rc.top;
@@ -179,37 +179,60 @@ static void ssDrawStaticLabel ( HWND hwnd, HDC hdc, LPRECT pRcClient )
 		{
 		RECT rcUline;
 		BOOL bUline = FALSE;
+		LPTSTR caption;
 		int ln = strlen ( spCaption );
-		LPTSTR caption = (LPTSTR)malloc(ln);
+		
+		//  Duplicate text. If coding is UTF-8, generati it by checking shape/joining
+		if( mwTextCoding == MWTF_UTF8 )
+			caption = doCharShape_UTF8(spCaption, ln, &ln, &attrib);
+		else
+			caption = strdup ( spCaption );
+		
 		if( caption == NULL )
 			return;
-		memcpy ( caption, spCaption, ln * sizeof(*caption) );
+		
 		spCaption = caption;
 		SelectObject(hdc, GET_WND_FONT(hwnd));
 
 		while ( ln > 0 )
 			{
 			int n;
-			for ( n=0; n < ln; n++ ) if( spCaption[n] == '\n' ) break;
+			for ( n=0; n < ln; n+=MW_CHRNBYTE(spCaption[n]) ) 
+				if( spCaption[n] == '\n' ) break;
+				
+			attrib &= ~TEXTIP_RTOL; // resets RTOL text prop
 
 			GetTextExtentPoint ( hdc, spCaption, n, &sz );
 			while ( sz.cx > (rc.right-rc.left) )
 				{
 				while ( (n > 0) &&  (spCaption[n] == ' ' || spCaption[n] == '\t') ) n--;
 				while ( (n > 0) && !(spCaption[n] == ' ' || spCaption[n] == '\t') ) n--;
-				if( n == 0 ) break;
+				if( n <= 0 ) break;
 				GetTextExtentPoint ( hdc, spCaption, n, &sz );
 				}
 
 			if( !bUline )
-				bUline = mwCheckUnderlineChar ( hdc, spCaption, &n, &rcUline );
+				bUline = MwCheckUnderlineChar ( hdc, spCaption, &n, &rcUline );
 
 			rc.top = y;
 			rc.bottom = y + sz.cy;
 			if( bUline && rcUline.left >= 0 )
 				OffsetRect ( &rcUline, rc.left, rc.top );
 
-			DrawText (hdc, spCaption, n, &rc, uFormat);
+			//  If the UTF8 text has non-ascii characters, check also bidi
+			if( attrib & TEXTIP_EXTENDED ) {
+				DWORD vuFormat = uFormat;
+				LPSTR virtCaption = doCharBidi_UTF8 ( spCaption, n, NULL, NULL, &attrib );
+				if( virtCaption ) {
+					if( (attrib & TEXTIP_RTOL) ) {
+						if( (vuFormat & (DT_LEFT|DT_CENTER|DT_RIGHT)) == DT_LEFT )
+							vuFormat = (vuFormat & ~(DT_LEFT|DT_CENTER|DT_RIGHT)) | DT_RIGHT;
+					}
+					DrawTextA (hdc, virtCaption, n, &rc, vuFormat);
+					free ( virtCaption );
+				}
+			} else
+				DrawTextA (hdc, spCaption, n, &rc, uFormat);
 
 			if( bUline && rcUline.left >= 0 ) {
 				SelectObject ( hdc, GetStockObject(BLACK_PEN) );

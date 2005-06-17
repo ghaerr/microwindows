@@ -42,7 +42,7 @@ int	mwpaintNC = 1;			/* experimental NC paint handling*/
 BOOL 	mwforceNCpaint = FALSE;		/* force NC paint when alpha blending*/
 
 static void MwOffsetChildren(HWND hwnd, int offx, int offy);
-static void mwRemoveWndFromTimers ( HWND hwnd );
+static void MwRemoveWndFromTimers(HWND hwnd);
 
 LRESULT WINAPI
 CallWindowProc(WNDPROC lpPrevWndFunc, HWND hwnd, UINT Msg, WPARAM wParam,
@@ -450,7 +450,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	/*
 	 * Remove from timers
 	 */
-	mwRemoveWndFromTimers ( hwnd );
+	MwRemoveWndFromTimers ( hwnd );
 
 	/*
 	 * Disable all sendmessages to this window.
@@ -1034,7 +1034,7 @@ GetWindowLong(HWND hwnd, int nIndex)
 	case GWL_WNDPROC:
 		return (LONG)hwnd->lpfnWndProc;
 	case GWL_HINSTANCE:
-		return hwnd->hInstance;
+		return (LONG)hwnd->hInstance;
 	case GWL_HWNDPARENT:
 		return (LONG)hwnd->parent;
 	case GWL_ID:
@@ -1046,17 +1046,14 @@ GetWindowLong(HWND hwnd, int nIndex)
 	case GWL_USERDATA:
 		return hwnd->userdata;
 	default:
-#ifdef ARCH_NEED_ALIGN32  // some architecture needs data to be 32bit aligned
-		if(nIndex+3 < hwnd->nextrabytes)
-			{
-			if( !(nIndex & 3) )
-			return *(LONG *)&hwnd->extrabytes[nIndex];
-			else
-			    return MAKELONG(
-				    MAKEWORD(hwnd->extrabytes[nIndex+0], hwnd->extrabytes[nIndex+1]),
-				    MAKEWORD(hwnd->extrabytes[nIndex+2], hwnd->extrabytes[nIndex+3])
-				    );
-			}
+#ifdef ARCH_NEED_ALIGN32  /* some architecture needs data to be 32bit aligned*/
+		if(nIndex+3 < hwnd->nextrabytes) {
+			if(!(nIndex & 3))
+				return *(LONG *)&hwnd->extrabytes[nIndex];
+			return MAKELONG(
+				MAKEWORD(hwnd->extrabytes[nIndex+0], hwnd->extrabytes[nIndex+1]),
+				MAKEWORD(hwnd->extrabytes[nIndex+2], hwnd->extrabytes[nIndex+3]));
+		}
 #else
 		if(nIndex+3 < hwnd->nextrabytes)
 			return *(LONG *)&hwnd->extrabytes[nIndex];
@@ -1080,27 +1077,33 @@ SetWindowLong(HWND hwnd, int nIndex, LONG lNewLong)
 		hwnd->lpfnWndProc = (WNDPROC)lNewLong;
 		break;
 	case GWL_HINSTANCE:
+		oldval = (LONG)hwnd->hInstance;
 		hwnd->hInstance = (HINSTANCE) lNewLong;
+		break;
+	case GWL_STYLE:
+		oldval = (LONG)hwnd->style;
+		hwnd->style = lNewLong;
+		break;
+	case GWL_EXSTYLE:
+		oldval = (LONG)hwnd->exstyle;
+		hwnd->exstyle = lNewLong;
 		break;
 	case GWL_HWNDPARENT:
 	case GWL_ID:
-	case GWL_STYLE:
-	case GWL_EXSTYLE:
 		/* nyi*/
 		break;
 	default:
 		if(nIndex+3 < hwnd->nextrabytes) {
-#ifdef ARCH_NEED_ALIGN32 // some architecture needs data to be 32bit aligned
+#ifdef ARCH_NEED_ALIGN32 /* some architecture needs data to be 32bit aligned*/
 			oldval = GetWindowLong(hwnd, nIndex);
-			if( !(nIndex & 3) )
+			if(!(nIndex & 3))
 			    *(LONG *)&hwnd->extrabytes[nIndex] = lNewLong;
-			else
-			    {
+			else {
 			    hwnd->extrabytes[nIndex+0] = LOBYTE(LOWORD(lNewLong));
 			    hwnd->extrabytes[nIndex+1] = HIBYTE(LOWORD(lNewLong));
 			    hwnd->extrabytes[nIndex+2] = LOBYTE(HIWORD(lNewLong));
 			    hwnd->extrabytes[nIndex+3] = HIBYTE(HIWORD(lNewLong));
-			    }
+			}
 #else
 			oldval = GetWindowLong(hwnd, nIndex);
 			*(LONG *)&hwnd->extrabytes[nIndex] = lNewLong;
@@ -1458,7 +1461,7 @@ KillTimer(HWND hwnd, UINT idTimer)
 UINT
 MwGetNextTimeoutValue(void)
 {
-	int	bestTimeout=-1;
+	int	bestTimeout = -1;
 	int	timeout;
 
 	struct timer *tm = timerList;
@@ -1483,19 +1486,18 @@ MwGetNextTimeoutValue(void)
 void
 MwHandleTimers(void)
 {
-	int	timeout;
-	DWORD	dwTime;
-
+	DWORD	dwTime = 0;	/* should be system time in UTC*/
 	struct timer *tm = timerList;
+
 	while ( tm != NULL ) {
 		if( GetTickCount() >= tm->dwClockExpires ) {
-	/* call timer function or post timer message*/
+			/* call timer function or post timer message*/
 			if( tm->lpTimerFunc )
 				tm->lpTimerFunc ( tm->hwnd, WM_TIMER, tm->idTimer, dwTime );
 			else
 				PostMessage ( tm->hwnd, WM_TIMER, tm->idTimer, 0 );
 
-	/* reset timer*/
+			/* reset timer*/
 			tm->dwClockExpires = GetTickCount() + tm->uTimeout;
 		}
 		tm = tm->next;
@@ -1505,8 +1507,8 @@ MwHandleTimers(void)
 /*
  *  Check in timers list if hwnd is present and remove it.
  */
-void
-mwRemoveWndFromTimers ( HWND hwnd )
+static void
+MwRemoveWndFromTimers(HWND hwnd)
 {
 	struct timer *next;
 	struct timer *tm = timerList;
@@ -1515,7 +1517,6 @@ mwRemoveWndFromTimers ( HWND hwnd )
 		next = tm->next;
 		if( tm->hwnd == hwnd )
 			KillTimer ( tm->hwnd, tm->idTimer );
-
 		tm = next;
 	}
 }
@@ -1567,7 +1568,6 @@ GetDlgItem(HWND hDlg, int nIDDlgItem)
 	}
 	return 0;
 }
-
 
 BOOL WINAPI
 EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc, LPARAM lParam)

@@ -1,3 +1,6 @@
+	* added right-to-left rendering w/shape joining (Gabriele)
+		HAVE_FRIBIDI_SUPPORT, HAVE_SHAPEJOINING_SUPPORT config opts
+		MwSetTextCoding sets default text coding for non wide char fns
 	* added --no-whole-archive option to leave .so's dyn-linked (Hinko)
 	* fixed alpha blending demo when nEraseBkGnd zero
 	* added extremely extensive enhancements to win32 API: (Gabriele)

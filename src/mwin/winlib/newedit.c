@@ -32,8 +32,10 @@
 #include <ctype.h>
 #define MWINCLUDECOLORS
 #include "windows.h"	/* windef.h, winuser.h */
+#include "wintern.h"
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
+#include "intl.h"
 
 
 // NOTE: 
@@ -80,10 +82,14 @@ char mwDefEditCaretSizeIns	= 3;
 
 
 
-typedef char		EDITCHAR;
-#define SZEDITCHAR	sizeof(char)
+typedef unsigned short EDITCHAR;
+#define SZEDITCHAR	sizeof(EDITCHAR)
 
 
+
+/*
+ * Edit structure
+ */
 typedef struct tagSLEDITDATA {
     HFONT   hFont;          /* hFont used */
     int     bufferLen;      /* length of buffer */
@@ -91,7 +97,14 @@ typedef struct tagSLEDITDATA {
     int     dataEnd;        /* data end position */
     int     editPos;        /* current edit position */
     int     caretX;         /* caret X position in box */
+	int		caretRow;		/* caret Y position in box */
     int	    scrollX;	    /* X scrolling offset */
+    int	    scrollRow;	    /* Y scrolling offset */
+	int		epX, epY;		/* coordinates of edit position */
+	int     epFirstIdx;		/* index of the first character in line with editPos */
+    int     epLineCount;    /* count of characters in line with editPos */
+	int		epLineOX;		/* X origin of current line. Typically > 0 when right aligned */
+	int		epLineAlign;	/* Alignement of current line. 0 = left align, 1 = right align */
     
     int     selStart;       /* selection start position */
     int     selEnd;         /* selection end position */
@@ -114,17 +127,24 @@ typedef struct tagSLEDITDATA {
     int     undoBufferLen;  /* undo buffer len */
     EDITCHAR undoBuffer [LEN_SLEDIT_UNDOBUFFER];	/* Undo buffer; */
     EDITCHAR *buffer;	    /* buffer */
+	int     cLines;			/* count of allocated (visible) lines info */
 } SLEDITDATA, *PSLEDITDATA;
 
 
 //  For future implementation of unicode...
 #define edit_memcpy		memcpy
 #define memcpy_fromedit		memcpy
-#define neTextOut		TextOut
+#define neTextOut		TextOutW
 
 
-#define neIsWord(c)		( isalpha(c) || isdigit(c) )
+#define neIsWord(c)		( (c) > 32 && (((c) > 127) || isalpha(c) || isdigit(c)) )
 
+
+// Drawing attributes
+#define NEDRAW_ENTIRE			0x0001
+#define NEDRAW_ROW				0x0002
+#define NEDRAW_CALC_CURSOR		0x0004
+#define NEDRAW_CALC_EDITPOS		0x0008
 
 
 static int neGetTextHeight ( HWND hWnd, HDC hdc );
@@ -132,6 +152,8 @@ static int neGetTextWith ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData,
 			   const EDITCHAR *txt, int len );
 
 static int neCharPressed ( HWND hWnd, WPARAM wParam, LPARAM lParam );
+static void neRecalcRows ( HWND hwnd, PSLEDITDATA *ppData );
+static void neDrawAllText ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, int action );
 
 
 //  Clipboard for cut and paste.
@@ -147,8 +169,15 @@ static int neCreate ( HWND hwnd )
     PSLEDITDATA pSLEditData;
     HWND	pCtrl = hwnd;
     int len;
+	int charH;
+	int nl;
+	RECT rc;
 
-    if( !(pSLEditData = malloc (sizeof (SLEDITDATA))) ) {
+	
+	GetClientRect ( hwnd, &rc );
+	nl = (rc.bottom - rc.top + charH-1) / charH;
+	
+    if( !(pSLEditData = malloc (sizeof(SLEDITDATA))) ) {
         fprintf (stderr, "EDIT: malloc error!\n");
         return -1;
     }
@@ -172,7 +201,13 @@ static int neCreate ( HWND hwnd )
     pSLEditData->bufferLen      = len;
     pSLEditData->editPos        = 0;
     pSLEditData->caretX			= 0;
+    pSLEditData->caretRow 		= 0;
     pSLEditData->scrollX        = 0;
+    pSLEditData->scrollRow      = 0;
+	pSLEditData->epFirstIdx     = 0;
+	pSLEditData->epLineCount    = 0;
+	pSLEditData->epLineOX       = 0;
+	pSLEditData->epLineAlign    = 0;
 
     pSLEditData->selStart       = 0;
     pSLEditData->selEnd         = 0;
@@ -193,13 +228,39 @@ static int neCreate ( HWND hwnd )
     pSLEditData->undoBufferLen  = LEN_SLEDIT_UNDOBUFFER;
     pSLEditData->undoBuffer [0] = '\0';
 
-    pSLEditData->dataEnd        = strlen (pCtrl->szTitle);
-    edit_memcpy ( pSLEditData->buffer, pCtrl->szTitle, len );
+    //edit_memcpy ( pSLEditData->buffer, pCtrl->szTitle, len );
+	pSLEditData->dataEnd        = GdConvertEncoding ( pCtrl->szTitle, 
+									mwTextCoding, 
+									strlen (pCtrl->szTitle), pSLEditData->buffer, MWTF_UC16 );
 
-    pSLEditData->charHeight	= neGetTextHeight ( hwnd, NULL );
+    pSLEditData->charHeight	=   neGetTextHeight ( hwnd, NULL );
+	neRecalcRows ( hwnd, &pSLEditData );
     return 0;
 }
 
+
+static void neRecalcRows ( HWND hwnd, PSLEDITDATA *ppData )
+{
+	PSLEDITDATA pSLEditData;
+	PSLEDITDATA pCurData = *ppData;
+	RECT rc;
+	int nl;
+	int charH;
+	
+	charH = neGetTextHeight ( hwnd, NULL );
+	GetClientRect ( hwnd, &rc );	
+	nl = (rc.bottom - rc.top + charH-1) / charH;
+	
+    pSLEditData = (PSLEDITDATA) malloc ( sizeof(SLEDITDATA) );
+	if( pSLEditData == NULL ) return;
+	
+	*pSLEditData = *pCurData;
+	pSLEditData->charHeight = charH;
+	pSLEditData->cLines = nl;
+	*ppData = pSLEditData;
+	hwnd->userdata2 = (DWORD) pSLEditData;
+	free ( pCurData );
+}
 
 /*
  *  Destroy an edit control
@@ -299,15 +360,23 @@ static BOOL neCopyToCliboard ( HWND hWnd, PSLEDITDATA pSLEditData )
     return FALSE;
 }
 
+
+static void neUpdateCaretPos ( HWND hWnd )
+{
+    PSLEDITDATA pSLEditData = (PSLEDITDATA) (hWnd->userdata2);
+	SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin + pSLEditData->caretRow*pSLEditData->charHeight );
+}
+
 /*
  *  Parse WM_SETTEXT command
  */
 static BOOL neSetText ( HWND hWnd, const char *text )
 {
-    DWORD dwStyle = hWnd->style;
+    //DWORD dwStyle = hWnd->style;
     PSLEDITDATA pSLEditData = (PSLEDITDATA) (hWnd->userdata2);
     int len;
 
+	//FIXME: consider UTF8
     len = strlen ( text );
 
     if( pSLEditData->hardLimit >= 0 )
@@ -319,16 +388,20 @@ static BOOL neSetText ( HWND hWnd, const char *text )
 			return FALSE;
     	}
 
-    pSLEditData->dataEnd = len;
-    edit_memcpy ( pSLEditData->buffer, text, len );
+    pSLEditData->dataEnd = GdConvertEncoding ( text, mwTextCoding, 
+											   len, pSLEditData->buffer, MWTF_UC16 );
+
+    //edit_memcpy ( pSLEditData->buffer, text, len );
     neCheckBufferSize ( hWnd, pSLEditData );
 
     pSLEditData->editPos        = 0;
     pSLEditData->scrollX	= 0;
     pSLEditData->caretX 	= 0;
+    pSLEditData->scrollRow	= 0;
+    pSLEditData->caretRow 	= 0;
 
     if( (hWnd->userdata & EST_FOCUSED) )
-		SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin );
+		neUpdateCaretPos(hWnd);
 
     InvalidateRect (hWnd, NULL, FALSE);
     return TRUE;
@@ -343,9 +416,9 @@ static void neSetFont ( HWND hWnd, HFONT hFont, BOOL bRedraw )
     PSLEDITDATA pSLEditData = (PSLEDITDATA) (hWnd->userdata2);
 
     pSLEditData->hFont = (HFONT)hFont;
+	neRecalcRows ( hWnd, &pSLEditData );
     ShowWindow(hWnd, SW_HIDE);
     ShowWindow(hWnd, SW_SHOWNA);
-    pSLEditData->charHeight = neGetTextHeight ( hWnd, NULL );
     if( bRedraw )
 		InvalidateRect ( hWnd, NULL, TRUE );
 }
@@ -361,7 +434,7 @@ static int neGetPasswdCharWith ( HDC hdc, EDITCHAR pwdChar )
 
     GdSetFont(hdc->font->pfont);
     GdGetTextSize ( hdc->font->pfont, &pwdChar, 1,
-    		    	&xw, &xh, &xb, MWTF_ASCII );
+    		    	&xw, &xh, &xb, MWTF_UC16 );
     return xw;
 }
 
@@ -398,7 +471,7 @@ static int neGetTextWith ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, const ED
     if( hdc == NULL ) hdc = GetDC(hWnd), bRelDC=TRUE;
     SelectObject ( hdc, pSLEditData->hFont );
     GdSetFont(hdc->font->pfont);
-    GdGetTextSize ( hdc->font->pfont, txt, len, &xw, &xh, &xb, MWTF_ASCII );
+    GdGetTextSize ( hdc->font->pfont, txt, len, &xw, &xh, &xb, MWTF_UC16 );
     if( bRelDC ) ReleaseDC ( hWnd, hdc );
     return xw;
 }
@@ -428,7 +501,7 @@ static void neTextOutPwd ( HDC hdc, int x, int y, EDITCHAR pwdChar, int len )
 
     for ( i=0; i < len; i++ )
     	{
-		TextOut ( hdc, x, y, &pwdChar, 1 );
+		neTextOut ( hdc, x, y, &pwdChar, 1 );
 		x += xs;
 		}
 }
@@ -467,29 +540,28 @@ static int neIndexFromPos ( HWND hWnd, POINT *pPoint )
 
 /*
  *  Check if scroll pos should be changed.
+ *  Return nonzero if the entire window should be redrawn
  */
-static BOOL neRecalcScrollPos ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData )
+static BOOL neRecalcScrollPos ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, BOOL checkNewline )
 {
-    BOOL reldc = FALSE;
-    int txts, xs;
-    int lastscroll = pSLEditData->scrollX;
+	int xs;
+    int lastscrollX;
+    int lastscrollR;
+	int pfirst, palign;
 
-    if( hdc == NULL )
-        {
-		hdc = GetDC ( hWnd );
-		reldc = TRUE;
-        }
-
-    SelectObject ( hdc, pSLEditData->hFont );
+    lastscrollX = pSLEditData->scrollX;
+    lastscrollR = pSLEditData->scrollRow;
     xs = edtGetOutWidth ( hWnd );
-    txts = neGetTextWith ( hWnd, hdc, pSLEditData, pSLEditData->buffer, pSLEditData->editPos );
+	pfirst = pSLEditData->epFirstIdx;
+	palign = pSLEditData->epLineAlign;
+	neDrawAllText ( hWnd, hdc, pSLEditData, NEDRAW_CALC_CURSOR );
 
-    if( txts < pSLEditData->scrollX )
-		pSLEditData->scrollX = txts;
+	if( pSLEditData->epX < pSLEditData->scrollX )
+		pSLEditData->scrollX = pSLEditData->epX;
     else
-    if( (txts - pSLEditData->scrollX) > xs )
+    if( (pSLEditData->epX - pSLEditData->scrollX - (pSLEditData->epLineAlign ? 2:0)) > xs )
         {
-    	int scrollStep = (txts - pSLEditData->scrollX) - xs;
+    	int scrollStep = (pSLEditData->epX - pSLEditData->scrollX) - xs;
 		if( (pSLEditData->editPos < pSLEditData->dataEnd) &&
 			(scrollStep < (xs/2)) &&
 			!(hWnd->userdata & (EST_SELSCROLLLEFT | EST_SELSCROLLRIGHT))
@@ -498,28 +570,50 @@ static BOOL neRecalcScrollPos ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData )
 		pSLEditData->scrollX += scrollStep;
 		}
 
-    pSLEditData->caretX = txts - pSLEditData->scrollX + pSLEditData->leftMargin;
-
-    if( reldc )
-		ReleaseDC ( hWnd, hdc );
-
-    return (lastscroll != pSLEditData->scrollX);
+    pSLEditData->caretX = pSLEditData->epX - pSLEditData->scrollX + pSLEditData->leftMargin;
+	pSLEditData->caretRow = pSLEditData->epY / pSLEditData->charHeight - pSLEditData->scrollRow;
+	if( pSLEditData->caretRow >= pSLEditData->cLines-1 )
+		{
+		int delta = pSLEditData->caretRow - pSLEditData->cLines + 2;
+		pSLEditData->scrollRow += delta;
+		pSLEditData->caretRow -= delta;
+		}
+	else
+	if( pSLEditData->caretRow < 0 )
+		{
+		pSLEditData->scrollRow += pSLEditData->caretRow;
+		pSLEditData->caretRow = 0;
+		}
+    
+	return ( (lastscrollX != pSLEditData->scrollX) || 
+	         (lastscrollR != pSLEditData->scrollRow) || 
+			 ((pSLEditData->epFirstIdx > pfirst || pSLEditData->epLineAlign != palign) && checkNewline) );
 }
 
 
+
 /*
- *  Draw the text in the client area
+ *  Draw or calculate the text in the client area
  */
-static void neDrawText ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData )
+static void neDrawAllText ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, int action )
 {
     DWORD dwStyle = hWnd->style;
     BOOL bRelDC = FALSE;
     RECT rc;
     int bkcol, fgcol;
-    EDITCHAR *pTxt, *pEnd;
+    EDITCHAR *pTxt, *pEnd, *edittext;
+	int szy;
     int tot = 0;
+	int cy = 0;
+	int cx;
+	int ln;
+	int xs;
+	int idxLine;
+	int done;
+	unsigned long attrib = 0;
 
-    if( GetFocus() == hWnd ) HideCaret ( hWnd );
+	if( (action & (NEDRAW_ENTIRE|NEDRAW_ROW)) && (GetFocus() == hWnd) ) 
+		HideCaret ( hWnd );
 
     if( hdc == NULL )
 		{
@@ -536,55 +630,252 @@ static void neDrawText ( HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData )
 
     SelectObject ( hdc, pSLEditData->hFont );
 
+	GetClientRect ( hWnd, &rc );
     rc.left = pSLEditData->leftMargin - pSLEditData->scrollX;
-    rc.top = pSLEditData->topMargin;
+    rc.top = pSLEditData->topMargin - pSLEditData->scrollRow*pSLEditData->charHeight;
+	xs = edtGetOutWidth ( hWnd );
 
-    pTxt = pSLEditData->buffer;
+    ln = pSLEditData->dataEnd;
+	
+	edittext = doCharShape_UC16(pSLEditData->buffer, ln, &ln, &attrib);
+    
+	pTxt = edittext;
     pEnd = pTxt + pSLEditData->dataEnd;
-    tot = 0;
-    SetTextColor ( hdc, fgcol );
-    SetBkColor ( hdc, bkcol );
-    SetBkMode ( hdc, OPAQUE );
+	tot = 0;
+	SetTextColor ( hdc, fgcol );
+	SetBkColor ( hdc, bkcol );
+	SetBkMode ( hdc, OPAQUE );
+	szy = neGetTextHeight ( hWnd, hdc );
+	cx = rc.left;
+	
+	idxLine = 0;
+	done = 0;
 
-    while ( pTxt < pEnd )
+    while ( (pTxt < pEnd) && !done )
 		{
 		int count;
-
-		if( (pSLEditData->selStart < pSLEditData->selEnd) &&
-			(tot < pSLEditData->selStart) )
-			count = pSLEditData->selStart;
-		else
-		if( (pSLEditData->selStart < pSLEditData->selEnd) &&
-			(tot >= pSLEditData->selStart) && (tot < pSLEditData->selEnd) )
-			{
-			count = pSLEditData->selEnd - pSLEditData->selStart;
-			SetTextColor ( hdc, bkcol );
-			SetBkColor ( hdc, RGB(0,0,255) );
-			}
-		else
-			{
-			count = pSLEditData->dataEnd - tot;
-			SetTextColor ( hdc, fgcol );
-			SetBkColor ( hdc, bkcol );
-			}
-
+		int isEditRow = 0;
+		
+		count = pSLEditData->dataEnd - tot;
+			
 		if( count > 0 )
 			{
-			if( dwStyle & ES_PASSWORD )
-			neTextOutPwd ( hdc, rc.left, rc.top, pSLEditData->passwdChar, count );
+			int n = count;
+			int nl = 0;
+			EDITCHAR *vtxt = NULL;
+			int *v2l = NULL;
+			char *direction = NULL;
+			int deltay = 0, deltachr = 0;
+			
+			attrib &= ~TEXTIP_RTOL;
+			
+			if( dwStyle & ES_MULTILINE ) 
+				{
+				for ( n=0; tot+n < ln; n++ ) 
+					if( pTxt[n] == '\n' ) 
+						{
+						deltachr = 1;
+						break;
+						}
+						
+				if( !(dwStyle & ES_AUTOHSCROLL) )
+					{
+					int newn = n;
+					int wx = neGetTextWith(hWnd, hdc, pSLEditData, pTxt, newn);
+					while ( (wx > xs) && (newn > 1) ) 	
+						{
+						// note that the macro isspace cause segfault on che > 255
+						while ( newn > 1 && (pTxt[--newn] > ' ') );
+						wx = neGetTextWith(hWnd, hdc, pSLEditData, pTxt, newn);
+						}
+					if( (newn < n) && (pTxt[newn] <= ' ') )
+						n = newn, deltachr = 1;
+					}
+				
+				if( n < count ) deltay = szy, nl=1;
+				count = n;
+				}
+				
+			if( attrib & TEXTIP_EXTENDED ) 
+				{
+				v2l = (int*) malloc ( sizeof(int) * (1+n) );
+				direction = (char*) malloc ( sizeof(char) * (1+n) );
+				vtxt = doCharBidi_UC16 ( pTxt, n, v2l, direction, &attrib );
+				if( (vtxt != NULL) && (cx == rc.left) && (attrib & TEXTIP_RTOL) )
+					cx = rc.left + xs - neGetTextWith(hWnd, hdc, pSLEditData, vtxt, n);
+				}
+		
+			isEditRow =	((tot <= pSLEditData->editPos) && (pSLEditData->editPos <= tot+count));
+			//  If this row is the one with editPos, set the index of newline
+			if( isEditRow )
+				{
+				pSLEditData->epFirstIdx = tot;
+				pSLEditData->epLineCount = count;
+				pSLEditData->epLineOX = cx;
+				pSLEditData->epLineAlign = (attrib & TEXTIP_RTOL) ? 1 : 0;
+				}
+			
+			if( (action & NEDRAW_ENTIRE) || (isEditRow && (action & NEDRAW_ROW)) )
+				{
+				if( dwStyle & ES_PASSWORD )
+					neTextOutPwd ( hdc, cx, rc.top+cy, pSLEditData->passwdChar, count );
+				else
+					{
+					EDITCHAR *drawtxt = (vtxt != NULL) ? vtxt : pTxt;
+					
+					//  Verify if text should be displayed reversed or normal.
+					if( (pSLEditData->selStart >= pSLEditData->selEnd) ||
+						(tot >= pSLEditData->selEnd) || (tot+count < pSLEditData->selStart) ||
+						((tot >= pSLEditData->selStart) && (tot+count < pSLEditData->selEnd)) )
+						{
+						if( ((tot >= pSLEditData->selStart) && (tot+count < pSLEditData->selEnd)) )
+							{
+							SetTextColor ( hdc, bkcol );
+							SetBkColor ( hdc, RGB(0,0,255) );
+							}
+						else
+							{
+							SetTextColor ( hdc, fgcol );
+							SetBkColor ( hdc, bkcol );
+							}
+						neTextOut ( hdc, cx, rc.top+cy, drawtxt, count );
+						}
+					else
+						{
+						// Text that is mixed sel and nonsel is displayed char by char
+						int idx;
+						int ox = 0;
+						for ( idx=0; idx < count; idx++ )
+							{
+							int ridx = (v2l != NULL) ? v2l[idx] : idx;
+							if( (tot+ridx >= pSLEditData->selStart) && (tot+ridx < pSLEditData->selEnd) )
+								{
+								SetTextColor ( hdc, bkcol );
+								SetBkColor ( hdc, RGB(0,0,255) );
+								}
+							else
+								{
+								SetTextColor ( hdc, fgcol );
+								SetBkColor ( hdc, bkcol );
+								}
+							
+							neTextOut ( hdc, cx+ox, rc.top+cy, drawtxt+idx, 1 );
+							ox += neGetTextWith(hWnd, hdc, pSLEditData, drawtxt+idx, 1 );
+							}
+						}
+					}
+				}
+			
+			if( (action & NEDRAW_CALC_CURSOR) )
+				{
+				if( isEditRow )
+					{
+					int x;
+					int idx = pSLEditData->editPos - tot;
+					int nc = idx;
+					printf("***IDX=%d, vidx=%d, n=%d, dir=%d, chr=%04X\n", idx, (v2l!=NULL)?v2l[idx]:idx, n, (direction!=NULL)?direction[idx]:0, pSLEditData->buffer[tot+idx]);
+					if( vtxt )
+						{
+						// for RTOL characters cursor will be displayed at the right.
+						if( idx < n ) 
+							nc = v2l[idx] + ((direction[idx]&1) ? 1:0);
+						else
+							nc = (((idx > 0) && (direction[idx-1]&1)) ? v2l[idx-1]:idx);
+							
+						if( nc <= n ) 
+							x = neGetTextWith(hWnd, hdc, pSLEditData, vtxt, nc );
+						}
+					else
+						x = neGetTextWith(hWnd, hdc, pSLEditData, pTxt, idx);
+					
+					if( nc <= n )
+						{
+						pSLEditData->epX = cx + x + pSLEditData->scrollX;
+						pSLEditData->epY = cy;
+						
+						// If we're called only for this, set done.
+						if( action == NEDRAW_CALC_CURSOR )
+							done = 1;
+							
+						action &= ~NEDRAW_CALC_CURSOR;
+						}
+					}
+				}
 			else
-			neTextOut ( hdc, rc.left, rc.top, pTxt, count );
-
-			rc.left += neGetTextWith ( hWnd, hdc, pSLEditData, pTxt, count );
-			pTxt += count;
-			tot += count;
+			if( (action & NEDRAW_CALC_EDITPOS) )
+				{
+				if( cy/pSLEditData->charHeight >= pSLEditData->epY/pSLEditData->charHeight )
+					{
+					int nc, idx, x, dx, bdx=100000, bi=n, bx=-1;
+					for ( idx=0; idx <= n; idx++ )
+						{
+						if( vtxt )
+							{
+							if( idx < n ) 
+								nc = v2l[idx] + ((direction[idx]&1) ? 1:0);
+							else
+								nc = (((idx > 0) && (direction[idx-1]&1)) ? v2l[idx-1]:idx);
+							x = neGetTextWith(hWnd, hdc, pSLEditData, vtxt, nc );
+							}
+						else
+							x = neGetTextWith(hWnd, hdc, pSLEditData, pTxt, idx);
+						
+						dx = cx + x - pSLEditData->epX + pSLEditData->scrollX;
+						if( (dx >= -2) && ((dx <= bdx)) )
+							bdx=dx, bi=idx, bx=x;					
+						}
+					if( bx < 0 ) bx = x;
+					pSLEditData->editPos = tot + bi;
+					pSLEditData->epX = cx + bx - pSLEditData->leftMargin + pSLEditData->scrollX;
+					pSLEditData->epY = cy;
+					if( action == NEDRAW_CALC_EDITPOS )
+						done = 1;
+					action &= ~NEDRAW_CALC_EDITPOS;
+					}
+				}
+				
+			if( vtxt ) 
+				{
+				free ( vtxt );
+				free ( direction );
+				free ( v2l );
+				vtxt = NULL;
+				}
+			
+			// Maybe obsolete here: does nl could be zero here ??
+			if( !nl )
+				cx += neGetTextWith ( hWnd, hdc, pSLEditData, pTxt, count );
+			else
+				cx = rc.left;
+				
+			pTxt += count + deltachr;
+			tot += count + deltachr;
+			cy += deltay;
+			if( (rc.top+cy >= rc.bottom) && !(action & (NEDRAW_CALC_CURSOR|NEDRAW_CALC_EDITPOS)) ) break;
 			}
 		}
-
+	
+	//  If it's finisced without calculating, put to end
+	if( (action & NEDRAW_CALC_CURSOR) )
+		{
+		pSLEditData->epX = cx + pSLEditData->scrollX;
+		pSLEditData->epY = cy;
+		}
+	
+	//  If called for editpos and not found a pos, set to zero	
+	if( (action & NEDRAW_CALC_EDITPOS) ) 
+		{
+		pSLEditData->epX = cx + pSLEditData->scrollX;
+		pSLEditData->epY = cy;
+		pSLEditData->editPos = pSLEditData->dataEnd;
+		}
+		
+	free ( edittext );
+	
     if( bRelDC )
 		ReleaseDC ( hWnd, hdc );
 
-    if( GetFocus() == hWnd )
+	if( (action & (NEDRAW_ENTIRE|NEDRAW_ROW)) && (GetFocus() == hWnd) )
 		ShowCaret ( hWnd );
 }
 
@@ -648,7 +939,7 @@ static void nePaint ( HWND hWnd, WPARAM wParam, LPARAM lParam )
     SelectObject ( hdc, pSLEditData->hFont );
 
 
-    neDrawText ( hWnd, hdc, pSLEditData );
+    neDrawAllText ( hWnd, hdc, pSLEditData, NEDRAW_ENTIRE );
 
     EndPaint (hWnd, &ps);
 }
@@ -691,7 +982,7 @@ static void neSetFocus ( HWND hWnd, WPARAM wParam, LPARAM lParam )
     else
 		CreateCaret ( hWnd, NULL, mwDefEditCaretSize, pSLEditData->charHeight );
 
-    SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin);
+    neUpdateCaretPos(hWnd);
     ShowCaret ( hWnd );
 
     SendMessage (GetParent(hWnd), WM_COMMAND,
@@ -740,24 +1031,26 @@ static BOOL neMoveSelection ( PSLEDITDATA pSLEditData )
  */
 static void neMouseLButtonDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 {
-    int i;
-    POINT pt;
     PSLEDITDATA pSLEditData = (PSLEDITDATA) (hWnd->userdata2);
+	DWORD dwStyle = hWnd->style;
 
-    pt.x = LOWORD(lParam);
-    pt.y = HIWORD(lParam);
-    i = neIndexFromPos ( hWnd, &pt );
+    pSLEditData->epX = LOWORD(lParam) - pSLEditData->leftMargin + pSLEditData->scrollX;
+    pSLEditData->epY = HIWORD(lParam) - pSLEditData->topMargin + pSLEditData->scrollRow*pSLEditData->charHeight;
+	if( !(dwStyle & ES_MULTILINE) ) pSLEditData->epY = 0;
+    //i = neIndexFromPos ( hWnd, &pt );
+	neDrawAllText ( hWnd, NULL, pSLEditData, NEDRAW_CALC_EDITPOS );
 
     //  If a selection was present, remove and redraw
     if( pSLEditData->selStart < pSLEditData->selEnd )
 		neInvalidateClient ( hWnd );
 
-    pSLEditData->editPos = i;
-    pSLEditData->selStart = i;
-    pSLEditData->selCenter = i;
-    pSLEditData->selEnd = i;
-    pSLEditData->caretX = pt.x;
-    SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin );
+    pSLEditData->selStart = pSLEditData->editPos;
+    pSLEditData->selCenter = pSLEditData->editPos;
+    pSLEditData->selEnd = pSLEditData->editPos;
+    pSLEditData->caretX = pSLEditData->epX - pSLEditData->scrollX + pSLEditData->leftMargin;
+	if( (dwStyle & ES_MULTILINE) ) 
+		pSLEditData->caretRow = pSLEditData->epY / pSLEditData->charHeight - pSLEditData->scrollRow;
+    neUpdateCaretPos(hWnd);
     SetCapture ( hWnd );
 }
 
@@ -819,8 +1112,8 @@ static void neMouseMove ( HWND hWnd, WPARAM wParam, LPARAM lParam )
     neMoveSelection ( pSLEditData );
 
     pSLEditData->caretX = pt.x;
-    SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin );
-    neDrawText ( hWnd, NULL, pSLEditData );
+    neUpdateCaretPos(hWnd);
+    neDrawAllText ( hWnd, NULL, pSLEditData, NEDRAW_ENTIRE );
 }
 
 
@@ -879,7 +1172,7 @@ static void neTimerMessage ( HWND hWnd, WPARAM wParam )
     if( lastpos != pSLEditData->editPos )
 		{
 		neMoveSelection ( pSLEditData );
-		if( neRecalcScrollPos(hWnd, NULL, pSLEditData) )
+		if( neRecalcScrollPos(hWnd, NULL, pSLEditData, FALSE) )
 			neInvalidateClient ( hWnd );
 		}
 }
@@ -912,7 +1205,7 @@ static BOOL neCutSelectedText ( HWND hWnd, BOOL bCopyToClipb )
 		if( pSLEditData->editPos > pSLEditData->dataEnd )
 			pSLEditData->editPos = pSLEditData->dataEnd;
 
-		neRecalcScrollPos ( hWnd, NULL, pSLEditData );
+		neRecalcScrollPos ( hWnd, NULL, pSLEditData, FALSE );
 		neInvalidateClient ( hWnd );
 		pSLEditData->selStart = pSLEditData->selEnd = 0;
 		neCheckBufferSize ( hWnd, pSLEditData );
@@ -934,12 +1227,19 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
     RECT InvRect;
     BOOL bRedraw = FALSE;
     BOOL onWord = FALSE;
+    DWORD dwStyle = hWnd->style;
 
     //printf ( "KEYDOWN: %08X %08X\n", (int)wParam, (int)lParam );
 
     //  If key isn't a control key, exit
     if( !(lParam & (1 << 24) ) && (wParam != VK_BACK) )
 		return 0;
+		
+	if( wParam == VK_TAB )
+		{
+		PostMessage ( GetParent(hWnd), WM_KEYDOWN, wParam, lParam );
+		return 0;
+		}
 
     switch ( wParam )
     	{
@@ -983,6 +1283,27 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 				pSLEditData->selStart = pSLEditData->selEnd = pSLEditData->editPos;
 				}
 			break;
+			
+		case VK_UP:
+		case VK_DOWN:
+			if( !(dwStyle & ES_MULTILINE) ) break;
+			pSLEditData->epX = pSLEditData->caretX + pSLEditData->scrollX;
+			pSLEditData->epY = (pSLEditData->caretRow + pSLEditData->scrollRow)*pSLEditData->charHeight;
+			if( wParam == VK_UP )
+				{
+				pSLEditData->epY -= pSLEditData->charHeight;
+				if( pSLEditData->epY < 0 ) 
+					{
+					pSLEditData->epY = 0;
+					if( pSLEditData->scrollRow > 0 ) pSLEditData->scrollRow--;
+					}
+				}
+			else
+				{
+				pSLEditData->epY += pSLEditData->charHeight;
+				}
+			neDrawAllText ( hWnd, NULL, pSLEditData, NEDRAW_CALC_EDITPOS );
+			break;
 
 		case VK_HOME:
 			pSLEditData->editPos = 0;
@@ -1008,7 +1329,8 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 
 		case VK_BACK:
 			if( neCutSelectedText(hWnd, FALSE) )
-				break;
+				;
+			else
 			if( pSLEditData->editPos > 0 )
 				{
 				pSLEditData->editPos--;
@@ -1019,11 +1341,14 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 				neCheckBufferSize ( hWnd, pSLEditData );
 				bRedraw = TRUE;
 				}
+			SendMessage ( GetParent(hWnd), WM_COMMAND,
+				(WPARAM) MAKELONG (hWnd->id, EN_CHANGE), (LPARAM) hWnd );
 			break;
 
 		case VK_DELETE:
 			if( neCutSelectedText(hWnd, ((hWnd->userdata & EST_SHIFT) != 0)) )
-				break;
+				;
+			else
 			if( pSLEditData->editPos < pSLEditData->dataEnd )
 				{
 				memmove ( pSLEditData->buffer+pSLEditData->editPos,
@@ -1033,6 +1358,8 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 				neCheckBufferSize ( hWnd, pSLEditData );
 				bRedraw = TRUE;
 				}
+			SendMessage ( GetParent(hWnd), WM_COMMAND,
+						(WPARAM) MAKELONG (hWnd->id, EN_CHANGE), (LPARAM) hWnd );
 			break;
 
 		case VK_INSERT:
@@ -1051,7 +1378,7 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 						CreateCaret ( hWnd, NULL, 3, pSLEditData->charHeight );
 					else
 						CreateCaret ( hWnd, NULL, 1, pSLEditData->charHeight );
-					SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin );
+					neUpdateCaretPos(hWnd);
 					ShowCaret ( hWnd );
 					}
 				}
@@ -1076,7 +1403,7 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 
 	if( (lastPos != pSLEditData->editPos) || bRedraw )
 		{
-		if( neRecalcScrollPos(hWnd, NULL, pSLEditData) || bRedraw )
+		if( neRecalcScrollPos(hWnd, NULL, pSLEditData, FALSE) || bRedraw )
 			{
 			InvRect.left = pSLEditData->leftMargin;
 			InvRect.top = pSLEditData->topMargin;
@@ -1084,7 +1411,7 @@ static int neKeyDown ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 			InvRect.bottom = hWnd->clirect.bottom - hWnd->clirect.top;
 			InvalidateRect (hWnd, &InvRect, FALSE);
 			}
-		SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin );
+		neUpdateCaretPos(hWnd);
 		}
 
     return 0;
@@ -1163,9 +1490,12 @@ static int neCharPressed ( HWND hWnd, WPARAM wParam, LPARAM lParam )
 			case 0x0A:  /* LF */
 			case 0x0B:  /* VT */
 			case 0x0C:  /* FF */
-			case 0x0D:  /* CR */
 			case 0x1B:  /* Escape */
 				return 0;
+			
+			case 0x0D:  /* CR */
+				charBuffer[0] = '\n';
+				break;
 			}
 		}
 
@@ -1223,12 +1553,12 @@ static int neCharPressed ( HWND hWnd, WPARAM wParam, LPARAM lParam )
     pSLEditData->editPos += chars;
     pSLEditData->selCenter = pSLEditData->editPos;
 
-    if( neRecalcScrollPos(hWnd, NULL, pSLEditData) )
+    if( neRecalcScrollPos(hWnd, NULL, pSLEditData, TRUE) )
 		neInvalidateClient  ( hWnd );
     else
-		neDrawText ( hWnd, NULL, pSLEditData );
+		neDrawAllText ( hWnd, NULL, pSLEditData, NEDRAW_ROW );
 
-    SetCaretPos ( pSLEditData->caretX, pSLEditData->topMargin );
+    neUpdateCaretPos(hWnd);
 
     SendMessage ( GetParent(hWnd), WM_COMMAND,
 		  		  (WPARAM) MAKELONG (hWnd->id, EN_CHANGE), (LPARAM) hWnd );
@@ -1330,9 +1660,10 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int     len;
 			pSLEditData = (PSLEDITDATA) (pCtrl->userdata2);
 			len = min ((int)wParam, pSLEditData->dataEnd);
-			memcpy_fromedit (buffer, pSLEditData->buffer, len);
-			buffer [len] = '\0';
-			return len;
+			//memcpy_fromedit (buffer, pSLEditData->buffer, len);
+			GdConvertEncoding ( pSLEditData->buffer, MWTF_UC16, len,
+									buffer, mwTextCoding);
+			return strlen(buffer);
 			}
 
 		case WM_SETTEXT:
@@ -1361,7 +1692,10 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_GETDLGCODE:
-			return DLGC_WANTCHARS | DLGC_HASSETSEL | DLGC_WANTARROWS;
+			if( !(pCtrl->style & ES_WANTRETURN) )
+				return DLGC_WANTCHARS | DLGC_HASSETSEL | DLGC_WANTARROWS;
+			else
+				return DLGC_WANTALLKEYS | DLGC_HASSETSEL;
 
 		case EM_SETREADONLY:
 			if (wParam)
@@ -1384,8 +1718,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case EM_GETPASSWORDCHAR:
 			pSLEditData = (PSLEDITDATA) (pCtrl->userdata2);
-			(int*) lParam = pSLEditData->passwdChar;
-			return 0;
+			return pSLEditData->passwdChar;
 
 		case EM_LIMITTEXT:
 			{

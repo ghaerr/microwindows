@@ -226,6 +226,14 @@ HAVE_EUCJP_SUPPORT       = N
 EUCJP_FONT_DIR           = "fonts/japanese"
 
 ####################################################################
+# Fribidi and shape/joining support for right to left rendering
+####################################################################
+HAVE_FRIBIDI_SUPPORT     = N
+HAVE_SHAPEJOINING_SUPPORT = N
+INCFRIBIDI               = $(TOP)/../../../include
+LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
+
+####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
 NOFONTSORCLIPPING        = N

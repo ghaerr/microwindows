@@ -1,6 +1,7 @@
 #include "windows.h"
 #include "windowsx.h"
 #include "wintools.h"
+#include "wintern.h"
 /*
  * Copyright (c) 2005 Greg Haerr <greg@censoft.com>
  *
@@ -80,9 +81,6 @@
 	((fn)((hwnd), (WORD)wParam, (BOOL)LOWORD(lParam)), 0)
 #define FORWARD_BM_SETSTYLE( hwnd, style, bRedraw, fn) \
 	(fn)((hwnd), BM_SETSTYLE, (WPARAM)style, MAKELPARAM(bRedraw, 0))
-
-
-extern BOOL mwCheckUnderlineChar ( HDC hdc, char *text, int *pLen, LPRECT rcLine );
 
 
 /* local procs*/
@@ -581,7 +579,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 		hOldFont = SelectObject( hdc, hNewFont);
 
 		/* Check for underlined char */
-		bUline = mwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
+		bUline = MwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
 
 		/* calculate text bounding rect*/
 		rect.left = 0;
@@ -1022,7 +1020,8 @@ DrawGroupBox(HWND hwnd,HDC hDCwParam,DWORD dwStyle)
 
 	if(buf[ 0]) {
 		RECT ulinePos;
-		BOOL bUline = mwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
+		BOOL bUline = MwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
+
 		SetTextColor(hdc,GetSysColor(COLOR_WINDOWTEXT));
 		SetBkMode(hdc,TRANSPARENT);
 		SetRect(&rcText,8,2,rc.right+8,rc.bottom+2);

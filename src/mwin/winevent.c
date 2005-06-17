@@ -7,9 +7,9 @@
  * Graphics server event routines for windows.
  *
  * Modifications:
- *  Date		Author					Description
- *	2003/09/24	Gabriele Brugnoni		In MwDeliverMouseEvent, if window is disabled,
- *                                      (or wnd is child and parent disab), do nothing.
+ *  Date		Author			Description
+ *	2003/09/24	Gabriele Brugnoni	In MwDeliverMouseEvent, if window is disabled,
+ *                                      	(or wnd is child and parent disab), do nothing.
  *
  */
 #include "windows.h"
@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static LPFN_KEYBTRANSLATE mwPtrKeyboardTranslator = NULL;
 
 #if !(DOS_TURBOC | DOS_QUICKC | _MINIX | VXWORKS)
 static int
@@ -225,6 +227,15 @@ MwDeliverMouseEvent(int buttons, int changebuttons, MWKEYMOD modifiers)
 		msg = (buttons&MWBUTTON_R)? WM_RBUTTONDOWN: WM_RBUTTONUP;
 		MwTranslateMouseMessage(hwnd, msg, hittest);
 	}
+}
+
+/*
+ *  Keyboard filter function
+ */
+void WINAPI
+MwSetKeyboardTranslator(LPFN_KEYBTRANSLATE pFn)
+{
+	mwPtrKeyboardTranslator = pFn;
 }
 
 /*
@@ -438,7 +449,10 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	if( VK_Code == -1 )
 	    VK_Code = keyvalue;
 	else
-	    lParam |= (1 << 24);	/*GB: set control bit in lParam*/
+	    lParam |= (1 << 24);	/* set control bit in lParam*/
+		
+	if (mwPtrKeyboardTranslator)
+		mwPtrKeyboardTranslator(&VK_Code, &lParam, &pressed);
 
 	if (pressed)
 		PostMessage(focuswp, WM_KEYDOWN, VK_Code, lParam);

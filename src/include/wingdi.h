@@ -1,6 +1,6 @@
 /* wingdi.h*/
 /*
- * Copyright (c) 1999,2000,2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999,2000,2001,2005 Greg Haerr <greg@censoft.com>
  *
  * Win32 GDI structures and API
  */
@@ -138,13 +138,14 @@ BOOL WINAPI	Pie(HDC hdc, int nLeftRect, int nTopRect, int nRightRect,
 			int nXRadial2, int nYRadial2);
 BOOL WINAPI	Polygon(HDC hdc, CONST POINT *lpPoints, int nCount);
 int WINAPI	FillRect(HDC hDC, CONST RECT *lprc, HBRUSH hbr);
-BOOL WINAPI DrawFocusRect ( HDC hdc, LPRECT prect );
+BOOL WINAPI	DrawFocusRect(HDC hdc, LPRECT prect);
 
 /* ExTextOut options*/
 #define ETO_OPAQUE	0x0002
 #define ETO_CLIPPED	0x0004		/* nyi*/
 
 BOOL WINAPI	TextOut(HDC hdc, int x, int y, LPCSTR lpszString, int cbString);
+BOOL WINAPI	TextOutW(HDC hdc, int x, int y, LPCWSTR lpszString, int cbString);
 BOOL WINAPI	ExtTextOut(HDC hdc, int x, int y, UINT fuOptions,
 			CONST RECT *lprc, LPCSTR lpszString, UINT cbCount,
 			CONST INT *lpDx);

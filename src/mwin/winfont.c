@@ -195,7 +195,7 @@ GetTextExtentPoint(
 	if (!hdc || !lpszStr || !cchString || !lpSize)
 		return FALSE;
 	GdGetTextSize(hdc->font->pfont, lpszStr, cchString, &width, &height,
-		&baseline, MWTF_UTF8);
+		&baseline, mwTextCoding);
 	lpSize->cx = width;
 	lpSize->cy = height;
 
@@ -205,44 +205,46 @@ GetTextExtentPoint(
 
 BOOL WINAPI
 GetTextExtentExPoint(HDC hdc,	/* handle to DC*/
-	  LPCTSTR lpszStr,	/* character string*/
-	  int cchString,	/* number of characters*/
-	  int nMaxExtent,	/* maximum width of formatted string*/
-	  LPINT lpnFit,		/* maximum number of characters*/
-	  LPINT alpDx,	 	/* array of partial string widths*/
-	  LPSIZE lpSize)	/* string dimensions*/
+	LPCTSTR lpszStr,	/* character string*/
+	int cchString,		/* number of characters*/
+	int nMaxExtent,		/* maximum width of formatted string*/
+	LPINT lpnFit,		/* maximum number of characters*/
+	LPINT alpDx,	 	/* array of partial string widths*/
+	LPSIZE lpSize)		/* string dimensions*/
 
 {
-	int attr,width=0,height=0;
+	int attr, width = 0,height = 0;
 
 	if(!hdc || !lpszStr)
 		return FALSE;
-	if (cchString<0)
+
+	if (cchString < 0)
 		cchString = strlen((char *)lpszStr);
-	attr=hdc->font->pfont->fontattr;
-	if (attr&MWTF_FREETYPE)
-	{ 
-		if (GdGetTextSizeEx(hdc->font->pfont,lpszStr,cchString,
-			nMaxExtent,lpnFit,alpDx,&width,&height,NULL,MWTF_UTF8))
-		{
+		
+	attr = hdc->font->pfont->fontattr;
+	if (attr&MWTF_FREETYPE) { 
+		if (GdGetTextSizeEx(hdc->font->pfont, lpszStr, cchString,
+			nMaxExtent, lpnFit, alpDx, &width, &height, NULL,
+								mwTextCoding)) {
 			lpSize->cx=width;
 			lpSize->cy=height;
 			return TRUE;
 		}
 		return FALSE;
-	}
-	else
-	{
-		SIZE sz;
+	} else {
 		int i;
+		SIZE sz;
 
 		if (!GetTextExtentPoint(hdc, lpszStr, cchString, lpSize))
 			return FALSE;
-		if ((!nMaxExtent)||(!lpnFit)||(!alpDx))
+
+		if (!nMaxExtent || !lpnFit || !alpDx)
 			return TRUE;
+
 		for (i=0; i<cchString; i++) {
 			if (!GetTextExtentPoint(hdc, lpszStr, i+1, &sz))
 				return FALSE;
+
 			if (sz.cx <= nMaxExtent)
 				alpDx[i] = sz.cx;
 			else {

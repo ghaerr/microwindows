@@ -41,6 +41,16 @@ int	mwpaintSerial = 1;		/* experimental alphablend sequencing*/
 int	mwpaintNC = 1;			/* experimental NC paint handling*/
 BOOL 	mwforceNCpaint = FALSE;		/* force NC paint when alpha blending*/
 
+struct timer {			/* private timer structure*/
+	HWND	hwnd;		/* window associated with timer, NULL if none*/
+	UINT	idTimer;	/* id for timer*/
+	UINT	uTimeout;	/* timeout value, in msecs*/
+	DWORD	dwClockExpires;	/* GetTickCount timer expiration value*/
+	TIMERPROC lpTimerFunc;	/* callback function*/
+	struct timer *next;
+};
+static struct timer *timerList = NULL;	/* global timer list*/
+
 static void MwOffsetChildren(HWND hwnd, int offx, int offy);
 static void MwRemoveWndFromTimers(HWND hwnd);
 
@@ -54,7 +64,7 @@ CallWindowProc(WNDPROC lpPrevWndFunc, HWND hwnd, UINT Msg, WPARAM wParam,
 LRESULT WINAPI
 SendMessage(HWND hwnd, UINT Msg,WPARAM wParam,LPARAM lParam)
 {
-	if(hwnd && hwnd->lpfnWndProc) {
+	if(IsWindow(hwnd) && hwnd->lpfnWndProc) {
 		hwnd->paintSerial = mwpaintSerial; /* assign msg sequence #*/
 		return (*hwnd->lpfnWndProc)(hwnd, Msg, wParam, lParam);
 	}
@@ -450,7 +460,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	/*
 	 * Remove from timers
 	 */
-	MwRemoveWndFromTimers ( hwnd );
+	MwRemoveWndFromTimers(hwnd);
 
 	/*
 	 * Disable all sendmessages to this window.
@@ -815,7 +825,7 @@ GetDesktopWindow(VOID)
 HWND
 MwGetTopWindow(HWND hwnd)
 {
-	while(hwnd->style & WS_CHILD)
+	while(IsWindow(hwnd) && (hwnd->style & WS_CHILD))
 		hwnd = hwnd->parent;
 	return hwnd;
 }
@@ -1402,22 +1412,11 @@ ReleaseCapture(VOID)
 	return TRUE;
 }
 
-struct timer {			/* private timer structure*/
-	HWND	hwnd;		/* window associated with timer, NULL if none*/
-	UINT	idTimer;	/* id for timer*/
-	UINT	uTimeout;	/* timeout value, in msecs*/
-	DWORD	dwClockExpires;	/* GetTickCount timer expiration value*/
-	TIMERPROC lpTimerFunc;	/* callback function*/
-	struct timer *next;
-};
-
-static struct timer *timerList=NULL;	/* single global timer FIXME*/
-
 UINT WINAPI
 SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout, TIMERPROC lpTimerFunc)
 {
-	static UINT nextID = 0;	/* next ID when hwnd is NULL*/
 	struct timer *tm = (struct timer *) malloc ( sizeof(struct timer) );
+	static UINT nextID = 0;	/* next ID when hwnd is NULL*/
 
 	/* assign timer id based on valid window handle*/
 	if( tm == NULL )
@@ -1439,6 +1438,7 @@ KillTimer(HWND hwnd, UINT idTimer)
 {
 	struct timer *tm = timerList;
 	struct timer *ltm = NULL;
+
 	while ( tm != NULL ) {
 		if( (tm->hwnd == hwnd) && (tm->idTimer == idTimer) ) {
 			if( ltm != NULL )
@@ -1463,15 +1463,15 @@ MwGetNextTimeoutValue(void)
 {
 	int	bestTimeout = -1;
 	int	timeout;
-
 	struct timer *tm = timerList;
+
 	while ( tm != NULL ) {
 		timeout = tm->dwClockExpires - GetTickCount();
 		if( (timeout > 0) && ((timeout < bestTimeout) || (bestTimeout == -1)) )
 			bestTimeout = timeout;
 		else {
 			/*  If timer has expired, return zero*/
-			if( (timeout <= 0) )
+			if (timeout <= 0)
 				return 0;
 		}
 		tm = tm->next;

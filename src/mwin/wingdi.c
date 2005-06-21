@@ -899,7 +899,7 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 	if(uFormat & DT_CENTER)
 		x = (lpRect->left + lpRect->right - width) / 2;
 	else if(uFormat & DT_RIGHT)
-		x += lpRect->right - width;
+		x = lpRect->right - width;
 	
 	if(uFormat & DT_VCENTER)
 	    y = lpRect->bottom / 2;

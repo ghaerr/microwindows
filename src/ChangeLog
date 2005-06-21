@@ -1,3 +1,5 @@
+	* fixed DT_RIGHT in MwDrawText,
+		invalid hwnd in SendMessage & MWGetTopWindow (Jochen)
 	* added right-to-left rendering w/shape joining (Gabriele)
 		HAVE_FRIBIDI_SUPPORT, HAVE_SHAPEJOINING_SUPPORT config opts
 		MwSetTextCoding sets default text coding for non wide char fns

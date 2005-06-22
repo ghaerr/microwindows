@@ -1,3 +1,5 @@
+	* added GrQueueLength, GrGetTypedEvent, GrGetTypedEventPred for
+		LINK_APP_INTO_SERVER case
 	* fixed DT_RIGHT in MwDrawText,
 		invalid hwnd in SendMessage & MWGetTopWindow (Jochen)
 	* added right-to-left rendering w/shape joining (Gabriele)

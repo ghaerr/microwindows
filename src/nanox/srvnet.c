@@ -6,9 +6,6 @@
  * Copyright (c) 2000 Morten Rolland <mortenro@screenmedia.no>
  * Portions Copyright (c) 1991 David I. Bell
  *
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
- *
  * Completely rewritten for speed by Greg Haerr
  *
  * This is the server side of the network interface, which accepts

@@ -15,9 +15,6 @@
  * Portions Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1991 David I. Bell
  *
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
- *
  * This program is free software; you may redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or

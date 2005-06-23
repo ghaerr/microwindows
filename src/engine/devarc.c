@@ -9,8 +9,6 @@
  * so no math lib needed.
  *
  * Portions Copyright (c) 1991 David I. Bell
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
  *
  * Arc line clipping and integer qsin/qcos routines used by permission:
  * Copyright (C) 1997-1998 by Eero Tamminen

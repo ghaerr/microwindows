@@ -4,8 +4,6 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
  *
  * Nano-X public definition header file:  user applications should
  * include only this header file.

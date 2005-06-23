@@ -1,8 +1,6 @@
 /*
  * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
  *
  * Device-independent routines to determine clipping regions.
  */

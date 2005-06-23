@@ -2,8 +2,6 @@
  * Copyright (c) 1999, 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
  *
  * Device-independent mid level drawing and color routines.
  *

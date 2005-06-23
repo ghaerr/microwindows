@@ -6,9 +6,6 @@
  * Copyright (c) 2000 Vidar Hokstad
  * Copyright (c) 2000 Morten Rolland <mortenro@screenmedia.no>
  *
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
- *
  * Client routines to do graphics with windows and graphics contexts.
  *
  * Rewritten heavily for speed by Greg Haerr

@@ -1,8 +1,6 @@
 /*
  * Copyright (c) 1999, 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1991 David I. Bell
- * Permission is granted to use, distribute, or modify this source,
- * provided that this copyright notice remains intact.
  *
  * UNIX Serial Port Mouse Driver
  * 

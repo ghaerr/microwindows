@@ -2,6 +2,11 @@
 		LINK_APP_INTO_SERVER case
 	* fixed DT_RIGHT in MwDrawText,
 		invalid hwnd in SendMessage & MWGetTopWindow (Jochen)
+	* added Gabriele's test .rc -> .c conversion tool: contrib/makedlg
+	* added Gabriele's win32 api enhancements test pgm: demos/mwdvetest
+		added accid___.ttf, VAGROLN.TTF test fonts,
+		Bitstream Cyberbit unicode font (13Mb) and
+		other truetype fonts are downloaded automatically on make
 	* added right-to-left rendering w/shape joining (Gabriele)
 		HAVE_FRIBIDI_SUPPORT, HAVE_SHAPEJOINING_SUPPORT config opts
 		MwSetTextCoding sets default text coding for non wide char fns

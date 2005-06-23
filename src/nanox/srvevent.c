@@ -289,8 +289,10 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	 */
 	changebuttons = (~curbuttons & newbuttons);
 	if (changebuttons) {
-if ((newbuttons&(GR_BUTTON_L|GR_BUTTON_R)) == (GR_BUTTON_L|GR_BUTTON_R))
-GsTerminate();
+/*** removed - double mouse button exits server
+		if ((newbuttons&(GR_BUTTON_L|GR_BUTTON_R)) == (GR_BUTTON_L|GR_BUTTON_R))
+			GsTerminate();
+***/
 		GsResetScreenSaver();
 		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN,
 			newbuttons, changebuttons, modifiers);

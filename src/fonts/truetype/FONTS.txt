@@ -1,0 +1,19 @@
+The following free fonts are used in mwdvetest demo application
+
+accid___.ttf  
+    Accidental President
+    Links: http://www.acidfonts.com/
+    Download: http://www.acidfonts.com/fonts/accidentalpre.zip
+    See the file ReadMe.txt for License information
+    
+  
+VAGROLN.TTF
+    VAGRounded LT Normal
+    Links: http://fonts.goldenweb.it/index_file/l/en/d2/True_Type_Fonts/c/v/default.html
+    Download: http://www.goldenweb.it/software/fonts/download_file/d2/True_Type_Fonts/c/v/file2/VAGRounded_Lt-Normal.ttf/default.html
+    
+Cyberbit.ttf
+	Bitstream Cyberbit
+	Download: ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/Cyberbit.ZIP
+	License: ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/License.wri
+	

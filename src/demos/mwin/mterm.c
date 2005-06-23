@@ -48,7 +48,7 @@
 
 /* forward decls*/
 LRESULT CALLBACK WndProc(HWND hwnd,UINT uMsg,WPARAM wp,LPARAM lp);
-void EmOutChar(HWND hwnd, int ch);
+void EmOutChar(HWND hwnd, unsigned char ch);
 int  CreatePtyShell(void);
 int  ReadPtyShell(int fd, char *buf, int count);
 int  WritePtyShell(int fd, char *buf, int count);
@@ -185,7 +185,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 }
 
 void
-EmOutChar(HWND hwnd, int ch)
+EmOutChar(HWND hwnd, unsigned char ch)
 {
 	HDC	hdc;
 	RECT	rc;

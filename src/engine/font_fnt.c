@@ -1,6 +1,6 @@
 /* 
  * Loadable FNT font engine for Microwindows
- * Copyright (c) 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2003, 2005 Greg Haerr <greg@censoft.com>
  *
  * Load a .fnt (Microwindows native) binary font, store in incore format.
  */
@@ -41,7 +41,7 @@
 /* The user hase the option including ZLIB and being able to    */
 /* directly read compressed .fnt files, or to omit it and save  */
 /* space.  The following defines make life much easier          */
-#ifdef HAVE_FNTGZ_SUPPORT
+#if HAVE_FNTGZ_SUPPORT
 #include <zlib.h>
 #define FILEP gzFile
 #define FOPEN(path, mode)           gzopen(path, mode)
@@ -141,7 +141,7 @@ fnt_unloadfont(PMWFONT font)
 static int
 READBYTE(FILEP fp, unsigned char *cp)
 {
-#ifdef HAVE_FNTGZ_SUPPORT
+#if HAVE_FNTGZ_SUPPORT
 	unsigned char buf[1];
 
 	if (FREAD(fp, buf, 1) != 1)
@@ -160,7 +160,7 @@ READBYTE(FILEP fp, unsigned char *cp)
 static int
 READSHORT(FILEP fp, unsigned short *sp)
 {
-#ifdef HAVE_FNTGZ_SUPPORT
+#if HAVE_FNTGZ_SUPPORT
 	unsigned char buf[2];
 
 	if (FREAD(fp, buf, 2) != 2)
@@ -183,7 +183,7 @@ READSHORT(FILEP fp, unsigned short *sp)
 static int
 READLONG(FILEP fp, unsigned long *lp)
 {
-#ifdef HAVE_FNTGZ_SUPPORT
+#if HAVE_FNTGZ_SUPPORT
 	unsigned char buf[4];
 
 	if (FREAD(fp, buf, 4) != 4)

@@ -1,3 +1,4 @@
+mwdvetest demo segfaults when dialog moved or credits closed
 remove 2nd thislen parm in GrSendClientData
 italic wrap bug - lubI24.bdf 'r', 'M'
 fix fast gray palette handling for jpegs

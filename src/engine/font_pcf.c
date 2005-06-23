@@ -26,7 +26,7 @@ extern MWBOOL gr_usebg;
 /* The user hase the option including ZLIB and being able to    */
 /* directly read compressed .pcf files, or to omit it and save  */
 /* space.  The following defines make life much easier          */
-#ifdef HAVE_PCFGZ_SUPPORT
+#if HAVE_PCFGZ_SUPPORT
 #include <zlib.h>
 #define FILEP gzFile
 #define FOPEN(path, mode)           gzopen(path, mode)

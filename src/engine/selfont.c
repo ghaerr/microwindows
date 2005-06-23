@@ -507,7 +507,7 @@ GdAddFont(char *fndry, char *fmly, char *fontname, PMWLOGFONT lf,
 	char *physname = lf->lfFaceName;
 
 	if ( !strncmp(physname,"T1,",3) ) {
-#ifdef HAVE_T1LIB_SUPPORT
+#if HAVE_T1LIB_SUPPORT
 		/* Can handle Type 1 fonts */
 		physname += 3;
 		fontclass = MWLF_CLASS_T1LIB;

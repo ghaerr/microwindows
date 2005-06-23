@@ -169,7 +169,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 
 	/* try to load font (regardless of height) using other renderers*/
 
-#ifdef HAVE_FNT_SUPPORT
+#if HAVE_FNT_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FNT) {
 		pfont = (PMWFONT) fnt_createfont(fontname, height, fontattr);
 		if (pfont) {
@@ -180,7 +180,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 	}
 #endif
 
-#ifdef HAVE_PCF_SUPPORT
+#if HAVE_PCF_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
 		pfont = (PMWFONT) pcf_createfont(fontname, height, fontattr);
 		if (pfont) {
@@ -1190,7 +1190,7 @@ static void	dumpUtf8 ( const char *str, int sz )
 }
 #endif	
 
-#ifdef HAVE_SHAPEJOINING_SUPPORT
+#if HAVE_SHAPEJOINING_SUPPORT
 typedef struct char_shaped {
 	unsigned short isolated;
 	unsigned short initial;
@@ -1599,7 +1599,7 @@ char *doCharShape_UTF8 ( const char *text, int len, int *pNewLen, unsigned long 
 #endif /* HAVE_SHAPEJOINING_SUPPORT */
 
 
-#ifdef HAVE_FRIBIDI_SUPPORT
+#if HAVE_FRIBIDI_SUPPORT
 #include <fribidi/fribidi.h>
 
 char *doCharBidi_UTF8 ( const char *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib )

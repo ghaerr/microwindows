@@ -7,6 +7,7 @@
 		added accid___.ttf, VAGROLN.TTF test fonts,
 		Bitstream Cyberbit unicode font (13Mb) and
 		other truetype fonts are downloaded automatically on make
+	* reformatted windlg.c,newedit.c,winres.c,winresbmp.c,listbox.c,static.c
 	* added right-to-left rendering w/shape joining (Gabriele)
 		HAVE_FRIBIDI_SUPPORT, HAVE_SHAPEJOINING_SUPPORT config opts
 		MwSetTextCoding sets default text coding for non wide char fns

@@ -14,6 +14,8 @@
 #include <ctype.h>
 #define MWINCLUDECOLORS
 #include "windows.h"		/* windef.h, winuser.h */
+#include "wintools.h"
+#include "wintern.h"
 #include "device.h"
 
 #define DEFAULT_FONT			DEFAULT_GUI_FONT
@@ -112,7 +114,7 @@ SendDlgItemMessage(HWND hwnd, int id, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	HWND hctl = GetDlgItem(hwnd, id);
 	if (hctl == NULL)
-		return NULL;
+		return 0;
 	return SendMessage(hctl, Msg, wParam, lParam);
 }
 
@@ -180,7 +182,6 @@ CheckDlgButton(HWND hDlg, int id, UINT mode)
 BOOL WINAPI
 CheckRadioButton(HWND hDlg, int idFirst, int idLast, int idCheck)
 {
-	int id;
 	HWND hCheck;
 	HWND obj;
 	UINT dc;
@@ -192,7 +193,7 @@ CheckRadioButton(HWND hDlg, int idFirst, int idLast, int idCheck)
 	/*  First, remove all from previuos in group.  */
 	obj = GetNextDlgGroupItem(hDlg, hCheck, TRUE);
 	while (obj) {
-		if ((idFirst == -1) || (obj->id >= idFirst) && (obj->id <= idLast)
+		if ((idFirst == -1 || (obj->id >= idFirst && obj->id <= idLast))
 		    && (((dc =
 		       SendMessage(obj, WM_GETDLGCODE, 0, 0)) & DLGC_RADIOBUTTON) != 0))
 			SendMessage(obj, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -203,7 +204,7 @@ CheckRadioButton(HWND hDlg, int idFirst, int idLast, int idCheck)
 	/*  Remove on next */
 	obj = GetNextDlgGroupItem(hDlg, hCheck, FALSE);
 	while (obj) {
-		if ((idFirst == -1) || (obj->id >= idFirst) && (obj->id <= idLast)
+		if ((idFirst == -1 || (obj->id >= idFirst && obj->id <= idLast))
 		    && (((dc =
 		       SendMessage(obj, WM_GETDLGCODE, 0, 0)) & DLGC_RADIOBUTTON) != 0))
 			SendMessage(obj, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -509,9 +510,9 @@ dlgGetItemClass(PMWDLGITEMTEMPLEXTRA pItem)
 DWORD
 dlgItemStyle(PMWDLGITEMTEMPLATE pItem, PMWDLGITEMTEMPLEXTRA pItemExtra)
 {
-	if ((pItemExtra->szClassName[0] == (TCHAR) - 1) &&
-	    (pItemExtra->szClassName[1] == (TCHAR) DLGITEM_CLASS_LISTBOX) ||
-	    !strcmp(pItemExtra->szClassName, "LISTBOX")) {
+	if (((pItemExtra->szClassName[0] == (TCHAR)-1) &&
+	     (pItemExtra->szClassName[1] == (TCHAR) DLGITEM_CLASS_LISTBOX)) ||
+	     !strcmp(pItemExtra->szClassName, "LISTBOX")) {
 		return pItem->style & ~(LBS_CHECKBOX | LBS_USEICON | LBS_AUTOCHECK);
 	}
 	return pItem->style;
@@ -670,8 +671,7 @@ IsDialogMessage(HWND hDlg, LPMSG lpMsg)
 			break;
 
 		case WM_CHAR:
-			dlgCode =
-				SendMessage(lpMsg->hwnd, WM_GETDLGCODE,
+			dlgCode = SendMessage(lpMsg->hwnd, WM_GETDLGCODE,
 					    lpMsg->wParam, (LPARAM) lpMsg);
 			if ((dlgCode & DLGC_WANTMESSAGE))
 				goto skipKeyProcess;
@@ -887,11 +887,11 @@ MapDialogRect(HWND hWnd, LPRECT lpRc)
 {
 	static const char defAlpha[] =
 		" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	TEXTMETRIC tm;
 	SIZE sz;
 	HDC hdc;
 	HFONT oldFnt;
 	BOOL retV = FALSE;
+	//TEXTMETRIC tm;
 
 	hdc = GetDC(hWnd);
 	oldFnt = SelectObject(hdc,

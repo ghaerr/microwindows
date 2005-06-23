@@ -321,11 +321,10 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			HBRUSH hbr;
 			dwStyle = GetWindowStyle(hwnd);
-			hbr = SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
+			hbr = (HBRUSH)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
 					  wParam, (LPARAM) hwnd);
 			if (hbr == NULL)
-				return DefWindowProc(hwnd, message, wParam,
-						     lParam);
+				return DefWindowProc(hwnd, message, wParam, lParam);
 			GetClientRect(hwnd, &rcClient);
 			FillRect((HDC) wParam, &rcClient, hbr);
 			return 1;
@@ -339,10 +338,10 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			hdc = BeginPaint(hwnd, &ps);
 			/* Color, pen and brush are now choosed by defwindowproc, or by user. */
-			hbr = SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
+			hbr = (HBRUSH)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
 					  (WPARAM) hdc, (LPARAM) hwnd);
 			if (hbr == NULL)
-				hbr = GetStockObject(NULL_BRUSH);
+				hbr = (HBRUSH)GetStockObject(NULL_BRUSH);
 
 			SelectObject(hdc, hbr);
 
@@ -493,7 +492,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_GETFONT:
-		return GET_WND_FONT(hwnd);
+		return (LRESULT)GET_WND_FONT(hwnd);
 
 	default:
 		return DefWindowProc(hwnd, message, wParam, lParam);

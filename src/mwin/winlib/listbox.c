@@ -205,7 +205,6 @@ lbFillDrawitemstruct(HWND hwnd, HDC hdc, LPDRAWITEMSTRUCT lpDrw,
 static BOOL
 lbAskMeasureItem(HWND hwnd, int id, int *ph)
 {
-	PLISTBOXDATA pData = (PLISTBOXDATA) hwnd->userdata;
 	MEASUREITEMSTRUCT ms;
 	BOOL res;
 
@@ -757,7 +756,6 @@ static void
 lstDrawFocusRect(HWND hwnd, HDC hdc, PLISTBOXDATA pData, BOOL bFocus)
 {
 	DRAWITEMSTRUCT drw;
-	HGDIOBJ oldbrush, oldpen;
 	RECT rc;
 	BOOL painted = FALSE;
 	DWORD dwStyle = GetWindowLong(hwnd, GWL_STYLE);
@@ -799,7 +797,7 @@ lstDrawFocusRect(HWND hwnd, HDC hdc, PLISTBOXDATA pData, BOOL bFocus)
 }
 
 static void
-lstCalcParams(HWND hwnd, const RECT * rcClient, PLISTBOXDATA pData)
+lstCalcParams(HWND hwnd, RECT * rcClient, PLISTBOXDATA pData)
 {
 #define RECTHP(prc)  (prc->bottom - prc->top)
 	RECT rc;
@@ -1493,7 +1491,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_GETFONT:
-		return GET_WND_FONT(hwnd);
+		return (LRESULT)GET_WND_FONT(hwnd);
 
 	case WM_NCCALCSIZE:
 		{

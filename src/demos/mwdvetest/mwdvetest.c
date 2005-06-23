@@ -8,17 +8,18 @@
  *
  */
 #include <stdio.h>
-#include <windows.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "windows.h"
+#include "wintern.h"
 #include "dveres.h"
 
 
 HINSTANCE hInst;
 
-
 static HFONT hFntCyber12 = NULL;
 static HFONT hFntCyber14 = NULL;
-
-
 
 
 BOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
@@ -474,5 +475,5 @@ int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int 
 #endif
 	hInst = hInstance;
     DialogBox ( hInstance, MAKEINTRESOURCE(IDD_DLGMAIN), NULL, (DLGPROC)mainDlgProc );
+    return 0;
 }
-

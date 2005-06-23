@@ -73,7 +73,7 @@ static void put4(int b);
 PMWIMAGEHDR
 resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 {
-	PMWIMAGEHDR pImageHdr, retV;
+	PMWIMAGEHDR pImageHdr = 0, retV;
 	MWPALENTRY *cmap;
 	HGLOBAL hResBmp;
 	BMPHEAD *pHead;
@@ -201,10 +201,8 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 			pImageHdr->palsize = palsize;
 			pImageHdr->transcolor = -1L;
 			retV = pImageHdr;
-		}
-		while (0);
-	}
-	while (0);
+		} while (0);
+	} while (0);
 
 	UnlockResource(hResBmp);
 	FreeResource(hResBmp);

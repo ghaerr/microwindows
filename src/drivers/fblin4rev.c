@@ -20,7 +20,7 @@
 #define INVERT(c)
 #endif
 
-static unsigned char notmask[2] = { 0xf0, 0x0f};
+static const unsigned char notmask[2] = { 0xf0, 0x0f};
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int

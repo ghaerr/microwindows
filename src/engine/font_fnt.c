@@ -124,11 +124,11 @@ fnt_unloadfont(PMWFONT font)
 
 	if (pfc) {
 		if (pfc->width)
-			free(pf->cfont->width);
+			free((char *)pf->cfont->width);
 		if (pfc->offset)
-			free(pf->cfont->offset);
+			free((char *)pf->cfont->offset);
 		if (pfc->bits)
-			free(pf->cfont->bits);
+			free((char *)pf->cfont->bits);
 		if (pfc->name)
 			free(pf->cfont->name);
 
@@ -343,19 +343,19 @@ fnt_load_font(const char *path)
 
 	/* variable font data*/
 	for (i=0; i<nbits; ++i)
-		if (!READSHORT(ifp, &pf->bits[i]))
+		if (!READSHORT(ifp, (unsigned short *)&pf->bits[i]))
 			goto errout;
 	/* pad to longword boundary*/
 	if (ftell(ifp) & 02)
-		if (!READSHORT(ifp, &pf->bits[i]))
+		if (!READSHORT(ifp, (unsigned short *)&pf->bits[i]))
 			goto errout;
 	if (noffset)
 		for (i=0; i<pf->size; ++i)
-			if (!READLONG(ifp, &pf->offset[i]))
+			if (!READLONG(ifp, (unsigned long *)&pf->offset[i]))
 				goto errout;
 	if (nwidth)
 		for (i=0; i<pf->size; ++i)
-			if (!READBYTE(ifp, &pf->width[i]))
+			if (!READBYTE(ifp, (unsigned char *)&pf->width[i]))
 				goto errout;
 	
 	FCLOSE(ifp);
@@ -368,11 +368,11 @@ errout:
 	if (pf->name)
 		free(pf->name);
 	if (pf->bits)
-		free(pf->bits);
+		free((char *)pf->bits);
 	if (pf->offset)
-		free(pf->offset);
+		free((char *)pf->offset);
 	if (pf->width)
-		free(pf->width);
+		free((char *)pf->width);
 	free(pf);
 	return NULL;
 }

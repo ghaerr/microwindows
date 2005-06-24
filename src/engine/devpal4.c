@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
  * 4bpp (16 color) standard palette definition
  */
@@ -8,7 +8,7 @@
 /*
  * Standard palette for 16 color systems.
  */
-MWPALENTRY mwstdpal4[16] = {
+const MWPALENTRY mwstdpal4[16] = {
 	/* 16 EGA colors, arranged in VGA standard palette order*/
 	RGBDEF( 0  , 0  , 0   ),	/* black*/
 	RGBDEF( 0  , 0  , 128 ),	/* blue*/

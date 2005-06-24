@@ -34,7 +34,7 @@ typedef float	FLOAT;
  * accuracy, use doubles and smaller steps.  If you want more speed, use
  * fixed point arithmetics.
  */
-static float cosine[91][2] = {
+static const float cosine[91][2] = {
 	{ 1.000000, -1.523048e-04 },
 	{ 0.999848, -4.568681e-04 },
 	{ 0.999391, -7.612923e-04 },

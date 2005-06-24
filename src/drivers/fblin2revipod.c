@@ -18,7 +18,7 @@ static void lcd_update_display(PSD psd, int sx, int sy, int mx, int my);
 #define inl(p) (*(volatile unsigned long *) (p))
 #define outl(v,p) (*(volatile unsigned long *) (p) = (v))
 
-static unsigned char notmask[4] = { 0xfc, 0xf3, 0xcf, 0x3f };
+static const unsigned char notmask[4] = { 0xfc, 0xf3, 0xcf, 0x3f };
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int

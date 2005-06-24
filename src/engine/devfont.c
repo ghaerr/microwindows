@@ -1404,42 +1404,48 @@ static const chr_shpjoin_t shaped_table2[] =
 	{ /*0xFEFB*/ 0xFEFB, 0x0000, 0x0000, 0xFEFC, }, /* LAM_ALEF */
 };
 
+#define assignShape(chr)	( ((chr) >= SHAPED_TABLE_START  && (chr) <= SHAPED_TABLE_TOP)? \
+				    &shaped_table[(chr)-SHAPED_TABLE_START] : \
+                                  ((chr) >= SHAPED_TABLE2_START && (chr) <= SHAPED_TABLE2_TOP)? \
+				    &shaped_table2[(chr)-SHAPED_TABLE2_START] : NULL) 
 
-#define assignShape(chr)	( ((chr) >= SHAPED_TABLE_START  && (chr) <= SHAPED_TABLE_TOP)  ? &shaped_table[(chr)-SHAPED_TABLE_START] : \
-                              ((chr) >= SHAPED_TABLE2_START && (chr) <= SHAPED_TABLE2_TOP) ? &shaped_table2[(chr)-SHAPED_TABLE2_START] : \
-							  NULL ) 
+#define assignShapeUtf(txt, i) ( (utf8_len_map[(unsigned char)((txt)[(i)])] > 1)? \
+					doAssignShapeUtf((txt)+(i)) : NULL)
 
-#define assignShapeUtf(txt, i) ( (utf8_len_map[(unsigned char)((txt)[(i)])] > 1) ? doAssignShapeUtf((txt)+(i)) : NULL )
-
-
-
-
-static const chr_shpjoin_t *doAssignShapeUtf ( const char *txt )
+static const chr_shpjoin_t *
+doAssignShapeUtf(const char *txt)
 {
 	unsigned short fs;
-	utf8_to_utf16 ( (const unsigned char*)txt, utf8_len_map[(unsigned char)txt[0]], &fs );
-	return assignShape ( fs );
+
+	utf8_to_utf16((const unsigned char *) txt,
+		      utf8_len_map[(unsigned char) txt[0]], &fs);
+	return assignShape(fs);
 }
 
 
-static void storeUc_2_Utf8 ( char *dest, int *psz, unsigned short wch )
+static void
+storeUc_2_Utf8(char *dest, int *psz, unsigned short wch)
 {
-	int cb = uc16_to_utf8 ( &wch, 1, dest+(*psz) );
+	int cb = uc16_to_utf8(&wch, 1, dest + (*psz));
+
 	*psz = *psz + cb;
 }
 
 
-static void store_Utf8 ( char *dest, int *psz, const char *txt )
+static void
+store_Utf8(char *dest, int *psz, const char *txt)
 {
-	int cb = utf8_len_map[(unsigned char)txt[0]];
-	memcpy ( dest+(*psz), txt, cb );
+	int cb = utf8_len_map[(unsigned char) txt[0]];
+
+	memcpy(dest + (*psz), txt, cb);
 	*psz = *psz + cb;
 }
 
 /*
  * Note that text is currently left to right
  */
-static unsigned short *arabicJoin_UC16 ( const unsigned short *text, int len, unsigned long *pAttrib )
+static unsigned short *
+arabicJoin_UC16(const unsigned short *text, int len, unsigned long *pAttrib)
 {
 	int i;
 	unsigned short *new_str;
@@ -1447,31 +1453,36 @@ static unsigned short *arabicJoin_UC16 ( const unsigned short *text, int len, un
 	const chr_shpjoin_t *curr = NULL;
 	const chr_shpjoin_t *next = NULL;
 	unsigned long attrib = 0;
-	
-	new_str = (unsigned short *) malloc ( (1+len) * sizeof(unsigned short) );
-	if( new_str == NULL ) return NULL;
-	
-	for ( i=0; i < len; i++ ) {
-		if( (curr=assignShape(text[i])) != NULL ) {
-			if( i < len-1 ) 
-				next = assignShape(text[i+1]);
+
+	new_str = (unsigned short *) malloc((1 + len) * sizeof(unsigned short));
+	if (new_str == NULL)
+		return NULL;
+
+	for (i = 0; i < len; i++) {
+		if ((curr = assignShape(text[i])) != NULL) {
+			if (i < len - 1)
+				next = assignShape(text[i + 1]);
 			else
 				next = NULL;
-			if( next ) {
-				if( prev ) {
-					if( !prev->initial || !prev->medial )
-						new_str[i] = curr->initial ? curr->initial : curr->isolated;
+			if (next) {
+				if (prev) {
+					if (!prev->initial || !prev->medial)
+						new_str[i] = curr->initial ?
+							curr->initial : curr->isolated;
 					else
-						new_str[i] = curr->medial ? curr->medial : curr->final;
+						new_str[i] = curr->medial ?
+							curr->medial : curr->final;
 				} else {
-					new_str[i] = curr->initial ? curr->initial : curr->isolated;
+					new_str[i] = curr->initial ?
+						curr->initial : curr->isolated;
 				}
 			} else {
-				if( prev ) {
-					if( !prev->initial || !prev->medial )
+				if (prev) {
+					if (!prev->initial || !prev->medial)
 						new_str[i] = curr->isolated;
 					else
-						new_str[i] = curr->final ? curr->final : curr->isolated;
+						new_str[i] = curr->final ?
+							curr->final : curr->isolated;
 				} else {
 					new_str[i] = curr->isolated;
 				}
@@ -1479,25 +1490,26 @@ static unsigned short *arabicJoin_UC16 ( const unsigned short *text, int len, un
 			attrib |= (TEXTIP_SHAPED | TEXTIP_EXTENDED);
 		} else {
 			new_str[i] = text[i];
-			if( text[i] <= 0xFF )
+			if (text[i] <= 0xFF)
 				attrib |= TEXTIP_STANDARD;
 			else
 				attrib |= TEXTIP_EXTENDED;
 		}
-		
+
 		prev = curr;
 	}
 	new_str[i] = 0;
-	if( pAttrib ) *pAttrib = attrib;
+	if (pAttrib)
+		*pAttrib = attrib;
 	return new_str;
 }
-
-
 
 /*
  * Note that text is currently left to right
  */
-char *arabicJoin_UTF8 ( const char *text, int len, int *pNewLen, unsigned long *pAttrib )
+char *
+arabicJoin_UTF8(const char *text, int len, int *pNewLen,
+		unsigned long *pAttrib)
 {
 	int i, sz;
 	char *new_str;
@@ -1505,95 +1517,121 @@ char *arabicJoin_UTF8 ( const char *text, int len, int *pNewLen, unsigned long *
 	const chr_shpjoin_t *curr = NULL;
 	const chr_shpjoin_t *next = NULL;
 	unsigned long attrib = 0;
-	
-	// Note that shaping may result in tree UTF-8 bytes, due to 06xx -> FBxx translation
-	// two times the original buffer should be enough...
-	new_str = (char *) malloc ( (1+2*len) * sizeof(char) );
-	if( new_str == NULL ) return NULL;
-	
+
+	/* Note that shaping may result in three UTF-8 bytes, due to 06xx -> FBxx translation*/
+	/* two times the original buffer should be enough...*/
+	new_str = (char *) malloc((1 + 2 * len) * sizeof(char));
+	if (new_str == NULL)
+		return NULL;
+
 	sz = 0;
-	
-	for ( i=0; i < len; ) {
-		int b = utf8_len_map[(unsigned char)text[i]];
-		if( (curr=assignShapeUtf(text, i)) != NULL ) {
-			if( i < len-b ) 
-				next = assignShapeUtf(text, i+b);
+
+	for (i = 0; i < len;) {
+		int b = utf8_len_map[(unsigned char) text[i]];
+		if ((curr = assignShapeUtf(text, i)) != NULL) {
+			if (i < len - b)
+				next = assignShapeUtf(text, i + b);
 			else
 				next = NULL;
-			if( next ) {
-				if( prev ) {
-					if( !prev->initial || !prev->medial )
-						storeUc_2_Utf8 ( new_str, &sz, (curr->initial ? curr->initial : curr->isolated) );
+			if (next) {
+				if (prev) {
+					if (!prev->initial || !prev->medial)
+						storeUc_2_Utf8(new_str, &sz,
+							       (curr->initial ? curr->initial :
+								curr->isolated));
 					else
-						storeUc_2_Utf8 ( new_str, &sz, (curr->medial ? curr->medial : curr->final) );
+						storeUc_2_Utf8(new_str, &sz,
+							       (curr->medial ? curr->medial :
+								curr->final));
 				} else {
-					storeUc_2_Utf8 ( new_str, &sz, (curr->initial ? curr->initial : curr->isolated) );
+					storeUc_2_Utf8(new_str, &sz, (curr->initial ?
+							curr->initial : curr-> isolated));
 				}
 			} else {
-				if( prev ) {
-					if( !prev->initial || !prev->medial )
-						storeUc_2_Utf8 ( new_str, &sz, curr->isolated );
+				if (prev) {
+					if (!prev->initial || !prev->medial)
+						storeUc_2_Utf8(new_str, &sz, curr->isolated);
 					else
-						storeUc_2_Utf8 ( new_str, &sz, (curr->final ? curr->final : curr->isolated) );
+						storeUc_2_Utf8(new_str, &sz,
+							       (curr->final ? curr->final :
+							       curr->isolated));
 				} else {
-					storeUc_2_Utf8 ( new_str, &sz, curr->isolated );
+					storeUc_2_Utf8(new_str, &sz, curr->isolated);
 				}
 			}
 			attrib |= (TEXTIP_SHAPED | TEXTIP_EXTENDED);
 		} else {
-			store_Utf8 ( new_str, &sz, text+i );
-			if( (unsigned char)text[i] < 0xC0 ) 
+			store_Utf8(new_str, &sz, text + i);
+			if ((unsigned char) text[i] < 0xC0)
 				attrib |= TEXTIP_STANDARD;
 			else
 				attrib |= TEXTIP_EXTENDED;
 		}
-		
+
 		i += b;
 		prev = curr;
 	}
 	new_str[sz] = 0;
-	if( pNewLen ) *pNewLen = sz;
-	if( pAttrib ) *pAttrib = attrib;
+	if (pNewLen)
+		*pNewLen = sz;
+	if (pAttrib)
+		*pAttrib = attrib;
 #ifdef DEBUG_TEXT_SHAPING
-	if( strcmp(new_str, text) )
-		dumpUtf8 ( new_str, sz );
-#endif	
+	if (strcmp(new_str, text))
+		dumpUtf8(new_str, sz);
+#endif
 	return new_str;
 }
 
-
-unsigned short *doCharShape_UC16 ( const unsigned short *text, int len, int *pNewLen, unsigned long *pAttrib )
+unsigned short *
+doCharShape_UC16(const unsigned short *text, int len, int *pNewLen,
+	unsigned long *pAttrib)
 {
-	unsigned short *conv = arabicJoin_UC16 ( text, len, pAttrib );
-	if( pNewLen ) *pNewLen = len;
+	unsigned short *conv = arabicJoin_UC16(text, len, pAttrib);
+
+	if (pNewLen)
+		*pNewLen = len;
 	return conv;
 }
 
-char *doCharShape_UTF8 ( const char *text, int len, int *pNewLen, unsigned long *pAttrib )
+char *
+doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib)
 {
-	return arabicJoin_UTF8 ( text, len, pNewLen, pAttrib );
+	return arabicJoin_UTF8(text, len, pNewLen, pAttrib);
 }
 
 #else /* HAVE_SHAPEJOINING_SUPPORT */
 /* DUMMY FUNCTIONS */
-unsigned short *doCharShape_UC16 ( const unsigned short *text, int len, int *pNewLen, unsigned long *pAttrib )
+unsigned short *
+doCharShape_UC16(const unsigned short *text, int len, int *pNewLen,
+	unsigned long *pAttrib)
 {
-	unsigned short *conv = malloc ( (len+1)*sizeof(unsigned short) );
-	if( conv == NULL ) return NULL;
-	memcpy ( conv, text, len*sizeof(unsigned short) );
-	conv[len]=0;
-	if( pNewLen ) *pNewLen = len;
-	if( pAttrib ) *pAttrib = 0;
+	unsigned short *conv = malloc((len + 1) * sizeof(unsigned short));
+
+	if (conv == NULL)
+		return NULL;
+	memcpy(conv, text, len * sizeof(unsigned short));
+	conv[len] = 0;
+	if (pNewLen)
+		*pNewLen = len;
+	if (pAttrib)
+		*pAttrib = 0;
 	return conv;
 }
-char *doCharShape_UTF8 ( const char *text, int len, int *pNewLen, unsigned long *pAttrib )
+
+char *
+doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib)
 {
-	char *conv = malloc ( (len+1)*sizeof(char) );
-	if( conv == NULL ) return NULL;
-	memcpy ( conv, text, len*sizeof(char) );
-	conv[len]=0;
-	if( pNewLen ) *pNewLen = len;
-	if( pAttrib ) *pAttrib = 0;
+	char *conv = malloc((len + 1) * sizeof(char));
+
+	if (conv == NULL)
+		return NULL;
+	memcpy(conv, text, len * sizeof(char));
+	conv[len] = 0;
+	if (pNewLen)
+		*pNewLen = len;
+	if (pAttrib)
+		*pAttrib = 0;
 	return conv;
 }
 #endif /* HAVE_SHAPEJOINING_SUPPORT */
@@ -1602,7 +1640,9 @@ char *doCharShape_UTF8 ( const char *text, int len, int *pNewLen, unsigned long 
 #if HAVE_FRIBIDI_SUPPORT
 #include <fribidi/fribidi.h>
 
-char *doCharBidi_UTF8 ( const char *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib )
+char *
+doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection,
+	unsigned long *pAttrib)
 {
 	FriBidiChar *ftxt, *fvirt;
 	FriBidiChar localBuff[128];
@@ -1611,44 +1651,52 @@ char *doCharBidi_UTF8 ( const char *text, int len, int *v2lPos, char *pDirection
 	int isLocal = 0;
 	char *new_str;
 	int new_len;
-	
-	
-	new_str = (char*) malloc ( len+1 );
-	if( new_str == NULL ) return NULL;
-	
+
+	new_str = (char *) malloc(len + 1);
+	if (new_str == NULL)
+		return NULL;
+
 	/* len may be greather than real char count, but it's ok.
 	   if will fit in localBuff, we use it to improve speed */
-	if( len < sizeof(localBuff)/sizeof(localBuff[0])/2 ) {
+	if (len < sizeof(localBuff) / sizeof(localBuff[0]) / 2) {
 		ftxt = localBuff;
-		fvirt = localBuff+sizeof(localBuff)/sizeof(localBuff[0])/2;
+		fvirt = localBuff +
+			sizeof(localBuff) / sizeof(localBuff[0]) / 2;
 		isLocal = 1;
 	} else {
-		ftxt = (FriBidiChar*) malloc ( (len+1) * sizeof(FriBidiChar) );
-		fvirt = (FriBidiChar*) malloc ( (len+1) * sizeof(FriBidiChar) );
+		ftxt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
+		fvirt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
 	}
-	
-	if( ftxt == NULL ) return NULL;
-	if( fvirt == NULL ) { free(ftxt); return NULL; }
-	
-	cc = fribidi_utf8_to_unicode ( (char*)text, len, ftxt );
+
+	if (ftxt == NULL)
+		return NULL;
+	if (fvirt == NULL) {
+		free(ftxt);
+		return NULL;
+	}
+
+	cc = fribidi_utf8_to_unicode((char *) text, len, ftxt);
 	basedir = FRIBIDI_TYPE_N;
-	fribidi_log2vis ( ftxt, cc, &basedir, fvirt, v2lPos, NULL, pDirection );
-	new_len = fribidi_unicode_to_utf8 ( fvirt, cc, new_str );
-	
-	if( pAttrib ) {
-		if( basedir & FRIBIDI_MASK_RTL ) *pAttrib |= TEXTIP_RTOL;
+	fribidi_log2vis(ftxt, cc, &basedir, fvirt, v2lPos, NULL, pDirection);
+	new_len = fribidi_unicode_to_utf8(fvirt, cc, new_str);
+
+	if (pAttrib) {
+		if (basedir & FRIBIDI_MASK_RTL)
+			*pAttrib |= TEXTIP_RTOL;
 	}
-	
-	if( !isLocal ) {
-		free ( fvirt );
-		free ( ftxt );
+
+	if (!isLocal) {
+		free(fvirt);
+		free(ftxt);
 	}
 	new_str[new_len] = 0;
 	return new_str;
 }
 
 
-unsigned short *doCharBidi_UC16 ( const unsigned short *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib )
+unsigned short *
+doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos,
+	char *pDirection, unsigned long *pAttrib)
 {
 	FriBidiChar *ftxt, *fvirt;
 	FriBidiChar localBuff[128];
@@ -1656,64 +1704,86 @@ unsigned short *doCharBidi_UC16 ( const unsigned short *text, int len, int *v2lP
 	int cc;
 	int isLocal = 0;
 	unsigned short *new_str;
-	
-	
-	new_str = (unsigned short *) malloc ( (len+1)*sizeof(unsigned short) );
-	if( new_str == NULL ) return NULL;
-	
+
+	new_str = (unsigned short *) malloc((len + 1) * sizeof(unsigned short));
+	if (new_str == NULL)
+		return NULL;
+
 	/* len may be greather than real char count, but it's ok.
 	   if will fit in localBuff, we use it to improve speed */
-	if( len < sizeof(localBuff)/sizeof(localBuff[0])/2 ) {
+	if (len < sizeof(localBuff) / sizeof(localBuff[0]) / 2) {
 		ftxt = localBuff;
-		fvirt = localBuff+sizeof(localBuff)/sizeof(localBuff[0])/2;
+		fvirt = localBuff +
+			sizeof(localBuff) / sizeof(localBuff[0]) / 2;
 		isLocal = 1;
 	} else {
-		ftxt = (FriBidiChar*) malloc ( (len+1) * sizeof(FriBidiChar) );
-		fvirt = (FriBidiChar*) malloc ( (len+1) * sizeof(FriBidiChar) );
+		ftxt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
+		fvirt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
 	}
-	
-	if( ftxt == NULL ) return NULL;
-	if( fvirt == NULL ) { free(ftxt); return NULL; }
-	
-	for ( cc=0; cc < len; cc++ ) ftxt[cc] = text[cc];
+
+	if (ftxt == NULL)
+		return NULL;
+	if (fvirt == NULL) {
+		free(ftxt);
+		return NULL;
+	}
+
+	for (cc = 0; cc < len; cc++)
+		ftxt[cc] = text[cc];
 	basedir = FRIBIDI_TYPE_N;
-	fribidi_log2vis ( ftxt, cc, &basedir, fvirt, v2lPos, NULL, pDirection );
-	for ( cc=0; cc < len; cc++ ) new_str[cc] = (unsigned short)fvirt[cc];
+	fribidi_log2vis(ftxt, cc, &basedir, fvirt, v2lPos, NULL, pDirection);
+	for (cc = 0; cc < len; cc++)
+		new_str[cc] = (unsigned short) fvirt[cc];
 	new_str[cc] = 0;
-	
-	if( pAttrib ) {
-		if( basedir & FRIBIDI_MASK_RTL ) *pAttrib |= TEXTIP_RTOL;
+
+	if (pAttrib) {
+		if (basedir & FRIBIDI_MASK_RTL)
+			*pAttrib |= TEXTIP_RTOL;
 	}
-	
-	if( !isLocal ) {
-		free ( fvirt );
-		free ( ftxt );
+
+	if (!isLocal) {
+		free(fvirt);
+		free(ftxt);
 	}
 	return new_str;
 }
 
 #else
 /* DUMMY FUNCTIONS */
-char *doCharBidi_UTF8 ( const char *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib )
+char *
+doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection,
+	unsigned long *pAttrib)
 {
 	int i;
-	unsigned short *conv = malloc ( (len+1)*sizeof(unsigned short) );
-	if( conv == NULL ) return NULL;
-	memcpy ( conv, text, len*sizeof(unsigned short) );
-	conv[len]=0;
-	if( v2lPos ) for ( i=0; i < len; i++ ) v2lPos[i] = i;
-	if( pDirection ) memset ( pDirection, 0, len*sizeof(pDirection[0]) );
-	return (char *)conv;
+	unsigned short *conv = malloc((len + 1) * sizeof(unsigned short));
+
+	if (conv == NULL)
+		return NULL;
+	memcpy(conv, text, len * sizeof(unsigned short));
+	conv[len] = 0;
+	if (v2lPos)
+		for (i = 0; i < len; i++)
+			v2lPos[i] = i;
+	if (pDirection)
+		memset(pDirection, 0, len * sizeof(pDirection[0]));
+	return (char *) conv;
 }
-unsigned short *doCharBidi_UC16 ( const unsigned short *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib )
+unsigned short *
+doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos,
+	char *pDirection, unsigned long *pAttrib)
 {
 	int i;
-	char *conv = malloc ( (len+1)*sizeof(char) );
-	if( conv == NULL ) return NULL;
-	memcpy ( conv, text, len*sizeof(char) );
-	conv[len]=0;
-	if( v2lPos ) for ( i=0; i < len; i++ ) v2lPos[i] = i;
-	if( pDirection ) memset ( pDirection, 0, len*sizeof(pDirection[0]) );
-	return (unsigned short *)conv;
+	char *conv = malloc((len + 1) * sizeof(char));
+
+	if (conv == NULL)
+		return NULL;
+	memcpy(conv, text, len * sizeof(char));
+	conv[len] = 0;
+	if (v2lPos)
+		for (i = 0; i < len; i++)
+			v2lPos[i] = i;
+	if (pDirection)
+		memset(pDirection, 0, len * sizeof(pDirection[0]));
+	return (unsigned short *) conv;
 }
 #endif /* HAVE_FRIBIDI_SUPPORT */

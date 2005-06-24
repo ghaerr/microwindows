@@ -15,7 +15,7 @@
  * the applyOp() macro from fb.h
  */
 
-static unsigned char notmask[8] = {
+static const unsigned char notmask[8] = {
 	0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe};
 
 /* Calc linelen and mmap size, return 0 on fail*/

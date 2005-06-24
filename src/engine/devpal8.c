@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
  * 8bpp (256 color) standard palette definition
  */
@@ -10,7 +10,7 @@
  * uniform color distribution.
  * Note: the first 20 colors are used internally as system colors.
  */
-MWPALENTRY mwstdpal8[256] = {
+const MWPALENTRY mwstdpal8[256] = {
 	/* 16 EGA colors, arranged for direct predefined palette indexing*/
 	RGBDEF( 0  , 0  , 0   ),	/* black*/
 	RGBDEF( 0  , 0  , 128 ),	/* blue*/

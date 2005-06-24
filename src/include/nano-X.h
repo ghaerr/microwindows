@@ -711,7 +711,7 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
         "Bad fill mode gc: %d\n",       \
 	"Bad region id: %d\n",
         
-extern char *nxErrorStrings[];
+extern const char *nxErrorStrings[];
 
 /* Public graphics routines. */
 void		GrFlush(void);

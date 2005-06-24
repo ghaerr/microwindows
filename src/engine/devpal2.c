@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
  * 2pbb (4 color) standard palette definition
  */
@@ -10,7 +10,7 @@
  * This palette is in reverse order from some 2bpp systems.
  * That is, white is pixel value 0, while black is 3.
  */
-MWPALENTRY mwstdpal2[4] = {
+const MWPALENTRY mwstdpal2[4] = {
 #ifdef INVERT2BPP
 	RGBDEF( 255, 255, 255 ),	/* white*/
 	RGBDEF( 192, 192, 192 ),	/* ltgray*/

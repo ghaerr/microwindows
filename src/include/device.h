@@ -108,9 +108,9 @@ typedef struct {
 	int		ascent;		/* ascent (baseline) height*/
 	int		firstchar;	/* first character in bitmap*/
 	int		size;		/* font size in characters*/
-	MWIMAGEBITS *	bits;		/* 16-bit right-padded bitmap data*/
-	unsigned long *offset;		/* offsets into bitmap data*/
-	unsigned char *	width;		/* character widths or 0 if fixed*/
+	const MWIMAGEBITS   *bits;	/* 16-bit right-padded bitmap data*/
+	const unsigned long *offset;	/* offsets into bitmap data*/
+	const unsigned char *width;	/* character widths or 0 if fixed*/
 	int		defaultchar;	/* default char (not glyph index)*/
 	long		bits_size;	/* # words of MWIMAGEBITS bits*/
 } MWCFONT, *PMWCFONT;

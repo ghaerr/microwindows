@@ -1,3 +1,4 @@
+	* reduced mem size, const for text section, static for size (David)
 	* cleaned up David Bell's copyright notice with permission
 	* added GrQueueLength, GrGetTypedEvent, GrGetTypedEventPred for
 		LINK_APP_INTO_SERVER case

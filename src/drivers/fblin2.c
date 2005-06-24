@@ -13,7 +13,7 @@
 #include "device.h"
 #include "fb.h"
 
-static unsigned char notmask[4] = { 0x3f, 0xcf, 0xf3, 0xfc};
+static const unsigned char notmask[4] = { 0x3f, 0xcf, 0xf3, 0xfc};
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int

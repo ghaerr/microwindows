@@ -632,8 +632,8 @@ pcf_createfont(const char *name, MWCOORD height, int attr)
 		unsigned short n = encoding->map[i];
 		if (n == 0xffff)	/* map non-existent chars to default char */
 			n = encoding->map[encoding->defaultchar];
-		pf->cfont->offset[i] = goffset[n];
-		pf->cfont->width[i] = gwidth[n];
+		((unsigned long *)pf->cfont->offset)[i] = goffset[n];
+		((unsigned char *)pf->cfont->width)[i] = gwidth[n];
 	}
 	pf->cfont->size = encoding->count;
 
@@ -683,11 +683,11 @@ pcf_unloadfont(PMWFONT font)
 
 	if (pfc) {
 		if (pfc->width)
-			free(pf->cfont->width);
+			free((char *)pf->cfont->width);
 		if (pfc->offset)
-			free(pf->cfont->offset);
+			free((char *)pf->cfont->offset);
 		if (pfc->bits)
-			free(pf->cfont->bits);
+			free((char *)pf->cfont->bits);
 
 		free(pf->cfont);
 	}

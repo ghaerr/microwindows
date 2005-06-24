@@ -22,13 +22,13 @@
 
 //#define REMAP(c)	((c) = (remap[c]))
 #define REMAP(c)	((c) = (~c & 0x0f))
-static unsigned char remap[16] = { 15,13,11,9,7,5,3,1,14,12,10,8,6,4,2,0 };
+static const unsigned char remap[16] = { 15,13,11,9,7,5,3,1,14,12,10,8,6,4,2,0 };
 
 //#define REMAP_BACK(c)	((c) = (remap_back[c]))
 #define REMAP_BACK(c)	((c) = (~c & 0x0f))
-static unsigned char remap_back[16] = { 15,7,14,6,13,5,12,4,11,3,10,2,9,1,8,0 };
+static const unsigned char remap_back[16] = { 15,7,14,6,13,5,12,4,11,3,10,2,9,1,8,0 };
 
-static unsigned char notmask[2] = { 0x0f, 0xf0};
+static const unsigned char notmask[2] = { 0x0f, 0xf0};
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int

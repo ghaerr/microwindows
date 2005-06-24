@@ -1,9 +1,11 @@
 /*
+ * Copyright (c) 2005 Greg Haerr <greg@censoft.com>
+ *
  * 4bpp (16 color) grayscale palette
  */
 #include "device.h"
 
-MWPALENTRY mwstdpal4[16] = {
+const MWPALENTRY mwstdpal4[16] = {
     RGBDEF( 0, 0, 0 ),
     RGBDEF( 17, 17, 17 ),
     RGBDEF( 34, 34, 34 ),

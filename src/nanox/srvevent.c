@@ -15,7 +15,7 @@ LOCK_DECLARE(eventMutex);
 #endif
 
 /* readable error strings*/
-char *nxErrorStrings[] = {
+const char *nxErrorStrings[] = {
 	GR_ERROR_STRINGS
 };
 

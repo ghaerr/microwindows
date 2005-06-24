@@ -3633,7 +3633,7 @@ GrKillWindow(GR_WINDOW_ID wid)
 
 #define MAXSYSCOLORS	20	/* # of GR_COLOR_* system colors*/
 
-static GR_COLOR sysColors[MAXSYSCOLORS] = {
+static const GR_COLOR sysColors[MAXSYSCOLORS] = {
 	/* desktop background*/
 	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
 

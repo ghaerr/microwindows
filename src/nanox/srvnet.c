@@ -1602,7 +1602,8 @@ void GrShmCmdsFlushWrapper(void *r);
 struct GrFunction {
 	void		(*func)(void *);
 	GR_FUNC_NAME 	name;
-} GrFunctions[] = {
+};
+static const struct GrFunction GrFunctions[] = {
 	/*   0 */ {GrOpenWrapper, "GrOpen"},
 	/*   1 */ {GrCloseWrapper, "GrClose"},
 	/*   2 */ {GrGetScreenInfoWrapper, "GrGetScreenInfo"},
@@ -2217,7 +2218,7 @@ GsHandleClient(int fd)
 	req = (nxReq *)&buf[0];
 
 	if(req->reqType < GrTotalNumCalls) {
-		curfunc = GrFunctions[req->reqType].name;
+		curfunc = (char *)GrFunctions[req->reqType].name;
 		/*DPRINTF("HandleClient %s\n", curfunc);*/
 		GrFunctions[req->reqType].func(req);
 	} else {

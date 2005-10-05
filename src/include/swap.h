@@ -107,7 +107,7 @@
 /* although machine/endian.h might provide optimized versions,           */
 /* endian.h is only available if ecos is configured with networking      */
 /* In order to avoid this dependency of microwindows to networking       */
-/* this header is commented out
+/* this header is commented out                                          */
 /*# undef wswap
 # undef dwswap
 # include <machine/endian.h>

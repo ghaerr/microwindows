@@ -687,6 +687,16 @@ alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 		    *out++ = (r << 5) | (g << 2) | b;
 		    break;
 
+	        case MWPF_TRUECOLOR233:
+		    d = BITS(dst, 0, 0x07);
+		    r = (unsigned char)(((BITS(src, 0, 0x07) - d)*a)>>8) + d;
+		    d = BITS(dst, 3, 0x07);
+		    g = (unsigned char)(((BITS(src, 3, 0x07) - d)*a)>>8) + d;
+		    d = BITS(dst, 6, 0x03);
+		    b = (unsigned char)(((BITS(src, 6, 0x03) - d)*a)>>8) + d;
+		    *out++ = (r << 0) | (g << 3) | (b << 6);
+		    break;
+
 	        case MWPF_PALETTE:
 		    /* reverse lookup palette entry for blend ;-)*/
 		    palsrc = GETPALENTRY(gr_palette, src);

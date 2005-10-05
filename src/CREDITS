@@ -31,6 +31,7 @@ DJGPP/GRX port			Victor Rogachev
 C++ objects framework		Chris Johns
 Arc clipping routines		Eero Tamminen
 Mozilla kbd,rops,font enum	Matthew Wlazlo
+eCos port improvements          Alexander Neundorf
 
 Contact Info
 Gabriele Brugnoni	<gabrielebrugnoni@dveprojects.com>
@@ -54,3 +55,4 @@ Morten Rolland		<mortenro@screenmedia.no>
 Rosimildo daSilva	<rosimildo@xoommail.com>
 Eero Tamminen		<oak@welho.com>
 Matthew Wlazlo		<mattw@igelaus.com.au>
+Alexander Neundorf	<neundorf@kde.org>

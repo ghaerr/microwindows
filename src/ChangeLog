@@ -1,3 +1,7 @@
+5 October 2005 - neundorf@kde.org
+	* src/include/swap.h: removed dependency to network stack under eCos (Alex)
+	* src/engine/selfont.c: removed wrong and unnecessary select_font() declaration  (Alex)
+
 	* reduced mem size, const for text section, static for size (David)
 	* cleaned up David Bell's copyright notice with permission
 	* added GrQueueLength, GrGetTypedEvent, GrGetTypedEventPred for

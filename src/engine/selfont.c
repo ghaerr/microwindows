@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2005 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Morten Rolland
  *
  * Device-independent font selection routines
@@ -18,9 +18,6 @@
 #endif
 
 #if FONTMAPPER
-
-/* entry points*/
-int select_font(const PMWLOGFONT plogfont, char *physname);
 
 /*
  * The following structure, defines and variables are used to administrate

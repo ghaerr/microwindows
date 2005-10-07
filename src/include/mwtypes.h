@@ -518,7 +518,10 @@ typedef struct {
 
 	MWUCHAR lfClass;		/* font class (renderer) */
 
-	/* following only used by FONTMAPPER when enabled*/
+	/* Following only used by (the legacy) FONTMAPPER when enabled.
+	 * They are only kept around to stay source and binary
+	 * compatible to previous microwindows releases.
+	 */
 	MWUCHAR	lfPitch;		/* font pitch */
 	MWUCHAR	lfRoman;		/* =1 for Roman letters (upright) */
 	MWUCHAR	lfSerif;		/* =1 for Serifed font */
@@ -528,6 +531,7 @@ typedef struct {
 	MWUCHAR	lfProportional;		/* =1 for Proportional font */
 	MWUCHAR	lfOblique;		/* =1 for Oblique (kind of Italic) */
 	MWUCHAR	lfSmallCaps;		/* =1 for small caps */
+	/* End of fontmapper-only variables */
 
 	/* render-dependent full path or facename here*/
 	char	lfFaceName[MWLF_FACESIZE];/* font name, may be aliased*/

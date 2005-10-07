@@ -8,12 +8,18 @@
  * to the other copy.
  */
 
-#include <stdio.h>
 #include <stdarg.h>
+
+#if (__ECOS)
+#include <cyg/infra/diag.h>
+#else
+#include <stdio.h>
 #include <string.h>
 #if (UNIX | DOS_DJGPP)
 #include <unistd.h>
 #endif
+#endif
+
 #include "device.h"
 
 #if MW_FEATURE_GDERROR
@@ -24,12 +30,17 @@ int
 GdError(const char *format, ...)
 {
 	va_list args;
-	char 	buf[1024];
-
 	va_start(args, format);
-
-	vsprintf(buf, format, args);
-	write(2, buf, strlen(buf));
+#if __ECOS
+	/* diag_printf() has much less dependencies than write() */
+	diag_printf(format, args);
+#else
+	{
+		char 	buf[1024];
+		vsprintf(buf, format, args);
+		write(2, buf, strlen(buf));
+	}
+#endif
 
 	va_end(args);
 	return -1;

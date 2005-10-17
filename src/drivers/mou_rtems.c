@@ -72,7 +72,9 @@ MWMou_Open (MOUSEDEVICE *pmd)
         int rc;
 	m_mou.type = MV_UID_INVALID;
 	rc = uid_open_queue (Q_NAME, O_CREAT | O_RDWR, Q_MAX_MSGS);
+#if RTEMS
 	mou_fd = open (MOUSE_DEVICE, O_NONBLOCK);
+#endif
 	uid_register_device (mou_fd, Q_NAME);
 	return 2;
 }
@@ -84,8 +86,10 @@ static void
 MWMou_Close (void)
 {
         uid_unregister_device (mou_fd);
-	uid_close_queue ();
+        uid_close_queue ();
+#if RTEMS
 	close (mou_fd);
+#endif
 }
 
 /*

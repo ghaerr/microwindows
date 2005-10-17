@@ -1,3 +1,7 @@
+17 October 2005 - neundorf@kde.org
+	* src/drivers/kbd_rtems.c and mou_rtems.c: fix a null pointer crash in
+	  MWKbd_GetModifierInfo() and prepare both files for usage under eCos (Alex)
+
 7 October 2005 - neundorf@kde.org
 	* src/engine/error.c: use diag_printf() for error reporting under eCos (Alex)
 

@@ -1,0 +1,6 @@
+26 October 2005 - neundorf@kde.org
+	* added the cdl/, src/ and include/ subdirectories
+	for files which will be used exclusively for the eCos port
+	*added cdl/microwindows.cdl, include/ecosmwconfig.h,
+	include/rtems/mw_uid.h and src/mw_uid_ecos.cxx
+

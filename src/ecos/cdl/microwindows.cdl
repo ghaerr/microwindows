@@ -1,0 +1,618 @@
+# ====================================================================
+#
+#      microwindows.cdl
+#
+#      MicroWindows configuration data
+#
+# ====================================================================
+#####ECOSGPLCOPYRIGHTBEGIN####
+## -------------------------------------------
+## This file is part of eCos, the Embedded Configurable Operating System.
+## Copyright (C) 1998, 1999, 2000, 2001, 2002 Red Hat, Inc.
+##
+## eCos is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or (at your option) any later version.
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT ANY
+## WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+## for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with eCos; if not, write to the Free Software Foundation, Inc.,
+## 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+##
+## As a special exception, if other files instantiate templates or use macros
+## or inline functions from this file, or you compile this file and link it
+## with other works to produce a work based on this file, this file does not
+## by itself cause the resulting work to be covered by the GNU General Public
+## License. However the source code for this file must still be made available
+## in accordance with section (3) of the GNU General Public License.
+##
+## This exception does not invalidate any other reasons why a work based on
+## this file might be covered by the GNU General Public License.
+##
+## Alternative licenses for eCos may be arranged by contacting Red Hat, Inc.
+## at http://sources.redhat.com/ecos/ecos-license/
+## -------------------------------------------
+#####ECOSGPLCOPYRIGHTEND####
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      jskov
+# Original data:  jskov
+# Contributors:
+# Date:           2002-03-25
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+cdl_package CYGPKG_MICROWINDOWS {
+	display       "MicroWindows"
+   requires      CYGPKG_ISOINFRA
+   requires      CYGINT_ISO_STRERROR
+   requires      CYGINT_ISO_ERRNO
+   requires      CYGINT_ISO_ERRNO_CODES
+   requires      CYGINT_ISO_MALLOC
+   requires      CYGINT_ISO_STRING_BSD_FUNCS
+   requires      CYGPKG_LIBC_STDLIB
+   description   "
+   This packages provides the default graphics interface for eCos.
+   It consists of the low level graphics engine, the Microwindows
+   and Nano-X toolkits and sample apps for Nano X"
+
+   # Note: separating the stack implementation from the common support leads
+   # to some rather incestious config file relationships.
+   define_proc {
+   }
+
+   # FB drivers
+   compile                                             \
+       drivers/fblin16.c				\
+       drivers/fblin1.c				\
+       drivers/fblin24.c				\
+       drivers/fblin2.c				\
+       drivers/fblin32.c				\
+       drivers/fblin32alpha.c				\
+       drivers/fblin4.c				\
+       drivers/fblin8.c				\
+       drivers/fb.c					\
+       drivers/fbportrait_down.c			\
+       drivers/fbportrait_left.c			\
+       drivers/fbportrait_right.c			\
+       drivers/genfont.c				\
+       drivers/genmem.c
+
+   # engine
+   compile					\
+      engine/devarc.c				\
+      engine/devclip.c			\
+      engine/devdraw.c			\
+      engine/devfont.c			\
+      engine/devkbd.c				\
+      engine/devlist.c			\
+      engine/devmouse.c			\
+      engine/devopen.c			\
+      engine/devpal1.c			\
+      engine/devpal2.c			\
+      engine/devpal4.c			\
+      engine/devpal8.c			\
+      engine/devpoly.c			\
+      engine/devrgn2.c			\
+      engine/devrgn.c	       		\
+      engine/devstipple.c     		\
+      engine/error.c	      		\
+      engine/font_dbcs.c       		\
+      engine/selfont.c
+
+   # FONTS
+   compile					\
+      fonts/winFreeSansSerif11x13.c		\
+      fonts/X6x13.c
+
+
+#      fonts/rom8x16.c				\
+#      fonts/rom8x8.c				\
+#      fonts/winFreeSystem14x16.c		\
+
+#     fonts/bdf/helvB10.c				\
+#     fonts/bdf/helvB12.c				\
+#     fonts/bdf/helvR10.c				\
+#     fonts/bdf/X5x7.c				\
+
+       cdl_option CYGFUN_MICROWINDOWS_TIMERS {
+          display       "Support timers"
+          default_value 0
+          flavor bool
+          compile engine/devtimer.c			
+          requires CYGPKG_POSIX_CLOCKS
+           description   "
+	    If enabled, Microwindows will support timers.
+            This requires the gettimeofday() function, which
+            is implemented in the POSIX clocks component
+            of the POSIX package. No other parts of the POSIX
+            package are required. "
+       }
+
+       cdl_option CYGFUN_MICROWINDOWS_DYNAMIC_CLIPPING_REGIONS {
+          display       "Dynamic clipping regions"
+          default_value 0
+          flavor bool
+           description   "
+	    If enabled, Microwindows will support dynamic clipping
+	    regions. These are more powerful than the default
+            clipping rectangles, but the code is slightly bigger."
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_HAVE_FLOAT {
+          display       "Use floating point arithmetic"
+          default_value 0
+          flavor bool
+          description   "
+	    If enabled, Microwindows will use floating point
+            arithmetic for certian operations. If you don't have 
+            floating point support or don't want to use it, don't enable it."
+       }
+
+   cdl_component CYGPKG_MICROWINDOWS_FONTS {
+   	display "Font support"
+      flavor  none
+      no_define
+      description   "
+	    By default Microwindows comes with two compiled-in fonts.
+	    Here you can enable support for more fonts and encodings."
+            
+       cdl_option CYGSEM_MICROWINDOWS_BIG5 {
+          display       "Support big5 encoded fonts (chinese)"
+          default_value 0
+          flavor bool
+          compile fonts/chinese/big5font.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_GB2312 {
+          display       "Support gb2312 encoded fonts (chinese)"
+          default_value 0
+          flavor bool
+          compile fonts/chinese/gb2312font.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_JISX0213 {
+          display       "Support jisx0213 encoded fonts (japanese)"
+          default_value 0
+          flavor bool
+          compile fonts/japanese/jisx0213-12x12.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_KSC5601 {
+          display       "Support ksc5601 encoded fonts (korean)"
+          default_value 0
+          flavor bool
+          compile fonts/korean/ksjo_tbl.c fonts/korean/jo16x16.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_PCF_FONTS {
+          display       "Support pcf fonts"
+          requires       CYGINT_ISO_STDIO_FILETYPES 
+          default_value 0
+          flavor bool
+          compile engine/font_pcf.c
+       }
+       
+       cdl_option CYGDAT_MICROWINDOWS_PCF_FONT_PATH {
+          display       "Path to pcf fonts"
+          flavor data
+          default_value {"/fonts/pcf"}
+          define_format "\\\"%s\\\""
+          active_if CYGSEM_MICROWINDOWS_PCF_FONTS
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_FNT_FONTS {
+          display       "Support fnt fonts"
+          requires       CYGINT_ISO_STDIO_FILETYPES 
+          default_value 0
+          flavor bool
+          compile engine/font_fnt.c
+       }
+
+       cdl_option CYGDAT_MICROWINDOWS_FNT_FONT_PATH {
+          display       "Path to fnt fonts"
+          flavor data
+          default_value {"/fonts/fnt"}
+          define_format "\\\"%s\\\""
+          active_if CYGSEM_MICROWINDOWS_FNT_FONTS
+       }
+
+   }
+   
+   cdl_component CYGFUN_MICROWINDOWS_IMAGES {
+      display "Image support"
+      flavor  bool 
+      default_value 0
+      compile engine/devimage.c engine/devimage_stretch.c
+      description   "
+	    Enable this to support image loading in microwindows."
+            
+       cdl_option CYGSEM_MICROWINDOWS_USE_STDIO {
+          display       "Use stdio"
+          default_value 0
+          flavor bool
+          requires       CYGINT_ISO_STDIO_FILETYPES 
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_JPEG {
+          display       "Support JPEG"
+          default_value 0
+          flavor bool
+          compile engine/image_jpeg.c
+          requires CYGPKG_GFX_JPEG
+          requires CYGFUN_JPEG_WITH_STDIO
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_PNG {
+          display       "Support PNG"
+          default_value 0
+          flavor bool
+          compile engine/image_png.c
+          requires CYGPKG_GFX_PNG
+          requires CYGFUN_PNG_WITH_STDIO
+          
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_BMP {
+          display       "Support BMP"
+          default_value 0
+          flavor bool
+          compile engine/image_bmp.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_XPM {
+          display       "Support XPM"
+          requires       CYGINT_ISO_STDIO_FILETYPES 
+          default_value 0
+          flavor bool
+          compile engine/image_xpm.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_PNM {
+          display       "Support PNM"
+          requires       CYGINT_ISO_STDIO_FILETYPES 
+          default_value 0
+          flavor bool
+          compile engine/image_pnm.c
+       }
+
+       cdl_option CYGSEM_MICROWINDOWS_TIFF {
+          display       "Support TIFF"
+          default_value 0
+          flavor bool
+       }
+
+   }
+   
+   cdl_component CYGPKG_MICROWINDOWS_DRIVERS {
+   	display "Drivers"
+      flavor  none
+      no_define
+      description   "
+	    Package specific build options including control over
+	    compiler flags used only in building this package,
+	    and details of which tests are built."
+
+	   # eCos VNC server drivers
+   	cdl_option CYGBLD_MICROWINDOWS_VNC_DRIVERS {
+	   	display   "Build MicroWindows VNC server drivers"
+   	   default_value 0
+      	description \
+            "This option builds the drivers for the VNC server.  The VNC server
+             then provides a virtual screen, keyboard and mouse for MicroWindows."
+
+	      compile                     \
+   	   	drivers/scr_vnc_ecos.c  \
+      	        drivers/kbd_vnc_ecos.c  \
+         	drivers/mou_vnc_ecos.c
+
+       	      requires CYGPKG_VNC_SERVER
+	      requires !CYGBLD_MICROWINDOWS_ARM_DRIVERS
+   	      requires CYGPKG_VNC_SERVER_BUILD_MOUSE_DRIVER
+      	      requires CYGPKG_VNC_SERVER_BUILD_KEYBOARD_DRIVER
+	   }
+
+	   # eCos synthetic target Qt vfb drivers
+   	cdl_option CYGBLD_MICROWINDOWS_QVFB_DRIVERS {
+	   	display   "Build MicroWindows QVFB server drivers"
+   	   default_value 0
+        	description \
+            "This option builds the drivers for the VNC server.  The VNC server
+             then provides a virtual screen, keyboard and mouse for MicroWindows."
+
+	      compile                     \
+   	   	drivers/scr_ecos_qvfb.c 
+                
+             }
+             
+   	cdl_option CYGBLD_MICROWINDOWS_NULL_INPUT_DRIVERS {
+	   	display   "Build MicroWindows null input drivers"
+     	        default_value 1
+        	description \
+            "This option builds the drivers for the VNC server.  The VNC server
+             then provides a virtual screen, keyboard and mouse for MicroWindows."
+
+	      compile                     \
+      	        drivers/kbd_null.c  \
+         	drivers/mou_null.c
+	   }
+
+   	cdl_option CYGBLD_MICROWINDOWS_UID_INPUT_DRIVERS {
+	   	display   "Build MicroWindows uid input drivers"
+     	        default_value 0
+        	description \
+            "This option builds the drivers for the VNC server.  The VNC server
+             then provides a virtual screen, keyboard and mouse for MicroWindows."
+
+	      compile                \
+      	        drivers/kbd_rtems.c  \
+         	drivers/mou_rtems.c  \
+         	drivers/mw_uid_ecos.cxx
+
+              requires CYGPKG_KERNEL
+	   }
+
+   	cdl_option CYGBLD_MICROWINDOWS_UID_INPUT_QVFB {
+	   	display   "Build MicroWindows qvfb uid input drivers"
+     	        default_value 0
+        	description \
+            "This option builds the drivers for the VNC server.  The VNC server
+             then provides a virtual screen, keyboard and mouse for MicroWindows."
+
+	      compile drivers/mw_uid_ecos_qvfb.c
+
+              requires CYGBLD_MICROWINDOWS_UID_INPUT_DRIVERS
+	   }
+
+
+	   # eCos ARM drivers
+   	cdl_option CYGBLD_MICROWINDOWS_ARM_DRIVERS {
+   		display   "Build MicroWindows ARM drivers"
+	      default_value 0
+
+   	   compile					\
+      		drivers/scr_ecos.c                  \
+         	drivers/kbd_ipaq.c			\
+	        drivers/mou_ipaq.c
+
+   	   # This should come from the HAL
+       	      requires { !CYGPKG_HAL_ARM_SA11X0_IPAQ || is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR565") }
+	      requires { !CYGPKG_HAL_ARM_ARM9_AAED2000 || is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR555") }
+   	}
+
+	cdl_component CYGPKG_MICROWINDOWS_PC {
+			display     "Build options for PC hardware"
+			flavor      none
+	   	active_if   (CYGPKG_HAL_I386_PCMB && !CYGBLD_MICROWINDOWS_VNC_DRIVERS)
+			compile     drivers/ps2kbdmou_ecos.c
+
+			cdl_option CYGIMP_MICROWINDOWS_PCSVGA32 {
+		   	display "Assume 32 bits per pixel, RGB == 0888"
+	   	 	description \
+				"This mode can be used when building for a standard PC,
+	         where bootstrap is handled via RedBoot. A custom version
+	         of RedBoot is required, configured to switch the graphics
+	         card to a suitable resolution before the processor enters
+	         protected mode. A VESA-compliant video BIOS is used for
+	         this. The graphics mode should be 32 bits per pixel true-color."
+
+		    	implements CYGINT_MICROWINDOWS_PC_DRIVER
+		    	default_value 1
+	   	 	compile drivers/scr_ecospcsvga.c
+	    		requires { is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR0888 ") }
+		    	requires { !is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR565 ") }
+		    	requires { !is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_PALETTE ") }
+			}
+
+			cdl_option CYGIMP_MICROWINDOWS_PCSVGA16 {
+		   	display "Assume 16 bits per pixel, RGB == 565"
+	   	 	description \
+				"This mode can be used when building for a standard PC,
+	         where bootstrap is handled via RedBoot. A custom version
+	         of RedBoot is required, configured to switch the graphics
+	         card to a suitable resolution before the processor enters
+	         protected mode. A VESA-compliant video BIOS is used for
+	         this. The graphics mode should be 16 bits per pixel true-color."
+
+		    	implements CYGINT_MICROWINDOWS_PC_DRIVER
+		    	default_value 0
+	   	 	compile drivers/scr_ecospcsvga.c
+	    		requires { !is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR0888 ") }
+		    	requires { is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR565 ") }
+		    	requires { !is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_PALETTE ") }
+			}
+
+			cdl_option CYGIMP_MICROWINDOWS_PCVGA {
+		   	display "Build for VGA hardware"
+	   		description \
+				"This driver manipulates VGA hardware directly, rather than
+	         going via the video BIOS. Only a limited resolution of
+	         640x480 with 4 bits per pixel is available. The driver
+	         does not implement all required microwindows functionality."
+
+		    	implements CYGINT_MICROWINDOWS_PC_DRIVER
+		    	default_value 0
+	   	 	compile drivers/scr_bios.c drivers/vgainit.c drivers/vgaplan4.c drivers/memplan4.c
+	    		requires { is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_PALETTE ") }
+		    	requires { !is_substr(CYGPKG_MICROWINDOWS_CFLAGS_ADD, " -DMWPIXEL_FORMAT=MWPF_TRUECOLOR0888 ") }
+			}
+
+			cdl_interface CYGINT_MICROWINDOWS_PC_DRIVER {
+		   	display "Number of active PC graphics drivers"
+		   	requires { CYGINT_MICROWINDOWS_PC_DRIVER == 1 }
+			}
+	   }
+   }
+
+   cdl_component CYGBLD_MICROWINDOWS_MW {
+   	display   "Build the Microwindows API"
+	default_value 0
+        requires CYGPKG_KERNEL
+
+     	# NANO X
+	compile					\
+		mwin/winclip.c \
+                mwin/windefw.c \
+                mwin/winevent.c \
+                mwin/winexpos.c \
+                mwin/winfont.c \
+                mwin/wingdi.c \
+                mwin/winmain.c \
+                mwin/winres.c \
+                mwin/winresbmp.c \
+                mwin/winrgn.c \
+                mwin/winsbar.c \
+                mwin/winuser.c      \
+                mwin/winlib/draw3d.c \
+                mwin/winlib/caret.c  \
+                mwin/winlib/mwuser.c
+
+          cdl_option CYGSEM_MICROWINDOWS_WINMAIN {
+             display       "Start WinMain() automatically"
+              compile ecos/invokewinmain.c      
+             default_value 0
+             flavor bool
+             description   "
+	    If enabled, WinMain() will be started instead of
+            cyg_user_start() or main(), depending on your configuration."
+       }
+
+
+   }
+   
+   cdl_component CYGBLD_MICROWINDOWS_NANOX {
+   	display   "Build the Nano X API"
+        default_value 0
+
+        requires CYGPKG_KERNEL
+#       	requires      CYGPKG_NET_STACK_INET
+
+     	# NANO X
+        compile					\
+	      nanox/srvmain.c				\
+   	      nanox/srvfunc.c				\
+              nanox/srvutil.c				\
+	      nanox/srvevent.c			\
+   	      nanox/srvclip.c				\
+              nanox/srvnet.c				\
+	      nanox/clientfb.c			\
+   	      nanox/client.c				\
+              nanox/error.c				\
+	      nanox/nxdraw.c				\
+   	      nanox/nxproto.c				\
+              nanox/nxutil.c
+
+		# eCos stuff
+	cdl_component CYGBLD_MICROWINDOWS_ECOS {
+      	   display   "Build MicroWindows eCos support"
+	   default_value 0
+
+      	# These files are unique to eCos
+	   compile ecos/ecos_init.c
+      	   compile -library=libextras.a ecos/nanox_thread.c
+
+	      cdl_option CYGBLD_MICROWINDOWS_ECOS_APP {
+      		display  "Build complete eCos+MicroWindows application"
+                default_value 0
+		make -priority 320 {
+      			<PREFIX>/bin/ecos_mw.elf : $(PREFIX)/lib/target.ld $(PREFIX)/lib/vectors.o $(PREFIX)/lib/libtarget.a $(PREFIX)/lib/libextras.a $(REPOSITORY)/$(PACKAGE)/src/ecos/ecos_app.c
+            	@sh -c "mkdir -p $(dir $@)"
+               $(CC) -c $(INCLUDE_PATH) $(CFLAGS) -o $(PREFIX)/lib/ecos_app.o $(REPOSITORY)/$(PACKAGE)/src/ecos/ecos_app.c
+               $(CC) $(LDFLAGS) -L$(PREFIX)/lib -Ttarget.ld -o $@ $(PREFIX)/lib/ecos_app.o
+		      }
+  	      }
+		}
+
+		# Nano WM
+		cdl_option CYGBLD_MICROWINDOWS_NANOWM {
+      	           display   "Build MicroWindows NANOWM"
+		   default_value 0
+
+      	        compile					\
+         	      demos/nanowm/nanowm.c			\
+		      demos/nanowm/events.c			\
+      		      demos/nanowm/wlist.c			\
+                      demos/nanowm/clients.c			\
+		      demos/nanowm/actions.c
+      	compile -library=libextras.a ecos/nanowm_thread.c
+		}
+
+		# keyboard
+		cdl_option CYGBLD_MICROWINDOWS_NXKBD {
+      	display   "Build MicroWindows NXKBD"
+		   default_value 0
+
+      	compile					\
+         	demos/nxkbd/nxkbd.c			\
+		demos/nxkbd/srvconn.c			\
+      		demos/nxkbd/keynorm.c			\
+                demos/nxkbd/keyctrl.c			\
+		demos/nxkbd/keyshft.c			\
+      		demos/nxkbd/keynum.c
+		}
+
+		# keyboard
+		cdl_component CYGBLD_MICROWINDOWS_NANOX_DEMOS {
+      	display   "Build MicroWindows NanoX demos"
+		   default_value 0
+
+      	cdl_option CYGBLD_MICROWINDOWS_NANOX_DEMOS_WORLD {
+         	display "Include 'world' demo"
+		default_value 0
+      		no_define
+                compile demos/nanox/world.c
+		      compile -library=libextras.a ecos/world_thread.c
+      	}
+
+	cdl_option CYGBLD_MICROWINDOWS_NANOX_DEMOS_NTETRIS {
+      	    display "Include 'nano-tetris' demo"
+            default_value 0
+		      no_define
+      		compile demos/nanox/ntetris.c
+            compile -library=libextras.a ecos/ntetris_thread.c
+		   }
+		}
+	}
+
+   cdl_component CYGPKG_MICROWINDOWS_OPTIONS {
+   	display "Build options"
+      flavor  none
+      no_define
+      description   "
+	    Package specific build options including control over
+	    compiler flags used only in building this package,
+	    and details of which tests are built."
+
+
+       cdl_option CYGPKG_MICROWINDOWS_CFLAGS_ADD {
+       	display "Additional compiler flags"
+         flavor  data
+         no_define
+         default_value { "-I$(PREFIX)/include/microwin -I$(PREFIX)/include/mwin -D__ECOS=1 -include ecosmwconfig.h" }
+#         default_value { "-I$(PREFIX)/include/microwin -D__ECOS=1 -DMSDOS=0 -DELKS=0 -D__rtems__=0 -D_MINIX=0 -DNOTYET=0 -DUNIX=1 -DHAVE_FILEIO -DHAVE_BMP_SUPPORT=1 -DHAVE_PNM_SUPPORT=1 -DHAVE_XPM_SUPPORT=1 -DxHAVE_JPEG_SUPPORT=1 -DHAVESELECT=1" }
+         description   "
+                This option modifies the set of compiler flags for
+                building the MicroWindows package.
+                These flags are used in addition to the set of global flags."
+       }
+
+       cdl_option CYGPKG_MICROWINDOWS_CFLAGS_REMOVE {
+       	display "Suppressed compiler flags"
+         flavor  data
+         no_define
+         default_value { "" }
+         description   "
+                This option modifies the set of compiler flags for
+                building the MicroWindows package.
+                These flags are removed from the set of global flags
+                if present."
+       }
+   }
+}

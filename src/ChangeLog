@@ -1,3 +1,7 @@
+7 November 2005 - neundorf@kde.org
+	* src/include/device.h: guarded some defines, so that they are not redefined
+	  if they are already defined (as it is the case in the eCos port) (Alex)
+
 17 October 2005 - neundorf@kde.org
 	* src/drivers/kbd_rtems.c and mou_rtems.c: fix a null pointer crash in
 	  MWKbd_GetModifierInfo() and prepare both files for usage under eCos (Alex)

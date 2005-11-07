@@ -13,10 +13,10 @@
 
 /* Changeable limits and options*/
 #define ALPHABLEND	1			/* =1 to include blending code*/
-#define DYNAMICREGIONS	1			/* =1 to use MWCLIPREGIONS*/
-#define HAVEFLOAT	1			/* =1 incl float, GdArcAngle*/
 #define POLYREGIONS	1			/* =1 includes polygon regions*/
 #define ANIMATEPALETTE	0			/* =1 animated palette test*/
+
+/* the fontmapper is obsolete, according to Greg */
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
@@ -29,16 +29,29 @@
 
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 
+#ifndef HAVEFLOAT
+#define HAVEFLOAT	1			/* =1 incl float, GdArcAngle*/
+#endif
+
+
+#ifndef DYNAMICREGIONS
+#define DYNAMICREGIONS	1			/* =1 to use MWCLIPREGIONS*/
+#endif
+
+#ifndef MW_FEATURE_IMAGES
 #if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
 #define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage* / GdDrawImage* */
 #else
 #define MW_FEATURE_IMAGES 0		/* platform doesn't support images*/
 #endif
+#endif
 
+#ifndef MW_FEATURE_TIMERS
 #if UNIX || DOS_DJGPP || HAVE_TIMER_SUPPORT
 #define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
 #else
 #define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
+#endif
 #endif
 
 /* determine compiler capability for handling EPRINTF/DPRINTF macros*/
@@ -821,13 +834,16 @@ PMWFONT	GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 		unsigned length, const char *format, MWCOORD height);
 PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD fontsize);
 
-/* devclip1.c*/
-void 	GdSetClipRects(PSD psd,int count,MWCLIPRECT *table);
+
+/* both devclip1.c and devclip2.c */
 MWBOOL	GdClipPoint(PSD psd,MWCOORD x,MWCOORD y);
 int	GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2);
 extern MWCOORD clipminx, clipminy, clipmaxx, clipmaxy;
 
-/* devclip2.c*/
+/* devclip1.c only*/
+void 	GdSetClipRects(PSD psd,int count,MWCLIPRECT *table);
+
+/* devclip2.c only*/
 void	GdSetClipRegion(PSD psd, MWCLIPREGION *reg);
 
 /* devrgn.c - multi-rectangle region entry points*/
@@ -1022,7 +1038,7 @@ int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
 #endif
 
 #if !_MINIX
-#ifndef __rtems__
+#if !defined __rtems__ && !defined __ECOS
 #define HAVESELECT	1	/* has select system call*/
 #endif
 #endif

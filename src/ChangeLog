@@ -1,3 +1,8 @@
+9 November 2005 - neundorf@kde.org
+	*src/demos/mwin/mdemo.stretch.c, mdemo.c: change #ifndef ELKS to #if !ELKS
+	*src/mwin/winmain.c: enable the RTEMS code for eCos, change MwSelect() to MwSelect(BOOL)
+	*src/include/mwtypes.h: include ecosmwconfig.h under eCos
+
 7 November 2005 - neundorf@kde.org
 	* src/include/device.h: guarded some defines, so that they are not redefined
 	  if they are already defined (as it is the case in the eCos port) (Alex)

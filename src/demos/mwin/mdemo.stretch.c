@@ -16,7 +16,7 @@ unsigned _stklen = 4096;
 
 #define CLIPDEMO	0	/* set for region clipping demo*/
 
-#ifndef ELKS
+#if !ELKS
 #define TIMERDEMO	1	/* set for WM_TIMER demo*/
 #define GRAPH3D		0	/* 3d graphics demo*/
 #define IMAGE		0	/* 256 color image demo*/

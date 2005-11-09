@@ -27,8 +27,12 @@
 #include <linuxmt/time.h>
 #endif
 
-#if RTEMS
+#if RTEMS || __ECOS
 #include <rtems/mw_uid.h>
+#endif
+
+#if __ECOS
+#include <cyg/kernel/kapi.h>
 #endif
 
 #include "windows.h"
@@ -54,7 +58,11 @@ int		mouse_fd;		/* the mouse file descriptor */
 int		escape_quits = 1;	/* terminate when pressing ESC */
 
 int
-main(int ac,char **av)
+#if __ECOS
+invoke_WinMain(int ac,char **av)
+#else
+   main(int ac,char **av)
+#endif
 {
     HINSTANCE hInstance;
 
@@ -386,14 +394,14 @@ MwSelect(BOOL mayWait)
 }
 #endif
 
-#if RTEMS
+#if RTEMS || __ECOS
 extern MWBOOL MwCheckMouseEvent();
 extern MWBOOL MwCheckKeyboardEvent();
 extern struct MW_UID_MESSAGE m_kbd;
 extern struct MW_UID_MESSAGE m_mou;
 extern HWND  dragwp;     /* window user is dragging*/
 
-void MwSelect (void)
+void MwSelect (BOOL mayWait)
 {
         struct MW_UID_MESSAGE m;
 	int rc;
@@ -498,8 +506,11 @@ MwInitialize(void)
   	}
 	userregfd_head = -1;
 #endif
+
+#ifndef __ECOS
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)MwTerminate);
+#endif	
 
 	startTicks = GetTickCount();
 	
@@ -639,6 +650,10 @@ GetTickCount(VOID)
 	
 	return (DWORD)times(&t) * 16;
 #else
+#if __ECOS
+  /* CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR gives the length of one tick in nanoseconds */
+   return (cyg_current_time()*(CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR))/(1000*1000);
+#else
 #if UNIX
 	struct timeval t;
 
@@ -646,6 +661,7 @@ GetTickCount(VOID)
 	return ((t.tv_sec * 1000) + (t.tv_usec / 25000) * 25) - startTicks;
 #else
 	return 0L;
+#endif
 #endif
 #endif
 #endif

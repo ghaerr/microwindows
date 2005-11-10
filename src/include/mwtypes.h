@@ -8,6 +8,12 @@
  */
 #define MWPACKED	__attribute__ ((aligned(1), packed))
 
+/*include the eCos configuration "translation" header */
+#if __ECOS
+#include <ecosmwconfig.h>
+#endif
+
+
 /* builtin font std names*/
 #define MWFONT_SYSTEM_VAR	"System"	/* winFreeSansSerif 11x13 (ansi)*/
 #define MWFONT_SYSTEM_FIXED	"SystemFixed"	/* X6x13 (should be ansi)*/

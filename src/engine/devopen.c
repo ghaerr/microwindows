@@ -500,7 +500,7 @@ putdw(unsigned long dw, FILE *ofp)
 int
 GdCaptureScreen(char *path)
 {
-#if defined(HAVE_FILEIO)
+#if defined(HAVE_FILEIO) && ! __ECOS
 	int	ifd, i, j;
 	FILE *	ofp;
 	int	cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;

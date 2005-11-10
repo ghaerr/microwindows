@@ -103,7 +103,7 @@ MWKbd_GetModifierInfo (MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 /*
  * This reads one keystroke from the keyboard, and the current state of
  * the mode keys (ALT, SHIFT, CTRL).  Returns -1 on error, 0 if no data
- * is ready, and 1 if data was read.  This is a non-blocking call.
+ * is ready, and 1 on keypress, 2 on keyrelease.  This is a non-blocking call.
  */
 int
 MWKbd_Read (MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
@@ -114,9 +114,13 @@ MWKbd_Read (MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	        *buf = m_kbd.m.kbd.code;
 //	          *modifiers = m_kbd.m.kbd.modifiers;
 		*modifiers = 0;
-
 		/* consume event */
 		m_kbd.type = MV_UID_INVALID;
+#if __ECOS
+                if (m_kbd.m.kbd.mode==2)
+                   return 2;
+                else
+#endif
 		return 1;
 	}
 	return 0;

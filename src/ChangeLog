@@ -1,7 +1,13 @@
+10 November 2005 - neundorf@kde.org
+	*src/include/mwtypes.h: include ecosmwconfig.h under eCos
+	*src/drivers/kbd_rtems.c: use kbd.mode for supporting keyrelease events under eCos
+	*src/engine/dev_open.c: disable GdCaptureScreen() under eCos
+	*src/ecos/cdl/: update microwindows.cdl
+	*src/ecos/: add eCos specific files (support for qvfb, mw uid and WinMain)
+
 9 November 2005 - neundorf@kde.org
 	*src/demos/mwin/mdemo.stretch.c, mdemo.c: change #ifndef ELKS to #if !ELKS
 	*src/mwin/winmain.c: enable the RTEMS code for eCos, change MwSelect() to MwSelect(BOOL)
-	*src/include/mwtypes.h: include ecosmwconfig.h under eCos
 
 7 November 2005 - neundorf@kde.org
 	* src/include/device.h: guarded some defines, so that they are not redefined

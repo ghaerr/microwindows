@@ -1,3 +1,5 @@
+	* added support for 16bpp 5/5/5 and 5/6/5 images to GdDrawImage (Greg)
+	* added support for 16bpp and 32bpp .bmp files
 10 November 2005 - neundorf@kde.org
 	*src/include/mwtypes.h: include ecosmwconfig.h under eCos
 	*src/drivers/kbd_rtems.c: use kbd.mode for supporting keyrelease events under eCos

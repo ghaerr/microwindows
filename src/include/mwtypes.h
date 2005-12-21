@@ -665,6 +665,7 @@ typedef struct {
 #define MWIMAGE_BGR		00	/* compression flag: BGR byte order*/
 #define MWIMAGE_RGB		02	/* compression flag: RGB not BGR bytes*/
 #define MWIMAGE_ALPHA_CHANNEL   04	/* compression flag: 32-bit w/alpha */
+#define MWIMAGE_555		0x08	/* compression flag: 5/5/5 format*/
 
 typedef struct {
 	int		width;		/* image width in pixels*/

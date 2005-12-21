@@ -839,6 +839,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	case 24:
 		linesize = width*3;
 		break;
+	case 16:
+		linesize = width*2;
+		break;
 	case 4:
 		linesize = PIX2BYTES(width<<2);
 		break;
@@ -897,10 +900,10 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				break;
 			case MWPF_TRUECOLOR332:
 				pixel = COLOR2PIXEL332(cr);
-                                break;
-                        case MWPF_TRUECOLOR233:
-                           pixel = COLOR2PIXEL233(cr);
-                           break;
+				break;
+			case MWPF_TRUECOLOR233:
+				pixel = COLOR2PIXEL233(cr);
+				break;
 			}
 
 			if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y))
@@ -913,7 +916,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				data = (long *) (((char *) data) + extra);
 			}
 		}
-	} else if (bpp == 24 || bpp == 32) {
+	} else if (bpp > 8) {	/* 16, 24, or 32bpp*/
 		while (height > 0) {
 			/* get value in correct RGB or BGR byte order*/
 			if (bpp == 24) {
@@ -923,13 +926,24 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					: MWRGB(imagebits[2], imagebits[1],
 						imagebits[0]);
 				imagebits += 3;
-			} else {
+			} else if (bpp == 32) {
 				cr = rgborder
 					? MWARGB(imagebits[3],imagebits[0],
 						imagebits[1], imagebits[2])
 					: MWARGB(imagebits[3],imagebits[2],
 						imagebits[1], imagebits[0]);
 				imagebits += 4;
+			} else {	/* 16 bpp*/
+#if MW_CPU_BIG_ENDIAN
+				unsigned int pv = (imagebits[0] << 8) | imagebits[1];
+#else
+				unsigned int pv = (imagebits[1] << 8) | imagebits[0];
+#endif
+
+				cr = (pimage->compression & MWIMAGE_555)
+					? PIXEL555TOCOLORVAL(pv)
+					: PIXEL565TOCOLORVAL(pv);
+				imagebits += 2;
 			}
 
 			/* handle transparent color */

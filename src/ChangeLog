@@ -1,3 +1,6 @@
+21 April 2006
+	* obtained permission to convert stretchblit code from LGPL to MPL
+20 December 2005 - greg@censoft.com
 	* added support for 16bpp 5/5/5 and 5/6/5 images to GdDrawImage (Greg)
 	* added support for 16bpp and 32bpp .bmp files
 10 November 2005 - neundorf@kde.org

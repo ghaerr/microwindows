@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003, 2005, 2006 Greg Haerr <greg@censoft.com>
  *
  * 4bpp Packed Linear Video Driver for Microwindows
  * 	This driver is written for the Vr41xx Palm PC machines
@@ -15,7 +15,9 @@
 #include <assert.h>
 #include <string.h>
 #include "device.h"
+
 #include "fb.h"
+DEFINE_applyOpR
 
 #if INVERT4BPP
 #define INVERT(c)	((c) = (~c & 0x0f))
@@ -56,11 +58,14 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += (x>>1) + y * psd->linelen;
-	if(gr_mode == MWMODE_XOR)
-		*addr ^= c << ((1-(x&1))<<2);
-	else {
-		INVERT(c);
+	INVERT(c);
+	if(gr_mode == MWMODE_COPY) {
 		*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
+	} else {
+		*addr = (*addr & notmask[x&1]) | 
+                    ( (applyOpR(gr_mode, c, *addr >> ((1-(x&1))<<2))
+                       & 0x0f) << ((1-(x&1))<<2)
+                    );
 	}
 	DRAWOFF;
 }
@@ -97,16 +102,19 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += (x1>>1) + y * psd->linelen;
-	if(gr_mode == MWMODE_XOR) {
+	INVERT(c);
+	if(gr_mode == MWMODE_COPY) {
 		while(x1 <= x2) {
-			*addr ^= c << ((1-(x1&1))<<2);
+			*addr = (*addr & notmask[x1&1]) | (c << ((1-(x1&1))<<2));
 			if((++x1 & 1) == 0)
 				++addr;
 		}
 	} else {
-		INVERT(c);
 		while(x1 <= x2) {
-			*addr = (*addr & notmask[x1&1]) | (c << ((1-(x1&1))<<2));
+			*addr = (*addr & notmask[x1&1]) | 
+			    ( (applyOpR(gr_mode, c, *addr >> ((1-(x1&1))<<2))
+			       & 0x0f) << ((1-(x1&1))<<2)
+			    );
 			if((++x1 & 1) == 0)
 				++addr;
 		}
@@ -130,22 +138,25 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 	DRAWON;
 	addr += (x>>1) + y1 * linelen;
-	if(gr_mode == MWMODE_XOR) {
+	INVERT(c);
+	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
-			*addr ^= c << ((1-(x&1))<<2);
+			*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
 			addr += linelen;
 		}
 	} else {
-		INVERT(c);
 		while(y1++ <= y2) {
-			*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
+			*addr = (*addr & notmask[x&1]) | 
+			    ( (applyOpR(gr_mode, c, *addr >> ((1-(x&1))<<2))
+			       & 0x0f) << ((1-(x&1))<<2)
+			    );
 			addr += linelen;
 		}
 	}
 	DRAWOFF;
 }
 
-/* srccopy bitblt, opcode is currently ignored*/
+/* srccopy bitblt*/
 static void
 linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
@@ -170,6 +181,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
+	op = MWROP_TO_MODE(op);
 	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
 	src = ((ADDR8)srcpsd->addr) + (srcx>>1) + srcy * slinelen;
 	while(--h >= 0) {
@@ -177,16 +189,24 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		ADDR8	s = src;
 		MWCOORD	dx = dstx;
 		MWCOORD	sx = srcx;
-		for(i=0; i<w; ++i) {
-#if INVERT4BPP
+
+		for (i=0; i<w; ++i) {
 			unsigned char c = *s;
+
 			INVERT(c);
-			*d = (*d & notmask[dx&1]) |
-			   ((c >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
-#else
-			*d = (*d & notmask[dx&1]) |
-			   ((*s >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
-#endif
+			if (op == MWMODE_COPY) {
+				*d = (*d & notmask[dx&1]) |
+					((c >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
+			} else {
+				*d = (*d & notmask[dx&1]) |
+					( (applyOpR( op,
+						     c >> ((1-(sx&1))<<2),
+						     *d >> ((1-(dx&1))<<2)
+						   ) 
+					   & 0x0f) << ((1-(dx&1))<<2)
+					);
+			}
+
 			if((++dx & 1) == 0)
 				++d;
 			if((++sx & 1) == 0)

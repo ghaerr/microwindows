@@ -1,3 +1,5 @@
+22 June 2006
+	* added complete rop processing to fblin4.c 4bpp driver
 21 April 2006
 	* obtained permission to convert stretchblit code from LGPL to MPL
 20 December 2005 - greg@censoft.com

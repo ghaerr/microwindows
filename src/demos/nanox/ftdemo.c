@@ -14,7 +14,7 @@
 #define FONTNAME "dcr10"
 #define FONTNAME "dcbx10"
 #endif
-#elif HAVE_FREETYPE_SUPPORT
+#elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
 #define FONTNAME "lt1-r-omega-serif"
 #if 0
 #define FONTNAME "times"

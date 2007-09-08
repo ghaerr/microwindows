@@ -1,3 +1,6 @@
+8 Sep 2007
+	* fixed freetype2 font rotation, baseline, compile w/cache off bugs
+	* added support for freetype2 2.3.5 (forces cache off for now)
 22 June 2006
 	* added complete rop processing to fblin4.c 4bpp driver
 21 April 2006

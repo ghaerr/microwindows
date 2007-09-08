@@ -44,7 +44,7 @@
 #define FONT3 "dcr10"
 #define FONT4 "dcbx10"
 #define FONT5 "bchri"
-#elif HAVE_FREETYPE_SUPPORT
+#elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
 #define MAXFONTS 5
 #define FONT1 "lt1-r-omega-serif"
 #define FONT2 "arial"

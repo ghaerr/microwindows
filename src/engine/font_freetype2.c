@@ -24,6 +24,8 @@
  *         no way to test for this and correct it, because this version of
  *         the library mis-reports the version number as 2.1.1.
  * 2.1.3 - works.
+ * 2.3.5 - works, internally forces no cache option, needs porting of
+ *	   missing 'font' member in FTC_ImageTypeReq struct.
  */
 
 /*#define NDEBUG*/
@@ -48,38 +50,6 @@ extern MWPIXELVAL gr_foreground;
 extern MWPIXELVAL gr_background;
 extern MWBOOL gr_usebg;
 
-/*
- * Enable the Freetype 2 font cache.  Only applicable if
- * FreeType 2 itself is enabled.
- *
- * It is STRONGLY recommended that you turn this option on,
- * as to will give a HUGE speed boost.  If you are using many
- * Microwindows font objects, this can also save memory (since
- * there is a single cache with a fixed size shared across
- * the system, but the memory use without caching is
- * proportional to the number of MWFREETYPE2FONT objects).
- *
- * FIXME: This option should be in the config file.
- */
-#define HAVE_FREETYPE_2_CACHE 1
-
-
-/*
- * Enable the Freetype 2 character map cache.  Only applicable if
- * FreeType 2 itself is enabled, and HAVE_FREETYPE_2_CACHE is also
- * enabled.
- *
- * It is recommended that you turn this option on if you are
- * using FreeType 2.1.1 or later, as it should give a small
- * speed boost.  (With earlier releases, this should work but
- * might actually slow down rendering slightly - the cache was
- * much slower before FreeType 2.1.1.)
- *
- * FIXME: This option should be in the config file.
- */
-#define HAVE_FREETYPE_2_CMAP_CACHE 0
-
-
 /* **************************************************************************/
 /* FreeType 2.x                                                             */
 /* **************************************************************************/
@@ -88,13 +58,6 @@ extern MWBOOL gr_usebg;
 #include FT_FREETYPE_H
 #include FT_TRIGONOMETRY_H
 #include FT_GLYPH_H
-#if HAVE_FREETYPE_2_CACHE
-# include FT_CACHE_H
-# include FT_CACHE_SMALL_BITMAPS_H
-# if HAVE_FREETYPE_2_CMAP_CACHE
-#  include FT_CACHE_CHARMAP_H
-# endif
-#endif
 
 /* Checking FreeType version numbers */
 
@@ -135,6 +98,42 @@ extern MWBOOL gr_usebg;
 	(FREETYPE_VERSION_NUMBER_SIMPLE >= SIMPLIFY_VERSION_NUMBER(major,minor,patch))
 
 
+/*
+ * Enable the Freetype 2 font cache.  Only applicable if
+ * FreeType 2 itself is enabled.
+ *
+ * It is STRONGLY recommended that you turn this option on,
+ * as to will give a HUGE speed boost.  If you are using many
+ * Microwindows font objects, this can also save memory (since
+ * there is a single cache with a fixed size shared across
+ * the system, but the memory use without caching is
+ * proportional to the number of MWFREETYPE2FONT objects).
+ *
+ * FIXME: This option should be in the config file.
+ */
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,2,0)
+#define HAVE_FREETYPE_2_CACHE 0		/* FIXME for v2.3 no 'font' member*/
+#else	
+#define HAVE_FREETYPE_2_CACHE 1
+#endif
+
+
+/*
+ * Enable the Freetype 2 character map cache.  Only applicable if
+ * FreeType 2 itself is enabled, and HAVE_FREETYPE_2_CACHE is also
+ * enabled.
+ *
+ * It is recommended that you turn this option on if you are
+ * using FreeType 2.1.1 or later, as it should give a small
+ * speed boost.  (With earlier releases, this should work but
+ * might actually slow down rendering slightly - the cache was
+ * much slower before FreeType 2.1.1.)
+ *
+ * FIXME: This option should be in the config file.
+ */
+#define HAVE_FREETYPE_2_CMAP_CACHE 0
+
+
 #ifndef FREETYPE_FONT_DIR
 /**
  * The default Freetype font directory.
@@ -142,10 +141,18 @@ extern MWBOOL gr_usebg;
 #define FREETYPE_FONT_DIR "/usr/local/microwin/fonts"
 #endif
 
+#if HAVE_FREETYPE_2_CACHE
+# include FT_CACHE_H
+# include FT_CACHE_SMALL_BITMAPS_H
+# if HAVE_FREETYPE_2_CMAP_CACHE
+#  include FT_CACHE_CHARMAP_H
+# endif
+#endif
+
 /**
  * The Freetype 2 font directory.
  */
-char *freetype2_font_dir;
+static char *freetype2_font_dir;
 
 
 typedef struct freetype2_fontdata_ freetype2_fontdata;
@@ -261,32 +268,11 @@ static FTC_SBitCache freetype2_cache_sbit;
 
 #if HAVE_FREETYPE_2_CMAP_CACHE
 /**
- * The FreeType 2 cache for charater->glyph mappings.
+ * The FreeType 2 cache for character->glyph mappings.
  */
 static FTC_CMapCache freetype2_cache_cmap;
 #endif
 
-
-#if HAVE_FREETYPE_2_CMAP_CACHE
-/**
- * Look up a glyph index from a character code.
- * There are two implementations of this macro, which one is used
- * depends on the setting of HAVE_FREETYPE_2_CMAP_CACHE
- *
- * @param pf_   The Microwindows font
- * @param face_ The equivalent FreeType 2 font
- * @param ch_   The character to look up
- * @return      The glyph index.
- */
-#define LOOKUP_CHAR(pf_,face_,ch_) \
-	(FTC_CMapCache_Lookup(freetype2_cache_cmap, \
-	&((pf_)->cmapdesc), \
-	(ch_)))
-
-#else
-#define LOOKUP_CHAR(pf_,face_,ch_) \
-	(FT_Get_Char_Index((face_), (ch_)))
-#endif
 
 /**
  * The FreeType 2 sbit cache does not support bitmaps >256x256.
@@ -346,6 +332,26 @@ freetype2_face_requester(FTC_FaceID face_id,
 }
 #endif
 
+#if HAVE_FREETYPE_2_CMAP_CACHE
+/**
+ * Look up a glyph index from a character code.
+ * There are two implementations of this macro, which one is used
+ * depends on the setting of HAVE_FREETYPE_2_CMAP_CACHE
+ *
+ * @param pf_   The Microwindows font
+ * @param face_ The equivalent FreeType 2 font
+ * @param ch_   The character to look up
+ * @return      The glyph index.
+ */
+#define LOOKUP_CHAR(pf_,face_,ch_) \
+	(FTC_CMapCache_Lookup(freetype2_cache_cmap, \
+	&((pf_)->cmapdesc), \
+	(ch_)))
+
+#else
+#define LOOKUP_CHAR(pf_,face_,ch_) \
+	(FT_Get_Char_Index((face_), (ch_)))
+#endif
 
 /**
  * Initialize the FreeType 2 driver.  If successful, this is a one-time
@@ -640,7 +646,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 		/*DPRINTF("Nano-X-Freetype2: Loading font from file \"%s\"\n", filename); */
 	} else {
 		error = FT_New_Memory_Face(freetype2_library,
-		    buffer, length, 0, &pf->face);
+		    faceid->data.buffer.data, faceid->data.buffer.length, 0, &pf->face);
 		if (error != FT_Err_Ok) {
 			EPRINTF("Nano-X-Freetype2: Can't load font from memory - %lx\n",
 			    (unsigned long) error);
@@ -778,9 +784,7 @@ freetype2_duplicate(PMWFONT psrcfont, MWCOORD height)
 	}
 
 	GdSetFontAttr((PMWFONT) pnewf, pf->fontattr, 0);
-
-	if (pf->fontrotation)
-		GdSetFontRotation((PMWFONT) pnewf, pf->fontrotation);
+	GdSetFontRotation((PMWFONT) pnewf, pf->fontrotation);
 
 	return (PMWFONT) pnewf;
 }
@@ -841,16 +845,19 @@ freetype2_setfontrotation(PMWFONT pfont, int tenthdegrees)
 			tenthdegrees += 3600;
 		}
 	}
-
 	pf->fontrotation = tenthdegrees;
 
-	if (pf->fontrotation == 0) {
+	/* adjust as ft2 uses vertical as 0 degrees*/
+	tenthdegrees += 900;
+	tenthdegrees %= 3600;
+
+	//if (pf->fontrotation == 0) {
 		/* Identity transform */
-		pf->matrix.yy = (FT_Fixed) (1 << 16);
-		pf->matrix.xx = (FT_Fixed) (1 << 16);
-		pf->matrix.yx = (FT_Fixed) 0;
-		pf->matrix.xy = (FT_Fixed) 0;
-	} else {
+		//pf->matrix.yy = (FT_Fixed) (1 << 16);
+		//pf->matrix.xx = (FT_Fixed) (1 << 16);
+		//pf->matrix.yx = (FT_Fixed) 0;
+		//pf->matrix.xy = (FT_Fixed) 0;
+	//} else {
 		FT_Angle angle = (tenthdegrees << 16) / 10;
 		FT_Vector sincosvec;
 		FT_Vector_Unit(&sincosvec, angle);
@@ -858,7 +865,7 @@ freetype2_setfontrotation(PMWFONT pfont, int tenthdegrees)
 		pf->matrix.xx = sincosvec.y;
 		pf->matrix.yx = sincosvec.x;
 		pf->matrix.xy = -sincosvec.x;
-	}
+	//}
 }
 
 
@@ -1188,19 +1195,19 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		pos.y = 0;
 	}
 
-#if 1
 	if ((pf->fontrotation != 0)
+#if !HAVE_FREETYPE_2_CACHE
+	    || 1	/* FIXME display broken when cache disabled*/
+#endif
 #if HAVE_FREETYPE_2_CACHE
 	    || (!CAN_USE_FT2_CACHE(pf))	/* Cache does not support bitmaps >256x256 */
 #endif
 		) {
 		/* Use slow routine for rotated text */
-#endif
 		FT_BitmapGlyph bitmapglyph;
 		FT_Bitmap *bitmap;
 		FT_Render_Mode render_mode =
-			(pf->
-			 fontattr & MWTF_ANTIALIAS) ? ft_render_mode_normal :
+			(pf->fontattr & MWTF_ANTIALIAS) ? ft_render_mode_normal :
 			ft_render_mode_mono;
 
 		/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext() using SLOW routine\n"); */
@@ -1213,8 +1220,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 					       ft_kerning_default,
 					       &kerning_delta);
 
-				//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n",
-				//        (int)kerning_delta.x, (int)kerning_delta.x/64);
+				//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n", (int)kerning_delta.x, (int)kerning_delta.x/64);
 				pos.x += kerning_delta.x & (~63);
 			}
 			last_glyph_code = curchar;
@@ -1238,10 +1244,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			pos.x += (glyph->advance.x >> 10) & (~63);
 
-			if (pf->fontrotation) {
+			//FIXME if (pf->fontrotation) {
 				// rotate the glyph image now..
 				FT_Glyph_Transform(glyph, &pf->matrix, 0);
-			}
+			//}
 			// convert glyph image to bitmap
 			//
 			error = FT_Glyph_To_Bitmap(&glyph, render_mode, 0,	// no additional translation
@@ -1271,7 +1277,6 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 				FT_Done_Glyph(glyph);
 			}
 		}
-#if 1
 	} else {
 		/* No rotation - optimized loop */
 #if HAVE_FREETYPE_2_CACHE
@@ -1279,8 +1284,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 #else
 		FT_Bitmap *bitmap;
 #endif
-
-		ay += (pos.y >> 6);
+		ay -= (pos.y >> 6);
 
 		for (i = 0; i < cc; i++) {
 			curchar = LOOKUP_CHAR(pf, face, str[i]);
@@ -1344,8 +1348,6 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 		}
 	}
-#endif
-
 	GdFixCursor(psd);
 
 // FIXME
@@ -1446,10 +1448,10 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf,
 
 		pos.x += (glyph->advance.x >> 10) & (~63);
 
-		if (pf->fontrotation) {
+		//if (pf->fontrotation) {
 			// rotate the glyph image now..
 			FT_Glyph_Transform(glyph, &pf->matrix, 0);
-		}
+		//}
 
 		if (i == 0) {
 			FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_pixels, &bbox);

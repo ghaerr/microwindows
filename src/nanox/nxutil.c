@@ -176,8 +176,15 @@ GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_width,
 		inbuf += (bits_width + 7) / 8 - (width + 7) / 8;	/* FIXME */
 
 		/* pad to 16 bits */
-		if (xb & 1)
-			*p++ = 0;
+		if (xb & 1) {
+			unsigned char c = *(p-1);
+			if (bswap) {
+				*(p-1) = 0;
+				*p++ = c;
+			} else {
+				*p++ = 0;
+			}
+		}
 	}
 	return buf;
 }

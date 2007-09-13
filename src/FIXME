@@ -1,6 +1,7 @@
 ft2: no underline
 ft2: must use forced slow rotation code when cache off
 ft2.3: must force cache off after v2.1.3 as no 'font' member in FTC_ImageTypeReq struct
+change freetype2_create etc back to freetype_create
 mwdvetest demo segfaults when dialog moved or credits closed
 remove 2nd thislen parm in GrSendClientData
 italic wrap bug - lubI24.bdf 'r', 'M'

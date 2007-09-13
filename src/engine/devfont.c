@@ -213,7 +213,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 
 #if HAVE_FREETYPE_2_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
-		if (freetype2_init(psd)) {
+		if (freetype_init(psd)) {
 			/* FIXME auto antialias for height > 14 for kaffe*/
 			if (plogfont && plogfont->lfHeight > 14 &&
 				plogfont->lfQuality)
@@ -953,7 +953,6 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	else pfont->fontprocs->GetTextSize(pfont, text, cc, flags, pwidth, pheight, pbase);
 }
 
-#if HAVE_FREETYPE_2_SUPPORT
 /**
  * Create a new font, from a buffer.
  *
@@ -974,8 +973,7 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 {
 	PMWFONT pfont = NULL;
 
-	//assert(buffer);
-
+#if HAVE_FREETYPE_2_SUPPORT
 	/* EPRINTF("Nano-X: Font magic = '%c%c%c%c' @ GdCreateFontFromBuffer\n",
 	 * (char) buffer[0], (char) buffer[1], (char) buffer[2], (char) buffer[3]);
 	 */
@@ -986,12 +984,11 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 	 * extension - e.g. TTF, PFR, ...)
 	 */
 
-	if (freetype2_init(psd)) {
+	if (freetype_init(psd))
 		pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height);
-	}
 	if (!pfont)
 		EPRINTF("GdCreateFontFromBuffer: create failed.\n");
-
+#endif
 	return pfont;
 }
 
@@ -1006,15 +1003,12 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 PMWFONT
 GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD fontsize)
 {
-	//assert(psd);
-	//assert(psrcfont);
-
+#if HAVE_FREETYPE_2_SUPPORT
 	if (psrcfont->fontprocs->Duplicate)
 		return psrcfont->fontprocs->Duplicate(psrcfont, fontsize);
-
+#endif
 	return psrcfont;
 }
-#endif /*HAVE_FREETYPE_2_SUPPORT*/
 
 /**
  * UTF-8 to UTF-16 conversion.  Surrogates are handeled properly, e.g.

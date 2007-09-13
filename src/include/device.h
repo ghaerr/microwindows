@@ -56,7 +56,7 @@
 
 /* determine compiler capability for handling EPRINTF/DPRINTF macros*/
 #ifndef MW_FEATURE_GDERROR
-#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95))
+#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2)))
 #define MW_FEATURE_GDERROR	0		/* use fprintf instead of GdError*/
 #else
 #define MW_FEATURE_GDERROR	1		/* use GdError for errors*/

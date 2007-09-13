@@ -319,7 +319,7 @@ EnumFonts(
 			return 0;
 	}
 
-#if HAVE_FREETYPE_SUPPORT
+#if (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
 	if (freetype_init(psd)) {
 		int		n = 0;
 		char		*p;

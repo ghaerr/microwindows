@@ -42,9 +42,8 @@ PMWFREETYPEFONT freetype_createfont(const char *name, MWCOORD height, int attr);
 #if HAVE_FREETYPE_2_SUPPORT
 typedef struct MWFREETYPE2FONT_STRUCT MWFREETYPE2FONT;
 typedef MWFREETYPE2FONT *PMWFREETYPE2FONT;
-int freetype2_init(PSD psd);
-PMWFREETYPE2FONT freetype2_createfont(const char *name, MWCOORD height,
-				      int attr);
+int freetype_init(PSD psd);
+PMWFREETYPE2FONT freetype2_createfont(const char *name,MWCOORD height,int attr);
 PMWFREETYPE2FONT freetype2_createfontfrombuffer(const unsigned char *buffer,
 						unsigned length,
 						MWCOORD height);

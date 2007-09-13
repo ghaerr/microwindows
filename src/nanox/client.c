@@ -2992,18 +2992,36 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	GR_SIZE height, GR_BITMAP *imagebits)
 {
 	nxBitmapReq *req;
-	long 	     bitmapsize;
+	GR_SIZE	chunk_y    = height;
+	long	bitmapsize = (long)GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
 
-	bitmapsize = (long)GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	if (bitmapsize > MAXREQUESTSZ) {
+		chunk_y = (GR_SIZE)(((long)height * MAXREQUESTSZ) / bitmapsize);
+		/* needs to be one line less than max */
+		if (chunk_y)
+			chunk_y--;
+		bitmapsize = (long)GR_BITMAP_SIZE(width, chunk_y) * sizeof(GR_BITMAP);
+		}
+
 	LOCK(&nxGlobalLock);
-	req = AllocReqExtra(Bitmap, bitmapsize);
-	req->drawid = id;
-	req->gcid = gc;
-	req->x = x;
-	req->y = y;
-	req->width = width;
-	req->height = height;
-	memcpy(GetReqData(req), imagebits, bitmapsize);
+	/* Break request into MAXREQUESTSZ size packets */
+	while(height > 0) {
+		if(chunk_y > height) {
+			chunk_y = height;
+			bitmapsize = (long)GR_BITMAP_SIZE(width, chunk_y) * sizeof(GR_BITMAP);
+		}
+		req = AllocReqExtra(Bitmap, bitmapsize);
+		req->drawid = id;
+		req->gcid = gc;
+		req->x = x;
+		req->y = y;
+		req->width = width;
+		req->height = chunk_y;
+		memcpy(GetReqData(req), imagebits, bitmapsize);
+		imagebits += bitmapsize / sizeof(GR_BITMAP);
+		y += chunk_y;
+		height -= chunk_y;
+	}
 	UNLOCK(&nxGlobalLock);
 }
 

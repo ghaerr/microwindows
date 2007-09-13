@@ -282,6 +282,8 @@ drawchar(PMWFREETYPEFONT pf, PSD psd, TT_Glyph glyph, int x_offset,
 	width = xmax - xmin;
 	height = ymax - ymin;
 	size = width * height;
+	if (!size)
+		return;
 
 	/* now re-allocate the raster bitmap */
 	Raster.rows = height;

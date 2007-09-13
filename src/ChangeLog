@@ -1,9 +1,13 @@
-8 Sep 2007
+9 September 2007 - greg@censoft.com
+	* fix EPRINTF for gcc 3.x (Petr)
+	* fix ft1 return on zero height/width characters (Alexander)
+	* fix GrNewBitmapFromData pad when byte swapped (Martin)
+	* break GrBitmap requests into MAXREQUESTSZ size packets (Martin)
 	* fixed freetype2 font rotation, baseline, compile w/cache off bugs
 	* added support for freetype2 2.3.5 (forces cache off for now)
-22 June 2006
+22 June 2006 - greg@censoft.com
 	* added complete rop processing to fblin4.c 4bpp driver
-21 April 2006
+21 April 2006 - greg@censoft.com
 	* obtained permission to convert stretchblit code from LGPL to MPL
 20 December 2005 - greg@censoft.com
 	* added support for 16bpp 5/5/5 and 5/6/5 images to GdDrawImage (Greg)
@@ -35,6 +39,7 @@
 	* src/engine/selfont.c: removed wrong and unnecessary select_font() declaration  (Alex)
 	* added support for BGR233, backport from the eCos port (Alex)
 
+23 June 2005 - greg@censoft.com
 	* reduced mem size, const for text section, static for size (David)
 	* cleaned up David Bell's copyright notice with permission
 	* added GrQueueLength, GrGetTypedEvent, GrGetTypedEventPred for

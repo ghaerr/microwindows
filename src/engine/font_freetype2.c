@@ -239,7 +239,6 @@ static PMWFREETYPE2FONT
 freetype2_createfont_internal(freetype2_fontdata * faceid,
 			      char *filename, MWCOORD height);
 
-
 /**
  * The freetype library instance - a singleton.
  */
@@ -361,17 +360,15 @@ freetype2_face_requester(FTC_FaceID face_id,
  * @return 0 on error, nonzero on success.
  */
 int
-freetype2_init(PSD psd)
+freetype_init(PSD psd)
 {
 	FT_Error err;
 
-	if (freetype2_library != NULL) {
+	if (freetype2_library != NULL)
 		return 1;
-	}
 
-	if ((freetype2_font_dir = getenv("MWFONTS")) == NULL) {
+	if ((freetype2_font_dir = getenv("MWFONTS")) == NULL)
 		freetype2_font_dir = FREETYPE_FONT_DIR;
-	}
 
 	/* Init freetype library */
 	err = FT_Init_FreeType(&freetype2_library);
@@ -452,13 +449,9 @@ freetype2_createfont(const char *name, MWCOORD height, int attr)
 	int first_time = 0;
 #endif
 
-	/* Initialization */
-	if (freetype2_library == NULL) {
-		/* Init freetype library */
-		if (!freetype2_init(NULL)) {
-			return NULL;
-		}
-	}
+	/* Init freetype library */
+	if (!freetype_init(NULL))
+		return NULL;
 
 	fontname = malloc(6 + strlen(name) + strlen(freetype2_font_dir));
 	if (fontname == NULL)
@@ -549,13 +542,9 @@ freetype2_createfontfrombuffer(const unsigned char *buffer,
 
 	assert(buffer);
 
-	/* Initialization */
-	if (freetype2_library == NULL) {
-		/* Init freetype library */
-		if (!freetype2_init(NULL)) {
-			return NULL;
-		}
-	}
+	/* Init freetype library */
+	if (!freetype_init(NULL))
+		return NULL;
 
 	faceid = (freetype2_fontdata *) calloc(sizeof(freetype2_fontdata), 1);
 	if (!faceid)
@@ -1202,7 +1191,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 #if HAVE_FREETYPE_2_CACHE
 	    || (!CAN_USE_FT2_CACHE(pf))	/* Cache does not support bitmaps >256x256 */
 #endif
-		) {
+	   ) {
 		/* Use slow routine for rotated text */
 		FT_BitmapGlyph bitmapglyph;
 		FT_Bitmap *bitmap;
@@ -1244,7 +1233,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			pos.x += (glyph->advance.x >> 10) & (~63);
 
-			//FIXME if (pf->fontrotation) {
+			//if (pf->fontrotation) {
 				// rotate the glyph image now..
 				FT_Glyph_Transform(glyph, &pf->matrix, 0);
 			//}
@@ -1277,6 +1266,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 				FT_Done_Glyph(glyph);
 			}
 		}
+		//if (pf->fontattr & MWTF_UNDERLINE)
+			//GdLine(psd, startx, starty, pos.x, pos.y, FALSE);
 	} else {
 		/* No rotation - optimized loop */
 #if HAVE_FREETYPE_2_CACHE
@@ -1347,12 +1338,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			}
 
 		}
+		//if (pf->fontattr & MWTF_UNDERLINE)
+			//GdLine(psd, startx, starty, ax, ay, FALSE);
 	}
 	GdFixCursor(psd);
-
-// FIXME
-//        if (pf->fontattr & MWTF_UNDERLINE)
-//                GdLine(psd, startx, starty, x, y, FALSE);
 }
 
 /**

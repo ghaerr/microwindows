@@ -1,3 +1,6 @@
+21 November 2007
+	* rewrite GdArcAngle to fix bug w/small angles, no fp required
+	* add font file parameter to fontdemo
 9 September 2007 - greg@censoft.com
 	* fix EPRINTF for gcc 3.x (Petr)
 	* fix ft1 return on zero height/width characters (Alexander)

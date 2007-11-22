@@ -49,6 +49,11 @@
 /* Now, some platform-specific optimized macros.                         */
 /* ********************************************************************* */
 
+#if ARCH_LINUX_POWERPPC
+# if !MW_CPU_BIG_ENDIAN
+#  error POWERPC works in BIG ENDIAN only !!!
+# endif
+
 /* ********************************************************************* */
 /* Linux                                                                 */
 /*                                                                       */
@@ -56,7 +61,7 @@
 /* synthetic target of eCos, both linux and __ECOS are defined           */
 /* but we want to end up in the __ECOS branch and not in the linux branch */
 /* ********************************************************************* */
-#if defined(linux) && !defined(__ECOS) 
+#elif defined(linux) && !defined(__ECOS)
 
 # include <endian.h>
 # if __BYTE_ORDER == __BIG_ENDIAN
@@ -119,7 +124,6 @@
 /* Cygwin (on Win32)                                                     */
 /* ********************************************************************* */
 #elif defined(__CYGWIN__)
-
 /* Cygwin only works on Win32 on x86.  Therefore it is always little-endian */
 # if MW_CPU_BIG_ENDIAN
 #  error MW_CPU_BIG_ENDIAN and your OS disagree about your CPUs byte-order.  Did you accidentally set BIGENDIAN in the config file?

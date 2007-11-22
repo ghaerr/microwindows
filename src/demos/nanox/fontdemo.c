@@ -1,8 +1,10 @@
 /*
  * fontdemo - freetype font demonstration program for Nano-X
  */
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
@@ -17,6 +19,7 @@ GR_WINDOW_ID	w;
 GR_GC_ID	gc;
 GR_FONT_ID	font;
 GR_BOOL		aa = GR_TRUE;
+char		fontname[200] = FONTNAME;
 
 static void
 do_paint(GR_EVENT_EXPOSURE *ep)
@@ -27,13 +30,13 @@ do_paint(GR_EVENT_EXPOSURE *ep)
 		GR_FONT_INFO	info;
 		char		buf[64];
 
-		font = GrCreateFont(FONTNAME, i, NULL);
+		font = GrCreateFont(fontname, i, NULL);
 		if (aa)
 			GrSetFontAttr(font, GR_TFANTIALIAS|GR_TFKERNING, 0);
 		/*GrSetFontRotation(font, 150);*/
 		GrSetGCFont(gc, font);
 
-		sprintf(buf, "%d The Quick Brown Fox Jumped Over The Lazy Dog", i);
+		sprintf(buf, "%d The Quick Brown Fox Jumps Over The Lazy Dog", i);
 		GrText(w, gc, 0, y, buf, -1, GR_TFASCII|GR_TFTOP);
 
 		GrGetFontInfo(font, &info);
@@ -46,6 +49,9 @@ do_paint(GR_EVENT_EXPOSURE *ep)
 int
 main(int ac, char **av)
 {
+	if (ac > 1)
+		strcpy(fontname, av[1]);
+
 	if (GrOpen() < 0)
 		exit(1);
 

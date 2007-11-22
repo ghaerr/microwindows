@@ -1,3 +1,5 @@
+old GdArc doesn't draw 2nd point on circle, see grdemo.sh/arcdemo
+replace old GdArc routine w/new version based on GdArcAngle
 ft2: no underline
 ft2: must use forced slow rotation code when cache off
 ft2.3: must force cache off after v2.1.3 as no 'font' member in FTC_ImageTypeReq struct
@@ -64,8 +66,6 @@ add speed demo
 add UPDATE_TEMPMAP?
 check unrealize/realize ok in move, resize, reborder routines
 test fontmapping?
-
-remove right-left quick exit
 
 cache nanowm title draw font creation
 

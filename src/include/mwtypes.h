@@ -220,6 +220,7 @@
 #define MWPF_TRUECOLOR332  7	/* pixel is packed 8 bits 3/3/2 truecolor*/
 #define MWPF_TRUECOLOR8888 8	/* pixel is packed 32 bits 8/8/8/8 truecolor with alpha */
 #define MWPF_TRUECOLOR233  9	/* pixel is packed 8 bits 2/3/3 truecolor (BGR) */
+#define MWPF_HWPIXELVAL   10	/* pseudo, no convert, pixels are in hw format*/
 
 /*
  * MWPIXELVAL definition: changes based on target system
@@ -235,7 +236,7 @@
  *    2) Will use some other PF_* format, in which case the application
  *       is well aware of which pixel-format it uses and can avoid the
  *       device specific RGB2PIXEL and use RGB2PIXEL565 etc. instead,
- *       and specifiy the pixel fomar as MWPF_TRUECOLOR565 etc. when
+ *       and specifiy the pixel format as MWPF_TRUECOLOR565 etc. when
  *       calling the GrArea function(s).
  */
 #ifndef MWPIXEL_FORMAT

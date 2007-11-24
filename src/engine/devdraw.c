@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003, 2005,2007 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  *
@@ -1109,7 +1109,6 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 	MWCOORD height = gc->dsth;
 	MWCOORD srcx;
 	MWCOORD srcy;
-	int clipped;
 	int rx1, rx2, ry1, ry2, rw, rh;
 	int count;
 #if DYNAMICREGIONS
@@ -1121,20 +1120,21 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 	extern int clipcount;
 #endif
 
+	/* check for driver present*/
 	if (!psd->DrawArea)
 		return;
 
-	/* Set up area clipping, and just return if nothing is visible */
-	clipped = GdClipArea(psd, x, y, x + width - 1, y + height - 1);
-	if (clipped == CLIP_INVISIBLE) {
+	/* check clipping region*/
+	switch(GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	case CLIP_VISIBLE:
+		psd->DrawArea(psd, gc, op);	/* all visible, draw all*/
 		return;
-	} else if (clipped == CLIP_VISIBLE) {
-		psd->DrawArea(psd, gc, op);
+
+	case CLIP_INVISIBLE:
 		return;
 	}
-	/* Partially clipped. */
+	/* partially clipped, we'll traverse visible region and draw*/
 
-	/* Save srcX/Y so we can change the originals. */
 	srcx = gc->srcx;
 	srcy = gc->srcy;
 
@@ -1193,7 +1193,6 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 	gc->dsth = height;
 	gc->srcx = srcx;
 	gc->srcy = srcy;
-	return;
 }
 
 /**
@@ -1251,20 +1250,9 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	int pixsize;
 	unsigned char r, g, b;
 
-	minx = x;
-	maxx = x + width - 1;
-
-	/* Set up area clipping, and just return if nothing is visible */
-	if ( GdClipArea(psd, minx, y, maxx, y + height - 1) == CLIP_INVISIBLE )
-		return;
-
-/* psd->DrawArea driver call temp removed, hasn't been tested with new drawarea routines*/
-#if 0000
-	if (pixtype == MWPF_PIXELVAL) {
+	/* check for hw pixel format and low level driver drawarea call*/
+	if (pixtype == MWPF_HWPIXELVAL && (psd->flags & PSF_HAVEOP_COPY)) {
 		driver_gc_t hwgc;
-
-		if (!(psd->flags & PSF_HAVEOP_COPY))
-			goto fallback;
 
 		hwgc.pixels = PIXELS;
 		hwgc.src_linelen = width;
@@ -1277,14 +1265,22 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		hwgc.srcx = 0;
 		hwgc.srcy = 0;
 		GdDrawAreaInternal(psd, &hwgc, PSDOP_COPY);
+
 		GdFixCursor(psd);
 		return;
-	      fallback:
 	}
-	GdFixCursor(psd);
-	return;
- fallback:
-#endif /* if 0000 temp removed*/
+
+	/* no fast low level routine, draw point-by-point...*/
+	minx = x;
+	maxx = x + width - 1;
+
+	/* Set up area clipping, and just return if nothing is visible */
+	if (GdClipArea(psd, minx, y, maxx, y + height - 1) == CLIP_INVISIBLE )
+		return;
+
+	/* convert MWPF_HWPIXELVAL to real pixel type*/
+	if (pixtype == MWPF_HWPIXELVAL)
+		pixtype = psd->pixtype;
 
 	/* Calculate size of packed pixels*/
 	switch(pixtype) {
@@ -1369,6 +1365,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 			PIXELS += sizeof(MWCOLORVAL);
 			break;
 		case MWPF_PIXELVAL:
+		case MWPF_HWPIXELVAL:
 			if(gr_foreground != *(MWPIXELVAL *)PIXELS)
 				goto breakwhile;
 			PIXELS += sizeof(MWPIXELVAL);

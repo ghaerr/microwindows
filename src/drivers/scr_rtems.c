@@ -121,8 +121,6 @@ fb_open(PSD psd)
 #else
 	psd->flags = PSF_SCREEN;
 #endif
-	if (psd->bpp == 16)
-		psd->flags |= PSF_HAVEOP_COPY;
 
 	/* set pixel format*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {

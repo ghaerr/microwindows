@@ -3405,6 +3405,7 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * MWPF_TRUECOLOR555	unsigned short
  * MWPF_TRUECOLOR332	unsigned char
  * MWPF_TRUECOLOR233	unsigned char
+ * MWPF_HWPIXELVAL	one of the above values (run-time dependent)
  */
 /**
  * Draws the specified pixel array of the specified size and format onto the
@@ -3431,9 +3432,24 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	long       size;
 	long       chunk_y;
 	int        pixsize;
+	int	   type;
+	static int hwpixtype = 0;
+
+	/* find pixel type for hw format pixel if required*/
+	if (pixtype == MWPF_HWPIXELVAL) {
+		/* kluge handle getting hw pixel size once*/
+		if (hwpixtype == 0) {
+			GR_SCREEN_INFO si;
+
+			GrGetScreenInfo(&si);
+			hwpixtype = si.pixtype;
+		}
+		type = hwpixtype;
+	} else
+		type = pixtype;
 
 	/* Calculate size of packed pixels*/
-	switch(pixtype) {
+	switch(type) {
 	case MWPF_RGB:
 		pixsize = sizeof(MWCOLORVAL);
 		break;

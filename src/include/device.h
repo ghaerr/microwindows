@@ -1,7 +1,7 @@
 #ifndef _DEVICE_H
 #define _DEVICE_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2007 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Engine-level Screen, Mouse and Keyboard device driver API's and types
@@ -83,7 +83,7 @@
 #endif /* MW_FEATURE_GDERROR*/
 
 /* Which low-level psd->DrawArea routines to include. */
-#define MW_FEATURE_PSDOP_COPY                   0
+#define MW_FEATURE_PSDOP_COPY                   1
 #define MW_FEATURE_PSDOP_ALPHAMAP               0
 #define MW_FEATURE_PSDOP_ALPHACOL               0
 #define MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST 0
@@ -168,7 +168,7 @@ typedef struct {
 
 
 /* This structure is used to pass parameters into the low
- * level device driver functions.
+ * level device driver drawarea function.
  */
 typedef struct {
 	MWCOORD dstx, dsty, dstw, dsth, dst_linelen;
@@ -181,22 +181,22 @@ typedef struct {
 /* Operations for the Blitter/Area functions */
 
 #if MW_FEATURE_PSDOP_COPY
-
 /*
- * FIXME Not Documented - see drivers/fblin16.c
+ * Copy an image to screen.
+ * Params:
+ * dstx, dsty  - Destination for top left of image
+ * dstw, dsth  - Image size
+ * srcx, srcy  - Start co-ordinates in source image
+ * src_linelen - Source image stride, in pixels
+ * pixels      - Image to copy from in hw display format.
+ * misc        - Ignored.
+ * gr_usebg    - Checked for PSD_COPY only.
+ * bg_color    - Background color to ignore if PSDOP_COPYTRANS.
+ * fg_color    - Ignored.
  */
-#define PSDOP_COPY	0
-
-/*
- * FIXME Not Documented - see drivers/fblin16.c
- */
-#define PSDOP_COPYALL	1
-
-/*
- * FIXME Not Documented - see drivers/fblin16.c
- */
-#define PSDOP_COPYTRANS 2
-
+#define PSDOP_COPY	0	/* if gr_usebg COPYALL else COPYTRANS*/
+#define PSDOP_COPYALL	1	/* copy image bits to screen*/
+#define PSDOP_COPYTRANS 2	/* copy non-background bits to screen*/
 #endif /* MW_FEATURE_PSDOP_COPY */
 
 #if MW_FEATURE_PSDOP_ALPHAMAP
@@ -228,8 +228,8 @@ typedef struct {
  * misc        - Alpha map.  Format: ADDR8, entries
  *               are alpha values in range 0-255.
  * fg_color    - The color to draw in, in the display format.
- * gr_usebg    - Ignored.  FIXME If set, should blend to bg_color.
  * bg_color    - Ignored.  FIXME Should be used if gr_usebg is set.
+ * gr_usebg    - Ignored.  FIXME If set, should blend to bg_color.
  * pixels      - Ignored.
  */
 #define PSDOP_ALPHACOL	4

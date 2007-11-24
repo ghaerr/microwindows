@@ -1,3 +1,10 @@
+fix left/right portrait w/freetype
+add drawarea_copy* functions from fblin16 to fblin24/fblin32 driver
+combine GdArea, GdBlit, GdAreaInternal for speed; build conversion library
+	for when fast driver blit can't be used.  Pass usebg, alpha blend
+	etc directly to low level driver, don't use gr_xxx globals
+	GrArea needs to allow src offsets
+	GrReadArea needs to allow hw pixel format return
 old GdArc doesn't draw 2nd point on circle, see grdemo.sh/arcdemo
 replace old GdArc routine w/new version based on GdArcAngle
 ft2: no underline

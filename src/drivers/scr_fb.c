@@ -165,8 +165,6 @@ fb_open(PSD psd)
 #endif /* !EMBEDDEDPLANET*/
 
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
-	if (psd->bpp == 16)
-		psd->flags |= PSF_HAVEOP_COPY;
 
 	/* set pixel format*/
 #ifndef TPHELIO /* temp kluge: VTech Helio kernel needs changing*/

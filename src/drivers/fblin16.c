@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2007 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 16bpp Linear Video Driver for Microwindows
@@ -40,6 +40,9 @@ linear16_init(PSD psd)
 		psd->size = psd->yres * psd->linelen;
 		/* convert linelen from byte to pixel len for bpp 16, 24, 32*/
 		psd->linelen /= 2;
+#if MW_FEATURE_PSDOP_COPY
+		psd->flags |= PSF_HAVEOP_COPY;
+#endif
 	}
 	return 1;
 }
@@ -1226,38 +1229,34 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 static void
 linear16_drawarea_copyall(PSD psd, driver_gc_t * gc)
 {
-	ADDR16 src16, dst;
-	int linesize, x, y;
-	unsigned short pcol;
-
-	linesize = 2 * gc->dstw;
-	src16 = ((ADDR16) gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
-	dst = ((ADDR16) psd->addr) + gc->dstx + psd->linelen * gc->dsty;
+	ADDR16	src = ((ADDR16)gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
+	ADDR16	dst = ((ADDR16)psd->addr) + gc->dstx + psd->linelen * gc->dsty;
+	int	linesize = 2 * gc->dstw;
+	int	y;
 
 	DRAWON;
 	for (y = 1; y < gc->dsth; y++) {
-		memcpy(dst, src16, linesize);
-		src16 += gc->src_linelen;
+		memcpy(dst, src, linesize);
+		src += gc->src_linelen;
 		dst += psd->linelen;
 	}
-	memcpy(dst, src16, linesize);	/* To be seriously ANSI */
+	memcpy(dst, src, linesize);	/* To be seriously ANSI */
 	DRAWOFF;
 }
 
 static void
 linear16_drawarea_copytrans(PSD psd, driver_gc_t * gc)
 {
-	ADDR16	src16, dst, rsrc, rdst;
-	int linesize, x, y;
+	ADDR16	src = ((ADDR16)gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
+	ADDR16	dst = ((ADDR16)psd->addr) + gc->dstx + psd->linelen * gc->dsty;
+	ADDR16	rsrc, rdst;
+	int	x, y;
 	unsigned short pcol;
-
-	src16 = ((ADDR16) gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
-	dst = ((ADDR16) psd->addr) + gc->dstx + psd->linelen * gc->dsty;
 
 	DRAWON;
 	for (y = 0; y < gc->dsth; y++) {
 		rdst = dst;
-		rsrc = src16;
+		rsrc = src;
 		for (x = 0; x < gc->dstw; x++) {
 			pcol = *rsrc++;
 			if (pcol == gc->bg_color)
@@ -1266,7 +1265,7 @@ linear16_drawarea_copytrans(PSD psd, driver_gc_t * gc)
 				*rdst++ = pcol;
 		}
 		dst += psd->linelen;
-		src16 += gc->src_linelen;
+		src += gc->src_linelen;
 	}
 	DRAWOFF;
 }
@@ -1287,11 +1286,10 @@ linear16_drawarea(PSD psd, driver_gc_t * gc, int op)
 
 #if MW_FEATURE_PSDOP_COPY
 	case PSDOP_COPY:
-		if (gc->gr_usebg) {
+		if (gc->gr_usebg)
 			linear16_drawarea_copyall(psd, gc);
-		} else {
+		else
 			linear16_drawarea_copytrans(psd, gc);
-		}
 		break;
 
 	case PSDOP_COPYALL:

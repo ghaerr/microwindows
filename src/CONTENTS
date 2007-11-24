@@ -1,4 +1,4 @@
-Updated 16 Nov 2007
+Updated 23 Nov 2007
 
 CORE PACKAGES
 microwindows-src-0.91.tar.gz		base distribution
@@ -42,6 +42,7 @@ fontkit-1.1-src.tar.gz			Japanese EUCJP MGL fonts
 xorg-2.tar.gz				X11 PCF fonts
 
 OPTIONAL NANO-X LIBRARIES
+agg-2.5.tar.gz				AntiGrain Geometry
 sdl-1.2.4a.tar.gz			Nano-X SDL library
 flnx-0.16.tar.gz			Nano-X FLTK library
 Nanogtk-1.0.tar.gz			GTK+ port to Nano-X

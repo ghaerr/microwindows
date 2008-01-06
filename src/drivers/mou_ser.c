@@ -45,7 +45,8 @@
 #define	MOUSE_PORT	"/dev/ttys0"
 #else
 /* default mouse tty port: /dev/psaux or /dev/ttyS1 */
-#define MOUSE_PORT	"/dev/psaux"
+#define MOUSE_PORT	"/dev/mouse"
+/*#define MOUSE_PORT	"/dev/psaux"*/
 /*#define MOUSE_PORT	"/dev/ttyS1"*/
 #endif
 /* default mouse type: ms, pc, logi, or ps2 */

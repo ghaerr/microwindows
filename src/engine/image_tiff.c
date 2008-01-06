@@ -23,6 +23,10 @@ GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 	TIFF 	*tif;
 	int	w, h;
 	long	size;
+	static TIFFErrorHandler prev_handler = NULL;
+
+	if (!prev_handler)
+		prev_handler = TIFFSetErrorHandler(NULL);
 
 	tif = TIFFOpen(path, "r");
 	if (!tif)

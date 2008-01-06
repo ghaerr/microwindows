@@ -1,5 +1,6 @@
-23 November 2007
-	* port AGG (AntiGrain Geometry)! (uses NXLIB)
+30 November 2007
+	* fix ftell in FNTGZ font subdriver
+	* port AGG AntiGrain Geometry, NXLIB and direct hw fb version
 	* add MWPF_HWPIXELVAL run-time pixel type to allow no-translation GrArea
 	* add back in low level psd->DrawArea for fast GdArea
 	* rewrite GdArcAngle to fix bug w/small angles, no fp required

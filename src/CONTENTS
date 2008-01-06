@@ -1,4 +1,4 @@
-Updated 23 Nov 2007
+Updated 30 Nov 2007
 
 CORE PACKAGES
 microwindows-src-0.91.tar.gz		base distribution
@@ -53,6 +53,7 @@ OPTIONAL X11 LIBRARIES (use with nxlib)
 nxlib-0.45.tar.gz			NXLIB X11 -> Nano-X conversion library
 fltk-1.0.11.tar.gz			X11 C++ widget library
 fltk-1.1.3.tar.gz			X11 C++ widget library
+fltk-2.0.x.tar.gz			X11 C++ widget library
 qt-x11-2.3.1.tar.gz			X11 C++ Qt library w/qtconf.sh, qtfix.sh
 
 APPS

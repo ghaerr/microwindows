@@ -322,8 +322,8 @@ HWVGA                    = N
 # YOPYMOUSE	Yopy (/dev/yopy-ts)
 # HARRIERMOUSE	NEC Harrier (/dev/tpanel)
 ####################################################################
-GPMMOUSE                 = Y
-SERMOUSE                 = N
+GPMMOUSE                 = N
+SERMOUSE                 = Y
 SUNMOUSE                 = N
 NOMOUSE                  = N
 IPAQMOUSE                = N

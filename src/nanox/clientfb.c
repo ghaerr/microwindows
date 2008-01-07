@@ -10,11 +10,14 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <asm/page.h>		/* For definition of PAGE_SIZE */
 #include <linux/fb.h>
 #endif
 #include "nano-X.h"
 #include "lock.h"
+
+/* For definition of PAGE_SIZE */
+#define PAGE_SHIFT      12
+#define PAGE_SIZE       (1UL << PAGE_SHIFT)
 
 #define CG6_RAM    	0x70016000	/* for Sun systems*/
 

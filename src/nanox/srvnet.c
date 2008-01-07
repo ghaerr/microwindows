@@ -1104,6 +1104,16 @@ GrDrawImageToFitWrapper(void *r)
 }
 
 static void
+GrDrawImagePartToFitWrapper(void *r)
+{
+	nxDrawImagePartToFitReq *req = r;
+
+	GrDrawImagePartToFit(req->drawid, req->gcid, req->dx, req->dy, req->dwidth,
+		req->dheight,req->sx, req->sy, req->swidth,
+		req->sheight, req->imageid);
+}
+
+static void
 GrFreeImageWrapper(void *r)
 {
 	nxFreeImageReq *req = r;
@@ -1123,6 +1133,7 @@ GrGetImageInfoWrapper(void *r)
 }
 #else /* if ! MW_FEATURE_IMAGES */
 #define GrDrawImageToFitWrapper GrNotImplementedWrapper
+#define GrDrawImagePartToFitWrapper GrNotImplementedWrapper
 #define GrFreeImageWrapper GrNotImplementedWrapper
 #define GrGetImageInfoWrapper GrNotImplementedWrapper
 #endif
@@ -1729,6 +1740,7 @@ static const struct GrFunction GrFunctions[] = {
 	/* 122 */ {GrSetTransformWrapper, "GrSetTransform" },
 	/* 123 */ {GrCreateFontFromBufferWrapper, "GrCreateFontFromBuffer"},
 	/* 124 */ {GrCopyFontWrapper, "GrCopyFont"},
+	/* 125 */ {GrDrawImagePartToFitWrapper, "GrDrawImagePartToFit"},
 };
 
 void

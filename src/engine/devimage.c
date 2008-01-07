@@ -415,6 +415,82 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 }
 
 /**
+ * Draw part of the image.
+ *
+ * @param psd Drawing surface.
+ * @param x X destination co-ordinate.
+ * @param y Y destination co-ordinate.
+ * @param width If >=0, the image will be scaled to this width.
+ * If <0, the image will not be scaled horiziontally.
+ * @param height If >=0, the image will be scaled to this height.
+ * If <0, the image will not be scaled vertically.
+ * @param sx source X co-ordinate.
+ * @param sy source Y co-ordinate.
+ * @param swidth source width.
+ * @param sheight source height.
+ * @param id Image to draw.
+ */
+void
+GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+								MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight,
+	int id)
+{
+	PIMAGEITEM	pItem;
+	PMWIMAGEHDR	pimage;
+
+	pItem = findimage(id);
+	if (!pItem)
+		return;
+	pimage = pItem->pimage;
+
+	/*
+	 * Display image, possibly stretch/shrink to resize
+	 */
+	if (height < 0)
+		height = pimage->height;
+	if (width < 0)
+		width = pimage->width;
+
+	if (height != pimage->height || width != pimage->width) {
+		MWCLIPRECT	rcDst,rcSrc;
+		MWIMAGEHDR	image2;
+
+		/* create similar image, different width/height*/
+
+		image2.width = width;
+		image2.height = height;
+		image2.planes = pimage->planes;
+		image2.bpp = pimage->bpp;
+		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
+			&image2.bytesperpixel);
+		image2.compression = pimage->compression;
+		image2.palsize = pimage->palsize;
+		image2.palette = pimage->palette;	/* already allocated*/
+		image2.transcolor = pimage->transcolor;
+		if( (image2.imagebits = malloc(image2.pitch*height)) == NULL) {
+			EPRINTF("GdDrawImageToFit: no memory\n");
+			return;
+		}
+
+		rcDst.x = 0;
+		rcDst.y = 0;
+		rcDst.width = width;
+		rcDst.height = height;
+
+		rcSrc.x = sx;
+		rcSrc.y = sy;
+		rcSrc.width = swidth;
+		rcSrc.height = sheight;
+
+		/* Stretch full source to destination rectangle*/
+		GdStretchImage(pimage, &rcSrc, &image2, &rcDst);
+		GdDrawImage(psd, x, y, &image2);
+		free(image2.imagebits);
+	} else
+		GdDrawImage(psd, x, y, pimage);
+}
+
+/**
  * Destroy an image.
  *
  * @param id Image to free.

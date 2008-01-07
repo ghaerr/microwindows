@@ -414,8 +414,8 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 			GdStretchBlit(wp->psd, destx + wp->x, desty + wp->y,
 				destwidth, destheight, pm->psd, fromx, fromy,
 				pm->width, pm->height, MWROP_COPY);
-		} else GdBlit(wp->psd, destx + wp->x, desty + wp->y, destwidth,
-			destheight, pm->psd, fromx, fromy, MWROP_COPY);
+		} else GdBlit(wp->psd, destx + wp->x, desty + wp->y, (width < destwidth)?width:destwidth,
+			(height < destheight)?height:destheight, pm->psd, fromx, fromy, MWROP_COPY);
 	}
 
 	if(wp->bgpixmapflags & (GR_BACKGROUND_TRANS|GR_BACKGROUND_STRETCH))

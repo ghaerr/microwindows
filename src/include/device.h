@@ -920,6 +920,8 @@ void	GdFreeImage(int id);
 MWBOOL	GdGetImageInfo(int id, PMWIMAGEINFO pii);
 void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
 		MWCLIPRECT *dstrect);
+void	GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+		MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, int id);
 void	GdComputeImagePitch(int bpp, int width, int *pitch, int *bytesperpixel);
 
 /* Buffered input functions to replace stdio functions*/

@@ -2970,6 +2970,27 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
+/* draw part of the cached image*/
+void
+GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
+	GR_SIZE dwidth, GR_SIZE dheight, GR_COORD sx, GR_COORD sy,
+	GR_SIZE swidth, GR_SIZE sheight, GR_IMAGE_ID imageid)
+{
+	GR_DRAWABLE	*dp;
+	SERVER_LOCK();
+
+	switch (GsPrepareDrawing(id, gc, &dp)) {
+		case GR_DRAW_TYPE_WINDOW:
+ 	        case GR_DRAW_TYPE_PIXMAP:
+			GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy,
+				dwidth, dheight,sx,sy,swidth,sheight, imageid);
+			break;
+	   
+	}
+
+	SERVER_UNLOCK();
+}
+
 /* free cached image*/
 void
 GrFreeImage(GR_IMAGE_ID id)

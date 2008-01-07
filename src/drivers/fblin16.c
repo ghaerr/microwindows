@@ -52,6 +52,7 @@ static void
 linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	ADDR16	addr = psd->addr;
+	int linelen = psd->linelen;
 
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
@@ -60,9 +61,9 @@ linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	if(gr_mode == MWMODE_COPY)
-		addr[x + y * psd->linelen] = c;
+		addr[x + y * linelen] = c;
 	else
-		applyOp(gr_mode, c, &addr[x + y * psd->linelen], ADDR16);
+		applyOp(gr_mode, c, &addr[x + y * linelen], ADDR16);
 	DRAWOFF;
 }
 
@@ -99,10 +100,14 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		while(x1++ <= x2)
 			*addr++ = c;
 	} else {
+		applyOp2(x2-x1, gr_mode, c, addr, ADDR16);
+
+		/*
 		while (x1++ <= x2) {
 			applyOp(gr_mode, c, addr, ADDR16);
 			++addr;
 		}
+		*/
 	}
 	DRAWOFF;
 }
@@ -129,10 +134,13 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 			addr += linelen;
 		}
 	} else {
+		applyOp3(y2-y1, linelen, gr_mode, c, addr, ADDR16);
+		/*
 		while (y1++ <= y2) {
 			applyOp(gr_mode, c, addr, ADDR16);
 			addr += linelen;
 		}
+		*/
 	}
 	DRAWOFF;
 }
@@ -231,11 +239,14 @@ stdblit:
 		}
 	} else {
 		while (--h >= 0) {
+			applyOp4(w, MWROP_TO_MODE(op), src, dst, ADDR16);
+			/*
 			for (i=0; i<w; i++) {
 				applyOp(MWROP_TO_MODE(op), *src, dst, ADDR16);
 				++src;
 				++dst;
 			}
+			*/
 			dst += dlinelen - w;
 			src += slinelen - w;
 		}
@@ -278,7 +289,7 @@ linear16_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 
 	DRAWON;
 	row_pos = 0x10000;
-if (g_row_inc) row_inc = g_row_inc; else
+	if (g_row_inc) row_inc = g_row_inc; else
 	row_inc = (srch << 16) / dsth;
 
 	/* stretch blit using integer ratio between src/dst height/width*/
@@ -295,7 +306,7 @@ if (g_row_inc) row_inc = g_row_inc; else
 
 		/* copy a row of pixels*/
 		col_pos = 0x10000;
-if (g_col_inc) col_inc = g_col_inc; else
+		if (g_col_inc) col_inc = g_col_inc; else
 		col_inc = (srcw << 16) / dstw;
 		for (i=0; i<dstw; ++i) {
 			/* get source x pixel*/
@@ -461,7 +472,8 @@ linear16_stretchblitex(PSD dstpsd,
 		ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
-	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
+	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n
+	   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
 	   src_x_step_one, x_denominator, src_x_step_normal, x_error_step_normal,
 	   src_y_step_one, y_denominator, src_y_step_normal, y_error_step_normal);
 	 */
@@ -587,9 +599,8 @@ static void init_wordmask_lookup(unsigned short **byte2wordmask)
 		exit(17);
 	for ( t=0; t < 256; t++ ) {
 		maskp = b2wm + 8 * t;
-		x = t;
 		for ( u=1; u < 256; u <<= 1 )
-			if ( x & u )
+			if ( t & u )
 				*maskp++ = 0xffff;
 			else
 				*maskp++ = 0x0000;

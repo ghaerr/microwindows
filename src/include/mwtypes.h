@@ -89,8 +89,9 @@
 #define	MWMODE_SRC_ATOP	23
 #define	MWMODE_DST_ATOP	24
 #define	MWMODE_PORTERDUFF_XOR	25
+#define MWMODE_SRCTRANSCOPY 26
 
-#define	MWMODE_MAX		25
+#define	MWMODE_MAX		26
 
 
 /* Line modes */

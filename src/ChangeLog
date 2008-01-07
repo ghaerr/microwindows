@@ -1,3 +1,11 @@
+6 January 2008 - neuros patches from Vladimir
+	* add generic window message send GrSendMsg, GR_EVENT_MSG, GR_EVENT_MASK_MSG
+	* add alpha channel handling in GdDrawImage, alpha support in PNG loader
+	* fix bug in GdGetNextTimeout
+	* add GrDrawImagePartToFit - draw image from part of source image
+	* add MWMODE_SRCTRANSCOPY support in fblin16, applyOp{3,4} macros for speed
+	* remove #include <asm/page.h> in clientfb.c, PAGE_SIZE now internal
+	* fix GsWpDrawBackgroundPixmap to work with pixmap window backgrounds
 30 November 2007
 	* fix ftell in FNTGZ font subdriver
 	* port AGG AntiGrain Geometry, NXLIB and direct hw fb version

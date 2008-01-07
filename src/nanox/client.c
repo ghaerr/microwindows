@@ -3203,6 +3203,50 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->imageid = imageid;
 	UNLOCK(&nxGlobalLock);
 }
+
+/**
+ * Draws specified part of the image from the specified image buffer at the specified position
+ * on the specified drawable using the specified graphics context. The
+ * width and height values specify the size of the image to draw- if the
+ * actual image is a different size, it will be scaled to fit.
+ *
+ * @param id  the ID of the drawable to draw the image onto
+ * @param gc  the ID of the graphics context to use when drawing the image
+ * @param x  the X coordinate to draw the image at relative to the drawable
+ * @param y  the Y coordinate to draw the image at relative to the drawable
+ * @param width  the maximum image width
+ * @param height  the maximum image height
+ * @param sx  the X coordinate at the source pixmap to draw from
+ * @param sy  the Y coordinate at the source pixmap to draw from
+ * @param swidth  the maximum source image width
+ * @param sheight  the maximum source image height
+ * @param imageid  the ID of the image buffer containing the image to display
+ *
+ * @ingroup nanox_image
+ */ 
+void
+GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
+	GR_SIZE dwidth, GR_SIZE dheight, GR_COORD sx, GR_COORD sy,
+	GR_SIZE swidth, GR_SIZE sheight, GR_IMAGE_ID imageid)
+{
+	nxDrawImagePartToFitReq *req;
+	LOCK(&nxGlobalLock);
+	req = AllocReq(DrawImagePartToFit);
+	req->drawid = id;
+	req->gcid = gc;
+	req->dx = dx;
+	req->dy = dy;
+	req->dwidth = dwidth;
+	req->dheight = dheight;
+	req->sx = sx;
+	req->sy = sy;
+	req->swidth = swidth;
+	req->sheight = sheight;
+	req->imageid = imageid;
+	UNLOCK(&nxGlobalLock);
+
+}
+
 #endif /* MW_FEATURE_IMAGES */
 
 #if MW_FEATURE_IMAGES

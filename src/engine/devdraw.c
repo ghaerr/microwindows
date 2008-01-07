@@ -777,7 +777,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	MWPIXELVAL pixel;
 	int clip;
 	int extra, linesize;
-	int rgborder;
+	int rgborder, alpha;
 	MWCOLORVAL cr;
 	MWCOORD yoff;
 	unsigned long transcolor;
@@ -854,7 +854,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	/* RGB rather than BGR byte order?*/
 	rgborder = pimage->compression & MWIMAGE_RGB; 
 
-	/* no transparent color handling with 32bpp alpha channel*/
+	/* check transparent color handling with 32bpp alpha channel*/
 	if (pimage->compression & MWIMAGE_ALPHA_CHANNEL) {
 		long *data = (long *)imagebits;
 
@@ -880,34 +880,40 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					| ((cr & 0x000000FFUL) << 16);
 			}
 #endif
-			switch (psd->pixtype) {
-			case MWPF_PALETTE:
-			default:
-				pixel = GdFindColor(psd, cr);
-				break;
-			case MWPF_TRUECOLOR8888:
-				pixel = COLOR2PIXEL8888(cr);
-				break;
-			case MWPF_TRUECOLOR0888:
-			case MWPF_TRUECOLOR888:
-				pixel = COLOR2PIXEL888(cr);
-				break;
-			case MWPF_TRUECOLOR565:
-				pixel = COLOR2PIXEL565(cr);
-				break;
-			case MWPF_TRUECOLOR555:
-				pixel = COLOR2PIXEL555(cr);
-				break;
-			case MWPF_TRUECOLOR332:
-				pixel = COLOR2PIXEL332(cr);
-				break;
-			case MWPF_TRUECOLOR233:
-				pixel = COLOR2PIXEL233(cr);
-				break;
-			}
+			/* alpha channel handling 
+			 * FIXME - just visible or not, no alpha blending yet */
+			alpha = (cr >> 24);
+			if (alpha != 0) { /* skip if pixel is fully transparent*/
+				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y)) {
+					switch (psd->pixtype) {
+					case MWPF_PALETTE:
+					default:
+						pixel = GdFindColor(psd, cr);
+						break;
+					case MWPF_TRUECOLOR8888:
+						pixel = COLOR2PIXEL8888(cr);
+						break;
+					case MWPF_TRUECOLOR0888:
+					case MWPF_TRUECOLOR888:
+						pixel = COLOR2PIXEL888(cr);
+						break;
+					case MWPF_TRUECOLOR565:
+						pixel = COLOR2PIXEL565(cr);
+						break;
+					case MWPF_TRUECOLOR555:
+						pixel = COLOR2PIXEL555(cr);
+						break;
+					case MWPF_TRUECOLOR332:
+						pixel = COLOR2PIXEL332(cr);
+						break;
+					case MWPF_TRUECOLOR233:
+						pixel = COLOR2PIXEL233(cr);
+						break;
+					}
+					psd->DrawPixel(psd, x, y, pixel);
 
-			if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y))
-				psd->DrawPixel(psd, x, y, pixel);
+				}
+			}
 
 			if (x++ == maxx) {
 				x = minx;

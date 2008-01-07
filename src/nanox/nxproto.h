@@ -1366,4 +1366,22 @@ typedef struct {
 	INT16 height;
 } nxCopyFontReq;
 
-#define GrTotalNumCalls         125
+#define GrNumDrawImagePartToFit     125
+typedef struct {
+	BYTE8	reqType;
+	BYTE8	hilength;
+	UINT16	length;
+	IDTYPE	drawid;
+	IDTYPE	gcid;
+	INT16	dx;
+	INT16	dy;
+	INT16	dwidth;
+	INT16	dheight;
+	INT16   sx;
+	INT16   sy;
+	INT16   swidth;
+	INT16   sheight;
+	IDTYPE	imageid;
+} nxDrawImagePartToFitReq;
+
+#define GrTotalNumCalls         126

@@ -9,6 +9,9 @@
  * potentially store the image more efficiently by taking note of the image
  * type and depth and acting accordingly. Similarly, > 8 bits per channel,
  * gamma correction, etc. are not supported.
+ *
+ * 2007-Nov-15 - Vladimir Ananiev (vovan888 at gmail com)
+ *		alpha channel, gamma correction added - ripped from pngm2pnm.c
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +46,12 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	png_structp state;
 	png_infop pnginfo;
 	png_uint_32 width, height;
-	int bit_depth, colourtype, i;
+	int bit_depth, color_type, i;
+	double file_gamma;
+	int channels, alpha_present;
+	png_bytep trans;
+	int num_trans;
+	png_color_16p trans_values;
 
 	GdImageBufferSeekTo(src, 0UL);
 
@@ -71,17 +79,69 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	/* png_init_io(state, src); */
 
 	png_set_sig_bytes(state, 8);
-	png_read_info(state, pnginfo);
-	png_get_IHDR(state, pnginfo, &width, &height, &bit_depth, &colourtype,
-							NULL, NULL, NULL);
 
+	png_read_info(state, pnginfo);
+	png_get_IHDR(state, pnginfo, &width, &height, &bit_depth, &color_type,
+							NULL, NULL, NULL);
+	/* set-up the transformations */
+	/* transform paletted images into full-color rgb */
+	if (color_type == PNG_COLOR_TYPE_PALETTE)
+	    png_set_expand (state);
+	/* expand images to bit-depth 8 (only applicable for grayscale images) */
+	if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+	    png_set_expand (state);
+	/* transform transparency maps into full alpha-channel */
+	if (png_get_valid (state, pnginfo, PNG_INFO_tRNS))
+	    png_set_expand (state);
+
+	/* downgrade 16-bit images to 8 bit */
+	if (bit_depth == 16)
+	    png_set_strip_16 (state);
+	/* Handle transparency... */
+	if (png_get_valid(state, pnginfo, PNG_INFO_tRNS))
+	    png_set_tRNS_to_alpha(state);
+	/* transform grayscale images into full-color */
+	if (color_type == PNG_COLOR_TYPE_GRAY ||
+	    color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+	    png_set_gray_to_rgb (state);
+	/* only if file has a file gamma, we do a correction */
+	if (png_get_gAMA (state, pnginfo, &file_gamma))
+	    png_set_gamma (state, (double) 2.2, file_gamma);
+
+	/* all transformations have been registered; now update pnginfo data,
+	 * get rowbytes and channels, and allocate image memory */
+
+	png_read_update_info (state, pnginfo);
+
+	/* get the new color-type and bit-depth (after expansion/stripping) */
+	png_get_IHDR (state, pnginfo, &width, &height, &bit_depth, &color_type,
+	    NULL, NULL, NULL);
+
+	/* calculate new number of channels and store alpha-presence */
+	if (color_type == PNG_COLOR_TYPE_GRAY)
+	    channels = 1;
+	else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+	    channels = 2;
+	else if (color_type == PNG_COLOR_TYPE_RGB)
+	    channels = 3;
+	else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+	    channels = 4;
+	else
+	    channels = 0; /* should never happen */
+	alpha_present = (channels - 1) % 2;
+	
+/* old code */
 	pimage->width = width;
 	pimage->height = height;
-	pimage->bpp = 24;
+	pimage->palsize = 0;
 	pimage->planes = 1;
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch,
-						&pimage->bytesperpixel);
-	pimage->compression = MWIMAGE_RGB;
+	pimage->pitch = width * channels * (bit_depth / 8);
+	pimage->bpp = channels * 8;
+	pimage->bytesperpixel = channels;
+	if (alpha_present)
+		pimage->compression = MWIMAGE_ALPHA_CHANNEL; /*FIXME - add MWIMAGE_RGB*/
+	else
+		pimage->compression = MWIMAGE_RGB;
         if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);
 		goto nomem;
@@ -93,17 +153,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	for(i = 0; i < pimage->height; i++)
 		rows[i] = pimage->imagebits + (i * pimage->pitch);
 
-	png_set_expand(state);
-	if(bit_depth == 16)
-		png_set_strip_16(state);
-	if(colourtype & PNG_COLOR_MASK_ALPHA)
-		png_set_strip_alpha(state);
-	if(colourtype == PNG_COLOR_TYPE_GRAY ||
-			colourtype == PNG_COLOR_TYPE_GRAY_ALPHA)
-		png_set_gray_to_rgb(state);
-
 	png_read_image(state, rows);
-
 	png_read_end(state, NULL);
 	free(rows);
 	png_destroy_read_struct(&state, &pnginfo, NULL);

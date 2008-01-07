@@ -35,11 +35,378 @@ typedef unsigned long *		ADDR32;
 /* ROP macro for 16 drawing modes*/
 #define CHECK(f,d)	
 
+
+/* applyOp w/stored dst*/
+#define	applyOp2(cnt, op, src, d, type)		\
+	{											\
+		int  count = cnt;						\
+		switch (op) {							\
+		case MWMODE_SRCTRANSCOPY:				\
+			while(count-->=0) {					\
+				*d = (*d)? *d:src;				\
+				++d; }							\
+			break;								\
+		case MWMODE_XOR:						\
+			while(count-->=0) {					\
+				*d ^= (src);					\
+				++d; }							\
+			CHECK("XOR", *d);					\
+			break;								\
+		case MWMODE_AND:						\
+			while(count-->=0) {					\
+				*d &= (src);					\
+				++d; }							\
+			CHECK("AND", *d);					\
+			break;								\
+		case MWMODE_OR:							\
+			while(count-->=0) {					\
+				*d |= (src);					\
+				++d; }							\
+			CHECK("OR", *d);					\
+			break;								\
+		case MWMODE_SRC_OUT:					\
+		case MWMODE_DST_OUT:					\
+		case MWMODE_PORTERDUFF_XOR:				\
+		case MWMODE_CLEAR:						\
+			while(count-->=0) {					\
+				*d = 0;							\
+				++d; }							\
+			CHECK("CLEAR", *d);					\
+			break;								\
+		case MWMODE_SETTO1:						\
+			while(count-->=0) {					\
+				*d = ~0;						\
+				++d; }							\
+			CHECK("SETTO1", *d);				\
+			break;								\
+		case MWMODE_EQUIV:						\
+			while(count-->=0) {					\
+				*d = ~(*d ^ (src));				\
+				++d; }							\
+			CHECK("EQUIV", *d);					\
+			break;								\
+		case MWMODE_NOR:						\
+			while(count-->=0) {					\
+				*d = ~(*d | (src));				\
+				++d; }							\
+			CHECK("NOR", *d);					\
+			break;								\
+		case MWMODE_NAND:						\
+			while(count-->=0) {					\
+				*d = ~(*d & (src));				\
+				++d; }							\
+			CHECK("NAND", *d);					\
+			break;								\
+		case MWMODE_INVERT:						\
+			while(count-->=0) {					\
+				*d = ~*d;						\
+				++d; }							\
+			CHECK("INVERT", *d);				\
+			break;								\
+		case MWMODE_COPYINVERTED:				\
+			while(count-->=0) {					\
+				*d = ~(src);					\
+				++d; }							\
+			CHECK("COPYINVERTED", *d);			\
+			break;								\
+		case MWMODE_ORINVERTED:					\
+			while(count-->=0) {					\
+				*d |= ~(src);					\
+				++d; }							\
+			CHECK("ORINVERTED", *d);			\
+			break;								\
+		case MWMODE_ANDINVERTED:				\
+			while(count-->=0) {					\
+				*d &= ~(src);					\
+				++d; }							\
+			CHECK("ANDINVERTED", *d);			\
+			break;								\
+		case MWMODE_ORREVERSE:					\
+			while(count-->=0) {					\
+				*d = ~*d | (src);				\
+				++d; }							\
+			CHECK("ORREVERSE", *d);				\
+			break;								\
+		case MWMODE_ANDREVERSE:					\
+			while(count-->=0) {					\
+				*d = ~*d & (src);				\
+				++d; }							\
+			CHECK("ANDREVERSE", *d);			\
+			break;								\
+		case MWMODE_SRC_OVER:					\
+		case MWMODE_SRC_IN:						\
+		case MWMODE_SRC_ATOP:					\
+		case MWMODE_COPY:						\
+			while(count-->=0) {					\
+				*d = (src);						\
+				++d; }							\
+			CHECK("COPY", *d);					\
+			break;								\
+		case MWMODE_DST_OVER:					\
+		case MWMODE_DST_IN:						\
+		case MWMODE_DST_ATOP:					\
+		case MWMODE_NOOP:						\
+			CHECK("NOOP", *d);					\
+			break;								\
+		case MWMODE_XOR_FGBG:					\
+			while(count-->=0) {					\
+				*d ^= (src) ^ gr_background;	\
+				++d; }							\
+			CHECK("XOR_FGBG", *d);				\
+			break;								\
+		}										\
+	}
+
+/* applyOp2 with count and step*/
+#define	applyOp3(cnt, step, op, src, d, type)	\
+	{											\
+		int  count = cnt;						\
+		switch (op) {							\
+		case MWMODE_SRCTRANSCOPY:				\
+			while(count-->=0) {					\
+				*d = (*d)? *d:src;				\
+				d += step; }					\
+			break;								\
+		case MWMODE_XOR:						\
+			while(count-->=0) {					\
+				*d ^= (src);					\
+				d += step; }					\
+			CHECK("XOR", *d);					\
+			break;								\
+		case MWMODE_AND:						\
+			while(count-->=0) {					\
+				*d &= (src);					\
+				d += step; }					\
+			CHECK("AND", *d);					\
+			break;								\
+		case MWMODE_OR:							\
+			while(count-->=0) {					\
+				*d |= (src);					\
+				d += step; }					\
+			CHECK("OR", *d);					\
+			break;								\
+		case MWMODE_SRC_OUT:					\
+		case MWMODE_DST_OUT:					\
+		case MWMODE_PORTERDUFF_XOR:				\
+		case MWMODE_CLEAR:						\
+			while(count-->=0) {					\
+				*d = 0;							\
+				d += step; }					\
+			CHECK("CLEAR", *d);					\
+			break;								\
+		case MWMODE_SETTO1:						\
+			while(count-->=0) {					\
+				*d = ~0;						\
+				d += step; }					\
+			CHECK("SETTO1", *d);				\
+			break;								\
+		case MWMODE_EQUIV:						\
+			while(count-->=0) {					\
+				*d = ~(*d ^ (src));				\
+				d += step; }					\
+			CHECK("EQUIV", *d);					\
+			break;								\
+		case MWMODE_NOR:						\
+			while(count-->=0) {					\
+				*d = ~(*d | (src));				\
+				d += step; }					\
+			CHECK("NOR", *d);					\
+			break;								\
+		case MWMODE_NAND:						\
+			while(count-->=0) {					\
+				*d = ~(*d & (src));				\
+				d += step; }					\
+			CHECK("NAND", *d);					\
+			break;								\
+		case MWMODE_INVERT:						\
+			while(count-->=0) {					\
+				*d = ~*d;						\
+				d += step; }					\
+			CHECK("INVERT", *d);				\
+			break;								\
+		case MWMODE_COPYINVERTED:				\
+			while(count-->=0) {					\
+				*d = ~(src);					\
+				d += step; }					\
+			CHECK("COPYINVERTED", *d);			\
+			break;								\
+		case MWMODE_ORINVERTED:					\
+			while(count-->=0) {					\
+				*d |= ~(src);					\
+				d += step; }					\
+			CHECK("ORINVERTED", *d);			\
+			break;								\
+		case MWMODE_ANDINVERTED:				\
+			while(count-->=0) {					\
+				*d &= ~(src);					\
+				d += step; }					\
+			CHECK("ANDINVERTED", *d);			\
+			break;								\
+		case MWMODE_ORREVERSE:					\
+			while(count-->=0) {					\
+				*d = ~*d | (src);				\
+				d += step; }					\
+			CHECK("ORREVERSE", *d);				\
+			break;								\
+		case MWMODE_ANDREVERSE:					\
+			while(count-->=0) {					\
+				*d = ~*d & (src);				\
+				d += step; }					\
+			CHECK("ANDREVERSE", *d);			\
+			break;								\
+		case MWMODE_SRC_OVER:					\
+		case MWMODE_SRC_IN:						\
+		case MWMODE_SRC_ATOP:					\
+		case MWMODE_COPY:						\
+			while(count-->=0) {					\
+				*d = (src);						\
+				d += step; }					\
+			CHECK("COPY", *d);					\
+			break;								\
+		case MWMODE_DST_OVER:					\
+		case MWMODE_DST_IN:						\
+		case MWMODE_DST_ATOP:					\
+		case MWMODE_NOOP:						\
+			CHECK("NOOP", *d);					\
+			break;								\
+		case MWMODE_XOR_FGBG:					\
+			while(count-->=0) {					\
+				*d ^= (src) ^ gr_background;	\
+				d += step; }					\
+			CHECK("XOR_FGBG", *d);				\
+			break;								\
+		}										\
+	}
+
+/* applyOp2 with count and src/dst incr*/
+#define	applyOp4(cnt, op, s, d, type)			\
+	{											\
+		int  count = cnt;						\
+		switch (op) {							\
+		case MWMODE_SRCTRANSCOPY:				\
+			while(count-->=0) {					\
+				*d = (*d)? *d:*s;				\
+				++d; ++s; }						\
+			break;								\
+		case MWMODE_XOR:						\
+			while(count-->=0) {					\
+				*d ^= (*s);						\
+				++d; ++s; }						\
+			CHECK("XOR", *d);					\
+			break;								\
+		case MWMODE_AND:						\
+			while(count-->=0) {					\
+				*d &= (*s);						\
+				++d; ++s; }						\
+			CHECK("AND", *d);					\
+			break;								\
+		case MWMODE_OR:							\
+			while(count-->=0) {					\
+				*d |= (*s);						\
+				++d; ++s; }						\
+			CHECK("OR", *d);					\
+			break;								\
+		case MWMODE_SRC_OUT:					\
+		case MWMODE_DST_OUT:					\
+		case MWMODE_PORTERDUFF_XOR:				\
+		case MWMODE_CLEAR:						\
+			while(count-->=0) {					\
+				*d = 0;							\
+				++d; ++s; }						\
+			CHECK("CLEAR", *d);					\
+			break;								\
+		case MWMODE_SETTO1:						\
+			while(count-->=0) {					\
+				*d = ~0;						\
+				++d; ++s; }						\
+			CHECK("SETTO1", *d);				\
+			break;								\
+		case MWMODE_EQUIV:						\
+			while(count-->=0) {					\
+				*d = ~(*d ^ (*s));				\
+				++d; ++s; }						\
+			CHECK("EQUIV", *d);					\
+			break;								\
+		case MWMODE_NOR:						\
+			while(count-->=0) {					\
+				*d = ~(*d | (*s));				\
+				++d; ++s; }						\
+			CHECK("NOR", *d);					\
+			break;								\
+		case MWMODE_NAND:						\
+			while(count-->=0) {					\
+				*d = ~(*d & (*s));				\
+				++d; ++s; }						\
+			CHECK("NAND", *d);					\
+			break;								\
+		case MWMODE_INVERT:						\
+			while(count-->=0) {					\
+				*d = ~*d;						\
+				++d; ++s; }						\
+			CHECK("INVERT", *d);				\
+			break;								\
+		case MWMODE_COPYINVERTED:				\
+			while(count-->=0) {					\
+				*d = ~(*s);					\
+				++d; ++s; }						\
+			CHECK("COPYINVERTED", *d);			\
+			break;								\
+		case MWMODE_ORINVERTED:					\
+			while(count-->=0) {					\
+				*d |= ~(*s);					\
+				++d; ++s; }						\
+			CHECK("ORINVERTED", *d);			\
+			break;								\
+		case MWMODE_ANDINVERTED:				\
+			while(count-->=0) {					\
+				*d &= ~(*s);					\
+				++d; ++s;}						\
+			CHECK("ANDINVERTED", *d);			\
+			break;								\
+		case MWMODE_ORREVERSE:					\
+			while(count-->=0) {					\
+				*d = ~*d | (*s);				\
+				++d; ++s; }						\
+			CHECK("ORREVERSE", *d);				\
+			break;								\
+		case MWMODE_ANDREVERSE:					\
+			while(count-->=0) {					\
+				*d = ~*d & (*s);				\
+				++d; ++s; }						\
+			CHECK("ANDREVERSE", *d);			\
+			break;								\
+		case MWMODE_SRC_OVER:					\
+		case MWMODE_SRC_IN:						\
+		case MWMODE_SRC_ATOP:					\
+		case MWMODE_COPY:						\
+			while(count-->=0) {					\
+				*d = (*s);						\
+				++d; ++s; }						\
+			CHECK("COPY", *d);					\
+			break;								\
+		case MWMODE_DST_OVER:					\
+		case MWMODE_DST_IN:						\
+		case MWMODE_DST_ATOP:					\
+		case MWMODE_NOOP:						\
+			CHECK("NOOP", *d);					\
+			break;								\
+		case MWMODE_XOR_FGBG:					\
+			while(count-->=0) {					\
+				*d ^= (*s) ^ gr_background;		\
+				++d; ++s; }						\
+			CHECK("XOR_FGBG", *d);				\
+			break;								\
+		}										\
+	}
+
 /* applyOp w/stored dst*/
 #define	applyOp(op, src, pdst, type)		\
-{						\
+	{							\
 	type d = (pdst);			\
 	switch (op) {				\
+	case MWMODE_SRCTRANSCOPY:   \
+		*d = (*d)? *d:src;		\
+		break;              \
 	case MWMODE_XOR:			\
 		*d ^= (src);			\
 		CHECK("XOR", *d);		\

@@ -347,7 +347,7 @@ fnt_load_font(const char *path)
 			goto errout;
 	/* pad to longword boundary*/
 	if (FSEEK(ifp, 0, SEEK_CUR) & 02)
-		if (!READSHORT(ifp, (unsigned short *)&pf->bits[i]))
+		if (!READSHORT(ifp, &pad))
 			goto errout;
 	if (noffset)
 		for (i=0; i<pf->size; ++i)

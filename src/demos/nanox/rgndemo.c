@@ -141,7 +141,7 @@ GR_GC_ID setup_complex_poly_region(void)
 	return gc;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 	GR_WINDOW_ID wid;
 	GR_GC_ID gc[NUMGCS];

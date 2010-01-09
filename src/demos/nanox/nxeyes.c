@@ -281,7 +281,7 @@ void draw_eyes(nxeyes_state *state, int full_redraw)
 	state->ory = state->ry;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 	GR_EVENT event;
 	nxeyes_state *state;

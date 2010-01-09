@@ -2,7 +2,6 @@
 	* test and update for latest png, tiff, t1lib, libz libraries
 	* add patches for RTEMS 4.10 support (Joel and Roxana)
 21 January 2008 - greg@censoft.com
-
 	* fix .fnt.gz loader padding bug
 6 January 2008 - neuros patches from Vladimir
 	* add generic window message send GrSendMsg, GR_EVENT_MSG, GR_EVENT_MASK_MSG

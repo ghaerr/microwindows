@@ -38,8 +38,7 @@ char buffer[128];
 int n;
 void Render(GR_WINDOW_ID window);
 
-int
-main(void)
+int main(int argc, char **argv)
 {
   FILE *file;
   GR_EVENT event;

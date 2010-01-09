@@ -74,7 +74,7 @@ void redraw(GR_WINDOW_ID wid, GR_GC_ID gc)
 	GrBitmap(wid, gc, 0, 0, BITMAPWIDTH, BITMAPHEIGHT, BITMAP);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 	GR_WINDOW_ID wid;
 	GR_GC_ID gc;

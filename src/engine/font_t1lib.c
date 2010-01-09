@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * T1lib Adobe type1 routines originally contributed by Vidar Hokstad
@@ -12,7 +12,10 @@
 #include "device.h"
 #include "devfont.h"
 
-#if T1LIB_VERSION <= 1
+#ifndef T1LIB_VERSION
+#define T1LIB_VERSION 0
+#endif
+#if T1LIB_VERSION < 5
 #define T1_GetNoFonts	T1_Get_no_fonts	/* name change after 1.0 (tested in 5.1.2)*/
 #endif
 

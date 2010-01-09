@@ -1,5 +1,6 @@
-10 January 2010 - greg@censoft.com
-	* test and update for latest png, tiff, t1lib, libz libraries
+9 January 2010 - greg@censoft.com
+	* fixed bug in pcf font subdriver, added test helvB12_lin.pcf.gz test
+	* test and update src for latest png, tiff, t1lib, libz libraries
 	* add patches for RTEMS 4.10 support (Joel and Roxana)
 21 January 2008 - greg@censoft.com
 	* fix .fnt.gz loader padding bug

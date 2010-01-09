@@ -17,6 +17,7 @@
 /*#define NDEBUG*/
 #include <assert.h>
 #include <string.h>
+#include "swap.h"
 #include "device.h"
 #include "fb.h"
 

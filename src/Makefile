@@ -36,9 +36,8 @@ endif
 all: default
 ifeq ($(ARCH), RTEMS)
 	$(MAKE) -C $(MW_DIR_SRC)/rtems
-else
-	-$(MAKE) -C $(MW_DIR_SRC)/demos
 endif
+	-$(MAKE) -C $(MW_DIR_SRC)/demos
 ifeq ($(ARCH), ECOS)
 	$(MAKE) -C $(MW_DIR_SRC)/ecos
 endif

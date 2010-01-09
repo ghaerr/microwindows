@@ -38,7 +38,7 @@ void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
 static int utf8_to_utf16(const unsigned char *utf8, int cc,
 		unsigned short *unicode16);
-static int uc16_to_utf8(const unsigned short *us, int cc, char *s);
+static int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
 
 
 /**
@@ -1129,13 +1129,14 @@ utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16)
  * warning: the length of output string may exceed six x the length of the input 
  */ 
 static int
-uc16_to_utf8(const unsigned short *us, int cc, char *s)
+uc16_to_utf8(const unsigned short us[], int cc, unsigned char *s)
 {
 	int i;
-	char *t = s;
+	unsigned char *t = s;
+	unsigned short uc16;
 	
 	for (i = 0; i < cc; i++) {
-		unsigned short uc16 = us[i];
+		uc16 = us[i];
 		if (uc16 <= 0x7F) { 
 			*t++ = (char) uc16;
 		} else if (uc16 <= 0x7FF) {

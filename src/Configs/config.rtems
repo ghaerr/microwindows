@@ -39,9 +39,6 @@
 ####################################################################
 ARCH                     = RTEMS
 BIGENDIAN                = N
-ARMTOOLSPREFIX           = arm-linux-
-MIPSTOOLSPREFIX          = mipsel-linux-
-RTEMSTOOLSPREFIX         = i386-rtems-
 
 ####################################################################
 #
@@ -50,8 +47,8 @@ RTEMSTOOLSPREFIX         = i386-rtems-
 ####################################################################
 OPTIMIZE                 = Y
 DEBUG                    = N
-VERBOSE                  = Y
-THREADSAFE               = N
+VERBOSE                  = N
+THREADSAFE               = Y
 GPROF                    = N
 
 ####################################################################
@@ -70,8 +67,8 @@ OBJFRAMEWORK             = N
 # Demos to build
 #
 ####################################################################
-MICROWINDEMO             = N
-NANOXDEMO                = N
+MICROWINDEMO             = Y
+NANOXDEMO                = Y
 
 ####################################################################
 #
@@ -96,7 +93,11 @@ NANOWM                   = N
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits 3/3/2 truecolor*/
 #
 ####################################################################
+# TBD: Get this information somehow from the BSP itself.
+# This is right for PC386
 SCREEN_PIXTYPE           = MWPF_PALETTE
+# This is right for gumstix
+# SCREEN_PIXTYPE           = MWPF_TRUECOLOR555
 
 ####################################################################
 #
@@ -131,24 +132,45 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = N
-INCJPEG                  = .
-LIBJPEG                  = /usr/lib/libjpeg.a
+LIBJPEG = $(RTEMS_MAKEFILE_PATH)/lib/libjpeg.a
+INCJPEG = 
+
+ifeq ($(shell test -r $(LIBJPEG) && echo Y),Y)
+  HAVE_JPEG_SUPPORT = Y
+  LIBJPEG           = -ljpeg
+else
+  HAVE_JPEG_SUPPORT = N
+  LIBJPEG =
+endif
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
-HAVE_PNG_SUPPORT         = N
-INCPNG                   = /usr/include
-LIBPNG                   = /usr/lib/libpng.a
-LIBZ                     = /usr/lib/libz.a
+LIBPNG = $(RTEMS_MAKEFILE_PATH)/lib/libpng.a
+INCPNG = 
+
+ifeq ($(shell test -r $(LIBPNG) && echo Y),Y)
+  HAVE_PNG_SUPPORT = Y
+  LIBPNG           = -lpng
+  LIBZ             = -lz
+else
+  HAVE_PNG_SUPPORT = N
+  LIBPNG           = 
+endif
 
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
-HAVE_TIFF_SUPPORT        = N
-INCTIFF                  = /usr/include
-LIBTIFF                  = /usr/lib/libtiff.a
+LIBTIFF = $(RTEMS_MAKEFILE_PATH)/lib/libtiff.a
+INCTIFF = 
+
+ifeq ($(shell test -r $(LIBTIFF) && echo Y),Y)
+  HAVE_TIFF_SUPPORT = Y
+  #LIBTIFF           = -ltiff
+else
+  HAVE_TIFF_SUPPORT = N
+  LIBTIFF           = 
+endif
 
 ####################################################################
 # native .fnt loadable font support
@@ -160,9 +182,18 @@ FNT_FONT_DIR             = "fonts/bdf"
 ####################################################################
 # T1 adobe type1 font support thru t1lib
 ####################################################################
-HAVE_T1LIB_SUPPORT       = N
-INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.a
+LIBT1LIB = $(RTEMS_MAKEFILE_PATH)/lib/libt1.a
+INCT1LIB = 
+
+ifeq ($(shell test -r $(LIBT1LIB) && echo Y),Y)
+  HAVE_T1LIB_SUPPORT       = Y
+  #LIBT1LIB                 = -lt1
+  # t1lib needs libm.a
+  LIBT1LIB                 += $(shell $(CC) $(CFLAGS) -print-file-name=libm.a)
+else
+  HAVE_T1LIB_SUPPORT       = N
+  LIBT1LIB                 = 
+endif
 
 ####################################################################
 # TrueType font support thru FreeType 1.x
@@ -176,20 +207,69 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 # Support for many kinds of font thru FreeType 2.x
 # Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
 ####################################################################
-HAVE_FREETYPE_2_SUPPORT  = N
-INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/lib/libfreetype.a
+LIBFT2LIB = $(RTEMS_MAKEFILE_PATH)/lib/libfreetype.a
+INCFT2LIB = $(RTEMS_MAKEFILE_PATH)/lib/include
+
+ifeq ($(shell test -r $(LIBTIFF) && echo Y),Y)
+  HAVE_FREETYPE_2_SUPPORT  = Y
+  LIBFT2LIB                = -lfreetype
+else
+  HAVE_FREETYPE_2_SUPPORT  = N
+  LIBFT2LIB                = 
+endif
 
 ####################################################################
+# PCF font support 
+# Selecting HAVE_PCFGZ_SUPPORT will allow you to directly read
+# .pcf.gz files, but it will add libz to the size of the server
+####################################################################
+HAVE_PCF_SUPPORT         = Y
+HAVE_PCFGZ_SUPPORT       = Y
+PCF_FONT_DIR             = "fonts/pcf"
+
 # Chinese Han Zi Ku loadable font support
 ####################################################################
 HAVE_HZK_SUPPORT         = N
 HZK_FONT_DIR             = "fonts/chinese"
 
 ####################################################################
+# Chinese BIG5 compiled in font support (big5font.c)
+####################################################################
+HAVE_BIG5_SUPPORT        = N
+
+####################################################################
 # Chinese GB2312 compiled in font support (gb2312font.c)
 ####################################################################
 HAVE_GB2312_SUPPORT      = N
+
+####################################################################
+# Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+####################################################################
+HAVE_JISX0213_SUPPORT    = N
+
+####################################################################
+# Korean HANGUL font support (jo16x16.c)
+####################################################################
+HAVE_KSC5601_SUPPORT     = N
+
+####################################################################
+# Japanese EUC-JP support using loadable MGL font
+####################################################################
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
+
+####################################################################
+# Fribidi and shape/joining support for right to left rendering
+####################################################################
+HAVE_FRIBIDI_SUPPORT     = N
+HAVE_SHAPEJOINING_SUPPORT = N
+INCFRIBIDI               = $(TOP)/../../../include
+LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
+
+####################################################################
+# Generate screen driver interface only with no fonts or clipping
+####################################################################
+NOFONTSORCLIPPING        = N
 
 ####################################################################
 #
@@ -245,7 +325,7 @@ FBREVERSE                = N
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.
 # On a graphics-only embedded system, such as Osprey and Embedded
 # Planet boards, set HAVETEXTMODE=N
-HAVETEXTMODE             = Y
+HAVETEXTMODE             = N
 
 # svgalib screen driver
 VGALIB                   = N
@@ -255,6 +335,23 @@ HWVGA                    = N
 
 ####################################################################
 # Mouse drivers
+# GPMMOUSE	gpm mouse
+# SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# SUNMOUSE	Sun Workstation mouse (/dev/sunmouse)
+# NOMOUSE	no mouse driver
+#
+# Touchscreen drivers
+# IPAQMOUSE	Compaq iPAQ, Intel Assabet (/dev/h3600_tsraw)
+# ZAURUSMOUSE	Sharp Zaurus (/dev/sharp_ts)
+# TUXMOUSE	TuxScreen (/dev/ucb1x00-ts)
+# ADSMOUSE	Applied Data Systems GC+ (/dev/ts)
+# ADS7846MOUSE	        ADS7846 chip, PSI OMAP Innovator (/dev/innnovator_ts)
+# EPMOUSE	Embedded Planet (/dev/tpanel)
+# VHMOUSE	Vtech Helio (/dev/tpanel)
+# MTMOUSE	MicroTouch serial (/dev/ttyS1)
+# PSIONMOUSE	Psion 5 (/dev/touch_psion)
+# YOPYMOUSE	Yopy (/dev/yopy-ts)
+# HARRIERMOUSE	NEC Harrier (/dev/tpanel)
 ####################################################################
 GPMMOUSE                 = N
 SERMOUSE                 = N
@@ -282,6 +379,19 @@ NOKBD                    = N
 
 endif
 
+# Secondary keyboard drivers.
+# You may have a normal keyboard driver in addition to these
+# drivers, e.g. for both normal keyboard and IR input.
+LIRCKBD2                 = N
+
+####################################################################
+# VNC server support through libvncserver
+####################################################################
+HAVE_VNCSERVER_SUPPORT   = N
+VNCSERVER_PTHREADED      = N
+LIBVNC                   = /usr/local/lib/libvncserver.a
+INCVNC                   = /usr/local/include
+
 ####################################################################
 # Screen driver specific configuration
 # SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
@@ -289,20 +399,6 @@ endif
 ####################################################################
 SA1100_LCD_LTLEND        = N
 INVERT4BPP               = N
-
-####################################################################
-#
-# If the platform is a RTEMS box ....
-#
-####################################################################
-ifeq ($(ARCH), RTEMS)
-
-# Location & BSP information of the RTEMS build
-RTEMS_BUILD              = /opt/rtems-4.6
-RTEMS_BSP                = pc386
-LINK_APP_INTO_SERVER     = Y
-RTEMS_TARGET             = i386-rtems
-endif
 
 endif
 

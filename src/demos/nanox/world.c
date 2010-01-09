@@ -11,7 +11,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#if defined(MSDOS) || defined(__ECOS)
+#if defined(MSDOS) || defined(__ECOS) || defined(__rtems__)
 #include <fcntl.h>
 #endif
 

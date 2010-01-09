@@ -13,6 +13,11 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
+#ifdef __rtems__
+#define  srandom  srand
+#define  random   rand
+#endif
+
 /* set up size of the grid */
 #define WIDTH_IN_TILES	4
 #define HEIGHT_IN_TILES	4

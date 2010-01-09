@@ -25,10 +25,18 @@ unsigned _stklen = 4096;
 #define GRAPH3D		0	/* 3d graphics demo*/
 #define IMAGE		0	/* 256 color image demo*/
 #endif
+
 #define ARCDEMO		1	/* arc drawing demo*/
 #define CHILD 		1	/* child window demo*/
 #define CLIENT3D	0	/* old client draw test*/
 #define USEBLIT		1	/* use blit rather than DrawDIB()*/
+
+#ifdef __rtems__
+#undef  IMAGE
+#define IMAGE		1	/* 256 color image demo*/
+#undef  USEBLIT
+#define USEBLIT		0	/* use blit rather than DrawDIB()*/
+#endif
 
 #if GRAPH3D
 #include "graph3d.h"

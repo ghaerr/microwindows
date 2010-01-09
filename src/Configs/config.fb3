@@ -44,7 +44,6 @@ ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
 SHTOOLSPREFIX            = sh-linux-gnu
-RTEMSTOOLSPREFIX         = i386-rtemself-
 
 ####################################################################
 #
@@ -367,20 +366,6 @@ INCVNC                   = /usr/local/include
 ####################################################################
 SA1100_LCD_LTLEND        = N
 INVERT4BPP               = N
-
-####################################################################
-#
-# If the platform is a RTEMS box ....
-#
-####################################################################
-ifeq ($(ARCH), RTEMS)
-
-# Location & BSP information of the RTEMS build
-RTEMS_BUILD              = /tools/build-i386-elf-rtems
-RTEMS_BSP                = pc386
-LINK_APP_INTO_SERVER     = Y
-
-endif
 
 endif
 

@@ -47,12 +47,11 @@ TARGETS = \
 	$(MW_DIR_BIN)/nxlsclients \
 	$(MW_DIR_BIN)/nxev \
 	$(MW_DIR_BIN)/npanel \
-	$(MW_DIR_BIN)/nterm \
 	$(MW_DIR_BIN)/demo2 \
 	$(MW_DIR_BIN)/demo5 \
 	$(MW_DIR_BIN)/demo6 \
-	$(MW_DIR_BIN)/t1demo \
 	$(MW_DIR_BIN)/ftdemo \
+	$(MW_DIR_BIN)/t1demo \
 	$(MW_DIR_BIN)/logfont \
 	$(MW_DIR_BIN)/ntetris \
 	$(MW_DIR_BIN)/getselection \
@@ -66,14 +65,20 @@ TARGETS = \
 	$(MW_DIR_BIN)/snap_ppm \
 	$(MW_DIR_BIN)/bmpdemo \
 	$(MW_DIR_BIN)/rgndemo \
-	$(MW_DIR_BIN)/convpbm \
 	$(MW_DIR_BIN)/nsaver \
 	$(MW_DIR_BIN)/nxcal \
 	$(MW_DIR_BIN)/grabdemo
 
-ifneq ($(ARCH),CYGWIN)
+ifneq ($(ARCH),RTEMS)
 TARGETS += \
+	$(MW_DIR_BIN)/nterm \
+	$(MW_DIR_BIN)/convpbm
+endif
+ifneq ($(ARCH),CYGWIN) 
+  ifneq ($(ARCH),RTEMS)
+    TARGETS += \
 	$(MW_DIR_BIN)/nxterm
+  endif
 endif
 
 # Require MW_FEATURE_IMAGES support:
@@ -137,13 +142,14 @@ endif
 NANOX_DEMOS_WITH_LIBM_LINK := \
 	$(MW_DIR_BIN)/nxeyes \
 	$(MW_DIR_BIN)/grabdemo \
-	$(MW_DIR_BIN)/nsaver
+	$(MW_DIR_BIN)/nsaver \
+	$(MW_DIR_BIN)/t1demo
 
 # These demos use a hardcoded link line.
 NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
 	$(NANOX_DEMOS_WITH_LIBM_LINK) \
-	$(MW_DIR_BIN)/snap_jpg \
-	$(MW_DIR_BIN)/convpbm
+	$(MW_DIR_BIN)/convpbm \
+	$(MW_DIR_BIN)/snap_jpg
 
 # All other demos use a standard link line, that just
 # links against the Nano-X client libraries.

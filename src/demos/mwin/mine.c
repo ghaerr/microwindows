@@ -7,7 +7,6 @@
  */
 extern int mwCurrentButtons;	/* FIXME */
 
-
 #ifdef __rtems__
 #define  srandom  srand
 #define  random   rand

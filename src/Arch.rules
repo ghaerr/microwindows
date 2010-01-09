@@ -9,8 +9,8 @@
 ##############################################################################
 
 # Standard set of warnings for all platforms that use GCC
-#GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes
-GCC_WARNINGS := -Wall -Wpointer-arith
+GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes # -Werror
+#GCC_WARNINGS := -Wall -Wpointer-arith
 
 # Platform dependent flags & definitions
 
@@ -163,16 +163,16 @@ CFLAGS += -Wall $(OPTFLAGS)
 LDFLAGS +=
 endif
 
+# For RTEMS all variables are passed from Makefile.rtems after being
+# extracted from the BSP specific installation.
 ifeq ($(ARCH), RTEMS)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX = $(RTEMSTOOLSPREFIX)
-INCLUDEDIRS += -I$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/include \
- -I$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/include/networking \
- -I$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/include/sys
-DEFINES += -DUNIX=1 -DRTEMS=1
-CFLAGS += -O4 -Wall -Wno-unused -fasm -g \
--B$(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)/lib/ -specs bsp_specs -qrtems
+    COMPILER = $(RTEMS_CC)
+    CXX_COMPILER = $(RTEMS_CC)
+    INCLUDEDIRS += -I$(RTEMS_MAKEFILE_PATH)/lib/include
+    DEFINES += -DUNIX=1 -DRTEMS=1
+    CFLAGS += -O4 $(GCC_WARNINGS) -fasm -g \
+     -B$(RTEMS_MAKEFILE_PATH)/lib/ -specs bsp_specs -qrtems
+
 endif
 
 ifeq ($(ARCH), ECOS)

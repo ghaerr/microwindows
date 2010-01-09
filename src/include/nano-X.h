@@ -990,11 +990,6 @@ GR_CURSOR_ID	GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
 }
 #endif
 
-/* RTEMS requires rtems_main()*/
-#if __rtems__
-#define main	rtems_main
-#endif
-
 /* client side event queue (client.c local)*/
 typedef struct event_list EVENT_LIST;
 struct event_list {
@@ -1008,6 +1003,12 @@ typedef struct {
 	unsigned char *bufmax;		/* max buffer location*/
 	unsigned char *buffer;		/* request buffer*/
 } REQBUF;
+
+#ifdef __rtems__
+  /* RTEMS requires rtems_main()*/
+  int rtems_main(int, char **);
+  #define main	rtems_main
+#endif
 
 #ifdef __ECOS
 #include <sys/select.h>

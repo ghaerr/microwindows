@@ -1034,9 +1034,10 @@ int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
 #define assert(x)
 #endif
 
-/* RTEMS requires rtems_main()*/
-#if __rtems__
-#define main	rtems_main
+#ifdef __rtems__
+  /* RTEMS requires rtems_main()*/
+  int rtems_main(int, char **);
+  #define main	rtems_main
 #endif
 
 #if !_MINIX

@@ -1,11 +1,8 @@
-##############################################################################
-# Microwindows template Makefile
-# Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 #
-# Rosimildo da Silva, Andrey Astafiev
-# Adapted to the RTEMS environment...
+# $Id$
 #
-##############################################################################
+
+include ../config
 
 ifndef MW_DIR_SRC
 MW_DIR_SRC := $(CURDIR)/..
@@ -14,12 +11,7 @@ MW_DIR_RELATIVE := rtems/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
-######################## Additional Flags section ############################
-
-# Directories list for header files
-# Defines for preprocessor
-DEFINES +=
-# Defines for preprocessor
+#Defines for preprocessor
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 DEFINES += -DNONETWORK=1
 endif
@@ -29,59 +21,22 @@ endif
 # Preprocessor flags OTHER than defines
 # CPPFLAGS += $(INCLUDEDIRS)
 # Linking flags
-LDFLAGS +=
-
-
-# PC386 specific stuff...
-PROJECT_RELEASE     = $(RTEMS_BUILD)/$(RTEMS_TARGET)/$(RTEMS_BSP)
-PROJECT_TOOLS       = $(PROJECT_RELEASE)/build-tools
-START16FILE         = $(PROJECT_RELEASE)/lib/start16.bin
-RELOCADDR           = 0x00100000
-START16ADDR         = 0x00097C00
-HEADERADDR          = 0x00097E00
-EXTRA_LFLAGS        =-Wl,-Ttext,$(RELOCADDR)
+LDFLAGS += $(LIBJPEG)
+LDFLAGS += $(LIBPNG)
+LDFLAGS += $(LIBTIFF)
+LDFLAGS += $(LIBFT2LIB)
+LDFLAGS += $(LIBZ)
+LDFLAGS += $(LIBT1LIB)
 
 ############################# targets section ################################
 
 ifeq ($(ARCH), RTEMS)
 
-# If you want to create a library with the objects files, define the name here
-LIBNAME =
-
-
-# Name of the target which the image will be created to the downloaded to the
-# target box.
-RTEMS_TARGET=i386-rtems
-
-
-# Main module -- this module defines the "main()" routine to get compiled.
-# It basically selects which application is actually built to be loaded as
-# the RTEMS system. 
-# For example, select one:
-# MAIN_OBJ = $(MW_DIR_OBJ)/rtems/mw_uid_test.o         -- Mouse & KBD test
-# MAIN_OBJ = $(MW_DIR_OBJ)/demos/nanox/demo5.o         -- Nano-X demo
-# MAIN_OBJ = $(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o  -- C++ demo
-# MAIN_OBJ = $(MW_DIR_OBJ)/demos/test/test.o           -- test driver
-
-# If you want to build the "mineswipper" game, use the modules below.
-# This should give you an idea of what you have to do to the others demos.
-MINEIMAGES = $(MW_DIR_OBJ)/demos/mwin/mineflag.o \
-		$(MW_DIR_OBJ)/demos/mwin/mineface.o \
-	 	$(MW_DIR_OBJ)/demos/mwin/minefacelost.o \
-		$(MW_DIR_OBJ)/demos/mwin/minebomb.o \
-		$(MW_DIR_OBJ)/demos/mwin/minedone.o \
-		$(MW_DIR_OBJ)/demos/mwin/minehitfalse.o
-MAIN_OBJ = $(MW_DIR_OBJ)/demos/mwin/mine.o $(MINEIMAGES)
-
 # List of objects always needed by a RTEMS application
-OBJS =	$(MW_DIR_OBJ)/rtems/rtems_init.o 
+OBJS =	$(MW_DIR_OBJ)/FilesystemImage.o 
+OBJS += $(MW_DIR_OBJ)/rtems_init.o 
 
-# IMPORTANT NOTE: if MAIN_OBJ is a C++ code, add it to CXXOBJS instead.
-OBJS += $(MAIN_OBJ)
-# CXXOBJS += $(MAIN_OBJ)
-
-all: default $(RTEMS_TARGET).bt
-
+all: default stamp-filesystem $(OBJS)
 
 ######################### Makefile.rules section #############################
 
@@ -90,38 +45,73 @@ include $(MW_DIR_SRC)/Makefile.rules
 ######################## Tools targets section ###############################
 # let's adjust the libraries to match the API that you are using.
 
-NLIBS =
+$(MW_DIR_OBJ)/FilesystemImage.o: stamp-filesystem \
+	FilesystemImage.c FilesystemImage.h
+	$(CC) -pipe $(CFLAGS) FilesystemImage.c -c -o $@
 
-ifeq ($(NANOX), Y)
-NLIBS += -lnano-X
+FilesystemImage.c: stamp-filesystem
+
+FilesystemImage.h: stamp-filesystem
+
+$(MW_DIR_OBJ)/rtems_init.o: stamp-filesystem rtems_init.c \
+	FilesystemImage.h
+	$(CC) $(CFLAGS) rtems_init.c -c -o $@
+
+# XXX clean up --  how do we clean it up :)  Need to
+# XXX    rm -rf rootfs, FilesystemImage, and stamp-filesystem
+stamp-filesystem: Makefile
+	rm -rf rootfs 
+ifeq ($(HAVE_JPEG_SUPPORT),Y)
+	# /logos
+	mkdir -p rootfs/logos
+	cp RTEMS_logo.jpg rootfs/logos
 endif
-
-ifeq ($(NWIDGET), Y)
-NLIBS += -lnwidget
+	# /bin
+	mkdir -p rootfs/bin
+	cp ../../src/demos/nanox/tux.gif rootfs/bin
+	cp ../../src/demos/nxscribble/*.cl rootfs/bin
+	# /demos/nanox
+	mkdir -p rootfs/demos/nanox
+	cp ../../src/demos/nanox/world.map rootfs/demos/nanox
+	# /demos/tuxchess/images
+	mkdir -p rootfs/demos/tuxchess/images
+	cp ../../src/demos/tuxchess/images/*gif rootfs/demos/tuxchess/images
+	# /fonts
+	mkdir -p rootfs/fonts
+	cp ../../src/fonts/*fon rootfs/fonts
+	# /fonts/bdf
+	mkdir -p rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/*bdf rootfs/fonts/bdf
+	# /fonts/pcf
+	mkdir -p rootfs/$(PCF_FONT_DIR)
+ifeq ($(HAVE_PCF_SUPPORT),Y)
+	cp ../../src/fonts/pcf/*.pcf rootfs/fonts/pcf
 endif
-
-ifeq ($(OBJFRAMEWORK), Y)
-NLIBS += -lmwobjects
+ifeq ($(HAVE_PCFGZ_SUPPORT),Y)
+	cp ../../src/fonts/pcf/*.pcf.gz rootfs/fonts/pcf
 endif
-
-ifeq ($(MICROWIN), Y)
-NLIBS += -lmwin -lmwinlib
+ifeq ($(HAVE_T1LIB_SUPPORT),Y)
+	# /fonts/t1lib
+	mkdir -p rootfs/fonts/t1lib
+	cp ../../src/fonts/t1lib/FontDataBase rootfs/fonts/t1lib
+	cp ../../src/fonts/t1lib/t1lib.config rootfs/fonts/t1lib
+	mkdir -p rootfs/fonts/t1lib/afm
+	cp ../../src/fonts/t1lib/afm/* rootfs/fonts/t1lib/afm
+	mkdir -p rootfs/fonts/t1lib/enc
+	cp ../../src/fonts/t1lib/enc/* rootfs/fonts/t1lib/enc
+	mkdir -p rootfs/fonts/t1lib/type1
+	cp ../../src/fonts/t1lib/type1/* rootfs/fonts/t1lib/type1
 endif
-
-NLIBS += -lmwengine -lmwdrivers -lmwfonts -lmwimages -lm
-
-ifeq ($(VGALIB), Y)
-NLIBS += -lvga
+ifeq ($(HAVE_FREETYPE_2_SUPPORT),Y)
+	# /fonts/truetype
+	mkdir -p rootfs/fonts/truetype
+	cp ../../src/fonts/truetype/arial*.ttf rootfs/fonts/truetype
+	cp ../../src/fonts/truetype/times*.ttf rootfs/fonts/truetype
 endif
-
-$(RTEMS_TARGET).bt: $(RTEMS_TARGET).exe
-	$(OBJCOPY) -O binary $(RTEMS_TARGET).exe $(RTEMS_TARGET).bin;
-	$(PROJECT_TOOLS)/bin2boot -v $(RTEMS_TARGET).bt $(HEADERADDR) $(START16FILE) \
-	$(START16ADDR) 0 $(RTEMS_TARGET).bin $(RELOCADDR) 0;
-	rm $(RTEMS_TARGET).bin
-	mv *.exe *.bt $(MW_DIR_OBJ)/rtems
-
-$(RTEMS_TARGET).exe: $(OBJS) $(CXXOBJS)
-	$(CXX) $(CFLAGS) $(INCLUDEDIRS) $(LDFLAGS) $(EXTRA_LFLAGS) $^ -o $@ $(NLIBS)
-
+	# Tar
+	cd rootfs ; \
+	    tar cf ../FilesystemImage --exclude CVS --exclude .cvsignore .
+	$(RTEMS_MAKEFILE_PATH)/../../bin/rtems-bin2c \
+		FilesystemImage FilesystemImage
+	touch stamp-filesystem
 endif

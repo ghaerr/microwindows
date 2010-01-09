@@ -1,113 +1,72 @@
-/* *************************************************************************
- * MODULE DESCRIPTION: This module specializes the RTEMS Network configuration 
- *                     for the omniORB examples. It could be used as a starting
- *                     point of an application using omniORB and RTEMS.
- *
- * This file was based on "networkconfig.h" that comes with the netdemos
- * examples that ships with the RTEMS distribution.
- *
- * NOTE: This file must be modified to match your environment.
- *
- * by: Rosimildo da Silva:
- *     rdasilva@connecttel.com
- *     http://www.connecttel.com
- *
- * MODIFICATION/HISTORY:
- *
- * Revision 1.1.1.1  2001/06/21 06:32:42  greg
- * Microwindows pre8 with patches
- ****************************************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
-#define RTEMS_USE_BOOTP
-*/
+ * Network configuration -- LOOPBACK ONLY!!!
+ *
+ * See one of the other networkconfig.h files for an
+ * example of a system that includes a real NIC and
+ * the loopback interface.
+ * 
+ ************************************************************
+ * EDIT THIS FILE TO REFLECT YOUR NETWORK CONFIGURATION     *
+ * BEFORE RUNNING ANY RTEMS PROGRAMS WHICH USE THE NETWORK! * 
+ ************************************************************
+ *
+ *  $Id: networkconfig.h,v 1.16 2008/09/18 13:33:30 joel Exp $
+ */
 
-#include <stdio.h>
+#ifndef _RTEMS_NETWORKCONFIG_H_
+#define _RTEMS_NETWORKCONFIG_H_
+
+
+/* #define RTEMS_USE_BOOTP */
+
+#include <bsp.h>
 #include <rtems/rtems_bsdnet.h>
 
+
 /*
- * Define RTEMS_SET_ETHERNET_ADDRESS if you want to specify the
- * Ethernet address here.  If RTEMS_SET_ETHERNET_ADDRESS is not
- * defined the driver will choose an address.
+ * Loopback interface
  */
-#define RTEMS_SET_ETHERNET_ADDRESS
-#if (defined (RTEMS_SET_ETHERNET_ADDRESS))
-static char ethernet_address[6] = { 0x20, 0x00, 0x27, 0xAF, 0x03, 0x51 };
-#endif
-
-#undef  RTEMS_BSP_NETWORK_DRIVER_NAME
-#define RTEMS_BSP_NETWORK_DRIVER_NAME  "ep0"
-
-extern int rtems_3c509_driver_attach( struct rtems_bsdnet_ifconfig *config );
-#undef  RTEMS_BSP_NETWORK_DRIVER_ATTACH
-#define RTEMS_BSP_NETWORK_DRIVER_ATTACH rtems_3c509_driver_attach
+extern int rtems_bsdnet_loopattach(struct rtems_bsdnet_ifconfig *, int);
 
 /*
  * Default network interface
  */
-static struct rtems_bsdnet_ifconfig netdriver_config = 
-{
-   RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name */
-	RTEMS_BSP_NETWORK_DRIVER_ATTACH,    /* attach function */
-
-	NULL,				/* link to next interface */
-
-#if (defined (RTEMS_USE_BOOTP))
-	NULL,				/* BOOTP supplies IP address */
-	NULL,				/* BOOTP supplies IP net mask */
-#else
-	"192.168.0.11",		/* IP address */
-	"255.255.255.0",		/* IP net mask */
-#endif /* !RTEMS_USE_BOOTP */
-
-#if (defined (RTEMS_SET_ETHERNET_ADDRESS))
-	ethernet_address,               /* Ethernet hardware address */
-#else
-	NULL,           /* Driver supplies hardware address */
-#endif
-	0				/* Use default driver parameters */
+static struct rtems_bsdnet_ifconfig netdriver_config = {
+  "lo0",                    /* name */
+  rtems_bsdnet_loopattach,  /* attach function */
+  NULL,                     /* No more interfaces */
+  "127.0.0.1",              /* IP address */
+  "255.0.0.0",              /* IP net mask */
+  NULL,                     /* Driver supplies hardware address */
+  0,                        /* Use default driver parameters */
+  0,                        /* default efficiency multiplier */
+  0,                        /* default udp TX socket buffer size */
+  0,                        /* default udp RX socket buffer size */
+  0,                        /* default tcp TX socket buffer size */
+  0,                        /* default tcp RX socket buffer size */
 };
 
 /*
  * Network configuration
  */
 struct rtems_bsdnet_config rtems_bsdnet_config = {
-	&netdriver_config,
-
-#if (defined (RTEMS_USE_BOOTP))
-	rtems_bsdnet_do_bootp,
-#else
-	NULL,
-#endif
-
-	0,			/* Default network task priority */
-	0,			/* Default mbuf capacity */
-	0,			/* Default mbuf cluster capacity */
-
-#if (!defined (RTEMS_USE_BOOTP))
-	"lucila",			/* Host name */
-	"rps.com",			/* Domain name */
-	"192.168.0.1",	/* Gateway */
-	"192.168.0.1",	/* Log host */
-	{"192.168.0.1" },	/* Name server(s) */
-#endif /* !RTEMS_USE_BOOTP */
+  &netdriver_config,
+  NULL,                /* do not use bootp */
+  0,                   /* Default network task priority */
+  0,                   /* Default mbuf capacity */
+  0,                   /* Default mbuf cluster capacity */
+  "rtems",             /* Host name */
+  "nodomain.com",      /* Domain name */
+  "127.0.0.1",         /* Gateway */
+  "127.0.0.1",         /* Log host */
+  {"127.0.0.1" },      /* Name server(s) */
+  {"127.0.0.1" },      /* NTP server(s) */
+  0,                   /* sb_efficiency */
+  0,                   /* udp_tx_buf_size */
+  0,                   /* udp_rx_buf_size */
+  0,                   /* tcp_tx_buf_size */
+  0                    /* tcp_rx_buf_size */
 
 };
 
-/*
- * For TFTP test application
- */
-#if (!defined (RTEMS_USE_BOOTP))
-#define RTEMS_TFTP_TEST_HOST_NAME "192.168.0.2"
-#define RTEMS_TFTP_TEST_FILE_NAME "root/boot.bt"
 #endif
-
-
-#ifdef __cplusplus
-}
-#endif
- 
-/* end of include file */

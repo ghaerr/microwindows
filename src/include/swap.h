@@ -8,12 +8,39 @@
  *	linux
  *	__FreeBSD__
  *	__ECOS
+ * 	__rtems__
  *	__CYGWIN__
  *	TRIMEDIA
  */
 
 #ifndef MW_SWAP_H_INCLUDED
 #define MW_SWAP_H_INCLUDED
+
+/*
+ *  First try to set endian automatically for those OSes that can do so.
+ */
+
+/* *********************************************************************
+ * RTEMS
+ * ********************************************************************* */
+#ifdef __rtems__
+
+/* automatically set it */
+#include <machine/endian.h>
+
+#  if BYTE_ORDER == BIG_ENDIAN
+#    define MW_CPU_BIG_ENDIAN 1
+#  elif BYTE_ORDER == LITTLE_ENDIAN
+#    define MW_CPU_LITTLE_ENDIAN 1
+#  else
+#    error "since when did RTEMS support the PDP-11?"
+#  endif
+
+#endif
+
+/*
+ *  Now pick the implementation of the swap routines.
+ */
 
 /* ********************************************************************* */
 /* First, the default (portable) implementation.                         */
@@ -134,12 +161,16 @@
 # define dwread(addr)	(*(unsigned int *)(addr))
 /* end __CYGWIN__*/
 
+#elif defined(__rtems__)
+
+/* TBD: This silences the warning about using the default implementation.
+ *      We need to decide if this is the best option.
+ */
+
 /* ********************************************************************* */
 /* TriMedia/pSOS                                                         */
 /* ********************************************************************* */
 #elif defined(TRIMEDIA)
-
-/* The default implementation will be fine for now. */
 
 /* ********************************************************************* */
 /* Other                                                                 */

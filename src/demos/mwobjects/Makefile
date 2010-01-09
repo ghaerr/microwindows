@@ -13,9 +13,6 @@ MW_DIR_RELATIVE := demos/mwobjects/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
-# Do nothing for RTEMS 
-ifneq ($(ARCH), RTEMS)
-
 ######################## Additional Flags section ############################
 
 # Directories list for header files
@@ -50,5 +47,3 @@ $(MW_DIR_BIN)/mwo-test: $(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(CCMWINLIBS)
 
-
-endif

@@ -215,7 +215,9 @@ ifneq ($(INCFT2LIB),/usr/local/include)
 INCLUDEDIRS += -I$(INCFT2LIB)
 endif
 endif
+ifneq ($(INCFT2LIB),)
 INCLUDEDIRS += -I$(INCFT2LIB)/freetype2
+endif
 endif
 
 ifeq ($(HAVE_FRIBIDI_SUPPORT), Y)
@@ -261,6 +263,14 @@ ifneq ($(ARCH), DJGPP)
 ifeq ($(EM8400), Y)
 DEFINES += -I$(EM8400_DIR)/include
 LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
+endif
+
+ifeq ($(ARCH), RTEMS)
+  ifneq ($(findstring rtems_init,$(LDFLAGS)),rtems_init)
+    OS_OBJS = $(MW_DIR_OBJ)/FilesystemImage.o \
+              $(MW_DIR_OBJ)/rtems_init.o 
+    LDFLAGS += $(OS_OBJS)
+  endif
 endif
 
 ifeq ($(FRAMEBUFFER), Y)

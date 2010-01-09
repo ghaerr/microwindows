@@ -42,11 +42,14 @@ MINEIMAGES := \
 	$(MW_DIR_OBJ)/demos/mwin/minehitfalse.o
 
 DEMOS = $(MW_DIR_BIN)/mdemo\
-	$(MW_DIR_BIN)/mterm\
 	$(MW_DIR_BIN)/malpha\
 	$(MW_DIR_BIN)/mtest\
 	$(MW_DIR_BIN)/mtest2\
 	$(MW_DIR_BIN)/mine
+
+ifneq ($(ARCH), RTEMS)
+DEMOS += $(MW_DIR_BIN)/mterm
+endif
 
 ifneq ($(ARCH), ELKS)
 DEMOS += $(MW_DIR_BIN)/muserfd

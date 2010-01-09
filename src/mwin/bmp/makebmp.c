@@ -6,7 +6,9 @@
  * 10/4/1999 g haerr
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #define BI_RGB		0L
 #define BI_RLE8		1L

@@ -44,7 +44,6 @@ ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
 SHTOOLSPREFIX            = sh-linux-gnu
-RTEMSTOOLSPREFIX         = i386-rtemself-
 
 ####################################################################
 #
@@ -166,7 +165,7 @@ FNT_FONT_DIR             = "fonts/bdf"
 ####################################################################
 HAVE_T1LIB_SUPPORT       = N
 INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/local/lib/libt1.a
+LIBT1LIB                 = /usr/lib/libt1.a
 
 ####################################################################
 # TrueType font support thru FreeType 1.x
@@ -262,13 +261,13 @@ GRAYPALETTE              = N
 
 ####################################################################
 #
-# If the platform is running UNIX, Linux or RTEMS...
+# If the platform is running UNIX, Linux
 #
 ####################################################################
 ifneq ($(ARCH), ELKS)
 
 # X Window screen, mouse and kbd drivers
-X11                      = N
+X11                      = Y
 
 ifeq ($(X11), Y)
 # startup screen width, height, (depth for palette mode only)
@@ -369,20 +368,6 @@ INCVNC                   = /usr/local/include
 ####################################################################
 SA1100_LCD_LTLEND        = N
 INVERT4BPP               = N
-
-####################################################################
-#
-# If the platform is a RTEMS box ....
-#
-####################################################################
-ifeq ($(ARCH), RTEMS)
-
-# Location & BSP information of the RTEMS build
-RTEMS_BUILD              = /tools/build-i386-elf-rtems
-RTEMS_BSP                = pc386
-LINK_APP_INTO_SERVER     = Y
-
-endif
 
 endif
 

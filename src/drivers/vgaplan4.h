@@ -42,10 +42,15 @@
 #endif
 #endif
 
-#if __rtems__
-#define HAVEFARPTR	1
-#define FAR
-#include <i386_io.h>
+#ifdef __rtems__
+  #define FAR
+  #define HAVEFARPTR	1
+  #if defined(__i386__)
+    #include <i386_io.h>
+  #else
+    #define outb(val,port)	/* outportb(port,val) */
+    #define outw(val,port)	/* outport(port,val) */
+  #endif
 #endif
 
 #if MSDOS | ELKS

@@ -82,15 +82,15 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#ifdef __ECOS
-#define random  rand
-#define srandom srand
-#endif
-
 #include <nano-X.h>
 #include <nxcolors.h>
 
 #include "ntetris.h"
+
+#if defined(__rtems__) || defined(__ECOS)
+#define  srandom  srand
+#define  random   rand
+#endif
 
 void *my_malloc(size_t size)
 {

@@ -30,6 +30,10 @@
 #include <vncauth.h>
 #include <d3des.h>
 
+#ifdef __rtems__
+#define  srandom  srand
+#define  random   rand
+#endif
 
 /*
  * We use a fixed key to store passwords, since we assume that our local

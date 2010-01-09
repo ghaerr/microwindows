@@ -4,13 +4,14 @@
  * Microwindows Screen Driver for RTEMS (uses Microframebuffer api)
  *
  * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
- * 
+ *
  * Note: modify select_fb_driver() to add new framebuffer subdrivers
  */
 #define _GNU_SOURCE 1
 #include <assert.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -21,7 +22,7 @@
 #include "genfont.h"
 #include "genmem.h"
 #include "fb.h"
-#include <rtems/mw_fb.h>
+#include <rtems/fb.h>
 
 #ifndef FB_TYPE_VGA_PLANES
 #define FB_TYPE_VGA_PLANES 4
@@ -77,10 +78,11 @@ fb_open(PSD psd)
 	int	type, visual;
 	int	tty;
 	PSUBDRIVER subdriver;
-	struct fb_screeninfo fb_info;
+	struct fb_var_screeninfo fb_var;
+	struct fb_fix_screeninfo fb_fix;
 
 	assert(status < 2);
-  
+
 	/* locate and open framebuffer, get info*/
 	if(!(env = getenv("FRAMEBUFFER")))
 		env = "/dev/fb0";
@@ -89,18 +91,18 @@ fb_open(PSD psd)
 		EPRINTF("Error opening %s: %m\n", env);
 		return NULL;
 	}
-   
-	if( ufb_get_screen_info( fb, &fb_info ) )
+
+	if( ioctl( fb, FBIOGET_FSCREENINFO, &fb_fix ) || ioctl( fb, FBIOGET_VSCREENINFO, &fb_var ) )
 	{
 	        EPRINTF("Error getting screen info\n" );
 		return NULL;
 	}
 	/* setup screen device from framebuffer info*/
-	type = fb_info.type;
-	visual = fb_info.visual;
+	type = fb_fix.type;
+	visual = fb_fix.visual;
 
-	psd->xres = psd->xvirtres = fb_info.xres;
-	psd->yres = psd->yvirtres = fb_info.yres;
+	psd->xres = psd->xvirtres = fb_var.xres;
+	psd->yres = psd->yvirtres = fb_var.yres;
 
 	/* set planes from fb type*/
 	if (type == FB_TYPE_VGA_PLANES)
@@ -109,11 +111,11 @@ fb_open(PSD psd)
 		psd->planes = 1;
 	else psd->planes = 0;	/* force error later*/
 
-	psd->bpp = fb_info.bits_per_pixel;
+	psd->bpp = fb_var.bits_per_pixel;
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 
 	/* set linelen to byte length, possibly converted later*/
-	psd->linelen = fb_info.line_length;
+	psd->linelen = fb_fix.line_length;
 	psd->size = 0;		/* force subdriver init of size*/
 
 #if HAVEBLIT
@@ -145,15 +147,18 @@ fb_open(PSD psd)
 		}
 	} else psd->pixtype = MWPF_PALETTE;
 
-	psd->size = fb_info.smem_len;
+	psd->size = (psd->size + getpagesize () - 1)
+			/ getpagesize () * getpagesize ();
 
 	/* maps FB memory to user space */
-	if( ufb_mmap_to_user_space( fb, &psd->addr, 
+	psd->addr = fb_fix.smem_start;
+
+	/*if( ufb_mmap_to_user_space( fb, &psd->addr,
                               ( void *)fb_info.smem_start, fb_info.smem_len ) )
 	{
 	        EPRINTF("Error mapping FB memory to user space\n" );
 		goto fail;
-	}
+	}*/
 
 	/*DPRINTF("%dx%dx%d linelen %d type %d visual %d bpp %d\n", psd->xres,
 	 	psd->yres, psd->ncolors, psd->linelen, type, visual,
@@ -167,17 +172,20 @@ fb_open(PSD psd)
 		goto fail;
 	}
 
-	if( ufb_enter_graphics( fb, 0 ) )
+	/*exec.func_no = FB_FUNC_ENTER_GRAPHICS;
+        exec.param = 0;
+
+	if( ioctl( fb, FB_EXEC_FUNCTION , ( void *)&exec ) )
 	{
 	        EPRINTF("Error entering graphics\n");
 		return NULL;
-	}
+	}*/
 
 	/*
 	 * set and initialize subdriver into screen driver
 	 * psd->size is calculated by subdriver init
 	 */
-	if(!set_subdriver(psd, subdriver, TRUE )) 
+	if(!set_subdriver(psd, subdriver, TRUE ))
 	{
 		EPRINTF("Driver initialize failed type %d visual %d bpp %d\n",
 			type, visual, psd->bpp);
@@ -212,11 +220,14 @@ fb_close(PSD psd)
 	ioctl_setpalette(0, 16, saved_red, saved_green, saved_blue);
 
 	/* unmaps memory from user's space */
-	ufb_unmmap_from_user_space( fb, psd->addr );
+	/* this function previously returned 0
+	I will see later what I can do about it
+	ufb_unmmap_from_user_space( fb, psd->addr );*/
 
 	/* restore TEXT mode */
-	ufb_exit_graphics( fb );
-  
+	/*exec.func_no = FB_FUNC_EXIT_GRAPHICS;
+	ioctl( fb, FB_EXEC_FUNCTION, &exec);*/
+
 	/* close tty and framebuffer*/
 	close( fb );
 }
@@ -287,7 +298,7 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.blue = blue;
 	cmap.transp = NULL;
 
-	ufb_get_palette( fb, &cmap );
+	ioctl( fb, FBIOGETCMAP, &cmap );
 }
 
 /* set framebuffer palette*/
@@ -303,7 +314,7 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.blue = blue;
 	cmap.transp = NULL;
 
-	ufb_set_palette( fb, &cmap );
+	ioctl( fb, FBIOPUTCMAP, &cmap );
 }
 
 static void

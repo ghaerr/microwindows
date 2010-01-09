@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "swap.h"
 #include "device.h"
 
 extern MWPIXELVAL gr_foreground;      /* current foreground color */

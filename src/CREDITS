@@ -1,5 +1,5 @@
 The Nano-X Window System
-Copyright (c) 1999-2005 Greg Haerr <greg@censoft.com>
+Copyright (c) 1999-2010 Greg Haerr <greg@censoft.com>
 
 CREDITS
 Thanks to everyone who has contributed to this project.
@@ -26,7 +26,7 @@ Alpha blending support		Alex Holden, Jordan Crouse, Jonathan Foster
 X11 driver			Tony Rogvall, Jonathan Foster
 Portrait mode fb driver		Martin Jolicoeur
 BMP and JPEG file read/display	Martin Jolicoeur
-RTEMS port			Rosimildo daSilva
+RTEMS port			Rosimildo daSilva, Joel Sherrill, Roxana Leontie
 DJGPP/GRX port			Victor Rogachev
 C++ objects framework		Chris Johns
 Arc clipping routines		Eero Tamminen

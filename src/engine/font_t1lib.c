@@ -12,6 +12,10 @@
 #include "device.h"
 #include "devfont.h"
 
+#if T1LIB_VERSION <= 1
+#define T1_GetNoFonts	T1_Get_no_fonts	/* name change after 1.0 (tested in 5.1.2)*/
+#endif
+
 typedef struct MWT1LIBFONT {
 	PMWFONTPROCS	fontprocs;	/* common hdr*/
 	MWCOORD		fontsize;
@@ -94,7 +98,7 @@ t1lib_createfont(const char *name, MWCOORD height, int attr)
 	char		buf[256];
 
 	/* match name against t1 font id's from t1 font database*/
-	for(id=0; id<T1_Get_no_fonts(); ++id) {
+	for(id=0; id<T1_GetNoFonts(); ++id) {
 		strncpy(buf, T1_GetFontFileName(id), sizeof(buf));
 
 		/* remove extension*/

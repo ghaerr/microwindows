@@ -7,7 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#include <sys/timeb.h>
+#ifdef __rtems__
+  #include <time.h>
+#else
+  #include <sys/timeb.h>
+#endif
 #include "defs.h"
 #include "data.h"
 #include "protos.h"
@@ -133,11 +137,19 @@ int to = 999;
 BOOL ftime_ok = FALSE;  /* does ftime return milliseconds? */
 int get_ms()
 {
+#ifdef __rtems__
+	struct timespec tp;
+
+	clock_gettime( CLOCK_REALTIME, &tp );
+	ftime_ok = TRUE;
+	return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000);
+#else
 	struct timeb timebuffer;
 	ftime(&timebuffer);
 	if (timebuffer.millitm != 0)
 		ftime_ok = TRUE;
 	return (timebuffer.time * 1000) + timebuffer.millitm;
+#endif
 }
 
  

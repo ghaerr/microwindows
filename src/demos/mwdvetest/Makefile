@@ -42,7 +42,11 @@ FONTS = $(FONTSPATH)/truetype/Accidental\ Presidency.ttf \
 		
 CYBERBIT = $(FONTSPATH)/truetype/Cyberbit.ttf
 
-DEMOS = $(MW_DIR_BIN)/mwdvetest $(MW_DIR_BIN)/mwdvetest.res $(MW_DIR_BIN)/fonts $(FONTS)
+DEMOS = $(MW_DIR_BIN)/fonts $(FONTS)
+
+ifneq ($(ARCH), RTEMS)
+DEMOS += $(MW_DIR_BIN)/mwdvetest $(MW_DIR_BIN)/mwdvetest.res 
+endif
 
 all: default $(DEMOS)
 
@@ -65,14 +69,13 @@ $(FONTSPATH):
 	(cd $(MW_DIR_BIN) && ln -s ../fonts)
 		
 $(CYBERBIT):
-	wget ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/Cyberbit.ZIP && unzip Cyberbit.ZIP
-	wget ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/License.wri
-	mv Cyberbit.ttf License.wri "$(FONTSPATH)/truetype/"
-	rm Cyberbit.ZIP
+#	wget ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/Cyberbit.ZIP && unzip Cyberbit.ZIP
+#	wget ftp://ftp.netscape.com/pub/communicator/extras/fonts/windows/License.wri
+#	mv Cyberbit.ttf License.wri "$(FONTSPATH)/truetype/"
+#	rm Cyberbit.ZIP
 	
 $(FONTS): $(FONTSPATH) $(CYBERBIT)
-	test -L $(FONTSPATH)/truetype/Accidental\ Presidency.ttf || ln -s accid___.ttf $(FONTSPATH)/truetype/Accidental\ Presidency.ttf
-	test -L $(FONTSPATH)/truetype/VAGRounded\ Lt.ttf || ln -s VAGROLN.TTF  $(FONTSPATH)/truetype/VAGRounded\ Lt.ttf
-	test -L $(FONTSPATH)/truetype/Bitstream\ Cyberbit.ttf || ln -s Cyberbit.ttf  $(FONTSPATH)/truetype/Bitstream\ Cyberbit.ttf
-
+#	test -L $(FONTSPATH)/truetype/Accidental\ Presidency.ttf || ln -s accid___.ttf $(FONTSPATH)/truetype/Accidental\ Presidency.ttf
+#	test -L $(FONTSPATH)/truetype/VAGRounded\ Lt.ttf || ln -s VAGROLN.TTF  $(FONTSPATH)/truetype/VAGRounded\ Lt.ttf
+#	test -L $(FONTSPATH)/truetype/Bitstream\ Cyberbit.ttf || ln -s Cyberbit.ttf  $(FONTSPATH)/truetype/Bitstream\ Cyberbit.ttf
 

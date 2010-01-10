@@ -38,6 +38,11 @@ unsigned _stklen = 4096;
 #define USEBLIT		0	/* use blit rather than DrawDIB()*/
 #endif
 
+#if defined(__rtems__) || defined(__ECOS)
+#define  srandom  srand
+#define  random   rand
+#endif
+
 #if GRAPH3D
 #include "graph3d.h"
 #endif

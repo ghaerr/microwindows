@@ -1,0 +1,32 @@
+#
+# Pick up RTEMS configuration
+# NOTE: RTEMS_MAKEFILE_PATH is the path to the Makefile.inc that we need to extract BSP information from 
+#
+
+include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+# The following picks up LDFLAGS, etc for this BSP
+include $(RTEMS_CUSTOM)
+
+export STRIP = $(AS:as=strip)
+export RTEMS_CC = $(CC_FOR_TARGET) $(GCCSPECS)
+export RTEMS_CXX = $(CXX_FOR_TARGET) $(GCCSPECS)
+export RTEMS_TARGET = $(AS:-as=)
+export TOOLS_PREFIX = $(AS:as=)
+export LDFLAGS
+
+all: 
+	@$(MAKE) -f Makefile $@
+
+clean:
+	@$(MAKE) -f Makefile $@
+	rm -rf rtems/rootfs rtems/FilesystemImage* rtems/stamp-filesystem
+
+var:
+	@echo CC=$(CC)
+	@echo CXX=$(CXX)
+	@echo RTEMS_BSP=$(RTEMS_BSP)
+	@echo PROJECT_ROOT=$(PROJECT_ROOT)
+	@echo RTEMS_TARGET=$(RTEMS_TARGET)
+	@echo TOOLS_PREFIX=$(TOOLS_PREFIX)
+	@echo LDFLAGS=$(LDFLAGS)
+	@exit 1

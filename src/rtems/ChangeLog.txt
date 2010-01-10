@@ -1,0 +1,262 @@
+2010-01-08  Roxana Leontie <roxana.leontie@gmail.com>
+	* microwin/src/rtems/readme.rtems: add coment about the different color 
+	palette to use for different BSP
+	* microwin/src/demos/mwdvetest/Makefile: clean up comments
+	* microwin/src/demos/nanox/Makefile: clean up comments
+
+2010-01-08  Roxana Leontie <roxana.leontie@gmail.com>
+	*microwin/src/rtems/readme.rtems: Updated.
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/rtems_init_withargs.c: Removed.
+
+2010-01-07  Roxana Leontie <roxana.leontie@gmail.com>
+	* microwin/src/Configs/config.ns, microwin/src/Configs/config.ipod_x11,
+	microwin/src/Configs/config.pixil, microwin/src/Configs/config.psion,
+	microwin/src/Configs/config.zaurus, microwin/src/Configs/config.ecos,
+	microwin/src/Configs/config.ipaq, microwin/src/Configs/config.ipod,
+	microwin/src/Configs/config.harrier,
+	microwin/src/Configs/config.sparc.fb,
+	microwin/src/Configs/config.elks, microwin/src/Configs/config.yopy,
+	microwin/src/Configs/config.cygwin, microwin/src/Configs/config.svga,
+	microwin/src/Configs/config.mozilla, microwin/src/Configs/config.ads,
+	microwin/src/Configs/config.x11, microwin/src/Configs/config.fb2,
+	microwin/src/Configs/config.fb3, microwin/src/Configs/config.dbcs,
+	microwin/src/Configs/config.em8400,
+	microwin/src/Configs/config.innovator,
+	microwin/src/Configs/config.tuxscreen,
+	microwin/src/Configs/config.sparc.x11,
+	microwin/src/Configs/config.ppc, microwin/src/Configs/config.fb,
+	microwin/src/Configs/config.rtems, microwin/src/Configs/config.prisma,
+	microwin/src/Configs/config.oti, microwin/src/Configs/config.dj-2,
+	microwin/src/Configs/config.dj, microwin/src/Configs/config.helio,
+	microwin/src/Configs/config.uclibc, microwin/src/Configs/config.l7200,
+	microwin/src/Configs/config.tcc, microwin/src/Configs/config.freebsd,
+	microwin/src/config: Eliminate ifeq ($(ARCH), RTEMS) ... endif
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/Configs/config.ns, microwin/src/Configs/config.ipod_x11,
+	microwin/src/Configs/config.pixil, microwin/src/Configs/config.psion,
+	microwin/src/Configs/config.zaurus, microwin/src/Configs/config.ecos,
+	microwin/src/Configs/config.ipaq, microwin/src/Configs/config.ipod,
+	microwin/src/Configs/config.harrier,
+	microwin/src/Configs/config.sparc.fb,
+	microwin/src/Configs/config.elks, microwin/src/Configs/config.yopy,
+	microwin/src/Configs/config.cygwin, microwin/src/Configs/config.svga,
+	microwin/src/Configs/config.mozilla, microwin/src/Configs/config.ads,
+	microwin/src/Configs/config.x11, microwin/src/Configs/config.fb2,
+	microwin/src/Configs/config.fb3, microwin/src/Configs/config.dbcs,
+	microwin/src/Configs/config.em8400,
+	microwin/src/Configs/config.innovator,
+	microwin/src/Configs/config.tuxscreen,
+	microwin/src/Configs/config.sparc.x11,
+	microwin/src/Configs/config.ppc, microwin/src/Configs/config.fb,
+	microwin/src/Configs/config.rtems, microwin/src/Configs/config.prisma,
+	microwin/src/Configs/config.oti, microwin/src/Configs/config.dj-2,
+	microwin/src/Configs/config.dj, microwin/src/Configs/config.helio,
+	microwin/src/Configs/config.uclibc, microwin/src/Configs/config.l7200,
+	microwin/src/Configs/config.tcc, microwin/src/Configs/config.freebsd,
+	microwin/src/config: Eliminate RTEMSTOOLSPREFIX.
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/Makefile: Conditionalize inclusion of files in
+	root filesystem.
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/config: Eliminate RTEMS_BUILD.
+	* microwin/src/Configs/config.rtems: In sync.
+	* microwin/src/Arch.rules: Eliminate RTEMS_BUILD.
+	* microwin/src/Makefile.rtems: Add more variables.
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/Configs/config.rtems: VERBOSE=N
+	* microwin/src/config: Ditto.
+
+2010-01-07  Roxana Leontie <roxana.leontie@gmail.com>
+	* microwin/src/Configs/config.rtems: set DEBUG= N for faster graphics;
+	INCFT2LIB = $(RTEMS_MAKEFILE_PATH)/lib/include defined
+	#LIBTIFF = -ltiff
+	* microwin/src/rtems/Makefile: changed path to bin2boot
+	* microwin/src/config: same changes as config.rtems
+	* microwin/src/Makefile.rules: fixed so it doesn't add it when it is empty.
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/demos/nanox/ntetris.c: Include device.h
+	for random/srandom.
+	* microwin/src/demos/nanox/slider.c: Ditto.
+	* microwin/src/demos/mwin/muserfd.c: Ditto.
+	* microwin/src/demos/mwin/mine.c: Ditto.
+
+2010-01-07  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/demos/nanox/ntetris.c: Remove random/srandom conditional.
+	* microwin/src/demos/nanox/slider.c: Ditto.
+	* microwin/src/demos/mwin/mdemo.c: Ditto.
+	* microwin/src/demos/mwin/muserfd.c: Ditto.
+	* microwin/src/demos/mwin/mine.c: Ditto.
+	* microwin/src/include/device.h: Add random/srandom conditional
+	for ECOS and RTEMS.
+
+2010-01-07  Joel Sherrill <joel.sherrill@gmail.com>
+
+	* microwin/src/demos/mwin/mdemo.c: Do not use BLIT with RTEMS.
+	Show 256 color image of Zion.
+
+2010-01-03  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/Makefile: Add -pipe to speed up compile since
+	the filesystem can be so large.
+	* microwin/src/demos/mwdvetest/Makefile,
+	microwin/src/demos/nanox/Makefile: Improve comment on why disabled.
+
+2010-01-03  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	Most demos build and appear to run OK.
+	* TODO: Updated.
+	* microwin/src/rtems/Makefile: Clean up.
+	* microwin/src/rtems/rtems_init.c: Always ask for parameters.
+	* microwin/src/demos/mwdvetest/Makefile
+	* microwin/src/demos/nanox/world.c: Conditionalize fcntl.h include.
+	* microwin/src/demos/nanox/Makefile: Do not build nterm, nxterm, or 
+	convpbm for RTEMS right now.
+	* microwin/src/demos/nanox/slider.c: srandom conditional.
+	* microwin/src/demos/vnc/libvncauth/vncauth.c: srandom conditional.
+	* microwin/src/demos/vnc/vncviewer/Makefile: Disable vnc for RTEMS
+	until we figure out why it does not build.
+	* microwin/src/demos/mwin/muserfd.c: srandom conditional.
+	* microwin/src/demos/mwin/Makefile: Disable mterm for RTEMS
+	until we figure out why it does not build.
+	* microwin/src/demos/nxscribble/li_recognizer.c: Add RTEMS conditional
+	for MAXINT.
+	* microwin/src/demos/mwobjects/Makefile: Enable for RTEMS.
+	* microwin/src/Makefile: Use regular Makefiles for demos.
+	* microwin/src/config: Enable demos for RTEMS. Fix LIBT1LIB define
+	so it can be used as a dependency and includes libm.a.
+	Enable PCF and PCFGZ support.
+	* microwin/src/config.rtems: Copied.
+	* microwin/src/Makefile.rules: Enable extra objects (FilesystemImage.o
+	and rtems_init.o) for RTEMS.
+	* DEMOS_STATUS: New file.
+
+2009-12-29  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/Makefile: Add mdemo.
+	* microwin/src/demos/mwin/mdemo.c: ifdef for random.
+
+2009-12-29  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* TODO: Updated
+	* microwin/src/rtems/RTEMS_logo.jpg: New file.
+	* microwin/src/rtems/rtems_init_withargs.c: Simple file to compile
+	and trip reading command line arguments from user.
+	* microwin/src/rtems/Makefile: Added "with args", RTEMS_logo.jpg,
+	and nxview.
+
+2009-12-30  Roxana Leontie <roxana.leontie@gmail.com>
+
+	* microwin/src/rtems/Makefile: more demos added
+
+2009-12-29  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/fonts/tools/convfnt32.exe: Removed generated file.
+
+2009-12-27  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/Makefile: Build root filesystem image. 
+	Add tuxchess.
+	* microwin/src/rtems/rtems_init.c: Use full IMFS.  Otherwise you
+	don't have support for real files.
+	* microwin/src/Makefile.rtems: Add hack for cleaning root filesystem
+	temporary files.
+	* microwin/src/demos/tuxchess/main.c: Work around missing random().
+
+2009-12-27  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/Makefile, microwin/src/rtems/rtems_init.c:
+	Build and include initial filesystem image.
+
+2009-12-27  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/Makefile: Add polydemo and ntetris
+	* microwin/src/demos/nanox/ntetris.c: Deal with random().
+
+2009-12-27  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* TODO: Update.
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/engine/font_t1lib.c: T1_Get_no_fonts() is apparently 
+	now called T1_GetNoFonts().
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/config: Include files and libraries are in the
+	standard BSP install location so full paths not needed.
+	* microwin/src/Configs/config.rtems: Copied to stay in sync.
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/config: Updated to probe for support libraries
+	like libjpeg.  The user can use the configure of the top level
+	of the RTEMS Graphics Toolkit to decide what to install. Nano-X
+	can adapt to what is available.
+	* microwin/src/Configs/config.rtems: Copied from config
+	* microwin/src/rtems/Makefile: Support optional libraries in link.
+	* microwin/src/Makefile.rtems: export LDFLAGS.  Add a debug
+	stanza "var" to dump some interesting variables.
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/include/swap.h: Silence warning for using default
+	implementation.
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/rtems_init.c: Depend on BSP_HAS_FRAME_BUFFER
+	to indicate the BSP has a frame buffer device.
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* TODO: Add turn on jpg, png, etc libraries and examples.
+
+2009-12-23  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/rtems/net_cfg.h: Correct prototype of
+	rtems_bsdnet_loopattach to fix warning.
+	* microwin/src/rtems/Makefile: Clean up.  Only copy if link works.
+	* microwin/src/rtems/rtems_init.c: Hacks to let this build on
+	BSPs with no mouse or framebuffer driver.  We need a more general
+	way to determine this information.
+	* microwin/src/Makefile.rtems: Primarily include $(RTEMS_CUSTOM)
+	so we know the LDFLAGS and do not have to hard code them internally.
+	* microwin/src/demos/nanox/world.c: Include "swap.h"
+	* microwin/src/engine/devdraw.c: Include "swap.h"
+	* microwin/src/drivers/fblin32alpha.c: Include "swap.h"
+	* microwin/src/drivers/vgaplan4.h: Temporary hack to deal with
+	outb/outw on non-86 CPUs.
+	* TODO: New file.
+
+2009-12-24  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* Delete all CVS bookkeeping files that should not be in svn.
+
+2009-12-24  Joel Sherrill <joel.sherrill@oarcorp.com>
+
+	* microwin/src/Configs/config.rtems: Comment out BIGENDIAN as we
+	are determining it dynamically.  Also comment out target names not
+	related to RTEMS.
+	* microwin/src/rtems/rtemscfg.h: Remove file.
+	* microwin/src/rtems/net_cfg.h: Switch to localhost/loopback since
+	previous configuration was pc386 specific.
+	* microwin/src/rtems/rtems_init.c: Clean up RTEMS configuration.
+	Remove pc386 specific code.
+	* microwin/src/include/swap.h: Dynamically determine endian
+	automatically for RTEMS.
+

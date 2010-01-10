@@ -40,7 +40,6 @@ OBJS := \
 	$(MW_DIR_OBJ)/demos/vnc/vncviewer/vncviewer.o \
 	$(MW_DIR_OBJ)/demos/vnc/vncviewer/nanox.o
 
-### JOEL TBD GrRegisterInput comes up undefined.  Fix and enable
 ifeq ($(ARCH), RTEMS)
 all: default #$(MW_DIR_BIN)/vnc
 else

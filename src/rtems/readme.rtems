@@ -1,163 +1,77 @@
+#
+# $Id: readme.rtems,v 2010/01/08 roxana Exp $
+#
+
 RTEMS Setup
 ===========
 
-This file provide instructions on how to configure and build Microwindows
-for RTEMS.  It is assumed that you are familiar enough with RTEMS and Microwindows,
-and have a development environment that works with both systems. If you are not,
-it is encouraged to play around with each one these packages first, separately,
-before you start mixing them together. 
-
-
-NOTE: Microwindows code does not compile when ITRON API is enabled  -- need fix
-
+This file provide instructions on how to configure and build Nano-X
+for RTEMS.  It is assumed that you are familiar enough with RTEMS and
+Microwindows, and have an RTEMS development environment that works.
+If you do not have an RTEMS development environment installed, then
+you will not be building this package for RTEMS.  It is encouraged
+to play around with each one these packages first, separately, before
+you start mixing them together. 
 
 a) RTEMS --- Patching & Building
-==========================
+=================================
+This assumes tool RPMs are installed.
 
-  + Download RTEMS source (rtems-4.6.0pre5.tar.gz) from www.rtems.org.
-  + Make a build directory
-  + Untar RTEMS
+Get the latest RTEMS source tree from www.rtems.org and build for
+your prefered BSP. Nano-X currently builds for i386-pc386 and for 
+arm-gumstix.  In general, a BSP needs to support a frame buffer 
+(e.g. LCD/CRT) and a pointing device (e.g. mouse or touch screen).
 
-  + Mouse driver setup: 
-This needs to be improved later. Right now this is utter complex.
-It reminds me setting up GRUB. :-).
+You will want to build RTEMS with POSIX and TCP/IP enabled.  Install 
+RTEMS and then move on to building Nano-X.
 
-You need to edit the device driver table in rtemscfg.h, around line 61.
-There are two "/dev/mouse" drivers on RTEMS. Only one of them can be
-loaded on the system. Select the one that fits your needs.
-
-    i) for PS/2 mouse:
-Select to load PAUX_DRIVER_TABLE_ENTRY in the device driver table. You
-would do this, defining PS2_MOUSE in the file rtemscfg.h before the
-device driver table.
-
-#define PS2_MOUSE
-
-   ii) Serial Mouse 
-   
--- Select the mouse type: "ms", "pc". Most serial mouses are microsoft ( "ms" )
-compatible. This is the default selection.
-
-
--- Select serial port -- default is COM1
-
-Both selections are made in the header file: 
-       $RTEMS_SOURCE)/c/src/lib/libbsp/i386/pc386/console/serial_mouse.h
-around line 72.
-
-[snip from $RTEMS_SOURCE)/c/src/lib/libbsp/i386/pc386/console/serial_mouse.h ]
-/* Select the mouse type:  "ms","pc","ps2" */
-#define  MOUSE_TYPE        "ms"  
-
-/* Select the serial port used by the mouse driver */
-#define  SERIAL_MOUSE_COM1  1
-/* #define  SERIAL_MOUSE_COM2  1  */
-
-IMPORTANT: Any change on one of these settings, requires recompilation of RTEMS.
-
-Configure and install RTEMS.  This assumes RPMs are installed
-and tools are available as /opt/rtems.  You will need to
-be able to write into the /opt/rtems directory so you will
-likely have to be root to do the "make install" step.
-I am using the c build scripts and you should look
-at user.cfg to make sure it is OK for you.
-
-  ./bit_rtems i386 pc386
-  # takes a while and ends up with /opt/rtems/pc386 installed
-
+You will need to be able to write into the rtems build directory. Download the 
+rtems-graphics-toolkit and follow the instruction in the README to build the
+supporting libraries.
 
 b) Microwindows --- Patching & Building
 =======================================
 
   + Downloaded Microwindows source from www.microwindows.org.
+    - 8 Jan 2010: CVS preferred for RTEMS 4.10 until new Nano-X release
   + Make a build directory
   + Untar microwindows
+    - If not using CVS.
   + Find readme.rtems in microwin source:
 
   bash$ find . -name "readme.rtems"
   ./src/rtems/readme.rtems
 
-Per readme.rtems use config.rtems for Microwindows.
+Per readme.rtems use config.rtems for Nano-X.
 
   cd microwin
   cd src
   cp config config.SHIP
   cp Configs/config.rtems config
 
-
-Edit config to localize it.  Make sure these variables are 
-set as shown below:
-
-  RTEMSTOOLSPREFIX         = i386-rtems-
-  RTEMS_BUILD              = /opt/rtems
+Depending on the BSP that you are building Nano-X for you will have to edit
+the color palettle in the config.rtems/config file between lines 96-100.
 
 Now build microwindows:
 
   cd src
-  make 
+  RTEMS_MAKEFILE_PATH=[build directory/prefix]/[target]/[rtemsbsp]/ \
+    make -f Makefile.rtems clean all
+  
+e.g.:
+  RTEMS_MAKEFILE_PATH=/home/roxana/rtems-work/build-i386/i386-rtems4.10/pc386/ \
+    make -f Makefile.rtems clean all
 
-  NOTE:  This does not build the demos.
-
-Now build the demos.
-
-  src/rtems/Makefile.rtems is intended to be used to each of the
-  demos.  You have a couple of issues...
-
-   + This builds whatever demo is selected by the definition 
-     of MAIN_OBJ around line 52 of Makefile.rtems.
-
-   + This produces rtems.exe for each demo.  It is quite large
-     so you might want to strip it like this:
-
-bash$ cp rtems.exe rtems_nosym.exe
-bash$ i386-rtems-strip rtems_nosym.exe 
-
-
-c) Microwindows Configuration
-=============================
-
-NOTE: You can use the default configuration for RTEMS -- 
-      copy config.rtems to config
-
-  --> or
-
-1. Select the architecture to be RTEMS. :-)
-ARCH                     = RTEMS
-
-2. No demos are built for RTEMS. Later, using the Makefile under the
-rtems directory you can select whatever you need to build. This is because
-RTEMS requires special configuration tables, and a definition of the 
-"Init" task.
-
-  + A demo is selected by the definition of MAIN_OBJ around line 52 
-of Makefile.rtems.
-
-MICROWINDEMO             = N
-NANOXDEMO                = N
-
-3. color scheme  -- ( unless you wrote the super-duper video driver for RTEMS )
-SCREEN_PIXTYPE           = PF_PALETTE
-
-4. Nano-X server linked with client as a single executable
-LINK_APP_INTO_SERVER     = Y
-
-5.1. Enable the Micro FrameBuffer interface.
-FRAMEBUFFER              = Y
-FBVGA                    = Y
-
-d) KBD & MOUSE Test
-===================
-
-A test program has been added to help debugging the input devices. It is 
-called rtems/mw_uid_test.cc. Modify the Makefile to build it. It'll help
-making sure that mouse&kbd works.
+If that all works, you should have a few demo executable in src/bin
 
 Credits
 =======
 
-I'd like to Thank Joel Sherrill for going over the original notes, and
-prividing me with his own notes to be merged here.
+I'd like to thank Joel Sherrill for going over the original notes, and
+providing me with his own notes to be merged here.
 
-Good Luck !!!.
+If you have problems ask on the RTEMS list.
 
-Rosimildo.
+Good Luck !!!
+
+Rosimildo & Roxana 

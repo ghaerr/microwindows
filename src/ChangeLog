@@ -1,4 +1,9 @@
 9 January 2010 - greg@censoft.com
+	* fix copyright notice sscanf in convbdf.c
+	* fix off-by-one in GdFillPoly (Foedrowitz)
+	* added Linux tslib driver TSLIBMOUSE=Y (/dev/input/event0) (Daniel)
+	* added Linux AVR32 target support (Daniel)
+	* added Linux Blackfin target support
 	* fixed bug in pcf font subdriver, added test helvB12_lin.pcf.gz test
 	* test and update src for latest png, tiff, t1lib, libz libraries
 	* add patches for RTEMS 4.10 support (Joel and Roxana)

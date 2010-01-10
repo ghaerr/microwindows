@@ -29,6 +29,21 @@ LDFLAGS +=
 #LDFLAGS += -static
 endif
 
+ifeq ($(ARCH), LINUX-AVR32)
+ifeq ($(USE_CCACHE), 1)
+COMPILER = ccache gcc
+else
+COMPILER = gcc
+endif
+CXX_COMPILER = g++
+TOOLSPREFIX = $(AVR32TOOLSPREFIX)
+DEFINES += -DLINUX=1 -DUNIX=1
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -D_GNU_SOURCE
+LDFLAGS +=
+# include the following line for static libraries
+#LDFLAGS += -static
+endif
+
 ifeq ($(ARCH), LINUX-TCC)
 COMPILER = tcc
 CXX_COMPILER = tcc
@@ -200,6 +215,15 @@ CFLAGS += -Wall $(OPTFLAGS)
 LDFLAGS +=
 # include the following line for static libraries
 #LDFLAGS += -static
+endif
+
+ifeq ($(ARCH), LINUX-BLACKFIN)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(BLACKFINTOOLSPREFIX)
+DEFINES += -DLINUX=1 -DUNIX=1 -Dlinux -DBLACKFIN
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
+LDFLAGS += -Wl,-elf2flt
 endif
 
 ifeq ($(BIGENDIAN), Y)

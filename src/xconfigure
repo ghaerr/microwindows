@@ -17,6 +17,7 @@ set configfile 0;
 variable arch;
 variable armtoolsprefix;
 variable mipstoolsprefix;
+variable blackfintoolsprefix;
 variable rtemstoolsprefix;
 variable optimize;
 variable debug;
@@ -158,6 +159,7 @@ proc platformoptions {} {
    frame .platform.a4
    frame .platform.a5
    frame .platform.a6
+   frame .platform.a7
 
    radiobutton .platform.a0.b0 -text "Linux (native)" -variable arch -relief flat -value 0 -anchor w
    button .platform.a0.options -text "Options" -command {nativelinuxoptions;};
@@ -173,6 +175,8 @@ proc platformoptions {} {
    button .platform.a5.options -text "Options" -command {elksoptions;};
    radiobutton .platform.a6.b6 -text "Linux-SPARC (x-compile)" -variable arch -relief flat -value 6 -anchor w
    button .platform.a6.options -text "Options" -command {nativelinuxoptions;};
+   radiobutton .platform.a7.b7 -text "Linux-BLACKFIN (x-compile)" -variable arch -relief flat -value 7 -anchor w
+   button .platform.a7.options -text "Options" -command {blackfinlinuxoptions;};
    pack .platform.a0.b0 .platform.a0.options -side left
    pack .platform.a1.b1 .platform.a1.options -side left
    pack .platform.a2.b2 .platform.a2.options -side left
@@ -180,6 +184,7 @@ proc platformoptions {} {
    pack .platform.a4.b4 .platform.a4.options -side left
    pack .platform.a5.b5 .platform.a5.options -side left
    pack .platform.a6.b6 .platform.a6.options -side left
+   pack .platform.a7.b7 .platform.a7.options -side left
    pack .platform.a0  -side top -pady 2 -anchor w -fill x
    pack .platform.a1  -side top -pady 2 -anchor w -fill x
    pack .platform.a2  -side top -pady 2 -anchor w -fill x
@@ -187,8 +192,9 @@ proc platformoptions {} {
    pack .platform.a4  -side top -pady 2 -anchor w -fill x
    pack .platform.a5  -side top -pady 2 -anchor w -fill x
    pack .platform.a6  -side top -pady 2 -anchor w -fill x
+   pack .platform.a7  -side top -pady 2 -anchor w -fill x
    pack .platform.a0.options .platform.a1.options .platform.a2.options \
-   .platform.a3.options .platform.a4.options .platform.a5.options .platform.a6.options -side top -anchor e
+   .platform.a3.options .platform.a4.options .platform.a5.options .platform.a6.options .platform.a7.options -side top -anchor e
 }
 
 
@@ -546,7 +552,6 @@ proc mipslinuxoptions_ok {} {
    global mipstoolsprefix;
    set mipstoolsprefix [.optmipslinux.comp.a0.prefix get];
 }
-
 
 ################################################################################
 #
@@ -1130,6 +1135,50 @@ proc elksoptions {} {
 
 ################################################################################
 #
+# Show blackfin linux options dialog
+#
+################################################################################
+proc blackfinlinuxoptions {} {
+   global screenlinux;
+   global blackfintoolsprefix;
+
+   toplevel .optblackfinlinux
+   wm title .optblackfinlinux "BLACKFIN Linux options"
+   wm geometry .optblackfinlinux +100+100
+
+   frame .optblackfinlinux.buttons
+   pack .optblackfinlinux.buttons -side bottom -fill x -pady 2m
+   button .optblackfinlinux.buttons.ok -text "Ok" -command "blackfinlinuxoptions_ok; destroy .optblackfinlinux"
+   button .optblackfinlinux.buttons.help -text "Help" -command "tk_dialog .help message TODO \"\" 0 ok"
+   pack .optblackfinlinux.buttons.help .optblackfinlinux.buttons.ok -side right -expand 1
+
+   frame .optblackfinlinux.comp -borderwidth 1 -relief solid
+   pack .optblackfinlinux.comp -side top -fill x -pady .5c -padx .5c
+
+   frame .optblackfinlinux.comp.a0
+   label .optblackfinlinux.comp.label -text "Compiler options"
+   pack .optblackfinlinux.comp.label -side top
+   label .optblackfinlinux.comp.a0.label -text "Tools Prefix:" -anchor e
+   entry .optblackfinlinux.comp.a0.prefix -width 25 -relief sunken
+   pack .optblackfinlinux.comp.a0.label  -side top -pady 2 -anchor w
+   pack .optblackfinlinux.comp.a0.prefix  -side top -pady 2 -anchor c
+   pack .optblackfinlinux.comp.a0  -side top -pady 2 -anchor w -fill x
+   .optblackfinlinux.comp.a0.prefix insert 0 $blackfintoolsprefix;
+
+   button .optblackfinlinux.screen -text "Screen driver" -command "screenoptions;"
+   button .optblackfinlinux.mouse -text "Mouse driver" -command "mouseoptions;"
+   button .optblackfinlinux.kbd -text "Keyboard driver" -command "kbdoptions;"
+   pack .optblackfinlinux.comp .optblackfinlinux.screen .optblackfinlinux.mouse .optblackfinlinux.kbd -side top -fill x
+}
+
+proc blackfinlinuxoptions_ok {} {
+   global blackfintoolsprefix;
+   set blackfintoolsprefix [.optblackfinlinux.comp.a0.prefix get];
+}
+
+
+################################################################################
+#
 # Read data from the configuration file
 #
 ################################################################################
@@ -1140,6 +1189,7 @@ proc readconfig {} {
    global armtoolsprefix;
    global mipstoolsprefix;
    global rtemstoolsprefix;
+   global blackfintoolsprefix;
    global optimize;
    global debug;
    global verbose
@@ -1197,6 +1247,7 @@ proc readconfig {} {
    set armtoolsprefix [getvalue "ARMTOOLSPREFIX" 0];
    set mipstoolsprefix [getvalue "MIPSTOOLSPREFIX" 0];
    set rtemstoolsprefix [getvalue "RTEMSTOOLSPREFIX" 0];
+   set blackfintoolsprefix [getvalue "BLACKFINTOOLSPREFIX" 0];
 
    set arch [getvalue "ARCH" 0];
    switch -exact $arch {
@@ -1207,6 +1258,7 @@ proc readconfig {} {
         SOLARIS {set arch 4;}
         ELKS {set arch 5;}
         LINUX-SPARC {set arch 6;}
+	LINUX-BLACKFIN {set arch 7;}
         default {set arch 0}
    }
 
@@ -1397,6 +1449,7 @@ proc writeconfig {} {
    } elseif {$arch == 1} {putvalue "ARCH" "LINUX-ARM"
    } elseif {$arch == 2} {putvalue "ARCH" "LINUX-MIPS"
    } elseif {$arch == 6} {putvalue "ARCH" "LINUX-SPARC"
+   } elseif {$arch == 7} {putvalue "ARCH" "LINUX-BLACKFIN"
    } elseif {$arch == 3} {putvalue "ARCH" "RTEMS"
    } elseif {$arch == 4} {putvalue "ARCH" "SOLARIS"
    } elseif {$arch == 5} {putvalue "ARCH" "ELKS"}

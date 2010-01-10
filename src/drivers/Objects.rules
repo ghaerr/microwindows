@@ -225,6 +225,12 @@ ifeq ($(ARCH), FREEBSD-X86)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_fbsd.o
 endif
 
+### tslib touchscreen driver
+ifeq ($(TSLIBMOUSE), Y)
+LDFLAGS += -lts
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_tslib.o
+endif
+
 ifeq ($(NOMOUSE), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_null.o
 endif

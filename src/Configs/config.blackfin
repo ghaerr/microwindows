@@ -21,13 +21,11 @@
 # Valid ARCH values are:
 #
 # LINUX-NATIVE
-# LINUX-AVR32 (BIGENDIAN=Y)
 # LINUX-TCC
 # LINUX-ARM
 # LINUX-MIPS
 # LINUX-POWERPC (BIGENDIAN=Y)
 # LINUX-SPARC (BIGENDIAN=Y)
-# LINUX-BLACKFIN
 # LINUX-SH
 # FREEBSD-X86
 # SOLARIS (BIGENDIAN=Y)
@@ -39,15 +37,15 @@
 # note: ELKS can't build client/server nano-X, nor widget lib
 #
 ####################################################################
-ARCH                     = LINUX-NATIVE
+ARCH                     = LINUX-BLACKFIN
 BIGENDIAN                = N
 NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
 MIPSTOOLSPREFIX          = mipsel-linux-
+BLACKFINTOOLSPREFIX	 = bfin-uclinux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
 SHTOOLSPREFIX            = sh-linux-gnu
-AVR32TOOLSPREFIX	 	 = avr32-linux-
-BLACKFINTOOLSPREFIX	 	 = bfin-uclinux-
+RTEMSTOOLSPREFIX         = i386-rtemself-
 
 ####################################################################
 #
@@ -67,7 +65,7 @@ GPROF                    = N
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-SHAREDLIBS               = Y
+SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
 
@@ -129,7 +127,7 @@ HAVE_FILEIO              = Y
 ####################################################################
 # BMP, GIF reading support
 ####################################################################
-HAVE_BMP_SUPPORT         = Y
+HAVE_BMP_SUPPORT         = N
 HAVE_GIF_SUPPORT         = Y
 HAVE_PNM_SUPPORT         = Y
 HAVE_XPM_SUPPORT         = Y
@@ -137,7 +135,7 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.so
 
@@ -147,7 +145,6 @@ LIBJPEG                  = /usr/lib/libjpeg.so
 HAVE_PNG_SUPPORT         = N
 INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.a
-INCZ                     = .
 LIBZ                     = /usr/lib/libz.a
 
 ####################################################################
@@ -161,7 +158,7 @@ LIBTIFF                  = /usr/lib/libtiff.a
 # native .fnt loadable font support
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = Y
+HAVE_FNTGZ_SUPPORT       = N
 FNT_FONT_DIR             = "fonts/bdf"
 
 ####################################################################
@@ -169,7 +166,7 @@ FNT_FONT_DIR             = "fonts/bdf"
 ####################################################################
 HAVE_T1LIB_SUPPORT       = N
 INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.a
+LIBT1LIB                 = /usr/local/lib/libt1.a
 
 ####################################################################
 # TrueType font support thru FreeType 1.x
@@ -183,11 +180,9 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 # Support for many kinds of font thru FreeType 2.x
 # Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
 ####################################################################
-HAVE_FREETYPE_2_SUPPORT  = Y
-xINCFT2LIB                = /usr/include
-xLIBFT2LIB                = /usr/lib/libfreetype.a
-INCFT2LIB                = /usr/local/include
-LIBFT2LIB                = /usr/local/lib/libfreetype.a
+HAVE_FREETYPE_2_SUPPORT  = N
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = /usr/lib/libfreetype.a
 
 ####################################################################
 # PCF font support 
@@ -195,7 +190,7 @@ LIBFT2LIB                = /usr/local/lib/libfreetype.a
 # .pcf.gz files, but it will add libz to the size of the server
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
-HAVE_PCFGZ_SUPPORT       = Y
+HAVE_PCFGZ_SUPPORT       = N
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
@@ -231,14 +226,6 @@ HAVE_EUCJP_SUPPORT       = N
 EUCJP_FONT_DIR           = "fonts/japanese"
 
 ####################################################################
-# Fribidi and shape/joining support for right to left rendering
-####################################################################
-HAVE_FRIBIDI_SUPPORT     = N
-HAVE_SHAPEJOINING_SUPPORT = N
-INCFRIBIDI               = $(TOP)/../../../include
-LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
-
-####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
 NOFONTSORCLIPPING        = N
@@ -265,13 +252,13 @@ GRAYPALETTE              = N
 
 ####################################################################
 #
-# If the platform is running UNIX, Linux
+# If the platform is running UNIX, Linux or RTEMS...
 #
 ####################################################################
 ifneq ($(ARCH), ELKS)
 
 # X Window screen, mouse and kbd drivers
-X11                      = Y
+X11                      = N
 
 ifeq ($(X11), Y)
 # startup screen width, height, (depth for palette mode only)
@@ -288,16 +275,16 @@ else
 # framebuffer screen driver (linear and/or vga 4 planes)
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
-# set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
+FBVGA                    = N
 FRAMEBUFFER              = Y
-FBVGA                    = Y
-VTSWITCH                 = Y
+FBVGA                    = N
+VTSWITCH                 = N
 FBREVERSE                = N
 
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.
 # On a graphics-only embedded system, such as Osprey and Embedded
 # Planet boards, set HAVETEXTMODE=N
-HAVETEXTMODE             = Y
+HAVETEXTMODE             = N
 
 # svgalib screen driver
 VGALIB                   = N
@@ -324,12 +311,11 @@ HWVGA                    = N
 # PSIONMOUSE	Psion 5 (/dev/touch_psion)
 # YOPYMOUSE	Yopy (/dev/yopy-ts)
 # HARRIERMOUSE	NEC Harrier (/dev/tpanel)
-# TSLIBMOUSE    Use tslib (/dev/input/event0)
 ####################################################################
 GPMMOUSE                 = N
-SERMOUSE                 = Y
+SERMOUSE                 = N
 SUNMOUSE                 = N
-NOMOUSE                  = N
+NOMOUSE                  = Y
 IPAQMOUSE                = N
 ZAURUSMOUSE              = N
 TUXMOUSE                 = N
@@ -342,15 +328,14 @@ PSIONMOUSE               = N
 YOPYMOUSE                = N
 HARRIERMOUSE             = N
 LIRCMOUSE                = N
-TSLIBMOUSE               = N
 
 # keyboard or null kbd driver
 TTYKBD                   = N
-SCANKBD                  = Y
+SCANKBD                  = N
 PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
-NOKBD                    = N
+NOKBD                    = Y
 
 endif
 
@@ -360,20 +345,26 @@ endif
 LIRCKBD2                 = N
 
 ####################################################################
-# VNC server support through libvncserver
-####################################################################
-HAVE_VNCSERVER_SUPPORT   = N
-VNCSERVER_PTHREADED      = N
-LIBVNC                   = /usr/local/lib/libvncserver.a
-INCVNC                   = /usr/local/include
-
-####################################################################
 # Screen driver specific configuration
 # SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
 # INVERT4BPP 4bpp inverted pixel driver for VTech Helio
 ####################################################################
 SA1100_LCD_LTLEND        = N
 INVERT4BPP               = N
+
+####################################################################
+#
+# If the platform is a RTEMS box ....
+#
+####################################################################
+ifeq ($(ARCH), RTEMS)
+
+# Location & BSP information of the RTEMS build
+RTEMS_BUILD              = /tools/build-i386-elf-rtems
+RTEMS_BSP                = pc386
+LINK_APP_INTO_SERVER     = Y
+
+endif
 
 endif
 

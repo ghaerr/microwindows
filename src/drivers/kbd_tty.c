@@ -17,10 +17,12 @@
 
 /*#define DEBUG_ESCAPE_SEQUENCES*/
 
-#if ELKS
-#define	KEYBOARD	"/dev/tty1"	/* keyboard associated with screen*/
+#ifdef ARCH_LINUX_POWERPPC
+#   define KEYBOARD	"/dev/tty0"	/* keyboard associated with screen Foedrowitz 2006mar15 */
+#elif ELKS
+#   define KEYBOARD	"/dev/tty1"	/* keyboard associated with screen*/
 #else
-#define	KEYBOARD	"/dev/tty"	/* keyboard associated with screen*/
+#   define KEYBOARD	"/dev/tty"	/* keyboard associated with screen*/
 #endif
 
 #define CTRL(x)	  ((x) & 0x1f)

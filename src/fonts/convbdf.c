@@ -5,6 +5,7 @@
  *
  * What fun it is converting font data...
  *
+ * 01/09/10 fix copyright notice sscanf
  * 09/17/02	Version 1.0
  */
 #include <stdio.h>
@@ -335,7 +336,8 @@ bdf_read_header(FILE *fp, PMWCFONT pf)
 			continue;
 		}
 		if (isprefix(buf, "COPYRIGHT ")) {	/* not required*/
-			if (sscanf(buf, "COPYRIGHT \"%[^\"]", copyright) != 1) {
+/*			if (sscanf(buf, "COPYRIGHT \"%[^\"]", copyright) != 1) {*/
+            if (sscanf(buf, "COPYRIGHT \"%s\"", copyright) != 1) {
 				fprintf(stderr, "Error: bad 'COPYRIGHT'\n");
 				return 0;
 			}

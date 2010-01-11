@@ -100,8 +100,7 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		while(x1++ <= x2)
 			*addr++ = c;
 	} else {
-		applyOp2(x2-x1, gr_mode, c, addr, ADDR16);
-
+		applyOp2(x2-x1+1, gr_mode, c, addr, ADDR16);
 		/*
 		while (x1++ <= x2) {
 			applyOp(gr_mode, c, addr, ADDR16);
@@ -134,7 +133,7 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 			addr += linelen;
 		}
 	} else {
-		applyOp3(y2-y1, linelen, gr_mode, c, addr, ADDR16);
+		applyOp3(y2-y1+1, linelen, gr_mode, c, addr, ADDR16);
 		/*
 		while (y1++ <= y2) {
 			applyOp(gr_mode, c, addr, ADDR16);

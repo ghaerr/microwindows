@@ -95,6 +95,7 @@ COLORREF WINAPI	SetTextColor(HDC, COLORREF);
 COLORREF WINAPI	SetBkColor(HDC, COLORREF);
 int WINAPI 	SetBkMode(HDC, int);
 UINT WINAPI     SetTextAlign(HDC hdc, UINT fMode);
+UINT WINAPI		GetTextAlign(HDC hdc);
 
 /* Binary raster ops*/
 #define R2_BLACK            (MWMODE_CLEAR+1)		/*  0       */

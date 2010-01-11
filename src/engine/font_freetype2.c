@@ -111,11 +111,7 @@ extern MWBOOL gr_usebg;
  *
  * FIXME: This option should be in the config file.
  */
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,2,0)
-#define HAVE_FREETYPE_2_CACHE 0		/* FIXME for v2.3 no 'font' member*/
-#else	
-#define HAVE_FREETYPE_2_CACHE 1
-#endif
+#define HAVE_FREETYPE_2_CACHE 1			/* added 'font' member explicitly for >= v2.3*/
 
 
 /*
@@ -192,6 +188,7 @@ struct MWFREETYPE2FONT_STRUCT
 #if HAVE_FREETYPE_2_CACHE
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
 	FTC_ImageTypeRec imagedesc;
+	FTC_FontRec font;	/* used only for copy-in when calling FTC_Manager_Lookup_Size*/
 #else
 	FTC_ImageDesc imagedesc;
 #endif
@@ -610,9 +607,9 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 	pf->faceid = faceid;
 	pf->filename = filename;
 #if HAVE_FREETYPE_2_CACHE
-	pf->imagedesc.font.face_id = faceid;
-	pf->imagedesc.font.pix_width = 0;	/* Will be set by GdSetFontSize */
-	pf->imagedesc.font.pix_height = 0;	/* Will be set by GdSetFontSize */
+	pf->imagedesc.face_id = faceid;
+	pf->imagedesc.width = 0;	/* Will be set by GdSetFontSize */
+	pf->imagedesc.height = 0;	/* Will be set by GdSetFontSize */
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
 	pf->imagedesc.flags = 0;	/* Will be set by GdSetFontAttr */
 #else
@@ -659,8 +656,14 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 #if HAVE_FREETYPE_2_CACHE
 	/* Check that the font file exists and is valid */
 	/*DPRINTF("freetype2_createfont_internal(): testing\n");*/
+	pf->font.face_id = pf->imagedesc.face_id;
+	pf->font.pix_width = pf->imagedesc.width;
+	pf->font.pix_height = pf->imagedesc.height;
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-	    &(pf->imagedesc.font), &face, &size);
+	    &(pf->font), &face, &size);
+	pf->imagedesc.face_id = pf->font.face_id;
+	pf->imagedesc.width = pf->font.pix_width;
+	pf->imagedesc.height = pf->font.pix_height;
 	if (error != FT_Err_Ok) {
 		EPRINTF("Nano-X-Freetype2: Freetype 2 error %lx trying to load font.\n",
 		    (unsigned long)error);
@@ -805,8 +808,8 @@ freetype2_setfontsize(PMWFONT pfont, MWCOORD fontsize)
 	pixel_width = fontsize;
 
 #if HAVE_FREETYPE_2_CACHE
-	pf->imagedesc.font.pix_width  = pixel_width;
-	pf->imagedesc.font.pix_height = pixel_height;
+	pf->imagedesc.width  = pixel_width;
+	pf->imagedesc.height = pixel_height;
 #else
 	/* We want real pixel sizes ... not points ... */
 	FT_Set_Pixel_Sizes(pf->face, pixel_width, pixel_height);
@@ -1036,8 +1039,14 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	assert(pfontinfo);
 
 #if HAVE_FREETYPE_2_CACHE
+	pf->font.face_id = pf->imagedesc.face_id;
+	pf->font.pix_width = pf->imagedesc.width;
+	pf->font.pix_height = pf->imagedesc.height;
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-					&(pf->imagedesc.font), &face, &size);
+					&(pf->font), &face, &size);
+	pf->imagedesc.face_id = pf->font.face_id;
+	pf->imagedesc.width = pf->font.pix_width;
+	pf->imagedesc.height = pf->font.pix_height;
 	if (error) {
 		EPRINTF("Freetype 2 error 0x%x getting font info.\n", error);
 		return FALSE;
@@ -1144,8 +1153,14 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(x=%d, y=%d) called\n", ax, ay);
 
 #if HAVE_FREETYPE_2_CACHE
+	pf->font.face_id = pf->imagedesc.face_id;
+	pf->font.pix_width = pf->imagedesc.width;
+	pf->font.pix_height = pf->imagedesc.height;
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-					&(pf->imagedesc.font), &face, &size);
+					&(pf->font), &face, &size);
+	pf->imagedesc.face_id = pf->font.face_id;
+	pf->imagedesc.width = pf->font.pix_width;
+	pf->imagedesc.height = pf->font.pix_height;
 	if (error) {
 		EPRINTF("Freetype 2 error 0x%x getting font for drawtext.\n",
 			error);
@@ -1199,6 +1214,20 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			(pf->fontattr & MWTF_ANTIALIAS) ? ft_render_mode_normal :
 			ft_render_mode_mono;
 
+		/* clear background area*/
+		if (gr_usebg) {
+			MWCOORD fnt_h, fnt_w, fnt_b;
+
+			freetype2_gettextsize(pfont, text, cc, flags, &fnt_w, &fnt_h, &fnt_b);
+
+			if (flags & MWTF_BOTTOM)
+				psd->FillRect(psd, ax, ay-fnt_h-(fnt_b>>1), ax+fnt_w, ay, gr_background);
+			else if(flags & MWTF_TOP)
+				psd->FillRect(psd, ax, ay, ax+fnt_w, ay+fnt_h+(fnt_b>>1), gr_background);
+			else
+				psd->FillRect(psd, ax, ay-fnt_h, ax+fnt_w, ay+(fnt_b>>1), gr_background);
+		}
+
 		/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext() using SLOW routine\n"); */
 		pos.x = 0;
 		for (i = 0; i < cc; i++) {
@@ -1209,7 +1238,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 					       ft_kerning_default,
 					       &kerning_delta);
 
-				//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n", (int)kerning_delta.x, (int)kerning_delta.x/64);
+				/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n", (int)kerning_delta.x, (int)kerning_delta.x/64);*/
 				pos.x += kerning_delta.x & (~63);
 			}
 			last_glyph_code = curchar;
@@ -1380,8 +1409,14 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf,
 	FT_BBox glyph_bbox;
 
 #if HAVE_FREETYPE_2_CACHE
+	pf->font.face_id = pf->imagedesc.face_id;
+	pf->font.pix_width = pf->imagedesc.width;
+	pf->font.pix_height = pf->imagedesc.height;
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-					&(pf->imagedesc.font), &face, &size);
+					&(pf->font), &face, &size);
+	pf->imagedesc.face_id = pf->font.face_id;
+	pf->imagedesc.width = pf->font.pix_width;
+	pf->imagedesc.height = pf->font.pix_height;
 	if (error) {
 		EPRINTF("Freetype 2 error 0x%x getting font info.\n", error);
 		*pwidth = 0;
@@ -1516,9 +1551,14 @@ freetype2_gettextsize_fast(PMWFREETYPE2FONT pf,
 	int last_glyph_code = 0;	/* Used for kerning */
 
 #if HAVE_FREETYPE_2_CACHE
+	pf->font.face_id = pf->imagedesc.face_id;
+	pf->font.pix_width = pf->imagedesc.width;
+	pf->font.pix_height = pf->imagedesc.height;
 	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-					&(pf->imagedesc.font), &face,
-					&size);
+					&(pf->font), &face, &size);
+	pf->imagedesc.face_id = pf->font.face_id;
+	pf->imagedesc.width = pf->font.pix_width;
+	pf->imagedesc.height = pf->font.pix_height;
 	if (error) {
 		EPRINTF("Freetype 2 error 0x%x getting font info.\n",
 			error);

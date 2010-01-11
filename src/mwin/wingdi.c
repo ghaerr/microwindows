@@ -301,11 +301,17 @@ SetTextAlign(HDC hdc, UINT fMode)
 {
 	UINT	oldfMode;
 
-	if(!hdc)
-		return GDI_ERROR;
 	oldfMode = hdc->textalign;
 	hdc->textalign = fMode;
 	return oldfMode;
+}
+
+UINT WINAPI
+GetTextAlign(HDC hdc)
+{
+	if(!hdc)
+		return GDI_ERROR;
+	return hdc->textalign;
 }
 
 /* FIXME: releasing a DC does NOT change back the drawing mode!*/
@@ -850,6 +856,20 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 		flags |= MWTF_BOTTOM;
 	} else
 		flags |= MWTF_TOP;
+
+	if((hdc->textalign & TA_CENTER) == TA_CENTER) {
+		MWCOORD     ph, pw, pb;
+
+		GdGetTextSize(hdc->font->pfont, lpszString, cbCount,
+			&pw, &ph, &pb, flags);
+		pt.x -= pw/2;
+	} else if(hdc->textalign & TA_RIGHT) {
+		MWCOORD     ph, pw, pb;
+
+		GdGetTextSize(hdc->font->pfont, lpszString, cbCount,
+			&pw, &ph, &pb, flags);
+		pt.x -= pw;
+	}
 	GdText(hdc->psd, pt.x, pt.y, lpszString, cbCount, flags);
 
 	return TRUE;

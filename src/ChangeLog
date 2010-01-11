@@ -1,3 +1,8 @@
+10 January 2010 - greg@censoft.com
+	* clear background in freetype 2 rotated text (Junior)
+	* turned back on auto caching for Freetype 2.3.x (tested 2.3.9) (Riaz)
+	* fixed bug in applyOp2/3/4 macros affecting 16bpp non-copy drawing (Uwe)
+	* added GetTextAlign, implemented TA_CENTER, TA_RIGHT (Uwe)
 	* removed createfont fail verbose messages
 	* faster fillrect in genmem.c when portrait mode
 	* added 18bpp (RGB666 LSB) framebuffer support/driver ARM PXA270 (V Brach)

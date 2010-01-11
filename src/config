@@ -184,10 +184,8 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 # Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
-xINCFT2LIB                = /usr/include
-xLIBFT2LIB                = /usr/lib/libfreetype.a
-INCFT2LIB                = /usr/local/include
-LIBFT2LIB                = /usr/local/lib/libfreetype.a
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = /usr/lib/libfreetype.a
 
 ####################################################################
 # PCF font support 

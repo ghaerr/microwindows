@@ -1,7 +1,6 @@
 add Cyerbit.ttf fonts outside tree for testing
 fix srandom/srand in various apps (rtems/ecos)
-add support for latest freetype 2 (2.3.11?)
-
+check that DrawAreaInternal clears bg when usebg for ft2 fonts
 fix left/right portrait w/freetype
 add drawarea_copy* functions from fblin16 to fblin24/fblin32 driver
 combine GdArea, GdBlit, GdAreaInternal for speed; build conversion library
@@ -13,7 +12,6 @@ old GdArc doesn't draw 2nd point on circle, see grdemo.sh/arcdemo
 replace old GdArc routine w/new version based on GdArcAngle
 ft2: no underline
 ft2: must use forced slow rotation code when cache off
-ft2.3: must force cache off after v2.1.3 as no 'font' member in FTC_ImageTypeReq struct
 change freetype2_create etc back to freetype_create
 mwdvetest demo segfaults when dialog moved or credits closed
 remove 2nd thislen parm in GrSendClientData

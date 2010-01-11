@@ -609,6 +609,7 @@ GdCaptureScreen(char *path)
 				putdw(*lptr++, ofp);
 			break;
 		case 24:
+		case 18:
 			cptr = (unsigned char *)buf;
 			for(j=0; j<cx; ++j) {
 				putc(*cptr++, ofp);

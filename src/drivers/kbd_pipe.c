@@ -54,14 +54,14 @@ soft_Open(KBDDEVICE* pkd)
         }
 	if (mkfifo(KBD_NAMED_PIPE, 0600) < 0) {
 		EPRINTF("mkfifo() error %d ('%s')\n", \
-			errno, sys_errlist[errno]);
+			errno, strerror(errno));
 		return -1;
 	}
 
         /* Open the named pipe */
         if ((kbd_fd = open(KBD_NAMED_PIPE, O_RDONLY | O_NONBLOCK)) < 0) {
 		EPRINTF("open() error %d ('%s')\n", \
-			errno, sys_errlist[errno]);
+			errno, strerror(errno));
                 return -1;
 	}
 	

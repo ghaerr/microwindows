@@ -1,3 +1,9 @@
+	* faster fillrect in genmem.c when portrait mode
+	* added 18bpp (RGB666 LSB) framebuffer support/driver ARM PXA270 (V Brach)
+	* enhanced korean KSC5601 dbcs support, modified jo16x16.c font
+	* enhanced nxterm w/cursor key support, started UNIX98 /dev/ptmx support
+	* vncserver patches (still broken), updated snap_jpeg for palette support
+	* added tomtom support and mouse driver
 9 January 2010 - greg@censoft.com
 	* fix copyright notice sscanf in convbdf.c
 	* fix off-by-one in GdFillPoly (Foedrowitz)

@@ -341,7 +341,7 @@ typedef struct _mwscreendevice {
 	int	planes;		/* # planes*/
 	int	bpp;		/* # bpp*/
 	int	linelen;	/* line length in bytes for bpp 1,2,4,8*/
-				/* line length in pixels for bpp 16, 24, 32*/
+				/* line length in pixels for bpp 16, 18, 24, 32*/
 	int	size;		/* size of memory allocated*/
 	long	ncolors;	/* # screen colors*/
 	int	pixtype;	/* format of pixel value*/

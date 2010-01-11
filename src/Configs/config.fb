@@ -308,6 +308,7 @@ HWVGA                    = N
 # PSIONMOUSE	Psion 5 (/dev/touch_psion)
 # YOPYMOUSE	Yopy (/dev/yopy-ts)
 # HARRIERMOUSE	NEC Harrier (/dev/tpanel)
+# TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
 GPMMOUSE                 = Y
 SERMOUSE                 = N
@@ -324,6 +325,7 @@ MTMOUSE                  = N
 PSIONMOUSE               = N
 YOPYMOUSE                = N
 HARRIERMOUSE             = N
+TTMOUSE                  = N
 LIRCMOUSE                = N
 
 # keyboard or null kbd driver

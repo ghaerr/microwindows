@@ -28,6 +28,7 @@ ifeq ($(FRAMEBUFFER), Y)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
+	$(MW_DIR_OBJ)/drivers/fblin18.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
 	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
@@ -98,6 +99,7 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin4.o \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
+	$(MW_DIR_OBJ)/drivers/fblin18.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
 	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
@@ -128,6 +130,7 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin4.o \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
+	$(MW_DIR_OBJ)/drivers/fblin18.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o
 endif
@@ -183,6 +186,11 @@ endif
 ifeq ($(ZAURUSMOUSE), Y)
 CFLAGS += -DTOUCHSCREEN_ZAURUS=1
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(TTMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_TOMTOM=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/ttmouse_init.o $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
 endif
 
 ### Embedded Planet touchscreen

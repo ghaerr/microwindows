@@ -838,6 +838,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		linesize = width*4;
 		break;
 	case 24:
+	case 18:
 		linesize = width*3;
 		break;
 	case 16:
@@ -923,10 +924,10 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				data = (long *) (((char *) data) + extra);
 			}
 		}
-	} else if (bpp > 8) {	/* 16, 24, or 32bpp*/
+	} else if (bpp > 8) {	/* 16, 18, 24, or 32bpp*/
 		while (height > 0) {
 			/* get value in correct RGB or BGR byte order*/
-			if (bpp == 24) {
+			if (bpp == 24 || bpp == 18) {
 				cr = rgborder
 					? MWRGB(imagebits[0], imagebits[1],
 						imagebits[2])
@@ -2175,6 +2176,7 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 			bytelen = width * 2;
 			break;
 		case 24:
+		case 18:
 			linelen = width;
 			bytelen = width * 3;
 			break;

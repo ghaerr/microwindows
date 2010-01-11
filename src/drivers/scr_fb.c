@@ -179,6 +179,7 @@ fb_open(PSD psd)
 			else
 				psd->pixtype = MWPF_TRUECOLOR565;
 			break;
+		case 18:
 		case 24:
 			psd->pixtype = MWPF_TRUECOLOR888;
 			break;

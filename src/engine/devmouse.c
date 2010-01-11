@@ -3,6 +3,8 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (C) 1999 Bradley D. LaRonde (brad@ltc.com)
  * Copyright (c) 1991 David I. Bell
+ * Permission is granted to use, distribute, or modify this source,
+ * provided that this copyright notice remains intact.
  *
  * Device-independent top level mouse and cursor routines
  *
@@ -53,6 +55,7 @@ static MWIMAGEBITS cursormask[MWMAX_CURSOR_BUFLEN];
 static MWIMAGEBITS cursorcolor[MWMAX_CURSOR_BUFLEN];
 
 extern int gr_mode;
+extern MOUSEDEVICE mousedev;
 
 /* Advance declarations */
 static int filter_relative(int, int, int, int *, int *, int, int);

@@ -76,8 +76,13 @@ void
 gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	MWPIXELVAL c)
 {
-	while(y1 <= y2)
-		psd->DrawHorzLine(psd, x1, x2, y1++, c);
+
+	if (psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))
+		while(x1 <= x2)
+			psd->DrawVertLine(psd, x1++, y1, y2, c);
+	else
+		while(y1 <= y2)
+			psd->DrawHorzLine(psd, x1, x2, y1++, c);
 }
 
 /*

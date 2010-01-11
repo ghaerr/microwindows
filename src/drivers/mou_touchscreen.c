@@ -11,6 +11,7 @@
    TOUCHSCREEN_TUXSCREEN - Shannon IS2630
    TOUCHSCREEN_ADS - Applied Data Systems Graphics Client+ devices
    TOUCHSCREEN_ADS7846 - TI ADS6847 (PSI OMAP Innovator)
+   TOUCHSCREEN_TOMTOM - TomTom devices (Go, One, ...)
 */
 
 /* To add a new device, add a new item to the config file
@@ -46,6 +47,11 @@
 #include "touchscreen_ucb1x00.h"
 #endif
 
+#ifdef TOUCHSCREEN_TOMTOM
+#include "touchscreen_tomtom.h"
+#include "ttmouse_init.h"
+#endif
+
 #ifndef TS_DEVICE
 #error "You didn't define a device for the generic touchscreen driver!"
 #endif
@@ -60,6 +66,10 @@ static int PD_Open(MOUSEDEVICE *pmd)
 			errno, TS_DEVICE, TS_DEVICE_FILE);
 		return -1;
 	}
+
+	#ifdef TOUCHSCREEN_TOMTOM
+  		if (ttmouse_init() < 0) EPRINTF("TomTom touchscreen calibration failed\n");
+	#endif
 
 	GdHideCursor(&scrdev);  
 	return pd_fd;
@@ -108,7 +118,12 @@ static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb)
 	}
 
 	*px = event.x;
-	*py = event.y;
+	#ifdef TOUCHSCREEN_TOMTOM
+		// TomTom crazyness
+		*py = 239 - event.y;	
+	#else
+		*py = event.y;
+	#endif
 
 #if defined(TOUCHSCREEN_IPAQ) || defined(TOUCHSCREEN_ADS7846)
 	*pb = (event.pressure) ? MWBUTTON_L : 0;

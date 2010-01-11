@@ -25,7 +25,7 @@
 
 
 int
-save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, char *file)
+save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *file)
 {
 	int y;
 	FILE *fp;
@@ -67,8 +67,14 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, char *file)
 		for (x = 0; x < info->xres; x++) {
 			switch (info->bpp) {
 			case 8:
-				colorval = PIXEL332TOCOLORVAL(*ch);
-				break;
+			  if (info->pixtype == MWPF_PALETTE) {
+			    colorval = ((pal->palette[ch[0]].r << 0 ) |
+					(pal->palette[ch[0]].g << 8 ) |
+					(pal->palette[ch[0]].b << 16));
+			  } else {
+			    colorval = PIXEL332TOCOLORVAL(*ch);
+			  }
+			  break;
 
 			case 16:
 				colorval =
@@ -104,6 +110,7 @@ int
 main(int argc, char **argv)
 {
 	GR_WINDOW_FB_INFO fbinfo;
+	GR_PALETTE pal;
 	unsigned char *fb;
 
 	if (argc < 2) {
@@ -127,8 +134,9 @@ main(int argc, char **argv)
 	}
 
 	GrGetWindowFBInfo(GR_ROOT_WINDOW_ID, &fbinfo);
+	GrGetSystemPalette(&pal);
 
-	if (save_image(fb, &fbinfo, argv[1]) == -1)
+	if (save_image(fb, &fbinfo, &pal, argv[1]) == -1)
 		printf("Error!\n");
 	else
 		printf("Sucessfully saved [%s]\n", argv[1]);

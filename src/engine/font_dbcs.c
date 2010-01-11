@@ -140,8 +140,13 @@ static void
 euckr_gettextbits(PMWFONT pfont, unsigned int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
+#ifdef BIG_ENDIAN
 	unsigned int	CH = ch >> 8;
 	unsigned int	CL = ch & 0xFF;
+#else
+	unsigned int	CH = ch & 0xFF;
+	unsigned int 	CL = ch >> 8;
+#endif
 	int		mc;
 	static MWIMAGEBITS map[16];
 	extern unsigned short convert_ksc_to_johab(unsigned char CH,

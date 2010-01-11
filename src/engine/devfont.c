@@ -451,6 +451,11 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 		return;
 
 	/* draw text string, DBCS flags may still be set*/
+#ifdef HAVE_KSC5601_SUPPORT
+	if (flags & MWTF_DBCS_EUCKR)
+		;
+	else
+#endif
 	if (!force_uc16)	/* remove DBCS flags if not needed*/
 		flags &= ~MWTF_DBCSMASK;
 	gr_pfont->fontprocs->DrawText(gr_pfont, psd, x, y, text, cc, flags);
@@ -844,7 +849,11 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			ch = *istr8++;
 			if (ch >= 0xA1 && ch <= 0xFE && icc &&
 			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+#ifdef BIG_ENDIAN
 				ch = (ch << 8) | *istr8++;
+#else
+				ch = ch | (*istr8++ << 8);
+#endif
 				--icc;
 			}
 			break;
@@ -1129,7 +1138,7 @@ utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16)
  * warning: the length of output string may exceed six x the length of the input 
  */ 
 static int
-uc16_to_utf8(const unsigned short us[], int cc, unsigned char *s)
+uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s)
 {
 	int i;
 	unsigned char *t = s;

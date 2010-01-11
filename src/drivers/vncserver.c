@@ -19,7 +19,6 @@
 #include "nano-X.h"
 #include "device.h"
 #include "genmem.h"
-//#include "keysym.h"
 
 void GsHandleMouseStatus(GR_COORD, GR_COORD, int newbuttons);
 void GsDeliverKeyboardEvent(GR_WINDOW_ID, GR_EVENT_TYPE, GR_KEY, GR_KEYMOD, GR_SCANCODE);
@@ -42,8 +41,11 @@ int     vnc_thread_fd;
 pthread_t       httpd_thread; /* httpd server process thread */
 
 #endif
-#include "rfb/rfb.h"
+#include <rfb/rfb.h>
+#include <rfb/keysym.h>
 #include <assert.h>
+
+extern MWPALENTRY gr_palette[256];    /* current palette*/
 
 rfbScreenInfoPtr rfbScreen; /* the RFB screen structure */
 
@@ -68,10 +70,8 @@ static void	 (*_StretchBlit)(PSD destpsd, MWCOORD destx, MWCOORD desty,
 
 static void UndrawCursor()
 {
-        if ( clients_connected && rfbScreen->cursorIsDrawn ) 
-        {
-                rfbUndrawCursor(rfbScreen);
-        }
+        //FIXME if ( clients_connected && rfbScreen->cursorIsDrawn ) 
+                //FIXME rfbUndrawCursor(rfbScreen);
 }       
 
 static void MarkRect( int x1, int y1, int x2, int y2 )
@@ -79,12 +79,11 @@ static void MarkRect( int x1, int y1, int x2, int y2 )
         if ( clients_connected )
         {
                 /* Enlarge  the updated rectangle by a pixel, needed for 1 pixel wide rects */
-                if ( x2 < rfbScreen->width - 1 ) 
+                if ( x2 < (rfbScreen->width - 1)) 
                         x2++;
                 else if ( x1 > 0 ) x1--;
                         
-                if ( y2 < rfbScreen->height - 1 ) 
-                
+                if ( y2 < (rfbScreen->height - 1)) 
                         y2++;
                 else if ( y1 > 0 ) y1--;
 
@@ -164,7 +163,7 @@ static void newclient( rfbClientPtr cl )
         cl->clientGoneHook = clientgone;
 
         UndrawCursor();
-#if MW_FEATURE_PSDOP_COPY
+#if 0 // MW_FEATURE_PSDOP_COPY
         MyStretchBlit( vncpsd, 0, 0, rfbScreen->width, rfbScreen->height, actualpsd, 0, 0, 
                        XRES, YRES, PSDOP_COPY );
 #endif
@@ -204,7 +203,7 @@ void * httpd_proc( void * _ )
             }
             nfds = select( max(rfbScreen->httpSock,rfbScreen->httpListenSock) + 1, &fds, NULL, NULL, NULL );
         
-            httpCheckFds( rfbScreen );
+            rfbHttpCheckFds( rfbScreen );
     } while ( nfds > 0 );
     return 0;
 }
@@ -231,7 +230,7 @@ static void handle_pointer(int buttonMask,int x,int y, struct _rfbClientRec* cl)
                awakeGsSelect();
 
         }
-        defaultPtrAddEvent(buttonMask, x, y, cl);
+        rfbDefaultPtrAddEvent(buttonMask, x, y, cl);
 
 }
 
@@ -547,6 +546,9 @@ static void handle_keyboard( rfbBool down, rfbKeySym sym, rfbClientPtr cl)
 
 int GdOpenVNC( PSD psd, int argc, char *argv[] )
 {
+  rfbColourMap* cmap;
+  int i;
+
    /* Save the actual FB screen driver drawing functions */
         
    actualpsd = psd;
@@ -580,68 +582,88 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    /* NOW set bits x sample & samples x pixel */
         
    switch(psd->pixtype) {
+
    case  MWPF_TRUECOLOR332: /* 8 bpp */
-           
-           rfbScreen->rfbServerFormat.redMax = 7;
-           rfbScreen->rfbServerFormat.greenMax = 7;
-           rfbScreen->rfbServerFormat.blueMax = 3;
+           rfbScreen->serverFormat.redMax = 7;
+           rfbScreen->serverFormat.greenMax = 7;
+           rfbScreen->serverFormat.blueMax = 3;
 
-           rfbScreen->rfbServerFormat.redShift = 5;
-           rfbScreen->rfbServerFormat.greenShift = 2;
-           rfbScreen->rfbServerFormat.blueShift = 0;
+           rfbScreen->serverFormat.redShift = 5;
+           rfbScreen->serverFormat.greenShift = 2;
+           rfbScreen->serverFormat.blueShift = 0;
            break;
-   case  MWPF_TRUECOLOR565: 
 
-           rfbScreen->rfbServerFormat.greenMax = 63;
-           rfbScreen->rfbServerFormat.redShift = 11;
+   case  MWPF_TRUECOLOR565: 
+           rfbScreen->serverFormat.greenMax = 63;
+           rfbScreen->serverFormat.redShift = 11;
            goto skip555;
 
    case  MWPF_TRUECOLOR555: /* 16 bpp */
-           rfbScreen->rfbServerFormat.greenMax = 31;
-           rfbScreen->rfbServerFormat.redShift = 10;
+           rfbScreen->serverFormat.greenMax = 31;
+           rfbScreen->serverFormat.redShift = 10;
                 
            skip555:
-           rfbScreen->rfbServerFormat.redMax = 31;
-           rfbScreen->rfbServerFormat.blueMax = 31;
+           rfbScreen->serverFormat.redMax = 31;
+           rfbScreen->serverFormat.blueMax = 31;
            
-           rfbScreen->rfbServerFormat.greenShift = 5;
-           rfbScreen->rfbServerFormat.blueShift = 0;
+           rfbScreen->serverFormat.greenShift = 5;
+           rfbScreen->serverFormat.blueShift = 0;
 
            break;
+
+   case MWPF_PALETTE:
+     cmap = &(rfbScreen->colourMap);
+     rfbScreen->serverFormat.trueColour = FALSE;
+     cmap->count = psd->ncolors;
+     cmap->is16 = FALSE;
+
+     if (cmap->data.bytes == 0) {
+       cmap->data.bytes=malloc(cmap->count*3);
+     }
+
+     for (i=0; i<cmap->count; i++) {
+       cmap->data.bytes[3*i+0] = gr_palette[i].r;
+       cmap->data.bytes[3*i+1] = gr_palette[i].g;
+       cmap->data.bytes[3*i+2] = gr_palette[i].b;
+     }
+     /* Fall through to MWPF_TRUECOLOR888 */
+
    case MWPF_TRUECOLOR0888: /* 24/32 bpp */
    case MWPF_TRUECOLOR888:
-           rfbScreen->rfbServerFormat.redMax = 255;
-           rfbScreen->rfbServerFormat.greenMax = 255;
-           rfbScreen->rfbServerFormat.blueMax = 255;
+           rfbScreen->serverFormat.redMax = 255;
+           rfbScreen->serverFormat.greenMax = 255;
+           rfbScreen->serverFormat.blueMax = 255;
 
-           rfbScreen->rfbServerFormat.redShift = 16;
-           rfbScreen->rfbServerFormat.greenShift = 8;
-           rfbScreen->rfbServerFormat.blueShift = 0;
+           rfbScreen->serverFormat.redShift = 16;
+           rfbScreen->serverFormat.greenShift = 8;
+           rfbScreen->serverFormat.blueShift = 0;
                 
            break;
         
    default:
+     break;
    }
 
    /* Set bpp. If VNC does not support nano-X bpp, it will refuse connections, 
       but nano-X will continue to run  */
 
-   rfbScreen->rfbServerFormat.bitsPerPixel = 
-   rfbScreen->rfbServerFormat.depth = 
+   rfbScreen->serverFormat.bitsPerPixel = 
+   rfbScreen->serverFormat.depth = 
    rfbScreen->bitsPerPixel = rfbScreen->depth = psd->bpp;
 
 
    rfbScreen->desktopName = "nano-X";
    rfbScreen->frameBuffer = psd->addr;
-   rfbScreen->rfbAlwaysShared = TRUE;
+   rfbScreen->alwaysShared = TRUE;
    rfbScreen->ptrAddEvent = handle_pointer;
    rfbScreen->kbdAddEvent = handle_keyboard;
    rfbScreen->newClientHook = newclient;
-   rfbScreen->dontSendFramebufferUpdate = FALSE;
+   // FIXME rfbScreen->dontSendFramebufferUpdate = FALSE;
    rfbScreen->cursor = NULL;
 
+   rfbScreen->httpPort = 5800;
    rfbScreen->httpDir = "/var/lib/httpd/";
-   rfbScreen->rfbAuthPasswdData = "/etc/vncpasswd";
+   rfbScreen->authPasswdData = "/etc/vncpasswd";
 
    rfbScreen->paddedWidthInBytes = psd->linelen * (psd->bpp >> 3) ; 
         
@@ -652,7 +674,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    pipe(fd);
    vnc_thread_fd = fd[0];
    pthread_mutex_init( &eventMutex, NULL );
-   rfbScreen->rfbDeferUpdateTime = 25;
+   rfbScreen->deferUpdateTime = 25;
 //   rfbScreen->backgroundLoop = TRUE;
    rfbRunEventLoop( rfbScreen, 0, TRUE);
    pthread_create( &httpd_thread, 0, httpd_proc, 0 );

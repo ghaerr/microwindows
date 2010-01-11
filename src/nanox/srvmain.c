@@ -123,7 +123,11 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	printf("Usage: %s [-e] [-p] [-A] [-NLRD] [-x#] [-y#] [-c <fontconfig-file> ...]\n",
+	printf("Usage: %s [-e] [-p] [-A] [-NLRD] [-x#] [-y#]"
+#if FONTMAPPER
+		" [-c <fontconfig-file>"
+#endif
+		" ...]\n",
 		progname);
 	exit(1);
 }
@@ -668,9 +672,9 @@ GsSelect(GR_TIMEOUT timeout)
 
 #else
         /* Add all VNC open sockets to nano-X select set */
-        FD_SET( rfbScreen->rfbListenSock, &(rfds) );
-        if ( rfbScreen->rfbListenSock > setsize )
-                setsize = rfbScreen->rfbListenSock;
+        FD_SET( rfbScreen->listenSock, &(rfds) );
+        if ( rfbScreen->listenSock > setsize )
+                setsize = rfbScreen->listenSock;
 
         FD_SET( rfbScreen->httpListenSock, &(rfds) );
         if ( rfbScreen->httpListenSock > setsize )

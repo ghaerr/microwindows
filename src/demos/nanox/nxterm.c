@@ -58,6 +58,7 @@
  */
 #ifdef linux
 #define NSIG _NSIG
+#define UNIX98	0	/* use new-style /dev/ptmx, /dev/pts/0*/
 #endif
 
 #ifdef __FreeBSD__
@@ -116,7 +117,13 @@ void term(void);
 void usage(char *s);
 void *mysignal(int signum, void *handler);
 void sigchild(int signo);
+int do_special_key(char *buffer, int key, int modifiers);
 
+int fgcolor[12] = \
+	{ 0,1,2,3,4,5,6,7,8,9,11 };
+int bgcolor[12] =\
+	{ 0,1,2,3,4,5,6,7,8,9,11 };
+int stdFlag; /* set when screen has been scrolled up */
 
 /* **************************************************************************/
 
@@ -247,19 +254,18 @@ void show_cursor (void)
 
 void draw_cursor (void)
 {
-    if (!curvis)
-    {
-	curvis = 1;
-	show_cursor();
-    }
+	if(curon)
+		if(!curvis) {
+			curvis = 1;
+			show_cursor();
+			}
 }
 void hide_cursor (void)
 {
-    if (curvis) 
-    {
-	curvis = 0;
-	show_cursor();
-    }
+	if(curvis) {
+		curvis = 0;
+		show_cursor();
+		}
 }
 
 
@@ -322,7 +328,7 @@ void esc1(unsigned char c)	/* various control codes */
     case 'A':/* cursor up */
 	hide_cursor();
 	if ((cury -= 1) < 0)
-	    cury = 0;
+    	cury = 0;
 	break;
 
     case 'B':/* cursor down */
@@ -347,6 +353,7 @@ void esc1(unsigned char c)	/* various control codes */
 	GrClearWindow(w1, 0);
 	curx = 0;
 	cury = 0;
+	
 	break;
 
     case 'H':/* cursor home */
@@ -355,6 +362,7 @@ void esc1(unsigned char c)	/* various control codes */
 	break;
 
     case 'I':/* reverse index */
+	stdFlag = 1;
 	if ((cury -= 1) < 0) 
 	{
 	    cury = 0;
@@ -400,7 +408,6 @@ void esc1(unsigned char c)	/* various control codes */
     case 'Y':/* position cursor */
 	escstate = 2;
 	break;
-
     case 'b':/* set foreground color */
 	escstate = 4;
 	break;
@@ -702,6 +709,7 @@ term(void)
 	GR_EVENT 	wevent;
 	GR_EVENT_KEYSTROKE *kp;
 	unsigned char 	buf[LARGEBUFFER];
+	int		bufflen;
 
 	GrRegisterInput(pipeh);
 	while (42) {
@@ -717,11 +725,14 @@ term(void)
 
 		case GR_EVENT_TYPE_KEY_DOWN:
 			kp=(GR_EVENT_KEYSTROKE *)&wevent;
-			/* toss all special keys*/
+			/* deal with special keys*/
 			if (kp->ch & MWKEY_NONASCII_MASK)
-				break;
-			*buf = kp->ch & 0xff;
-			write(pipeh, buf,1);
+				bufflen = do_special_key(buf,kp->ch,kp->modifiers);
+			else {
+				*buf = kp->ch & 0xff;
+				bufflen = 1;
+				}
+			if( bufflen > 0 ) write(pipeh, buf, bufflen);
 			break;
 
 		case GR_EVENT_TYPE_FOCUS_IN:
@@ -977,29 +988,30 @@ int main(int argc, char **argv)
     GrSetGCBackground(gc1, BLACK);
     GrGetWindowInfo(w1,&wi);
     GrGetGCInfo(gc1,&gi);
-
+/*
     sprintf(buf, "wterm: %s", shell);
-
+*/
     /*
      * what kind of terminal do we want to emulate?
      */
 #ifdef __FreeBSD__
     putenv ("TERM=wterm");
 #else
-    putenv ("TERM=vt52");
+    putenv ("TERM=ngterm");
 #endif
 
     /*
      * this one should enable us to get rid of an /etc/termcap entry for
      * both curses and ncurses, hopefully...
      */
-
+/*
     if (termcap_string) 
     {
 	sprintf (termcap_string + strlen (termcap_string), "li#%d:co#%d:",
 		 row, col);
 	putenv (termcap_string);
     }
+*/
     /* in case program absolutely needs terminfo entry, these 'should'
      * transmit the screen size of correctly (at least xterm sets these
      * and everything seems to work correctly...). Unlike putenv(),
@@ -1108,19 +1120,31 @@ int term_init(void)
 	int tfd;
 	int n = 0;
 	pid_t pid;
-	char pty_name[12];
 
+#if UNIX98
+	char *pty_name;
+
+	/* opens /dev/ptmx*/
+	if ((tfd = open("/dev/ptmx", O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
+	//if ((tfd = getpt()) < 0) {
+err:
+		fprintf(stderr, "Can't create pty /dev/ptmx\n");
+		return -1;
+	}
+	signal(SIGCHLD, SIG_DFL);
+    if (grantpt(tfd) || unlockpt(tfd) || !( pty_name = ptsname(tfd)))
+		goto err;
+#else
+	char pty_name[12];
 again:
 	sprintf(pty_name, "/dev/ptyp%d", n);
 	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
-		if ((errno == EBUSY || errno == EIO) && n < 10) {
-			n++;
-			goto again;
-		}
 		fprintf(stderr, "Can't create pty %s\n", pty_name);
 		return -1;
 	}
 	signal(SIGCHLD, sigchild);
+#endif
+
 	signal(SIGINT, sigchild);
 	if ((pid = fork()) == -1) {
 		fprintf(stderr, "No processes\n");
@@ -1130,13 +1154,20 @@ again:
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
 		close(tfd);
-		
+
+#if UNIX98
+		if ((tfd = open(pty_name, O_RDWR)) < 0) {
+			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			exit(1);
+		}
+#else
 		setsid();
 		pty_name[5] = 't';
 		if ((tfd = open(pty_name, O_RDWR)) < 0) {
 			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
+#endif
 		close(STDERR_FILENO);
 		dup2(tfd, STDIN_FILENO);
 		dup2(tfd, STDOUT_FILENO);
@@ -1205,3 +1236,157 @@ void _write_utmp(char *line, char *user, char *host, int time)
     close(fh);
 }
 #endif
+
+int do_special_key(char *buffer, int key, int modifier) {
+	int len;
+	char *str, locbuff[256], locbuff2[256];
+
+	switch (key) {
+		case  MWKEY_LEFT:
+			str="\033D";
+			len = 2;
+			break;
+		case MWKEY_RIGHT:
+			str="\033C";
+			len=2;
+			break;
+		case MWKEY_UP:
+			if(stdFlag) {
+				str="";
+				len = 0;
+				stdFlag=0;
+				}
+			else {
+				str="\033A";
+				len=2;
+				}
+			break;
+		case MWKEY_DOWN:
+			str="\033B";
+			len=2;
+			break;
+		case MWKEY_HOME:
+			str="\033\110";
+			len=2;
+			break;
+		case MWKEY_KP0:
+			str="\033\077\160";
+			len=3;
+			break;
+		case MWKEY_KP1:
+			str="\033\077\161";
+			len=3;
+			break;
+		case MWKEY_KP2:
+			str="\033\077\162";
+			len=3;
+			break;		
+		case MWKEY_KP3:
+			str="\033\077\163";
+			len=3;
+			break;		
+		case MWKEY_KP4:
+			str="\033\077\164";
+			len=3;
+			break;		
+		case MWKEY_KP5:
+			str="\033\077\165";
+			len=3;
+			break;		
+		case MWKEY_KP6:
+			str="\033\077\166";
+			len=3;
+			break;		
+		case MWKEY_KP7:
+			str="\033\077\167";
+			len=3;
+			break;		
+		case MWKEY_KP8:
+			str="\033\077\170";
+			len=3;
+			break;		
+		case MWKEY_KP9:
+			str="\033\077\161";
+			len=3;
+			break;		
+		case MWKEY_KP_PERIOD:
+			str="\033\077\156";
+			len=3;
+			break;		
+		case MWKEY_KP_ENTER:
+			str="\033\077\115";
+			len=3;
+			break;
+		case MWKEY_DELETE:
+			str="\033C\177";
+			len=3;
+			break;
+		case MWKEY_F1 ... MWKEY_F12:
+			if ( modifier && MWKMOD_LMETA ) {
+				/* we set background color */
+				locbuff[0]=033;
+				locbuff[1]='c';
+				locbuff[2]=(char)bgcolor[key - MWKEY_F1];
+				str = locbuff;
+				len=3;
+				}
+			else if ( modifier && MWKMOD_RMETA ) {
+				/* we set foreground color */
+				locbuff[0]=033;
+				locbuff[1]='b';
+				locbuff[2]=(char)fgcolor[key - MWKEY_F1];				
+				str = locbuff;
+				printf("%d %d %d\n",str[0],str[1],str[2]);
+				len=3;
+				}
+			else switch (key) {
+				case MWKEY_F1:
+					str="\033Y";
+					len=2;
+					break;
+				case MWKEY_F2:
+					str="\033P";
+					len=2;
+					break;
+				case MWKEY_F3:
+					str="\033Q";
+					len=2;
+					break;
+				case MWKEY_F4:
+					str="\033R";
+					len=2;
+					break;
+				case MWKEY_F5:
+					str="\033S";
+					len=2;
+					break;
+				case MWKEY_F6:
+					str="\033T";
+					len=2;
+					break;
+				case MWKEY_F7:
+					str="\033U";
+					len=2;
+					break;
+				case MWKEY_F8:
+					str="\033V";
+					len=2;
+					break;
+				case MWKEY_F9:
+					str="\033W";
+					len=2;
+					break;
+				case MWKEY_F10:
+					str="\033X";
+					len=2;
+					break;
+					}
+				
+		default:
+			str="";
+			len=0;
+		}
+	if(len > 0) sprintf(buffer,"%s",str);
+	else buffer = (char *)0;
+	return len;
+	}

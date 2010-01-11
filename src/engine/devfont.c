@@ -151,6 +151,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		 * height, and the closest builtin font to the specified
 		 * height will always be returned.
 		 */
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("builtin-createfont: %s,%d not found\n",
+				fontname, height);
   	}
 
 	/* check user builtin fonts next*/
@@ -176,7 +179,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 			DPRINTF("fnt_createfont: using font %s\n", fontname);
 			return(pfont);
 		}
-		EPRINTF("fnt_createfont: %s,%d not found\n", fontname, height);
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("fnt_createfont: %s,%d not found\n",
+				fontname, height);
 	}
 #endif
 
@@ -187,7 +192,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 			DPRINTF("pcf_createfont: using font %s\n", fontname);
 			return(pfont);
 		}
-		EPRINTF("pcf_createfont: %s,%d not found\n", fontname, height);
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("pcf_createfont: %s,%d not found\n",
+				fontname, height);
 	}
 #endif
 
@@ -205,8 +212,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
- 			EPRINTF("freetype_createfont: %s,%d not found\n",
-				fontname, height);
+			if (fontclass != MWLF_CLASS_ANY)
+	 			EPRINTF("freetype_createfont: %s,%d not found\n",
+					fontname, height);
 		}
   	}
 #endif
@@ -226,8 +234,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
-			EPRINTF("freetype2_createfont: %s,%d not found\n",
-				fontname, height);
+			if (fontclass != MWLF_CLASS_ANY)
+				EPRINTF("freetype2_createfont: %s,%d not found\n",
+					fontname, height);
 		}
   	}
 #endif
@@ -239,8 +248,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 					fontattr);
 			if(pfont)
 				return pfont;
-			EPRINTF("t1lib_createfont: %s,%d not found\n",
-				fontname, height);
+			if (fontclass != MWLF_CLASS_ANY)
+				EPRINTF("t1lib_createfont: %s,%d not found\n",
+					fontname, height);
 		}
   	}
 #endif
@@ -252,7 +262,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 			pfont = (PMWFONT)hzk_createfont(fontname, height, fontattr);
 			if(pfont)		
 				return pfont;
-			EPRINTF("hzk_createfont: %s,%d not found\n", fontname, height);
+			if (fontclass != MWLF_CLASS_ANY)
+				EPRINTF("hzk_createfont: %s,%d not found\n",
+					fontname, height);
 		}
 	}
 #endif
@@ -264,13 +276,44 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 			DPRINTF("eujcp_createfont: using font %s\n", fontname);
 			return pfont;
 		}
-		EPRINTF("eucjp_createfont: %s,%d not found\n", fontname, height);
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("eucjp_createfont: %s,%d not found\n",
+				fontname, height);
 	}
 #endif
 
+	if (fontclass == MWLF_CLASS_ANY) {
+		EPRINTF("createfont: %s,%d not found\n",
+				fontname, height);
+		EPRINTF("  (tried "
+			"builtin_createfont"
+#ifdef HAVE_FNT_SUPPORT
+			", fnt_createfont"
+#endif
+#ifdef HAVE_PCF_SUPPORT
+			", pcf_createfont"
+#endif
+#if HAVE_FREETYPE_SUPPORT
+			", freetype_createfont"
+#endif
+#if HAVE_FREETYPE_2_SUPPORT
+			", freetype2_createfont"
+#endif
+#if HAVE_T1LIB_SUPPORT
+			", t1lib_createfont"
+#endif
+#if HAVE_HZK_SUPPORT
+			", hzk_createfont"
+#endif
+#if HAVE_EUCJP_SUPPORT
+			", eujcp_createfont"
+#endif
+			")\n");
+	}
+
 	/*
-	 * No font yet found.  If height specified, we'll return
-	 * a builtin font.  Otherwise 0 will be returned.
+	 * No font yet found.  If the height was specified, we'll return the
+	 * most close builtin font as a fallback.  Otherwise 0 will be returned.
 	 */
  	if (height != 0 && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
 		/* find builtin font closest in height*/
@@ -287,12 +330,12 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		}
 		pf[fontno].fontsize = pf[fontno].cfont->height;
 		pf[fontno].fontattr = fontattr;
-DPRINTF("createfont: (height != 0) using builtin font %s (%d)\n", pf[fontno].name, fontno);
+		EPRINTF("createfont: height given, using builtin font %s (%d) as fallback\n", pf[fontno].name, fontno);
 		return (PMWFONT)&pf[fontno];
 	}
 
-	/* no font matched: don't load font, return 0*/
-DPRINTF("createfont: no font found, returning NULL\n");
+	/* no font found: don't load any font and return 0*/
+	EPRINTF("createfont: no height given, fallback search impossible, returning NULL\n");
 	return 0;
 }
 

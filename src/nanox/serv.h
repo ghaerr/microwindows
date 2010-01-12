@@ -13,7 +13,7 @@
 #include "mwsystem.h"
 
 
-#if defined(__ECOS) && !defined(_NO_SVR_MAPPING)
+#if __ECOS && !defined(_NO_SVR_MAPPING)
 /*
  * Since eCos is a single task, multi-threaded environment, the
  * server and the client code share the same namespace.  This means

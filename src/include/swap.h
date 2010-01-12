@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2003 Jon Foster <jon@jon-foster.co.uk>
  *
  * Byte and word swapping header file for big/little endian mapping
  *
  * Currently defined platforms:
- *	linux
- *	__FreeBSD__
+ *	LINUX
+ * 	RTEMS
  *	__ECOS
- * 	__rtems__
+ *	__FreeBSD__
  *	__CYGWIN__
  *	TRIMEDIA
  */
@@ -19,13 +19,8 @@
 /*
  *  First try to set endian automatically for those OSes that can do so.
  */
-
-/* *********************************************************************
- * RTEMS
- * ********************************************************************* */
-#ifdef __rtems__
-
-/* automatically set it */
+#if RTEMS
+/* automatically set MW_CPU_ endian define*/
 #include <machine/endian.h>
 
 #  if BYTE_ORDER == BIG_ENDIAN
@@ -35,7 +30,6 @@
 #  else
 #    error "since when did RTEMS support the PDP-11?"
 #  endif
-
 #endif
 
 /*
@@ -84,11 +78,10 @@
 /* ********************************************************************* */
 /* Linux                                                                 */
 /*                                                                       */
-/* for both linux and __ECOS is checked, because when compiling for the  */
-/* synthetic target of eCos, both linux and __ECOS are defined           */
-/* but we want to end up in the __ECOS branch and not in the linux branch */
+/* both LINUX and __ECOS are checked, because when compiling for the     */
+/* synthetic target of eCos, both LINUX and __ECOS are defined           */
 /* ********************************************************************* */
-#elif defined(linux) && !defined(__ECOS)
+#elif LINUX && !__ECOS
 
 # include <endian.h>
 # if __BYTE_ORDER == __BIG_ENDIAN
@@ -105,6 +98,7 @@
 #   error MW_CPU_BIG_ENDIAN and your OS disagree about your CPUs byte-order.  Did you accidentally set BIGENDIAN in the config file?
 #  endif
 # endif /* !__BYTE_ORDER == __BIG_ENDIAN*/
+/* end LINUX*/
 
 /* ********************************************************************* */
 /* FreeBSD                                                               */
@@ -130,6 +124,7 @@
 #   error MW_CPU_BIG_ENDIAN and your OS disagree about your CPUs byte-order.  Did you accidentally set BIGENDIAN in the config file?
 #  endif
 # endif /* !__BYTE_ORDER == __BIG_ENDIAN*/
+/* end __FreeBSD__*/
 
 /* ********************************************************************* */
 /* ECOS                                                                  */
@@ -161,16 +156,15 @@
 # define dwread(addr)	(*(unsigned int *)(addr))
 /* end __CYGWIN__*/
 
-#elif defined(__rtems__)
-
-/* TBD: This silences the warning about using the default implementation.
- *      We need to decide if this is the best option.
- */
+/* *********************************************************************
+ * RTEMS
+ * ********************************************************************* */
+#elif RTEMS
 
 /* ********************************************************************* */
 /* TriMedia/pSOS                                                         */
 /* ********************************************************************* */
-#elif defined(TRIMEDIA)
+#elif TRIMEDIA
 
 /* ********************************************************************* */
 /* Other                                                                 */
@@ -185,6 +179,4 @@
 # warning You might want to define optimized byte swapping macros for this machine - if not, you can safely ignore this warning.
 #endif
 
-
-#endif /* ndef MW_SWAP_H_INCLUDED */
-
+#endif /* ifndef MW_SWAP_H_INCLUDED */

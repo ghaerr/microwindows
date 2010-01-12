@@ -19,7 +19,7 @@
 
 #if HAVEBLIT
 
-#if MSDOS | ELKS | __rtems__
+#if MSDOS | ELKS | RTEMS
 /* assumptions for speed: NOTE: psd is ignored in these routines*/
 #define SCREENBASE(psd) 	EGA_BASE
 #define BYTESPERLINE(psd)	80

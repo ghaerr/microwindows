@@ -42,27 +42,27 @@ b) Microwindows --- Patching & Building
   bash$ find . -name "readme.rtems"
   ./src/rtems/readme.rtems
 
-Per readme.rtems use config.rtems for Nano-X.
-
-  cd microwin
-  cd src
-  cp config config.SHIP
-  cp Configs/config.rtems config
+Per src/rtems/readme.rtems use config.rtems for Nano-X.
 
 Depending on the BSP that you are building Nano-X for you will have to edit
-the color palettle in the config.rtems/config file between lines 96-100.
+the color palette in the config.rtems/config file between lines 96-100.
 
 Now build microwindows:
 
-  cd src
+  cd microwin/src
   RTEMS_MAKEFILE_PATH=[build directory/prefix]/[target]/[rtemsbsp]/ \
-    make -f Makefile.rtems clean all
+    CONFIG=`pwd`/Configs/config.rtems \
+      make -f Makefile.rtems clean all
+
+NOTE: In contrast to previous instructions, you do not have to overwrite the
+      file src/config.
   
 e.g.:
   RTEMS_MAKEFILE_PATH=/home/roxana/rtems-work/build-i386/i386-rtems4.10/pc386/ \
+    CONFIG=`pwd`/Configs/config.rtems \
     make -f Makefile.rtems clean all
 
-If that all works, you should have a few demo executable in src/bin
+If that all works, you should have a few demo executables in src/bin.
 
 Credits
 =======

@@ -43,10 +43,7 @@ FONTS = $(FONTSPATH)/truetype/Accidental\ Presidency.ttf \
 CYBERBIT = $(FONTSPATH)/truetype/Cyberbit.ttf
 
 DEMOS = $(MW_DIR_BIN)/fonts $(FONTS)
-
-ifneq ($(ARCH), RTEMS)
 DEMOS += $(MW_DIR_BIN)/mwdvetest $(MW_DIR_BIN)/mwdvetest.res 
-endif
 
 all: default $(DEMOS)
 

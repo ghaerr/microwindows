@@ -23,7 +23,7 @@
 #include "vgaplan4.h"
 #include "fb.h"
 
-#if MSDOS | ELKS | __rtems__
+#if MSDOS | ELKS | RTEMS
 /* assumptions for speed: NOTE: psd is ignored in these routines*/
 #define SCREENBASE 		EGA_BASE
 #define BYTESPERLINE		80
@@ -76,7 +76,7 @@ ega_init(PSD psd)
 	psd->SetIOPermissions = fbvga_setiopermissions;
 #endif
 
-#if MSDOS | ELKS | __rtems__
+#if MSDOS | ELKS | RTEMS
 	/* fill in screendevice struct if not framebuffer driver*/
 	psd->addr = SCREENBASE;		/* long ptr -> short on 16bit sys*/
 	psd->linelen = BYTESPERLINE;

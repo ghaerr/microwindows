@@ -13,7 +13,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#ifdef __rtems__
+#if RTEMS || __ECOS
 #define  srandom  srand
 #define  random   rand
 #endif

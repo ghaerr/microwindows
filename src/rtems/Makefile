@@ -81,14 +81,24 @@ endif
 	cp ../../src/fonts/*fon rootfs/fonts
 	# /fonts/bdf
 	mkdir -p rootfs/fonts/bdf
-	cp ../../src/fonts/bdf/*bdf rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/helvB10.bdf rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/helvB12.bdf rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/helvR10.bdf rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/lubI24.bdf rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/timBI18.bdf rootfs/fonts/bdf
+	cp ../../src/fonts/bdf/X5x7.bdf rootfs/fonts/bdf
 	# /fonts/pcf
 	mkdir -p rootfs/$(PCF_FONT_DIR)
 ifeq ($(HAVE_PCF_SUPPORT),Y)
-	cp ../../src/fonts/pcf/*.pcf rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/lubI24.pcf rootfs/fonts/pcf
 endif
 ifeq ($(HAVE_PCFGZ_SUPPORT),Y)
-	cp ../../src/fonts/pcf/*.pcf.gz rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/6x13.pcf.gz rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/7x14.pcf.gz rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/9x15.pcf.gz rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/helvB12_lin.pcf.gz rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/helvB12.pcf.gz rootfs/fonts/pcf
+	cp ../../src/fonts/pcf/vga.pcf.gz rootfs/fonts/pcf
 endif
 ifeq ($(HAVE_T1LIB_SUPPORT),Y)
 	# /fonts/t1lib

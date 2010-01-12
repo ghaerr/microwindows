@@ -943,6 +943,11 @@ void
 GsSelect (GR_TIMEOUT timeout)
 {
         struct MW_UID_MESSAGE m;
+	unsigned long uid_timeout;
+#if MW_FEATURE_TIMERS
+	struct timeval tout;
+#endif
+	GR_EVENT_GENERAL *gp;
 	int rc;
 
 	/* perform pre-select duties, if any*/
@@ -953,7 +958,23 @@ GsSelect (GR_TIMEOUT timeout)
 	m.type = MV_UID_INVALID;
 
 	/* wait up for events */
-	rc = uid_read_message (&m, timeout);
+	if (timeout == (GR_TIMEOUT) -1)
+		uid_timeout = 0;
+	else {
+#if MW_FEATURE_TIMERS
+		if (GdGetNextTimeout(&tout, timeout)) {
+			uid_timeout = tout.tv_sec * 1000 +
+			              (tout.tv_usec + 500) / 1000;
+		} else
+#endif
+		{
+			if (timeout == 0)
+				uid_timeout = (unsigned long) -1;
+			else
+				uid_timeout = timeout;
+		}
+	}
+	rc = uid_read_message (&m, uid_timeout);
 
 	/* return if timed-out or something went wrong */
 	if (rc < 0) {
@@ -961,6 +982,21 @@ GsSelect (GR_TIMEOUT timeout)
 		        EPRINTF (" rc= %d, errno=%d\n", rc, errno);
 		else {
 		        /* timeout handling */
+#if MW_FEATURE_TIMERS
+			if (GdTimeout())
+#else
+			if (timeout != 0)
+#endif
+			{
+				/* Timeout has occured.
+				** Currently return a timeout event regardless of whether client
+				**   has selected for it.
+				*/
+				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
+				{
+					gp->type = GR_EVENT_TYPE_TIMEOUT;
+				}
+			}
 		}
 		return;
 	}

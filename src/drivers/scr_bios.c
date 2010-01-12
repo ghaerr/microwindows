@@ -46,7 +46,7 @@
 #define HWINIT		0	/* =1 for non-bios direct hardware init*/
 #define ROMFONT		0	/* =0 no bios rom fonts available*/
 #else
-#ifdef __rtems__
+#if RTEMS
 #define HWINIT		1	/* =1 for non-bios direct hardware init*/
 #define ROMFONT		0	/* =0 no bios rom fonts available*/
 #else

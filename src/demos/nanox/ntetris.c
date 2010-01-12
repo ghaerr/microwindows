@@ -87,7 +87,7 @@
 
 #include "ntetris.h"
 
-#if defined(__rtems__) || defined(__ECOS)
+#if RTEMS || __ECOS
 #define  srandom  srand
 #define  random   rand
 #endif

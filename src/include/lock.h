@@ -21,7 +21,7 @@
 #include <pthread.h>
 typedef pthread_mutex_t	MWMUTEX;
 
-#if (!defined(__CYGWIN__) && !defined(__rtems__))
+#if !defined(__CYGWIN__) && !RTEMS
 /*
  * This definition doesn't require explicit initialization and -lpthread
  *

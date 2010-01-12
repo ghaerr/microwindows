@@ -15,12 +15,21 @@ SHELL = /bin/sh
 endif
 
 # install directories for headers and libraries
-INSTALL_PREFIX  = /usr
-INSTALL_OWNER1  = -o root -g root
-INSTALL_OWNER2  = -o root -g bin
-HDRINSTALLDIR = $(INSTALL_PREFIX)/include/microwin
-LIBINSTALLDIR = $(INSTALL_PREFIX)/lib
-BININSTALLDIR = $(INSTALL_PREFIX)/bin
+ifeq ($(ARCH), RTEMS)
+  INSTALL_PREFIX  = INSTALL_PREFIX_SHOULD_NOT_BE_USED_FOR_RTEMS 
+  INSTALL_OWNER1  = 
+  INSTALL_OWNER2  = 
+  HDRINSTALLDIR = $(RTEMS_MAKEFILE_PATH)/lib/include
+  LIBINSTALLDIR = $(RTEMS_MAKEFILE_PATH)/lib
+  BININSTALLDIR = $(RTEMS_MAKEFILE_PATH)/bin
+else
+  INSTALL_PREFIX  = /usr
+  INSTALL_OWNER1  = -o root -g root
+  INSTALL_OWNER2  = -o root -g bin
+  HDRINSTALLDIR = $(INSTALL_PREFIX)/include/microwin
+  LIBINSTALLDIR = $(INSTALL_PREFIX)/lib
+  BININSTALLDIR = $(INSTALL_PREFIX)/bin
+endif
 
 INSTALL_DIR   = install -c -m 755 $(INSTALL_OWNER1) -d
 INSTALL_HDR   = install -c -m 644 $(INSTALL_OWNER2)

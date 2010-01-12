@@ -11,7 +11,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#if defined(MSDOS) || defined(__ECOS) || defined(__rtems__)
+#if MSDOS || RTEMS || __ECOS
 #include <fcntl.h>
 #endif
 
@@ -32,7 +32,7 @@
 #define O_BINARY 	0
 #endif
 
-#if defined(DOS_DJGPP) || defined(__ECOS)
+#if DOS_DJGPP || __ECOS
 #define	MAPFILE	"/world.map"
 #else
 #define	MAPFILE	"demos/nanox/world.map"		/* was /usr/lib*/

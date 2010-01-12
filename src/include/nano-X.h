@@ -1004,13 +1004,13 @@ typedef struct {
 	unsigned char *buffer;		/* request buffer*/
 } REQBUF;
 
-#ifdef __rtems__
+#if RTEMS
   /* RTEMS requires rtems_main()*/
   int rtems_main(int, char **);
   #define main	rtems_main
 #endif
 
-#ifdef __ECOS
+#if __ECOS
 #include <sys/select.h>
 #include <cyg/kernel/kapi.h>
 /*

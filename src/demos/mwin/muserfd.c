@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if DOS_DJGPP | defined(__FreeBSD__)
+#if DOS_DJGPP || defined(__FreeBSD__)
 #include <sys/types.h>
 #endif
 
-#ifdef __rtems__
+#if RTEMS || __ECOS
 #define  srandom  srand
 #define  random   rand
 #endif

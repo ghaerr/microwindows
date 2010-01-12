@@ -31,14 +31,14 @@ unsigned _stklen = 4096;
 #define CLIENT3D	0	/* old client draw test*/
 #define USEBLIT		1	/* use blit rather than DrawDIB()*/
 
-#ifdef __rtems__
+#if RTEMS
 #undef  IMAGE
 #define IMAGE		1	/* 256 color image demo*/
 #undef  USEBLIT
 #define USEBLIT		0	/* use blit rather than DrawDIB()*/
 #endif
 
-#if defined(__rtems__) || defined(__ECOS)
+#if RTEMS || ECOS
 #define  srandom  srand
 #define  random   rand
 #endif

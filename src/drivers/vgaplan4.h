@@ -42,7 +42,7 @@
 #endif
 #endif
 
-#ifdef __rtems__
+#if RTEMS
   #define FAR
   #define HAVEFARPTR	1
   #if defined(__i386__)

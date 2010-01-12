@@ -7,7 +7,7 @@
 #include "device.h"
 #include "vgaplan4.h"
 
-#ifdef __rtems__
+#if RTEMS
 #define ROMFONT		0	/* =0 no bios rom fonts available*/
 #else
 #define ROMFONT		1	/* =1 uses PC rom fonts */

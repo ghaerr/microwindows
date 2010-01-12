@@ -20,7 +20,7 @@
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
 #define USE_ALLOCA	1			/* alloca() is available */
 #define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
-#if defined(__rtems__) || defined(__ECOS)
+#if RTEMS || __ECOS
 #define HAVE_MMAP       0
 #else
 #define HAVE_MMAP       1       		/* =1 to use mmap if available*/
@@ -47,7 +47,7 @@
 #endif
 
 #ifndef MW_FEATURE_TIMERS
-#if UNIX || DOS_DJGPP || HAVE_TIMER_SUPPORT
+#if UNIX || DOS_DJGPP || RTEMS || HAVE_TIMER_SUPPORT
 #define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
 #else
 #define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
@@ -1034,16 +1034,14 @@ int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
 #define assert(x)
 #endif
 
-#ifdef __rtems__
+#if RTEMS
   /* RTEMS requires rtems_main()*/
   int rtems_main(int, char **);
   #define main	rtems_main
 #endif
 
-#if !_MINIX
-#if !defined __rtems__ && !defined __ECOS
+#if !_MINIX && !RTEMS && !__ECOS
 #define HAVESELECT	1	/* has select system call*/
-#endif
 #endif
 
 #endif /*_DEVICE_H*/

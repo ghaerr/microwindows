@@ -7,7 +7,7 @@
  */
 extern int mwCurrentButtons;	/* FIXME */
 
-#ifdef __rtems__
+#if RTEMS || __ECOS
 #define  srandom  srand
 #define  random   rand
 #endif
@@ -735,7 +735,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         bom[ran1][ran2].flag = 1;
 			i++;
                      } 
-#ifdef __rtems__
+#if RTEMS
 		      else i++;		/* bad rtems random function*/
 #endif
                 }

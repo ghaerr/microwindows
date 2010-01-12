@@ -1,3 +1,5 @@
+11 January 2010 - greg@censoft.com
+	* cleaned up defines for RTEMS, __ECOS, LINUX
 10 January 2010 - greg@censoft.com
 	* clear background in freetype 2 rotated text (Junior)
 	* turned back on auto caching for Freetype 2.3.x (tested 2.3.9) (Riaz)

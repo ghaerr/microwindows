@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#ifdef __rtems__
-  #include <time.h>
+#if RTEMS
+#include <time.h>
 #else
-  #include <sys/timeb.h>
+#include <sys/timeb.h>
 #endif
 #include "defs.h"
 #include "data.h"
@@ -130,14 +130,15 @@ int start_square = 1;
 char st_sq[3];
 int from = 999;
 int to = 999;
+BOOL ftime_ok = FALSE;  /* does ftime return milliseconds? */
 
 /* ***********************************************************/
 /* get_ms() returns the milliseconds elapsed since midnight,
-   January 1, 1970. */
-BOOL ftime_ok = FALSE;  /* does ftime return milliseconds? */
-int get_ms()
+   January 1, 1970.
+*/
+int get_ms(void)
 {
-#ifdef __rtems__
+#if RTEMS
 	struct timespec tp;
 
 	clock_gettime( CLOCK_REALTIME, &tp );

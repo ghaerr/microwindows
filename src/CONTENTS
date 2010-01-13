@@ -1,4 +1,4 @@
-Updated 10 Jan 2010
+Updated 12 Jan 2010
 
 CORE PACKAGES (indicates latest tested version, all optional)
 microwindows-src-0.92.tar.gz		base distribution
@@ -23,6 +23,7 @@ fontdemo2.sh	freetype/t1lib antialias and rotation demo
 fontdemo3.sh	pcf loadable font demo (uses /usr/lib/X11/fonts dir)
 fontdemo4.sh	loadable font (truetype,t1,pcf,hzk,mgl) drawing demo
 t1demo.sh	T1 font engine demo
+pcfdemo.sh	pcf font engine demo
 grabdemo.sh	hotkey grab demo
 grdemo.sh	graphics operations demo
 indent.sh	Microwindows coding style indentation reformatter

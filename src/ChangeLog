@@ -1,3 +1,4 @@
+	* added pcfdemo.sh to test problem helvB12_lin.pcf.gz and large pcfs
 11 January 2010 - greg@censoft.com
 	* cleaned up defines for RTEMS, __ECOS, LINUX
 10 January 2010 - greg@censoft.com

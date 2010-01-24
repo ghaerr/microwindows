@@ -751,6 +751,54 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 	}
 }
 
+#if !MW_CPU_BIG_ENDIAN
+/*
+ * Alpha-drawing using C bitfields.
+ * Tested on little endian only... FIXME
+ */
+
+/* MWCOLORVAL : 0x00bbggrr order */
+typedef union _COLORVAL {
+	struct {
+		unsigned char r; // LSB
+		unsigned char g;
+		unsigned char b;
+		unsigned char a; // MSB
+	} f;
+	unsigned int v; 
+} COLORVAL;	
+
+/* MWPIXELVAL : 0x00rrggbb order (frame buffer format)*/
+typedef union _PIXELVAL8888 {
+	struct {
+		unsigned char b; // LSB
+		unsigned char g;
+		unsigned char r;
+		unsigned char a; // MSB
+	} f;
+	unsigned int v; 
+} PIXELVAL8888;	
+
+typedef union _PIXELVAL565 {
+	struct {
+		unsigned short b:5; // LSB
+		unsigned short g:6;
+		unsigned short r:5;
+	} f;
+	unsigned short v; 
+} PIXELVAL565;	
+
+typedef union _PIXELVAL555 {
+	struct {
+		unsigned short b:5; // LSB
+		unsigned short g:5;
+		unsigned short r:5;
+		unsigned short a:1;
+	} f;
+	unsigned short v; 
+} PIXELVAL555;	
+#endif /* !MW_CPU_BIG_ENDIAN*/
+
 /**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
  * Microwindows color image format is DWORD padded bytes, with
@@ -882,16 +930,16 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					| ((cr & 0x000000FFUL) << 16);
 			}
 #endif
-			/* alpha channel handling 
-			 * FIXME - just visible or not, no alpha blending yet */
+			/* alpha channel handling*/
 			alpha = (cr >> 24);
 			if (alpha != 0) { /* skip if pixel is fully transparent*/
 				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y)) {
 					switch (psd->pixtype) {
-					case MWPF_PALETTE:
-					default:
-						pixel = GdFindColor(psd, cr);
-						break;
+
+/* alpha blending uses bitfields - not yet working on big endian FIXME*/
+#if MW_CPU_BIG_ENDIAN
+
+					/* implement image draw without alpha blending*/
 					case MWPF_TRUECOLOR8888:
 						pixel = COLOR2PIXEL8888(cr);
 						break;
@@ -904,6 +952,71 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 						break;
 					case MWPF_TRUECOLOR555:
 						pixel = COLOR2PIXEL555(cr);
+						break;
+
+#else /* little endian*/
+
+					/* implement alpha blending image draw from image alpha channel*/
+					case MWPF_TRUECOLOR8888:
+					case MWPF_TRUECOLOR0888:
+					case MWPF_TRUECOLOR888:
+						if (alpha == 255)
+							pixel = COLOR2PIXEL888(cr);
+						else {					
+							/* COLORVAL   : 0x00bbggrr*/
+							/* MWPIXELVAL : 0x00rrggbb*/
+							COLORVAL 	 *pFG = (COLORVAL*)&cr;
+							MWPIXELVAL    bg = psd->ReadPixel(psd,x,y);
+							PIXELVAL8888 *pBG = &bg;
+							PIXELVAL8888  dst;
+
+							dst.f.r = (alpha*pFG->f.r + (255-alpha)*pBG->f.r)/255;
+							dst.f.g = (alpha*pFG->f.g + (255-alpha)*pBG->f.g)/255;			
+							dst.f.b = (alpha*pFG->f.b + (255-alpha)*pBG->f.b)/255;
+							dst.f.a = 0;  
+							pixel = dst.v;
+						}
+						break;
+					case MWPF_TRUECOLOR565:
+						if (alpha == 255)
+							pixel = COLOR2PIXEL565(cr);
+						else {
+							/* COLORVAL   : 0x00bbggrr*/
+							/* MWPIXELVAL : 0x00rrggbb*/
+							COLORVAL 	*pFG = (COLORVAL*)&cr;							
+							MWPIXELVAL   bg = psd->ReadPixel(psd,x,y);
+							PIXELVAL565 *pBG = &bg;
+							PIXELVAL565  dst;
+
+							dst.f.r = ((alpha*pFG->f.r + (255-alpha)*(pBG->f.r<<3))/255)>>3;
+							dst.f.g = ((alpha*pFG->f.g + (255-alpha)*(pBG->f.g<<2))/255)>>2;
+							dst.f.b = ((alpha*pFG->f.b + (255-alpha)*(pBG->f.b<<3))/255)>>3;
+							pixel = dst.v;
+						}
+						break;
+					case MWPF_TRUECOLOR555:
+						if (alpha == 255)
+							pixel = COLOR2PIXEL555(cr);
+						else {
+							/* COLORVAL   : 0x00bbggrr*/
+							/* MWPIXELVAL : 0x00rrggbb*/
+							COLORVAL 	*pFG = (COLORVAL*)&cr;							
+							MWPIXELVAL   bg = psd->ReadPixel(psd,x,y);
+							PIXELVAL555 *pBG = &bg;
+							PIXELVAL555  dst;
+
+							dst.f.r = ((alpha*pFG->f.r + (255-alpha)*(pBG->f.r<<3))/255)>>3;
+							dst.f.g = ((alpha*pFG->f.g + (255-alpha)*(pBG->f.g<<3))/255)>>3;
+							dst.f.b = ((alpha*pFG->f.b + (255-alpha)*(pBG->f.b<<3))/255)>>3;
+							dst.f.a = 0;  							
+							pixel = dst.v;
+						}
+						break;
+#endif /* MW_CPU_BIG_ENDIAN (alpha blending)*/
+
+					case MWPF_PALETTE:
+					default:
+						pixel = GdFindColor(psd, cr);
 						break;
 					case MWPF_TRUECOLOR332:
 						pixel = COLOR2PIXEL332(cr);

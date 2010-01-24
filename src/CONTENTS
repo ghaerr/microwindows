@@ -31,6 +31,7 @@ launcher.sh	sample desktop with great screensavers (wait 10 secs)
 mouse.sh	start gpm mouse driver
 nxterm.sh	terminal emulator, screen kbd demo
 nxview.sh	image viewer demo
+nxviewalpha.sh alpha channel image viewer demo
 vnc.sh		VNC client demo
 
 BINARIES (run in demo scripts above)

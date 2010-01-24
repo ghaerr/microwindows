@@ -1,5 +1,8 @@
-	* added pcfdemo.sh to test problem helvB12_lin.pcf.gz and large pcfs
+23 January 2010 - greg@censoft.com
+	* implement alpha channel support for images in GdDrawImage (sung joo byun)
+	* add nxview -p for background pattern, -s for window half screen size
 11 January 2010 - greg@censoft.com
+	* added pcfdemo.sh to test problem helvB12_lin.pcf.gz and large pcfs
 	* cleaned up defines for RTEMS, __ECOS, LINUX
 10 January 2010 - greg@censoft.com
 	* clear background in freetype 2 rotated text (Junior)

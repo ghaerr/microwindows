@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
- *
  * nxview - Nano-X image viewer
  *
  * Autorecognizes and displays BMP, GIF, JPEG, PNG and XPM files
@@ -11,9 +9,16 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
+#define CX	16		/* pattern width*/
+#define CY	16		/* pattern height*/
+
+int pflag = 0;		/* -p for pattern background to test alpha/transparent draws*/
+int sflag = 0;		/* -s for window half screen size*/
+
 int
 main(int argc,char **argv)
 {
+	int			t;
 	GR_IMAGE_ID	image_id;
 	GR_WINDOW_ID	window_id;
 	GR_GC_ID	gc_id;
@@ -25,8 +30,23 @@ main(int argc,char **argv)
 	char		title[256];
 
 	if (argc < 2) {
-		printf("Usage: nxview <image file> [stretch]\n");
+		printf("Usage: nxview [-p] [-s] <image file>\n");
 		exit(1);
+	}
+
+	t = 1;
+	while ( t < argc ) {
+		if ( !strcmp("-p",argv[t])) {
+			pflag = 1;
+			++t;
+			continue;
+		}
+		if ( !strcmp("-s",argv[t])) {
+			sflag = 1;
+			++t;
+			continue;
+		}
+		break;
 	}
 
 	if (GrOpen() < 0) {
@@ -34,12 +54,12 @@ main(int argc,char **argv)
 		exit(1);
 	}
 	
-	if (!(image_id = GrLoadImageFromFile(argv[1], 0))) {
-		fprintf(stderr, "Can't load image file: %s\n", argv[1]);
+	if (!(image_id = GrLoadImageFromFile(argv[t], 0))) {
+		fprintf(stderr, "Can't load image file: %s\n", argv[t]);
 		exit(1);
 	}
 
-	if(argc > 2) {
+	if(sflag) {
 		/* stretch to half screen size*/
 		GrGetScreenInfo(&sinfo);
 		w = sinfo.cols/2;
@@ -50,9 +70,9 @@ main(int argc,char **argv)
 		h = info.height;
 	}
 
-	sprintf(title, "nxview %s", argv[1]);
-	window_id = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, title,
-		GR_ROOT_WINDOW_ID, 0, 0, w, h, GREEN);
+	sprintf(title, "nxview %s", argv[t]);
+	window_id = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, (GR_CHAR *)title,
+		GR_ROOT_WINDOW_ID, 0, 0, w, h, GRAY);
 
 	GrSelectEvents(window_id,
 		GR_EVENT_MASK_CLOSE_REQ|GR_EVENT_MASK_EXPOSURE);
@@ -72,6 +92,18 @@ main(int argc,char **argv)
 			exit(0);
 			/* no return*/
 		case GR_EVENT_TYPE_EXPOSURE:
+			if (pflag) {
+				int x, y;
+				GR_WINDOW_INFO wi;
+
+				GrGetWindowInfo(window_id, &wi);
+				for (x=0; x<wi.width; x+=CX*2)
+					for (y=0; y<wi.height; y+=CY) {
+						if (y & CY)
+							GrFillRect(window_id, gc_id, x, y, CX, CY);
+						else GrFillRect(window_id, gc_id, x+CX, y, CX, CY); 
+					}
+			}
 			GrDrawImageToFit(window_id, gc_id, 0,0, w,h, image_id);
 			break;
 		}

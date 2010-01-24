@@ -144,7 +144,7 @@ LIBJPEG                  = /usr/lib/libjpeg.so
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
-HAVE_PNG_SUPPORT         = N
+HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.a
 INCZ                     = .

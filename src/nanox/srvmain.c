@@ -123,7 +123,7 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	printf("Usage: %s [-e] [-p] [-A] [-NLRD] [-x#] [-y#]"
+	printf("Usage: %s [-e] [-p] [-A] [-NLRD] [-x #] [-y #]"
 #if FONTMAPPER
 		" [-c <fontconfig-file>"
 #endif

@@ -1,0 +1,9 @@
+ngterm|nano-X vt52 terminal:
+:al=\EL:am:bc=\ED:bl=^G:bs:cd=\EJ:
+:ce=\EK:cl=\EE:cm=\EY%+ %+ :cr=^M:dl=\EM:do=\EB:ho=\EH:is=\Ev\Eq:
+:l0=F10:le=\ED:ms:nd=\EC:rc=\Ek:rs=\Ev\Eq\EE:sc=\Ej:sr=\EI:
+:ti=\Ev\Ee\EG:up=\EA:ve=\Ee:vi=\Ef:so=\Ep:se=\Eq:mb=\Ei:md=\Eg:
+:mr=\Ep:me=\EG\Eq:te=\EG:us=\Ei:ue=\EG:
+:kb=^H:kl=\ED:kr=\EC:ku=\EA:kd=\EB:kI=\EI:kh=\EE:kP=\Ea:kN=\Eb:
+:k0=\EY:k1=\EP:k2=\EQ:k3=\ER:k4=\ES:k5=\ET:k6=\EU:k7=\EV:k8=\EW:
+:k9=\EX:s0=\Ey:

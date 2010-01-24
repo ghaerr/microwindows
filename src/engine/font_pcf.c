@@ -229,7 +229,7 @@ bit_order_invert(unsigned char *buf, int nbytes)
 /*
 *	Invert byte order within each 16-bits of an array.
 */
-void
+static void
 two_byte_swap(unsigned char *buf, int nbytes)
 {
 	unsigned char c;
@@ -244,7 +244,7 @@ two_byte_swap(unsigned char *buf, int nbytes)
 /*
 *	Invert byte order within each 32-bits of an array.
 */
-void
+static void
 four_byte_swap(unsigned char *buf, int nbytes)
 {
 	unsigned char c;

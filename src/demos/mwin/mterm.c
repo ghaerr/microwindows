@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Terminal Emulator for Linux
  *
@@ -16,9 +16,8 @@
 #include "windows.h"
 #include "wintern.h"		/* for MwRegisterFdInput*/
 #include "wintools.h"		/* Draw3dInset*/
-#if __CYGWIN__
-#include <pty.h>
-#endif
+
+#define UNIX98		1		/* use new-style /dev/ptmx, /dev/pts/0 ptys*/
 
 #define COLS		80
 #define ROWS		24
@@ -32,18 +31,15 @@
 
 #if ELKS
 #define SHELL	"/bin/sash"
-#else
-#if DOS_DJGPP
+#elif DOS_DJGPP
 #define SHELL	"bash"
 #define killpg		kill
 #define SIGCHLD		17 /* from Linux, not defined in DJGPP */
-#else
-#if __CYGWIN__
+#elif defined(__CYGWIN__)
+#include <pty.h>
 #define SHELL  "/usr/bin/bash"
 #else
 #define SHELL	"/bin/sh"
-#endif
-#endif
 #endif
 
 /* forward decls*/
@@ -269,10 +265,10 @@ ptysignaled(int signo)
 /*
  * Create a shell running through a pseudo tty, return the shell fd.
  */
+#if defined(__CYGWIN__)
 int
 CreatePtyShell(void)
 {
-#if __CYGWIN__
 	int	master, slave;
 	char *	argv[2];
 	char	pty_name[32];
@@ -307,7 +303,59 @@ fprintf(stderr, "CYGWIN: Opened pty_name %s\n", pty_name);
 		exit(1);
 	}
 	return master;
-#else
+}
+#elif (LINUX && UNIX98)
+int
+CreatePtyShell(void)
+{
+	int	n = 0;
+	int	tfd;
+	char *	argv[2];
+
+	char *pty_name;
+
+	/* opens /dev/ptmx, can't use getpt() as needs nonblocking*/
+	if ((tfd = open("/dev/ptmx", O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
+err:
+		fprintf(stderr, "Can't create pty /dev/ptmx\n");
+		return -1;
+	}
+	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
+    if (grantpt(tfd) || unlockpt(tfd) || !( pty_name = ptsname(tfd)))
+		goto err;
+
+	signal(SIGCHLD, ptysignaled);
+	signal(SIGINT, ptysignaled);
+	if ((pid = fork()) == -1) {
+		fprintf(stderr, "No processes\n");
+		return -1;
+	}
+	if (!pid) {
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+		close(tfd);
+		
+		setsid();
+		if ((tfd = open(pty_name, O_RDWR)) < 0) {
+			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			exit(1);
+		}
+		dup2(tfd, STDIN_FILENO);
+		dup2(tfd, STDOUT_FILENO);
+		dup2(tfd, STDERR_FILENO);
+		/*if(!(argv[0] = getenv("SHELL")))*/
+			argv[0] = SHELL;
+		argv[1] = NULL;
+		execv(argv[0], argv);
+		exit(1);
+	}
+	return tfd;
+}
+#elif LINUX /* non-UNIX98 pty*/
+int
+CreatePtyShell(void)
+{
 	int	n = 0;
 	int	tfd;
 	char *	argv[2];
@@ -351,8 +399,8 @@ again:
 		exit(1);
 	}
 	return tfd;
-#endif
 }
+#endif /* LINUX*/
 
 int
 ReadPtyShell(int fd, char *buf, int count)

@@ -1098,12 +1098,11 @@ void sigchild(int signo)
 	exit(0);
 }
 
+#if UNIX98
 int term_init(void)
 {
 	int tfd;
 	pid_t pid;
-
-#if UNIX98
 	char *pty_name;
 
 	/* opens /dev/ptmx, can't use getpt() as needs nonblocking*/
@@ -1115,15 +1114,6 @@ err:
 	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
     if (grantpt(tfd) || unlockpt(tfd) || !( pty_name = ptsname(tfd)))
 		goto err;
-#else
-	char pty_name[12];
-again:
-	sprintf(pty_name, "/dev/ptyp%d", n);
-	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
-		fprintf(stderr, "Can't create pty %s\n", pty_name);
-		return -1;
-	}
-#endif
 
 	signal(SIGCHLD, sigchild);
 	signal(SIGINT, sigchild);
@@ -1137,18 +1127,10 @@ again:
 		close(tfd);
 
 		setsid();
-#if UNIX98
 		if ((tfd = open(pty_name, O_RDWR)) < 0) {
 			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
-#else
-		pty_name[5] = 't';
-		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
-			exit(1);
-		}
-#endif
 		close(STDERR_FILENO);
 		dup2(tfd, STDIN_FILENO);
 		dup2(tfd, STDOUT_FILENO);
@@ -1158,6 +1140,48 @@ again:
 	}
 	return tfd;
 }
+
+#else /* !UNIX98*/
+int term_init(void)
+{
+	int tfd;
+	pid_t pid;
+	char pty_name[12];
+
+again:
+	sprintf(pty_name, "/dev/ptyp%d", n);
+	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
+		fprintf(stderr, "Can't create pty %s\n", pty_name);
+		return -1;
+	}
+
+	signal(SIGCHLD, sigchild);
+	signal(SIGINT, sigchild);
+	if ((pid = fork()) == -1) {
+		fprintf(stderr, "No processes\n");
+		return -1;
+	}
+	if (!pid) {
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(tfd);
+
+		setsid();
+		pty_name[5] = 't';
+		if ((tfd = open(pty_name, O_RDWR)) < 0) {
+			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			exit(1);
+		}
+		close(STDERR_FILENO);
+		dup2(tfd, STDIN_FILENO);
+		dup2(tfd, STDOUT_FILENO);
+		dup2(tfd, STDERR_FILENO);
+		execv(nargv[0], nargv);
+		exit(1);
+	}
+	return tfd;
+}
+#endif /*!UNIX98*/
 
 #else /* __FreeBSD*/
 #include <libutil.h>

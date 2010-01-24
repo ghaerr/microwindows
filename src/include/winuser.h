@@ -42,6 +42,7 @@ typedef struct tagWNDCLASSA {
 } WNDCLASS, *PWNDCLASS, NEAR *NPWNDCLASS, FAR *LPWNDCLASS;
 
 ATOM WINAPI	RegisterClass(CONST WNDCLASS *lpWndClass);
+BOOL WINAPI UnregisterClass(LPCSTR lpClassName, HINSTANCE hInstance);
 
 /*
  * Message structure

@@ -965,9 +965,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 						else {					
 							/* COLORVAL   : 0x00bbggrr*/
 							/* MWPIXELVAL : 0x00rrggbb*/
-							COLORVAL 	 *pFG = (COLORVAL*)&cr;
+							COLORVAL 	 *pFG = (COLORVAL *)&cr;
 							MWPIXELVAL    bg = psd->ReadPixel(psd,x,y);
-							PIXELVAL8888 *pBG = &bg;
+							PIXELVAL8888 *pBG = (PIXELVAL8888 *)&bg;
 							PIXELVAL8888  dst;
 
 							dst.f.r = (alpha*pFG->f.r + (255-alpha)*pBG->f.r)/255;
@@ -983,9 +983,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 						else {
 							/* COLORVAL   : 0x00bbggrr*/
 							/* MWPIXELVAL : 0x00rrggbb*/
-							COLORVAL 	*pFG = (COLORVAL*)&cr;							
+							COLORVAL 	*pFG = (COLORVAL *)&cr;							
 							MWPIXELVAL   bg = psd->ReadPixel(psd,x,y);
-							PIXELVAL565 *pBG = &bg;
+							PIXELVAL565 *pBG = (PIXELVAL565 *)&bg;
 							PIXELVAL565  dst;
 
 							dst.f.r = ((alpha*pFG->f.r + (255-alpha)*(pBG->f.r<<3))/255)>>3;
@@ -1000,9 +1000,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 						else {
 							/* COLORVAL   : 0x00bbggrr*/
 							/* MWPIXELVAL : 0x00rrggbb*/
-							COLORVAL 	*pFG = (COLORVAL*)&cr;							
+							COLORVAL 	*pFG = (COLORVAL *)&cr;							
 							MWPIXELVAL   bg = psd->ReadPixel(psd,x,y);
-							PIXELVAL555 *pBG = &bg;
+							PIXELVAL555 *pBG = (PIXELVAL555 *)&bg;
 							PIXELVAL555  dst;
 
 							dst.f.r = ((alpha*pFG->f.r + (255-alpha)*(pBG->f.r<<3))/255)>>3;

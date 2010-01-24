@@ -389,6 +389,7 @@ HRGN WINAPI CreateRoundRectRgn(INT left, INT top, INT right, INT bottom,
 		INT ellipse_width, INT ellipse_height );
 HRGN WINAPI CreateEllipticRgn(INT left, INT top, INT right, INT bottom );
 HRGN WINAPI CreateEllipticRgnIndirect(const RECT *rect );
+HRGN WINAPI CreatePolygonRgn(const POINT *points, INT count, INT mode);
 DWORD WINAPI GetRegionData(HRGN hrgn, DWORD count, LPRGNDATA rgndata);
 BOOL WINAPI PtInRegion(HRGN hrgn, INT x, INT y );
 BOOL WINAPI RectInRegion(HRGN hrgn, const RECT *rect );

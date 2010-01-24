@@ -1,4 +1,4 @@
-23 January 2010 - greg@censoft.com
+Version 0.92RC1 - 24 Jan 2010 - greg@censoft.com
 	* finalized Linux default UNIX98 pty support for nxterm, reformatted heavily
 	* added ngterm terminal type and TERMCAP environment string to nxterm
 	* implement alpha channel support for images in GdDrawImage (sung joo byun)

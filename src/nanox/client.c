@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999, 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -680,7 +680,8 @@ GrRegisterInput(int fd)
 
 	LOCK(&nxGlobalLock);
 	FD_SET(fd, &regfdset);
-	if (fd >= regfdmax) regfdmax = fd + 1;
+	if (fd >= regfdmax)
+		regfdmax = fd + 1;
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -989,7 +990,11 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 		to.tv_usec = (timeout % 1000) * 1000;
 	}
 
-	if((e = select(setsize+1, &rfds, NULL, NULL, timeout ? &to : NULL))>0) {
+	UNLOCK(&nxGlobalLock);	/* give other threads a chance to run*/
+	e = select(setsize+1, &rfds, NULL, NULL, timeout ? &to : NULL);
+	LOCK(&nxGlobalLock);
+
+	if( e > 0) {
 		int fd;
 
 		if(FD_ISSET(nxSocket, &rfds)) {
@@ -1011,8 +1016,7 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 				break;
 			}
 		}
-	}
-	else if (e == 0) {
+	} else if (e == 0) {
 		/*
 		 * Timeout has occured. We currently return a timeout event
 		 * regardless of whether the client has selected for it.

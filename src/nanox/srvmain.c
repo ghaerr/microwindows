@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003, 2004 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003, 2004, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  *
@@ -712,7 +712,14 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 
 	/* Wait for some input on any of the fds in the set or a timeout: */
-	if((e = select(setsize+1, &rfds, NULL, NULL, to)) > 0) {
+#if NONETWORK
+	SERVER_UNLOCK();	/* allow other threads to run*/
+#endif
+	e = select(setsize+1, &rfds, NULL, NULL, to);
+#if NONETWORK
+	SERVER_LOCK();
+#endif
+	if(e > 0) {
 		/* If data is present on the mouse fd, service it: */
 		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
 			while(GsCheckMouseEvent())

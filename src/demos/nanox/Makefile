@@ -72,6 +72,7 @@ TARGETS = \
 ifneq ($(ARCH),RTEMS)
 TARGETS += \
 	$(MW_DIR_BIN)/nterm \
+#	$(MW_DIR_BIN)/threadtest \
 	$(MW_DIR_BIN)/convpbm
 endif
 ifneq ($(ARCH),CYGWIN) 
@@ -169,6 +170,10 @@ $(NANOX_DEMOS_WITH_LIBM_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(
 $(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(LIBJPEG)
+
+$(MW_DIR_BIN)/threadtest: $(MW_DIR_OBJ)/demos/nanox/threadtest.o $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) -lpthread
 
 $(MW_DIR_BIN)/convpbm: $(MW_DIR_OBJ)/demos/nanox/convpbm.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."

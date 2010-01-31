@@ -54,6 +54,13 @@
 #endif
 #endif
 
+/* force byte-packed structures*/
+#if defined(GCC_VERSION)
+#define PACKEDDATA			__attribute__ ((__packed__))
+#else
+#define PACKEDDATA			/* FIXME for MSVC #pragma pack(1) equiv*/
+#endif
+
 /* determine compiler capability for handling EPRINTF/DPRINTF macros*/
 #ifndef MW_FEATURE_GDERROR
 #if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2)))

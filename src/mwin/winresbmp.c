@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Windows BMP to Microwindows image converter
  *
@@ -48,17 +48,17 @@ typedef unsigned char LONG[4];
 /* windows style*/
 typedef struct {
 	/* BITMAPINFOHEADER */
-	DWORD RESPACKEDDATA BiSize;
-	LONG RESPACKEDDATA BiWidth;
-	LONG RESPACKEDDATA BiHeight;
-	WORD RESPACKEDDATA BiPlanes;
-	WORD RESPACKEDDATA BiBitCount;
-	DWORD RESPACKEDDATA BiCompression;
-	DWORD RESPACKEDDATA BiSizeImage;
-	LONG RESPACKEDDATA BiXpelsPerMeter;
-	LONG RESPACKEDDATA BiYpelsPerMeter;
-	DWORD RESPACKEDDATA BiClrUsed;
-	DWORD RESPACKEDDATA BiClrImportant;
+	DWORD PACKEDDATA BiSize;
+	LONG PACKEDDATA BiWidth;
+	LONG PACKEDDATA BiHeight;
+	WORD PACKEDDATA BiPlanes;
+	WORD PACKEDDATA BiBitCount;
+	DWORD PACKEDDATA BiCompression;
+	DWORD PACKEDDATA BiSizeImage;
+	LONG PACKEDDATA BiXpelsPerMeter;
+	LONG PACKEDDATA BiYpelsPerMeter;
+	DWORD PACKEDDATA BiClrUsed;
+	DWORD PACKEDDATA BiClrImportant;
 } BMPHEAD;
 
 #define FIXSZ_BMPHEAD	(11*4 + 4*2 + 2*1)

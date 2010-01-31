@@ -3,6 +3,8 @@ fix srandom/srand in various apps (rtems/ecos)
 check rtems timer patch, dont require fp for it
 check that DrawAreaInternal clears bg when usebg for ft2 fonts
 bin/mterm: closing terminal window causes hang rather than server exit
+MSVC: need attribute for #pragma pack in PACKEDDATA in device.h
+GdCaptureScreen() only works with framebuffer /dev/fb0 present
 fix alpha blending support uses C bitfields, doesn't work for big endian
 fix left/right portrait w/freetype
 add drawarea_copy* functions from fblin16 to fblin24/fblin32 driver

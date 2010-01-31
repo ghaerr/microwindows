@@ -427,8 +427,7 @@ typedef unsigned short	WORD;
 typedef unsigned long	DWORD;
 typedef long		LONG;
 
-#pragma pack(1)
-/* windows style bmp*/
+/* windows style bmp - must be byte packed*/
 typedef struct {
 	/* BITMAPFILEHEADER*/
 	BYTE	bfType[2];
@@ -448,8 +447,7 @@ typedef struct {
 	LONG	BiYpelsPerMeter;
 	DWORD	BiClrUsed;
 	DWORD	BiClrImportant;
-} BMPHEAD;
-#pragma pack()
+} PACKEDDATA BMPHEAD;
 
 /* r/g/b masks for non-palette bitmaps*/
 #define RMASK332	0xe0
@@ -500,7 +498,7 @@ putdw(unsigned long dw, FILE *ofp)
 int
 GdCaptureScreen(char *path)
 {
-#if defined(HAVE_FILEIO) && ! __ECOS
+#if defined(HAVE_FILEIO) && !__ECOS
 	int	ifd, i, j;
 	FILE *	ofp;
 	int	cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;
@@ -516,8 +514,13 @@ GdCaptureScreen(char *path)
 		return 1;
 	ifd = open("/dev/fb0", 0);
 
-	cx = scrdev.xvirtres;
-	cy = scrdev.yvirtres;
+	if (scrdev.portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
+		cx = scrdev.yvirtres;
+		cy = scrdev.xvirtres;
+	} else {
+		cx = scrdev.xvirtres;
+		cy = scrdev.yvirtres;
+	}
 	bpp = scrdev.bpp;
 	bytespp = (bpp+7)/8;
 

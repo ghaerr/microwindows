@@ -1,9 +1,13 @@
+30 January 2010
+	* added PACKEDDATA structure attribute/define for packed data structs
+	* fixed BMPHEAD packing for screen.bmp files, add portrait mode (Steven)
+	* fix to support clipping for shaped windows with borders (Byun Sung Joo)
 Version 0.92RC1 - 24 Jan 2010 - greg@censoft.com
 	* fix multithread bug: allow other threads to run while in select: (Robert)
 	* 	unlock lock around client.c::select() (test in demos/nanox/threadtest.c)
 	* finalized Linux default UNIX98 pty support for nxterm, reformatted heavily
 	* added ngterm terminal type and TERMCAP environment string to nxterm
-	* implement alpha channel support for images in GdDrawImage (sung joo byun)
+	* implement alpha channel support for images in GdDrawImage (Byun Sung Joo)
 	* add nxview -p for background pattern, -s for window half screen size
 11 January 2010 - greg@censoft.com
 	* added pcfdemo.sh to test problem helvB12_lin.pcf.gz and large pcfs

@@ -5,6 +5,8 @@
  *
  * XtoNX.h - X to Nano-X macro conversion header file
  *
+ * NOTE: THIS FILE IS OBSOLETE, USE NXLIB PROJECT INSTEAD!
+ *
  * Yes, this is a vain attempt at making things easier when
  * porting Xlib programs to Nano-X!
  */

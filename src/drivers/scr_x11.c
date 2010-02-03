@@ -467,25 +467,22 @@ select_visual(Display * dpy, int scr)
 	Screen *screen = XScreenOfDisplay(dpy, scr);
 	int d;
 
-	/* DPRINTF */ printf("XDefaultVisual:\n");
-	show_visual(vis);
-
-	/* DPRINTF */ printf("Screen RootDepth: %d\n", screen->root_depth);
-
-	/* DPRINTF */ printf("Screen RootVisual\n");
-	show_visual(screen->root_visual);
+//	/* DPRINTF */ printf("XDefaultVisual:\n");
+//	show_visual(vis);
+//	/* DPRINTF */ printf("Screen RootDepth: %d\n", screen->root_depth);
+//	/* DPRINTF */ printf("Screen RootVisual\n");
+//	show_visual(screen->root_visual);
 
 	/* print all depths/visuals */
-
 	for (d = 0; d < screen->ndepths; d++) {
 		Depth *dp = screen->depths + d;
 		int v;
 		Visual *cur_vis;
-		/* DPRINTF */ printf("Depth: %d\n", dp->depth);
+//		/* DPRINTF */ printf("Depth: %d\n", dp->depth);
 		for (v = 0; v < dp->nvisuals; v++) {
-			/* DPRINTF */ printf("Visual: %d\n", v);
+//			/* DPRINTF */ printf("Visual: %d\n", v);
 			cur_vis = dp->visuals + v;
-			show_visual(cur_vis);
+//			show_visual(cur_vis);
 #if MWPIXEL_FORMAT != MWPF_PALETTE	/* Patch by Jon to try for 8-bit TrueColor */
 			if ((vis->class != TrueColor)
 			    && (dp->depth == screen->root_depth)
@@ -506,8 +503,7 @@ select_visual(Display * dpy, int scr)
 		vis = vis2;
 	}
 
-	/* DPRINTF */
-	printf("Selected Visual:\n");
+	/* DPRINTF */ printf("Selected Visual:\n");
 	show_visual(vis);
 #endif
 

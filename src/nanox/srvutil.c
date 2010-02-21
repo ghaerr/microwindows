@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  *
@@ -960,13 +960,21 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 		          return GR_DRAW_TYPE_NONE;
 	   
 #if DYNAMICREGIONS
-		reg = GdAllocRectRegion(0, 0, pp->psd->xvirtres,
-			pp->psd->yvirtres);
+		reg = GdAllocRectRegion(0, 0, pp->psd->xvirtres, pp->psd->yvirtres);
 		/* intersect with user region if any*/
 		if (gcp->regionid) {
 			regionp = GsFindRegion(gcp->regionid);
-			if (regionp)
-				GdIntersectRegion(reg, reg, regionp->rgn);
+			if (regionp) {
+				/* handle pixmap offsets*/
+				if (gcp->xoff || gcp->yoff) {
+					MWCLIPREGION *local = GdAllocRegion();
+					GdCopyRegion(local, regionp->rgn);
+					GdOffsetRegion(local, gcp->xoff, gcp->yoff);
+					GdIntersectRegion(reg, reg, local);
+					GdDestroyRegion(local);
+				} else
+					GdIntersectRegion(reg, reg, regionp->rgn);
+			}
 		}
 		GdSetClipRegion(pp->psd, reg);
 #else

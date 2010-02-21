@@ -273,9 +273,9 @@ X11                      = Y
 
 ifeq ($(X11), Y)
 # startup screen width, height, (depth for palette mode only)
-SCREEN_WIDTH             = 640
-SCREEN_HEIGHT            = 480
-SCREEN_DEPTH             = 4
+SCREEN_WIDTH             = 800
+SCREEN_HEIGHT            = 600
+SCREEN_DEPTH             = 8
 
 # You may want to turn this on for XFree86 4.x or if your backing store
 # isn't functioning properly

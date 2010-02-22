@@ -1,4 +1,5 @@
 21 February 2010
+	* widen space char width in PCF font decoder (usually was 1 pixel wide)
 	* fixed clipping code for pixmaps with offsets (Johannes)
 30 January 2010
 	* added PACKEDDATA structure attribute/define for packed data structs

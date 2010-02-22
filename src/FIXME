@@ -1,3 +1,4 @@
+correct space char width=1 for FNT, CORE and FT fonts
 add Cyerbit.ttf fonts outside tree for testing
 fix srandom/srand in various apps (rtems/ecos)
 check rtems timer patch, dont require fp for it

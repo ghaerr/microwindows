@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Screen Driver Utilities
  * 
@@ -168,7 +168,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
-	int 			count, width;
+	int 			width;
 	const MWIMAGEBITS *	bits;
 
 	/* if char not in font, map to first character by default*/
@@ -188,7 +188,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		bits = pf->bits + (pf->height * ch);
 		
  	width = pf->width ? pf->width[ch] : pf->maxwidth;
-	count = MWIMAGE_WORDS(width) * pf->height; 
+//	count = MWIMAGE_WORDS(width) * pf->height; 
 
 	*retmap = bits;
 

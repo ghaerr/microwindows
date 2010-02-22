@@ -795,7 +795,13 @@ pcf_createfont(const char *name, MWCOORD height, int attr)
 				continue;
 			}
 		}
+//printf("i %d n %d width %d\n", i, n, gwidth[n]);
 		((unsigned long *)pf->cfont->offset)[i] = goffset[n];
+
+		/* HACK: adjust width of SPACE char when == 1 large (use 'e') for now*/
+		if (i == ' ' && gwidth[n] <= 1)
+			n += 'e'-' ';
+
 		((unsigned char *)pf->cfont->width)[i] = gwidth[n];
 	}
 	pf->cfont->size = encoding->count;

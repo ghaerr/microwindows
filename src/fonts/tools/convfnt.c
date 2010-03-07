@@ -67,8 +67,8 @@ FILE *		fp;
 HFONT		hfont;
 int 		FIRST_CHAR = ' ';
 int 		LAST_CHAR = 256;
-int 		curoff = 0;
-int 		offsets[256];
+long 		curoff = 0;
+long 		offsets[256];
 int 		widths[256];
 int			haveArgs = 0;
 
@@ -412,7 +412,7 @@ doit(HDC hdc)
 	fprintf(fp, "};\n\n");
 
 	fprintf(fp, "/* Character->glyph data. */\n");
-	fprintf(fp, "static unsigned short win%s%dx%d_offset[] = {\n",
+	fprintf(fp, "static unsigned long win%s%dx%d_offset[] = {\n",
 		fontname, AVE_WIDTH, CHAR_HEIGHT);
 	for(i=FIRST_CHAR; i<LAST_CHAR; ++i)
 		fprintf(fp, "  %d,\t /* %c (0x%02x) */\n", offsets[i], i<' '? ' ':i , i);

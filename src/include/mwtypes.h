@@ -119,7 +119,7 @@
 #define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* rgb full alpha*/
 #define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb no alpha*/
 
-/* no color, used for transparency, should not by 0, -1 or any MWRGB color*/
+/* no color, used for transparency, should not be 0, -1 or any MWRGB color*/
 #define MWNOCOLOR	0x01000000L
 
 /* convert an MWROP to drawing mode MWMODE value*/

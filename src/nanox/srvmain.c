@@ -226,7 +226,9 @@ GsAcceptClientFd(int i)
 	GR_CLIENT *client, *cl;
 
 	if(!(client = malloc(sizeof(GR_CLIENT)))) {
+#if !NONETWORK
 		close(i);
+#endif
 		return;
 	}
 
@@ -1247,7 +1249,7 @@ GsTerminate(void)
 #endif
 
 #ifdef HAVE_VNCSERVER
-        GdCloseVNC();
+	GdCloseVNC();
 #endif
 
 	GdCloseScreen(rootwp->psd);

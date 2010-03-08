@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -260,9 +260,14 @@ CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 	curclient->eventhead = elp->next;
 	if (curclient->eventtail == elp)
 		curclient->eventtail = NULL;
-
 	elp->next = eventfree;
 	eventfree = elp;
+
+#if (NONETWORK && NANOWM)
+	/* let inline window manager look at event*/
+	if (wm_handle_event(ep))
+		ep->type = GR_EVENT_TYPE_NONE;
+#endif
 }
 
 /*
@@ -3575,10 +3580,15 @@ GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 		GR_WM_FLAGS_BACKGROUND | GR_WM_FLAGS_BORDERSIZE |
 		GR_WM_FLAGS_BORDERCOLOR;
 	props->props = wp->props;
-	props->title = wp->title;
 	props->background = wp->background;
 	props->bordersize = wp->bordersize;
 	props->bordercolor = wp->bordercolor;
+	/* alloc space and copy window title*/
+	if (wp->title) {
+		props->title = malloc(strlen(wp->title)+1);
+		if (props->title)
+			strcpy(props->title, wp->title);
+	} else props->title = NULL;
 
 	SERVER_UNLOCK();
 }

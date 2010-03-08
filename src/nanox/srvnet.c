@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999-2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999-2001, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1999 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 2000 Vidar Hokstad
@@ -1050,6 +1050,8 @@ GrGetWMPropertiesWrapper(void *r)
 	GsWrite(current_fd, &textlen, sizeof(textlen));
 	if(textlen)
 		GsWrite(current_fd, props.title, textlen);
+	if(props.title)
+		free(props.title);
 }
 
 static void

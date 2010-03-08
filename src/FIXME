@@ -1,3 +1,5 @@
+nanowm: change cursor on corner resize, static procnames or rename
+	nxclock doesn't update when LINK_APP_INTO_SERVER/NANOWM and mouse motion
 correct space char width=1 for FNT, CORE and FT fonts
 add Cyerbit.ttf fonts outside tree for testing
 fix srandom/srand in various apps (rtems/ecos)
@@ -87,7 +89,6 @@ cache nanowm title draw font creation
 think about GrReadArea return value based on MWPF_ pixel format
 
 add EVENT_CHILD_REDIRECT
-add nanowm linked in (callouts)
 
 try ecos compile,  add ACCESS_THREAD_DATA to new routines
 

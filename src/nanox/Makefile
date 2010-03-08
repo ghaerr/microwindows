@@ -40,6 +40,14 @@ OBJS := \
 	$(MW_DIR_OBJ)/nanox/nxutil.o \
 	$(MW_DIR_OBJ)/nanox/nxtransform.o
 
+ifeq ($(NANOWM), Y)
+OBJS += \
+	$(MW_DIR_OBJ)/nanox/wmaction.o \
+	$(MW_DIR_OBJ)/nanox/wmclients.o \
+	$(MW_DIR_OBJ)/nanox/wmevents.o \
+	$(MW_DIR_OBJ)/nanox/wmutil.o
+endif
+
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 OBJS += $(NANOXFILES)
 else

@@ -336,6 +336,10 @@ ifeq ($(LINK_APP_INTO_SERVER), Y)
 DEFINES += -DNONETWORK=1
 endif
 
+ifeq ($(NANOWM), Y)
+DEFINES += -DNANOWM=1
+endif
+
 endif # NANOX
 
 # Microwin-specific stuff

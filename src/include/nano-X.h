@@ -986,6 +986,10 @@ GR_CURSOR_ID	GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
 			GrSetWMProperties(wid, &props); \
 		}
 
+/* library window manager public routines*/
+void wm_init(void);
+int wm_handle_event(GR_EVENT *event);
+
 #ifdef __cplusplus
 }
 #endif

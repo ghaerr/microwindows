@@ -1,3 +1,10 @@
+7 March 2010
+	* nanowm enhancements: moved to library, wm_handle_event/wm_init api,
+		added to apps in LINK_APP_INTO_SERVER case when NANOWM=Y,
+		window close on button up, NO_CORNER_RESIZE, NO_AUTO_MOVE options,
+		GR_WM_PROPS_NORAISE and NOMOVE supported in container bits (Johannes)
+	* GrGetWMProperties now returns malloc'd props.title in NONETWORK case
+	* fix long offset for win*.c fonts, fix GsAcceptClientFd close()
 21 February 2010
 	* widen space char width in PCF font decoder (usually was 1 pixel wide)
 	* fixed clipping code for pixmaps with offsets (Johannes)

@@ -28,17 +28,13 @@ LDFLAGS +=
 
 ifeq ($(NANOX), Y)
 ifeq ($(NANOWM), Y)
+ifeq ($(LINK_APP_INTO_SERVER), N)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME =
 
 # List of objects to compile
-OBJS := \
-	$(MW_DIR_OBJ)/demos/nanowm/nanowm.o \
-	$(MW_DIR_OBJ)/demos/nanowm/events.o \
-	$(MW_DIR_OBJ)/demos/nanowm/wlist.o \
-	$(MW_DIR_OBJ)/demos/nanowm/clients.o \
-	$(MW_DIR_OBJ)/demos/nanowm/actions.o
+OBJS := $(MW_DIR_OBJ)/demos/nanowm/nanowm.o
 
 ifeq ($(ARCH), ECOS)
 TARGET = $(MW_DIR_BIN)/nanowm.o
@@ -48,6 +44,7 @@ endif
 
 all: default $(TARGET)
 
+endif
 endif
 endif
 

@@ -275,8 +275,12 @@ GrOpen(void)
 		curclient = root_client;
 	}
 	SERVER_UNLOCK();
+
+#if NANOWM
+	wm_init();	/* init built-in window manager*/
 #endif
-        return 1;
+#endif /* NONETWORK*/
+    return 1;
 }
 
 /*
@@ -1186,7 +1190,7 @@ GsInitialize(void)
 	wp->title = NULL;
 	wp->clipregion = NULL;
 
-        listpp = NULL;
+    listpp = NULL;
 	listwp = wp;
 	rootwp = wp;
 	focuswp = wp;

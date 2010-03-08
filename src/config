@@ -153,7 +153,7 @@ LIBZ                     = /usr/lib/libz.a
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
-HAVE_TIFF_SUPPORT        = Y
+HAVE_TIFF_SUPPORT        = N
 INCTIFF                  = .
 LIBTIFF                  = /usr/lib/libtiff.a
 

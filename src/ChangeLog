@@ -1,4 +1,6 @@
 7 March 2010
+	* added back MWIMAGE_ALPHA_CHANNEL flag to tiff decoder (untested)
+	* fix inconsistency with PNG GdDrawImage w/alpha ARGB order (Byun Sung Joo)
 	* nanowm enhancements: moved to library, wm_handle_event/wm_init api,
 		added to apps in LINK_APP_INTO_SERVER case when NANOWM=Y,
 		window close on button up, NO_CORNER_RESIZE, NO_AUTO_MOVE options,
@@ -17,7 +19,7 @@ Version 0.92RC1 - 24 Jan 2010 - greg@censoft.com
 	* 	unlock lock around client.c::select() (test in demos/nanox/threadtest.c)
 	* finalized Linux default UNIX98 pty support for nxterm, reformatted heavily
 	* added ngterm terminal type and TERMCAP environment string to nxterm
-	* implement alpha channel support for images in GdDrawImage (Byun Sung Joo)
+	* implement alpha channel using C bitfields in GdDrawImage (Byun Sung Joo)
 	* add nxview -p for background pattern, -s for window half screen size
 11 January 2010 - greg@censoft.com
 	* added pcfdemo.sh to test problem helvB12_lin.pcf.gz and large pcfs

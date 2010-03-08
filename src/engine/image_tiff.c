@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2010 Greg Haerr <greg@censoft.com>
  *
  * Image decode routine for TIFF files
  */
@@ -21,7 +21,7 @@ int
 GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 {
 	TIFF 	*tif;
-	int	w, h;
+	int		w, h;
 	long	size;
 	static TIFFErrorHandler prev_handler = NULL;
 
@@ -45,8 +45,7 @@ GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 	pimage->palette = NULL;
 
 	/* upside down, RGB order (with alpha)*/
-	/* alpha removed for time being, since only handled by display hw*/
-	pimage->compression = MWIMAGE_RGB | /*MWIMAGE_ALPHA_CHANNEL |*/
+	pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL |
 		MWIMAGE_UPSIDEDOWN;
 
 	/* Allocate image */
@@ -56,23 +55,6 @@ GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 	TIFFReadRGBAImage(tif, pimage->width, pimage->height,
 		(uint32 *)pimage->imagebits, 0);
 
-#if 0
-	{
-		/* FIXME alpha channel should be blended with destination*/
-		int i;
-		uint32	*rgba;
-		uint32	rgba_r, rgba_g, rgba_b, rgba_a;
-		rgba = (uint32 *)pimage->imagebits;
-		for (i = 0; i < size; ++i, ++rgba) {
-			if ((rgba_a = TIFFGetA(*rgba) + 1) == 256)
-				continue;
-			rgba_r = (TIFFGetR(*rgba) * rgba_a)>>8;
-			rgba_g = (TIFFGetG(*rgba) * rgba_a)>>8;
-			rgba_b = (TIFFGetB(*rgba) * rgba_a)>>8;
-			*rgba = 0xff000000|(rgba_b<<16)|(rgba_g<<8)|(rgba_r);
-		}
-	}
-#endif
 	TIFFClose(tif);
 	return 1;
 

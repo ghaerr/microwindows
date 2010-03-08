@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003, 2005,2007 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999,2000,2001,2003,2005,2007,2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Portions Copyright (c) 1991 David I. Bell
  *
@@ -751,53 +751,49 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 	}
 }
 
-#if !MW_CPU_BIG_ENDIAN
 /*
- * Alpha-drawing using C bitfields.
- * Tested on little endian only... FIXME
+ * Alpha drawing using C bitfields.  Experimental,
+ * uses bitfields rather than explicit bit-twiddling.
  */
-
-/* MWCOLORVAL : 0x00bbggrr order */
-typedef union _COLORVAL {
+/* BGRA8888 : 0xaarrggbb order (frame buffer format)*/
+typedef union _BGRA8888 {
 	struct {
-		unsigned char r; // LSB
-		unsigned char g;
-		unsigned char b;
-		unsigned char a; // MSB
-	} f;
-	unsigned int v; 
-} COLORVAL;	
-
-/* MWPIXELVAL : 0x00rrggbb order (frame buffer format)*/
-typedef union _PIXELVAL8888 {
-	struct {
-		unsigned char b; // LSB
+/* for now we use processor endianness rather than compiler for bitfield order*/
+#if !MW_CPU_BIG_ENDIAN
+		unsigned char b; // LSB on little endian
 		unsigned char g;
 		unsigned char r;
 		unsigned char a; // MSB
+#else
+		unsigned char a; // MSB on big endian
+		unsigned char r;
+		unsigned char g;
+		unsigned char b; // LSB
+#endif
 	} f;
 	unsigned int v; 
-} PIXELVAL8888;	
+} BGRA8888;	
 
-typedef union _PIXELVAL565 {
+typedef union _BGR565 {
+	/* for big endian systems the contents of this will be byte swapped later*/
 	struct {
-		unsigned short b:5; // LSB
+		unsigned short b:5; // LSB on little endian
 		unsigned short g:6;
 		unsigned short r:5;
 	} f;
 	unsigned short v; 
-} PIXELVAL565;	
+} BGR565;	
 
-typedef union _PIXELVAL555 {
+typedef union _BGR555 {
+	/* for big endian systems the contents of this will be byte swapped later*/
 	struct {
-		unsigned short b:5; // LSB
+		unsigned short b:5; // LSB on little endian
 		unsigned short g:5;
 		unsigned short r:5;
 		unsigned short a:1;
 	} f;
 	unsigned short v; 
-} PIXELVAL555;	
-#endif /* !MW_CPU_BIG_ENDIAN*/
+} BGR555;	
 
 /**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
@@ -858,7 +854,6 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 
 		/* The following is no longer used.  One reason is that it required */
 		/* the transparent color to be unique, which was unnessecary        */
-
 		/* convert transcolor to converted palette index for speed*/
 		/* if (transcolor != -1L)
 		   transcolor = (unsigned long) convtable[transcolor];  */
@@ -901,22 +896,45 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	}
 	extra = pimage->pitch - linesize;
 
-	/* RGB rather than BGR byte order?*/
+	/* Image format in RGB rather than BGR byte order?*/
 	rgborder = pimage->compression & MWIMAGE_RGB; 
 
-	/* check transparent color handling with 32bpp alpha channel*/
+	/*
+	 * Alpha channel handling.  Image format must be in 32bpp and will
+	 * either be ARGB (MWIMAGE_RGB) or ABGR (MWIMAGE_BGR) byte order.
+	 */
 	if (pimage->compression & MWIMAGE_ALPHA_CHANNEL) {
 		long *data = (long *)imagebits;
 
 		while (height > 0) {
+			/* 
+			 * Grab 32 bits of data using processor endianness.
+			 * For ARGB (MWIMAGE_RGB) images this will be:
+			 *			ARGB on little endian
+			 *			BGRA on big endian
+			 * For BGRA (MWIMAGE_BGR) images this will be:
+			 *			BGRA on little endian
+			 *			ARGB on big endian
+			 */
 			cr = *data++;
+
+			/*
+			 * Convert cr longword to ABGR format regardless of
+			 * machine endianness or image color byte order.
+			 */
 #if MW_CPU_BIG_ENDIAN
 			if (rgborder) {
-				/* Fix endian and swap R/B order */
+				/*
+				 * Image longword is ARGB, but big endian makes it BGRA.
+				 * Shift BGR >> 8 and A << 24 to ABGR.
+				 */
 				cr =  ((cr & 0xFFFFFF00UL) >> 8)
 					| ((cr & 0x000000FFUL) << 24);
 			} else {
-				/* Fix endian */
+				/*
+				 * Image longword is BGRA, but big endian makes it ARGB.
+				 * Fix ARGB endianness to BGRA.
+				 */
 				cr =  ((cr & 0xFF000000UL) >> 24)
 					| ((cr & 0x00FF0000UL) >> 8)
 					| ((cr & 0x0000FF00UL) << 8)
@@ -924,21 +942,104 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			}
 #else /* little endian*/
 			if (rgborder) {
-				/* Swap R/B order */
+				/* 
+				 * Image longword is ARGB, swap R/B to ABGR.
+				 */
 				cr = (cr & 0xFF00FF00UL)
 					| ((cr & 0x00FF0000UL) >> 16)
 					| ((cr & 0x000000FFUL) << 16);
+			} else {
+				/*
+				 * Image longword is BGRA, no change needed on little endian.
+				 */
 			}
 #endif
-			/* alpha channel handling*/
+
 			alpha = (cr >> 24);
 			if (alpha != 0) { /* skip if pixel is fully transparent*/
 				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y)) {
 					switch (psd->pixtype) {
+#if ALPHABLEND
+					/* implement alpha blending image draw from image alpha channel*/
+					case MWPF_TRUECOLOR8888:
+					case MWPF_TRUECOLOR0888:
+					case MWPF_TRUECOLOR888:
+						/* cr is in ABGR format*/
+						if (alpha == 255)
+							pixel = cr&0x00ffffff;
+						else {					
+							/* BGRA8888   : 0xaarrggbb*/
+							/* MWPIXELVAL : 0x00rrggbb*/
+							BGRA8888 	  fg;
+							BGRA8888 	  bg;
 
-/* alpha blending uses bitfields - not yet working on big endian FIXME*/
+							fg.v = cr;
+							bg.v = psd->ReadPixel(psd,x,y);
+							bg.f.r = (alpha*fg.f.r + (255-alpha)*bg.f.r)/255;
+							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
+							bg.f.b = (alpha*fg.f.b + (255-alpha)*bg.f.b)/255;
+							bg.f.a = 0;  
+							pixel = bg.v;	/* endian swap handled with BGRA888 struct*/
+						}
+						break;
+					case MWPF_TRUECOLOR565:
+						if (alpha == 255)
+							pixel = (
+										(((cr) & 0x0000f8) >> 3) | 
+										(((cr) & 0x00fc00) >> 5) | 
+										(((cr) & 0xf80000) >> 8)
+									);
+						else {
+							/* BGRA565    : 0xaarrggbb*/
+							/* MWPIXELVAL : r/g/b 5/6/5*/
+							BGRA8888  fg;							
+							BGR565 	  bg;
+							
+							fg.v = cr;
+							bg.v = psd->ReadPixel(psd,x,y);
+
+							bg.f.r = (alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))>>11;
+							bg.f.g = (alpha*fg.f.g + (255-alpha)*(bg.f.g<<2))>>10;
+							bg.f.b = (alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))>>11;
 #if MW_CPU_BIG_ENDIAN
+							/* byte swap bitfield when big endian*/
+							pixel = ((bg.v & 0xFF00U) >> 8) |
+									((bg.v & 0x00FFU) << 8);
+#else
+							pixel = bg.v;
+#endif
+						}
+						break;
+					case MWPF_TRUECOLOR555:
+						if (alpha == 255)
+							pixel = (
+										(((cr) & 0x0000f8) >> 3) | 
+										(((cr) & 0x00f800) >> 6) | 
+										(((cr) & 0xf80000) >> 9)
+									);
+						else {
+							/* BGRA8888   : 0xaarrggbb*/
+							/* MWPIXELVAL : r/g/b 5/5/5*/
+							BGRA8888  fg;							
+							BGR555 	  bg;
+							
+							fg.v = cr;
+							bg.v = psd->ReadPixel(psd,x,y);
 
+							bg.f.r = ((alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))/255)>>3;
+							bg.f.g = ((alpha*fg.f.g + (255-alpha)*(bg.f.g<<3))/255)>>3;
+							bg.f.b = ((alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))/255)>>3;
+							//bg.f.a = 0;
+#if MW_CPU_BIG_ENDIAN
+							/* byte swap bitfield when big endian*/
+							pixel = ((bg.v & 0xFF00U) >> 8) |
+									((bg.v & 0x00FFU) << 8);
+#else
+							pixel = bg.v;
+#endif
+						}
+						break;
+#else /* !ALPHABLEND*/
 					/* implement image draw without alpha blending*/
 					case MWPF_TRUECOLOR8888:
 						pixel = COLOR2PIXEL8888(cr);
@@ -953,67 +1054,13 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					case MWPF_TRUECOLOR555:
 						pixel = COLOR2PIXEL555(cr);
 						break;
+#endif /* ALPHABLEND*/
 
-#else /* little endian*/
-
-					/* implement alpha blending image draw from image alpha channel*/
-					case MWPF_TRUECOLOR8888:
-					case MWPF_TRUECOLOR0888:
-					case MWPF_TRUECOLOR888:
-						if (alpha == 255)
-							pixel = COLOR2PIXEL888(cr);
-						else {					
-							/* COLORVAL   : 0x00bbggrr*/
-							/* MWPIXELVAL : 0x00rrggbb*/
-							COLORVAL 	 *pFG = (COLORVAL *)&cr;
-							MWPIXELVAL    bg = psd->ReadPixel(psd,x,y);
-							PIXELVAL8888 *pBG = (PIXELVAL8888 *)&bg;
-							PIXELVAL8888  dst;
-
-							dst.f.r = (alpha*pFG->f.r + (255-alpha)*pBG->f.r)/255;
-							dst.f.g = (alpha*pFG->f.g + (255-alpha)*pBG->f.g)/255;			
-							dst.f.b = (alpha*pFG->f.b + (255-alpha)*pBG->f.b)/255;
-							dst.f.a = 0;  
-							pixel = dst.v;
-						}
-						break;
-					case MWPF_TRUECOLOR565:
-						if (alpha == 255)
-							pixel = COLOR2PIXEL565(cr);
-						else {
-							/* COLORVAL   : 0x00bbggrr*/
-							/* MWPIXELVAL : 0x00rrggbb*/
-							COLORVAL 	*pFG = (COLORVAL *)&cr;							
-							MWPIXELVAL   bg = psd->ReadPixel(psd,x,y);
-							PIXELVAL565 *pBG = (PIXELVAL565 *)&bg;
-							PIXELVAL565  dst;
-
-							dst.f.r = ((alpha*pFG->f.r + (255-alpha)*(pBG->f.r<<3))/255)>>3;
-							dst.f.g = ((alpha*pFG->f.g + (255-alpha)*(pBG->f.g<<2))/255)>>2;
-							dst.f.b = ((alpha*pFG->f.b + (255-alpha)*(pBG->f.b<<3))/255)>>3;
-							pixel = dst.v;
-						}
-						break;
-					case MWPF_TRUECOLOR555:
-						if (alpha == 255)
-							pixel = COLOR2PIXEL555(cr);
-						else {
-							/* COLORVAL   : 0x00bbggrr*/
-							/* MWPIXELVAL : 0x00rrggbb*/
-							COLORVAL 	*pFG = (COLORVAL *)&cr;							
-							MWPIXELVAL   bg = psd->ReadPixel(psd,x,y);
-							PIXELVAL555 *pBG = (PIXELVAL555 *)&bg;
-							PIXELVAL555  dst;
-
-							dst.f.r = ((alpha*pFG->f.r + (255-alpha)*(pBG->f.r<<3))/255)>>3;
-							dst.f.g = ((alpha*pFG->f.g + (255-alpha)*(pBG->f.g<<3))/255)>>3;
-							dst.f.b = ((alpha*pFG->f.b + (255-alpha)*(pBG->f.b<<3))/255)>>3;
-							dst.f.a = 0;  							
-							pixel = dst.v;
-						}
-						break;
-#endif /* MW_CPU_BIG_ENDIAN (alpha blending)*/
-
+					/*
+					 * cr longword is in ABGR format which is the same
+					 * as an MWCOLORVAL, so COLOR2PIXELxxx macros
+					 * can be used to create a pixelval.
+					 */
 					case MWPF_PALETTE:
 					default:
 						pixel = GdFindColor(psd, cr);
@@ -1037,22 +1084,19 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				data = (long *) (((char *) data) + extra);
 			}
 		}
-	} else if (bpp > 8) {	/* 16, 18, 24, or 32bpp*/
+	} /* end of alpha channel handling*/
+	else if (bpp > 8) {	/* 16, 18, 24, or 32bpp*/
 		while (height > 0) {
 			/* get value in correct RGB or BGR byte order*/
 			if (bpp == 24 || bpp == 18) {
 				cr = rgborder
-					? MWRGB(imagebits[0], imagebits[1],
-						imagebits[2])
-					: MWRGB(imagebits[2], imagebits[1],
-						imagebits[0]);
+					? MWRGB(imagebits[0], imagebits[1], imagebits[2])
+					: MWRGB(imagebits[2], imagebits[1], imagebits[0]);
 				imagebits += 3;
 			} else if (bpp == 32) {
 				cr = rgborder
-					? MWARGB(imagebits[3],imagebits[0],
-						imagebits[1], imagebits[2])
-					: MWARGB(imagebits[3],imagebits[2],
-						imagebits[1], imagebits[0]);
+					? MWARGB(imagebits[3],imagebits[0], imagebits[1], imagebits[2])
+					: MWARGB(imagebits[3],imagebits[2], imagebits[1], imagebits[0]);
 				imagebits += 4;
 			} else {	/* 16 bpp*/
 #if MW_CPU_BIG_ENDIAN

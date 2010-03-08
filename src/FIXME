@@ -1,3 +1,7 @@
+fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed
+test GdDrawImage alpha blending support, not tested for big endian 565/555
+test tiff alpha channel images
+png decoder may fail on 8bpp grayscale images w/alpha, needs testing
 nanowm: change cursor on corner resize, static procnames or rename
 	nxclock doesn't update when LINK_APP_INTO_SERVER/NANOWM and mouse motion
 correct space char width=1 for FNT, CORE and FT fonts
@@ -8,7 +12,6 @@ check that DrawAreaInternal clears bg when usebg for ft2 fonts
 bin/mterm: closing terminal window causes hang rather than server exit
 MSVC: need attribute for #pragma pack in PACKEDDATA in device.h
 GdCaptureScreen() only works with framebuffer /dev/fb0 present
-fix alpha blending support uses C bitfields, doesn't work for big endian
 fix left/right portrait w/freetype
 add drawarea_copy* functions from fblin16 to fblin24/fblin32 driver
 combine GdArea, GdBlit, GdAreaInternal for speed; build conversion library
@@ -26,9 +29,6 @@ remove 2nd thislen parm in GrSendClientData
 italic wrap bug - lubI24.bdf 'r', 'M'
 fix fast gray palette handling for jpegs
 check incorrect jpeg decode when !FASTJPEG
-add alpha channel into GdDrawImage software handling
-no decoder uses MWIMAGE_ALPHA_CHANNEL...
-	use alpha channel with TIFF decoder?
 add 32bpp BMP support?
 remove GR_GRAB_EXCLUSIVE_MOUSE?, check HOTKEY event
 fixup GsDeliverRawMouseEvent, remove internal button handling

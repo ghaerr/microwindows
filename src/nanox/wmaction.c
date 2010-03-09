@@ -221,19 +221,12 @@ void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event)
 		if (PtInRect(&r, event->x, event->y)) {
 			if(window->close == GR_TRUE) {
 				/*
-				 * This sends a CLOSE_REQ event to the window,
-				 * but may not actually work.  NXLIB/X11 clients
-				 * including FLTK don't work.
+				 * This sends a CLOSE_REQ event to the window.
+				 * NXLIB clients catch this and convert it
+				 * to an X11 ClientMessage with a WM_DESTROY_WINDOW
+				 * atom, causing the window to close.
 				 */
 				GrCloseWindow(window->clientid);
-
-				/* 
-				 * FIXME: FLTK hack for closing window, send ESC 
-				 *
-				extern void putKey(MWKEY tempKey,MWKEYMOD tempMod, int flags);
-        		putKey(MWKEY_ESCAPE, MWKMOD_NONE, 1);
-				 */
-
         		window->close = GR_FALSE;
         		return;
       		}

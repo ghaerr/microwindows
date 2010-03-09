@@ -223,7 +223,7 @@ void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event)
 				/*
 				 * This sends a CLOSE_REQ event to the window.
 				 * NXLIB clients catch this and convert it
-				 * to an X11 ClientMessage with a WM_DESTROY_WINDOW
+				 * to an X11 ClientMessage with a WM_DELETE_WINDOW
 				 * atom, causing the window to close.
 				 */
 				GrCloseWindow(window->clientid);

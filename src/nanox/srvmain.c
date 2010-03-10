@@ -10,7 +10,7 @@
 #include <signal.h>
 #include <string.h>
 
-#ifdef PSP
+#if PSP
 #include <pspkernel.h>
 #include <pspdebug.h>
 #endif

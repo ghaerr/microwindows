@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-May 29, 2003 g haerr <greg@censoft.com>
+March 10, 2010 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -24,7 +24,7 @@ To build Microwindows for desktop demonstration:
 
 6. More information below.
 
-Microwindows compiles and runs on Linux, UNIX, ELKS, MSDOS, 
+Microwindows compiles and runs on Linux, UNIX, ELKS, MSDOS, PSP,
 RTEMS, X11 and bare hardware.  There is support for the MIPS,
 ARM, and x86 cpu's using the GNU C cross compiler.
 
@@ -140,7 +140,6 @@ to use an MS font.  To use the MS fonts, run mwin/src/fonts/convfnt32.exe
 on a Windows system, and it will create the win*.c font tables.
 These fonts can then be linked in by modifying the drivers/genfont.c file.
 
-
 FreeBSD
 =====
 FreeBSD users set the line below in the config file.
@@ -148,6 +147,10 @@ FreeBSD users set the line below in the config file.
 
 You must use GNU make.  The easiest way is to install the 
 ports/devel/gmake package and use a command line such as "gmake MAKE=gmake"
+
+PSP
+===
+See src/contrib/README.psp
 
 ELKS (not tested since version 0.86)
 ====

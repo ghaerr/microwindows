@@ -497,23 +497,14 @@ NANOXCLIENTLIBS += -lutil
 endif
 
 ifeq ($(ARCH),PSP)
-
-# this is horribly hacky, but the build rule depends on NANOXCLIENTLIBS, so
-# they have to point to actual files rather than just "-l" strings.
-# It should really be fixed in the nanox client makefiles instead.
-
+CFLAGS += -D_PSP_FW_VERSION=371
 PLIB := $(shell psp-config --pspsdk-path)/lib
-NANOXCLIENTLIBS +=  \
-		$(PLIB)/libpspdebug.a \
-		$(PLIB)/libpspgu.a \
-		$(PLIB)/libpspctrl.a \
-		$(PLIB)/libpsplibc.a \
-		$(PLIB)/libpspkernel.a \
-		$(PLIB)/libpspuser.a \
-		$(PLIB)/libpspge.a \
-		$(PLIB)/libpspdisplay.a
-CCMWINLIBS += -lc -lpspdebug -lpspgu -lpspctrl -lpsplibc -lpspkernel -lpspuser -lpspge -lpspdisplay
-
+CCNXLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
+	-lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility \
+	-lpspuser -lpspkernel -lpsplibc 
+CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
+	-lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility \
+	-lpspuser -lpspkernel -lpsplibc
 endif
 
 ##############################################################################

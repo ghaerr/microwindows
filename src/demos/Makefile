@@ -40,7 +40,7 @@ dirs = nxkbd
 endif
 
 ifeq ($(ARCH), PSP)
-dirs = nanowm nanox mwin
+dirs = nanox mwin
 endif
 
 ######################### Makefile.rules section #############################

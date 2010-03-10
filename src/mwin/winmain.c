@@ -94,6 +94,9 @@ invoke_WinMain(int ac,char **av)
 	thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
 	if(thid >= 0)
 		sceKernelStartThread(thid, 0, 0);
+
+        pspDebugScreenInit();
+		pspDebugScreenPrintf("\n Microwindows init...");
 #endif
 
 	/* call user hook routine before anything*/

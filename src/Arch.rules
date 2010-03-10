@@ -228,12 +228,8 @@ CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS += -Wl,-elf2flt
 endif
 
-ifeq ($(BIGENDIAN), Y)
-DEFINES += -DMW_CPU_BIG_ENDIAN=1
-endif
-
 ifeq ($(ARCH), PSP)
-PSPSDK = `psp-config --pspsdk-path`
+PSPSDK = $(shell psp-config --pspsdk-path)
 COMPILER = gcc
 CXX_COMPILER = g++
 TOOLSPREFIX = $(PSPTOOLSPREFIX)
@@ -243,4 +239,8 @@ ifneq ($(DEBUG), Y)
 CFLAGS += -s
 endif
 LDFLAGS += -L$(PSPSDK)/lib
+endif
+
+ifeq ($(BIGENDIAN), Y)
+DEFINES += -DMW_CPU_BIG_ENDIAN=1
 endif

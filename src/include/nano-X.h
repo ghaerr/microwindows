@@ -1009,6 +1009,8 @@ typedef struct {
 } REQBUF;
 
 #if PSP
+#include <pspkernel.h>
+#include <psputils.h>
 #define fprintf(...)	do {} while(0)
 #define setbuf(...)		do {} while(0)
 #define exit(...)		sceKernelExitGame()

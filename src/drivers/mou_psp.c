@@ -1,5 +1,6 @@
 /*
  * Crappy PSP analog stick to mouse driver by Jim Paris
+ *	Enhanced by lurker0
  *
  * Mouse:
  * Analog stick moves
@@ -99,32 +100,44 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
 	SceCtrlData pad;
 	int new_keypress = 0;
+        static MWCOORD cord_x=0, cord_y = 0;
 
 	sceCtrlReadBufferPositive(&pad, 1); 
 
-	*dx = ((MWCOORD)pad.Lx - 0x80) / 16;
-	*dy = ((MWCOORD)pad.Ly - 0x80) / 16;
+	*dx = cord_x + ((MWCOORD)pad.Lx - 128) / 32;
+	*dy = cord_y + ((MWCOORD)pad.Ly - 128) / 32;
 	*dz = 0;
 
 	*bp = 0;
-	if((pad.Buttons & PSP_CTRL_SQUARE) ||
-	   (pad.Buttons & PSP_CTRL_CROSS))
-		*bp |= MWBUTTON_L;
-
-	if(pad.Buttons & PSP_CTRL_CIRCLE)
-	        *bp |= MWBUTTON_R;
-
-	if(pad.Buttons & PSP_CTRL_TRIANGLE)
+	if(pad.Buttons & PSP_CTRL_RTRIGGER)
 		*bp |= MWBUTTON_M;
 
-	if(pad.Buttons & PSP_CTRL_LTRIGGER) new_keypress = MWKEY_ESCAPE;
-	if(pad.Buttons & PSP_CTRL_RTRIGGER) new_keypress = MWKEY_ENTER;
-	if(pad.Buttons & PSP_CTRL_LEFT)     new_keypress = 'L';
-	if(pad.Buttons & PSP_CTRL_RIGHT)    new_keypress = 'R';
-	if(pad.Buttons & PSP_CTRL_UP)       new_keypress = 'U';
-	if(pad.Buttons & PSP_CTRL_DOWN)     new_keypress = 'D';
-	if(pad.Buttons & PSP_CTRL_SELECT)   new_keypress = MWKEY_BACKSPACE;
-	if(pad.Buttons & PSP_CTRL_START)    new_keypress = MWKEY_QUIT;
+	if(pad.Buttons & PSP_CTRL_SQUARE)
+	        *bp |= MWBUTTON_L;
+
+	if(pad.Buttons & PSP_CTRL_CROSS)
+		*bp |= MWBUTTON_R;
+
+	if(pad.Buttons & PSP_CTRL_SQUARE)   new_keypress = MWKEY_HOME;
+	if(pad.Buttons & PSP_CTRL_CROSS)    new_keypress = MWKEY_END;
+	if(pad.Buttons & PSP_CTRL_LEFT) {
+            new_keypress = MWKEY_LEFT;
+            *dx -= 1;
+	}
+	if(pad.Buttons & PSP_CTRL_RIGHT) {
+            new_keypress = MWKEY_RIGHT;
+            *dx += 1;
+	}
+	if(pad.Buttons & PSP_CTRL_UP) {   
+            new_keypress = MWKEY_UP;
+	    *dy -= 1;
+	}
+	if(pad.Buttons & PSP_CTRL_DOWN) {
+	    new_keypress = MWKEY_DOWN;
+	    *dy += 1;
+	}
+	if(pad.Buttons & PSP_CTRL_TRIANGLE) new_keypress = MWKEY_PAGEUP;
+	if(pad.Buttons & PSP_CTRL_CIRCLE)   new_keypress = MWKEY_PAGEDOWN;
 
 	/* if keyboard driver got a key, only give it more once that
 	 key was let go.  This is just a quick hack, there's surely a

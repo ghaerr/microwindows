@@ -340,7 +340,8 @@ SCANKBD                  = N
 PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
-NOKBD                    = Y
+NOKBD                    = N
+PSPKBD                   = Y
 
 endif
 

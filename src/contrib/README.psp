@@ -1,0 +1,61 @@
+Microwindows and Nano-X port for the Sony PSP contributed by
+   Jim Paris <jim@jtan.com>
+
+This is a _very_ rough port; it runs, but there are a number of hacks
+both in the build system and the code that would have to be worked out
+before this was useful for anything.  For example, the included demos
+sometimes show video corruption, and there are issues with the event
+loop that cause random delays to occur.  Consider this more of a
+proof-of-concept at this point.
+
+To build and run a demo, first make sure psp-config is in your PATH, then:
+
+   cd src
+   make
+
+A number of demos are generated in bin.  "mdemo" and "mine" should
+both work, for example.
+
+
+Mouse:
+  
+  Analog stick moves
+  X = left click
+  Square = left click
+  Circle = right click
+  Triangle = middle click
+
+Keyboard:
+  
+  L Trigger = escape
+  R Trigger = enter
+  Left = letter L
+  Right = letter R
+  Up = letter U
+  Down = letter D
+  Select = backspace
+  Start = quit
+
+----------------------------------------------------
+Further work: 
+
+Microwindows and Nano-X port for the Sony PSP 
+Contact me at <lurker0 # gmail.com>
+
+A little further from Jim Paris's work.
+
+Almost demos for Nano-X and Microwindows could run under PSP.
+
+Here are some notes before you start:
+./src/bin       get your demos after compilation.
+./src/contrib/psp-build.sh  a shell script to package a new demo to pbp
+format which is executable in PSP homebrew. Change variable BIN to the
+name of demo you want to package. Run this script and then download
+EBOOT.pbp and PARAM.SFO to your PSP directory /PSP/GAME/nano-x/  
+
+To compile:
+
+[root@linux] make
+
+I have already tested demos under my PSP slim. The firmware version is 3.91M33.
+Anyway, any PSP with firmware above 3xx is ok. 150 firmware is obviously not supported.

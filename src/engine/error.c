@@ -38,7 +38,11 @@ GdError(const char *format, ...)
 	{
 		char 	buf[1024];
 		vsprintf(buf, format, args);
+#if PSP
+		pspDebugScreenPrintf("%s\n", buf);
+#else
 		write(2, buf, strlen(buf));
+#endif
 	}
 #endif
 

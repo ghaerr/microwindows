@@ -496,6 +496,26 @@ ifeq ($(ARCH), FREEBSD-X86)
 NANOXCLIENTLIBS += -lutil
 endif
 
+ifeq ($(ARCH),PSP)
+
+# this is horribly hacky, but the build rule depends on NANOXCLIENTLIBS, so
+# they have to point to actual files rather than just "-l" strings.
+# It should really be fixed in the nanox client makefiles instead.
+
+PLIB := $(shell psp-config --pspsdk-path)/lib
+NANOXCLIENTLIBS +=  \
+		$(PLIB)/libpspdebug.a \
+		$(PLIB)/libpspgu.a \
+		$(PLIB)/libpspctrl.a \
+		$(PLIB)/libpsplibc.a \
+		$(PLIB)/libpspkernel.a \
+		$(PLIB)/libpspuser.a \
+		$(PLIB)/libpspge.a \
+		$(PLIB)/libpspdisplay.a
+CCMWINLIBS += -lpspdebug -lpspgu -lpspctrl -lpsplibc -lpspkernel -lpspuser -lpspge -lpspdisplay
+
+endif
+
 ##############################################################################
 # Build rules
 ##############################################################################

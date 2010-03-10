@@ -250,10 +250,8 @@ ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
         case WM_CREATE:
-            if (!(pData = malloc (sizeof (PROGRESSDATA)))) {
-                fprintf(stderr, "Create progress bar control failure!\n");
+            if (!(pData = malloc (sizeof (PROGRESSDATA))))
                 return -1;
-            }
             
 #if TEST
             pData->nMax     = 1000;

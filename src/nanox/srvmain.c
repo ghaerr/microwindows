@@ -10,6 +10,11 @@
 #include <signal.h>
 #include <string.h>
 
+#ifdef PSP
+#include <pspkernel.h>
+#include <pspdebug.h>
+#endif
+
 #ifdef __PACIFIC__
 #include <unixio.h>
 #else
@@ -252,6 +257,23 @@ GsAcceptClientFd(int i)
 	}
 }
 
+#if PSP
+int exit_callback(void)
+{
+	sceKernelExitGame();
+	return 0;
+}
+
+void CallbackThread(void *arg)
+{
+	int cbid;
+
+	cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+	sceKernelRegisterExitCallback(cbid);
+	sceKernelSleepThreadCB();
+}
+#endif
+
 /*
  * Open a connection from a new client to the server.
  * Returns -1 on failure.
@@ -260,6 +282,14 @@ int
 GrOpen(void)
 {
 #if NONETWORK
+
+#if PSP
+	int thid;
+	thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+	if(thid >= 0)
+		sceKernelStartThread(thid, 0, 0);
+#endif
+
 	SERVER_LOCK();
 	escape_quits = 1;
 
@@ -367,6 +397,10 @@ GrUnregisterInput(int fd)
 void
 GrDelay(GR_TIMEOUT msecs)
 {
+#if PSP
+	sceKernelDelayThread(1000 * msecs);
+#endif
+
 #if UNIX && defined(HAVESELECT)
 	struct timeval timeval;
 
@@ -578,6 +612,90 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 
 }
+
+#elif PSP
+
+#define POLLTIME	1     /* polling sleep interval (in msec) */
+#define MAX_MOUSEEVENTS	10    /* max number of mouse event to get in 1 select */
+#define MAX_KEYBDEVENTS	10    /* max number of mouse event to get in 1 select */
+
+void 
+GsSelect(GR_TIMEOUT timeout)
+{
+	int mouseevents = 0;
+	int keybdevents = 0;
+	GR_TIMEOUT waittime = 0;
+	GR_EVENT_GENERAL *gp;
+
+	/* input gathering loop */
+	while (1)
+	{
+
+		/* perform pre-select duties, if any */
+		if(scrdev.PreSelect)
+		{
+			scrdev.PreSelect(&scrdev);
+		}
+
+
+		/* If mouse data present, service it */
+		while (mousedev.Poll() > 0)
+		{
+			GsCheckMouseEvent();
+			if (mouseevents++ > MAX_MOUSEEVENTS)
+			{
+				/* don't handle too many events at one shot */
+				break;
+			}
+		}
+
+
+		/* If keyboard data present, service it */
+		while (kbddev.Poll() > 0)
+		{
+			GsCheckKeyboardEvent();
+			if (keybdevents++ > MAX_KEYBDEVENTS)
+			{
+				/* don't handle too many events at one shot */
+				break;
+			}
+		}
+
+		
+		/* did we process any input yet? */
+		if ((mouseevents > 0) || (keybdevents > 0))
+		{
+			/* yep -- return without sleeping */
+			return;
+		}
+
+
+		/* give up time-slice & sleep for a bit */
+		GrDelay(POLLTIME);
+		waittime += POLLTIME; 
+
+
+		/* have we timed out? */
+		if (waittime >= timeout)
+		{
+			/* special case: polling when timeout == 0 -- don't send timeout event */
+			if (timeout != 0)
+			{
+				/* Timeout has occured.  
+				** Currently return a timeout event regardless of whether client 
+				**   has selected for it.
+				*/
+				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
+				{
+					gp->type = GR_EVENT_TYPE_TIMEOUT;
+				}
+			}
+			return;
+		}
+	}
+
+}
+
 
 #elif MSDOS | _MINIX
 
@@ -1080,7 +1198,7 @@ GsInitialize(void)
 
 	startTicks = GsGetTickCount();
 
-#ifndef MW_NOSIGNALS
+#if !MW_NOSIGNALS
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)GsTerminate);
 #endif
@@ -1094,7 +1212,7 @@ GsInitialize(void)
 	selection_owner.typelist = NULL;
 
 #if !NONETWORK
-#ifndef MW_NOSIGNALS
+#if !MW_NOSIGNALS
 	/* ignore pipe signal, sent when clients exit*/
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);
@@ -1297,6 +1415,8 @@ void
 GrBell(void)
 {
 	SERVER_LOCK();
+#if !PSP
 	write(2, "\7", 1);
+#endif
 	SERVER_UNLOCK();
 }

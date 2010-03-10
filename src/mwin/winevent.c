@@ -19,14 +19,6 @@
 
 static LPFN_KEYBTRANSLATE mwPtrKeyboardTranslator = NULL;
 
-#if 0 /* && !(DOS_TURBOC | DOS_QUICKC | _MINIX | VXWORKS)*/
-static int
-abs(int n)
-{
-	return n >= 0? n: -n;
-}
-#endif
-
 /*
  * Update mouse status and issue events on it if necessary.
  * This function doesn't block, but is normally only called when

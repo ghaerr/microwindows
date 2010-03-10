@@ -243,6 +243,10 @@ ifeq ($(NOMOUSE), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_null.o
 endif
 
+ifeq ($(PSPMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_psp.o
+endif
+
 #
 # Keyboard driver specific for every system
 #
@@ -278,6 +282,10 @@ endif
 
 ifeq ($(NOKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_null.o
+endif
+
+ifeq ($(PSPKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_psp.o
 endif
 
 else
@@ -365,4 +373,20 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/asm_prsm.o
 endif
 
+# PSP
+ifeq ($(ARCH), PSP)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_psp.o \
+	$(MW_DIR_OBJ)/drivers/genfont.o \
+	$(MW_DIR_OBJ)/drivers/fblin1.o \
+	$(MW_DIR_OBJ)/drivers/fblin2.o \
+	$(MW_DIR_OBJ)/drivers/fblin4.o \
+	$(MW_DIR_OBJ)/drivers/fblin8.o \
+	$(MW_DIR_OBJ)/drivers/fblin16.o \
+	$(MW_DIR_OBJ)/drivers/fblin24.o \
+	$(MW_DIR_OBJ)/drivers/fblin32.o \
+	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
+	$(MW_DIR_OBJ)/drivers/fb.o \
+	$(MW_DIR_OBJ)/drivers/genmem.o
 
+endif

@@ -111,7 +111,7 @@
 #define MWBUTTON_M	02
 #define MWBUTTON_R	01
 
-/* Color defines*/
+/* Color defines - MWCOLORVAL is always 0xAABBGGRR format*/
 #define MWARGB(a,r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
 				(((unsigned)(unsigned char)(g))<<8))|\
 				(((unsigned long)(unsigned char)(b))<<16)|\
@@ -214,14 +214,15 @@
 #define MWPF_RGB	   0	/* pseudo, convert from packed 32 bit RGB*/
 #define MWPF_PIXELVAL	   1	/* pseudo, no convert from packed PIXELVAL*/
 #define MWPF_PALETTE	   2	/* pixel is packed 8 bits 1, 4 or 8 pal index*/
-#define MWPF_TRUECOLOR0888 3	/* pixel is packed 32 bits 8/8/8 truecolor*/
-#define MWPF_TRUECOLOR888  4	/* pixel is packed 24 bits 8/8/8 truecolor*/
-#define MWPF_TRUECOLOR565  5	/* pixel is packed 16 bits 5/6/5 truecolor*/
-#define MWPF_TRUECOLOR555  6	/* pixel is packed 16 bits 5/5/5 truecolor*/
-#define MWPF_TRUECOLOR332  7	/* pixel is packed 8 bits 3/3/2 truecolor*/
-#define MWPF_TRUECOLOR8888 8	/* pixel is packed 32 bits 8/8/8/8 truecolor with alpha */
-#define MWPF_TRUECOLOR233  9	/* pixel is packed 8 bits 2/3/3 truecolor (BGR) */
+#define MWPF_TRUECOLOR0888 3	/* pixel is packed 32 bits 0/R/G/B 0RGB truecolor zero alpha*/
+#define MWPF_TRUECOLOR888  4	/* pixel is packed 24 bits R/G/B RGB truecolor*/
+#define MWPF_TRUECOLOR565  5	/* pixel is packed 16 bits 5/6/5 RGB truecolor*/
+#define MWPF_TRUECOLOR555  6	/* pixel is packed 16 bits 5/5/5 RGB truecolor*/
+#define MWPF_TRUECOLOR332  7	/* pixel is packed  8 bits 3/3/2 RGB truecolor*/
+#define MWPF_TRUECOLOR8888 8	/* pixel is packed 32 bits A/R/G/B ARGB truecolor with alpha */
+#define MWPF_TRUECOLOR233  9	/* pixel is packed  8 bits 2/3/3 BGR truecolor*/
 #define MWPF_HWPIXELVAL   10	/* pseudo, no convert, pixels are in hw format*/
+#define MWPF_TRUECOLORABGR 11	/* pixel is packed 32 bits A/B/G/R ABGR truecolor with alpha */
 
 /*
  * MWPIXELVAL definition: changes based on target system
@@ -276,7 +277,7 @@ typedef unsigned short MWPIXELVAL;
 typedef int		MWCOORD;	/* device coordinates*/
 typedef int		MWBOOL;		/* boolean value*/
 typedef unsigned char	MWUCHAR;	/* unsigned char*/
-typedef unsigned long	MWCOLORVAL;	/* device-independent color value*/
+typedef unsigned long	MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
 typedef unsigned short	MWIMAGEBITS;	/* bitmap image unit size*/
 typedef unsigned long	MWTIMEOUT;	/* timeout value */
 typedef unsigned long	MWTEXTFLAGS;	/* MWTF_ text flag*/

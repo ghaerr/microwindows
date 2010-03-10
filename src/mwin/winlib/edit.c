@@ -369,10 +369,8 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
         case WM_CREATE:
-            if (!(pSLEditData = malloc (sizeof (SLEDITDATA)))) {
-                fprintf (stderr, "EDIT: malloc error!\n");
+            if (!(pSLEditData = malloc (sizeof (SLEDITDATA))))
                 return -1;
-            }
 
             pSLEditData->hFont      	= GetStockObject(DEFAULT_FONT);
 

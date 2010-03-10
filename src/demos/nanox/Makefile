@@ -38,6 +38,28 @@ LIBNAME =
 ifeq ($(ARCH), ECOS)
 TARGETS = $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
 else
+ifeq ($(ARCH), PSP)
+TARGETS = \
+	$(MW_DIR_BIN)/demo \
+	$(MW_DIR_BIN)/move \
+	$(MW_DIR_BIN)/nxlsclients \
+	$(MW_DIR_BIN)/nxev \
+	$(MW_DIR_BIN)/demo5 \
+	$(MW_DIR_BIN)/t1demo \
+	$(MW_DIR_BIN)/ftdemo \
+	$(MW_DIR_BIN)/logfont \
+	$(MW_DIR_BIN)/getselection \
+	$(MW_DIR_BIN)/setselection \
+	$(MW_DIR_BIN)/dashdemo \
+	$(MW_DIR_BIN)/pcfdemo \
+	$(MW_DIR_BIN)/fontdemo \
+	$(MW_DIR_BIN)/setportrait \
+	$(MW_DIR_BIN)/arcdemo \
+	$(MW_DIR_BIN)/polydemo \
+	$(MW_DIR_BIN)/bmpdemo \
+	$(MW_DIR_BIN)/rgndemo 
+
+else
 TARGETS = \
 	$(MW_DIR_BIN)/demo \
 	$(MW_DIR_BIN)/move \
@@ -124,6 +146,7 @@ all: default $(TARGETS)
 #		$(MW_DIR_SRC)/demos/nanox/transtest.gif
 #		$(MW_DIR_SRC)/demos/nanox/alphatest.png
 
+endif
 endif
 endif
 

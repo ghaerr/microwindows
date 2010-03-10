@@ -45,9 +45,6 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	int bit_depth, color_type, i;
 	double file_gamma;
 	int channels, alpha_present;
-	png_bytep trans;
-	int num_trans;
-	png_color_16p trans_values;
 
 	GdImageBufferSeekTo(src, 0UL);
 

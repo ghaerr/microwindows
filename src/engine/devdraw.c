@@ -755,8 +755,8 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
  * Alpha drawing using C bitfields.  Experimental,
  * uses bitfields rather than explicit bit-twiddling.
  */
-/* BGRA8888 : 0xaarrggbb order (frame buffer format)*/
-typedef union _BGRA8888 {
+/* ARGB8888 : 0xaarrggbb order (little endian frame buffer format BB GG RR AA)*/
+typedef union {
 	struct {
 /* for now we use processor endianness rather than compiler for bitfield order*/
 #if !MW_CPU_BIG_ENDIAN
@@ -772,9 +772,9 @@ typedef union _BGRA8888 {
 #endif
 	} f;
 	unsigned int v; 
-} BGRA8888;	
+} ARGB8888;	
 
-typedef union _BGR565 {
+typedef union {
 	/* for big endian systems the contents of this will be byte swapped later*/
 	struct {
 		unsigned short b:5; // LSB on little endian
@@ -782,9 +782,9 @@ typedef union _BGR565 {
 		unsigned short r:5;
 	} f;
 	unsigned short v; 
-} BGR565;	
+} RGB565;	
 
-typedef union _BGR555 {
+typedef union {
 	/* for big endian systems the contents of this will be byte swapped later*/
 	struct {
 		unsigned short b:5; // LSB on little endian
@@ -793,7 +793,7 @@ typedef union _BGR555 {
 		unsigned short a:1;
 	} f;
 	unsigned short v; 
-} BGR555;	
+} RGB555;	
 
 /**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
@@ -900,8 +900,10 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	rgborder = pimage->compression & MWIMAGE_RGB; 
 
 	/*
-	 * Alpha channel handling.  Image format must be in 32bpp and will
-	 * either be ARGB (MWIMAGE_RGB) or ABGR (MWIMAGE_BGR) byte order.
+	 * Handle images with alpha channel.
+	 * Image format must be in 32bpp and have byte order
+	 *    MWIMAGE_RGB: RR GG BB AA
+	 * or MWIMAGE_BGR: BB GG RR AA
 	 */
 	if (pimage->compression & MWIMAGE_ALPHA_CHANNEL) {
 		long *data = (long *)imagebits;
@@ -909,31 +911,29 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		while (height > 0) {
 			/* 
 			 * Grab 32 bits of data using processor endianness.
-			 * For ARGB (MWIMAGE_RGB) images this will be:
-			 *			ARGB on little endian
-			 *			BGRA on big endian
-			 * For BGRA (MWIMAGE_BGR) images this will be:
-			 *			BGRA on little endian
-			 *			ARGB on big endian
+			 * For little endian:
+			 *	MWIMAGE_RGB will be long word 0xAABBGGRR (ABGR)
+			 *  MWIMAGE_BGR will be long word 0xAARRGGBB (ARGB)
+			 *
+			 * For big endian:
+			 *	MWIMAGE_RGB will be long word 0xRRGGBBAA (RGBA)
+			 *  MWIMAGE_BGR will be long word 0xBBGGRRAA (BGRA)
 			 */
 			cr = *data++;
 
 			/*
-			 * Convert cr longword to ABGR format regardless of
-			 * machine endianness or image color byte order.
+			 * Convert to ARGB (MWPIXELVAL little endian framebuffer format)
 			 */
 #if MW_CPU_BIG_ENDIAN
 			if (rgborder) {
 				/*
-				 * Image longword is ARGB, but big endian makes it BGRA.
-				 * Shift BGR >> 8 and A << 24 to ABGR.
+				 * cr is RGBA, shift RGB >> 8 and A << 24 to ARGB.
 				 */
 				cr =  ((cr & 0xFFFFFF00UL) >> 8)
 					| ((cr & 0x000000FFUL) << 24);
 			} else {
 				/*
-				 * Image longword is BGRA, but big endian makes it ARGB.
-				 * Fix ARGB endianness to BGRA.
+				 * cr is BGRA, swap endianness to ARGB.
 				 */
 				cr =  ((cr & 0xFF000000UL) >> 24)
 					| ((cr & 0x00FF0000UL) >> 8)
@@ -943,18 +943,18 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 #else /* little endian*/
 			if (rgborder) {
 				/* 
-				 * Image longword is ARGB, swap R/B to ABGR.
+				 * cr is ABGR, swap R/B to ARGB.
 				 */
 				cr = (cr & 0xFF00FF00UL)
 					| ((cr & 0x00FF0000UL) >> 16)
 					| ((cr & 0x000000FFUL) << 16);
 			} else {
 				/*
-				 * Image longword is BGRA, no change needed on little endian.
+				 * cr is ARGB, no change needed.
 				 */
 			}
 #endif
-
+			/* cr is now in ARGB format*/
 			alpha = (cr >> 24);
 			if (alpha != 0) { /* skip if pixel is fully transparent*/
 				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y)) {
@@ -964,40 +964,53 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					case MWPF_TRUECOLOR8888:
 					case MWPF_TRUECOLOR0888:
 					case MWPF_TRUECOLOR888:
-						/* cr is in ABGR format*/
 						if (alpha == 255)
-							pixel = cr&0x00ffffff;
+							pixel = cr;		/* both cr and pixel are ARGB (0xAARRGGBB)*/
 						else {					
-							/* BGRA8888   : 0xaarrggbb*/
-							/* MWPIXELVAL : 0x00rrggbb*/
-							BGRA8888 	  fg;
-							BGRA8888 	  bg;
+							/* ARGB8888   : 0xAARRGGBB*/
+							/* MWPIXELVAL : 0x00RRGGBB*/
+							ARGB8888 	  fg;
+							ARGB8888 	  bg;
 
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
 							bg.f.r = (alpha*fg.f.r + (255-alpha)*bg.f.r)/255;
 							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
 							bg.f.b = (alpha*fg.f.b + (255-alpha)*bg.f.b)/255;
-							bg.f.a = 0;  
-							pixel = bg.v;	/* endian swap handled with BGRA888 struct*/
+							//bg.f.a = 255;  
+							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
+						}
+						break;
+					case MWPF_TRUECOLORABGR:
+						if (alpha == 255)
+							pixel = PIXEL888TOCOLORVAL(cr);	/* convert ARGB cr to ABGR pixel*/
+						else {					
+							/* ARGB8888   : 0xAARRGGBB*/
+							/* MWPIXELVAL : 0xAABBGGRR*/
+							ARGB8888 	  fg;
+							ARGB8888 	  bg;
+
+							/* tricky code: just swap red/blue from above case for bg pixel*/
+							fg.v = cr;
+							bg.v = psd->ReadPixel(psd,x,y);
+							bg.f.b = (alpha*fg.f.r + (255-alpha)*bg.f.b)/255;
+							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
+							bg.f.r = (alpha*fg.f.b + (255-alpha)*bg.f.r)/255;
+							//bg.f.a = 255;  
+							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}
 						break;
 					case MWPF_TRUECOLOR565:
 						if (alpha == 255)
-							pixel = (
-										(((cr) & 0x0000f8) >> 3) | 
-										(((cr) & 0x00fc00) >> 5) | 
-										(((cr) & 0xf80000) >> 8)
-									);
+							pixel = ARGB2PIXEL565(cr);
 						else {
-							/* BGRA565    : 0xaarrggbb*/
+							/* ARGB565    : 0xAARRGGBB*/
 							/* MWPIXELVAL : r/g/b 5/6/5*/
-							BGRA8888  fg;							
-							BGR565 	  bg;
+							ARGB8888  fg;							
+							RGB565 	  bg;
 							
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
-
 							bg.f.r = (alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))>>11;
 							bg.f.g = (alpha*fg.f.g + (255-alpha)*(bg.f.g<<2))>>10;
 							bg.f.b = (alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))>>11;
@@ -1018,14 +1031,13 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 										(((cr) & 0xf80000) >> 9)
 									);
 						else {
-							/* BGRA8888   : 0xaarrggbb*/
+							/* ARGB8888   : 0xAARRGGBB*/
 							/* MWPIXELVAL : r/g/b 5/5/5*/
-							BGRA8888  fg;							
-							BGR555 	  bg;
+							ARGB8888  fg;							
+							RGB555 	  bg;
 							
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
-
 							bg.f.r = ((alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))/255)>>3;
 							bg.f.g = ((alpha*fg.f.g + (255-alpha)*(bg.f.g<<3))/255)>>3;
 							bg.f.b = ((alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))/255)>>3;
@@ -1041,35 +1053,37 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 						break;
 #else /* !ALPHABLEND*/
 					/* implement image draw without alpha blending*/
+					/*
+					 * Draw without alpha blending.
+					 * Must convert cr from ARGB format to ABGR colorval.
+					 */
 					case MWPF_TRUECOLOR8888:
-						pixel = COLOR2PIXEL8888(cr);
+						pixel = COLOR2PIXEL8888(ARGB2COLORVAL(cr));
+						break;
+					case MWPF_TRUECOLORABGR:
+						pixel = COLOR2PIXELABGR(ARGB2COLORVAL(cr));
 						break;
 					case MWPF_TRUECOLOR0888:
 					case MWPF_TRUECOLOR888:
-						pixel = COLOR2PIXEL888(cr);
+						pixel = COLOR2PIXEL888(ARGB2COLORVAL(cr));
 						break;
 					case MWPF_TRUECOLOR565:
-						pixel = COLOR2PIXEL565(cr);
+						pixel = COLOR2PIXEL565(ARGB2COLORVAL(cr));
 						break;
 					case MWPF_TRUECOLOR555:
-						pixel = COLOR2PIXEL555(cr);
+						pixel = COLOR2PIXEL555(ARGB2COLORVAL(cr));
 						break;
 #endif /* ALPHABLEND*/
 
-					/*
-					 * cr longword is in ABGR format which is the same
-					 * as an MWCOLORVAL, so COLOR2PIXELxxx macros
-					 * can be used to create a pixelval.
-					 */
 					case MWPF_PALETTE:
 					default:
-						pixel = GdFindColor(psd, cr);
+						pixel = GdFindColor(psd, ARGB2COLORVAL(cr));
 						break;
 					case MWPF_TRUECOLOR332:
-						pixel = COLOR2PIXEL332(cr);
+						pixel = COLOR2PIXEL332(ARGB2COLORVAL(cr));
 						break;
 					case MWPF_TRUECOLOR233:
-						pixel = COLOR2PIXEL233(cr);
+						pixel = COLOR2PIXEL233(ARGB2COLORVAL(cr));
 						break;
 					}
 					psd->DrawPixel(psd, x, y, pixel);
@@ -1080,12 +1094,17 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			if (x++ == maxx) {
 				x = minx;
 				y += yoff;
-				height--;
+				--height;
 				data = (long *) (((char *) data) + extra);
 			}
 		}
-	} /* end of alpha channel handling*/
-	else if (bpp > 8) {	/* 16, 18, 24, or 32bpp*/
+		/* end of alpha channel image handling*/
+		GdFixCursor(psd);
+		return;
+	}
+
+	/* handle non-alpha images of 16, 18, 24 or 32bpp*/
+	if (bpp > 8) {
 		while (height > 0) {
 			/* get value in correct RGB or BGR byte order*/
 			if (bpp == 24 || bpp == 18) {
@@ -1122,6 +1141,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				case MWPF_TRUECOLOR8888:
 					pixel = COLOR2PIXEL8888(cr);
 					break;
+				case MWPF_TRUECOLORABGR:
+					pixel = COLOR2PIXELABGR(cr);
+					break;
 				case MWPF_TRUECOLOR0888:
 				case MWPF_TRUECOLOR888:
 					pixel = COLOR2PIXEL888(cr);
@@ -1140,27 +1162,29 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					break;
 				}
 
-				if (clip == CLIP_VISIBLE
-				    || GdClipPoint(psd, x, y))
+				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y))
 					psd->DrawPixel(psd, x, y, pixel);
 #if 0
 				/* fix: use clipmaxx to clip quicker */
-				else if (clip != CLIP_VISIBLE && !clipresult
-					 && x > clipmaxx) {
+				else if (clip != CLIP_VISIBLE && !clipresult && x > clipmaxx)
 					x = maxx;
-				}
 #endif
 			}
 
 			if (x++ == maxx) {
 				x = minx;
 				y += yoff;
-				height--;
+				--height;
 				imagebits += extra;
 			}
 		}
-	} else {  /* bpp == 8, 4, or 1, palettized image. */
+		GdFixCursor(psd);
+		return;
+		/* end of 16, 18, 24 or 32bpp non-alpha image handling*/
+	}
 
+	/* handle palettized images of 8, 4 or 1bpp*/
+	{
 		bitcount = 0;
 		while (height > 0) {
 			if (bitcount <= 0) {
@@ -1203,21 +1227,20 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				psd->DrawPixel(psd, x, y, pixel);
 #if 0
 			/* fix: use clipmaxx to clip quicker */
-			else if (clip != CLIP_VISIBLE && !clipresult
-				 && x > clipmaxx) {
+			else if (clip != CLIP_VISIBLE && !clipresult && x > clipmaxx)
 				x = maxx;
-			}
 #endif
 		next:
 			if (x++ == maxx) {
 				x = minx;
 				y += yoff;
-				height--;
+				--height;
 				bitcount = 0;
 				imagebits += extra;
 			}
 		}
 	}
+	/* end of palettized images of 8, 4 or 1bpp handling*/
 	GdFixCursor(psd);
 }
 
@@ -1462,6 +1485,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		break;
 	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
+	case MWPF_TRUECOLORABGR:
 		pixsize = sizeof(unsigned long);
 		break;
 	case MWPF_TRUECOLOR888:
@@ -1494,6 +1518,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	case MWPF_TRUECOLOR332:
 		gr_foreground = *PIXELS++;
 		break;
+	case MWPF_TRUECOLORABGR:
 	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
 		gr_foreground = *(unsigned long *)PIXELS;
@@ -1544,6 +1569,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 			break;
 		case MWPF_TRUECOLOR8888:
 		case MWPF_TRUECOLOR0888:
+		case MWPF_TRUECOLORABGR:
 			if(gr_foreground != *(unsigned long *)PIXELS)
 				goto breakwhile;
 			PIXELS += sizeof(unsigned long);
@@ -2370,6 +2396,7 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	unsigned long
+ * MWPF_TRUECOLORABGR	unsigned long
  * MWPF_TRUECOLOR0888	unsigned long
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
@@ -2434,8 +2461,13 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			colorval = PIXEL888TOCOLORVAL(pixelval);
 			inbuf += sizeof(unsigned long);
 			break;
+		case MWPF_TRUECOLORABGR:
+			pixelval = *(unsigned long *)inbuf;
+			colorval = PIXELABGRTOCOLORVAL(pixelval);
+			inbuf += sizeof(unsigned long);
+			break;
 		case MWPF_TRUECOLOR8888:
-			pixelval = *(unsigned long *) inbuf;
+			pixelval = *(unsigned long *)inbuf;
 			colorval = PIXEL8888TOCOLORVAL(pixelval);
 			inbuf += sizeof(unsigned long);
 			break;
@@ -2490,8 +2522,11 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			outbuf += sizeof(unsigned long);
 			break;
 		case MWPF_TRUECOLOR8888:
-			*(unsigned long *) outbuf =
-				COLOR2PIXEL8888(colorval);
+			*(unsigned long *)outbuf = COLOR2PIXEL8888(colorval);
+			outbuf += sizeof(unsigned long);
+			break;
+		case MWPF_TRUECOLORABGR:
+			*(unsigned long *)outbuf = COLOR2PIXELABGR(colorval);
 			outbuf += sizeof(unsigned long);
 			break;
 		case MWPF_TRUECOLOR888:

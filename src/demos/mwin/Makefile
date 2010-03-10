@@ -41,6 +41,16 @@ MINEIMAGES := \
 	$(MW_DIR_OBJ)/demos/mwin/minedone.o \
 	$(MW_DIR_OBJ)/demos/mwin/minehitfalse.o
 
+ifeq ($(ARCH), PSP)
+
+DEMOS = $(MW_DIR_BIN)/mdemo\
+	$(MW_DIR_BIN)/malpha\
+	$(MW_DIR_BIN)/mtest\
+	$(MW_DIR_BIN)/mtest2\
+	$(MW_DIR_BIN)/mine
+
+else
+
 DEMOS = $(MW_DIR_BIN)/mdemo\
 	$(MW_DIR_BIN)/malpha\
 	$(MW_DIR_BIN)/mtest\
@@ -53,6 +63,8 @@ endif
 
 ifneq ($(ARCH), ELKS)
 DEMOS += $(MW_DIR_BIN)/muserfd
+endif
+
 endif
 
 all: default $(DEMOS)

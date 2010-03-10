@@ -1,4 +1,11 @@
-7 March 2010
+Version 0.92RC3 - 9 March 2010 - greg@censoft.com
+	* remove assert(c<psd->ncolors) check in fblin32.c, allow nonzero alpha
+	* careful edit of GdDrawImage for handling image draw w/alpha channel
+	* change many comments to clarify framebuffer and longword A,R,G,B order
+	* add new MW_TRUECOLORABGR ABGR pixel format (RR GG BB AA LE framebuffer)
+	* Sony PSP port using 32bpp ABGR pixel format (Jim Paris - ps2dev.org)
+		great port and ABGR fb format by Jim Paris, untested in this version
+7 March 2010 - greg@censoft.com
 	* added back MWIMAGE_ALPHA_CHANNEL flag to tiff decoder (untested)
 	* fix inconsistency with PNG GdDrawImage w/alpha ARGB order (Byun Sung Joo)
 	* nanowm enhancements: moved to library, wm_handle_event/wm_init api,
@@ -7,10 +14,10 @@
 		GR_WM_PROPS_NORAISE and NOMOVE supported in container bits (Johannes)
 	* GrGetWMProperties now returns malloc'd props.title in NONETWORK case
 	* fix long offset for win*.c fonts, fix GsAcceptClientFd close()
-21 February 2010
+21 February 2010 - greg@censoft.com
 	* widen space char width in PCF font decoder (usually was 1 pixel wide)
 	* fixed clipping code for pixmaps with offsets (Johannes)
-30 January 2010
+30 January 2010 - greg@censoft.com
 	* added PACKEDDATA structure attribute/define for packed data structs
 	* fixed BMPHEAD packing for screen.bmp files, add portrait mode (Steven)
 	* fix to support clipping for shaped windows with borders (Byun Sung Joo)

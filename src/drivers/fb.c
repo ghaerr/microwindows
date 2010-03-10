@@ -69,7 +69,7 @@ select_fb_subdriver(PSD psd)
 			driver = &fblinear24;
 			break;
 		case 32:
-			if (psd->pixtype == MWPF_TRUECOLOR8888) {
+			if (psd->pixtype == MWPF_TRUECOLOR8888 || psd->pixtype == MWPF_TRUECOLORABGR) {
 				driver = &fblinear32alpha;
 			} else {
 				driver = &fblinear32;

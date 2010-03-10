@@ -1,5 +1,11 @@
 fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed
+check GdDrawImage switch code on MWPF_TRUECOLORxxx values for speed
+move GdDrawImage switch out of inner loop for speed
 test GdDrawImage alpha blending support, not tested for big endian 565/555
+test alpha 0xFFRRGGBB in X11 and fblin32 non-alpha screen drivers
+test alpha channel draw on alpha screen drivers
+test ABGR pixel type (PSP port)
+test MWIMAGE_BGR format images and add test .bmp and other files
 test tiff alpha channel images
 png decoder may fail on 8bpp grayscale images w/alpha, needs testing
 nanowm: change cursor on corner resize, static procnames or rename

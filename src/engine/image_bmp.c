@@ -215,6 +215,10 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 		/* else it's 5/6/5 format, no flag required*/
 	}
 
+//	printf("BMP format %d bpp", pimage->bpp);
+//	if (pimage->compression & MWIMAGE_555) printf(" 5/5/5");
+//	printf("\n");
+
 	/* decode image data*/
 	GdImageBufferSeekTo(src, bmpf.bfOffBits);
 

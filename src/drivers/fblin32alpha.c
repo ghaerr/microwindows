@@ -32,6 +32,15 @@ typedef long MW_S32;
  * These macros help solve this problem.  They define which bytes
  * in memory correspond to which field.
  */
+#if PSP
+#define MWI_BYTE_OFFSET_ALPHA 3
+#define MWI_BYTE_OFFSET_B 2
+#define MWI_BYTE_OFFSET_G 1
+#define MWI_BYTE_OFFSET_R 0
+#define COLOR2PIXEL COLOR2PIXELABGR
+#else
+#define COLOR2PIXEL COLOR2PIXEL8888
+
 #if MW_CPU_BIG_ENDIAN
 #define MWI_BYTE_OFFSET_ALPHA 0
 #define MWI_BYTE_OFFSET_R 1
@@ -42,6 +51,8 @@ typedef long MW_S32;
 #define MWI_BYTE_OFFSET_R 2
 #define MWI_BYTE_OFFSET_G 1
 #define MWI_BYTE_OFFSET_B 0
+#endif
+
 #endif
 
 /* Calc linelen and mmap size, return 0 on fail*/
@@ -56,7 +67,7 @@ linear32a_init(PSD psd)
 	 * (Also validates that the various #defines are internally
 	 *  consistent).
 	 */
-	unsigned long endian_check = COLOR2PIXEL8888(MWARGB(1, 2, 3, 4));
+	unsigned long endian_check = COLOR2PIXEL(MWARGB(1, 2, 3, 4));
 	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_ALPHA] == 1);
 	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_R] == 2);
 	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_G] == 3);

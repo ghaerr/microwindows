@@ -140,7 +140,7 @@ COMPILER = cc
 CXX_COMPILER = CC
 TOOLSPREFIX = tm
 DEFINES += -DTRIMEDIA=1 -DTCS2 -DOSAL -DLUD_USE_MEMSPACE
-DEFINES += -DMW_NOSIGNALS -DMW_FEATURE_GDERROR=1
+DEFINES += -DMW_NOSIGNALS=1 -DMW_FEATURE_GDERROR=1
 INCLUDEDIRS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
 HOSTCFLAGS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
 CFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconfig2.1 -B -Xdiag=1
@@ -232,3 +232,15 @@ ifeq ($(BIGENDIAN), Y)
 DEFINES += -DMW_CPU_BIG_ENDIAN=1
 endif
 
+ifeq ($(ARCH), PSP)
+PSPSDK = `psp-config --pspsdk-path`
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(PSPTOOLSPREFIX)
+DEFINES += -DPSP=1 -DMW_NOSIGNALS=1 -DMW_FEATURE_GDERROR=1 -DHAVE_TIMER_SUPPORT
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -I$(PSPSDK)/include -G0 -O2
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
+LDFLAGS += -L$(PSPSDK)/lib
+endif

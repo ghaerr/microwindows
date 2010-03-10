@@ -988,21 +988,17 @@ static void sbSetScrollInfo (HWND hwnd, PMWSCROLLBARINFO pData, BOOL fRedraw)	/*
 static LRESULT CALLBACK
 ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* jmt:2k0820 */
 {
-    	DWORD dwStyle;
-    	MWSCROLLBARINFO* pData;
-
+    DWORD dwStyle;
+    MWSCROLLBARINFO* pData;
 	int moveRange;
 	RECT rcBar;
 
 	dwStyle = (GetWindowStyle (hwnd) & SBS_TYPEMASK);
-    	switch (message) 
+    switch (message) 
 	{
         case WM_CREATE:
-            	if (!(pData = malloc (sizeof (MWSCROLLBARINFO)))) 
-		{
-                	fprintf(stderr, "Create scroll bar control failure!\n");
-                	return -1;
-            	}
+		if (!(pData = malloc (sizeof (MWSCROLLBARINFO))))
+			return -1;
 
 		pData->minPos=0;           /* min value of scroll range.*/
 		/* max value of scroll range.*/

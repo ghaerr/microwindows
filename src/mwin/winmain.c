@@ -35,6 +35,12 @@
 #include <cyg/kernel/kapi.h>
 #endif
 
+#if PSP
+#include <pspkernel.h>
+#include <psputils.h>
+#define exit(...) sceKernelExitGame()
+#endif
+
 #include "windows.h"
 #include "wintern.h"
 #include "winres.h"
@@ -57,6 +63,23 @@ int		keyb_fd;		/* the keyboard file descriptor */
 int		mouse_fd;		/* the mouse file descriptor */
 int		escape_quits = 1;	/* terminate when pressing ESC */
 
+#if PSP
+int exit_callback(void)
+{
+	sceKernelExitGame();
+	return 0;
+}
+
+void CallbackThread(void *arg)
+{
+	int cbid;
+
+	cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+	sceKernelRegisterExitCallback(cbid);
+	sceKernelSleepThreadCB();
+}
+#endif
+
 int
 #if __ECOS
 invoke_WinMain(int ac,char **av)
@@ -65,6 +88,13 @@ invoke_WinMain(int ac,char **av)
 #endif
 {
     HINSTANCE hInstance;
+
+#if PSP
+	int thid;
+	thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+	if(thid >= 0)
+		sceKernelStartThread(thid, 0, 0);
+#endif
 
 	/* call user hook routine before anything*/
 	if(MwUserInit(ac, av) < 0)
@@ -84,7 +114,8 @@ invoke_WinMain(int ac,char **av)
 
 	mwFreeInstance ( hInstance );
 	MwClose();
-	return 0;
+
+	exit(0);
 }
 
 /*
@@ -263,6 +294,39 @@ MwSelect(BOOL mayWait)
 	MwHandleTimers();
 }
 #endif
+
+#if PSP
+void 
+MwSelect(void)
+{
+	int mouseevents = 0;
+	int keybdevents = 0;
+
+	/* If mouse data present, service it */
+	while (mousedev.Poll() > 0)
+	{
+		MwCheckMouseEvent();
+		if (mouseevents++ > 10)
+			break;
+	}
+	
+	
+	/* If keyboard data present, service it */
+	while (kbddev.Poll() > 0)
+	{
+		MwCheckKeyboardEvent();
+		if (keybdevents++ > 10)
+			break;
+	}
+	
+	/* did we not process any input? if so, yield so we don't freeze system */
+	if (mouseevents==0 && keybdevents==0)
+		sceKernelDelayThread(100);
+
+	MwHandleTimers();
+}
+#endif
+
 
 #if UNIX && defined(HAVESELECT)
 #if ANIMATEPALETTE
@@ -507,7 +571,7 @@ MwInitialize(void)
 	userregfd_head = -1;
 #endif
 
-#ifndef __ECOS
+#if !(MW_NOSIGNALS || __ECOS)
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)MwTerminate);
 #endif	

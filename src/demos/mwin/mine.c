@@ -7,7 +7,7 @@
  */
 extern int mwCurrentButtons;	/* FIXME */
 
-#if RTEMS || __ECOS
+#if RTEMS || __ECOS || PSP
 #define  srandom  srand
 #define  random   rand
 #endif

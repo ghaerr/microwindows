@@ -1008,6 +1008,12 @@ typedef struct {
 	unsigned char *buffer;		/* request buffer*/
 } REQBUF;
 
+#if PSP
+#define fprintf(...)	do {} while(0)
+#define setbuf(...)		do {} while(0)
+#define exit(...)		sceKernelExitGame()
+#endif
+
 #if RTEMS
   /* RTEMS requires rtems_main()*/
   int rtems_main(int, char **);

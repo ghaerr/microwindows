@@ -297,7 +297,7 @@ MwSelect(BOOL mayWait)
 
 #if PSP
 void 
-MwSelect(void)
+MwSelect(BOOL mayWait)
 {
 	int mouseevents = 0;
 	int keybdevents = 0;

@@ -383,6 +383,7 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin4.o \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
+	$(MW_DIR_OBJ)/drivers/fblin18.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
 	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \

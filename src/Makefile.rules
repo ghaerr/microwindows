@@ -512,7 +512,7 @@ NANOXCLIENTLIBS +=  \
 		$(PLIB)/libpspuser.a \
 		$(PLIB)/libpspge.a \
 		$(PLIB)/libpspdisplay.a
-CCMWINLIBS += -lpspdebug -lpspgu -lpspctrl -lpsplibc -lpspkernel -lpspuser -lpspge -lpspdisplay
+CCMWINLIBS += -lc -lpspdebug -lpspgu -lpspctrl -lpsplibc -lpspkernel -lpspuser -lpspge -lpspdisplay
 
 endif
 

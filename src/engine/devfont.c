@@ -689,13 +689,13 @@ alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 
 #define BITS(pixel,shift,mask)	(((pixel)>>shift)&(mask))
 	    if(a == 0)
-		*out++ = dst;
+			*out++ = dst;
 	    else if(a == 255)
-		*out++ = src;
-	    else 
-		switch(psd->pixtype) {
+			*out++ = src;
+	    else switch(psd->pixtype) {
 	        case MWPF_TRUECOLOR0888:
 	        case MWPF_TRUECOLOR888:
+	        case MWPF_TRUECOLORABGR:  /* untested - r/b reversed but shouldn't matter*/
 		    d = BITS(dst, 16, 0xff);
 		    r = (unsigned char)(((BITS(src, 16, 0xff) - d)*a)>>8) + d;
 		    d = BITS(dst, 8, 0xff);

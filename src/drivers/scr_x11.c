@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 1999 Tony Rogvall <tony@bluetail.com>
  * 	Rewritten to avoid multiple function calls by Greg Haerr
@@ -169,6 +169,13 @@ lookup_color(unsigned short r, unsigned short g, unsigned short b)
 #define PIXEL2RED32(p)          PIXEL888RED32(p)
 #define PIXEL2GREEN32(p)        PIXEL888GREEN32(p)
 #define PIXEL2BLUE32(p)         PIXEL888BLUE32(p)
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+#define PIXEL2RED8(p)           PIXELABGRRED8(p)
+#define PIXEL2GREEN8(p)         PIXELABGRGREEN8(p)
+#define PIXEL2BLUE8(p)          PIXELABGRBLUE8(p)
+#define PIXEL2RED32(p)          PIXELABGRRED32(p)
+#define PIXEL2GREEN32(p)        PIXELABGRGREEN32(p)
+#define PIXEL2BLUE32(p)         PIXELABGRBLUE32(p)
 #elif MWPIXEL_FORMAT == MWPF_TRUECOLOR565
 #define PIXEL2RED8(p)           PIXEL565RED8(p)
 #define PIXEL2GREEN8(p)         PIXEL565GREEN8(p)
@@ -307,8 +314,7 @@ update_from_savebits(int destx, int desty, int w, int h)
 
 #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
 	{
-		ADDR8 dbuf = ((ADDR8) savebits.addr)
-			+ destx + desty * savebits.linelen;
+		ADDR8 dbuf = ((ADDR8) savebits.addr) + destx + desty * savebits.linelen;
 		int linedelta = savebits.linelen - w;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
@@ -321,8 +327,7 @@ update_from_savebits(int destx, int desty, int w, int h)
 	}
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
 	{
-		ADDR16 dbuf = ((ADDR16) savebits.addr)
-			+ destx + desty * savebits.linelen;
+		ADDR16 dbuf = ((ADDR16) savebits.addr) + destx + desty * savebits.linelen;
 		int linedelta = savebits.linelen - w;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
@@ -335,13 +340,11 @@ update_from_savebits(int destx, int desty, int w, int h)
 	}
 #elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
 	{
-		ADDR8 dbuf = ((ADDR8) savebits.addr)
-			+ 3 * (destx + desty * savebits.linelen);
+		ADDR8 dbuf = ((ADDR8) savebits.addr) + 3 * (destx + desty * savebits.linelen);
 		int linedelta = 3 * (savebits.linelen - w);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1],
-							    dbuf[0]);
+				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1], dbuf[0]);
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 				dbuf += 3;
@@ -351,8 +354,7 @@ update_from_savebits(int destx, int desty, int w, int h)
 	}
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
 	{
-		ADDR32 dbuf = ((ADDR32) savebits.addr)
-			+ destx + desty * savebits.linelen;
+		ADDR32 dbuf = ((ADDR32) savebits.addr) + destx + desty * savebits.linelen;
 		int linedelta = savebits.linelen - w;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
@@ -363,13 +365,11 @@ update_from_savebits(int destx, int desty, int w, int h)
 			dbuf += linedelta;
 		}
 	}
-#else
+#else /* also handle MWPF_TRUECOLORBGRA here to preserve alpha*/
 	{
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = savebits.ReadPixel(&savebits,
-								  destx + x,
-								  desty + y);
+				MWPIXELVAL c = savebits.ReadPixel(&savebits, destx + x, desty + y);
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
@@ -771,6 +771,7 @@ X11_open(PSD psd)
 #endif
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLORABGR:
 	default:
 		psd->bpp = 32;
 		break;
@@ -859,6 +860,10 @@ X11_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 		psi->gmask = 0x00ff00;
 		psi->bmask = 0x0000ff;
 		break;
+	case MWPF_TRUECOLORABGR:
+		psi->rmask = 0x0000ff;
+		psi->gmask = 0x00ff00;
+		psi->bmask = 0xff0000;
 	case MWPF_TRUECOLOR565:
 		psi->rmask = 0xf800;
 		psi->gmask = 0x07e0;

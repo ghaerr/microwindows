@@ -1395,6 +1395,7 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	unsigned long
+ * MWPF_TRUECOLORABGR	unsigned long
  * MWPF_TRUECOLOR0888	unsigned long
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short

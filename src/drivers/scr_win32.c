@@ -170,7 +170,7 @@ win32_open(PSD psd)
 	psd->yres = psd->yvirtres;
 	psd->planes = 1;
 	psd->pixtype = MWPIXEL_FORMAT;
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888)
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	psd->bpp = 32;
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR888)
 	psd->bpp = 24;
@@ -252,6 +252,10 @@ win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 		psi->gmask = 0x00ff00;
 		psi->bmask = 0x0000ff;
 		break;
+	case MWPF_TRUECOLORABGR:
+		psi->rmask = 0x0000ff;
+		psi->gmask = 0x00ff00;
+		psi->bmask = 0xff0000;
 	case MWPF_TRUECOLOR565:
 		psi->rmask = 0xf800;
 		psi->gmask = 0x07e0;
@@ -415,6 +419,13 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
             }
             bmpInfo.bV4V4Compression = BI_RGB;
             break;
+        case MWPF_TRUECOLORABGR:
+            bmpInfo.bV4AlphaMask = 0xff000000;
+            bmpInfo.bV4RedMask = 0x0000ff;
+            bmpInfo.bV4GreenMask= 0x00ff00;
+            bmpInfo.bV4BlueMask  = 0xff0000;
+            bmpInfo.bV4V4Compression = BI_BITFIELDS;
+			break;
         case MWPF_TRUECOLOR8888:
             bmpInfo.bV4AlphaMask = 0xff000000;
         case MWPF_TRUECOLOR0888:

@@ -187,6 +187,7 @@ fb_open(PSD psd)
 			psd->pixtype = MWPF_TRUECOLOR0888;
 #if !EMBEDDEDPLANET
 			/* Check if we have alpha */
+			/* FIXME could set MWPF_TRUECOLORABGR here*/
 			if (fb_var.transp.length == 8)
 				psd->pixtype = MWPF_TRUECOLOR8888;
 #endif
@@ -490,6 +491,10 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 		psi->gmask 	= 0x00ff00;
 		psi->bmask	= 0x0000ff;
 		break;
+	case MWPF_TRUECOLORABGR:
+		psi->rmask	= 0x0000ff;
+		psi->gmask 	= 0x00ff00;
+		psi->bmask 	= 0xff0000;
 	case MWPF_TRUECOLOR565:
 		psi->rmask 	= 0xf800;
 		psi->gmask 	= 0x07e0;

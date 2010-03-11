@@ -127,6 +127,11 @@ static int writeout(snapstate *state)
 					rgb[1] = pp[1];
 					rgb[2] = pp[0];
 					break;
+				case MWPF_TRUECOLORABGR:
+					rgb[0] = pp[0];
+					rgb[1] = pp[1];
+					rgb[2] = pp[2];
+					break;
 				case MWPF_PALETTE:
 					rgb[0] = palette->palette[pp[0]].r;
 					rgb[1] = palette->palette[pp[0]].g;
@@ -134,14 +139,12 @@ static int writeout(snapstate *state)
 					break;
 				case MWPF_TRUECOLOR565:
 					rgb[0] = pp[1] & 0xf8;
-					rgb[1] = ((pp[1] & 0x07) << 5) |
-						((pp[0] & 0xe0) >> 3);
+					rgb[1] = ((pp[1] & 0x07) << 5) | ((pp[0] & 0xe0) >> 3);
 					rgb[2] = (pp[0] & 0x1f) << 3;
 					break;
 				case MWPF_TRUECOLOR555:
 					rgb[0] = (pp[1] & 0x7c) << 1;
-					rgb[1] = ((pp[1] & 0x03) << 6) |
-						((pp[0] & 0xe0) >> 2);
+					rgb[1] = ((pp[1] & 0x03) << 6) | ((pp[0] & 0xe0) >> 2);
 					rgb[2] = (pp[0] & 0x1f) << 3;
 					break;
 				case MWPF_TRUECOLOR332:
@@ -150,8 +153,7 @@ static int writeout(snapstate *state)
 					rgb[2] = (pp[0] & 0x03) << 6;
 					break;
 				default:
-					fprintf(stderr, "Unsupported pixel "
-							"format\n");
+					fprintf(stderr, "Unsupported pixel format\n");
 					fclose(fp);
 					return 1;
 			}

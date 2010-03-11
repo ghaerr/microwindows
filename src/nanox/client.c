@@ -3431,9 +3431,7 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 #endif /* MW_FEATURE_IMAGES */
 
 
-/*
- * FIXME ... what does this comment relate to?
- *
+/**
  * Draw a rectangular area in the specified drawable using the specified
  * graphics context.  This differs from rectangle drawing in that the
  * color values for each pixel in the rectangle are specified.
@@ -3448,14 +3446,15 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR0888	unsigned long
+ * MWPF_TRUECOLOR8888	unsigned long
+ * MWPF_TRUECOLORABGR	unsigned long
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
  * MWPF_TRUECOLOR332	unsigned char
  * MWPF_TRUECOLOR233	unsigned char
  * MWPF_HWPIXELVAL	one of the above values (run-time dependent)
- */
-/**
+ *
  * Draws the specified pixel array of the specified size and format onto the
  * specified drawable using the specified graphics context at the specified
  * position. Note that colour conversion is currently only performed when using
@@ -3510,6 +3509,8 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 		pixsize = sizeof(unsigned char);
 		break;
 	case MWPF_TRUECOLOR0888:
+	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLORABGR:
 		pixsize = sizeof(unsigned long);
 		break;
 	case MWPF_TRUECOLOR888:

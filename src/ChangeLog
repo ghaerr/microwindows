@@ -1,5 +1,7 @@
 11 March 2010
-	* add -DARCH_NEED_ALIGN32 to CFLAGS for PSP port fix!
+	* changed win32 BUTTON control to get/put longs on longword boundary
+	* add -DARCH_NEED_ALIGN32 to CFLAGS for PSP port fix
+	* special thanks to YuTao <yut616@21cn.com> for debugging PSP port!
 	* cleanup mdemo.c for various options (for PSP port debug)
 Version 0.92RC3 - 9 March 2010 - greg@censoft.com
 	* remove assert(c<psd->ncolors) check in fblin32.c, allow nonzero alpha

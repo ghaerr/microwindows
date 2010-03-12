@@ -202,7 +202,7 @@ main(int ac, char **av)
 		GrText(window, gc, x, y, "\242\241", 2, MWTF_DBCS_JIS);
 #elif HAVE_KSC5601_SUPPORT
 		/* encoding KSC5601 test B0 B0 */
-		GrText(window, gc, x, y, "\273\273", 2, MWTF_DBCS_KSC);
+		GrText(window, gc, x, y, "\273\273", 2, MWTF_DBCS_EUCKR);
 #elif HAVE_FREETYPE_SUPPORT
 		/* ASCII test */
 		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);

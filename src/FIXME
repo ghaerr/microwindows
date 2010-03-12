@@ -1,3 +1,4 @@
+add timer support to PSP port (nano-X and win32)
 fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed
 check GdDrawImage switch code on MWPF_TRUECOLORxxx values for speed
 move GdDrawImage switch out of inner loop for speed

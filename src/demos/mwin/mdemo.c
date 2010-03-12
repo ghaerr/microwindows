@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Demo program for Microwindows
@@ -11,27 +11,34 @@
 #define MWINCLUDECOLORS
 #include "windows.h"
 #include "wintern.h"		/* for MwSetDesktopWallpaper*/
-
 #include "device.h"
 
 #if DOS_TURBOC
 unsigned _stklen = 4096;
 #endif
 
+/* define either GRAPH3D demo or CHILD control demo*/
+#define GRAPH3D		1	/* 3d graphics demo (requires floating point)*/
+#define CONTROLS	0	/* win32 controls demo*/
+
+/* add clipping to GRAPH3D demo*/
 #define CLIPDEMO	0	/* set for region clipping demo*/
 
-#if !ELKS
-#define TIMERDEMO	1	/* set for WM_TIMER demo*/
-#define GRAPH3D		0	/* 3d graphics demo*/
-#define IMAGE		0	/* 256 color image demo*/
-#endif
-
-#define ARCDEMO		1	/* arc drawing demo*/
-#define CHILD 		1	/* child window demo*/
-#define CLIENT3D	0	/* old client draw test*/
+/* CONTROLS demo options*/
+#define ARCDEMO		1	/* add arc drawing to CONTROLS demo*/
 #define USEBLIT		1	/* use blit rather than DrawDIB()*/
+#define IMAGE		0	/* add 256 color image to CONTROLS demo*/
+
+/* test timer system with either demo*/
+#define TIMERDEMO	1	/* set for WM_TIMER demo*/
+
+/* not used*/
+#define CLIENT3D	0	/* old client draw test*/
 
 #if RTEMS
+#undef GRAPH3D
+#undef CONTROLS
+#define CONTROLS	1	/* win32 controls demo*/
 #undef  IMAGE
 #define IMAGE		1	/* 256 color image demo*/
 #undef  USEBLIT
@@ -55,7 +62,7 @@ extern MWIMAGEHDR image_microwin;
 extern MWIMAGEHDR image_cs1;
 extern MWIMAGEHDR image_rle8;
 
-#if CHILD
+#if CONTROLS
 #if ELKS | MSDOS
 PMWIMAGEHDR image = &image_cs1;		/* 2 color bitmap for 16 color systems*/
 #else
@@ -86,13 +93,12 @@ RegisterAppClass(void)
 {
 	WNDCLASS	wc;
 
-#if !ELKS
 	MwRegisterButtonControl(NULL);
 	MwRegisterEditControl(NULL);
 	MwRegisterListboxControl(NULL);
 	MwRegisterProgressBarControl(NULL);
 	/*MwRegisterComboboxControl(NULL);*/
-#endif
+
 	wc.style = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc = (WNDPROC)WndProc;
 	wc.cbClsExtra = 0;
@@ -105,7 +111,7 @@ RegisterAppClass(void)
 	wc.lpszClassName =  APPCLASS;
 	RegisterClass( &wc);
 
-#if CHILD
+#if CONTROLS
 	wc.lpfnWndProc = (WNDPROC)ChildWndProc;
 	wc.lpszClassName =  APPCHILD;
 	return RegisterClass( &wc);
@@ -130,7 +136,7 @@ CreateAppWindow(void)
 		width, height,
 		NULL, (HMENU)nextid++, NULL, NULL);
 
-#if CHILD
+#if CONTROLS
 	if(hwnd
 #if GRAPH3D
 			&& (nextid & 03)!=2
@@ -182,7 +188,7 @@ CreateAppWindow(void)
 	return hwnd;
 }
 
-#if CHILD
+#if CONTROLS
 LRESULT CALLBACK
 ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
@@ -231,19 +237,11 @@ ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 #endif
 
-
-
-#if TIMERDEMO
-typedef struct tag_demoWndData
-{
-#if ARCDEMO
+typedef struct {
 	int	startdegrees;
 	int	enddegrees;
-#endif
 	unsigned long reserved;
 } demoWndData, *pdemoWndData;
-#endif /* TIMERDEMO */
-
 
 LRESULT CALLBACK
 WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -258,22 +256,19 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	int		id;
 	static vec1 	gx, gy;
 #endif
-#if TIMERDEMO
 	static POINT	mousept;
 	pdemoWndData pData;
-#endif
 
 	switch( msg) {
-#if TIMERDEMO
 	case WM_CREATE:
 		pData = (pdemoWndData) malloc(sizeof(demoWndData));
 		SetWindowLong(hwnd, 0, (LONG)pData);
-		SetTimer(hwnd, 1, (50+random()%250), NULL);
 		mousept.x = 60;
 		mousept.y = 20;
-#if ARCDEMO
 		pData->startdegrees = 0;
 		pData->enddegrees = 30;
+#if TIMERDEMO
+		SetTimer(hwnd, 1, (50+random()%250), NULL);
 #endif
 		break;
 
@@ -294,10 +289,8 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 				countup = 1;
 			}
 		}
-		SendMessage(hwnd, WM_MOUSEMOVE, 0,
-			MAKELONG(mousept.x, mousept.y));
-#endif
-#if ARCDEMO
+		SendMessage(hwnd, WM_MOUSEMOVE, 0, MAKELONG(mousept.x, mousept.y));
+#elif ARCDEMO
 		pData->startdegrees += 10;
 		if(pData->startdegrees >= 360)
 			pData->startdegrees = 0;
@@ -307,17 +300,14 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		InvalidateRect(hwnd, NULL, TRUE);
 #endif
 		break;
-
 	case WM_DESTROY:
 		KillTimer(hwnd, 1);
 		pData = (pdemoWndData) GetWindowLong(hwnd, 0);
 		free ( pData );
 		SetWindowLong(hwnd, 0, 0);
 		break;
-#endif /* TIMERDEMO*/
 	case WM_SIZE:
 		break;
-
 	case WM_MOVE:
 		break;
 
@@ -325,7 +315,6 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_SETFOCUS:
 		PostMessage((HWND)wp, WM_PAINT, 0, 0L);
 		break;
-
 	case WM_KILLFOCUS:
 		PostMessage((HWND)wp, WM_PAINT, 0, 0L);
 		break;
@@ -358,7 +347,65 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		GetClientRect(hwnd, &rc);
 		DrawDIB(hdc, rc.left+2, rc.top+2, image2);
 #endif
-#if ARCDEMO
+#if GRAPH3D
+		id = (int)GetWindowLong(hwnd, GWL_ID) & 03;
+		init3(hdc, id == 1? hwnd: NULL);
+		switch(id) {
+		case 0:
+			rose(1.0, 7, 13);
+			break;
+		case 1:
+			/*look3(0.5, 0.7, 1.5);*/
+			/*look3(0.2, -2 * gy, 1.0+gx);*/
+			look3(-2 * gx, -2 * gy, 1.2);
+			drawgrid(-8.0, 8.0, 10, -8.0, 8.0, 10);
+			break;
+		case 2:
+			setcolor3(BLACK);
+			circle3(1.0);
+			break;
+		case 3:
+			setcolor3(BLUE);
+			daisy(1.0, 20);
+			break;
+		}
+#if CLIPDEMO
+		if(id == 1) {
+			HRGN	hrgn, hrgn2;
+
+			/* create circular clip region for effect*/
+			GetClientRect(hwnd, &rc);
+			InflateRect(&rc, -80, -80);
+			switch((int)GetWindowLong(hwnd, GWL_ID)) {
+			default:
+				hrgn = CreateEllipticRgnIndirect(&rc);
+				break;
+			case 5:
+				hrgn = CreateRoundRectRgn(rc.left, rc.top,
+					rc.right, rc.bottom, 100, 100);
+				break;
+			case 2:
+				hrgn = CreateRectRgnIndirect(&rc);
+				break;
+			}
+
+			/* erase background, clip out blit area*/
+			GetClientRect(hwnd, &rc);
+			hrgn2 = CreateRectRgnIndirect(&rc);
+			SelectClipRgn(hdc, hrgn2);
+			ExtSelectClipRgn(hdc, hrgn, RGN_XOR);
+			DeleteObject(hrgn2);
+
+			GetClientRect(hwnd, &rc);
+			FillRect(hdc, &rc, GetStockObject(BLACK_BRUSH));
+
+			/* clip in only blit area*/
+			SelectClipRgn(hdc, hrgn);
+			DeleteObject(hrgn);
+		}
+#endif /* CLIPDEMO*/
+		paint3(hdc);
+#elif ARCDEMO
 {
 	int x, y, w, h;
 	RECT rc;
@@ -390,72 +437,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	break;
 }
 #endif /* ARCDEMO*/
-#if GRAPH3D
-		id = (int)GetWindowLong(hwnd, GWL_ID) & 03;
-		init3(hdc, id == 1? hwnd: NULL);
-		switch(id) {
-		case 0:
-			rose(1.0, 7, 13);
-			break;
-		case 1:
-			/*look3(0.5, 0.7, 1.5);*/
-			/*look3(0.2, -2 * gy, 1.0+gx);*/
-			look3(-2 * gx, -2 * gy, 1.2);
-			drawgrid(-8.0, 8.0, 10, -8.0, 8.0, 10);
-			break;
-		case 2:
-			setcolor3(BLACK);
-			circle3(1.0);
-			break;
-		case 3:
-			setcolor3(BLUE);
-			daisy(1.0, 20);
-			break;
-		}
-
-#if CLIPDEMO
-		if(id == 1) {
-			HRGN	hrgn, hrgn2;
-
-			/* create circular clip region for effect*/
-			GetClientRect(hwnd, &rc);
-			InflateRect(&rc, -80, -80);
-			switch((int)GetWindowLong(hwnd, GWL_ID)) {
-			default:
-				hrgn = CreateEllipticRgnIndirect(&rc);
-				break;
-			case 5:
-				hrgn = CreateRoundRectRgn(rc.left, rc.top,
-					rc.right, rc.bottom, 100, 100);
-				break;
-			case 1:
-				hrgn = CreateRectRgnIndirect(&rc);
-				break;
-			}
-
-			/* erase background, clip out blit area*/
-			GetClientRect(hwnd, &rc);
-			hrgn2 = CreateRectRgnIndirect(&rc);
-			SelectClipRgn(hdc, hrgn2);
-			ExtSelectClipRgn(hdc, hrgn, RGN_XOR);
-			DeleteObject(hrgn2);
-
-			GetClientRect(hwnd, &rc);
-			FillRect(hdc, &rc, GetStockObject(BLACK_BRUSH));
-
-			/* clip in only blit area*/
-			SelectClipRgn(hdc, hrgn);
-			DeleteObject(hrgn);
-		}
-#endif /* CLIPDEMO*/
-
-		paint3(hdc);
-
-#endif /* GRAPH3D*/
 		EndPaint(hwnd, &ps);
-		break;
-
-	case WM_LBUTTONDOWN:
 		break;
 
 	case WM_MOUSEMOVE:
@@ -474,17 +456,16 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		}
 #endif
 		break;
-
+	case WM_LBUTTONDOWN:
+		break;
 	case WM_LBUTTONUP:
 		break;
-
 	case WM_RBUTTONDOWN:
 		break;
-
 	default:
 		return DefWindowProc( hwnd, msg, wp, lp);
 	}
-	return( 0);
+	return 0;
 }
 
 int WINAPI 
@@ -496,35 +477,35 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	RECT	rc;
 
 	srandom(time(NULL));
+
 	RegisterAppClass();
 	GetWindowRect(GetDesktopWindow(), &rc);
-#if !(ELKS | MSDOS)
+
 	/* create penguin window*/
 	CreateWindowEx(0L, APPCHILD, "", WS_BORDER | WS_VISIBLE,
 		rc.right-130-1, rc.bottom-153-1, 130, 153,
 		GetDesktopWindow(), (HMENU)1000, NULL, NULL);
+
+#if CONTROLS
+	CreateAppWindow();
+	CreateAppWindow();
+	CreateAppWindow();
+	CreateAppWindow();
+	CreateAppWindow();
+	CreateAppWindow();
+	CreateAppWindow();
+	CreateAppWindow();
 #endif
-	CreateAppWindow();
-	CreateAppWindow();
-	CreateAppWindow();
-#if !(ELKS | MSDOS)
-	CreateAppWindow();
-	CreateAppWindow();
-	CreateAppWindow();
-	CreateAppWindow();
-	CreateAppWindow();
 	hwnd = CreateAppWindow();
 	GetWindowRect(hwnd, &rc);
 	OffsetRect(&rc, 50, 50);
 	MoveWindow(hwnd, rc.left, rc.top, rc.bottom-rc.top,
 		rc.right-rc.left, TRUE);
-#endif
-#if !(ELKS | MSDOS)
+
 	/* set background wallpaper*/
 	MwSetDesktopWallpaper(&image_microwin);
 	/*MwSetDesktopWallpaper(&image_under4);*/
 	/*MwSetDesktopWallpaper(&image_car8);*/
-#endif
 
 	/* type ESC to quit...*/
 	while( GetMessage(&msg, NULL, 0, 0)) {

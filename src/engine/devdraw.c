@@ -758,39 +758,52 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 /* ARGB8888 : 0xaarrggbb order (little endian frame buffer format BB GG RR AA)*/
 typedef union {
 	struct {
-/* for now we use processor endianness rather than compiler for bitfield order*/
+/* use processor byte endianness rather than bitfield order*/
 #if !MW_CPU_BIG_ENDIAN
-		unsigned char b; // LSB on little endian
+		unsigned char b; 
 		unsigned char g;
 		unsigned char r;
-		unsigned char a; // MSB
+		unsigned char a; // MSByte on little endian
 #else
-		unsigned char a; // MSB on big endian
+		unsigned char a; // MSByte on big endian
 		unsigned char r;
 		unsigned char g;
-		unsigned char b; // LSB
+		unsigned char b; 
 #endif
 	} f;
 	unsigned int v; 
 } ARGB8888;	
 
 typedef union {
-	/* for big endian systems the contents of this will be byte swapped later*/
+	/* bitfield order should use __BIG_ENDIAN_BITFIELDS, assuming so with big endian byte order*/
 	struct {
-		unsigned short b:5; // LSB on little endian
+#if !MW_CPU_BIG_ENDIAN	
+		unsigned short b:5; 
 		unsigned short g:6;
-		unsigned short r:5;
+		unsigned short r:5; // MSBit on little endian
+#else
+		unsigned short r:5; // MSBit on big endian
+		unsigned short g:6;
+		unsigned short b:5;
+#endif
 	} f;
 	unsigned short v; 
 } RGB565;	
 
 typedef union {
-	/* for big endian systems the contents of this will be byte swapped later*/
+	/* bitfield order should use __BIG_ENDIAN_BITFIELDS, assuming so with big endian byte order*/
 	struct {
-		unsigned short b:5; // LSB on little endian
+#if !MW_CPU_BIG_ENDIAN	
+		unsigned short b:5; 
 		unsigned short g:5;
 		unsigned short r:5;
-		unsigned short a:1;
+		unsigned short a:1; // MSBit on little endian
+#else
+		unsigned short a:1; // MSBit on big endian
+		unsigned short r:5;
+		unsigned short g:5;
+		unsigned short b:5; 
+#endif		
 	} f;
 	unsigned short v; 
 } RGB555;	
@@ -829,7 +842,6 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	MWPIXELVAL convtable[256];
 
 	assert(pimage);
-
 	height = pimage->height;
 	width = pimage->width;
 
@@ -954,7 +966,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				 */
 			}
 #endif
-			/* cr is now in ARGB format*/
+			/* cr is now in ARGB(0xaarrggbb) format*/
 			alpha = (cr >> 24);
 			if (alpha != 0) { /* skip if pixel is fully transparent*/
 				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y)) {
@@ -1008,19 +1020,27 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							/* MWPIXELVAL : r/g/b 5/6/5*/
 							ARGB8888  fg;							
 							RGB565 	  bg;
-							
+
+							/*
+							 * 1) case: DrawPixel(x,y,c)
+							 * c=(b)rrrrrggg,gggbbbbb (MSB,LSB order)
+							 * memory format at address fb(x,y). i.e. ADDR (lo,hi addr order)
+							 *          ADDR[0],  ADDR[1]
+							 * little : gggbbbbb,rrrrrggg 
+							 * big    : rrrrrggg,gggbbbbb 
+ 							 * 
+							 * 2) case: ushort c = ReadPixel(x,y)
+							 * ushort c format. (MSB,LSB order)
+							 * 			     MSB      LSB
+							 * little : c=(b)rrrrrggg,gggbbbbb 
+							 * big    : c=(b)rrrrrggg,gggbbbbb 
+							 */
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
 							bg.f.r = (alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))>>11;
 							bg.f.g = (alpha*fg.f.g + (255-alpha)*(bg.f.g<<2))>>10;
 							bg.f.b = (alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))>>11;
-#if MW_CPU_BIG_ENDIAN
-							/* byte swap bitfield when big endian*/
-							pixel = ((bg.v & 0xFF00U) >> 8) |
-									((bg.v & 0x00FFU) << 8);
-#else
 							pixel = bg.v;
-#endif
 						}
 						break;
 					case MWPF_TRUECOLOR555:
@@ -1042,13 +1062,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							bg.f.g = ((alpha*fg.f.g + (255-alpha)*(bg.f.g<<3))/255)>>3;
 							bg.f.b = ((alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))/255)>>3;
 							//bg.f.a = 0;
-#if MW_CPU_BIG_ENDIAN
-							/* byte swap bitfield when big endian*/
-							pixel = ((bg.v & 0xFF00U) >> 8) |
-									((bg.v & 0x00FFU) << 8);
-#else
 							pixel = bg.v;
-#endif
 						}
 						break;
 #else /* !ALPHABLEND*/

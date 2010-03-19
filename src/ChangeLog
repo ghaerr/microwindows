@@ -1,3 +1,5 @@
+18 March 2010
+	* fix bitfield order declarations for big endian GdDrawImage w/alpha (Sung Joo)
 11 March 2010
 	* changed win32 BUTTON control to get/put longs on longword boundary
 	* add -DARCH_NEED_ALIGN32 to CFLAGS for PSP port fix

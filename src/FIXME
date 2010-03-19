@@ -1,3 +1,4 @@
+fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
 add timer support to PSP port (nano-X and win32)
 fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed
 check GdDrawImage switch code on MWPF_TRUECOLORxxx values for speed
@@ -10,7 +11,6 @@ test ABGR pixel type (PSP port)
 	test ABGR and 8888 w/palette images and GETPALLETE
 	test ABGR w/snap_jpg and snap_ppm
 test MWIMAGE_BGR format images and add test .bmp and other files
-test tiff alpha channel images
 png decoder may fail on 8bpp grayscale images w/alpha, needs testing
 nanowm: change cursor on corner resize, static procnames or rename
 	nxclock doesn't update when LINK_APP_INTO_SERVER/NANOWM and mouse motion

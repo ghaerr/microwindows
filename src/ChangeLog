@@ -1,4 +1,5 @@
 18 March 2010
+	* fix PCF/FNT and core font gettextsize to display default char if out of range
 	* added test RGBA tif file strike.tif
 	* fix bitfield order declarations for big endian GdDrawImage w/alpha (Sung Joo)
 11 March 2010

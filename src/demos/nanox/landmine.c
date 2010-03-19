@@ -26,7 +26,7 @@
 
 #define FULLSIZE	(MAXSIZE + 2)	/* board size including borders */
 
-#ifdef __ECOS
+#if __ECOS
 /* 240x320 screen values*/
 #define	BOARDGAP	2		/* millimeter gap around board */
 #define	RIGHTGAP	2		/* mm gap between board, right side */
@@ -422,12 +422,8 @@ main(int argc,char **argv)
 	/*
 	 * Create the main window which will contain all the others.
 	 */
-#if 0
-COLS = si.cols - 40;
-#else
-COLS = si.cols;
-#endif
-ROWS = si.rows - 80;
+	COLS = si.cols - 50;
+	ROWS = si.rows - 120;
 	mainwid = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0, COLS, ROWS,
 		0, BLACK, WHITE);
  

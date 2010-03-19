@@ -79,7 +79,7 @@
  */
 #define SHM_BLOCK_SIZE	4096
 
-#ifndef __ECOS
+#if !__ECOS
 /* exported global data */
 int 	   nxSocket = -1;	/* The network socket descriptor */
 LOCK_DECLARE(nxGlobalLock);	/* global lock for threads safety*/

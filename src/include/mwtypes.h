@@ -41,7 +41,7 @@
 #define MWTF_BASELINE	0x02000000L	/* align on baseline*/
 #define MWTF_BOTTOM	0x04000000L	/* align on bottom*/
 
-/* SetFontAttr flags (no intersect with MWTF_ above)*/
+/* SetFontAttr flags (not used with MWTF_ above)*/
 #define MWTF_KERNING	0x0001		/* font kerning*/
 #define MWTF_ANTIALIAS	0x0002		/* antialiased output*/
 #define MWTF_UNDERLINE	0x0004		/* draw underline*/

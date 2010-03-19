@@ -81,7 +81,7 @@ MWBOOL
 gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 {
 	PMWCFONT	pf = ((PMWCOREFONT)pfont)->cfont;
-	int		i;
+	int			i;
 
 	pfontinfo->maxwidth = pf->maxwidth;
 	pfontinfo->height = pf->height;
@@ -110,9 +110,9 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
 	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
-	const unsigned char *	str = text;
-	unsigned int		c;
-	int			width;
+	const unsigned char *str = text;
+	unsigned int	c;
+	int				width;
 
 	if(pf->width == NULL)
 		width = cc * pf->maxwidth;
@@ -120,7 +120,12 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 		width = 0;
 		while(--cc >= 0) {
 			c = *str++;
-			if(c >= pf->firstchar && c < pf->firstchar+pf->size)
+
+			/* if char not in font, map to first character by default*/
+			if(c < pf->firstchar || c >= pf->firstchar+pf->size)
+				c = pf->firstchar;
+
+			/*if(c >= pf->firstchar && c < pf->firstchar+pf->size)*/
 				width += pf->width[c - pf->firstchar];
 		}
 	}
@@ -138,10 +143,10 @@ void
 gen16_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
-	PMWCFONT		pf = ((PMWCOREFONT) pfont)->cfont;
-	const unsigned short *	str = text;
-	unsigned		int c;
-	int			width;
+	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
+	const unsigned short *str = text;
+	unsigned int	c;
+	int				width;
 
 	if (pf->width == NULL)
 		width = cc * pf->maxwidth;
@@ -149,7 +154,12 @@ gen16_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 		width = 0;
 		while (--cc >= 0) {
 			c = *str++;
-			if (c >= pf->firstchar && c < pf->firstchar + pf->size)
+
+			/* if char not in font, map to first character by default*/
+			if(c < pf->firstchar || c >= pf->firstchar+pf->size)
+				c = pf->firstchar;
+
+			/*if (c >= pf->firstchar && c < pf->firstchar+pf->size)*/
 				width += pf->width[c - pf->firstchar];
 		}
 	}
@@ -178,7 +188,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	ch -= pf->firstchar;
 
 	/* get font bitmap depending on fixed pitch or not*/
-	/* GB: automatically detect if offset is 16 or 32 bit */
+	/* automatically detect if offset is 16 or 32 bit */
 	if( pf->offset ) {
 		if( ((unsigned long*)pf->offset)[0] >= 0x00010000 )
 			bits = pf->bits + ((unsigned short*)pf->offset)[ch];

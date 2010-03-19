@@ -73,13 +73,13 @@ paint3(HDC hDC)
 	hdcMem = NULL;
 }
 
-int
+static int
 fx(vec1 x)
 {
 	return (int)(x * xscale + nxpix*0.5 - 0.5);
 }
 
-int
+static int
 fy(vec1 y)
 {
 	return (int)(y * yscale + nypix*0.5 - 0.5);

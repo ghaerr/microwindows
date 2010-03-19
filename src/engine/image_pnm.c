@@ -27,9 +27,10 @@ enum {
 int
 GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 {
-	char buf[256], *p;
+	unsigned char *p;
 	int type = PNM_TYPE_NOTPNM, binary = 0, gothdrs = 0, scale = 0;
 	int ch, x = 0, y = 0, i, n, mask, col1, col2, col3;
+	char buf[256];
 
 	GdImageBufferSeekTo(src, 0UL);
 
@@ -57,14 +58,13 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 
 	n = 0;
 	while((p = GdImageBufferGetString(src, buf, 256))) {
-		if(*buf == '#') continue;
+		if(buf[0] == '#')
+			continue;
 		if(type == PNM_TYPE_PBM) {
-			if(sscanf(buf, "%i %i", &pimage->width,
-					&pimage->height) == 2) {
+			if(sscanf(buf, "%i %i", &pimage->width, &pimage->height) == 2) {
 				pimage->bpp = 1;
 				gothdrs = 1;
-				if(!(pimage->palette = malloc(
-						sizeof(MWPALENTRY) * 2))) {
+				if(!(pimage->palette = malloc( sizeof(MWPALENTRY) * 2))) {
 					EPRINTF("Out of memory\n");
 					return 2;
 				}
@@ -80,18 +80,19 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 		}
 		if((type == PNM_TYPE_PGM) || (type == PNM_TYPE_PPM)) {
 			if(!n++) {
-				if(sscanf(buf, "%i %i", &pimage->width,
-					&pimage->height) != 2) break;
+				if(sscanf(buf, "%i %i", &pimage->width, &pimage->height) != 2)
+					break;
 			} else {
-				if(sscanf(buf, "%i", &i) != 1) break;
+				if(sscanf(buf, "%i", &i) != 1)
+					break;
 				pimage->bpp = 24;
 				if(i > 255) {
-					EPRINTF("GdDecodePNM: PPM files must be "
-						"24bpp\n");
+					EPRINTF("GdDecodePNM: PPM files must be 24bpp\n");
 					return 2;
 				}
 				for(scale = 7, n = 2; scale; scale--, n *= 2)
-					if(i < n) break;
+					if(i < n)
+						break;
 				gothdrs = 1;
 				break;
 			}
@@ -106,8 +107,7 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 	}
 
 	pimage->planes = 1;
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch,
-						&pimage->bytesperpixel);
+	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
 	pimage->compression = MWIMAGE_RGB;
 	if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
 		EPRINTF("GdDecodePNM: couldn't allocate memory for image\n");
@@ -125,13 +125,13 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 			while((ch = GdImageBufferGetChar(src)) != EOF) {
 				for(i = 0; i < 8; i++) {
 					mask = 0x80 >> i;
-					if(ch & mask) *p |= mask;
+					if(ch & mask)
+						*p |= mask;
 					else *p &= ~mask;
 					if(++x == pimage->width) {
 						if(++y == pimage->height)
 							return 1;
-						p = pimage->imagebits - 1 +
-							(y * pimage->pitch);
+						p = pimage->imagebits - 1 + (y * pimage->pitch);
 						x = 0;
 						break;
 					}
@@ -141,10 +141,13 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 		} else {
 			n = 0;
 			while((ch = GdImageBufferGetChar(src)) != EOF) {
-				if(isspace(ch)) continue;
+				if(isspace(ch))
+					continue;
 				mask = 0x80 >> n;
-				if(ch == '1') *p |= mask;
-				else if(ch == '0') *p &= ~mask;
+				if(ch == '1')
+					*p |= mask;
+				else if(ch == '0')
+					*p &= ~mask;
 				else goto baddata;
 				if(++n == 8) {
 					n = 0;
@@ -153,8 +156,7 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 				if(++x == pimage->width) {
 					if(++y == pimage->height)
 						return 1;
-					p = pimage->imagebits +
-						(y * pimage->pitch);
+					p = pimage->imagebits + (y * pimage->pitch);
 					n = 0;
 					x = 0;
 				}
@@ -188,7 +190,8 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 				*p++ = col3 << scale;
 			}
 			if(++x == pimage->width) {
-				if(++y == pimage->height) return 1;
+				if(++y == pimage->height)
+					return 1;
 				p = pimage->imagebits + (y * pimage->pitch);
 				x = 0;
 			}

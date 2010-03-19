@@ -93,7 +93,7 @@ usage(void)
 	"    -n     Don't generate bitmaps as comments in .c file\n"
 	};
 
-	fprintf(stderr, help);
+	fprintf(stderr, "%s", help);
 }
 
 /* parse command line options*/

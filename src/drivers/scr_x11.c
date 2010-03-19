@@ -131,6 +131,10 @@ struct color_cache {
 };
 static struct color_cache ccache[COLOR_CACHE_SIZE];
 
+/* called from mou_x11.c*/
+void x11_handle_event(XEvent * ev);
+int x11_setup_display(void);
+
 static unsigned long
 lookup_color(unsigned short r, unsigned short g, unsigned short b)
 {

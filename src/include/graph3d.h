@@ -38,6 +38,7 @@ void triangle(vec2 v0, vec2 v1, vec2 v2);
 void quadrilateral(vec2 v0, vec2 v1, vec2 v2, vec2 v3);
 void look3(vec1 x, vec1 y, vec1 z);
 void drawgrid(vec1 xmin, vec1 xmax, int nx, vec1 zmin, vec1 zmax, int nz);
+vec1 angle(vec1 x, vec1 y);
 void scale3(vec1 sx, vec1 sy, vec1 sz, double A[][5]);
 void tran3(vec1 tx, vec1 ty, vec1 tz, double A[][5]);
 void rot3(int m, vec1 theta, double A[][5]);

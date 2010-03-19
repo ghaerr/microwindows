@@ -150,7 +150,7 @@ extern int copyRectDelay;
 extern Bool debug;
 
 extern void processArgs(int argc, char **argv);
-extern void usage();
+extern void usage(void);
 
 
 /* rfbproto.c */
@@ -165,15 +165,15 @@ extern struct timeval updateRequestTime;
 extern Bool sendUpdateRequest;
 
 extern Bool ConnectToRFBServer(const char *hostname, int port);
-extern Bool InitialiseRFBConnection();
-extern Bool SetFormatAndEncodings();
-extern Bool SendIncrementalFramebufferUpdateRequest();
+extern Bool InitialiseRFBConnection(int sock);
+extern Bool SetFormatAndEncodings(void);
+extern Bool SendIncrementalFramebufferUpdateRequest(void);
 extern Bool SendFramebufferUpdateRequest(int x, int y, int w, int h,
 					 Bool incremental);
 extern Bool SendPointerEvent(int x, int y, int buttonMask);
 extern Bool SendKeyEvent(CARD32 key, Bool down);
 extern Bool SendClientCutText(char *str, int len);
-extern Bool HandleRFBServerMessage();
+extern Bool HandleRFBServerMessage(void);
 
 #ifdef NANOX
 
@@ -186,8 +186,8 @@ extern GR_GC_ID gc;
 extern GR_GC_ID srcGC, dstGC;
 extern unsigned long BGR233ToPixel[];
 
-extern Bool CreateXWindow();
-extern void ShutdownX();
+extern Bool CreateXWindow(void);
+extern void ShutdownX(void);
 extern Bool HandleXEvents(GR_EVENT *ev);
 extern Bool AllXEventsPredicate(Display *dpy, XEvent *ev, char *arg);
 extern void CopyDataToScreen(CARD8 *buf, int x, int y, int width, int height);
@@ -241,4 +241,4 @@ extern Bool SameMachine(int sock);
 
 /* listen.c */
 
-extern void listenForIncomingConnections();
+extern void listenForIncomingConnections(void);

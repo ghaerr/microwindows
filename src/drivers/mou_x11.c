@@ -23,8 +23,8 @@ extern Visual*      x11_vis;
 extern Window       x11_win;
 extern GC           x11_gc;
 extern unsigned int x11_event_mask;
-extern int          x11_setup_display();
-extern void         x11_handle_event(XEvent*);
+int          x11_setup_display(void);
+void         x11_handle_event(XEvent*);
 
 MOUSEDEVICE mousedev = {
     X11_Open,
@@ -43,7 +43,7 @@ MOUSEDEVICE mousedev = {
 static int X11_Open(MOUSEDEVICE *pmd)
 {
     if (x11_setup_display() < 0)
-	return -1;
+		return -1;
     /* return the x11 file descriptor for select */
     return ConnectionNumber(x11_dpy);  
 }

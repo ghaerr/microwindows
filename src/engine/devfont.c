@@ -1228,7 +1228,9 @@ int utf8_nchar ( const char *str )
 {
 	int n = 0;
 	int al = strlen ( str );
-	while ( n < al ) n += utf8_len_map[(unsigned char)str[n]];
+
+	while ( n < al )
+		n += utf8_len_map[(unsigned char)str[n]];
 	return (n < al) ? n : al;
 }
 
@@ -1237,9 +1239,11 @@ static void	dumpUtf8 ( const char *str, int sz )
 	int i, n;
 	unsigned short uc16;
 	const char *last = str+sz;
+
 	printf ( "UTF-8 dump:\n" );
 	while ( str < last ) {
-		for ( i=0, n=utf8_len_map[(unsigned char)str[0]]; i < n; i++ ) printf ( "%02X", (unsigned char)str[i] );
+		for ( i=0, n=utf8_len_map[(unsigned char)str[0]]; i < n; i++ )
+			printf ( "%02X", (unsigned char)str[i] );
 		utf8_to_utf16 ( str, n, &uc16 );
 		printf ( ": %04X\n", uc16 );
 		str += n;

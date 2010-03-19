@@ -21,7 +21,7 @@ static void X11_Close(void);
 static void X11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 static int  X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 
-static int init_modstate();
+static int init_modstate(void);
 
 static MWKEYMOD key_modstate;
 extern int escape_quits;
@@ -31,7 +31,7 @@ extern int          x11_scr;
 extern Visual*      x11_vis;
 extern Window       x11_win;
 extern GC           x11_gc;
-extern int          x11_setup_display();
+int          x11_setup_display(void);
 
 #define X_SCR_MASK 0x80
 #define X_CAP_MASK 0x2
@@ -420,7 +420,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 #define SCROLL_LOCK_MASK 0x00000004
 
 /* initialise key_modstate */ 
-static int init_modstate ()
+static int init_modstate(void)
 {
 	unsigned int state;
 	int capsl, numl, scrolll;

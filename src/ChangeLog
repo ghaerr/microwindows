@@ -1,4 +1,5 @@
 18 March 2010
+	* added test RGBA tif file strike.tif
 	* fix bitfield order declarations for big endian GdDrawImage w/alpha (Sung Joo)
 11 March 2010
 	* changed win32 BUTTON control to get/put longs on longword boundary

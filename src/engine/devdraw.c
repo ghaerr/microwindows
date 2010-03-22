@@ -986,9 +986,31 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
+#if 1
+//#define muldiv255(a,b)	(((a)*(b))/255)			/* slow divide, exact*/
+#define muldiv255(a,b)	(((a)*(b+1))>>8)		/* very fast, 92% accurate*/
+							bg.f.r += muldiv255(alpha, fg.f.r - bg.f.r);
+							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
+							bg.f.b += muldiv255(alpha, fg.f.b - bg.f.b);
+#endif
+#if 0
+							/* optimized /255 replaced with +1/>>8: bg = ((a*(fg-bg+1))>>8) + bg*/
+							bg.f.r = ((alpha*(fg.f.r - bg.f.r+1))>>8) + bg.f.r;
+							bg.f.g = ((alpha*(fg.f.g - bg.f.g+1))>>8) + bg.f.g;
+							bg.f.b = ((alpha*(fg.f.b - bg.f.b+1))>>8) + bg.f.b;
+#endif
+#if 0
+							/* optimized one mult one div: bg = (a*(fg-bg))/255 + bg*/
+							bg.f.r = (alpha*(fg.f.r - bg.f.r))/255 + bg.f.r;
+							bg.f.g = (alpha*(fg.f.g - bg.f.g))/255 + bg.f.g;
+							bg.f.b = (alpha*(fg.f.b - bg.f.b))/255 + bg.f.b;
+#endif
+#if 0
+							/* unoptimized two mult one div: bg = (a*fg + (255-a)*bg)/255*/
 							bg.f.r = (alpha*fg.f.r + (255-alpha)*bg.f.r)/255;
 							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
 							bg.f.b = (alpha*fg.f.b + (255-alpha)*bg.f.b)/255;
+#endif
 							//bg.f.a = 255;  
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}

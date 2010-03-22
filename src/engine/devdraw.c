@@ -1027,9 +1027,17 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							/* tricky code: just swap red/blue from above case for bg pixel*/
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
+#if 1
+							bg.f.b += muldiv255(alpha, fg.f.r - bg.f.b); /* actually bg red*/
+							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
+							bg.f.r += muldiv255(alpha, fg.f.b - bg.f.r); /* actually bg blue*/
+#endif
+#if 0
+							/* unoptimized two mult one div: bg = (a*fg + (255-a)*bg)/255*/
 							bg.f.b = (alpha*fg.f.r + (255-alpha)*bg.f.b)/255;
 							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
 							bg.f.r = (alpha*fg.f.b + (255-alpha)*bg.f.r)/255;
+#endif
 							//bg.f.a = 255;  
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}

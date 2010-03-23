@@ -755,6 +755,7 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
  * Alpha drawing using C bitfields.  Experimental,
  * uses bitfields rather than explicit bit-twiddling.
  */
+
 /* ARGB8888 : 0xaarrggbb order (little endian frame buffer format BB GG RR AA)*/
 typedef union {
 	struct {
@@ -807,6 +808,19 @@ typedef union {
 	} f;
 	unsigned short v; 
 } RGB555;	
+
+/*
+ * Alpha blending evolution
+ *
+ * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
+ * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
+ * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
+ * optimized +=							bg +=((a*(fg-bg+1))>>8)
+ * macro +=								bg +=muldiv255(a,fg-bg)
+ */
+//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
+#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
+#define mulscale(a,b,n)	(((a)*((b)+1))>>(n))	/* very fast, always shift for 16bpp*/
 
 /**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
@@ -986,31 +1000,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
-#if 1
-//#define muldiv255(a,b)	(((a)*(b))/255)			/* slow divide, exact*/
-#define muldiv255(a,b)	(((a)*(b+1))>>8)		/* very fast, 92% accurate*/
 							bg.f.r += muldiv255(alpha, fg.f.r - bg.f.r);
 							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
 							bg.f.b += muldiv255(alpha, fg.f.b - bg.f.b);
-#endif
-#if 0
-							/* optimized /255 replaced with +1/>>8: bg = ((a*(fg-bg+1))>>8) + bg*/
-							bg.f.r = ((alpha*(fg.f.r - bg.f.r+1))>>8) + bg.f.r;
-							bg.f.g = ((alpha*(fg.f.g - bg.f.g+1))>>8) + bg.f.g;
-							bg.f.b = ((alpha*(fg.f.b - bg.f.b+1))>>8) + bg.f.b;
-#endif
-#if 0
-							/* optimized one mult one div: bg = (a*(fg-bg))/255 + bg*/
-							bg.f.r = (alpha*(fg.f.r - bg.f.r))/255 + bg.f.r;
-							bg.f.g = (alpha*(fg.f.g - bg.f.g))/255 + bg.f.g;
-							bg.f.b = (alpha*(fg.f.b - bg.f.b))/255 + bg.f.b;
-#endif
-#if 0
-							/* unoptimized two mult one div: bg = (a*fg + (255-a)*bg)/255*/
-							bg.f.r = (alpha*fg.f.r + (255-alpha)*bg.f.r)/255;
-							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
-							bg.f.b = (alpha*fg.f.b + (255-alpha)*bg.f.b)/255;
-#endif
 							//bg.f.a = 255;  
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}
@@ -1027,17 +1019,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							/* tricky code: just swap red/blue from above case for bg pixel*/
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
-#if 1
 							bg.f.b += muldiv255(alpha, fg.f.r - bg.f.b); /* actually bg red*/
 							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
 							bg.f.r += muldiv255(alpha, fg.f.b - bg.f.r); /* actually bg blue*/
-#endif
-#if 0
-							/* unoptimized two mult one div: bg = (a*fg + (255-a)*bg)/255*/
-							bg.f.b = (alpha*fg.f.r + (255-alpha)*bg.f.b)/255;
-							bg.f.g = (alpha*fg.f.g + (255-alpha)*bg.f.g)/255;			
-							bg.f.r = (alpha*fg.f.b + (255-alpha)*bg.f.r)/255;
-#endif
 							//bg.f.a = 255;  
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}
@@ -1067,9 +1051,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							 */
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
-							bg.f.r = (alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))>>11;
-							bg.f.g = (alpha*fg.f.g + (255-alpha)*(bg.f.g<<2))>>10;
-							bg.f.b = (alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))>>11;
+							bg.f.r += mulscale(alpha, fg.f.r - (bg.f.r<<3), 11);
+							bg.f.g += mulscale(alpha, fg.f.g - (bg.f.g<<2), 10);
+							bg.f.b += mulscale(alpha, fg.f.b - (bg.f.b<<3), 11);
 							pixel = bg.v;
 						}
 						break;
@@ -1088,9 +1072,9 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
-							bg.f.r = ((alpha*fg.f.r + (255-alpha)*(bg.f.r<<3))/255)>>3;
-							bg.f.g = ((alpha*fg.f.g + (255-alpha)*(bg.f.g<<3))/255)>>3;
-							bg.f.b = ((alpha*fg.f.b + (255-alpha)*(bg.f.b<<3))/255)>>3;
+							bg.f.r += mulscale(alpha, fg.f.r - (bg.f.r<<3), 11);
+							bg.f.g += mulscale(alpha, fg.f.g - (bg.f.g<<3), 11);
+							bg.f.b += mulscale(alpha, fg.f.b - (bg.f.b<<3), 11);
 							//bg.f.a = 0;
 							pixel = bg.v;
 						}

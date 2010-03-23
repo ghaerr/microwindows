@@ -1,4 +1,6 @@
-18 March 2010
+23 March 2010
+	* use macros for alphablend in GdDrawImage, default fast inc/shift method
+	* cleanup fblin*.c code
 	* fix PCF/FNT and core font gettextsize to display default char if out of range
 	* added test RGBA tif file strike.tif
 	* fix bitfield order declarations for big endian GdDrawImage w/alpha (Sung Joo)

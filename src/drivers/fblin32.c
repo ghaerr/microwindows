@@ -166,12 +166,15 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			register unsigned long s = *src8++;
 			register unsigned long d = *dst8;
 			*dst8++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+
 			s = *src8++;
 			d = *dst8;
 			*dst8++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+
 			s = *src8;
 			d = *dst8;
 			*dst8 = (unsigned char)(((s - d)*alpha)>>8) + d;
+
 			dst8 += 2;
 			src8 += 2;
 		}
@@ -412,16 +415,13 @@ linear32_stretchblitex(PSD dstpsd,
 	y_error = src_y_fraction - (src_y_start + 1) * y_denominator;
 
 	/* precalculate various deltas */
-
 	src_x_step_normal = x_step_fraction / x_denominator;
 	src_x_step_one = SIGN(x_step_fraction);
-	x_error_step_normal =
-		ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
+	x_error_step_normal = ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
 
 	src_y_step_normal = y_step_fraction / y_denominator;
 	src_y_step_one = SIGN(y_step_fraction) * srcpsd->linelen;
-	y_error_step_normal =
-		ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
+	y_error_step_normal = ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
 	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
@@ -430,17 +430,13 @@ linear32_stretchblitex(PSD dstpsd,
 	 */
 
 	/* Pointer to the first source pixel */
-	next_src_ptr =
-		((unsigned long *) srcpsd->addr) +
-		src_y_start * srcpsd->linelen + src_x_start;
+	next_src_ptr = ((unsigned long *) srcpsd->addr) + src_y_start * srcpsd->linelen + src_x_start;
 
 	/* Cache the width of a scanline in dest */
 	dest_y_step = dstpsd->linelen;
 
 	/* Pointer to the first dest pixel */
-	next_dest_ptr =
-		((unsigned long *) dstpsd->addr) +
-		(dest_y_start * dest_y_step) + dest_x_start;
+	next_dest_ptr = ((unsigned long *) dstpsd->addr) + (dest_y_start * dest_y_step) + dest_x_start;
 
 	/*
 	 * Note: The MWROP_SRC case below is a simple expansion of the
@@ -476,7 +472,6 @@ linear32_stretchblitex(PSD dstpsd,
 			}
 
 			next_dest_ptr += dest_y_step;
-
 			next_src_ptr += src_y_step_normal;
 			y_error += y_error_step_normal;
 
@@ -522,7 +517,6 @@ linear32_stretchblitex(PSD dstpsd,
 			}
 
 			next_dest_ptr += dest_y_step;
-
 			next_src_ptr += src_y_step_normal;
 			y_error += y_error_step_normal;
 
@@ -633,8 +627,7 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -655,10 +648,8 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+					*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -666,33 +657,22 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
 
-				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg :
-					bg;
+				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg : bg;
 			}
 
 			/* Do last few bits of line */
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -705,8 +685,7 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte)
 						*dst = fg;
 					dst++;
@@ -741,11 +720,9 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					if (mask & bitmap_byte)
-						*dst = fg;
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						if (mask & bitmap_byte)
+							*dst = fg;
 					dst++;
 				}
 			}
@@ -860,8 +837,7 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -882,10 +858,8 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+						*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -893,33 +867,22 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
 
-				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg :
-					bg;
+				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg : bg;
 			}
 
 			/* Do last few bits of line */
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -932,8 +895,7 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte)
 						*dst = fg;
 					dst++;
@@ -944,22 +906,14 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
 
-				if (MWI_BIT_NO(0) & bitmap_byte)
-					dst[0] = fg;
-				if (MWI_BIT_NO(1) & bitmap_byte)
-					dst[1] = fg;
-				if (MWI_BIT_NO(2) & bitmap_byte)
-					dst[2] = fg;
-				if (MWI_BIT_NO(3) & bitmap_byte)
-					dst[3] = fg;
-				if (MWI_BIT_NO(4) & bitmap_byte)
-					dst[4] = fg;
-				if (MWI_BIT_NO(5) & bitmap_byte)
-					dst[5] = fg;
-				if (MWI_BIT_NO(6) & bitmap_byte)
-					dst[6] = fg;
-				if (MWI_BIT_NO(7) & bitmap_byte)
-					dst[7] = fg;
+				if (MWI_BIT_NO(0) & bitmap_byte) dst[0] = fg;
+				if (MWI_BIT_NO(1) & bitmap_byte) dst[1] = fg;
+				if (MWI_BIT_NO(2) & bitmap_byte) dst[2] = fg;
+				if (MWI_BIT_NO(3) & bitmap_byte) dst[3] = fg;
+				if (MWI_BIT_NO(4) & bitmap_byte) dst[4] = fg;
+				if (MWI_BIT_NO(5) & bitmap_byte) dst[5] = fg;
+				if (MWI_BIT_NO(6) & bitmap_byte) dst[6] = fg;
+				if (MWI_BIT_NO(7) & bitmap_byte) dst[7] = fg;
 
 				dst += 8;
 			}
@@ -968,12 +922,10 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					if (mask & bitmap_byte)
-						*dst = fg;
-					dst++;
+					 MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						if (mask & bitmap_byte)
+							*dst = fg;
+						dst++;
 				}
 			}
 
@@ -1036,21 +988,10 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				as = 256 - (as + (as >> 7));
 				pd = *dst;
 
-				*dst++ = ((unsigned
-					   long) (((((long)
-						     (pd & 0x00FF0000UL) -
-						     psr) * as) >> 8) +
-						  psr) & 0x00FF0000UL)
-					|
-					((unsigned
-					  long) (((((long) (pd & 0x0000FF00UL)
-						    - psg) * as) >> 8) +
-						 psg) & 0x0000FF00UL)
-					|
-					((unsigned
-					  long) (((((long) (pd & 0x000000FFUL)
-						    - psb) * as) >> 8) +
-						 psb) & 0x000000FFUL);
+				*dst++ = 
+				      ((unsigned long)(((((long)(pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((unsigned long)(((((long)(pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((unsigned long)(((((long)(pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL);
 			} else {
 				dst++;
 			}

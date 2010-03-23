@@ -181,9 +181,11 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			unsigned long s = *src++;
 			unsigned long d = *dst;
 			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+
 			s = *src++;
 			d = *dst;
 			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+
 			s = *src++;
 			d = *dst;
 			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
@@ -433,13 +435,11 @@ linear24_stretchblitex(PSD dstpsd,
 
 	src_x_step_normal = x_step_fraction / x_denominator;
 	src_x_step_one = SIGN(x_step_fraction);
-	x_error_step_normal =
-		ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
+	x_error_step_normal = ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
 
 	src_y_step_normal = y_step_fraction / y_denominator;
 	src_y_step_one = SIGN(y_step_fraction) * srcpsd->linelen;
-	y_error_step_normal =
-		ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
+	y_error_step_normal = ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
 	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
@@ -448,17 +448,13 @@ linear24_stretchblitex(PSD dstpsd,
 	 */
 
 	/* Pointer to the first source pixel */
-	next_src_ptr =
-		((unsigned char *) srcpsd->addr) +
-		3 * (src_y_start * srcpsd->linelen + src_x_start);
+	next_src_ptr = ((unsigned char *) srcpsd->addr) + 3 * (src_y_start * srcpsd->linelen + src_x_start);
 
 	/* Cache the width of a scanline in dest */
 	dest_y_step = dstpsd->linelen;
 
 	/* Pointer to the first dest pixel */
-	next_dest_ptr =
-		((unsigned char *) dstpsd->addr) +
-		3 * (dest_y_start * dest_y_step + dest_x_start);
+	next_dest_ptr = ((unsigned char *) dstpsd->addr) + 3 * (dest_y_start * dest_y_step + dest_x_start);
 
 	/* Convert from pixels to bytes (only for this 24bpp mode) */
 	src_x_step_normal *= 3;
@@ -552,7 +548,6 @@ linear24_stretchblitex(PSD dstpsd,
 			}
 
 			next_dest_ptr += dest_y_step;
-
 			next_src_ptr += src_y_step_normal;
 			y_error += y_error_step_normal;
 
@@ -670,8 +665,7 @@ linear24_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -788,9 +782,7 @@ linear24_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						*dst++ = fg_b;
 						*dst++ = fg_g;
@@ -812,8 +804,7 @@ linear24_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						dst[0] = fg_b;
 						dst[1] = fg_g;
@@ -874,9 +865,7 @@ linear24_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						dst[0] = fg_b;
 						dst[1] = fg_g;
@@ -1002,8 +991,7 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -1024,8 +1012,7 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						*dst++ = fg_b;
 						*dst++ = fg_g;
@@ -1120,9 +1107,7 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						*dst++ = fg_b;
 						*dst++ = fg_g;
@@ -1144,8 +1129,7 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						dst[0] = fg_b;
 						dst[1] = fg_g;
@@ -1206,9 +1190,7 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte) {
 						dst[0] = fg_b;
 						dst[1] = fg_g;
@@ -1271,17 +1253,11 @@ linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				as += (as >> 7);
 
 				pd = *dst;
-				*dst++ = (unsigned
-					  char) ((((psb - pd) * as) >> 8) +
-						 pd);
+				*dst++ = (unsigned char) ((((psb - pd) * as) >> 8) + pd);
 				pd = *dst;
-				*dst++ = (unsigned
-					  char) ((((psg - pd) * as) >> 8) +
-						 pd);
+				*dst++ = (unsigned char) ((((psg - pd) * as) >> 8) + pd);
 				pd = *dst;
-				*dst++ = (unsigned
-					  char) ((((psr - pd) * as) >> 8) +
-						 pd);
+				*dst++ = (unsigned char) ((((psr - pd) * as) >> 8) + pd);
 			} else {
 				dst += 3;
 			}

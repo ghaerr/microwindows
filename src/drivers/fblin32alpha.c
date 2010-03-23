@@ -133,22 +133,11 @@ linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 				psb = (MW_S32) (c & 0x000000FFUL);
 
 				pd = *addr;
-				*addr = ((MW_U32)
-					 (((((MW_S32) (pd & 0x00FF0000UL) -
-					     psr) * psa_inv) >> 8) +
-					  psr) & 0x00FF0000UL)
-					| ((MW_U32)
-					   (((((MW_S32) (pd & 0x0000FF00UL) -
-					       psg) * psa_inv) >> 8) +
-					    psg) & 0x0000FF00UL)
-					| ((MW_U32)
-					   (((((MW_S32) (pd & 0x000000FFUL) -
-					       psb) * psa_inv) >> 8) +
-					    psb) & 0x000000FFUL)
-					|
-					(((psa << 24) +
-					  ((pd & 0xFF000000UL) >> 8) *
-					  (MW_U32) psa_inv) & 0xFF000000UL);
+				*addr = 
+				      ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
+					| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
+					| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
+					| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * (MW_U32) psa_inv) & 0xFF000000UL);
 			}
 			break;
 		case MWMODE_SRC_IN:
@@ -228,63 +217,22 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 
 				pd = *addr;
 				cache_input = pd;
-				cache_output = ((MW_U32)
-						(((((MW_S32)
-						    (pd & 0x00FF0000UL) -
-						    psr) * psa_inv) >> 8) +
-						 psr) & 0x00FF0000UL)
-					| ((MW_U32)
-					   (((((MW_S32) (pd & 0x0000FF00UL) -
-					       psg) * psa_inv) >> 8) +
-					    psg) & 0x0000FF00UL)
-					| ((MW_U32)
-					   (((((MW_S32) (pd & 0x000000FFUL) -
-					       psb) * psa_inv) >> 8) +
-					    psb) & 0x000000FFUL)
-					|
-					(((psa << 24) +
-					  ((pd & 0xFF000000UL) >> 8) *
-					  ((MW_U32) psa_inv)) & 0xFF000000UL);
+				cache_output = 
+					  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
+					| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
+					| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
+					| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
 				*addr++ = cache_output;
 
 				while (++x1 <= x2) {
 					pd = *addr;
 					if (cache_input != pd) {
 						cache_input = pd;
-						cache_output = ((MW_U32)
-								(((((MW_S32)
-								    (pd &
-								     0x00FF0000UL)
-								    -
-								    psr) *
-								   psa_inv) >>
-								  8) +
-								 psr) &
-								0x00FF0000UL)
-							| ((MW_U32)
-							   (((((MW_S32)
-							       (pd &
-								0x0000FF00UL)
-							       -
-							       psg) *
-							      psa_inv) >> 8) +
-							    psg) &
-							   0x0000FF00UL)
-							| ((MW_U32)
-							   (((((MW_S32)
-							       (pd &
-								0x000000FFUL)
-							       -
-							       psb) *
-							      psa_inv) >> 8) +
-							    psb) &
-							   0x000000FFUL)
-							|
-							(((psa << 24) +
-							  ((pd & 0xFF000000UL)
-							   >> 8) *
-							  ((MW_U32) psa_inv))
-							 & 0xFF000000UL);
+						cache_output =
+							  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
+							| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
+							| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
+							| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
 					}
 					*addr++ = cache_output;
 				}
@@ -356,23 +304,11 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
 
 				pd = *addr;
 				cache_input = pd;
-				cache_output = ((MW_U32)
-						(((((MW_S32)
-						    (pd & 0x00FF0000UL) -
-						    psr) * psa_inv) >> 8) +
-						 psr) & 0x00FF0000UL)
-					| ((MW_U32)
-					   (((((MW_S32) (pd & 0x0000FF00UL) -
-					       psg) * psa_inv) >> 8) +
-					    psg) & 0x0000FF00UL)
-					| ((MW_U32)
-					   (((((MW_S32) (pd & 0x000000FFUL) -
-					       psb) * psa_inv) >> 8) +
-					    psb) & 0x000000FFUL)
-					|
-					(((psa << 24) +
-					  ((pd & 0xFF000000UL) >> 8) *
-					  ((MW_U32) psa_inv)) & 0xFF000000UL);
+				cache_output =
+					  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
+					| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
+					| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
+					| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
 				*addr = cache_output;
 				addr += linelen;
 
@@ -380,40 +316,11 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
 					pd = *addr;
 					if (cache_input != pd) {
 						cache_input = pd;
-						cache_output = ((MW_U32)
-								(((((MW_S32)
-								    (pd &
-								     0x00FF0000UL)
-								    -
-								    psr) *
-								   psa_inv) >>
-								  8) +
-								 psr) &
-								0x00FF0000UL)
-							| ((MW_U32)
-							   (((((MW_S32)
-							       (pd &
-								0x0000FF00UL)
-							       -
-							       psg) *
-							      psa_inv) >> 8) +
-							    psg) &
-							   0x0000FF00UL)
-							| ((MW_U32)
-							   (((((MW_S32)
-							       (pd &
-								0x000000FFUL)
-							       -
-							       psb) *
-							      psa_inv) >> 8) +
-							    psb) &
-							   0x000000FFUL)
-							|
-							(((psa << 24) +
-							  ((pd & 0xFF000000UL)
-							   >> 8) *
-							  ((MW_U32) psa_inv))
-							 & 0xFF000000UL);
+						cache_output =
+							  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
+							| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
+							| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
+							| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
 					}
 					*addr = cache_output;
 					addr += linelen;
@@ -484,22 +391,23 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		for (i = 0; i < w; ++i) {
 			register unsigned long s;
 			register unsigned long d;
+
 			s = src8[MWI_BYTE_OFFSET_R];
 			d = dst8[MWI_BYTE_OFFSET_R];
-			dst8[MWI_BYTE_OFFSET_R] =
-				(unsigned char) (((s - d) * alpha) >> 8) + d;
+			dst8[MWI_BYTE_OFFSET_R] = (unsigned char) (((s - d) * alpha) >> 8) + d;
+
 			s = src8[MWI_BYTE_OFFSET_G];
 			d = dst8[MWI_BYTE_OFFSET_G];
-			dst8[MWI_BYTE_OFFSET_G] =
-				(unsigned char) (((s - d) * alpha) >> 8) + d;
+			dst8[MWI_BYTE_OFFSET_G] = (unsigned char) (((s - d) * alpha) >> 8) + d;
+
 			s = src8[MWI_BYTE_OFFSET_B];
 			d = dst8[MWI_BYTE_OFFSET_B];
-			dst8[MWI_BYTE_OFFSET_B] =
-				(unsigned char) (((s - d) * alpha) >> 8) + d;
+			dst8[MWI_BYTE_OFFSET_B] = (unsigned char) (((s - d) * alpha) >> 8) + d;
+
 			s = src8[MWI_BYTE_OFFSET_ALPHA];
 			d = dst8[MWI_BYTE_OFFSET_ALPHA];
-			dst8[MWI_BYTE_OFFSET_ALPHA] =
-				(unsigned char) (((s - d) * alpha) >> 8) + d;
+			dst8[MWI_BYTE_OFFSET_ALPHA] = (unsigned char) (((s - d) * alpha) >> 8) + d;
+
 			dst8 += 4;
 			src8 += 4;
 		}
@@ -543,45 +451,27 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 				register int a;
 				register int s;
 				register int d;
-				a = (int) (unsigned char)
-					src8[MWI_BYTE_OFFSET_ALPHA];
+				a = (int) (unsigned char)src8[MWI_BYTE_OFFSET_ALPHA];
 				if (a == 255) {
 					dst8[0] = src8[0];
 					dst8[1] = src8[1];
 					dst8[2] = src8[2];
 					dst8[MWI_BYTE_OFFSET_ALPHA] = a;
 				} else if (a != 0) {
-					s = (int) (unsigned char)
-						src8[MWI_BYTE_OFFSET_R];
-					d = (int) (unsigned char)
-						dst8[MWI_BYTE_OFFSET_R];
-					dst8[MWI_BYTE_OFFSET_R] =
-						(unsigned
-						 char) ((((s - d) * a) >> 8) +
-							d);
+					s = (int) (unsigned char)src8[MWI_BYTE_OFFSET_R];
+					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_R];
+					dst8[MWI_BYTE_OFFSET_R] = (unsigned char) ((((s - d) * a) >> 8) + d);
 
-					s = (int) (unsigned char)
-						src8[MWI_BYTE_OFFSET_G];
-					d = (int) (unsigned char)
-						dst8[MWI_BYTE_OFFSET_G];
-					dst8[MWI_BYTE_OFFSET_G] =
-						(unsigned
-						 char) ((((s - d) * a) >> 8) +
-							d);
+					s = (int) (unsigned char)src8[MWI_BYTE_OFFSET_G];
+					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_G];
+					dst8[MWI_BYTE_OFFSET_G] = (unsigned char) ((((s - d) * a) >> 8) + d);
 
-					s = (int) (unsigned char)
-						src8[MWI_BYTE_OFFSET_B];
-					d = (int) (unsigned char)
-						dst8[MWI_BYTE_OFFSET_B];
-					dst8[MWI_BYTE_OFFSET_B] =
-						(unsigned
-						 char) ((((s - d) * a) >> 8) +
-							d);
+					s = (int) (unsigned char)src8[MWI_BYTE_OFFSET_B];
+					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_B];
+					dst8[MWI_BYTE_OFFSET_B] = (unsigned char) ((((s - d) * a) >> 8) + d);
 
-					d = (int) (unsigned char)
-						dst8[MWI_BYTE_OFFSET_ALPHA];
-					dst8[MWI_BYTE_OFFSET_ALPHA] =
-						(a + ((d * (256 - a)) >> 8));
+					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_ALPHA];
+					dst8[MWI_BYTE_OFFSET_ALPHA] = (a + ((d * (256 - a)) >> 8));
 				}
 				src8 += 4;
 				dst8 += 4;
@@ -797,13 +687,11 @@ linear32a_stretchblitex(PSD dstpsd,
 
 	src_x_step_normal = x_step_fraction / x_denominator;
 	src_x_step_one = SIGN(x_step_fraction);
-	x_error_step_normal =
-		ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
+	x_error_step_normal = ABS(x_step_fraction) - ABS(src_x_step_normal) * x_denominator;
 
 	src_y_step_normal = y_step_fraction / y_denominator;
 	src_y_step_one = SIGN(y_step_fraction) * srcpsd->linelen;
-	y_error_step_normal =
-		ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
+	y_error_step_normal = ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
 	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
@@ -812,17 +700,14 @@ linear32a_stretchblitex(PSD dstpsd,
 	 */
 
 	/* Pointer to the first source pixel */
-	next_src_ptr =
-		((unsigned long *) srcpsd->addr) +
+	next_src_ptr = ((unsigned long *) srcpsd->addr) +
 		src_y_start * srcpsd->linelen + src_x_start;
 
 	/* Cache the width of a scanline in dest */
 	dest_y_step = dstpsd->linelen;
 
 	/* Pointer to the first dest pixel */
-	next_dest_ptr =
-		((unsigned long *) dstpsd->addr) +
-		(dest_y_start * dest_y_step) + dest_x_start;
+	next_dest_ptr = ((unsigned long *) dstpsd->addr) + (dest_y_start * dest_y_step) + dest_x_start;
 
 	/*
 	 * Note: The MWROP_SRC and MWROP_XOR_FGBG cases below are simple
@@ -863,7 +748,6 @@ linear32a_stretchblitex(PSD dstpsd,
 			}
 
 			next_dest_ptr += dest_y_step;
-
 			next_src_ptr += src_y_step_normal;
 			y_error += y_error_step_normal;
 
@@ -963,7 +847,6 @@ linear32a_stretchblitex(PSD dstpsd,
 			}
 
 			next_dest_ptr += dest_y_step;
-
 			next_src_ptr += src_y_step_normal;
 			y_error += y_error_step_normal;
 
@@ -996,8 +879,7 @@ linear32a_stretchblitex(PSD dstpsd,
 
 			x_count = width;
 			while (x_count-- > 0) {
-				applyOp(MWROP_TO_MODE(op), *src_ptr, dest_ptr,
-					ADDR32);
+				applyOp(MWROP_TO_MODE(op), *src_ptr, dest_ptr, ADDR32);
 				dest_ptr++;
 
 				src_ptr += src_x_step_normal;
@@ -1010,7 +892,6 @@ linear32a_stretchblitex(PSD dstpsd,
 			}
 
 			next_dest_ptr += dest_y_step;
-
 			next_src_ptr += src_y_step_normal;
 			y_error += y_error_step_normal;
 
@@ -1121,8 +1002,7 @@ linear32a_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -1143,10 +1023,8 @@ linear32a_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+					*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -1154,33 +1032,22 @@ linear32a_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
 
-				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg :
-					bg;
+				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg : bg;
 			}
 
 			/* Do last few bits of line */
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -1193,8 +1060,7 @@ linear32a_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte)
 						*dst = fg;
 					dst++;
@@ -1229,12 +1095,10 @@ linear32a_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					if (mask & bitmap_byte)
-						*dst = fg;
-					dst++;
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						if (mask & bitmap_byte)
+							*dst = fg;
+						dst++;
 				}
 			}
 
@@ -1348,8 +1212,7 @@ linear32a_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -1381,33 +1244,23 @@ linear32a_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
 
-				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg :
-					bg;
+				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg : bg;
+				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg : bg;
 			}
 
 			/* Do last few bits of line */
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit);
 				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
+						*dst++ = (mask & bitmap_byte) ? fg : bg;
 				}
 			}
 
@@ -1420,8 +1273,7 @@ linear32a_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte)
 						*dst = fg;
 					dst++;
@@ -1432,22 +1284,14 @@ linear32a_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
 
-				if (MWI_BIT_NO(0) & bitmap_byte)
-					dst[0] = fg;
-				if (MWI_BIT_NO(1) & bitmap_byte)
-					dst[1] = fg;
-				if (MWI_BIT_NO(2) & bitmap_byte)
-					dst[2] = fg;
-				if (MWI_BIT_NO(3) & bitmap_byte)
-					dst[3] = fg;
-				if (MWI_BIT_NO(4) & bitmap_byte)
-					dst[4] = fg;
-				if (MWI_BIT_NO(5) & bitmap_byte)
-					dst[5] = fg;
-				if (MWI_BIT_NO(6) & bitmap_byte)
-					dst[6] = fg;
-				if (MWI_BIT_NO(7) & bitmap_byte)
-					dst[7] = fg;
+				if (MWI_BIT_NO(0) & bitmap_byte) dst[0] = fg;
+				if (MWI_BIT_NO(1) & bitmap_byte) dst[1] = fg;
+				if (MWI_BIT_NO(2) & bitmap_byte) dst[2] = fg;
+				if (MWI_BIT_NO(3) & bitmap_byte) dst[3] = fg;
+				if (MWI_BIT_NO(4) & bitmap_byte) dst[4] = fg;
+				if (MWI_BIT_NO(5) & bitmap_byte) dst[5] = fg;
+				if (MWI_BIT_NO(6) & bitmap_byte) dst[6] = fg;
+				if (MWI_BIT_NO(7) & bitmap_byte) dst[7] = fg;
 
 				dst += 8;
 			}
@@ -1456,12 +1300,10 @@ linear32a_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					if (mask & bitmap_byte)
-						*dst = fg;
-					dst++;
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+						if (mask & bitmap_byte)
+							*dst = fg;
+						dst++;
 				}
 			}
 
@@ -1524,30 +1366,11 @@ linear32a_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				 */
 				as = 256 - (as + (as >> 7));
 				pd = *dst;
-
-				*dst++ = ((unsigned long) (((((long)
-							      (pd &
-							       0x00FF0000UL) -
-							      psr) *
-							     as) >> 8) +
-							   psr) &
-					  0x00FF0000UL)
-					|
-					((unsigned
-					  long) (((((long) (pd & 0x0000FF00UL)
-						    - psg) * as) >> 8) +
-						 psg) & 0x0000FF00UL)
-					|
-					((unsigned
-					  long) (((((long) (pd & 0x000000FFUL)
-						    - psb) * as) >> 8) +
-						 psb) & 0x000000FFUL)
-					| ((unsigned long) ((((long)
-							      ((pd >> 8) &
-							       0x00FF0000UL)
-							      - psa) * as) +
-							    (psa << 8)) &
-					   0xFF000000UL);
+				*dst++ =
+					  ((unsigned long)(((((long)(pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((unsigned long)(((((long)(pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((unsigned long)(((((long)(pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((unsigned long)((((long)((pd >> 8) & 0x00FF0000UL) - psa) * as) + (psa << 8)) & 0xFF000000UL);
 			} else {
 				dst++;
 			}

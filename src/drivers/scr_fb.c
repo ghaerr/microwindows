@@ -128,7 +128,7 @@ fb_open(PSD psd)
 			fb = open("/dev/fb/0", O_RDWR);
 	}
 	if(fb < 0) {
-		EPRINTF("Error opening %s: %m. Check kernel config\n", env);
+		EPRINTF("Error opening %s: %m. Check kernel config\n", env? env: "/dev/fb0");
 		return NULL;
 	}
 	if(ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
@@ -202,9 +202,9 @@ fb_open(PSD psd)
 #endif
 		psd->pixtype = MWPF_PALETTE;
 
-	/*DPRINTF("%dx%dx%d linelen %d type %d visual %d bpp %d\n", psd->xres,
+	EPRINTF("%dx%dx%d linelen %d type %d visual %d bpp %d pixtype %d\n", psd->xres,
 	 	psd->yres, psd->ncolors, psd->linelen, type, visual,
-		psd->bpp);*/
+		psd->bpp, psd->pixtype);
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);

@@ -32,6 +32,7 @@ C++ objects framework		Chris Johns
 Arc clipping routines		Eero Tamminen
 Mozilla kbd,rops,font enum	Matthew Wlazlo
 eCos port improvements          Alexander Neundorf
+Sony PSP port, ABGR format	Jim Paris
 
 Contact Info
 Gabriele Brugnoni	<gabrielebrugnoni@dveprojects.com>
@@ -56,3 +57,4 @@ Rosimildo daSilva	<rosimildo@xoommail.com>
 Eero Tamminen		<oak@welho.com>
 Matthew Wlazlo		<mattw@igelaus.com.au>
 Alexander Neundorf	<neundorf@kde.org>
+Jim Paris		<ps2dev.org>

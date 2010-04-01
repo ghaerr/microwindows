@@ -1052,14 +1052,20 @@ linear16_drawarea_alphamap(PSD psd, driver_gc_t * gc)
 
 
 #if MW_FEATURE_PSDOP_ALPHACOL
+#define COLOR_MASK_R_565 0xF800U
+#define COLOR_MASK_G_565 0x07E0U
+#define COLOR_MASK_B_565 0x001FU
+#define COLOR_MASK_R_555 0x7C00U
+#define COLOR_MASK_G_555 0x03E0U
+#define COLOR_MASK_B_555 0x001FU
+
 static void
 linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR16 dst;
 	ADDR8 alpha;
-	unsigned ps, pd;
-	int as;
-	long psr, psg, psb;
+	unsigned long ps, pd;
+	unsigned long as, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 
@@ -1070,81 +1076,73 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	src_row_step = gc->src_linelen - gc->dstw;
 	dst_row_step = psd->linelen - gc->dstw;
 
-#define COLOR_MASK_R_565 0xF800U
-#define COLOR_MASK_G_565 0x07E0U
-#define COLOR_MASK_B_565 0x001FU
-
-#define COLOR_MASK_R_555 0x7C00U
-#define COLOR_MASK_G_555 0x03E0U
-#define COLOR_MASK_B_555 0x001FU
-
 	DRAWON;
 	if (psd->pixtype == MWPF_TRUECOLOR565) {
-		psr = (long) (ps & COLOR_MASK_R_565);
-		psg = (long) (ps & COLOR_MASK_G_565);
-		psb = (long) (ps & COLOR_MASK_B_565);
+		psr = ps & COLOR_MASK_R_565;
+		psg = ps & COLOR_MASK_G_565;
+		psb = ps & COLOR_MASK_B_565;
 
 		for (y = 0; y < gc->dsth; y++) {
 			for (x = 0; x < gc->dstw; x++) {
-				as = *alpha++;
-				if (as == 255) {
+				if ((as = *alpha++) == 255)
 					*dst++ = ps;
-				} else if (as != 0) {
+				else if (as != 0) {
 					/*
-					 * Scale alpha value from 255ths to 256ths
-					 * (In other words, if as >= 128, add 1 to it)
-					 *
-					 * Also flip the direction of alpha, so it's
+					 * Flip the direction of alpha, so it's
 					 * backwards from it's usual meaning.
 					 * This is because the equation below is most
 					 * easily written with source and dest interchanged
 					 * (since we can split ps into it's components
 					 * before we enter the loop)
+				 	 *
+				 	 * Alpha is then adjusted +1 for 92% accurate blend
+				 	 * with one multiply and shift.
 					 */
-					as = 256 - (as + (as >> 7));
-					pd = *dst;
+					as = 255 - as + 1;
+					pd = gc->gr_usebg? gc->bg_color: *dst;
 					*dst++ =
-						  ((unsigned)(((((long)(pd & COLOR_MASK_R_565) - psr) * as) >> 8) + psr) & COLOR_MASK_R_565)
-						| ((unsigned)(((((long)(pd & COLOR_MASK_G_565) - psg) * as) >> 8) + psg) & COLOR_MASK_G_565)
-						| ((unsigned)(((((long)(pd & COLOR_MASK_B_565) - psb) * as) >> 8) + psb) & COLOR_MASK_B_565);
-				} else {
-					dst++;
-				}
+						  ((((((pd & COLOR_MASK_R_565) - psr) * as) >> 8) + psr) & COLOR_MASK_R_565)
+						| ((((((pd & COLOR_MASK_G_565) - psg) * as) >> 8) + psg) & COLOR_MASK_G_565)
+						| ((((((pd & COLOR_MASK_B_565) - psb) * as) >> 8) + psb) & COLOR_MASK_B_565);
+				} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+					*dst++ = gc->bg_color;
+				else
+					++dst;
 			}
 			alpha += src_row_step;
 			dst += dst_row_step;
 		}
-	} else {
-		psr = (long) (ps & COLOR_MASK_R_555);
-		psg = (long) (ps & COLOR_MASK_G_555);
-		psb = (long) (ps & COLOR_MASK_B_555);
+	} else {	/* MWPF_TRUECOLOR555*/
+		psr = ps & COLOR_MASK_R_555;
+		psg = ps & COLOR_MASK_G_555;
+		psb = ps & COLOR_MASK_B_555;
 
 		for (y = 0; y < gc->dsth; y++) {
 			for (x = 0; x < gc->dstw; x++) {
-				as = *alpha++;
-				if (as == 255) {
+				if ((as = *alpha++) == 255)
 					*dst++ = ps;
-				} else if (as != 0) {
+				else if (as != 0) {
 					/*
-					 * Scale alpha value from 255ths to 256ths
-					 * (In other words, if as >= 128, add 1 to it)
-					 *
-					 * Also flip the direction of alpha, so it's
+					 * Flip the direction of alpha, so it's
 					 * backwards from it's usual meaning.
 					 * This is because the equation below is most
 					 * easily written with source and dest interchanged
 					 * (since we can split ps into it's components
 					 * before we enter the loop)
+				 	 *
+				 	 * Alpha is then adjusted +1 for 92% accurate blend
+				 	 * with one multiply and shift.
 					 */
-					as = 256 - (as + (as >> 7));
-					pd = *dst;
+					as = 255 - as + 1;
+					pd = gc->gr_usebg? gc->bg_color: *dst;
 					*dst++ =
-						  ((unsigned)(((((long)(pd & COLOR_MASK_R_555) - psr) * as) >> 8) + psr) & COLOR_MASK_R_555)
-						| ((unsigned)(((((long)(pd & COLOR_MASK_G_555) - psg) * as) >> 8) + psg) & COLOR_MASK_G_555)
-						| ((unsigned)(((((long)(pd & COLOR_MASK_B_555) - psb) * as) >> 8) + psb) & COLOR_MASK_B_555);
-				} else {
-					dst++;
-				}
+						  ((((((pd & COLOR_MASK_R_555) - psr) * as) >> 8) + psr) & COLOR_MASK_R_555)
+						| ((((((pd & COLOR_MASK_G_555) - psg) * as) >> 8) + psg) & COLOR_MASK_G_555)
+						| ((((((pd & COLOR_MASK_B_555) - psb) * as) >> 8) + psb) & COLOR_MASK_B_555);
+				} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+					*dst++ = gc->bg_color;
+				else
+					++dst;
 			}
 			alpha += src_row_step;
 			dst += dst_row_step;

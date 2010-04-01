@@ -30,10 +30,10 @@
  */
 #define FIRSTUSERPALENTRY	24  /* first writable pal entry over 16 color*/
 
-       MWPIXELVAL gr_foreground;      /* current foreground color */
-       MWPIXELVAL gr_background;      /* current background color */
-       MWBOOL 	gr_usebg;    	    /* TRUE if background drawn in pixmaps */
-       int 	gr_mode = MWMODE_COPY; 	    /* drawing mode */
+MWPIXELVAL gr_foreground;	/* current foreground color */
+MWPIXELVAL gr_background;	/* current background color */
+MWBOOL 	gr_usebg;    	    /* TRUE if background drawn in pixmaps */
+int 	gr_mode = MWMODE_COPY; 	    /* drawing mode */
 /*static*/ MWPALENTRY	gr_palette[256];    /* current palette*/
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/

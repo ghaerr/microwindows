@@ -30,37 +30,33 @@ linear12_init(PSD psd)
 
 static inline void setpix(char *cptr,int x, int y, char c)
 {
-long adr;
+	unsigned long adr;
 
-adr=(x>>1) + (y*480);  /* change, julian*/
+	adr = (x>>1) + (y*480);  /* change, julian*/
 
-if(gr_mode == MWMODE_XOR) 
-  {
-  if(x & 0x01) cptr[adr]^=((c << 4) & 0xf0);
-  else cptr[adr]^=(c & 0x0f);
-  }    
-else 
-  {
-  if(x & 0x01) 
-    {
-    cptr[adr]&=0x0f;
-    cptr[adr]|=((c << 4) & 0xf0);
-    }
-  else
-    { 
-    cptr[adr]&=0xf0;
-    cptr[adr]|=(c & 0x0f);
-    }
-  }
+	if(gr_mode == MWMODE_XOR) {
+		if(x & 0x01)
+			cptr[adr]^=((c << 4) & 0xf0);
+		else cptr[adr]^=(c & 0x0f);
+	} else {
+		if(x & 0x01) {
+			cptr[adr]&=0x0f;
+			cptr[adr]|=((c << 4) & 0xf0);
+		} else { 
+			cptr[adr]&=0xf0;
+			cptr[adr]|=(c & 0x0f);
+		}
+	}
 }
 
 static inline char getpix(char *cptr,int x, int y)
 {
-long adr;
-adr=(x>>1) + (y*480);  /* change, julian*/
+	unsigned long adr;
+	adr = (x>>1) + (y*480);  /* change, julian*/
 
-if(x & 0x01) return (cptr[adr] >> 4) & 0x0f;
-return cptr[adr] & 0x0f;
+	if(x & 0x01)
+		return (cptr[adr] >> 4) & 0x0f;
+	return cptr[adr] & 0x0f;
 }
 
 
@@ -79,9 +75,9 @@ linear12_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	r = PIXEL444RED(c);
 	g = PIXEL444GREEN(c);
 	b = PIXEL444BLUE(c);
-        x=x+(x<<1);
+    x=x+(x<<1);
 	DRAWON;
-        setpix(addr,x,y,r);
+    setpix(addr,x,y,r);
 	setpix(addr,x+1,y,g);
 	setpix(addr,x+2,y,b);
 	DRAWOFF;
@@ -96,7 +92,7 @@ linear12_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-        x=x+(x<<1);
+	x=x+(x<<1);
 	return RGB2PIXEL444(getpix(addr,x,y),getpix(addr,x+1,y),getpix(addr,x+2,y));
 }
 
@@ -118,13 +114,13 @@ linear12_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	g = PIXEL444GREEN(c);
 	b = PIXEL444BLUE(c);
 	DRAWON;
-	        x1*=3;
-		x2*=3;
-		while((x1+=3) <= x2) {
+	x1*=3;
+	x2*=3;
+	while((x1+=3) <= x2) {
 		setpix(addr,x1,y,r);
 		setpix(addr,x1+1,y,g);
 		setpix(addr,x1+2,y,b);
-		}
+	}
 	DRAWOFF;
 }
 
@@ -135,7 +131,8 @@ linear12_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	ADDR8	addr = psd->addr;
 	int	linelen = psd->linelen * 3;
 	MWUCHAR	r, g, b;
-        linelen/=2;
+
+    linelen/=2;
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
@@ -148,12 +145,11 @@ linear12_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	b = PIXEL444BLUE(c);
         
 	DRAWON;
-		while(y1++ <= y2) 
-		{
-	        setpix(addr,x,y1,r);
-	        setpix(addr,x+1,y1,g);
-	        setpix(addr,x+2,y1,b);
-		}		
+	while(y1++ <= y2) {
+		setpix(addr,x,y1,r);
+		setpix(addr,x+1,y1,g);
+		setpix(addr,x+2,y1,b);
+	}		
 	DRAWOFF;
 }
 
@@ -263,24 +259,18 @@ linear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
 
+	if((srcx & 0x01) && !(dstx & 0x01)) {
+		src+=1;
+		/*w-=1;*/
+	}
 
-        if((srcx & 0x01) && !(dstx & 0x01))
-	  {
-	  src+=1;
-	  /*w-=1;*/
-          }
-
-        if(!(srcx & 0x01) && (dstx & 0x01))
-	  {
-	  dst+=1;
-	  /*w-=1;*/
-          }
-
-        if((srcx & 0x01) && (dstx & 0x01))
-	  {
-	  /*w-=1;*/
-          }
-
+	if(!(srcx & 0x01) && (dstx & 0x01)) {
+		dst+=1;
+			/*w-=1;*/
+	}
+	if((srcx & 0x01) && (dstx & 0x01)) {
+		/*w-=1;*/
+	}
 
 	while(--h >= 0) {
 		/* a _fast_ memcpy is a _must_ in this routine*/
@@ -290,7 +280,6 @@ linear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	}
 	DRAWOFF;
 }
-
 
 SUBDRIVER fblinear12 = {
 	linear12_init,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 32bpp Linear Video Driver for Microwindows
@@ -11,6 +11,23 @@
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+
+/*
+ * Alpha blending evolution
+ *
+ * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
+ * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
+ * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
+ * optimized +=							bg +=((a*(fg-bg+1))>>8)
+ * macro +=								bg +=muldiv255(a,fg-bg)
+ * macro =								bg  =muldiv255(a,fg-bg) + bg
+ *
+ * original alpha channel alpha			d = ((d * (256 - a)) >> 8) + a
+ * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
+ * alpha channel update using macro		d = muldiv255(d, 255 - a) + a
+ */
+//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
+#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
@@ -33,7 +50,6 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-//	assert (c < psd->ncolors);
 
 	DRAWON;
 	if (gr_mode == MWMODE_COPY)
@@ -67,7 +83,6 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
-//	assert (c < psd->ncolors);
 
 	DRAWON;
 	addr += x1 + y * psd->linelen;
@@ -96,7 +111,6 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
-//	assert (c < psd->ncolors);
 
 	DRAWON;
 	addr += x + y1 * linelen;
@@ -128,7 +142,7 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w4;
 	int	slinelen_minus_w4;
 #if ALPHABLEND
-	unsigned int alpha;
+	unsigned long alpha;
 #endif
 
 	assert (dst != 0);
@@ -151,32 +165,33 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 #if ALPHABLEND
 	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
 		goto stdblit;
-	alpha = op & 0xff;
+	if ((alpha = op & 0xff) == 255)
+		goto stdcopy;
 
-	src8 = (ADDR8)src;
-	dst8 = (ADDR8)dst;
 	dlinelen_minus_w4 = (dlinelen - w) * 4;
 	slinelen_minus_w4 = (slinelen - w) * 4;
+	src8 = (ADDR8)src;
+	dst8 = (ADDR8)dst;
+
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
-			/* FIXME: This doesn't look endian-neutral.
-			 * I don't think this'll work on PowerPC,
-			 * but I don't have one to test it.
-			 */
-			register unsigned long s = *src8++;
-			register unsigned long d = *dst8;
-			*dst8++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+			if (alpha != 0) {
+ 				// d = muldiv255(a, s - d) + d
+				unsigned long pd = *dst8;
+				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
+				pd = *dst8;
+				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
+				pd = *dst8;
+				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
 
-			s = *src8++;
-			d = *dst8;
-			*dst8++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-
-			s = *src8;
-			d = *dst8;
-			*dst8 = (unsigned char)(((s - d)*alpha)>>8) + d;
-
-			dst8 += 2;
-			src8 += 2;
+				//d = muldiv255(d, 255 - a) + a;
+				*dst8 = muldiv255(*dst8, 255 - alpha) + alpha;
+				++dst8;
+				++src8;
+			} else {
+				dst8 += 4;
+				src8 += 4;
+			}
 		}
 		dst8 += dlinelen_minus_w4;
 		src8 += slinelen_minus_w4;
@@ -187,6 +202,7 @@ stdblit:
 #endif
 
 	if (op == MWROP_COPY) {
+stdcopy:
 		/* copy from bottom up if dst in src rectangle*/
 		/* memmove is used to handle x case*/
 		if (srcy < dsty) {
@@ -201,14 +217,53 @@ stdblit:
 			dst += dlinelen;
 			src += slinelen;
 		}
-	} else {
-		for(i=0; i < w; ++i) {
+	} else if (MWROP_TO_MODE(op) <= MWMODE_SIMPLE_MAX) {
+		for (i = 0; i < w; ++i) {
 			applyOp(MWROP_TO_MODE(op), *src, dst, ADDR32);
 			++src;
 			++dst;
 		}
 		dst += dlinelen - w;
 		src += slinelen - w;
+	} else if (MWROP_TO_MODE(op) == MWMODE_SRC_OVER) {
+		src8 = (ADDR8)src;
+		dst8 = (ADDR8)dst;
+		while (h--) {
+			for (i = w; --i >= 0;) {
+				register unsigned long as;
+
+				if ((as = src8[3]) == 255) {	//FIXME should this be constant w/endian?
+					dst8[0] = src8[0];
+					dst8[1] = src8[1];
+					dst8[2] = src8[2];
+					dst8[3] = src8[3];
+					src8 += 4;
+					dst8 += 4;
+				} else if (as != 0) {
+ 					// d = muldiv255(a, s - d) + d
+					register unsigned long pd = *dst8;
+					*dst8++ = muldiv255(as, *src8++ - pd) + pd;
+					pd = *dst8;
+					*dst8++ = muldiv255(as, *src8++ - pd) + pd;
+					pd = *dst8;
+					*dst8++ = muldiv255(as, *src8++ - pd) + pd;
+
+					//d = muldiv255(d, 255 - a) + a
+					*dst8 = muldiv255(*dst8, 255 - as) + as;
+					++dst8;
+					++src8;
+				} else {
+					//FIXME should alpha channel be updated here to 0?
+					src8 += 4;
+					dst8 += 4;
+				}
+			}
+			dst8 += (dlinelen - w) * 4;
+			src8 += (slinelen - w) * 4;
+		}
+	} else {
+		// FIXME implement other compositing modes
+		assert(0);
 	}
 	DRAWOFF;
 }
@@ -952,17 +1007,16 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	ADDR32 dst;
 	ADDR8 alpha;
 	unsigned long ps, pd;
-	int as;
-	long psr, psg, psb;
+	unsigned long as, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 
 	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
 	dst = ((ADDR32) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	ps = gc->fg_color;
-	psr = (long) (ps & 0x00FF0000UL);
-	psg = (long) (ps & 0x0000FF00UL);
-	psb = (long) (ps & 0x000000FFUL);
+	psr = ps & 0x00FF0000UL;
+	psg = ps & 0x0000FF00UL;
+	psb = ps & 0x000000FFUL;
 
 	src_row_step = gc->src_linelen - gc->dstw;
 	dst_row_step = psd->linelen - gc->dstw;
@@ -970,31 +1024,31 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	DRAWON;
 	for (y = 0; y < gc->dsth; y++) {
 		for (x = 0; x < gc->dstw; x++) {
-			as = *alpha++;
-			if (as == 255) {
+			if ((as = *alpha++) == 255)
 				*dst++ = ps;
-			} else if (as != 0) {
+			else if (as != 0) {
 				/*
-				 * Scale alpha value from 255ths to 256ths
-				 * (In other words, if as >= 128, add 1 to it)
-				 *
-				 * Also flip the direction of alpha, so it's
+				 * Flip the direction of alpha, so it's
 				 * backwards from it's usual meaning.
 				 * This is because the equation below is most
 				 * easily written with source and dest interchanged
 				 * (since we can split ps into it's components
 				 * before we enter the loop)
+				 *
+				 * Alpha is then adjusted +1 for 92% accurate blend
+				 * with one multiply and shift.
 				 */
-				as = 256 - (as + (as >> 7));
-				pd = *dst;
-
+				as = 255 - as + 1;
+				pd = gc->gr_usebg? gc->bg_color: *dst;
 				*dst++ = 
-				      ((unsigned long)(((((long)(pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
-					| ((unsigned long)(((((long)(pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
-					| ((unsigned long)(((((long)(pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL);
-			} else {
-				dst++;
-			}
+				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
+			} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+				*dst++ = gc->bg_color;
+			else
+				++dst;
 		}
 		alpha += src_row_step;
 		dst += dst_row_step;

@@ -1,3 +1,11 @@
+31 March 2010
+	* cleanup fblin32.c, fblin32alpha.c, fblin24.c, fblin16.c, fblin8.c
+	* rewrite alpha blend code in fblin32.c, fblin32alpha, fblin24.c, fblin16.c
+	* change alpha calc in drawarea alphablend routine to a+1 from a+(a>>7)
+	* remove bad background draw on ft2 rotated fonts
+	* fix draw background for ft2 fonts when usebg=1 in alphablend drawarea driver
+		background is now drawn only for char glyph bbox, not entire text bbox
+	* added underline for non-rotated ft2 fonts
 23 March 2010
 	* use macros for alphablend in GdDrawImage, default fast inc/shift method
 	* cleanup fblin*.c code

@@ -1,9 +1,11 @@
+#include <stdio.h>
 /*
+ * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
+ *
  * 32bpp (With Alpha) Linear Video Driver for Microwindows
  *
  * Written by Koninklijke Philips Electronics N.V.
  * Based on the existing 32bpp (no alpha) driver:
- * Copyright (c) 1999, 2000, 2001 Greg Haerr <greg@censoft.com>
  * Inspired from Ben Pfaff's BOGL <pfaffben@debian.org>
  *
  * Portions contributed by Koninklijke Philips Electronics N.V.
@@ -21,41 +23,61 @@
 #include "device.h"
 #include "fb.h"
 
-typedef unsigned long MW_U32;
+typedef unsigned long UINT32;
 typedef long MW_S32;
 
+/*
+ * Alpha blending evolution
+ *
+ * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
+ * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
+ * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
+ * optimized +=							bg +=((a*(fg-bg+1))>>8)
+ * macro +=								bg +=muldiv255(a,fg-bg)
+ * macro =								bg  =muldiv255(a,fg-bg) + bg
+ *
+ * original alpha channel alpha			d = ((d * (256 - a)) >> 8) + a
+ * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
+ * alpha channel update using macro		d = muldiv255(d, 255 - a) + a
+ */
+//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
+#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
+
 /* It's a lot easier to treat the buffer as an array of bytes when
- * alpha blending, and an array of MW_U32 otherwise.  However,
+ * alpha blending, and an array of uint32 otherwise.  However,
  * without some care, that would not be portable due to endian
  * issues.
  *
  * These macros help solve this problem.  They define which bytes
  * in memory correspond to which field.
  */
-#if PSP
-#define MWI_BYTE_OFFSET_ALPHA 3
-#define MWI_BYTE_OFFSET_B 2
-#define MWI_BYTE_OFFSET_G 1
-#define MWI_BYTE_OFFSET_R 0
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* little endian ABGR*/
+#define OFFSET_A 3
+#define OFFSET_B 2
+#define OFFSET_G 1
+#define OFFSET_R 0
 #define COLOR2PIXEL COLOR2PIXELABGR
 #else
+
+/* ARGB*/
 #define COLOR2PIXEL COLOR2PIXEL8888
 
 #if MW_CPU_BIG_ENDIAN
-#define MWI_BYTE_OFFSET_ALPHA 0
-#define MWI_BYTE_OFFSET_R 1
-#define MWI_BYTE_OFFSET_G 2
-#define MWI_BYTE_OFFSET_B 3
+#define OFFSET_A 0
+#define OFFSET_R 1
+#define OFFSET_G 2
+#define OFFSET_B 3
 #else
-#define MWI_BYTE_OFFSET_ALPHA 3
-#define MWI_BYTE_OFFSET_R 2
-#define MWI_BYTE_OFFSET_G 1
-#define MWI_BYTE_OFFSET_B 0
+//FIXME check, this may not an error for alpha channel passed in blit
+#define OFFSET_A 3
+#define OFFSET_R 2
+#define OFFSET_G 1
+#define OFFSET_B 0
 #endif
 
 #endif
 
-/* Calc linelen and mmap size, return 0 on fail*/
 static int
 linear32a_init(PSD psd)
 {
@@ -68,10 +90,10 @@ linear32a_init(PSD psd)
 	 *  consistent).
 	 */
 	unsigned long endian_check = COLOR2PIXEL(MWARGB(1, 2, 3, 4));
-	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_ALPHA] == 1);
-	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_R] == 2);
-	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_G] == 3);
-	assert(((char *) (&endian_check))[MWI_BYTE_OFFSET_B] == 4);
+	assert(((char *) (&endian_check))[OFFSET_A] == 1);
+	assert(((char *) (&endian_check))[OFFSET_R] == 2);
+	assert(((char *) (&endian_check))[OFFSET_G] == 3);
+	assert(((char *) (&endian_check))[OFFSET_B] == 4);
 #endif
 
 	if (!psd->size) {
@@ -82,27 +104,13 @@ linear32a_init(PSD psd)
 	return 1;
 }
 
-
-/*
- * For alpha blending, we use 2 different 'alpha' values:
- *
- * psa = specified alpha. 0 <= psa <= 255
- *
- * psa_inv = 256 - psa
- * This flips the direction of alpha, so it's
- * backwards from it's usual meaning.
- * This is because some of the equations below are most
- * easily written with source and dest interchanged
- * (since we can split the source color into it's
- * components beforehand)
- */
-
-
+/* Calc linelen and mmap size, return 0 on fail*/
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	ADDR32 addr = psd->addr;
+	UINT32 psr, psg, psb, as, pd;
 
 	assert(addr != 0);
 	assert(x >= 0 && x < psd->xres);
@@ -111,35 +119,40 @@ linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	addr += x + y * psd->linelen;
 
 	DRAWON;
-	if (gr_mode == MWMODE_COPY) {
+	if (gr_mode == MWMODE_COPY)
 		*addr = c;
-	} else if (gr_mode <= MWMODE_SIMPLE_MAX) {
+	else if (gr_mode <= MWMODE_SIMPLE_MAX) {
 		applyOp(gr_mode, c, addr, ADDR32);
 	} else {
-		MW_S32 psr, psg, psb;
-		MW_S32 psa, psa_inv;
-		MW_U32 pd;
-
-		psa = (((MW_U32) c) >> 24);
-
 		switch (gr_mode) {
 		case MWMODE_SRC_OVER:
-			if (psa == 255) {
+			if ((as = (c >> 24)) == 255)
 				*addr = c;
-			} else if (psa != 0) {
-				psa_inv = 256 - psa;
-				psr = (MW_S32) (c & 0x00FF0000UL);
-				psg = (MW_S32) (c & 0x0000FF00UL);
-				psb = (MW_S32) (c & 0x000000FFUL);
-
+			else if (as != 0) {
+				psr = c & 0x00FF0000UL;
+				psg = c & 0x0000FF00UL;
+				psb = c & 0x000000FFUL;
+				/*
+				 * Flip the direction of alpha, so it's
+				 * backwards from it's usual meaning.
+				 * This is because the equation below is most
+				 * easily written with source and dest interchanged
+				 * (since we can split ps into it's components
+				 * before we enter the loop)
+				 *
+				 * Alpha is then adjusted +1 for 92% accurate blend
+				 * with one multiply and shift.
+				 */
+				as = 255 - as + 1;
 				pd = *addr;
 				*addr = 
-				      ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
-					| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
-					| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
-					| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * (MW_U32) psa_inv) & 0xFF000000UL);
+				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
 			}
 			break;
+		/* FIXME
 		case MWMODE_SRC_IN:
 		case MWMODE_SRC_ATOP:
 		case MWMODE_DST_OVER:
@@ -148,8 +161,7 @@ linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 		case MWMODE_SRC_OUT:
 		case MWMODE_DST_OUT:
 		case MWMODE_PORTERDUFF_XOR:
-			/* FIXME!!! */
-			break;
+		*/
 		default:
 			assert(0);
 		}
@@ -177,6 +189,8 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 		       MWPIXELVAL c)
 {
 	ADDR32 addr = psd->addr;
+	UINT32 psr, psg, psb, as, pd;
+	UINT32 cache_input, cache_output;
 
 	assert(addr != 0);
 	assert(x1 >= 0 && x1 < psd->xres);
@@ -197,47 +211,50 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 			++addr;
 		}
 	} else {
-		MW_S32 psr, psg, psb;
-		MW_S32 psa, psa_inv;
-		MW_U32 pd;
-		MW_U32 cache_input, cache_output;
-
-		psa = (((MW_U32) c) >> 24);
-
 		switch (gr_mode) {
 		case MWMODE_SRC_OVER:
-			if (psa == 255) {
+			if ((as = (c >> 24)) == 255) {
 				while (x1++ <= x2)
 					*addr++ = c;
-			} else if (psa != 0) {
-				psa_inv = 256 - psa;
-				psr = (MW_S32) (c & 0x00FF0000UL);
-				psg = (MW_S32) (c & 0x0000FF00UL);
-				psb = (MW_S32) (c & 0x000000FFUL);
-
+			} else if (as != 0) {
+				psr = c & 0x00FF0000UL;
+				psg = c & 0x0000FF00UL;
+				psb = c & 0x000000FFUL;
+				/*
+				 * Flip the direction of alpha, so it's
+				 * backwards from it's usual meaning.
+				 * This is because the equation below is most
+				 * easily written with source and dest interchanged
+				 * (since we can split ps into it's components
+				 * before we enter the loop)
+				 *
+				 * Alpha is then adjusted +1 for 92% accurate blend
+				 * with one multiply and shift.
+				 */
+				as = 255 - as + 1;
 				pd = *addr;
 				cache_input = pd;
-				cache_output = 
-					  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
-					| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
-					| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
-					| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
-				*addr++ = cache_output;
+				*addr++ = cache_output = 
+				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
 
 				while (++x1 <= x2) {
 					pd = *addr;
 					if (cache_input != pd) {
 						cache_input = pd;
 						cache_output =
-							  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
-							| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
-							| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
-							| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
+				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
 					}
 					*addr++ = cache_output;
 				}
 			}
 			break;
+		/* FIXME
 		case MWMODE_SRC_IN:
 		case MWMODE_SRC_ATOP:
 		case MWMODE_DST_OVER:
@@ -246,8 +263,7 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 		case MWMODE_SRC_OUT:
 		case MWMODE_DST_OUT:
 		case MWMODE_PORTERDUFF_XOR:
-			/* FIXME!!! */
-			break;
+		*/
 		default:
 			assert(0);
 		}
@@ -262,6 +278,8 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
 {
 	ADDR32 addr = psd->addr;
 	int linelen = psd->linelen;
+	UINT32 psr, psg, psb, as, pd;
+	UINT32 cache_input, cache_output;
 
 	assert(addr != 0);
 	assert(x >= 0 && x < psd->xres);
@@ -282,51 +300,53 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
 			addr += linelen;
 		}
 	} else {
-		MW_S32 psr, psg, psb;
-		MW_S32 psa, psa_inv;
-		MW_U32 pd;
-		MW_U32 cache_input, cache_output;
-
-		psa = (((MW_U32) c) >> 24);
-
 		switch (gr_mode) {
 		case MWMODE_SRC_OVER:
-			if (psa == 255) {
+			if ((as = (c >> 24)) == 255) {
 				while (y1++ <= y2) {
 					*addr = c;
 					addr += linelen;
 				}
-			} else if (psa != 0) {
-				psa_inv = 256 - psa;
-				psr = (MW_S32) (c & 0x00FF0000UL);
-				psg = (MW_S32) (c & 0x0000FF00UL);
-				psb = (MW_S32) (c & 0x000000FFUL);
-
+			} else if (as != 0) {
+				psr = c & 0x00FF0000UL;
+				psg = c & 0x0000FF00UL;
+				psb = c & 0x000000FFUL;
+				/*
+				 * Flip the direction of alpha, so it's
+				 * backwards from it's usual meaning.
+				 * This is because the equation below is most
+				 * easily written with source and dest interchanged
+				 * (since we can split ps into it's components
+				 * before we enter the loop)
+				 *
+				 * Alpha is then adjusted +1 for 92% accurate blend
+				 * with one multiply and shift.
+				 */
+				as = 255 - as + 1;
 				pd = *addr;
 				cache_input = pd;
-				cache_output =
-					  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
-					| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
-					| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
-					| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
-				*addr = cache_output;
+				*addr = cache_output =
+				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
 				addr += linelen;
 
 				while (++y1 <= y2) {
 					pd = *addr;
 					if (cache_input != pd) {
 						cache_input = pd;
-						cache_output =
-							  ((MW_U32)(((((MW_S32)(pd & 0x00FF0000UL) - psr) * psa_inv) >> 8) + psr) & 0x00FF0000UL)
-							| ((MW_U32)(((((MW_S32)(pd & 0x0000FF00UL) - psg) * psa_inv) >> 8) + psg) & 0x0000FF00UL)
-							| ((MW_U32)(((((MW_S32)(pd & 0x000000FFUL) - psb) * psa_inv) >> 8) + psb) & 0x000000FFUL)
-							| (((psa << 24) + ((pd & 0xFF000000UL) >> 8) * ((MW_U32) psa_inv)) & 0xFF000000UL);
+						*addr = cache_output =
+				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
 					}
-					*addr = cache_output;
 					addr += linelen;
 				}
 			}
 			break;
+		/* FIXME
 		case MWMODE_SRC_IN:
 		case MWMODE_SRC_ATOP:
 		case MWMODE_DST_OVER:
@@ -335,8 +355,7 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
 		case MWMODE_SRC_OUT:
 		case MWMODE_DST_OUT:
 		case MWMODE_PORTERDUFF_XOR:
-			/* FIXME!!! */
-			break;
+		*/
 		default:
 			assert(0);
 		}
@@ -349,16 +368,16 @@ static void
 linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	       PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
 {
-	ADDR8 dst8, src8;
 	ADDR32 dst = dstpsd->addr;
 	ADDR32 src = srcpsd->addr;
+	ADDR8 dst8, src8;
 	int i;
 	int dlinelen = dstpsd->linelen;
 	int slinelen = srcpsd->linelen;
 	int dlinelen_minus_w4;
 	int slinelen_minus_w4;
 #if ALPHABLEND
-	unsigned int alpha;
+	UINT32 alpha;
 #endif
 
 	assert(dst != 0);
@@ -381,33 +400,30 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 #if ALPHABLEND
 	if ((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
 		goto stdblit;
-	alpha = op & 0xff;
+	if ((alpha = op & 0xff) == 255)
+		goto stdcopy;
 
-	src8 = (ADDR8) src;
-	dst8 = (ADDR8) dst;
 	dlinelen_minus_w4 = (dlinelen - w) * 4;
 	slinelen_minus_w4 = (slinelen - w) * 4;
+	src8 = (ADDR8) src;
+	dst8 = (ADDR8) dst;
+
 	while (--h >= 0) {
 		for (i = 0; i < w; ++i) {
-			register unsigned long s;
-			register unsigned long d;
+			if (alpha == 255) {
+				dst8[0] = src8[0];
+				dst8[1] = src8[1];
+				dst8[2] = src8[2];
+				dst8[3] = src8[3];
+			} else if (alpha != 0) {
+ 				// d += muldiv255(a, s - d)
+				dst8[OFFSET_B] += muldiv255(alpha, src8[OFFSET_B] - dst8[OFFSET_B]);
+				dst8[OFFSET_G] += muldiv255(alpha, src8[OFFSET_G] - dst8[OFFSET_G]);
+				dst8[OFFSET_R] += muldiv255(alpha, src8[OFFSET_R] - dst8[OFFSET_R]);
 
-			s = src8[MWI_BYTE_OFFSET_R];
-			d = dst8[MWI_BYTE_OFFSET_R];
-			dst8[MWI_BYTE_OFFSET_R] = (unsigned char) (((s - d) * alpha) >> 8) + d;
-
-			s = src8[MWI_BYTE_OFFSET_G];
-			d = dst8[MWI_BYTE_OFFSET_G];
-			dst8[MWI_BYTE_OFFSET_G] = (unsigned char) (((s - d) * alpha) >> 8) + d;
-
-			s = src8[MWI_BYTE_OFFSET_B];
-			d = dst8[MWI_BYTE_OFFSET_B];
-			dst8[MWI_BYTE_OFFSET_B] = (unsigned char) (((s - d) * alpha) >> 8) + d;
-
-			s = src8[MWI_BYTE_OFFSET_ALPHA];
-			d = dst8[MWI_BYTE_OFFSET_ALPHA];
-			dst8[MWI_BYTE_OFFSET_ALPHA] = (unsigned char) (((s - d) * alpha) >> 8) + d;
-
+				//d = muldiv255(d, 255 - a) + a
+				dst8[OFFSET_A] = muldiv255(dst8[OFFSET_A], 255 - alpha) + alpha;
+			}
 			dst8 += 4;
 			src8 += 4;
 		}
@@ -416,10 +432,11 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	}
 	DRAWOFF;
 	return;
-      stdblit:
+stdblit:
 #endif
 
 	if (op == MWROP_COPY) {
+stdcopy:
 		/* copy from bottom up if dst in src rectangle */
 		/* memmove is used to handle x case */
 		if (srcy < dsty) {
@@ -443,36 +460,27 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		dst += dlinelen - w;
 		src += slinelen - w;
 	} else if (MWROP_TO_MODE(op) == MWMODE_SRC_OVER) {
-
 		src8 = (ADDR8) src;
 		dst8 = (ADDR8) dst;
 		while (h--) {
 			for (i = w; --i >= 0;) {
-				register int a;
-				register int s;
-				register int d;
-				a = (int) (unsigned char)src8[MWI_BYTE_OFFSET_ALPHA];
-				if (a == 255) {
+				register UINT32 as;
+
+				if ((as = src8[OFFSET_A]) == 255) {	//FIXME should this be constant offset?
 					dst8[0] = src8[0];
 					dst8[1] = src8[1];
 					dst8[2] = src8[2];
-					dst8[MWI_BYTE_OFFSET_ALPHA] = a;
-				} else if (a != 0) {
-					s = (int) (unsigned char)src8[MWI_BYTE_OFFSET_R];
-					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_R];
-					dst8[MWI_BYTE_OFFSET_R] = (unsigned char) ((((s - d) * a) >> 8) + d);
+					dst8[3] = src8[3];
+				} else if (as != 0) {
+ 					// d += muldiv255(a, s - d)
+					dst8[OFFSET_B] += muldiv255(as, src8[OFFSET_B] - dst8[OFFSET_B]);
+					dst8[OFFSET_G] += muldiv255(as, src8[OFFSET_G] - dst8[OFFSET_G]);
+					dst8[OFFSET_R] += muldiv255(as, src8[OFFSET_R] - dst8[OFFSET_R]);
 
-					s = (int) (unsigned char)src8[MWI_BYTE_OFFSET_G];
-					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_G];
-					dst8[MWI_BYTE_OFFSET_G] = (unsigned char) ((((s - d) * a) >> 8) + d);
-
-					s = (int) (unsigned char)src8[MWI_BYTE_OFFSET_B];
-					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_B];
-					dst8[MWI_BYTE_OFFSET_B] = (unsigned char) ((((s - d) * a) >> 8) + d);
-
-					d = (int) (unsigned char)dst8[MWI_BYTE_OFFSET_ALPHA];
-					dst8[MWI_BYTE_OFFSET_ALPHA] = (a + ((d * (256 - a)) >> 8));
+					//d = muldiv255(d, 255 - a) + a;
+					dst8[OFFSET_A] = muldiv255(dst8[OFFSET_A], 255 - as) + as;
 				}
+				//FIXME should alpha channel be updated here to 0?
 				src8 += 4;
 				dst8 += 4;
 			}
@@ -480,7 +488,8 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			src8 += (slinelen - w) * 4;
 		}
 	} else {
-		/* FIXME: Implement other alpha blend modes */
+		// FIXME implement other compositing modes
+		assert(0);
 	}
 	DRAWOFF;
 }
@@ -1329,19 +1338,16 @@ linear32a_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR32 dst;
 	ADDR8 alpha;
-	unsigned long ps, pd;
-	int as;
-	long psr, psg, psb, psa;
+	UINT32 psr, psg, psb, as, ps, pd;
 	int x, y;
 	int src_row_step, dst_row_step;
 
 	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
 	dst = ((ADDR32) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	ps = gc->fg_color;
-	psr = (long) (ps & 0x00FF0000UL);
-	psg = (long) (ps & 0x0000FF00UL);
-	psb = (long) (ps & 0x000000FFUL);
-	psa = (long) ((ps >> 8) & 0x00FF0000UL);
+	psr = ps & 0x00FF0000UL;
+	psg = ps & 0x0000FF00UL;
+	psb = ps & 0x000000FFUL;
 
 	src_row_step = gc->src_linelen - gc->dstw;
 	dst_row_step = psd->linelen - gc->dstw;
@@ -1349,31 +1355,31 @@ linear32a_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	DRAWON;
 	for (y = 0; y < gc->dsth; y++) {
 		for (x = 0; x < gc->dstw; x++) {
-			as = *alpha++;
-			if (as == 255) {
+			if ((as = *alpha++) == 255)
 				*dst++ = ps;
-			} else if (as != 0) {
+			else if (as != 0) {
 				/*
-				 * Scale alpha value from 255ths to 256ths
-				 * (In other words, if as >= 128, add 1 to it)
-				 *
-				 * Also flip the direction of alpha, so it's
+				 * Flip the direction of alpha, so it's
 				 * backwards from it's usual meaning.
 				 * This is because the equation below is most
 				 * easily written with source and dest interchanged
 				 * (since we can split ps into it's components
 				 * before we enter the loop)
+				 *
+				 * Alpha is then adjusted +1 for 92% accurate blend
+				 * with one multiply and shift.
 				 */
-				as = 256 - (as + (as >> 7));
-				pd = *dst;
+				as = 255 - as + 1;
+				pd = gc->gr_usebg? gc->bg_color: *dst;
 				*dst++ =
-					  ((unsigned long)(((((long)(pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
-					| ((unsigned long)(((((long)(pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
-					| ((unsigned long)(((((long)(pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
-					| ((unsigned long)((((long)((pd >> 8) & 0x00FF0000UL) - psa) * as) + (psa << 8)) & 0xFF000000UL);
-			} else {
-				dst++;
-			}
+					  ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
+					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
+					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
+					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
+			} else if(gc->gr_usebg)		/* alpha is 0 - draw bkgnd*/
+				*dst++ = gc->bg_color;
+			else
+				++dst;
 		}
 		alpha += src_row_step;
 		dst += dst_row_step;

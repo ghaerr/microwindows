@@ -10,6 +10,18 @@
 #include "device.h"
 #include "fb.h"
 
+/*
+ * Alpha blending evolution
+ *
+ * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
+ * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
+ * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
+ * optimized +=							bg +=((a*(fg-bg+1))>>8)
+ * macro +=								bg +=muldiv255(a,fg-bg)
+ */
+//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
+#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
+
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
 linear24_init(PSD psd)
@@ -151,7 +163,7 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
 #if ALPHABLEND
-	unsigned int alpha;
+	unsigned long alpha, pd;
 #endif
 
 	assert (dst != 0);
@@ -174,21 +186,20 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 #if ALPHABLEND
 	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
 		goto stdblit;
-	alpha = op & 0xff;
+	if ((alpha = op & 0xff) == 255)
+		goto stdcopy;
 
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
-			unsigned long s = *src++;
-			unsigned long d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-
-			s = *src++;
-			d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-
-			s = *src++;
-			d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+			if (alpha != 0) {
+				pd = *dst;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+			} else {
+				dst += 3;
+				src += 3;
+			}
 		}
 		dst += dlinelen_minus_w;
 		src += slinelen_minus_w;
@@ -199,6 +210,7 @@ stdblit:
 #endif
 
 	if (op == MWROP_COPY) {
+stdcopy:
 		/* copy from bottom up if dst in src rectangle*/
 		/* memmove is used to handle x case*/
 		if (srcy < dsty) {
@@ -1219,20 +1231,16 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 static void
 linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
-	ADDR8 dst;
-	ADDR8 alpha;
-	unsigned long ps, pd;
-	int as;
-	int psr, psg, psb;
+	ADDR8 dst, alpha;
+	unsigned long as, pd, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 
 	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
 	dst = ((ADDR8) psd->addr) + (psd->linelen * gc->dsty + gc->dstx) * 3;
-	ps = gc->fg_color;
-	psr = PIXEL888RED(ps);
-	psg = PIXEL888GREEN(ps);
-	psb = PIXEL888BLUE(ps);
+	psr = PIXEL888RED(gc->fg_color);
+	psg = PIXEL888GREEN(gc->fg_color);
+	psb = PIXEL888BLUE(gc->fg_color);
 
 	src_row_step = gc->src_linelen - gc->dstw;
 	dst_row_step = (psd->linelen - gc->dstw) * 3;
@@ -1240,27 +1248,17 @@ linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	DRAWON;
 	for (y = 0; y < gc->dsth; y++) {
 		for (x = 0; x < gc->dstw; x++) {
-			as = *alpha++;
-			if (as == 255) {
+			if ((as = *alpha++) == 255) {
 				*dst++ = psb;
 				*dst++ = psg;
 				*dst++ = psr;
 			} else if (as != 0) {
-				/*
-				 * Scale alpha value from 255ths to 256ths
-				 * (In other words, if as >= 128, add 1 to it)
-				 */
-				as += (as >> 7);
-
 				pd = *dst;
-				*dst++ = (unsigned char) ((((psb - pd) * as) >> 8) + pd);
-				pd = *dst;
-				*dst++ = (unsigned char) ((((psg - pd) * as) >> 8) + pd);
-				pd = *dst;
-				*dst++ = (unsigned char) ((((psr - pd) * as) >> 8) + pd);
-			} else {
+				*dst++ = muldiv255(as, psb - pd) + pd;
+				*dst++ = muldiv255(as, psg - pd) + pd;
+				*dst++ = muldiv255(as, psr - pd) + pd;
+			} else
 				dst += 3;
-			}
 		}
 		alpha += src_row_step;
 		dst += dst_row_step;

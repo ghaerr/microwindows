@@ -1,21 +1,25 @@
 /*
- * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 18bpp Linear Video Driver for Microwindows
  * 
- * M. BRACH V. (v.brach@smie.com) : This file is based on the fblin24.c module with adaptation of the framebuffer dialog
- * to drive a 18bpp (666) framebuffer color memory structure.
- * In framebuffer memory map, a pixel is adressing by 3 bytes (24bits) with the color structure |000000R5R4|R3R2R1R0V5V4V3V2|V1V0B5B4B3B2B1B0
+ * M. BRACH V. (v.brach@smie.com)
+ * This file is based on the fblin24.c module with adaptation of the framebuffer
+ * dialog to drive a 18bpp (666) framebuffer color memory structure.
+ * In framebuffer memory map, a pixel is adressing by 3 bytes (24bits) with
+ * the color structure |000000R5R4|R3R2R1R0V5V4V3V2|V1V0B5B4B3B2B1B0
+ *
  * This driver work with nano-X with SCREEN_PIXTYPE=MWPF_TRUECOLOR888
  * This adaptation was developed for the ARM PXA270 with a 18bit LCD panel
- *
  */
 /*#define NDEBUG*/
 #include <assert.h>
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+
+#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
@@ -29,32 +33,35 @@ linear18_init(PSD psd)
 	return 1;
 }
 
-/* Convert a colormap 24bpp RGB888 to 24bpp RGB666 (with only 18 LSB bits useful)                                          */
-/* Convert the 24bpp color represented by "R7 R6 R5 R4 R3 R2 R1 R0 | V7 V6 V5 V4 V3 V2 V1 V0 | B7 B6 B5 B4 B3 B2 B1 B2" to */
-/* an 24bpp contain "0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2"                          */
+/* Convert a colormap 24bpp RGB888 to 24bpp RGB666 (with only 18 LSB bits useful)*/
+/* Convert the 24bpp color represented by 
+ * "R7 R6 R5 R4 R3 R2 R1 R0 | V7 V6 V5 V4 V3 V2 V1 V0 | B7 B6 B5 B4 B3 B2 B1 B2"
+ * to an 24bpp containing
+ * "0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2"
+ */
 static void convert24_888to24_666(MWPIXELVAL *c)
 {
-	MWPIXELVAL newc=0;
-	// A l'appel de la fonction on a	c = R7 R6 R5 R4 R3 R2 R1 R0 | V7 V6 V5 V4 V3 V2 V1 V0 | B7 B6 B5 B4 B3 B2 B1 B2
-	// On veut obtenir										0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2
+	MWPIXELVAL newc;
+	// A l'appel de la fonction on a c = R7 R6 R5 R4 R3 R2 R1 R0 | V7 V6 V5 V4 V3 V2 V1 V0 | B7 B6 B5 B4 B3 B2 B1 B2
+	// On veut obtenir					 0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2
 	// 
-	newc =  (((*c) >> 6) & 0x03F000); //	0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 0  0  0  0  | 0  0  0  0  0  0  0  0
-	newc |= (((*c) >> 4) & 0x000FC0); //	0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 0  0  0  0  0  0
-	newc |= (((*c) >> 2) & 0x00003F); //	0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2
-	*c=newc;
+	newc =  (((*c) >> 6) & 0x03F000); // 0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 0  0  0  0  | 0  0  0  0  0  0  0  0
+	newc |= (((*c) >> 4) & 0x000FC0); // 0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 0  0  0  0  0  0
+	newc |= (((*c) >> 2) & 0x00003F); // 0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2
+	*c = newc;
 }
 
-/* Invert of the 'convert24_888to24_666' function                                 */
+/* Invert of the 'convert24_888to24_666' function */
 /* Convert a colormap 24bpp RGB666 (with only 18 LSB bits useful) to 24bpp RGB888 */
 static MWPIXELVAL convert24_666to24_888(MWPIXELVAL c)
 {
-	MWPIXELVAL newc=0;
-	// A l'appel de la fonction on a c =	0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2
-	// On veut obtenir										R7 R6 R5 R4 R3 R2 0  0  | V7 V6 V5 V4 V3 V2 0  0  | B7 B6 B5 B4 B3 B2 0  0
+	MWPIXELVAL newc;
+	// A l'appel de la fonction on a c =0  0  0  0  0  0  R7 R6 | R5 R4 R3 R2 V7 V6 V5 V4 | V3 V2 B7 B6 B5 B4 B3 B2
+	// On veut obtenir					R7 R6 R5 R4 R3 R2 0  0  | V7 V6 V5 V4 V3 V2 0  0  | B7 B6 B5 B4 B3 B2 0  0
 	// 
-	newc = ((c << 6) & 0xFC0000);	//			R7 R6 R5 R4 R3 R2 0  0  | 0  0  0  0  0  0  0  0  | 0  0  0  0  0  0  0  0
-	newc = ((c << 4) & 0x00FC00);	//			R7 R6 R5 R4 R3 R2 0  0  | V7 V6 V5 V4 V3 V2 0  0  | 0  0  0  0  0  0  0  0
-	newc = ((c << 2) & 0x0000FC);	//			R7 R6 R5 R4 R3 R2 0  0  | V7 V6 V5 V4 V3 V2 0  0  | B7 B6 B5 B4 B3 B2 0  0
+	newc = ((c << 6) & 0xFC0000);	//	R7 R6 R5 R4 R3 R2 0  0  | 0  0  0  0  0  0  0  0  | 0  0  0  0  0  0  0  0
+	newc |= ((c << 4) & 0x00FC00);	//	R7 R6 R5 R4 R3 R2 0  0  | V7 V6 V5 V4 V3 V2 0  0  | 0  0  0  0  0  0  0  0
+	newc |= ((c << 2) & 0x0000FC);	//	R7 R6 R5 R4 R3 R2 0  0  | V7 V6 V5 V4 V3 V2 0  0  | B7 B6 B5 B4 B3 B2 0  0
 	return newc;	
 }
 
@@ -190,7 +197,7 @@ linear18_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
 #if ALPHABLEND
-	unsigned int alpha;
+	unsigned long alpha, pd;
 #endif
 
 	assert (dst != 0);
@@ -213,19 +220,20 @@ linear18_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 #if ALPHABLEND
 	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
 		goto stdblit;
-	alpha = op & 0xff;
+	if ((alpha = op & 0xff) == 255)
+		goto stdcopy;
 
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
-			unsigned long s = *src++;
-			unsigned long d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-			s = *src++;
-			d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-			s = *src++;
-			d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+			if (alpha != 0) {
+				pd = *dst;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+			} else {
+				dst += 3;
+				src += 3;
+			}
 		}
 		dst += dlinelen_minus_w;
 		src += slinelen_minus_w;
@@ -236,6 +244,7 @@ stdblit:
 #endif
 
 	if (op == MWROP_COPY) {
+stdcopy:
 		/* copy from bottom up if dst in src rectangle*/
 		/* memmove is used to handle x case*/
 		if (srcy < dsty) {
@@ -1278,27 +1287,17 @@ linear18_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	DRAWON;
 	for (y = 0; y < gc->dsth; y++) {
 		for (x = 0; x < gc->dstw; x++) {
-			as = *alpha++;
-			if (as == 255) {
+			if ((as = *alpha++) == 255) {
 				*dst++ = psb;
 				*dst++ = psg;
 				*dst++ = psr;
 			} else if (as != 0) {
-				/*
-				 * Scale alpha value from 255ths to 256ths
-				 * (In other words, if as >= 128, add 1 to it)
-				 */
-				as += (as >> 7);
-
 				pd = *dst;
-				*dst++ = (unsigned char) ((((psb - pd) * as) >> 8) + pd);
-				pd = *dst;
-				*dst++ = (unsigned char) ((((psg - pd) * as) >> 8) + pd);
-				pd = *dst;
-				*dst++ = (unsigned char) ((((psr - pd) * as) >> 8) + pd);
-			} else {
+				*dst++ = muldiv255(as, psb - pd) + pd;
+				*dst++ = muldiv255(as, psg - pd) + pd;
+				*dst++ = muldiv255(as, psr - pd) + pd;
+			} else
 				dst += 3;
-			}
 		}
 		alpha += src_row_step;
 		dst += dst_row_step;

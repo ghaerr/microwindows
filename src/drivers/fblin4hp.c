@@ -12,6 +12,7 @@
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+#include "SubRepl.h"		// includes all the sub functions of blit
 
 //static unsigned char notmask[2] = { 0x0f, 0xf0};  // non-linear 
 static unsigned char notmask[2] = { 0xf0, 0x0f };   // linear
@@ -27,7 +28,6 @@ linear4_init(PSD psd)
 	return 1;
 }
 
-#if 1  // kykim
 /* Read pixel at x, y*/
 static MWPIXELVAL
 linear4_readpixel(PSD psd, MWCOORD x, MWCOORD y)
@@ -63,7 +63,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	}
 	DRAWOFF;
 }
-#endif  // kykim
+
 /* ########################################################################## */
 #if 0  // For 8 bit memory access
 /* Set pixel at x, y, to pixelval c*/
@@ -396,8 +396,6 @@ void linear41_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, 
   }
   DRAWOFF;
 }
-
-#include "SubRepl.h"                                    // includes all the sub functions of blit
 
 static 
 void linear41_blit(PSD dstpsd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h, PSD srcpsd, MWCOORD sx, MWCOORD sy, long op)

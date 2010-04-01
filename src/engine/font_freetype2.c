@@ -1156,14 +1156,12 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	pf->font.face_id = pf->imagedesc.face_id;
 	pf->font.pix_width = pf->imagedesc.width;
 	pf->font.pix_height = pf->imagedesc.height;
-	error = FTC_Manager_Lookup_Size(freetype2_cache_manager,
-					&(pf->font), &face, &size);
+	error = FTC_Manager_Lookup_Size(freetype2_cache_manager, &(pf->font), &face, &size);
 	pf->imagedesc.face_id = pf->font.face_id;
 	pf->imagedesc.width = pf->font.pix_width;
 	pf->imagedesc.height = pf->font.pix_height;
 	if (error) {
-		EPRINTF("Freetype 2 error 0x%x getting font for drawtext.\n",
-			error);
+		EPRINTF("Freetype 2 error 0x%x getting font for drawtext.\n", error);
 		return;
 	}
 #else
@@ -1181,23 +1179,20 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	blit_instructions.srcy = 0;
 	blit_instructions.dst_linelen = 0;	/* Unused. */
 
-	if (pf->fontattr & MWTF_ANTIALIAS) {
+	if (pf->fontattr & MWTF_ANTIALIAS)
 		blit_op = PSDOP_ALPHACOL;
-	} else {
+	else
 		blit_op = PSDOP_BITMAP_BYTES_MSB_FIRST;
-	}
 
 	/*
-	 * Offset the starting point if necessary,
-	 * FreeType always aligns at baseline
+	 * Offset the starting point if necessary, FreeType always aligns at baseline
 	 */
-	if (flags & MWTF_BOTTOM) {
+	if (flags & MWTF_BOTTOM)
 		pos.y = (abs(size->metrics.descender) + 63) & ~63;	/* descent */
-	} else if (flags & MWTF_TOP) {
-		pos.y = -(size->metrics.ascender + 63) & ~63;	/* -ascent */
-	} else {
+	else if (flags & MWTF_TOP)
+		pos.y = -(size->metrics.ascender + 63) & ~63;		/* -ascent */
+	else
 		pos.y = 0;
-	}
 
 	if ((pf->fontrotation != 0)
 #if !HAVE_FREETYPE_2_CACHE
@@ -1210,23 +1205,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		/* Use slow routine for rotated text */
 		FT_BitmapGlyph bitmapglyph;
 		FT_Bitmap *bitmap;
-		FT_Render_Mode render_mode =
-			(pf->fontattr & MWTF_ANTIALIAS) ? ft_render_mode_normal :
-			ft_render_mode_mono;
-
-		/* clear background area*/
-		if (gr_usebg) {
-			MWCOORD fnt_h, fnt_w, fnt_b;
-
-			freetype2_gettextsize(pfont, text, cc, flags, &fnt_w, &fnt_h, &fnt_b);
-
-			if (flags & MWTF_BOTTOM)
-				psd->FillRect(psd, ax, ay-fnt_h-(fnt_b>>1), ax+fnt_w, ay, gr_background);
-			else if(flags & MWTF_TOP)
-				psd->FillRect(psd, ax, ay, ax+fnt_w, ay+fnt_h+(fnt_b>>1), gr_background);
-			else
-				psd->FillRect(psd, ax, ay-fnt_h, ax+fnt_w, ay+(fnt_b>>1), gr_background);
-		}
+		FT_Render_Mode render_mode = (pf->fontattr & MWTF_ANTIALIAS)?
+			ft_render_mode_normal : ft_render_mode_mono;
 
 		/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext() using SLOW routine\n"); */
 		pos.x = 0;
@@ -1234,11 +1214,9 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 			if (use_kerning && last_glyph_code && curchar) {
-				FT_Get_Kerning(face, last_glyph_code, curchar,
-					       ft_kerning_default,
-					       &kerning_delta);
+				FT_Get_Kerning(face, last_glyph_code, curchar, ft_kerning_default, &kerning_delta);
 
-				/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n", (int)kerning_delta.x, (int)kerning_delta.x/64);*/
+				//DPRINTF("Nano-X-Freetype2: freetype2_drawtext(): kerning_delta.x=%d, /64=%d\n", (int)kerning_delta.x, (int)kerning_delta.x/64);
 				pos.x += kerning_delta.x & (~63);
 			}
 			last_glyph_code = curchar;
@@ -1266,37 +1244,33 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 				// rotate the glyph image now..
 				FT_Glyph_Transform(glyph, &pf->matrix, 0);
 			//}
+
 			// convert glyph image to bitmap
 			//
-			error = FT_Glyph_To_Bitmap(&glyph, render_mode, 0,	// no additional translation
-						   1);	// do not destroy copy in "image"
+			error = FT_Glyph_To_Bitmap(&glyph, render_mode,
+						0,	// no additional translation
+						1);	// do not destroy copy in "image"
 			if (!error) {
 				bitmapglyph = (FT_BitmapGlyph) glyph;
 				bitmap = &(bitmapglyph->bitmap);
 
-				blit_instructions.dstx =
-					ax + bitmapglyph->left;
-				blit_instructions.dsty =
-					ay - bitmapglyph->top;
+				blit_instructions.dstx = ax + bitmapglyph->left;
+				blit_instructions.dsty = ay - bitmapglyph->top;
 				blit_instructions.dstw = bitmap->width;
 				blit_instructions.dsth = bitmap->rows;
 				blit_instructions.src_linelen = bitmap->pitch;
 				blit_instructions.pixels = bitmap->buffer;
 				blit_instructions.misc = bitmap->buffer;
+				//DPRINTF("Nano-X-Freetype2: freetype2_draw_bitmap_%s(ax=%d, ay=%d, gl->l=%d, gl->t=%d)\n", ((pf->fontattr & MWTF_ANTIALIAS) ? "alpha" : "mono"), ax, ay, bitmapglyph->left, bitmapglyph->top);
 
-				//DPRINTF("Nano-X-Freetype2: freetype2_draw_bitmap_%s(ax=%d, ay=%d, gl->l=%d, gl->t=%d)\n",
-				//        ((pf->fontattr & MWTF_ANTIALIAS) ? "alpha" : "mono"), ax, ay, bitmapglyph->left, bitmapglyph->top);
-
-				if ((blit_instructions.dstw > 0)
-				    && (blit_instructions.dsth > 0)) {
+				if (blit_instructions.dstw > 0 && blit_instructions.dsth > 0)
 					GdDrawAreaInternal(psd, &blit_instructions, blit_op);
-				}
 
 				FT_Done_Glyph(glyph);
 			}
 		}
 		//if (pf->fontattr & MWTF_UNDERLINE)
-			//GdLine(psd, startx, starty, pos.x, pos.y, FALSE);
+			//GdLine(psd, startx, starty, lastx, lasty, FALSE);
 	} else {
 		/* No rotation - optimized loop */
 #if HAVE_FREETYPE_2_CACHE
@@ -1304,24 +1278,39 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 #else
 		FT_Bitmap *bitmap;
 #endif
+		MWCOORD startx, starty;
+
 		ay -= (pos.y >> 6);
+		startx = ax;
+		starty = ay;
+
+#if 0
+		/* clear background area if asked for and alpha blending*/
+		/* this is now done in alphacol drawarea driver*/
+		if (gr_usebg && (blit_op == PSDOP_ALPHACOL)) {
+			MWCOORD fnt_h, fnt_w, fnt_b;
+			MWPIXELVAL gr_save = gr_foreground;
+
+			freetype2_gettextsize(pfont, text, cc, flags, &fnt_w, &fnt_h, &fnt_b);
+
+			// kluge must set gr_foreground for GdFillRect as we need clipping
+			gr_foreground = gr_background;
+			GdFillRect(psd, ax, ay-fnt_b, fnt_w, fnt_h);
+			gr_foreground = gr_save;
+		}
+#endif
 
 		for (i = 0; i < cc; i++) {
 			curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 			if (use_kerning && last_glyph_code && curchar) {
-				FT_Get_Kerning(face, last_glyph_code, curchar,
-					       ft_kerning_default,
-					       &kerning_delta);
-
+				FT_Get_Kerning(face, last_glyph_code, curchar, ft_kerning_default, &kerning_delta);
 				ax += (kerning_delta.x >> 6);
 			}
 			last_glyph_code = curchar;
 
 #if HAVE_FREETYPE_2_CACHE
-			error = FTC_SBitCache_Lookup(freetype2_cache_sbit,
-						     &(pf->imagedesc),
-						     curchar, &sbit, NULL);
+			error = FTC_SBitCache_Lookup(freetype2_cache_sbit, &(pf->imagedesc), curchar, &sbit, NULL);
 			if (error)
 				continue;
 
@@ -1335,18 +1324,14 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			ax += sbit->xadvance;
 #else
-			error = FT_Load_Glyph(face, curchar,
-					      (pf->fontattr & MWTF_ANTIALIAS)
-					      ? (FT_LOAD_RENDER |
-						 FT_LOAD_MONOCHROME) :
-					      FT_LOAD_RENDER);
+			error = FT_Load_Glyph(face, curchar, (pf->fontattr & MWTF_ANTIALIAS)
+					      ? (FT_LOAD_RENDER | FT_LOAD_MONOCHROME) : FT_LOAD_RENDER);
 			if (error)
 				continue;
 
 			bitmap = &(face->glyph->bitmap);
 
-			blit_instructions.dstx =
-				ax + face->glyph->bitmap_left;
+			blit_instructions.dstx = ax + face->glyph->bitmap_left;
 			blit_instructions.dsty = ay - face->glyph->bitmap_top;
 			blit_instructions.dstw = bitmap->width;
 			blit_instructions.dsth = bitmap->rows;
@@ -1360,15 +1345,12 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			 */
 			ax += (face->glyph->advance.x >> 6);
 #endif
-
-			if ((blit_instructions.dstw > 0)
-			    && (blit_instructions.dsth > 0)) {
+			if (blit_instructions.dstw > 0 && blit_instructions.dsth > 0)
 				GdDrawAreaInternal(psd, &blit_instructions, blit_op);
-			}
 
 		}
-		//if (pf->fontattr & MWTF_UNDERLINE)
-			//GdLine(psd, startx, starty, ax, ay, FALSE);
+		if (pf->fontattr & MWTF_UNDERLINE)
+			GdLine(psd, startx, starty, ax, ay, FALSE);
 	}
 	GdFixCursor(psd);
 }
@@ -1647,11 +1629,9 @@ freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,MWTEXTFLAGS flags,
 		) {
 		/* Use slow routine for rotated text */
 		/* EPRINTF("Nano-X-Freetype2: freetype2_gettextsize() using SLOW routine\n"); */
-		freetype2_gettextsize_rotated(pf, text, cc, pwidth,
-					      pheight, pbase);
+		freetype2_gettextsize_rotated(pf, text, cc, pwidth, pheight, pbase);
 	} else {
-		freetype2_gettextsize_fast(pf, text, cc, pwidth,
-					      pheight, pbase);
+		freetype2_gettextsize_fast(pf, text, cc, pwidth, pheight, pbase);
 	}
 }
 
@@ -1674,9 +1654,8 @@ freetype2_get_name(const char *filename)
 	/* Load face */
 	if (FT_New_Face(freetype2_library, filename, 0, &face) == FT_Err_Ok) {
 		result = malloc(strlen(face->family_name) + 1);
-		if (result != NULL) {
+		if (result != NULL)
 			strcpy(result, face->family_name);
-		}
 
 		FT_Done_Face(face);
 	}

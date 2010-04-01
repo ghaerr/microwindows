@@ -1,3 +1,16 @@
+fblin32alpha.c/fblin32.c:
+	fix SRC_OVER in applyOp
+	check alpha offset in passed pixmap alpha channel
+	determine how to update alpha channel with muldiv
+	add MWMODE_* compositing handling (currently only SRC_OVER alpha blend)
+	check whether alpha != 0 check needed
+	determine whether both fblin32alpha.c and fblin32.c needed
+		fblin32alpha.c always draws alpha in drawpixel, drawh, drawv
+		#define ALPHABLEND, what does it do now?
+	add uint32 to fblin32.c
+	update stretchblitex in fblin32.c for SRC_OVER
+	check fblin24.c, fblin16.c against fblin32.c/a
+	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
 fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
 add timer support to PSP port (nano-X and win32)
 fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed
@@ -31,7 +44,7 @@ combine GdArea, GdBlit, GdAreaInternal for speed; build conversion library
 	GrReadArea needs to allow hw pixel format return
 old GdArc doesn't draw 2nd point on circle, see grdemo.sh/arcdemo
 replace old GdArc routine w/new version based on GdArcAngle
-ft2: no underline
+ft2: no underline or background drawn when rotated
 ft2: must use forced slow rotation code when cache off
 change freetype2_create etc back to freetype_create
 mwdvetest demo segfaults when dialog moved or credits closed

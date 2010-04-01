@@ -133,6 +133,10 @@ void Render(GR_WINDOW_ID window)
    GrSetGCUseBackground(gid, GR_FALSE);
    GrFillRect(window, gid, 0, 0, MAXW, MAXH);
    GrSetGCForeground (gid, BLACK);
+
+//	GrSetGCForeground (gid, GREEN);
+//	GrSetGCBackground(gid, BLUE);
+//	GrSetGCUseBackground(gid, GR_TRUE);
  
    /* Draw menu */
    GrSetGCFont(gid, fontid);

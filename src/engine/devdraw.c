@@ -817,6 +817,11 @@ typedef union {
  * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
  * optimized +=							bg +=((a*(fg-bg+1))>>8)
  * macro +=								bg +=muldiv255(a,fg-bg)
+ * macro =								bg  =muldiv255(a,fg-bg) + bg
+ *
+ * original alpha channel alpha			d = ((d * (256 - a)) >> 8) + a
+ * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
+ * alpha channel update using macro		d = muldiv255(d, 255 - a) + a
  */
 //#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
 #define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
@@ -1000,10 +1005,15 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
+
+ 							//bg +=muldiv255(a,fg-bg)
 							bg.f.r += muldiv255(alpha, fg.f.r - bg.f.r);
 							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
 							bg.f.b += muldiv255(alpha, fg.f.b - bg.f.b);
-							//bg.f.a = 255;  
+
+ 							//d = muldiv255(d, 255 - a) + a
+ 							bg.f.a = muldiv255(bg.f.a, 255 - alpha) + alpha;
+
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}
 						break;
@@ -1019,10 +1029,15 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							/* tricky code: just swap red/blue from above case for bg pixel*/
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
+
+ 							//bg +=muldiv255(a,fg-bg)
 							bg.f.b += muldiv255(alpha, fg.f.r - bg.f.b); /* actually bg red*/
 							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
 							bg.f.r += muldiv255(alpha, fg.f.b - bg.f.r); /* actually bg blue*/
-							//bg.f.a = 255;  
+
+ 							//d = muldiv255(d, 255 - a) + a
+ 							bg.f.a = muldiv255(bg.f.a, 255 - alpha) + alpha;
+
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}
 						break;
@@ -1051,9 +1066,13 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							 */
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
+
+ 							//bg +=mulscale(a,fg-bg)
 							bg.f.r += mulscale(alpha, fg.f.r - (bg.f.r<<3), 11);
 							bg.f.g += mulscale(alpha, fg.f.g - (bg.f.g<<2), 10);
 							bg.f.b += mulscale(alpha, fg.f.b - (bg.f.b<<3), 11);
+
+							//bg.f.a = 0;
 							pixel = bg.v;
 						}
 						break;
@@ -1072,9 +1091,12 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							
 							fg.v = cr;
 							bg.v = psd->ReadPixel(psd,x,y);
+
+ 							//bg +=mulscale(a,fg-bg)
 							bg.f.r += mulscale(alpha, fg.f.r - (bg.f.r<<3), 11);
 							bg.f.g += mulscale(alpha, fg.f.g - (bg.f.g<<3), 11);
 							bg.f.b += mulscale(alpha, fg.f.b - (bg.f.b<<3), 11);
+
 							//bg.f.a = 0;
 							pixel = bg.v;
 						}

@@ -14,11 +14,10 @@ include $(CONFIG)
 ############################# targets section ################################
 
 # If you want to create a library with the objects files, define the name here
-LIBNAME = libmwengine.a
+#LIBNAME = libmwengine.a
 #LIBNAMESO = libmwengine.so
 
-OBJS := $(MW_DIR_OBJ)/engine/obsolete.o
-
+#OBJS := $(MW_DIR_OBJ)/engine/obsolete.o
 
 ######################### Makefile.rules section #############################
 

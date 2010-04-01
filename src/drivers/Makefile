@@ -14,10 +14,10 @@ include $(CONFIG)
 ############################# targets section ################################
 
 # If you want to create a library with the objects files, define the name here
-LIBNAME = libmwdrivers.a
+#LIBNAME = libmwdrivers.a
 #LIBNAMESO = libmwdrivers.so
 
-OBJS := $(MW_DIR_OBJ)/drivers/obsolete.o
+#OBJS := $(MW_DIR_OBJ)/drivers/obsolete.o
 
 ######################### Makefile.rules section #############################
 

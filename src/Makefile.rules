@@ -471,12 +471,7 @@ NANOXCLIENTLIBS += $(MW_CORE_LIBS)
 CCNANOXCLIENTLIBS += $(MW_CORE_LIBS)
 endif
 
-NANOXSERVERLIBS += \
-	$(MW_DIR_LIB)/libmwengine.a \
-	$(MW_DIR_LIB)/libmwdrivers.a \
-	$(MW_DIR_LIB)/libmwfonts.a \
-	$(MW_CORE_LIBS)
-CCNANOXSERVERLIBS += -lmwengine -lmwdrivers -lmwfonts
+NANOXSERVERLIBS += $(MW_CORE_LIBS)
 ifeq ($(SHAREDLIBS), Y)
 	CCNANOXSERVERLIBS += $(MW_CORE_LIBS)
 endif

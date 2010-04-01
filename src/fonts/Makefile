@@ -13,10 +13,10 @@ include $(CONFIG)
 ############################# targets section ################################
 
 # If you want to create a library with the objects files, define the name here
-LIBNAME = libmwfonts.a
+#LIBNAME = libmwfonts.a
 #LIBNAMESO = libmwfonts.so
 
-OBJS := $(MW_DIR_OBJ)/fonts/obsolete.o
+#OBJS := $(MW_DIR_OBJ)/fonts/obsolete.o
 
 ######################### Makefile.rules section #############################
 

@@ -15,11 +15,11 @@ include $(CONFIG)
 ifeq ($(MICROWIN), Y)
 
 # If you want to create a library with the objects files, define the name here
-LIBNAME = libmwinlib.a
-LIBNAMESO = libmwinlib.so
+#LIBNAME = libmwinlib.a
+#LIBNAMESO = libmwinlib.so
 
 # List of objects to compile
-OBJS := $(MW_DIR_OBJ)/mwin/winlib/obsolete.o
+#OBJS := $(MW_DIR_OBJ)/mwin/winlib/obsolete.o
 
 endif
 

@@ -1,4 +1,5 @@
 31 March 2010
+	* remove obsolete.c from engine/, fonts/, drivers/
 	* cleanup fblin32.c, fblin32alpha.c, fblin24.c, fblin16.c, fblin8.c
 	* rewrite alpha blend code in fblin32.c, fblin32alpha, fblin24.c, fblin16.c
 	* change alpha calc in drawarea alphablend routine to a+1 from a+(a>>7)

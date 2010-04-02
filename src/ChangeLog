@@ -1,3 +1,11 @@
+	* fixed bad free in GrSetSelectionOwner
+1 April 2010 (Foedrowitz)
+	* revised GsCheckCursor() handles grab window differently
+	* inherit cursor from parent window(s)
+	* revised GrMovewindow screen blit move algorithm
+	* rewrite GrResizeWindow so no unmap required
+	* add GrCopyEvent, GrFreeEvent, must use for CLIENT_DATA events
+		when GrPeekEvent or GrPeekWaitEvent called, as data later freed
 31 March 2010
 	* remove obsolete.c from engine/, fonts/, drivers/
 	* cleanup fblin32.c, fblin32alpha.c, fblin24.c, fblin16.c, fblin8.c

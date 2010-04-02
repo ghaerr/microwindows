@@ -13,6 +13,7 @@
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
 static void CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent);
+static int IsUnobscuredBySiblings(GR_WINDOW *wp);
  
 /*
  * Return information about the screen for clients to use.
@@ -584,6 +585,25 @@ DeliverUpdateMoveEventAndChildren(GR_WINDOW *wp)
 		DeliverUpdateMoveEventAndChildren(childwp);
 }
 
+static int
+IsUnobscuredBySiblings(GR_WINDOW *wp)
+{
+	GR_WINDOW *current, *parent, *child;
+
+	for (current=wp; current; current=parent) {
+		parent = current->parent;
+		if (!parent)
+			break;
+		for (child=parent->children; child; child=child->siblings) {
+			if (child == current)
+				break;
+			else if (GsCheckOverlap(child, wp))
+				return 0;
+		}
+	}
+	return 1;
+}
+
 /*
  * Move the window to the specified position relative to its parent.
  */
@@ -591,6 +611,7 @@ void
 GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 {
 	GR_WINDOW	*wp;		/* window structure */
+	GR_WINDOW	*parent;
 	GR_COORD	offx, offy;
 
 	SERVER_LOCK();
@@ -606,8 +627,9 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		return;
 	}
 
-	x += wp->parent->x;
-	y += wp->parent->y;
+	parent = wp->parent;
+	x += parent->x;
+	y += parent->y;
 	offx = x - wp->x;
 	offy = y - wp->y;
 
@@ -616,8 +638,71 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		return;
 	}
 
-	/* * move algorithms not requiring unmap/map ***/
+	/*
+	 * move algorithms not requiring unmap/map
+	 */
+
 #if 1
+	/* perform screen blit if topmost and mapped - no flicker!*/
+	if (wp->mapped && IsUnobscuredBySiblings(wp)
+		/* temp don't blit in portrait mode, still buggy*/
+		/* *&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))***/
+
+		/* don't blit if window has custom frame, background not right*/
+		&& !wp->clipregion
+	   ) {
+		int 		oldx = wp->x;
+		int 		oldy = wp->y;
+		GR_GC_ID	gc = GrNewGC();
+		GR_WINDOW * 	stopwp = wp;
+		int		X, Y, W, H;
+
+		/* must hide cursor first or GdFixCursor() will show it*/
+		GdHideCursor(rootwp->psd);
+
+		/* turn off clipping of root's children*/
+		GrSetGCMode(gc, GR_MODE_COPY|GR_MODE_EXCLUDECHILDREN);
+
+		/* calc new window offsets*/
+		OffsetWindow(wp, offx, offy);
+
+		/* force recalc of clip region*/
+		clipwp = NULL;
+
+		/* copy window bits to new location*/
+		GrCopyArea(parent->id, gc, wp->x - parent->x, wp->y - parent->y,
+			wp->width, wp->height, parent->id,
+			oldx - parent->x, oldy - parent->y, MWROP_COPY);
+
+		/*
+		 * If any portion of the window was offscreen
+		 * and is coming onscreen, must send expose events
+		 * to this window as well.
+		 */
+		if ((oldx < 0 && wp->x > oldx) ||
+		    (oldy < 0 && wp->y > oldy) ||
+		    (oldx+wp->width > rootwp->width && wp->x < oldx) ||
+		    (oldy+wp->height > rootwp->height && wp->y < oldy))
+			stopwp = NULL;
+
+		/* 
+		 * Calculate bounded exposed area and
+		 * redraw anything lower than stopwp window.
+		 */
+		X = MWMIN(oldx, wp->x);
+		Y = MWMIN(oldy, wp->y);
+		W = MWMAX(oldx, wp->x) + wp->width - X;
+		H = MWMAX(oldy, wp->y) + wp->height - Y;
+		GsExposeArea(rootwp, X, Y, W, H, stopwp);
+
+		GdShowCursor(rootwp->psd);
+		GrDestroyGC(gc);
+		DeliverUpdateMoveEventAndChildren(wp);
+		SERVER_UNLOCK();
+		return;
+	}
+#endif
+#if 0
 	/* perform screen blit if topmost and mapped - no flicker!*/
 	if (wp->mapped && wp == wp->parent->children
 		&& wp->parent->id == GR_ROOT_WINDOW_ID
@@ -726,6 +811,7 @@ void
 GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 {
 	GR_WINDOW	*wp;		/* window structure */
+	GR_COORD	oldw, oldh;
 
 	SERVER_LOCK();
 
@@ -757,6 +843,23 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
+#if 1
+    oldw = wp->width;
+	oldh = wp->height;
+	wp->width = width;
+	wp->height = height;
+	if (wp->output) {
+		GsDrawBorder(wp);
+		GsWpClearWindow(wp, 0, 0, wp->width, wp->height, GR_TRUE);
+	}
+	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
+	if (oldw > width || oldh > height) {
+		int bs = wp->bordersize;
+		GsExposeArea(wp->parent, wp->x - bs, wp->y - bs,
+			oldw + bs * 2, oldh + bs * 2, NULL);
+	}
+#endif
+#if 0
 	/*
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.
@@ -767,7 +870,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	/* send size update before expose event*/
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 	GsWpRealizeWindow(wp, GR_FALSE);
-
+#endif
 	SERVER_UNLOCK();
 }
 
@@ -3760,20 +3863,19 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 	GR_WINDOW_ID oldwid = selection_owner.wid;
 
 	SERVER_LOCK();
-
-	if(selection_owner.typelist) free(selection_owner.typelist);
+	if(selection_owner.typelist)
+		free(selection_owner.typelist);
+	selection_owner.typelist = NULL;
 
 	selection_owner.wid = wid;
-
-	if(wid) {
+	if (wid) {
 		if(!(selection_owner.typelist = (GR_CHAR *)strdup((const char *)typelist))) {
 			GsError(GR_ERROR_MALLOC_FAILED, wid);
 			selection_owner.wid = 0;
 		}
-	} else selection_owner.typelist = NULL;
+	}
 
 	GsDeliverSelectionChangedEvent(oldwid, wid);
-
 	SERVER_UNLOCK();
 }
 

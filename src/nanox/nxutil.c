@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2006 by Andreas Foedrowitz
  *
  * Nano-X Client utility routines
  *
@@ -7,6 +8,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 #include "device.h"
@@ -319,4 +321,41 @@ GrNewRegionFromPixmap(GR_WINDOW_ID src, MWCOORD x, MWCOORD y, GR_SIZE width,
 	FREEA(buffer);
 
 	return r;
+}
+
+void
+GrCopyEvent(GR_EVENT *dst, GR_EVENT *src)
+{
+	*dst = *src;
+
+	/* do a "deep" copy for client data events*/
+	if (dst->type == GR_EVENT_TYPE_CLIENT_DATA) {
+		GR_EVENT_CLIENT_DATA *csrc = (GR_EVENT_CLIENT_DATA *)src;
+		GR_EVENT_CLIENT_DATA *cdst = (GR_EVENT_CLIENT_DATA *)dst;
+
+		if (csrc->data && (csrc->datalen > 0)) {
+			cdst->data = malloc(csrc->datalen);
+			if (cdst->data) {
+				memcpy(cdst->data, csrc->data, csrc->datalen);
+			}
+		} else {
+			cdst->data = NULL;
+			csrc->datalen = 0;
+		}
+	}
+}
+
+void
+GrFreeEvent(GR_EVENT *ev)
+{
+	/* free data in client data event*/
+	if (ev->type == GR_EVENT_TYPE_CLIENT_DATA) {
+		GR_EVENT_CLIENT_DATA *pev = (GR_EVENT_CLIENT_DATA *)ev;
+
+		if (pev->data) {
+			free(pev->data);
+			pev->data = NULL;
+		}
+		pev->datalen = 0;
+	}
 }

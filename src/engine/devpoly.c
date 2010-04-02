@@ -659,7 +659,7 @@ GdFillPoly(PSD psd, int count, MWPOINT * pointtable)
 			int     r = (int)aet[i].cx;
 #endif
 			if (r > l)
-				drawrow(psd, l, r, y); /* Giosis/Foedrowitz 2005nov11 draw line between l and r and not between l and (r-1) */
+				drawrow(psd, l, r, y); /* draw line between l and r and not between l and (r-1) */
 		}
 
 		/* prepare for the next scan line */

@@ -254,6 +254,7 @@ GsWpDestroyWindow(GR_WINDOW *wp)
 		selection_owner.wid = 0;
 		if(selection_owner.typelist)
 			free(selection_owner.typelist);
+		selection_owner.typelist = NULL;
 		GsDeliverSelectionChangedEvent(oldwid, 0);
 	}
 
@@ -1154,7 +1155,7 @@ void
 GsCheckCursor(void)
 {
 	GR_WINDOW	*wp;		/* window cursor is in */
-	GR_CURSOR	*cp;		/* cursor definition */
+	GR_CURSOR	*cp = NULL;	/* cursor definition */
 
 	/*
 	 * Get the cursor at its current position, and if it is not the
@@ -1165,7 +1166,16 @@ GsCheckCursor(void)
 	if (wp == NULL)
 		wp = mousewp;
 
-	cp = GsFindCursor(wp->cursorid);
+	/* Inherit cursur from parent window(s) if possible*/
+	while (wp) {
+		if (wp->cursorid) {
+			cp = GsFindCursor(wp->cursorid);
+			if (cp)
+				break;
+		}
+		wp = wp->parent;
+	}
+
 	if (!cp)
 		cp = stdcursor;
 	if (cp == curcursor)
@@ -1188,6 +1198,22 @@ GsCheckCursor(void)
 void
 GsCheckMouseWindow(void)
 {
+#if 1
+	GR_WINDOW *oldwp, *newwp;
+
+	oldwp = grabbuttonwp;
+	if (!oldwp)
+		oldwp = mousewp;
+
+	newwp = GsFindVisibleWindow(cursorx, cursory);
+	if (oldwp != newwp) {
+		GsDeliverGeneralEvent(oldwp, GR_EVENT_TYPE_MOUSE_EXIT, NULL);
+		GsDeliverGeneralEvent(newwp, GR_EVENT_TYPE_MOUSE_ENTER, NULL);
+	}
+
+	mousewp = newwp;
+#endif
+#if 0
 	GR_WINDOW	*wp;		/* newest window for mouse */
 
 	wp = grabbuttonwp;
@@ -1201,6 +1227,7 @@ GsCheckMouseWindow(void)
 	mousewp = wp;
 
 	GsDeliverGeneralEvent(wp, GR_EVENT_TYPE_MOUSE_ENTER, NULL);
+#endif
 }
 
 /*

@@ -203,7 +203,8 @@ CheckForClientData(GR_EVENT *evp)
 			event->data = NULL;
 			return;
 		}
-		if(!(event->data = malloc(event->datalen))) return;
+		if(!(event->data = malloc(event->datalen)))
+			return;
 		ReadBlock(event->data, event->datalen);
 	}
 }

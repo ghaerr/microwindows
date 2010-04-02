@@ -2,8 +2,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
 #include "nano-X.h"
+/*
+ * getselection - display contents of current selection
+ *
+ * tests GrGetSelectionOwner, GrRequestClientData
+ */
 
 static int bytes_received = 0;
 static char *data = NULL;
@@ -12,25 +16,24 @@ static int got_client_data(GR_EVENT *event)
 {
 	GR_EVENT_CLIENT_DATA *ev = &event->clientdata;
 
-	fprintf(stderr, "Got client data packet with serial number %ld for "
-			"window %d from window %d\n", ev->serial, ev->wid,
-								ev->rid);
-	if(!(data = realloc(data, bytes_received + ev->datalen))) {
+	fprintf(stderr, "Got client data packet with serial number %ld for window %d from window %d\n",
+		ev->serial, ev->wid, ev->rid);
+
+	if(!(data = realloc(data, bytes_received + ev->datalen + 1))) {
 		fprintf(stderr, "Out of memory\n");
 		exit(7);
 	}
 	memcpy(data + bytes_received, ev->data, ev->datalen);
-	free(ev->data);
 
-	fprintf(stderr, "Got client data packet with serial number %ld for "
-			"window %d from window %d\n", ev->serial, ev->wid,
-								ev->rid);
-	fprintf(stderr, "Already received %d bytes, this packet is %ld bytes "
-			"long, and the total data length is %ld bytes so ",
-					bytes_received, ev->datalen, ev->len);
+	fprintf(stderr, "Got client data packet with serial number %ld for window %d from window %d\n",
+		ev->serial, ev->wid, ev->rid);
+
+	fprintf(stderr, "Already received %ld bytes, this packet is %ld bytes, total data length is %ld bytes so ",
+		bytes_received, ev->datalen, ev->len);
 
 	bytes_received += ev->datalen;
 	if(bytes_received == ev->len) {
+		data[ev->len] = 0;
 		fprintf(stderr, "we have received all of the data now.\n");
 		fprintf(stderr, "The data in the packet is:\n%s\n", data);
 		return 1;
@@ -38,8 +41,7 @@ static int got_client_data(GR_EVENT *event)
 	else if(bytes_received < ev->len) {
 		fprintf(stderr, "this is not the last data packet.\n");
 		return 0;
-	} else fprintf(stderr, "we have received too much data (shouldn't "
-								"happen)\n");
+	} else fprintf(stderr, "we have received too much data (shouldn't happen)\n");
 
 	return 1;
 }
@@ -63,14 +65,12 @@ int main(int argc, char *argv[])
 	}
 
 	if(!typelist) {
-		fprintf(stderr, "GrGetSelectionOwner() returned an empty "
-				"type list for window %d\n", sid);
+		fprintf(stderr, "GrGetSelectionOwner() returned an empty type list for window %d\n", sid);
 		return 3;
 	}
 
 	fprintf(stderr, "Window %d owns the selection\n", sid);
-	fprintf(stderr, "It claims to be able to supply data in the following "
-			"types:\n%s\n", typelist);
+	fprintf(stderr, "It claims to be able to supply data in the following types:\n%s\n", typelist);
 
 	p = strtok(typelist, " ");
 	do {
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
 	free(typelist);
 
-	fprintf(stderr, "Type text/plain is available- requesting data\n");
+	fprintf(stderr, "Type text/plain is available, requesting data\n");
 
 	wid = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0, 1, 1, 0, 0, 0);
 	if(!wid) {
@@ -101,10 +101,14 @@ int main(int argc, char *argv[])
 	GrRequestClientData(wid, sid, 0, mimetype);
 
 	while(1) {
-		GrGetNextEventTimeout(&event, 4000);
+		int ret;
+
+		GrGetNextEvent(&event);
 		switch(event.type) {
 			case GR_EVENT_TYPE_CLIENT_DATA:
-				if(got_client_data(&event))
+				ret = got_client_data(&event);
+				GrFreeEvent(&event);
+				if (ret)
 					return 0;
 				break;
 			case GR_EVENT_TYPE_TIMEOUT:
@@ -115,5 +119,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	fprintf(stderr, "getselection: normal exit\n");
+	GrClose();
 	return 0;
 }

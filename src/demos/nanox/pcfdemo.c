@@ -113,10 +113,9 @@ main(int argc, char **argv)
 		if (event.type == GR_EVENT_TYPE_TIMEOUT) {
 			first_char += chars_to_show;
             draw_string(main_wid);
-        }
+		}
 		if (event.type == GR_EVENT_TYPE_EXPOSURE)
 			draw_string(main_wid);
-
 		if(event.type == GR_EVENT_TYPE_CLOSE_REQ) {
 			GrClose();
 			exit(0);

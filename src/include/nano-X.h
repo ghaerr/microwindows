@@ -1,6 +1,6 @@
 #ifndef	_NANO_X_H
 #define	_NANO_X_H
-/* Copyright (c) 1999, 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
+/* Copyright (c) 1999, 2000, 2001, 2002, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -794,6 +794,8 @@ void		GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 void		GrCheckNextEvent(GR_EVENT *ep);
 int		GrPeekEvent(GR_EVENT *ep);
 void		GrPeekWaitEvent(GR_EVENT *ep);
+void		GrCopyEvent(GR_EVENT *dst, GR_EVENT *src);
+void		GrFreeEvent(GR_EVENT *ev);
 void		GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1,
 			GR_COORD x2, GR_COORD y2);
 void		GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y);

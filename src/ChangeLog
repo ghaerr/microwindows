@@ -1,4 +1,5 @@
 10 April 2010
+	* fix invalid event return on mou_tslib.c driver (Kave Dai)
 	* finally correct muldiv255 macro, moved all to include/device.h
 	* update alpha channel with muldiv255
 	* fixed bad free in GrSetSelectionOwner

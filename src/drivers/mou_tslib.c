@@ -78,7 +78,7 @@ static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb)
 
 	ret = ts_read(ts, &samp, 1);
 
-	if (ret < 0) {
+	if (ret <= 0) {
 		if (errno == EINTR || errno == EAGAIN)
 			return 0;
 		EPRINTF("Error reading from touchscreen: %s\n", strerror(errno));

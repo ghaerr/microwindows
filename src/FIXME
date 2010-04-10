@@ -1,7 +1,6 @@
 fblin32alpha.c/fblin32.c:
 	fix SRC_OVER in applyOp
 	check alpha offset in passed pixmap alpha channel
-	determine how to update alpha channel with muldiv
 	add MWMODE_* compositing handling (currently only SRC_OVER alpha blend)
 	check whether alpha != 0 check needed
 	determine whether both fblin32alpha.c and fblin32.c needed

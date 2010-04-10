@@ -19,8 +19,6 @@
 #include "device.h"
 #include "fb.h"
 
-#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
-
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
 linear18_init(PSD psd)

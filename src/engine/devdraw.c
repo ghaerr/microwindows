@@ -809,24 +809,6 @@ typedef union {
 	unsigned short v; 
 } RGB555;	
 
-/*
- * Alpha blending evolution
- *
- * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
- * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
- * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
- * optimized +=							bg +=((a*(fg-bg+1))>>8)
- * macro +=								bg +=muldiv255(a,fg-bg)
- * macro =								bg  =muldiv255(a,fg-bg) + bg
- *
- * original alpha channel alpha			d = ((d * (256 - a)) >> 8) + a
- * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
- * alpha channel update using macro		d = muldiv255(d, 255 - a) + a
- */
-//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
-#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
-#define mulscale(a,b,n)	(((a)*((b)+1))>>(n))	/* very fast, always shift for 16bpp*/
-
 /**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
  * Microwindows color image format is DWORD padded bytes, with
@@ -1011,8 +993,11 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
 							bg.f.b += muldiv255(alpha, fg.f.b - bg.f.b);
 
+							//d += muldiv255(a, 255 - d)
+ 							bg.f.a += muldiv255(alpha, 255 - bg.f.a);
+
  							//d = muldiv255(d, 255 - a) + a
- 							bg.f.a = muldiv255(bg.f.a, 255 - alpha) + alpha;
+ 							//bg.f.a = muldiv255(bg.f.a, 255 - alpha) + alpha;
 
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}
@@ -1035,8 +1020,8 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							bg.f.g += muldiv255(alpha, fg.f.g - bg.f.g);
 							bg.f.r += muldiv255(alpha, fg.f.b - bg.f.r); /* actually bg blue*/
 
- 							//d = muldiv255(d, 255 - a) + a
- 							bg.f.a = muldiv255(bg.f.a, 255 - alpha) + alpha;
+							//d += muldiv255(a, 255 - d)
+ 							bg.f.a += muldiv255(alpha, 255 - bg.f.a);
 
 							pixel = bg.v;	/* endian swap handled with ARGB8888 struct*/
 						}

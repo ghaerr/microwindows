@@ -26,23 +26,6 @@
 typedef unsigned long UINT32;
 typedef long MW_S32;
 
-/*
- * Alpha blending evolution
- *
- * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
- * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
- * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
- * optimized +=							bg +=((a*(fg-bg+1))>>8)
- * macro +=								bg +=muldiv255(a,fg-bg)
- * macro =								bg  =muldiv255(a,fg-bg) + bg
- *
- * original alpha channel alpha			d = ((d * (256 - a)) >> 8) + a
- * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
- * alpha channel update using macro		d = muldiv255(d, 255 - a) + a
- */
-//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
-#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
-
 /* It's a lot easier to treat the buffer as an array of bytes when
  * alpha blending, and an array of uint32 otherwise.  However,
  * without some care, that would not be portable due to endian
@@ -480,7 +463,7 @@ stdcopy:
 					//d = muldiv255(d, 255 - a) + a;
 					dst8[OFFSET_A] = muldiv255(dst8[OFFSET_A], 255 - as) + as;
 				}
-				//FIXME should alpha channel be updated here to 0?
+				// src alpha 0, leave dst alpha as is
 				src8 += 4;
 				dst8 += 4;
 			}

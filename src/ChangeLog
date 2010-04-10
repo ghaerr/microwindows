@@ -1,3 +1,6 @@
+10 April 2010
+	* finally correct muldiv255 macro, moved all to include/device.h
+	* update alpha channel with muldiv255
 	* fixed bad free in GrSetSelectionOwner
 1 April 2010 (Foedrowitz)
 	* revised GsCheckCursor() handles grab window differently

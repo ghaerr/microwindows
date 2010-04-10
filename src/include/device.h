@@ -457,6 +457,37 @@ typedef struct {
 #define	MWMIN(a,b)		((a) < (b) ? (a) : (b))
 #define	MWMAX(a,b) 		((a) > (b) ? (a) : (b))
 
+/*
+ * Alpha blending evolution
+ *
+ * Blending r,g,b pixels w/src alpha
+ * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
+ * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
+ * optimized /255 replaced with +1/>>8	bg = (((a+1)*(fg-bg))>>8) + bg
+ * optimized +=							bg +=(((a+1)*(fg-bg))>>8)
+ * macro +=								bg +=muldiv255(a,fg-bg)
+ * macro =								bg  =muldiv255(a,fg-bg) + bg
+ * -or-
+ * macro = (src/dst reversed)			bg  =muldiv255(255-a,bg-fg) + fg
+ *
+ * Updating dst alpha from src alpha
+ * original routine						d =   (255-d)*a/255 + d
+ * rearrange							d =   a*(255-d)/255 + d
+ * replace multiply by fast +1>>8		d = (((a+1)*(255-d)) >> 8) + d
+ * macro =								d =  muldiv255(a, 255 - d) + d
+ * macro +=								d += muldiv255(a, 255 - d)
+ * -or- src/dst reversed (method used in 0.91, not quite correct)
+ * mathematical correct  routine		d =  (d * (255 - a)/255 + a
+ * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
+ * alternate (used in v0.91)			d = ((d * (256 - a)) >> 8) + a
+ * macro = (to duplicate 0.91 code)		d = muldiv255(255 - a, d) + a
+ * correct macro =						d = muldiv255(d, 255 - a) + a
+ */
+//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
+#define muldiv255(a,b)		((((a)+1)*(b))>>8)		/* very fast, 92% accurate*/
+//#define muldiv255(a,b)	((((a)+((a)>>7))*(b))>>8)	/* fast, 35% accurate*/
+#define mulscale(a,b,n)		((((a)+1)*(b))>>(n))	/* very fast, always shift for 16bpp*/
+
 /* color and palette defines*/
 #define RGBDEF(r,g,b)	{r, g, b}
 

@@ -12,23 +12,6 @@
 #include "device.h"
 #include "fb.h"
 
-/*
- * Alpha blending evolution
- *
- * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
- * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
- * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
- * optimized +=							bg +=((a*(fg-bg+1))>>8)
- * macro +=								bg +=muldiv255(a,fg-bg)
- * macro =								bg  =muldiv255(a,fg-bg) + bg
- *
- * original alpha channel alpha			d = ((d * (256 - a)) >> 8) + a
- * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
- * alpha channel update using macro		d = muldiv255(d, 255 - a) + a
- */
-//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
-#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
-
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
 linear32_init(PSD psd)
@@ -176,6 +159,25 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
 			if (alpha != 0) {
+#if 0
+ 				// d = muldiv255(a, d - s) + s;
+				unsigned int ssa = 255 - alpha;
+				unsigned long ps = *src8++;
+				*dst8 = muldiv255(ssa, *dst8 - ps) + ps;
+				++dst8;
+				ps = *src8++;
+				*dst8 = muldiv255(ssa, *dst8 - ps) + ps;
+				++dst8;
+				ps = *src8++;
+				*dst8 = muldiv255(ssa, *dst8 - ps) + ps;
+				++dst8;
+
+				//d = muldiv255(d, 255 - a) + a;
+				*dst8 = muldiv255(*dst8, 255 - alpha) + alpha;
+				++dst8;
+				++src8;
+#endif
+#if 1
  				// d = muldiv255(a, s - d) + d
 				unsigned long pd = *dst8;
 				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
@@ -184,11 +186,13 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 				pd = *dst8;
 				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
 
-				//d = muldiv255(d, 255 - a) + a;
-				*dst8 = muldiv255(*dst8, 255 - alpha) + alpha;
+				// d += muldiv255(a, 255 - d)
+				*dst8 += muldiv255(alpha, 255 - *dst);
 				++dst8;
 				++src8;
+#endif
 			} else {
+				// src alpha 0, leave dst alpha as is
 				dst8 += 4;
 				src8 += 4;
 			}
@@ -253,7 +257,7 @@ stdcopy:
 					++dst8;
 					++src8;
 				} else {
-					//FIXME should alpha channel be updated here to 0?
+					// src alpha 0, leave dst alpha as is
 					src8 += 4;
 					dst8 += 4;
 				}

@@ -10,18 +10,6 @@
 #include "device.h"
 #include "fb.h"
 
-/*
- * Alpha blending evolution
- *
- * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
- * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
- * optimized /255 replaced with +1/>>8	bg = ((a*(fg-bg+1))>>8) + bg
- * optimized +=							bg +=((a*(fg-bg+1))>>8)
- * macro +=								bg +=muldiv255(a,fg-bg)
- */
-//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
-#define muldiv255(a,b)	(((a)*((b)+1))>>8)		/* very fast, 92% accurate*/
-
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
 linear24_init(PSD psd)

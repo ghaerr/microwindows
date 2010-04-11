@@ -32,9 +32,11 @@ config.pixil	Sample minimum requirements for PIXIL Operating Environment
 config.ppc	PPC Linux for Embedded Planet Linux Planet
 config.prisma	Prisma port
 config.psion	Psion port
+config.psp		Sony PSP port
 config.rtems	RTEMS port
 config.sparc.fb	Basic Linux Framebuffer (FB) (linux-sparc)
 config.sparc.x11 Microwindows running on X11 (linux-sparc)
 config.svga	x86 Linux SVGALib screen driver
 config.tcc	TCC very small C compiler port (non-gcc)
+config.tomtom	TomTom Linux port
 config.yopy	ARM Linux FB for G.Mate YOPY

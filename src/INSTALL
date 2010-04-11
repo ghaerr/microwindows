@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-March 10, 2010 g haerr <greg@censoft.com>
+April 10, 2010 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -16,7 +16,7 @@ To build Microwindows for desktop demonstration:
 
 3. Type "make"
 
-4. Run the default mouse driver:
+4. Run the default mouse driver if using GPM mouse:
 	./mouse.sh
 
 5. Run one of the demonstration program scripts (*.sh):
@@ -70,9 +70,12 @@ and speed.  The client/server networking code has been rewritten for speed.
 
 We now have support for scaled, rotated, and antialiased
 fonts with both truetype and adobe type 1 fonts.  To include
-support for truetype fonts, download freetype-1.3.1.tar.gz from
-either microwindows.org or www.freetype.org, and set:
+support for truetype fonts, download freetype-1.3.1.tar.gz 
+or freetype-2.3.12.tar.gz from either microwindows.org or
+www.freetype.org, and set:
 	HAVE_FREETYPE_SUPPORT=Y
+	or
+	HAVE_FREETYPE_2_SUPPORT=Y
 in the config file. For Adobe Type 1 font support, download
 t1lib-1.0.tar.gz from microwindows.org or 
 ftp://ftp.neuroinformatik.ruhr-uni-bochum.de/pub/software/t1lib/
@@ -108,7 +111,7 @@ set one of the following lines in the config file:
 	X11=Y			(for X11)
 
 If FRAMEBUFFER is set, the following line enables the optional
-4 planes VGA non-linear driver:
+4 planes VGA non-linear driver (set ONLY for old non-linux machines):
 	FBVGA=Y			(for 4 planes VGA 16 color framebuffer)
 For MIPS and SuperH compilations, set FBVGA=N, since system header
 files don't contain outb() and outw() macros.

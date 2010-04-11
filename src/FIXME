@@ -10,6 +10,7 @@ fblin32alpha.c/fblin32.c:
 	update stretchblitex in fblin32.c for SRC_OVER
 	check fblin24.c, fblin16.c against fblin32.c/a
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
+add restrict pointers for better optimization to fb drivers
 fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
 add timer support to PSP port (nano-X and win32)
 fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed

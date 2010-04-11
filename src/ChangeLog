@@ -1,3 +1,5 @@
+	* add partial Hanzi Bitmap Font support (hbf.c, genfont.hbf.c)
+	* add WDTV sigma 863x drivers scr_smp863x.c, scr_em86xx.c
 10 April 2010
 	* fix invalid event return on mou_tslib.c driver (Kave Dai)
 	* finally correct muldiv255 macro, moved all to include/device.h

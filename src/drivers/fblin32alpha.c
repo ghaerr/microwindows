@@ -92,14 +92,13 @@ linear32a_init(PSD psd)
 static void
 linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR32 addr = psd->addr;
+	register ADDR32 addr = ((ADDR32)psd->addr) + x + y * psd->linelen;
 	UINT32 psr, psg, psb, as, pd;
-
+#if DEBUG
 	assert(addr != 0);
 	assert(x >= 0 && x < psd->xres);
 	assert(y >= 0 && y < psd->yres);
-
-	addr += x + y * psd->linelen;
+#endif
 
 	DRAWON;
 	if (gr_mode == MWMODE_COPY)
@@ -157,13 +156,12 @@ linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear32a_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	ADDR32 addr = psd->addr;
-
-	assert(addr != 0);
+#if DEBUG
+	assert(psd->addr != 0);
 	assert(x >= 0 && x < psd->xres);
 	assert(y >= 0 && y < psd->yres);
-
-	return addr[x + y * psd->linelen];
+#endif
+	return ((ADDR32)psd->addr)[x + y * psd->linelen];
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
@@ -171,17 +169,17 @@ static void
 linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 		       MWPIXELVAL c)
 {
-	ADDR32 addr = psd->addr;
+	register ADDR32 addr = ((ADDR32)psd->addr) + x1 + y * psd->linelen;
 	UINT32 psr, psg, psb, as, pd;
 	UINT32 cache_input, cache_output;
 
-	assert(addr != 0);
+#if DEBUG
+	assert(psd->addr != 0);
 	assert(x1 >= 0 && x1 < psd->xres);
 	assert(x2 >= 0 && x2 < psd->xres);
 	assert(x2 >= x1);
 	assert(y >= 0 && y < psd->yres);
-
-	addr += x1 + y * psd->linelen;
+#endif
 
 	DRAWON;
 	if (gr_mode == MWMODE_COPY) {
@@ -257,21 +255,21 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 /* Draw a vertical line from x,y1 to x,y2 including final point*/
 static void
 linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
-		       MWPIXELVAL c)
+		       register MWPIXELVAL c)
 {
-	ADDR32 addr = psd->addr;
 	int linelen = psd->linelen;
+	register ADDR32 addr = ((ADDR32)psd->addr) + x + y1 * linelen;
 	UINT32 psr, psg, psb, as, pd;
 	UINT32 cache_input, cache_output;
-
-	assert(addr != 0);
+#if DEBUG
+	assert(psd->addr != 0);
 	assert(x >= 0 && x < psd->xres);
 	assert(y1 >= 0 && y1 < psd->yres);
 	assert(y2 >= 0 && y2 < psd->yres);
 	assert(y2 >= y1);
+#endif
 
 	DRAWON;
-	addr += x + y1 * linelen;
 	if (gr_mode == MWMODE_COPY) {
 		while (y1++ <= y2) {
 			*addr = c;

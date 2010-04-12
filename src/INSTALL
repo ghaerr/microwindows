@@ -1,5 +1,5 @@
 Microwindows Installation Documentation
-April 10, 2010 g haerr <greg@censoft.com>
+April 11, 2010 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -107,7 +107,7 @@ svgalib driver or X Windows, (should run on all Linux systems),
 set one of the following lines in the config file:
 	FRAMEBUFFER=Y		(for 1, 2, 4, 8, 16 or 32 bpp linear fb access)
 	VGALIB=Y		(svgalib vga access)
-	HWVGA=Y			(hardware vga access for rtems)
+	HWVGA=Y			(hardware vga access for RTEMS)
 	X11=Y			(for X11)
 
 If FRAMEBUFFER is set, the following line enables the optional

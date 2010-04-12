@@ -28,17 +28,16 @@ linear32_init(PSD psd)
 static void
 linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR32	addr = psd->addr;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
+#endif
 	DRAWON;
 	if (gr_mode == MWMODE_COPY)
-		addr[x + y * psd->linelen] = c;
+		((ADDR32)psd->addr)[x + y * psd->linelen] = c;
 	else
-		applyOp(gr_mode, c, &addr[x + y * psd->linelen], ADDR32);
+		applyOp(gr_mode, c, &((ADDR32)psd->addr)[x + y * psd->linelen], ADDR32);
 	DRAWOFF;
 }
 
@@ -46,31 +45,29 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear32_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	ADDR32	addr = psd->addr;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
-	return addr[x + y * psd->linelen];
+#endif
+	return ((ADDR32)psd->addr)[x + y * psd->linelen];
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR32	addr = psd->addr;
-
-	assert (addr != 0);
+	register ADDR32	addr = ((ADDR32)psd->addr) + x1 + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
-
+#endif
 	DRAWON;
-	addr += x1 + y * psd->linelen;
 	if(gr_mode == MWMODE_COPY) {
-		/* FIXME: memsetl(dst, c, x2-x1+1)*/
+		/* FIXME memsetl(addr, c, x2-x1+1);*/
 		while(x1++ <= x2)
 			*addr++ = c;
 	} else {

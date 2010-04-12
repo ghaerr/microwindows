@@ -10,6 +10,11 @@ fblin32alpha.c/fblin32.c:
 	update stretchblitex in fblin32.c for SRC_OVER
 	check fblin24.c, fblin16.c against fblin32.c/a
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
+last char drawn wrong on fontdemo2.sh portrait modes
+fix down portrait stretch/blit driver mods
+check that DrawAreaInternal clears bg when usebg for ft2 fonts
+write rotation blits for portrait modes in drawarea drivers
+	(ft2 broken for non-antialias in portrait modes)
 add restrict pointers for better optimization to fb drivers
 fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
 add timer support to PSP port (nano-X and win32)
@@ -31,7 +36,6 @@ correct space char width=1 for FNT, CORE and FT fonts
 add Cyerbit.ttf fonts outside tree for testing
 fix srandom/srand in various apps (rtems/ecos)
 check rtems timer patch, dont require fp for it
-check that DrawAreaInternal clears bg when usebg for ft2 fonts
 bin/mterm: closing terminal window causes hang rather than server exit
 MSVC: need attribute for #pragma pack in PACKEDDATA in device.h
 GdCaptureScreen() only works with framebuffer /dev/fb0 present

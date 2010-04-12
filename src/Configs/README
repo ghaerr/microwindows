@@ -11,10 +11,10 @@ To build Microwindows, copy one of these files to microwin/src/config,
 and type "make clean; make".
 
 // Common configurations (also kept up-to-date with current options)
-config.fb	Basic Linux Framebuffer (FB)
-config.fb2	Linux Framebuffer (+jpeg,pcf,freetype,threadsafe,debug)
-config.fb3	Linux Framebuffer (+jpeg,pcf,freetype,threadsafe,sharedlibs)
-config.x11	Microwindows running on X11 (+jpeg,pcf,freetype,debug)
+config.fb	Basic Linux Framebuffer (FB) (pcf,fnt,threadsafe,vtswitch)
+config.fb2	Linux Framebuffer (+png,jpeg,freetype2,sharedlibs)
+config.fb3	Linux Framebuffer (+png,jpeg,freetype2,sharelibs,debug)
+config.x11	Microwindows running on X11 (pcf,fnt,threadsafe,png,jpeg,freetype2,sharedlibs)
 
 // Specific ports (not necessarily up-to-date with new options)
 config.ads	ARM Linux FB for ADS Graphics Client

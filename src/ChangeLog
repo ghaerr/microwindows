@@ -1,6 +1,9 @@
+Version 0.92RC4 - 11 April 2010 - greg@censoft.com
+	* fixed drawarea/alphacol driver for right/left/down portrait
+		(freetype2 w/anti-aliasing now works right/left/down)
+	* speedup fblin32/16 drivers, no asserts by default
 	* add partial Hanzi Bitmap Font support (hbf.c, genfont.hbf.c)
 	* add WDTV sigma 863x drivers scr_smp863x.c, scr_em86xx.c
-10 April 2010
 	* fix invalid event return on mou_tslib.c driver (Kave Dai)
 	* finally correct muldiv255 macro, moved all to include/device.h
 	* update alpha channel with muldiv255

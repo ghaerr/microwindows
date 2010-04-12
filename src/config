@@ -71,7 +71,6 @@ NANOX                    = Y
 SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
 
-
 ####################################################################
 #
 # Demos to build
@@ -148,7 +147,7 @@ LIBJPEG                  = /usr/lib/libjpeg.so
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
-LIBPNG                   = /usr/lib/libpng.a
+LIBPNG                   = /usr/lib/libpng.so
 INCZ                     = .
 LIBZ                     = /usr/lib/libz.a
 
@@ -290,7 +289,7 @@ else
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
-FBVGA                    = Y
+FBVGA                    = N
 VTSWITCH                 = Y
 FBREVERSE                = N
 

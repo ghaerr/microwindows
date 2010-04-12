@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2004, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2004, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Main module of Microwindows
  */
@@ -82,9 +82,9 @@ void CallbackThread(void *arg)
 
 int
 #if __ECOS
-invoke_WinMain(int ac,char **av)
+invoke_WinMain(int ac, char **av)
 #else
-   main(int ac,char **av)
+main(int ac, char **av)
 #endif
 {
     HINSTANCE hInstance;
@@ -92,7 +92,7 @@ invoke_WinMain(int ac,char **av)
 #if PSP
 	int thid;
 	thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-	if(thid >= 0)
+	if (thid >= 0)
 		sceKernelStartThread(thid, 0, 0);
 
         pspDebugScreenInit();
@@ -100,22 +100,21 @@ invoke_WinMain(int ac,char **av)
 #endif
 
 	/* call user hook routine before anything*/
-	if(MwUserInit(ac, av) < 0)
+	if (MwUserInit(ac, av) < 0)
 		exit(1);
 
-	if(MwOpen() < 0)
+	if (MwOpen() < 0)
 		exit(1);
 
-	if( (hInstance=mwCreateInstance(ac, av)) == NULL )
+	if ((hInstance = mwCreateInstance(ac, av)) == NULL)
 	    exit(1);
 		
 	rootwp->hInstance = hInstance;
 
 	/* call windows main program entry point*/
-	WinMain ( hInstance, NULL, 
-		  (LPSTR)((PMWAPPINSTANCE)hInstance)->szCmdLine, SW_SHOW );
+	WinMain(hInstance, NULL, (LPSTR)((PMWAPPINSTANCE)hInstance)->szCmdLine, SW_SHOW);
 
-	mwFreeInstance ( hInstance );
+	mwFreeInstance(hInstance);
 	MwClose();
 
 	exit(0);

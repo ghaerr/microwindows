@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+//#include <X11/extensions/xf86dga.h>
 #include <assert.h>
 #include "device.h"
 #include "fb.h"
@@ -532,7 +533,19 @@ x11_setup_display(void)
 			return -1;
 
 		XSetErrorHandler(x11_error);
+#if 0
+{
+	int	events, errors, major, minor;
 
+	if (XDGAQueryExtension(x11_dpy, &events, &errors) &&
+	    XDGAQueryVersion(x11_dpy, &major, &minor)) {
+			if (major >= 2 && XDGAOpenFramebuffer(x11_dpy, DefaultScreen(x11_dpy))) {
+				printf("GOT it!\n");
+				XDGACloseFramebuffer(x11_dpy, DefaultScreen(x11_dpy));
+			}
+	}
+}
+#endif
 		x11_width = nxres? nxres: SCREEN_WIDTH;
 		x11_height = nyres? nyres: SCREEN_HEIGHT;
 		x11_scr = XDefaultScreen(x11_dpy);

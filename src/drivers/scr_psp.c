@@ -1,7 +1,7 @@
 /*
  * scr_psp.c
  *
- * Microwindows screen driver for the PSP by Jim Paris
+ * Microwindows screen driver for the Sony PSP by Jim Paris
  *
  * Also some generic PSP stuff here, because I'm lazy
  */
@@ -32,7 +32,6 @@ stub_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 //    pspDebugScreenPrintf("no palette support, oh shit!\n");
 }
 
-
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, NULL,
 	fb_open,
@@ -50,8 +49,13 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* DrawArea subdriver*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
-	fb_mapmemgc,
-	gen_freememgc
+	gen_mapmemgc,
+	gen_freememgc,
+	NULL,			/* StretchBlit subdriver */
+	gen_setportrait,
+	0,				/* int portrait */
+	NULL,			/* orgsubdriver */
+	NULL 			/* StretchBlitEx subdriver*/
 };
 
 /* init framebuffer*/

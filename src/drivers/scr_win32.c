@@ -79,7 +79,7 @@ SCREENDEVICE scrdev = {
 	NULL,
 	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
-	fb_mapmemgc,
+	gen_mapmemgc,
 	gen_freememgc,
 	NULL,			/* StretchBlit subdriver */
 	NULL,			/* SetPortrait */

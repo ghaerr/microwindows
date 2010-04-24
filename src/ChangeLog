@@ -1,3 +1,8 @@
+24 April 2010
+	* generalize portrait routines, add gen_setportrait, gen_mapmemgc
+		portrait mode should work with most any screen driver
+		by adding gen_setportrait scrdev entry and setting psd->orgsubdriver
+	* add portrait mode to X11 screen driver
 Version 0.92RC4 - 11 April 2010 - greg@censoft.com
 	* fixed drawarea/alphacol driver for right/left/down portrait
 		(freetype2 w/anti-aliasing now works right/left/down)

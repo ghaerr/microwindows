@@ -555,3 +555,4 @@ void	get_subdriver(PSD psd, PSUBDRIVER subdriver);
 
 /* fb.c*/
 PSUBDRIVER select_fb_subdriver(PSD psd);
+void set_portrait_subdriver(PSD psd);

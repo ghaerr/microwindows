@@ -595,8 +595,8 @@ MWBOOL
 em86xx_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	int size,void *addr)
 {
-	if (!fb_mapmemgc(mempsd, w, h, planes, bpp, linelen, size, addr)) {
-		printf("%s, %d, fb_mapmemgc fail\n", __FUNCTION__, __LINE__);
+	if (!gen_mapmemgc(mempsd, w, h, planes, bpp, linelen, size, addr)) {
+		printf("%s, %d, gen_mapmemgc fail\n", __FUNCTION__, __LINE__);
 		return 0;
 	}
 	// Replace with functions have been implemented in screen device driver

@@ -82,13 +82,13 @@ SCREENDEVICE scrdev = {
 	X11_drawarea,
 	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
-	fb_mapmemgc,
+	gen_mapmemgc,
 	gen_freememgc,
 	NULL,			/* StretchBlit subdriver */
-	NULL,			/* SetPortrait */
-	0,			/* int portrait */
+	gen_setportrait,
+	0,				/* int portrait */
 	NULL,			/* orgsubdriver */
-	X11_stretchblitex,	/* StretchBlitEx subdriver*/
+	X11_stretchblitex /* StretchBlitEx subdriver*/
 };
 
 /* called from keyboard/mouse/screen */
@@ -132,6 +132,19 @@ struct color_cache {
 };
 static struct color_cache ccache[COLOR_CACHE_SIZE];
 
+static SUBDRIVER x11dev = {
+	0,
+	X11_drawpixel,
+	X11_readpixel,
+	X11_drawhline,
+	X11_drawvline,
+	X11_fillrect,
+	X11_blit,
+	X11_drawarea,
+	0,			/* StretchBlit*/
+	X11_stretchblitex,
+};
+		
 /* called from mou_x11.c*/
 void x11_handle_event(XEvent * ev);
 int x11_setup_display(void);
@@ -805,7 +818,6 @@ X11_open(PSD psd)
 	}
 
 	/* Calculate the correct linelen here */
-
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
 			 psd->bpp, &size, &psd->linelen);
 
@@ -815,17 +827,19 @@ X11_open(PSD psd)
 	psd->addr = NULL;
 	psd->portrait = MWPORTRAIT_NONE;
 
+	/* remember original subdriver for portrait subdriver callbacks*/
+	psd->orgsubdriver = &x11dev;
+
 	/* create permanent savebits memory device from screen device */
 	savebits = *psd;
 	savebits.flags = PSF_MEMORY | PSF_HAVEBLIT;
 
-	/* select a fb subdriver matching our planes and bpp */
+	/* select an fb subdriver matching our planes and bpp for backing store*/
 	subdriver = select_fb_subdriver(&savebits);
 	if (!subdriver)
 		return NULL;
 
 	/* calc size and linelen of savebits alloc */
-
 	GdCalcMemGCAlloc(&savebits, savebits.xvirtres, savebits.yvirtres, 0,
 			 0, &size, &linelen);
 	savebits.linelen = linelen;
@@ -835,11 +849,10 @@ X11_open(PSD psd)
 
 	set_subdriver(&savebits, subdriver, TRUE);
 
-
 	/* set X11 psd to savebits memaddr for screen->offscreen blits... */
 	psd->addr = savebits.addr;
 
-	return psd;
+return psd;
 }
 
 static void
@@ -850,7 +863,6 @@ X11_close(PSD psd)
 
 	XCloseDisplay(x11_dpy);
 }
-
 
 static void
 X11_getscreeninfo(PSD psd, PMWSCREENINFO psi)

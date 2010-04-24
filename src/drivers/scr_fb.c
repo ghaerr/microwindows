@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2007 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2007,2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Microwindows Screen Driver for Linux kernel framebuffers
@@ -37,7 +37,6 @@
 
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
-static void fb_setportrait(PSD psd, int portraitmode);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
@@ -58,10 +57,13 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* DrawArea subdriver*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
-	fb_mapmemgc,
+	gen_mapmemgc,
 	gen_freememgc,
 	NULL,			/* StretchBlit subdriver*/
-	fb_setportrait		/* SetPortrait*/
+	gen_setportrait,
+	0,				/* int portrait */
+	NULL,			/* orgsubdriver */
+	NULL			/* StretchBlitEx subdriver*/
 };
 
 /* static variables*/
@@ -70,11 +72,6 @@ static int status;		/* 0=never inited, 1=once inited, 2=inited. */
 static short saved_red[16];	/* original hw palette*/
 static short saved_green[16];
 static short saved_blue[16];
-
-extern SUBDRIVER fbportrait_left, fbportrait_right, fbportrait_down;
-static PSUBDRIVER pdrivers[4] = { /* portrait mode subdrivers*/
-	NULL, &fbportrait_left, &fbportrait_right, &fbportrait_down
-};
 
 /* local functions*/
 static void	set_directcolor_palette(PSD psd);
@@ -108,7 +105,7 @@ fb_open(PSD psd)
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 	psd->size = 0;		/* force subdriver init of size*/
 
-        if (ioctl(fb, 1, 0) < 0) {
+	if (ioctl(fb, 1, 0) < 0) {
 		EPRINTF("Error: can't enable LCD");
 		goto fail;
 	}
@@ -193,8 +190,7 @@ fb_open(PSD psd)
 #endif
 			break;
 		default:
-			EPRINTF(
-			"Unsupported %ld color (%d bpp) truecolor framebuffer\n",
+			EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n",
 				psd->ncolors, psd->bpp);
 			goto fail;
 		}
@@ -219,13 +215,12 @@ fb_open(PSD psd)
 	 * psd->size is calculated by subdriver init
 	 */
 	if(!set_subdriver(psd, subdriver, TRUE)) {
-		EPRINTF("Driver initialize failed type %d visual %d bpp %d\n",
-			type, visual, psd->bpp);
+		EPRINTF("Screen driver init failed\n");
 		goto fail;
 	}
 
-	/* remember original subdriver for portrait mode switching*/
-	pdrivers[0] = psd->orgsubdriver = subdriver;
+	/* remember original subdriver for portrait subdriver callbacks*/
+	psd->orgsubdriver = subdriver;
 
 #if HAVETEXTMODE
 	/* open tty, enter graphics mode*/
@@ -242,27 +237,27 @@ fb_open(PSD psd)
 	close(tty);
 #endif
 	/* mmap framebuffer into this address space*/
-	psd->size = (psd->size + getpagesize () - 1)
-			/ getpagesize () * getpagesize ();
+	psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
+
 #ifdef ARCH_LINUX_SPARC
-#define CG3_MMAP_OFFSET 	0x4000000
+#define CG3_MMAP_OFFSET 0x4000000
 #define CG6_RAM    		0x70016000
-#define TCX_RAM8BIT             0x00000000
-#define TCX_RAM24BIT            0x01000000
-        switch (fb_fix.accel) {
-            case FB_ACCEL_SUN_CGTHREE:
-	         psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG3_MMAP_OFFSET);
-                 break;
-            case FB_ACCEL_SUN_CGSIX:
-	         psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG6_RAM);
-                 break;
-	    case FB_ACCEL_SUN_TCX:
-	         psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,TCX_RAM24BIT);
-                 break;
-            default:
+#define TCX_RAM8BIT		0x00000000
+#define TCX_RAM24BIT	0x01000000
+	switch (fb_fix.accel) {
+	case FB_ACCEL_SUN_CGTHREE:
+	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG3_MMAP_OFFSET);
+		break;
+	case FB_ACCEL_SUN_CGSIX:
+		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG6_RAM);
+		break;
+	case FB_ACCEL_SUN_TCX:
+		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,TCX_RAM24BIT);
+ 		break;
+	default:
 		EPRINTF("Don;t know how to mmap %s with accel %d\n", env, fb_fix.accel);
 		goto fail;
-        }
+	}
 #elif defined(BLACKFIN)
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_FILE,fb,0);
 #else
@@ -319,27 +314,6 @@ fb_close(PSD psd)
 #endif
 	/* close framebuffer*/
 	close(fb);
-}
-
-static void
-fb_setportrait(PSD psd, int portraitmode)
-{
-	psd->portrait = portraitmode;
-
-	/* swap x and y in left or right portrait modes*/
-	if (portraitmode & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
-		/* swap x, y*/
-		psd->xvirtres = psd->yres;
-		psd->yvirtres = psd->xres;
-	} else {
-		/* normal x, y*/
-		psd->xvirtres = psd->xres;
-		psd->yvirtres = psd->yres;
-	}
-	/* assign portrait subdriver which calls original subdriver*/
-	if (portraitmode == MWPORTRAIT_DOWN)
-		portraitmode = 3;	/* change bitpos to index*/
-	set_subdriver(psd, pdrivers[portraitmode], FALSE);
 }
 
 /* setup directcolor palette - required for ATI cards*/

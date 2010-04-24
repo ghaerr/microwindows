@@ -421,7 +421,7 @@ EM8400_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
 {
 	extern SUBDRIVER fblinear24;
 
-        initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
+        gen_initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
 
         /* set and initialize subdriver into mem screen driver*/
         if (!set_subdriver(mempsd, &fblinear24, TRUE))

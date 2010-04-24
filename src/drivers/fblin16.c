@@ -70,7 +70,7 @@ static MWPIXELVAL
 linear16_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
 #if DEBUG
-	assert (addr != 0);
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif

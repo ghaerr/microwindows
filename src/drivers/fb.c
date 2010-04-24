@@ -82,31 +82,31 @@ select_fb_subdriver(PSD psd)
 	return driver;
 }
 
-/* 
- * Initialize memory device with passed parms,
- * select suitable framebuffer subdriver,
- * and set subdriver in memory device.
+/*
+ * Set portrait subdriver or original subdriver according
+ * to current portrait mode.
  */
-MWBOOL
-fb_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int size,void *addr)
+void
+set_portrait_subdriver(PSD psd)
 {
 	PSUBDRIVER subdriver;
+	extern SUBDRIVER fbportrait_left;
+	extern SUBDRIVER fbportrait_right;
+	extern SUBDRIVER fbportrait_down;
 
-	/* initialize mem screen driver*/
-	initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
-
-/* FIXME kluge for current portrait mode subdriver in scr_fbportrait.c*/
-if(mempsd->portrait != MWPORTRAIT_NONE) return 1;
-
-	/* select a framebuffer subdriver based on planes and bpp*/
-	subdriver = select_fb_subdriver(mempsd);
-	if(!subdriver)
-		return 0;
-
-	/* set and initialize subdriver into mem screen driver*/
-	if(!set_subdriver(mempsd, subdriver, TRUE))
-		return 0;
-
-	return 1;
+	switch (psd->portrait) {
+	case MWPORTRAIT_NONE:
+		subdriver = psd->orgsubdriver;
+		break;
+	case MWPORTRAIT_LEFT:
+		subdriver = &fbportrait_left;
+		break;
+	case MWPORTRAIT_RIGHT:
+		subdriver = &fbportrait_right;
+		break;
+	case MWPORTRAIT_DOWN:
+		subdriver = &fbportrait_down;
+		break;
+	}
+	set_subdriver(psd, subdriver, FALSE);
 }

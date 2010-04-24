@@ -50,7 +50,7 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* DrawArea subdriver*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
-	fb_mapmemgc,
+	gen_mapmemgc,
 	gen_freememgc
 };
 

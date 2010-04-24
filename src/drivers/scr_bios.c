@@ -275,7 +275,7 @@ VGA_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	extern SUBDRIVER memplan4;
 
 	/* initialize mem screen driver*/
-	initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
+	gen_initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
 
 	/* set and initialize subdriver into mem screen driver*/
 	if (!set_subdriver(mempsd, &memplan4, TRUE))

@@ -2005,7 +2005,7 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void * pixels)
 {
 	GR_PIXMAP	*pp;
 	PSD		psd;
-        int 		size, linelen, bpp, planes;
+	int 		size, linelen, bpp, planes;
 	GR_WINDOW_ID id;
    
 	if (width <= 0 || height <= 0) {
@@ -2023,7 +2023,7 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void * pixels)
 	 */
 	planes = rootwp->psd->planes;
 	bpp = rootwp->psd->bpp;
-        psd = rootwp->psd->AllocateMemGC(rootwp->psd);
+	psd = rootwp->psd->AllocateMemGC(rootwp->psd);
 	if (!psd) {
 		SERVER_UNLOCK();
 		return 0;
@@ -2037,10 +2037,10 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void * pixels)
 		return 0;
 	}
 
-        GdCalcMemGCAlloc(psd, width, height, 0, 0, &size, &linelen);
+	GdCalcMemGCAlloc(psd, width, height, 0, 0, &size, &linelen);
 
 	/* Allocate space for pixel values */
-        if (!pixels) {
+	if (!pixels) {
 	        pixels = calloc(size, 1);
 		psd->flags |= PSF_ADDRMALLOC;
 	}
@@ -2061,11 +2061,9 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void * pixels)
 	pp->height = height;
 	pp->owner = curclient;
 
-        psd->MapMemGC(psd, width, height, planes, bpp, linelen, size,
-		pixels);
-	
-        listpp = pp;
-	
+	psd->MapMemGC(psd, width, height, planes, bpp, linelen, size, pixels);
+
+	listpp = pp;
 	id = pp->id;
 	
 	SERVER_UNLOCK();

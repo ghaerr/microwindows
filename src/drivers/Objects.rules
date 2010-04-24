@@ -91,9 +91,10 @@ endif
 
 ifeq ($(X11), Y)
 MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_x11.o \
+	$(MW_DIR_OBJ)/drivers/mou_x11.o \
 	$(MW_DIR_OBJ)/drivers/genmem.o \
 	$(MW_DIR_OBJ)/drivers/fb.o \
-	$(MW_DIR_OBJ)/drivers/scr_x11.o \
 	$(MW_DIR_OBJ)/drivers/fblin1.o \
 	$(MW_DIR_OBJ)/drivers/fblin2.o \
 	$(MW_DIR_OBJ)/drivers/fblin4.o \
@@ -103,7 +104,9 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
 	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
-	$(MW_DIR_OBJ)/drivers/mou_x11.o 
+	$(MW_DIR_OBJ)/drivers/fbportrait_left.o \
+	$(MW_DIR_OBJ)/drivers/fbportrait_right.o \
+	$(MW_DIR_OBJ)/drivers/fbportrait_down.o
 
 ifneq ($(PIPEKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_x11.o

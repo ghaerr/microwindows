@@ -94,7 +94,7 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* DrawArea*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
-	fb_mapmemgc,
+	gen_mapmemgc,
 	gen_freememgc
 };
 

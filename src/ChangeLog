@@ -1,10 +1,15 @@
-24 April 2010
+26 April 2010
+	* fixed FT2 non-antialias (bitmap) display in left/right/down portrait
+	* implemented drawarea_bitmap_bytes_msb_first in fbportrait*.c
+		(current requires bitmap rotatation)
+	* wrote rotate bitmap 1bpp left/right/down routines
+	* fix mask bug in drivers/fblin1rev.c (Vladimir)
 	* generalize portrait routines, add gen_setportrait, gen_mapmemgc
 		portrait mode should work with most any screen driver
 		by adding gen_setportrait scrdev entry and setting psd->orgsubdriver
 	* add portrait mode to X11 screen driver
 Version 0.92RC4 - 11 April 2010 - greg@censoft.com
-	* fixed drawarea/alphacol driver for right/left/down portrait
+	* fixed drawarea_alphacol driver for right/left/down portrait
 		(freetype2 w/anti-aliasing now works right/left/down)
 	* speedup fblin32/16 drivers, no asserts by default
 	* add partial Hanzi Bitmap Font support (hbf.c, genfont.hbf.c)

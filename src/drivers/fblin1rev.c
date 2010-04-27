@@ -41,7 +41,7 @@ linear1_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	if(gr_mode == MWMODE_XOR)
 		*addr ^= c << (x&7);
 	else
-		*addr = (*addr & notmask[x&7]) | (c << (x&7));
+		*addr = (*addr & notmask[7 - (x&7)]) | (c << (x&7));
 	DRAWOFF;
 }
 
@@ -81,7 +81,7 @@ linear1_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		}
 	} else {
 		while(x1 <= x2) {
-			*addr = (*addr & notmask[x1&7]) | (c << (x1&7));
+			*addr = (*addr & notmask[7 - (x1&7)]) | (c << (x1&7));
 			if((++x1 & 7) == 0)
 				++addr;
 		}
@@ -112,7 +112,7 @@ linear1_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		}
 	else
 		while(y1++ <= y2) {
-			*addr = (*addr & notmask[x&7]) | (c << (x&7));
+			*addr = (*addr & notmask[7 - (x&7)]) | (c << (x&7));
 			addr += linelen;
 		}
 	DRAWOFF;
@@ -151,7 +151,7 @@ linear1_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		MWCOORD	dx = dstx;
 		MWCOORD	sx = srcx;
 		for(i=0; i<w; ++i) {
-			*d = (*d & notmask[dx&7]) |
+			*d = (*d & notmask[7 - (dx&7)]) |
 			   ((*s >> (sx&7) & 0x01) << (dx&7));
 			if((++dx & 7) == 0)
 				++d;

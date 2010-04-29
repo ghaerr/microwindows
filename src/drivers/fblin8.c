@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 8bpp Linear Video Driver for Microwindows
- * 	00/01/26 added alpha blending with lookup tables (64k total)
+ * 	2000/01/26 added alpha blending with lookup tables (64k total)
  *
  * Inspired from Ben Pfaff's BOGL <pfaffben@debian.org>
  */
@@ -32,7 +32,7 @@
  */
 static unsigned short *alpha_to_rgb = NULL;
 static unsigned char  *rgb_to_palindex = NULL;
-void init_alpha_lookup(void);
+int init_alpha_lookup(void);
 #endif
 
 /* Calc linelen and mmap size, return 0 on fail*/
@@ -49,18 +49,17 @@ linear8_init(PSD psd)
 static void
 linear8_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
 	if(gr_mode == MWMODE_COPY)
-		addr[x + y * psd->linelen] = c;
+		((ADDR8)psd->addr)[x + y * psd->linelen] = c;
 	else
-		applyOp(gr_mode, c, &addr[ x + y * psd->linelen], ADDR8);
+		applyOp(gr_mode, c, &((ADDR8)psd->addr)[ x + y * psd->linelen], ADDR8);
 	DRAWOFF;
 }
 
@@ -68,30 +67,28 @@ linear8_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear8_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
-	return addr[x + y * psd->linelen];
+#endif
+	return ((ADDR8)psd->addr)[x + y * psd->linelen];
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear8_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
+	register ADDR8 addr = ((ADDR8)psd->addr) + x1 + y * psd->linelen;
+#if DEBUG
 	assert (addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += x1 + y * psd->linelen;
 	if(gr_mode == MWMODE_COPY)
 		memset(addr, c, x2 - x1 + 1);
 	else {
@@ -107,18 +104,17 @@ linear8_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear8_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
 	int	linelen = psd->linelen;
-
-	assert (addr != 0);
+	register ADDR8 addr = ((ADDR8)psd->addr) + x + y1 * linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += x + y1 * linelen;
 	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
@@ -144,6 +140,7 @@ linear8_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	slinelen = srcpsd->linelen;
 #if ALPHABLEND
 	unsigned int srcalpha, dstalpha;
+	int i;
 #endif
 
 	assert (dstpsd->addr != 0);
@@ -168,30 +165,29 @@ linear8_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		goto stdblit;
 	srcalpha = op & 0xff;
 
-	/* FIXME create lookup table after palette is stabilized...*/
-	if(!rgb_to_palindex || !alpha_to_rgb) {
-		init_alpha_lookup();
-		if(!rgb_to_palindex || !alpha_to_rgb)
+	/* create alpha lookup tables*/
+	if(!rgb_to_palindex) {
+		if (!init_alpha_lookup())
 			goto stdblit;
 	}
 
-	/* Create 5 bit alpha value index for 256 color indexing*/
-
-	/* destination alpha is (1 - source) alpha*/
-	dstalpha = ((srcalpha>>3) ^ 31) << 8;
-	srcalpha = (srcalpha>>3) << 8;
+	/* 
+	 * Create 5 bit alpha value index for 256 color indexing.
+	 * Destination alpha is (1 - source) alpha
+	 */
+	dstalpha = ((srcalpha >> 3) ^ 31) << 8;
+	srcalpha =  (srcalpha >> 3) << 8;
 
 	while(--h >= 0) {
-	    int	i;
 	    for(i=0; i<w; ++i) {
-		/* Get source RGB555 value for source alpha value*/
-		unsigned short s = alpha_to_rgb[srcalpha + *src++];
+			/* Get source RGB555 value for source alpha value*/
+			unsigned short s = alpha_to_rgb[srcalpha + *src++];
 
-		/* Get destination RGB555 value for dest alpha value*/
-		unsigned short d = alpha_to_rgb[dstalpha + *dst];
+			/* Get destination RGB555 value for dest alpha value*/
+			unsigned short d = alpha_to_rgb[dstalpha + *dst];
 
-		/* Add RGB values together and get closest palette index to it*/
-		*dst++ = rgb_to_palindex[s + d];
+			/* Add RGB values together and get closest palette index to it*/
+			*dst++ = rgb_to_palindex[s + d];
 	    }
 	    dst += dlinelen - w;
 	    src += slinelen - w;
@@ -296,7 +292,8 @@ linear8_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 }
 
 #if ALPHABLEND
-void
+/* FIXME create lookup table whenever palette changed*/
+int
 init_alpha_lookup(void)
 {
 	int	i, a;
@@ -308,7 +305,7 @@ init_alpha_lookup(void)
 	if(!rgb_to_palindex)
 		rgb_to_palindex = (unsigned char *)malloc(sizeof(unsigned char)*32*32*32);
 	if(!rgb_to_palindex || !alpha_to_rgb)
-		return;
+		return 0;
 
 	/*
 	 * Precompute alpha to rgb lookup by premultiplying
@@ -335,6 +332,7 @@ init_alpha_lookup(void)
 				rgb_to_palindex[ (r<<10)|(g<<5)|b] =
 					GdFindNearestColor(gr_palette, 256, MWRGB(r<<3, g<<3, b<<3));
 	}
+	return 1;
 }
 #endif
 
@@ -744,6 +742,54 @@ linear8_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 }
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
+#if MW_FEATURE_PSDOP_ALPHACOL
+static void
+linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
+{
+	ADDR8 dst, alpha;
+	int x, y;
+	unsigned int as;
+	int src_row_step, dst_row_step;
+
+	/* init alpha lookup tables*/
+	if(!rgb_to_palindex) {
+		if (!init_alpha_lookup())
+			return;
+	}
+
+	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
+	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
+
+	src_row_step = gc->src_linelen - gc->dstw;
+	dst_row_step = psd->linelen - gc->dstw;
+
+	DRAWON;
+	for (y = 0; y < gc->dsth; y++) {
+		for (x = 0; x < gc->dstw; x++) {
+			if ((as = *alpha++) == 255)
+				*dst++ = gc->fg_color;
+			else if (as != 0) {
+				/* Create 5 bit alpha value index for 256 color indexing*/
+
+				/* Get source RGB555 value for source alpha value*/
+				unsigned short s = alpha_to_rgb[((as >> 3) << 8) + gc->fg_color];
+
+				/* Get destination RGB555 value for dest alpha value*/
+				unsigned short d = alpha_to_rgb[(((as >> 3) ^ 31) << 8) + *dst];
+
+				/* Add RGB values together and get closest palette index to it*/
+				*dst++ = rgb_to_palindex[s + d];
+			} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+				*dst++ = gc->bg_color;
+			else
+				++dst;
+		}
+		alpha += src_row_step;
+		dst += dst_row_step;
+	}
+	DRAWOFF;
+}
+#endif /* MW_FEATURE_PSDOP_ALPHACOL */
 
 static void
 linear8_drawarea(PSD psd, driver_gc_t * gc, int op)
@@ -754,37 +800,29 @@ linear8_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
 	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
 	assert(gc->srcy >= 0);
-
-#if 0
-	printf("linear32_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx,
-	       gc->dsty);
-#endif
+	/*DPRINTF("linear8_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
-
-#if 0				/* FIXME: PSDOP_ALPHACOL is not supported in 8-bit mode yet */
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear8_drawarea_alphacol(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
-#endif /* 0 */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		linear8_drawarea_bitmap_bytes_lsb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear8_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
+#endif
 
 	}
 }
-
 
 SUBDRIVER fblinear8 = {
 	linear8_init,

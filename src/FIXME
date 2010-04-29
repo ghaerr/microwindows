@@ -10,6 +10,9 @@ fblin32alpha.c/fblin32.c:
 	update stretchblitex in fblin32.c for SRC_OVER
 	check fblin24.c, fblin16.c against fblin32.c/a
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
+add drawarea_bitmap_bytes_msb_first (FT2 output) for fblin1/2, fblin4rev
+add X11 keyboard and mouse support to fbe
+init_alpha_lookup needs reinit if palette changed
 add SUBDRIVER entry into SCREENDEVICE
 last char drawn wrong on fontdemo2.sh portrait modes
 fix down portrait stretch/blit driver mods

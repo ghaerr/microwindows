@@ -1,11 +1,11 @@
 /*
-* Copyright (c) 1999 Greg Haerr <greg@censoft.com>
-*
-* 2bpp Packed Linear Video Driver (reversed bit order)
-* For Psion S5
-*
-* 	In this driver, psd->linelen is line byte length, not line pixel length
-*/
+ * Copyright (c) 1999, 2010 Greg Haerr <greg@censoft.com>
+ *
+ * 2bpp Packed Linear Video Driver (reversed bit order)
+ * For Psion S5
+ *
+ * 	In this driver, psd->linelen is line byte length, not line pixel length
+ */
 /*#define NDEBUG*/
 #include <assert.h>
 #include <string.h>
@@ -28,15 +28,14 @@ linear2_init(PSD psd)
 static void
 linear2_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x>>2) + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x>>2) + y * psd->linelen;
 	if(gr_mode == MWMODE_XOR)
 		*addr ^= c << ((x&3)<<1);
 	else
@@ -48,30 +47,28 @@ linear2_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear2_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
-	return (addr[(x>>2) + y * psd->linelen] >> ((x&3)<<1) ) & 0x03;
+#endif
+	return (((ADDR8)psd->addr)[(x>>2) + y * psd->linelen] >> ((x&3)<<1) ) & 0x03;
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear2_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x1>>2) + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x1>>2) + y * psd->linelen;
 	if(gr_mode == MWMODE_XOR) {
 		while(x1 <= x2) {
 			*addr ^= c << ((x1&3)<<1);
@@ -92,18 +89,17 @@ linear2_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear2_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
 	int	linelen = psd->linelen;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x>>2) + y1 * linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x>>2) + y1 * linelen;
 	if(gr_mode == MWMODE_XOR)
 		while(y1++ <= y2) {
 			*addr ^= c << ((x&3)<<1);
@@ -142,8 +138,8 @@ linear2_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	dst = dstpsd->addr + (dstx>>2) + dsty * dlinelen;
-	src = srcpsd->addr + (srcx>>2) + srcy * slinelen;
+	dst = ((ADDR8)dstpsd->addr) + (dstx>>2) + dsty * dlinelen;
+	src = ((ADDR8)srcpsd->addr) + (srcx>>2) + srcy * slinelen;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;

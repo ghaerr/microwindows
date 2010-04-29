@@ -166,8 +166,7 @@ linear32a_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
-linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
-		       MWPIXELVAL c)
+linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	register ADDR32 addr = ((ADDR32)psd->addr) + x1 + y * psd->linelen;
 	UINT32 psr, psg, psb, as, pd;
@@ -254,8 +253,7 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
 
 /* Draw a vertical line from x,y1 to x,y2 including final point*/
 static void
-linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
-		       register MWPIXELVAL c)
+linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	int linelen = psd->linelen;
 	register ADDR32 addr = ((ADDR32)psd->addr) + x + y1 * linelen;
@@ -1381,24 +1379,23 @@ linear32a_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*DPRINTF("linear32a_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
-
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear32a_drawarea_alphacol(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		linear32a_drawarea_bitmap_bytes_lsb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear32a_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
+#endif
 
 	}
 }

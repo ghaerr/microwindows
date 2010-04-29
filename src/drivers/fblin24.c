@@ -1245,6 +1245,10 @@ linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				*dst++ = muldiv255(as, psb - pd) + pd;
 				*dst++ = muldiv255(as, psg - pd) + pd;
 				*dst++ = muldiv255(as, psr - pd) + pd;
+			} else if(gc->gr_usebg)	{	/* alpha 0 - draw bkgnd*/
+				*dst++ = PIXEL888RED(gc->bg_color);
+				*dst++ = PIXEL888GREEN(gc->bg_color);
+				*dst++ = PIXEL888BLUE(gc->bg_color);
 			} else
 				dst += 3;
 		}
@@ -1267,24 +1271,23 @@ linear24_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*DPRINTF("linear32_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
-
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear24_drawarea_alphacol(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		linear24_drawarea_bitmap_bytes_lsb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear24_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
+#endif
 
 	}
 }

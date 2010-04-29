@@ -54,6 +54,9 @@ ifeq ($(VTSWITCH), Y)
 DEFINES += -DVTSWITCH=1
 endif
 
+# X11 libs, used to build nano-X on X11 and fbe
+X11LDFLAGS += -L/usr/X11R6/lib -lX11
+
 ifeq ($(X11), Y)
 DEFINES += -DX11=1
 ifneq ($(ARCH),CYGWIN)
@@ -61,7 +64,7 @@ ifneq ($(ARCH),CYGWIN)
 # *after* the object files that use it, but this inserts
 # it at the start.  For Cygwin, we will add libX11.a to the
 # library list instead.
-LDFLAGS += -L/usr/X11R6/lib -lX11
+LDFLAGS += $(X11LDFLAGS)
 else
 MW_CORE_LIBS += /usr/X11R6/lib/libX11.a
 endif

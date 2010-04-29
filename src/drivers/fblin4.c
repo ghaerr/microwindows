@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2003, 2005, 2006 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003, 2005, 2006, 2010 Greg Haerr <greg@censoft.com>
  *
  * 4bpp Packed Linear Video Driver for Microwindows
  * 	This driver is written for the Vr41xx Palm PC machines
@@ -11,7 +11,6 @@
  * 	In this driver, psd->linelen is line byte length, not line pixel length
  */
 /*#define NDEBUG*/
-#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include "device.h"
@@ -37,35 +36,28 @@ linear4_init(PSD psd)
 	return 1;
 }
 
-/* Set pixel at x, y, to pixelval c*/
-#define linear4_drawpixelfast(psd, x, y, c) \
-{\
-	ADDR8	addr = psd->addr;\
-	addr += ((x)>>1) + (y) * psd->linelen;\
-	*addr = (*addr & notmask[(x)&1]) | ((c) << ((1-((x)&1))<<2));\
-}
+/* Set pixel at addr, x, to pixelval c*/
+#define linear4_drawpixelfast(psd, addr, x, c) \
+	*addr = (*addr & notmask[(x)&1]) | ((c) << ((1-((x)&1))<<2));
 
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x>>1) + y * psd->linelen;
 	INVERT(c);
 	if(gr_mode == MWMODE_COPY) {
 		*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
 	} else {
 		*addr = (*addr & notmask[x&1]) | 
-                    ( (applyOpR(gr_mode, c, *addr >> ((1-(x&1))<<2))
-                       & 0x0f) << ((1-(x&1))<<2)
-                    );
+			((applyOpR(gr_mode, c, *addr >> ((1-(x&1))<<2)) & 0x0f) << ((1-(x&1))<<2));
 	}
 	DRAWOFF;
 }
@@ -74,34 +66,31 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear4_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	ADDR8		addr = psd->addr;
 	MWPIXELVAL	c;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
-	c = (addr[(x>>1) + y * psd->linelen] >> ((1-(x&1))<<2) ) & 0x0f;
+#endif
+	c = (((ADDR8)psd->addr)[(x>>1) + y * psd->linelen] >> ((1-(x&1))<<2) ) & 0x0f;
 	INVERT(c);
 	return c;
-	
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+	register ADDR8 addr = ((ADDR8)psd->addr) + (x1>>1) + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x1>>1) + y * psd->linelen;
 	INVERT(c);
 	if(gr_mode == MWMODE_COPY) {
 		while(x1 <= x2) {
@@ -112,9 +101,7 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	} else {
 		while(x1 <= x2) {
 			*addr = (*addr & notmask[x1&1]) | 
-			    ( (applyOpR(gr_mode, c, *addr >> ((1-(x1&1))<<2))
-			       & 0x0f) << ((1-(x1&1))<<2)
-			    );
+				((applyOpR(gr_mode, c, *addr >> ((1-(x1&1))<<2)) & 0x0f) << ((1-(x1&1))<<2));
 			if((++x1 & 1) == 0)
 				++addr;
 		}
@@ -126,18 +113,17 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
 	int	linelen = psd->linelen;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y1 * linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x>>1) + y1 * linelen;
 	INVERT(c);
 	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
@@ -147,9 +133,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	} else {
 		while(y1++ <= y2) {
 			*addr = (*addr & notmask[x&1]) | 
-			    ( (applyOpR(gr_mode, c, *addr >> ((1-(x&1))<<2))
-			       & 0x0f) << ((1-(x&1))<<2)
-			    );
+			    ((applyOpR(gr_mode, c, *addr >> ((1-(x&1))<<2)) & 0x0f) << ((1-(x&1))<<2));
 			addr += linelen;
 		}
 	}
@@ -199,11 +183,9 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 					((c >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
 			} else {
 				*d = (*d & notmask[dx&1]) |
-					( (applyOpR( op,
-						     c >> ((1-(sx&1))<<2),
-						     *d >> ((1-(dx&1))<<2)
-						   ) 
-					   & 0x0f) << ((1-(dx&1))<<2)
+					((applyOpR(op,
+						c >> ((1-(sx&1))<<2),
+						*d >> ((1-(dx&1))<<2)) & 0x0f) << ((1-(dx&1))<<2)
 					);
 			}
 
@@ -218,8 +200,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	DRAWOFF;
 }
 
-
-#if 1 /*MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST*/
+#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 /* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
  * takes a pixmap, each line is byte aligned, and copies it
  * to the screen using fg_color and bg_color to replace a 1
@@ -328,8 +309,7 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			postfix_last_bit = 0;
 			size_main++;
 		}
-	} else if ((prefix_first_bit == MWI_FIRST_BIT)
-		   && (postfix_last_bit == MWI_LAST_BIT)) {
+	} else if ((prefix_first_bit == MWI_FIRST_BIT) && (postfix_last_bit == MWI_LAST_BIT)) {
 		/* Exactly one byte wide. */
 		prefix_first_bit = 0;
 		postfix_last_bit = 0;
@@ -344,47 +324,54 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 
 	DRAWON;
 
-#if 0
-	printf(" prefix_first_bit=%d\n", prefix_first_bit);
-	printf(" postfix_first_bit=%d\n", postfix_first_bit);
-	printf(" size_main=%d\n", size_main);
-
-#endif
+	//printf(" prefix_first_bit=%d\n", prefix_first_bit);
+	//printf(" postfix_first_bit=%d\n", postfix_first_bit);
+	//printf(" size_main=%d\n", size_main);
 
 	if (gc->gr_usebg) {
 		for (y = 0; y < gc->dsth; y++) {
 			int x = 0;
+			int X = gc->dstx;
+			ADDR8 addr = ((ADDR8)psd->addr) + (X>>1) + (gc->dsty+y) * psd->linelen;
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
-				linear4_drawpixel(psd,gc->dstx+(x++),gc->dsty+y,(mask & bitmap_byte) ? fg : bg);
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+					linear4_drawpixelfast(psd,addr,  X, (mask & bitmap_byte)? fg: bg);
+					++x; if ((++X & 1) == 0) ++addr;
 				}
 			}
 
 			/* Do all pixels of main part one byte at a time */
 			for (t = size_main; t != 0; t--) {
 				bitmap_byte = *src++;
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(0) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(1) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(2) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(3) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(4) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(5) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(6) & bitmap_byte) ? fg : bg);
-				linear4_drawpixelfast(psd, gc->dstx+(x++), gc->dsty+y, (MWI_BIT_NO(7) & bitmap_byte) ? fg : bg);
+
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(0) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(1) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(2) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(3) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(4) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(5) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(6) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
+				linear4_drawpixelfast(psd, addr, X, (MWI_BIT_NO(7) & bitmap_byte)? fg: bg);
+				++x; if ((++X & 1) == 0) ++addr;
 			}
 
 			/* Do last few bits of line */
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					linear4_drawpixel(psd,gc->dstx+(x++),gc->dsty+y,(mask & bitmap_byte) ? fg : bg);
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+					linear4_drawpixelfast(psd, addr, X, (mask & bitmap_byte)? fg: bg);
+					++x; if ((++X & 1) == 0) ++addr;
 				}
 			}
 			src += advance_src;
@@ -393,16 +380,17 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	} else {	/* don't use background */
 		for (y = 0; y < gc->dsth; y++) {
 			int x = 0;
+			int X = gc->dstx;
+			ADDR8 addr = ((ADDR8)psd->addr) + (X>>1) + (gc->dsty+y) * psd->linelen;
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
 				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
+				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte)
-						linear4_drawpixel(psd,gc->dstx+(x),gc->dsty+y, fg);
-					x++;
-					dst++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+					++x; if ((++X & 1) == 0) ++addr;
+					++dst;
 				}
 			}
 
@@ -411,29 +399,29 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 				bitmap_byte = *src++;
 
 				if (MWI_BIT_NO(0) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(1) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(2) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(3) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(4) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(5) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(6) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 				if (MWI_BIT_NO(7) & bitmap_byte)
-					linear4_drawpixelfast(psd,gc->dstx+(x),gc->dsty+y, fg);
-				x++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+				++x; if ((++X & 1) == 0) ++addr;
 
 				dst += 8;
 			}
@@ -442,13 +430,11 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			if (postfix_last_bit) {
 				bitmap_byte = *src++;
 				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
+				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
 					if (mask & bitmap_byte)
-						linear4_drawpixel(psd,gc->dstx+(x),gc->dsty+y, fg);
-					x++;
-					dst++;
+						linear4_drawpixelfast(psd, addr, X, fg);
+					++x; if ((++X & 1) == 0) ++addr;
+					++dst;
 				}
 			}
 			src += advance_src;
@@ -466,8 +452,6 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 }
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
-
-
 static void
 linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
 {
@@ -477,12 +461,16 @@ linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
 	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
 	assert(gc->srcy >= 0);
+	/*printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
-//	printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);
-
-	linear4_drawarea_bitmap_bytes_msb_first(psd, gc);
+	switch (op) {
+#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
+	case PSDOP_BITMAP_BYTES_MSB_FIRST:
+		linear4_drawarea_bitmap_bytes_msb_first(psd, gc);
+		break;
+#endif
+	}
 }
-
 
 SUBDRIVER fblinear4 = {
 	linear4_init,
@@ -494,56 +482,3 @@ SUBDRIVER fblinear4 = {
 	linear4_blit,
 	linear4_drawarea
 };
-
-#if 0000
-			/* Do pixels of partial first byte */
-			if (prefix_first_bit) {
-				bitmap_byte = *src++;
-				for (mask = prefix_first_bit; mask;
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
-				}
-			}
-
-			for (t = size_main; t != 0; t--) {
-				bitmap_byte = *src++;
-
-				*dst++ = (MWI_BIT_NO(0) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(1) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(2) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(3) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(4) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(5) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(6) & bitmap_byte) ? fg :
-					bg;
-				*dst++ = (MWI_BIT_NO(7) & bitmap_byte) ? fg :
-					bg;
-			}
-
-			/* Do last few bits of line */
-			if (postfix_last_bit) {
-				bitmap_byte = *src++;
-				for (mask = postfix_first_bit;
-				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask,
-								postfix_last_bit);
-				     MWI_ADVANCE_BIT(mask)) {
-					*dst++ = (mask & bitmap_byte) ? fg :
-						bg;
-				}
-			}
-printf("%c", (MWI_BIT_NO(0) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(1) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(2) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(3) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(4) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(5) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(6) & bitmap_byte) ? '.' : ' ');
-printf("%c", (MWI_BIT_NO(7) & bitmap_byte) ? '.' : ' ');
-#endif

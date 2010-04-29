@@ -542,7 +542,7 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 		e->map[n] = f_read16(file);
 		/*DPRINTF("ncode %x (%c) %x\n", n, n, e->map[n]);*/
 	}
-	DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
+	DPRINTF("size %ld byte1 %d,%d byte2 %d,%d\n", e->count,
 		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);
 	return e->count;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * 4bpp Packed Linear Video Driver (reversed nibble order)
  * For Psion S5
@@ -13,6 +13,10 @@
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+
+/* This driver doesn't have full drawing mode functionality using
+ * the applyOp() macro from fb.h
+ */
 
 #if INVERT4BPP
 #define INVERT(c)	((c) = (~c & 0x0f))
@@ -36,15 +40,14 @@ linear4_init(PSD psd)
 static void
 linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x>>1) + y * psd->linelen;
 	if(gr_mode == MWMODE_XOR)
 		*addr ^= c << ((x&1)<<2);
 	else {
@@ -58,34 +61,31 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear4_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	ADDR8		addr = psd->addr;
 	MWPIXELVAL	c;
-
-	assert (addr != 0);
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
-	c = (addr[(x>>1) + y * psd->linelen] >> ((x&1)<<2) ) & 0x0f;
+#endif
+	c = (((ADDR8)psd->addr)[(x>>1) + y * psd->linelen] >> ((x&1)<<2) ) & 0x0f;
 	INVERT(c);
 	return c;
-	
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
-
-	assert (addr != 0);
+	register ADDR8 addr = ((ADDR8)psd->addr) + (x1>>1) + y * psd->linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x1>>1) + y * psd->linelen;
 	if(gr_mode == MWMODE_XOR) {
 		while(x1 <= x2) {
 			*addr ^= c << ((x1&1)<<2);
@@ -107,18 +107,17 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	ADDR8	addr = psd->addr;
 	int	linelen = psd->linelen;
-
-	assert (addr != 0);
+	ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y1 * linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
 	assert (c < psd->ncolors);
-
+#endif
 	DRAWON;
-	addr += (x>>1) + y1 * linelen;
 	if(gr_mode == MWMODE_XOR) {
 		while(y1++ <= y2) {
 			*addr ^= c << ((x&1)<<2);
@@ -159,22 +158,20 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	dst = dstpsd->addr + (dstx>>1) + dsty * dlinelen;
-	src = srcpsd->addr + (srcx>>1) + srcy * slinelen;
+	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
+	src = ((ADDR8)srcpsd->addr) + (srcx>>1) + srcy * slinelen;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;
 		MWCOORD	dx = dstx;
 		MWCOORD	sx = srcx;
-		for(i=0; i<w; ++i) {
+		for (i=0; i<w; ++i) {
 #if INVERT4BPP
 			unsigned char c = *s;
 			INVERT(c);
-			*d = (*d & notmask[dx&1]) |
-			   ((c >> ((sx&1)<<2) & 0x0f) << ((dx&1)<<2));
+			*d = (*d & notmask[dx&1]) | ((c >> ((sx&1)<<2) & 0x0f) << ((dx&1)<<2));
 #else
-			*d = (*d & notmask[dx&1]) |
-			   ((*s >> ((sx&1)<<2) & 0x0f) << ((dx&1)<<2));
+			*d = (*d & notmask[dx&1]) | ((*s >> ((sx&1)<<2) & 0x0f) << ((dx&1)<<2));
 #endif
 			if((++dx & 1) == 0)
 				++d;

@@ -1316,24 +1316,23 @@ linear18_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*DPRINTF("linear32_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
-
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear18_drawarea_alphacol(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		linear18_drawarea_bitmap_bytes_lsb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear18_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
+#endif
 
 	}
 }

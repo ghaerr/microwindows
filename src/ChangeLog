@@ -1,3 +1,13 @@
+27 April 2010
+	* speedup fblin8/4/2/1 drivers, no asserts by default
+	* speedup 4bpp drawarea_bitmap_bytes_msb_first with linear4_drawpixelfast
+	* wrote drawarea_alphacol for 8bpp fblin8.c (FT2 antialiased output)
+	* change back FIRSTUSERENTRY to 256 for palette mode and fbe in non ALPHABLEND
+	* added bin/fbe (demos/fbe.c), frame buffer emulator on X11 for 1, 2, 4 and 8bpp!
+		to use set default BPP/XRES/YRES in drivers/scr_fb.c, FBEMULATOR=Y in config
+		run FRAMEBUFFER=/tmp/fb0 bin/fbe -d<bpp>
+		reverse bit order supported for 1,2,4 bpp (-r option)
+	* removed EMBEDDEDPLANET and TPHELIO special cases in scr_fb.c
 26 April 2010
 	* fixed FT2 non-antialias (bitmap) display in left/right/down portrait
 	* implemented drawarea_bitmap_bytes_msb_first in fbportrait*.c

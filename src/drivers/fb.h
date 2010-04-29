@@ -546,6 +546,7 @@ extern MWPIXELVAL gr_background;
 /* scr_fb.c*/
 void ioctl_getpalette(int start, int len, short *red, short *green,short *blue);
 void ioctl_setpalette(int start, int len, short *red, short *green,short *blue);
+void setfadelevel(PSD psd, int f);
 
 /* genmem.c*/
 void	gen_fillrect(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,

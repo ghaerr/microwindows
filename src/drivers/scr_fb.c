@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -28,6 +29,14 @@
 #include "genfont.h"
 #include "genmem.h"
 #include "fb.h"
+
+#define PATH_FRAMEBUFFER	"/dev/fb0"	/* real framebuffer*/
+
+/* frame buffer emulator defaults - not used with real framebuffer*/
+#define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
+#define XRES				640			/* default fb emulator xres*/
+#define YRES				480			/* default fb emulator yres*/
+#define BPP					4			/* default fb emulator bpp*/
 
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 
@@ -66,6 +75,26 @@ SCREENDEVICE	scrdev = {
 	NULL			/* StretchBlitEx subdriver*/
 };
 
+/* framebuffer info defaults for emulator*/
+static struct fb_fix_screeninfo  fb_fix = {
+	  .type = FB_TYPE_PACKED_PIXELS,
+	  //.visual = FB_VISUAL_MONO10,
+	  .visual = FB_VISUAL_PSEUDOCOLOR,
+	  .line_length = XRES / (8 / BPP),
+	  .accel = FB_ACCEL_NONE,
+};
+
+static struct fb_var_screeninfo fb_var = {
+	  .xres = XRES,
+	  .yres = YRES,
+	  .xres_virtual = XRES,
+	  .yres_virtual = YRES,
+	  .bits_per_pixel = BPP,
+	  .red = { 0, BPP, 0 },
+	  .green = { 0, BPP, 0 },
+	  .blue = { 0, BPP, 0 },
+};
+
 /* static variables*/
 static int fb;			/* Framebuffer file handle. */
 static int status;		/* 0=never inited, 1=once inited, 2=inited. */
@@ -83,35 +112,6 @@ fb_open(PSD psd)
 	char *	env;
 	int	type, visual;
 	PSUBDRIVER subdriver;
-#if HAVETEXTMODE
-	int tty;
-#endif
-#if EMBEDDEDPLANET
-	env = "/dev/lcd";
-	fb = open(env, O_RDWR);
-	if(fb < 0) {
-		EPRINTF("Error opening %s: %m", env);
-		return NULL;
-	}
-	/* framebuffer attributes are fixed*/
-	type = FB_TYPE_PACKED_PIXELS;
-	visual = FB_VISUAL_PSEUDOCOLOR;
-	psd->xres = psd->xvirtres = 640;
-	psd->yres = psd->yvirtres = 480;
-	psd->planes = 1;
-	psd->bpp = 8;
-	/* set linelen to byte length, possibly converted later*/
-	psd->linelen = psd->xvirtres;
-	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-	psd->size = 0;		/* force subdriver init of size*/
-
-	if (ioctl(fb, 1, 0) < 0) {
-		EPRINTF("Error: can't enable LCD");
-		goto fail;
-	}
-#else
-	struct fb_fix_screeninfo fb_fix;
-	struct fb_var_screeninfo fb_var;
 
 	assert(status < 2);
 
@@ -120,19 +120,25 @@ fb_open(PSD psd)
 		fb = open(env, O_RDWR);
 	else {
 		/* try /dev/fb0 then /dev/fb/0 */
-		fb = open("/dev/fb0", O_RDWR);
+		fb = open(PATH_FRAMEBUFFER, O_RDWR);
 		if (fb < 0)
 			fb = open("/dev/fb/0", O_RDWR);
 	}
 	if(fb < 0) {
-		EPRINTF("Error opening %s: %m. Check kernel config\n", env? env: "/dev/fb0");
+		EPRINTF("Error opening %s: %m. Check kernel config\n", env? env: PATH_FRAMEBUFFER);
 		return NULL;
 	}
-	if(ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
+
+	/* get framebuffer info*/
+	if (ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
 		ioctl(fb, FBIOGET_VSCREENINFO, &fb_var) == -1) {
-			EPRINTF("Error reading screen info: %m\n");
-			goto fail;
+			/* allow framebuffer emulator to fail ioctl*/
+			if (env && strcmp(env, PATH_EMULATORFB) != 0) {
+				EPRINTF("Error reading screen info: %m\n");
+				goto fail;
+			}
 	}
+
 	/* setup screen device from framebuffer info*/
 	type = fb_fix.type;
 	visual = fb_fix.visual;
@@ -159,12 +165,10 @@ fb_open(PSD psd)
 	/* set linelen to byte length, possibly converted later*/
 	psd->linelen = fb_fix.line_length;
 	psd->size = 0;		/* force subdriver init of size*/
-#endif /* !EMBEDDEDPLANET*/
 
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
 
 	/* set pixel format*/
-#ifndef TPHELIO /* temp kluge: VTech Helio kernel needs changing*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {
 		switch(psd->bpp) {
 		case 8:
@@ -182,12 +186,10 @@ fb_open(PSD psd)
 			break;
 		case 32:
 			psd->pixtype = MWPF_TRUECOLOR0888;
-#if !EMBEDDEDPLANET
 			/* Check if we have alpha */
 			/* FIXME could set MWPF_TRUECOLORABGR here*/
 			if (fb_var.transp.length == 8)
 				psd->pixtype = MWPF_TRUECOLOR8888;
-#endif
 			break;
 		default:
 			EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n",
@@ -195,12 +197,11 @@ fb_open(PSD psd)
 			goto fail;
 		}
 	} else 
-#endif
 		psd->pixtype = MWPF_PALETTE;
 
-	EPRINTF("%dx%dx%d linelen %d type %d visual %d bpp %d pixtype %d\n", psd->xres,
-	 	psd->yres, psd->ncolors, psd->linelen, type, visual,
-		psd->bpp, psd->pixtype);
+	EPRINTF("%dx%dx%d linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres,
+	 	psd->yres, psd->bpp, psd->linelen, type, visual,
+		psd->ncolors, psd->pixtype);
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);
@@ -223,6 +224,7 @@ fb_open(PSD psd)
 	psd->orgsubdriver = subdriver;
 
 #if HAVETEXTMODE
+	{
 	/* open tty, enter graphics mode*/
 	tty = open ("/dev/tty0", O_RDWR);
 	if(tty < 0) {
@@ -235,7 +237,9 @@ fb_open(PSD psd)
 		goto fail;
 	}
 	close(tty);
+	}
 #endif
+
 	/* mmap framebuffer into this address space*/
 	psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
 
@@ -255,17 +259,15 @@ fb_open(PSD psd)
 		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,TCX_RAM24BIT);
  		break;
 	default:
-		EPRINTF("Don;t know how to mmap %s with accel %d\n", env, fb_fix.accel);
+		EPRINTF("Don't know how to mmap %s with accel %d\n", env, fb_fix.accel);
 		goto fail;
 	}
 #elif defined(BLACKFIN)
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_FILE,fb,0);
-#else
-#ifndef __uClinux__
-	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,0);
-#else
+#elif defined(__uClinux__)
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,0,fb,0);
-#endif
+#else
+	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,0);
 #endif
 	if(psd->addr == NULL || psd->addr == (unsigned char *)-1) {
 		EPRINTF("Error mmaping %s: %m\n", env);
@@ -343,9 +345,9 @@ static void
 fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 {
 	int 	i;
-	unsigned short 	red[256];
-	unsigned short 	green[256];
-	unsigned short 	blue[256];
+	short 	red[256];
+	short 	green[256];
+	short 	blue[256];
 
 	if (count > 256)
 		count = 256;
@@ -384,9 +386,9 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 
 	cmap.start = start;
 	cmap.len = len;
-	cmap.red = red;
-	cmap.green = green;
-	cmap.blue = blue;
+	cmap.red = (unsigned short *)red;
+	cmap.green = (unsigned short *)green;
+	cmap.blue = (unsigned short *)blue;
 	cmap.transp = NULL;
 
 	ioctl(fb, FBIOGETCMAP, &cmap);
@@ -413,9 +415,9 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 
 	cmap.start = start;
 	cmap.len = len;
-	cmap.red = red;
-	cmap.green = green;
-	cmap.blue = blue;
+	cmap.red = (unsigned short *)red;
+	cmap.green = (unsigned short *)green;
+	cmap.blue = (unsigned short *)blue;
 	cmap.transp = NULL;
 
 	ioctl(fb, FBIOPUTCMAP, &cmap);
@@ -427,7 +429,7 @@ void
 setfadelevel(PSD psd, int f)
 {
 	int 		i;
-	unsigned short 	r[256], g[256], b[256];
+	short 	r[256], g[256], b[256];
 	extern MWPALENTRY gr_palette[256];
 
 	if(psd->pixtype != MWPF_PALETTE)

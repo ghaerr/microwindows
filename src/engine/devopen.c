@@ -108,7 +108,7 @@ GdOpenScreen(void)
 	case 256:	/* 8bpp*/
 	{
 		extern MWPALENTRY	mwstdpal8[256];
-#if xxxALPHABLEND
+#if ALPHABLEND
 		/* don't change uniform palette if alpha blending*/
 		gr_firstuserpalentry = 256;
 #else
@@ -129,11 +129,6 @@ GdOpenScreen(void)
 	/* reset next user palette entry, write hardware palette*/
 	GdResetPalette();
 	GdSetPalette(psd, 0, (int)psd->ncolors, stdpal);
-#if xxxALPHABLEND
-	/* one-time create alpha lookup table for 8bpp systems (takes ~1 sec)*/
-	if(psd->ncolors == 256)
-		init_alpha_lookup();
-#endif
 
 #if !NOFONTSORCLIPPING
 	/* init local vars*/

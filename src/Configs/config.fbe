@@ -56,7 +56,7 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = N
+DEBUG                    = Y
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
@@ -271,7 +271,7 @@ GRAYPALETTE              = N
 ifneq ($(ARCH), ELKS)
 
 # X Window screen, mouse and kbd drivers
-X11                      = Y
+X11                      = N
 
 ifeq ($(X11), Y)
 # startup screen width, height, (depth for palette mode only)
@@ -291,13 +291,13 @@ else
 # set FBVGA=N for all systems without VGA hardware (for MIPS must=N)
 FRAMEBUFFER              = Y
 FBVGA                    = N
-VTSWITCH                 = Y
+VTSWITCH                 = N
 FBREVERSE                = N
 
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.
 # On a graphics-only embedded system, such as Osprey and Embedded
 # Planet boards, set HAVETEXTMODE=N
-HAVETEXTMODE             = Y
+HAVETEXTMODE             = N
 
 # svgalib screen driver
 VGALIB                   = N
@@ -330,8 +330,8 @@ PSP                      = N
 # TSLIBMOUSE    Use tslib (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
-GPMMOUSE                 = N
-SERMOUSE                 = Y
+GPMMOUSE                 = Y
+SERMOUSE                 = N
 SUNMOUSE                 = N
 NOMOUSE                  = N
 IPAQMOUSE                = N
@@ -352,11 +352,11 @@ PSPMOUSE                 = N
 
 # keyboard or null kbd driver
 TTYKBD                   = N
-SCANKBD                  = Y
+SCANKBD                  = N
 PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
-NOKBD                    = N
+NOKBD                    = Y
 
 endif
 

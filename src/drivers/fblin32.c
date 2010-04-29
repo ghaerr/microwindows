@@ -83,17 +83,16 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	ADDR32	addr = psd->addr;
 	int	linelen = psd->linelen;
-
-	assert (addr != 0);
+	register ADDR32	addr = ((ADDR32)psd->addr) + x + y1 * linelen;
+#if DEBUG
+	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
-
+#endif
 	DRAWON;
-	addr += x + y1 * linelen;
 	if(gr_mode == MWMODE_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
@@ -1070,24 +1069,23 @@ linear32_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*DPRINTF("linear32_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
-
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear32_drawarea_alphacol(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		linear32_drawarea_bitmap_bytes_lsb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+#endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear32_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
+#endif
 
 	}
 }

@@ -456,7 +456,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	const void *	text;
 	int		defencoding = gr_pfont->fontprocs->encoding;
 	int		force_uc16 = 0;
-	unsigned long	buf[256];
+	unsigned long *buf = NULL;
 
 	/*
 	 * DBCS encoding is handled a little special: if the selected
@@ -478,20 +478,25 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 		}
 	}
 
+	/* use strlen for char count when ascii or dbcs*/
+	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
+		cc = strlen((char *)str);
+
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
+		/* allocate enough for output string utf8/uc32 is max 4 bytes, uc16 max 2*/
+		buf = ALLOCA(cc * 4);
 		cc = GdConvertEncoding(str, flags, cc, buf, defencoding);
 		flags &= ~MWTF_PACKMASK;	/* keep DBCS bits for drawtext*/
 		flags |= defencoding;
 		text = buf;
 	} else text = str;
 
-	/* use strlen for char count when ascii or dbcs*/
-	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
-		cc = strlen((char *)str);
-
-	if(cc <= 0 || !gr_pfont->fontprocs->DrawText)
+	if(cc <= 0 || !gr_pfont->fontprocs->DrawText) {
+		if (buf)
+			FREEA(buf);
 		return;
+	}
 
 	/* draw text string, DBCS flags may still be set*/
 #ifdef HAVE_KSC5601_SUPPORT
@@ -502,6 +507,9 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	if (!force_uc16)	/* remove DBCS flags if not needed*/
 		flags &= ~MWTF_DBCSMASK;
 	gr_pfont->fontprocs->DrawText(gr_pfont, psd, x, y, text, cc, flags);
+
+	if (buf)
+		FREEA(buf);
 }
 
 /*
@@ -813,7 +821,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 	unsigned long		*ostr32;
 	unsigned int		ch;
 	int			icc;
-	unsigned short		buf16[512];
+	unsigned short *buf16 = NULL;
 
 	iflags &= MWTF_PACKMASK|MWTF_DBCSMASK;
 	oflags &= MWTF_PACKMASK|MWTF_DBCSMASK;
@@ -824,12 +832,19 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 
 	/* first check for utf8 input encoding*/
 	if(iflags == MWTF_UTF8) {
+		/* allocate enough for output string, uc16 max 2*/
+		if (oflags != MWTF_UC16)
+			buf16 = ALLOCA(cc * 2);
+
 		/* we've only got uc16 now so convert to uc16...*/
 		cc = utf8_to_utf16((unsigned char *)istr, cc,
 			oflags==MWTF_UC16?(unsigned short*) ostr: buf16);
 
-		if(oflags == MWTF_UC16 || cc < 0)
+		if(oflags == MWTF_UC16 || cc < 0) {
+			if (buf16)
+				FREEA(buf16);
 			return cc;
+		}
 
 		/* will decode again to requested format (probably ascii)*/
 		iflags = MWTF_UC16;
@@ -840,6 +855,8 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 	if(iflags == MWTF_UC16 && oflags == MWTF_ASCII) {
 		/* only support uc16 convert to ascii now...*/
 		cc = UC16_to_GB( istr, cc, ostr);
+		if (buf16)
+			FREEA(buf16);
 		return cc;
 	}
 #endif
@@ -942,6 +959,9 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 		}
 		++cc;
 	}
+
+	if (buf16)
+		FREEA(buf16);
 	return cc;
 }
 
@@ -969,7 +989,7 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	const void *	text;
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
 	int		force_uc16 = 0;
-	unsigned long	buf[256];
+	unsigned long *buf = NULL;
 
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
@@ -981,21 +1001,24 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 		}
 	}
 
+	/* use strlen for char count when ascii or dbcs*/
+	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
+		cc = strlen((char *)str);
+
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
-		/*FIXME: if buf is not big enough, buf overflow may cause exceptions!!!!*/
+		/* allocate enough for output string utf8/uc32 is max 4 bytes, uc16 max 2*/
+		buf = ALLOCA(cc * 4);
 		cc = GdConvertEncoding(str, flags, cc, buf, defencoding);
 		flags &= ~MWTF_PACKMASK; /* keep DBCS bits for gettextsize*/
 		flags |= defencoding;
 		text = buf;
 	} else text = str;
 
-	/* use strlen for char count when ascii or dbcs*/
-	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
-		cc = strlen((char *)str);
-
 	if(cc <= 0 || !pfont->fontprocs->GetTextSize) {
 		*pwidth = *pheight = *pbase = 0;
+		if (buf)
+			FREEA(buf);
 		return;
 	}
 
@@ -1003,6 +1026,9 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	if (force_uc16)		/* if UC16 conversion forced, string is DBCS*/
 		dbcs_gettextsize(pfont, text, cc, flags, pwidth, pheight, pbase);
 	else pfont->fontprocs->GetTextSize(pfont, text, cc, flags, pwidth, pheight, pbase);
+
+	if (buf)
+		FREEA(buf);
 }
 
 /**

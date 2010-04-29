@@ -1,3 +1,4 @@
+	* dynamically allocate buffers in GdGetTextSize, GdText, and GdConvertEncoding
 27 April 2010 (Ludwig Ertl)
 	* changed BM_SETIMAGE and STM_SETIMAGE to use lParam in button/static
 	* add SystemParametersInfo, non-overlapped workarea feature

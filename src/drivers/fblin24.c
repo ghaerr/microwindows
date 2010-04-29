@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 24bpp Linear Video Driver for Microwindows
@@ -1243,7 +1243,9 @@ linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 			} else if (as != 0) {
 				pd = *dst;
 				*dst++ = muldiv255(as, psb - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(as, psg - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(as, psr - pd) + pd;
 			} else if(gc->gr_usebg)	{	/* alpha 0 - draw bkgnd*/
 				*dst++ = PIXEL888RED(gc->bg_color);

@@ -1,4 +1,16 @@
-27 April 2010
+27 April 2010 (Ludwig Ertl)
+	* changed BM_SETIMAGE and STM_SETIMAGE to use lParam in button/static
+	* add SystemParametersInfo, non-overlapped workarea feature
+	* add GetProp, SetProp, RemoveProp window property routines
+		use these rather than window userdata
+	* rewrite KillTimer to allow deleting currently executing timer
+	* fix free szExecCommand in mwFreeInstance
+	* fix mwFindResource endless loop on last resource when closed resfile
+	* rewrite peekmessage loop in windlg.c with getmessage
+	* replace sscanf with strtoul in windlg.c
+	* fix BS_RIGHT style in button.c
+	* added BS_PUSHLIKE button style
+27 April 2010 - greg@censoft.com
 	* speedup fblin8/4/2/1 drivers, no asserts by default
 	* speedup 4bpp drawarea_bitmap_bytes_msb_first with linear4_drawpixelfast
 	* wrote drawarea_alphacol for 8bpp fblin8.c (FT2 antialiased output)
@@ -8,7 +20,7 @@
 		run FRAMEBUFFER=/tmp/fb0 bin/fbe -d<bpp>
 		reverse bit order supported for 1,2,4 bpp (-r option)
 	* removed EMBEDDEDPLANET and TPHELIO special cases in scr_fb.c
-26 April 2010
+26 April 2010 - greg@censoft.com
 	* fixed FT2 non-antialias (bitmap) display in left/right/down portrait
 	* implemented drawarea_bitmap_bytes_msb_first in fbportrait*.c
 		(current requires bitmap rotatation)

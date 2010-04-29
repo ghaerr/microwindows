@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1999, 2000, Wei Yongming.
- * Portions Copyright (c) 2000, 2005 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2000, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Static control for Microwindows win32 api.
  */
@@ -302,14 +302,12 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case STM_GETIMAGE:
-		return (int) (pCtrl->userdata);
+		return (int)pCtrl->userdata;
 
 	case STM_SETIMAGE:
 		{
-			int pOldValue;
-
-			pOldValue = (int) (pCtrl->userdata);
-			pCtrl->userdata = (DWORD) wParam;
+			int pOldValue = (int)pCtrl->userdata;
+			pCtrl->userdata = (DWORD)lParam;
 			InvalidateRect(hwnd, NULL, FALSE);
 			return pOldValue;
 		}
@@ -380,8 +378,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case SS_SIMPLE:
 #if 0
 				SetBrushColor(hdc, GetWindowBkColor(hwnd));
-				FillBox(hdc, 0, 0, rcClient.right,
-					rcClient.bottom);
+				FillBox(hdc, 0, 0, rcClient.right, rcClient.bottom);
 #else
 				rc.left = 0;
 				rc.top = 0;

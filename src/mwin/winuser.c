@@ -13,6 +13,8 @@
  *  2003/09/24  Gabriele Brugnoni       WA_ACTIVE with WA_INACTIVE is sent before changing
  *                                      the pointer focus variable.
  *  2003/09/24  Gabriele Brugnoni       Implemented WM_SYSCHAR for ALT-Key
+ *  2010/04/23	Ludwig Ertl				Fixed KillTimer to work in TimerProc for current timer
+ *  									Implemented SetProp/GetProp/RemoveProp
  */
 #include "windows.h"
 #include "wintern.h"
@@ -40,6 +42,7 @@ int	mwSYSMETRICS_CYDOUBLECLK = 2;	/* +/- Y double click position*/
 int	mwpaintSerial = 1;		/* experimental alphablend sequencing*/
 int	mwpaintNC = 1;			/* experimental NC paint handling*/
 BOOL 	mwforceNCpaint = FALSE;		/* force NC paint when alpha blending*/
+RECT mwSYSPARAM_WORKAREA = {0, 0, -1, -1};
 
 struct timer {			/* private timer structure*/
 	HWND	hwnd;		/* window associated with timer, NULL if none*/
@@ -47,9 +50,18 @@ struct timer {			/* private timer structure*/
 	UINT	uTimeout;	/* timeout value, in msecs*/
 	DWORD	dwClockExpires;	/* GetTickCount timer expiration value*/
 	TIMERPROC lpTimerFunc;	/* callback function*/
+	BOOL   bRemove;		/* Remove timer entry on next run */
 	struct timer *next;
 };
 static struct timer *timerList = NULL;	/* global timer list*/
+
+/* property */
+typedef struct {
+	MWLIST link;
+	ATOM Atom;
+	HANDLE hData;
+} MWPROP;
+
 
 static void MwOffsetChildren(HWND hwnd, int offx, int offy);
 static void MwRemoveWndFromTimers(HWND hwnd);
@@ -522,6 +534,16 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 			GdItemFree(pmsg);
 		} else
 			p = p->next;
+	}
+
+	/*
+	 * Remove all properties from this window.
+	 */
+	for(p=hwnd->props.head; p; ) {
+		MWPROP  *pProp = GdItemAddr(p, MWPROP, link);
+		p = p->next;
+		GdListRemove (&hwnd->props, &pProp->link);
+		GdItemFree (pProp);
 	}
 
 	/* FIXME: destroy hdc's relating to window?*/
@@ -1144,6 +1166,98 @@ SetWindowWord(HWND hwnd, int nIndex, WORD wNewWord)
 	return oldval;
 }
 
+/* -------------- begin STATIC atom functions --------------
+ * FIXME:
+ * Microwindows currently doesn't have functions for handling the Atom
+ * table. TODO: Replace them by correct Atom handling functions.
+ *
+ * Therefore we are just implementing a stupid function that calculates
+ * a "unique" value from a string and returns this as an "atom" so that
+ * out property methods can work as expected.
+ *
+ */
+static
+ATOM WINAPI
+GlobalFindAtom(LPCSTR lpString)
+{
+	LPCSTR p;
+	ATOM atom = 0;
+
+	for (p = lpString; *p; p++)
+		atom = ((atom + *p) % 0xFFFF);
+	return atom;
+}
+
+static
+ATOM WINAPI
+GlobalAddAtom(LPCSTR lpString)
+{
+	return GlobalFindAtom (lpString);
+}
+/* -------------- end STATIC atom functions -------------- */
+
+BOOL WINAPI
+SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData)
+{
+	MWPROP *pProp;
+
+	if (!(pProp = GdItemNew(MWPROP)))
+		return FALSE;
+	if (HIWORD(lpString))
+		pProp->Atom = GlobalAddAtom(lpString);
+	else
+		pProp->Atom = LOWORD((DWORD)lpString);
+	pProp->hData = hData;
+
+	GdListAdd (&hWnd->props, &pProp->link);
+	return TRUE;
+}
+
+HANDLE WINAPI
+GetProp(HWND hWnd, LPCSTR lpString)
+{
+	ATOM Atom;
+	PMWLIST p;
+	MWPROP *pProp;
+
+	if (HIWORD(lpString))
+		Atom = GlobalFindAtom(lpString);
+	else
+		Atom = LOWORD((DWORD)lpString);
+
+	for(p=hWnd->props.head; p; p=p->next) {
+		pProp = GdItemAddr(p, MWPROP, link);
+		if (pProp->Atom == Atom)
+			return pProp->hData;
+	}
+	return NULL;
+}
+
+HANDLE WINAPI
+RemoveProp(HWND hWnd, LPCSTR lpString)
+{
+	ATOM Atom;
+	PMWLIST p;
+	MWPROP *pProp;
+	HANDLE hRet;
+
+	if (HIWORD(lpString))
+		Atom = GlobalFindAtom(lpString);
+	else
+		Atom = LOWORD((DWORD)lpString);
+
+	for(p=hWnd->props.head; p; p=p->next) {
+		pProp = GdItemAddr(p, MWPROP, link);
+		if (pProp->Atom == Atom) {
+			hRet = pProp->hData;
+			GdListRemove(&hWnd->props, &pProp->link);
+			GdItemFree(pProp);
+			return hRet;
+		}
+	}
+	return NULL;
+}
+
 DWORD WINAPI
 GetClassLong(HWND hwnd, int nIndex)
 {
@@ -1428,6 +1542,7 @@ SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout, TIMERPROC lpTimerFunc)
 	tm->dwClockExpires = GetTickCount() + uTimeout;
 	tm->lpTimerFunc = lpTimerFunc;
 	tm->next = timerList;
+	tm->bRemove = FALSE;
 	timerList = tm;
 
 	return tm->idTimer;
@@ -1436,22 +1551,15 @@ SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout, TIMERPROC lpTimerFunc)
 BOOL WINAPI
 KillTimer(HWND hwnd, UINT idTimer)
 {
-	struct timer *tm = timerList;
-	struct timer *ltm = NULL;
+	struct timer *tm;
 
-	while ( tm != NULL ) {
-		if( (tm->hwnd == hwnd) && (tm->idTimer == idTimer) ) {
-			if( ltm != NULL )
-				ltm->next = tm->next;
-			else
-				timerList = tm->next;
-			
-			free ( tm );
-			return TRUE;
-		}
-		ltm = tm;
-		tm = tm->next;
-	}
+	/* Just mark it for removal, actual removal will
+	 * be done in MwHandleTimers, otherwise killing a
+	 * timer in a TimerProc will end up with memory errors
+	 */
+	for (tm=timerList; tm != NULL; tm = tm->next)
+		if( (tm->hwnd == hwnd) && (tm->idTimer == idTimer) )
+			return tm->bRemove = TRUE;
 	return FALSE;
 }
 
@@ -1488,19 +1596,32 @@ MwHandleTimers(void)
 {
 	DWORD	dwTime = 0;	/* should be system time in UTC*/
 	struct timer *tm = timerList;
+	struct timer *ltm = NULL;
 
-	while ( tm != NULL ) {
-		if( GetTickCount() >= tm->dwClockExpires ) {
-			/* call timer function or post timer message*/
-			if( tm->lpTimerFunc )
-				tm->lpTimerFunc ( tm->hwnd, WM_TIMER, tm->idTimer, dwTime );
-			else
-				PostMessage ( tm->hwnd, WM_TIMER, tm->idTimer, 0 );
+	while (tm != NULL) {
+		if (!tm->bRemove) {
+			if (GetTickCount() >= tm->dwClockExpires) {
+				/* call timer function or post timer message*/
+				if (tm->lpTimerFunc)
+					tm->lpTimerFunc (tm->hwnd, WM_TIMER, tm->idTimer, dwTime);
+				else
+					PostMessage (tm->hwnd, WM_TIMER, tm->idTimer, 0);
 
-			/* reset timer*/
-			tm->dwClockExpires = GetTickCount() + tm->uTimeout;
+				/* reset timer*/
+				tm->dwClockExpires = GetTickCount() + tm->uTimeout;
+			}
 		}
-		tm = tm->next;
+		if (tm->bRemove) {
+			if(ltm != NULL)
+				ltm->next = tm->next;
+			else
+				timerList = tm->next;
+			free (tm);
+			tm = ltm?ltm->next:timerList;
+		} else {
+			ltm = tm;
+			tm = tm->next;
+		}
 	}
 }
 
@@ -1554,6 +1675,23 @@ GetSystemMetrics(int nIndex)
 		return mwSYSMETRICS_CYFRAME;
 	}
 	return 0;
+}
+
+BOOL WINAPI
+SystemParametersInfo (UINT uiAction,  UINT uiParam, PVOID pvParam, UINT fWinIni)
+{
+	switch (uiAction) {
+	case SPI_GETWORKAREA:
+		*(RECT*)pvParam = mwSYSPARAM_WORKAREA;
+		return TRUE;
+	case SPI_SETWORKAREA:
+		if (pvParam)
+			mwSYSPARAM_WORKAREA = *(RECT*)pvParam;
+		else
+			mwSYSPARAM_WORKAREA = rootwp->winrect;
+		return TRUE;
+	}
+	return FALSE;
 }
 
 HWND WINAPI

@@ -3,7 +3,7 @@
 #include "wintools.h"
 #include "wintern.h"
 /*
- * Copyright (c) 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * WINCTL Custom Control Library
  * Push button Custom Control
@@ -23,6 +23,7 @@
  * Gabriele Brugnoni 2003/08/30 Italy      Modified WM_GETDLGCODE event.
  * Gabriele Brugnoni 2003/08/30 Italy      CheckRadioButton moved on windlg.c
  * Gabriele Brugnoni 2004/07/13 Italy      Radio button vertical centered
+ * Ludwig Ertl       2010/04/27 Austria    Support for BS_PUSHLIKE
  */
 
 #define CONFIG_AUTORADIOBUTTONSIZE
@@ -475,11 +476,15 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	crOld = SetTextColor( hdc, GetSysColor( COLOR_BTNTEXT));
 	crBkOld = SetBkColor( hdc, GetSysColor( COLOR_BTNFACE));
 
+   /* "Convert" pushlike buttons to pushbuttons */
+   if (dwStyle & BS_PUSHLIKE)
+      dwStyle &= ~0x0F;
+
 	rc = rectClient;
 	switch((int)(dwStyle & 0x0f)) {
 	case BS_PUSHBUTTON:
 	case BS_DEFPUSHBUTTON:
-		if( wEnumState & PBS_FOCUSDOWN) {
+		if( (wEnumState & PBS_FOCUSDOWN) || (wEnumState & PBS_CHECKED)) {
 			if(dwStyle & BS_BITMAP)
 				DrawDIB(hdc, rc.left+1, rc.top+1, (PMWIMAGEHDR)hwnd->userdata);
 			Draw3dBox(hdc, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top,
@@ -602,8 +607,8 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 				+ iFaceOffset;
 			break;
 		case BS_RIGHT:
-			rect.left = (rect.right - rect.left) + uiWidthFrame
-				+ uiWidthShadow + 4 + iFaceOffset;
+			rect.left = uiWidth - ((rect.right - rect.left) + uiWidthFrame
+				+ uiWidthShadow + 4 + iFaceOffset);
 			break;
 		}
 
@@ -889,7 +894,7 @@ LPARAM	lParam)
 #endif
 		return 1;
 	case BM_SETIMAGE:
-            	hwnd->userdata = (DWORD)wParam;
+            	hwnd->userdata = (DWORD)lParam;
             	InvalidateRect(hwnd, NULL, FALSE);
 		return 0;
 

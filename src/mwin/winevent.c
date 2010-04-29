@@ -390,6 +390,12 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	case MWKEY_RALT:
 		VK_Code = VK_MENU;
 		break;
+	case MWKEY_LMETA:
+		VK_Code = VK_LBUTTON;
+		break;
+	case MWKEY_RMETA:
+		VK_Code = VK_RBUTTON;
+		break;
 
 	/* Misc function keys*/
 	case MWKEY_PRINT:
@@ -414,8 +420,6 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	case MWKEY_BREAK
 	case MWKEY_QUIT:
 	case MWKEY_REDRAW:
-	case MWKEY_LMETA:
-	case MWKEY_RMETA:
 	case MWKEY_ALTGR:
 	/* Handheld function keys*/
 	case MWKEY_RECORD:

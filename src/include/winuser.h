@@ -420,6 +420,10 @@ LONG WINAPI	GetWindowLong(HWND hwnd, int nIndex);
 LONG WINAPI	SetWindowLong(HWND hwnd, int nIndex, LONG lNewLong);
 WORD WINAPI	GetWindowWord(HWND hwnd, int nIndex);
 WORD WINAPI	SetWindowWord(HWND hwnd, int nIndex, WORD wNewWord);
+BOOL WINAPI SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData);
+HANDLE WINAPI GetProp(HWND hWnd, LPCSTR lpString);
+HANDLE WINAPI RemoveProp(HWND hWnd, LPCSTR lpString);
+
 #define GetDlgCtrlID(hwnd)	((int)(hwnd)->id)
 DWORD WINAPI	GetClassLong(HWND hwnd, int nIndex);
 int WINAPI	GetWindowTextLength(HWND hwnd);
@@ -507,6 +511,11 @@ void		MwHandleTimers(void);
 #define SM_CYSIZEFRAME		SM_CYFRAME
 
 int WINAPI	GetSystemMetrics(int nIndex);
+
+#define SPI_SETWORKAREA            47
+#define SPI_GETWORKAREA            48
+
+BOOL WINAPI SystemParametersInfo (UINT uiAction,  UINT uiParam, PVOID pvParam, UINT fWinIni);
 
 HWND WINAPI	GetDlgItem(HWND hDlg, int nIDDlgItem);
 

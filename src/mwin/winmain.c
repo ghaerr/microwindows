@@ -656,6 +656,9 @@ MwInitialize(void)
 	focuswp = wp;
 	mousewp = wp;
 
+	/* set default work area to whole root window*/
+	SystemParametersInfo(SPI_SETWORKAREA, 0, NULL, 0);
+
 	/* schedule desktop window paint*/
 	InvalidateRect(rootwp, NULL, TRUE);
 

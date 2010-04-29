@@ -139,7 +139,7 @@ mwCreateInstance(int argc, char *argv[])
 void
 mwFreeInstance(HINSTANCE hInst)
 {
-	free((void *) ((PMWAPPINSTANCE) hInst)->szExecCommand);
+	if (((PMWAPPINSTANCE) hInst)->fResources) fclose (((PMWAPPINSTANCE) hInst)->fResources);
 	free((void *) ((PMWAPPINSTANCE) hInst)->szResFilename);
 	free((void *) ((PMWAPPINSTANCE) hInst));
 }
@@ -293,8 +293,7 @@ mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName,
 	do {
 		f = pInst->fResources;
 		if (f == NULL) {
-			EPRINTF("Error opening resource file: %s\n",
-				pInst->szResFilename);
+			EPRINTF("Error opening resource file: %s\n", pInst->szResFilename);
 			break;
 		}
 
@@ -310,17 +309,14 @@ mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName,
 			bType = mwIsSameType(f, resType, &bEof);
 			bName = mwIsSameType(f, resName, &bEof);
 			if (bType && bName) {
-				pResHead->DataVersion =
-					resReadDWord(f, &bEof);
+				pResHead->DataVersion = resReadDWord(f, &bEof);
 				pResHead->MemoryFlags = resReadWord(f, &bEof);
 				pResHead->LanguageId = resReadWord(f, &bEof);
 				pResHead->Version = resReadDWord(f, &bEof);
-				pResHead->Characteristics =
-					resReadDWord(f, &bEof);
+				pResHead->Characteristics = resReadDWord(f, &bEof);
 				if (bEof)
 					break;
-				fseek(f, pos + pResHead->HeaderSize,
-				      SEEK_SET);
+				fseek(f, pos + pResHead->HeaderSize, SEEK_SET);
 				return f;
 			}
 
@@ -328,7 +324,8 @@ mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName,
 			//  align to dword
 			while ((pos & 3) != 0)
 				pos++;
-			fseek(f, pos, SEEK_SET);
+			if (fseek(f, pos, SEEK_SET))
+				break;
 		}
 	} while (0);
 
@@ -438,8 +435,7 @@ resGetDlgTemplExtra(PMWDLGTEMPLATE pDlg, PMWDLGTEMPLEXTRA pDlgExtra)
 	pItem = resFirstDlgItem(pDlg);
 	for (i = 0; i < pDlg->cdit; i++) {
 		pDlgExtra->pItems[i] = pItem;
-		pItem = resGetDlgItemTemplExtra(pItem,
-						pDlgExtra->pItemsExtra + i);
+		pItem = resGetDlgItemTemplExtra(pItem, pDlgExtra->pItemsExtra + i);
 	}
 }
 
@@ -579,8 +575,7 @@ LoadResource(HMODULE hModule, HRSRC hRes)
 		return NULL;
 
 	fseek(hRes->f, hRes->fPos, SEEK_SET);
-	if (fread(hRes->pData, 1, hRes->head.DataSize, hRes->f) <
-	    hRes->head.DataSize) {
+	if (fread(hRes->pData, 1, hRes->head.DataSize, hRes->f) < hRes->head.DataSize) {
 		free(hRes->pData);
 		return NULL;
 	}
@@ -641,8 +636,7 @@ LoadString(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 	nMaxBuff--;
 	ptr = lpBuffer;
 
-	f = mwFindResource(hInstance, RT_STRING, MAKEINTRESOURCE(blkId),
-			   &resHead);
+	f = mwFindResource(hInstance, RT_STRING, MAKEINTRESOURCE(blkId), &resHead);
 	if (f) {
 		i = (blkId - 1) * 16;
 		bEof = FALSE;

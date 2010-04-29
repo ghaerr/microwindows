@@ -154,10 +154,11 @@ GetDlgItemInt(HWND hwnd, int id, BOOL * pbTransl, BOOL bSigned)
 	char s[64];
 
 	GetWindowText(GetDlgItem(hwnd, id), s, sizeof(s));
+
 	if (bSigned)
-		n = sscanf(s, "%d", &x);
+		n = strtol (s, NULL, 10);
 	else
-		n = sscanf(s, "%u", &ux);
+		n = strtoul (s, NULL, 10);
 
 	if (pbTransl != NULL)
 		*pbTransl = (n == 1);
@@ -803,29 +804,29 @@ DialogBoxParam(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent,
 		UpdateWindow(hDlg);
 
 		while (IsWindow(hDlg) && params->running) {
-			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				if (!IsDialogMessage(hDlg, &msg)) {
-					TranslateMessage(&msg);
-					DispatchMessage(&msg);
-				}
-				bSendIdle = TRUE;
-				if (msg.message == WM_QUIT)
-					break;
-
-				if (msg.time != ltm)
-					MwHandleTimers();
-
-				ltm = msg.time;
-			} else {
+			if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				if (bSendIdle) {
 					SendMessage(hDlg, WM_ENTERIDLE, 0, 0);
 					bSendIdle = FALSE;
 				}
-				MwHandleTimers();
+				if (!GetMessage (&msg, NULL, 0, 0))
+					break;
 #ifdef MW_CALL_IDLE_HANDLER
 				idle_handler();
 #endif
 			}
+
+			if (!IsDialogMessage(hDlg, &msg)) {
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			bSendIdle = TRUE;
+			if (msg.message == WM_QUIT)
+				break;
+
+			if (msg.time != ltm)
+				MwHandleTimers();
+			ltm = msg.time;
 		}
 		if (!params->running) {
 			retV = params->nResult;

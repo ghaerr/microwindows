@@ -527,7 +527,7 @@ X11_init(void)
 		0, depth, InputOutput, DefaultVisual(display, screen),
 		CWEventMask | CWBackPixel, &attr);
 
-	sprintf(name, "fbe %dx%dx%d", CRTX, CRTY, BITS_PER_PIXEL);
+	sprintf(name, "fbe %dx%dx%dbpp", CRTX, CRTY, BITS_PER_PIXEL);
 
 	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8,
 		PropModeReplace, name, strlen(name));
@@ -754,7 +754,7 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	printf("%dx%dx%d pitch %d\n", CRTX, CRTY, BITS_PER_PIXEL, PITCH);
+	printf("%dx%dx%dbpp pitch %d\n", CRTX, CRTY, BITS_PER_PIXEL, PITCH);
 
 	/* Create virtual framebuffer and palette*/
 	if (force_create)

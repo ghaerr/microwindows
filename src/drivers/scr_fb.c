@@ -36,7 +36,7 @@
 #define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
 #define XRES				640			/* default fb emulator xres*/
 #define YRES				480			/* default fb emulator yres*/
-#define BPP					4			/* default fb emulator bpp*/
+#define BPP					1			/* default fb emulator bpp*/
 
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 
@@ -199,7 +199,7 @@ fb_open(PSD psd)
 	} else 
 		psd->pixtype = MWPF_PALETTE;
 
-	EPRINTF("%dx%dx%d linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres,
+	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres,
 	 	psd->yres, psd->bpp, psd->linelen, type, visual,
 		psd->ncolors, psd->pixtype);
 

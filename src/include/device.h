@@ -403,6 +403,7 @@ typedef struct _mwscreendevice {
 #define PSF_HAVEOP_COPY		0x0008	/* psd->DrawArea can do area copy*/
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
 #define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
+#define PSF_HAVEOP_ALPHACOL	0x0040	/* psd->Drawarea can do alphacol*/
 
 /* Interface to Mouse Device Driver*/
 typedef struct _mousedevice {

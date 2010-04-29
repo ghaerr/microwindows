@@ -880,12 +880,9 @@ freetype2_setfontattr(PMWFONT pfont, int setflags, int clrflags)
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
 	pf->imagedesc.flags = FT_LOAD_DEFAULT;
 	if (!(pf->fontattr & MWTF_ANTIALIAS))
-	{
 		pf->imagedesc.flags |= (FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO);
-	}
 #else
-	pf->imagedesc.type = ((pf->fontattr & MWTF_ANTIALIAS)
-			      ? ftc_image_grays : ftc_image_mono);
+	pf->imagedesc.type = ((pf->fontattr & MWTF_ANTIALIAS)? ftc_image_grays: ftc_image_mono);
 #endif
 #else
 	/* No cache.  Nothing to do, just check paramater is valid. */
@@ -1179,7 +1176,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	blit_instructions.srcy = 0;
 	blit_instructions.dst_linelen = 0;	/* Unused. */
 
-	if (pf->fontattr & MWTF_ANTIALIAS)
+	// FIXME: don't use antialias settings if no alphacol driver
+	if ((pf->fontattr & MWTF_ANTIALIAS) /**&& (psd->flags & PSF_HAVEOP_ALPHACOL)**/)
 		blit_op = PSDOP_ALPHACOL;
 	else
 		blit_op = PSDOP_BITMAP_BYTES_MSB_FIRST;
@@ -1205,8 +1203,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		/* Use slow routine for rotated text */
 		FT_BitmapGlyph bitmapglyph;
 		FT_Bitmap *bitmap;
-		FT_Render_Mode render_mode = (pf->fontattr & MWTF_ANTIALIAS)?
-			ft_render_mode_normal : ft_render_mode_mono;
+		FT_Render_Mode render_mode = (blit_op == PSDOP_ALPHACOL)?
+			ft_render_mode_normal: ft_render_mode_mono;
 
 		/*DPRINTF("Nano-X-Freetype2: freetype2_drawtext() using SLOW routine\n"); */
 		pos.x = 0;
@@ -1324,8 +1322,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			ax += sbit->xadvance;
 #else
-			error = FT_Load_Glyph(face, curchar, (pf->fontattr & MWTF_ANTIALIAS)
-					      ? (FT_LOAD_RENDER | FT_LOAD_MONOCHROME) : FT_LOAD_RENDER);
+			error = FT_Load_Glyph(face, curchar, (blit_op == PSDOP_ALPHACOL)?
+					      (FT_LOAD_RENDER | FT_LOAD_MONOCHROME): FT_LOAD_RENDER);
 			if (error)
 				continue;
 

@@ -258,7 +258,7 @@ RandomiseTiles()
 			value[xpos][ypos] = 1 + xpos + (WIDTH_IN_TILES * ypos);
 		}
 	}
-
+return;
 	/* position of 'hole' */
 	xpos = WIDTH_IN_TILES - 1;
 	ypos = HEIGHT_IN_TILES - 1;

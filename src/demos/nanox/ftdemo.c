@@ -7,6 +7,8 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
+#define ANTIALIAS	1		/* set =1 to enable anti aliasing*/
+
 #if HAVE_T1LIB_SUPPORT
 #define FONTNAME "bchr"
 #if 0
@@ -30,7 +32,7 @@
 GR_GC_ID gid;
 GR_FONT_ID fontid, fontid2;
 GR_BOOL kerning = GR_FALSE;
-GR_BOOL aa = GR_TRUE;
+GR_BOOL aa = ANTIALIAS;
 GR_BOOL underline = GR_FALSE;
 int angle = 0;
 int state = GR_TFBOTTOM;
@@ -140,7 +142,11 @@ void Render(GR_WINDOW_ID window)
  
    /* Draw menu */
    GrSetGCFont(gid, fontid);
+#if ANTIALIAS
    GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
+#else
+   GrSetFontAttr(fontid, GR_TFKERNING, 0);
+#endif
    GrText(window, gid, 5, 20, "+ Rotate string clockwise", 25, GR_TFASCII);
    GrText(window, gid, 5, 40, "-  Rotate string counter-clockwise", 34, GR_TFASCII);
    GrText(window, gid, 5, 60, "a Toggle anti-aliasing", 22, GR_TFASCII);

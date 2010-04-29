@@ -1207,7 +1207,6 @@ linear16_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*DPRINTF("linear16_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (op) {
-
 #if MW_FEATURE_PSDOP_COPY
 	case PSDOP_COPY:
 		if (gc->gr_usebg)

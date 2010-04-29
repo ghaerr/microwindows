@@ -1,3 +1,5 @@
+	* speedup fblin1/2, wrote msb_first drivers for fblin2/2rev
+	* add fblin1rev.c drawarea_bitmap_bytes_msb_first (Vladimir)
 	* dynamically allocate buffers in GdGetTextSize, GdText, and GdConvertEncoding
 27 April 2010 (Ludwig Ertl)
 	* changed BM_SETIMAGE and STM_SETIMAGE to use lParam in button/static

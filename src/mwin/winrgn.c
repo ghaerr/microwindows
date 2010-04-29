@@ -1,5 +1,5 @@
 /*
- * Portions Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 1999, 2000, 2010 Greg Haerr <greg@censoft.com>
  *	Somewhat less shamelessly ripped from the Wine distribution
  *
  * Win32 API Region Management Routines.
@@ -472,6 +472,20 @@ CombineRgn(HRGN hDest, HRGN hSrc1, HRGN hSrc2, INT mode)
 	    REGION_DumpRegion(destObj->rgn);*/
     }
     return result;
+}
+
+BOOL FillRgn(HDC hdc, HRGN hrgn, HBRUSH hbr)
+{
+	MWRGNOBJ* pObj = (MWRGNOBJ*) GDI_GetObjPtr( hrgn, OBJ_REGION );
+	RECT *pRect, *pEndRect;
+	BOOL bRet = TRUE;
+
+	pEndRect = pObj->rgn->rects + pObj->rgn->numRects;
+	for(pRect = pObj->rgn->rects; pRect < pEndRect; pRect++)
+	{
+		bRet &= FillRect (hdc, pRect, hbr);
+	}
+	return bRet;
 }
 
 /*

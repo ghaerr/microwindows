@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Win32 API upper level graphics drawing routines
@@ -257,6 +257,26 @@ EndPaint(HWND hwnd, CONST PAINTSTRUCT *lpPaint)
 		GdSetRectRegion(hwnd->update, 0, 0, 0, 0);
 #endif
 	ShowCaret(hwnd);
+	return TRUE;
+}
+
+HDWP
+BeginDeferWindowPos(int nNumWindows)
+{
+	return (HDWP)1;
+}
+
+HDWP
+DeferWindowPos(HDWP hWinPosInfo, HWND hWnd, HWND hWndInsertAfter,
+	       int x, int y, int cx, int cy, UINT uFlags)
+{
+  SetWindowPos(hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
+  return hWinPosInfo;
+}
+
+BOOL
+EndDeferWindowPos(HDWP hWinPosInfo)
+{
 	return TRUE;
 }
 

@@ -94,7 +94,7 @@ MwInitializeDialogs(HINSTANCE hInstance)
 #ifdef  WNDCLASSEX
 	wcl.cbSize = sizeof(wcl);
 #endif
-	wcl.style = CS_BYTEALIGNCLIENT;
+	wcl.style = CS_BYTEALIGNCLIENT | CS_DBLCLKS;
 	wcl.cbWndExtra = DWL_DLGDATA + 4;
 	wcl.lpfnWndProc = (WNDPROC) mwDialogProc;
 	wcl.hInstance = hInstance;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Win32 API upper level window creation, management and msg routines
  *
@@ -501,9 +501,9 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	if (prevwp == wp)
 		wp->parent->children = wp->siblings;
 	else {
-		while (prevwp->siblings != wp)
+		while (prevwp && prevwp->siblings != wp)
 			prevwp = prevwp->siblings;
-		prevwp->siblings = wp->siblings;
+		if (prevwp) prevwp->siblings = wp->siblings;
 	}
 	wp->siblings = NULL;
 
@@ -514,7 +514,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	if (prevwp == wp)
 		listwp = wp->next;
 	else {
-		while (prevwp->next != wp)
+		while (prevwp->next && prevwp->next != wp)
 			prevwp = prevwp->next;
 		prevwp->next = wp->next;
 	}
@@ -597,6 +597,27 @@ ShowWindow(HWND hwnd, int nCmdShow)
 		hwnd->style &= ~WS_VISIBLE;
 		break;
 
+	case SW_MAXIMIZE:
+		if (!(hwnd->style & WS_MAXIMIZE)) {
+			RECT rc;
+
+			hwnd->restorerc = hwnd->winrect;
+			SystemParametersInfo(SPI_GETWORKAREA, 0, &rc, 0);
+			MoveWindow(hwnd, rc.top, rc.left, rc.right - rc.left,
+					rc.bottom - rc.top, TRUE);
+			hwnd->style |= WS_MAXIMIZE;
+		}
+		break;
+	case SW_RESTORE:
+	case SW_SHOWDEFAULT:
+		if(hwnd->style & WS_MAXIMIZE) {
+			RECT rc = hwnd->restorerc;
+			MoveWindow(hwnd, rc.left, rc.top,
+				rc.right-rc.left, rc.bottom-rc.top,
+				TRUE);
+			hwnd->style &= ~WS_MAXIMIZE;
+		}
+		break;
 	default:
 		if (hwnd->style & WS_VISIBLE)
 			return FALSE;
@@ -1407,6 +1428,36 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 	return TRUE;
 }
 
+BOOL SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl)
+{
+	if ((hWnd->style & (WS_MAXIMIZE | WS_MINIMIZE)) == 0)
+	{
+		SetWindowPos (hWnd, NULL, lpwndpl->rcNormalPosition.left,
+				lpwndpl->rcNormalPosition.top,
+				lpwndpl->rcNormalPosition.right - lpwndpl->rcNormalPosition.left,
+				lpwndpl->rcNormalPosition.bottom - lpwndpl->rcNormalPosition.top,
+				SWP_NOZORDER | SWP_NOACTIVATE);
+	}
+	ShowWindow (hWnd, lpwndpl->showCmd);
+	hWnd->restorerc = lpwndpl->rcNormalPosition;
+
+	return TRUE;
+}
+
+BOOL GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl)
+{
+	RECT rc;
+
+	lpwndpl->flags = 0;
+	lpwndpl->rcNormalPosition = hWnd->restorerc;
+	lpwndpl->showCmd = (hWnd->style & WS_MAXIMIZE)?SW_MAXIMIZE:SW_SHOWNORMAL;
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &rc, 0);
+	lpwndpl->ptMaxPosition.x = rc.left;
+	lpwndpl->ptMaxPosition.y = rc.top;
+	memset (&lpwndpl->ptMinPosition, 0, sizeof(lpwndpl->ptMinPosition));
+	return TRUE;
+}
+
 BOOL WINAPI
 MoveWindow(HWND hwnd, int x, int y, int nWidth, int nHeight, BOOL bRepaint)
 {
@@ -1524,6 +1575,27 @@ ReleaseCapture(VOID)
 	capturewp = NULL;
 	MwCheckMouseWindow();
 	return TRUE;
+}
+
+HWND GetWindow(HWND hWnd, UINT uCmd)
+{
+	switch (uCmd)
+	{
+	case GW_OWNER: return hWnd->parent;
+	case GW_CHILD: return hWnd->children;
+	case GW_HWNDNEXT: return hWnd->siblings;
+	}
+	return NULL;
+}
+
+HWND GetMenu (HWND hWnd)
+{
+	return NULL;
+}
+
+HWND GetForegroundWindow(VOID)
+{
+	return focuswp;
 }
 
 UINT WINAPI

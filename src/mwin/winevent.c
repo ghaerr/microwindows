@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2005, 2010 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
  *
  * Graphics server event routines for windows.
@@ -396,6 +396,9 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	case MWKEY_RMETA:
 		VK_Code = VK_RBUTTON;
 		break;
+	case MWKEY_ACCEPT:
+		VK_Code = VK_MBUTTON;
+		break;
 
 	/* Misc function keys*/
 	case MWKEY_PRINT:
@@ -428,7 +431,6 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	case MWKEY_BRIGHTNESS:
 	case MWKEY_SELECTUP:
 	case MWKEY_SELECTDOWN:
-	case MWKEY_ACCEPT:
 	case MWKEY_CANCEL:
 	case MWKEY_APP1:
 	case MWKEY_APP2:

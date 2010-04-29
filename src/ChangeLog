@@ -1,8 +1,13 @@
+29 April 2010
+	* added SetWindowPlacement, GetWindowPlacement, BeginDeferWindowPos,
+		DeferWindowPos, EndDeferWindowPos, GetWindow, GetMenu, GetForegroundwindow,
+		SW_MAXIMIZE, SW_MINIMIZE, workarea maximize, partial WM_SYSCOMMAND,
+		dialog maximize via CS_DBLCLKS, MWKEY_ACCEPT, FillRgn (Ludwig)
 	* fix bug in linear24_alphacol, not blending properly, added ft2test.c pgm
 	* speedup fblin1/2, wrote msb_first drivers for fblin2/2rev
 	* add fblin1rev.c drawarea_bitmap_bytes_msb_first (Vladimir)
 	* dynamically allocate buffers in GdGetTextSize, GdText, and GdConvertEncoding
-27 April 2010 (Ludwig Ertl)
+28 April 2010 (Ludwig Ertl)
 	* changed BM_SETIMAGE and STM_SETIMAGE to use lParam in button/static
 	* add SystemParametersInfo, non-overlapped workarea feature
 	* add GetProp, SetProp, RemoveProp window property routines

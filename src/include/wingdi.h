@@ -68,6 +68,14 @@ typedef struct tagPAINTSTRUCT {
 HDC WINAPI 	BeginPaint(HWND hWnd, LPPAINTSTRUCT lpPaint);
 BOOL WINAPI 	EndPaint(HWND hWnd, CONST PAINTSTRUCT *lpPaint);
 
+typedef HANDLE HDWP;
+
+HDWP BeginDeferWindowPos(int nNumWindows);
+HDWP DeferWindowPos(HDWP hWinPosInfo, HWND hWnd, HWND hWndInsertAfter,
+		int x, int y, int cx, int cy, UINT uFlags);
+BOOL EndDeferWindowPos(HDWP hWinPosInfo);
+
+
 #define RGB(r,g,b)	    MWRGB(r,g,b)
 #define GetRValue(rgb)      ((BYTE)(rgb))
 #define GetGValue(rgb)      ((BYTE)(((WORD)(rgb)) >> 8))
@@ -395,6 +403,7 @@ BOOL WINAPI PtInRegion(HRGN hrgn, INT x, INT y );
 BOOL WINAPI RectInRegion(HRGN hrgn, const RECT *rect );
 BOOL WINAPI EqualRgn(HRGN hrgn1, HRGN hrgn2 );
 INT  WINAPI CombineRgn(HRGN hDest, HRGN hSrc1, HRGN hSrc2, INT mode);
+BOOL FillRgn(HDC hdc, HRGN hrgn, HBRUSH hbr);
 
 /* Rect entry points*/
 BOOL WINAPI IntersectRect(LPRECT dest, const RECT *src1, const RECT *src2 );

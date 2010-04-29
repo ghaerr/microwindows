@@ -115,6 +115,7 @@ typedef struct tagMSG {
 #define WM_KEYLAST                      0x0108
 #define WM_INITDIALOG	                0x0110
 #define WM_COMMAND                      0x0111
+#define WM_SYSCOMMAND                   0x0112
 #define WM_TIMER                        0x0113
 #define WM_HSCROLL                      0x0114
 #define WM_VSCROLL                      0x0115
@@ -150,6 +151,26 @@ typedef struct tagMSG {
 #define WM_FDOUTPUT                     0x03F1 /* Microwindows only*/
 #define WM_FDEXCEPT                     0x03F2 /* Microwindows only*/
 #define WM_USER                         0x0400
+
+/*
+ * System Menu Command Values
+ */
+#define SC_SIZE         0xF000
+#define SC_MOVE         0xF010
+#define SC_MINIMIZE     0xF020
+#define SC_MAXIMIZE     0xF030
+#define SC_NEXTWINDOW   0xF040
+#define SC_PREVWINDOW   0xF050
+#define SC_CLOSE        0xF060
+#define SC_VSCROLL      0xF070
+#define SC_HSCROLL      0xF080
+#define SC_MOUSEMENU    0xF090
+#define SC_KEYMENU      0xF100
+#define SC_ARRANGE      0xF110
+#define SC_RESTORE      0xF120
+#define SC_TASKLIST     0xF130
+#define SC_SCREENSAVE   0xF140
+#define SC_HOTKEY       0xF150
 
 /* WM_ACTIVATE state values*/
 #define WA_INACTIVE     0
@@ -469,10 +490,33 @@ typedef struct tagWINDOWPOS {
 BOOL WINAPI	SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y,
 			int cx, int cy, UINT fuFlags);
 
+typedef struct tagWINDOWPLACEMENT {
+    UINT  length;
+    UINT  flags;
+    UINT  showCmd;
+    POINT ptMinPosition;
+    POINT ptMaxPosition;
+    RECT  rcNormalPosition;
+} WINDOWPLACEMENT;
+typedef WINDOWPLACEMENT *PWINDOWPLACEMENT, *LPWINDOWPLACEMENT;
+BOOL SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
+BOOL GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
+
 BOOL WINAPI	GetCursorPos(LPPOINT lpPoint);
 HWND WINAPI	GetCapture(VOID);
 HWND WINAPI	SetCapture(HWND hwnd);
 BOOL WINAPI	ReleaseCapture(VOID);
+
+#define GW_HWNDNEXT 2
+#define GW_HWNDPREV 3
+#define GW_CHILD 5
+#define GW_HWNDFIRST 0
+#define GW_HWNDLAST 1
+#define GW_OWNER 4
+
+HWND GetWindow(HWND hWnd,  UINT uCmd);
+HWND GetMenu (HWND hWnd);
+HWND GetForegroundWindow(VOID);
 
 /*
  * WM_NCCALCSIZE parameter structure

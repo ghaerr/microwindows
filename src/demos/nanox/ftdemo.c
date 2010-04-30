@@ -7,7 +7,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#define ANTIALIAS	1		/* set =1 to enable anti aliasing*/
+#define ANTIALIAS	0		/* set =1 to enable anti aliasing*/
 
 #if HAVE_T1LIB_SUPPORT
 #define FONTNAME "bchr"

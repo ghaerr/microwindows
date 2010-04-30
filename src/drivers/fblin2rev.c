@@ -241,6 +241,7 @@ linear2_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 static void
 linear2_drawarea(PSD psd, driver_gc_t * gc, int op)
 {
+#if DEBUG
 	assert(psd->addr != 0);
 	/*assert(gc->dstw <= gc->srcw); */
 	assert(gc->dstx >= 0 && gc->dstx + gc->dstw <= psd->xres);
@@ -248,7 +249,7 @@ linear2_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
 	assert(gc->srcy >= 0);
 	/*DPRINTF("linear1_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
-
+#endif
 	switch (op) {
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:

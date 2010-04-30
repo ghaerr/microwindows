@@ -1,12 +1,11 @@
 /*
  * Copyright (c) 1999, 2000, 2003, 2005, 2006, 2010 Greg Haerr <greg@censoft.com>
  *
- * 4bpp Packed Linear Video Driver for Microwindows
- * 	This driver is written for the Vr41xx Palm PC machines
- * 	Hopefully, we can get the 4bpp mode running 320x240x16
+ * 4bpp Packed Linear Video Driver for Microwindows (high nibble first)
+ * Vr41xx Palm PC
  *
  * If INVERT4BPP is defined, then the values are inverted before drawing.
- * 	This is used for the VTech Helio
+ * VTech Helio
  *
  * 	In this driver, psd->linelen is line byte length, not line pixel length
  */
@@ -19,10 +18,14 @@
 DEFINE_applyOpR
 
 #if INVERT4BPP
-#define INVERT(c)	((c) = (~c & 0x0f))
+#define INVERT(c)	((c) = (~(c) & 0x0f))
 #else
 #define INVERT(c)
 #endif
+
+/* Fast set pixel at addr, x, to pixelval c*/
+#define linear4_drawpixelfast(psd, addr, x, c) \
+	*addr = (*addr & notmask[(x)&1]) | ((c) << ((1-((x)&1))<<2));
 
 static const unsigned char notmask[2] = { 0x0f, 0xf0};
 
@@ -35,10 +38,6 @@ linear4_init(PSD psd)
 	/* linelen in bytes for bpp 1, 2, 4, 8 so no change*/
 	return 1;
 }
-
-/* Set pixel at addr, x, to pixelval c*/
-#define linear4_drawpixelfast(psd, addr, x, c) \
-	*addr = (*addr & notmask[(x)&1]) | ((c) << ((1-((x)&1))<<2));
 
 /* Set pixel at x, y, to pixelval c*/
 static void
@@ -164,35 +163,38 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
 
-	DRAWON;
 	op = MWROP_TO_MODE(op);
+	if (op > MWMODE_SIMPLE_MAX)
+		op = MWMODE_COPY;
 	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
 	src = ((ADDR8)srcpsd->addr) + (srcx>>1) + srcy * slinelen;
+
+	DRAWON;
 	while(--h >= 0) {
-		ADDR8	d = dst;
-		ADDR8	s = src;
 		MWCOORD	dx = dstx;
 		MWCOORD	sx = srcx;
+		ADDR8	d = dst;
+		ADDR8	s = src;
+		unsigned char c = *s;
 
+		INVERT(c);
 		for (i=0; i<w; ++i) {
-			unsigned char c = *s;
-
-			INVERT(c);
 			if (op == MWMODE_COPY) {
-				*d = (*d & notmask[dx&1]) |
-					((c >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
+				*d = (*d & notmask[dx&1]) | ((c >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
 			} else {
 				*d = (*d & notmask[dx&1]) |
 					((applyOpR(op,
-						c >> ((1-(sx&1))<<2),
-						*d >> ((1-(dx&1))<<2)) & 0x0f) << ((1-(dx&1))<<2)
+						c >> ((1-(sx&1))<<2), *d >> ((1-(dx&1))<<2)) & 0x0f) << ((1-(dx&1))<<2)
 					);
 			}
 
 			if((++dx & 1) == 0)
 				++d;
-			if((++sx & 1) == 0)
+			if((++sx & 1) == 0) {
 				++s;
+				c = *s;
+				INVERT(c);
+			}
 		}
 		dst += dlinelen;
 		src += slinelen;
@@ -271,27 +273,13 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	last_byte = (gc->srcx + gc->dstw - 1) >> 3;
 
 	src = ((ADDR8) gc->pixels) + gc->src_linelen * gc->srcy + first_byte;
-	dst = ((ADDR8) psd->addr) + ((psd->linelen * gc->dsty + gc->dstx) / 2);	/* 4bpp = 2 ppb */
+	dst = ((ADDR8) psd->addr) + (psd->linelen * gc->dsty + gc->dstx) / 2;	/* 4bpp = 2 ppb */
 
 	fg = gc->fg_color;
 	bg = gc->bg_color;
 
 	advance_src = gc->src_linelen - last_byte + first_byte - 1;
 	advance_dst = psd->linelen - (gc->dstw / 2);				/* 4bpp = 2 ppb */
-
-#if 0
-	printf("\n\n--------------------------------\n%s(%d): \n", __FUNCTION__, __LINE__);
-//	printf(" fg_color=%x, bg_color=%x\n", fg, bg);
-//	printf(" src=%08lx, dst=%08lx\n", (unsigned long) src, (unsigned long) dst);
-	printf(" first_byte=%d, last_byte=%d\n", first_byte, last_byte);
-//	printf(" gc->srcx=%d, gc->srcy=%d\n", gc->srcx, gc->srcy);
-	printf(" gc->src_linelen=%d\n", gc->src_linelen);
-	printf(" gc->dstx=%d, gc->dsty=%d\n", gc->dstx, gc->dsty);
-	printf(" gc->dstw=%d, gc->dsth=%d\n", gc->dstw, gc->dsth);
-//	printf(" gc->dst_linelen=%d\n", gc->dst_linelen);
-	printf(" advance_src=%08x, advance_dst=%08x\n", advance_src, advance_dst);
-	printf(" gc->gr_usebg=%d\n", gc->gr_usebg);
-#endif
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -323,11 +311,6 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	}
 
 	DRAWON;
-
-	//printf(" prefix_first_bit=%d\n", prefix_first_bit);
-	//printf(" postfix_first_bit=%d\n", postfix_first_bit);
-	//printf(" size_main=%d\n", size_main);
-
 	if (gc->gr_usebg) {
 		for (y = 0; y < gc->dsth; y++) {
 			int x = 0;
@@ -441,7 +424,6 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			dst += advance_dst;
 		}
 	}
-
 	DRAWOFF;
 
 #undef MWI_IS_BIT_BEFORE_OR_EQUAL
@@ -455,6 +437,7 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 static void
 linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
 {
+#if DEBUG
 	assert(psd->addr != 0);
 	/*assert(gc->dstw <= gc->srcw); */
 	assert(gc->dstx >= 0 && gc->dstx + gc->dstw <= psd->xres);
@@ -462,7 +445,7 @@ linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
 	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
 	assert(gc->srcy >= 0);
 	/*printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
-
+#endif
 	switch (op) {
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:

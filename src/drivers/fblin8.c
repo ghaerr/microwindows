@@ -213,10 +213,12 @@ stdblit:
 			src += slinelen;
 		}
 	} else {
+		op = MWROP_TO_MODE(op);
 		while (--h >= 0) {
 			int i;
+
 			for (i=0; i<w; i++) {
-				applyOp(MWROP_TO_MODE(op), *src, dst, ADDR8);
+				applyOp(op, *src, dst, ADDR8);
 				++src;
 				++dst;
 			}

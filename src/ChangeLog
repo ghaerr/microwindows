@@ -3,6 +3,7 @@
 		DeferWindowPos, EndDeferWindowPos, GetWindow, GetMenu, GetForegroundwindow,
 		SW_MAXIMIZE, SW_MINIMIZE, workarea maximize, partial WM_SYSCOMMAND,
 		dialog maximize via CS_DBLCLKS, MWKEY_ACCEPT, FillRgn (Ludwig)
+	* added drawarea_bitmap_bytes_msb_first to fblin4rev.c, fixed MWROP blit bug
 	* fix bug in linear24_alphacol, not blending properly, added ft2test.c pgm
 	* speedup fblin1/2, wrote msb_first drivers for fblin2/2rev
 	* add fblin1rev.c drawarea_bitmap_bytes_msb_first (Vladimir)

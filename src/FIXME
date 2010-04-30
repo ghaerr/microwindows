@@ -10,6 +10,8 @@ fblin32alpha.c/fblin32.c:
 	update stretchblitex in fblin32.c for SRC_OVER
 	check fblin24.c, fblin16.c against fblin32.c/a
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
+add MWPF_TRUECOLORBGRA to static fb_var_screeninfo to select BGRA linear32alpha subdriver
+change image id's to pixmaps (win32 and nano-X)
 add PSF_HAVEOP_ALPHACOL, FT2 driver downgrades to non-antialias when needed
 fix add INVERT2BPP to config, combine with INVERT4BPP or reverse palette, INVERT() macro
 add X11 keyboard and mouse support to fbe

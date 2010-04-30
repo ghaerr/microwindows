@@ -36,7 +36,7 @@
 #define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
 #define XRES				640			/* default fb emulator xres*/
 #define YRES				480			/* default fb emulator yres*/
-#define BPP					1			/* default fb emulator bpp*/
+#define BPP					15			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
 
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 
@@ -78,9 +78,16 @@ SCREENDEVICE	scrdev = {
 /* framebuffer info defaults for emulator*/
 static struct fb_fix_screeninfo  fb_fix = {
 	  .type = FB_TYPE_PACKED_PIXELS,
-	  //.visual = FB_VISUAL_MONO10,
+#if BPP == 1
+	  .visual = FB_VISUAL_MONO10,
+	  .line_length = XRES / (8 / BPP),
+#elif BPP <= 8
 	  .visual = FB_VISUAL_PSEUDOCOLOR,
 	  .line_length = XRES / (8 / BPP),
+#else /* 15,16,24,32bpp*/
+	  .visual = FB_VISUAL_TRUECOLOR,
+	  .line_length = XRES * ((BPP+1)/8),	/* +1 to make 15bpp work*/
+#endif
 	  .accel = FB_ACCEL_NONE,
 };
 
@@ -90,9 +97,25 @@ static struct fb_var_screeninfo fb_var = {
 	  .xres_virtual = XRES,
 	  .yres_virtual = YRES,
 	  .bits_per_pixel = BPP,
+#if BPP <= 8
+	  /* offset, length, msb_right*/
 	  .red = { 0, BPP, 0 },
 	  .green = { 0, BPP, 0 },
 	  .blue = { 0, BPP, 0 },
+#elif BPP == 15
+	  .red = { 0, 5, 0 },
+	  .green = { 0, 5, 0 },		/* green.length is checked for MWPF_TRUECOLOR555*/
+	  .blue = { 0, 5, 0 },
+#elif BPP == 16
+	  .red = { 0, 5, 0 },
+	  .green = { 0, 6, 0 },
+	  .blue = { 0, 5, 0 },
+#else
+	  .red = { 0, 8, 0 },
+	  .green = { 0, 8, 0 },
+	  .blue = { 0, 8, 0 },
+#endif
+	  .transp = { 0, 0, 0 },	/* set length=8 to force fblin32alpha driver*/
 };
 
 /* static variables*/
@@ -161,6 +184,8 @@ fb_open(PSD psd)
 
 	psd->bpp = fb_var.bits_per_pixel;
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
+	if (psd->bpp == 15)		/* allow 15bpp for static fb emulator init only*/
+		psd->bpp = 16;
 
 	/* set linelen to byte length, possibly converted later*/
 	psd->linelen = fb_fix.line_length;
@@ -226,7 +251,7 @@ fb_open(PSD psd)
 #if HAVETEXTMODE
 	{
 	/* open tty, enter graphics mode*/
-	tty = open ("/dev/tty0", O_RDWR);
+	int tty = open ("/dev/tty0", O_RDWR);
 	if(tty < 0) {
 		EPRINTF("Error can't open /dev/tty0: %m\n");
 		goto fail;

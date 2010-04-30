@@ -2,7 +2,7 @@
  * Copyright (c) 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
- * 24bpp Linear Video Driver for Microwindows
+ * 24bpp Linear Video Driver for Microwindows (BGR byte order)
  */
 /*#define NDEBUG*/
 #include <assert.h>
@@ -151,7 +151,7 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
 #if ALPHABLEND
-	unsigned long alpha, pd;
+	unsigned long alpha;
 #endif
 
 	assert (dst != 0);
@@ -180,9 +180,11 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
 			if (alpha != 0) {
+				register unsigned long pd = *dst;
+				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
 				pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
-				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
 			} else {
 				dst += 3;
@@ -1220,7 +1222,7 @@ static void
 linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR8 dst, alpha;
-	unsigned long as, pd, psr, psg, psb;
+	unsigned long as, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 
@@ -1241,16 +1243,16 @@ linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				*dst++ = psg;
 				*dst++ = psr;
 			} else if (as != 0) {
-				pd = *dst;
+				register unsigned long pd = *dst;
 				*dst++ = muldiv255(as, psb - pd) + pd;
 				pd = *dst;
 				*dst++ = muldiv255(as, psg - pd) + pd;
 				pd = *dst;
 				*dst++ = muldiv255(as, psr - pd) + pd;
 			} else if(gc->gr_usebg)	{	/* alpha 0 - draw bkgnd*/
-				*dst++ = PIXEL888RED(gc->bg_color);
-				*dst++ = PIXEL888GREEN(gc->bg_color);
 				*dst++ = PIXEL888BLUE(gc->bg_color);
+				*dst++ = PIXEL888GREEN(gc->bg_color);
+				*dst++ = PIXEL888RED(gc->bg_color);
 			} else
 				dst += 3;
 		}

@@ -1,5 +1,7 @@
 /*
- * 1, 2, 4 and 8bpp Frame Buffer Emulator (from picoTK)
+ * Frame Buffer Emulator
+ * 	1, 2, 4, 8, 15, 16, 24 and 32bpp supported
+ *	MSB and LSB first bit order supported for 1, 2 and 4bpp
  *
  * Copyright (c) 2010 by Greg Haerr <greg@censoft.com>
  * Copyright (c) 2004 by Vince Busam <vince@sixpak.org>
@@ -8,11 +10,19 @@
  *          (c) 1992 by Sudarshan Karkada, as a starting point for this program.
  *
  * 4/27/2010 modified g haerr for microwindows from fbe.c 1.4 12/03/2010
- *			added support for fblin1rev.c reverse bit order 1bpp
+ *			added support for fblin1rev.c reverse bit order 1bpp (-r)
+ *			added support for 4bpp gray palette (-g)
+ *			added support for 2, 4, 15, 16, 24 and 32bpp
+ *
+ * Original from picoTK project
 
-kill nano-X on exit
-read/write colormap
-colormap in scr_fb.c
+TODO
+assumes 32bpp X server (fix)
+add 8bpp 3/3/2, 2/2/3 truecolor
+add 32bpp BGRA truecolor
+kill nano-X on exit flag
+read/write colormap from nano-X
+get colormap in scr_fb.c
 get bpp via ioctl from fbe for nano-X?
 
  *
@@ -91,6 +101,16 @@ void X11_init(void);
 void fbe_loop(void);
 
 #define RGBDEF(r,g,b)	((unsigned long) ((b) | ((g)<<8) | ((r)<<16)))
+
+/* return 5/6/5 bit r, g or b component of 16 bit pixelval*/
+#define PIXEL565RED(pixelval)		(((pixelval) >> 11) & 0x1f)
+#define PIXEL565GREEN(pixelval)		(((pixelval) >> 5) & 0x3f)
+#define PIXEL565BLUE(pixelval)		((pixelval) & 0x1f)
+
+/* return 5/5/5 bit r, g or b component of 16 bit pixelval*/
+#define PIXEL555RED(pixelval)		(((pixelval) >> 10) & 0x1f)
+#define PIXEL555GREEN(pixelval)		(((pixelval) >> 5) & 0x1f)
+#define PIXEL555BLUE(pixelval)		((pixelval) & 0x1f)
 
 /* Standard palette for 1bpp (2 color/monochrome) systems. */
 unsigned long mwstdpal1[2] = {
@@ -465,6 +485,8 @@ fbe_setcolors(void)
 	case 8:
 		pal = mwstdpal8;
 		break;
+	default:
+		return;
 	}
 
 	/* copy initial palette*/
@@ -477,6 +499,9 @@ fbe_calcX11colors(void)
 {
 	int i;
 	unsigned long c24;
+
+	if (BITS_PER_PIXEL > 8)
+		return;
 
 	/*
 	 * Calculate X11 pixel values from 24 bit rgb (00rrggbb) color and
@@ -550,11 +575,57 @@ calc_patch_crc(int ix, int iy)
 	unsigned long crc = 0x8154711;
 	int x, y, off;
 
-	off = (ix * CHUNKX) / PIXELS_PER_LONG + iy * CHUNKY * (CRTX_TOTAL / PIXELS_PER_LONG);
+	switch (BITS_PER_PIXEL) {
+	default:
+		off = (ix * CHUNKX) / PIXELS_PER_LONG + iy * CHUNKY * (CRTX_TOTAL / PIXELS_PER_LONG);
+		break;
+	case 15:
+	case 16:
+		off = (ix * CHUNKX + iy * CHUNKY * CRTX_TOTAL) * 2;
+		break;
+	case 24:
+		off = (ix * CHUNKX + iy * CHUNKY * CRTX_TOTAL) * 3;
+		break;
+	case 32:
+		off = (ix * CHUNKX + iy * CHUNKY * CRTX_TOTAL) * 4;
+		break;
+	}
 
 	for (x = 0; x < CHUNKX / PIXELS_PER_LONG; x++)
 		for (y = 0; y < CHUNKY; y++) {
-			unsigned long dat = crtbuf[off + x + y*CRTX_TOTAL/PIXELS_PER_LONG];
+			unsigned long dat;
+
+			if (BITS_PER_PIXEL <= 8)
+				dat = crtbuf[off + x + y*CRTX_TOTAL/PIXELS_PER_LONG];
+			else {
+				unsigned char *data;
+				unsigned char a, r, g, b, h, l;
+
+				switch (BITS_PER_PIXEL) {
+				case 15:
+				case 16:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*2;
+					l = *data++;
+					h = *data;
+					dat = l | (h<<16);
+					break;
+				case 24:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*3;
+					b = *data++;
+					g = *data++;
+					r = *data;
+					dat = b | (g<<8) | (r<<16);
+					break;
+				case 32:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*4;
+					b = *data++;
+					g = *data++;
+					r = *data++;
+					a = *data;
+					dat = b | (g<<8) | (r<<16) | (a<<24);
+					break;
+				}
+			}
 
 			crc += (crc % 211 + dat);
 			/* crc^=((crc^dat)<<1)^((dat&0x8000) ? 0x1048:0); */
@@ -575,24 +646,82 @@ check_and_paint(int ix, int iy)
 		return;
 	crcs[ix][iy] = crc;
 
-	off = ix * (CHUNKX / PIXELS_PER_BYTE) + iy * CHUNKY * (CRTX_TOTAL / PIXELS_PER_BYTE);
+	switch (BITS_PER_PIXEL) {
+	default:
+		off = ix * (CHUNKX / PIXELS_PER_BYTE) + iy * CHUNKY * (CRTX_TOTAL / PIXELS_PER_BYTE);
+		break;
+	case 15:
+	case 16:
+		off = (ix * CHUNKX + iy * CHUNKY * CRTX_TOTAL) * 2;
+		break;
+	case 24:
+		off = (ix * CHUNKX + iy * CHUNKY * CRTX_TOTAL) * 3;
+		break;
+	case 32:
+		off = (ix * CHUNKX + iy * CHUNKY * CRTX_TOTAL) * 4;
+		break;
+	}
 
 	XSetForeground(display, gc, 0x000000);
 	XFillRectangle(display, pixmap, gc, 0, 0, CHUNKX * ZOOM, CHUNKY * ZOOM);
 
 	for (y = 0; y < CHUNKY; y++)
 		for (x = 0; x < CHUNKX; x++) {
-			unsigned char data =
-				((unsigned char *)crtbuf)[off + x/PIXELS_PER_BYTE + y*(CRTX_TOTAL/PIXELS_PER_BYTE)];
+			if (BITS_PER_PIXEL <= 8) {
+				unsigned char data =
+					((unsigned char *)crtbuf)[off + x/PIXELS_PER_BYTE + y*(CRTX_TOTAL/PIXELS_PER_BYTE)];
 
-			if (rev_bitorder)
-				color = (data >> 
-					((x & (PIXELS_PER_BYTE-1))) * BITS_PER_PIXEL) & PIXEL_MASK;
-			else
-				color = (data >>
-					(((PIXELS_PER_BYTE-1) - (x & (PIXELS_PER_BYTE-1)))*BITS_PER_PIXEL)) & PIXEL_MASK;
-
-			XSetForeground(display, gc, colors_X11[color]);
+				if (rev_bitorder)
+					color = (data >> 
+						((x & (PIXELS_PER_BYTE-1))) * BITS_PER_PIXEL) & PIXEL_MASK;
+				else
+					color = (data >>
+						(((PIXELS_PER_BYTE-1) - (x & (PIXELS_PER_BYTE-1)))*BITS_PER_PIXEL)) & PIXEL_MASK;
+				XSetForeground(display, gc, colors_X11[color]);
+			} else {
+				unsigned char *data;
+				unsigned char a, r, g, b, h, l;
+				unsigned long dat;
+				
+				switch (BITS_PER_PIXEL) {
+				case 15:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*2;
+					l = *data++;
+					h = *data;
+					dat = l | (h<<8);
+					r = PIXEL555RED(dat) << 3;
+					g = PIXEL555GREEN(dat) << 3;
+					b = PIXEL555BLUE(dat) << 3;
+					dat = b | (g<<8) | (r<<16);
+					break;
+				case 16:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*2;
+					l = *data++;
+					h = *data;
+					dat = l | (h<<8);
+					r = PIXEL565RED(dat) << 3;
+					g = PIXEL565GREEN(dat) << 2;
+					b = PIXEL565BLUE(dat) << 3;
+					dat = b | (g<<8) | (r<<16);
+					break;
+				case 24:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*3;
+					b = *data++;
+					g = *data++;
+					r = *data++;
+					dat = b | (g<<8) | (r<<16);
+					break;
+				case 32:
+					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*4;
+					b = *data++;
+					g = *data++;
+					r = *data++;
+					a = *data;
+					dat = b | (g<<8) | (r<<16) | (a<<24);
+					break;
+				}
+				XSetForeground(display, gc, dat);
+			}
 			if (ZOOM > 1)
 				XFillRectangle(display, pixmap, gc, x * ZOOM, y * ZOOM, 2, 2);
 			else
@@ -729,12 +858,18 @@ main(int argc, char **argv)
 				   fname = arg; */
 	}
 
-	PIXELS_PER_BYTE = (8 / BITS_PER_PIXEL);
-	PIXELS_PER_LONG = PIXELS_PER_BYTE * 4;
 	if (!CRTX_TOTAL)
 		CRTX_TOTAL = CRTX;
-	PITCH = CRTX_TOTAL / PIXELS_PER_BYTE;
-	PIXEL_MASK = ((unsigned char *)"\x00\x01\x03\x07\x0f\x1f\x3f\x7f\xff")[BITS_PER_PIXEL];
+	if (BITS_PER_PIXEL > 8) {
+		PIXELS_PER_BYTE = 1;		/* not used*/
+		PIXELS_PER_LONG = 1;		/* not used*/
+		PITCH = CRTX_TOTAL * ((BITS_PER_PIXEL+1) / 8);	/* + 1 to make 15bpp work*/
+	} else {
+		PIXELS_PER_BYTE = (8 / BITS_PER_PIXEL);
+		PIXELS_PER_LONG = PIXELS_PER_BYTE * 4;
+		PITCH = CRTX_TOTAL / PIXELS_PER_BYTE;
+		PIXEL_MASK = ((unsigned char *)"\x00\x01\x03\x07\x0f\x1f\x3f\x7f\xff")[BITS_PER_PIXEL];
+	}
 
 	if (!ok || help) {
 		printf(PROGNAME " " VERSION " "
@@ -745,9 +880,9 @@ main(int argc, char **argv)
 		       "       -x   X size            [%3d]\n"
 		       "       -y   Y Size            [%3d]\n"
 		       "       -t   Total X Size      [%3d]\n"
-		       "       -d   Color depths bpp  [%d] \n"
+		       "       -d   Color depths bpp  [%d] (1,2,4,8,15,16,24,32)\n"
 		       "       -z   Zoom factor       [%d] \n"
-			   "       -r   Reverse bit order (1,2,4bpp)\n"
+			   "       -r   Reverse bit order (1,2,4bpp LSB first)\n"
 			   "       -g   Gray palette (4bpp only)\n"
 			   "       -c   Force create new framebuffer (required when size changes)\n",
 		       CRTX, CRTY, CRTX_TOTAL, BITS_PER_PIXEL, ZOOM);

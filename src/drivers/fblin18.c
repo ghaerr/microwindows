@@ -226,7 +226,9 @@ linear18_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			if (alpha != 0) {
 				pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
 			} else {
 				dst += 3;
@@ -1292,8 +1294,14 @@ linear18_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 			} else if (as != 0) {
 				pd = *dst;
 				*dst++ = muldiv255(as, psb - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(as, psg - pd) + pd;
+				pd = *dst;
 				*dst++ = muldiv255(as, psr - pd) + pd;
+			} else if(gc->gr_usebg)	{	/* alpha 0 - draw bkgnd*/
+				*dst++ = PIXEL888BLUE(gc->bg_color);
+				*dst++ = PIXEL888GREEN(gc->bg_color);
+				*dst++ = PIXEL888RED(gc->bg_color);
 			} else
 				dst += 3;
 		}

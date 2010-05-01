@@ -412,9 +412,11 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 
 	if(destwidth > 0 && destheight > 0) {
 		if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
-			GdStretchBlit(wp->psd, destx + wp->x, desty + wp->y,
-				destwidth, destheight, pm->psd, fromx, fromy,
-				pm->width, pm->height, MWROP_COPY);
+			GdStretchBlitEx(wp->psd, destx + wp->x, desty + wp->y,
+				destx + wp->x + destwidth - 0, desty + wp->y + destheight - 0,
+				pm->psd, fromx, fromy,
+				fromx + pm->width - 1, fromy + pm->height - 1,
+				MWROP_COPY);
 		} else GdBlit(wp->psd, destx + wp->x, desty + wp->y, (width < destwidth)?width:destwidth,
 			(height < destheight)?height:destheight, pm->psd, fromx, fromy, MWROP_COPY);
 	}

@@ -268,6 +268,7 @@ stdcopy:
 	DRAWOFF;
 }
 
+#if 0000 /* DEPRECATED*/
 /* srccopy stretchblt*/
 static void
 linear32_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
@@ -331,7 +332,7 @@ linear32_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	}
 	DRAWOFF;
 }
-
+#endif /* DEPRECATED*/
 
 /*
  * This stretchblit code was originally written for the TriMedia
@@ -479,7 +480,8 @@ linear32_stretchblitex(PSD dstpsd,
 	y_error_step_normal = ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
-	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n                   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
+	/* DPRINTF("linear32_stretchblitex: X: One step=%d, err-=%d; normal step=%d, err+=%d\n"
+		"Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
 	   src_x_step_one, x_denominator, src_x_step_normal, x_error_step_normal,
 	   src_y_step_one, y_denominator, src_y_step_normal, y_error_step_normal);
 	 */
@@ -1099,6 +1101,5 @@ SUBDRIVER fblinear32 = {
 	gen_fillrect,
 	linear32_blit,
 	linear32_drawarea,
-	linear32_stretchblit,
-	linear32_stretchblitex,
+	linear32_stretchblitex
 };

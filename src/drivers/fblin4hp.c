@@ -444,6 +444,7 @@ void linear41_blit(PSD dstpsd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h, PSD s
   }
 }
 
+#if 0000 /* DEPRECATED*/
 /* srccopy stretchblt*/
 static void
 linear4_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
@@ -517,6 +518,7 @@ linear4_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	}
 	DRAWOFF;
 }
+#endif /* DEPRECATED*/
 
 #if 1 
 SUBDRIVER fblinear4 = {
@@ -528,7 +530,7 @@ SUBDRIVER fblinear4 = {
 	linear41_fillrect,
 	linear41_blit,
 	NULL,
-	linear4_stretchblit
+	NULL
 };
 #else
 SUBDRIVER fblinear4 = {
@@ -540,6 +542,6 @@ SUBDRIVER fblinear4 = {
 	gen_fillrect,
 	linear4_blit,
 	NULL,
-	linear4_stretchblit
+	NULL
 };
 #endif 

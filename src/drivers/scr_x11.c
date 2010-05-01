@@ -84,7 +84,6 @@ SCREENDEVICE scrdev = {
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,			/* StretchBlit subdriver */
 	gen_setportrait,
 	0,				/* int portrait */
 	NULL,			/* orgsubdriver */
@@ -141,8 +140,7 @@ static SUBDRIVER x11dev = {
 	X11_fillrect,
 	X11_blit,
 	X11_drawarea,
-	0,			/* StretchBlit*/
-	X11_stretchblitex,
+	X11_stretchblitex
 };
 		
 /* called from mou_x11.c*/

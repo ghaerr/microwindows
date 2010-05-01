@@ -36,7 +36,7 @@
 #define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
 #define XRES				640			/* default fb emulator xres*/
 #define YRES				480			/* default fb emulator yres*/
-#define BPP					15			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
+#define BPP					8			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
 
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 
@@ -68,7 +68,6 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,			/* StretchBlit subdriver*/
 	gen_setportrait,
 	0,				/* int portrait */
 	NULL,			/* orgsubdriver */
@@ -224,8 +223,8 @@ fb_open(PSD psd)
 	} else 
 		psd->pixtype = MWPF_PALETTE;
 
-	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres,
-	 	psd->yres, psd->bpp, psd->linelen, type, visual,
+	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres, psd->yres,
+		(psd->pixtype == MWPF_TRUECOLOR555)? 15: psd->bpp, psd->linelen, type, visual,
 		psd->ncolors, psd->pixtype);
 
 	/* select a framebuffer subdriver based on planes and bpp*/

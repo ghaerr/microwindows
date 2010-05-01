@@ -15,7 +15,6 @@ add PIXIL nxutil library
 TypedReadBlock not checked
 fixup GrNewBitmapFromPixmap
 obsolete MWMODE_SET, MWROP_SRCCOPY, change MWMODE_SETTO1 before 0.89 final
-write X11 stretchblit driver entry point
 check for HAVE_STRETCHBLIT before calling it...
 add psi->fbdriver, psi->rmask, psi->portrait in all drivers/scr*.c
 ability to link in only specified fb Xbpp drivers

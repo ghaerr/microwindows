@@ -1487,9 +1487,13 @@ StretchBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest,
 		GdBlit(hdcDest->psd, dst.x, dst.y, nWidthDest, nHeightDest,
 			hdcSrc->psd, src.x, src.y, dwRop);
 	} else {
-		GdStretchBlit(hdcDest->psd, dst.x, dst.y,
-			nWidthDest, nHeightDest, hdcSrc->psd, src.x, src.y,
-			nWidthSrc, nHeightSrc, dwRop);
+		GdStretchBlitEx(hdcDest->psd,
+			dst.x, dst.y,
+			dst.x + nWidthDest - 0, dst.y + nHeightDest - 0,
+			hdcSrc->psd,
+			src.x, src.y,
+			src.x + nWidthSrc - 1, src.y + nHeightSrc - 1,
+			dwRop);
 	}
 	return TRUE;
 }

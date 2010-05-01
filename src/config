@@ -271,7 +271,7 @@ GRAYPALETTE              = N
 ifneq ($(ARCH), ELKS)
 
 # X Window screen, mouse and kbd drivers
-X11                      = N
+X11                      = Y
 
 ifeq ($(X11), Y)
 # startup screen width, height, (depth for palette mode only)

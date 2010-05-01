@@ -82,11 +82,10 @@ SCREENDEVICE scrdev = {
 	gen_allocatememgc,
 	em86xx_mapmemgc,
 	gen_freememgc,
-	em86xx_stretchblit,			/* StretchBlit subdriver */
 	NULL,						/* SetPortrait */
 	0,							/* screen portrait mode */
 	NULL,						/* orgsubdriver */
-	NULL,						/* StretchBlitEx subdriver */
+	NULL						/* StretchBlitEx subdriver */
 };
 
 #define ALLOW_OS_CODE 1
@@ -309,7 +308,7 @@ static PSD em86xx_open(PSD psd)
 	psd->DrawVertLine = em86xx_drawvertline;
 	psd->FillRect = em86xx_fillrect;
 	psd->Blit = em86xx_blit;
-	psd->StretchBlit = em86xx_stretchblit;
+	//psd->StretchBlit = em86xx_stretchblit;
 
 	/* mmap framebuffer into this address space*/
 	if (osd.buf_addr == 0) {
@@ -627,7 +626,7 @@ em86xx_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	mempsd->DrawVertLine = em86xx_drawvertline;
 	mempsd->FillRect = em86xx_fillrect;
 	mempsd->Blit = em86xx_blit;
-	mempsd->StretchBlit = em86xx_stretchblit;
+	//mempsd->StretchBlit = em86xx_stretchblit;
 	return 1;
 }
 

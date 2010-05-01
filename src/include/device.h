@@ -320,14 +320,11 @@ typedef struct {
 	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
 	void	 (*DrawArea)(PSD psd, driver_gc_t *gc, int op);
-	
-	/* Note: StretchBlit() is deprecated, callers should prefer
-	 * StretchBlitEx() if available.  Drivers should just
-	 * implement StretchBlitEx().
-	 */
+	/* Note: StretchBlit() is deprecated, use StretchBlitEx()
 	void	 (*StretchBlit)(PSD destpsd, MWCOORD destx, MWCOORD desty,
 			MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
 			MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op);
+	 */
 	void 	 (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
 			MWCOORD dest_x_start, int dest_y_start,
 			MWCOORD width, int height,
@@ -381,9 +378,11 @@ typedef struct _mwscreendevice {
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
 			int linelen,int size,void *addr);
 	void	(*FreeMemGC)(PSD mempsd);
+	/* Note: StretchBlit() is deprecated, use StretchBlitEx()
 	void	(*StretchBlit)(PSD destpsd,MWCOORD destx,MWCOORD desty,
 			MWCOORD destw,MWCOORD desth,PSD srcpsd,MWCOORD srcx,
 			MWCOORD srcy,MWCOORD srcw,MWCOORD srch,long op);
+	*/
 	void	(*SetPortrait)(PSD psd,int portraitmode);
 	int	portrait;	 /* screen portrait mode*/
 	PSUBDRIVER orgsubdriver; /* original subdriver for portrait modes*/
@@ -897,9 +896,9 @@ void	GdCopyArea(PSD psd,MWCOORD srcx,MWCOORD srcy,MWCOORD width,
 		MWCOORD height, MWCOORD destx, MWCOORD desty);
 void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width,
 		MWCOORD height,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long rop);
-void	GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
+/***void	GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 		MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy,
-		MWCOORD srcw, MWCOORD srch, long rop);
+		MWCOORD srcw, MWCOORD srch, long rop);***/
 void	GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
 		MWCOORD s2_x, MWCOORD s2_y, long rop);

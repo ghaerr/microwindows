@@ -250,6 +250,7 @@ stdblit:
 	DRAWOFF;
 }
 
+#if 0000 /* DEPCRECATED*/
 /* VERY experimental globals for debugging stretchblit off-by-some bug*/
 extern int g_row_inc, g_col_inc;
 
@@ -318,6 +319,7 @@ linear16_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	}
 	DRAWOFF;
 }
+#endif
 
 /*
  * This stretchblit code was originally written for the TriMedia
@@ -466,8 +468,8 @@ linear16_stretchblitex(PSD dstpsd,
 	y_error_step_normal = ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
-	/* DPRINTF("ov_stretch_image8: X: One step=%d, err-=%d; normal step=%d, err+=%d\n
-	   Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
+	/* DPRINTF("linear16_stretchblitex: X: One step=%d, err-=%d; normal step=%d, err+=%d\n"
+	   "Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
 	   src_x_step_one, x_denominator, src_x_step_normal, x_error_step_normal,
 	   src_y_step_one, y_denominator, src_y_step_normal, y_error_step_normal);
 	 */
@@ -1260,6 +1262,5 @@ SUBDRIVER fblinear16 = {
 	gen_fillrect,
 	linear16_blit,
 	linear16_drawarea,
-	linear16_stretchblit,
-	linear16_stretchblitex,
+	linear16_stretchblitex
 };

@@ -51,7 +51,6 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,			/* StretchBlit subdriver */
 	gen_setportrait,
 	0,				/* int portrait */
 	NULL,			/* orgsubdriver */

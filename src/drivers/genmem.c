@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Screen Driver Utilities
@@ -152,9 +152,8 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->DrawHorzLine 	= subdriver->DrawHorzLine;
 	psd->DrawVertLine 	= subdriver->DrawVertLine;
 	psd->FillRect	 	= subdriver->FillRect;
-	psd->Blit 		= subdriver->Blit;
+	psd->Blit 			= subdriver->Blit;
 	psd->DrawArea 		= subdriver->DrawArea;
-	psd->StretchBlit 	= subdriver->StretchBlit;
 	psd->StretchBlitEx	= subdriver->StretchBlitEx;
 
 	/* call driver init procedure to calc map size and linelen*/
@@ -172,9 +171,8 @@ get_subdriver(PSD psd, PSUBDRIVER subdriver)
 	subdriver->ReadPixel 		= psd->ReadPixel;
 	subdriver->DrawHorzLine 	= psd->DrawHorzLine;
 	subdriver->DrawVertLine 	= psd->DrawVertLine;
-	subdriver->FillRect	 	= psd->FillRect;
-	subdriver->Blit 		= psd->Blit;
+	subdriver->FillRect	 		= psd->FillRect;
+	subdriver->Blit 			= psd->Blit;
 	subdriver->DrawArea 		= psd->DrawArea;
-	subdriver->StretchBlit 		= psd->StretchBlit;
 	subdriver->StretchBlitEx	= psd->StretchBlitEx;
 }

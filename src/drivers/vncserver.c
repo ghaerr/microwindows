@@ -63,12 +63,12 @@ static void	 (*_FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
 static void	 (*_Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
                 MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
 static void	 (*_DrawArea)(PSD psd, driver_gc_t *gc, int op);
-static void	 (*_StretchBlit)(PSD destpsd, MWCOORD destx, MWCOORD desty,
-                MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
-                MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op);
+static void  (*_StretchBlitEx)(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+				MWCOORD width, int height, int x_denominator, int y_denominator,
+				int src_x_fraction, int src_y_fraction,
+				int x_step_fraction, int y_step_fraction, long op);
 
-
-static void UndrawCursor()
+static void UndrawCursor(void)
 {
         //FIXME if ( clients_connected && rfbScreen->cursorIsDrawn ) 
                 //FIXME rfbUndrawCursor(rfbScreen);
@@ -140,15 +140,17 @@ static void stubBlit( PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
                 MarkRect( destx, desty, destx + w, desty + h );
 
 }
-static void stubStretchBlit(PSD destpsd, MWCOORD destx, MWCOORD desty,
-                MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
-                MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op)
+static void stubStretchBlitEx(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+	MWCOORD width, int height, int x_denominator, int y_denominator,
+	int src_x_fraction, int src_y_fraction,
+	int x_step_fraction, int y_step_fraction, long op)
 {
         UndrawCursor();
-        _StretchBlit( destpsd, destx, desty, dstw, dsth, srcpsd, srcx,
-                srcy, srcw, srch,  op);
-        if ( destpsd == actualpsd )
-                MarkRect( destx, desty, destx + dstw, desty + dsth );
+        _StretchBlitEx( dstpsd, srcpsd, dest_x_start, dest_y_start, width, height,
+			x_denominator, y_denominator, src_x_fraction, src_y_fraction,
+			x_step_fraction, y_step_fraction, op);
+        if ( dstpsd == actualpsd )
+                MarkRect( dest_x_start, dest_y_start, dest_x_start + width, dest_y_start + height );
 }
         
 static void clientgone(rfbClientPtr cl)
@@ -559,7 +561,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    _FillRect = psd->FillRect;
    _Blit = psd->Blit;
    _DrawArea = psd->DrawArea;
-   _StretchBlit = psd->StretchBlit;
+   _StretchBlitEx = psd->StretchBlitEx;
    
 
    /* Set the screen driver drawing functions to vnc stubs */
@@ -570,7 +572,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    psd->FillRect = stubFillRect;
    psd->Blit = stubBlit;
    psd->DrawArea = stubDrawArea;
-   psd->StretchBlit = stubStretchBlit;
+   psd->StretchBlitEx = stubStretchBlitEx;
                         
    /* Don't set bits x sample & samples x pixel, we'll do it later  */
    rfbScreen = rfbGetScreen(&argc,argv,psd->xres,psd->yres,-1,-1,-1);
@@ -682,6 +684,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
 #endif
    return 1;
 }
+
 void GdCloseVNC( void )
 {
 

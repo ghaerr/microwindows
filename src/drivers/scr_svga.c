@@ -54,7 +54,6 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	NULL,			/* MapMemGC*/
 	NULL,			/* FreeMemGC*/
-	NULL,			/* StretchBlit subdriver*/
 	NULL			/* SetPortrait*/
 };
 

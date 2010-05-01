@@ -2,6 +2,12 @@
  * Copyright (c) 2000, 2010 Greg Haerr <greg@censoft.com>
  *
  * Right portrait mode subdriver for Microwindows
+
+ * Right rotation:
+ * X -> maxy - y - h
+ * Y -> X
+ * W -> H
+ * H -> W
  */
 #include <string.h>
 #include "device.h"
@@ -54,6 +60,7 @@ fbportrait_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 		h, w, srcpsd, srcpsd->yvirtres-srcy-h, srcx, op);
 }
 
+#if 0
 static void
 fbportrait_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
@@ -61,6 +68,23 @@ fbportrait_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
 {
 	dstpsd->orgsubdriver->StretchBlit(dstpsd, dstpsd->yvirtres-desty-dsth, destx,
 		dsth, dstw, srcpsd, srcpsd->yvirtres-srcy-srch, srcx, srch, srcw, op);
+}
+#endif
+
+static void
+fbportrait_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+	MWCOORD width, int height, int x_denominator, int y_denominator,
+	int src_x_fraction, int src_y_fraction,
+	int x_step_fraction, int y_step_fraction, long op)
+{ 
+	// X -> maxy - y - h
+	// Y -> X
+	dstpsd->orgsubdriver->StretchBlitEx(dstpsd, srcpsd,
+		dstpsd->yvirtres - dest_y_start - height, dest_x_start,
+		height, width, y_denominator, x_denominator,
+		srcpsd->yvirtres - src_y_fraction - height, src_x_fraction,
+		y_step_fraction, x_step_fraction,
+		op);
 }
 
 #if MW_FEATURE_PSDOP_ALPHACOL
@@ -185,5 +209,5 @@ SUBDRIVER fbportrait_right = {
 	fbportrait_fillrect,
 	fbportrait_blit,
 	fbportrait_drawarea,
-	fbportrait_stretchblit
+	fbportrait_stretchblitex
 };

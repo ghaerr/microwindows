@@ -1831,6 +1831,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	GdFixCursor(dstpsd);
 }
 
+#if 0000 /* THIS FUNCTION IS DEPCRECATED, USE GdStretchBlitEx*/
 /* experimental globals for ratio bug when src != 0*/
 /* Only used by fblin16.c */
 int g_row_inc, g_col_inc;
@@ -1869,9 +1870,9 @@ GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	/* Use new improved stretchblit if the driver supports it */
 	if (dstpsd->StretchBlitEx) {
 		GdStretchBlitEx(dstpsd, dstx, dsty,
-				dstx + dstw, dsty + dsth,
+				dstx + dstw - 1, dsty + dsth - 1,
 				srcpsd, srcx, srcy,
-				srcx + srcw, srcy + srch,
+				srcx + srcw - 1, srcy + srch - 1,
 				rop);
 		return;
 	}
@@ -1986,6 +1987,7 @@ g_col_inc = (srcw << 16) / dstw;
 	}
 	GdFixCursor(dstpsd);
 }
+#endif /* DEPRECATED*/
 
 /**
  * A proper stretch blit.  Supports flipping the image.
@@ -2058,8 +2060,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 
 	/* Sort co-ordinates so d1 is top left, d2 is bottom right. */
 	if (d1_x > d2_x) {
-		register MWCOORD tmp;
-		tmp = d2_x;
+		register MWCOORD tmp = d2_x;
 		d2_x = d1_x;
 		d1_x = tmp;
 		tmp = s2_x;
@@ -2068,8 +2069,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 	}
 
 	if (d1_y > d2_y) {
-		register MWCOORD tmp;
-		tmp = d2_y;
+		register MWCOORD tmp = d2_y;
 		d2_y = d1_y;
 		d1_y = tmp;
 		tmp = s2_y;
@@ -2077,25 +2077,19 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		s1_y = tmp;
 	}
 
-	if ((d2_x < 0)
-	    || (d2_y < 0)
+	if ((d2_x < 0) || (d2_y < 0)
 	    || (d1_x > dstpsd->xvirtres)
 	    || (d1_y > dstpsd->yvirtres)
 	    || (d1_x == d2_x)
 	    || (d1_y == d2_y)) {
-		/* Destination rectangle is entirely off screen,
-		 * or is zero-sized - bail ASAP
-		 */
+		/* Destination rectangle is entirely off screen, or is zero-sized*/
 		/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (dest rect offscreen or 0)\n"); */
 		return;
 	}
 
-	/* If we're not stretching or flipping, use the standard blit
-	 * (faster).
-	 */
+	/* If we're not stretching or flipping, use the standard blit (faster)*/
 	if ((d2_x - d1_x == s2_x - s1_x) && (d2_y - d1_y == s2_y - s1_y)) {
-		GdBlit(dstpsd, d1_x, d1_y, d2_x - d1_x, d2_y - d1_y,
-		       srcpsd, s1_x, s1_y, rop);
+		GdBlit(dstpsd, d1_x, d1_y, d2_x - d1_x, d2_y - d1_y, srcpsd, s1_x, s1_y, rop);
 		return;
 	}
 
@@ -2141,7 +2135,8 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		/* Calculate where the right of the source image will end up,
 		 * in dest co-ordinates.
 		 */
-		int i2_x = d1_x + ((srcpsd->xvirtres - s1_x) * src_x_step_denominator + src_x_step_denominator - 1) / src_x_step_numerator;
+		int i2_x = d1_x + ((srcpsd->xvirtres - s1_x) * src_x_step_denominator + src_x_step_denominator - 1)
+			/ src_x_step_numerator;
 
 		/* Since we may be doing a flip, "left" and "right" in the statements
 		 * above do not necessarily correspond to "left" and "right" in the
@@ -2149,8 +2144,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		 * X co-ordinates.
 		 */
 		if (i1_x > i2_x) {
-			register int temp;
-			temp = i1_x;
+			register int temp = i1_x;
 			i1_x = i2_x;
 			i2_x = temp;
 		}
@@ -2181,7 +2175,8 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		/* Calculate where the bottom of the source image will end up,
 		 * in dest co-ordinates.
 		 */
-		int i2_y = d1_y + ((srcpsd->yvirtres - s1_y) * src_y_step_denominator + src_y_step_denominator - 1) / src_y_step_numerator;
+		int i2_y = d1_y + ((srcpsd->yvirtres - s1_y) * src_y_step_denominator + src_y_step_denominator - 1)
+			/ src_y_step_numerator;
 
 		/* Since we may be doing a flip, "top" and bottom" in the statements
 		 * above do not necessarily correspond to "top" and bottom" in the
@@ -2219,8 +2214,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		c2_y = dstpsd->yvirtres;
 
 	/* Final fully-offscreen check */
-	if ((c1_x >= c2_x)
-	    || (c1_y >= c2_y)) {
+	if ((c1_x >= c2_x) || (c1_y >= c2_y)) {
 		/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (final check)\n"); */
 		return;
 	}
@@ -2235,10 +2229,8 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 	/* Calculate the position in the source rectange that is equivalent
 	 * to the top-left of the destination rectangle.
 	 */
-	src_x_start_exact = s1_x * src_x_step_denominator
-		+ (c1_x - d1_x) * src_x_step_numerator;
-	src_y_start_exact = s1_y * src_y_step_denominator
-		+ (c1_y - d1_y) * src_y_step_numerator;
+	src_x_start_exact = s1_x * src_x_step_denominator + (c1_x - d1_x) * src_x_step_numerator;
+	src_y_start_exact = s1_y * src_y_step_denominator + (c1_y - d1_y) * src_y_step_numerator;
 
 	/* OK, clipping so far has been against physical bounds, we now have
 	 * to worry about user defined clip regions.
@@ -2251,10 +2243,8 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		/* FIXME: check cursor in src region */
 		/* GdCheckCursor(srcpsd, c1_x, c1_y, c2_x-1, c2_y-1); */
 		/* DPRINTF("Nano-X: GdStretchBlitEx: no more clipping needed\n"); */
-		dstpsd->StretchBlitEx(dstpsd,
-					srcpsd,
-					c1_x,
-					c1_y,
+		dstpsd->StretchBlitEx(dstpsd, srcpsd,
+					c1_x, c1_y,
 					c2_x - c1_x,
 					c2_y - c1_y,
 					src_x_step_denominator,
@@ -2321,12 +2311,9 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 			 */
 
 			/* check cursor in dest region */
-			GdCheckCursor(dstpsd, r1_x, r1_y, r2_x - 1,
-					  r2_y - 1);
-			dstpsd->StretchBlitEx(dstpsd,
-						srcpsd,
-						r1_x,
-						r1_y,
+			GdCheckCursor(dstpsd, r1_x, r1_y, r2_x - 1, r2_y - 1);
+			dstpsd->StretchBlitEx(dstpsd, srcpsd,
+						r1_x, r1_y,
 						r2_x - r1_x,
 						r2_y - r1_y,
 						src_x_step_denominator,

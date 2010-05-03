@@ -51,6 +51,7 @@ OBJS += \
 ifneq ($(ARCH), ELKS)
 OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/windlg.o \
+	$(MW_DIR_OBJ)/mwin/winlib/msgbox.o \
 	$(MW_DIR_OBJ)/mwin/winlib/button.o \
 	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
 	$(MW_DIR_OBJ)/mwin/winlib/newedit.o \

@@ -595,7 +595,7 @@ ShowWindow(HWND hwnd, int nCmdShow)
 			return FALSE;
 		MwHideWindow(hwnd, TRUE, TRUE);
 		hwnd->style &= ~WS_VISIBLE;
-		break;
+		return TRUE;
 
 	case SW_MAXIMIZE:
 		if (!(hwnd->style & WS_MAXIMIZE)) {
@@ -621,9 +621,9 @@ ShowWindow(HWND hwnd, int nCmdShow)
 	default:
 		if (hwnd->style & WS_VISIBLE)
 			return FALSE;
-		hwnd->style |= WS_VISIBLE;
-		MwShowWindow(hwnd, TRUE);
 	}
+	hwnd->style |= WS_VISIBLE;
+	MwShowWindow(hwnd, TRUE);
 	return TRUE;
 }
 

@@ -198,9 +198,13 @@ LPMSG 	lpMsg)
 	/* pushbutton.											   */
 	/* If lpMsg is not null and message is WM_CHAR,            */
 	/* checks if the char is ' ' signal that we need it.       */
-	if( (lpMsg != NULL) && (lpMsg->message == WM_CHAR) &&
-		(lpMsg->wParam == ' ') )
-		flags = DLGC_WANTCHARS;
+	if (lpMsg) {
+		if (lpMsg->message == WM_CHAR && lpMsg->wParam == ' ')
+			flags = DLGC_WANTCHARS;
+		else if (lpMsg->message == WM_KEYDOWN &&
+			     (lpMsg->wParam == VK_MBUTTON || lpMsg->wParam == VK_RETURN))
+				  flags = DLGC_WANTMESSAGE;
+	}
 
 	dwStyle = GetWindowLong ( hwnd, GWL_STYLE );
 	switch((int)(dwStyle & 0x0f)) {
@@ -861,8 +865,9 @@ LPARAM	lParam)
 	case WM_GETDLGCODE:
 		return cenButton_OnGetDlgCode ( hwnd, (LPMSG)lParam );
 
+	case WM_KEYDOWN:	// FIXME could cause multiple messages on ' '
 	case WM_CHAR:
-	    if( (char)wParam == ' ' )
+	    if( (char)wParam == ' ' || wParam == VK_RETURN || wParam == VK_MBUTTON)
 			{
 			SendMessage ( hwnd, WM_LBUTTONDOWN, -1, -1 );
 			UpdateWindow ( hwnd );

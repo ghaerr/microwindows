@@ -931,6 +931,40 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 	y = lpRect->top;
 
 	if(uFormat & DT_CALCRECT) {
+#if 0
+		if (!(uFormat & DT_SINGLELINE)) {
+			char *p=(char*)lpString, *pLast=p, *pMax=p;
+			int iLenCur, iLenMax = 0, iLines = 0;
+			long lMaxWidth = lpRect->right - lpRect->left;
+
+			/* Determine line with maximum width */
+			for (pLast=p, pMax=p; ; p++) {
+				if (*p=='\n' || !*p) {
+					if (lMaxWidth) {
+						do {
+							iLenCur = p - pLast;
+							GdGetTextSize(hdc->font->pfont, pLast, iLenCur,
+								&width, &height, &baseline, flags);
+							if (width <= lMaxWidth) break;
+							while (p>(char*)lpString && (*p==' ' || *p=='\t')) p--;
+							while (p>(char*)lpString && !(*p==' ' || *p=='\t')) p--;
+
+						} while (width > lMaxWidth && p>(char*)lpString);
+					}
+					if ((iLenCur = p - pLast) > iLenMax) {
+						iLenMax = iLenCur;
+						pMax = pLast;
+					}
+					pLast = p+1;
+					iLines++;
+				}
+				if (!*p) break;
+			}
+			GdGetTextSize(hdc->font->pfont, pMax, iLenMax,
+				&width, &height, &baseline, flags);
+			height *= iLines;
+		}
+#endif
 		lpRect->right = x + width;
 		lpRect->bottom = y + height;
 		return height;
@@ -1590,6 +1624,9 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 	LPCTSTR pstr;
 	LPINT pTab = lpTabStops;
 	unsigned long attrib = 0;
+
+	if (!hdc)
+		return 0;
 
 	if (GetTextMetrics(hdc, &tm))
 		deftab = 8 * tm.tmAveCharWidth;

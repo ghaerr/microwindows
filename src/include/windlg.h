@@ -103,6 +103,34 @@ typedef struct tagMEASUREITEMSTRUCT
 	DWORD itemData;
 } MEASUREITEMSTRUCT, *LPMEASUREITEMSTRUCT;
 
+/*
+ * Real windows resource definitions from WINUSER.H
+ * Compatible with MW* types
+ */
+#pragma pack(2)
+typedef struct {
+    DWORD style;
+    DWORD dwExtendedStyle;
+    WORD PACKEDDATA cdit;
+    short PACKEDDATA x;
+    short PACKEDDATA y;
+    short PACKEDDATA cx;
+    short PACKEDDATA cy;
+} PACKEDDATA DLGTEMPLATE;
+
+typedef struct {
+    DWORD style;
+    DWORD dwExtendedStyle;
+    short PACKEDDATA x;
+    short PACKEDDATA y;
+    short PACKEDDATA cx;
+    short PACKEDDATA cy;
+    WORD PACKEDDATA id;
+} PACKEDDATA DLGITEMTEMPLATE;
+
+typedef CONST DLGTEMPLATE *LPCDLGTEMPLATE;
+#pragma pack()
+
 
 BOOL WINAPI MwInitializeDialogs ( HINSTANCE hInstance );
 
@@ -114,6 +142,9 @@ HWND WINAPI CreateDialogParam ( HINSTANCE hInstance, LPCTSTR lpTemplate,
 				HWND hWndParent, DLGPROC lpDialogFunc,
 				LPARAM dwInitParam );
 
+HWND WINAPI CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
+		  HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
+
 HWND WINAPI CreateDialog ( HINSTANCE hInstance, LPCSTR lpTemplate,
 						   HWND hWndParent, DLGPROC lpDialogFunc );
 
@@ -123,6 +154,11 @@ int WINAPI DialogBox ( HINSTANCE hInstance, LPCTSTR lpTemplate,
 int WINAPI DialogBoxParam ( HINSTANCE hInstance, LPCTSTR lpTemplate,
 			    HWND hWndParent, DLGPROC lpDialogFunc,
 			    LPARAM lParam );
+
+int WINAPI DialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent,
+	       DLGPROC lpDialogFunc, LPARAM lParam);
+
+LONG WINAPI GetDialogBaseUnits(VOID);
 
 BOOL WINAPI EndDialog ( HWND hDlg, int nResult );
 BOOL CALLBACK DefDlgProc ( HWND hDlg, UINT Msg, WPARAM wParam, LPARAM lParam );

@@ -771,19 +771,13 @@ skipKeyProcess:
 	return FALSE;
 }
 
-/*
- *  Do a modal DIALOG with arguments
- */
-int WINAPI
-DialogBoxParam(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent,
-	       DLGPROC lpDialogFunc, LPARAM lParam)
+static INT
+DIALOG_DoDialogBox( HWND hDlg, HWND hWndParent )
 {
 	int retV = 0;
 	MSG msg;
 	DWORD ltm = 0;
 	PMWDLGDATA params;
-	HWND hDlg = CreateDialogParam(hInstance, lpTemplate, hWndParent,
-				  lpDialogFunc, lParam);
 
 	if (hDlg) {
 		BOOL bSendIdle = TRUE;
@@ -840,13 +834,32 @@ DialogBoxParam(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent,
 	return retV;
 }
 
+/*
+ *  Do a modal DIALOG with arguments
+ */
+int WINAPI
+DialogBoxParam(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent,
+	DLGPROC lpDialogFunc, LPARAM lParam)
+{
+	return DIALOG_DoDialogBox (CreateDialogParam(hInstance, lpTemplate, hWndParent,
+				  lpDialogFunc, lParam), hWndParent);
+}
+
+int WINAPI
+DialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent,
+	DLGPROC lpDialogFunc, LPARAM lParam)
+{
+	return DIALOG_DoDialogBox (CreateDialogIndirectParam(hInstance, hDialogTemplate, hWndParent,
+				  lpDialogFunc, lParam), hWndParent);
+}
+
 
 /*
  *  Do a modal DIALOG
  */
 int WINAPI
 DialogBox(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent,
-	  DLGPROC lpDialogFunc)
+	DLGPROC lpDialogFunc)
 {
 	return DialogBoxParam(hInstance, lpTemplate, hWndParent, lpDialogFunc, 0);
 }
@@ -859,6 +872,7 @@ BOOL WINAPI
 EndDialog(HWND hDlg, int nResult)
 {
 	PMWDLGDATA params = DLG_PMWDLGDATA(hDlg);
+
 	if (params) {
 		params->running = FALSE;
 		params->nResult = nResult;
@@ -866,17 +880,6 @@ EndDialog(HWND hDlg, int nResult)
 	}
 
 	return FALSE;
-}
-
-
-/*
- *  Get base units of dialogs
- */
-LONG WINAPI
-GetDlgBaseUnits(void)
-{
-	/* return averWidth and Height of system font.*/
-	return MAKELONG(5, 13);
 }
 
 
@@ -925,12 +928,11 @@ CreateDialog(HINSTANCE hInstance, LPCSTR lpTemplate, HWND hWndParent,
 				 lpDialogFunc, 0);
 }
 
-
 HWND WINAPI
-CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
+CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 		  HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
 {
-	PMWDLGTEMPLATE pDlg;
+	PMWDLGTEMPLATE pDlg = (PMWDLGTEMPLATE)lpTemplate;
 	MWDLGTEMPLEXTRA dlgExtra;
 	HWND hDlg, retV;
 	HWND hFocus, hCtrl;
@@ -938,17 +940,7 @@ CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
 	RECT rc;
 	HDC hdc;
 	PMWDLGDATA pData;
-	HGLOBAL hResDlg;
 	int i;
-
-	HRSRC hRes = FindResource(hInstance, lpTemplate, RT_DIALOG);
-	if (hRes == NULL)
-		return NULL;
-
-	hResDlg = LoadResource(hInstance, hRes);
-	pDlg = (PMWDLGTEMPLATE) LockResource(hResDlg);
-	if (pDlg == NULL)
-		return NULL;
 
 	resGetDlgTemplExtra(pDlg, &dlgExtra);
 
@@ -958,16 +950,29 @@ CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
 
 	do {
 		BOOL bVisible = ((pDlg->style & WS_VISIBLE) != 0);
+
 		rc.left = pDlg->x;
 		rc.top = pDlg->y;
 		rc.right = rc.left + pDlg->cx;
 		rc.bottom = rc.top + pDlg->cy;
+		MapDialogRect(hDlg, &rc);
+
+		if (pDlg->style & DS_CENTER) {
+			rc.right -= rc.left;
+			rc.bottom -= rc.top;
+			rc.left = (GetSystemMetrics(SM_CXSCREEN) - rc.right) / 2;
+			rc.top = (GetSystemMetrics(SM_CYSCREEN) - rc.bottom) / 2;
+			rc.right += rc.left;
+			rc.bottom += rc.top;
+		}
+
 		pDlg->style &= ~WS_VISIBLE;	/* dlg should be showed at end.*/
 
 		hDlg = CreateWindowEx(pDlg->dwExtendedStyle, "GDLGCLASS",
 				      dlgExtra.szDlgName,
 				      pDlg->style | DLG_DEF_STYLE,
-				      0, 0, 100, 100,
+				      rc.left, rc.top, rc.right - rc.left,
+				      16 + rc.bottom - rc.top,
 				      hWndParent, NULL, hInstance, NULL);
 		if (hDlg == NULL)
 			break;
@@ -998,13 +1003,7 @@ CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
 			hFnt = GetStockObject(DEFAULT_FONT);
 
 		pData->hFnt = hFnt;
-
-		// calculate screen coords and resize window.
 		SelectObject(hdc, pData->hFnt);
-
-		MapDialogRect(hDlg, &rc);
-		MoveWindow(hDlg, rc.left, rc.top,
-			   rc.right - rc.left, 16 + rc.bottom - rc.top, FALSE);
 
 
 		//  items creation
@@ -1071,7 +1070,85 @@ CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
 
 
 	resDiscardDlgTemplExtra(&dlgExtra);
+	return retV;
+}
+
+HWND WINAPI
+CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
+		  HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
+{
+	PMWDLGTEMPLATE pDlg;
+	HWND hRet;
+	HGLOBAL hResDlg;
+
+	HRSRC hRes = FindResource(hInstance, lpTemplate, RT_DIALOG);
+	if (hRes == NULL)
+		return NULL;
+
+	hResDlg = LoadResource(hInstance, hRes);
+	pDlg = (PMWDLGTEMPLATE) LockResource(hResDlg);
+	if (pDlg == NULL)
+		return NULL;
+
+	hRet = CreateDialogIndirectParam(hInstance, (LPCDLGTEMPLATE)pDlg,
+			  hWndParent, lpDialogFunc, dwInitParam);
+
 	UnlockResource(hResDlg);
 	FreeResource(hResDlg);
-	return retV;
+
+	return hRet;
+}
+
+static BOOL
+DIALOG_GetCharSize( HDC hDC, HFONT hFont, SIZE * pSize )
+{
+    HFONT hFontPrev = NULL;
+    char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    SIZE sz;
+    TEXTMETRIC tm;
+
+    if(!hDC)
+		return FALSE;
+
+    if (hFont)
+		hFontPrev = SelectObject(hDC, hFont);
+    if (!GetTextMetrics(hDC, &tm))
+		return FALSE;
+    if (!GetTextExtentPoint(hDC, alphabet, 52, &sz))
+		return FALSE;
+
+    pSize->cy = tm.tmHeight;
+    pSize->cx = (sz.cx / 26 + 1) / 2;
+
+    if (hFontPrev)
+		SelectObject(hDC, hFontPrev);
+
+    return TRUE;
+}
+
+LONG
+GetDialogBaseUnits(VOID)
+{
+	HDC hdc;
+	SIZE size;
+    static DWORD units;
+
+    if (!units) {
+        if ((hdc = GetDC(NULL)) != NULL) {
+            if (DIALOG_GetCharSize(hdc, 0, &size))
+				units = MAKELONG(size.cx, size.cy);
+            ReleaseDC(NULL, hdc);
+        }
+    }
+    return units;
+}
+
+/*
+ *  Get base units of dialogs
+ */
+LONG WINAPI
+GetDlgBaseUnits(void)
+{
+	/* return averWidth and Height of system font.*/
+	return MAKELONG(5, 13);
 }

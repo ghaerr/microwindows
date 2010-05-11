@@ -25,6 +25,7 @@
 
 #include <sys/types.h>
 #include <stdlib.h>
+#include <stddef.h>
 /*#include <libintl.h>*/
 
 #if defined(ELX)||defined(BLACKFIN)

@@ -1020,19 +1020,15 @@ static void
 X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 	 PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
 {
-	if (op == MWMODE_NOOP) {
+	if (op == MWMODE_NOOP)
 		return;
-	}
 
-	if (srcpsd->flags & PSF_SCREEN) {
-		/* Use offscreen equivalent as the source */
-		srcpsd = &savebits;
-	}
+	if (srcpsd->flags & PSF_SCREEN)
+		srcpsd = &savebits; 	/* Use offscreen equivalent as the source */
 
 	if (!(dstpsd->flags & PSF_SCREEN)) {
 		/* memory to memory blit, use offscreen blitter */
-		dstpsd->Blit(dstpsd, destx, desty, w, h, srcpsd, srcx, srcy,
-			     op);
+		dstpsd->Blit(dstpsd, destx, desty, w, h, srcpsd, srcx, srcy, op);
 		return;
 	}
 
@@ -1044,10 +1040,10 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 #if 1
 	/* Pixel-perfect - only trust X11 with copies.  In palette modes, this
 	 * is essential.  In true color, it's good to test the NanoGUI blit. */
-	if ((srcpsd == &savebits) && (op == MWMODE_COPY))
+	if (srcpsd == &savebits && op == MWROP_COPY)
 #else
 	/* Not perfect, but faster */
-	if ((srcpsd == &savebits) && (op >= 0) && (op <= MWMODE_MAX))
+	if (rcpsd == &savebits && MWROP_TO_MODE(op) <= MWMODE_NOP)
 #endif
 	{
 		/*
@@ -1058,8 +1054,7 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 		 */
 		/* DPRINTF("Nano-X: X11_blit() doing onscreen copy\n"); */
 		set_mode(op);
-		XCopyArea(x11_dpy, x11_win, x11_win, x11_gc,
-			  srcx, srcy, w, h, destx, desty);
+		XCopyArea(x11_dpy, x11_win, x11_win, x11_gc, srcx, srcy, w, h, destx, desty);
 	} else
 #endif
 	{

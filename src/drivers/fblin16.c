@@ -236,13 +236,6 @@ stdblit:
 	} else {
 		while (--h >= 0) {
 			applyOp4(w, MWROP_TO_MODE(op), src, dst, ADDR16);
-			/*
-			for (i=0; i<w; i++) {
-				applyOp(MWROP_TO_MODE(op), *src, dst, ADDR16);
-				++src;
-				++dst;
-			}
-			*/
 			dst += dlinelen - w;
 			src += slinelen - w;
 		}

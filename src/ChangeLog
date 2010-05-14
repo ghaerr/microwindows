@@ -1,5 +1,7 @@
-	* check hdc NULL in mwTabbedTextOut fixes crash in mwdvetest
+13 May 2010
+	* fix bug in non-MWMODE_COPY blit in fblin32/32a/24/18 and X11 drivers
 2 May 2010 - Ludwig Ertl
+	* check hdc NULL in mwTabbedTextOut fixes crash in mwdvetest
 	* enhanced DT_CALCRECT for multiline text
 	* dialog enhancements: pressing RETURN or VK_MBUTTON now pushes button w/focus,
 		CreateDialogIndirectParam, DialogBoxIndirectParam, GetDialogBaseUnits,

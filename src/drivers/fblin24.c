@@ -216,13 +216,12 @@ stdcopy:
 			src += slinelen;
 		}
 	} else {
-		for(i=w*3; i>=0; --i) {
-			applyOp(MWROP_TO_MODE(op), *src, dst, ADDR8);
-			++src;
-			++dst;
+		op = MWROP_TO_MODE(op);
+		while (--h >= 0) {
+			applyOp4(w*3, op, src, dst, ADDR8);
+			dst += dlinelen_minus_w;
+			src += slinelen_minus_w;
 		}
-		dst += dlinelen_minus_w;
-		src += slinelen_minus_w;
 	}
 	DRAWOFF;
 }

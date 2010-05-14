@@ -431,13 +431,11 @@ stdcopy:
 			src += slinelen;
 		}
 	} else if (MWROP_TO_MODE(op) <= MWMODE_SIMPLE_MAX) {
-		for (i = 0; i < w; ++i) {
-			applyOp(MWROP_TO_MODE(op), *src, dst, ADDR32);
-			++src;
-			++dst;
+		while (--h >= 0) {
+			applyOp4(w, MWROP_TO_MODE(op), src, dst, ADDR32);
+			dst += dlinelen - w;
+			src += slinelen - w;
 		}
-		dst += dlinelen - w;
-		src += slinelen - w;
 	} else if (MWROP_TO_MODE(op) == MWMODE_SRC_OVER) {
 		src8 = (ADDR8) src;
 		dst8 = (ADDR8) dst;

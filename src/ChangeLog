@@ -1,3 +1,5 @@
+20 May 2010
+	* fill background in FT2 when usebg set (done again in alphacol driver for charbox)
 13 May 2010
 	* fix bug in non-MWMODE_COPY blit in fblin32/32a/24/18 and X11 drivers
 2 May 2010 - Ludwig Ertl

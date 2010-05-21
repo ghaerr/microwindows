@@ -59,6 +59,8 @@ extern MWBOOL gr_usebg;
 #include FT_TRIGONOMETRY_H
 #include FT_GLYPH_H
 
+#define FILL_BACKGROUND_ON_USEBG	1	/* fill background when usebg TRUE*/
+
 /* Checking FreeType version numbers */
 
 /**
@@ -1282,10 +1284,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		startx = ax;
 		starty = ay;
 
-#if 0
-		/* clear background area if asked for and alpha blending*/
-		/* this is now done in alphacol drawarea driver*/
-		if (gr_usebg && (blit_op == PSDOP_ALPHACOL)) {
+#if FILL_BACKGROUND_ON_USEBG
+		/* clear background area if usebg set*/
+		/* this is done again in alphacol drawarea driver, but only for char box*/
+		if (gr_usebg) {
 			MWCOORD fnt_h, fnt_w, fnt_b;
 			MWPIXELVAL gr_save = gr_foreground;
 

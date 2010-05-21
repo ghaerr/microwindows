@@ -16,6 +16,15 @@ add PSF_HAVEOP_ALPHACOL, FT2 driver downgrades to non-antialias when needed
 fix add INVERT2BPP to config, combine with INVERT4BPP or reverse palette, INVERT() macro
 add X11 keyboard and mouse support to fbe
 init_alpha_lookup needs reinit if palette changed
+
+add GdGetFontList for FT2 and others
+add BGRA and big endian to fbe
+investigate image vs truecolor ARGB naming schemes, detail support for each
+remove freetype_init from mwin/winfont.c
+investigate endian problem of ever reading color data as DWORD
+add ximage X11 debug statements
+enhance x11 driver to use fast blit from savebits
+
 add SUBDRIVER entry into SCREENDEVICE
 last char drawn wrong on fontdemo2.sh portrait modes
 fix down portrait stretch/blit driver mods

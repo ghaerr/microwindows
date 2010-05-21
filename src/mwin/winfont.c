@@ -328,10 +328,9 @@ EnumFonts(
 		GdGetFontList(&lst, &n);
 		memset(&lf, 0, sizeof(lf));
 		for (i = 0; i < n; i++) {
-			strncpy(lf.lfFaceName, lst[i]->mwname,
-				sizeof(lf.lfFaceName));
+			strncpy(lf.lfFaceName, lst[i]->mwname, sizeof(lf.lfFaceName));
 			p = strrchr(lf.lfFaceName, '.');
-			if ((p != NULL) && strcasecmp(p, ".ttf") == 0)
+			if (p != NULL && strcasecmp(p, ".ttf") == 0)
 				*p = 0;
 //snprintf (lf.lfFaceName, sizeof(lf.lfFaceName), "%s:%s", lst[i]->mwname, lst[i]->ttname);
 			if (!lpFontFunc(&lf, &tm, 0, lParam))

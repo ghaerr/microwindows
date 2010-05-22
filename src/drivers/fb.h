@@ -24,7 +24,7 @@ extern volatile int mwdrawing;
 
 typedef unsigned char *		ADDR8;
 typedef unsigned short *	ADDR16;
-typedef unsigned long *		ADDR32;
+typedef uint32_t *			ADDR32;
 
 /* Note that the following ROP macro implements the
  * Porter-Duff rules assuming that source and destination

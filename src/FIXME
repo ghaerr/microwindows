@@ -24,6 +24,7 @@ remove freetype_init from mwin/winfont.c
 investigate endian problem of ever reading color data as DWORD
 add ximage X11 debug statements
 enhance x11 driver to use fast blit from savebits
+leftBearing < 0 not handled in PCF loader nor MWCFONT structs, add l/r bearing returns?
 
 add SUBDRIVER entry into SCREENDEVICE
 last char drawn wrong on fontdemo2.sh portrait modes

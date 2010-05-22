@@ -6,13 +6,15 @@
  *
  * Exported Microwindows engine typedefs and defines
  */
-#define MWPACKED	__attribute__ ((aligned(1), packed))
+#include <stdint.h>			/* for uint32_t, int32_t*/
 
 /*include the eCos configuration "translation" header */
 #if __ECOS
 #include <ecosmwconfig.h>
 #endif
 
+/* compiler specific defines*/
+#define MWPACKED	__attribute__ ((aligned(1), packed))
 
 /* builtin font std names*/
 #define MWFONT_SYSTEM_VAR	"System"	/* winFreeSansSerif 11x13 (ansi)*/

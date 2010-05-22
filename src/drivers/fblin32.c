@@ -121,7 +121,7 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w4;
 	int	slinelen_minus_w4;
 #if ALPHABLEND
-	unsigned long alpha;
+	uint32_t alpha;
 #endif
 
 	assert (dst != 0);
@@ -157,8 +157,8 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			if (alpha != 0) {
 #if 0
  				// d = muldiv255(a, d - s) + s;
-				unsigned int ssa = 255 - alpha;
-				unsigned long ps = *src8++;
+				uint32_t ssa = 255 - alpha;
+				uint32_t ps = *src8++;
 				*dst8 = muldiv255(ssa, *dst8 - ps) + ps;
 				++dst8;
 				ps = *src8++;
@@ -175,7 +175,7 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 #endif
 #if 1
  				// d = muldiv255(a, s - d) + d
-				unsigned long pd = *dst8;
+				uint32_t pd = *dst8;
 				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
 				pd = *dst8;
 				*dst8++ = muldiv255(alpha, *src8++ - pd) + pd;
@@ -228,7 +228,7 @@ stdcopy:
 		dst8 = (ADDR8)dst;
 		while (h--) {
 			for (i = w; --i >= 0;) {
-				register unsigned long as;
+				register uint32_t as;
 
 				if ((as = src8[3]) == 255) {	//FIXME should this be constant w/endian?
 					dst8[0] = src8[0];
@@ -239,7 +239,7 @@ stdcopy:
 					dst8 += 4;
 				} else if (as != 0) {
  					// d = muldiv255(a, s - d) + d
-					register unsigned long pd = *dst8;
+					register uint32_t pd = *dst8;
 					*dst8++ = muldiv255(as, *src8++ - pd) + pd;
 					pd = *dst8;
 					*dst8++ = muldiv255(as, *src8++ - pd) + pd;
@@ -280,7 +280,7 @@ linear32_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	int	i, ymax;
 	int	row_pos, row_inc;
 	int	col_pos, col_inc;
-	unsigned long pixel = 0;
+	uint32_t pixel = 0;
 
 	assert (dstpsd->addr != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
@@ -401,16 +401,16 @@ linear32_stretchblitex(PSD dstpsd,
 			 long op)
 {
 	/* Pointer to the current pixel in the source image */
-	unsigned long *RESTRICT src_ptr;
+	uint32_t *RESTRICT src_ptr;
 
 	/* Pointer to x=xs1 on the next line in the source image */
-	unsigned long *RESTRICT next_src_ptr;
+	uint32_t *RESTRICT next_src_ptr;
 
 	/* Pointer to the current pixel in the dest image */
-	unsigned long *RESTRICT dest_ptr;
+	uint32_t *RESTRICT dest_ptr;
 
 	/* Pointer to x=xd1 on the next line in the dest image */
-	unsigned long *next_dest_ptr;
+	uint32_t *next_dest_ptr;
 
 	/* Keep track of error in the source co-ordinates */
 	int x_error;
@@ -485,13 +485,13 @@ linear32_stretchblitex(PSD dstpsd,
 	 */
 
 	/* Pointer to the first source pixel */
-	next_src_ptr = ((unsigned long *) srcpsd->addr) + src_y_start * srcpsd->linelen + src_x_start;
+	next_src_ptr = ((uint32_t *) srcpsd->addr) + src_y_start * srcpsd->linelen + src_x_start;
 
 	/* Cache the width of a scanline in dest */
 	dest_y_step = dstpsd->linelen;
 
 	/* Pointer to the first dest pixel */
-	next_dest_ptr = ((unsigned long *) dstpsd->addr) + (dest_y_start * dest_y_step) + dest_x_start;
+	next_dest_ptr = ((uint32_t *) dstpsd->addr) + (dest_y_start * dest_y_step) + dest_x_start;
 
 	/*
 	 * Note: The MWROP_SRC case below is a simple expansion of the
@@ -638,7 +638,7 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	int first_byte, last_byte;
 	int size_main;
 	int t, y;
@@ -848,7 +848,7 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	int first_byte, last_byte;
 	int size_main;
 	int t, y;
@@ -1006,8 +1006,8 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR32 dst;
 	ADDR8 alpha;
-	unsigned long ps, pd;
-	unsigned long as, psr, psg, psb;
+	uint32_t ps, pd;
+	uint32_t as, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 

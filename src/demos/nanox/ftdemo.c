@@ -10,18 +10,15 @@
 #define ANTIALIAS	0		/* set =1 to enable anti aliasing*/
 
 #if HAVE_T1LIB_SUPPORT
-#define FONTNAME "bchr"
-#if 0
-#define FONTNAME "bchb"
-#define FONTNAME "dcr10"
-#define FONTNAME "dcbx10"
-#endif
+#define FONTNAME "bchr.pfb"
 #elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
 #define FONTNAME "lt1-r-omega-serif"
-#if 0
-#define FONTNAME "times"
-#define FONTNAME "cour"
-#endif
+//#define FONTNAME "cour"
+#elif HAVE_PCF_SUPPORT
+//#define FONTNAME	"jiskan24.pcf.gz"
+//#define FONTNAME	"helvB12.pcf.gz"
+//#define FONTNAME	"helvB12_lin.pcf.gz"
+//#define FONTNAME	"fonts/bdf/symb18.pcf"
 #else
 #define FONTNAME GR_FONT_SYSTEM_VAR
 #endif
@@ -156,7 +153,34 @@ void Render(GR_WINDOW_ID window)
 #ifdef HAVE_KSC5601_SUPPORT
    GrText(window, gid, 5, 160, "\xB0\xA1\xB0\xA2\xB0\xA3", 6, MWTF_DBCS_EUCKR);
 #endif
+
+	/* check display of glyphs with negative leftBearing*/
+//	GrText(window, gid, 5, 160, "H\xAEH\xDEH\xF2H", 6, GR_TFASCII); // leftBearing < 0 helvB12.pcf.gz
+
+	/* sym18.pcf.gz A0 should display blank*/
+//	GrText(window, gid, 5, 160, "\xA0\xDC\xA0", 3, GR_TFASCII);	// should be SP <= SP
+//	GrText(window, gid, 5, 180, "\x40\x80", 2, GR_TFASCII);		// should be approxequal,SP
  
+
+#if 0
+	/* jiskan24.pcf.gz test large pcf, UC16 and default character*/
+{
+	unsigned short text[32];
+
+	text[0] = 1122;				/* blank*/
+	text[1] = 1123;
+	text[2] = 1124;
+	text[3] = 1125;
+	text[4] = 1126;
+	text[5] = 0x2121;			/* default char*/
+	text[6] = 0x2122;
+	text[7] = 0x2123;
+	text[8] = 0x2124;
+	text[9] = 0x2125;
+	GrText(window, gid, 5, 160, text, 10, MWTF_UC16);
+}
+#endif
+
    /* Draw test string */
    GrSetGCFont(gid, fontid2);
    GrSetFontAttr(fontid2, (kerning?GR_TFKERNING:0) | (aa?GR_TFANTIALIAS:0) |

@@ -38,8 +38,8 @@ int 	gr_mode = MWMODE_COPY; 	    /* drawing mode */
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/
 
-unsigned long gr_dashmask;     /* An actual bitmask of the dash values */
-unsigned long gr_dashcount;    /* The number of bits defined in the dashmask */
+uint32_t gr_dashmask;     /* An actual bitmask of the dash values */
+uint32_t gr_dashcount;    /* The number of bits defined in the dashmask */
 
 int        gr_fillmode;
 MWSTIPPLE  gr_stipple;
@@ -48,7 +48,7 @@ MWTILE     gr_tile;
 MWPOINT    gr_ts_offset;
 
 static int	gr_pixtype;	    /* screen pixel format*/
-static long	gr_ncolors;	    /* screen # colors*/
+static int32_t	gr_ncolors;	    /* screen # colors*/
 
 /**
  * Open low level graphics driver.
@@ -335,8 +335,8 @@ GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
 	MWPALENTRY *	rgb;
 	int		r, g, b;
 	int		R, G, B;
-	long		diff = 0x7fffffffL;
-	long		sq;
+	int32_t		diff = 0x7fffffffL;
+	int32_t		sq;
 	int		best = 0;
 
 	r = REDVALUE(cr);
@@ -353,7 +353,7 @@ GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
 		/* slower distance-cubed with luminance adjustment*/
 		/* gray is .30R + .59G + .11B*/
 		/* = (R*77 + G*151 + B*28)/256*/
-		sq = (long)R*R*30*30 + (long)G*G*59*59 + (long)B*B*11*11;
+		sq = (int32_t)R*R*30*30 + (int32_t)G*G*59*59 + (int32_t)B*B*11*11;
 #endif
 
 		if(sq < diff) {
@@ -425,8 +425,8 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 
 typedef unsigned char	BYTE;
 typedef unsigned short	WORD;
-typedef unsigned long	DWORD;
-typedef long		LONG;
+typedef uint32_t	DWORD;
+typedef int32_t		LONG;
 
 /* windows style bmp - must be byte packed*/
 typedef struct {
@@ -471,7 +471,7 @@ typedef struct {
 #define BMASKBGR	0xff0000
 
 static void
-putsw(unsigned long dw, FILE *ofp)
+putsw(uint32_t dw, FILE *ofp)
 {
 	/* little-endian storage of shortword*/
 	putc((unsigned char)dw, ofp);
@@ -480,7 +480,7 @@ putsw(unsigned long dw, FILE *ofp)
 }
 
 static void
-putdw(unsigned long dw, FILE *ofp)
+putdw(uint32_t dw, FILE *ofp)
 {
 	/* little-endian storage of longword*/
 	putc((unsigned char)dw, ofp);
@@ -506,10 +506,10 @@ GdCaptureScreen(char *path)
 	int	ifd, i, j;
 	FILE *	ofp;
 	int	cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;
-	unsigned long rmask, gmask, bmask;
+	uint32_t rmask, gmask, bmask;
 	unsigned char *cptr;
 	unsigned short *sptr;
-	unsigned long *lptr;
+	uint32_t *lptr;
 	BMPHEAD	bmp;
 	unsigned char buf[2048*4];
 
@@ -542,7 +542,7 @@ GdCaptureScreen(char *path)
 	memset(&bmp, 0, sizeof(bmp));
 	bmp.bfType[0] = 'B';
 	bmp.bfType[1] = 'M';
-	bmp.bfSize = dwswap(sizeof(bmp) + sizecolortable + (long)(cx+extra)*cy*bytespp);
+	bmp.bfSize = dwswap(sizeof(bmp) + sizecolortable + (int32_t)(cx+extra)*cy*bytespp);
 	bmp.bfOffBits = dwswap(sizeof(bmp) + sizecolortable);
 	bmp.BiSize = dwswap(40);
 	bmp.BiWidth = dwswap(cx);
@@ -550,7 +550,7 @@ GdCaptureScreen(char *path)
 	bmp.BiPlanes = wswap(1);
 	bmp.BiBitCount = wswap(bpp);
 	bmp.BiCompression = dwswap((bpp==16 || bpp==32)? BI_BITFIELDS: BI_RGB);
-	bmp.BiSizeImage = dwswap((long)(cx+extra)*cy*bytespp);
+	bmp.BiSizeImage = dwswap((int32_t)(cx+extra)*cy*bytespp);
 	bmp.BiClrUsed = dwswap((bpp <= 8)? ncolors: 0);
 	/*bmp.BiClrImportant = 0;*/
 
@@ -611,12 +611,12 @@ GdCaptureScreen(char *path)
 
 	/* write image data, upside down ;)*/
 	for(i=cy-1; i>=0; --i) {
-		long base = sizeof(bmp) + sizecolortable + (long)i*cx*bytespp;
+		int32_t base = sizeof(bmp) + sizecolortable + (int32_t)i*cx*bytespp;
 		fseek(ofp, base, SEEK_SET);
 		read(ifd, buf, cx*bytespp);
 		switch (bpp) {
 		case 32:
-			lptr = (unsigned long *)buf;
+			lptr = (uint32_t *)buf;
 			for(j=0; j<cx; ++j)
 				putdw(*lptr++, ofp);
 			break;

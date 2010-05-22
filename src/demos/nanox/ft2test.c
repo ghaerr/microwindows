@@ -3,6 +3,10 @@
 #include "nano-X.h"
 #include "nxcolors.h"
 
+#define TEST_STRETCHBLIT	1
+#define TEST_XOR_BLIT		0
+#define TEST_XOR_VHLINE		0
+
 //#define FONT	"DejaVuSans-Bold.ttf"
 #define FONT	"arial.ttf"
 
@@ -79,7 +83,27 @@ test_stretchblit(void)
 			GR_EVENT_MASK_BUTTON_DOWN);
 
 	GrSetBackgroundPixmap(wid, pid, GR_BACKGROUND_STRETCH);
+#if TEST_STRETCHBLIT
+	/* test stretchblitex*/
 	GrMapWindow(wid);
+#endif
+
+#if TEST_XOR_BLIT
+	/* test XOR blit*/
+	gc = GrNewGC();
+	GrCopyArea(GR_ROOT_WINDOW_ID, gc, 10, 10, image_info.width, image_info.height,
+		pid, 0, 0, MWROP_XOR);
+	GrDestroyGC(gc);
+#endif
+#if TEST_XOR_VHLINE
+	/* test XOR vertical and horizontal line draw (16bpp driver only)*/
+	gc = GrNewGC();
+	GrSetGCMode(gc, MWMODE_XOR);
+	GrSetGCForeground(gc, GR_COLOR_RED);
+	for (y=10; y<20; y++)
+		GrLine(GR_ROOT_WINDOW_ID, gc, 0, y, 638, y);
+	GrDestroyGC(gc);
+#endif
 }
 
 int
@@ -94,7 +118,7 @@ main(void)
 	}
 
 	test_ft2_antialias();
-	//test_stretchblit();
+	test_stretchblit();
 
 	while (!quit) {
 		GrGetNextEvent(&event);

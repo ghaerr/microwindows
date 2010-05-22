@@ -28,8 +28,8 @@ extern int	  gr_firstuserpalentry;/* first user-changable palette entry*/
 extern int 	  gr_nextpalentry;    /* next available palette entry*/
 
 /* These support drawing dashed lines */
-extern unsigned long gr_dashmask;     /* An actual bitmask of the dash values */
-extern unsigned long gr_dashcount;    /* The number of bits defined in the dashmask */
+extern uint32_t gr_dashmask;     /* An actual bitmask of the dash values */
+extern uint32_t gr_dashcount;    /* The number of bits defined in the dashmask */
 
 extern int        gr_fillmode;
 
@@ -151,7 +151,7 @@ GdSetBackgroundColor(PSD psd, MWCOLORVAL bg)
  * Set the dash mode for future drawing
  */
 void
-GdSetDash(unsigned long *mask, int *count)
+GdSetDash(uint32_t *mask, int *count)
 {
 	int oldm = gr_dashmask;
 	int oldc = gr_dashcount;
@@ -491,7 +491,7 @@ GdRect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 void
 GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 {
-	unsigned long dm = 0;
+	uint32_t dm = 0;
 	int dc = 0;
 
 	MWCOORD x2 = x1 + width - 1;
@@ -839,7 +839,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	int rgborder, alpha;
 	MWCOLORVAL cr;
 	MWCOORD yoff;
-	unsigned long transcolor;
+	uint32_t transcolor;
 	MWPIXELVAL convtable[256];
 
 	assert(pimage);
@@ -869,7 +869,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		/* the transparent color to be unique, which was unnessecary        */
 		/* convert transcolor to converted palette index for speed*/
 		/* if (transcolor != -1L)
-		   transcolor = (unsigned long) convtable[transcolor];  */
+		   transcolor = (uint32_t) convtable[transcolor];  */
 	}
 
 	minx = x;
@@ -919,7 +919,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	 * or MWIMAGE_BGR: BB GG RR AA
 	 */
 	if (pimage->compression & MWIMAGE_ALPHA_CHANNEL) {
-		long *data = (long *)imagebits;
+		int32_t *data = (int32_t *)imagebits;
 
 		while (height > 0) {
 			/* 
@@ -1130,7 +1130,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				x = minx;
 				y += yoff;
 				--height;
-				data = (long *) (((char *) data) + extra);
+				data = (int32_t *) (((char *) data) + extra);
 			}
 		}
 		/* end of alpha channel image handling*/
@@ -1426,12 +1426,12 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
  * The pixels are packed according to pixtype:
  *
  * pixtype		array of
- * MWPF_RGB		MWCOLORVAL (unsigned long)
+ * MWPF_RGB		MWCOLORVAL (uint32_t)
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
- * MWPF_TRUECOLOR8888	unsigned long
- * MWPF_TRUECOLORABGR	unsigned long
- * MWPF_TRUECOLOR0888	unsigned long
+ * MWPF_TRUECOLOR8888	uint32_t
+ * MWPF_TRUECOLORABGR	uint32_t
+ * MWPF_TRUECOLOR0888	uint32_t
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
@@ -1462,10 +1462,10 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	int pixtype)
 {
 	unsigned char *PIXELS = pixels;	/* for ANSI compilers, can't use void*/
-	long cellstodo;			/* remaining number of cells */
-	long count;			/* number of cells of same color */
-	long cc;			/* current cell count */
-	long rows;			/* number of complete rows */
+	int32_t cellstodo;			/* remaining number of cells */
+	int32_t count;			/* number of cells of same color */
+	int32_t cc;			/* current cell count */
+	int32_t rows;			/* number of complete rows */
 	MWCOORD minx;			/* minimum x value */
 	MWCOORD maxx;			/* maximum x value */
 	MWPIXELVAL savecolor;		/* saved foreground color */
@@ -1522,7 +1522,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLORABGR:
-		pixsize = sizeof(unsigned long);
+		pixsize = sizeof(uint32_t);
 		break;
 	case MWPF_TRUECOLOR888:
 		pixsize = 3;
@@ -1557,8 +1557,8 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	case MWPF_TRUECOLORABGR:
 	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
-		gr_foreground = *(unsigned long *)PIXELS;
-		PIXELS += sizeof(unsigned long);
+		gr_foreground = *(uint32_t *)PIXELS;
+		PIXELS += sizeof(uint32_t);
 		break;
 	case MWPF_TRUECOLOR888:
 		r = *PIXELS++;
@@ -1606,9 +1606,9 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		case MWPF_TRUECOLOR8888:
 		case MWPF_TRUECOLOR0888:
 		case MWPF_TRUECOLORABGR:
-			if(gr_foreground != *(unsigned long *)PIXELS)
+			if(gr_foreground != *(uint32_t *)PIXELS)
 				goto breakwhile;
-			PIXELS += sizeof(unsigned long);
+			PIXELS += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLOR888:
 			r = *(unsigned char *)PIXELS;
@@ -2415,12 +2415,12 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
  * The pixels are packed according to inpixtype/outpixtype:
  *
  * pixtype		array of
- * MWPF_RGB		MWCOLORVAL (unsigned long)
+ * MWPF_RGB		MWCOLORVAL (uint32_t)
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
- * MWPF_TRUECOLOR8888	unsigned long
- * MWPF_TRUECOLORABGR	unsigned long
- * MWPF_TRUECOLOR0888	unsigned long
+ * MWPF_TRUECOLOR8888	uint32_t
+ * MWPF_TRUECOLORABGR	uint32_t
+ * MWPF_TRUECOLOR0888	uint32_t
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
@@ -2442,7 +2442,7 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 {
 	unsigned char *	inbuf = in;
 	unsigned char *	outbuf = out;
-	unsigned long	pixelval;
+	uint32_t	pixelval;
 	MWCOLORVAL	colorval;
 	MWCOORD		x, y;
 	unsigned char 	r, g, b;
@@ -2480,19 +2480,19 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			colorval = PIXEL233TOCOLORVAL(pixelval);
 			break;
 		case MWPF_TRUECOLOR0888:
-			pixelval = *(unsigned long *)inbuf;
+			pixelval = *(uint32_t *)inbuf;
 			colorval = PIXEL888TOCOLORVAL(pixelval);
-			inbuf += sizeof(unsigned long);
+			inbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLORABGR:
-			pixelval = *(unsigned long *)inbuf;
+			pixelval = *(uint32_t *)inbuf;
 			colorval = PIXELABGRTOCOLORVAL(pixelval);
-			inbuf += sizeof(unsigned long);
+			inbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLOR8888:
-			pixelval = *(unsigned long *)inbuf;
+			pixelval = *(uint32_t *)inbuf;
 			colorval = PIXEL8888TOCOLORVAL(pixelval);
-			inbuf += sizeof(unsigned long);
+			inbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLOR888:
 			r = *inbuf++;
@@ -2541,16 +2541,16 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			*outbuf++ = COLOR2PIXEL233(colorval);
 			break;
 		case MWPF_TRUECOLOR0888:
-			*(unsigned long *)outbuf = COLOR2PIXEL888(colorval);
-			outbuf += sizeof(unsigned long);
+			*(uint32_t *)outbuf = COLOR2PIXEL888(colorval);
+			outbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLOR8888:
-			*(unsigned long *)outbuf = COLOR2PIXEL8888(colorval);
-			outbuf += sizeof(unsigned long);
+			*(uint32_t *)outbuf = COLOR2PIXEL8888(colorval);
+			outbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLORABGR:
-			*(unsigned long *)outbuf = COLOR2PIXELABGR(colorval);
-			outbuf += sizeof(unsigned long);
+			*(uint32_t *)outbuf = COLOR2PIXELABGR(colorval);
+			outbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLOR888:
 			*outbuf++ = REDVALUE(colorval);

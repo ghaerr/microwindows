@@ -1,4 +1,5 @@
 21 May 2010
+	* fixed applyOp4 off-by-one bug (affects XOR+ blits), applyOp2/3 (fblin16 v/h draw)
 	* started 64 bit compatibility, requires <stdint.h> (uint32_t and int32_t)
 	* fix map non-existent char to default char with PCF fonts, port to 64 bit
 	* fix space glyph width bug with PCF fonts (negative leftBearing still not handled)

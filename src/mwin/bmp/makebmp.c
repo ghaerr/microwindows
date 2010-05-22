@@ -6,6 +6,7 @@
  * 10/4/1999 g haerr
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -17,8 +18,8 @@
 
 typedef unsigned char	BYTE;
 typedef unsigned short	WORD;
-typedef unsigned long	DWORD;
-typedef long		LONG;
+typedef uint32_t	DWORD;
+typedef int32_t		LONG;
 
 #pragma pack(1)
 /* windows style*/
@@ -96,7 +97,7 @@ MakeBMP(FILE *ifp, FILE *ofp)
 	memset(&bmp, 0, sizeof(bmp));
 	bmp.bfType[0] = 'B';
 	bmp.bfType[1] = 'M';
-	bmp.bfSize = sizeof(bmp) + ncolors*4 + (long)cx*cy;
+	bmp.bfSize = sizeof(bmp) + ncolors*4 + (int32_t)cx*cy;
 	bmp.bfOffBits = sizeof(bmp) + ncolors*4;
 	bmp.BiSize = 40;
 	bmp.BiWidth = cx;
@@ -127,7 +128,7 @@ MakeBMP(FILE *ifp, FILE *ofp)
 
 	/* write image data, upside down ;)*/
 	for(i=cy-1; i>0; --i) {
-		long base = sizeof(bmp) + ncolors*4 + (long)i*cx;
+		int32_t base = sizeof(bmp) + ncolors*4 + (int32_t)i*cx;
 		fseek(ofp, base, SEEK_SET);
 		for(j=0; j<cx; ++j)
 			putc(getc(ifp), ofp);

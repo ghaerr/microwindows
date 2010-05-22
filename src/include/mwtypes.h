@@ -512,11 +512,11 @@ typedef struct {
 
 /* windows-compatible MWLOGFONT structure*/
 typedef struct {
-	long	lfHeight;		/* desired height in pixels*/
-	long	lfWidth;		/* desired width in pixels or 0*/
-	long	lfEscapement;		/* rotation in tenths of degree*/
-	long	lfOrientation;		/* not used*/
-	long	lfWeight;		/* font weight*/
+	int32_t	lfHeight;		/* desired height in pixels*/
+	int32_t	lfWidth;		/* desired width in pixels or 0*/
+	int32_t	lfEscapement;		/* rotation in tenths of degree*/
+	int32_t	lfOrientation;		/* not used*/
+	int32_t	lfWeight;		/* font weight*/
 	MWUCHAR	lfItalic;		/* =1 for italic */
 	MWUCHAR	lfUnderline;		/* =1 for underline */
 	MWUCHAR	lfStrikeOut;		/* not used*/

@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -188,7 +189,7 @@ static	GR_BITMAP	noleg_bg[] = {		/* no legs background */
  * This structure is read and written from the save file.
  */
 static	struct status {			/* status of games */
-	long	s_magic;		/* magic number */
+	int32_t	s_magic;		/* magic number */
 	short	s_playing;		/* TRUE if playing a game */
 	short	s_size;			/* current size of board */
 	short	s_mines;		/* current number of mines on board */
@@ -197,12 +198,12 @@ static	struct status {			/* status of games */
 	short	s_index;		/* current game parameter index */
 	short	s_sizeparam[MAXPARAMS];	/* table of size parameters */
 	short	s_mineparam[MAXPARAMS];	/* table of mine parameters */
-	long	s_games0[MAXPARAMS];	/* games finished with no legs */
-	long	s_games1[MAXPARAMS];	/* games finished with one leg */
-	long	s_games2[MAXPARAMS];	/* games finished with two legs */
-	long	s_steps0[MAXPARAMS];	/* steps taken in no leg games */
-	long	s_steps1[MAXPARAMS];	/* steps taken in one leg games */
-	long	s_steps2[MAXPARAMS];	/* steps taken in two leg games */
+	int32_t	s_games0[MAXPARAMS];	/* games finished with no legs */
+	int32_t	s_games1[MAXPARAMS];	/* games finished with one leg */
+	int32_t	s_games2[MAXPARAMS];	/* games finished with two legs */
+	int32_t	s_steps0[MAXPARAMS];	/* steps taken in no leg games */
+	int32_t	s_steps1[MAXPARAMS];	/* steps taken in one leg games */
+	int32_t	s_steps2[MAXPARAMS];	/* steps taken in two leg games */
 	CELL	s_board[FULLSIZE*FULLSIZE];	/* board layout */
 } st;
 
@@ -439,10 +440,10 @@ main(int argc,char **argv)
 	 * leaving room to the right side for statistics and buttons.
 	 */
 	width = COLS - RIGHTSIDE - (si.xdpcm * RIGHTGAP / 10) - BOARDBORDER * 2;
-	height = (((long) width) * si.ydpcm) / si.xdpcm;
+	height = (((int32_t) width) * si.ydpcm) / si.xdpcm;
 	if (height > ROWS /* - y * 2*/) {
 		height = ROWS - BOARDBORDER * 2;
-		width = (((long) height) * si.xdpcm) / si.ydpcm;
+		width = (((int32_t) height) * si.xdpcm) / si.ydpcm;
 	}
 	xp = width / size;
 	yp = height / size;
@@ -856,9 +857,9 @@ cellcenter(POS pos, GR_COORD *retx, GR_COORD *rety)
 static void
 drawstatus(void)
 {
-	long	score;
-	long	allsteps;
-	long	games;
+	int32_t	score;
+	int32_t	allsteps;
+	int32_t	games;
 
 	score = 0;
 	games = games0[index];

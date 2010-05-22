@@ -1900,7 +1900,7 @@ GR_REGION_ID
 GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
 {
 	nxNewPolygonRegionReq	*req;
-	long			size;
+	int32_t			size;
 	GR_REGION_ID		region;
 
 	if(count == 0)
@@ -1910,7 +1910,7 @@ GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
 		return 0;
 
 	LOCK(&nxGlobalLock);
-	size = (long)count * sizeof(GR_POINT);
+	size = (int32_t)count * sizeof(GR_POINT);
 	req = AllocReqExtra(NewPolygonRegion, size);
 	req->mode = mode;
 	/* FIXME: unportable method, depends on sizeof(int) in GR_POINT*/
@@ -2998,14 +2998,14 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 {
 	nxBitmapReq *req;
 	GR_SIZE	chunk_y    = height;
-	long	bitmapsize = (long)GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
+	int32_t	bitmapsize = (int32_t)GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP);
 
 	if (bitmapsize > MAXREQUESTSZ) {
-		chunk_y = (GR_SIZE)(((long)height * MAXREQUESTSZ) / bitmapsize);
+		chunk_y = (GR_SIZE)(((int32_t)height * MAXREQUESTSZ) / bitmapsize);
 		/* needs to be one line less than max */
 		if (chunk_y)
 			chunk_y--;
-		bitmapsize = (long)GR_BITMAP_SIZE(width, chunk_y) * sizeof(GR_BITMAP);
+		bitmapsize = (int32_t)GR_BITMAP_SIZE(width, chunk_y) * sizeof(GR_BITMAP);
 		}
 
 	LOCK(&nxGlobalLock);
@@ -3013,7 +3013,7 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	while(height > 0) {
 		if(chunk_y > height) {
 			chunk_y = height;
-			bitmapsize = (long)GR_BITMAP_SIZE(width, chunk_y) * sizeof(GR_BITMAP);
+			bitmapsize = (int32_t)GR_BITMAP_SIZE(width, chunk_y) * sizeof(GR_BITMAP);
 		}
 		req = AllocReqExtra(Bitmap, bitmapsize);
 		req->drawid = id;
@@ -3443,12 +3443,12 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * The pixels are packed according to pixtype:
  *
  * pixtype		array of
- * MWPF_RGB		MWCOLORVAL (unsigned long)
+ * MWPF_RGB		MWCOLORVAL (uint32_t)
  * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
  * MWPF_PALETTE		unsigned char
- * MWPF_TRUECOLOR0888	unsigned long
- * MWPF_TRUECOLOR8888	unsigned long
- * MWPF_TRUECOLORABGR	unsigned long
+ * MWPF_TRUECOLOR0888	uint32_t
+ * MWPF_TRUECOLOR8888	uint32_t
+ * MWPF_TRUECOLORABGR	uint32_t
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
@@ -3459,7 +3459,7 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * Draws the specified pixel array of the specified size and format onto the
  * specified drawable using the specified graphics context at the specified
  * position. Note that colour conversion is currently only performed when using
- * the GR_PF_RGB format, which is an unsigned long containing RGBX data.
+ * the GR_PF_RGB format, which is an uint32_t containing RGBX data.
  *
  * @param id  the ID of the drawable to draw the area onto
  * @param gc  the ID of the graphics context to use when drawing the area
@@ -3477,8 +3477,8 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	GR_SIZE height, void *pixels, int pixtype)
 {
 	nxAreaReq *req;
-	long       size;
-	long       chunk_y;
+	int32_t       size;
+	int32_t       chunk_y;
 	int        pixsize;
 	int	   type;
 	static int hwpixtype = 0;
@@ -3512,7 +3512,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLORABGR:
-		pixsize = sizeof(unsigned long);
+		pixsize = sizeof(uint32_t);
 		break;
 	case MWPF_TRUECOLOR888:
 		pixsize = 3;
@@ -3529,10 +3529,10 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	/* Break request into MAXREQUESTSZ size packets*/
 	while(height > 0) {
 		chunk_y = (MAXREQUESTSZ - sizeof(nxAreaReq)) /
-			((long)width * pixsize);
+			((int32_t)width * pixsize);
 		if(chunk_y > height)
 			chunk_y = height;
-		size = chunk_y * ((long)width * pixsize);
+		size = chunk_y * ((int32_t)width * pixsize);
 		req = AllocReqExtra(Area, size);
 		req->drawid = id;
 		req->gcid = gc;
@@ -3611,7 +3611,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 	GR_SIZE height, GR_PIXELVAL *pixels)
 {
 	nxReadAreaReq *req;
-	long           size;
+	int32_t           size;
 
 	LOCK(&nxGlobalLock);
 	req = AllocReq(ReadArea);
@@ -3620,7 +3620,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 	req->y = y;
 	req->width = width;
 	req->height = height;
-	size = (long)width * height * sizeof(MWPIXELVAL);
+	size = (int32_t)width * height * sizeof(MWPIXELVAL);
 	TypedReadBlock(pixels, size, GrNumReadArea);
 	UNLOCK(&nxGlobalLock);
 }
@@ -3665,9 +3665,9 @@ void
 GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 {
 	nxPointsReq *req;
-	long	size;
+	int32_t	size;
 
-	size = (long)count * sizeof(GR_POINT);
+	size = (int32_t)count * sizeof(GR_POINT);
 	LOCK(&nxGlobalLock);
 	req = AllocReqExtra(Points, size);
 	req->drawid = id;
@@ -3693,10 +3693,10 @@ void
 GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 {
 	nxPolyReq *req;
-	long       size;
+	int32_t       size;
 
 	LOCK(&nxGlobalLock);
-	size = (long)count * sizeof(GR_POINT);
+	size = (int32_t)count * sizeof(GR_POINT);
 	req = AllocReqExtra(Poly, size);
 	req->drawid = id;
 	req->gcid = gc;
@@ -3721,10 +3721,10 @@ void
 GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
 {
 	nxFillPolyReq *req;
-	long           size;
+	int32_t           size;
 
 	LOCK(&nxGlobalLock);
-	size = (long)count * sizeof(GR_POINT);
+	size = (int32_t)count * sizeof(GR_POINT);
 	req = AllocReqExtra(FillPoly, size);
 	req->drawid = id;
 	req->gcid = gc;

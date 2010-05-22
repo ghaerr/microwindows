@@ -456,7 +456,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	const void *	text;
 	int		defencoding = gr_pfont->fontprocs->encoding;
 	int		force_uc16 = 0;
-	unsigned long *buf = NULL;
+	uint32_t *buf = NULL;
 
 	/*
 	 * DBCS encoding is handled a little special: if the selected
@@ -815,10 +815,10 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 {
 	const unsigned char 	*istr8;
 	const unsigned short 	*istr16;
-	const unsigned long	*istr32;
+	const uint32_t	*istr32;
 	unsigned char 		*ostr8;
 	unsigned short 		*ostr16;
-	unsigned long		*ostr32;
+	uint32_t		*ostr32;
 	unsigned int		ch;
 	int			icc;
 	unsigned short *buf16 = NULL;
@@ -989,7 +989,7 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	const void *	text;
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
 	int		force_uc16 = 0;
-	unsigned long *buf = NULL;
+	uint32_t *buf = NULL;
 
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
@@ -1115,7 +1115,7 @@ utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16)
 {
 	int count = 0;
 	unsigned char c0, c1;
-	unsigned long scalar;
+	uint32_t scalar;
 
 	while(--cc >= 0) {
 		c0 = *utf8++;
@@ -1595,8 +1595,7 @@ arabicJoin_UC16(const unsigned short *text, int len, unsigned long *pAttrib)
  * Note that text is currently left to right
  */
 char *
-arabicJoin_UTF8(const char *text, int len, int *pNewLen,
-		unsigned long *pAttrib)
+arabicJoin_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib)
 {
 	int i, sz;
 	char *new_str;
@@ -1671,8 +1670,7 @@ arabicJoin_UTF8(const char *text, int len, int *pNewLen,
 }
 
 unsigned short *
-doCharShape_UC16(const unsigned short *text, int len, int *pNewLen,
-	unsigned long *pAttrib)
+doCharShape_UC16(const unsigned short *text, int len, int *pNewLen, unsigned long *pAttrib)
 {
 	unsigned short *conv = arabicJoin_UC16(text, len, pAttrib);
 
@@ -1690,8 +1688,7 @@ doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib
 #else /* HAVE_SHAPEJOINING_SUPPORT */
 /* DUMMY FUNCTIONS */
 unsigned short *
-doCharShape_UC16(const unsigned short *text, int len, int *pNewLen,
-	unsigned long *pAttrib)
+doCharShape_UC16(const unsigned short *text, int len, int *pNewLen, unsigned long *pAttrib)
 {
 	unsigned short *conv = malloc((len + 1) * sizeof(unsigned short));
 
@@ -1728,8 +1725,7 @@ doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib
 #include <fribidi/fribidi.h>
 
 char *
-doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection,
-	unsigned long *pAttrib)
+doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib)
 {
 	FriBidiChar *ftxt, *fvirt;
 	FriBidiChar localBuff[128];
@@ -1782,8 +1778,7 @@ doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection,
 
 
 unsigned short *
-doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos,
-	char *pDirection, unsigned long *pAttrib)
+doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib)
 {
 	FriBidiChar *ftxt, *fvirt;
 	FriBidiChar localBuff[128];
@@ -1838,8 +1833,7 @@ doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos,
 #else
 /* DUMMY FUNCTIONS */
 char *
-doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection,
-	unsigned long *pAttrib)
+doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib)
 {
 	int i;
 	unsigned short *conv = malloc((len + 1) * sizeof(unsigned short));
@@ -1856,8 +1850,7 @@ doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection,
 	return (char *) conv;
 }
 unsigned short *
-doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos,
-	char *pDirection, unsigned long *pAttrib)
+doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib)
 {
 	int i;
 	char *conv = malloc((len + 1) * sizeof(char));

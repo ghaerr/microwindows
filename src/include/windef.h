@@ -63,7 +63,7 @@ typedef LONG *PLONG;
 #ifndef VXWORKS
 typedef unsigned char 		UCHAR;
 typedef unsigned short 		USHORT;
-typedef unsigned long		ULONG;
+typedef uint32_t		ULONG;
 #ifndef __ITRON_TYPES_h_ /* FIXME RTEMS hack*/
 typedef unsigned int		UINT;
 #endif
@@ -85,7 +85,7 @@ typedef int                 	INT;
 #endif
 typedef unsigned int        	*PUINT;
 
-typedef unsigned long       DWORD;
+typedef uint32_t       DWORD;
 typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
 

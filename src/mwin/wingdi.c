@@ -1591,7 +1591,7 @@ GetDeviceCaps(HDC hdc, int nIndex)
 BOOL WINAPI
 DrawFocusRect(HDC hdc, LPRECT prect)
 {
-	unsigned long dm = 0xAAAAAAAA;
+	uint32_t dm = 0xAAAAAAAA;
 	int dc = 32;
 	int oldmode = GdSetMode(MWMODE_XOR);
 	HPEN holdpen = SelectObject(hdc,

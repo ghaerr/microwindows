@@ -42,7 +42,7 @@ static void name(type *src, int src_w, type *dst, int dst_w)		\
 
 DEFINE_COPY_ROW(copy_row1, unsigned char)
 DEFINE_COPY_ROW(copy_row2, unsigned short)
-DEFINE_COPY_ROW(copy_row4, unsigned long)
+DEFINE_COPY_ROW(copy_row4, uint32_t)
 
 static void copy_row3(unsigned char *src, int src_w, unsigned char *dst,
 	int dst_w)
@@ -159,8 +159,8 @@ GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
 			copy_row3(srcp, srcrect->width, dstp, dstrect->width);
 			break;
 		case 4:
-			copy_row4((unsigned long *)srcp, srcrect->width,
-				(unsigned long *)dstp, dstrect->width);
+			copy_row4((uint32_t *)srcp, srcrect->width,
+				(uint32_t *)dstp, dstrect->width);
 			break;
 		}
 

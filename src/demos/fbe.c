@@ -41,6 +41,7 @@ get bpp via ioctl from fbe for nano-X?
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
@@ -83,7 +84,7 @@ int PIXEL_MASK;
 int PIXELS_PER_LONG;
 char *host = NULL;
 char *cmapbuf;
-unsigned long *crtbuf;
+uint32_t *crtbuf;
 
 Display *display;
 Colormap colormap;
@@ -93,14 +94,14 @@ int depth, screen, visibility;
 int repaint;
 Pixmap pixmap;
 
-unsigned long crcs[MAX_CRTX / CHUNKX][MAX_CRTY / CHUNKY];
-unsigned long colors_X11[256];	/* contains X11 variants, either 8,16 or 24 bits */
-unsigned long colors_24[256];	/* contains 24 bit (00rrggbb) rgb color mappings */
+uint32_t crcs[MAX_CRTX / CHUNKX][MAX_CRTY / CHUNKY];
+uint32_t colors_X11[256];	/* contains X11 variants, either 8,16 or 24 bits */
+uint32_t colors_24[256];	/* contains 24 bit (00rrggbb) rgb color mappings */
 
 void X11_init(void);
 void fbe_loop(void);
 
-#define RGBDEF(r,g,b)	((unsigned long) ((b) | ((g)<<8) | ((r)<<16)))
+#define RGBDEF(r,g,b)	((uint32_t) ((b) | ((g)<<8) | ((r)<<16)))
 
 /* return 5/6/5 bit r, g or b component of 16 bit pixelval*/
 #define PIXEL565RED(pixelval)		(((pixelval) >> 11) & 0x1f)
@@ -113,13 +114,13 @@ void fbe_loop(void);
 #define PIXEL555BLUE(pixelval)		((pixelval) & 0x1f)
 
 /* Standard palette for 1bpp (2 color/monochrome) systems. */
-unsigned long mwstdpal1[2] = {
+uint32_t mwstdpal1[2] = {
 	RGBDEF( 0  , 0  , 0   ),	/* black*/
 	RGBDEF( 255, 255, 255 )		/* white*/
 };
 
 /* Standard palette for 2bpp (4 color) systems. */
-unsigned long mwstdpal2[4] = {
+uint32_t mwstdpal2[4] = {
 #if INVERT2BPP
 	RGBDEF( 255, 255, 255 ),	/* white*/
 	RGBDEF( 192, 192, 192 ),	/* ltgray*/
@@ -134,7 +135,7 @@ unsigned long mwstdpal2[4] = {
 };
 
 /* Standard palette for 4bpp (16 color) systems. */
-unsigned long mwstdpal4[16] = {
+uint32_t mwstdpal4[16] = {
 	/* 16 EGA colors, arranged in VGA standard palette order*/
 	RGBDEF( 0  , 0  , 0   ),	/* black*/
 	RGBDEF( 0  , 0  , 128 ),	/* blue*/
@@ -155,7 +156,7 @@ unsigned long mwstdpal4[16] = {
 };
 
 /* Gray palette for 4bpp (16 color) systems. */
-unsigned long mwstdpal4gray[16] = {
+uint32_t mwstdpal4gray[16] = {
     RGBDEF( 0, 0, 0 ),
     RGBDEF( 17, 17, 17 ),
     RGBDEF( 34, 34, 34 ),
@@ -179,7 +180,7 @@ unsigned long mwstdpal4gray[16] = {
  * uniform color distribution.
  * Note: the first 20 colors are used internally as system colors.
  */
-unsigned long mwstdpal8[256] = {
+uint32_t mwstdpal8[256] = {
 	/* 16 EGA colors, arranged for direct predefined palette indexing*/
 	RGBDEF( 0  , 0  , 0   ),	/* black*/
 	RGBDEF( 0  , 0  , 128 ),	/* blue*/
@@ -463,7 +464,7 @@ fbe_setcolors(void)
 	int i;
 	unsigned short c;
 	unsigned short *cmap = (unsigned short *)cmapbuf;
-	unsigned long *pal;
+	uint32_t *pal;
 
 #if 0
 	for (i = 0; i < 256; i++) {
@@ -498,7 +499,7 @@ void
 fbe_calcX11colors(void)
 {
 	int i;
-	unsigned long c24;
+	uint32_t c24;
 
 	if (BITS_PER_PIXEL > 8)
 		return;
@@ -569,10 +570,10 @@ X11_init(void)
 	XSync(display, 0);
 }
 
-unsigned long
+uint32_t
 calc_patch_crc(int ix, int iy)
 {
-	unsigned long crc = 0x8154711;
+	uint32_t crc = 0x8154711;
 	int x, y, off;
 
 	switch (BITS_PER_PIXEL) {
@@ -593,7 +594,7 @@ calc_patch_crc(int ix, int iy)
 
 	for (x = 0; x < CHUNKX / PIXELS_PER_LONG; x++)
 		for (y = 0; y < CHUNKY; y++) {
-			unsigned long dat;
+			uint32_t dat;
 
 			if (BITS_PER_PIXEL <= 8)
 				dat = crtbuf[off + x + y*CRTX_TOTAL/PIXELS_PER_LONG];
@@ -637,7 +638,7 @@ calc_patch_crc(int ix, int iy)
 void
 check_and_paint(int ix, int iy)
 {
-	unsigned long crc;
+	uint32_t crc;
 	int x, y, off;
 	int color;
 
@@ -681,7 +682,7 @@ check_and_paint(int ix, int iy)
 			} else {
 				unsigned char *data;
 				unsigned char a, r, g, b, h, l;
-				unsigned long dat;
+				uint32_t dat;
 				
 				switch (BITS_PER_PIXEL) {
 				case 15:

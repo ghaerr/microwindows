@@ -351,7 +351,7 @@ draw_line(SLICE *slice, MWCOORD x0, MWCOORD y, MWCOORD x1, int mode)
 static void
 drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 {
-	unsigned long dm = 0;
+	uint32_t dm = 0;
 	int dc = 0;
 
 	switch (slice->type) {
@@ -404,8 +404,8 @@ drawarcsegment(SLICE *slice, MWCOORD xp, MWCOORD yp, int drawon)
 static void
 drawarc(SLICE *slice)
 {
-        extern unsigned long gr_dashmask;     
-        extern unsigned long gr_dashcount;    
+	extern uint32_t gr_dashmask;     
+	extern uint32_t gr_dashcount;    
 
 	MWCOORD xp, yp;		/* current point (based on center) */
 	MWCOORD rx, ry;

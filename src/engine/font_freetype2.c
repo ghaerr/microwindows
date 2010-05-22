@@ -627,8 +627,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 	if (filename) {
 		error = FT_New_Face(freetype2_library, filename, 0, &pf->face);
 		if (error != FT_Err_Ok) {
-			EPRINTF("Nano-X-Freetype2: Can't load font from file \"%s\" - %lx\n",
-			        filename, (unsigned long) error);
+			EPRINTF("Nano-X-Freetype2: Can't load font from file \"%s\" - %x\n", filename, error);
 			goto out;
 		}
 		/*DPRINTF("Nano-X-Freetype2: Loading font from file \"%s\"\n", filename); */
@@ -636,8 +635,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 		error = FT_New_Memory_Face(freetype2_library,
 		    faceid->data.buffer.data, faceid->data.buffer.length, 0, &pf->face);
 		if (error != FT_Err_Ok) {
-			EPRINTF("Nano-X-Freetype2: Can't load font from memory - %lx\n",
-			    (unsigned long) error);
+			EPRINTF("Nano-X-Freetype2: Can't load font from memory - %x\n", error);
 			goto out;
 		}
 		/*DPRINTF("Nano-X-Freetype2: Loading font from memory\n"); */
@@ -645,8 +643,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 
 	error = FT_Select_Charmap(pf->face, ft_encoding_unicode);
 	if (error != FT_Err_Ok) {
-		EPRINTF("freetype2_createfont: no unicode map table - %lx\n",
-		    (unsigned long) error);
+		EPRINTF("freetype2_createfont: no unicode map table - %x\n", error);
 		goto out;
 	}
 #endif
@@ -667,8 +664,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid,
 	pf->imagedesc.width = pf->font.pix_width;
 	pf->imagedesc.height = pf->font.pix_height;
 	if (error != FT_Err_Ok) {
-		EPRINTF("Nano-X-Freetype2: Freetype 2 error %lx trying to load font.\n",
-		    (unsigned long)error);
+		EPRINTF("Nano-X-Freetype2: Freetype 2 error %x trying to load font.\n", error);
 		free(pf);
 		return NULL;
 	}

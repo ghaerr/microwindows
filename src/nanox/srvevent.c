@@ -1056,7 +1056,7 @@ GsDeliverRawMouseEvent(int rx, int ry, int buttons, int modifiers)
 	/* Deliver button events if we have to */
 	for (i = 0; i < 2; i++) {
 		GR_EVENT_BUTTON *gp;
-		unsigned long cbuttons = 0;
+		uint32_t cbuttons = 0;
 		GR_EVENT_TYPE etype = (i == 0) ? GR_EVENT_TYPE_BUTTON_DOWN :
 			GR_EVENT_TYPE_BUTTON_UP;
 

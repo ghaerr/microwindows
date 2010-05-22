@@ -65,7 +65,7 @@ int init(int argc, char *argv[])
 	GR_PROP *prop;
 	GR_COORD x = 0;
 	GR_WM_PROPERTIES props;
-	unsigned long minz, maxz;
+	unsigned int minz, maxz;
 
 	if(argc > 1) {
 		if(argc != 3) {

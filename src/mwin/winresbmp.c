@@ -40,8 +40,8 @@ typedef unsigned char WORD[2];
 typedef unsigned char DWORD[4];
 typedef unsigned char LONG[4];
 #define	CASTWORD	*(unsigned short *)&
-#define	CASTDWORD	*(unsigned long *)&
-#define	CASTLONG	*(long *)&
+#define	CASTDWORD	*(uint32_t *)&
+#define	CASTLONG	*(int32_t *)&
 #endif
 
 
@@ -78,7 +78,7 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 	HGLOBAL hResBmp;
 	BMPHEAD *pHead;
 	unsigned int cx, cy, bitdepth, linesize;
-	long compression;
+	int32_t compression;
 	int i, palsize;
 	int bytesperpixel;
 	HRSRC hRes;

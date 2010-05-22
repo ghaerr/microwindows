@@ -2,6 +2,7 @@
  * snap_jpg - screen snapshot for Nano-X, jpeg format
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -29,7 +30,7 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *f
 {
 	int y;
 	FILE *fp;
-	unsigned long colorval = 0;
+	uint32_t colorval = 0;
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 
@@ -83,7 +84,7 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *f
 
 			case 24:
 			case 32:
-				colorval = PIXEL888TOCOLORVAL(*((unsigned long *)ch));
+				colorval = PIXEL888TOCOLORVAL(*((uint32_t *)ch));
 				break;
 			}
 

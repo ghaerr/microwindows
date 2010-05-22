@@ -1039,7 +1039,7 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 	 */
 	if (gcp->changed) {
 		PSD		psd = (wp ? wp->psd : pp->psd);
-		unsigned long	mask;
+		uint32_t	mask;
 		int		count;
 
 		if (gcp->linestyle == GR_LINE_SOLID) {

@@ -181,7 +181,7 @@ READSHORT(FILEP fp, unsigned short *sp)
 }
 
 static int
-READLONG(FILEP fp, unsigned long *lp)
+READLONG(FILEP fp, uint32_t *lp)
 {
 #if HAVE_FNTGZ_SUPPORT
 	unsigned char buf[4];
@@ -191,7 +191,7 @@ READLONG(FILEP fp, unsigned long *lp)
 	*lp = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
 #else
 	int c;
-	unsigned long l;
+	uint32_t l;
 
 	if ((c = getc(fp)) == EOF)
 		return 0;
@@ -240,8 +240,8 @@ fnt_load_font(const char *path)
 	PMWCFONT pf = NULL;
 	int i;
 	unsigned short maxwidth, height, ascent, pad;
-	unsigned long firstchar, defaultchar, size;
-	unsigned long nbits, noffset, nwidth;
+	uint32_t firstchar, defaultchar, size;
+	uint32_t nbits, noffset, nwidth;
 	char version[4+1];
 	char name[64+1];
 	char copyright[256+1];
@@ -327,7 +327,7 @@ fnt_load_font(const char *path)
 	if (!READLONG(ifp, &noffset))
 		goto errout;
 	if (noffset) {
-		pf->offset = (unsigned long *)malloc(noffset * sizeof(unsigned long));
+		pf->offset = (uint32_t *)malloc(noffset * sizeof(uint32_t));
 		if (!pf->offset)
 			goto errout;
 	}
@@ -351,7 +351,7 @@ fnt_load_font(const char *path)
 			goto errout;
 	if (noffset)
 		for (i=0; i<pf->size; ++i)
-			if (!READLONG(ifp, (unsigned long *)&pf->offset[i]))
+			if (!READLONG(ifp, (uint32_t *)&pf->offset[i]))
 				goto errout;
 	if (nwidth)
 		for (i=0; i<pf->size; ++i)

@@ -1505,7 +1505,7 @@ neCharPressed(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	int i, chars, inserting;
 	PSLEDITDATA pSLEditData = (PSLEDITDATA) (hWnd->userdata2);
 	DWORD dwStyle = hWnd->style;
-	BOOL isPasting = (((long) wParam == -1) && ((long) lParam == -1));
+	BOOL isPasting = (((int32_t) wParam == -1) && ((int32_t) lParam == -1));
 
 
 	if (dwStyle & ES_READONLY)

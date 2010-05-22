@@ -25,7 +25,7 @@
 
 typedef unsigned char	BYTE;
 typedef unsigned short	WORD;
-typedef unsigned long	DWORD;
+typedef uint32_t	DWORD;
 typedef long		LONG;
 
 typedef struct {
@@ -201,7 +201,7 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 
 	/* determine 16bpp 5/5/5 or 5/6/5 format*/
 	if (pimage->bpp == 16) {
-		unsigned long format = 0x7c00;		/* default is 5/5/5*/
+		uint32_t format = 0x7c00;		/* default is 5/5/5*/
 
 		if (compression == BI_BITFIELDS) {
 			MWUCHAR	buf[4];

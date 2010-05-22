@@ -29,9 +29,9 @@
 					 (MwGetTopWindow((hCtrl)) == (hDlg)))
 
 #define MulDiv(x,m,d)	( ((((x)<0) && ((m)<0)) || (((x)>=0) && ((m)>=0))) ? \
-			  ((((long)(x)*(long)(m))+(long)((d)/2))/(long)(d)) : \
-			  ((((long)(x)*(long)(m))-(long)((d)/2))/(long)(d)) )
-#define MulDivRD(x,m,d)	( ((long)(x) * (long)(m))/(long)(d) )
+			  ((((int32_t)(x)*(int32_t)(m))+(int32_t)((d)/2))/(int32_t)(d)) : \
+			  ((((int32_t)(x)*(int32_t)(m))-(int32_t)((d)/2))/(int32_t)(d)) )
+#define MulDivRD(x,m,d)	( ((int32_t)(x) * (int32_t)(m))/(int32_t)(d) )
 
 /*
  *  Struct with information about DLG

@@ -2536,7 +2536,7 @@ void
 GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 {
 	GR_GC *gcp;
-	unsigned long dmask = 0;
+	uint32_t dmask = 0;
 	int dcount = 0;
 	int onoff = 1;
 	int i;

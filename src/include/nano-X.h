@@ -58,12 +58,12 @@ typedef unsigned short	GR_BOOL;	/* boolean value */
 typedef int		GR_ERROR;	/* error types */
 typedef int		GR_EVENT_TYPE;	/* event types */
 typedef int		GR_UPDATE_TYPE;	/* window update types */
-typedef unsigned long	GR_EVENT_MASK;	/* event masks */
+typedef uint32_t	GR_EVENT_MASK;	/* event masks */
 typedef char		GR_FUNC_NAME[25];/* function name */
-typedef unsigned long	GR_WM_PROPS;	/* window property flags */
-typedef unsigned long	GR_SERIALNO;	/* Selection request ID number */
+typedef uint32_t	GR_WM_PROPS;	/* window property flags */
+typedef uint32_t	GR_SERIALNO;	/* Selection request ID number */
 typedef unsigned short	GR_MIMETYPE;	/* Index into mime type list */
-typedef unsigned long	GR_LENGTH;	/* Length of a block of data */
+typedef uint32_t	GR_LENGTH;	/* Length of a block of data */
 typedef unsigned int	GR_BUTTON;	/* mouse button value */
 
 /** Nano-X rectangle, different from MWRECT */
@@ -243,7 +243,7 @@ typedef struct {
   GR_EVENT_MASK eventmask;	/**< current event mask for this client */
   GR_WM_PROPS props;		/**< window properties */
   GR_CURSOR_ID cursor;		/**< cursor id*/
-  unsigned long processid;	/**< process id of owner*/
+  uint32_t processid;	/**< process id of owner*/
 } GR_WINDOW_INFO;
 
 /**
@@ -514,8 +514,8 @@ typedef struct {
   GR_WINDOW_ID wid;		/**< ID of window data is destined for */
   GR_WINDOW_ID rid;		/**< ID of window data is from */
   GR_SERIALNO serial;		/**< Serial number of transaction */
-  unsigned long len;		/**< Total length of data */
-  unsigned long datalen;	/**< Length of following data */
+  uint32_t len;		/**< Total length of data */
+  uint32_t datalen;	/**< Length of following data */
   void *data;			/**< Pointer to data (filled in on client side) */
 } GR_EVENT_CLIENT_DATA;
 

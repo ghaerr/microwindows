@@ -1073,8 +1073,8 @@ extern struct MW_UID_MESSAGE m_mou;
 void
 GsSelect (GR_TIMEOUT timeout)
 {
-        struct MW_UID_MESSAGE m;
-	unsigned long uid_timeout;
+	struct MW_UID_MESSAGE m;
+	long uid_timeout;
 #if MW_FEATURE_TIMERS
 	struct timeval tout;
 #endif
@@ -1392,12 +1392,12 @@ GsGetTickCount(void)
 {
 #if MSDOS
 #include <time.h>
-	return (unsigned long)(clock() * 1000 / CLOCKS_PER_SEC);
+	return (uint32_t)(clock() * 1000 / CLOCKS_PER_SEC);
 #else
 #if _MINIX
 	struct tms	t;
 	
-	return (unsigned long)times(&t) * 16;
+	return (uint32_t)times(&t) * 16;
 #else
 #if UNIX
 	struct timeval t;

@@ -26,6 +26,8 @@ add ximage X11 debug statements
 enhance x11 driver to use fast blit from savebits
 leftBearing < 0 not handled in PCF loader nor MWCFONT structs, add l/r bearing returns?
 
+fix bin/mwdvetest crash on closebox after static dialog
+
 add SUBDRIVER entry into SCREENDEVICE
 last char drawn wrong on fontdemo2.sh portrait modes
 fix down portrait stretch/blit driver mods

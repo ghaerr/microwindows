@@ -364,10 +364,6 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 	/* force all clipping on by default*/
 	dwStyle |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-	titLen = 0;
-	if( lpWindowName != NULL )
-		titLen = strlen ( lpWindowName );
-	if( titLen < 64 ) titLen = 64; /* old mw compatibility */
 	wp->pClass = pClass;
 	wp->lpfnWndProc = pClass->lpfnWndProc;
 	wp->style = dwStyle;
@@ -388,15 +384,21 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 	wp->unmapcount = pwp->unmapcount + 1;
 	wp->id = (int)hMenu;
 	wp->gotPaintMsg = PAINT_PAINTED;
-	wp->szTitle = (LPTSTR) malloc ( titLen+1 );
-	if( wp->szTitle == NULL ) {
-		free ( wp );
+
+	titLen = 0;
+	if (lpWindowName != NULL)
+		titLen = strlen(lpWindowName);
+	if (titLen < 64) titLen = 64; /* old mw compatibility */
+	wp->szTitle = (LPTSTR)malloc(titLen + 1);
+	if (wp->szTitle == NULL) {
+		free(wp);
 		return NULL;
 	}
-	if( lpWindowName != NULL )
-		strcpy ( wp->szTitle, lpWindowName );
+	if (lpWindowName != NULL)
+		strcpy(wp->szTitle, lpWindowName);
 	else
-		strcpy ( wp->szTitle, "" );
+		wp->szTitle[0] = '\0';
+
 #if UPDATEREGIONS
 	wp->update = GdAllocRegion();
 #endif
@@ -460,6 +462,8 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	if (wp == rootwp)
 		return;
 
+DPRINTF("DESTROY %d\n", wp);
+DPRINTF("ROOT CHILD %d\n", rootwp->children);
 	/*
 	 * Unmap the window.
 	 */
@@ -563,10 +567,18 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 		ReleaseDC(wp, hdc);
 	}
 
-	free ( wp->szTitle );
+	if (wp->szTitle) {
+		free(wp->szTitle);
+		wp->szTitle = NULL;
+	}
+
 #if UPDATEREGIONS
-	GdDestroyRegion(wp->update);
+	if (wp->update) {
+		GdDestroyRegion(wp->update);
+		wp->update = NULL;
+	}
 #endif
+
 	GdItemFree(wp);
 }
 

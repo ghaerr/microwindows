@@ -1056,8 +1056,8 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR16 dst;
 	ADDR8 alpha;
-	unsigned long ps, pd;
-	unsigned long as, psr, psg, psb;
+	uint32_t ps, pd;
+	uint32_t as, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 

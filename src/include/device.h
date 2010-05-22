@@ -129,10 +129,10 @@ typedef struct {
 	int		firstchar;	/* first character in bitmap*/
 	int		size;		/* font size in characters*/
 	const MWIMAGEBITS   *bits;	/* 16-bit right-padded bitmap data*/
-	const unsigned long *offset;	/* offsets into bitmap data*/
+	const uint32_t *offset;	/* offsets into bitmap data*/
 	const unsigned char *width;	/* character widths or 0 if fixed*/
 	int		defaultchar;	/* default char (not glyph index)*/
-	long		bits_size;	/* # words of MWIMAGEBITS bits*/
+	int32_t		bits_size;	/* # words of MWIMAGEBITS bits*/
 } MWCFONT, *PMWCFONT;
 
 /* draw procs associated with fonts.  Strings are [re]packed using defencoding*/
@@ -298,7 +298,7 @@ typedef struct {
 	MWCOORD		srcx, srcy;	/* src x,y*/
 	MWCOORD		srcw, srch;	/* src w,h if stretchblit*/
 	PSD		srcpsd;		/* src drawable*/
-	unsigned long 	rop;		/* raster opcode*/
+	long 	rop;		/* raster opcode*/
 	PSD		alphachan;	/* alpha chan for MWROP_BLENDCHANNEL*/
 	MWPIXELVAL	fgcolor;	/* fg/bg color for MWROP_BLENDFGBG*/
 	MWPIXELVAL	bgcolor;
@@ -347,7 +347,7 @@ typedef struct _mwscreendevice {
 	int	linelen;	/* line length in bytes for bpp 1,2,4,8*/
 				/* line length in pixels for bpp 16, 18, 24, 32*/
 	int	size;		/* size of memory allocated*/
-	long	ncolors;	/* # screen colors*/
+	int32_t	ncolors;	/* # screen colors*/
 	int	pixtype;	/* format of pixel value*/
 	int	flags;		/* device flags*/
 	void *	addr;		/* address of memory allocated (memdc or fb)*/
@@ -491,9 +491,9 @@ typedef struct {
 /* color and palette defines*/
 #define RGBDEF(r,g,b)	{r, g, b}
 
-#define GETPALENTRY(pal,index) ((unsigned long)(pal[index].r |\
+#define GETPALENTRY(pal,index) ((uint32_t)(pal[index].r |\
 				(pal[index].g << 8) | (pal[index].b << 16)))
-/*#define GETPALENTRY(pal,index) ((*(unsigned long *)&pal[index])&0x00ffffff)*/
+/*#define GETPALENTRY(pal,index) ((*(uint32_t *)&pal[index])&0x00ffffff)*/
 
 #define REDVALUE(rgb)	((rgb) & 0xff)
 #define GREENVALUE(rgb) (((rgb) >> 8) & 0xff)
@@ -683,41 +683,41 @@ typedef struct {
  * out the extra shift.)
  */
 /* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
-#define PIXEL8888ALPHA32(pixelval)        ( ((unsigned long)(pixelval))        & 0xff000000UL)
-#define PIXEL8888RED32(pixelval)          ((((unsigned long)(pixelval)) <<  8) & 0xff000000UL)
-#define PIXEL8888GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 16) & 0xff000000UL)
-#define PIXEL8888BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 24) & 0xff000000UL)
+#define PIXEL8888ALPHA32(pixelval)        ( ((uint32_t)(pixelval))        & 0xff000000UL)
+#define PIXEL8888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL8888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL8888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
 
 /* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
-#define PIXELABGRALPHA32(pixelval)        ( ((unsigned long)(pixelval))        & 0xff000000UL)
-#define PIXELABGRBLUE32(pixelval)         ((((unsigned long)(pixelval)) <<  8) & 0xff000000UL)
-#define PIXELABGRGREEN32(pixelval)        ((((unsigned long)(pixelval)) << 16) & 0xff000000UL)
-#define PIXELABGRRED32(pixelval)          ((((unsigned long)(pixelval)) << 24) & 0xff000000UL)
+#define PIXELABGRALPHA32(pixelval)        ( ((uint32_t)(pixelval))        & 0xff000000UL)
+#define PIXELABGRBLUE32(pixelval)         ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXELABGRGREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXELABGRRED32(pixelval)          ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
 
 /* return 32 bit r, g or b component of 8/8/8 24 bit pixelval*/
-#define PIXEL888RED32(pixelval)          ((((unsigned long)(pixelval)) <<  8) & 0xff000000UL)
-#define PIXEL888GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 16) & 0xff000000UL)
-#define PIXEL888BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 24) & 0xff000000UL)
+#define PIXEL888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
 
 /* return 32 bit r, g or b component of 5/6/5 16 bit pixelval*/
-#define PIXEL565RED32(pixelval)          ((((unsigned long)(pixelval)) << 16) & 0xf8000000UL)
-#define PIXEL565GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 21) & 0xfc000000UL)
-#define PIXEL565BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 27) & 0xf8000000UL)
+#define PIXEL565RED32(pixelval)          ((((uint32_t)(pixelval)) << 16) & 0xf8000000UL)
+#define PIXEL565GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 21) & 0xfc000000UL)
+#define PIXEL565BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 27) & 0xf8000000UL)
 
 /* return 32 bit r, g or b component of 5/5/5 16 bit pixelval*/
-#define PIXEL555RED32(pixelval)          ((((unsigned long)(pixelval)) << 17) & 0xf8000000UL)
-#define PIXEL555GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 22) & 0xf8000000UL)
-#define PIXEL555BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 27) & 0xf8000000UL)
+#define PIXEL555RED32(pixelval)          ((((uint32_t)(pixelval)) << 17) & 0xf8000000UL)
+#define PIXEL555GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 22) & 0xf8000000UL)
+#define PIXEL555BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 27) & 0xf8000000UL)
 
 /* return 32 bit r, g or b component of 3/3/2 8 bit pixelval*/
-#define PIXEL332RED32(pixelval)          ((((unsigned long)(pixelval)) << 24) & 0xe0000000UL)
-#define PIXEL332GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 27) & 0xe0000000UL)
-#define PIXEL332BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 30) & 0xc0000000UL)
+#define PIXEL332RED32(pixelval)          ((((uint32_t)(pixelval)) << 24) & 0xe0000000UL)
+#define PIXEL332GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 27) & 0xe0000000UL)
+#define PIXEL332BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 30) & 0xc0000000UL)
 
 /* return 32 bit r, g or b component of 2/3/3 8 bit pixelval*/
-#define PIXEL233RED32(pixelval)          ((((unsigned long)(pixelval)) << 29) & 0xe0000000UL)
-#define PIXEL233GREEN32(pixelval)        ((((unsigned long)(pixelval)) << 26) & 0xe0000000UL)
-#define PIXEL233BLUE32(pixelval)         ((((unsigned long)(pixelval)) << 24) & 0xc0000000UL)
+#define PIXEL233RED32(pixelval)          ((((uint32_t)(pixelval)) << 29) & 0xe0000000UL)
+#define PIXEL233GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 26) & 0xe0000000UL)
+#define PIXEL233BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xc0000000UL)
 
 /*
  * Conversion from MWPIXELVAL to MWCOLORVAL
@@ -1087,7 +1087,7 @@ void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 #define GdItemFree(ptr)	free((void *)ptr)
 
 /* devstipple.c */
-void	GdSetDash(unsigned long *mask, int *count);
+void	GdSetDash(uint32_t *mask, int *count);
 void	GdSetStippleBitmap(MWIMAGEBITS *stipple, MWCOORD width, MWCOORD height);
 void	GdSetTSOffset(int xoff, int yoff);
 int	GdSetFillMode(int mode);

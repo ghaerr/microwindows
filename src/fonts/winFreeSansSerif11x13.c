@@ -6959,7 +6959,7 @@ static MWIMAGEBITS winFreeSansSerif11x13_bits[] = {
 
 #if 0000
 /* Character->glyph data. */
-static unsigned long winFreeSansSerif11x13_offset[] = {
+static uint32_t winFreeSansSerif11x13_offset[] = {
   0,	 /*   (0x20) */
   13,	 /* ! (0x21) */
   26,	 /* " (0x22) */

@@ -195,7 +195,7 @@ linear18_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
 #if ALPHABLEND
-	unsigned long alpha, pd;
+	uint32_t alpha, pd;
 #endif
 
 	assert (dst != 0);
@@ -661,7 +661,7 @@ linear18_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	unsigned char fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	int first_byte, last_byte;
 	int size_main;
@@ -988,7 +988,7 @@ linear18_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	unsigned char fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	int first_byte, last_byte;
 	int size_main;
@@ -1270,7 +1270,7 @@ linear18_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR8 dst;
 	ADDR8 alpha;
-	unsigned long ps, pd;
+	uint32_t ps, pd;
 	int as;
 	int psr, psg, psb;
 	int x, y;

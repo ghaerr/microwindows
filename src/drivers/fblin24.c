@@ -151,7 +151,7 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
 #if ALPHABLEND
-	unsigned long alpha;
+	uint32_t alpha;
 #endif
 
 	assert (dst != 0);
@@ -180,7 +180,7 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
 			if (alpha != 0) {
-				register unsigned long pd = *dst;
+				register uint32_t pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
 				pd = *dst;
 				*dst++ = muldiv255(alpha, *src++ - pd) + pd;
@@ -618,7 +618,7 @@ linear24_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	unsigned char fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	int first_byte, last_byte;
 	int size_main;
@@ -943,7 +943,7 @@ linear24_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	unsigned char fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	int first_byte, last_byte;
 	int size_main;
@@ -1223,7 +1223,7 @@ static void
 linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR8 dst, alpha;
-	unsigned long as, psr, psg, psb;
+	uint32_t as, psr, psg, psb;
 	int x, y;
 	int src_row_step, dst_row_step;
 
@@ -1244,7 +1244,7 @@ linear24_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				*dst++ = psg;
 				*dst++ = psr;
 			} else if (as != 0) {
-				register unsigned long pd = *dst;
+				register uint32_t pd = *dst;
 				*dst++ = muldiv255(as, psb - pd) + pd;
 				pd = *dst;
 				*dst++ = muldiv255(as, psg - pd) + pd;

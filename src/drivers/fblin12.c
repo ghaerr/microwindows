@@ -30,7 +30,7 @@ linear12_init(PSD psd)
 
 static inline void setpix(char *cptr,int x, int y, char c)
 {
-	unsigned long adr;
+	uint32_t adr;
 
 	adr = (x>>1) + (y*480);  /* change, julian*/
 
@@ -51,7 +51,7 @@ static inline void setpix(char *cptr,int x, int y, char c)
 
 static inline char getpix(char *cptr,int x, int y)
 {
-	unsigned long adr;
+	uint32_t adr;
 	adr = (x>>1) + (y*480);  /* change, julian*/
 
 	if(x & 0x01)
@@ -194,8 +194,8 @@ xlinear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 	while(--h >= 0) {
 		for(i=0; i<w; ++i) {
-			unsigned long s = *src++;
-			unsigned long d = *dst;
+			uint32_t s = *src++;
+			uint32_t d = *dst;
 			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
 			s = *src++;
 			d = *dst;

@@ -8303,7 +8303,7 @@ static MWIMAGEBITS winFreeSystem14x16_bits[] = {
 
 #if 0000
 /* Character->glyph data. */
-static unsigned long winFreeSystem14x16_offset[] = {
+static uint32_t winFreeSystem14x16_offset[] = {
   0,	 /*   (0x20) */
   16,	 /* ! (0x21) */
   32,	 /* " (0x22) */

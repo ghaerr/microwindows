@@ -1,4 +1,3 @@
-#include <stdio.h>
 /*
  * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  *
@@ -17,14 +16,12 @@
  * contributions.
  */
 /*#define NDEBUG*/
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include "swap.h"
 #include "device.h"
 #include "fb.h"
-
-typedef unsigned long UINT32;
-typedef long MW_S32;
 
 /* It's a lot easier to treat the buffer as an array of bytes when
  * alpha blending, and an array of uint32 otherwise.  However,
@@ -72,7 +69,7 @@ linear32a_init(PSD psd)
 	 * (Also validates that the various #defines are internally
 	 *  consistent).
 	 */
-	unsigned long endian_check = COLOR2PIXEL(MWARGB(1, 2, 3, 4));
+	uint32_t endian_check = COLOR2PIXEL(MWARGB(1, 2, 3, 4));
 	assert(((char *) (&endian_check))[OFFSET_A] == 1);
 	assert(((char *) (&endian_check))[OFFSET_R] == 2);
 	assert(((char *) (&endian_check))[OFFSET_G] == 3);
@@ -93,7 +90,7 @@ static void
 linear32a_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	register ADDR32 addr = ((ADDR32)psd->addr) + x + y * psd->linelen;
-	UINT32 psr, psg, psb, as, pd;
+	uint32_t psr, psg, psb, as, pd;
 #if DEBUG
 	assert(addr != 0);
 	assert(x >= 0 && x < psd->xres);
@@ -169,8 +166,8 @@ static void
 linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	register ADDR32 addr = ((ADDR32)psd->addr) + x1 + y * psd->linelen;
-	UINT32 psr, psg, psb, as, pd;
-	UINT32 cache_input, cache_output;
+	uint32_t psr, psg, psb, as, pd;
+	uint32_t cache_input, cache_output;
 
 #if DEBUG
 	assert(psd->addr != 0);
@@ -257,8 +254,8 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	int linelen = psd->linelen;
 	register ADDR32 addr = ((ADDR32)psd->addr) + x + y1 * linelen;
-	UINT32 psr, psg, psb, as, pd;
-	UINT32 cache_input, cache_output;
+	uint32_t psr, psg, psb, as, pd;
+	uint32_t cache_input, cache_output;
 #if DEBUG
 	assert(psd->addr != 0);
 	assert(x >= 0 && x < psd->xres);
@@ -356,7 +353,7 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int dlinelen_minus_w4;
 	int slinelen_minus_w4;
 #if ALPHABLEND
-	UINT32 alpha;
+	uint32_t alpha;
 #endif
 
 	assert(dst != 0);
@@ -441,7 +438,7 @@ stdcopy:
 		dst8 = (ADDR8) dst;
 		while (h--) {
 			for (i = w; --i >= 0;) {
-				register UINT32 as;
+				register uint32_t as;
 
 				if ((as = src8[OFFSET_A]) == 255) {	//FIXME should this be constant offset?
 					dst8[0] = src8[0];
@@ -485,7 +482,7 @@ linear32a_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	int i, ymax;
 	int row_pos, row_inc;
 	int col_pos, col_inc;
-	unsigned long pixel = 0;
+	uint32_t pixel = 0;
 
 	assert(dstpsd->addr != 0);
 	assert(dstx >= 0 && dstx < dstpsd->xres);
@@ -604,16 +601,16 @@ linear32a_stretchblitex(PSD dstpsd,
 			int x_step_fraction, int y_step_fraction, long op)
 {
 	/* Pointer to the current pixel in the source image */
-	unsigned long *RESTRICT src_ptr;
+	uint32_t *RESTRICT src_ptr;
 
 	/* Pointer to x=xs1 on the next line in the source image */
-	unsigned long *RESTRICT next_src_ptr;
+	uint32_t *RESTRICT next_src_ptr;
 
 	/* Pointer to the current pixel in the dest image */
-	unsigned long *RESTRICT dest_ptr;
+	uint32_t *RESTRICT dest_ptr;
 
 	/* Pointer to x=xd1 on the next line in the dest image */
-	unsigned long *next_dest_ptr;
+	uint32_t *next_dest_ptr;
 
 	/* Keep track of error in the source co-ordinates */
 	int x_error;
@@ -689,14 +686,14 @@ linear32a_stretchblitex(PSD dstpsd,
 	 */
 
 	/* Pointer to the first source pixel */
-	next_src_ptr = ((unsigned long *) srcpsd->addr) +
+	next_src_ptr = ((uint32_t *) srcpsd->addr) +
 		src_y_start * srcpsd->linelen + src_x_start;
 
 	/* Cache the width of a scanline in dest */
 	dest_y_step = dstpsd->linelen;
 
 	/* Pointer to the first dest pixel */
-	next_dest_ptr = ((unsigned long *) dstpsd->addr) + (dest_y_start * dest_y_step) + dest_x_start;
+	next_dest_ptr = ((uint32_t *) dstpsd->addr) + (dest_y_start * dest_y_step) + dest_x_start;
 
 	/*
 	 * Note: The MWROP_SRC and MWROP_XOR_FGBG cases below are simple
@@ -760,34 +757,32 @@ linear32a_stretchblitex(PSD dstpsd,
 
 			x_count = width;
 			while (x_count-- > 0) {
-				unsigned long c;
-				unsigned long orig;
-				int a;
-				c = *src_ptr;
-				a = (c >> 24) & 0xFF;
+				uint32_t orig;
+				uint32_t c = *src_ptr;
+				int a = (c >> 24) & 0xFF;
+
 				if (a == 255) {
 					*dest_ptr = c;
 				} else if (a != 0) {
-					int s;
-					int d;
-					unsigned long result;
+					int s, d;
+					uint32_t result;
 					
 					orig = *dest_ptr;
 					
 					s = (int)(c    >> 16) & 0xFF;
 					d = (int)(orig >> 16) & 0xFF;
-					result = ((unsigned long)((((s - d) * a) >> 8) + d) << 16);
+					result = ((uint32_t)((((s - d) * a) >> 8) + d) << 16);
 
 					s = (int)(c    >> 8) & 0xFF;
 					d = (int)(orig >> 8) & 0xFF;
-					result |= ((unsigned long)((((s - d) * a) >> 8) + d) << 8);
+					result |= ((uint32_t)((((s - d) * a) >> 8) + d) << 8);
 
 					s = (int)c    & 0xFF;
 					d = (int)orig & 0xFF;
-					result |= ((unsigned long)(((s - d) * a) >> 8) + d);
+					result |= ((uint32_t)(((s - d) * a) >> 8) + d);
 
 					d = (int)(orig >> 24) & 0xFF;
-					result |= ((unsigned long)(a + ((d * (256 - a)) >> 8)) << 24);
+					result |= ((uint32_t)(a + ((d * (256 - a)) >> 8)) << 24);
 					*dest_ptr = result;
 				}
 
@@ -947,7 +942,7 @@ linear32a_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	int first_byte, last_byte;
 	int size_main;
 	int t, y;
@@ -1157,7 +1152,7 @@ linear32a_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	int first_byte, last_byte;
 	int size_main;
 	int t, y;
@@ -1318,7 +1313,7 @@ linear32a_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
 	ADDR32 dst;
 	ADDR8 alpha;
-	UINT32 psr, psg, psb, as, ps, pd;
+	uint32_t psr, psg, psb, as, ps, pd;
 	int x, y;
 	int src_row_step, dst_row_step;
 

@@ -643,7 +643,7 @@ linear8_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	unsigned char postfix_last_bit;
 	unsigned char bitmap_byte;
 	unsigned char mask;
-	unsigned long fg, bg;
+	uint32_t fg, bg;
 	int first_byte, last_byte;
 	int size_main;
 	int t, y;

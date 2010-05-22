@@ -115,9 +115,9 @@
 
 /* Color defines - MWCOLORVAL is always 0xAABBGGRR format*/
 #define MWARGB(a,r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
-				(((unsigned)(unsigned char)(g))<<8))|\
-				(((unsigned long)(unsigned char)(b))<<16)|\
-				(((unsigned long)(unsigned char)(a))<<24)))
+				(((uint32_t)(unsigned char)(g))<<8))|\
+				(((uint32_t)(unsigned char)(b))<<16)|\
+				(((uint32_t)(unsigned char)(a))<<24)))
 #define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* rgb full alpha*/
 #define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb no alpha*/
 
@@ -262,7 +262,7 @@ typedef unsigned short MWPIXELVAL;
     #if MWPIXEL_FORMAT == MWPF_PALETTE
     typedef unsigned char MWPIXELVAL;
     #else
-      typedef unsigned long MWPIXELVAL;
+      typedef uint32_t MWPIXELVAL;
     #endif
   #endif
 #endif
@@ -279,10 +279,10 @@ typedef unsigned short MWPIXELVAL;
 typedef int		MWCOORD;	/* device coordinates*/
 typedef int		MWBOOL;		/* boolean value*/
 typedef unsigned char	MWUCHAR;	/* unsigned char*/
-typedef unsigned long	MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
+typedef uint32_t	MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
 typedef unsigned short	MWIMAGEBITS;	/* bitmap image unit size*/
-typedef unsigned long	MWTIMEOUT;	/* timeout value */
-typedef unsigned long	MWTEXTFLAGS;	/* MWTF_ text flag*/
+typedef uint32_t	MWTIMEOUT;	/* timeout value */
+typedef uint32_t	MWTEXTFLAGS;	/* MWTF_ text flag*/
 
 #define MWCOORD_MAX	0x7fff		/* maximum coordinate value*/
 #define MWCOORD_MIN	(-MWCOORD_MAX)	/* minimum coordinate value*/
@@ -323,16 +323,16 @@ typedef struct {
 	int 	 ydpcm;		/* dots/centimeter in y direction */
 	int	 planes;	/* hw # planes*/
 	int	 bpp;		/* hw bpp*/
-	long	 ncolors;	/* hw number of colors supported*/
+	int32_t	 ncolors;	/* hw number of colors supported*/
 	int 	 fonts;		/* number of built-in fonts */
 	int 	 buttons;	/* buttons which are implemented */
 	MWKEYMOD modifiers;	/* modifiers which are implemented */
 	int	 pixtype;	/* format of pixel value*/
 	int	 portrait;	/* current portrait mode*/
 	MWBOOL	 fbdriver;	/* true if running mwin fb screen driver*/
-	unsigned long rmask;	/* red mask bits in pixel*/
-	unsigned long gmask;	/* green mask bits in pixel*/
-	unsigned long bmask;	/* blue mask bits in pixel*/
+	uint32_t rmask;	/* red mask bits in pixel*/
+	uint32_t gmask;	/* green mask bits in pixel*/
+	uint32_t bmask;	/* blue mask bits in pixel*/
 	MWCOORD	 xpos;		/* current x mouse position*/
 	MWCOORD	 ypos;		/* current y mouse position*/
 
@@ -681,7 +681,7 @@ typedef struct {
 	int		bytesperpixel;	/* bytes per pixel*/
 	int		compression;	/* compression algorithm*/
 	int		palsize;	/* palette size*/
-	long		transcolor;	/* transparent color or -1 if none*/
+	int32_t		transcolor;	/* transparent color or -1 if none*/
 	MWPALENTRY *	palette;	/* palette*/
 	MWUCHAR *	imagebits;	/* image bits (dword right aligned)*/
 } MWIMAGEHDR, *PMWIMAGEHDR;

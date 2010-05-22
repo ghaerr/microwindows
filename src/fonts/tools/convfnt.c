@@ -412,7 +412,7 @@ doit(HDC hdc)
 	fprintf(fp, "};\n\n");
 
 	fprintf(fp, "/* Character->glyph data. */\n");
-	fprintf(fp, "static unsigned long win%s%dx%d_offset[] = {\n",
+	fprintf(fp, "static uint32_t win%s%dx%d_offset[] = {\n",
 		fontname, AVE_WIDTH, CHAR_HEIGHT);
 	for(i=FIRST_CHAR; i<LAST_CHAR; ++i)
 		fprintf(fp, "  %d,\t /* %c (0x%02x) */\n", offsets[i], i<' '? ' ':i , i);

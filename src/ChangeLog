@@ -3,7 +3,7 @@
 	listbox fixes w/scrollbars, WM_CTLCOLORLISTBOX
 	added newlistbox.c from ReactOS (GPL only, not used by default)
 	replace Draw3dButtonRect with Draw3dUpDownState
-	rewrite DrawTextOut/mwDrawText heavily, internal prefix/& support
+	rewrite mwDrawTextOut/mwDrawText heavily, internal prefix/& support
 		add #if OLD_DRAWTEXT for old drawtext code
 		no need for mwCheckUnderlineChar special drawing, button.c modified
 	add GetTextColor, Muldiv, WindowFromPoint, WM_SETREDRAW

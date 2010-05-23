@@ -1769,10 +1769,8 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 		/* check cursor in src region of both screen devices*/
 		GdCheckCursor(dstpsd, srcx, srcy, srcx+width-1, srcy+height-1);
 		if (dstpsd != srcpsd)
-			GdCheckCursor(srcpsd, srcx, srcy, srcx+width-1,
-				srcy+height-1);
-		dstpsd->Blit(dstpsd, dstx, dsty, width, height,
-			srcpsd, srcx, srcy, rop);
+			GdCheckCursor(srcpsd, srcx, srcy, srcx+width-1, srcy+height-1);
+		dstpsd->Blit(dstpsd, dstx, dsty, width, height, srcpsd, srcx, srcy, rop);
 		GdFixCursor(dstpsd);
 		if (dstpsd != srcpsd)
 			GdFixCursor(srcpsd);
@@ -1821,8 +1819,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 		if(pw > 0 && ph > 0) {
 			/* check cursor in dest and src regions*/
 			GdCheckCursor(dstpsd, px1, py1, px2-1, py2-1);
-			GdCheckCursor(dstpsd, srcx, srcy,
-				srcx+width, srcy+height);
+			GdCheckCursor(dstpsd, srcx, srcy, srcx+width, srcy+height);
 			dstpsd->Blit(dstpsd, px1, py1, pw, ph, srcpsd,
 				srcx + (px1-dstx), srcy + (py1-dsty), rop);
 		}
@@ -2150,7 +2147,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		}
 
 		/* Check for total invisibility */
-		if ((c2_x < i1_x) || (c1_x > i2_x)) {
+		if (c2_x < i1_x || c1_x > i2_x) {
 			/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (source X checks)\n"); */
 			return;
 		}
@@ -2184,14 +2181,13 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		 * Y co-ordinates.
 		 */
 		if (i1_y > i2_y) {
-			register int temp;
-			temp = i1_y;
+			register int temp = i1_y;
 			i1_y = i2_y;
 			i2_y = temp;
 		}
 
 		/* Check for total invisibility */
-		if ((c2_y < i1_y) || (c1_y > i2_y)) {
+		if (c2_y < i1_y || c1_y > i2_y) {
 			/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (source Y checks)\n"); */
 			return;
 		}

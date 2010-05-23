@@ -109,6 +109,7 @@ typedef struct {
 	int		minPos;        /* min value of scroll range.*/
 	int		maxPos;        /* max value of scroll range.*/
 	int		curPos;        /* current scroll pos.*/
+	int     trackPos;      /* current scroll box track position */
 	int		pageStep;      /* steps per page.*/
 	int		barStart;      /* start pixel of bar.*/
 	int		barLen;        /* length of bar.*/

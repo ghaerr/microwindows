@@ -2,4 +2,4 @@
 #
 # Microwindows coding standard indentation rules
 #
-indent -i8 -br -ce -npcs -nsob -bap -psl
+indent -i8 -br -ce -npcs -nsob -bap -psl -l90

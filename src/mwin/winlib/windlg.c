@@ -1126,6 +1126,9 @@ DIALOG_GetCharSize( HDC hDC, HFONT hFont, SIZE * pSize )
     return TRUE;
 }
 
+/*
+ *  Get base units of dialogs
+ */
 LONG
 GetDialogBaseUnits(VOID)
 {
@@ -1141,14 +1144,4 @@ GetDialogBaseUnits(VOID)
         }
     }
     return units;
-}
-
-/*
- *  Get base units of dialogs
- */
-LONG WINAPI
-GetDlgBaseUnits(void)
-{
-	/* return averWidth and Height of system font.*/
-	return MAKELONG(5, 13);
 }

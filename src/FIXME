@@ -27,6 +27,8 @@ enhance x11 driver to use fast blit from savebits
 leftBearing < 0 not handled in PCF loader nor MWCFONT structs, add l/r bearing returns?
 
 fix bin/mwdvetest crash on closebox after static dialog
+fix bin/mwdvetest crash on ESC exit from main dialog
+look at MessageBoxTimeout, newlistbox.c. remove OLD_DRAWTEXT
 
 add SUBDRIVER entry into SCREENDEVICE
 last char drawn wrong on fontdemo2.sh portrait modes

@@ -100,6 +100,7 @@ BOOL EndDeferWindowPos(HDWP hWinPosInfo);
 #define TA_MASK       (TA_BASELINE+TA_CENTER+TA_UPDATECP+TA_RTLREADING)
 
 COLORREF WINAPI	SetTextColor(HDC, COLORREF);
+COLORREF WINAPI GetTextColor(HDC hdc);
 COLORREF WINAPI	SetBkColor(HDC, COLORREF);
 int WINAPI 	SetBkMode(HDC, int);
 UINT WINAPI     SetTextAlign(HDC hdc, UINT fMode);
@@ -411,3 +412,5 @@ BOOL WINAPI UnionRect(LPRECT dest, const RECT *src1, const RECT *src2 );
 BOOL WINAPI EqualRect(const RECT* rect1, const RECT* rect2 );
 BOOL WINAPI SubtractRect(LPRECT dest, const RECT *src1, const RECT *src2 );
 
+/* GDI math stuff */
+int WINAPI MulDiv(int nMultiplicand, int nMultiplier, int nDivisor);

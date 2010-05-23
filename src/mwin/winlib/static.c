@@ -158,14 +158,18 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 	LPTSTR spCaption;
 	UINT uFormat;
 	RECT rc;
+#ifdef OLD_DRAWTEXT
 	int y, maxy;
+#endif
 	SIZE sz;
 	DWORD dwStyle = hwnd->style;
 	unsigned long attrib = 0;
 
 	rc = *pRcClient;
+#ifdef OLD_DRAWTEXT
 	maxy = rc.bottom - rc.top;
 	y = rc.top;
+#endif
 
 	uFormat = DT_TOP;
 	if ((dwStyle & SS_TYPEMASK) == SS_LEFT)
@@ -183,10 +187,8 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 		uFormat |= DT_NOPREFIX;
 
 	if (spCaption) {
-		RECT rcUline;
-		BOOL bUline = FALSE;
 		LPTSTR caption;
-		int ln = strlen(spCaption);
+		int n, ln = strlen(spCaption);
 
 		//  Duplicate text. If coding is UTF-8, generati it by checking shape/joining
 		if (mwTextCoding == MWTF_UTF8)
@@ -200,11 +202,13 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 		spCaption = caption;
 		SelectObject(hdc, GET_WND_FONT(hwnd));
 
+#ifdef OLD_DRAWTEXT
 		while (ln > 0) {
-			int n;
+			int n, nCount;
 			for (n = 0; n < ln; n += MW_CHRNBYTE(spCaption[n]))
 				if (spCaption[n] == '\n')
 					break;
+			nCount = n;
 
 			attrib &= ~TEXTIP_RTOL;	// resets RTOL text prop
 
@@ -221,14 +225,17 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 				GetTextExtentPoint(hdc, spCaption, n, &sz);
 			}
 
-			if (!bUline)
-				bUline = MwCheckUnderlineChar(hdc, spCaption, &n, &rcUline);
+			// In case we only have one word, approximate
+			if (n<=0) {
+				for (n = nCount; n>0 && sz.cx > (rc.right - rc.left); n--)
+					GetTextExtentPoint(hdc, spCaption, n, &sz);
+			}
 
 			rc.top = y;
 			rc.bottom = y + sz.cy;
-			if (bUline && rcUline.left >= 0)
-				OffsetRect(&rcUline, rc.left, rc.top);
-
+#else
+			n=ln;
+#endif
 			//  If the UTF8 text has non-ascii characters, check also bidi
 			if (attrib & TEXTIP_EXTENDED) {
 				DWORD vuFormat = uFormat;
@@ -246,21 +253,14 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 				}
 			} else
 				DrawTextA(hdc, spCaption, n, &rc, uFormat);
-
-			if (bUline && rcUline.left >= 0) {
-				SelectObject(hdc, GetStockObject(BLACK_PEN));
-				MoveToEx(hdc, rcUline.left, rcUline.bottom,
-					 NULL);
-				LineTo(hdc, rcUline.right, rcUline.bottom);
-				rcUline.left = -1;
-			}
-
+#ifdef OLD_DRAWTEXT
 			y += sz.cy;
 			if (y > maxy)
 				break;
 			spCaption += n + 1;
 			ln -= n + 1;
 		}
+#endif
 		free(caption);
 	}
 }

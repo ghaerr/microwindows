@@ -115,63 +115,6 @@ typedef struct  {
 
 *********************************************/
 
-/* imported stuff */
-#if 1
-void
-Draw3DButtonRect(HDC hDC, HPEN hPenHigh, HPEN hPenShadow,
-		RECT rc, BOOL fClicked)
-{
-    HPEN     hPenOld;
-    POINT    lpt[6];
-
-    POINT    p3[3];
-    int	     shrink=1;
-
-    hPenOld = SelectObject(hDC, hPenShadow);
-    if (fClicked) {
-	lpt[0].x = lpt[1].x = rc.left;
-	lpt[1].y = lpt[2].y = rc.top;
-	lpt[2].x = rc.right-1;
-	lpt[0].y = rc.bottom-1;
-        Polyline(hDC,lpt,3);
-    }
-    else {
-	lpt[0].x = lpt[1].x = rc.right-1;
-	lpt[0].y = rc.top;
-	lpt[1].y = lpt[2].y = rc.bottom-1;
-	lpt[2].x = rc.left;
-	lpt[3].x = rc.left+1;	
-	lpt[3].y = lpt[4].y = rc.bottom-2;	
-	lpt[4].x = lpt[5].x = rc.right-2;
-	lpt[5].y = rc.top+1;
-	Polyline(hDC,lpt,6);
-
-	SelectObject(hDC, hPenHigh);
-	lpt[0].x = rc.right-1;
-	lpt[0].y = lpt[1].y = rc.top;
-	lpt[1].x = lpt[2].x = rc.left;
-	lpt[2].y = rc.bottom-1;
-	lpt[3].x = lpt[4].x = rc.left+1;
-	lpt[3].y = rc.bottom-2;
-	lpt[4].y = lpt[5].y = rc.top+1;
-	lpt[5].x = rc.right-2;
-	Polyline(hDC,lpt,6);
-    }
-
-    SelectObject(hDC,GetStockObject(BLACK_BRUSH));
-    /* down */
-    p3[0].x= rc.left + ((rc.right-rc.left)/2) - 1;
-    p3[0].y= rc.bottom - 4 - shrink;
-    p3[1].x= rc.left + 2 + shrink - 1;
-    p3[1].y= rc.bottom-(rc.bottom-rc.top) + 2 + shrink;
-    p3[2].x= rc.left + ((rc.right-rc.left)-4) - shrink;
-    p3[2].y= rc.bottom-(rc.bottom-rc.top) + 2 + shrink;
-    Polygon(hDC,p3,3);
-
-    SelectObject(hDC,hPenOld);
-}
-#endif
-
 #if 0	/* jmt: fix: no COMBOLBOX */
 extern LRESULT  DefLISTBOXProc(HWND, UINT, WPARAM, LPARAM);
 extern LRESULT  ListboxCtrlProc(HWND, UINT, WPARAM, LPARAM);
@@ -204,62 +147,6 @@ static HWND TWIN_ConvertToSysScroll(HWND hwnd, BOOL status, LPPOINT pp)
 	return NULL;
 }
 #endif
-extern HWND listwp;
-static HWND WindowFromPoint(POINT pt)
-{
-	HWND wp,wp1;
-	int dx,dy,dx1,dy1;
-#if 0
-	return NULL;	/* fix!! */
-#else
-	wp1=NULL;
-	switch(sizeof(dx))
-	{
-	case 4:
-		dx=0x7fffffff;
-		dy=0x7fffffff;
-		break;
-	case 2:
-		dx=0x7fff;
-		dy=0x7fff;
-		break;
-	}
-	for(wp=listwp; wp; wp=wp->next) 
-	{
-		if (wp->winrect.left <= pt.x && pt.x <= wp->winrect.right)
-		{
-			dx1=(wp->winrect.right-pt.x);
-			if (dx1<dx)
-			{
-				wp1=wp;
-				dx=dx1;	
-			}
-			dx1=(pt.x-wp->winrect.left);
-			if (dx1<dx)
-			{
-				wp1=wp;
-				dx=dx1;	
-			}
-		}
-		if (wp->winrect.top <= pt.y && pt.y <= wp->winrect.bottom)
-		{
-			dy1=(wp->winrect.bottom-pt.y);
-			if (dy1<dy)
-			{
-				wp1=wp;
-				dy=dy1;	
-			}
-			dy1=(pt.y-wp->winrect.top);
-			if (dy1<dy)
-			{
-				wp1=wp;
-				dy=dy1;	
-			}
-		}
-	}
-#endif
-	return wp1;
-}
 
 /* internal stuff */
 static void CBoxDrawButton(HWND,UINT,COMBOBOX *);
@@ -482,6 +369,13 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         lp->hWndParent = lpcs->hwndParent;
         lp->nID  = (UINT)lpcs->hMenu;
 
+        dwStyle = GetWindowLong(hWnd, GWL_STYLE);
+        dwStyle &= ~(WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_DLGFRAME | WS_THICKFRAME);
+        SetWindowLong(hWnd, GWL_STYLE, dwStyle);
+        SetWindowLong( hWnd, GWL_EXSTYLE,
+                        GetWindowLong( hWnd, GWL_EXSTYLE ) & ~WS_EX_CLIENTEDGE );
+
+
 #if 0	/* jmt: fix: no ownerdraw */
         /* calc the height of the edit/static control */
         if (0)	/* (BOWNERDRAW(lp)) */
@@ -514,10 +408,10 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if ((lp->wStyle & 0x0F) != CBS_SIMPLE)
            {
-           lp->ButtonRect.top    = 0;
+           lp->ButtonRect.top    = + GetSystemMetrics(SM_CYBORDER)*2;
            lp->ButtonRect.left   = lpcs->cx - 1 - GetSystemMetrics(SM_CXVSCROLL);
            lp->ButtonRect.right  = lpcs->cx;
-           lp->ButtonRect.bottom = wEditHeight;
+           lp->ButtonRect.bottom = wEditHeight - GetSystemMetrics(SM_CYBORDER)*2;
            /* for CBS_DROPDOWN/DROPDOWNLIST resize the window  */
            SetWindowPos(hWnd, 0,
                         lpcs->x, lpcs->y, lpcs->cx, (int)wEditHeight,
@@ -541,7 +435,9 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
            else /* ?if ((lp->wStyle & 0xf) == CBS_DROPDOWN) */
 	   {
 		fprintf(stderr," 533: wEditWidth = lp->ButtonRect.left - 5=%d;\n",lp->ButtonRect.left - 5);
-                wEditWidth = lp->ButtonRect.left - 5;
+                wEditWidth = lp->ButtonRect.left - 4;
+                wEditHeight -= 4;
+                dwStyle &= ~WS_BORDER;
 	   }
            /* create edit control */
            lp->EditControl = CreateWindow("EDIT", NULL, dwStyle,
@@ -649,9 +545,6 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         **   Finally turn off border drawing and WM_?SCROLL styles to prevent creation
         **   of system scrollbars.
         */ 
-        dwStyle = GetWindowLong(hWnd, GWL_STYLE);
-        dwStyle &= ~(WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_DLGFRAME | WS_THICKFRAME);
-        SetWindowLong(hWnd, GWL_STYLE, dwStyle);
         lp->nListItems = 0;
         return TRUE;
 
@@ -945,7 +838,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 1L;
 
     case WM_PAINT:
-        BeginPaint(hWnd,&ps);
+        hDC = BeginPaint(hWnd,&ps);
         EndPaint(hWnd,&ps);
 
         if (!IsWindowVisible(hWnd) || !lp->bRedraw)
@@ -958,7 +851,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
            CBoxDrawEdit(lp, hWnd, uiKey);
         else CBoxDrawStatic(lp, hWnd, uiKey);
         return 0L;
-        
+
     case WM_COMMAND:
         if (GET_WM_COMMAND_ID(wParam,lParam) == CBC_EDITID) {
             /* edit/static control notifications */
@@ -1140,14 +1033,19 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             if (lp->EditControl) 
                {
+            	WORD wEditTop = 0, wEditLeft = 0, wEditHeight = lp->uHeight;
                wEditWidth = lp->ButtonRect.left + 1;
                if ((lp->wStyle & 0xf) == CBS_SIMPLE)
                   wEditWidth --;
-               if ((lp->wStyle & 0xf) == CBS_DROPDOWN)
-                  wEditWidth -= 5;
+               if ((lp->wStyle & 0xf) == CBS_DROPDOWN) {
+                  wEditWidth -= 3;
+                  wEditTop = 2;
+                  wEditLeft = 2;
+                  wEditHeight -= 4;
+               }
                SetWindowPos(lp->EditControl,(HWND)0,
-                            0,0,
-                            wEditWidth, lp->uHeight,
+                            wEditTop,wEditLeft,
+                            wEditWidth, wEditHeight,
                             SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOZORDER);
                }
             if (lp->ListBoxControl) 
@@ -1450,7 +1348,9 @@ CBoxDrawButton(HWND hWnd,UINT wState,COMBOBOX *lp)
 {
     HDC       hDC;
     int     x,y;
-    int     dx,dy;
+    int     dx,dy,cx,cy;
+    POINT	p3[3];
+    int		shrink = 1;
 #if 0	/* jmt: fix: no LoadBitmap() */
     int     cx,cy;
     static int nWidth,nHeight;
@@ -1466,35 +1366,31 @@ CBoxDrawButton(HWND hWnd,UINT wState,COMBOBOX *lp)
 
     hDC = GetDC(hWnd);
 
+    GetClientRect (hWnd, &rc);
+	Draw3dInset(hDC, rc.left, rc.top,
+			lp->ButtonRect.right - rc.left + 2, rc.bottom - rc.top);
+
     CopyRect(&rc,&lp->ButtonRect);
     x = rc.left;
     y = rc.top;
     dx = rc.right;
     dy = rc.bottom;
+    cx = dx-x;
+    cy = dy-y;
 
-    hPenHigh = GetStockObject(WHITE_PEN);
-#if 0
-    hPenShadow = GetSysColorPen(COLOR_BTNSHADOW);
-#else
-    hPenShadow = CreatePen(PS_SOLID,1,GetSysColor(COLOR_BTNSHADOW));
-#endif
-#if 0
-    hBrush = GetSysColorBrush(COLOR_BTNFACE);
-#else
-    hBrush = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
-#endif
-    FillRect(hDC, &rc, hBrush);
-#if 0
-    hBrush = GetStockObject(BLACK_BRUSH);
-    FillRect/*FrameRect*/(hDC, &lp->ButtonRect, hBrush);
-#else
-    SelectObject(hDC,GetStockObject(BLACK_PEN));
-    Rectangle(hDC,lp->ButtonRect.left,lp->ButtonRect.top,lp->ButtonRect.right,lp->ButtonRect.bottom);
-#endif
-    rc.left += 1; rc.right -= 1;
-    rc.top += 1; rc.bottom -= 1;
-
-    Draw3DButtonRect(hDC,hPenHigh,hPenShadow,rc,wState);
+    /* Button */
+    FillRect (hDC, &rc, (HBRUSH)(COLOR_BTNFACE+1));
+    Draw3dUpDownState(hDC, rc.left,rc.top,
+            cx, cy, wState);
+    SelectObject(hDC,GetStockObject(BLACK_BRUSH));
+    /* down */
+    p3[0].x= rc.left + (cx/2) - 1;
+    p3[0].y= rc.bottom - (cy/2) + 1;
+    p3[1].x= p3[0].x - 2 - shrink;
+    p3[1].y= p3[0].y - 2 - shrink;
+    p3[2].x= p3[0].x + 2 + shrink;
+    p3[2].y= p3[1].y;
+    Polygon(hDC,p3,3);
 
 #if 0	/* jmt: fix: no LoadBitmap(),GetObject() */
     if (hbmpCombo == 0) 
@@ -1527,10 +1423,6 @@ CBoxDrawButton(HWND hWnd,UINT wState,COMBOBOX *lp)
    SelectObject(hdcSrc,hbmpOld);
    DeleteDC(hdcSrc);
 #endif	/* BitBlt Bitmap */
-#if 1
-   DeleteObject(hBrush);
-   DeleteObject(hPenShadow);
-#endif
    ReleaseDC(hWnd,hDC);
 
     if (wState)
@@ -1691,7 +1583,7 @@ static void CBoxDrawStatic(COMBOBOX *lp, HWND hWnd, UINT uiKey)
     
     /*   Draw rectangle regardless of ownerdraw style...
     */           
-    hdc = GetDC(hWnd);         
+    hdc = GetDC(hWnd);
     rcClient.left   = 0;
     rcClient.top    = 0;
     rcClient.right  = lp->ButtonRect.left+1;

@@ -1,3 +1,14 @@
+23 May 2010 - Ludwig Ertl
+	scrollbar various fixes, SB_THUMBTRACK
+	listbox fixes w/scrollbars, WM_CTLCOLORLISTBOX
+	added newlistbox.c from ReactOS (GPL only, not used by default)
+	replace Draw3dButtonRect with Draw3dUpDownState
+	rewrite DrawTextOut/mwDrawText heavily, internal prefix/& support
+		add #if OLD_DRAWTEXT for old drawtext code
+		no need for mwCheckUnderlineChar special drawing, button.c modified
+	add GetTextColor, Muldiv, WindowFromPoint, WM_SETREDRAW
+	add WM_COMPAREITEM, WM_DELETEITEM, COMPAREITEMSTRUCT etc handling
+	remove GetDlgBaseUnits (replaced by GetDialogBaseUnits)
 21 May 2010
 	* fixed applyOp4 off-by-one bug (affects XOR+ blits), applyOp2/3 (fblin16 v/h draw)
 	* started 64 bit compatibility, requires <stdint.h> (uint32_t and int32_t)
@@ -13,6 +24,7 @@
 		CreateDialogIndirectParam, DialogBoxIndirectParam, GetDialogBaseUnits,
 		DS_CENTER calc
 	* added MessageBox, MessageBoxEx, MessageBoxIndirect, MessageBoxTimeout
+		from ReactOS (GPL only)
 	* ShowWindow always shows window except on SW_HIDE
 	* pressing RETURN or VK_MBUTTON now pushes button w/focus
 	* map VK_MBUTTON to MWKEY_ACCEPT

@@ -134,7 +134,6 @@ typedef CONST DLGTEMPLATE *LPCDLGTEMPLATE;
 
 BOOL WINAPI MwInitializeDialogs ( HINSTANCE hInstance );
 
-LONG WINAPI GetDlgBaseUnits ( void );
 BOOL WINAPI MapDialogRect ( HWND hWnd, LPRECT lpRc );
 
 

@@ -49,7 +49,6 @@ void		MwPaintNCArea(HWND hwnd);
 HWND		MwPrepareDC(HDC hdc);
 void		MwSetClipWindow(HDC hdc);
 void		MwSetTextCoding(long mode);
-BOOL		MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine);
 
 /* winsbar.c*/
 void		MwAdjustNCScrollbars(HWND hwnd);

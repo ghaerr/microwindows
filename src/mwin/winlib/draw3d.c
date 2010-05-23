@@ -124,7 +124,6 @@ void WINAPI
 Draw3dUpFrame(HDC hDC, int l, int t, int r, int b)
 {
 	RECT	rc;
-	HBRUSH	hbr;
 
 	SetRect(&rc, l, t, r, b);
 	Draw3dBox(hDC, rc.left, rc.top,
@@ -138,7 +137,5 @@ Draw3dUpFrame(HDC hDC, int l, int t, int r, int b)
 		GetSysColor(COLOR_BTNSHADOW));
 	InflateRect(&rc, -1, -1);
 
-	hbr = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
-	FillRect(hDC, &rc, hbr);
-	DeleteObject(hbr);
+	FillRect(hDC, &rc, (COLOR_BTNFACE+1));
 }

@@ -582,18 +582,12 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	 * draw text
 	 */
 	if(buf[ 0]) {
-		RECT ulinePos;
-		BOOL bUline;
 		hNewFont = GET_WND_FONT ( hwnd );
 		hOldFont = SelectObject( hdc, hNewFont);
 
-		/* Check for underlined char */
-		bUline = MwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
-
 		/* calculate text bounding rect*/
-		rect.left = 0;
-		rect.top = 0;
-		DrawText( hdc, buf, txtlen, &rect, DT_CALCRECT | DT_LEFT |
+		rect.top = rect.left = rect.bottom = rect.right = 0;
+		DrawText( hdc, buf, -1, &rect, DT_CALCRECT | DT_LEFT |
 			DT_SINGLELINE | DT_TOP);
 		rectSave = rect;
 
@@ -661,13 +655,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 				GetSysColor( COLOR_BTNTEXT));
 
 		SET_PBTXTRECT ( hwnd, rect );
-		OffsetRect ( &ulinePos, rect.left, rect.top );
-		DrawText( hdc, buf, txtlen, &rect,DT_LEFT | DT_SINGLELINE | DT_TOP);
-		if( bUline ) {
-			SelectObject ( hdc, GetStockObject(BLACK_PEN) );
-			MoveToEx ( hdc, ulinePos.left, ulinePos.bottom, NULL );
-			LineTo ( hdc, ulinePos.right, ulinePos.bottom );
-		}
+		DrawText( hdc, buf, -1, &rect,DT_LEFT | DT_SINGLELINE | DT_TOP);
 
 		if( (GetFocus() == hwnd) )
 			DrawFocusRect ( hdc, &rect );
@@ -865,7 +853,7 @@ LPARAM	lParam)
 	case WM_GETDLGCODE:
 		return cenButton_OnGetDlgCode ( hwnd, (LPMSG)lParam );
 
-	case WM_KEYDOWN:	// FIXME could cause multiple messages on ' '
+	case WM_KEYDOWN:
 	case WM_CHAR:
 	    if( (char)wParam == ' ' || wParam == VK_RETURN || wParam == VK_MBUTTON)
 			{
@@ -874,8 +862,9 @@ LPARAM	lParam)
 			SendMessage ( hwnd, WM_LBUTTONUP, -1, -1 );
 			UpdateWindow ( hwnd );
 			}
-	    else
+	    else if (message == WM_CHAR)
 			return SendMessage ( GetParent(hwnd), message, wParam, lParam );
+		break;
 
 	case BM_GETCHECK:
 #if 0
@@ -1029,19 +1018,10 @@ DrawGroupBox(HWND hwnd,HDC hDCwParam,DWORD dwStyle)
 	FastFillRect(hdc, &rcClient, GetSysColor(COLOR_BTNFACE));
 
 	if(buf[ 0]) {
-		RECT ulinePos;
-		BOOL bUline = MwCheckUnderlineChar ( hdc, buf, &txtlen, &ulinePos );
-
 		SetTextColor(hdc,GetSysColor(COLOR_WINDOWTEXT));
 		SetBkMode(hdc,TRANSPARENT);
 		SetRect(&rcText,8,2,rc.right+8,rc.bottom+2);
-		OffsetRect ( &ulinePos, rcText.left, rcText.top );
-		DrawText(hdc,buf,txtlen,&rcText,DT_CENTER|DT_VCENTER);
-		if( bUline ) {
-			SelectObject ( hdc, GetStockObject(BLACK_PEN) );
-			MoveToEx ( hdc, ulinePos.left, ulinePos.bottom, NULL );
-			LineTo ( hdc, ulinePos.right, ulinePos.bottom );
-		}
+		DrawText(hdc,buf,-1,&rcText,DT_CENTER|DT_VCENTER);
 	}
 
 	crTop=GetSysColor(COLOR_BTNHIGHLIGHT);

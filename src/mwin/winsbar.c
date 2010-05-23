@@ -65,26 +65,11 @@ MwAdjustNCScrollbars(HWND hwnd)
 		SetRectEmpty(&hwnd->hscroll.rc);
 }
 
-static int
-wndGetBorder(HWND hwnd)
-{
-	if (hwnd->style & WS_BORDER)  {
-		if ((hwnd->style & WS_CAPTION) == WS_CAPTION)
-			return mwSYSMETRICS_CXFRAME;
-		return mwSYSMETRICS_CXBORDER;
-	}
-	return 0;
-}
-
 static BOOL
 wndGetVScrollBarRect (HWND hwnd, RECT* rcVBar)
 {
     if (hwnd->style & WS_VSCROLL) {
-        rcVBar->left = hwnd->winrect.right - mwSYSMETRICS_CXVSCROLL
-                        - wndGetBorder (hwnd);
-        rcVBar->right = hwnd->winrect.right - wndGetBorder (hwnd);
-        rcVBar->top  = hwnd->clirect.top;
-        rcVBar->bottom = hwnd->winrect.bottom - wndGetBorder (hwnd);
+    	*rcVBar = hwnd->vscroll.rc;
 
         if (hwnd->style & WS_HSCROLL && !(hwnd->hscroll.status & SBS_HIDE))
             rcVBar->bottom -= mwSYSMETRICS_CYHSCROLL;
@@ -99,11 +84,7 @@ static BOOL
 wndGetHScrollBarRect (HWND hwnd, RECT* rcHBar)
 {
     if (hwnd->style & WS_HSCROLL) {
-        rcHBar->top = hwnd->winrect.bottom - mwSYSMETRICS_CYHSCROLL
-                        - wndGetBorder (hwnd);
-        rcHBar->bottom = hwnd->winrect.bottom - wndGetBorder (hwnd);
-        rcHBar->left  = hwnd->clirect.left;
-        rcHBar->right = hwnd->winrect.right - wndGetBorder (hwnd);
+    	*rcHBar = hwnd->hscroll.rc;
 
         if (hwnd->style & WS_VSCROLL && !(hwnd->vscroll.status & SBS_HIDE))
             rcHBar->right -= mwSYSMETRICS_CXVSCROLL;
@@ -183,8 +164,6 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
         	/* draw moving bar */
 
     		wndGetVScrollBarRect (hwnd, &rcVBar);
-    		rcVBar.left -- ;
-    		rcVBar.right -- ;
 
         	start = rcVBar.top + mwSYSMETRICS_CYVSCROLL + hwnd->vscroll.barStart;
                     
@@ -256,8 +235,6 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
         	/* draw moving bar. */
 
     		wndGetHScrollBarRect (hwnd, &rcHBar);
-    		rcHBar.top -- ;
-    		rcHBar.bottom -- ;
 
         	start = rcHBar.left + mwSYSMETRICS_CXHSCROLL + hwnd->hscroll.barStart;
 
@@ -306,7 +283,6 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 
     	static int downPos = SBS_UNKNOWN;
     	static int sbCode;
-    	int newThumbPos;
 
 	int itemMoveable,itemCount,itemVisible,moveRange;	/* jmt:2k0819 */
 	int moveTop,moveBottom,moveLeft,moveRight;	/* jmt:2k0819 */
@@ -367,20 +343,33 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 	if (bDraw)
 		MwPaintNCScrollbars(hwnd, NULL);
 
-        if (pos == SBS_UPARROW || pos == SBS_LEFTARROW)		/* jmt:2k0820 */
+	switch (pos)
 	{
-                if (hwnd->vscroll.curPos != hwnd->vscroll.minPos)
+	case SBS_UPARROW:
+		if (hwnd->vscroll.curPos != hwnd->vscroll.minPos)
 			sbCode = SB_LINEUP;
-        }
-        else if (pos == SBS_DOWNARROW || pos == SBS_RIGHTARROW)		/* jmt:2k0820 */
-	{
-                if (hwnd->vscroll.curPos != hwnd->vscroll.maxPos)
+		else return;
+		break;
+	case SBS_LEFTARROW:
+		if (hwnd->hscroll.curPos != hwnd->hscroll.minPos)
+			sbCode = SB_LINELEFT;
+		else return;
+		break;
+	case SBS_DOWNARROW:
+		if (hwnd->vscroll.curPos != hwnd->vscroll.maxPos)
 			sbCode = SB_LINEDOWN;
-        }
-        else if (pos == SBS_VERTTHUMB || pos == SBS_HORZTHUMB)
-	{
-                sbCode = SB_THUMBTRACK;
-        }
+		else return;
+		break;
+	case SBS_RIGHTARROW:
+		if (hwnd->hscroll.curPos != hwnd->hscroll.maxPos)
+			sbCode = SB_LINERIGHT;
+		else return;
+		break;
+	case SBS_VERTTHUMB:
+	case SBS_HORZTHUMB:
+		sbCode = SB_THUMBTRACK;
+		break;
+	}
 
 	switch(msg)
 	{
@@ -408,14 +397,14 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemVisible = hwnd->vscroll.pageStep;
 			itemMoveable = itemCount - itemVisible + 1;
 
-			newThumbPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
+			hwnd->vscroll.trackPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveTop,itemMoveable,moveRange,newThumbPos);
+				pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
 
-                	if ( newThumbPos >= hwnd->vscroll.minPos &&
-                    	     newThumbPos <= hwnd->vscroll.maxPos)
+                	if ( hwnd->vscroll.trackPos >= hwnd->vscroll.minPos &&
+                			hwnd->vscroll.trackPos <= hwnd->vscroll.maxPos)
                     		SendMessage (hwnd,
-                        		WM_VSCROLL, SB_THUMBTRACK, newThumbPos);
+                        		WM_VSCROLL, MAKEWPARAM(SB_THUMBTRACK, hwnd->vscroll.trackPos), 0);
                 	break;
             	}
 	    }
@@ -435,14 +424,14 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemVisible = hwnd->hscroll.pageStep;
 			itemMoveable = itemCount - itemVisible + 1;
 
-			newThumbPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
+			hwnd->hscroll.trackPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveLeft,itemMoveable,moveRange,newThumbPos);
+				pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
     
-			if ( newThumbPos >= hwnd->hscroll.minPos &&
-			     newThumbPos <= hwnd->hscroll.maxPos)
+			if ( hwnd->hscroll.trackPos >= hwnd->hscroll.minPos &&
+					hwnd->hscroll.trackPos <= hwnd->hscroll.maxPos)
 			    	SendMessage (hwnd,
-					WM_HSCROLL, SB_THUMBTRACK, newThumbPos);
+					WM_HSCROLL, MAKEWPARAM (SB_THUMBTRACK, hwnd->hscroll.trackPos), 0);
 			break;
 		}
              }
@@ -468,14 +457,14 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemVisible = hwnd->vscroll.pageStep;
 			itemMoveable = itemCount - itemVisible + 1;
 
-			newThumbPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
+			hwnd->vscroll.trackPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveTop,itemMoveable,moveRange,newThumbPos);
+				pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
 
-			if ( newThumbPos >= hwnd->vscroll.minPos &&
-			     newThumbPos <= hwnd->vscroll.maxPos)
+			if ( hwnd->vscroll.trackPos >= hwnd->vscroll.minPos &&
+				 hwnd->vscroll.trackPos <= hwnd->vscroll.maxPos)
 				SendMessage (hwnd,
-					WM_VSCROLL, SB_THUMBTRACK, newThumbPos);
+					WM_VSCROLL, MAKEWPARAM (SB_THUMBTRACK, hwnd->vscroll.trackPos), 0);
 			break;
 		    }
 
@@ -492,14 +481,14 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemVisible = hwnd->hscroll.pageStep;
 			itemMoveable = itemCount - itemVisible + 1;
 
-			newThumbPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
+			hwnd->hscroll.trackPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
 			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveLeft,itemMoveable,moveRange,newThumbPos);
+				pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
     
-			if ( newThumbPos >= hwnd->hscroll.minPos &&
-			     newThumbPos <= hwnd->hscroll.maxPos)
+			if ( hwnd->hscroll.trackPos >= hwnd->hscroll.minPos &&
+					hwnd->hscroll.trackPos <= hwnd->hscroll.maxPos)
 				SendMessage (hwnd,
-					WM_HSCROLL, SB_THUMBTRACK, newThumbPos);
+					WM_HSCROLL, MAKEWPARAM (SB_THUMBTRACK, hwnd->hscroll.trackPos), 0);
 			break;
 		    }
 	     }
@@ -619,14 +608,10 @@ BOOL  EnableScrollBar (HWND hWnd, int iSBar, BOOL bEnable)
     if (iSBar == SB_VERT)
     {
         wndGetVScrollBarRect (pWin, &rcBar);
-        rcBar.left --;
-        rcBar.right --;
     }
     else
     {
         wndGetHScrollBarRect (pWin, &rcBar);
-        rcBar.top  --;
-        rcBar.bottom --;
     }
 #if 0
     SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
@@ -693,14 +678,10 @@ BOOL  SetScrollPos (HWND hWnd, int iSBar, int iNewPos)
     if (iSBar == SB_VERT)
     {
         wndGetVScrollBarRect (pWin, &rcBar);
-        rcBar.left --;
-        rcBar.right --;
     }
     else
     {
         wndGetHScrollBarRect (pWin, &rcBar);
-        rcBar.top  --;
-        rcBar.bottom --;
     }
 
     wndScrollBarPos (pWin, iSBar == SB_HORZ, &rcBar);
@@ -747,14 +728,10 @@ BOOL  SetScrollRange (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)
     if (iSBar == SB_VERT)
     {
         wndGetVScrollBarRect (pWin, &rcBar);
-    	rcBar.left --;
-      	rcBar.right --;
     }
     else
     {
         wndGetHScrollBarRect (pWin, &rcBar);
-    	rcBar.top  --;
-    	rcBar.bottom --;
     }
     wndScrollBarPos (pWin, iSBar == SB_HORZ, &rcBar);
 
@@ -813,14 +790,10 @@ BOOL  SetScrollInfo (HWND hWnd, int iSBar,
         if (iSBar == SB_VERT)
 	{
             wndGetVScrollBarRect (pWin, &rcBar);
-            rcBar.left --;
-            rcBar.right --;
 	}
         else
 	{
             wndGetHScrollBarRect (pWin, &rcBar);
-            rcBar.top --;
-            rcBar.bottom --;
 	}
         wndScrollBarPos (pWin, iSBar == SB_HORZ, &rcBar);
 
@@ -858,6 +831,9 @@ BOOL  GetScrollInfo(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)
     if( lpsi->fMask & SIF_PAGE )
         lpsi->nPage = pSBar->pageStep;
     
+    if( lpsi->fMask & SIF_TRACKPOS )
+    	lpsi->nTrackPos = pSBar->trackPos;
+
     return TRUE;
 }
 

@@ -77,6 +77,7 @@ typedef struct tagMSG {
 #define WM_SETFOCUS                     0x0007
 #define WM_KILLFOCUS                    0x0008
 #define WM_ENABLE                       0x000A
+#define WM_SETREDRAW					0x000B
 #define WM_SETTEXT                      0x000C
 #define WM_GETTEXT                      0x000D
 #define WM_GETTEXTLENGTH                0x000E
@@ -89,8 +90,12 @@ typedef struct tagMSG {
 #define WM_NEXTDLGCTL                   0x0028
 #define WM_DRAWITEM                     0x002B
 #define WM_MEASUREITEM                  0x002C
+#define WM_DELETEITEM 					0x002D
+#define WM_VKEYTOITEM					0x002E
+#define WM_CHARTOITEM					0x002F
 #define WM_SETFONT          		0x0030
 #define WM_GETFONT      		0x0031
+#define WM_COMPAREITEM					0x0039
 #define WM_WINDOWPOSCHANGED             0x0047
 #define WM_NCCALCSIZE                   0x0083
 #define WM_NCHITTEST                    0x0084
@@ -253,6 +258,25 @@ typedef struct tagCREATESTRUCT {
     LPVOID      lpCreateParams;
 } CREATESTRUCT, *LPCREATESTRUCT;
 
+typedef struct tagCOMPAREITEMSTRUCT {
+	UINT	CtlType;
+	UINT	CtlID;
+	HWND	hwndItem;
+	UINT	itemID1;
+	DWORD	itemData1;
+	UINT	itemID2;
+	DWORD	itemData2;
+	DWORD	dwLocaleId;
+} COMPAREITEMSTRUCT,*LPCOMPAREITEMSTRUCT;
+
+typedef struct tagDELETEITEMSTRUCT {
+	UINT CtlType;
+	UINT CtlID;
+	UINT itemID;
+	HWND hwndItem;
+	UINT itemData;
+} DELETEITEMSTRUCT,*PDELETEITEMSTRUCT,*LPDELETEITEMSTRUCT;
+
 /*
  * Window Styles
  */
@@ -277,7 +301,6 @@ typedef struct tagCREATESTRUCT {
 
 #define WS_MINIMIZEBOX      0x00020000L
 #define WS_MAXIMIZEBOX      0x00010000L
-
 
 #define WS_TILED            WS_OVERLAPPED
 #define WS_ICONIC           WS_MINIMIZE
@@ -517,6 +540,7 @@ BOOL WINAPI	ReleaseCapture(VOID);
 HWND GetWindow(HWND hWnd,  UINT uCmd);
 HWND GetMenu (HWND hWnd);
 HWND GetForegroundWindow(VOID);
+HWND WindowFromPoint(POINT pt);
 
 /*
  * WM_NCCALCSIZE parameter structure
@@ -671,7 +695,7 @@ typedef MSGBOXPARAMSA MSGBOXPARAMS;
 int WINAPI MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
 		UINT uType, WORD wLanguageId, DWORD dwTime);
 int MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType,
-		WORD wLanguageId);
+  WORD wLanguageId);
 int MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);
 int MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
 

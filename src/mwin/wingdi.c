@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define OLD_DRAWTEXT	0	/* use old mwDrawText routine, deprecated*/
+
 #define MAXSYSCOLORS	29	/* # of COLOR_* system colors*/
 #define MAXSTOCKOBJECTS	18	/* # of stock objects*/
 
@@ -40,8 +42,10 @@ static MWBITMAPOBJ default_bitmap = {
 static BOOL MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions,
 		CONST RECT *lprc, LPCVOID lpszString, UINT cbCount,
 		CONST INT *lpDx, int flags);
-static int  MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect,
-		UINT uFormat, int flags);
+static int MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
+	int flags);
+static LONG mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
+	int ntabs, LPINT lpTabStops, int nTabOrigin, BOOL noDraw, int flags);
 
 HDC WINAPI
 GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
@@ -290,6 +294,14 @@ SetTextColor(HDC hdc, COLORREF crColor)
 	oldtextcolor = hdc->textcolor;
 	hdc->textcolor = (MWCOLORVAL)crColor;
 	return oldtextcolor;
+}
+
+COLORREF WINAPI
+GetTextColor(HDC hdc)
+{
+	if (!hdc)
+		return CLR_INVALID;
+	return hdc->textcolor;
 }
 
 COLORREF WINAPI
@@ -910,6 +922,45 @@ DrawTextW(HDC hdc, LPCWSTR lpString, int nCount, LPRECT lpRect, UINT uFormat)
 	return MwDrawText(hdc, lpString, nCount, lpRect, uFormat, MWTF_UC16);
 }
 
+#if OLD_DRAWTEXT
+/*
+ *  Check in text for the '&' chr, remove it from text and sets rect for pos
+ */
+static LPCSTR
+MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine)
+{
+	int i;
+	int txtlen;
+
+	if (pLen)
+		txtlen = *pLen;
+	else
+		txtlen = strlen(text);
+
+	for (i = 0; i < txtlen; i++) {
+		if ((text[i] == '&') && (i + 1 < txtlen)
+		    && (text[i + 1] != '&')) {
+			SIZE sz;
+			TEXTMETRIC tm;
+
+			GetTextMetrics(hdc, &tm);
+			GetTextExtentPoint(hdc, text, i, &sz);
+			rcLine->left = sz.cx;
+			rcLine->top = 0;
+			rcLine->bottom = tm.tmAscent + 1;
+			GetTextExtentPoint(hdc, text + i + 1, 1, &sz);
+			rcLine->right = rcLine->left + sz.cx;
+			text = strdup(text);
+			memmove(text + i, text + i + 1, txtlen - i);
+			txtlen--;
+			if (pLen)
+				*pLen = txtlen;
+			return text;
+		}
+	}
+	return FALSE;
+}
+
 /* note: many DT_x aren't implemented in this function*/
 /* internal version of DrawText, passed flags for text data type*/
 static int
@@ -917,13 +968,18 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 	int flags)
 {
 	MWCOORD	x, y, width, height, baseline;
+	LPCSTR lpStrDup = NULL;
+	RECT rcUline;
+
+	if(!hdc)
+		return 0;
 
 	if(nCount == -1)
 		nCount = strlen(lpString);
 
+	if (!(uFormat & DT_NOPREFIX) && (lpStrDup = MwCheckUnderlineChar(hdc, lpString, &nCount, &rcUline)))
+		lpString = lpStrDup;
 	if(uFormat & (DT_CALCRECT|DT_CENTER|DT_RIGHT)) {
-		if(!hdc)
-			return 0;
 		GdGetTextSize(hdc->font->pfont, lpString, nCount,
 			&width, &height, &baseline, flags);
 	}
@@ -967,6 +1023,8 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 #endif
 		lpRect->right = x + width;
 		lpRect->bottom = y + height;
+		if (lpStrDup)
+			free(lpStrDup);
 		return height;
 	}
 
@@ -976,7 +1034,7 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 		x = lpRect->right - width;
 	
 	if(uFormat & DT_VCENTER)
-	    y = lpRect->bottom / 2;
+	    y = lpRect->bottom / 2 - (height / 2);
 	
 	if(uFormat & DT_BOTTOM) {
 	    flags |= MWTF_BOTTOM;
@@ -985,8 +1043,257 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 	
 	/* draw text at DT_TOP using current fg, bg and bkmode*/
 	MwExtTextOut(hdc, x, y, 0, NULL, lpString, nCount, NULL, flags);
+	if (lpStrDup) {
+		OffsetRect(&rcUline, x, y);
+		SelectObject(hdc, GetStockObject(BLACK_PEN));
+		MoveToEx(hdc, rcUline.left, rcUline.bottom,
+			 NULL);
+		LineTo(hdc, rcUline.right, rcUline.bottom);
+		free(lpStrDup);
+	}
 	return height;
 }
+#else
+/*
+ * MwDrawText Support routine: given a position, a string and length,
+ *	process underline, ampersands and tabs, and output
+ *	using mwExtTextOut ormwTabbedTextOut
+ */
+static void
+mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags)
+{
+	int i, j, k, dx, dy, x1;
+	MWCOORD baseline;
+
+	for (i = 0, j = 0, k = 0, x1 = 0; i < len; i++) {
+		if (str[i] == '&') {
+			if (i) {
+				if (uFormat & DT_EXPANDTABS) {
+					mwTabbedTextOut(hDC, x, y, &str[j], i, 0, 0, x, FALSE, flags);
+					x += LOWORD(mwTabbedTextOut(hDC, x, y, &str[j], i, 0, 0, 0, TRUE, flags));
+				} else {
+					MwExtTextOut(hDC, x, y, 0, NULL, &str[j], i - j, NULL, flags);
+					GdGetTextSize(hDC->font->pfont, &str[j], i - j, &dx, &dy, &baseline, flags);
+					x += dx;
+				}
+			}
+			if (str[i + 1] == '&') {
+				TextOut(hDC, x, y, "&", 1);
+				GdGetTextSize(hDC->font->pfont, "&", 1, &dx, &dy, &baseline, flags);
+				x += dx;
+				i++;
+			} else {
+				x1 = x;
+				k = i + 1;
+			}
+			j = i + 1;
+		}
+	}
+
+	if (i > j) {
+		if (uFormat & DT_EXPANDTABS)
+			mwTabbedTextOut(hDC, x, y, &str[j], i - j, 0, 0, x, FALSE, flags);
+		else
+			MwExtTextOut(hDC, x, y, 0, NULL, &str[j], i - j, NULL, flags);
+		if (k && str[k] != ' ') {
+			GdGetTextSize(hDC->font->pfont, &str[k], 1, &dx, &dy, &baseline, flags);
+			dy -= dy / 18 + 1;	/* underline position */
+			MoveToEx(hDC, x1, y + dy, NULL);
+			LineTo(hDC, x1 + dx, y + dy);
+		}
+	}
+}
+
+/*
+ * Complex text output, supports:
+ *	DT_BOTTOM, DT_CALCRECT, DT_CENTER, DT_EXTERNALLEADING,
+ *	DT_LEFT, DT_RIGHT, DT_SINGLELINE, DT_TOP (default), DT_VCENTER,
+ *	DT_WORDBREAK, DT_NOCLIP (default), DT_NOPREFIX, DT_EXPANDTABS
+ */
+static int WINAPI
+MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
+{
+	LPSTR str = lpsz;
+	int lineheight;
+	int textwidth;
+	int x, y, baseline, baselinefnt;
+	int dx, dy;
+	int nlines = 0;
+	int tabsize = 8;
+	int rtotal = 0;
+	HPEN hPen = 0;
+	TEXTMETRIC TextMetrics;
+	int charwidth[256];
+
+	if (!lprc)
+		return 0;
+
+	if (uFormat & DT_TABSTOP) {
+		tabsize = uFormat >> 8;		/* FIXME: not used*/
+		uFormat &= 0xff;
+	}
+
+	GetCharWidth(hDC, 0, 255, charwidth);
+	GetTextMetrics(hDC, (LPTEXTMETRIC)&TextMetrics);
+	lineheight = TextMetrics.tmHeight;
+
+	if (uFormat & DT_EXTERNALLEADING)
+		lineheight += TextMetrics.tmExternalLeading;
+
+	if (uFormat & DT_CALCRECT) {
+		lprc->left = HIWORD(lprc->left) ? 0 : lprc->left;
+		lprc->right = HIWORD(lprc->right) ? 0 : lprc->right;
+		lprc->top = HIWORD(lprc->top) ? 0 : lprc->top;
+		lprc->bottom = HIWORD(lprc->bottom) ? 0 : lprc->bottom;
+	} else {
+		hPen = CreatePen(PS_SOLID, 1, GetTextColor(hDC));	/* underline text color */
+		hPen = SelectObject(hDC, hPen);
+	}
+
+	textwidth = lprc->right - lprc->left;
+	baseline = lprc->top;
+
+	if (cb == -1) 
+		cb = str? strlen(str): 0;
+
+	while (cb) {
+		int space = 0;
+		int Ampersands = 0;
+		int AmpersandPos = 0;
+		int lbreak = 0;
+		int place = 0;
+		int cnt;
+
+		rtotal = 0;
+
+		for (cnt = 0; cnt < cb; cnt += MW_CHRNBYTE(str[cnt])) {
+			switch (str[cnt]) {
+			case 0:
+				lbreak++;
+				break;
+			case ' ':
+				space++;
+				place = cnt;
+				rtotal += charwidth[(BYTE) str[cnt]];
+				break;
+			case '\t':
+				space++;
+				place = cnt;
+				break;
+			case '&':
+				if (uFormat & DT_NOPREFIX)
+					rtotal += charwidth[(BYTE) str[cnt]];
+				else {
+					if (Ampersands && AmpersandPos + 1 == cnt) {
+						rtotal += charwidth[(BYTE) str[cnt]];
+					} else {
+						AmpersandPos = cnt;
+						Ampersands = 1;
+					}
+				}
+				break;
+			case '\r':
+			case '\n':
+				lbreak++;
+				break;
+			default:
+				rtotal += charwidth[(BYTE) str[cnt]];
+				break;
+			}
+
+			if (lbreak)
+				break;
+
+			/* check width */
+			if (rtotal > textwidth) {
+				if ((uFormat & DT_CALCRECT) && (uFormat & DT_SINGLELINE)) {
+					lprc->right += (rtotal - textwidth);
+					textwidth = lprc->right - lprc->left;
+					continue;
+				}
+				if (uFormat & DT_WORDBREAK) {
+					if (space) {
+						cnt = place;
+						GdGetTextSize(hDC->font->pfont, str, cnt - 1, &dx, &dy, &baselinefnt, flags);
+						rtotal = dx;
+					}
+					cnt++;
+					break;
+				}
+			}
+		}
+
+		/* calc width */
+		dx = rtotal;
+		dy = lineheight;
+
+		if (uFormat & DT_RIGHT)
+			x = lprc->right - dx + 1;
+		else if (uFormat & DT_CENTER)
+			x = (int) (lprc->left + lprc->right - dx) / 2;
+		else
+			x = lprc->left;
+
+		/* calc height */
+		if (uFormat & DT_VCENTER) {
+			GdGetTextSize(hDC->font->pfont, str, cnt, &dx, &dy, &baselinefnt, flags);
+			y = (int) (baseline + lprc->bottom - dy) / 2;
+		} else if (uFormat & DT_BOTTOM)
+			y = lprc->bottom - dy;
+		else
+			y = baseline;
+
+		if ((uFormat & DT_CALCRECT) == 0) {
+			/* handle prefixes */
+			if (Ampersands)
+				mwDrawTextOut(hDC, x, y, str, cnt, uFormat, flags);
+			else {
+				if (uFormat & DT_EXPANDTABS) {
+					mwTabbedTextOut(hDC, x, y, str, cnt, 0, 0, x, FALSE, flags);
+				} else {
+					if (uFormat & DT_NOCLIP)
+						MwExtTextOut(hDC, x, y, 0, NULL, str, cnt, NULL, flags);
+					else
+						MwExtTextOut(hDC, x, y, ETO_CLIPPED, lprc, str, cnt, NULL, flags);
+				}
+			}
+		}
+
+		nlines++;
+		baseline += lineheight;
+
+		if (uFormat & DT_CALCRECT)
+			lprc->bottom = baseline;
+
+		if (uFormat & DT_SINGLELINE)
+			break;
+
+		if (lbreak) {
+			if (str[cnt] == '\r')
+				cnt++;
+			if (str[cnt] == '\n')
+				cnt++;
+		}
+
+		str += cnt;
+		cb -= cnt;
+
+		if (baseline > lprc->bottom) {
+			break;
+		}
+	}
+
+	if ((uFormat & DT_CALCRECT) && !(uFormat & DT_SINGLELINE) && nlines == 1)
+		lprc->right = rtotal;
+
+	if (hPen) {
+		hPen = SelectObject(hDC, hPen);
+		DeleteObject(hPen);
+	}
+
+	return baseline - lprc->top;
+}
+#endif /* !OLD_DRAWTEXT*/
 
 /* Microwindows only*/
 BOOL WINAPI
@@ -1611,7 +1918,7 @@ DrawFocusRect(HDC hdc, LPRECT prect)
 /* ascii or utf8 */
 static LONG
 mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
-	int ntabs, LPINT lpTabStops, int nTabOrigin, BOOL noDraw)
+	int ntabs, LPINT lpTabStops, int nTabOrigin, BOOL noDraw, int flags)
 {
 	TEXTMETRIC tm;
 	int count;
@@ -1643,7 +1950,7 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 		cbString = strlen(lpszString);
 
 	/* Duplicate text. If coding is UTF-8, generate it by checking shape/joining*/
-	if (mwTextCoding == MWTF_UTF8)
+	if (flags & MWTF_UTF8)
 		szShaped = doCharShape_UTF8(lpszString, cbString, &cbString,
 					 &attrib);
 	else
@@ -1660,7 +1967,7 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 		     continue;
 
 		GdGetTextSize(hdc->font->pfont, pstr, count, &xw, &xh, &xb,
-			      mwTextCoding);
+			      flags);
 
 		while ((ntabs > 0) && (nTabOrigin + *pTab <= (x + xw))) {
 			pTab++;
@@ -1722,7 +2029,7 @@ TabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 	int ntabs, LPINT lpTabStops, int nTabOrigin)
 {
 	return mwTabbedTextOut(hdc, x, y, lpszString, cbString, ntabs,
-			       lpTabStops, nTabOrigin, FALSE);
+			       lpTabStops, nTabOrigin, FALSE, mwTextCoding);
 }
 
 
@@ -1731,43 +2038,20 @@ GetTabbedTextExtent(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 	int ntabs, LPINT lpTabStops)
 {
 	return mwTabbedTextOut(hdc, x, y, lpszString, cbString, ntabs,
-			       lpTabStops, 0, TRUE);
+			       lpTabStops, 0, TRUE, mwTextCoding);
 }
 
-
-/*
- *  Check in text for the '&' chr, remove it from text and sets rect for pos
- */
-BOOL
-MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine)
+int WINAPI
+MulDiv(int nMultiplicand, int nMultiplier, int nDivisor)
 {
-	int i;
-	int txtlen;
-
-	if (pLen)
-		txtlen = *pLen;
-	else
-		txtlen = strlen(text);
-
-	for (i = 0; i < txtlen; i++) {
-		if ((text[i] == '&') && (i + 1 < txtlen)
-		    && (text[i + 1] != '&')) {
-			SIZE sz;
-			TEXTMETRIC tm;
-
-			GetTextMetrics(hdc, &tm);
-			GetTextExtentPoint(hdc, text, i, &sz);
-			rcLine->left = sz.cx;
-			rcLine->top = 0;
-			rcLine->bottom = tm.tmAscent + 1;
-			GetTextExtentPoint(hdc, text + i + 1, 1, &sz);
-			rcLine->right = rcLine->left + sz.cx;
-			memmove(text + i, text + i + 1, txtlen - i);
-			txtlen--;
-			if (pLen)
-				*pLen = txtlen;
-			return TRUE;
-		}
-	}
-	return FALSE;
+    int         nResult;
+    long        lMulti;
+    lMulti = nMultiplicand * nMultiplier;
+    if ( lMulti < 0 )
+        lMulti -= nDivisor >> 1;
+    else
+        lMulti += nDivisor >> 1;
+    if(nDivisor == 0) nDivisor = 1;
+    nResult = lMulti / nDivisor;
+    return nResult;
 }

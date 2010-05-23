@@ -1610,6 +1610,22 @@ HWND GetForegroundWindow(VOID)
 	return focuswp;
 }
 
+HWND WindowFromPoint(POINT pt)
+{
+	HWND wp,wp1=NULL;
+
+	for(wp=GetDesktopWindow()->children; wp; wp=wp->next)
+	{
+		if (!(wp->style & WS_VISIBLE) || (wp->style & WS_DISABLED)
+				|| (wp->style & WS_CHILD) || !PtInRect (&wp->winrect, pt))
+			continue;
+		wp1 = wp;
+		break;
+	}
+
+	return wp1;
+}
+
 UINT WINAPI
 SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout, TIMERPROC lpTimerFunc)
 {

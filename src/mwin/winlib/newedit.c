@@ -176,7 +176,7 @@ neCreate(HWND hwnd)
 
 
 	GetClientRect(hwnd, &rc);
-	nl = (rc.bottom - rc.top + charH - 1) / charH;
+	//nl = (rc.bottom - rc.top + charH - 1) / charH;
 
 	if (!(pSLEditData = malloc(sizeof(SLEDITDATA)))) {
 		EPRINTF("EDIT: malloc error!\n");

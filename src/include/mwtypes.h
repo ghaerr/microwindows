@@ -146,7 +146,7 @@
 
 /* blit ROP modes in addtion to MWROP_xxx */
 #define MWROP_BLENDCONSTANT		32	/* alpha blend src -> dst with constant alpha*/
-//#define MWROP_BLENDFGBG		33	/* alpha blend fg/bg color -> dst with src as alpha channel*/
+#define MWROP_BLENDFGBG			33	/* alpha blend fg/bg color -> dst with src alpha channel*/
 //#define MWROP_SRCTRANSCOPY	34	/* copy src -> dst except for transparent color in src*/
 //#define MWROP_BLENDCHANNEL	35	/* alpha blend src -> dst with separate per pixel alpha chan*/
 //#define MWROP_STRETCH			36	/* stretch src -> dst*/
@@ -354,8 +354,10 @@ typedef struct _mwfontinfo *	PMWFONTINFO;
 
 typedef struct {
 	MWTEXTFLAGS	encoding;	/* routines expect this encoding*/
-//	MWBOOL	(*Init)(PSD psd);
-//	PMWFONT	(*CreateFont)(const char *name, MWCOORD height, MWCOORD width, int attr);
+#if STANDALONE
+	MWBOOL	(*Init)(PSD psd);
+	PMWFONT	(*CreateFont)(const char *name, MWCOORD height, MWCOORD width, int attr);
+#endif
 	MWBOOL	(*GetFontInfo)(PMWFONT pfont, PMWFONTINFO pfontinfo);
 	void 	(*GetTextSize)(PMWFONT pfont, const void *text, int cc,
 			MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
@@ -365,12 +367,18 @@ typedef struct {
 	void	(*DestroyFont)(PMWFONT pfont);
 	void	(*DrawText)(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 			const void *str, int count, MWTEXTFLAGS flags);
-//	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height, MWCOORD width);
+#if STANDALONE
+	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height, MWCOORD width);
+#else
 	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height); // DEPRECATED
+#endif
 	void    (*SetFontRotation)(PMWFONT pfont, int tenthdegrees);
 	void    (*SetFontAttr)(PMWFONT pfont, int setflags, int clrflags);
-//	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height, MWCOORD width);
+#if STANDALONE
+	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height, MWCOORD width);
+#else
 	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height); // DEPRECATED
+#endif
 } MWFONTPROCS, *PMWFONTPROCS;
 
 /* new multi-renderer font struct*/

@@ -384,7 +384,7 @@ void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		MWPIXELVAL *pixels);
 void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		void *pixels, int pixtype);
-//void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
+void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
 void	GdDrawAreaInternal(PSD psd, driver_gc_t *gc);
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		MWCOORD inpitch, void *out, int outpixtype, int outpitch);
@@ -423,8 +423,11 @@ int	GdAddFont(char *fndry, char *family, char *fontname, PMWLOGFONT lf,
 PMWFONT	GdSetFont(PMWFONT pfont);
 PMWFONT GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		const PMWLOGFONT plogfont);
-//MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD height, MWCOORD width);
+#if STANDALONE
+MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD height, MWCOORD width);
+#else
 MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD height); // DEPRECATED
+#endif
 void GdGetFontList(MWFONTLIST ***list, int *num);
 void GdFreeFontList(MWFONTLIST ***list, int num);
 int	GdSetFontRotation(PMWFONT pfont, int tenthdegrees);

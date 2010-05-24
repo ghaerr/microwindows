@@ -1,4 +1,5 @@
 23 May 2010
+	* split engine/devdraw.c into engine/devblit.c for blit changes
 	* major driver reorganization, DrawArea parameters change
 	* remove MWROP_TO_MODE, MWMODE_TO_ROP
 	* rename MWMODE_xxx modes to MWROP_xxx, change MWROP_SETTO1 to MWROP_SET

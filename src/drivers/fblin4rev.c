@@ -52,7 +52,7 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 #endif
 	DRAWON;
-	if(gr_mode == MWMODE_XOR)
+	if(gr_mode == MWROP_XOR)
 		*addr ^= c << ((x&1)<<2);
 	else {
 		INVERT(c);
@@ -90,7 +90,7 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 #endif
 	DRAWON;
-	if(gr_mode == MWMODE_XOR) {
+	if(gr_mode == MWROP_XOR) {
 		while(x1 <= x2) {
 			*addr ^= c << ((x1&1)<<2);
 			if((++x1 & 1) == 0)
@@ -122,7 +122,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 #endif
 	DRAWON;
-	if(gr_mode == MWMODE_XOR) {
+	if(gr_mode == MWROP_XOR) {
 		while(y1++ <= y2) {
 			*addr ^= c << ((x&1)<<2);
 			addr += linelen;
@@ -140,7 +140,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 /* srccopy bitblt, opcode is currently ignored*/
 static void
 linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR8	dst;
 	ADDR8	src;
@@ -421,7 +421,7 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 static void
-linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
+linear4_drawarea(PSD psd, driver_gc_t * gc)
 {
 #if DEBUG
 	assert(psd->addr != 0);
@@ -432,7 +432,7 @@ linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
 	assert(gc->srcy >= 0);
 	/*printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 #endif
-	switch (op) {
+	switch (gc->op) {
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear4_drawarea_bitmap_bytes_msb_first(psd, gc);

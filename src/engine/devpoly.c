@@ -59,14 +59,14 @@ GdPoly(PSD psd, int count, MWPOINT *points)
   didline = FALSE;
 
   while (count-- > 1) {
-	if (didline && (gr_mode == MWMODE_XOR))
+	if (didline && (gr_mode == MWROP_XOR))
 		drawpoint(psd, points->x, points->y);
 	/* note: change to drawline*/
 	GdLine(psd, points[0].x, points[0].y, points[1].x, points[1].y, TRUE);
 	points++;
 	didline = TRUE;
   }
-  if (gr_mode == MWMODE_XOR) {
+  if (gr_mode == MWROP_XOR) {
 	  points--;
 	  if (points->x == firstx && points->y == firsty)
 		drawpoint(psd, points->x, points->y);

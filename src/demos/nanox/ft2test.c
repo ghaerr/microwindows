@@ -98,7 +98,7 @@ test_stretchblit(void)
 #if TEST_XOR_VHLINE
 	/* test XOR vertical and horizontal line draw (16bpp driver only)*/
 	gc = GrNewGC();
-	GrSetGCMode(gc, MWMODE_XOR);
+	GrSetGCMode(gc, MWROP_XOR);
 	GrSetGCForeground(gc, GR_COLOR_RED);
 	for (y=10; y<20; y++)
 		GrLine(GR_ROOT_WINDOW_ID, gc, 0, y, 638, y);

@@ -62,7 +62,7 @@ static void	 (*_FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
                 MWCOORD y2,MWPIXELVAL c);
 static void	 (*_Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
                 MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
-static void	 (*_DrawArea)(PSD psd, driver_gc_t *gc, int op);
+static void	 (*_DrawArea)(PSD psd, driver_gc_t *gc);
 static void  (*_StretchBlitEx)(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
 				MWCOORD width, int height, int x_denominator, int y_denominator,
 				int src_x_fraction, int src_y_fraction,
@@ -99,10 +99,10 @@ static void stubDrawPixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 }
 
 
-static void stubDrawArea(PSD psd, driver_gc_t *gc, int op)
+static void stubDrawArea(PSD psd, driver_gc_t *gc);
 {
         UndrawCursor();
-        _DrawArea(psd,gc,op);
+        _DrawArea(psd,gc);
         MarkRect(gc->dstx, gc->dsty, gc->dstx + gc->dstw, gc->dstx + gc->dstw ); 
 }
 

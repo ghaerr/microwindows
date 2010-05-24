@@ -26,6 +26,10 @@ add ximage X11 debug statements
 enhance x11 driver to use fast blit from savebits
 leftBearing < 0 not handled in PCF loader nor MWCFONT structs, add l/r bearing returns?
 
+moving window on bin/malpha waits until second buttondown
+MWROP_BLENDCONSTANT needs alpha passed (not 150)
+PSDOP_ALPHAMAP needs gc->misc
+
 fix bin/mwdvetest crash on closebox after static dialog
 fix bin/mwdvetest crash on ESC exit from main dialog
 look at MessageBoxTimeout, newlistbox.c. remove OLD_DRAWTEXT

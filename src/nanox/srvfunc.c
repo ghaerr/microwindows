@@ -3170,7 +3170,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 void
 GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
-	GR_COORD srcx, GR_COORD srcy, unsigned long op)
+	GR_COORD srcx, GR_COORD srcy, int op)
 {
   	GR_GC		*gcp;
 	GR_BOOL         exposure = GR_TRUE;
@@ -3253,11 +3253,7 @@ EPRINTF("nano-X: skipping blit, sending expose event\n");
 	if (op == MWROP_USE_GC_MODE) {
 		GR_GC *gcp = GsFindGC(gc);
 
-		if (gcp == NULL) {
-			op = MWROP_COPY;
-		} else {
-			op = MWMODE_TO_ROP(gcp->mode);
-		}
+		op = gcp? gcp->mode: MWROP_COPY;
 	}
 
 	/* perform blit*/
@@ -3958,7 +3954,7 @@ GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
  */
 void
 GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1, GR_COORD dy1, GR_COORD dx2, GR_COORD dy2,
-	GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1, GR_COORD sx2, GR_COORD sy2, unsigned long op)
+	GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1, GR_COORD sx2, GR_COORD sy2, int op)
 {
 	GR_DRAWABLE *dp;
 	GR_WINDOW *swp;
@@ -3999,10 +3995,7 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1, GR_COORD dy1, GR_COOR
 	if (op == MWROP_USE_GC_MODE) {
 		GR_GC *gcp = GsFindGC(gc);
 
-		if (gcp == NULL)
-			op = MWROP_COPY;
-		else
-			op = MWMODE_TO_ROP(gcp->mode);
+		op = gcp? gcp->mode: MWROP_COPY;
 	}
 
 	/* perform blit */

@@ -64,7 +64,7 @@ fbportrait_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPI
 	x2 = psd->xvirtres-x2-1;
 	
 	DRAWON;        
-	if(gr_mode == MWMODE_COPY) {                  
+	if(gr_mode == MWROP_COPY) {                  
 		// bytes per RECT-line
 		int len = (y2-y1+1) << 1;
 		ADDR16 addr0;
@@ -101,7 +101,7 @@ fbportrait_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPI
 
 static void
 fbportrait_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
-	PSD srcpsd, MWCOORD srcx,MWCOORD srcy,long op)
+	PSD srcpsd, MWCOORD srcx,MWCOORD srcy,int op)
 {
 	dstpsd->orgsubdriver->Blit(dstpsd, desty, dstpsd->xvirtres-destx-w,
 		h, w, srcpsd, srcy, srcpsd->xvirtres-srcx-w, op);
@@ -111,7 +111,7 @@ fbportrait_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 static void
 fbportrait_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, long op)
+	MWCOORD srch, int op)
 {
 	dstpsd->orgsubdriver->StretchBlit(dstpsd, desty, dstpsd->xvirtres-destx-dstw,
 		dsth, dstw, srcpsd, srcy, srcpsd->xvirtres-srcx-srcw, srch, srcw, op);
@@ -122,7 +122,7 @@ static void
 fbportrait_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
 	MWCOORD width, int height, int x_denominator, int y_denominator,
 	int src_x_fraction, int src_y_fraction,
-	int x_step_fraction, int y_step_fraction, long op)
+	int x_step_fraction, int y_step_fraction, int op)
 { 
 	// X -> Y
  	// Y -> maxx - X - w
@@ -145,23 +145,24 @@ fbportrait_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
 
 	l_gc = *gc;
 	l_gc.dstx = gc->dsty;
-	l_gc.dsty = dstpsd->xvirtres - gc->dstx - gc->dstw;
-	l_gc.dstw = gc->dsth;
-	l_gc.dsth = gc->dstw;
+	l_gc.dsty = dstpsd->xvirtres - gc->dstx - gc->width;
+	l_gc.width = gc->height;
+	l_gc.height = gc->width;
 	l_gc.srcx = 0;
 	l_gc.srcy = 0;
+	l_gc.op = PSDOP_ALPHACOL;
 
-	l_gc.src_linelen = l_gc.dstw;	/* 1 byte alpha channel*/
-	if (!(l_gc.misc = ALLOCA(l_gc.dstw * l_gc.dsth)))
+	l_gc.src_linelen = l_gc.width;	/* 1 byte alpha channel*/
+	if (!(l_gc.data = ALLOCA(l_gc.width * l_gc.height)))
 		return;
 
-	alpha_in = ((ADDR8)gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
-	in_w = gc->dstw;
-	in_h = gc->dsth;
+	alpha_in = ((ADDR8)gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	in_w = gc->width;
+	in_h = gc->height;
 
-	alpha_out = l_gc.misc;
-	out_w = l_gc.dstw;
-	out_h = l_gc.dsth;
+	alpha_out = l_gc.data;
+	out_w = l_gc.width;
+	out_h = l_gc.height;
 
 	/* rotate_left_8bpp*/
 	for (in_y = 0; in_y < in_h; in_y++) {
@@ -173,9 +174,9 @@ fbportrait_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
 		}
 	}
 
-	dstpsd->orgsubdriver->DrawArea(dstpsd, &l_gc, PSDOP_ALPHACOL);
+	dstpsd->orgsubdriver->DrawArea(dstpsd, &l_gc);
 
-	FREEA(l_gc.misc);
+	FREEA(l_gc.data);
 }
 #endif
 
@@ -190,24 +191,25 @@ fbportrait_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 
 	l_gc = *gc;
 	l_gc.dstx = gc->dsty;
-	l_gc.dsty = psd->xvirtres - gc->dstx - gc->dstw;
-	l_gc.dstw = gc->dsth;
-	l_gc.dsth = gc->dstw;
+	l_gc.dsty = psd->xvirtres - gc->dstx - gc->width;
+	l_gc.width = gc->height;
+	l_gc.height = gc->width;
 	l_gc.srcx = 0;	//FIXME rotate may fail with srcx/srcy not zero
 	l_gc.srcy = 0;
+	l_gc.op = PSDOP_BITMAP_BYTES_MSB_FIRST;
 
-	l_gc.src_linelen = (l_gc.dstw + 7) / 8;
-	if (!(l_gc.pixels = ALLOCA(l_gc.dsth * l_gc.src_linelen)))
+	l_gc.src_linelen = (l_gc.width + 7) / 8;
+	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_linelen)))
 		return;
-	memset(l_gc.pixels, 0, l_gc.dsth * l_gc.src_linelen);
+	memset(l_gc.data, 0, l_gc.height * l_gc.src_linelen);
 
-	pixel_in = ((ADDR8)gc->pixels) + gc->src_linelen * gc->srcy + gc->srcx;
-	in_w = gc->dstw;
-	in_h = gc->dsth;
+	pixel_in = ((ADDR8)gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	in_w = gc->width;
+	in_h = gc->height;
 
-	pixel_out = l_gc.pixels;
-	out_w = l_gc.dstw;
-	out_h = l_gc.dsth;
+	pixel_out = l_gc.data;
+	out_w = l_gc.width;
+	out_h = l_gc.height;
 
 	/* rotate_left_1bpp*/
 	for (in_y = 0; in_y < in_h; in_y++) {
@@ -221,19 +223,19 @@ fbportrait_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 		}
 	}
 
-	psd->orgsubdriver->DrawArea(psd, &l_gc, PSDOP_BITMAP_BYTES_MSB_FIRST);
+	psd->orgsubdriver->DrawArea(psd, &l_gc);
 
-	FREEA(l_gc.pixels);
+	FREEA(l_gc.data);
 }
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 static void
-fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc, int op)
+fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc)
 {
 	if (!dstpsd->orgsubdriver->DrawArea)
 		return;
 
-	switch(op) {
+	switch(gc->op) {
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		fbportrait_drawarea_alphacol(dstpsd, gc);

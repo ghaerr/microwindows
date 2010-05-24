@@ -57,13 +57,13 @@ static void X11_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
 static void X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2,
 		MWCOORD y2, MWPIXELVAL c);
 static void X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
-		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
+		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int32_t op);
 static void X11_preselect(PSD psd);
-static void X11_drawarea(PSD psd, driver_gc_t * gc, int op);
+static void X11_drawarea(PSD psd, driver_gc_t * gc);
 static void X11_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 		MWCOORD dest_y_start, MWCOORD width, MWCOORD height, int x_denominator,
 		int y_denominator, int src_x_fraction, int src_y_fraction,
-		int x_step_fraction, int y_step_fraction, long op);
+		int x_step_fraction, int y_step_fraction, int op);
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -252,52 +252,52 @@ set_mode_2(int new_mode)
 {
 	int func = GXcopy;
 	switch (new_mode) {
-	case MWMODE_COPY:
+	case MWROP_COPY:
 		func = GXcopy;
 		break;
-	case MWMODE_XOR:
+	case MWROP_XOR:
 		func = GXxor;
 		break;
-	case MWMODE_OR:
+	case MWROP_OR:
 		func = GXor;
 		break;
-	case MWMODE_AND:
+	case MWROP_AND:
 		func = GXand;
 		break;
-	case MWMODE_CLEAR:
+	case MWROP_CLEAR:
 		func = GXclear;
 		break;
-	case MWMODE_SETTO1:
+	case MWROP_SET:
 		func = GXset;
 		break;
-	case MWMODE_EQUIV:
+	case MWROP_EQUIV:
 		func = GXequiv;
 		break;
-	case MWMODE_NOR:
+	case MWROP_NOR:
 		func = GXnor;
 		break;
-	case MWMODE_NAND:
+	case MWROP_NAND:
 		func = GXnand;
 		break;
-	case MWMODE_INVERT:
+	case MWROP_INVERT:
 		func = GXinvert;
 		break;
-	case MWMODE_COPYINVERTED:
+	case MWROP_COPYINVERTED:
 		func = GXcopyInverted;
 		break;
-	case MWMODE_ORINVERTED:
+	case MWROP_ORINVERTED:
 		func = GXorInverted;
 		break;
-	case MWMODE_ANDINVERTED:
+	case MWROP_ANDINVERTED:
 		func = GXandInverted;
 		break;
-	case MWMODE_ORREVERSE:
+	case MWROP_ORREVERSE:
 		func = GXorReverse;
 		break;
-	case MWMODE_ANDREVERSE:
+	case MWROP_ANDREVERSE:
 		func = GXandReverse;
 		break;
-	case MWMODE_NOOP:
+	case MWROP_NOOP:
 		func = GXnoop;
 		break;
 	default:
@@ -393,7 +393,7 @@ update_from_savebits(int destx, int desty, int w, int h)
 	}
 #endif
 
-	set_mode(MWMODE_COPY);
+	set_mode(MWROP_COPY);
 	XPutImage(x11_dpy, x11_win, x11_gc, img, 0, 0, destx, desty, w, h);
 
 	XDestroyImage(img);
@@ -950,7 +950,7 @@ X11_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	/* draw savebits for readpixel or blit */
 	savebits.DrawPixel(&savebits, x, y, c);
 
-	if (gr_mode == MWMODE_COPY) {
+	if (gr_mode == MWROP_COPY) {
 		set_color(c);
 		set_mode(gr_mode);
 		XDrawPoint(x11_dpy, x11_win, x11_gc, x, y);
@@ -972,7 +972,7 @@ X11_drawhline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	/* draw savebits for readpixel or blit */
 	savebits.DrawHorzLine(&savebits, x1, x2, y, c);
 
-	if (gr_mode == MWMODE_COPY) {
+	if (gr_mode == MWROP_COPY) {
 		set_color(c);
 		set_mode(gr_mode);
 		XDrawLine(x11_dpy, x11_win, x11_gc, x1, y, x2, y);
@@ -988,7 +988,7 @@ X11_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	savebits.DrawVertLine(&savebits, x, y1, y2, c);
 
-	if (gr_mode == MWMODE_COPY) {
+	if (gr_mode == MWROP_COPY) {
 		set_color(c);
 		set_mode(gr_mode);
 		XDrawLine(x11_dpy, x11_win, x11_gc, x, y1, x, y2);
@@ -1006,7 +1006,7 @@ X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	/* draw savebits for readpixel or blit */
 	savebits.FillRect(&savebits, x1, y1, x2, y2, c);
 
-	if (gr_mode == MWMODE_COPY) {
+	if (gr_mode == MWROP_COPY) {
 		set_color(c);
 		set_mode(gr_mode);
 		XFillRectangle(x11_dpy, x11_win, x11_gc, x1, y1,
@@ -1018,9 +1018,9 @@ X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 
 static void
 X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
-	 PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	 PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int32_t op)
 {
-	if (op == MWMODE_NOOP)
+	if (op == MWROP_NOOP)
 		return;
 
 	if (srcpsd->flags & PSF_SCREEN)
@@ -1043,7 +1043,7 @@ X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 	if (srcpsd == &savebits && op == MWROP_COPY)
 #else
 	/* Not perfect, but faster */
-	if (rcpsd == &savebits && MWROP_TO_MODE(op) <= MWMODE_NOP)
+	if (rcpsd == &savebits && op <= MWROP_NOP)
 #endif
 	{
 		/*
@@ -1078,9 +1078,9 @@ X11_stretchblitex(PSD dstpsd, PSD srcpsd,
 		    MWCOORD width, MWCOORD height,
 		    int x_denominator, int y_denominator,
 		    int src_x_fraction, int src_y_fraction,
-		    int x_step_fraction, int y_step_fraction, long op)
+		    int x_step_fraction, int y_step_fraction, int op)
 {
-	if (op == MWMODE_NOOP) {
+	if (op == MWROP_NOOP) {
 		return;
 	}
 
@@ -1119,18 +1119,17 @@ X11_stretchblitex(PSD dstpsd, PSD srcpsd,
 }
 
 static void
-X11_drawarea(PSD psd, driver_gc_t * gc, int op)
+X11_drawarea(PSD psd, driver_gc_t * gc)
 {
 	assert(psd->addr != 0);
-	/*assert(gc->dstw <= gc->srcw); */
-	assert(gc->dstx >= 0 && gc->dstx + gc->dstw <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
+	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
+	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
+	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
 	assert(gc->srcy >= 0);
 
-	savebits.DrawArea(&savebits, gc, op);
+	savebits.DrawArea(&savebits, gc);
 
-	update_from_savebits(gc->dstx, gc->dsty, gc->dstw, gc->dsth);
+	update_from_savebits(gc->dstx, gc->dsty, gc->width, gc->height);
 }
 
 

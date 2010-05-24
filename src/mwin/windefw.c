@@ -39,7 +39,7 @@ DrawXORFrame(HWND hwnd,int x, int y, BOOL bDrawCurrent)
 	hdc = GetDCEx(NULL, NULL, DCX_WINDOW|DCX_EXCLUDEUPDATE);
 	SelectObject(hdc, GetStockObject(NULL_BRUSH));
 	SelectObject(hdc, GetStockObject(WHITE_PEN));
-	GdSetMode(MWMODE_XOR);
+	GdSetMode(MWROP_XOR);
 	if(!IsRectEmpty(&lastrc))
 		Rectangle(hdc, lastrc.left, lastrc.top, lastrc.right,
 			lastrc.bottom);
@@ -49,7 +49,7 @@ DrawXORFrame(HWND hwnd,int x, int y, BOOL bDrawCurrent)
 		Rectangle(hdc, lastrc.left, lastrc.top, lastrc.right,
 			lastrc.bottom);
 	ReleaseDC(NULL, hdc);
-	GdSetMode(MWMODE_COPY);
+	GdSetMode(MWROP_COPY);
 }
 
 /*

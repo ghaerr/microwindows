@@ -170,7 +170,7 @@ typedef	int	GR_DRAW_TYPE;
 #define	GR_DRAW_TYPE_WINDOW	1	/* windows */
 #define	GR_DRAW_TYPE_PIXMAP	2	/* pixmaps */
 
-#define	GR_MAX_MODE		MWMODE_MAX
+#define	GR_MAX_MODE		MWROP_MAX
 /*
  * List of elements for events.
  */

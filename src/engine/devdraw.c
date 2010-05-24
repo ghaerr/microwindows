@@ -972,7 +972,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			if (alpha != 0) { /* skip if pixel is fully transparent*/
 				if (clip == CLIP_VISIBLE || GdClipPoint(psd, x, y)) {
 					switch (psd->pixtype) {
-#if ALPHABLEND
+#if 1 /* alpha blending*/
 					/* implement alpha blending image draw from image alpha channel*/
 					case MWPF_TRUECOLOR8888:
 					case MWPF_TRUECOLOR0888:
@@ -1086,7 +1086,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							pixel = bg.v;
 						}
 						break;
-#else /* !ALPHABLEND*/
+#else /* !alpha blending*/
 					/* implement image draw without alpha blending*/
 					/*
 					 * Draw without alpha blending.
@@ -1108,7 +1108,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					case MWPF_TRUECOLOR555:
 						pixel = COLOR2PIXEL555(ARGB2COLORVAL(cr));
 						break;
-#endif /* ALPHABLEND*/
+#endif /* alpha blending*/
 
 					case MWPF_PALETTE:
 					default:
@@ -1324,12 +1324,12 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
  * This is a low-level function.
  */
 void
-GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
+GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
 {
 	MWCOORD x = gc->dstx;
 	MWCOORD y = gc->dsty;
-	MWCOORD width = gc->dstw;
-	MWCOORD height = gc->dsth;
+	MWCOORD width = gc->width;
+	MWCOORD height = gc->height;
 	MWCOORD srcx;
 	MWCOORD srcy;
 	int rx1, rx2, ry1, ry2, rw, rh;
@@ -1350,7 +1350,7 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 	/* check clipping region*/
 	switch(GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
-		psd->DrawArea(psd, gc, op);	/* all visible, draw all*/
+		psd->DrawArea(psd, gc);	/* all visible, draw all*/
 		return;
 
 	case CLIP_INVISIBLE:
@@ -1399,12 +1399,12 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 		if (rw > 0 && rh > 0) {
 			gc->dstx = rx1;
 			gc->dsty = ry1;
-			gc->dstw = rw;
-			gc->dsth = rh;
+			gc->width = rw;
+			gc->height = rh;
 			gc->srcx = srcx + rx1 - x;
 			gc->srcy = srcy + ry1 - y;
 			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
-			psd->DrawArea(psd, gc, op);
+			psd->DrawArea(psd, gc);
 		}
 		prc++;
 	}
@@ -1412,8 +1412,8 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc, int op)
 	/* Reset everything, in case the caller re-uses it. */
 	gc->dstx = x;
 	gc->dsty = y;
-	gc->dstw = width;
-	gc->dsth = height;
+	gc->width = width;
+	gc->height = height;
 	gc->srcx = srcx;
 	gc->srcy = srcy;
 }
@@ -1478,17 +1478,18 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	if (pixtype == MWPF_HWPIXELVAL && (psd->flags & PSF_HAVEOP_COPY)) {
 		driver_gc_t hwgc;
 
-		hwgc.pixels = PIXELS;
+		hwgc.data = PIXELS;
 		hwgc.src_linelen = width;
-		hwgc.gr_usebg = gr_usebg;
+		hwgc.usebg = gr_usebg;
 		hwgc.bg_color = gr_background;
 		hwgc.dstx = x;
 		hwgc.dsty = y;
-		hwgc.dstw = width;
-		hwgc.dsth = height;
+		hwgc.width = width;
+		hwgc.height = height;
 		hwgc.srcx = 0;
 		hwgc.srcy = 0;
-		GdDrawAreaInternal(psd, &hwgc, PSDOP_COPY);
+		hwgc.op = PSDOP_COPY;
+		GdDrawAreaInternal(psd, &hwgc);
 
 		GdFixCursor(psd);
 		return;
@@ -1726,7 +1727,7 @@ extern MWCLIPREGION *clipregion;
  */
 void
 GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long rop)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int32_t rop)
 {
 	int rx1, rx2, ry1, ry2;
 	int px1, px2, py1, py2;
@@ -1851,7 +1852,7 @@ int g_row_inc, g_col_inc;
 void
 GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, long rop)
+	MWCOORD srch, int32_t rop)
 {
 	int count;
 #if DYNAMICREGIONS
@@ -2016,7 +2017,7 @@ g_col_inc = (srcw << 16) / dstw;
 void
 GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 	MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y, MWCOORD s2_x,
-	MWCOORD s2_y, long rop)
+	MWCOORD s2_y, int32_t rop)
 {
 	/* Scale factors (as fractions, numerator/denominator) */
 	int src_x_step_numerator;

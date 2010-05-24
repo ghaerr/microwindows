@@ -120,7 +120,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		/* alpha blend blit offscreen map with physical screen*/
 		BitBlt(ps.hdc, 0, 0, rc.right, rc.bottom, hdcMem, 0, 0,
-			MWROP_BLENDCONSTANT | 150);
+			MWROP_BLENDCONSTANT);	/* FIXME specify constant alpha somewhere!*/
 		DeleteObject(SelectObject(hdcMem, hbmpOrg));
 		DeleteDC(hdcMem);
 

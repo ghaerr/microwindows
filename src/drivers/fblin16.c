@@ -58,7 +58,7 @@ linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 #endif
 	DRAWON;
-	if(gr_mode == MWMODE_COPY)
+	if(gr_mode == MWROP_COPY)
 		((ADDR16)psd->addr)[x + y * psd->linelen] = c;
 	else
 		applyOp(gr_mode, c, &((ADDR16)psd->addr)[x + y * psd->linelen], ADDR16);
@@ -92,7 +92,7 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 #endif
 
 	DRAWON;
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		/* FIXME: memsetw(dst, c, x2-x1+1)*/
 		while(x1++ <= x2)
 			*addr++ = c;
@@ -124,7 +124,7 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 #endif
 
 	DRAWON;
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
 			addr += linelen;
@@ -144,16 +144,13 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 /* srccopy bitblt*/
 static void
 linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR16	dst = dstpsd->addr;
 	ADDR16	src = srcpsd->addr;
 	int	i;
 	int	dlinelen = dstpsd->linelen;
 	int	slinelen = srcpsd->linelen;
-#if ALPHABLEND
-	unsigned int alpha;
-#endif
 
 	assert (dst != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
@@ -168,14 +165,13 @@ linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
 
-	DRAWON;
 	dst += dstx + dsty * dlinelen;
 	src += srcx + srcy * slinelen;
 
-#if ALPHABLEND
-	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
-		goto stdblit;
-	alpha = op & 0xff;
+	DRAWON;
+
+	if (op == MWROP_BLENDCONSTANT) {
+	unsigned int alpha = 150;
 
 	if (dstpsd->pixtype == MWPF_TRUECOLOR565) {
 		while(--h >= 0) {
@@ -213,12 +209,7 @@ linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			src += slinelen - w;
 		}
 	}
-	DRAWOFF;
-	return;
-stdblit:
-#endif
-
-	if (op == MWROP_COPY) {
+	} else if (op == MWROP_COPY) {
 		/* copy from bottom up if dst in src rectangle*/
 		/* memmove is used to handle x case*/
 		if (srcy < dsty) {
@@ -235,7 +226,7 @@ stdblit:
 		}
 	} else {
 		while (--h >= 0) {
-			applyOp4(w, MWROP_TO_MODE(op), src, dst, ADDR16);
+			applyOp4(w, op, src, dst, ADDR16);
 			dst += dlinelen - w;
 			src += slinelen - w;
 		}
@@ -251,7 +242,7 @@ extern int g_row_inc, g_col_inc;
 static void
 linear16_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, long op)
+	MWCOORD srch, int op)
 {
 	ADDR16	dst;
 	ADDR16	src;
@@ -380,7 +371,7 @@ linear16_stretchblitex(PSD dstpsd,
 			 int src_y_fraction,
 			 int x_step_fraction,
 			 int y_step_fraction,
-			 long op)
+			 int op)
 {
 	/* Pointer to the current pixel in the source image */
 	unsigned short *RESTRICT src_ptr;
@@ -484,7 +475,7 @@ linear16_stretchblitex(PSD dstpsd,
 	 * The MWROP_CLEAR case could be removed.  But it is a large
 	 * speed increase for a small quantity of code.
 	 */
-	switch (op & MWROP_EXTENSION) {
+	switch (op) {
 	case MWROP_SRC:
 		/* Benchmarking shows that this while loop is faster than the equivalent
 		 * for loop: for(y_count=0; y_count<height; y_count++) { ... }
@@ -543,7 +534,7 @@ linear16_stretchblitex(PSD dstpsd,
 
 			x_count = width;
 			while (x_count-- > 0) {
-				applyOp(MWROP_TO_MODE(op), *src_ptr, dest_ptr, ADDR16);
+				applyOp(op, *src_ptr, dest_ptr, ADDR16);
 				dest_ptr++;
 
 				src_ptr += src_x_step_normal;
@@ -607,10 +598,10 @@ static void init_wordmask_lookup(unsigned short **byte2wordmask)
  *       dstx, dsty, dsth, dstw   Destination rectangle
  *       srcx, srcy               Source rectangle
  *       src_linelen              Linesize in bytes of source
- *       pixels                   Pixmap data
+ *       data                   Pixmap data
  *       fg_color                 Color of a '1' bit
  *       bg_color                 Color of a '0' bit
- *       gr_usebg                 If set, bg_color is used.  If zero,
+ *       usebg                 If set, bg_color is used.  If zero,
  *                                then '0' bits are transparent.
  */
 static void
@@ -632,11 +623,11 @@ linear16_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	static unsigned short *byte2wordmask = 0;
 
 	prefixbits = gc->srcx & 7;
-	postfixbits = (gc->srcx + gc->dstw - 1) & 7;
+	postfixbits = (gc->srcx + gc->width - 1) & 7;
 	first_byte = gc->srcx >> 3;
-	last_byte = (gc->srcx + gc->dstw - 1) >> 3;
+	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->pixels) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
 	dst = ((ADDR16) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	xor_color = fg_color ^ bg_color;
 
@@ -665,18 +656,18 @@ linear16_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 		hard_postfix = 0;
 		size_main = 0;
 		prefix_mask = 1 << prefixbits;
-		prefix_last = 1 << (prefixbits + gc->dstw);
+		prefix_last = 1 << (prefixbits + gc->width);
 	}
 
 	advance_src = gc->src_linelen - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - gc->dstw;
+	advance_dst = psd->linelen - gc->width;
 
 	if ( byte2wordmask == 0 )
 		init_wordmask_lookup(&byte2wordmask);
 
 	DRAWON;
-	if (gc->gr_usebg) {
-		for (y = 0; y < gc->dsth; y++) {
+	if (gc->usebg) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (hard_prefix) {
@@ -713,7 +704,7 @@ linear16_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			dst += advance_dst;
 		}
 	} else {
-		for (y = 0; y < gc->dsth; y++) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (hard_prefix) {
@@ -773,10 +764,10 @@ linear16_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
  *       dstx, dsty, dsth, dstw   Destination rectangle
  *       srcx, srcy               Source rectangle
  *       src_linelen              Linesize in bytes of source
- *       pixels                   Pixmap data
+ *       data                   Pixmap data
  *       fg_color                 Color of a '1' bit
  *       bg_color                 Color of a '0' bit
- *       gr_usebg                 If set, bg_color is used.  If zero,
+ *       usebg                 If set, bg_color is used.  If zero,
  *                                then '0' bits are transparent.
  */
 static void
@@ -822,21 +813,21 @@ linear16_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	prefix_first_bit = MWI_BIT_NO(gc->srcx & 7);
 
 	/* The bit in the last byte, which corresponds to the rightmost pixel. */
-	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->dstw - 1) & 7);
+	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->width - 1) & 7);
 
 	/* The index into each scanline of the first byte to use. */
 	first_byte = gc->srcx >> 3;
 
 	/* The index into each scanline of the last byte to use. */
-	last_byte = (gc->srcx + gc->dstw - 1) >> 3;
+	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->pixels) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
 	dst = ((ADDR16) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	fg = gc->fg_color;
 	bg = gc->bg_color;
 
 	advance_src = gc->src_linelen - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - gc->dstw;
+	advance_dst = psd->linelen - gc->width;
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -869,8 +860,8 @@ linear16_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 
 	DRAWON;
 
-	if (gc->gr_usebg) {
-		for (y = 0; y < gc->dsth; y++) {
+	if (gc->usebg) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
@@ -907,7 +898,7 @@ linear16_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			dst += advance_dst;
 		}
 	} else {
-		for (y = 0; y < gc->dsth; y++) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
@@ -1015,16 +1006,16 @@ linear16_drawarea_alphamap(PSD psd, driver_gc_t * gc)
 	if ( low2scale == 0 )
 		init_alpha_lookup();
 
-	src = ((ADDR16) gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
+	src = ((ADDR16) gc->data) + gc->srcx + gc->src_linelen * gc->srcy;
 	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
 	dst = ((ADDR16) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 
-	src_row_step = gc->src_linelen - gc->dstw;
-	dst_row_step = psd->linelen - gc->dstw;
+	src_row_step = gc->src_linelen - gc->width;
+	dst_row_step = psd->linelen - gc->width;
 
 	DRAWON;
-	for (y = 0; y < gc->dsth; y++) {
-		for (x = 0; x < gc->dstw; x++) {
+	for (y = 0; y < gc->height; y++) {
+		for (x = 0; x < gc->width; x++) {
 			as = (((unsigned short) ((*alpha++) >> 3)) << 8);
 			ad = (31 << 8) - as;
 			ps = *src++;
@@ -1061,12 +1052,12 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	int x, y;
 	int src_row_step, dst_row_step;
 
-	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
+	alpha = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
 	dst = ((ADDR16) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	ps = gc->fg_color;
 
-	src_row_step = gc->src_linelen - gc->dstw;
-	dst_row_step = psd->linelen - gc->dstw;
+	src_row_step = gc->src_linelen - gc->width;
+	dst_row_step = psd->linelen - gc->width;
 
 	DRAWON;
 	if (psd->pixtype == MWPF_TRUECOLOR565) {
@@ -1074,8 +1065,8 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 		psg = ps & COLOR_MASK_G_565;
 		psb = ps & COLOR_MASK_B_565;
 
-		for (y = 0; y < gc->dsth; y++) {
-			for (x = 0; x < gc->dstw; x++) {
+		for (y = 0; y < gc->height; y++) {
+			for (x = 0; x < gc->width; x++) {
 				if ((as = *alpha++) == 255)
 					*dst++ = ps;
 				else if (as != 0) {
@@ -1091,12 +1082,12 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				 	 * with one multiply and shift.
 					 */
 					as = 255 - as + 1;
-					pd = gc->gr_usebg? gc->bg_color: *dst;
+					pd = gc->usebg? gc->bg_color: *dst;
 					*dst++ =
 						  ((((((pd & COLOR_MASK_R_565) - psr) * as) >> 8) + psr) & COLOR_MASK_R_565)
 						| ((((((pd & COLOR_MASK_G_565) - psg) * as) >> 8) + psg) & COLOR_MASK_G_565)
 						| ((((((pd & COLOR_MASK_B_565) - psb) * as) >> 8) + psb) & COLOR_MASK_B_565);
-				} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+				} else if(gc->usebg)		/* alpha 0 - draw bkgnd*/
 					*dst++ = gc->bg_color;
 				else
 					++dst;
@@ -1109,8 +1100,8 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 		psg = ps & COLOR_MASK_G_555;
 		psb = ps & COLOR_MASK_B_555;
 
-		for (y = 0; y < gc->dsth; y++) {
-			for (x = 0; x < gc->dstw; x++) {
+		for (y = 0; y < gc->height; y++) {
+			for (x = 0; x < gc->width; x++) {
 				if ((as = *alpha++) == 255)
 					*dst++ = ps;
 				else if (as != 0) {
@@ -1126,12 +1117,12 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				 	 * with one multiply and shift.
 					 */
 					as = 255 - as + 1;
-					pd = gc->gr_usebg? gc->bg_color: *dst;
+					pd = gc->usebg? gc->bg_color: *dst;
 					*dst++ =
 						  ((((((pd & COLOR_MASK_R_555) - psr) * as) >> 8) + psr) & COLOR_MASK_R_555)
 						| ((((((pd & COLOR_MASK_G_555) - psg) * as) >> 8) + psg) & COLOR_MASK_G_555)
 						| ((((((pd & COLOR_MASK_B_555) - psb) * as) >> 8) + psb) & COLOR_MASK_B_555);
-				} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+				} else if(gc->usebg)		/* alpha 0 - draw bkgnd*/
 					*dst++ = gc->bg_color;
 				else
 					++dst;
@@ -1148,13 +1139,13 @@ linear16_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 static void
 linear16_drawarea_copyall(PSD psd, driver_gc_t * gc)
 {
-	ADDR16	src = ((ADDR16)gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
+	ADDR16	src = ((ADDR16)gc->data) + gc->srcx + gc->src_linelen * gc->srcy;
 	ADDR16	dst = ((ADDR16)psd->addr) + gc->dstx + psd->linelen * gc->dsty;
-	int	linesize = 2 * gc->dstw;
+	int	linesize = 2 * gc->width;
 	int	y;
 
 	DRAWON;
-	for (y = 1; y < gc->dsth; y++) {
+	for (y = 1; y < gc->height; y++) {
 		memcpy(dst, src, linesize);
 		src += gc->src_linelen;
 		dst += psd->linelen;
@@ -1166,17 +1157,17 @@ linear16_drawarea_copyall(PSD psd, driver_gc_t * gc)
 static void
 linear16_drawarea_copytrans(PSD psd, driver_gc_t * gc)
 {
-	ADDR16	src = ((ADDR16)gc->pixels) + gc->srcx + gc->src_linelen * gc->srcy;
+	ADDR16	src = ((ADDR16)gc->data) + gc->srcx + gc->src_linelen * gc->srcy;
 	ADDR16	dst = ((ADDR16)psd->addr) + gc->dstx + psd->linelen * gc->dsty;
 	ADDR16	rsrc, rdst;
 	int	x, y;
 	unsigned short pcol;
 
 	DRAWON;
-	for (y = 0; y < gc->dsth; y++) {
+	for (y = 0; y < gc->height; y++) {
 		rdst = dst;
 		rsrc = src;
-		for (x = 0; x < gc->dstw; x++) {
+		for (x = 0; x < gc->width; x++) {
 			pcol = *rsrc++;
 			if (pcol == gc->bg_color)
 				rdst++;
@@ -1191,20 +1182,20 @@ linear16_drawarea_copytrans(PSD psd, driver_gc_t * gc)
 #endif
 
 static void
-linear16_drawarea(PSD psd, driver_gc_t * gc, int op)
+linear16_drawarea(PSD psd, driver_gc_t * gc)
 {
 	assert(psd->addr != 0);
-	/*assert(gc->dstw <= gc->srcw);*/
-	assert(gc->dstx >= 0 && gc->dstx+gc->dstw <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres);*/
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw);*/
+	/*assert(gc->width <= gc->srcw);*/
+	assert(gc->dstx >= 0 && gc->dstx+gc->width <= psd->xres);
+	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres);*/
+	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw);*/
 	assert(gc->srcy >= 0);
 	/*DPRINTF("linear16_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
-	switch (op) {
+	switch (gc->op) {
 #if MW_FEATURE_PSDOP_COPY
 	case PSDOP_COPY:
-		if (gc->gr_usebg)
+		if (gc->usebg)
 			linear16_drawarea_copyall(psd, gc);
 		else
 			linear16_drawarea_copytrans(psd, gc);

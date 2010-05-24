@@ -33,7 +33,7 @@
 MWPIXELVAL gr_foreground;	/* current foreground color */
 MWPIXELVAL gr_background;	/* current background color */
 MWBOOL 	gr_usebg;    	    /* TRUE if background drawn in pixmaps */
-int 	gr_mode = MWMODE_COPY; 	    /* drawing mode */
+int 	gr_mode = MWROP_COPY; 	    /* drawing mode */
 /*static*/ MWPALENTRY	gr_palette[256];    /* current palette*/
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/
@@ -108,7 +108,7 @@ GdOpenScreen(void)
 	case 256:	/* 8bpp*/
 	{
 		extern MWPALENTRY	mwstdpal8[256];
-#if ALPHABLEND
+#if UNIFORMPALETTE
 		/* don't change uniform palette if alpha blending*/
 		gr_firstuserpalentry = 256;
 #else
@@ -132,7 +132,7 @@ GdOpenScreen(void)
 
 #if !NOFONTSORCLIPPING
 	/* init local vars*/
-	GdSetMode(MWMODE_COPY);
+	GdSetMode(MWROP_COPY);
 	GdSetFillMode(MWFILL_SOLID);  /* Set the fill mode to solid */
 
 	GdSetForegroundColor(psd, MWRGB(255, 255, 255));	/* WHITE*/

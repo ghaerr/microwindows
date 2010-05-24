@@ -600,10 +600,10 @@ static void em86xx_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOO
 }
 
 #ifdef DRAWAREA_TEST
-static void em86xx_drawarea(PSD psd, driver_gc_t * gc, int op)
+static void em86xx_drawarea(PSD psd, driver_gc_t * gc)
 {
 	clean_data_cache();
-	fblinear32alpha.DrawArea(psd, gc, op);
+	fblinear32alpha.DrawArea(psd, gc)
 	clean_data_cache();
 }
 #endif

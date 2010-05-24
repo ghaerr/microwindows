@@ -370,7 +370,7 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 	unsigned char *addr = srcpsd->addr;
 	HDC dc;
 
-	if (op == MWMODE_NOOP)
+	if (op == MWROP_NOOP)
 		return;
 
 	if (!(dstpsd->flags & PSF_SCREEN)) {

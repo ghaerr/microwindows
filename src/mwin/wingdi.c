@@ -356,7 +356,7 @@ SetROP2(HDC hdc, int fnDrawMode)
 		return 0;
 
 	oldmode = hdc->drawmode;
-	newmode = fnDrawMode - 1;	/* map to MWMODE_xxx*/
+	newmode = fnDrawMode - 1;	/* map to MWROP_xxx*/
 	hdc->drawmode = newmode;
 	GdSetMode(newmode);
 	return oldmode;
@@ -1900,7 +1900,7 @@ DrawFocusRect(HDC hdc, LPRECT prect)
 {
 	uint32_t dm = 0xAAAAAAAA;
 	int dc = 32;
-	int oldmode = GdSetMode(MWMODE_XOR);
+	int oldmode = GdSetMode(MWROP_XOR);
 	HPEN holdpen = SelectObject(hdc,
 		CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
 

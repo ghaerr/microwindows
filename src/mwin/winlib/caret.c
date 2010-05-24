@@ -194,7 +194,7 @@ MwUpdateCaret(void)
 	HPEN	hpen;
 	HBRUSH	hbr;
 
-	oldmode = GdSetMode(MWMODE_XOR);
+	oldmode = GdSetMode(MWROP_XOR);
 	hdc = GetDC(sysCaret.hwnd);
 	hpen = SelectObject(hdc, GetStockObject(WHITE_PEN));
 

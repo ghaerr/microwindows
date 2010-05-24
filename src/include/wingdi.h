@@ -107,22 +107,22 @@ UINT WINAPI     SetTextAlign(HDC hdc, UINT fMode);
 UINT WINAPI		GetTextAlign(HDC hdc);
 
 /* Binary raster ops*/
-#define R2_BLACK            (MWMODE_CLEAR+1)		/*  0       */
-#define R2_NOTMERGEPEN      (MWMODE_NOR+1)		/* DPon     */
-#define R2_MASKNOTPEN       (MWMODE_ANDINVERTED+1)	/* DPna     */
-#define R2_NOTCOPYPEN       (MWMODE_COPYINVERTED+1)	/* Pn       */
-#define R2_MASKPENNOT       (MWMODE_ANDREVERSE+1)	/* PDna     */
-#define R2_NOT              (MWMODE_INVERT+1)		/* Dn       */
-#define R2_XORPEN           (MWMODE_XOR+1)		/* DPx      */
-#define R2_NOTMASKPEN       (MWMODE_NAND+1)		/* DPan     */
-#define R2_MASKPEN          (MWMODE_AND+1)		/* DPa      */
-#define R2_NOTXORPEN        (MWMODE_EQUIV+1)		/* DPxn     */
-#define R2_NOP              (MWMODE_NOOP+1)		/* D        */
-#define R2_MERGENOTPEN      (MWMODE_ORINVERTED+1)	/* DPno     */
-#define R2_COPYPEN          (MWMODE_COPY+1)		/* P        */
-#define R2_MERGEPENNOT      (MWMODE_ORREVERSE+1)	/* PDno     */
-#define R2_MERGEPEN         (MWMODE_OR+1)		/* DPo      */
-#define R2_WHITE            (MWMODE_SETTO1+1)		/*  1       */
+#define R2_BLACK            (MWROP_CLEAR+1)		/*  0       */
+#define R2_NOTMERGEPEN      (MWROP_NOR+1)		/* DPon     */
+#define R2_MASKNOTPEN       (MWROP_ANDINVERTED+1)	/* DPna     */
+#define R2_NOTCOPYPEN       (MWROP_COPYINVERTED+1)	/* Pn       */
+#define R2_MASKPENNOT       (MWROP_ANDREVERSE+1)	/* PDna     */
+#define R2_NOT              (MWROP_INVERT+1)		/* Dn       */
+#define R2_XORPEN           (MWROP_XOR+1)		/* DPx      */
+#define R2_NOTMASKPEN       (MWROP_NAND+1)		/* DPan     */
+#define R2_MASKPEN          (MWROP_AND+1)		/* DPa      */
+#define R2_NOTXORPEN        (MWROP_EQUIV+1)		/* DPxn     */
+#define R2_NOP              (MWROP_NOOP+1)		/* D        */
+#define R2_MERGENOTPEN      (MWROP_ORINVERTED+1)	/* DPno     */
+#define R2_COPYPEN          (MWROP_COPY+1)		/* P        */
+#define R2_MERGEPENNOT      (MWROP_ORREVERSE+1)	/* PDno     */
+#define R2_MERGEPEN         (MWROP_OR+1)		/* DPo      */
+#define R2_WHITE            (MWROP_SET+1)		/*  1       */
 #define R2_LAST             16
 
 int WINAPI	SetROP2(HDC hdc, int fnDrawMode);

@@ -82,23 +82,22 @@ typedef struct {
 #define GR_ARGB(a,r,g,b)	MWARGB(a,r,g,b)
 
 /* Drawing modes for GrSetGCMode */
-#define	GR_MODE_COPY		MWMODE_COPY		/* src*/
-#define	GR_MODE_SET		MWMODE_COPY		/* obsolete, use GR_MODE_COPY*/
-#define	GR_MODE_XOR		MWMODE_XOR		/* src ^ dst*/
-#define	GR_MODE_OR		MWMODE_OR		/* src | dst*/
-#define	GR_MODE_AND		MWMODE_AND		/* src & dst*/
-#define	GR_MODE_CLEAR 		MWMODE_CLEAR		/* 0*/
-#define	GR_MODE_SETTO1		MWMODE_SETTO1		/* 11111111*/ /* will be GR_MODE_SET*/
-#define	GR_MODE_EQUIV		MWMODE_EQUIV		/* ~(src ^ dst)*/
-#define	GR_MODE_NOR		MWMODE_NOR		/* ~(src | dst)*/
-#define	GR_MODE_NAND		MWMODE_NAND		/* ~(src & dst)*/
-#define	GR_MODE_INVERT		MWMODE_INVERT		/* ~dst*/
-#define	GR_MODE_COPYINVERTED	MWMODE_COPYINVERTED	/* ~src*/
-#define	GR_MODE_ORINVERTED	MWMODE_ORINVERTED	/* ~src | dst*/
-#define	GR_MODE_ANDINVERTED	MWMODE_ANDINVERTED	/* ~src & dst*/
-#define GR_MODE_ORREVERSE	MWMODE_ORREVERSE	/* src | ~dst*/
-#define	GR_MODE_ANDREVERSE	MWMODE_ANDREVERSE	/* src & ~dst*/
-#define	GR_MODE_NOOP		MWMODE_NOOP		/* dst*/
+#define	GR_MODE_COPY		MWROP_COPY			/* src*/
+#define	GR_MODE_XOR			MWROP_XOR			/* src ^ dst*/
+#define	GR_MODE_OR			MWROP_OR			/* src | dst*/
+#define	GR_MODE_AND			MWROP_AND			/* src & dst*/
+#define	GR_MODE_CLEAR 		MWROP_CLEAR			/* 0*/
+#define	GR_MODE_SET			MWROP_SET			/* 11111111*/
+#define	GR_MODE_EQUIV		MWROP_EQUIV			/* ~(src ^ dst)*/
+#define	GR_MODE_NOR			MWROP_NOR			/* ~(src | dst)*/
+#define	GR_MODE_NAND		MWROP_NAND			/* ~(src & dst)*/
+#define	GR_MODE_INVERT		MWROP_INVERT		/* ~dst*/
+#define	GR_MODE_COPYINVERTED MWROP_COPYINVERTED	/* ~src*/
+#define	GR_MODE_ORINVERTED	MWROP_ORINVERTED	/* ~src | dst*/
+#define	GR_MODE_ANDINVERTED	MWROP_ANDINVERTED	/* ~src & dst*/
+#define GR_MODE_ORREVERSE	MWROP_ORREVERSE		/* src | ~dst*/
+#define	GR_MODE_ANDREVERSE	MWROP_ANDREVERSE	/* src & ~dst*/
+#define	GR_MODE_NOOP		MWROP_NOOP			/* dst*/
 
 #define GR_MODE_DRAWMASK	0x00FF
 #define GR_MODE_EXCLUDECHILDREN	0x0100		/* exclude children on clip*/
@@ -844,11 +843,11 @@ void		GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width,GR_SIZE height,void *pixels,int pixtype);
 void            GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
-			GR_COORD srcx, GR_COORD srcy, unsigned long op);
+			GR_COORD srcx, GR_COORD srcy, int op);
 void		GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1,
 			GR_COORD dy1, GR_COORD dx2, GR_COORD dy2,
 			GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1,
-			GR_COORD sx2, GR_COORD sy2, unsigned long op);
+			GR_COORD sx2, GR_COORD sy2, int op);
 void		GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_BITMAP *imagebits);
 void		GrDrawImageBits(GR_DRAW_ID id,GR_GC_ID gc,GR_COORD x,GR_COORD y,

@@ -79,7 +79,7 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += (x>>1) + y * psd->linelen;
-//	if(gr_mode == MWMODE_XOR)
+//	if(gr_mode == MWROP_XOR)
 //		*addr ^= c << ((1-(x&1))<<2);
 //	else
 	*addr = (*addr & notmask[x&1]) | (c << (((x&1))<<2) );
@@ -114,7 +114,7 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	addr += (x1>>1) + y * psd->linelen;
-/*	if(gr_mode == MWMODE_XOR) {
+/*	if(gr_mode == MWROP_XOR) {
 		while(x1 <= x2) {
 			*addr ^= c << ((1-(x1&1))<<2);
 			if((++x1 & 1) == 0)
@@ -157,7 +157,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 /* srccopy bitblt, opcode is currently ignored*/
 static void
 linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR8	dst;
 	ADDR8	src;
@@ -398,7 +398,7 @@ void linear41_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, 
 }
 
 static 
-void linear41_blit(PSD dstpsd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h, PSD srcpsd, MWCOORD sx, MWCOORD sy, long op)
+void linear41_blit(PSD dstpsd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h, PSD srcpsd, MWCOORD sx, MWCOORD sy, int op)
 {
   int ds, ss, shift;
   T8p Mask1, Mask2;
@@ -449,7 +449,7 @@ void linear41_blit(PSD dstpsd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h, PSD s
 static void
 linear4_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, long op)
+	MWCOORD srch, int op)
 {
 	ADDR8	dst;
 	ADDR8	src;

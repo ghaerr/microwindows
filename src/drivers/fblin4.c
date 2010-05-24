@@ -52,7 +52,7 @@ linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 #endif
 	DRAWON;
 	INVERT(c);
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
 	} else {
 		*addr = (*addr & notmask[x&1]) | 
@@ -91,7 +91,7 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 #endif
 	DRAWON;
 	INVERT(c);
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		while(x1 <= x2) {
 			*addr = (*addr & notmask[x1&1]) | (c << ((1-(x1&1))<<2));
 			if((++x1 & 1) == 0)
@@ -124,7 +124,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 #endif
 	DRAWON;
 	INVERT(c);
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		while(y1++ <= y2) {
 			*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
 			addr += linelen;
@@ -142,7 +142,7 @@ linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 /* srccopy bitblt*/
 static void
 linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR8	dst;
 	ADDR8	src;
@@ -163,9 +163,8 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
 
-	op = MWROP_TO_MODE(op);
-	if (op > MWMODE_SIMPLE_MAX)
-		op = MWMODE_COPY;
+	if (op > MWROP_SIMPLE_MAX)
+		op = MWROP_COPY;
 	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
 	src = ((ADDR8)srcpsd->addr) + (srcx>>1) + srcy * slinelen;
 
@@ -179,7 +178,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 		INVERT(c);
 		for (i=0; i<w; ++i) {
-			if (op == MWMODE_COPY) {
+			if (op == MWROP_COPY) {
 				*d = (*d & notmask[dx&1]) | ((c >> ((1-(sx&1))<<2) & 0x0f) << ((1-(dx&1))<<2));
 			} else {
 				*d = (*d & notmask[dx&1]) |
@@ -212,13 +211,13 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
  * for the leftmost of the 8 pixels controlled by each byte.
  *
  * Variables used in the gc:
- *       dstx, dsty, dsth, dstw   Destination rectangle
+ *       dstx, dsty, height, width   Destination rectangle
  *       srcx, srcy               Source rectangle
  *       src_linelen              Linesize in bytes of source
- *       pixels                   Pixmap data
+ *       data                   Pixmap data
  *       fg_color                 Color of a '1' bit
  *       bg_color                 Color of a '0' bit
- *       gr_usebg                 If set, bg_color is used.  If zero,
+ *       usebg                 If set, bg_color is used.  If zero,
  *                                then '0' bits are transparent.
  */
 static void
@@ -264,22 +263,22 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	prefix_first_bit = MWI_BIT_NO(gc->srcx & 7);
 
 	/* The bit in the last byte, which corresponds to the rightmost pixel. */
-	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->dstw - 1) & 7);
+	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->width - 1) & 7);
 
 	/* The index into each scanline of the first byte to use. */
 	first_byte = gc->srcx >> 3;
 
 	/* The index into each scanline of the last byte to use. */
-	last_byte = (gc->srcx + gc->dstw - 1) >> 3;
+	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->pixels) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
 	dst = ((ADDR8) psd->addr) + (psd->linelen * gc->dsty + gc->dstx) / 2;	/* 4bpp = 2 ppb */
 
 	fg = gc->fg_color;
 	bg = gc->bg_color;
 
 	advance_src = gc->src_linelen - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - (gc->dstw / 2);				/* 4bpp = 2 ppb */
+	advance_dst = psd->linelen - (gc->width / 2);				/* 4bpp = 2 ppb */
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -311,8 +310,8 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	}
 
 	DRAWON;
-	if (gc->gr_usebg) {
-		for (y = 0; y < gc->dsth; y++) {
+	if (gc->usebg) {
+		for (y = 0; y < gc->height; y++) {
 			int x = 0;
 			int X = gc->dstx;
 			ADDR8 addr = ((ADDR8)psd->addr) + (X>>1) + (gc->dsty+y) * psd->linelen;
@@ -361,7 +360,7 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			dst += advance_dst;
 		}
 	} else {	/* don't use background */
-		for (y = 0; y < gc->dsth; y++) {
+		for (y = 0; y < gc->height; y++) {
 			int x = 0;
 			int X = gc->dstx;
 			ADDR8 addr = ((ADDR8)psd->addr) + (X>>1) + (gc->dsty+y) * psd->linelen;
@@ -435,18 +434,18 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 static void
-linear4_drawarea(PSD psd, driver_gc_t * gc, int op)
+linear4_drawarea(PSD psd, driver_gc_t * gc)
 {
 #if DEBUG
 	assert(psd->addr != 0);
-	/*assert(gc->dstw <= gc->srcw); */
-	assert(gc->dstx >= 0 && gc->dstx + gc->dstw <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
+	/*assert(gc->width <= gc->srcw); */
+	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
+	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
+	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
 	assert(gc->srcy >= 0);
 	/*printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 #endif
-	switch (op) {
+	switch (gc->op) {
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear4_drawarea_bitmap_bytes_msb_first(psd, gc);

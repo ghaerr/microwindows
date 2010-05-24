@@ -34,7 +34,7 @@
 #endif
 
 /* Values for the data rotate register to implement drawing modes. */
-static unsigned char mode_table[MWMODE_MAX + 1] = {
+static unsigned char mode_table[MWROP_MAX + 1] = {
   0x00, 0x18, 0x10, 0x08,	/* COPY, XOR, AND, OR implemented*/
   0x00, 0x00, 0x00, 0x00,	/* no VGA HW for other modes*/
   0x00, 0x00, 0x00, 0x00,
@@ -155,9 +155,9 @@ ega_drawhorzline(PSD psd, unsigned int x1, unsigned int x2, unsigned int y,
 	/*
 	* The following fast drawhline code is buggy for XOR drawing,
 	* for some reason.  So, we use the equivalent slower drawpixel
-	* method when not drawing MWMODE_COPY.
+	* method when not drawing MWROP_COPY.
 	*/
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 #if _MINIX
 		dst = (unsigned char *)(SCREENBASE + (x1>>3) + y*BYTESPERLINE);
 #else

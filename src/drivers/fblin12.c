@@ -13,7 +13,7 @@
 #include "device.h"
 #include "fb.h"
 
-int gr_mode=MWMODE_XOR;
+int gr_mode=MWROP_XOR;
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
@@ -34,7 +34,7 @@ static inline void setpix(char *cptr,int x, int y, char c)
 
 	adr = (x>>1) + (y*480);  /* change, julian*/
 
-	if(gr_mode == MWMODE_XOR) {
+	if(gr_mode == MWROP_XOR) {
 		if(x & 0x01)
 			cptr[adr]^=((c << 4) & 0xf0);
 		else cptr[adr]^=(c & 0x0f);
@@ -157,7 +157,7 @@ linear12_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 /* srccopy bitblt, opcode is currently ignored*/
 static void
 xlinear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR8	dst = dstpsd->addr;
 	ADDR8	src = srcpsd->addr;
@@ -166,9 +166,6 @@ xlinear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	slinelen = srcpsd->linelen * 3;
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
-#if ALPHABLEND
-	unsigned int alpha;
-#endif
 
 	assert (dst != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
@@ -187,45 +184,41 @@ xlinear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	dst += (dstx + dsty * dstpsd->linelen) * 3;
 	src += (srcx + srcy * srcpsd->linelen) * 3;
 
-#if ALPHABLEND
-	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
-		goto stdblit;
-	alpha = op & 0xff;
+	if (op == MWROP_BLENDCONSTANT) {
+		unsigned int alpha = 150;;
 
-	while(--h >= 0) {
-		for(i=0; i<w; ++i) {
-			uint32_t s = *src++;
-			uint32_t d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-			s = *src++;
-			d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
-			s = *src++;
-			d = *dst;
-			*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+		while(--h >= 0) {
+			for(i=0; i<w; ++i) {
+				uint32_t s = *src++;
+				uint32_t d = *dst;
+				*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+				s = *src++;
+				d = *dst;
+				*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+				s = *src++;
+				d = *dst;
+				*dst++ = (unsigned char)(((s - d)*alpha)>>8) + d;
+			}
+			dst += dlinelen_minus_w;
+			src += slinelen_minus_w;
 		}
-		dst += dlinelen_minus_w;
-		src += slinelen_minus_w;
-	}
-	DRAWOFF;
-	return;
-stdblit:
-#endif
-	while(--h >= 0) {
+	} else {
+		while(--h >= 0) {
 #if 1
-		/* a _fast_ memcpy is a _must_ in this routine*/
-		memcpy(dst, src, w*3);
-		dst += dlinelen;
-		src += slinelen;
+			/* a _fast_ memcpy is a _must_ in this routine*/
+			memcpy(dst, src, w*3);
+			dst += dlinelen;
+			src += slinelen;
 #else
-		for(i=0; i<w; ++i) {
-			*dst++ = *src++;
-			*dst++ = *src++;
-			*dst++ = *src++;
-		}
-		dst += dlinelen_minus_w;
-		src += slinelen_minus_w;
+			for(i=0; i<w; ++i) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			dst += dlinelen_minus_w;
+			src += slinelen_minus_w;
 #endif
+		}
 	}
 	DRAWOFF;
 }
@@ -234,7 +227,7 @@ stdblit:
 /* srccopy bitblt, opcode is currently ignored*/
 static void
 linear12_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR8	dst = dstpsd->addr;
 	ADDR8	src = srcpsd->addr;

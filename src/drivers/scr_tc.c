@@ -130,10 +130,10 @@ static void
 BGI_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	switch(gr_mode) {
-		case MWMODE_COPY: break;
-		case MWMODE_XOR: c ^= getpixel(x, y); break;
-		case MWMODE_OR:  c |= getpixel(x, y); break;
-		case MWMODE_AND: c &= getpixel(x, y); break;
+		case MWROP_COPY: break;
+		case MWROP_XOR: c ^= getpixel(x, y); break;
+		case MWROP_OR:  c |= getpixel(x, y); break;
+		case MWROP_AND: c &= getpixel(x, y); break;
 	}
 	putpixel(x, y, c);
 }
@@ -157,17 +157,17 @@ BGI_drawhline(PSD psd,MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	setcolor(c);
 	switch(gr_mode) {
-		case MWMODE_COPY:
+		case MWROP_COPY:
 			setwritemode(COPY_PUT);
 			break;
-		case MWMODE_XOR:
+		case MWROP_XOR:
 			setwritemode(XOR_PUT);
 			break;
-		case MWMODE_OR: 
+		case MWROP_OR: 
 			for(x = x1; x <= x2; x++)
 				putpixel(x, y, c | getpixel(x, y));
 			return;
-		case MWMODE_AND:
+		case MWROP_AND:
 			for(x = x1; x <= x2; x++)
 				putpixel(x, y, c & getpixel(x, y));
 			return;
@@ -188,17 +188,17 @@ BGI_drawvline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 	setcolor(c);
 	switch(gr_mode) {
-		case MWMODE_COPY:
+		case MWROP_COPY:
 			setwritemode(COPY_PUT);
 			break;
-		case MWMODE_XOR:
+		case MWROP_XOR:
 			setwritemode(XOR_PUT); 
 			break;
-		case MWMODE_OR: 
+		case MWROP_OR: 
 			for(y = y1; y <= y2; y++)
 				putpixel(x, y, c | getpixel(x, y));
 				return;
-		case MWMODE_AND:
+		case MWROP_AND:
 			for(y = y1; y <= y2; y++)
 				putpixel(x, y, c & getpixel(x, y));
 				return;
@@ -224,24 +224,24 @@ BGI_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	}
 
 	switch(gr_mode) {
-		case MWMODE_COPY:
+		case MWROP_COPY:
 			setfillstyle(1,c);
 			bar(x1, y1, x2, y2);
 			break;
 
-		case MWMODE_XOR:
+		case MWROP_XOR:
 			for(x = x1; x <= x2; x++)
 				for(y = y1; y <= y2; y++)
 					putpixel(x, y, c ^ getpixel(x, y));
 			break;
 
-		case MWMODE_OR:
+		case MWROP_OR:
 			for(x = x1; x <= x2; x++)
 				for(y = y1; y <= y2; y++)
 					putpixel(x, y, c | getpixel(x, y));
 			break;
 
-		case MWMODE_AND:
+		case MWROP_AND:
 			for(x = x1; x <= x2; x++)
 				for(y = y1; y <= y2; y++)
 					putpixel(x, y, c & getpixel(x, y));

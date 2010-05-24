@@ -1169,7 +1169,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	/* Initialize the parts of blit_instructions we won't change */
 	blit_instructions.fg_color = gr_foreground;
 	blit_instructions.bg_color = gr_background;
-	blit_instructions.gr_usebg = gr_usebg;
+	blit_instructions.usebg = gr_usebg;
 	blit_instructions.srcx = 0;
 	blit_instructions.srcy = 0;
 	blit_instructions.dst_linelen = 0;	/* Unused. */
@@ -1179,6 +1179,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		blit_op = PSDOP_ALPHACOL;
 	else
 		blit_op = PSDOP_BITMAP_BYTES_MSB_FIRST;
+	blit_instructions.op = blit_op;
 
 	/*
 	 * Offset the starting point if necessary, FreeType always aligns at baseline
@@ -1252,15 +1253,14 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 				blit_instructions.dstx = ax + bitmapglyph->left;
 				blit_instructions.dsty = ay - bitmapglyph->top;
-				blit_instructions.dstw = bitmap->width;
-				blit_instructions.dsth = bitmap->rows;
+				blit_instructions.width = bitmap->width;
+				blit_instructions.height = bitmap->rows;
 				blit_instructions.src_linelen = bitmap->pitch;
-				blit_instructions.pixels = bitmap->buffer;
-				blit_instructions.misc = bitmap->buffer;
+				blit_instructions.data = bitmap->buffer;
 				//DPRINTF("Nano-X-Freetype2: freetype2_draw_bitmap_%s(ax=%d, ay=%d, gl->l=%d, gl->t=%d)\n", ((pf->fontattr & MWTF_ANTIALIAS) ? "alpha" : "mono"), ax, ay, bitmapglyph->left, bitmapglyph->top);
 
-				if (blit_instructions.dstw > 0 && blit_instructions.dsth > 0)
-					GdDrawAreaInternal(psd, &blit_instructions, blit_op);
+				if (blit_instructions.width > 0 && blit_instructions.height > 0)
+					GdDrawAreaInternal(psd, &blit_instructions);
 
 				FT_Done_Glyph(glyph);
 			}
@@ -1312,11 +1312,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			blit_instructions.dstx = ax + sbit->left;
 			blit_instructions.dsty = ay - sbit->top;
-			blit_instructions.dstw = sbit->width;
-			blit_instructions.dsth = sbit->height;
+			blit_instructions.width = sbit->width;
+			blit_instructions.height = sbit->height;
 			blit_instructions.src_linelen = sbit->pitch;
-			blit_instructions.pixels = sbit->buffer;
-			blit_instructions.misc = sbit->buffer;
+			blit_instructions.data = sbit->buffer;
 
 			ax += sbit->xadvance;
 #else
@@ -1329,11 +1328,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 			blit_instructions.dstx = ax + face->glyph->bitmap_left;
 			blit_instructions.dsty = ay - face->glyph->bitmap_top;
-			blit_instructions.dstw = bitmap->width;
-			blit_instructions.dsth = bitmap->rows;
+			blit_instructions.width = bitmap->width;
+			blit_instructions.height = bitmap->rows;
 			blit_instructions.src_linelen = bitmap->pitch;
-			blit_instructions.pixels = bitmap->buffer;
-			blit_instructions.misc = bitmap->buffer;
+			blit_instructions.data = bitmap->buffer;
 
 			/* Wierdness: After FT_Load_Glyph, face->glyph->advance.x is in 26.6.
 			 * After a translation with FT_Glyph_Transform, it is in 16.16.
@@ -1341,8 +1339,8 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			 */
 			ax += (face->glyph->advance.x >> 6);
 #endif
-			if (blit_instructions.dstw > 0 && blit_instructions.dsth > 0)
-				GdDrawAreaInternal(psd, &blit_instructions, blit_op);
+			if (blit_instructions.width > 0 && blit_instructions.height > 0)
+				GdDrawAreaInternal(psd, &blit_instructions);
 
 		}
 		if (pf->fontattr & MWTF_UNDERLINE)

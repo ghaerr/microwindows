@@ -34,7 +34,7 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 #endif
 	DRAWON;
-	if (gr_mode == MWMODE_COPY)
+	if (gr_mode == MWROP_COPY)
 		((ADDR32)psd->addr)[x + y * psd->linelen] = c;
 	else
 		applyOp(gr_mode, c, &((ADDR32)psd->addr)[x + y * psd->linelen], ADDR32);
@@ -66,7 +66,7 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 #endif
 	DRAWON;
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		/* FIXME memsetl(addr, c, x2-x1+1);*/
 		while(x1++ <= x2)
 			*addr++ = c;
@@ -93,7 +93,7 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert (y2 >= y1);
 #endif
 	DRAWON;
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		while(y1++ <= y2) {
 			*addr = c;
 			addr += linelen;
@@ -110,7 +110,7 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 /* srccopy bitblt*/
 static void
 linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	ADDR8	dst8, src8;
 	ADDR32	dst = dstpsd->addr;
@@ -120,9 +120,6 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	slinelen = srcpsd->linelen;
 	int	dlinelen_minus_w4;
 	int	slinelen_minus_w4;
-#if ALPHABLEND
-	uint32_t alpha;
-#endif
 
 	assert (dst != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
@@ -137,15 +134,13 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
 
-	DRAWON;
 	dst += dstx + dsty * dlinelen;
 	src += srcx + srcy * slinelen;
 
-#if ALPHABLEND
-	if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
-		goto stdblit;
-	if ((alpha = op & 0xff) == 255)
-		goto stdcopy;
+	DRAWON;
+
+	if (op == MWROP_BLENDCONSTANT) {
+	uint32_t alpha = 150;
 
 	dlinelen_minus_w4 = (dlinelen - w) * 4;
 	slinelen_minus_w4 = (slinelen - w) * 4;
@@ -196,13 +191,8 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		dst8 += dlinelen_minus_w4;
 		src8 += slinelen_minus_w4;
 	}
-	DRAWOFF;
-	return;
-stdblit:
-#endif
 
-	if (op == MWROP_COPY) {
-stdcopy:
+	} else if (op == MWROP_COPY) {
 		/* copy from bottom up if dst in src rectangle*/
 		/* memmove is used to handle x case*/
 		if (srcy < dsty) {
@@ -217,13 +207,7 @@ stdcopy:
 			dst += dlinelen;
 			src += slinelen;
 		}
-	} else if (MWROP_TO_MODE(op) <= MWMODE_SIMPLE_MAX) {
-		while (--h >= 0) {
-			applyOp4(w, MWROP_TO_MODE(op), src, dst, ADDR32);
-			dst += dlinelen - w;
-			src += slinelen - w;
-		}
-	} else if (MWROP_TO_MODE(op) == MWMODE_SRC_OVER) {
+	} else if (op == MWROP_SRC_OVER) {
 		src8 = (ADDR8)src;
 		dst8 = (ADDR8)dst;
 		while (h--) {
@@ -260,9 +244,13 @@ stdcopy:
 			src8 += (slinelen - w) * 4;
 		}
 	} else {
-		// FIXME implement other compositing modes
-		assert(0);
+		while (--h >= 0) {
+			applyOp4(w, op, src, dst, ADDR32);
+			dst += dlinelen - w;
+			src += slinelen - w;
+		}
 	}
+
 	DRAWOFF;
 }
 
@@ -271,7 +259,7 @@ stdcopy:
 static void
 linear32_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, long op)
+	MWCOORD srch, int op)
 {
 	ADDR32	dst;
 	ADDR32	src;
@@ -398,7 +386,7 @@ linear32_stretchblitex(PSD dstpsd,
 			 int src_y_fraction,
 			 int x_step_fraction,
 			 int y_step_fraction,
-			 long op)
+			 int op)
 {
 	/* Pointer to the current pixel in the source image */
 	uint32_t *RESTRICT src_ptr;
@@ -501,7 +489,7 @@ linear32_stretchblitex(PSD dstpsd,
 	 * The MWROP_CLEAR case could be removed.  But it is a large
 	 * speed increase for a small quantity of code.
 	 */
-	switch (op & MWROP_EXTENSION) {
+	switch (op) {
 	case MWROP_SRC:
 		/* Benchmarking shows that this while loop is faster than the equivalent
 		 * for loop: for(y_count=0; y_count<height; y_count++) { ... }
@@ -559,7 +547,7 @@ linear32_stretchblitex(PSD dstpsd,
 
 			x_count = width;
 			while (x_count-- > 0) {
-				applyOp(MWROP_TO_MODE(op), *src_ptr, dest_ptr, ADDR32);
+				applyOp(op, *src_ptr, dest_ptr, ADDR32);
 				dest_ptr++;
 
 				src_ptr += src_x_step_normal;
@@ -581,7 +569,6 @@ linear32_stretchblitex(PSD dstpsd,
 			}
 		}
 		break;
-
 	}
 }
 
@@ -601,10 +588,10 @@ linear32_stretchblitex(PSD dstpsd,
  *       dstx, dsty, dsth, dstw   Destination rectangle
  *       srcx, srcy               Source rectangle
  *       src_linelen              Linesize in bytes of source
- *       pixels                   Pixmap data
+ *       data                   Pixmap data
  *       fg_color                 Color of a '1' bit
  *       bg_color                 Color of a '0' bit
- *       gr_usebg                 If set, bg_color is used.  If zero,
+ *       usebg                 If set, bg_color is used.  If zero,
  *                                then '0' bits are transparent.
  */
 static void
@@ -650,21 +637,21 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	prefix_first_bit = MWI_BIT_NO(gc->srcx & 7);
 
 	/* The bit in the last byte, which corresponds to the rightmost pixel. */
-	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->dstw - 1) & 7);
+	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->width - 1) & 7);
 
 	/* The index into each scanline of the first byte to use. */
 	first_byte = gc->srcx >> 3;
 
 	/* The index into each scanline of the last byte to use. */
-	last_byte = (gc->srcx + gc->dstw - 1) >> 3;
+	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->pixels) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
 	dst = ((ADDR32) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	fg = gc->fg_color;
 	bg = gc->bg_color;
 
 	advance_src = gc->src_linelen - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - gc->dstw;
+	advance_dst = psd->linelen - gc->width;
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -697,8 +684,8 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 
 	DRAWON;
 
-	if (gc->gr_usebg) {
-		for (y = 0; y < gc->dsth; y++) {
+	if (gc->usebg) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
@@ -735,7 +722,7 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			dst += advance_dst;
 		}
 	} else {
-		for (y = 0; y < gc->dsth; y++) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
@@ -808,13 +795,13 @@ linear32_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
  * for the leftmost of the 8 pixels controlled by each byte.
  *
  * Variables used in the gc:
- *       dstx, dsty, dsth, dstw   Destination rectangle
+ *       dstx, dsty, dsth, width   Destination rectangle
  *       srcx, srcy               Source rectangle
  *       src_linelen              Linesize in bytes of source
- *       pixels                   Pixmap data
+ *       data                   Pixmap data
  *       fg_color                 Color of a '1' bit
  *       bg_color                 Color of a '0' bit
- *       gr_usebg                 If set, bg_color is used.  If zero,
+ *       usebg                 If set, bg_color is used.  If zero,
  *                                then '0' bits are transparent.
  */
 static void
@@ -860,21 +847,21 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	prefix_first_bit = MWI_BIT_NO(gc->srcx & 7);
 
 	/* The bit in the last byte, which corresponds to the rightmost pixel. */
-	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->dstw - 1) & 7);
+	postfix_last_bit = MWI_BIT_NO((gc->srcx + gc->width - 1) & 7);
 
 	/* The index into each scanline of the first byte to use. */
 	first_byte = gc->srcx >> 3;
 
 	/* The index into each scanline of the last byte to use. */
-	last_byte = (gc->srcx + gc->dstw - 1) >> 3;
+	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->pixels) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
 	dst = ((ADDR32) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	fg = gc->fg_color;
 	bg = gc->bg_color;
 
 	advance_src = gc->src_linelen - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - gc->dstw;
+	advance_dst = psd->linelen - gc->width;
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -907,8 +894,8 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 
 	DRAWON;
 
-	if (gc->gr_usebg) {
-		for (y = 0; y < gc->dsth; y++) {
+	if (gc->usebg) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
@@ -945,7 +932,7 @@ linear32_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			dst += advance_dst;
 		}
 	} else {
-		for (y = 0; y < gc->dsth; y++) {
+		for (y = 0; y < gc->height; y++) {
 
 			/* Do pixels of partial first byte */
 			if (prefix_first_bit) {
@@ -1011,19 +998,19 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	int x, y;
 	int src_row_step, dst_row_step;
 
-	alpha = ((ADDR8) gc->misc) + gc->src_linelen * gc->srcy + gc->srcx;
+	alpha = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
 	dst = ((ADDR32) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 	ps = gc->fg_color;
 	psr = ps & 0x00FF0000UL;
 	psg = ps & 0x0000FF00UL;
 	psb = ps & 0x000000FFUL;
 
-	src_row_step = gc->src_linelen - gc->dstw;
-	dst_row_step = psd->linelen - gc->dstw;
+	src_row_step = gc->src_linelen - gc->width;
+	dst_row_step = psd->linelen - gc->width;
 
 	DRAWON;
-	for (y = 0; y < gc->dsth; y++) {
-		for (x = 0; x < gc->dstw; x++) {
+	for (y = 0; y < gc->height; y++) {
+		for (x = 0; x < gc->width; x++) {
 			if ((as = *alpha++) == 255)
 				*dst++ = ps;
 			else if (as != 0) {
@@ -1039,13 +1026,13 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				 * with one multiply and shift.
 				 */
 				as = 255 - as + 1;
-				pd = gc->gr_usebg? gc->bg_color: *dst;
+				pd = gc->usebg? gc->bg_color: *dst;
 				*dst++ = 
 				      ((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL)
 					| ((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL)
 					| ((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL)
 					| ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
-			} else if(gc->gr_usebg)		/* alpha 0 - draw bkgnd*/
+			} else if(gc->usebg)		/* alpha 0 - draw bkgnd*/
 				*dst++ = gc->bg_color;
 			else
 				++dst;
@@ -1058,17 +1045,17 @@ linear32_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 #endif /* MW_FEATURE_PSDOP_ALPHACOL */
 
 static void
-linear32_drawarea(PSD psd, driver_gc_t * gc, int op)
+linear32_drawarea(PSD psd, driver_gc_t * gc)
 {
 	assert(psd->addr != 0);
-	/*assert(gc->dstw <= gc->srcw); */
-	assert(gc->dstx >= 0 && gc->dstx + gc->dstw <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->dsth <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->dstw <= gc->srcw); */
+	/*assert(gc->width <= gc->srcw); */
+	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
+	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
+	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
 	assert(gc->srcy >= 0);
 	/*DPRINTF("linear32_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
-	switch (op) {
+	switch (gc->op) {
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear32_drawarea_alphacol(psd, gc);

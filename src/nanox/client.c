@@ -3570,7 +3570,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 void
 GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
-	GR_COORD srcx, GR_COORD srcy, unsigned long op)
+	GR_COORD srcx, GR_COORD srcy, int op)
 {
 	nxCopyAreaReq *req;
 
@@ -4617,7 +4617,7 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 	      GR_DRAW_ID srcid,
 	      GR_COORD sx1, GR_COORD sy1,
 	      GR_COORD sx2, GR_COORD sy2,
-	      unsigned long op)
+	      int op)
 {
 	nxStretchAreaReq *req;
 

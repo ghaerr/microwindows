@@ -39,7 +39,6 @@
 #define MWPIXEL_FORMAT MWPF_PALETTE
 #endif
 
-#if ALPHABLEND
 /*
  * Alpha lookup tables for 256 color palette systems
  * A 5 bit alpha value is used to keep tables smaller.
@@ -53,7 +52,6 @@
 static unsigned short *alpha_to_rgb = NULL;
 static unsigned char  *rgb_to_palindex = NULL;
 static void init_alpha_lookup(void);
-#endif
 
 static SCREENDEVICE savebits;	/* permanent offscreen drawing buffer*/
 
@@ -283,7 +281,6 @@ static void FBSD_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,
 		      MWCOORD w,MWCOORD h,
 		      PSD srcpsd,MWCOORD srcx,MWCOORD srcy, long op)
 {
-
     int x, y;
 
     if (dstpsd == srcpsd)
@@ -339,17 +336,12 @@ static void
 FBSD_blit2(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	   PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
 {
-#if ALPHABLEND
 
-    unsigned int srcalpha, dstalpha;
-
-    if((op & MWROP_EXTENSION) != MWROP_BLENDCONSTANT)
-	goto stdblit;
-    srcalpha = op & 0xff;
+	if (op == MWROP_BLENDCONSTANT) {
+    unsigned int srcalpha = 150, dstalpha;
 
     /* FIXME create lookup table after palette is stabilized...*/
-    if(!rgb_to_palindex || !alpha_to_rgb) 
-    {
+    if(!rgb_to_palindex || !alpha_to_rgb) {
 	init_alpha_lookup();
 	if(!rgb_to_palindex || !alpha_to_rgb)
 	    goto stdblit;
@@ -361,11 +353,9 @@ FBSD_blit2(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
     dstalpha = ((srcalpha>>3) ^ 31) << 8;
     srcalpha = (srcalpha>>3) << 8;
 
-    while(--h >= 0) 
-    {
+    while(--h >= 0) {
 	int	i;
-	for(i=0; i<w; ++i) 
-	{
+	for(i=0; i<w; ++i) {
 	    int c;
 	    /* Get source RGB555 value for source alpha value*/
 	    unsigned short s = alpha_to_rgb[srcalpha + 
@@ -383,14 +373,11 @@ FBSD_blit2(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	    savebits.DrawPixel(&savebits, dstx+i, dsty+h, c);
 	}
     }
-    return;
- stdblit:
-#endif
+	} else
     FBSD_blit(dstpsd, dstx, dsty, w, h, srcpsd, srcx, srcy, op);
 }
 
 
-#if ALPHABLEND
 static void init_alpha_lookup(void)
 {
     int	i, a;
@@ -433,4 +420,3 @@ static void init_alpha_lookup(void)
 				       MWRGB(r<<3, g<<3, b<<3));
     }
 }
-#endif

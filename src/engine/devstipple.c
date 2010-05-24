@@ -145,7 +145,7 @@ tile_drawrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h)
 
 			GdBlit(psd, sx + px, sy + py, cw, ch, gr_tile.psd,
 			       ((tilex + px) % gr_tile.width),
-			       ((tiley + py) % gr_tile.height), MWROP_SRCCOPY);
+			       ((tiley + py) % gr_tile.height), MWROP_COPY);
 			dw -= cw;
 			px += cw;
 		}

@@ -1,20 +1,49 @@
 #ifndef _MWTYPES_H
 #define _MWTYPES_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Exported Microwindows engine typedefs and defines
  */
-#include <stdint.h>			/* for uint32_t, int32_t*/
-
-/*include the eCos configuration "translation" header */
+#include <stdint.h> 		/* for uint32_t, int32_t*/
 #if __ECOS
-#include <ecosmwconfig.h>
+#include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */
+#endif
+
+/* configurable options*/
+#define USE_ALLOCA	1			/* alloca() is available */
+
+#if 0000	/* use if stdint.h missing*/
+/* typedef 32 bit types for 16 and 64 bit environments*/
+#if __WORDSIZE == 64
+	typedef unsigned int	uint32_t;
+	typedef int				int32_t;
+#else
+	typedef unsigned long	uint32_t;
+	typedef long			int32_t;
+#endif
 #endif
 
 /* compiler specific defines*/
 #define MWPACKED	__attribute__ ((aligned(1), packed))
+
+/* force byte-packed structures*/
+#if defined(GCC_VERSION)
+#define PACKEDDATA			__attribute__ ((__packed__))
+#else
+#define PACKEDDATA			/* FIXME for MSVC #pragma pack(1) equiv*/
+#endif
+
+#if USE_ALLOCA
+/* alloca() is available, so use it for better performance */
+#define ALLOCA(size)	alloca(size)
+#define FREEA(pmem)
+#else
+/* no alloca(), so use malloc()/free() instead */
+#define ALLOCA(size)	malloc(size)
+#define FREEA(pmem)	free(pmem)
+#endif
 
 /* builtin font std names*/
 #define MWFONT_SYSTEM_VAR	"System"	/* winFreeSansSerif 11x13 (ansi)*/
@@ -49,57 +78,28 @@
 #define MWTF_UNDERLINE	0x0004		/* draw underline*/
 #define MWTF_FREETYPE	0x1000		/* FIXME: remove*/
 
-/* Drawing modes*/
-#define	MWMODE_COPY		0	/* src*/
-#define	MWMODE_XOR		1	/* src ^ dst*/
-#define	MWMODE_OR		2	/* src | dst*/
-#define	MWMODE_AND		3	/* src & dst*/
-#define	MWMODE_CLEAR		4	/* 0*/
-#define	MWMODE_SETTO1		5	/* 11111111*/ /* obsolete name, will be MWMODE_SET*/
-#define	MWMODE_EQUIV		6	/* ~(src ^ dst)*/
-#define	MWMODE_NOR		7	/* ~(src | dst)*/
-#define	MWMODE_NAND		8	/* ~(src & dst)*/
-#define	MWMODE_INVERT		9	/* ~dst*/
-#define	MWMODE_COPYINVERTED	10	/* ~src*/
-#define	MWMODE_ORINVERTED	11	/* ~src | dst*/
-#define	MWMODE_ANDINVERTED	12	/* ~src & dst*/
-#define MWMODE_ORREVERSE	13	/* src | ~dst*/
-#define	MWMODE_ANDREVERSE	14	/* src & ~dst*/
-#define	MWMODE_NOOP		15	/* dst*/
-#define	MWMODE_XOR_FGBG		16	/* src ^ background ^ dst (This is the Java XOR mode) */
-
-#define MWMODE_SIMPLE_MAX 16	/* Last "simple" (non-alpha) mode */
-
-/*
- * Porter-Duff rules for alpha compositing.
- *
- * Only SRC, CLEAR, and SRC_OVER are commonly used.
- * The rest are very uncommon, although a full Java implementation
- * would require them.  (ATOP and XOR were introduced in JDK 1.4)
- *
- * Note that MWMODE_PORTERDUFF_XOR is *very* different from MWMODE_XOR.
- */
-/* #define	MWMODE_CLEAR - already correctly defined */
-#define	MWMODE_SRC	MWMODE_COPY
-#define	MWMODE_DST	MWMODE_NOOP
-#define	MWMODE_SRC_OVER	17
-#define	MWMODE_DST_OVER	18
-#define	MWMODE_SRC_IN	19
-#define	MWMODE_DST_IN	20
-#define	MWMODE_SRC_OUT	21
-#define	MWMODE_DST_OUT	22
-#define	MWMODE_SRC_ATOP	23
-#define	MWMODE_DST_ATOP	24
-#define	MWMODE_PORTERDUFF_XOR	25
-#define MWMODE_SRCTRANSCOPY 26
-
-#define	MWMODE_MAX		26
-
+/* Image data formats, used by GdConversionBlit*/
+#define MWIF_1BPP			0x00000001L
+#define MWIF_8BPP			0x00000008L
+#define MWIF_15BPP			0x0000000FL
+#define MWIF_16BPP			0x00000010L
+#define MWIF_24BPP			0x00000018L
+#define MWIF_32BPP			0x00000020L
+#define MWIF_BPPMASK		0x0000003FL
+#define MWIF_MONO			0x00000040L
+#define MWIF_HASALPHA		0x00000080L
+#define MWIF_BYTEDATA		0x00000100L
+#define MWIF_WORDDATA		0x00000200L
+#define MWIF_DWORDDATA		0x00000400L
+#define MWIF_MSBFIRST		0x00000800L
+#define MWIF_LSBFIRST		0x00001000L
+#define MWIF_MONOBYTEMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_MSBFIRST)
+#define MWIF_MONOBYTELSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_LSBFIRST)
+#define MWIF_MONOWORDMSB	(MWIF_1BPP | MWIF_MONO | MWIF_WORDDATA | MWIF_MSBFIRST)
 
 /* Line modes */
 #define MWLINE_SOLID      0
 #define MWLINE_ONOFF_DASH 1
-
 /* FUTURE: MWLINE_DOUBLE_DASH */
 
 /* Fill mode  */
@@ -108,103 +108,57 @@
 #define MWFILL_OPAQUE_STIPPLE 2  
 #define MWFILL_TILE           3
 
-/* Mouse button bits*/
-#define MWBUTTON_L	04
-#define MWBUTTON_M	02
-#define MWBUTTON_R	01
+/* Drawing modes (raster ops)*/
+#define	MWROP_COPY			0	/* src*/
+#define	MWROP_XOR			1	/* src ^ dst*/
+#define	MWROP_OR			2	/* src | dst*/
+#define	MWROP_AND			3	/* src & dst*/
+#define	MWROP_CLEAR			4	/* 0*/
+#define	MWROP_SET			5	/* ~0, was MWROP_SETTO1*/
+#define	MWROP_EQUIV			6	/* ~(src ^ dst)*/
+#define	MWROP_NOR			7	/* ~(src | dst)*/
+#define	MWROP_NAND			8	/* ~(src & dst)*/
+#define	MWROP_INVERT		9	/* ~dst*/
+#define	MWROP_COPYINVERTED	10	/* ~src*/
+#define	MWROP_ORINVERTED	11	/* ~src | dst*/
+#define	MWROP_ANDINVERTED	12	/* ~src & dst*/
+#define MWROP_ORREVERSE		13	/* src | ~dst*/
+#define	MWROP_ANDREVERSE	14	/* src & ~dst*/
+#define	MWROP_NOOP			15	/* dst*/
+#define	MWROP_XOR_FGBG		16	/* src ^ background ^ dst (Java XOR mode)*/
+#define MWROP_SIMPLE_MAX 	16	/* last non-compositing rop*/
 
-/* Color defines - MWCOLORVAL is always 0xAABBGGRR format*/
-#define MWARGB(a,r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
-				(((uint32_t)(unsigned char)(g))<<8))|\
-				(((uint32_t)(unsigned char)(b))<<16)|\
-				(((uint32_t)(unsigned char)(a))<<24)))
-#define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* rgb full alpha*/
-#define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb no alpha*/
+/* Porter-Duff compositing operations.  Only SRC, CLEAR and SRC_OVER are commonly used*/
+#define	MWROP_SRC			MWROP_COPY
+#define	MWROP_DST			MWROP_NOOP
+//#define MWROP_CLEAR		MWROP_CLEAR
+#define	MWROP_SRC_OVER		17	/* dst = alphablend src,dst*/
+#define	MWROP_DST_OVER		18
+#define	MWROP_SRC_IN		19
+#define	MWROP_DST_IN		20
+#define	MWROP_SRC_OUT		21
+#define	MWROP_DST_OUT		22
+#define	MWROP_SRC_ATOP		23
+#define	MWROP_DST_ATOP		24
+#define	MWROP_PORTERDUFF_XOR 25
+#define MWROP_SRCTRANSCOPY 26
+#define	MWROP_MAX			26	/* last non-blit rop*/
 
-/* no color, used for transparency, should not be 0, -1 or any MWRGB color*/
-#define MWNOCOLOR	0x01000000L
-
-/* convert an MWROP to drawing mode MWMODE value*/
-#define MWROP_TO_MODE(op)	((op) >> 24)
-
-/* convert an MWMODE to blitting mode MWROP value*/
-#define MWMODE_TO_ROP(op)	(((long)(op)) << 24)
+/* blit ROP modes in addtion to MWROP_xxx */
+#define MWROP_BLENDCONSTANT		32	/* alpha blend src -> dst with constant alpha*/
+//#define MWROP_BLENDFGBG		33	/* alpha blend fg/bg color -> dst with src as alpha channel*/
+//#define MWROP_SRCTRANSCOPY	34	/* copy src -> dst except for transparent color in src*/
+//#define MWROP_BLENDCHANNEL	35	/* alpha blend src -> dst with separate per pixel alpha chan*/
+//#define MWROP_STRETCH			36	/* stretch src -> dst*/
 
 
-/* 
- * ROP blitter opcodes (extensions < 0x20000000 are reserved
- * for MWMODE_xxx blit ops, although currently some of these
- * are unused).
- */
-#define MWROP_EXTENSION		0xff000000L	/* rop extension bits*/
 
-/* copy src -> dst except for transparent color in src*/
-#define MWROP_SRCTRANSCOPY	0x21000000L
-
-/* alpha blend src -> dst with constant alpha, alpha value in low 8 bits*/
-#define MWROP_BLENDCONSTANT	0x22000000L
-
-/* alpha blend fg/bg color -> dst with src as alpha channel*/
-#define MWROP_BLENDFGBG		0x23000000L
-
-/* alpha blend src -> dst with separate per pixel alpha channel*/
-#define MWROP_BLENDCHANNEL	0x24000000L
-
-/* stretch src -> dst*/
-#define MWROP_STRETCH		0x25000000L
-
-/* Use the MWMODE value in the graphics context
- * to choose the appropriate MWROP value.
- * (This is only valid in calls to the Nano-X API,
- * it is not valid for the lower level blitters) 
- */
-#define MWROP_USE_GC_MODE	0xff000000L
-
-/* blits rops based on src/dst binary operations*/
-#define MWROP_COPY		MWMODE_TO_ROP(MWMODE_COPY)
-#define	MWROP_XOR		MWMODE_TO_ROP(MWMODE_XOR)
-#define	MWROP_OR		MWMODE_TO_ROP(MWMODE_OR)
-#define MWROP_AND		MWMODE_TO_ROP(MWMODE_AND)
-#define	MWROP_CLEAR		MWMODE_TO_ROP(MWMODE_CLEAR)
-#define	MWROP_SET		MWMODE_TO_ROP(MWMODE_SETTO1)
-#define	MWROP_EQUIV		MWMODE_TO_ROP(MWMODE_EQUIV)
-#define	MWROP_NOR		MWMODE_TO_ROP(MWMODE_NOR)
-#define	MWROP_NAND		MWMODE_TO_ROP(MWMODE_NAND)
-#define	MWROP_INVERT		MWMODE_TO_ROP(MWMODE_INVERT)
-#define	MWROP_COPYINVERTED	MWMODE_TO_ROP(MWMODE_COPYINVERTED)
-#define	MWROP_ORINVERTED	MWMODE_TO_ROP(MWMODE_ORINVERTED)
-#define	MWROP_ANDINVERTED	MWMODE_TO_ROP(MWMODE_ANDINVERTED)
-#define MWROP_ORREVERSE		MWMODE_TO_ROP(MWMODE_ORREVERSE)
-#define	MWROP_ANDREVERSE	MWMODE_TO_ROP(MWMODE_ANDREVERSE)
-#define	MWROP_NOOP		MWMODE_TO_ROP(MWMODE_NOOP)
-#define	MWROP_XOR_FGBG		MWMODE_TO_ROP(MWMODE_XOR_FGBG)
-
-/*
- * Porter-Duff rules for alpha compositing.
- *
- * Only SRC, CLEAR, and SRC_OVER are commonly used.
- * The rest are very uncommon, although a full Java implementation
- * would require them.
- *
- * Note that MWMODE_PORTERDUFF_XOR is very different from MWMODE_XOR.
- */
-/* #define	MWMODE_CLEAR - already correctly defined */
-#define	MWROP_SRC	MWMODE_TO_ROP(MWMODE_SRC)
-#define	MWROP_DST	MWMODE_TO_ROP(MWMODE_DST)
-#define	MWROP_SRC_OVER	MWMODE_TO_ROP(MWMODE_SRC_OVER)
-#define	MWROP_DST_OVER	MWMODE_TO_ROP(MWMODE_DST_OVER)
-#define	MWROP_SRC_IN	MWMODE_TO_ROP(MWMODE_SRC_IN)
-#define	MWROP_DST_IN	MWMODE_TO_ROP(MWMODE_DST_IN)
-#define	MWROP_SRC_OUT	MWMODE_TO_ROP(MWMODE_SRC_OUT)
-#define	MWROP_DST_OUT	MWMODE_TO_ROP(MWMODE_DST_OUT)
-#define	MWROP_SRC_ATOP	MWMODE_TO_ROP(MWMODE_SRC_ATOP)
-#define	MWROP_DST_ATOP	MWMODE_TO_ROP(MWMODE_DST_ATOP)
-#define	MWROP_PORTERDUFF_XOR	MWMODE_TO_ROP(MWMODE_PORTERDUFF_XOR)
+#define MWROP_USE_GC_MODE		255 /* use current GC mode for ROP.  Nano-X CopyArea only*/
 
 #define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
-#define MWROP_SRCAND		MWROP_AND	/* obsolete*/
-#define MWROP_SRCINVERT		MWROP_XOR	/* obsolete*/
-#define MWROP_BLACKNESS     	MWROP_CLEAR	/* obsolete*/
+//#define MWROP_SRCAND		MWROP_AND	/* obsolete*/
+//#define MWROP_SRCINVERT	MWROP_XOR	/* obsolete*/
+//#define MWROP_BLACKNESS   MWROP_CLEAR	/* obsolete*/
 
 /* 
  * Pixel formats
@@ -276,16 +230,34 @@ typedef unsigned short MWPIXELVAL;
 /*
  * Type definitions
  */
-typedef int		MWCOORD;	/* device coordinates*/
-typedef int		MWBOOL;		/* boolean value*/
+typedef int				MWCOORD;	/* device coordinates*/
+typedef int				MWBOOL;		/* boolean value*/
 typedef unsigned char	MWUCHAR;	/* unsigned char*/
-typedef uint32_t	MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
-typedef unsigned short	MWIMAGEBITS;	/* bitmap image unit size*/
-typedef uint32_t	MWTIMEOUT;	/* timeout value */
-typedef uint32_t	MWTEXTFLAGS;	/* MWTF_ text flag*/
+typedef uint32_t		MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
+typedef unsigned short	MWIMAGEBITS;/* bitmap image unit size*/
+typedef uint32_t		MWTIMEOUT;	/* timeout value */
+typedef uint32_t		MWTEXTFLAGS;/* MWTF_ text flag*/
 
 #define MWCOORD_MAX	0x7fff		/* maximum coordinate value*/
 #define MWCOORD_MIN	(-MWCOORD_MAX)	/* minimum coordinate value*/
+
+/* max char height/width must be >= 16 and a multiple of sizeof(MWIMAGEBITS)*/
+#define MAX_CHAR_HEIGHT	128			/* maximum text bitmap height*/
+#define MAX_CHAR_WIDTH	128			/* maximum text bitmap width*/
+#define	MIN_MWCOORD	((MWCOORD) -32768)	/* minimum coordinate value */
+#define	MAX_MWCOORD	((MWCOORD) 32767)	/* maximum coordinate value */
+
+#ifndef TRUE
+#define TRUE			1
+#endif
+#ifndef FALSE
+#define FALSE			0
+#endif
+
+#define	MWMIN(a,b)		((a) < (b) ? (a) : (b))
+#define	MWMAX(a,b) 		((a) > (b) ? (a) : (b))
+#define MWABS(x)		((x) < 0 ? -(x) : (x))
+#define MWCLAMP(x,a,b)	((x) > (b) ? (b) : ((x) < (a) ? (a) : (x)))
 
 /* MWIMAGEBITS macros*/
 #define MWIMAGE_WORDS(x)	(((x)+15)/16)
@@ -317,24 +289,24 @@ typedef unsigned int	MWKEYMOD;
 
 /* GetScreenInfo structure*/
 typedef struct {
-	MWCOORD  rows;		/* number of rows on screen */
-	MWCOORD  cols;		/* number of columns on screen */
-	int 	 xdpcm;		/* dots/centimeter in x direction */
-	int 	 ydpcm;		/* dots/centimeter in y direction */
-	int	 planes;	/* hw # planes*/
-	int	 bpp;		/* hw bpp*/
-	int32_t	 ncolors;	/* hw number of colors supported*/
-	int 	 fonts;		/* number of built-in fonts */
-	int 	 buttons;	/* buttons which are implemented */
+	MWCOORD	rows;		/* number of rows on screen */
+	MWCOORD cols;		/* number of columns on screen */
+	int 	xdpcm;		/* dots/centimeter in x direction */
+	int 	ydpcm;		/* dots/centimeter in y direction */
+	int	 	planes;		/* hw # planes*/
+	int	 	bpp;		/* hw bpp*/
+	int32_t	ncolors;	/* hw number of colors supported*/
+	int 	fonts;		/* number of built-in fonts */
+	int 	buttons;	/* buttons which are implemented */
 	MWKEYMOD modifiers;	/* modifiers which are implemented */
-	int	 pixtype;	/* format of pixel value*/
-	int	 portrait;	/* current portrait mode*/
-	MWBOOL	 fbdriver;	/* true if running mwin fb screen driver*/
-	uint32_t rmask;	/* red mask bits in pixel*/
-	uint32_t gmask;	/* green mask bits in pixel*/
-	uint32_t bmask;	/* blue mask bits in pixel*/
-	MWCOORD	 xpos;		/* current x mouse position*/
-	MWCOORD	 ypos;		/* current y mouse position*/
+	int	 	pixtype;	/* format of pixel value*/
+	int	 	portrait;	/* current portrait mode*/
+	MWBOOL	fbdriver;	/* true if running mwin fb screen driver*/
+	uint32_t rmask;		/* red mask bits in pixel*/
+	uint32_t gmask;		/* green mask bits in pixel*/
+	uint32_t bmask;		/* blue mask bits in pixel*/
+	MWCOORD	xpos;		/* current x mouse position*/
+	MWCOORD	ypos;		/* current y mouse position*/
 
 /* items below are get/set by the window manager and not used internally*/
 	int	vs_width;	/* virtual screen width/height*/
@@ -360,6 +332,101 @@ typedef struct {
 	MWCOORD	yvirtres;
 } MWWINDOWFBINFO;
 
+/* builtin C-based proportional/fixed font structure*/
+typedef struct {
+	char *			name;		/* font name*/
+	int				maxwidth;	/* max width in pixels*/
+	unsigned int	height;		/* height in pixels*/
+	int				ascent;		/* ascent (baseline) height*/
+	int				firstchar;	/* first character in bitmap*/
+	int				size;		/* font size in characters*/
+	const MWIMAGEBITS *bits;	/* 16-bit right-padded bitmap data*/
+	const uint32_t 	*offset;	/* offsets into bitmap data*/
+	const unsigned char *width;	/* character widths or 0 if fixed*/
+	int				defaultchar;/* default char (not glyph index)*/
+	int32_t			bits_size;	/* # words of MWIMAGEBITS bits*/
+} MWCFONT, *PMWCFONT;
+
+/* draw procs associated with fonts.  Strings are [re]packed using defencoding*/
+typedef struct _mwscreendevice *PSD;
+typedef struct _mwfont *		PMWFONT;
+typedef struct _mwfontinfo *	PMWFONTINFO;
+
+typedef struct {
+	MWTEXTFLAGS	encoding;	/* routines expect this encoding*/
+//	MWBOOL	(*Init)(PSD psd);
+//	PMWFONT	(*CreateFont)(const char *name, MWCOORD height, MWCOORD width, int attr);
+	MWBOOL	(*GetFontInfo)(PMWFONT pfont, PMWFONTINFO pfontinfo);
+	void 	(*GetTextSize)(PMWFONT pfont, const void *text, int cc,
+			MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
+			MWCOORD *pbase);
+	void	(*GetTextBits)(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
+			MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+	void	(*DestroyFont)(PMWFONT pfont);
+	void	(*DrawText)(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+			const void *str, int count, MWTEXTFLAGS flags);
+//	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height, MWCOORD width);
+	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height); // DEPRECATED
+	void    (*SetFontRotation)(PMWFONT pfont, int tenthdegrees);
+	void    (*SetFontAttr)(PMWFONT pfont, int setflags, int clrflags);
+//	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height, MWCOORD width);
+	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height); // DEPRECATED
+} MWFONTPROCS, *PMWFONTPROCS;
+
+/* new multi-renderer font struct*/
+typedef struct _mwfont {		/* common hdr for all font structures*/
+	PMWFONTPROCS	fontprocs;	/* font-specific rendering routines*/
+	MWCOORD			fontsize;	/* font height in pixels*/
+	int				fontrotation; /* font rotation*/
+	int				fontattr;	/* font attributes: kerning/antialias*/
+	/* font-specific rendering data here*/
+} MWFONT;
+
+/* builtin core font struct*/
+typedef struct {
+	PMWFONTPROCS	fontprocs;	/* common hdr*/
+	MWCOORD			fontsize;
+	int				fontrotation;
+	int				fontattr;
+	/* core font specific data*/
+	char *		name;			/* Microwindows font name*/
+	PMWCFONT	cfont;			/* builtin font data*/
+} MWCOREFONT, *PMWCOREFONT;
+
+/* GdConversionBlit parameter structure*/
+typedef struct {
+	int			op;				/* MWROP operation requested*/
+	int			data_format;	/* MWIF_ image data format*/
+	MWCOORD		width, height;	/* width and height for src and dest*/
+	MWCOORD		dstx, dsty;		/* dest x, y*/
+	MWCOORD		dst_pitch;		/* dest pitch in bytes*/
+	MWCOORD		srcx, srcy;		/* source x, y*/
+	MWCOORD		src_pitch;		/* source pitch in bytes*/
+	uint32_t	fg_color;		/* foreground color, hw pixel format*/
+	uint32_t	bg_color;
+	MWBOOL		usebg;			/* set =1 to draw background*/
+	void *		data;			/* input image data GdConversionBlit*/
+	void *		data_out;		/* output image from conversion blits subroutines*/
+
+//	uint32_t	transcolor;		/* trans color for MWROP_SRCTRANSCOPY*/
+//	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
+//	void *		misc;			/* alpha channel for PSDOP_ALPHAMAP*/
+} MWBLITPARMS, *PMWBLITPARMS;
+
+typedef struct { // DEPRECATED
+	int op;
+	MWCOORD width, height;
+	MWCOORD dstx, dsty;
+	MWCOORD srcx, srcy;
+	MWPIXELVAL bg_color;
+	MWPIXELVAL fg_color;
+	int usebg;
+	void *data;
+
+	MWCOORD dst_linelen;		// must be set in GdConversionBlit
+	MWCOORD src_linelen;
+} driver_gc_t;
+
 /**
  * Structure returned by GetFontInfo.
  *
@@ -371,7 +438,7 @@ typedef struct {
  * font.  Typically it is the alphanumeric characters, and it may or may not
  * include accented characters.
  */
-typedef struct {
+typedef struct _mwfontinfo {
 	/**
 	 * Maximum advance width of any character.
 	 */
@@ -446,7 +513,7 @@ typedef struct {
 	 * the sum of the advance widths for the characters 'A' and 'V'.
 	 */
 	MWUCHAR widths[256];
-} MWFONTINFO, *PMWFONTINFO;
+} MWFONTINFO;
 
 
 /* GetFontList structure */
@@ -512,11 +579,11 @@ typedef struct {
 
 /* windows-compatible MWLOGFONT structure*/
 typedef struct {
-	int32_t	lfHeight;		/* desired height in pixels*/
-	int32_t	lfWidth;		/* desired width in pixels or 0*/
-	int32_t	lfEscapement;		/* rotation in tenths of degree*/
-	int32_t	lfOrientation;		/* not used*/
-	int32_t	lfWeight;		/* font weight*/
+	int	lfHeight;		/* desired height in pixels*/
+	int	lfWidth;		/* desired width in pixels or 0*/
+	int	lfEscapement;		/* rotation in tenths of degree*/
+	int	lfOrientation;		/* not used*/
+	int	lfWeight;		/* font weight*/
 	MWUCHAR	lfItalic;		/* =1 for italic */
 	MWUCHAR	lfUnderline;		/* =1 for underline */
 	MWUCHAR	lfStrikeOut;		/* not used*/
@@ -627,6 +694,14 @@ typedef struct {
 	MWCOORD	bottom;
 } MWRECT;
 
+/* static clip rectangle: drawing allowed if point within rectangle*/
+typedef struct {
+	MWCOORD 	x;		/* x coordinate of top left corner */
+	MWCOORD 	y;		/* y coordinate of top left corner */
+	MWCOORD 	width;		/* width of rectangle */
+	MWCOORD 	height;		/* height of rectangle */
+} MWCLIPRECT;
+
 /* dynamically allocated multi-rectangle clipping region*/
 typedef struct {
 	int	size;		/* malloc'd # of rectangles*/
@@ -635,6 +710,12 @@ typedef struct {
 	MWRECT *rects;		/* rectangle array*/
 	MWRECT	extents;	/* bounding box of region*/
 } MWCLIPREGION;
+
+typedef struct {
+	MWCOORD	width;
+	MWCOORD	height;
+	PSD	psd;
+} MWTILE;
 
 /* region types */
 #define MWREGION_ERROR		0
@@ -679,16 +760,16 @@ typedef struct {
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
 	int		pitch;		/* bytes per line*/
 	int		bytesperpixel;	/* bytes per pixel*/
-	int		compression;	/* compression algorithm*/
+	int		compression;/* compression algorithm*/
 	int		palsize;	/* palette size*/
-	int32_t		transcolor;	/* transparent color or -1 if none*/
-	MWPALENTRY *	palette;	/* palette*/
-	MWUCHAR *	imagebits;	/* image bits (dword right aligned)*/
+	int32_t	transcolor;	/* transparent color or -1 if none*/
+	MWPALENTRY *palette;/* palette*/
+	MWUCHAR *imagebits;	/* image bits (dword right aligned)*/
 } MWIMAGEHDR, *PMWIMAGEHDR;
 
 /* image information structure - returned by GdGetImageInfo*/
 typedef struct {
-	int		id;		/* image id*/
+	int		id;			/* image id*/
 	int		width;		/* image width in pixels*/
 	int		height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
@@ -705,8 +786,8 @@ typedef struct {
 
 /* In-core software cursor structure*/
 typedef struct {
-	int		width;			/* cursor width in pixels*/
-	int		height;			/* cursor height in pixels*/
+	int			width;			/* cursor width in pixels*/
+	int			height;			/* cursor height in pixels*/
 	MWCOORD		hotx;			/* relative x pos of hot spot*/
 	MWCOORD		hoty;			/* relative y pos of hot spot*/
 	MWCOLORVAL	fgcolor;		/* foreground color*/
@@ -719,10 +800,8 @@ typedef struct {
 typedef struct {
 	int	a, b, c;	/* xpos = (a*jitx + b*jity + c)/denom */
 	int	d, e, f;	/* ypos = (d*jitx + e*jity + f)/denom */
-	int	s;		/* denom*/
+	int	s;			/* denom*/
 } MWTRANSFORM;
-
-typedef struct _mwfont *	PMWFONT;
 
 /* outline and filled arc and pie types*/
 #define MWARC		0x0001	/* arc*/
@@ -732,7 +811,387 @@ typedef struct _mwfont *	PMWFONT;
 #define MWELLIPSE	0x0008	/* ellipse outline*/
 #define MWELLIPSEFILL	0x0010	/* ellipse filled*/
 
+/* create MWCOLORVAL (0xAABBGGRR format)*/
+#define MWARGB(a,r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
+				(((uint32_t)(unsigned char)(g))<<8))|\
+				(((uint32_t)(unsigned char)(b))<<16)|\
+				(((uint32_t)(unsigned char)(a))<<24)))
+#define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* argb 255 alpha*/
+#define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb 0 alpha*/
+
+/* no color, used for transparency, should not be 0, -1 or any MWRGB color*/
+#define MWNOCOLOR	0x01000000L
+
 #ifdef MWINCLUDECOLORS
+/*
+ * Alpha blending evolution
+ *
+ * Blending r,g,b pixels w/src alpha
+ * unoptimized two mult one div		 	bg = (a*fg+(255-a)*bg)/255
+ * optimized one mult one div			bg = (a*(fg-bg))/255 + bg
+ * optimized /255 replaced with +1/>>8	bg = (((a+1)*(fg-bg))>>8) + bg
+ * optimized +=							bg +=(((a+1)*(fg-bg))>>8)
+ * macro +=								bg +=muldiv255(a,fg-bg)
+ * macro =								bg  =muldiv255(a,fg-bg) + bg
+ * -or-
+ * macro = (src/dst reversed)			bg  =muldiv255(255-a,bg-fg) + fg
+ *
+ * Updating dst alpha from src alpha
+ * original routine						d =   (255-d)*a/255 + d
+ * rearrange							d =   a*(255-d)/255 + d
+ * replace multiply by fast +1>>8		d = (((a+1)*(255-d)) >> 8) + d
+ * macro =								d =  muldiv255(a, 255 - d) + d
+ * macro +=								d += muldiv255(a, 255 - d)
+ * -or- src/dst reversed (method used in 0.91, not quite correct)
+ * mathematical correct  routine		d =  (d * (255 - a)/255 + a
+ * rearrange							d = ((d * (255 - a + 1)) >> 8) + a
+ * alternate (used in v0.91)			d = ((d * (256 - a)) >> 8) + a
+ * macro = (to duplicate 0.91 code)		d = muldiv255(255 - a, d) + a
+ * correct macro =						d = muldiv255(d, 255 - a) + a
+ */
+//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
+#define muldiv255(a,b)		((((a)+1)*(b))>>8)		/* very fast, 92% accurate*/
+//#define muldiv255(a,b)	((((a)+((a)>>7))*(b))>>8)	/* fast, 35% accurate*/
+#define mulscale(a,b,n)		((((a)+1)*(b))>>(n))	/* very fast, always shift for 16bpp*/
+
+/* palette color definition*/
+#define RGBDEF(r,g,b)	{r, g, b}
+
+/* return palette entry as MWCOLORVAL (0xAABBGGRR)*/
+#define GETPALENTRY(pal,index) ((MWCOLORVAL)(pal[index].r | (pal[index].g << 8) |\
+									    (pal[index].b << 16) | (255 << 24)))
+
+/* extract MWCOLORVAL (0xAABBGGRR) values*/
+#define REDVALUE(rgb)	((rgb) & 0xff)
+#define GREENVALUE(rgb) (((rgb) >> 8) & 0xff)
+#define BLUEVALUE(rgb)	(((rgb) >> 16) & 0xff)
+#define ALPHAVALUE(rgb)	(((rgb) >> 24) & 0xff)
+
+/* Truecolor color conversion and extraction macros*/
+/*
+ * Conversion from 8-bit RGB components to MWPIXELVAL
+ */
+/* create 32 bit 8/8/8/8 format pixel (0xAARRGGBB) from RGB triplet*/
+#define RGB2PIXEL8888(r,g,b)	\
+	(0xFF000000UL | ((r) << 16) | ((g) << 8) | (b))
+
+/* create 32 bit 8/8/8/8 format pixel (0xAABBGGRR) from RGB triplet*/
+#define RGB2PIXELABGR(r,g,b)	\
+	(0xFF000000UL | ((b) << 16) | ((g) << 8) | (r))
+
+/* create 32 bit 8/8/8/8 format pixel (0xAARRGGBB) from ARGB quad*/
+#define ARGB2PIXEL8888(a,r,g,b)	\
+	(((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
+
+/* create 32 bit 8/8/8/8 format pixel (0xAABBGGRR) from ARGB quad*/
+#define ARGB2PIXELABGR(a,r,g,b)	\
+	(((a) << 24) | ((b) << 16) | ((g) << 8) | (r))
+
+/* create 24 bit 8/8/8 format pixel (0x00RRGGBB) from RGB triplet*/
+#define RGB2PIXEL888(r,g,b)	\
+	(((r) << 16) | ((g) << 8) | (b))
+
+/* create 16 bit 5/6/5 format pixel from RGB triplet */
+#define RGB2PIXEL565(r,g,b)	\
+	((((r) & 0xf8) << 8) | (((g) & 0xfc) << 3) | (((b) & 0xf8) >> 3))
+
+/* create 16 bit 5/5/5 format pixel from RGB triplet */
+#define RGB2PIXEL555(r,g,b)	\
+	((((r) & 0xf8) << 7) | (((g) & 0xf8) << 2) | (((b) & 0xf8) >> 3))
+
+/* create 16 bit b/g/r 5/5/5 format pixel from RGB triplet */
+#define RGB2PIXEL1555(r,g,b)	\
+	((((b) & 0xf8) << 7) | (((g) & 0xf8) << 2) | (((r) & 0xf8) >> 3) | 0x8000)
+
+/* create 8 bit 3/3/2 format pixel from RGB triplet*/
+#define RGB2PIXEL332(r,g,b)	\
+	(((r) & 0xe0) | (((g) & 0xe0) >> 3) | (((b) & 0xc0) >> 6))
+
+/* create 8 bit 2/3/3 format pixel from RGB triplet*/
+#define RGB2PIXEL233(r,g,b)	\
+	((((r) & 0xe0) >> 5) | (((g) & 0xe0) >> 2) | (((b) & 0xc0) >> 0))
+
+
+/*
+ * Conversion from MWCOLORVAL to MWPIXELVAL
+ */
+/* create 32 bit 8/8/8/8 format pixel from ABGR colorval (0xAABBGGRR)*/
+/* In this format, alpha is preserved. */
+#define COLOR2PIXEL8888(c)	\
+	((((c) & 0xff) << 16) | ((c) & 0xff00ff00ul) | (((c) & 0xff0000) >> 16))
+
+/* create 32 bit 8/8/8/8 format pixel from ABGR colorval (0xAABBGGRR)*/
+/* In this format, alpha is preserved. */
+#define COLOR2PIXELABGR(c)	\
+        (c)
+
+/* create 24 bit 8/8/8 format pixel from 0BGR colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
+#define COLOR2PIXEL888(c)	\
+	((((c) & 0xff) << 16) | ((c) & 0xff00) | (((c) & 0xff0000) >> 16))
+
+/* create 16 bit 5/6/5 format pixel from 0BGR colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
+#define COLOR2PIXEL565(c)	\
+	((((c) & 0xf8) << 8) | (((c) & 0xfc00) >> 5) | (((c) & 0xf80000) >> 19))
+
+/* create 16 bit 5/5/5 format pixel from 0BGR colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
+#define COLOR2PIXEL555(c)	\
+	((((c) & 0xf8) << 7) | (((c) & 0xf800) >> 6) | (((c) & 0xf80000) >> 19))
+
+/* create 16 bit b/g/r 5/5/5 format pixel from 0BGR colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
+#define COLOR2PIXEL1555(c)	\
+	((((c) & 0xf8) >> 3) | (((c) & 0xf800) >> 6) | (((c) & 0xf80000) >> 9) | 0x8000)
+
+/* create 8 bit 3/3/2 format pixel from 0BGR colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
+#define COLOR2PIXEL332(c)	\
+	(((c) & 0xe0) | (((c) & 0xe000) >> 11) | (((c) & 0xc00000) >> 22))
+
+/* create 8 bit 2/3/3 format pixel from 0BGR colorval (0x00BBGGRR)*/
+/* In this format, alpha is ignored. */
+#define COLOR2PIXEL233(c)	\
+        ((((c) & 0xC00000) >> 16) | (((c) & 0x00E000) >> 10) | (((c) & 0xE0) >> 5))
+
+/*
+ * Conversion from MWPIXELVAL to red, green or blue components
+ */
+/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
+#define PIXEL8888ALPHA(pixelval)	(((pixelval) >> 24) & 0xff)
+#define PIXEL8888RED(pixelval)  	(((pixelval) >> 16) & 0xff)
+#define PIXEL8888GREEN(pixelval)	(((pixelval) >> 8) & 0xff)
+#define PIXEL8888BLUE(pixelval) 	((pixelval) & 0xff)
+
+/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
+#define PIXELABGRALPHA(pixelval)	(((pixelval) >> 24) & 0xff)
+#define PIXELABGRBLUE(pixelval)  	(((pixelval) >> 16) & 0xff)
+#define PIXELABGRGREEN(pixelval)	(((pixelval) >> 8) & 0xff)
+#define PIXELABGRRED(pixelval)		((pixelval) & 0xff)
+
+/* return 8/8/8 bit r, g or b component of 24 bit pixelval*/
+#define PIXEL888RED(pixelval)		(((pixelval) >> 16) & 0xff)
+#define PIXEL888GREEN(pixelval)		(((pixelval) >> 8) & 0xff)
+#define PIXEL888BLUE(pixelval)		((pixelval) & 0xff)
+
+/* return 5/6/5 bit r, g or b component of 16 bit pixelval*/
+#define PIXEL565RED(pixelval)		(((pixelval) >> 11) & 0x1f)
+#define PIXEL565GREEN(pixelval)		(((pixelval) >> 5) & 0x3f)
+#define PIXEL565BLUE(pixelval)		((pixelval) & 0x1f)
+
+/* return 5/5/5 bit r, g or b component of 16 bit pixelval*/
+#define PIXEL555RED(pixelval)		(((pixelval) >> 10) & 0x1f)
+#define PIXEL555GREEN(pixelval)		(((pixelval) >> 5) & 0x1f)
+#define PIXEL555BLUE(pixelval)		((pixelval) & 0x1f)
+
+/* return b/g/r 5/5/5 bit r, g or b component of 16 bit pixelval*/
+#define PIXEL1555BLUE(pixelval)		(((pixelval) >> 10) & 0x1f)
+#define PIXEL1555GREEN(pixelval)	(((pixelval) >> 5) & 0x1f)
+#define PIXEL1555RED(pixelval)		((pixelval) & 0x1f)
+
+/* return 3/3/2 bit r, g or b component of 8 bit pixelval*/
+#define PIXEL332RED(pixelval)		(((pixelval) >> 5) & 0x07)
+#define PIXEL332GREEN(pixelval)		(((pixelval) >> 2) & 0x07)
+#define PIXEL332BLUE(pixelval)		((pixelval) & 0x03)
+
+/* return 2/3/3 bit b, g, r component of 8 bit pixelval*/
+#define PIXEL233RED(pixelval)		((pixelval) & 0x07)
+#define PIXEL233GREEN(pixelval)		(((pixelval) >> 3) & 0x07)
+#define PIXEL233BLUE(pixelval)		(((pixelval) >> 6) & 0x03)
+
+/*
+ * Conversion from MWPIXELVAL to normal 8-bit red, green or blue components
+ */
+/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
+#define PIXEL8888ALPHA8(pixelval)		(((pixelval) >> 24) & 0xff)
+#define PIXEL8888RED8(pixelval)			(((pixelval) >> 16) & 0xff)
+#define PIXEL8888GREEN8(pixelval)		(((pixelval) >> 8) & 0xff)
+#define PIXEL8888BLUE8(pixelval)		((pixelval) & 0xff)
+
+/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
+#define PIXELABGRALPHA8(pixelval)		(((pixelval) >> 24) & 0xff)
+#define PIXELABGRBLUE8(pixelval)		(((pixelval) >> 16) & 0xff)
+#define PIXELABGRGREEN8(pixelval)		(((pixelval) >> 8) & 0xff)
+#define PIXELABGRRED8(pixelval)			((pixelval) & 0xff)
+
+/* return 8 bit r, g or b component of 8/8/8 24 bit pixelval*/
+#define PIXEL888RED8(pixelval)          (((pixelval) >> 16) & 0xff)
+#define PIXEL888GREEN8(pixelval)        (((pixelval) >> 8) & 0xff)
+#define PIXEL888BLUE8(pixelval)         ((pixelval) & 0xff)
+
+/* return 8 bit r, g or b component of 5/6/5 16 bit pixelval*/
+#define PIXEL565RED8(pixelval)          (((pixelval) >> 8) & 0xf8)
+#define PIXEL565GREEN8(pixelval)        (((pixelval) >> 3) & 0xfc)
+#define PIXEL565BLUE8(pixelval)         (((pixelval) << 3) & 0xf8)
+
+/* return 8 bit r, g or b component of 5/5/5 16 bit pixelval*/
+#define PIXEL555RED8(pixelval)          (((pixelval) >> 7) & 0xf8)
+#define PIXEL555GREEN8(pixelval)        (((pixelval) >> 2) & 0xf8)
+#define PIXEL555BLUE8(pixelval)         (((pixelval) << 3) & 0xf8)
+
+/* return 8 bit r, g or b component of b/g/r 5/5/5 16 bit pixelval*/
+#define PIXEL1555BLUE8(pixelval)		(((pixelval) >> 7) & 0xf8)
+#define PIXEL1555GREEN8(pixelval)		(((pixelval) >> 2) & 0xf8)
+#define PIXEL1555RED8(pixelval)			(((pixelval) << 3) & 0xf8)
+
+/* return 8 bit r, g or b component of 3/3/2 8 bit pixelval*/
+#define PIXEL332RED8(pixelval)          ( (pixelval)       & 0xe0)
+#define PIXEL332GREEN8(pixelval)        (((pixelval) << 3) & 0xe0)
+#define PIXEL332BLUE8(pixelval)         (((pixelval) << 6) & 0xc0)
+
+/* return 8 bit r, g or b component of 2/3/3 8 bit pixelval*/
+#define PIXEL233RED8(pixelval)          (((pixelval) << 5) & 0xe0)
+#define PIXEL233GREEN8(pixelval)        (((pixelval) << 2) & 0xe0)
+#define PIXEL233BLUE8(pixelval)         ( (pixelval)       & 0xc0)
+
+/*
+ * Conversion from MWPIXELVAL to *32-bit* red, green or blue components
+ * (i.e. PIXEL888RED32(x) == (PIXEL888RED8(x) << 24).  These macros optimize
+ * out the extra shift.)
+ */
+/* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
+#define PIXEL8888ALPHA32(pixelval)        ( ((uint32_t)(pixelval))        & 0xff000000UL)
+#define PIXEL8888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL8888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL8888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
+
+/* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
+#define PIXELABGRALPHA32(pixelval)        ( ((uint32_t)(pixelval))        & 0xff000000UL)
+#define PIXELABGRBLUE32(pixelval)         ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXELABGRGREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXELABGRRED32(pixelval)          ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
+
+/* return 32 bit r, g or b component of 8/8/8 24 bit pixelval*/
+#define PIXEL888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
+
+/* return 32 bit r, g or b component of 5/6/5 16 bit pixelval*/
+#define PIXEL565RED32(pixelval)          ((((uint32_t)(pixelval)) << 16) & 0xf8000000UL)
+#define PIXEL565GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 21) & 0xfc000000UL)
+#define PIXEL565BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 27) & 0xf8000000UL)
+
+/* return 32 bit r, g or b component of 5/5/5 16 bit pixelval*/
+#define PIXEL555RED32(pixelval)          ((((uint32_t)(pixelval)) << 17) & 0xf8000000UL)
+#define PIXEL555GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 22) & 0xf8000000UL)
+#define PIXEL555BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 27) & 0xf8000000UL)
+
+/* return 32 bit r, g or b component of 3/3/2 8 bit pixelval*/
+#define PIXEL332RED32(pixelval)          ((((uint32_t)(pixelval)) << 24) & 0xe0000000UL)
+#define PIXEL332GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 27) & 0xe0000000UL)
+#define PIXEL332BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 30) & 0xc0000000UL)
+
+/* return 32 bit r, g or b component of 2/3/3 8 bit pixelval*/
+#define PIXEL233RED32(pixelval)          ((((uint32_t)(pixelval)) << 29) & 0xe0000000UL)
+#define PIXEL233GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 26) & 0xe0000000UL)
+#define PIXEL233BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xc0000000UL)
+
+/*
+ * Conversion from MWPIXELVAL to MWCOLORVAL
+ */
+/* create ABGR colorval (0xAABBGGRR) from 8/8/8/8 ARGB (0xAARRGGBB) format pixel*/
+#define PIXEL8888TOCOLORVAL(p)	\
+	((((p) & 0xff0000ul) >> 16) | ((p) & 0xff00ff00ul) | (((p) & 0xffu) << 16) | 0xff000000ul)
+
+/* create ABGR colorval (0xAABBGGRR) from 8/8/8/8 ABGR (0xAABBGGRR) format pixel*/
+#define PIXELABGRTOCOLORVAL(p)	\
+	((p) | 0xff000000ul)
+
+/* create ABGR colorval (0xFFBBGGRR) from 8/8/8 RGB (0x00RRGGBB) format pixel*/
+#define PIXEL888TOCOLORVAL(p)	\
+	(0xff000000ul | (((p) & 0xff0000ul) >> 16) | ((p) & 0xff00u) | (((p) & 0xffu) << 16) | 0xff000000ul)
+
+/* create ABGR colorval (0xFFBBGGRR) from 5/6/5 format pixel*/
+#define PIXEL565TOCOLORVAL(p)	\
+	(0xff000000ul | (((p) & 0xf800u) >> 8) | (((p) & 0x07e0u) << 5) | (((p) & 0x1ful) << 19) | 0xff000000ul)
+
+/* create ABGR colorval (0xFFBBGGRR) from 5/5/5 format pixel*/
+#define PIXEL555TOCOLORVAL(p)	\
+	(0xff000000ul | (((p) & 0x7c00u) >> 7) | (((p) & 0x03e0u) << 6) | (((p) & 0x1ful) << 19) | 0xff000000ul)
+
+/* create ABGR colorval (0xFFBBGGRR) from 3/3/2 format pixel*/
+#define PIXEL332TOCOLORVAL(p)	\
+	(0xff000000ul | (((p) & 0xe0u)) | (((p) & 0x1cu) << 11) | (((p) & 0x03ul) << 19) | 0xff000000ul)
+
+/* create ABGR colorval (0x00BBGGRR) from 2/3/3 format pixel*/
+#define PIXEL233TOCOLORVAL(p)	\
+	(((p) & 0x07) | (((p) & 0x38) << 5) | (((p) & 0xC0) << 14))
+
+/*
+ * Conversion from ARGB values
+ */
+/* create 16 bit 5/6/5 format pixel from ARGB value (0xAARRGGBB)*/
+#define ARGB2PIXEL565(c) \
+	((((c) & 0x0000f8) >> 3) | (((c) & 0x00fc00) >> 5) | (((c) & 0xf80000) >> 8))
+
+/* convert ARGB (0xAARRGGBB) to ABGR colorval (0xAABBGGRR)*/
+#define ARGB2COLORVAL(c) \
+	(((c) & 0xFF00FF00UL) | (((c) & 0x00FF0000UL) >> 16) | (((c) & 0x000000FFUL) << 16))
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR8888
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL8888(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL8888(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL8888TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL8888RED(p)
+#define PIXEL2GREEN(p)		PIXEL8888GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL8888BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+#define RGB2PIXEL(r,g,b)	RGB2PIXELABGR(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXELABGR(c)
+#define PIXELVALTOCOLORVAL(p)	PIXELABGRTOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXELABGRRED(p)
+#define PIXEL2GREEN(p)		PIXELABGRGREEN(p)
+#define PIXEL2BLUE(p)		PIXELABGRBLUE(p)
+#endif
+
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888)
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL888(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL888(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL888TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL888RED(p)
+#define PIXEL2GREEN(p)		PIXEL888GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL888BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR565
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL565(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL565(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL565TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL565RED(p)
+#define PIXEL2GREEN(p)		PIXEL565GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL565BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR555
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL555(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL555(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL555TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL555RED(p)
+#define PIXEL2GREEN(p)		PIXEL555GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL555BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL332(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL332(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL332TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL332RED(p)
+#define PIXEL2GREEN(p)		PIXEL332GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL332BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR233
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL233(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL233(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL233TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL233RED(p)
+#define PIXEL2GREEN(p)		PIXEL233GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL233BLUE(p)
+#endif
+
 /*
  * Common colors - note any color including these may not be
  * available on palettized systems, and the system will
@@ -745,7 +1204,7 @@ typedef struct _mwfont *	PMWFONT;
 #define BLUE		MWRGB( 0  , 0  , 128 )
 #define GREEN		MWRGB( 0  , 128, 0   )
 #define CYAN		MWRGB( 0  , 128, 128 )
-#define RED		MWRGB( 128, 0  , 0   )
+#define RED			MWRGB( 128, 0  , 0   )
 #define MAGENTA		MWRGB( 128, 0  , 128 )
 #define BROWN		MWRGB( 128, 64 , 0   )
 #define LTGRAY		MWRGB( 192, 192, 192 )
@@ -757,10 +1216,38 @@ typedef struct _mwfont *	PMWFONT;
 #define LTMAGENTA	MWRGB( 255, 0  , 255 )
 #define YELLOW		MWRGB( 255, 255, 0   )
 #define WHITE		MWRGB( 255, 255, 255 )
-
 /* other common colors*/
 #define DKGRAY		MWRGB( 32,  32,  32)
+
+#if 0000
+/* colors assumed in first 16 palette entries*/
+/* note: don't use palette indices if the palette may
+ * be reloaded.  Use the RGB values instead.
+ */
+#define BLACK		PALINDEX(0)		/*   0,   0,   0*/
+#define BLUE		PALINDEX(1)
+#define GREEN		PALINDEX(2)
+#define CYAN		PALINDEX(3)
+#define RED			PALINDEX(4)
+#define MAGENTA		PALINDEX(5)
+#define BROWN		PALINDEX(6)
+#define LTGRAY		PALINDEX(7)		/* 192, 192, 192*/
+#define GRAY		PALINDEX(8)		/* 128, 128, 128*/
+#define LTBLUE		PALINDEX(9)
+#define LTGREEN		PALINDEX(10)
+#define LTCYAN		PALINDEX(11)
+#define LTRED		PALINDEX(12)
+#define LTMAGENTA	PALINDEX(13)
+#define YELLOW		PALINDEX(14)
+#define WHITE		PALINDEX(15)	/* 255, 255, 255*/
+#endif
+
 #endif /* MWINCLUDECOLORS*/
+
+/* Mouse button bits*/
+#define MWBUTTON_L	04
+#define MWBUTTON_M	02
+#define MWBUTTON_R	01
 
 /* Keyboard values*/
 typedef unsigned short	MWKEY;
@@ -873,25 +1360,16 @@ typedef unsigned short	MWSCANCODE;
  * For more information see http://www.havi.org/
  */
 
-/* MWKEY code for first HAVi key */
-#define MWKEY_HAVI_KEY_BASE   (MWKEY_END_NORMAL+1)
-
-/* HAVi code for first HAVi key */
-#define MWKEY_HAVI_CODE_FIRST  403
-
-/* HAVi code for last HAVi key */
-#define MWKEY_HAVI_CODE_LAST   460
-
+#define MWKEY_HAVI_KEY_BASE   (MWKEY_END_NORMAL+1) /* MWKEY code for first HAVi key */
+#define MWKEY_HAVI_CODE_FIRST  403			/* HAVi code for first HAVi key */
+#define MWKEY_HAVI_CODE_LAST   460			/* HAVi code for last HAVi key */
 /* HRcEvent.VK_... code to MWKEY_... code */
 #define MWKEY_FROM_HAVI_CODE(h) ((h) + (MWKEY_HAVI_KEY_BASE - MWKEY_HAVI_CODE_FIRST))
-
 /* MWKEY_... code to HRcEvent.VK_... code */
 #define MWKEY_TO_HAVI_CODE(m)   ((m) - (MWKEY_HAVI_KEY_BASE - MWKEY_HAVI_CODE_FIRST))
-
 /* Can an MWKEY_... code be converted into a HRcEvent.VK_... code? */
 #define MWKEY_IS_HAVI_CODE(m)   (  (unsigned)((m) - MWKEY_HAVI_KEY_BASE) \
                <= (unsigned)(MWKEY_HAVI_CODE_LAST - MWKEY_HAVI_CODE_FIRST) )
-
 
 #define MWKEY_COLORED_KEY_0         MWKEY_FROM_HAVI_CODE(403)
 #define MWKEY_COLORED_KEY_1         MWKEY_FROM_HAVI_CODE(404)
@@ -967,12 +1445,17 @@ typedef unsigned short	MWSCANCODE;
 #define MWKMOD_NUM   		0x1000
 #define MWKMOD_CAPS  		0x2000
 #define MWKMOD_ALTGR 		0x4000
-#define MWKMOD_SCR		0x8000
+#define MWKMOD_SCR			0x8000
 
 #define MWKMOD_CTRL	(MWKMOD_LCTRL|MWKMOD_RCTRL)
 #define MWKMOD_SHIFT	(MWKMOD_LSHIFT|MWKMOD_RSHIFT)
 #define MWKMOD_ALT	(MWKMOD_LALT|MWKMOD_RALT)
 #define MWKMOD_META	(MWKMOD_LMETA|MWKMOD_RMETA)
+
+typedef struct {
+	int led;
+	int led_mode;
+} MWKBINFO, *PMWKBINFO;
 
 #define MWKINFO_LED_MASK	(1 << 0)
 #define MWKINFO_LED_MODE_MASK	(1 << 1)
@@ -981,12 +1464,7 @@ typedef unsigned short	MWSCANCODE;
 #define MWKINFO_LED_CAP		(1 << 0)
 #define MWKINFO_LED_NUM		(1 << 1)
 #define MWKINFO_LED_SCR		(1 << 2)
-
 #define MWKINFO_LED_MODE_ON	(1 << 3)
-#define MWKINFO_LED_MODE_OFF	(1 << 4)
+#define MWKINFO_LED_MODE_OFF (1 << 4)
 
-typedef struct {
-	int led;
-	int led_mode;
-} MWKBINFO, *PMWKBINFO;
 #endif /* _MWTYPES_H*/

@@ -150,7 +150,7 @@ SVGA_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	unsigned char gline, line = c;
 
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		/* vga_drawpixel apparently doesn't work with 256 colors...
 		 * vga_setegacolor(c);
 		 * vga_drawpixel(x, y);
@@ -199,7 +199,7 @@ SVGA_drawhline(PSD psd,MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		for(i=0; i<width; ++i)
 			line[i] = c;
 	}
-	if(gr_mode == MWMODE_XOR) {
+	if(gr_mode == MWROP_XOR) {
 		vga_getscansegment(getline, x1, y, width);
 		for(i=0; i<width; ++i)
 			line[i] ^= getline[i];
@@ -217,7 +217,7 @@ SVGA_drawhline(PSD psd,MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 SVGA_drawvline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	if(gr_mode == MWMODE_COPY) {
+	if(gr_mode == MWROP_COPY) {
 		vga_setegacolor(c);
 		vga_drawline(x, y1, x, y2);
 	}

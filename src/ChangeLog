@@ -1,3 +1,8 @@
+23 May 2010
+	* major driver reorganization, DrawArea parameters change
+	* remove MWROP_TO_MODE, MWMODE_TO_ROP
+	* rename MWMODE_xxx modes to MWROP_xxx, change MWROP_SETTO1 to MWROP_SET
+	* rearrange device.h and mwtypes.h for more exportability info in mwtypes.h
 23 May 2010 - Ludwig Ertl
 	scrollbar various fixes, SB_THUMBTRACK
 	listbox fixes w/scrollbars, WM_CTLCOLORLISTBOX

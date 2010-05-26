@@ -16,8 +16,6 @@
 #define BGCOLOR		WHITE
 
 GR_WINDOW_ID	w;
-GR_GC_ID	gc;
-GR_FONT_ID	font;
 GR_BOOL		aa = GR_TRUE;
 char		fontname[200] = FONTNAME;
 
@@ -25,25 +23,42 @@ static void
 do_paint(GR_EVENT_EXPOSURE *ep)
 {
 	int	i, y = 0;
+	GR_GC_ID	gc;
+	GR_FONT_ID	font;
+	GR_WINDOW_INFO winfo;
+
+	GrGetWindowInfo(w, &winfo);
+
+	gc = GrNewGC();
+	GrSetGCUseBackground(gc, GR_FALSE);
+
+	GrSetGCForeground(gc, BGCOLOR);
+	GrFillRect(w, gc, 0, 0, winfo.width, winfo.height);
+
+	GrSetGCForeground(gc, FGCOLOR);
 
 	for (i=3; i<=30; ++i) {
-		GR_FONT_INFO	info;
-		char		buf[64];
+		int 	width, height;
+		char	buf[64];
+		GR_FONT_INFO	finfo;
 
-		font = GrCreateFont(fontname, i, NULL);
-		if (aa)
-			GrSetFontAttr(font, GR_TFANTIALIAS|GR_TFKERNING, 0);
+		height = i * winfo.height / 530;
+		width = i * winfo.width / 640;
+		font = GrCreateFontEx(fontname, height, width, NULL);
+
+		GrSetFontAttr(font, aa? (GR_TFANTIALIAS|GR_TFKERNING): 0, -1);
 		/*GrSetFontRotation(font, 150);*/
 		GrSetGCFont(gc, font);
 
-		sprintf(buf, "%d The Quick Brown Fox Jumps Over The Lazy Dog", i);
+		sprintf(buf, "%d/%d The Quick Brown Fox Jumps Over The Lazy Dog", height, width);
 		GrText(w, gc, 0, y, buf, -1, GR_TFASCII|GR_TFTOP);
 
-		GrGetFontInfo(font, &info);
-		y += info.height;
+		GrGetFontInfo(font, &finfo);
+		y += finfo.height;
 
 		GrDestroyFont(font);
 	}
+	GrDestroyGC(gc);
 }
 
 int
@@ -58,13 +73,8 @@ main(int ac, char **av)
 	w = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "fontdemo", GR_ROOT_WINDOW_ID,
 		10, 10, 640, 530, BGCOLOR);
 	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_BUTTON_DOWN|
-		GR_EVENT_MASK_CLOSE_REQ);
+		GR_EVENT_MASK_KEY_DOWN|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(w);
-
-	gc = GrNewGC();
-	GrSetGCUseBackground(gc, GR_FALSE);
-	GrSetGCForeground(gc, FGCOLOR);
-	GrSetGCBackground(gc, BGCOLOR);
 
 	while (1) {
 		GR_EVENT event;
@@ -76,15 +86,15 @@ main(int ac, char **av)
 			break;
 
 		case GR_EVENT_TYPE_BUTTON_DOWN:
-			{
-			GR_WINDOW_INFO info;
+			do_paint(&event.exposure);
+			break;
 
-			aa = !aa;
-			GrGetWindowInfo(w, &info);
-			GrSetGCForeground(gc, BGCOLOR);
-			GrFillRect(w, gc, 0, 0, info.width, info.height);
-			GrSetGCForeground(gc, FGCOLOR);
-			do_paint(&event.exposure);	/*FIXME*/
+    	case GR_EVENT_TYPE_KEY_DOWN:
+      		switch(event.keystroke.ch) {
+        	case 'a':
+				aa = !aa;
+				do_paint(&event.exposure);
+          		break;
 			}
 			break;
 

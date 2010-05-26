@@ -26,6 +26,8 @@ extern MWCFONT font_X6x13;			/* MWFONT_SYSTEM_FIXED (should be ansi)*/
 /* handling routines for MWCOREFONT*/
 static MWFONTPROCS fontprocs = {
 	MWTF_ASCII,		/* routines expect ascii*/
+	NULL,			/* init*/
+	NULL,			/* createfont*/
 	gen_getfontinfo,
 	gen_gettextsize,
 	gen_gettextbits,
@@ -34,6 +36,7 @@ static MWFONTPROCS fontprocs = {
 	NULL,			/* setfontsize*/
 	NULL,			/* setfontrotation*/
 	NULL,			/* setfontattr*/
+	NULL			/* duplicate*/
 };
 
 /*
@@ -56,11 +59,11 @@ static MWFONTPROCS fontprocs = {
 
 /* first font is default font*/
 MWCOREFONT gen_fonts[NUMBER_FONTS] = {
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSansSerif11x13},
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13},
+	{&fontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSansSerif11x13},
+	{&fontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13},
 	/* deprecated redirections for the time being*/
-	{&fontprocs, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
-	{&fontprocs, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
+	{&fontprocs, 0, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
+	{&fontprocs, 0, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
 };
 
 /*GB: pointer to an user builtin font table. */

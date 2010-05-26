@@ -47,10 +47,9 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-#include "swap.h"
 #include "device.h"
 #include "devfont.h"
-#include "../drivers/genfont.h"
+#include "genfont.h"
 
 /* settable params*/
 #ifndef PCF_FONT_DIR
@@ -80,7 +79,7 @@ typedef	unsigned short (*FP_READ16)(FILEP file);
 typedef	uint32_t 		(*FP_READ32)(FILEP file);
 
 /* Handling routines for PCF fonts, use MWCOREFONT structure */
-PMWCOREFONT pcf_createfont(const char *name, MWCOORD height, int attr);
+PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
 static void pcf_unloadfont(PMWFONT font);
 
 static void	get_endian_read_funcs(uint32_t format, FP_READ8 *p_fp_read8,
@@ -93,20 +92,28 @@ static uint32_t			readMSB32(FILEP file);
 /* these procs used when font ASCII indexed*/
 MWFONTPROCS pcf_fontprocs = {
 	MWTF_ASCII,
+	NULL,			/* init*/
+	pcf_createfont,
 	gen_getfontinfo,
 	gen_gettextsize,
 	gen_gettextbits,
 	pcf_unloadfont,
+#if STANDALONE
+	gen16_drawtext,
+#else
 	corefont_drawtext,
+#endif
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
-	NULL,			/* duplicate not yet implemented */
+	NULL			/* duplicate*/
 };
 
 /* these procs used when font requires UC16 index*/
 static MWFONTPROCS pcf_fontprocs16 = {
 	MWTF_UC16,		/* routines expect unicode 16 */
+	NULL,			/* init*/
+	pcf_createfont,
 	gen_getfontinfo,
 	gen16_gettextsize,
 	gen_gettextbits,
@@ -115,7 +122,7 @@ static MWFONTPROCS pcf_fontprocs16 = {
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
-	NULL,			/* duplicate not yet implemented */
+	NULL			/* duplicate*/
 };
 
 /* These are maintained statically for ease FIXME*/
@@ -535,7 +542,7 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 		e->map[n] = f_read16(file);
 		/*DPRINTF("ncode %x (%c) %x\n", n, n, e->map[n]);*/
 	}
-	DPRINTF("size %ud byte1 %d,%d byte2 %d,%d\n", e->count,
+	DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
 		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);
 	return e->count;
 }
@@ -571,8 +578,7 @@ pcf_read_toc(FILE * file, struct toc_entry **toc, uint32_t *size)
 }
 
 /* create font and allocate MWCOREFONT struct*/
-PMWCOREFONT
-pcf_createfont(const char *name, MWCOORD height, int attr)
+PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 {
 	FILE *file = NULL;
 	MWCOREFONT *pf = NULL;
@@ -821,7 +827,7 @@ err_exit:
 		FCLOSE(file);
 
 	if (err == 0 && pf)
-   		return pf;
+		return (PMWFONT)pf;
 
 	pcf_unloadfont((PMWFONT)pf);
 	return 0;

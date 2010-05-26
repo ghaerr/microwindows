@@ -976,9 +976,9 @@ int main(int argc, char **argv)
 			rowmask = 0xffff;
     }
     
-    regFont = GrCreateFont(GR_FONT_SYSTEM_FIXED, 0, NULL);
-    /*regFont = GrCreateFont(GR_FONT_OEM_FIXED, 0, NULL);*/
-    /*boldFont = GrCreateFont(GR_FONT_SYSTEM_FIXED, 0, NULL);*/
+    regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
+    /*regFont = GrCreateFontEx(GR_FONT_OEM_FIXED, 0, 0, NULL);*/
+    /*boldFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);*/
     GrGetFontInfo(regFont, &fi);
 
     winw = col*fi.maxwidth;

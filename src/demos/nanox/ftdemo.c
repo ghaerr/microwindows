@@ -10,15 +10,21 @@
 #define ANTIALIAS	0		/* set =1 to enable anti aliasing*/
 
 #if HAVE_T1LIB_SUPPORT
-#define FONTNAME "bchr.pfb"
+#define FONTNAME "fonts/type1/bchr.pfb"
 #elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
 #define FONTNAME "lt1-r-omega-serif"
 //#define FONTNAME "cour"
 #elif HAVE_PCF_SUPPORT
 //#define FONTNAME	"jiskan24.pcf.gz"
-//#define FONTNAME	"helvB12.pcf.gz"
+#define FONTNAME	"helvB12.pcf.gz"
 //#define FONTNAME	"helvB12_lin.pcf.gz"
 //#define FONTNAME	"fonts/bdf/symb18.pcf"
+#elif HAVE_FNT_SUPPORT
+#define FONTNAME	"timBI18.fnt"
+#elif HAVE_EUCJP_SUPPORT
+#define FONTNAME	"k16x16.fnt"
+#elif HAVE_HZK_SUPPORT
+#define FONTNAME	"HZKFONT"
 #else
 #define FONTNAME GR_FONT_SYSTEM_VAR
 #endif
@@ -71,8 +77,8 @@ int main(int argc, char **argv)
   }
   fclose(file);
 
-  fontid = GrCreateFont(FONTNAME, 20, NULL);
-  fontid2 = GrCreateFont(FONTNAME, 36, NULL);
+  fontid = GrCreateFontEx(FONTNAME, 20, 20, NULL);
+  fontid2 = GrCreateFontEx(FONTNAME, 36, 36, NULL);
 
   Render(window);
  
@@ -139,11 +145,7 @@ void Render(GR_WINDOW_ID window)
  
    /* Draw menu */
    GrSetGCFont(gid, fontid);
-#if ANTIALIAS
-   GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
-#else
-   GrSetFontAttr(fontid, GR_TFKERNING, 0);
-#endif
+   GrSetFontAttr(fontid, aa? (GR_TFKERNING | GR_TFANTIALIAS): GR_TFKERNING, -1);
    GrText(window, gid, 5, 20, "+ Rotate string clockwise", 25, GR_TFASCII);
    GrText(window, gid, 5, 40, "-  Rotate string counter-clockwise", 34, GR_TFASCII);
    GrText(window, gid, 5, 60, "a Toggle anti-aliasing", 22, GR_TFASCII);

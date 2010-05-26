@@ -775,14 +775,14 @@ GrSetGCTSOffsetWrapper(void *r)
 }
 
 static void
-GrCreateFontWrapper(void *r)
+GrCreateFontExWrapper(void *r)
 {
-	nxCreateFontReq *req = r;
+	nxCreateFontExReq *req = r;
 	GR_FONT_ID 	fontid;
 
-	fontid = GrCreateFont(GetReqData(req), req->height, NULL);
+	fontid = GrCreateFontEx(GetReqData(req), req->height, req->width, NULL);
 
-	GsWriteType(current_fd,GrNumCreateFont);
+	GsWriteType(current_fd, GrNumCreateFontEx);
 	GsWrite(current_fd, &fontid, sizeof(fontid));
 }
 
@@ -792,18 +792,18 @@ GrCreateLogFontWrapper(void *r)
 	nxCreateLogFontReq *req = r;
 	GR_FONT_ID fontid;
 
-	fontid = GrCreateFont(NULL, 0, &req->lf);
+	fontid = GrCreateFontEx(NULL, 0, 0, &req->lf);
 
 	GsWriteType(current_fd, GrNumCreateLogFont);
 	GsWrite(current_fd, &fontid, sizeof(fontid));
 }
 
 static void
-GrSetFontSizeWrapper(void *r)
+GrSetFontSizeExWrapper(void *r)
 {
-	nxSetFontSizeReq *req = r;
+	nxSetFontSizeExReq *req = r;
 
- 	GrSetFontSize(req->fontid, req->fontsize);
+ 	GrSetFontSizeEx(req->fontid, req->height, req->width);
 }
 
 static void
@@ -1584,7 +1584,7 @@ GrCreateFontFromBufferWrapper(void *r)
 		result = 0;
 	} else {
 		result = GrCreateFontFromBuffer(buffer->data, buffer->size,
-			(const char *)req->format, req->height);
+			(const char *)req->format, req->height, req->width);
 		
 		freeImageBuffer(buffer);
 	}
@@ -1599,7 +1599,7 @@ GrCopyFontWrapper(void *r)
 {
 #if HAVE_FREETYPE_2_SUPPORT
 	nxCopyFontReq *req = r;
-	GR_FONT_ID result = GrCopyFont(req->fontid, req->height);
+	GR_FONT_ID result = GrCopyFont(req->fontid, req->height, req->width);
 
 	GsWriteType(current_fd, GrNumCopyFont);
 	GsWrite(current_fd, &result, sizeof(result));
@@ -1669,8 +1669,8 @@ static const struct GrFunction GrFunctions[] = {
 	/*  49 */ {GrLoadImageFromFileWrapper, "GrLoadImageFromFile"},
 	/*  50 */ {GrNewPixmapWrapper, "GrNewPixmap"},
 	/*  51 */ {GrCopyAreaWrapper, "GrCopyArea"},
-	/*  52 */ {GrSetFontSizeWrapper, "GrSetFontSize"},
-	/*  53 */ {GrCreateFontWrapper, "GrCreateFont"},
+	/*  52 */ {GrSetFontSizeExWrapper, "GrSetFontSizeEx"},
+	/*  53 */ {GrCreateFontExWrapper, "GrCreateFontEx"},
 	/*  54 */ {GrDestroyFontWrapper, "GrDestroyFont"},
 	/*  55 */ {GrReqShmCmdsWrapper, "GrReqShmCmds"},
 	/*  56 */ {GrShmCmdsFlushWrapper, "GrShmCmdsFlush"},

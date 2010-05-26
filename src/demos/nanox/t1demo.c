@@ -39,11 +39,11 @@
 #define FONT5 ""
 #elif HAVE_T1LIB_SUPPORT
 #define MAXFONTS 5
-#define FONT1 "bchr"
-#define FONT2 "bchb"
-#define FONT3 "dcr10"
-#define FONT4 "dcbx10"
-#define FONT5 "bchri"
+#define FONT1 "fonts/type1/bchr.pfb"
+#define FONT2 "fonts/type1/bchb.pfb"
+#define FONT3 "fonts/type1/dcr10.pfb"
+#define FONT4 "fonts/type1/dcbx10.pfb"
+#define FONT5 "fonts/type1/bchri.pfb"
 #elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
 #define MAXFONTS 5
 #define FONT1 "lt1-r-omega-serif"
@@ -105,8 +105,7 @@ main(int ac, char **av)
 	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
 		"t1demo loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
 		GR_ROOT_WINDOW_ID, 50, 50, WIDTH, HEIGHT, BLACK);
-	GrSelectEvents(window,
-		GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
+	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(window);
 
 	gc = GrNewGC();
@@ -133,8 +132,8 @@ main(int ac, char **av)
 			exit(0);
 		}
 
-		fontid = GrCreateFont(names[fnum=RAND(MAXFONTS)], 0, NULL);
-		GrSetFontSize(fontid, RAND(80) + 1);
+		fontid = GrCreateFontEx(names[fnum=RAND(MAXFONTS)], 0, 0, NULL);
+		GrSetFontSizeEx(fontid, RAND(80) + 1, RAND(80) + 1);
 		GrSetFontRotation(fontid, 330);		/* 33 degrees */
 		GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
 		GrSetGCFont(gc, fontid);

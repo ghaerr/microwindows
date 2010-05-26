@@ -191,6 +191,7 @@ typedef struct {
 #define GR_WM_PROPS_NODECORATE	 0x00000010L /* Don't redecorate window*/
 #define GR_WM_PROPS_NOAUTOMOVE	 0x00000020L /* Don't move window on 1st map*/
 #define GR_WM_PROPS_NOAUTORESIZE 0x00000040L /* Don't resize window on 1st map*/
+#define GR_WM_PROPS_NORESIZE	 0x00000080L /* Don't let user resize window*/
 
 /* default decoration style*/
 #define GR_WM_PROPS_APPWINDOW	0x00000000L /* Leave appearance to WM*/
@@ -447,6 +448,11 @@ typedef struct {
   GR_EVENT_TYPE type;		/**< event type */
   GR_WINDOW_ID wid;		/**< window id */
   GR_WINDOW_ID otherid;		/**< new/old focus id for focus events*/
+  						/**< for mouse enter only the following are valid:*/
+  GR_COORD rootx;		/**< root window x coordinate */
+  GR_COORD rooty;		/**< root window y coordinate */
+  GR_COORD x;			/**< window x coordinate of mouse */
+  GR_COORD y;			/**< window y coordinate of mouse */
 } GR_EVENT_GENERAL;
 
 /**
@@ -747,12 +753,12 @@ void		GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 void		GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region);
 void		GrSetGCClipOrigin(GR_GC_ID gc, int x, int y);
 GR_BOOL		GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y);
-int		GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y,
+int			GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y,
 			GR_COORD w, GR_COORD h);
 GR_BOOL		GrEmptyRegion(GR_REGION_ID region);
 GR_BOOL		GrEqualRegion(GR_REGION_ID rgn1, GR_REGION_ID rgn2);
 void		GrOffsetRegion(GR_REGION_ID region, GR_SIZE dx, GR_SIZE dy);
-int		GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect);
+int			GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect);
 void		GrMapWindow(GR_WINDOW_ID wid);
 void		GrUnmapWindow(GR_WINDOW_ID wid);
 void		GrRaiseWindow(GR_WINDOW_ID wid);
@@ -764,19 +770,22 @@ void		GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid,
 void		GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr);
 void		GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 void		GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
-GR_FONT_ID	GrCreateFont(GR_CHAR *name, GR_COORD height,
-			GR_LOGFONT *plogfont);
+
+GR_FONT_ID	GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont); // DEPRECATED
+GR_FONT_ID	GrCreateFontEx(GR_CHAR *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont);
 GR_FONT_ID	GrCreateFontFromBuffer(const void *buffer, unsigned length,
-			const char *format, GR_COORD height);
-GR_FONT_ID	GrCopyFont(GR_FONT_ID fontid, GR_COORD height);
+			const char *format, GR_COORD height, GR_COORD width);
+GR_FONT_ID	GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width);
 void		GrGetFontList(GR_FONTLIST ***fonts, int *numfonts);
 void		GrFreeFontList(GR_FONTLIST ***fonts, int numfonts);
-void		GrSetFontSize(GR_FONT_ID fontid, GR_COORD size);
+void		GrSetFontSize(GR_FONT_ID fontid, GR_COORD size); // DEPRECATED
+void		GrSetFontSizeEx(GR_FONT_ID fontid, GR_COORD height, GR_COORD width);
 void		GrSetFontRotation(GR_FONT_ID fontid, int tenthsdegrees);
 void		GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags);
 void		GrDestroyFont(GR_FONT_ID fontid);
 void		GrGetFontInfo(GR_FONT_ID font, GR_FONT_INFO *fip);
 GR_WINDOW_ID	GrGetFocus(void);
+
 void		GrSetFocus(GR_WINDOW_ID wid);
 void		GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
@@ -786,12 +795,12 @@ int             GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask,
 			GR_UPDATE_TYPE update, GR_EVENT *ep, GR_BOOL block);
 typedef GR_BOOL (*GR_TYPED_EVENT_CALLBACK)(GR_WINDOW_ID, GR_EVENT_MASK,
 			GR_UPDATE_TYPE, GR_EVENT *, void *);
-int             GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, 
+int			GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, 
 			GR_UPDATE_TYPE update, GR_EVENT * ep, GR_BOOL block, 
 			GR_TYPED_EVENT_CALLBACK matchfn, void *arg);
 void		GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
 void		GrCheckNextEvent(GR_EVENT *ep);
-int		GrPeekEvent(GR_EVENT *ep);
+int			GrPeekEvent(GR_EVENT *ep);
 void		GrPeekWaitEvent(GR_EVENT *ep);
 void		GrCopyEvent(GR_EVENT *dst, GR_EVENT *src);
 void		GrFreeEvent(GR_EVENT *ev);
@@ -824,14 +833,12 @@ void		GrSetGCBackground(GR_GC_ID gc, GR_COLOR background);
 void		GrSetGCBackgroundPixelVal(GR_GC_ID gc, GR_PIXELVAL background);
 void		GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag);
 void		GrSetGCMode(GR_GC_ID gc, int mode);
-
 void            GrSetGCLineAttributes(GR_GC_ID, int);
 void            GrSetGCDash(GR_GC_ID, char *, int);
 void            GrSetGCFillMode(GR_GC_ID, int);
 void            GrSetGCStipple(GR_GC_ID, GR_BITMAP *, GR_SIZE, GR_SIZE);
 void            GrSetGCTile(GR_GC_ID, GR_WINDOW_ID, GR_SIZE, GR_SIZE);
 void            GrSetGCTSOffset(GR_GC_ID, GR_COORD, GR_COORD);
-
 void            GrSetGCGraphicsExposure(GR_GC_ID gc, GR_BOOL exposure);
 void		GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font);
 void		GrGetGCTextSize(GR_GC_ID gc, void *str, int count,

@@ -3,14 +3,28 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * T1lib Adobe type1 routines originally contributed by Vidar Hokstad
+ * Rewritten heavily by g haerr
  */
 /*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <t1lib.h>
 #include "device.h"
 #include "devfont.h"
+
+#if (UNIX | DOS_DJGPP)
+#define strcmpi strcasecmp
+#endif
+
+/* settable parameters*/
+#ifndef T1LIB_FONT_DIR
+#define T1LIB_FONT_DIR			"fonts/type1"
+#endif
+#define T1LIB_CONFIG_FILE		"t1lib.config"
+#define T1LIB_DEFAULT_ENCODING	"IsoLatin1.enc"
+#define T1LIB_USE_AA_HIGH		1				/* 17 vs 5 level alpha*/
 
 #ifndef T1LIB_VERSION
 #define T1LIB_VERSION 0
@@ -19,38 +33,42 @@
 #define T1_GetNoFonts	T1_Get_no_fonts	/* name change after 1.0 (tested in 5.1.2)*/
 #endif
 
-typedef struct MWT1LIBFONT {
-	PMWFONTPROCS	fontprocs;	/* common hdr*/
-	MWCOORD		fontsize;
-	int		fontrotation;
-	int		fontattr;		
+typedef struct {
+	PMWFONTPROCS fontprocs;	/* common hdr*/
+	MWCOORD		fontsize;	/* font height in pixels*/
+	MWCOORD		fontwidth;	/* font width in pixels*/
+	int			fontrotation;
+	int			fontattr;		
+	/* t1lib specific stuff*/
+	int			fontid;
+} MWT1LIBFONT, *PMWT1LIBFONT;
 
-	int		fontid;		/* t1lib stuff*/
-} MWT1LIBFONT;
-
-int  t1lib_init(PSD psd);
-PMWT1LIBFONT t1lib_createfont(const char *name, MWCOORD height,int attr);
+static int  t1lib_init(PSD psd);
+PMWFONT t1lib_createfont(const char *name, MWCOORD height,MWCOORD width, int attr);
 
 static void t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
 static MWBOOL t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void t1lib_gettextsize(PMWFONT pfont, const void *text, int cc,
-		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
-		MWCOORD *pbase);
+		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
+static int t1lib_setfontsize(PMWFONT pfont, MWCOORD height, MWCOORD width);
+static int t1lib_setfontattr(PMWFONT pfont, int setflags, int clrflags);
 static void t1lib_destroyfont(PMWFONT pfont);
 
 /* handling routines for MWT1LIBFONT*/
-static MWFONTPROCS t1lib_procs = {
+MWFONTPROCS t1lib_fontprocs = {
 	MWTF_ASCII,			/* routines expect ascii*/
+	t1lib_init,
+	t1lib_createfont,
 	t1lib_getfontinfo,
 	t1lib_gettextsize,
 	NULL,				/* gettextbits*/
 	t1lib_destroyfont,
 	t1lib_drawtext,
-	NULL,				/* setfontsize*/
+	t1lib_setfontsize,
 	NULL,				/* setfontrotation*/
-	NULL,				/* setfontattr*/
-	NULL,				/* duplicate not yet implemented */
+	t1lib_setfontattr,	/* setfontattr*/
+	NULL,				/* duplicate*/
 };
 
 /* temp extern decls*/
@@ -58,71 +76,125 @@ extern MWPIXELVAL gr_foreground;
 extern MWPIXELVAL gr_background;
 extern MWBOOL gr_usebg;
 
-int
+static int
 t1lib_init(PSD psd)
 {
 	char **encoding;
+	char path[256];
 	static int inited = 0;
+#if T1LIB_USE_AA_HIGH      
+	static unsigned long highblend[17] = {
+	   	0x00, 0x00, 0x04, 0x0c, 0x10, 0x14, 0x18, 0x20,
+	   	0x30, 0x38, 0x40, 0x50, 0x70, 0x80, 0xa0, 0xc0, 0xff };
+#else
+	static unsigned long lowblend[5] = { 0x00, 0x44, 0x88, 0xcc, 0xff };
+#endif
 
 	if (inited)
 		return 1;
 
+	/* set default config file directory if not otherwise specified*/
+	if (!getenv("T1LIB_CONFIG")) {
+		sprintf(path, "%s/%s", T1LIB_FONT_DIR, T1LIB_CONFIG_FILE);
+		setenv("T1LIB_CONFIG", path, 1);
+	}
+	DPRINTF("setenv '%s'\n", getenv("T1LIB_CONFIG"));
+
+	/* non-antialias mono bitmaps are byte arrays w/no padding*/
 	T1_SetBitmapPad(8);
-	if (!T1_InitLib(0))
+
+	if (!T1_InitLib(NO_LOGFILE|IGNORE_FONTDATABASE)) {
+		DPRINTF("t1lib_init: library init failed error %d\n", T1_errno);
 		return 0;
+	}
 
 	/* set default Latin1 encoding*/
-	encoding = T1_LoadEncoding("IsoLatin1.enc");
-	T1_SetDefaultEncoding(encoding);
+	encoding = T1_LoadEncoding(T1LIB_DEFAULT_ENCODING);
+	if (encoding)
+		T1_SetDefaultEncoding(encoding);
 
-#ifdef T1LIB_USE_AA_HIGH	 
+	T1_AASetBitsPerPixel(8);		/* rasterize to 8bpp alpha values*/
+#if T1LIB_USE_AA_HIGH      
 	T1_AASetLevel(T1_AA_HIGH);
-#else
+	T1_AAHSetGrayValues(highblend);
+#else      
 	T1_AASetLevel(T1_AA_LOW);
-#endif	 
-#if 0
-	/* kluge: this is required if 16bpp drawarea driver is used*/
-	if(psd->bpp == 16)
-		T1_AASetBitsPerPixel(16);
-	else
+	T1_AASetGrayValues(lowblend[0],lowblend[1],lowblend[2],lowblend[3],lowblend[4]);
 #endif
-		T1_AASetBitsPerPixel(sizeof(MWPIXELVAL)*8);
 
 	inited = 1;
 	return 1;
 }
 
-PMWT1LIBFONT
-t1lib_createfont(const char *name, MWCOORD height, int attr)
+/* open font and allocate PMWT1LIBONT structure*/
+PMWFONT
+t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 {
-	PMWT1LIBFONT	pf;
-	int		id;
-	char *		p;
-	char		buf[256];
+	int			id;
+	char 		*p, *fontname;
+	PMWT1LIBFONT pf;
+	int			ret, ret2;
+	char		fontpath[256];
+	char		t1name[256];
 
-	/* match name against t1 font id's from t1 font database*/
+	/* ensure library is inited*/
+	t1lib_init(NULL);
+
+	/* if no extension specified, add .pfb, otherwise check for .pfb*/
+	strcpy(fontpath, name);
+	if ((p = strrchr(fontpath, '.')) == NULL)
+		strcat(fontpath, ".pfb");
+	else {	
+		if (strcmpi(p+1, "pfb") != 0)
+			return NULL;		/* non .pfb file specified, not type1*/
+	}
+
+	/* check path and filename for .pfb file*/
+	if (access(fontpath, F_OK) != 0)
+		return NULL;
+
+	/* seperate font path and filename.pfb*/
+	fontname = fontpath;
+	if ((p = strrchr(fontname, '/')) != NULL) {
+		*p++ = '\0';
+		fontname = p;
+	}
+
+	/* check if font filename.pfb is already known*/
 	for(id=0; id<T1_GetNoFonts(); ++id) {
-		strncpy(buf, T1_GetFontFileName(id), sizeof(buf));
+		strcpy(t1name, T1_GetFontFileName(id));		/* returns .pfb name*/
 
-		/* remove extension*/
-		for(p=buf; *p; ++p) {
-			if(*p == '.') {
-				*p = 0;
-				break;
-			}
-		}
+		if(!strcmpi(fontname, t1name))
+			goto found;
+	}
 
-		if(!strcmpi(name, buf)) {
-			/* allocate font structure*/
+	/* font filename.pfb exists but not found, add pathname and file to database*/
+	ret = T1_AddToFileSearchPath(T1_PFAB_PATH|T1_AFM_PATH, T1_APPEND_PATH, fontpath);
+	ret2 = T1_AddFont(fontname);
+	DPRINTF("path %s, filename %s, ret %d, %d\n", fontpath, fontname, ret, ret2);
+	DPRINTF("# fonts %d\n", T1_GetNoFonts());
+		
+	/* match name against t1lib font id's from t1lib FontDataBase*/
+	for(id=0; id<T1_GetNoFonts(); ++id) {
+		strcpy(t1name, T1_GetFontFileName(id));
+
+		if(!strcmpi(fontname, t1name)) {
+found:
 			pf = (PMWT1LIBFONT)calloc(sizeof(MWT1LIBFONT), 1);
 			if (!pf)
 				return NULL;
-			pf->fontprocs = &t1lib_procs;
-			GdSetFontSize((PMWFONT)pf, height);
-			GdSetFontRotation((PMWFONT)pf, 0);
-			GdSetFontAttr((PMWFONT)pf, attr, 0);
+			pf->fontprocs = &t1lib_fontprocs;
+			//pf->fontprocs->SetFontSize((PMWFONT)pf, height, width);
+			//pf->fontprocs->SetFontRotation((PMWFONT)pf, 0);
+			//pf->fontprocs->SetFontAttr((PMWFONT)pf, attr, 0);
+			pf->fontsize = height;
+			pf->fontwidth = width;
+			//T1_ExtendFont(pf->fontid, (float)width_scale);
+			pf->fontrotation = 0;
+			pf->fontattr = attr;
 			pf->fontid = id;
-			return pf;
+			DPRINTF("t1lib_createfont: using %s/%s\n", fontpath, fontname);
+			return (PMWFONT)pf;
 		}
 	}
 	return NULL;
@@ -135,191 +207,123 @@ static void
 t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	const void *text, int cc, MWTEXTFLAGS flags)
 {
-	PMWT1LIBFONT	pf = (PMWT1LIBFONT)pfont;
-	const unsigned char *str = text;
-   	MWCOORD		width;			/* width of text area */
-	MWCOORD 	height;			/* height of text area */
-	MWCOORD		underliney;
-        GLYPH * g; /* T1lib glyph structure. Memory handling by T1lib */
-#ifdef T1LIB_USE_AA_HIGH   
-        OUTPIXELVAL	gvals[17];
+	PMWT1LIBFONT pf = (PMWT1LIBFONT)pfont;
+	GLYPH 		*glyph; 		/* glyph structure, memory handling by T1lib */
+	MWBLITPARMS parms;
 
-        /* Blending array for antialiasing. The steeper the values increase
-	 * near the end, the sharper the characters look, but also more jagged
-	 */
-        static unsigned char blend[17] = {
-	   0x00, 0x00, 0x04, 0x0c, 0x10, 0x14, 0x18, 0x20,
-	   0x30, 0x38, 0x40, 0x50, 0x70, 0x80, 0xa0, 0xc0, 0xff
-	};
-#else   
-        OUTPIXELVAL	gvals[5];
-        static unsigned char blend[5] = { 0x00, 0x44, 0x88, 0xcc, 0xff };
-#endif   
+	if (pf->fontattr & MWTF_ANTIALIAS) {
+		parms.data_format = MWIF_8BPP | MWIF_HASALPHA;	/* data is 8bpp alpha channel*/
+		parms.op = MWROP_BLENDFGBG;				/* blend fg/bg with alpha channel -> dst*/
 
-        /* Check if we should throw out some fonts */
-
-        if (pf->fontattr&MWTF_ANTIALIAS) {
-#ifdef T1LIB_USE_AA_HIGH      
-	   alphablend(psd, gvals, gr_foreground, gr_background, blend, 17);
-           T1_AAHSetGrayValues(gvals);
-#else      
-	   alphablend(psd, gvals, gr_foreground, gr_background, blend, 5);
-           T1_AASetGrayValues(gvals[0],gvals[1],gvals[2],gvals[3],gvals[4]);
-#endif
-	   g = T1_AASetString(pf->fontid,(char *)str,cc,0,
-		(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0,
-		pf->fontsize * 1.0, 0);
-
-	   if (g && g->bits) {
-	      /*MWPIXELVAL save = gr_background;*/
-	      width = g->metrics.rightSideBearing - g->metrics.leftSideBearing;
-	      height = g->metrics.ascent - g->metrics.descent;
-
-	      if(flags & MWTF_BASELINE)
-		y -= g->metrics.ascent;
-	      else if(flags & MWTF_BOTTOM)
-		y -= (height - 1);
-	      underliney = y + g->metrics.ascent;
-
-	      /* FIXME: Looks damn ugly if usebg is false.
-	       * Will be handled when using alphablending in GdArea...
-	       */
-	      /* clipping handled in GdArea*/
-	      /*FIXME kluge for transparency*/
-	      /*gr_background = gr_foreground + 1;*/
-	      /*gr_usebg = 0;*/
-	      GdArea(psd,x,y, width, height, g->bits, MWPF_PIXELVAL);
-	      /*gr_background = save;*/
-
-	      if (pf->fontattr & MWTF_UNDERLINE)
-		   GdLine(psd, x, underliney, x+width, underliney, FALSE);
-
-	   }
+		glyph = T1_AASetString(pf->fontid, (char *)text, cc, 0,
+			(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0, (float)pf->fontsize, 0);
 	} else {
-	   /* Do non-aa drawing */
-	   g = T1_SetString(pf->fontid,(char *)str,cc,0,
-			(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0,
-			pf->fontsize * 1.0, 0);
+		/* Do non-antialiased drawing */
+		parms.data_format = MWIF_MONOBYTELSB;	/* data is 1bpp bytes, lsb first*/
+		parms.op = MWROP_COPY;					/* copy to dst, 1=fg (0=bg if usebg)*/
 
-	   if (g && g->bits) {
-	      unsigned char * b;
-	      int xoff;
-	      int maxy;
-	      int xmod;
-	      
-	      /* I'm sure this sorry excuse for a bitmap rendering routine can
-	       * be optimized quite a bit ;)
-	       */
-	      width = g->metrics.rightSideBearing - g->metrics.leftSideBearing;
-	      height = g->metrics.ascent - g->metrics.descent;
+		glyph = T1_SetString(pf->fontid, (char *)text, cc, 0,
+				(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0, (float)pf->fontsize, 0);
+	}
 
-	      if(flags & MWTF_BASELINE)
-		y -= g->metrics.ascent;
-	      else if(flags & MWTF_BOTTOM)
-		y -= (height - 1);
-	      underliney = y + g->metrics.ascent;
-	      
-	      b = g->bits;
-	      maxy = y + height;
-	      
-/*	      if ((x + width) > psd->xvirtres) {
-		 xmod = (x + width - psd->xvirtres + 7) >> 3;
-		 width = width + x + width - psd->xvirtres;
-	      } else xmod = 0;
-*/
-	      xmod = 0;
-	      while (y < maxy) {
-		 unsigned char data;
-		 xoff = 0;
-		 while (xoff < width ) {
-		    if (!(xoff % 8)) {
-		       data = *b;
-		       b++;
-		    }
-		    
-		    if (GdClipPoint(psd, x+xoff,y)) {
-		       if (gr_usebg) {
-	 		  psd->DrawPixel(psd,x+xoff,y,
-			      data & (1 << (xoff % 8)) ?
-			            gr_foreground : gr_background);
-		       } else if (data & (1 << (xoff % 8))) {
-			  psd->DrawPixel(psd,x+xoff,y, gr_foreground);
-		       }
-		    }
-		    xoff++;
-		 }
-		 b += xmod;
-		 y++;
-	      }
-	      if (pf->fontattr & MWTF_UNDERLINE)
-		   GdLine(psd, x, underliney, x+xoff, underliney, FALSE);
-	   }
-        }
+	if (glyph && glyph->bits) {
+		int width = glyph->metrics.rightSideBearing - glyph->metrics.leftSideBearing;
+		int height = glyph->metrics.ascent - glyph->metrics.descent;
 
-   if (g && g->bits) {
-	   /* Save some memory */
-	   free(g->bits);
-           g->bits = 0; /* Make sure T1lib doesnt try to free it again */
-   }
+		if(flags & MWTF_BASELINE)
+			y -= glyph->metrics.ascent;
+		else if(flags & MWTF_BOTTOM)
+			y -= height - 1;
 
-   GdFixCursor(psd);
+		parms.fg_color = gr_foreground;
+		parms.bg_color = gr_background;
+		parms.usebg = gr_usebg;
+		parms.srcx = 0;
+		parms.srcy = 0;
+		parms.dst_pitch = 0;		/* set later in GdConversionBlit*/
+		parms.data_out = 0;			/* set later in GdConversionBlit*/
+		parms.dstx = x;
+		parms.dsty = y;
+		parms.height = height;
+		parms.width = width;
+		parms.data = (char *)glyph->bits;
+		if (pf->fontattr & MWTF_ANTIALIAS)
+			parms.src_pitch = width;
+		else
+			parms.src_pitch = (width + 7) >> 3;	/* pad to BYTE boundary*/
+		GdConversionBlit(psd, &parms);
+
+		if (pf->fontattr & MWTF_UNDERLINE) {
+			int underliney = y + glyph->metrics.ascent;
+			GdLine(psd, x, underliney, x+width, underliney, FALSE);
+		}
+
+		/* cleanup*/
+		free(glyph->bits);
+		glyph->bits = NULL;
+	}
+
+	GdFixCursor(psd);
 }
 
-static MWBOOL
-t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
-{
-	int	i;
-	MWCOORD	width, height, baseline;
-
-	/* FIXME, guess all sizes*/
-	GdGetTextSize(pfont, "A", 1, &width, &height, &baseline, MWTF_ASCII);
-	pfontinfo->height = height;
-	pfontinfo->maxwidth = width;
-	pfontinfo->baseline = baseline;
-
-	/* FIXME: Even worse guesses */
-	pfontinfo->linespacing = pfontinfo->height;
-	pfontinfo->descent = pfontinfo->height - pfontinfo->baseline;
-	pfontinfo->maxascent = pfontinfo->baseline;
-	pfontinfo->maxdescent = pfontinfo->descent;
-
-	pfontinfo->firstchar = 32;
-	pfontinfo->lastchar = 255;
-	pfontinfo->fixed = TRUE;
-	for(i=0; i<256; ++i)
-		pfontinfo->widths[i] = width;
-	return TRUE;
-}
-
-/* Get the width and height of passed text string in the current font*/
+/* Get the width and height of passed text string in the passed font*/
 static void
 t1lib_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
-	PMWT1LIBFONT		pf = (PMWT1LIBFONT)pfont;
-	const unsigned char *	str = text;
-	GLYPH *			g;
+	PMWT1LIBFONT	pf = (PMWT1LIBFONT)pfont;
+	GLYPH *			glyph;
 
-	g = T1_SetString(pf->fontid, (char *)str, cc, 0,
-			(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0, pf->fontsize * 1.0, 0);
-	*pwidth = g->metrics.rightSideBearing - g->metrics.leftSideBearing;
-	*pheight = g->metrics.ascent - g->metrics.descent;
-	*pbase = g->metrics.ascent;
-	if(g && g->bits) {
-		free(g->bits);
-		g->bits = 0;
+	glyph = T1_SetString(pf->fontid, (char *)text, cc, 0,
+			(pf->fontattr&MWTF_KERNING)? T1_KERNING: 0, (float)pf->fontsize, 0);
+	if (!glyph) {
+		*pwidth = *pheight = *pbase = 20;
+		return;
+	}
+	*pwidth = glyph->metrics.rightSideBearing - glyph->metrics.leftSideBearing;
+	*pheight = glyph->metrics.ascent - glyph->metrics.descent;
+	*pbase = glyph->metrics.ascent;
+
+	if(glyph && glyph->bits) {
+		free(glyph->bits);
+		glyph->bits = NULL;
 	}
 #if 0
 	BBox 			b;
 
-	/* FIXME. Something is *VERY* wrong here */
-	b = T1_GetStringBBox(pf->fontid, str, cc, 0, (pf->fontattr&MWTF_KERNING)?T1_KERNING:0);
+	/* FIXME must change from char points (1000bp) to pixels*/
+	b = T1_GetStringBBox(pf->fontid, text, cc, 0, (pf->fontattr&MWTF_KERNING)?T1_KERNING:0);
 
-	DPRINTF("b.urx = %d, b.llx = %d\n",b.urx, b.llx);
-	DPRINTF("b.ury = %d, b.lly = %d\n",b.ury, b.lly);
+	printf("b.urx = %d, b.llx = %d\n",b.urx, b.llx);
+	printf("b.ury = %d, b.lly = %d\n",b.ury, b.lly);
+
+	/* NXLIB, X11*/
 	*pwidth = (b.urx - b.llx);
 	*pheight = (b.lly - b.ury);
 #endif
+}
+
+static int
+t1lib_setfontsize(PMWFONT pfont, MWCOORD height, MWCOORD width)
+{
+	PMWT1LIBFONT pf = (PMWT1LIBFONT)pfont;
+	MWCOORD oldsize = pf->fontsize;
+
+	pf->fontsize = height;
+	pf->fontwidth = width;
+
+	return oldsize;
+}
+
+static int
+t1lib_setfontattr(PMWFONT pfont, int setflags, int clrflags)
+{
+	int	oldattr = pfont->fontattr;
+
+	pfont->fontattr &= ~clrflags;
+	pfont->fontattr |= setflags;
+
+	return oldattr;
 }
 
 static void
@@ -329,4 +333,32 @@ t1lib_destroyfont(PMWFONT pfont)
 
 	T1_DeleteAllSizes(pf->fontid);
 	free(pf);
+}
+
+static MWBOOL
+t1lib_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
+{
+	PMWT1LIBFONT	pf = (PMWT1LIBFONT)pfont;
+	int				i;
+	MWCOORD			width, height, baseline;
+
+	/* FIXME guess all sizes*/
+	pfont->fontprocs->GetTextSize(pfont, "H", 1, MWTF_ASCII, &width, &height, &baseline);
+	pfontinfo->maxwidth = width;
+	pfontinfo->height = height;						/* character height only, not cell height*/
+	pfontinfo->baseline = baseline;
+
+	/* FIXME even worse guesses */
+	pfontinfo->descent = height - baseline;
+	pfontinfo->maxdescent = pfontinfo->descent;
+	pfontinfo->maxascent = baseline;
+	pfontinfo->linespacing = height + 4;			/* add margin for cell height/linespacing*/
+
+	pfontinfo->firstchar = 32;
+	pfontinfo->lastchar = 255;
+	pfontinfo->fixed = T1_GetIsFixedPitch(pf->fontid);
+
+	for(i=0; i<256; ++i)
+		pfontinfo->widths[i] = width;		/* FIXME lookup each width with gettextsize?*/
+	return TRUE;
 }

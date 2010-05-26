@@ -33,7 +33,7 @@ void
 test_ft2_antialias(void)
 {
 	GR_GC_ID gc = GrNewGC();
-	int id = GrCreateFont((GR_CHAR *)FONT, 40, NULL);
+	int id = GrCreateFontEx((GR_CHAR *)FONT, 40, 40, NULL);
 
 	GrSetFontAttr(id, GR_TFANTIALIAS, 0);
 	GrSetGCFont(gc, id);

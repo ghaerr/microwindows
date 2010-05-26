@@ -145,7 +145,7 @@ create_scribble(void)
     new->gc = GrNewGC();
     GrSetGCForeground(new->gc, GrGetSysColor(GR_COLOR_APPTEXT));
     GrSetGCBackground(new->gc, GrGetSysColor(GR_COLOR_APPWINDOW));
-    GrSetGCFont(new->gc, GrCreateFont(GR_FONT_SYSTEM_FIXED, 0, NULL));
+    GrSetGCFont(new->gc, GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL));
 
     ResetStroke (new);
     return new;

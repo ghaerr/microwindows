@@ -6,9 +6,12 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#define MWINCLUDECOLORS
 #include "nano-X.h"
 #include "nxdraw.h"
 #include "nanowm.h"
+
+static void set_resize_cursor(int wid);
 
 void wm_redraw_ncarea(win *window)
 {
@@ -98,20 +101,15 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	/* Set focus on button down*/
 	GrSetFocus(window->clientid);
 
-#if !NO_CORNER_RESIZE
-/*
- * Note: Resize seems to cause lots of trouble since the resize "handle"
- * does not seem to be visible/advertised.  Thus at any touch, the window
- * may get resized and it is often impossible to recover
- */
-
 	/* check for corner resize */
 	r.x = info.width - 5;
 	r.y = info.height - 5;
 	r.width = 5;
 	r.height = 5;
 
-	if(PtInRect(&r,event->x, event->y)) {
+	if (PtInRect(&r,event->x, event->y)
+	   && !(info.props & GR_WM_PROPS_NORESIZE) && !(cinfo.props & GR_WM_PROPS_NORESIZE)) {
+#if !NO_CORNER_RESIZE
 	  struct pos_size * pos;
 
 	  if(!window->data)
@@ -139,8 +137,9 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  pos->width = info.width;
 	  pos->height = info.height;
 	  return;
-	}
 #endif /* !NO_CORNER_RESIZE*/
+	} else
+		GrSetWindowCursor(window->wid, 0);
 
 	/* if not in caption, return (FIXME, not calc'd exactly)*/
 	if (!(info.props & GR_WM_PROPS_CAPTION))
@@ -271,13 +270,15 @@ void wm_container_mousemoved(win *window, GR_EVENT_MOUSE *event)
 {
 	struct pos_size *pos;
 	GR_GC_ID gc;
+	GR_RECT r;
 	GR_WINDOW_INFO info;
 
 	Dprintf("wm_container_mousemoved window %d\n", window->wid);
 
+	GrGetWindowInfo(window->wid, &info);
+
 	if(window->sizing) {
 	  struct pos_size * pos = (struct pos_size*)window->data;
-	  GrGetWindowInfo(window->wid, &info);
 
 	  /* erase old rectangle */
 	  gc = GrNewGC();
@@ -294,6 +295,18 @@ void wm_container_mousemoved(win *window, GR_EVENT_MOUSE *event)
 	  pos->height = event->rooty - info.y;
 	  return;
 	}
+
+#if !NO_CORNER_RESIZE
+	/* check corner resize cursor on/off*/
+	r.x = info.width - 5;
+	r.y = info.height - 5;
+	r.width = 5;
+	r.height = 5;
+	if (PtInRect(&r,event->x, event->y))
+		set_resize_cursor(window->wid);
+	else
+		GrSetWindowCursor(window->wid, 0);
+#endif
 
 	if(!window->active)
 		return;
@@ -313,6 +326,93 @@ void wm_container_mousemoved(win *window, GR_EVENT_MOUSE *event)
 #else	
 	GrMoveWindow(window->wid, event->rootx - pos->xoff, event->rooty - pos->yoff);
 #endif
+}
+
+void wm_container_mouse_enter(win *window, GR_EVENT_GENERAL *event)
+{
+	GR_RECT		r;
+	GR_WINDOW_INFO info, cinfo;
+
+#if !NO_CORNER_RESIZE
+	/* Don't allow window move if NORESIZE property set*/
+	GrGetWindowInfo(window->wid, &info);
+	if (info.props & GR_WM_PROPS_NORESIZE)
+		return;
+	
+	GrGetWindowInfo(window->clientid, &cinfo);
+	if (cinfo.props & GR_WM_PROPS_NORESIZE)
+		return;
+
+	/* check for corner resize */
+	r.x = info.width - 5;
+	r.y = info.height - 5;
+	r.width = 5;
+	r.height = 5;
+	if (PtInRect(&r,event->x, event->y))
+		set_resize_cursor(window->wid);
+#endif
+}
+
+void wm_container_mouse_exit(win *window, GR_EVENT_GENERAL *event)
+{
+	if (!window->sizing)
+		GrSetWindowCursor(window->wid, 0);
+}
+
+/* cursor definition macros*/
+#define	_	((unsigned) 0)		/* off bits */
+#define	X	((unsigned) 1)		/* on bits */
+#define	MASK(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) \
+	((((((((((((((((((((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) * 2)\
+	       + h) * 2) + i) * 2) + j) * 2) + k) * 2) + l) * 2) + m) * 2) + n) * 2) + o) * 2) + p)
+
+static void set_resize_cursor(int wid)
+{
+	static int resize_cursor = 0;
+
+	if (!resize_cursor) {
+		GR_BITMAP	resize_fg[16];
+		GR_BITMAP	resize_bg[16];
+
+		resize_fg[0] =  MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_);
+		resize_fg[1] =  MASK(_,X,X,X,X,X,_,_,_,_,_,_,_,_,_,_);
+		resize_fg[2] =  MASK(_,X,X,X,X,_,_,_,_,_,_,_,_,_,_,_);
+		resize_fg[3] =  MASK(_,X,X,X,_,_,_,_,_,_,_,_,_,_,_,_);
+		resize_fg[4] =  MASK(_,X,X,_,X,_,_,_,_,_,_,_,_,_,_,_);
+		resize_fg[5] =  MASK(_,X,_,_,_,X,_,_,_,_,_,_,_,_,_,_);
+		resize_fg[6] =  MASK(_,_,_,_,_,_,X,_,_,_,_,_,_,_,_,_);
+		resize_fg[7] =  MASK(_,_,_,_,_,_,_,X,_,_,_,_,_,_,_,_);
+		resize_fg[8] =  MASK(_,_,_,_,_,_,_,_,X,_,_,_,_,_,_,_);
+		resize_fg[9] =  MASK(_,_,_,_,_,_,_,_,_,X,_,_,_,_,_,_);
+		resize_fg[10] = MASK(_,_,_,_,_,_,_,_,_,_,X,_,_,_,X,_);
+		resize_fg[11] = MASK(_,_,_,_,_,_,_,_,_,_,_,X,_,X,X,_);
+		resize_fg[12] = MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,X,X,_);
+		resize_fg[13] = MASK(_,_,_,_,_,_,_,_,_,_,_,X,X,X,X,_);
+		resize_fg[14] = MASK(_,_,_,_,_,_,_,_,_,_,X,X,X,X,X,_);
+		resize_fg[15] = MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_);
+
+		resize_bg[0] =  MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_);
+		resize_bg[1] =  MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_);
+		resize_bg[2] =  MASK(X,X,X,X,X,X,_,_,_,_,_,_,_,_,_,_);
+		resize_bg[3] =  MASK(X,X,X,X,X,_,_,_,_,_,_,_,_,_,_,_);
+		resize_bg[4] =  MASK(X,X,X,X,X,X,_,_,_,_,_,_,_,_,_,_);
+		resize_bg[5] =  MASK(X,X,X,_,X,X,X,_,_,_,_,_,_,_,_,_);
+		resize_bg[6] =  MASK(X,X,_,_,_,X,X,X,_,_,_,_,_,_,_,_);
+		resize_bg[7] =  MASK(_,_,_,_,_,_,X,X,X,_,_,_,_,_,_,_);
+		resize_bg[8] =  MASK(_,_,_,_,_,_,_,X,X,X,_,_,_,_,_,_);
+		resize_bg[9] =  MASK(_,_,_,_,_,_,_,_,X,X,X,_,_,_,X,X);
+		resize_bg[10] = MASK(_,_,_,_,_,_,_,_,_,X,X,X,_,X,X,X);
+		resize_bg[11] = MASK(_,_,_,_,_,_,_,_,_,_,X,X,X,X,X,X);
+		resize_bg[12] = MASK(_,_,_,_,_,_,_,_,_,_,_,X,X,X,X,X);
+		resize_bg[13] = MASK(_,_,_,_,_,_,_,_,_,_,X,X,X,X,X,X);
+		resize_bg[14] = MASK(_,_,_,_,_,_,_,_,_,X,X,X,X,X,X,X);
+		resize_bg[15] = MASK(_,_,_,_,_,_,_,_,_,X,X,X,X,X,X,X);
+
+		resize_cursor = GrNewCursor(16, 16, 8, 8, WHITE, BLACK,
+			(MWIMAGEBITS *)resize_fg, (MWIMAGEBITS *)resize_bg);
+	}
+
+	GrSetWindowCursor(wid, resize_cursor);
 }
 
 #if 0000

@@ -19,11 +19,16 @@
 #endif
 #include "device.h"
 #include "devfont.h"
-#include "../drivers/genfont.h"
+#include "genfont.h"
+
+#ifndef EUCJP_FONT_DIR
+#define EUCJP_FONT_DIR	"fonts/japanese"	/* default MGLFONT .fnt font file directory*/
+#endif
 
 typedef struct MWEUCJPFONT {
 	PMWFONTPROCS fontprocs;	/* common hdr */
 	int fontsize;
+	int	fontwidth;
 	int fontrotation;
 	int fontattr;
 
@@ -37,9 +42,9 @@ typedef struct MWEUCJPFONT {
 	int abytes;
 	int fd;			/* file descriptor of font bitmap data */
 	char *font_base;
-} MWEUCJPFONT;
+} MWEUCJPFONT, *PMWEUCJPFONT;
 
-PMWEUCJPFONT eucjp_createfont(const char *name, MWCOORD height, int attr);
+PMWFONT eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
 static MWBOOL eucjp_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void eucjp_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
@@ -51,6 +56,8 @@ static void eucjp_destroyfont(PMWFONT pfont);
 /* handling routines for MWEUCJPFONT*/
 static MWFONTPROCS eucjp_procs = {
 	MWTF_UC16,		/* routines expect unicode index*/
+	NULL,			/* init*/
+	eucjp_createfont,
 	eucjp_getfontinfo,
 	eucjp_gettextsize,
 	eucjp_gettextbits,
@@ -59,7 +66,7 @@ static MWFONTPROCS eucjp_procs = {
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
-	NULL,			/* duplicate not yet implemented */
+	NULL			/* duplicate*/
 };
 
 /*
@@ -67,8 +74,8 @@ static MWFONTPROCS eucjp_procs = {
  *
  * Many thanks to MGL fontkit/mgl_fontinfo.c
  */
-PMWEUCJPFONT
-eucjp_createfont(const char *name, MWCOORD height, int attr)
+PMWFONT
+eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 {
 	PMWEUCJPFONT pf;
 	int fd, r;
@@ -84,8 +91,7 @@ eucjp_createfont(const char *name, MWCOORD height, int attr)
 
 	fd = open(name, O_RDONLY);
 	if (fd < 0) {
-		strcpy(fname, EUCJP_FONT_DIR "/");
-		strcpy(fname + sizeof(EUCJP_FONT_DIR), name);
+		sprintf(fname, "%s/%s", EUCJP_FONT_DIR, name);
 		fd = open(fname, O_RDONLY);
 	}
 	if (fd < 0)
@@ -124,15 +130,14 @@ eucjp_createfont(const char *name, MWCOORD height, int attr)
 		printf("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");
 		goto EUCJP_FAIL;
 	}
-	pf->font_base =
-		(char *) mmap((caddr_t) 0, pf->koffset + pf->kbytes * 8064,
+	pf->font_base = (char *)mmap((caddr_t) 0, pf->koffset + pf->kbytes * 8064,
 			      PROT_READ, MAP_SHARED | MAP_FILE, fd, 0);
 	if (pf->font_base == MAP_FAILED) {
 		printf("FONT_EUCJP: Can't mmap font data.\n");
 		goto EUCJP_FAIL;
 	}
 
-	return pf;
+	return (PMWFONT)pf;
 
 EUCJP_FAIL:
 	free(pf);

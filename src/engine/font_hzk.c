@@ -11,6 +11,10 @@
 #include "device.h"
 #include "devfont.h"
 
+#ifndef HZK_FONT_DIR
+#define HZK_FONT_DIR	"fonts/chinese"	/* default dir for {asc,hzk,hzx}{12,16} and *.KU files*/
+#endif
+
 /*
  * 12x12 and 16x16 ascii and chinese fonts
  * Big5 and GB2312 encodings supported
@@ -37,10 +41,11 @@ static char *afont_address;
 static char *cfont_address;
 
 typedef struct MWHZKFONT {
-	PMWFONTPROCS	fontprocs;	/* common hdr*/
+	PMWFONTPROCS fontprocs;	/* common hdr*/
 	MWCOORD		fontsize;
-	int		fontrotation;
-	int		fontattr;		
+	MWCOORD		fontwidth;
+	int			fontrotation;
+	int			fontattr;		
 
 	HZKFONT 	CFont;		/* hzkfont stuff */
 	HZKFONT 	AFont;
@@ -49,10 +54,10 @@ typedef struct MWHZKFONT {
 	int 		font_height;
 	char 		*afont_address;
 	char 		*cfont_address;
-} MWHZKFONT;
+} MWHZKFONT, *PMWHZKFONT;
 
-int  hzk_init(PSD psd);
-PMWHZKFONT hzk_createfont(const char *name, MWCOORD height,int fontattr);
+static int  hzk_init(PSD psd);
+PMWFONT hzk_createfont(const char *name, MWCOORD height, MWCOORD width, int fontattr);
 
 static MWBOOL hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void hzk_gettextsize(PMWFONT pfont, const void *text, int cc,
@@ -69,6 +74,8 @@ static void hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 /* handling routines for MWHZKFONT*/
 static MWFONTPROCS hzk_procs = {
 	MWTF_ASCII,			/* routines expect ASCII*/
+	hzk_init,
+	hzk_createfont,
 	hzk_getfontinfo,
 	hzk_gettextsize,
 	NULL,				/* hzk_gettextbits*/
@@ -77,7 +84,7 @@ static MWFONTPROCS hzk_procs = {
 	NULL,				/* setfontsize*/
 	NULL, 				/* setfontrotation*/
 	NULL,				/* setfontattr*/
-	NULL,				/* duplicate not yet implemented */
+	NULL				/* duplicate*/
 };
 
 /* temp extern decls*/
@@ -250,8 +257,7 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
 
 static int hzk_id( PMWHZKFONT pf )
 {
-	switch(pf->font_height)
-	{
+	switch(pf->font_height) {
 	case 12:
 		return 0;
 	case 16: default:
@@ -453,8 +459,8 @@ hzk_init(PSD psd)
 	return 1;
 }
 
-PMWHZKFONT
-hzk_createfont(const char *name, MWCOORD height, int attr)
+PMWFONT
+hzk_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 {
 	PMWHZKFONT	pf;
 
@@ -472,6 +478,7 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 	pf->fontprocs = &hzk_procs;
 
 	pf->fontsize = height;
+	pf->fontwidth = width;
 	pf->fontrotation = 0;
 	pf->fontattr = attr;
 
@@ -500,7 +507,7 @@ hzk_createfont(const char *name, MWCOORD height, int attr)
 	if(!LoadFont(pf))
   	      	return FALSE;
 
-	return pf;
+	return (PMWFONT)pf;
 }
 
 int IsBig5(int i)
@@ -576,8 +583,7 @@ expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVAL* bitmap)
 	else
     		seq=((c1 - 161)*94 + c2 - 161); 
 
-	font = pf->cfont_address + ((seq) *
-		  (pf->font_height * ((pf->cfont_width + 7) / 8)));
+	font = pf->cfont_address + ((seq) * (pf->font_height * ((pf->cfont_width + 7) / 8)));
 
      	for (y = 0; y < pf->font_height; y++)
         	for (x = 0; x < pf->cfont_width; x++) 

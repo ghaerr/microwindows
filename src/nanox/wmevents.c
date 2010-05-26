@@ -64,10 +64,10 @@ int wm_handle_event(GR_EVENT *event)
 	case GR_EVENT_TYPE_NONE:
 		break;
 	case GR_EVENT_TYPE_ERROR:
-		Dprintf("nanowm: error event code %d\n", event.error.code);
+		Dprintf("nanowm: error event code %d\n", event->error.code);
 		break;
     default:
-		Dprintf("nanowm: unexpected event %d\n", event.type);
+		Dprintf("nanowm: unexpected event %d\n", event->type);
 		break;
     }
     return 0;
@@ -154,6 +154,9 @@ int wm_mouse_enter(GR_EVENT_GENERAL *event)
 		return 0;
 
 	switch(window->type) {
+		case WINDOW_TYPE_CONTAINER:
+			wm_container_mouse_enter(window, event);
+			return 0; 	/* don't eat event*/
 		default:
 			Dprintf("Unhandled mouse enter from window %d "
 				"(type %d)\n", window->wid, window->type);
@@ -172,6 +175,9 @@ int wm_mouse_exit(GR_EVENT_GENERAL *event)
 		return 0;
 
 	switch(window->type) {
+		case WINDOW_TYPE_CONTAINER:
+			wm_container_mouse_exit(window, event);
+			return 0; 	/* don't eat event*/
 		default:
 			Dprintf("Unhandled mouse exit from window %d "
 				"(type %d)\n", window->wid, window->type);

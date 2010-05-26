@@ -320,10 +320,10 @@ typedef struct {
 	unsigned char *	physpixels;	/* address of real framebuffer*/
 	/* note winpixels is only correct in non-portrait modes*/
 	unsigned char *	winpixels;	/* address of 0,0 this window in fb*/
-	int	pixtype;	/* MWPF_ pixel type*/
-	int	bpp;		/* bits per pixel*/
-	int	bytespp;	/* bytes per pixel*/
-	int	pitch;		/* bytes per scan line for window (=fb pitch)*/
+	int	pixtype;		/* MWPF_ pixel type*/
+	int	bpp;			/* bits per pixel*/
+	int	bytespp;		/* bytes per pixel*/
+	int	pitch;			/* bytes per scan line for window (=fb pitch)*/
 	MWCOORD	x, y;		/* absolute window coordinates*/
 	int	portrait_mode;	/* current portrait mode*/
 	MWCOORD	xres;		/* real framebuffer resolution*/
@@ -354,10 +354,8 @@ typedef struct _mwfontinfo *	PMWFONTINFO;
 
 typedef struct {
 	MWTEXTFLAGS	encoding;	/* routines expect this encoding*/
-#if STANDALONE
 	MWBOOL	(*Init)(PSD psd);
 	PMWFONT	(*CreateFont)(const char *name, MWCOORD height, MWCOORD width, int attr);
-#endif
 	MWBOOL	(*GetFontInfo)(PMWFONT pfont, PMWFONTINFO pfontinfo);
 	void 	(*GetTextSize)(PMWFONT pfont, const void *text, int cc,
 			MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
@@ -367,24 +365,17 @@ typedef struct {
 	void	(*DestroyFont)(PMWFONT pfont);
 	void	(*DrawText)(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 			const void *str, int count, MWTEXTFLAGS flags);
-#if STANDALONE
-	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height, MWCOORD width);
-#else
-	void    (*SetFontSize)(PMWFONT pfont, MWCOORD height); // DEPRECATED
-#endif
+	int     (*SetFontSize)(PMWFONT pfont, MWCOORD height, MWCOORD width);
 	void    (*SetFontRotation)(PMWFONT pfont, int tenthdegrees);
-	void    (*SetFontAttr)(PMWFONT pfont, int setflags, int clrflags);
-#if STANDALONE
+	int     (*SetFontAttr)(PMWFONT pfont, int setflags, int clrflags);
 	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height, MWCOORD width);
-#else
-	PMWFONT (*Duplicate) (PMWFONT psrcfont, MWCOORD height); // DEPRECATED
-#endif
 } MWFONTPROCS, *PMWFONTPROCS;
 
 /* new multi-renderer font struct*/
 typedef struct _mwfont {		/* common hdr for all font structures*/
 	PMWFONTPROCS	fontprocs;	/* font-specific rendering routines*/
 	MWCOORD			fontsize;	/* font height in pixels*/
+	MWCOORD			fontwidth;	/* font width in pixels*/
 	int				fontrotation; /* font rotation*/
 	int				fontattr;	/* font attributes: kerning/antialias*/
 	/* font-specific rendering data here*/
@@ -392,8 +383,10 @@ typedef struct _mwfont {		/* common hdr for all font structures*/
 
 /* builtin core font struct*/
 typedef struct {
-	PMWFONTPROCS	fontprocs;	/* common hdr*/
-	MWCOORD			fontsize;
+	/* common hdr*/
+	PMWFONTPROCS	fontprocs;
+	MWCOORD			fontsize;	/* font height in pixels*/
+	MWCOORD			fontwidth;	/* font width in pixels*/
 	int				fontrotation;
 	int				fontattr;
 	/* core font specific data*/
@@ -426,13 +419,13 @@ typedef struct { // DEPRECATED
 	MWCOORD width, height;
 	MWCOORD dstx, dsty;
 	MWCOORD srcx, srcy;
-	MWPIXELVAL bg_color;
 	MWPIXELVAL fg_color;
+	MWPIXELVAL bg_color;
 	int usebg;
 	void *data;
 
+	MWCOORD src_linelen;		// must be set in GdConversionBlit
 	MWCOORD dst_linelen;		// must be set in GdConversionBlit
-	MWCOORD src_linelen;
 } driver_gc_t;
 
 /**
@@ -587,19 +580,19 @@ typedef struct {
 
 /* windows-compatible MWLOGFONT structure*/
 typedef struct {
-	int	lfHeight;		/* desired height in pixels*/
-	int	lfWidth;		/* desired width in pixels or 0*/
-	int	lfEscapement;		/* rotation in tenths of degree*/
-	int	lfOrientation;		/* not used*/
-	int	lfWeight;		/* font weight*/
+	int32_t	lfHeight;		/* desired height in pixels*/
+	int32_t	lfWidth;		/* desired width in pixels or 0*/
+	int32_t	lfEscapement;	/* rotation in tenths of degree*/
+	int32_t	lfOrientation;	/* not used*/
+	int32_t	lfWeight;		/* font weight*/
 	MWUCHAR	lfItalic;		/* =1 for italic */
-	MWUCHAR	lfUnderline;		/* =1 for underline */
-	MWUCHAR	lfStrikeOut;		/* not used*/
+	MWUCHAR	lfUnderline;	/* =1 for underline */
+	MWUCHAR	lfStrikeOut;	/* not used*/
 	MWUCHAR	lfCharSet;		/* font character set*/
-	MWUCHAR	lfOutPrecision;		/* font type selection*/
-	MWUCHAR	lfClipPrecision;	/* not used*/
+	MWUCHAR	lfOutPrecision;	/* font type selection*/
+	MWUCHAR	lfClipPrecision;/* not used*/
 	MWUCHAR	lfQuality;		/* not used*/
-	MWUCHAR lfPitchAndFamily;	/* not used*/
+	MWUCHAR lfPitchAndFamily;/* not used*/
 	/* end of windows-compatibility*/
 
 	MWUCHAR lfClass;		/* font class (renderer) */
@@ -611,12 +604,12 @@ typedef struct {
 	MWUCHAR	lfPitch;		/* font pitch */
 	MWUCHAR	lfRoman;		/* =1 for Roman letters (upright) */
 	MWUCHAR	lfSerif;		/* =1 for Serifed font */
-	MWUCHAR	lfSansSerif;		/* =1 for Sans-serif font */
+	MWUCHAR	lfSansSerif;	/* =1 for Sans-serif font */
 	MWUCHAR	lfModern;		/* =1 for Modern font */
-	MWUCHAR	lfMonospace;		/* =1 for Monospaced font */
-	MWUCHAR	lfProportional;		/* =1 for Proportional font */
+	MWUCHAR	lfMonospace;	/* =1 for Monospaced font */
+	MWUCHAR	lfProportional;	/* =1 for Proportional font */
 	MWUCHAR	lfOblique;		/* =1 for Oblique (kind of Italic) */
-	MWUCHAR	lfSmallCaps;		/* =1 for small caps */
+	MWUCHAR	lfSmallCaps;	/* =1 for small caps */
 	/* End of fontmapper-only variables */
 
 	/* render-dependent full path or facename here*/

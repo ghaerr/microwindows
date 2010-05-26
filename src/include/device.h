@@ -93,9 +93,9 @@
 /* Which low-level psd->DrawArea routines to include. */
 #define MW_FEATURE_PSDOP_COPY                   1
 #define MW_FEATURE_PSDOP_ALPHAMAP               0
-#define MW_FEATURE_PSDOP_ALPHACOL               0
-#define MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST 0
-#define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 0
+#define MW_FEATURE_PSDOP_ALPHACOL               1
+#define MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST 1
+#define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 1
 
 /* Override some of the above defines, for features which are required
  * for the Microwindows FreeType 2 font driver
@@ -421,13 +421,9 @@ void	GdClearFontList(void);
 int	GdAddFont(char *fndry, char *family, char *fontname, PMWLOGFONT lf,
 		  unsigned int flags);
 PMWFONT	GdSetFont(PMWFONT pfont);
-PMWFONT GdCreateFont(PSD psd, const char *name, MWCOORD height,
+PMWFONT GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width,
 		const PMWLOGFONT plogfont);
-#if STANDALONE
 MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD height, MWCOORD width);
-#else
-MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD height); // DEPRECATED
-#endif
 void GdGetFontList(MWFONTLIST ***list, int *num);
 void GdFreeFontList(MWFONTLIST ***list, int num);
 int	GdSetFontRotation(PMWFONT pfont, int tenthdegrees);
@@ -444,8 +440,8 @@ int	GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,
 void	GdText(PSD psd,MWCOORD x,MWCOORD y,const void *str,int count,
 		MWTEXTFLAGS flags);
 PMWFONT	GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
-		unsigned length, const char *format, MWCOORD height);
-PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD fontsize);
+		unsigned length, const char *format, MWCOORD height, MWCOORD width);
+PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width);
 
 
 /* both devclip1.c and devclip2.c */

@@ -621,23 +621,24 @@ typedef struct {
 	UINT32	op;
 } nxCopyAreaReq;
 
-#define GrNumSetFontSize        52
+#define GrNumSetFontSizeEx      52
 typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
 	IDTYPE	fontid;
-	INT16	fontsize;
-} nxSetFontSizeReq;
+	INT16	height;
+	INT16	width;
+} nxSetFontSizeExReq;
 
-#define GrNumCreateFont		53
+#define GrNumCreateFontEx		53
 typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
 	INT16	height;
-	INT16	padding;
-} nxCreateFontReq;
+	INT16	width;
+} nxCreateFontExReq;
 
 #define GrNumDestroyFont	54
 typedef struct {
@@ -1354,7 +1355,7 @@ typedef struct {
 	UINT32 buffer_id;
 	BYTE8 format[16];
 	INT16 height;
-	UINT16 padding;
+	INT16 width;
 } nxCreateFontFromBufferReq;
 
 #define GrNumCopyFont		124
@@ -1364,6 +1365,7 @@ typedef struct {
 	UINT16 length;
 	IDTYPE fontid;
 	INT16 height;
+	INT16 width;
 } nxCopyFontReq;
 
 #define GrNumDrawImagePartToFit     125

@@ -18,8 +18,12 @@
 #include <string.h>
 #include "device.h"
 #include "devfont.h"
-#include "../drivers/genfont.h"
+#include "genfont.h"
 #include "intl.h"
+
+#if (UNIX | DOS_DJGPP)
+#define strcmpi	strcasecmp
+#endif
 
 //#define DEBUG_TEXT_SHAPING
 
@@ -77,12 +81,13 @@ GdSetFont(PMWFONT pfont)
  *                 plogfont is specified.
  * @param height   The height of the font in pixels.  Ignored if
  *                 plogfont is specified.
+ * @param width    The width of the font in pixels.  Ignored if
+ *                 plogfont is specified.
  * @param plogfont A structure describing the font, or NULL.
  * @return         A new font, or NULL on error.
  */
 PMWFONT
-GdCreateFont(PSD psd, const char *name, MWCOORD height,
-	const PMWLOGFONT plogfont)
+GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMWLOGFONT plogfont)
 {
 	int 		i;
 	int		fontht;
@@ -126,6 +131,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 		fontclass = plogfont->lfClass;
 #endif
 		height = plogfont->lfHeight;
+		width = plogfont->lfWidth;
 		if (plogfont->lfUnderline)
 			fontattr = MWTF_UNDERLINE;
 	}
@@ -174,117 +180,105 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
 
 #if HAVE_FNT_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FNT) {
-		pfont = (PMWFONT) fnt_createfont(fontname, height, fontattr);
+		pfont = (PMWFONT)fnt_createfont(fontname, height, width, fontattr);
 		if (pfont) {
 			DPRINTF("fnt_createfont: using font %s\n", fontname);
-			return(pfont);
+			return pfont;
 		}
 		if (fontclass != MWLF_CLASS_ANY)
-			EPRINTF("fnt_createfont: %s,%d not found\n",
-				fontname, height);
+			EPRINTF("fnt_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
 #if HAVE_PCF_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_PCF) {
-		pfont = (PMWFONT) pcf_createfont(fontname, height, fontattr);
+		pfont = (PMWFONT)pcf_createfont(fontname, height, width, fontattr);
 		if (pfont) {
 			DPRINTF("pcf_createfont: using font %s\n", fontname);
-			return(pfont);
+			return pfont;
 		}
 		if (fontclass != MWLF_CLASS_ANY)
-			EPRINTF("pcf_createfont: %s,%d not found\n",
-				fontname, height);
+			EPRINTF("pcf_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
 #if HAVE_FREETYPE_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
-		if (freetype_init(psd)) {
-			if (plogfont && abs(plogfont->lfHeight) > FFMINAA_HEIGHT &&
-				plogfont->lfQuality)
+		//if (freetype_init(psd)) {
+			if (plogfont && abs(plogfont->lfHeight) > FFMINAA_HEIGHT && plogfont->lfQuality)
 					fontattr |= MWTF_ANTIALIAS;
 
-			pfont = (PMWFONT)freetype_createfont(fontname, height,
-					fontattr);
+			pfont = (PMWFONT)freetype_createfont(fontname, height, width, fontattr);
 			if(pfont) {
 				/* FIXME kaffe kluge*/
 				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
 			if (fontclass != MWLF_CLASS_ANY)
-	 			EPRINTF("freetype_createfont: %s,%d not found\n",
-					fontname, height);
-		}
+	 			EPRINTF("freetype_createfont: %s,%d not found\n", fontname, height);
+		//}
   	}
 #endif
 
 #if HAVE_FREETYPE_2_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
-		if (freetype_init(psd)) {
+		//if (freetype_init(psd)) {
 			/* FIXME auto antialias for height > 14 for kaffe*/
-			if (plogfont && plogfont->lfHeight > 14 &&
-				plogfont->lfQuality)
+			if (plogfont && abs(plogfont->lfHeight) > 14 && plogfont->lfQuality)
 					fontattr |= MWTF_ANTIALIAS;
 
-			pfont = (PMWFONT)freetype2_createfont(fontname, height,
-					fontattr);
+			pfont = (PMWFONT)freetype2_createfont(fontname, height, width, fontattr);
 			if(pfont) {
+				DPRINTF("freetype_createfont: using font %s\n", fontname);
 				/* FIXME kaffe kluge*/
 				pfont->fontattr |= MWTF_FREETYPE;
 				return pfont;
 			}
 			if (fontclass != MWLF_CLASS_ANY)
-				EPRINTF("freetype2_createfont: %s,%d not found\n",
-					fontname, height);
-		}
+				EPRINTF("freetype2_createfont: %s,%d not found\n", fontname, height);
+		//}
   	}
 #endif
 
 #if HAVE_T1LIB_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_T1LIB) {
-		if (t1lib_init(psd)) {
-			pfont = (PMWFONT)t1lib_createfont(fontname, height,
-					fontattr);
+		//if (t1lib_init(psd)) {
+			pfont = (PMWFONT)t1lib_createfont(fontname, height, width, fontattr);
 			if(pfont)
 				return pfont;
 			if (fontclass != MWLF_CLASS_ANY)
-				EPRINTF("t1lib_createfont: %s,%d not found\n",
-					fontname, height);
-		}
+				EPRINTF("t1lib_createfont: %s,%d not found\n", fontname, height);
+		//}
   	}
 #endif
 
 #if HAVE_HZK_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_HZK) {
-		/* Make sure the library is initialized */
-		if (hzk_init(psd)) {
-			pfont = (PMWFONT)hzk_createfont(fontname, height, fontattr);
+		//if (hzk_init(psd)) {
+			pfont = (PMWFONT)hzk_createfont(fontname, height, width, fontattr);
 			if(pfont)		
 				return pfont;
 			if (fontclass != MWLF_CLASS_ANY)
 				EPRINTF("hzk_createfont: %s,%d not found\n",
 					fontname, height);
-		}
+		//}
 	}
 #endif
 
 #if HAVE_EUCJP_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_MGL) {
-		pfont = (PMWFONT)eucjp_createfont(fontname, height, fontattr);
+		pfont = (PMWFONT)eucjp_createfont(fontname, height, width, fontattr);
 		if (pfont) {
 			DPRINTF("eujcp_createfont: using font %s\n", fontname);
 			return pfont;
 		}
 		if (fontclass != MWLF_CLASS_ANY)
-			EPRINTF("eucjp_createfont: %s,%d not found\n",
-				fontname, height);
+			EPRINTF("eucjp_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
 	if (fontclass == MWLF_CLASS_ANY) {
-		EPRINTF("createfont: %s,%d not found\n",
-				fontname, height);
+		EPRINTF("createfont: %s,%d not found\n", fontname, height);
 		EPRINTF("  (tried "
 			"builtin_createfont"
 #ifdef HAVE_FNT_SUPPORT
@@ -347,15 +341,12 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height,
  * @return         The old size.
  */
 MWCOORD
-GdSetFontSize(PMWFONT pfont, MWCOORD fontsize)
+GdSetFontSize(PMWFONT pfont, MWCOORD height, MWCOORD width)
 {
-	MWCOORD oldfontsize = pfont->fontsize;
-	pfont->fontsize = fontsize;
-
 	if (pfont->fontprocs->SetFontSize)
-	    pfont->fontprocs->SetFontSize(pfont, fontsize);
+	    return pfont->fontprocs->SetFontSize(pfont, height, width);
 
-	return oldfontsize;
+	return 0;
 }
 
 /**
@@ -389,15 +380,10 @@ GdSetFontRotation(PMWFONT pfont, int tenthdegrees)
 int
 GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags)
 {
-	MWCOORD	oldattr = pfont->fontattr;
-
-	pfont->fontattr &= ~clrflags;
-	pfont->fontattr |= setflags;
-
 	if (pfont->fontprocs->SetFontAttr)
-	    pfont->fontprocs->SetFontAttr(pfont, setflags, clrflags);
+	    return pfont->fontprocs->SetFontAttr(pfont, setflags, clrflags);
 	
-	return oldattr;
+	return 0;
 }
 
 /**
@@ -677,7 +663,7 @@ gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 }
 #endif /* HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT*/
 
-#if HAVE_T1LIB_SUPPORT | HAVE_FREETYPE_SUPPORT
+#if HAVE_FREETYPE_SUPPORT
 /*
  * Produce blend table from src and dst based on passed alpha table
  * Used because we don't quite yet have GdArea with alphablending,
@@ -769,7 +755,7 @@ alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
 	  	}
 	}
 }
-#endif /*HAVE_T1LIB_SUPPORT | HAVE_FREETYPE_SUPPORT*/
+#endif /*HAVE_FREETYPE_SUPPORT*/
 
 #if !HAVE_FREETYPE_SUPPORT
 int
@@ -1046,8 +1032,8 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
  * @return       New font, or NULL on error.
  */
 PMWFONT
-GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
-		       unsigned length, const char *format, MWCOORD height)
+GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer, unsigned length,
+	const char *format, MWCOORD height, MWCOORD width)
 {
 	PMWFONT pfont = NULL;
 
@@ -1062,8 +1048,8 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 	 * extension - e.g. TTF, PFR, ...)
 	 */
 
-	if (freetype_init(psd))
-		pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height);
+	//if (freetype_init(psd))
+		pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height, width);
 	if (!pfont)
 		EPRINTF("GdCreateFontFromBuffer: create failed.\n");
 #endif
@@ -1079,11 +1065,11 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
  * @return         New font.
  */
 PMWFONT
-GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD fontsize)
+GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width)
 {
 #if HAVE_FREETYPE_2_SUPPORT
 	if (psrcfont->fontprocs->Duplicate)
-		return psrcfont->fontprocs->Duplicate(psrcfont, fontsize);
+		return psrcfont->fontprocs->Duplicate(psrcfont, height, width);
 #endif
 	return psrcfont;
 }

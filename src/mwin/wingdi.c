@@ -1501,11 +1501,9 @@ GetStockObject(int nObject)
 		if(pObj->hdr.type == OBJ_FONT) {
 			pFont = (MWFONTOBJ *)pObj;
 			if(pFont->pfont == NULL) {
-				pFont->pfont = GdCreateFont(&scrdev,
-					pFont->name, 0, NULL);
+				pFont->pfont = GdCreateFont(&scrdev, pFont->name, 0, 0, NULL);
 				if (!pFont->pfont)
-					pFont->pfont = GdCreateFont(&scrdev,
-						NULL, 0, NULL);
+					pFont->pfont = GdCreateFont(&scrdev, NULL, 0, 0, NULL);
 			}
 			return pObj;
 		}

@@ -2508,6 +2508,13 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
 	UNLOCK(&nxGlobalLock);
 }
 
+/* DEPRECATED - use GrCreateFontEx*/
+GR_FONT_ID
+GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
+{
+	return GrCreateFontEx(name, height, height, plogfont);
+}
+
 /**
  * Attempts to locate a font with the desired attributes and returns a font
  * ID number which can be used to refer to it. If the plogfont argument is
@@ -2519,13 +2526,14 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
  *
  * @param name  string containing the name of a built in font to look for
  * @param height  the desired height of the font
+ * @param width  the desired width of the font
  * @param plogfont  pointer to a LOGFONT structure
  * @return a font ID number which can be used to refer to the font
  *
  * @ingroup nanox_font
  */
 GR_FONT_ID
-GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
+GrCreateFontEx(GR_CHAR *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont)
 {
 	GR_FONT_ID	fontid;
 
@@ -2542,16 +2550,17 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 	}
 	else
 	{
-		nxCreateFontReq *req;
+		nxCreateFontExReq *req;
 
 		if (!name)
 			name = "";
 
-		req = AllocReqExtra(CreateFont, strlen(name) + 1);
+		req = AllocReqExtra(CreateFontEx, strlen(name) + 1);
 		req->height = height;
+		req->width = width;
 		strcpy((char *)GetReqData(req), name);
 
-		if (TypedReadBlock(&fontid, sizeof(fontid), GrNumCreateFont) == -1)
+		if (TypedReadBlock(&fontid, sizeof(fontid), GrNumCreateFontEx) == -1)
 			fontid = 0;
 	}
 
@@ -2639,6 +2648,13 @@ GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
 	UNLOCK(&nxGlobalLock);
 }
 
+/* DEPRECATED - use GrSetFontSizeEx*/
+void
+GrSetFontSize(GR_FONT_ID fontid, GR_COORD height)
+{
+	GrSetFontSizeEx(fontid, height, height);
+}
+
 /**
  * Changes the size of the specified font to the specified size.
  *
@@ -2648,14 +2664,15 @@ GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
  * @ingroup nanox_font
  */
 void
-GrSetFontSize(GR_FONT_ID fontid, GR_COORD size)
+GrSetFontSizeEx(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
 {
-	nxSetFontSizeReq *req;
+	nxSetFontSizeExReq *req;
 
 	LOCK(&nxGlobalLock);
-	req = AllocReq(SetFontSize);
+	req = AllocReq(SetFontSizeEx);
 	req->fontid = fontid;
-	req->fontsize = size;
+	req->height = height;
+	req->width = width;
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -4781,7 +4798,7 @@ GrSetTransform(GR_TRANSFORM *trans)
  */
 GR_FONT_ID
 GrCreateFontFromBuffer(const void *buffer, unsigned length,
-		       const char *format, GR_COORD height)
+	const char *format, GR_COORD height, GR_COORD width)
 {
 	GR_FONT_ID result;
 	nxCreateFontFromBufferReq *req;
@@ -4799,6 +4816,7 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
 
 	req = AllocReq(CreateFontFromBuffer);
 	req->height = height;
+	req->width = width;
 	req->buffer_id = bufid;
 
 	if (format == NULL)
@@ -4827,7 +4845,7 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
  * @ingroup nanox_font
  */
 GR_FONT_ID
-GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
+GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
 {
 	GR_FONT_ID result;
 	nxCopyFontReq *req;
@@ -4836,6 +4854,7 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
 	req = AllocReq(CopyFont);
 	req->fontid = fontid;
 	req->height = height;
+	req->width = width;
 
 	if (TypedReadBlock(&result, sizeof(result), GrNumCopyFont) == -1)
 		result = 0;

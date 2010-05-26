@@ -139,6 +139,63 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	GdFixCursor(psd);
 }
 
+void
+GdConversionBlit(PSD psd, PMWBLITPARMS parms)
+{
+	driver_gc_t	gc;
+	int op;
+
+	/* temp transfer parms to old driver struct*/
+	switch (parms->data_format) {
+	case MWIF_MONOBYTEMSB:			/* ft2 non-alias*/
+		//convblit_copy_mono_byte_msb_argb(parms);	/* conv mono byte MSBFirst to ARGB*/
+		op = PSDOP_BITMAP_BYTES_MSB_FIRST;
+		break;
+
+	//case MWIF_MONOWORDMSB:			/* core mwcfont, pcf*/
+		//convblit_copy_mono_word_msb_argb(parms);	/* conv mono word MSBFirst to ARGB*/
+		//break;
+
+	case MWIF_8BPP|MWIF_HASALPHA:	/* ft2 alias, t1lib alias*/
+		if (parms->op == MWROP_BLENDFGBG) {
+			//convblit_blend_8_fgbg_argb(parms);		/* conv 8bpp alpha with fg/bg to ARGB*/
+			op = PSDOP_ALPHACOL;
+			break;
+		}
+		/* fall thru*/
+	default:
+		printf("GdConversionBlit: No conversion blit available\n");
+		//FREEA(parms->data_out);
+		return;
+
+	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
+		//convblit_copy_mono_byte_lsb_argb(parms);	/* conv mono byte LSBFirst to ARGB*/
+		op = PSDOP_BITMAP_BYTES_LSB_FIRST;
+		break;
+	}
+
+	gc.op = op;
+	gc.width = parms->width;
+	gc.height = parms->height;
+	gc.dstx = parms->dstx;
+	gc.dsty = parms->dsty;
+	gc.srcx = parms->srcx;
+	gc.srcy = parms->srcy;
+	gc.fg_color = parms->fg_color;
+	gc.bg_color = parms->bg_color;
+	gc.usebg = parms->usebg;
+	gc.data = parms->data;
+
+	gc.src_linelen = parms->src_pitch;
+	//gc->dst_linelen = 
+
+	//parms->data_format;
+	//parms->dst_pitch;
+	//parms->data_out;
+
+	GdDrawAreaInternal(psd, &gc);
+}
+
 /*
  * A wrapper for psd->DrawArea which performs clipping.
  * The gc->dst[x,y,w,h] values are clipped.  The gc->src[x,y]

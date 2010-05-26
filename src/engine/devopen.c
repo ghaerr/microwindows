@@ -139,7 +139,7 @@ GdOpenScreen(void)
 	GdSetBackgroundColor(psd, MWRGB(0, 0, 0));		/* BLACK*/
 	GdSetUseBackground(TRUE);
 	/* select first builtin font (usually MWFONT_SYSTEM_VAR)*/
-	GdSetFont(GdCreateFont(psd, NULL, 0, NULL));
+	GdSetFont(GdCreateFont(psd, NULL, 0, 0, NULL));
 
 	GdSetDash(0, 0);  /* No dashing to start */
 	GdSetStippleBitmap(0,0,0);  /* No stipple to start */

@@ -143,16 +143,22 @@ fbportrait_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
 	MWCOORD	out_x, out_y, out_w, out_h;
 	driver_gc_t	l_gc;
 
-	l_gc = *gc;
-	l_gc.dstx = gc->dsty;
-	l_gc.dsty = dstpsd->xvirtres - gc->dstx - gc->width;
+	/* create new gc with rotated coords*/
 	l_gc.width = gc->height;
 	l_gc.height = gc->width;
-	l_gc.srcx = 0;
+	l_gc.dstx = gc->dsty;
+	l_gc.dsty = dstpsd->xvirtres - gc->dstx - gc->width;
+	l_gc.srcx = 0;	//FIXME rotate may fail with srcx/srcy not zero
 	l_gc.srcy = 0;
-	l_gc.op = PSDOP_ALPHACOL;
-
 	l_gc.src_linelen = l_gc.width;	/* 1 byte alpha channel*/
+
+	/* copy the rest*/
+	l_gc.op = gc->op;
+	l_gc.fg_color = gc->fg_color;
+	l_gc.bg_color = gc->bg_color;
+	l_gc.usebg = gc->usebg;
+	l_gc.dst_linelen = gc->dst_linelen;
+
 	if (!(l_gc.data = ALLOCA(l_gc.width * l_gc.height)))
 		return;
 
@@ -170,7 +176,8 @@ fbportrait_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
 			out_y = (out_h - 1) - in_x;
 			out_x = in_y;
 
-			alpha_out[(out_y * out_w) + out_x] = alpha_in[(in_y * in_w) + in_x];
+			//alpha_out[(out_y * out_w) + out_x] = alpha_in[(in_y * in_w) + in_x];
+			alpha_out[(out_y * l_gc.src_linelen) + out_x] = alpha_in[(in_y * gc->src_linelen) + in_x];
 		}
 	}
 
@@ -189,16 +196,22 @@ fbportrait_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	MWCOORD	out_x, out_y, out_w, out_h;
 	driver_gc_t	l_gc;
 
-	l_gc = *gc;
-	l_gc.dstx = gc->dsty;
-	l_gc.dsty = psd->xvirtres - gc->dstx - gc->width;
+	/* create new gc with rotated coords*/
 	l_gc.width = gc->height;
 	l_gc.height = gc->width;
+	l_gc.dstx = gc->dsty;
+	l_gc.dsty = psd->xvirtres - gc->dstx - gc->width;
 	l_gc.srcx = 0;	//FIXME rotate may fail with srcx/srcy not zero
 	l_gc.srcy = 0;
-	l_gc.op = PSDOP_BITMAP_BYTES_MSB_FIRST;
-
 	l_gc.src_linelen = (l_gc.width + 7) / 8;
+
+	/* copy the rest*/
+	l_gc.op = gc->op;
+	l_gc.fg_color = gc->fg_color;
+	l_gc.bg_color = gc->bg_color;
+	l_gc.usebg = gc->usebg;
+	l_gc.dst_linelen = gc->dst_linelen;
+
 	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_linelen)))
 		return;
 	memset(l_gc.data, 0, l_gc.height * l_gc.src_linelen);
@@ -229,6 +242,61 @@ fbportrait_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 }
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
+#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
+static void
+fbportrait_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
+{
+	ADDR8 pixel_in, pixel_out;
+	MWCOORD	in_x, in_y, in_w, in_h;
+	MWCOORD	out_x, out_y, out_w, out_h;
+	driver_gc_t	l_gc;
+
+	/* create new gc with rotated coords*/
+	l_gc.width = gc->height;
+	l_gc.height = gc->width;
+	l_gc.dstx = gc->dsty;
+	l_gc.dsty = psd->xvirtres - gc->dstx - gc->width;
+	l_gc.srcx = 0;	//FIXME rotate may fail with srcx/srcy not zero
+	l_gc.srcy = 0;
+	l_gc.src_linelen = (l_gc.width + 7) / 8;
+
+	/* copy the rest*/
+	l_gc.op = gc->op;
+	l_gc.fg_color = gc->fg_color;
+	l_gc.bg_color = gc->bg_color;
+	l_gc.usebg = gc->usebg;
+	l_gc.dst_linelen = gc->dst_linelen;
+
+	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_linelen)))
+		return;
+	memset(l_gc.data, 0, l_gc.height * l_gc.src_linelen);
+
+	pixel_in = ((ADDR8)gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	in_w = gc->width;
+	in_h = gc->height;
+
+	pixel_out = l_gc.data;
+	out_w = l_gc.width;
+	out_h = l_gc.height;
+
+	/* rotate_left_1bpp*/
+	for (in_y = 0; in_y < in_h; in_y++) {
+		for (in_x = 0; in_x < in_w; in_x++) {
+			out_y = (out_h - 1) - in_x;
+			out_x = in_y;
+
+			//pixel_out[(out_y * out_w) + out_x] = pixel_in[(in_y * in_w) + in_x];
+			if (pixel_in[in_y*gc->src_linelen + (in_x >> 3)] & (0x01 << (in_x&7)))
+				pixel_out[out_y*l_gc.src_linelen + (out_x >> 3)] |= (0x01 << (out_x&7));
+		}
+	}
+
+	psd->orgsubdriver->DrawArea(psd, &l_gc);
+
+	FREEA(l_gc.data);
+}
+#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
+
 static void
 fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc)
 {
@@ -247,6 +315,12 @@ fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc)
 		fbportrait_drawarea_bitmap_bytes_msb_first(dstpsd, gc);
 		break;
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
+
+#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
+	case PSDOP_BITMAP_BYTES_LSB_FIRST:
+		fbportrait_drawarea_bitmap_bytes_lsb_first(dstpsd, gc);
+		break;
+#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 	}
 }
 

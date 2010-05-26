@@ -17,7 +17,9 @@
 /* default window style for GR_WM_PROPS_APPWINDOW*/
 #define DEFAULT_WINDOW_STYLE	(GR_WM_PROPS_APPFRAME | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX)
 
-#ifdef WMDEBUG
+#define WMDEBUG	0
+
+#if WMDEBUG
 #define Dprintf printf
 #else
 #define Dprintf(ignore...)
@@ -120,6 +122,8 @@ void wm_container_exposure(win *window, GR_EVENT_EXPOSURE *event);
 void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event);
 void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event);
 void wm_container_mousemoved(win *window, GR_EVENT_MOUSE *event);
+void wm_container_mouse_enter(win *window, GR_EVENT_GENERAL *event);
+void wm_container_mouse_exit(win *window, GR_EVENT_GENERAL *event);
 
 #if 0000
 /*

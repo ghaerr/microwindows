@@ -1,3 +1,23 @@
+26 May 2010
+	* fix nanowm cursor to resize in window bottom right to indicate resize
+	* added window x,y and root window rootx,rooty to GR_GENERAL_EVENT
+		(mouse enter event should be a mouse event, not general event)
+	* added WM_PROPS_NORESIZE window property to disallow window resizing
+24 May 2010
+	* rewrote adobe type1 (T1LIB) and truetype (freetype2) font subdrivers to use fast blit
+		blit project halfway done - will move GdBitmap to driver blit for PCF/CORE fonts
+		will remove/replace PSDOP_* and and combine drawarea/blit driver routines
+		all drivers will support mono lsb/msb and blendfgbg blit, meaning all fonts supported
+	* wrote drawarea_bitmap_bytes_lsb_first (t1lib) rotations for all fbportrait_xxx.c
+	* rewrote adobe type 1 font driver (font_t1lib.c), new fonts/type1 dir
+		added T1LIB_FONT_DIR to config (defaults fonts/type1)
+		requires blit_mono_byte_lsb routine in drawarea
+	* added width and height scaling to t1lib and freetype2 fonts (was height only)
+		added width parm to GrCreateFontFromBuffer, GrCopyFont
+		use GrCreateFontEx, GrSetFontSizeEx to set height and width for scaleable fonts (t1,ft2)
+	* freetype2 driver uses TTFONTDIR environ var for default font dir
+	* freetype 1 driver deprecated - use freetype 2 instead
+	* fix .fnt loader padding bug (again)
 23 May 2010
 	* split engine/devdraw.c into engine/devblit.c for blit changes
 	* major driver reorganization, DrawArea parameters change

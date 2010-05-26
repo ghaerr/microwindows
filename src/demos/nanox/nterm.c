@@ -75,8 +75,8 @@ int main(int argc, char ** argv)
 
 	GrSetGCForeground(gc1, GRAY);
 	GrSetGCBackground(gc1, LTBLUE);
-	GrSetGCFont(gc1, GrCreateFont(GR_FONT_SYSTEM_FIXED, 0, NULL));
-	/*GrSetGCFont(gc1, GrCreateFont(GR_FONT_OEM_FIXED, 0, NULL));*/
+	GrSetGCFont(gc1, GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL));
+	/*GrSetGCFont(gc1, GrCreateFontEx(GR_FONT_OEM_FIXED, 0, 0, NULL));*/
 	GrSetGCForeground(gc3, WHITE);
 	GrSetGCBackground(gc3, BLACK);
 

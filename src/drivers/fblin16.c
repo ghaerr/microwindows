@@ -672,8 +672,7 @@ linear16_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			/* Do pixels of partial first byte */
 			if (hard_prefix) {
 				for (m = prefix_mask; m < prefix_last; m <<= 1) {
-					*dst++ = (m & *src) ? fg_color :
-						bg_color;
+					*dst++ = (m & *src) ? fg_color : bg_color;
 				}
 				src++;
 			}

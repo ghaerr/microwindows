@@ -105,7 +105,7 @@ GdDecodeJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 		return 0;	/* not JPEG image */
 
 	if (GdImageBufferRead(src, magic, 8) != 8
-	 || (strncmp(&magic[4], "JFIF", 4) != 0 && strncmp(&magic[4], "Exif", 4) != 0))
+	 || (strncmp((char *)&magic[4], "JFIF", 4) != 0 && strncmp((char *)&magic[4], "Exif", 4) != 0))
 		return 0;	/* not JPEG image */
 
 	GdImageBufferSeekTo(src, 0);

@@ -65,7 +65,7 @@ main(int argc, char **argv)
 		gct = GrNewGC();
 		GrSetGCForeground(gct, GREEN);
 		GrGetGCTextSize(gct, "A",1, GR_TFASCII, &width, &height, &base);
-		GrSetGCFont(gct, GrCreateFont(GR_FONT_SYSTEM_FIXED, 0, NULL));
+		GrSetGCFont(gct, GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL));
 		gctb = GrNewGC();
 		GrSetGCForeground(gctb, BLACK);
 	}

@@ -57,7 +57,7 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 		return 0;
 
 	n = 0;
-	while((p = GdImageBufferGetString(src, buf, 256))) {
+	while((p = (unsigned char *)GdImageBufferGetString(src, buf, sizeof(buf)))) {
 		if(buf[0] == '#')
 			continue;
 		if(type == PNM_TYPE_PBM) {

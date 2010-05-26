@@ -160,43 +160,41 @@ INCTIFF                  = .
 LIBTIFF                  = /usr/lib/libtiff.a
 
 ####################################################################
-# native .fnt loadable font support
-####################################################################
-HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = Y
-FNT_FONT_DIR             = "fonts/bdf"
-
-####################################################################
-# T1 adobe type1 font support thru t1lib
-####################################################################
-HAVE_T1LIB_SUPPORT       = N
-INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.a
-
-####################################################################
-# TrueType font support thru FreeType 1.x
-####################################################################
-HAVE_FREETYPE_SUPPORT    = N
-INCFTLIB                 = /usr/include/freetype1
-LIBFTLIB                 = /usr/lib/libttf.so
-FREETYPE_FONT_DIR        = "fonts/truetype"
-
-####################################################################
-# Support for many kinds of font thru FreeType 2.x
-# Must also set FREETYPE_FONT_DIR in the Freetype 1.x section
-####################################################################
-HAVE_FREETYPE_2_SUPPORT  = Y
-INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/lib/libfreetype.a
-
-####################################################################
-# PCF font support 
-# Selecting HAVE_PCFGZ_SUPPORT will allow you to directly read
-# .pcf.gz files, but it will add libz to the size of the server
+# PCF font support - .pcf/.pcf.gz loadable X11 fonts
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
 HAVE_PCFGZ_SUPPORT       = Y
 PCF_FONT_DIR             = "fonts/pcf"
+
+####################################################################
+# Truetype fonts - .ttf loadable fonts thru Freetype 2.x
+####################################################################
+HAVE_FREETYPE_2_SUPPORT  = Y
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = /usr/lib/libfreetype.a
+FREETYPE_FONT_DIR        = "fonts/truetype"
+
+####################################################################
+# T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
+# t1lib.config must be setup and in T1LIB_FONT_DIR
+####################################################################
+HAVE_T1LIB_SUPPORT       = Y
+T1LIB_FONT_DIR           = "fonts/type1"
+INCT1LIB                 = /usr/include
+LIBT1LIB                 = /usr/lib/libt1.a
+
+####################################################################
+# FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
+####################################################################
+HAVE_FNT_SUPPORT         = Y
+HAVE_FNTGZ_SUPPORT       = Y
+FNT_FONT_DIR             = "fonts/fnt"
+
+####################################################################
+# Japanese EUC-JP support using loadable MGL font
+####################################################################
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
 
 ####################################################################
 # Chinese Han Zi Ku loadable font support
@@ -205,30 +203,24 @@ HAVE_HZK_SUPPORT         = N
 HZK_FONT_DIR             = "fonts/chinese"
 
 ####################################################################
-# Chinese BIG5 compiled in font support (big5font.c)
+# DBCS Chinese BIG5 compiled in font support (big5font.c)
 ####################################################################
 HAVE_BIG5_SUPPORT        = N
 
 ####################################################################
-# Chinese GB2312 compiled in font support (gb2312font.c)
+# DBCS Chinese GB2312 compiled in font support (gb2312font.c)
 ####################################################################
 HAVE_GB2312_SUPPORT      = N
 
 ####################################################################
-# Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+# DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
 ####################################################################
 HAVE_JISX0213_SUPPORT    = N
 
 ####################################################################
-# Korean HANGUL font support (jo16x16.c)
+# DBCS Korean HANGUL font support (jo16x16.c)
 ####################################################################
 HAVE_KSC5601_SUPPORT     = N
-
-####################################################################
-# Japanese EUC-JP support using loadable MGL font
-####################################################################
-HAVE_EUCJP_SUPPORT       = N
-EUCJP_FONT_DIR           = "fonts/japanese"
 
 ####################################################################
 # Fribidi and shape/joining support for right to left rendering

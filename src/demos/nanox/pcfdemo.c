@@ -71,7 +71,7 @@ main(int argc, char **argv)
 	if (GrOpen() == -1)
 		return (-1);
 
-	font = GrCreateFont(argv[1], 12, 0);
+	font = GrCreateFontEx(argv[1], 12, 12, 0);
 	if (!font)
 		printf("Unable to load %s\n", argv[1]);
 

@@ -88,9 +88,9 @@ int main(int argc, char **argv)
 	      else
 		      strcpy(lf.lfFaceName, FONT);
 
-	      fontid = GrCreateFont(0, 0, &lf);
+	      fontid = GrCreateFontEx(0, 0, 0, &lf);
 	      /* GrSetFontSize(fontid, 1+(int)(80.0 * rand() / (RAND_MAX+1.0))); */
-	      GrSetFontSize(fontid,26);
+	      GrSetFontSizeEx(fontid, 26, 26);
 	      /*GrSetFontRotation(fontid, 330);*/ /* 33 degrees*/
   	      GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
   	      GrSetGCFont(gc, fontid);

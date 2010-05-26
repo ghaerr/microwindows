@@ -110,9 +110,9 @@ CreateFontIndirect(CONST LOGFONT *lplf)
 			strcat(mwlf.lfFaceName, "i");
 	}
 
-	hfont->pfont = GdCreateFont(&scrdev, NULL, 0, &mwlf);
+	hfont->pfont = GdCreateFont(&scrdev, NULL, 0, 0, &mwlf);
 	if (!hfont->pfont)
-		hfont->pfont = GdCreateFont(&scrdev, NULL, 0, NULL);
+		hfont->pfont = GdCreateFont(&scrdev, NULL, 0, 0, NULL);
 
 	return (HFONT)hfont;
 }
@@ -319,7 +319,7 @@ EnumFonts(
 			return 0;
 	}
 
-#if (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
+#if HAVE_FREETYPE_SUPPORT
 	if (freetype_init(psd)) {
 		int		n = 0;
 		char		*p;

@@ -142,7 +142,9 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 
 	GrSelectEvents(pid, GR_EVENT_MASK_CHLD_UPDATE
 		| GR_EVENT_MASK_BUTTON_UP | GR_EVENT_MASK_BUTTON_DOWN
-		| GR_EVENT_MASK_MOUSE_POSITION | GR_EVENT_MASK_EXPOSURE);
+		| GR_EVENT_MASK_MOUSE_POSITION
+		| GR_EVENT_MASK_MOUSE_ENTER | GR_EVENT_MASK_MOUSE_EXIT
+		| GR_EVENT_MASK_EXPOSURE);
 
 	/* reparent client to container window (child is already mapped)*/
 	GrReparentWindow(wid, pid, xoffset, yoffset);

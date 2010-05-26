@@ -148,7 +148,7 @@ static void setup_default_state(nbstate *state)
 	state->scores.fhi = 0;
 	state->scores.p = 0;
 	state->gc = GrNewGC();
-	fid = GrCreateFont(SCORE_FONT, 0, NULL);
+	fid = GrCreateFontEx(SCORE_FONT, 0, 0, NULL);
 	GrGetFontInfo(fid, &fi);
 	state->scores.h = (2 * SCORE_BORDER) + fi.height;
 	GrSetGCFont(state->gc, fid);

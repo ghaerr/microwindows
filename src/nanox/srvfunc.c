@@ -1588,13 +1588,20 @@ GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
 	return ret_val;
 }
 
+/* DEPRECATED - use GrCreateFontEx*/
+GR_FONT_ID
+GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
+{
+	return GrCreateFontEx(name, height, height, plogfont);
+}
+
 static int nextfontid = 1000;
 /*
  * Allocate a new GC with default parameters.
  * The GC is owned by the current client.
  */
 GR_FONT_ID
-GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
+GrCreateFontEx(GR_CHAR *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont)
 {
 	GR_FONT	*fontp;
 
@@ -1608,9 +1615,9 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
 	}
 
 	if (plogfont)
-		fontp->pfont = GdCreateFont(&scrdev, NULL, 0, plogfont);
+		fontp->pfont = GdCreateFont(&scrdev, NULL, 0, 0, plogfont);
 	else
-		fontp->pfont = GdCreateFont(&scrdev, (const char *)name, height, NULL);
+		fontp->pfont = GdCreateFont(&scrdev, (const char *)name, height, width, NULL);
 
 	/* if no font created, deallocate and return ID 0*/
 	if (!fontp->pfont) {
@@ -1635,8 +1642,8 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
  * The font is owned by the current client.
  */
 GR_FONT_ID
-GrCreateFontFromBuffer(const void *buffer, unsigned length,
-		       const char *format, GR_COORD height)
+GrCreateFontFromBuffer(const void *buffer, unsigned length, const char *format,
+	GR_COORD height, GR_COORD width)
 {
 	GR_FONT *fontp;
 
@@ -1654,8 +1661,7 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
 	 *         (char) buffer[2], (char) buffer[3], length);
 	 */
 
-	fontp->pfont = GdCreateFontFromBuffer(&scrdev, buffer, length, format,
-				       height);
+	fontp->pfont = GdCreateFontFromBuffer(&scrdev, buffer, length, format, height, width);
 	if (fontp->pfont == NULL) {
 		/* Error loading font, probably corrupt data or unsupported format. */
 		free(fontp);
@@ -1677,7 +1683,7 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
  * The font is owned by the current client.
  */
 GR_FONT_ID
-GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
+GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
 {
 	GR_FONT *srcfontp;
 	GR_FONT *fontp;
@@ -1693,9 +1699,9 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
 
 	srcfontp = GsFindFont(fontid);
 	if (srcfontp)
-		fontp->pfont = GdDuplicateFont(&scrdev, srcfontp->pfont,height);
+		fontp->pfont = GdDuplicateFont(&scrdev, srcfontp->pfont, height, width);
 	else
-		fontp->pfont = GdCreateFont(&scrdev, NULL, height, NULL);
+		fontp->pfont = GdCreateFont(&scrdev, NULL, height, width, NULL);
 
 	fontp->id = nextfontid++;
 	fontp->owner = curclient;
@@ -1707,9 +1713,16 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height)
 }
 #endif /*HAVE_FREETYPE_2_SUPPORT*/
 
+/* DEPRECATED - use GrSetFontSizeEx*/
+void
+GrSetFontSize(GR_FONT_ID fontid, GR_COORD height)
+{
+	GrSetFontSizeEx(fontid, height, height);
+}
+
 /* Set the font size for the passed font*/
 void
-GrSetFontSize(GR_FONT_ID fontid, GR_COORD size)
+GrSetFontSizeEx(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
 {
 	GR_FONT		*fontp;
 
@@ -1717,7 +1730,7 @@ GrSetFontSize(GR_FONT_ID fontid, GR_COORD size)
 
 	fontp = GsFindFont(fontid);
 	if (fontp)
-		GdSetFontSize(fontp->pfont, size);
+		GdSetFontSize(fontp->pfont, height, width);
 
 	SERVER_UNLOCK();
 }

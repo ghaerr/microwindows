@@ -1,18 +1,16 @@
 fblin32alpha.c/fblin32.c:
 	fix SRC_OVER in applyOp
 	check alpha offset in passed pixmap alpha channel
-	add MWMODE_* compositing handling (currently only SRC_OVER alpha blend)
+	add MWROP_* compositing handling (currently only SRC_OVER alpha blend)
 	check whether alpha != 0 check needed
 	determine whether both fblin32alpha.c and fblin32.c needed
 		fblin32alpha.c always draws alpha in drawpixel, drawh, drawv
 		#define ALPHABLEND, what does it do now?
-	add uint32 to fblin32.c
 	update stretchblitex in fblin32.c for SRC_OVER
 	check fblin24.c, fblin16.c against fblin32.c/a
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
 add MWPF_TRUECOLORBGRA to static fb_var_screeninfo to select BGRA linear32alpha subdriver
 change image id's to pixmaps (win32 and nano-X)
-add PSF_HAVEOP_ALPHACOL, FT2 driver downgrades to non-antialias when needed
 fix add INVERT2BPP to config, combine with INVERT4BPP or reverse palette, INVERT() macro
 add X11 keyboard and mouse support to fbe
 init_alpha_lookup needs reinit if palette changed
@@ -25,10 +23,19 @@ investigate endian problem of ever reading color data as DWORD
 add ximage X11 debug statements
 enhance x11 driver to use fast blit from savebits
 leftBearing < 0 not handled in PCF loader nor MWCFONT structs, add l/r bearing returns?
+T1LIB appears to never discard font memory!
+check STANDALONE options
 
 moving window on bin/malpha waits until second buttondown
+add PSF_HAVEOP_ALPHACOL, FT2 driver downgrades to non-antialias when needed
 MWROP_BLENDCONSTANT needs alpha passed (not 150)
 PSDOP_ALPHAMAP needs gc->misc
+add .fnt/.fnt.gz or .pcf/.pcf.gz to FNT and PCF file spec
+DEPRECATE FT1, FONTMAPPER, !DYNAMICREGIONS
+fix config files to update new font info
+look at auto Antialias in GdCreateFont, handle for T1, FT2
+handle width=0 with aspect ratio of device
+test speed gen16_drawtext to use GdConvertBlit rather than GdBitmap
 
 fix bin/mwdvetest crash on closebox after static dialog
 fix bin/mwdvetest crash on ESC exit from main dialog

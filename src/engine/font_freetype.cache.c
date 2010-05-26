@@ -319,6 +319,7 @@ typedef struct mwfreetypefontcache {
 typedef struct MWFREETYPEFONT {
 	PMWFONTPROCS	fontprocs;	/* common hdr*/
 	MWCOORD		fontsize;
+	MWCOORD		fontwidth;
 	int		fontrotation;
 	int		fontattr;		
 
@@ -336,9 +337,8 @@ typedef struct MWFREETYPEFONT {
 #endif
 } MWFREETYPEFONT;
 
-int  freetype_init(PSD psd);
-PMWFREETYPEFONT freetype_createfont(const char *name, MWCOORD height, int attr);
-
+static int  freetype_init(PSD psd);
+PWMFONT freetype_createfont(const char *name, MWCOORD height, width, int attr);
 static MWBOOL freetype_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 static void freetype_gettextsize(PMWFONT pfont, const void *text, int cc,
 		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
@@ -346,12 +346,15 @@ static void freetype_gettextsize(PMWFONT pfont, const void *text, int cc,
 static void freetype_destroyfont(PMWFONT pfont);
 static void freetype_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
-static void freetype_setfontsize(PMWFONT pfont, MWCOORD fontsize);
+static int freetype_setfontsize(PMWFONT pfont, MWCOORD height, MWCOORD width);
 static void freetype_setfontrotation(PMWFONT pfont, int tenthdegrees);
+static int freetype_setfontattr(PMWFONT pfont, int setflags, int clrflags);
 		
 /* handling routines for MWFREETYPEFONT*/
 static MWFONTPROCS freetype_procs = {
 	MWTF_UC16,			/* routines expect unicode 16*/
+	freetype_init,
+	freetype_createfont,
 	freetype_getfontinfo,
 	freetype_gettextsize,
 	NULL,				/* gettextbits*/
@@ -359,8 +362,8 @@ static MWFONTPROCS freetype_procs = {
 	freetype_drawtext,
 	freetype_setfontsize,
 	freetype_setfontrotation,
-	NULL,				/* setfontattr*/
-	NULL,				/* duplicate not yet implemented */
+	freetype_setfontattr,
+	NULL				/* duplicate*/
 };
 
 static TT_Engine 	engine;		/* THE ONLY freetype engine */
@@ -392,8 +395,8 @@ freetype_init(PSD psd)
 	return 1;
 }
 
-PMWFREETYPEFONT
-freetype_createfont(const char *name, MWCOORD height, int attr)
+PMWFONT
+freetype_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 {
 	PMWFREETYPEFONT 	pf;
 	unsigned short 		i, n;
@@ -492,11 +495,11 @@ freetype_createfont(const char *name, MWCOORD height, int attr)
 		goto out;
 	}
 	
-	GdSetFontSize((PMWFONT)pf, height);
-	GdSetFontRotation((PMWFONT)pf, 0);
-	GdSetFontAttr((PMWFONT)pf, attr, 0);
+	pf->fontprocs->SetFontSize((PMWFONT)pf, height, width);
+	pf->fontprocs->SetFontRotation((PMWFONT)pf, 0);
+	pf->fontprocs->SetFontAttr((PMWFONT)pf, 0, 0);
 
-	return pf;
+	return (PMWFONT)pf;
 
 out:
 	free(pf);
@@ -993,25 +996,28 @@ freetype_destroyfont(PMWFONT pfont)
 	free(pf);
 }
 
-static void
-freetype_setfontsize(PMWFONT pfont, MWCOORD fontsize)
+static int
+freetype_setfontsize(PMWFONT pfont, MWCOORD height, MWCOORD width)
 {
 	PMWFREETYPEFONT	pf = (PMWFREETYPEFONT)pfont;
+	MWCOORD oldsize = pf->fontsize;
 	
-	pf->fontsize = fontsize;
+	pf->fontsize = height;
+	pf->fontwidth = width;
 	
 	/* allow create font with height=0*/
-	if (!fontsize)
+	if (!height)
 		return;
 
 	/* We want real pixel sizes ... not points ...*/
-	TT_Set_Instance_PixelSizes( pf->instance, pf->fontsize,
-                                pf->fontsize, pf->fontsize * 64 );
+	TT_Set_Instance_PixelSizes( pf->instance, pf->fontsize, pf->fontsize, pf->fontsize * 64 );
 #if 0
 	/* set charsize (convert to points for freetype)*/
 	TT_Set_Instance_CharSize (pf->instance,
 		((pf->fontsize * 72 + 96/2) / 96) * 64);
 #endif
+
+	return oldsize;
 }
 
 static void
@@ -1030,6 +1036,18 @@ freetype_setfontrotation(PMWFONT pfont, int tenthdegrees)
 	pf->matrix.yx = (TT_Fixed) (sin (angle) * (1 << 16));
 	pf->matrix.xx = pf->matrix.yy;
 	pf->matrix.xy = -pf->matrix.yx;
+}
+
+static int
+freetype_setfontattr(PMWFONT pfont, int setflags, int clrflags)
+{
+	PMWFREETYPEFONT pf = (PMWFREETYPEFONT)pfont;
+	int oldattr = pf->fontattr;
+
+	pfont->fontattr &= ~clrflags;
+	pfont->fontattr |= setflags;
+
+	return oldattr;
 }
 
 /* FIXME: this routine should work for all font renderers...*/

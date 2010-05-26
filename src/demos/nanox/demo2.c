@@ -36,8 +36,8 @@ main(int ac,char **av)
 	GrSetWMProperties(w, &props);
 
 	gc = GrNewGC();
-	/*font = GrCreateFont("/tmp/lubI24.fnt", 0, NULL);*/
-	font = GrCreateFont("fonts/pcf/lubI24.pcf", 0, NULL);
+	/*font = GrCreateFontEx("/tmp/lubI24.fnt", 0, 0, NULL);*/
+	font = GrCreateFontEx("fonts/pcf/lubI24.pcf", 0, 0, NULL);
 	GrSetGCFont(gc, font);
 
 	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ

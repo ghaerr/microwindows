@@ -125,7 +125,7 @@ main(int argc,char **argv)
 	bgc = GrNewGC();
 
 	GrSetGCForeground(bgc, GRAY);
-	GrSetGCFont(gc, GrCreateFont(GR_FONT_SYSTEM_FIXED, 0, NULL));
+	GrSetGCFont(gc, GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL));
 
 	GrGetGCTextSize(gc, "A", 1, GR_TFASCII, &fwidth, &fheight, &fbase);
 	width = fwidth * 8 + 4;

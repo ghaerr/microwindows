@@ -777,7 +777,7 @@ update_again:
 /*
  * Try to deliver a general event such as focus in, focus out, mouse enter,
  * or mouse exit to the clients which have selected for it.  These events
- * only have the window id as data, and do not propagate upwards.
+ * do not propagate upwards.
  */
 void
 GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
@@ -803,6 +803,14 @@ GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
 		if (other)
 			gp->otherid = other->id;
 		else gp->otherid = 0;
+
+		/* add root window x, y mouse coordinates*/
+		gp->rootx = cursorx;
+		gp->rooty = cursory;
+
+		/* window x,y only valid for mouse enter*/
+		gp->x = cursorx - wp->x;
+		gp->y = cursory - wp->y;
 	}
 }
 

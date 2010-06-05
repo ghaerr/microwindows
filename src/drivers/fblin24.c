@@ -32,7 +32,6 @@ linear24_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-	assert (c < psd->ncolors);
 
 	r = PIXEL888RED(c);
 	g = PIXEL888GREEN(c);
@@ -77,7 +76,6 @@ linear24_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
-	assert (c < psd->ncolors);
 
 	r = PIXEL888RED(c);
 	g = PIXEL888GREEN(c);
@@ -113,7 +111,6 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
-	assert (c < psd->ncolors);
 
 	r = PIXEL888RED(c);
 	g = PIXEL888GREEN(c);

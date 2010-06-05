@@ -8,6 +8,8 @@ fblin32alpha.c/fblin32.c:
 		#define ALPHABLEND, what does it do now?
 	update stretchblitex in fblin32.c for SRC_OVER
 	check fblin24.c, fblin16.c against fblin32.c/a
+	check MWPIXELVAL has alpha in drawpixel etc routines, possibly remove for 24bpp?
+	check MWPF_ values in case statements in GdDrawImage for 12/18bpp cases, use default
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
 add MWPF_TRUECOLORBGRA to static fb_var_screeninfo to select BGRA linear32alpha subdriver
 change image id's to pixmaps (win32 and nano-X)

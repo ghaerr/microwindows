@@ -19,7 +19,7 @@
 TODO
 assumes 32bpp X server (fix)
 add 8bpp 3/3/2, 2/2/3 truecolor
-add 32bpp BGRA truecolor
+add 32bpp BGRA truecolor -d option
 kill nano-X on exit flag
 read/write colormap from nano-X
 get colormap in scr_fb.c
@@ -714,11 +714,18 @@ check_and_paint(int ix, int iy)
 					break;
 				case 32:
 					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*4;
+#if defined(MWPIXELFORMAT) && MWPIXELFORMAT == MWPF_TRUECOLORABGR
+					r = *data++;
+					g = *data++;
+					b = *data++;
+					a = *data;
+#else /* MWPF_TRUECOLOR0888/8888*/
 					b = *data++;
 					g = *data++;
 					r = *data++;
 					a = *data;
-					dat = b | (g<<8) | (r<<16) | (a<<24);
+#endif
+					dat = b | (g<<8) | (r<<16);
 					break;
 				}
 				XSetForeground(display, gc, dat);

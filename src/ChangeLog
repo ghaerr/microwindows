@@ -1,3 +1,4 @@
+	* fix ncolor assert in fblin24.c
 26 May 2010
 	* fix nanowm cursor to resize in window bottom right to indicate resize
 	* added window x,y and root window rootx,rooty to GR_GENERAL_EVENT

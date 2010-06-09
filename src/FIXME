@@ -45,10 +45,7 @@ look at MessageBoxTimeout, newlistbox.c. remove OLD_DRAWTEXT
 
 add SUBDRIVER entry into SCREENDEVICE
 last char drawn wrong on fontdemo2.sh portrait modes
-fix down portrait stretch/blit driver mods
-check that DrawAreaInternal clears bg when usebg for ft2 fonts
 write rotation blits for portrait modes in drawarea drivers
-	(ft2 broken for non-antialias in portrait modes)
 add restrict pointers for better optimization to fb drivers
 fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
 add timer support to PSP port (nano-X and win32)
@@ -73,7 +70,6 @@ check rtems timer patch, dont require fp for it
 bin/mterm: closing terminal window causes hang rather than server exit
 MSVC: need attribute for #pragma pack in PACKEDDATA in device.h
 GdCaptureScreen() only works with framebuffer /dev/fb0 present
-fix left/right portrait w/freetype
 add drawarea_copy* functions from fblin16 to fblin24/fblin32 driver
 combine GdArea, GdBlit, GdAreaInternal for speed; build conversion library
 	for when fast driver blit can't be used.  Pass usebg, alpha blend
@@ -84,7 +80,6 @@ old GdArc doesn't draw 2nd point on circle, see grdemo.sh/arcdemo
 replace old GdArc routine w/new version based on GdArcAngle
 ft2: no underline or background drawn when rotated
 ft2: must use forced slow rotation code when cache off
-change freetype2_create etc back to freetype_create
 mwdvetest demo segfaults when dialog moved or credits closed
 remove 2nd thislen parm in GrSendClientData
 italic wrap bug - lubI24.bdf 'r', 'M'

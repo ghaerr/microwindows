@@ -1,4 +1,7 @@
-7 June 2010
+9 June 2010
+	* use new freetype2 scaler cache api (>= v2.3.5) (Johannes)
+		can now compile freetype 2 without FT_CONFIG_OPTION_OLD_INTERNALS
+	* cmap cache option still broken, crashes in gettextsize
 	* fix ncolor assert in fblin24.c
 26 May 2010
 	* fix nanowm cursor to resize in window bottom right to indicate resize

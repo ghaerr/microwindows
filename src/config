@@ -178,7 +178,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
 # t1lib.config must be setup and in T1LIB_FONT_DIR
 ####################################################################
-HAVE_T1LIB_SUPPORT       = Y
+HAVE_T1LIB_SUPPORT       = N
 T1LIB_FONT_DIR           = "fonts/type1"
 INCT1LIB                 = /usr/include
 LIBT1LIB                 = /usr/lib/libt1.a

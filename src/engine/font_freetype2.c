@@ -187,7 +187,7 @@ typedef struct {
 	FTC_ImageDesc imagedesc;
 #endif
 #if HAVE_FREETYPE_2_CMAP_CACHE
-	FTC_CMapDescRec cmapdesc;
+	//FTC_CMapDescRec cmapdesc;
 #endif
 #else
 	FT_Face face;
@@ -260,10 +260,10 @@ static FTC_Manager freetype2_cache_manager;
  */
 static FTC_SBitCache freetype2_cache_sbit;
 
-#if HAVE_FREETYPE_2_CMAP_CACHE
 /**
  * The FreeType 2 cache for character->glyph mappings.
  */
+#if HAVE_FREETYPE_2_CMAP_CACHE
 static FTC_CMapCache freetype2_cache_cmap;
 #endif
 
@@ -315,14 +315,13 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 		return FT_New_Memory_Face(library, buffer, length, 0, aface);
 	} else {
 		char * filename = fontdata->data.filename;
-		/* DPRINTF("Loading font from file '%s' @ freetype2_face_requester\n", filename); */
+		DPRINTF("Loading font from file '%s' @ freetype2_face_requester\n", filename);
 		assert(filename);
 		return FT_New_Face(library, filename, 0, aface);
 	}
 }
 #endif
 
-#if HAVE_FREETYPE_2_CMAP_CACHE
 /**
  * Look up a glyph index from a character code.
  * There are two implementations of this macro, which one is used
@@ -333,9 +332,8 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
  * @param ch_   The character to look up
  * @return      The glyph index.
  */
-#define LOOKUP_CHAR(pf_,face_,ch_) \
-	(FTC_CMapCache_Lookup(freetype2_cache_cmap, &((pf_)->cmapdesc), (ch_)))
-
+#if HAVE_FREETYPE_2_CMAP_CACHE
+#define LOOKUP_CHAR(pf_,face_,ch_) (FTC_CMapCache_Lookup(freetype2_cache_cmap, pf_->faceid, -1, (ch_)))
 #else
 #define LOOKUP_CHAR(pf_,face_,ch_) (FT_Get_Char_Index((face_), (ch_)))
 #endif
@@ -392,8 +390,7 @@ freetype2_init(PSD psd)
 	err = FTC_CMapCache_New(freetype2_cache_manager, &freetype2_cache_cmap);
 	if (err != FT_Err_Ok) {
 		freetype2_cache_cmap = NULL;
-		// FIXME: Should we free the SBit cache here?
-		freetype2_cache_sbit = NULL;
+		freetype2_cache_sbit = NULL;	// FIXME: Should we free the SBit cache here?
 		FTC_Manager_Done(freetype2_cache_manager);
 		freetype2_cache_manager = NULL;
 		FT_Done_FreeType(freetype2_library);
@@ -454,7 +451,7 @@ freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 
 #if HAVE_FREETYPE_2_CACHE
 	faceid = freetype2_fonts;
-	while ((faceid != NULL) && (0 != strcmpi(faceid->data.filename, fontname)))
+	while (faceid != NULL && 0 != strcmpi(faceid->data.filename, fontname))
 		faceid = faceid->next;
 
 	if (!faceid) {
@@ -490,12 +487,10 @@ freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 		if (first_time) {
 			assert(freetype2_fonts == faceid);
 			freetype2_fonts = faceid->next;
-			free(fontname);
 			free(faceid);
 		}
-#else
-		free(fontname);
 #endif
+		free(fontname);
 		return NULL;
 	}
 
@@ -594,9 +589,9 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 	pf->imagedesc.type = 0;		/* Will be set by SetFontAttr */
 #endif
 #if HAVE_FREETYPE_2_CMAP_CACHE
-	pf->cmapdesc.face_id = faceid;
-	pf->cmapdesc.type = FTC_CMAP_BY_ENCODING;
-	pf->cmapdesc.u.encoding = ft_encoding_unicode;
+	//pf->cmapdesc.face_id = faceid;
+	//pf->cmapdesc.type = FTC_CMAP_BY_ENCODING;
+	//pf->cmapdesc.u.encoding = ft_encoding_unicode;
 #endif
 #else
 	/* Load face */
@@ -617,6 +612,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 	}
 
 	error = FT_Select_Charmap(pf->face, ft_encoding_unicode);
+	//error = FT_Select_Charmap(pf->face, ft_encoding_apple_roman);
 	if (error != FT_Err_Ok) {
 		EPRINTF("freetype2_createfont_internal: No unicode map table, error 0x%x\n", error);
 		goto out;
@@ -1018,7 +1014,7 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	pfontinfo->maxwidth = ROUND_26_6_TO_INT(metrics->max_advance);
 	pfontinfo->maxascent = ROUND_26_6_TO_INT(FT_MulFix(bbox->yMax, metrics->y_scale));
 	pfontinfo->maxdescent = ROUND_26_6_TO_INT(FT_MulFix(-bbox->yMin, metrics->y_scale));
-	pfontinfo->fixed = ((face->face_flags & FT_FACE_FLAG_FIXED_WIDTH) != 0);
+	pfontinfo->fixed = (face->face_flags & FT_FACE_FLAG_FIXED_WIDTH) != 0;
 	pfontinfo->baseline = ROUND_26_6_TO_INT(metrics->ascender);
 	pfontinfo->descent = ROUND_26_6_TO_INT(abs(metrics->descender));
 	pfontinfo->height = pfontinfo->baseline + pfontinfo->descent;
@@ -1105,7 +1101,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	size = face->size;
 #endif
 
-	use_kerning = ((pf->fontattr & MWTF_KERNING) && FT_HAS_KERNING(face));
+	use_kerning = (pf->fontattr & MWTF_KERNING) && FT_HAS_KERNING(face);
 
 	/* Initialize blit parms we won't change*/
 	parms.fg_color = gr_foreground;
@@ -1383,7 +1379,7 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf, const void *text, int cc,
 	size = face->size;
 #endif
 
-	use_kerning = ((pf->fontattr & MWTF_KERNING) && FT_HAS_KERNING(face));
+	use_kerning = (pf->fontattr & MWTF_KERNING) && FT_HAS_KERNING(face);
 	bbox.xMin = 0;
 	bbox.yMin = 0;
 	bbox.xMax = 0;

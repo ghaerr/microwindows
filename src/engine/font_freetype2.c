@@ -25,10 +25,11 @@
  *         no way to test for this and correct it, because this version of
  *         the library mis-reports the version number as 2.1.1.
  * 2.1.3 - works.
- * 2.3.5 - works, internally forces no cache option, needs porting of
- *	   missing 'font' member in FTC_ImageTypeReq struct.
- * 2.3.9 - works and tested with caching
- * 2.3.12 - works and tested with caching
+ * 2.3.5 - partially works, internally forces no cache option.
+ *         missing 'font' member in FTC_ImageTypeReq struct. Doesn't work
+ *         with cmap cache on.
+ * 2.3.9 - works and tested with new scalar caching and cmap cache
+ * 2.3.12 - works and tested with new scalar caching and cmap cache
  */
 
 /*#define NDEBUG*/
@@ -125,21 +126,21 @@ void winfillrect(PSD psd, int x, int y, int w, int h);
  *
  * FIXME: This option should be in the config file.
  */
-#define HAVE_FREETYPE_2_CACHE 1			/* added 'font' member explicitly for >= v2.3*/
+#define HAVE_FREETYPE_2_CACHE 1
 
 /*
  * Enable the Freetype 2 character map cache.  Only applicable
  * if HAVE_FREETYPE_2_CACHE is enabled.
  *
  * It is recommended that you turn this option on if you are
- * using FreeType 2.1.1 or later, as it should give a small
+ * using FreeType 2.3.9 or later, as it should give a small
  * speed boost.  (With earlier releases, this should work but
  * might actually slow down rendering slightly - the cache was
  * much slower before FreeType 2.1.1.)
  *
  * FIXME: This option should be in the config file.
  */
-#define HAVE_FREETYPE_2_CMAP_CACHE 0
+#define HAVE_FREETYPE_2_CMAP_CACHE 1
 
 /*
  * Don't copy a font buffer in freetype2_createfontfrombuffer.
@@ -188,7 +189,7 @@ typedef struct {
 	char *filename;		/* NULL if buffered */
 	freetype2_fontdata *faceid;	/* only used if HAVE_FREETYPE_2_CACHE or buffered. */
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	FTC_ImageTypeRec imagedesc;
 	FTC_ScalerRec scaler;	/* used only for copy-in when calling FTC_Manager_Lookup_Size*/
 #elif HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
@@ -198,7 +199,7 @@ typedef struct {
 	FTC_ImageDesc imagedesc;
 #endif
 #if HAVE_FREETYPE_2_CMAP_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 #else
 	FT_CharMapRec cmapdesc;
 #endif
@@ -347,7 +348,7 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
  * @param ch_   The character to look up
  * @return      The glyph index.
  */
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 #define LOOKUP_CHAR(pf_,face_,ch_) \
 	(FTC_CMapCache_Lookup(freetype2_cache_cmap, (pf_)->imagedesc.face_id, -1, (ch_)))
 #else
@@ -592,7 +593,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 {
 	PMWFREETYPE2FONT pf;
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	FT_Size size;
 #else
 	FT_Face face;
@@ -610,7 +611,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 	pf->faceid = faceid;
 	pf->filename = filename;
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->imagedesc.face_id = faceid;
 	pf->imagedesc.width = 0;	/* Will be set by SetFontSize */
 	pf->imagedesc.height = 0;	/* Will be set by SetFontSize */
@@ -626,7 +627,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 #endif
 #endif
 #if HAVE_FREETYPE_2_CMAP_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 #else
 	pf->cmapdesc.face_id = faceid;
 	pf->cmapdesc.type = FTC_CMAP_BY_ENCODING;
@@ -663,7 +664,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 	pf->fontprocs->SetFontAttr((PMWFONT)pf, 0, 0);
 
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
 	pf->scaler.pixel = 1;
 	pf->scaler.width = pf->imagedesc.width;
@@ -1041,7 +1042,7 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	assert(pfontinfo);
 
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
 	pf->scaler.pixel = 1;
 	pf->scaler.width = pf->imagedesc.width;
@@ -1150,7 +1151,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	assert(psd); // note in STANDALONE case, 'app_t' is passed as psd, must not inspect pointer!
 
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
 	pf->scaler.pixel = 1;
 	pf->scaler.width = pf->imagedesc.width;
@@ -1437,7 +1438,7 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf, const void *text, int cc,
 	FT_BBox glyph_bbox;
 
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
 	pf->scaler.pixel = 1;
 	pf->scaler.width = pf->imagedesc.width;
@@ -1578,7 +1579,7 @@ freetype2_gettextsize_fast(PMWFREETYPE2FONT pf, const void *text, int char_count
 	int last_glyph_code = 0;	/* Used for kerning */
 
 #if HAVE_FREETYPE_2_CACHE
-#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,5)
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
 	pf->scaler.pixel = 1;
 	pf->scaler.width = pf->imagedesc.width;

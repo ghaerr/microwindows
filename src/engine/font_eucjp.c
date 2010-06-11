@@ -26,13 +26,14 @@
 #endif
 
 typedef struct MWEUCJPFONT {
+	0,						/* can't scale*/
 	PMWFONTPROCS fontprocs;	/* common hdr */
 	int fontsize;
 	int	fontwidth;
 	int fontrotation;
 	int fontattr;
 
-	int width;		/* MGL font data */
+	int width;				/* MGL font data */
 	int height;
 	int koffset;
 	int kwidth;
@@ -40,7 +41,7 @@ typedef struct MWEUCJPFONT {
 	int aoffset;
 	int awidth;
 	int abytes;
-	int fd;			/* file descriptor of font bitmap data */
+	int fd;					/* file descriptor of font bitmap data */
 	char *font_base;
 } MWEUCJPFONT, *PMWEUCJPFONT;
 

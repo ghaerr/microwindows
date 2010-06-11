@@ -56,18 +56,19 @@ static int freetype_setfontattr(PMWFONT pfont, int setflags, int clrflags);
 		
 /* handling routines for MWFREETYPEFONT*/
 static MWFONTPROCS freetype_procs = {
-	MWTF_UC16,			/* routines expect unicode 16*/
+	MWTF_SCALEHEIGHT|MWTF_SCALEWIDTH,	/* can scale height and width*/
+	MWTF_UC16,							/* routines expect unicode 16*/
 	freetype_init,
 	freetype_createfont,
 	freetype_getfontinfo,
 	freetype_gettextsize,
-	NULL,				/* gettextbits*/
+	NULL,								/* gettextbits*/
 	freetype_destroyfont,
 	freetype_drawtext,
 	freetype_setfontsize,
 	freetype_setfontrotation,
 	freetype_setfontattr,
-	NULL				/* duplicate*/
+	NULL								/* duplicate*/
 };
 
 static TT_Engine 	engine;		/* THE ONLY freetype engine */

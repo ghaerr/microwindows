@@ -91,6 +91,7 @@ static uint32_t			readMSB32(FILEP file);
 
 /* these procs used when font ASCII indexed*/
 MWFONTPROCS pcf_fontprocs = {
+	0,				/* can't scale*/
 	MWTF_ASCII,
 	NULL,			/* init*/
 	pcf_createfont,
@@ -111,6 +112,7 @@ MWFONTPROCS pcf_fontprocs = {
 
 /* these procs used when font requires UC16 index*/
 static MWFONTPROCS pcf_fontprocs16 = {
+	0,				/* can't scale*/
 	MWTF_UC16,		/* routines expect unicode 16 */
 	NULL,			/* init*/
 	pcf_createfont,
@@ -591,7 +593,7 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 	MWIMAGEBITS *output;
 	unsigned char *glyphs = NULL;
 	uint32_t *glyphs_offsets = NULL;
-	int max_width = 0, max_descent = 0, max_ascent = 0, max_height = 0;
+	int max_width = 0, max_descent = 0, max_ascent = 0, max_height;
 	int result;
 	unsigned int glyph_count;
 	uint32_t *goffset = NULL;

@@ -1,4 +1,5 @@
 10 June 2010
+	* added capabilities flag word in font subdriver for h/w scaling
 	* use new freetype2 scaler cache api (>= v2.3.9) (Johannes)
 		can now compile freetype 2 without FT_CONFIG_OPTION_OLD_INTERNALS
 	* fix ncolor assert in fblin24.c

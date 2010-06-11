@@ -72,11 +72,14 @@
 #define MWTF_BASELINE	0x02000000L	/* align on baseline*/
 #define MWTF_BOTTOM	0x04000000L	/* align on bottom*/
 
-/* SetFontAttr flags (not used with MWTF_ above)*/
+/* SetFontAttr and capabilities flags (not used with MWTF_ above)*/
 #define MWTF_KERNING	0x0001		/* font kerning*/
 #define MWTF_ANTIALIAS	0x0002		/* antialiased output*/
 #define MWTF_UNDERLINE	0x0004		/* draw underline*/
+
 #define MWTF_FREETYPE	0x1000		/* FIXME: remove*/
+#define MWTF_SCALEHEIGHT 0x2000		/* font can scale height seperately*/
+#define MWTF_SCALEWIDTH	0x4000		/* font can scale width seperately*/
 
 /* Image data formats, used by GdConversionBlit*/
 
@@ -91,7 +94,7 @@
 
 /* monochrome bitmap formats*/
 #define MWIF_MONO			0x00000040L
-#define MWIF_HASALPHA		0x00000080L
+#define MWIF_ALPHA			0x00000080L
 #define MWIF_BYTEDATA		0x00000100L
 #define MWIF_WORDDATA		0x00000200L
 #define MWIF_DWORDDATA		0x00000400L
@@ -100,6 +103,7 @@
 #define MWIF_MONOBYTEMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_MSBFIRST)
 #define MWIF_MONOBYTELSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_LSBFIRST)
 #define MWIF_MONOWORDMSB	(MWIF_1BPP | MWIF_MONO | MWIF_WORDDATA | MWIF_MSBFIRST)
+#define MWIF_ALPHABYTE		(MWIF_8BPP | MWIF_ALPHA| MWIF_BYTEDATA)
 
 /* color formats*/
 #define MWIF_BGRA8888		0x00010000L		/* 32bpp BGRA image byte order (old TRUECOLOR8888)*/
@@ -374,6 +378,7 @@ typedef struct _mwfont *		PMWFONT;
 typedef struct _mwfontinfo *	PMWFONTINFO;
 
 typedef struct {
+	int		capabilities;		/* flags for font subdriver capabilities*/
 	MWTEXTFLAGS	encoding;	/* routines expect this encoding*/
 	MWBOOL	(*Init)(PSD psd);
 	PMWFONT	(*CreateFont)(const char *name, MWCOORD height, MWCOORD width, int attr);
@@ -421,14 +426,16 @@ typedef struct {
 	int			data_format;	/* MWIF_ image data format*/
 	MWCOORD		width, height;	/* width and height for src and dest*/
 	MWCOORD		dstx, dsty;		/* dest x, y*/
-	MWCOORD		dst_pitch;		/* dest pitch in bytes*/
 	MWCOORD		srcx, srcy;		/* source x, y*/
-	MWCOORD		src_pitch;		/* source pitch in bytes*/
+	int			src_pitch;		/* source row length in bytes*/
 	uint32_t	fg_color;		/* foreground color, hw pixel format*/
 	uint32_t	bg_color;
 	MWBOOL		usebg;			/* set =1 to draw background*/
 	void *		data;			/* input image data GdConversionBlit*/
+
+	/* these items filled in by GdConversionBlit*/
 	void *		data_out;		/* output image from conversion blits subroutines*/
+	MWCOORD		dst_pitch;		/* dest row length in bytes*/
 
 //	uint32_t	transcolor;		/* trans color for MWROP_SRCTRANSCOPY*/
 //	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/

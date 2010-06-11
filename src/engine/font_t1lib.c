@@ -57,6 +57,7 @@ static void t1lib_destroyfont(PMWFONT pfont);
 
 /* handling routines for MWT1LIBFONT*/
 MWFONTPROCS t1lib_fontprocs = {
+	MWTF_SCALEHEIGHT,	/* can scale height only*/
 	MWTF_ASCII,			/* routines expect ascii*/
 	t1lib_init,
 	t1lib_createfont,
@@ -184,14 +185,11 @@ found:
 			if (!pf)
 				return NULL;
 			pf->fontprocs = &t1lib_fontprocs;
-			//pf->fontprocs->SetFontSize((PMWFONT)pf, height, width);
+			pf->fontprocs->SetFontSize((PMWFONT)pf, height, width);
+			pf->fontprocs->SetFontAttr((PMWFONT)pf, attr, 0);
 			//pf->fontprocs->SetFontRotation((PMWFONT)pf, 0);
-			//pf->fontprocs->SetFontAttr((PMWFONT)pf, attr, 0);
-			pf->fontsize = height;
-			pf->fontwidth = width;
-			//T1_ExtendFont(pf->fontid, (float)width_scale);
 			pf->fontrotation = 0;
-			pf->fontattr = attr;
+			//T1_ExtendFont(pf->fontid, (float)width_scale);
 			pf->fontid = id;
 			DPRINTF("t1lib_createfont: using %s/%s\n", fontpath, fontname);
 			return (PMWFONT)pf;
@@ -212,7 +210,7 @@ t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	MWBLITPARMS parms;
 
 	if (pf->fontattr & MWTF_ANTIALIAS) {
-		parms.data_format = MWIF_8BPP | MWIF_HASALPHA;	/* data is 8bpp alpha channel*/
+		parms.data_format = MWIF_ALPHABYTE;		/* data is 8bpp alpha channel*/
 		parms.op = MWROP_BLENDFGBG;				/* blend fg/bg with alpha channel -> dst*/
 
 		glyph = T1_AASetString(pf->fontid, (char *)text, cc, 0,

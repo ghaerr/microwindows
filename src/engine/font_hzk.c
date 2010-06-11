@@ -73,6 +73,7 @@ static void hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		
 /* handling routines for MWHZKFONT*/
 static MWFONTPROCS hzk_procs = {
+	0,					/* can't scale*/
 	MWTF_ASCII,			/* routines expect ASCII*/
 	hzk_init,
 	hzk_createfont,

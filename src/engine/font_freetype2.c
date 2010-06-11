@@ -230,12 +230,13 @@ static PMWFREETYPE2FONT freetype2_createfont_internal(freetype2_fontdata * facei
  * The virtual method table for FreeType 2 fonts (i.e. class MWFREETYPE2FONT).
  */
 MWFONTPROCS freetype2_fontprocs = {
-	MWTF_UC16,		/* routines expect unicode 16 */
+	MWTF_SCALEHEIGHT|MWTF_SCALEWIDTH,	/* can scale height and width*/
+	MWTF_UC16,							/* routines expect unicode 16 */
 	freetype2_init,
 	freetype2_createfont,
 	freetype2_getfontinfo,
 	freetype2_gettextsize,
-	NULL,			/* gettextbits */
+	NULL,								/* gettextbits */
 	freetype2_destroyfont,
 	freetype2_drawtext,
 	freetype2_setfontsize,
@@ -1192,7 +1193,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 	// FIXME: don't use antialias settings if no alphacol driver (psd->flags & PSF_HAVEOP_ALPHACOL)
 	if (pf->fontattr & MWTF_ANTIALIAS) {
-		parms.data_format = MWIF_8BPP | MWIF_HASALPHA;	/* data is 8bpp alpha channel*/
+		parms.data_format = MWIF_ALPHABYTE;		/* data is 8bpp alpha channel*/
 		parms.op = MWROP_BLENDFGBG;				/* blend fg/bg with alpha channel -> dst*/
 	} else {
 		parms.data_format = MWIF_MONOBYTEMSB;	/* data is 1bpp bytes, msb first*/

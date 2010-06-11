@@ -156,22 +156,21 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 		//convblit_copy_mono_word_msb_argb(parms);	/* conv mono word MSBFirst to ARGB*/
 		//break;
 
-	case MWIF_8BPP|MWIF_HASALPHA:	/* ft2 alias, t1lib alias*/
-		if (parms->op == MWROP_BLENDFGBG) {
-			//convblit_blend_8_fgbg_argb(parms);		/* conv 8bpp alpha with fg/bg to ARGB*/
-			op = PSDOP_ALPHACOL;
-			break;
-		}
-		/* fall thru*/
+	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
+		//convblit_copy_mono_byte_lsb_argb(parms);	/* conv mono byte LSBFirst to ARGB*/
+		op = PSDOP_BITMAP_BYTES_LSB_FIRST;
+		break;
+
+	case MWIF_ALPHABYTE:			/* ft2 alias, t1lib alias*/
+		//convblit_blend_8_fgbg_argb(parms);		/* conv 8bpp alpha with fg/bg to ARGB*/
+		op = PSDOP_ALPHACOL;
+		break;
+
 	default:
 		printf("GdConversionBlit: No conversion blit available\n");
 		//FREEA(parms->data_out);
 		return;
 
-	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
-		//convblit_copy_mono_byte_lsb_argb(parms);	/* conv mono byte LSBFirst to ARGB*/
-		op = PSDOP_BITMAP_BYTES_LSB_FIRST;
-		break;
 	}
 
 	gc.op = op;

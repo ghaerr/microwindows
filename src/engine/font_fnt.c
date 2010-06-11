@@ -67,6 +67,7 @@ static PMWCFONT fnt_load_font(const char *path);
 
 /* these procs used when font ASCII indexed*/
 MWFONTPROCS fnt_fontprocs = {
+	0,				/* can't scale*/
 	MWTF_ASCII,		/* routines expect ascii */
 	NULL,			/* init*/
 	fnt_createfont,
@@ -87,6 +88,7 @@ MWFONTPROCS fnt_fontprocs = {
 
 /* these procs used when font requires UC16 index*/
 static MWFONTPROCS fnt_fontprocs16 = {
+	0,				/* can't scale*/
 	MWTF_UC16,		/* large font, expect UC16*/
 	NULL,			/* init*/
 	fnt_createfont,

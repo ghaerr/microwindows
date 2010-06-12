@@ -1078,12 +1078,12 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 		return FALSE; // FIXME
 
 	/* Fill up the fields */
-	pfontinfo->maxwidth = ROUND_26_6_TO_INT(metrics->max_advance);
-	pfontinfo->maxascent = ROUND_26_6_TO_INT(FT_MulFix(bbox->yMax, metrics->y_scale));
+	pfontinfo->maxwidth =   ROUND_26_6_TO_INT(metrics->max_advance);
+	pfontinfo->maxascent =  ROUND_26_6_TO_INT(FT_MulFix(bbox->yMax, metrics->y_scale));
 	pfontinfo->maxdescent = ROUND_26_6_TO_INT(FT_MulFix(-bbox->yMin, metrics->y_scale));
 	pfontinfo->fixed = ((face->face_flags & FT_FACE_FLAG_FIXED_WIDTH) != 0);
 	pfontinfo->baseline = ROUND_26_6_TO_INT(metrics->ascender);
-	pfontinfo->descent = ROUND_26_6_TO_INT(abs(metrics->descender));
+	pfontinfo->descent =  ROUND_26_6_TO_INT(abs(metrics->descender));
 	pfontinfo->height = pfontinfo->baseline + pfontinfo->descent;
 	leading = ROUND_26_6_TO_INT(metrics->height - (metrics->ascender + abs(metrics->descender)));
 	pfontinfo->linespacing = pfontinfo->height + leading;
@@ -1206,7 +1206,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	if (flags & MWTF_BOTTOM)
 		pos.y = (abs(size->metrics.descender) + 63) & ~63;	/* descent */
 	else if (flags & MWTF_TOP)
-		pos.y = -(size->metrics.ascender + 63) & ~63;		/* -ascent */
+		pos.y = -((size->metrics.ascender + 63) & ~63);		/* -ascent */
 	else
 		pos.y = 0;
 
@@ -1484,7 +1484,7 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf, const void *text, int cc,
 		if (use_kerning && last_glyph_code && curchar) {
 			FT_Get_Kerning(face, last_glyph_code, curchar, ft_kerning_default, &kerning_delta);
 
-			pos.x += kerning_delta.x & (~63);
+			pos.x += kerning_delta.x & ~63;
 		}
 		last_glyph_code = curchar;
 

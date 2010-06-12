@@ -1,3 +1,5 @@
+11 June 2010
+	* fix freetype 2 off-by-one height bug (ascent + descent != height)
 10 June 2010
 	* added capabilities flag word in font subdriver for h/w scaling
 	* use new freetype2 scaler cache api (>= v2.3.9) (Johannes)

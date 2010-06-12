@@ -214,9 +214,8 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
 	MWCOORD y = gc->dsty;
 	MWCOORD width = gc->width;
 	MWCOORD height = gc->height;
-	MWCOORD srcx;
-	MWCOORD srcy;
-	int rx1, rx2, ry1, ry2, rw, rh;
+	MWCOORD srcx, srcy;
+	MWCOORD rx1, rx2, ry1, ry2, rw, rh;
 	int count;
 #if DYNAMICREGIONS
 	MWRECT *prc;
@@ -240,8 +239,8 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
 	case CLIP_INVISIBLE:
 		return;
 	}
-	/* partially clipped, we'll traverse visible region and draw*/
 
+	/* partially clipped, we'll traverse visible region and draw*/
 	srcx = gc->srcx;
 	srcy = gc->srcy;
 
@@ -260,7 +259,7 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
 		rx2 = prc->right;
 		ry2 = prc->bottom;
 #else
-		/* New clip-code by Morten */
+		/* old clip-code by Morten */
 		rx1 = prc->x;
 		ry1 = prc->y;
 		rx2 = prc->x + prc->width;

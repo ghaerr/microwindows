@@ -33,7 +33,6 @@ select_fb_subdriver(PSD psd)
 	extern SUBDRIVER fblinear16_left;
 	extern SUBDRIVER fblinear16_right;
 	extern SUBDRIVER fblinear16_down;
-	extern SUBDRIVER fblinear18;
 	extern SUBDRIVER fblinear24;
 	extern SUBDRIVER fblinear24_left;
 	extern SUBDRIVER fblinear24_right;
@@ -77,9 +76,7 @@ select_fb_subdriver(PSD psd)
 			right = &fblinear16_right;
 			down = &fblinear16_down;
 			break;
-		case 18: // addon VB May 2007 : 18bpp fb linear driver
-			driver = &fblinear18;
-			break ;
+		case 18: // addon VB May 2007 : 18bpp fb linear driver FIXME
 		case 24:
 			driver = &fblinear24;
 			left = &fblinear24_left;

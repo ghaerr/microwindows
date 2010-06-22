@@ -87,7 +87,6 @@ fbportrait_right_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int
 		op);
 }
 
-#if MW_FEATURE_PSDOP_ALPHACOL
 static void
 fbportrait_right_drawarea_alphacol(PSD dstpsd, driver_gc_t *gc)
 {
@@ -137,9 +136,7 @@ fbportrait_right_drawarea_alphacol(PSD dstpsd, driver_gc_t *gc)
 
 	FREEA(l_gc.data);
 }
-#endif
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 static void
 fbportrait_right_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 {
@@ -192,9 +189,7 @@ fbportrait_right_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 
 	FREEA(l_gc.data);
 }
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 static void
 fbportrait_right_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 {
@@ -247,7 +242,6 @@ fbportrait_right_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 
 	FREEA(l_gc.data);
 }
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 
 void
 fbportrait_right_drawarea(PSD dstpsd, driver_gc_t * gc)
@@ -256,23 +250,17 @@ fbportrait_right_drawarea(PSD dstpsd, driver_gc_t * gc)
 		return;
 
 	switch(gc->op) {
-#if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		fbportrait_right_drawarea_alphacol(dstpsd, gc);
 		break;
-#endif
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		fbportrait_right_drawarea_bitmap_bytes_msb_first(dstpsd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		fbportrait_right_drawarea_bitmap_bytes_lsb_first(dstpsd, gc);
 		break;
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 	}
 }
 

@@ -1,3 +1,6 @@
+	* remove MW_FEATURE_PSDOP_*
+	* remove fblin18.c 6/6/6 driver (reimplement using fblin24.c and new COLOR macros)
+	* remove DrawArea driver entrypoint for fblin32/24/16, copyall/copytrans for fblin16
 	* removed freetype v1 support, DBGDRIVER
 21 June 2010
 	* fast convblits for all font drawing and RGBA/RGA images on 16/24/32bpp, all rotations

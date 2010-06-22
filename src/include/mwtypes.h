@@ -443,7 +443,6 @@ typedef struct {
 
 //	uint32_t	transcolor;		/* trans color for MWROP_SRCTRANSCOPY*/
 //	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
-//	void *		misc;			/* alpha channel for PSDOP_ALPHAMAP*/
 } MWBLITPARMS, *PMWBLITPARMS;
 
 typedef struct { // DEPRECATED

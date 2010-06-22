@@ -201,7 +201,6 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	DRAWOFF;
 }
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 /* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
  * takes a pixmap, each line is byte aligned, and copies it
  * to the screen using fg_color and bg_color to replace a 1
@@ -431,7 +430,6 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 #undef MWI_FIRST_BIT
 #undef MWI_LAST_BIT
 }
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 static void
 linear4_drawarea(PSD psd, driver_gc_t * gc)
@@ -445,12 +443,11 @@ linear4_drawarea(PSD psd, driver_gc_t * gc)
 	assert(gc->srcy >= 0);
 	/*printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 #endif
+
 	switch (gc->op) {
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear4_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif
 	}
 }
 

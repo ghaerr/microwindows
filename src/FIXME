@@ -11,6 +11,10 @@ test drawarea fallback cases for < 16bpp
 GdBitmap/drawbitmap fallback for < 16bpp
 	fix psd->bpp >= 16 kluge in gen_drawtext (non convblit driver fallback to GdBitmap)
 
+GdArea fix add PSDOP_COPY back convblit instead of GdDrawAreaInternal
+	HWPF_PIXELVAL uses fast copy routine
+FT2 don't use antialias settings if no HAVEOP_ALPHACOL driver entry point
+
 16bpp convblits are endian-specific
 write convblits for 24/32bpp non-bgra systems (rename TRUECOLOR macros?)
 change driver fblinear_blit routines for 32bpp to BLITPARMS struct
@@ -74,7 +78,6 @@ add PSF_HAVEOP_ALPHACOL, FT2 driver downgrades to non-antialias when needed
 MWROP_BLENDCONSTANT needs alpha passed (not 150)
 PSDOP_ALPHAMAP needs gc->misc
 add .fnt/.fnt.gz or .pcf/.pcf.gz to FNT and PCF file spec
-DEPRECATE FT1, FONTMAPPER, !DYNAMICREGIONS
 fix config files to update new font info
 look at auto Antialias in GdCreateFont, handle for T1, FT2
 handle width=0 with aspect ratio of device

@@ -104,8 +104,6 @@ fb_open(PSD psd)
     psd->size = 0;		/* force subdriver init of size*/
 
     psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
-    if (psd->bpp == 16)
-        psd->flags |= PSF_HAVEOP_COPY;
 
 #if PORTRAIT
     /* determine whether to run in portrait mode*/

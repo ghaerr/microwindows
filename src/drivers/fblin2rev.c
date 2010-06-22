@@ -159,7 +159,6 @@ linear2_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	DRAWOFF;
 }
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 /* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
  * takes a pixmap, each line is byte aligned, and copies it
  * to the screen using fg_color and bg_color to replace a 1
@@ -236,7 +235,6 @@ linear2_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	}
 	DRAWOFF;
 }
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 static void
 linear2_drawarea(PSD psd, driver_gc_t * gc)
@@ -251,24 +249,17 @@ linear2_drawarea(PSD psd, driver_gc_t * gc)
 	/*DPRINTF("linear1_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 #endif
 	switch (gc->op) {
-#if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		DPRINTF("linear2_drawarea: PSDOP_ALPHACOL not supported\n");
 		break;
-#endif
-	
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
+
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		DPRINTF("linear2_drawarea: PSDOP_BITMAP_BYTES_LSB_FIRST not supported\n");
 		break;
-#endif
 	
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear2_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif
-	
 	  }
 }
 

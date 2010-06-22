@@ -165,7 +165,7 @@ static void newclient( rfbClientPtr cl )
         cl->clientGoneHook = clientgone;
 
         UndrawCursor();
-#if 0 // MW_FEATURE_PSDOP_COPY
+#if 0
         MyStretchBlit( vncpsd, 0, 0, rfbScreen->width, rfbScreen->height, actualpsd, 0, 0, 
                        XRES, YRES, PSDOP_COPY );
 #endif

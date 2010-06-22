@@ -90,63 +90,6 @@
 #error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in this file
 #endif
 
-/* Which low-level psd->DrawArea routines to include. */
-#define MW_FEATURE_PSDOP_COPY                   1
-#define MW_FEATURE_PSDOP_ALPHAMAP               0
-#define MW_FEATURE_PSDOP_ALPHACOL               1
-#define MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST 1
-#define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 1
-
-/* Override some of the above defines, for features which are required
- * for the Microwindows FreeType 2 font driver
- */
-#ifdef HAVE_FREETYPE_2_SUPPORT
-#undef  MW_FEATURE_PSDOP_ALPHACOL
-#define MW_FEATURE_PSDOP_ALPHACOL 1
-#undef  MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
-#define MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST 1
-#endif
-
-/* Operations for the Blitter/Area functions */
-
-#if MW_FEATURE_PSDOP_COPY
-/*
- * Copy an image to screen.
- * Params:
- * dstx, dsty  - Destination for top left of image
- * dstw, dsth  - Image size
- * srcx, srcy  - Start co-ordinates in source image
- * src_linelen - Source image stride, in pixels
- * pixels      - Image to copy from in hw display format.
- * misc        - Ignored.
- * gr_usebg    - Checked for PSD_COPY only.
- * bg_color    - Background color to ignore if PSDOP_COPYTRANS.
- * fg_color    - Ignored.
- */
-#define PSDOP_COPY	0	/* if gr_usebg COPYALL else COPYTRANS*/
-#define PSDOP_COPYALL	1	/* copy image bits to screen*/
-#define PSDOP_COPYTRANS 2	/* copy non-background bits to screen*/
-#endif /* MW_FEATURE_PSDOP_COPY */
-
-#if MW_FEATURE_PSDOP_ALPHAMAP
-/*
- * Copy an image to screen, using an alpha map.
- * Params:
- * dstx, dsty  - Destination for top left of image
- * dstw, dsth  - Image size
- * srcx, srcy  - Start co-ordinates in source image
- * src_linelen - Source image stride, in pixels
- * pixels      - Image to copy from.  Format: same color model as display.
- * misc        - Alpha map.  Format: ADDR8, entries
- *               are alpha values in range 0-255.
- * gr_usebg    - Ignored.  FIXME If set, should blend to bg_color.
- * bg_color    - Ignored.  FIXME Should be used if gr_usebg is set.
- * fg_color    - Ignored.
- */
-#define PSDOP_ALPHAMAP	3
-#endif /* MW_FEATURE_PSDOP_ALPHAMAP */
-
-#if MW_FEATURE_PSDOP_ALPHACOL
 /*
  * Draws an alpha map to screen (e.g. an anti-aliased font).
  * Params:
@@ -162,9 +105,7 @@
  * pixels      - Ignored.
  */
 #define PSDOP_ALPHACOL	4
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 /*
  * Draws a mono bitmap to screen (e.g. a mono font).
  * This variant takes the bitmap as an array of bytes,
@@ -186,9 +127,7 @@
  *               then "0" bits are bg_color.
  */
 #define PSDOP_BITMAP_BYTES_LSB_FIRST	5
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 /*
  * Draws a mono bitmap to screen (e.g. a mono font).
  * This variant takes the bitmap as an array of bytes,
@@ -210,7 +149,6 @@
  *               then "0" bits are bg_color.
  */
 #define PSDOP_BITMAP_BYTES_MSB_FIRST	6
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 /* screen subdriver entry points: one required for each draw function*/
 /* NOTE: currently used for fb driver only*/
@@ -326,10 +264,8 @@ typedef struct _mwscreendevice {
 #define	PSF_SCREEN		0x0001	/* screen device*/
 #define PSF_MEMORY		0x0002	/* memory device*/
 #define PSF_HAVEBLIT		0x0004	/* have bitblit*/
-#define PSF_HAVEOP_COPY		0x0008	/* psd->DrawArea can do area copy*/
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
 #define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
-#define PSF_HAVEOP_ALPHACOL	0x0040	/* psd->Drawarea can do alphacol*/
 
 /* Interface to Mouse Device Driver*/
 typedef struct _mousedevice {

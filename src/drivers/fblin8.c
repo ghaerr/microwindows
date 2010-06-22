@@ -579,7 +579,6 @@ init_alpha_lookup(void)
 	return 1;
 }
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 /* psd->DrawArea operation PSDOP_BITMAP_BYTES_LSB_FIRST which
  * takes a pixmap, each line is byte aligned, and copies it
  * to the screen using fg_color and bg_color to replace a 1
@@ -781,10 +780,7 @@ linear8_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 #undef MWI_FIRST_BIT
 #undef MWI_LAST_BIT
 }
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 
-
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 /* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
  * takes a pixmap, each line is byte aligned, and copies it
  * to the screen using fg_color and bg_color to replace a 1
@@ -983,9 +979,7 @@ linear8_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 #undef MWI_FIRST_BIT
 #undef MWI_LAST_BIT
 }
-#endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
-#if MW_FEATURE_PSDOP_ALPHACOL
 static void
 linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 {
@@ -1032,7 +1026,6 @@ linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 	}
 	DRAWOFF;
 }
-#endif /* MW_FEATURE_PSDOP_ALPHACOL */
 
 static void
 linear8_drawarea(PSD psd, driver_gc_t * gc)
@@ -1046,24 +1039,17 @@ linear8_drawarea(PSD psd, driver_gc_t * gc)
 	/*DPRINTF("linear8_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
 
 	switch (gc->op) {
-#if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
 		linear8_drawarea_alphacol(psd, gc);
 		break;
-#endif
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
 		linear8_drawarea_bitmap_bytes_lsb_first(psd, gc);
 		break;
-#endif
 
-#if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
 		linear8_drawarea_bitmap_bytes_msb_first(psd, gc);
 		break;
-#endif
-
 	}
 }
 

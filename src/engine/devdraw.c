@@ -1295,6 +1295,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	int pixsize;
 	unsigned char r, g, b;
 
+#if 0 // FIXME
 	/* check for hw pixel format and low level driver drawarea call*/
 	if (pixtype == MWPF_HWPIXELVAL && (psd->flags & PSF_HAVEOP_COPY)) {
 		driver_gc_t hwgc;
@@ -1315,7 +1316,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		GdFixCursor(psd);
 		return;
 	}
-
+#endif
 	/* no fast low level routine, draw point-by-point...*/
 	minx = x;
 	maxx = x + width - 1;

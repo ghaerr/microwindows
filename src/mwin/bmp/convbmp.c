@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 1999, 2000, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2003, 2010 Greg Haerr <greg@censoft.com>
  *
  * Windows BMP to Microwindows image converter
  *
+ * 6/21/2010 updated with data_format
  * 9/24/2003 endian-neutral conversion
  * 05/01/2000 Michael Temari <Michael@TemWare.Com>
  * Modified to output .s ACK format for Minix
@@ -403,6 +404,7 @@ UCHAR *p = (UCHAR *)&l;
 	else
 		printf("  0,\n");
 	printf("  imagebits,\n");
+	printf("  0x%lx,\t\t/* data_format*/\n", 0L);
 	printf("};\n");
    } else {
 	printf(".extern _image_%s\n", name);
@@ -421,6 +423,7 @@ UCHAR *p = (UCHAR *)&l;
 		printf(".data4\t__II1\n");
 	else
 		printf(".data4\t0\n");
+	printf(".data4\t%ld\n",0L);	/* data_format*/
 	printf(".sect .text\n");
    }
 

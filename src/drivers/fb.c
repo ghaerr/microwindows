@@ -21,15 +21,27 @@
 PSUBDRIVER 
 select_fb_subdriver(PSD psd)
 {
-	PSUBDRIVER  driver = NULL;
+	PSUBDRIVER driver = NULL;
+	PSUBDRIVER left = &fbportrait_left;
+	PSUBDRIVER right = &fbportrait_right;
+	PSUBDRIVER down = &fbportrait_down;
 	extern SUBDRIVER fblinear1;
 	extern SUBDRIVER fblinear2;
 	extern SUBDRIVER fblinear4;
 	extern SUBDRIVER fblinear8;
 	extern SUBDRIVER fblinear16;
+	extern SUBDRIVER fblinear16_left;
+	extern SUBDRIVER fblinear16_right;
+	extern SUBDRIVER fblinear16_down;
 	extern SUBDRIVER fblinear18;
 	extern SUBDRIVER fblinear24;
+	extern SUBDRIVER fblinear24_left;
+	extern SUBDRIVER fblinear24_right;
+	extern SUBDRIVER fblinear24_down;
 	extern SUBDRIVER fblinear32;
+	extern SUBDRIVER fblinear32_left;
+	extern SUBDRIVER fblinear32_right;
+	extern SUBDRIVER fblinear32_down;
 	extern SUBDRIVER fblinear32alpha;
 #if FBVGA
 	extern SUBDRIVER vgaplan4;
@@ -61,22 +73,38 @@ select_fb_subdriver(PSD psd)
 			break;
 		case 16:
 			driver = &fblinear16;
+			left = &fblinear16_left;
+			right = &fblinear16_right;
+			down = &fblinear16_down;
 			break;
 		case 18: // addon VB May 2007 : 18bpp fb linear driver
 			driver = &fblinear18;
 			break ;
 		case 24:
 			driver = &fblinear24;
+			left = &fblinear24_left;
+			right = &fblinear24_right;
+			down = &fblinear24_down;
+printf("selecting 24bpp subdriver\n");
 			break;
 		case 32:
 			if (psd->pixtype == MWPF_TRUECOLOR8888 || psd->pixtype == MWPF_TRUECOLORABGR) {
 				driver = &fblinear32alpha;
 			} else {
 				driver = &fblinear32;
+				left = &fblinear32_left;
+				right = &fblinear32_right;
+				down = &fblinear32_down;
+printf("selecting 32bpp subdriver\n");
 			}
 			break;
 		}
 	}
+
+	//FIXME KLUGE!!
+	psd->left_subdriver = left;
+	psd->right_subdriver = right;
+	psd->down_subdriver = down;
 
 	/* return driver selected*/
 	return driver;
@@ -90,22 +118,19 @@ void
 set_portrait_subdriver(PSD psd)
 {
 	PSUBDRIVER subdriver;
-	extern SUBDRIVER fbportrait_left;
-	extern SUBDRIVER fbportrait_right;
-	extern SUBDRIVER fbportrait_down;
 
 	switch (psd->portrait) {
 	case MWPORTRAIT_NONE:
 		subdriver = psd->orgsubdriver;
 		break;
 	case MWPORTRAIT_LEFT:
-		subdriver = &fbportrait_left;
+		subdriver = psd->left_subdriver;
 		break;
 	case MWPORTRAIT_RIGHT:
-		subdriver = &fbportrait_right;
+		subdriver = psd->right_subdriver;
 		break;
 	case MWPORTRAIT_DOWN:
-		subdriver = &fbportrait_down;
+		subdriver = psd->down_subdriver;
 		break;
 	}
 	set_subdriver(psd, subdriver, FALSE);

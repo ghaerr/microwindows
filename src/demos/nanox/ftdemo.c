@@ -133,10 +133,13 @@ int main(int argc, char **argv)
 
 void Render(GR_WINDOW_ID window)
 {
+   GR_SCREEN_INFO info;
+
+   GrGetScreenInfo(&info);
    GrSetGCBackground(gid, WHITE);
    GrSetGCForeground (gid, WHITE);
    GrSetGCUseBackground(gid, GR_FALSE);
-   GrFillRect(window, gid, 0, 0, MAXW, MAXH);
+   GrFillRect(window, gid, 0, 0, info.cols, info.rows);
    GrSetGCForeground (gid, BLACK);
 
 //	GrSetGCForeground (gid, GREEN);

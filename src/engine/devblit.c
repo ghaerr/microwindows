@@ -18,10 +18,15 @@
 #include <assert.h>
 #include "swap.h"
 #include "device.h"
+#include "convblit.h"
+#include "../drivers/fb.h"		/* for DRAWON macro*/
 
 extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
 extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
+
+typedef void (*BlitFunc)(PSD, PMWBLITPARMS);
+static void GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, BlitFunc convblit);
 
 /**
  * Draw a rectangular area using the current clipping region and the
@@ -139,40 +144,161 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	GdFixCursor(psd);
 }
 
+/* call conversion blit with clipping and cursor fix*/
+static void
+GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, BlitFunc convblit)
+{
+	MWCOORD x = gc->dstx;
+	MWCOORD y = gc->dsty;
+	MWCOORD width = gc->width;
+	MWCOORD height = gc->height;
+	MWCOORD srcx, srcy;
+	MWCOORD rx1, rx2, ry1, ry2, rw, rh;
+	int count;
+#if DYNAMICREGIONS
+	MWRECT *prc;
+	extern MWCLIPREGION *clipregion;
+#else
+	MWCLIPRECT *prc;
+	extern MWCLIPRECT cliprects[];
+	extern int clipcount;
+#endif
+
+	/* check clipping region*/
+	switch(GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
+	case CLIP_VISIBLE:
+		DRAWON;
+		convblit(psd, gc);
+		DRAWOFF;
+		GdFixCursor(psd);
+		return;
+
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+	/* partially clipped, we'll traverse visible region and draw*/
+	srcx = gc->srcx;
+	srcy = gc->srcy;
+
+#if DYNAMICREGIONS
+	prc = clipregion->rects;
+	count = clipregion->numRects;
+#else
+	prc = cliprects;
+	count = clipcount;
+#endif
+
+	while (count-- > 0) {
+#if DYNAMICREGIONS
+		rx1 = prc->left;
+		ry1 = prc->top;
+		rx2 = prc->right;
+		ry2 = prc->bottom;
+#else
+		/* old clip-code*/
+		rx1 = prc->x;
+		ry1 = prc->y;
+		rx2 = prc->x + prc->width;
+		ry2 = prc->y + prc->height;
+#endif
+
+		/* Check if this rect intersects with the one we draw */
+		if (rx1 < x)
+			rx1 = x;
+		if (ry1 < y)
+			ry1 = y;
+		if (rx2 > x + width)
+			rx2 = x + width;
+		if (ry2 > y + height)
+			ry2 = y + height;
+
+		rw = rx2 - rx1;
+		rh = ry2 - ry1;
+
+		if (rw > 0 && rh > 0) {
+			gc->dstx = rx1;
+			gc->dsty = ry1;
+			gc->width = rw;
+			gc->height = rh;
+			gc->srcx = srcx + rx1 - x;
+			gc->srcy = srcy + ry1 - y;
+			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
+			DRAWON;
+			convblit(psd, gc);
+			DRAWOFF;
+		}
+		prc++;
+	}
+	GdFixCursor(psd);
+
+	/* Reset everything, in case the caller re-uses it. */
+	gc->dstx = x;
+	gc->dsty = y;
+	gc->width = width;
+	gc->height = height;
+	gc->srcx = srcx;
+	gc->srcy = srcy;
+}
+
 void
 GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 {
+	BlitFunc convblit;
 	driver_gc_t	gc;
-	int op;
+	int op = 0;
+
+	/* setup destination for convblit*/
+	parms->dst_pitch = psd->pitch;
+	parms->data_out = psd->addr;
 
 	/* temp transfer parms to old driver struct*/
 	switch (parms->data_format) {
-	case MWIF_MONOBYTEMSB:			/* ft2 non-alias*/
-		//convblit_copy_mono_byte_msb_argb(parms);	/* conv mono byte MSBFirst to ARGB*/
-		op = PSDOP_BITMAP_BYTES_MSB_FIRST;
-		break;
-
-	//case MWIF_MONOWORDMSB:			/* core mwcfont, pcf*/
-		//convblit_copy_mono_word_msb_argb(parms);	/* conv mono word MSBFirst to ARGB*/
-		//break;
-
-	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
-		//convblit_copy_mono_byte_lsb_argb(parms);	/* conv mono byte LSBFirst to ARGB*/
-		op = PSDOP_BITMAP_BYTES_LSB_FIRST;
-		break;
-
 	case MWIF_ALPHABYTE:			/* ft2 alias, t1lib alias*/
-		//convblit_blend_8_fgbg_argb(parms);		/* conv 8bpp alpha with fg/bg to ARGB*/
+		convblit = psd->BlitBlendMaskAlphaByte;		/* conv 8bpp alpha with fg/bg*/
 		op = PSDOP_ALPHACOL;
 		break;
 
-	default:
-		printf("GdConversionBlit: No conversion blit available\n");
-		//FREEA(parms->data_out);
-		return;
+	case MWIF_MONOBYTEMSB:			/* ft2 non-alias*/
+		convblit = psd->BlitCopyMaskMonoByteMSB;	/* conv mono byte MSBFirst*/
+		op = PSDOP_BITMAP_BYTES_MSB_FIRST;
+		break;
 
+	case MWIF_MONOWORDMSB:			/* core mwcfont, pcf*/
+		convblit = psd->BlitCopyMaskMonoWordMSB;	/* conv mono word MSBFirst*/
+		if (!convblit) {
+			DPRINTF("GdConversionBlit: no convblit, using GdBitmap fallback\n");
+			GdBitmap(psd, parms->dstx, parms->dsty, parms->width, parms->height, parms->data);
+			return;
+		}
+		break;
+
+	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
+		convblit = psd->BlitCopyMaskMonoByteLSB;	/* conv mono byte LSBFirst*/
+		op = PSDOP_BITMAP_BYTES_LSB_FIRST;
+		break;
+
+	case MWIF_RGBA8888:				/* png 32bpp w/alpha*/
+		convblit = psd->BlitSrcOverRGBA8888;		/* image, src 32bpp w/alpha - srcover*/
+		break;
+
+	case MWIF_RGB888:				/* png 24bpp no alpha*/
+		convblit = psd->BlitCopyRGB888;				/* image, src 24bpp - copy*/
+		break;
+
+	default:
+		EPRINTF("GdConversionBlit: unsupported data format 0x%x\n", parms->data_format);
+		return;
 	}
 
+	/* call conversion blit routine*/
+	if (convblit) {
+		GdConvBlitInternal(psd, parms, convblit);
+		return;
+	}
+
+	DPRINTF("GdConversionBlit: no convblit, using DrawArea fallback\n");
+	/* FIXME temp copy into deprecated driver_t gc and call DrawArea driver entry point*/
 	gc.op = op;
 	gc.width = parms->width;
 	gc.height = parms->height;
@@ -180,18 +306,12 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 	gc.dsty = parms->dsty;
 	gc.srcx = parms->srcx;
 	gc.srcy = parms->srcy;
-	gc.fg_color = parms->fg_color;
-	gc.bg_color = parms->bg_color;
+	gc.src_linelen = parms->src_pitch;
+	gc.fg_color = parms->fg_pixelval;		/* drawarea uses pixelval color*/
+	gc.bg_color = parms->bg_pixelval;
 	gc.usebg = parms->usebg;
 	gc.data = parms->data;
-
-	gc.src_linelen = parms->src_pitch;
 	//gc->dst_linelen = 
-
-	//parms->data_format;
-	//parms->dst_pitch;
-	//parms->data_out;
-
 	GdDrawAreaInternal(psd, &gc);
 }
 
@@ -206,6 +326,7 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
  * It is the caller's responsibility to GdFixCursor(psd).
  *
  * This is a low-level function.
+ * FIXME THIS FUNCTION WILL BE REMOVED WHEN GdConversionBlit/GdConvBlitInternal FINISHED.
  */
 void
 GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
@@ -259,7 +380,7 @@ GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
 		rx2 = prc->right;
 		ry2 = prc->bottom;
 #else
-		/* old clip-code by Morten */
+		/* old clip-code*/
 		rx1 = prc->x;
 		ry1 = prc->y;
 		rx2 = prc->x + prc->width;

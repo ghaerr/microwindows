@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "device.h"
+#include "convblit.h"
 #include "fb.h"
 
 #define USE_16BIT_ACCESS 0	/* =1 to force 16 bit display access*/
@@ -1245,5 +1246,65 @@ SUBDRIVER fblinear16 = {
 	gen_fillrect,
 	linear16_blit,
 	linear16_drawarea,
-	linear16_stretchblitex
+	linear16_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_16bpp,		/* ft2 non-alias*/
+	convblit_copy_mask_mono_byte_lsb_16bpp,		/* t1 non-alias*/
+	convblit_copy_mask_mono_word_msb_16bpp,		/* core/pcf non-alias*/
+	convblit_blend_mask_alpha_byte_16bpp,		/* ft2/t1 antialias*/
+	convblit_srcover_rgba8888_16bpp,			/* RGBA images w/alpha*/
+	convblit_copy_rgb888_16bpp					/* RGB images no alpha*/
+};
+
+SUBDRIVER fblinear16_left = {
+	NULL,
+	fbportrait_left_drawpixel,
+	fbportrait_left_readpixel,
+	fbportrait_left_drawhorzline,
+	fbportrait_left_drawvertline,
+	fbportrait_left_fillrect,
+	fbportrait_left_blit,
+	fbportrait_left_drawarea,
+	fbportrait_left_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_16bpp_left,
+	convblit_copy_mask_mono_byte_lsb_16bpp_left,
+	convblit_copy_mask_mono_word_msb_16bpp_left,
+	convblit_blend_mask_alpha_byte_16bpp_left,
+	convblit_srcover_rgba8888_16bpp_left,
+	convblit_copy_rgb888_16bpp_left
+};
+
+SUBDRIVER fblinear16_right = {
+	NULL,
+	fbportrait_right_drawpixel,
+	fbportrait_right_readpixel,
+	fbportrait_right_drawhorzline,
+	fbportrait_right_drawvertline,
+	fbportrait_right_fillrect,
+	fbportrait_right_blit,
+	fbportrait_right_drawarea,
+	fbportrait_right_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_16bpp_right,
+	convblit_copy_mask_mono_byte_lsb_16bpp_right,
+	convblit_copy_mask_mono_word_msb_16bpp_right,
+	convblit_blend_mask_alpha_byte_16bpp_right,
+	convblit_srcover_rgba8888_16bpp_right,
+	convblit_copy_rgb888_16bpp_right
+};
+
+SUBDRIVER fblinear16_down = {
+	NULL,
+	fbportrait_down_drawpixel,
+	fbportrait_down_readpixel,
+	fbportrait_down_drawhorzline,
+	fbportrait_down_drawvertline,
+	fbportrait_down_fillrect,
+	fbportrait_down_blit,
+	fbportrait_down_drawarea,
+	fbportrait_down_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_16bpp_down,
+	convblit_copy_mask_mono_byte_lsb_16bpp_down,
+	convblit_copy_mask_mono_word_msb_16bpp_down,
+	convblit_blend_mask_alpha_byte_16bpp_down,
+	convblit_srcover_rgba8888_16bpp_down,
+	convblit_copy_rgb888_16bpp_down
 };

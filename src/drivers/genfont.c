@@ -24,7 +24,8 @@ extern MWCFONT font_X6x13;			/* MWFONT_SYSTEM_FIXED (should be ansi)*/
 /*extern MWCFONT font_rom8x8, font_X5x7;*/	/* unused*/
 
 /* handling routines for MWCOREFONT*/
-static MWFONTPROCS fontprocs = {
+MWFONTPROCS mwfontprocs = {
+	0,				/* capabilities*/
 	MWTF_ASCII,		/* routines expect ascii*/
 	NULL,			/* init*/
 	NULL,			/* createfont*/
@@ -32,7 +33,7 @@ static MWFONTPROCS fontprocs = {
 	gen_gettextsize,
 	gen_gettextbits,
 	gen_unloadfont,
-	corefont_drawtext,
+	gen_drawtext,
 	NULL,			/* setfontsize*/
 	NULL,			/* setfontrotation*/
 	NULL,			/* setfontattr*/
@@ -59,21 +60,21 @@ static MWFONTPROCS fontprocs = {
 
 /* first font is default font*/
 MWCOREFONT gen_fonts[NUMBER_FONTS] = {
-	{&fontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSansSerif11x13},
-	{&fontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13},
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR,   &font_winFreeSansSerif11x13},
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13},
 	/* deprecated redirections for the time being*/
-	{&fontprocs, 0, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
-	{&fontprocs, 0, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
+	{&mwfontprocs, 0, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
+	{&mwfontprocs, 0, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
 };
 
-/*GB: pointer to an user builtin font table. */
+/* Pointer to an user builtin font table. */
 MWCOREFONT *user_builtin_fonts = NULL;
 
 /*  Sets the fontproc to fontprocs.  */
 void
 gen_setfontproc(MWCOREFONT *pf)
 {
-	pf->fontprocs = &fontprocs;
+	pf->fontprocs = &mwfontprocs;
 }
 
 /*
@@ -106,7 +107,7 @@ gen_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 
 /*
  * Generalized low level routine to calc bounding box for text output.
- * Handles both fixed and proportional fonts.  Passed ascii string.
+ * Handles both fixed and proportional fonts.  Passed ASCII or UC16 string.
  */
 void
 gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
@@ -114,7 +115,7 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 {
 	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
 	const unsigned char *str = text;
-	unsigned int	c;
+	const unsigned short *istr = text;
 	int				width;
 
 	if(pf->width == NULL)
@@ -122,7 +123,11 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	else {
 		width = 0;
 		while(--cc >= 0) {
-			c = *str++;
+			unsigned int	c;
+
+			if (pfont->fontprocs->encoding == MWTF_UC16)
+				c = *istr++;
+			else c = *str++;
 
 			/* if char not in font, map to first character by default*/
 			if(c < pf->firstchar || c >= pf->firstchar+pf->size)
@@ -136,41 +141,6 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	*pheight = pf->height;
 	*pbase = pf->ascent;
 }
-
-#if HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT
-/*
- * Routine to calc bounding box for text output.
- * Handles both fixed and proportional fonts.  Passed MWTF_UC16 string.
- */
-void
-gen16_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
-	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
-{
-	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
-	const unsigned short *str = text;
-	unsigned int	c;
-	int				width;
-
-	if (pf->width == NULL)
-		width = cc * pf->maxwidth;
-	else {
-		width = 0;
-		while (--cc >= 0) {
-			c = *str++;
-
-			/* if char not in font, map to first character by default*/
-			if(c < pf->firstchar || c >= pf->firstchar+pf->size)
-				c = pf->firstchar;
-
-			/*if (c >= pf->firstchar && c < pf->firstchar+pf->size)*/
-				width += pf->width[c - pf->firstchar];
-		}
-	}
-	*pwidth = width;
-	*pheight = pf->height;
-	*pbase = pf->ascent;
-}
-#endif /* HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT*/
 
 /*
  * Generalized low level routine to get the bitmap associated
@@ -216,63 +186,3 @@ gen_unloadfont(PMWFONT pfont)
 {
 	/* builtins can't be unloaded*/
 }
-
-#if NOTUSED
-/* 
- * Generalized low level text draw routine, called only
- * if no clipping is required
- */
-void
-gen_drawtext(PMWFONT pfont,PSD psd,MWCOORD x,MWCOORD y,const void *text,
-	int n,MWPIXELVAL fg)
-{
-	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
-	const unsigned char *	str = text;
-	MWCOORD 		width;		/* width of character */
-	MWCOORD 		height;		/* height of character */
-	const MWIMAGEBITS *	bitmap;
-
-	/* x, y is bottom left corner*/
-	y -= pf->height - 1;
-	while (n-- > 0) {
-		pfont->GetTextBits(pfont, *s++, &bitmap, &width, &height);
-		gen_drawbitmap(psd, x, y, width, height, bitmap, fg);
-		x += width;
-	}
-}
-
-/*
- * Generalized low level bitmap output routine, called
- * only if no clipping is required.  Only the set bits
- * in the bitmap are drawn, in the foreground color.
- */
-void
-gen_drawbitmap(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	MWIMAGEBITS *table, PIXELVAL fgcolor)
-{
-  MWCOORD minx;
-  MWCOORD maxx;
-  MWIMAGEBITS bitvalue;	/* bitmap word value */
-  int bitcount;		/* number of bits left in bitmap word */
-
-  minx = x;
-  maxx = x + width - 1;
-  bitcount = 0;
-  while (height > 0) {
-	if (bitcount <= 0) {
-		bitcount = MWIMAGE_BITSPERIMAGE;
-		bitvalue = *table++;
-	}
-	if (MWIMAGE_TESTBIT(bitvalue))
-		psd->DrawPixel(psd, x, y, fgcolor);
-	bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
-	--bitcount;
-	if (x++ == maxx) {
-		x = minx;
-		++y;
-		--height;
-		bitcount = 0;
-	}
-  }
-}
-#endif /* NOTUSED*/

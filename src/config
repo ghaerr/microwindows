@@ -160,7 +160,7 @@ INCTIFF                  = .
 LIBTIFF                  = /usr/lib/libtiff.a
 
 ####################################################################
-# PCF font support - .pcf/.pcf.gz loadable X11 fonts
+# PCF font support - .pcf/.pcf.gz loadable fonts
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
 HAVE_PCFGZ_SUPPORT       = Y

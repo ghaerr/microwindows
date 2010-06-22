@@ -568,3 +568,47 @@ void	get_subdriver(PSD psd, PSUBDRIVER subdriver);
 /* fb.c*/
 PSUBDRIVER select_fb_subdriver(PSD psd);
 void set_portrait_subdriver(PSD psd);
+
+/* fbportrait_xxx.c*/
+SUBDRIVER fbportrait_left;
+SUBDRIVER fbportrait_right;
+SUBDRIVER fbportrait_down;
+
+void fbportrait_left_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c);
+MWPIXELVAL fbportrait_left_readpixel(PSD psd, MWCOORD x, MWCOORD y);
+void fbportrait_left_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
+void fbportrait_left_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
+void fbportrait_left_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c);
+void fbportrait_left_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op);
+void fbportrait_left_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+	MWCOORD width, int height, int x_denominator, int y_denominator,
+	int src_x_fraction, int src_y_fraction,
+	int x_step_fraction, int y_step_fraction, int op);
+void fbportrait_left_drawarea(PSD dstpsd, driver_gc_t * gc);
+
+void fbportrait_right_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c);
+MWPIXELVAL fbportrait_right_readpixel(PSD psd, MWCOORD x, MWCOORD y);
+void fbportrait_right_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
+void fbportrait_right_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
+void fbportrait_right_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c);
+void fbportrait_right_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op);
+void fbportrait_right_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+	MWCOORD width, int height, int x_denominator, int y_denominator,
+	int src_x_fraction, int src_y_fraction,
+	int x_step_fraction, int y_step_fraction, int op);
+void fbportrait_right_drawarea(PSD dstpsd, driver_gc_t * gc);
+
+void fbportrait_down_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c);
+MWPIXELVAL fbportrait_down_readpixel(PSD psd, MWCOORD x, MWCOORD y);
+void fbportrait_down_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
+void fbportrait_down_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
+void fbportrait_down_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c);
+void fbportrait_down_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op);
+void fbportrait_down_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+	MWCOORD width, int height, int x_denominator, int y_denominator,
+	int src_x_fraction, int src_y_fraction,
+	int x_step_fraction, int y_step_fraction, int op);
+void fbportrait_down_drawarea(PSD dstpsd, driver_gc_t * gc);

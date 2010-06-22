@@ -70,8 +70,7 @@ XPM_parse_color(char *color)
 			g = strtol(gstr, NULL, 16) >> 8;
 			b = strtol(bstr, NULL, 16) >> 8;
 
-			return (long)(255L << 24 |
-				(r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF));
+			return (long)(255L << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF));
 		}
 	}
 
@@ -155,21 +154,22 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 			if (sinfo.bpp <= 8) {
 				pimage->bpp = sinfo.bpp;
 				pimage->compression = 0;
+				pimage->data_format = 0;		/* force GdDrawImage for now*/
 			} else {
 				pimage->bpp = 32;
-				pimage->compression = MWIMAGE_BGR;
+				pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL;
+				pimage->data_format = MWIF_RGBA8888;
+printf("xpm 32bpp ARGB8888\n");
 			}
 
 			pimage->palsize = colors;
-			GdComputeImagePitch(pimage->bpp, col, &pimage->pitch,
-					    &pimage->bytesperpixel);
+			GdComputeImagePitch(pimage->bpp, col, &pimage->pitch, &pimage->bytesperpixel);
 
 			pimage->imagebits = malloc(pimage->pitch * pimage->height);
 			imageptr = (unsigned char *) pimage->imagebits;
 
 			/* Allocate enough room for all the colors */
-			colorheap = (struct xpm_cmap *) malloc(colors *
-							   sizeof(struct xpm_cmap));
+			colorheap = (struct xpm_cmap *) malloc(colors * sizeof(struct xpm_cmap));
 
 			/* Allocate the palette space (if required) */
 			if (sinfo.bpp <= 8)
@@ -248,10 +248,8 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 					pimage->transcolor = in_color;
 				}
 
-				pimage->palette[in_color].r =
-					(n->color >> 16) & 0xFF;
-				pimage->palette[in_color].g =
-					(n->color >> 8) & 0xFF;
+				pimage->palette[in_color].r = (n->color >> 16) & 0xFF;
+				pimage->palette[in_color].g = (n->color >> 8) & 0xFF;
 				pimage->palette[in_color].b = n->color & 0xFF;
 			}
 
@@ -297,8 +295,7 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 					z = pxlstr[0];
 
 					if (!colormap[z]) {
-						EPRINTF("GdDecodeXPM: No color entry for (%s)\n",
-							pxlstr);
+						EPRINTF("GdDecodeXPM: No color entry for (%s)\n", pxlstr);
 						return -1;
 					}
 
@@ -357,6 +354,7 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 
 					break;
 
+#ifdef NOTUSED
 				case 8:
 				case 16:
 				case 24:
@@ -368,8 +366,7 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 					imageptr += pimage->bytesperpixel;
 					bytecount += pimage->bytesperpixel;
 					break;
-
-#ifdef NOTUSED
+#endif
 				case 8:
 					imageptr[0] = (unsigned char) (dwordcolor & 0xFF);
 					imageptr += pimage->bytesperpixel;
@@ -379,21 +376,20 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 				case 16:
 				case 24:
 				case 32:
-					imageptr[0] = (unsigned char) (dwordcolor >> 24) & 0xFF;
-					imageptr[1] = (unsigned char) (dwordcolor >> 16) & 0xFF;
-					imageptr[2] = (unsigned char) (dwordcolor >> 8) & 0xFF;
-					imageptr[3] = (unsigned char) (dwordcolor & 0xFF);
+					/* create RGBA image*/
+					imageptr[3] = (unsigned char) (dwordcolor >> 24) & 0xFF;	// A
+					imageptr[0] = (unsigned char) (dwordcolor >> 16) & 0xFF;	// R
+					imageptr[1] = (unsigned char) (dwordcolor >> 8) & 0xFF;		// G
+					imageptr[2] = (unsigned char) (dwordcolor & 0xFF);			// B
 					imageptr += pimage->bytesperpixel;
 					bytecount += pimage->bytesperpixel;
 					break;
-#endif
 				}
 			}
 
 			/* Pad to the end of the line */
 			if (bytecount < pimage->pitch)
-				for (i = 0; i < (pimage->pitch - bytecount);
-				     i++)
+				for (i = 0; i < (pimage->pitch - bytecount); i++)
 					*imageptr++ = 0x00;
 
 			read_xline++;

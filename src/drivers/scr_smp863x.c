@@ -52,7 +52,7 @@ static void em86xx_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOO
 #ifdef DRAWAREA_TEST
 static void em86xx_drawarea(PSD psd, driver_gc_t * gc, int op);
 #endif
-static MWBOOL em86xx_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen, int size,void *addr);
+static MWBOOL em86xx_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int data_format,int linelen, int size,void *addr);
 static void em86xx_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw, MWCOORD srch, long op);
 
 #ifdef NO_SWITCH_BUFFER_TEST
@@ -66,7 +66,7 @@ static int switch_first = 0;
 #define RUAMAP_ALIGN(x) (((RMuint32)x + 16)&~0xF)
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	em86xx_open,
 	em86xx_close,
 	em86xx_getscreeninfo,
@@ -352,6 +352,7 @@ static void em86xx_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = NUMBER_FONTS;
@@ -592,9 +593,9 @@ static void em86xx_drawarea(PSD psd, driver_gc_t * gc)
  */
 MWBOOL
 em86xx_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int size,void *addr)
+	int data_format, int size,void *addr)
 {
-	if (!gen_mapmemgc(mempsd, w, h, planes, bpp, linelen, size, addr)) {
+	if (!gen_mapmemgc(mempsd, w, h, planes, bpp, data_format, linelen, size, addr)) {
 		printf("%s, %d, gen_mapmemgc fail\n", __FUNCTION__, __LINE__);
 		return 0;
 	}

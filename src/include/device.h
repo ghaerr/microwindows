@@ -19,7 +19,7 @@
 
 /* the fontmapper is obsolete, according to Greg */
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
-#define FASTJPEG	1			/* =1 for temp quick jpeg 8bpp*/
+#define FASTJPEG	0			/* =1 for temp quick jpeg 8bpp*/
 #if RTEMS || __ECOS || PSP
 #define HAVE_MMAP       0
 #else
@@ -238,6 +238,13 @@ typedef struct {
 			int x_denominator, int y_denominator,
 			int src_x_fraction, int src_y_fraction,
 			int x_step_fraction, int y_step_fraction, int op);
+	/* new fast blit functions*/
+	void	(*BlitCopyMaskMonoByteMSB)(PSD psd, PMWBLITPARMS parms);	/* ft non-alias*/
+	void	(*BlitCopyMaskMonoByteLSB)(PSD psd, PMWBLITPARMS parms);	/* t1 non-alias*/
+	void	(*BlitCopyMaskMonoWordMSB)(PSD psd, PMWBLITPARMS parms);	/* core/pcf non-alias*/
+	void	(*BlitBlendMaskAlphaByte)(PSD psd, PMWBLITPARMS parms);		/* ft2/t1 antialias*/
+	void	(*BlitSrcOverRGBA8888)(PSD psd, PMWBLITPARMS parms);		/* png RGBA image w/alpha*/
+	void	(*BlitCopyRGB888)(PSD psd, PMWBLITPARMS parms);				/* png RGB image no alpha*/
 } SUBDRIVER, *PSUBDRIVER;
 
 /*
@@ -253,9 +260,11 @@ typedef struct _mwscreendevice {
 	int	bpp;			/* # bpp*/
 	int	linelen;		/* line length in bytes for bpp 1,2,4,8*/
 						/* line length in pixels for bpp 16, 18, 24, 32*/
+	int	pitch;			/* row length in bytes*/
 	int	size;			/* size of memory allocated*/
 	int32_t	ncolors;	/* # screen colors*/
 	int	pixtype;		/* format of pixel value*/
+	int data_format;	/* MWIF_ image data format*/
 	int	flags;			/* device flags*/
 	void *	addr;		/* address of memory allocated (memdc or fb)*/
 
@@ -283,7 +292,7 @@ typedef struct _mwscreendevice {
 	int	(*SetIOPermissions)(PSD psd);
 	PSD	(*AllocateMemGC)(PSD psd);
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
-			int linelen,int size,void *addr);
+			int data_format,int linelen,int pitch,int size,void *addr);
 	void	(*FreeMemGC)(PSD mempsd);
 	/* Note: StretchBlit() is deprecated, use StretchBlitEx()
 	void	(*StretchBlit)(PSD destpsd,MWCOORD destx,MWCOORD desty,
@@ -300,6 +309,17 @@ typedef struct _mwscreendevice {
 			int src_x_fraction, int src_y_fraction,
 			int x_step_fraction, int y_step_fraction,
 			int op);
+	void	(*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
+	PSUBDRIVER left_subdriver;
+	PSUBDRIVER right_subdriver;
+	PSUBDRIVER down_subdriver;
+	/* new fast blit functions for text and images*/
+	void	(*BlitCopyMaskMonoByteMSB)(PSD psd, PMWBLITPARMS parms);	/* ft non-alias*/
+	void	(*BlitCopyMaskMonoByteLSB)(PSD psd, PMWBLITPARMS parms);	/* t1 non-alias*/
+	void	(*BlitCopyMaskMonoWordMSB)(PSD psd, PMWBLITPARMS parms);	/* core/pcf non-alias*/
+	void	(*BlitBlendMaskAlphaByte)(PSD psd, PMWBLITPARMS parms);		/* ft2/t1 antialias*/
+	void	(*BlitSrcOverRGBA8888)(PSD psd, PMWBLITPARMS parms);		/* png RGBA image w/alpha*/
+	void	(*BlitCopyRGB888)(PSD psd, PMWBLITPARMS parms);				/* png RGB image no alpha*/
 } SCREENDEVICE;
 
 /* PSD flags*/
@@ -385,7 +405,7 @@ void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		void *pixels, int pixtype);
 void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
-void	GdDrawAreaInternal(PSD psd, driver_gc_t *gc);
+void	GdDrawAreaInternal(PSD psd, driver_gc_t *gc);	/* to be deprecated*/
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		MWCOORD inpitch, void *out, int outpixtype, int outpitch);
 void	GdCopyArea(PSD psd,MWCOORD srcx,MWCOORD srcy,MWCOORD width,
@@ -399,7 +419,7 @@ void	GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
 		MWCOORD s2_x, MWCOORD s2_y, int rop);
 int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
-		int planes, int bpp, int *size, int *linelen);
+		int planes, int bpp, int *size, int *linelen, int *pitch);
 void	drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		const MWIMAGEBITS *imagebits);
 void	drawpoint(PSD psd, MWCOORD x, MWCOORD y);

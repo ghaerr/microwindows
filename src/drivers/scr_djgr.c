@@ -35,7 +35,7 @@ static void DJGR_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 static PSD  DJGR_allocatememgc(PSD psd);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	DJGR_open,
 	DJGR_close,
 	DJGR_getscreeninfo,
@@ -111,6 +111,7 @@ DJGR_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = NUMBER_FONTS;

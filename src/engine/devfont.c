@@ -35,11 +35,11 @@ static PMWFONT	gr_pfont;
 /* temp extern decls*/
 extern MWPIXELVAL gr_foreground;
 extern MWPIXELVAL gr_background;
+extern MWCOLORVAL gr_foreground_rgb;
+extern MWCOLORVAL gr_background_rgb;
 extern MWBOOL gr_usebg;
 extern MWCOREFONT *user_builtin_fonts;
 
-void corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, MWTEXTFLAGS flags);
 static int utf8_to_utf16(const unsigned char *utf8, int cc,
 		unsigned short *unicode16);
 static int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
@@ -281,10 +281,10 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 		EPRINTF("createfont: %s,%d not found\n", fontname, height);
 		EPRINTF("  (tried "
 			"builtin_createfont"
-#ifdef HAVE_FNT_SUPPORT
+#if HAVE_FNT_SUPPORT
 			", fnt_createfont"
 #endif
-#ifdef HAVE_PCF_SUPPORT
+#if HAVE_PCF_SUPPORT
 			", pcf_createfont"
 #endif
 #if HAVE_FREETYPE_SUPPORT
@@ -450,15 +450,14 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	 * rather than converting to the renderer specification.  This is
 	 * because we allow DBCS-encoded strings to draw using the
 	 * specially-compiled-in font if the character is not ASCII.
-	 * This is specially handled in corefont_drawtext below.
+	 * This is specially handled in gen_drawtext below.
 	 *
 	 * If the font is not builtin, then the drawtext routine must handle
 	 * all glyph output, including ASCII.
 	 */
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (gr_pfont->fontprocs->GetTextBits == gen_gettextbits &&
-		    gr_pfont->fontprocs->DrawText == corefont_drawtext) {
+		if (gr_pfont->fontprocs == &mwfontprocs) {
 			defencoding = MWTF_UC16;
 			force_uc16 = 1;
 		}
@@ -485,7 +484,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	}
 
 	/* draw text string, DBCS flags may still be set*/
-#ifdef HAVE_KSC5601_SUPPORT
+#if HAVE_KSC5601_SUPPORT
 	if (flags & MWTF_DBCS_EUCKR)
 		;
 	else
@@ -499,10 +498,10 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 }
 
 /*
- * Draw ascii text using COREFONT type font.
+ * Draw ASCII or MWTF_UC16 text using COREFONT type font (buitin, PCF, FNT)
  */
 void
-corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	const unsigned char *str = text;
@@ -512,8 +511,9 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	MWCOORD		base;			/* baseline of text*/
 	MWCOORD		startx, starty;
 	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
-	MWBOOL		bgstate;
+	MWBOOL		bgstate = gr_usebg;
 	int		clip;
+	MWBLITPARMS parms;
 
 	if (flags & MWTF_DBCSMASK)
 		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
@@ -525,58 +525,67 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		y -= (height - 1);
 	startx = x;
 	starty = y + base;
-	bgstate = gr_usebg;
 
 	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
-		/* clear background once for all characters*/
-		if (gr_usebg)
-			psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
-				gr_background);
-
-		/* FIXME if we had a low-level text drawer, plug in here:
-		psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
-		GdFixCursor(psd);
-		return;
-		*/
-
-		/* save state for combined routine below*/
-		bgstate = gr_usebg;
-		gr_usebg = FALSE;
+		/* clear background once for all characters, save usebg state*/
+		if (gr_usebg && psd->bpp < 16) {	//FIXME kluge for non-convblit systems
+			psd->FillRect(psd, x, y, x + width - 1, y + height - 1, gr_background);
+			gr_usebg = FALSE;
+		}
 		break;
 
 	case CLIP_INVISIBLE:
 		return;
 	}
 
-	/* Get the bitmap for each character individually, and then display
-	 * them possibly using clipping for each one.
-	 */
+	/* fill in unchanging blit parms*/
+	parms.data_format = MWIF_MONOWORDMSB;	/* data is 1bpp words, msb first*/
+	parms.op = MWROP_COPY;					/* copy to dst, 1=fg (0=bg if usebg)*/
+	parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
+	parms.bg_colorval = gr_background_rgb;
+	//parms.fg_pixelval = gr_foreground;			/* for drawarea fallback*/
+	//parms.bg_pixelval = gr_background;
+	parms.usebg = gr_usebg;
+	parms.srcx = 0;
+	parms.srcy = 0;
 
 	/*
-	 * If the string was marked as DBCS, then we've forced the conversion
-	 * to UC16 in GdText.  Here we special-case the non-ASCII values and
-	 * get the bitmaps from the specially-compiled-in font.  Otherwise,
-	 * we draw them using the normal pfont->fontprocs->GetTextBits.
+	 * Get the bitmap for each character individually, and then display
+	 * them possibly using clipping for each one.
 	 */
 	while (--cc >= 0 && x < psd->xvirtres) {
+		/*
+	 	 * If the string was marked as DBCS, then we've forced the conversion
+	 	 * to UC16 in GdText.  Here we special-case the non-ASCII values and
+	 	 * get the bitmaps from the specially-compiled-in font.  Otherwise,
+	 	 * we draw them using the normal pfont->fontprocs->GetTextBits.
+	 	 */
 		if (flags & MWTF_DBCSMASK)
-			dbcs_gettextbits(pfont, *istr++, flags, &bitmap, &width,
-				&height, &base);
+			dbcs_gettextbits(pfont, *istr++, flags, &bitmap, &width, &height, &base);
 		else {
 			int ch;
 
 			if (pfont->fontprocs->encoding == MWTF_UC16)
 				ch = *istr++;
 			else ch = *str++;
-			pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
-				&height, &base);
+			pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width, &height, &base);
 		}
 
-		if (clip == CLIP_VISIBLE)
-			drawbitmap(psd, x, y, width, height, bitmap);
-		else
-			GdBitmap(psd, x, y, width, height, bitmap);
+		if (psd->bpp >= 16) {
+			parms.dstx = x;
+			parms.dsty = y;
+			parms.height = height;
+			parms.width = width;
+			parms.src_pitch = ((width + 15) >> 4) << 1;	/* pad to WORD boundary*/
+			parms.data = (char *)bitmap;
+			GdConversionBlit(psd, &parms);
+		} else {
+			if (clip == CLIP_VISIBLE)
+				drawbitmap(psd, x, y, width, height, bitmap);
+			else
+				GdBitmap(psd, x, y, width, height, bitmap);
+		}
 		x += width;
 	}
 
@@ -588,80 +597,6 @@ corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 
 	GdFixCursor(psd);
 }
-
-#if HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT
-/*
- * Draw MWTF_UC16 text using COREFONT type font.
- */
-void
-gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-	const void *text, int cc, MWTEXTFLAGS flags)
-{
-	const unsigned short *str = text;
-	MWCOORD		width;			/* width of text area */
-	MWCOORD		height;			/* height of text area */
-	MWCOORD		base;			/* baseline of text */
-	MWCOORD		startx, starty;
-	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
-	MWBOOL		bgstate;
-	int		clip;
-
-	pfont->fontprocs->GetTextSize(pfont, str, cc, flags, &width, &height, &base);
-
-	if (flags & MWTF_BASELINE)
-		y -= base;
-	else if (flags & MWTF_BOTTOM)
-		y -= (height - 1);
-	startx = x;
-	starty = y + base;
-	bgstate = gr_usebg;
-
-	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-	case CLIP_VISIBLE:
-		/* clear background once for all characters*/
-		if (gr_usebg)
-			psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
-				gr_background);
-
-		/* FIXME if we had a low-level text drawer, plug in here:
-		psd->DrawText(psd, x, y, str, cc, gr_foreground, pfont);
-		GdFixCursor(psd);
-		return;
-		*/
-
-		/* save state for combined routine below*/
-		bgstate = gr_usebg;
-		gr_usebg = FALSE;
-		break;
-
-	case CLIP_INVISIBLE:
-		return;
-	}
-
-	/* Get the bitmap for each character individually, and then display
-	 * them using clipping for each one.
-	 */
-	while (--cc >= 0 && x < psd->xvirtres) {
-		unsigned int ch = *str++;
-		pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width,
-			&height, &base);
-
-		if (clip == CLIP_VISIBLE)
-			drawbitmap(psd, x, y, width, height, bitmap);
-		else
-			GdBitmap(psd, x, y, width, height, bitmap);
-		x += width;
-	}
-
-	if (pfont->fontattr & MWTF_UNDERLINE)
-		GdLine(psd, startx, starty, x, starty, FALSE);
-
-	/* restore background draw state*/
-	gr_usebg = bgstate;
-
-	GdFixCursor(psd);
-}
-#endif /* HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT*/
 
 #if HAVE_FREETYPE_SUPPORT
 /*
@@ -980,8 +915,7 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (pfont->fontprocs->GetTextBits == gen_gettextbits &&
-		    pfont->fontprocs->DrawText == corefont_drawtext) {
+		if (gr_pfont->fontprocs == &mwfontprocs) {
 			defencoding = MWTF_UC16;
 			force_uc16 = 1;
 		}

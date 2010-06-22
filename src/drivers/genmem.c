@@ -41,7 +41,7 @@ gen_allocatememgc(PSD psd)
 /* initialize memory device with passed parms*/
 void
 gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int size,void *addr)
+	int data_format,int pitch,int size,void *addr)
 {
 	assert(mempsd->flags & PSF_MEMORY);
 
@@ -57,7 +57,9 @@ gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	mempsd->yvirtres = h;
 	mempsd->planes = planes;
 	mempsd->bpp = bpp;
+	mempsd->data_format = data_format;
 	mempsd->linelen = linelen;
+	mempsd->pitch = pitch;
 	mempsd->size = size;
 	mempsd->addr = addr;
 }
@@ -74,12 +76,12 @@ gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
  */
 MWBOOL
 gen_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int size,void *addr)
+	int data_format,int pitch,int size,void *addr)
 {
 	PSUBDRIVER subdriver;
 
 	/* initialize mem screen driver*/
-	gen_initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
+	gen_initmemgc(mempsd, w, h, planes, bpp, data_format, linelen, pitch, size, addr);
 
 	/* select and init hw compatible framebuffer subdriver for pixmap drawing*/
 	subdriver = select_fb_subdriver(mempsd);
@@ -155,6 +157,12 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->Blit 			= subdriver->Blit;
 	psd->DrawArea 		= subdriver->DrawArea;
 	psd->StretchBlitEx	= subdriver->StretchBlitEx;
+	psd->BlitCopyMaskMonoByteMSB = subdriver->BlitCopyMaskMonoByteMSB;
+	psd->BlitCopyMaskMonoByteLSB = subdriver->BlitCopyMaskMonoByteLSB;
+	psd->BlitCopyMaskMonoWordMSB = subdriver->BlitCopyMaskMonoWordMSB;
+	psd->BlitBlendMaskAlphaByte  = subdriver->BlitBlendMaskAlphaByte;
+	psd->BlitSrcOverRGBA8888     = subdriver->BlitSrcOverRGBA8888;
+	psd->BlitCopyRGB888          = subdriver->BlitCopyRGB888;
 
 	/* call driver init procedure to calc map size and linelen*/
 	if (init && !subdriver->Init(psd))
@@ -175,4 +183,10 @@ get_subdriver(PSD psd, PSUBDRIVER subdriver)
 	subdriver->Blit 			= psd->Blit;
 	subdriver->DrawArea 		= psd->DrawArea;
 	subdriver->StretchBlitEx	= psd->StretchBlitEx;
+	subdriver->BlitCopyMaskMonoByteMSB = psd->BlitCopyMaskMonoByteMSB;
+	subdriver->BlitCopyMaskMonoByteLSB = psd->BlitCopyMaskMonoByteLSB;
+	subdriver->BlitCopyMaskMonoWordMSB = psd->BlitCopyMaskMonoWordMSB;
+	subdriver->BlitBlendMaskAlphaByte  = psd->BlitBlendMaskAlphaByte;
+	subdriver->BlitSrcOverRGBA8888     = psd->BlitSrcOverRGBA8888;
+	subdriver->BlitCopyRGB888          = psd->BlitCopyRGB888;
 }

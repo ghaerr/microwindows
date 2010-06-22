@@ -34,7 +34,7 @@ static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, NULL,
 	fb_open,
 	fb_close,
 	gen_getscreeninfo,
@@ -124,6 +124,7 @@ fb_open(PSD psd)
 	psd->flags = PSF_SCREEN;
 #endif
 
+	psd->data_format = 0;			// FIXME
 	/* set pixel format*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {
 		switch(psd->bpp) {
@@ -324,6 +325,7 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = NUMBER_FONTS;

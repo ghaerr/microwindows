@@ -30,7 +30,7 @@ void DBG_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	DBG_open,
 	DBG_close,
 	DBG_getscreeninfo,
@@ -80,6 +80,7 @@ DBG_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = 1;

@@ -22,7 +22,8 @@ int	ROM_CHAR_HEIGHT = 14;	/* number of scan lines in fonts in ROM */
 FARADDR rom_char_addr;
 
 /* handling routines for core rom fonts*/
-static MWFONTPROCS fontprocs = {
+MWFONTPROCS mwfontprocs = {
+	0,				/* capabilities*/
 	MWTF_ASCII,		/* routines expect ascii*/
 	pcrom_getfontinfo,
 	pcrom_gettextsize,
@@ -36,7 +37,7 @@ static MWFONTPROCS fontprocs = {
 
 /* first font is default font*/
 MWCOREFONT pcrom_fonts[NUMBER_FONTS] = {
-	{&fontprocs, 0, 0, 0, MWFONT_OEM_FIXED, NULL}
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_OEM_FIXED, NULL}
 };
 
 /* init PC ROM routines, must be called in graphics mode*/

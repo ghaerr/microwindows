@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Screen Driver Utilities
  * 
@@ -20,20 +20,12 @@ void	gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 		MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase);
 void	gen_unloadfont(PMWFONT pfont);
 
-void	gen16_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+void 	gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		const void *text, int cc, MWTEXTFLAGS flags);
 void	gen16_gettextsize(PMWFONT pfont, const void *text, int cc,
 		MWTEXTFLAGS flags, MWCOORD *pwidth, MWCOORD *pheight,
 		MWCOORD *pbase);
 
-void	corefont_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int cc, MWTEXTFLAGS flags);
-
 /* local data*/
 extern MWCOREFONT gen_fonts[NUMBER_FONTS];
-
-/* the following aren't used yet*/
-void	gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
-		const void *text, int n, MWPIXELVAL fg);
-void 	gen_drawbitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		MWIMAGEBITS *table, MWPIXELVAL fgcolor);
+extern MWFONTPROCS mwfontprocs;	/* builtin fontprocs - for special DBCS handling*/

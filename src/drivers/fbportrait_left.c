@@ -14,39 +14,39 @@
 #include "device.h"
 #include "fb.h"
 
-static void
-fbportrait_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c)
+void
+fbportrait_left_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	psd->orgsubdriver->DrawPixel(psd, y, psd->xvirtres-x-1, c);
 }
 
-static MWPIXELVAL
-fbportrait_readpixel(PSD psd,MWCOORD x, MWCOORD y)
+MWPIXELVAL
+fbportrait_left_readpixel(PSD psd,MWCOORD x, MWCOORD y)
 {
 	return psd->orgsubdriver->ReadPixel(psd, y, psd->xvirtres-x-1);
 }
 
-static void
-fbportrait_drawhorzline(PSD psd,MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
+void
+fbportrait_left_drawhorzline(PSD psd,MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	/*x2 = psd->xvirtres-x2-1;
 	while (x2 <= (psd->xvirtres-x1-1))
-		fbportrait_drawpixel(psd, y, x2++, c);*/
+		fbportrait_left_drawpixel(psd, y, x2++, c);*/
 
 	psd->orgsubdriver->DrawVertLine(psd, y, psd->xvirtres-x2-1, psd->xvirtres-x1-1, c);
 }
 
-static void
-fbportrait_drawvertline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
+void
+fbportrait_left_drawvertline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	/*while (y1 <= y2)
-		fbportrait_drawpixel(psd, y1++, psd->xvirtres-x-1, c);*/
+		fbportrait_left_drawpixel(psd, y1++, psd->xvirtres-x-1, c);*/
 
 	psd->orgsubdriver->DrawHorzLine(psd, y1, y2, psd->xvirtres-x-1, c);
 }
 
-static void
-fbportrait_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c)
+void
+fbportrait_left_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c)
 {
 #if 0
 	register ADDR16 addr;
@@ -99,8 +99,8 @@ fbportrait_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPI
 #endif
 }
 
-static void
-fbportrait_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
+void
+fbportrait_left_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 	PSD srcpsd, MWCOORD srcx,MWCOORD srcy,int op)
 {
 	dstpsd->orgsubdriver->Blit(dstpsd, desty, dstpsd->xvirtres-destx-w,
@@ -108,8 +108,8 @@ fbportrait_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 }
 
 #if 0
-static void
-fbportrait_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
+void
+fbportrait_left_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
 	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
 	MWCOORD srch, int op)
 {
@@ -118,8 +118,8 @@ fbportrait_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
 }
 #endif
 
-static void
-fbportrait_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+void
+fbportrait_left_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
 	MWCOORD width, int height, int x_denominator, int y_denominator,
 	int src_x_fraction, int src_y_fraction,
 	int x_step_fraction, int y_step_fraction, int op)
@@ -136,7 +136,7 @@ fbportrait_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_
 
 #if MW_FEATURE_PSDOP_ALPHACOL
 static void
-fbportrait_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
+fbportrait_left_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
 {
 	ADDR8 alpha_in, alpha_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
@@ -189,7 +189,7 @@ fbportrait_drawarea_alphacol(PSD dstpsd, driver_gc_t * gc)
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 static void
-fbportrait_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
+fbportrait_left_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 {
 	ADDR8 pixel_in, pixel_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
@@ -244,7 +244,7 @@ fbportrait_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 static void
-fbportrait_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
+fbportrait_left_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 {
 	ADDR8 pixel_in, pixel_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
@@ -297,8 +297,8 @@ fbportrait_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 }
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 
-static void
-fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc)
+void
+fbportrait_left_drawarea(PSD dstpsd, driver_gc_t * gc)
 {
 	if (!dstpsd->orgsubdriver->DrawArea)
 		return;
@@ -306,19 +306,19 @@ fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc)
 	switch(gc->op) {
 #if MW_FEATURE_PSDOP_ALPHACOL
 	case PSDOP_ALPHACOL:
-		fbportrait_drawarea_alphacol(dstpsd, gc);
+		fbportrait_left_drawarea_alphacol(dstpsd, gc);
 		break;
 #endif
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST
 	case PSDOP_BITMAP_BYTES_MSB_FIRST:
-		fbportrait_drawarea_bitmap_bytes_msb_first(dstpsd, gc);
+		fbportrait_left_drawarea_bitmap_bytes_msb_first(dstpsd, gc);
 		break;
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_MSB_FIRST */
 
 #if MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST
 	case PSDOP_BITMAP_BYTES_LSB_FIRST:
-		fbportrait_drawarea_bitmap_bytes_lsb_first(dstpsd, gc);
+		fbportrait_left_drawarea_bitmap_bytes_lsb_first(dstpsd, gc);
 		break;
 #endif /* MW_FEATURE_PSDOP_BITMAP_BYTES_LSB_FIRST */
 	}
@@ -326,12 +326,12 @@ fbportrait_drawarea(PSD dstpsd, driver_gc_t * gc)
 
 SUBDRIVER fbportrait_left = {
 	NULL,
-	fbportrait_drawpixel,
-	fbportrait_readpixel,
-	fbportrait_drawhorzline,
-	fbportrait_drawvertline,
-	fbportrait_fillrect,
-	fbportrait_blit,
-	fbportrait_drawarea,
-	fbportrait_stretchblitex
+	fbportrait_left_drawpixel,
+	fbportrait_left_readpixel,
+	fbportrait_left_drawhorzline,
+	fbportrait_left_drawvertline,
+	fbportrait_left_fillrect,
+	fbportrait_left_blit,
+	fbportrait_left_drawarea,
+	fbportrait_left_stretchblitex
 };

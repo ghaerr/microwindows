@@ -85,10 +85,10 @@ static void EM8400_fillrect(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
 static void EM8400_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
 static MWBOOL EM8400_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
-                int linelen,int size,void *addr);
+                int data_format,int linelen, int pitch, ,int size,void *addr);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	EM8400_open,
 	EM8400_close,
 	EM8400_getscreeninfo,
@@ -251,6 +251,7 @@ EM8400_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = 1;
@@ -417,11 +418,11 @@ EM8400_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 static MWBOOL
 EM8400_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
-	int linelen,int size,void *addr)
+	int data_format, int linelen,int pitch, int size,void *addr)
 {
 	extern SUBDRIVER fblinear24;
 
-        gen_initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
+        gen_initmemgc(mempsd, w, h, planes, bpp, data_format, linelen, pitch, size, addr);
 
         /* set and initialize subdriver into mem screen driver*/
         if (!set_subdriver(mempsd, &fblinear24, TRUE))
@@ -429,4 +430,3 @@ EM8400_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
 
         return 1;
 }
-

@@ -8,11 +8,14 @@
  *	No warranties is provided, as to this code.
  */
 #include <stdio.h>
+#include <string.h>
 
 #define   FONT_SIZE 32
 #define   NTYPES1   8
 #define   NTYPES2   4
 #define   NTYPES3   4
+
+int	get_han_image( int johab_code, char *bitmap);
 
 static char HanFont1[NTYPES1][19][FONT_SIZE] = {
    {  {	  0,  0,  0,  0,  0,  0,  0,  0, 63,128, 17,128,  3,  0,  6,  0,

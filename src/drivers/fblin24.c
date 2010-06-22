@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <string.h>
 #include "device.h"
+#include "convblit.h"
 #include "fb.h"
 
 /* Calc linelen and mmap size, return 0 on fail*/
@@ -1290,5 +1291,65 @@ SUBDRIVER fblinear24 = {
 	gen_fillrect,
 	linear24_blit,
 	linear24_drawarea,
-	linear24_stretchblitex
+	linear24_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_bgr,		/* ft2 non-alias*/
+	convblit_copy_mask_mono_byte_lsb_bgr,		/* t1 non-alias*/
+	convblit_copy_mask_mono_word_msb_bgr,		/* core/pcf non-alias*/
+	convblit_blend_mask_alpha_byte_bgr,			/* ft2/t1 antialias*/
+	convblit_srcover_rgba8888_bgr888,			/* RGBA images w/alpha*/
+	convblit_copy_rgb888_bgr888					/* RGB images no alpha*/
+};
+
+SUBDRIVER fblinear24_left = {
+	NULL,
+	fbportrait_left_drawpixel,
+	fbportrait_left_readpixel,
+	fbportrait_left_drawhorzline,
+	fbportrait_left_drawvertline,
+	fbportrait_left_fillrect,
+	fbportrait_left_blit,
+	fbportrait_left_drawarea,
+	fbportrait_left_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_bgr_left,
+	convblit_copy_mask_mono_byte_lsb_bgr_left,
+	convblit_copy_mask_mono_word_msb_bgr_left,
+	convblit_blend_mask_alpha_byte_bgr_left,
+	convblit_srcover_rgba8888_bgr888_left,
+	convblit_copy_rgb888_bgr888_left
+};
+
+SUBDRIVER fblinear24_right = {
+	NULL,
+	fbportrait_right_drawpixel,
+	fbportrait_right_readpixel,
+	fbportrait_right_drawhorzline,
+	fbportrait_right_drawvertline,
+	fbportrait_right_fillrect,
+	fbportrait_right_blit,
+	fbportrait_right_drawarea,
+	fbportrait_right_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_bgr_right,
+	convblit_copy_mask_mono_byte_lsb_bgr_right,
+	convblit_copy_mask_mono_word_msb_bgr_right,
+	convblit_blend_mask_alpha_byte_bgr_right,
+	convblit_srcover_rgba8888_bgr888_right,
+	convblit_copy_rgb888_bgr888_right
+};
+
+SUBDRIVER fblinear24_down = {
+	NULL,
+	fbportrait_down_drawpixel,
+	fbportrait_down_readpixel,
+	fbportrait_down_drawhorzline,
+	fbportrait_down_drawvertline,
+	fbportrait_down_fillrect,
+	fbportrait_down_blit,
+	fbportrait_down_drawarea,
+	fbportrait_down_stretchblitex,
+	convblit_copy_mask_mono_byte_msb_bgr_down,
+	convblit_copy_mask_mono_byte_lsb_bgr_down,
+	convblit_copy_mask_mono_word_msb_bgr_down,
+	convblit_blend_mask_alpha_byte_bgr_down,
+	convblit_srcover_rgba8888_bgr888_down,
+	convblit_copy_rgb888_bgr888_down
 };

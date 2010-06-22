@@ -73,6 +73,8 @@ MWFONTPROCS t1lib_fontprocs = {
 };
 
 /* temp extern decls*/
+extern MWCOLORVAL gr_foreground_rgb;
+extern MWCOLORVAL gr_background_rgb;
 extern MWPIXELVAL gr_foreground;
 extern MWPIXELVAL gr_background;
 extern MWBOOL gr_usebg;
@@ -233,13 +235,13 @@ t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		else if(flags & MWTF_BOTTOM)
 			y -= height - 1;
 
-		parms.fg_color = gr_foreground;
-		parms.bg_color = gr_background;
+		parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
+		parms.bg_colorval = gr_background_rgb;
+		parms.fg_pixelval = gr_foreground;			/* for drawarea fallback*/
+		parms.bg_pixelval = gr_background;
 		parms.usebg = gr_usebg;
 		parms.srcx = 0;
 		parms.srcy = 0;
-		parms.dst_pitch = 0;		/* set later in GdConversionBlit*/
-		parms.data_out = 0;			/* set later in GdConversionBlit*/
 		parms.dstx = x;
 		parms.dsty = y;
 		parms.height = height;

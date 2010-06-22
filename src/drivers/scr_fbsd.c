@@ -76,7 +76,7 @@ static void FBSD_blit2(PSD dstpsd,MWCOORD destx,MWCOORD desty,
 
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	FBSD_open,
 	FBSD_close,
 	FBSD_getscreeninfo,
@@ -109,7 +109,7 @@ static void FBSD_close(PSD psd)
 static PSD FBSD_open(PSD psd)
 {
     PSUBDRIVER subdriver;
-    int size, linelen;
+    int size, linelen, pitch;
 
     if (geteuid() != 0) 
     {
@@ -144,6 +144,7 @@ static PSD FBSD_open(PSD psd)
     psd -> linelen = VGLDisplay->Xsize;
     psd -> planes  = 1;
     psd -> pixtype = MWPIXEL_FORMAT;
+	psd -> data_format = 0;			// FIXME
     psd -> bpp = 8;
 
 /*     switch(psd->pixtype) { */
@@ -183,9 +184,10 @@ static PSD FBSD_open(PSD psd)
     }
     /* calc size and linelen of savebits alloc*/
     GdCalcMemGCAlloc(&savebits, savebits.xvirtres, savebits.yvirtres, 
-		     0, 0, &size, &linelen);
+		     0, 0, &size, &linelen, &pitch);
 
     savebits.linelen = linelen;
+    savebits.pitch = pitch;
     savebits.size = size;
     if ((savebits.addr = malloc(size)) == NULL)
     {
@@ -203,6 +205,7 @@ static void FBSD_getscreeninfo(PSD psd, PMWSCREENINFO psi)
     psi->cols = psd->xvirtres;
     psi->planes = psd->planes;
     psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
     psi->ncolors = psd->ncolors;
     psi->pixtype = psd->pixtype;
     psi->fonts = NUMBER_FONTS;

@@ -21,6 +21,8 @@
 
 extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
+extern MWCOLORVAL gr_foreground_rgb;  /* current fg color in 0xAARRGGBB format*/
+extern MWCOLORVAL gr_background_rgb;
 extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
 extern int 	  gr_mode; 	      /* drawing mode */
 extern MWPALENTRY gr_palette[256];    /* current palette*/
@@ -127,6 +129,7 @@ GdSetForegroundColor(PSD psd, MWCOLORVAL fg)
 	MWPIXELVAL oldfg = gr_foreground;
 
 	gr_foreground = GdFindColor(psd, fg);
+	gr_foreground_rgb = fg;
 	return oldfg;
 }
 
@@ -144,6 +147,7 @@ GdSetBackgroundColor(PSD psd, MWCOLORVAL bg)
 	MWPIXELVAL oldbg = gr_background;
 
 	gr_background = GdFindColor(psd, bg);
+	gr_background_rgb = bg;
 	return oldbg;
 }
 
@@ -693,6 +697,7 @@ typedef union {
 	unsigned short v; 
 } RGB555;	
 
+static void GdDrawImageInternal(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
 /**
  * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
  * Microwindows color image format is DWORD padded bytes, with
@@ -709,6 +714,45 @@ typedef union {
  */
 void
 GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
+{
+	MWBLITPARMS parms;
+
+	/* if not using new MWIF_ format and convblit drivers, must draw pixel by pixel*/
+	switch (pimage->data_format) {
+	case MWIF_RGBA8888:
+		if (psd->BlitSrcOverRGBA8888)
+			goto fastblit;
+		break;
+
+	case MWIF_RGB888:
+		if (psd->BlitCopyRGB888)
+			goto fastblit;
+		break;
+	}
+
+	if (pimage->data_format)
+		DPRINTF("GdDrawImage: no convblit, using DrawImageInternal fallback\n");
+	else DPRINTF("GdDrawImage: image not RGBA/RGB format, using slow GdDrawImageInternal\n");
+
+	GdDrawImageInternal(psd, x, y, pimage);			/* old pixel-by-pixel drawing*/
+	return;
+
+fastblit:
+	/* use fast conversion blit*/
+	parms.data_format = pimage->data_format;
+	parms.dstx = x;
+	parms.dsty = y;
+	parms.width = pimage->width;
+	parms.height = pimage->height;
+	parms.srcx = 0;
+	parms.srcy = 0;
+	parms.src_pitch = pimage->pitch;
+	parms.data = pimage->imagebits;
+	GdConversionBlit(psd, &parms);
+}
+
+static void
+GdDrawImageInternal(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 {
 	MWCOORD minx;
 	MWCOORD maxx;
@@ -1495,7 +1539,7 @@ GdCopyArea(PSD psd, MWCOORD srcx, MWCOORD srcy, MWCOORD width, MWCOORD height,
  */
 int
 GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
-	int bpp, int *psize, int *plinelen)
+	int bpp, int *psize, int *plinelen, int *ppitch)
 {
 	int	bytelen, linelen, tmp;
 
@@ -1561,8 +1605,9 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 		return 0;
 	}
 
-	*plinelen = linelen;
 	*psize = bytelen * height;
+	*plinelen = linelen;
+	*ppitch = bytelen;
 	return 1;
 }
 

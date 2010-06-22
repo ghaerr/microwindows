@@ -99,11 +99,7 @@ MWFONTPROCS pcf_fontprocs = {
 	gen_gettextsize,
 	gen_gettextbits,
 	pcf_unloadfont,
-#if STANDALONE
-	gen16_drawtext,
-#else
-	corefont_drawtext,
-#endif
+	gen_drawtext,
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
@@ -117,10 +113,10 @@ static MWFONTPROCS pcf_fontprocs16 = {
 	NULL,			/* init*/
 	pcf_createfont,
 	gen_getfontinfo,
-	gen16_gettextsize,
+	gen_gettextsize,
 	gen_gettextbits,
 	pcf_unloadfont,
-	gen16_drawtext,
+	gen_drawtext,
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */

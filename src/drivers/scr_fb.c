@@ -50,7 +50,7 @@ static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	fb_open,
 	fb_close,
 	gen_getscreeninfo,
@@ -188,10 +188,12 @@ fb_open(PSD psd)
 
 	/* set linelen to byte length, possibly converted later*/
 	psd->linelen = fb_fix.line_length;
+	psd->pitch = psd->linelen;
 	psd->size = 0;		/* force subdriver init of size*/
 
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
 
+	psd->data_format = 0;			// FIXME coming soon
 	/* set pixel format*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {
 		switch(psd->bpp) {
@@ -477,6 +479,7 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->fonts = NUMBER_FONTS;
 	psi->portrait = psd->portrait;

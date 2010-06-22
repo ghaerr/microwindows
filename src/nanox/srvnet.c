@@ -910,6 +910,7 @@ GrDrawImageBitsWrapper(void *r)
 	hdr.pitch = req->pitch;
 	hdr.bytesperpixel = req->bytesperpixel;
 	hdr.compression = req->compression;
+	hdr.data_format = req->data_format;
 	hdr.palsize = req->palsize;
 	hdr.transcolor = req->transcolor;
 	addr = GetReqData(req);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
  *
  * Image decode routine for BMP files
@@ -73,10 +73,63 @@ static int	DecodeRLE8(MWUCHAR *buf, buffer_t *src);
 static int	DecodeRLE4(MWUCHAR *buf, buffer_t *src);
 static void	put4(int b);
 
+void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch);
+void convblit_bgr8888_rgba8888(unsigned char *data, int width, int height, int pitch);
+
+/*
+ * Conversion blit 24bpp BGR to 24bpp RGB
+ */
+void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch)
+{
+	unsigned char *src = data;
+
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* swap R and B*/
+			unsigned char b = s[0];
+			s[0] = s[2];
+			s[2] = b;
+
+			s += 3;
+		}
+		src += pitch;
+	}
+}
+
+/*
+ * Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha
+ */
+void convblit_bgr8888_rgba8888(unsigned char *data, int width, int height, int pitch)
+{
+	unsigned char *src = data;
+
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* swap R and B*/
+			unsigned char b = s[0];
+			s[0] = s[2];
+			s[2] = b;
+			s[3] = 255;		/* alpha*/
+
+			s += 4;
+		}
+		src += pitch;
+	}
+}
+
 /*
  * BMP decoding routine
  */
-
 int
 GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 {
@@ -161,7 +214,9 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 			pimage->palsize = 1 << pimage->bpp;
 		compression = bmpi.BiCompression;
 	}
-	pimage->compression = MWIMAGE_BGR;	/* right side up, BGR order*/
+printf("bmp bpp %d\n", pimage->bpp);
+	pimage->compression = MWIMAGE_RGB;	/* right side up, BGR order will be converted to RGB*/
+	pimage->data_format = 0;		/* force GdDrawImage for now*/
 	pimage->planes = 1;
 
 	/* only 1, 4, 8, 16, 24 and 32 bpp bitmaps*/
@@ -179,8 +234,7 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 	}
 
 	/* compute byte line size and bytes per pixel*/
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch,
-		&pimage->bytesperpixel);
+	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
 
 	/* Allocate image */
 	if( (pimage->imagebits = malloc(pimage->pitch*pimage->height)) == NULL)
@@ -236,11 +290,16 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 			if(!DecodeRLE4(imagebits, src))
 				break;
 		} else {
-			if(GdImageBufferRead(src, imagebits, pimage->pitch) !=
-				pimage->pitch)
+			if(GdImageBufferRead(src, imagebits, pimage->pitch) != pimage->pitch)
 					goto err;
 		}
 	}
+
+	/* conv BGR -> RGB*/
+	if (pimage->bpp == 24)
+		convblit_bgr888_rgb888(imagebits, pimage->width, pimage->height, pimage->pitch);
+	else if (pimage->bpp == 32)
+		convblit_bgr8888_rgba8888(imagebits, pimage->width, pimage->height, pimage->pitch);
 	return 1;		/* bmp image ok*/
 	
 err:

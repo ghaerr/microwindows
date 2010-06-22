@@ -109,8 +109,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					GetSysColor(COLOR_BTNFACE));
 				holdpen = SelectObject(hdc, hpen);
 				SelectObject(hdc, GetStockObject(NULL_BRUSH));
-				Rectangle(hdc, rc.left, rc.top, rc.right,
-					rc.bottom);
+				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
 				InflateRect(&rc, -1, -1);
 
 				/* fill caption*/
@@ -128,8 +127,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				DeleteObject(SelectObject(hdc, holdpen));
 
 				/* draw caption text*/
-				if(GetWindowText(hwnd, szTitle,
-				   sizeof(szTitle))) {
+				if(GetWindowText(hwnd, szTitle, sizeof(szTitle))) {
 					SetBkMode(hdc, TRANSPARENT);
 					/* set background color even though
 					 * transparent in case GdArea is used
@@ -142,11 +140,9 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						GetActiveWindow()==hwnd?
 						GetSysColor(COLOR_CAPTIONTEXT):
 						GetSysColor(COLOR_INACTIVECAPTIONTEXT));
-					SelectObject(hdc,
-					    GetStockObject(DEFAULT_GUI_FONT));
+					SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
 					GetWindowRect(hwnd, &rc);
-					TextOut(hdc, rc.left+4, rc.top+2,
-						szTitle, strlen(szTitle));
+					TextOut(hdc, rc.left+4, rc.top+2, szTitle, strlen(szTitle));
 				}
 
 				/* draw close box*/
@@ -170,8 +166,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				LineTo(hdc, rc.right-1, rc.top);
 			} else {
 				SelectObject(hdc, GetStockObject(NULL_BRUSH));
-				Rectangle(hdc, rc.left, rc.top, rc.right,
-					rc.bottom);
+				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
 			}
 			ReleaseDC(hwnd, hdc);
 		}

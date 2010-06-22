@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
  * Portions Copyright (c) Independant JPEG group (ijg)
  *
@@ -188,9 +188,12 @@ fastjpeg:
 	pimage->bpp = (fast_grayscale || psd->pixtype == MWPF_PALETTE)?
 		8: cinfo.output_components*8;
 #endif
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch,
-		&pimage->bytesperpixel);
+	if (pimage->bpp == 24)
+		pimage->data_format = MWIF_RGB888;
+	else pimage->data_format = 0;		/* force GdDrawImage for now*/
 	pimage->compression = MWIMAGE_RGB;	/* RGB not BGR order*/
+printf("jpeg bpp %d\n", pimage->bpp);
+	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
 	pimage->palsize = (pimage->bpp == 8)? 256: 0;
 	pimage->imagebits = malloc(pimage->pitch * pimage->height);
 	if(!pimage->imagebits)

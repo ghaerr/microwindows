@@ -1,3 +1,35 @@
+**fix kluge in select_fb_subdriver - extern fblinearXX_xxxx required
+	must add SUBDRIVER n/l/r/d into screendevice
+
+fix x11 driver kluges 
+need different way of SUBDRIVER left/right/down etc switching
+
+test VTSWITCH
+
+drawarea removal for non convblit drivers
+test drawarea fallback cases for < 16bpp
+GdBitmap/drawbitmap fallback for < 16bpp
+	fix psd->bpp >= 16 kluge in gen_drawtext (non convblit driver fallback to GdBitmap)
+
+16bpp convblits are endian-specific
+write convblits for 24/32bpp non-bgra systems (rename TRUECOLOR macros?)
+change driver fblinear_blit routines for 32bpp to BLITPARMS struct
+
+config option to eliminate not needed subdrivers?
+
+move data_format in MWIMAGEHDR	after changing convbmp
+fix data_format in scr_x11.c, scr_fb.c
+deprecate old screen drivers, debug driver?, fontmapper, !DYNAMICREGIONS
+
+plans for GdArea, GdReadArea, GdTranslation
+
+fixup other image formats: pnm, to RGB/RGBA, gif etc need palette conversion function
+	update mwin/bmp/convbmp.c when data_format changes for image_bmp.c
+convert palette images to RGBA when running on 24/32 systems (gif, bmp)
+
+autoportrait works great except for when change occurs and cursor still on?
+	(fblin32 blit: assert h < 0)
+
 fblin32alpha.c/fblin32.c:
 	fix SRC_OVER in applyOp
 	check alpha offset in passed pixmap alpha channel
@@ -18,7 +50,7 @@ add X11 keyboard and mouse support to fbe
 init_alpha_lookup needs reinit if palette changed
 
 add GdGetFontList for FT2 and others
-add BGRA and big endian to fbe
+add BGRA and big endian to fbe, all psd image formats
 investigate image vs truecolor ARGB naming schemes, detail support for each
 remove freetype_init from mwin/winfont.c
 investigate endian problem of ever reading color data as DWORD
@@ -44,7 +76,6 @@ fix bin/mwdvetest crash on ESC exit from main dialog
 look at MessageBoxTimeout, newlistbox.c. remove OLD_DRAWTEXT
 
 add SUBDRIVER entry into SCREENDEVICE
-last char drawn wrong on fontdemo2.sh portrait modes
 write rotation blits for portrait modes in drawarea drivers
 add restrict pointers for better optimization to fb drivers
 fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
@@ -54,14 +85,13 @@ check GdDrawImage switch code on MWPF_TRUECOLORxxx values for speed
 move GdDrawImage switch out of inner loop for speed
 test GdDrawImage alpha blending support, not tested for big endian 565/555
 test alpha 0xFFRRGGBB in X11 and fblin32 non-alpha screen drivers
-test alpha channel draw on alpha screen drivers
 test ABGR pixel type (PSP port)
 	test ABGR w/freetype and t1lib alphablend
 	test ABGR and 8888 w/palette images and GETPALLETE
 	test ABGR w/snap_jpg and snap_ppm
 test MWIMAGE_BGR format images and add test .bmp and other files
 png decoder may fail on 8bpp grayscale images w/alpha, needs testing
-nanowm: change cursor on corner resize, static procnames or rename
+nanowm: static procnames or rename
 	nxclock doesn't update when LINK_APP_INTO_SERVER/NANOWM and mouse motion
 correct space char width=1 for FNT, CORE and FT fonts
 add Cyerbit.ttf fonts outside tree for testing

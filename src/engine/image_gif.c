@@ -467,7 +467,8 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
     pimage->planes = 1;
     pimage->bpp = 8;
     GdComputeImagePitch(8, len, &pimage->pitch, &pimage->bytesperpixel);
-    pimage->compression = MWIMAGE_BGR;	/* right side up, BGR order*/
+    pimage->compression = 0;
+    pimage->data_format = 0;		/* force GdDrawImage for now*/
     pimage->palsize = cmapSize;
     pimage->palette = malloc(256*sizeof(MWPALENTRY));
     pimage->imagebits = malloc(height*pimage->pitch);
@@ -475,8 +476,7 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
 	    return 0;
 
     for (i = 0; i < cmapSize; i++) {
-	/*ImageSetCmap(image, i, cmap[CM_RED][i],
-		     cmap[CM_GREEN][i], cmap[CM_BLUE][i]);*/
+	/*ImageSetCmap(image, i, cmap[CM_RED][i], cmap[CM_GREEN][i], cmap[CM_BLUE][i]);*/
 	pimage->palette[i].r = cmap[CM_RED][i];
 	pimage->palette[i].g = cmap[CM_GREEN][i];
 	pimage->palette[i].b = cmap[CM_BLUE][i];

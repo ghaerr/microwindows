@@ -1,3 +1,35 @@
+21 June 2010
+	* fast convblits for all font drawing and RGBA/RGA images on 16/24/32bpp, all rotations
+	* use fast convblit for PCF/FNT/builtin corefont text drawing
+	* replaced gen16_drawtext in PCF/FNT, and corefont_drawtext with gen_drawtext
+	* replaced gen16_gettextsize with gen_gettextsize in PCF/FNT
+	* temp add left, right, downsubdriver to SCREENDEVICE, kluge select_fb_driver for now
+	* added convblits to SUBDRIVER and SCREENDEVICE
+	* added 16bpp convblits (endian specific), muldiv255_16bpp macro (set with MWPIXEL_FORMAT)
+	* added portrait modes to all mask convblits
+18 June 2010
+	* use fast convblit for FT2/T1 text output on 24/32bpp, anti and non-aliased (rotations not complete)
+	* use gr_foreground_rgb in FT2 driver for mask convblits
+		drawarea stil uses MWPIXELVAL gr_foreground, so BLITPARMS must have both for now
+	* added convblit mask macros for 1bpp mask and 8bpp alpha mask blits
+	* rewrote convblits using static inline for high speed
+14 June 2010
+	* images output using fast convblits on 24/32bpp framebuffer
+	* changed bmp image decoder to return 24bpp RGB or 32bpp RGBA images no alpha
+	* changed pnm image decoder to return 24bpp RGB images
+	* changed xpm image decoder to return 32bpp RGBA8888 images w/alpha
+	* add data_format to MWIMAGEHDR, MWIMAGEINFO, SCREENINFO
+		working for image decoders, not implemented for screens/pixmaps yet
+	* completed png RGB/RGBA, tiff RGBA decoder image display using fast convblit
+		unset FASTJPEG as default, generate 24bpp RGB jpegs
+	* added fast conversion blit srcover/copy RGB/A for rotate left/right/down w/no copy in GdConvBlitInternal
+	* added Update entry point to SCREENDEVICE for X11 convblits
+	* added pitch, data_format to SCREENDEVICE, MapMemGC, GdCalcMemGCAlloc
+	* added convblit entry points for GdConvBlitInternal: convblit_srcover_rgba8888, copy_rgb888
+		any 32bpp RGBA or 24bpp RGB can now be displayed using fast blit (srcover and copy)
+	* added GdConvBlitInternal path from GdDrawImage for very fast image blitting (32bpp hw only)
+		if image decoder uses MWIF_ image format then GdConversionBlit/GdConvBlitInternal used
+		otherwise emulated with old GdDrawImage routine pixel by pixel
 11 June 2010
 	* fix freetype 2 off-by-one height bug (ascent + descent != height)
 10 June 2010

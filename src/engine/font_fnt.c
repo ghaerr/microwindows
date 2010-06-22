@@ -75,11 +75,7 @@ MWFONTPROCS fnt_fontprocs = {
 	gen_gettextsize,
 	gen_gettextbits,
 	fnt_unloadfont,
-#if STANDALONE
-	gen16_drawtext, //FIXME
-#else
-	corefont_drawtext,
-#endif
+	gen_drawtext,
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */
@@ -93,10 +89,10 @@ static MWFONTPROCS fnt_fontprocs16 = {
 	NULL,			/* init*/
 	fnt_createfont,
 	gen_getfontinfo,
-	gen16_gettextsize,
+	gen_gettextsize,
 	gen_gettextbits,
 	fnt_unloadfont,
-	gen16_drawtext,
+	gen_drawtext,
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */

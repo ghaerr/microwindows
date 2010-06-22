@@ -26,7 +26,6 @@
 #endif
 
 typedef struct MWEUCJPFONT {
-	0,						/* can't scale*/
 	PMWFONTPROCS fontprocs;	/* common hdr */
 	int fontsize;
 	int	fontwidth;
@@ -56,6 +55,7 @@ static void eucjp_destroyfont(PMWFONT pfont);
 
 /* handling routines for MWEUCJPFONT*/
 static MWFONTPROCS eucjp_procs = {
+	0,				/* can't scale*/
 	MWTF_UC16,		/* routines expect unicode index*/
 	NULL,			/* init*/
 	eucjp_createfont,
@@ -63,7 +63,7 @@ static MWFONTPROCS eucjp_procs = {
 	eucjp_gettextsize,
 	eucjp_gettextbits,
 	eucjp_destroyfont,
-	corefont_drawtext,
+	gen_drawtext,
 	NULL,			/* setfontsize */
 	NULL,			/* setfontrotation */
 	NULL,			/* setfontattr */

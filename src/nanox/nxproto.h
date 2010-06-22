@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Portions Copyright (c) 2002, 2003 by Koninklijke Philips Electronics N.V.
  *
@@ -975,6 +975,7 @@ typedef struct {
 	INT16	compression;
 	INT16	palsize;
 	UINT32	transcolor;
+	UINT32	data_format;
 	/*MWIMAGEBITS imagebits[];*/
 	/*MWPALENTRY palette[palsize];*/
 } nxDrawImageBitsReq;

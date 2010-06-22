@@ -40,13 +40,14 @@ extern MWCFONT font_helvB10, font_helvB12, font_helvR10;
 extern MWCFONT font_X5x7, font_X6x13;
 
 /* handling routines for MWCOREFONT*/
-static MWFONTPROCS fontprocs = {
+MWFONTPROCS mwfontprocs = {
+	0,				/* capabilities*/
 	MWTF_ASCII,		/* routines expect ascii*/
 	gen_getfontinfo,
 	gen_gettextsize,
 	gen_gettextbits,
 	gen_unloadfont,
-	corefont_drawtext,
+	gen_drawtext,
 	NULL,			/* setfontsize*/
 	NULL,			/* setfontrotation*/
 	NULL,			/* setfontattr*/
@@ -194,36 +195,6 @@ int Font_Init()
 }
 #endif
 
-#if HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT
-/*
- * Routine to calc bounding box for text output.
- * Handles both fixed and proportional fonts.  Passed MWTF_UC16 string.
- */
-void
-gen16_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
-	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
-{
-	PMWCFONT		pf = ((PMWCOREFONT) pfont)->cfont;
-	const unsigned short *	str = text;
-	unsigned		int c;
-	int			width;
-
-	if (pf->width == NULL)
-		width = cc * pf->maxwidth;
-	else {
-		width = 0;
-		while (--cc >= 0) {
-			c = *str++;
-			if (c >= pf->firstchar && c < pf->firstchar + pf->size)
-				width += pf->width[c - pf->firstchar];
-		}
-	}
-	*pwidth = width;
-	*pheight = pf->height;
-	*pbase = pf->ascent;
-}
-#endif /* HAVE_FNT_SUPPORT | HAVE_PCF_SUPPORT*/
-
 /*
  * Generalized low level routine to get the bitmap associated
  * with a character.  Handles fixed and proportional fonts.
@@ -336,63 +307,3 @@ gen_unloadfont(PMWFONT pfont)
 {
 	/* builtins can't be unloaded*/
 }
-
-#if NOTUSED
-/* 
- * Generalized low level text draw routine, called only
- * if no clipping is required
- */
-void
-gen_drawtext(PMWFONT pfont,PSD psd,MWCOORD x,MWCOORD y,const void *text,
-	int n,MWPIXELVAL fg)
-{
-	PMWCFONT		pf = ((PMWCOREFONT)pfont)->cfont;
-	const unsigned char *	str = text;
-	MWCOORD 		width;		/* width of character */
-	MWCOORD 		height;		/* height of character */
-	const MWIMAGEBITS *	bitmap;
-
-	/* x, y is bottom left corner*/
-	y -= pf->height - 1;
-	while (n-- > 0) {
-		pfont->GetTextBits(pfont, *s++, &bitmap, &width, &height);
-		gen_drawbitmap(psd, x, y, width, height, bitmap, fg);
-		x += width;
-	}
-}
-
-/*
- * Generalized low level bitmap output routine, called
- * only if no clipping is required.  Only the set bits
- * in the bitmap are drawn, in the foreground color.
- */
-void
-gen_drawbitmap(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	MWIMAGEBITS *table, PIXELVAL fgcolor)
-{
-  MWCOORD minx;
-  MWCOORD maxx;
-  MWIMAGEBITS bitvalue;	/* bitmap word value */
-  int bitcount;		/* number of bits left in bitmap word */
-
-  minx = x;
-  maxx = x + width - 1;
-  bitcount = 0;
-  while (height > 0) {
-	if (bitcount <= 0) {
-		bitcount = MWIMAGE_BITSPERIMAGE;
-		bitvalue = *table++;
-	}
-	if (MWIMAGE_TESTBIT(bitvalue))
-		psd->DrawPixel(psd, x, y, fgcolor);
-	bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
-	--bitcount;
-	if (x++ == maxx) {
-		x = minx;
-		++y;
-		--height;
-		bitcount = 0;
-	}
-  }
-}
-#endif /* NOTUSED*/

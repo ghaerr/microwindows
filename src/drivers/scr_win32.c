@@ -63,7 +63,7 @@ static void win32_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 		int x_step_fraction, int y_step_fraction, long op);
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	win32_open,
 	win32_close,
 	win32_getscreeninfo,
@@ -168,6 +168,7 @@ win32_open(PSD psd)
 	psd->linelen = psd->xres = psd->xvirtres;
 	psd->yres = psd->yvirtres;
 	psd->planes = 1;
+	psd->data_format = 0;
 	psd->pixtype = MWPIXEL_FORMAT;
 #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	psd->bpp = 32;
@@ -180,7 +181,7 @@ win32_open(PSD psd)
 #endif 
 	/* Calculate the correct linelen here */
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
-			 psd->bpp, &size, &psd->linelen);
+			 psd->bpp, &size, &psd->linelen, &psd->pitch);
 
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
@@ -235,6 +236,7 @@ win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->portrait = psd->portrait;
 	psi->fonts = NUMBER_FONTS;

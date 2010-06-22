@@ -33,7 +33,7 @@ stub_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 }
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	fb_open,
 	fb_close,
 	gen_getscreeninfo,
@@ -103,6 +103,7 @@ gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
     psi->cols = psd->xvirtres;
     psi->planes = psd->planes;
     psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
     psi->ncolors = psd->ncolors;
     psi->pixtype = psd->pixtype;
     psi->fonts = NUMBER_FONTS;

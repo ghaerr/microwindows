@@ -64,9 +64,10 @@ static void X11_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 		MWCOORD dest_y_start, MWCOORD width, MWCOORD height, int x_denominator,
 		int y_denominator, int src_x_fraction, int src_y_fraction,
 		int x_step_fraction, int y_step_fraction, int op);
+static void X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	X11_open,
 	X11_close,
 	X11_getscreeninfo,
@@ -87,7 +88,8 @@ SCREENDEVICE scrdev = {
 	gen_setportrait,
 	0,				/* int portrait */
 	NULL,			/* orgsubdriver */
-	X11_stretchblitex /* StretchBlitEx subdriver*/
+	X11_stretchblitex, /* StretchBlitEx subdriver*/
+	X11_update
 };
 
 /* called from keyboard/mouse/screen */
@@ -684,7 +686,7 @@ X11_open(PSD psd)
 	Cursor cursor;
 	/*XEvent ev; */
 	PSUBDRIVER subdriver;
-	int size, linelen;
+	int size, linelen, pitch;
 	XSizeHints *sizehints;
 
 	if (x11_setup_display() < 0)
@@ -790,6 +792,7 @@ X11_open(PSD psd)
 	psd->yres = psd->yvirtres = x11_height;
 	psd->linelen = x11_width;
 	psd->planes = 1;
+	psd->data_format = 0;			// FIXME
 	psd->pixtype = MWPIXEL_FORMAT;
 	switch (psd->pixtype) {
 #if MWPIXEL_FORMAT == MWPF_PALETTE
@@ -817,14 +820,14 @@ X11_open(PSD psd)
 
 	/* Calculate the correct linelen here */
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
-			 psd->bpp, &size, &psd->linelen);
+			 psd->bpp, &size, &psd->linelen, &psd->pitch);
 
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
 	psd->size = 0;
 	psd->addr = NULL;
 	psd->portrait = MWPORTRAIT_NONE;
-
+printf("x11 emulated bpp %d\n", psd->bpp);
 	/* remember original subdriver for portrait subdriver callbacks*/
 	psd->orgsubdriver = &x11dev;
 
@@ -837,15 +840,56 @@ X11_open(PSD psd)
 	if (!subdriver)
 		return NULL;
 
+//FIXME
+fbportrait_left.BlitCopyMaskMonoByteMSB = savebits.left_subdriver->BlitCopyMaskMonoByteMSB;
+fbportrait_left.BlitCopyMaskMonoByteLSB = savebits.left_subdriver->BlitCopyMaskMonoByteLSB;
+fbportrait_left.BlitCopyMaskMonoWordMSB = savebits.left_subdriver->BlitCopyMaskMonoWordMSB;
+fbportrait_left.BlitBlendMaskAlphaByte  = savebits.left_subdriver->BlitBlendMaskAlphaByte;
+fbportrait_left.BlitSrcOverRGBA8888     = savebits.left_subdriver->BlitSrcOverRGBA8888;
+fbportrait_left.BlitCopyRGB888          = savebits.left_subdriver->BlitCopyRGB888;
+
+fbportrait_right.BlitCopyMaskMonoByteMSB = savebits.right_subdriver->BlitCopyMaskMonoByteMSB;
+fbportrait_right.BlitCopyMaskMonoByteLSB = savebits.right_subdriver->BlitCopyMaskMonoByteLSB;
+fbportrait_right.BlitCopyMaskMonoWordMSB = savebits.right_subdriver->BlitCopyMaskMonoWordMSB;
+fbportrait_right.BlitBlendMaskAlphaByte  = savebits.right_subdriver->BlitBlendMaskAlphaByte;
+fbportrait_right.BlitSrcOverRGBA8888     = savebits.right_subdriver->BlitSrcOverRGBA8888;
+fbportrait_right.BlitCopyRGB888          = savebits.right_subdriver->BlitCopyRGB888;
+
+fbportrait_down.BlitCopyMaskMonoByteMSB = savebits.down_subdriver->BlitCopyMaskMonoByteMSB;
+fbportrait_down.BlitCopyMaskMonoByteLSB = savebits.down_subdriver->BlitCopyMaskMonoByteLSB;
+fbportrait_down.BlitCopyMaskMonoWordMSB = savebits.down_subdriver->BlitCopyMaskMonoWordMSB;
+fbportrait_down.BlitBlendMaskAlphaByte  = savebits.down_subdriver->BlitBlendMaskAlphaByte;
+fbportrait_down.BlitSrcOverRGBA8888     = savebits.down_subdriver->BlitSrcOverRGBA8888;
+fbportrait_down.BlitCopyRGB888          = savebits.down_subdriver->BlitCopyRGB888;
+
+psd->left_subdriver = &fbportrait_left;
+psd->right_subdriver = &fbportrait_right;
+psd->down_subdriver = &fbportrait_down;
+
 	/* calc size and linelen of savebits alloc */
 	GdCalcMemGCAlloc(&savebits, savebits.xvirtres, savebits.yvirtres, 0,
-			 0, &size, &linelen);
+			 0, &size, &linelen, &pitch);
 	savebits.linelen = linelen;
+	savebits.pitch = pitch;
 	savebits.size = size;
 	if ((savebits.addr = malloc(size)) == NULL)
 		return NULL;
 
 	set_subdriver(&savebits, subdriver, TRUE);
+
+x11dev.BlitCopyMaskMonoByteMSB = savebits.BlitCopyMaskMonoByteMSB;
+x11dev.BlitCopyMaskMonoByteLSB = savebits.BlitCopyMaskMonoByteLSB;
+x11dev.BlitCopyMaskMonoWordMSB = savebits.BlitCopyMaskMonoWordMSB;
+x11dev.BlitBlendMaskAlphaByte  = savebits.BlitBlendMaskAlphaByte;
+x11dev.BlitSrcOverRGBA8888     = savebits.BlitSrcOverRGBA8888;
+x11dev.BlitCopyRGB888          = savebits.BlitCopyRGB888;
+
+psd->BlitCopyMaskMonoByteMSB = savebits.BlitCopyMaskMonoByteMSB;
+psd->BlitCopyMaskMonoByteLSB = savebits.BlitCopyMaskMonoByteLSB;
+psd->BlitCopyMaskMonoWordMSB = savebits.BlitCopyMaskMonoWordMSB;
+psd->BlitBlendMaskAlphaByte  = savebits.BlitBlendMaskAlphaByte;
+psd->BlitSrcOverRGBA8888     = savebits.BlitSrcOverRGBA8888;
+psd->BlitCopyRGB888          = savebits.BlitCopyRGB888;
 
 	/* set X11 psd to savebits memaddr for screen->offscreen blits... */
 	psd->addr = savebits.addr;
@@ -869,6 +913,7 @@ X11_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->portrait = psd->portrait;
 	psi->fonts = NUMBER_FONTS;
@@ -1132,6 +1177,15 @@ X11_drawarea(PSD psd, driver_gc_t * gc)
 	update_from_savebits(gc->dstx, gc->dsty, gc->width, gc->height);
 }
 
+static void
+X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
+{
+	if (!width)
+		width = psd->xres;
+	if (!height)
+		height = psd->yres;
+	update_from_savebits(x, y, width, height);
+}
 
 /* perform pre-select() duties*/
 static void

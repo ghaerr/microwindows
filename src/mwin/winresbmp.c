@@ -198,6 +198,7 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 			pImageHdr->pitch = linesize;
 			pImageHdr->bytesperpixel = bytesperpixel;
 			pImageHdr->compression = 1;
+			pImageHdr->data_format = 0;		/* FIXME unknown?*/
 			pImageHdr->palsize = palsize;
 			pImageHdr->transcolor = -1L;
 			retV = pImageHdr;

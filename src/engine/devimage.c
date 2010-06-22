@@ -390,6 +390,7 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		image2.height = height;
 		image2.planes = pimage->planes;
 		image2.bpp = pimage->bpp;
+		image2.data_format = pimage->data_format;
 		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
 			&image2.bytesperpixel);
 		image2.compression = pimage->compression;
@@ -461,6 +462,7 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		image2.height = height;
 		image2.planes = pimage->planes;
 		image2.bpp = pimage->bpp;
+		image2.data_format = pimage->data_format;
 		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
 			&image2.bytesperpixel);
 		image2.compression = pimage->compression;
@@ -542,6 +544,7 @@ GdGetImageInfo(int id, PMWIMAGEINFO pii)
 	pii->height = pimage->height;
 	pii->planes = pimage->planes;
 	pii->bpp = pimage->bpp;
+	pii->data_format = pimage->data_format;
 	pii->pitch = pimage->pitch;
 	pii->bytesperpixel = pimage->bytesperpixel;
 	pii->compression = pimage->compression;
@@ -602,6 +605,7 @@ void print_image(PMWIMAGEHDR image)
 	DPRINTF("width: %d\n", image->width);
 	DPRINTF("planes: %d\n", image->planes);
 	DPRINTF("bpp: %d\n", image->bpp);
+	DPRINTF("data_format: %d\n", image->data_format);
 	DPRINTF("compression: %d\n", image->compression);
 	DPRINTF("palsize: %d\n", image->palsize);
 

@@ -56,6 +56,7 @@ static void	null_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 			int x_denominator, int y_denominator,
 			int src_x_fraction, int src_y_fraction,
 			int x_step_fraction, int y_step_fraction, long op) {}
+static void null_convblit(PSD psd, PMWBLITPARMS parms) {}
 
 static SUBDRIVER nulldriver = {
 	NULL,
@@ -66,7 +67,13 @@ static SUBDRIVER nulldriver = {
 	null_fillrect,
 	null_blit,
 	null_drawarea,
-	null_stretchblitex
+	null_stretchblitex,
+	null_convblit,
+	null_convblit,
+	null_convblit,
+	null_convblit,
+	null_convblit,
+	null_convblit
 };
 
 static void

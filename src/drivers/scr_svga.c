@@ -36,7 +36,7 @@ static void SVGA_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w,
 		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	SVGA_open,
 	SVGA_close,
 	SVGA_getscreeninfo,
@@ -112,6 +112,7 @@ SVGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->fonts = NUMBER_FONTS;
 	psi->portrait = MWPORTRAIT_NONE;

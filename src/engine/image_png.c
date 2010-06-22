@@ -141,6 +141,14 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	pimage->bpp = channels * 8;
 	pimage->bytesperpixel = channels;
 
+	/* set format for blit output*/
+	if (channels == 4)
+		pimage->data_format = MWIF_RGBA8888;
+	else if (channels == 3)
+		pimage->data_format = MWIF_RGB888;
+	else pimage->data_format = 0;		/* will use slow GdDrawImage*/
+printf("png %dbpp\n", channels*8);
+
 	if (alpha_present)
 		pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL;
 	else

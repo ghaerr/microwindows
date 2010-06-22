@@ -70,7 +70,9 @@ typedef struct {
 	int		height;		/* height*/
 	int		planes;		/* # planes*/
 	int		bpp;		/* bits per pixel*/
-	int		linelen;	/* bytes per line*/
+	int		data_format;/* MWIF_ image data format*/
+	int		linelen;	/* bytes per line (to be deprecated)*/
+	int		pitch;		/* bytes per line*/
 	int		size;		/* allocated size in bytes*/
 	char 		bits[1];	/* beginning of bitmap*/
 } MWBITMAPOBJ;

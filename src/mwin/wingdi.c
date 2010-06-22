@@ -97,6 +97,7 @@ GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 	 */
 	default_bitmap.planes = scrdev.planes;
 	default_bitmap.bpp = scrdev.bpp;
+	default_bitmap.data_format = scrdev.data_format;
 	hdc->bitmap = &default_bitmap;
 
 	hdc->drawmode = R2_COPYPEN;
@@ -1559,7 +1560,7 @@ SelectObject(HDC hdc, HGDIOBJ hObject)
 
 		/* init memory context*/
 		if (!hdc->psd->MapMemGC(hdc->psd, pb->width, pb->height,
-			pb->planes, pb->bpp, pb->linelen, pb->size,
+			pb->planes, pb->bpp, pb->data_format, pb->linelen, pb->pitch, pb->size,
 			&pb->bits[0]))
 				return NULL;
 
@@ -1723,7 +1724,7 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 {
 	MWBITMAPOBJ *	hbitmap;
 	int		size;
-	int		linelen;
+	int		linelen, pitch;
 
 	if(!hdc)
 		return NULL;
@@ -1732,7 +1733,7 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	nHeight = MWMAX(nHeight, 1);
 
 	/* calc memory allocation size and linelen from width and height*/
-	if(!GdCalcMemGCAlloc(hdc->psd, nWidth, nHeight, 0, 0, &size, &linelen))
+	if(!GdCalcMemGCAlloc(hdc->psd, nWidth, nHeight, 0, 0, &size, &linelen, &pitch))
 		return NULL;
 
 	/* allocate gdi object*/
@@ -1747,7 +1748,9 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	/* create compatible with hdc*/
 	hbitmap->planes = hdc->psd->planes;
 	hbitmap->bpp = hdc->psd->bpp;
+	hbitmap->data_format = hdc->psd->data_format;
 	hbitmap->linelen = linelen;
+	hbitmap->pitch = pitch;
 	hbitmap->size = size;
 
 	return (HBRUSH)hbitmap;

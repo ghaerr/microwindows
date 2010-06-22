@@ -37,6 +37,8 @@ int 	gr_mode = MWROP_COPY; 	    /* drawing mode */
 /*static*/ MWPALENTRY	gr_palette[256];    /* current palette*/
 /*static*/ int	gr_firstuserpalentry;/* first user-changable palette entry*/
 /*static*/ int 	gr_nextpalentry;    /* next available palette entry*/
+MWCOLORVAL gr_foreground_rgb;	/* current fg color in 0xAARRGGBB format for mono convblits*/
+MWCOLORVAL gr_background_rgb;	/* current background color */
 
 uint32_t gr_dashmask;     /* An actual bitmask of the dash values */
 uint32_t gr_dashcount;    /* The number of bits defined in the dashmask */

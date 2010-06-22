@@ -80,16 +80,16 @@ static void VGA_getscreeninfo(PSD psd,PMWSCREENINFO psi);;
 #endif
 static void VGA_setpalette(PSD psd,int first,int count,MWPALENTRY *pal);
 static MWBOOL VGA_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
-		int linelen,int size,void *addr);
+		int data_format,int linelen,int pitch,int size,void *addr);
 static void NULL_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w,
 		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op) {}
 static PSD  NULL_allocatememgc(PSD psd) { return NULL; }
 static MWBOOL NULL_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
-			int linelen,int size,void *addr) { return 0; }
+			int data_format,int linelen,int pitch, int size,void *addr) { return 0; }
 static void NULL_freememgc(PSD mempsd) {}
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
 	VGA_open,
 	VGA_close,
 	VGA_getscreeninfo,
@@ -239,6 +239,7 @@ VGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->cols = psd->xvirtres;
 	psi->planes = psd->planes;
 	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = NUMBER_FONTS;
@@ -270,12 +271,12 @@ VGA_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 /* initialize memory device with passed parms, and select suitable fb driver*/
 static MWBOOL
 VGA_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int size,void *addr)
+	int data_format, int pitch, int size,void *addr)
 {
 	extern SUBDRIVER memplan4;
 
 	/* initialize mem screen driver*/
-	gen_initmemgc(mempsd, w, h, planes, bpp, linelen, size, addr);
+	gen_initmemgc(mempsd, w, h, planes, bpp, data_format, linelen, pitch, size, addr);
 
 	/* set and initialize subdriver into mem screen driver*/
 	if (!set_subdriver(mempsd, &memplan4, TRUE))

@@ -110,17 +110,18 @@
 #define MWIF_ARGB8888		0x00020000L		/* 32bpp ARGB image byte order (new)*/
 #define MWIF_RGBA8888		0x00030000L		/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
 //#define MWIF_ABGR8888		0x00040000L		/* 32bpp ABGR image byte order (new)*/
-#define MWIF_BGR888			0x00050000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
-//#define MWIF_RGB888		0x00060000L		/* 24bpp RGB image byte order  (new)*/
-#define MWIF_RGB565			0x00070000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
-//#define MWIF_RGB565_BR	0x00080000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
-#define MWIF_RGB555			0x00090000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
-//#define MWIF_RGB555_BR	0x000A0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
-#define MWIF_BGR555			0x000B0000L		/* 16bpp 5/5/5 BGR packed l.endian (old TRUECOLOR1555)*/
-//#define MWIF_BGR555_BR	0x000C0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
-#define MWIF_BGR332			0x000D0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
-#define MWIF_BGR233			0x000E0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
-#define MWIF_PAL8			0x000F0000L		/*  8bpp palette (old MWPF_PALETTE)*/
+//#define MWIF_BGR8888		0x00050000L		/* 32bpp BGR image order no alpha*/
+#define MWIF_BGR888			0x00060000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
+#define MWIF_RGB888			0x00070000L		/* 24bpp RGB image byte order  (png no alpha)*/
+#define MWIF_RGB565			0x00080000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
+//#define MWIF_RGB565_BR	0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
+#define MWIF_RGB555			0x000A0000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
+//#define MWIF_RGB555_BR	0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
+#define MWIF_BGR555			0x000C0000L		/* 16bpp 5/5/5 BGR packed l.endian (old TRUECOLOR1555)*/
+//#define MWIF_BGR555_BR	0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
+#define MWIF_BGR332			0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
+#define MWIF_BGR233			0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
+#define MWIF_PAL8			0x00100000L		/*  8bpp palette (old MWPF_PALETTE)*/
 
 /* Line modes */
 #define MWLINE_SOLID      0
@@ -320,6 +321,7 @@ typedef struct {
 	int 	ydpcm;		/* dots/centimeter in y direction */
 	int	 	planes;		/* hw # planes*/
 	int	 	bpp;		/* hw bpp*/
+	int		data_format;/* MWIF_ image data format*/
 	int32_t	ncolors;	/* hw number of colors supported*/
 	int 	fonts;		/* number of built-in fonts */
 	int 	buttons;	/* buttons which are implemented */
@@ -428,8 +430,10 @@ typedef struct {
 	MWCOORD		dstx, dsty;		/* dest x, y*/
 	MWCOORD		srcx, srcy;		/* source x, y*/
 	int			src_pitch;		/* source row length in bytes*/
-	uint32_t	fg_color;		/* foreground color, hw pixel format*/
-	uint32_t	bg_color;
+	MWCOLORVAL	fg_colorval;	/* fg color, MWCOLORVAL 0xAARRGGBB format*/
+	MWCOLORVAL	bg_colorval;
+	uint32_t	fg_pixelval;	/* fg color, hw pixel format*/
+	uint32_t	bg_pixelval;
 	MWBOOL		usebg;			/* set =1 to draw background*/
 	void *		data;			/* input image data GdConversionBlit*/
 
@@ -782,6 +786,7 @@ typedef struct {
 #define MWIMAGE_ALPHA_CHANNEL   04	/* compression flag: 32-bit w/alpha */
 #define MWIMAGE_555		0x08	/* compression flag: 5/5/5 format*/
 
+/* image structure - if changed, convbmp.c needs updating*/
 typedef struct {
 	int		width;		/* image width in pixels*/
 	int		height;		/* image height in pixels*/
@@ -794,6 +799,7 @@ typedef struct {
 	int32_t	transcolor;	/* transparent color or -1 if none*/
 	MWPALENTRY *palette;/* palette*/
 	MWUCHAR *imagebits;	/* image bits (dword right aligned)*/
+	int		data_format;/* MWIF_ image data format*/
 } MWIMAGEHDR, *PMWIMAGEHDR;
 
 /* image information structure - returned by GdGetImageInfo*/
@@ -803,6 +809,7 @@ typedef struct {
 	int		height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
+	int		data_format;/* MWIF image data format*/
 	int		pitch;		/* bytes per line*/
 	int		bytesperpixel;	/* bytes per pixel*/
 	int		compression;	/* compression algorithm*/
@@ -878,10 +885,24 @@ typedef struct {
  * macro = (to duplicate 0.91 code)		d = muldiv255(255 - a, d) + a
  * correct macro =						d = muldiv255(d, 255 - a) + a
  */
+/* single byte color macros for 24/32bpp*/
 //#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
 #define muldiv255(a,b)		((((a)+1)*(b))>>8)		/* very fast, 92% accurate*/
 //#define muldiv255(a,b)	((((a)+((a)>>7))*(b))>>8)	/* fast, 35% accurate*/
+
+/* pixel to pixel blend for 16bpp*/
 #define mulscale(a,b,n)		((((a)+1)*(b))>>(n))	/* very fast, always shift for 16bpp*/
+
+/* single byte color macros for 15/16bpp macros - FIXME endian specific*/
+/* d = muldiv255(255-a, d-s) + s*/
+#define muldiv255_rgb565(d, sr, sg, sb, as) \
+						  (((((((d) & 0xF800) - (sr)) * as) >> 8) + (sr)) & 0xF800)\
+						| (((((((d) & 0x07E0) - (sg)) * as) >> 8) + (sg)) & 0x07E0)\
+						| (((((((d) & 0x001F) - (sb)) * as) >> 8) + (sb)) & 0x001F)
+#define muldiv255_rgb555(d, sr, sg, sb, as) \
+						  (((((((d) & 0x7C00) - (sr)) * as) >> 8) + (sr)) & 0x7C00)\
+						| (((((((d) & 0x03E0) - (sg)) * as) >> 8) + (sg)) & 0x03E0)\
+						| (((((((d) & 0x001F) - (sb)) * as) >> 8) + (sb)) & 0x001F)
 
 /* palette color definition*/
 #define RGBDEF(r,g,b)	{r, g, b}
@@ -940,6 +961,28 @@ typedef struct {
 #define RGB2PIXEL233(r,g,b)	\
 	((((r) & 0xe0) >> 5) | (((g) & 0xe0) >> 2) | (((b) & 0xc0) >> 0))
 
+/* create single component of 5/6/5format pixel from color byte*/
+#define RED2PIXEL565(byte)		(((byte) & 0xf8) << 8)
+#define GREEN2PIXEL565(byte)	(((byte) & 0xfc) << 3)
+#define BLUE2PIXEL565(byte)		(((byte) & 0xf8) >> 3)
+
+/* create single component of 5/5/5format pixel from color byte*/
+#define RED2PIXEL555(byte)		(((byte) & 0xf8) << 7)
+#define GREEN2PIXEL555(byte)	(((byte) & 0xf8) << 2)
+#define BLUE2PIXEL555(byte)		(((byte) & 0xf8) >> 3)
+
+/* these defines used in convblits, must be available regardless of MWPIXEL_FORMAT, default 565*/
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR555
+#define muldiv255_16bpp		muldiv255_rgb555
+#define RED2PIXEL(byte)		RED2PIXEL555(byte)
+#define GREEN2PIXEL(byte)	GREEN2PIXEL555(byte)
+#define BLUE2PIXEL(byte)	BLUE2PIXEL555(byte)
+#else
+#define muldiv255_16bpp		muldiv255_rgb565
+#define RED2PIXEL(byte)		RED2PIXEL565(byte)
+#define GREEN2PIXEL(byte)	GREEN2PIXEL565(byte)
+#define BLUE2PIXEL(byte)	BLUE2PIXEL565(byte)
+#endif
 
 /*
  * Conversion from MWCOLORVAL to MWPIXELVAL

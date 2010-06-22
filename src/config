@@ -386,7 +386,6 @@ ifeq ($(ARCH), ELKS)
 ASMVGADRIVER             = Y
 CVGADRIVER               = N
 HERCDRIVER               = N
-DBGDRIVER                = N
 
 # Mouse support
 SERMOUSE                 = Y

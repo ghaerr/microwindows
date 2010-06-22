@@ -33,14 +33,6 @@ int UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii);
 PMWFONT eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
 #endif
 
-#if HAVE_FREETYPE_SUPPORT		// DEPRECATED
-typedef MWPIXELVAL OUTPIXELVAL;
-void alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
-	unsigned char *alpha, int count);
-int  freetype_init(PSD psd);
-PMWFONT freetype_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
-#endif
-
 #if FONTMAPPER
 /* entry point for font selection*/
 int select_font(const PMWLOGFONT plogfont, const char **physname);

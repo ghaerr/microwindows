@@ -53,6 +53,9 @@ static void freetype_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 static int freetype_setfontsize(PMWFONT pfont, MWCOORD height, MWCOORD width);
 static void freetype_setfontrotation(PMWFONT pfont, int tenthdegrees);
 static int freetype_setfontattr(PMWFONT pfont, int setflags, int clrflags);
+typedef MWPIXELVAL OUTPIXELVAL;
+static void alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
+	unsigned char *alpha, int count);
 		
 /* handling routines for MWFREETYPEFONT*/
 static MWFONTPROCS freetype_procs = {
@@ -428,8 +431,7 @@ freetype_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	if (pf->fontattr&MWTF_ANTIALIAS) {
 		TT_Set_Raster_Gray_Palette (engine, virtual_palette);
 
-		alphablend(psd, gray_palette, gr_foreground, gr_background,
-			blend, 5);
+		alphablend(psd, gray_palette, gr_foreground, gr_background, blend, 5);
 	}
 
 	startx = x;
@@ -951,4 +953,96 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 	}
 	
 	closedir(dir);
+}
+
+/*
+ * Produce blend table from src and dst based on passed alpha table
+ * Used because we don't quite yet have GdArea with alphablending,
+ * so we pre-blend fg/bg colors for fade effect.
+ */
+static void
+alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
+	unsigned char *alpha, int count)
+{
+	unsigned int	a, d;
+	unsigned char	r, g, b;
+	MWCOLORVAL	palsrc, paldst;
+	extern MWPALENTRY gr_palette[256];
+
+	while (--count >= 0) {
+	    a = *alpha++;
+
+#define BITS(pixel,shift,mask)	(((pixel)>>shift)&(mask))
+	    if(a == 0)
+			*out++ = dst;
+	    else if(a == 255)
+			*out++ = src;
+	    else switch(psd->pixtype) {
+	        case MWPF_TRUECOLOR0888:
+	        case MWPF_TRUECOLOR888:
+	        case MWPF_TRUECOLORABGR:  /* untested - r/b reversed but shouldn't matter*/
+		    d = BITS(dst, 16, 0xff);
+		    r = (unsigned char)(((BITS(src, 16, 0xff) - d)*a)>>8) + d;
+		    d = BITS(dst, 8, 0xff);
+		    g = (unsigned char)(((BITS(src, 8, 0xff) - d)*a)>>8) + d;
+		    d = BITS(dst, 0, 0xff);
+		    b = (unsigned char)(((BITS(src, 0, 0xff) - d)*a)>>8) + d;
+		    *out++ = (r << 16) | (g << 8) | b;
+		    break;
+
+	        case MWPF_TRUECOLOR565:
+		    d = BITS(dst, 11, 0x1f);
+		    r = (unsigned char)(((BITS(src, 11, 0x1f) - d)*a)>>8) + d;
+		    d = BITS(dst, 5, 0x3f);
+		    g = (unsigned char)(((BITS(src, 5, 0x3f) - d)*a)>>8) + d;
+		    d = BITS(dst, 0, 0x1f);
+		    b = (unsigned char)(((BITS(src, 0, 0x1f) - d)*a)>>8) + d;
+		    *out++ = (r << 11) | (g << 5) | b;
+		    break;
+
+	        case MWPF_TRUECOLOR555:
+		    d = BITS(dst, 10, 0x1f);
+		    r = (unsigned char)(((BITS(src, 10, 0x1f) - d)*a)>>8) + d;
+		    d = BITS(dst, 5, 0x1f);
+		    g = (unsigned char)(((BITS(src, 5, 0x1f) - d)*a)>>8) + d;
+		    d = BITS(dst, 0, 0x1f);
+		    b = (unsigned char)(((BITS(src, 0, 0x1f) - d)*a)>>8) + d;
+		    *out++ = (r << 10) | (g << 5) | b;
+		    break;
+
+	        case MWPF_TRUECOLOR332:
+		    d = BITS(dst, 5, 0x07);
+		    r = (unsigned char)(((BITS(src, 5, 0x07) - d)*a)>>8) + d;
+		    d = BITS(dst, 2, 0x07);
+		    g = (unsigned char)(((BITS(src, 2, 0x07) - d)*a)>>8) + d;
+		    d = BITS(dst, 0, 0x03);
+		    b = (unsigned char)(((BITS(src, 0, 0x03) - d)*a)>>8) + d;
+		    *out++ = (r << 5) | (g << 2) | b;
+		    break;
+
+	        case MWPF_TRUECOLOR233:
+		    d = BITS(dst, 0, 0x07);
+		    r = (unsigned char)(((BITS(src, 0, 0x07) - d)*a)>>8) + d;
+		    d = BITS(dst, 3, 0x07);
+		    g = (unsigned char)(((BITS(src, 3, 0x07) - d)*a)>>8) + d;
+		    d = BITS(dst, 6, 0x03);
+		    b = (unsigned char)(((BITS(src, 6, 0x03) - d)*a)>>8) + d;
+		    *out++ = (r << 0) | (g << 3) | (b << 6);
+		    break;
+
+	        case MWPF_PALETTE:
+		    /* reverse lookup palette entry for blend ;-)*/
+		    palsrc = GETPALENTRY(gr_palette, src);
+		    paldst = GETPALENTRY(gr_palette, dst);
+		    d = REDVALUE(paldst);
+		    r = (unsigned char)(((REDVALUE(palsrc) - d)*a)>>8) + d;
+		    d = GREENVALUE(paldst);
+		    g = (unsigned char)(((GREENVALUE(palsrc) - d)*a)>>8) + d;
+		    d = BLUEVALUE(paldst);
+		    b = (unsigned char)(((BLUEVALUE(palsrc) - d)*a)>>8) + d;
+		    *out++ = GdFindNearestColor(gr_palette, (int)psd->ncolors,
+				MWRGB(r, g, b));
+		    break;
+	  	}
+	}
 }

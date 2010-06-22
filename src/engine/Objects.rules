@@ -45,10 +45,6 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/engine/devstipple.o \
 	$(MW_DIR_OBJ)/engine/font_dbcs.o
 
-ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/font_freetype.o
-endif
-
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/font_freetype2.o
 endif
@@ -86,4 +82,3 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/devpalgray4.o
 else
 MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/devpal4.o
 endif
-

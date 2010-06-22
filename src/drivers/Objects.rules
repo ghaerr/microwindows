@@ -352,13 +352,6 @@ ifeq ($(HERCDRIVER), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_herc.o
 endif
 
-ifeq ($(DBGDRIVER), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_debug.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
-endif
-
 ifeq ($(SERMOUSE), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ser.o
 endif

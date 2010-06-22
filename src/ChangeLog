@@ -1,3 +1,4 @@
+	* removed freetype v1 support, DBGDRIVER
 21 June 2010
 	* fast convblits for all font drawing and RGBA/RGA images on 16/24/32bpp, all rotations
 	* use fast convblit for PCF/FNT/builtin corefont text drawing

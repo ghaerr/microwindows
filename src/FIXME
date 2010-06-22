@@ -15,13 +15,22 @@ GdBitmap/drawbitmap fallback for < 16bpp
 write convblits for 24/32bpp non-bgra systems (rename TRUECOLOR macros?)
 change driver fblinear_blit routines for 32bpp to BLITPARMS struct
 
+fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
+	remove fblin32alpha.c, endian-specific, make TRUECOLOR0888 vs 8888 same
+
+remove FT1 from Config/configs*
 config option to eliminate not needed subdrivers?
 
 move data_format in MWIMAGEHDR	after changing convbmp
 fix data_format in scr_x11.c, scr_fb.c
-deprecate old screen drivers, debug driver?, fontmapper, !DYNAMICREGIONS
+deprecate old screen drivers, fontmapper, !DYNAMICREGIONS, fblin32alpha.c
+	fix mwin/winfonts.c::EnumFonts GdGetFontList/GdFreeFontList/GdTextSizeEx for FT1
+	add GdGetTextSizeEx/GdGetFontList to FT2 from FT1
 
 plans for GdArea, GdReadArea, GdTranslation
+
+drawarea alphamap, copytrans, copyall(=convblit copy vs srcover)
+	check srcover vs copy for RGBA8888 images
 
 fixup other image formats: pnm, to RGB/RGBA, gif etc need palette conversion function
 	update mwin/bmp/convbmp.c when data_format changes for image_bmp.c
@@ -35,7 +44,7 @@ fblin32alpha.c/fblin32.c:
 	check alpha offset in passed pixmap alpha channel
 	add MWROP_* compositing handling (currently only SRC_OVER alpha blend)
 	check whether alpha != 0 check needed
-	determine whether both fblin32alpha.c and fblin32.c needed
+	determine whether both fblin32alpha.c and fblin32.c needed - NO
 		fblin32alpha.c always draws alpha in drawpixel, drawh, drawv
 		#define ALPHABLEND, what does it do now?
 	update stretchblitex in fblin32.c for SRC_OVER

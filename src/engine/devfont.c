@@ -202,66 +202,41 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 	}
 #endif
 
-#if HAVE_FREETYPE_SUPPORT
- 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
-		//if (freetype_init(psd)) {
-			if (plogfont && abs(plogfont->lfHeight) > FFMINAA_HEIGHT && plogfont->lfQuality)
-					fontattr |= MWTF_ANTIALIAS;
-
-			pfont = (PMWFONT)freetype_createfont(fontname, height, width, fontattr);
-			if(pfont) {
-				/* FIXME kaffe kluge*/
-				pfont->fontattr |= MWTF_FREETYPE;
-				return pfont;
-			}
-			if (fontclass != MWLF_CLASS_ANY)
-	 			EPRINTF("freetype_createfont: %s,%d not found\n", fontname, height);
-		//}
-  	}
-#endif
-
 #if HAVE_FREETYPE_2_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
-		//if (freetype_init(psd)) {
-			/* FIXME auto antialias for height > 14 for kaffe*/
-			if (plogfont && abs(plogfont->lfHeight) > 14 && plogfont->lfQuality)
-					fontattr |= MWTF_ANTIALIAS;
+		/* FIXME auto antialias for height > 14 for kaffe*/
+		if (plogfont && abs(plogfont->lfHeight) > FFMINAA_HEIGHT && plogfont->lfQuality)
+				fontattr |= MWTF_ANTIALIAS;
 
-			pfont = (PMWFONT)freetype2_createfont(fontname, height, width, fontattr);
-			if(pfont) {
-				DPRINTF("freetype_createfont: using font %s\n", fontname);
-				/* FIXME kaffe kluge*/
-				pfont->fontattr |= MWTF_FREETYPE;
-				return pfont;
-			}
-			if (fontclass != MWLF_CLASS_ANY)
-				EPRINTF("freetype2_createfont: %s,%d not found\n", fontname, height);
-		//}
+		pfont = (PMWFONT)freetype2_createfont(fontname, height, width, fontattr);
+		if(pfont) {
+			DPRINTF("freetype_createfont: using font %s\n", fontname);
+			/* FIXME kaffe kluge*/
+			pfont->fontattr |= MWTF_FREETYPE;
+			return pfont;
+		}
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("freetype2_createfont: %s,%d not found\n", fontname, height);
   	}
 #endif
 
 #if HAVE_T1LIB_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_T1LIB) {
-		//if (t1lib_init(psd)) {
-			pfont = (PMWFONT)t1lib_createfont(fontname, height, width, fontattr);
-			if(pfont)
-				return pfont;
-			if (fontclass != MWLF_CLASS_ANY)
-				EPRINTF("t1lib_createfont: %s,%d not found\n", fontname, height);
-		//}
+		pfont = (PMWFONT)t1lib_createfont(fontname, height, width, fontattr);
+		if(pfont)
+			return pfont;
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("t1lib_createfont: %s,%d not found\n", fontname, height);
   	}
 #endif
 
 #if HAVE_HZK_SUPPORT
 	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_HZK) {
-		//if (hzk_init(psd)) {
-			pfont = (PMWFONT)hzk_createfont(fontname, height, width, fontattr);
-			if(pfont)		
-				return pfont;
-			if (fontclass != MWLF_CLASS_ANY)
-				EPRINTF("hzk_createfont: %s,%d not found\n",
-					fontname, height);
-		//}
+		pfont = (PMWFONT)hzk_createfont(fontname, height, width, fontattr);
+		if(pfont)		
+			return pfont;
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("hzk_createfont: %s,%d not found\n", fontname, height);
 	}
 #endif
 
@@ -286,9 +261,6 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 #endif
 #if HAVE_PCF_SUPPORT
 			", pcf_createfont"
-#endif
-#if HAVE_FREETYPE_SUPPORT
-			", freetype_createfont"
 #endif
 #if HAVE_FREETYPE_2_SUPPORT
 			", freetype2_createfont"
@@ -598,101 +570,7 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	GdFixCursor(psd);
 }
 
-#if HAVE_FREETYPE_SUPPORT
-/*
- * Produce blend table from src and dst based on passed alpha table
- * Used because we don't quite yet have GdArea with alphablending,
- * so we pre-blend fg/bg colors for fade effect.
- */
-void
-alphablend(PSD psd, OUTPIXELVAL *out, MWPIXELVAL src, MWPIXELVAL dst,
-	unsigned char *alpha, int count)
-{
-	unsigned int	a, d;
-	unsigned char	r, g, b;
-	MWCOLORVAL	palsrc, paldst;
-	extern MWPALENTRY gr_palette[256];
-
-	while (--count >= 0) {
-	    a = *alpha++;
-
-#define BITS(pixel,shift,mask)	(((pixel)>>shift)&(mask))
-	    if(a == 0)
-			*out++ = dst;
-	    else if(a == 255)
-			*out++ = src;
-	    else switch(psd->pixtype) {
-	        case MWPF_TRUECOLOR0888:
-	        case MWPF_TRUECOLOR888:
-	        case MWPF_TRUECOLORABGR:  /* untested - r/b reversed but shouldn't matter*/
-		    d = BITS(dst, 16, 0xff);
-		    r = (unsigned char)(((BITS(src, 16, 0xff) - d)*a)>>8) + d;
-		    d = BITS(dst, 8, 0xff);
-		    g = (unsigned char)(((BITS(src, 8, 0xff) - d)*a)>>8) + d;
-		    d = BITS(dst, 0, 0xff);
-		    b = (unsigned char)(((BITS(src, 0, 0xff) - d)*a)>>8) + d;
-		    *out++ = (r << 16) | (g << 8) | b;
-		    break;
-
-	        case MWPF_TRUECOLOR565:
-		    d = BITS(dst, 11, 0x1f);
-		    r = (unsigned char)(((BITS(src, 11, 0x1f) - d)*a)>>8) + d;
-		    d = BITS(dst, 5, 0x3f);
-		    g = (unsigned char)(((BITS(src, 5, 0x3f) - d)*a)>>8) + d;
-		    d = BITS(dst, 0, 0x1f);
-		    b = (unsigned char)(((BITS(src, 0, 0x1f) - d)*a)>>8) + d;
-		    *out++ = (r << 11) | (g << 5) | b;
-		    break;
-
-	        case MWPF_TRUECOLOR555:
-		    d = BITS(dst, 10, 0x1f);
-		    r = (unsigned char)(((BITS(src, 10, 0x1f) - d)*a)>>8) + d;
-		    d = BITS(dst, 5, 0x1f);
-		    g = (unsigned char)(((BITS(src, 5, 0x1f) - d)*a)>>8) + d;
-		    d = BITS(dst, 0, 0x1f);
-		    b = (unsigned char)(((BITS(src, 0, 0x1f) - d)*a)>>8) + d;
-		    *out++ = (r << 10) | (g << 5) | b;
-		    break;
-
-	        case MWPF_TRUECOLOR332:
-		    d = BITS(dst, 5, 0x07);
-		    r = (unsigned char)(((BITS(src, 5, 0x07) - d)*a)>>8) + d;
-		    d = BITS(dst, 2, 0x07);
-		    g = (unsigned char)(((BITS(src, 2, 0x07) - d)*a)>>8) + d;
-		    d = BITS(dst, 0, 0x03);
-		    b = (unsigned char)(((BITS(src, 0, 0x03) - d)*a)>>8) + d;
-		    *out++ = (r << 5) | (g << 2) | b;
-		    break;
-
-	        case MWPF_TRUECOLOR233:
-		    d = BITS(dst, 0, 0x07);
-		    r = (unsigned char)(((BITS(src, 0, 0x07) - d)*a)>>8) + d;
-		    d = BITS(dst, 3, 0x07);
-		    g = (unsigned char)(((BITS(src, 3, 0x07) - d)*a)>>8) + d;
-		    d = BITS(dst, 6, 0x03);
-		    b = (unsigned char)(((BITS(src, 6, 0x03) - d)*a)>>8) + d;
-		    *out++ = (r << 0) | (g << 3) | (b << 6);
-		    break;
-
-	        case MWPF_PALETTE:
-		    /* reverse lookup palette entry for blend ;-)*/
-		    palsrc = GETPALENTRY(gr_palette, src);
-		    paldst = GETPALENTRY(gr_palette, dst);
-		    d = REDVALUE(paldst);
-		    r = (unsigned char)(((REDVALUE(palsrc) - d)*a)>>8) + d;
-		    d = GREENVALUE(paldst);
-		    g = (unsigned char)(((GREENVALUE(palsrc) - d)*a)>>8) + d;
-		    d = BLUEVALUE(paldst);
-		    b = (unsigned char)(((BLUEVALUE(palsrc) - d)*a)>>8) + d;
-		    *out++ = GdFindNearestColor(gr_palette, (int)psd->ncolors,
-				MWRGB(r, g, b));
-		    break;
-	  	}
-	}
-}
-#endif /*HAVE_FREETYPE_SUPPORT*/
-
-#if !HAVE_FREETYPE_SUPPORT
+/* null routines (need porting from freetype 1)*/
 int
 GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,int nMaxExtent,
 	int* lpnFit, int* alpDx,MWCOORD *pwidth,MWCOORD *pheight,
@@ -712,7 +590,6 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 {
 	*numfonts = -1;
 }
-#endif /* !HAVE_FREETYPE_SUPPORT*/
 
 /**
  * Convert text from one encoding to another.
@@ -981,9 +858,7 @@ GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer, unsigned length,
 	 * based on 'format' here.  (Suggestion: 'format' is the file
 	 * extension - e.g. TTF, PFR, ...)
 	 */
-
-	//if (freetype_init(psd))
-		pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height, width);
+	pfont = (PMWFONT)freetype2_createfontfrombuffer(buffer, length, height, width);
 	if (!pfont)
 		EPRINTF("GdCreateFontFromBuffer: create failed.\n");
 #endif

@@ -1,6 +1,8 @@
 **fix kluge in select_fb_subdriver - extern fblinearXX_xxxx required
 	must add SUBDRIVER n/l/r/d into screendevice
 
+Look at RGB2PIXEL in convblit_mask/8888.c, will this work on all systems?
+
 fix x11 driver kluges 
 need different way of SUBDRIVER left/right/down etc switching
 

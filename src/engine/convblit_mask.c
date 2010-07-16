@@ -123,7 +123,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 					d[DA] = fg_a;\
 \
 				if (DSZ == 2)\
-					((unsigned short *)d)[0] = RGB2PIXEL565(fg_r, fg_g, fg_b);\
+					((unsigned short *)d)[0] = RGB2PIXEL(fg_r, fg_g, fg_b);\
 				else\
 				{\
 					d[DR] = fg_r;\
@@ -137,7 +137,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 					d[DA] = bg_a;\
 \
 				if (DSZ == 2)\
-					((unsigned short *)d)[0] = RGB2PIXEL565(bg_r, bg_g, bg_b);\
+					((unsigned short *)d)[0] = RGB2PIXEL(bg_r, bg_g, bg_b);\
 				else\
 				{\
 					d[DR] = bg_r;\
@@ -492,7 +492,7 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 				if (usebg)
 				{
 					if (DSZ == 2)
-						((unsigned short *)d)[0] = RGB2PIXEL565(bg_r, bg_g, bg_g);
+						((unsigned short *)d)[0] = RGB2PIXEL(bg_r, bg_g, bg_b);
 					else
 					{
 						if (DA >= 0)
@@ -506,7 +506,7 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 			else if (alpha == 255)					/* copy source*/
 			{
 				if (DSZ == 2)
-					((unsigned short *)d)[0] = RGB2PIXEL565(fg_r, fg_g, fg_g);
+					((unsigned short *)d)[0] = RGB2PIXEL(fg_r, fg_g, fg_b);
 				else
 				{
 					if (DA >= 0)

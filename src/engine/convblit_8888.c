@@ -103,7 +103,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 			if (mode == COPY || (alpha = s[SA]) == 255)		/* copy source*/
 			{
 				if (DSZ == 2)
-					((unsigned short *)d)[0] = RGB2PIXEL565(s[SR], s[SG], s[SB]);
+					((unsigned short *)d)[0] = RGB2PIXEL(s[SR], s[SG], s[SB]);
 				else
 				{
 					if (DA >= 0)			/* compiler will optimize out completely*/

@@ -1,3 +1,5 @@
+16 Jul 2010
+	* fix RGB2PIXEL in convblit functions, 16bpp alpha blend bug
 22 Jun 2010
 	* remove MW_FEATURE_PSDOP_*
 	* remove fblin18.c 6/6/6 driver (reimplement using fblin24.c and new COLOR macros)

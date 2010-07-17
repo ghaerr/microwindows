@@ -40,8 +40,8 @@ typedef unsigned char WORD[2];
 typedef unsigned char DWORD[4];
 typedef unsigned char LONG[4];
 #define	CASTWORD	*(unsigned short *)&
-#define	CASTDWORD	*(uint32_t *)&
-#define	CASTLONG	*(int32_t *)&
+#define	CASTDWORD	*(DWORD *)&
+#define	CASTLONG	*(LONG *)&
 #endif
 
 
@@ -63,9 +63,8 @@ typedef struct {
 
 #define FIXSZ_BMPHEAD	(11*4 + 4*2 + 2*1)
 
-static int DecodeRLE8(UCHAR * buf, UCHAR ** fp, int linesize);
-static int DecodeRLE4(UCHAR * buf, UCHAR ** fp, int linesize);
-static void put4(int b);
+static
+PMWIMAGEHDR resDecodeBitmap (BMPHEAD *pHead, int size);
 
 /*
  *  Load a bitmap from resource file.
@@ -73,31 +72,82 @@ static void put4(int b);
 PMWIMAGEHDR
 resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 {
-	PMWIMAGEHDR pImageHdr = 0, retV;
-	MWPALENTRY *cmap;
 	HGLOBAL hResBmp;
 	BMPHEAD *pHead;
-	unsigned int cx, cy, bitdepth, linesize;
-	int32_t compression;
-	int i, palsize;
-	int bytesperpixel;
 	HRSRC hRes;
-	UCHAR *pf, *pStart, *pLine;
-
-
-	retV = NULL;
+	PMWIMAGEHDR retV = NULL;
+	int size;
 
 	hRes = FindResource(hInst, resName, RT_BITMAP);
 	if (hRes == NULL)
 		return NULL;
 
-	if (SizeofResource(hInst, hRes) < FIXSZ_BMPHEAD)
+	if ((size = SizeofResource(hInst, hRes)) < FIXSZ_BMPHEAD)
 		return NULL;
 
 	hResBmp = LoadResource(hInst, hRes);
 	pHead = LockResource(hResBmp);
 	if (pHead == NULL)
 		return NULL;
+
+	retV = resDecodeBitmap (pHead, size);
+
+	UnlockResource(hResBmp);
+	FreeResource(hResBmp);
+	return retV;
+}
+
+/*
+ *  Free memory allocated with resLoadBitmap
+ */
+void
+resFreeBitmap(PMWIMAGEHDR pImageHdr)
+{
+	if (pImageHdr->palette)
+		free(pImageHdr->palette);
+	if (pImageHdr->imagebits)
+		free(pImageHdr->imagebits);
+	free(pImageHdr);
+}
+
+/* cspert: If we already compiled in native support for BMP
+ * via HAVE_BMP_SUPPORT, there is no need for this duplicate
+ * module, so we are using the in-core API directly
+ * via GdDecodeBmp which is also more powerful.
+ */
+#ifdef HAVE_BMP_SUPPORT
+static
+PMWIMAGEHDR resDecodeBitmap (BMPHEAD *pHead, int size)
+{
+	PMWIMAGEHDR pimage = (PMWIMAGEHDR)calloc(1, sizeof(MWIMAGEHDR));
+	buffer_t buf = {0};
+
+	if (!pimage) return NULL;
+	buf.start = pHead;
+	buf.size = size;
+	if (GdDecodeBMP(&buf, pimage) != 1)
+	{
+		free (pimage);
+		return NULL;
+	}
+	return pimage;
+}
+#else
+
+static int DecodeRLE8(UCHAR * buf, UCHAR ** fp, int linesize);
+static int DecodeRLE4(UCHAR * buf, UCHAR ** fp, int linesize);
+static void put4(int b);
+
+static
+PMWIMAGEHDR resDecodeBitmap (BMPHEAD *pHead, int size)
+{
+	PMWIMAGEHDR pImageHdr = 0, retV = NULL;
+	MWPALENTRY *cmap;
+	unsigned int cx, cy, bitdepth, linesize;
+	long compression;
+	int i, palsize;
+	int bytesperpixel;
+	UCHAR *pf, *pStart, *pLine;
 
 	do {
 		pf = pStart = (UCHAR *) pHead;
@@ -205,9 +255,6 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 		} while (0);
 	} while (0);
 
-	UnlockResource(hResBmp);
-	FreeResource(hResBmp);
-
 	if (retV == NULL) {
 		if (pImageHdr->palette)
 			free(pImageHdr->palette);
@@ -219,19 +266,6 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 	return retV;
 }
 
-
-/*
- *  Free memory allocated with resLoadBitmap
- */
-void
-resFreeBitmap(PMWIMAGEHDR pImageHdr)
-{
-	if (pImageHdr->palette)
-		free(pImageHdr->palette);
-	if (pImageHdr->imagebits)
-		free(pImageHdr->imagebits);
-	free(pImageHdr);
-}
 
 #define B_FGET(fp)	( *fp++ )
 
@@ -337,3 +371,4 @@ DecodeRLE4(UCHAR * buf, UCHAR ** pfp, int linesize)
 	}
 	return 0;
 }
+#endif

@@ -97,6 +97,7 @@ typedef struct tagMSG {
 #define WM_GETFONT      		0x0031
 #define WM_COMPAREITEM					0x0039
 #define WM_WINDOWPOSCHANGED             0x0047
+#define WM_NOTIFY                       0x004E
 #define WM_NCCALCSIZE                   0x0083
 #define WM_NCHITTEST                    0x0084
 #define WM_NCPAINT                      0x0085
@@ -148,6 +149,7 @@ typedef struct tagMSG {
 #define WM_MBUTTONDBLCLK                0x0209
 #define WM_MOUSEWHEEL                   0x020A
 #define WM_MOUSELAST                    0x020A
+#define WM_HOTKEY                       0x0312
 
 #define WM_CARET_CREATE    		0x03E0 /* Microwindows only*/
 #define WM_CARET_DESTROY   		0x03E1 /* Microwindows only*/
@@ -240,6 +242,11 @@ BOOL WINAPI 	GetMessage(LPMSG lpMsg,HWND hwnd,UINT wMsgFilterMin,
 BOOL WINAPI 	TranslateMessage(CONST MSG *lpMsg);
 LONG WINAPI	DispatchMessage(CONST MSG *lpMsg);
 
+/* Hotkey stuff */
+BOOL RegisterHotKey(HWND hWnd, int id, UINT fsModifiers, UINT vk);
+BOOL UnregisterHotKey(HWND hWnd, int id);
+BOOL MwDeliverHotkey (WPARAM VK_Code, BOOL pressed);
+
 /* note: the following struct is in reverse order from the
  * microsoft version since WINAPI is cdecl in this implementation
  */
@@ -268,7 +275,6 @@ typedef struct tagCOMPAREITEMSTRUCT {
 	DWORD	itemData2;
 	DWORD	dwLocaleId;
 } COMPAREITEMSTRUCT,*LPCOMPAREITEMSTRUCT;
-
 typedef struct tagDELETEITEMSTRUCT {
 	UINT CtlType;
 	UINT CtlID;
@@ -276,6 +282,20 @@ typedef struct tagDELETEITEMSTRUCT {
 	HWND hwndItem;
 	UINT itemData;
 } DELETEITEMSTRUCT,*PDELETEITEMSTRUCT,*LPDELETEITEMSTRUCT;
+typedef struct tagNMHDR
+{
+    HWND  hwndFrom;
+    UINT  idFrom;
+    UINT  code;         // NM_ code
+}   NMHDR;
+typedef NMHDR FAR * LPNMHDR;
+
+/* Button codes for MW_MOUSEMOVED:
+ * Please note that they differ from normal Windows codes
+ */
+#define MK_LBUTTON	MWBUTTON_L
+#define MK_RBUTTON	MWBUTTON_R
+#define MK_MBUTTON 	MWBUTTON_M
 
 /*
  * Window Styles

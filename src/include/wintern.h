@@ -71,7 +71,7 @@ void		MwExposeArea(HWND wp, MWCOORD rootx,MWCOORD rooty,
 BOOL		MwCheckMouseEvent(void);
 BOOL		MwCheckKeyboardEvent(void);
 void 		MwHandleMouseStatus(MWCOORD newx, MWCOORD newy, int newbuttons);
-void		MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest);
+void		MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest,int buttons);
 void		MwDeliverMouseEvent(int buttons, int changebuttons,
 			MWKEYMOD modifiers);
 void		MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers,

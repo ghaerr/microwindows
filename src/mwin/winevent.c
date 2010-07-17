@@ -131,7 +131,7 @@ MwHandleMouseStatus(MWCOORD newx, MWCOORD newy, int newbuttons)
  * Translate and deliver hardware mouse message to proper window.
  */
 void
-MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest)
+MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest,int buttons)
 {
 	POINT		pt;
 	DWORD		tick;
@@ -168,7 +168,7 @@ MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest)
 		pt.x = cursorx;
 		pt.y = cursory;
 		ScreenToClient(hwnd, &pt);
-		PostMessage(hwnd, msg, 0, MAKELONG(pt.x, pt.y));
+		PostMessage(hwnd, msg, buttons, MAKELONG(pt.x, pt.y));
 	}
 }
 
@@ -201,21 +201,21 @@ MwDeliverMouseEvent(int buttons, int changebuttons, MWKEYMOD modifiers)
 	hittest = SendMessage(hwnd, WM_NCHITTEST, 0, MAKELONG(cursorx,cursory));
 
 	if(!changebuttons)
-		MwTranslateMouseMessage(hwnd, WM_MOUSEMOVE, hittest);
+		MwTranslateMouseMessage(hwnd, WM_MOUSEMOVE, hittest, buttons);
 
 	if(changebuttons & MWBUTTON_L) {
 		msg = (buttons&MWBUTTON_L)? WM_LBUTTONDOWN: WM_LBUTTONUP;
-		MwTranslateMouseMessage(hwnd, msg, hittest);
+		MwTranslateMouseMessage(hwnd, msg, hittest, buttons);
 	}
 
 	if(changebuttons & MWBUTTON_M) {
 		msg = (buttons&MWBUTTON_M)? WM_MBUTTONDOWN: WM_MBUTTONUP;
-		MwTranslateMouseMessage(hwnd, msg, hittest);
+		MwTranslateMouseMessage(hwnd, msg, hittest, buttons);
 	}
 
 	if(changebuttons & MWBUTTON_R) {
 		msg = (buttons&MWBUTTON_R)? WM_RBUTTONDOWN: WM_RBUTTONUP;
-		MwTranslateMouseMessage(hwnd, msg, hittest);
+		MwTranslateMouseMessage(hwnd, msg, hittest, buttons);
 	}
 }
 
@@ -391,13 +391,13 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 		VK_Code = VK_MENU;
 		break;
 	case MWKEY_LMETA:
-		VK_Code = VK_LBUTTON;
+		VK_Code = VK_F1;	// Smartphone 2003 compliance
 		break;
 	case MWKEY_RMETA:
-		VK_Code = VK_RBUTTON;
+		VK_Code = VK_F2;	// Smartphone 2003 compliance
 		break;
 	case MWKEY_ACCEPT:
-		VK_Code = VK_MBUTTON;
+		VK_Code = VK_RETURN;// Smartphone 2003 compliance
 		break;
 
 	/* Misc function keys*/
@@ -450,10 +450,12 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	if (mwPtrKeyboardTranslator)
 		mwPtrKeyboardTranslator(&VK_Code, &lParam, &pressed);
 
-	if (pressed)
-		PostMessage(focuswp, WM_KEYDOWN, VK_Code, lParam);
-	else
-		PostMessage(focuswp, WM_KEYUP, VK_Code, lParam);
+	if (!MwDeliverHotkey (VK_Code, pressed)) {
+		if (pressed)
+			PostMessage(focuswp, WM_KEYDOWN, VK_Code, lParam);
+		else
+			PostMessage(focuswp, WM_KEYUP, VK_Code, lParam);
+	}
 }
 
 /*

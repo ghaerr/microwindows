@@ -5,6 +5,11 @@
  * Win32 GDI structures and API
  */
 
+#ifndef _WINGDI_H_
+#define _WINGDI_H_
+
+#include "device.h"
+
 /* portable coordinate definition*/
 typedef MWCOORD	GDICOORD;
 
@@ -298,6 +303,50 @@ HBRUSH WINAPI	CreateSolidBrush(COLORREF crColor);
 HPEN WINAPI	CreatePen(int nPenStyle, int nWidth, COLORREF crColor);
 
 HBITMAP WINAPI	CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight);
+
+/* constants for the biCompression field */
+#define BI_RGB        0L
+#define BI_RLE8       1L
+#define BI_RLE4       2L
+#define BI_BITFIELDS  3L
+
+#pragma pack(2)
+typedef struct tagBITMAPINFOHEADER { // bmih
+    DWORD  PACKEDDATA biSize;
+    LONG   PACKEDDATA biWidth;
+    LONG   PACKEDDATA biHeight;
+    WORD   PACKEDDATA biPlanes;
+    WORD   PACKEDDATA biBitCount;
+    DWORD  PACKEDDATA biCompression;
+    DWORD  PACKEDDATA biSizeImage;
+    LONG   PACKEDDATA biXPelsPerMeter;
+    LONG   PACKEDDATA biYPelsPerMeter;
+    DWORD  PACKEDDATA biClrUsed;
+    DWORD  PACKEDDATA biClrImportant;
+} BITMAPINFOHEADER;
+#pragma pack()
+
+typedef struct tagRGBQUAD { // rgbq
+    BYTE    rgbBlue;
+    BYTE    rgbGreen;
+    BYTE    rgbRed;
+    BYTE    rgbReserved;
+} RGBQUAD;
+
+typedef struct tagBITMAPINFO { // bmi
+    BITMAPINFOHEADER bmiHeader;
+    RGBQUAD          bmiColors[1];
+} BITMAPINFO;
+
+
+/* DIB color table identifiers */
+
+#define DIB_RGB_COLORS      0 /* color table in RGBs */
+#define DIB_PAL_COLORS      1 /* color table in palette indices */
+
+HBITMAP CreateDIBSection(
+  HDC hdc, CONST BITMAPINFO *pbmi, UINT iUsage,
+  VOID **ppvBits, HANDLE hSection, DWORD dwOffset);
 HDC WINAPI	CreateCompatibleDC(HDC hdc);
 
 /* BitBlit raster opcodes*/
@@ -414,3 +463,5 @@ BOOL WINAPI SubtractRect(LPRECT dest, const RECT *src1, const RECT *src2 );
 
 /* GDI math stuff */
 int WINAPI MulDiv(int nMultiplicand, int nMultiplier, int nDivisor);
+
+#endif

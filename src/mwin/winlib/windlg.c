@@ -29,9 +29,9 @@
 					 (MwGetTopWindow((hCtrl)) == (hDlg)))
 
 #define MulDiv(x,m,d)	( ((((x)<0) && ((m)<0)) || (((x)>=0) && ((m)>=0))) ? \
-			  ((((int32_t)(x)*(int32_t)(m))+(int32_t)((d)/2))/(int32_t)(d)) : \
-			  ((((int32_t)(x)*(int32_t)(m))-(int32_t)((d)/2))/(int32_t)(d)) )
-#define MulDivRD(x,m,d)	( ((int32_t)(x) * (int32_t)(m))/(int32_t)(d) )
+			  ((((LONG)(x)*(LONG)(m))+(LONG)((d)/2))/(LONG)(d)) : \
+			  ((((LONG)(x)*(LONG)(m))-(LONG)((d)/2))/(LONG)(d)) )
+#define MulDivRD(x,m,d)	( ((LONG)(x) * (LONG)(m))/(LONG)(d) )
 
 /*
  *  Struct with information about DLG
@@ -491,9 +491,6 @@ dlgGetItemClass(PMWDLGITEMTEMPLEXTRA pItem)
 		"BUTTON", "EDIT", "STATIC", "LISTBOX", "SCROLLBAR", "COMBOBOX"
 	};
 
-	if ((pItem->szClassName == NULL) || (strlen(pItem->szClassName) < 2))
-		return "";
-
 	if ((pItem->szClassName[0] == (TCHAR) - 1)) {
 		unsigned idx = ((unsigned char) pItem->szClassName[1]) -
 			DLGITEM_CLASS_FIRSTID;
@@ -503,6 +500,9 @@ dlgGetItemClass(PMWDLGITEMTEMPLEXTRA pItem)
 
 		return "";
 	}
+
+	if ((pItem->szClassName == NULL) || (strlen(pItem->szClassName) < 2))
+		return "";
 
 	return pItem->szClassName;
 }
@@ -573,6 +573,10 @@ mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			} else
 				EPRINTF("WARN: mwDialogProc: WM_NCDESTROY without dlgParams\n");
 			break;
+
+        case WM_CLOSE:
+                EndDialog (hWnd, 0);
+                return 0;
 
 		case WM_SETFONT:
 			pData = DLG_PMWDLGDATA(hWnd);

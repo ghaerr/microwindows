@@ -1,3 +1,8 @@
+17 Jul 2010 (Ludwig)
+	* added CreateDibSection, GetLastError, SetLastError, RegisterHotKey, UnRegisterHotkey
+	* various editbox fixes, added WM_CLOSE dialog handling, fixed close crash
+	* added keyflags in WM_MOUSEMOVE wParam, winerror.h
+	* add MoSync screen/mouse/kbd driver support
 16 Jul 2010
 	* fix RGB2PIXEL in convblit functions, 16bpp alpha blend bug
 22 Jun 2010

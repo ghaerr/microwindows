@@ -395,6 +395,9 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
+	case WM_VKEYTOITEM:
+	case WM_CHARTOITEM:
+		return -1;
 	case WM_CTLCOLORMSGBOX:
 	case WM_CTLCOLOREDIT:
 	case WM_CTLCOLORLISTBOX:

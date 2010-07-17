@@ -62,6 +62,7 @@ DWORD		startTicks;		/* tickcount on startup */
 int		keyb_fd;		/* the keyboard file descriptor */
 int		mouse_fd;		/* the mouse file descriptor */
 int		escape_quits = 1;	/* terminate when pressing ESC */
+DWORD		lastWIN32Error = 0;	/* Last error */
 
 #if PSP
 int exit_callback(void)

@@ -15,6 +15,7 @@
  *  2003/09/24  Gabriele Brugnoni       Implemented WM_SYSCHAR for ALT-Key
  *  2010/04/23	Ludwig Ertl				Fixed KillTimer to work in TimerProc for current timer
  *  									Implemented SetProp/GetProp/RemoveProp
+ *  2010/06/24  Ludwig Ertl				Implemented RegisterHotKey/UnregisterHotKey
  */
 #include "windows.h"
 #include "wintern.h"
@@ -27,6 +28,7 @@
 
 MWLISTHEAD mwMsgHead;		/* application msg queue*/
 MWLISTHEAD mwClassHead;		/* register class list*/
+MWLISTHEAD mwHotkeyHead={0};/* Hotkey table list */
 
 int	mwSYSMETRICS_CYCAPTION = 12;	/* Y caption height*/
 int	mwSYSMETRICS_CXFRAME = 3;	/* width of frame border*/
@@ -62,9 +64,18 @@ typedef struct {
 	HANDLE hData;
 } MWPROP;
 
+typedef struct {
+	MWLIST link;
+	int id;
+	HWND hWnd;
+	UINT fsModifiers;
+	UINT vk;
+} MWHOTKEY;
+
 
 static void MwOffsetChildren(HWND hwnd, int offx, int offy);
 static void MwRemoveWndFromTimers(HWND hwnd);
+static BOOL MwRemoveWndFromHotkeys (HWND hWnd);
 
 LRESULT WINAPI
 CallWindowProc(WNDPROC lpPrevWndFunc, HWND hwnd, UINT Msg, WPARAM wParam,
@@ -255,6 +266,78 @@ DispatchMessage(CONST MSG *lpMsg)
 {
 	return SendMessage(lpMsg->hwnd, lpMsg->message, lpMsg->wParam,
 		lpMsg->lParam);
+}
+
+static MWHOTKEY *MwFindHotkey (int id)
+{
+	PMWLIST		p;
+	MWHOTKEY	*pHotkey;
+
+	for (p=mwHotkeyHead.head; p; p=p->next) {
+		pHotkey = GdItemAddr (p, MWHOTKEY, link);
+		if (pHotkey->id == id)
+			return pHotkey;
+	}
+	return NULL;
+}
+
+static BOOL MwRemoveWndFromHotkeys (HWND hWnd)
+{
+	PMWLIST		p, pNext;
+	MWHOTKEY	*pHotkey;
+	BOOL        bRet = FALSE;
+
+	for (p=mwHotkeyHead.head; p; p=pNext) {
+		pNext = p->next;
+		pHotkey = GdItemAddr (p, MWHOTKEY, link);
+		if (pHotkey->hWnd == hWnd) {
+			GdListRemove(&mwHotkeyHead, &pHotkey->link);
+			GdItemFree(pHotkey);
+			bRet = TRUE;
+		}
+	}
+	return bRet;
+}
+
+BOOL MwDeliverHotkey (WPARAM VK_Code, BOOL pressed)
+{
+	PMWLIST		p;
+	MWHOTKEY	*pHotkey;
+
+	if (!pressed) return FALSE;
+	for (p=mwHotkeyHead.head; p; p=p->next) {
+		pHotkey = GdItemAddr (p, MWHOTKEY, link);
+		if (pHotkey->vk == VK_Code && IsWindow(pHotkey->hWnd)) {
+			PostMessage (pHotkey->hWnd, WM_HOTKEY, 0, MAKELPARAM(0, VK_Code));
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+BOOL RegisterHotKey(HWND hWnd, int id, UINT fsModifiers, UINT vk)
+{
+	MWHOTKEY *pHotkey;
+
+	if (MwFindHotkey (id) || !(pHotkey = GdItemNew (MWHOTKEY)))
+		return FALSE;
+	pHotkey->hWnd        = hWnd;
+	pHotkey->id          = id;
+	pHotkey->fsModifiers = fsModifiers;
+	pHotkey->vk          = vk;
+	GdListAdd(&mwHotkeyHead, &pHotkey->link);
+
+	return TRUE;
+}
+
+BOOL UnregisterHotKey(HWND hWnd, int id)
+{
+	MWHOTKEY *pHotkey = MwFindHotkey(id);
+
+	if (!pHotkey) return FALSE;
+	GdListRemove(&mwHotkeyHead, &pHotkey->link);
+	GdItemFree(pHotkey);
+	return TRUE;
 }
 
 /* find the registered window class struct by name*/
@@ -459,11 +542,9 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	PMWLIST	p;
 	PMSG	pmsg;
 
-	if (wp == rootwp)
+	if (wp == rootwp || !IsWindow (hwnd))
 		return;
 
-DPRINTF("DESTROY %d\n", wp);
-DPRINTF("ROOT CHILD %d\n", rootwp->children);
 	/*
 	 * Unmap the window.
 	 */
@@ -479,9 +560,13 @@ DPRINTF("ROOT CHILD %d\n", rootwp->children);
 	MwRemoveWndFromTimers(hwnd);
 
 	/*
+	 * Remove hotkeys
+	 */
+	MwRemoveWndFromHotkeys(hwnd);
+
+	/*
 	 * Disable all sendmessages to this window.
 	 */
-	wp->pClass = NULL;
 	wp->lpfnWndProc = NULL;
 
 	/*
@@ -489,6 +574,8 @@ DPRINTF("ROOT CHILD %d\n", rootwp->children);
 	 */
 	while (wp->children)
 		MwDestroyWindow(wp->children, bSendMsg);
+
+	wp->pClass = NULL;
 
 	/*
 	 * Free any cursor associated with the window.

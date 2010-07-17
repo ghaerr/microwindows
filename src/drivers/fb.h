@@ -570,9 +570,9 @@ PSUBDRIVER select_fb_subdriver(PSD psd);
 void set_portrait_subdriver(PSD psd);
 
 /* fbportrait_xxx.c*/
-SUBDRIVER fbportrait_left;
-SUBDRIVER fbportrait_right;
-SUBDRIVER fbportrait_down;
+extern SUBDRIVER fbportrait_left;
+extern SUBDRIVER fbportrait_right;
+extern SUBDRIVER fbportrait_down;
 
 void fbportrait_left_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c);
 MWPIXELVAL fbportrait_left_readpixel(PSD psd, MWCOORD x, MWCOORD y);

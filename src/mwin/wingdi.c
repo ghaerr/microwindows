@@ -105,7 +105,7 @@ GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 	hdc->pt.y = 0;
 
 	/* assign private DC if CS_OWNDC and not WindowDC*/
-	if((hwnd->pClass->style & CS_OWNDC) && !(flags & DCX_WINDOW)) {
+	if(hwnd->pClass && (hwnd->pClass->style & CS_OWNDC) && !(flags & DCX_WINDOW)) {
 		/* must exclude update region due to BeginPaint GetDCEx call*/
 		hdc->flags |= DCX_EXCLUDEUPDATE;
 		hwnd->owndc = hdc;
@@ -1285,7 +1285,7 @@ MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 	}
 
 	if ((uFormat & DT_CALCRECT) && !(uFormat & DT_SINGLELINE) && nlines == 1)
-		lprc->right = rtotal;
+		lprc->right = rtotal + lprc->left;
 
 	if (hPen) {
 		hPen = SelectObject(hDC, hPen);
@@ -1754,6 +1754,39 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	hbitmap->size = size;
 
 	return (HBRUSH)hbitmap;
+}
+
+HBITMAP CreateDIBSection(
+  HDC hdc, CONST BITMAPINFO *pbmi, UINT iUsage,
+  VOID **ppvBits, HANDLE hSection, DWORD dwOffset)
+{
+	MWBITMAPOBJ *	hbitmap;
+	int		size;
+	int		linelen, pitch;
+	PSD psd = hdc? hdc->psd: &scrdev;
+
+	/* calc memory allocation size and linelen from width and height*/
+	if(!GdCalcMemGCAlloc(psd, pbmi->bmiHeader.biWidth,
+			pbmi->bmiHeader.biHeight, pbmi->bmiHeader.biPlanes,
+			pbmi->bmiHeader.biBitCount, &size, &linelen, &pitch))
+		return NULL;
+
+	/* allocate gdi object*/
+	hbitmap = (MWBITMAPOBJ *)GdItemAlloc(sizeof(MWBITMAPOBJ)-1+size);
+	if(!hbitmap)
+		return NULL;
+	hbitmap->hdr.type = OBJ_BITMAP;
+	hbitmap->hdr.stockobj = FALSE;
+	hbitmap->width = pbmi->bmiHeader.biWidth;
+	hbitmap->height = pbmi->bmiHeader.biHeight;
+	hbitmap->planes = pbmi->bmiHeader.biPlanes;
+	hbitmap->bpp = pbmi->bmiHeader.biBitCount;
+	hbitmap->linelen = linelen;
+	hbitmap->size = size;
+
+	if (ppvBits) *ppvBits = &hbitmap->bits[0];
+
+	return (HBITMAP)hbitmap;
 }
 
 /* return NULL if no driver bitblit available*/

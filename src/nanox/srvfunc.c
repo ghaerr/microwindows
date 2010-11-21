@@ -3170,6 +3170,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	switch (GsPrepareDrawing(id, gc, &dp)) {
 		case GR_DRAW_TYPE_WINDOW:
 	        case GR_DRAW_TYPE_PIXMAP:
+printf("GrArea win %d gc %d %d,%d\n", id, gc, dp->x, dp->y);
 			GdArea(dp->psd, dp->x + x, dp->y + y, width, height,
 				pixels, pixtype);
 			break;

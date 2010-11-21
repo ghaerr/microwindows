@@ -1295,6 +1295,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	int pixsize;
 	unsigned char r, g, b;
 
+printf("GdArea %d,%d %d,%d (type %d)\n", x, y, width, height, pixtype);
 #if 0 // FIXME
 	/* check for hw pixel format and low level driver drawarea call*/
 	if (pixtype == MWPF_HWPIXELVAL && (psd->flags & PSF_HAVEOP_COPY)) {

@@ -150,7 +150,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 		src += src_pitch;		/* src: next line down*/\
 		dst += dst_pitch;\
 	}\
-printf("convblit_mask_mono\n");\
+\
 	/* update screen bits if driver requires it*/\
 	if (!psd->Update)\
 		return;\

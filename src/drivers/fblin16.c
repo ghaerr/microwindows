@@ -60,6 +60,9 @@ linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 		((ADDR16)psd->addr)[x + y * psd->linelen] = c;
 	else
 		applyOp(gr_mode, c, &((ADDR16)psd->addr)[x + y * psd->linelen], ADDR16);
+
+	if (psd->Update)
+		psd->Update(psd, x, y, 1, 1);
 	DRAWOFF;
 }
 
@@ -80,6 +83,7 @@ static void
 linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	register ADDR16	addr = ((ADDR16)psd->addr) + x1 + y * psd->linelen;
+	MWCOORD X1 = x1;
 #if DEBUG
 	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
@@ -96,13 +100,14 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 			*addr++ = c;
 	} else {
 		applyOp2(x2-x1+1, gr_mode, c, addr, ADDR16);
-		/*
-		while (x1++ <= x2) {
+		/*while (x1++ <= x2) {
 			applyOp(gr_mode, c, addr, ADDR16);
 			++addr;
-		}
-		*/
+		}*/
 	}
+
+	if (psd->Update)
+		psd->Update(psd, X1, y, x2-X1+1, 1);
 	DRAWOFF;
 }
 
@@ -111,6 +116,7 @@ static void
 linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	int	linelen = psd->linelen;
+	MWCOORD Y1 = y1;
 	register ADDR16	addr = ((ADDR16)psd->addr) + x + y1 * linelen;
 #if DEBUG
 	assert (addr != 0);
@@ -129,13 +135,14 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		}
 	} else {
 		applyOp3(y2-y1+1, linelen, gr_mode, c, addr, ADDR16);
-		/*
-		while (y1++ <= y2) {
+		/*while (y1++ <= y2) {
 			applyOp(gr_mode, c, addr, ADDR16);
 			addr += linelen;
-		}
-		*/
+		}*/
 	}
+
+	if (psd->Update)
+		psd->Update(psd, x, Y1, 1, y2-Y1+1);
 	DRAWOFF;
 }
 
@@ -149,7 +156,8 @@ linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	i;
 	int	dlinelen = dstpsd->linelen;
 	int	slinelen = srcpsd->linelen;
-
+	int H = h;
+#if DEBUG
 	assert (dst != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -162,7 +170,7 @@ linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (dsty+h <= dstpsd->yres);
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
-
+#endif
 	dst += dstx + dsty * dlinelen;
 	src += srcx + srcy * slinelen;
 
@@ -229,79 +237,11 @@ linear16_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			src += slinelen - w;
 		}
 	}
+
+	if (dstpsd->Update)
+		dstpsd->Update(dstpsd, dstx, dsty, w, H);
 	DRAWOFF;
 }
-
-#if 0000 /* DEPCRECATED*/
-/* VERY experimental globals for debugging stretchblit off-by-some bug*/
-extern int g_row_inc, g_col_inc;
-
-/* srccopy stretchblt*/
-static void
-linear16_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
-	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, int op)
-{
-	ADDR16	dst;
-	ADDR16	src;
-	int	dlinelen = dstpsd->linelen;
-	int	slinelen = srcpsd->linelen;
-	int	i, ymax;
-	int	row_pos, row_inc;
-	int	col_pos, col_inc;
-	unsigned short pixel = 0;
-
-	assert (dstpsd->addr != 0);
-	assert (dstx >= 0 && dstx < dstpsd->xres);
-	assert (dsty >= 0 && dsty < dstpsd->yres);
-	assert (dstw > 0);
-	assert (dsth > 0);
-	assert (srcpsd->addr != 0);
-	assert (srcx >= 0 && srcx < srcpsd->xres);
-	assert (srcy >= 0 && srcy < srcpsd->yres);
-	assert (srcw > 0);
-	assert (srch > 0);
-	assert (dstx+dstw <= dstpsd->xres);
-	assert (dsty+dsth <= dstpsd->yres);
-	assert (srcx+srcw <= srcpsd->xres);
-	assert (srcy+srch <= srcpsd->yres);
-
-	DRAWON;
-	row_pos = 0x10000;
-	if (g_row_inc) row_inc = g_row_inc; else
-	row_inc = (srch << 16) / dsth;
-
-	/* stretch blit using integer ratio between src/dst height/width*/
-	for (ymax = dsty+dsth; dsty<ymax; ++dsty) {
-
-		/* find source y position*/
-		while (row_pos >= 0x10000L) {
-			++srcy;
-			row_pos -= 0x10000L;
-		}
-
-		dst = (ADDR16)dstpsd->addr + dstx + dsty*dlinelen;
-		src = (ADDR16)srcpsd->addr + srcx + (srcy-1)*slinelen;
-
-		/* copy a row of pixels*/
-		col_pos = 0x10000;
-		if (g_col_inc) col_inc = g_col_inc; else
-		col_inc = (srcw << 16) / dstw;
-		for (i=0; i<dstw; ++i) {
-			/* get source x pixel*/
-			while (col_pos >= 0x10000L) {
-				pixel = *src++;
-				col_pos -= 0x10000L;
-			}
-			*dst++ = pixel;
-			col_pos += col_inc;
-		}
-
-		row_pos += row_inc;
-	}
-	DRAWOFF;
-}
-#endif
 
 /*
  * This stretchblit code was originally written for the TriMedia
@@ -555,8 +495,10 @@ linear16_stretchblitex(PSD dstpsd,
 			}
 		}
 		break;
-
 	}
+
+	if (dstpsd->Update)
+		dstpsd->Update(dstpsd, dest_x_start, dest_y_start, width, height);
 }
 
 SUBDRIVER fblinear16 = {

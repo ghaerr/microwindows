@@ -29,11 +29,11 @@ linear24_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	ADDR8	addr = psd->addr;
 	MWUCHAR	r, g, b;
-
+#if DEBUG
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
+#endif
 	r = PIXEL888RED(c);
 	g = PIXEL888GREEN(c);
 	b = PIXEL888BLUE(c);
@@ -48,6 +48,9 @@ linear24_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 		applyOp(gr_mode, g, addr, ADDR8); ++addr;
 		applyOp(gr_mode, r, addr, ADDR8);
 	}
+
+	if (psd->Update)
+		psd->Update(psd, x, y, 1, 1);
 	DRAWOFF;
 }
 
@@ -56,11 +59,11 @@ static MWPIXELVAL
 linear24_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
 	ADDR8	addr = psd->addr;
-
+#if DEBUG
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-
+#endif
 	addr += (x + y * psd->linelen) * 3;
 	return RGB2PIXEL888(addr[2], addr[1], addr[0]);
 }
@@ -71,13 +74,14 @@ linear24_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	ADDR8	addr = psd->addr;
 	MWUCHAR	r, g, b;
-
+	MWCOORD X1 = x1;
+#if DEBUG
 	assert (addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
-
+#endif
 	r = PIXEL888RED(c);
 	g = PIXEL888GREEN(c);
 	b = PIXEL888BLUE(c);
@@ -96,6 +100,9 @@ linear24_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 			applyOp(gr_mode, r, addr, ADDR8); ++addr;
 		}
 	}
+
+	if (psd->Update)
+		psd->Update(psd, X1, y, x2-X1+1, 1);
 	DRAWOFF;
 }
 
@@ -106,13 +113,14 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	ADDR8	addr = psd->addr;
 	int	linelen = psd->linelen * 3;
 	MWUCHAR	r, g, b;
-
+	MWCOORD Y1 = y1;
+#if DEBUG
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
-
+#endif
 	r = PIXEL888RED(c);
 	g = PIXEL888GREEN(c);
 	b = PIXEL888BLUE(c);
@@ -133,6 +141,9 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 			addr += linelen;
 		}
 	}
+
+	if (psd->Update)
+		psd->Update(psd, x, Y1, 1, y2-Y1+1);
 	DRAWOFF;
 }
 
@@ -148,7 +159,8 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	slinelen = srcpsd->linelen * 3;
 	int	dlinelen_minus_w = (dstpsd->linelen - w) * 3;
 	int	slinelen_minus_w = (srcpsd->linelen - w) * 3;
-
+	int H = h;
+#if DEBUG
 	assert (dst != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -161,7 +173,7 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (dsty+h <= dstpsd->yres);
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
-
+#endif
 	DRAWON;
 	dst += (dstx + dsty * dstpsd->linelen) * 3;
 	src += (srcx + srcy * srcpsd->linelen) * 3;
@@ -208,80 +220,11 @@ linear24_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			src += slinelen_minus_w;
 		}
 	}
+
+	if (dstpsd->Update)
+		dstpsd->Update(dstpsd, dstx, dsty, w, H);
 	DRAWOFF;
 }
-
-#if 0000 /* DEPRECATED*/
-/* srccopy stretchblt*/
-static void
-linear24_stretchblit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
-	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, int op)
-{
-	ADDR8	dst;
-	ADDR8	src;
-	int	dlinelen = dstpsd->linelen;
-	int	slinelen = srcpsd->linelen;
-	int	i, ymax;
-	int	row_pos, row_inc;
-	int	col_pos, col_inc;
-	unsigned char r = 0;
-	unsigned char g = 0;
-	unsigned char b = 0;
-
-	assert (dstpsd->addr != 0);
-	assert (dstx >= 0 && dstx < dstpsd->xres);
-	assert (dsty >= 0 && dsty < dstpsd->yres);
-	assert (dstw > 0);
-	assert (dsth > 0);
-	assert (srcpsd->addr != 0);
-	assert (srcx >= 0 && srcx < srcpsd->xres);
-	assert (srcy >= 0 && srcy < srcpsd->yres);
-	assert (srcw > 0);
-	assert (srch > 0);
-	assert (dstx+dstw <= dstpsd->xres);
-	assert (dsty+dsth <= dstpsd->yres);
-	assert (srcx+srcw <= srcpsd->xres);
-	assert (srcy+srch <= srcpsd->yres);
-
-	DRAWON;
-	row_pos = 0x10000;
-	row_inc = (srch << 16) / dsth;
-
-	/* stretch blit using integer ratio between src/dst height/width*/
-	for (ymax = dsty+dsth; dsty<ymax; ++dsty) {
-
-		/* find source y position*/
-		while (row_pos >= 0x10000L) {
-			++srcy;
-			row_pos -= 0x10000L;
-		}
-
-		dst = ((ADDR8)dstpsd->addr) + (dstx + dsty*dlinelen) * 3;
-		src = ((ADDR8)srcpsd->addr) + (srcx + (srcy-1)*slinelen) * 3;
-
-		/* copy a row of pixels*/
-		col_pos = 0x10000;
-		col_inc = (srcw << 16) / dstw;
-		for (i=0; i<dstw; ++i) {
-			/* get source x pixel*/
-			while (col_pos >= 0x10000L) {
-				b = *src++;
-				g = *src++;
-				r = *src++;
-				col_pos -= 0x10000L;
-			}
-			*dst++ = b;
-			*dst++ = g;
-			*dst++ = r;
-			col_pos += col_inc;
-		}
-
-		row_pos += row_inc;
-	}
-	DRAWOFF;
-}
-#endif /* DEPRECATED*/
 
 /*
  * This stretchblit code was originally written for the TriMedia
@@ -546,8 +489,10 @@ linear24_stretchblitex(PSD dstpsd,
 			}
 		}
 		break;
-
 	}
+
+	if (dstpsd->Update)
+		dstpsd->Update(dstpsd, dest_x_start, dest_y_start, width, height);
 }
 
 SUBDRIVER fblinear24 = {

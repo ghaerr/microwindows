@@ -48,10 +48,21 @@ fbportrait_left_drawvertline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELV
 void
 fbportrait_left_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c)
 {
+	/* temp kill updates for speed*/
+	void (*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height) = psd->Update;
+	int X2;
+	//psd->Update = NULL;
+
 	x1 = psd->xvirtres-x1-1;
-	x2 = psd->xvirtres-x2-1;
+	X2 = x2 = psd->xvirtres-x2-1;
 	while(x2 <= x1)
 		psd->orgsubdriver->DrawHorzLine(psd, y1, y2, x2++, c);
+
+	/* now redraw once if external update required*/
+	if (Update) {
+		//Update(psd, y1, X2, y2-y1+1, X2-x1+1);
+		psd->Update = Update;
+	}
 }
 
 void

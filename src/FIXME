@@ -1,6 +1,10 @@
 **fix kluge in select_fb_subdriver - extern fblinearXX_xxxx required
 	must add SUBDRIVER n/l/r/d into screendevice
 
+add optimized Update for portrait mode fillrects
+add fast blit for GdArea/GrArea, remove printfs
+debug fltk test/pixmap putTruecolorImage GrArea problem
+
 Look at RGB2PIXEL in convblit_mask/8888.c, will this work on all systems?
 
 fix x11 driver kluges 

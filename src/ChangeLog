@@ -1,3 +1,6 @@
+21 Nov 2010
+	* added psd->Update calls in fblin32/24/16.c routines for new X11 driver
+	* rewrote X11 driver to only draw using blits from memory framebuffer
 17 Jul 2010 (Ludwig)
 	* added CreateDibSection, GetLastError, SetLastError, RegisterHotKey, UnRegisterHotkey
 	* various editbox fixes, added WM_CLOSE dialog handling, fixed close crash
@@ -42,7 +45,7 @@
 	* added GdConvBlitInternal path from GdDrawImage for very fast image blitting (32bpp hw only)
 		if image decoder uses MWIF_ image format then GdConversionBlit/GdConvBlitInternal used
 		otherwise emulated with old GdDrawImage routine pixel by pixel
-11 June 2010
+11 June 2010 (Version 0.92)
 	* fix freetype 2 off-by-one height bug (ascent + descent != height)
 10 June 2010
 	* added capabilities flag word in font subdriver for h/w scaling

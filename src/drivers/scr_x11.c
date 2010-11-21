@@ -48,22 +48,7 @@ static PSD X11_open(PSD psd);
 static void X11_close(PSD psd);
 static void X11_getscreeninfo(PSD psd, PMWSCREENINFO psi);
 static void X11_setpalette(PSD psd, int first, int count, MWPALENTRY * pal);
-static void X11_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c);
-static MWPIXELVAL X11_readpixel(PSD psd, MWCOORD x, MWCOORD y);
-static void X11_drawhline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
-		MWPIXELVAL c);
-static void X11_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
-		MWPIXELVAL c);
-static void X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2,
-		MWCOORD y2, MWPIXELVAL c);
-static void X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
-		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int32_t op);
 static void X11_preselect(PSD psd);
-static void X11_drawarea(PSD psd, driver_gc_t * gc);
-static void X11_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
-		MWCOORD dest_y_start, MWCOORD width, MWCOORD height, int x_denominator,
-		int y_denominator, int src_x_fraction, int src_y_fraction,
-		int x_step_fraction, int y_step_fraction, int op);
 static void X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
@@ -72,15 +57,15 @@ SCREENDEVICE scrdev = {
 	X11_close,
 	X11_getscreeninfo,
 	X11_setpalette,
-	X11_drawpixel,
-	X11_readpixel,
-	X11_drawhline,
-	X11_drawvline,
-	X11_fillrect,
+	0, //X11_drawpixel,
+	0, //X11_readpixel,
+	0, //X11_drawhline,
+	0, //X11_drawvline,
+	0, //X11_fillrect,
 	gen_fonts,
-	X11_blit,
+	0, //X11_blit,
 	X11_preselect,
-	X11_drawarea,
+	0, //X11_drawarea,
 	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
 	gen_mapmemgc,
@@ -88,7 +73,7 @@ SCREENDEVICE scrdev = {
 	gen_setportrait,
 	0,				/* int portrait */
 	NULL,			/* orgsubdriver */
-	X11_stretchblitex, /* StretchBlitEx subdriver*/
+	0, //X11_stretchblitex, 
 	X11_update
 };
 
@@ -115,7 +100,6 @@ static int x11_b_shift;
 static unsigned long x11_b_mask;
 
 static int x11_colormap_installed = 0;
-static SCREENDEVICE savebits;	/* permanent offscreen drawing buffer */
 
 /* color palette for color indexe */
 static XColor x11_palette[256];
@@ -133,18 +117,6 @@ struct color_cache {
 };
 static struct color_cache ccache[COLOR_CACHE_SIZE];
 
-static SUBDRIVER x11dev = {
-	0,
-	X11_drawpixel,
-	X11_readpixel,
-	X11_drawhline,
-	X11_drawvline,
-	X11_fillrect,
-	X11_blit,
-	X11_drawarea,
-	X11_stretchblitex
-};
-		
 /* called from mou_x11.c*/
 void x11_handle_event(XEvent * ev);
 int x11_setup_display(void);
@@ -228,179 +200,6 @@ lookup_color(unsigned short r, unsigned short g, unsigned short b)
 #define PIXELVAL_to_pixel(c) ((unsigned)(c) > (unsigned)x11_pal_max ? 0 : x11_palette[c].pixel)
 #endif
 
-
-static void
-set_color(MWPIXELVAL c)
-{
-	static unsigned long oldc = 0x80000001;
-
-	if (c != oldc) {
-		oldc = c;
-		XSetForeground(x11_dpy, x11_gc, PIXELVAL_to_pixel(c));
-	}
-}
-
-/* Minor optimizations - save a function call overhead 99% of the time */
-static int x11_old_mode = -1;
-
-#define set_mode(new_mode) do { \
-        if (new_mode != x11_old_mode) { \
-            set_mode_2(new_mode); \
-        } \
-    } while (0)
-
-static void
-set_mode_2(int new_mode)
-{
-	int func = GXcopy;
-	switch (new_mode) {
-	case MWROP_COPY:
-		func = GXcopy;
-		break;
-	case MWROP_XOR:
-		func = GXxor;
-		break;
-	case MWROP_OR:
-		func = GXor;
-		break;
-	case MWROP_AND:
-		func = GXand;
-		break;
-	case MWROP_CLEAR:
-		func = GXclear;
-		break;
-	case MWROP_SET:
-		func = GXset;
-		break;
-	case MWROP_EQUIV:
-		func = GXequiv;
-		break;
-	case MWROP_NOR:
-		func = GXnor;
-		break;
-	case MWROP_NAND:
-		func = GXnand;
-		break;
-	case MWROP_INVERT:
-		func = GXinvert;
-		break;
-	case MWROP_COPYINVERTED:
-		func = GXcopyInverted;
-		break;
-	case MWROP_ORINVERTED:
-		func = GXorInverted;
-		break;
-	case MWROP_ANDINVERTED:
-		func = GXandInverted;
-		break;
-	case MWROP_ORREVERSE:
-		func = GXorReverse;
-		break;
-	case MWROP_ANDREVERSE:
-		func = GXandReverse;
-		break;
-	case MWROP_NOOP:
-		func = GXnoop;
-		break;
-	default:
-		return;
-	}
-	XSetFunction(x11_dpy, x11_gc, func);
-	x11_old_mode = new_mode;
-}
-
-static void
-update_from_savebits(int destx, int desty, int w, int h)
-{
-	XImage *img;
-	int x, y;
-	char *data;
-
-	/* allocate buffer */
-	if (x11_depth >= 24)
-		data = malloc(w * 4 * h);
-	else if (x11_depth > 8)	/* 15, 16 */
-		data = malloc(w * 2 * h);
-	else			/* 1,2,4,8 */
-		data = malloc((w * x11_depth + 7) / 8 * h);
-
-	/* copy from offscreen to screen */
-	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap,
-			   0, data, w, h, 8, 0);
-
-	/* Use optimized loops for most common framebuffer modes */
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
-	{
-		ADDR8 dbuf = ((ADDR8) savebits.addr) + destx + desty * savebits.linelen;
-		int linedelta = savebits.linelen - w;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			dbuf += linedelta;
-		}
-	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
-	{
-		ADDR16 dbuf = ((ADDR16) savebits.addr) + destx + desty * savebits.linelen;
-		int linedelta = savebits.linelen - w;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			dbuf += linedelta;
-		}
-	}
-#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
-	{
-		ADDR8 dbuf = ((ADDR8) savebits.addr) + 3 * (destx + desty * savebits.linelen);
-		int linedelta = 3 * (savebits.linelen - w);
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1], dbuf[0]);
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-				dbuf += 3;
-			}
-			dbuf += linedelta;
-		}
-	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
-	{
-		ADDR32 dbuf = ((ADDR32) savebits.addr) + destx + desty * savebits.linelen;
-		int linedelta = savebits.linelen - w;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			dbuf += linedelta;
-		}
-	}
-#else /* also handle MWPF_TRUECOLORBGRA here to preserve alpha*/
-	{
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = savebits.ReadPixel(&savebits, destx + x, desty + y);
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-		}
-	}
-#endif
-
-	set_mode(MWROP_COPY);
-	XPutImage(x11_dpy, x11_win, x11_gc, img, 0, 0, destx, desty, w, h);
-
-	XDestroyImage(img);
-}
-
 /* called from mou_x11 (handles x11_event_mask events) */
 void
 x11_handle_event(XEvent * ev)
@@ -439,12 +238,11 @@ x11_handle_event(XEvent * ev)
 
 #ifdef USE_EXPOSURE
 	else if (ev->type == Expose) {
-		update_from_savebits(ev->xexpose.x, ev->xexpose.y,
+		scrdev.Update(&scrdev, ev->xexpose.x, ev->xexpose.y,
 				     ev->xexpose.width, ev->xexpose.height);
 	}
 #endif
 }
-
 
 static int
 x11_error(Display * dpy, XErrorEvent * ev)
@@ -564,21 +362,15 @@ x11_setup_display(void)
 		x11_scr = XDefaultScreen(x11_dpy);
 		x11_vis = select_visual(x11_dpy, x11_scr);
 
-		if ((x11_vis->class == StaticGray)
-		    || (x11_vis->class == GrayScale)) {
+		if (x11_vis->class == StaticGray || x11_vis->class == GrayScale) {
 			EPRINTF("Nano-X Error: Your X server appears to be grayscale only.\nThis is not supported.\n");
 			return -1;
 		} else if (x11_vis->class == DirectColor) {
 			EPRINTF("Nano-X Error: Your X server appears to use the 'DirectColor' format.\nThis is not supported.\n");
 			return -1;
-		} else if ((x11_vis->class == PseudoColor)
-			   || (x11_vis->class == StaticColor)) {
-			/* OK. Palette based. */
-
-			x11_is_palette = 1;
+		} else if (x11_vis->class == PseudoColor || x11_vis->class == StaticColor) {
+			x11_is_palette = 1; 		/* Palette based. */
 		} else if (x11_vis->class == TrueColor) {
-			/* OK. True color. */
-
 			unsigned long mask;
 			int shift;
 
@@ -663,12 +455,8 @@ x11_setup_display(void)
 			ccache[i].init = 1;
 #endif
 
-		set_mode(gr_mode);
+		XSetFunction(x11_dpy, x11_gc, GXcopy);
 
-#if 0 /* SLOW!!!*/
-		/* synchronize display - required to simulate framebuffer */
-		XSynchronize(x11_dpy, True);
-#endif
 		setup_needed = 0;
 	}
 	return 0;
@@ -713,8 +501,7 @@ X11_open(PSD psd)
 	attr.event_mask = event_mask;
 
 #if 1				/* Patch by Jon to try for 8-bit TrueColor */
-	x11_colormap = XCreateColormap(x11_dpy, XDefaultRootWindow(x11_dpy),
-				       x11_vis, AllocNone);
+	x11_colormap = XCreateColormap(x11_dpy, XDefaultRootWindow(x11_dpy), x11_vis, AllocNone);
 	attr.colormap = x11_colormap;
 	valuemask |= CWColormap;
 #endif
@@ -770,8 +557,7 @@ X11_open(PSD psd)
 	 * Microwindows will draw it's own cursor.
 	 */
 	cur_empty = XCreateBitmapFromData(x11_dpy, x11_win, "\0", 1, 1);
-	cursor = XCreatePixmapCursor(x11_dpy, cur_empty, cur_empty,
-				     &color, &color, 0, 0);
+	cursor = XCreatePixmapCursor(x11_dpy, cur_empty, cur_empty, &color, &color, 0, 0);
 	XDefineCursor(x11_dpy, x11_win, cursor);
 	XStoreName(x11_dpy, x11_win, "Microwindows");
 
@@ -828,80 +614,34 @@ X11_open(PSD psd)
 	psd->addr = NULL;
 	psd->portrait = MWPORTRAIT_NONE;
 printf("x11 emulated bpp %d\n", psd->bpp);
-	/* remember original subdriver for portrait subdriver callbacks*/
-	psd->orgsubdriver = &x11dev;
-
-	/* create permanent savebits memory device from screen device */
-	savebits = *psd;
-	savebits.flags = PSF_MEMORY | PSF_HAVEBLIT;
 
 	/* select an fb subdriver matching our planes and bpp for backing store*/
-	subdriver = select_fb_subdriver(&savebits);
+	subdriver = select_fb_subdriver(psd);
 	if (!subdriver)
 		return NULL;
 
-//FIXME
-fbportrait_left.BlitCopyMaskMonoByteMSB = savebits.left_subdriver->BlitCopyMaskMonoByteMSB;
-fbportrait_left.BlitCopyMaskMonoByteLSB = savebits.left_subdriver->BlitCopyMaskMonoByteLSB;
-fbportrait_left.BlitCopyMaskMonoWordMSB = savebits.left_subdriver->BlitCopyMaskMonoWordMSB;
-fbportrait_left.BlitBlendMaskAlphaByte  = savebits.left_subdriver->BlitBlendMaskAlphaByte;
-fbportrait_left.BlitSrcOverRGBA8888     = savebits.left_subdriver->BlitSrcOverRGBA8888;
-fbportrait_left.BlitCopyRGB888          = savebits.left_subdriver->BlitCopyRGB888;
-
-fbportrait_right.BlitCopyMaskMonoByteMSB = savebits.right_subdriver->BlitCopyMaskMonoByteMSB;
-fbportrait_right.BlitCopyMaskMonoByteLSB = savebits.right_subdriver->BlitCopyMaskMonoByteLSB;
-fbportrait_right.BlitCopyMaskMonoWordMSB = savebits.right_subdriver->BlitCopyMaskMonoWordMSB;
-fbportrait_right.BlitBlendMaskAlphaByte  = savebits.right_subdriver->BlitBlendMaskAlphaByte;
-fbportrait_right.BlitSrcOverRGBA8888     = savebits.right_subdriver->BlitSrcOverRGBA8888;
-fbportrait_right.BlitCopyRGB888          = savebits.right_subdriver->BlitCopyRGB888;
-
-fbportrait_down.BlitCopyMaskMonoByteMSB = savebits.down_subdriver->BlitCopyMaskMonoByteMSB;
-fbportrait_down.BlitCopyMaskMonoByteLSB = savebits.down_subdriver->BlitCopyMaskMonoByteLSB;
-fbportrait_down.BlitCopyMaskMonoWordMSB = savebits.down_subdriver->BlitCopyMaskMonoWordMSB;
-fbportrait_down.BlitBlendMaskAlphaByte  = savebits.down_subdriver->BlitBlendMaskAlphaByte;
-fbportrait_down.BlitSrcOverRGBA8888     = savebits.down_subdriver->BlitSrcOverRGBA8888;
-fbportrait_down.BlitCopyRGB888          = savebits.down_subdriver->BlitCopyRGB888;
-
-psd->left_subdriver = &fbportrait_left;
-psd->right_subdriver = &fbportrait_right;
-psd->down_subdriver = &fbportrait_down;
-
-	/* calc size and linelen of savebits alloc */
-	GdCalcMemGCAlloc(&savebits, savebits.xvirtres, savebits.yvirtres, 0,
-			 0, &size, &linelen, &pitch);
-	savebits.linelen = linelen;
-	savebits.pitch = pitch;
-	savebits.size = size;
-	if ((savebits.addr = malloc(size)) == NULL)
+	/* calc size and linelen for mem framebuffer alloc*/
+	GdCalcMemGCAlloc(psd, psd->xvirtres, psd->yvirtres, 0, 0, &size, &linelen, &pitch);
+	psd->linelen = linelen;
+	psd->pitch = pitch;
+	psd->size = size;
+	if ((psd->addr = malloc(size)) == NULL)
 		return NULL;
 
-	set_subdriver(&savebits, subdriver, TRUE);
+	/* set and initialize subdriver into screen driver*/
+	set_subdriver(psd, subdriver, TRUE);
 
-x11dev.BlitCopyMaskMonoByteMSB = savebits.BlitCopyMaskMonoByteMSB;
-x11dev.BlitCopyMaskMonoByteLSB = savebits.BlitCopyMaskMonoByteLSB;
-x11dev.BlitCopyMaskMonoWordMSB = savebits.BlitCopyMaskMonoWordMSB;
-x11dev.BlitBlendMaskAlphaByte  = savebits.BlitBlendMaskAlphaByte;
-x11dev.BlitSrcOverRGBA8888     = savebits.BlitSrcOverRGBA8888;
-x11dev.BlitCopyRGB888          = savebits.BlitCopyRGB888;
+	/* remember original subdriver for portrait subdriver callbacks*/
+	psd->orgsubdriver = subdriver;
 
-psd->BlitCopyMaskMonoByteMSB = savebits.BlitCopyMaskMonoByteMSB;
-psd->BlitCopyMaskMonoByteLSB = savebits.BlitCopyMaskMonoByteLSB;
-psd->BlitCopyMaskMonoWordMSB = savebits.BlitCopyMaskMonoWordMSB;
-psd->BlitBlendMaskAlphaByte  = savebits.BlitBlendMaskAlphaByte;
-psd->BlitSrcOverRGBA8888     = savebits.BlitSrcOverRGBA8888;
-psd->BlitCopyRGB888          = savebits.BlitCopyRGB888;
-
-	/* set X11 psd to savebits memaddr for screen->offscreen blits... */
-	psd->addr = savebits.addr;
-
-return psd;
+	return psd;
 }
 
 static void
 X11_close(PSD psd)
 {
-	/* free savebits memory */
-	free(savebits.addr);
+	/* free framebuffer memory */
+	free(psd->addr);
 
 	XCloseDisplay(x11_dpy);
 }
@@ -917,10 +657,8 @@ X11_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->ncolors = psd->ncolors;
 	psi->portrait = psd->portrait;
 	psi->fonts = NUMBER_FONTS;
-	psi->xdpcm = (DisplayWidth(x11_dpy, x11_scr) * 10) /
-		DisplayWidthMM(x11_dpy, x11_scr);
-	psi->ydpcm = (DisplayHeight(x11_dpy, x11_scr) * 10) /
-		DisplayHeightMM(x11_dpy, x11_scr);
+	psi->xdpcm = (DisplayWidth(x11_dpy, x11_scr) * 10) / DisplayWidthMM(x11_dpy, x11_scr);
+	psi->ydpcm = (DisplayHeight(x11_dpy, x11_scr) * 10) / DisplayHeightMM(x11_dpy, x11_scr);
 
 	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
 	psi->pixtype = psd->pixtype;
@@ -988,193 +726,101 @@ X11_setpalette(PSD psd, int first, int count, MWPALENTRY * pal)
 		x11_pal_max = n;
 }
 
-
+/* perform pre-select() duties*/
 static void
-X11_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
+X11_preselect(PSD psd)
 {
-	/* draw savebits for readpixel or blit */
-	savebits.DrawPixel(&savebits, x, y, c);
-
-	if (gr_mode == MWROP_COPY) {
-		set_color(c);
-		set_mode(gr_mode);
-		XDrawPoint(x11_dpy, x11_win, x11_gc, x, y);
-	} else {
-		update_from_savebits(x, y, 1, 1);
-	}
-}
-
-static MWPIXELVAL
-X11_readpixel(PSD psd, MWCOORD x, MWCOORD y)
-{
-	/* read savebits for pixel value, rather than ask X11 */
-	return savebits.ReadPixel(&savebits, x, y);
+	XFlush(x11_dpy);
 }
 
 static void
-X11_drawhline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
+update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 {
-	/* draw savebits for readpixel or blit */
-	savebits.DrawHorzLine(&savebits, x1, x2, y, c);
+	XImage *img;
+	int x, y;
+	char *data;
 
-	if (gr_mode == MWROP_COPY) {
-		set_color(c);
-		set_mode(gr_mode);
-		XDrawLine(x11_dpy, x11_win, x11_gc, x1, y, x2, y);
-	} else {
-		update_from_savebits((x1 < x2 ? x1 : x2), y,
-				     (x1 < x2 ? x2 - x1 + 1 : x1 - x2 + 1),
-				     1);
-	}
-}
+	/* allocate buffer */
+	if (x11_depth >= 24)
+		data = malloc(w * 4 * h);
+	else if (x11_depth > 8)	/* 15, 16 */
+		data = malloc(w * 2 * h);
+	else			/* 1,2,4,8 */
+		data = malloc((w * x11_depth + 7) / 8 * h);
 
-static void
-X11_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
-{
-	savebits.DrawVertLine(&savebits, x, y1, y2, c);
+	/* copy from offscreen to screen */
+	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap,
+			   0, data, w, h, 8, 0);
 
-	if (gr_mode == MWROP_COPY) {
-		set_color(c);
-		set_mode(gr_mode);
-		XDrawLine(x11_dpy, x11_win, x11_gc, x, y1, x, y2);
-	} else {
-		update_from_savebits(x, (y1 < y2 ? y1 : y2),
-				     1,
-				     (y1 < y2 ? y2 - y1 + 1 : y1 - y2 + 1));
-	}
-}
+	/* Use optimized loops for most common framebuffer modes */
 
-static void
-X11_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
-	     MWPIXELVAL c)
-{
-	/* draw savebits for readpixel or blit */
-	savebits.FillRect(&savebits, x1, y1, x2, y2, c);
-
-	if (gr_mode == MWROP_COPY) {
-		set_color(c);
-		set_mode(gr_mode);
-		XFillRectangle(x11_dpy, x11_win, x11_gc, x1, y1,
-			       (x2 - x1) + 1, (y2 - y1) + 1);
-	} else {
-		update_from_savebits(x1, y1, (x2-x1)+1, (y2-y1)+1);
-	}
-}
-
-static void
-X11_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
-	 PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int32_t op)
-{
-	if (op == MWROP_NOOP)
-		return;
-
-	if (srcpsd->flags & PSF_SCREEN)
-		srcpsd = &savebits; 	/* Use offscreen equivalent as the source */
-
-	if (!(dstpsd->flags & PSF_SCREEN)) {
-		/* memory to memory blit, use offscreen blitter */
-		dstpsd->Blit(dstpsd, destx, desty, w, h, srcpsd, srcx, srcy, op);
-		return;
-	}
-
-	/* Update "savebits" off-screen buffer */
-	savebits.Blit(&savebits, destx, desty, w, h, srcpsd, srcx, srcy, op);
-
-#if 1
-	/* Faster blitting for simple cases */
-#if 1
-	/* Pixel-perfect - only trust X11 with copies.  In palette modes, this
-	 * is essential.  In true color, it's good to test the NanoGUI blit. */
-	if (srcpsd == &savebits && op == MWROP_COPY)
-#else
-	/* Not perfect, but faster */
-	if (rcpsd == &savebits && op <= MWROP_NOP)
-#endif
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
 	{
-		/*
-		 * Can do simple onscreen copy.
-		 *
-		 * The raster op is one of the first 16 (the simple ones), so is
-		 * supported by X.
-		 */
-		/* DPRINTF("Nano-X: X11_blit() doing onscreen copy\n"); */
-		set_mode(op);
-		XCopyArea(x11_dpy, x11_win, x11_win, x11_gc, srcx, srcy, w, h, destx, desty);
-	} else
-#endif
+		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
+	}
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
 	{
-		/* More complex operation.  Since we've already done this into
-		 * the offscreen buffer, we can simply copy it over.
-		 *
-		 * For memory->screen cases, this cannot be slower than a
-		 * direct blit (since we have to do the blit to the ofscreen
-		 * buffer anyway) and it'll be much faster for complex blits
-		 * such as alpha blending.
-		 *
-		 * For screen->screen, this is just simpler.
-		 */
-		update_from_savebits(destx, desty, w, h);
+		ADDR16 dbuf = ((ADDR16) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
 	}
-}
-
-static void
-X11_stretchblitex(PSD dstpsd, PSD srcpsd,
-		    MWCOORD dest_x_start, MWCOORD dest_y_start,
-		    MWCOORD width, MWCOORD height,
-		    int x_denominator, int y_denominator,
-		    int src_x_fraction, int src_y_fraction,
-		    int x_step_fraction, int y_step_fraction, int op)
-{
-	if (op == MWROP_NOOP) {
-		return;
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
+	{
+		ADDR8 dbuf = ((ADDR8) psd->addr) + 3 * (destx + desty * psd->linelen);
+		int linedelta = 3 * (psd->linelen - w);
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1], dbuf[0]);
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+				dbuf += 3;
+			}
+			dbuf += linedelta;
+		}
 	}
-
-	/* DPRINTF("Nano-X: X11_stretchblitex( dest=(%d,%d) %dx%d )\n",
-	       dest_x_start, dest_y_start, width, height); */
-
-	if (srcpsd->flags & PSF_SCREEN) {
-		/* Use offscreen equivalent as the source */
-		srcpsd = &savebits;
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
+	{
+		ADDR32 dbuf = ((ADDR32) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
 	}
-
-	if (!(dstpsd->flags & PSF_SCREEN)) {
-		/* memory to memory blit, use offscreen blitter */
-		dstpsd->StretchBlitEx(dstpsd, srcpsd,
-					dest_x_start, dest_y_start,
-					width, height,
-					x_denominator, y_denominator,
-					src_x_fraction, src_y_fraction,
-					x_step_fraction, y_step_fraction, op);
-		return;
+#else /* also handle MWPF_TRUECOLORBGRA here to preserve alpha*/
+	{
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = psd->ReadPixel(psd, destx + x, desty + y);
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+		}
 	}
+#endif
 
-	/* Update "savebits" off-screen buffer */
-	savebits.StretchBlitEx(&savebits, srcpsd,
-				 dest_x_start, dest_y_start,
-				 width, height,
-				 x_denominator, y_denominator,
-				 src_x_fraction, src_y_fraction,
-				 x_step_fraction, y_step_fraction, op);
-
-	/* Since we've already done this into
-	 * the offscreen buffer, we can simply copy it over.
-	 */
-
-	update_from_savebits(dest_x_start, dest_y_start, width, height);
-}
-
-static void
-X11_drawarea(PSD psd, driver_gc_t * gc)
-{
-	assert(psd->addr != 0);
-	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
-	assert(gc->srcy >= 0);
-
-	savebits.DrawArea(&savebits, gc);
-
-	update_from_savebits(gc->dstx, gc->dsty, gc->width, gc->height);
+	XPutImage(x11_dpy, x11_win, x11_gc, img, 0, 0, destx, desty, w, h);
+	XDestroyImage(img);
 }
 
 static void
@@ -1184,12 +830,5 @@ X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 		width = psd->xres;
 	if (!height)
 		height = psd->yres;
-	update_from_savebits(x, y, width, height);
-}
-
-/* perform pre-select() duties*/
-static void
-X11_preselect(PSD psd)
-{
-	XFlush(x11_dpy);
+	update_from_savebits(psd, x, y, width, height);
 }

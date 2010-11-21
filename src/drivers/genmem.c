@@ -34,6 +34,7 @@ gen_allocatememgc(PSD psd)
 	mempsd->flags |= PSF_MEMORY;
 	mempsd->flags &= ~PSF_SCREEN;
 	mempsd->addr = NULL;
+	mempsd->Update = NULL;			/* no external updates required for mem device*/
 
 	return mempsd;
 }
@@ -131,6 +132,11 @@ void
 gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	MWPIXELVAL c)
 {
+	/* temp kill updates for speed*/
+	void (*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height) = psd->Update;
+	int X1 = x1;
+	int Y1 = y1;
+	psd->Update = NULL;
 
 	if (psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))
 		while(x1 <= x2)
@@ -138,6 +144,12 @@ gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	else
 		while(y1 <= y2)
 			psd->DrawHorzLine(psd, x1, x2, y1++, c);
+
+	/* now redraw once if external update required*/
+	if (Update) {
+		Update(psd, X1, Y1, x2-X1+1, y2-Y1+1);
+		psd->Update = Update;
+	}
 }
 
 /*

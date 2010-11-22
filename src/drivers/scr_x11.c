@@ -474,7 +474,6 @@ X11_open(PSD psd)
 	Cursor cursor;
 	/*XEvent ev; */
 	PSUBDRIVER subdriver;
-	int size, linelen, pitch;
 	XSizeHints *sizehints;
 
 	if (x11_setup_display() < 0)
@@ -576,7 +575,6 @@ X11_open(PSD psd)
 
 	psd->xres = psd->xvirtres = x11_width;
 	psd->yres = psd->yvirtres = x11_height;
-	psd->linelen = x11_width;
 	psd->planes = 1;
 	psd->data_format = 0;			// FIXME
 	psd->pixtype = MWPIXEL_FORMAT;
@@ -606,12 +604,11 @@ X11_open(PSD psd)
 
 	/* Calculate the correct linelen here */
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
-			 psd->bpp, &size, &psd->linelen, &psd->pitch);
-
-	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
+			 psd->bpp, &psd->size, &psd->linelen, &psd->pitch);
+	if ((psd->addr = malloc(psd->size)) == NULL)
+		return NULL;
+	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
-	psd->size = 0;
-	psd->addr = NULL;
 	psd->portrait = MWPORTRAIT_NONE;
 printf("x11 emulated bpp %d\n", psd->bpp);
 
@@ -620,19 +617,8 @@ printf("x11 emulated bpp %d\n", psd->bpp);
 	if (!subdriver)
 		return NULL;
 
-	/* calc size and linelen for mem framebuffer alloc*/
-	GdCalcMemGCAlloc(psd, psd->xvirtres, psd->yvirtres, 0, 0, &size, &linelen, &pitch);
-	psd->linelen = linelen;
-	psd->pitch = pitch;
-	psd->size = size;
-	if ((psd->addr = malloc(size)) == NULL)
-		return NULL;
-
 	/* set and initialize subdriver into screen driver*/
 	set_subdriver(psd, subdriver, TRUE);
-
-	/* remember original subdriver for portrait subdriver callbacks*/
-	psd->orgsubdriver = subdriver;
 
 	return psd;
 }

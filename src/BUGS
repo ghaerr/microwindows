@@ -1,3 +1,4 @@
+chess.sh display error on drag window left offscreen
 filled polygons fail with polydemo - check devpoly.c algorithms...
 	should GrPoly close polygon if last point != first?
 cursor clipped above blit area with xteevee - check

@@ -1,7 +1,7 @@
-**fix kluge in select_fb_subdriver - extern fblinearXX_xxxx required
-	must add SUBDRIVER n/l/r/d into screendevice
-
-add optimized Update for portrait mode fillrects
+**add optimized Update for portrait mode fillrects
+check X11 font display w/fontdemo2.sh doesn't work w/fblin32alpha driver (no convblit)
+remove seperate driver procs and combine to single SUBDRIVER in screendevice
+rename orgsubdriver, left_subdriver etc
 add fast blit for GdArea/GrArea, remove printfs
 debug fltk test/pixmap putTruecolorImage GrArea problem
 
@@ -27,6 +27,7 @@ change driver fblinear_blit routines for 32bpp to BLITPARMS struct
 
 fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
 	remove fblin32alpha.c, endian-specific, make TRUECOLOR0888 vs 8888 same
+	TRUECOLOR8888 (fblin32alpha.c) subdriver doesn't have convblit support
 
 remove FT1 from Config/configs*
 config option to eliminate not needed subdrivers?

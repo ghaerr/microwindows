@@ -524,7 +524,7 @@ linear32_stretchblitex(PSD dstpsd,
 		dstpsd->Update(dstpsd, dest_x_start, dest_y_start, width, height);
 }
 
-SUBDRIVER fblinear32 = {
+static SUBDRIVER fblinear32_none = {
 	linear32_init,
 	linear32_drawpixel,
 	linear32_readpixel,
@@ -542,7 +542,7 @@ SUBDRIVER fblinear32 = {
 	convblit_copy_rgb888_bgra8888				/* RGB images no alpha*/
 };
 
-SUBDRIVER fblinear32_left = {
+static SUBDRIVER fblinear32_left = {
 	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
@@ -560,7 +560,7 @@ SUBDRIVER fblinear32_left = {
 	convblit_copy_rgb888_bgra8888_left
 };
 
-SUBDRIVER fblinear32_right = {
+static SUBDRIVER fblinear32_right = {
 	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
@@ -578,7 +578,7 @@ SUBDRIVER fblinear32_right = {
 	convblit_copy_rgb888_bgra8888_right
 };
 
-SUBDRIVER fblinear32_down = {
+static SUBDRIVER fblinear32_down = {
 	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
@@ -594,4 +594,8 @@ SUBDRIVER fblinear32_down = {
 	convblit_blend_mask_alpha_byte_bgra_down,
 	convblit_srcover_rgba8888_bgra8888_down,
 	convblit_copy_rgb888_bgra8888_down
+};
+
+PSUBDRIVER fblinear32[4] = {
+	&fblinear32_none, &fblinear32_left, &fblinear32_right, &fblinear32_down
 };

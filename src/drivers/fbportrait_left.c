@@ -73,17 +73,6 @@ fbportrait_left_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 		h, w, srcpsd, srcy, srcpsd->xvirtres-srcx-w, op);
 }
 
-#if 0
-void
-fbportrait_left_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
-	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, int op)
-{
-	dstpsd->orgsubdriver->StretchBlit(dstpsd, desty, dstpsd->xvirtres-destx-dstw,
-		dsth, dstw, srcpsd, srcy, srcpsd->xvirtres-srcx-srcw, srch, srcw, op);
-}
-#endif
-
 void
 fbportrait_left_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
 	MWCOORD width, int height, int x_denominator, int y_denominator,

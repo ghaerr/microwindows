@@ -56,11 +56,6 @@ SCREENDEVICE	scrdev = {
 static int status;		/* 0=never inited, 1=once inited, 2=inited. */
 static MAFrameBufferInfo fbinfo;
 
-extern SUBDRIVER fbportrait_left, fbportrait_right, fbportrait_down;
-static PSUBDRIVER pdrivers[4] = { /* portrait mode subdrivers*/
-	NULL, &fbportrait_left, &fbportrait_right, &fbportrait_down
-};
-
 /* init framebuffer*/
 static PSD
 fb_open(PSD psd)
@@ -81,7 +76,7 @@ fb_open(PSD psd)
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 	psd->linelen = fbinfo.width;
 	psd->pitch = fbinfo.pitch;
-	psd->size = fbinfo.sizeInBytes;		/* force subdriver init of size*/
+	psd->size = fbinfo.sizeInBytes;
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
 
 	/* set pixel format*/
@@ -116,22 +111,15 @@ fb_open(PSD psd)
 		return NULL;
 	}
 
-	/*
-	 * set and initialize subdriver into screen driver
-	 * psd->size is calculated by subdriver init
-	 */
+	/* set and initialize subdriver into screen driver */
 	if(!set_subdriver(psd, subdriver, TRUE)) {
 		EPRINTF("Driver initialize failed bpp %d\n", psd->bpp);
 		return NULL;
 	}
 
-	/* remember original subdriver for portrait mode switching*/
-	pdrivers[0] = psd->orgsubdriver = subdriver;
-
 	/* allocate framebuffer (uses lots of memory!) */
 	if (!(psd->addr = calloc (1, psd->size))) {
-		EPRINTF("Out of memory allocating Framebuffer of %d bytes\n",
-			psd->size);
+		EPRINTF("Out of memory allocating Framebuffer of %d bytes\n", psd->size);
 		return NULL;
 	}
 

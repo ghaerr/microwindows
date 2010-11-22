@@ -246,9 +246,6 @@ fb_open(PSD psd)
 		goto fail;
 	}
 
-	/* remember original subdriver for portrait subdriver callbacks*/
-	psd->orgsubdriver = subdriver;
-
 #if HAVETEXTMODE
 	{
 	/* open tty, enter graphics mode*/

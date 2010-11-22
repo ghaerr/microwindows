@@ -1,0 +1,62 @@
+DEPRECATED FILES AND DRIVERS	11/21/2010
+
+After v0.92, the internal drawing model has changed.  Instead
+of allowing screen drivers to implement drawpixel, drawhline,
+drawvline etc themselves, the system always uses one of the fblinearXX.c
+drawing routines which draws directly into the framebuffer, or
+when not present, a memory framebuffer that is later updated
+on systems without a framebuffer using the new psd->Update
+routine.  Thus, a blit (block memory copy) is all that is
+required for non-framebuffer based systems.  This allows 
+Microwindows to draw text and images very fast through
+its own conversion blit routines, a big speed improvement
+from 0.92.
+
+Because of this, screen drivers that had their own screen
+routines for drawpixel, drawhline etc have been deprecated.
+If wanted, these drivers could be changed by removing all
+the custom drawline code and adding an Update blit routine,
+similar to the way the X11 scr_x11.c driver was rewritten.
+
+
+DEPRECATED SCREEN DRIVERS
+scr_bios.c		- PC BIOS
+scr_djgr.c		- DJGPP GRX Library
+scr_em84xx.c	- Experimental EM8400 driver
+scr_em86xx.c	- EM8600 driver (has blit, slight rewrite would make ok)
+scr_fbsd.c		- FreeBSD VGL driver (has blit, needs rewrite)
+scr_herc.c		- PC BIOS Hercules Graphics
+scr_prsm.c		- Isicad Prisma diskless workstation
+scr_smp863x.c	- EM8634 driver (has blit, slight rewrite would make ok)
+scr_svga.c		- SVGA Library
+scr_tc.c		- DOS TurboC BGI Library
+scr_win32.c		- Win32 port, needs rewrite ala X11 driver
+vgaplan4.c		- Direct VGA Access
+memplan4.c		- Direct VGA Access
+elkplan4.c		- Elks OS
+
+
+POSSIBLE OBSOLETE DRIVERS - NEED TESTING/UPDATING
+fblin32alpha.c	- configurable 32bpp ABGR or ARGB, reads/writes DWORD only
+fblin18.c		- 18bpp driver 666 format for ASM PXA270 with 18bit LCD
+fblin12.c		- 12bpp driver for Cirrus Logic
+fblin4hp.c		- fast 4bpp driver for Vr41xx Palm
+fblin4orion.c	- 4access Communications Orion machines
+fblin4sa1100.c	- ARM LE SA1100 lcd controller with 16 its access
+fblin4sh3.c		- SH3 little endian
+fblin2revipod.c	- iPod derived from fblin2rev.c
+
+
+DEPRECATED CONFIG SETTINGS
+HWVGA=Y			- BIOS VGA Access (scr_bios.c)
+FBVGA=Y			- Direct VGA Access (vgaplan4.c, memplan4.c)
+VGALIB=Y		- SVGA Library
+EM8400=Y		- EM8400 driver
+HERCDRIVER=Y	- BIOS Hercules driver
+UCLINUX-PRISMA=Y- Isicad Prisma screen driver
+ARCH=DJGPP		- DJGPP GRX Library
+ARCH=FREEBSD-X86- FreeBSD VGL driver
+ARCH=ELKS		- Elks OS support
+ASMVGADRIVER=Y	- BIOS VGA (Elks)
+CVGADRIVER=Y	- BIOS VGA (Elks)
+

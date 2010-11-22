@@ -268,7 +268,7 @@ linear1_drawarea(PSD psd, driver_gc_t * gc)
 	  }
 }
 
-SUBDRIVER fblinear1 = {
+static SUBDRIVER fblinear1_none = {
 	linear1_init,
 	linear1_drawpixel,
 	linear1_readpixel,
@@ -277,4 +277,8 @@ SUBDRIVER fblinear1 = {
 	gen_fillrect,
 	linear1_blit,
 	linear1_drawarea
+};
+
+PSUBDRIVER fblinear1[4] = {
+	&fblinear1_none, &fbportrait_left, &fbportrait_right, &fbportrait_down
 };

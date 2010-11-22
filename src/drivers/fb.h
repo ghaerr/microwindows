@@ -560,6 +560,7 @@ void ioctl_setpalette(int start, int len, short *red, short *green,short *blue);
 void setfadelevel(PSD psd, int f);
 
 /* genmem.c*/
+void set_portrait_subdriver(PSD psd);
 void	gen_fillrect(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
 		MWPIXELVAL c);
 MWBOOL	set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init);
@@ -567,7 +568,6 @@ void	get_subdriver(PSD psd, PSUBDRIVER subdriver);
 
 /* fb.c*/
 PSUBDRIVER select_fb_subdriver(PSD psd);
-void set_portrait_subdriver(PSD psd);
 
 /* fbportrait_xxx.c*/
 extern SUBDRIVER fbportrait_left;

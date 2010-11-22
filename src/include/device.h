@@ -232,11 +232,6 @@ typedef struct _mwscreendevice {
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
 			int data_format,int linelen,int pitch,int size,void *addr);
 	void	(*FreeMemGC)(PSD mempsd);
-	/* Note: StretchBlit() is deprecated, use StretchBlitEx()
-	void	(*StretchBlit)(PSD destpsd,MWCOORD destx,MWCOORD desty,
-			MWCOORD destw,MWCOORD desth,PSD srcpsd,MWCOORD srcx,
-			MWCOORD srcy,MWCOORD srcw,MWCOORD srch,int op);
-	*/
 	void	(*SetPortrait)(PSD psd,int portraitmode);
 	int	portrait;	 /* screen portrait mode*/
 	PSUBDRIVER orgsubdriver; /* original subdriver for portrait modes*/

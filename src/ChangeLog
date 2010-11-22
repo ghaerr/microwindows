@@ -1,6 +1,10 @@
 21 Nov 2010
+	* cleaned up framebuffer screen driver/subdrivers
 	* added psd->Update calls in fblin32/24/16.c routines for new X11 driver
 	* rewrote X11 driver to only draw using blits from memory framebuffer
+	* v0.93 non-fb draw model changed: engine always draws bits into real or memory
+		framebuffer, with Update() required for non-fb screen devices. Devices
+		cannot draw directly from screendev, must use blit Update() called afterwards
 17 Jul 2010 (Ludwig)
 	* added CreateDibSection, GetLastError, SetLastError, RegisterHotKey, UnRegisterHotkey
 	* various editbox fixes, added WM_CLOSE dialog handling, fixed close crash

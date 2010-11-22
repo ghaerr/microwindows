@@ -90,7 +90,7 @@ gen_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 		return 0;
 
 	/* pixmap portrait subdriver will callback fb drivers, not screen drivers*/
-	mempsd->orgsubdriver = subdriver;
+	//mempsd->orgsubdriver = subdriver;
 
 	/* assign portrait subdriver or regular fb driver for pixmap drawing*/
 	set_portrait_subdriver(mempsd);
@@ -126,6 +126,32 @@ gen_setportrait(PSD psd, int portraitmode)
 
 	/* assign portrait subdriver or original driver*/
 	set_portrait_subdriver(psd);
+}
+
+/*
+ * Set portrait subdriver or original subdriver according
+ * to current portrait mode.
+ */
+void
+set_portrait_subdriver(PSD psd)
+{
+	PSUBDRIVER subdriver;
+
+	switch (psd->portrait) {
+	case MWPORTRAIT_NONE:
+		subdriver = psd->orgsubdriver;
+		break;
+	case MWPORTRAIT_LEFT:
+		subdriver = psd->left_subdriver;
+		break;
+	case MWPORTRAIT_RIGHT:
+		subdriver = psd->right_subdriver;
+		break;
+	case MWPORTRAIT_DOWN:
+		subdriver = psd->down_subdriver;
+		break;
+	}
+	set_subdriver(psd, subdriver, FALSE);
 }
 
 void

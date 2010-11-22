@@ -495,7 +495,7 @@ linear24_stretchblitex(PSD dstpsd,
 		dstpsd->Update(dstpsd, dest_x_start, dest_y_start, width, height);
 }
 
-SUBDRIVER fblinear24 = {
+static SUBDRIVER fblinear24_none = {
 	linear24_init,
 	linear24_drawpixel,
 	linear24_readpixel,
@@ -513,7 +513,7 @@ SUBDRIVER fblinear24 = {
 	convblit_copy_rgb888_bgr888					/* RGB images no alpha*/
 };
 
-SUBDRIVER fblinear24_left = {
+static SUBDRIVER fblinear24_left = {
 	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
@@ -531,7 +531,7 @@ SUBDRIVER fblinear24_left = {
 	convblit_copy_rgb888_bgr888_left
 };
 
-SUBDRIVER fblinear24_right = {
+static SUBDRIVER fblinear24_right = {
 	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
@@ -549,7 +549,7 @@ SUBDRIVER fblinear24_right = {
 	convblit_copy_rgb888_bgr888_right
 };
 
-SUBDRIVER fblinear24_down = {
+static SUBDRIVER fblinear24_down = {
 	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
@@ -565,4 +565,8 @@ SUBDRIVER fblinear24_down = {
 	convblit_blend_mask_alpha_byte_bgr_down,
 	convblit_srcover_rgba8888_bgr888_down,
 	convblit_copy_rgb888_bgr888_down
+};
+
+PSUBDRIVER fblinear24[4] = {
+	&fblinear24_none, &fblinear24_left, &fblinear24_right, &fblinear24_down
 };

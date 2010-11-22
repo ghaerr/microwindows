@@ -158,7 +158,7 @@ void
 gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	MWPIXELVAL c)
 {
-	/* temp kill updates for speed*/
+	/* temporarily stop updates for speed*/
 	void (*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height) = psd->Update;
 	int X1 = x1;
 	int Y1 = y1;

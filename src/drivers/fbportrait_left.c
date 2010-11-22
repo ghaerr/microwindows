@@ -48,10 +48,12 @@ fbportrait_left_drawvertline(PSD psd,MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELV
 void
 fbportrait_left_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c)
 {
-	/* temp kill updates for speed*/
+	/* temporarily stop updates for speed*/
 	void (*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height) = psd->Update;
-	int X2;
-	//psd->Update = NULL;
+	MWCOORD X2;
+	MWCOORD W = y2-y1+1;
+	MWCOORD H = x2-x1+1;
+	psd->Update = NULL;
 
 	x1 = psd->xvirtres-x1-1;
 	X2 = x2 = psd->xvirtres-x2-1;
@@ -60,7 +62,7 @@ fbportrait_left_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 
 	/* now redraw once if external update required*/
 	if (Update) {
-		//Update(psd, y1, X2, y2-y1+1, X2-x1+1);
+		Update(psd, y1, X2, W, H);
 		psd->Update = Update;
 	}
 }

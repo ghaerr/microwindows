@@ -48,8 +48,20 @@ void
 fbportrait_right_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	MWPIXELVAL c)
 {
+	/* temporarily stop updates for speed*/
+	void (*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height) = psd->Update;
+	MWCOORD X1 = x1;
+	MWCOORD H = x2-x1+1;
+	psd->Update = NULL;
+
 	while(x1 <= x2)
 		psd->orgsubdriver->DrawHorzLine(psd, psd->yvirtres-y2-1, psd->yvirtres-y1-1, x1++, c);
+
+	/* now redraw once if external update required*/
+	if (Update) {
+		Update(psd, psd->yvirtres-y2-1, X1, y2-y1+1, H);
+		psd->Update = Update;
+	}
 }
 
 void
@@ -59,17 +71,6 @@ fbportrait_right_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h
 	dstpsd->orgsubdriver->Blit(dstpsd, dstpsd->yvirtres-desty-h, destx,
 		h, w, srcpsd, srcpsd->yvirtres-srcy-h, srcx, op);
 }
-
-#if 0
-static void
-fbportrait_right_stretchblit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD dstw,
-	MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, MWCOORD srcw,
-	MWCOORD srch, int op)
-{
-	dstpsd->orgsubdriver->StretchBlit(dstpsd, dstpsd->yvirtres-desty-dsth, destx,
-		dsth, dstw, srcpsd, srcpsd->yvirtres-srcy-srch, srcx, srch, srcw, op);
-}
-#endif
 
 void
 fbportrait_right_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,

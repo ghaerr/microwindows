@@ -1,4 +1,5 @@
 Update broken for fontdemo3.sh in normal mode
+bin/mdemo requires extra mouse press/move to redraw on X11
 check X11 font display w/fontdemo2.sh doesn't work w/fblin32alpha driver (no convblit)
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc

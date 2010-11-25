@@ -98,7 +98,10 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 	minx = gc->srcx;\
 	maxx = minx + gc->width;\
 \
-	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + (gc->srcx >> 3);\
+	if (sizeof(SRC_TYPE) == 2)\
+		src = ((unsigned char *)gc->data) + gc->srcy *     src_pitch + ((minx >> 4) << 1);\
+	else\
+		src = ((unsigned char *)gc->data) + gc->srcy *     src_pitch + (minx >> 3);\
 	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;\
 \
 	/*\
@@ -111,6 +114,9 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 		register SRC_TYPE *s = (SRC_TYPE *)src;\
 		SRC_TYPE bitvalue;\
 		int x;\
+\
+		if ( (minx & SRC_TYPE_MASK) != 0)	/* init srcx != 0 case*/\
+			bitvalue = *s++;\
 \
 		for (x = minx; x < maxx; x++)\
 		{\

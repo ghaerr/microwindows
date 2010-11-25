@@ -193,7 +193,6 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->DrawVertLine 	= subdriver->DrawVertLine;
 	psd->FillRect	 	= subdriver->FillRect;
 	psd->Blit 			= subdriver->Blit;
-	psd->DrawArea 		= subdriver->DrawArea;
 	psd->StretchBlitEx	= subdriver->StretchBlitEx;
 	psd->BlitCopyMaskMonoByteMSB = subdriver->BlitCopyMaskMonoByteMSB;
 	psd->BlitCopyMaskMonoByteLSB = subdriver->BlitCopyMaskMonoByteLSB;
@@ -219,7 +218,6 @@ get_subdriver(PSD psd, PSUBDRIVER subdriver)
 	subdriver->DrawVertLine 	= psd->DrawVertLine;
 	subdriver->FillRect	 		= psd->FillRect;
 	subdriver->Blit 			= psd->Blit;
-	subdriver->DrawArea 		= psd->DrawArea;
 	subdriver->StretchBlitEx	= psd->StretchBlitEx;
 	subdriver->BlitCopyMaskMonoByteMSB = psd->BlitCopyMaskMonoByteMSB;
 	subdriver->BlitCopyMaskMonoByteLSB = psd->BlitCopyMaskMonoByteLSB;

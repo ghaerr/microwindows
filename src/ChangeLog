@@ -1,5 +1,5 @@
 24 Nov 2010
-	* removed PSDOP_xxx and GdDrawAreaInternal, all drawarea entry points
+	* removed PSDOP_xxx and GdDrawAreaInternal, all DrawArea entry points
 	* convered portrait mode drawarea to convblit, used only for 1,2,4,8 bpp subdrivers
 	* converted drawarea drivers to convblits for 1,2,4,8 bpp subdrivers
 	* fixed nonzero srcx offset and word src index bugs in convblit_mask_mono blits

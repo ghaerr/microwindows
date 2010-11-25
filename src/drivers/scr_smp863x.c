@@ -79,11 +79,6 @@ SCREENDEVICE scrdev = {
 	gen_fonts,
 	em86xx_blit,				/* Blit subdriver*/
 	NULL,						/* PreSelect*/
-#ifdef DRAWAREA_TEST
-	em86xx_drawarea, 						/* DrawArea subdriver*/
-#else
-	NULL,						/* DrawArea subdriver */
-#endif
 	NULL,						/* SetIOPermissions*/
 	gen_allocatememgc,
 	em86xx_mapmemgc,

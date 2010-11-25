@@ -49,7 +49,6 @@ SCREENDEVICE	scrdev = {
 	gen_fonts,
 	NULL,			/* Blit subdriver*/
 	NULL,			/* PreSelect*/
-	NULL,			/* DrawArea subdriver*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	gen_mapmemgc,

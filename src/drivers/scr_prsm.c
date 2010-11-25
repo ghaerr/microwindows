@@ -78,7 +78,6 @@ SCREENDEVICE	scrdev = {
 	gen_fonts,
 	VB_blit,
 	NULL,			/* preSelect */
-	NULL,			/* DrawArea */
 	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
 	VB_mapmemgc,

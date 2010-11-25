@@ -57,7 +57,6 @@ SCREENDEVICE	scrdev = {
 	pcrom_fonts,
 	HERC_blit,
 	NULL,			/* PreSelect*/
-	NULL,			/* DrawArea subdriver*/
 	NULL,			/* SetIOPermissions*/
 	HERC_allocatememgc,
 	NULL,			/* MapMemGC*/

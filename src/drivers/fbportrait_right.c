@@ -261,7 +261,6 @@ SUBDRIVER fbportrait_right = {
 	fbportrait_right_drawvertline,
 	fbportrait_right_fillrect,
 	fbportrait_right_blit,
-	NULL,		/* DrawArea*/
 	fbportrait_right_stretchblitex,
 	fbportrait_right_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
 	fbportrait_right_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/

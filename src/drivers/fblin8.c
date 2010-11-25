@@ -1013,7 +1013,6 @@ static SUBDRIVER fblinear8_none = {
 	linear8_drawvertline,
 	gen_fillrect,
 	linear8_blit,
-	NULL,		/* DrawArea*/
 	linear8_stretchblitex,
 	linear8_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
 	linear8_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/

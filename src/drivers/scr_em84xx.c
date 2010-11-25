@@ -101,7 +101,6 @@ SCREENDEVICE	scrdev = {
 	gen_fonts,
 	EM8400_blit,
 	NULL,			/* PreSelect*/
-	NULL,			/* DrawArea subdriver*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	EM8400_mapmemgc,		/* MapMemGC*/

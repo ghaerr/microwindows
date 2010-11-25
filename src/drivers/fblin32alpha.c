@@ -1235,7 +1235,6 @@ static SUBDRIVER fblinear32alpha_none = {
 	linear32a_drawvertline,
 	gen_fillrect,
 	linear32a_blit,
-	NULL,		/* DrawArea*/
 	linear32a_stretchblitex,
 	linear32a_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
 	linear32a_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/

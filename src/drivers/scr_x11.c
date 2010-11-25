@@ -65,7 +65,6 @@ SCREENDEVICE scrdev = {
 	gen_fonts,
 	0, //X11_blit,
 	X11_preselect,
-	0, //X11_drawarea,
 	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
 	gen_mapmemgc,

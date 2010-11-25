@@ -427,7 +427,6 @@ static SUBDRIVER fblinear4_none = {
 	linear4_drawvertline,
 	gen_fillrect,
 	linear4_blit,
-	NULL,		/* DrawArea*/
 	NULL,		/* StretchBlitEx*/
 	linear4_convblit_copy_mask_mono_byte_msb,
 	NULL,		/* BlitCopyMaskMonoByteLSB*/

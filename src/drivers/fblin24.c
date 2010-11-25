@@ -503,7 +503,6 @@ static SUBDRIVER fblinear24_none = {
 	linear24_drawvertline,
 	gen_fillrect,
 	linear24_blit,
-	0, 					/* drawarea*/
 	linear24_stretchblitex,
 	convblit_copy_mask_mono_byte_msb_bgr,		/* ft2 non-alias*/
 	convblit_copy_mask_mono_byte_lsb_bgr,		/* t1 non-alias*/
@@ -521,7 +520,6 @@ static SUBDRIVER fblinear24_left = {
 	fbportrait_left_drawvertline,
 	fbportrait_left_fillrect,
 	fbportrait_left_blit,
-	0, 					/* drawarea*/
 	fbportrait_left_stretchblitex,
 	convblit_copy_mask_mono_byte_msb_bgr_left,
 	convblit_copy_mask_mono_byte_lsb_bgr_left,
@@ -539,7 +537,6 @@ static SUBDRIVER fblinear24_right = {
 	fbportrait_right_drawvertline,
 	fbportrait_right_fillrect,
 	fbportrait_right_blit,
-	0, 					/* drawarea*/
 	fbportrait_right_stretchblitex,
 	convblit_copy_mask_mono_byte_msb_bgr_right,
 	convblit_copy_mask_mono_byte_lsb_bgr_right,
@@ -557,7 +554,6 @@ static SUBDRIVER fblinear24_down = {
 	fbportrait_down_drawvertline,
 	fbportrait_down_fillrect,
 	fbportrait_down_blit,
-	0, 					/* drawarea*/
 	fbportrait_down_stretchblitex,
 	convblit_copy_mask_mono_byte_msb_bgr_down,
 	convblit_copy_mask_mono_byte_lsb_bgr_down,

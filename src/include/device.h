@@ -103,7 +103,6 @@ typedef struct {
 			MWCOORD y2,MWPIXELVAL c);
 	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-	void	 (*DrawArea)(void);		/* DEPRECATED*/
 	void 	 (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
 			MWCOORD dest_x_start, int dest_y_start,
 			MWCOORD width, int height,
@@ -156,7 +155,6 @@ typedef struct _mwscreendevice {
 	void	(*Blit)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
 	void	(*PreSelect)(PSD psd);
-	void	 (*DrawArea)(void);		/* DEPRECATED*/
 	int	(*SetIOPermissions)(PSD psd);
 	PSD	(*AllocateMemGC)(PSD psd);
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,

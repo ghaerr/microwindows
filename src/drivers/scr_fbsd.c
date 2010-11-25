@@ -89,7 +89,6 @@ SCREENDEVICE	scrdev = {
 	gen_fonts,
 	FBSD_blit2,
 	FBSD_preselect,
-	NULL,			/* DrawArea*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	gen_mapmemgc,

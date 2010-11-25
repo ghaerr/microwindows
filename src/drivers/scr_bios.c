@@ -110,7 +110,6 @@ SCREENDEVICE	scrdev = {
 	NULL_blit,		/* Blit*/
 #endif
 	NULL,			/* PreSelect*/
-	NULL,			/* DrawArea*/
 	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	VGA_mapmemgc,

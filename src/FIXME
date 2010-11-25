@@ -1,6 +1,4 @@
-Update broken for fontdemo3.sh in normal mode
 bin/mdemo requires extra mouse press/move to redraw on X11
-check X11 font display w/fontdemo2.sh doesn't work w/fblin32alpha driver (no convblit)
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc
 add fast blit for GdArea/GrArea, remove printfs
@@ -12,9 +10,8 @@ fix x11 driver kluges
 need different way of SUBDRIVER left/right/down etc switching
 
 test VTSWITCH
+fix vncserver.c support (drawarea, etc)
 
-drawarea removal for non convblit drivers
-test drawarea fallback cases for < 16bpp
 GdBitmap/drawbitmap fallback for < 16bpp
 	fix psd->bpp >= 16 kluge in gen_drawtext (non convblit driver fallback to GdBitmap)
 

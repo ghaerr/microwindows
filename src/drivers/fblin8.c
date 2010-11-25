@@ -579,29 +579,14 @@ init_alpha_lookup(void)
 	return 1;
 }
 
-/* psd->DrawArea operation PSDOP_BITMAP_BYTES_LSB_FIRST which
- * takes a pixmap, each line is byte aligned, and copies it
- * to the screen using fg_color and bg_color to replace a 1
- * and 0 in the pixmap.  This pixmap is ordered the wrong
- * way around; it has the leftmost pixel (on the screen) in
- * LSB (Bit 0) of the bytes.
+/*
+ * Routine to draw mono 1bpp MSBFirst bitmap to 8bpp
+ * Bitmap is byte array.
  *
- * The reason why this non-intuitive bit ordering is used is
- * to match the bit ordering used in the T1lib font rendering
- * library.
- *
- * Variables used in the gc:
- *       dstx, dsty, dsth, dstw   Destination rectangle
- *       srcx, srcy               Source rectangle
- *       src_linelen              Linesize in bytes of source
- *       pixels                   Pixmap data
- *       fg_color                 Color of a '1' bit
- *       bg_color                 Color of a '0' bit
- *       usebg                 If set, bg_color is used.  If zero,
- *                                then '0' bits are transparent.
+ * Used to draw T1LIB non-antialiased glyphs.
  */
 static void
-linear8_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
+linear8_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 {
 /*
  * The difference between the MSB_FIRST and LSB_FIRST variants of
@@ -651,12 +636,12 @@ linear8_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	/* The index into each scanline of the last byte to use. */
 	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + first_byte;
 	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
-	fg = gc->fg_color;
-	bg = gc->bg_color;
+	fg = gc->fg_pixelval;
+	bg = gc->bg_pixelval;
 
-	advance_src = gc->src_linelen - last_byte + first_byte - 1;
+	advance_src = gc->src_pitch - last_byte + first_byte - 1;
 	advance_dst = psd->linelen - gc->width;
 
 	if (first_byte != last_byte) {
@@ -781,26 +766,14 @@ linear8_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 #undef MWI_LAST_BIT
 }
 
-/* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
- * takes a pixmap, each line is byte aligned, and copies it
- * to the screen using fg_color and bg_color to replace a 1
- * and 0 in the pixmap.  
+/*
+ * Routine to draw mono 1bpp MSBFirst bitmap to 8bpp
+ * Bitmap is byte array.
  *
- * The bitmap is ordered how you'd expect, with the MSB used
- * for the leftmost of the 8 pixels controlled by each byte.
- *
- * Variables used in the gc:
- *       dstx, dsty, dsth, dstw   Destination rectangle
- *       srcx, srcy               Source rectangle
- *       src_linelen              Linesize in bytes of source
- *       data                   Pixmap data
- *       fg_color                 Color of a '1' bit
- *       bg_color                 Color of a '0' bit
- *       usebg                 If set, bg_color is used.  If zero,
- *                                then '0' bits are transparent.
+ * Used to draw FT2 non-antialiased glyphs.
  */
 static void
-linear8_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
+linear8_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 /*
  * The difference between the MSB_FIRST and LSB_FIRST variants of
@@ -850,12 +823,12 @@ linear8_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	/* The index into each scanline of the last byte to use. */
 	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + first_byte;
 	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
-	fg = gc->fg_color;
-	bg = gc->bg_color;
+	fg = gc->fg_pixelval;
+	bg = gc->bg_pixelval;
 
-	advance_src = gc->src_linelen - last_byte + first_byte - 1;
+	advance_src = gc->src_pitch - last_byte + first_byte - 1;
 	advance_dst = psd->linelen - gc->width;
 
 	if (first_byte != last_byte) {
@@ -980,8 +953,13 @@ linear8_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 #undef MWI_LAST_BIT
 }
 
+/*
+ * Routine to blend 8bpp alpha byte array with fg/bg to 8bpp
+ *
+ * Used to draw FT2 and T1LIB antialiased glyphs.
+ */
 static void
-linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
+linear8_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 dst, alpha;
 	int x, y;
@@ -994,22 +972,22 @@ linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 			return;
 	}
 
-	alpha = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	alpha = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + gc->srcx;
 	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
 
-	src_row_step = gc->src_linelen - gc->width;
+	src_row_step = gc->src_pitch - gc->width;
 	dst_row_step = psd->linelen - gc->width;
 
 	DRAWON;
 	for (y = 0; y < gc->height; y++) {
 		for (x = 0; x < gc->width; x++) {
 			if ((as = *alpha++) == 255)
-				*dst++ = gc->fg_color;
+				*dst++ = gc->fg_pixelval;
 			else if (as != 0) {
 				/* Create 5 bit alpha value index for 256 color indexing*/
 
 				/* Get source RGB555 value for source alpha value*/
-				unsigned short s = alpha_to_rgb[((as >> 3) << 8) + gc->fg_color];
+				unsigned short s = alpha_to_rgb[((as >> 3) << 8) + gc->fg_pixelval];
 
 				/* Get destination RGB555 value for dest alpha value*/
 				unsigned short d = alpha_to_rgb[(((as >> 3) ^ 31) << 8) + *dst];
@@ -1017,7 +995,7 @@ linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 				/* Add RGB values together and get closest palette index to it*/
 				*dst++ = rgb_to_palindex[s + d];
 			} else if(gc->usebg)		/* alpha 0 - draw bkgnd*/
-				*dst++ = gc->bg_color;
+				*dst++ = gc->bg_pixelval;
 			else
 				++dst;
 		}
@@ -1025,32 +1003,6 @@ linear8_drawarea_alphacol(PSD psd, driver_gc_t * gc)
 		dst += dst_row_step;
 	}
 	DRAWOFF;
-}
-
-static void
-linear8_drawarea(PSD psd, driver_gc_t * gc)
-{
-	assert(psd->addr != 0);
-	/*assert(gc->width <= gc->srcw); */
-	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
-	assert(gc->srcy >= 0);
-	/*DPRINTF("linear8_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
-
-	switch (gc->op) {
-	case PSDOP_ALPHACOL:
-		linear8_drawarea_alphacol(psd, gc);
-		break;
-
-	case PSDOP_BITMAP_BYTES_LSB_FIRST:
-		linear8_drawarea_bitmap_bytes_lsb_first(psd, gc);
-		break;
-
-	case PSDOP_BITMAP_BYTES_MSB_FIRST:
-		linear8_drawarea_bitmap_bytes_msb_first(psd, gc);
-		break;
-	}
 }
 
 static SUBDRIVER fblinear8_none = {
@@ -1061,8 +1013,14 @@ static SUBDRIVER fblinear8_none = {
 	linear8_drawvertline,
 	gen_fillrect,
 	linear8_blit,
-	linear8_drawarea,
-	linear8_stretchblitex
+	NULL,		/* DrawArea*/
+	linear8_stretchblitex,
+	linear8_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
+	linear8_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/
+	NULL,		/* BlitCopyMaskMonoWordMSB*/
+	linear8_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
+	NULL,		/* BlitSrcOverRGBA8888*/
+	NULL		/* BlitCopyRGB888*/
 };
 
 PSUBDRIVER fblinear8[4] = {

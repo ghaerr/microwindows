@@ -201,26 +201,14 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	DRAWOFF;
 }
 
-/* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
- * takes a pixmap, each line is byte aligned, and copies it
- * to the screen using fg_color and bg_color to replace a 1
- * and 0 in the pixmap.
+/*
+ * Routine to draw mono 1bpp MSBFirst bitmap to MS nibble 4bpp
+ * Bitmap is byte array.
  *
- * The bitmap is ordered how you'd expect, with the MSB used
- * for the leftmost of the 8 pixels controlled by each byte.
- *
- * Variables used in the gc:
- *       dstx, dsty, height, width   Destination rectangle
- *       srcx, srcy               Source rectangle
- *       src_linelen              Linesize in bytes of source
- *       data                   Pixmap data
- *       fg_color                 Color of a '1' bit
- *       bg_color                 Color of a '0' bit
- *       usebg                 If set, bg_color is used.  If zero,
- *                                then '0' bits are transparent.
+ * Used to draw FT2 non-antialiased glyphs.
  */
 static void
-linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
+linear4_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 /*
  * The difference between the MSB_FIRST and LSB_FIRST variants of
@@ -270,13 +258,13 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	/* The index into each scanline of the last byte to use. */
 	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
-	src = ((ADDR8) gc->data) + gc->src_linelen * gc->srcy + first_byte;
+	src = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + first_byte;
 	dst = ((ADDR8) psd->addr) + (psd->linelen * gc->dsty + gc->dstx) / 2;	/* 4bpp = 2 ppb */
 
-	fg = gc->fg_color;
-	bg = gc->bg_color;
+	fg = gc->fg_pixelval;
+	bg = gc->bg_pixelval;
 
-	advance_src = gc->src_linelen - last_byte + first_byte - 1;
+	advance_src = gc->src_pitch - last_byte + first_byte - 1;
 	advance_dst = psd->linelen - (gc->width / 2);				/* 4bpp = 2 ppb */
 
 	if (first_byte != last_byte) {
@@ -431,26 +419,6 @@ linear4_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 #undef MWI_LAST_BIT
 }
 
-static void
-linear4_drawarea(PSD psd, driver_gc_t * gc)
-{
-#if DEBUG
-	assert(psd->addr != 0);
-	/*assert(gc->width <= gc->srcw); */
-	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
-	assert(gc->srcy >= 0);
-	/*printf("linear4_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
-#endif
-
-	switch (gc->op) {
-	case PSDOP_BITMAP_BYTES_MSB_FIRST:
-		linear4_drawarea_bitmap_bytes_msb_first(psd, gc);
-		break;
-	}
-}
-
 static SUBDRIVER fblinear4_none = {
 	linear4_init,
 	linear4_drawpixel,
@@ -459,7 +427,14 @@ static SUBDRIVER fblinear4_none = {
 	linear4_drawvertline,
 	gen_fillrect,
 	linear4_blit,
-	linear4_drawarea
+	NULL,		/* DrawArea*/
+	NULL,		/* StretchBlitEx*/
+	linear4_convblit_copy_mask_mono_byte_msb,
+	NULL,		/* BlitCopyMaskMonoByteLSB*/
+	NULL,		/* BlitCopyMaskMonoWordMSB*/
+	NULL,		/* BlitBlendMaskAlphaByte*/
+	NULL,		/* BlitSrcOverRGBA8888*/
+	NULL		/* BlitCopyRGB888*/
 };
 
 PSUBDRIVER fblinear4[4] = {

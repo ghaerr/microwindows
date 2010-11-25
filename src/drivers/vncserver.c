@@ -62,7 +62,7 @@ static void	 (*_FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
                 MWCOORD y2,MWPIXELVAL c);
 static void	 (*_Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
                 MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
-static void	 (*_DrawArea)(PSD psd, driver_gc_t *gc);
+//static void	 (*_DrawArea)(PSD psd, driver_gc_t *gc);
 static void  (*_StretchBlitEx)(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
 				MWCOORD width, int height, int x_denominator, int y_denominator,
 				int src_x_fraction, int src_y_fraction,
@@ -99,13 +99,14 @@ static void stubDrawPixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 }
 
 
+#if 0
 static void stubDrawArea(PSD psd, driver_gc_t *gc);
 {
         UndrawCursor();
         _DrawArea(psd,gc);
         MarkRect(gc->dstx, gc->dsty, gc->dstx + gc->dstw, gc->dstx + gc->dstw ); 
 }
-
+#endif
 
 static void stubFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
 	MWPIXELVAL c)
@@ -560,7 +561,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    _DrawVertLine = psd->DrawVertLine;
    _FillRect = psd->FillRect;
    _Blit = psd->Blit;
-   _DrawArea = psd->DrawArea;
+//   _DrawArea = psd->DrawArea;
    _StretchBlitEx = psd->StretchBlitEx;
    
 
@@ -571,7 +572,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    psd->DrawVertLine = stubDrawVertLine;
    psd->FillRect = stubFillRect;
    psd->Blit = stubBlit;
-   psd->DrawArea = stubDrawArea;
+//   psd->DrawArea = stubDrawArea;
    psd->StretchBlitEx = stubStretchBlitEx;
                         
    /* Don't set bits x sample & samples x pixel, we'll do it later  */

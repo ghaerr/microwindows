@@ -159,35 +159,23 @@ linear2_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	DRAWOFF;
 }
 
-/* psd->DrawArea operation PSDOP_BITMAP_BYTES_MSB_FIRST which
- * takes a pixmap, each line is byte aligned, and copies it
- * to the screen using fg_color and bg_color to replace a 1
- * and 0 in the pixmap.  
+/*
+ * Routine to draw mono 1bpp MSBFirst bitmap to MSB 2bpp
+ * Bitmap is byte array.
  *
- * The bitmap is ordered how you'd expect, with the MSB used
- * for the leftmost of the 8 pixels controlled by each byte.
- *
- * Variables used in the gc:
- *       dstx, dsty, dsth, dstw   Destination rectangle
- *       srcx, srcy               Source rectangle
- *       src_linelen              Linesize in bytes of source
- *       data                   Pixmap data
- *       fg_color                 Color of a '1' bit
- *       bg_color                 Color of a '0' bit
- *       usebg                 If set, bg_color is used.  If zero,
- *                                then '0' bits are transparentz.
+ * Used to draw FT2 non-antialiased glyphs.
  */
 static void
-linear2_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
+linear2_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8	dst, src;
 	int		i;
 	int		dlinelen = psd->linelen;
-	int		slinelen = gc->src_linelen;
+	int		slinelen = gc->src_pitch;
 	MWCOORD	h = gc->height;
 	MWCOORD	w = gc->width;
-	MWPIXELVAL fg = gc->fg_color;
-	MWPIXELVAL bg = gc->bg_color;
+	MWPIXELVAL fg = gc->fg_pixelval;
+	MWPIXELVAL bg = gc->bg_pixelval;
 #if DEBUG
 	assert (psd->addr != 0);
 	assert (gc->dstx >= 0 && gc->dstx < psd->xres);
@@ -236,33 +224,6 @@ linear2_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	DRAWOFF;
 }
 
-static void
-linear2_drawarea(PSD psd, driver_gc_t * gc)
-{
-#if DEBUG
-	assert(psd->addr != 0);
-	/*assert(gc->width <= gc->srcw); */
-	assert(gc->dstx >= 0 && gc->dstx + gc->width <= psd->xres);
-	/*assert(gc->dsty >= 0 && gc->dsty+gc->height <= psd->yres); */
-	/*assert(gc->srcx >= 0 && gc->srcx+gc->width <= gc->srcw); */
-	assert(gc->srcy >= 0);
-	/*DPRINTF("linear2_drawarea op=%d dstx=%d dsty=%d\n", op, gc->dstx, gc->dsty);*/
-#endif
-	switch (gc->op) {
-	case PSDOP_ALPHACOL:
-		DPRINTF("linear2_drawarea: PSDOP_ALPHACOL not supported\n");
-		break;
-
-	case PSDOP_BITMAP_BYTES_LSB_FIRST:
-		DPRINTF("linear2_drawarea: PSDOP_BITMAP_BYTES_LSB_FIRST not supported\n");
-		break;
-	
-	case PSDOP_BITMAP_BYTES_MSB_FIRST:
-		linear2_drawarea_bitmap_bytes_msb_first(psd, gc);
-		break;
-	  }
-}
-
 static SUBDRIVER fblinear2_none = {
 	linear2_init,
 	linear2_drawpixel,
@@ -271,7 +232,14 @@ static SUBDRIVER fblinear2_none = {
 	linear2_drawvertline,
 	gen_fillrect,
 	linear2_blit,
-	linear2_drawarea
+	NULL,		/* DrawArea*/
+	NULL,		/* StretchBlitEx*/
+	linear2_convblit_copy_mask_mono_byte_msb,
+	NULL,		/* BlitCopyMaskMonoByteLSB*/
+	NULL,		/* BlitCopyMaskMonoWordMSB*/
+	NULL,		/* BlitBlendMaskAlphaByte*/
+	NULL,		/* BlitSrcOverRGBA8888*/
+	NULL		/* BlitCopyRGB888*/
 };
 
 PSUBDRIVER fblinear2[4] = {

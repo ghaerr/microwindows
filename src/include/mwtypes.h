@@ -445,20 +445,6 @@ typedef struct {
 //	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
 } MWBLITPARMS, *PMWBLITPARMS;
 
-typedef struct { // DEPRECATED
-	int op;
-	MWCOORD width, height;
-	MWCOORD dstx, dsty;
-	MWCOORD srcx, srcy;
-	MWPIXELVAL fg_color;
-	MWPIXELVAL bg_color;
-	int usebg;
-	void *data;
-
-	MWCOORD src_linelen;		// must be set in GdConversionBlit
-	MWCOORD dst_linelen;		// must be set in GdConversionBlit
-} driver_gc_t;
-
 /**
  * Structure returned by GetFontInfo.
  *

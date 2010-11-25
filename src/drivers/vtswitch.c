@@ -50,7 +50,7 @@ static void	null_fillrect(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
 static void	null_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,
 			long op) {}
-static void 	null_drawarea(PSD psd, driver_gc_t *gc, int op) {}
+static void null_drawarea(void) {}
 static void	null_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 			MWCOORD dest_y_start, MWCOORD width, MWCOORD height,
 			int x_denominator, int y_denominator,

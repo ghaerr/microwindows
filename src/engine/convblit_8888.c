@@ -143,7 +143,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 		src += src_pitch;			/* src: next line down*/
 		dst += dst_pitch;
 	}
-printf("convblit_8888\n");
+
 	/* update screen bits if driver requires it*/
 	if (!psd->Update)
 		return;

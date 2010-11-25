@@ -90,68 +90,7 @@
 #error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in this file
 #endif
 
-/*
- * Draws an alpha map to screen (e.g. an anti-aliased font).
- * Params:
- * dstx, dsty  - Destination for top left of image
- * dstw, dsth  - Image size
- * srcx, srcy  - Start co-ordinates in source alpha map
- * src_linelen - Source image stride, in pixels
- * data        - Alpha map.  Format: ADDR8, entries
- *               are alpha values in range 0-255.
- * fg_color    - The color to draw in, in the display format.
- * bg_color    - Ignored.  FIXME Should be used if gr_usebg is set.
- * gr_usebg    - Ignored.  FIXME If set, should blend to bg_color.
- * pixels      - Ignored.
- */
-#define PSDOP_ALPHACOL	4
-
-/*
- * Draws a mono bitmap to screen (e.g. a mono font).
- * This variant takes the bitmap as an array of bytes,
- * where the Least Significant Bit in each byte is
- * used to set the left-most of the eight pixels
- * controlled by that byte.  I.e:
- *
- * [ 1 1 1 1 0 0 0 1 ] == 0x8F
- *
- * Params:
- * dstx, dsty  - Destination for top left of image
- * dstw, dsth  - Image size
- * srcx, srcy  - Start co-ordinates in source alpha map
- * src_linelen - Source image stride, in pixels
- * pixels      - The bitmap.  Format: ADDR8, LSB is drawn first.
- * fg_color    - The color to draw "1" bits in, in the display format.
- * bg_color    - The color to draw "0" bits in, in the display format.
- * gr_usebg    - If zero, then "0" bits are transparent.  If nonzero,
- *               then "0" bits are bg_color.
- */
-#define PSDOP_BITMAP_BYTES_LSB_FIRST	5
-
-/*
- * Draws a mono bitmap to screen (e.g. a mono font).
- * This variant takes the bitmap as an array of bytes,
- * where the Most Significant Bit in each byte is
- * used to set the left-most of the eight pixels
- * controlled by that byte.  I.e:
- *
- * [ 1 1 1 1 0 0 0 1 ] == 0xF1
- *
- * Params:
- * dstx, dsty  - Destination for top left of image
- * dstw, dsth  - Image size
- * srcx, srcy  - Start co-ordinates in source alpha map
- * src_linelen - Source image stride, in pixels
- * pixels      - The bitmap.  Format: ADDR8, MSB is drawn first.
- * fg_color    - The color to draw "1" bits in, in the display format.
- * bg_color    - The color to draw "0" bits in, in the display format.
- * gr_usebg    - If zero, then "0" bits are transparent.  If nonzero,
- *               then "0" bits are bg_color.
- */
-#define PSDOP_BITMAP_BYTES_MSB_FIRST	6
-
 /* screen subdriver entry points: one required for each draw function*/
-/* NOTE: currently used for fb driver only*/
 typedef struct {
 	int	 (*Init)(PSD psd);
 	void 	 (*DrawPixel)(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c);
@@ -164,12 +103,7 @@ typedef struct {
 			MWCOORD y2,MWPIXELVAL c);
 	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-	void	 (*DrawArea)(PSD psd, driver_gc_t *gc);
-	/* Note: StretchBlit() is deprecated, use StretchBlitEx()
-	void	 (*StretchBlit)(PSD destpsd, MWCOORD destx, MWCOORD desty,
-			MWCOORD dstw, MWCOORD dsth, PSD srcpsd, MWCOORD srcx,
-			MWCOORD srcy, MWCOORD srcw, MWCOORD srch, int op);
-	 */
+	void	 (*DrawArea)(void);		/* DEPRECATED*/
 	void 	 (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
 			MWCOORD dest_x_start, int dest_y_start,
 			MWCOORD width, int height,
@@ -219,14 +153,10 @@ typedef struct _mwscreendevice {
 	void	(*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
 			MWPIXELVAL c);
 	PMWCOREFONT builtin_fonts;
-
-	/* *void (*DrawText)(PSD psd,MWCOORD x,MWCOORD y,const MWUCHAR *str,
-			int count, MWPIXELVAL fg, PMWFONT pfont);***/
-
 	void	(*Blit)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
 	void	(*PreSelect)(PSD psd);
-	void	 (*DrawArea)(PSD psd, driver_gc_t *gc);
+	void	 (*DrawArea)(void);		/* DEPRECATED*/
 	int	(*SetIOPermissions)(PSD psd);
 	PSD	(*AllocateMemGC)(PSD psd);
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
@@ -336,7 +266,6 @@ void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		void *pixels, int pixtype);
 void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
-void	GdDrawAreaInternal(PSD psd, driver_gc_t *gc);	/* to be deprecated*/
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		MWCOORD inpitch, void *out, int outpixtype, int outpitch);
 void	GdCopyArea(PSD psd,MWCOORD srcx,MWCOORD srcy,MWCOORD width,

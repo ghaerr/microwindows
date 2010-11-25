@@ -89,12 +89,15 @@ fbportrait_right_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int
 }
 
 static void
-fbportrait_right_drawarea_alphacol(PSD dstpsd, driver_gc_t *gc)
+fbportrait_right_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 {
 	ADDR8 alpha_in, alpha_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
 	MWCOORD	out_x, out_y, out_w, out_h;
-	driver_gc_t	l_gc;
+	MWBLITPARMS	l_gc;
+
+	if (!dstpsd->BlitBlendMaskAlphaByte)
+		return;
 
 	/* create new gc with rotated coords*/
 	l_gc.width = gc->height;
@@ -103,19 +106,19 @@ fbportrait_right_drawarea_alphacol(PSD dstpsd, driver_gc_t *gc)
 	l_gc.dsty = gc->dstx;
 	l_gc.srcx = 0;
 	l_gc.srcy = 0;
-	l_gc.src_linelen = l_gc.width;
+	l_gc.src_pitch = l_gc.width;
 
 	/* copy the rest*/
 	l_gc.op = gc->op;
-	l_gc.fg_color = gc->fg_color;
-	l_gc.bg_color = gc->bg_color;
+	l_gc.fg_pixelval = gc->fg_pixelval;
+	l_gc.bg_pixelval = gc->bg_pixelval;
 	l_gc.usebg = gc->usebg;
-	l_gc.dst_linelen = gc->dst_linelen;
+	l_gc.dst_pitch = gc->dst_pitch;
 
 	if (!(l_gc.data = ALLOCA(l_gc.width * l_gc.height)))
 		return;
 
-	alpha_in = ((ADDR8)gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	alpha_in = ((ADDR8)gc->data) + gc->src_pitch * gc->srcy + gc->srcx;
 	in_w = gc->width;
 	in_h = gc->height;
 
@@ -129,22 +132,25 @@ fbportrait_right_drawarea_alphacol(PSD dstpsd, driver_gc_t *gc)
 			out_x = (out_w - 1) - in_y;
 
 			//alpha_out[(out_y * out_w) + out_x] = alpha_in[(in_y * in_w) + in_x];
-			alpha_out[(out_y * l_gc.src_linelen) + out_x] = alpha_in[(in_y * gc->src_linelen) + in_x];
+			alpha_out[(out_y * l_gc.src_pitch) + out_x] = alpha_in[(in_y * gc->src_pitch) + in_x];
 		}
 	}
 
-	dstpsd->orgsubdriver->DrawArea(dstpsd, &l_gc);
+	dstpsd->orgsubdriver->BlitBlendMaskAlphaByte(dstpsd, &l_gc);
 
 	FREEA(l_gc.data);
 }
 
 static void
-fbportrait_right_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
+fbportrait_right_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
 	MWCOORD	out_x, out_y, out_w, out_h;
-	driver_gc_t	l_gc;
+	MWBLITPARMS	l_gc;
+
+	if (!psd->BlitCopyMaskMonoByteMSB)
+		return;
 
 	/* create new gc with rotated coords*/
 	l_gc.width = gc->height;
@@ -153,20 +159,20 @@ fbportrait_right_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 	l_gc.dsty = gc->dstx;
 	l_gc.srcx = 0;
 	l_gc.srcy = 0;
-	l_gc.src_linelen = (l_gc.width + 7) / 8;
+	l_gc.src_pitch = (l_gc.width + 7) / 8;
 
 	/* copy the rest*/
 	l_gc.op = gc->op;
-	l_gc.fg_color = gc->fg_color;
-	l_gc.bg_color = gc->bg_color;
+	l_gc.fg_pixelval = gc->fg_pixelval;
+	l_gc.bg_pixelval = gc->bg_pixelval;
 	l_gc.usebg = gc->usebg;
-	l_gc.dst_linelen = gc->dst_linelen;
+	l_gc.dst_pitch = gc->dst_pitch;
 
-	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_linelen)))
+	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_pitch)))
 		return;
-	memset(l_gc.data, 0, l_gc.height * l_gc.src_linelen);
+	memset(l_gc.data, 0, l_gc.height * l_gc.src_pitch);
 
-	pixel_in = ((ADDR8)gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	pixel_in = ((ADDR8)gc->data) + gc->src_pitch * gc->srcy + gc->srcx;
 	in_w = gc->width;
 	in_h = gc->height;
 
@@ -181,23 +187,26 @@ fbportrait_right_drawarea_bitmap_bytes_msb_first(PSD psd, driver_gc_t * gc)
 			out_x = (out_w - 1) - in_y;
 
 			//pixel_out[(out_y * out_w) + out_x] = pixel_in[(in_y * in_w) + in_x];
-			if (pixel_in[in_y*gc->src_linelen + (in_x >> 3)] & (0x80 >> (in_x&7)))
-				pixel_out[out_y*l_gc.src_linelen + (out_x >> 3)] |= (0x80 >> (out_x&7));
+			if (pixel_in[in_y*gc->src_pitch + (in_x >> 3)] & (0x80 >> (in_x&7)))
+				pixel_out[out_y*l_gc.src_pitch + (out_x >> 3)] |= (0x80 >> (out_x&7));
 		}
 	}
 
-	psd->orgsubdriver->DrawArea(psd, &l_gc);
+	psd->orgsubdriver->BlitCopyMaskMonoByteMSB(psd, &l_gc);
 
 	FREEA(l_gc.data);
 }
 
 static void
-fbportrait_right_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
+fbportrait_right_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
 	MWCOORD	out_x, out_y, out_w, out_h;
-	driver_gc_t	l_gc;
+	MWBLITPARMS	l_gc;
+
+	if (!psd->BlitCopyMaskMonoByteLSB)
+		return;
 
 	/* create new gc with rotated coords*/
 	l_gc.width = gc->height;
@@ -206,20 +215,20 @@ fbportrait_right_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 	l_gc.dsty = gc->dstx;
 	l_gc.srcx = 0;
 	l_gc.srcy = 0;
-	l_gc.src_linelen = (l_gc.width + 7) / 8;
+	l_gc.src_pitch = (l_gc.width + 7) / 8;
 
 	/* copy the rest*/
 	l_gc.op = gc->op;
-	l_gc.fg_color = gc->fg_color;
-	l_gc.bg_color = gc->bg_color;
+	l_gc.fg_pixelval = gc->fg_pixelval;
+	l_gc.bg_pixelval = gc->bg_pixelval;
 	l_gc.usebg = gc->usebg;
-	l_gc.dst_linelen = gc->dst_linelen;
+	l_gc.dst_pitch = gc->dst_pitch;
 
-	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_linelen)))
+	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_pitch)))
 		return;
-	memset(l_gc.data, 0, l_gc.height * l_gc.src_linelen);
+	memset(l_gc.data, 0, l_gc.height * l_gc.src_pitch);
 
-	pixel_in = ((ADDR8)gc->data) + gc->src_linelen * gc->srcy + gc->srcx;
+	pixel_in = ((ADDR8)gc->data) + gc->src_pitch * gc->srcy + gc->srcx;
 	in_w = gc->width;
 	in_h = gc->height;
 
@@ -234,35 +243,14 @@ fbportrait_right_drawarea_bitmap_bytes_lsb_first(PSD psd, driver_gc_t * gc)
 			out_x = (out_w - 1) - in_y;
 
 			//pixel_out[(out_y * out_w) + out_x] = pixel_in[(in_y * in_w) + in_x];
-			if (pixel_in[in_y*gc->src_linelen + (in_x >> 3)] & (0x01 << (in_x&7)))
-				pixel_out[out_y*l_gc.src_linelen + (out_x >> 3)] |= (0x01 << (out_x&7));
+			if (pixel_in[in_y*gc->src_pitch + (in_x >> 3)] & (0x01 << (in_x&7)))
+				pixel_out[out_y*l_gc.src_pitch + (out_x >> 3)] |= (0x01 << (out_x&7));
 		}
 	}
 
-	psd->orgsubdriver->DrawArea(psd, &l_gc);
+	psd->orgsubdriver->BlitCopyMaskMonoByteLSB(psd, &l_gc);
 
 	FREEA(l_gc.data);
-}
-
-void
-fbportrait_right_drawarea(PSD dstpsd, driver_gc_t * gc)
-{
-	if (!dstpsd->orgsubdriver->DrawArea)
-		return;
-
-	switch(gc->op) {
-	case PSDOP_ALPHACOL:
-		fbportrait_right_drawarea_alphacol(dstpsd, gc);
-		break;
-
-	case PSDOP_BITMAP_BYTES_MSB_FIRST:
-		fbportrait_right_drawarea_bitmap_bytes_msb_first(dstpsd, gc);
-		break;
-
-	case PSDOP_BITMAP_BYTES_LSB_FIRST:
-		fbportrait_right_drawarea_bitmap_bytes_lsb_first(dstpsd, gc);
-		break;
-	}
 }
 
 SUBDRIVER fbportrait_right = {
@@ -273,6 +261,12 @@ SUBDRIVER fbportrait_right = {
 	fbportrait_right_drawvertline,
 	fbportrait_right_fillrect,
 	fbportrait_right_blit,
-	fbportrait_right_drawarea,
-	fbportrait_right_stretchblitex
+	NULL,		/* DrawArea*/
+	fbportrait_right_stretchblitex,
+	fbportrait_right_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
+	fbportrait_right_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/
+	NULL,		/* BlitCopyMaskMonoWordMSB*/
+	fbportrait_right_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
+	NULL,		/* BlitSrcOverRGBA8888*/
+	NULL		/* BlitCopyRGB888*/
 };

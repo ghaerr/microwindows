@@ -585,7 +585,6 @@ void fbportrait_left_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 	MWCOORD width, int height, int x_denominator, int y_denominator,
 	int src_x_fraction, int src_y_fraction,
 	int x_step_fraction, int y_step_fraction, int op);
-void fbportrait_left_drawarea(PSD dstpsd, driver_gc_t * gc);
 
 void fbportrait_right_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c);
 MWPIXELVAL fbportrait_right_readpixel(PSD psd, MWCOORD x, MWCOORD y);
@@ -598,7 +597,6 @@ void fbportrait_right_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start
 	MWCOORD width, int height, int x_denominator, int y_denominator,
 	int src_x_fraction, int src_y_fraction,
 	int x_step_fraction, int y_step_fraction, int op);
-void fbportrait_right_drawarea(PSD dstpsd, driver_gc_t * gc);
 
 void fbportrait_down_drawpixel(PSD psd,MWCOORD x, MWCOORD y, MWPIXELVAL c);
 MWPIXELVAL fbportrait_down_readpixel(PSD psd, MWCOORD x, MWCOORD y);
@@ -611,4 +609,3 @@ void fbportrait_down_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
 	MWCOORD width, int height, int x_denominator, int y_denominator,
 	int src_x_fraction, int src_y_fraction,
 	int x_step_fraction, int y_step_fraction, int op);
-void fbportrait_down_drawarea(PSD dstpsd, driver_gc_t * gc);

@@ -576,7 +576,7 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 		src += src_pitch;				/* src: next line down*/
 		dst += dst_pitch;
 	}
-printf("convblit_mask_alpha\n");
+
 	/* update screen bits if driver requires it*/
 	if (!psd->Update)
 		return;

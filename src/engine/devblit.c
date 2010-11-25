@@ -245,7 +245,6 @@ void
 GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 {
 	BlitFunc convblit;
-	driver_gc_t	gc;
 	int op = 0;
 
 	/* setup destination for convblit*/
@@ -256,12 +255,10 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 	switch (parms->data_format) {
 	case MWIF_ALPHABYTE:			/* ft2 alias, t1lib alias*/
 		convblit = psd->BlitBlendMaskAlphaByte;		/* conv 8bpp alpha with fg/bg*/
-		op = PSDOP_ALPHACOL;
 		break;
 
 	case MWIF_MONOBYTEMSB:			/* ft2 non-alias*/
 		convblit = psd->BlitCopyMaskMonoByteMSB;	/* conv mono byte MSBFirst*/
-		op = PSDOP_BITMAP_BYTES_MSB_FIRST;
 		break;
 
 	case MWIF_MONOWORDMSB:			/* core mwcfont, pcf*/
@@ -275,7 +272,6 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 
 	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
 		convblit = psd->BlitCopyMaskMonoByteLSB;	/* conv mono byte LSBFirst*/
-		op = PSDOP_BITMAP_BYTES_LSB_FIRST;
 		break;
 
 	case MWIF_RGBA8888:				/* png 32bpp w/alpha*/
@@ -297,129 +293,7 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 		return;
 	}
 
-	DPRINTF("GdConversionBlit: no convblit, using DrawArea fallback\n");
-	/* FIXME temp copy into deprecated driver_t gc and call DrawArea driver entry point*/
-	gc.op = op;
-	gc.width = parms->width;
-	gc.height = parms->height;
-	gc.dstx = parms->dstx;
-	gc.dsty = parms->dsty;
-	gc.srcx = parms->srcx;
-	gc.srcy = parms->srcy;
-	gc.src_linelen = parms->src_pitch;
-	gc.fg_color = parms->fg_pixelval;		/* drawarea uses pixelval color*/
-	gc.bg_color = parms->bg_pixelval;
-	gc.usebg = parms->usebg;
-	gc.data = parms->data;
-	//gc->dst_linelen = 
-	GdDrawAreaInternal(psd, &gc);
-}
-
-/*
- * A wrapper for psd->DrawArea which performs clipping.
- * The gc->dst[x,y,w,h] values are clipped.  The gc->src[x,y]
- * values are adjusted accordingly.
- *
- * This function does NOT have a fallback implementation
- * if the function is not supported by the driver.
- *
- * It is the caller's responsibility to GdFixCursor(psd).
- *
- * This is a low-level function.
- * FIXME THIS FUNCTION WILL BE REMOVED WHEN GdConversionBlit/GdConvBlitInternal FINISHED.
- */
-void
-GdDrawAreaInternal(PSD psd, driver_gc_t * gc)
-{
-	MWCOORD x = gc->dstx;
-	MWCOORD y = gc->dsty;
-	MWCOORD width = gc->width;
-	MWCOORD height = gc->height;
-	MWCOORD srcx, srcy;
-	MWCOORD rx1, rx2, ry1, ry2, rw, rh;
-	int count;
-#if DYNAMICREGIONS
-	MWRECT *prc;
-	extern MWCLIPREGION *clipregion;
-#else
-	MWCLIPRECT *prc;
-	extern MWCLIPRECT cliprects[];
-	extern int clipcount;
-#endif
-
-	/* check for driver present*/
-	if (!psd->DrawArea)
-		return;
-
-	/* check clipping region*/
-	switch(GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-	case CLIP_VISIBLE:
-		psd->DrawArea(psd, gc);	/* all visible, draw all*/
-		return;
-
-	case CLIP_INVISIBLE:
-		return;
-	}
-
-	/* partially clipped, we'll traverse visible region and draw*/
-	srcx = gc->srcx;
-	srcy = gc->srcy;
-
-#if DYNAMICREGIONS
-	prc = clipregion->rects;
-	count = clipregion->numRects;
-#else
-	prc = cliprects;
-	count = clipcount;
-#endif
-
-	while (count-- > 0) {
-#if DYNAMICREGIONS
-		rx1 = prc->left;
-		ry1 = prc->top;
-		rx2 = prc->right;
-		ry2 = prc->bottom;
-#else
-		/* old clip-code*/
-		rx1 = prc->x;
-		ry1 = prc->y;
-		rx2 = prc->x + prc->width;
-		ry2 = prc->y + prc->height;
-#endif
-
-		/* Check if this rect intersects with the one we draw */
-		if (rx1 < x)
-			rx1 = x;
-		if (ry1 < y)
-			ry1 = y;
-		if (rx2 > x + width)
-			rx2 = x + width;
-		if (ry2 > y + height)
-			ry2 = y + height;
-
-		rw = rx2 - rx1;
-		rh = ry2 - ry1;
-
-		if (rw > 0 && rh > 0) {
-			gc->dstx = rx1;
-			gc->dsty = ry1;
-			gc->width = rw;
-			gc->height = rh;
-			gc->srcx = srcx + rx1 - x;
-			gc->srcy = srcy + ry1 - y;
-			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
-			psd->DrawArea(psd, gc);
-		}
-		prc++;
-	}
-
-	/* Reset everything, in case the caller re-uses it. */
-	gc->dstx = x;
-	gc->dsty = y;
-	gc->width = width;
-	gc->height = height;
-	gc->srcx = srcx;
-	gc->srcy = srcy;
+	DPRINTF("GdConversionBlit: No convblit available\n");
 }
 
 /**

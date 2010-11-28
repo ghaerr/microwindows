@@ -90,32 +90,29 @@
 #error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in this file
 #endif
 
+typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
+
 /* screen subdriver entry points: one required for each draw function*/
 typedef struct {
-	int	 (*Init)(PSD psd);
+	int	 	 (*Init)(PSD psd);
 	void 	 (*DrawPixel)(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c);
 	MWPIXELVAL (*ReadPixel)(PSD psd, MWCOORD x, MWCOORD y);
-	void 	 (*DrawHorzLine)(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
-			MWPIXELVAL c);
-	void	 (*DrawVertLine)(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
-			MWPIXELVAL c);
-	void	 (*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
-			MWCOORD y2,MWPIXELVAL c);
-	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
-			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-	void 	 (*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
-			MWCOORD dest_x_start, int dest_y_start,
-			MWCOORD width, int height,
-			int x_denominator, int y_denominator,
+	void 	 (*DrawHorzLine)(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
+	void	 (*DrawVertLine)(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
+	void	 (*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2, MWCOORD y2,MWPIXELVAL c);
+	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
+				PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
+	void 	 (*StretchBlitEx)(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
+			MWCOORD width, int height, int x_denominator, int y_denominator,
 			int src_x_fraction, int src_y_fraction,
 			int x_step_fraction, int y_step_fraction, int op);
 	/* new fast blit functions*/
-	void	(*BlitCopyMaskMonoByteMSB)(PSD psd, PMWBLITPARMS parms);	/* ft non-alias*/
-	void	(*BlitCopyMaskMonoByteLSB)(PSD psd, PMWBLITPARMS parms);	/* t1 non-alias*/
-	void	(*BlitCopyMaskMonoWordMSB)(PSD psd, PMWBLITPARMS parms);	/* core/pcf non-alias*/
-	void	(*BlitBlendMaskAlphaByte)(PSD psd, PMWBLITPARMS parms);		/* ft2/t1 antialias*/
-	void	(*BlitSrcOverRGBA8888)(PSD psd, PMWBLITPARMS parms);		/* png RGBA image w/alpha*/
-	void	(*BlitCopyRGB888)(PSD psd, PMWBLITPARMS parms);				/* png RGB image no alpha*/
+	MWBLITFUNC BlitCopyMaskMonoByteMSB;				/* ft non-alias*/
+	MWBLITFUNC BlitCopyMaskMonoByteLSB;				/* t1 non-alias*/
+	MWBLITFUNC BlitCopyMaskMonoWordMSB;				/* core/pcf non-alias*/
+	MWBLITFUNC BlitBlendMaskAlphaByte;				/* ft2/t1 antialias*/
+	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
+	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 } SUBDRIVER, *PSUBDRIVER;
 
 /*
@@ -175,12 +172,12 @@ typedef struct _mwscreendevice {
 	PSUBDRIVER right_subdriver;
 	PSUBDRIVER down_subdriver;
 	/* new fast blit functions for text and images*/
-	void	(*BlitCopyMaskMonoByteMSB)(PSD psd, PMWBLITPARMS parms);	/* ft non-alias*/
-	void	(*BlitCopyMaskMonoByteLSB)(PSD psd, PMWBLITPARMS parms);	/* t1 non-alias*/
-	void	(*BlitCopyMaskMonoWordMSB)(PSD psd, PMWBLITPARMS parms);	/* core/pcf non-alias*/
-	void	(*BlitBlendMaskAlphaByte)(PSD psd, PMWBLITPARMS parms);		/* ft2/t1 antialias*/
-	void	(*BlitSrcOverRGBA8888)(PSD psd, PMWBLITPARMS parms);		/* png RGBA image w/alpha*/
-	void	(*BlitCopyRGB888)(PSD psd, PMWBLITPARMS parms);				/* png RGB image no alpha*/
+	MWBLITFUNC BlitCopyMaskMonoByteMSB;				/* ft non-alias*/
+	MWBLITFUNC BlitCopyMaskMonoByteLSB;				/* t1 non-alias*/
+	MWBLITFUNC BlitCopyMaskMonoWordMSB;				/* core/pcf non-alias*/
+	MWBLITFUNC BlitBlendMaskAlphaByte;				/* ft2/t1 antialias*/
+	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
+	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 } SCREENDEVICE;
 
 /* PSD flags*/
@@ -251,8 +248,6 @@ void	GdLine(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
 		MWBOOL bDrawLastPoint);
 void	GdRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 void	GdFillRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
-void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		const MWIMAGEBITS *imagebits);
 MWBOOL	GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize);
 void	GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 		MWPIXELVAL *convtable,int fLoadType);
@@ -263,26 +258,30 @@ void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		MWPIXELVAL *pixels);
 void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		void *pixels, int pixtype);
-void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		MWCOORD inpitch, void *out, int outpixtype, int outpitch);
-void	GdCopyArea(PSD psd,MWCOORD srcx,MWCOORD srcy,MWCOORD width,
-		MWCOORD height, MWCOORD destx, MWCOORD desty);
-void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width,
-		MWCOORD height,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int rop);
-/***void	GdStretchBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD dstw,
-		MWCOORD dsth, PSD srcpsd, MWCOORD srcx, MWCOORD srcy,
-		MWCOORD srcw, MWCOORD srch, int rop);***/
-void	GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
-		MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
-		MWCOORD s2_x, MWCOORD s2_y, int rop);
-int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
-		int planes, int bpp, int *size, int *linelen, int *pitch);
-void	drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-		const MWIMAGEBITS *imagebits);
 void	drawpoint(PSD psd, MWCOORD x, MWCOORD y);
 void	drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y);
 extern SCREENDEVICE scrdev;
+
+/* drivers/fb.c*/
+int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
+		int planes, int bpp, int *size, int *linelen, int *pitch);
+
+/* devblit.c*/
+void	drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+		const MWIMAGEBITS *imagebits);
+void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
+		const MWIMAGEBITS *imagebits);
+MWBLITFUNC GdFindConvBlit(PSD psd, int data_format, int op);
+void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
+void	GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit);
+void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width,
+		MWCOORD height,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int rop);
+void	GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
+		MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
+		MWCOORD s2_x, MWCOORD s2_y, int rop);
+void	GdPrintBitmap(PMWBLITPARMS gc, int SSZ);	/* debug only*/
 
 /* devarc.c*/
 /* requires float*/

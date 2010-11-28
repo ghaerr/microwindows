@@ -18,6 +18,7 @@
 #include <assert.h>
 #include "swap.h"
 #include "device.h"
+#include "convblit.h"
 
 extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
@@ -639,6 +640,56 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 	}
 }
 
+static void GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
+/**
+ * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
+ * Microwindows color image format is DWORD padded bytes, with
+ * the upper bits corresponding to the left side (identical to
+ * the MS Windows format).  This format is currently different
+ * than the MWIMAGEBITS format, which uses word-padded bits
+ * for monochrome display only, where the upper bits in the word
+ * correspond with the left side.
+ *
+ * @param psd Drawing surface.
+ * @param x Destination X co-ordinate for left of image.
+ * @param y Destination Y co-ordinate for top of image.
+ * @param pimage Structure describing the image.
+ */
+void
+GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
+{
+	int			op = MWROP_COPY;
+	MWBLITFUNC	convblit;
+	MWBLITPARMS parms;
+
+	/* use srcover for supported images with alpha*/
+	if (pimage->data_format == MWIF_RGBA8888)	// FIXME check MWIF_ALPHA
+		op = MWROP_SRC_OVER;
+
+	/* find conversion blit based on data format*/
+	convblit = GdFindConvBlit(psd, pimage->data_format, op);
+
+	/* if not using new MWIF_ format and convblit drivers, must draw pixel by pixel*/
+	if (!convblit) {
+		DPRINTF("GdDrawImage: not RGBA/RGB format or no convblit, using slow GdDrawImageByPoint\n");
+		GdDrawImageByPoint(psd, x, y, pimage);			/* old pixel-by-pixel drawing*/
+		return;
+	}
+
+	/* use fast conversion blit*/
+	parms.op = op;
+	parms.data_format = pimage->data_format;
+	parms.dstx = x;
+	parms.dsty = y;
+	parms.width = pimage->width;
+	parms.height = pimage->height;
+	parms.srcx = 0;
+	parms.srcy = 0;
+	parms.src_pitch = pimage->pitch;
+	parms.data = pimage->imagebits;
+	GdConversionBlit(psd, &parms);
+}
+
 /*
  * Alpha drawing using C bitfields.  Experimental,
  * uses bitfields rather than explicit bit-twiddling.
@@ -697,62 +748,9 @@ typedef union {
 	unsigned short v; 
 } RGB555;	
 
-static void GdDrawImageInternal(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
-/**
- * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
- * Microwindows color image format is DWORD padded bytes, with
- * the upper bits corresponding to the left side (identical to
- * the MS Windows format).  This format is currently different
- * than the MWIMAGEBITS format, which uses word-padded bits
- * for monochrome display only, where the upper bits in the word
- * correspond with the left side.
- *
- * @param psd Drawing surface.
- * @param x Destination X co-ordinate for left of image.
- * @param y Destination Y co-ordinate for top of image.
- * @param pimage Structure describing the image.
- */
-void
-GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
-{
-	MWBLITPARMS parms;
-
-	/* if not using new MWIF_ format and convblit drivers, must draw pixel by pixel*/
-	switch (pimage->data_format) {
-	case MWIF_RGBA8888:
-		if (psd->BlitSrcOverRGBA8888)
-			goto fastblit;
-		break;
-
-	case MWIF_RGB888:
-		if (psd->BlitCopyRGB888)
-			goto fastblit;
-		break;
-	}
-
-	if (pimage->data_format)
-		DPRINTF("GdDrawImage: no convblit, using DrawImageInternal fallback\n");
-	else DPRINTF("GdDrawImage: image not RGBA/RGB format, using slow GdDrawImageInternal\n");
-
-	GdDrawImageInternal(psd, x, y, pimage);			/* old pixel-by-pixel drawing*/
-	return;
-
-fastblit:
-	/* use fast conversion blit*/
-	parms.data_format = pimage->data_format;
-	parms.dstx = x;
-	parms.dsty = y;
-	parms.width = pimage->width;
-	parms.height = pimage->height;
-	parms.srcx = 0;
-	parms.srcy = 0;
-	parms.src_pitch = pimage->pitch;
-	parms.data = pimage->imagebits;
-	GdConversionBlit(psd, &parms);
-}
-
+/* slow draw point by point with clipping*/
 static void
-GdDrawImageInternal(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
+GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 {
 	MWCOORD minx;
 	MWCOORD maxx;
@@ -1239,6 +1237,8 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	GdFixCursor(psd);
 }
 
+static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+							void *pixels, int pixtype);
 /**
  * Draw a rectangle of color values, clipping if necessary.
  * If a color matches the background color,
@@ -1279,86 +1279,116 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
  * @param pixtype Format of pixels.
  */
 void
-GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixels,
-	int pixtype)
+GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixels, int pixtype)
 {
-	unsigned char *PIXELS = pixels;	/* for ANSI compilers, can't use void*/
-	int32_t cellstodo;			/* remaining number of cells */
-	int32_t count;			/* number of cells of same color */
-	int32_t cc;			/* current cell count */
-	int32_t rows;			/* number of complete rows */
-	MWCOORD minx;			/* minimum x value */
-	MWCOORD maxx;			/* maximum x value */
-	MWPIXELVAL savecolor;		/* saved foreground color */
-	MWBOOL dodraw;			/* TRUE if draw these points */
-	MWCOLORVAL rgbcolor = 0L;
-	int pixsize;
-	unsigned char r, g, b;
-
-printf("GdArea %d,%d %d,%d (type %d)\n", x, y, width, height, pixtype);
-#if 0 // FIXME
-	/* check for hw pixel format and low level driver drawarea call*/
-	if (pixtype == MWPF_HWPIXELVAL && (psd->flags & PSF_HAVEOP_COPY)) {
-		driver_gc_t hwgc;
-
-		hwgc.data = PIXELS;
-		hwgc.src_linelen = width;
-		hwgc.usebg = gr_usebg;
-		hwgc.bg_color = gr_background;
-		hwgc.dstx = x;
-		hwgc.dsty = y;
-		hwgc.width = width;
-		hwgc.height = height;
-		hwgc.srcx = 0;
-		hwgc.srcy = 0;
-		hwgc.op = PSDOP_COPY;
-		GdDrawAreaInternal(psd, &hwgc);
-
-		GdFixCursor(psd);
-		return;
-	}
-#endif
-	/* no fast low level routine, draw point-by-point...*/
-	minx = x;
-	maxx = x + width - 1;
-
-	/* Set up area clipping, and just return if nothing is visible */
-	if (GdClipArea(psd, minx, y, maxx, y + height - 1) == CLIP_INVISIBLE )
-		return;
+	int pixsize = 4;
+	int	data_format = 0;
+	MWBLITFUNC convblit = NULL;
+	MWBLITPARMS parms;
 
 	/* convert MWPF_HWPIXELVAL to real pixel type*/
 	if (pixtype == MWPF_HWPIXELVAL)
 		pixtype = psd->pixtype;
 
-	/* Calculate size of packed pixels*/
+	/* Calculate size of packed pixels and possible fast blitter*/
 	switch(pixtype) {
 	case MWPF_RGB:
-		pixsize = sizeof(MWCOLORVAL);
+	case MWPF_TRUECOLORABGR:
+		data_format = MWIF_RGBA8888;
 		break;
 	case MWPF_PIXELVAL:
 		pixsize = sizeof(MWPIXELVAL);
+		switch (pixsize) {
+		case 4:
+			if (psd->bpp == 32)
+				data_format = psd->data_format;		/* will use 32bpp copy*/
+			else if (psd->data_format == MWIF_BGR888)
+				data_format = MWIF_BGRA8888;		/* try 32bpp BGRA to 24bpp BGR copy*/
+			break;
+		case 2:
+			if (psd->bpp == 16)
+				data_format = psd->data_format;		/* will use 16bpp copy*/
+			break;
+		case 1:
+			break;
+		}
+		break;
+	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLOR0888:
+		data_format = MWIF_BGRA8888;
+		break;
+	case MWPF_TRUECOLOR888:
+		data_format = MWIF_BGR888;
+		pixsize = 3;
+		break;
+	case MWPF_TRUECOLOR565:
+		data_format = MWIF_RGB565;
+		pixsize = 2;
+		break;
+	case MWPF_TRUECOLOR555:
+		data_format = MWIF_RGB565;
+		pixsize = 2;
 		break;
 	case MWPF_PALETTE:
 	case MWPF_TRUECOLOR233:
 	case MWPF_TRUECOLOR332:
-		pixsize = sizeof(unsigned char);
-		break;
-	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR0888:
-	case MWPF_TRUECOLORABGR:
-		pixsize = sizeof(uint32_t);
-		break;
-	case MWPF_TRUECOLOR888:
-		pixsize = 3;
-		break;
-	case MWPF_TRUECOLOR565:
-	case MWPF_TRUECOLOR555:
-		pixsize = sizeof(unsigned short);
-		break;
 	default:
+		/* no convblit supported*/
+		break;
+	}
+
+	/* find conversion blit based on data format*/
+	if (data_format)
+		convblit = GdFindConvBlit(psd, data_format, MWROP_COPY);
+
+	if (!convblit) {
+		DPRINTF("GdArea: no convblit or format not supported, using slow GdAreaByPoint fallback\n");
+		GdAreaByPoint(psd, x, y, width, height, pixels, pixtype);	/* old pixel by pixel*/
 		return;
 	}
 
+	/* prepare blit parameters*/
+	parms.op = MWROP_COPY;
+	parms.data_format = 0;
+	parms.width = width;
+	parms.height = height;
+	parms.dstx = x;
+	parms.dsty = y;
+	parms.srcx = 0;
+	parms.srcy = 0;
+	parms.src_pitch = width * pixsize;
+	//parms.fg_colorval = gr_foreground_rgb;	/* these are ignored in copy blits*/
+	//parms.bg_colorval = gr_background_rgb;
+	//parms.fg_pixelval = gr_foreground;
+	//parms.bg_pixelval = gr_background;
+	//parms.usebg = gr_usebg;
+	parms.data = pixels;
+	parms.dst_pitch = psd->pitch;		/* usually set in GdConversionBlit*/
+	parms.data_out = psd->addr;
+//GdPrintBitmap(&parms, pixsize);
+	GdConvBlitInternal(psd, &parms, convblit);
+}
+
+static void
+GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixels, int pixtype)
+{
+	unsigned char *PIXELS = pixels;	/* for ANSI compilers, can't use void*/
+	MWCOORD minx = x;
+	MWCOORD maxx = x + width - 1;
+	int32_t cellstodo;			/* remaining number of cells */
+	int32_t count;			/* number of cells of same color */
+	int32_t cc;			/* current cell count */
+	int32_t rows;			/* number of complete rows */
+	MWPIXELVAL savecolor;		/* saved foreground color */
+	MWBOOL dodraw;			/* TRUE if draw these points */
+	MWCOLORVAL rgbcolor = 0L;
+	unsigned char r, g, b;
+
+	/* Set up area clipping, and just return if nothing is visible */
+	if (GdClipArea(psd, minx, y, maxx, y + height - 1) == CLIP_INVISIBLE )
+		return;
+
+	/* no fast low level routine, draw point-by-point...*/
   savecolor = gr_foreground;
   cellstodo = (long)width * height;
   while (cellstodo > 0) {
@@ -1513,106 +1543,7 @@ breakwhile:
   GdFixCursor(psd);
 }
 
-#if NOTYET
-/* Copy a rectangular area from one screen area to another.
- * This bypasses clipping.
- */
-void
-GdCopyArea(PSD psd, MWCOORD srcx, MWCOORD srcy, MWCOORD width, MWCOORD height,
-	MWCOORD destx, MWCOORD desty)
-{
-	if (width <= 0 || height <= 0)
-		return;
-
-	if (srcx == destx && srcy == desty)
-		return;
-	GdCheckCursor(psd, srcx, srcy, srcx + width - 1, srcy + height - 1);
-	GdCheckCursor(psd, destx, desty, destx + width - 1, desty + height - 1);
-	psd->CopyArea(psd, srcx, srcy, width, height, destx, desty);
-	GdFixCursor(psd);
-}
-#endif
-
-/*
- * Calculate size and linelen of memory gc.
- * If bpp or planes is 0, use passed psd's bpp/planes.
- * Note: linelen is calculated to be DWORD aligned for speed
- * for bpp <= 8.  Linelen is converted to bytelen for bpp > 8.
- */
-int
-GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
-	int bpp, int *psize, int *plinelen, int *ppitch)
-{
-	int	bytelen, linelen, tmp;
-
-	if(!planes)
-		planes = psd->planes;
-	if(!bpp)
-		bpp = psd->bpp;
-	/* 
-	 * swap width and height in left/right portrait modes,
-	 * so imagesize is calculated properly
-	 */
-	if(psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
-		tmp = width;
-		width = height;
-		height = tmp;
-	}
-
-	/*
-	 * use bpp and planes to create size and linelen.
-	 * linelen is in bytes for bpp 1, 2, 4, 8, and pixels for bpp 16,24,32.
-	 */
-	if(planes == 1) {
-		switch(bpp) {
-		case 1:
-			linelen = (width+7)/8;
-			bytelen = linelen = (linelen+3) & ~3;
-			break;
-		case 2:
-			linelen = (width+3)/4;
-			bytelen = linelen = (linelen+3) & ~3;
-			break;
-		case 4:
-			linelen = (width+1)/2;
-			bytelen = linelen = (linelen+3) & ~3;
-			break;
-		case 8:
-			bytelen = linelen = (width+3) & ~3;
-			break;
-		case 16:
-			linelen = width;
-			bytelen = width * 2;
-			break;
-		case 24:
-		case 18:
-			linelen = width;
-			bytelen = width * 3;
-			break;
-		case 32:
-			linelen = width;
-			bytelen = width * 4;
-			break;
-		default:
-			return 0;
-		}
-	} else if(planes == 4) {
-		/* FIXME assumes VGA 4 planes 4bpp*/
-		/* we use 4bpp linear for memdc format*/
-		linelen = (width+1)/2;
-		linelen = (linelen+3) & ~3;
-		bytelen = linelen;
-	} else {
-		*psize = *plinelen = 0;
-		return 0;
-	}
-
-	*psize = bytelen * height;
-	*plinelen = linelen;
-	*ppitch = bytelen;
-	return 1;
-}
-
+#if LATER
 /**
  * Translate a rectangle of color values
  *
@@ -1779,3 +1710,4 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		    outbuf += outpitch - width;
 	}
 }
+#endif /* LATER*/

@@ -192,7 +192,6 @@ fb_open(PSD psd)
 
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
 
-	psd->data_format = 0;			// FIXME coming soon
 	/* set pixel format*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {
 		switch(psd->bpp) {
@@ -217,12 +216,14 @@ fb_open(PSD psd)
 				psd->pixtype = MWPF_TRUECOLOR8888;
 			break;
 		default:
-			EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n",
-				psd->ncolors, psd->bpp);
+			EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
 			goto fail;
 		}
 	} else 
 		psd->pixtype = MWPF_PALETTE;
+
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
 
 	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres, psd->yres,
 		(psd->pixtype == MWPF_TRUECOLOR555)? 15: psd->bpp, psd->linelen, type, visual,

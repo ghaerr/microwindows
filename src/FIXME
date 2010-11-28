@@ -1,10 +1,15 @@
+**move some BGRA GdArea convblits to driver layer
+check 255 alpha on 8888_8888 copy
+check whether seperate portrait mode blits required
+plans for GdArea Translation, GdReadArea blit?
+
 bin/mdemo requires extra mouse press/move to redraw on X11
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc
-add fast blit for GdArea/GrArea, remove printfs
 debug fltk test/pixmap putTruecolorImage GrArea problem
 
 Look at RGB2PIXEL in convblit_mask/8888.c, will this work on all systems?
+	RGB2PIXEL kluged for MWPF_PALETTE compiles, set to 0 as not supported
 
 fix x11 driver kluges 
 need different way of SUBDRIVER left/right/down etc switching
@@ -15,8 +20,6 @@ fix vncserver.c support (drawarea, etc)
 GdBitmap/drawbitmap fallback for < 16bpp
 	fix psd->bpp >= 16 kluge in gen_drawtext (non convblit driver fallback to GdBitmap)
 
-GdArea fix add PSDOP_COPY back convblit instead of GdDrawAreaInternal
-	HWPF_PIXELVAL uses fast copy routine
 FT2 don't use antialias settings if no HAVEOP_ALPHACOL driver entry point
 
 16bpp convblits are endian-specific
@@ -31,12 +34,9 @@ remove FT1 from Config/configs*
 config option to eliminate not needed subdrivers?
 
 move data_format in MWIMAGEHDR	after changing convbmp
-fix data_format in scr_x11.c, scr_fb.c
 deprecate old screen drivers, fontmapper, !DYNAMICREGIONS, fblin32alpha.c
 	fix mwin/winfonts.c::EnumFonts GdGetFontList/GdFreeFontList/GdTextSizeEx for FT1
 	add GdGetTextSizeEx/GdGetFontList to FT2 from FT1
-
-plans for GdArea, GdReadArea, GdTranslation
 
 drawarea alphamap, copytrans, copyall(=convblit copy vs srcover)
 	check srcover vs copy for RGBA8888 images

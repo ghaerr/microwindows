@@ -65,6 +65,86 @@ gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	mempsd->addr = addr;
 }
 
+/*
+ * Calculate size and linelen of memory gc.
+ * If bpp or planes is 0, use passed psd's bpp/planes.
+ * Note: linelen is calculated to be DWORD aligned for speed
+ * for bpp <= 8.  Linelen is converted to bytelen for bpp > 8.
+ */
+int
+GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
+	int bpp, int *psize, int *plinelen, int *ppitch)
+{
+	int	bytelen, linelen, tmp;
+
+	if(!planes)
+		planes = psd->planes;
+	if(!bpp)
+		bpp = psd->bpp;
+	/* 
+	 * swap width and height in left/right portrait modes,
+	 * so imagesize is calculated properly
+	 */
+	if(psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
+		tmp = width;
+		width = height;
+		height = tmp;
+	}
+
+	/*
+	 * use bpp and planes to create size and linelen.
+	 * linelen is in bytes for bpp 1, 2, 4, 8, and pixels for bpp 16,24,32.
+	 */
+	if(planes == 1) {
+		switch(bpp) {
+		case 1:
+			linelen = (width+7)/8;
+			bytelen = linelen = (linelen+3) & ~3;
+			break;
+		case 2:
+			linelen = (width+3)/4;
+			bytelen = linelen = (linelen+3) & ~3;
+			break;
+		case 4:
+			linelen = (width+1)/2;
+			bytelen = linelen = (linelen+3) & ~3;
+			break;
+		case 8:
+			bytelen = linelen = (width+3) & ~3;
+			break;
+		case 16:
+			linelen = width;
+			bytelen = width * 2;
+			break;
+		case 24:
+		case 18:
+			linelen = width;
+			bytelen = width * 3;
+			break;
+		case 32:
+			linelen = width;
+			bytelen = width * 4;
+			break;
+		default:
+			return 0;
+		}
+	} else if(planes == 4) {
+		/* FIXME assumes VGA 4 planes 4bpp*/
+		/* we use 4bpp linear for memdc format*/
+		linelen = (width+1)/2;
+		linelen = (linelen+3) & ~3;
+		bytelen = linelen;
+	} else {
+		*psize = *plinelen = 0;
+		return 0;
+	}
+
+	*psize = bytelen * height;
+	*plinelen = linelen;
+	*ppitch = bytelen;
+	return 1;
+}
+
 /* 
  * Initialize memory device with passed parms,
  * select suitable framebuffer subdriver,

@@ -1,3 +1,9 @@
+27 Nov 2010
+	* added GdFindConvBlit, GdPrintBitmap, set_data_format functions
+	* require data_format on all screen drivers, used by GdArea
+	* added fast convblit handling to GdArea routine for 32,24,16bpp
+	* added Update to fblin8, palette mode fixes, fix X11 for palette mode
+	* cleaned up drivers and source, removed commented-out stretchblit
 24 Nov 2010
 	* removed PSDOP_xxx and GdDrawAreaInternal, all DrawArea entry points
 	* convered portrait mode drawarea to convblit, used only for 1,2,4,8 bpp subdrivers

@@ -25,9 +25,6 @@ extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
 extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
 
-typedef void (*BlitFunc)(PSD, PMWBLITPARMS);
-static void GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, BlitFunc convblit);
-
 /**
  * Draw a rectangular area using the current clipping region and the
  * specified bit map.  This differs from rectangle drawing in that the
@@ -145,8 +142,8 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 }
 
 /* call conversion blit with clipping and cursor fix*/
-static void
-GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, BlitFunc convblit)
+void
+GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 {
 	MWCOORD x = gc->dstx;
 	MWCOORD y = gc->dsty;
@@ -241,18 +238,14 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, BlitFunc convblit)
 	gc->srcy = srcy;
 }
 
-void
-GdConversionBlit(PSD psd, PMWBLITPARMS parms)
+/* find a conversion blit based on data format and blit op*/
+MWBLITFUNC
+GdFindConvBlit(PSD psd, int data_format, int op)
 {
-	BlitFunc convblit;
-	int op = 0;
+	MWBLITFUNC convblit = NULL;
 
-	/* setup destination for convblit*/
-	parms->dst_pitch = psd->pitch;
-	parms->data_out = psd->addr;
-
-	/* temp transfer parms to old driver struct*/
-	switch (parms->data_format) {
+	/* determine which blit to use*/
+	switch (data_format) {
 	case MWIF_ALPHABYTE:			/* ft2 alias, t1lib alias*/
 		convblit = psd->BlitBlendMaskAlphaByte;		/* conv 8bpp alpha with fg/bg*/
 		break;
@@ -263,33 +256,78 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 
 	case MWIF_MONOWORDMSB:			/* core mwcfont, pcf*/
 		convblit = psd->BlitCopyMaskMonoWordMSB;	/* conv mono word MSBFirst*/
-		if (!convblit) {
-			DPRINTF("GdConversionBlit: no convblit, using GdBitmap fallback\n");
-			GdBitmap(psd, parms->dstx, parms->dsty, parms->width, parms->height, parms->data);
-			return;
-		}
 		break;
 
 	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
 		convblit = psd->BlitCopyMaskMonoByteLSB;	/* conv mono byte LSBFirst*/
 		break;
 
-	case MWIF_RGBA8888:				/* png 32bpp w/alpha*/
-		convblit = psd->BlitSrcOverRGBA8888;		/* image, src 32bpp w/alpha - srcover*/
+	case MWIF_RGBA8888:				/* png 32bpp w/alpha, GdArea MWPF_RGB/MWPF_TRUECOLORABGR*/
+		if (op == MWROP_SRC_OVER) {
+			convblit = psd->BlitSrcOverRGBA8888;	/* image, src 32bpp w/alpha - srcover*/
+			break;
+		}
+		//FIXME convblit = psd->BlitCopyRGBA8888;
+		if (op == MWROP_COPY) switch (psd->bpp) {
+		case 32:
+			convblit = convblit_copy_rgba8888_bgra8888;	/* 32bpp RGBA to 32bpp BGRA copy*/
+			break;
+		case 24:
+			convblit = convblit_copy_rgba8888_bgr888;	/* 32bpp RGBX to 24bpp BGR copy*/
+			break;
+		case 16:
+			convblit = convblit_copy_rgba8888_16bpp;	/* 32bpp RGBX to 16bpp copy*/
+			break;
+		}
+		break;
+
+	case MWIF_BGRA8888:				/* GdArea MWPF_TRUECOLOR8888/MWPF_TRUECOLOR0888*/
+		/* assume copy*/
+		if (psd->data_format == MWIF_BGRA8888)
+			convblit = convblit_copy_8888_8888;		/* 32bpp to 32bpp copy*/
+		else if (psd->data_format == MWIF_BGR888)	/* GdArea MWPF_PIXELVAL conversion*/
+			convblit = convblit_copy_bgra8888_bgr888; /* 32bpp BGRX to 24bpp BGR copy*/
 		break;
 
 	case MWIF_RGB888:				/* png 24bpp no alpha*/
 		convblit = psd->BlitCopyRGB888;				/* image, src 24bpp - copy*/
 		break;
 
-	default:
-		EPRINTF("GdConversionBlit: unsupported data format 0x%x\n", parms->data_format);
+	case MWIF_BGR888:				/* GdArea MWPF_TRUECOLOR888*/
+		if (psd->data_format == MWIF_BGR888)
+			convblit = convblit_copy_888_888;		/* 24bpp to 24bpp copy*/
+		break;
+
+	case MWIF_RGB565:				/* GdArea MWPF_TRUECOLOR565*/
+	case MWIF_RGB555:				/* GdArea MWPF_TRUECOLOR555*/
+		if (psd->data_format == data_format)
+			convblit = convblit_copy_16bpp_16bpp;	/* 16bpp to 16bpp copy*/
+		break;
+	}
+
+	return convblit;
+}
+
+void
+GdConversionBlit(PSD psd, PMWBLITPARMS parms)
+{
+	/* first find blit based on data format and blit op*/
+	MWBLITFUNC convblit = GdFindConvBlit(psd, parms->data_format, parms->op);
+
+	/* call conversion blit routine with clipping*/
+	if (convblit) {
+		/* setup destination parms*/
+		parms->dst_pitch = psd->pitch;
+		parms->data_out = psd->addr;
+
+		GdConvBlitInternal(psd, parms, convblit);
 		return;
 	}
 
-	/* call conversion blit routine*/
-	if (convblit) {
-		GdConvBlitInternal(psd, parms, convblit);
+	/* check for fallback routines*/
+	if (parms->data_format == MWIF_MONOWORDMSB) {			/* core mwcfont, pcf*/
+		DPRINTF("GdConversionBlit: no convblit, using GdBitmap fallback\n");
+		GdBitmap(psd, parms->dstx, parms->dsty, parms->width, parms->height, parms->data);
 		return;
 	}
 
@@ -333,6 +371,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	/* temporary assert() until rotation blits completed*/
 	assert(dstpsd->portrait == srcpsd->portrait);
 	
+//printf("GdBlit %d,%d %d,%d\n", dstx, dsty, width, height);
 	/* clip blit rectangle to source screen/bitmap size*/
 	/* we must do this because there isn't any source clipping setup*/
 	if(srcx < 0) {
@@ -363,6 +402,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 		return;
 
 	case CLIP_INVISIBLE:
+printf("GdBlit invis\n");
 		return;
 	}
 
@@ -911,3 +951,46 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 	GdFixCursor(dstpsd);
 	/* GdFixCursor(srcpsd); */
 }
+
+#if DEBUG
+void GdPrintBitmap(PMWBLITPARMS gc, int SSZ)
+{
+	unsigned char *src;
+	int height;
+	unsigned int v;
+
+	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
+
+	printf("Image %d,%d SSZ %d\n", gc->width, gc->height, SSZ);
+	height = gc->height;
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = gc->width;
+
+		while (--w >= 0)
+		{
+			switch (SSZ) {
+			case 2:
+				v = s[0] | (s[1] << 8);
+				v = PIXEL565RED(v) + PIXEL565GREEN(v) + PIXEL565BLUE(v);
+				printf("%c", "_.:;oVM@X"[v]);
+				break;
+			case 3:
+				v = (s[0] + s[1] + s[2]) / 3;
+				printf("%c", "_.:;oVM@X"[v >> 5]);
+				break;
+			case 4:
+				//if (s[4])
+					v = (s[0] + s[1] + s[2]) / 3;
+				//else v = 256;
+				printf("%c", "_.:;oVM@X"[v >> 5]);
+				break;
+			}
+			s += SSZ;				/* src: next pixel right*/
+		}
+		printf("\n");
+		src += gc->src_pitch;		/* src: next line down*/
+	}
+}
+#endif

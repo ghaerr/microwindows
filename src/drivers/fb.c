@@ -50,18 +50,14 @@ select_fb_subdriver(PSD psd)
 		case 16:
 			pdriver = fblinear16;
 			break;
-		case 18: // addon VB May 2007 : 18bpp fb linear driver FIXME
 		case 24:
 			pdriver = fblinear24;
-printf("selecting 24bpp subdriver\n");
 			break;
 		case 32:
-			if (psd->pixtype == MWPF_TRUECOLOR8888 || psd->pixtype == MWPF_TRUECOLORABGR) {
+			if (psd->pixtype == MWPF_TRUECOLOR8888 || psd->pixtype == MWPF_TRUECOLORABGR)
 				pdriver = fblinear32alpha;
-			} else {
+			else
 				pdriver = fblinear32;
-printf("selecting 32bpp subdriver\n");
-			}
 			break;
 		}
 	}
@@ -77,4 +73,54 @@ printf("selecting 32bpp subdriver\n");
 
 	/* return driver selected*/
 	return pdriver[0];
+}
+
+/* set standard data_format from bpp and pixtype*/
+int
+set_data_format(PSD psd)
+{
+	int data_format = 0;
+
+	switch(psd->pixtype) {
+	case MWPF_PALETTE:
+		switch (psd->bpp) {
+		case 8:
+			data_format = MWIF_PAL8;
+			break;
+		case 4:
+			data_format = MWIF_PAL4;
+			break;
+		case 2:
+			data_format = MWIF_PAL2;
+			break;
+		case 1:
+			data_format = MWIF_PAL1;
+			break;
+		}
+		break;
+	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLOR0888:
+		data_format = MWIF_BGRA8888;
+		break;
+	case MWPF_TRUECOLORABGR:
+		data_format = MWIF_RGBA8888;
+		break;
+	case MWPF_TRUECOLOR888:
+		data_format = MWIF_BGR888;
+		break;
+	case MWPF_TRUECOLOR565:
+		data_format = MWIF_RGB565;
+		break;
+	case MWPF_TRUECOLOR555:
+		data_format = MWIF_RGB565;
+		break;
+	case MWPF_TRUECOLOR332:
+		data_format = MWIF_RGB332;
+		break;
+	case MWPF_TRUECOLOR233:
+		data_format = MWIF_BGR233;
+		break;
+	}
+
+	return data_format;
 }

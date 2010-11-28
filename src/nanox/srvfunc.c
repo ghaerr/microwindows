@@ -2766,11 +2766,10 @@ GrLine(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x1, GR_COORD y1, GR_COORD x2,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdLine(dp->psd, dp->x + x1, dp->y + y1,
-				dp->x + x2, dp->y + y2, TRUE);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdLine(dp->psd, dp->x + x1, dp->y + y1, dp->x + x2, dp->y + y2, TRUE);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2791,10 +2790,10 @@ GrRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-      	        case GR_DRAW_TYPE_PIXMAP:
-			GdRect(dp->psd, dp->x + x, dp->y + y, width, height);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdRect(dp->psd, dp->x + x, dp->y + y, width, height);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2813,10 +2812,10 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdFillRect(dp->psd, dp->x + x, dp->y + y, width,height);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdFillRect(dp->psd, dp->x + x, dp->y + y, width,height);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2835,10 +2834,10 @@ GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdEllipse(dp->psd, dp->x + x, dp->y + y, rx, ry, FALSE);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdEllipse(dp->psd, dp->x + x, dp->y + y, rx, ry, FALSE);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2857,10 +2856,10 @@ GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdEllipse(dp->psd, dp->x + x, dp->y + y, rx, ry, TRUE);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdEllipse(dp->psd, dp->x + x, dp->y + y, rx, ry, TRUE);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2880,12 +2879,10 @@ GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdArc(dp->psd, dp->x + x, dp->y + y, rx, ry, ax, ay,
-					bx, by, type);
-
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdArc(dp->psd, dp->x + x, dp->y + y, rx, ry, ax, ay, bx, by, type);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2904,11 +2901,10 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdArcAngle(dp->psd, dp->x + x, dp->y + y, rx, ry,
-				angle1, angle2, type);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdArcAngle(dp->psd, dp->x + x, dp->y + y, rx, ry, angle1, angle2, type);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2932,11 +2928,10 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdBitmap(dp->psd, dp->x + x, dp->y + y, width, height,
-				imagebits);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdBitmap(dp->psd, dp->x + x, dp->y + y, width, height, imagebits);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2952,10 +2947,10 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdDrawImage(dp->psd, dp->x + x, dp->y + y, pimage);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdDrawImage(dp->psd, dp->x + x, dp->y + y, pimage);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -2972,11 +2967,10 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
- 	        case GR_DRAW_TYPE_PIXMAP:
-			GdDrawImageFromFile(dp->psd, dp->x + x, dp->y + y,
-				width, height, path, flags);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdDrawImageFromFile(dp->psd, dp->x + x, dp->y + y, width, height, path, flags);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -3079,12 +3073,10 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
- 	        case GR_DRAW_TYPE_PIXMAP:
-			GdDrawImageToFit(dp->psd, dp->x + x, dp->y + y,
-				width, height, imageid);
-			break;
-	   
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdDrawImageToFit(dp->psd, dp->x + x, dp->y + y, width, height, imageid);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -3100,12 +3092,11 @@ GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
- 	        case GR_DRAW_TYPE_PIXMAP:
-			GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy,
-				dwidth, dheight,sx,sy,swidth,sheight, imageid);
-			break;
-	   
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy,
+			dwidth, dheight,sx,sy,swidth,sheight, imageid);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -3168,12 +3159,10 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-printf("GrArea win %d gc %d %d,%d\n", id, gc, dp->x, dp->y);
-			GdArea(dp->psd, dp->x + x, dp->y + y, width, height,
-				pixels, pixtype);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdArea(dp->psd, dp->x + x, dp->y + y, width, height, pixels, pixtype);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -3188,32 +3177,31 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_COORD srcx, GR_COORD srcy, int op)
 {
   	GR_GC		*gcp;
-	GR_BOOL         exposure = GR_TRUE;
-
+	GR_BOOL		exposure = GR_TRUE;
 	GR_DRAWABLE	*dp;
-        GR_WINDOW	*swp;
-        GR_PIXMAP	*spp = NULL;
-        GR_DRAW_TYPE	type;
-        PSD 		srcpsd;
+	GR_WINDOW	*swp;
+	GR_PIXMAP	*spp = NULL;
+	GR_DRAW_TYPE	type;
+	PSD 		srcpsd;
 
 	SERVER_LOCK();
    
-        srcpsd = NULL;
+	srcpsd = NULL;
 
-        swp = GsFindWindow(srcid);
-        type = GsPrepareDrawing(id, gc, &dp);
+	swp = GsFindWindow(srcid);
+	type = GsPrepareDrawing(id, gc, &dp);
 	if (type == GR_DRAW_TYPE_NONE) {
 		SERVER_UNLOCK();
 		return;
 	}
 
-        if (swp) {
+	if (swp) {
 		srcpsd = swp->psd;
 		srcx += swp->x;
 		srcy += swp->y;
 	} else {
-	       spp = GsFindPixmap(srcid);
-	       if (spp)
+		spp = GsFindPixmap(srcid);
+		if (spp)
 		     srcpsd = spp->psd;
 	}
 	if (!srcpsd) {
@@ -3257,8 +3245,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		 */
 		if (GdRectInRegion(clipregion, &rc) != MWRECT_ALLIN) {
 EPRINTF("nano-X: skipping blit, sending expose event\n");
-			GsDeliverExposureEvent(swp, dp->x+x, dp->y+y,
-				width, height);
+			GsDeliverExposureEvent(swp, dp->x+x, dp->y+y, width, height);
 			SERVER_UNLOCK();
 			return;
 		}
@@ -3272,6 +3259,7 @@ EPRINTF("nano-X: skipping blit, sending expose event\n");
 	}
 
 	/* perform blit*/
+//printf("COPYAREA %d->%d %d,%d  %d,%d  %d,%d\n", srcid, id, dp->x, dp->y, x, y, width, height);
 	GdCheckCursor(srcpsd, srcx, srcy, srcx+width, srcy+height); /* FIXME*/
 	GdBlit(dp->psd, dp->x+x, dp->y+y, width, height, srcpsd, srcx, srcy,op);
 	GdFixCursor(srcpsd); /* FIXME*/
@@ -3342,10 +3330,10 @@ GrPoint(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y)
 	SERVER_LOCK();
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdPoint(dp->psd, dp->x + x, dp->y + y);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdPoint(dp->psd, dp->x + x, dp->y + y);
+		break;
 	}
 
 	SERVER_UNLOCK();
@@ -3366,19 +3354,18 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	SERVER_LOCK();
    
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-	                psd = dp->psd;
-	                break;
-		default:
-			SERVER_UNLOCK();
-			return;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		psd = dp->psd;
+		break;
+	default:
+		SERVER_UNLOCK();
+		return;
 	}
 
 	pp = pointtable;
-	for (i = count; i-- > 0; pp++) {
+	for (i = count; i-- > 0; pp++)
 		GdPoint(psd, pp->x + dp->x, pp->y + dp->y);
-	}
 
 	SERVER_UNLOCK();
 }
@@ -3399,13 +3386,13 @@ GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	SERVER_LOCK();
    
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-	                psd = dp->psd;
-	                break;
-		default:
-			SERVER_UNLOCK();
-			return;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		psd = dp->psd;
+		break;
+	default:
+		SERVER_UNLOCK();
+		return;
 	}
 
 	/*
@@ -3447,18 +3434,18 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	GR_DRAWABLE	*dp;
 	GR_POINT	*pp;
 	GR_COUNT	i;
-        PSD 		psd;
+	PSD 		psd;
 
 	SERVER_LOCK();
    
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-	                psd = dp->psd;
-			break;
-		default:
-			SERVER_UNLOCK();
-			return;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		psd = dp->psd;
+		break;
+	default:
+		SERVER_UNLOCK();
+		return;
 	}
 
 	/*
@@ -3484,7 +3471,7 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 		pp->x -= dp->x;
 		pp->y -= dp->y;
 	}
-#endif   
+#endif
 
 	SERVER_UNLOCK();
 }
@@ -3506,10 +3493,10 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 		flags |= MWTF_BASELINE;
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
-		case GR_DRAW_TYPE_WINDOW:
-	        case GR_DRAW_TYPE_PIXMAP:
-			GdText(dp->psd, dp->x + x, dp->y + y, str, count,flags);
-			break;
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdText(dp->psd, dp->x + x, dp->y + y, str, count,flags);
+		break;
 	}
 
 	SERVER_UNLOCK();

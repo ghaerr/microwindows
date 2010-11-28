@@ -575,7 +575,6 @@ X11_open(PSD psd)
 	psd->xres = psd->xvirtres = x11_width;
 	psd->yres = psd->yvirtres = x11_height;
 	psd->planes = 1;
-	psd->data_format = 0;			// FIXME
 	psd->pixtype = MWPIXEL_FORMAT;
 	switch (psd->pixtype) {
 #if MWPIXEL_FORMAT == MWPF_PALETTE
@@ -600,6 +599,9 @@ X11_open(PSD psd)
 		psd->bpp = 8;
 		break;
 	}
+
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
 
 	/* Calculate the correct linelen here */
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
@@ -779,7 +781,7 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 			dbuf += linedelta;
 		}
 	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXELFORMAT== MWPF_TRUECOLORABGR)
 	{
 		ADDR32 dbuf = ((ADDR32) psd->addr) + destx + desty * psd->linelen;
 		int linedelta = psd->linelen - w;
@@ -792,14 +794,17 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 			dbuf += linedelta;
 		}
 	}
-#else /* also handle MWPF_TRUECOLORBGRA here to preserve alpha*/
+#else /* MWPF_PALETTE*/
 	{
+		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = psd->ReadPixel(psd, destx + x, desty + y);
+				MWPIXELVAL c = *dbuf++;
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
+			dbuf += linedelta;
 		}
 	}
 #endif

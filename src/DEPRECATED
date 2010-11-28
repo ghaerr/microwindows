@@ -1,4 +1,4 @@
-DEPRECATED FILES AND DRIVERS	11/21/2010
+DEPRECATED FILES AND DRIVERS	11/27/2010
 
 After v0.92, the internal drawing model has changed.  Instead
 of allowing screen drivers to implement drawpixel, drawhline,
@@ -34,11 +34,11 @@ scr_win32.c		- Win32 port, needs rewrite ala X11 driver
 vgaplan4.c		- Direct VGA Access
 memplan4.c		- Direct VGA Access
 elkplan4.c		- Elks OS
+fblin18.c		- 18bpp driver 666 format for ASM PXA270 with 18bit LCD
 
 
 POSSIBLE OBSOLETE DRIVERS - NEED TESTING/UPDATING
 fblin32alpha.c	- configurable 32bpp ABGR or ARGB, reads/writes DWORD only
-fblin18.c		- 18bpp driver 666 format for ASM PXA270 with 18bit LCD
 fblin12.c		- 12bpp driver for Cirrus Logic
 fblin4hp.c		- fast 4bpp driver for Vr41xx Palm
 fblin4orion.c	- 4access Communications Orion machines

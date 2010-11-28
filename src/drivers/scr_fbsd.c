@@ -143,7 +143,7 @@ static PSD FBSD_open(PSD psd)
     psd -> linelen = VGLDisplay->Xsize;
     psd -> planes  = 1;
     psd -> pixtype = MWPIXEL_FORMAT;
-	psd -> data_format = 0;			// FIXME
+	psd -> data_format = MWIF_PAL8;
     psd -> bpp = 8;
 
 /*     switch(psd->pixtype) { */
@@ -172,7 +172,7 @@ static PSD FBSD_open(PSD psd)
     psd->addr = NULL;
     psd->flags = PSF_SCREEN|PSF_HAVEBLIT;
 
-    savebits=*psd;
+    savebits = *psd;
     savebits.flags=PSF_MEMORY | PSF_HAVEBLIT;
     /* select a fb subdriver matching our planes and bpp */
     subdriver = select_fb_subdriver(&savebits);

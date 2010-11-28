@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
  *
- * Microwindows Screen Driver for Linux kernel framebuffers
+ * Microwindows Screen Driver for eCos
  *
  * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
  *
@@ -84,17 +84,6 @@ fb_open(PSD psd)
 
     psd->xres = psd->xvirtres = li.width;
     psd->yres = psd->yvirtres = li.height;
-#if PORTRAIT
-    /* automatic portrait mode if y resolution is greater than x res*/
-    /* * commented out, PORTRAIT_MODE=[R,L] used for compile time option***/
-    /* *if(psd->yres > psd->xres)
-        gr_portraitmode = 1;***/
-#endif
-    /* set planes from fb type*/
-    if (1 /*type == FB_TYPE_PACKED_PIXELS*/)
-        psd->planes = 1;   /* FIXME */
-    else psd->planes = 0;	/* force error later*/
-
     psd->bpp = li.bpp;
     psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 
@@ -103,6 +92,7 @@ fb_open(PSD psd)
     psd->size = 0;		/* force subdriver init of size*/
 
     psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
+    psd->planes = 1;
 
 #if PORTRAIT
     /* determine whether to run in portrait mode*/
@@ -115,11 +105,11 @@ fb_open(PSD psd)
     }
 #endif
 
-	psd->data_format = 0;			// FIXME
     /* set pixel format*/
     switch (li.type) {
     case FB_TRUE_RGB565:
         psd->pixtype = MWPF_TRUECOLOR565;
+		psd->data_format = MWIF_RGB565;
         break;
     default:
         EPRINTF("Unsupported display type: %d\n", li.type);

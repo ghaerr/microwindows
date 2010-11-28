@@ -91,9 +91,8 @@ fb_open(PSD psd)
 		return NULL;
 	}
 
-	if( ioctl( fb, FBIOGET_FSCREENINFO, &fb_fix ) || ioctl( fb, FBIOGET_VSCREENINFO, &fb_var ) )
-	{
-	        EPRINTF("Error getting screen info\n" );
+	if (ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix) || ioctl(fb, FBIOGET_VSCREENINFO, &fb_var )) {
+		EPRINTF("Error getting screen info\n" );
 		return NULL;
 	}
 	/* setup screen device from framebuffer info*/
@@ -117,13 +116,8 @@ fb_open(PSD psd)
 	psd->linelen = fb_fix.line_length;
 	psd->size = 0;		/* force subdriver init of size*/
 
-#if HAVEBLIT
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
-#else
-	psd->flags = PSF_SCREEN;
-#endif
 
-	psd->data_format = 0;			// FIXME
 	/* set pixel format*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {
 		switch(psd->bpp) {
@@ -140,29 +134,23 @@ fb_open(PSD psd)
 			psd->pixtype = MWPF_TRUECOLOR0888;
 			break;
 		default:
-			EPRINTF(
-			"Unsupported %d color (%d bpp) truecolor framebuffer\n",
-				psd->ncolors, psd->bpp);
+			EPRINTF("Unsupported %d color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
 			goto fail;
 		}
 	} else psd->pixtype = MWPF_PALETTE;
 
-	psd->size = (psd->size + getpagesize () - 1)
-			/ getpagesize () * getpagesize ();
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
+
+	psd->size = (psd->size + getpagesize () - 1) / getpagesize () * getpagesize ();
 
 	/* maps FB memory to user space */
 	psd->addr = fb_fix.smem_start;
 
-	/*if( ufb_mmap_to_user_space( fb, &psd->addr,
-                              ( void *)fb_info.smem_start, fb_info.smem_len ) )
-	{
-	        EPRINTF("Error mapping FB memory to user space\n" );
+	/*if( ufb_mmap_to_user_space( fb, &psd->addr, (void *)fb_info.smem_start, fb_info.smem_len)) {
+		EPRINTF("Error mapping FB memory to user space\n" );
 		goto fail;
 	}*/
-
-	/*DPRINTF("%dx%dx%d linelen %d type %d visual %d bpp %d\n", psd->xres,
-	 	psd->yres, psd->ncolors, psd->linelen, type, visual,
-		psd->bpp);*/
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);
@@ -174,10 +162,8 @@ fb_open(PSD psd)
 
 	/*exec.func_no = FB_FUNC_ENTER_GRAPHICS;
         exec.param = 0;
-
-	if( ioctl( fb, FB_EXEC_FUNCTION , ( void *)&exec ) )
-	{
-	        EPRINTF("Error entering graphics\n");
+	if( ioctl(fb, FB_EXEC_FUNCTION , ( void *)&exec)) {
+		EPRINTF("Error entering graphics\n");
 		return NULL;
 	}*/
 
@@ -185,10 +171,8 @@ fb_open(PSD psd)
 	 * set and initialize subdriver into screen driver
 	 * psd->size is calculated by subdriver init
 	 */
-	if(!set_subdriver(psd, subdriver, TRUE ))
-	{
-		EPRINTF("Driver initialize failed type %d visual %d bpp %d\n",
-			type, visual, psd->bpp);
+	if(!set_subdriver(psd, subdriver, TRUE)) {
+		EPRINTF("Driver initialize failed type %d visual %d bpp %d\n", type, visual, psd->bpp);
 		goto fail;
 	}
 

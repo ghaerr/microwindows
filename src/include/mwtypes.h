@@ -110,18 +110,22 @@
 #define MWIF_ARGB8888		0x00020000L		/* 32bpp ARGB image byte order (new)*/
 #define MWIF_RGBA8888		0x00030000L		/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
 //#define MWIF_ABGR8888		0x00040000L		/* 32bpp ABGR image byte order (new)*/
-//#define MWIF_BGR8888		0x00050000L		/* 32bpp BGR image order no alpha*/
+//#define MWIF_BGRX8888		0x00050000L		/* 32bpp BGR image order no alpha (new)*/
 #define MWIF_BGR888			0x00060000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
 #define MWIF_RGB888			0x00070000L		/* 24bpp RGB image byte order  (png no alpha)*/
 #define MWIF_RGB565			0x00080000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
-//#define MWIF_RGB565_BR	0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
+//#define MWIF_RGB565_BE	0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
 #define MWIF_RGB555			0x000A0000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
-//#define MWIF_RGB555_BR	0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
+//#define MWIF_RGB555_BE	0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
 #define MWIF_BGR555			0x000C0000L		/* 16bpp 5/5/5 BGR packed l.endian (old TRUECOLOR1555)*/
-//#define MWIF_BGR555_BR	0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
-#define MWIF_BGR332			0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
+//#define MWIF_BGR555_BE	0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
+#define MWIF_RGB332			0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
 #define MWIF_BGR233			0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
-#define MWIF_PAL8			0x00100000L		/*  8bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL1			0x00100000L		/*  1bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL2			0x00200000L		/*  2bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL4			0x00400000L		/*  4bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL8			0x00800000L		/*  8bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL			0x00F00000L		/* requires palette*/
 
 /* Line modes */
 #define MWLINE_SOLID      0
@@ -1247,6 +1251,14 @@ typedef struct {
 #define PIXEL2RED(p)		PIXEL233RED(p)
 #define PIXEL2GREEN(p)		PIXEL233GREEN(p)
 #define PIXEL2BLUE(p)		PIXEL233BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_PALETTE
+//only required for compiling in palette pixel size, not supported in convblits
+//extern MWPALENTRY	gr_palette[256];
+//extern int32_t	gr_ncolors;
+//#define RGB2PIXEL(r,g,b)	GdFindNearestColor(gr_palette, gr_ncolors, MWRGB(r,g,b))
+#define RGB2PIXEL(r,g,b)	0
 #endif
 
 /*

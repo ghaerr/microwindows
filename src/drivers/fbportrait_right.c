@@ -96,7 +96,7 @@ fbportrait_right_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 	MWCOORD	out_x, out_y, out_w, out_h;
 	MWBLITPARMS	l_gc;
 
-	if (!dstpsd->BlitBlendMaskAlphaByte)
+	if (!dstpsd->orgsubdriver->BlitBlendMaskAlphaByte)
 		return;
 
 	/* create new gc with rotated coords*/
@@ -149,7 +149,7 @@ fbportrait_right_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	MWCOORD	out_x, out_y, out_w, out_h;
 	MWBLITPARMS	l_gc;
 
-	if (!psd->BlitCopyMaskMonoByteMSB)
+	if (!psd->orgsubdriver->BlitCopyMaskMonoByteMSB)
 		return;
 
 	/* create new gc with rotated coords*/
@@ -205,7 +205,7 @@ fbportrait_right_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 	MWCOORD	out_x, out_y, out_w, out_h;
 	MWBLITPARMS	l_gc;
 
-	if (!psd->BlitCopyMaskMonoByteLSB)
+	if (!psd->orgsubdriver->BlitCopyMaskMonoByteLSB)
 		return;
 
 	/* create new gc with rotated coords*/

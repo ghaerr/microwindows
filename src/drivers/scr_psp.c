@@ -73,6 +73,7 @@ fb_open(PSD psd)
     psd->linelen = 512 * 4;
     psd->flags = PSF_SCREEN;
     psd->pixtype = MWPF_TRUECOLORABGR;
+	psd->data_format = MWIF_RGBA8888;
 
     subdriver = select_fb_subdriver(psd);
     if (!subdriver) {

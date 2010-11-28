@@ -89,7 +89,6 @@ fb_open(PSD psd)
 		else
 			psd->pixtype = MWPF_TRUECOLOR565;
 		break;
-	case 18:
 	case 24:
 		psd->pixtype = MWPF_TRUECOLOR888;
 		break;
@@ -97,11 +96,12 @@ fb_open(PSD psd)
 		psd->pixtype = MWPF_TRUECOLOR0888;
 		break;
 	default:
-		EPRINTF(
-		"Unsupported %ld color (%d bpp) truecolor framebuffer\n",
-			psd->ncolors, psd->bpp);
+		EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
 		return NULL;
 	}
+
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);

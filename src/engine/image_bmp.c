@@ -74,7 +74,7 @@ static int	DecodeRLE4(MWUCHAR *buf, buffer_t *src);
 static void	put4(int b);
 
 void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch);
-void convblit_bgr8888_rgba8888(unsigned char *data, int width, int height, int pitch);
+void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch);
 
 /*
  * Conversion blit 24bpp BGR to 24bpp RGB
@@ -104,7 +104,7 @@ void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitc
 /*
  * Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha
  */
-void convblit_bgr8888_rgba8888(unsigned char *data, int width, int height, int pitch)
+void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch)
 {
 	unsigned char *src = data;
 
@@ -299,7 +299,7 @@ printf("bmp bpp %d\n", pimage->bpp);
 	if (pimage->bpp == 24)
 		convblit_bgr888_rgb888(imagebits, pimage->width, pimage->height, pimage->pitch);
 	else if (pimage->bpp == 32)
-		convblit_bgr8888_rgba8888(imagebits, pimage->width, pimage->height, pimage->pitch);
+		convblit_bgrx8888_rgba8888(imagebits, pimage->width, pimage->height, pimage->pitch);
 	return 1;		/* bmp image ok*/
 	
 err:

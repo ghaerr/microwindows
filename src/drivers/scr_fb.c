@@ -112,7 +112,7 @@ static struct fb_var_screeninfo fb_var = {
 	  .green = { 0, 8, 0 },
 	  .blue = { 0, 8, 0 },
 #endif
-	  .transp = { 0, 0, 0 },	/* set length=8 to force fblin32alpha driver*/
+	  .transp = { 0, 0, 0 },	/* transp.length == 8 indicates alpha channel*/
 };
 
 /* static variables*/
@@ -199,7 +199,7 @@ fb_open(PSD psd)
 			break;
 		case 16:
 			if (fb_var.green.length == 5)
-				psd->pixtype = MWPF_TRUECOLOR555;
+				psd->pixtype = MWPF_TRUECOLOR555;	// FIXME must also set MWPF_PIXELFORMAT in config
 			else
 				psd->pixtype = MWPF_TRUECOLOR565;
 			break;
@@ -208,11 +208,11 @@ fb_open(PSD psd)
 			psd->pixtype = MWPF_TRUECOLOR888;
 			break;
 		case 32:
-			psd->pixtype = MWPF_TRUECOLOR0888;
-			/* Check if we have alpha */
-			/* FIXME could set MWPF_TRUECOLORABGR here*/
-			if (fb_var.transp.length == 8)
-				psd->pixtype = MWPF_TRUECOLOR8888;
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+			psd->pixtype = MWPF_TRUECOLOR8888;
+#else
+			psd->pixtype = MWPF_TRUECOLORABGR;
+#endif
 			break;
 		default:
 			EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);

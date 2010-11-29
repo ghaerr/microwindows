@@ -1,15 +1,17 @@
 /*
  * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  *
+ * NOT CURRENTLY USED - replaced by fblin32.c
+ *
  * 32bpp Linear Video Driver for Microwindows (BGRA or RGBA byte order)
  * Writes memory image: |B|G|R|A| LE 0xARGB BE 0xBGRA when MWPF_TRUECOLOR8888/0888
  * Writes memory image: |R|G|B|A| LE 0xABGR BE 0xRGBA when MWPF_TRUECOLORABGR
  *
  * This driver differs from fblin32.c in that:
  *	1) memory is always read/written in 32 bits, except in blit()
- *	2) no 8888 convblit functions defined (yet) (means slow GdDrawImage)
+ *	2) no 8888 convblit functions defined (yet) (means slow GdDrawImage and portrait mode text)
  *		internal convblits for font drawing (mono byte lsb/msb/alpha, no mono word msb)
- *	3) experimental, currently used for MWPF_TRUECOLORABGR (will deprecate)
+ *		portrait mode emulates rotation by copying, then calling internal convblit - slow!
  *
  * Written by Koninklijke Philips Electronics N.V.
  * Based on the existing 32bpp (no alpha) driver:
@@ -576,7 +578,7 @@ linear32a_stretchblitex(PSD dstpsd,
 	y_error_step_normal = ABS(y_step_fraction) - ABS(src_y_step_normal) * y_denominator;
 	src_y_step_normal *= srcpsd->linelen;
 
-	/* DPRINTF("linear32alpha_stretchblitex: X: One step=%d, err-=%d; normal step=%d, err+=%d\n"
+	/* DPRINTF("linear32a_stretchblitex: X: One step=%d, err-=%d; normal step=%d, err+=%d\n"
 		"Y: One step=%d, err-=%d; normal step=%d, err+=%d\n",
 	   src_x_step_one, x_denominator, src_x_step_normal, x_error_step_normal,
 	   src_y_step_one, y_denominator, src_y_step_normal, y_error_step_normal);
@@ -1241,7 +1243,7 @@ linear32a_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
 }
 
-static SUBDRIVER fblinear32alpha_none = {
+static SUBDRIVER fblinear32a_none = {
 	linear32a_init,
 	linear32a_drawpixel,
 	linear32a_readpixel,
@@ -1258,6 +1260,6 @@ static SUBDRIVER fblinear32alpha_none = {
 	NULL		/* BlitCopyRGB888*/
 };
 
-PSUBDRIVER fblinear32alpha[4] = {
-	&fblinear32alpha_none, &fbportrait_left, &fbportrait_right, &fbportrait_down
+PSUBDRIVER fblinear32a[4] = {
+	&fblinear32a_none, &fbportrait_left, &fbportrait_right, &fbportrait_down
 };

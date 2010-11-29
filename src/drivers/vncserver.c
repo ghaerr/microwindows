@@ -631,7 +631,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
      }
      /* Fall through to MWPF_TRUECOLOR888 */
 
-   case MWPF_TRUECOLOR0888: /* 24/32 bpp */
+   case MWPF_TRUECOLOR8888: /* 24/32 bpp */
    case MWPF_TRUECOLOR888:
            rfbScreen->serverFormat.redMax = 255;
            rfbScreen->serverFormat.greenMax = 255;

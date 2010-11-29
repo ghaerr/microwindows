@@ -150,7 +150,7 @@ static PSD FBSD_open(PSD psd)
 /*     case MWPF_PALETTE: */
 /* 	    psd->bpp = SCREEN_DEPTH; */
 /* 	    break; */
-/*     case MWPF_TRUECOLOR0888: */
+/*     case MWPF_TRUECOLOR8888: */
 /*     default: */
 /* 	    psd->bpp = 32; */
 /* 	    break; */

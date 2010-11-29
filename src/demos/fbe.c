@@ -714,12 +714,12 @@ check_and_paint(int ix, int iy)
 					break;
 				case 32:
 					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*4;
-#if defined(MWPIXELFORMAT) && MWPIXELFORMAT == MWPF_TRUECOLORABGR
+#if defined(MWPIXELFORMAT) && (MWPIXELFORMAT == MWPF_TRUECOLORABGR)
 					r = *data++;
 					g = *data++;
 					b = *data++;
 					a = *data;
-#else /* MWPF_TRUECOLOR0888/8888*/
+#else /* MWPF_TRUECOLOR8888*/
 					b = *data++;
 					g = *data++;
 					r = *data++;

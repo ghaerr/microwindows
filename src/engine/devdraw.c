@@ -901,7 +901,6 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 #if 1 /* alpha blending*/
 					/* implement alpha blending image draw from image alpha channel*/
 					case MWPF_TRUECOLOR8888:
-					case MWPF_TRUECOLOR0888:
 					case MWPF_TRUECOLOR888:
 						if (alpha == 255)
 							pixel = cr;		/* both cr and pixel are ARGB (0xAARRGGBB)*/
@@ -1024,7 +1023,6 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					case MWPF_TRUECOLORABGR:
 						pixel = COLOR2PIXELABGR(ARGB2COLORVAL(cr));
 						break;
-					case MWPF_TRUECOLOR0888:
 					case MWPF_TRUECOLOR888:
 						pixel = COLOR2PIXEL888(ARGB2COLORVAL(cr));
 						break;
@@ -1105,7 +1103,6 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				case MWPF_TRUECOLORABGR:
 					pixel = COLOR2PIXELABGR(cr);
 					break;
-				case MWPF_TRUECOLOR0888:
 				case MWPF_TRUECOLOR888:
 					pixel = COLOR2PIXEL888(cr);
 					break;
@@ -1364,7 +1361,6 @@ static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD 
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
- * MWPF_TRUECOLOR0888	uint32_t
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
@@ -1426,7 +1422,6 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		}
 		break;
 	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR0888:
 		data_format = MWIF_BGRA8888;
 		break;
 	case MWPF_TRUECOLOR888:
@@ -1522,7 +1517,6 @@ GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void
 		break;
 	case MWPF_TRUECOLORABGR:
 	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR0888:
 		gr_foreground = *(uint32_t *)PIXELS;
 		PIXELS += sizeof(uint32_t);
 		break;
@@ -1570,7 +1564,6 @@ GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void
 			++PIXELS;
 			break;
 		case MWPF_TRUECOLOR8888:
-		case MWPF_TRUECOLOR0888:
 		case MWPF_TRUECOLORABGR:
 			if(gr_foreground != *(uint32_t *)PIXELS)
 				goto breakwhile;
@@ -1667,7 +1660,6 @@ breakwhile:
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
- * MWPF_TRUECOLOR0888	uint32_t
  * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
@@ -1726,11 +1718,6 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			pixelval = *inbuf++;
 			colorval = PIXEL233TOCOLORVAL(pixelval);
 			break;
-		case MWPF_TRUECOLOR0888:
-			pixelval = *(uint32_t *)inbuf;
-			colorval = PIXEL888TOCOLORVAL(pixelval);
-			inbuf += sizeof(uint32_t);
-			break;
 		case MWPF_TRUECOLORABGR:
 			pixelval = *(uint32_t *)inbuf;
 			colorval = PIXELABGRTOCOLORVAL(pixelval);
@@ -1786,10 +1773,6 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			break;
 		case MWPF_TRUECOLOR233:
 			*outbuf++ = COLOR2PIXEL233(colorval);
-			break;
-		case MWPF_TRUECOLOR0888:
-			*(uint32_t *)outbuf = COLOR2PIXEL888(colorval);
-			outbuf += sizeof(uint32_t);
 			break;
 		case MWPF_TRUECOLOR8888:
 			*(uint32_t *)outbuf = COLOR2PIXEL8888(colorval);

@@ -1,15 +1,14 @@
-**move some BGRA GdArea convblits to driver layer
+**move some bgra GdArea convblits to driver layer
+**add rgba blits for ABGR support to fblin32.c
 check 255 alpha required on 8888_8888 copy (from GdBitmap or convblit)
-test and change TCABGR to use fblin32.c, not fblin32alpha.c, deprecate fblin32alpha
-deprecate TC0888, use TC8888 internally
 check slight change in GrReadArea->GrArea using GdBitmap vs convblit (alpha/nxroach)
 	appears that GdBitmap using GdBitmapByPoint isn't writing alpha=255
 check whether seperate portrait mode blits required
 add XOR_FGBG and SRC_OVER from fblin32alpha.c to fblin32.c
 	make applyOp work for SRC_OVER
+	fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
 
 plans for GdArea Translation, GdReadArea blit?
-
 bin/mdemo requires extra mouse press/move to redraw on X11
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc
@@ -18,7 +17,7 @@ debug fltk test/pixmap putTruecolorImage GrArea problem
 Look at RGB2PIXEL in convblit_mask/8888.c, will this work on all systems?
 	RGB2PIXEL kluged for MWPF_PALETTE compiles, set to 0 as not supported
 
-fix x11 driver kluges 
+seperate x11 mouse/kbd from screen driver
 need different way of SUBDRIVER left/right/down etc switching
 
 test VTSWITCH
@@ -32,15 +31,11 @@ fblin32.c blit uses src[3] for alpha, will only work on BGRA and BGRA formats
 	applyOp4 may need fixing, uses ADDR32
 change driver fblinear_blit routines for 32bpp to BLITPARMS struct
 
-fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
-	remove fblin32alpha.c, endian-specific, make TRUECOLOR0888 vs 8888 same
-	fblin32alpha.c subdriver doesn't have convblit support
-
 remove FT1 from Config/configs*
 config option to eliminate not needed subdrivers?
 
 move data_format in MWIMAGEHDR	after changing convbmp
-deprecate old screen drivers, fontmapper, !DYNAMICREGIONS, fblin32alpha.c
+deprecate old screen drivers, fontmapper, !DYNAMICREGIONS
 	fix mwin/winfonts.c::EnumFonts GdGetFontList/GdFreeFontList/GdTextSizeEx for FT1
 	add GdGetTextSizeEx/GdGetFontList to FT2 from FT1
 
@@ -59,7 +54,6 @@ fblin32alpha.c/fblin32.c:
 	check alpha offset in passed pixmap alpha channel
 	add MWROP_* compositing handling (currently only SRC_OVER alpha blend)
 	check whether alpha != 0 check needed
-	determine whether both fblin32alpha.c and fblin32.c needed - NO
 		fblin32alpha.c always draws alpha in drawpixel, drawh, drawv
 		#define ALPHABLEND, what does it do now?
 	update stretchblitex in fblin32.c for SRC_OVER
@@ -67,7 +61,6 @@ fblin32alpha.c/fblin32.c:
 	check MWPIXELVAL has alpha in drawpixel etc routines, possibly remove for 24bpp?
 	check MWPF_ values in case statements in GdDrawImage for 12/18bpp cases, use default
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
-add MWPF_TRUECOLORBGRA to static fb_var_screeninfo to select BGRA linear32alpha subdriver
 change image id's to pixmaps (win32 and nano-X)
 fix add INVERT2BPP to config, combine with INVERT4BPP or reverse palette, INVERT() macro
 add X11 keyboard and mouse support to fbe

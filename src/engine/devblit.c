@@ -160,7 +160,7 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 		}
 		break;
 
-	case MWIF_BGRA8888:				/* GdArea MWPF_TRUECOLOR8888/MWPF_TRUECOLOR0888*/
+	case MWIF_BGRA8888:				/* GdArea MWPF_TRUECOLOR8888*/
 		/* assume copy*/
 		if (psd->data_format == MWIF_BGRA8888)
 			convblit = convblit_copy_8888_8888;		/* 32bpp to 32bpp copy*/

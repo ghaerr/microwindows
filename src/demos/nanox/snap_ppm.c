@@ -121,7 +121,7 @@ static int writeout(snapstate *state)
 
 			switch(state->sinfo.pixtype) {
 			/* FIXME: These may need modifying on big endian. */
-				case MWPF_TRUECOLOR0888:
+				case MWPF_TRUECOLOR8888:
 				case MWPF_TRUECOLOR888:
 					rgb[0] = pp[2];
 					rgb[1] = pp[1];

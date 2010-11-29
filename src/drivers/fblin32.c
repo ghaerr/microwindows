@@ -3,8 +3,8 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 32bpp Linear Video Driver for Microwindows (BGRA or RGBA byte order)
- * Writes memory image: |B|G|R|A| LE 0xARGB BE 0xBGRA MWPF_TRUECOLOR8888/0888
- * Writes memory image: |R|G|B|A| LE 0xABGR BE 0xRGBA when MWPF_TRUECOLORABGR
+ * Writes memory image: |B|G|R|A| LE 0xARGB BE 0xBGRA MWPF_TRUECOLOR8888
+ * Writes memory image: |R|G|B|A| LE 0xABGR BE 0xRGBA MWPF_TRUECOLORABGR
  *
  * Inspired from Ben Pfaff's BOGL <pfaffben@debian.org>
  */

@@ -286,33 +286,36 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 	 */
 	switch(psd->pixtype) {
 	case MWPF_TRUECOLOR8888:
+		/* create 32 bit ARGB pixel (0xAARRGGBB) from ABGR colorval (0xAABBGGRR)*/
+		/*RGB2PIXEL8888(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL8888(c);
 
 	case MWPF_TRUECOLORABGR:
+		/* create 32 bit ABGR pixel (0xAABBGGRR) from ABGR colorval (0xAABBGGRR)*/
+		/*RGB2PIXELABGR(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXELABGR(c);
 
-	case MWPF_TRUECOLOR0888:
 	case MWPF_TRUECOLOR888:
-		/* create 24 bit 8/8/8 pixel (0x00RRGGBB) from RGB colorval*/
+		/* create 24 bit 0RGB pixel (0x00RRGGBB) from ABGR colorval (0xAABBGGRR)*/
 		/*RGB2PIXEL888(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL888(c);
 
 	case MWPF_TRUECOLOR565:
-		/* create 16 bit 5/6/5 format pixel from RGB colorval*/
+		/* create 16 bit RGB5/6/5 format pixel from ABGR colorval (0xAABBGGRR)*/
 		/*RGB2PIXEL565(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL565(c);
 
 	case MWPF_TRUECOLOR555:
-		/* create 16 bit 5/5/5 format pixel from RGB colorval*/
+		/* create 16 bit RGB5/5/5 format pixel from ABGR colorval (0xAABBGGRR)*/
 		/*RGB2PIXEL555(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL555(c);
 
 	case MWPF_TRUECOLOR332:
-		/* create 8 bit 3/3/2 format pixel from RGB colorval*/
+		/* create 8 bit RGB3/3/2 format pixel from ABGR colorval (0xAABBGGRR)*/
 		/*RGB2PIXEL332(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL332(c);
 	case MWPF_TRUECOLOR233:
-		/* create 8 bit 2/3/3 format pixel from RGB colorval*/
+		/* create 8 bit BGR2/3/3 format pixel from ABGR colorval (0xAABBGGRR)*/
 		/*RGB2PIXEL332(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL233(c);
         }
@@ -383,9 +386,6 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 
 	case MWPF_TRUECOLORABGR:
 		return PIXELABGRTOCOLORVAL(pixel);
-
-	case MWPF_TRUECOLOR0888:
-		return PIXEL888TOCOLORVAL(pixel);
 
 	case MWPF_TRUECOLOR888:
 		return PIXEL888TOCOLORVAL(pixel);
@@ -573,7 +573,6 @@ GdCaptureScreen(char *path)
 			/* write 3 r/g/b masks*/
 			switch (gr_pixtype) {
 			case MWPF_TRUECOLOR8888:
-			case MWPF_TRUECOLOR0888:
 			default:
 				rmask = RMASK888;
 				gmask = GMASK888;

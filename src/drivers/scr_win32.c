@@ -170,7 +170,7 @@ win32_open(PSD psd)
 	psd->planes = 1;
 	psd->data_format = 0;
 	psd->pixtype = MWPIXEL_FORMAT;
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	psd->bpp = 32;
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR888)
 	psd->bpp = 24;
@@ -232,53 +232,8 @@ win32_close(PSD psd)
 static void
 win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 {
-	psi->rows = psd->yvirtres;
-	psi->cols = psd->xvirtres;
-	psi->planes = psd->planes;
-	psi->bpp = psd->bpp;
-	psi->data_format = psd->data_format;
-	psi->ncolors = psd->ncolors;
-	psi->portrait = psd->portrait;
-	psi->fonts = NUMBER_FONTS;
-	psi->xdpcm = 0;
-	psi->ydpcm = 0;
-
+	gen_getscreeninfo(psd, psi);
 	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
-	psi->pixtype = psd->pixtype;
-	switch (psd->pixtype) {
-	case MWPF_TRUECOLOR0888:
-	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR888:
-		psi->rmask = 0xff0000;
-		psi->gmask = 0x00ff00;
-		psi->bmask = 0x0000ff;
-		break;
-	case MWPF_TRUECOLORABGR:
-		psi->rmask = 0x0000ff;
-		psi->gmask = 0x00ff00;
-		psi->bmask = 0xff0000;
-	case MWPF_TRUECOLOR565:
-		psi->rmask = 0xf800;
-		psi->gmask = 0x07e0;
-		psi->bmask = 0x001f;
-		break;
-	case MWPF_TRUECOLOR555:
-		psi->rmask = 0x7c00;
-		psi->gmask = 0x03e0;
-		psi->bmask = 0x001f;
-		break;
-	case MWPF_TRUECOLOR332:
-		psi->rmask = 0xe0;
-		psi->gmask = 0x1c;
-		psi->bmask = 0x03;
-		break;
-	case MWPF_PALETTE:
-	default:
-		psi->rmask = 0xff;
-		psi->gmask = 0xff;
-		psi->bmask = 0xff;
-		break;
-	}
 }
 
 static void
@@ -429,8 +384,6 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 			break;
         case MWPF_TRUECOLOR8888:
             bmpInfo.bV4AlphaMask = 0xff000000;
-        case MWPF_TRUECOLOR0888:
-        default:
             bmpInfo.bV4RedMask  = 0xff0000;
             bmpInfo.bV4GreenMask= 0x00ff00;
             bmpInfo.bV4BlueMask = 0x0000ff;

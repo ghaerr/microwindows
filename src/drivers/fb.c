@@ -30,7 +30,6 @@ select_fb_subdriver(PSD psd)
 	extern PSUBDRIVER fblinear16[4];
 	extern PSUBDRIVER fblinear24[4];
 	extern PSUBDRIVER fblinear32[4];
-	extern PSUBDRIVER fblinear32alpha[4];
 
 	/* FB_TYPE_PACKED_PIXELS*/
 	/* device and memory drivers are the same for packed pixels*/
@@ -55,10 +54,7 @@ select_fb_subdriver(PSD psd)
 			pdriver = fblinear24;
 			break;
 		case 32:
-			if (psd->pixtype == MWPF_TRUECOLOR8888 || psd->pixtype == MWPF_TRUECOLORABGR)
-				pdriver = fblinear32alpha;
-			else
-				pdriver = fblinear32;
+			pdriver = fblinear32;
 			break;
 		}
 	}
@@ -84,7 +80,6 @@ set_data_format(PSD psd)
 
 	switch(psd->pixtype) {
 	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR0888:
 		data_format = MWIF_BGRA8888;
 		break;
 	case MWPF_TRUECOLORABGR:
@@ -143,8 +138,6 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 
 	switch (psd->pixtype) {
 	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR0888:
-	case MWPF_TRUECOLOR888:
 		psi->amask 	= 0xff000000;
 		psi->rmask 	= 0x00ff0000;
 		psi->gmask 	= 0x0000ff00;
@@ -155,6 +148,12 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 		psi->rmask	= 0x000000ff;
 		psi->gmask 	= 0x0000ff00;
 		psi->bmask 	= 0x00ff0000;
+	case MWPF_TRUECOLOR888:
+		psi->amask 	= 0x00000000;
+		psi->rmask 	= 0x00ff0000;
+		psi->gmask 	= 0x0000ff00;
+		psi->bmask	= 0x000000ff;
+		break;
 	case MWPF_TRUECOLOR565:
 		psi->amask  = 0x0000;
 		psi->rmask 	= 0xf800;

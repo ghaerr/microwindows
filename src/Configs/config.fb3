@@ -91,20 +91,19 @@ FBEMULATOR               = N
 #
 # The pixeltype of the native hardware or underlying graphics library.
 # This definition defines the PIXELVAL to be 32, 16 or 8 bits wide.
-# If using Linux framebuffer, set to MWPF_TRUECOLOR0888, and use fbset.
+# If using Linux framebuffer, set to MWPF_TRUECOLOR8888, and use fbset.
 # It also enables GdArea/GrArea for this particular pixel packing format.
 #
 # define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
 # define MWPF_TRUECOLOR8888 /* pixel is packed 32 bits A/R/G/B truecolor w/alpha*/
 # define MWPF_TRUECOLORABGR /* pixel is packed 32 bits A/B/G/R truecolor w/alpha*/
-# define MWPF_TRUECOLOR0888 /* pixel is packed 32 bits 0/R/G/B truecolor 0 alpha*/
 # define MWPF_TRUECOLOR888  /* pixel is packed 24 bits 8/8/8 truecolor*/
 # define MWPF_TRUECOLOR565  /* pixel is packed 16 bits 5/6/5 truecolor*/
 # define MWPF_TRUECOLOR555  /* pixel is packed 16 bits 5/5/5 truecolor*/
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits 3/3/2 truecolor*/
 #
 ####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR0888
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
 
 ####################################################################
 #

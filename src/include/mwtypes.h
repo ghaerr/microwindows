@@ -200,12 +200,12 @@
 #define MWPF_RGB	   0	/* pseudo, convert from packed 32 bit RGB*/
 #define MWPF_PIXELVAL	   1	/* pseudo, no convert from packed PIXELVAL*/
 #define MWPF_PALETTE	   2	/* pixel is packed 8 bits 1, 4 or 8 pal index*/
-#define MWPF_TRUECOLOR0888 3	/* pixel is packed 32 bits 0/R/G/B 0RGB truecolor zero alpha*/
 #define MWPF_TRUECOLOR888  4	/* pixel is packed 24 bits R/G/B RGB truecolor*/
 #define MWPF_TRUECOLOR565  5	/* pixel is packed 16 bits 5/6/5 RGB truecolor*/
 #define MWPF_TRUECOLOR555  6	/* pixel is packed 16 bits 5/5/5 RGB truecolor*/
 #define MWPF_TRUECOLOR332  7	/* pixel is packed  8 bits 3/3/2 RGB truecolor*/
 #define MWPF_TRUECOLOR8888 8	/* pixel is packed 32 bits A/R/G/B ARGB truecolor with alpha */
+#define MWPF_TRUECOLOR0888 8	/* deprecated*/
 #define MWPF_TRUECOLOR233  9	/* pixel is packed  8 bits 2/3/3 BGR truecolor*/
 #define MWPF_HWPIXELVAL   10	/* pseudo, no convert, pixels are in hw format*/
 #define MWPF_TRUECOLORABGR 11	/* pixel is packed 32 bits A/B/G/R ABGR truecolor with alpha */
@@ -217,10 +217,10 @@
  * For the Nano-X server, it is important to use the correct MWPF_* value
  * for the MWPIXEL_FORMAT macro in order to match the hardware,
  * while the Nano-X clients that includes this file can get away with
- * a default pixel format of 24-bit color as the client will either:
+ * a default pixel format of 32-bit color as the client will either:
  *    1) Use the MWPF_PIXELVAL native format when calling GrReadArea, in
  *       which case we have to have enough spare room to hold 32-bit
- *       pixlevalues (hence the default MWPF_TRUECOLOR0888 format), or
+ *       pixel values (hence the default MWPF_TRUECOLOR8888 format), or
  *    2) Will use some other PF_* format, in which case the application
  *       is well aware of which pixel-format it uses and can avoid the
  *       device specific RGB2PIXEL and use RGB2PIXEL565 etc. instead,
@@ -228,7 +228,7 @@
  *       calling the GrArea function(s).
  */
 #ifndef MWPIXEL_FORMAT
-#define MWPIXEL_FORMAT	MWPF_TRUECOLOR0888
+#define MWPIXEL_FORMAT	MWPF_TRUECOLOR8888
 #endif
 
 #if defined(__AS386_16__)
@@ -1209,7 +1209,7 @@ typedef struct {
 #define PIXEL2BLUE(p)		PIXELABGRBLUE(p)
 #endif
 
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR0888)
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR888
 #define RGB2PIXEL(r,g,b)	RGB2PIXEL888(r,g,b)
 #define COLORVALTOPIXELVAL(c)	COLOR2PIXEL888(c)
 #define PIXELVALTOCOLORVAL(p)	PIXEL888TOCOLORVAL(p)

@@ -1,4 +1,14 @@
 28 Nov 2010
+	* cleaned up config file
+	* runtime bpp is used to select subdriver, but subdriver format must be set in config file:
+		32bpp byte order |B|G|R|A| = MWPF_TRUECOLOR8888 (pc)
+		32bpp byte order |R|G|B|A| = MWPF_TRUECOLORABGR (psp)
+		24bpp byte order |B|G|R| = MWPF_TRUECOLOR888
+		16bpp LE RGB565 = MWPF_TRUECOLOR565
+		16bpp LE RGB555 = MWPF_TRUECOLOR555
+	* deprecated MWPF_TRUECOLOR0888, now MWPF_TRUECOLOR8888 (|B|G|R|A| format)
+	* deprecated fblin32alpha.c driver, TCABGR now uses fblin32.c
+	* fixed MWPF_TRUECOLORABGR emulation in X11 driver
 	* added amask (alpha mask) to SCREENINFO, standardized gen_getscreeninfo function
 	* rewrote GdBitmap to use fast convblit, added GdBitmapByPoint
 27 Nov 2010

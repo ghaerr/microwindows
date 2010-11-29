@@ -30,7 +30,6 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
-	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
 	$(MW_DIR_OBJ)/drivers/genmem.o \
 	$(MW_DIR_OBJ)/drivers/fb.o
 
@@ -101,7 +100,6 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
-	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
 	$(MW_DIR_OBJ)/drivers/fbportrait_left.o \
 	$(MW_DIR_OBJ)/drivers/fbportrait_right.o \
 	$(MW_DIR_OBJ)/drivers/fbportrait_down.o
@@ -378,7 +376,6 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
-	$(MW_DIR_OBJ)/drivers/fblin32alpha.o \
 	$(MW_DIR_OBJ)/drivers/fb.o \
 	$(MW_DIR_OBJ)/drivers/genmem.o
 

@@ -536,6 +536,15 @@ static SUBDRIVER fblinear32_none = {
 	gen_fillrect,
 	linear32_blit,
 	linear32_stretchblitex,
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+#else
 	convblit_copy_mask_mono_byte_msb_bgra,		/* ft2 non-alias*/
 	convblit_copy_mask_mono_byte_lsb_bgra,		/* t1 non-alias*/
 	convblit_copy_mask_mono_word_msb_bgra,		/* core/pcf non-alias*/
@@ -543,6 +552,7 @@ static SUBDRIVER fblinear32_none = {
 	convblit_copy_rgba8888_bgra8888,			/* RGBA image copy (GdArea MWPF_RGB)*/
 	convblit_srcover_rgba8888_bgra8888,			/* RGBA images w/alpha*/
 	convblit_copy_rgb888_bgra8888				/* RGB images no alpha*/
+#endif
 };
 
 static SUBDRIVER fblinear32_left = {
@@ -554,13 +564,23 @@ static SUBDRIVER fblinear32_left = {
 	fbportrait_left_fillrect,
 	fbportrait_left_blit,
 	fbportrait_left_stretchblitex,
-	convblit_copy_mask_mono_byte_msb_bgra_left,
-	convblit_copy_mask_mono_byte_lsb_bgra_left,
-	convblit_copy_mask_mono_word_msb_bgra_left,
-	convblit_blend_mask_alpha_byte_bgra_left,
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+#else
+	convblit_copy_mask_mono_byte_msb_bgra,
+	convblit_copy_mask_mono_byte_lsb_bgra,
+	convblit_copy_mask_mono_word_msb_bgra,
+	convblit_blend_mask_alpha_byte_bgra,
 	convblit_copy_rgba8888_bgra8888,
-	convblit_srcover_rgba8888_bgra8888_left,
-	convblit_copy_rgb888_bgra8888_left
+	convblit_srcover_rgba8888_bgra8888,
+	convblit_copy_rgb888_bgra8888
+#endif
 };
 
 static SUBDRIVER fblinear32_right = {
@@ -572,13 +592,23 @@ static SUBDRIVER fblinear32_right = {
 	fbportrait_right_fillrect,
 	fbportrait_right_blit,
 	fbportrait_right_stretchblitex,
-	convblit_copy_mask_mono_byte_msb_bgra_right,
-	convblit_copy_mask_mono_byte_lsb_bgra_right,
-	convblit_copy_mask_mono_word_msb_bgra_right,
-	convblit_blend_mask_alpha_byte_bgra_right,
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+#else
+	convblit_copy_mask_mono_byte_msb_bgra,
+	convblit_copy_mask_mono_byte_lsb_bgra,
+	convblit_copy_mask_mono_word_msb_bgra,
+	convblit_blend_mask_alpha_byte_bgra,
 	convblit_copy_rgba8888_bgra8888,
-	convblit_srcover_rgba8888_bgra8888_right,
-	convblit_copy_rgb888_bgra8888_right
+	convblit_srcover_rgba8888_bgra8888,
+	convblit_copy_rgb888_bgra8888
+#endif
 };
 
 static SUBDRIVER fblinear32_down = {
@@ -590,13 +620,23 @@ static SUBDRIVER fblinear32_down = {
 	fbportrait_down_fillrect,
 	fbportrait_down_blit,
 	fbportrait_down_stretchblitex,
-	convblit_copy_mask_mono_byte_msb_bgra_down,
-	convblit_copy_mask_mono_byte_lsb_bgra_down,
-	convblit_copy_mask_mono_word_msb_bgra_down,
-	convblit_blend_mask_alpha_byte_bgra_down,
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+#else
+	convblit_copy_mask_mono_byte_msb_bgra,
+	convblit_copy_mask_mono_byte_lsb_bgra,
+	convblit_copy_mask_mono_word_msb_bgra,
+	convblit_blend_mask_alpha_byte_bgra,
 	convblit_copy_rgba8888_bgra8888,
-	convblit_srcover_rgba8888_bgra8888_down,
-	convblit_copy_rgb888_bgra8888_down
+	convblit_srcover_rgba8888_bgra8888,
+	convblit_copy_rgb888_bgra8888
+#endif
 };
 
 PSUBDRIVER fblinear32[4] = {

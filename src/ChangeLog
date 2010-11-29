@@ -1,3 +1,5 @@
+29 Nov 2010
+	* combined portrait blits for rgba/rgb/mono, added rgba output for psp
 	* cleaned up SCREENDEV struct, deprecated many screen drivers (see src/DEPRECATED)
 	* added copy convblits for 32bpp rgba (GdArea MWPF_RGB)
 28 Nov 2010

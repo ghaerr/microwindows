@@ -528,13 +528,13 @@ static SUBDRIVER fblinear16_left = {
 	fbportrait_left_fillrect,
 	fbportrait_left_blit,
 	fbportrait_left_stretchblitex,
-	convblit_copy_mask_mono_byte_msb_16bpp_left,
-	convblit_copy_mask_mono_byte_lsb_16bpp_left,
-	convblit_copy_mask_mono_word_msb_16bpp_left,
-	convblit_blend_mask_alpha_byte_16bpp_left,
+	convblit_copy_mask_mono_byte_msb_16bpp,
+	convblit_copy_mask_mono_byte_lsb_16bpp,
+	convblit_copy_mask_mono_word_msb_16bpp,
+	convblit_blend_mask_alpha_byte_16bpp,
 	convblit_copy_rgba8888_16bpp,
-	convblit_srcover_rgba8888_16bpp_left,
-	convblit_copy_rgb888_16bpp_left
+	convblit_srcover_rgba8888_16bpp,
+	convblit_copy_rgb888_16bpp
 };
 
 static SUBDRIVER fblinear16_right = {
@@ -546,13 +546,13 @@ static SUBDRIVER fblinear16_right = {
 	fbportrait_right_fillrect,
 	fbportrait_right_blit,
 	fbportrait_right_stretchblitex,
-	convblit_copy_mask_mono_byte_msb_16bpp_right,
-	convblit_copy_mask_mono_byte_lsb_16bpp_right,
-	convblit_copy_mask_mono_word_msb_16bpp_right,
-	convblit_blend_mask_alpha_byte_16bpp_right,
+	convblit_copy_mask_mono_byte_msb_16bpp,
+	convblit_copy_mask_mono_byte_lsb_16bpp,
+	convblit_copy_mask_mono_word_msb_16bpp,
+	convblit_blend_mask_alpha_byte_16bpp,
 	convblit_copy_rgba8888_16bpp,
-	convblit_srcover_rgba8888_16bpp_right,
-	convblit_copy_rgb888_16bpp_right
+	convblit_srcover_rgba8888_16bpp,
+	convblit_copy_rgb888_16bpp
 };
 
 static SUBDRIVER fblinear16_down = {
@@ -564,13 +564,13 @@ static SUBDRIVER fblinear16_down = {
 	fbportrait_down_fillrect,
 	fbportrait_down_blit,
 	fbportrait_down_stretchblitex,
-	convblit_copy_mask_mono_byte_msb_16bpp_down,
-	convblit_copy_mask_mono_byte_lsb_16bpp_down,
-	convblit_copy_mask_mono_word_msb_16bpp_down,
-	convblit_blend_mask_alpha_byte_16bpp_down,
+	convblit_copy_mask_mono_byte_msb_16bpp,
+	convblit_copy_mask_mono_byte_lsb_16bpp,
+	convblit_copy_mask_mono_word_msb_16bpp,
+	convblit_blend_mask_alpha_byte_16bpp,
 	convblit_copy_rgba8888_16bpp,
-	convblit_srcover_rgba8888_16bpp_down,
-	convblit_copy_rgb888_16bpp_down
+	convblit_srcover_rgba8888_16bpp,
+	convblit_copy_rgb888_16bpp
 };
 
 PSUBDRIVER fblinear16[4] = {

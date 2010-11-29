@@ -12,12 +12,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "convblit.h"
 #include "swap.h"
 
 #if MW_FEATURE_IMAGES && defined(HAVE_TIFF_SUPPORT)
 #include <tiffio.h>
-
-void convblit_flipy_8888(PMWBLITPARMS gc);
 
 /*
  * Conversion blit flip y direction 32bpp (upside-down)

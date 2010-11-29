@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "convblit.h"
 #include "swap.h"
 
 #if MW_FEATURE_IMAGES && defined(HAVE_BMP_SUPPORT)
@@ -72,9 +73,6 @@ typedef struct {
 static int	DecodeRLE8(MWUCHAR *buf, buffer_t *src);
 static int	DecodeRLE4(MWUCHAR *buf, buffer_t *src);
 static void	put4(int b);
-
-void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch);
-void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch);
 
 /*
  * Conversion blit 24bpp BGR to 24bpp RGB

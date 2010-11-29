@@ -56,7 +56,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 	unsigned char bg_b = BLUEVALUE(bg);\
 	unsigned char bg_a = ALPHAVALUE(bg);\
 \
-	/* compiler will optimize out switch statement and most else to constants*/\
+	/* compiler can optimize out switch statement and most else to constants*/\
 	switch (PORTRAIT) {\
 	case NONE:\
 		dsz = DSZ;					/* dst: next pixel over*/\
@@ -200,67 +200,30 @@ CONVBLIT_COPY_MASK_MONO(convblit_copy_mask_mono_byte_lsb)
 #undef SRC_TYPE_MASK
 #undef BITNUM
 
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* 32bpp RGBA*/
+void convblit_copy_mask_mono_byte_lsb_rgba(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, R,G,B,A, psd->portrait);
+}
+#else
 /* 32bpp BGRA*/
 void convblit_copy_mask_mono_byte_lsb_bgra(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, B,G,R,A, NONE);
+	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-
-void convblit_copy_mask_mono_byte_lsb_bgra_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, B,G,R,A, LEFT);
-}
-
-void convblit_copy_mask_mono_byte_lsb_bgra_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, B,G,R,A, RIGHT);
-}
-
-void convblit_copy_mask_mono_byte_lsb_bgra_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, B,G,R,A, DOWN);
-}
+#endif
 
 /* 24bpp BGR*/
 void convblit_copy_mask_mono_byte_lsb_bgr(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 3, B,G,R,-1, NONE);
-}
-
-void convblit_copy_mask_mono_byte_lsb_bgr_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 3, B,G,R,-1, LEFT);
-}
-
-void convblit_copy_mask_mono_byte_lsb_bgr_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 3, B,G,R,-1, RIGHT);
-}
-
-void convblit_copy_mask_mono_byte_lsb_bgr_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 3, B,G,R,-1, DOWN);
+	convblit_copy_mask_mono_byte_lsb(psd, gc, 3, B,G,R,-1, psd->portrait);
 }
 
 /* 16bpp 565/555*/
 void convblit_copy_mask_mono_byte_lsb_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 2, 0,0,0,-1, NONE);
-}
-
-void convblit_copy_mask_mono_byte_lsb_16bpp_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 2, 0,0,0,-1, LEFT);
-}
-
-void convblit_copy_mask_mono_byte_lsb_16bpp_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 2, 0,0,0,-1, RIGHT);
-}
-
-void convblit_copy_mask_mono_byte_lsb_16bpp_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_lsb(psd, gc, 2, 0,0,0,-1, DOWN);
+	convblit_copy_mask_mono_byte_lsb(psd, gc, 2, 0,0,0,-1, psd->portrait);
 }
 
 /*
@@ -277,67 +240,30 @@ CONVBLIT_COPY_MASK_MONO(convblit_copy_mask_mono_word_msb)
 #undef SRC_TYPE_MASK
 #undef BITNUM
 
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* 32bpp RGBA*/
+void convblit_copy_mask_mono_word_msb_rgba(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_copy_mask_mono_word_msb(psd, gc, 4, R,G,B,A, psd->portrait);
+}
+#else
 /* 32bpp BGRA*/
 void convblit_copy_mask_mono_word_msb_bgra(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_word_msb(psd, gc, 4, B,G,R,A, NONE);
+	convblit_copy_mask_mono_word_msb(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-
-void convblit_copy_mask_mono_word_msb_bgra_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 4, B,G,R,A, LEFT);
-}
-
-void convblit_copy_mask_mono_word_msb_bgra_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 4, B,G,R,A, RIGHT);
-}
-
-void convblit_copy_mask_mono_word_msb_bgra_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 4, B,G,R,A, DOWN);
-}
+#endif
 
 /* 24bpp BGR*/
 void convblit_copy_mask_mono_word_msb_bgr(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_word_msb(psd, gc, 3, B,G,R,-1, NONE);
-}
-
-void convblit_copy_mask_mono_word_msb_bgr_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 3, B,G,R,-1, LEFT);
-}
-
-void convblit_copy_mask_mono_word_msb_bgr_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 3, B,G,R,-1, RIGHT);
-}
-
-void convblit_copy_mask_mono_word_msb_bgr_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 3, B,G,R,-1, DOWN);
+	convblit_copy_mask_mono_word_msb(psd, gc, 3, B,G,R,-1, psd->portrait);
 }
 
 /* 16bpp 565/555*/
 void convblit_copy_mask_mono_word_msb_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_word_msb(psd, gc, 2, 0,0,0,-1, NONE);
-}
-
-void convblit_copy_mask_mono_word_msb_16bpp_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 2, 0,0,0,-1, LEFT);
-}
-
-void convblit_copy_mask_mono_word_msb_16bpp_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 2, 0,0,0,-1, RIGHT);
-}
-
-void convblit_copy_mask_mono_word_msb_16bpp_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_word_msb(psd, gc, 2, 0,0,0,-1, DOWN);
+	convblit_copy_mask_mono_word_msb(psd, gc, 2, 0,0,0,-1, psd->portrait);
 }
 
 /*
@@ -354,67 +280,30 @@ CONVBLIT_COPY_MASK_MONO(convblit_copy_mask_mono_byte_msb)
 #undef SRC_TYPE_MASK
 #undef BITNUM
 
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* 32bpp RGBA*/
+void convblit_copy_mask_mono_byte_msb_rgba(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_copy_mask_mono_byte_msb(psd, gc, 4, R,G,B,A, psd->portrait);
+}
+#else
 /* 32bpp BGRA*/
 void convblit_copy_mask_mono_byte_msb_bgra(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_byte_msb(psd, gc, 4, B,G,R,A, NONE);
+	convblit_copy_mask_mono_byte_msb(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-
-void convblit_copy_mask_mono_byte_msb_bgra_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 4, B,G,R,A, LEFT);
-}
-
-void convblit_copy_mask_mono_byte_msb_bgra_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 4, B,G,R,A, RIGHT);
-}
-
-void convblit_copy_mask_mono_byte_msb_bgra_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 4, B,G,R,A, DOWN);
-}
+#endif
 
 /* 24bpp BGR*/
 void convblit_copy_mask_mono_byte_msb_bgr(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_byte_msb(psd, gc, 3, B,G,R,-1, NONE);
-}
-
-void convblit_copy_mask_mono_byte_msb_bgr_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 3, B,G,R,-1, LEFT);
-}
-
-void convblit_copy_mask_mono_byte_msb_bgr_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 3, B,G,R,-1, RIGHT);
-}
-
-void convblit_copy_mask_mono_byte_msb_bgr_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 3, B,G,R,-1, DOWN);
+	convblit_copy_mask_mono_byte_msb(psd, gc, 3, B,G,R,-1, psd->portrait);
 }
 
 /* 16bpp 565/555*/
 void convblit_copy_mask_mono_byte_msb_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_copy_mask_mono_byte_msb(psd, gc, 2, 0,0,0,-1, NONE);
-}
-
-void convblit_copy_mask_mono_byte_msb_16bpp_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 2, 0,0,0,-1, LEFT);
-}
-
-void convblit_copy_mask_mono_byte_msb_16bpp_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 2, 0,0,0,-1, RIGHT);
-}
-
-void convblit_copy_mask_mono_byte_msb_16bpp_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_copy_mask_mono_byte_msb(psd, gc, 2, 0,0,0,-1, DOWN);
+	convblit_copy_mask_mono_byte_msb(psd, gc, 2, 0,0,0,-1, psd->portrait);
 }
 
 /*
@@ -613,65 +502,28 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
  *
  * Used to draw FT2 and T1LIB antialiased glyphs.
  */
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* 32bpp RGBA*/
+void convblit_blend_mask_alpha_byte_rgba(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_blend_mask_alpha_byte(psd, gc, 4, R,G,B,A, psd->portrait);
+}
+#else
 /* 32bpp BGRA*/
 void convblit_blend_mask_alpha_byte_bgra(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_blend_mask_alpha_byte(psd, gc, 4, B,G,R,A, NONE);
+	convblit_blend_mask_alpha_byte(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-
-void convblit_blend_mask_alpha_byte_bgra_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 4, B,G,R,A, LEFT);
-}
-
-void convblit_blend_mask_alpha_byte_bgra_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 4, B,G,R,A, RIGHT);
-}
-
-void convblit_blend_mask_alpha_byte_bgra_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 4, B,G,R,A, DOWN);
-}
+#endif
 
 /* 24bpp BGR*/
 void convblit_blend_mask_alpha_byte_bgr(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_blend_mask_alpha_byte(psd, gc, 3, B,G,R,-1, NONE);
-}
-
-void convblit_blend_mask_alpha_byte_bgr_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 3, B,G,R,-1, LEFT);
-}
-
-void convblit_blend_mask_alpha_byte_bgr_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 3, B,G,R,-1, RIGHT);
-}
-
-void convblit_blend_mask_alpha_byte_bgr_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 3, B,G,R,-1, DOWN);
+	convblit_blend_mask_alpha_byte(psd, gc, 3, B,G,R,-1, psd->portrait);
 }
 
 /* 16bpp 565/555*/
 void convblit_blend_mask_alpha_byte_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_blend_mask_alpha_byte(psd, gc, 2, 0,0,0,-1, NONE);
-}
-
-void convblit_blend_mask_alpha_byte_16bpp_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 2, 0,0,0,-1, LEFT);
-}
-
-void convblit_blend_mask_alpha_byte_16bpp_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 2, 0,0,0,-1, RIGHT);
-}
-
-void convblit_blend_mask_alpha_byte_16bpp_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_blend_mask_alpha_byte(psd, gc, 2, 0,0,0,-1, DOWN);
+	convblit_blend_mask_alpha_byte(psd, gc, 2, 0,0,0,-1, psd->portrait);
 }

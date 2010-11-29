@@ -1,10 +1,12 @@
 /*
- * Device-independent low level convblit routines - 24/32bpp RGB/A in/out (any order) or 16bpp 565/555
+ * Device-independent low level convblit routines - 32, 24, 16bpp RGBA/RGB input
  *
  * Copyright (c) 2010 Greg Haerr <greg@censoft.com>
  *
  * This file will need to be modified when adding a new hardware framebuffer
- * image format.  Currently, 32bpp BGRA, 24bpp BGR, and 16bpp RGB 565/555 are defined.
+ * image format.
+ *
+ * Currently, 32bpp BGRA, 32bpp RGBA, 24bpp BGR, and 16bpp RGB565/555 are defined.
  *
  * These routines do no range checking, clipping, or cursor
  * overwriting checks, but instead draw directly to the
@@ -32,7 +34,7 @@
  * Conversion blit for COPY or SRCOVER from RGBA or RGB input to
  * 32, 24 or 16bpp output, and rotate according to portrait specified.
  *
- * The gcc inline mechanism will compile this function with the
+ * The gcc inline mechanism can compile this function with the
  * result of no switch and few if statements, as most use constant comparisons,
  * and will be optimized out.  Thus, the inner loops run very fast!
  * This is also true for the copy vs srcover.  When COPY is specified,
@@ -47,7 +49,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 	int height, newx, newy;
 	int src_pitch = gc->src_pitch;
 
-	/* compiler will optimize out switch statement and most else to constants*/
+	/* compiler can optimize out switch statement and most else to constants*/
 	switch (PORTRAIT) {
 	case NONE:
 		dsz = DSZ;					/* dst: next pixel over*/
@@ -180,179 +182,106 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 
 /*---------- 32bpp BGRA output ----------*/
 
-/* Conversion blit composite src_over 32bpp RGBA image to 32bpp BGRA image*/
-void convblit_srcover_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* Conversion blit srcover 32bpp RGBA image to 32bpp RGBA image*/
+void convblit_srcover_rgba8888_rgba8888(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, B,G,R,A, NONE);
+	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, R,G,B,A, psd->portrait);
 }
 
-void convblit_srcover_rgba8888_bgra8888_left(PSD psd, PMWBLITPARMS gc)
+/* Conversion blit copy 32bpp RGBA image to 32bpp RGBA image*/
+void convblit_copy_rgba8888_rgba8888(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, B,G,R,A, LEFT);
-}
-
-void convblit_srcover_rgba8888_bgra8888_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, B,G,R,A, RIGHT);
-}
-
-void convblit_srcover_rgba8888_bgra8888_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, B,G,R,A, DOWN);
-}
-
-/* Conversion blit copy 24bpp RGB image to 32bpp BGRA image*/
-void convblit_copy_rgb888_bgra8888(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, B,G,R,A, NONE);
-}
-
-void convblit_copy_rgb888_bgra8888_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, B,G,R,A, LEFT);
-}
-
-void convblit_copy_rgb888_bgra8888_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, B,G,R,A, RIGHT);
-}
-
-void convblit_copy_rgb888_bgra8888_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, B,G,R,A, DOWN);
-}
-
-/* GdArea required blits, all handle portrait*/
-/* Copy 32bpp XXXX image to 32bpp XXXX image*/
-void convblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc)
-{
-	// -1 below will force 255 for alpha during copy
-	//convblit_8888(psd, gc, COPY, 4, R,G,B,-1, 4, R,G,B,A, psd->portrait);
 	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 4, R,G,B,A, psd->portrait);
 }
 
-/* Copy 32bpp RGBA image to 32bpp BGRA image*/
+/* Conversion blit copy 24bpp RGB image to 32bpp RGBA image*/
+void convblit_copy_rgb888_rgba8888(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, R,G,B,A, psd->portrait);
+}
+
+#else /* MWPF_TRUECOLOR8888*/
+
+void convblit_srcover_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, B,G,R,A, psd->portrait);
+}
+
+/* Conversion blit copy 32bpp RGBA image to 32bpp BGRA image*/
 void convblit_copy_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 4, B,G,R,A, psd->portrait);
 }
 
+/* Conversion blit copy 24bpp RGB image to 32bpp BGRA image*/
+void convblit_copy_rgb888_bgra8888(PSD psd, PMWBLITPARMS gc)
+{
+	// -1 forces 255 alpha in destination
+	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, B,G,R,A, psd->portrait);
+}
+#endif
+
+/* Copy 32bpp XXXX image to 32bpp XXXX image*/
+void convblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc)
+{
+	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 4, R,G,B,A, psd->portrait);
+}
+
 /*---------- 24bpp BGR output ----------*/
 
-/* Conversion blit composite src_over 32bpp RGBA image to 24bpp BGR image*/
+/* Conversion blit srcover 32bpp RGBA image to 24bpp BGR image*/
 void convblit_srcover_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 3, B,G,R,-1, NONE);
+	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 3, B,G,R,-1, psd->portrait);
 }
 
-void convblit_srcover_rgba8888_bgr888_left(PSD psd, PMWBLITPARMS gc)
+/* Conversion blit copy 32bpp RGBA image to 24bpp BGR image*/
+void convblit_copy_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 3, B,G,R,-1, LEFT);
-}
-
-void convblit_srcover_rgba8888_bgr888_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 3, B,G,R,-1, RIGHT);
-}
-
-void convblit_srcover_rgba8888_bgr888_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 3, B,G,R,-1, DOWN);
+	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 3, B,G,R,-1, psd->portrait);
 }
 
 /* Conversion blit copy 24bpp RGB image to 24bpp BGR image*/
 void convblit_copy_rgb888_bgr888(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 3, B,G,R,-1, NONE);
+	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 3, B,G,R,-1, psd->portrait);
 }
 
-void convblit_copy_rgb888_bgr888_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 3, B,G,R,-1, LEFT);
-}
-
-void convblit_copy_rgb888_bgr888_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 3, B,G,R,-1, RIGHT);
-}
-
-void convblit_copy_rgb888_bgr888_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 3, B,G,R,-1, DOWN);
-}
-
-/* GdArea required blits, all handle portrait*/
 /* Copy 24bpp XXX image to 24bpp XXX image*/
 void convblit_copy_888_888(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 3, R,G,B,-1, psd->portrait);
 }
 
-/* Copy 32bpp BGRA image to 24bpp BGR image*/
+/* Copy 32bpp BGRA image to 24bpp BGR image (GdArea MWPF_PIXELVAL)*/
 void convblit_copy_bgra8888_bgr888(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_8888(psd, gc, COPY, 4, B,G,R,A, 3, B,G,R,-1, psd->portrait);
 }
 
-/* Copy 32bpp RGBA image to 24bpp BGR image*/
-void convblit_copy_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 3, B,G,R,-1, psd->portrait);
-}
-
 /*---------- 16bpp BGR output ----------*/
 
-/* Conversion blit composite src_over 32bpp RGBA image to 16bpp image*/
+/* Conversion blit srcover 32bpp RGBA image to 16bpp image*/
 void convblit_srcover_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 2, 0,0,0,-1, NONE);
+	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 2, 0,0,0,-1, psd->portrait);
 }
 
-void convblit_srcover_rgba8888_16bpp_left(PSD psd, PMWBLITPARMS gc)
+/* Conversion blit copy 32bpp RGBA image to 16bpp image*/
+void convblit_copy_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 2, 0,0,0,-1, LEFT);
-}
-
-void convblit_srcover_rgba8888_16bpp_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 2, 0,0,0,-1, RIGHT);
-}
-
-void convblit_srcover_rgba8888_16bpp_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 2, 0,0,0,-1, DOWN);
+	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 2, 0,0,0,-1, psd->portrait);
 }
 
 /* Conversion blit copy 24bpp RGB image to 16bpp image*/
 void convblit_copy_rgb888_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 2, 0,0,0,-1, NONE);
+	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 2, 0,0,0,-1, psd->portrait);
 }
 
-void convblit_copy_rgb888_16bpp_left(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 2, 0,0,0,-1, LEFT);
-}
-
-void convblit_copy_rgb888_16bpp_right(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 2, 0,0,0,-1, RIGHT);
-}
-
-void convblit_copy_rgb888_16bpp_down(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 2, 0,0,0,-1, DOWN);
-}
-
-/* GdArea required blits, all handle portrait*/
 /* Copy 16bpp image to 16bpp image*/
 void convblit_copy_16bpp_16bpp(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_8888(psd, gc, COPY, 2, 0,0,0,-1, 2, 0,0,0,-1, psd->portrait);
-}
-
-/* Copy 32bpp RGBA image to 16bpp image*/
-void convblit_copy_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc)
-{
-	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 2, 0,0,0,-1, psd->portrait);
 }

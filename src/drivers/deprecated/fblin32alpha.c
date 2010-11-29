@@ -12,6 +12,7 @@
  *	2) no 8888 convblit functions defined (yet) (means slow GdDrawImage and portrait mode text)
  *		internal convblits for font drawing (mono byte lsb/msb/alpha, no mono word msb)
  *		portrait mode emulates rotation by copying, then calling internal convblit - slow!
+ *	3) can draw using SRC_OVER in drawpixel/hline/vline
  *
  * Written by Koninklijke Philips Electronics N.V.
  * Based on the existing 32bpp (no alpha) driver:

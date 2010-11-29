@@ -47,7 +47,6 @@
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
-static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -467,72 +466,4 @@ setfadelevel(PSD psd, int f)
 		b[i] = (gr_palette[i].b * fade / 100) << 8;
 	}
 	ioctl_setpalette(0, 256, r, g, b);
-}
-
-static void
-gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
-{
-	psi->rows = psd->yvirtres;
-	psi->cols = psd->xvirtres;
-	psi->planes = psd->planes;
-	psi->bpp = psd->bpp;
-	psi->data_format = psd->data_format;
-	psi->ncolors = psd->ncolors;
-	psi->fonts = NUMBER_FONTS;
-	psi->portrait = psd->portrait;
-	psi->fbdriver = TRUE;	/* running fb driver, can direct map*/
-
-	psi->pixtype = psd->pixtype;
-	switch (psd->pixtype) {
-	case MWPF_TRUECOLOR8888:
-	case MWPF_TRUECOLOR0888:
-	case MWPF_TRUECOLOR888:
-		psi->rmask 	= 0xff0000;
-		psi->gmask 	= 0x00ff00;
-		psi->bmask	= 0x0000ff;
-		break;
-	case MWPF_TRUECOLORABGR:
-		psi->rmask	= 0x0000ff;
-		psi->gmask 	= 0x00ff00;
-		psi->bmask 	= 0xff0000;
-	case MWPF_TRUECOLOR565:
-		psi->rmask 	= 0xf800;
-		psi->gmask 	= 0x07e0;
-		psi->bmask	= 0x001f;
-		break;
-	case MWPF_TRUECOLOR555:
-		psi->rmask 	= 0x7c00;
-		psi->gmask 	= 0x03e0;
-		psi->bmask	= 0x001f;
-		break;
-	case MWPF_TRUECOLOR332:
-		psi->rmask 	= 0xe0;
-		psi->gmask 	= 0x1c;
-		psi->bmask	= 0x03;
-		break;
-	case MWPF_PALETTE:
-	default:
-		psi->rmask 	= 0xff;
-		psi->gmask 	= 0xff;
-		psi->bmask	= 0xff;
-		break;
-	}
-
-	if(psd->yvirtres > 480) {
-		/* SVGA 800x600*/
-		psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 33;	/* assumes screen height of 18 cm*/
-	} else if(psd->yvirtres > 350) {
-		/* VGA 640x480*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
-        } else if(psd->yvirtres <= 240) {
-		/* half VGA 640x240 */
-		psi->xdpcm = 14;        /* assumes screen width of 24 cm*/ 
-		psi->ydpcm =  5;
-	} else {
-		/* EGA 640x350*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 19;	/* assumes screen height of 18 cm*/
-	}
 }

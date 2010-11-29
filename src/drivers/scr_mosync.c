@@ -24,7 +24,6 @@ static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 static void fb_setportrait(PSD psd, int portraitmode);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
-static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -102,6 +101,9 @@ fb_open(PSD psd)
 
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
+	//psi->rmask = fbinfo.redMask;
+	//psi->gmask = fbinfo.greenMask;
+	//psi->bmask = fbinfo.blueMask;
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);
@@ -143,41 +145,4 @@ fb_close(PSD psd)
 	/* unmap framebuffer*/
 	maFrameBufferClose();
 	free (psd->addr);
-}
-
-static void
-gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
-{
-	psi->rows = psd->yvirtres;
-	psi->cols = psd->xvirtres;
-	psi->planes = psd->planes;
-	psi->bpp = psd->bpp;
-	psi->ncolors = psd->ncolors;
-	psi->fonts = NUMBER_FONTS;
-	psi->portrait = psd->portrait;
-	psi->data_format = psd->data_format;
-	psi->fbdriver = TRUE;	/* running fb driver, can direct map*/
-
-	psi->pixtype = psd->pixtype;
-	psi->rmask = fbinfo.redMask;
-	psi->gmask = fbinfo.greenMask;
-	psi->bmask = fbinfo.blueMask;
-
-	if(psd->yvirtres > 480) {
-		/* SVGA 800x600*/
-		psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 33;	/* assumes screen height of 18 cm*/
-	} else if(psd->yvirtres > 350) {
-		/* VGA 640x480*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
-        } else if(psd->yvirtres <= 240) {
-		/* half VGA 640x240 */
-		psi->xdpcm = 14;        /* assumes screen width of 24 cm*/
-		psi->ydpcm =  5;
-	} else {
-		/* EGA 640x350*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 19;	/* assumes screen height of 18 cm*/
-	}
 }

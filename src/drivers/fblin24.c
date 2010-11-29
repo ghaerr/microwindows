@@ -3,6 +3,7 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * 24bpp Linear Video Driver for Microwindows (BGR byte order)
+ * Writes memory image: |B|G|R| MWPF_TRUECOLOR888
  */
 /*#define NDEBUG*/
 #include <assert.h>

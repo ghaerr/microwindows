@@ -1,7 +1,15 @@
 /*
  * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  *
- * 32bpp (With Alpha) Linear Video Driver for Microwindows
+ * 32bpp Linear Video Driver for Microwindows (BGRA or RGBA byte order)
+ * Writes memory image: |B|G|R|A| LE 0xARGB BE 0xBGRA when MWPF_TRUECOLOR8888/0888
+ * Writes memory image: |R|G|B|A| LE 0xABGR BE 0xRGBA when MWPF_TRUECOLORABGR
+ *
+ * This driver differs from fblin32.c in that:
+ *	1) memory is always read/written in 32 bits, except in blit()
+ *	2) no 8888 convblit functions defined (yet) (means slow GdDrawImage)
+ *		internal convblits for font drawing (mono byte lsb/msb/alpha, no mono word msb)
+ *	3) experimental, currently used for MWPF_TRUECOLORABGR (will deprecate)
  *
  * Written by Koninklijke Philips Electronics N.V.
  * Based on the existing 32bpp (no alpha) driver:
@@ -32,31 +40,39 @@
  * in memory correspond to which field.
  */
 #if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
-/* little endian ABGR*/
-#define OFFSET_A 3
-#define OFFSET_B 2
-#define OFFSET_G 1
-#define OFFSET_R 0
+/* |R|G|B|A| LE 0xABGR BE 0xRGBA TCABGR*/
 #define COLOR2PIXEL COLOR2PIXELABGR
-#else
 
-/* ARGB*/
+#if MW_CPU_BIG_ENDIAN
+#define OFFSET_R 3
+#define OFFSET_G 2
+#define OFFSET_B 1
+#define OFFSET_A 0
+#else
+#define OFFSET_R 0
+#define OFFSET_G 1
+#define OFFSET_B 2
+#define OFFSET_A 3
+#endif
+
+#else /* MWPIXEL_FORMAT == MWPF_TRUECOLOR8888*/
+
+/* |B|G|R|A| LE 0xARGB BE 0xBGRA TC8888*/
 #define COLOR2PIXEL COLOR2PIXEL8888
 
 #if MW_CPU_BIG_ENDIAN
-#define OFFSET_A 0
-#define OFFSET_R 1
-#define OFFSET_G 2
 #define OFFSET_B 3
+#define OFFSET_G 2
+#define OFFSET_R 1
+#define OFFSET_A 0
 #else
-//FIXME check, this may not an error for alpha channel passed in blit
-#define OFFSET_A 3
-#define OFFSET_R 2
-#define OFFSET_G 1
 #define OFFSET_B 0
+#define OFFSET_G 1
+#define OFFSET_R 2
+#define OFFSET_A 3
 #endif
 
-#endif
+#endif /* MWPIXEL_FORMAT*/
 
 static int
 linear32a_init(PSD psd)
@@ -164,7 +180,6 @@ linear32a_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 	DRAWON;
 	if (gr_mode == MWROP_COPY) {
-		/* FIXME: memsetl(dst, c, x2-x1+1) */
 		while (x1++ <= x2)
 			*addr++ = c;
 	} else if (gr_mode == MWROP_SRC_OVER) {
@@ -236,7 +251,6 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert(y2 >= 0 && y2 < psd->yres);
 	assert(y2 >= y1);
 #endif
-
 	DRAWON;
 	if (gr_mode == MWROP_COPY) {
 		while (y1++ <= y2) {
@@ -293,10 +307,10 @@ linear32a_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 			addr += linelen;
 		}
 	}
+	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, x, Y1, 1, y2-Y1+1);
-	DRAWOFF;
 }
 
 /* srccopy bitblt*/
@@ -383,7 +397,7 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			for (i = w; --i >= 0;) {
 				register uint32_t as;
 
-				if ((as = src8[OFFSET_A]) == 255) {	//FIXME should this be constant offset?
+				if ((as = src8[OFFSET_A]) == 255) {
 					dst8[0] = src8[0];
 					dst8[1] = src8[1];
 					dst8[2] = src8[2];
@@ -411,10 +425,10 @@ linear32a_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			src += slinelen - w;
 		}
 	}
+	DRAWOFF;
 
 	if (dstpsd->Update)
 		dstpsd->Update(dstpsd, dstx, dsty, w, H);
-	DRAWOFF;
 }
 
 /*
@@ -591,6 +605,7 @@ linear32a_stretchblitex(PSD dstpsd,
 	 *
 	 * FIXME Porter-Duff rules other than SRC_OVER not handled!!
 	 */
+	DRAWON;
 	switch (op) {
 	case MWROP_SRC:
 		/* Benchmarking shows that this while loop is faster than the equivalent
@@ -770,6 +785,7 @@ linear32a_stretchblitex(PSD dstpsd,
 		}
 		break;
 	}
+	DRAWOFF;
 
 	if (dstpsd->Update)
 		dstpsd->Update(dstpsd, dest_x_start, dest_y_start, width, height);
@@ -870,7 +886,6 @@ linear32a_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 	}
 
 	DRAWON;
-
 	if (gc->usebg) {
 		for (y = 0; y < gc->height; y++) {
 
@@ -960,10 +975,10 @@ linear32a_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 			dst += advance_dst;
 		}
 	}
+	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
-	DRAWOFF;
 
 #undef MWI_IS_BIT_BEFORE_OR_EQUAL
 #undef MWI_ADVANCE_BIT
@@ -1067,7 +1082,6 @@ linear32a_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	}
 
 	DRAWON;
-
 	if (gc->usebg) {
 		for (y = 0; y < gc->height; y++) {
 
@@ -1152,10 +1166,10 @@ linear32a_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 			dst += advance_dst;
 		}
 	}
+	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
-	DRAWOFF;
 
 #undef MWI_IS_BIT_BEFORE_OR_EQUAL
 #undef MWI_ADVANCE_BIT
@@ -1221,10 +1235,10 @@ linear32a_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 		alpha += src_row_step;
 		dst += dst_row_step;
 	}
+	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
-	DRAWOFF;
 }
 
 static SUBDRIVER fblinear32alpha_none = {

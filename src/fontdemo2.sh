@@ -1,5 +1,5 @@
 
 # Nano-X applications, press <BREAK> key to exit
 #T1LIB_CONFIG=./fonts/type1/t1lib.config bin/nano-X -L & bin/nanowm & bin/ftdemo
-bin/nano-X -N & bin/nanowm & bin/ftdemo & bin/tux
+bin/nano-X -L & bin/nanowm & bin/ftdemo & bin/tux
 

@@ -14,6 +14,7 @@
  */
 #include "device.h"
 #include "convblit.h"
+#include "../drivers/fb.h"		// DRAWON macro
 
 /* for convenience in specifying inline parms*/
 #define R		0		/* RGBA parms*/
@@ -105,8 +106,9 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;\
 \
 	/*\
-	 * Create new 8888 image from mono bitmap using current fg (and bg if usebg) color\
+	 * Create new 8888/888/16bpp image from mono bitmap using current fg (and bg if usebg) color\
 	 */\
+	DRAWON;\
 	height = gc->height;\
 	while (--height >= 0)\
 	{\
@@ -156,6 +158,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 		src += src_pitch;		/* src: next line down*/\
 		dst += dst_pitch;\
 	}\
+	DRAWOFF;\
 \
 	/* update screen bits if driver requires it*/\
 	if (!psd->Update)\
@@ -482,6 +485,7 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 	/*
 	 * Blend fg/bg with alpha byte array onto destination image
 	 */
+	DRAWON;
 	height = gc->height;
 	while (--height >= 0)
 	{
@@ -576,6 +580,7 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 		src += src_pitch;				/* src: next line down*/
 		dst += dst_pitch;
 	}
+	DRAWOFF;
 
 	/* update screen bits if driver requires it*/
 	if (!psd->Update)

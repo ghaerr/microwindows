@@ -1,6 +1,13 @@
 **move some BGRA GdArea convblits to driver layer
-check 255 alpha on 8888_8888 copy
+check 255 alpha required on 8888_8888 copy (from GdBitmap or convblit)
+test and change TCABGR to use fblin32.c, not fblin32alpha.c, deprecate fblin32alpha
+deprecate TC0888, use TC8888 internally
+check slight change in GrReadArea->GrArea using GdBitmap vs convblit (alpha/nxroach)
+	appears that GdBitmap using GdBitmapByPoint isn't writing alpha=255
 check whether seperate portrait mode blits required
+add XOR_FGBG and SRC_OVER from fblin32alpha.c to fblin32.c
+	make applyOp work for SRC_OVER
+
 plans for GdArea Translation, GdReadArea blit?
 
 bin/mdemo requires extra mouse press/move to redraw on X11
@@ -17,18 +24,17 @@ need different way of SUBDRIVER left/right/down etc switching
 test VTSWITCH
 fix vncserver.c support (drawarea, etc)
 
-GdBitmap/drawbitmap fallback for < 16bpp
-	fix psd->bpp >= 16 kluge in gen_drawtext (non convblit driver fallback to GdBitmap)
-
 FT2 don't use antialias settings if no HAVEOP_ALPHACOL driver entry point
 
 16bpp convblits are endian-specific
 write convblits for 24/32bpp non-bgra systems (rename TRUECOLOR macros?)
+fblin32.c blit uses src[3] for alpha, will only work on BGRA and BGRA formats
+	applyOp4 may need fixing, uses ADDR32
 change driver fblinear_blit routines for 32bpp to BLITPARMS struct
 
 fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
 	remove fblin32alpha.c, endian-specific, make TRUECOLOR0888 vs 8888 same
-	TRUECOLOR8888 (fblin32alpha.c) subdriver doesn't have convblit support
+	fblin32alpha.c subdriver doesn't have convblit support
 
 remove FT1 from Config/configs*
 config option to eliminate not needed subdrivers?

@@ -31,7 +31,6 @@
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
-static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, NULL,
@@ -299,33 +298,6 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.transp = NULL;
 
 	ioctl( fb, FBIOPUTCMAP, &cmap );
-}
-
-static void
-gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
-{
-	psi->rows = psd->yvirtres;
-	psi->cols = psd->xvirtres;
-	psi->planes = psd->planes;
-	psi->bpp = psd->bpp;
-	psi->data_format = psd->data_format;
-	psi->ncolors = psd->ncolors;
-	psi->pixtype = psd->pixtype;
-	psi->fonts = NUMBER_FONTS;
-
-	if(psd->yvirtres > 480) {
-		/* SVGA 800x600*/
-		psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 33;	/* assumes screen height of 18 cm*/
-	} else if(psd->yvirtres > 350) {
-		/* VGA 640x480*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
-	} else {
-		/* EGA 640x350*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 19;	/* assumes screen height of 18 cm*/
-	}
 }
 
 /* experimental palette animation*/

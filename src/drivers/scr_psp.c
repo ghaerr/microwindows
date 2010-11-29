@@ -24,7 +24,6 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
-static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 static void
 stub_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
@@ -94,19 +93,4 @@ fb_open(PSD psd)
 static void
 fb_close(PSD psd)
 {
-}
-
-static void
-gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
-{
-    psi->rows = psd->yvirtres;
-    psi->cols = psd->xvirtres;
-    psi->planes = psd->planes;
-    psi->bpp = psd->bpp;
-	psi->data_format = psd->data_format;
-    psi->ncolors = psd->ncolors;
-    psi->pixtype = psd->pixtype;
-    psi->fonts = NUMBER_FONTS;
-    psi->ydpcm = 120;
-    psi->xdpcm = 120;
 }

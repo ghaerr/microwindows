@@ -252,6 +252,10 @@ MWBOOL	GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize);
 void	GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 		MWPIXELVAL *convtable,int fLoadType);
 void	GdDrawImage(PSD psd,MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
+void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
+		const MWIMAGEBITS *imagebits);
+void	GdBitmapByPoint(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
+		const MWIMAGEBITS *imagebits, int clipresult);
 void	GdPoly(PSD psd,int count, MWPOINT *points);
 void	GdFillPoly(PSD psd,int count, MWPOINT *points);
 void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
@@ -269,10 +273,6 @@ int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
 		int planes, int bpp, int *size, int *linelen, int *pitch);
 
 /* devblit.c*/
-void	drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-		const MWIMAGEBITS *imagebits);
-void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		const MWIMAGEBITS *imagebits);
 MWBLITFUNC GdFindConvBlit(PSD psd, int data_format, int op);
 void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
 void	GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit);

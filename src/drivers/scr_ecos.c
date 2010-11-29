@@ -33,7 +33,6 @@
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
-static void gen_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -339,37 +338,5 @@ setfadelevel(PSD psd, int f)
 		b[i] = (gr_palette[i].b * fade / 100) << 8;
 	}
 	ioctl_setpalette(0, 256, r, g, b);
-#endif
-}
-
-static void
-gen_getscreeninfo(PSD psd,PMWSCREENINFO psi)
-{
-    psi->rows = psd->yvirtres;
-    psi->cols = psd->xvirtres;
-    psi->planes = psd->planes;
-    psi->bpp = psd->bpp;
-	psi->data_format = psd->data_format;
-    psi->ncolors = psd->ncolors;
-    psi->pixtype = psd->pixtype;
-    psi->fonts = NUMBER_FONTS;
-
-#if 0
-    if(psd->yvirtres > 480) {
-        /* SVGA 800x600*/
-        psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
-        psi->ydpcm = 33;	/* assumes screen height of 18 cm*/
-    } else if(psd->yvirtres > 350) {
-        /* VGA 640x480*/
-        psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-        psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
-    } else {
-        /* EGA 640x350*/
-        psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-        psi->ydpcm = 19;	/* assumes screen height of 18 cm*/
-    }
-#else
-    psi->ydpcm = 42; // 320 / (3 * 2.54)
-    psi->xdpcm = 38; //240 / (2.5 * 2.54)
 #endif
 }

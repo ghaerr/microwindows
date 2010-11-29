@@ -1,3 +1,6 @@
+28 Nov 2010
+	* added amask (alpha mask) to SCREENINFO, standardized gen_getscreeninfo function
+	* rewrote GdBitmap to use fast convblit, added GdBitmapByPoint
 27 Nov 2010
 	* added GdFindConvBlit, GdPrintBitmap, set_data_format functions
 	* require data_format on all screen drivers, used by GdArea

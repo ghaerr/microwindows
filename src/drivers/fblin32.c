@@ -2,7 +2,9 @@
  * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
- * 32bpp Linear Video Driver for Microwindows
+ * 32bpp Linear Video Driver for Microwindows (BGRA or RGBA byte order)
+ * Writes memory image: |B|G|R|A| LE 0xARGB BE 0xBGRA MWPF_TRUECOLOR8888/0888
+ * Writes memory image: |R|G|B|A| LE 0xABGR BE 0xRGBA when MWPF_TRUECOLORABGR
  *
  * Inspired from Ben Pfaff's BOGL <pfaffben@debian.org>
  */
@@ -39,10 +41,10 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 		((ADDR32)psd->addr)[x + y * psd->linelen] = c;
 	else
 		applyOp(gr_mode, c, &((ADDR32)psd->addr)[x + y * psd->linelen], ADDR32);
+	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, x, y, 1, 1);
-	DRAWOFF;
 }
 
 /* Read pixel at x, y*/
@@ -72,8 +74,7 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 #endif
 	DRAWON;
 	if(gr_mode == MWROP_COPY) {
-		/* FIXME memsetl(addr, c, x2-x1+1);*/
-		while(x1++ <= x2)
+		while(x1++ <= x2)		/* memsetl(addr, c, x2-x1+1)*/
 			*addr++ = c;
 	} else {
 		while(x1++ <= x2) {
@@ -81,10 +82,10 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 			++addr;
 		}
 	}
+	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, X1, y, x2-X1+1, 1);
-	DRAWOFF;
 }
 
 /* Draw a vertical line from x,y1 to x,y2 including final point*/
@@ -227,7 +228,7 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			for (i = w; --i >= 0;) {
 				register uint32_t as;
 
-				if ((as = src8[3]) == 255) {	//FIXME should this be constant w/endian?
+				if ((as = src8[3]) == 255) {	//FIXME constant ok only with BGRA and RGBA formats
 					dst8[0] = src8[0];
 					dst8[1] = src8[1];
 					dst8[2] = src8[2];
@@ -244,7 +245,7 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 					*dst8++ = muldiv255(as, *src8++ - pd) + pd;
 
 					//d = muldiv255(d, 255 - a) + a
-					*dst8 = muldiv255(*dst8, 255 - as) + as;
+					*dst8 = muldiv255(*dst8, 255 - as) + as;	// FIXME see above
 					++dst8;
 					++src8;
 				} else {
@@ -258,7 +259,7 @@ linear32_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		}
 	} else {
 		while (--h >= 0) {
-			applyOp4(w, op, src, dst, ADDR32);
+			applyOp4(w, op, src, dst, ADDR32);					// FIXME see above
 			dst += dlinelen - w;
 			src += slinelen - w;
 		}
@@ -438,6 +439,7 @@ linear32_stretchblitex(PSD dstpsd,
 	 * The MWROP_CLEAR case could be removed.  But it is a large
 	 * speed increase for a small quantity of code.
 	 */
+	DRAWON;
 	switch (op) {
 	case MWROP_SRC:
 		/* Benchmarking shows that this while loop is faster than the equivalent
@@ -519,6 +521,7 @@ linear32_stretchblitex(PSD dstpsd,
 		}
 		break;
 	}
+	DRAWOFF;
 
 	if (dstpsd->Update)
 		dstpsd->Update(dstpsd, dest_x_start, dest_y_start, width, height);

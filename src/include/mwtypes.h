@@ -336,6 +336,7 @@ typedef struct {
 	uint32_t rmask;		/* red mask bits in pixel*/
 	uint32_t gmask;		/* green mask bits in pixel*/
 	uint32_t bmask;		/* blue mask bits in pixel*/
+	uint32_t amask;		/* alpha mask bits in pixel*/
 	MWCOORD	xpos;		/* current x mouse position*/
 	MWCOORD	ypos;		/* current y mouse position*/
 

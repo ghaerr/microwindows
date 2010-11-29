@@ -19,127 +19,10 @@
 #include "swap.h"
 #include "device.h"
 #include "convblit.h"
-#include "../drivers/fb.h"		/* for DRAWON macro*/
 
 extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
 extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
-
-/**
- * Draw a rectangular area using the current clipping region and the
- * specified bit map.  This differs from rectangle drawing in that the
- * rectangle is drawn using the foreground color and possibly the background
- * color as determined by the bit map.  Each row of bits is aligned to the
- * next bitmap word boundary (so there is padding at the end of the row).
- * (I.e. each row begins at the start of a new MWIMAGEBITS value).
- * The background bit values are only written if the gr_usebg flag
- * is set.
- * The function drawbitmap performs no clipping, GdBitmap clips.
- *
- * @param psd Drawing surface.
- * @param x Left edge of destination rectangle.
- * @param y Top edge of destination rectangle.
- * @param width Width of bitmap.  Equal to width of destination rectangle.
- * @param height Height of bitmap.  Equal to height of destination rectangle.
- * @param imagebits The bitmap to draw.
- */
-void
-drawbitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	const MWIMAGEBITS *imagebits)
-{
-	MWCOORD minx;
-	MWCOORD maxx;
-	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
-	int bitcount;			/* number of bits left in bitmap word */
-
-	if (width <= 0 || height <= 0)
-		return;
-
-	if (gr_usebg)
-		psd->FillRect(psd, x, y, x + width - 1, y + height - 1,
-			gr_background);
-
-	/* FIXME think of the speedups if this existed...
-	psd->DrawBitmap(psd, x, y, width, height, imagebits, gr_foreground);
-	return;
-	*/
-
-	minx = x;
-	maxx = x + width - 1;
-	bitcount = 0;
-	while (height > 0) {
-		if (bitcount <= 0) {
-			bitcount = MWIMAGE_BITSPERIMAGE;
-			bitvalue = *imagebits++;
-		}
-		/* draw without clipping*/
-		if (MWIMAGE_TESTBIT(bitvalue))
-			psd->DrawPixel(psd, x, y, gr_foreground);
-		bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
-		bitcount--;
-		if (x++ == maxx) {
-			x = minx;
-			y++;
-			--height;
-			bitcount = 0;
-		}
-	}
-}
-
-void
-GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	const MWIMAGEBITS *imagebits)
-{
-	MWCOORD minx;
-	MWCOORD maxx;
-	MWPIXELVAL savecolor;		/* saved foreground color */
-	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
-	int bitcount;			/* number of bits left in bitmap word */
-
-	if (width <= 0 || height <= 0)
-		return;
-
-	switch (GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-	case CLIP_VISIBLE:
-		drawbitmap(psd, x, y, width, height, imagebits);
-		GdFixCursor(psd);
-		return;
-
-	case CLIP_INVISIBLE:
-		return;
-	}
-
-	/* The rectangle is partially visible, so must do clipping. First
-	 * fill a rectangle in the background color if necessary.
-	 */
-	if (gr_usebg) {
-		savecolor = gr_foreground;
-		gr_foreground = gr_background;
-		/* note: change to fillrect*/
-		GdFillRect(psd, x, y, width, height);
-		gr_foreground = savecolor;
-	}
-	minx = x;
-	maxx = x + width - 1;
-	bitcount = 0;
-	while (height > 0) {
-		if (bitcount <= 0) {
-			bitcount = MWIMAGE_BITSPERIMAGE;
-			bitvalue = *imagebits++;
-		}
-		if (MWIMAGE_TESTBIT(bitvalue) && GdClipPoint(psd, x, y))
-			psd->DrawPixel(psd, x, y, gr_foreground);
-			bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
-			bitcount--;
-		if (x++ == maxx) {
-			x = minx;
-			y++;
-			--height;
-			bitcount = 0;
-		}
-	}
-	GdFixCursor(psd);
-}
 
 /* call conversion blit with clipping and cursor fix*/
 void
@@ -164,9 +47,7 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 	/* check clipping region*/
 	switch(GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
-		DRAWON;
 		convblit(psd, gc);
-		DRAWOFF;
 		GdFixCursor(psd);
 		return;
 
@@ -221,9 +102,7 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 			gc->srcx = srcx + rx1 - x;
 			gc->srcy = srcy + ry1 - y;
 			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
-			DRAWON;
 			convblit(psd, gc);
-			DRAWOFF;
 		}
 		prc++;
 	}
@@ -323,14 +202,14 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 		GdConvBlitInternal(psd, parms, convblit);
 		return;
 	}
-
+#if LATER
 	/* check for fallback routines*/
 	if (parms->data_format == MWIF_MONOWORDMSB) {			/* core mwcfont, pcf*/
 		DPRINTF("GdConversionBlit: no convblit, using GdBitmap fallback\n");
 		GdBitmap(psd, parms->dstx, parms->dsty, parms->width, parms->height, parms->data);
 		return;
 	}
-
+#endif
 	DPRINTF("GdConversionBlit: No convblit available\n");
 }
 

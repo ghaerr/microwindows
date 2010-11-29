@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "device.h"
 #include "genmem.h"
+#include "genfont.h"
 #include "fb.h"
 
 /* select a framebuffer subdriver based on planes and bpp*/
@@ -82,22 +83,6 @@ set_data_format(PSD psd)
 	int data_format = 0;
 
 	switch(psd->pixtype) {
-	case MWPF_PALETTE:
-		switch (psd->bpp) {
-		case 8:
-			data_format = MWIF_PAL8;
-			break;
-		case 4:
-			data_format = MWIF_PAL4;
-			break;
-		case 2:
-			data_format = MWIF_PAL2;
-			break;
-		case 1:
-			data_format = MWIF_PAL1;
-			break;
-		}
-		break;
 	case MWPF_TRUECOLOR8888:
 	case MWPF_TRUECOLOR0888:
 		data_format = MWIF_BGRA8888;
@@ -120,7 +105,104 @@ set_data_format(PSD psd)
 	case MWPF_TRUECOLOR233:
 		data_format = MWIF_BGR233;
 		break;
+	case MWPF_PALETTE:
+		switch (psd->bpp) {
+		case 8:
+			data_format = MWIF_PAL8;
+			break;
+		case 4:
+			data_format = MWIF_PAL4;
+			break;
+		case 2:
+			data_format = MWIF_PAL2;
+			break;
+		case 1:
+			data_format = MWIF_PAL1;
+			break;
+		}
+		break;
 	}
 
 	return data_format;
+}
+
+/* general routine to return screen info, ok for all fb devices*/
+void
+gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
+{
+	psi->rows = psd->yvirtres;
+	psi->cols = psd->xvirtres;
+	psi->planes = psd->planes;
+	psi->bpp = psd->bpp;
+	psi->data_format = psd->data_format;
+	psi->ncolors = psd->ncolors;
+	psi->fonts = NUMBER_FONTS;
+	psi->portrait = psd->portrait;
+	psi->fbdriver = TRUE;	/* running fb driver, can direct map*/
+	psi->pixtype = psd->pixtype;
+
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLOR0888:
+	case MWPF_TRUECOLOR888:
+		psi->amask 	= 0xff000000;
+		psi->rmask 	= 0x00ff0000;
+		psi->gmask 	= 0x0000ff00;
+		psi->bmask	= 0x000000ff;
+		break;
+	case MWPF_TRUECOLORABGR:
+		psi->amask 	= 0xff000000;
+		psi->rmask	= 0x000000ff;
+		psi->gmask 	= 0x0000ff00;
+		psi->bmask 	= 0x00ff0000;
+	case MWPF_TRUECOLOR565:
+		psi->amask  = 0x0000;
+		psi->rmask 	= 0xf800;
+		psi->gmask 	= 0x07e0;
+		psi->bmask	= 0x001f;
+		break;
+	case MWPF_TRUECOLOR555:
+		psi->amask  = 0x8000;
+		psi->rmask 	= 0x7c00;
+		psi->gmask 	= 0x03e0;
+		psi->bmask	= 0x001f;
+		break;
+	case MWPF_TRUECOLOR332:
+		psi->amask 	= 0x00;
+		psi->rmask 	= 0xe0;
+		psi->gmask 	= 0x1c;
+		psi->bmask	= 0x03;
+		break;
+	case MWPF_PALETTE:
+	default:
+		psi->amask 	= 0x00;
+		psi->rmask 	= 0xff;
+		psi->gmask 	= 0xff;
+		psi->bmask	= 0xff;
+		break;
+	}
+
+	//eCos
+    //psi->ydpcm = 42; 		/* 320 / (3 * 2.54)*/
+    //psi->xdpcm = 38; 		/* 240 / (2.5 * 2.54)*/
+	//psp
+    //psi->ydpcm = 120;
+    //psi->xdpcm = 120;
+	if(psd->yvirtres > 480) {	//FIXME update
+		/* SVGA 800x600*/
+		psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
+		psi->ydpcm = 33;	/* assumes screen height of 18 cm*/
+	} else if(psd->yvirtres > 350) {
+		/* VGA 640x480*/
+		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
+		psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
+        } else if(psd->yvirtres <= 240) {
+		/* half VGA 640x240 */
+		psi->xdpcm = 14;        /* assumes screen width of 24 cm*/ 
+		psi->ydpcm =  5;
+	} else {
+		/* EGA 640x350*/
+		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
+		psi->ydpcm = 19;	/* assumes screen height of 18 cm*/
+	}
 }

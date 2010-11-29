@@ -1206,6 +1206,112 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 }
 
 /**
+ * Draw a rectangular area using the current clipping region and the
+ * specified bit map.  This differs from rectangle drawing in that the
+ * rectangle is drawn using the foreground color and possibly the background
+ * color as determined by the bit map.  Each row of bits is aligned to the
+ * next bitmap word boundary (so there is padding at the end of the row).
+ * (I.e. each row begins at the start of a new MWIMAGEBITS value).
+ * The background bit values are only written if the gr_usebg flag
+ * is set.
+ *
+ * @param psd Drawing surface.
+ * @param x Left edge of destination rectangle.
+ * @param y Top edge of destination rectangle.
+ * @param width Width of bitmap.  Equal to width of destination rectangle.
+ * @param height Height of bitmap.  Equal to height of destination rectangle.
+ * @param imagebits The bitmap to draw.
+ */
+void
+GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, const MWIMAGEBITS *imagebits)
+{
+	MWBLITFUNC	convblit;
+	MWBLITPARMS parms;
+
+	/* try finding blitter, else fallback to drawing point by point*/
+	convblit = GdFindConvBlit(psd, MWIF_MONOWORDMSB, MWROP_COPY);
+	if (!convblit) {
+		GdBitmapByPoint(psd, x, y, width, height, imagebits, -1);
+		return;
+	}
+
+	if (width <= 0 || height <= 0)
+		return;
+
+	parms.op = MWROP_COPY;					/* copy to dst, 1=fg (0=bg if usebg)*/
+	parms.data_format = MWIF_MONOWORDMSB;	/* data is 1bpp words, msb first*/
+	parms.fg_colorval = gr_foreground_rgb;
+	parms.bg_colorval = gr_background_rgb;
+	//parms.fg_pixelval = gr_foreground;	/* not required for mono convblit*/
+	//parms.bg_pixelval = gr_background;
+	parms.usebg = gr_usebg;
+	parms.srcx = 0;
+	parms.srcy = 0;
+	parms.dstx = x;
+	parms.dsty = y;
+	parms.height = height;
+	parms.width = width;
+	parms.src_pitch = ((width + 15) >> 4) << 1;	/* pad to WORD boundary*/
+	parms.data = (char *)imagebits;
+	parms.dst_pitch = psd->pitch;			/* usually set in GdConversionBlit*/
+	parms.data_out = psd->addr;
+	GdConvBlitInternal(psd, &parms, convblit);
+}
+
+/* slow draw a mono word msb bitmap, use precalced clipresult if passed*/
+void
+GdBitmapByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+	const MWIMAGEBITS *imagebits, int clipresult)
+{
+	MWCOORD minx;
+	MWCOORD maxx;
+	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
+	int bitcount;			/* number of bits left in bitmap word */
+
+	if (width <= 0 || height <= 0)
+		return;
+
+	/* get valid clipresult if required*/
+	if (clipresult < 0)
+		clipresult = GdClipArea(psd, x, y, x + width - 1, y + height - 1);
+
+	if (clipresult == CLIP_INVISIBLE)
+		return;
+
+	/* fill background if necessary, use quick method if no clipping*/
+	if (gr_usebg) {
+		if (clipresult == CLIP_VISIBLE)
+			psd->FillRect(psd, x, y, x + width - 1, y + height - 1, gr_background);
+		else {
+			MWPIXELVAL savefg = gr_foreground;
+			gr_foreground = gr_background;
+			GdFillRect(psd, x, y, width, height);
+			gr_foreground = savefg;
+		}
+	}
+	minx = x;
+	maxx = x + width - 1;
+	bitcount = 0;
+	while (height > 0) {
+		if (bitcount <= 0) {
+			bitcount = MWIMAGE_BITSPERIMAGE;
+			bitvalue = *imagebits++;
+		}
+		if (MWIMAGE_TESTBIT(bitvalue) && (clipresult == CLIP_VISIBLE || GdClipPoint(psd, x, y)))
+			psd->DrawPixel(psd, x, y, gr_foreground);
+		bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
+		bitcount--;
+		if (x++ == maxx) {
+			x = minx;
+			++y;
+			--height;
+			bitcount = 0;
+		}
+	}
+	GdFixCursor(psd);
+}
+
+/**
  * Read a rectangular area of the screen.
  * The color table is indexed row by row.
  *
@@ -1227,13 +1333,19 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		return;
 
 	GdCheckCursor(psd, x, y, x+width-1, y+height-1);
-	for (row = y; row < height+y; row++)
-		for (col = x; col < width+x; col++)
-			if (row < 0 || row >= psd->yvirtres ||
-			    col < 0 || col >= psd->xvirtres)
+	for (row = y; row < height+y; row++) {
+		for (col = x; col < width+x; col++) {
+			if (row < 0 || row >= psd->yvirtres || col < 0 || col >= psd->xvirtres) {
 				*pixels++ = 0;
-			else *pixels++ = psd->ReadPixel(psd, col, row);
-
+				//printf("_");
+			} else {
+				*pixels++ = psd->ReadPixel(psd, col, row);
+				//v = ((v&255) + ((v>>8)&255) + ((v>>16)&255)) / 3;
+				//printf("%c", "_.:;oVM@X"[v>>5]);
+			}
+		}
+		//printf("\n");
+	}
 	GdFixCursor(psd);
 }
 

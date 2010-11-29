@@ -485,7 +485,22 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	const MWIMAGEBITS *bitmap;		/* bitmap for characters */
 	MWBOOL		bgstate = gr_usebg;
 	int		clip;
+	MWBLITFUNC convblit;
 	MWBLITPARMS parms;
+
+	/* fill in unchanging convblit parms*/
+	parms.op = MWROP_COPY;					/* copy to dst, 1=fg (0=bg if usebg)*/
+	parms.data_format = MWIF_MONOWORDMSB;	/* data is 1bpp words, msb first*/
+	parms.fg_colorval = gr_foreground_rgb;
+	parms.bg_colorval = gr_background_rgb;
+	//parms.fg_pixelval = gr_foreground;	/* not required for mono convblit*/
+	//parms.bg_pixelval = gr_background;
+	parms.usebg = gr_usebg;
+	parms.srcx = 0;
+	parms.srcy = 0;
+	parms.dst_pitch = psd->pitch;			/* usually set in GdConversionBlit*/
+	parms.data_out = psd->addr;
+	convblit = GdFindConvBlit(psd, MWIF_MONOWORDMSB, MWROP_COPY);
 
 	if (flags & MWTF_DBCSMASK)
 		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
@@ -498,10 +513,11 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	startx = x;
 	starty = y + base;
 
+	/* pre-clip entire text area for speed*/
 	switch (clip = GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
 	case CLIP_VISIBLE:
-		/* clear background once for all characters, save usebg state*/
-		if (gr_usebg && psd->bpp < 16) {	//FIXME kluge for non-convblit systems
+		/* fast clear background once for all characters if drawing point by point*/
+		if (!convblit && gr_usebg) {
 			psd->FillRect(psd, x, y, x + width - 1, y + height - 1, gr_background);
 			gr_usebg = FALSE;
 		}
@@ -510,17 +526,6 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	case CLIP_INVISIBLE:
 		return;
 	}
-
-	/* fill in unchanging blit parms*/
-	parms.data_format = MWIF_MONOWORDMSB;	/* data is 1bpp words, msb first*/
-	parms.op = MWROP_COPY;					/* copy to dst, 1=fg (0=bg if usebg)*/
-	parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
-	parms.bg_colorval = gr_background_rgb;
-	//parms.fg_pixelval = gr_foreground;			/* for drawarea fallback*/
-	//parms.bg_pixelval = gr_background;
-	parms.usebg = gr_usebg;
-	parms.srcx = 0;
-	parms.srcy = 0;
 
 	/*
 	 * Get the bitmap for each character individually, and then display
@@ -544,20 +549,21 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 			pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width, &height, &base);
 		}
 
-		if (psd->bpp >= 16) {
+		/* use fast blit for text draw, fallback draw point-by-point*/
+		if (convblit) {
 			parms.dstx = x;
 			parms.dsty = y;
 			parms.height = height;
 			parms.width = width;
 			parms.src_pitch = ((width + 15) >> 4) << 1;	/* pad to WORD boundary*/
 			parms.data = (char *)bitmap;
-			GdConversionBlit(psd, &parms);
-		} else {
+			/* skip clipping checks if fully visible*/
 			if (clip == CLIP_VISIBLE)
-				drawbitmap(psd, x, y, width, height, bitmap);
+				convblit(psd, &parms);
 			else
-				GdBitmap(psd, x, y, width, height, bitmap);
-		}
+				GdConversionBlit(psd, &parms);
+		} else
+			GdBitmapByPoint(psd, x, y, width, height, bitmap, clip);
 		x += width;
 	}
 

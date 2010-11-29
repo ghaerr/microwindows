@@ -12,6 +12,7 @@
  */
 #include "device.h"
 #include "convblit.h"
+#include "../drivers/fb.h"		// DRAWON macro
 
 /* for convenience in specifying inline parms*/
 #define R		0		/* RGBA parms*/
@@ -89,6 +90,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
 	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;
 
+	DRAWON;
 	height = gc->height;
 	while (--height >= 0)
 	{
@@ -148,6 +150,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 		src += src_pitch;			/* src: next line down*/
 		dst += dst_pitch;
 	}
+	DRAWOFF;
 
 	/* update screen bits if driver requires it*/
 	if (!psd->Update)
@@ -223,7 +226,7 @@ void convblit_copy_rgb888_bgra8888_down(PSD psd, PMWBLITPARMS gc)
 /* Copy 32bpp XXXX image to 32bpp XXXX image*/
 void convblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc)
 {
-	// -1 below means use 255 for alpha
+	// -1 below will force 255 for alpha during copy
 	//convblit_8888(psd, gc, COPY, 4, R,G,B,-1, 4, R,G,B,A, psd->portrait);
 	convblit_8888(psd, gc, COPY, 4, R,G,B,A, 4, R,G,B,A, psd->portrait);
 }

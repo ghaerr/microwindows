@@ -146,18 +146,8 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 			convblit = psd->BlitSrcOverRGBA8888;	/* image, src 32bpp w/alpha - srcover*/
 			break;
 		}
-		//FIXME convblit = psd->BlitCopyRGBA8888;
-		if (op == MWROP_COPY) switch (psd->bpp) {
-		case 32:
-			convblit = convblit_copy_rgba8888_bgra8888;	/* 32bpp RGBA to 32bpp BGRA copy*/
-			break;
-		case 24:
-			convblit = convblit_copy_rgba8888_bgr888;	/* 32bpp RGBX to 24bpp BGR copy*/
-			break;
-		case 16:
-			convblit = convblit_copy_rgba8888_16bpp;	/* 32bpp RGBX to 16bpp copy*/
-			break;
-		}
+		/* assume copy*/
+		convblit = psd->BlitCopyRGBA8888;			/* GdArea MWPF_RGB*/
 		break;
 
 	case MWIF_BGRA8888:				/* GdArea MWPF_TRUECOLOR8888*/

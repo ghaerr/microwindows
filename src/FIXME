@@ -13,6 +13,7 @@ bin/mdemo requires extra mouse press/move to redraw on X11
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc
 debug fltk test/pixmap putTruecolorImage GrArea problem
+consider adding srcover to GrArea MWPF_RGB images (use MWPF_RGBA)
 
 Look at RGB2PIXEL in convblit_mask/8888.c, will this work on all systems?
 	RGB2PIXEL kluged for MWPF_PALETTE compiles, set to 0 as not supported

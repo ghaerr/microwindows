@@ -111,6 +111,7 @@ typedef struct {
 	MWBLITFUNC BlitCopyMaskMonoByteLSB;				/* t1 non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoWordMSB;				/* core/pcf non-alias*/
 	MWBLITFUNC BlitBlendMaskAlphaByte;				/* ft2/t1 antialias*/
+	MWBLITFUNC BlitCopyRGBA8888;					/* GdArea RGBA MWPF_RGB image copy*/
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 } SUBDRIVER, *PSUBDRIVER;
@@ -136,46 +137,41 @@ typedef struct _mwscreendevice {
 	int	flags;			/* device flags*/
 	void *	addr;		/* address of memory allocated (memdc or fb)*/
 
-	PSD	(*Open)(PSD psd);
-	void	(*Close)(PSD psd);
-	void	(*GetScreenInfo)(PSD psd,PMWSCREENINFO psi);
-	void	(*SetPalette)(PSD psd,int first,int count,MWPALENTRY *pal);
-	void	(*DrawPixel)(PSD psd,MWCOORD x,MWCOORD y,MWPIXELVAL c);
-	MWPIXELVAL (*ReadPixel)(PSD psd,MWCOORD x,MWCOORD y);
-	void	(*DrawHorzLine)(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y,
-			MWPIXELVAL c);
-	void	(*DrawVertLine)(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2,
-			MWPIXELVAL c);
-	void	(*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
-			MWPIXELVAL c);
+	/* driver entry points*/
 	PMWCOREFONT builtin_fonts;
-	void	(*Blit)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
-			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-	void	(*PreSelect)(PSD psd);
-	int	(*SetIOPermissions)(PSD psd);
-	PSD	(*AllocateMemGC)(PSD psd);
+	PSD		(*Open)(PSD psd);
+	void	(*Close)(PSD psd);
+	void	(*SetPalette)(PSD psd,int first,int count,MWPALENTRY *pal);
+	void	(*GetScreenInfo)(PSD psd,PMWSCREENINFO psi);
+	PSD		(*AllocateMemGC)(PSD psd);
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
 			int data_format,int linelen,int pitch,int size,void *addr);
 	void	(*FreeMemGC)(PSD mempsd);
 	void	(*SetPortrait)(PSD psd,int portraitmode);
+	void	(*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
+	void	(*PreSelect)(PSD psd);
 	int	portrait;	 /* screen portrait mode*/
 	PSUBDRIVER orgsubdriver; /* original subdriver for portrait modes*/
-	void 	(*StretchBlitEx) (PSD dstpsd, PSD srcpsd,
-			MWCOORD dest_x_start, MWCOORD dest_y_start,
-			MWCOORD width, MWCOORD height,
-			int x_denominator, int y_denominator,
-			int src_x_fraction, int src_y_fraction,
-			int x_step_fraction, int y_step_fraction,
-			int op);
-	void	(*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 	PSUBDRIVER left_subdriver;
 	PSUBDRIVER right_subdriver;
 	PSUBDRIVER down_subdriver;
+	/* SUBDRIVER functions*/
+	void	(*DrawPixel)(PSD psd,MWCOORD x,MWCOORD y,MWPIXELVAL c);
+	MWPIXELVAL (*ReadPixel)(PSD psd,MWCOORD x,MWCOORD y);
+	void	(*DrawHorzLine)(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y, MWPIXELVAL c);
+	void	(*DrawVertLine)(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2, MWPIXELVAL c);
+	void	(*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2, MWPIXELVAL c);
+	void	(*Blit)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
+			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
+	void 	(*StretchBlitEx) (PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, MWCOORD dest_y_start,
+			MWCOORD width, MWCOORD height, int x_denominator, int y_denominator,
+			int src_x_fraction, int src_y_fraction, int x_step_fraction, int y_step_fraction, int op);
 	/* new fast blit functions for text and images*/
 	MWBLITFUNC BlitCopyMaskMonoByteMSB;				/* ft non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoByteLSB;				/* t1 non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoWordMSB;				/* core/pcf non-alias*/
 	MWBLITFUNC BlitBlendMaskAlphaByte;				/* ft2/t1 antialias*/
+	MWBLITFUNC BlitCopyRGBA8888;					/* GdArea RGBA MWPF_RGB image copy*/
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 } SCREENDEVICE;

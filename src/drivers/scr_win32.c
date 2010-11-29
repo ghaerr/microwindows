@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Microsoft Windows screen driver for Microwindows
  *	Tested in NONETWORK mode only
@@ -21,20 +21,15 @@
 
 /* SCREEN_WIDTH, SCREEN_HEIGHT and MWPIXEL_FORMAT define window size*/
 #ifndef SCREEN_WIDTH
-#error SCREEN_WIDTH not defined
+#define SCREEN_WIDTH	800
 #endif
 
 #ifndef SCREEN_HEIGHT
-#error SCREEN_HEIGHT not defined
+#define SCREEN_HEIGHT	600
 #endif
 
 #ifndef MWPIXEL_FORMAT
-#error MWPIXEL_FORMAT not defined
-#endif
-
-/* SCREEN_DEPTH is used only for palette modes*/
-#if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
-#error SCREEN_DEPTH not defined - must be set for palette modes
+#define MWPIXEL_FORMAT	MWPF_TRUECOLOR8888
 #endif
 
 /* externally set override values from nanox/srvmain.c*/
@@ -45,46 +40,21 @@ MWCOORD	nyres;			/* requested server y res*/
 static PSD win32_open(PSD psd);
 static void win32_close(PSD psd);
 static void win32_getscreeninfo(PSD psd, PMWSCREENINFO psi);
-static void win32_setpalette(PSD psd, int first, int count, MWPALENTRY * pal);
-static void win32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c);
-static MWPIXELVAL win32_readpixel(PSD psd, MWCOORD x, MWCOORD y);
-static void win32_drawhline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y,
-		MWPIXELVAL c);
-static void win32_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2,
-		MWPIXELVAL c);
-static void win32_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2,
-		MWCOORD y2, MWPIXELVAL c);
-static void win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
-		MWCOORD h, PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op);
-static void win32_drawarea(PSD psd, driver_gc_t * gc, int op);
-static void win32_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
-		MWCOORD dest_y_start, MWCOORD width, MWCOORD height, int x_denominator,
-		int y_denominator, int src_x_fraction, int src_y_fraction,
-		int x_step_fraction, int y_step_fraction, long op);
+static void win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	gen_fonts,
 	win32_open,
 	win32_close,
+	NULL,				/* SetPalette*/
 	win32_getscreeninfo,
-	win32_setpalette,
-	win32_drawpixel,
-	win32_readpixel,
-	win32_drawhline,
-	win32_drawvline,
-	win32_fillrect,
-	gen_fonts,
-	win32_blit,
-	NULL,
-	NULL,
-	NULL,			/* SetIOPermissions */
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,			/* SetPortrait */
-	0,			/* int portrait */
-	NULL,			/* orgsubdriver */
-	NULL,			/* StretchBlitEx subdriver*/
+	NULL,				/* SetPortrait */
+	win32_update,
+	NULL				/* PreSelect*/
 };
 
 HWND winRootWindow = NULL;
@@ -156,6 +126,8 @@ win32_open(PSD psd)
 	int depth = GetDeviceCaps(rootDC, BITSPIXEL);
 	int size;
 	RECT rect;
+	PSUBDRIVER subdriver;
+	WNDCLASS wc;
 
 	DeleteDC(rootDC);
 	GetWindowRect(GetDesktopWindow(), &rect);
@@ -165,10 +137,9 @@ win32_open(PSD psd)
 		psd->xvirtres = SCREEN_WIDTH;
 	if (psd->yvirtres > SCREEN_HEIGHT)
 		psd->yvirtres = SCREEN_HEIGHT;
-	psd->linelen = psd->xres = psd->xvirtres;
+	psd->xres = psd->xvirtres;
 	psd->yres = psd->yvirtres;
 	psd->planes = 1;
-	psd->data_format = 0;
 	psd->pixtype = MWPIXEL_FORMAT;
 #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	psd->bpp = 32;
@@ -179,18 +150,27 @@ win32_open(PSD psd)
 #else
 #error "No support bpp < 16"
 #endif 
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
+
 	/* Calculate the correct linelen here */
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
 			 psd->bpp, &size, &psd->linelen, &psd->pitch);
-
+	if ((psd->addr = malloc(psd->size)) == NULL)
+		return NULL;
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
 	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
-	psd->size = 0;
-	psd->addr = NULL;
 	psd->portrait = MWPORTRAIT_NONE;
-	{
-		WNDCLASS wc;
-				
+printf("win32 emulated bpp %d\n", psd->bpp);
+
+	/* select an fb subdriver matching our planes and bpp for backing store*/
+	subdriver = select_fb_subdriver(psd);
+	if (!subdriver)
+		return NULL;
+
+	/* set and initialize subdriver into screen driver*/
+	set_subdriver(psd, subdriver, TRUE);
+
 		wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
 		wc.lpfnWndProc     = (WNDPROC)myWindowProc;
 		wc.cbClsExtra      = 0;
@@ -202,7 +182,6 @@ win32_open(PSD psd)
 		wc.lpszMenuName    = NULL;
 		wc.lpszClassName   = APP_NAME;
 		RegisterClass(&wc);
-	}
 
 	winRootWindow = CreateWindow(APP_NAME, "", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0, 0, 
 			SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, hInstance, NULL);
@@ -236,12 +215,8 @@ win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
 }
 
-static void
-win32_setpalette(PSD psd, int first, int count, MWPALENTRY * pal)
-{
-}
 
-
+#if 0000
 static void
 win32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL pixel)
 {
@@ -415,4 +390,110 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 		BitBlt(dcBuffer, destx, desty, w, h, dcBuffer, srcx, srcy, SRCCOPY);
 	}
 	ReleaseDC(winRootWindow, dc);
+}
+#endif
+
+static void
+update_from_savebits(PSD psd, int destx, int desty, int w, int h)
+{
+#if 0
+	XImage *img;
+	int x, y;
+	char *data;
+
+	/* allocate buffer */
+	if (x11_depth >= 24)
+		data = malloc(w * 4 * h);
+	else if (x11_depth > 8)	/* 15, 16 */
+		data = malloc(w * 2 * h);
+	else			/* 1,2,4,8 */
+		data = malloc((w * x11_depth + 7) / 8 * h);
+
+	/* copy from offscreen to screen */
+	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap,
+			   0, data, w, h, 8, 0);
+
+	/* Use optimized loops for most common framebuffer modes */
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
+	{
+		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
+	}
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
+	{
+		ADDR16 dbuf = ((ADDR16) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
+	}
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
+	{
+		ADDR8 dbuf = ((ADDR8) psd->addr) + 3 * (destx + desty * psd->linelen);
+		int linedelta = 3 * (psd->linelen - w);
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1], dbuf[0]);
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+				dbuf += 3;
+			}
+			dbuf += linedelta;
+		}
+	}
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
+	{
+		ADDR32 dbuf = ((ADDR32) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
+	}
+#else /* MWPF_PALETTE*/
+	{
+		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
+		int linedelta = psd->linelen - w;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				MWPIXELVAL c = *dbuf++;
+				unsigned long pixel = PIXELVAL_to_pixel(c);
+				XPutPixel(img, x, y, pixel);
+			}
+			dbuf += linedelta;
+		}
+	}
+#endif
+
+	XPutImage(x11_dpy, x11_win, x11_gc, img, 0, 0, destx, desty, w, h);
+	XDestroyImage(img);
+#endif
+}
+
+static void
+win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
+{
+	if (!width)
+		width = psd->xres;
+	if (!height)
+		height = psd->yres;
+	update_from_savebits(psd, x, y, width, height);
 }

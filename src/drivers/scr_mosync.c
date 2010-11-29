@@ -27,27 +27,17 @@ static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	gen_fonts,
 	fb_open,
 	fb_close,
+	NULL,				/* SetPalette not supported by moSync framebuffer */
 	gen_getscreeninfo,
-	NULL,			/* Palette not supported by moSync framebuffer */
-	NULL,			/* DrawPixel subdriver*/
-	NULL,			/* ReadPixel subdriver*/
-	NULL,			/* DrawHorzLine subdriver*/
-	NULL,			/* DrawVertLine subdriver*/
-	NULL,			/* FillRect subdriver*/
-	gen_fonts,
-	NULL,			/* Blit subdriver*/
-	NULL,			/* PreSelect*/
-	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	//NULL,			/* StretchBlit subdriver - deprecated*/
-	gen_setportrait,	/* SetPortrait*/
-	0,				/* int portrait */
-	NULL,			/* orgsubdriver */
-	NULL			/* StretchBlitEx subdriver*/
+	gen_setportrait
+	NULL,				/* Update*/
+	NULL				/* PreSelect*/
 };
 
 /* static variables*/

@@ -53,27 +53,17 @@ static void X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD hei
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	gen_fonts,
 	X11_open,
 	X11_close,
-	X11_getscreeninfo,
 	X11_setpalette,
-	0, //X11_drawpixel,
-	0, //X11_readpixel,
-	0, //X11_drawhline,
-	0, //X11_drawvline,
-	0, //X11_fillrect,
-	gen_fonts,
-	0, //X11_blit,
-	X11_preselect,
-	NULL,			/* SetIOPermissions */
+	X11_getscreeninfo,
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
 	gen_setportrait,
-	0,				/* int portrait */
-	NULL,			/* orgsubdriver */
-	0, //X11_stretchblitex, 
-	X11_update
+	X11_update,
+	X11_preselect,
 };
 
 /* called from keyboard/mouse/screen */

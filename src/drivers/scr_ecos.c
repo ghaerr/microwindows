@@ -36,22 +36,17 @@ static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	gen_fonts,
 	fb_open,
 	fb_close,
-	gen_getscreeninfo,
 	fb_setpalette,
-	NULL,			/* DrawPixel subdriver*/
-	NULL,			/* ReadPixel subdriver*/
-	NULL,			/* DrawHorzLine subdriver*/
-	NULL,			/* DrawVertLine subdriver*/
-	NULL,			/* FillRect subdriver*/
-	gen_fonts,
-	NULL,			/* Blit subdriver*/
-	NULL,			/* PreSelect*/
-	NULL,			/* SetIOPermissions*/
+	gen_getscreeninfo,
 	gen_allocatememgc,
 	gen_mapmemgc,
-	gen_freememgc
+	gen_freememgc,
+	NULL,				/* SetPortrait*/
+	NULL,				/* Update*/
+	NULL				/* PreSelect*/
 };
 
 /* static variables*/

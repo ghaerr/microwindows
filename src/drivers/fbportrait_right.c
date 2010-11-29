@@ -267,5 +267,6 @@ SUBDRIVER fbportrait_right = {
 	NULL,		/* BlitCopyMaskMonoWordMSB*/
 	fbportrait_right_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
 	NULL,		/* BlitSrcOverRGBA8888*/
+	NULL,		/* BlitSrcOverRGBA8888*/
 	NULL		/* BlitCopyRGB888*/
 };

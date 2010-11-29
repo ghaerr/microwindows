@@ -976,8 +976,9 @@ static SUBDRIVER fblinear8_none = {
 	linear8_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/	/* core, PCF, FNT will use GdBitmap fallback*/
 	linear8_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
-	NULL,		/* BlitSrcOverRGBA8888*/		/* images will use GdDrawImageInternal fallback*/
-	NULL		/* BlitCopyRGB888*/				/* images will use GdDrawImageInternal fallback*/
+	NULL,		/* BlitCopyRGBA8888*/			/* images will use GdDrawAreaByPoint fallback*/
+	NULL,		/* BlitSrcOverRGBA8888*/		/* images will use GdDrawImageByPoint fallback*/
+	NULL		/* BlitCopyRGB888*/				/* images will use GdDrawImageByPoint fallback*/
 };
 
 PSUBDRIVER fblinear8[4] = {

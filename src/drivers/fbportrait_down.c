@@ -271,6 +271,7 @@ SUBDRIVER fbportrait_down = {
 	fbportrait_down_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/
 	fbportrait_down_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
+	NULL,		/* BlitCopyRGBA8888*/
 	NULL,		/* BlitSrcOverRGBA8888*/
 	NULL		/* BlitCopyRGB888*/
 };

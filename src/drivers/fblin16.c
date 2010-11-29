@@ -514,6 +514,7 @@ static SUBDRIVER fblinear16_none = {
 	convblit_copy_mask_mono_byte_lsb_16bpp,		/* t1 non-alias*/
 	convblit_copy_mask_mono_word_msb_16bpp,		/* core/pcf non-alias*/
 	convblit_blend_mask_alpha_byte_16bpp,		/* ft2/t1 antialias*/
+	convblit_copy_rgba8888_16bpp,				/* RGBA image copy (GdArea MWPF_RGB)*/
 	convblit_srcover_rgba8888_16bpp,			/* RGBA images w/alpha*/
 	convblit_copy_rgb888_16bpp					/* RGB images no alpha*/
 };
@@ -531,6 +532,7 @@ static SUBDRIVER fblinear16_left = {
 	convblit_copy_mask_mono_byte_lsb_16bpp_left,
 	convblit_copy_mask_mono_word_msb_16bpp_left,
 	convblit_blend_mask_alpha_byte_16bpp_left,
+	convblit_copy_rgba8888_16bpp,
 	convblit_srcover_rgba8888_16bpp_left,
 	convblit_copy_rgb888_16bpp_left
 };
@@ -548,6 +550,7 @@ static SUBDRIVER fblinear16_right = {
 	convblit_copy_mask_mono_byte_lsb_16bpp_right,
 	convblit_copy_mask_mono_word_msb_16bpp_right,
 	convblit_blend_mask_alpha_byte_16bpp_right,
+	convblit_copy_rgba8888_16bpp,
 	convblit_srcover_rgba8888_16bpp_right,
 	convblit_copy_rgb888_16bpp_right
 };
@@ -565,6 +568,7 @@ static SUBDRIVER fblinear16_down = {
 	convblit_copy_mask_mono_byte_lsb_16bpp_down,
 	convblit_copy_mask_mono_word_msb_16bpp_down,
 	convblit_blend_mask_alpha_byte_16bpp_down,
+	convblit_copy_rgba8888_16bpp,
 	convblit_srcover_rgba8888_16bpp_down,
 	convblit_copy_rgb888_16bpp_down
 };

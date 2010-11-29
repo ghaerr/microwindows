@@ -1,7 +1,7 @@
-DEPRECATED FILES AND DRIVERS	11/27/2010
+DEPRECATED FILES AND DRIVERS	11/29/2010
 
-After v0.92, the internal drawing model has changed.  Instead
-of allowing screen drivers to implement drawpixel, drawhline,
+After v0.92, the internal drawing model has changed slightly.
+Instead of having screen drivers implement drawpixel, drawhline,
 drawvline etc themselves, the system always uses one of the fblinearXX.c
 drawing routines which draws directly into the framebuffer, or
 when not present, a memory framebuffer that is later updated
@@ -19,7 +19,7 @@ the custom drawline code and adding an Update blit routine,
 similar to the way the X11 scr_x11.c driver was rewritten.
 
 
-DEPRECATED SCREEN DRIVERS
+DEPRECATED SCREEN DRIVERS (moved to src/drivers/deprecated)
 scr_bios.c		- PC BIOS
 scr_djgr.c		- DJGPP GRX Library
 scr_em84xx.c	- Experimental EM8400 driver
@@ -30,15 +30,14 @@ scr_prsm.c		- Isicad Prisma diskless workstation
 scr_smp863x.c	- EM8634 driver (has blit, slight rewrite would make ok)
 scr_svga.c		- SVGA Library
 scr_tc.c		- DOS TurboC BGI Library
-scr_win32.c		- Win32 port, needs rewrite ala X11 driver
 vgaplan4.c		- Direct VGA Access
 memplan4.c		- Direct VGA Access
 elkplan4.c		- Elks OS
 fblin18.c		- 18bpp driver 666 format for ASM PXA270 with 18bit LCD
+fblin32alpha.c	- 32bpp driver, reads/writes DWORD only (replaced by fblin32.c)
 
 
 POSSIBLE OBSOLETE DRIVERS - NEED TESTING/UPDATING
-fblin32alpha.c	- configurable 32bpp ABGR or ARGB, reads/writes DWORD only
 fblin12.c		- 12bpp driver for Cirrus Logic
 fblin4hp.c		- fast 4bpp driver for Vr41xx Palm
 fblin4orion.c	- 4access Communications Orion machines

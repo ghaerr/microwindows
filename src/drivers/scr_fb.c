@@ -50,26 +50,17 @@ static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	gen_fonts,
 	fb_open,
 	fb_close,
-	gen_getscreeninfo,
 	fb_setpalette,
-	NULL,			/* DrawPixel subdriver*/
-	NULL,			/* ReadPixel subdriver*/
-	NULL,			/* DrawHorzLine subdriver*/
-	NULL,			/* DrawVertLine subdriver*/
-	NULL,			/* FillRect subdriver*/
-	gen_fonts,
-	NULL,			/* Blit subdriver*/
-	NULL,			/* PreSelect*/
-	NULL,			/* SetIOPermissions*/
+	gen_getscreeninfo,
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
 	gen_setportrait,
-	0,				/* int portrait */
-	NULL,			/* orgsubdriver */
-	NULL			/* StretchBlitEx subdriver*/
+	NULL,				/* Update*/
+	NULL				/* PreSelect*/
 };
 
 /* framebuffer info defaults for emulator*/
@@ -215,7 +206,7 @@ fb_open(PSD psd)
 #endif
 			break;
 		default:
-			EPRINTF("Unsupported %ld color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
+			EPRINTF("Unsupported %d color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
 			goto fail;
 		}
 	} else 
@@ -224,7 +215,7 @@ fb_open(PSD psd)
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %ld pixtype %d\n", psd->xres, psd->yres,
+	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %d pixtype %d\n", psd->xres, psd->yres,
 		(psd->pixtype == MWPF_TRUECOLOR555)? 15: psd->bpp, psd->linelen, type, visual,
 		psd->ncolors, psd->pixtype);
 

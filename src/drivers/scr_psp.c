@@ -26,33 +26,24 @@ static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 
 static void
-stub_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
+fb_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
 //    pspDebugScreenPrintf("no palette support, oh shit!\n");
 }
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	gen_fonts,
 	fb_open,
 	fb_close,
+	fb_setpalette,
 	gen_getscreeninfo,
-	stub_setpalette,
-	NULL,			/* DrawPixel subdriver*/
-	NULL,			/* ReadPixel subdriver*/
-	NULL,			/* DrawHorzLine subdriver*/
-	NULL,			/* DrawVertLine subdriver*/
-	NULL,			/* FillRect subdriver*/
-	gen_fonts,
-	NULL,			/* Blit subdriver*/
-	NULL,			/* PreSelect*/
-	NULL,			/* SetIOPermissions*/
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
 	gen_setportrait,
-	0,				/* int portrait */
-	NULL,			/* orgsubdriver */
-	NULL 			/* StretchBlitEx subdriver*/
+	NULL,				/* Update*/
+	NULL				/* PreSelect*/
 };
 
 /* init framebuffer*/

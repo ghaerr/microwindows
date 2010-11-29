@@ -278,6 +278,7 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->BlitCopyMaskMonoByteLSB = subdriver->BlitCopyMaskMonoByteLSB;
 	psd->BlitCopyMaskMonoWordMSB = subdriver->BlitCopyMaskMonoWordMSB;
 	psd->BlitBlendMaskAlphaByte  = subdriver->BlitBlendMaskAlphaByte;
+	psd->BlitCopyRGBA8888     = subdriver->BlitCopyRGBA8888;
 	psd->BlitSrcOverRGBA8888     = subdriver->BlitSrcOverRGBA8888;
 	psd->BlitCopyRGB888          = subdriver->BlitCopyRGB888;
 
@@ -303,6 +304,7 @@ get_subdriver(PSD psd, PSUBDRIVER subdriver)
 	subdriver->BlitCopyMaskMonoByteLSB = psd->BlitCopyMaskMonoByteLSB;
 	subdriver->BlitCopyMaskMonoWordMSB = psd->BlitCopyMaskMonoWordMSB;
 	subdriver->BlitBlendMaskAlphaByte  = psd->BlitBlendMaskAlphaByte;
+	subdriver->BlitCopyRGBA8888     = psd->BlitCopyRGBA8888;
 	subdriver->BlitSrcOverRGBA8888     = psd->BlitSrcOverRGBA8888;
 	subdriver->BlitCopyRGB888          = psd->BlitCopyRGB888;
 }

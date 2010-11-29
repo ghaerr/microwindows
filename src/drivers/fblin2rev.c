@@ -237,6 +237,7 @@ static SUBDRIVER fblinear2_none = {
 	NULL,		/* BlitCopyMaskMonoByteLSB*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/
 	NULL,		/* BlitBlendMaskAlphaByte*/
+	NULL,		/* BlitCopyRGBA8888*/
 	NULL,		/* BlitSrcOverRGBA8888*/
 	NULL		/* BlitCopyRGB888*/
 };

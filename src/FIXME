@@ -1,3 +1,4 @@
+add psd->BlitFrameCopy for 16/24/32, rewrite/remove Blit entrypoints to use BLITPARMS
 check 255 alpha required on 8888_8888 copy (from GdBitmap or convblit)
 check slight change in GrReadArea->GrArea using GdBitmap vs convblit (alpha/nxroach)
 	appears that GdBitmap using GdBitmapByPoint isn't writing alpha=255

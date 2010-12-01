@@ -214,9 +214,13 @@ GdBlitInternal(PSD psd, PMWBLITPARMS parms)
 			frameblit_copy_888_888(psd, parms);
 		else if (psd->bpp == 16)
 			frameblit_copy_16bpp_16bpp(psd, parms);
+		else break;
 		return;
 	}
-	printf("GdBlitInternal: no convblit for op %d\n", parms->op);
+
+	printf("GdBlitInternal: no convblit for op %d, using psd->Blit fallback\n", parms->op);
+	psd->Blit(psd, parms->dstx, parms->dsty, parms->width, parms->height,
+		parms->srcpsd, parms->srcx, parms->srcy, parms->op);
 }
 
 /**

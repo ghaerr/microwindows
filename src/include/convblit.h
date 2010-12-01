@@ -78,3 +78,9 @@ void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int 
 
 /* Conversion blit flip y direction 32bpp (upside-down)*/
 void convblit_flipy_8888(PMWBLITPARMS gc);
+
+/* convblit_8888.c*/
+/* framebuffer pixel format blits*/
+void frameblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc);	/* 32bpp*/
+void frameblit_copy_888_888(PSD psd, PMWBLITPARMS gc);		/* 24bpp*/
+void frameblit_copy_16bpp_16bpp(PSD psd, PMWBLITPARMS gc);	/* 16bpp*/

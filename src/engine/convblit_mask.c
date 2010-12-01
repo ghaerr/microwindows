@@ -22,10 +22,10 @@
 #define B		2
 #define A		3
 
-#define NONE	0		/* portrait parm*/
-#define LEFT	1
-#define RIGHT	2
-#define DOWN	3
+#define NONE	MWPORTRAIT_NONE
+#define LEFT	MWPORTRAIT_LEFT
+#define RIGHT	MWPORTRAIT_RIGHT
+#define DOWN	MWPORTRAIT_DOWN
 
 /*
  * Conversion blit to draw 1bpp mono msb/lsb first byte/word bitmap into 8888 image.

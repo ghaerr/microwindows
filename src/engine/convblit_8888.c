@@ -285,3 +285,155 @@ void convblit_copy_16bpp_16bpp(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_8888(psd, gc, COPY, 2, 0,0,0,-1, 2, 0,0,0,-1, psd->portrait);
 }
+
+/* framebuffer pixel format blit - must handle backwards copy, different rotation code*/
+static inline void frameblit_8888(PSD psd, PMWBLITPARMS gc,
+	int SSZ, int SR, int SG, int SB, int SA,
+	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
+{
+	unsigned char *src, *dst;
+	int width, height, tmp;
+	int src_pitch = gc->src_pitch;
+	int dst_pitch = gc->dst_pitch;	/* dst: next line down*/
+	int ssz = SSZ;
+	int dsz = DSZ;					/* dst: next pixel over*/
+
+	/*
+	 * For psd -> psd blits, the orientation between psd's is always
+	 * the same, so the blit move itself doesn't change. Here,
+	 * we just transform the x,y,w,h coordinates to get to the
+	 * the "top left" of the bitmap psd->addr. These rotations
+	 * slightly different than the rotations required for the
+	 * convblits where we actually copy memory differently
+	 * depending on the orientation.
+	 */
+	switch (PORTRAIT) {
+	case LEFT:
+		// X = Y
+		// Y = xmax - X - W
+		// W = H
+		// H = W
+		tmp = gc->dsty;
+		gc->dsty = psd->xvirtres - gc->dstx - gc->width;
+		gc->dstx = tmp;
+
+		tmp = gc->srcy;
+		gc->srcy = gc->srcpsd->xvirtres - gc->srcx - gc->width;
+		gc->srcx = tmp;
+
+		tmp = gc->width;
+		gc->width = gc->height;
+		gc->height = tmp;
+		break;
+
+	case RIGHT:
+		// X = ymax - Y - H
+		// Y = X
+		// W = H
+		// H = W
+		tmp = gc->dstx;
+		gc->dstx = psd->yvirtres - gc->dsty - gc->height;
+		gc->dsty = tmp;
+
+		tmp = gc->srcx;
+		gc->srcx = gc->srcpsd->yvirtres - gc->srcy - gc->height;
+		gc->srcy = tmp;
+
+		tmp = gc->width;
+		gc->width = gc->height;
+		gc->height = tmp;
+		break;
+
+	case DOWN:
+		// X = xmax - X - W
+		// Y = ymax - Y - H
+		gc->dstx = psd->xvirtres - gc->dstx - gc->width;
+		gc->dsty = psd->yvirtres - gc->dsty - gc->height;
+
+		gc->srcx = gc->srcpsd->xvirtres - gc->srcx - gc->width;
+		gc->srcy = gc->srcpsd->yvirtres - gc->srcy - gc->height;
+		break;
+	}
+
+	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
+	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;
+
+	width = gc->width;
+	height = gc->height;
+
+	/* check for backwards copy if dst in src rect, in same psd*/
+	if (gc->data == gc->data_out)
+	{
+		if (gc->srcy < gc->dsty)
+		{
+			/* copy from bottom upwards*/
+			src += (height - 1) * gc->src_pitch;
+			dst += (height - 1) * gc->dst_pitch;
+			src_pitch = -src_pitch;
+			dst_pitch = -dst_pitch;
+		}
+		if (gc->srcx < gc->dstx)
+		{
+			/* copy from right to left*/
+			src += (width - 1) * SSZ;
+			dst += (width - 1) * DSZ;
+			ssz = -ssz;
+			dsz = -dsz;
+		}
+	}
+
+	DRAWON;
+	while (--height >= 0)
+	{
+		register unsigned char *d = dst;
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* inline implementation will optimize out all compares in inner loop*/
+			if (DSZ == 2)
+			{
+				if (SSZ == 2)
+					((unsigned short *)d)[0] = ((unsigned short *)s)[0];
+				else
+					((unsigned short *)d)[0] = RGB2PIXEL(s[SR], s[SG], s[SB]);
+			}
+			else
+			{
+				if (DA >= 0)
+					d[DA] = (SA >= 0)? s[SA]: 255;
+				d[DR] = s[SR];
+				d[DG] = s[SG];
+				d[DB] = s[SB];
+			}
+			d += dsz;
+			s += ssz;
+		}
+		src += src_pitch;
+		dst += dst_pitch;
+	}
+	DRAWOFF;
+
+	/* update screen bits if driver requires it*/
+	if (psd->Update)
+		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
+}
+
+/* framebuffer pixel format copy blit - 32bpp*/
+void frameblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc)
+{
+	frameblit_8888(psd, gc, 4, R,G,B,A, 4, R,G,B,A, psd->portrait);
+}
+
+/* framebuffer pixel format copy blit - 24bpp*/
+void frameblit_copy_888_888(PSD psd, PMWBLITPARMS gc)
+{
+	frameblit_8888(psd, gc, 3, R,G,B,-1, 3, R,G,B,-1, psd->portrait);
+}
+
+/* framebuffer pixel format copy blit - 16bpp*/
+void frameblit_copy_16bpp_16bpp(PSD psd, PMWBLITPARMS gc)
+{
+	frameblit_8888(psd, gc, 2, 0,0,0,-1, 2, 0,0,0,-1, psd->portrait);
+}

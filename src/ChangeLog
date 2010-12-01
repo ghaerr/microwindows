@@ -1,4 +1,6 @@
 29 Nov 2010
+	* rewrote GdBlit to use frameblit_copy rather than old format psd->Blit
+	* added framebuffer frameblit_copy, copies backwards if required, used in GdBlit MWROP_COPY
 	* combined portrait blits for rgba/rgb/mono, added rgba output for psp
 	* cleaned up SCREENDEV struct, deprecated many screen drivers (see src/DEPRECATED)
 	* added copy convblits for 32bpp rgba (GdArea MWPF_RGB)

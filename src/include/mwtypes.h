@@ -446,6 +446,9 @@ typedef struct {
 	void *		data_out;		/* output image from conversion blits subroutines*/
 	MWCOORD		dst_pitch;		/* dest row length in bytes*/
 
+	/* these item used only in hwfmt blits*/
+	PSD			srcpsd;			/* src psd, required for srcpsd->virtres*/
+
 //	uint32_t	transcolor;		/* trans color for MWROP_SRCTRANSCOPY*/
 //	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
 } MWBLITPARMS, *PMWBLITPARMS;

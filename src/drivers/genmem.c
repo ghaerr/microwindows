@@ -75,7 +75,7 @@ int
 GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 	int bpp, int *psize, int *plinelen, int *ppitch)
 {
-	int	bytelen, linelen, tmp;
+	int	bytelen, linelen;
 
 	if(!planes)
 		planes = psd->planes;
@@ -86,7 +86,7 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 	 * so imagesize is calculated properly
 	 */
 	if(psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
-		tmp = width;
+		int tmp = width;
 		width = height;
 		height = tmp;
 	}

@@ -33,7 +33,6 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 	MWCOORD width = gc->width;
 	MWCOORD height = gc->height;
 	MWCOORD srcx, srcy;
-	MWCOORD rx1, rx2, ry1, ry2, rw, rh;
 	int count;
 #if DYNAMICREGIONS
 	MWRECT *prc;
@@ -68,14 +67,14 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 #endif
 
 	while (count-- > 0) {
+		MWCOORD rx1, rx2, ry1, ry2, rw, rh;
 #if DYNAMICREGIONS
 		rx1 = prc->left;
 		ry1 = prc->top;
 		rx2 = prc->right;
 		ry2 = prc->bottom;
 #else
-		/* old clip-code*/
-		rx1 = prc->x;
+		rx1 = prc->x;		/* old clip-code*/
 		ry1 = prc->y;
 		rx2 = prc->x + prc->width;
 		ry2 = prc->y + prc->height;
@@ -203,6 +202,23 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 	DPRINTF("GdConversionBlit: No convblit available\n");
 }
 
+/* select appropriate framebuffer pixel format blit based on rop*/
+static void
+GdBlitInternal(PSD psd, PMWBLITPARMS parms)
+{
+	switch (parms->op) {
+	case MWROP_COPY:
+		if (psd->bpp == 32)
+			frameblit_copy_8888_8888(psd, parms);
+		else if (psd->bpp == 24)
+			frameblit_copy_888_888(psd, parms);
+		else if (psd->bpp == 16)
+			frameblit_copy_16bpp_16bpp(psd, parms);
+		return;
+	}
+	printf("GdBlitInternal: no convblit for op %d\n", parms->op);
+}
+
 /**
  * Copy source rectangle of pixels to destination rectangle quickly
  *
@@ -220,27 +236,30 @@ void
 GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int32_t rop)
 {
-	int rx1, rx2, ry1, ry2;
-	int px1, px2, py1, py2;
-	int pw, ph;
-	int count;
+	int			count;
+	MWBLITPARMS parms;
 #if DYNAMICREGIONS
 	MWRECT *	prc;
 	extern MWCLIPREGION *clipregion;
 #else
-	MWCLIPRECT *	prc;
+	MWCLIPRECT *prc;
 	extern MWCLIPRECT cliprects[];
-	extern int clipcount;
+	extern int	clipcount;
 #endif
 
-	/*FIXME: compare bpp's and convert if necessary*/
-	assert(dstpsd->planes == srcpsd->planes);
-	assert(dstpsd->bpp == srcpsd->bpp);
-
-	/* temporary assert() until rotation blits completed*/
+	/* source and dest pixmaps must be same format and rotation*/
+	assert(dstpsd->data_format == srcpsd->data_format);
 	assert(dstpsd->portrait == srcpsd->portrait);
 	
-//printf("GdBlit %d,%d %d,%d\n", dstx, dsty, width, height);
+	/* invariant blit parameters*/
+	parms.op = rop;
+	parms.data_format = dstpsd->data_format;
+	parms.data = srcpsd->addr;
+	parms.src_pitch = srcpsd->pitch;
+	parms.data_out = dstpsd->addr;
+	parms.dst_pitch = dstpsd->pitch;
+	parms.srcpsd = srcpsd;
+
 	/* clip blit rectangle to source screen/bitmap size*/
 	/* we must do this because there isn't any source clipping setup*/
 	if(srcx < 0) {
@@ -258,13 +277,21 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	if(srcy+height > srcpsd->yvirtres)
 		height = srcpsd->yvirtres - srcy;
 
+if (srcpsd != dstpsd) printf("GdBlit: SRCPSD != DSTPSD\n");
 	switch(GdClipArea(dstpsd, dstx, dsty, dstx+width-1, dsty+height-1)) {
 	case CLIP_VISIBLE:
 		/* check cursor in src region of both screen devices*/
 		GdCheckCursor(dstpsd, srcx, srcy, srcx+width-1, srcy+height-1);
 		if (dstpsd != srcpsd)
 			GdCheckCursor(srcpsd, srcx, srcy, srcx+width-1, srcy+height-1);
-		dstpsd->Blit(dstpsd, dstx, dsty, width, height, srcpsd, srcx, srcy, rop);
+		parms.width = width;
+		parms.height = height;
+		parms.srcx = srcx;
+		parms.srcy = srcy;
+		parms.dstx = dstx;
+		parms.dsty = dsty;
+		GdBlitInternal(dstpsd, &parms);
+		//dstpsd->Blit(dstpsd, dstx, dsty, width, height, srcpsd, srcx, srcy, rop);
 		GdFixCursor(dstpsd);
 		if (dstpsd != srcpsd)
 			GdFixCursor(srcpsd);
@@ -288,6 +315,9 @@ printf("GdBlit invis\n");
 	count = clipcount;
 #endif
 	while(--count >= 0) {
+		int rx1, rx2, ry1, ry2;
+		int px1, px2, py1, py2;
+		int pw, ph;
 #if DYNAMICREGIONS
 		rx1 = prc->left;
 		ry1 = prc->top;
@@ -313,10 +343,17 @@ printf("GdBlit invis\n");
 		ph = py2 - py1;
 		if(pw > 0 && ph > 0) {
 			/* check cursor in dest and src regions*/
+			//FIXME check cursor in single block once
 			GdCheckCursor(dstpsd, px1, py1, px2-1, py2-1);
 			GdCheckCursor(dstpsd, srcx, srcy, srcx+width, srcy+height);
-			dstpsd->Blit(dstpsd, px1, py1, pw, ph, srcpsd,
-				srcx + (px1-dstx), srcy + (py1-dsty), rop);
+			parms.width = pw;
+			parms.height = ph;
+			parms.srcx = srcx + (px1 - dstx);
+			parms.srcy = srcy + (py1 - dsty);
+			parms.dstx = px1;
+			parms.dsty = py1;
+			GdBlitInternal(dstpsd, &parms);
+			//dstpsd->Blit(dstpsd, px1, py1, pw, ph, srcpsd, srcx + (px1-dstx), srcy + (py1-dsty), rop);
 		}
 		++prc;
 	}
@@ -531,16 +568,14 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 
 	/* Used by the clipping code. */
 #if DYNAMICREGIONS
-	int count;
-	MWRECT *prc;
-
+	int 		count;
+	MWRECT *	prc;
 	extern MWCLIPREGION *clipregion;
 #else
-	int count;
+	int 		count;
 	MWCLIPRECT *prc;
-
 	extern MWCLIPRECT cliprects[];
-	extern int clipcount;
+	extern int	clipcount;
 #endif
 
 	assert(srcpsd);
@@ -617,8 +652,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 	/* Clip the image so that the destination X co-ordinates
 	 * in c1_x and c2_x map to a point on the source image.
 	 */
-	if ((s1_x < 0) || (s1_x > srcpsd->xvirtres)
-	    || (s2_x < 0) || (s2_x > srcpsd->xvirtres)) {
+	if ((s1_x < 0) || (s1_x > srcpsd->xvirtres) || (s2_x < 0) || (s2_x > srcpsd->xvirtres)) {
 		/* Calculate where the left of the source image will end up,
 		 * in dest co-ordinates.
 		 */
@@ -627,8 +661,9 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		/* Calculate where the right of the source image will end up,
 		 * in dest co-ordinates.
 		 */
-		int i2_x = d1_x + ((srcpsd->xvirtres - s1_x) * src_x_step_denominator + src_x_step_denominator - 1)
-			/ src_x_step_numerator;
+		int i2_x = d1_x +
+			((srcpsd->xvirtres - s1_x) * src_x_step_denominator + src_x_step_denominator - 1)
+				/ src_x_step_numerator;
 
 		/* Since we may be doing a flip, "left" and "right" in the statements
 		 * above do not necessarily correspond to "left" and "right" in the
@@ -648,17 +683,14 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		}
 
 		/* Perform partial clip */
-		if (c1_x < i1_x)
-			c1_x = i1_x;
-		if (c2_x > i2_x)
-			c2_x = i2_x;
+		if (c1_x < i1_x) c1_x = i1_x;
+		if (c2_x > i2_x) c2_x = i2_x;
 	}
 
 	/* Clip the image so that the destination Y co-ordinates
 	 * in c1_y and c2_y map to a point on the source image.
 	 */
-	if ((s1_y < 0) || (s1_y > srcpsd->yvirtres)
-	    || (s2_y < 0) || (s2_y > srcpsd->yvirtres)) {
+	if ((s1_y < 0) || (s1_y > srcpsd->yvirtres) || (s2_y < 0) || (s2_y > srcpsd->yvirtres)) {
 		/* Calculate where the top of the source image will end up,
 		 * in dest co-ordinates.
 		 */
@@ -667,8 +699,9 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		/* Calculate where the bottom of the source image will end up,
 		 * in dest co-ordinates.
 		 */
-		int i2_y = d1_y + ((srcpsd->yvirtres - s1_y) * src_y_step_denominator + src_y_step_denominator - 1)
-			/ src_y_step_numerator;
+		int i2_y = d1_y + 
+			((srcpsd->yvirtres - s1_y) * src_y_step_denominator + src_y_step_denominator - 1)
+				/ src_y_step_numerator;
 
 		/* Since we may be doing a flip, "top" and bottom" in the statements
 		 * above do not necessarily correspond to "top" and bottom" in the
@@ -688,24 +721,18 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 		}
 
 		/* Perform partial clip */
-		if (c1_y < i1_y)
-			c1_y = i1_y;
-		if (c2_y > i2_y)
-			c2_y = i2_y;
+		if (c1_y < i1_y) c1_y = i1_y;
+		if (c2_y > i2_y) c2_y = i2_y;
 	}
 
 	/* Clip against dest window (NOT dest clipping region). */
-	if (c1_x < 0)
-		c1_x = 0;
-	if (c1_y < 0)
-		c1_y = 0;
-	if (c2_x > dstpsd->xvirtres)
-		c2_x = dstpsd->xvirtres;
-	if (c2_y > dstpsd->yvirtres)
-		c2_y = dstpsd->yvirtres;
+	if (c1_x < 0) c1_x = 0;
+	if (c1_y < 0) c1_y = 0;
+	if (c2_x > dstpsd->xvirtres) c2_x = dstpsd->xvirtres;
+	if (c2_y > dstpsd->yvirtres) c2_y = dstpsd->yvirtres;
 
 	/* Final fully-offscreen check */
-	if ((c1_x >= c2_x) || (c1_y >= c2_y)) {
+	if (c1_x >= c2_x || c1_y >= c2_y) {
 		/* DPRINTF("Nano-X: GdStretchBlitEx: CLIPPED OFF (final check)\n"); */
 		return;
 	}
@@ -769,7 +796,6 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 #endif
 	while (--count >= 0) {
 		int r1_x, r2_x, r1_y, r2_y;
-
 #if DYNAMICREGIONS
 		r1_x = prc->left;
 		r1_y = prc->top;
@@ -784,16 +810,12 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
 
 		/* Check:  does this rect intersect the one we want to draw? */
 		/* Clip r1-r2 so it's inside c1-c2 */
-		if (r1_x < c1_x)
-			r1_x = c1_x;
-		if (r1_y < c1_y)
-			r1_y = c1_y;
-		if (r2_x > c2_x)
-			r2_x = c2_x;
-		if (r2_y > c2_y)
-			r2_y = c2_y;
+		if (r1_x < c1_x) r1_x = c1_x;
+		if (r1_y < c1_y) r1_y = c1_y;
+		if (r2_x > c2_x) r2_x = c2_x;
+		if (r2_y > c2_y) r2_y = c2_y;
 
-		if ((r1_x < r2_x) && (r1_y < r2_y)) {
+		if (r1_x < r2_x && r1_y < r2_y) {
 			/* So we're drawing to:
 			 * destination rectangle (r1_x, r1_y) - (r2_x, r2_y)
 			 * source start co-ords:

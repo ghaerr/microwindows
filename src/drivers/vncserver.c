@@ -62,11 +62,6 @@ static void	 (*_FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
                 MWCOORD y2,MWPIXELVAL c);
 static void	 (*_Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
                 MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
-//static void	 (*_DrawArea)(PSD psd, driver_gc_t *gc);
-static void  (*_StretchBlitEx)(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
-				MWCOORD width, int height, int x_denominator, int y_denominator,
-				int src_x_fraction, int src_y_fraction,
-				int x_step_fraction, int y_step_fraction, long op);
 
 static void UndrawCursor(void)
 {
@@ -141,6 +136,8 @@ static void stubBlit( PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w,
                 MarkRect( destx, desty, destx + w, desty + h );
 
 }
+
+#if 0
 static void stubStretchBlitEx(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
 	MWCOORD width, int height, int x_denominator, int y_denominator,
 	int src_x_fraction, int src_y_fraction,
@@ -153,7 +150,8 @@ static void stubStretchBlitEx(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int 
         if ( dstpsd == actualpsd )
                 MarkRect( dest_x_start, dest_y_start, dest_x_start + width, dest_y_start + height );
 }
-        
+#endif
+
 static void clientgone(rfbClientPtr cl)
 {
         clients_connected--;
@@ -562,7 +560,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    _FillRect = psd->FillRect;
    _Blit = psd->Blit;
 //   _DrawArea = psd->DrawArea;
-   _StretchBlitEx = psd->StretchBlitEx;
+//   _StretchBlitEx = psd->StretchBlitEx;
    
 
    /* Set the screen driver drawing functions to vnc stubs */

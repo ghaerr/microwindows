@@ -25,7 +25,7 @@ static void do_exposure(GR_EVENT_EXPOSURE *event)
 {
 	/* The window has been exposed so redraw it */
 #ifdef USE_PIXMAPS
-	GrCopyArea(window, gc, 0, 0, width, height, pmap, 0, 0, MWROP_SRCCOPY);
+	GrCopyArea(window, gc, 0, 0, width, height, pmap, 0, 0, MWROP_COPY);
 #else
 	GrArea(window, gc, 0, 0, width, height, data, MWPF_RGB);
 #endif
@@ -139,8 +139,7 @@ int main(int argc, char *argv[])
 
 #ifdef USE_PIXMAPS
 	/* Paint the pixmap onto it */
-	GrCopyArea(window, gc, 0, 0, width, height, pmap, 0, 0,
-							MWROP_SRCCOPY);
+	GrCopyArea(window, gc, 0, 0, width, height, pmap, 0, 0, MWROP_COPY);
 #else
 	GrArea(window, gc, 0, 0, width, height, data, MWPF_RGB);
 #endif

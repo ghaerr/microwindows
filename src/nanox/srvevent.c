@@ -366,7 +366,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 			{
 				tempmask = GR_EVENT_MASK_BUTTON_UP;
 				if (ecp->eventmask & tempmask) {
-					DPRINTF("nano-X: implicit grab on window %d\n", wp->id);
+					//DPRINTF("nano-X: implicit grab on window %d\n", wp->id);
 					grabbuttonwp = wp;
 				}
 			}
@@ -395,7 +395,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 		 */
 		if (grabbuttonwp) {
 			if (buttons == 0) {
-				DPRINTF("nano-X: implicit ungrab on window %d\n", grabbuttonwp->id);
+				//DPRINTF("nano-X: implicit ungrab on window %d\n", grabbuttonwp->id);
 				grabbuttonwp = NULL;
 				GrMoveCursor(cursorx, cursory);
 			}

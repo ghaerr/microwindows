@@ -49,12 +49,7 @@ static void	null_fillrect(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,
 			MWCOORD y2,MWPIXELVAL c) {}
 static void	null_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,
-			long op) {}
-static void	null_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start,
-			MWCOORD dest_y_start, MWCOORD width, MWCOORD height,
-			int x_denominator, int y_denominator,
-			int src_x_fraction, int src_y_fraction,
-			int x_step_fraction, int y_step_fraction, long op) {}
+			int op) {}
 static void null_convblit(PSD psd, PMWBLITPARMS parms) {}
 
 static SUBDRIVER nulldriver = {
@@ -65,7 +60,8 @@ static SUBDRIVER nulldriver = {
 	null_drawvertline,
 	null_fillrect,
 	null_blit,
-	null_stretchblitex,
+	null_convblit,
+	null_convblit,
 	null_convblit,
 	null_convblit,
 	null_convblit,

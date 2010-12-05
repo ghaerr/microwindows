@@ -36,7 +36,7 @@
 #define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
 #define XRES				640			/* default fb emulator xres*/
 #define YRES				480			/* default fb emulator yres*/
-#define BPP					32			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
+#define BPP					1			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
 
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 

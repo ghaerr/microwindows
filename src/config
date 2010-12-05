@@ -250,8 +250,8 @@ FRAMEBUFFER              = N
 # X11 startup screen width, height, (depth for palette mode only)
 # USE_EXPOSURE=Y for XFree86 4.x or if your backing store not working
 X11                      = Y
-SCREEN_WIDTH             = 800
-SCREEN_HEIGHT            = 600
+SCREEN_WIDTH             = 810
+SCREEN_HEIGHT            = 640
 SCREEN_DEPTH             = 8
 USE_EXPOSURE             = Y
 

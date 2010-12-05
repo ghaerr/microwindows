@@ -71,27 +71,11 @@ void
 fbportrait_left_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 	PSD srcpsd, MWCOORD srcx,MWCOORD srcy,int op)
 {
-	dstpsd->orgsubdriver->Blit(dstpsd, desty, dstpsd->xvirtres-destx-w,
+	dstpsd->orgsubdriver->BlitFallback(dstpsd, desty, dstpsd->xvirtres-destx-w,
 		h, w, srcpsd, srcy, srcpsd->xvirtres-srcx-w, op);
 }
 
 void
-fbportrait_left_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
-	MWCOORD width, int height, int x_denominator, int y_denominator,
-	int src_x_fraction, int src_y_fraction,
-	int x_step_fraction, int y_step_fraction, int op)
-{ 
-	// X -> Y
- 	// Y -> maxx - X - w
-	dstpsd->orgsubdriver->StretchBlitEx(dstpsd, srcpsd,
-		dest_y_start, dstpsd->xvirtres - dest_x_start - width,
-		height, width, y_denominator, x_denominator,
-		src_y_fraction, srcpsd->xvirtres - src_x_fraction - width,
-		y_step_fraction, x_step_fraction,
-		op);
-}
-
-static void
 fbportrait_left_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 {
 	ADDR8 alpha_in, alpha_out;
@@ -145,7 +129,7 @@ fbportrait_left_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 	FREEA(l_gc.data);
 }
 
-static void
+void
 fbportrait_left_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
@@ -201,7 +185,7 @@ fbportrait_left_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	FREEA(l_gc.data);
 }
 
-static void
+void
 fbportrait_left_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
@@ -265,7 +249,8 @@ SUBDRIVER fbportrait_left = {
 	fbportrait_left_drawvertline,
 	fbportrait_left_fillrect,
 	fbportrait_left_blit,
-	fbportrait_left_stretchblitex,
+	NULL,		/* FrameBlit*/
+	NULL,		/* FrameStretchBlit*/
 	fbportrait_left_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
 	fbportrait_left_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/

@@ -72,28 +72,12 @@ void
 fbportrait_down_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
-    dstpsd->orgsubdriver->Blit(dstpsd, dstpsd->xvirtres-destx-w, dstpsd->yvirtres-desty-h,   
+    dstpsd->orgsubdriver->BlitFallback(dstpsd, dstpsd->xvirtres-destx-w, dstpsd->yvirtres-desty-h,   
  		w, h, srcpsd, srcpsd->xvirtres-srcx-w, srcpsd->yvirtres-srcy-h, op);  
 
 }
 
 void
-fbportrait_down_stretchblitex(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
-	MWCOORD width, int height, int x_denominator, int y_denominator,
-	int src_x_fraction, int src_y_fraction,
-	int x_step_fraction, int y_step_fraction, int op)
-{ 
-	// X -> xmax - X - w
-	// Y -> ymax - Y - h
-	dstpsd->orgsubdriver->StretchBlitEx(dstpsd, srcpsd,
-		dstpsd->xvirtres - dest_x_start - width, dstpsd->yvirtres - dest_y_start - height,
-		width, height, x_denominator, y_denominator,
-		srcpsd->xvirtres - src_x_fraction - width, srcpsd->yvirtres - src_y_fraction - height,
-		x_step_fraction, y_step_fraction,
-		op);
-}
-
-static void
 fbportrait_down_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 {
 	ADDR8 alpha_in, alpha_out;
@@ -146,7 +130,7 @@ fbportrait_down_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 	FREEA(l_gc.data);
 }
 
-static void
+void
 fbportrait_down_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
@@ -202,7 +186,7 @@ fbportrait_down_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	FREEA(l_gc.data);
 }
 
-static void
+void
 fbportrait_down_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
@@ -266,7 +250,8 @@ SUBDRIVER fbportrait_down = {
 	fbportrait_down_drawvertline,
 	fbportrait_down_fillrect,
 	fbportrait_down_blit,
-	fbportrait_down_stretchblitex,
+	NULL,		/* FrameBlit*/
+	NULL,		/* FrameStretchBlit*/
 	fbportrait_down_convblit_copy_mask_mono_byte_msb,	/* FT2 non-alias*/
 	fbportrait_down_convblit_copy_mask_mono_byte_lsb,	/* T1LIB non-alias*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/

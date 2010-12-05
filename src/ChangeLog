@@ -1,5 +1,16 @@
+4 Dec 2010
+	* added FrameBlit and FrameStretchBlit subdriver framebuffer blits
+	* removed Blit from fblin32/24/16/8 subdrivers, renamed driver proc BlitFallback
+	* rewrote APPLYOP for speed, optimized fblin32/24/16/8 pixel/hline/vline drawing
+	* MWROP_BLENDCONSTANT supported in 16/24/32bpp frameblit only (was 8/16/24/32bpp)
+	* frameblit src_over supported in 32bpp only, otherwise copy
+	* rewrote GdStretchBlitEx upper/lower layers to use frameblit_stretch_xxxx
+	* removed StretchBlitEx from subdrivers
+	* background pixmap draw now uses SRC_OVER, added SRC_OVER/XOR_FGBG to GdStretchBlit/GdBlit
+	* fix bug in 24bpp stretchblit (dst_y_step = dstpsd->linelen*3), needs fix in 0.92
+	* deprecated MWROP_SRCCOPY, use MWROP_COPY
 29 Nov 2010
-	* rewrote GdBlit to use frameblit_copy rather than old format psd->Blit
+	* rewrote GdBlit to use frameblit_xxxx rather than old format psd->Blit
 	* added framebuffer frameblit_copy, copies backwards if required, used in GdBlit MWROP_COPY
 	* combined portrait blits for rgba/rgb/mono, added rgba output for psp
 	* cleaned up SCREENDEV struct, deprecated many screen drivers (see src/DEPRECATED)
@@ -79,7 +90,7 @@
 	* added GdConvBlitInternal path from GdDrawImage for very fast image blitting (32bpp hw only)
 		if image decoder uses MWIF_ image format then GdConversionBlit/GdConvBlitInternal used
 		otherwise emulated with old GdDrawImage routine pixel by pixel
-11 June 2010 (Version 0.92)
+Version 0.92 - 11 June 2010 - greg@censoft.com
 	* fix freetype 2 off-by-one height bug (ascent + descent != height)
 10 June 2010
 	* added capabilities flag word in font subdriver for h/w scaling

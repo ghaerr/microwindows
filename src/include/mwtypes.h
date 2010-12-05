@@ -106,11 +106,12 @@
 #define MWIF_ALPHABYTE		(MWIF_8BPP | MWIF_ALPHA| MWIF_BYTEDATA)
 
 /* color formats*/
-#define MWIF_BGRA8888		0x00010000L		/* 32bpp BGRA image byte order (old TRUECOLOR8888)*/
-#define MWIF_ARGB8888		0x00020000L		/* 32bpp ARGB image byte order (new)*/
-#define MWIF_RGBA8888		0x00030000L		/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
-//#define MWIF_ABGR8888		0x00040000L		/* 32bpp ABGR image byte order (new)*/
-//#define MWIF_BGRX8888		0x00050000L		/* 32bpp BGR image order no alpha (new)*/
+#define MWIF_HASALPHA		MWIF_ALPHA		/* value used below in alpha formats*/
+#define MWIF_BGRA8888		0x00010080L		/* 32bpp BGRA image byte order (old TRUECOLOR8888)*/
+#define MWIF_RGBA8888		0x00020080L		/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
+//#define MWIF_ARGB8888		0x00030080L		/* 32bpp ARGB image byte order (new)*/
+//#define MWIF_ABGR8888		0x00040080L		/* 32bpp ABGR image byte order (new)*/
+//#define MWIF_BGRX8888		0x00050080L		/* 32bpp BGRX image order no alpha (new)*/
 #define MWIF_BGR888			0x00060000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
 #define MWIF_RGB888			0x00070000L		/* 24bpp RGB image byte order  (png no alpha)*/
 #define MWIF_RGB565			0x00080000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
@@ -185,7 +186,7 @@
 
 #define MWROP_USE_GC_MODE		255 /* use current GC mode for ROP.  Nano-X CopyArea only*/
 
-#define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
+//#define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
 //#define MWROP_SRCAND		MWROP_AND	/* obsolete*/
 //#define MWROP_SRCINVERT	MWROP_XOR	/* obsolete*/
 //#define MWROP_BLACKNESS   MWROP_CLEAR	/* obsolete*/
@@ -434,7 +435,7 @@ typedef struct {
 	MWCOORD		width, height;	/* width and height for src and dest*/
 	MWCOORD		dstx, dsty;		/* dest x, y*/
 	MWCOORD		srcx, srcy;		/* source x, y*/
-	int			src_pitch;		/* source row length in bytes*/
+	MWCOORD		src_pitch;		/* source row length in bytes*/
 	MWCOLORVAL	fg_colorval;	/* fg color, MWCOLORVAL 0xAARRGGBB format*/
 	MWCOLORVAL	bg_colorval;
 	uint32_t	fg_pixelval;	/* fg color, hw pixel format*/
@@ -446,8 +447,20 @@ typedef struct {
 	void *		data_out;		/* output image from conversion blits subroutines*/
 	MWCOORD		dst_pitch;		/* dest row length in bytes*/
 
-	/* these item used only in hwfmt blits*/
+	/* this item used only in frame blits*/
 	PSD			srcpsd;			/* src psd, required for srcpsd->virtres*/
+
+	/* these items only used in stretch frame blits*/
+	int			src_x_step;		/* normal steps in source image*/
+	int			src_y_step;
+	int			src_x_step_one;	/* 1-unit steps in source image*/
+	int			src_y_step_one;
+	int			err_x_step;		/* 1-unit error steps in source image*/
+	int			err_y_step;
+	int			err_y;			/* source coordinate error tracking*/
+	int			err_x;
+	int			x_denominator;
+	int			y_denominator;
 
 //	uint32_t	transcolor;		/* trans color for MWROP_SRCTRANSCOPY*/
 //	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
@@ -970,11 +983,17 @@ typedef struct {
 #define RED2PIXEL(byte)		RED2PIXEL555(byte)
 #define GREEN2PIXEL(byte)	GREEN2PIXEL555(byte)
 #define BLUE2PIXEL(byte)	BLUE2PIXEL555(byte)
+#define REDMASK(pixel)		((pixel) & 0x7c00)
+#define GREENMASK(pixel)	((pixel) & 0x03e0)
+#define BLUEMASK(pixel)		((pixel) & 0x001f)
 #else
 #define muldiv255_16bpp		muldiv255_rgb565
 #define RED2PIXEL(byte)		RED2PIXEL565(byte)
 #define GREEN2PIXEL(byte)	GREEN2PIXEL565(byte)
 #define BLUE2PIXEL(byte)	BLUE2PIXEL565(byte)
+#define REDMASK(pixel)		((pixel) & 0xf800)
+#define GREENMASK(pixel)	((pixel) & 0x07e0)
+#define BLUEMASK(pixel)		((pixel) & 0x001f)
 #endif
 
 /*

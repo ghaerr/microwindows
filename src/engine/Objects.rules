@@ -20,6 +20,7 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/engine/devblit.o \
 	$(MW_DIR_OBJ)/engine/convblit_8888.o \
 	$(MW_DIR_OBJ)/engine/convblit_mask.o \
+	$(MW_DIR_OBJ)/engine/convblit_frameb.o \
 	$(MW_DIR_OBJ)/engine/devfont.o \
 	$(MW_DIR_OBJ)/engine/devmouse.o \
 	$(MW_DIR_OBJ)/engine/devkbd.o \

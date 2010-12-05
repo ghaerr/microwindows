@@ -394,11 +394,11 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 						((unsigned short *)d)[0] = RGB2PIXEL(bg_r, bg_g, bg_b);
 					else
 					{
-						if (DA >= 0)
-							d[DA] = bg_a;
 						d[DR] = bg_r;
 						d[DG] = bg_g;
 						d[DB] = bg_b;
+						if (DA >= 0)
+							d[DA] = bg_a;
 					}
 				} 
 			}
@@ -408,11 +408,11 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 					((unsigned short *)d)[0] = RGB2PIXEL(fg_r, fg_g, fg_b);
 				else
 				{
-					if (DA >= 0)
-						d[DA] = fg_a;
 					d[DR] = fg_r;
 					d[DG] = fg_g;
 					d[DB] = fg_b;
+					if (DA >= 0)
+						d[DA] = fg_a;
 				}
 			}
 			else									/* blend source w/dest or passed bg*/
@@ -430,14 +430,14 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 					}
 					else
 					{
- 						/*d = muldiv255(a, 255 - d) + d*/
-						if (DA >= 0)
-							d[DA] = muldiv255(alpha, 255 - bg_a) + bg_a;
-
  						/* d = muldiv255(a, s - d) + d*/
 						d[DR] = muldiv255(alpha, fg_r - bg_r) + bg_r;
 						d[DG] = muldiv255(alpha, fg_g - bg_g) + bg_g;
 						d[DB] = muldiv255(alpha, fg_b - bg_b) + bg_b;
+
+ 						/*d = muldiv255(a, 255 - d) + d*/
+						if (DA >= 0)
+							d[DA] = muldiv255(alpha, 255 - bg_a) + bg_a;
 					}
 				}
 				else
@@ -449,7 +449,8 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 						alpha = 255 - alpha + 1; /* flip alpha then add 1 (see muldiv255)*/
 
 						/* d = muldiv255(255-a, d - s) + s*/
-						((unsigned short *)d)[0] = muldiv255_16bpp(((unsigned short *)d)[0], sr, sg, sb, alpha);
+						((unsigned short *)d)[0] =
+							muldiv255_16bpp(((unsigned short *)d)[0], sr, sg, sb, alpha);
 					}
 					else
 					{

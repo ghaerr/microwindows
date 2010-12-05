@@ -147,7 +147,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	i;
 	int	dlinelen = dstpsd->linelen;
 	int	slinelen = srcpsd->linelen;
-
+#if DEBUG
 	assert (dstpsd->addr != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -160,7 +160,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (dsty+h <= dstpsd->yres);
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
-
+#endif
 	DRAWON;
 	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
 	src = ((ADDR8)srcpsd->addr) + (srcx>>1) + srcy * slinelen;
@@ -414,7 +414,8 @@ static SUBDRIVER fblinear4_none = {
 	linear4_drawvertline,
 	gen_fillrect,
 	linear4_blit,
-	NULL,		/* StretchBlitEx*/
+	NULL,		/* FrameBlit*/
+	NULL,		/* FrameStretchBlit*/
 	linear4_convblit_copy_mask_mono_byte_msb,
 	NULL,		/* BlitCopyMaskMonoByteLSB*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/

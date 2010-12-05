@@ -651,3 +651,46 @@ GdCaptureScreen(char *path)
 	return 0;
 }
 #endif /* !VXWORKS*/
+
+#if DEBUG
+void GdPrintBitmap(PMWBLITPARMS gc, int SSZ)
+{
+	unsigned char *src;
+	int height;
+	unsigned int v;
+
+	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
+
+	printf("Image %d,%d SSZ %d\n", gc->width, gc->height, SSZ);
+	height = gc->height;
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = gc->width;
+
+		while (--w >= 0)
+		{
+			switch (SSZ) {
+			case 2:
+				v = s[0] | (s[1] << 8);
+				v = PIXEL565RED(v) + PIXEL565GREEN(v) + PIXEL565BLUE(v);
+				printf("%c", "_.:;oVM@X"[v]);
+				break;
+			case 3:
+				v = (s[0] + s[1] + s[2]) / 3;
+				printf("%c", "_.:;oVM@X"[v >> 5]);
+				break;
+			case 4:
+				//if (s[4])
+					v = (s[0] + s[1] + s[2]) / 3;
+				//else v = 256;
+				printf("%c", "_.:;oVM@X"[v >> 5]);
+				break;
+			}
+			s += SSZ;				/* src: next pixel right*/
+		}
+		printf("\n");
+		src += gc->src_pitch;		/* src: next line down*/
+	}
+}
+#endif

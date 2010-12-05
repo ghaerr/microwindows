@@ -92,7 +92,7 @@ set_data_format(PSD psd)
 		data_format = MWIF_RGB565;
 		break;
 	case MWPF_TRUECOLOR555:
-		data_format = MWIF_RGB565;
+		data_format = MWIF_RGB555;
 		break;
 	case MWPF_TRUECOLOR332:
 		data_format = MWIF_RGB332;

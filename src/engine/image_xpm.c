@@ -159,7 +159,7 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 				pimage->bpp = 32;
 				pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL;
 				pimage->data_format = MWIF_RGBA8888;
-printf("xpm 32bpp ARGB8888\n");
+printf("xpm 32bpp RGBA8888\n");
 			}
 
 			pimage->palsize = colors;

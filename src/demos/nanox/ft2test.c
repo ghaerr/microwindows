@@ -10,7 +10,8 @@
 //#define FONT	"DejaVuSans-Bold.ttf"
 #define FONT	"arial.ttf"
 
-#define IMAGE	 "bin/tux.gif"
+//#define IMAGE	 "bin/tux.gif"
+#define IMAGE	 "mwin/bmp/alphademo.png"
 
 void draw_ellipse(GR_GC_ID gc, int x, int y, int color, char *text);
 void test_ft2_antialias(void);
@@ -75,7 +76,7 @@ test_stretchblit(void)
 	x = sinfo.cols - image_info.width*4;
 	y = sinfo.rows - image_info.height*4;
 	wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, NULL,
-		GR_ROOT_WINDOW_ID, x, y, image_info.width*3, image_info.height*3, GR_COLOR_GREEN);
+		GR_ROOT_WINDOW_ID, x, y, image_info.width/3, image_info.height/3, GR_COLOR_GREEN);
 
 	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ |
 			GR_EVENT_MASK_MOUSE_POSITION |

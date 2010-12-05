@@ -43,15 +43,15 @@ linear4_init(PSD psd)
 static void
 linear4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y * psd->linelen;
+	register ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y * psd->linelen;
 #if DEBUG
 	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 #endif
-	DRAWON;
 	INVERT(c);
+	DRAWON;
 	if(gr_mode == MWROP_COPY) {
 		*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
 	} else {
@@ -89,8 +89,8 @@ linear4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 #endif
-	DRAWON;
 	INVERT(c);
+	DRAWON;
 	if(gr_mode == MWROP_COPY) {
 		while(x1 <= x2) {
 			*addr = (*addr & notmask[x1&1]) | (c << ((1-(x1&1))<<2));
@@ -113,7 +113,7 @@ static void
 linear4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	int	linelen = psd->linelen;
-	ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y1 * linelen;
+	register ADDR8 addr = ((ADDR8)psd->addr) + (x>>1) + y1 * linelen;
 #if DEBUG
 	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
@@ -149,7 +149,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int	i;
 	int	dlinelen = dstpsd->linelen;
 	int	slinelen = srcpsd->linelen;
-
+#if DEBUG
 	assert (dstpsd->addr != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -162,7 +162,7 @@ linear4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (dsty+h <= dstpsd->yres);
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
-
+#endif
 	if (op > MWROP_SIMPLE_MAX)
 		op = MWROP_COPY;
 	dst = ((ADDR8)dstpsd->addr) + (dstx>>1) + dsty * dlinelen;
@@ -427,7 +427,8 @@ static SUBDRIVER fblinear4_none = {
 	linear4_drawvertline,
 	gen_fillrect,
 	linear4_blit,
-	NULL,		/* StretchBlitEx*/
+	NULL,		/* FrameBlit*/
+	NULL,		/* FrameStretchBlit*/
 	linear4_convblit_copy_mask_mono_byte_msb,
 	NULL,		/* BlitCopyMaskMonoByteLSB*/
 	NULL,		/* BlitCopyMaskMonoWordMSB*/

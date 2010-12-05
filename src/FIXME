@@ -1,13 +1,6 @@
-add psd->BlitFrameCopy for 16/24/32, rewrite/remove Blit entrypoints to use BLITPARMS
-check 255 alpha required on 8888_8888 copy (from GdBitmap or convblit)
-check slight change in GrReadArea->GrArea using GdBitmap vs convblit (alpha/nxroach)
-	appears that GdBitmap using GdBitmapByPoint isn't writing alpha=255
-check whether seperate portrait mode blits required
-add XOR_FGBG and SRC_OVER from fblin32alpha.c to fblin32.c
-	make applyOp work for SRC_OVER
-	fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
+remove GdFillRect in GsWpDrawBackgroundPixmap (added for SRCOVER)
+rewrite GdStretchImage to use convblit_stretch
 
-plans for GdArea Translation, GdReadArea blit?
 bin/mdemo requires extra mouse press/move to redraw on X11
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc
@@ -26,10 +19,9 @@ fix vncserver.c support (drawarea, etc)
 FT2 don't use antialias settings if no HAVEOP_ALPHACOL driver entry point
 
 16bpp convblits are endian-specific
-write convblits for 24/32bpp non-bgra systems (rename TRUECOLOR macros?)
-fblin32.c blit uses src[3] for alpha, will only work on BGRA and BGRA formats
-	applyOp4 may need fixing, uses ADDR32
-change driver fblinear_blit routines for 32bpp to BLITPARMS struct
+rename TRUECOLOR macros to match image byte order, or use upper vs lower case
+bgra/rgba blit uses src[3] for alpha, will only work on BGRA and BGRA formats
+fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
 
 remove FT1 from Config/configs*
 config option to eliminate not needed subdrivers?
@@ -38,6 +30,11 @@ move data_format in MWIMAGEHDR	after changing convbmp
 deprecate old screen drivers, fontmapper, !DYNAMICREGIONS
 	fix mwin/winfonts.c::EnumFonts GdGetFontList/GdFreeFontList/GdTextSizeEx for FT1
 	add GdGetTextSizeEx/GdGetFontList to FT2 from FT1
+
+check 255 alpha required on 8888_8888 copy (from GdBitmap or convblit)
+check slight change in GrReadArea->GrArea using GdBitmap vs convblit (alpha/nxroach)
+	appears that GdBitmap using GdBitmapByPoint isn't writing alpha=255
+plans for GdArea Translation, GdReadArea blit?
 
 drawarea alphamap, copytrans, copyall(=convblit copy vs srcover)
 	check srcover vs copy for RGBA8888 images
@@ -50,14 +47,11 @@ autoportrait works great except for when change occurs and cursor still on?
 	(fblin32 blit: assert h < 0)
 
 fblin32alpha.c/fblin32.c:
-	fix SRC_OVER in applyOp
 	check alpha offset in passed pixmap alpha channel
 	add MWROP_* compositing handling (currently only SRC_OVER alpha blend)
 	check whether alpha != 0 check needed
 		fblin32alpha.c always draws alpha in drawpixel, drawh, drawv
 		#define ALPHABLEND, what does it do now?
-	update stretchblitex in fblin32.c for SRC_OVER
-	check fblin24.c, fblin16.c against fblin32.c/a
 	check MWPIXELVAL has alpha in drawpixel etc routines, possibly remove for 24bpp?
 	check MWPF_ values in case statements in GdDrawImage for 12/18bpp cases, use default
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs

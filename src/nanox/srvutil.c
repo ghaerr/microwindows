@@ -379,8 +379,7 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		else pixmapx = (wp->width - pm->width) / 2;
 		if(pm->height >= wp->height) pixmapy = 0;
 		else pixmapy = (wp->height - pm->height) / 2;
-	} else { 
-		/* GR_BACKGROUND_TILE (default)*/
+	} else { /* GR_BACKGROUND_TILE (default)*/
 		GsWpTileBackgroundPixmap(wp, pm, x, y, width, height);
 		return;
 	}
@@ -412,13 +411,19 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 
 	if(destwidth > 0 && destheight > 0) {
 		if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
+GdFillRect(wp->psd, wp->x+destx, wp->y+desty, wp->x+destx+destwidth, wp->y+desty+destheight);
 			GdStretchBlitEx(wp->psd, destx + wp->x, desty + wp->y,
 				destx + wp->x + destwidth - 0, desty + wp->y + destheight - 0,
 				pm->psd, fromx, fromy,
 				fromx + pm->width - 1, fromy + pm->height - 1,
-				MWROP_COPY);
-		} else GdBlit(wp->psd, destx + wp->x, desty + wp->y, (width < destwidth)?width:destwidth,
-			(height < destheight)?height:destheight, pm->psd, fromx, fromy, MWROP_COPY);
+				MWROP_SRC_OVER);
+		} else {
+			if (width < destwidth) destwidth = width;
+			if (height < destheight) destheight = height;
+GdFillRect(wp->psd, wp->x+destx, wp->y+desty, destwidth, destheight);
+			GdBlit(wp->psd, destx + wp->x, desty + wp->y, destwidth, destheight,
+				pm->psd, fromx, fromy, MWROP_SRC_OVER);
+		}
 	}
 
 	if(wp->bgpixmapflags & (GR_BACKGROUND_TRANS|GR_BACKGROUND_STRETCH))
@@ -429,7 +434,7 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		fillwidth = pixmapx - x;
 		if(fillwidth > width) fillwidth = width;
 		fillheight = height;
-		GdFillRect(wp->psd, wp->x + x, wp->y + y, fillwidth,fillheight);
+		GdFillRect(wp->psd, wp->x + x, wp->y + y, fillwidth, fillheight);
 	}
 	if((x + width) > (pixmapx + pmwidth)) {
 		fillwidth = (x + width) - (pixmapx + pmwidth);
@@ -447,10 +452,8 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		if((x + width) > (pixmapx + pmwidth))
 			fillwidth = pixmapx + pmwidth - destx;
 		else fillwidth = x + width - destx;
-		if((fillwidth > 0) && (fillheight > 0)) {
-			GdFillRect(wp->psd, destx, wp->y + y, fillwidth,
-							fillheight);
-		}
+		if(fillwidth > 0 && fillheight > 0)
+			GdFillRect(wp->psd, destx, wp->y + y, fillwidth, fillheight);
 	}
 	if((y + height) > (pixmapy + pmheight)) {
 		fillheight = (y + height) - (pixmapy + pmheight);
@@ -463,9 +466,8 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		if((x + width) > (pixmapx + pmwidth))
 			fillwidth = pixmapx + pmwidth - destx;
 		else fillwidth = x + width - destx;
-		if((fillwidth > 0) && (fillheight > 0)) {
-			GdFillRect(wp->psd, destx, desty, fillwidth,fillheight);
-		}
+		if(fillwidth > 0 && fillheight > 0)
+			GdFillRect(wp->psd, destx, desty, fillwidth, fillheight);
 	}
 }
 
@@ -531,10 +533,8 @@ GsWpTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x, GR_COORD y,
 				cy = wp->y + tiley + fromy;
 			}
 
-			if((cwidth > 0) && (cheight > 0)) {
-				GdBlit(wp->psd, cx, cy, cwidth, cheight,
-					pm->psd, fromx, fromy, MWROP_COPY);
-			}
+			if(cwidth > 0 && cheight > 0)
+				GdBlit(wp->psd, cx, cy, cwidth, cheight, pm->psd, fromx, fromy, MWROP_COPY);
 		}
 	}
 }
@@ -571,9 +571,8 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	 * Now see if the region is really in the window.  If not, then
 	 * do nothing.
 	 */
-	if ((x >= wp->width) || (y >= wp->height) || (width <= 0) ||
-		(height <= 0))
-			return;
+	if (x >= wp->width || y >= wp->height || width <= 0 || height <= 0)
+		return;
 
 	/*
 	 * Draw the background of the window.
@@ -588,12 +587,10 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
 		GdSetMode(GR_MODE_COPY);
 		GdSetForegroundColor(wp->psd, wp->background);
-		if (wp->bgpixmap) {
-			GsWpDrawBackgroundPixmap(wp, wp->bgpixmap, x, y,
-				width, height);
-		} else {
+		if (wp->bgpixmap)
+			GsWpDrawBackgroundPixmap(wp, wp->bgpixmap, x, y, width, height);
+		else
 			GdFillRect(wp->psd, wp->x + x, wp->y + y, width,height);
-		}
 	}
 
 	/*

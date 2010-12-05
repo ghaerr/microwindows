@@ -67,20 +67,26 @@ void convblit_copy_mask_mono_byte_msb_bgra_large(PSD psd, PMWBLITPARMS gc);	/* f
 void convblit_copy_mask_mono_byte_lsb_bgra_large(PSD psd, PMWBLITPARMS gc);	/* t1lib non-alias*/
 #endif
 
-/* image_bmp.c*/
 
+/* convblit_frameb.c*/
+/* framebuffer pixel format blits - must handle backwards copy, different rotation code*/
+void frameblit_xxxa8888(PSD psd, PMWBLITPARMS gc);		/* 32bpp*/
+void frameblit_24bpp(PSD psd, PMWBLITPARMS gc);			/* 24bpp*/
+void frameblit_16bpp(PSD psd, PMWBLITPARMS gc);			/* 16bpp*/
+void frameblit_8bpp(PSD psd, PMWBLITPARMS gc);			/* 8bpp*/
+
+/* framebuffer pixel format stretch blits - different rotation code, no backwards copy*/
+void frameblit_stretch_xxxa8888(PSD dstpsd, PMWBLITPARMS gc);	/* 32bpp, alpha in byte 4*/
+void frameblit_stretch_24bpp(PSD psd, PMWBLITPARMS gc);			/* 24 bpp*/
+void frameblit_stretch_16bpp(PSD psd, PMWBLITPARMS gc);			/* 16 bpp*/
+void frameblit_stretch_8bpp(PSD psd, PMWBLITPARMS gc);			/* 8 bpp*/
+
+/* image_bmp.c*/
 /* Conversion blit 24bpp BGR to 24bpp RGB*/
 void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch);
 /* Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha*/
 void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch);
 
 /* image_tiff.c*/
-
 /* Conversion blit flip y direction 32bpp (upside-down)*/
 void convblit_flipy_8888(PMWBLITPARMS gc);
-
-/* convblit_8888.c*/
-/* framebuffer pixel format blits*/
-void frameblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc);	/* 32bpp*/
-void frameblit_copy_888_888(PSD psd, PMWBLITPARMS gc);		/* 24bpp*/
-void frameblit_copy_16bpp_16bpp(PSD psd, PMWBLITPARMS gc);	/* 16bpp*/

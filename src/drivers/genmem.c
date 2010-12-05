@@ -272,13 +272,14 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->DrawHorzLine 	= subdriver->DrawHorzLine;
 	psd->DrawVertLine 	= subdriver->DrawVertLine;
 	psd->FillRect	 	= subdriver->FillRect;
-	psd->Blit 			= subdriver->Blit;
-	psd->StretchBlitEx	= subdriver->StretchBlitEx;
+	psd->BlitFallback 	= subdriver->BlitFallback;
+	psd->FrameBlit 				 = subdriver->FrameBlit;
+	psd->FrameStretchBlit 		 = subdriver->FrameStretchBlit;
 	psd->BlitCopyMaskMonoByteMSB = subdriver->BlitCopyMaskMonoByteMSB;
 	psd->BlitCopyMaskMonoByteLSB = subdriver->BlitCopyMaskMonoByteLSB;
 	psd->BlitCopyMaskMonoWordMSB = subdriver->BlitCopyMaskMonoWordMSB;
 	psd->BlitBlendMaskAlphaByte  = subdriver->BlitBlendMaskAlphaByte;
-	psd->BlitCopyRGBA8888     = subdriver->BlitCopyRGBA8888;
+	psd->BlitCopyRGBA8888     	 = subdriver->BlitCopyRGBA8888;
 	psd->BlitSrcOverRGBA8888     = subdriver->BlitSrcOverRGBA8888;
 	psd->BlitCopyRGB888          = subdriver->BlitCopyRGB888;
 
@@ -298,13 +299,14 @@ get_subdriver(PSD psd, PSUBDRIVER subdriver)
 	subdriver->DrawHorzLine 	= psd->DrawHorzLine;
 	subdriver->DrawVertLine 	= psd->DrawVertLine;
 	subdriver->FillRect	 		= psd->FillRect;
-	subdriver->Blit 			= psd->Blit;
-	subdriver->StretchBlitEx	= psd->StretchBlitEx;
+	subdriver->BlitFallback 	= psd->BlitFallback;
+	subdriver->FrameBlit 			   = psd->FrameBlit;
+	subdriver->FrameStretchBlit 	   = psd->FrameStretchBlit;
 	subdriver->BlitCopyMaskMonoByteMSB = psd->BlitCopyMaskMonoByteMSB;
 	subdriver->BlitCopyMaskMonoByteLSB = psd->BlitCopyMaskMonoByteLSB;
 	subdriver->BlitCopyMaskMonoWordMSB = psd->BlitCopyMaskMonoWordMSB;
 	subdriver->BlitBlendMaskAlphaByte  = psd->BlitBlendMaskAlphaByte;
-	subdriver->BlitCopyRGBA8888     = psd->BlitCopyRGBA8888;
+	subdriver->BlitCopyRGBA8888        = psd->BlitCopyRGBA8888;
 	subdriver->BlitSrcOverRGBA8888     = psd->BlitSrcOverRGBA8888;
 	subdriver->BlitCopyRGB888          = psd->BlitCopyRGB888;
 }

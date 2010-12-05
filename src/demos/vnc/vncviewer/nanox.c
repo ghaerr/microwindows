@@ -204,7 +204,7 @@ XCopyArea(Display *dpy, Window src, Window dst, GR_GC_ID gc,
         int x1, int y1, int w, int h, int x2, int y2)
 {
 /*	printf("XCopyArea: src=%d, dst=%d, w=%d, h=%d\n",src, dst, w, h); */
-	GrCopyArea(dst, gc, x2, y2, w, h, src, x1, y1, MWROP_SRCCOPY);
+	GrCopyArea(dst, gc, x2, y2, w, h, src, x1, y1, MWROP_COPY);
 	return(0);
 }
 

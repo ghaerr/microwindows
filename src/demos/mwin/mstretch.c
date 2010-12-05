@@ -57,7 +57,7 @@ ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		/* stretch blit offscreen with physical screen*/
 		StretchBlt(ps.hdc, 0, 0, rc.right, rc.bottom, hdcMem,
-			0, 0, image->width, image->height, MWROP_SRCCOPY);
+			0, 0, image->width, image->height, MWROP_COPY);
 		DeleteObject(SelectObject(hdcMem, hbmpOrg));
 		DeleteDC(hdcMem);
 		EndPaint(hwnd, &ps);

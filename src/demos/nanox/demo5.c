@@ -295,7 +295,7 @@ do_buttonup(GR_EVENT_BUTTON	*bp)
 			GrLine(w4, gc3, bp->x, bp->y, linexpos, lineypos);
 		}
 		lineok = GR_FALSE;
-	        GrCopyArea(w1, gc4, 200,200, 200,200, p1,0,0,MWROP_SRCCOPY);
+	        GrCopyArea(w1, gc4, 200,200, 200,200, p1,0,0,MWROP_COPY);
 		return;
 	}
 

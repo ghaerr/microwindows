@@ -100,13 +100,13 @@ typedef struct {
 	void 	 (*DrawHorzLine)(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
 	void	 (*DrawVertLine)(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
 	void	 (*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2, MWCOORD y2,MWPIXELVAL c);
-	void	 (*Blit)(PSD destpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
-				PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-	void 	 (*StretchBlitEx)(PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, int dest_y_start,
-			MWCOORD width, int height, int x_denominator, int y_denominator,
-			int src_x_fraction, int src_y_fraction,
-			int x_step_fraction, int y_step_fraction, int op);
-	/* new fast blit functions*/
+	/* fallback blit - used only for 1,2,4bpp drivers*/
+	void	(*BlitFallback)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
+							PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
+	/* endian neutral hw pixel format blits*/
+	MWBLITFUNC FrameBlit;
+	MWBLITFUNC FrameStretchBlit;
+	/* fast conversion blits for text and images*/
 	MWBLITFUNC BlitCopyMaskMonoByteMSB;				/* ft non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoByteLSB;				/* t1 non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoWordMSB;				/* core/pcf non-alias*/
@@ -161,12 +161,13 @@ typedef struct _mwscreendevice {
 	void	(*DrawHorzLine)(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y, MWPIXELVAL c);
 	void	(*DrawVertLine)(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2, MWPIXELVAL c);
 	void	(*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2, MWPIXELVAL c);
-	void	(*Blit)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
-			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-	void 	(*StretchBlitEx) (PSD dstpsd, PSD srcpsd, MWCOORD dest_x_start, MWCOORD dest_y_start,
-			MWCOORD width, MWCOORD height, int x_denominator, int y_denominator,
-			int src_x_fraction, int src_y_fraction, int x_step_fraction, int y_step_fraction, int op);
-	/* new fast blit functions for text and images*/
+	/* fallback blit - used only for 1,2,4bpp drivers*/
+	void	(*BlitFallback)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
+							PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
+	/* endian neutral hw pixel format blits*/
+	MWBLITFUNC FrameBlit;
+	MWBLITFUNC FrameStretchBlit;
+	/* fast conversion blits for text and images*/
 	MWBLITFUNC BlitCopyMaskMonoByteMSB;				/* ft non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoByteLSB;				/* t1 non-alias*/
 	MWBLITFUNC BlitCopyMaskMonoWordMSB;				/* core/pcf non-alias*/

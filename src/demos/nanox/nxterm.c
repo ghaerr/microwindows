@@ -177,7 +177,7 @@ void hide_cursor (void)
 void vscroll(int lines)
 {
     hide_cursor();
-    GrCopyArea(w1,gc1,0, 0, winw, winh-(lines*fonh), w1, 0, lines*fonh, MWROP_SRCCOPY);
+    GrCopyArea(w1,gc1,0, 0, winw, winh-(lines*fonh), w1, 0, lines*fonh, MWROP_COPY);
     GrSetGCForeground(gc1,gi.background);    
     GrFillRect(w1, gc1, 0, winh-(lines*fonh), winw, lines*fonh);
     GrSetGCForeground(gc1,gi.foreground);    

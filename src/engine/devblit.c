@@ -31,98 +31,6 @@ extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
 extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
 
-/* call conversion blit with clipping and cursor fix*/
-void
-GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
-{
-	MWCOORD x = gc->dstx;
-	MWCOORD y = gc->dsty;
-	MWCOORD width = gc->width;
-	MWCOORD height = gc->height;
-	MWCOORD srcx, srcy;
-	int count;
-#if DYNAMICREGIONS
-	MWRECT *prc;
-	extern MWCLIPREGION *clipregion;
-#else
-	MWCLIPRECT *prc;
-	extern MWCLIPRECT cliprects[];
-	extern int clipcount;
-#endif
-
-	/* check clipping region*/
-	switch(GdClipArea(psd, x, y, x + width - 1, y + height - 1)) {
-	case CLIP_VISIBLE:
-		convblit(psd, gc);
-		GdFixCursor(psd);
-		return;
-
-	case CLIP_INVISIBLE:
-		return;
-	}
-
-	/* partially clipped, we'll traverse visible region and draw*/
-	srcx = gc->srcx;
-	srcy = gc->srcy;
-
-#if DYNAMICREGIONS
-	prc = clipregion->rects;
-	count = clipregion->numRects;
-#else
-	prc = cliprects;
-	count = clipcount;
-#endif
-
-	while (count-- > 0) {
-		MWCOORD rx1, rx2, ry1, ry2, rw, rh;
-#if DYNAMICREGIONS
-		rx1 = prc->left;
-		ry1 = prc->top;
-		rx2 = prc->right;
-		ry2 = prc->bottom;
-#else
-		rx1 = prc->x;		/* old clip-code*/
-		ry1 = prc->y;
-		rx2 = prc->x + prc->width;
-		ry2 = prc->y + prc->height;
-#endif
-
-		/* Check if this rect intersects with the one we draw */
-		if (rx1 < x)
-			rx1 = x;
-		if (ry1 < y)
-			ry1 = y;
-		if (rx2 > x + width)
-			rx2 = x + width;
-		if (ry2 > y + height)
-			ry2 = y + height;
-
-		rw = rx2 - rx1;
-		rh = ry2 - ry1;
-
-		if (rw > 0 && rh > 0) {
-			gc->dstx = rx1;
-			gc->dsty = ry1;
-			gc->width = rw;
-			gc->height = rh;
-			gc->srcx = srcx + rx1 - x;
-			gc->srcy = srcy + ry1 - y;
-			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
-			convblit(psd, gc);
-		}
-		prc++;
-	}
-	GdFixCursor(psd);
-
-	/* Reset everything, in case the caller re-uses it. */
-	gc->dstx = x;
-	gc->dsty = y;
-	gc->width = width;
-	gc->height = height;
-	gc->srcx = srcx;
-	gc->srcy = srcy;
-}
-
 /* find a conversion blit based on data format and blit op*/
 MWBLITFUNC
 GdFindConvBlit(PSD psd, int data_format, int op)
@@ -194,6 +102,7 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 		/* setup destination parms*/
 		parms->dst_pitch = psd->pitch;
 		parms->data_out = psd->addr;
+		parms->srcpsd = NULL;		/* used in frameblits only*/
 
 		GdConvBlitInternal(psd, parms, convblit);
 		return;
@@ -209,14 +118,14 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 	DPRINTF("GdConversionBlit: No convblit available\n");
 }
 
-/* select appropriate framebuffer pixel format blit based on rop*/
+/* select framebuffer pixel format blit or fallback*/
 static void
-GdBlitInternal(PSD psd, PMWBLITPARMS parms)
+frameblit(PSD psd, PMWBLITPARMS parms)
 {
 		if (psd->FrameBlit)
 			psd->FrameBlit(psd, parms);
 		else {
-			printf("GdBlitInternal: no convblit for op %d, using psd->Blit fallback\n", parms->op);
+			printf("GdBlit: no convblit for op %d, using psd->Blit fallback\n", parms->op);
 
 			psd->BlitFallback(psd, parms->dstx, parms->dsty, parms->width, parms->height,
 				parms->srcpsd, parms->srcx, parms->srcy, parms->op);
@@ -240,129 +149,44 @@ void
 GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int rop)
 {
-	int			count;
 	MWBLITPARMS parms;
-#if DYNAMICREGIONS
-	MWRECT *	prc;
-	extern MWCLIPREGION *clipregion;
-#else
-	MWCLIPRECT *prc;
-	extern MWCLIPRECT cliprects[];
-	extern int	clipcount;
-#endif
 
 	/* source and dest pixmaps must be same format and rotation*/
 	assert(dstpsd->data_format == srcpsd->data_format);
 	assert(dstpsd->portrait == srcpsd->portrait);
 	
-	/* invariant blit parameters*/
-	parms.op = rop;
-	parms.data_format = dstpsd->data_format;
-	parms.data = srcpsd->addr;
-	parms.src_pitch = srcpsd->pitch;
-	parms.data_out = dstpsd->addr;
-	parms.dst_pitch = dstpsd->pitch;
-	parms.srcpsd = srcpsd;
-
 	/* clip blit rectangle to source screen/bitmap size*/
 	/* we must do this because there isn't any source clipping setup*/
-	if(srcx < 0) {
+	if (srcx < 0) {
 		width += srcx;
 		dstx -= srcx;
 		srcx = 0;
 	}
-	if(srcy < 0) {
+	if (srcy < 0) {
 		height += srcy;
 		dsty -= srcy;
 		srcy = 0;
 	}
-	if(srcx+width > srcpsd->xvirtres)
+	if (srcx + width > srcpsd->xvirtres)
 		width = srcpsd->xvirtres - srcx;
-	if(srcy+height > srcpsd->yvirtres)
+	if (srcy + height > srcpsd->yvirtres)
 		height = srcpsd->yvirtres - srcy;
 
-if (srcpsd != dstpsd) printf("GdBlit: SRCPSD != DSTPSD\n");
-	switch(GdClipArea(dstpsd, dstx, dsty, dstx+width-1, dsty+height-1)) {
-	case CLIP_VISIBLE:
-		/* check cursor in src region of both screen devices*/
-		GdCheckCursor(dstpsd, srcx, srcy, srcx+width-1, srcy+height-1);
-		if (dstpsd != srcpsd)
-			GdCheckCursor(srcpsd, srcx, srcy, srcx+width-1, srcy+height-1);
-		parms.width = width;
-		parms.height = height;
-		parms.srcx = srcx;
-		parms.srcy = srcy;
-		parms.dstx = dstx;
-		parms.dsty = dsty;
+	parms.op = rop;
+	parms.data_format = dstpsd->data_format;
+	parms.width = width;
+	parms.height = height;
+	parms.dstx = dstx;
+	parms.dsty = dsty;
+	parms.srcx = srcx;
+	parms.srcy = srcy;
+	parms.src_pitch = srcpsd->pitch;
+	parms.data = srcpsd->addr;
+	parms.data_out = dstpsd->addr;
+	parms.dst_pitch = dstpsd->pitch;
+	parms.srcpsd = srcpsd;
 
-		GdBlitInternal(dstpsd, &parms);
-
-		GdFixCursor(dstpsd);
-		if (dstpsd != srcpsd)
-			GdFixCursor(srcpsd);
-		return;
-
-	case CLIP_INVISIBLE:
-printf("GdBlit invis\n");
-		return;
-	}
-
-	/* Partly clipped, we'll blit using destination clip
-	 * rectangles, and offset the blit accordingly.
-	 * Since the destination is already clipped, we
-	 * only need to clip the source here.
-	 */
-#if DYNAMICREGIONS
-	prc = clipregion->rects;
-	count = clipregion->numRects;
-#else
-	prc = cliprects;
-	count = clipcount;
-#endif
-	while(--count >= 0) {
-		int rx1, rx2, ry1, ry2;
-		int px1, px2, py1, py2;
-		int pw, ph;
-#if DYNAMICREGIONS
-		rx1 = prc->left;
-		ry1 = prc->top;
-		rx2 = prc->right;
-		ry2 = prc->bottom;
-#else
-		rx1 = prc->x;
-		ry1 = prc->y;
-		rx2 = prc->x + prc->width;
-		ry2 = prc->y + prc->height;
-#endif
-		/* Check:  does this rect intersect the one we want to draw? */
-		px1 = dstx;
-		py1 = dsty;
-		px2 = dstx + width;
-		py2 = dsty + height;
-		if (px1 < rx1) px1 = rx1;
-		if (py1 < ry1) py1 = ry1;
-		if (px2 > rx2) px2 = rx2;
-		if (py2 > ry2) py2 = ry2;
-
-		pw = px2 - px1;
-		ph = py2 - py1;
-		if(pw > 0 && ph > 0) {
-			/* check cursor in dest and src regions*/
-			//FIXME check cursor in single block once
-			GdCheckCursor(dstpsd, px1, py1, px2-1, py2-1);
-			GdCheckCursor(dstpsd, srcx, srcy, srcx+width, srcy+height);
-			parms.width = pw;
-			parms.height = ph;
-			parms.srcx = srcx + (px1 - dstx);
-			parms.srcy = srcy + (py1 - dsty);
-			parms.dstx = px1;
-			parms.dsty = py1;
-
-			GdBlitInternal(dstpsd, &parms);
-		}
-		++prc;
-	}
-	GdFixCursor(dstpsd);
+	GdConvBlitInternal(dstpsd, &parms, frameblit);
 }
 
 /**
@@ -400,7 +224,7 @@ printf("GdBlit invis\n");
  * @param rop Raster operation.
  */
 void
-GdStretchBlitEx(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
+GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	MWCOORD dy2, PSD srcpsd, MWCOORD sx1, MWCOORD sy1, MWCOORD sx2,
 	MWCOORD sy2, int rop)
 {
@@ -430,9 +254,8 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	assert(dstpsd->data_format == srcpsd->data_format);
 	assert(dstpsd->portrait == srcpsd->portrait);
 
-	/* DPRINTF("Nano-X: GdStretchBlitEx(dst=%x (%d,%d)-(%d,%d), src=%x (%d,%d)-(%d,%d), op=0x%lx\n",
-	           (int) dstpsd, (int) dx1, (int) dy1, (int) dx2, (int) dy2,
-	           (int) srcpsd, (int) sx1, (int) sy1, (int) sx2, (int) sy2, rop); */
+	/* DPRINTF("Nano-X: GdStretchBlit(dst=%x (%d,%d)-(%d,%d), src=%x (%d,%d)-(%d,%d), op=%d\n",
+	           (int) dstpsd, dx1, dy1, dx2, dy2, (int) srcpsd, sx1, sy1, sx2, sy2, rop); */
 
 	/* Sort co-ordinates so d1 is top left, d2 is bottom right. */
 	if (dx1 > dx2) {
@@ -579,7 +402,7 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 
 	/* We now have a destination rectangle defined in (cx1,cy1)-(cx2,cy2)*/
 
-	/* DPRINTF("Nano-X: GdStretchBlitEx: Clipped rect: (%d,%d)-(%d,%d)\n",
+	/* DPRINTF("Nano-X: GdStretchBlit: Clipped rect: (%d,%d)-(%d,%d)\n",
 	       (int) cx1, (int) cy1, (int) cx2, (int) cy2); */
 
 	/* clip against other windows*/
@@ -677,4 +500,100 @@ GdStretchBlitEx(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	}
 	GdFixCursor(dstpsd);
 	//GdFixCursor(srcpsd);
+}
+
+/* call conversion blit with clipping and cursor fix*/
+void
+GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
+{
+	MWCOORD dstx = gc->dstx;
+	MWCOORD dsty = gc->dsty;
+	MWCOORD width = gc->width;
+	MWCOORD height = gc->height;
+	MWCOORD srcx = gc->srcx;
+	MWCOORD srcy = gc->srcy;
+	int count;
+#if DYNAMICREGIONS
+	MWRECT *prc;
+	extern MWCLIPREGION *clipregion;
+#else
+	MWCLIPRECT *prc;
+	extern MWCLIPRECT cliprects[];
+	extern int clipcount;
+#endif
+
+	/* check clipping region*/
+	switch (GdClipArea(psd, dstx, dsty, dstx + width - 1, dsty + height - 1)) {
+	case CLIP_VISIBLE:
+		/* check cursor in src region of both screen devices*/
+		GdCheckCursor(psd, srcx, srcy, srcx+width-1, srcy+height-1);
+		if (gc->srcpsd != NULL && gc->srcpsd != psd)
+			GdCheckCursor(gc->srcpsd, srcx, srcy, srcx+width-1, srcy+height-1);
+		convblit(psd, gc);
+		GdFixCursor(psd);
+		return;
+
+	case CLIP_INVISIBLE:
+		return;
+	}
+
+	/* partially clipped, we'll traverse visible region and draw*/
+
+	//FIXME check cursor in single block once
+	GdCheckCursor(psd, srcx, srcy, srcx+width, srcy+height);
+
+#if DYNAMICREGIONS
+	prc = clipregion->rects;
+	count = clipregion->numRects;
+#else
+	prc = cliprects;
+	count = clipcount;
+#endif
+
+	while (count-- > 0) {
+		MWCOORD rx1, rx2, ry1, ry2, rw, rh;
+#if DYNAMICREGIONS
+		rx1 = prc->left;
+		ry1 = prc->top;
+		rx2 = prc->right;
+		ry2 = prc->bottom;
+#else
+		rx1 = prc->x;		/* old clip-code*/
+		ry1 = prc->y;
+		rx2 = prc->x + prc->width;
+		ry2 = prc->y + prc->height;
+#endif
+
+		/* Check if this rect intersects with the one we draw */
+		if (rx1 < dstx) rx1 = dstx;
+		if (ry1 < dsty) ry1 = dsty;
+		if (rx2 > dstx + width) rx2 = dstx + width;
+		if (ry2 > dsty + height) ry2 = dsty + height;
+
+		rw = rx2 - rx1;
+		rh = ry2 - ry1;
+
+		if (rw > 0 && rh > 0) {
+			gc->dstx = rx1;
+			gc->dsty = ry1;
+			gc->width = rw;
+			gc->height = rh;
+			gc->srcx = srcx + rx1 - dstx;
+			gc->srcy = srcy + ry1 - dsty;
+			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
+			convblit(psd, gc);
+		}
+		prc++;
+	}
+	GdFixCursor(psd);
+	if (gc->srcpsd != NULL && gc->srcpsd != psd)
+		GdFixCursor(gc->srcpsd);
+
+	/* Reset everything, in case the caller re-uses it. */
+	gc->dstx = dstx;
+	gc->dsty = dsty;
+	gc->width = width;
+	gc->height = height;
+	gc->srcx = srcx;
+	gc->srcy = srcy;
 }

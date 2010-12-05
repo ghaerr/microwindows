@@ -571,7 +571,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    psd->FillRect = stubFillRect;
    psd->Blit = stubBlit;
 //   psd->DrawArea = stubDrawArea;
-   psd->StretchBlitEx = stubStretchBlitEx;
+//   psd->StretchBlit = stubStretchBlit;
                         
    /* Don't set bits x sample & samples x pixel, we'll do it later  */
    rfbScreen = rfbGetScreen(&argc,argv,psd->xres,psd->yres,-1,-1,-1);

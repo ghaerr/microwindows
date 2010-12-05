@@ -1,5 +1,8 @@
 remove GdFillRect in GsWpDrawBackgroundPixmap (added for SRCOVER)
 rewrite GdStretchImage to use convblit_stretch
+check GdCheckCursor in blit routines, may not need 2nd dest check, need srcpsd check
+	also check nanox/srvfunc.c for FIXME GdCheckCursors
+	remove CheckCursor from inner clip loop
 
 bin/mdemo requires extra mouse press/move to redraw on X11
 remove seperate driver procs and combine to single SUBDRIVER in screendevice

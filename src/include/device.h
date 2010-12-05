@@ -231,6 +231,7 @@ MWPIXELVAL GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg);
 MWPIXELVAL GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg);
 MWPIXELVAL GdSetForegroundColor(PSD psd, MWCOLORVAL fg);
 MWPIXELVAL GdSetBackgroundColor(PSD psd, MWCOLORVAL bg);
+void	GdPrintBitmap(PMWBLITPARMS gc, int SSZ);	/* debug only*/
 
 void	GdResetPalette(void);
 void	GdSetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
@@ -273,12 +274,10 @@ int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
 MWBLITFUNC GdFindConvBlit(PSD psd, int data_format, int op);
 void	GdConversionBlit(PSD psd, PMWBLITPARMS parms);
 void	GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit);
-void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width,
-		MWCOORD height,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int rop);
-void	GdStretchBlitEx(PSD dstpsd, MWCOORD d1_x, MWCOORD d1_y, MWCOORD d2_x,
-		MWCOORD d2_y, PSD srcpsd, MWCOORD s1_x, MWCOORD s1_y,
-		MWCOORD s2_x, MWCOORD s2_y, int rop);
-void	GdPrintBitmap(PMWBLITPARMS gc, int SSZ);	/* debug only*/
+void	GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
+			PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int rop);
+void	GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
+			MWCOORD dy2, PSD srcpsd, MWCOORD sx1, MWCOORD sy1, MWCOORD sx2, MWCOORD sy2, int rop);
 
 /* devarc.c*/
 /* requires float*/

@@ -1,4 +1,5 @@
 4 Dec 2010
+	* cleanup GdBlit, rename GdStretchBlit, use common GdConvBlitInternal for all blit clipping
 	* added FrameBlit and FrameStretchBlit subdriver framebuffer blits
 	* removed Blit from fblin32/24/16/8 subdrivers, renamed driver proc BlitFallback
 	* rewrote APPLYOP for speed, optimized fblin32/24/16/8 pixel/hline/vline drawing

@@ -412,7 +412,7 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 	if(destwidth > 0 && destheight > 0) {
 		if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
 GdFillRect(wp->psd, wp->x+destx, wp->y+desty, wp->x+destx+destwidth, wp->y+desty+destheight);
-			GdStretchBlitEx(wp->psd, destx + wp->x, desty + wp->y,
+			GdStretchBlit(wp->psd, destx + wp->x, desty + wp->y,
 				destx + wp->x + destwidth - 0, desty + wp->y + destheight - 0,
 				pm->psd, fromx, fromy,
 				fromx + pm->width - 1, fromy + pm->height - 1,

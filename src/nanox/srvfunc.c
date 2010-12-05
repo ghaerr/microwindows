@@ -4001,9 +4001,8 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1, GR_COORD dy1, GR_COOR
 	}
 
 	/* perform blit */
-	/* DPRINTF("Nano-X: GrStretchArea() calling GdStretchBlitEx()\n"); */
 	//GdCheckCursor(srcpsd, s1x, s1y, s2x, s2y); /* FIXME*/
-	GdStretchBlitEx(dp->psd, dx1, dy1, dx2, dy2, srcpsd, sx1, sy1, sx2, sy2, op);
+	GdStretchBlit(dp->psd, dx1, dy1, dx2, dy2, srcpsd, sx1, sy1, sx2, sy2, op);
 	//GdFixCursor(srcpsd);
 
 	SERVER_UNLOCK();

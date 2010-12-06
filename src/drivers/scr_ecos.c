@@ -85,7 +85,7 @@ fb_open(PSD psd)
     psd->linelen = li.rlen;
     psd->size = 0;		/* force subdriver init of size*/
 
-    psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
+    psd->flags = PSF_SCREEN;
     psd->planes = 1;
 
 #if PORTRAIT

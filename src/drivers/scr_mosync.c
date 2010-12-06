@@ -65,7 +65,7 @@ fb_open(PSD psd)
 	psd->linelen = fbinfo.width;
 	psd->pitch = fbinfo.pitch;
 	psd->size = fbinfo.sizeInBytes;
-	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
+    psd->flags = PSF_SCREEN;
 
 	/* set pixel format*/
 	switch(psd->bpp) {

@@ -663,7 +663,7 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	MWBLITPARMS parms;
 
 	/* use srcover for supported images with alpha*/
-	if (pimage->data_format == MWIF_RGBA8888)	// FIXME check MWIF_ALPHA
+	if (pimage->data_format & MWIF_HASALPHA)
 		op = MWROP_SRC_OVER;
 
 	/* find conversion blit based on data format*/

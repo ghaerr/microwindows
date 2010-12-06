@@ -180,7 +180,7 @@ fb_open(PSD psd)
 	psd->pitch = psd->linelen;
 	psd->size = 0;		/* force subdriver init of size*/
 
-	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
+    psd->flags = PSF_SCREEN;
 
 	/* set pixel format*/
 	if(visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR) {

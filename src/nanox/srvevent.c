@@ -751,8 +751,7 @@ update_again:
 		if (ep == NULL)
 			continue;
 
-		ep->type = lcount? 
-			GR_EVENT_TYPE_CHLD_UPDATE: GR_EVENT_TYPE_UPDATE;
+		ep->type = lcount?  GR_EVENT_TYPE_CHLD_UPDATE: GR_EVENT_TYPE_UPDATE;
 		ep->utype = utype;
 		ep->wid = wp->id;	/* GrSelectEvents window id*/
 		ep->subwid = id;	/* update window id*/

@@ -825,13 +825,13 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		SERVER_UNLOCK();
 		return;
 	}
-	if ((width <= 0) || (height <= 0)) {
+	if (width <= 0 || height <= 0) {
 		GsError(GR_ERROR_BAD_WINDOW_SIZE, wid);
 		SERVER_UNLOCK();
 		return;
 	}
 
-	if ((wp->width == width) && (wp->height == height)) {
+	if (wp->width == width && wp->height == height) {
 		SERVER_UNLOCK();
 		return;
 	}
@@ -843,7 +843,9 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-#if 1
+#if 0
+	/* turned off because of duplicate incorrect redraws on expose*/
+	/* stretchblit backgrounds are sometimes incorrect, see demos/nanox/ft2test.c*/
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
@@ -855,11 +857,10 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 	if (oldw > width || oldh > height) {
 		int bs = wp->bordersize;
-		GsExposeArea(wp->parent, wp->x - bs, wp->y - bs,
-			oldw + bs * 2, oldh + bs * 2, NULL);
+		GsExposeArea(wp->parent, wp->x - bs, wp->y - bs, oldw + bs * 2, oldh + bs * 2, NULL);
 	}
 #endif
-#if 0
+#if 1
 	/*
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.

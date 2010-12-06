@@ -94,7 +94,7 @@
 
 /* monochrome bitmap formats*/
 #define MWIF_MONO			0x00000040L
-#define MWIF_ALPHA			0x00000080L
+#define MWIF_HASALPHA		0x00000080L
 #define MWIF_BYTEDATA		0x00000100L
 #define MWIF_WORDDATA		0x00000200L
 #define MWIF_DWORDDATA		0x00000400L
@@ -103,30 +103,29 @@
 #define MWIF_MONOBYTEMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_MSBFIRST)
 #define MWIF_MONOBYTELSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_LSBFIRST)
 #define MWIF_MONOWORDMSB	(MWIF_1BPP | MWIF_MONO | MWIF_WORDDATA | MWIF_MSBFIRST)
-#define MWIF_ALPHABYTE		(MWIF_8BPP | MWIF_ALPHA| MWIF_BYTEDATA)
+#define MWIF_ALPHABYTE		(MWIF_8BPP | MWIF_HASALPHA| MWIF_BYTEDATA)
 
-/* color formats*/
-#define MWIF_HASALPHA		MWIF_ALPHA		/* value used below in alpha formats*/
-#define MWIF_BGRA8888		0x00010080L		/* 32bpp BGRA image byte order (old TRUECOLOR8888)*/
-#define MWIF_RGBA8888		0x00020080L		/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
-//#define MWIF_ARGB8888		0x00030080L		/* 32bpp ARGB image byte order (new)*/
-//#define MWIF_ABGR8888		0x00040080L		/* 32bpp ABGR image byte order (new)*/
-//#define MWIF_BGRX8888		0x00050080L		/* 32bpp BGRX image order no alpha (new)*/
-#define MWIF_BGR888			0x00060000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
-#define MWIF_RGB888			0x00070000L		/* 24bpp RGB image byte order  (png no alpha)*/
-#define MWIF_RGB565			0x00080000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
-//#define MWIF_RGB565_BE	0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
-#define MWIF_RGB555			0x000A0000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
-//#define MWIF_RGB555_BE	0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
-#define MWIF_BGR555			0x000C0000L		/* 16bpp 5/5/5 BGR packed l.endian (old TRUECOLOR1555)*/
-//#define MWIF_BGR555_BE	0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
-#define MWIF_RGB332			0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
-#define MWIF_BGR233			0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
-#define MWIF_PAL1			0x00100000L		/*  1bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL2			0x00200000L		/*  2bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL4			0x00400000L		/*  4bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL8			0x00800000L		/*  8bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL			0x00F00000L		/* requires palette*/
+/* framebuffer and image data formats - yet unsupported formats commented out*/
+#define MWIF_BGRA8888	(0x00010000L|MWIF_HASALPHA) /* 32bpp BGRA image byte order (old TRUECOLOR8888)*/
+#define MWIF_RGBA8888	(0x00020000L|MWIF_HASALPHA)	/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
+//#define MWIF_ARGB8888	(0x00030000L|MWIF_HASALPHA)	/* 32bpp ARGB image byte order (new)*/
+//#define MWIF_ABGR8888	(0x00040000L|MWIF_HASALPHA)	/* 32bpp ABGR image byte order (new)*/
+//#define MWIF_BGRX8888	(0x00050000L|MWIF_HASALPHA)	/* 32bpp BGRX image order no alpha (new)*/
+#define MWIF_BGR888		 0x00060000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
+#define MWIF_RGB888		 0x00070000L		/* 24bpp RGB image byte order  (png no alpha)*/
+#define MWIF_RGB565		 0x00080000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
+//#define MWIF_RGB565_BE 0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
+#define MWIF_RGB555		 0x000A0000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
+//#define MWIF_RGB555_BE 0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
+//#define MWIF_BGR555	 0x000C0000L		/* 16bpp 5/5/5 BGR packed l.endian (old TRUECOLOR1555)*/
+//#define MWIF_BGR555_BE 0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
+#define MWIF_RGB332		 0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
+#define MWIF_BGR233		 0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
+#define MWIF_PAL1		 0x00100000L		/*  1bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL2		 0x00200000L		/*  2bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL4		 0x00400000L		/*  4bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL8		 0x00800000L		/*  8bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PALETTE	 0x00F00000L		/* requires palette*/
 
 /* Line modes */
 #define MWLINE_SOLID      0
@@ -288,6 +287,7 @@ typedef uint32_t		MWTEXTFLAGS;/* MWTF_ text flag*/
 #define	MWMIN(a,b)		((a) < (b) ? (a) : (b))
 #define	MWMAX(a,b) 		((a) > (b) ? (a) : (b))
 #define MWABS(x)		((x) < 0 ? -(x) : (x))
+#define MWSIGN(x)		(((x) > 0) ? 1 : (((x) == 0) ? 0 : -1))
 #define MWCLAMP(x,a,b)	((x) > (b) ? (b) : ((x) < (a) ? (a) : (x)))
 
 /* MWIMAGEBITS macros*/

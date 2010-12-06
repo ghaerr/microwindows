@@ -1,4 +1,9 @@
+5 Dec 2010
+	* revert to older GrResizeWindow method to fix bug shown by demos/nanox/ft2test.c
+	* remove PSF_HAVEBLIT, cleanup
+	* fillrect in GsWpDrawBackground if pixmap has alpha channel
 4 Dec 2010
+	* all blits except 16bpp are endian neutral
 	* cleanup GdBlit, rename GdStretchBlit, use common GdConvBlitInternal for all blit clipping
 	* added FrameBlit and FrameStretchBlit subdriver framebuffer blits
 	* removed Blit from fblin32/24/16/8 subdrivers, renamed driver proc BlitFallback

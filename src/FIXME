@@ -1,9 +1,13 @@
-remove GdFillRect in GsWpDrawBackgroundPixmap (added for SRCOVER)
-rewrite GdStretchImage to use convblit_stretch
 check GdCheckCursor in blit routines, may not need 2nd dest check, need srcpsd check
+	still small fraction of cursor shown in ft2test resize lower right corner
 	also check nanox/srvfunc.c for FIXME GdCheckCursors
 	remove CheckCursor from inner clip loop
+16bpp convblits are endian-specific
 
+GrResizeWindow bug: stretchblit multiple background expose event with incorrect sizes (ft2test.c)
+rewrite GdStretchImage to use convblit_stretch
+rewrite GdDrawImageToFit to use new stretchblit and/or pixmap
+rewrite image routines to use pixmaps, deprecate MWIMAGEHDR
 bin/mdemo requires extra mouse press/move to redraw on X11
 remove seperate driver procs and combine to single SUBDRIVER in screendevice
 rename orgsubdriver, left_subdriver etc
@@ -21,7 +25,6 @@ fix vncserver.c support (drawarea, etc)
 
 FT2 don't use antialias settings if no HAVEOP_ALPHACOL driver entry point
 
-16bpp convblits are endian-specific
 rename TRUECOLOR macros to match image byte order, or use upper vs lower case
 bgra/rgba blit uses src[3] for alpha, will only work on BGRA and BGRA formats
 fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c

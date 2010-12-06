@@ -19,10 +19,6 @@ gen_allocatememgc(PSD psd)
 {
 	PSD	mempsd;
 
-	/* if driver doesn't have blit, fail*/
-	if((psd->flags & PSF_HAVEBLIT) == 0)
-		return NULL;
-
 	mempsd = malloc(sizeof(SCREENDEVICE));
 	if (!mempsd)
 		return NULL;

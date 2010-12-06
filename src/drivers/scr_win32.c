@@ -159,7 +159,7 @@ win32_open(PSD psd)
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_HAVEBLIT;
+	psd->flags = PSF_SCREEN;
 	psd->portrait = MWPORTRAIT_NONE;
 printf("win32 emulated bpp %d\n", psd->bpp);
 

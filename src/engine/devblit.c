@@ -20,13 +20,6 @@
 #include "device.h"
 #include "convblit.h"
 
-#ifndef SIGN
-#define SIGN(x)		(((x) > 0) ? 1 : (((x) == 0) ? 0 : -1))
-#endif
-#ifndef ABS
-#define ABS(x)		(((x) >= 0) ? (x) : -(x))
-#endif
-
 extern MWPIXELVAL gr_foreground;      /* current foreground color */
 extern MWPIXELVAL gr_background;      /* current background color */
 extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
@@ -487,11 +480,11 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 
 			/* calculate various deltas for fast blitter source stepping*/
 			parms.src_x_step = x_numerator / x_denominator;
-			parms.src_x_step_one = SIGN(x_numerator);
-			parms.err_x_step = ABS(x_numerator) - ABS(parms.src_x_step) * x_denominator;
+			parms.src_x_step_one = MWSIGN(x_numerator);
+			parms.err_x_step = MWABS(x_numerator) - MWABS(parms.src_x_step) * x_denominator;
 			parms.src_y_step = y_numerator / y_denominator;
-			parms.src_y_step_one = SIGN(y_numerator);
-			parms.err_y_step = ABS(y_numerator) - ABS(parms.src_y_step) * y_denominator;
+			parms.src_y_step_one = MWSIGN(y_numerator);
+			parms.err_y_step = MWABS(y_numerator) - MWABS(parms.src_y_step) * y_denominator;
 
 			GdCheckCursor(dstpsd, rx1, ry1, rx2 - 1, ry2 - 1);	/* check cursor in dest region */
 			dstpsd->FrameStretchBlit(dstpsd, &parms);

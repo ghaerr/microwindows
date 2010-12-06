@@ -178,25 +178,24 @@ typedef struct _mwscreendevice {
 } SCREENDEVICE;
 
 /* PSD flags*/
-#define	PSF_SCREEN		0x0001	/* screen device*/
-#define PSF_MEMORY		0x0002	/* memory device*/
-#define PSF_HAVEBLIT		0x0004	/* have bitblit*/
+#define	PSF_SCREEN			0x0001	/* screen device*/
+#define PSF_MEMORY			0x0002	/* memory device*/
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
 #define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
 
 /* Interface to Mouse Device Driver*/
 typedef struct _mousedevice {
-	int	(*Open)(struct _mousedevice *);
+	int		(*Open)(struct _mousedevice *);
 	void	(*Close)(void);
-	int	(*GetButtonInfo)(void);
+	int		(*GetButtonInfo)(void);
 	void	(*GetDefaultAccel)(int *pscale,int *pthresh);
-	int	(*Read)(MWCOORD *dx,MWCOORD *dy,MWCOORD *dz,int *bp);
-	int	(*Poll)(void);	/* not required if have select()*/
-        int     flags;		/* raw, normal, transform flags*/
+	int		(*Read)(MWCOORD *dx,MWCOORD *dy,MWCOORD *dz,int *bp);
+	int		(*Poll)(void);	/* not required if have select()*/
+	int     flags;			/* raw, normal, transform flags*/
 } MOUSEDEVICE;
 
 #define MOUSE_NORMAL		0x0000	/* mouse in normal mode*/
-#define MOUSE_RAW		0x0001	/* mouse in raw mode*/
+#define MOUSE_RAW			0x0001	/* mouse in raw mode*/
 #define MOUSE_TRANSFORM		0x0002	/* perform transform*/
 
 /* Interface to Keyboard Device Driver*/
@@ -327,6 +326,7 @@ void 	GdSetClipRects(PSD psd,int count,MWCLIPRECT *table);
 
 /* devclip2.c only*/
 void	GdSetClipRegion(PSD psd, MWCLIPREGION *reg);
+void	GdPrintClipRects(PSD psd, PMWBLITPARMS gc);
 
 /* devrgn.c - multi-rectangle region entry points*/
 MWBOOL GdPtInRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y);

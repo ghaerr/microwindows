@@ -53,7 +53,7 @@
 #define	SMALLBUFFER 80
 #define	LARGEBUFFER 1024
 
-#if LINUX
+#if LINUX || MACOSX
 #include <stdlib.h>
 #define NSIG 	_NSIG
 #define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/

@@ -11,25 +11,31 @@
  *	__FreeBSD__
  *	__CYGWIN__
  *	TRIMEDIA
+ *	MACOSX
  */
 
 #ifndef MW_SWAP_H_INCLUDED
 #define MW_SWAP_H_INCLUDED
 
 /*
- *  First try to set endian automatically for those OSes that can do so.
+ *  First try to set MW_CPU_xxx_ENDIAN automatically for those OSes that can do so.
  */
-#if RTEMS
-/* automatically set MW_CPU_ endian define*/
-#include <machine/endian.h>
+#if LINUX
+#include <endian.h>
+#endif
 
-#  if BYTE_ORDER == BIG_ENDIAN
-#    define MW_CPU_BIG_ENDIAN 1
-#  elif BYTE_ORDER == LITTLE_ENDIAN
-#    define MW_CPU_LITTLE_ENDIAN 1
-#  else
-#    error "since when did RTEMS support the PDP-11?"
-#  endif
+#if RTEMS | MACOSX
+#include <machine/endian.h>
+#endif
+
+#ifdef BYTE_ORDER
+# if BYTE_ORDER == BIG_ENDIAN
+#   define MW_CPU_BIG_ENDIAN 1
+# elif BYTE_ORDER == LITTLE_ENDIAN
+#   define MW_CPU_LITTLE_ENDIAN 1
+# else
+#   error "swap.h: since when did anybody support the PDP-11?"
+# endif
 #endif
 
 /*
@@ -99,6 +105,17 @@
 #  endif
 # endif /* !__BYTE_ORDER == __BIG_ENDIAN*/
 /* end LINUX*/
+
+/* ********************************************************************* */
+/* MAC OSX                                                               */
+/* ********************************************************************* */
+#elif MACOSX
+
+#  undef wswap
+#  undef dwswap
+#  define wswap(x)	ntohs(x)
+#  define dwswap(x)	ntohl(x)
+/* end MACOSX*/
 
 /* ********************************************************************* */
 /* FreeBSD                                                               */

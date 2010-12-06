@@ -26,7 +26,7 @@ BOOL mwERASEMOVE = FALSE;	/* default ERASEMOVE repaint algorithm*/
 long mwTextCoding = MWTF_UTF8;	/* usually MWTF_ASCII or MWTF_UTF8*/
 
 /* cast a pointer to an integer*/
-#if DOS_TURBOC
+#if DOS_TURBOC | MACOSX
 #define PTRTOINT	unsigned long
 #else
 #define PTRTOINT	unsigned int

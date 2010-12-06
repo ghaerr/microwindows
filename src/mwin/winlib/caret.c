@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #ifndef __ECOS
-#include <malloc.h>
+#include <stdlib.h>
 #endif
 #include "windows.h"
 #include "device.h"

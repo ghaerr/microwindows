@@ -446,9 +446,7 @@ typedef struct {
 	/* these items filled in by GdConversionBlit*/
 	void *		data_out;		/* output image from conversion blits subroutines*/
 	MWCOORD		dst_pitch;		/* dest row length in bytes*/
-
-	/* this item used only in frame blits*/
-	PSD			srcpsd;			/* src psd, required for srcpsd->virtres*/
+	PSD			srcpsd;			/* frameblit src psd, required for srcpsd->virtres*/
 
 	/* these items only used in stretch frame blits*/
 	int			src_x_step;		/* normal steps in source image*/

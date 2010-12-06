@@ -20,6 +20,7 @@ Look at RGB2PIXEL in convblit_mask/8888.c, will this work on all systems?
 seperate x11 mouse/kbd from screen driver
 need different way of SUBDRIVER left/right/down etc switching
 
+64 bit port fails on windows sizeof(int) != sizeof(char *), need INT redefinition to 64
 test VTSWITCH
 fix vncserver.c support (drawarea, etc)
 

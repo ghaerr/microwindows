@@ -1,4 +1,6 @@
 5 Dec 2010
+	* prelim 64 bit MACOSX X11 port
+	* fix parms.srcpsd bug from last checkin
 	* revert to older GrResizeWindow method to fix bug shown by demos/nanox/ft2test.c
 	* remove PSF_HAVEBLIT, cleanup
 	* fillrect in GsWpDrawBackground if pixmap has alpha channel

@@ -304,7 +304,7 @@ fprintf(stderr, "CYGWIN: Opened pty_name %s\n", pty_name);
 	}
 	return master;
 }
-#elif (LINUX && UNIX98)
+#elif (UNIX && UNIX98)
 int
 CreatePtyShell(void)
 {
@@ -352,7 +352,7 @@ err:
 	}
 	return tfd;
 }
-#elif LINUX /* non-UNIX98 pty*/
+#elif UNIX /* non-UNIX98 pty*/
 int
 CreatePtyShell(void)
 {
@@ -400,7 +400,7 @@ again:
 	}
 	return tfd;
 }
-#endif /* LINUX*/
+#endif /* UNIX*/
 
 int
 ReadPtyShell(int fd, char *buf, int count)

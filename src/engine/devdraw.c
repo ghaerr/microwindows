@@ -1252,6 +1252,7 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, const MWI
 	parms.data = (char *)imagebits;
 	parms.dst_pitch = psd->pitch;			/* usually set in GdConversionBlit*/
 	parms.data_out = psd->addr;
+	parms.srcpsd = NULL;
 	GdConvBlitInternal(psd, &parms, convblit);
 }
 
@@ -1472,6 +1473,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	parms.data = pixels;
 	parms.dst_pitch = psd->pitch;		/* usually set in GdConversionBlit*/
 	parms.data_out = psd->addr;
+	parms.srcpsd = NULL;
 //GdPrintBitmap(&parms, pixsize);
 	GdConvBlitInternal(psd, &parms, convblit);
 }

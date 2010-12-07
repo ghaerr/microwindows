@@ -1,3 +1,6 @@
+7 Dec 2010
+	* fix GrNewBitmapFromPixmap/GrNewRegionFromPixmap, remove alpha (needs fix in 0.92 also)
+		fixes FLTK 1.10 bitmap.  FLTK 1.10 pixmap requires nxlib/SetClip.c fix
 5 Dec 2010
 	* prelim 64 bit MACOSX X11 port
 	* fix parms.srcpsd bug from last checkin
@@ -15,7 +18,7 @@
 	* rewrote GdStretchBlitEx upper/lower layers to use frameblit_stretch_xxxx
 	* removed StretchBlitEx from subdrivers
 	* background pixmap draw now uses SRC_OVER, added SRC_OVER/XOR_FGBG to GdStretchBlit/GdBlit
-	* fix bug in 24bpp stretchblit (dst_y_step = dstpsd->linelen*3), needs fix in 0.92
+	* fix bug in 24bpp stretchblit (dst_y_step = dstpsd->linelen*3), (needs fix in 0.92 also)
 	* deprecated MWROP_SRCCOPY, use MWROP_COPY
 29 Nov 2010
 	* rewrote GdBlit to use frameblit_xxxx rather than old format psd->Blit

@@ -250,9 +250,8 @@ GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, MWCOORD x, MWCOORD y,
 	pixel = buffer;
 	for (h = 0; h < height; h++) {
 		for (w = 0; w < width; w++) {
-			if (*pixel++)
-				bitmap[(h * bwidth) + (w >> 4)] |=
-					(1 << (15 - (w % 16)));
+			if (*pixel++ & 0x00ffffffL)	// remove 32bpp alpha
+				bitmap[(h * bwidth) + (w >> 4)] |= (1 << (15 - (w % 16)));
 		}
 	}
 	free(buffer);
@@ -295,7 +294,7 @@ GrNewRegionFromPixmap(GR_WINDOW_ID src, MWCOORD x, MWCOORD y, GR_SIZE width,
 		GR_RECT local;
 
 		for (w = mx; w < mw; w++) {
-			if (*pixel++) {
+			if (*pixel++ & 0x00ffffffL) {	// remove 32bpp alpha
 				if (state != 0)
 					continue;
 

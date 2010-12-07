@@ -1,3 +1,5 @@
+stipple needs to use convblit
+need 1bpp and RGBA GrNewPixmap options
 check GdCheckCursor in blit routines, may not need 2nd dest check, need srcpsd check
 	still small fraction of cursor shown in ft2test resize lower right corner
 	also check nanox/srvfunc.c for FIXME GdCheckCursors

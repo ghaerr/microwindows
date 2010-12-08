@@ -783,13 +783,6 @@ typedef struct {
 	MWUCHAR _padding;
 } MWPALENTRY;
 
-/* In-core mono and color image structure*/
-#define MWIMAGE_UPSIDEDOWN	01	/* compression flag: upside down image*/
-#define MWIMAGE_BGR		00	/* compression flag: BGR byte order*/
-#define MWIMAGE_RGB		02	/* compression flag: RGB not BGR bytes*/
-#define MWIMAGE_ALPHA_CHANNEL   04	/* compression flag: 32-bit w/alpha */
-#define MWIMAGE_555		0x08	/* compression flag: 5/5/5 format*/
-
 /* image structure - if changed, convbmp.c needs updating*/
 typedef struct {
 	int		width;		/* image width in pixels*/

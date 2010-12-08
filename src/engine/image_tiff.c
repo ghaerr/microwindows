@@ -77,10 +77,7 @@ GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 	pimage->planes = 1;
 	pimage->palsize = 0;
 	pimage->palette = NULL;
-	pimage->data_format = MWIF_RGBA8888;		/* upside down 32bpp RGBA image*/
-
-	/* compression used only by GdDrawImage fallback*/
-	pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL | MWIMAGE_UPSIDEDOWN;
+	pimage->compression = pimage->data_format = MWIF_RGBA8888;	/* upside down 32bpp RGBA image*/
 
 	/* Allocate image */
 	if ((parms.data = malloc(h * pimage->pitch)) == NULL ||

@@ -213,8 +213,6 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 		compression = bmpi.BiCompression;
 	}
 printf("bmp bpp %d\n", pimage->bpp);
-	pimage->compression = MWIMAGE_RGB;	/* right side up, BGR order will be converted to RGB*/
-	pimage->data_format = 0;		/* force GdDrawImage for now*/
 	pimage->planes = 1;
 
 	/* only 1, 4, 8, 16, 24 and 32 bpp bitmaps*/
@@ -222,9 +220,16 @@ printf("bmp bpp %d\n", pimage->bpp);
 	case 1:
 	case 4:
 	case 8:
+		pimage->data_format = 0;				/* force GdDrawImage for now*/
+		break;
 	case 16:
+		pimage->data_format = MWIF_RGB565;
+		break;
 	case 24:
+		pimage->data_format = MWIF_RGB888;		/* BGR will be converted to RGB*/
+		break;
 	case 32:
+		pimage->data_format = MWIF_RGBA8888;	/* converted to 32bpp RGBA w/255 alpha*/
 		break;
 	default:
 		EPRINTF("GdDecodeBMP: image bpp not 1, 4, 8, 16, 24 or 32\n");
@@ -263,13 +268,9 @@ printf("bmp bpp %d\n", pimage->bpp);
 			format = dwswap(dwread(buf));
 		}
 		if (format == 0x7c00)
-			pimage->compression |= MWIMAGE_555;
+			pimage->data_format = MWIF_RGB555;
 		/* else it's 5/6/5 format, no flag required*/
 	}
-
-//	printf("BMP format %d bpp", pimage->bpp);
-//	if (pimage->compression & MWIMAGE_555) printf(" 5/5/5");
-//	printf("\n");
 
 	/* decode image data*/
 	GdImageBufferSeekTo(src, bmpf.bfOffBits);
@@ -298,6 +299,7 @@ printf("bmp bpp %d\n", pimage->bpp);
 		convblit_bgr888_rgb888(imagebits, pimage->width, pimage->height, pimage->pitch);
 	else if (pimage->bpp == 32)
 		convblit_bgrx8888_rgba8888(imagebits, pimage->width, pimage->height, pimage->pitch);
+	pimage->compression = pimage->data_format;
 	return 1;		/* bmp image ok*/
 	
 err:

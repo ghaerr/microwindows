@@ -108,10 +108,10 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 
 	pimage->planes = 1;
 	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
-	pimage->compression = MWIMAGE_RGB;
 	if (pimage->bpp == 24)
 		pimage->data_format = MWIF_RGB888;
 	else pimage->data_format = 0;		/* force GdDrawImage for now*/
+	pimage->compression = pimage->data_format;
 	if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
 		EPRINTF("GdDecodePNM: couldn't allocate memory for image\n");
 		if(pimage->palette)

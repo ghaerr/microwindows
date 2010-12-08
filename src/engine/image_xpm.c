@@ -153,14 +153,13 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 
 			if (sinfo.bpp <= 8) {
 				pimage->bpp = sinfo.bpp;
-				pimage->compression = 0;
 				pimage->data_format = 0;		/* force GdDrawImage for now*/
 			} else {
 				pimage->bpp = 32;
-				pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL;
 				pimage->data_format = MWIF_RGBA8888;
 printf("xpm 32bpp RGBA8888\n");
 			}
+			pimage->compression = pimage->data_format;
 
 			pimage->palsize = colors;
 			GdComputeImagePitch(pimage->bpp, col, &pimage->pitch, &pimage->bytesperpixel);

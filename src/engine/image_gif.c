@@ -467,8 +467,7 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
     pimage->planes = 1;
     pimage->bpp = 8;
     GdComputeImagePitch(8, len, &pimage->pitch, &pimage->bytesperpixel);
-    pimage->compression = 0;
-    pimage->data_format = 0;		/* force GdDrawImage for now*/
+    pimage->compression = pimage->data_format = 0;		/* force GdDrawImage for now*/
     pimage->palsize = cmapSize;
     pimage->palette = malloc(256*sizeof(MWPALENTRY));
     pimage->imagebits = malloc(height*pimage->pitch);

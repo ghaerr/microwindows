@@ -44,7 +44,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	png_uint_32 width, height;
 	int bit_depth, color_type, i;
 	double file_gamma;
-	int channels, alpha_present;
+	int channels;
 
 	GdImageBufferSeekTo(src, 0UL);
 
@@ -116,22 +116,19 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	    NULL, NULL, NULL);
 
 	/* calculate new number of channels and store alpha-presence */
-	if (color_type == PNG_COLOR_TYPE_GRAY)
-	    channels = 1;
-	else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-	    channels = 2;
-	else if (color_type == PNG_COLOR_TYPE_RGB)
+	if (color_type == PNG_COLOR_TYPE_RGB)
 	    channels = 3;
 	else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
 	    channels = 4;
-	else
-	    channels = 0; /* should never happen */
-	/* 
-	 * FIXME note that GdDrawImage currently only supports 32bpp alpha channel.
-	 * Gray 8bpp w/alpha will be faked as 16bpp truecolor to avoid crashing.
-	 */
-	//alpha_present = (channels - 1) % 2;
-	alpha_present = (channels == 4);	/* force only COLOR_TYPE_RGB w/alpha*/
+//	else if (color_type == PNG_COLOR_TYPE_GRAY)
+//	    channels = 1;
+//	else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+//	    channels = 2;
+	else {
+	 	/* GdDrawImage currently only supports 32bpp alpha channel*/
+		DPRINTF("GdDecodePNG: Gray image type not supported: %d\n", color_type);
+		return 2;
+	}
 	
 	pimage->width = width;
 	pimage->height = height;
@@ -144,15 +141,10 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	/* set format for blit output*/
 	if (channels == 4)
 		pimage->data_format = MWIF_RGBA8888;
-	else if (channels == 3)
-		pimage->data_format = MWIF_RGB888;
-	else pimage->data_format = 0;		/* will use slow GdDrawImage*/
-printf("png %dbpp\n", channels*8);
-
-	if (alpha_present)
-		pimage->compression = MWIMAGE_RGB | MWIMAGE_ALPHA_CHANNEL;
 	else
-		pimage->compression = MWIMAGE_RGB;
+		pimage->data_format = MWIF_RGB888;
+	pimage->compression = pimage->data_format; 	/* used only by GdDrawImage fallback*/
+printf("png %dbpp\n", channels*8);
 
     if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);

@@ -1,3 +1,5 @@
+8 Dec 2010
+	* cleanup MWIMAGE_RGB in engine/image_xxx routines
 7 Dec 2010
 	* fix GrNewBitmapFromPixmap/GrNewRegionFromPixmap, remove alpha (needs fix in 0.92 also)
 		fixes FLTK 1.10 bitmap.  FLTK 1.10 pixmap requires nxlib/SetClip.c fix

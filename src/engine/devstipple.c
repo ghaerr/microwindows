@@ -34,7 +34,6 @@ static int ts_origin_y = 0;
 void
 GdSetStippleBitmap(MWIMAGEBITS *stipple, MWCOORD width, MWCOORD height)
 {
-	int x, y;
 	int size;
 
 	if (gr_stipple.bitmap)

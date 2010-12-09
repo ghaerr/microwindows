@@ -248,7 +248,7 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	assert(dstpsd->portrait == srcpsd->portrait);
 
 	/* DPRINTF("Nano-X: GdStretchBlit(dst=%x (%d,%d)-(%d,%d), src=%x (%d,%d)-(%d,%d), op=%d\n",
-	           (int) dstpsd, dx1, dy1, dx2, dy2, (int) srcpsd, sx1, sy1, sx2, sy2, rop); */
+	           (int) dstpsd, dx1, dy1, dx2, dy2, (int) srcpsd, sx1, sy1, sx2, sy2, rop);*/
 
 	/* Sort co-ordinates so d1 is top left, d2 is bottom right. */
 	if (dx1 > dx2) {

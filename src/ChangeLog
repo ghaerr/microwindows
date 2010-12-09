@@ -1,3 +1,6 @@
+9 Dec 2010
+	* fix err_x init in stretch blits, caused glitches/crash in portrait modes
+	* fix mouse/touch code for down portrait mode (Uwe)
 8 Dec 2010
 	* cleanup MWIMAGE_RGB in engine/image_xxx routines
 7 Dec 2010

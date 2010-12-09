@@ -328,7 +328,7 @@ static inline void frameblit_stretchblit(PSD dstpsd, PMWBLITPARMS gc,
 	int err_x_step = gc->err_x_step; 		/* 1-unit error steps in source image*/
 	int err_y_step = gc->err_y_step;
 	int err_y = gc->err_y; 					/* source coordinate error tracking*/
-	int err_x = gc->err_x;
+	int err_x_start = gc->err_x;
 	int dst_y_step;							/* normal steps in dest image*/
 	int x_denominator = gc->x_denominator;
 	int y_denominator = gc->y_denominator;
@@ -440,8 +440,9 @@ printf("sblit copy\n");
 		/* fast copy implementation, almost identical to default case below*/
 		while (--height >= 0)
 		{
-			unsigned char *s = src;
-			unsigned char *d = dst;
+			register unsigned char *s = src;
+			register unsigned char *d = dst;
+			int err_x = err_x_start;
 			int w = width;
 
 			while (--w >= 0)
@@ -490,12 +491,14 @@ printf("sblit src_over\n");
 		{
 			register unsigned char *s = src;
 			register unsigned char *d = dst;
+			int err_x = err_x_start;
 			int w = width;
 
 			while (--w >= 0)
 			{
 #if 1	/* endian-neutral code - reads/writes bytes only*/
 				unsigned int alpha;
+
 				if ((alpha = s[SA]) == 255)				/* copy source*/
 				{
 					d[DR] = s[SR];
@@ -604,6 +607,7 @@ printf("sblit src_over\n");
 		{
 			register unsigned char *s = src;
 			register unsigned char *d = dst;
+			int err_x = err_x_start;
 			int w = width;
 
 			while (--w >= 0)
@@ -652,6 +656,7 @@ printf("sblit op %d\n", op);
 		{
 			register unsigned char *s = src;
 			register unsigned char *d = dst;
+			int err_x = err_x_start;
 			int w = width;
 
 			while (--w >= 0)

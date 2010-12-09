@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (C) 1999 Bradley D. LaRonde (brad@ltc.com)
  * Copyright (c) 1991 David I. Bell
@@ -639,7 +639,7 @@ filter_absrotate(int state, int *xpos, int *ypos)
 		break;
 
 	case MWPORTRAIT_DOWN:
-		*xpos = x;
+		*xpos = scrdev.xres - x - 1;
 		*ypos = scrdev.yres - y - 1;
 		break;
 

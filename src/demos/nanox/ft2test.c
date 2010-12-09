@@ -12,6 +12,8 @@
 
 //#define IMAGE	 "bin/tux.gif"
 #define IMAGE	 "mwin/bmp/alphademo.png"
+//#define IMAGE	 "mwin/bmp/earth.jpg"
+//#define IMAGE	 "mwin/bmp/bigapple.gif"
 
 void draw_ellipse(GR_GC_ID gc, int x, int y, int color, char *text);
 void test_ft2_antialias(void);

@@ -412,17 +412,16 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 	}
 
 	if(destwidth > 0 && destheight > 0) {
-		int cx = wp->x + destx;
-		int cy = wp->y + desty;
 		if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
-
-			GdStretchBlit(wp->psd, cx, cy, cx + destwidth - 0, cy + destheight - 0,
-				pm->psd, fromx, fromy, fromx + pm->width - 1, fromy + pm->height - 1, MWROP_SRC_OVER);
+			/* must use whole window coords or stretch will have incorrect ratios*/
+			GdStretchBlit(wp->psd, wp->x, wp->y, wp->x + wp->width, wp->y + wp->height,
+				pm->psd, 0, 0, pm->width - 1, pm->height - 1, MWROP_SRC_OVER);
 		} else {
 			if (width < destwidth) destwidth = width;
 			if (height < destheight) destheight = height;
 
-			GdBlit(wp->psd, cx, cy, destwidth, destheight, pm->psd, fromx, fromy, MWROP_SRC_OVER);
+			GdBlit(wp->psd, wp->x + destx, wp->y + desty, destwidth, destheight,
+				pm->psd, fromx, fromy, MWROP_SRC_OVER);
 		}
 	}
 
@@ -606,10 +605,16 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
 		GdSetMode(GR_MODE_COPY);
 		GdSetForegroundColor(wp->psd, wp->background);
-		if (!wp->bgpixmap || (wp->bgpixmap->psd->data_format & MWIF_HASALPHA))
-			GdFillRect(wp->psd, wp->x + x, wp->y + y, width,height);
+
+		/* if background pixmap and alpha channel, fill entire (clipped) window*/
+		if (wp->bgpixmap && (wp->bgpixmap->psd->data_format & MWIF_HASALPHA) &&
+			wp->bgpixmapflags != GR_BACKGROUND_TILE)
+				GdFillRect(wp->psd, wp->x, wp->y, wp->width, wp->height);
+
 		if (wp->bgpixmap)
 			GsWpDrawBackgroundPixmap(wp, wp->bgpixmap, x, y, width, height);
+		else /* if no pixmap background clear exposed area*/
+			GdFillRect(wp->psd, wp->x + x, wp->y + y, width, height);
 	}
 
 	/*

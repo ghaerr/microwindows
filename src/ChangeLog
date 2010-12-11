@@ -1,7 +1,8 @@
 10 Dec 2010
+	* fix background clear when drawing background pixmaps with alpha channel or stretching
 	* comment out skip blit and send expose in GrCopyArea(), fixes root window expose/clip bug
 		bug was seen in chess.sh and blitdemo.sh
-	* renamed and updated ft2test.c/sh to blitdemo.c/sh
+	* new blitdemo.sh demo (uses renamed/updated ft2test.c -> blitdemo.c)
 	* add srcxvirtres, srcyvirtres to MWBLITPARMS for src coord rotations, remove srcpsd-> in blit
 9 Dec 2010
 	* fix err_x init in stretch blits, caused glitches/crash in portrait modes

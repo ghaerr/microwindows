@@ -590,18 +590,16 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	if (x >= wp->width || y >= wp->height || width <= 0 || height <= 0)
 		return;
 
-	/*
-	 * Draw the background of the window.
-	 * Invalidate the current graphics context since
-	 * we are changing the foreground color and mode.
-	 */
-clipwp = NULL;
-	GsSetClipWindow(wp, NULL, 0);
-	curgcp = NULL;
-
-	GdSetFillMode(GR_FILL_SOLID);
-
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
+		/*
+	 	 * Draw the background of the window.
+	 	 * Invalidate the current graphics context since
+	 	 * we are changing the foreground color and mode.
+	 	 */
+		GsSetClipWindow(wp, NULL, 0);
+		curgcp = NULL;
+
+		GdSetFillMode(GR_FILL_SOLID);
 		GdSetMode(GR_MODE_COPY);
 		GdSetForegroundColor(wp->psd, wp->background);
 

@@ -1,6 +1,6 @@
-stop blink in erase background for alpha pixmaps
 bug in stretchdemo.c: window partially offscreen and root expose bug
-	temp commented out skip blit and send expose in GrCopyArea
+	temp commented out skip blit and send expose in GrCopyArea (chess.sh, blitdemo.sh)
+	happens whenever root window has expose events set (blitdemo.sh)
 stipple needs to use convblit
 need 1bpp and RGBA GrNewPixmap options
 check GdCheckCursor in blit routines, may not need 2nd dest check, need srcpsd check
@@ -9,7 +9,8 @@ check GdCheckCursor in blit routines, may not need 2nd dest check, need srcpsd c
 	remove CheckCursor from inner clip loop
 16bpp convblits are endian-specific
 
-GrResizeWindow bug: stretchblit multiple background expose event with incorrect sizes (ft2test.c)
+nxterm.sh buggy when overlapped blit
+stop blink in erase background for alpha pixmaps
 rewrite GdStretchImage to use convblit_stretch
 rewrite GdDrawImageToFit to use new stretchblit and/or pixmap
 rewrite image routines to use pixmaps, deprecate MWIMAGEHDR

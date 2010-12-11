@@ -843,9 +843,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-#if 0 // FIXME temp commented out
-	/* turned off because of duplicate incorrect redraws on expose*/
-	/* stretchblit backgrounds are sometimes incorrect, see blitdemo.c*/
+#if 1
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
@@ -860,7 +858,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		GsExposeArea(wp->parent, wp->x - bs, wp->y - bs, oldw + bs * 2, oldh + bs * 2, NULL);
 	}
 #endif
-#if 1 // FIXME temp commented in, see above FIXME
+#if 0
 	/*
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.

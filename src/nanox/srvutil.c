@@ -411,18 +411,16 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		destheight = y + height - pixmapy;
 	}
 
-	if(destwidth > 0 && destheight > 0) {
-		if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
-			/* must use whole window coords or stretch will have incorrect ratios*/
-			GdStretchBlit(wp->psd, wp->x, wp->y, wp->x + wp->width, wp->y + wp->height,
-				pm->psd, 0, 0, pm->width - 1, pm->height - 1, MWROP_SRC_OVER);
-		} else {
-			if (width < destwidth) destwidth = width;
-			if (height < destheight) destheight = height;
+	if (wp->bgpixmapflags & GR_BACKGROUND_STRETCH) {
+		/* must use whole window coords or stretch will have incorrect ratios*/
+		GdStretchBlit(wp->psd, wp->x, wp->y, wp->x + wp->width, wp->y + wp->height,
+			pm->psd, 0, 0, pm->width - 1, pm->height - 1, MWROP_SRC_OVER);
+	} else if(destwidth > 0 && destheight > 0) {
+		if (width < destwidth) destwidth = width;
+		if (height < destheight) destheight = height;
 
-			GdBlit(wp->psd, wp->x + destx, wp->y + desty, destwidth, destheight,
-				pm->psd, fromx, fromy, MWROP_SRC_OVER);
-		}
+		GdBlit(wp->psd, wp->x + destx, wp->y + desty, destwidth, destheight,
+			pm->psd, fromx, fromy, MWROP_SRC_OVER);
 	}
 
 	if(wp->bgpixmapflags & (GR_BACKGROUND_TRANS|GR_BACKGROUND_STRETCH))
@@ -597,6 +595,7 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	 * Invalidate the current graphics context since
 	 * we are changing the foreground color and mode.
 	 */
+clipwp = NULL;
 	GsSetClipWindow(wp, NULL, 0);
 	curgcp = NULL;
 

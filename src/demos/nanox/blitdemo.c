@@ -3,10 +3,12 @@
 #include "nano-X.h"
 #include "nxcolors.h"
 
+#define TEST_COPYAREA		0
 #define TEST_XOR_VHLINE		0
 
 //#define FONT	"DejaVuSans-Bold.ttf"
 #define FONT	"arial.ttf"
+
 
 //#define IMAGE	 "bin/tux.gif"
 #define IMAGE	 "mwin/bmp/alphademo.png"
@@ -115,10 +117,11 @@ main(void)
 	/* create window with background image*/
 	init_stretchblit();
 
+#if TEST_COPYAREA
 	/* draw root background once*/
 	redraw();
-
 	GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_EXPOSURE);
+#endif
 
 	while (!quit) {
 		GR_EVENT event;

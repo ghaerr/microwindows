@@ -60,7 +60,7 @@ static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
 		gc->dstx = tmp;
 
 		tmp = gc->srcy;
-		gc->srcy = gc->srcpsd->xvirtres - gc->srcx - gc->width;
+		gc->srcy = gc->src_xvirtres - gc->srcx - gc->width;
 		gc->srcx = tmp;
 
 		tmp = gc->width;
@@ -75,7 +75,7 @@ static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
 		gc->dsty = tmp;
 
 		tmp = gc->srcx;
-		gc->srcx = gc->srcpsd->yvirtres - gc->srcy - gc->height;
+		gc->srcx = gc->src_yvirtres - gc->srcy - gc->height;
 		gc->srcy = tmp;
 
 		tmp = gc->width;
@@ -88,8 +88,8 @@ static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
 		gc->dstx = psd->xvirtres - gc->dstx - gc->width;
 		gc->dsty = psd->yvirtres - gc->dsty - gc->height;
 
-		gc->srcx = gc->srcpsd->xvirtres - gc->srcx - gc->width;
-		gc->srcy = gc->srcpsd->yvirtres - gc->srcy - gc->height;
+		gc->srcx = gc->src_xvirtres - gc->srcx - gc->width;
+		gc->srcy = gc->src_yvirtres - gc->srcy - gc->height;
 		break;
 	}
 
@@ -317,7 +317,7 @@ void frameblit_8bpp(PSD psd, PMWBLITPARMS gc)
 }
 
 /* framebuffer pixel format stretch blit - src/dst rotation code, no backwards copy*/
-static inline void frameblit_stretchblit(PSD dstpsd, PMWBLITPARMS gc,
+static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 	int SSZ, int SR, int SG, int SB, int SA,
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
 {
@@ -362,11 +362,11 @@ static inline void frameblit_stretchblit(PSD dstpsd, PMWBLITPARMS gc,
 		/* change src/dst top left to lower left for left portrait*/
 		/* rotate left: X -> Y, Y -> maxx - X*/
 		tmp = gc->dsty;
-		gc->dsty = dstpsd->xvirtres - gc->dstx - 1;
+		gc->dsty = psd->xvirtres - gc->dstx - 1;
 		gc->dstx = tmp;
 
 		tmp = gc->srcy;
-		gc->srcy = gc->srcpsd->xvirtres - gc->srcx - 1;
+		gc->srcy = gc->src_xvirtres - gc->srcx - 1;
 		gc->srcx = tmp;
 
 		dsz = -gc->dst_pitch;		/* src/dst: next row up*/
@@ -379,11 +379,11 @@ static inline void frameblit_stretchblit(PSD dstpsd, PMWBLITPARMS gc,
 		/* change src/dst top left to upper right for right portrait*/
  		/* Rotate right: X -> maxy - y - h, Y -> X, W -> H, H -> W*/
 		tmp = gc->dstx;
-		gc->dstx = dstpsd->yvirtres - gc->dsty - 1;
+		gc->dstx = psd->yvirtres - gc->dsty - 1;
 		gc->dsty = tmp;
 
 		tmp = gc->srcx;
-		gc->srcx = gc->srcpsd->yvirtres - gc->srcy - 1;
+		gc->srcx = gc->src_yvirtres - gc->srcy - 1;
 		gc->srcy = tmp;
 
 		dsz = gc->dst_pitch;		/* src/dst: next pixel down*/
@@ -395,11 +395,11 @@ static inline void frameblit_stretchblit(PSD dstpsd, PMWBLITPARMS gc,
 	case DOWN:
 		/* change src/dst top left to lower right for down portrait*/
  		/* Rotate down: X -> maxx - x - w, Y -> maxy - y - h*/
-		gc->dstx = dstpsd->xvirtres - gc->dstx - 1;
-		gc->dsty = dstpsd->yvirtres - gc->dsty - 1;
+		gc->dstx = psd->xvirtres - gc->dstx - 1;
+		gc->dsty = psd->yvirtres - gc->dsty - 1;
 
-		gc->srcx = gc->srcpsd->xvirtres - gc->srcx - 1;
-		gc->srcy = gc->srcpsd->yvirtres - gc->srcy - 1;
+		gc->srcx = gc->src_xvirtres - gc->srcx - 1;
+		gc->srcy = gc->src_yvirtres - gc->srcy - 1;
 
 		ssz = dsz = -DSZ;			/* src/dst: next pixel left*/
 		dst_pitch = -gc->dst_pitch;	/* src/dst: next pixel up*/
@@ -418,7 +418,7 @@ static inline void frameblit_stretchblit(PSD dstpsd, PMWBLITPARMS gc,
 	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;
 
 	/* src_over supported for 32bpp framebuffer only*/
-	if (op == MWROP_SRC_OVER && dstpsd->bpp != 32)
+	if (op == MWROP_SRC_OVER && psd->bpp != 32)
 		op = MWROP_COPY;
 
 	/*
@@ -703,22 +703,22 @@ printf("sblit op %d\n", op);
 	/* switch could be optimized out with constant PORTRAIT paramater*/
 	switch (PORTRAIT) {
 	case NONE:
-		dstpsd->Update(dstpsd, gc->dstx, gc->dsty, gc->width, gc->height);
+		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
 		break;
 
 	case LEFT:
 		/* adjust x,y,w,h to physical top left and w/h*/
-		dstpsd->Update(dstpsd, gc->dstx, gc->dsty - gc->width + 1, gc->height, gc->width);
+		psd->Update(psd, gc->dstx, gc->dsty - gc->width + 1, gc->height, gc->width);
 		break;
 
 	case RIGHT:
 		/* adjust x,y,w,h to physical top left and w/h*/
-		dstpsd->Update(dstpsd, gc->dstx - gc->height + 1, gc->dsty, gc->height, gc->width);
+		psd->Update(psd, gc->dstx - gc->height + 1, gc->dsty, gc->height, gc->width);
 		break;
 
 	case DOWN:
 		/* adjust x,y,w,h to physical top left and w/h*/
-		dstpsd->Update(dstpsd, gc->dstx - gc->width + 1, gc->dsty - gc->height + 1, gc->width, gc->height);
+		psd->Update(psd, gc->dstx - gc->width + 1, gc->dsty - gc->height + 1, gc->width, gc->height);
 		break;
 	}
 }

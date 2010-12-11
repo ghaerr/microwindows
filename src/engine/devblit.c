@@ -177,7 +177,9 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	parms.data = srcpsd->addr;
 	parms.data_out = dstpsd->addr;
 	parms.dst_pitch = dstpsd->pitch;
-	parms.srcpsd = srcpsd;
+	parms.srcpsd = srcpsd;					/* for GdCheckCursor/GdFixCursor*/
+	parms.src_xvirtres = srcpsd->xvirtres;	/* used in frameblit for src rotation*/
+	parms.src_yvirtres = srcpsd->yvirtres;
 
 	GdConvBlitInternal(dstpsd, &parms, frameblit);
 }
@@ -419,6 +421,8 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	parms.data_out = dstpsd->addr;
 	parms.dst_pitch = dstpsd->pitch;
 	parms.srcpsd = srcpsd;
+	parms.src_xvirtres = srcpsd->xvirtres;	/* used in frameblit for src rotation*/
+	parms.src_yvirtres = srcpsd->yvirtres;
 	parms.x_denominator = x_denominator;
 	parms.y_denominator = y_denominator;
 
@@ -492,7 +496,8 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 		++prc;
 	}
 	GdFixCursor(dstpsd);
-	//GdFixCursor(srcpsd);
+	//if (srcpsd != dstpsd)
+	//	GdFixCursor(srcpsd);
 }
 
 /* call conversion blit with clipping and cursor fix*/

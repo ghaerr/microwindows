@@ -446,13 +446,15 @@ typedef struct {
 	/* these items filled in by GdConversionBlit*/
 	void *		data_out;		/* output image from conversion blits subroutines*/
 	MWCOORD		dst_pitch;		/* dest row length in bytes*/
-	PSD			srcpsd;			/* frameblit src psd, required for srcpsd->virtres*/
+	PSD			srcpsd;			/* frameblit src psd, used for fallback and GdFixCursor*/
 
 	/* these items only used in stretch frame blits*/
 	int			src_x_step;		/* normal steps in source image*/
 	int			src_y_step;
 	int			src_x_step_one;	/* 1-unit steps in source image*/
 	int			src_y_step_one;
+	MWCOORD		src_xvirtres;	/* srcpsd->x/y virtres, used in frameblit for src coord rotation*/
+	MWCOORD		src_yvirtres;
 	int			err_x_step;		/* 1-unit error steps in source image*/
 	int			err_y_step;
 	int			err_y;			/* source coordinate error tracking*/

@@ -73,7 +73,7 @@ TARGETS = \
 	$(MW_DIR_BIN)/demo5 \
 	$(MW_DIR_BIN)/demo6 \
 	$(MW_DIR_BIN)/ftdemo \
-	$(MW_DIR_BIN)/ft2test \
+	$(MW_DIR_BIN)/blitdemo \
 	$(MW_DIR_BIN)/t1demo \
 	$(MW_DIR_BIN)/logfont \
 	$(MW_DIR_BIN)/ntetris \

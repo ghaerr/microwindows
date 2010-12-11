@@ -1,3 +1,8 @@
+bugs in stretchdemo.c:
+	overlapped window w/background pixmap expose size bug
+		temp commented out expose GrResizeWindow code, unmaps window for now
+	window partially offscreen and root expose bug
+		temp commented out skip blit and send expose in GrCopyArea
 stipple needs to use convblit
 need 1bpp and RGBA GrNewPixmap options
 check GdCheckCursor in blit routines, may not need 2nd dest check, need srcpsd check

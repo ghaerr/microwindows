@@ -843,9 +843,9 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-#if 0
+#if 0 // FIXME temp commented out
 	/* turned off because of duplicate incorrect redraws on expose*/
-	/* stretchblit backgrounds are sometimes incorrect, see demos/nanox/ft2test.c*/
+	/* stretchblit backgrounds are sometimes incorrect, see blitdemo.c*/
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
@@ -860,7 +860,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		GsExposeArea(wp->parent, wp->x - bs, wp->y - bs, oldw + bs * 2, oldh + bs * 2, NULL);
 	}
 #endif
-#if 1
+#if 1 // FIXME temp commented in, see above FIXME
 	/*
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.
@@ -3238,6 +3238,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		rc.right = srcx + width;
 		rc.bottom = srcy + height;
 
+#if 0 // FIXME temp commented out - causes window disappear in blitdemo.c
 		/*
 		 * if source isn't entirely within clip region, then
 		 * the blit is partly obscured and will copy some garbage.
@@ -3250,8 +3251,9 @@ EPRINTF("nano-X: skipping blit, sending expose event\n");
 			SERVER_UNLOCK();
 			return;
 		}
-	}
 #endif
+	}
+#endif /* DYNAMICREGIONS*/
 
 	if (op == MWROP_USE_GC_MODE) {
 		GR_GC *gcp = GsFindGC(gc);
@@ -4253,7 +4255,7 @@ GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
  *
  * @param wid		window id
  * @param rid		region id
- * @param type	region type, bounding or clip mask
+ * @param type	region type, GR_WINDOW_BOUNDING_MASK or GR_WINDOW_CLIP_MASK
  */
 void
 GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)

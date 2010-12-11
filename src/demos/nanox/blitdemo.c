@@ -3,7 +3,7 @@
 #include "nano-X.h"
 #include "nxcolors.h"
 
-#define TEST_COPYAREA		0
+#define TEST_COPYAREA		1
 #define TEST_XOR_VHLINE		0
 
 //#define FONT	"DejaVuSans-Bold.ttf"

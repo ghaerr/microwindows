@@ -40,11 +40,11 @@ static void errorhandler(GR_EVENT *ep)
 
 int main(int argc, char *argv[])
 {
-	unsigned char line[256];
 	GR_EVENT event;
 	FILE *infile;
 	int i, o;
 	unsigned char *p;
+	char line[256];
 
 	if(argc != 2) {
 		printf("Usage: demo6 <filename.ppm>\n");

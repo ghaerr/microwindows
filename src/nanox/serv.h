@@ -1,7 +1,7 @@
 #ifndef	_SERV_H
 #define	_SERV_H
 /*
- * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
@@ -282,7 +282,7 @@ struct gr_cursor {
  */
 typedef struct {
 	GR_WINDOW_ID wid;
-	GR_CHAR *typelist;
+	char *typelist;
 } GR_SELECTIONOWNER;
 
 
@@ -361,7 +361,7 @@ struct gr_window {
 	GR_BOOL		realized;	/* TRUE means window is visible */
 	GR_BOOL		output;		/* TRUE if window can do output */
 	GR_WM_PROPS	props;		/* window properties*/
-	GR_CHAR		*title;		/* window title*/
+	char		*title;		/* window title*/
 	MWCLIPREGION	*clipregion;	/* window clipping region */
 };
 
@@ -405,7 +405,7 @@ struct gr_grabbed_key {
 /*
  * Graphics server routines.
  */
-int		GsInitialize(void);
+int			GsInitialize(void);
 void		GsClose(int fd);
 void		GsSelect(GR_TIMEOUT timeout);
 void		GsTerminate(void);
@@ -414,69 +414,57 @@ void		GsRedrawScreen(void);
 void		GsError(GR_ERROR code, GR_ID id);
 GR_BOOL		GsCheckMouseEvent(void);
 GR_BOOL		GsCheckKeyboardEvent(void);
-int		GsReadKeyboard(GR_CHAR *buf, int *modifiers);
-int		GsOpenKeyboard(void);
+int			GsReadKeyboard(char *buf, int *modifiers);
+int			GsOpenKeyboard(void);
 void		GsGetButtonInfo(int *buttons);
 void		GsGetModifierInfo(int *modifiers);
 void		GsCloseKeyboard(void);
 void		GsExposeArea(GR_WINDOW *wp, GR_COORD rootx, GR_COORD rooty,
-			GR_SIZE width, GR_SIZE height, GR_WINDOW *stopwp);
+				GR_SIZE width, GR_SIZE height, GR_WINDOW *stopwp);
 void		GsCheckCursor(void);
-void		GsWpNotifyActivate(GR_WINDOW *wp);
-void		GsWpSetFocus(GR_WINDOW *wp);
-void		GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
-			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
-void		GsWpTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
-			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
-void		GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
-			GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
-void		GsWpUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
-void		GsWpRealizeWindow(GR_WINDOW *wp, GR_BOOL temp);
-void		GsWpDestroyWindow(GR_WINDOW *wp);
+void		GsNotifyActivate(GR_WINDOW *wp);
+void		GsSetFocus(GR_WINDOW *wp);
+void		GsDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
+				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
+void		GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
+				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
+void		GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
+				GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
+void		GsUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
+void		GsRealizeWindow(GR_WINDOW *wp, GR_BOOL temp);
+void		GsDestroyWindow(GR_WINDOW *wp);
 void		GsSetPortraitMode(int mode);
 void		GsSetPortraitModeFromXY(GR_COORD rootx, GR_COORD rooty);
-void		GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion,
-			int flags);
-void		GsHandleMouseStatus(GR_COORD newx, GR_COORD newy,
-			int newbuttons);
-void		GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
-			GR_WINDOW_ID subwid);
-void		GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons,
-			int changebuttons, int modifiers);
-void		GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons,
-			MWKEYMOD modifiers);
+void		GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags);
+void		GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons);
+void		GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid);
+void		GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons, int modifiers);
+void		GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers);
 void		GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
-			GR_KEY keyvalue, GR_KEYMOD modifiers,
-			GR_SCANCODE scancode);
-void		GsDeliverExposureEvent(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
-			GR_SIZE width, GR_SIZE height);
+			GR_KEY keyvalue, GR_KEYMOD modifiers, GR_SCANCODE scancode);
+void		GsDeliverExposureEvent(GR_WINDOW *wp,GR_COORD x,GR_COORD y,GR_SIZE width,GR_SIZE height);
 void		GsFreeExposureEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
-			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
+				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsDeliverUpdateEvent(GR_WINDOW *wp, GR_UPDATE_TYPE utype,
-			GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
-void		GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type,
-			GR_WINDOW *other);
+				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
+void		GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other);
 void		GsDeliverPortraitChangedEvent(void);
 void		GsDeliverScreenSaverEvent(GR_BOOL activate);
-void		GsDeliverRawMouseEvent(int x, int y, int buttons, int);
+void		GsDeliverRawMouseEvent(GR_COORD x, GR_COORD y, int buttons, int modifiers);
 void		GsDeliverClientDataReqEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
-			GR_SERIALNO serial, GR_MIMETYPE mimetype);
+				GR_SERIALNO serial, GR_MIMETYPE mimetype);
 void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
-			GR_SERIALNO serial, GR_LENGTH len, GR_LENGTH thislen,
-			void *data);
-void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner,
-			GR_WINDOW_ID new_owner);
+				GR_SERIALNO serial, GR_LENGTH len, GR_LENGTH thislen, void *data);
+void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner);
 #if MW_FEATURE_TIMERS
-void		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid,
-			GR_TIMER_ID tid);
+void		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid);
 GR_TIMER	*GsFindTimer(GR_TIMER_ID timer_id);
-void            GsTimerCB(void *arg);
+void		GsTimerCB(void *arg);
 #endif /* MW_FEATURE_TIMERS */
 
 void		GsCheckMouseWindow(void);
 void		GsCheckFocusWindow(void);
-GR_DRAW_TYPE	GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid,
-			GR_DRAWABLE **retdp);
+GR_DRAW_TYPE GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp);
 GR_BOOL		GsCheckOverlap(GR_WINDOW *topwp, GR_WINDOW *botwp);
 GR_EVENT	*GsAllocEvent(GR_CLIENT *client);
 GR_WINDOW	*GsFindWindow(GR_WINDOW_ID id);
@@ -488,18 +476,18 @@ GR_CURSOR 	*GsFindCursor(GR_CURSOR_ID cursorid);
 GR_WINDOW	*GsPrepareWindow(GR_WINDOW_ID wid);
 GR_WINDOW	*GsFindVisibleWindow(GR_COORD x, GR_COORD y);
 void		GsDrawBorder(GR_WINDOW *wp);
-int		GsCurrentVt(void);
+int			GsCurrentVt(void);
 void		GsRedrawVt(int t);
-int		GsOpenSocket(void);
+int			GsOpenSocket(void);
 void		GsCloseSocket(void);
 void		GsAcceptClient(void);
 void		GsAcceptClientFd(int i);
-int		GsPutCh(int fd, unsigned char c);
+int			GsPutCh(int fd, unsigned char c);
 GR_CLIENT	*GsFindClient(int fd);
 void		GsDestroyClientResources(GR_CLIENT * client);
 void		GsDropClient(int fd);
-int		GsRead(int fd, void *buf, int c);
-int		GsWrite(int fd, void *buf, int c);
+int			GsRead(int fd, void *buf, int c);
+int			GsWrite(int fd, void *buf, int c);
 void		GsHandleClient(int fd);
 void		GsResetScreenSaver(void);
 void		GsActivateScreenSaver(void *arg);

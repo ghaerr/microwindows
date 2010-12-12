@@ -715,7 +715,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 	   ) {
 		int 		oldx = wp->x;
 		int 		oldy = wp->y;
-		GR_WINDOW_ID 	pixid = GrNewPixmap(wp->width, wp->height,NULL);
+		GR_WINDOW_ID 	pixid = GrNewPixmapEx(wp->width, wp->height, 0, NULL);
 		GR_GC_ID	gc = GrNewGC();
 		GR_WINDOW * 	stopwp = wp;
 		int		X, Y, W, H;
@@ -1416,7 +1416,7 @@ GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
  * Set the x,y origin of user clip region in GC.
  */
 void
-GrSetGCClipOrigin(GR_GC_ID gc, int xoff, int yoff)
+GrSetGCClipOrigin(GR_GC_ID gc, GR_SIZE xoff, GR_SIZE yoff)
 {
 	GR_GC		*gcp;
 
@@ -1587,20 +1587,13 @@ GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
 	return ret_val;
 }
 
-/* DEPRECATED - use GrCreateFontEx*/
-GR_FONT_ID
-GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
-{
-	return GrCreateFontEx(name, height, height, plogfont);
-}
-
 static int nextfontid = 1000;
 /*
  * Allocate a new GC with default parameters.
  * The GC is owned by the current client.
  */
 GR_FONT_ID
-GrCreateFontEx(GR_CHAR *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont)
+GrCreateFontEx(const char *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont)
 {
 	GR_FONT	*fontp;
 
@@ -1712,16 +1705,9 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
 }
 #endif /*HAVE_FREETYPE_2_SUPPORT*/
 
-/* DEPRECATED - use GrSetFontSizeEx*/
-void
-GrSetFontSize(GR_FONT_ID fontid, GR_COORD height)
-{
-	GrSetFontSizeEx(fontid, height, height);
-}
-
 /* Set the font size for the passed font*/
 void
-GrSetFontSizeEx(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
+GrSetFontSizeEx(GR_FONT_ID fontid, GR_SIZE height, GR_SIZE width)
 {
 	GR_FONT		*fontp;
 
@@ -1888,9 +1874,8 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 }
 
 static GR_WINDOW *
-NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE height, GR_SIZE bordersize, GR_COLOR background,
-	GR_COLOR bordercolor)
+NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
+	GR_SIZE bordersize, GR_COLOR background, GR_COLOR bordercolor)
 {
 	GR_WINDOW	*wp;	/* new window*/
 
@@ -2013,7 +1998,7 @@ GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
  * for offscreen drawing
  */
 GR_WINDOW_ID
-GrNewPixmap(GR_SIZE width, GR_SIZE height, void * pixels)
+GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 {
 	GR_PIXMAP	*pp;
 	PSD		psd;
@@ -3852,7 +3837,7 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 }
 
 void
-GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
+GrSetSelectionOwner(GR_WINDOW_ID wid, const char *typelist)
 {
 	GR_WINDOW_ID oldwid = selection_owner.wid;
 
@@ -3863,7 +3848,7 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 
 	selection_owner.wid = wid;
 	if (wid) {
-		if(!(selection_owner.typelist = (GR_CHAR *)strdup((const char *)typelist))) {
+		if(!(selection_owner.typelist = strdup(typelist))) {
 			GsError(GR_ERROR_MALLOC_FAILED, wid);
 			selection_owner.wid = 0;
 		}
@@ -3874,7 +3859,7 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
 }
 
 GR_WINDOW_ID
-GrGetSelectionOwner(GR_CHAR **typelist)
+GrGetSelectionOwner(char **typelist)
 {
 	GR_WINDOW_ID result;
 
@@ -3887,8 +3872,7 @@ GrGetSelectionOwner(GR_CHAR **typelist)
 }
 
 void
-GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial,
-							GR_MIMETYPE mimetype)
+GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial, GR_MIMETYPE mimetype)
 {
 	SERVER_LOCK();
 	GsDeliverClientDataReqEvent(rid, wid, serial, mimetype);
@@ -3897,7 +3881,7 @@ GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial,
 
 void
 GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
-				GR_LENGTH len, GR_LENGTH thislen, void *data)
+	GR_LENGTH len, GR_LENGTH thislen, void *data)
 {
 	SERVER_LOCK();
 	GsDeliverClientDataEvent(did, wid, serial, len, thislen, data);
@@ -3906,7 +3890,7 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 
 /*
  * Set a window's background pixmap.  Note that this doesn't
- * cause a screen refresh, use GrClearWindow if required.
+ * cause a screen refresh, use GrClearArea if required.
  */
 void
 GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)

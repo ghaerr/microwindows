@@ -101,7 +101,7 @@ FBEMULATOR               = Y
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 #
 ####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR888
 
 ####################################################################
 # NanoX: Put Y to the following line to link the nano-X application

@@ -47,6 +47,8 @@ TARGETS = \
 	$(MW_DIR_BIN)/demo5 \
 	$(MW_DIR_BIN)/t1demo \
 	$(MW_DIR_BIN)/ftdemo \
+	$(MW_DIR_BIN)/blitdemo \
+	$(MW_DIR_BIN)/composite \
 	$(MW_DIR_BIN)/logfont \
 	$(MW_DIR_BIN)/getselection \
 	$(MW_DIR_BIN)/setselection \
@@ -74,6 +76,7 @@ TARGETS = \
 	$(MW_DIR_BIN)/demo6 \
 	$(MW_DIR_BIN)/ftdemo \
 	$(MW_DIR_BIN)/blitdemo \
+	$(MW_DIR_BIN)/composite \
 	$(MW_DIR_BIN)/t1demo \
 	$(MW_DIR_BIN)/logfont \
 	$(MW_DIR_BIN)/ntetris \

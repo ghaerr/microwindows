@@ -694,18 +694,12 @@ void saver7_init(nstate *state)
 	s->stary = state->si.rows / 2;
 
 	for(i = 0; i < SAVER7_PLANETS; i++) {
-		s->planets[i].r = FRANDRANGE(SAVER7_MIN_STARTDIM,
-						SAVER7_MAX_STARTDIM);
-		s->planets[i].x = FRANDRANGE(SAVER7_MIN_STARTDIM,
-						SAVER7_MAX_STARTDIM);
-		s->planets[i].y = FRANDRANGE(SAVER7_MIN_STARTDIM,
-						SAVER7_MAX_STARTDIM);
-		s->planets[i].rv = FRANDRANGE(SAVER7_MIN_STARTVEL,
-						SAVER7_MAX_STARTVEL);
-		s->planets[i].xv = FRANDRANGE(SAVER7_MIN_STARTVEL,
-						SAVER7_MAX_STARTVEL);
-		s->planets[i].yv = FRANDRANGE(SAVER7_MIN_STARTVEL,
-						SAVER7_MAX_STARTVEL);
+		s->planets[i].r = FRANDRANGE(SAVER7_MIN_STARTDIM, SAVER7_MAX_STARTDIM);
+		s->planets[i].x = FRANDRANGE(SAVER7_MIN_STARTDIM, SAVER7_MAX_STARTDIM);
+		s->planets[i].y = FRANDRANGE(SAVER7_MIN_STARTDIM, SAVER7_MAX_STARTDIM);
+		s->planets[i].rv = FRANDRANGE(SAVER7_MIN_STARTVEL, SAVER7_MAX_STARTVEL);
+		s->planets[i].xv = FRANDRANGE(SAVER7_MIN_STARTVEL, SAVER7_MAX_STARTVEL);
+		s->planets[i].yv = FRANDRANGE(SAVER7_MIN_STARTVEL, SAVER7_MAX_STARTVEL);
 		s->planets[i].colour = RANDRANGE(0, state->si.ncolors - 1);
 		saver7_calc_planet_position(state, s, i);
 		saver7_drawplanet(state, s, i, 0);

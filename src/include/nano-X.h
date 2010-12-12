@@ -216,7 +216,7 @@ typedef struct {
 typedef struct {
   GR_WM_PROPS flags;		/**< Which properties valid in struct for set*/
   GR_WM_PROPS props;		/**< Window property bits*/
-  GR_CHAR *title;		/**< Window title*/
+  char *title;				/**< Window title*/
   GR_COLOR background;		/**< Window background color*/
   GR_SIZE bordersize;		/**< Window border size*/
   GR_COLOR bordercolor;		/**< Window border color*/
@@ -253,8 +253,8 @@ typedef struct {
   GR_GC_ID gcid;		/**< GC id (or 0 if no such GC) */
   int mode;			/**< drawing mode */
   GR_REGION_ID region;		/**< user region */
-  int xoff;			/**< x offset of user region */
-  int yoff;			/**< y offset of user region */
+  GR_SIZE xoff;			/**< x offset of user region */
+  GR_SIZE yoff;			/**< y offset of user region */
   GR_FONT_ID font;		/**< font number */
   GR_COLOR foreground;		/**< foreground RGB color or pixel value */
   GR_COLOR background;		/**< background RGB color or pixel value */
@@ -720,7 +720,7 @@ extern const char *nxErrorStrings[];
 
 /* Public graphics routines. */
 void		GrFlush(void);
-int		GrOpen(void);
+int			GrOpen(void);
 void		GrClose(void);
 void		GrDelay(GR_TIMEOUT msecs);
 void		GrGetScreenInfo(GR_SCREEN_INFO *sip);
@@ -728,7 +728,7 @@ GR_COLOR	GrGetSysColor(int index);
 GR_WINDOW_ID	GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
 			GR_SIZE width, GR_SIZE height, GR_SIZE bordersize,
 			GR_COLOR background, GR_COLOR bordercolor);
-GR_WINDOW_ID    GrNewPixmap(GR_SIZE width, GR_SIZE height, void *pixels);
+GR_WINDOW_ID    GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void *pixels);
 GR_WINDOW_ID	GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
 				GR_SIZE width, GR_SIZE height);
 void		GrDestroyWindow(GR_WINDOW_ID wid);
@@ -737,8 +737,7 @@ GR_GC_ID	GrCopyGC(GR_GC_ID gc);
 void		GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip);
 void		GrDestroyGC(GR_GC_ID gc);
 GR_REGION_ID	GrNewRegion(void);
-GR_REGION_ID	GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width,
-			GR_SIZE height);
+GR_REGION_ID	GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height);
 GR_REGION_ID	GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points);
 void		GrDestroyRegion(GR_REGION_ID region);
 void		GrUnionRectWithRegion(GR_REGION_ID region, GR_RECT *rect);
@@ -751,7 +750,7 @@ void		GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 void		GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
 			GR_REGION_ID src_rgn2);
 void		GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region);
-void		GrSetGCClipOrigin(GR_GC_ID gc, int x, int y);
+void		GrSetGCClipOrigin(GR_GC_ID gc, GR_SIZE x, GR_SIZE y);
 GR_BOOL		GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y);
 int			GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y,
 			GR_COORD w, GR_COORD h);
@@ -771,15 +770,13 @@ void		GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr);
 void		GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 void		GrGetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props);
 
-GR_FONT_ID	GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont); // DEPRECATED
-GR_FONT_ID	GrCreateFontEx(GR_CHAR *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont);
-GR_FONT_ID	GrCreateFontFromBuffer(const void *buffer, unsigned length,
-			const char *format, GR_COORD height, GR_COORD width);
+GR_FONT_ID	GrCreateFontEx(const char *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont);
+GR_FONT_ID	GrCreateFontFromBuffer(const void *buffer, unsigned length, const char *format,
+				GR_COORD height, GR_COORD width);
 GR_FONT_ID	GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width);
 void		GrGetFontList(GR_FONTLIST ***fonts, int *numfonts);
 void		GrFreeFontList(GR_FONTLIST ***fonts, int numfonts);
-void		GrSetFontSize(GR_FONT_ID fontid, GR_COORD size); // DEPRECATED
-void		GrSetFontSizeEx(GR_FONT_ID fontid, GR_COORD height, GR_COORD width);
+void		GrSetFontSizeEx(GR_FONT_ID fontid, GR_SIZE height, GR_SIZE width);
 void		GrSetFontRotation(GR_FONT_ID fontid, int tenthsdegrees);
 void		GrSetFontAttr(GR_FONT_ID fontid, int setflags, int clrflags);
 void		GrDestroyFont(GR_FONT_ID fontid);
@@ -888,16 +885,15 @@ void		GrGetSystemPalette(GR_PALETTE *pal);
 void		GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal);
 void		GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel);
 void		GrReqShmCmds(long shmsize);
-void		GrInjectPointerEvent(MWCOORD x, MWCOORD y,
-			int button, int visible);
+void		GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible);
 void		GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
 			GR_KEYMOD modifiers, GR_SCANCODE scancode,
 			GR_BOOL pressed);
 void		GrCloseWindow(GR_WINDOW_ID wid);
 void		GrKillWindow(GR_WINDOW_ID wid);
 void		GrSetScreenSaverTimeout(GR_TIMEOUT timeout);
-void		GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist);
-GR_WINDOW_ID	GrGetSelectionOwner(GR_CHAR **typelist);
+void		GrSetSelectionOwner(GR_WINDOW_ID wid, const char *typelist);
+GR_WINDOW_ID	GrGetSelectionOwner(char **typelist);
 void		GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 			GR_SERIALNO serial, GR_MIMETYPE mimetype);
 void		GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did,
@@ -938,37 +934,34 @@ int             GrLoadTransformData(char *filename, GR_TRANSFORM *);
 int             GrSaveTransformData(GR_TRANSFORM *, char *filename);
 
 /* nxutil.c - utility routines*/
-GR_WINDOW_ID	GrNewWindowEx(GR_WM_PROPS props, GR_CHAR *title,
-			GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
-			GR_SIZE width, GR_SIZE height, GR_COLOR background);
-void		GrDrawLines(GR_DRAW_ID w, GR_GC_ID gc, GR_POINT *points,
-			GR_COUNT count);
+GR_WINDOW_ID GrNewWindowEx(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
+				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_COLOR background);
+void		GrDrawLines(GR_DRAW_ID w, GR_GC_ID gc, GR_POINT *points, GR_COUNT count);
 GR_BITMAP *	GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_width,
-			GR_SIZE bits_height, void *bits, int flags);
-GR_WINDOW_ID    GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, 
-			GR_COLOR foreground, GR_COLOR background, void * bits,
-			int flags);
-GR_BITMAP *	GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, int x, int y, GR_SIZE width,
-			GR_SIZE height);
-GR_BITMAP *	GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, int x, int y,
-			GR_SIZE width, GR_SIZE height);
-GR_REGION_ID	GrNewRegionFromPixmap(GR_WINDOW_ID src, MWCOORD x, MWCOORD y,
-			GR_SIZE width, GR_SIZE height);
+				GR_SIZE bits_height, void *bits, int flags);
+GR_WINDOW_ID GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, GR_COLOR foreground,
+				GR_COLOR background, void * bits, int flags);
+GR_BITMAP *	GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, GR_COORD x, GR_COORD y,
+				GR_SIZE width, GR_SIZE height);
+GR_REGION_ID GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y,
+				GR_SIZE width, GR_SIZE height);
 
 /* direct client-side framebuffer mapping routines*/
 unsigned char * GrOpenClientFramebuffer(void);
 void		GrCloseClientFramebuffer(void);
 void		GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo);
 
-/* retrofit - no longer used*/
-GR_CURSOR_ID	GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
-			GR_COORD hotx, GR_COORD hoty, GR_COLOR foreground,
-			GR_COLOR background, GR_BITMAP *fbbitmap,
-			GR_BITMAP *bgbitmap);
-#define GrSetBorderColor		GrSetWindowBorderColor	/* retrofit*/
-#define GrClearWindow(wid,exposeflag)	GrClearArea(wid,0,0,0,0,exposeflag) /* retrofit*/
+/* DEPRECATED*/
+GR_CURSOR_ID GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
+				GR_COORD hotx, GR_COORD hoty, GR_COLOR foreground,
+				GR_COLOR background, GR_BITMAP *fbbitmap, GR_BITMAP *bgbitmap);
+//#define GrSetBorderColor					GrSetWindowBorderColor
+#define GrCreateFont(name,height,plogfont)	GrCreateFontEx(name,height,height,plogfont)
+#define GrSetFontSize(fontid,height)		GrSetFontSizeEx(fontid,height,height)
+#define GrNewPixmap(width,height,pixels)	GrNewPixmapEx(width,height,0,pixels)
 
 /* useful function macros*/
+#define GrClearWindow(wid,exposeflag)		GrClearArea(wid,0,0,0,0,exposeflag)
 #define GrSetWindowBackgroundColor(wid,color) \
 		{	GR_WM_PROPERTIES props;	\
 			props.flags = GR_WM_FLAGS_BACKGROUND; \
@@ -990,7 +983,7 @@ GR_CURSOR_ID	GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
 #define GrSetWindowTitle(wid,name) \
 		{	GR_WM_PROPERTIES props;	\
 			props.flags = GR_WM_FLAGS_TITLE; \
-			props.title = (GR_CHAR *)name; \
+			props.title = (char *)name; \
 			GrSetWMProperties(wid, &props); \
 		}
 

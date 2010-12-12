@@ -301,7 +301,7 @@ do_focusin(GR_EVENT_GENERAL *gp)
 {
 	if (gp->wid != w1)
 		return;
-	GrSetBorderColor(w1, LTBLUE);
+	GrSetWindowBorderColor(w1, LTBLUE);
 }
 
 /*
@@ -312,7 +312,7 @@ do_focusout(GR_EVENT_GENERAL *gp)
 {
 	if (gp->wid != w1)
 		return;
-	GrSetBorderColor(w1, GRAY);
+	GrSetWindowBorderColor(w1, GRAY);
 }
 
 /*

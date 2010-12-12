@@ -1,3 +1,7 @@
+	* added GrNewPixmapEx with MWIF image format parm
+	* cleanup nano-X.h
+	* change GrCreateFont GR_CHAR * parm to const char *
+	* added compositing demo compositdemo.sh (demos/nanox/composite.c)
 11 Dec 2010
 	* fix GR_BACKGROUND_TRANS, rewrite GsDrawBackgroundPixmap, change GsWp prefix to Gs
 	* fix background clear again when drawing background pixmaps with alpha channel

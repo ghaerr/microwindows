@@ -48,7 +48,7 @@ static int got_client_data(GR_EVENT *event)
 
 int main(int argc, char *argv[])
 {
-	GR_CHAR *typelist, *p;
+	char *typelist, *p;
 	GR_WINDOW_ID sid, wid;
 	GR_EVENT event;
 	int n = 0, mimetype = -1;

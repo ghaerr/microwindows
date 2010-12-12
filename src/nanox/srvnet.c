@@ -114,17 +114,15 @@ GrNewWindowWrapper(void *r)
 
 
 static void
-GrNewPixmapWrapper(void *r)
+GrNewPixmapExWrapper(void *r)
 {
-	nxNewPixmapReq *req = r;
+	nxNewPixmapExReq *req = r;
 	GR_WINDOW_ID	wid;
 
-        /* FIXME: Add support for passing info about shared memory
-	 * segment
-	 */
-	wid = GrNewPixmap(req->width, req->height, 0);
+	/* FIXME: Add support for passing info about shared memory segment*/
+	wid = GrNewPixmapEx(req->width, req->height, req->format, NULL);
 
-	GsWriteType(current_fd,GrNumNewPixmap);
+	GsWriteType(current_fd,GrNumNewPixmapEx);
 	GsWrite(current_fd, &wid, sizeof(wid));
 }
 
@@ -1026,7 +1024,7 @@ GrSetWMPropertiesWrapper(void *r)
 	GR_WM_PROPERTIES *props = GetReqData(req);
 
 	if(GetReqVarLen(req) - sizeof(GR_WM_PROPERTIES)) 
-		props->title = (GR_CHAR *)props + sizeof(GR_WM_PROPERTIES);
+		props->title = (char *)props + sizeof(GR_WM_PROPERTIES);
 	else
 		props->title = NULL;
 	GrSetWMProperties(req->windowid, props);
@@ -1159,7 +1157,7 @@ GrSetSelectionOwnerWrapper(void *r)
 static void
 GrGetSelectionOwnerWrapper(void *r)
 {
-	GR_CHAR *typelist;
+	char *typelist;
 	GR_WINDOW_ID wid;
 	unsigned short len;
 
@@ -1168,7 +1166,7 @@ GrGetSelectionOwnerWrapper(void *r)
 	GsWrite(current_fd, &wid, sizeof(wid));
 
 	if(wid) {
-		len = strlen((const char *)typelist) + 1;
+		len = strlen(typelist) + 1;
 		GsWrite(current_fd, &len, sizeof(len));
 		GsWrite(current_fd, typelist, len);
 	}
@@ -1667,7 +1665,7 @@ static const struct GrFunction GrFunctions[] = {
 	/*  47 */ {GrReparentWindowWrapper, "GrReparentWindow"},
 	/*  48 */ {GrDrawImageFromFileWrapper, "GrDrawImageFromFile"},
 	/*  49 */ {GrLoadImageFromFileWrapper, "GrLoadImageFromFile"},
-	/*  50 */ {GrNewPixmapWrapper, "GrNewPixmap"},
+	/*  50 */ {GrNewPixmapExWrapper, "GrNewPixmapEx"},
 	/*  51 */ {GrCopyAreaWrapper, "GrCopyArea"},
 	/*  52 */ {GrSetFontSizeExWrapper, "GrSetFontSizeEx"},
 	/*  53 */ {GrCreateFontExWrapper, "GrCreateFontEx"},

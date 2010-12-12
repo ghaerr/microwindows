@@ -43,7 +43,7 @@ redraw(void)
 	
 	/* draw antialias font in filled ellipses*/
 	gc = GrNewGC();
-	id = GrCreateFontEx((GR_CHAR *)FONT, 40, 40, NULL);
+	id = GrCreateFontEx(FONT, 40, 40, NULL);
 
 	GrSetFontAttr(id, GR_TFANTIALIAS, 0);
 	GrSetGCFont(gc, id);
@@ -121,8 +121,10 @@ main(void)
 	init_stretchblit();
 
 #if TEST_COPYAREA
-	/* draw root background once*/
+	/* draw root background first time*/
 	redraw();
+
+	/* then select for redraws when exposed*/
 	GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_EXPOSURE);
 #endif
 

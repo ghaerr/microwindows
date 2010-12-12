@@ -17,9 +17,8 @@
  * Create new window with passed style, title and location.
  */
 GR_WINDOW_ID
-GrNewWindowEx(GR_WM_PROPS props, GR_CHAR * title, GR_WINDOW_ID parent,
-	      GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
-	      GR_COLOR background)
+GrNewWindowEx(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
+	GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_COLOR background)
 {
 	GR_WINDOW_ID wid;
 	GR_WM_PROPERTIES wmprops;
@@ -58,7 +57,7 @@ GrDrawLines(GR_DRAW_ID w, GR_GC_ID gc, GR_POINT * points, GR_COUNT count)
 }
 
 /*
- * Retrofit routine.  Use GrNewCursor and GrSetWindowCursor for new code.
+ * DEPRECATED.  Use GrNewCursor and GrSetWindowCursor for new code.
  */
 GR_CURSOR_ID
 GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height, GR_COORD hotx,
@@ -202,14 +201,13 @@ GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, GR_COLOR foreground,
 	GR_GC_ID gc;
 	GR_BITMAP *buf;
 
-	pid = GrNewPixmap(width, height, NULL);
+	pid = GrNewPixmapEx(width, height, 0, NULL);
 	if (pid) {
 		gc = GrNewGC();
 		GrSetGCForeground(gc, foreground);
 		GrSetGCBackground(gc, background);
 
-		buf = GrNewBitmapFromData(width, height, width, height,
-					    bits, flags);
+		buf = GrNewBitmapFromData(width, height, width, height, bits, flags);
 		if (buf) {
 			GrBitmap(pid, gc, 0, 0, width, height, buf);
 			free(buf);
@@ -224,8 +222,7 @@ GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, GR_COLOR foreground,
  * This function may not be needed if Microwindows implemented a depth-1 pixmap.
  */
 GR_BITMAP *
-GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, MWCOORD x, MWCOORD y,
-	GR_SIZE width, GR_SIZE height)
+GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height)
 {
 	unsigned int w, h;
 	unsigned int bwidth, rowsize;
@@ -262,8 +259,7 @@ GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, MWCOORD x, MWCOORD y,
  * Create a region from a monochrome pixmap
  */
 GR_REGION_ID
-GrNewRegionFromPixmap(GR_WINDOW_ID src, MWCOORD x, MWCOORD y, GR_SIZE width,
-	GR_SIZE height)
+GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height)
 {
 	int w, h;
 	int mx, my, mw, mh;

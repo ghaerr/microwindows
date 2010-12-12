@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
  *
  * Graphics server event routines for windows.
@@ -227,8 +227,7 @@ GR_BOOL GsCheckKeyboardEvent(void)
 		}
 				
 		GsDeliverKeyboardEvent(0,
-			(keystatus==1?
-			GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
+			(keystatus==1?  GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
 			mwkey, modifiers, scancode);
 		return TRUE;
 	}
@@ -260,14 +259,12 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	 * mouse position events.  Flush the device queue to make sure the
 	 * new cursor location is quickly seen by the user.
 	 */
-	if ((newx != cursorx) || (newy != cursory)) {
+	if (newx != cursorx || newy != cursory) {
 		GsResetScreenSaver();
 		GrMoveCursor(newx, newy);
 
-		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_MOTION,
-			newbuttons, modifiers);
-		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_POSITION,
-			newbuttons, modifiers);
+		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_MOTION, newbuttons, modifiers);
+		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_POSITION, newbuttons, modifiers);
 	}
 
 	/*
@@ -277,8 +274,7 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	if (changebuttons) {
 
 	  GsResetScreenSaver();
-	  GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP,
-			       newbuttons, changebuttons, modifiers);
+	  GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP, newbuttons, changebuttons, modifiers);
 	}
 
 	/*
@@ -402,7 +398,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 			return;
 		}
 
-		if ((wp == rootwp) || (wp->nopropmask & eventmask))
+		if (wp == rootwp || (wp->nopropmask & eventmask))
 			return;
 
 		wp = wp->parent;
@@ -479,8 +475,7 @@ void GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers)
 			ep->modifiers = modifiers;
 		}
 
-		if ((wp == rootwp) || grabbuttonwp ||
-			(wp->nopropmask & eventmask))
+		if (wp == rootwp || grabbuttonwp || (wp->nopropmask & eventmask))
 				return;
 
 		wp = wp->parent;
@@ -530,8 +525,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 	 */
 	for (keygrab = list_grabbed_keys; keygrab != NULL; keygrab = keygrab->next) {
 		if (keygrab->key == keyvalue) {
-			if ((keygrab->type == GR_GRAB_HOTKEY)
-			 || (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)) {
+			if ((keygrab->type == GR_GRAB_HOTKEY) || (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)) {
 				ep = (GR_EVENT_KEYSTROKE *) GsAllocEvent(keygrab->owner);
 				if (ep == NULL)
 					continue;
@@ -642,8 +636,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 			return;			/* only one client gets it */
 		}
 
-		if ((wp == rootwp) || (wp == kwp) ||
-			(wp->nopropmask & eventmask))
+		if (wp == rootwp || wp == kwp || (wp->nopropmask & eventmask))
 				return;
 
 		wp = wp->parent;
@@ -1013,7 +1006,7 @@ GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner)
    we just start at the "focus" window and try to deliver events to the path
 */
 void
-GsDeliverRawMouseEvent(int rx, int ry, int buttons, int modifiers)
+GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 {
 	int i;
 

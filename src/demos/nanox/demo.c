@@ -403,7 +403,7 @@ do_focusin(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w1)
 		return;
-	GrSetBorderColor(w1, WHITE);
+	GrSetWindowBorderColor(w1, WHITE);
 }
 
 /*
@@ -414,7 +414,7 @@ do_focusout(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w1)
 		return;
-	GrSetBorderColor(w1, GRAY);
+	GrSetWindowBorderColor(w1, GRAY);
 }
 
 
@@ -426,7 +426,7 @@ do_enter(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w5)
 		return;
-	GrSetBorderColor(w5, WHITE);
+	GrSetWindowBorderColor(w5, WHITE);
 	GrRaiseWindow(w5);
 }
 
@@ -439,7 +439,7 @@ do_exit(GR_EVENT_GENERAL	*gp)
 {
 	if (gp->wid != w5)
 		return;
-	GrSetBorderColor(w5, GREEN);
+	GrSetWindowBorderColor(w5, GREEN);
 	GrLowerWindow(w5);
 }
 

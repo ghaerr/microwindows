@@ -594,15 +594,16 @@ typedef struct {
 	INT16	pad;
 } nxLoadImageFromFileReq;
 
-#define GrNumNewPixmap          50
+#define GrNumNewPixmapEx          50
 typedef struct {
 	BYTE8	reqType;
 	BYTE8	hilength;
 	UINT16	length;
 	INT16	width;
 	INT16	height;
+	UINT32	format;
 /* FIXME: Add support for passing shared memory info */
-} nxNewPixmapReq;
+} nxNewPixmapExReq;
 
 #define GrNumCopyArea          51
 typedef struct {

@@ -1327,6 +1327,7 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
  *
  * @param width  The width of the pixmap.
  * @param height The height of the pixmap.
+ * @param format The MWIF image format for the pixmap.
  * @param pixels Currently unused in client/server mode.
  * @return       The ID of the newly created pixmap.
  *
@@ -1335,16 +1336,17 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
  * @ingroup nanox_window
  */
 GR_WINDOW_ID
-GrNewPixmap(GR_SIZE width, GR_SIZE height, void *pixels)
+GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void *pixels)
 {
-	nxNewPixmapReq *req;
+	nxNewPixmapExReq *req;
 	GR_WINDOW_ID 	wid;
 
 	LOCK(&nxGlobalLock);
-	req = AllocReq(NewPixmap);
+	req = AllocReq(NewPixmapEx);
 	req->width = width;
 	req->height = height;
-	if(TypedReadBlock(&wid, sizeof(wid), GrNumNewPixmap) == -1)
+	req->format = format;
+	if(TypedReadBlock(&wid, sizeof(wid), GrNumNewPixmapEx) == -1)
 		wid = 0;
 	UNLOCK(&nxGlobalLock);
 	return wid;
@@ -2508,13 +2510,6 @@ GrSetGCUseBackground(GR_GC_ID gc, GR_BOOL flag)
 	UNLOCK(&nxGlobalLock);
 }
 
-/* DEPRECATED - use GrCreateFontEx*/
-GR_FONT_ID
-GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
-{
-	return GrCreateFontEx(name, height, height, plogfont);
-}
-
 /**
  * Attempts to locate a font with the desired attributes and returns a font
  * ID number which can be used to refer to it. If the plogfont argument is
@@ -2533,7 +2528,7 @@ GrCreateFont(GR_CHAR *name, GR_COORD height, GR_LOGFONT *plogfont)
  * @ingroup nanox_font
  */
 GR_FONT_ID
-GrCreateFontEx(GR_CHAR *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont)
+GrCreateFontEx(const char *name, GR_COORD height, GR_COORD width, GR_LOGFONT *plogfont)
 {
 	GR_FONT_ID	fontid;
 
@@ -2648,23 +2643,17 @@ GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
 	UNLOCK(&nxGlobalLock);
 }
 
-/* DEPRECATED - use GrSetFontSizeEx*/
-void
-GrSetFontSize(GR_FONT_ID fontid, GR_COORD height)
-{
-	GrSetFontSizeEx(fontid, height, height);
-}
-
 /**
  * Changes the size of the specified font to the specified size.
  *
  * @param fontid  the ID number of the font to change the size of
- * @param size  the size to change the font to
+ * @param height	height to scale font to
+ * @param width		width to scale font to
  *
  * @ingroup nanox_font
  */
 void
-GrSetFontSizeEx(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
+GrSetFontSizeEx(GR_FONT_ID fontid, GR_SIZE height, GR_SIZE width)
 {
 	nxSetFontSizeExReq *req;
 
@@ -3687,7 +3676,7 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	req = AllocReqExtra(Points, size);
 	req->drawid = id;
 	req->gcid = gc;
-	memcpy(GetReqData(req), pointtable, size);
+	memcpy(GetReqData(req), (void *)pointtable, size);
 	UNLOCK(&nxGlobalLock);
 }
 
@@ -4128,7 +4117,7 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
  * @ingroup nanox_selection
  */
 void
-GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
+GrSetSelectionOwner(GR_WINDOW_ID wid, const char *typelist)
 {
 	nxSetSelectionOwnerReq *req;
 	char *p;
@@ -4164,7 +4153,7 @@ GrSetSelectionOwner(GR_WINDOW_ID wid, GR_CHAR *typelist)
  * @ingroup nanox_selection
  */
 GR_WINDOW_ID
-GrGetSelectionOwner(GR_CHAR **typelist)
+GrGetSelectionOwner(char **typelist)
 {
 	nxGetSelectionOwnerReq *req;
 	UINT16 textlen;
@@ -4820,11 +4809,10 @@ GrCreateFontFromBuffer(const void *buffer, unsigned length,
 	if (format == NULL)
 		format = "";
 
-	strncpy(req->format, format, sizeof(req->format) - 1);
+	strncpy((char *)req->format, format, sizeof(req->format) - 1);
 	req->format[sizeof(req->format) - 1] = '\0';
 
-	if (TypedReadBlock
-	    (&result, sizeof(result), GrNumCreateFontFromBuffer) == -1)
+	if (TypedReadBlock(&result, sizeof(result), GrNumCreateFontFromBuffer) == -1)
 		result = 0;
 
 	UNLOCK(&nxGlobalLock);

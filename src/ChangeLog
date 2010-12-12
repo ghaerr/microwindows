@@ -1,4 +1,5 @@
 11 Dec 2010
+	* fix GR_BACKGROUND_TRANS, rewrite GsDrawBackgroundPixmap, change GsWp prefix to Gs
 	* fix background clear again when drawing background pixmaps with alpha channel
 	* remove MWIMAGEHDR compression member (replaced with data_format)
 	* rewrote convbmp to convert images to rightside up, BGR->RGB, BGRX->RGBA
@@ -22,7 +23,7 @@
 	* fix parms.srcpsd bug from last checkin
 	* revert to older GrResizeWindow method to fix bug shown by demos/nanox/ft2test.c
 	* remove PSF_HAVEBLIT, cleanup
-	* fillrect in GsWpDrawBackground if pixmap has alpha channel
+	* fillrect in GsDrawBackground if pixmap has alpha channel
 4 Dec 2010
 	* all blits except 16bpp are endian neutral
 	* cleanup GdBlit, rename GdStretchBlit, use common GdConvBlitInternal for all blit clipping

@@ -420,7 +420,7 @@ UCHAR *p = (UCHAR *)&l;
 	else
 		printf("  0,\n");
 	printf("  imagebits,\n");
-	printf("  0x%lx,\t\t/* data_format*/\n", data_format);
+	printf("  0x%x,\t\t/* data_format*/\n", data_format);
 	printf("};\n");
    } else {
 	printf(".extern _image_%s\n", name);
@@ -438,7 +438,7 @@ UCHAR *p = (UCHAR *)&l;
 		printf(".data4\t__II1\n");
 	else
 		printf(".data4\t0\n");
-	printf(".data4\t%ld\n", data_format);
+	printf(".data4\t%d\n", data_format);
 	printf(".sect .text\n");
    }
 

@@ -391,7 +391,7 @@ GrDestroyWindow(GR_WINDOW_ID wid)
 
 	wp = GsFindWindow(wid);
 	if (wp) {
-		GsWpDestroyWindow(wp);
+		GsDestroyWindow(wp);
 	} else {
 		pp = GsFindPixmap(wid);
 		if (pp) {
@@ -795,9 +795,9 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 	 * This method will redraw the window entirely,
 	 * resulting in considerable flicker.
 	 */
-	GsWpUnrealizeWindow(wp, GR_TRUE);
+	GsUnrealizeWindow(wp, GR_TRUE);
 	OffsetWindow(wp, offx, offy);
-	GsWpRealizeWindow(wp, GR_FALSE);
+	GsRealizeWindow(wp, GR_FALSE);
 	DeliverUpdateMoveEventAndChildren(wp);
 
 	SERVER_UNLOCK();
@@ -850,7 +850,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	wp->height = height;
 	if (wp->output) {
 		GsDrawBorder(wp);
-		GsWpClearWindow(wp, 0, 0, wp->width, wp->height, GR_TRUE);
+		GsClearWindow(wp, 0, 0, wp->width, wp->height, GR_TRUE);
 	}
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 	if (oldw > width || oldh > height) {
@@ -863,12 +863,12 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.
 	 */
-	GsWpUnrealizeWindow(wp, GR_TRUE);
+	GsUnrealizeWindow(wp, GR_TRUE);
 	wp->width = width;
 	wp->height = height;
 	/* send size update before expose event*/
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
-	GsWpRealizeWindow(wp, GR_FALSE);
+	GsRealizeWindow(wp, GR_FALSE);
 #endif
 	SERVER_UNLOCK();
 }
@@ -908,7 +908,7 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 	 * Unrealize window and all children.  No effect if
 	 * this window isn't already realized.
 	 */
-	GsWpUnrealizeWindow(wp, GR_TRUE);
+	GsUnrealizeWindow(wp, GR_TRUE);
 
 	/* link window into new parent chain*/
 	for(mysibptr = &(wp->parent->children); *mysibptr != wp; 
@@ -930,7 +930,7 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 	 * Temp flag is set TRUE, no additional
 	 * UPDATE_MAP will be sent.
 	 */
-	GsWpRealizeWindow(wp, GR_TRUE);
+	GsRealizeWindow(wp, GR_TRUE);
 
 	/* send reparent update event*/
 	GsDeliverUpdateEvent(wp, GR_UPDATE_REPARENT, wp->x, wp->y, wp->width, wp->height);
@@ -2102,7 +2102,7 @@ GrMapWindow(GR_WINDOW_ID wid)
 
 	wp->mapped = GR_TRUE;
 
-	GsWpRealizeWindow(wp, GR_FALSE);
+	GsRealizeWindow(wp, GR_FALSE);
 
 	SERVER_UNLOCK();
 }
@@ -2123,7 +2123,7 @@ GrUnmapWindow(GR_WINDOW_ID wid)
 		return;
 	}
 
-	GsWpUnrealizeWindow(wp, GR_FALSE);
+	GsUnrealizeWindow(wp, GR_FALSE);
 
 	wp->mapped = GR_FALSE;
 
@@ -2148,7 +2148,7 @@ GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
 			width = wp->width;
 		if (height == 0)
 			height = wp->height;
-		GsWpClearWindow(wp, x, y, width, height, exposeflag);
+		GsClearWindow(wp, x, y, width, height, exposeflag);
 	}
 
 	SERVER_UNLOCK();
@@ -2198,7 +2198,7 @@ GrSetFocus(GR_WINDOW_ID wid)
 	}
 
 	focusfixed = (wp != rootwp);
-	GsWpSetFocus(wp);
+	GsSetFocus(wp);
 
 	SERVER_UNLOCK();
 }
@@ -3620,7 +3620,7 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 		}
 		
 		/* send UPDATE_ACTIVATE event to force redraw*/
-		GsWpNotifyActivate(focuswp);
+		GsNotifyActivate(focuswp);
 	}
 
 	/* Set window background*/
@@ -3635,9 +3635,9 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 	if (props->flags & GR_WM_FLAGS_BORDERSIZE) {
 		if (wp->bordersize != props->bordersize) {
 			/* FIXME: check if this works if not already realized*/
-			GsWpUnrealizeWindow(wp, GR_TRUE);
+			GsUnrealizeWindow(wp, GR_TRUE);
 			wp->bordersize = props->bordersize;
-			GsWpRealizeWindow(wp, GR_TRUE);
+			GsRealizeWindow(wp, GR_TRUE);
 		}
 	}
 

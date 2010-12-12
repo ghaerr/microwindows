@@ -33,7 +33,8 @@ OBJS := \
 	$(MW_DIR_OBJ)/mwin/bmp/cs1.o \
 	$(MW_DIR_OBJ)/mwin/bmp/rle8.o \
 	$(MW_DIR_OBJ)/mwin/bmp/microwin.o \
-	$(MW_DIR_OBJ)/mwin/bmp/penguin.o
+	$(MW_DIR_OBJ)/mwin/bmp/penguin.o \
+	$(MW_DIR_OBJ)/mwin/bmp/dragon.o
 
 all: $(MW_DIR_BIN)/convbmp $(MW_DIR_BIN)/makebmp default
 
@@ -59,7 +60,8 @@ ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 		$(MW_DIR_OBJ)/mwin/bmp/cs1.c \
 		$(MW_DIR_OBJ)/mwin/bmp/rle8.c \
 		$(MW_DIR_OBJ)/mwin/bmp/microwin.c \
-		$(MW_DIR_OBJ)/mwin/bmp/penguin.c
+		$(MW_DIR_OBJ)/mwin/bmp/penguin.c \
+		$(MW_DIR_OBJ)/mwin/bmp/dragon.c
 endif
 
 $(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/mwin/bmp/makebmp.c

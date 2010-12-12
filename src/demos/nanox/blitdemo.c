@@ -39,7 +39,7 @@ void
 redraw(void)
 {
 	GR_GC_ID gc;
-	int id, y;
+	int id;
 	
 	/* draw antialias font in filled ellipses*/
 	gc = GrNewGC();
@@ -60,13 +60,16 @@ redraw(void)
 		pixmap, 0, 0, MWROP_SRC_OVER);
 
 #if TEST_XOR_VHLINE
+	{
+	int y;
 	/* test XOR vertical and horizontal line draw*/
 	GrSetGCMode(gc, MWROP_XOR);
 	GrSetGCForeground(gc, GR_COLOR_RED);
 	for (y=10; y<20; y++)
 		GrLine(GR_ROOT_WINDOW_ID, gc, 0, y, 638, y);
-	GrDestroyGC(gc);
+	}
 #endif
+	GrDestroyGC(gc);
 }
 
 void

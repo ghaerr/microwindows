@@ -1,6 +1,10 @@
+11 Dec 2010
+	* fix background clear again when drawing background pixmaps with alpha channel
+	* remove MWIMAGEHDR compression member (replaced with data_format)
+	* rewrote convbmp to convert images to rightside up, BGR->RGB, BGRX->RGBA
+	* fix skip blit/send expose bug in GrCopyArea (window partially offscreen and root expose)
 10 Dec 2010
 	* revert back to original faster GrResizeWindow code from before 12/5/2010
-	* fix background clear again when drawing background pixmaps with alpha channel or stretching
 	* comment out skip blit and send expose in GrCopyArea(), fixes root window expose/clip bug
 		bug was seen in chess.sh and blitdemo.sh
 	* new blitdemo.sh demo (uses renamed/updated ft2test.c -> blitdemo.c)

@@ -793,7 +793,6 @@ typedef struct {
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
 	int		pitch;		/* bytes per line*/
 	int		bytesperpixel;	/* bytes per pixel*/
-	int		compression;/* compression algorithm*/
 	int		palsize;	/* palette size*/
 	int32_t	transcolor;	/* transparent color or -1 if none*/
 	MWPALENTRY *palette;/* palette*/
@@ -811,7 +810,6 @@ typedef struct {
 	int		data_format;/* MWIF image data format*/
 	int		pitch;		/* bytes per line*/
 	int		bytesperpixel;	/* bytes per pixel*/
-	int		compression;	/* compression algorithm*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY 	palette[256];	/* palette*/
 } MWIMAGEINFO, *PMWIMAGEINFO;

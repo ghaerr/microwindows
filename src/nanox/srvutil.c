@@ -118,8 +118,7 @@ GsWpUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap)
 	}
 
 	/* Send unmap update event*/
-	GsDeliverUpdateEvent(wp, 
-		(temp_unmap? GR_UPDATE_UNMAPTEMP: GR_UPDATE_UNMAP), 0, 0, 0, 0);
+	GsDeliverUpdateEvent(wp, (temp_unmap? GR_UPDATE_UNMAPTEMP: GR_UPDATE_UNMAP), 0, 0, 0, 0);
 
 	/*
 	 * If this is an input-only window or the parent window is
@@ -459,7 +458,7 @@ GsWpDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x,
 		if(fillwidth > 0 && fillheight > 0)
 			GdFillRect(wp->psd, destx, wp->y + y, fillwidth, fillheight);
 	}
-	if((y + height) > (pixmapy + pmheight)) {
+	if(y + height > pixmapy + pmheight) {
 		fillheight = (y + height) - (pixmapy + pmheight);
 		if(fillheight > height) fillheight = height;
 
@@ -591,6 +590,9 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 		return;
 
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
+		/* perhaps find a better way of determining whether pixmap needs src_over*/
+		int hasalpha = wp->bgpixmap && (wp->bgpixmap->psd->data_format & MWIF_HASALPHA);
+
 		/*
 	 	 * Draw the background of the window.
 	 	 * Invalidate the current graphics context since
@@ -603,15 +605,15 @@ GsWpClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 		GdSetMode(GR_MODE_COPY);
 		GdSetForegroundColor(wp->psd, wp->background);
 
-		/* if background pixmap and alpha channel, fill entire (clipped) window*/
-		if (wp->bgpixmap && (wp->bgpixmap->psd->data_format & MWIF_HASALPHA) &&
-			wp->bgpixmapflags != GR_BACKGROUND_TILE)
+		/* if background pixmap w/alpha channel and stretchblit, fill entire (clipped) window*/
+		if (hasalpha && wp->bgpixmapflags == GR_BACKGROUND_STRETCH)
 				GdFillRect(wp->psd, wp->x, wp->y, wp->width, wp->height);
+		else /* if no pixmap background clear exposed area*/
+			if (hasalpha || !wp->bgpixmap) /* FIXME may cause flash with background pixmap*/
+				GdFillRect(wp->psd, wp->x + x, wp->y + y, width, height);
 
 		if (wp->bgpixmap)
 			GsWpDrawBackgroundPixmap(wp, wp->bgpixmap, x, y, width, height);
-		else /* if no pixmap background clear exposed area*/
-			GdFillRect(wp->psd, wp->x + x, wp->y + y, width, height);
 	}
 
 	/*

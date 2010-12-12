@@ -393,7 +393,6 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		image2.data_format = pimage->data_format;
 		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
 			&image2.bytesperpixel);
-		image2.compression = pimage->compression;
 		image2.palsize = pimage->palsize;
 		image2.palette = pimage->palette;	/* already allocated*/
 		image2.transcolor = pimage->transcolor;
@@ -465,7 +464,6 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		image2.data_format = pimage->data_format;
 		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
 			&image2.bytesperpixel);
-		image2.compression = pimage->compression;
 		image2.palsize = pimage->palsize;
 		image2.palette = pimage->palette;	/* already allocated*/
 		image2.transcolor = pimage->transcolor;
@@ -547,7 +545,6 @@ GdGetImageInfo(int id, PMWIMAGEINFO pii)
 	pii->data_format = pimage->data_format;
 	pii->pitch = pimage->pitch;
 	pii->bytesperpixel = pimage->bytesperpixel;
-	pii->compression = pimage->compression;
 	pii->palsize = pimage->palsize;
 	if (pimage->palsize) {
 		if (pimage->palette) {
@@ -606,7 +603,6 @@ void print_image(PMWIMAGEHDR image)
 	DPRINTF("planes: %d\n", image->planes);
 	DPRINTF("bpp: %d\n", image->bpp);
 	DPRINTF("data_format: %d\n", image->data_format);
-	DPRINTF("compression: %d\n", image->compression);
 	DPRINTF("palsize: %d\n", image->palsize);
 
 	for (i=0;i<image->palsize;i++)

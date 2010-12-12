@@ -972,8 +972,8 @@ typedef struct {
 	INT16	bpp;
 	INT16	pitch;
 	INT16	bytesperpixel;
-	INT16	compression;
 	INT16	palsize;
+	INT16	spare;
 	UINT32	transcolor;
 	UINT32	data_format;
 	/*MWIMAGEBITS imagebits[];*/

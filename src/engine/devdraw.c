@@ -836,7 +836,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	extra = pimage->pitch - linesize;
 
 	/* Image format in RGB rather than BGR byte order?*/
-	rgborder = (pimage->compression == MWIF_RGB888 || pimage->compression == MWIF_RGBA8888);
+	rgborder = (pimage->data_format == MWIF_RGB888 || pimage->data_format == MWIF_RGBA8888);
 
 	/*
 	 * Handle images with alpha channel.
@@ -844,7 +844,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	 *    MWIMAGE_RGB: RR GG BB AA
 	 * or MWIMAGE_BGR: BB GG RR AA
 	 */
-	if (pimage->compression == MWIF_RGBA8888) {
+	if (pimage->data_format == MWIF_RGBA8888) {
 		int32_t *data = (int32_t *)imagebits;
 
 		while (height > 0) {
@@ -1083,7 +1083,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				unsigned int pv = (imagebits[1] << 8) | imagebits[0];
 #endif
 
-				cr = (pimage->compression == MWIF_RGB555)?
+				cr = (pimage->data_format == MWIF_RGB555)?
 					PIXEL555TOCOLORVAL(pv): PIXEL565TOCOLORVAL(pv);
 				imagebits += 2;
 			}

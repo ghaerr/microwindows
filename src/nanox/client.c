@@ -3098,7 +3098,6 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		req->bpp = pimage->bpp;
 		req->pitch = pimage->pitch;
 		req->bytesperpixel = pimage->bytesperpixel;
-		req->compression = pimage->compression;
 		req->data_format = pimage->data_format;
 		req->palsize = pimage->palsize;
 		req->transcolor = pimage->transcolor;

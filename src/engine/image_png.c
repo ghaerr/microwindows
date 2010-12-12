@@ -143,7 +143,6 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 		pimage->data_format = MWIF_RGBA8888;
 	else
 		pimage->data_format = MWIF_RGB888;
-	pimage->compression = pimage->data_format; 	/* used only by GdDrawImage fallback*/
 printf("png %dbpp\n", channels*8);
 
     if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {

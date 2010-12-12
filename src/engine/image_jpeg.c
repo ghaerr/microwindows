@@ -191,7 +191,6 @@ fastjpeg:
 	if (pimage->bpp == 24)
 		pimage->data_format = MWIF_RGB888;
 	else pimage->data_format = 0;			/* force GdDrawImage when 8bpp for now*/
-	pimage->compression = pimage->data_format;
 printf("jpeg bpp %d\n", pimage->bpp);
 	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
 	pimage->palsize = (pimage->bpp == 8)? 256: 0;

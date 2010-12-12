@@ -299,7 +299,6 @@ printf("bmp bpp %d\n", pimage->bpp);
 		convblit_bgr888_rgb888(imagebits, pimage->width, pimage->height, pimage->pitch);
 	else if (pimage->bpp == 32)
 		convblit_bgrx8888_rgba8888(imagebits, pimage->width, pimage->height, pimage->pitch);
-	pimage->compression = pimage->data_format;
 	return 1;		/* bmp image ok*/
 	
 err:

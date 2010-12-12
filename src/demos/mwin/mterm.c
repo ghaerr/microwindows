@@ -166,9 +166,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 {
 	MSG 	msg;
 	extern MWIMAGEHDR image_car8;
+	extern MWIMAGEHDR image_dragon;
 
 	RegisterAppClass();
-	MwSetDesktopWallpaper(&image_car8);
+	//MwSetDesktopWallpaper(&image_car8);
+	MwSetDesktopWallpaper(&image_dragon);
 
 	CreateAppWindow();
 

@@ -3,6 +3,7 @@
  *
  * Windows BMP to Microwindows image converter
  *
+ * 12/11/2010 image flipped to right-side-up order, convert BGR/BGRX, use data_format
  * 6/21/2010 updated with data_format
  * 9/24/2003 endian-neutral conversion
  * 05/01/2000 Michael Temari <Michael@TemWare.Com>
@@ -90,10 +91,12 @@ typedef struct {
 char * StripPath(char *buffer);
 int	ConvBMP(FILE *fp,char *name);
 int ConvBMPFile(char *infilename, char *outfilename);
-void	outline(UCHAR *linebuffer, int bitdepth, int linesize, int y);
+void	outline(UCHAR *linebuffer, int bitdepth, int pitch);
 int	DecodeRLE8(UCHAR *buf,FILE *fp);
 int	DecodeRLE4(UCHAR *buf,FILE *fp);
 void	put4(int b);
+void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch);
+void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch);
 
 int	s_flag = 0;
 
@@ -241,13 +244,14 @@ int ConvBMP(FILE *fp, char *name)
 BMPHEAD		bmp;
 BMPCOREHEAD	*bmc;
 int		i, palsize;
-UCHAR		*linebuffer = NULL;
-unsigned int	cx, cy, bitdepth, linesize;
+UCHAR		*imagebits = NULL;
+unsigned int	cx, cy, bitdepth, pitch;
 long		compression;
 MWPALENTRY	cmap[256];
 long l;
 int g;
 int bytesperpixel;
+int data_format;
 UCHAR *p = (UCHAR *)&l;
 
    /* read BMP header*/
@@ -285,30 +289,33 @@ UCHAR *p = (UCHAR *)&l;
    }
 
    /* compute image line size and allocate line buffer*/
+   data_format = 0;
    if(bitdepth == 1) {
-	linesize = PIX2BYTES(cx);
+	pitch = PIX2BYTES(cx);
 	bytesperpixel = 1;
    } else if(bitdepth <= 4) {
-	linesize = PIX2BYTES(cx<<2);
+	pitch = PIX2BYTES(cx<<2);
 	bytesperpixel = 1;
    } else if(bitdepth <= 8) {
-	linesize = cx;
+	pitch = cx;
 	bytesperpixel = 1;
    } else if(bitdepth <= 16) {
-	linesize = cx * 2;
+	pitch = cx * 2;
 	bytesperpixel = 2;
    } else if(bitdepth <= 24) {
-	linesize = cx * 3;
+	pitch = cx * 3;
 	bytesperpixel = 3;
+	data_format = MWIF_RGB888;
    } else {
-	linesize = cx * 4;
+	pitch = cx * 4;
 	bytesperpixel = 4;
+	data_format = MWIF_RGBA8888;
    }
 
-   linesize = (linesize+3) & ~3;
+   pitch = (pitch+3) & ~3;
 
-   if((linebuffer = malloc(linesize)) == (UCHAR *)NULL) {
-   	fprintf(stderr, "Error with malloc(%d)\n", linesize);
+   if((imagebits = calloc(pitch * cy, 1)) == (UCHAR *)NULL) {
+   	fprintf(stderr, "Error with malloc(%d)\n", pitch * cy);
 	return(-1);
    }
 
@@ -364,30 +371,40 @@ UCHAR *p = (UCHAR *)&l;
 	l = 0L; g = 0;
    }
 
-   /* decode image data*/
-   fseek(fp, READDWORD(bmp.bfOffBits), SEEK_SET);
-   if(compression == BI_RLE8) {
+	/* read and decode image data*/
+	fseek(fp, READDWORD(bmp.bfOffBits), SEEK_SET);
+
 	for(i = cy-1; i>= 0; i--) {
-		if(!DecodeRLE8(linebuffer, fp))
-			break;
-		outline(linebuffer, bitdepth, linesize, i);
-	}
-   } else if(compression == BI_RLE4) {
-	for(i = cy-1; i>= 0; i--) {
-		if(!DecodeRLE4(linebuffer, fp))
-			break;
-		outline(linebuffer, bitdepth, linesize, i);
-	}
-   } else {
-	for(i=0; i<cy; i++) {
-		if(fread(linebuffer, 1, linesize, fp) != (size_t)linesize) {
-			free(linebuffer);
-			fprintf(stderr, "Error fread\n");
-			return(-1);
+		/* turn image rightside up*/
+		unsigned char *p = imagebits + i*pitch;
+
+		if(compression == BI_RLE8) {
+			if(!DecodeRLE8(p, fp))
+				break;
+		} else if(compression == BI_RLE4) {
+			if(!DecodeRLE4(p, fp))
+				break;
+		} else {
+			if(fread(p, 1, pitch, fp) != (size_t)pitch) {
+				free(imagebits);
+				fprintf(stderr, "Error fread\n");
+				return -1;
+			}
 		}
-		outline(linebuffer, bitdepth, linesize, cy-i-1);
 	}
-   }
+
+	/* conv BGR -> RGB and BGRX -> RGBA*/
+	if (bytesperpixel == 3)
+		convblit_bgr888_rgb888(imagebits, cx, cy, pitch);
+	else if (bytesperpixel == 4)
+		convblit_bgrx8888_rgba8888(imagebits, cx, cy, pitch);
+
+	/* then output each line in order*/
+	for (i=0; i<cy; i++) {
+		unsigned char *p = imagebits + i*pitch;
+
+		outline(p, bitdepth, pitch);
+	}
 
    if(!s_flag) {
 	printf("};\n\n");
@@ -395,16 +412,15 @@ UCHAR *p = (UCHAR *)&l;
 	printf("MWIMAGEHDR image_%s = {\n", name);
 	printf("  %d, %d,\t/* width, height*/\n", cx, cy);
 	printf("  %d, %d,\t\t/* planes, bpp*/\n", 1, bitdepth);
-	printf("  %d, %d,\t/* pitch, bytesperpixel*/\n",
-		linesize, bytesperpixel);
-	printf("  %d, %d,\t/* compression, palsize*/\n", 1, palsize);
+	printf("  %d, %d,\t/* pitch, bytesperpixel*/\n", pitch, bytesperpixel);
+	printf("  %d,\t/* palsize*/\n", palsize);
 	printf("  %ldL,\t\t/* transcolor*/\n", -1L);
 	if(palsize)
 		printf("  palette,\n");
 	else
 		printf("  0,\n");
 	printf("  imagebits,\n");
-	printf("  0x%lx,\t\t/* data_format*/\n", 0L);
+	printf("  0x%lx,\t\t/* data_format*/\n", data_format);
 	printf("};\n");
    } else {
 	printf(".extern _image_%s\n", name);
@@ -413,9 +429,8 @@ UCHAR *p = (UCHAR *)&l;
 	printf(".data4\t%ld\n",(long)cy);
 	printf(".data4\t%ld\n",1L);
 	printf(".data4\t%ld\n",(long)bitdepth);
-	printf(".data4\t%ld\n",(long)linesize);
+	printf(".data4\t%ld\n",(long)pitch);
 	printf(".data4\t%ld\n",(long)bytesperpixel);
-	printf(".data4\t%ld\n",1L);
 	printf(".data4\t%ld\n",(long)palsize);
 	printf(".data4\t%ld\n",-1L);
 	printf(".data4\t__II0\n");
@@ -423,16 +438,16 @@ UCHAR *p = (UCHAR *)&l;
 		printf(".data4\t__II1\n");
 	else
 		printf(".data4\t0\n");
-	printf(".data4\t%ld\n",0L);	/* data_format*/
+	printf(".data4\t%ld\n", data_format);
 	printf(".sect .text\n");
    }
 
-   free(linebuffer);
+   free(imagebits);
 
    return(0);
 }
 
-void outline(UCHAR *linebuffer, int bitdepth, int linesize, int y)
+void outline(UCHAR *linebuffer, int bitdepth, int pitch)
 {
 static int bc = 0;
 static long l = 0;
@@ -442,7 +457,7 @@ int	n;
    switch(bitdepth) {
 	case 1:
 	case 4:
-		for(n=0; n<linesize; ++n) {
+		for(n=0; n<pitch; ++n) {
 			if(!s_flag)
 				printf("0x%02x,", linebuffer[n]);
 			else {
@@ -457,7 +472,7 @@ int	n;
 		break;
 	case 8:
 	default:
-		for(n=0; n<linesize; ++n) {
+		for(n=0; n<pitch; ++n) {
 			if(!s_flag)
 				printf("%d,", linebuffer[n]);
 			else {
@@ -572,5 +587,56 @@ int		c, n, c1, c2;
 				put4((c&1)? c2: c1);
 			continue;
 		}
+	}
+}
+
+/*
+ * Conversion blit 24bpp BGR to 24bpp RGB
+ */
+void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch)
+{
+	unsigned char *src = data;
+
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* swap R and B*/
+			unsigned char b = s[0];
+			s[0] = s[2];
+			s[2] = b;
+
+			s += 3;
+		}
+		src += pitch;
+	}
+}
+
+/*
+ * Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha
+ */
+void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch)
+{
+	unsigned char *src = data;
+
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* swap R and B*/
+			unsigned char b = s[0];
+			s[0] = s[2];
+			s[2] = b;
+			s[3] = 255;		/* alpha*/
+
+			s += 4;
+		}
+		src += pitch;
 	}
 }

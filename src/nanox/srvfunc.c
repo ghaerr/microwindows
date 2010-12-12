@@ -2054,7 +2054,7 @@ GrNewPixmap(GR_SIZE width, GR_SIZE height, void * pixels)
 
 	/* Allocate space for pixel values */
 	if (!pixels) {
-	        pixels = calloc(size, 1);
+		pixels = calloc(size, 1);
 		psd->flags |= PSF_ADDRMALLOC;
 	}
 	if (!pixels) {
@@ -3236,7 +3236,6 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		rc.right = srcx + width;
 		rc.bottom = srcy + height;
 
-#if 0 // FIXME temp commented out - causes window disappear in blitdemo.c
 		/*
 		 * if source isn't entirely within clip region, then
 		 * the blit is partly obscured and will copy some garbage.
@@ -3244,12 +3243,11 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		 * exposure event instead for proper display.
 		 */
 		if (GdRectInRegion(clipregion, &rc) != MWRECT_ALLIN) {
-EPRINTF("nano-X: skipping blit, sending expose event\n");
-			GsDeliverExposureEvent(swp, dp->x+x, dp->y+y, width, height);
+			DPRINTF("nano-X: skipping blit, sending expose event\n");
+			GsExposeArea(swp, dp->x+x, dp->y+y, width, height, NULL);
 			SERVER_UNLOCK();
 			return;
 		}
-#endif
 	}
 #endif /* DYNAMICREGIONS*/
 
@@ -3629,8 +3627,7 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 	if (props->flags & GR_WM_FLAGS_BACKGROUND) {
 		if (wp->background != props->background) {
 			wp->background = props->background;
-			GsExposeArea(wp, wp->x, wp->y, wp->width, wp->height,
-				NULL);
+			GsExposeArea(wp, wp->x, wp->y, wp->width, wp->height, NULL);
 		}
 	}
 

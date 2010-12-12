@@ -1515,11 +1515,10 @@ GetStockObject(int nObject)
 		switch(nObject) {
 		case LTGRAY_BRUSH:
 		case GRAY_BRUSH:
-			((MWBRUSHOBJ *)pObj)->color =GetSysColor(COLOR_BTNFACE);
+			((MWBRUSHOBJ *)pObj)->color = GetSysColor(COLOR_BTNFACE);
 			break;
 		case DKGRAY_BRUSH:
-			((MWBRUSHOBJ *)pObj)->color =
-				GetSysColor(COLOR_BTNSHADOW);
+			((MWBRUSHOBJ *)pObj)->color = GetSysColor(COLOR_BTNSHADOW);
 			break;
 		}
 		return pObj;
@@ -1560,8 +1559,7 @@ SelectObject(HDC hdc, HGDIOBJ hObject)
 
 		/* init memory context*/
 		if (!hdc->psd->MapMemGC(hdc->psd, pb->width, pb->height,
-			pb->planes, pb->bpp, pb->data_format, pb->linelen, pb->pitch, pb->size,
-			&pb->bits[0]))
+			pb->planes, pb->bpp, pb->data_format, pb->linelen, pb->pitch, pb->size, &pb->bits[0]))
 				return NULL;
 
 		hdc->bitmap = (MWBITMAPOBJ *)hObject;

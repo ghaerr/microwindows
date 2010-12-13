@@ -31,8 +31,7 @@ void wm_redraw_ncarea(win *window)
 	 */
 	if (props.flags) {
 		active = (window->clientid == GrGetFocus());
-		nxPaintNCArea(window->wid, info.width, info.height, props.title,
-			active, props.props);
+		nxPaintNCArea(window->wid, info.width, info.height, props.title, active, props.props);
 	}
 
 	/* free title returned from GrGetWMProperties*/

@@ -1,7 +1,16 @@
-	* added GrNewPixmapEx with MWIF image format parm
+12 Dec 2010
+	* 1st RGBA offscreen compositing operation!, portable across 8,16,24,32bpp framebuffers
+		new 32bpp RGBA pixmaps allow compositing on any system regardless of framebuffer format
+		added compositing demo compositdemo.sh (demos/nanox/composite.c)
+	* create new MWHWPIXEVAL, size varies with MWPF_PIXEL_FORMAT
+		changed GR_PIXEVAL to MWHWPIXELVAL for compatibility
+	* make MWPIXELVAL constant size, can't vary as 32bpp driver could be called in 16bpp systems
+	* enhanced fblin32.c for 32bpp rgba pixmaps
+	* added GrNewPixmapEx with MWIF_xxxx image format parameter (allows creation of 32bpp pixmaps)
+		passed format parameter: use 0 for framebuffer bpp, 32 for any 32bpp format,
+		or MWIF_RGBA8888 / MWIF_BGRA8888 for specific image format
 	* cleanup nano-X.h
 	* change GrCreateFont GR_CHAR * parm to const char *
-	* added compositing demo compositdemo.sh (demos/nanox/composite.c)
 11 Dec 2010
 	* fix GR_BACKGROUND_TRANS, rewrite GsDrawBackgroundPixmap, change GsWp prefix to Gs
 	* fix background clear again when drawing background pixmaps with alpha channel

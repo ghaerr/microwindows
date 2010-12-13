@@ -20,11 +20,6 @@
 #include "device.h"
 #include "convblit.h"
 
-extern MWPIXELVAL gr_foreground;      /* current foreground color */
-extern MWPIXELVAL gr_background;      /* current background color */
-extern MWCOLORVAL gr_foreground_rgb;  /* current fg color in 0xAARRGGBB format*/
-extern MWCOLORVAL gr_background_rgb;
-extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
 extern int 	  gr_mode; 	      /* drawing mode */
 extern MWPALENTRY gr_palette[256];    /* current palette*/
 extern int	  gr_firstuserpalentry;/* first user-changable palette entry*/
@@ -578,7 +573,7 @@ GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize)
  */
 void
 GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
-	MWPIXELVAL *convtable,int fLoadType)
+	MWPIXELVALHW *convtable,int fLoadType)
 {
 	int		i;
 	MWCOLORVAL	cr;
@@ -759,14 +754,14 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	MWUCHAR *imagebits;
 	MWCOORD height, width;
 	int bpp;
-	MWPIXELVAL pixel;
+	MWPIXELVALHW pixel;
 	int clip;
 	int extra, linesize;
 	int rgborder, alpha;
 	MWCOLORVAL cr;
 	MWCOORD yoff;
 	uint32_t transcolor;
-	MWPIXELVAL convtable[256];
+	MWPIXELVALHW convtable[256];
 
 	assert(pimage);
 	height = pimage->height;
@@ -1320,8 +1315,7 @@ GdBitmapByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
  * @param pixels Destination for screen grab.
  */
 void
-GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	MWPIXELVAL *pixels)
+GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, MWPIXELVALHW *pixels)
 {
 	MWCOORD 		row;
 	MWCOORD 		col;
@@ -1347,7 +1341,7 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 }
 
 static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-							void *pixels, int pixtype);
+				void *pixels, int pixtype);
 /**
  * Draw a rectangle of color values, clipping if necessary.
  * If a color matches the background color,
@@ -1357,7 +1351,7 @@ static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD 
  *
  * pixtype		array of
  * MWPF_RGB		MWCOLORVAL (uint32_t)
- * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
+ * MWPF_PIXELVAL	MWPIXELVALHW (compile-time dependent)
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
@@ -1370,10 +1364,10 @@ static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD 
  * NOTE: Currently, no translation is performed if the pixtype
  * is not MWPF_RGB.  Pixtype is only then used to determine the
  * packed size of the pixel data, and is then stored unmodified
- * in a MWPIXELVAL and passed to the screen driver.  Virtually,
+ * in a MWPIXELVALHW and passed to the screen driver.  Virtually,
  * this means there's only three reasonable options for client
  * programs: (1) pass all data as RGB MWCOLORVALs, (2) pass
- * data as unpacked 32-bit MWPIXELVALs in the format the current
+ * data as unpacked 32-bit MWPIXELVALHWs in the format the current
  * screen driver is running, or (3) pass data as packed values
  * in the format the screen driver is running.  Options 2 and 3
  * are identical except for the packing structure.
@@ -1405,7 +1399,7 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		data_format = MWIF_RGBA8888;
 		break;
 	case MWPF_PIXELVAL:
-		pixsize = sizeof(MWPIXELVAL);
+		pixsize = sizeof(MWPIXELVALHW);
 		switch (pixsize) {
 		case 4:
 			if (psd->bpp == 32)
@@ -1508,8 +1502,8 @@ GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void
 		gr_foreground = GdFindColor(psd, rgbcolor);
 		break;
 	case MWPF_PIXELVAL:
-		gr_foreground = *(MWPIXELVAL *)PIXELS;
-		PIXELS += sizeof(MWPIXELVAL);
+		gr_foreground = *(MWPIXELVALHW *)PIXELS;
+		PIXELS += sizeof(MWPIXELVALHW);
 		break;
 	case MWPF_PALETTE:
 	case MWPF_TRUECOLOR233:
@@ -1553,9 +1547,9 @@ GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void
 			break;
 		case MWPF_PIXELVAL:
 		case MWPF_HWPIXELVAL:
-			if(gr_foreground != *(MWPIXELVAL *)PIXELS)
+			if(gr_foreground != *(MWPIXELVALHW *)PIXELS)
 				goto breakwhile;
-			PIXELS += sizeof(MWPIXELVAL);
+			PIXELS += sizeof(MWPIXELVALHW);
 			break;
 		case MWPF_PALETTE:
 		case MWPF_TRUECOLOR233:
@@ -1657,7 +1651,7 @@ breakwhile:
  *
  * pixtype		array of
  * MWPF_RGB		MWCOLORVAL (uint32_t)
- * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
+ * MWPF_PIXELVAL	MWPIXELVALHW (compile-time dependent)
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
@@ -1698,8 +1692,8 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			inbuf += sizeof(MWCOLORVAL);
 			break;
 		case MWPF_PIXELVAL:
-			pixelval = *(MWPIXELVAL *)inbuf;
-			inbuf += sizeof(MWPIXELVAL);
+			pixelval = *(MWPIXELVALHW *)inbuf;
+			inbuf += sizeof(MWPIXELVALHW);
 			/* convert based on compile-time MWPIXEL_FORMAT*/
 #if MWPIXEL_FORMAT == MWPF_PALETTE
 			colorval = GETPALENTRY(gr_palette, pixelval);
@@ -1733,7 +1727,7 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			r = *inbuf++;
 			g = *inbuf++;
 			b = *inbuf++;
-			colorval = (MWPIXELVAL)MWRGB(r, g, b);
+			colorval = MWRGB(r, g, b);
 			break;
 		case MWPF_TRUECOLOR565:
 			pixelval = *(unsigned short *)inbuf;
@@ -1758,12 +1752,11 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 		case MWPF_PIXELVAL:
 			/* convert based on compile-time MWPIXEL_FORMAT*/
 #if MWPIXEL_FORMAT == MWPF_PALETTE
-			*(MWPIXELVAL *)outbuf = GdFindNearestColor(gr_palette,
-					gr_palsize, colorval);
+			*(MWPIXELVALHW *)outbuf = GdFindNearestColor(gr_palette, gr_palsize, colorval);
 #else
-			*(MWPIXELVAL *)outbuf = COLORVALTOPIXELVAL(colorval);
+			*(MWPIXELVALHW *)outbuf = COLORVALTOPIXELVAL(colorval);
 #endif
-			outbuf += sizeof(MWPIXELVAL);
+			outbuf += sizeof(MWPIXELVALHW);
 			break;
 		case MWPF_PALETTE:
 			*outbuf++ = GdFindNearestColor(gr_palette, gr_palsize,

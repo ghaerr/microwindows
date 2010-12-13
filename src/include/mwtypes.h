@@ -211,7 +211,7 @@
 #define MWPF_TRUECOLORABGR 11	/* pixel is packed 32 bits A/B/G/R ABGR truecolor with alpha */
 
 /*
- * MWPIXELVAL definition: changes based on target system
+ * MWPIXELVALHW definition: changes based on target system
  * Set using -DMWPIXEL_FORMAT=MWPF_XXX
  *
  * For the Nano-X server, it is important to use the correct MWPF_* value
@@ -238,15 +238,15 @@
 #endif
 
 #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
-typedef unsigned short MWPIXELVAL;
+typedef unsigned short MWPIXELVALHW;
 #else
   #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR332) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR233)
-  typedef unsigned char MWPIXELVAL;
+  typedef unsigned char MWPIXELVALHW;
   #else
     #if MWPIXEL_FORMAT == MWPF_PALETTE
-    typedef unsigned char MWPIXELVAL;
+    typedef unsigned char MWPIXELVALHW;
     #else
-      typedef uint32_t MWPIXELVAL;
+      typedef uint32_t MWPIXELVALHW;
     #endif
   #endif
 #endif
@@ -264,6 +264,7 @@ typedef int				MWCOORD;	/* device coordinates*/
 typedef int				MWBOOL;		/* boolean value*/
 typedef unsigned char	MWUCHAR;	/* unsigned char*/
 typedef uint32_t		MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
+typedef uint32_t		MWPIXELVAL;	/* pixel value parameter type, not for packing*/
 typedef unsigned short	MWIMAGEBITS;/* bitmap image unit size*/
 typedef uint32_t		MWTIMEOUT;	/* timeout value */
 typedef uint32_t		MWTEXTFLAGS;/* MWTF_ text flag*/

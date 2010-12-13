@@ -210,7 +210,6 @@ static inline int applyOpR(op, src, dst)	\
 
 /* global vars*/
 extern int 	gr_mode;	/* temp kluge*/
-extern MWPIXELVAL gr_background;
 
 /* entry points*/
 /* scr_fb.c*/

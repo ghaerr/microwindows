@@ -10,8 +10,6 @@
 #include <string.h>
 #include "device.h"
 
-extern MWPIXELVAL gr_foreground;	/* current foreground color */
-extern MWPIXELVAL gr_background;	/* current background color */
 extern int gr_fillmode;			/* current fill mode        */
 extern MWSTIPPLE gr_stipple;		/* The current stipple as set by the GC */
 extern MWTILE gr_tile;			/* The current tile as set by the GC */

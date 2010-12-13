@@ -33,11 +33,6 @@
 static PMWFONT	gr_pfont;
 
 /* temp extern decls*/
-extern MWPIXELVAL gr_foreground;
-extern MWPIXELVAL gr_background;
-extern MWCOLORVAL gr_foreground_rgb;
-extern MWCOLORVAL gr_background_rgb;
-extern MWBOOL gr_usebg;
 extern MWCOREFONT *user_builtin_fonts;
 
 static int utf8_to_utf16(const unsigned char *utf8, int cc,

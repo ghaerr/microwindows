@@ -48,9 +48,9 @@ static MWCOORD 	cursavx;	/* saved cursor location*/
 static MWCOORD 	cursavy;
 static MWCOORD	cursavx2;
 static MWCOORD	cursavy2;
-static MWPIXELVAL curfg;		/* foreground color of cursor */
-static MWPIXELVAL curbg;		/* background color of cursor */
-static MWPIXELVAL cursavbits[MWMAX_CURSOR_SIZE * MWMAX_CURSOR_SIZE];
+static MWPIXELVALHW curfg;		/* foreground color of cursor */
+static MWPIXELVALHW curbg;		/* background color of cursor */
+static MWPIXELVALHW cursavbits[MWMAX_CURSOR_SIZE * MWMAX_CURSOR_SIZE];
 static MWIMAGEBITS cursormask[MWMAX_CURSOR_BUFLEN];
 static MWIMAGEBITS cursorcolor[MWMAX_CURSOR_BUFLEN];
 
@@ -383,12 +383,12 @@ GdShowCursor(PSD psd)
 {
 	MWCOORD 		x;
 	MWCOORD 		y;
-	MWPIXELVAL *	saveptr;
+	MWPIXELVALHW *	saveptr;
 	MWIMAGEBITS *	cursorptr;
 	MWIMAGEBITS *	maskptr;
 	MWIMAGEBITS 	curbit, cbits = 0, mbits = 0;
-	MWPIXELVAL 	oldcolor;
-	MWPIXELVAL 	newcolor;
+	MWPIXELVALHW 	oldcolor;
+	MWPIXELVALHW 	newcolor;
 	int 		oldmode;
 	int		prevcursor = curvisible;
 
@@ -448,7 +448,7 @@ GdShowCursor(PSD psd)
 int
 GdHideCursor(PSD psd)
 {
-	MWPIXELVAL *	saveptr;
+	MWPIXELVALHW *	saveptr;
 	MWCOORD 		x, y;
 	int 		oldmode;
 	int		prevcursor = curvisible;

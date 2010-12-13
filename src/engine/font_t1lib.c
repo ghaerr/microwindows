@@ -72,13 +72,6 @@ MWFONTPROCS t1lib_fontprocs = {
 	NULL,				/* duplicate*/
 };
 
-/* temp extern decls*/
-extern MWCOLORVAL gr_foreground_rgb;
-extern MWCOLORVAL gr_background_rgb;
-extern MWPIXELVAL gr_foreground;
-extern MWPIXELVAL gr_background;
-extern MWBOOL gr_usebg;
-
 static int
 t1lib_init(PSD psd)
 {

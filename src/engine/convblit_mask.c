@@ -200,19 +200,17 @@ CONVBLIT_COPY_MASK_MONO(convblit_copy_mask_mono_byte_lsb)
 #undef SRC_TYPE_MASK
 #undef BITNUM
 
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 /* 32bpp RGBA*/
 void convblit_copy_mask_mono_byte_lsb_rgba(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, R,G,B,A, psd->portrait);
 }
-#else
+
 /* 32bpp BGRA*/
 void convblit_copy_mask_mono_byte_lsb_bgra(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_copy_mask_mono_byte_lsb(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-#endif
 
 /* 24bpp BGR*/
 void convblit_copy_mask_mono_byte_lsb_bgr(PSD psd, PMWBLITPARMS gc)
@@ -240,19 +238,18 @@ CONVBLIT_COPY_MASK_MONO(convblit_copy_mask_mono_word_msb)
 #undef SRC_TYPE_MASK
 #undef BITNUM
 
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 /* 32bpp RGBA*/
 void convblit_copy_mask_mono_word_msb_rgba(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_copy_mask_mono_word_msb(psd, gc, 4, R,G,B,A, psd->portrait);
 }
-#else
+
 /* 32bpp BGRA*/
 void convblit_copy_mask_mono_word_msb_bgra(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_copy_mask_mono_word_msb(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-#endif
+
 
 /* 24bpp BGR*/
 void convblit_copy_mask_mono_word_msb_bgr(PSD psd, PMWBLITPARMS gc)
@@ -280,19 +277,17 @@ CONVBLIT_COPY_MASK_MONO(convblit_copy_mask_mono_byte_msb)
 #undef SRC_TYPE_MASK
 #undef BITNUM
 
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 /* 32bpp RGBA*/
 void convblit_copy_mask_mono_byte_msb_rgba(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_copy_mask_mono_byte_msb(psd, gc, 4, R,G,B,A, psd->portrait);
 }
-#else
+
 /* 32bpp BGRA*/
 void convblit_copy_mask_mono_byte_msb_bgra(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_copy_mask_mono_byte_msb(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-#endif
 
 /* 24bpp BGR*/
 void convblit_copy_mask_mono_byte_msb_bgr(PSD psd, PMWBLITPARMS gc)
@@ -503,19 +498,18 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
  *
  * Used to draw FT2 and T1LIB antialiased glyphs.
  */
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+
 /* 32bpp RGBA*/
 void convblit_blend_mask_alpha_byte_rgba(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_blend_mask_alpha_byte(psd, gc, 4, R,G,B,A, psd->portrait);
 }
-#else
+
 /* 32bpp BGRA*/
 void convblit_blend_mask_alpha_byte_bgra(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_blend_mask_alpha_byte(psd, gc, 4, B,G,R,A, psd->portrait);
 }
-#endif
 
 /* 24bpp BGR*/
 void convblit_blend_mask_alpha_byte_bgr(PSD psd, PMWBLITPARMS gc)

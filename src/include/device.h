@@ -99,7 +99,7 @@ typedef struct {
 	MWPIXELVAL (*ReadPixel)(PSD psd, MWCOORD x, MWCOORD y);
 	void 	 (*DrawHorzLine)(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
 	void	 (*DrawVertLine)(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
-	void	 (*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2, MWCOORD y2,MWPIXELVAL c);
+	void	 (*FillRect)(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2, MWCOORD y2, MWPIXELVAL c);
 	/* fallback blit - used only for 1,2,4bpp drivers*/
 	void	(*BlitFallback)(PSD destpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,MWCOORD h,
 							PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
@@ -247,7 +247,7 @@ void	GdRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 void	GdFillRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 MWBOOL	GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize);
 void	GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
-		MWPIXELVAL *convtable,int fLoadType);
+		MWPIXELVALHW *convtable,int fLoadType);
 void	GdDrawImage(PSD psd,MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
 void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		const MWIMAGEBITS *imagebits);
@@ -256,7 +256,7 @@ void	GdBitmapByPoint(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 void	GdPoly(PSD psd,int count, MWPOINT *points);
 void	GdFillPoly(PSD psd,int count, MWPOINT *points);
 void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		MWPIXELVAL *pixels);
+		MWPIXELVALHW *pixels);
 void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
 		void *pixels, int pixtype);
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
@@ -264,6 +264,11 @@ void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 void	drawpoint(PSD psd, MWCOORD x, MWCOORD y);
 void	drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y);
 extern SCREENDEVICE scrdev;
+extern MWPIXELVAL gr_foreground;		/* current foreground color */
+extern MWPIXELVAL gr_background;		/* current background color */
+extern MWBOOL 	  gr_usebg;			/* TRUE if background drawn in pixmaps */
+extern MWCOLORVAL gr_foreground_rgb;/* current fg color in 0xAARRGGBB format*/
+extern MWCOLORVAL gr_background_rgb;
 
 /* drivers/fb.c*/
 int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,

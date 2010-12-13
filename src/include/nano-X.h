@@ -21,7 +21,7 @@ extern "C" {
 typedef MWCOORD 	GR_COORD;	/* coordinate value */
 typedef MWCOORD 	GR_SIZE;	/* size value */
 typedef MWCOLORVAL 	GR_COLOR;	/* full color value */
-typedef MWPIXELVAL 	GR_PIXELVAL;	/* hw pixel value */
+typedef MWPIXELVALHW GR_PIXELVAL;	/* hw pixel value - size varies at compile time*/
 typedef MWIMAGEBITS 	GR_BITMAP;	/* bitmap unit */
 typedef MWUCHAR 	GR_CHAR;	/* filename, window title */
 typedef MWTEXTFLAGS	GR_TEXTFLAGS;	/* text encoding flags */

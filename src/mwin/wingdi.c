@@ -443,7 +443,7 @@ GetPixel(HDC hdc, int x, int y)
 {
 	HWND		hwnd;
 	POINT		pt;
-	MWPIXELVAL	pixel;
+	MWPIXELVALHW pixel;
 
 	hwnd = MwPrepareDC(hdc);
 	if(!hwnd)

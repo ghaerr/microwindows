@@ -9,8 +9,7 @@
 #include "nxdraw.h"
 
 void
-nxPaintNCArea(GR_DRAW_ID id, int w, int h, GR_CHAR *title, GR_BOOL active,
-	GR_WM_PROPS props)
+nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PROPS props)
 {
 	int		x = 0;
 	int		y = 0;
@@ -40,15 +39,13 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, GR_CHAR *title, GR_BOOL active,
 
 	/* fill caption*/
 	GrSetGCForeground(gc, 
-		GrGetSysColor(active? GR_COLOR_ACTIVECAPTION:
-			GR_COLOR_INACTIVECAPTION));
+		GrGetSysColor(active? GR_COLOR_ACTIVECAPTION: GR_COLOR_INACTIVECAPTION));
 	GrFillRect(id, gc, x, y, w, CYCAPTION);
 
 	/* draw caption text*/
 	if (title) {
 		GrSetGCForeground(gc,
-			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT:
-				GR_COLOR_INACTIVECAPTIONTEXT));
+			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
 		GrSetGCUseBackground(gc, GR_FALSE);
 		/* * no need to create special font now...
 		if (!fontid)

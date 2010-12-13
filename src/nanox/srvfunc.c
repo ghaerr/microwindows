@@ -2001,9 +2001,10 @@ GR_WINDOW_ID
 GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 {
 	GR_PIXMAP	*pp;
-	PSD		psd;
-	int 		size, linelen, pitch, bpp, planes, data_format;
 	GR_WINDOW_ID id;
+	PSD		psd;
+	int 	size, linelen, pitch, bpp, planes, data_format;
+	int		pixtype;
    
 	if (width <= 0 || height <= 0) {
 		/* no error for now, server will desynchronize w/app*/
@@ -2013,14 +2014,40 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 
 	SERVER_LOCK();
 
+	bpp = rootwp->psd->bpp;
+	data_format = rootwp->psd->data_format;
+	pixtype = rootwp->psd->pixtype;
+	planes = rootwp->psd->planes;
+
+	/* check if format supported*/
+	switch (format) {
+	case 0:			/* default, return framebuffer compatible pixmap*/
+		break;
+	case 32:		/* match framebuffer format if running 32bpp, else RGBA*/
+		if (bpp == 32)
+			break;
+		/* else fall through - create RGBA8888 pixmap*/
+	case MWIF_RGBA8888:
+		bpp = 32;
+		data_format = MWIF_RGBA8888;
+		pixtype = MWPF_TRUECOLORABGR;
+		break;
+	case MWIF_BGRA8888:
+		bpp = 32;
+		data_format = MWIF_BGRA8888;
+		pixtype = MWPF_TRUECOLOR8888;
+		break;
+	default:
+		DPRINTF("GrNewPixmapEx: unsupported format %08x\n", format);
+		SERVER_UNLOCK();
+		return 0;	/* fail*/
+	}
+
 	/*
-	 * allocate offscreen psd.  If screen driver doesn't
+	 * Allocate offscreen psd.  If screen driver doesn't
 	 * support blitting, this will fail.  Use root window screen
 	 * device for compatibility for now.
 	 */
-	planes = rootwp->psd->planes;
-	bpp = rootwp->psd->bpp;
-	data_format = rootwp->psd->data_format;
 	psd = rootwp->psd->AllocateMemGC(rootwp->psd);
 	if (!psd) {
 		SERVER_UNLOCK();
@@ -2029,13 +2056,14 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 
 	pp = (GR_PIXMAP *) malloc(sizeof(GR_PIXMAP));
 	if (pp == NULL) {
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
+nomem:
 		psd->FreeMemGC(psd);
+		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		SERVER_UNLOCK();
 		return 0;
 	}
 
-	GdCalcMemGCAlloc(psd, width, height, 0, 0, &size, &linelen, &pitch);
+	GdCalcMemGCAlloc(psd, width, height, planes, bpp, &size, &linelen, &pitch);
 
 	/* Allocate space for pixel values */
 	if (!pixels) {
@@ -2044,10 +2072,7 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 	}
 	if (!pixels) {
 		free(pp);
-		psd->FreeMemGC(psd);
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
+		goto nomem;
 	}
   
 	pp->id = nextid++;
@@ -2060,6 +2085,7 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 	pp->owner = curclient;
 
 	psd->MapMemGC(psd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
+	psd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
 
 	listpp = pp;
 	id = pp->id;
@@ -3260,8 +3286,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * of the screen boundaries, or unmapped windows will return black.
  */
 void
-GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,GR_SIZE height,
-	GR_PIXELVAL *pixels)
+GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,GR_SIZE height, GR_PIXELVAL *pixels)
 {
 	GR_WINDOW	*wp;
 	GR_PIXMAP	*pp = NULL;
@@ -3275,24 +3300,20 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,GR_SIZE height,
 	}
 
 	if (wp != NULL) {
-		if (!wp->realized || (x >= wp->width) || (y >= wp->height) ||
-		   (x + width <= 0) || (y + height <= 0)) {
-			/* long		count;
-			* GR_PIXELVAL	black;
-			*
-			* black = GdFindColor(BLACK);
-			* count = width * height;
-			* while (count-- > 0)
-			*	*pixels++ = black;
-			*/
+		if (!wp->realized || x >= wp->width || y >= wp->height || x + width <= 0 || y + height <= 0) {
+			/*
+			 * GR_PIXELVAL black = GdFindColor(BLACK);
+			 * int count = width * height;
+			 * while (count-- > 0)
+			 *	*pixels++ = black;
+			 */
 			SERVER_UNLOCK();
 			return;
 		}
 		GdReadArea(wp->psd, wp->x+x, wp->y+y, width, height, pixels);
 	}
 	if (pp != NULL) {
-		if ((x >= pp->width) || (y >= pp->height) ||
-		    (x + width <= 0) || (y + height <= 0)) {
+		if (x >= pp->width || y >= pp->height || x + width <= 0 || y + height <= 0) {
 			SERVER_UNLOCK();
 			return;
 		}

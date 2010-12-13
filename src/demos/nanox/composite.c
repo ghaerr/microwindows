@@ -32,18 +32,20 @@ init_demo(void)
 	GrGetScreenInfo(&sinfo);
 	gc = GrNewGC();
 
-	/* load image from file and draw to pixmap p1*/
+	/* load image from file into RGBA format*/
 	if(!(iid = GrLoadImageFromFile(IMAGE, 0))) {
 		fprintf(stderr, "Failed to load image file \"%s\"\n", IMAGE);
 		return;
 	}
 	GrGetImageInfo(iid, &image_info);
-	p1 = GrNewPixmap(image_info.width, image_info.height, NULL);
+
+	/* create 32bpp pixmap and draw image w/alpha on it*/
+	p1 = GrNewPixmapEx(image_info.width, image_info.height, 32, NULL);
 	GrDrawImageToFit(p1, gc, 0, 0, image_info.width, image_info.height, iid);
 	GrFreeImage(iid);
 
-	/* create another pixmap p2 of same size with green background*/
-	p2 = GrNewPixmap(image_info.width, image_info.height, NULL);
+	/* create another pixmap p2 of same size and bpp with green background*/
+	p2 = GrNewPixmapEx(image_info.width, image_info.height, 32, NULL);
 	GrSetGCForeground(gc, GR_COLOR_SEAGREEN);
 	GrFillRect(p2, gc, 0, 0, image_info.width, image_info.height);
 

@@ -20,10 +20,6 @@
 #include "device.h"
 #include "convblit.h"
 
-extern MWPIXELVAL gr_foreground;      /* current foreground color */
-extern MWPIXELVAL gr_background;      /* current background color */
-extern MWBOOL 	  gr_usebg;    	      /* TRUE if background drawn in pixmaps */
-
 /* find a conversion blit based on data format and blit op*/
 MWBLITFUNC
 GdFindConvBlit(PSD psd, int data_format, int op)
@@ -115,10 +111,17 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 static void
 frameblit(PSD psd, PMWBLITPARMS parms)
 {
-		if (psd->FrameBlit)
+		if (psd->FrameBlit) {
+			if (parms->srcpsd && (parms->srcpsd->data_format != psd->data_format)) {
+				if (parms->srcpsd->data_format == MWIF_RGBA8888) {
+					psd->BlitCopyRGBA8888(psd, parms);
+					return;
+				}
+				DPRINTF("GdBlit: no convblit for format %08x\n", parms->srcpsd->data_format);
+			}
 			psd->FrameBlit(psd, parms);
-		else {
-			printf("GdBlit: no convblit for op %d, using psd->Blit fallback\n", parms->op);
+		} else {
+			DPRINTF("GdBlit: no convblit for op %d, using psd->Blit fallback\n", parms->op);
 
 			psd->BlitFallback(psd, parms->dstx, parms->dsty, parms->width, parms->height,
 				parms->srcpsd, parms->srcx, parms->srcy, parms->op);
@@ -144,8 +147,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 {
 	MWBLITPARMS parms;
 
-	/* source and dest pixmaps must be same format and rotation*/
-	assert(dstpsd->data_format == srcpsd->data_format);
+	/* source and dest pixmaps must be same rotation*/
 	assert(dstpsd->portrait == srcpsd->portrait);
 	
 	/* clip blit rectangle to source screen/bitmap size*/

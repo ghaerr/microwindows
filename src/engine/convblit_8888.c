@@ -183,7 +183,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 
 /*---------- 32bpp BGRA output ----------*/
 
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+/* MWPF_TRUECOLORABGR and 32bpp RGBA internal pixmaps*/
 /* Conversion blit srcover 32bpp RGBA image to 32bpp RGBA image*/
 void convblit_srcover_rgba8888_rgba8888(PSD psd, PMWBLITPARMS gc)
 {
@@ -202,8 +202,9 @@ void convblit_copy_rgb888_rgba8888(PSD psd, PMWBLITPARMS gc)
 	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, R,G,B,A, psd->portrait);
 }
 
-#else /* MWPF_TRUECOLOR8888*/
+/* MWPF_TRUECOLOR8888*/
 
+/* Conversion blit srcover 32bpp RGBA image to 32bpp BGRA image*/
 void convblit_srcover_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
 {
 	convblit_8888(psd, gc, SRCOVER, 4, R,G,B,A, 4, B,G,R,A, psd->portrait);
@@ -221,7 +222,6 @@ void convblit_copy_rgb888_bgra8888(PSD psd, PMWBLITPARMS gc)
 	// -1 forces 255 alpha in destination
 	convblit_8888(psd, gc, COPY, 3, R,G,B,-1, 4, B,G,R,A, psd->portrait);
 }
-#endif
 
 /* Copy 32bpp XXXX image to 32bpp XXXX image*/
 void convblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc)

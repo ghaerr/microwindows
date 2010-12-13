@@ -58,7 +58,7 @@ linear8_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	if(gr_mode == MWROP_COPY)
 		*addr = c;
 	else
-		APPLYOP(gr_mode, 1, (MWPIXELVAL), c, *(ADDR8), addr, 0, 0);
+		APPLYOP(gr_mode, 1, (unsigned char), c, *(ADDR8), addr, 0, 0);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -99,7 +99,7 @@ linear8_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 			*addr++ = c;
 	}
 	else
-		APPLYOP(gr_mode, width, (MWPIXELVAL), c, *(ADDR8), addr, 0, 1);
+		APPLYOP(gr_mode, width, (unsigned char), c, *(ADDR8), addr, 0, 1);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -132,7 +132,7 @@ linear8_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		}
 	}
 	else
-		APPLYOP(gr_mode, height, (MWPIXELVAL), c, *(ADDR8), addr, 0, linelen);
+		APPLYOP(gr_mode, height, (unsigned char), c, *(ADDR8), addr, 0, linelen);
 	DRAWOFF;
 
 	if (psd->Update)

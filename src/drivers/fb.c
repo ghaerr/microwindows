@@ -29,7 +29,8 @@ select_fb_subdriver(PSD psd)
 	extern PSUBDRIVER fblinear8[4];
 	extern PSUBDRIVER fblinear16[4];
 	extern PSUBDRIVER fblinear24[4];
-	extern PSUBDRIVER fblinear32[4];
+	extern PSUBDRIVER fblinear32bgra[4];
+	extern PSUBDRIVER fblinear32rgba[4];
 
 	/* FB_TYPE_PACKED_PIXELS*/
 	/* device and memory drivers are the same for packed pixels*/
@@ -54,7 +55,10 @@ select_fb_subdriver(PSD psd)
 			pdriver = fblinear24;
 			break;
 		case 32:
-			pdriver = fblinear32;
+			if (psd->data_format == MWIF_RGBA8888)	/* RGBA pixmaps*/
+				pdriver = fblinear32rgba;
+			else
+				pdriver = fblinear32bgra;
 			break;
 		}
 	}

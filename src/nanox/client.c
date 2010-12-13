@@ -3450,7 +3450,7 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  *
  * pixtype		array of
  * MWPF_RGB		MWCOLORVAL (uint32_t)
- * MWPF_PIXELVAL	MWPIXELVAL (compile-time dependent)
+ * MWPF_PIXELVAL	MWPIXELVALHW (compile-time dependent)
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLOR8888	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
@@ -3507,7 +3507,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 		pixsize = sizeof(MWCOLORVAL);
 		break;
 	case MWPF_PIXELVAL:
-		pixsize = sizeof(MWPIXELVAL);
+		pixsize = sizeof(MWPIXELVALHW);
 		break;
 	case MWPF_PALETTE:
 	case MWPF_TRUECOLOR233:
@@ -3624,7 +3624,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 	req->y = y;
 	req->width = width;
 	req->height = height;
-	size = (int32_t)width * height * sizeof(MWPIXELVAL);
+	size = (int32_t)width * height * sizeof(MWPIXELVALHW);
 	TypedReadBlock(pixels, size, GrNumReadArea);
 	UNLOCK(&nxGlobalLock);
 }

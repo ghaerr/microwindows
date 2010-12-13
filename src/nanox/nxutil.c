@@ -29,7 +29,7 @@ GrNewWindowEx(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
 		/* set properties and title */
 		wmprops.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
 		wmprops.props = props;
-		wmprops.title = title;
+		wmprops.title = (char *)title;
 		GrSetWMProperties(wid, &wmprops);
 	}
 	return wid;

@@ -8,7 +8,7 @@
  *	nxDraw3dInset - draw a 2 line 3d inset
  *	nxDraw3dOutset - draw a 2 line 3d outset
  */
-void		nxPaintNCArea(GR_DRAW_ID id, int w, int h, GR_CHAR *title,
+void		nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title,
 			GR_BOOL active, GR_WM_PROPS props);
 
 void		nxInflateRect(GR_RECT *prc, GR_SIZE dx, GR_SIZE dy);

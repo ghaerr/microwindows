@@ -88,10 +88,6 @@ static MWFONTPROCS hzk_procs = {
 	NULL				/* duplicate*/
 };
 
-/* temp extern decls*/
-extern MWPIXELVAL gr_foreground;
-extern MWPIXELVAL gr_background;
-
 /* UniCode-16 (MWTF_UC16) to GB(MWTF_ASCII) Chinese Characters conversion.
  * a single 2-byte UC16 character is encoded into a surrogate pair.
  * return -1 ,if error;
@@ -551,7 +547,7 @@ static int getnextchar(char* s, unsigned char* cc)
 }
 
 static void
-expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVAL* bitmap)
+expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVALHW* bitmap)
 {
 	int i=0;
     	int c1, c2, seq;
@@ -560,7 +556,7 @@ expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVAL* bitmap)
     	int b = 0;		/* keep gcc happy with b = 0 - MW */
 
 	int pixelsize;
-	pixelsize=sizeof(MWPIXELVAL);
+	pixelsize=sizeof(MWPIXELVALHW);
 
    	c1 = c[0];
     	c2 = c[1];
@@ -599,7 +595,7 @@ expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVAL* bitmap)
 		}		
 }
 
-static void expandchar(PMWHZKFONT pf, int bg, int fg, int c, MWPIXELVAL* bitmap)
+static void expandchar(PMWHZKFONT pf, int bg, int fg, int c, MWPIXELVALHW* bitmap)
 {
 	int i=0;
 	int x,y;
@@ -607,7 +603,7 @@ static void expandchar(PMWHZKFONT pf, int bg, int fg, int c, MWPIXELVAL* bitmap)
 	int pixelsize;
     	int b = 0;		/* keep gcc happy with b = 0 - MW */
 
-	pixelsize=sizeof(MWPIXELVAL);
+	pixelsize=sizeof(MWPIXELVALHW);
 
     	font = pf->afont_address + c * (pf->font_height *
 		((pf->afont_width + 7) / 8));
@@ -634,7 +630,7 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;
 
     	unsigned char c[2];
-	MWPIXELVAL *bitmap;
+	MWPIXELVALHW *bitmap;
     	unsigned char s1[3];
  	char *s,*sbegin;
 
@@ -649,8 +645,8 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
     	}
 
 	sbegin=s;
-    	bitmap = (MWPIXELVAL *)ALLOCA(pf->cfont_width * pf->font_height *
-			sizeof(MWPIXELVAL));
+    	bitmap = (MWPIXELVALHW *)ALLOCA(pf->cfont_width * pf->font_height *
+			sizeof(MWPIXELVALHW));
 
     	while( getnextchar(s, c) )
 	{

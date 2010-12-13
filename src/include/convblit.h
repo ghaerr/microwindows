@@ -6,15 +6,13 @@
 /* convblit_8888.c*/
 
 /* ----- 32bpp output -----*/
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 void convblit_srcover_rgba8888_rgba8888(PSD psd, PMWBLITPARMS gc);	// png/tiff 32bpp RGBA srcover
 void convblit_copy_rgba8888_rgba8888(PSD psd, PMWBLITPARMS gc);		// 32bpp RGBA to 32bpp RGBA copy
 void convblit_copy_rgb888_rgba8888(PSD psd, PMWBLITPARMS gc);		// png/jpg 24bpp RGB copy
-#else
+
 void convblit_srcover_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc);	// png/tiff 32bpp RGBA srcover
 void convblit_copy_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc);		// 32bpp RGBA to 32bpp BGRA copy
 void convblit_copy_rgb888_bgra8888(PSD psd, PMWBLITPARMS gc);		// png/jpg 24bpp RGB copy
-#endif
 
 void convblit_copy_8888_8888(PSD psd, PMWBLITPARMS gc);				// 32bpp to 32bpp copy
 
@@ -38,17 +36,15 @@ void convblit_copy_16bpp_16bpp(PSD psd, PMWBLITPARMS gc);			// 16bpp to 16bpp co
 /* 1bpp and 8bpp (alphablend) mask conversion blits - for font display*/
 
 /* ----- 32bpp output -----*/
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 void convblit_copy_mask_mono_byte_msb_rgba(PSD psd, PMWBLITPARMS gc);
 void convblit_copy_mask_mono_byte_lsb_rgba(PSD psd, PMWBLITPARMS gc);
 void convblit_copy_mask_mono_word_msb_rgba(PSD psd, PMWBLITPARMS gc);
 void convblit_blend_mask_alpha_byte_rgba(PSD psd, PMWBLITPARMS gc);
-#else
+
 void convblit_copy_mask_mono_byte_msb_bgra(PSD psd, PMWBLITPARMS gc);		/* ft2 non-alias*/
 void convblit_copy_mask_mono_byte_lsb_bgra(PSD psd, PMWBLITPARMS gc);		/* t1lib non-alias*/
 void convblit_copy_mask_mono_word_msb_bgra(PSD psd, PMWBLITPARMS gc);		/* pcf non-alias*/
 void convblit_blend_mask_alpha_byte_bgra(PSD psd, PMWBLITPARMS gc);			/* ft2/t1lib alias*/
-#endif
 
 /* ----- 24bpp output -----*/
 void convblit_copy_mask_mono_byte_msb_bgr(PSD psd, PMWBLITPARMS gc);

@@ -1,3 +1,12 @@
+handle portrait orientation 32bpp pixmaps
+	using GrNewPixmapEx w/32 works, MWIF_RGBA8888 fails because doesn't use frameblit
+don't rotate offscreen pixmaps
+build auto-rotation demo
+
+check that gr_foreground possibly invalid w/same gc used across 32bpp then 16bpp framebuffer
+GrLoadImageFromFile uses &scrdev, shouldn't use psd parameter, remove from loaders (jpg, xpm)
+change GdFindColor to use MWIF image type, not psd->pixtype, remove psd->pixtype
+
 background pixmap clear issues for pixmaps w/alpha using src_over: stop blink by buffering
 	need better way of determining whether pixmap has non-255 alpha, src_over vs copy
 	may blink from extra clear background on non-compositing pixmaps

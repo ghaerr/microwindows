@@ -40,7 +40,7 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	if (gr_mode == MWROP_COPY)
 		*addr = c;
 	else
-		APPLYOP(gr_mode, 1, (MWPIXELVAL), c, *(ADDR32), addr, 0, 0);
+		APPLYOP(gr_mode, 1, (uint32_t), c, *(ADDR32), addr, 0, 0);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -80,7 +80,7 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 			*addr++ = c;
 	}
 	else
-		APPLYOP(gr_mode, width, (MWPIXELVAL), c, *(ADDR32), addr, 0, 1);
+		APPLYOP(gr_mode, width, (uint32_t), c, *(ADDR32), addr, 0, 1);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -112,14 +112,15 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		}
 	}
 	else
-		APPLYOP(gr_mode, height, (MWPIXELVAL), c, *(ADDR32), addr, 0, linelen);
+		APPLYOP(gr_mode, height, (uint32_t), c, *(ADDR32), addr, 0, linelen);
 	DRAWOFF;
 
 	if (psd->Update)
 		psd->Update(psd, x, y1, 1, height);
 }
 
-static SUBDRIVER fblinear32_none = {
+/* BGRA subdriver*/
+static SUBDRIVER fblinear32bgra_none = {
 	linear32_init,
 	linear32_drawpixel,
 	linear32_readpixel,
@@ -129,15 +130,6 @@ static SUBDRIVER fblinear32_none = {
 	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
 	frameblit_xxxa8888,
 	frameblit_stretch_xxxa8888,
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
-	convblit_copy_mask_mono_byte_msb_rgba,
-	convblit_copy_mask_mono_byte_lsb_rgba,
-	convblit_copy_mask_mono_word_msb_rgba,
-	convblit_blend_mask_alpha_byte_rgba,
-	convblit_copy_rgba8888_rgba8888,
-	convblit_srcover_rgba8888_rgba8888,
-	convblit_copy_rgb888_rgba8888
-#else
 	convblit_copy_mask_mono_byte_msb_bgra,		/* ft2 non-alias*/
 	convblit_copy_mask_mono_byte_lsb_bgra,		/* t1 non-alias*/
 	convblit_copy_mask_mono_word_msb_bgra,		/* core/pcf non-alias*/
@@ -145,10 +137,9 @@ static SUBDRIVER fblinear32_none = {
 	convblit_copy_rgba8888_bgra8888,			/* RGBA image copy (GdArea MWPF_RGB)*/
 	convblit_srcover_rgba8888_bgra8888,			/* RGBA images w/alpha*/
 	convblit_copy_rgb888_bgra8888				/* RGB images no alpha*/
-#endif
 };
 
-static SUBDRIVER fblinear32_left = {
+static SUBDRIVER fblinear32bgra_left = {
 	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
@@ -158,15 +149,6 @@ static SUBDRIVER fblinear32_left = {
 	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
 	frameblit_xxxa8888,
 	frameblit_stretch_xxxa8888,
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
-	convblit_copy_mask_mono_byte_msb_rgba,
-	convblit_copy_mask_mono_byte_lsb_rgba,
-	convblit_copy_mask_mono_word_msb_rgba,
-	convblit_blend_mask_alpha_byte_rgba,
-	convblit_copy_rgba8888_rgba8888,
-	convblit_srcover_rgba8888_rgba8888,
-	convblit_copy_rgb888_rgba8888
-#else
 	convblit_copy_mask_mono_byte_msb_bgra,
 	convblit_copy_mask_mono_byte_lsb_bgra,
 	convblit_copy_mask_mono_word_msb_bgra,
@@ -174,10 +156,9 @@ static SUBDRIVER fblinear32_left = {
 	convblit_copy_rgba8888_bgra8888,
 	convblit_srcover_rgba8888_bgra8888,
 	convblit_copy_rgb888_bgra8888
-#endif
 };
 
-static SUBDRIVER fblinear32_right = {
+static SUBDRIVER fblinear32bgra_right = {
 	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
@@ -187,15 +168,6 @@ static SUBDRIVER fblinear32_right = {
 	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
 	frameblit_xxxa8888,
 	frameblit_stretch_xxxa8888,
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
-	convblit_copy_mask_mono_byte_msb_rgba,
-	convblit_copy_mask_mono_byte_lsb_rgba,
-	convblit_copy_mask_mono_word_msb_rgba,
-	convblit_blend_mask_alpha_byte_rgba,
-	convblit_copy_rgba8888_rgba8888,
-	convblit_srcover_rgba8888_rgba8888,
-	convblit_copy_rgb888_rgba8888
-#else
 	convblit_copy_mask_mono_byte_msb_bgra,
 	convblit_copy_mask_mono_byte_lsb_bgra,
 	convblit_copy_mask_mono_word_msb_bgra,
@@ -203,10 +175,9 @@ static SUBDRIVER fblinear32_right = {
 	convblit_copy_rgba8888_bgra8888,
 	convblit_srcover_rgba8888_bgra8888,
 	convblit_copy_rgb888_bgra8888
-#endif
 };
 
-static SUBDRIVER fblinear32_down = {
+static SUBDRIVER fblinear32bgra_down = {
 	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
@@ -216,15 +187,6 @@ static SUBDRIVER fblinear32_down = {
 	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
 	frameblit_xxxa8888,
 	frameblit_stretch_xxxa8888,
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
-	convblit_copy_mask_mono_byte_msb_rgba,
-	convblit_copy_mask_mono_byte_lsb_rgba,
-	convblit_copy_mask_mono_word_msb_rgba,
-	convblit_blend_mask_alpha_byte_rgba,
-	convblit_copy_rgba8888_rgba8888,
-	convblit_srcover_rgba8888_rgba8888,
-	convblit_copy_rgb888_rgba8888
-#else
 	convblit_copy_mask_mono_byte_msb_bgra,
 	convblit_copy_mask_mono_byte_lsb_bgra,
 	convblit_copy_mask_mono_word_msb_bgra,
@@ -232,9 +194,89 @@ static SUBDRIVER fblinear32_down = {
 	convblit_copy_rgba8888_bgra8888,
 	convblit_srcover_rgba8888_bgra8888,
 	convblit_copy_rgb888_bgra8888
-#endif
 };
 
-PSUBDRIVER fblinear32[4] = {
-	&fblinear32_none, &fblinear32_left, &fblinear32_right, &fblinear32_down
+PSUBDRIVER fblinear32bgra[4] = {
+	&fblinear32bgra_none, &fblinear32bgra_left, &fblinear32bgra_right, &fblinear32bgra_down
+};
+
+/* RGBA subdriver*/
+static SUBDRIVER fblinear32rgba_none = {
+	linear32_init,
+	linear32_drawpixel,
+	linear32_readpixel,
+	linear32_drawhorzline,
+	linear32_drawvertline,
+	gen_fillrect,
+	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
+	frameblit_xxxa8888,
+	frameblit_stretch_xxxa8888,
+	convblit_copy_mask_mono_byte_msb_rgba,		/* ft2 non-alias*/
+	convblit_copy_mask_mono_byte_lsb_rgba,		/* t1 non-alias*/
+	convblit_copy_mask_mono_word_msb_rgba,		/* core/pcf non-alias*/
+	convblit_blend_mask_alpha_byte_rgba,		/* ft2/t1 antialias*/
+	convblit_copy_rgba8888_rgba8888,			/* RGBA image copy (GdArea MWPF_RGB)*/
+	convblit_srcover_rgba8888_rgba8888,			/* RGBA images w/alpha*/
+	convblit_copy_rgb888_rgba8888				/* RGB images no alpha*/
+};
+
+static SUBDRIVER fblinear32rgba_left = {
+	NULL,
+	fbportrait_left_drawpixel,
+	fbportrait_left_readpixel,
+	fbportrait_left_drawhorzline,
+	fbportrait_left_drawvertline,
+	fbportrait_left_fillrect,
+	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
+	frameblit_xxxa8888,
+	frameblit_stretch_xxxa8888,
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+};
+
+static SUBDRIVER fblinear32rgba_right = {
+	NULL,
+	fbportrait_right_drawpixel,
+	fbportrait_right_readpixel,
+	fbportrait_right_drawhorzline,
+	fbportrait_right_drawvertline,
+	fbportrait_right_fillrect,
+	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
+	frameblit_xxxa8888,
+	frameblit_stretch_xxxa8888,
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+};
+
+static SUBDRIVER fblinear32rgba_down = {
+	NULL,
+	fbportrait_down_drawpixel,
+	fbportrait_down_readpixel,
+	fbportrait_down_drawhorzline,
+	fbportrait_down_drawvertline,
+	fbportrait_down_fillrect,
+	NULL,			/* no fallback Blit - uses BlitFrameBlit*/
+	frameblit_xxxa8888,
+	frameblit_stretch_xxxa8888,
+	convblit_copy_mask_mono_byte_msb_rgba,
+	convblit_copy_mask_mono_byte_lsb_rgba,
+	convblit_copy_mask_mono_word_msb_rgba,
+	convblit_blend_mask_alpha_byte_rgba,
+	convblit_copy_rgba8888_rgba8888,
+	convblit_srcover_rgba8888_rgba8888,
+	convblit_copy_rgb888_rgba8888
+};
+
+PSUBDRIVER fblinear32rgba[4] = {
+	&fblinear32rgba_none, &fblinear32rgba_left, &fblinear32rgba_right, &fblinear32rgba_down
 };

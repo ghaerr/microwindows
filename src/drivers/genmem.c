@@ -61,6 +61,46 @@ gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	mempsd->addr = addr;
 }
 
+/* 
+ * Initialize memory device with passed parms,
+ * select suitable framebuffer subdriver,
+ * and set subdriver in memory device.
+ *
+ * Pixmaps are always drawn using linear fb drivers,
+ * and drawn using portrait mode subdrivers if in portrait mode,
+ * then blitted using swapped x,y coords for speed with
+ * no rotation required.
+ */
+MWBOOL
+gen_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
+	int data_format,int pitch,int size,void *addr)
+{
+	PSUBDRIVER subdriver;
+
+	/* initialize mem screen driver*/
+	gen_initmemgc(mempsd, w, h, planes, bpp, data_format, linelen, pitch, size, addr);
+
+	/* select and init hw compatible framebuffer subdriver for pixmap drawing*/
+	subdriver = select_fb_subdriver(mempsd);
+	if(!subdriver || !subdriver->Init(mempsd))
+		return 0;
+
+	/* assign portrait subdriver or regular fb driver for pixmap drawing*/
+	set_portrait_subdriver(mempsd);
+
+	return 1;
+}
+
+void
+gen_freememgc(PSD mempsd)
+{
+	assert(mempsd->flags & PSF_MEMORY);
+
+	/* note: mempsd->addr must be freed elsewhere*/
+
+	free(mempsd);
+}
+
 /*
  * Calculate size and linelen of memory gc.
  * If bpp or planes is 0, use passed psd's bpp/planes.
@@ -139,49 +179,6 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 	*plinelen = linelen;
 	*ppitch = bytelen;
 	return 1;
-}
-
-/* 
- * Initialize memory device with passed parms,
- * select suitable framebuffer subdriver,
- * and set subdriver in memory device.
- *
- * Pixmaps are always drawn using linear fb drivers,
- * and drawn using portrait mode subdrivers if in portrait mode,
- * then blitted using swapped x,y coords for speed with
- * no rotation required.
- */
-MWBOOL
-gen_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int data_format,int pitch,int size,void *addr)
-{
-	PSUBDRIVER subdriver;
-
-	/* initialize mem screen driver*/
-	gen_initmemgc(mempsd, w, h, planes, bpp, data_format, linelen, pitch, size, addr);
-
-	/* select and init hw compatible framebuffer subdriver for pixmap drawing*/
-	subdriver = select_fb_subdriver(mempsd);
-	if(!subdriver || !subdriver->Init(mempsd))
-		return 0;
-
-	/* pixmap portrait subdriver will callback fb drivers, not screen drivers*/
-	//mempsd->orgsubdriver = subdriver;
-
-	/* assign portrait subdriver or regular fb driver for pixmap drawing*/
-	set_portrait_subdriver(mempsd);
-
-	return 1;
-}
-
-void
-gen_freememgc(PSD mempsd)
-{
-	assert(mempsd->flags & PSF_MEMORY);
-
-	/* note: mempsd->addr must be freed elsewhere*/
-
-	free(mempsd);
 }
 
 void

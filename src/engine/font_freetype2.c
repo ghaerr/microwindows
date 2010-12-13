@@ -46,13 +46,6 @@
 #define strcmpi strcasecmp
 #endif
 
-/* temp extern decls*/
-extern MWCOLORVAL gr_foreground_rgb;
-extern MWCOLORVAL gr_background_rgb;
-extern MWPIXELVAL gr_foreground;
-extern MWPIXELVAL gr_background;
-extern MWBOOL gr_usebg;
-
 #if STANDALONE
 typedef uint32_t COLORVAL;
 COLORVAL winsetfgcolor(PSD psd, COLORVAL color);		// FIXME kluge decls

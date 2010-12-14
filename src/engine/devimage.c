@@ -361,8 +361,7 @@ findimage(int id)
  * @param id Image to draw.
  */
 void
-GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	int id)
+GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, int id)
 {
 	PIMAGEITEM	pItem;
 	PMWIMAGEHDR	pimage;
@@ -391,8 +390,7 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 		image2.planes = pimage->planes;
 		image2.bpp = pimage->bpp;
 		image2.data_format = pimage->data_format;
-		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
-			&image2.bytesperpixel);
+		GdComputeImagePitch(pimage->bpp, width, &image2.pitch, &image2.bytesperpixel);
 		image2.palsize = pimage->palsize;
 		image2.palette = pimage->palette;	/* already allocated*/
 		image2.transcolor = pimage->transcolor;

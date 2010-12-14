@@ -114,6 +114,7 @@ typedef struct {
 	MWBLITFUNC BlitCopyRGBA8888;					/* GdArea RGBA MWPF_RGB image copy*/
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
+	MWBLITFUNC BlitStretchRGBA8888;					/* conversion stretch blit for RGBA src*/
 } SUBDRIVER, *PSUBDRIVER;
 
 /*
@@ -175,6 +176,7 @@ typedef struct _mwscreendevice {
 	MWBLITFUNC BlitCopyRGBA8888;					/* GdArea RGBA MWPF_RGB image copy*/
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
+	MWBLITFUNC BlitStretchRGBA8888;					/* conversion stretch blit for RGBA src*/
 } SCREENDEVICE;
 
 /* PSD flags*/

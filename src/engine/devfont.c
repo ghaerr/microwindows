@@ -495,6 +495,7 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	parms.srcy = 0;
 	parms.dst_pitch = psd->pitch;			/* usually set in GdConversionBlit*/
 	parms.data_out = psd->addr;
+	parms.srcpsd = NULL;
 	convblit = GdFindConvBlit(psd, MWIF_MONOWORDMSB, MWROP_COPY);
 
 	if (flags & MWTF_DBCSMASK)

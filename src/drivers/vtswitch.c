@@ -69,6 +69,7 @@ static SUBDRIVER nulldriver = {
 	null_convblit,
 	null_convblit,
 	null_convblit
+	null_convblit
 };
 
 static void

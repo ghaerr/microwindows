@@ -1,7 +1,9 @@
-handle portrait orientation 32bpp pixmaps
-	using GrNewPixmapEx w/32 works, MWIF_RGBA8888 fails because doesn't use frameblit
-don't rotate offscreen pixmaps
-build auto-rotation demo
+GdBlit Frame->Pixmap fails, needs src rotate (and test)
+GdStretchBlit Frame->Frame and Frame->Pixmap fails, needs src/dst rotate (and test)
+convblits could be updated with rotation macros
+
+add mwrop_copy to convstretchblit
+test ABGR convblit
 
 check that gr_foreground possibly invalid w/same gc used across 32bpp then 16bpp framebuffer
 GrLoadImageFromFile uses &scrdev, shouldn't use psd parameter, remove from loaders (jpg, xpm)

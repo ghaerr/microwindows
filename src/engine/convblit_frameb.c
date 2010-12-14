@@ -30,68 +30,241 @@
 #define COPY	0		/* mode parm*/
 #define SRCOVER	1
 
+/* Rotate src and dst coords, swap w/h - used with Frame->Frame blit.
+ * For framebuffer blits, the orientation is the same,
+ * so the blit move itself doesn't change.  Here, we
+ * transform the source and dest x,y,w,h coordinates to get to the
+ * the "top left" of the bitmap psd->addr. These rotations are
+ * slightly different than the rotations required for the
+ * convblits where we actually copy memory differently
+ * depending on the orientation.
+ */
+#define FRAMEBLIT_ROTATE_COORDS(psd, gc) \
+{ \
+	ssz = SSZ; \
+	src_pitch = gc->src_pitch; \
+	dsz = DSZ;					/* dst: next pixel over*/ \
+	dst_pitch = gc->dst_pitch;	/* dst: next line down*/ \
+	switch (PORTRAIT) { \
+	case LEFT: \
+		/* rotate left: X = Y, Y = xmax - X - W, W = H*/ \
+		tmp = gc->dsty; \
+		gc->dsty = psd->xvirtres - gc->dstx - gc->width; \
+		gc->dstx = tmp; \
+\
+		tmp = gc->srcy; \
+		gc->srcy = gc->src_xvirtres - gc->srcx - gc->width; \
+		gc->srcx = tmp; \
+\
+		tmp = gc->width; \
+		gc->width = gc->height; \
+		gc->height = tmp; \
+		break; \
+\
+	case RIGHT: \
+		/* rotate right: X = ymax - Y - H, Y = X, W = H*/ \
+		tmp = gc->dstx; \
+		gc->dstx = psd->yvirtres - gc->dsty - gc->height; \
+		gc->dsty = tmp; \
+\
+		tmp = gc->srcx; \
+		gc->srcx = gc->src_yvirtres - gc->srcy - gc->height; \
+		gc->srcy = tmp; \
+\
+		tmp = gc->width; \
+		gc->width = gc->height; \
+		gc->height = tmp; \
+		break; \
+\
+	case DOWN: \
+		/* rotate down: X = xmax - X - W, Y = ymax - Y - H*/ \
+		gc->dstx = psd->xvirtres - gc->dstx - gc->width; \
+		gc->dsty = psd->yvirtres - gc->dsty - gc->height; \
+\
+		gc->srcx = gc->src_xvirtres - gc->srcx - gc->width; \
+		gc->srcy = gc->src_yvirtres - gc->srcy - gc->height; \
+		break; \
+	} \
+}
+
+/*
+ * Update screen bits if driver requires it. 
+ * For framebuffer blits, we started with the "top left"
+ * corner, so no additional rotations are required.
+ */
+#define FRAMEBLIT_UPDATE(psd, gc) \
+{ \
+	if (psd->Update) \
+		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height); \
+}
+
+/* Rotate src and dst coords - used with Frame->Frame StretchBlit.
+ * Although this is a framebuffer format blit and the
+ * orientation between psd's is the same, we use the
+ * convblit coordinate rotation code, but rotate both
+ * source and dest coordinates.  This is required because
+ * the src/dst ratio is computed in the upper level code
+ * and the passed stretchblit step parms can't be rotated
+ * without recalcing the original data.
+ */
+#define STRETCH_FRAMEBLIT_ROTATE_COORDS(psd, gc) \
+{ \
+	switch (PORTRAIT) { \
+	case NONE: \
+		dsz = DSZ;					/* src/dst: next pixel over*/ \
+		ssz = SSZ; \
+		dst_pitch = gc->dst_pitch;	/* src/dst: next line down*/ \
+		src_pitch = gc->src_pitch; \
+		break; \
+\
+	case LEFT: \
+		/* change src/dst top left to lower left for left portrait*/ \
+		/* rotate left: X -> Y, Y -> maxx - X*/ \
+		tmp = gc->dsty; \
+		gc->dsty = psd->xvirtres - gc->dstx - 1; \
+		gc->dstx = tmp; \
+\
+		tmp = gc->srcy; \
+		gc->srcy = gc->src_xvirtres - gc->srcx - 1; \
+		gc->srcx = tmp; \
+\
+		dsz = -gc->dst_pitch;		/* src/dst: next row up*/ \
+		ssz = -gc->src_pitch; \
+		dst_pitch = DSZ;			/* src/dst: next pixel right*/ \
+		src_pitch = SSZ; \
+		break; \
+\
+	case RIGHT: \
+		/* change src/dst top left to upper right for right portrait*/ \
+ 		/* Rotate right: X -> maxy - y - h, Y -> X, W -> H, H -> W*/ \
+		tmp = gc->dstx; \
+		gc->dstx = psd->yvirtres - gc->dsty - 1; \
+		gc->dsty = tmp; \
+\
+		tmp = gc->srcx; \
+		gc->srcx = gc->src_yvirtres - gc->srcy - 1; \
+		gc->srcy = tmp; \
+\
+		dsz = gc->dst_pitch;		/* src/dst: next pixel down*/ \
+		ssz = gc->src_pitch; \
+		dst_pitch = -DSZ;			/* src/dst: next pixel left*/ \
+		src_pitch = -SSZ; \
+		break; \
+\
+	case DOWN: \
+		/* change src/dst top left to lower right for down portrait*/ \
+ 		/* Rotate down: X -> maxx - x - w, Y -> maxy - y - h*/ \
+		gc->dstx = psd->xvirtres - gc->dstx - 1; \
+		gc->dsty = psd->yvirtres - gc->dsty - 1; \
+\
+		gc->srcx = gc->src_xvirtres - gc->srcx - 1; \
+		gc->srcy = gc->src_yvirtres - gc->srcy - 1; \
+\
+		dsz = -DSZ;					/* src/dst: next pixel left*/ \
+		ssz = -DSZ; \
+		dst_pitch = -gc->dst_pitch;	/* src/dst: next pixel up*/ \
+		src_pitch = -gc->src_pitch; \
+		break; \
+	} \
+}
+
+/* Rotate dst coords - Used with Pixmap->Frame or Pixmap->Pixmap.
+ * For convblits, the source data is always non-portrait.
+ * Here, we rotate just the dest coordinates so as to start
+ * in the rotated "0,0" position.  Each image row is then
+ * copied from the src and rotated dest positions.
+ */
+#define CONVBLIT_ROTATE_COORDS(psd, gc) \
+{ \
+	ssz = SSZ; \
+	src_pitch = gc->src_pitch; \
+	/* switch could be optimized out with constant PORTRAIT paramater*/ \
+	switch (PORTRAIT) { \
+	case NONE: \
+		dsz = DSZ;					/* dst: next pixel over*/ \
+		dst_pitch = gc->dst_pitch;	/* dst: next line down*/ \
+		break; \
+\
+	case LEFT: \
+		/* change dst top left to lower left for left portrait*/ \
+		/* rotate left: X -> Y, Y -> maxx - X*/ \
+		tmp = gc->dsty; \
+		gc->dsty = psd->xvirtres - gc->dstx - 1; \
+		gc->dstx = tmp; \
+\
+		dsz = -gc->dst_pitch;		/* dst: next row up*/ \
+		dst_pitch = DSZ;			/* dst: next pixel right*/ \
+		break; \
+\
+	case RIGHT: \
+		/* change dst top left to upper right for right portrait*/ \
+ 		/* Rotate right: X -> maxy - y - h, Y -> X, W -> H, H -> W*/ \
+		tmp = gc->dstx; \
+		gc->dstx = psd->yvirtres - gc->dsty - 1; \
+		gc->dsty = tmp; \
+\
+		dsz = gc->dst_pitch;		/* dst: next pixel down*/ \
+		dst_pitch = -DSZ;			/* dst: next pixel left*/ \
+		break; \
+\
+	case DOWN: \
+		/* change dst top left to lower right for down portrait*/ \
+ 		/* Rotate down: X -> maxx - x - w, Y -> maxy - y - h*/ \
+		gc->dstx = psd->xvirtres - gc->dstx - 1; \
+		gc->dsty = psd->yvirtres - gc->dsty - 1; \
+\
+		dsz = -DSZ;					/* dst: next pixel left*/ \
+		dst_pitch = -gc->dst_pitch;	/* dst: next pixel up*/ \
+		break; \
+	} \
+}
+
+/*
+ * Update screen bits if driver requires it. 
+ * For convblits, we "unrotate" back to the top
+ * left corner of device space.
+ */
+#define CONVBLIT_UPDATE(psd, gc) \
+{ \
+	/* switch could be optimized out with constant PORTRAIT paramater*/ \
+	switch (PORTRAIT) { \
+	case NONE: \
+		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height); \
+		break; \
+\
+	case LEFT: \
+		/* adjust x,y,w,h to physical top left and w/h*/ \
+		psd->Update(psd, gc->dstx, gc->dsty - gc->width + 1, gc->height, gc->width); \
+		break; \
+\
+	case RIGHT: \
+		/* adjust x,y,w,h to physical top left and w/h*/ \
+		psd->Update(psd, gc->dstx - gc->height + 1, gc->dsty, gc->height, gc->width); \
+		break; \
+\
+	case DOWN: \
+		/* adjust x,y,w,h to physical top left and w/h*/ \
+		psd->Update(psd, gc->dstx - gc->width + 1, gc->dsty - gc->height + 1, gc->width, gc->height); \
+		break; \
+	} \
+}
+
+
 /* framebuffer pixel format blit - must handle backwards copy, nonstd rotation code*/
 static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
 	int SSZ, int SR, int SG, int SB, int SA,
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
 {
-	int src_pitch = gc->src_pitch;
-	int dst_pitch = gc->dst_pitch;	/* dst: next line down*/
 	int op = gc->op;
-	int ssz = SSZ;
-	int dsz = DSZ;					/* dst: next pixel over*/
-	unsigned char *src, *dst;
+	int src_pitch, dst_pitch;
+	int ssz, dsz;
 	int width, height, tmp;
+	unsigned char *src, *dst;
 
-	/*
-	 * For psd -> psd blits, the orientation between psd's is always
-	 * the same, so the blit move itself doesn't change. Here,
-	 * we just transform the x,y,w,h coordinates to get to the
-	 * the "top left" of the bitmap psd->addr. These rotations
-	 * slightly different than the rotations required for the
-	 * convblits where we actually copy memory differently
-	 * depending on the orientation.
-	 */
-	switch (PORTRAIT) {
-	case LEFT:
-		/* rotate left: X = Y, Y = xmax - X - W, W = H*/
-		tmp = gc->dsty;
-		gc->dsty = psd->xvirtres - gc->dstx - gc->width;
-		gc->dstx = tmp;
-
-		tmp = gc->srcy;
-		gc->srcy = gc->src_xvirtres - gc->srcx - gc->width;
-		gc->srcx = tmp;
-
-		tmp = gc->width;
-		gc->width = gc->height;
-		gc->height = tmp;
-		break;
-
-	case RIGHT:
-		/* rotate right: X = ymax - Y - H, Y = X, W = H*/
-		tmp = gc->dstx;
-		gc->dstx = psd->yvirtres - gc->dsty - gc->height;
-		gc->dsty = tmp;
-
-		tmp = gc->srcx;
-		gc->srcx = gc->src_yvirtres - gc->srcy - gc->height;
-		gc->srcy = tmp;
-
-		tmp = gc->width;
-		gc->width = gc->height;
-		gc->height = tmp;
-		break;
-
-	case DOWN:
-		/* rotate down: X = xmax - X - W, Y = ymax - Y - H*/
-		gc->dstx = psd->xvirtres - gc->dstx - gc->width;
-		gc->dsty = psd->yvirtres - gc->dsty - gc->height;
-
-		gc->srcx = gc->src_xvirtres - gc->srcx - gc->width;
-		gc->srcy = gc->src_yvirtres - gc->srcy - gc->height;
-		break;
-	}
+	/* handle Frame->Frame or Pixmap->Frame (FIXME still need Frame->Portrait)*/
+	if (psd->portrait == gc->srcpsd->portrait)
+		FRAMEBLIT_ROTATE_COORDS(psd, gc)
+	else CONVBLIT_ROTATE_COORDS(psd, gc)
 
 	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
 	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;
@@ -132,12 +305,12 @@ static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
 	 * calling APPLYOP with a constant op parameter.
 	 *
 	 * The SRC_OVER case must be handled seperately, as APPLYOP doesn't
-	 * handle it, along with the other compositing Porter-Duff ops. FIXME
+	 * handle it, along with the FIXME other compositing Porter-Duff ops.
 	 */
 	DRAWON;
 	switch (op) {
 	case MWROP_COPY:
-printf("blit copy\n");
+//printf("blit copy\n");
 		/* fast copy implementation, almost identical to default case below*/
 		while (--height >= 0)
 		{
@@ -173,7 +346,7 @@ printf("blit copy\n");
 		break;
 
 	case MWROP_SRC_OVER:
-printf("blit src_over\n");
+//printf("blit src_over\n");
 		/* src_over only supported on 32bpp framebuffer*/
 		while (--height >= 0)
 		{
@@ -251,7 +424,7 @@ printf("blit src_over\n");
 		break;
 
 	default:
-printf("blit op %d\n", op);
+//printf("blit op %d\n", op);
 		while (--height >= 0)
 		{
 			register unsigned char *s = src;
@@ -287,14 +460,17 @@ printf("blit op %d\n", op);
 	DRAWOFF;
 
 	/* update screen bits if driver requires it*/
-	if (psd->Update)
-		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
+	if (!psd->Update)
+		return;
+	if (psd->portrait == gc->srcpsd->portrait)
+		FRAMEBLIT_UPDATE(psd, gc)
+	else CONVBLIT_UPDATE(psd, gc)
 }
 
 /* framebuffer pixel format copy blit - 32bpp*/
 void frameblit_xxxa8888(PSD psd, PMWBLITPARMS gc)
 {
-	/* NOTE: src_copy works for alpha in fourth byte only (RGBA and BGRA)*/
+	/* NOTE: src_over works for alpha in fourth byte only (RGBA and BGRA)*/
 	frameblit_blit(psd, gc, 4, R,G,B,A, 4, R,G,B,A, psd->portrait);
 }
 
@@ -341,71 +517,7 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 	unsigned char * src;			/* source image ptr*/
 	unsigned char * dst;			/* dest image ptr*/
 
-	/*
-	 * Although this is a framebuffer format blit and the
-	 * orientation between psd's is the same, we use the
-	 * convblit coordinate rotation code, but rotate both
-	 * source and dest coordinates.  This is required because
-	 * the src/dst rotation is computed in the upper level code
-	 * and the passed stretchblit step parms can't be rotated
-	 * without recalcing the original data.
-	 */
-	switch (PORTRAIT) {
-	case NONE:
-		dsz = DSZ;					/* src/dst: next pixel over*/
-		ssz = SSZ;
-		dst_pitch = gc->dst_pitch;	/* src/dst: next line down*/
-		src_pitch = gc->src_pitch;
-		break;
-
-	case LEFT:
-		/* change src/dst top left to lower left for left portrait*/
-		/* rotate left: X -> Y, Y -> maxx - X*/
-		tmp = gc->dsty;
-		gc->dsty = psd->xvirtres - gc->dstx - 1;
-		gc->dstx = tmp;
-
-		tmp = gc->srcy;
-		gc->srcy = gc->src_xvirtres - gc->srcx - 1;
-		gc->srcx = tmp;
-
-		dsz = -gc->dst_pitch;		/* src/dst: next row up*/
-		ssz = -gc->src_pitch;
-		dst_pitch = DSZ;			/* src/dst: next pixel right*/
-		src_pitch = SSZ;
-		break;
-
-	case RIGHT:
-		/* change src/dst top left to upper right for right portrait*/
- 		/* Rotate right: X -> maxy - y - h, Y -> X, W -> H, H -> W*/
-		tmp = gc->dstx;
-		gc->dstx = psd->yvirtres - gc->dsty - 1;
-		gc->dsty = tmp;
-
-		tmp = gc->srcx;
-		gc->srcx = gc->src_yvirtres - gc->srcy - 1;
-		gc->srcy = tmp;
-
-		dsz = gc->dst_pitch;		/* src/dst: next pixel down*/
-		ssz = gc->src_pitch;
-		dst_pitch = -DSZ;			/* src/dst: next pixel left*/
-		src_pitch = -SSZ;
-		break;
-
-	case DOWN:
-		/* change src/dst top left to lower right for down portrait*/
- 		/* Rotate down: X -> maxx - x - w, Y -> maxy - y - h*/
-		gc->dstx = psd->xvirtres - gc->dstx - 1;
-		gc->dsty = psd->yvirtres - gc->dsty - 1;
-
-		gc->srcx = gc->src_xvirtres - gc->srcx - 1;
-		gc->srcy = gc->src_yvirtres - gc->srcy - 1;
-
-		ssz = dsz = -DSZ;			/* src/dst: next pixel left*/
-		dst_pitch = -gc->dst_pitch;	/* src/dst: next pixel up*/
-		src_pitch = -gc->src_pitch;
-		break;
-	}
+	CONVBLIT_ROTATE_COORDS(psd, gc)
 
 	/* adjust step values based on bytes per pixel and pitch*/
 	src_x_step 		*= ssz;
@@ -416,10 +528,6 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 
 	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
 	dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * DSZ;
-
-	/* src_over supported for 32bpp framebuffer only*/
-	if (op == MWROP_SRC_OVER && psd->bpp != 32)
-		op = MWROP_COPY;
 
 	/*
 	 * NOTE: The default implementation uses APPLYOP() which forces a
@@ -436,7 +544,7 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 	DRAWON;
 	switch (op) {
 	case MWROP_COPY:
-printf("sblit copy\n");
+//printf("sblit copy\n");
 		/* fast copy implementation, almost identical to default case below*/
 		while (--height >= 0)
 		{
@@ -453,9 +561,9 @@ printf("sblit copy\n");
 					*(ADDR32)d = *(ADDR32)s;
 					break;
 				case 3:
-					d[0] = s[0];
-					d[1] = s[1];
-					d[2] = s[2];
+					d[DR] = s[SR];
+					d[DG] = s[SG];
+					d[DB] = s[SB];
 					break;
 				case 2:
 					*(ADDR16)d = *(ADDR16)s;
@@ -485,8 +593,7 @@ printf("sblit copy\n");
 		break;
 
 	case MWROP_SRC_OVER:
-printf("sblit src_over\n");
-		/* src_over only supported on 32bpp framebuffer*/
+//printf("sblit src_over\n");
 		while (--height >= 0)
 		{
 			register unsigned char *s = src;
@@ -501,20 +608,45 @@ printf("sblit src_over\n");
 
 				if ((alpha = s[SA]) == 255)				/* copy source*/
 				{
-					d[DR] = s[SR];
-					d[DG] = s[SG];
-					d[DB] = s[SB];
-					d[DA] = s[SA];
+					if (DSZ == 2)
+					{
+						if (SSZ == 2)
+							((unsigned short *)d)[0] = ((unsigned short *)s)[0];
+						else
+							((unsigned short *)d)[0] = RGB2PIXEL(s[SR], s[SG], s[SB]);
+					}
+					else
+					{
+						d[DR] = s[SR];
+						d[DG] = s[SG];
+						d[DB] = s[SB];
+						if (DA >= 0)
+							d[DA] = s[SA];
+					}
 				}
 				else if (alpha != 0)					/* blend source w/dest*/
 				{
- 					/* d += muldiv255(a, s - d)*/
-					d[DR] += muldiv255(alpha, s[SR] - d[DR]);
-					d[DG] += muldiv255(alpha, s[SG] - d[DG]);
-					d[DB] += muldiv255(alpha, s[SB] - d[DB]);
+					if (DSZ == 2) {
+						unsigned short sr = RED2PIXEL(s[SR]);
+						unsigned short sg = GREEN2PIXEL(s[SG]);
+						unsigned short sb = BLUE2PIXEL(s[SB]);
+						alpha = 255 - alpha + 1; /* flip alpha then add 1 (see muldiv255)*/
 
- 					/* d += muldiv255(a, 255 - d)*/
-					d[DA] += muldiv255(alpha, 255 - d[DA]);
+						/* d = muldiv255(255-a, d - s) + s*/
+						((unsigned short *)d)[0] =
+							muldiv255_16bpp(((unsigned short *)d)[0], sr, sg, sb, alpha);
+					}
+					else
+					{
+ 						/* d += muldiv255(a, s - d)*/
+						d[DR] += muldiv255(alpha, s[SR] - d[DR]);
+						d[DG] += muldiv255(alpha, s[SG] - d[DG]);
+						d[DB] += muldiv255(alpha, s[SB] - d[DB]);
+
+ 						/* d += muldiv255(a, 255 - d)*/
+						if (DA >= 0)
+							d[DA] += muldiv255(alpha, 255 - d[DA]);
+					}
 				}
 #else /* 32bit read/write - little endian only!*/
 				uint32_t psr, psg, psb, as, pd;
@@ -651,7 +783,7 @@ printf("sblit src_over\n");
 #endif /* EXAMPLE*/
 
 	default:
-printf("sblit op %d\n", op);
+//printf("sblit op %d\n", op);
 		while (--height >= 0)
 		{
 			register unsigned char *s = src;
@@ -700,27 +832,10 @@ printf("sblit op %d\n", op);
 	}
 	DRAWOFF;
 
-	/* switch could be optimized out with constant PORTRAIT paramater*/
-	switch (PORTRAIT) {
-	case NONE:
-		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
-		break;
-
-	case LEFT:
-		/* adjust x,y,w,h to physical top left and w/h*/
-		psd->Update(psd, gc->dstx, gc->dsty - gc->width + 1, gc->height, gc->width);
-		break;
-
-	case RIGHT:
-		/* adjust x,y,w,h to physical top left and w/h*/
-		psd->Update(psd, gc->dstx - gc->height + 1, gc->dsty, gc->height, gc->width);
-		break;
-
-	case DOWN:
-		/* adjust x,y,w,h to physical top left and w/h*/
-		psd->Update(psd, gc->dstx - gc->width + 1, gc->dsty - gc->height + 1, gc->width, gc->height);
-		break;
-	}
+	/* update screen bits if driver requires it*/
+	if (!psd->Update)
+		return;
+	CONVBLIT_UPDATE(psd, gc)
 }
 
 /* framebuffer pixel format stretch blit - 32bpp with alpha in 4th byte*/
@@ -735,7 +850,7 @@ frameblit_stretch_xxxa8888(PSD psd, PMWBLITPARMS gc)
 void
 frameblit_stretch_24bpp(PSD psd, PMWBLITPARMS gc)
 {
-	frameblit_stretchblit(psd, gc, 3, 0,0,0,-1, 3, 0,0,0,-1, psd->portrait);
+	frameblit_stretchblit(psd, gc, 3, R,G,B,-1, 3, R,G,B,-1, psd->portrait);
 }
 
 /* framebuffer pixel format stretch blit - 16bpp*/
@@ -750,4 +865,28 @@ void
 frameblit_stretch_8bpp(PSD psd, PMWBLITPARMS gc)
 {
 	frameblit_stretchblit(psd, gc, 1, 0,0,0,-1, 1, 0,0,0,-1, psd->portrait);
+}
+
+/* framebuffer pixel format stretch blit - RGBA to BGRA*/
+void
+frameblit_stretch_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
+{
+	/* works for src_over only*/
+	frameblit_stretchblit(psd, gc, 4, R,G,B,A, 4, B,G,R,A, psd->portrait);
+}
+
+/* framebuffer pixel format stretch blit - RGBA to 24bpp BGR*/
+void
+frameblit_stretch_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc)
+{
+	/* works for src_over only*/
+	frameblit_stretchblit(psd, gc, 4, R,G,B,A, 3, B,G,R,-1, psd->portrait);
+}
+
+/* framebuffer pixel format stretch blit - RGBA to 16bpp*/
+void
+frameblit_stretch_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc)
+{
+	/* works for src_over only*/
+	frameblit_stretchblit(psd, gc, 4, R,G,B,A, 2, 0,0,0,-1, psd->portrait);
 }

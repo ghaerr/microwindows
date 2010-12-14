@@ -40,12 +40,12 @@ init_demo(void)
 	GrGetImageInfo(iid, &image_info);
 
 	/* create 32bpp pixmap and draw image w/alpha on it*/
-	p1 = GrNewPixmapEx(image_info.width, image_info.height, 32, NULL);
+	p1 = GrNewPixmapEx(image_info.width, image_info.height, MWIF_RGBA8888, NULL);
 	GrDrawImageToFit(p1, gc, 0, 0, image_info.width, image_info.height, iid);
 	GrFreeImage(iid);
 
 	/* create another pixmap p2 of same size and bpp with green background*/
-	p2 = GrNewPixmapEx(image_info.width, image_info.height, 32, NULL);
+	p2 = GrNewPixmapEx(image_info.width, image_info.height, MWIF_RGBA8888, NULL);
 	GrSetGCForeground(gc, GR_COLOR_SEAGREEN);
 	GrFillRect(p2, gc, 0, 0, image_info.width, image_info.height);
 

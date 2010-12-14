@@ -21,6 +21,7 @@
 #include "convblit.h"
 
 /* find a conversion blit based on data format and blit op*/
+/* used by GdBitmap, GdArea and GdDrawImage*/
 MWBLITFUNC
 GdFindConvBlit(PSD psd, int data_format, int op)
 {
@@ -80,6 +81,8 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 	return convblit;
 }
 
+/* blit from non-psd source to destination*/
+/* used by gen_drawtext, FT2 and T1LIB*/
 void
 GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 {
@@ -107,25 +110,36 @@ GdConversionBlit(PSD psd, PMWBLITPARMS parms)
 	DPRINTF("GdConversionBlit: No convblit available\n");
 }
 
-/* select framebuffer pixel format blit or fallback*/
+/* fallback blitter wrapper for older 1,2,4 bpp subdrivers*/
 static void
-frameblit(PSD psd, PMWBLITPARMS parms)
+BlitFallback(PSD psd, PMWBLITPARMS gc)
 {
-		if (psd->FrameBlit) {
-			if (parms->srcpsd && (parms->srcpsd->data_format != psd->data_format)) {
-				if (parms->srcpsd->data_format == MWIF_RGBA8888) {
-					psd->BlitCopyRGBA8888(psd, parms);
-					return;
-				}
-				DPRINTF("GdBlit: no convblit for format %08x\n", parms->srcpsd->data_format);
-			}
-			psd->FrameBlit(psd, parms);
-		} else {
-			DPRINTF("GdBlit: no convblit for op %d, using psd->Blit fallback\n", parms->op);
+	DPRINTF("GdBlit: No frameblit, using psd->BlitFallBack\n");
+	psd->BlitFallback(psd, gc->dstx, gc->dsty, gc->width, gc->height,
+		gc->srcpsd, gc->srcx, gc->srcy, gc->op);
+}
 
-			psd->BlitFallback(psd, parms->dstx, parms->dsty, parms->width, parms->height,
-				parms->srcpsd, parms->srcx, parms->srcy, parms->op);
-		}
+/* find a framebuffer blit based on source data format and blit op*/
+/* used by GdBlit*/
+static MWBLITFUNC
+GdFindFrameBlit(PSD psd, int src_data_format, int op)
+{
+	/* try fallback blit if no frameblit*/
+	if (!psd->FrameBlit) {
+		if (!psd->BlitFallback)
+			return NULL;
+		return BlitFallback;		/* wrapper function to reorder parameters*/
+	}
+
+	/* try conversion blit if source is RGBA8888*/
+	if (src_data_format == MWIF_RGBA8888) {
+		if (op == MWROP_SRC_OVER)
+			return psd->BlitSrcOverRGBA8888;
+		return psd->BlitCopyRGBA8888;
+	}
+
+	/* use frameblit*/
+	return psd->FrameBlit;
 }
 
 /**
@@ -141,14 +155,20 @@ frameblit(PSD psd, PMWBLITPARMS parms)
  * @param srcy Source Y co-ordinate.
  * @param rop Raster operation.
  */
+/* Copy from srcpsd to dstpsd. Source and/or dest may be rotated, and/or same psd.*/
 void
 GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int rop)
 {
+	MWBLITFUNC	frameblit;
 	MWBLITPARMS parms;
 
-	/* source and dest pixmaps must be same rotation*/
-	assert(dstpsd->portrait == srcpsd->portrait);
+	/* Find appropriate blitter based on source data format and rop*/
+	frameblit = GdFindFrameBlit(dstpsd, srcpsd->data_format, rop);
+	if (!frameblit) {
+		DPRINTF("GdBlit: No frameblit found for op %d\n", rop);
+		return;
+	}
 	
 	/* clip blit rectangle to source screen/bitmap size*/
 	/* we must do this because there isn't any source clipping setup*/
@@ -176,9 +196,14 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	parms.srcx = srcx;
 	parms.srcy = srcy;
 	parms.src_pitch = srcpsd->pitch;
+	//parms.fg_colorval = gr_foreground_rgb;	/* these are ignored in copy blits*/
+	//parms.bg_colorval = gr_background_rgb;
+	//parms.fg_pixelval = gr_foreground;
+	//parms.bg_pixelval = gr_background;
+	//parms.usebg = gr_usebg;
 	parms.data = srcpsd->addr;
+	parms.dst_pitch = dstpsd->pitch;		/* usually set in GdConversionBlit*/
 	parms.data_out = dstpsd->addr;
-	parms.dst_pitch = dstpsd->pitch;
 	parms.srcpsd = srcpsd;					/* for GdCheckCursor/GdFixCursor*/
 	parms.src_xvirtres = srcpsd->xvirtres;	/* used in frameblit for src rotation*/
 	parms.src_yvirtres = srcpsd->yvirtres;
@@ -235,6 +260,7 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	MWCOORD cy1;
 	MWCOORD cx2;
 	MWCOORD cy2;
+	MWBLITFUNC convblit;
 	MWBLITPARMS parms;
 #if DYNAMICREGIONS
 	int 		count;
@@ -247,9 +273,8 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	extern int	clipcount;
 #endif
 
-	/* source and dest pixmaps must be same format and rotation*/
-	assert(dstpsd->data_format == srcpsd->data_format);
-	assert(dstpsd->portrait == srcpsd->portrait);
+	/* frame->frame stretchblits not yet implemented*/
+	assert(dstpsd != srcpsd);
 
 	/* DPRINTF("Nano-X: GdStretchBlit(dst=%x (%d,%d)-(%d,%d), src=%x (%d,%d)-(%d,%d), op=%d\n",
 	           (int) dstpsd, dx1, dy1, dx2, dy2, (int) srcpsd, sx1, sy1, sx2, sy2, rop);*/
@@ -287,9 +312,19 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 
 	/* check for driver, there's no fallback*/
 	if (!dstpsd->FrameStretchBlit) {
-		DPRINTF("GdStretchBlitInternal: no convblit for op %d\n", rop);
+		DPRINTF("GdStretchBlit: no FrameStretchBlit (op %d)\n", rop);
 		return;
 	}
+
+	/* special case RGBA source and src_over*/
+	if (rop == MWROP_SRC_OVER && srcpsd->data_format == MWIF_RGBA8888) {
+			convblit = dstpsd->BlitStretchRGBA8888;
+		if (!convblit) {
+			DPRINTF("GdStretchblit: no convblit for RGBA8888 src_over\n");
+			return;
+		}
+	} else
+		convblit = dstpsd->FrameStretchBlit;
 
 	/* Need to preserve original values, so make a copy we can clip. */
 	cx1 = dx1;
@@ -420,12 +455,12 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	parms.data_format = dstpsd->data_format;
 	parms.data = srcpsd->addr;
 	parms.src_pitch = srcpsd->pitch;
+	parms.dst_pitch = dstpsd->pitch;		/* usually set in GdConversionBlit*/
 	parms.data_out = dstpsd->addr;
-	parms.dst_pitch = dstpsd->pitch;
 	parms.srcpsd = srcpsd;
 	parms.src_xvirtres = srcpsd->xvirtres;	/* used in frameblit for src rotation*/
 	parms.src_yvirtres = srcpsd->yvirtres;
-	parms.x_denominator = x_denominator;
+	parms.x_denominator = x_denominator;	/* stretchblit invariant parms*/
 	parms.y_denominator = y_denominator;
 
 	/* We'll blit using destination clip rectangles, and offset the blit accordingly.
@@ -493,7 +528,8 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 			parms.err_y_step = MWABS(y_numerator) - MWABS(parms.src_y_step) * y_denominator;
 
 			GdCheckCursor(dstpsd, rx1, ry1, rx2 - 1, ry2 - 1);	/* check cursor in dest region */
-			dstpsd->FrameStretchBlit(dstpsd, &parms);
+
+			convblit(dstpsd, &parms);
 		}
 		++prc;
 	}

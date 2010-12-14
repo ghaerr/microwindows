@@ -13,7 +13,7 @@
 #include "fb.h"
 #include "genmem.h"
 
-/* allocate a memory screen device*/
+/* allocate a memory offscreen screen device (pixmap)*/
 PSD 
 gen_allocatememgc(PSD psd)
 {
@@ -29,13 +29,14 @@ gen_allocatememgc(PSD psd)
 	/* initialize*/
 	mempsd->flags |= PSF_MEMORY;
 	mempsd->flags &= ~PSF_SCREEN;
+	mempsd->portrait = MWPORTRAIT_NONE; /* don't rotate offscreen pixmaps*/
 	mempsd->addr = NULL;
-	mempsd->Update = NULL;			/* no external updates required for mem device*/
+	mempsd->Update = NULL;				/* no external updates required for mem device*/
 
 	return mempsd;
 }
 
-/* initialize memory device with passed parms*/
+/* initialize memory device (pixmap) with passed parms*/
 void
 gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	int data_format,int pitch,int size,void *addr)
@@ -66,10 +67,8 @@ gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
  * select suitable framebuffer subdriver,
  * and set subdriver in memory device.
  *
- * Pixmaps are always drawn using linear fb drivers,
- * and drawn using portrait mode subdrivers if in portrait mode,
- * then blitted using swapped x,y coords for speed with
- * no rotation required.
+ * Pixmaps are always drawn using linear fb drivers
+ * in non-portrait mode.
  */
 MWBOOL
 gen_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
@@ -228,8 +227,7 @@ set_portrait_subdriver(PSD psd)
 }
 
 void
-gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
-	MWPIXELVAL c)
+gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL c)
 {
 	/* temporarily stop updates for speed*/
 	void (*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height) = psd->Update;
@@ -275,6 +273,7 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->BlitCopyRGBA8888     	 = subdriver->BlitCopyRGBA8888;
 	psd->BlitSrcOverRGBA8888     = subdriver->BlitSrcOverRGBA8888;
 	psd->BlitCopyRGB888          = subdriver->BlitCopyRGB888;
+	psd->BlitStretchRGBA8888     = subdriver->BlitStretchRGBA8888;
 
 	/* call driver init procedure to calc map size and linelen*/
 	if (init && !subdriver->Init(psd))
@@ -302,4 +301,5 @@ get_subdriver(PSD psd, PSUBDRIVER subdriver)
 	subdriver->BlitCopyRGBA8888        = psd->BlitCopyRGBA8888;
 	subdriver->BlitSrcOverRGBA8888     = psd->BlitSrcOverRGBA8888;
 	subdriver->BlitCopyRGB888          = psd->BlitCopyRGB888;
+	subdriver->BlitStretchRGBA8888     = psd->BlitStretchRGBA8888;
 }

@@ -631,7 +631,8 @@ static SUBDRIVER fblinear8_none = {
 	linear8_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
 	NULL,		/* BlitCopyRGBA8888*/			/* images will use GdDrawAreaByPoint fallback*/
 	NULL,		/* BlitSrcOverRGBA8888*/		/* images will use GdDrawImageByPoint fallback*/
-	NULL		/* BlitCopyRGB888*/				/* images will use GdDrawImageByPoint fallback*/
+	NULL,		/* BlitCopyRGB888*/				/* images will use GdDrawImageByPoint fallback*/
+	NULL		/* BlitStretchRGBA8888*/
 };
 
 SUBDRIVER fblinear8_left = {
@@ -650,7 +651,8 @@ SUBDRIVER fblinear8_left = {
 	fbportrait_left_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
 	NULL,		/* BlitSrcOverRGBA8888*/
 	NULL,		/* BlitSrcOverRGBA8888*/
-	NULL		/* BlitCopyRGB888*/
+	NULL,		/* BlitCopyRGB888*/
+	NULL		/* BlitStretchRGBA8888*/
 };
 
 SUBDRIVER fblinear8_right = {
@@ -669,7 +671,8 @@ SUBDRIVER fblinear8_right = {
 	fbportrait_right_convblit_blend_mask_alpha_byte,	/* FT2/T1 anti-alias*/
 	NULL,		/* BlitSrcOverRGBA8888*/
 	NULL,		/* BlitSrcOverRGBA8888*/
-	NULL		/* BlitCopyRGB888*/
+	NULL,		/* BlitCopyRGB888*/
+	NULL		/* BlitStretchRGBA8888*/
 };
 
 SUBDRIVER fblinear8_down = {
@@ -688,7 +691,8 @@ SUBDRIVER fblinear8_down = {
 	fbportrait_down_convblit_blend_mask_alpha_byte,		/* FT2/T1 anti-alias*/
 	NULL,		/* BlitCopyRGBA8888*/
 	NULL,		/* BlitSrcOverRGBA8888*/
-	NULL		/* BlitCopyRGB888*/
+	NULL,		/* BlitCopyRGB888*/
+	NULL		/* BlitStretchRGBA8888*/
 };
 
 PSUBDRIVER fblinear8[4] = {

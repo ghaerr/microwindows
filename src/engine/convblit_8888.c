@@ -46,7 +46,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 {
 	unsigned char *src, *dst;
 	int dsz, dst_pitch;
-	int height, newx, newy;
+	int height, tmp;
 	int src_pitch = gc->src_pitch;
 
 	/* compiler can optimize out switch statement and most else to constants*/
@@ -59,9 +59,9 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 	case LEFT:
 		/* change dst top left to lower left for left portrait*/
 		/* rotate left: X -> Y, Y -> maxx - X*/
-		newx = gc->dsty;
+		tmp = gc->dsty;
 		gc->dsty = psd->xvirtres - gc->dstx - 1;
-		gc->dstx = newx;
+		gc->dstx = tmp;
 
 		dsz = -gc->dst_pitch;		/* dst: next row up*/
 		dst_pitch = DSZ;			/* dst: next pixel right*/
@@ -70,9 +70,9 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 	case RIGHT:
 		/* change dst top left to upper right for right portrait*/
  		/* Rotate right: X -> maxy - y - h, Y -> X, W -> H, H -> W*/
-		newy = gc->dstx;
+		tmp = gc->dstx;
 		gc->dstx = psd->yvirtres - gc->dsty - 1;
-		gc->dsty = newy;
+		gc->dsty = tmp;
 
 		dsz = gc->dst_pitch;		/* dst: next pixel down*/
 		dst_pitch = -DSZ;			/* dst: next pixel left*/

@@ -674,15 +674,23 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	/* use fast conversion blit*/
 	parms.op = op;
 	parms.data_format = pimage->data_format;
-	parms.dstx = x;
-	parms.dsty = y;
 	parms.width = pimage->width;
 	parms.height = pimage->height;
+	parms.dstx = x;
+	parms.dsty = y;
 	parms.srcx = 0;
 	parms.srcy = 0;
 	parms.src_pitch = pimage->pitch;
+	//parms.fg_colorval = gr_foreground_rgb;	/* these are ignored in copy blits*/
+	//parms.bg_colorval = gr_background_rgb;
+	//parms.fg_pixelval = gr_foreground;
+	//parms.bg_pixelval = gr_background;
+	//parms.usebg = gr_usebg;
 	parms.data = pimage->imagebits;
-	GdConversionBlit(psd, &parms);
+	parms.dst_pitch = psd->pitch;		/* usually set in GdConversionBlit*/
+	parms.data_out = psd->addr;
+	parms.srcpsd = NULL;
+	GdConvBlitInternal(psd, &parms, convblit);
 }
 
 /*
@@ -1231,18 +1239,18 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, const MWI
 
 	parms.op = MWROP_COPY;					/* copy to dst, 1=fg (0=bg if usebg)*/
 	parms.data_format = MWIF_MONOWORDMSB;	/* data is 1bpp words, msb first*/
+	parms.width = width;
+	parms.height = height;
+	parms.dstx = x;
+	parms.dsty = y;
+	parms.srcx = 0;
+	parms.srcy = 0;
+	parms.src_pitch = ((width + 15) >> 4) << 1;	/* pad to WORD boundary*/
 	parms.fg_colorval = gr_foreground_rgb;
 	parms.bg_colorval = gr_background_rgb;
 	//parms.fg_pixelval = gr_foreground;	/* not required for mono convblit*/
 	//parms.bg_pixelval = gr_background;
 	parms.usebg = gr_usebg;
-	parms.srcx = 0;
-	parms.srcy = 0;
-	parms.dstx = x;
-	parms.dsty = y;
-	parms.height = height;
-	parms.width = width;
-	parms.src_pitch = ((width + 15) >> 4) << 1;	/* pad to WORD boundary*/
 	parms.data = (char *)imagebits;
 	parms.dst_pitch = psd->pitch;			/* usually set in GdConversionBlit*/
 	parms.data_out = psd->addr;

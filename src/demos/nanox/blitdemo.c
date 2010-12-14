@@ -89,7 +89,7 @@ init_stretchblit(void)
 		return;
 	}
 	GrGetImageInfo(iid, &image_info);
-	pixmap = GrNewPixmap(image_info.width, image_info.height, NULL);
+	pixmap = GrNewPixmapEx(image_info.width, image_info.height, MWIF_RGBA8888, NULL);
 	gc = GrNewGC();
 	GrDrawImageToFit(pixmap, gc, 0, 0, image_info.width, image_info.height, iid);
 	GrDestroyGC(gc);

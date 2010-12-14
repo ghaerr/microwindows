@@ -1,3 +1,8 @@
+13 Dec 2010
+	* added stretch convblits for RGBA -> BGRA/BGR/16bpp
+	* runtime auto portrait switching now works including with offscreen pixmaps!
+		(see blitdemo.sh and compositedemo.sh)
+	* all pixmaps kept in non-portrait addressing mode, allows convblit/frameblit to copy
 12 Dec 2010
 	* 1st RGBA offscreen compositing operation!, portable across 8,16,24,32bpp framebuffers
 		new 32bpp RGBA pixmaps allow compositing on any system regardless of framebuffer format

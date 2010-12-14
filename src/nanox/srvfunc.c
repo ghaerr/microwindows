@@ -3270,9 +3270,9 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 	/* perform blit*/
 //printf("COPYAREA %d->%d %d,%d  %d,%d  %d,%d\n", srcid, id, dp->x, dp->y, x, y, width, height);
-	GdCheckCursor(srcpsd, srcx, srcy, srcx+width, srcy+height); /* FIXME*/
+	//GdCheckCursor(srcpsd, srcx, srcy, srcx+width, srcy+height);
 	GdBlit(dp->psd, dp->x+x, dp->y+y, width, height, srcpsd, srcx, srcy,op);
-	GdFixCursor(srcpsd); /* FIXME*/
+	//GdFixCursor(srcpsd);
 
 	SERVER_UNLOCK();
 }
@@ -4004,7 +4004,7 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1, GR_COORD dy1, GR_COOR
 	}
 
 	/* perform blit */
-	//GdCheckCursor(srcpsd, s1x, s1y, s2x, s2y); /* FIXME*/
+	//GdCheckCursor(srcpsd, s1x, s1y, s2x, s2y);
 	GdStretchBlit(dp->psd, dx1, dy1, dx2, dy2, srcpsd, sx1, sy1, sx2, sy2, op);
 	//GdFixCursor(srcpsd);
 

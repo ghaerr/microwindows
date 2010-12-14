@@ -222,8 +222,7 @@ fb_open(PSD psd)
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);
 	if (!subdriver) {
-		EPRINTF("No driver for screen type %d visual %d bpp %d\n",
-			type, visual, psd->bpp);
+		EPRINTF("No driver for screen type %d visual %d bpp %d\n", type, visual, psd->bpp);
 		goto fail;
 	}
 

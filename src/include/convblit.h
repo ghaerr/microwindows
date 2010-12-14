@@ -77,7 +77,7 @@ void frameblit_stretch_24bpp(PSD psd, PMWBLITPARMS gc);			/* 24 bpp*/
 void frameblit_stretch_16bpp(PSD psd, PMWBLITPARMS gc);			/* 16 bpp*/
 void frameblit_stretch_8bpp(PSD psd, PMWBLITPARMS gc);			/* 8 bpp*/
 
-/* these work for src_over only*/
+/* these work for src_over and copy only*/
 void frameblit_stretch_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc);	/* RGBA -> BGRA*/
 void frameblit_stretch_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc);	/* RGBA -> BGR*/
 void frameblit_stretch_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc);	/* RGBA -> 16bpp*/

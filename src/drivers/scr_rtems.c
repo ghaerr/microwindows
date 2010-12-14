@@ -1,11 +1,9 @@
 /*
- * Copyright (c) 1999, 2004 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2004, 2010 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Screen Driver for RTEMS (uses Microframebuffer api)
  *
  * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
- *
- * Note: modify select_fb_driver() to add new framebuffer subdrivers
  */
 #define _GNU_SOURCE 1
 #include <assert.h>
@@ -24,10 +22,6 @@
 #include "fb.h"
 #include <rtems/fb.h>
 
-#ifndef FB_TYPE_VGA_PLANES
-#define FB_TYPE_VGA_PLANES 4
-#endif
-
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
@@ -42,7 +36,7 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,				/* SetPortrait*/
+	gen_setportrait,
 	NULL,				/* Update*/
 	NULL				/* PreSelect*/
 };
@@ -56,12 +50,8 @@ static short saved_blue[16];
 
 /* local functions*/
 static void	set_directcolor_palette(PSD psd);
-#if 0
-void ioctl_getpalette(int start, int len, short *red, short *green,
-		      short *blue);
-void ioctl_setpalette(int start, int len, short *red, short *green,
-		      short *blue);
-#endif
+//void ioctl_getpalette(int start, int len, short *red, short *green, short *blue);
+//void ioctl_setpalette(int start, int len, short *red, short *green, short *blue);
 
 /* init framebuffer*/
 static PSD
@@ -93,21 +83,21 @@ fb_open(PSD psd)
 	type = fb_fix.type;
 	visual = fb_fix.visual;
 
+	psd->portrait = MWPORTRAIT_NONE;
 	psd->xres = psd->xvirtres = fb_var.xres;
 	psd->yres = psd->yvirtres = fb_var.yres;
 
 	/* set planes from fb type*/
-	if (type == FB_TYPE_VGA_PLANES)
-		psd->planes = 4;
-	else if (type == FB_TYPE_PACKED_PIXELS)
+	if (type == FB_TYPE_PACKED_PIXELS)
 		psd->planes = 1;
 	else psd->planes = 0;	/* force error later*/
 
 	psd->bpp = fb_var.bits_per_pixel;
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 
-	/* set linelen to byte length, possibly converted later*/
+	/* set linelen to byte length, possibly converted later in driver init routine*/
 	psd->linelen = fb_fix.line_length;
+	psd->pitch = fb_fix.line_length;
 	psd->size = 0;		/* force subdriver init of size*/
 
 	psd->flags = PSF_SCREEN;
@@ -125,7 +115,11 @@ fb_open(PSD psd)
 			psd->pixtype = MWPF_TRUECOLOR888;
 			break;
 		case 32:
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 			psd->pixtype = MWPF_TRUECOLOR8888;
+#else
+			psd->pixtype = MWPF_TRUECOLORABGR;
+#endif
 			break;
 		default:
 			EPRINTF("Unsupported %d color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
@@ -136,26 +130,23 @@ fb_open(PSD psd)
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	psd->size = (psd->size + getpagesize () - 1) / getpagesize () * getpagesize ();
+	/* select a framebuffer subdriver based on planes and bpp*/
+	subdriver = select_fb_subdriver(psd);
+	if (!subdriver) {
+		EPRINTF("No driver for screen type %d visual %d bpp %d\n", type, visual, psd->bpp);
+		goto fail;
+	}
 
-	/* maps FB memory to user space */
-	psd->addr = fb_fix.smem_start;
+	psd->size = (psd->size + getpagesize () - 1) / getpagesize () * getpagesize ();
+	psd->addr = fb_fix.smem_start;		/* maps FB memory to user space */
 
 	/*if( ufb_mmap_to_user_space( fb, &psd->addr, (void *)fb_info.smem_start, fb_info.smem_len)) {
 		EPRINTF("Error mapping FB memory to user space\n" );
 		goto fail;
 	}*/
 
-	/* select a framebuffer subdriver based on planes and bpp*/
-	subdriver = select_fb_subdriver(psd);
-	if (!subdriver) {
-		EPRINTF("No driver for screen type %d visual %d bpp %d\n",
-			type, visual, psd->bpp);
-		goto fail;
-	}
-
 	/*exec.func_no = FB_FUNC_ENTER_GRAPHICS;
-        exec.param = 0;
+    exec.param = 0;
 	if( ioctl(fb, FB_EXEC_FUNCTION , ( void *)&exec)) {
 		EPRINTF("Error entering graphics\n");
 		return NULL;

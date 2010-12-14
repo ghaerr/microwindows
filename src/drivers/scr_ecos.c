@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2010 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Screen Driver for eCos
  *
@@ -44,21 +44,16 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,				/* SetPortrait*/
+	gen_setportrait,
 	NULL,				/* Update*/
 	NULL				/* PreSelect*/
 };
 
 /* static variables*/
 static int status;		/* 0=never inited, 1=once inited, 2=inited. */
-#if 0
-static short saved_red[256];	/* original hw palette*/
-static short saved_green[256];
-static short saved_blue[256];
-#endif
-#if PORTRAIT
-int gr_portraitmode = PORTRAIT;	/* =1 portrait left, =2 portrait right*/
-#endif
+//static short saved_red[256];	/* original hw palette*/
+//static short saved_green[256];
+//static short saved_blue[256];
 
 /* local functions*/
 static void	set_directcolor_palette(PSD psd);
@@ -76,34 +71,24 @@ fb_open(PSD psd)
     lcd_init(16);
     lcd_getinfo(&li);
 
+	psd->portrait = MWPORTRAIT_NONE;
     psd->xres = psd->xvirtres = li.width;
     psd->yres = psd->yvirtres = li.height;
+    psd->planes = 1;
     psd->bpp = li.bpp;
     psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 
     /* set linelen to byte length, possibly converted later*/
     psd->linelen = li.rlen;
+	psd->pitch = li.rlen;
     psd->size = 0;		/* force subdriver init of size*/
 
     psd->flags = PSF_SCREEN;
-    psd->planes = 1;
-
-#if PORTRAIT
-    /* determine whether to run in portrait mode*/
-    if(1 /*gr_portraitmode*/) {
-        psd->flags |= PSF_PORTRAIT;
-
-        /* swap x, y*/
-        psd->xvirtres = psd->yres;
-        psd->yvirtres = psd->xres;
-    }
-#endif
 
     /* set pixel format*/
     switch (li.type) {
     case FB_TRUE_RGB565:
         psd->pixtype = MWPF_TRUECOLOR565;
-		psd->data_format = MWIF_RGB565;
         break;
     default:
         EPRINTF("Unsupported display type: %d\n", li.type);
@@ -125,9 +110,7 @@ fb_open(PSD psd)
             psd->pixtype = MWPF_TRUECOLOR8888;
             break;
         default:
-            EPRINTF(
-                "Unsupported %d color (%d bpp) truecolor framebuffer\n",
-                psd->ncolors, psd->bpp);
+            EPRINTF("Unsupported %d color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
             goto fail;
         }
     } else psd->pixtype = MWPF_PALETTE;
@@ -136,31 +119,22 @@ fb_open(PSD psd)
     diag_printf("%dx%dx%d linelen %d type %d bpp %d\n", psd->xres,
       psd->yres, psd->ncolors, psd->linelen, li.type, psd->bpp);
 
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
+
     /* select a framebuffer subdriver based on planes and bpp*/
     subdriver = select_fb_subdriver(psd);
     if (!subdriver) {
-        EPRINTF("No driver for screen\n", psd->bpp);
+        EPRINTF("No driver for screen bpp %d\n", psd->bpp);
         goto fail;
     }
 
-    /*
-     * set and initialize subdriver into screen driver
-     * psd->size is calculated by subdriver init
-     */
-    if(!set_subdriver(psd, subdriver, TRUE)) {
-        EPRINTF("Driver initialize failed\n", psd->bpp);
-        goto fail;
-    }
+	/* set and initialize subdriver into screen driver */
+	if(!set_subdriver(psd, subdriver, TRUE)) {
+		EPRINTF("Driver initialize failed bpp %d\n", psd->bpp);
+		return NULL;
+	}
 
-#if PORTRAIT
-    if(psd->flags & PSF_PORTRAIT) {
-        /* remember original subdriver*/
-        _subdriver = subdriver;
-
-        /* assign portrait subdriver which calls original subdriver*/
-        set_subdriver(psd, &fbportrait, FALSE);
-    }
-#endif
     /* mmap framebuffer into this address space*/
     psd->addr = li.fb;
     if(psd->addr == NULL || psd->addr == (unsigned char *)-1) {

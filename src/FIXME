@@ -1,9 +1,6 @@
 GdBlit Frame->Pixmap fails, needs src rotate (and test)
 GdStretchBlit Frame->Frame and Frame->Pixmap fails, needs src/dst rotate (and test)
-convblits could be updated with rotation macros
-
-add mwrop_copy to convstretchblit
-test ABGR convblit
+convblits could be updated with rotation macros, move macros to convblit.h
 
 check that gr_foreground possibly invalid w/same gc used across 32bpp then 16bpp framebuffer
 GrLoadImageFromFile uses &scrdev, shouldn't use psd parameter, remove from loaders (jpg, xpm)
@@ -13,8 +10,7 @@ background pixmap clear issues for pixmaps w/alpha using src_over: stop blink by
 	need better way of determining whether pixmap has non-255 alpha, src_over vs copy
 	may blink from extra clear background on non-compositing pixmaps
 stipple needs to use convblit
-need 1bpp and RGBA GrNewPixmap options
-also check nanox/srvfunc.c for FIXME GdCheckCursors
+need 1bpp GrNewPixmapEx options
 16bpp convblits are endian-specific
 
 nxterm.sh buggy when overlapped blit
@@ -37,10 +33,10 @@ need different way of SUBDRIVER left/right/down etc switching
 test VTSWITCH
 fix vncserver.c support (drawarea, etc)
 
-FT2 don't use antialias settings if no HAVEOP_ALPHACOL driver entry point
+FT2 driver downgrades to non-antialias when needed
 
 rename TRUECOLOR macros to match image byte order, or use upper vs lower case
-bgra/rgba blit uses src[3] for alpha, will only work on BGRA and BGRA formats
+bgra/rgba blit uses src[3] for alpha, will only work on RGBA and BGRA formats
 fblin32alpha.c draws SRCOVER in pixel, h/vline, add to fblin32.c
 
 remove FT1 from Config/configs*
@@ -67,12 +63,10 @@ autoportrait works great except for when change occurs and cursor still on?
 	(fblin32 blit: assert h < 0)
 
 fblin32alpha.c/fblin32.c:
-	check alpha offset in passed pixmap alpha channel
 	add MWROP_* compositing handling (currently only SRC_OVER alpha blend)
 	check whether alpha != 0 check needed
 		fblin32alpha.c always draws alpha in drawpixel, drawh, drawv
 		#define ALPHABLEND, what does it do now?
-	check MWPIXELVAL has alpha in drawpixel etc routines, possibly remove for 24bpp?
 	check MWPF_ values in case statements in GdDrawImage for 12/18bpp cases, use default
 	look at code generated for = vs += muldiv255, and fblin32alpha longword calcs
 change image id's to pixmaps (win32 and nano-X)
@@ -92,9 +86,7 @@ T1LIB appears to never discard font memory!
 check STANDALONE options
 
 moving window on bin/malpha waits until second buttondown
-add PSF_HAVEOP_ALPHACOL, FT2 driver downgrades to non-antialias when needed
 MWROP_BLENDCONSTANT needs alpha passed (not 150)
-PSDOP_ALPHAMAP needs gc->misc
 add .fnt/.fnt.gz or .pcf/.pcf.gz to FNT and PCF file spec
 fix config files to update new font info
 look at auto Antialias in GdCreateFont, handle for T1, FT2
@@ -106,16 +98,12 @@ fix bin/mwdvetest crash on ESC exit from main dialog
 look at MessageBoxTimeout, newlistbox.c. remove OLD_DRAWTEXT
 
 add SUBDRIVER entry into SCREENDEVICE
-write rotation blits for portrait modes in drawarea drivers
 add restrict pointers for better optimization to fb drivers
 fix pcfdemo to allow drawing of undefined chars using jiskan24.pcf.gz crash
 add timer support to PSP port (nano-X and win32)
 fix GdDrawImage to not have to swap bytes on endianness or image byte order for speed
 check GdDrawImage switch code on MWPF_TRUECOLORxxx values for speed
-move GdDrawImage switch out of inner loop for speed
-test GdDrawImage alpha blending support, not tested for big endian 565/555
 test alpha 0xFFRRGGBB in X11 and fblin32 non-alpha screen drivers
-test ABGR pixel type (PSP port)
 	test ABGR w/freetype and t1lib alphablend
 	test ABGR and 8888 w/palette images and GETPALLETE
 	test ABGR w/snap_jpg and snap_ppm
@@ -130,8 +118,7 @@ check rtems timer patch, dont require fp for it
 bin/mterm: closing terminal window causes hang rather than server exit
 MSVC: need attribute for #pragma pack in PACKEDDATA in device.h
 GdCaptureScreen() only works with framebuffer /dev/fb0 present
-add drawarea_copy* functions from fblin16 to fblin24/fblin32 driver
-combine GdArea, GdBlit, GdAreaInternal for speed; build conversion library
+GdArea, GdBlit
 	for when fast driver blit can't be used.  Pass usebg, alpha blend
 	etc directly to low level driver, don't use gr_xxx globals
 	GrArea needs to allow src offsets
@@ -160,8 +147,6 @@ add MWTF_ encoding flags in DrawTextA, MwDrawText, MwExtTextOut
 	fix USE_BIG5 in mwin/winlib/*.c
 PCF font indexing (MWTF_XCHAR2B) in t1demo.c needs looking into
 add PORTRAIT_HACK to config file
-optimize GdBitmap
-remove StretchBlit, old engine stretchblitex
 add GdGetTextSizeEx, add entry points for GdGetFontList, GdFreeFontList
 add release new fonts tar file
 ***GrCopyArea gcp->exposure flag needs checking into
@@ -200,13 +185,11 @@ add UPDATE_TEMPMAP?
 check unrealize/realize ok in move, resize, reborder routines
 test fontmapping?
 
-cache nanowm title draw font creation
-
 think about GrReadArea return value based on MWPF_ pixel format
 
 add EVENT_CHILD_REDIRECT
 
 try ecos compile,  add ACCESS_THREAD_DATA to new routines
 
-
 fix nanowm: can't let two copies run at once...
+cache nanowm title draw font creation

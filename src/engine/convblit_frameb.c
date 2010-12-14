@@ -326,9 +326,9 @@ static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
 					*(ADDR32)d = *(ADDR32)s;
 					break;
 				case 3:
-					d[0] = s[0];
-					d[1] = s[1];
-					d[2] = s[2];
+					d[DR] = s[SR];
+					d[DG] = s[SG];
+					d[DB] = s[SB];
 					break;
 				case 2:
 					*(ADDR16)d = *(ADDR16)s;
@@ -533,6 +533,9 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 	 * NOTE: The default implementation uses APPLYOP() which forces a
 	 * switch() within the inner loop to select the rop code.  
 	 * A fast implementation of MWROP_COPY is provided for speed.
+	 * Both MWROP_COPY and MWROP_SRCOVER are enhanced to convert
+	 * from 32/24/16bpp src to downsized destinations.
+	 *
 	 * Any other rop can be sped up by including a case for it, and
 	 * calling APPLYOP with a constant op parameter.  The MWROP_XOR_FGBG
 	 * example shows this.  A specialized very fast example of
@@ -545,7 +548,7 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 	switch (op) {
 	case MWROP_COPY:
 //printf("sblit copy\n");
-		/* fast copy implementation, almost identical to default case below*/
+		/* fast copy implementation, converts from different DSZ/SSZ sizes*/
 		while (--height >= 0)
 		{
 			register unsigned char *s = src;
@@ -555,22 +558,23 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 
 			while (--w >= 0)
 			{
-				/* inline implementation will optimize out switch statement*/
-				switch (DSZ) {
-				case 4:
-					*(ADDR32)d = *(ADDR32)s;
-					break;
-				case 3:
+				/* inline implementation will optimize out if statements*/
+				if (DSZ == 1)
+					*(ADDR8)d = *(ADDR8)s;
+				else if (DSZ == 2)
+				{
+					if (SSZ == 2)
+						((unsigned short *)d)[0] = ((unsigned short *)s)[0];
+					else
+						((unsigned short *)d)[0] = RGB2PIXEL(s[SR], s[SG], s[SB]);
+				}
+				else	/* DSZ 3,4*/
+				{
 					d[DR] = s[SR];
 					d[DG] = s[SG];
 					d[DB] = s[SB];
-					break;
-				case 2:
-					*(ADDR16)d = *(ADDR16)s;
-					break;
-				case 1:
-					*(ADDR8)d = *(ADDR8)s;
-					break;
+					if (DA >= 0)
+						d[DA] = s[SA];
 				}
 				d += dsz;
 				s += src_x_step;
@@ -603,7 +607,6 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 
 			while (--w >= 0)
 			{
-#if 1	/* endian-neutral code - reads/writes bytes only*/
 				unsigned int alpha;
 
 				if ((alpha = s[SA]) == 255)				/* copy source*/
@@ -648,41 +651,6 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 							d[DA] += muldiv255(alpha, 255 - d[DA]);
 					}
 				}
-#else /* 32bit read/write - little endian only!*/
-				uint32_t psr, psg, psb, as, pd;
-				uint32_t c = *(ADDR32)s;
-
-				/*
-				 * NOTE: following blend only works with alpha in high byte!!
-				 * This is ok for BGRA and RGBA image formats and little endian cpu
-				 */
-				if ((as = (c >> 24)) == 255)
-					*(ADDR32)d = c;
-				else
-				if (as != 0)
-				{
-					psr = c & 0x00FF0000UL;
-					psg = c & 0x0000FF00UL;
-					psb = c & 0x000000FFUL;
-					/*
-				 	 * Flip the direction of alpha, so it's
-				 	 * backwards from it's usual meaning.
-				 	 * This is because the equation below is most
-				 	 * easily written with source and dest interchanged
-					 * (with ps split beforehand).
-				 	 *
-				 	 * Alpha is then adjusted +1 for 92% accurate blend
-				 	 * with one multiply and shift.
-				 	 */
-					as = 255 - as + 1;
-					pd = *(ADDR32)d;
-					*(ADDR32)d = 
-						((((((pd & 0x00FF0000UL) - psr) * as) >> 8) + psr) & 0x00FF0000UL) |
-						((((((pd & 0x0000FF00UL) - psg) * as) >> 8) + psg) & 0x0000FF00UL) |
-						((((((pd & 0x000000FFUL) - psb) * as) >> 8) + psb) & 0x000000FFUL) |
-					 ((((256-as) << 24) + ((pd & 0xFF000000UL) >> 8) * as) & 0xFF000000UL);
-				  }
-#endif
 				d += dsz;
 				s += src_x_step;
 
@@ -712,7 +680,7 @@ static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 
 			while (--w >= 0)
 			{
-				/* inline implementationn will optimize out switch statement*/
+				/* inline implementation will optimize out switch statement*/
 				switch (DSZ) {
 				case 4:
 					*(ADDR32)d = 0;
@@ -871,7 +839,7 @@ frameblit_stretch_8bpp(PSD psd, PMWBLITPARMS gc)
 void
 frameblit_stretch_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
 {
-	/* works for src_over only*/
+	/* works for src_over and copy only*/
 	frameblit_stretchblit(psd, gc, 4, R,G,B,A, 4, B,G,R,A, psd->portrait);
 }
 
@@ -879,7 +847,7 @@ frameblit_stretch_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc)
 void
 frameblit_stretch_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc)
 {
-	/* works for src_over only*/
+	/* works for src_over and copy only*/
 	frameblit_stretchblit(psd, gc, 4, R,G,B,A, 3, B,G,R,-1, psd->portrait);
 }
 
@@ -887,6 +855,6 @@ frameblit_stretch_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc)
 void
 frameblit_stretch_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc)
 {
-	/* works for src_over only*/
+	/* works for src_over and copy only*/
 	frameblit_stretchblit(psd, gc, 4, R,G,B,A, 2, 0,0,0,-1, psd->portrait);
 }

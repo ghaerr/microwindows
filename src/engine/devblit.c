@@ -138,6 +138,8 @@ GdFindFrameBlit(PSD psd, int src_data_format, int op)
 		return psd->BlitCopyRGBA8888;
 	}
 
+	/* BGRA->BGRA is handled properly with frameblit_xxxa in fblin32.c*/
+
 	/* use frameblit*/
 	return psd->FrameBlit;
 }
@@ -317,11 +319,11 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 		return;
 	}
 
-	/* special case RGBA source and src_over*/
-	if (rop == MWROP_SRC_OVER && srcpsd->data_format == MWIF_RGBA8888) {
+	/* special case RGBA source and src_over/copy*/
+	if (srcpsd->data_format == MWIF_RGBA8888 && (rop == MWROP_SRC_OVER || rop == MWROP_COPY)) {
 		convblit = dstpsd->BlitStretchRGBA8888;
 		if (!convblit) {
-			DPRINTF("GdStretchblit: no convblit for RGBA8888 src_over\n");
+			DPRINTF("GdStretchblit: no convblit for RGBA8888 src_over/copy\n");
 			return;
 		}
 	} else

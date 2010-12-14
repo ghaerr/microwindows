@@ -1,4 +1,5 @@
 13 Dec 2010
+	* coalesced GdCheckCursor calls in GdBlit/GdStretchBlit for speed
 	* added stretch convblits for RGBA -> BGRA/BGR/16bpp
 	* runtime auto portrait switching now works including with offscreen pixmaps!
 		(see blitdemo.sh and compositedemo.sh)

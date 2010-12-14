@@ -260,6 +260,7 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	MWCOORD cy1;
 	MWCOORD cx2;
 	MWCOORD cy2;
+	int clipresult;
 	MWBLITFUNC convblit;
 	MWBLITPARMS parms;
 #if DYNAMICREGIONS
@@ -318,7 +319,7 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 
 	/* special case RGBA source and src_over*/
 	if (rop == MWROP_SRC_OVER && srcpsd->data_format == MWIF_RGBA8888) {
-			convblit = dstpsd->BlitStretchRGBA8888;
+		convblit = dstpsd->BlitStretchRGBA8888;
 		if (!convblit) {
 			DPRINTF("GdStretchblit: no convblit for RGBA8888 src_over\n");
 			return;
@@ -438,11 +439,18 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	       (int) cx1, (int) cy1, (int) cx2, (int) cy2); */
 
 	/* clip against other windows*/
-	if (GdClipArea(dstpsd, cx1, cy1, cx2 - 1, cy2 - 1) == CLIP_INVISIBLE)
+	clipresult = GdClipArea(dstpsd, cx1, cy1, cx2 - 1, cy2 - 1);
+	if (clipresult == CLIP_INVISIBLE)
 		return;
 
-	//GdCheckCursor(dstpsd, cx1, cy1, cx2-1, cy2-1);	/* onetime cursor check in dst region*/
-	//GdCheckCursor(srcpsd, sx1, sy1, sx2 - 1, sy2 - 1);/* check cursor in src region*/
+	/* check cursor in src region of both devices*/
+	GdCheckCursor(dstpsd, sx1, sy1, sx2 - 1, sy2 - 1);
+	if (srcpsd != dstpsd)
+		GdCheckCursor(srcpsd, sx1, sy1, sx2 - 1, sy2 - 1);
+
+	/* if partially clipped, must check in dst region as GdClipArea didn't if not visible*/
+	if (clipresult != CLIP_VISIBLE)
+		GdCheckCursor(dstpsd, cx1, cy1, cx2-1, cy2-1);	/* onetime cursor check in dst region*/
 
 	/* Calculate the starting position (fraction) in the source rectange
 	 * that is equivalent to the top-left of the destination rectangle.
@@ -527,15 +535,14 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 			parms.src_y_step_one = MWSIGN(y_numerator);
 			parms.err_y_step = MWABS(y_numerator) - MWABS(parms.src_y_step) * y_denominator;
 
-			GdCheckCursor(dstpsd, rx1, ry1, rx2 - 1, ry2 - 1);	/* check cursor in dest region */
-
+			//GdCheckCursor(dstpsd, rx1, ry1, rx2 - 1, ry2 - 1);	/* check cursor in dest region */
 			convblit(dstpsd, &parms);
 		}
 		++prc;
 	}
 	GdFixCursor(dstpsd);
-	//if (srcpsd != dstpsd)
-	//	GdFixCursor(srcpsd);
+	if (srcpsd != dstpsd)
+		GdFixCursor(srcpsd);
 }
 
 /* call conversion blit with clipping and cursor fix*/
@@ -548,7 +555,7 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 	MWCOORD height = gc->height;
 	MWCOORD srcx = gc->srcx;
 	MWCOORD srcy = gc->srcy;
-	int count;
+	int count, clipresult, checksrc;
 #if DYNAMICREGIONS
 	MWRECT *prc;
 	extern MWCLIPREGION *clipregion;
@@ -559,25 +566,25 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 #endif
 
 	/* check clipping region*/
-	switch (GdClipArea(psd, dstx, dsty, dstx + width - 1, dsty + height - 1)) {
-	case CLIP_VISIBLE:
-		/* check cursor in src region of both screen devices*/
-		GdCheckCursor(psd, srcx, srcy, srcx+width-1, srcy+height-1);
-		if (gc->srcpsd != NULL && gc->srcpsd != psd)
-			GdCheckCursor(gc->srcpsd, srcx, srcy, srcx+width-1, srcy+height-1);
+	clipresult = GdClipArea(psd, dstx, dsty, dstx + width - 1, dsty + height - 1);
+	if (clipresult == CLIP_INVISIBLE)
+		return;
+
+	/* check cursor in src region of both screen devices*/
+	GdCheckCursor(psd, srcx, srcy, srcx + width - 1, srcy + height - 1);
+	if ((checksrc = (gc->srcpsd != NULL && gc->srcpsd != psd)) != 0)
+		GdCheckCursor(gc->srcpsd, srcx, srcy, srcx + width - 1, srcy + height - 1);
+
+	if (clipresult == CLIP_VISIBLE) {
 		convblit(psd, gc);
 		GdFixCursor(psd);
+		if (checksrc)
+			GdFixCursor(gc->srcpsd);
 		return;
+	} else	/* partially clipped, check cursor in dst region once*/
+		GdCheckCursor(psd, dstx, dsty, dstx + width - 1, dsty + height - 1);
 
-	case CLIP_INVISIBLE:
-		return;
-	}
-
-	/* partially clipped, we'll traverse visible region and draw*/
-
-	//FIXME check cursor in single block once
-	GdCheckCursor(psd, srcx, srcy, srcx+width, srcy+height);
-
+	/* we'll traverse visible region and draw*/
 #if DYNAMICREGIONS
 	prc = clipregion->rects;
 	count = clipregion->numRects;
@@ -616,13 +623,13 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 			gc->height = rh;
 			gc->srcx = srcx + rx1 - dstx;
 			gc->srcy = srcy + ry1 - dsty;
-			GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
+			//GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
 			convblit(psd, gc);
 		}
 		prc++;
 	}
 	GdFixCursor(psd);
-	if (gc->srcpsd != NULL && gc->srcpsd != psd)
+	if (checksrc)
 		GdFixCursor(gc->srcpsd);
 
 	/* Reset everything, in case the caller re-uses it. */

@@ -12,7 +12,7 @@
  * and provides a mechanism by which the client can send image
  * data directly to the engine.
  *
- * WARNING: GIF decoder and stretchimage routine are licensed under GPL only!
+ * WARNING: GIF decoder routine is licensed under LGPL only!
  */
 #include <stdio.h>
 #include <stdlib.h>

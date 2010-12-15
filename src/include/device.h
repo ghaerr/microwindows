@@ -397,20 +397,17 @@ extern KBDDEVICE kbddev2;
 
 /* devimage.c */
 #if MW_FEATURE_IMAGES
-int	GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
+int		GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
 void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-		 MWCOORD height, void *buffer, int size, int flags);
+			MWCOORD height, void *buffer, int size, int flags);
 void	GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-		MWCOORD height, char *path, int flags);
-int	GdLoadImageFromFile(PSD psd, char *path, int flags);
-void	GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-		MWCOORD height, int id);
+			MWCOORD height, char *path, int flags);
+void	GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+			MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, int id);
+int		GdLoadImageFromFile(PSD psd, char *path, int flags);
 void	GdFreeImage(int id);
 MWBOOL	GdGetImageInfo(int id, PMWIMAGEINFO pii);
-void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
-		MWCLIPRECT *dstrect);
-void	GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-		MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, int id);
+void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT *dstrect);
 void	GdComputeImagePitch(int bpp, int width, int *pitch, int *bytesperpixel);
 
 /* Buffered input functions to replace stdio functions*/
@@ -421,10 +418,10 @@ typedef struct {  /* structure for reading images from buffer   */
 } buffer_t;
 void	GdImageBufferInit(buffer_t *buffer, void *startdata, int size);
 void	GdImageBufferSeekTo(buffer_t *buffer, unsigned long offset);
-int	GdImageBufferRead(buffer_t *buffer, void *dest, unsigned long size);
-int	GdImageBufferGetChar(buffer_t *buffer);
+int		GdImageBufferRead(buffer_t *buffer, void *dest, unsigned long size);
+int		GdImageBufferGetChar(buffer_t *buffer);
 char *	GdImageBufferGetString(buffer_t *buffer, char *dest, unsigned int size);
-int	GdImageBufferEOF(buffer_t *buffer);
+int		GdImageBufferEOF(buffer_t *buffer);
 
 /* individual decoders*/
 #ifdef HAVE_BMP_SUPPORT

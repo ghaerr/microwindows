@@ -3073,26 +3073,7 @@ GrLoadImageFromBuffer(void *buffer, int size, int flags)
 	return id;
 }
 
-/* draw cached image*/
-void
-GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE width, GR_SIZE height, GR_IMAGE_ID imageid)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdDrawImageToFit(dp->psd, dp->x + x, dp->y + y, width, height, imageid);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/* draw part of the cached image*/
+/* draw part of the cached image, or whole if swidth == 0*/
 void
 GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 	GR_SIZE dwidth, GR_SIZE dheight, GR_COORD sx, GR_COORD sy,
@@ -3104,8 +3085,8 @@ GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 	switch (GsPrepareDrawing(id, gc, &dp)) {
 	case GR_DRAW_TYPE_WINDOW:
 	case GR_DRAW_TYPE_PIXMAP:
-		GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy,
-			dwidth, dheight,sx,sy,swidth,sheight, imageid);
+		GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy, dwidth, dheight,
+			sx, sy, swidth, sheight, imageid);
 		break;
 	}
 

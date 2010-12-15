@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
  * Portions Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  *
@@ -169,7 +169,7 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	id = GdDecodeImage(psd, &src, NULL, flags);
 
 	if (id) {
-		GdDrawImageToFit(psd, x, y, width, height, id);
+		GdDrawImagePartToFit(psd, x, y, width, height, 0, 0, 0, 0, id);
 		GdFreeImage(id);
 	}
 }
@@ -196,7 +196,7 @@ GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 
 	id = GdLoadImageFromFile(psd, path, flags);
 	if (id) {
-		GdDrawImageToFit(psd, x, y, width, height, id);
+		GdDrawImagePartToFit(psd, x, y, width, height, 0, 0, 0, 0, id);
 		GdFreeImage(id);
 	}
 }
@@ -349,71 +349,7 @@ findimage(int id)
 }
 
 /**
- * Draw an image.
- *
- * @param psd Drawing surface.
- * @param x X destination co-ordinate.
- * @param y Y destination co-ordinate.
- * @param width If >=0, the image will be scaled to this width.
- * If <0, the image will not be scaled horiziontally.
- * @param height If >=0, the image will be scaled to this height.
- * If <0, the image will not be scaled vertically.
- * @param id Image to draw.
- */
-void
-GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, int id)
-{
-	PIMAGEITEM	pItem;
-	PMWIMAGEHDR	pimage;
-
-	pItem = findimage(id);
-	if (!pItem)
-		return;
-	pimage = pItem->pimage;
-
-	/*
-	 * Display image, possibly stretch/shrink to resize
-	 */
-	if (height < 0)
-		height = pimage->height;
-	if (width < 0)
-		width = pimage->width;
-
-	if (height != pimage->height || width != pimage->width) {
-		MWCLIPRECT	rcDst;
-		MWIMAGEHDR	image2;
-
-		/* create similar image, different width/height*/
-
-		image2.width = width;
-		image2.height = height;
-		image2.planes = pimage->planes;
-		image2.bpp = pimage->bpp;
-		image2.data_format = pimage->data_format;
-		GdComputeImagePitch(pimage->bpp, width, &image2.pitch, &image2.bytesperpixel);
-		image2.palsize = pimage->palsize;
-		image2.palette = pimage->palette;	/* already allocated*/
-		image2.transcolor = pimage->transcolor;
-		if( (image2.imagebits = malloc(image2.pitch*height)) == NULL) {
-			EPRINTF("GdDrawImageToFit: no memory\n");
-			return;
-		}
-
-		rcDst.x = 0;
-		rcDst.y = 0;
-		rcDst.width = width;
-		rcDst.height = height;
-
-		/* Stretch full source to destination rectangle*/
-		GdStretchImage(pimage, NULL, &image2, &rcDst);
-		GdDrawImage(psd, x, y, &image2);
-		free(image2.imagebits);
-	} else
-		GdDrawImage(psd, x, y, pimage);
-}
-
-/**
- * Draw part of the image.
+ * Draw whole or part of the image, stretching to fit destination.
  *
  * @param psd Drawing surface.
  * @param x X destination co-ordinate.
@@ -424,14 +360,13 @@ GdDrawImageToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, i
  * If <0, the image will not be scaled vertically.
  * @param sx source X co-ordinate.
  * @param sy source Y co-ordinate.
- * @param swidth source width.
+ * @param swidth source width.  If 0, draw whole image.
  * @param sheight source height.
  * @param id Image to draw.
  */
 void
 GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-								MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight,
-	int id)
+	MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, int id)
 {
 	PIMAGEITEM	pItem;
 	PMWIMAGEHDR	pimage;
@@ -460,8 +395,7 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		image2.planes = pimage->planes;
 		image2.bpp = pimage->bpp;
 		image2.data_format = pimage->data_format;
-		GdComputeImagePitch(pimage->bpp, width, &image2.pitch,
-			&image2.bytesperpixel);
+		GdComputeImagePitch(pimage->bpp, width, &image2.pitch, &image2.bytesperpixel);
 		image2.palsize = pimage->palsize;
 		image2.palette = pimage->palette;	/* already allocated*/
 		image2.transcolor = pimage->transcolor;
@@ -475,13 +409,14 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		rcDst.width = width;
 		rcDst.height = height;
 
+		/* src rect, not used if swidth == 0*/
 		rcSrc.x = sx;
 		rcSrc.y = sy;
 		rcSrc.width = swidth;
 		rcSrc.height = sheight;
 
 		/* Stretch full source to destination rectangle*/
-		GdStretchImage(pimage, &rcSrc, &image2, &rcDst);
+		GdStretchImage(pimage, NULL, &image2, &rcDst);
 		GdDrawImage(psd, x, y, &image2);
 		free(image2.imagebits);
 	} else

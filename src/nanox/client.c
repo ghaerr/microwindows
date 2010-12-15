@@ -3143,9 +3143,7 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	memcpy(GetReqData(req), path, strlen(path)+1);
 	UNLOCK(&nxGlobalLock);
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
 
-#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
 /**
  * Loads the specified image file into a newly created server image buffer
  * and returns the ID of the buffer. The image type is automatically detected
@@ -3181,7 +3179,7 @@ GrLoadImageFromFile(char *path, int flags)
 #endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
 
 #if MW_FEATURE_IMAGES
-/**
+/*
  * Draws the image from the specified image buffer at the specified position
  * on the specified drawable using the specified graphics context. The
  * width and height values specify the size of the image to draw- if the
@@ -3196,24 +3194,9 @@ GrLoadImageFromFile(char *path, int flags)
  * @param imageid  the ID of the image buffer containing the image to display
  *
  * @ingroup nanox_image
+ * void GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+ *			GR_SIZE width, GR_SIZE height, GR_IMAGE_ID imageid);
  */ 
-void
-GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE width, GR_SIZE height, GR_IMAGE_ID imageid)
-{
-	nxDrawImageToFitReq *req;
-
-	LOCK(&nxGlobalLock);
-	req = AllocReq(DrawImageToFit);
-	req->drawid = id;
-	req->gcid = gc;
-	req->x = x;
-	req->y = y;
-	req->width = width;
-	req->height = height;
-	req->imageid = imageid;
-	UNLOCK(&nxGlobalLock);
-}
 
 /**
  * Draws specified part of the image from the specified image buffer at the specified position
@@ -3229,7 +3212,7 @@ GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * @param height  the maximum image height
  * @param sx  the X coordinate at the source pixmap to draw from
  * @param sy  the Y coordinate at the source pixmap to draw from
- * @param swidth  the maximum source image width
+ * @param swidth  the maximum source image width.  If 0, draw the whole image.
  * @param sheight  the maximum source image height
  * @param imageid  the ID of the image buffer containing the image to display
  *
@@ -3258,9 +3241,6 @@ GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 
 }
 
-#endif /* MW_FEATURE_IMAGES */
-
-#if MW_FEATURE_IMAGES
 /**
  * Destroys the specified image buffer and reclaims the memory used by it.
  *
@@ -3278,9 +3258,7 @@ GrFreeImage(GR_IMAGE_ID id)
 	req->id = id;
 	UNLOCK(&nxGlobalLock);
 }
-#endif /* MW_FEATURE_IMAGES */
 
-#if MW_FEATURE_IMAGES
 /**
  * Fills in the specified image information structure with the details of the
  * specified image buffer.

@@ -864,9 +864,6 @@ void		GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
 			GR_COORD y, GR_SIZE width, GR_SIZE height,
 			void *buffer, int size, int flags);
 GR_IMAGE_ID	GrLoadImageFromBuffer(void *buffer, int size, int flags);
-void		GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
-			GR_COORD y, GR_SIZE width, GR_SIZE height,
-			GR_IMAGE_ID imageid);
 void		GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 			GR_SIZE dwidth, GR_SIZE dheight, GR_COORD sx, GR_COORD sy,
 			GR_SIZE swidth, GR_SIZE sheight, GR_IMAGE_ID imageid);
@@ -961,7 +958,12 @@ GR_CURSOR_ID GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
 #define GrNewPixmap(width,height,pixels)	GrNewPixmapEx(width,height,0,pixels)
 
 /* useful function macros*/
+void		GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
+			GR_COORD y, GR_SIZE width, GR_SIZE height,
+			GR_IMAGE_ID imageid);
 #define GrClearWindow(wid,exposeflag)		GrClearArea(wid,0,0,0,0,exposeflag)
+#define GrDrawImageToFit(id,gc,x,y,width,height,imageid) \
+	GrDrawImagePartToFit(id,gc,x,y,width,height,0,0,0,0,imageid)
 #define GrSetWindowBackgroundColor(wid,color) \
 		{	GR_WM_PROPERTIES props;	\
 			props.flags = GR_WM_FLAGS_BACKGROUND; \

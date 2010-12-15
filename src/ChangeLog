@@ -1,3 +1,5 @@
+14 Dec 2010
+	* reduce code size, GrDrawImageToFit now calls GrDrawImagePartToFit
 	* added convstretchblit rop copy for 32/24/16bpp dest
 13 Dec 2010
 	* coalesced GdCheckCursor calls in GdBlit/GdStretchBlit for speed

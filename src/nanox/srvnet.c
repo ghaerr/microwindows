@@ -51,15 +51,11 @@ static int GsWriteType(int,short);
 /*
  * Wrapper functions called after full packet read
  */
-
-
-#if (!MW_FEATURE_TIMERS) || (!MW_FEATURE_IMAGES) || (!defined(HAVE_FILEIO))
 static void
 GrNotImplementedWrapper(void *r)
 {
     EPRINTF("nano-X: Function %s() not implemented\n", curfunc);
 }
-#endif
 
 static void 
 GrOpenWrapper(void *r)
@@ -1095,22 +1091,12 @@ GrLoadImageFromFileWrapper(void *r)
 
 #if MW_FEATURE_IMAGES
 static void
-GrDrawImageToFitWrapper(void *r)
-{
-	nxDrawImageToFitReq *req = r;
-
-	GrDrawImageToFit(req->drawid, req->gcid, req->x, req->y, req->width,
-		req->height, req->imageid);
-}
-
-static void
 GrDrawImagePartToFitWrapper(void *r)
 {
 	nxDrawImagePartToFitReq *req = r;
 
-	GrDrawImagePartToFit(req->drawid, req->gcid, req->dx, req->dy, req->dwidth,
-		req->dheight,req->sx, req->sy, req->swidth,
-		req->sheight, req->imageid);
+	GrDrawImagePartToFit(req->drawid, req->gcid, req->dx, req->dy, req->dwidth, req->dheight,
+		req->sx, req->sy, req->swidth, req->sheight, req->imageid);
 }
 
 static void
@@ -1132,7 +1118,6 @@ GrGetImageInfoWrapper(void *r)
 	GsWrite(current_fd, &info, sizeof(info));
 }
 #else /* if ! MW_FEATURE_IMAGES */
-#define GrDrawImageToFitWrapper GrNotImplementedWrapper
 #define GrDrawImagePartToFitWrapper GrNotImplementedWrapper
 #define GrFreeImageWrapper GrNotImplementedWrapper
 #define GrGetImageInfoWrapper GrNotImplementedWrapper
@@ -1697,7 +1682,7 @@ static const struct GrFunction GrFunctions[] = {
 	/*  79 */ {GrGetWMPropertiesWrapper, "GrGetWMProperties"},
 	/*  80 */ {GrCloseWindowWrapper, "GrCloseWindow"},
 	/*  81 */ {GrKillWindowWrapper, "GrKillWindow"},
-	/*  82 */ {GrDrawImageToFitWrapper, "GrDrawImageToFit"},
+	/*  82 */ {GrNotImplementedWrapper, "GrNotImplementedWrapper"},	// old GrDrawImageToFit
 	/*  83 */ {GrFreeImageWrapper, "GrFreeImage"},
 	/*  84 */ {GrGetImageInfoWrapper, "GrGetImageInfo"},
 	/*  85 */ {GrDrawImageBitsWrapper, "GrDrawImageBits"},

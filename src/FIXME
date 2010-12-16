@@ -1,6 +1,7 @@
 GdBlit Frame->Pixmap fails, needs src rotate (and test)
 GdStretchBlit Frame->Frame and Frame->Pixmap fails, needs src/dst rotate (and test)
 convblits could be updated with rotation macros, move macros to convblit.h
+compression flipy in mwin/winresbmp.c::resDecodeBitmap
 
 check that gr_foreground possibly invalid w/same gc used across 32bpp then 16bpp framebuffer
 GrLoadImageFromFile uses &scrdev, shouldn't use psd parameter, remove from loaders (jpg, xpm)

@@ -1,3 +1,7 @@
+16 Dec 2010
+	* remove GdSetFont, font not cached in gc because passed directly to GdText
+	* fix PSF_ADDRMALLOC flag
+	* wrote new memory screen driver scr_mem.c, keeps update region for fb_graphicsflush
 14 Dec 2010
 	* reduce code size, GrDrawImageToFit now calls GrDrawImagePartToFit
 	* added convstretchblit rop copy for 32/24/16bpp dest

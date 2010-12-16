@@ -28,7 +28,7 @@ gen_allocatememgc(PSD psd)
 
 	/* initialize*/
 	mempsd->flags |= PSF_MEMORY;
-	mempsd->flags &= ~PSF_SCREEN;
+	mempsd->flags &= ~(PSF_SCREEN | PSF_ADDRMALLOC);
 	mempsd->portrait = MWPORTRAIT_NONE; /* don't rotate offscreen pixmaps*/
 	mempsd->addr = NULL;
 	mempsd->Update = NULL;				/* no external updates required for mem device*/

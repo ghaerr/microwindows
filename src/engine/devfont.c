@@ -27,11 +27,6 @@
 
 //#define DEBUG_TEXT_SHAPING
 
-/**
- * The current font.
- */
-static PMWFONT	gr_pfont;
-
 /* temp extern decls*/
 extern MWCOREFONT *user_builtin_fonts;
 
@@ -39,22 +34,6 @@ static int utf8_to_utf16(const unsigned char *utf8, int cc,
 		unsigned short *unicode16);
 static int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
 
-
-/**
- * Set the font for future calls.
- *
- * @param pfont The font to use.  If NULL, the font is not changed.
- * @return The old font.
- */
-PMWFONT
-GdSetFont(PMWFONT pfont)
-{
-	PMWFONT	oldfont = gr_pfont;
-
-	if (pfont)
-		gr_pfont = pfont;
-	return oldfont;
-}
 
 /**
  * Select a font, based on various parameters.
@@ -404,10 +383,10 @@ GdGetFontInfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
  *              The encoding of str defaults to ASCII if not specified.
  */
 void
-GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
+GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 {
 	const void *	text;
-	int		defencoding = gr_pfont->fontprocs->encoding;
+	int		defencoding = pfont->fontprocs->encoding;
 	int		force_uc16 = 0;
 	uint32_t *buf = NULL;
 
@@ -424,7 +403,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 	 */
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (gr_pfont->fontprocs == &mwfontprocs) {
+		if (pfont->fontprocs == &mwfontprocs) {
 			defencoding = MWTF_UC16;
 			force_uc16 = 1;
 		}
@@ -444,7 +423,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 		text = buf;
 	} else text = str;
 
-	if(cc <= 0 || !gr_pfont->fontprocs->DrawText) {
+	if(cc <= 0 || !pfont->fontprocs->DrawText) {
 		if (buf)
 			FREEA(buf);
 		return;
@@ -458,7 +437,7 @@ GdText(PSD psd, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 #endif
 	if (!force_uc16)	/* remove DBCS flags if not needed*/
 		flags &= ~MWTF_DBCSMASK;
-	gr_pfont->fontprocs->DrawText(gr_pfont, psd, x, y, text, cc, flags);
+	pfont->fontprocs->DrawText(pfont, psd, x, y, text, cc, flags);
 
 	if (buf)
 		FREEA(buf);
@@ -794,7 +773,7 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
-		if (gr_pfont->fontprocs == &mwfontprocs) {
+		if (pfont->fontprocs == &mwfontprocs) {
 			defencoding = MWTF_UC16;
 			force_uc16 = 1;
 		}

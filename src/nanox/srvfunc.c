@@ -52,10 +52,7 @@ GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
 	SERVER_LOCK();
 
 	gcp = GsFindGC(gc);
-	if (gcp == NULL)
-		fontp = NULL;
-	else
-		fontp = GsFindFont(gcp->fontid);
+	fontp = gcp? GsFindFont(gcp->fontid): NULL;
 	pf = fontp? fontp->pfont: stdfont;
 	GdGetTextSize(pf, str, count, retwidth, retheight, retbase, flags);
 
@@ -2757,7 +2754,7 @@ GrSetGCFont(GR_GC_ID gc, GR_FONT_ID font)
 	gcp = GsFindGC(gc);
 	if (gcp && gcp->fontid != font) {
 		gcp->fontid = font;
-		gcp->changed = GR_TRUE;
+		//gcp->changed = GR_TRUE;
 	}
 
 	SERVER_UNLOCK();
@@ -3468,6 +3465,9 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 	GR_COUNT count, GR_TEXTFLAGS flags)
 {
 	GR_DRAWABLE	*dp;
+	GR_GC		*gcp;
+	GR_FONT		*fontp;
+	PMWFONT		pf;
 
 	SERVER_LOCK();
 
@@ -3478,7 +3478,10 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 	switch (GsPrepareDrawing(id, gc, &dp)) {
 	case GR_DRAW_TYPE_WINDOW:
 	case GR_DRAW_TYPE_PIXMAP:
-		GdText(dp->psd, dp->x + x, dp->y + y, str, count,flags);
+		gcp = GsFindGC(gc);
+		fontp = gcp? GsFindFont(gcp->fontid): NULL;
+		pf = fontp? fontp->pfont: stdfont;
+		GdText(dp->psd, pf, dp->x + x, dp->y + y, str, count,flags);
 		break;
 	}
 

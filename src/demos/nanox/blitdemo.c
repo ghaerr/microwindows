@@ -98,7 +98,7 @@ init_stretchblit(void)
 	/* create window and set image as background pixmap*/
 	x = sinfo.cols - image_info.width*4;
 	y = sinfo.rows - image_info.height*4;
-	wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, NULL,
+	wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "StretchBlit Demo - Drag corner to resize",
 		GR_ROOT_WINDOW_ID, x, y, image_info.width/3, image_info.height/3, GR_COLOR_GREEN);
 	GrSetBackgroundPixmap(wid, pixmap, GR_BACKGROUND_STRETCH);
 	GrMapWindow(wid);

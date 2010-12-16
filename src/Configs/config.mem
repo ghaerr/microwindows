@@ -51,7 +51,7 @@ PSPTOOLSPREFIX           = psp-
 OPTIMIZE                 = Y
 DEBUG                    = Y
 VERBOSE                  = N
-THREADSAFE               = Y
+THREADSAFE               = N
 GPROF                    = N
 
 ####################################################################
@@ -61,7 +61,7 @@ GPROF                    = N
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-SHAREDLIBS               = Y
+SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
 ####################################################################
@@ -69,15 +69,15 @@ OBJFRAMEWORK             = N
 # Demos to build
 #
 ####################################################################
-MICROWINDEMO             = Y
-NANOXDEMO                = Y
+MICROWINDEMO             = N
+NANOXDEMO                = N
 
 ####################################################################
 #
 # Applications to build
 #
 ####################################################################
-NANOWM                   = Y
+NANOWM                   = N
 FBEMULATOR               = Y
 
 ####################################################################
@@ -103,7 +103,7 @@ FBEMULATOR               = Y
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 #
 ####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR
 
 ####################################################################
 # NanoX: Put Y to the following line to link the nano-X application
@@ -126,22 +126,22 @@ HAVE_FILEIO              = Y
 ####################################################################
 # BMP, GIF reading support
 ####################################################################
-HAVE_BMP_SUPPORT         = Y
-HAVE_GIF_SUPPORT         = Y
-HAVE_PNM_SUPPORT         = Y
-HAVE_XPM_SUPPORT         = Y
+HAVE_BMP_SUPPORT         = N
+HAVE_GIF_SUPPORT         = N
+HAVE_PNM_SUPPORT         = N
+HAVE_XPM_SUPPORT         = N
 
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.so
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
-HAVE_PNG_SUPPORT         = Y
+HAVE_PNG_SUPPORT         = N
 INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.so
 INCZ                     = .
@@ -181,8 +181,8 @@ LIBT1LIB                 = /usr/lib/libt1.a
 ####################################################################
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
 ####################################################################
-HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = Y
+HAVE_FNT_SUPPORT         = N
+HAVE_FNTGZ_SUPPORT       = N
 FNT_FONT_DIR             = "fonts/fnt"
 
 ####################################################################
@@ -245,14 +245,14 @@ UPDATEREGIONS            = Y
 ####################################################################
 
 # Framebuffer screen driver
-FRAMEBUFFER              = N
+FRAMEBUFFER              = Y
 
 # X Window screen driver
 # X11 startup screen width, height, (depth for palette mode only)
 # USE_EXPOSURE=Y for XFree86 4.x or if your backing store not working
-X11                      = Y
-SCREEN_WIDTH             = 810
-SCREEN_HEIGHT            = 640
+X11                      = N
+SCREEN_WIDTH             = 800
+SCREEN_HEIGHT            = 600
 SCREEN_DEPTH             = 8
 USE_EXPOSURE             = Y
 
@@ -295,10 +295,10 @@ INVERT4BPP               = N
 # TSLIBMOUSE    Use tslib (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
-GPMMOUSE                 = Y
+GPMMOUSE                 = N
 SERMOUSE                 = N
 SUNMOUSE                 = N
-NOMOUSE                  = N
+NOMOUSE                  = Y
 IPAQMOUSE                = N
 ZAURUSMOUSE              = N
 TUXMOUSE                 = N

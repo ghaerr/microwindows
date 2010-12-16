@@ -223,46 +223,41 @@ typedef struct _kbddevice {
 /* entry points*/
 
 /* devdraw.c*/
-PSD	GdOpenScreen(void);
+PSD		GdOpenScreen(void);
 void	GdCloseScreen(PSD psd);
-int	GdSetPortraitMode(PSD psd, int portraitmode);
-int	GdSetMode(int mode);
+int		GdSetPortraitMode(PSD psd, int portraitmode);
+int		GdSetMode(int mode);
 MWBOOL	GdSetUseBackground(MWBOOL flag);
 MWPIXELVAL GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg);
 MWPIXELVAL GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg);
 MWPIXELVAL GdSetForegroundColor(PSD psd, MWCOLORVAL fg);
 MWPIXELVAL GdSetBackgroundColor(PSD psd, MWCOLORVAL bg);
 void	GdPrintBitmap(PMWBLITPARMS gc, int SSZ);	/* debug only*/
-
 void	GdResetPalette(void);
 void	GdSetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
-int	GdGetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
+int		GdGetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
 MWCOLORVAL GdGetColorRGB(PSD psd, MWPIXELVAL pixel);
 MWPIXELVAL GdFindColor(PSD psd, MWCOLORVAL c);
 MWPIXELVAL GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr);
-int	GdCaptureScreen(char *path);
+int		GdCaptureScreen(char *path);
 void	GdGetScreenInfo(PSD psd,PMWSCREENINFO psi);
 void	GdPoint(PSD psd,MWCOORD x, MWCOORD y);
-void	GdLine(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2,
-		MWBOOL bDrawLastPoint);
+void	GdLine(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2, MWBOOL bDrawLastPoint);
 void	GdRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 void	GdFillRect(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 MWBOOL	GdColorInPalette(MWCOLORVAL cr,MWPALENTRY *palette,int palsize);
 void	GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 		MWPIXELVALHW *convtable,int fLoadType);
 void	GdDrawImage(PSD psd,MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
-void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		const MWIMAGEBITS *imagebits);
+void	GdBitmap(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,const MWIMAGEBITS *imagebits);
 void	GdBitmapByPoint(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		const MWIMAGEBITS *imagebits, int clipresult);
+			const MWIMAGEBITS *imagebits, int clipresult);
 void	GdPoly(PSD psd,int count, MWPOINT *points);
 void	GdFillPoly(PSD psd,int count, MWPOINT *points);
-void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		MWPIXELVALHW *pixels);
-void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,
-		void *pixels, int pixtype);
+void	GdReadArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height,MWPIXELVALHW *pixels);
+void	GdArea(PSD psd,MWCOORD x,MWCOORD y,MWCOORD width,MWCOORD height, void *pixels, int pixtype);
 void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
-		MWCOORD inpitch, void *out, int outpixtype, int outpitch);
+			MWCOORD inpitch, void *out, int outpixtype, int outpitch);
 void	drawpoint(PSD psd, MWCOORD x, MWCOORD y);
 void	drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y);
 extern SCREENDEVICE scrdev;
@@ -297,35 +292,31 @@ void	GdEllipse(PSD psd,MWCOORD x, MWCOORD y, MWCOORD rx, MWCOORD ry,
 
 /* devfont.c*/
 void	GdClearFontList(void);
-int	GdAddFont(char *fndry, char *family, char *fontname, PMWLOGFONT lf,
-		  unsigned int flags);
-PMWFONT	GdSetFont(PMWFONT pfont);
+int		GdAddFont(char *fndry, char *family, char *fontname, PMWLOGFONT lf, unsigned int flags);
 PMWFONT GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width,
-		const PMWLOGFONT plogfont);
+			const PMWLOGFONT plogfont);
 MWCOORD	GdSetFontSize(PMWFONT pfont, MWCOORD height, MWCOORD width);
-void GdGetFontList(MWFONTLIST ***list, int *num);
-void GdFreeFontList(MWFONTLIST ***list, int num);
-int	GdSetFontRotation(PMWFONT pfont, int tenthdegrees);
-int	GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags);
+void 	GdGetFontList(MWFONTLIST ***list, int *num);
+void 	GdFreeFontList(MWFONTLIST ***list, int num);
+int		GdSetFontRotation(PMWFONT pfont, int tenthdegrees);
+int		GdSetFontAttr(PMWFONT pfont, int setflags, int clrflags);
 void	GdDestroyFont(PMWFONT pfont);
 MWBOOL	GdGetFontInfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
-int	GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
-		MWTEXTFLAGS oflags);
+int		GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr, MWTEXTFLAGS oflags);
 void	GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
-		MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);
-int	GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc,
-		int nMaxExtent, int *lpnFit, int *alpDx, MWCOORD *pwidth,
-		MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);	
-void	GdText(PSD psd,MWCOORD x,MWCOORD y,const void *str,int count,
-		MWTEXTFLAGS flags);
+			MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);
+int		GdGetTextSizeEx(PMWFONT pfont, const void *str, int cc, int nMaxExtent,
+			int *lpnFit, int *alpDx, MWCOORD *pwidth,
+			MWCOORD *pheight, MWCOORD *pbase, MWTEXTFLAGS flags);	
+void	GdText(PSD psd,PMWFONT pfont, MWCOORD x,MWCOORD y,const void *str,int count,MWTEXTFLAGS flags);
 PMWFONT	GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
-		unsigned length, const char *format, MWCOORD height, MWCOORD width);
+			unsigned length, const char *format, MWCOORD height, MWCOORD width);
 PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width);
 
 
 /* both devclip1.c and devclip2.c */
 MWBOOL	GdClipPoint(PSD psd,MWCOORD x,MWCOORD y);
-int	GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2);
+int		GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2);
 extern MWCOORD clipminx, clipminy, clipmaxx, clipmaxy;
 
 /* devclip1.c only*/
@@ -343,8 +334,7 @@ MWBOOL GdEmptyRegion(MWCLIPREGION *rgn);
 MWCLIPREGION *GdAllocRegion(void);
 MWCLIPREGION *GdAllocRectRegion(MWCOORD left,MWCOORD top,MWCOORD right,MWCOORD bottom);
 MWCLIPREGION *GdAllocRectRegionIndirect(MWRECT *prc);
-void GdSetRectRegion(MWCLIPREGION *rgn, MWCOORD left, MWCOORD top,
-		MWCOORD right, MWCOORD bottom);
+void GdSetRectRegion(MWCLIPREGION *rgn, MWCOORD left, MWCOORD top, MWCOORD right, MWCOORD bottom);
 void GdSetRectRegionIndirect(MWCLIPREGION *rgn, MWRECT *prc);
 void GdDestroyRegion(MWCLIPREGION *rgn);
 void GdOffsetRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y);
@@ -360,18 +350,16 @@ MWCLIPREGION *GdAllocBitmapRegion(MWIMAGEBITS *bitmap, MWCOORD width, MWCOORD he
 
 /* devrgn2.c*/
 MWCLIPREGION *GdAllocPolygonRegion(MWPOINT *points, int count, int mode);
-MWCLIPREGION *GdAllocPolyPolygonRegion(MWPOINT *points, int *count,
-		int nbpolygons, int mode);
+MWCLIPREGION *GdAllocPolyPolygonRegion(MWPOINT *points, int *count, int nbpolygons, int mode);
 
 /* devmouse.c*/
 int	GdOpenMouse(void);
 void	GdCloseMouse(void);
 void	GdGetButtonInfo(int *buttons);
-void	GdRestrictMouse(MWCOORD newminx,MWCOORD newminy,MWCOORD newmaxx,
-		MWCOORD newmaxy);
+void	GdRestrictMouse(MWCOORD newminx,MWCOORD newminy,MWCOORD newmaxx, MWCOORD newmaxy);
 void	GdSetAccelMouse(int newthresh, int newscale);
 void	GdMoveMouse(MWCOORD newx, MWCOORD newy);
-int	GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb);
+int		GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb);
 void	GdMoveCursor(MWCOORD x, MWCOORD y);
 MWBOOL	GdGetCursorPos(MWCOORD *px, MWCOORD *py);
 void	GdSetCursor(PMWCURSOR pcursor);

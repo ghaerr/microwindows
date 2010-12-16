@@ -122,7 +122,6 @@ static int GetSysCharHeight (HWND hwnd)
 
     	hdc = GetDC(hwnd);
 	SelectObject(hdc, GetStockObject(DEFAULT_FONT));
-	GdSetFont(hdc->font->pfont);
     	GdGetTextSize(hdc->font->pfont,"X",1, &xw,&xh,&xb,MWTF_ASCII);
     	ReleaseDC(hwnd,hdc);
 
@@ -140,7 +139,6 @@ static int GetSysCharWidth (HWND hwnd)
 
     	hdc = GetDC(hwnd);
 	SelectObject(hdc, GetStockObject(DEFAULT_FONT));
-	GdSetFont(hdc->font->pfont);
     	GdGetTextSize(hdc->font->pfont,"X",1, &xw,&xh,&xb,MWTF_ASCII);
     	ReleaseDC(hwnd,hdc);
 

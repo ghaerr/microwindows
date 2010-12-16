@@ -449,9 +449,7 @@ neGetPasswdCharWith(HDC hdc, EDITCHAR pwdChar)
 {
 	int xw, xh, xb;
 
-	GdSetFont(hdc->font->pfont);
-	GdGetTextSize(hdc->font->pfont, &pwdChar, 1,
-		      &xw, &xh, &xb, MWTF_UC16);
+	GdGetTextSize(hdc->font->pfont, &pwdChar, 1, &xw, &xh, &xb, MWTF_UC16);
 	return xw;
 }
 
@@ -468,7 +466,6 @@ neGetTextHeight(HWND hWnd, HDC hdc)
 	if (hdc == NULL)
 		hdc = GetDC(hWnd), bRelDC = TRUE;
 	SelectObject(hdc, ((PSLEDITDATA) (hWnd->userdata2))->hFont);
-	GdSetFont(hdc->font->pfont);
 	GdGetTextSize(hdc->font->pfont, "X", 1, &xw, &xh, &xb, MWTF_ASCII);
 	if (bRelDC)
 		ReleaseDC(hWnd, hdc);
@@ -493,7 +490,6 @@ neGetTextWith(HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData,
 	if (hdc == NULL)
 		hdc = GetDC(hWnd), bRelDC = TRUE;
 	SelectObject(hdc, pSLEditData->hFont);
-	GdSetFont(hdc->font->pfont);
 	GdGetTextSize(hdc->font->pfont, txt, len, &xw, &xh, &xb, MWTF_UC16);
 	if (bRelDC)
 		ReleaseDC(hWnd, hdc);

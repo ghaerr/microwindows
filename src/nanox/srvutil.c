@@ -948,10 +948,8 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 	GR_WINDOW	*wp;		/* found window */
 	GR_PIXMAP	*pp;		/* found pixmap */
 	GR_GC		*gcp;		/* found graphics context */
-	GR_FONT		*fontp;
 	GR_REGION	*regionp;	/* user clipping region */
 	MWCLIPREGION*reg;
-	PMWFONT		pf;
 
 	*retdp = NULL;
 
@@ -1090,9 +1088,6 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 			break;
 		}
 
-		fontp = GsFindFont(gcp->fontid);
-		pf = fontp? fontp->pfont: stdfont;
-		GdSetFont(pf);
 		gcp->changed = GR_FALSE;
 	}
 

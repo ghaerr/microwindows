@@ -247,7 +247,7 @@ PMWIMAGEHDR resDecodeBitmap (BMPHEAD *pHead, int size)
 			pImageHdr->bpp = bitdepth;
 			pImageHdr->pitch = linesize;
 			pImageHdr->bytesperpixel = bytesperpixel;
-			pImageHdr->compression = 1;
+			//pImageHdr->compression = 1;	// FIXME may need to flip y
 			pImageHdr->data_format = 0;		/* FIXME unknown?*/
 			pImageHdr->palsize = palsize;
 			pImageHdr->transcolor = -1L;

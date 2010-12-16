@@ -59,16 +59,16 @@ get bpp via ioctl from fbe for nano-X?
 #define PATH_FRAMEBUFFER "/tmp/fb0"
 #define PATH_COLORMAP	 "/tmp/fb0cmap"
 
-#define MAX_CRTX 800
-#define MAX_CRTY 600
+#define MAX_CRTX 1200
+#define MAX_CRTY 1024
 #define CHUNKX 32
 #define CHUNKY 20
 
 #define INVERT2BPP	0	/* inverted palette for 2 bits/pixel*/
 
-int CRTX = 640;			/* default x size*/
-int CRTY = 480;			/* default y size*/
-int BITS_PER_PIXEL = 1;	/* default bpp*/
+int CRTX = 800;			/* default x size*/
+int CRTY = 600;			/* default y size*/
+int BITS_PER_PIXEL = 32;			/* default bpp*/
 
 /* flags*/
 int ZOOM = 1;			/* integral zoom factor*/
@@ -714,7 +714,7 @@ check_and_paint(int ix, int iy)
 					break;
 				case 32:
 					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*4;
-#if defined(MWPIXELFORMAT) && (MWPIXELFORMAT == MWPF_TRUECOLORABGR)
+#if defined(MWPIXEL_FORMAT) && (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 					r = *data++;
 					g = *data++;
 					b = *data++;

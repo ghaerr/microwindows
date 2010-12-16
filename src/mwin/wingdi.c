@@ -868,7 +868,7 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 
 	/* draw text in current text foreground and background color*/
 	GdSetForegroundColor(hdc->psd, hdc->textcolor);
-	GdSetFont(hdc->font->pfont);
+	//GdSetFont(hdc->font->pfont);
 
 	/* this whole text alignment thing needs rewriting*/
 	if((hdc->textalign & TA_BASELINE) == TA_BASELINE) {
@@ -882,8 +882,7 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 		if(lprc)
 			pt.y += lprc->bottom - lprc->top;
 		else {
-			GdGetTextSize(hdc->font->pfont, lpszString, cbCount,
-				&pw, &ph, &pb, flags);
+			GdGetTextSize(hdc->font->pfont, lpszString, cbCount, &pw, &ph, &pb, flags);
 			pt.y += ph;
 		}
 		flags |= MWTF_BOTTOM;
@@ -893,17 +892,15 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 	if((hdc->textalign & TA_CENTER) == TA_CENTER) {
 		MWCOORD     ph, pw, pb;
 
-		GdGetTextSize(hdc->font->pfont, lpszString, cbCount,
-			&pw, &ph, &pb, flags);
+		GdGetTextSize(hdc->font->pfont, lpszString, cbCount, &pw, &ph, &pb, flags);
 		pt.x -= pw/2;
 	} else if(hdc->textalign & TA_RIGHT) {
 		MWCOORD     ph, pw, pb;
 
-		GdGetTextSize(hdc->font->pfont, lpszString, cbCount,
-			&pw, &ph, &pb, flags);
+		GdGetTextSize(hdc->font->pfont, lpszString, cbCount, &pw, &ph, &pb, flags);
 		pt.x -= pw;
 	}
-	GdText(hdc->psd, pt.x, pt.y, lpszString, cbCount, flags);
+	GdText(hdc->psd, hdc->font->pfont, pt.x, pt.y, lpszString, cbCount, flags);
 
 	return TRUE;
 }
@@ -912,8 +909,7 @@ MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc,
 int WINAPI
 DrawTextA(HDC hdc, LPCSTR lpString, int nCount, LPRECT lpRect, UINT uFormat)
 {
-	return MwDrawText(hdc, lpString, nCount, lpRect, uFormat, 
-		mwTextCoding);
+	return MwDrawText(hdc, lpString, nCount, lpRect, uFormat, mwTextCoding);
 }
 
 /* unicode*/
@@ -965,8 +961,7 @@ MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine)
 /* note: many DT_x aren't implemented in this function*/
 /* internal version of DrawText, passed flags for text data type*/
 static int
-MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
-	int flags)
+MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat, int flags)
 {
 	MWCOORD	x, y, width, height, baseline;
 	LPCSTR lpStrDup = NULL;
@@ -1047,8 +1042,7 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat,
 	if (lpStrDup) {
 		OffsetRect(&rcUline, x, y);
 		SelectObject(hdc, GetStockObject(BLACK_PEN));
-		MoveToEx(hdc, rcUline.left, rcUline.bottom,
-			 NULL);
+		MoveToEx(hdc, rcUline.left, rcUline.bottom, NULL);
 		LineTo(hdc, rcUline.right, rcUline.bottom);
 		free(lpStrDup);
 	}
@@ -1980,8 +1974,7 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 
 	/* Duplicate text. If coding is UTF-8, generate it by checking shape/joining*/
 	if (flags & MWTF_UTF8)
-		szShaped = doCharShape_UTF8(lpszString, cbString, &cbString,
-					 &attrib);
+		szShaped = doCharShape_UTF8(lpszString, cbString, &cbString, &attrib);
 	else
 		szShaped = strdup(lpszString);
 
@@ -1990,13 +1983,12 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 
 	pstr = szShaped;
 	tot = cbString;
-	GdSetFont(hdc->font->pfont);
+	//GdSetFont(hdc->font->pfont);
 	while (tot > 0) {
 		for (count = 0; (count < tot) && (pstr[count] != '\t'); count++)
 		     continue;
 
-		GdGetTextSize(hdc->font->pfont, pstr, count, &xw, &xh, &xb,
-			      flags);
+		GdGetTextSize(hdc->font->pfont, pstr, count, &xw, &xh, &xb, flags);
 
 		while ((ntabs > 0) && (nTabOrigin + *pTab <= (x + xw))) {
 			pTab++;
@@ -2008,8 +2000,7 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 		else if (ntabs > 0)
 			tabPos = nTabOrigin + *pTab;
 		else
-			tabPos = nTabOrigin +
-				((x + xw - nTabOrigin) / deftab + 1) * deftab;
+			tabPos = nTabOrigin + ((x + xw - nTabOrigin) / deftab + 1) * deftab;
 
 		if (!noDraw) {
 			RECT rect;
@@ -2020,26 +2011,16 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 			rect.bottom = y + xh;
 			//TextOut ( hdc, x, y, pstr, count );
 			if (attrib & TEXTIP_EXTENDED) {
-				LPSTR virtText = doCharBidi_UTF8(pstr, count,
-							NULL, NULL, &attrib);
+				LPSTR virtText = doCharBidi_UTF8(pstr, count, NULL, NULL, &attrib);
 				if (virtText) {
-					if ((attrib & TEXTIP_RTOL))
-						DrawTextA(hdc, virtText,
-							  count, &rect,
-							  DT_RIGHT |
-							  DT_SINGLELINE |
-							  DT_TOP);
+					if (attrib & TEXTIP_RTOL)
+						DrawTextA(hdc, virtText, count, &rect, DT_RIGHT | DT_SINGLELINE | DT_TOP);
 					else
-						DrawTextA(hdc, virtText,
-							  count, &rect,
-							  DT_LEFT |
-							  DT_SINGLELINE |
-							  DT_TOP);
+						DrawTextA(hdc, virtText, count, &rect, DT_LEFT | DT_SINGLELINE | DT_TOP);
 					free(virtText);
 				}
 			} else
-				DrawTextA(hdc, pstr, count, &rect,
-					  DT_LEFT | DT_SINGLELINE | DT_TOP);
+				DrawTextA(hdc, pstr, count, &rect, DT_LEFT | DT_SINGLELINE | DT_TOP);
 		}
 
 		x = tabPos;

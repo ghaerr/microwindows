@@ -247,9 +247,7 @@ lstCalcHeight(HWND hwnd)
 		GrGetGCTextSize(hdc->gc, "X", 1, MWTF_ASCII, &xw, &xh, &xb);
 #else
 		SelectObject(hdc, GET_WND_FONT(hwnd));
-		GdSetFont(hdc->font->pfont);
-		GdGetTextSize(hdc->font->pfont, "X", 1, &xw, &xh, &xb,
-			      MWTF_ASCII);
+		GdGetTextSize(hdc->font->pfont, "X", 1, &xw, &xh, &xb, MWTF_ASCII);
 #endif
 		ReleaseDC(hwnd, hdc);
 		pData->itemHeight = xh + 1;

@@ -141,14 +141,14 @@ GdOpenScreen(void)
 	GdSetBackgroundColor(psd, MWRGB(0, 0, 0));		/* BLACK*/
 	GdSetUseBackground(TRUE);
 	/* select first builtin font (usually MWFONT_SYSTEM_VAR)*/
-	GdSetFont(GdCreateFont(psd, NULL, 0, 0, NULL));
+	//GdSetFont(GdCreateFont(psd, NULL, 0, 0, NULL));
 
 	GdSetDash(0, 0);  /* No dashing to start */
 	GdSetStippleBitmap(0,0,0);  /* No stipple to start */
 
 #if DYNAMICREGIONS
 	GdSetClipRegion(psd, 
-		GdAllocRectRegion(0, 0, psd->xvirtres, psd->yvirtres));
+	GdAllocRectRegion(0, 0, psd->xvirtres, psd->yvirtres));
 #else
 	GdSetClipRects(psd, 0, NULL);
 #endif /* DYNAMICREGIONS*/

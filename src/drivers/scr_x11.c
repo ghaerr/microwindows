@@ -598,7 +598,7 @@ X11_open(PSD psd)
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
-	psd->flags = PSF_SCREEN;
+	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
 	psd->portrait = MWPORTRAIT_NONE;
 printf("x11 emulated bpp %d\n", psd->bpp);
 
@@ -683,8 +683,7 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 		data = malloc((w * x11_depth + 7) / 8 * h);
 
 	/* copy from offscreen to screen */
-	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap,
-			   0, data, w, h, 8, 0);
+	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap, 0, data, w, h, 8, 0);
 
 	/* Use optimized loops for most common framebuffer modes */
 

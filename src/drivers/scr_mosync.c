@@ -1,13 +1,8 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2007 Greg Haerr <greg@censoft.com>
- * Portions Copyright (c) 2002 Koninklijke Philips Electronics
+ * Copyright (c) 2010 Greg Haerr <greg@censoft.com>
  * moSync framebuffer adaptions (c) 2010 Ludwig Ertl / CSP GmbH
  *
  * Microwindows Screen Driver for moSync framebuffer
- *
- * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
- *
- * Note: modify select_fb_driver() to add new framebuffer subdrivers
  */
 #include <ma.h>
 #include <assert.h>
@@ -22,8 +17,6 @@
 
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
-static void fb_setportrait(PSD psd, int portraitmode);
-static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
@@ -65,7 +58,7 @@ fb_open(PSD psd)
 	psd->linelen = fbinfo.width;
 	psd->pitch = fbinfo.pitch;
 	psd->size = fbinfo.sizeInBytes;
-    psd->flags = PSF_SCREEN;
+    psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
 
 	/* set pixel format*/
 	switch(psd->bpp) {
@@ -91,9 +84,6 @@ fb_open(PSD psd)
 
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
-	//psi->rmask = fbinfo.redMask;
-	//psi->gmask = fbinfo.greenMask;
-	//psi->bmask = fbinfo.blueMask;
 
 	/* select a framebuffer subdriver based on planes and bpp*/
 	subdriver = select_fb_subdriver(psd);

@@ -176,7 +176,8 @@ static SUBDRIVER fblinear32bgra_right = {
 	convblit_blend_mask_alpha_byte_bgra,
 	convblit_copy_rgba8888_bgra8888,
 	convblit_srcover_rgba8888_bgra8888,
-	convblit_copy_rgb888_bgra8888
+	convblit_copy_rgb888_bgra8888,
+	frameblit_stretch_rgba8888_bgra8888
 };
 
 static SUBDRIVER fblinear32bgra_down = {

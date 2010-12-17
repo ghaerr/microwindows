@@ -244,17 +244,21 @@ UPDATEREGIONS            = Y
 # SCREEN DRIVERS
 ####################################################################
 
-# Framebuffer screen driver
-FRAMEBUFFER              = Y
-
-# X Window screen driver
-# X11 startup screen width, height, (depth for palette mode only)
-# USE_EXPOSURE=Y for XFree86 4.x or if your backing store not working
-X11                      = N
+# X11 and FBE startup screen width, height, (depth for palette mode only)
 SCREEN_WIDTH             = 800
 SCREEN_HEIGHT            = 600
 SCREEN_DEPTH             = 8
-USE_EXPOSURE             = Y
+
+# X Window screen driver
+# USE_EXPOSURE for XFree86 4.x or if backing store not working
+X11                      = N
+USE_EXPOSURE             = N
+
+# Framebuffer screen driver
+FRAMEBUFFER              = N
+
+# memory screen driver
+SCRMEM                   = Y
 
 # PSP screen driver
 PSP                      = N

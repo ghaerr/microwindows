@@ -66,8 +66,8 @@ get bpp via ioctl from fbe for nano-X?
 
 #define INVERT2BPP	0	/* inverted palette for 2 bits/pixel*/
 
-int CRTX = 800;			/* default x size*/
-int CRTY = 600;			/* default y size*/
+int CRTX = SCREEN_WIDTH;			/* default x size*/
+int CRTY = SCREEN_HEIGHT;			/* default y size*/
 int BITS_PER_PIXEL = 32;			/* default bpp*/
 
 /* flags*/

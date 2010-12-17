@@ -1,6 +1,6 @@
 ##############################################################################
 # Microwindows Makefile
-# Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
+# Copyright (c) 2000, 2010 Martin Jolicoeur, Greg Haerr
 # Portions Copyright (c) 2002 Koninklijke Philips Electronics N.V.
 #
 # This makefile adds the driver object files to the MW_CORE_OBJS variable.
@@ -10,44 +10,42 @@
 ##############################################################################
 
 # for UNIX/Linux flavours
-ifneq ($(ARCH), ELKS)
-ifneq ($(ARCH), DJGPP)
 
-ifeq ($(EM8400), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_em84xx.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
-endif
-
-ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vncserver.o
-endif
-
-ifeq ($(FRAMEBUFFER), Y)
-MW_CORE_OBJS += \
+# subdrivers always linked in
+MW_SUBDRIVER_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
 	$(MW_DIR_OBJ)/drivers/genmem.o \
-	$(MW_DIR_OBJ)/drivers/fb.o
-
+	$(MW_DIR_OBJ)/drivers/fb.o \
+	$(MW_DIR_OBJ)/drivers/fbportrait_left.o \
+	$(MW_DIR_OBJ)/drivers/fbportrait_right.o \
+	$(MW_DIR_OBJ)/drivers/fbportrait_down.o
 ifeq ($(FBREVERSE), Y)
 ifeq ($(IPOD_LCD), Y)
-  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2revipod.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2revipod.o
 else
-  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2rev.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2rev.o
 endif
 else
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin1.o $(MW_DIR_OBJ)/drivers/fblin2.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1.o $(MW_DIR_OBJ)/drivers/fblin2.o
 endif
 
-ifeq ($(FBVGA), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/vgaplan4.o \
-	$(MW_DIR_OBJ)/drivers/memplan4.o
+ifeq ($(FBREVERSE), Y)
+  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4rev.o
+else
+ifeq ($(SA1100_LCD_LTLEND), Y)
+  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4sa1100.o
+else
+  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4.o
 endif
+endif
+
+
+# framebuffer driver stuff
+ifeq ($(FRAMEBUFFER), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 
 ifeq ($(NOFONTSORCLIPPING), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/nofont.o
@@ -59,50 +57,25 @@ ifeq ($(ARCH), ECOS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_ecos.o
 else
 ifeq ($(ARCH), RTEMS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_rtems.o \
-	$(MW_DIR_OBJ)/drivers/romfont.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_rtems.o $(MW_DIR_OBJ)/drivers/romfont.o
 else
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_fb.o \
-	$(MW_DIR_OBJ)/drivers/fbportrait_left.o \
-	$(MW_DIR_OBJ)/drivers/fbportrait_right.o \
-	$(MW_DIR_OBJ)/drivers/fbportrait_down.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
 endif
 endif
-
-ifeq ($(FBREVERSE), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4rev.o
-else
-ifeq ($(SA1100_LCD_LTLEND), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4sa1100.o
-else
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4.o
-endif
-endif
-
-endif # FRAMEBUFER
 
 ifeq ($(VTSWITCH), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vtswitch.o
 endif
 
+endif # FRAMEBUFFER
+
+# X11 stuff
 ifeq ($(X11), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/scr_x11.o \
 	$(MW_DIR_OBJ)/drivers/mou_x11.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o \
-	$(MW_DIR_OBJ)/drivers/fb.o \
-	$(MW_DIR_OBJ)/drivers/fblin1.o \
-	$(MW_DIR_OBJ)/drivers/fblin2.o \
-	$(MW_DIR_OBJ)/drivers/fblin4.o \
-	$(MW_DIR_OBJ)/drivers/fblin8.o \
-	$(MW_DIR_OBJ)/drivers/fblin16.o \
-	$(MW_DIR_OBJ)/drivers/fblin24.o \
-	$(MW_DIR_OBJ)/drivers/fblin32.o \
-	$(MW_DIR_OBJ)/drivers/fbportrait_left.o \
-	$(MW_DIR_OBJ)/drivers/fbportrait_right.o \
-	$(MW_DIR_OBJ)/drivers/fbportrait_down.o
+	$(MW_DIR_OBJ)/drivers/genfont.o
 
 ifneq ($(PIPEKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_x11.o
@@ -110,45 +83,36 @@ else
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_pipe.o
 endif
 
-ifeq ($(NOFONTSORCLIPPING), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/nofont.o
-else
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/genfont.o
-endif
-
 endif # X11 stuff
 
-ifeq ($(ARCH), FREEBSD-X86)
+# screen device stuff
+ifeq ($(SCRMEM), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_fbsd.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o \
-	$(MW_DIR_OBJ)/drivers/fb.o \
-	$(MW_DIR_OBJ)/drivers/fblin1.o \
-	$(MW_DIR_OBJ)/drivers/fblin2.o \
-	$(MW_DIR_OBJ)/drivers/fblin4.o \
-	$(MW_DIR_OBJ)/drivers/fblin8.o \
-	$(MW_DIR_OBJ)/drivers/fblin16.o \
-	$(MW_DIR_OBJ)/drivers/fblin24.o \
-	$(MW_DIR_OBJ)/drivers/fblin32.o
+	$(MW_DIR_OBJ)/drivers/scr_mem.o \
+	$(MW_DIR_OBJ)/drivers/genfont.o
 endif
 
-ifeq ($(VGALIB), Y)
-MW_CORE_OBJS +=	\
-	$(MW_DIR_OBJ)/drivers/scr_svga.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
+# PSP stuff
+ifeq ($(ARCH), PSP)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_psp.o \
+	$(MW_DIR_OBJ)/drivers/genfont.o 
+
 endif
 
-ifeq ($(HWVGA), Y)
-MW_CORE_OBJS +=	\
-	$(MW_DIR_OBJ)/drivers/scr_bios.o \
-	$(MW_DIR_OBJ)/drivers/vgainit.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
+ifeq ($(EM8400), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_em84xx.o \
+	$(MW_DIR_OBJ)/drivers/genfont.o
 endif
 
-ifneq ($(X11), Y)
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vncserver.o
+endif
 
 ### Desktop GPM mouse driver
 ifeq ($(GPMMOUSE), Y)
@@ -248,8 +212,6 @@ endif
 #
 # Keyboard driver specific for every system
 #
-ifneq ($(PIPEKBD), Y)
-
 ifeq ($(TTYKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_tty.o
 endif
@@ -286,97 +248,17 @@ ifeq ($(PSPKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_psp.o
 endif
 
-else
-
+ifeq ($(PIPEKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_pipe.o
-
-endif # PIPEKBD != Y
+endif
 
 ifeq ($(ARCH), RTEMS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_rtems.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_rtems.o
 endif # RTEMS architecture
 
-
-endif # !X11
-
 ifeq ($(LIRCKBD2), Y)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/mwlirc.o \
 	$(MW_DIR_OBJ)/drivers/kbd_lirc.o
-endif
-
-endif # !DJGPP
-endif # !ELKS
-
-# For DJGPP flavor
-ifeq ($(ARCH), DJGPP)
-
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_djgr.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/mou_dos.o \
-	$(MW_DIR_OBJ)/drivers/kbd_djgr.o
-
-endif
-
-# For ELKS flavor
-ifeq ($(ARCH), ELKS)
-
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/elksutil.o \
-	$(MW_DIR_OBJ)/drivers/romfont.o
-
-ifeq ($(ASMVGADRIVER), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_bios.o \
-	$(MW_DIR_OBJ)/drivers/elkplan4.o \
-	$(MW_DIR_OBJ)/drivers/memplan4.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
-endif
-
-ifeq ($(CVGADRIVER), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_bios.o \
-	$(MW_DIR_OBJ)/drivers/vgaplan4.o \
-	$(MW_DIR_OBJ)/drivers/memplan4.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
-endif
-
-ifeq ($(HERCDRIVER), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_herc.o
-endif
-
-ifeq ($(SERMOUSE), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ser.o
-endif
-
-MW_CORE_OBJS +=	$(MW_DIR_OBJ)/drivers/kbd_tty.o
-
-endif
-
-# uClinux on an Isicad Prisma
-ifeq ($(ARCH), UCLINUX-PRISMA)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_prsm.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
-	$(MW_DIR_OBJ)/drivers/asm_prsm.o
-endif
-
-# PSP
-ifeq ($(ARCH), PSP)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_psp.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o \
-	$(MW_DIR_OBJ)/drivers/fblin1.o \
-	$(MW_DIR_OBJ)/drivers/fblin2.o \
-	$(MW_DIR_OBJ)/drivers/fblin4.o \
-	$(MW_DIR_OBJ)/drivers/fblin8.o \
-	$(MW_DIR_OBJ)/drivers/fblin16.o \
-	$(MW_DIR_OBJ)/drivers/fblin24.o \
-	$(MW_DIR_OBJ)/drivers/fblin32.o \
-	$(MW_DIR_OBJ)/drivers/fb.o \
-	$(MW_DIR_OBJ)/drivers/genmem.o
-
 endif

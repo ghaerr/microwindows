@@ -1,7 +1,8 @@
 /*
- * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
+ * Copyright (c) 2010 Greg Haerr <greg@censoft.com>
+ * Original Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  *
- * This file implements the device independant timer functions.
+ * This file implements the device-independent timer functions.
  *
  * When a part of the server wishes to set a timer, it should call the
  * GdAddTimer() function with the timeout parameter set to the number of
@@ -63,7 +64,7 @@ static struct timeval mainloop_timeout;
 static struct timeval current_time;
 
 static void calculate_timeval(struct timeval *tv, MWTIMEOUT to); 
-static signed long time_to_expiry(struct timeval *t);
+static int32_t time_to_expiry(struct timeval *t);
 
 /**
  * Create a new one-shot timer.
@@ -161,11 +162,11 @@ MWTIMER *GdFindTimer(void *arg)
 }
 
 /**
- * ?? Internal function.
+ * Check timer list for pending timeout
  *
- * @param tv ??
- * @param timeout ??
- * @return ??
+ * @param tv 
+ * @param timeout 
+ * @return
  */
 MWBOOL GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout)
 {
@@ -187,8 +188,7 @@ MWBOOL GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout)
 
 	while(t) {
 		i = time_to_expiry(&t->timeout);
-		if( i>0 && i>t->period )
-		{
+		if( i>0 && i>t->period ) {
 			calculate_timeval (&t->timeout, t->period);
 			i = t->period;
 		}
@@ -208,9 +208,7 @@ MWBOOL GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout)
 }
 
 /**
- * ?? Internal function.
- *
- * @return ??
+ * Check timer list for pending timeout
  */
 MWBOOL GdTimeout(void)
 {
@@ -224,18 +222,11 @@ MWBOOL GdTimeout(void)
 		tempTimeout = time_to_expiry(&t->timeout);
 		if( tempTimeout<= 0) {
 			t->callback(t->arg);
-                        if (t->type == MWTIMER_ONESHOT)
-                        {
-                            /* One shot timer, is finished delete it now */
-                            GdDestroyTimer(t);
-                        }
-                        else
-                        {
-                            /* Periodic timer needs to be reset */
-                            calculate_timeval (&t->timeout, t->period);
-                        }
-		}
-		else{
+			if (t->type == MWTIMER_ONESHOT)
+				GdDestroyTimer(t); 		/* One shot timer, is finished delete it now */
+			else
+				calculate_timeval (&t->timeout, t->period); /* Periodic timer needs to be reset */
+		} else {
 			if( tempTimeout>0 && tempTimeout>t->period )
 				calculate_timeval (&t->timeout, t->period);
 		}
@@ -259,12 +250,12 @@ static void calculate_timeval(struct timeval *tv, MWTIMEOUT to)
 	}
 }
 
-static signed long time_to_expiry(struct timeval *t)
+static int32_t time_to_expiry(struct timeval *t)
 {
 	MWTIMEOUT ret = (((t->tv_sec - current_time.tv_sec) * 1000) +
 			((t->tv_usec - current_time.tv_usec) / 1000));
 
-	return ret;
+	return (int32_t)ret;
 }
 
 #endif /* MW_FEATURE_TIMERS */

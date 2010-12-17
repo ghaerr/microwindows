@@ -11,13 +11,13 @@ To build Microwindows, copy one of these files to microwin/src/config,
 and type "make clean; make".
 
 // Common configurations (also kept up-to-date with current options)
-config.fb	Basic Linux Framebuffer (FB) (pcf,fnt,threadsafe,vtswitch)
+config.fb	Basic Linux Framebuffer (pcf,fnt,threadsafe,vtswitch,debug)
 config.fb2	Linux Framebuffer (+png,jpeg,freetype2,sharedlibs)
-config.fb3	Linux Framebuffer (+png,jpeg,freetype2,sharelibs,debug)
 config.x11	Microwindows running on X11 (pcf,fnt,threadsafe,png,jpeg,freetype2,sharedlibs)
 
 // Specific ports (not necessarily up-to-date with new options)
 config.ads	ARM Linux FB for ADS Graphics Client
+config.blackfin	Blackfin Linux port
 config.dj	DJGPP 32-bit MSDOS
 config.elks	ELKS 16-bit Linux (bcc compiler)
 config.freebsd	FreeBSD port
@@ -26,13 +26,14 @@ config.helio	MIPS Linux FB for VTech Helio
 config.innovator PSI OMAP Innovator (ADS7846 touchscreen)
 config.ipaq	ARM Linux FB for iPAQ
 config.l7200	ARM Linux FB for L7200
+config.macosx	Mac OSX X11 port
 config.ns	x86 Linux for National Semi Geode
 config.oti	PPC Linux for OTI
 config.pixil	Sample minimum requirements for PIXIL Operating Environment
 config.ppc	PPC Linux for Embedded Planet Linux Planet
 config.prisma	Prisma port
 config.psion	Psion port
-config.psp		Sony PSP port
+config.psp	Sony PSP port
 config.rtems	RTEMS port
 config.sparc.fb	Basic Linux Framebuffer (FB) (linux-sparc)
 config.sparc.x11 Microwindows running on X11 (linux-sparc)

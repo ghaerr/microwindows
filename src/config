@@ -145,14 +145,14 @@ HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.so
 INCZ                     = .
-LIBZ                     = /usr/lib/libz.a
+LIBZ                     = /usr/lib/libz.so
 
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
 INCTIFF                  = .
-LIBTIFF                  = /usr/lib/libtiff.a
+LIBTIFF                  = /usr/lib/libtiff.so
 
 ####################################################################
 # PCF font support - .pcf/.pcf.gz loadable fonts
@@ -166,7 +166,7 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/lib/libfreetype.a
+LIBFT2LIB                = /usr/lib/libfreetype.so
 FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
@@ -244,17 +244,21 @@ UPDATEREGIONS            = Y
 # SCREEN DRIVERS
 ####################################################################
 
+# X11 and FBE startup screen width, height, (depth for palette mode only)
+SCREEN_WIDTH             = 800
+SCREEN_HEIGHT            = 600
+SCREEN_DEPTH             = 8
+
+# X Window screen driver
+# USE_EXPOSURE for XFree86 4.x or if backing store not working
+X11                      = Y
+USE_EXPOSURE             = Y
+
 # Framebuffer screen driver
 FRAMEBUFFER              = N
 
-# X Window screen driver
-# X11 startup screen width, height, (depth for palette mode only)
-# USE_EXPOSURE=Y for XFree86 4.x or if your backing store not working
-X11                      = Y
-SCREEN_WIDTH             = 810
-SCREEN_HEIGHT            = 640
-SCREEN_DEPTH             = 8
-USE_EXPOSURE             = Y
+# memory screen driver
+SCRMEM                   = N
 
 # PSP screen driver
 PSP                      = N
@@ -295,7 +299,7 @@ INVERT4BPP               = N
 # TSLIBMOUSE    Use tslib (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
-GPMMOUSE                 = Y
+GPMMOUSE                 = N
 SERMOUSE                 = N
 SUNMOUSE                 = N
 NOMOUSE                  = N
@@ -321,7 +325,8 @@ SCANKBD                  = N
 PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
-NOKBD                    = Y
+PSPKBD                   = N
+NOKBD                    = N
 # Secondary keyboard drivers for IR input
 LIRCKBD2                 = N
 

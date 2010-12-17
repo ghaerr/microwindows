@@ -196,6 +196,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		    break;
 	    case XK_Pause:
 	    case XK_Break:
+		case XK_F15:
 		    mwkey = MWKEY_QUIT;
 		    break;
 	    case XK_Print:

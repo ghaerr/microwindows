@@ -1,3 +1,9 @@
+17 Dec 2010
+	* Configs/ config file cleanup, added SCRMEM option for memory screen driver
+	* added XK_F15 for macosx x11 quit
+	* fixed time_to_expiry definition for MACOSX port
+	* fixed stretchblit in right portrait 32bpp
+	* rm demos/nxkbd/key*.c, convbmp will recreate from .bmp
 16 Dec 2010
 	* remove GdSetFont, font not cached in gc because passed directly to GdText
 	* fix PSF_ADDRMALLOC flag

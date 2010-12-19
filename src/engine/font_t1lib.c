@@ -14,10 +14,6 @@
 #include "device.h"
 #include "devfont.h"
 
-#if (UNIX | DOS_DJGPP)
-#define strcmpi strcasecmp
-#endif
-
 /* settable parameters*/
 #ifndef T1LIB_FONT_DIR
 #define T1LIB_FONT_DIR			"fonts/type1"
@@ -141,7 +137,7 @@ t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	if ((p = strrchr(fontpath, '.')) == NULL)
 		strcat(fontpath, ".pfb");
 	else {	
-		if (strcmpi(p+1, "pfb") != 0)
+		if (strcasecmp(p+1, "pfb") != 0)
 			return NULL;		/* non .pfb file specified, not type1*/
 	}
 
@@ -160,7 +156,7 @@ t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	for(id=0; id<T1_GetNoFonts(); ++id) {
 		strcpy(t1name, T1_GetFontFileName(id));		/* returns .pfb name*/
 
-		if(!strcmpi(fontname, t1name))
+		if(!strcasecmp(fontname, t1name))
 			goto found;
 	}
 
@@ -174,7 +170,7 @@ t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	for(id=0; id<T1_GetNoFonts(); ++id) {
 		strcpy(t1name, T1_GetFontFileName(id));
 
-		if(!strcmpi(fontname, t1name)) {
+		if(!strcasecmp(fontname, t1name)) {
 found:
 			pf = (PMWT1LIBFONT)calloc(sizeof(MWT1LIBFONT), 1);
 			if (!pf)

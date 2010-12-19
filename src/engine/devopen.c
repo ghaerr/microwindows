@@ -132,7 +132,6 @@ GdOpenScreen(void)
 	GdResetPalette();
 	GdSetPalette(psd, 0, (int)psd->ncolors, stdpal);
 
-#if !NOFONTSORCLIPPING
 	/* init local vars*/
 	GdSetMode(MWROP_COPY);
 	GdSetFillMode(MWFILL_SOLID);  /* Set the fill mode to solid */
@@ -146,13 +145,13 @@ GdOpenScreen(void)
 	GdSetDash(0, 0);  /* No dashing to start */
 	GdSetStippleBitmap(0,0,0);  /* No stipple to start */
 
+#if !NOCLIPPING
 #if DYNAMICREGIONS
-	GdSetClipRegion(psd, 
-	GdAllocRectRegion(0, 0, psd->xvirtres, psd->yvirtres));
+	GdSetClipRegion(psd, GdAllocRectRegion(0, 0, psd->xvirtres, psd->yvirtres));
 #else
 	GdSetClipRects(psd, 0, NULL);
 #endif /* DYNAMICREGIONS*/
-#endif /* NOFONTSORCLIPPING*/
+#endif /* NOCLIPPING*/
 
 	/* fill black (actually fill to first palette entry or truecolor 0*/
 	psd->FillRect(psd, 0, 0, psd->xvirtres-1, psd->yvirtres-1, 0);

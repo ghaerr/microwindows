@@ -1,3 +1,8 @@
+19 Dec 2010
+	* replaced strcmpi with strcasecmp
+	* special case FT2 termcs*.ttf fonts to use charmap[1] instead of unicode encoding
+	* added NOFONTS, NOCLIPPING config options, removed NOFONTSORCLIPPING
+	* added ENGINE config option to make libmwengine.a
 17 Dec 2010
 	* Configs/ config file cleanup, added SCRMEM option for memory screen driver
 	* added XK_F15 for macosx x11 quit

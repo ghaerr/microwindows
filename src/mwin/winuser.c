@@ -349,7 +349,7 @@ MwFindClassByName(LPCSTR lpClassName)
 
 	for(p=mwClassHead.head; p; p=p->next) {
 		pClass = GdItemAddr(p, WNDCLASS, link);
-		if(strcmpi(pClass->szClassName, lpClassName) == 0)
+		if(strcasecmp(pClass->szClassName, lpClassName) == 0)
 			return pClass;
 	}
 	return NULL;

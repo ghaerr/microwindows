@@ -7,16 +7,18 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/mman.h>
 #include "device.h"
 #include "genfont.h"
 #include "genmem.h"
 #include "fb.h"
 
-#define PATH_FRAMEBUFFER "/tmp/fb0"		/* mmap'd framebuffer file if present*/
+/* define to allow mmap'd framebuffer for use with fb emulator*/
+//#define PATH_FRAMEBUFFER "/tmp/fb0"	/* mmap'd framebuffer file if present*/
 
-static int fb;							/* Framebuffer file handle. */
-static MWCLIPREGION *updateregion = NULL;
+static int fb = -1;						/* Framebuffer file handle*/
+MWCLIPREGION *fb_updateregion = NULL;	/* global update region for application handling*/
 
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
@@ -99,16 +101,18 @@ fb_open(PSD psd)
 	/* set and initialize subdriver into screen driver*/
 	set_subdriver(psd, subdriver, TRUE);
 
+#ifdef PATH_FRAMEBUFFER
 	/* try opening framebuffer file for mmap*/
 	if((env = getenv("FRAMEBUFFER")) == NULL)
 		env = PATH_FRAMEBUFFER;
 	fb = open(env, O_RDWR);
+#endif
 	if (fb >= 0) {
 		/* mmap framebuffer into this address space*/
 		psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
 		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE, MAP_SHARED, fb, 0);
 		if (psd->addr == NULL || psd->addr == (unsigned char *)-1) {
-			EPRINTF("Error mmaping %s: %m\n", env);
+			EPRINTF("Error mmaping shared framebuffer %s: %m\n", env);
 			close(fb);
 			return NULL;
 		}
@@ -120,7 +124,7 @@ fb_open(PSD psd)
 	}
 
 	/* allocate update region*/
-	updateregion = GdAllocRegion();
+	fb_updateregion = GdAllocRegion();
 
 	return psd;	/* success*/
 }
@@ -129,13 +133,17 @@ fb_open(PSD psd)
 static void
 fb_close(PSD psd)
 {
+	if (fb >= 0)
+		close(fb);
+	fb = -1;
+
 	if ((psd->flags & PSF_ADDRMALLOC) && psd->addr)
 		free (psd->addr);
 	psd->addr = NULL;
 
- 	if (updateregion)
-  		GdDestroyRegion(updateregion);
-	updateregion = NULL;
+ 	if (fb_updateregion)
+  		GdDestroyRegion(fb_updateregion);
+	fb_updateregion = NULL;
 }
 
 /* update framebuffer*/
@@ -154,25 +162,25 @@ fb_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	rc.right = x + width;
 	rc.top = y;
 	rc.bottom = y + height;
-	GdUnionRectWithRegion(&rc, updateregion);
+	GdUnionRectWithRegion(&rc, fb_updateregion);
 }
 
 void
 fb_graphicsflush(PSD psd)
 {
-	MWRECT *prc = updateregion->rects;
-	int count = updateregion->numRects;
+	MWRECT *prc = fb_updateregion->rects;
+	int count = fb_updateregion->numRects;
 	int x, y, w, h;
 	int n = 1;
 
-	// can use single bounding box extent, or loop through individual list
-	//updateregion->extents.left, 
-
-	x = updateregion->extents.left;
-	y = updateregion->extents.top;
-	w = updateregion->extents.right - x;
-	h = updateregion->extents.bottom - y;
+	/* use single bounding box extent*/
+	x = fb_updateregion->extents.left;
+	y = fb_updateregion->extents.top;
+	w = fb_updateregion->extents.right - x;
+	h = fb_updateregion->extents.bottom - y;
 	printf("Extents: %d (%d,%d %d,%d)\n", count, x, y, w, h);
+
+	/* or loop through individual list*/
 	while (--count >= 0) {
 		int rx1, ry1, rx2, ry2;
 
@@ -185,5 +193,5 @@ fb_graphicsflush(PSD psd)
 	}
 
 	/* empty update region*/
-	GdSetRectRegion(updateregion, 0, 0, 0, 0);
+	GdSetRectRegion(fb_updateregion, 0, 0, 0, 0);
 }

@@ -16,6 +16,36 @@
 #include "device.h"
 #include "genfont.h"
 
+#if NOFONTS
+/* no compiled in fonts*/
+static MWCFONT nullfont = {
+	"", 0, 0, 0, 0, 0, NULL, NULL, NULL
+};
+
+/* handling routines for MWCOREFONT*/
+MWFONTPROCS mwfontprocs = {
+	0,				/* capabilities*/
+	MWTF_ASCII,		/* routines expect ascii*/
+	NULL,			/* getfontinfo*/
+	NULL,			/* gettextsize*/
+	NULL,			/* gettextbits*/
+	NULL,			/* unloadfont*/
+	NULL,			/* xxx_drawtext*/
+	NULL,			/* setfontsize*/
+	NULL,			/* setfontrotation*/
+	NULL,			/* setfontattr*/
+};
+
+/* first font is default font if no match*/
+MWCOREFONT gen_fonts[NUMBER_FONTS] = {
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR, &nullfont},
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR, &nullfont},
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR, &nullfont},
+	{&mwfontprocs, 0, 0, 0, 0, MWFONT_SYSTEM_VAR, &nullfont},
+};
+
+#else
+
 /* compiled in fonts*/
 extern MWCFONT font_winFreeSansSerif11x13;	/* new MWFONT_SYSTEM_VAR (was MWFONT_GUI_VAR)*/
 extern MWCFONT font_X6x13;			/* MWFONT_SYSTEM_FIXED (should be ansi)*/
@@ -66,6 +96,7 @@ MWCOREFONT gen_fonts[NUMBER_FONTS] = {
 	{&mwfontprocs, 0, 0, 0, 0, "Helvetica",         &font_winFreeSansSerif11x13}, /* redirect*/
 	{&mwfontprocs, 0, 0, 0, 0, "Terminal",          &font_X6x13}	/* redirect*/
 };
+#endif /* NOFONTS*/
 
 /* Pointer to an user builtin font table. */
 MWCOREFONT *user_builtin_fonts = NULL;

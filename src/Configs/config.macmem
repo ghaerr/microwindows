@@ -56,11 +56,12 @@ GPROF                    = N
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, nanowidget, object frameworks
+# Libraries to build: microwin, nano-X, engine, object frameworks
 #
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+ENGINE                   = Y
 SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
@@ -228,7 +229,8 @@ LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
-NOFONTSORCLIPPING        = N
+NOFONTS                  = Y
+NOCLIPPING               = N
 
 ####################################################################
 # Window move algorithms for Microwindows

@@ -9,8 +9,6 @@
 # This makefile is only intended to be included from other makefiles.
 ##############################################################################
 
-# for UNIX/Linux flavours
-
 # subdrivers always linked in
 MW_SUBDRIVER_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin8.o \
@@ -33,25 +31,21 @@ else
 endif
 
 ifeq ($(FBREVERSE), Y)
-  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4rev.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4rev.o
 else
 ifeq ($(SA1100_LCD_LTLEND), Y)
-  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4sa1100.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4sa1100.o
 else
-  MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/fblin4.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4.o
 endif
 endif
 
+# genfont.c compiles with no fonts with -DNOFONTS=1
+MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genfont.o
 
 # framebuffer driver stuff
 ifeq ($(FRAMEBUFFER), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-
-ifeq ($(NOFONTSORCLIPPING), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/nofont.o
-else
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/genfont.o
-endif
 
 ifeq ($(ARCH), ECOS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_ecos.o
@@ -69,37 +63,25 @@ endif
 
 endif # FRAMEBUFFER
 
-# X11 stuff
+# X11
 ifeq ($(X11), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/scr_x11.o \
 	$(MW_DIR_OBJ)/drivers/mou_x11.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o
-
-ifneq ($(PIPEKBD), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_x11.o
-else
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_pipe.o
+	$(MW_DIR_OBJ)/drivers/kbd_x11.o
 endif
 
-endif # X11 stuff
-
-# screen device stuff
+# memory screen device
 ifeq ($(SCRMEM), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_mem.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_mem.o
 endif
 
-# PSP stuff
+# PSP
 ifeq ($(ARCH), PSP)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_psp.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o 
-
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_psp.o
 endif
 
 ifeq ($(EM8400), Y)

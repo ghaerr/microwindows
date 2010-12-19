@@ -21,17 +21,12 @@
 #include "genfont.h"
 #include "intl.h"
 
-#if (UNIX | DOS_DJGPP)
-#define strcmpi	strcasecmp
-#endif
-
 //#define DEBUG_TEXT_SHAPING
 
 /* temp extern decls*/
 extern MWCOREFONT *user_builtin_fonts;
 
-static int utf8_to_utf16(const unsigned char *utf8, int cc,
-		unsigned short *unicode16);
+static int utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16);
 static int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
 
 
@@ -114,7 +109,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 	/* check builtin fonts first for speed*/
  	if (!height && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
   		for(i = 0; i < scrinfo.fonts; ++i) {
- 			if(!strcmpi(pf[i].name, fontname)) {
+ 			if(!strcasecmp(pf[i].name, fontname)) {
   				pf[i].fontsize = pf[i].cfont->height;
 				pf[i].fontattr = fontattr;
 				DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
@@ -139,7 +134,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 	/* check user builtin fonts next*/
 	upf = user_builtin_fonts;
 	while ( (upf != NULL) && (upf->name != NULL) ) {
-		if(!strcmpi(upf->name, fontname) && (upf->cfont->height == height) ) {
+		if(!strcasecmp(upf->name, fontname) && (upf->cfont->height == height) ) {
 			if( upf->fontprocs == NULL )
 				gen_setfontproc(upf);
 			upf->fontsize = upf->cfont->height;

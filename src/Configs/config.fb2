@@ -56,11 +56,12 @@ GPROF                    = N
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, nanowidget, object frameworks
+# Libraries to build: microwin, nano-X, engine, object frameworks
 #
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+ENGINE                   = Y
 SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
 
@@ -152,7 +153,7 @@ LIBZ                     = /usr/lib/libz.so
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
 INCTIFF                  = .
-LIBTIFF                  = /usr/lib/libtiff.a
+LIBTIFF                  = /usr/lib/libtiff.so
 
 ####################################################################
 # PCF font support - .pcf/.pcf.gz loadable fonts
@@ -166,7 +167,7 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/lib/libfreetype.so
+LIBFT2LIB                = /usr/local/lib/libfreetype.a
 FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
@@ -176,7 +177,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 HAVE_T1LIB_SUPPORT       = N
 T1LIB_FONT_DIR           = "fonts/type1"
 INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.a
+LIBT1LIB                 = /usr/lib/libt1.so
 
 ####################################################################
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
@@ -228,7 +229,8 @@ LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
-NOFONTSORCLIPPING        = N
+NOFONTS                  = N
+NOCLIPPING               = N
 
 ####################################################################
 # Window move algorithms for Microwindows

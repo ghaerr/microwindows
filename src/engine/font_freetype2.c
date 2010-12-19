@@ -42,9 +42,7 @@
 #include "device.h"
 #include "devfont.h"
 
-#if (UNIX | DOS_DJGPP)
-#define strcmpi strcasecmp
-#endif
+#define isprefix(buf,str)	(!strncasecmp(buf, str, strlen(str)))
 
 #if STANDALONE
 typedef uint32_t COLORVAL;
@@ -314,6 +312,8 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 	FT_Pointer request_data, FT_Face * aface)
 {
 	freetype2_fontdata *fontdata = (freetype2_fontdata *) face_id;	// simple typecast
+	FT_Error rr;
+	char *p;
 
 	assert(fontdata);
 
@@ -323,13 +323,24 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 		/* DPRINTF("Font magic = '%c%c%c%c', len = %u @ freetype2_face_requester\n", 
 		   (char)buffer[0], (char)buffer[1], (char)buffer[2], (char)buffer[3], length); */
 		assert(buffer);
-		return FT_New_Memory_Face(library, buffer, length, 0, aface);
+		rr = FT_New_Memory_Face(library, buffer, length, 0, aface);
 	} else {
 		char * filename = fontdata->data.filename;
 		/*DPRINTF("Loading font from file '%s' @ freetype2_face_requester\n", filename);*/
 		assert(filename);
-		return FT_New_Face(library, filename, 0, aface);
+		rr = FT_New_Face(library, filename, 0, aface);
+
+		/* FIXME special case termcs*.ttf*/
+		if ((p = strrchr(filename, '.')) != NULL)
+			if (strcasecmp(p, ".ttf") == 0) {
+				if (&p[-7] >= filename && isprefix(&p[-7], "termcs")) {
+				printf("TERM!\n");
+					FT_Set_Charmap(*aface, (*aface)->charmaps[1]);
+				}
+			}
 	}
+
+	return rr;
 }
 #endif
 
@@ -461,14 +472,14 @@ freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 
 	/* check .ttf or .pfr, add .ttf if no extension*/
 	if ((p = strrchr(fontname, '.')) != NULL) {
-		if ((strcmpi(p, ".ttf") != 0) && (strcmpi(p, ".pfr") != 0))
+		if ((strcasecmp(p, ".ttf") != 0) && (strcasecmp(p, ".pfr") != 0))
 			return NULL;
 	} else
 		strcat(fontname, ".ttf");
 
 #if HAVE_FREETYPE_2_CACHE
 	faceid = freetype2_fonts;
-	while (faceid != NULL && 0 != strcmpi(faceid->data.filename, fontname))
+	while (faceid != NULL && 0 != strcasecmp(faceid->data.filename, fontname))
 		faceid = faceid->next;
 
 	if (!faceid) {
@@ -627,7 +638,8 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 #else
 	pf->cmapdesc.face_id = faceid;
 	pf->cmapdesc.type = FTC_CMAP_BY_ENCODING;
-	pf->cmapdesc.u.encoding = ft_encoding_unicode;
+	pf->cmapdesc.u.encoding = FT_ENCODING_UNICODE;
+	//pf->cmapdesc.u.encoding = FT_ENCODING_MS_SYMBOL;
 #endif
 #endif
 #else
@@ -648,7 +660,8 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 		}
 	}
 
-	error = FT_Select_Charmap(pf->face, ft_encoding_unicode);
+	error = FT_Select_Charmap(pf->face, FT_ENCODING_UNICODE);
+	//error = FT_Set_Charmap(pf->face, pf->face->charmaps[1]);
 	if (error != FT_Err_Ok) {
 		EPRINTF("freetype2_createfont_internal: No unicode map table, error 0x%x\n", error);
 		goto out;
@@ -1227,7 +1240,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		 * Pre-clear entire text box background when alpha blending
 		 * and 'use background' is TRUE.
 		 * The glyph box background pixels will also be drawn again in
-		 * GdConvertBlit.
+		 * GdConversionBlit.
 		 */
 		if (gr_usebg && pf->fontrotation == 0) {
 			MWCOORD fnt_h, fnt_w, fnt_b;

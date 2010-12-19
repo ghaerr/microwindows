@@ -56,11 +56,12 @@ GPROF                    = N
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, nanowidget, object frameworks
+# Libraries to build: microwin, nano-X, engine, object frameworks
 #
 ####################################################################
-MICROWIN                 = Y
-NANOX                    = Y
+MICROWIN                 = N
+NANOX                    = N
+ENGINE                   = Y
 SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
@@ -136,14 +137,14 @@ HAVE_XPM_SUPPORT         = N
 ####################################################################
 HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
-LIBJPEG                  = /usr/lib/libjpeg.so
+LIBJPEG                  = /usr/lib/libjpeg.a
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = N
 INCPNG                   = .
-LIBPNG                   = /usr/lib/libpng.so
+LIBPNG                   = /usr/lib/libpng.a
 INCZ                     = .
 LIBZ                     = /usr/lib/libz.a
 
@@ -166,7 +167,7 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/lib/libfreetype.a
+LIBFT2LIB                = /usr/local/lib/libfreetype.a
 FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
@@ -228,7 +229,8 @@ LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
-NOFONTSORCLIPPING        = N
+NOFONTS                  = Y
+NOCLIPPING               = N
 
 ####################################################################
 # Window move algorithms for Microwindows

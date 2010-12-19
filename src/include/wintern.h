@@ -6,16 +6,6 @@
  */
 #include <string.h>
 
-#if (UNIX | DOS_DJGPP)
-#define strcmpi	strcasecmp
-#elif (VXWORKS)
-int strcmpi(const char *s1, const char *s2);
-#endif
-
-#ifdef __PACIFIC__
-#define strcmpi		stricmp
-#endif  
-
 #define DBLCLICKSPEED	750		/* mouse dblclik speed msecs (was 450)*/
 
 /* gotPaintMsg values*/

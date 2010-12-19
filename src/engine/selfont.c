@@ -11,11 +11,7 @@
 #include <assert.h>
 #include <ctype.h>		/* toupper*/
 #include <string.h>
-
 #include "device.h"
-#if (UNIX | DOS_DJGPP)
-#define strcmpi	strcasecmp
-#endif
 
 #if FONTMAPPER
 

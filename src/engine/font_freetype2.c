@@ -331,15 +331,12 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 		rr = FT_New_Face(library, filename, 0, aface);
 
 		/* FIXME special case termcs*.ttf*/
-		if ((p = strrchr(filename, '.')) != NULL)
-			if (strcasecmp(p, ".ttf") == 0) {
-				if (&p[-7] >= filename && isprefix(&p[-7], "termcs")) {
-				printf("TERM!\n");
-					FT_Set_Charmap(*aface, (*aface)->charmaps[1]);
-				}
-			}
+		if ((p = strrchr(filename, '.')) != NULL && strcasecmp(p, ".ttf") == 0) {
+			if (&p[-7] >= filename && isprefix(&p[-7], "termcs"))
+				FT_Set_Charmap(*aface, (*aface)->charmaps[1]);
+		}
 	}
-
+	
 	return rr;
 }
 #endif

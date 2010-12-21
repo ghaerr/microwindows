@@ -44,7 +44,7 @@
 #define FONT3 "fonts/type1/dcr10.pfb"
 #define FONT4 "fonts/type1/dcbx10.pfb"
 #define FONT5 "fonts/type1/bchri.pfb"
-#elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
+#elif HAVE_FREETYPE_2_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "lt1-r-omega-serif"
 #define FONT2 "arial"
@@ -202,7 +202,7 @@ main(int ac, char **av)
 #elif HAVE_KSC5601_SUPPORT
 		/* encoding KSC5601 test B0 B0 */
 		GrText(window, gc, x, y, "\273\273", 2, MWTF_DBCS_EUCKR);
-#elif HAVE_FREETYPE_SUPPORT
+#elif HAVE_FREETYPE_2_SUPPORT
 		/* ASCII test */
 		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);
 #elif HAVE_PCF_SUPPORT

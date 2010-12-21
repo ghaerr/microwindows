@@ -11,7 +11,7 @@
 
 #if HAVE_T1LIB_SUPPORT
 #define FONTNAME "fonts/type1/bchr.pfb"
-#elif (HAVE_FREETYPE_SUPPORT | HAVE_FREETYPE_2_SUPPORT)
+#elif HAVE_FREETYPE_2_SUPPORT
 #define FONTNAME "lt1-r-omega-serif"
 //#define FONTNAME "cour"
 #elif HAVE_PCF_SUPPORT

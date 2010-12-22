@@ -90,7 +90,7 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
     XEvent ev;
     int events = 0;
     long mask = /* x11_event_mask | */
-#ifdef USE_EXPOSURE
+#if USE_EXPOSURE
       ButtonPressMask | ButtonReleaseMask | PointerMotionMask | ExposureMask;
 #else
       ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
@@ -133,7 +133,7 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		if (ev.xbutton.state & Button3Mask)
 		    button |= MWBUTTON_R;
 		
-/*		printf("!Pressing button: 0x%x, state: 0x%x, button: 0x%x\n",
+/*		DPRINTF("!Pressing button: 0x%x, state: 0x%x, button: 0x%x\n",
 			button,ev.xbutton.state, ev.xbutton.button);*/
 		*bp = button;
 		*dx = ev.xbutton.x;

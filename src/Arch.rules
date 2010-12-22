@@ -123,6 +123,15 @@ LDFLAGS +=
 DEFINES += -DARCH_LINUX_SPARC=1
 endif
 
+ifeq ($(ARCH), LINUX-BLACKFIN)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(BLACKFINTOOLSPREFIX)
+DEFINES += -DLINUX=1 -DUNIX=1 -Dlinux -DBLACKFIN
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
+LDFLAGS += -Wl,-elf2flt
+endif
+
 ifeq ($(ARCH), SOLARIS)
 # may require using cc if gcc not installed:
 COMPILER = gcc
@@ -134,13 +143,68 @@ CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS += -lsocket -lnsl -lrt
 endif
 
+ifeq ($(ARCH), FREEBSD-X86)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX =
+# __FreeBSD__ is automatically defined
+DEFINES += -DUNIX=1
+CFLAGS += -Wall $(OPTFLAGS)
+LDFLAGS += -lvgl
+endif
+
+ifeq ($(ARCH), MACOSX)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(NATIVETOOLSPREFIX)
+DEFINES += -DUNIX=1 -DMACOSX=1
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
+LDFLAGS +=
+# include the following line for static libraries
+#LDFLAGS += -static
+endif
+
+ifeq ($(ARCH), PSP)
+PSPSDK = $(shell psp-config --pspsdk-path)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(PSPTOOLSPREFIX)
+DEFINES += -DPSP=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_FPRINTF=0
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -I$(PSPSDK)/include -G0 -O2 -DARCH_NEED_ALIGN32
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
+LDFLAGS += -L$(PSPSDK)/lib
+endif
+
+# For RTEMS all variables are passed from Makefile.rtems after being
+# extracted from the BSP specific installation.
+ifeq ($(ARCH), RTEMS)
+    COMPILER = $(RTEMS_CC)
+    CXX_COMPILER = $(RTEMS_CC)
+    INCLUDEDIRS += -I$(RTEMS_MAKEFILE_PATH)/lib/include
+    DEFINES += -DUNIX=1 -DRTEMS=1 -DHAVE_MMAP=0 -DHAVE_SELECT=0
+    CFLAGS += -O4 $(GCC_WARNINGS) -fasm -g -B$(RTEMS_MAKEFILE_PATH)/lib/ -specs bsp_specs -qrtems
+endif
+
+ifeq ($(ARCH), ECOS)
+    COMPILER = gcc
+    CXX_COMPILER = g++
+    TOOLSPREFIX = $(ARMTOOLSPREFIX)
+    ECOS_PREFIX = /work/iPAQ/ecos/install
+    INCLUDEDIRS += -I$(ECOS_PREFIX)/include
+    DEFINES += -D__ECOS=1 -DUNIX=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_SELECT=0 -DHAVE_FPRINTF=0
+    CFLAGS += -mcpu=strongarm -Wall -ffunction-sections -fdata-sections -O2 -g
+    LDFLAGS += -nostdlib
+endif
+
 ifeq ($(ARCH), TRIMEDIA)
 LUD_ROOT = ../../../../../../..
 COMPILER = cc
 CXX_COMPILER = CC
 TOOLSPREFIX = tm
 DEFINES += -DTRIMEDIA=1 -DTCS2 -DOSAL -DLUD_USE_MEMSPACE
-DEFINES += -DMW_NOSIGNALS=1 -DMW_FEATURE_GDERROR=1
+DEFINES += -DHAVE_SIGNAL=0 -DHAVE_FPRINTF=0 -DMW_FEATURE_TIMERS=0
 INCLUDEDIRS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
 HOSTCFLAGS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
 CFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconfig2.1 -B -Xdiag=1
@@ -149,14 +213,21 @@ LDFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmcon
 #LDFLAGS += -static
 endif
 
-ifeq ($(ARCH), FREEBSD-X86)
+ifeq ($(ARCH), CYGWIN)
+ifeq ($(USE_CCACHE), 1)
+COMPILER = ccache gcc
+else
 COMPILER = gcc
+endif
 CXX_COMPILER = g++
 TOOLSPREFIX =
-# __FreeBSD__ is automatically defined
+#Note: to detect from C code, do "#ifdef __CYGWIN__"
+# __CYGWIN__ is automatically defined
 DEFINES += -DUNIX=1
 CFLAGS += -Wall $(OPTFLAGS)
 LDFLAGS +=
+# include the following line for static libraries
+#LDFLAGS += -static
 endif
 
 ifeq ($(ARCH), ELKS)
@@ -177,79 +248,6 @@ TOOLSPREFIX =
 DEFINES += -DDOS_DJGPP=1 -D_NAIVE_DOS_REGS=1 -DMSDOS=1
 CFLAGS += -Wall $(OPTFLAGS)
 LDFLAGS +=
-endif
-
-# For RTEMS all variables are passed from Makefile.rtems after being
-# extracted from the BSP specific installation.
-ifeq ($(ARCH), RTEMS)
-    COMPILER = $(RTEMS_CC)
-    CXX_COMPILER = $(RTEMS_CC)
-    INCLUDEDIRS += -I$(RTEMS_MAKEFILE_PATH)/lib/include
-    DEFINES += -DUNIX=1 -DRTEMS=1
-    CFLAGS += -O4 $(GCC_WARNINGS) -fasm -g \
-     -B$(RTEMS_MAKEFILE_PATH)/lib/ -specs bsp_specs -qrtems
-
-endif
-
-ifeq ($(ARCH), ECOS)
-    COMPILER = gcc
-    CXX_COMPILER = g++
-    TOOLSPREFIX = $(ARMTOOLSPREFIX)
-    ECOS_PREFIX = /work/iPAQ/ecos/install
-    INCLUDEDIRS += -I$(ECOS_PREFIX)/include
-    DEFINES += -D__ECOS=1 -DUNIX=1
-    CFLAGS += -mcpu=strongarm -Wall -ffunction-sections -fdata-sections -O2 -g
-    LDFLAGS += -nostdlib
-endif
-
-ifeq ($(ARCH), CYGWIN)
-ifeq ($(USE_CCACHE), 1)
-COMPILER = ccache gcc
-else
-COMPILER = gcc
-endif
-CXX_COMPILER = g++
-TOOLSPREFIX =
-#Note: to detect from C code, do "#ifdef __CYGWIN__"
-# __CYGWIN__ is automatically defined
-DEFINES += -DUNIX=1
-CFLAGS += -Wall $(OPTFLAGS)
-LDFLAGS +=
-# include the following line for static libraries
-#LDFLAGS += -static
-endif
-
-ifeq ($(ARCH), LINUX-BLACKFIN)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX = $(BLACKFINTOOLSPREFIX)
-DEFINES += -DLINUX=1 -DUNIX=1 -Dlinux -DBLACKFIN
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
-LDFLAGS += -Wl,-elf2flt
-endif
-
-ifeq ($(ARCH), PSP)
-PSPSDK = $(shell psp-config --pspsdk-path)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX = $(PSPTOOLSPREFIX)
-DEFINES += -DPSP=1 -DMW_NOSIGNALS=1 -DMW_FEATURE_GDERROR=1 -DHAVE_TIMER_SUPPORT
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -I$(PSPSDK)/include -G0 -O2 -DARCH_NEED_ALIGN32
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
-endif
-LDFLAGS += -L$(PSPSDK)/lib
-endif
-
-ifeq ($(ARCH), MACOSX)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX = $(NATIVETOOLSPREFIX)
-DEFINES += -DUNIX=1 -DMACOSX=1
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
-LDFLAGS +=
-# include the following line for static libraries
-#LDFLAGS += -static
 endif
 
 ifeq ($(BIGENDIAN), Y)

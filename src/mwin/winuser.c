@@ -227,16 +227,15 @@ GetMessage(LPMSG lpMsg,HWND hwnd,UINT wMsgFilterMin,UINT wMsgFilterMax)
 	 * currently MwSelect() must poll for VT switch reasons,
 	 * so this code will work
 	 */
-	while(!PeekMessage(lpMsg, hwnd, wMsgFilterMin, wMsgFilterMax,PM_REMOVE))
-	    {
+	while(!PeekMessage(lpMsg, hwnd, wMsgFilterMin, wMsgFilterMax,PM_REMOVE)) {
 		/* Call select to suspend process until user input or scheduled timer */
 		MwSelect(TRUE);
 	    MwHandleTimers();
-#ifdef MW_CALL_IDLE_HANDLER	    
-	    idle_handler ();
-#endif	    
+#if MW_CALL_IDLE_HANDLER	    
+	    idle_handler();
+#endif
 		continue;
-	    }
+	}
 	return lpMsg->message != WM_QUIT;
 }
 
@@ -264,8 +263,7 @@ TranslateMessage(CONST MSG *lpMsg)
 LONG WINAPI
 DispatchMessage(CONST MSG *lpMsg)
 {
-	return SendMessage(lpMsg->hwnd, lpMsg->message, lpMsg->wParam,
-		lpMsg->lParam);
+	return SendMessage(lpMsg->hwnd, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
 }
 
 static MWHOTKEY *MwFindHotkey (int id)

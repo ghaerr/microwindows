@@ -3101,7 +3101,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	}
 }
 
-#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
+#if MW_FEATURE_IMAGES && HAVE_FILEIO
 /**
  * Loads the specified image file and draws it at the specified position
  * on the specified drawable using the specified graphics context. The
@@ -3176,7 +3176,7 @@ GrLoadImageFromFile(char *path, int flags)
 	UNLOCK(&nxGlobalLock);
 	return imageid;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
+#endif /* MW_FEATURE_IMAGES && HAVE_FILEIO*/
 
 #if MW_FEATURE_IMAGES
 /*

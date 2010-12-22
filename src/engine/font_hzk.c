@@ -121,14 +121,14 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
     		strcat(buffer,"/UGB2GB.KU");
 	if(!(fp = fopen(buffer, "rb"))) 
 	{
-   	  	 printf ("Error.\nThe %s file can not be found!\n",buffer);
+   	  	 EPRINTF ("Error.\nThe %s file can not be found!\n",buffer);
    		 return -1;
     	}
 
 	filebuffer= (unsigned char *)malloc ( length);
 
 	if(fread(filebuffer, sizeof(char),length, fp) < length) {
-	   	  printf ("Error in reading ugb2gb.ku file!\n");
+	   	  EPRINTF ("Error in reading ugb2gb.ku file!\n");
 	   	  fclose(fp);
  	     	  return -1;
 	}
@@ -347,7 +347,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 
 	if(!GetCFontInfo(pf))
 	{
-		printf ("Get Chinese HZK font info failure!\n");
+		EPRINTF ("Get Chinese HZK font info failure!\n");
 		return FALSE;
 	}
     	if(CFont[hzk_id(pf)].pFont == NULL)	/* check font cache*/
@@ -357,20 +357,20 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
  	   	/* Allocate system memory for Chinese font.*/
  		if( !(CFont[hzk_id(pf)].pFont = (char *)malloc(pf->CFont.size)) )
  		{
-	 	       	printf ("Allocate memory for Chinese HZK font failure.\n");
+	 	       	EPRINTF ("Allocate memory for Chinese HZK font failure.\n");
 		        return FALSE;
 	 	}
  	
 		/* Open font file and read information to the system memory.*/
- 		printf ("hzk_createfont: loading '%s'\n", pf->CFont.file);
+ 		DPRINTF ("hzk_createfont: loading '%s'\n", pf->CFont.file);
 		if(!(fp = fopen(CFont[hzk_id(pf)].file, "rb"))) 
 		{
-   		  	printf ("Error.\nThe Chinese HZK font file can not be found!\n");
+   		  	EPRINTF ("Error.\nThe Chinese HZK font file can not be found!\n");
    	    	 	return FALSE;
     		}
 	    	if(fread(CFont[hzk_id(pf)].pFont, sizeof(char), pf->CFont.size, fp) < pf->CFont.size) 
 		{
-	      	  	printf ("Error in reading Chinese HZK font file!\n");
+	      	  	EPRINTF ("Error in reading Chinese HZK font file!\n");
 	 	     	fclose(fp);
  	       		return FALSE;
 		}
@@ -388,7 +388,7 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
 
 	if(!GetAFontInfo(pf))
 	{
-	       printf ("Get ASCII HZK font info failure!\n");
+	       EPRINTF ("Get ASCII HZK font info failure!\n");
 	       return FALSE;
 	}
     	if(AFont[hzk_id(pf)].pFont == NULL)	/* check font cache*/
@@ -398,22 +398,22 @@ static MWBOOL LoadFont( PMWHZKFONT pf )
  		/* Allocate system memory for ASCII font.*/
  		if( !(AFont[hzk_id(pf)].pFont = (char *)malloc(pf->AFont.size)) )
  		{
- 		       	printf ("Allocate memory for ASCII HZK font failure.\n");
+ 		       	EPRINTF ("Allocate memory for ASCII HZK font failure.\n");
  		       	free(CFont[hzk_id(pf)].pFont);
  		       	CFont[hzk_id(pf)].pFont = NULL;
 			return FALSE;
  		}
  	
 	 	/* Load ASCII font information to the near memory.*/
- 		printf ("hzk_createfont: loading '%s'\n", pf->AFont.file );
+ 		DPRINTF ("hzk_createfont: loading '%s'\n", pf->AFont.file );
  		if(!(fp = fopen(AFont[hzk_id(pf)].file, "rb"))) 
 		{
- 		       	printf ("Error.\nThe ASCII HZK font file can not be found!\n");
+ 		       	EPRINTF ("Error.\nThe ASCII HZK font file can not be found!\n");
  		       	return FALSE;
  		}
 	 	if(fread(AFont[hzk_id(pf)].pFont, sizeof(char), pf->AFont.size, fp) < pf->AFont.size) 
 		{
- 		       	printf ("Error in reading ASCII HZK font file!\n");
+ 		       	EPRINTF ("Error in reading ASCII HZK font file!\n");
  		       	fclose(fp);
  		       	return FALSE;
 	 	}
@@ -464,7 +464,7 @@ hzk_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	if(strcmp(name,"HZKFONT")!=0 && strcmp(name,"HZXFONT")!=0)
 		return FALSE;
 
-	/*printf("hzk_createfont(%s,%d)\n",name,height);*/
+	/*DPRINTF("hzk_createfont(%s,%d)\n",name,height);*/
 
 	use_big5=name[2]-'K';
 
@@ -761,12 +761,12 @@ hzk_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
            		ax += pf->afont_width;
         	}
 		if(s>=sbegin+cc) {
-			/*printf("s=%x,sbegin=%x,cc=%x\n",s,sbegin,cc);*/
+			/*DPRINTF("s=%x,sbegin=%x,cc=%x\n",s,sbegin,cc);*/
 			break;
 		}
 
     	}
-	/*printf("ax=%d,\n",ax);*/
+	/*DPRINTF("ax=%d,\n",ax);*/
 
 	*pwidth = ax;
 	*pheight = pf->font_height;

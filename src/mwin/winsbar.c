@@ -187,8 +187,7 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
 
         	Draw3dUpFrame (hdc, rcVBar.left, start, rcVBar.right,
 	    		start + hwnd->vscroll.barLen);
-		/*printf("barv:(l,t,r,b):(%d,%d,%d,%d)\n",
-        		rcVBar.left, start, rcVBar.right,
+		/*DPRINTF("barv:(l,t,r,b):(%d,%d,%d,%d)\n", rcVBar.left, start, rcVBar.right,
 	    		start + hwnd->vscroll.barLen);*/
 	}
 	if (horzbar) {
@@ -258,8 +257,7 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
 
         	Draw3dUpFrame (hdc, start, rcHBar.top, start + hwnd->hscroll.barLen,
 	    		rcHBar.bottom);
-		/*printf("barh:(l,t,r,b):(%d,%d,%d,%d)\n",
-        		start, rcHBar.top, start + hwnd->hscroll.barLen,
+		/*DPRINTF("barh:(l,t,r,b):(%d,%d,%d,%d)\n", start, rcHBar.top, start + hwnd->hscroll.barLen,
 	    		rcHBar.bottom);*/
 
 	}
@@ -398,8 +396,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->vscroll.trackPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
-			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
+			DPRINTF("((%d-%d)*%d)/%d=%d\n", pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
 
                 	if ( hwnd->vscroll.trackPos >= hwnd->vscroll.minPos &&
                 			hwnd->vscroll.trackPos <= hwnd->vscroll.maxPos)
@@ -425,8 +422,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->hscroll.trackPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
-			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
+			DPRINTF("((%d-%d)*%d)/%d=%d\n",pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
     
 			if ( hwnd->hscroll.trackPos >= hwnd->hscroll.minPos &&
 					hwnd->hscroll.trackPos <= hwnd->hscroll.maxPos)
@@ -458,8 +454,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->vscroll.trackPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
-			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
+			DPRINTF("((%d-%d)*%d)/%d=%d\n", pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
 
 			if ( hwnd->vscroll.trackPos >= hwnd->vscroll.minPos &&
 				 hwnd->vscroll.trackPos <= hwnd->vscroll.maxPos)
@@ -482,8 +477,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->hscroll.trackPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
-			printf("((%d-%d)*%d)/%d=%d\n",
-				pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
+			DPRINTF("((%d-%d)*%d)/%d=%d\n",pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
     
 			if ( hwnd->hscroll.trackPos >= hwnd->hscroll.minPos &&
 					hwnd->hscroll.trackPos <= hwnd->hscroll.maxPos)

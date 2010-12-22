@@ -21,7 +21,7 @@
 #include "genfont.h"
 #include "intl.h"
 
-//#define DEBUG_TEXT_SHAPING
+#define DEBUG_TEXT_SHAPING	0
 
 /* temp extern decls*/
 extern MWCOREFONT *user_builtin_fonts;
@@ -174,7 +174,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 #if HAVE_FREETYPE_2_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
 		/* FIXME auto antialias for height > 14 for kaffe*/
-		if (plogfont && abs(plogfont->lfHeight) > FFMINAA_HEIGHT && plogfont->lfQuality)
+		if (plogfont && abs(plogfont->lfHeight) > FT_MINAA_HEIGHT && plogfont->lfQuality)
 				fontattr |= MWTF_ANTIALIAS;
 
 		pfont = (PMWFONT)freetype2_createfont(fontname, height, width, fontattr);
@@ -665,16 +665,14 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 		case MWTF_DBCS_BIG5:	/* Chinese BIG5*/
 			ch = *istr8++;
 			if (ch >= 0xA1 && ch <= 0xF9 && icc &&
-			    ((*istr8 >= 0x40 && *istr8 <= 0x7E) ||
-			     (*istr8 >= 0xA1 && *istr8 <= 0xFE))) {
+			    ((*istr8 >= 0x40 && *istr8 <= 0x7E) || (*istr8 >= 0xA1 && *istr8 <= 0xFE))) {
 				ch = (ch << 8) | *istr8++;
 				--icc;
 			}
 			break;
 		case MWTF_DBCS_EUCCN:	/* Chinese EUCCN (GB2312+0x80)*/
 			ch = *istr8++;
-			if (ch >= 0xA1 && ch <= 0xF7 && icc &&
-			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+			if (ch >= 0xA1 && ch <= 0xF7 && icc && *istr8 >= 0xA1 && *istr8 <= 0xFE) {
 				ch = (ch << 8) | *istr8++;
 				--icc;
 			}
@@ -683,7 +681,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			ch = *istr8++;
 			if (ch >= 0xA1 && ch <= 0xFE && icc &&
 			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
-#ifdef BIG_ENDIAN
+#if MW_CPU_BIG_ENDIAN
 				ch = (ch << 8) | *istr8++;
 #else
 				ch = ch | (*istr8++ << 8);
@@ -693,8 +691,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			break;
 		case MWTF_DBCS_EUCJP:	/* Japanese EUCJP*/
 			ch = *istr8++;
-			if (ch >= 0xA1 && ch <= 0xFE && icc &&
-			    *istr8 >= 0xA1 && *istr8 <= 0xFE) {
+			if (ch >= 0xA1 && ch <= 0xFE && icc && *istr8 >= 0xA1 && *istr8 <= 0xFE) {
 				ch = (ch << 8) | *istr8++;
 				--icc;
 			}
@@ -702,11 +699,9 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 		case MWTF_DBCS_JIS:	/* Japanese JISX0213*/
 			ch = *istr8++;
 			if (icc && (
-			    (ch >= 0xA1 && ch <= 0xFE && *istr8 >= 0xA1 && *istr8 <= 0xFE)
-			    ||
-			    (((ch >= 0x81 && ch <= 0x9F) || (ch >= 0xE0 && ch <= 0xEF)) &&
-			     (*istr8 >= 0x40 && *istr8 <= 0xFC && *istr8 != 0x7F))
-			            )) {
+				(ch >= 0xA1 && ch <= 0xFE && *istr8 >= 0xA1 && *istr8 <= 0xFE) ||
+			     (((ch >= 0x81 && ch <= 0x9F) || (ch >= 0xE0 && ch <= 0xEF)) &&
+			       (*istr8 >= 0x40 && *istr8 <= 0xFC && *istr8 != 0x7F)))) {
 					ch = (ch << 8) | *istr8++;
 					--icc;
 			}
@@ -1017,7 +1012,7 @@ const char utf8_len_map[256] = {
 };
 
 
-#ifdef DEBUG_TEXT_SHAPING
+#if DEBUG_TEXT_SHAPING
 /*
  *  Return the number of character (not byte) of UTF-8 string
  */
@@ -1037,12 +1032,12 @@ static void	dumpUtf8 ( const char *str, int sz )
 	unsigned short uc16;
 	const char *last = str+sz;
 
-	printf ( "UTF-8 dump:\n" );
+	DPRINTF( "UTF-8 dump:\n" );
 	while ( str < last ) {
 		for ( i=0, n=utf8_len_map[(unsigned char)str[0]]; i < n; i++ )
-			printf ( "%02X", (unsigned char)str[i] );
+			DPRINTF( "%02X", (unsigned char)str[i] );
 		utf8_to_utf16 ( str, n, &uc16 );
-		printf ( ": %04X\n", uc16 );
+		DPRINTF( ": %04X\n", uc16 );
 		str += n;
 	}
 }
@@ -1433,7 +1428,7 @@ arabicJoin_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib)
 		*pNewLen = sz;
 	if (pAttrib)
 		*pAttrib = attrib;
-#ifdef DEBUG_TEXT_SHAPING
+#if DEBUG_TEXT_SHAPING
 	if (strcmp(new_str, text))
 		dumpUtf8(new_str, sz);
 #endif

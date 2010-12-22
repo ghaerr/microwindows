@@ -295,7 +295,7 @@ BOOL CALLBACK dlgDemoList ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		case WM_MEASUREITEM:
 			{
 			LPMEASUREITEMSTRUCT lpMs = (LPMEASUREITEMSTRUCT)lParam;
-			printf ( "WM_MEASUREITEM\n" );
+			//printf ( "WM_MEASUREITEM\n" );
 			if( lpMs->CtlID == IDC_LIST_ODV )
 				{
 				lpMs->itemHeight = 14+3*abs(3-lpMs->itemID);
@@ -429,9 +429,9 @@ BOOL CALLBACK kbdTranslate ( WPARAM *pVK, LPARAM *pControlMask, BOOL *pressed )
 
 	if( (*pControlMask & (1 << 24)) && (*pVK == VK_F10) && (*pressed) )
 		{
-		printf ( "KEYBOARD: old lang=%d, new lang=", lang );
+		//printf ( "KEYBOARD: old lang=%d, new lang=", lang );
 		lang = !lang;
-		printf ( "%d\n", lang );
+		//printf ( "%d\n", lang );
 		return FALSE;
 		}	
 	

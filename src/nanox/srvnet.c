@@ -1064,7 +1064,7 @@ GrKillWindowWrapper(void *r)
 	GrKillWindow(req->windowid);
 }
 
-#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
+#if MW_FEATURE_IMAGES && HAVE_FILEIO
 static void
 GrDrawImageFromFileWrapper(void *r)
 {
@@ -1084,7 +1084,7 @@ GrLoadImageFromFileWrapper(void *r)
 	GsWriteType(current_fd, GrNumLoadImageFromFile);
 	GsWrite(current_fd, &id, sizeof(id));
 }
-#else /* if ! (MW_FEATURE_IMAGES && defined(HAVE_FILEIO)) */
+#else /* if ! (MW_FEATURE_IMAGES && HAVE_FILEIO) */
 #define GrDrawImageFromFileWrapper GrNotImplementedWrapper
 #define GrLoadImageFromFileWrapper GrNotImplementedWrapper
 #endif

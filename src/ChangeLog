@@ -1,3 +1,11 @@
+21 Dec 2010
+	* fix optimization problem with DEBUG=Y
+	* cleanup device.h HAVE_xxx defines, use Arch.rules -DHAVE_xxx=0/1 instead
+	* change HAVEFLOAT->HAVE_FLOAT, MW_NOSIGNALS=1->HAVE_SIGNAL=0, HAVESELECT->HAVE_SELECT
+	* fix BIG_ENDIAN define in dbcs and devfont
+	* cleanup printfs, use EPRINTF/DPRINTF, will call fprintf or GdError based on HAVE_FPRINTF,
+		GdError will call write() if HAVE_FILEIO set otherwise nothing
+		nano-X client programs will use fix in nano-X.h to remove printf/fprintf calls if HAVE_FPRINTF=0
 19 Dec 2010
 	* replaced strcmpi with strcasecmp
 	* special case FT2 termcs*.ttf fonts to use charmap[1] instead of unicode encoding

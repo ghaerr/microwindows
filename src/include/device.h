@@ -13,81 +13,92 @@
 #include "mwsystem.h"
 
 /* Changeable limits and options*/
-#define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette (required for palette alpha blending)*/
-#define POLYREGIONS	1			/* =1 includes polygon regions*/
+#define UNIFORMPALETTE	1	/* =1 for 256 entry uniform palette (required for palette alpha blending)*/
+#define POLYREGIONS		1		/* =1 includes polygon regions*/
 #define ANIMATEPALETTE	0		/* =1 animated palette test*/
-
-/* the fontmapper is obsolete, according to Greg */
-#define FONTMAPPER	0			/* =1 for Morten's font mapper*/
-#define FASTJPEG	0			/* =1 for temp quick jpeg 8bpp*/
-#if RTEMS || __ECOS || PSP
-#define HAVE_MMAP       0
-#else
-#define HAVE_MMAP       1       /* =1 to use mmap if available*/
-#endif
-#define FFMINAA_HEIGHT	0		/* min height for FT antialias*/
-
-#if !_MINIX && !RTEMS && !__ECOS
-#define HAVESELECT	1			/* has select system call*/
-#endif
-
+#define FASTJPEG		0		/* =1 for temp quick jpeg 8bpp*/
+#define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 
-#ifndef HAVEFLOAT
-#define HAVEFLOAT	1			/* =1 incl float, GdArcAngle*/
+/* the fontmapper is obsolete*/
+#define FONTMAPPER	0			/* =1 for Morten's font mapper*/
+
+/* the following defines are unset in Arch.rules based on ARCH= setting*/
+#ifndef HAVE_SELECT
+#define HAVE_SELECT		1		/* =1 has select system call*/
+#endif
+
+#ifndef HAVE_SIGNAL
+#define HAVE_SIGNAL		1		/* =1 has signal system call*/
+#endif
+
+#ifndef HAVE_MMAP
+#define HAVE_MMAP       1       /* =1 has mmap system call*/
+#endif
+
+/* control whether printf/fprintf required in server and demo programs and C library*/
+/* if this is set to =0 in Arch.rules, fprintf/printf will be no-op in all demo programs,*/
+/* and in the server GdError will be called, which calls write() if HAVE_FILEIO=Y in config*/
+#ifndef HAVE_FPRINTF
+#define HAVE_FPRINTF	1		/* =1 EPRINTF/DPRINTF uses fprintf/printf, otherwise GdError or no-op*/
+#endif
+
+#ifndef HAVE_FLOAT
+#define HAVE_FLOAT		1		/* =1 incl float, GdArcAngle*/
+#endif
+
+/* the following enable Microwindows features, also unset in Arch.rules*/
+#ifndef MW_FEATURE_IMAGES
+#define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage/GdDrawImage etc*/
+#endif
+
+#ifndef MW_FEATURE_TIMERS
+#define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
+#endif
+
+#ifndef MW_FEATURE_TWO_KEYBOARDS
+#define MW_FEATURE_TWO_KEYBOARDS 0	/* =1 to include multiple keybioard support */
 #endif
 
 #ifndef DYNAMICREGIONS
 #define DYNAMICREGIONS	1		/* =1 to use MWCLIPREGIONS*/
 #endif
 
-#ifndef MW_FEATURE_IMAGES
-#if !((DOS_DJGPP) || (__PACIFIC__) || (DOS_TURBOC))
-#define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage* / GdDrawImage* */
-#else
-#define MW_FEATURE_IMAGES 0		/* platform doesn't support images*/
-#endif
-#endif
-
-#ifndef MW_FEATURE_TIMERS
-#if UNIX || DOS_DJGPP || RTEMS || HAVE_TIMER_SUPPORT
-#define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
-#else
-#define MW_FEATURE_TIMERS 0		/* Other platforms do not support timers yet */
-#endif
-#endif
-
 /* determine compiler capability for handling EPRINTF/DPRINTF macros*/
-#ifndef MW_FEATURE_GDERROR
 #if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2)))
-#define MW_FEATURE_GDERROR	0		/* use fprintf instead of GdError*/
+#define HAVE_VARARG_MACROS	1
 #else
-#define MW_FEATURE_GDERROR	1		/* use GdError for errors*/
+#define HAVE_VARARG_MACROS	0
 #endif
-#endif /* MW_FEATURE_GDERROR*/
 
-#if MW_FEATURE_GDERROR
-#define EPRINTF			GdError		/* error output*/
-#if DEBUG
-#define DPRINTF			GdError		/* debug output*/
-#else
-#define DPRINTF			GdErrorNull	/* no debug output*/
-#endif
-#else
-
-/* GCC compiler-only macro magic to save space */
-#include <stdio.h>    /* For stderr */
+/* see if can use GCC compiler-only macro magic to save space */
+#if HAVE_VARARG_MACROS && HAVE_FPRINTF
+#include <stdio.h>    				/* For stderr */
 #define EPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* error output*/
 #if DEBUG
 #define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
 #else
-#define DPRINTF(str, ...)	/* no debug output*/
+#define DPRINTF(str, ...)			/* no debug output*/
 #endif
-#endif /* MW_FEATURE_GDERROR*/
+
+#else	/* must call GdError*/
+
+#define EPRINTF			GdError		/* error output*/
+#if DEBUG
+# define DPRINTF		GdError		/* debug output*/
+#else
+# if HAVE_VARARG_MACROS
+# define DPRINTF(str, ...)			/* no debug output*/
+# else
+# define DPRINTF		GdErrorNull	/* no debug output*/
+# endif
+#endif
+
+#endif /* HAVE_VARARG_MACROS && HAVE_FPRINTF*/
 
 /* Sanity check: VTSWITCH involves a timer. */
 #if VTSWITCH && !MW_FEATURE_TIMERS
-#error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in this file
+#error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in Arch.rules
 #endif
 
 typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
@@ -502,6 +513,5 @@ int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
   int rtems_main(int, char **);
   #define main	rtems_main
 #endif
-
 
 #endif /*_DEVICE_H*/

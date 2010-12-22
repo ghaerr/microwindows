@@ -7,22 +7,19 @@
  * Win32 API).  If you change one, you probably want to make the same changes
  * to the other copy.
  */
-
 #include <stdarg.h>
-
-#if (__ECOS)
+#if __ECOS
 #include <cyg/infra/diag.h>
 #else
 #include <stdio.h>
 #include <string.h>
-#if (UNIX | DOS_DJGPP)
+#if UNIX | DOS_DJGPP
 #include <unistd.h>
 #endif
 #endif
-
 #include "device.h"
 
-#if MW_FEATURE_GDERROR
+#if !(HAVE_VARARG_MACROS && HAVE_FPRINTF)
 /**
  * Write error message to stderr stream.
  */
@@ -30,22 +27,25 @@ int
 GdError(const char *format, ...)
 {
 	va_list args;
+	char 	buf[1024];
+
 	va_start(args, format);
 #if __ECOS
 	/* diag_printf() has much less dependencies than write() */
 	diag_printf(format, args);
 #else
-	{
-		char 	buf[1024];
-		vsprintf(buf, format, args);
 #if PSP
-		pspDebugScreenPrintf("%s\n", buf);
+	vsprintf(buf, format, args);
+	pspDebugScreenPrintf("%s\n", buf);
 #else
-		write(2, buf, strlen(buf));
+#if HAVE_FILEIO
+	vsprintf(buf, format, args);
+	write(2, buf, strlen(buf));
+#else
+	/* discard EPRINTF/DPRINTF output!*/
 #endif
-	}
 #endif
-
+#endif
 	va_end(args);
 	return -1;
 }
@@ -58,4 +58,4 @@ GdErrorNull(const char *format, ...)
 {
 	return -1;
 }
-#endif /* MW_FEATURE_GDERROR*/
+#endif /* !(HAVE_VARARG_MACROS && HAVE_FPRINTF)*/

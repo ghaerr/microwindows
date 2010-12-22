@@ -59,6 +59,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 	/* compiler can optimize out switch statement and most else to constants*/\
 	switch (PORTRAIT) {\
 	case NONE:\
+	default: \
 		dsz = DSZ;					/* dst: next pixel over*/\
 		dst_pitch = gc->dst_pitch;	/* dst: next line down*/\
 		break;\
@@ -114,7 +115,7 @@ static inline void funcname(PSD psd, PMWBLITPARMS gc,\
 	{\
 		register unsigned char *d = dst;\
 		register SRC_TYPE *s = (SRC_TYPE *)src;\
-		SRC_TYPE bitvalue;\
+		SRC_TYPE bitvalue = 0;				/* init to avoid compiler warning*/\
 		int x;\
 \
 		if ( (minx & SRC_TYPE_MASK) != 0)	/* init srcx != 0 case*/\
@@ -326,6 +327,7 @@ static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 	/* compiler will optimize out switch statement and most else to constants*/
 	switch (PORTRAIT) {
 	case NONE:
+	default:
 		dsz = DSZ;					/* dst: next pixel over*/
 		dst_pitch = gc->dst_pitch;	/* dst: next line down*/
 		break;

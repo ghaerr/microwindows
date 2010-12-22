@@ -235,7 +235,7 @@ fb_open(PSD psd)
 		goto fail;
 	}
 
-#if HAVETEXTMODE
+#if HAVE_TEXTMODE
 	{
 	/* open tty, enter graphics mode*/
 	int tty = open ("/dev/tty0", O_RDWR);
@@ -305,10 +305,6 @@ fail:
 static void
 fb_close(PSD psd)
 {
-#if HAVETEXTMODE
-	int	tty;
-#endif
-
 	/* if not opened, return*/
 	if(status != 2)
 		return;
@@ -320,11 +316,13 @@ fb_close(PSD psd)
 	/* unmap framebuffer*/
 	munmap(psd->addr, psd->size);
   
-#if HAVETEXTMODE
+#if HAVE_TEXTMODE
+	{
 	/* enter text mode*/
-	tty = open ("/dev/tty0", O_RDWR);
+	int tty = open ("/dev/tty0", O_RDWR);
 	ioctl(tty, KDSETMODE, KD_TEXT);
 	close(tty);
+	}
 #endif
 	/* close framebuffer*/
 	close(fb);

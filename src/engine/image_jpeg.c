@@ -7,7 +7,7 @@
  *
  * JPEG support must be enabled (see README.txt in contrib/jpeg)
  *
- * If FASTJPEG is defined, JPEG images are decoded to
+ * If FASTJPEG is defined=1, JPEG images are decoded to
  * a 256 color standardized palette (mwstdpal8). Otherwise,
  * the images are decoded depending on their output
  * components (usually 24bpp).
@@ -45,7 +45,7 @@
 #include "device.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_JPEG_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_JPEG_SUPPORT
 #include "jpeglib.h"
 
 static buffer_t *inptr;
@@ -191,7 +191,7 @@ fastjpeg:
 	if (pimage->bpp == 24)
 		pimage->data_format = MWIF_RGB888;
 	else pimage->data_format = 0;			/* force GdDrawImage when 8bpp for now*/
-printf("jpeg bpp %d\n", pimage->bpp);
+DPRINTF("jpeg bpp %d\n", pimage->bpp);
 	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
 	pimage->palsize = (pimage->bpp == 8)? 256: 0;
 	pimage->imagebits = malloc(pimage->pitch * pimage->height);
@@ -243,4 +243,4 @@ err:
 	 */
 	return ret;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_JPEG_SUPPORT)*/
+#endif /* MW_FEATURE_IMAGES && HAVE_JPEG_SUPPORT*/

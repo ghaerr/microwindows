@@ -2963,7 +2963,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-#if MW_FEATURE_IMAGES && defined(HAVE_FILEIO)
+#if MW_FEATURE_IMAGES && HAVE_FILEIO
 /* Load an image file from disk and display it at the specified coordinates*/
 void
 GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
@@ -3014,7 +3014,7 @@ GrLoadImageFromFile(char *path, int flags)
 	SERVER_UNLOCK();
 	return id;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_FILEIO) */
+#endif /* MW_FEATURE_IMAGES && HAVE_FILEIO */
 
 #if MW_FEATURE_IMAGES
 /* Draw an image from a buffer */
@@ -3387,7 +3387,7 @@ GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 
 	GdPoly(psd, count, pointtable);
 
-#ifdef NONETWORK   
+#if NONETWORK   
 	/*
 	 * The following is only necessary when the server
 	 * isn't a separate process.  We don't want to change the
@@ -3440,7 +3440,7 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 
 	GdFillPoly(psd, count, pointtable);
 
-#ifdef NONETWORK
+#if NONETWORK
 	/*
 	 * The following is only necessary when the server
 	 * isn't a separate process.  We don't want to change the

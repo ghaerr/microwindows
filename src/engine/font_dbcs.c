@@ -73,8 +73,7 @@ euccn_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	/*if (CH >= 0xA1 && CH < 0xF8 && CL >= 0xA1 && CL < 0xFF) */
 	for (i = 0; i < 6; i++) {
 		unsigned char *dst = ((unsigned char *)map) + i * 4;
-		unsigned char *src = GUO_GB2312_12X12_FONT_BITMAP +
-			pos + i * 3;
+		unsigned char *src = GUO_GB2312_12X12_FONT_BITMAP + pos + i * 3;
 		dst[0] = src[1];
 		dst[1] = src[0];
 		dst[2] = src[1] << 4;
@@ -140,7 +139,7 @@ static void
 euckr_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
-#ifdef BIG_ENDIAN
+#if MW_CPU_BIG_ENDIAN
 	unsigned int	CH = ch >> 8;
 	unsigned int	CL = ch & 0xFF;
 #else
@@ -149,8 +148,7 @@ euckr_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 #endif
 	int		mc;
 	static MWIMAGEBITS map[16];
-	extern unsigned short convert_ksc_to_johab(unsigned char CH,
-						   unsigned char CL);
+	extern unsigned short convert_ksc_to_johab(unsigned char CH, unsigned char CL);
 	extern int get_han_image(int mc, char *retmap);
 
 	/*if (CH>= 0xA1 &&  CH<= 0xFE && CL >= 0xA1 && CL <= 0xFE) */
@@ -235,9 +233,9 @@ dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc,
 				width += 12;
 				continue;
 			}
-		} else if(c >= pf->firstchar && c < pf->firstchar+pf->size)
-			width += pf->width? pf->width[c - pf->firstchar]:
-				pf->maxwidth;
+		} else
+			if(c >= pf->firstchar && c < pf->firstchar+pf->size)
+				width += pf->width? pf->width[c - pf->firstchar]: pf->maxwidth;
 	}
 	*pwidth = width;
 	*pheight = pf->height;

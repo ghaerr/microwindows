@@ -174,7 +174,7 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	}
 }
 
-#if defined(HAVE_FILEIO)
+#if HAVE_FILEIO
 /**
  * Draw an image from a file.
  *
@@ -255,7 +255,7 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
 	close(fd);
 	return id;
 }
-#endif /* defined(HAVE_FILEIO) */
+#endif /* HAVE_FILEIO*/
 
 /*
  * GdDecodeImage:
@@ -281,32 +281,32 @@ GdDecodeImage(PSD psd, buffer_t * src, char *path, int flags)
 	pimage->palette = NULL;
 	pimage->transcolor = MWNOCOLOR;
 
-#if defined(HAVE_TIFF_SUPPORT)
+#if HAVE_TIFF_SUPPORT
 	/* must be first... no buffer support yet*/
 	if (path)
 		loadOK = GdDecodeTIFF(path, pimage);
 #endif
-#if defined(HAVE_BMP_SUPPORT)
+#if HAVE_BMP_SUPPORT
 	if (loadOK == 0) 
 		loadOK = GdDecodeBMP(src, pimage);
 #endif
-#if defined(HAVE_GIF_SUPPORT)
+#if HAVE_GIF_SUPPORT
 	if (loadOK == 0) 
 		loadOK = GdDecodeGIF(src, pimage);
 #endif
-#if defined(HAVE_JPEG_SUPPORT)
+#if HAVE_JPEG_SUPPORT
 	if (loadOK == 0) 
 		loadOK = GdDecodeJPEG(src, pimage, psd, flags);
 #endif
-#if defined(HAVE_PNG_SUPPORT)
+#if HAVE_PNG_SUPPORT
 	if (loadOK == 0) 
 		loadOK = GdDecodePNG(src, pimage);
 #endif
-#if defined(HAVE_PNM_SUPPORT)
+#if HAVE_PNM_SUPPORT
 	if(loadOK == 0)
 		loadOK = GdDecodePNM(src, pimage);
 #endif
-#if defined(HAVE_XPM_SUPPORT)
+#if HAVE_XPM_SUPPORT
 	if (loadOK == 0) 
 		loadOK = GdDecodeXPM(src, pimage, psd);
 #endif

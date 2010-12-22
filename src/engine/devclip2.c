@@ -271,7 +271,7 @@ GdPrintClipRects(PSD psd, PMWBLITPARMS gc)
 	int count = clipregion->numRects;
 	int n = 1;
 
-	printf("Clip rects (%d) for window draw %d,%d %d,%d\n",
+	DPRINTF("Clip rects (%d) for window draw %d,%d %d,%d\n",
 		count, gc->dstx, gc->dsty, gc->width, gc->height);
 
 	while (count-- > 0) {
@@ -283,7 +283,7 @@ GdPrintClipRects(PSD psd, PMWBLITPARMS gc)
 		rw = rx2 - rx1;
 		rh = ry2 - ry1;
 
-		printf("R%03d %d,%d %d,%d\n", n++, rx1, ry1, rw, rh);
+		DPRINTF("R%03d %d,%d %d,%d\n", n++, rx1, ry1, rw, rh);
 
 		prc++;
 	}

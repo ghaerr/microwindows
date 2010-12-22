@@ -440,7 +440,7 @@ static void handle_keyboard( rfbBool down, rfbKeySym sym, rfbClientPtr cl)
                         break;
                 default:
                         if ( sym & 0xFF00 )
-                                fprintf(stderr, "Unhandled VNC keysym: %04x\n", (int)sym);
+                                EPRINTF("Unhandled VNC keysym: %04x\n", (int)sym);
                 }
 
                 if ( key_modstate & MWKMOD_CTRL )

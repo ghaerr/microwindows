@@ -155,7 +155,7 @@ void Render(GR_WINDOW_ID window)
    GrText(window, gid, 5, 80, "k Toggle kerning", 16, GR_TFASCII);
    GrText(window, gid, 5, 100, "u Toggle underline", 18, GR_TFASCII);
    GrText(window, gid, 5, 120, "l  Toggle alignment bottom/baseline/top", 39, GR_TFASCII);
-#ifdef HAVE_KSC5601_SUPPORT
+#if HAVE_KSC5601_SUPPORT
    GrText(window, gid, 5, 160, "\xB0\xA1\xB0\xA2\xB0\xA3", 6, MWTF_DBCS_EUCKR);
 #endif
 

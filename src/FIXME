@@ -1,9 +1,11 @@
 GdBlit Frame->Pixmap fails, needs src rotate (and test)
 GdStretchBlit Frame->Frame and Frame->Pixmap fails, needs src/dst rotate (and test)
 convblits could be updated with rotation macros, move macros to convblit.h
-compression flipy in mwin/winresbmp.c::resDecodeBitmap
+compression flipy in mwin/winresbmp.c::resDecodeBitmap, remove duplicate bmp support
 fix special case of termcs*.ttf symbol fonts
 investigate why link with /usr/local/lib/libfreetype.so doesn't work!
+remove printf/fprinf from all demo programs, add methods to nano-X.h
+check optimization for gcc, will -O0 allow static inlines to be optimized?
 
 check that gr_foreground possibly invalid w/same gc used across 32bpp then 16bpp framebuffer
 GrLoadImageFromFile uses &scrdev, shouldn't use psd parameter, remove from loaders (jpg, xpm)

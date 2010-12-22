@@ -152,7 +152,7 @@ MwRegisterListboxControl(HINSTANCE hInstance)
 #if 0
 	static BITMAP sg_bmpCheckMark;
 	if (!LoadSystemBitmap(&sg_bmpCheckMark, "checkmark")) {
-		fprintf(stderr, "Load ListBox Check Mark Bitmap failure!\n");
+		DPRINTF( "Load ListBox Check Mark Bitmap failure!\n");
 		return FALSE;
 	}
 #endif
@@ -1851,11 +1851,8 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case SB_LINEDOWN:
 
 #if 0				/* test itemVisibles */
-				printf("itemVisibles:%d\n",
-				       pData->itemVisibles);
-				printf("SB_LINEDOWN:(%d:%d)\n",
-				       ITEM_BOTTOM(pData),
-				       (pData->itemCount - 1));
+				DPRINTF("itemVisibles:%d\n", pData->itemVisibles);
+				DPRINTF("SB_LINEDOWN:(%d:%d)\n", ITEM_BOTTOM(pData), (pData->itemCount - 1));
 #endif
 				if (ITEM_BOTTOM(pData) <
 				    (pData->itemCount - 1)) {

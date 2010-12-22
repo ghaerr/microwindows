@@ -162,7 +162,7 @@ fb_open(PSD psd)
 static void
 fb_close(PSD psd)
 {
-    printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);
+    diag_printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);
 #if 0
 	int	tty;
 
@@ -186,7 +186,7 @@ fb_close(PSD psd)
 static void
 set_directcolor_palette(PSD psd)
 {
-    printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
+    diag_printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
 #if 0
 	int i;
 	short r[256], g[256], b[256];
@@ -220,7 +220,7 @@ static int fade = 100;
 static void
 fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 {
-    printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
+    diag_printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
 #if 0
 	int 	i;
 	unsigned short 	red[count];
@@ -247,7 +247,7 @@ fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 void
 ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 {
-    printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
+    diag_printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
 #if 0
 	struct fb_cmap cmap;
 	cyg_uint32 sz = sizeof(cmap);
@@ -268,7 +268,7 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 void
 ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 {
-    printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
+    diag_printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
 #if 0
 	struct fb_cmap cmap;
 	cyg_uint32 sz = sizeof(cmap);
@@ -289,7 +289,7 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 void
 setfadelevel(PSD psd, int f)
 {
-    printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
+    diag_printf("%s - NOT IMPLEMENTED\n", __FUNCTION__);  while (1) ;
 #if 0
 	int 		i;
 	unsigned short 	r[256], g[256], b[256];

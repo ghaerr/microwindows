@@ -52,6 +52,7 @@ static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 	/* compiler can optimize out switch statement and most else to constants*/
 	switch (PORTRAIT) {
 	case NONE:
+	default:
 		dsz = DSZ;					/* dst: next pixel over*/
 		dst_pitch = gc->dst_pitch;	/* dst: next line down*/
 		break;

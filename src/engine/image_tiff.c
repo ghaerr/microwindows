@@ -15,7 +15,7 @@
 #include "convblit.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_TIFF_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_TIFF_SUPPORT
 #include <tiffio.h>
 
 /*
@@ -110,4 +110,4 @@ err:
 		free(pimage->palette);
 	return 2;		/* image error*/
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_TIFF_SUPPORT)*/
+#endif /* MW_FEATURE_IMAGES && HAVE_TIFF_SUPPORT*/

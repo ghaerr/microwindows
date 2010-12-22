@@ -1,9 +1,8 @@
 /*
- * Microwindows IR remote control keyboard driver
+ * Microwindows IR remote control keyboard (and possibly mouse) driver
  * Written by Koninklijke Philips Electronics N.V.
  *
- * Based on the Microwindows /dev/tty console scancode
- * keyboard driver for Linux
+ * Based on the Microwindows /dev/tty console scancode keyboard driver for Linux
  * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
  * 
  * Portions contributed by Koninklijke Philips Electronics N.V.
@@ -13,7 +12,6 @@
  * option, the GNU General Public License version 2.0.  Please see
  * the file "ChangeLog" for documentation regarding these
  * contributions.
- *
  *
  * This driver uses the LIRC protocol, which is a de-facto standard
  * for IR remote controls on Linux.
@@ -38,17 +36,14 @@
 
 static int LIRC_Open(KBDDEVICE * pkd);
 static void LIRC_Close(void);
-static void LIRC_GetModifierInfo(MWKEYMOD * modifiers,
-				 MWKEYMOD * curmodifiers);
-static int LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers,
-		     MWSCANCODE * scancode);
+static void LIRC_GetModifierInfo(MWKEYMOD * modifiers, MWKEYMOD * curmodifiers);
+static int LIRC_Read(MWKEY * kbuf, MWKEYMOD * modifiers, MWSCANCODE * scancode);
 
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 static int  LIRC_MouseOpen(MOUSEDEVICE * pkd);
 static void LIRC_MouseClose(void);
 static int LIRC_MouseGetButtonInfo(void);
-static int LIRC_MouseRead(MWCOORD * dx, MWCOORD * dy, MWCOORD * dz,
-			  int *bptr);
+static int LIRC_MouseRead(MWCOORD * dx, MWCOORD * dy, MWCOORD * dz, int *bptr);
 static void LIRC_MouseGetDefaultAccel(int *pscale, int *pthresh);
 #endif
 
@@ -58,16 +53,13 @@ static int LIRC_mouseButton(int button, MWBOOL isDown);
 
 static void LIRC_UpdateKeyState(MWBOOL isDown, MWKEY mwkey);
 
-static int remoteMouseHandler(mwlirc_keystroke * event, MWKEY * kbuf,
-			      MWSCANCODE * pscancode);
-static int remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf,
-				 MWSCANCODE * pscancode);
-static int remoteControlHandler(mwlirc_keystroke * event, MWKEY * kbuf,
-				MWSCANCODE * pscancode);
+static int remoteMouseHandler(mwlirc_keystroke * event, MWKEY * kbuf, MWSCANCODE * pscancode);
+static int remoteKeyboardHandler(mwlirc_keystroke * event, MWKEY * kbuf, MWSCANCODE * pscancode);
+static int remoteControlHandler(mwlirc_keystroke * event, MWKEY * kbuf, MWSCANCODE * pscancode);
 
 
 KBDDEVICE
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
     kbddev2
 #else
     kbddev
@@ -80,8 +72,7 @@ KBDDEVICE
 	NULL
 };
 
-
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 MOUSEDEVICE mousedev = {
 	LIRC_MouseOpen,
 	LIRC_MouseClose,
@@ -103,8 +94,7 @@ static MWSCANCODE LIRC_pending_keyrelease_scan = 0;
 static MWKEYMOD LIRC_keymod = 0;
 
 
-typedef int (*remoteHandler_t) (mwlirc_keystroke * event, MWKEY * kbuf,
-				MWSCANCODE * pscancode);
+typedef int (*remoteHandler_t) (mwlirc_keystroke * event, MWKEY * kbuf, MWSCANCODE * pscancode);
 
 typedef struct remoteDriver_t_
 {
@@ -125,7 +115,7 @@ static remoteDriver_t remoteDrivers[] = {
 
 static int LIRC_fd = -1;
 
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 /* polar_to_cartesian_table[angle | (speed << 4)] =
  *     ( speed<=1 ? 0 : (9*(speed-1)*cos(angle/8 * 2*PI))
  *
@@ -206,13 +196,13 @@ static void
 LIRC_MouseClose(void)
 {
 }
-#endif /* def MW_LIRC_MOUSE */
+#endif /* HAVE_LIRC_MOUSE */
 
 /* Hooks for a MW mouse driver. Called from the RC handler. */
 static int
 LIRC_mouseMovedPolar(int speed, int direction)
 {
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 	int xdelta = POLAR_TO_CARTESIAN_X(speed, direction);
 	int ydelta = POLAR_TO_CARTESIAN_Y(speed, direction);
 	
@@ -229,7 +219,7 @@ static int
 LIRC_mouseMovedCartesian(int xdelta, int ydelta)
 {
 	/*printf("LIRC_mouseMoved() - (%d,%d)\n", xdelta, ydelta);*/
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 	LIRC_mouseDeltaX += xdelta;
 	LIRC_mouseDeltaY += ydelta;
 
@@ -248,7 +238,7 @@ static int
 LIRC_mouseButton(int button, MWBOOL isDown)
 {
 	/*printf("LIRC_mouseButton() - button %d is %s\n", button, (isDown ? "down" : "up"));*/
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 	if (isDown) {
 		if (!(LIRC_mouseButtons & button)) {
 			LIRC_mouseButtons |= button;
@@ -277,7 +267,7 @@ LIRC_Open(KBDDEVICE * pkd)
 	LIRC_pending_keyrelease_scan = 0;
 	LIRC_keymod = 0;
 
-#ifdef MW_LIRC_MOUSE
+#if HAVE_LIRC_MOUSE
 	LIRC_mouseDeltaX = 0;
 	LIRC_mouseDeltaY = 0;
 	LIRC_mouseButtonsReported = 0;

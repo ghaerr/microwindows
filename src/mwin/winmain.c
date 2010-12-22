@@ -27,7 +27,7 @@
 #include <linuxmt/time.h>
 #endif
 
-#if RTEMS || __ECOS
+#if RTEMS
 #include <rtems/mw_uid.h>
 #endif
 
@@ -145,7 +145,7 @@ MwClose(void)
 	MwTerminate();
 }
 
-#if (UNIX | DOS_DJGPP) && !_MINIX
+#if UNIX && HAVE_SELECT
 /*
  * Support for more than one user fd.
  * Chris Johns (ccj@acm.org)
@@ -278,7 +278,7 @@ MwUnregisterFdExcept(HWND hwnd, int fd)
 	}
 }
 
-#endif /* UNIX | DOS_DJGPP*/
+#endif /* UNIX && HAVE_SELECT*/
 
 #if MSDOS | _MINIX
 void
@@ -331,7 +331,7 @@ MwSelect(BOOL mayWait)
 #endif
 
 
-#if UNIX && defined(HAVESELECT)
+#if UNIX && HAVE_SELECT
 #if ANIMATEPALETTE
 static int fade = 0;
 #endif
@@ -459,9 +459,9 @@ MwSelect(BOOL mayWait)
 		if(errno != EINTR)
 			EPRINTF("Select() call in main failed. Errno=%d\n", errno);
 }
-#endif
+#endif /* UNIX && HAVE_SELECT*/
 
-#if RTEMS || __ECOS
+#if RTEMS | __ECOS
 extern MWBOOL MwCheckMouseEvent();
 extern MWBOOL MwCheckKeyboardEvent();
 extern struct MW_UID_MESSAGE m_kbd;
@@ -521,7 +521,7 @@ void MwSelect (BOOL mayWait)
 	        break;
 	}
 }
-#endif /* RTEMS */
+#endif /* RTEMS | __ECOS*/
 
 #if VTSWITCH
 static void
@@ -564,7 +564,7 @@ MwInitialize(void)
 
 	extern MWLISTHEAD mwClassHead;
 
-#if (UNIX | DOS_DJGPP) && !_MINIX
+#if UNIX && HAVE_SELECT
 	for (fd = 0; fd < FD_SETSIZE; fd++) {
 		userregfd[fd].read = NULL;
 		userregfd[fd].write = NULL;
@@ -574,7 +574,7 @@ MwInitialize(void)
 	userregfd_head = -1;
 #endif
 
-#if !(MW_NOSIGNALS || __ECOS)
+#if HAVE_SIGNAL
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)MwTerminate);
 #endif	

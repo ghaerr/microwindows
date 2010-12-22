@@ -223,11 +223,11 @@ eprintf(const char *fmt, ...)
 	if (hbfDebug) {
 		va_list	args;
 
-		(void)fprintf(stderr, "HBF: ");
+		(void)EPRINTF("HBF: ");
 		va_start(args, fmt);
 		(void)vfprintf(stderr, fmt, args);
 		va_end(args);
-		(void)fprintf(stderr, "\n");
+		(void)EPRINTF("\n");
 	}
 }
 #else /* ! __STDC__ */
@@ -238,9 +238,9 @@ eprintf(fmt, x1, x2, x3, x4, x5, x6, x7, x8, x9)
 	int	x1, x2, x3, x4, x5, x6, x7, x8, x9;
 {
 	if (hbfDebug) {
-		(void)fprintf(stderr, "HBF: ");
-		(void)fprintf(stderr, fmt, x1, x2, x3, x4, x5, x6, x7, x8, x9);
-		(void)fprintf(stderr, "\n");
+		(void)EPRINTF("HBF: ");
+		(void)EPRINTF(fmt, x1, x2, x3, x4, x5, x6, x7, x8, x9);
+		(void)EPRINTF("\n");
 	}
 }
 #endif /* __STDC__ */

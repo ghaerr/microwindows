@@ -434,8 +434,6 @@ static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
     {
 	if ( ((BYTE)string [pos + 1] >= 0x40 && (BYTE)string [pos + 1] <= 0x7e) ||
 	     ((BYTE)string [pos + 1] >= 0xa1 && (BYTE)string [pos + 1] <= 0xfe)) {
-	    /*fprintf(stderr,"true\n");
-	    fflush(stderr);*/
 	    return TRUE;
 	}
     }
@@ -529,7 +527,7 @@ void MLEditInitBuffer (PMLEDITDATA pMLEditData,char *spcaption)
 	int lineNO=0;
 	PLINEDATA  pLineData;
 	if (!(pMLEditData->head = malloc (sizeof (LINEDATA)))) {
-		fprintf (stderr, "EDITLINE: malloc error!\n");
+		DPRINTF( "EDITLINE: malloc error!\n");
 		return ;
 	}
 	pMLEditData->head->previous = NULL;
@@ -585,7 +583,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         case WM_CREATE:
 	{
             if (!(pMLEditData = malloc (sizeof (MLEDITDATA)))) {
-                fprintf (stderr, "EDIT: malloc error!\n");
+                DPRINTF( "EDIT: malloc error!\n");
                 return -1;
             }
 
@@ -630,7 +628,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 		pLineData = pMLEditData->head;	
 		while(pLineData)
 		{
-			/*printf("delete lineNO = %d,buffer=%s\n",pLineData->lineNO,pLineData->buffer);*/
+			/*DPRINTF("delete lineNO = %d,buffer=%s\n",pLineData->lineNO,pLineData->buffer);*/
 			temp = pLineData->next;
 			free(pLineData);
 			pLineData = temp;
@@ -786,7 +784,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 
 #ifdef _DEBUG
        	    	if (pMLEditData->dispPos > pLineData->dataEnd)
-        	        fprintf (stderr, "ASSERT failure: %s.\n", "Edit Paint");
+        	        DPRINTF( "ASSERT failure: %s.\n", "Edit Paint");
 #endif
             
                 dispBuffer = alloca (LEN_MLEDIT_BUFFER+1);
@@ -804,9 +802,9 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                 rect.right = pMLEditData->rightMargin;
                 rect.bottom = pMLEditData->bottomMargin;
 #if 0
-		printf("lineNO=%d,lines=%d,editLine=%d\n",pLineData->lineNO,pMLEditData->lines,
+		DPRINTF("lineNO=%d,lines=%d,editLine=%d\n",pLineData->lineNO,pMLEditData->lines,
 			pMLEditData->editLine);
-		printf("--dispBuffer=%s--\n",dispBuffer);
+		DPRINTF("--dispBuffer=%s--\n",dispBuffer);
                 ClipRectIntersect (hdc, &rect);	/* fix: no ClipRectIntersect() */
 #endif
 

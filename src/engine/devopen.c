@@ -411,7 +411,7 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 }
 
 #if !VXWORKS
-#if defined(HAVE_FILEIO)
+#if HAVE_FILEIO
 #include <unistd.h>
 #include <fcntl.h>
 /*
@@ -503,7 +503,7 @@ putdw(uint32_t dw, FILE *ofp)
 int
 GdCaptureScreen(char *path)
 {
-#if defined(HAVE_FILEIO) && !__ECOS
+#if HAVE_FILEIO && !__ECOS
 	int	ifd, i, j;
 	FILE *	ofp;
 	int	cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;
@@ -660,7 +660,7 @@ void GdPrintBitmap(PMWBLITPARMS gc, int SSZ)
 
 	src = ((unsigned char *)gc->data)     + gc->srcy * gc->src_pitch + gc->srcx * SSZ;
 
-	printf("Image %d,%d SSZ %d\n", gc->width, gc->height, SSZ);
+	DPRINTF("Image %d,%d SSZ %d\n", gc->width, gc->height, SSZ);
 	height = gc->height;
 	while (--height >= 0)
 	{
@@ -673,22 +673,22 @@ void GdPrintBitmap(PMWBLITPARMS gc, int SSZ)
 			case 2:
 				v = s[0] | (s[1] << 8);
 				v = PIXEL565RED(v) + PIXEL565GREEN(v) + PIXEL565BLUE(v);
-				printf("%c", "_.:;oVM@X"[v]);
+				DPRINTF("%c", "_.:;oVM@X"[v]);
 				break;
 			case 3:
 				v = (s[0] + s[1] + s[2]) / 3;
-				printf("%c", "_.:;oVM@X"[v >> 5]);
+				DPRINTF("%c", "_.:;oVM@X"[v >> 5]);
 				break;
 			case 4:
 				//if (s[4])
 					v = (s[0] + s[1] + s[2]) / 3;
 				//else v = 256;
-				printf("%c", "_.:;oVM@X"[v >> 5]);
+				DPRINTF("%c", "_.:;oVM@X"[v >> 5]);
 				break;
 			}
 			s += SSZ;				/* src: next pixel right*/
 		}
-		printf("\n");
+		DPRINTF("\n");
 		src += gc->src_pitch;		/* src: next line down*/
 	}
 }

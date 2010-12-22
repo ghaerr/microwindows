@@ -182,7 +182,7 @@ main(int argc, char **argv)
         GrReqShmCmds(65536); /* Test by Morten Rolland for shm support */
 
 	GrGetScreenInfo(&si);
-#ifdef __ECOS
+#if __ECOS
 /* 240x320 screen*/
 COLS = si.cols - 10;
 ROWS = si.rows - 40;

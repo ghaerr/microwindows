@@ -199,7 +199,7 @@ GetTextExtentPoint(
 	lpSize->cx = width;
 	lpSize->cy = height;
 
-	/*printf("<MWIN>: lpszStr=\"%s\", cchString=%d, lpsize->cx=%d, lpSize->cy=%d\n", lpszStr, cchString, lpSize->cx, lpSize->cy);*/
+	/*DPRINTF("<MWIN>: lpszStr=\"%s\", cchString=%d, lpsize->cx=%d, lpSize->cy=%d\n", lpszStr, cchString, lpSize->cx, lpSize->cy);*/
 	return TRUE;
 }
 

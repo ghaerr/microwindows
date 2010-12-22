@@ -45,7 +45,7 @@
 #include "device.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_GIF_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_GIF_SUPPORT
 
 #define	MAXCOLORMAPSIZE		256
 #define	MAX_LWZ_BITS		12
@@ -528,4 +528,4 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
 fini:
     return 1;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_GIF_SUPPORT)*/
+#endif /* MW_FEATURE_IMAGES && HAVE_GIF_SUPPORT*/

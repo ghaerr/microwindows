@@ -55,8 +55,8 @@ static int
 X11_Open(KBDDEVICE *pkd)
 {
     if (x11_setup_display() < 0) {
-	fprintf(stderr, "nano-X: Can't connect to X11 server\n");
-	return -2;	/* don't display another errmsg*/
+		EPRINTF("nano-X: Can't connect to X11 server\n");
+		return -2;	/* don't display another errmsg*/
     }
 
     if(init_modstate() < 0)

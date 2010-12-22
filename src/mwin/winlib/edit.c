@@ -342,8 +342,6 @@ static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
     {
 	if ( ((BYTE)string [pos + 1] >= 0x40 && (BYTE)string [pos + 1] <= 0x7e) ||
 	     ((BYTE)string [pos + 1] >= 0xa1 && (BYTE)string [pos + 1] <= 0xfe)) {
-	    /*fprintf(stderr,"true\n");
-	    fflush(stderr);*/
 	    return TRUE;
 	}
     }
@@ -559,7 +557,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 #ifdef _DEBUG
             if (pSLEditData->startPos > pSLEditData->dataEnd)
-                fprintf (stderr, "ASSERT failure: %s.\n", "Edit Paint");
+                DPRINTF("ASSERT failure: %s.\n", "Edit Paint");
 #endif
             
             dispBuffer = ALLOCA(dispLen + 1);

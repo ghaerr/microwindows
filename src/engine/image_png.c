@@ -20,7 +20,7 @@
 #include "device.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_PNG_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_PNG_SUPPORT
 #include <png.h>
 
 /* png_jmpbuf() macro is not defined prior to libpng-1.0.6*/
@@ -143,7 +143,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 		pimage->data_format = MWIF_RGBA8888;
 	else
 		pimage->data_format = MWIF_RGB888;
-printf("png %dbpp\n", channels*8);
+DPRINTF("png %dbpp\n", channels*8);
 
     if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);
@@ -167,4 +167,4 @@ nomem:
 	EPRINTF("GdDecodePNG: Out of memory\n");
 	return 2;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_PNG_SUPPORT)*/
+#endif /* MW_FEATURE_IMAGES && HAVE_PNG_SUPPORT*/

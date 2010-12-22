@@ -581,7 +581,7 @@ GdAddFont(char *fndry, char *fmly, char *fontname, PMWLOGFONT lf,
 
 	memcpy(&font->lf,lf,sizeof(*lf));
 
-	printf("Adding font: '%s' '%s' '%s' '%s'\n",font->foundry,
+	DPRINTF("Adding font: '%s' '%s' '%s' '%s'\n",font->foundry,
 	       font->family,font->fontname,font->lf.lfFaceName);
 
 	font->next = 0;
@@ -677,7 +677,7 @@ int config_font(char *file, int line, int argc, char *argv[])
 	MWLF_Clear(&lf);
 
 	if ( argc != 6 ) {
-		fprintf(stderr,"Bad font description %s:%d\n",file,line);
+		EPRINTF("Bad font description %s:%d\n",file,line);
 		return 1;
 	}
 
@@ -713,8 +713,7 @@ int config_font(char *file, int line, int argc, char *argv[])
 			}
 		}
 
-		fprintf(stderr,"No such font attribute '%s' in %s:%d\n",
-			tmp,file,line);
+		EPRINTF("No such font attribute '%s' in %s:%d\n", tmp,file,line);
 		return 1;
 
 	next: ;
@@ -767,7 +766,7 @@ int read_configfile(char *file)
 	int argc, s, rc, t, line;
 
 	if ( (cf = fopen(file,"r")) == 0 ) {
-		fprintf(stderr,"Unable to read config file '%s'\n",file);
+		EPRINTF("Unable to read config file '%s'\n",file);
 		return -1;
 	}
 
@@ -792,8 +791,7 @@ int read_configfile(char *file)
 				while ( *p != '\0' && *p != '\"' )
 					p++;
 				if ( *p == '\0' ) {
-					fprintf(stderr,"Unbalanced quotes in %s:%d\n",
-						file,line);
+					EPRINTF("Unbalanced quotes in %s:%d\n", file,line);
 					break;
 				}
 				*p++ = '\0';
@@ -811,7 +809,7 @@ int read_configfile(char *file)
 		{
 			int t;
 			for ( t=0; t < argc; t++ )
-				printf("#%d: '%s'\n",t,args[t]);
+				DPRINTF("#%d: '%s'\n",t,args[t]);
 		}
 #endif
 		rc = config_line(file, line, argc, args);

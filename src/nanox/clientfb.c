@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#ifdef LINUX
+#if LINUX
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -14,6 +14,8 @@
 #endif
 #include "nano-X.h"
 #include "lock.h"
+
+#define EPRINTF(str)	printf(str)
 
 /* For definition of PAGE_SIZE */
 #define PAGE_SHIFT      12
@@ -27,7 +29,7 @@ LOCK_EXTERN(nxGlobalLock);	/* global lock for threads safety*/
 static unsigned char *	physpixels  = NULL;	/* start address of pixels*/
 static GR_SCREEN_INFO	sinfo;
 static GR_BOOL		sinfo_valid = GR_FALSE;	/* True if sinfo is initialized. */
-#ifdef LINUX
+#if LINUX
 static int 		frame_fd    = -1;	/* client side framebuffer fd*/
 static unsigned char *	frame_map   = NULL;	/* client side framebuffer mmap'd addr*/
 static int 		frame_len   = 0;	/* client side framebuffer length*/
@@ -42,7 +44,7 @@ static int 		frame_len   = 0;	/* client side framebuffer length*/
 unsigned char *
 GrOpenClientFramebuffer(void)
 {
-#ifdef LINUX
+#if LINUX
 	int 	frame_offset;
 	char *	fbdev;
 	struct fb_fix_screeninfo finfo;
@@ -77,14 +79,14 @@ GrOpenClientFramebuffer(void)
 		fbdev = "/dev/fb0";
 	frame_fd = open(fbdev, O_RDWR);
 	if (frame_fd < 0) {
-		printf("Can't open framebuffer device\n");
+		EPRINTF("Can't open framebuffer device\n");
 		UNLOCK(&nxGlobalLock);
 		return NULL;
 	}
 
 	/* Get the type of video hardware */
 	if (ioctl(frame_fd, FBIOGET_FSCREENINFO, &finfo) < 0 ) {
-		printf("Couldn't get fb hardware info\n");
+		EPRINTF("Couldn't get fb hardware info\n");
 		goto err;
 	}
 
@@ -96,7 +98,7 @@ GrOpenClientFramebuffer(void)
 		case FB_VISUAL_DIRECTCOLOR:
 			break;
 		default:
-			printf("Unsupported fb color map\n");
+			EPRINTF("Unsupported fb color map\n");
 			goto err;
 	}
 
@@ -112,7 +114,7 @@ GrOpenClientFramebuffer(void)
 		0);
 #endif
 	if (frame_map == (unsigned char *)-1) {
-		printf("Unable to memory map the video hardware\n");
+		EPRINTF("Unable to memory map the video hardware\n");
 		frame_map = NULL;
 		goto err;
 	}
@@ -133,7 +135,7 @@ err:
 void
 GrCloseClientFramebuffer(void)
 {
-#ifdef LINUX
+#if LINUX
 	LOCK(&nxGlobalLock);
 	if (frame_fd >= 0) {
 		if (frame_map) {

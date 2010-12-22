@@ -95,7 +95,7 @@ GR_CLIENT	*current_client;	/* the client we are currently talking*/
 char		*current_shm_cmds;
 int		current_shm_cmds_size;
 static int	keyb_fd;		/* the keyboard file descriptor */
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 static int	keyb2_fd;		/* the keyboard file descriptor */
 #endif
 static int	mouse_fd;		/* the mouse file descriptor */
@@ -128,7 +128,7 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	printf("Usage: %s [-e] [-p] [-A] [-NLRD] [-x #] [-y #]"
+	EPRINTF("Usage: %s [-e] [-p] [-A] [-NLRD] [-x #] [-y #]"
 #if FONTMAPPER
 		" [-c <fontconfig-file>"
 #endif
@@ -345,7 +345,7 @@ GsDropClient(int fd)
 #endif
 
 #if UNIX | DOS_DJGPP
-#if NONETWORK && defined(HAVESELECT)
+#if NONETWORK && HAVE_SELECT
 /*
  * Register the specified file descriptor to return an event
  * when input is ready.
@@ -387,7 +387,7 @@ GrUnregisterInput(int fd)
 	SERVER_UNLOCK();
 }
 
-#endif /* NONETWORK && HAVESELECT */
+#endif /* NONETWORK && HAVE_SELECT */
 #endif /* UNIX | DOS_DJGPP*/
 
 /*
@@ -401,7 +401,7 @@ GrDelay(GR_TIMEOUT msecs)
 	sceKernelDelayThread(1000 * msecs);
 #endif
 
-#if UNIX && defined(HAVESELECT)
+#if UNIX && HAVE_SELECT
 	struct timeval timeval;
 
 	timeval.tv_sec = msecs / 1000;
@@ -714,7 +714,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 }
 
-#elif UNIX && defined(HAVESELECT)
+#elif UNIX && HAVE_SELECT
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -752,7 +752,7 @@ GsSelect(GR_TIMEOUT timeout)
 		if (keyb_fd > setsize)
 			setsize = keyb_fd;
 	}
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 	if(keyb2_fd >= 0) {
 		FD_SET(keyb2_fd, &rfds);
 		if (keyb2_fd > setsize)
@@ -851,7 +851,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 		/* If data is present on the keyboard fd, service it: */
 		if( (keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 		 || (keyb2_fd >= 0 && FD_ISSET(keyb2_fd, &rfds))
 #endif
 		  )
@@ -976,7 +976,7 @@ GrPrepareSelect(int *maxfd, void *rfdset)
 		if (keyb_fd > *maxfd)
 			*maxfd = keyb_fd;
 	}
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 	if(keyb2_fd >= 0) {
 		FD_SET(keyb2_fd, rfds);
 		if (keyb2_fd > *maxfd)
@@ -1026,7 +1026,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 
 	/* If data is present on the keyboard fd, service it: */
 	if( (keyb_fd >= 0 && FD_ISSET(keyb_fd, rfds))
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 	 || (keyb2_fd >= 0 && FD_ISSET(keyb2_fd, rfds))
 #endif
 	  )
@@ -1064,7 +1064,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 
 #endif /* NONETWORK */
 
-#endif /* UNIX && defined(HAVESELECT)*/
+#endif /* UNIX && HAVE_SELECT*/
 
 #if RTEMS
 extern struct MW_UID_MESSAGE m_kbd;
@@ -1093,10 +1093,9 @@ GsSelect (GR_TIMEOUT timeout)
 		uid_timeout = 0;
 	else {
 #if MW_FEATURE_TIMERS
-		if (GdGetNextTimeout(&tout, timeout)) {
-			uid_timeout = tout.tv_sec * 1000 +
-			              (tout.tv_usec + 500) / 1000;
-		} else
+		if (GdGetNextTimeout(&tout, timeout))
+			uid_timeout = tout.tv_sec * 1000 + (tout.tv_usec + 500) / 1000;
+		else
 #endif
 		{
 			if (timeout == 0)
@@ -1110,7 +1109,7 @@ GsSelect (GR_TIMEOUT timeout)
 	/* return if timed-out or something went wrong */
 	if (rc < 0) {
 	        if (errno != ETIMEDOUT)
-		        EPRINTF (" rc= %d, errno=%d\n", rc, errno);
+		        EPRINTF(" rc= %d, errno=%d\n", rc, errno);
 		else {
 		        /* timeout handling */
 #if MW_FEATURE_TIMERS
@@ -1124,9 +1123,7 @@ GsSelect (GR_TIMEOUT timeout)
 				**   has selected for it.
 				*/
 				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
-				{
 					gp->type = GR_EVENT_TYPE_TIMEOUT;
-				}
 			}
 		}
 		return;
@@ -1136,11 +1133,12 @@ GsSelect (GR_TIMEOUT timeout)
 	switch (m.type) {
 	case MV_UID_REL_POS:	/* Mouse or Touch Screen event */
 	case MV_UID_ABS_POS:
-	        m_mou = m;
-		while (GsCheckMouseEvent ()) continue;
+		m_mou = m;
+		while (GsCheckMouseEvent())
+			continue;
 		break;
 	case MV_UID_KBD:	/* KBD event */
-	        m_kbd = m;
+		m_kbd = m;
 		GsCheckKeyboardEvent ();
 		break;
 	case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
@@ -1198,7 +1196,7 @@ GsInitialize(void)
 
 	startTicks = GsGetTickCount();
 
-#if !MW_NOSIGNALS
+#if HAVE_SIGNAL
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)GsTerminate);
 #endif
@@ -1212,7 +1210,7 @@ GsInitialize(void)
 	selection_owner.typelist = NULL;
 
 #if !NONETWORK
-#if !MW_NOSIGNALS
+#if HAVE_SIGNAL
 	/* ignore pipe signal, sent when clients exit*/
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);
@@ -1232,7 +1230,7 @@ GsInitialize(void)
 		return -1;
 	}
 
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 	if ((keyb2_fd = GdOpenKeyboard2()) == -1) {
 		EPRINTF("Cannot initialise second keyboard\n");
 		/*GsCloseSocket();*/
@@ -1370,7 +1368,7 @@ GsTerminate(void)
 	GsCloseSocket();
 #endif
 
-#ifdef HAVE_VNCSERVER
+#if HAVE_VNCSERVER
 	GdCloseVNC();
 #endif
 

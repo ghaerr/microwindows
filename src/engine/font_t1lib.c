@@ -283,8 +283,8 @@ t1lib_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	/* FIXME must change from char points (1000bp) to pixels*/
 	b = T1_GetStringBBox(pf->fontid, text, cc, 0, (pf->fontattr&MWTF_KERNING)?T1_KERNING:0);
 
-	printf("b.urx = %d, b.llx = %d\n",b.urx, b.llx);
-	printf("b.ury = %d, b.lly = %d\n",b.ury, b.lly);
+	DPRINTF("b.urx = %d, b.llx = %d\n",b.urx, b.llx);
+	DPRINTF("b.ury = %d, b.lly = %d\n",b.ury, b.lly);
 
 	/* NXLIB, X11*/
 	*pwidth = (b.urx - b.llx);

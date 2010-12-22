@@ -211,6 +211,7 @@ set_portrait_subdriver(PSD psd)
 
 	switch (psd->portrait) {
 	case MWPORTRAIT_NONE:
+	default:
 		subdriver = psd->orgsubdriver;
 		break;
 	case MWPORTRAIT_LEFT:

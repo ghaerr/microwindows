@@ -225,10 +225,9 @@ x11_handle_event(XEvent * ev)
 	}
 #endif
 
-#ifdef USE_EXPOSURE
+#if USE_EXPOSURE
 	else if (ev->type == Expose) {
-		scrdev.Update(&scrdev, ev->xexpose.x, ev->xexpose.y,
-				     ev->xexpose.width, ev->xexpose.height);
+		scrdev.Update(&scrdev, ev->xexpose.x, ev->xexpose.y, ev->xexpose.width, ev->xexpose.height);
 	}
 #endif
 }
@@ -251,15 +250,14 @@ static const char * const classnm[] = {
 static void
 show_visual(Visual * v)
 {
-	const char *name = ((v->class < 0) || (v->class > 5)) ? "???" :
-		classnm[v->class];
-	/* DPRINTF */ printf("  Visual  class: %s (%d)\n", name, v->class);
-	/* DPRINTF */ printf("             id: %ld\n", v->visualid);
-	/* DPRINTF */ printf("   bits_per_rgb: %d\n", v->bits_per_rgb);
-	/* DPRINTF */ printf("    map_entries: %d\n", v->map_entries);
-	/* DPRINTF */ printf("       red_mask: 0x%08lx\n", v->red_mask);
-	/* DPRINTF */ printf("     green_mask: 0x%08lx\n", v->green_mask);
-	/* DPRINTF */ printf("      blue_mask: 0x%08lx\n", v->blue_mask);
+	const char *name = ((v->class < 0) || (v->class > 5)) ? "???" : classnm[v->class];
+	DPRINTF("  Visual  class: %s (%d)\n", name, v->class);
+	DPRINTF("             id: %ld\n", v->visualid);
+	DPRINTF("   bits_per_rgb: %d\n", v->bits_per_rgb);
+	DPRINTF("    map_entries: %d\n", v->map_entries);
+	DPRINTF("       red_mask: 0x%08lx\n", v->red_mask);
+	DPRINTF("     green_mask: 0x%08lx\n", v->green_mask);
+	DPRINTF("      blue_mask: 0x%08lx\n", v->blue_mask);
 }
 
 static Visual *
@@ -272,10 +270,10 @@ select_visual(Display * dpy, int scr)
 	Screen *screen = XScreenOfDisplay(dpy, scr);
 	int d;
 
-//	/* DPRINTF */ printf("XDefaultVisual:\n");
+//	DPRINTF("XDefaultVisual:\n");
 //	show_visual(vis);
-//	/* DPRINTF */ printf("Screen RootDepth: %d\n", screen->root_depth);
-//	/* DPRINTF */ printf("Screen RootVisual\n");
+//	DPRINTF("Screen RootDepth: %d\n", screen->root_depth);
+//	DPRINTF("Screen RootVisual\n");
 //	show_visual(screen->root_visual);
 
 	/* print all depths/visuals */
@@ -283,9 +281,9 @@ select_visual(Display * dpy, int scr)
 		Depth *dp = screen->depths + d;
 		int v;
 		Visual *cur_vis;
-//		/* DPRINTF */ printf("Depth: %d\n", dp->depth);
+//		DPRINTF("Depth: %d\n", dp->depth);
 		for (v = 0; v < dp->nvisuals; v++) {
-//			/* DPRINTF */ printf("Visual: %d\n", v);
+//			DPRINTF("Visual: %d\n", v);
 			cur_vis = dp->visuals + v;
 //			show_visual(cur_vis);
 #if MWPIXEL_FORMAT != MWPF_PALETTE	/* Patch by Jon to try for 8-bit TrueColor */
@@ -304,11 +302,10 @@ select_visual(Display * dpy, int scr)
 		}
 	}
 #if MWPIXEL_FORMAT != MWPF_PALETTE	/* Patch by Jon to try for 8-bit TrueColor */
-	if ((vis->class != TrueColor) && (vis2 != NULL)) {
+	if ((vis->class != TrueColor) && (vis2 != NULL))
 		vis = vis2;
-	}
 
-	/* DPRINTF */ printf("Selected Visual:\n");
+	DPRINTF("Selected Visual:\n");
 	show_visual(vis);
 #endif
 
@@ -340,7 +337,7 @@ x11_setup_display(void)
 	if (XDGAQueryExtension(x11_dpy, &events, &errors) &&
 	    XDGAQueryVersion(x11_dpy, &major, &minor)) {
 			if (major >= 2 && XDGAOpenFramebuffer(x11_dpy, DefaultScreen(x11_dpy))) {
-				printf("GOT it!\n");
+				DPRINTF("GOT it!\n");
 				XDGACloseFramebuffer(x11_dpy, DefaultScreen(x11_dpy));
 			}
 	}
@@ -478,7 +475,7 @@ X11_open(PSD psd)
 		PointerMotionMask;	/* handled by mou_x11 */
 
 
-#ifdef USE_EXPOSURE
+#if USE_EXPOSURE
 	valuemask = CWSaveUnder | CWEventMask;
 #else
 	valuemask = CWSaveUnder | CWEventMask | CWBackingStore;
@@ -600,7 +597,7 @@ X11_open(PSD psd)
 	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
 	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
 	psd->portrait = MWPORTRAIT_NONE;
-printf("x11 emulated bpp %d\n", psd->bpp);
+DPRINTF("x11 emulated bpp %d\n", psd->bpp);
 
 	/* select an fb subdriver matching our planes and bpp for backing store*/
 	subdriver = select_fb_subdriver(psd);

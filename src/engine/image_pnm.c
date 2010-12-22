@@ -15,7 +15,7 @@
 #include "device.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_PNM_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_PNM_SUPPORT
 
 enum {
 	PNM_TYPE_NOTPNM,
@@ -207,4 +207,4 @@ baddata:
 		free(pimage->palette);
 	return 2;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_PNM_SUPPORT)*/
+#endif /* MW_FEATURE_IMAGES && HAVE_PNM_SUPPORT*/

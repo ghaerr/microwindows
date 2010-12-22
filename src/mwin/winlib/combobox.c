@@ -38,10 +38,6 @@
 #include "windowsx.h"
 #include "mwsystem.h"
 
-#if PSP
-#define fprintf(...) do {} while(0)
-#endif
-
 #define WinMalloc(n)	malloc((n))
 #define WinFree(p)	free(p)
 
@@ -255,7 +251,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         */
         if ((lp->wStyle & 0x0F) != CBS_SIMPLE && wParam != (WPARAM)lp->ListBoxControl && wParam != 0)
            SendMessage(hWnd, CB_SHOWDROPDOWN, 0, 0L);
-        fprintf(stderr," 385: WM_KILLFOCUS\n");
+        DPRINTF(" 385: WM_KILLFOCUS\n");
         break;
 
 #if 0	/* jmt: fix: no WM_KEYDOWN */
@@ -429,12 +425,13 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
            if ((lp->wStyle & 0x0F) == CBS_SIMPLE)
 	   {
-	     	fprintf(stderr," 528: wEditWidth = lpcs->cx=%d\n",lpcs->cx);
+	     	DPRINTF(" 528: wEditWidth = lpcs->cx=%d\n",lpcs->cx);
 	     	wEditWidth = lpcs->cx;
 	   }
            else /* ?if ((lp->wStyle & 0xf) == CBS_DROPDOWN) */
 	   {
-		fprintf(stderr," 533: wEditWidth = lp->ButtonRect.left - 5=%d;\n",lp->ButtonRect.left - 5);
+		DPRINTF(" 533: wEditWidth = lp->ButtonRect.left - 5=%d;\n",lp->ButtonRect.left - 5);
+
                 wEditWidth = lp->ButtonRect.left - 4;
                 wEditHeight -= 4;
                 dwStyle &= ~WS_BORDER;
@@ -586,19 +583,13 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
               ClientToScreen(hWnd, &cp);
 
-	      fprintf(stderr," (1)lp->ListBoxRect:(%d,%d,%d,%d)\n",
-			  lp->ListBoxRect.left,
-			  lp->ListBoxRect.top,
-			  lp->ListBoxRect.right,
-			  lp->ListBoxRect.bottom);
+	      DPRINTF(" (1)lp->ListBoxRect:(%d,%d,%d,%d)\n", lp->ListBoxRect.left, lp->ListBoxRect.top,
+			  lp->ListBoxRect.right, lp->ListBoxRect.bottom);
 
               OffsetRect(&lp->ListBoxRect, cp.x - lp->ListBoxRect.left, cp.y - lp->ListBoxRect.top);
 
-	      fprintf(stderr," (2)lp->ListBoxRect:(%d,%d,%d,%d)\n",
-			  lp->ListBoxRect.left,
-			  lp->ListBoxRect.top,
-			  lp->ListBoxRect.right,
-			  lp->ListBoxRect.bottom);
+	      DPRINTF(" (2)lp->ListBoxRect:(%d,%d,%d,%d)\n", lp->ListBoxRect.left, lp->ListBoxRect.top,
+			  lp->ListBoxRect.right, lp->ListBoxRect.bottom);
 
               SetWindowPos(lp->ListBoxControl, HWND_TOP, /*0,*/
                            cp.x, cp.y, 0, 0,
@@ -624,14 +615,11 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		    lp->ListBoxRect.bottom =
 		      lp->ListBoxRect.top + ((lp->uHeight-2) * nitems);
 #endif
-	      	    fprintf(stderr," (2.5)lp->ListBoxRect:(%d,%d,%d,%d)\n",
-			  lp->ListBoxRect.left,
-			  lp->ListBoxRect.top,
-			  lp->ListBoxRect.right,
-			  lp->ListBoxRect.bottom);
+	      	DPRINTF(" (2.5)lp->ListBoxRect:(%d,%d,%d,%d)\n", lp->ListBoxRect.left, lp->ListBoxRect.top,
+			  lp->ListBoxRect.right, lp->ListBoxRect.bottom);
 
 /* jmt: twine->mwin bug fixed: */
-	      	    fprintf(stderr," 706: fixed: SetWindowPos(lp->ListBoxControl,,%d,%d,...)\n",cp.x,cp.y);
+	      	    DPRINTF(" 706: fixed: SetWindowPos(lp->ListBoxControl,,%d,%d,...)\n",cp.x,cp.y);
 #if 0	/* twine->mwin bug */
 		    SetWindowPos(lp->ListBoxControl,HWND_TOP,0,0,
 				 lp->ListBoxRect.right - lp->ListBoxRect.left,
@@ -673,11 +661,8 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 hwndNewFocus = WindowFromPoint(cpScreen);
              }
 
-	     fprintf(stderr," (3)lp->ListBoxRect:(%d,%d,%d,%d)\n",
-			  lp->ListBoxRect.left,
-			  lp->ListBoxRect.top,
-			  lp->ListBoxRect.right,
-			  lp->ListBoxRect.bottom);
+	     DPRINTF(" (3)lp->ListBoxRect:(%d,%d,%d,%d)\n", lp->ListBoxRect.left, lp->ListBoxRect.top,
+			  lp->ListBoxRect.right, lp->ListBoxRect.bottom);
 
              if (PtInRect(&lp->ListBoxRect, cpScreen))
              {
@@ -692,7 +677,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                   else {
                        SendMessage(lp->hWndParent, WM_COMMAND, GET_WM_COMMAND_MPS(lp->nID,hWnd,CBN_CLOSEUP));
 
-	      	       fprintf(stderr," 802: (hide) SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
+	      	       DPRINTF(" 802: (hide) SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
 
                        SetWindowPos(lp->ListBoxControl, 0,
                                0, 0, 0, 0,
@@ -803,7 +788,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 /* ecw */     SendMessage(lp->hWndParent, WM_COMMAND, GET_WM_COMMAND_MPS(lp->nID,hWnd,CBN_SELENDOK));
               SendMessage(lp->hWndParent, WM_COMMAND, GET_WM_COMMAND_MPS(lp->nID,hWnd,CBN_CLOSEUP));
 
-	      fprintf(stderr," 844: (hide) SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
+	      DPRINTF(" 844: (hide) SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
 
               SetWindowPos(lp->ListBoxControl, 0,
                            0, 0, 0, 0,
@@ -1306,7 +1291,7 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                SendMessage(lp->hWndParent,WM_COMMAND, GET_WM_COMMAND_MPS(lp->nID,hWnd,CBN_DROPDOWN));
 
-	       fprintf(stderr," 1330: SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
+	       DPRINTF(" 1330: SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
 
                SetWindowPos(lp->ListBoxControl, HWND_TOP,
                             0, 0, 0, 0,
@@ -1322,7 +1307,7 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                  SendMessage(lp->hWndParent, WM_COMMAND, GET_WM_COMMAND_MPS(lp->nID,hWnd,CBN_CLOSEUP));
 /* test: */
-  	         fprintf(stderr," 1343: (hide) SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
+  	         DPRINTF(" 1343: (hide) SetWindowPos(lp->ListBoxControl, , 0, 0, 0, 0,..)\n");
 
                  SetWindowPos(lp->ListBoxControl, 0,
                               0, 0, 0, 0,

@@ -14,7 +14,7 @@
 #include "device.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_XPM_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_XPM_SUPPORT
 
 struct xpm_cmap {
 	char mapstr[3];
@@ -157,7 +157,7 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 			} else {
 				pimage->bpp = 32;
 				pimage->data_format = MWIF_RGBA8888;
-printf("xpm 32bpp RGBA8888\n");
+DPRINTF("xpm 32bpp RGBA8888\n");
 			}
 
 			pimage->palsize = colors;
@@ -405,4 +405,4 @@ printf("xpm 32bpp RGBA8888\n");
 		return -1;
 	return 1;
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_XPM_SUPPORT) */
+#endif /* MW_FEATURE_IMAGES && HAVE_XPM_SUPPORT*/

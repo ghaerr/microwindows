@@ -53,8 +53,7 @@ static int mwlirc_buf_line_len = 0;
 
 static int mwlirc_packet_state = MWLIRC_EXPECT_BEGIN;
 
-
-#ifdef TRIMEDIA
+#if TRIMEDIA
 static char * my_strchr(char * buf, char ch)
 {
 	while ((*buf != '\0') & (*buf != ch)) buf++;

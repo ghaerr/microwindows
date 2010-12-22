@@ -178,7 +178,7 @@ fb_graphicsflush(PSD psd)
 	y = fb_updateregion->extents.top;
 	w = fb_updateregion->extents.right - x;
 	h = fb_updateregion->extents.bottom - y;
-	printf("Extents: %d (%d,%d %d,%d)\n", count, x, y, w, h);
+	DPRINTF("Extents: %d (%d,%d %d,%d)\n", count, x, y, w, h);
 
 	/* or loop through individual list*/
 	while (--count >= 0) {
@@ -188,7 +188,7 @@ fb_graphicsflush(PSD psd)
 		ry1 = prc->top;
 		rx2 = prc->right;
 		ry2 = prc->bottom;
-		printf(" %d: %d,%d %d,%d\n", n++, rx1, ry1, rx2-rx1, ry2-ry1);
+		DPRINTF(" %d: %d,%d %d,%d\n", n++, rx1, ry1, rx2-rx1, ry2-ry1);
 		++prc;
 	}
 

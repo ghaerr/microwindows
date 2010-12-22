@@ -809,7 +809,7 @@ DIALOG_DoDialogBox( HWND hDlg, HWND hWndParent )
 				}
 				if (!GetMessage (&msg, NULL, 0, 0))
 					break;
-#ifdef MW_CALL_IDLE_HANDLER
+#if MW_CALL_IDLE_HANDLER
 				idle_handler();
 #endif
 			}

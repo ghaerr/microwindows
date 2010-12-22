@@ -100,7 +100,7 @@ eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 
 	r = read(fd, buf, 256);
 	if (r != 256) {
-		printf("FONT_EUCJP: can't read %s\n", name);
+		EPRINTF("FONT_EUCJP: can't read %s\n", name);
 		goto EUCJP_FAIL;
 	}
 
@@ -109,7 +109,7 @@ eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 
 	if (sscanf(buf, "#MGLFONT%02d%02d%02d", &ver, &mfw, &mfh) == 3) {
 	} else {
-		printf("FONT_EUCJP: magic is missing.\n");
+		EPRINTF("FONT_EUCJP: magic is missing.\n");
 		goto EUCJP_FAIL;
 	}
 
@@ -128,13 +128,13 @@ eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	pf->kbytes = pf->kwidth * mfh;	/* height; */
 	pf->fd = fd;
 	if (fsize != pf->koffset + pf->kbytes * 8064) {
-		printf("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");
+		EPRINTF("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");
 		goto EUCJP_FAIL;
 	}
 	pf->font_base = (char *)mmap((caddr_t) 0, pf->koffset + pf->kbytes * 8064,
 			      PROT_READ, MAP_SHARED | MAP_FILE, fd, 0);
 	if (pf->font_base == MAP_FAILED) {
-		printf("FONT_EUCJP: Can't mmap font data.\n");
+		EPRINTF("FONT_EUCJP: Can't mmap font data.\n");
 		goto EUCJP_FAIL;
 	}
 

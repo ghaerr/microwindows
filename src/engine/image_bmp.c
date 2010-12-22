@@ -16,7 +16,7 @@
 #include "convblit.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && defined(HAVE_BMP_SUPPORT)
+#if MW_FEATURE_IMAGES && HAVE_BMP_SUPPORT
 
 /* BMP stuff*/
 #define BI_RGB		0L
@@ -212,7 +212,7 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
 			pimage->palsize = 1 << pimage->bpp;
 		compression = bmpi.BiCompression;
 	}
-printf("bmp bpp %d\n", pimage->bpp);
+DPRINTF("bmp bpp %d\n", pimage->bpp);
 	pimage->planes = 1;
 
 	/* only 1, 4, 8, 16, 24 and 32 bpp bitmaps*/
@@ -415,4 +415,4 @@ DecodeRLE4(MWUCHAR * buf, buffer_t * src)
 		}
 	}
 }
-#endif /* MW_FEATURE_IMAGES && defined(HAVE_BMP_SUPPORT) */
+#endif /* MW_FEATURE_IMAGES && HAVE_BMP_SUPPORT*/

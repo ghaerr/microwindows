@@ -15,7 +15,7 @@
 #include <termios.h>
 #include "device.h"
 
-/*#define DEBUG_ESCAPE_SEQUENCES*/
+#define DEBUG_ESCAPE_SEQUENCES	0
 
 #ifdef ARCH_LINUX_POWERPPC
 #   define KEYBOARD	"/dev/tty0"	/* keyboard associated with screen Foedrowitz 2006mar15 */
@@ -305,16 +305,13 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			buflen = 0;
 			return 0;
 		}
-#ifdef DEBUG_ESCAPE_SEQUENCES
+#if DEBUG_ESCAPE_SEQUENCES
 		if (buflen >= 5) {
-			EPRINTF("Got chars: ESC '%c' '%c' '%c' '%c'.\n",
-				buf[1], buf[2], buf[3], buf[4]);
+			EPRINTF("Got chars: ESC '%c' '%c' '%c' '%c'.\n", buf[1], buf[2], buf[3], buf[4]);
 		} else if (buflen == 4) {
-			EPRINTF("Got chars: ESC '%c' '%c' '%c'.\n",
-				buf[1], buf[2], buf[3]);
+			EPRINTF("Got chars: ESC '%c' '%c' '%c'.\n", buf[1], buf[2], buf[3]);
 		} else {
-			EPRINTF("Got chars: ESC '%c' '%c'.\n",
-				buf[1], buf[2]);
+			EPRINTF("Got chars: ESC '%c' '%c'.\n", buf[1], buf[2]);
 		}
 #endif
 		/* Parsed key - don't need the buffer any more. */
@@ -330,7 +327,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	if ((mwkey == MWKEY_ESCAPE) && escape_quits)
 		mwkey = MWKEY_QUIT;
 
-#ifdef DEBUG_ESCAPE_SEQUENCES
+#if DEBUG_ESCAPE_SEQUENCES
 	if (buf[0] != 27) {
 		EPRINTF("Got char: '%c'.\n", buf[0]);
 	}

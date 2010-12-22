@@ -115,7 +115,7 @@ resFreeBitmap(PMWIMAGEHDR pImageHdr)
  * module, so we are using the in-core API directly
  * via GdDecodeBmp which is also more powerful.
  */
-#ifdef HAVE_BMP_SUPPORT
+#if HAVE_BMP_SUPPORT
 static
 PMWIMAGEHDR resDecodeBitmap (BMPHEAD *pHead, int size)
 {

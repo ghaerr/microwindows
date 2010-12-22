@@ -111,6 +111,7 @@
 { \
 	switch (PORTRAIT) { \
 	case NONE: \
+	default: \
 		dsz = DSZ;					/* src/dst: next pixel over*/ \
 		ssz = SSZ; \
 		dst_pitch = gc->dst_pitch;	/* src/dst: next line down*/ \
@@ -181,6 +182,7 @@
 	/* switch could be optimized out with constant PORTRAIT paramater*/ \
 	switch (PORTRAIT) { \
 	case NONE: \
+	default: \
 		dsz = DSZ;					/* dst: next pixel over*/ \
 		dst_pitch = gc->dst_pitch;	/* dst: next line down*/ \
 		break; \

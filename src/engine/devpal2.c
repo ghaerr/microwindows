@@ -11,7 +11,7 @@
  * That is, white is pixel value 0, while black is 3.
  */
 const MWPALENTRY mwstdpal2[4] = {
-#ifdef INVERT2BPP
+#if INVERT2BPP
 	RGBDEF( 255, 255, 255 ),	/* white*/
 	RGBDEF( 192, 192, 192 ),	/* ltgray*/
 	RGBDEF( 128, 128, 128 ),	/* gray*/

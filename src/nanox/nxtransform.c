@@ -12,6 +12,8 @@
 #include <string.h>
 #include "nano-X.h"
 
+#if HAVE_FILEIO
+
 static int CalcTransformationCoefficientsBetter(GR_CAL_DATA * samples,
 	GR_TRANSFORM * ptc);
 
@@ -151,3 +153,4 @@ CalcTransformationCoefficientsBetter(GR_CAL_DATA * samples,
 
 	return 0;
 }
+#endif /* HAVE_FILEIO*/

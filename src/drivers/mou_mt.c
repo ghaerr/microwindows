@@ -51,7 +51,7 @@ MT_Open(MOUSEDEVICE *pmd)
    struct termios termios;
 
    if ((mt_fd = open (devname, O_RDWR | O_NONBLOCK)) < 0) {
-      fprintf (stderr, "error opening '%s'\n", devname);
+      EPRINTF("error opening '%s'\n", devname);
       exit (-1);
    }
 

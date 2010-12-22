@@ -1014,9 +1014,14 @@ typedef struct {
 #if PSP
 #include <pspkernel.h>
 #include <psputils.h>
-#define fprintf(...)	do {} while(0)
 #define setbuf(...)		do {} while(0)
 #define exit(...)		sceKernelExitGame()
+#endif
+
+/* delete all printf/fprintf references for demos without fprintf/printf in C library*/
+#if defined(HAVE_FPRINTF) && (HAVE_FPRINTF == 0) && HAVE_VARARG_MACROS
+#define fprintf(...)	do {} while(0)
+#define printf(...)		do {} while(0)
 #endif
 
 #if RTEMS
@@ -1056,7 +1061,7 @@ extern int     ecos_nanox_client_data_index;
         ecos_nanox_client_data *dptr = malloc(sizeof(ecos_nanox_client_data));  \
         ecos_nanox_client_data_index = data;                                    \
         dptr->_nxSocket = -1;                                                   \
-	dptr->nxGlobalLock = 0;
+		dptr->nxGlobalLock = 0;													\
         dptr->_storedevent = 0;                                                 \
         dptr->_regfdmax = -1;                                                   \
         FD_ZERO(&dptr->_regfdset);                                              \

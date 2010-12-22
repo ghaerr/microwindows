@@ -76,10 +76,6 @@ INCLUDEDIRS += -I/usr/X11R6/include
 endif
 endif
 
-ifeq ($(VGALIB), Y)
-LDFLAGS += -lvga
-endif
-
 ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 INCLUDEDIRS += -I$(INCVNC) -I$(INCZ)
 DEFINES += -DHAVE_VNCSERVER=1
@@ -89,13 +85,9 @@ LDFLAGS += -lpthread
 endif
 endif
 
-ifeq ($(ARCH),FREEBSD-X86)
-LDFLAGS += -lvgl
-endif
-
 ifeq ($(HAVE_FILEIO), Y)
 
-DEFINES += -DHAVE_FILEIO
+DEFINES += -DHAVE_FILEIO=1
 
 ifeq ($(HAVE_TIFF_SUPPORT), Y)
 DEFINES += -DHAVE_TIFF_SUPPORT=1
@@ -197,13 +189,8 @@ endif
 
 endif
 
-# NOTE: Don't need FILEIO support for FreeType 2, since it can load
-# from memory buffers.
-
+# NOTE: Don't need FILEIO support for FreeType 2, since it can load from memory buffers.
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
-ifeq ($(HAVE_FREETYPE_SUPPORT), Y)
-$(error Having both FreeType 1 and FreeType 2 support is not allowed.)
-endif
 DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
 MW_CORE_LIBS += $(LIBFT2LIB)
@@ -250,12 +237,8 @@ ifeq ($(HAVE_SHAREDMEM_SUPPORT), Y)
 DEFINES += -DHAVE_SHAREDMEM_SUPPORT=1
 endif
 
-ifeq ($(FRAMEBUFFER), Y)
 ifeq ($(HAVETEXTMODE), Y)
-DEFINES += -DHAVETEXTMODE=1
-else
-DEFINES += -DHAVETEXTMODE=0
-endif
+DEFINES += -DHAVE_TEXTMODE=1
 endif
 
 ifeq ($(THREADSAFE), Y)
@@ -264,9 +247,6 @@ DEFINES += -DTHREADSAFE=1
 endif
 
 # Driver-specific stuff
-ifneq ($(ARCH), ELKS)
-ifneq ($(ARCH), DJGPP)
-
 ifeq ($(EM8400), Y)
 DEFINES += -I$(EM8400_DIR)/include
 LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
@@ -280,11 +260,6 @@ ifeq ($(ARCH), RTEMS)
   endif
 endif
 
-ifeq ($(FRAMEBUFFER), Y)
-ifeq ($(FBVGA), Y)
-DEFINES += -DFBVGA=1
-endif
-
 ifeq ($(INVERT4BPP), Y)
 DEFINES += -DINVERT4BPP=1
 endif
@@ -292,7 +267,6 @@ endif
 ifeq ($(INVERT2BPP), Y)
 DEFINES += -DINVERT2BPP=1
 endif
-endif # FRAMEBUFER
 
 ifeq ($(USE_EXPOSURE), Y)
 DEFINES += -DUSE_EXPOSURE
@@ -313,15 +287,13 @@ DEFINES += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
 HOSTCFLAGS += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
 endif
 
-endif # !DJGPP
-endif # !ELKS
-
 ifeq ($(TPHELIO), Y)
 DEFINES += -DTPHELIO=1
 endif
 
+# compile mouse driver in lirc keyboard driver kbd_lirc.c (LIRCKBD=Y)
 ifeq ($(LIRCMOUSE), Y)
-DEFINES += -DMW_LIRC_MOUSE=1
+DEFINES += -DHAVE_LIRC_MOUSE=1
 endif
 
 ifeq ($(LIRCKBD2), Y)
@@ -361,24 +333,6 @@ endif
 # Note: Do not set defines, includes or libraries here!
 ##############################################################################
 
-# Some drivers use outb macro, requires -O optimization
-ifneq ($(ARCH), LINUX-TCC)
-ifneq ($(ARCH), DJGPP)
-ifeq ($(ARCH), ELKS)
-CFLAGS += -O
-else
-ifeq ($(FRAMEBUFFER), Y)
-ifeq ($(FBVGA), Y)
-CFLAGS += -O
-endif
-endif # FRAMEBUFER
-ifeq ($(HWVGA), Y)
-CFLAGS += -O
-endif
-endif # !ELKS
-endif # !DJGPP
-endif # !LINUX-TCC
-
 ifneq ($(ARCH), TRIMEDIA)
 
 ifeq ($(SHAREDLIBS), Y)
@@ -397,7 +351,7 @@ endif
 endif
 
 ifeq ($(DEBUG), Y)
-OPTFLAGS += -ggdb -O0
+OPTFLAGS += -ggdb
 DEFINES += -DDEBUG=1
 else
 #OPTFLAGS += -DNDEBUG

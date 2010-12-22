@@ -641,7 +641,7 @@ GdEllipse(PSD psd, MWCOORD x, MWCOORD y, MWCOORD rx, MWCOORD ry, MWBOOL fill)
 	GdFixCursor(psd);
 }
 
-#if !NEWARCANGLE		/* was HAVEFLOAT*/
+#if !NEWARCANGLE		/* was HAVE_FLOAT*/
 #define HIGHPRECISION	0	/* =1 for high precision angles, uses mathlib*/
 
 #if !HIGHPRECISION

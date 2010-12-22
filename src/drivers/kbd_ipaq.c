@@ -23,7 +23,7 @@
 #define IPAQ_SCANCODE_ACTION   138
 #define IPAQ_SCANCODE_SUSPEND  139
 
-#ifdef __ECOS
+#if __ECOS
 #define KEYBOARD "/dev/kbd"
 #else
 #define KEYBOARD "/dev/h3600_key"

@@ -321,12 +321,12 @@ struct gr_timer
  * might dereference, and must be included in windows or pixmaps.
  */
 typedef struct gr_drawable {
-	GR_COORD	x;		/* x position (0)*/
-	GR_COORD	y;		/* y position (0)*/
+	GR_COORD	x;			/* x position (0)*/
+	GR_COORD	y;			/* y position (0)*/
 	GR_SIZE		width;		/* width */
 	GR_SIZE		height;		/* height */
-        struct _mwscreendevice *psd;    /* associated screen device */
-	GR_WINDOW_ID	id;		/* window/pixmap id */
+	PSD			psd;    	/* associated screen device */
+	GR_WINDOW_ID id;		/* window/pixmap id */
 } GR_DRAWABLE;
 
 /*
@@ -336,12 +336,12 @@ typedef struct gr_drawable {
 typedef struct gr_pixmap GR_PIXMAP;
 typedef struct gr_window GR_WINDOW;
 struct gr_window {
-	GR_COORD	x;		/* absolute x position */
-	GR_COORD	y;		/* absolute y position */
+	GR_COORD	x;			/* absolute x position */
+	GR_COORD	y;			/* absolute y position */
 	GR_SIZE		width;		/* width */
 	GR_SIZE		height;		/* height */
-        struct _mwscreendevice *psd;    /* associated screen device */
-	GR_WINDOW_ID	id;		/* window id */
+	PSD			psd;		/* associated screen device */
+	GR_WINDOW_ID id;		/* window id */
 	/* end of GR_DRAWABLE common members*/
 
 	GR_WINDOW	*next;		/* next window in complete list */
@@ -350,10 +350,10 @@ struct gr_window {
 	GR_WINDOW	*children;	/* first child window */
 	GR_WINDOW	*siblings;	/* next sibling window */
 	GR_SIZE		bordersize;	/* size of border */
-	GR_COLOR	bordercolor;	/* color of border */
+	GR_COLOR	bordercolor;/* color of border */
 	GR_COLOR	background;	/* background color */
 	GR_PIXMAP	*bgpixmap;	/* background pixmap */
-	int		bgpixmapflags;	/* center, tile etc. */
+	int			bgpixmapflags;	/* center, tile etc. */
 	GR_EVENT_MASK	nopropmask;	/* events not to be propagated */
 	GR_EVENT_CLIENT	*eventclients;	/* clients interested in events */
 	GR_CURSOR_ID	cursorid;	/* cursor for this window */
@@ -362,7 +362,9 @@ struct gr_window {
 	GR_BOOL		output;		/* TRUE if window can do output */
 	GR_WM_PROPS	props;		/* window properties*/
 	char		*title;		/* window title*/
-	MWCLIPREGION	*clipregion;	/* window clipping region */
+	MWCLIPREGION*clipregion;/* window clipping region */
+	GR_PIXMAP	*buffer;	/* window buffer pixmap*/
+	int			noclearwindow; /* no output in GsClearWindow*/
 };
 
 /*
@@ -370,12 +372,12 @@ struct gr_window {
  * Note: first elements must match GR_DRAWABLE
  */
 struct gr_pixmap {
-	GR_COORD	x;		/* x position (0)*/
-	GR_COORD	y;		/* y position (0)*/
+	GR_COORD	x;			/* x position (0)*/
+	GR_COORD	y;			/* y position (0)*/
 	GR_SIZE		width;		/* width */
 	GR_SIZE		height;		/* height */
-        struct _mwscreendevice *psd;    /* associated screen device */
-	GR_WINDOW_ID	id;		/* pixmap id */
+	PSD			psd;		/* associated screen device */
+	GR_WINDOW_ID id;		/* pixmap id */
 	/* end of GR_DRAWABLE common members*/
 
 	GR_PIXMAP	*next;		/* next pixmap in list */
@@ -388,10 +390,10 @@ struct gr_pixmap {
 typedef struct gr_grabbed_key GR_GRABBED_KEY;
 struct gr_grabbed_key {
 	GR_GRABBED_KEY	*next;	/**< Next entry in the linked list of all key grabs. */
-	GR_CLIENT	*owner;	/**< Client to send hotkey events to. */
-	int		type;	/**< The type parameter passed to GrGrabKey(). */
+	GR_CLIENT		*owner;	/**< Client to send hotkey events to. */
+	int				type;	/**< The type parameter passed to GrGrabKey(). */
 	GR_WINDOW_ID	wid;	/**< Window to send events to. */
-	GR_KEY		key;	/**< 16-bit unicode key value, MWKEY_xxx. */
+	GR_KEY			key;	/**< 16-bit unicode key value, MWKEY_xxx. */
 };
 
 /*
@@ -428,11 +430,14 @@ void		GsDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
+void		GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height);
 void		GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
 				GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
 void		GsUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
 void		GsRealizeWindow(GR_WINDOW *wp, GR_BOOL temp);
 void		GsDestroyWindow(GR_WINDOW *wp);
+GR_WINDOW_ID GsNewPixmap(GR_SIZE width, GR_SIZE height, int format, void *pixels);
+void		GsDestroyPixmap(GR_PIXMAP *pp);
 void		GsSetPortraitMode(int mode);
 void		GsSetPortraitModeFromXY(GR_COORD rootx, GR_COORD rooty);
 void		GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags);

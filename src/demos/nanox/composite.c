@@ -8,25 +8,28 @@
  * 12/11/2010 g haerr
  */
 
+#define BUFFERED_WINDOWS	1
+
 //#define FONT	"DejaVuSans-Bold.ttf"
 #define FONT	"arial.ttf"
 #define IMAGE	 "mwin/bmp/alphademo.png"
 
-GR_WINDOW_ID wid, p1, p2;
+GR_WINDOW_ID wid = 0, p1, p2 = 0;
 GR_IMAGE_INFO image_info;
+GR_SCREEN_INFO sinfo;
+GR_WINDOW_INFO winfo;
 
+void resize_demo(void);
 void init_demo(void);
 void redraw_demo(void);
 
 void
-init_demo(void)
+resize_demo(void)
 {
+	int width, height;
 	GR_GC_ID gc;
-	int x, y;
 	GR_FONT_ID font;
 	GR_IMAGE_ID iid;
-	GR_SCREEN_INFO sinfo;
-	GR_WM_PROPERTIES props;
 	char *text = "Microwindows Compositing";
 
 	GrGetScreenInfo(&sinfo);
@@ -39,15 +42,25 @@ init_demo(void)
 	}
 	GrGetImageInfo(iid, &image_info);
 
+	if (wid) {
+		GrGetWindowInfo(wid, &winfo);
+		width = winfo.width;
+		height = winfo.height;
+	} else {
+		width = image_info.width;
+		height = image_info.height;
+	}
 	/* create 32bpp pixmap and draw image w/alpha on it*/
-	p1 = GrNewPixmapEx(image_info.width, image_info.height, MWIF_RGBA8888, NULL);
-	GrDrawImageToFit(p1, gc, 0, 0, image_info.width, image_info.height, iid);
+	p1 = GrNewPixmapEx(width, height, MWIF_RGBA8888, NULL);
+	GrDrawImageToFit(p1, gc, 0, 0, width, height, iid);
 	GrFreeImage(iid);
 
+	if (p2)
+		GrDestroyWindow(p2);
 	/* create another pixmap p2 of same size and bpp with green background*/
-	p2 = GrNewPixmapEx(image_info.width, image_info.height, MWIF_RGBA8888, NULL);
+	p2 = GrNewPixmapEx(width, height, MWIF_RGBA8888, NULL);
 	GrSetGCForeground(gc, GR_COLOR_SEAGREEN);
-	GrFillRect(p2, gc, 0, 0, image_info.width, image_info.height);
+	GrFillRect(p2, gc, 0, 0, width, height);
 
 	/* draw text onto p2*/
 	font = GrCreateFontEx(FONT, 80, 60, NULL);
@@ -60,25 +73,28 @@ init_demo(void)
 	GrDestroyFont(font);
 
 	/* composite p1 onto p2*/
-	GrCopyArea(p2, gc, 0, 0, image_info.width, image_info.height, p1, 0, 0, MWROP_SRC_OVER);
+	GrCopyArea(p2, gc, 0, 0, width, height, p1, 0, 0, MWROP_SRC_OVER);
 
 	/* cleanup*/
-	GrDestroyGC(gc);
 	GrDestroyWindow(p1);
+}
+
+void
+init_demo(void)
+{
+	int x, y, flags;
 
 	/* create window for display with no background erase to stop blink*/
 	x = sinfo.cols - image_info.width*4;
 	y = sinfo.rows - image_info.height*4;
-	wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, NULL, GR_ROOT_WINDOW_ID,
+	flags = GR_WM_PROPS_APPWINDOW | GR_WM_PROPS_NOBACKGROUND;
+#if BUFFERED_WINDOWS
+	flags |= GR_WM_PROPS_BUFFERED | GR_WM_PROPS_NODRAWONRESIZE;
+#endif
+	wid = GrNewWindowEx(flags, "Microwindows Compositing Demo", GR_ROOT_WINDOW_ID,
 		x, y, image_info.width, image_info.height, GR_COLOR_WHITE);
-	props.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
-	props.props = GR_WM_PROPS_NOBACKGROUND;
-	props.title = "Microwindows Compositing Demo";
-	GrSetWMProperties(wid, &props);
 
-
-	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_EXPOSURE);
-	GrMapWindow(wid);
+	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE | GR_EVENT_MASK_EXPOSURE);
 }
 
 void
@@ -86,10 +102,13 @@ redraw_demo(void)
 {
 	GR_GC_ID gc = GrNewGC();
 
+	GrGetWindowInfo(wid, &winfo);
 	/* copy p2 onto display*/
-	GrCopyArea(wid, gc, 0, 0, image_info.width, image_info.height, p2, 0, 0, MWROP_COPY);
-
+	GrCopyArea(wid, gc, 0, 0, winfo.width, winfo.height, p2, 0, 0, MWROP_COPY);
 	GrDestroyGC(gc);
+#if BUFFERED_WINDOWS
+	GrFlushWindow(wid);
+#endif
 }
 
 int
@@ -103,7 +122,12 @@ main(void)
 	}
 
 	/* create pixmap with background image*/
-	init_demo();
+	resize_demo();				/* create contents*/
+	init_demo();				/* create window*/
+#if BUFFERED_WINDOWS
+	redraw_demo();				/* prevent any initial blink*/
+#endif
+	GrMapWindow(wid);
 
 	while (!quit) {
 		GR_EVENT event;
@@ -114,9 +138,23 @@ main(void)
 			quit = 1;
 			break;
 
-		case GR_EVENT_TYPE_EXPOSURE:
-			redraw_demo();
+		case GR_EVENT_TYPE_UPDATE:
+			switch (event.update.utype) {
+#if BUFFERED_WINDOWS
+			case GR_UPDATE_MAP:			/* initial paint*/
+#endif
+			case GR_UPDATE_SIZE:		/* resize repaint*/
+				resize_demo();
+				redraw_demo();
+			}
 			break;
+
+#if !BUFFERED_WINDOWS
+		case GR_EVENT_TYPE_EXPOSURE:
+			printf("Expose event id %d\n", event.exposure.wid);
+			redraw_demo();				/* copy contents to window*/
+			break;
+#endif
 		}
 	}
 

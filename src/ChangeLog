@@ -1,3 +1,20 @@
+22 Dec 2010
+	* optimized GrResizeWindow exposure for no blink
+	* added OSX/iOS-style buffered windows! use GR_WM_PROPS_BUFFERED flags in GrNewWindowEx
+		(demo in demos/nanox/composite.c, fontdemo.c, src/compositedemo.sh, fontdemo.sh)
+		Quick conversion for double buffered windows in any application:
+			add GR_WM_PROPS_BUFFERED to GrNewWindowEx flags
+			add GR_WM_PROPS_NOBACKGROUND|GR_WM_PROPS_NODRAWONRESIZE if app paints background
+			add GrFlushWindow(wid) call in paint routine
+			add update mask and handling for GR_UPDATE_MAP & GR_UPDATE_SIZE and call paint routine
+			remove Exposure mask and event handling
+		Buffered windows allocate a 32bpp RGBA pixmap for automatic offscreen buffered drawing.
+		Pixmap is erased to bg color unless GR_WM_PROPS_NOBACKGROUND also set
+		On window expose, buffered contents are copied, app never gets expose events.
+		App must process resize and map Update events, flush buffer with GrFlushWindow(wid)
+		On resize, buffered contents will be copied unless GR_WM_PROPS_NODRAWONRESIZE set
+			Currently buffer contents are erased to bg color rather than resized on window resize
+	* fix memory leak with background pixmap windows
 21 Dec 2010
 	* fix optimization problem with DEBUG=Y
 	* cleanup device.h HAVE_xxx defines, use Arch.rules -DHAVE_xxx=0/1 instead

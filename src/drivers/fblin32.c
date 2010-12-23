@@ -137,7 +137,7 @@ static SUBDRIVER fblinear32bgra_none = {
 	convblit_copy_rgba8888_bgra8888,			/* RGBA image copy (GdArea MWPF_RGB)*/
 	convblit_srcover_rgba8888_bgra8888,			/* RGBA images w/alpha*/
 	convblit_copy_rgb888_bgra8888,				/* RGB images no alpha*/
-	frameblit_stretch_rgba8888_bgra8888			/* RGBA convblit*/
+	frameblit_stretch_rgba8888_bgra8888			/* RGBA stretchblit*/
 };
 
 static SUBDRIVER fblinear32bgra_left = {

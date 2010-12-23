@@ -170,7 +170,7 @@ static SUBDRIVER fblinear24_none = {
 	convblit_copy_rgba8888_bgr888,				/* RGBA image copy (GdArea MWPF_RGB)*/
 	convblit_srcover_rgba8888_bgr888,			/* RGBA images w/alpha*/
 	convblit_copy_rgb888_bgr888, 				/* RGB images no alpha*/
-	frameblit_stretch_rgba8888_bgr888			/* RGBA convblit*/
+	frameblit_stretch_rgba8888_bgr888			/* RGBA stretchblit*/
 };
 
 static SUBDRIVER fblinear24_left = {

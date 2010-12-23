@@ -328,8 +328,15 @@ GsDestroyWindow(GR_WINDOW *wp)
 
 	GsCheckMouseWindow();
 
-	if(wp->title)
+	/*
+	 * Free title, pixmaps and clipregions associated with window.
+	 */
+	if (wp->title)
 		free(wp->title);
+	if (wp->bgpixmap)
+		GsDestroyPixmap(wp->bgpixmap);
+	if (wp->buffer)
+		GsDestroyPixmap(wp->buffer);
 	if (wp->clipregion)
 		GdDestroyRegion(wp->clipregion);
 
@@ -349,6 +356,43 @@ GsDestroyWindow(GR_WINDOW *wp)
 	}
 
 	free(wp);
+}
+
+/* Destroy a pixmap*/
+void
+GsDestroyPixmap(GR_PIXMAP *pp)
+{
+	GR_PIXMAP	*prevpp;
+	PSD psd = pp->psd;
+
+	/* deallocate pixmap memory*/
+	if (psd->flags & PSF_ADDRMALLOC)
+		free(psd->addr);
+
+	/* deallocate mem gc*/
+	psd->FreeMemGC(psd);
+
+	/*
+	 * Remove this pixmap from the complete list of pixmaps.
+	 */
+	prevpp = listpp;
+	if (prevpp == pp)
+		listpp = pp->next;
+	else {
+		while (prevpp->next != pp)
+			prevpp = prevpp->next;
+		prevpp->next = pp->next;
+	}
+
+	/*
+	 * Forget various information if they related to this
+	 * pixmap.  Then finally free the structure.
+	 */
+	if (pp == cachepp) {
+		cachepixmapid = 0;
+		cachepp = NULL;
+	}
+	free(pp);
 }
 
 /*
@@ -551,6 +595,41 @@ GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x, GR_COORD y,
 	}
 }
 
+/* init buffered windows by allocating pixmap buffer and clearing background*/
+void
+GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
+{
+	/* create same size RGBA pixmap for buffer*/
+	GR_WINDOW_ID id;
+	
+	/* check if buffer size changed*/
+	if (wp->buffer) {
+		if (wp->width == width && wp->height == height)
+			return;
+		GsDestroyPixmap(wp->buffer);
+	}
+
+	id = GsNewPixmap(width, height, MWIF_RGBA8888, NULL);
+	wp->buffer = GsFindPixmap(id);
+	if (!wp->buffer) {
+		wp->props &= ~GR_WM_PROPS_BUFFERED;
+		return;
+	}
+
+	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
+		GR_PIXMAP *pp = wp->buffer;
+		/* 
+		 * Invalidate current graphics context since
+		 * we're changing foreground color and mode.
+		 */
+		curgcp = NULL;
+		GdSetFillMode(GR_FILL_SOLID);
+		GdSetMode(GR_MODE_COPY);
+		GdSetForegroundColor(pp->psd, wp->background);
+		GdFillRect(pp->psd, 0, 0, pp->width, pp->height);
+	}
+}
+
 /*
  * Clear the specified area of a window and possibly make an exposure event.
  * This sets the area window to its background color or pixmap.  If the
@@ -558,11 +637,11 @@ GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x, GR_COORD y,
  * window.
  */
 void
-GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE  height, GR_BOOL exposeflag)
+GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  height, GR_BOOL exposeflag)
 {
 	if (!wp->realized || !wp->output)
 		return;
+
 	/*
 	 * Reduce the arguments so that they actually lie within the window.
 	 */
@@ -586,7 +665,20 @@ GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	if (x >= wp->width || y >= wp->height || width <= 0 || height <= 0)
 		return;
 
-	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
+	/*
+	 * Check if buffered window, and draw buffer if so.
+	 */
+	if ((wp->props & GR_WM_PROPS_BUFFERED) && !wp->noclearwindow) {
+		/* clip to this window*/
+		GsSetClipWindow(wp, NULL, 0);
+		clipwp = NULL;		/* reset clip cache since no user regions used*/
+
+		/* copy window pixmap buffer*/
+		GdBlit(wp->psd, wp->x + x, wp->y + y, width, height, wp->buffer->psd, x, y, MWROP_COPY);
+		return;				/* don't deliver exposure events*/
+	}
+
+	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND) && !wp->noclearwindow) {
 		/* perhaps find a better way of determining whether pixmap needs src_over*/
 		int hasalpha = wp->bgpixmap && (wp->bgpixmap->psd->data_format & MWIF_HASALPHA);
 
@@ -597,7 +689,6 @@ GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width,
 	 	 */
 		GsSetClipWindow(wp, NULL, 0);
 		curgcp = NULL;
-
 		GdSetFillMode(GR_FILL_SOLID);
 		GdSetMode(GR_MODE_COPY);
 		GdSetForegroundColor(wp->psd, wp->background);
@@ -648,7 +739,7 @@ GsExposeArea(GR_WINDOW *wp, GR_COORD rootx, GR_COORD rooty, GR_SIZE width,
 	 * The area does overlap the window.  See if the area overlaps
 	 * the border, and if so, then redraw it.
 	 */
-	if ((rootx < wp->x) || (rooty < wp->y) ||
+	if (rootx < wp->x || rooty < wp->y ||
 		(rootx + width > wp->x + wp->width) ||
 		(rooty + height > wp->y + wp->height))
 			GsDrawBorder(wp);
@@ -975,7 +1066,7 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 		pp = GsFindPixmap(id);
 		if (pp == NULL)
 				return GR_DRAW_TYPE_NONE;
-	   
+havepixmap:
 #if DYNAMICREGIONS
 		reg = GdAllocRectRegion(0, 0, pp->psd->xvirtres, pp->psd->yvirtres);
 		/* intersect with user region if any*/
@@ -1012,6 +1103,13 @@ GsPrepareDrawing(GR_DRAW_ID id, GR_GC_ID gcid, GR_DRAWABLE **retdp)
 		if (!wp->output) {
 				GsError(GR_ERROR_INPUT_ONLY_WINDOW, id);
 				return GR_DRAW_TYPE_NONE;
+		}
+
+		/* check if buffered window*/
+		if (wp->props & GR_WM_PROPS_BUFFERED) {
+			pp = wp->buffer;
+			wp = NULL;
+			goto havepixmap;		/* draw into pixmap buffer*/
 		}
 
 		if (!wp->realized)

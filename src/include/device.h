@@ -335,7 +335,7 @@ void 	GdSetClipRects(PSD psd,int count,MWCLIPRECT *table);
 
 /* devclip2.c only*/
 void	GdSetClipRegion(PSD psd, MWCLIPREGION *reg);
-void	GdPrintClipRects(PSD psd, PMWBLITPARMS gc);
+void	GdPrintClipRects(PMWBLITPARMS gc);
 
 /* devrgn.c - multi-rectangle region entry points*/
 MWBOOL GdPtInRegion(MWCLIPREGION *rgn, MWCOORD x, MWCOORD y);

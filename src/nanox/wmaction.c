@@ -127,6 +127,10 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  pos->xoff += info.width;
 	  pos->yoff += info.height;
 
+// offset from hotspot
+//pos->xoff += r.x - event->x;
+//pos->yoff += r.y - event->y;
+
 	  gc = GrNewGC();
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID,gc,info.x, info.y, info.width, info.height);

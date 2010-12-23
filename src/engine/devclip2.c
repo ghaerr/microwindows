@@ -191,8 +191,7 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
    * and is fast.
    */
   for (rp = clipregion->rects; count-- > 0; rp++) {
-	if ((x >= rp->left) && (y >= rp->top) && (x < rp->right)
-	    && (y < rp->bottom)) {
+	if ((x >= rp->left) && (y >= rp->top) && (x < rp->right) && (y < rp->bottom)) {
 		clipminx = rp->left;
 		clipminy = rp->top;
 		clipmaxx = rp->right - 1;
@@ -249,12 +248,10 @@ GdClipPoint(PSD psd,MWCOORD x,MWCOORD y)
 int
 GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2)
 {
-  if ((x1 < clipminx) || (x1 > clipmaxx) ||
-      (y1 < clipminy) || (y1 > clipmaxy))
+  if ((x1 < clipminx) || (x1 > clipmaxx) || (y1 < clipminy) || (y1 > clipmaxy))
 	GdClipPoint(psd, x1, y1);
 
-  if ((x2 >= clipminx) && (x2 <= clipmaxx) &&
-      (y2 >= clipminy) && (y2 <= clipmaxy)) {
+  if ((x2 >= clipminx) && (x2 <= clipmaxx) && (y2 >= clipminy) && (y2 <= clipmaxy)) {
 	if (!clipresult) return CLIP_INVISIBLE;
 	GdCheckCursor(psd, x1, y1, x2, y2);
 	return CLIP_VISIBLE;
@@ -264,15 +261,16 @@ GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2)
 
 #if DEBUG
 void
-GdPrintClipRects(PSD psd, PMWBLITPARMS gc)
+GdPrintClipRects(PMWBLITPARMS gc)
 {
 	extern MWCLIPREGION *clipregion;
 	MWRECT *prc = clipregion->rects;
 	int count = clipregion->numRects;
 	int n = 1;
 
-	DPRINTF("Clip rects (%d) for window draw %d,%d %d,%d\n",
-		count, gc->dstx, gc->dsty, gc->width, gc->height);
+	if (gc)
+		DPRINTF("Clip rects (%d) for window draw %d,%d %d,%d\n",
+			count, gc->dstx, gc->dsty, gc->width, gc->height);
 
 	while (count-- > 0) {
 		MWCOORD rx1, rx2, ry1, ry2, rw, rh;

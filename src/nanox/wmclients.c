@@ -65,7 +65,7 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 	if ((style & GR_WM_PROPS_APPMASK) == GR_WM_PROPS_APPWINDOW) {
 		GR_WM_PROPERTIES pr;
 
-		style = (style & ~GR_WM_PROPS_APPMASK)|DEFAULT_WINDOW_STYLE;
+		style = style | DEFAULT_WINDOW_STYLE;
 		pr.flags = GR_WM_FLAGS_PROPS;
 		pr.props = style;
 		GrSetWMProperties(wid, &pr);
@@ -135,7 +135,7 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 
 	/* don't erase background of container window*/
 	props.flags = GR_WM_FLAGS_PROPS;
-	props.props = style | GR_WM_PROPS_NOBACKGROUND;
+	props.props = (style & ~GR_WM_PROPS_BUFFERED) | GR_WM_PROPS_NOBACKGROUND;
 	GrSetWMProperties(pid, &props);
 
 	Dprintf("New client window %d container %d\n", wid, pid);

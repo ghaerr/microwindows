@@ -143,7 +143,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 		pimage->data_format = MWIF_RGBA8888;
 	else
 		pimage->data_format = MWIF_RGB888;
-DPRINTF("png %dbpp\n", channels*8);
+//DPRINTF("png %dbpp\n", channels*8);
 
     if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);

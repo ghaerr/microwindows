@@ -1,3 +1,12 @@
+fix nanowm corner resize button down/up shrinkage
+check why reversing GrResizeWindow in nanowm causes blitdemo to fail
+	nanowm must resize client window before frame for gdblit issue
+	add possible GrResizeWindowEx with delay expose flag
+how to handle child windows in buffered window scheme
+resize buffered pixmap rather than erase to background color
+allow bgpixmaps to work with buffered windows for pixmap init
+fix chess blink by using buffered windows
+
 GdBlit Frame->Pixmap fails, needs src rotate (and test)
 GdStretchBlit Frame->Frame and Frame->Pixmap fails, needs src/dst rotate (and test)
 convblits could be updated with rotation macros, move macros to convblit.h

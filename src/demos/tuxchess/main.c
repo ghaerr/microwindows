@@ -264,6 +264,10 @@ int main(int argc, char* argv[])
 	props.title = TITLE;
 	GrSetWMProperties(master, &props);
 
+	//props.flags = GR_WM_FLAGS_PROPS;
+	//props.props = GR_WM_PROPS_NOBACKGROUND;
+	//GrSetWMProperties(board, &props);
+
         GrMapWindow(master);
         GrMapWindow(board);
         GrMapWindow(text);

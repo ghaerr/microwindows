@@ -179,7 +179,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 
 		pfont = (PMWFONT)freetype2_createfont(fontname, height, width, fontattr);
 		if(pfont) {
-			DPRINTF("freetype_createfont: using font %s\n", fontname);
+			//DPRINTF("freetype_createfont: using font %s\n", fontname);
 			/* FIXME kaffe kluge*/
 			pfont->fontattr |= MWTF_FREETYPE;
 			return pfont;

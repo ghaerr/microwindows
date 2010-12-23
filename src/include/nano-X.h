@@ -174,7 +174,6 @@ typedef struct {
 
 #if 0 /* don't define unimp'd flags*/
 /* Window property flags */
-#define GR_WM_PROP_NORESIZE	0x04	/* don't let user resize window */
 #define GR_WM_PROP_NOICONISE	0x08	/* don't let user iconise window */
 #define GR_WM_PROP_NOWINMENU	0x10	/* don't display a window menu button */
 #define GR_WM_PROP_NOROLLUP	0x20	/* don't let user roll window up */
@@ -184,27 +183,29 @@ typedef struct {
 #endif
 
 /* Window properties*/
-#define GR_WM_PROPS_NOBACKGROUND 0x00000001L/* Don't draw window background*/
-#define GR_WM_PROPS_NOFOCUS	 0x00000002L /* Don't set focus to this window*/
-#define GR_WM_PROPS_NOMOVE	 0x00000004L /* Don't let user move window*/
-#define GR_WM_PROPS_NORAISE	 0x00000008L /* Don't let user raise window*/
+#define GR_WM_PROPS_NOBACKGROUND 0x00000001L /* Don't draw window background*/
+#define GR_WM_PROPS_NOFOCUS	 	 0x00000002L /* Don't set focus to this window*/
+#define GR_WM_PROPS_NOMOVE	 	 0x00000004L /* Don't let user move window*/
+#define GR_WM_PROPS_NORAISE	 	 0x00000008L /* Don't let user raise window*/
 #define GR_WM_PROPS_NODECORATE	 0x00000010L /* Don't redecorate window*/
 #define GR_WM_PROPS_NOAUTOMOVE	 0x00000020L /* Don't move window on 1st map*/
 #define GR_WM_PROPS_NOAUTORESIZE 0x00000040L /* Don't resize window on 1st map*/
 #define GR_WM_PROPS_NORESIZE	 0x00000080L /* Don't let user resize window*/
+#define GR_WM_PROPS_BUFFERED	 0x00000100L /* Buffered window - no expose events*/
+#define GR_WM_PROPS_NODRAWONRESIZE 0x00000200L /* Don't expose contents during resize*/
 
 /* default decoration style*/
 #define GR_WM_PROPS_APPWINDOW	0x00000000L /* Leave appearance to WM*/
-#define GR_WM_PROPS_APPMASK	0xF0000000L /* Appearance mask*/
-#define GR_WM_PROPS_BORDER	0x80000000L /* Single line border*/
+#define GR_WM_PROPS_APPMASK		0xF0000000L /* Appearance mask*/
+#define GR_WM_PROPS_BORDER		0x80000000L /* Single line border*/
 #define GR_WM_PROPS_APPFRAME	0x40000000L /* 3D app frame (overrides border)*/
-#define GR_WM_PROPS_CAPTION	0x20000000L /* Title bar*/
+#define GR_WM_PROPS_CAPTION		0x20000000L /* Title bar*/
 #define GR_WM_PROPS_CLOSEBOX	0x10000000L /* Close box*/
 #define GR_WM_PROPS_MAXIMIZE	0x08000000L /* Application is maximized*/
 
 /* Flags for indicating valid bits in GrSetWMProperties call*/
-#define GR_WM_FLAGS_PROPS	0x0001	/* Properties*/
-#define GR_WM_FLAGS_TITLE	0x0002	/* Title*/
+#define GR_WM_FLAGS_PROPS		0x0001	/* Properties*/
+#define GR_WM_FLAGS_TITLE		0x0002	/* Title*/
 #define GR_WM_FLAGS_BACKGROUND	0x0004	/* Background color*/
 #define GR_WM_FLAGS_BORDERSIZE	0x0008	/* Border size*/
 #define GR_WM_FLAGS_BORDERCOLOR	0x0010	/* Border color*/
@@ -962,6 +963,7 @@ void		GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
 			GR_COORD y, GR_SIZE width, GR_SIZE height,
 			GR_IMAGE_ID imageid);
 #define GrClearWindow(wid,exposeflag)		GrClearArea(wid,0,0,0,0,exposeflag)
+#define GrFlushWindow(wid)					GrClearWindow(wid,0)
 #define GrDrawImageToFit(id,gc,x,y,width,height,imageid) \
 	GrDrawImagePartToFit(id,gc,x,y,width,height,0,0,0,0,imageid)
 #define GrSetWindowBackgroundColor(wid,color) \

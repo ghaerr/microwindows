@@ -381,47 +381,16 @@ GrDestroyWindow(GR_WINDOW_ID wid)
 {
 	GR_WINDOW	*wp;		/* window structure */
 	GR_PIXMAP	*pp;
-	GR_PIXMAP	*prevpp;
-	PSD		psd;
 
 	SERVER_LOCK();
 
 	wp = GsFindWindow(wid);
-	if (wp) {
+	if (wp)
 		GsDestroyWindow(wp);
-	} else {
+	else {
 		pp = GsFindPixmap(wid);
-		if (pp) {
-			psd = pp->psd;
-			/* deallocate pixmap memory*/
-			if (psd->flags & PSF_ADDRMALLOC)
-				free(psd->addr);
-
-			/* deallocate mem gc*/
-			psd->FreeMemGC(psd);
-
-			/*
-			 * Remove this pixmap from the complete list of pixmaps.
-			 */
-			prevpp = listpp;
-			if (prevpp == pp)
-				listpp = pp->next;
-			else {
-				while (prevpp->next != pp)
-					prevpp = prevpp->next;
-				prevpp->next = pp->next;
-			}
-
-			/*
-			 * Forget various information if they related to this
-			 * pixmap.  Then finally free the structure.
-			 */
-			if (pp == cachepp) {
-				cachepixmapid = 0;
-				cachepp = NULL;
-			}
-			free(pp);
-		}
+		if (pp)
+			GsDestroyPixmap(pp);
 	}
 
 	SERVER_UNLOCK();
@@ -833,6 +802,10 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
+	/* handle buffered windows by reallocating pixmap buffer to new size*/
+	if (wp->props & GR_WM_PROPS_BUFFERED)
+		GsInitWindowBuffer(wp, width, height); /* allocate buffer and fill background*/
+
 	if (!wp->realized || !wp->output) {
 		wp->width = width;
 		wp->height = height;
@@ -840,22 +813,37 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
+	/* possibly disable drawing in GsClearWindow*/
+	if (wp->props & GR_WM_PROPS_NODRAWONRESIZE)
+		wp->noclearwindow = 1;
+
 #if 1
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
 	wp->height = height;
+
+	/* draw background in resized window*/
 	if (wp->output) {
 		GsDrawBorder(wp);
 		GsClearWindow(wp, 0, 0, wp->width, wp->height, GR_TRUE);
 	}
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
-	if (oldw > width || oldh > height) {
+
+	/* draw backgrounds in newly exposed window regions*/
+	if (width < oldw || height < oldh) {
 		int bs = wp->bordersize;
-		GsExposeArea(wp->parent, wp->x - bs, wp->y - bs, oldw + bs * 2, oldh + bs * 2, NULL);
+		int x = wp->x - bs;
+		int y = wp->y - bs;
+		int w, h;
+		if (oldw < width) oldw = width;
+		if (oldh < height) oldh = height;
+		w = oldw + bs*2;
+		h = oldh + bs*2;
+		GsExposeArea(wp->parent, x + wp->width, y, w - wp->width, h, NULL);
+		GsExposeArea(wp->parent, x, y + wp->height, w - (oldw - wp->width), h - wp->height, NULL);
 	}
-#endif
-#if 0
+#else
 	/*
 	 * This should be optimized to not require redrawing of the window
 	 * when possible.
@@ -867,6 +855,9 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 	GsRealizeWindow(wp, GR_FALSE);
 #endif
+
+	/* reenable drawing in GsClearWindow*/
+	wp->noclearwindow = 0;
 	SERVER_UNLOCK();
 }
 
@@ -1912,6 +1903,8 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
 	wp->props = 0;
 	wp->title = NULL;
 	wp->clipregion = NULL;
+	wp->buffer = NULL;
+	wp->noclearwindow = 0;
 
 	pwp->children = wp;
 	listwp = wp;
@@ -1947,8 +1940,7 @@ GrNewWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y, GR_SIZE width,
 		return 0;
 	}
 
-	wp = NewWindow(pwp, x, y, width, height, bordersize, background,
-		bordercolor);
+	wp = NewWindow(pwp, x, y, width, height, bordersize, background, bordercolor);
 	id = wp? wp->id: 0;
 	
 	SERVER_UNLOCK();
@@ -1995,10 +1987,21 @@ GrNewInputWindow(GR_WINDOW_ID parent, GR_COORD x, GR_COORD y,
  * for offscreen drawing
  */
 GR_WINDOW_ID
-GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
+GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void *pixels)
+{
+	GR_WINDOW_ID id;
+
+	SERVER_LOCK();
+	id = GsNewPixmap(width, height, format, pixels);
+	SERVER_UNLOCK();
+
+	return id;
+}
+
+GR_WINDOW_ID
+GsNewPixmap(GR_SIZE width, GR_SIZE height, int format, void *pixels)
 {
 	GR_PIXMAP	*pp;
-	GR_WINDOW_ID id;
 	PSD		psd;
 	int 	size, linelen, pitch, bpp, planes, data_format;
 	int		pixtype;
@@ -2008,8 +2011,6 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 		/*GsError(GR_ERROR_BAD_WINDOW_SIZE, 0);*/
 		return 0;
 	}
-
-	SERVER_LOCK();
 
 	bpp = rootwp->psd->bpp;
 	data_format = rootwp->psd->data_format;
@@ -2035,8 +2036,7 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 		pixtype = MWPF_TRUECOLOR8888;
 		break;
 	default:
-		DPRINTF("GrNewPixmapEx: unsupported format %08x\n", format);
-		SERVER_UNLOCK();
+		DPRINTF("NewPixmap: unsupported format %08x\n", format);
 		return 0;	/* fail*/
 	}
 
@@ -2046,17 +2046,14 @@ GrNewPixmapEx(GR_SIZE width, GR_SIZE height, int format, void * pixels)
 	 * device for compatibility for now.
 	 */
 	psd = rootwp->psd->AllocateMemGC(rootwp->psd);
-	if (!psd) {
-		SERVER_UNLOCK();
+	if (!psd)
 		return 0;
-	}
 
 	pp = (GR_PIXMAP *) malloc(sizeof(GR_PIXMAP));
 	if (pp == NULL) {
 nomem:
 		psd->FreeMemGC(psd);
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
 		return 0;
 	}
 
@@ -2085,11 +2082,7 @@ nomem:
 	psd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
 
 	listpp = pp;
-	id = pp->id;
-	
-	SERVER_UNLOCK();
-	
-	return id;
+	return pp->id;
 }
 
 /*
@@ -2143,8 +2136,7 @@ GrUnmapWindow(GR_WINDOW_ID wid)
  * or pixmap.  Generate expose event for window if exposeflag set.
  */
 void
-GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE height, GR_BOOL exposeflag)
+GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag)
 {
 	GR_WINDOW		*wp;	/* window structure */
 
@@ -3569,6 +3561,7 @@ void
 GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 {
 	GR_WINDOW *wp;
+	GR_WM_PROPS oldprops;
 	int tl = 0;    /* Initialized to avoid warning */
 
 	SERVER_LOCK();
@@ -3580,10 +3573,21 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 		SERVER_UNLOCK();
 		return;
 	}
+	oldprops = wp->props;
 
 	/* Set window properties*/
 	if (props->flags & GR_WM_FLAGS_PROPS)
 		wp->props = props->props;
+
+	/* check window buffer property just set*/
+	if ((wp->props & GR_WM_PROPS_BUFFERED) && !(oldprops & GR_WM_PROPS_BUFFERED)) {
+		/* first set background if new*/
+		if (props->flags & GR_WM_FLAGS_BACKGROUND)
+				wp->background = props->background;
+
+		/* alloc pixmap buffer and fill background*/
+		GsInitWindowBuffer(wp, wp->width, wp->height);
+	}
 
 	/* Set window title*/
 	if (props->flags & GR_WM_FLAGS_TITLE) {
@@ -3610,11 +3614,14 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 		GsNotifyActivate(focuswp);
 	}
 
-	/* Set window background*/
+	/* Set window background, also fill window's pixmap if buffered*/
 	if (props->flags & GR_WM_FLAGS_BACKGROUND) {
 		if (wp->background != props->background) {
 			wp->background = props->background;
-			GsExposeArea(wp, wp->x, wp->y, wp->width, wp->height, NULL);
+
+			/* fill background with new color if not buffered*/
+			if (!(wp->props & GR_WM_PROPS_BUFFERED))
+				GsExposeArea(wp, wp->x, wp->y, wp->width, wp->height, NULL);
 		}
 	}
 

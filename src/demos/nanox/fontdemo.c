@@ -1,5 +1,7 @@
 /*
  * fontdemo - freetype font demonstration program for Nano-X
+ *
+ * Uses buffered windows for automatic double buffering and no blink!
  */
 
 #include <stdio.h>
@@ -20,7 +22,7 @@ GR_BOOL		aa = GR_TRUE;
 char		fontname[200] = FONTNAME;
 
 static void
-do_paint(GR_EVENT_EXPOSURE *ep)
+do_paint(void)
 {
 	int	i, y = 0;
 	GR_GC_ID	gc;
@@ -59,20 +61,26 @@ do_paint(GR_EVENT_EXPOSURE *ep)
 		GrDestroyFont(font);
 	}
 	GrDestroyGC(gc);
+
+	GrFlushWindow(w);
 }
 
 int
 main(int ac, char **av)
 {
+	int flags;
+
 	if (ac > 1)
 		strcpy(fontname, av[1]);
 
 	if (GrOpen() < 0)
 		exit(1);
 
-	w = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "fontdemo", GR_ROOT_WINDOW_ID,
-		10, 10, 640, 530, BGCOLOR);
-	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_BUTTON_DOWN|
+	flags = GR_WM_PROPS_APPWINDOW|GR_WM_PROPS_NOBACKGROUND|
+		GR_WM_PROPS_BUFFERED|GR_WM_PROPS_NODRAWONRESIZE;
+
+	w = GrNewWindowEx(flags, "fontdemo", GR_ROOT_WINDOW_ID, 10, 10, 640, 530, BGCOLOR);
+	GrSelectEvents(w, GR_EVENT_MASK_BUTTON_DOWN|GR_EVENT_MASK_UPDATE|
 		GR_EVENT_MASK_KEY_DOWN|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(w);
 
@@ -81,19 +89,23 @@ main(int ac, char **av)
 
 		GrGetNextEvent(&event);
 		switch (event.type) {
-		case GR_EVENT_TYPE_EXPOSURE:
-			do_paint(&event.exposure);
+		case GR_EVENT_TYPE_UPDATE:
+			switch (event.update.utype) {
+			case GR_UPDATE_MAP:			/* initial paint*/
+			case GR_UPDATE_SIZE:		/* resize repaint*/
+				do_paint();
+			}
 			break;
 
 		case GR_EVENT_TYPE_BUTTON_DOWN:
-			do_paint(&event.exposure);
+			do_paint();
 			break;
 
     	case GR_EVENT_TYPE_KEY_DOWN:
       		switch(event.keystroke.ch) {
         	case 'a':
 				aa = !aa;
-				do_paint(&event.exposure);
+				do_paint();
           		break;
 			}
 			break;

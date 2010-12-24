@@ -1,3 +1,4 @@
+	* fix corner resize off by 2 bug
 23 Dec 2010
 	* buffered windows never displayed until GrFlushWindow called, remove GR_WM_PROPS_NODRAWONRESIZE
 		internal GR_WM_PROPS_DRAWING_DONE flag to indicate drawing finalized by calling GrFlushWindow

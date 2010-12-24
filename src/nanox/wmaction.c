@@ -127,10 +127,6 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  pos->xoff += info.width;
 	  pos->yoff += info.height;
 
-// offset from hotspot
-//pos->xoff += r.x - event->x;
-//pos->yoff += r.y - event->y;
-
 	  gc = GrNewGC();
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID,gc,info.x, info.y, info.width, info.height);
@@ -139,6 +135,8 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  /* save this rectangle's width/height so we can erase it later */
 	  pos->width = info.width;
 	  pos->height = info.height;
+      pos->xorig = event->x;
+      pos->yorig = event->y;
 	  return;
 #endif /* !NO_CORNER_RESIZE*/
 	} else
@@ -255,15 +253,17 @@ void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event)
 	  struct pos_size * pos = (struct pos_size *)window->data;
 	  GR_GC_ID gc = GrNewGC();
 	  GR_WINDOW_INFO info;
+	  GR_SIZE w, h;
 
 	  GrGetWindowInfo(window->wid, &info);
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID, gc, info.x, info.y, pos->width, pos->height);
 	  GrDestroyGC(gc);
 
-	  GrResizeWindow(window->wid, event->rootx - info.x, event->rooty - info.y);
-	  GrResizeWindow(window->clientid, event->rootx - info.x - pos->xoff, 
-			 event->rooty - info.y - pos->yoff);
+	  w = info.width + (event->x - pos->xorig);
+	  h = info.height + (event->y - pos->yorig);
+	  GrResizeWindow(window->wid, w, h);
+	  GrResizeWindow(window->clientid, w - pos->xoff, h - pos->yoff);
 
 	  free(window->data);
 	  window->sizing = GR_FALSE;

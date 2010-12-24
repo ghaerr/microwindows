@@ -802,7 +802,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-	/* handle buffered windows by reallocating pixmap buffer to new size*/
+	/* possibly reallocate buffered window's pixmap to new size*/
 	if (wp->props & GR_WM_PROPS_BUFFERED)
 		GsInitWindowBuffer(wp, width, height); /* allocate buffer and fill background*/
 
@@ -813,20 +813,16 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-	/* possibly disable drawing in GsClearWindow*/
-	if (wp->props & GR_WM_PROPS_NODRAWONRESIZE)
-		wp->noclearwindow = 1;
-
 #if 1
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
 	wp->height = height;
 
-	/* draw background in resized window*/
+	/* draw background and send expose events in resized window*/
 	if (wp->output) {
 		GsDrawBorder(wp);
-		GsClearWindow(wp, 0, 0, wp->width, wp->height, GR_TRUE);
+		GsClearWindow(wp, 0, 0, wp->width, wp->height, 1);
 	}
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 
@@ -856,8 +852,6 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	GsRealizeWindow(wp, GR_FALSE);
 #endif
 
-	/* reenable drawing in GsClearWindow*/
-	wp->noclearwindow = 0;
 	SERVER_UNLOCK();
 }
 
@@ -1904,7 +1898,6 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
 	wp->title = NULL;
 	wp->clipregion = NULL;
 	wp->buffer = NULL;
-	wp->noclearwindow = 0;
 
 	pwp->children = wp;
 	listwp = wp;
@@ -2131,12 +2124,14 @@ GrUnmapWindow(GR_WINDOW_ID wid)
 	SERVER_UNLOCK();
 }
 
-/*
+/**
  * Clear the associated area of a window to its background color
- * or pixmap.  Generate expose event for window if exposeflag set.
+ * or pixmap.  Generate expose event for window if exposeflag = 1.
+ * For buffered windows, mark drawing finalized and draw if
+ * exposeflag = 2.
  */
 void
-GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag)
+GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, int exposeflag)
 {
 	GR_WINDOW		*wp;	/* window structure */
 
@@ -3224,7 +3219,7 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		 * exposure event instead for proper display.
 		 */
 		if (GdRectInRegion(clipregion, &rc) != MWRECT_ALLIN) {
-			DPRINTF("nano-X: skipping blit, sending expose event\n");
+			DPRINTF("GrCopyArea: skipping blit, sending expose event\n");
 			GsExposeArea(swp, dp->x+x, dp->y+y, width, height, NULL);
 			SERVER_UNLOCK();
 			return;
@@ -3588,6 +3583,12 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 		/* alloc pixmap buffer and fill background*/
 		GsInitWindowBuffer(wp, wp->width, wp->height);
 	}
+	else /* check if window buffer property just unset*/
+		if ((oldprops & GR_WM_PROPS_BUFFERED) && !(wp->props & GR_WM_PROPS_BUFFERED)) {
+			wp->props &= ~GR_WM_PROPS_DRAWING_DONE;
+			GsDestroyPixmap(wp->buffer);
+			wp->buffer = NULL;
+		}
 
 	/* Set window title*/
 	if (props->flags & GR_WM_FLAGS_TITLE) {
@@ -3620,7 +3621,7 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 			wp->background = props->background;
 
 			/* fill background with new color if not buffered*/
-			if (!(wp->props & GR_WM_PROPS_BUFFERED))
+			if (wp->realized && !(wp->props & GR_WM_PROPS_BUFFERED))
 				GsExposeArea(wp, wp->x, wp->y, wp->width, wp->height, NULL);
 		}
 	}

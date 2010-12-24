@@ -89,7 +89,7 @@ init_demo(void)
 	y = sinfo.rows - image_info.height*4;
 	flags = GR_WM_PROPS_APPWINDOW | GR_WM_PROPS_NOBACKGROUND;
 #if BUFFERED_WINDOWS
-	flags |= GR_WM_PROPS_BUFFERED | GR_WM_PROPS_NODRAWONRESIZE;
+	flags |= GR_WM_PROPS_BUFFERED;
 #endif
 	wid = GrNewWindowEx(flags, "Microwindows Compositing Demo", GR_ROOT_WINDOW_ID,
 		x, y, image_info.width, image_info.height, GR_COLOR_WHITE);

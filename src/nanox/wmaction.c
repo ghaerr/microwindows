@@ -244,6 +244,7 @@ void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event)
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID, gc, pos->xorig, pos->yorig, pos->width, pos->height);
 	  GrMoveWindow(window->wid, pos->xorig, pos->yorig);
+	  GrDestroyGC(gc);
 #endif
 	  free(window->data);
 	  window->active = GR_FALSE;
@@ -258,10 +259,11 @@ void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event)
 	  GrGetWindowInfo(window->wid, &info);
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID, gc, info.x, info.y, pos->width, pos->height);
+	  GrDestroyGC(gc);
+
 	  GrResizeWindow(window->wid, event->rootx - info.x, event->rooty - info.y);
 	  GrResizeWindow(window->clientid, event->rootx - info.x - pos->xoff, 
 			 event->rooty - info.y - pos->yoff);
-	  GrDestroyGC(gc);
 
 	  free(window->data);
 	  window->sizing = GR_FALSE;

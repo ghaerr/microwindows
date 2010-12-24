@@ -2076,21 +2076,24 @@ GrReparentWindow(GR_WINDOW_ID wid, GR_WINDOW_ID pwid, GR_COORD x, GR_COORD y)
 
 /**
  * Clears the specified window by to its background color or pixmap.
- * If exposeflag is non zero, an exposure event is generated for
+ * If exposeflag is 1, an exposure event is generated for
  * the window after it has been cleared.
+ * For buffered windows, mark drawing finalized and draw if
+ * exposeflag is 2.
  *
  * @param wid        Window ID.
  * @param x          X co-ordinate of rectangle to clear.
  * @param y          Y co-ordinate of rectangle to clear.
  * @param width      Width of rectangle to clear.
  * @param height     Height of rectangle to clear.
- * @param exposeflag A flag indicating whether to also generate an exposure event.
+ * @param exposeflag A flag indicating to also generate an exposure event if 1,
+ *					 or to finalize drawing for buffered windows if 2.
  *
  * @ingroup nanox_draw
  */
 void
 GrClearArea(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE height, GR_BOOL exposeflag)
+	GR_SIZE height, int exposeflag)
 {
 	nxClearAreaReq *req;
 

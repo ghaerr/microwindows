@@ -377,6 +377,7 @@ void wm_client_window_unmap(win *window)
 	  gc = GrNewGC();
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID,gc,pos->xorig, pos->yorig, pos->width, pos->height);
+	  GrDestroyGC(gc);
 #endif
 	  free(pos);
 	  pwin->active = GR_FALSE;
@@ -448,6 +449,7 @@ void wm_client_window_destroy(win *window)
 	  gc = GrNewGC();
 	  GrSetGCMode(gc, GR_MODE_XOR|GR_MODE_EXCLUDECHILDREN);
 	  GrRect(GR_ROOT_WINDOW_ID,gc,pos->xorig, pos->yorig, pos->width, pos->height);
+	  GrDestroyGC(gc);
 #endif
 	  free(pos);
 	  pwin->active = GR_FALSE;

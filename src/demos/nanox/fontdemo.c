@@ -68,18 +68,14 @@ do_paint(void)
 int
 main(int ac, char **av)
 {
-	int flags;
-
 	if (ac > 1)
 		strcpy(fontname, av[1]);
 
 	if (GrOpen() < 0)
 		exit(1);
 
-	flags = GR_WM_PROPS_APPWINDOW|GR_WM_PROPS_NOBACKGROUND|
-		GR_WM_PROPS_BUFFERED|GR_WM_PROPS_NODRAWONRESIZE;
-
-	w = GrNewWindowEx(flags, "fontdemo", GR_ROOT_WINDOW_ID, 10, 10, 640, 530, BGCOLOR);
+	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "fontdemo", GR_ROOT_WINDOW_ID,
+		10, 10, 640, 530, BGCOLOR);
 	GrSelectEvents(w, GR_EVENT_MASK_BUTTON_DOWN|GR_EVENT_MASK_UPDATE|
 		GR_EVENT_MASK_KEY_DOWN|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(w);

@@ -578,6 +578,13 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 		GdCheckCursor(gc->srcpsd, srcx, srcy, srcx + width - 1, srcy + height - 1);
 
 	if (clipresult == CLIP_VISIBLE) {
+if (0) {
+GdSetFillMode(MWFILL_SOLID);
+GdSetMode(MWROP_COPY);
+GdSetForegroundColor(psd, BROWN);
+GdFillRect(psd, gc->dstx, gc->dsty, gc->width, gc->height);
+usleep(200000);
+}
 		convblit(psd, gc);
 		GdFixCursor(psd);
 		if (checksrc)
@@ -626,6 +633,13 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 			gc->srcx = srcx + rx1 - dstx;
 			gc->srcy = srcy + ry1 - dsty;
 			//GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
+if (0) {
+GdSetFillMode(MWFILL_SOLID);
+GdSetMode(MWROP_COPY);
+GdSetForegroundColor(psd, BROWN);
+GdFillRect(psd, gc->dstx, gc->dsty, gc->width, gc->height);
+usleep(200000);
+}
 			convblit(psd, gc);
 		}
 		prc++;

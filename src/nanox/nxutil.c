@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2002, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2006 by Andreas Foedrowitz
  *
  * Nano-X Client utility routines
@@ -13,7 +13,31 @@
 #include "nano-X.h"
 #include "device.h"
 
-/*
+/**
+ * Create a new buffered window.  Sets properties for
+ * no background erase and no redraw during resizing.
+ * Same parameters as GrNewWindowEx.
+ *
+ * Quick conversion for double buffered windows in any application:
+ * 	add GR_WM_PROPS_BUFFERED to GrNewWindowEx flags
+ * 	add GR_WM_PROPS_NOBACKGROUND if app paints background
+ * 	add GrFlushWindow(wid) call in paint routine
+ * 	add update mask and handling for GR_UPDATE_MAP & GR_UPDATE_SIZE and call paint routine
+ * 	remove Exposure mask and event handling
+ * Buffered windows allocate a 32bpp RGBA pixmap for automatic offscreen buffered drawing.
+ * Pixmap is erased to bg color on create and resize unless GR_WM_PROPS_NOBACKGROUND set
+ * On window expose, buffered contents are copied, app never gets expose events.
+ * App must process resize and map Update events, flush buffer with GrFlushWindow(wid)
+ */
+GR_WINDOW_ID
+GrNewBufferedWindow(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
+	GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_COLOR background)
+{
+	return GrNewWindowEx(props|GR_WM_PROPS_BUFFERED|GR_WM_PROPS_NOBACKGROUND,
+		title, parent, x, y, width, height, background);
+}
+
+/**
  * Create new window with passed style, title and location.
  */
 GR_WINDOW_ID
@@ -109,7 +133,7 @@ static const unsigned char revbyte[256] = {
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
 };
 
-/*
+/**
  * Create a GdBitmap-compatible bitmap (16-bit short array) from data bits
  *     flags specify input format
  *     caller must free return buffer
@@ -190,7 +214,7 @@ GrNewBitmapFromData(GR_SIZE width, GR_SIZE height, GR_SIZE bits_width,
 	return buf;
 }
 
-/*
+/**
  * Create a new pixmap and initialize from bitmap data and fg/bg colors
  */
 GR_WINDOW_ID
@@ -217,7 +241,7 @@ GrNewPixmapFromData(GR_SIZE width, GR_SIZE height, GR_COLOR foreground,
 	return pid;
 }
 
-/*
+/**
  * Create a bitmap from a specified pixmap 
  * This function may not be needed if Microwindows implemented a depth-1 pixmap.
  */
@@ -255,7 +279,7 @@ GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, GR_COORD x, GR_COORD y, GR_SIZE width
 	return bitmap;
 }
 
-/*
+/**
  * Create a region from a monochrome pixmap
  */
 GR_REGION_ID
@@ -318,6 +342,10 @@ GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y, GR_SIZE width, G
 	return r;
 }
 
+/**
+ * Copy an event, must be used for CLIENT_DATA events
+ * when GrPeekEvent or GrPeekWaitEvent called, as event data later freed.
+ */
 void
 GrCopyEvent(GR_EVENT *dst, GR_EVENT *src)
 {
@@ -340,6 +368,10 @@ GrCopyEvent(GR_EVENT *dst, GR_EVENT *src)
 	}
 }
 
+/**
+ * Free an event after use with GrCopyEvent,
+ * used with CLIENT_DATA events.
+ */
 void
 GrFreeEvent(GR_EVENT *ev)
 {

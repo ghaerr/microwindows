@@ -453,8 +453,7 @@ GrClearAreaWrapper(void *r)
 {
 	nxClearAreaReq *req = r;
 
-	GrClearArea(req->windowid, req->x, req->y, req->width,
-		req->height, req->exposeflag);
+	GrClearArea(req->windowid, req->x, req->y, req->width, req->height, req->exposeflag);
 }
 
 static void

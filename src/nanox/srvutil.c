@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #endif
 
+#define MWINCLUDECOLORS
 #include "serv.h"
 
 /*
@@ -134,7 +135,7 @@ GsUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap)
 	bs = wp->bordersize;
 	pwp = wp->parent;
 	GsClearWindow(pwp, wp->x - pwp->x - bs, wp->y - pwp->y - bs,
-		wp->width + bs * 2, wp->height + bs * 2, GR_TRUE);
+		wp->width + bs * 2, wp->height + bs * 2, 1);
 
 	/*
 	 * Finally clear and redraw all parts of our lower sibling
@@ -219,7 +220,7 @@ wp->id, wp->mapped, wp->realized, wp->parent->realized);*/
 	 */
 	if (wp->output) {
 		GsDrawBorder(wp);
-		GsClearWindow(wp, 0, 0, wp->width, wp->height, GR_TRUE);
+		GsClearWindow(wp, 0, 0, wp->width, wp->height, 1);
 	}
 
 	/*
@@ -612,20 +613,34 @@ GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
 	id = GsNewPixmap(width, height, MWIF_RGBA8888, NULL);
 	wp->buffer = GsFindPixmap(id);
 	if (!wp->buffer) {
-		wp->props &= ~GR_WM_PROPS_BUFFERED;
+		wp->props &= ~(GR_WM_PROPS_BUFFERED | GR_WM_PROPS_DRAWING_DONE);
 		return;
 	}
 
+	/* mark buffer as not ready for display*/
+	wp->props &= ~GR_WM_PROPS_DRAWING_DONE;
+
+	/* clear buffer to background color*/
 	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
 		GR_PIXMAP *pp = wp->buffer;
-		/* 
-		 * Invalidate current graphics context since
-		 * we're changing foreground color and mode.
-		 */
-		curgcp = NULL;
+
+		/* clip to pixmap boundaries*/
+#if DYNAMICREGIONS
+		GdSetClipRegion(pp->psd, GdAllocRectRegion(0, 0, pp->psd->xvirtres, pp->psd->yvirtres));
+#else
+		MWCLIPRECT	cliprect;
+		cliprect.x = 0;
+		cliprect.y = 0;
+		cliprect.width = pp->psd->xvirtres;
+		cliprect.height = pp->psd->yvirtres;
+		GdSetClipRects(pp->psd, 1, &cliprect);
+#endif
+		clipwp = NULL;			/* reset clip cache for next window draw*/
+		curgcp = NULL;			/* invalidate gc cache since we're changing color and mode*/
 		GdSetFillMode(GR_FILL_SOLID);
 		GdSetMode(GR_MODE_COPY);
 		GdSetForegroundColor(pp->psd, wp->background);
+
 		GdFillRect(pp->psd, 0, 0, pp->width, pp->height);
 	}
 }
@@ -633,11 +648,12 @@ GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
 /*
  * Clear the specified area of a window and possibly make an exposure event.
  * This sets the area window to its background color or pixmap.  If the
- * exposeflag is nonzero, then this also creates an exposure event for the
- * window.
+ * exposeflag is 1, then this also creates an exposure event for the window.
+ * For buffered windows, mark drawing finalized and draw if
+ * exposeflag = 2.
  */
 void
-GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  height, GR_BOOL exposeflag)
+GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  height, int exposeflag)
 {
 	if (!wp->realized || !wp->output)
 		return;
@@ -666,19 +682,42 @@ GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  hei
 		return;
 
 	/*
-	 * Check if buffered window, and draw buffer if so.
+	 * Buffered window drawing. First check if drawing finalized and
+	 * set flag.  Physical window background erase is never performed
+	 * with buffered windows, all drawing is postponed until the application
+	 * is finished by calling GrClearWindow(..., 2), ie. GrFlushWindow()
 	 */
-	if ((wp->props & GR_WM_PROPS_BUFFERED) && !wp->noclearwindow) {
-		/* clip to this window*/
+	if (exposeflag == 2)
+		wp->props |= GR_WM_PROPS_DRAWING_DONE;
+
+	if (wp->props & GR_WM_PROPS_BUFFERED) {
+
+		/* nothing to do until drawing finalized*/
+		if (!(wp->props & GR_WM_PROPS_DRAWING_DONE))
+			return;
+
+		/* prepare clipping to window boundaries*/
 		GsSetClipWindow(wp, NULL, 0);
 		clipwp = NULL;		/* reset clip cache since no user regions used*/
 
-		/* copy window pixmap buffer*/
+if (0) {
+curgcp = NULL;
+GdSetFillMode(GR_FILL_SOLID);
+GdSetMode(GR_MODE_COPY);
+GdSetForegroundColor(wp->psd, YELLOW);
+GdFillRect(wp->psd, wp->x+x, wp->y+y, width, height);
+usleep(500000);
+}
+
+		/* copy window pixmap buffer to window*/
 		GdBlit(wp->psd, wp->x + x, wp->y + y, width, height, wp->buffer->psd, x, y, MWROP_COPY);
 		return;				/* don't deliver exposure events*/
 	}
 
-	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND) && !wp->noclearwindow) {
+	/*
+	 * Unbuffered window: erase background unless nobackground flag set
+	 */
+	if (!(wp->props & GR_WM_PROPS_NOBACKGROUND)) {
 		/* perhaps find a better way of determining whether pixmap needs src_over*/
 		int hasalpha = wp->bgpixmap && (wp->bgpixmap->psd->data_format & MWIF_HASALPHA);
 
@@ -688,6 +727,16 @@ GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  hei
 	 	 * we are changing the foreground color and mode.
 	 	 */
 		GsSetClipWindow(wp, NULL, 0);
+		clipwp = NULL;		/* reset clip cache since no user regions used*/
+
+if (0) {
+GdSetFillMode(GR_FILL_SOLID);
+GdSetMode(GR_MODE_COPY);
+GdSetForegroundColor(wp->psd, YELLOW);
+GdFillRect(wp->psd, wp->x+x, wp->y+y, width, height);
+usleep(500000);
+}
+
 		curgcp = NULL;
 		GdSetFillMode(GR_FILL_SOLID);
 		GdSetMode(GR_MODE_COPY);
@@ -706,7 +755,7 @@ GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  hei
 	}
 
 	/*
-	 * Now do the exposure if required.
+	 * Do the exposure if required for unbuffered windows.
 	 */
 	if (exposeflag)
 		GsDeliverExposureEvent(wp, x, y, width, height);
@@ -748,7 +797,7 @@ GsExposeArea(GR_WINDOW *wp, GR_COORD rootx, GR_COORD rooty, GR_SIZE width,
 	 * Now clear the window itself in the specified area,
 	 * which might cause an exposure event.
 	 */
-	GsClearWindow(wp, rootx - wp->x, rooty - wp->y, width, height, GR_TRUE);
+	GsClearWindow(wp, rootx - wp->x, rooty - wp->y, width, height, 1);
 
 	/*
 	 * Now do the same for all the children.
@@ -1121,13 +1170,9 @@ havepixmap:
 		 */
 		if (wp != clipwp || gcp->changed) {
 			/* find user region for intersect*/
-			if (gcp->regionid)
-				regionp = GsFindRegion(gcp->regionid);
-			else regionp = NULL;
+			regionp = gcp->regionid? GsFindRegion(gcp->regionid): NULL;
 
-			/*
-		 	 * Special handling if user region is not at offset 0,0
-		 	 */
+		 	/* Special handling if user region is not at offset 0,0*/
 			if (regionp && (gcp->xoff || gcp->yoff)) {
 				MWCLIPREGION *local = GdAllocRegion();
 
@@ -1135,7 +1180,6 @@ havepixmap:
 				GdOffsetRegion(local, gcp->xoff, gcp->yoff);
 
 				GsSetClipWindow(wp, local, gcp->mode & ~GR_MODE_DRAWMASK);
-
 				GdDestroyRegion(local);
 			} else
 				GsSetClipWindow(wp, regionp? regionp->rgn: NULL, gcp->mode & ~GR_MODE_DRAWMASK);

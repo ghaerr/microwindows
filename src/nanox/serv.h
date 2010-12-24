@@ -364,7 +364,6 @@ struct gr_window {
 	char		*title;		/* window title*/
 	MWCLIPREGION*clipregion;/* window clipping region */
 	GR_PIXMAP	*buffer;	/* window buffer pixmap*/
-	int			noclearwindow; /* no output in GsClearWindow*/
 };
 
 /*
@@ -432,7 +431,7 @@ void		GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height);
 void		GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
-				GR_SIZE width, GR_SIZE height, GR_BOOL exposeflag);
+				GR_SIZE width, GR_SIZE height, int exposeflag);
 void		GsUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
 void		GsRealizeWindow(GR_WINDOW *wp, GR_BOOL temp);
 void		GsDestroyWindow(GR_WINDOW *wp);

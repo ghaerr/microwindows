@@ -177,11 +177,9 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 			/* FIXME: shaped windows with borders won't work */
 			if (wp->clipregion) {
 				/* FIXME: can user set invalid clipregion here? */
-				GdOffsetRegion(sibwp->clipregion,
-					sibwp->x, sibwp->y);
+				GdOffsetRegion(sibwp->clipregion, sibwp->x, sibwp->y);
 				GdSubtractRegion(vis, vis, sibwp->clipregion);
-				GdOffsetRegion(sibwp->clipregion,
-					-sibwp->x, -sibwp->y);
+				GdOffsetRegion(sibwp->clipregion, -sibwp->x, -sibwp->y);
 			}
 		}
 	}

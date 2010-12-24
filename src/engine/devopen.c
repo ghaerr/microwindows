@@ -534,40 +534,58 @@ GdCaptureScreen(PSD psd, char *pathname)
 			}
 		} else {
 			/* write 3 r/g/b masks*/
-			putdw(sinfo.rmask, ofp);
-			putdw(sinfo.gmask, ofp);
-			putdw(sinfo.bmask, ofp);
+			if (psd->data_format == MWIF_RGBA8888) {
+				/* RGBA bmp format not supported, will convert to BGRA*/
+				putdw(RMASKBGRA, ofp);
+				putdw(GMASKBGRA, ofp);
+				putdw(BMASKBGRA, ofp);
+			} else {
+				putdw(sinfo.rmask, ofp);
+				putdw(sinfo.gmask, ofp);
+				putdw(sinfo.bmask, ofp);
+			}
 		}
 	}
 
 	/* write image data, upside down ;)*/
 	for(h=cy-1; h>=0; --h) {
-		unsigned char *buf = ((unsigned char *)psd->addr) + h * cx * bytespp;
+		unsigned char *src = ((unsigned char *)psd->addr) + h * cx * bytespp;
 		unsigned char *cptr;
 		unsigned short *sptr;
-		uint32_t *lptr;
-		switch (bpp) {
-		case 32:
-			lptr = (uint32_t *)buf;
+		uint32_t *lptr, c;
+
+		switch (psd->data_format) {
+		case MWIF_BGRA8888:
+			lptr = (uint32_t *)src;
 			for(w=0; w<cx; ++w)
 				putdw(*lptr++, ofp);
 			break;
-		case 24:
-		case 18:
-			cptr = (unsigned char *)buf;
+		case MWIF_RGBA8888:
+			lptr = (uint32_t *)src;
+			for(w=0; w<cx; ++w) {
+				c = *lptr++;
+				putdw(PIXELABGR2PIXEL8888(c), ofp);	/* convert RGBA image pixel to BGRA image pixel*/
+			}
+			break;
+		case MWIF_BGR888:
+			cptr = (unsigned char *)src;
 			for(w=0; w<cx; ++w) {
 				fputc(*cptr++, ofp);
 				fputc(*cptr++, ofp);
 				fputc(*cptr++, ofp);
 			}
 			break;
-		case 16:
-			sptr = (unsigned short *)buf;
+		case MWIF_RGB565:
+		case MWIF_RGB555:
+			sptr = (unsigned short *)src;
 			for(w=0; w<cx; ++w)
 				putsw(*sptr++, ofp);
 			break;
+		case MWIF_RGB332:
+		case MWIF_BGR233:
+		case MWPF_PALETTE:
 		default:
-			cptr = (unsigned char *)buf;
+			cptr = (unsigned char *)src;
 			for(w=0; w<cx; ++w)
 				fputc(*cptr++, ofp);
 			break;

@@ -19,6 +19,8 @@
 #define FASTJPEG		0		/* =1 for temp quick jpeg 8bpp*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
+#define DEBUG_EXPOSE	0		/* =1 to flash yellow before painting expose areas*/
+#define DEBUG_BLIT		0		/* =1 to flash brown before painting areas with convblit*/
 
 /* the fontmapper is obsolete*/
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/

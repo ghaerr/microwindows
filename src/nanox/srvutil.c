@@ -7,12 +7,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-
 #ifndef __PACIFIC__
 #include <fcntl.h>
 #endif
-
-#define MWINCLUDECOLORS
 #include "serv.h"
 
 /*
@@ -700,14 +697,14 @@ GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE  hei
 		GsSetClipWindow(wp, NULL, 0);
 		clipwp = NULL;		/* reset clip cache since no user regions used*/
 
-if (0) {
+#if DEBUG_EXPOSE
 curgcp = NULL;
 GdSetFillMode(GR_FILL_SOLID);
 GdSetMode(GR_MODE_COPY);
-GdSetForegroundColor(wp->psd, YELLOW);
+GdSetForegroundColor(wp->psd, MWRGB(255,255,0)); /* yellow*/
 GdFillRect(wp->psd, wp->x+x, wp->y+y, width, height);
 usleep(500000);
-}
+#endif
 
 		/* copy window pixmap buffer to window*/
 		GdBlit(wp->psd, wp->x + x, wp->y + y, width, height, wp->buffer->psd, x, y, MWROP_COPY);
@@ -729,13 +726,13 @@ usleep(500000);
 		GsSetClipWindow(wp, NULL, 0);
 		clipwp = NULL;		/* reset clip cache since no user regions used*/
 
-if (0) {
+#if DEBUG_EXPOSE
 GdSetFillMode(GR_FILL_SOLID);
 GdSetMode(GR_MODE_COPY);
-GdSetForegroundColor(wp->psd, YELLOW);
+GdSetForegroundColor(wp->psd, MWRGB(255,255,0)); /* yellow*/
 GdFillRect(wp->psd, wp->x+x, wp->y+y, width, height);
 usleep(500000);
-}
+#endif
 
 		curgcp = NULL;
 		GdSetFillMode(GR_FILL_SOLID);

@@ -537,7 +537,6 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 			parms.src_y_step_one = MWSIGN(y_numerator);
 			parms.err_y_step = MWABS(y_numerator) - MWABS(parms.src_y_step) * y_denominator;
 
-			//GdCheckCursor(dstpsd, rx1, ry1, rx2 - 1, ry2 - 1);	/* check cursor in dest region */
 			convblit(dstpsd, &parms);
 		}
 		++prc;
@@ -578,13 +577,13 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 		GdCheckCursor(gc->srcpsd, srcx, srcy, srcx + width - 1, srcy + height - 1);
 
 	if (clipresult == CLIP_VISIBLE) {
-if (0) {
+#if DEBUG_BLIT
 GdSetFillMode(MWFILL_SOLID);
 GdSetMode(MWROP_COPY);
-GdSetForegroundColor(psd, BROWN);
+GdSetForegroundColor(psd, MWRGB(128,64,0));	/* brown*/
 GdFillRect(psd, gc->dstx, gc->dsty, gc->width, gc->height);
 usleep(200000);
-}
+#endif
 		convblit(psd, gc);
 		GdFixCursor(psd);
 		if (checksrc)
@@ -632,14 +631,13 @@ usleep(200000);
 			gc->height = rh;
 			gc->srcx = srcx + rx1 - dstx;
 			gc->srcy = srcy + ry1 - dsty;
-			//GdCheckCursor(psd, rx1, ry1, rx2 - 1, ry2 - 1);
-if (0) {
+#if DEBUG_BLIT
 GdSetFillMode(MWFILL_SOLID);
 GdSetMode(MWROP_COPY);
-GdSetForegroundColor(psd, BROWN);
+GdSetForegroundColor(psd, MWRGB(128,64,0));	/* brown*/
 GdFillRect(psd, gc->dstx, gc->dsty, gc->width, gc->height);
 usleep(200000);
-}
+#endif
 			convblit(psd, gc);
 		}
 		prc++;

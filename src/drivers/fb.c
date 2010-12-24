@@ -125,48 +125,6 @@ set_data_format(PSD psd)
 	return data_format;
 }
 
-/* MWIF_BGR233*/
-#define RMASK233	0x07
-#define GMASK233	0x38
-#define BMASK233	0xc0
-#define AMASK233	0x00
-
-/* MWIF_RGB332*/
-#define RMASK332	0xe0
-#define GMASK332	0x1c
-#define BMASK332	0x03
-#define AMASK332	0x00
-
-/* MWIF_RGB555*/
-#define RMASK555	0x7c00
-#define GMASK555	0x03e0
-#define BMASK555	0x001f
-#define AMASK555	0x8000
-
-/* MWIF_RGB565*/
-#define RMASK565	0xf800
-#define GMASK565	0x07e0
-#define BMASK565	0x001f
-#define AMASK565	0x0000
-
-/* MWIF_BGR888*/
-#define RMASKBGR	0xff0000
-#define GMASKBGR	0x00ff00
-#define BMASKBGR	0x0000ff
-#define AMASKBGR	0x000000
-
-/* MWIF_BGRA8888*/
-#define RMASKBGRA	0x00ff0000
-#define GMASKBGRA	0x0000ff00
-#define BMASKBGRA	0x000000ff
-#define AMASKBGRA	0xff000000
-
-/* MWIF_RGBA8888*/
-#define RMASKRGBA	0x000000ff
-#define GMASKRGBA	0x0000ff00
-#define BMASKRGBA	0x00ff0000
-#define AMASKRGBA	0xff000000
-
 /* general routine to return screen info, ok for all fb devices*/
 void
 gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)

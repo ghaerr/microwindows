@@ -1,3 +1,6 @@
+24 Dec 2010
+	* ctrl-quit (f15) will save screen contents to screen.bmp
+	* added DEBUG_EXPOSE and DEBUG_BLIT to flash yellow/brown on expose/blit areas
 	* fix/rewrite GdCaptureScreen to use framebuffer rather than /dev/fb0
 23 Dec 2010
 	* fix corner resize off by 2 bug

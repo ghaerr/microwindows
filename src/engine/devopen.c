@@ -49,9 +49,6 @@ MWTILE     gr_tile;
 
 MWPOINT    gr_ts_offset;
 
-static int	gr_pixtype;	    /* screen pixel format*/
-static int32_t	gr_ncolors;	    /* screen # colors*/
-
 /**
  * Open low level graphics driver.
  *
@@ -62,14 +59,10 @@ GdOpenScreen(void)
 {
 	PSD			psd;
 	MWPALENTRY *		stdpal;
-	MWSCREENINFO		sinfo;	    
 
 	psd = scrdev.Open(&scrdev);
 	if (!psd)
 		return NULL;
-	GdGetScreenInfo(psd, &sinfo);
-	gr_pixtype = sinfo.pixtype;
-	gr_ncolors = sinfo.ncolors;
 
 	/* assume no user changable palette entries*/
 	gr_firstuserpalentry = (int)psd->ncolors;
@@ -322,7 +315,7 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 	/* case MWPF_PALETTE: must be running 1, 2, 4 or 8 bit palette*/
 
 	/* search palette for closest match*/
-	return GdFindNearestColor(gr_palette, (int)gr_ncolors, c);
+	return GdFindNearestColor(gr_palette, (int)psd->ncolors, c);
 }
 
 /**
@@ -410,15 +403,10 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 	}
 }
 
-#if !VXWORKS
-#if HAVE_FILEIO
+#if DEBUG
 #include <unistd.h>
 #include <fcntl.h>
-/*
- * Create .bmp file from framebuffer data
- *
- * 1, 4, 8, 16, 24 and 32 bpp supported
- */
+
 #define BI_RGB		0L
 #define BI_RLE8		1L
 #define BI_RLE4		2L
@@ -449,91 +437,67 @@ typedef struct {
 	LONG	BiYpelsPerMeter;
 	DWORD	BiClrUsed;
 	DWORD	BiClrImportant;
-} PACKEDDATA BMPHEAD;
+} MWPACKED BMPHEAD;
 
 /* r/g/b masks for non-palette bitmaps*/
-#define RMASK332	0xe0
-#define GMASK332	0x1c
-#define BMASK332	0x03
-#define RMASK233	0x07
-#define GMASK233	0x38
-#define BMASK233	0xC0
-#define RMASK555	0x7c00
-#define GMASK555	0x03e0
-#define BMASK555	0x001f
-#define RMASK565	0xf800
-#define GMASK565	0x07e0
-#define BMASK565	0x001f
-#define RMASK888	0xff0000
-#define GMASK888	0x00ff00
-#define BMASK888	0x0000ff
-#define RMASKBGR	0x0000ff
-#define GMASKBGR	0x00ff00
-#define BMASKBGR	0xff0000
 
 static void
 putsw(uint32_t dw, FILE *ofp)
 {
 	/* little-endian storage of shortword*/
-	putc((unsigned char)dw, ofp);
+	fputc((unsigned char)dw, ofp);
 	dw >>= 8;
-	putc((unsigned char)dw, ofp);
+	fputc((unsigned char)dw, ofp);
 }
 
 static void
 putdw(uint32_t dw, FILE *ofp)
 {
 	/* little-endian storage of longword*/
-	putc((unsigned char)dw, ofp);
+	fputc((unsigned char)dw, ofp);
 	dw >>= 8;
-	putc((unsigned char)dw, ofp);
+	fputc((unsigned char)dw, ofp);
 	dw >>= 8;
-	putc((unsigned char)dw, ofp);
+	fputc((unsigned char)dw, ofp);
 	dw >>= 8;
-	putc((unsigned char)dw, ofp);
+	fputc((unsigned char)dw, ofp);
 }
-#endif /* HAVE_FILEIO*/
 
 /**
  * Create .bmp file from framebuffer data
+ * 1, 4, 8, 16, 24 and 32 bpp supported
  *
  * @param path Output file.
  * @return 0 on success, nonzero on error.
  */
 int
-GdCaptureScreen(char *path)
+GdCaptureScreen(PSD psd, char *pathname)
 {
-#if HAVE_FILEIO && !__ECOS
-	int	ifd, i, j;
-	FILE *	ofp;
-	int	cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;
-	uint32_t rmask, gmask, bmask;
-	unsigned char *cptr;
-	unsigned short *sptr;
-	uint32_t *lptr;
+	FILE *ofp;
+	int	w, h, i, cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;
 	BMPHEAD	bmp;
-	unsigned char buf[2048*4];
+	MWSCREENINFO sinfo;
 
-	ofp = fopen(path, "wb");
+	ofp = fopen(pathname, "wb");
 	if (!ofp)
 		return 1;
-	ifd = open("/dev/fb0", 0);
 
-	if (scrdev.portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
-		cx = scrdev.yvirtres;
-		cy = scrdev.xvirtres;
-	} else {
-		cx = scrdev.xvirtres;
-		cy = scrdev.yvirtres;
-	}
-	bpp = scrdev.bpp;
+	if (!psd)
+		psd = &scrdev;
+	GdGetScreenInfo(psd, &sinfo);
+
+	cx = psd->xres;
+	cy = psd->yres;
+	bpp = psd->bpp;
 	bytespp = (bpp+7)/8;
 
 	/* dword right padded*/
 	extra = (cx*bytespp) & 3;
 	if (extra)
 		extra = 4 - extra;
+
 	ncolors = (bpp <= 8)? (1<<bpp): 0;
+
 	/* color table is either palette or 3 longword r/g/b masks*/
 	sizecolortable = ncolors? ncolors*4: 3*4;
 	if (bpp == 24)
@@ -563,95 +527,59 @@ GdCaptureScreen(char *path)
 		if(bpp <= 8) {
 			/* write palette*/
 			for(i=0; i<ncolors; i++) {
-				putc(gr_palette[i].b, ofp);
-				putc(gr_palette[i].g, ofp);
-				putc(gr_palette[i].r, ofp);
-				putc(0, ofp);
+				fputc(gr_palette[i].b, ofp);
+				fputc(gr_palette[i].g, ofp);
+				fputc(gr_palette[i].r, ofp);
+				fputc(0, ofp);
 			}
 		} else {
 			/* write 3 r/g/b masks*/
-			switch (gr_pixtype) {
-			case MWPF_TRUECOLOR8888:
-			default:
-				rmask = RMASK888;
-				gmask = GMASK888;
-				bmask = BMASK888;
-				break;
-			case MWPF_TRUECOLORABGR:
-				rmask = RMASKBGR;
-				gmask = GMASKBGR;
-				bmask = BMASKBGR;
-				break;
-			case MWPF_TRUECOLOR565:
-				rmask = RMASK565;
-				gmask = GMASK565;
-				bmask = BMASK565;
-				break;
-			case MWPF_TRUECOLOR555:
-				rmask = RMASK555;
-				gmask = GMASK555;
-				bmask = BMASK555;
-				break;
-			case MWPF_TRUECOLOR332:
-				rmask = RMASK332;
-				gmask = GMASK332;
-				bmask = BMASK332;
-                                break;
-			case MWPF_TRUECOLOR233:
-				rmask = RMASK233;
-				gmask = GMASK233;
-				bmask = BMASK233;
-				break;
-			}
-			putdw(rmask, ofp);
-			putdw(gmask, ofp);
-			putdw(bmask, ofp);
+			putdw(sinfo.rmask, ofp);
+			putdw(sinfo.gmask, ofp);
+			putdw(sinfo.bmask, ofp);
 		}
 	}
 
 	/* write image data, upside down ;)*/
-	for(i=cy-1; i>=0; --i) {
-		int32_t base = sizeof(bmp) + sizecolortable + (int32_t)i*cx*bytespp;
-		fseek(ofp, base, SEEK_SET);
-		read(ifd, buf, cx*bytespp);
+	for(h=cy-1; h>=0; --h) {
+		unsigned char *buf = ((unsigned char *)psd->addr) + h * cx * bytespp;
+		unsigned char *cptr;
+		unsigned short *sptr;
+		uint32_t *lptr;
 		switch (bpp) {
 		case 32:
 			lptr = (uint32_t *)buf;
-			for(j=0; j<cx; ++j)
+			for(w=0; w<cx; ++w)
 				putdw(*lptr++, ofp);
 			break;
 		case 24:
 		case 18:
 			cptr = (unsigned char *)buf;
-			for(j=0; j<cx; ++j) {
-				putc(*cptr++, ofp);
-				putc(*cptr++, ofp);
-				putc(*cptr++, ofp);
+			for(w=0; w<cx; ++w) {
+				fputc(*cptr++, ofp);
+				fputc(*cptr++, ofp);
+				fputc(*cptr++, ofp);
 			}
 			break;
 		case 16:
 			sptr = (unsigned short *)buf;
-			for(j=0; j<cx; ++j)
+			for(w=0; w<cx; ++w)
 				putsw(*sptr++, ofp);
 			break;
 		default:
 			cptr = (unsigned char *)buf;
-			for(j=0; j<cx; ++j)
-				putc(*cptr++, ofp);
+			for(w=0; w<cx; ++w)
+				fputc(*cptr++, ofp);
 			break;
 		}
-		for(j=0; j<extra; ++j)
-			putc(0, ofp);		/* DWORD pad each line*/
+		for(w=0; w<extra; ++w)
+			fputc(0, ofp);		/* DWORD pad each line*/
 	}
 
 	fclose(ofp);
-	close(ifd);
-#endif /* HAVE_FILEIO*/
 	return 0;
 }
-#endif /* !VXWORKS*/
 
-#if DEBUG
 void GdPrintBitmap(PMWBLITPARMS gc, int SSZ)
 {
 	unsigned char *src;
@@ -692,4 +620,4 @@ void GdPrintBitmap(PMWBLITPARMS gc, int SSZ)
 		src += gc->src_pitch;		/* src: next line down*/
 	}
 }
-#endif
+#endif /* DEBUG*/

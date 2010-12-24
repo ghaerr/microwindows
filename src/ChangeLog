@@ -1,5 +1,6 @@
-	* fix corner resize off by 2 bug
+	* fix/rewrite GdCaptureScreen to use framebuffer rather than /dev/fb0
 23 Dec 2010
+	* fix corner resize off by 2 bug
 	* buffered windows never displayed until GrFlushWindow called, remove GR_WM_PROPS_NODRAWONRESIZE
 		internal GR_WM_PROPS_DRAWING_DONE flag to indicate drawing finalized by calling GrFlushWindow
 	* unset GR_WM_PROPS_BUFFERED releases buffer, window can be used normally

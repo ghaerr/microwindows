@@ -25,13 +25,12 @@
 #endif
 #endif
 
-/* compiler specific defines*/
-#define MWPACKED	__attribute__ ((aligned(1), packed))
-
 /* force byte-packed structures*/
-#if defined(GCC_VERSION)
-#define PACKEDDATA			__attribute__ ((__packed__))
+#if defined(__GNUC__)
+#define MWPACKED			__attribute__ ((aligned(1), packed))	/* for structs*/
+#define PACKEDDATA			__attribute__ ((__packed__))			/* for data members*/
 #else
+#define MWPACKED
 #define PACKEDDATA			/* FIXME for MSVC #pragma pack(1) equiv*/
 #endif
 

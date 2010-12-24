@@ -243,14 +243,14 @@ MWPIXELVAL GdSetForegroundPixelVal(PSD psd, MWPIXELVAL fg);
 MWPIXELVAL GdSetBackgroundPixelVal(PSD psd, MWPIXELVAL bg);
 MWPIXELVAL GdSetForegroundColor(PSD psd, MWCOLORVAL fg);
 MWPIXELVAL GdSetBackgroundColor(PSD psd, MWCOLORVAL bg);
-void	GdPrintBitmap(PMWBLITPARMS gc, int SSZ);	/* debug only*/
 void	GdResetPalette(void);
 void	GdSetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
 int		GdGetPalette(PSD psd,int first, int count, MWPALENTRY *palette);
 MWCOLORVAL GdGetColorRGB(PSD psd, MWPIXELVAL pixel);
 MWPIXELVAL GdFindColor(PSD psd, MWCOLORVAL c);
 MWPIXELVAL GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr);
-int		GdCaptureScreen(char *path);
+int		GdCaptureScreen(PSD psd, char *pathname);	/* debug only*/
+void	GdPrintBitmap(PMWBLITPARMS gc, int SSZ);	/* debug only*/
 void	GdGetScreenInfo(PSD psd,PMWSCREENINFO psi);
 void	GdPoint(PSD psd,MWCOORD x, MWCOORD y);
 void	GdLine(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2, MWBOOL bDrawLastPoint);

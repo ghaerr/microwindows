@@ -125,6 +125,48 @@ set_data_format(PSD psd)
 	return data_format;
 }
 
+/* MWIF_BGR233*/
+#define RMASK233	0x07
+#define GMASK233	0x38
+#define BMASK233	0xc0
+#define AMASK233	0x00
+
+/* MWIF_RGB332*/
+#define RMASK332	0xe0
+#define GMASK332	0x1c
+#define BMASK332	0x03
+#define AMASK332	0x00
+
+/* MWIF_RGB555*/
+#define RMASK555	0x7c00
+#define GMASK555	0x03e0
+#define BMASK555	0x001f
+#define AMASK555	0x8000
+
+/* MWIF_RGB565*/
+#define RMASK565	0xf800
+#define GMASK565	0x07e0
+#define BMASK565	0x001f
+#define AMASK565	0x0000
+
+/* MWIF_BGR888*/
+#define RMASKBGR	0xff0000
+#define GMASKBGR	0x00ff00
+#define BMASKBGR	0x0000ff
+#define AMASKBGR	0x000000
+
+/* MWIF_BGRA8888*/
+#define RMASKBGRA	0x00ff0000
+#define GMASKBGRA	0x0000ff00
+#define BMASKBGRA	0x000000ff
+#define AMASKBGRA	0xff000000
+
+/* MWIF_RGBA8888*/
+#define RMASKRGBA	0x000000ff
+#define GMASKRGBA	0x0000ff00
+#define BMASKRGBA	0x00ff0000
+#define AMASKRGBA	0xff000000
+
 /* general routine to return screen info, ok for all fb devices*/
 void
 gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
@@ -140,41 +182,47 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->fbdriver = TRUE;	/* running fb driver, can direct map*/
 	psi->pixtype = psd->pixtype;
 
-	switch (psd->pixtype) {
-	case MWPF_TRUECOLOR8888:
-		psi->amask 	= 0xff000000;
-		psi->rmask 	= 0x00ff0000;
-		psi->gmask 	= 0x0000ff00;
-		psi->bmask	= 0x000000ff;
+	switch (psd->data_format) {
+	case MWIF_BGRA8888:
+		psi->rmask = RMASKBGRA;
+		psi->gmask = GMASKBGRA;
+		psi->bmask = BMASKBGRA;
+		psi->amask = AMASKBGRA;
 		break;
-	case MWPF_TRUECOLORABGR:
-		psi->amask 	= 0xff000000;
-		psi->rmask	= 0x000000ff;
-		psi->gmask 	= 0x0000ff00;
-		psi->bmask 	= 0x00ff0000;
-	case MWPF_TRUECOLOR888:
-		psi->amask 	= 0x00000000;
-		psi->rmask 	= 0x00ff0000;
-		psi->gmask 	= 0x0000ff00;
-		psi->bmask	= 0x000000ff;
+	case MWIF_RGBA8888:
+		psi->rmask = RMASKRGBA;
+		psi->gmask = GMASKRGBA;
+		psi->bmask = BMASKRGBA;
+		psi->amask = AMASKRGBA;
+	case MWIF_BGR888:
+		psi->rmask = RMASKBGR;
+		psi->gmask = GMASKBGR;
+		psi->bmask = BMASKBGR;
+		psi->amask = AMASKBGR;
 		break;
-	case MWPF_TRUECOLOR565:
-		psi->amask  = 0x0000;
-		psi->rmask 	= 0xf800;
-		psi->gmask 	= 0x07e0;
-		psi->bmask	= 0x001f;
+	case MWIF_RGB565:
+		psi->rmask = RMASK565;
+		psi->gmask = GMASK565;
+		psi->bmask = BMASK565;
+		psi->amask = AMASK565;
 		break;
-	case MWPF_TRUECOLOR555:
-		psi->amask  = 0x8000;
-		psi->rmask 	= 0x7c00;
-		psi->gmask 	= 0x03e0;
-		psi->bmask	= 0x001f;
+	case MWIF_RGB555:
+		psi->rmask = RMASK555;
+		psi->gmask = GMASK555;
+		psi->bmask = BMASK555;
+		psi->amask = AMASK555;
 		break;
-	case MWPF_TRUECOLOR332:
-		psi->amask 	= 0x00;
-		psi->rmask 	= 0xe0;
-		psi->gmask 	= 0x1c;
-		psi->bmask	= 0x03;
+	case MWIF_RGB332:
+		psi->rmask = RMASK332;
+		psi->gmask = GMASK332;
+		psi->bmask = BMASK332;
+		psi->amask = AMASK332;
+		break;
+	case MWIF_BGR233:
+		psi->rmask = RMASK233;
+		psi->gmask = GMASK233;
+		psi->bmask = BMASK233;
+		psi->amask = AMASK233;
 		break;
 	case MWPF_PALETTE:
 	default:

@@ -74,7 +74,7 @@ MwCheckKeyboardEvent(void)
 			break;
 		case MWKEY_PRINT:
 			if (keystatus == 1)
-				GdCaptureScreen("screen.bmp");
+				GdCaptureScreen(NULL, "screen.bmp");
 			break;
 		}
 		MwDeliverKeyboardEvent(mwkey, modifiers, scancode,

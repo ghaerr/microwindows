@@ -28,7 +28,6 @@ static void fb_close(PSD psd);
 static void
 fb_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
-//    pspDebugScreenPrintf("no palette support, oh shit!\n");
 }
 
 SCREENDEVICE	scrdev = {

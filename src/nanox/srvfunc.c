@@ -9,6 +9,7 @@
 #include <string.h>
 #define MWINCLUDECOLORS
 #include "serv.h"
+#include "../drivers/genmem.h"
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
@@ -1995,73 +1996,25 @@ GR_WINDOW_ID
 GsNewPixmap(GR_SIZE width, GR_SIZE height, int format, void *pixels)
 {
 	GR_PIXMAP	*pp;
-	PSD		psd;
-	int 	size, linelen, pitch, bpp, planes, data_format;
-	int		pixtype;
-   
+	PSD			psd;
+
 	if (width <= 0 || height <= 0) {
 		/* no error for now, server will desynchronize w/app*/
 		/*GsError(GR_ERROR_BAD_WINDOW_SIZE, 0);*/
 		return 0;
 	}
 
-	bpp = rootwp->psd->bpp;
-	data_format = rootwp->psd->data_format;
-	pixtype = rootwp->psd->pixtype;
-	planes = rootwp->psd->planes;
-
-	/* check if format supported*/
-	switch (format) {
-	case 0:			/* default, return framebuffer compatible pixmap*/
-		break;
-	case 32:		/* match framebuffer format if running 32bpp, else RGBA*/
-		if (bpp == 32)
-			break;
-		/* else fall through - create RGBA8888 pixmap*/
-	case MWIF_RGBA8888:
-		bpp = 32;
-		data_format = MWIF_RGBA8888;
-		pixtype = MWPF_TRUECOLORABGR;
-		break;
-	case MWIF_BGRA8888:
-		bpp = 32;
-		data_format = MWIF_BGRA8888;
-		pixtype = MWPF_TRUECOLOR8888;
-		break;
-	default:
-		DPRINTF("NewPixmap: unsupported format %08x\n", format);
-		return 0;	/* fail*/
-	}
-
-	/*
-	 * Allocate offscreen psd.  If screen driver doesn't
-	 * support blitting, this will fail.  Use root window screen
-	 * device for compatibility for now.
-	 */
-	psd = rootwp->psd->AllocateMemGC(rootwp->psd);
+	psd = GdCreatePixmap(rootwp->psd, width, height, format, pixels);
 	if (!psd)
 		return 0;
 
-	pp = (GR_PIXMAP *) malloc(sizeof(GR_PIXMAP));
+	pp = (GR_PIXMAP *)malloc(sizeof(GR_PIXMAP));
 	if (pp == NULL) {
-nomem:
 		psd->FreeMemGC(psd);
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		return 0;
 	}
 
-	GdCalcMemGCAlloc(psd, width, height, planes, bpp, &size, &linelen, &pitch);
-
-	/* Allocate space for pixel values */
-	if (!pixels) {
-		pixels = calloc(size, 1);
-		psd->flags |= PSF_ADDRMALLOC;
-	}
-	if (!pixels) {
-		free(pp);
-		goto nomem;
-	}
-  
 	pp->id = nextid++;
 	pp->next = listpp;
 	pp->psd = psd;
@@ -2070,9 +2023,6 @@ nomem:
 	pp->width = width;
 	pp->height = height;
 	pp->owner = curclient;
-
-	psd->MapMemGC(psd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
-	psd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
 
 	listpp = pp;
 	return pp->id;

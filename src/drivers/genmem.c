@@ -13,11 +13,79 @@
 #include "fb.h"
 #include "genmem.h"
 
+/* alloc and initialize a new memory drawing surface (memgc)*/
+PSD
+GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pixels)
+{
+	PSD		psd;
+	int 	size, linelen, pitch, bpp, planes, data_format;
+	int		pixtype;
+   
+	if (width <= 0 || height <= 0)
+		return NULL;
+
+	bpp = rootpsd->bpp;
+	data_format = rootpsd->data_format;
+	pixtype = rootpsd->pixtype;
+	planes = rootpsd->planes;
+
+	/* check if format supported*/
+	switch (format) {
+	case 0:			/* default, return framebuffer compatible pixmap*/
+		break;
+	case 32:		/* match framebuffer format if running 32bpp, else RGBA*/
+		if (bpp == 32)
+			break;
+		/* else fall through - create RGBA8888 pixmap*/
+	case MWIF_RGBA8888:
+		bpp = 32;
+		data_format = MWIF_RGBA8888;
+		pixtype = MWPF_TRUECOLORABGR;
+		break;
+	case MWIF_BGRA8888:
+		bpp = 32;
+		data_format = MWIF_BGRA8888;
+		pixtype = MWPF_TRUECOLOR8888;
+		break;
+	default:
+		DPRINTF("GdCreatePixmap: unsupported format %08x\n", format);
+		return NULL;	/* fail*/
+	}
+
+	/*
+	 * Allocate offscreen psd.  If screen driver doesn't
+	 * support blitting, this will fail.  Use root window screen
+	 * device for compatibility for now.
+	 */
+	psd = rootpsd->AllocateMemGC(rootpsd);
+	if (!psd)
+		return NULL;
+
+	GdCalcMemGCAlloc(psd, width, height, planes, bpp, &size, &linelen, &pitch);
+
+	/* Allocate space for pixel values */
+	if (!pixels) {
+		pixels = calloc(size, 1);
+		psd->flags |= PSF_ADDRMALLOC;
+	}
+	if (!pixels) {
+		psd->FreeMemGC(psd);
+		return NULL;
+	}
+  
+	psd->MapMemGC(psd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
+	psd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
+
+	return psd;
+}
+
 /* allocate a memory offscreen screen device (pixmap)*/
 PSD 
 gen_allocatememgc(PSD psd)
 {
 	PSD	mempsd;
+
+	assert(psd == &scrdev);
 
 	mempsd = malloc(sizeof(SCREENDEVICE));
 	if (!mempsd)
@@ -32,18 +100,29 @@ gen_allocatememgc(PSD psd)
 	mempsd->portrait = MWPORTRAIT_NONE; /* don't rotate offscreen pixmaps*/
 	mempsd->addr = NULL;
 	mempsd->Update = NULL;				/* no external updates required for mem device*/
+	mempsd->palette = NULL;				/* don't copy any palette*/
+	mempsd->palsize = 0;
 
 	return mempsd;
 }
 
-/* initialize memory device (pixmap) with passed parms*/
-void
-gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int data_format,int pitch,int size,void *addr)
+/* 
+ * Initialize memory device with passed parms,
+ * select suitable framebuffer subdriver,
+ * and set subdriver in memory device.
+ *
+ * Pixmaps are always drawn using linear fb drivers
+ * in non-portrait mode.
+ */
+MWBOOL
+gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp, int data_format,
+	int linelen, int pitch, int size, void *addr)
 {
+	PSUBDRIVER subdriver;
+
 	assert(mempsd->flags & PSF_MEMORY);
 
-	/* create mem psd w/h aligned with hw screen w/h*/
+	/* init mem psd w/h aligned with hw screen w/h*/
 	if (mempsd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
 		mempsd->yres = w;
 		mempsd->xres = h;
@@ -60,24 +139,6 @@ gen_initmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
 	mempsd->pitch = pitch;
 	mempsd->size = size;
 	mempsd->addr = addr;
-}
-
-/* 
- * Initialize memory device with passed parms,
- * select suitable framebuffer subdriver,
- * and set subdriver in memory device.
- *
- * Pixmaps are always drawn using linear fb drivers
- * in non-portrait mode.
- */
-MWBOOL
-gen_mapmemgc(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,int linelen,
-	int data_format,int pitch,int size,void *addr)
-{
-	PSUBDRIVER subdriver;
-
-	/* initialize mem screen driver*/
-	gen_initmemgc(mempsd, w, h, planes, bpp, data_format, linelen, pitch, size, addr);
 
 	/* select and init hw compatible framebuffer subdriver for pixmap drawing*/
 	subdriver = select_fb_subdriver(mempsd);
@@ -97,6 +158,8 @@ gen_freememgc(PSD mempsd)
 
 	/* note: mempsd->addr must be freed elsewhere*/
 
+	if (mempsd->palette)
+		free(mempsd->palette);
 	free(mempsd);
 }
 

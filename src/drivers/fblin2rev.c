@@ -11,6 +11,7 @@
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+#include "genmem.h"
 
 static const unsigned char notmask[4] = { 0xfc, 0xf3, 0xcf, 0x3f };
 

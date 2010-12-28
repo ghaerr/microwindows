@@ -800,7 +800,7 @@ typedef struct {
 	int		pitch;		/* bytes per line*/
 	int		bytesperpixel;	/* bytes per pixel*/
 	int		palsize;	/* palette size*/
-	int32_t	transcolor;	/* transparent color or -1 if none*/
+	int32_t	transcolor;	/* transparent color or MWNOCOLOR if none*/
 	MWPALENTRY *palette;/* palette*/
 	MWUCHAR *imagebits;	/* image bits (dword right aligned)*/
 	int		data_format;/* MWIF_ image data format*/

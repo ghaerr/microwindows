@@ -13,6 +13,7 @@
 #include "device.h"
 #include "convblit.h"
 #include "fb.h"
+#include "genmem.h"
 
 /* Calc linelen and mmap size, return 0 on fail*/
 static int

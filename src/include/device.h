@@ -190,6 +190,8 @@ typedef struct _mwscreendevice {
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 	MWBLITFUNC BlitStretchRGBA8888;					/* conversion stretch blit for RGBA src*/
+	MWPALENTRY *palette;/* palette*/
+	int		palsize;	/* palette size*/
 } SCREENDEVICE;
 
 /* PSD flags*/
@@ -279,10 +281,6 @@ extern MWPIXELVAL gr_background;		/* current background color */
 extern MWBOOL 	  gr_usebg;			/* TRUE if background drawn in pixmaps */
 extern MWCOLORVAL gr_foreground_rgb;/* current fg color in 0xAARRGGBB format*/
 extern MWCOLORVAL gr_background_rgb;
-
-/* drivers/fb.c*/
-int	GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height,
-		int planes, int bpp, int *size, int *linelen, int *pitch);
 
 /* devblit.c*/
 MWBLITFUNC GdFindConvBlit(PSD psd, int data_format, int op);

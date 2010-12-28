@@ -1,3 +1,6 @@
+	* fixed linelen parameter bug in gen_mapmemgc
+	* new GdCreatePixmap engine function to create memory drawing surfaces
+	* added palette to SCREENDEVICE in preparation for elimination of MWIMAGEHEADER
 27 Dec 2010
 	* added ALWAYS_INLINE to force inline convblit functions when not optimizing
 	* fix MwTextOut/MwDrawTextOut NULL hDC when erasemove bug

@@ -13,8 +13,9 @@
 #include <assert.h>
 #include <string.h>
 #include "device.h"
-
 #include "fb.h"
+#include "genmem.h"
+
 DEFINE_applyOpR
 
 #if INVERT4BPP

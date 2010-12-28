@@ -18,6 +18,7 @@
 #include "device.h"
 #include "convblit.h"
 #include "fb.h"
+#include "genmem.h"
 
 /*
  * Alpha lookup tables for 256 color palette systems

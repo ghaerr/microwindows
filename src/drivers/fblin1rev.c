@@ -11,6 +11,7 @@
 #include <string.h>
 #include "device.h"
 #include "fb.h"
+#include "genmem.h"
 
 /* This driver doesn't have full drawing mode functionality using
  * the applyOp() macro from fb.h

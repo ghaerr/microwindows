@@ -37,8 +37,7 @@ OBJS := \
 	$(MW_DIR_OBJ)/mwin/winrgn.o \
 	$(MW_DIR_OBJ)/mwin/winfont.o \
 	$(MW_DIR_OBJ)/mwin/winsbar.o \
-	$(MW_DIR_OBJ)/mwin/winres.o \
-	$(MW_DIR_OBJ)/mwin/winresbmp.o 
+	$(MW_DIR_OBJ)/mwin/winres.o
 
 OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/draw3d.o \

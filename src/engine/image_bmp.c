@@ -16,8 +16,6 @@
 #include "convblit.h"
 #include "swap.h"
 
-#if MW_FEATURE_IMAGES && HAVE_BMP_SUPPORT
-
 /* BMP stuff*/
 #define BI_RGB		0L
 #define BI_RLE8		1L
@@ -26,8 +24,8 @@
 
 typedef unsigned char	BYTE;
 typedef unsigned short	WORD;
-typedef uint32_t	DWORD;
-typedef long		LONG;
+typedef uint32_t		DWORD;
+typedef int32_t			LONG;
 
 typedef struct {
 	/* BITMAPFILEHEADER*/
@@ -36,27 +34,23 @@ typedef struct {
 	WORD	bfReserved1;
 	WORD	bfReserved2;
 	DWORD	bfOffBits;
-} BMPFILEHEAD;
-
-#define FILEHEADSIZE 14
+} MWPACKED BMPFILEHEAD;
 
 /* windows style*/
 typedef struct {
 	/* BITMAPINFOHEADER*/
 	DWORD	BiSize;
-	DWORD	BiWidth;
-	DWORD	BiHeight;
+	LONG	BiWidth;
+	LONG	BiHeight;
 	WORD	BiPlanes;
 	WORD	BiBitCount;
 	DWORD	BiCompression;
 	DWORD	BiSizeImage;
-	DWORD	BiXpelsPerMeter;
-	DWORD	BiYpelsPerMeter;
+	LONG	BiXpelsPerMeter;
+	LONG	BiYpelsPerMeter;
 	DWORD	BiClrUsed;
 	DWORD	BiClrImportant;
-} BMPINFOHEAD;
-
-#define INFOHEADSIZE 40
+} MWPACKED BMPINFOHEAD;
 
 /* os/2 style*/
 typedef struct {
@@ -66,141 +60,110 @@ typedef struct {
 	WORD	bcHeight;
 	WORD	bcPlanes;
 	WORD	bcBitCount;
-} BMPCOREHEAD;
+} MWPACKED BMPCOREHEAD;
 
-#define COREHEADSIZE 12
+#if MW_FEATURE_IMAGES && HAVE_BMP_SUPPORT
 
 static int	DecodeRLE8(MWUCHAR *buf, buffer_t *src);
 static int	DecodeRLE4(MWUCHAR *buf, buffer_t *src);
 static void	put4(int b);
 
-/*
- * Conversion blit 24bpp BGR to 24bpp RGB
+/**
+ * Convert 32-bit little endian number at addr,
+ * possibly not aligned, to host CPU format.
  */
-void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch)
+static inline void little_endian_to_host_32(void *addr)
 {
-	unsigned char *src = data;
-
-	while (--height >= 0)
-	{
-		register unsigned char *s = src;
-		int w = width;
-
-		while (--w >= 0)
-		{
-			/* swap R and B*/
-			unsigned char b = s[0];
-			s[0] = s[2];
-			s[2] = b;
-
-			s += 3;
-		}
-		src += pitch;
-	}
+#if MW_CPU_BIG_ENDIAN
+	unsigned char b0 = ((unsigned char *)addr)[0];
+	unsigned char b1 = ((unsigned char *)addr)[1];
+	unsigned char b2 = ((unsigned char *)addr)[2];
+	((unsigned char *)addr)[0] = ((unsigned char *)addr)[3];
+	((unsigned char *)addr)[1] = b2;
+	((unsigned char *)addr)[2] = b1;
+	((unsigned char *)addr)[3] = b0;
+#endif
 }
 
-/*
- * Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha
+/**
+ * Convert 16-bit little endian number at addr,
+ * possibly not aligned, to host CPU format.
  */
-void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch)
+static inline void little_endian_to_host_16(void *addr)
 {
-	unsigned char *src = data;
-
-	while (--height >= 0)
-	{
-		register unsigned char *s = src;
-		int w = width;
-
-		while (--w >= 0)
-		{
-			/* swap R and B*/
-			unsigned char b = s[0];
-			s[0] = s[2];
-			s[2] = b;
-			s[3] = 255;		/* alpha*/
-
-			s += 4;
-		}
-		src += pitch;
-	}
+#if MW_CPU_BIG_ENDIAN
+	unsigned char b0 = ((unsigned char *)addr)[0];
+	((unsigned char *)addr)[0] = ((unsigned char *)addr)[1];
+	((unsigned char *)addr)[1] = b0;
+#endif
 }
 
 /*
  * BMP decoding routine
  */
 int
-GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage)
+GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr)
 {
-	int		h, i, compression;
-	int		headsize;
-	MWUCHAR		*imagebits;
+	int			h, i, compression;
+	DWORD		hdrsize;
 	BMPFILEHEAD	bmpf;
-	BMPINFOHEAD	bmpi;
-	BMPCOREHEAD	bmpc;
-	MWUCHAR 	headbuffer[INFOHEADSIZE];
 
-	GdImageBufferSeekTo(src, 0UL);
+	GdImageBufferSeekTo(src, 0L);
 
 	pimage->imagebits = NULL;
 	pimage->palette = NULL;
 
 	/* read BMP file header*/
-	if (GdImageBufferRead(src, &headbuffer, FILEHEADSIZE) != FILEHEADSIZE)
-		return 0;
+	if (readfilehdr) {
+		if (GdImageBufferRead(src, &bmpf, sizeof(bmpf)) != sizeof(bmpf))
+			return 0;
 
-	bmpf.bfType[0] = headbuffer[0];
-	bmpf.bfType[1] = headbuffer[1];
+		/* check magic bytes*/
+		if (bmpf.bfType[0] != 'B' || bmpf.bfType[1] != 'M')
+			return 0;		/* not bmp image*/
 
-	/* Is it really a bmp file ? */
-	if (*(WORD*)&bmpf.bfType[0] != wswap(0x4D42)) /* 'BM' */
-		return 0;	/* not bmp image*/
+		little_endian_to_host_32(&bmpf.bfOffBits);
+	}
 
-	/*bmpf.bfSize = dwswap(dwread(&headbuffer[2]));*/
-	bmpf.bfOffBits = dwswap(dwread(&headbuffer[10]));
-
-	/* Read remaining header size */
-	if (GdImageBufferRead(src,&headsize,sizeof(DWORD)) != sizeof(DWORD))
-		return 0;	/* not bmp image*/
-	headsize = dwswap(headsize);
+	/* Read header size to determine header type*/
+	if (GdImageBufferRead(src, &hdrsize, sizeof(hdrsize)) != sizeof(hdrsize))
+		return 0;			/* not bmp image*/
+	little_endian_to_host_32(&hdrsize);
 
 	/* might be windows or os/2 header */
-	if(headsize == COREHEADSIZE) {
+	if(hdrsize == sizeof(BMPCOREHEAD)) {
+		BMPCOREHEAD	bmpc;
 
 		/* read os/2 header */
-		if(GdImageBufferRead(src, &headbuffer, COREHEADSIZE-sizeof(DWORD)) !=
-			COREHEADSIZE-sizeof(DWORD))
+		if (GdImageBufferRead(src, &bmpc.bcWidth, sizeof(bmpc)-sizeof(DWORD)) !=
+			sizeof(bmpc)-sizeof(DWORD))
 				return 0;	/* not bmp image*/
 
-		/* Get data */
-		bmpc.bcWidth = wswap(*(WORD*)&headbuffer[0]);
-		bmpc.bcHeight = wswap(*(WORD*)&headbuffer[2]);
-		bmpc.bcPlanes = wswap(*(WORD*)&headbuffer[4]);
-		bmpc.bcBitCount = wswap(*(WORD*)&headbuffer[6]);
+		little_endian_to_host_16(&bmpc.bcWidth);
+		little_endian_to_host_16(&bmpc.bcHeight);
+		little_endian_to_host_16(&bmpc.bcBitCount);
+		little_endian_to_host_16(&bmpc.bcWidth);
 		
-		pimage->width = (int)bmpc.bcWidth;
-		pimage->height = (int)bmpc.bcHeight;
+		pimage->width = bmpc.bcWidth;
+		pimage->height = bmpc.bcHeight;
 		pimage->bpp = bmpc.bcBitCount;
 		if (pimage->bpp <= 8)
 			pimage->palsize = 1 << pimage->bpp;
 		else pimage->palsize = 0;
 		compression = BI_RGB;
 	} else {
+		BMPINFOHEAD	bmpi;
+
 		/* read windows header */
-		if(GdImageBufferRead(src, &headbuffer, INFOHEADSIZE-sizeof(DWORD)) !=
-			INFOHEADSIZE-sizeof(DWORD))
+		if (GdImageBufferRead(src, &bmpi.BiWidth, sizeof(bmpi)-sizeof(DWORD))
+			!= sizeof(bmpi)-sizeof(DWORD))
 				return 0;	/* not bmp image*/
 
-		/* Get data */
-		bmpi.BiWidth = dwswap(*(DWORD*)&headbuffer[0]);
-		bmpi.BiHeight = dwswap(*(DWORD*)&headbuffer[4]);
-		bmpi.BiPlanes = wswap(*(WORD*)&headbuffer[8]);
-		bmpi.BiBitCount = wswap(*(WORD*)&headbuffer[10]);
-		bmpi.BiCompression = dwswap(*(DWORD*)&headbuffer[12]);
-		bmpi.BiSizeImage = dwswap(*(DWORD*)&headbuffer[16]);
-		bmpi.BiXpelsPerMeter = dwswap(*(DWORD*)&headbuffer[20]);
-		bmpi.BiYpelsPerMeter = dwswap(*(DWORD*)&headbuffer[24]);
-		bmpi.BiClrUsed = dwswap(*(DWORD*)&headbuffer[28]);
-		bmpi.BiClrImportant = dwswap(*(DWORD*)&headbuffer[32]);
+		little_endian_to_host_32(&bmpi.BiWidth);
+		little_endian_to_host_32(&bmpi.BiHeight);
+		little_endian_to_host_16(&bmpi.BiBitCount);
+		little_endian_to_host_32(&bmpi.BiCompression);
+		little_endian_to_host_32(&bmpi.BiClrUsed);
 
 		pimage->width = (int)bmpi.BiWidth;
 		pimage->height = (int)bmpi.BiHeight;
@@ -251,21 +214,19 @@ DPRINTF("bmp bpp %d\n", pimage->bpp);
 			pimage->palette[i].b = GdImageBufferGetChar(src);
 			pimage->palette[i].g = GdImageBufferGetChar(src);
 			pimage->palette[i].r = GdImageBufferGetChar(src);
-			if(headsize != COREHEADSIZE)
+			if(hdrsize != sizeof(BMPCOREHEAD))
 				GdImageBufferGetChar(src);
 		}
 	}
 
 	/* determine 16bpp 5/5/5 or 5/6/5 format*/
 	if (pimage->bpp == 16) {
-		uint32_t format = 0x7c00;		/* default is 5/5/5*/
+		DWORD format = 0x7c00;		/* default is 5/5/5*/
 
 		if (compression == BI_BITFIELDS) {
-			MWUCHAR	buf[4];
-
-			if (GdImageBufferRead(src, &buf, sizeof(DWORD)) != sizeof(DWORD))
+			if (GdImageBufferRead(src, &format, sizeof(format)) != sizeof(format))
 				goto err;
-			format = dwswap(dwread(buf));
+			little_endian_to_host_32(&format);
 		}
 		if (format == 0x7c00)
 			pimage->data_format = MWIF_RGB555;
@@ -273,13 +234,14 @@ DPRINTF("bmp bpp %d\n", pimage->bpp);
 	}
 
 	/* decode image data*/
-	GdImageBufferSeekTo(src, bmpf.bfOffBits);
+	if (readfilehdr)
+		GdImageBufferSeekTo(src, bmpf.bfOffBits);
 
 	h = pimage->height;
 	/* For every row ... */
 	while (--h >= 0) {
 		/* turn image rightside up*/
-		imagebits = pimage->imagebits + h*pimage->pitch;
+		MWUCHAR *imagebits = pimage->imagebits + h*pimage->pitch;
 
 		/* Get row data from file */
 		if(compression == BI_RLE8) {
@@ -296,9 +258,9 @@ DPRINTF("bmp bpp %d\n", pimage->bpp);
 
 	/* conv BGR -> RGB*/
 	if (pimage->bpp == 24)
-		convblit_bgr888_rgb888(imagebits, pimage->width, pimage->height, pimage->pitch);
+		convblit_bgr888_rgb888(pimage->imagebits, pimage->width, pimage->height, pimage->pitch);
 	else if (pimage->bpp == 32)
-		convblit_bgrx8888_rgba8888(imagebits, pimage->width, pimage->height, pimage->pitch);
+		convblit_bgrx8888_rgba8888(pimage->imagebits, pimage->width, pimage->height, pimage->pitch);
 	return 1;		/* bmp image ok*/
 	
 err:
@@ -415,4 +377,225 @@ DecodeRLE4(MWUCHAR * buf, buffer_t * src)
 		}
 	}
 }
+
+/*
+ * Conversion blit 24bpp BGR to 24bpp RGB
+ */
+void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch)
+{
+	unsigned char *src = data;
+
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* swap R and B*/
+			unsigned char b = s[0];
+			s[0] = s[2];
+			s[2] = b;
+
+			s += 3;
+		}
+		src += pitch;
+	}
+}
+
+/*
+ * Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha
+ */
+void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch)
+{
+	unsigned char *src = data;
+
+	while (--height >= 0)
+	{
+		register unsigned char *s = src;
+		int w = width;
+
+		while (--w >= 0)
+		{
+			/* swap R and B*/
+			unsigned char b = s[0];
+			s[0] = s[2];
+			s[2] = b;
+			s[3] = 255;		/* alpha*/
+
+			s += 4;
+		}
+		src += pitch;
+	}
+}
 #endif /* MW_FEATURE_IMAGES && HAVE_BMP_SUPPORT*/
+
+#if DEBUG
+/* little-endian storage of shortword*/
+static void
+putsw(uint32_t dw, FILE *ofp)
+{
+	fputc((unsigned char)dw, ofp);
+	dw >>= 8;
+	fputc((unsigned char)dw, ofp);
+}
+
+/* little-endian storage of longword*/
+static void
+putdw(uint32_t dw, FILE *ofp)
+{
+	fputc((unsigned char)dw, ofp);
+	dw >>= 8;
+	fputc((unsigned char)dw, ofp);
+	dw >>= 8;
+	fputc((unsigned char)dw, ofp);
+	dw >>= 8;
+	fputc((unsigned char)dw, ofp);
+}
+
+/**
+ * Create .bmp file from framebuffer data
+ * 1, 4, 8, 16, 24 and 32 bpp supported
+ *
+ * @param path Output file.
+ * @return 0 on success, nonzero on error.
+ */
+int
+GdCaptureScreen(PSD psd, char *pathname)
+{
+	FILE *ofp;
+	int	w, h, i, cx, cy, extra, bpp, bytespp, ncolors, sizecolortable;
+	int hdrsize, imagesize, filesize, compression, colorsused;
+	BMPFILEHEAD	bmpf;
+	BMPINFOHEAD bmpi;
+	MWSCREENINFO sinfo;
+	extern MWPALENTRY gr_palette[256];    /* current palette*/
+
+	ofp = fopen(pathname, "wb");
+	if (!ofp)
+		return 1;
+
+	if (!psd)
+		psd = &scrdev;
+	GdGetScreenInfo(psd, &sinfo);
+
+	cx = psd->xres;
+	cy = psd->yres;
+	bpp = psd->bpp;
+	bytespp = (bpp+7)/8;
+
+	/* dword right padded*/
+	extra = (cx*bytespp) & 3;
+	if (extra)
+		extra = 4 - extra;
+
+	ncolors = (bpp <= 8)? (1<<bpp): 0;
+
+	/* color table is either palette or 3 longword r/g/b masks*/
+	sizecolortable = ncolors? ncolors*4: 3*4;
+	if (bpp == 24)
+		sizecolortable = 0;	/* special case 24bpp has no table*/
+
+	hdrsize = sizeof(bmpf) + sizeof(bmpi) + sizecolortable;
+	imagesize = (cx + extra) * cy * bytespp;
+	filesize =  hdrsize + imagesize;
+	compression = (bpp == 16 || bpp == 32)? BI_BITFIELDS: BI_RGB;
+	colorsused = (bpp <= 8)? ncolors: 0;
+
+	/* fill out headers*/
+	memset(&bmpf, 0, sizeof(bmpf));
+	bmpf.bfType[0] = 'B';
+	bmpf.bfType[1] = 'M';
+	bmpf.bfSize = host_to_little_endian_32(filesize);
+	bmpf.bfOffBits = host_to_little_endian_32(hdrsize);
+
+	memset(&bmpi, 0, sizeof(bmpi));
+	bmpi.BiSize = host_to_little_endian_32(sizeof(BMPINFOHEAD));
+	bmpi.BiWidth = host_to_little_endian_32(cx);
+	bmpi.BiHeight = host_to_little_endian_32(cy);
+	bmpi.BiPlanes = host_to_little_endian_16(1);
+	bmpi.BiBitCount = host_to_little_endian_16(bpp);
+	bmpi.BiCompression = host_to_little_endian_32(compression);
+	bmpi.BiSizeImage = host_to_little_endian_32(imagesize);
+	bmpi.BiClrUsed = host_to_little_endian_32(colorsused);
+
+	/* write headers*/
+	fwrite(&bmpf, sizeof(bmpf), 1, ofp);
+	fwrite(&bmpi, sizeof(bmpi), 1, ofp);
+
+	/* write colortable*/
+	if (sizecolortable) {
+		if(bpp <= 8) {
+			/* write palette*/
+			for(i=0; i<ncolors; i++) {
+				fputc(gr_palette[i].b, ofp);
+				fputc(gr_palette[i].g, ofp);
+				fputc(gr_palette[i].r, ofp);
+				fputc(0, ofp);
+			}
+		} else {
+			/* write 3 r/g/b masks*/
+			if (psd->data_format == MWIF_RGBA8888) {
+				/* RGBA bmp format not supported, will convert to BGRA*/
+				putdw(RMASKBGRA, ofp);
+				putdw(GMASKBGRA, ofp);
+				putdw(BMASKBGRA, ofp);
+			} else {
+				putdw(sinfo.rmask, ofp);
+				putdw(sinfo.gmask, ofp);
+				putdw(sinfo.bmask, ofp);
+			}
+		}
+	}
+
+	/* write image data, upside down ;)*/
+	for(h=cy-1; h>=0; --h) {
+		unsigned char *src = ((unsigned char *)psd->addr) + h * cx * bytespp;
+		unsigned char *cptr;
+		unsigned short *sptr;
+		uint32_t *lptr, c;
+
+		switch (psd->data_format) {
+		case MWIF_BGRA8888:
+			lptr = (uint32_t *)src;
+			for(w=0; w<cx; ++w)
+				putdw(*lptr++, ofp);
+			break;
+		case MWIF_RGBA8888:
+			lptr = (uint32_t *)src;
+			for(w=0; w<cx; ++w) {
+				c = *lptr++;
+				putdw(PIXELABGR2PIXEL8888(c), ofp);	/* convert RGBA image pixel to BGRA image pixel*/
+			}
+			break;
+		case MWIF_BGR888:
+			cptr = (unsigned char *)src;
+			for(w=0; w<cx; ++w) {
+				fputc(*cptr++, ofp);
+				fputc(*cptr++, ofp);
+				fputc(*cptr++, ofp);
+			}
+			break;
+		case MWIF_RGB565:
+		case MWIF_RGB555:
+			sptr = (unsigned short *)src;
+			for(w=0; w<cx; ++w)
+				putsw(*sptr++, ofp);
+			break;
+		case MWIF_RGB332:
+		case MWIF_BGR233:
+		case MWPF_PALETTE:
+		default:
+			cptr = (unsigned char *)src;
+			for(w=0; w<cx; ++w)
+				fputc(*cptr++, ofp);
+			break;
+		}
+		for(w=0; w<extra; ++w)
+			fputc(0, ofp);		/* DWORD pad each line*/
+	}
+
+	fclose(ofp);
+	return 0;
+}
+#endif /* DEBUG*/

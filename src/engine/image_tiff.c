@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 #include "device.h"
 #include "convblit.h"
-#include "swap.h"
 
 #if MW_FEATURE_IMAGES && HAVE_TIFF_SUPPORT
 #include <tiffio.h>

@@ -215,16 +215,21 @@ GR_BOOL GsCheckKeyboardEvent(void)
 	} else if(keystatus) {		/* Deliver events as appropriate: */	
 		switch (mwkey) {
 		case MWKEY_QUIT:
+#if DEBUG
 			if (modifiers & MWKMOD_CTRL)
 				GdCaptureScreen(NULL, "screen.bmp");
-			else GsTerminate(); /* no return*/
+			else 
+#endif
+				GsTerminate(); /* no return*/
 			break;
 		case MWKEY_REDRAW:
 			GsRedrawScreen();
 			break;
 		case MWKEY_PRINT:
+#if DEBUG
 			if (keystatus == 1)
 				GdCaptureScreen(NULL, "screen.bmp");
+#endif
 			break;
 		}
 				

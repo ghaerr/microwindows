@@ -426,7 +426,7 @@ int		GdImageBufferEOF(buffer_t *buffer);
 
 /* individual decoders*/
 #ifdef HAVE_BMP_SUPPORT
-int	GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage);
+int	GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr);
 #endif
 #ifdef HAVE_JPEG_SUPPORT
 int	GdDecodeJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale);

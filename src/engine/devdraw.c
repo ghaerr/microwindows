@@ -614,8 +614,7 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 
 		/* set the new palette if any color was added*/
 		if(newsize) {
-			GdSetPalette(psd, gr_nextpalentry, newsize,
-				&newpal[gr_nextpalentry]);
+			GdSetPalette(psd, gr_nextpalentry, newsize, &newpal[gr_nextpalentry]);
 			gr_nextpalentry += newsize;
 		}
 		break;
@@ -637,8 +636,8 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 
 static void GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
 /**
- * Draw a color bitmap image in 1, 4, 8, 24 or 32 bits per pixel.  The
- * Microwindows color image format is DWORD padded bytes, with
+ * Draw a color bitmap image in 1, 4, 8, 16, 24 or 32 bits per pixel.
+ * The Microwindows color image format is DWORD padded bytes, with
  * the upper bits corresponding to the left side (identical to
  * the MS Windows format).  This format is currently different
  * than the MWIMAGEBITS format, which uses word-padded bits
@@ -792,7 +791,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			for(yoff=0; yoff<pimage->palsize; ++yoff)
 				convtable[yoff] = yoff;
 		} else GdMakePaletteConversionTable(psd, pimage->palette,
-			pimage->palsize, convtable, MERGEPALETTE);
+					pimage->palsize, convtable, MERGEPALETTE);
 
 		/* The following is no longer used.  One reason is that it required */
 		/* the transparent color to be unique, which was unnessecary        */
@@ -841,12 +840,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	/* Image format in RGB rather than BGR byte order?*/
 	rgborder = (pimage->data_format == MWIF_RGB888 || pimage->data_format == MWIF_RGBA8888);
 
-	/*
-	 * Handle images with alpha channel.
-	 * Image format must be in 32bpp and have byte order
-	 *    MWIMAGE_RGB: RR GG BB AA
-	 * or MWIMAGE_BGR: BB GG RR AA
-	 */
+	/* handle 32bpp RGBA images with alpha channel*/
 	if (pimage->data_format == MWIF_RGBA8888) {
 		int32_t *data = (int32_t *)imagebits;
 
@@ -1060,13 +1054,9 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				data = (int32_t *) (((char *) data) + extra);
 			}
 		}
-		/* end of alpha channel image handling*/
-		GdFixCursor(psd);
-		return;
-	}
-
-	/* handle non-alpha images of 16, 18, 24 or 32bpp*/
-	if (bpp > 8) {
+	} /* end of alpha channel image handling*/
+	else if (bpp > 8) {
+		/* handle non-alpha images of 16, 18, 24 or 32bpp*/
 		while (height > 0) {
 			/* get value in correct RGB or BGR byte order*/
 			if (bpp == 24 || bpp == 18) {
@@ -1138,13 +1128,9 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				imagebits += extra;
 			}
 		}
-		GdFixCursor(psd);
-		return;
-		/* end of 16, 18, 24 or 32bpp non-alpha image handling*/
-	}
-
-	/* handle palettized images of 8, 4 or 1bpp*/
-	{
+	} /* end of 16, 18, 24 or 32bpp non-alpha image handling*/
+	else {
+		/* handle palettized images of 8, 4 or 1bpp*/
 		bitcount = 0;
 		while (height > 0) {
 			if (bitcount <= 0) {
@@ -1199,8 +1185,8 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 				imagebits += extra;
 			}
 		}
-	}
-	/* end of palettized images of 8, 4 or 1bpp handling*/
+	} /* end of palettized images of 8, 4 or 1bpp handling*/
+
 	GdFixCursor(psd);
 }
 

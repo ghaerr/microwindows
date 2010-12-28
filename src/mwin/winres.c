@@ -1,5 +1,5 @@
 /*
- * winres.c
+ * Copyright (c) 2010 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Resource functions
  *
@@ -279,8 +279,7 @@ mwIsSameType(FILE * f, LPCTSTR id, BOOL * pEof)
  *  If found, the file is positioned at the beginning of the resource.
  */
 FILE *
-mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName,
-	       PMWRESOURCEHEADER pResHead)
+mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName, PMWRESOURCEHEADER pResHead)
 {
 	FILE *f;
 	PMWAPPINSTANCE pInst = (PMWAPPINSTANCE) hInst;
@@ -374,8 +373,7 @@ resAllocText(WORD ** pw)
  *  get dynamic extra information from a dlg item template
  */
 PMWDLGITEMTEMPLATE
-resGetDlgItemTemplExtra(PMWDLGITEMTEMPLATE pItem,
-			PMWDLGITEMTEMPLEXTRA pItemExtra)
+resGetDlgItemTemplExtra(PMWDLGITEMTEMPLATE pItem, PMWDLGITEMTEMPLEXTRA pItemExtra)
 {
 	LPWORD pw = (LPWORD) pItem->extraData;
 
@@ -490,7 +488,7 @@ resFirstDlgItem(PMWDLGTEMPLATE pDlg)
 		RES_SKIP_WSTRING(pw);	// skip font name
 	}
 	//  dword align
-	if ((((unsigned long) pw) & 2) != 0)
+	if ((((uint32_t) pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
@@ -508,7 +506,7 @@ resNextDlgItem(PMWDLGITEMTEMPLATE pItem)
 	RES_SKIP_WSTRING(pw);
 	pw += 1 + ((*pw) >> 1);
 	//  dword align
-	if ((((unsigned long) pw) & 2) != 0)
+	if ((((uint32_t) pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
@@ -655,4 +653,63 @@ LoadString(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 	}
 
 	return retV;
+}
+
+static PMWIMAGEHDR
+resDecodeBitmap(unsigned char *buffer, int size)
+{
+	PMWIMAGEHDR pimage = (PMWIMAGEHDR)calloc(1, sizeof(MWIMAGEHDR));
+	buffer_t stream;
+
+	if (!pimage)
+		return NULL;
+
+	GdImageBufferInit(&stream, buffer, size);
+	if (GdDecodeBMP(&stream, pimage, FALSE) != 1) {	/* don't read file hdr*/
+		free (pimage);
+		return NULL;
+	}
+	return pimage;
+}
+
+/*
+ *  Load a bitmap from resource file.
+ */
+PMWIMAGEHDR
+resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
+{
+	HGLOBAL hResBmp;
+	HRSRC hRes;
+	PMWIMAGEHDR retV;
+	unsigned char *buffer;
+	int size;
+
+	hRes = FindResource(hInst, resName, RT_BITMAP);
+	if (!hRes)
+		return NULL;
+
+	size = SizeofResource(hInst, hRes);
+	hResBmp = LoadResource(hInst, hRes);
+	buffer = LockResource(hResBmp);
+	if (!buffer)
+		return NULL;
+
+	retV = resDecodeBitmap(buffer, size);
+
+	UnlockResource(hResBmp);
+	FreeResource(hResBmp);
+	return retV;
+}
+
+/*
+ *  Free memory allocated with resLoadBitmap.
+ */
+void
+resFreeBitmap(PMWIMAGEHDR pImageHdr)
+{
+	if (pImageHdr->palette)
+		free(pImageHdr->palette);
+	if (pImageHdr->imagebits)
+		free(pImageHdr->imagebits);
+	free(pImageHdr);
 }

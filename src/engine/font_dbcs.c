@@ -13,6 +13,7 @@
 #include "device.h"
 #include "devfont.h"
 #include "genfont.h"
+#include "swap.h"
 
 #if HAVE_BIG5_SUPPORT
 static void

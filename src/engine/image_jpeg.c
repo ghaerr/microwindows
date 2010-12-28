@@ -43,7 +43,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
-#include "swap.h"
 
 #if MW_FEATURE_IMAGES && HAVE_JPEG_SUPPORT
 #include "jpeglib.h"

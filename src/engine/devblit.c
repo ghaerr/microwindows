@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "swap.h"
 #include "device.h"
 #include "convblit.h"
 

@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
-#include "swap.h"
 #if HAVE_MMAP
 #include <sys/mman.h>
 #endif
@@ -288,7 +287,7 @@ GdDecodeImage(PSD psd, buffer_t * src, char *path, int flags)
 #endif
 #if HAVE_BMP_SUPPORT
 	if (loadOK == 0) 
-		loadOK = GdDecodeBMP(src, pimage);
+		loadOK = GdDecodeBMP(src, pimage, TRUE);	/* read file header*/
 #endif
 #if HAVE_GIF_SUPPORT
 	if (loadOK == 0) 

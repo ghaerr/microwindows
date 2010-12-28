@@ -67,18 +67,24 @@ MwCheckKeyboardEvent(void)
 	} else if(keystatus) {		/* Deliver events as appropriate: */	
 		switch (mwkey) {
 		case MWKEY_QUIT:
-			MwTerminate();
-			/* no return*/
+#if DEBUG
+			if (modifiers & MWKMOD_CTRL)
+				GdCaptureScreen(NULL, "screen.bmp");
+			else
+#endif
+				MwTerminate();
+			break;
 		case MWKEY_REDRAW:
 			MwRedrawScreen();
 			break;
 		case MWKEY_PRINT:
+#if DEBUG
 			if (keystatus == 1)
 				GdCaptureScreen(NULL, "screen.bmp");
+#endif
 			break;
 		}
-		MwDeliverKeyboardEvent(mwkey, modifiers, scancode,
-			keystatus==1? TRUE: FALSE);
+		MwDeliverKeyboardEvent(mwkey, modifiers, scancode, keystatus==1? TRUE: FALSE);
 		return TRUE;
 	}
 	return FALSE;

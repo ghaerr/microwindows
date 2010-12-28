@@ -396,7 +396,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->vscroll.trackPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
-			DPRINTF("((%d-%d)*%d)/%d=%d\n", pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
+			//DPRINTF("((%d-%d)*%d)/%d=%d\n", pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
 
                 	if ( hwnd->vscroll.trackPos >= hwnd->vscroll.minPos &&
                 			hwnd->vscroll.trackPos <= hwnd->vscroll.maxPos)
@@ -422,7 +422,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->hscroll.trackPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
-			DPRINTF("((%d-%d)*%d)/%d=%d\n",pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
+			//DPRINTF("((%d-%d)*%d)/%d=%d\n",pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
     
 			if ( hwnd->hscroll.trackPos >= hwnd->hscroll.minPos &&
 					hwnd->hscroll.trackPos <= hwnd->hscroll.maxPos)
@@ -454,7 +454,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->vscroll.trackPos = ((pt.y - moveTop) * itemMoveable) / moveRange;
-			DPRINTF("((%d-%d)*%d)/%d=%d\n", pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
+			//DPRINTF("((%d-%d)*%d)/%d=%d\n", pt.y,moveTop,itemMoveable,moveRange,hwnd->vscroll.trackPos);
 
 			if ( hwnd->vscroll.trackPos >= hwnd->vscroll.minPos &&
 				 hwnd->vscroll.trackPos <= hwnd->vscroll.maxPos)
@@ -477,7 +477,7 @@ MwHandleNCMessageScrollbar(HWND hwnd, UINT msg, WPARAM hitcode, LPARAM lParam)
 			itemMoveable = itemCount - itemVisible + 1;
 
 			hwnd->hscroll.trackPos = ((pt.x - moveLeft) * itemMoveable) / moveRange;
-			DPRINTF("((%d-%d)*%d)/%d=%d\n",pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
+			//DPRINTF("((%d-%d)*%d)/%d=%d\n",pt.y,moveLeft,itemMoveable,moveRange,hwnd->hscroll.trackPos);
     
 			if ( hwnd->hscroll.trackPos >= hwnd->hscroll.minPos &&
 					hwnd->hscroll.trackPos <= hwnd->hscroll.maxPos)

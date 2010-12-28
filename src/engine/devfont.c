@@ -19,6 +19,7 @@
 #include "device.h"
 #include "devfont.h"
 #include "genfont.h"
+#include "swap.h"
 #include "intl.h"
 
 #define DEBUG_TEXT_SHAPING	0

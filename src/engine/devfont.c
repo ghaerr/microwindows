@@ -113,7 +113,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
  			if(!strcasecmp(pf[i].name, fontname)) {
   				pf[i].fontsize = pf[i].cfont->height;
 				pf[i].fontattr = fontattr;
-				DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
+				//DPRINTF("createfont: (height == 0) found builtin font %s (%d)\n", fontname, i);
   				return (PMWFONT)&pf[i];
   			}
   		}

@@ -253,7 +253,7 @@
 
 
 /* framebuffer pixel format blit - must handle backwards copy, nonstd rotation code*/
-static inline void frameblit_blit(PSD psd, PMWBLITPARMS gc,
+static inline void ALWAYS_INLINE frameblit_blit(PSD psd, PMWBLITPARMS gc,
 	int SSZ, int SR, int SG, int SB, int SA,
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
 {
@@ -495,7 +495,7 @@ void frameblit_8bpp(PSD psd, PMWBLITPARMS gc)
 }
 
 /* framebuffer pixel format stretch blit - src/dst rotation code, no backwards copy*/
-static inline void frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
+static inline void ALWAYS_INLINE frameblit_stretchblit(PSD psd, PMWBLITPARMS gc,
 	int SSZ, int SR, int SG, int SB, int SA,
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
 {

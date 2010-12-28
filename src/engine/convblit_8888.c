@@ -40,7 +40,7 @@
  * This is also true for the copy vs srcover.  When COPY is specified,
  * no blending code will be included.
  */
-static inline void convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
+static inline void ALWAYS_INLINE convblit_8888(PSD psd, PMWBLITPARMS gc, int mode,
 	int SSZ, int SR, int SG, int SB, int SA,
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
 {

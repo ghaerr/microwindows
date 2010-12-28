@@ -25,13 +25,15 @@
 #endif
 #endif
 
-/* force byte-packed structures*/
+/* force byte-packed structures and inlining*/
 #if defined(__GNUC__)
 #define MWPACKED			__attribute__ ((aligned(1), packed))	/* for structs*/
 #define PACKEDDATA			__attribute__ ((__packed__))			/* for data members*/
+#define ALWAYS_INLINE		__attribute__ ((always_inline))			/* force inline functions*/
 #else
 #define MWPACKED
 #define PACKEDDATA			/* FIXME for MSVC #pragma pack(1) equiv*/
+#define ALWAYS_INLINE
 #endif
 
 #if USE_ALLOCA

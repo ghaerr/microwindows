@@ -36,7 +36,7 @@
  * which is then used with additional parameters to build the fast final function.
  */
 #define CONVBLIT_COPY_MASK_MONO(funcname)	\
-static inline void funcname(PSD psd, PMWBLITPARMS gc,\
+static inline void ALWAYS_INLINE funcname(PSD psd, PMWBLITPARMS gc,\
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)\
 {\
 	unsigned char *src, *dst;\
@@ -305,7 +305,7 @@ void convblit_copy_mask_mono_byte_msb_16bpp(PSD psd, PMWBLITPARMS gc)
 /*
  * Conversion blit to blend 8bpp alpha with fg/bg onto 24bpp 888 or 32bpp 8888 image
  */
-static inline void convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
+static inline void ALWAYS_INLINE convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc,
 	int DSZ, int DR, int DG, int DB, int DA, int PORTRAIT)
 {
 	unsigned char *src, *dst;

@@ -1,4 +1,5 @@
 27 Dec 2010
+	* fix MwTextOut/MwDrawTextOut NULL hDC when erasemove bug
 	* rewrote dwswap/wswap endian reversal routines in bmp loaders, cleanup bmp reader/writers
 	* swap.h tries to automatically determine CPU endianness, new host_to_little_endian_32/16
 	* remove/fix duplicate bmp decoder in mwin/winresbmp.c, must set HAVE_BMP_SUPPORT for win32 bmps

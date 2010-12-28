@@ -1060,6 +1060,9 @@ mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags
 	int i, j, k, dx, dy, x1;
 	MWCOORD baseline;
 
+	if(!hDC)
+		return 0;
+
 	for (i = 0, j = 0, k = 0, x1 = 0; i < len; i++) {
 		if (str[i] == '&') {
 			if (i) {
@@ -1120,7 +1123,7 @@ MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 	TEXTMETRIC TextMetrics;
 	int charwidth[256];
 
-	if (!lprc)
+	if (!lprc || !hDC)
 		return 0;
 
 	if (uFormat & DT_TABSTOP) {

@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_PNG_SUPPORT
 #include <png.h>
@@ -34,8 +35,8 @@ png_read_buffer(png_structp pstruct, png_bytep pointer, png_size_t size)
 	GdImageBufferRead(pstruct->io_ptr, pointer, size);
 }
 
-int
-GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
+PSD
+GdDecodePNG(buffer_t * src)
 {
 	unsigned char hdr[8], **rows;
 	png_structp state;
@@ -43,15 +44,16 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	png_uint_32 width, height;
 	int bit_depth, color_type, i;
 	double file_gamma;
-	int channels;
+	int channels, data_format;
+	PSD pmd;
 
 	GdImageBufferSeekTo(src, 0UL);
 
 	if(GdImageBufferRead(src, hdr, 8) != 8)
-		return 0;
+		return NULL;
 
 	if(png_sig_cmp(hdr, 0, 8))
-		return 0;
+		return NULL;
 
 	if(!(state = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)))
 		goto nomem;
@@ -63,7 +65,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 
 	if(setjmp(png_jmpbuf(state))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);
-		return 2;
+		return NULL;
 	}
 
 	/* Set up the input function */
@@ -73,8 +75,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	png_set_sig_bytes(state, 8);
 
 	png_read_info(state, pnginfo);
-	png_get_IHDR(state, pnginfo, &width, &height, &bit_depth, &color_type,
-		NULL, NULL, NULL);
+	png_get_IHDR(state, pnginfo, &width, &height, &bit_depth, &color_type, NULL, NULL, NULL);
 
 	/* set-up the transformations */
 	/* transform paletted images into full-color rgb */
@@ -111,8 +112,7 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	png_read_update_info (state, pnginfo);
 
 	/* get the new color-type and bit-depth (after expansion/stripping) */
-	png_get_IHDR (state, pnginfo, &width, &height, &bit_depth, &color_type,
-	    NULL, NULL, NULL);
+	png_get_IHDR (state, pnginfo, &width, &height, &bit_depth, &color_type, NULL, NULL, NULL);
 
 	/* calculate new number of channels and store alpha-presence */
 	if (color_type == PNG_COLOR_TYPE_RGB)
@@ -126,44 +126,43 @@ GdDecodePNG(buffer_t * src, PMWIMAGEHDR pimage)
 	else {
 	 	/* GdDrawImage currently only supports 32bpp alpha channel*/
 		DPRINTF("GdDecodePNG: Gray image type not supported: %d\n", color_type);
-		return 2;
+		return NULL;
 	}
-	
-	pimage->width = width;
-	pimage->height = height;
-	pimage->palsize = 0;
-	pimage->planes = 1;
-	pimage->pitch = width * channels * (bit_depth / 8);
-	pimage->bpp = channels * 8;
-	pimage->bytesperpixel = channels;
 
-	/* set format for blit output*/
-	if (channels == 4)
-		pimage->data_format = MWIF_RGBA8888;
-	else
-		pimage->data_format = MWIF_RGB888;
-//DPRINTF("png %dbpp\n", channels*8);
+	//pimage->width = width;
+	//pimage->height = height;
+	//pimage->palsize = 0;
+	//pimage->planes = 1;
+	//pimage->pitch = width * channels * (bit_depth / 8);
+	//bpp = channels * 8;
+	//pimage->bytesperpixel = channels;
 
-    if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
+	/* set image data format*/
+	data_format = (channels == 4)? MWIF_RGBA8888: MWIF_RGB888;
+
+	pmd = GdCreatePixmap(&scrdev, width, height, data_format, NULL, 0);
+	if (!pmd) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);
 		goto nomem;
     }
-    if(!(rows = malloc(pimage->height * sizeof(unsigned char *)))) {
+DPRINTF("png %dbpp\n", channels*8);
+
+    if(!(rows = malloc(height * sizeof(unsigned char *)))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);
 		goto nomem;
     }
-	for(i = 0; i < pimage->height; i++)
-		rows[i] = pimage->imagebits + (i * pimage->pitch);
+	for(i = 0; i < height; i++)
+		rows[i] = ((unsigned char *)pmd->addr) + i * pmd->pitch;
 
 	png_read_image(state, rows);
 	png_read_end(state, NULL);
 	free(rows);
 	png_destroy_read_struct(&state, &pnginfo, NULL);
 
-	return 1;
+	return pmd;
 
 nomem:
 	EPRINTF("GdDecodePNG: Out of memory\n");
-	return 2;
+	return NULL;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_PNG_SUPPORT*/

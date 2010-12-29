@@ -128,14 +128,14 @@ HAVE_FILEIO              = Y
 # BMP, GIF reading support
 ####################################################################
 HAVE_BMP_SUPPORT         = Y
-HAVE_GIF_SUPPORT         = Y
-HAVE_PNM_SUPPORT         = Y
-HAVE_XPM_SUPPORT         = Y
+HAVE_GIF_SUPPORT         = N
+HAVE_PNM_SUPPORT         = N
+HAVE_XPM_SUPPORT         = N
 
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.so
 

@@ -195,20 +195,17 @@ typedef struct tagMWRSRC
 
 
 //  Resource access internal functions
-FILE *mwFindResource ( HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName,
-				       PMWRESOURCEHEADER pResHead );
+FILE *mwFindResource ( HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName, PMWRESOURCEHEADER pResHead );
 
 PMWDLGITEMTEMPLATE resNextDlgItem ( PMWDLGITEMTEMPLATE pItem );
 PMWDLGITEMTEMPLATE resFirstDlgItem ( PMWDLGTEMPLATE pDlg );
 void resDiscardDlgTemplExtra ( PMWDLGTEMPLEXTRA pDlgExtra );
-void resGetDlgTemplExtra ( PMWDLGTEMPLATE pDlg,
-						   PMWDLGTEMPLEXTRA pDlgExtra );
+void resGetDlgTemplExtra ( PMWDLGTEMPLATE pDlg, PMWDLGTEMPLEXTRA pDlgExtra );
 void resDiscardDlgItemTemplate ( PMWDLGITEMTEMPLEXTRA pItemExtra );
 PMWDLGITEMTEMPLATE resGetDlgItemTemplExtra ( PMWDLGITEMTEMPLATE pItem,
 							   				 PMWDLGITEMTEMPLEXTRA pItemExtra );
-
 PMWIMAGEHDR resLoadBitmap ( HINSTANCE hInst, LPCTSTR resName );
-void resFreeBitmap ( PMWIMAGEHDR pImageHdr );
+void resFreeBitmap ( PMWIMAGEHDR pimage );
 
 
 
@@ -222,9 +219,6 @@ BOOL WINAPI FreeResource ( HGLOBAL hObj );
 int WINAPI UnlockResource ( HGLOBAL hObj );
 LPVOID WINAPI LockResource ( HGLOBAL hObj );
 
-int WINAPI LoadString ( HINSTANCE hInstance, UINT uid,
-				        LPTSTR lpBuffer, int nMaxBuff );
-
-
+int WINAPI LoadString ( HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff );
 
 #endif /*__WINRES_H__*/

@@ -1,4 +1,10 @@
+	* BMP, PNG image loaders use PSD, not MWIMAGEHDR
+	* pixmaps are now always width aligned to DWORD on right boundary
+	* GrGetImageInfo will work for pixmaps
+	* GR_IMAGE_ID id's are now pixmap id's and can be drawn on
+	* GdLoadImageFromFile/Buffer use PSD not MWIMAGEHDR, remove GdFreeImage
 	* rearranged MWIMAGEHDR/SCREENDEVICE to have shared header data members
+		MWIMAGEHDR structure changed, image .c files need convbmp repass
 	* fixed linelen parameter bug in gen_mapmemgc
 	* new GdCreatePixmap engine function to create memory drawing surfaces
 	* added palette to SCREENDEVICE in preparation for elimination of MWIMAGEHDR

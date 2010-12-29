@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "../drivers/genmem.h"
 #include "convblit.h"
 #include "swap.h"
 
@@ -101,33 +102,31 @@ static inline void little_endian_to_host_16(void *addr)
 /*
  * BMP decoding routine
  */
-int
-GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr)
+PSD
+GdDecodeBMP(buffer_t *src, MWBOOL readfilehdr)
 {
-	int			h, i, compression;
+	int			h, i, compression, width, height, bpp, data_format, palsize;
+	PSD			pmd;
 	DWORD		hdrsize;
 	BMPFILEHEAD	bmpf;
 
 	GdImageBufferSeekTo(src, 0L);
 
-	pimage->imagebits = NULL;
-	pimage->palette = NULL;
-
 	/* read BMP file header*/
 	if (readfilehdr) {
 		if (GdImageBufferRead(src, &bmpf, sizeof(bmpf)) != sizeof(bmpf))
-			return 0;
+			return NULL;
 
 		/* check magic bytes*/
 		if (bmpf.bfType[0] != 'B' || bmpf.bfType[1] != 'M')
-			return 0;		/* not bmp image*/
+			return NULL;		/* not bmp image*/
 
 		little_endian_to_host_32(&bmpf.bfOffBits);
 	}
 
 	/* Read header size to determine header type*/
 	if (GdImageBufferRead(src, &hdrsize, sizeof(hdrsize)) != sizeof(hdrsize))
-		return 0;			/* not bmp image*/
+		return 0;				/* not bmp image*/
 	little_endian_to_host_32(&hdrsize);
 
 	/* might be windows or os/2 header */
@@ -137,27 +136,26 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr)
 		/* read os/2 header */
 		if (GdImageBufferRead(src, &bmpc.bcWidth, sizeof(bmpc)-sizeof(DWORD)) !=
 			sizeof(bmpc)-sizeof(DWORD))
-				return 0;	/* not bmp image*/
+				return NULL;	/* not bmp image*/
 
 		little_endian_to_host_16(&bmpc.bcWidth);
 		little_endian_to_host_16(&bmpc.bcHeight);
 		little_endian_to_host_16(&bmpc.bcBitCount);
 		little_endian_to_host_16(&bmpc.bcWidth);
 		
-		pimage->width = bmpc.bcWidth;
-		pimage->height = bmpc.bcHeight;
-		pimage->bpp = bmpc.bcBitCount;
-		if (pimage->bpp <= 8)
-			pimage->palsize = 1 << pimage->bpp;
-		else pimage->palsize = 0;
 		compression = BI_RGB;
+		width = bmpc.bcWidth;
+		height = bmpc.bcHeight;
+		bpp = bmpc.bcBitCount;
+		if (bpp <= 8) palsize = 1 << bpp;
+		else palsize = 0;
 	} else {
 		BMPINFOHEAD	bmpi;
 
 		/* read windows header */
 		if (GdImageBufferRead(src, &bmpi.BiWidth, sizeof(bmpi)-sizeof(DWORD))
 			!= sizeof(bmpi)-sizeof(DWORD))
-				return 0;	/* not bmp image*/
+				return NULL;	/* not bmp image*/
 
 		little_endian_to_host_32(&bmpi.BiWidth);
 		little_endian_to_host_32(&bmpi.BiHeight);
@@ -165,62 +163,56 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr)
 		little_endian_to_host_32(&bmpi.BiCompression);
 		little_endian_to_host_32(&bmpi.BiClrUsed);
 
-		pimage->width = bmpi.BiWidth;
-		pimage->height = bmpi.BiHeight;
-		pimage->bpp = bmpi.BiBitCount;
-		pimage->palsize = bmpi.BiClrUsed;
-		if (pimage->palsize > 256)
-			pimage->palsize = 0;
-		else if(pimage->palsize == 0 && pimage->bpp <= 8)
-			pimage->palsize = 1 << pimage->bpp;
 		compression = bmpi.BiCompression;
+		width = bmpi.BiWidth;
+		height = bmpi.BiHeight;
+		bpp = bmpi.BiBitCount;
+		palsize = bmpi.BiClrUsed;
+		if (palsize > 256) palsize = 0;
+		else if (palsize == 0 && bpp <= 8) palsize = 1 << bpp;
 	}
-DPRINTF("bmp bpp %d\n", pimage->bpp);
-	pimage->planes = 1;
+DPRINTF("bmp bpp %d pal %d\n", bpp, palsize);
 
 	/* only 1, 4, 8, 16, 24 and 32 bpp bitmaps*/
-	switch(pimage->bpp) {
+	switch(bpp) {
 	case 1:
+		data_format = MWIF_PAL1;
+		break;
 	case 4:
+		data_format = MWIF_PAL4;
+		break;
 	case 8:
-		pimage->data_format = 0;				/* force GdDrawImage for now*/
+		data_format = MWIF_PAL8;
 		break;
 	case 16:
-		pimage->data_format = MWIF_RGB565;
+		data_format = MWIF_RGB565;
 		break;
 	case 24:
-		pimage->data_format = MWIF_RGB888;		/* BGR will be converted to RGB*/
+		data_format = MWIF_RGB888;		/* BGR will be converted to RGB*/
 		break;
 	case 32:
-		pimage->data_format = MWIF_RGBA8888;	/* converted to 32bpp RGBA w/255 alpha*/
+		data_format = MWIF_RGBA8888;	/* converted to 32bpp RGBA w/255 alpha*/
 		break;
 	default:
 		EPRINTF("GdDecodeBMP: image bpp not 1, 4, 8, 16, 24 or 32\n");
-		return 2;	/* image loading error*/
+		return NULL;
 	}
 
-	/* compute byte line size and bytes per pixel*/
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
-
-	/* Allocate image */
-	if( (pimage->imagebits = malloc(pimage->pitch*pimage->height)) == NULL)
-		goto err;
-	if( (pimage->palette = malloc(256*sizeof(MWPALENTRY))) == NULL)
-		goto err;
+	pmd = GdCreatePixmap(&scrdev, width, height, data_format, NULL, palsize);
 
 	/* get colormap*/
-	if(pimage->bpp <= 8) {
-		for(i=0; i<pimage->palsize; i++) {
-			pimage->palette[i].b = GdImageBufferGetChar(src);
-			pimage->palette[i].g = GdImageBufferGetChar(src);
-			pimage->palette[i].r = GdImageBufferGetChar(src);
-			if(hdrsize != sizeof(BMPCOREHEAD))
+	if (bpp <= 8) {
+		for (i=0; i<palsize; i++) {
+			pmd->palette[i].b = GdImageBufferGetChar(src);
+			pmd->palette[i].g = GdImageBufferGetChar(src);
+			pmd->palette[i].r = GdImageBufferGetChar(src);
+			if (hdrsize != sizeof(BMPCOREHEAD))
 				GdImageBufferGetChar(src);
 		}
 	}
 
 	/* determine 16bpp 5/5/5 or 5/6/5 format*/
-	if (pimage->bpp == 16) {
+	if (bpp == 16) {
 		DWORD format = 0x7c00;		/* default is 5/5/5*/
 
 		if (compression == BI_BITFIELDS) {
@@ -229,7 +221,7 @@ DPRINTF("bmp bpp %d\n", pimage->bpp);
 			little_endian_to_host_32(&format);
 		}
 		if (format == 0x7c00)
-			pimage->data_format = MWIF_RGB555;
+			pmd->data_format = MWIF_RGB555;
 		/* else it's 5/6/5 format, no flag required*/
 	}
 
@@ -237,13 +229,13 @@ DPRINTF("bmp bpp %d\n", pimage->bpp);
 	if (readfilehdr)
 		GdImageBufferSeekTo(src, bmpf.bfOffBits);
 
-	h = pimage->height;
+	h = height;
 	/* For every row ... */
 	while (--h >= 0) {
 		/* turn image rightside up*/
-		MWUCHAR *imagebits = pimage->imagebits + h*pimage->pitch;
+		MWUCHAR *imagebits = ((unsigned char *)pmd->addr) + h * pmd->pitch;
 
-		/* Get row data from file */
+		/* Get row data from file, images are DWORD right aligned */
 		if(compression == BI_RLE8) {
 			if(!DecodeRLE8(imagebits, src))
 				break;
@@ -251,25 +243,22 @@ DPRINTF("bmp bpp %d\n", pimage->bpp);
 			if(!DecodeRLE4(imagebits, src))
 				break;
 		} else {
-			if(GdImageBufferRead(src, imagebits, pimage->pitch) != pimage->pitch)
-					goto err;
+			if(GdImageBufferRead(src, imagebits, pmd->pitch) != pmd->pitch)
+				goto err;
 		}
 	}
 
 	/* conv BGR -> RGB*/
-	if (pimage->bpp == 24)
-		convblit_bgr888_rgb888(pimage->imagebits, pimage->width, pimage->height, pimage->pitch);
-	else if (pimage->bpp == 32)
-		convblit_bgrx8888_rgba8888(pimage->imagebits, pimage->width, pimage->height, pimage->pitch);
-	return 1;		/* bmp image ok*/
+	if (bpp == 24)
+		convblit_bgr888_rgb888(pmd->addr, width, height, pmd->pitch);
+	else if (bpp == 32)
+		convblit_bgrx8888_rgba8888(pmd->addr, width, height, pmd->pitch);
+	return pmd;
 	
 err:
 	EPRINTF("GdDecodeBMP: image loading error\n");
-	if(pimage->imagebits)
-		free(pimage->imagebits);
-	if(pimage->palette)
-		free(pimage->palette);
-	return 2;		/* bmp image error*/
+	GdFreePixmap(pmd);
+	return NULL;
 }
 
 /*

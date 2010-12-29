@@ -1911,9 +1911,6 @@ GsDestroyClientResources(GR_CLIENT * client)
 	GR_EVENT_CLIENT *pecp = NULL;
 	GR_EVENT_LIST	*evp;
 	GR_GRABBED_KEY	*kp, *nkp;
-#if MW_FEATURE_IMAGES
-	GR_IMAGE      * ip, *nip;
-#endif
 #if MW_FEATURE_TIMERS
 	GR_TIMER      * tp, *ntp;
 #endif
@@ -1981,17 +1978,6 @@ DPRINTF("  Destroy region %d\n", rp->id);
 		}
 	}
 
-#if MW_FEATURE_IMAGES
-	/* free images owned by client*/
-	for(ip=listimagep; ip; ip=nip) {
-		nip = ip->next;
-		if (ip->owner == client) {
-DPRINTF("  Destroy image %d\n", ip->id);
-			GrFreeImage(ip->id);
-		}
-	}
-#endif
-
 #if MW_FEATURE_TIMERS
 	/* free timers owned by client*/
 	for(tp=list_timer; tp; tp=ntp) {
@@ -2043,9 +2029,6 @@ GsPrintResources(void)
 	GR_GC *gp;
 	GR_REGION *rp;
 	GR_FONT *fp;
-#if MW_FEATURE_IMAGES
-	GR_IMAGE *ip;
-#endif
 #if MW_FEATURE_TIMERS
 	GR_TIMER *tp;
 #endif
@@ -2071,12 +2054,6 @@ GsPrintResources(void)
 	for(rp=listregionp; rp; rp=rp->next) {
 		DPRINTF("%d(%d),", rp->id, rp->owner->id);
 	}
-#if MW_FEATURE_IMAGES
-	DPRINTF("\nImage list:\n");
-	for(ip=listimagep; ip; ip=ip->next) {
-		DPRINTF("%d(%d),", ip->id, ip->owner->id);
-	}
-#endif
 #if MW_FEATURE_TIMERS
 	DPRINTF("\nTimer list:\n");
 	for(tp=list_timer; tp; tp=tp->next) {

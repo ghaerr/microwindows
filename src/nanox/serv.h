@@ -285,19 +285,6 @@ typedef struct {
 	char *typelist;
 } GR_SELECTIONOWNER;
 
-
-#if MW_FEATURE_IMAGES
-/*
- * Structure to remember images.
- */
-typedef struct gr_image	GR_IMAGE;
-struct gr_image {
-	GR_IMAGE_ID	id;
-	GR_CLIENT *	owner;		/* client that created it */
-	GR_IMAGE *	next;
-};
-#endif /* MW_FEATURE_IMAGES */
- 
 #if MW_FEATURE_TIMERS
 /*
  * Structure to remember timers.
@@ -508,9 +495,6 @@ extern	GR_GC		*cachegcp;		/* cached graphics context */
 extern	GR_GC		*listgcp;		/* list of all gc */
 extern	GR_REGION	*listregionp;		/* list of all regions */
 extern	GR_FONT		*listfontp;		/* list of all fonts */
-#if MW_FEATURE_IMAGES
-extern	GR_IMAGE	*listimagep;		/* list of all images */
-#endif
 extern	GR_CURSOR	*listcursorp;		/* list of all cursors */
 extern	GR_CURSOR	*stdcursor;		/* root window cursor */
 extern	GR_GC		*curgcp;		/* current graphics context */

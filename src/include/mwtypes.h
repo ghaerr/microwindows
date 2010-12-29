@@ -358,7 +358,7 @@ typedef struct {
 	int	pixtype;		/* MWPF_ pixel type*/
 	int	bpp;			/* bits per pixel*/
 	int	bytespp;		/* bytes per pixel*/
-	int	pitch;			/* bytes per scan line for window (=fb pitch)*/
+	unsigned int pitch;	/* bytes per scan line for window (=fb pitch)*/
 	MWCOORD	x, y;		/* absolute window coordinates*/
 	int	portrait_mode;	/* current portrait mode*/
 	MWCOORD	xres;		/* real framebuffer resolution*/
@@ -437,7 +437,7 @@ typedef struct {
 	MWCOORD		width, height;	/* width and height for src and dest*/
 	MWCOORD		dstx, dsty;		/* dest x, y*/
 	MWCOORD		srcx, srcy;		/* source x, y*/
-	MWCOORD		src_pitch;		/* source row length in bytes*/
+	unsigned int src_pitch;		/* source row length in bytes*/
 	MWCOLORVAL	fg_colorval;	/* fg color, MWCOLORVAL 0xAARRGGBB format*/
 	MWCOLORVAL	bg_colorval;
 	uint32_t	fg_pixelval;	/* fg color, hw pixel format*/
@@ -447,7 +447,7 @@ typedef struct {
 
 	/* these items filled in by GdConversionBlit*/
 	void *		data_out;		/* output image from conversion blits subroutines*/
-	MWCOORD		dst_pitch;		/* dest row length in bytes*/
+	unsigned int dst_pitch;		/* dest row length in bytes*/
 
 	/* used by GdBlit and GdStretchBlit for GdCheckCursor and fallback blit*/
 	PSD			srcpsd;			/* source psd for psd->psd blits*/
@@ -800,25 +800,24 @@ typedef struct {
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
 	int		data_format;/* MWIF_ image data format*/
-	int		pitch;		/* bytes per line*/
+	unsigned int pitch;	/* bytes per line*/
 	MWUCHAR *imagebits;	/* image bits (dword padded)*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY *palette;/* palette*/
 	int32_t	transcolor;	/* transparent color or MWNOCOLOR if none*/
+	int		bytesperpixel;/* bytes per pixel*/
 	/* end of shared header*/
-
-	int		bytesperpixel;	/* bytes per pixel*/
 } MWIMAGEHDR, *PMWIMAGEHDR;
 
 /* image information structure - returned by GdGetImageInfo*/
 typedef struct {
 	int		id;			/* image id*/
-	int		width;		/* image width in pixels*/
-	int		height;		/* image height in pixels*/
+	unsigned int width;	/* image width in pixels*/
+	unsigned int height;/* image height in pixels*/
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
 	int		data_format;/* MWIF image data format*/
-	int		pitch;		/* bytes per line*/
+	unsigned int pitch;	/* bytes per line*/
 	int		bytesperpixel;	/* bytes per pixel*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY 	palette[256];	/* palette*/

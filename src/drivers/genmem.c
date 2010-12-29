@@ -15,11 +15,11 @@
 
 /* alloc and initialize a new memory drawing surface (memgc)*/
 PSD
-GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pixels)
+GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pixels, int palsize)
 {
-	PSD		psd;
-	int 	size, linelen, pitch, bpp, planes, data_format;
-	int		pixtype;
+	PSD		pmd;
+	int 	bpp, planes, data_format, pixtype;
+	unsigned int size, linelen, pitch;
    
 	if (width <= 0 || height <= 0)
 		return NULL;
@@ -39,13 +39,43 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 		/* else fall through - create RGBA8888 pixmap*/
 	case MWIF_RGBA8888:
 		bpp = 32;
-		data_format = MWIF_RGBA8888;
+		data_format = format;
 		pixtype = MWPF_TRUECOLORABGR;
 		break;
 	case MWIF_BGRA8888:
 		bpp = 32;
-		data_format = MWIF_BGRA8888;
+		data_format = format;
 		pixtype = MWPF_TRUECOLOR8888;
+		break;
+	case MWIF_PAL1:
+		bpp = 1;
+		data_format = format;
+		pixtype = MWPF_PALETTE;
+		break;
+	case MWIF_PAL4:
+		bpp = 4;
+		data_format = format;
+		pixtype = MWPF_PALETTE;
+		break;
+	case MWIF_PAL8:
+		bpp = 8;
+		data_format = format;
+		pixtype = MWPF_PALETTE;
+		break;
+	case MWIF_RGB555:
+		bpp = 16;
+		data_format = format;
+		pixtype = MWPF_TRUECOLOR555;
+		break;
+	case MWIF_RGB565:
+		bpp = 16;
+		data_format = format;
+		pixtype = MWPF_TRUECOLOR565;
+		break;
+	case MWIF_RGB888:
+		bpp = 24;
+		data_format = format;
+		pixtype = MWPF_TRUECOLOR888;
 		break;
 	default:
 		DPRINTF("GdCreatePixmap: unsupported format %08x\n", format);
@@ -57,27 +87,57 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 	 * support blitting, this will fail.  Use root window screen
 	 * device for compatibility for now.
 	 */
-	psd = rootpsd->AllocateMemGC(rootpsd);
-	if (!psd)
+	pmd = rootpsd->AllocateMemGC(rootpsd);
+	if (!pmd)
 		return NULL;
 
-	GdCalcMemGCAlloc(psd, width, height, planes, bpp, &size, &linelen, &pitch);
+	GdCalcMemGCAlloc(pmd, width, height, planes, bpp, &size, &linelen, &pitch);
+
+	/* FIXME remove later*/
+	switch (pmd->bpp) {
+	case 1:
+	case 4:
+	case 8:
+		pmd->bytesperpixel = 1;
+		break;
+	case 16:
+		pmd->bytesperpixel = 2;
+		break;
+	case 24:
+		pmd->bytesperpixel = 3;
+		break;
+	case 32:
+		pmd->bytesperpixel = 4;
+		break;
+	}
 
 	/* Allocate space for pixel values */
 	if (!pixels) {
 		pixels = calloc(size, 1);
-		psd->flags |= PSF_ADDRMALLOC;
+		pmd->flags |= PSF_ADDRMALLOC;
 	}
 	if (!pixels) {
-		psd->FreeMemGC(psd);
+err:
+		pmd->FreeMemGC(pmd);
 		return NULL;
 	}
-  
-	psd->MapMemGC(psd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
-	psd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
-	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
+ 
+	/* allocate palette*/
+	if (palsize && (pmd->palette = calloc(palsize*sizeof(MWPALENTRY), 1)) == NULL)
+		goto err;
+	pmd->palsize = palsize;
+ 
+	pmd->MapMemGC(pmd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
+	pmd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
+	pmd->ncolors = (pmd->bpp >= 24)? (1 << 24): (1 << pmd->bpp);
 
-	return psd;
+	return pmd;
+}
+
+void
+GdFreePixmap(PSD pmd)
+{
+	pmd->FreeMemGC(pmd);
 }
 
 /* allocate a memory offscreen screen device (pixmap)*/
@@ -96,13 +156,15 @@ gen_allocatememgc(PSD psd)
 	*mempsd = *psd;
 
 	/* initialize*/
-	mempsd->flags |= PSF_MEMORY;
-	mempsd->flags &= ~(PSF_SCREEN | PSF_ADDRMALLOC);
+	//mempsd->flags |= PSF_MEMORY;
+	//mempsd->flags &= ~(PSF_SCREEN | PSF_ADDRMALLOC);
+	mempsd->flags = PSF_MEMORY;			/* reset PSF_SCREEN or PSF_ADDRMALLOC flags*/
 	mempsd->portrait = MWPORTRAIT_NONE; /* don't rotate offscreen pixmaps*/
 	mempsd->addr = NULL;
 	mempsd->Update = NULL;				/* no external updates required for mem device*/
 	mempsd->palette = NULL;				/* don't copy any palette*/
 	mempsd->palsize = 0;
+	mempsd->transcolor = MWNOCOLOR;
 
 	return mempsd;
 }
@@ -175,10 +237,10 @@ gen_freememgc(PSD mempsd)
  * for bpp <= 8.  Linelen is converted to bytelen for bpp > 8.
  */
 int
-GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
-	int bpp, int *psize, int *plinelen, int *ppitch)
+GdCalcMemGCAlloc(PSD psd, int width, int height, int planes,
+	int bpp, unsigned int *psize, unsigned *plinelen, unsigned *ppitch)
 {
-	int	bytelen, linelen;
+	unsigned int pitch, linelen;
 
 	if(!planes)
 		planes = psd->planes;
@@ -194,57 +256,62 @@ GdCalcMemGCAlloc(PSD psd, unsigned int width, unsigned int height, int planes,
 		height = tmp;
 	}
 
-	/*
-	 * use bpp and planes to create size and linelen.
-	 * linelen is in bytes for bpp 1, 2, 4, 8, and pixels for bpp 16,24,32.
-	 */
-	if(planes == 1) {
-		switch(bpp) {
-		case 1:
-			linelen = (width+7)/8;
-			bytelen = linelen = (linelen+3) & ~3;
-			break;
-		case 2:
-			linelen = (width+3)/4;
-			bytelen = linelen = (linelen+3) & ~3;
-			break;
-		case 4:
-			linelen = (width+1)/2;
-			bytelen = linelen = (linelen+3) & ~3;
-			break;
-		case 8:
-			bytelen = linelen = (width+3) & ~3;
-			break;
-		case 16:
-			linelen = width;
-			bytelen = width * 2;
-			break;
-		case 24:
-		case 18:
-			linelen = width;
-			bytelen = width * 3;
-			break;
-		case 32:
-			linelen = width;
-			bytelen = width * 4;
-			break;
-		default:
-			return 0;
-		}
-	} else if(planes == 4) {
-		/* FIXME assumes VGA 4 planes 4bpp*/
-		/* we use 4bpp linear for memdc format*/
+	/* use 4bpp linear for VGA 4 planes memdc format*/
+	if(planes == 4)
+		bpp = 4;
+
+	/* compute linelen: bytes per line for bpp 1, 2, 4 and pixels otherwise*/
+	switch(bpp) {
+	case 1:
+		linelen = (width+7)/8;
+		break;
+	case 2:
+		linelen = (width+3)/4;
+		break;
+	case 4:
 		linelen = (width+1)/2;
-		linelen = (linelen+3) & ~3;
-		bytelen = linelen;
-	} else {
-		*psize = *plinelen = 0;
+		break;
+	case 8:
+	case 16:
+	case 18:
+	case 24:
+	case 32:
+		linelen = width;
+		break;
+	default:
+		*ppitch = *psize = *plinelen = 0;
 		return 0;
 	}
 
-	*psize = bytelen * height;
+	/* right align image width to DWORD boundary*/
+	linelen = (linelen + 3) & ~3;
+
+	/* compute pitch: bytes per line*/
+	switch (bpp) {
+	case 1:
+	case 2:
+	case 4:
+	case 8:
+	default:
+		pitch = linelen;
+		break;
+	case 16:
+		pitch = linelen * 2;
+		break;
+	case 18:
+	case 24:
+		pitch = linelen * 3;
+		break;
+	case 32:
+		pitch = linelen * 4;
+		break;
+	}
+	// can't do this with linelen calc'd above... must remove linelen
+	//pitch = (pitch + 3) & ~3;
+
+	*psize = pitch * height;
 	*plinelen = linelen;
-	*ppitch = bytelen;
+	*ppitch = pitch;
 	return 1;
 }
 

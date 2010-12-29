@@ -3060,7 +3060,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	int		      imagesize, blocksize;
 	int		      palsize, rest, step;
 	char                  *addr;
-	char		      *bits;
+	unsigned char		*bits;
 
 	imagesize = pimage->pitch * pimage->height;
 	palsize = pimage->palsize * sizeof(MWPALENTRY);

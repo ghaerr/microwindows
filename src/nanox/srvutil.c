@@ -361,7 +361,7 @@ void
 GsDestroyPixmap(GR_PIXMAP *pp)
 {
 	GR_PIXMAP	*prevpp;
-	PSD psd = pp->psd;
+	PSD			psd = pp->psd;
 
 	/* deallocate mem gc*/
 	psd->FreeMemGC(psd);

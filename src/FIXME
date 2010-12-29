@@ -1,3 +1,4 @@
+remove psd->linelen, use psd->pitch for line length in bytes, 32bpp bmps broken
 how to handle child windows in buffered window scheme
 resize buffered pixmap rather than erase to background color
 allow bgpixmaps to work with buffered windows for pixmap init

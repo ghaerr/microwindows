@@ -29,17 +29,6 @@
 
 #if MW_FEATURE_IMAGES /* whole file */
 
-/* cached image list*/
-typedef struct {
-	MWLIST		link;		/* link list*/
-	int		id;		/* image id*/
-	PMWIMAGEHDR	pimage;		/* image data*/
-	PSD		psd;		/* FIXME shouldn't need this*/
-} IMAGEITEM, *PIMAGEITEM;
-
-static MWLISTHEAD imagehead;		/* global image list*/
-static int nextimageid = 1;
-
 /*
  * Image decoding and display
  * NOTE: This routine and APIs will change in subsequent releases.
@@ -50,7 +39,7 @@ static int nextimageid = 1;
  * Clipping is not currently supported, just stretch/shrink to fit.
  *
  */
-static int GdDecodeImage(PSD psd, buffer_t *src, char *path, int flags);
+static PSD GdDecodeImage(PSD psd, buffer_t *src, char *path, int flags);
 
 /*
  * Buffered input functions to replace stdio functions
@@ -134,7 +123,7 @@ GdImageBufferEOF(buffer_t *buffer)
  * @param size The size of the buffer.
  * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
  */
-int
+PSD
 GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags)
 {
 	buffer_t src;
@@ -161,15 +150,15 @@ void
 GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	MWCOORD height, void *buffer, int size, int flags)
 {
-	int id;
+	PSD		 pmd;
 	buffer_t src;
 
 	GdImageBufferInit(&src, buffer, size);
-	id = GdDecodeImage(psd, &src, NULL, flags);
+	pmd = GdDecodeImage(psd, &src, NULL, flags);
 
-	if (id) {
-		GdDrawImagePartToFit(psd, x, y, width, height, 0, 0, 0, 0, id);
-		GdFreeImage(id);
+	if (pmd) {
+		GdDrawImagePartToFit(psd, x, y, width, height, 0, 0, 0, 0, pmd);
+		pmd->FreeMemGC(pmd);
 	}
 }
 
@@ -188,15 +177,15 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
  * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
  */
 void
-GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-	MWCOORD height, char *path, int flags)
+GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+	char *path, int flags)
 {
-	int	id;
+	PSD	pmd;
 
-	id = GdLoadImageFromFile(psd, path, flags);
-	if (id) {
-		GdDrawImagePartToFit(psd, x, y, width, height, 0, 0, 0, 0, id);
-		GdFreeImage(id);
+	pmd = GdLoadImageFromFile(psd, path, flags);
+	if (pmd) {
+		GdDrawImagePartToFit(psd, x, y, width, height, 0, 0, 0, 0, pmd);
+		pmd->FreeMemGC(pmd);
 	}
 }
 
@@ -207,13 +196,14 @@ GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
  * @param path The file containing the image data.
  * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
  */
-int
+PSD
 GdLoadImageFromFile(PSD psd, char *path, int flags)
 {
-	int fd, id;
-	struct stat s;
+	int fd;
+	PSD	pmd;
 	void *buffer = 0;
 	buffer_t src;
+	struct stat s;
   
 	fd = open(path, O_RDONLY);
 	if (fd < 0 || fstat(fd, &s) < 0) {
@@ -244,7 +234,7 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
 #endif
 
 	GdImageBufferInit(&src, buffer, s.st_size);
-	id = GdDecodeImage(psd, &src, path, flags);
+	pmd = GdDecodeImage(psd, &src, path, flags);
 
 #if HAVE_MMAP
 	munmap(buffer, s.st_size);
@@ -252,7 +242,7 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
 	free(buffer);
 #endif
 	close(fd);
-	return id;
+	return pmd;
 }
 #endif /* HAVE_FILEIO*/
 
@@ -262,89 +252,43 @@ GdLoadImageFromFile(PSD psd, char *path, int flags)
  * @src: The image data.
  * @flags: If nonzero, JPEG images will be loaded as grayscale.  Yuck!
  *
- * Load an image.
+ * Load an image into a pixmap.
  */
-static int
-GdDecodeImage(PSD psd, buffer_t * src, char *path, int flags)
+static PSD
+GdDecodeImage(PSD psd, buffer_t *src, char *path, int flags)
 {
-        int         loadOK = 0;
-        PMWIMAGEHDR pimage;
-        PIMAGEITEM  pItem;
-
-	/* allocate image struct*/
-	pimage = (PMWIMAGEHDR)malloc(sizeof(MWIMAGEHDR));
-	if(!pimage) {
-		return 0;
-	}
-	pimage->flags = PSF_IMAGEHDR;
-	pimage->imagebits = NULL;
-	pimage->palette = NULL;
-	pimage->transcolor = MWNOCOLOR;
+	PSD			pmd = NULL;
 
 #if HAVE_TIFF_SUPPORT
 	/* must be first... no buffer support yet*/
-	if (path)
-		loadOK = GdDecodeTIFF(path, pimage);
+	if (path && (pmd = GdDecodeTIFF(path, pimage)) != NULL)
+		return pmd;
 #endif
 #if HAVE_BMP_SUPPORT
-	if (loadOK == 0) 
-		loadOK = GdDecodeBMP(src, pimage, TRUE);	/* read file header*/
+	if ((pmd = GdDecodeBMP(src, TRUE)) != NULL)
+		return pmd;
 #endif
 #if HAVE_GIF_SUPPORT
-	if (loadOK == 0) 
-		loadOK = GdDecodeGIF(src, pimage);
+	if ((pmd = GdDecodeGIF(src)) != NULL)
+		return pmd;
 #endif
 #if HAVE_JPEG_SUPPORT
-	if (loadOK == 0) 
-		loadOK = GdDecodeJPEG(src, pimage, psd, flags);
+	if ((pmd = GdDecodeJPEG(src, psd, flags)) != NULL)
+		return pmd;
 #endif
 #if HAVE_PNG_SUPPORT
-	if (loadOK == 0) 
-		loadOK = GdDecodePNG(src, pimage);
+	if ((pmd = GdDecodePNG(src)) != NULL)
+		return pmd;
 #endif
 #if HAVE_PNM_SUPPORT
-	if(loadOK == 0)
-		loadOK = GdDecodePNM(src, pimage);
+	if ((pmd = GdDecodePNM(src)) != NULL)
+		return pmd;
 #endif
 #if HAVE_XPM_SUPPORT
-	if (loadOK == 0) 
-		loadOK = GdDecodeXPM(src, pimage, psd);
+	if ((pmd = GdDecodeXPM(src, psd)) != NULL)
+		return pmd;
 #endif
-
-	if (loadOK == 0) {
-		EPRINTF("GdLoadImageFromFile: unknown image type\n");
-		goto err;		/* image loading error*/
-	}
-	if (loadOK != 1)
-		goto err;		/* image loading error*/
-
-	/* allocate id*/
-	pItem = GdItemNew(IMAGEITEM);
-	if (!pItem)
-		goto err;
-	pItem->id = nextimageid++;
-	pItem->pimage = pimage;
-	pItem->psd = psd;
-	GdListAdd(&imagehead, &pItem->link);
-
-	return pItem->id;
-
-err:
-	free(pimage);
-	return 0;			/* image loading error*/
-}
-
-static PIMAGEITEM
-findimage(int id)
-{
-	PMWLIST		p;
-	PIMAGEITEM	pimagelist;
-
-	for (p=imagehead.head; p; p=p->next) {
-		pimagelist = GdItemAddr(p, IMAGEITEM, link);
-		if (pimagelist->id == id)
-			return pimagelist;
-	}
+	EPRINTF("GdLoadImageFromFile: Image load error\n");
 	return NULL;
 }
 
@@ -366,15 +310,9 @@ findimage(int id)
  */
 void
 GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-	MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, int id)
+	MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, PSD pmd)
 {
-	PIMAGEITEM	pItem;
-	PMWIMAGEHDR	pimage;
-
-	pItem = findimage(id);
-	if (!pItem)
-		return;
-	pimage = pItem->pimage;
+	PMWIMAGEHDR pimage = (PMWIMAGEHDR)pmd;	//FIXME
 
 	/*
 	 * Display image, possibly stretch/shrink to resize
@@ -424,33 +362,6 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 }
 
 /**
- * Destroy an image.
- *
- * @param id Image to free.
- */
-void
-GdFreeImage(int id)
-{
-	PIMAGEITEM	pItem;
-	PMWIMAGEHDR	pimage;
-
-	pItem = findimage(id);
-	if (pItem) {
-		GdListRemove(&imagehead, &pItem->link);
-		pimage = pItem->pimage;
-
-		/* delete image bits*/
-		if(pimage->imagebits)
-			free(pimage->imagebits);
-		if(pimage->palette)
-			free(pimage->palette);
-
-		free(pimage);
-		GdItemFree(pItem);
-	}
-}
-
-/**
  * Get information about an image.
  *
  * @param id Image to query.
@@ -458,19 +369,16 @@ GdFreeImage(int id)
  * @return TRUE on success, FALSE on error.
  */
 MWBOOL
-GdGetImageInfo(int id, PMWIMAGEINFO pii)
+GdGetImageInfo(PSD pmd, PMWIMAGEINFO pii)
 {
-	PMWIMAGEHDR	pimage;
-	PIMAGEITEM	pItem;
+	PMWIMAGEHDR	pimage = (PMWIMAGEHDR)pmd;	//FIXME
 	int		i;
 
-	pItem = findimage(id);
-	if (!pItem) {
+	if (!pimage) {
 		memset(pii, 0, sizeof(*pii));
 		return FALSE;
 	}
-	pimage = pItem->pimage;
-	pii->id = id;
+
 	pii->width = pimage->width;
 	pii->height = pimage->height;
 	pii->planes = pimage->planes;
@@ -485,7 +393,8 @@ GdGetImageInfo(int id, PMWIMAGEINFO pii)
 				pii->palette[i] = pimage->palette[i];
 		} else {
 			/* FIXME handle jpeg's without palette*/
-			GdGetPalette(pItem->psd, 0, pimage->palsize, pii->palette);
+			// FIXME may want pixmap's palette here... was pItem->psd
+			GdGetPalette(&scrdev, 0, pimage->palsize, pii->palette);
 		}
 	}
 	return TRUE;
@@ -497,7 +406,7 @@ GdGetImageInfo(int id, PMWIMAGEINFO pii)
  * from bits per pixel and width
  */
 void
-GdComputeImagePitch(int bpp, int width, int *pitch, int *bytesperpixel)
+GdComputeImagePitch(int bpp, int width, unsigned int *pitch, int *bytesperpixel)
 {
 	int	linesize;
 	int	bytespp = 1;

@@ -27,7 +27,7 @@ static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,

@@ -67,9 +67,6 @@ GR_WINDOW	*rootwp;		/* root window pointer */
 GR_GC		*listgcp;		/* list of all gc */
 GR_REGION	*listregionp;		/* list of all regions */
 GR_FONT		*listfontp;		/* list of all fonts */
-#if MW_FEATURE_IMAGES
-GR_IMAGE	*listimagep;		/* list of all images */
-#endif
 GR_CURSOR	*listcursorp;		/* list of all cursors */
 GR_CURSOR	*stdcursor;		/* root window cursor */
 GR_GC		*curgcp;		/* currently enabled gc */

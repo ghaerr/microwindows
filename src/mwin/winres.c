@@ -17,6 +17,7 @@
 #include "winres.h"
 #include "windlg.h"
 #include "device.h"
+#include "../drivers/genmem.h"
 
 #define MAX_MRU_RESOURCES	32
 
@@ -24,8 +25,9 @@
 static HRSRC mruResources = NULL;
 static int mruResCount = 0;
 
+static PMWIMAGEHDR resDecodeBitmap(unsigned char *buffer, int size);
 
-void
+static void
 mwAddResource(HRSRC hRes)
 {
 	hRes->next = mruResources;
@@ -60,7 +62,7 @@ mwAddResource(HRSRC hRes)
 
 
 //  Compare resource types
-int
+static int
 mwResCompare(LPCTSTR res1, LPCTSTR res2)
 {
 	if ((HIWORD(res1) == 0xFFFF) || (HIWORD(res2) == 0xFFFF))
@@ -70,7 +72,7 @@ mwResCompare(LPCTSTR res1, LPCTSTR res2)
 }
 
 
-HRSRC
+static HRSRC
 mwFindMruResource(LPCTSTR resName, LPCTSTR resType)
 {
 	HRSRC obj = mruResources;
@@ -156,15 +158,6 @@ mwFreeInstance(HINSTANCE hInst)
 /*
  *  File access functions
  */
-static BYTE
-resReadByte(FILE * f, BOOL * pEof)
-{
-	int ch = fgetc(f);
-	if (ch == EOF)
-		*pEof = TRUE;
-	return (BYTE) ch;
-}
-
 static WORD
 resReadWord(FILE * f, BOOL * pEof)
 {
@@ -183,6 +176,16 @@ resReadDWord(FILE * f, BOOL * pEof)
 	if (!fread(&dw, 4, 1, f))
 		*pEof = TRUE;
 	return dw;
+}
+
+#if LATER
+static BYTE
+resReadByte(FILE * f, BOOL * pEof)
+{
+	int ch = fgetc(f);
+	if (ch == EOF)
+		*pEof = TRUE;
+	return (BYTE) ch;
 }
 
 static void
@@ -234,6 +237,7 @@ resReadText(FILE * f, BOOL * pEof)
 
 	return txt;
 }
+#endif /* LATER*/
 
 /*
  *  Check if type (numeric or text) are the same
@@ -655,25 +659,6 @@ LoadString(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 	return retV;
 }
 
-static PMWIMAGEHDR
-resDecodeBitmap(unsigned char *buffer, int size)
-{
-	PMWIMAGEHDR pimage = (PMWIMAGEHDR)calloc(1, sizeof(MWIMAGEHDR));
-	buffer_t stream;
-
-	if (!pimage)
-		return NULL;
-	pimage->flags = PSF_IMAGEHDR;
-	pimage->transcolor = MWNOCOLOR;
-
-	GdImageBufferInit(&stream, buffer, size);
-	if (GdDecodeBMP(&stream, pimage, FALSE) != 1) {	/* don't read file hdr*/
-		free (pimage);
-		return NULL;
-	}
-	return pimage;
-}
-
 /*
  *  Load a bitmap from resource file.
  */
@@ -682,7 +667,7 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 {
 	HGLOBAL hResBmp;
 	HRSRC hRes;
-	PMWIMAGEHDR retV;
+	PMWIMAGEHDR pimage = NULL;
 	unsigned char *buffer;
 	int size;
 
@@ -693,25 +678,31 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 	size = SizeofResource(hInst, hRes);
 	hResBmp = LoadResource(hInst, hRes);
 	buffer = LockResource(hResBmp);
-	if (!buffer)
-		return NULL;
-
-	retV = resDecodeBitmap(buffer, size);
-
-	UnlockResource(hResBmp);
+	if (buffer) {
+		pimage = resDecodeBitmap(buffer, size);
+		UnlockResource(hResBmp);
+	}
 	FreeResource(hResBmp);
-	return retV;
+	return pimage;
+}
+
+static PMWIMAGEHDR
+resDecodeBitmap(unsigned char *buffer, int size)
+{
+	PSD			pmd;
+	buffer_t stream;
+
+	GdImageBufferInit(&stream, buffer, size);
+	pmd = GdDecodeBMP(&stream, FALSE);	/* don't read file hdr*/
+
+	return (PMWIMAGEHDR)pmd;		//FIXME uses shared header for now
 }
 
 /*
  *  Free memory allocated with resLoadBitmap.
  */
 void
-resFreeBitmap(PMWIMAGEHDR pImageHdr)
+resFreeBitmap(PMWIMAGEHDR pimage)
 {
-	if (pImageHdr->palette)
-		free(pImageHdr->palette);
-	if (pImageHdr->imagebits)
-		free(pImageHdr->imagebits);
-	free(pImageHdr);
+	GdFreePixmap((PSD)pimage);		// FIXME uses shared header
 }

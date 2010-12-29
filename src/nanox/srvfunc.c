@@ -2004,7 +2004,7 @@ GsNewPixmap(GR_SIZE width, GR_SIZE height, int format, void *pixels)
 		return 0;
 	}
 
-	psd = GdCreatePixmap(rootwp->psd, width, height, format, pixels);
+	psd = GdCreatePixmap(rootwp->psd, width, height, format, pixels, 0);
 	if (!psd)
 		return 0;
 
@@ -2016,15 +2016,15 @@ GsNewPixmap(GR_SIZE width, GR_SIZE height, int format, void *pixels)
 	}
 
 	pp->id = nextid++;
-	pp->next = listpp;
 	pp->psd = psd;
 	pp->x = 0;
 	pp->y = 0;
 	pp->width = width;
 	pp->height = height;
 	pp->owner = curclient;
-
+	pp->next = listpp;
 	listpp = pp;
+
 	return pp->id;
 }
 
@@ -2920,36 +2920,41 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-/* load image from file and cache it*/
+/* load image from file and cache it in pixmap*/
 GR_IMAGE_ID
 GrLoadImageFromFile(char *path, int flags)
 {
-	GR_IMAGE_ID	id;
-	GR_IMAGE *	imagep;
+	GR_PIXMAP 	*pp;
+	PSD			pmd;
 
 	SERVER_LOCK();
 
-	id = GdLoadImageFromFile(&scrdev, path, flags);
-	if (!id) {
+	pmd = GdLoadImageFromFile(&scrdev, path, flags);
+	if (!pmd) {
 		SERVER_UNLOCK();
 		return 0;
 	}
 
-	imagep = (GR_IMAGE *) malloc(sizeof(GR_IMAGE));
-	if (!imagep) {
+	pp = (GR_PIXMAP *)malloc(sizeof(GR_PIXMAP));
+	if (pp == NULL) {
+		pmd->FreeMemGC(pmd);
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		GdFreeImage(id);
 		SERVER_UNLOCK();
 		return 0;
 	}
-	
-	imagep->id = id;
-	imagep->owner = curclient;
-	imagep->next = listimagep;
-	listimagep = imagep;
+
+	pp->id = nextid++;
+	pp->psd = pmd;
+	pp->x = 0;
+	pp->y = 0;
+	pp->width = pmd->xvirtres;
+	pp->height = pmd->yvirtres;
+	pp->owner = curclient;
+	pp->next = listpp;
+	listpp = pp;
 
 	SERVER_UNLOCK();
-	return id;
+	return pp->id;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_FILEIO */
 
@@ -2978,33 +2983,37 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 GR_IMAGE_ID
 GrLoadImageFromBuffer(void *buffer, int size, int flags)
 {
-	GR_IMAGE_ID	id;
-	GR_IMAGE *	imagep;
+	GR_PIXMAP 	*pp;
+	PSD			pmd;
 
 	SERVER_LOCK();
 
-	id = GdLoadImageFromBuffer(&scrdev, buffer, size, flags);
-	if (!id) {
+	pmd = GdLoadImageFromBuffer(&scrdev, buffer, size, flags);
+	if (!pmd) {
 		SERVER_UNLOCK();
 		return 0;
 	}
 
-	imagep = (GR_IMAGE *) malloc(sizeof(GR_IMAGE));
-	if (!imagep) {
+	pp = (GR_PIXMAP *)malloc(sizeof(GR_PIXMAP));
+	if (pp == NULL) {
+		pmd->FreeMemGC(pmd);
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		GdFreeImage(id);
 		SERVER_UNLOCK();
 		return 0;
 	}
 
-	imagep->id = id;
-	imagep->owner = curclient;
-	imagep->next = listimagep;
-	listimagep = imagep;
+	pp->id = nextid++;
+	pp->psd = pmd;
+	pp->x = 0;
+	pp->y = 0;
+	pp->width = pmd->xvirtres;
+	pp->height = pmd->yvirtres;
+	pp->owner = curclient;
+	pp->next = listpp;
+	listpp = pp;
 
 	SERVER_UNLOCK();
-
-	return id;
+	return pp->id;
 }
 
 /* draw part of the cached image, or whole if swidth == 0*/
@@ -3014,47 +3023,37 @@ GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 	GR_SIZE swidth, GR_SIZE sheight, GR_IMAGE_ID imageid)
 {
 	GR_DRAWABLE	*dp;
+	GR_PIXMAP	*pp;
 	SERVER_LOCK();
+
+	pp = GsFindPixmap(imageid);
+	if (!pp) {
+		SERVER_UNLOCK();
+		return;
+	}
 
 	switch (GsPrepareDrawing(id, gc, &dp)) {
 	case GR_DRAW_TYPE_WINDOW:
 	case GR_DRAW_TYPE_PIXMAP:
 		GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy, dwidth, dheight,
-			sx, sy, swidth, sheight, imageid);
+			sx, sy, swidth, sheight, pp->psd);
 		break;
 	}
 
 	SERVER_UNLOCK();
 }
 
-/* free cached image*/
+/* free cached image pixmap*/
 void
 GrFreeImage(GR_IMAGE_ID id)
 {
-	GR_IMAGE	*imagep;
-	GR_IMAGE	*previmagep;
+	GR_PIXMAP	*pp;
 
 	SERVER_LOCK();
 
-	for (imagep = listimagep; imagep; imagep = imagep->next) {
-		if (imagep->id == id) {
-
-			if (listimagep == imagep)
-				listimagep = imagep->next;
-			else {
-				previmagep = listimagep;
-				while (previmagep->next != imagep)
-					previmagep = previmagep->next;
-
-				previmagep->next = imagep->next;
-			}
-
-			GdFreeImage(imagep->id);
-			free(imagep);
-			SERVER_UNLOCK();
-			return;
-		}
-	}
+	pp = GsFindPixmap(id);
+	if (pp)
+		GsDestroyPixmap(pp);
 
 	SERVER_UNLOCK();
 }
@@ -3063,8 +3062,16 @@ GrFreeImage(GR_IMAGE_ID id)
 void
 GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 {
+	GR_PIXMAP	*pp;
+	PSD			pmd = NULL;
+
 	SERVER_LOCK();
-	GdGetImageInfo(id, iip);
+	pp = GsFindPixmap(id);
+	if (pp)
+		pmd = pp->psd;
+	GdGetImageInfo(pmd, iip);
+	if (pp)
+		iip->id = id;
 	SERVER_UNLOCK();
 }
 #endif /* MW_FEATURE_IMAGES */

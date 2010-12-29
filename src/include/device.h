@@ -137,24 +137,25 @@ typedef struct {
 typedef struct _mwscreendevice {
 	/* shared header with MWIMAGEHDR*/
 	int		flags;		/* PSF_SCREEN or PSF_MEMORY*/
-	MWCOORD	xres;		/* X screen res (real) */
-	MWCOORD	yres;		/* Y screen res (real) */
+	MWCOORD	xvirtres;	/* X drawing res (will be flipped in portrait mode) */
+	MWCOORD	yvirtres;	/* Y drawing res (will be flipped in portrait mode) */
 	int		planes;		/* # planes*/
 	int		bpp;		/* # bpp*/
 	int 	data_format;/* MWIF_ image data format*/
-	int		pitch;		/* row length in bytes*/
+	unsigned int pitch;	/* row length in bytes*/
 	void *	addr;		/* address of memory allocated (memdc or fb)*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY *palette;/* palette*/
 	int32_t	transcolor;	/* not used*/
+	int		bytesperpixel;/* not used*/
 	/* end of shared header*/
 
-	MWCOORD	xvirtres;	/* X drawing res (will be flipped in portrait mode) */
-	MWCOORD	yvirtres;	/* Y drawing res (will be flipped in portrait mode) */
-	int	size;			/* size of memory allocated*/
+	MWCOORD	xres;		/* X screen res (real) */
+	MWCOORD	yres;		/* Y screen res (real) */
+	unsigned int size;	/* size of memory allocated*/
 	int32_t	ncolors;	/* # screen colors*/
 	int	pixtype;		/* format of pixel value*/
-	int	linelen;		/* line length in bytes for bpp 1,2,4,8*/
+	unsigned int linelen;/* line length in bytes for bpp 1,2,4,8*/
 						/* line length in pixels for bpp 16, 18, 24, 32*/
 
 	/* driver entry points*/
@@ -401,18 +402,17 @@ extern KBDDEVICE kbddev2;
 
 /* devimage.c */
 #if MW_FEATURE_IMAGES
-int		GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
+PSD		GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
 void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 			MWCOORD height, void *buffer, int size, int flags);
 void	GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 			MWCOORD height, char *path, int flags);
 void	GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-			MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, int id);
-int		GdLoadImageFromFile(PSD psd, char *path, int flags);
-void	GdFreeImage(int id);
-MWBOOL	GdGetImageInfo(int id, PMWIMAGEINFO pii);
+			MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, PSD pmd);
+PSD		GdLoadImageFromFile(PSD psd, char *path, int flags);
+MWBOOL	GdGetImageInfo(PSD pmd, PMWIMAGEINFO pii);
 void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT *dstrect);
-void	GdComputeImagePitch(int bpp, int width, int *pitch, int *bytesperpixel);
+void	GdComputeImagePitch(int bpp, int width, unsigned int *pitch, int *bytesperpixel);
 
 /* Buffered input functions to replace stdio functions*/
 typedef struct {  /* structure for reading images from buffer   */
@@ -429,25 +429,25 @@ int		GdImageBufferEOF(buffer_t *buffer);
 
 /* individual decoders*/
 #ifdef HAVE_BMP_SUPPORT
-int	GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr);
+PSD	GdDecodeBMP(buffer_t *src, MWBOOL readfilehdr);
 #endif
 #ifdef HAVE_JPEG_SUPPORT
-int	GdDecodeJPEG(buffer_t *src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale);
+PSD	GdDecodeJPEG(buffer_t *src, PSD psd, MWBOOL fast_grayscale);
 #endif
 #ifdef HAVE_PNG_SUPPORT
-int	GdDecodePNG(buffer_t *src, PMWIMAGEHDR pimage);
+PSD	GdDecodePNG(buffer_t *src);
 #endif
 #ifdef HAVE_GIF_SUPPORT
-int	GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage);
+PSD	GdDecodeGIF(buffer_t *src);
 #endif
 #ifdef HAVE_PNM_SUPPORT
-int	GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage);
+PSD	GdDecodePNM(buffer_t *src);
 #endif
 #ifdef HAVE_XPM_SUPPORT
-int	GdDecodeXPM(buffer_t *src, PMWIMAGEHDR pimage, PSD psd);
+PSD	GdDecodeXPM(buffer_t *src, PSD psd);
 #endif
 #ifdef HAVE_TIFF_SUPPORT
-int	GdDecodeTIFF(char *path, PMWIMAGEHDR pimage);
+PSD	GdDecodeTIFF(char *path);
 #endif
 #endif /* MW_FEATURE_IMAGES */
 

@@ -48,10 +48,10 @@ typedef unsigned char	GR_CHAR_WIDTH;	/* width of character */
 typedef unsigned int	GR_ID;		/* resource ids */
 typedef GR_ID		GR_DRAW_ID;	/* drawable id */
 typedef GR_DRAW_ID	GR_WINDOW_ID;	/* window or pixmap id */
+typedef GR_DRAW_ID	GR_IMAGE_ID;	/* image/pixmap id */
 typedef GR_ID		GR_GC_ID;	/* graphics context id */
 typedef GR_ID		GR_REGION_ID;	/* region id */
 typedef GR_ID		GR_FONT_ID;	/* font id */
-typedef GR_ID		GR_IMAGE_ID;	/* image id */
 typedef GR_ID		GR_TIMER_ID;	/* timer id */
 typedef GR_ID		GR_CURSOR_ID;	/* cursor id */
 typedef unsigned short	GR_BOOL;	/* boolean value */

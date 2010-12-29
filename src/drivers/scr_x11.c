@@ -52,7 +52,7 @@ static void X11_preselect(PSD psd);
 static void X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	X11_open,
 	X11_close,
@@ -592,6 +592,7 @@ X11_open(PSD psd)
 	/* Calculate the correct linelen here */
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
 			 psd->bpp, &psd->size, &psd->linelen, &psd->pitch);
+printf("width %d pitch %d\n", psd->xres, psd->pitch);
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);

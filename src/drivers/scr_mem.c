@@ -27,7 +27,7 @@ static void fb_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heig
 void fb_graphicsflush(PSD psd);
 
 SCREENDEVICE scrdev = {
-	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL,
+	0, SCREEN_WIDTH, SCREEN_HEIGHT, 0,0,0,0, NULL, 0, NULL, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0,0,0,0,
 	gen_fonts,
 	fb_open,
 	fb_close,

@@ -363,10 +363,6 @@ GsDestroyPixmap(GR_PIXMAP *pp)
 	GR_PIXMAP	*prevpp;
 	PSD psd = pp->psd;
 
-	/* deallocate pixmap memory*/
-	if (psd->flags & PSF_ADDRMALLOC)
-		free(psd->addr);
-
 	/* deallocate mem gc*/
 	psd->FreeMemGC(psd);
 

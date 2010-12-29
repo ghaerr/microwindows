@@ -663,6 +663,8 @@ resDecodeBitmap(unsigned char *buffer, int size)
 
 	if (!pimage)
 		return NULL;
+	pimage->flags = PSF_IMAGEHDR;
+	pimage->transcolor = MWNOCOLOR;
 
 	GdImageBufferInit(&stream, buffer, size);
 	if (GdDecodeBMP(&stream, pimage, FALSE) != 1) {	/* don't read file hdr*/

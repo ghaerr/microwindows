@@ -141,7 +141,9 @@ GdDecodeJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 #endif
 	if (!fast_grayscale) {
 		if (psd->pixtype == MWPF_PALETTE) {
+#if FASTJPEG
 fastjpeg:
+#endif
 			cinfo.quantize_colors = TRUE;
 #if FASTJPEG
 			cinfo.actual_number_of_colors = 256;
@@ -207,6 +209,7 @@ DPRINTF("jpeg bpp %d\n", pimage->bpp);
 				MWPALENTRY pe;
 				/* FIXME could use static palette here*/
 				pe.r = pe.g = pe.b = i;
+				pe._padding = 0;
 				pimage->palette[i] = pe;
 			}
 		} else {

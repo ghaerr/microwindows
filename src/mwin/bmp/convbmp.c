@@ -410,35 +410,37 @@ UCHAR *p = (UCHAR *)&l;
 	printf("};\n\n");
 
 	printf("MWIMAGEHDR image_%s = {\n", name);
+	printf("  %d,\t\t/* flags*/\n", PSF_IMAGEHDR);
 	printf("  %d, %d,\t/* width, height*/\n", cx, cy);
 	printf("  %d, %d,\t\t/* planes, bpp*/\n", 1, bitdepth);
-	printf("  %d, %d,\t/* pitch, bytesperpixel*/\n", pitch, bytesperpixel);
-	printf("  %d,\t/* palsize*/\n", palsize);
-	printf("  %ldL,\t\t/* transcolor*/\n", -1L);
+	printf("  0x%x,\t\t/* data_format*/\n", data_format);
+	printf("  %d,\t\t/* pitch*/\n", pitch);
+	printf("  imagebits,\n");
+	printf("  %d,\t\t/* palsize*/\n", palsize);
 	if(palsize)
 		printf("  palette,\n");
-	else
-		printf("  0,\n");
-	printf("  imagebits,\n");
-	printf("  0x%x,\t\t/* data_format*/\n", data_format);
+	else printf("  0,\n");
+	printf("  %ldL,\t\t/* transcolor*/\n", MWNOCOLOR);
+
+	printf("  %d\t\t/* bytesperpixel*/\n", bytesperpixel);
 	printf("};\n");
    } else {
 	printf(".extern _image_%s\n", name);
 	printf("_image_%s:\n", name);
+	printf(".data4\t%ld\n",(long)PSF_IMAGEHDR);
 	printf(".data4\t%ld\n",(long)cx);
 	printf(".data4\t%ld\n",(long)cy);
 	printf(".data4\t%ld\n",1L);
 	printf(".data4\t%ld\n",(long)bitdepth);
+	printf(".data4\t%d\n", data_format);
 	printf(".data4\t%ld\n",(long)pitch);
-	printf(".data4\t%ld\n",(long)bytesperpixel);
-	printf(".data4\t%ld\n",(long)palsize);
-	printf(".data4\t%ld\n",-1L);
 	printf(".data4\t__II0\n");
+	printf(".data4\t%ld\n",(long)palsize);
 	if(palsize)
 		printf(".data4\t__II1\n");
-	else
-		printf(".data4\t0\n");
-	printf(".data4\t%d\n", data_format);
+	else printf(".data4\t0\n");
+	printf(".data4\t%ld\n",MWNOCOLOR);
+	printf(".data4\t%ld\n",(long)bytesperpixel);
 	printf(".sect .text\n");
    }
 

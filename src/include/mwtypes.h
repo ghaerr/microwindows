@@ -793,17 +793,21 @@ typedef struct {
 
 /* image structure - if changed, convbmp.c needs updating*/
 typedef struct {
+	/* shared header with SCREENDEVICE*/
+	int		flags;		/* PSF_IMAGEHDR*/
 	int		width;		/* image width in pixels*/
 	int		height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
-	int		pitch;		/* bytes per line*/
-	int		bytesperpixel;	/* bytes per pixel*/
-	int		palsize;	/* palette size*/
-	int32_t	transcolor;	/* transparent color or MWNOCOLOR if none*/
-	MWPALENTRY *palette;/* palette*/
-	MWUCHAR *imagebits;	/* image bits (dword right aligned)*/
 	int		data_format;/* MWIF_ image data format*/
+	int		pitch;		/* bytes per line*/
+	MWUCHAR *imagebits;	/* image bits (dword padded)*/
+	int		palsize;	/* palette size*/
+	MWPALENTRY *palette;/* palette*/
+	int32_t	transcolor;	/* transparent color or MWNOCOLOR if none*/
+	/* end of shared header*/
+
+	int		bytesperpixel;	/* bytes per pixel*/
 } MWIMAGEHDR, *PMWIMAGEHDR;
 
 /* image information structure - returned by GdGetImageInfo*/

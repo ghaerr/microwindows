@@ -595,6 +595,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 	unsigned short 		*ostr16;
 	uint32_t		*ostr32;
 	unsigned int		ch;
+	unsigned short		s;
 	int			icc;
 	unsigned short *buf16 = NULL;
 
@@ -714,7 +715,8 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			*ostr8++ = (unsigned char)ch;
 			break;
 		case MWTF_UTF8:
-			ostr8 += uc16_to_utf8 ( (unsigned short*)&ch, 1, ostr8 );
+			s = (unsigned short)ch;
+			ostr8 += uc16_to_utf8(&s, 1, ostr8);
 			break;
 		case MWTF_UC16:
 			*ostr16++ = (unsigned short)ch;
@@ -981,7 +983,7 @@ uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s)
 	unsigned short uc16;
 	
 	for (i = 0; i < cc; i++) {
-		uc16 = us[i];
+		uc16 = *us++;
 		if (uc16 <= 0x7F) { 
 			*t++ = (char) uc16;
 		} else if (uc16 <= 0x7FF) {

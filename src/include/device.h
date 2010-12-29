@@ -135,21 +135,27 @@ typedef struct {
  * This structure is also allocated for memory (offscreen) drawing and blitting.
  */
 typedef struct _mwscreendevice {
+	/* shared header with MWIMAGEHDR*/
+	int		flags;		/* PSF_SCREEN or PSF_MEMORY*/
 	MWCOORD	xres;		/* X screen res (real) */
 	MWCOORD	yres;		/* Y screen res (real) */
+	int		planes;		/* # planes*/
+	int		bpp;		/* # bpp*/
+	int 	data_format;/* MWIF_ image data format*/
+	int		pitch;		/* row length in bytes*/
+	void *	addr;		/* address of memory allocated (memdc or fb)*/
+	int		palsize;	/* palette size*/
+	MWPALENTRY *palette;/* palette*/
+	int32_t	transcolor;	/* not used*/
+	/* end of shared header*/
+
 	MWCOORD	xvirtres;	/* X drawing res (will be flipped in portrait mode) */
 	MWCOORD	yvirtres;	/* Y drawing res (will be flipped in portrait mode) */
-	int	planes;			/* # planes*/
-	int	bpp;			/* # bpp*/
-	int	linelen;		/* line length in bytes for bpp 1,2,4,8*/
-						/* line length in pixels for bpp 16, 18, 24, 32*/
-	int	pitch;			/* row length in bytes*/
 	int	size;			/* size of memory allocated*/
 	int32_t	ncolors;	/* # screen colors*/
 	int	pixtype;		/* format of pixel value*/
-	int data_format;	/* MWIF_ image data format*/
-	int	flags;			/* device flags*/
-	void *	addr;		/* address of memory allocated (memdc or fb)*/
+	int	linelen;		/* line length in bytes for bpp 1,2,4,8*/
+						/* line length in pixels for bpp 16, 18, 24, 32*/
 
 	/* driver entry points*/
 	PMWCOREFONT builtin_fonts;
@@ -190,8 +196,6 @@ typedef struct _mwscreendevice {
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 	MWBLITFUNC BlitStretchRGBA8888;					/* conversion stretch blit for RGBA src*/
-	MWPALENTRY *palette;/* palette*/
-	int		palsize;	/* palette size*/
 } SCREENDEVICE;
 
 /* PSD flags*/
@@ -199,6 +203,7 @@ typedef struct _mwscreendevice {
 #define PSF_MEMORY			0x0002	/* memory device*/
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
 #define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
+#define PSF_IMAGEHDR		0x0040	/* psd is actually MWIMAGEHDR*/
 
 /* Interface to Mouse Device Driver*/
 typedef struct _mousedevice {

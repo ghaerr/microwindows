@@ -75,6 +75,7 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
   
 	psd->MapMemGC(psd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
 	psd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
+	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 
 	return psd;
 }
@@ -122,14 +123,14 @@ gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp, int data_for
 
 	assert(mempsd->flags & PSF_MEMORY);
 
-	/* init mem psd w/h aligned with hw screen w/h*/
-	if (mempsd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
-		mempsd->yres = w;
-		mempsd->xres = h;
-	} else {
+//	/* init mem psd w/h aligned with hw screen w/h*/
+//	if (mempsd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
+//		mempsd->yres = w;
+//		mempsd->xres = h;
+//	} else {
 		mempsd->xres = w;
 		mempsd->yres = h;		
-	}
+//	}
 	mempsd->xvirtres = w;
 	mempsd->yvirtres = h;
 	mempsd->planes = planes;
@@ -155,8 +156,12 @@ void
 gen_freememgc(PSD mempsd)
 {
 	assert(mempsd->flags & PSF_MEMORY);
+//	/* may be an image header, just return*/
+//	if (!(mempsd->flags & PSF_MEMORY))
+//		return;
 
-	/* note: mempsd->addr must be freed elsewhere*/
+	if (mempsd->addr && (mempsd->flags & PSF_ADDRMALLOC))
+		free(mempsd->addr);
 
 	if (mempsd->palette)
 		free(mempsd->palette);

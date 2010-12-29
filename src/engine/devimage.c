@@ -276,6 +276,7 @@ GdDecodeImage(PSD psd, buffer_t * src, char *path, int flags)
 	if(!pimage) {
 		return 0;
 	}
+	pimage->flags = PSF_IMAGEHDR;
 	pimage->imagebits = NULL;
 	pimage->palette = NULL;
 	pimage->transcolor = MWNOCOLOR;
@@ -484,8 +485,7 @@ GdGetImageInfo(int id, PMWIMAGEINFO pii)
 				pii->palette[i] = pimage->palette[i];
 		} else {
 			/* FIXME handle jpeg's without palette*/
-			GdGetPalette(pItem->psd, 0, pimage->palsize,
-				pii->palette);
+			GdGetPalette(pItem->psd, 0, pimage->palsize, pii->palette);
 		}
 	}
 	return TRUE;

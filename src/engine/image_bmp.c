@@ -165,10 +165,10 @@ GdDecodeBMP(buffer_t *src, PMWIMAGEHDR pimage, MWBOOL readfilehdr)
 		little_endian_to_host_32(&bmpi.BiCompression);
 		little_endian_to_host_32(&bmpi.BiClrUsed);
 
-		pimage->width = (int)bmpi.BiWidth;
-		pimage->height = (int)bmpi.BiHeight;
+		pimage->width = bmpi.BiWidth;
+		pimage->height = bmpi.BiHeight;
 		pimage->bpp = bmpi.BiBitCount;
-		pimage->palsize = (int)bmpi.BiClrUsed;
+		pimage->palsize = bmpi.BiClrUsed;
 		if (pimage->palsize > 256)
 			pimage->palsize = 0;
 		else if(pimage->palsize == 0 && pimage->bpp <= 8)

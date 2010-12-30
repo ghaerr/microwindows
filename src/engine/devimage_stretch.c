@@ -134,13 +134,10 @@ GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT
 	bytesperpixel = dst->bytesperpixel;
 
 	/* Perform the stretch blit */
-	for ( dst_maxrow = dst_row+dstrect->height; dst_row<dst_maxrow;
-								++dst_row ) {
-		dstp = (MWUCHAR *)dst->imagebits + (dst_row*dst->pitch)
-				    + (dstrect->x*bytesperpixel);
+	for ( dst_maxrow = dst_row+dstrect->height; dst_row<dst_maxrow; ++dst_row ) {
+		dstp = (MWUCHAR *)dst->imagebits + (dst_row*dst->pitch) + (dstrect->x*bytesperpixel);
 		while ( pos >= 0x10000L ) {
-			srcp = (MWUCHAR *)src->imagebits + (src_row*src->pitch)
-				    + (srcrect->x*bytesperpixel);
+			srcp = (MWUCHAR *)src->imagebits + (src_row*src->pitch) + (srcrect->x*bytesperpixel);
 			++src_row;
 			pos -= 0x10000L;
 		}
@@ -150,15 +147,13 @@ GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT
 			copy_row1(srcp, srcrect->width, dstp, dstrect->width);
 			break;
 		case 2:
-			copy_row2((unsigned short *)srcp, srcrect->width,
-				(unsigned short *)dstp, dstrect->width);
+			copy_row2((unsigned short *)srcp, srcrect->width, (unsigned short *)dstp, dstrect->width);
 			break;
 		case 3:
 			copy_row3(srcp, srcrect->width, dstp, dstrect->width);
 			break;
 		case 4:
-			copy_row4((uint32_t *)srcp, srcrect->width,
-				(uint32_t *)dstp, dstrect->width);
+			copy_row4((uint32_t *)srcp, srcrect->width, (uint32_t *)dstp, dstrect->width);
 			break;
 		}
 

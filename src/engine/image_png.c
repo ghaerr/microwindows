@@ -129,23 +129,18 @@ GdDecodePNG(buffer_t * src)
 		return NULL;
 	}
 
-	//pimage->width = width;
-	//pimage->height = height;
-	//pimage->palsize = 0;
-	//pimage->planes = 1;
-	//pimage->pitch = width * channels * (bit_depth / 8);
-	//bpp = channels * 8;
-	//pimage->bytesperpixel = channels;
-
 	/* set image data format*/
 	data_format = (channels == 4)? MWIF_RGBA8888: MWIF_RGB888;
 
+	//pimage->pitch = width * channels * (bit_depth / 8);
+	//bpp = channels * 8;
+	//pimage->bytesperpixel = channels;
 	pmd = GdCreatePixmap(&scrdev, width, height, data_format, NULL, 0);
 	if (!pmd) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);
 		goto nomem;
     }
-DPRINTF("png %dbpp\n", channels*8);
+//DPRINTF("png %dbpp\n", channels*8);
 
     if(!(rows = malloc(height * sizeof(unsigned char *)))) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);

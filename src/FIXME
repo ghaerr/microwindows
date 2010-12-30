@@ -1,4 +1,6 @@
 XPM loader doesn't free on error
+consider removing GdStretchImage, test convblits available in different pixtypes
+	make sure that similar bpp's are supported
 
 how to handle child windows in buffered window scheme
 resize buffered pixmap rather than erase to background color

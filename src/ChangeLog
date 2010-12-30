@@ -1,4 +1,5 @@
 29 Dec 2010
+	* fix GdDrawImagePartToFit, test in composite.c
 	* all image loaders use PSD, not MWIMAGEHDR
 	* fix 16bpp driver rop bugs
 	* remove psd->linelen, use psd->pitch for line length in bytes

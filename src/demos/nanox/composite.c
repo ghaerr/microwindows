@@ -52,7 +52,8 @@ resize_demo(void)
 	}
 	/* create 32bpp pixmap and draw image w/alpha on it*/
 	p1 = GrNewPixmapEx(width, height, MWIF_RGBA8888, NULL);
-	GrDrawImageToFit(p1, gc, 0, 0, width, height, iid);
+	//GrDrawImageToFit(p1, gc, 0, 0, width, height, iid);
+	GrDrawImagePartToFit(p1, gc, 0,0, width, height, 0,0, image_info.width/2, image_info.height/2, iid);
 	GrFreeImage(iid);
 
 	if (p2)

@@ -313,19 +313,19 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 {
 	PSD			pmd2;
 	MWCLIPRECT	rcDst,rcSrc;
-	/*
-	 * Display image, possibly stretch/shrink to resize
-	 */
+
 	if (height < 0)
 		height = pmd->yvirtres;
 	if (width < 0)
 		width = pmd->xvirtres;
 
-	if (height == pmd->yvirtres && width == pmd->xvirtres) {
+	/* no need to stretch if width/height the same and no source offsets*/
+	if (height == pmd->yvirtres && width == pmd->xvirtres && swidth == 0) {
 		GdDrawImage(psd, x, y, (PMWIMAGEHDR)pmd);	// FIXME casting MWIMAGEHDR
 		return;
 	}
 
+#if OLDWAY
 	/* create similar image, different width/height, no palette*/
 	pmd2 = GdCreatePixmap(&scrdev, width, height, pmd->data_format, NULL, 0);
 	if (!pmd2) {
@@ -351,7 +351,6 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 
 	/* Stretch full source to destination rectangle*/
 	// FIXME casting MWIMAGEHDR below
-printf("Calling StretchImage swidth %d\n", swidth);
 	GdStretchImage((PMWIMAGEHDR)pmd, (swidth == 0)? NULL: &rcSrc, (PMWIMAGEHDR)pmd2, &rcDst);
 	GdDrawImage(psd, x, y, (PMWIMAGEHDR)pmd2);
 
@@ -359,6 +358,9 @@ printf("Calling StretchImage swidth %d\n", swidth);
 	pmd2->palsize = 0;
 	pmd2->palette = NULL;
 	GdFreePixmap(pmd2);
+#else
+	GdStretchBlit(psd, x, y, width, height, pmd, sx, sy, sx+swidth, sy+sheight, MWROP_COPY);
+#endif
 }
 
 /**

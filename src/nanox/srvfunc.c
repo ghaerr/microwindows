@@ -2901,7 +2901,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 
 #if MW_FEATURE_IMAGES && HAVE_FILEIO
-/* Load an image file from disk and display it at the specified coordinates*/
+/* Draw an image from a file*/
 void
 GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, char* path, int flags)
@@ -2920,7 +2920,7 @@ GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-/* load image from file and cache it in pixmap*/
+/* load image from file into a pixmap*/
 GR_IMAGE_ID
 GrLoadImageFromFile(char *path, int flags)
 {
@@ -2929,7 +2929,7 @@ GrLoadImageFromFile(char *path, int flags)
 
 	SERVER_LOCK();
 
-	pmd = GdLoadImageFromFile(&scrdev, path, flags);
+	pmd = GdLoadImageFromFile(path, flags);
 	if (!pmd) {
 		SERVER_UNLOCK();
 		return 0;
@@ -2959,7 +2959,7 @@ GrLoadImageFromFile(char *path, int flags)
 #endif /* MW_FEATURE_IMAGES && HAVE_FILEIO */
 
 #if MW_FEATURE_IMAGES
-/* Draw an image from a buffer */
+/* Draw an image from a buffer*/
 void
 GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
@@ -2979,7 +2979,7 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-/* load image from the given buffer and cache it*/
+/* load image from the given buffer into pixmap*/
 GR_IMAGE_ID
 GrLoadImageFromBuffer(void *buffer, int size, int flags)
 {
@@ -2988,7 +2988,7 @@ GrLoadImageFromBuffer(void *buffer, int size, int flags)
 
 	SERVER_LOCK();
 
-	pmd = GdLoadImageFromBuffer(&scrdev, buffer, size, flags);
+	pmd = GdLoadImageFromBuffer(buffer, size, flags);
 	if (!pmd) {
 		SERVER_UNLOCK();
 		return 0;
@@ -3016,7 +3016,7 @@ GrLoadImageFromBuffer(void *buffer, int size, int flags)
 	return pp->id;
 }
 
-/* draw part of the cached image, or whole if swidth == 0*/
+/* draw part of the pixmap image, or whole if swidth == 0*/
 void
 GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 	GR_SIZE dwidth, GR_SIZE dheight, GR_COORD sx, GR_COORD sy,
@@ -3043,7 +3043,7 @@ GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 	SERVER_UNLOCK();
 }
 
-/* free cached image pixmap*/
+/* free pixmap - same as GrDestroyWindow*/
 void
 GrFreeImage(GR_IMAGE_ID id)
 {
@@ -3058,7 +3058,7 @@ GrFreeImage(GR_IMAGE_ID id)
 	SERVER_UNLOCK();
 }
 
-/* return cached image information*/
+/* return pixmap information*/
 void
 GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 {

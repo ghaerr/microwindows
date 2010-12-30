@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include "device.h"
 #include "convblit.h"
+#include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_TIFF_SUPPORT
 #include <tiffio.h>
@@ -51,11 +52,12 @@ void convblit_flipy_8888(PMWBLITPARMS gc)
 	}
 }
 
-int
-GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
+PSD
+GdDecodeTIFF(char *path)
 {
 	TIFF 	*tif;
 	int		w, h;
+	PSD		pmd;
 	MWBLITPARMS parms;
 	static TIFFErrorHandler prev_handler = NULL;
 
@@ -64,38 +66,33 @@ GdDecodeTIFF(char *path, PMWIMAGEHDR pimage)
 
 	tif = TIFFOpen(path, "r");
 	if (!tif)
-		return 0;
+		return NULL;
 
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
-	pimage->width = w;
-	pimage->height = h;
-	pimage->bpp = 32;
-	pimage->pitch = w * 4;
-	pimage->bytesperpixel = 4;
-	pimage->planes = 1;
-	pimage->palsize = 0;
-	pimage->palette = NULL;
-	pimage->data_format = MWIF_RGBA8888;	/* 32bpp RGBA image*/
 
-	/* Allocate image */
-	if ((parms.data = malloc(h * pimage->pitch)) == NULL ||
-	    (pimage->imagebits = malloc(h * pimage->pitch)) == NULL)
+	parms.data = NULL;
+	pmd = GdCreatePixmap(&scrdev, w, h, MWIF_RGBA8888, NULL, 0);
+	if (!pmd)
+		goto err;
+
+	/* Allocate extra image buffer*/
+	if ((parms.data = malloc(h * pmd->pitch)) == NULL)
 			goto err;
 
-	TIFFReadRGBAImage(tif, pimage->width, pimage->height, (uint32 *)parms.data, 0);
+	TIFFReadRGBAImage(tif, w, h, (uint32 *)parms.data, 0);
 
 	/* use conversion blit to flip upside down image*/
 	parms.dstx = parms.dsty = parms.srcx = parms.srcy = 0;
-	parms.width = pimage->width;
-	parms.height = pimage->height;
-	parms.src_pitch = parms.dst_pitch = pimage->pitch;
-	parms.data_out = pimage->imagebits;
+	parms.width = w;
+	parms.height = h;
+	parms.src_pitch = parms.dst_pitch = pmd->pitch;
+	parms.data_out = pmd->addr;
 	convblit_flipy_8888(&parms);
 	free(parms.data);
 
 	TIFFClose(tif);
-	return 1;
+	return pmd;
 
 err:
 	EPRINTF("GdDecodeTIFF: image loading error\n");
@@ -103,10 +100,8 @@ err:
 		TIFFClose(tif);
 	if(parms.data)
 		free(parms.data);
-	if(pimage->imagebits)
-		free(pimage->imagebits);
-	if(pimage->palette)
-		free(pimage->palette);
-	return 2;		/* image error*/
+	if (pmd)
+		GdFreePixmap(pmd);
+	return NULL;		/* image error*/
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_TIFF_SUPPORT*/

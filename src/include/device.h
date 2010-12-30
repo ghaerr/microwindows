@@ -399,17 +399,16 @@ extern KBDDEVICE kbddev2;
 
 /* devimage.c */
 #if MW_FEATURE_IMAGES
-PSD		GdLoadImageFromBuffer(PSD psd, void *buffer, int size, int flags);
-void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-			MWCOORD height, void *buffer, int size, int flags);
+PSD		GdLoadImageFromFile(char *path, int flags);
+PSD		GdLoadImageFromBuffer(void *buffer, int size, int flags);
 void	GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 			MWCOORD height, char *path, int flags);
+void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
+			MWCOORD height, void *buffer, int size, int flags);
 void	GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 			MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, PSD pmd);
-PSD		GdLoadImageFromFile(PSD psd, char *path, int flags);
 MWBOOL	GdGetImageInfo(PSD pmd, PMWIMAGEINFO pii);
 void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT *dstrect);
-void	GdComputeImagePitch(int bpp, int width, unsigned int *pitch, int *bytesperpixel);
 
 /* Buffered input functions to replace stdio functions*/
 typedef struct {  /* structure for reading images from buffer   */
@@ -417,6 +416,7 @@ typedef struct {  /* structure for reading images from buffer   */
 	unsigned long offset;	/* The current offset within the buffer       */
 	unsigned long size;	/* The total size of the buffer               */
 } buffer_t;
+
 void	GdImageBufferInit(buffer_t *buffer, void *startdata, int size);
 void	GdImageBufferSeekTo(buffer_t *buffer, unsigned long offset);
 int		GdImageBufferRead(buffer_t *buffer, void *dest, unsigned long size);
@@ -429,7 +429,7 @@ int		GdImageBufferEOF(buffer_t *buffer);
 PSD	GdDecodeBMP(buffer_t *src, MWBOOL readfilehdr);
 #endif
 #ifdef HAVE_JPEG_SUPPORT
-PSD	GdDecodeJPEG(buffer_t *src, PSD psd, MWBOOL fast_grayscale);
+PSD	GdDecodeJPEG(buffer_t *src, MWBOOL fast_grayscale);
 #endif
 #ifdef HAVE_PNG_SUPPORT
 PSD	GdDecodePNG(buffer_t *src);
@@ -441,7 +441,7 @@ PSD	GdDecodeGIF(buffer_t *src);
 PSD	GdDecodePNM(buffer_t *src);
 #endif
 #ifdef HAVE_XPM_SUPPORT
-PSD	GdDecodeXPM(buffer_t *src, PSD psd);
+PSD	GdDecodeXPM(buffer_t *src);
 #endif
 #ifdef HAVE_TIFF_SUPPORT
 PSD	GdDecodeTIFF(char *path);
@@ -465,7 +465,7 @@ void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 void	GdSetDash(uint32_t *mask, int *count);
 void	GdSetStippleBitmap(MWIMAGEBITS *stipple, MWCOORD width, MWCOORD height);
 void	GdSetTSOffset(int xoff, int yoff);
-int	GdSetFillMode(int mode);
+int		GdSetFillMode(int mode);
 void	GdSetTilePixmap(PSD src, MWCOORD width, MWCOORD height);
 void	ts_drawpoint(PSD psd, MWCOORD x, MWCOORD y);
 void	ts_drawrow(PSD psd, MWCOORD x1, MWCOORD x2,  MWCOORD y);

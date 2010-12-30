@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Image decode routine for GIF files
  *
@@ -43,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_GIF_SUPPORT
 
@@ -83,12 +84,12 @@ static int DoExtension(buffer_t *src, int label);
 static int GetDataBlock(buffer_t *src, unsigned char *buf);
 static int GetCode(buffer_t *src, int code_size, int flag);
 static int LWZReadByte(buffer_t *src, int flag, int input_code_size);
-static int ReadImage(buffer_t *src, PMWIMAGEHDR pimage, int len, int height, int,
+static PSD ReadImage(buffer_t *src, int len, int height, int,
 		unsigned char cmap[3][MAXCOLORMAPSIZE],
 		int gray, int interlace, int ignore);
 
-int
-GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage)
+PSD
+GdDecodeGIF(buffer_t *src)
 {
     unsigned char buf[16];
     unsigned char c;
@@ -99,23 +100,20 @@ GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage)
     int imageCount = 0;
     char version[4];
     int imageNumber = 1;
-    int ok = 0;
+    PSD pmd = NULL;
 
     GdImageBufferSeekTo(src, 0UL);
 
-    pimage->imagebits = NULL;
-    pimage->palette = NULL;
-
     if (!ReadOK(src, buf, 6))
-        return 0;		/* not gif image*/
+        return NULL;		/* not gif image*/
     if (strncmp((char *) buf, "GIF", 3) != 0)
-        return 0;
+        return NULL;
     strncpy(version, (char *) buf + 3, 3);
     version[3] = '\0';
 
     if (strcmp(version, "87a") != 0 && strcmp(version, "89a") != 0) {
-	EPRINTF("GdDecodeGIF: GIF version number not 87a or 89a\n");
-        return 2;		/* image loading error*/
+		EPRINTF("GdDecodeGIF: GIF version number not 87a or 89a\n");
+        return NULL;		/* image loading error*/
     }
     Gif89.transparent = MWNOCOLOR;
     Gif89.delayTime = -1;
@@ -123,8 +121,8 @@ GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage)
     Gif89.disposal = 0;
 
     if (!ReadOK(src, buf, 7)) {
-	EPRINTF("GdDecodeGIF: bad screen descriptor\n");
-        return 2;		/* image loading error*/
+		EPRINTF("GdDecodeGIF: bad screen descriptor\n");
+        return NULL;		/* image loading error*/
     }
     GifScreen.Width = LM_to_uint(buf[0], buf[1]);
     GifScreen.Height = LM_to_uint(buf[2], buf[3]);
@@ -134,11 +132,10 @@ GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage)
     GifScreen.AspectRatio = buf[6];
 
     if (BitSet(buf[4], LOCALCOLORMAP)) {	/* Global Colormap */
-	if (ReadColorMap(src, GifScreen.BitPixel, GifScreen.ColorMap,
-			 &GifScreen.GrayScale)) {
-	    EPRINTF("GdDecodeGIF: bad global colormap\n");
-            return 2;		/* image loading error*/
-	}
+		if (ReadColorMap(src, GifScreen.BitPixel, GifScreen.ColorMap, &GifScreen.GrayScale)) {
+	    	EPRINTF("GdDecodeGIF: bad global colormap\n");
+            return NULL;		/* image loading error*/
+		}
     }
 
     do {
@@ -178,32 +175,29 @@ GdDecodeGIF(buffer_t *src, PMWIMAGEHDR pimage)
 		EPRINTF("GdDecodeGIF: bad local colormap\n");
                 goto done;
 	    }
-	    ok = ReadImage(src, pimage, LM_to_uint(buf[4], buf[5]),
+	    pmd = ReadImage(src, LM_to_uint(buf[4], buf[5]),
 			      LM_to_uint(buf[6], buf[7]),
 			      bitPixel, localColorMap, grayScale,
 			      BitSet(buf[8], INTERLACE),
 			      imageCount != imageNumber);
 	} else {
-	    ok = ReadImage(src, pimage, LM_to_uint(buf[4], buf[5]),
+	    pmd = ReadImage(src, LM_to_uint(buf[4], buf[5]),
 			      LM_to_uint(buf[6], buf[7]),
 			      GifScreen.BitPixel, GifScreen.ColorMap,
 			      GifScreen.GrayScale, BitSet(buf[8], INTERLACE),
 			      imageCount != imageNumber);
 	}
-    } while (ok == 0);
+    } while (pmd == NULL);
 
     /* set transparent color, if any*/
-    pimage->transcolor = Gif89.transparent;
+    pmd->transcolor = Gif89.transparent;
 
-    if (ok)
-	    return 1;		/* image load ok*/
-
+    if (pmd)
+	    return pmd;
 done:
-    if (pimage->imagebits)
-	    free(pimage->imagebits);
-    if (pimage->palette)
-	    free(pimage->palette);
-    return 2;			/* image load error*/
+    if (pmd)
+    	GdFreePixmap(pmd);
+    return NULL;	/* image load error*/
 }
 
 static int
@@ -432,25 +426,26 @@ LWZReadByte(buffer_t *src, int flag, int input_code_size)
     return code;
 }
 
-static int
-ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
+static PSD
+ReadImage(buffer_t* src, int len, int height, int cmapSize,
 	  unsigned char cmap[3][MAXCOLORMAPSIZE],
 	  int gray, int interlace, int ignore)
 {
     unsigned char c;
     int i, v;
     int xpos = 0, ypos = 0, pass = 0;
+	PSD pmd;
 
     /*
      *	Initialize the compression routines
      */
     if (!ReadOK(src, &c, 1)) {
 	EPRINTF("GdDecodeGIF: EOF on image data\n");
-	return 0;
+	return NULL;
     }
     if (LWZReadByte(src, TRUE, c) < 0) {
 	EPRINTF("GdDecodeGIF: error reading image\n");
-	return 0;
+	return NULL;
     }
 
     /*
@@ -458,30 +453,22 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
      */
     if (ignore) {
 	while (LWZReadByte(src, FALSE, c) >= 0);
-	return 0;
+	return NULL;
     }
     /*image = ImageNewCmap(len, height, cmapSize);*/
-    pimage->width = len;
-    pimage->height = height;
-    pimage->planes = 1;
-    pimage->bpp = 8;
-    GdComputeImagePitch(8, len, &pimage->pitch, &pimage->bytesperpixel);
-    pimage->data_format = 0;		/* force GdDrawImage for now*/
-    pimage->palsize = cmapSize;
-    pimage->palette = malloc(256*sizeof(MWPALENTRY));
-    pimage->imagebits = malloc(height*pimage->pitch);
-    if(!pimage->imagebits || !pimage->palette)
-	    return 0;
+    pmd = GdCreatePixmap(&scrdev, len, height, MWIF_PAL8, NULL, cmapSize);
+    if (!pmd)
+    	return NULL;
 
     for (i = 0; i < cmapSize; i++) {
 	/*ImageSetCmap(image, i, cmap[CM_RED][i], cmap[CM_GREEN][i], cmap[CM_BLUE][i]);*/
-	pimage->palette[i].r = cmap[CM_RED][i];
-	pimage->palette[i].g = cmap[CM_GREEN][i];
-	pimage->palette[i].b = cmap[CM_BLUE][i];
+	pmd->palette[i].r = cmap[CM_RED][i];
+	pmd->palette[i].g = cmap[CM_GREEN][i];
+	pmd->palette[i].b = cmap[CM_BLUE][i];
     }
 
     while ((v = LWZReadByte(src, FALSE, c)) >= 0) {
-	pimage->imagebits[ypos * pimage->pitch + xpos] = v;
+	pmd->addr[ypos * pmd->pitch + xpos] = v;
 
 	++xpos;
 	if (xpos == len) {
@@ -525,6 +512,6 @@ ReadImage(buffer_t* src, PMWIMAGEHDR pimage, int len, int height, int cmapSize,
     }
 
 fini:
-    return 1;
+    return pmd;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_GIF_SUPPORT*/

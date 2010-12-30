@@ -43,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_JPEG_SUPPORT
 #include "jpeglib.h"
@@ -83,12 +84,13 @@ term_source(j_decompress_ptr cinfo)
 	return;
 }
 
-int
-GdDecodeJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
+PSD
+GdDecodeJPEG(buffer_t * src, MWBOOL fast_grayscale)
 {
 	int i;
-	int ret = 2;		/* image load error */
 	unsigned char magic[8];
+	PSD pmd = NULL;
+	int bpp, data_format, palsize;
 	struct jpeg_source_mgr smgr;
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -101,15 +103,13 @@ GdDecodeJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 	/* first determine if JPEG file since decoder will error if not */
 	GdImageBufferSeekTo(src, 0UL);
 	if (GdImageBufferRead(src, magic, 2) != 2 || magic[0] != 0xFF || magic[1] != 0xD8)
-		return 0;	/* not JPEG image */
+		return NULL;	/* not JPEG image */
 
 	if (GdImageBufferRead(src, magic, 8) != 8
 	 || (strncmp((char *)&magic[4], "JFIF", 4) != 0 && strncmp((char *)&magic[4], "Exif", 4) != 0))
-		return 0;	/* not JPEG image */
+		return NULL;	/* not JPEG image */
 
 	GdImageBufferSeekTo(src, 0);
-	pimage->imagebits = NULL;
-	pimage->palette = NULL;
 
 	/* Step 1: allocate and initialize JPEG decompression object */
 	/* We set up the normal JPEG error routines. */
@@ -140,7 +140,7 @@ GdDecodeJPEG(buffer_t * src, PMWIMAGEHDR pimage, PSD psd, MWBOOL fast_grayscale)
 	goto fastjpeg;
 #endif
 	if (!fast_grayscale) {
-		if (psd->pixtype == MWPF_PALETTE) {
+		if (scrdev.pixtype == MWPF_PALETTE) {
 #if FASTJPEG
 fastjpeg:
 #endif
@@ -149,8 +149,7 @@ fastjpeg:
 			cinfo.actual_number_of_colors = 256;
 #else
 			/* Get system palette */
-			cinfo.actual_number_of_colors = 
-				GdGetPalette(psd, 0, psd->ncolors, palette);
+			cinfo.actual_number_of_colors = GdGetPalette(&scrdev, 0, scrdev.ncolors, palette);
 #endif
 	
 			/* Allocate jpeg colormap space */
@@ -180,43 +179,43 @@ fastjpeg:
 	}
 	jpeg_calc_output_dimensions(&cinfo);
 
-	pimage->width = cinfo.output_width;
-	pimage->height = cinfo.output_height;
-	pimage->planes = 1;
 #if FASTJPEG
-	pimage->bpp = 8;
+	bpp = 8;
 #else
-	pimage->bpp = (fast_grayscale || psd->pixtype == MWPF_PALETTE)?
-		8: cinfo.output_components*8;
+	bpp = (fast_grayscale || scrdev.pixtype == MWPF_PALETTE)?  8: cinfo.output_components*8;
 #endif
-	if (pimage->bpp == 24)
-		pimage->data_format = MWIF_RGB888;
-	else pimage->data_format = 0;			/* force GdDrawImage when 8bpp for now*/
-DPRINTF("jpeg bpp %d\n", pimage->bpp);
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
-	pimage->palsize = (pimage->bpp == 8)? 256: 0;
-	pimage->imagebits = malloc(pimage->pitch * pimage->height);
-	if(!pimage->imagebits)
+	switch (bpp) {
+	case 24:
+		data_format = MWIF_RGB888;
+		break;
+	case 8:
+		data_format = MWIF_PAL8;
+		break;
+	default:
+		EPRINTF("GdDecodeJPEG: can't handled %dbpp image\n", bpp);
 		goto err;
-	pimage->palette = NULL;
+	}
+	palsize = (bpp == 8)? 256: 0;
 
-	if(pimage->bpp <= 8) {
-		pimage->palette = malloc(256*sizeof(MWPALENTRY));
-		if(!pimage->palette)
-			goto err;
+	pmd = GdCreatePixmap(&scrdev, cinfo.output_width, cinfo.output_height, data_format, NULL, palsize);
+	if (!pmd)
+		goto err;
+DPRINTF("jpeg bpp %d\n", bpp);
+
+	if(bpp <= 8) {
 		if (fast_grayscale) {
 			for (i=0; i<256; ++i) {
 				MWPALENTRY pe;
-				/* FIXME could use static palette here*/
+				/* could use static palette here*/
 				pe.r = pe.g = pe.b = i;
 				pe._padding = 0;
-				pimage->palette[i] = pe;
+				pmd->palette[i] = pe;
 			}
 		} else {
 #if FASTJPEG
 			/* FASTJPEG case only, normal uses hw palette*/
 			for (i=0; i<256; ++i)
-				pimage->palette[i] = mwstdpal8[i];
+				pmd->palette[i] = mwstdpal8[i];
 #endif
 		}
 	}
@@ -227,11 +226,9 @@ DPRINTF("jpeg bpp %d\n", pimage->bpp);
 	/* Step 6: while (scan lines remain to be read) */
 	while(cinfo.output_scanline < cinfo.output_height) {
 		JSAMPROW rowptr[1];
-		rowptr[0] = (JSAMPROW)(pimage->imagebits +
-			cinfo.output_scanline * pimage->pitch);
+		rowptr[0] = (JSAMPROW)(pmd->addr + cinfo.output_scanline * pmd->pitch);
 		jpeg_read_scanlines (&cinfo, rowptr, 1);
 	}
-	ret = 1;
 
 err:
 	/* Step 7: Finish decompression */
@@ -243,6 +240,6 @@ err:
 	/* May want to check to see whether any corrupt-data
 	 * warnings occurred (test whether jerr.pub.num_warnings is nonzero).
 	 */
-	return ret;
+	return pmd;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_JPEG_SUPPORT*/

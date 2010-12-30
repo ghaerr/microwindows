@@ -3245,9 +3245,9 @@ GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
 }
 
 /**
- * Destroys the specified image buffer and reclaims the memory used by it.
+ * Destroys the specified image/pixmap and reclaims the memory used by it.
  *
- * @param id  ID of the image buffer to free
+ * @param id  ID of the image or pixmap to free
  *
  * @ingroup nanox_image
  */
@@ -3264,9 +3264,9 @@ GrFreeImage(GR_IMAGE_ID id)
 
 /**
  * Fills in the specified image information structure with the details of the
- * specified image buffer.
+ * specified pixmap.
  *
- * @param id  ID of an image buffer
+ * @param id  ID of a pixmap
  * @param iip  pointer to a GR_IMAGE_INFO structure
  *
  * @ingroup nanox_image

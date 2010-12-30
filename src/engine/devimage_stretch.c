@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2006 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2006, 2010 Greg Haerr <greg@censoft.com>
  *
  * StretchImage - Resize an image
  *
@@ -77,8 +77,7 @@ static void copy_row3(unsigned char *src, int src_w, unsigned char *dst,
  * @param dstrect Destination rectangle.
  */
 void
-GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst,
-	MWCLIPRECT *dstrect)
+GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT *dstrect)
 {
 	int pos, inc;
 	int bytesperpixel;

@@ -1,13 +1,15 @@
+29 Dec 2010
+	* all image loaders use PSD, not MWIMAGEHDR
+	* fix 16bpp driver rop bugs
 	* remove psd->linelen, use psd->pitch for line length in bytes
-	* BMP, PNG image loaders use PSD, not MWIMAGEHDR
 	* pixmaps are now always width aligned to DWORD on right boundary
-	* GrGetImageInfo will work for pixmaps
-	* GR_IMAGE_ID id's are now pixmap id's and can be drawn on
+	* GrGetImageInfo will work for pixmaps, as all images are now stored in pixmaps
+	* GR_IMAGE_ID id's are now pixmap id's and can be drawn on (no duplicate id's)
 	* GdLoadImageFromFile/Buffer use PSD not MWIMAGEHDR, remove GdFreeImage
 	* rearranged MWIMAGEHDR/SCREENDEVICE to have shared header data members
-		MWIMAGEHDR structure changed, image .c files need convbmp repass
+		MWIMAGEHDR structure changed, image .c files need convbmp regeneration
 	* fixed linelen parameter bug in gen_mapmemgc
-	* new GdCreatePixmap engine function to create memory drawing surfaces
+	* new GdCreatePixmap function to create memory drawing surfaces
 	* added palette to SCREENDEVICE in preparation for elimination of MWIMAGEHDR
 27 Dec 2010
 	* added ALWAYS_INLINE to force inline convblit functions when not optimizing

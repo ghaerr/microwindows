@@ -23,7 +23,6 @@ fix GR_EVENT_TYPE_BUTTON_UP doesn't include correct buttons entry for up button
 client/server gets screwed up on GsError delivery (GrCloseWindow for instance)
 NanoWM should decorate top level windows only
 rewrite nanowm to be table-driven
-change NewWindow to allow style bits
 MAXREQSIZE is statically compiled into each client, should be server only
 fix MAXREQSIZE of 10000 in nxproto.h for images...
 fix nxterm to take x,y,w,h fg,bg on startup
@@ -31,7 +30,6 @@ fix nxterm to redisplay properly
 fix potential sibling window clip bug with move2.sh and nanowm
 
 fix GrBitmap bit orders? (reversed from X11?)
-clear loaded images in server on app exit
 fix strlen(const "") (bug in nxkbd.c for #define TITLE)
 free props.title is required in client/server but must not in link-into-server
 

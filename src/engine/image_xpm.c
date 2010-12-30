@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Image decode routine for XPM files
  */
@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_XPM_SUPPORT
 
@@ -88,8 +89,8 @@ XPM_parse_color(char *color)
 /* The magic that "should" indicate an XPM (does it really?) */
 #define XPM_MAGIC "/* XPM */"
 
-int
-GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
+PSD
+GdDecodeXPM(buffer_t * src)
 {
 	struct xpm_cmap *colorheap = 0;	/* A "heap" of color structs */
 	unsigned char *imageptr = 0;
@@ -99,19 +100,18 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 	int in_color = 0;
 	int read_xline = 0;
 	int status = LOAD_HEADER;
+	PSD pmd = NULL;
+	int data_format, palsize;
 	MWSCREENINFO sinfo;
 	struct xpm_cmap *colormap[256];	/* A quick hash of 256 spots for colors */
 	char xline[1024];
 	char dline[1024];
 
 	/* Very first thing, get the screen info */
-	GdGetScreenInfo(psd, &sinfo);
+	GdGetScreenInfo(&scrdev, &sinfo);
 
 	for (a = 0; a < 256; a++)
 		colormap[a] = 0;
-
-	pimage->imagebits = NULL;
-	pimage->palette = NULL;
 
 	/* Start over at the beginning with the file */
 	GdImageBufferSeekTo(src, 0UL);
@@ -122,7 +122,7 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 
 	/* Check the magic */
 	if (strncmp(xline, XPM_MAGIC, sizeof(XPM_MAGIC)))
-		return 0;
+		return NULL;
 
 	while (!GdImageBufferEOF(src)) {
 		/* Get the next line from the file */
@@ -146,35 +146,29 @@ GdDecodeXPM(buffer_t * src, PMWIMAGEHDR pimage, PSD psd)
 		if (status == LOAD_HEADER) {
 			sscanf(dline, "%i %i %i %i", &col, &row, &colors, &cpp);
 
-			pimage->width = col;
-			pimage->height = row;
-			pimage->planes = 1;
-
 			if (sinfo.bpp <= 8) {
-				pimage->bpp = sinfo.bpp;
-				pimage->data_format = 0;		/* force GdDrawImage for now*/
+				//bpp = sinfo.bpp;
+				data_format = 0;		/* create format compatible with screen device*/
+				palsize = colors;
 			} else {
-				pimage->bpp = 32;
-				pimage->data_format = MWIF_RGBA8888;
-DPRINTF("xpm 32bpp RGBA8888\n");
+				//bpp = 32;
+				data_format = MWIF_RGBA8888;
+				palsize = 0;
 			}
 
-			pimage->palsize = colors;
-			GdComputeImagePitch(pimage->bpp, col, &pimage->pitch, &pimage->bytesperpixel);
 
-			pimage->imagebits = malloc(pimage->pitch * pimage->height);
-			imageptr = (unsigned char *) pimage->imagebits;
+			pmd = GdCreatePixmap(&scrdev, col, row, data_format, NULL, palsize);
+			if (!pmd)
+				return NULL;
+DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
+
+			imageptr = pmd->addr;
 
 			/* Allocate enough room for all the colors */
 			colorheap = (struct xpm_cmap *) malloc(colors * sizeof(struct xpm_cmap));
-
-			/* Allocate the palette space (if required) */
-			if (sinfo.bpp <= 8)
-				pimage->palette = malloc(256 * sizeof(MWPALENTRY));
-
 			if (!colorheap) {
 				EPRINTF("GdDecodeXPM: No mem for palette\n");
-				return -1;
+				return NULL;
 			}
 
 			status = LOAD_COLORS;
@@ -242,12 +236,12 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 			if (sinfo.bpp <= 8) {
 				if (n->color == MWNOCOLOR) {
 					/* set transcolor to palette index*/
-					pimage->transcolor = in_color;
+					pmd->transcolor = in_color;
 				}
 
-				pimage->palette[in_color].r = (n->color >> 16) & 0xFF;
-				pimage->palette[in_color].g = (n->color >> 8) & 0xFF;
-				pimage->palette[in_color].b = n->color & 0xFF;
+				pmd->palette[in_color].r = (n->color >> 16) & 0xFF;
+				pmd->palette[in_color].g = (n->color >> 8) & 0xFF;
+				pmd->palette[in_color].b = n->color & 0xFF;
 			}
 
 			if (++in_color == colors) {
@@ -275,7 +269,7 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 
 					if (!colormap[z]) {
 						EPRINTF("GdDecodeXPM: No color entry for (%c)\n", z);
-						return -1;
+						return NULL;
 					}
 
 					if (sinfo.bpp <= 8)
@@ -293,7 +287,7 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 
 					if (!colormap[z]) {
 						EPRINTF("GdDecodeXPM: No color entry for (%s)\n", pxlstr);
-						return -1;
+						return NULL;
 					}
 
 					n = colormap[z];
@@ -306,7 +300,7 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 					if (!n) {
 						EPRINTF("GdDecodeXPM: No color found for (%s)\n",
 							pxlstr);
-						return -1;
+						return NULL;
 					}
 
 					if (sinfo.bpp <= 8)
@@ -330,7 +324,7 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 
 					if (bitcount == 4) {
 						imageptr++;
-						bytecount += pimage->bytesperpixel;
+						bytecount += pmd->bytesperpixel;
 						bitcount = 0;
 					}
 
@@ -345,7 +339,7 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 
 					if (bitcount == 2) {
 						imageptr++;
-						bytecount += pimage->bytesperpixel;
+						bytecount += pmd->bytesperpixel;
 						bitcount = 0;
 					}
 
@@ -357,17 +351,17 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 				case 24:
 				case 32:
 
-					for (i = 0; i < pimage->bytesperpixel; i++)
+					for (i = 0; i < pmd->bytesperpixel; i++)
 						imageptr[i] = (dwordcolor >> (8 * i)) & 0xFF;
 
-					imageptr += pimage->bytesperpixel;
-					bytecount += pimage->bytesperpixel;
+					imageptr += pmd->bytesperpixel;
+					bytecount += pmd->bytesperpixel;
 					break;
 #endif
 				case 8:
 					imageptr[0] = (unsigned char) (dwordcolor & 0xFF);
-					imageptr += pimage->bytesperpixel;
-					bytecount += pimage->bytesperpixel;
+					imageptr += pmd->bytesperpixel;
+					bytecount += pmd->bytesperpixel;
 					break;
 
 				case 16:
@@ -378,15 +372,15 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 					imageptr[0] = (unsigned char) (dwordcolor >> 16) & 0xFF;	// R
 					imageptr[1] = (unsigned char) (dwordcolor >> 8) & 0xFF;		// G
 					imageptr[2] = (unsigned char) (dwordcolor & 0xFF);			// B
-					imageptr += pimage->bytesperpixel;
-					bytecount += pimage->bytesperpixel;
+					imageptr += pmd->bytesperpixel;
+					bytecount += pmd->bytesperpixel;
 					break;
 				}
 			}
 
 			/* Pad to the end of the line */
-			if (bytecount < pimage->pitch)
-				for (i = 0; i < (pimage->pitch - bytecount); i++)
+			if (bytecount < pmd->pitch)
+				for (i = 0; i < (pmd->pitch - bytecount); i++)
 					*imageptr++ = 0x00;
 
 			read_xline++;
@@ -401,7 +395,7 @@ DPRINTF("xpm 32bpp RGBA8888\n");
 	free(colorheap);
 
 	if (status != LOAD_DONE)
-		return -1;
-	return 1;
+		return NULL;
+	return pmd;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_XPM_SUPPORT*/

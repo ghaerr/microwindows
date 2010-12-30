@@ -70,7 +70,7 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		}
 	}
 	else
-		APPLYOP(gr_mode, width, (uint32_t), c, *(ADDR32), addr, 0, 1);
+		APPLYOP(gr_mode, width, (uint32_t), c, *(ADDR32), addr, 0, 4);
 	DRAWOFF;
 
 	if (psd->Update)

@@ -79,7 +79,7 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		}
 	}
 	else
-		APPLYOP(gr_mode, width, (unsigned short), c, *(ADDR32), addr, 0, 1);
+		APPLYOP(gr_mode, width, (unsigned short), c, *(ADDR16), addr, 0, 2);
 	DRAWOFF;
 
 	if (psd->Update)

@@ -1,4 +1,4 @@
-DEPRECATED FILES AND DRIVERS	11/29/2010
+DEPRECATED FILES AND DRIVERS	12/29/2010
 
 After v0.92, the internal drawing model has changed slightly.
 Instead of having screen drivers implement drawpixel, drawhline,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  *
  * Image decode routine for PNM, PBM, PGM and PPM files
@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_PNM_SUPPORT
 
@@ -23,18 +24,20 @@ enum {
 	PNM_TYPE_PPM
 };
 
-int
-GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
+PSD
+GdDecodePNM(buffer_t *src)
 {
 	unsigned char *p;
 	int type = PNM_TYPE_NOTPNM, binary = 0, gothdrs = 0, scale = 0;
 	int ch, x = 0, y = 0, i, n, mask, col1, col2, col3;
+	PSD pmd;
+	int width, height, data_format, palsize = 0;
 	char buf[256];
 
 	GdImageBufferSeekTo(src, 0UL);
 
 	if(!GdImageBufferGetString(src,buf, 4))
-		return 0;
+		return NULL;
 
 	if(!strcmp("P1\n", buf)) type = PNM_TYPE_PBM;
 	else if(!strcmp("P2\n", buf)) type = PNM_TYPE_PGM;
@@ -53,41 +56,31 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 	}
 
 	if(type == PNM_TYPE_NOTPNM)
-		return 0;
+		return NULL;
 
 	n = 0;
 	while((p = (unsigned char *)GdImageBufferGetString(src, buf, sizeof(buf)))) {
 		if(buf[0] == '#')
 			continue;
 		if(type == PNM_TYPE_PBM) {
-			if(sscanf(buf, "%i %i", &pimage->width, &pimage->height) == 2) {
-				pimage->bpp = 1;
+			if(sscanf(buf, "%i %i", &width, &height) == 2) {
+				data_format = MWIF_PAL1;
+				palsize = 2;
 				gothdrs = 1;
-				if(!(pimage->palette = malloc( sizeof(MWPALENTRY) * 2))) {
-					EPRINTF("Out of memory\n");
-					return 2;
-				}
-				pimage->palsize = 2;
-				pimage->palette[0].r = 0xff;
-				pimage->palette[0].g = 0xff;
-				pimage->palette[0].b = 0xff;
-				pimage->palette[1].r = 0;
-				pimage->palette[1].g = 0;
-				pimage->palette[1].b = 0;
 			}
 			break;
 		}
 		if((type == PNM_TYPE_PGM) || (type == PNM_TYPE_PPM)) {
 			if(!n++) {
-				if(sscanf(buf, "%i %i", &pimage->width, &pimage->height) != 2)
+				if(sscanf(buf, "%i %i", &width, &height) != 2)
 					break;
 			} else {
 				if(sscanf(buf, "%i", &i) != 1)
 					break;
-				pimage->bpp = 24;
+				data_format = MWIF_RGB888;
 				if(i > 255) {
 					EPRINTF("GdDecodePNM: PPM files must be 24bpp\n");
-					return 2;
+					return NULL;
 				}
 				for(scale = 7, n = 2; scale; scale--, n *= 2)
 					if(i < n)
@@ -100,24 +93,22 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 
 	if(!gothdrs) {
 		EPRINTF("GdDecodePNM: bad image headers\n");
-		if(pimage->palette)
-			free(pimage->palette);
-		return 2;
+		return NULL;
 	}
 
-	pimage->planes = 1;
-	GdComputeImagePitch(pimage->bpp, pimage->width, &pimage->pitch, &pimage->bytesperpixel);
-	if (pimage->bpp == 24)
-		pimage->data_format = MWIF_RGB888;
-	else pimage->data_format = 0;		/* force GdDrawImage for now*/
-	if(!(pimage->imagebits = malloc(pimage->pitch * pimage->height))) {
-		EPRINTF("GdDecodePNM: couldn't allocate memory for image\n");
-		if(pimage->palette)
-			free(pimage->palette);
-		return 2;
-	}
+	pmd = GdCreatePixmap(&scrdev, width, height, data_format, NULL, palsize);
+	if (!pmd)
+		return NULL;
 
-	p = pimage->imagebits;
+	if (pmd->palette) {
+		pmd->palette[0].r = 0xff;
+		pmd->palette[0].g = 0xff;
+		pmd->palette[0].b = 0xff;
+		pmd->palette[1].r = 0;
+		pmd->palette[1].g = 0;
+		pmd->palette[1].b = 0;
+	}
+	p = pmd->addr;
 
 	if(type == PNM_TYPE_PBM) {
 		if(binary) {
@@ -129,10 +120,10 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 					if(ch & mask)
 						*p |= mask;
 					else *p &= ~mask;
-					if(++x == pimage->width) {
-						if(++y == pimage->height)
-							return 1;
-						p = pimage->imagebits - 1 + (y * pimage->pitch);
+					if(++x == width) {
+						if(++y == height)
+							return pmd;
+						p = pmd->addr - 1 + (y * pmd->pitch);
 						x = 0;
 						break;
 					}
@@ -154,10 +145,10 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 					n = 0;
 					p++;
 				}
-				if(++x == pimage->width) {
-					if(++y == pimage->height)
-						return 1;
-					p = pimage->imagebits + (y * pimage->pitch);
+				if(++x == width) {
+					if(++y == height)
+						return pmd;
+					p = pmd->addr + (y * pmd->pitch);
 					n = 0;
 					x = 0;
 				}
@@ -190,10 +181,10 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 				*p++ = col2 << scale;
 				*p++ = col3 << scale;
 			}
-			if(++x == pimage->width) {
-				if(++y == pimage->height)
-					return 1;
-				p = pimage->imagebits + (y * pimage->pitch);
+			if(++x == width) {
+				if(++y == height)
+					return pmd;
+				p = pmd->addr + (y * pmd->pitch);
 				x = 0;
 			}
 		}
@@ -201,9 +192,7 @@ GdDecodePNM(buffer_t *src, PMWIMAGEHDR pimage)
 
 baddata:
 	EPRINTF("GdDecodePNM: bad image data\n");
-	free(pimage->imagebits);
-	if(pimage->palette)
-		free(pimage->palette);
-	return 2;
+	GdFreePixmap(pmd);
+	return NULL;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_PNM_SUPPORT*/

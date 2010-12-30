@@ -34,23 +34,12 @@ static unsigned short *alpha_to_rgb = NULL;
 static unsigned char  *rgb_to_palindex = NULL;
 static int init_alpha_lookup(void);
 
-/* Calc linelen and mmap size, return 0 on fail*/
-static int
-linear8_init(PSD psd)
-{
-	if (!psd->size)
-		psd->size = psd->yres * psd->linelen;
-	/* linelen in bytes for bpp 1, 2, 4, 8 so no change*/
-	return 1;
-}
-
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear8_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR8	addr = ((ADDR8)psd->addr) + x + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + x;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
@@ -70,22 +59,21 @@ linear8_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear8_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
+	register unsigned char *addr = psd->addr + y * psd->pitch + x;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
-	return ((ADDR8)psd->addr)[x + y * psd->linelen];
+	return *addr;
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear8_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR8	addr = ((ADDR8)psd->addr) + x1 + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + x1;
 	int width = x2-x1+1;
 #if DEBUG
-	assert (addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
@@ -111,11 +99,10 @@ linear8_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear8_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	int	linelen = psd->linelen;
-	register ADDR8 addr = ((ADDR8)psd->addr) + x + y1 * linelen;
+	int	pitch = psd->pitch;
+	register unsigned char *addr = psd->addr + y1 * pitch + x;
 	int height = y2-y1+1;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
@@ -129,11 +116,11 @@ linear8_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		while (--h >= 0)
 		{
 			*addr = c;
-			addr += linelen;
+			addr += pitch;
 		}
 	}
 	else
-		APPLYOP(gr_mode, height, (unsigned char), c, *(ADDR8), addr, 0, linelen);
+		APPLYOP(gr_mode, height, (unsigned char), c, *(ADDR8), addr, 0, pitch);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -241,12 +228,12 @@ linear8_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
 	src = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + first_byte;
-	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
+	dst = ((ADDR8) gc->data_out) + gc->dst_pitch * gc->dsty + gc->dstx;
 	fg = gc->fg_pixelval;
 	bg = gc->bg_pixelval;
 
 	advance_src = gc->src_pitch - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - gc->width;
+	advance_dst = gc->dst_pitch - gc->width;
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -430,12 +417,12 @@ linear8_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	last_byte = (gc->srcx + gc->width - 1) >> 3;
 
 	src = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + first_byte;
-	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
+	dst = ((ADDR8) gc->data_out) + gc->dst_pitch * gc->dsty + gc->dstx;
 	fg = gc->fg_pixelval;
 	bg = gc->bg_pixelval;
 
 	advance_src = gc->src_pitch - last_byte + first_byte - 1;
-	advance_dst = psd->linelen - gc->width;
+	advance_dst = gc->dst_pitch - gc->width;
 
 	if (first_byte != last_byte) {
 		/* The total number of bytes to use, less the two special-cased
@@ -581,10 +568,10 @@ linear8_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 	}
 
 	alpha = ((ADDR8) gc->data) + gc->src_pitch * gc->srcy + gc->srcx;
-	dst = ((ADDR8) psd->addr) + psd->linelen * gc->dsty + gc->dstx;
+	dst = ((ADDR8) gc->data_out) + gc->dst_pitch * gc->dsty + gc->dstx;
 
 	src_row_step = gc->src_pitch - gc->width;
-	dst_row_step = psd->linelen - gc->width;
+	dst_row_step = gc->dst_pitch - gc->width;
 
 	DRAWON;
 	for (y = 0; y < gc->height; y++) {
@@ -617,7 +604,6 @@ linear8_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 }
 
 static SUBDRIVER fblinear8_none = {
-	linear8_init,
 	linear8_drawpixel,
 	linear8_readpixel,
 	linear8_drawhorzline,
@@ -637,7 +623,6 @@ static SUBDRIVER fblinear8_none = {
 };
 
 SUBDRIVER fblinear8_left = {
-	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
 	fbportrait_left_drawhorzline,
@@ -657,7 +642,6 @@ SUBDRIVER fblinear8_left = {
 };
 
 SUBDRIVER fblinear8_right = {
-	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
 	fbportrait_right_drawhorzline,
@@ -677,7 +661,6 @@ SUBDRIVER fblinear8_right = {
 };
 
 SUBDRIVER fblinear8_down = {
-	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
 	fbportrait_down_drawhorzline,

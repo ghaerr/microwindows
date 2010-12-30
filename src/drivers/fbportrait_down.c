@@ -103,6 +103,7 @@ fbportrait_down_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 	l_gc.bg_pixelval = gc->bg_pixelval;
 	l_gc.usebg = gc->usebg;
 	l_gc.dst_pitch = gc->dst_pitch;
+	l_gc.data_out = gc->data_out;
 
 	if (!(l_gc.data = ALLOCA(l_gc.width * l_gc.height)))
 		return;
@@ -156,6 +157,7 @@ fbportrait_down_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	l_gc.bg_pixelval = gc->bg_pixelval;
 	l_gc.usebg = gc->usebg;
 	l_gc.dst_pitch = gc->dst_pitch;
+	l_gc.data_out = gc->data_out;
 
 	if (!(l_gc.data = ALLOCA(l_gc.height * l_gc.src_pitch)))
 		return;
@@ -243,7 +245,6 @@ fbportrait_down_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 }
 
 SUBDRIVER fbportrait_down = {
-	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
 	fbportrait_down_drawhorzline,

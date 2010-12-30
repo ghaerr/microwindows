@@ -31,7 +31,7 @@ fb_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 }
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,
@@ -58,8 +58,8 @@ fb_open(PSD psd)
     psd->planes = 1;
     psd->bpp = 32;
     psd->ncolors = 1 << psd->bpp;
-    psd->size = 0;
-    psd->linelen = 512 * 4;
+    psd->pitch = 512 * 4;
+	psd->size = psd->yres * psd->pitch;
     psd->flags = PSF_SCREEN;
     psd->pixtype = MWPF_TRUECOLORABGR;
 	psd->data_format = MWIF_RGBA8888;
@@ -69,11 +69,7 @@ fb_open(PSD psd)
         EPRINTF("No driver for screen\n");
 		return NULL;
     }
-
-    if(!set_subdriver(psd, subdriver, TRUE)) {
-        EPRINTF("Driver initialize failed\n");
-		return NULL;
-    }
+    set_subdriver(psd, subdriver);
 
     psd->addr = (void *)(0x40000000 | (unsigned int)sceGeEdramGetAddr());
     return psd;	/* success*/

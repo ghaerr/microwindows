@@ -19,7 +19,7 @@ static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,
@@ -55,7 +55,6 @@ fb_open(PSD psd)
 	psd->planes = 1;
 	psd->bpp = fbinfo.bitsPerPixel;
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-	psd->linelen = fbinfo.width;
 	psd->pitch = fbinfo.pitch;
 	psd->size = fbinfo.sizeInBytes;
     psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
@@ -92,11 +91,8 @@ fb_open(PSD psd)
 		return NULL;
 	}
 
-	/* set and initialize subdriver into screen driver */
-	if(!set_subdriver(psd, subdriver, TRUE)) {
-		EPRINTF("Driver initialize failed bpp %d\n", psd->bpp);
-		return NULL;
-	}
+	/* set subdriver into screen driver */
+	set_subdriver(psd, subdriver);
 
 	/* allocate framebuffer (uses lots of memory!) */
 	if (!(psd->addr = calloc (1, psd->size))) {

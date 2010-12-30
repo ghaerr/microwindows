@@ -19,7 +19,7 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 {
 	PSD		pmd;
 	int 	bpp, planes, data_format, pixtype;
-	unsigned int size, linelen, pitch;
+	unsigned int size, pitch;
    
 	if (width <= 0 || height <= 0)
 		return NULL;
@@ -91,7 +91,7 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 	if (!pmd)
 		return NULL;
 
-	GdCalcMemGCAlloc(pmd, width, height, planes, bpp, &size, &linelen, &pitch);
+	GdCalcMemGCAlloc(pmd, width, height, planes, bpp, &size, &pitch);
 
 	/* FIXME remove later*/
 	switch (pmd->bpp) {
@@ -127,7 +127,7 @@ err:
 		goto err;
 	pmd->palsize = palsize;
  
-	pmd->MapMemGC(pmd, width, height, planes, bpp, data_format, linelen, pitch, size, pixels);
+	pmd->MapMemGC(pmd, width, height, planes, bpp, data_format, pitch, size, pixels);
 	pmd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
 	pmd->ncolors = (pmd->bpp >= 24)? (1 << 24): (1 << pmd->bpp);
 
@@ -179,7 +179,7 @@ gen_allocatememgc(PSD psd)
  */
 MWBOOL
 gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp, int data_format,
-	int linelen, int pitch, int size, void *addr)
+	unsigned int pitch, int size, void *addr)
 {
 	PSUBDRIVER subdriver;
 
@@ -198,14 +198,13 @@ gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp, int data_for
 	mempsd->planes = planes;
 	mempsd->bpp = bpp;
 	mempsd->data_format = data_format;
-	mempsd->linelen = linelen;
 	mempsd->pitch = pitch;
 	mempsd->size = size;
 	mempsd->addr = addr;
 
 	/* select and init hw compatible framebuffer subdriver for pixmap drawing*/
 	subdriver = select_fb_subdriver(mempsd);
-	if(!subdriver || !subdriver->Init(mempsd))
+	if(!subdriver)
 		return 0;
 
 	/* assign portrait subdriver or regular fb driver for pixmap drawing*/
@@ -231,16 +230,15 @@ gen_freememgc(PSD mempsd)
 }
 
 /*
- * Calculate size and linelen of memory gc.
+ * Calculate size and pitch of memory gc.
  * If bpp or planes is 0, use passed psd's bpp/planes.
- * Note: linelen is calculated to be DWORD aligned for speed
- * for bpp <= 8.  Linelen is converted to bytelen for bpp > 8.
+ * Pitch is calculated to be DWORD right aligned for speed.
  */
 int
-GdCalcMemGCAlloc(PSD psd, int width, int height, int planes,
-	int bpp, unsigned int *psize, unsigned *plinelen, unsigned *ppitch)
+GdCalcMemGCAlloc(PSD psd, int width, int height, int planes, int bpp,
+	unsigned int *psize, unsigned *ppitch)
 {
-	unsigned int pitch, linelen;
+	unsigned int pitch;
 
 	if(!planes)
 		planes = psd->planes;
@@ -260,57 +258,39 @@ GdCalcMemGCAlloc(PSD psd, int width, int height, int planes,
 	if(planes == 4)
 		bpp = 4;
 
-	/* compute linelen: bytes per line for bpp 1, 2, 4 and pixels otherwise*/
+	/* compute pitch: bytes per line*/
 	switch(bpp) {
 	case 1:
-		linelen = (width+7)/8;
+		pitch = (width+7)/8;
 		break;
 	case 2:
-		linelen = (width+3)/4;
+		pitch = (width+3)/4;
 		break;
 	case 4:
-		linelen = (width+1)/2;
+		pitch = (width+1)/2;
 		break;
 	case 8:
+		pitch = width;
+		break;
 	case 16:
+		pitch = width * 2;
+		break;
 	case 18:
 	case 24:
+		pitch = width * 3;
+		break;
 	case 32:
-		linelen = width;
+		pitch = width * 4;
 		break;
 	default:
-		*ppitch = *psize = *plinelen = 0;
+		*ppitch = *psize = 0;
 		return 0;
 	}
 
-	/* right align image width to DWORD boundary*/
-	linelen = (linelen + 3) & ~3;
-
-	/* compute pitch: bytes per line*/
-	switch (bpp) {
-	case 1:
-	case 2:
-	case 4:
-	case 8:
-	default:
-		pitch = linelen;
-		break;
-	case 16:
-		pitch = linelen * 2;
-		break;
-	case 18:
-	case 24:
-		pitch = linelen * 3;
-		break;
-	case 32:
-		pitch = linelen * 4;
-		break;
-	}
-	// can't do this with linelen calc'd above... must remove linelen
-	//pitch = (pitch + 3) & ~3;
+	/* right align pitch to DWORD boundary*/
+	pitch = (pitch + 3) & ~3;
 
 	*psize = pitch * height;
-	*plinelen = linelen;
 	*ppitch = pitch;
 	return 1;
 }
@@ -359,7 +339,7 @@ set_portrait_subdriver(PSD psd)
 		subdriver = psd->down_subdriver;
 		break;
 	}
-	set_subdriver(psd, subdriver, FALSE);
+	set_subdriver(psd, subdriver);
 }
 
 void
@@ -387,11 +367,9 @@ gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL 
 
 /*
  * Set subdriver entry points in screen device
- * Initialize subdriver if init flag is TRUE
- * Return 0 on fail
  */
-MWBOOL
-set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
+void
+set_subdriver(PSD psd, PSUBDRIVER subdriver)
 {
 	/* set subdriver entry points in screen driver*/
 	psd->DrawPixel 		= subdriver->DrawPixel;
@@ -410,11 +388,6 @@ set_subdriver(PSD psd, PSUBDRIVER subdriver, MWBOOL init)
 	psd->BlitSrcOverRGBA8888     = subdriver->BlitSrcOverRGBA8888;
 	psd->BlitCopyRGB888          = subdriver->BlitCopyRGB888;
 	psd->BlitStretchRGBA8888     = subdriver->BlitStretchRGBA8888;
-
-	/* call driver init procedure to calc map size and linelen*/
-	if (init && !subdriver->Init(psd))
-		return 0;
-	return 1;
 }
 
 /* fill in a subdriver struct from passed screen device*/

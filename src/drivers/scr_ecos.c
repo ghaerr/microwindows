@@ -35,7 +35,7 @@ static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,
@@ -77,12 +77,8 @@ fb_open(PSD psd)
     psd->planes = 1;
     psd->bpp = li.bpp;
     psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-
-    /* set linelen to byte length, possibly converted later*/
-    psd->linelen = li.rlen;
 	psd->pitch = li.rlen;
-    psd->size = 0;		/* force subdriver init of size*/
-
+	psd->size = psd->yres * psd->pitch;
     psd->flags = PSF_SCREEN;
 
     /* set pixel format*/
@@ -116,8 +112,8 @@ fb_open(PSD psd)
     } else psd->pixtype = MWPF_PALETTE;
 #endif
 
-    diag_printf("%dx%dx%d linelen %d type %d bpp %d\n", psd->xres,
-      psd->yres, psd->ncolors, psd->linelen, li.type, psd->bpp);
+    diag_printf("%dx%dx%d pitch %d type %d bpp %d\n", psd->xres,
+      psd->yres, psd->ncolors, psd->pitch, li.type, psd->bpp);
 
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
@@ -129,11 +125,8 @@ fb_open(PSD psd)
         goto fail;
     }
 
-	/* set and initialize subdriver into screen driver */
-	if(!set_subdriver(psd, subdriver, TRUE)) {
-		EPRINTF("Driver initialize failed bpp %d\n", psd->bpp);
-		return NULL;
-	}
+	/* set subdriver into screen driver */
+	set_subdriver(psd, subdriver);
 
     /* mmap framebuffer into this address space*/
     psd->addr = li.fb;

@@ -27,7 +27,7 @@ static void fb_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heig
 void fb_graphicsflush(PSD psd);
 
 SCREENDEVICE scrdev = {
-	0, SCREEN_WIDTH, SCREEN_HEIGHT, 0,0,0,0, NULL, 0, NULL, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0,0,0,0,0,
+	0, SCREEN_WIDTH, SCREEN_HEIGHT, 0,0,0,0, NULL, 0, NULL, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0,0,0,0,
 	gen_fonts,
 	fb_open,
 	fb_close,
@@ -85,9 +85,9 @@ fb_open(PSD psd)
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	/* Calculate the correct size, linelen and pitch from x/yres and bpp*/
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
-			 psd->bpp, &psd->size, &psd->linelen, &psd->pitch);
+	/* Calculate the correct size and pitch from xres, yres and bpp*/
+	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
+		&psd->size, &psd->pitch);
 
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
     psd->flags = PSF_SCREEN;
@@ -98,8 +98,8 @@ fb_open(PSD psd)
 	if (!subdriver)
 		return NULL;
 
-	/* set and initialize subdriver into screen driver*/
-	set_subdriver(psd, subdriver, TRUE);
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
 
 #ifdef PATH_FRAMEBUFFER
 	/* try opening framebuffer file for mmap*/

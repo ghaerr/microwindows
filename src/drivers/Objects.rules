@@ -86,9 +86,7 @@ endif
 
 ifeq ($(EM8400), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_em84xx.o \
-	$(MW_DIR_OBJ)/drivers/genfont.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_em84xx.o
 endif
 
 ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)

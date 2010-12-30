@@ -1,3 +1,4 @@
+	* remove psd->linelen, use psd->pitch for line length in bytes
 	* BMP, PNG image loaders use PSD, not MWIMAGEHDR
 	* pixmaps are now always width aligned to DWORD on right boundary
 	* GrGetImageInfo will work for pixmaps

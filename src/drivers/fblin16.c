@@ -20,32 +20,19 @@
 #include "fb.h"
 #include "genmem.h"
 
-/* Calc linelen and mmap size, return 0 on fail*/
-static int
-linear16_init(PSD psd)
-{
-	if (!psd->size) {
-		psd->size = psd->yres * psd->linelen;
-		/* convert linelen from byte to pixel len for bpp 16, 24, 32*/
-		psd->linelen /= 2;
-	}
-	return 1;
-}
-
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR16	addr = ((ADDR16)psd->addr) + x + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x << 1);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 #endif
 	DRAWON;
 	if(gr_mode == MWROP_COPY)
-		*addr = c;
+		*((ADDR16)addr) = c;
 	else
 		APPLYOP(gr_mode, 1, (unsigned short), c, *(ADDR16), addr, 0, 0);
 	DRAWOFF;
@@ -58,19 +45,19 @@ linear16_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear16_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x << 1);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
-	return ((ADDR16)psd->addr)[x + y * psd->linelen];
+	return *((ADDR16)addr);
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR16	addr = ((ADDR16)psd->addr) + x1 + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x1 << 1);
 	int width = x2-x1+1;
 #if DEBUG
 	assert (psd->addr != 0);
@@ -86,7 +73,10 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	{
 		int w = width;
 		while(--w >= 0)
-			*addr++ = c;
+		{
+			*((ADDR16)addr) = c;
+			addr += 2;
+		}
 	}
 	else
 		APPLYOP(gr_mode, width, (unsigned short), c, *(ADDR32), addr, 0, 1);
@@ -100,11 +90,10 @@ linear16_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	int	linelen = psd->linelen;
-	register ADDR16	addr = ((ADDR16)psd->addr) + x + y1 * linelen;
+	int	pitch = psd->pitch;
+	register unsigned char *addr = psd->addr + y1 * psd->pitch + (x << 1);
 	int height = y2-y1+1;
 #if DEBUG
-	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
@@ -118,12 +107,12 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		int h = height;
 		while (--h >= 0)
 		{
-			*addr = c;
-			addr += linelen;
+			*((ADDR16)addr) = c;
+			addr += pitch;
 		}
 	}
 	else
-		APPLYOP(gr_mode, height, (unsigned short), c, *(ADDR16), addr, 0, linelen);
+		APPLYOP(gr_mode, height, (unsigned short), c, *(ADDR16), addr, 0, pitch);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -131,7 +120,6 @@ linear16_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 }
 
 static SUBDRIVER fblinear16_none = {
-	linear16_init,
 	linear16_drawpixel,
 	linear16_readpixel,
 	linear16_drawhorzline,
@@ -151,7 +139,6 @@ static SUBDRIVER fblinear16_none = {
 };
 
 static SUBDRIVER fblinear16_left = {
-	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
 	fbportrait_left_drawhorzline,
@@ -171,7 +158,6 @@ static SUBDRIVER fblinear16_left = {
 };
 
 static SUBDRIVER fblinear16_right = {
-	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
 	fbportrait_right_drawhorzline,
@@ -191,7 +177,6 @@ static SUBDRIVER fblinear16_right = {
 };
 
 static SUBDRIVER fblinear16_down = {
-	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
 	fbportrait_down_drawhorzline,

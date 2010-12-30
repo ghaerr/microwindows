@@ -12,28 +12,15 @@
 #include "fb.h"
 #include "genmem.h"
 
-/* Calc linelen and mmap size, return 0 on fail*/
-static int
-linear24_init(PSD psd)
-{
-	if (!psd->size) {
-		psd->size = psd->yres * psd->linelen;
-		/* convert linelen from byte to pixel len for bpp 16, 24, 32*/
-		psd->linelen /= 3;
-	}
-	return 1;
-}
-
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear24_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x + y * psd->linelen) * 3;
+	register unsigned char *addr = psd->addr + y * psd->pitch + x * 3;
 	MWUCHAR r = PIXEL888RED(c);
 	MWUCHAR g = PIXEL888GREEN(c);
 	MWUCHAR b = PIXEL888BLUE(c);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
@@ -60,9 +47,8 @@ linear24_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear24_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x + y * psd->linelen) * 3;
+	register unsigned char *addr = psd->addr + y * psd->pitch + x * 3;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
@@ -73,13 +59,12 @@ linear24_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 static void
 linear24_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x1 + y * psd->linelen) * 3;
+	register unsigned char *addr = psd->addr + y * psd->pitch + x1 * 3;
 	MWUCHAR r = PIXEL888RED(c);
 	MWUCHAR g = PIXEL888GREEN(c);
 	MWUCHAR b = PIXEL888BLUE(c);
 	int w = x2-x1+1;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
@@ -114,14 +99,13 @@ linear24_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x + y1 * psd->linelen) * 3;
-	int	linelen = psd->linelen * 3;
+	int	pitch = psd->pitch;
+	register unsigned char *addr = psd->addr + y1 * pitch + x * 3;
 	MWUCHAR r = PIXEL888RED(c);
 	MWUCHAR g = PIXEL888GREEN(c);
 	MWUCHAR b = PIXEL888BLUE(c);
 	int height = y2-y1+1;
 #if DEBUG
-	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
@@ -135,7 +119,7 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 			addr[0] = b;
 			addr[1] = g;
 			addr[2] = r;
-			addr += linelen;
+			addr += pitch;
 		}
 	}
 	else
@@ -145,7 +129,7 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 			APPLYOP(gr_mode, 1, (MWUCHAR), b, *(ADDR8), addr, 0, 1);
 			APPLYOP(gr_mode, 1, (MWUCHAR), g, *(ADDR8), addr, 0, 1);
 			APPLYOP(gr_mode, 1, (MWUCHAR), r, *(ADDR8), addr, 0, 1);
-			addr += linelen - 3;
+			addr += pitch - 3;
 		}
 	}
 	DRAWOFF;
@@ -155,7 +139,6 @@ linear24_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 }
 
 static SUBDRIVER fblinear24_none = {
-	linear24_init,
 	linear24_drawpixel,
 	linear24_readpixel,
 	linear24_drawhorzline,
@@ -175,7 +158,6 @@ static SUBDRIVER fblinear24_none = {
 };
 
 static SUBDRIVER fblinear24_left = {
-	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
 	fbportrait_left_drawhorzline,
@@ -195,7 +177,6 @@ static SUBDRIVER fblinear24_left = {
 };
 
 static SUBDRIVER fblinear24_right = {
-	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
 	fbportrait_right_drawhorzline,
@@ -215,7 +196,6 @@ static SUBDRIVER fblinear24_right = {
 };
 
 static SUBDRIVER fblinear24_down = {
-	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
 	fbportrait_down_drawhorzline,

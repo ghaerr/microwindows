@@ -43,7 +43,7 @@ static void win32_getscreeninfo(PSD psd, PMWSCREENINFO psi);
 static void win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	win32_open,
 	win32_close,
@@ -124,7 +124,6 @@ win32_open(PSD psd)
 	HANDLE hInstance = GetModuleHandle(NULL);
 	HDC rootDC = CreateDC("DISPLAY", NULL, NULL, NULL);
 	int depth = GetDeviceCaps(rootDC, BITSPIXEL);
-	int size;
 	RECT rect;
 	PSUBDRIVER subdriver;
 	WNDCLASS wc;
@@ -153,13 +152,13 @@ win32_open(PSD psd)
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	/* Calculate the correct linelen here */
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
-			 psd->bpp, &size, &psd->linelen, &psd->pitch);
+	/* Calculate size and pitch*/
+	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
+		&psd->size, &psd->pitch);
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
-	psd->flags = PSF_SCREEN;
+	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
 	psd->portrait = MWPORTRAIT_NONE;
 DPRINTF("win32 emulated bpp %d\n", psd->bpp);
 
@@ -168,8 +167,8 @@ DPRINTF("win32 emulated bpp %d\n", psd->bpp);
 	if (!subdriver)
 		return NULL;
 
-	/* set and initialize subdriver into screen driver*/
-	set_subdriver(psd, subdriver, TRUE);
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
 
 		wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
 		wc.lpfnWndProc     = (WNDPROC)myWindowProc;
@@ -398,7 +397,7 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 {
 #if 0
 	XImage *img;
-	int x, y;
+	unsigned int x, y;
 	char *data;
 
 	/* allocate buffer */
@@ -410,75 +409,70 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 		data = malloc((w * x11_depth + 7) / 8 * h);
 
 	/* copy from offscreen to screen */
-	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap,
-			   0, data, w, h, 8, 0);
+	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap, 0, data, w, h, 8, 0);
 
 	/* Use optimized loops for most common framebuffer modes */
 
 #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
 	{
-		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = addr[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
 	{
-		ADDR16 dbuf = ((ADDR16) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = ((ADDR16)addr)[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
 	{
-		ADDR8 dbuf = ((ADDR8) psd->addr) + 3 * (destx + desty * psd->linelen);
-		int linedelta = 3 * (psd->linelen - w);
+		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
+		unsigned int extra = psd->pitch - w * 3;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1], dbuf[0]);
+				MWPIXELVAL c = RGB2PIXEL888(addr[2], addr[1], addr[0]);
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
-				dbuf += 3;
+				addr += 3;
 			}
-			dbuf += linedelta;
+			addr += extra;
 		}
 	}
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	{
-		ADDR32 dbuf = ((ADDR32) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = ((ADDR32)addr)[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #else /* MWPF_PALETTE*/
 	{
-		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = addr[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #endif

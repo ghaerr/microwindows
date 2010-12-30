@@ -1556,11 +1556,11 @@ SelectObject(HDC hdc, HGDIOBJ hObject)
 
 		/* init memory context*/
 		if (!hdc->psd->MapMemGC(hdc->psd, pb->width, pb->height,
-			pb->planes, pb->bpp, pb->data_format, pb->linelen, pb->pitch, pb->size, &pb->bits[0]))
+			pb->planes, pb->bpp, pb->data_format, pb->pitch, pb->size, &pb->bits[0]))
 				return NULL;
 
 		hdc->bitmap = (MWBITMAPOBJ *)hObject;
-	    	break;
+	    break;
 #if UPDATEREGIONS
 	case OBJ_REGION:
 		/*objOrg = (HGDIOBJ)hdc->region;*/
@@ -1719,7 +1719,7 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 {
 	MWBITMAPOBJ *	hbitmap;
 	int		size;
-	int		linelen, pitch;
+	unsigned int pitch;
 
 	if(!hdc)
 		return NULL;
@@ -1727,8 +1727,8 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	nWidth = MWMAX(nWidth, 1);
 	nHeight = MWMAX(nHeight, 1);
 
-	/* calc memory allocation size and linelen from width and height*/
-	if(!GdCalcMemGCAlloc(hdc->psd, nWidth, nHeight, 0, 0, &size, &linelen, &pitch))
+	/* calc memory allocation size and pitch from width and height*/
+	if(!GdCalcMemGCAlloc(hdc->psd, nWidth, nHeight, 0, 0, &size, &pitch))
 		return NULL;
 
 	/* allocate gdi object*/
@@ -1744,7 +1744,6 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	hbitmap->planes = hdc->psd->planes;
 	hbitmap->bpp = hdc->psd->bpp;
 	hbitmap->data_format = hdc->psd->data_format;
-	hbitmap->linelen = linelen;
 	hbitmap->pitch = pitch;
 	hbitmap->size = size;
 
@@ -1757,14 +1756,13 @@ HBITMAP CreateDIBSection(
 {
 	MWBITMAPOBJ *	hbitmap;
 	int		size;
-	int		linelen, pitch;
+	unsigned int pitch;
 	PSD psd = hdc? hdc->psd: &scrdev;
 
-	/* calc memory allocation size and linelen from width and height*/
-	if(!GdCalcMemGCAlloc(psd, pbmi->bmiHeader.biWidth,
-			pbmi->bmiHeader.biHeight, pbmi->bmiHeader.biPlanes,
-			pbmi->bmiHeader.biBitCount, &size, &linelen, &pitch))
-		return NULL;
+	/* calc memory allocation size and pitch from width and height*/
+	if(!GdCalcMemGCAlloc(psd, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight,
+		pbmi->bmiHeader.biPlanes, pbmi->bmiHeader.biBitCount, &size, &pitch))
+			return NULL;
 
 	/* allocate gdi object*/
 	hbitmap = (MWBITMAPOBJ *)GdItemAlloc(sizeof(MWBITMAPOBJ)-1+size);
@@ -1776,7 +1774,7 @@ HBITMAP CreateDIBSection(
 	hbitmap->height = pbmi->bmiHeader.biHeight;
 	hbitmap->planes = pbmi->bmiHeader.biPlanes;
 	hbitmap->bpp = pbmi->bmiHeader.biBitCount;
-	hbitmap->linelen = linelen;
+	hbitmap->pitch = pitch;
 	hbitmap->size = size;
 
 	if (ppvBits) *ppvBits = &hbitmap->bits[0];

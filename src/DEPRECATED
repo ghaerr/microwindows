@@ -37,7 +37,7 @@ fblin18.c		- 18bpp driver 666 format for ASM PXA270 with 18bit LCD
 fblin32alpha.c	- 32bpp driver, reads/writes DWORD only (replaced by fblin32.c)
 
 
-POSSIBLE OBSOLETE DRIVERS - NEED TESTING/UPDATING
+OBSOLETE DRIVERS - NEED TESTING/UPDATING, DEPRECATED UNTIL TESTED
 fblin12.c		- 12bpp driver for Cirrus Logic
 fblin4hp.c		- fast 4bpp driver for Vr41xx Palm
 fblin4orion.c	- 4access Communications Orion machines

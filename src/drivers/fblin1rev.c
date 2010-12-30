@@ -3,8 +3,6 @@
  *
  * 1bpp Packed Linear Video Driver for Microwindows (LSB first bit order)
  * For Psion S5
- *
- * 	In this driver, psd->linelen is line byte length, not line pixel length
  */
 /*#define NDEBUG*/
 #include <assert.h>
@@ -20,23 +18,12 @@
 static const unsigned char notmask[8] = {
 	0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f};
 
-/* Calc linelen and mmap size, return 0 on fail*/
-static int
-linear1_init(PSD psd)
-{
-	if (!psd->size)
-		psd->size = psd->yres * psd->linelen;
-	/* linelen in bytes for bpp 1, 2, 4, 8 so no change*/
-	return 1;
-}
-
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear1_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x>>3) + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x >> 3);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
@@ -53,21 +40,21 @@ linear1_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear1_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x >> 3);
 #if DEBUG
 	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
-	return (((ADDR8)psd->addr)[(x>>3) + y * psd->linelen] >> (x&7) ) & 0x01;
+	return ( *addr >> (x&7) ) & 0x01;
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear1_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x1>>3) + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x1 >> 3);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
@@ -95,10 +82,9 @@ linear1_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear1_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	int	linelen = psd->linelen;
-	register ADDR8 addr = ((ADDR8)psd->addr) + (x>>3) + y1 * linelen;
+	int	pitch = psd->pitch;
+	register unsigned char *addr = psd->addr + y1 * pitch + (x >> 3);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
@@ -109,12 +95,12 @@ linear1_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	if(gr_mode == MWROP_XOR)
 		while(y1++ <= y2) {
 			*addr ^= c << (x&7);
-			addr += linelen;
+			addr += pitch;
 		}
 	else
 		while(y1++ <= y2) {
 			*addr = (*addr & notmask[x&7]) | (c << (x&7));
-			addr += linelen;
+			addr += pitch;
 		}
 	DRAWOFF;
 }
@@ -124,28 +110,25 @@ static void
 linear1_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
-	ADDR8	dst, src;
 	int		i;
-	int		dlinelen = dstpsd->linelen;
-	int		slinelen = srcpsd->linelen;
-
-	assert (dstpsd->addr != 0);
+	int		dpitch = dstpsd->pitch;
+	int		spitch = srcpsd->pitch;
+	/* src is LSB 1bpp, dst is LSB 1bpp*/
+	ADDR8 dst = ((ADDR8)dstpsd->addr) + (dstx>>3) + dsty * dpitch;
+	ADDR8 src = ((ADDR8)srcpsd->addr) + (srcx>>3) + srcy * spitch;
+#if DEBUG
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
 	assert (w > 0);
 	assert (h > 0);
-	assert (srcpsd->addr != 0);
 	assert (srcx >= 0 && srcx < srcpsd->xres);
 	assert (srcy >= 0 && srcy < srcpsd->yres);
 	assert (dstx+w <= dstpsd->xres);
 	assert (dsty+h <= dstpsd->yres);
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
-
+#endif
 	DRAWON;
-	/* src is LSB 1bpp, dst is LSB 1bpp*/
-	dst = ((ADDR8)dstpsd->addr) + (dstx>>3) + dsty * dlinelen;
-	src = ((ADDR8)srcpsd->addr) + (srcx>>3) + srcy * slinelen;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;
@@ -159,8 +142,8 @@ linear1_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			if((++sx & 7) == 0)
 				++s;
 		}
-		dst += dlinelen;
-		src += slinelen;
+		dst += dpitch;
+		src += spitch;
 	}
 	DRAWOFF;
 }
@@ -174,16 +157,17 @@ linear1_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 static void
 linear1_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
-	ADDR8	dst, src;
 	int		i;
-	int		dlinelen = psd->linelen;
-	int		slinelen = gc->src_pitch;
+	int		dpitch = gc->dst_pitch;
+	int		spitch = gc->src_pitch;
+	/* src is MSB 1bpp, dst is LSB 1bpp*/
+	ADDR8 dst = ((ADDR8)psd->addr) + (gc->dstx>>3) + gc->dsty * dpitch;
+	ADDR8 src = ((ADDR8)gc->data) + (gc->srcx>>3) + gc->srcy * spitch;
 	MWCOORD	h = gc->height;
 	MWCOORD	w = gc->width;
 	MWPIXELVAL fg = gc->fg_pixelval;
 	MWPIXELVAL bg = gc->bg_pixelval;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (gc->dstx >= 0 && gc->dstx < psd->xres);
 	assert (gc->dsty >= 0 && gc->dsty < psd->yres);
 	assert (gc->width > 0);
@@ -192,9 +176,6 @@ linear1_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	assert (gc->dsty+h <= psd->yres);
 #endif
 	DRAWON;
-	/* src is MSB 1bpp, dst is LSB 1bpp*/
-	dst = ((ADDR8)psd->addr) + (gc->dstx>>3) + gc->dsty * dlinelen;
-	src = ((ADDR8)gc->data) + (gc->srcx>>3) + gc->srcy * slinelen;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;
@@ -223,14 +204,13 @@ linear1_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 					++s;
 			}
 		}
-		dst += dlinelen;
-		src += slinelen;
+		dst += dpitch;
+		src += spitch;
 	}
 	DRAWOFF;
 }
 
 static SUBDRIVER fblinear1_none = {
-	linear1_init,
 	linear1_drawpixel,
 	linear1_readpixel,
 	linear1_drawhorzline,

@@ -49,7 +49,7 @@ static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,
@@ -175,11 +175,8 @@ fb_open(PSD psd)
 	if (psd->bpp == 15)		/* allow 15bpp for static fb emulator init only*/
 		psd->bpp = 16;
 
-	/* set linelen to byte length, possibly converted later*/
-	psd->linelen = fb_fix.line_length;
-	psd->pitch = psd->linelen;
-	psd->size = 0;		/* force subdriver init of size*/
-
+	psd->pitch = fb_fix.line_length;
+	psd->size = psd->yres * psd->pitch;
     psd->flags = PSF_SCREEN;
 
 	/* set pixel format*/
@@ -215,8 +212,8 @@ fb_open(PSD psd)
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	EPRINTF("%dx%dx%dbpp linelen %d type %d visual %d colors %d pixtype %d\n", psd->xres, psd->yres,
-		(psd->pixtype == MWPF_TRUECOLOR555)? 15: psd->bpp, psd->linelen, type, visual,
+	EPRINTF("%dx%dx%dbpp pitch %d type %d visual %d colors %d pixtype %d\n", psd->xres, psd->yres,
+		(psd->pixtype == MWPF_TRUECOLOR555)? 15: psd->bpp, psd->pitch, type, visual,
 		psd->ncolors, psd->pixtype);
 
 	/* select a framebuffer subdriver based on planes and bpp*/
@@ -226,14 +223,8 @@ fb_open(PSD psd)
 		goto fail;
 	}
 
-	/*
-	 * set and initialize subdriver into screen driver
-	 * psd->size is calculated by subdriver init
-	 */
-	if(!set_subdriver(psd, subdriver, TRUE)) {
-		EPRINTF("Screen driver init failed\n");
-		goto fail;
-	}
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
 
 #if HAVE_TEXTMODE
 	{

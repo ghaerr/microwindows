@@ -34,8 +34,8 @@ int  	MwCheckVtChange(void);
 void 	MwRedrawVt(int t);
 
 /* local routines*/
-static void  	draw_enable(void);
-static void 	draw_disable(void);
+static void draw_enable(void);
+static void draw_disable(void);
 static void	vt_switch(int sig);
 
 /* null subdriver for drawing when switched out*/
@@ -53,7 +53,6 @@ static void	null_blit(PSD dstpsd,MWCOORD destx,MWCOORD desty,MWCOORD w,
 static void null_convblit(PSD psd, PMWBLITPARMS parms) {}
 
 static SUBDRIVER nulldriver = {
-	NULL,
 	null_drawpixel,
 	null_readpixel,
 	null_drawhorzline,
@@ -80,7 +79,7 @@ draw_enable(void)
 	visible = 1;
 
 	/* restore screen drawing functions*/
-	set_subdriver(&scrdev, &save, FALSE);
+	set_subdriver(&scrdev, &save);
 }
       
 static void

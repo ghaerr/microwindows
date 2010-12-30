@@ -558,7 +558,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    _DrawHorzLine = psd->DrawHorzLine;
    _DrawVertLine = psd->DrawVertLine;
    _FillRect = psd->FillRect;
-   _Blit = psd->Blit;
+//   _Blit = psd->Blit;
 //   _DrawArea = psd->DrawArea;
 //   _StretchBlitEx = psd->StretchBlitEx;
    
@@ -569,7 +569,7 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    psd->DrawHorzLine = stubDrawHorzLine;
    psd->DrawVertLine = stubDrawVertLine;
    psd->FillRect = stubFillRect;
-   psd->Blit = stubBlit;
+//   psd->Blit = stubBlit;
 //   psd->DrawArea = stubDrawArea;
 //   psd->StretchBlit = stubStretchBlit;
                         
@@ -666,7 +666,8 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
    rfbScreen->httpDir = "/var/lib/httpd/";
    rfbScreen->authPasswdData = "/etc/vncpasswd";
 
-   rfbScreen->paddedWidthInBytes = psd->linelen * (psd->bpp >> 3) ; 
+   //rfbScreen->paddedWidthInBytes = psd->linelen * (psd->bpp >> 3) ; 
+   rfbScreen->paddedWidthInBytes = psd->pitch;
         
    /* initialize the server */
    rfbInitServer(rfbScreen);

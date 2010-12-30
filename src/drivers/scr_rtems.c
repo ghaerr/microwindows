@@ -27,7 +27,7 @@ static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,
@@ -94,12 +94,8 @@ fb_open(PSD psd)
 
 	psd->bpp = fb_var.bits_per_pixel;
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-
-	/* set linelen to byte length, possibly converted later in driver init routine*/
-	psd->linelen = fb_fix.line_length;
 	psd->pitch = fb_fix.line_length;
-	psd->size = 0;		/* force subdriver init of size*/
-
+	psd->size = psd->yres * psd->pitch;
 	psd->flags = PSF_SCREEN;
 
 	/* set pixel format*/
@@ -152,14 +148,8 @@ fb_open(PSD psd)
 		return NULL;
 	}*/
 
-	/*
-	 * set and initialize subdriver into screen driver
-	 * psd->size is calculated by subdriver init
-	 */
-	if(!set_subdriver(psd, subdriver, TRUE)) {
-		EPRINTF("Driver initialize failed type %d visual %d bpp %d\n", type, visual, psd->bpp);
-		goto fail;
-	}
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
 
 	/* save original palette*/
 	ioctl_getpalette(0, 16, saved_red, saved_green, saved_blue);

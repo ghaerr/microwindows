@@ -15,31 +15,18 @@
 #include "fb.h"
 #include "genmem.h"
 
-/* Calc linelen and mmap size, return 0 on fail*/
-static int
-linear32_init(PSD psd)
-{
-	if (!psd->size) {
-		psd->size = psd->yres * psd->linelen;
-		/* convert linelen from byte to pixel len for bpp 16, 24, 32*/
-		psd->linelen /= 4;
-	}
-	return 1;
-}
-
 /* Set pixel at x, y, to pixelval c*/
 static void
 linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR32	addr = ((ADDR32)psd->addr) + x + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x << 2);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
 	DRAWON;
 	if (gr_mode == MWROP_COPY)
-		*addr = c;
+		*((ADDR32)addr) = c;
 	else
 		APPLYOP(gr_mode, 1, (uint32_t), c, *(ADDR32), addr, 0, 0);
 	DRAWOFF;
@@ -52,22 +39,21 @@ linear32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 static MWPIXELVAL
 linear32_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x << 2);
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 #endif
-	return ((ADDR32)psd->addr)[x + y * psd->linelen];
+	return *((ADDR32)addr);
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 static void
 linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	register ADDR32	addr = ((ADDR32)psd->addr) + x1 + y * psd->linelen;
+	register unsigned char *addr = psd->addr + y * psd->pitch + (x1 << 2);
 	int width = x2-x1+1;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
@@ -77,8 +63,11 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	if(gr_mode == MWROP_COPY)
 	{
 		int w = width;
-		while(--w >= 0)
-			*addr++ = c;
+		while (--w >= 0)
+		{
+			*((ADDR32)addr) = c;
+			addr += 4;
+		}
 	}
 	else
 		APPLYOP(gr_mode, width, (uint32_t), c, *(ADDR32), addr, 0, 1);
@@ -92,11 +81,10 @@ linear32_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	int	linelen = psd->linelen;
-	register ADDR32	addr = ((ADDR32)psd->addr) + x + y1 * linelen;
+	int	pitch = psd->pitch;
+	register unsigned char *addr = psd->addr + y1 * pitch + (x << 2);
 	int height = y2-y1+1;
 #if DEBUG
-	assert (psd->addr != 0);
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
@@ -108,12 +96,12 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		int h = height;
 		while (--h >= 0)
 		{
-			*addr = c;
-			addr += linelen;
+			*((ADDR32)addr) = c;
+			addr += pitch;
 		}
 	}
 	else
-		APPLYOP(gr_mode, height, (uint32_t), c, *(ADDR32), addr, 0, linelen);
+		APPLYOP(gr_mode, height, (uint32_t), c, *(ADDR32), addr, 0, pitch);
 	DRAWOFF;
 
 	if (psd->Update)
@@ -122,7 +110,6 @@ linear32_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 
 /* BGRA subdriver*/
 static SUBDRIVER fblinear32bgra_none = {
-	linear32_init,
 	linear32_drawpixel,
 	linear32_readpixel,
 	linear32_drawhorzline,
@@ -142,7 +129,6 @@ static SUBDRIVER fblinear32bgra_none = {
 };
 
 static SUBDRIVER fblinear32bgra_left = {
-	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
 	fbportrait_left_drawhorzline,
@@ -162,7 +148,6 @@ static SUBDRIVER fblinear32bgra_left = {
 };
 
 static SUBDRIVER fblinear32bgra_right = {
-	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
 	fbportrait_right_drawhorzline,
@@ -182,7 +167,6 @@ static SUBDRIVER fblinear32bgra_right = {
 };
 
 static SUBDRIVER fblinear32bgra_down = {
-	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
 	fbportrait_down_drawhorzline,
@@ -207,7 +191,6 @@ PSUBDRIVER fblinear32bgra[4] = {
 
 /* RGBA subdriver*/
 static SUBDRIVER fblinear32rgba_none = {
-	linear32_init,
 	linear32_drawpixel,
 	linear32_readpixel,
 	linear32_drawhorzline,
@@ -227,7 +210,6 @@ static SUBDRIVER fblinear32rgba_none = {
 };
 
 static SUBDRIVER fblinear32rgba_left = {
-	NULL,
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
 	fbportrait_left_drawhorzline,
@@ -247,7 +229,6 @@ static SUBDRIVER fblinear32rgba_left = {
 };
 
 static SUBDRIVER fblinear32rgba_right = {
-	NULL,
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
 	fbportrait_right_drawhorzline,
@@ -267,7 +248,6 @@ static SUBDRIVER fblinear32rgba_right = {
 };
 
 static SUBDRIVER fblinear32rgba_down = {
-	NULL,
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
 	fbportrait_down_drawhorzline,

@@ -52,7 +52,7 @@ static void X11_preselect(PSD psd);
 static void X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	X11_open,
 	X11_close,
@@ -589,10 +589,10 @@ X11_open(PSD psd)
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	/* Calculate the correct linelen here */
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes,
-			 psd->bpp, &psd->size, &psd->linelen, &psd->pitch);
-printf("width %d pitch %d\n", psd->xres, psd->pitch);
+	/* Calculate size and pitch*/
+	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
+		&psd->size, &psd->pitch);
+
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
@@ -605,8 +605,8 @@ DPRINTF("x11 emulated bpp %d\n", psd->bpp);
 	if (!subdriver)
 		return NULL;
 
-	/* set and initialize subdriver into screen driver*/
-	set_subdriver(psd, subdriver, TRUE);
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
 
 	return psd;
 }
@@ -666,10 +666,10 @@ X11_preselect(PSD psd)
 }
 
 static void
-update_from_savebits(PSD psd, int destx, int desty, int w, int h)
+update_from_savebits(PSD psd, unsigned int destx, unsigned int desty, int w, int h)
 {
 	XImage *img;
-	int x, y;
+	unsigned int x, y;
 	char *data;
 
 	/* allocate buffer */
@@ -687,68 +687,64 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 
 #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
 	{
-		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = addr[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
 	{
-		ADDR16 dbuf = ((ADDR16) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = ((ADDR16)addr)[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
 	{
-		ADDR8 dbuf = ((ADDR8) psd->addr) + 3 * (destx + desty * psd->linelen);
-		int linedelta = 3 * (psd->linelen - w);
+		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
+		unsigned int extra = psd->pitch - w * 3;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(dbuf[2], dbuf[1], dbuf[0]);
+				MWPIXELVAL c = RGB2PIXEL888(addr[2], addr[1], addr[0]);
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
-				dbuf += 3;
+				addr += 3;
 			}
-			dbuf += linedelta;
+			addr += extra;
 		}
 	}
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	{
-		ADDR32 dbuf = ((ADDR32) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = ((ADDR32)addr)[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #else /* MWPF_PALETTE*/
 	{
-		ADDR8 dbuf = ((ADDR8) psd->addr) + destx + desty * psd->linelen;
-		int linedelta = psd->linelen - w;
+		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = *dbuf++;
+				MWPIXELVAL c = addr[x];
 				unsigned long pixel = PIXELVAL_to_pixel(c);
 				XPutPixel(img, x, y, pixel);
 			}
-			dbuf += linedelta;
+			addr += psd->pitch;
 		}
 	}
 #endif

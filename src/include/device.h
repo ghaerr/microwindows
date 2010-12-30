@@ -107,7 +107,6 @@ typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
 
 /* screen subdriver entry points: one required for each draw function*/
 typedef struct {
-	int	 	 (*Init)(PSD psd);
 	void 	 (*DrawPixel)(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c);
 	MWPIXELVAL (*ReadPixel)(PSD psd, MWCOORD x, MWCOORD y);
 	void 	 (*DrawHorzLine)(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c);
@@ -143,7 +142,7 @@ typedef struct _mwscreendevice {
 	int		bpp;		/* # bpp*/
 	int 	data_format;/* MWIF_ image data format*/
 	unsigned int pitch;	/* row length in bytes*/
-	void *	addr;		/* address of memory allocated (memdc or fb)*/
+	unsigned char *addr;/* address of memory allocated (memdc or fb)*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY *palette;/* palette*/
 	int32_t	transcolor;	/* not used*/
@@ -155,8 +154,6 @@ typedef struct _mwscreendevice {
 	unsigned int size;	/* size of memory allocated*/
 	int32_t	ncolors;	/* # screen colors*/
 	int	pixtype;		/* format of pixel value*/
-	unsigned int linelen;/* line length in bytes for bpp 1,2,4,8*/
-						/* line length in pixels for bpp 16, 18, 24, 32*/
 
 	/* driver entry points*/
 	PMWCOREFONT builtin_fonts;
@@ -166,7 +163,7 @@ typedef struct _mwscreendevice {
 	void	(*GetScreenInfo)(PSD psd,PMWSCREENINFO psi);
 	PSD		(*AllocateMemGC)(PSD psd);
 	MWBOOL	(*MapMemGC)(PSD mempsd,MWCOORD w,MWCOORD h,int planes,int bpp,
-			int data_format,int linelen,int pitch,int size,void *addr);
+			int data_format,unsigned int pitch,int size,void *addr);
 	void	(*FreeMemGC)(PSD mempsd);
 	void	(*SetPortrait)(PSD psd,int portraitmode);
 	void	(*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);

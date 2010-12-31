@@ -1,3 +1,6 @@
+30 Dec 2010
+	* auto image upgrade to RGBA if not running in palette mode and no convblit available
+		this allows very fast drawing of .gifs and other 8bpp palettized images
 29 Dec 2010
 	* fix GdDrawImagePartToFit, test in composite.c
 	* all image loaders use PSD, not MWIMAGEHDR

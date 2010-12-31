@@ -172,18 +172,14 @@
 #define	MWROP_SRC_ATOP		23
 #define	MWROP_DST_ATOP		24
 #define	MWROP_PORTERDUFF_XOR 25
-#define MWROP_SRCTRANSCOPY 26
+#define MWROP_SRCTRANSCOPY	26	/* copy src -> dst except for transparent color in src*/
 #define	MWROP_MAX			26	/* last non-blit rop*/
 
 /* blit ROP modes in addtion to MWROP_xxx */
 #define MWROP_BLENDCONSTANT		32	/* alpha blend src -> dst with constant alpha*/
 #define MWROP_BLENDFGBG			33	/* alpha blend fg/bg color -> dst with src alpha channel*/
-//#define MWROP_SRCTRANSCOPY	34	/* copy src -> dst except for transparent color in src*/
 //#define MWROP_BLENDCHANNEL	35	/* alpha blend src -> dst with separate per pixel alpha chan*/
 //#define MWROP_STRETCH			36	/* stretch src -> dst*/
-
-
-
 #define MWROP_USE_GC_MODE		255 /* use current GC mode for ROP.  Nano-X CopyArea only*/
 
 //#define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
@@ -430,6 +426,14 @@ typedef struct {
 	PMWCFONT	cfont;			/* builtin font data*/
 } MWCOREFONT, *PMWCOREFONT;
 
+/* In-core color palette structure*/
+typedef struct {
+	MWUCHAR	r;
+	MWUCHAR	g;
+	MWUCHAR	b;
+	MWUCHAR _padding;
+} MWPALENTRY;
+
 /* GdConversionBlit parameter structure*/
 typedef struct {
 	int			op;				/* MWROP operation requested*/
@@ -468,7 +472,10 @@ typedef struct {
 	int			x_denominator;	/* denominator fraction*/
 	int			y_denominator;
 
-//	uint32_t	transcolor;		/* trans color for MWROP_SRCTRANSCOPY*/
+	/* used in palette conversions only*/
+	MWPALENTRY *palette;		/* palette for image*/
+	uint32_t	transcolor;		/* transparent color in image*/
+
 //	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
 } MWBLITPARMS, *PMWBLITPARMS;
 
@@ -783,14 +790,6 @@ typedef struct {
 	MWIMAGEBITS *	bitmap;
 } MWSTIPPLE;
 
-/* In-core color palette structure*/
-typedef struct {
-	MWUCHAR	r;
-	MWUCHAR	g;
-	MWUCHAR	b;
-	MWUCHAR _padding;
-} MWPALENTRY;
-
 /* image structure - if changed, convbmp.c needs updating*/
 typedef struct {
 	/* shared header with SCREENDEVICE*/
@@ -804,7 +803,7 @@ typedef struct {
 	MWUCHAR *imagebits;	/* image bits (dword padded)*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY *palette;/* palette*/
-	int32_t	transcolor;	/* transparent color or MWNOCOLOR if none*/
+	uint32_t transcolor;/* transparent color or MWNOCOLOR if none*/
 	int		bytesperpixel;/* bytes per pixel*/
 	/* end of shared header*/
 } MWIMAGEHDR, *PMWIMAGEHDR;

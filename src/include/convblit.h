@@ -82,12 +82,19 @@ void frameblit_stretch_rgba8888_bgra8888(PSD psd, PMWBLITPARMS gc);	/* RGBA -> B
 void frameblit_stretch_rgba8888_bgr888(PSD psd, PMWBLITPARMS gc);	/* RGBA -> BGR*/
 void frameblit_stretch_rgba8888_16bpp(PSD psd, PMWBLITPARMS gc);	/* RGBA -> 16bpp*/
 
+/* devimage.c*/
+void convblit_pal8_rgba8888(PMWBLITPARMS gc);
+void convblit_pal4_msb_rgba8888(PMWBLITPARMS gc);
+void convblit_pal1_byte_msb_rgba8888(PMWBLITPARMS gc);
+
 /* image_bmp.c*/
+
 /* Conversion blit 24bpp BGR to 24bpp RGB*/
 void convblit_bgr888_rgb888(unsigned char *data, int width, int height, int pitch);
 /* Conversion blit 32bpp BGRX to 32bpp RGBA 255 alpha*/
 void convblit_bgrx8888_rgba8888(unsigned char *data, int width, int height, int pitch);
 
 /* image_tiff.c*/
+
 /* Conversion blit flip y direction 32bpp (upside-down)*/
 void convblit_flipy_8888(PMWBLITPARMS gc);

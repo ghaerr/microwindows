@@ -786,18 +786,12 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	 * Merge the images's palette and build a palette index conversion table.
 	 */
 	if (pimage->bpp <= 8) {
-		if(!pimage->palette) {
-			/* for jpeg's without a palette*/
+		if(!pimage->palette) {			/* for jpeg's without a palette*/
 			for(yoff=0; yoff<pimage->palsize; ++yoff)
 				convtable[yoff] = yoff;
-		} else GdMakePaletteConversionTable(psd, pimage->palette,
-					pimage->palsize, convtable, MERGEPALETTE);
-
-		/* The following is no longer used.  One reason is that it required */
-		/* the transparent color to be unique, which was unnessecary        */
-		/* convert transcolor to converted palette index for speed*/
-		/* if (transcolor != -1L)
-		   transcolor = (uint32_t) convtable[transcolor];  */
+		} else
+			GdMakePaletteConversionTable(psd, pimage->palette, pimage->palsize,
+				convtable, MERGEPALETTE);
 	}
 
 	minx = x;

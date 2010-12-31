@@ -83,9 +83,9 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 	}
 
 	/*
-	 * Allocate offscreen psd.  If screen driver doesn't
+	 * Allocate offscreen drawing surface.  If screen driver doesn't
 	 * support blitting, this will fail.  Use root window screen
-	 * device for compatibility for now.
+	 * device for compatibility.
 	 */
 	pmd = rootpsd->AllocateMemGC(rootpsd);
 	if (!pmd)
@@ -93,7 +93,7 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 
 	GdCalcMemGCAlloc(pmd, width, height, planes, bpp, &size, &pitch);
 
-	/* FIXME remove later*/
+	/* FIXME remove later, used by XPM and old GdStretchImage only*/
 	switch (pmd->bpp) {
 	case 1:
 	case 4:
@@ -156,15 +156,13 @@ gen_allocatememgc(PSD psd)
 	*mempsd = *psd;
 
 	/* initialize*/
-	//mempsd->flags |= PSF_MEMORY;
-	//mempsd->flags &= ~(PSF_SCREEN | PSF_ADDRMALLOC);
 	mempsd->flags = PSF_MEMORY;			/* reset PSF_SCREEN or PSF_ADDRMALLOC flags*/
 	mempsd->portrait = MWPORTRAIT_NONE; /* don't rotate offscreen pixmaps*/
 	mempsd->addr = NULL;
 	mempsd->Update = NULL;				/* no external updates required for mem device*/
 	mempsd->palette = NULL;				/* don't copy any palette*/
 	mempsd->palsize = 0;
-	mempsd->transcolor = MWNOCOLOR;
+	mempsd->transcolor = MWNOCOLOR;		/* no transparent colors unless set by image loader*/
 
 	return mempsd;
 }
@@ -185,14 +183,10 @@ gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp, int data_for
 
 	assert(mempsd->flags & PSF_MEMORY);
 
-//	/* init mem psd w/h aligned with hw screen w/h*/
-//	if (mempsd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
-//		mempsd->yres = w;
-//		mempsd->xres = h;
-//	} else {
-		mempsd->xres = w;
-		mempsd->yres = h;		
-//	}
+	/* pixmaps are always in non-portrait orientation*/
+	mempsd->xres = w;
+	mempsd->yres = h;		
+
 	mempsd->xvirtres = w;
 	mempsd->yvirtres = h;
 	mempsd->planes = planes;

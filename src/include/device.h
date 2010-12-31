@@ -424,6 +424,9 @@ int		GdImageBufferGetChar(buffer_t *buffer);
 char *	GdImageBufferGetString(buffer_t *buffer, char *dest, unsigned int size);
 int		GdImageBufferEOF(buffer_t *buffer);
 
+/* image conversion*/
+PSD		GdConvertImageRGBA(PSD pmd);		/* convert palettized image to RGBA*/
+
 /* individual decoders*/
 #ifdef HAVE_BMP_SUPPORT
 PSD	GdDecodeBMP(buffer_t *src, MWBOOL readfilehdr);

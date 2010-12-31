@@ -3,7 +3,7 @@
  * Portions Copyright (c) 2000 Martin Jolicoeur <martinj@visuaide.com>
  * Portions Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  *
- * Image load/cache/resize/display routines
+ * Image load/resize/display routines - pixmaps used for storage.
  *
  * GIF, BMP, JPEG, PPM, PGM, PBM, PNG, XPM and TIFF formats are supported.
  *
@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"
+#include "convblit.h"
 #include "../drivers/genmem.h"
 #if HAVE_MMAP
 #include <sys/mman.h>
@@ -30,16 +31,6 @@
 
 #if MW_FEATURE_IMAGES /* whole file */
 
-/*
- * Image decoding and display
- * NOTE: This routine and APIs will change in subsequent releases.
- *
- * Decodes and loads a graphics file, then resizes to width/height,
- * then displays image at x, y
- * If width/height == -1, don't resize, use image size.
- * Clipping is not currently supported, just stretch/shrink to fit.
- *
- */
 static PSD GdDecodeImage(buffer_t *src, char *path, int flags);
 
 /*
@@ -119,7 +110,6 @@ GdImageBufferEOF(buffer_t *buffer)
 /**
  * Load an image from a memory buffer.
  *
- * @param psd Screen device.
  * @param buffer The buffer containing the image data.
  * @param size The size of the buffer.
  * @param flags If nonzero, JPEG images will be loaded as grayscale.  Yuck!
@@ -247,6 +237,176 @@ GdLoadImageFromFile(char *path, int flags)
 #endif /* HAVE_FILEIO*/
 
 /*
+ * Convert 8bpp palettized image to RGBA
+ */
+void convblit_pal8_rgba8888(PMWBLITPARMS gc)
+{
+	unsigned char *src = ((unsigned char *)gc->data) +     gc->srcy * gc->src_pitch + gc->srcx;
+	unsigned char *dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * 4;
+	MWPALENTRY *palette = gc->palette;
+	unsigned char transcolor = (unsigned char)gc->transcolor;
+	int height = gc->height;
+
+	while (--height >= 0)
+	{
+		register unsigned char *d = dst;
+		register unsigned char *s = src;
+		unsigned char pixval;
+		int w = gc->width;
+
+		while (--w >= 0)
+		{
+			pixval = *s++;
+			d[0] = palette[pixval].r;
+			d[1] = palette[pixval].g;
+			d[2] = palette[pixval].b;
+			d[3] = (pixval == transcolor)? 0: 255;
+
+			d += 4;
+		}
+		src += gc->src_pitch;
+		dst += gc->dst_pitch;
+	}
+}
+
+#if LATER
+/*
+ * Convert 4bpp hi nibble first palettized image to RGBA
+ */
+void convblit_pal4_msb_rgba8888(PMWBLITPARMS gc)
+{
+	MWCOORD minx = gc->srcx;
+	MWCOORD maxx = minx + gc->width;
+	unsigned char *src = ((unsigned char *)gc->data) +     gc->srcy * gc->src_pitch + (minx >> 1);
+	unsigned char *dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * 4;
+	MWPALENTRY *palette = gc->palette;
+	int height = gc->height;
+
+	while (--height >= 0)
+	{
+		register unsigned char *d = dst;
+		register unsigned char *s = src;
+		unsigned char byteval = 0;
+		unsigned char pixval;
+		int x;
+
+		if ( (minx & 01) != 0)			/* preload byteval for srcx != 0 case*/
+			byteval = *s++;
+
+		for (x = minx; x < maxx; x++)
+		{
+			if ( (x & 01) == 0)			/* byte boundary*/
+				byteval = *s++;
+			pixval = byteval >> 4;
+
+			d[0] = palette[pixval].r;
+			d[1] = palette[pixval].g;
+			d[2] = palette[pixval].b;
+			d[3] = 255;
+
+			byteval <<= 4;				/* hi nibble first, then low*/
+			d += 4;
+		}
+		src += gc->src_pitch;
+		dst += gc->dst_pitch;
+	}
+}
+
+/*
+ * Convert 1bpp MSB first palettized image to RGBA
+ */
+void convblit_pal1_byte_msb_rgba8888(PMWBLITPARMS gc)
+{
+	MWCOORD minx = gc->srcx;
+	MWCOORD maxx = minx + gc->width;
+	unsigned char *src = ((unsigned char *)gc->data) +     gc->srcy * gc->src_pitch + (minx >> 3);
+	unsigned char *dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * 4;
+	MWPALENTRY *palette = gc->palette;
+	int height = gc->height;
+
+	while (--height >= 0)
+	{
+		register unsigned char *d = dst;
+		register unsigned char *s = src;
+		unsigned char byteval = 0;
+		unsigned char pixval;
+		int x;
+
+		if ( (minx & 07) != 0)			/* preload byteval for srcx != 0 case*/
+			byteval = *s++;
+
+		for (x = minx; x < maxx; x++)
+		{
+			if ( (x & 07) == 0)			/* byte boundary*/
+				byteval = *s++;
+			pixval = byteval >> 7;
+
+			d[0] = palette[pixval].r;
+			d[1] = palette[pixval].g;
+			d[2] = palette[pixval].b;
+			d[3] = 255;
+
+			byteval <<= 1;				/* hi bit first, then low bits*/
+			d += 4;
+		}
+		src += gc->src_pitch;
+		dst += gc->dst_pitch;
+	}
+}
+#endif /* LATER*/
+
+/*
+ * Convert palettized image to RGBA.
+ * Returns same image if no palette.
+ */
+PSD
+GdConvertImageRGBA(PSD pmd)
+{
+	PSD 		rgba;
+	int			okformats = MWIF_PAL8;
+//	int			okformats = MWIF_PAL8|MWIF_PAL4|MWIF_PAL1;
+	MWBLITPARMS parms;
+
+	/* check if image conversion supported*/
+	if (!(pmd->data_format & okformats))
+		return pmd;
+DPRINTF("Converting %dbpp image to RGBA\n", pmd->bpp);
+
+	/* create RGBA pixmap*/
+	rgba = GdCreatePixmap(&scrdev, pmd->xvirtres, pmd->yvirtres, MWIF_RGBA8888, NULL, 0);
+	if (!rgba)
+		return pmd;
+
+	/* convert palette to RGBA image*/
+	parms.dstx = parms.dsty = parms.srcx = parms.srcy = 0;
+	parms.width = pmd->xvirtres;
+	parms.height = pmd->yvirtres;
+	parms.data = pmd->addr;
+	parms.src_pitch = pmd->pitch;
+	parms.palette = pmd->palette;
+	parms.transcolor = pmd->transcolor;
+	parms.data_out = rgba->addr;
+	parms.dst_pitch = rgba->pitch;
+
+	switch (pmd->data_format) {
+	case MWIF_PAL8:
+		convblit_pal8_rgba8888(&parms);
+		break;
+#if LATER
+	case MWIF_PAL4:
+		convblit_pal4_msb_rgba8888(&parms);
+		break;
+	case MWIF_PAL1:
+		convblit_pal1_byte_msb_rgba8888(&parms);
+		break;
+#endif
+	}
+
+	GdFreePixmap(pmd);
+	return rgba;
+}
+
+/*
  * GdDecodeImage:
  * @src: The image data.
  * @flags: If nonzero, JPEG images will be loaded as grayscale.  Yuck!
@@ -256,43 +416,60 @@ GdLoadImageFromFile(char *path, int flags)
 static PSD
 GdDecodeImage(buffer_t *src, char *path, int flags)
 {
-	PSD			pmd;
+	PSD	pmd = NULL;
+	int	op;
 
+	do {
 #if HAVE_TIFF_SUPPORT
 	/* must be first... no buffer support yet*/
 	if (path && (pmd = GdDecodeTIFF(path)) != NULL)
-		return pmd;
+		break;
 #endif
 #if HAVE_BMP_SUPPORT
 	if ((pmd = GdDecodeBMP(src, TRUE)) != NULL)
-		return pmd;
+		break;
 #endif
 #if HAVE_GIF_SUPPORT
 	if ((pmd = GdDecodeGIF(src)) != NULL)
-		return pmd;
+		break;
 #endif
 #if HAVE_JPEG_SUPPORT
 	if ((pmd = GdDecodeJPEG(src, flags)) != NULL)
-		return pmd;
+		break;
 #endif
 #if HAVE_PNG_SUPPORT
 	if ((pmd = GdDecodePNG(src)) != NULL)
-		return pmd;
+		break;
 #endif
 #if HAVE_PNM_SUPPORT
 	if ((pmd = GdDecodePNM(src)) != NULL)
-		return pmd;
+		break;
 #endif
 #if HAVE_XPM_SUPPORT
 	if ((pmd = GdDecodeXPM(src)) != NULL)
-		return pmd;
+		break;
 #endif
-	EPRINTF("GdLoadImageFromFile: Image load error\n");
-	return NULL;
+	} while (0);
+
+	if (!pmd) {
+		EPRINTF("GdLoadImageFromFile: Image load error\n");
+		return NULL;
+	}
+
+	/* if not running in palette mode and no conversion blit available upgrade image to RGBA*/
+	op = (pmd->data_format & MWIF_HASALPHA)? MWROP_SRC_OVER: MWROP_COPY;
+	if (scrdev.pixtype != MWPF_PALETTE && !GdFindConvBlit(pmd, pmd->data_format, op))
+		pmd = GdConvertImageRGBA(pmd);
+
+	return pmd;
 }
 
 /**
- * Draw whole or part of the image, stretching to fit destination.
+ * Draw whole or part of the image, stretching/shrinking to fit destination.
+ *
+ * The pixmap is resized to width/height, then displayed at x, y.
+ * If width/height == -1, don't resize, use image size.
+ * Clipping is not currently supported, just stretch/shrink to fit.
  *
  * @param psd Drawing surface.
  * @param x X destination co-ordinate.

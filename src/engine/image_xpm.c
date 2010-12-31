@@ -2,6 +2,8 @@
  * Copyright (c) 2000, 2001, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
  *
  * Image decode routine for XPM files
+ *
+ * Contributed by:
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,27 +19,26 @@
 #if MW_FEATURE_IMAGES && HAVE_XPM_SUPPORT
 
 struct xpm_cmap {
-	char mapstr[3];
-	long palette_entry;
-	long color;
+	int 			palette_entry;
+	uint32_t 		color;
 	struct xpm_cmap *next;
+	char 			mapstr[3];
 };
 
-
-/* This will parse the string into a color value of some sort */
-static long
+/* This will parse the string into a color value of format 0xAARRGGBB*/
+static uint32_t
 XPM_parse_color(char *color)
 {
 	if (color[0] != '#') {
 		if (!strcmp(color, "None"))
-			return MWNOCOLOR;	/* Transparent */
-		else
-			return 0;	/* If its an X color, then we bail */
+			return MWNOCOLOR;	/* Transparent - same as 0xAABBGGRR MWCOLORVAL for same*/
+
+		return 0;				/* If its an X color, then we bail */
 	} else {
 		/* This is ugly! */
 		char *sptr = color + 1;
 		char rstr[5], gstr[5], bstr[5];
-		long r, g, b;
+		uint32_t r, g, b;
 
 		switch (strlen(sptr)) {
 		case 6:
@@ -55,7 +56,7 @@ XPM_parse_color(char *color)
 			r = strtol(rstr, NULL, 16) >> 4;
 			g = strtol(gstr, NULL, 16) >> 4;
 			b = strtol(bstr, NULL, 16) >> 4;
-			return (long)(255L << 24 | r << 16 | g << 8 | b);
+			return (uint32_t)(255L << 24 | r << 16 | g << 8 | b);
 
 		case 12:
 			strncpy(rstr, sptr, 4);
@@ -70,7 +71,7 @@ XPM_parse_color(char *color)
 			g = strtol(gstr, NULL, 16) >> 8;
 			b = strtol(bstr, NULL, 16) >> 8;
 
-			return (long)(255L << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF));
+			return (uint32_t)(255L << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF));
 		}
 	}
 
@@ -78,8 +79,6 @@ XPM_parse_color(char *color)
 }
 
 /* A series of status indicators that let us know whats going on */
-/* It could be an enum if you want */
-
 #define LOAD_HEADER 1
 #define LOAD_COLORS 2
 #define LOAD_PALETTE 3
@@ -92,8 +91,9 @@ XPM_parse_color(char *color)
 PSD
 GdDecodeXPM(buffer_t * src)
 {
-	struct xpm_cmap *colorheap = 0;	/* A "heap" of color structs */
-	unsigned char *imageptr = 0;
+	struct xpm_cmap *colorheap = NULL;	/* A "heap" of color structs */
+	unsigned char *imageptr = NULL;
+	unsigned char *imageline = NULL;
 	char *c;
 	int a;
 	int col, row, colors, cpp;
@@ -101,28 +101,24 @@ GdDecodeXPM(buffer_t * src)
 	int read_xline = 0;
 	int status = LOAD_HEADER;
 	PSD pmd = NULL;
-	int data_format, palsize;
-	MWSCREENINFO sinfo;
+	int data_format = MWIF_PAL8, palsize;
 	struct xpm_cmap *colormap[256];	/* A quick hash of 256 spots for colors */
 	char xline[1024];
 	char dline[1024];
 
-	/* Very first thing, get the screen info */
-	GdGetScreenInfo(&scrdev, &sinfo);
-
-	for (a = 0; a < 256; a++)
-		colormap[a] = 0;
-
 	/* Start over at the beginning with the file */
-	GdImageBufferSeekTo(src, 0UL);
-	GdImageBufferGetString(src, xline, sizeof(xline));
+	GdImageBufferSeekTo(src, 0L);
 
-	/* Chop the EOL */
+	/* get first line*/
+	GdImageBufferGetString(src, xline, sizeof(xline));
 	xline[strlen(xline) - 1] = 0;
 
 	/* Check the magic */
 	if (strncmp(xline, XPM_MAGIC, sizeof(XPM_MAGIC)))
 		return NULL;
+
+	for (a = 0; a < 256; a++)
+		colormap[a] = NULL;
 
 	while (!GdImageBufferEOF(src)) {
 		/* Get the next line from the file */
@@ -146,29 +142,27 @@ GdDecodeXPM(buffer_t * src)
 		if (status == LOAD_HEADER) {
 			sscanf(dline, "%i %i %i %i", &col, &row, &colors, &cpp);
 
-			if (sinfo.bpp <= 8) {
-				//bpp = sinfo.bpp;
-				data_format = 0;		/* create format compatible with screen device*/
+			/* create 8bpp palette image if colors <= 256, else 32bpp RGBA*/
+			if (colors <= 256) {
+				data_format = MWIF_PAL8;
 				palsize = colors;
 			} else {
-				//bpp = 32;
 				data_format = MWIF_RGBA8888;
 				palsize = 0;
 			}
 
-
 			pmd = GdCreatePixmap(&scrdev, col, row, data_format, NULL, palsize);
 			if (!pmd)
 				return NULL;
-DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
+DPRINTF("xpm %dbpp\n", pmd->bpp);
 
-			imageptr = pmd->addr;
+			imageline = imageptr = pmd->addr;
 
 			/* Allocate enough room for all the colors */
 			colorheap = (struct xpm_cmap *) malloc(colors * sizeof(struct xpm_cmap));
 			if (!colorheap) {
 				EPRINTF("GdDecodeXPM: No mem for palette\n");
-				return NULL;
+				goto out;
 			}
 
 			status = LOAD_COLORS;
@@ -181,19 +175,18 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 			struct xpm_cmap *n;
 			char tstr[5];
 			char cstr[256];
-			unsigned char m;
+			int m;
 
 			c = dline;
 
-			/* Go at at least 1 charater, and then count until we have
-			   two spaces in a row */
+			/* Go at at least 1 character, and then count until we have two spaces in a row */
 			strncpy(tstr, c, cpp);
 
 			c += cpp;
 			for (; *c == '\t' || *c == ' '; c++)
 				continue;	/* Skip over whitespace */
 
-			/* FIXME: We assume that a 'c' follows.  What if it doesn't? */
+			/* We assume that a 'c' follows.  What if it doesn't? */
 			c += 2;
 
 			tstr[cpp] = 0;
@@ -201,7 +194,7 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 			/* Now we put it into the array for easy lookup   */
 			/* We base it off the first charater, even though */
 			/* there may be up to 4                           */
-			m = tstr[0];
+			m = (unsigned char)tstr[0];
 
 			if (colormap[m]) {
 				n = colormap[m];
@@ -222,26 +215,21 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 			n->mapstr[cpp] = 0;
 
 			/* Now record the palette entry */
-			n->palette_entry = (long) in_color;
+			n->palette_entry = in_color;
 
 			/* This is the color */
-			sscanf(c, "%65535s", cstr);
+			sscanf(c, "%255s", cstr);
 
 			/* Turn it into a real value */
 			n->color = XPM_parse_color(cstr);
 
-			/* If we are in palette mode, then we need to */
-			/* load the palette (duh..) */
+			if (data_format == MWIF_PAL8) {
+				if (n->color == MWNOCOLOR)
+					pmd->transcolor = in_color; /* set transcolor to palette index*/
 
-			if (sinfo.bpp <= 8) {
-				if (n->color == MWNOCOLOR) {
-					/* set transcolor to palette index*/
-					pmd->transcolor = in_color;
-				}
-
-				pmd->palette[in_color].r = (n->color >> 16) & 0xFF;
-				pmd->palette[in_color].g = (n->color >> 8) & 0xFF;
-				pmd->palette[in_color].b = n->color & 0xFF;
+				pmd->palette[in_color].r = (unsigned char)(n->color >> 16);
+				pmd->palette[in_color].g = (unsigned char)(n->color >> 8);
+				pmd->palette[in_color].b = (unsigned char)n->color;
 			}
 
 			if (++in_color == colors) {
@@ -253,10 +241,7 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 		}
 
 		if (status == LOAD_PIXELS) {
-			int bytecount = 0;
-			int bitcount = 0;
-			long dwordcolor = 0;
-			int i;
+			uint32_t dwordcolor = 0;
 			char pxlstr[5];
 
 			c = dline;
@@ -269,11 +254,11 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 
 					if (!colormap[z]) {
 						EPRINTF("GdDecodeXPM: No color entry for (%c)\n", z);
-						return NULL;
+						goto out;
 					}
 
-					if (sinfo.bpp <= 8)
-						dwordcolor = (long)colormap[z]->palette_entry;
+					if (data_format == MWIF_PAL8)
+						dwordcolor = colormap[z]->palette_entry;
 					else
 						dwordcolor = colormap[z]->color;
 
@@ -287,7 +272,7 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 
 					if (!colormap[z]) {
 						EPRINTF("GdDecodeXPM: No color entry for (%s)\n", pxlstr);
-						return NULL;
+						goto out;
 					}
 
 					n = colormap[z];
@@ -298,90 +283,32 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 					}
 
 					if (!n) {
-						EPRINTF("GdDecodeXPM: No color found for (%s)\n",
-							pxlstr);
-						return NULL;
+						EPRINTF("GdDecodeXPM: No color found for (%s)\n", pxlstr);
+						goto out;
 					}
 
-					if (sinfo.bpp <= 8)
-						dwordcolor = (long)n->palette_entry;
+					if (data_format == MWIF_PAL8)
+						dwordcolor = n->palette_entry;
 					else
 						dwordcolor = n->color;
 					c += cpp;
 				}
 
-				/* 
-				 * This ugly thing is needed to ensure that we
-				 * work well in all modes.
-				 */
-				switch (sinfo.bpp) {
-				case 2:
-					if (bitcount == 0)
-						imageptr[0] = 0;
-
-					imageptr[0] |= (dwordcolor & 0x3) << (4 - bitcount);
-					bitcount++;
-
-					if (bitcount == 4) {
-						imageptr++;
-						bytecount += pmd->bytesperpixel;
-						bitcount = 0;
-					}
-
-					break;
-
-				case 4:
-					if (bitcount == 0)
-						imageptr[0] = 0;
-
-					imageptr[0] |= (dwordcolor & 0xF) << (2 - bitcount);
-					bitcount++;
-
-					if (bitcount == 2) {
-						imageptr++;
-						bytecount += pmd->bytesperpixel;
-						bitcount = 0;
-					}
-
-					break;
-
-#ifdef NOTUSED
-				case 8:
-				case 16:
-				case 24:
-				case 32:
-
-					for (i = 0; i < pmd->bytesperpixel; i++)
-						imageptr[i] = (dwordcolor >> (8 * i)) & 0xFF;
-
-					imageptr += pmd->bytesperpixel;
-					bytecount += pmd->bytesperpixel;
-					break;
-#endif
-				case 8:
-					imageptr[0] = (unsigned char) (dwordcolor & 0xFF);
-					imageptr += pmd->bytesperpixel;
-					bytecount += pmd->bytesperpixel;
-					break;
-
-				case 16:
-				case 24:
-				case 32:
-					/* create RGBA image*/
-					imageptr[3] = (unsigned char) (dwordcolor >> 24) & 0xFF;	// A
-					imageptr[0] = (unsigned char) (dwordcolor >> 16) & 0xFF;	// R
-					imageptr[1] = (unsigned char) (dwordcolor >> 8) & 0xFF;		// G
-					imageptr[2] = (unsigned char) (dwordcolor & 0xFF);			// B
-					imageptr += pmd->bytesperpixel;
-					bytecount += pmd->bytesperpixel;
-					break;
+				if (data_format == MWIF_PAL8)
+					*imageptr++ = (unsigned char)dwordcolor;
+				else {
+					imageptr[0] = (unsigned char)(dwordcolor >> 16);	// R
+					imageptr[1] = (unsigned char)(dwordcolor >>  8);	// G
+					imageptr[2] = (unsigned char) dwordcolor;			// B
+					imageptr[3] = (unsigned char)(dwordcolor >> 24);	// A
+					imageptr += 4;
 				}
 			}
 
 			/* Pad to the end of the line */
-			if (bytecount < pmd->pitch)
-				for (i = 0; i < (pmd->pitch - bytecount); i++)
-					*imageptr++ = 0x00;
+			while (imageptr < imageline + pmd->pitch)
+				*imageptr++ = 0;
+			imageline = imageptr;
 
 			read_xline++;
 
@@ -392,10 +319,13 @@ DPRINTF("xpm %dbpp format %x\n", pmd->bpp, pmd->data_format);
 		}
 	}
 
-	free(colorheap);
-
-	if (status != LOAD_DONE)
+out:
+	if (colorheap)
+		free(colorheap);
+	if (status != LOAD_DONE) {
+		GdFreePixmap(pmd);
 		return NULL;
+	}
 	return pmd;
 }
 #endif /* MW_FEATURE_IMAGES && HAVE_XPM_SUPPORT*/

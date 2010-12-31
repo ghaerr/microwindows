@@ -19,7 +19,7 @@ static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,

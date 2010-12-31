@@ -967,16 +967,15 @@ typedef struct {
 	IDTYPE	gcid;
 	INT16	x;
 	INT16	y;
-	INT16	width;		/* MWIMAGEHDR start*/
+	INT16	flags;		/* MWIMAGEHDR start*/
+	INT16	width;
 	INT16	height;
 	INT16	planes;
 	INT16	bpp;
-	INT16	pitch;
-	INT16	bytesperpixel;
 	INT16	palsize;
-	INT16	spare;
-	UINT32	transcolor;
 	UINT32	data_format;
+	UINT32	pitch;
+	UINT32	transcolor;
 	/*MWIMAGEBITS imagebits[];*/
 	/*MWPALENTRY palette[palsize];*/
 } nxDrawImageBitsReq;

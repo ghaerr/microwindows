@@ -420,9 +420,8 @@ UCHAR *p = (UCHAR *)&l;
 	if(palsize)
 		printf("  palette,\n");
 	else printf("  0,\n");
-	printf("  %ldL,\t\t/* transcolor*/\n", MWNOCOLOR);
+	printf("  %ldL\t\t/* transcolor*/\n", MWNOCOLOR);
 
-	printf("  %d\t\t/* bytesperpixel*/\n", bytesperpixel);
 	printf("};\n");
    } else {
 	printf(".extern _image_%s\n", name);
@@ -440,7 +439,6 @@ UCHAR *p = (UCHAR *)&l;
 		printf(".data4\t__II1\n");
 	else printf(".data4\t0\n");
 	printf(".data4\t%ld\n",MWNOCOLOR);
-	printf(".data4\t%ld\n",(long)bytesperpixel);
 	printf(".sect .text\n");
    }
 

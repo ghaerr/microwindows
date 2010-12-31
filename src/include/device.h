@@ -146,7 +146,6 @@ typedef struct _mwscreendevice {
 	int		palsize;	/* palette size*/
 	MWPALENTRY *palette;/* palette*/
 	int32_t	transcolor;	/* not used*/
-	int		bytesperpixel;/* not used*/
 	/* end of shared header*/
 
 	MWCOORD	xres;		/* X screen res (real) */

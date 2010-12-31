@@ -790,21 +790,20 @@ typedef struct {
 	MWIMAGEBITS *	bitmap;
 } MWSTIPPLE;
 
-/* image structure - if changed, convbmp.c needs updating*/
+/* image structure - if changed, convbmp.c and client.c::GrDrawImageBits needs updating*/
 typedef struct {
 	/* shared header with SCREENDEVICE*/
 	int		flags;		/* PSF_IMAGEHDR*/
 	int		width;		/* image width in pixels*/
 	int		height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
-	int		bpp;		/* bits per pixel (1, 4 or 8)*/
+	int		bpp;		/* bits per pixel*/
 	int		data_format;/* MWIF_ image data format*/
 	unsigned int pitch;	/* bytes per line*/
 	MWUCHAR *imagebits;	/* image bits (dword padded)*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY *palette;/* palette*/
 	uint32_t transcolor;/* transparent color or MWNOCOLOR if none*/
-	int		bytesperpixel;/* bytes per pixel*/
 	/* end of shared header*/
 } MWIMAGEHDR, *PMWIMAGEHDR;
 
@@ -861,7 +860,7 @@ typedef struct {
 #define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb 0 alpha*/
 
 /* no color, used for transparency, should not be 0, -1 or any MWRGB color*/
-#define MWNOCOLOR	0x01000000L
+#define MWNOCOLOR	0x01000000L			/* MWRGBA(1, 0, 0, 0)*/
 
 #ifdef MWINCLUDECOLORS
 /*

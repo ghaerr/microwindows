@@ -80,15 +80,16 @@ void
 GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT *dstrect)
 {
 	int pos, inc;
-	int bytesperpixel;
 	int dst_maxrow;
 	int src_row, dst_row;
 	MWUCHAR *srcp = 0;
 	MWUCHAR *dstp;
 	MWCLIPRECT full_src;
 	MWCLIPRECT full_dst;
+	int srcbytesperpixel = (src->bpp + 7) / 8;
+	int bytesperpixel = (dst->bpp + 7) / 8;
 
-	if ( src->bytesperpixel != dst->bytesperpixel ) {
+	if ( bytesperpixel != srcbytesperpixel ) {
 		EPRINTF("GdStretchImage: bytesperpixel mismatch\n");
 		return;
 	}
@@ -131,7 +132,6 @@ GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT
 	inc = (srcrect->height << 16) / dstrect->height;
 	src_row = srcrect->y;
 	dst_row = dstrect->y;
-	bytesperpixel = dst->bytesperpixel;
 
 	/* Perform the stretch blit */
 	for ( dst_maxrow = dst_row+dstrect->height; dst_row<dst_maxrow; ++dst_row ) {

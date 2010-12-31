@@ -896,13 +896,13 @@ GrDrawImageBitsWrapper(void *r)
 	int		    imagesize;
 	GR_IMAGE_HDR	    hdr;
 
+	hdr.flags = req->flags;
 	hdr.width = req->width;
 	hdr.height = req->height;
 	hdr.planes = req->planes;
 	hdr.bpp = req->bpp;
-	hdr.pitch = req->pitch;
-	hdr.bytesperpixel = req->bytesperpixel;
 	hdr.data_format = req->data_format;
+	hdr.pitch = req->pitch;
 	hdr.palsize = req->palsize;
 	hdr.transcolor = req->transcolor;
 	addr = GetReqData(req);

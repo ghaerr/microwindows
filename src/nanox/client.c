@@ -3084,13 +3084,13 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		req->x = x;
 		req->y = y;
 		/* fill MWIMAGEHDR items passed externally*/
+		req->flags = pimage->flags;
 		req->width = pimage->width;
 		req->height = step;
 		req->planes = pimage->planes;
 		req->bpp = pimage->bpp;
-		req->pitch = pimage->pitch;
-		req->bytesperpixel = pimage->bytesperpixel;
 		req->data_format = pimage->data_format;
+		req->pitch = pimage->pitch;
 		req->palsize = pimage->palsize;
 		req->transcolor = pimage->transcolor;
 		addr = GetReqData(req);

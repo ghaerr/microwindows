@@ -134,7 +134,6 @@ GdDecodePNG(buffer_t * src)
 
 	//pimage->pitch = width * channels * (bit_depth / 8);
 	//bpp = channels * 8;
-	//pimage->bytesperpixel = channels;
 	pmd = GdCreatePixmap(&scrdev, width, height, data_format, NULL, 0);
 	if (!pmd) {
 		png_destroy_read_struct(&state, &pnginfo, NULL);

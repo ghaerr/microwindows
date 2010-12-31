@@ -93,24 +93,6 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 
 	GdCalcMemGCAlloc(pmd, width, height, planes, bpp, &size, &pitch);
 
-	/* FIXME remove later, used by XPM and old GdStretchImage only*/
-	switch (pmd->bpp) {
-	case 1:
-	case 4:
-	case 8:
-		pmd->bytesperpixel = 1;
-		break;
-	case 16:
-		pmd->bytesperpixel = 2;
-		break;
-	case 24:
-		pmd->bytesperpixel = 3;
-		break;
-	case 32:
-		pmd->bytesperpixel = 4;
-		break;
-	}
-
 	/* Allocate space for pixel values */
 	if (!pixels) {
 		pixels = calloc(size, 1);

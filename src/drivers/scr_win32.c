@@ -43,7 +43,7 @@ static void win32_getscreeninfo(PSD psd, PMWSCREENINFO psi);
 static void win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	win32_open,
 	win32_close,

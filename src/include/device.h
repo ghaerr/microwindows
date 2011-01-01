@@ -16,7 +16,6 @@
 #define UNIFORMPALETTE	1	/* =1 for 256 entry uniform palette (required for palette alpha blending)*/
 #define POLYREGIONS		1		/* =1 includes polygon regions*/
 #define ANIMATEPALETTE	0		/* =1 animated palette test*/
-#define FASTJPEG		0		/* =1 for temp quick jpeg 8bpp*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 #define DEBUG_EXPOSE	0		/* =1 to flash yellow before painting expose areas*/

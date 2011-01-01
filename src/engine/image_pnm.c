@@ -31,7 +31,7 @@ GdDecodePNM(buffer_t *src)
 	int type = PNM_TYPE_NOTPNM, binary = 0, gothdrs = 0, scale = 0;
 	int ch, x = 0, y = 0, i, n, mask, col1, col2, col3;
 	PSD pmd;
-	int width, height, data_format, palsize = 0;
+	int width = 0, height = 0, data_format, palsize = 0;
 	char buf[256];
 
 	GdImageBufferSeekTo(src, 0UL);
@@ -63,20 +63,25 @@ GdDecodePNM(buffer_t *src)
 		if(buf[0] == '#')
 			continue;
 		if(type == PNM_TYPE_PBM) {
-			if(sscanf(buf, "%i %i", &width, &height) == 2) {
-				data_format = MWIF_PAL1;
-				palsize = 2;
-				gothdrs = 1;
-			}
+			char *sptr = buf;
+
+			width = strtol(sptr, &sptr, 10);
+			height = strtol(sptr, &sptr, 10);
+			data_format = MWIF_PAL1;
+			palsize = 2;
+			gothdrs = 1;
 			break;
 		}
-		if((type == PNM_TYPE_PGM) || (type == PNM_TYPE_PPM)) {
+		if(type == PNM_TYPE_PGM || type == PNM_TYPE_PPM) {
 			if(!n++) {
-				if(sscanf(buf, "%i %i", &width, &height) != 2)
-					break;
+				char *sptr = buf;
+
+				width = strtol(sptr, &sptr, 10);
+				height = strtol(sptr, NULL, 10);
 			} else {
-				if(sscanf(buf, "%i", &i) != 1)
-					break;
+				char *sptr = buf;
+
+				i = strtol(sptr, NULL, 10);
 				data_format = MWIF_RGB888;
 				if(i > 255) {
 					EPRINTF("GdDecodePNM: PPM files must be 24bpp\n");

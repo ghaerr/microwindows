@@ -96,7 +96,7 @@ GdDecodeXPM(buffer_t * src)
 	unsigned char *imageline = NULL;
 	char *c;
 	int a;
-	int col, row, colors, cpp;
+	int col, row = 0, colors = 0, cpp = 0;
 	int in_color = 0;
 	int read_xline = 0;
 	int status = LOAD_HEADER;
@@ -135,12 +135,15 @@ GdDecodeXPM(buffer_t * src)
 		/* remove the quotes from the line */
 		for (c = xline + 1, a = 0; *c != '\"' && *c != 0; c++, a++)
 			dline[a] = *c;
-
 		dline[a] = 0;
 
 		/* Is it the header? */
 		if (status == LOAD_HEADER) {
-			sscanf(dline, "%i %i %i %i", &col, &row, &colors, &cpp);
+			char *sptr = dline;
+			col = strtol(sptr, &sptr, 10);
+			row = strtol(sptr, &sptr, 10);
+			colors = strtol(sptr, &sptr, 10);
+			cpp = strtol(sptr, NULL, 10);
 
 			/* create 8bpp palette image if colors <= 256, else 32bpp RGBA*/
 			if (colors <= 256) {
@@ -176,6 +179,7 @@ DPRINTF("xpm %dbpp\n", pmd->bpp);
 			char tstr[5];
 			char cstr[256];
 			int m;
+			char *p;
 
 			c = dline;
 
@@ -217,10 +221,12 @@ DPRINTF("xpm %dbpp\n", pmd->bpp);
 			/* Now record the palette entry */
 			n->palette_entry = in_color;
 
-			/* This is the color */
-			sscanf(c, "%255s", cstr);
+			/* get color string*/
+			for (p=cstr; *c && *c != '"'; )
+				*p++ = *c++;
+			*p = 0;
 
-			/* Turn it into a real value */
+			/* convert to 0xAARRGGB value*/
 			n->color = XPM_parse_color(cstr);
 
 			if (data_format == MWIF_PAL8) {

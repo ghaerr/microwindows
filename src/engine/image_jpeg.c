@@ -5,12 +5,11 @@
  *
  * Image decode routine for JPEG files
  *
- * JPEG support must be enabled (see README.txt in contrib/jpeg)
- *
- * If FASTJPEG is defined=1, JPEG images are decoded to
+ * If USE_STD_PALETTE=1 set, JPEG images are decoded to
  * a 256 color standardized palette (mwstdpal8). Otherwise,
  * the images are decoded depending on their output
- * components (usually 24bpp).
+ * components (usually 24bpp), unless running in palette mode,
+ * where a pal8 image is forced.
  *
  * SOME FINE POINTS: (from libjpeg)
  * In the below code, we ignored the return value of jpeg_read_scanlines,
@@ -46,6 +45,9 @@
 #include "../drivers/genmem.h"
 
 #if MW_FEATURE_IMAGES && HAVE_JPEG_SUPPORT
+
+#define USE_STD_PALETTE		0		/* =1 to decode pal8 to standard 256 color palette*/
+
 #include "jpeglib.h"
 
 static buffer_t *inptr;
@@ -94,7 +96,7 @@ GdDecodeJPEG(buffer_t * src, MWBOOL fast_grayscale)
 	struct jpeg_source_mgr smgr;
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
-#if FASTJPEG
+#if USE_STD_PALETTE
 	extern MWPALENTRY mwstdpal8[256];
 #else
 	MWPALENTRY palette[256];
@@ -105,8 +107,8 @@ GdDecodeJPEG(buffer_t * src, MWBOOL fast_grayscale)
 	if (GdImageBufferRead(src, magic, 2) != 2 || magic[0] != 0xFF || magic[1] != 0xD8)
 		return NULL;	/* not JPEG image */
 
-	if (GdImageBufferRead(src, magic, 8) != 8
-	 || (strncmp((char *)&magic[4], "JFIF", 4) != 0 && strncmp((char *)&magic[4], "Exif", 4) != 0))
+	if (GdImageBufferRead(src, magic, 8) != 8 ||
+	    (strncmp((char *)&magic[4], "JFIF", 4) != 0 && strncmp((char *)&magic[4], "Exif", 4) != 0))
 		return NULL;	/* not JPEG image */
 
 	GdImageBufferSeekTo(src, 0);
@@ -132,39 +134,34 @@ GdDecodeJPEG(buffer_t * src, MWBOOL fast_grayscale)
 
 	/* Step 3: read file parameters with jpeg_read_header() */
 	jpeg_read_header(&cinfo, TRUE);
+
 	/* Step 4: set parameters for decompression */
 	cinfo.out_color_space = fast_grayscale? JCS_GRAYSCALE: JCS_RGB;
 	cinfo.quantize_colors = FALSE;
 
-#if FASTJPEG
-	goto fastjpeg;
-#endif
 	if (!fast_grayscale) {
+		/* if running in palette mode, force pal8 output*/
 		if (scrdev.pixtype == MWPF_PALETTE) {
-#if FASTJPEG
-fastjpeg:
-#endif
 			cinfo.quantize_colors = TRUE;
-#if FASTJPEG
+#if USE_STD_PALETTE
 			cinfo.actual_number_of_colors = 256;
 #else
-			/* Get system palette */
+			/* Use current system palette for decode*/
 			cinfo.actual_number_of_colors = GdGetPalette(&scrdev, 0, scrdev.ncolors, palette);
 #endif
 	
 			/* Allocate jpeg colormap space */
-			cinfo.colormap = (*cinfo.mem->alloc_sarray)
-				((j_common_ptr) &cinfo, JPOOL_IMAGE,
-			       	(JDIMENSION)cinfo.actual_number_of_colors,
-				(JDIMENSION)3);
+			cinfo.colormap = (*cinfo.mem->alloc_sarray) ((j_common_ptr) &cinfo, JPOOL_IMAGE,
+			       	(JDIMENSION)cinfo.actual_number_of_colors, (JDIMENSION)3);
 
-			/* Set colormap from system palette */
 			for(i = 0; i < cinfo.actual_number_of_colors; ++i) {
-#if FASTJPEG
+#if USE_STD_PALETTE
+				/* set colormap from standard palette*/
 				cinfo.colormap[0][i] = mwstdpal8[i].r;
 				cinfo.colormap[1][i] = mwstdpal8[i].g;
 				cinfo.colormap[2][i] = mwstdpal8[i].b;
 #else
+				/* Set colormap from system palette*/
 				cinfo.colormap[0][i] = palette[i].r;
 				cinfo.colormap[1][i] = palette[i].g;
 				cinfo.colormap[2][i] = palette[i].b;
@@ -172,18 +169,14 @@ fastjpeg:
 			}
 		}
 	} else {
-		/* Grayscale output asked */
+		/* 256 shade grayscale output*/
 		cinfo.quantize_colors = TRUE;
 		cinfo.out_color_space = JCS_GRAYSCALE;
 		cinfo.desired_number_of_colors = 256;
 	}
 	jpeg_calc_output_dimensions(&cinfo);
 
-#if FASTJPEG
-	bpp = 8;
-#else
-	bpp = (fast_grayscale || scrdev.pixtype == MWPF_PALETTE)?  8: cinfo.output_components*8;
-#endif
+	bpp = cinfo.output_components*8;
 	switch (bpp) {
 	case 24:
 		data_format = MWIF_RGB888;
@@ -202,20 +195,24 @@ fastjpeg:
 		goto err;
 DPRINTF("jpeg bpp %d\n", bpp);
 
-	if(bpp <= 8) {
+	if(bpp == 8) {
 		if (fast_grayscale) {
+			/* use 256 shade linear palette*/
 			for (i=0; i<256; ++i) {
 				MWPALENTRY pe;
-				/* could use static palette here*/
 				pe.r = pe.g = pe.b = i;
 				pe._padding = 0;
 				pmd->palette[i] = pe;
 			}
 		} else {
-#if FASTJPEG
-			/* FASTJPEG case only, normal uses hw palette*/
+#if USE_STD_PALETTE
+			/* copy standard palette rather than current hw palette*/
 			for (i=0; i<256; ++i)
 				pmd->palette[i] = mwstdpal8[i];
+#else
+			/* copy current system palette*/
+			for (i=0; i<256; ++i)
+					pmd->palette[i] = palette[i];
 #endif
 		}
 	}

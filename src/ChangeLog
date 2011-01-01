@@ -1,6 +1,8 @@
 31 Dec 2010
+	* cleanup jpeg loader, forces pal8 in palette mode else pal8 or RGB888 from image
+	* remove sscanf from xpm and pnm loaders
 	* remove bytesperpixel from image/psd header and  GrGetImageInfo return
-	* cleanup xpm loader
+	* cleanup xpm loader, force pal8 image in palette mode else RGBA8888
 30 Dec 2010
 	* auto image upgrade to RGBA if not running in palette mode and no convblit available
 		this allows very fast drawing of .gifs and other 8bpp palettized images

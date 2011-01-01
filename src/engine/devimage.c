@@ -475,7 +475,7 @@ GdDecodeImage(buffer_t *src, char *path, int flags)
  * @param x X destination co-ordinate.
  * @param y Y destination co-ordinate.
  * @param width If >=0, the image will be scaled to this width.
- * If <0, the image will not be scaled horiziontally.
+ * If <0, the image will not be scaled horizontally.
  * @param height If >=0, the image will be scaled to this height.
  * If <0, the image will not be scaled vertically.
  * @param sx source X co-ordinate.
@@ -543,34 +543,34 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 /**
  * Get information about an image or pixmap.
  *
- * @param id Pixmap ID
- * @param pii Destination for image information.
+ * @param id pixmap id
+ * @param pinfo Destination for image information.
  * @return TRUE on success, FALSE on error.
  */
 MWBOOL
-GdGetImageInfo(PSD pmd, PMWIMAGEINFO pii)
+GdGetImageInfo(PSD pmd, PMWIMAGEINFO pinfo)
 {
 	int		i;
 
 	if (!pmd) {
-		memset(pii, 0, sizeof(*pii));
+		memset(pinfo, 0, sizeof(*pinfo));
 		return FALSE;
 	}
 
-	pii->width = pmd->xvirtres;
-	pii->height = pmd->yvirtres;
-	pii->planes = pmd->planes;
-	pii->bpp = pmd->bpp;
-	pii->data_format = pmd->data_format;
-	pii->pitch = pmd->pitch;
-	pii->palsize = pmd->palsize;
+	pinfo->width = pmd->xvirtres;
+	pinfo->height = pmd->yvirtres;
+	pinfo->planes = pmd->planes;
+	pinfo->bpp = pmd->bpp;
+	pinfo->data_format = pmd->data_format;
+	pinfo->pitch = pmd->pitch;
+	pinfo->palsize = pmd->palsize;
 	if (pmd->palsize) {
 		if (pmd->palette) {
 			for (i=0; i<pmd->palsize; ++i)
-				pii->palette[i] = pmd->palette[i];
+				pinfo->palette[i] = pmd->palette[i];
 		} else {
 			/* FIXME handle jpeg's without palette*/
-			GdGetPalette(&scrdev, 0, pmd->palsize, pii->palette);
+			GdGetPalette(&scrdev, 0, pmd->palsize, pinfo->palette);
 		}
 	}
 	return TRUE;

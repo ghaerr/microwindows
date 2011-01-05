@@ -563,6 +563,7 @@ GdGetImageInfo(PSD pmd, PMWIMAGEINFO pinfo)
 	pinfo->bpp = pmd->bpp;
 	pinfo->data_format = pmd->data_format;
 	pinfo->pitch = pmd->pitch;
+	pinfo->transcolor = pmd->transcolor;
 	pinfo->palsize = pmd->palsize;
 	if (pmd->palsize) {
 		if (pmd->palette) {

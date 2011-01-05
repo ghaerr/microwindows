@@ -810,13 +810,13 @@ typedef struct {
 /* image information structure - returned by GdGetImageInfo*/
 typedef struct {
 	int		id;			/* image id*/
-	unsigned int width;	/* image width in pixels*/
-	unsigned int height;/* image height in pixels*/
+	int 	width;		/* image width in pixels*/
+	int 	height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
 	int		data_format;/* MWIF image data format*/
 	unsigned int pitch;	/* bytes per line*/
-	int		bytesperpixel;	/* bytes per pixel*/
+	uint32_t transcolor;/* transparent color or MWNOCOLOR if none*/
 	int		palsize;	/* palette size*/
 	MWPALENTRY 	palette[256];	/* palette*/
 } MWIMAGEINFO, *PMWIMAGEINFO;

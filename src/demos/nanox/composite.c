@@ -8,7 +8,8 @@
  * 12/11/2010 g haerr
  */
 
-#define BUFFERED_WINDOWS	1
+#define BUFFERED_WINDOWS		1
+#define TEST_DRAWIMAGEPARTIAL	0		/* =1 to use GrDrawImagePartToFit*/
 
 //#define FONT	"DejaVuSans-Bold.ttf"
 #define FONT	"arial.ttf"
@@ -16,7 +17,6 @@
 
 GR_WINDOW_ID wid = 0, p1, p2 = 0;
 GR_IMAGE_INFO image_info;
-GR_SCREEN_INFO sinfo;
 GR_WINDOW_INFO winfo;
 
 void resize_demo(void);
@@ -32,7 +32,6 @@ resize_demo(void)
 	GR_IMAGE_ID iid;
 	char *text = "Microwindows Compositing";
 
-	GrGetScreenInfo(&sinfo);
 	gc = GrNewGC();
 
 	/* load image from file into RGBA format*/
@@ -52,8 +51,12 @@ resize_demo(void)
 	}
 	/* create 32bpp pixmap and draw image w/alpha on it*/
 	p1 = GrNewPixmapEx(width, height, MWIF_RGBA8888, NULL);
-	//GrDrawImageToFit(p1, gc, 0, 0, width, height, iid);
+#if TEST_DRAWIMAGEPARTIAL
+	/* this will expand the image into the same space using stretchblit*/
 	GrDrawImagePartToFit(p1, gc, 0,0, width, height, 0,0, image_info.width/2, image_info.height/2, iid);
+#else
+	GrDrawImageToFit(p1, gc, 0, 0, width, height, iid);
+#endif
 	GrFreeImage(iid);
 
 	if (p2)
@@ -83,17 +86,15 @@ resize_demo(void)
 void
 init_demo(void)
 {
-	int x, y, flags;
+	int flags;
 
 	/* create window for display with no background erase to stop blink*/
-	x = sinfo.cols - image_info.width*4;
-	y = sinfo.rows - image_info.height*4;
 	flags = GR_WM_PROPS_APPWINDOW | GR_WM_PROPS_NOBACKGROUND;
 #if BUFFERED_WINDOWS
 	flags |= GR_WM_PROPS_BUFFERED;
 #endif
 	wid = GrNewWindowEx(flags, "Microwindows Compositing Demo", GR_ROOT_WINDOW_ID,
-		x, y, image_info.width, image_info.height, GR_COLOR_WHITE);
+		20, 20, image_info.width, image_info.height, GR_COLOR_WHITE);
 
 	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE | GR_EVENT_MASK_EXPOSURE);
 }

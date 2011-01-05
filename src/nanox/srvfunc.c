@@ -2883,8 +2883,7 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 
 /* draw a multicolor image at x, y*/
 void
-GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_IMAGE_HDR *pimage)
+GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_IMAGE_HDR *pimage)
 {
 	GR_DRAWABLE	*dp;
 

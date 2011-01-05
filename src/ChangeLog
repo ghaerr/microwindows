@@ -1,3 +1,4 @@
+	* cleaned up MWIMAGEINFO, added 1bpp options to GdCreatePixmap
 31 Dec 2010
 	* cleanup jpeg loader, forces pal8 in palette mode else pal8 or RGB888 from image
 	* remove sscanf from xpm and pnm loaders

@@ -1,7 +1,8 @@
 /*
  * Copyright (c) 1999-2001, 2010 Greg Haerr <greg@censoft.com>
  *
- * 1bpp Packed Linear Video Driver for Microwindows (MSB first bit order)
+ * 1bpp Packed Linear Video Driver for Microwindows
+ * Writes MWIF_MONOBYTEMSB data format (MSB first bit order)
  */
 /*#define NDEBUG*/
 #include <assert.h>
@@ -103,6 +104,18 @@ linear1_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	DRAWOFF;
 }
 
+/* general frameblit, all base rops supported*/
+static void
+linear1_frameblit(PSD psd, PMWBLITPARMS gc)
+{
+	/* GdRasterOp doesn't work yet in portrait modes, requires normal src/dst*/
+	assert (psd->portrait == MWPORTRAIT_NONE);
+
+	GdRasterOp((PMWIMAGEHDR)psd, gc->dstx, gc->dsty, gc->width, gc->height, gc->op,
+		(PMWIMAGEHDR)gc->srcpsd, gc->srcx, gc->srcy);
+}
+
+#if 0000
 /* srccopy bitblt, opcode is currently ignored*/
 static void
 linear1_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
@@ -144,6 +157,7 @@ linear1_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	}
 	DRAWOFF;
 }
+#endif
 
 /*
  * Routine to draw mono 1bpp MSBFirst bitmap to MSB 1bpp
@@ -167,8 +181,8 @@ linear1_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 #if DEBUG
 	assert (gc->dstx >= 0 && gc->dstx < psd->xres);
 	assert (gc->dsty >= 0 && gc->dsty < psd->yres);
-	assert (gc->width > 0);
-	assert (gc->height > 0);
+	assert (w > 0);
+	assert (h > 0);
 	assert (gc->dstx+w <= psd->xres);
 	assert (gc->dsty+h <= psd->yres);
 #endif
@@ -206,18 +220,140 @@ linear1_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	DRAWOFF;
 }
 
+/*
+ * Routine to draw mono 1bpp LSBFirst bitmap to MSB 1bpp
+ * Bitmap is byte array.
+ *
+ * Used to draw T1LIB non-antialiased glyphs.
+ */
+static void
+linear1_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
+{
+	int		i;
+	int		dpitch = gc->dst_pitch;
+	int		spitch = gc->src_pitch;
+	/* src is LSB 1bpp, dst is MSB 1bpp*/
+	ADDR8 dst = ((ADDR8)gc->data_out) + (gc->dstx>>3) + gc->dsty * dpitch;
+	ADDR8 src = ((ADDR8)gc->data) + (gc->srcx>>3) + gc->srcy * spitch;
+	MWCOORD	h = gc->height;
+	MWCOORD	w = gc->width;
+	MWPIXELVAL fg = gc->fg_pixelval;
+	MWPIXELVAL bg = gc->bg_pixelval;
+#if DEBUG
+	assert (gc->dstx >= 0 && gc->dstx < psd->xres);
+	assert (gc->dsty >= 0 && gc->dsty < psd->yres);
+	assert (w > 0);
+	assert (h > 0);
+	assert (gc->dstx+w <= psd->xres);
+	assert (gc->dsty+h <= psd->yres);
+#endif
+	DRAWON;
+	while(--h >= 0) {
+		ADDR8	d = dst;
+		ADDR8	s = src;
+		MWCOORD	dx = gc->dstx;
+		MWCOORD	sx = gc->srcx;
+
+		if (gc->usebg) {
+			for(i=0; i<w; ++i) {
+				if ((*s >> (sx&7)) & 01)
+					*d = (*d & notmask[dx&7]) | (fg << (7-(dx&7)));
+				else
+					*d = (*d & notmask[dx&7]) | (bg << (7-(dx&7)));
+				if((++dx & 7) == 0)
+					++d;
+				if((++sx & 7) == 0)
+					++s;
+			}
+		} else {
+			for(i=0; i<w; ++i) {
+				if ((*s >> (sx&7)) & 01)
+					*d = (*d & notmask[dx&7]) | (fg << (7-(dx&7)));
+				if((++dx & 7) == 0)
+					++d;
+				if((++sx & 7) == 0)
+					++s;
+			}
+		}
+		dst += dpitch;
+		src += spitch;
+	}
+	DRAWOFF;
+}
+
+/*
+ * Routine to draw mono 1bpp MSBFirst bitmap to MSB 1bpp
+ * Bitmap is little endian word array.
+ *
+ * Used to draw PCF/core glyphs.
+ */
+static void
+linear1_convblit_copy_mask_mono_word_msb(PSD psd, PMWBLITPARMS gc)
+{
+	int		i;
+	int		dpitch = gc->dst_pitch;
+	int		spitch = gc->src_pitch;
+	/* src is word MSB 1bpp, dst is byte MSB 1bpp*/
+	ADDR8 dst = ((ADDR8)gc->data_out) + (gc->dstx>>3) + gc->dsty * dpitch;
+	ADDR8 src = ((ADDR8)gc->data) + ((gc->srcx>>4) << 1) + gc->srcy * spitch;
+	MWCOORD	h = gc->height;
+	MWCOORD	w = gc->width;
+	MWPIXELVAL fg = gc->fg_pixelval;
+	MWPIXELVAL bg = gc->bg_pixelval;
+#if DEBUG
+	assert (gc->dstx >= 0 && gc->dstx < psd->xres);
+	assert (gc->dsty >= 0 && gc->dsty < psd->yres);
+	assert (w > 0);
+	assert (h > 0);
+	assert (gc->dstx+w <= psd->xres);
+	assert (gc->dsty+h <= psd->yres);
+#endif
+	DRAWON;
+	while(--h >= 0) {
+		ADDR8	d = dst;
+		ADDR16	s = (ADDR16)src;
+		MWCOORD	dx = gc->dstx;
+		MWCOORD	sx = gc->srcx;
+
+		if (gc->usebg) {
+			for(i=0; i<w; ++i) {
+				if ((*s >> (15-(sx&15))) & 01)
+					*d = (*d & notmask[dx&7]) | (fg << (7-(dx&7)));
+				else
+					*d = (*d & notmask[dx&7]) | (bg << (7-(dx&7)));
+				if((++dx & 7) == 0)
+					++d;
+				if((++sx & 15) == 0)
+					++s;
+			}
+		} else {
+			for(i=0; i<w; ++i) {
+				if ((*s >> (15-(sx&15))) & 01)
+					*d = (*d & notmask[dx&7]) | (fg << (7-(dx&7)));
+				if((++dx & 7) == 0)
+					++d;
+				if((++sx & 15) == 0)
+					++s;
+			}
+		}
+		dst += dpitch;
+		src += spitch;
+	}
+	DRAWOFF;
+}
+
 static SUBDRIVER fblinear1_none = {
 	linear1_drawpixel,
 	linear1_readpixel,
 	linear1_drawhorzline,
 	linear1_drawvertline,
 	gen_fillrect,
-	linear1_blit,
-	NULL,		/* FrameBlit*/
+	NULL,		/* fallback blit*/
+	linear1_frameblit,
 	NULL,		/* FrameStretchBlit*/
 	linear1_convblit_copy_mask_mono_byte_msb,
-	NULL,		/* BlitCopyMaskMonoByteLSB*/
-	NULL,		/* BlitCopyMaskMonoWordMSB*/
+	linear1_convblit_copy_mask_mono_byte_lsb,
+	linear1_convblit_copy_mask_mono_word_msb,
 	NULL,		/* BlitBlendMaskAlphaByte*/
 	NULL,		/* BlitCopyRGBA8888*/
 	NULL,		/* BlitSrcOverRGBA8888*/

@@ -1,10 +1,18 @@
 consider removing GdStretchImage, test convblits available in different pixtypes
 	make sure that similar bpp's are supported
 
+merge GdFindConvBlit and GdFindFrameBlit
+consider rasterops for 2-32bpp pixmaps
+consider quad vs byte MWIF for mono pixmaps, former can use rasterops, check case statements
+replace 1bpp non-usebg blit with PAINT (SRC|DST)
+	won't work if src image isn't padded to DWORD (FT2 and T1 are not)
+fblin1/rev.c blit (GdRasterOps) won't work in portrait modes
+	consider rotating pixmaps to hw format, or rotation conversion (slow)
+	rotated pixmaps may need back-rotation or consideration when convblit'd to higher bpp
+
 how to handle child windows in buffered window scheme
 resize buffered pixmap rather than erase to background color
 allow bgpixmaps to work with buffered windows for pixmap init
-fix chess blink by using buffered windows
 
 GdBlit Frame->Pixmap fails, needs src rotate (and test)
 GdStretchBlit Frame->Frame and Frame->Pixmap fails, needs src/dst rotate (and test)
@@ -24,7 +32,8 @@ background pixmap clear issues for pixmaps w/alpha using src_over: stop blink by
 	may blink from extra clear background on non-compositing pixmaps
 stipple needs to use convblit
 need 1bpp GrNewPixmapEx options
-16bpp convblits are endian-specific
+16bpp convblits are endian-specific (LE)
+MWIMAGE (short) words and blits are endian-specific (LE)
 
 nxterm.sh buggy when overlapped blit
 rewrite GdStretchImage to use convblit_stretch

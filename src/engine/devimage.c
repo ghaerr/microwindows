@@ -363,13 +363,17 @@ PSD
 GdConvertImageRGBA(PSD pmd)
 {
 	PSD 		rgba;
-	int			okformats = MWIF_PAL8;
-//	int			okformats = MWIF_PAL8|MWIF_PAL4|MWIF_PAL1;
 	MWBLITPARMS parms;
 
 	/* check if image conversion supported*/
-	if (!(pmd->data_format & okformats))
+	switch (pmd->data_format) {
+	case MWIF_PAL8:			/* 8bpp palette*/
+	//case MWIF_PAL4:
+	//case MWIF_PAL1:
+		break;
+	default:			/* not supported, return same image*/
 		return pmd;
+	}
 DPRINTF("Converting %dbpp image to RGBA\n", pmd->bpp);
 
 	/* create RGBA pixmap*/

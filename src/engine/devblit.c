@@ -123,18 +123,30 @@ BlitFallback(PSD psd, PMWBLITPARMS gc)
 static MWBLITFUNC
 GdFindFrameBlit(PSD psd, int src_data_format, int op)
 {
+	/* try conversion blits if possible*/
+	switch (src_data_format) {
+	case MWIF_RGBA8888:
+		if (op == MWROP_SRC_OVER) {
+			if (psd->BlitSrcOverRGBA8888)
+				return psd->BlitSrcOverRGBA8888;
+		}
+		if (psd->BlitCopyRGBA8888)
+			return psd->BlitCopyRGBA8888;
+		break;
+
+	case MWIF_MONOBYTEMSB:
+		/* use conversion blit if destination not palette*/
+		//FIXME this won't work if this function merged with GdFindConvBlit
+		if (psd->BlitCopyMaskMonoByteMSB && psd->bpp >= 8)
+			return psd->BlitCopyMaskMonoByteMSB;
+		break;
+	}
+
 	/* try fallback blit if no frameblit*/
 	if (!psd->FrameBlit) {
 		if (!psd->BlitFallback)
 			return NULL;
 		return BlitFallback;		/* wrapper function to reorder parameters*/
-	}
-
-	/* try conversion blit if source is RGBA8888*/
-	if (src_data_format == MWIF_RGBA8888) {
-		if (op == MWROP_SRC_OVER)
-			return psd->BlitSrcOverRGBA8888;
-		return psd->BlitCopyRGBA8888;
 	}
 
 	/* BGRA->BGRA is handled properly with frameblit_xxxa in fblin32.c*/
@@ -197,11 +209,13 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	parms.srcx = srcx;
 	parms.srcy = srcy;
 	parms.src_pitch = srcpsd->pitch;
-	//parms.fg_colorval = gr_foreground_rgb;	/* these are ignored in copy blits*/
-	//parms.bg_colorval = gr_background_rgb;
-	//parms.fg_pixelval = gr_foreground;
-	//parms.bg_pixelval = gr_background;
-	//parms.usebg = gr_usebg;
+
+	parms.fg_colorval = gr_foreground_rgb;	/* for mask convblit*/
+	parms.bg_colorval = gr_background_rgb;
+	parms.fg_pixelval = gr_foreground;		/* for palette mask convblit*/
+	parms.bg_pixelval = gr_background;
+	parms.usebg = gr_usebg;
+
 	parms.data = srcpsd->addr;
 	parms.dst_pitch = dstpsd->pitch;		/* usually set in GdConversionBlit*/
 	parms.data_out = dstpsd->addr;

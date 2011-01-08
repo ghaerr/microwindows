@@ -38,7 +38,6 @@ LIBNAME =
 ifeq ($(ARCH), ECOS)
 TARGETS = $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
 else
-ifeq ($(ARCH), PSP)
 TARGETS = \
 	$(MW_DIR_BIN)/demo \
 	$(MW_DIR_BIN)/move \
@@ -49,6 +48,7 @@ TARGETS = \
 	$(MW_DIR_BIN)/ftdemo \
 	$(MW_DIR_BIN)/blitdemo \
 	$(MW_DIR_BIN)/composite \
+	$(MW_DIR_BIN)/monobitmap \
 	$(MW_DIR_BIN)/logfont \
 	$(MW_DIR_BIN)/getselection \
 	$(MW_DIR_BIN)/setselection \
@@ -61,40 +61,20 @@ TARGETS = \
 	$(MW_DIR_BIN)/bmpdemo \
 	$(MW_DIR_BIN)/rgndemo 
 
-else
-TARGETS = \
-	$(MW_DIR_BIN)/demo \
-	$(MW_DIR_BIN)/move \
+ifneq ($(ARCH), PSP)
+TARGETS += \
 	$(MW_DIR_BIN)/landmine \
 	$(MW_DIR_BIN)/world \
 	$(MW_DIR_BIN)/nxclock \
-	$(MW_DIR_BIN)/nxlsclients \
-	$(MW_DIR_BIN)/nxev \
 	$(MW_DIR_BIN)/npanel \
 	$(MW_DIR_BIN)/demo2 \
-	$(MW_DIR_BIN)/demo5 \
 	$(MW_DIR_BIN)/demo6 \
-	$(MW_DIR_BIN)/ftdemo \
-	$(MW_DIR_BIN)/blitdemo \
-	$(MW_DIR_BIN)/composite \
-	$(MW_DIR_BIN)/t1demo \
-	$(MW_DIR_BIN)/logfont \
 	$(MW_DIR_BIN)/ntetris \
-	$(MW_DIR_BIN)/getselection \
-	$(MW_DIR_BIN)/setselection \
-	$(MW_DIR_BIN)/dashdemo \
-	$(MW_DIR_BIN)/pcfdemo \
-	$(MW_DIR_BIN)/fontdemo \
-	$(MW_DIR_BIN)/setportrait \
-	$(MW_DIR_BIN)/arcdemo \
-	$(MW_DIR_BIN)/polydemo \
 	$(MW_DIR_BIN)/snap_ppm \
-	$(MW_DIR_BIN)/bmpdemo \
-	$(MW_DIR_BIN)/rgndemo \
 	$(MW_DIR_BIN)/nsaver \
 	$(MW_DIR_BIN)/nxcal \
 	$(MW_DIR_BIN)/grabdemo
-
+endif
 ifneq ($(ARCH),RTEMS)
 TARGETS += \
 	$(MW_DIR_BIN)/nterm \
@@ -150,7 +130,6 @@ all: default $(TARGETS)
 #		$(MW_DIR_SRC)/demos/nanox/transtest.gif
 #		$(MW_DIR_SRC)/demos/nanox/alphatest.png
 
-endif
 endif
 endif
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 /*
  * Device-independent low level blit routines - 1bpp bitmap and 8bpp alpha mask input,
  *		24/32bpp 8888 or 16bpp 565/555 output

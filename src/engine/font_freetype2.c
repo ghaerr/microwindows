@@ -1150,11 +1150,26 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	int curchar;
 	int use_kerning;
 	int last_glyph_code = 0;	/* Used for kerning */
+	int drawantialias;
 	MWBLITPARMS parms;
 
 	assert(pf);
 	assert(text);
 	assert(psd); // note in STANDALONE case, 'app_t' is passed as psd, must not inspect pointer!
+
+	/* Don't use antialias settings if no alpha channel blitter*/
+	// FIXME - same code should be in gettextsize, but can't because no psd argument
+	drawantialias = (pf->fontattr & MWTF_ANTIALIAS) && psd->BlitBlendMaskAlphaByte;
+	/* following logic is also in setfontattr, repeated here because no psd argument*/
+#if HAVE_FREETYPE_2_CACHE
+#if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)
+	pf->imagedesc.flags = FT_LOAD_DEFAULT;
+	if (!drawantialias)
+		pf->imagedesc.flags |= FT_LOAD_MONOCHROME | FT_LOAD_TARGET_MONO;
+#else
+	pf->imagedesc.type = drawantialias? ftc_image_grays: ftc_image_mono;
+#endif
+#endif
 
 #if HAVE_FREETYPE_2_CACHE
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
@@ -1190,14 +1205,14 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	/* Initialize blit parms we won't change*/
 	parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
 	parms.bg_colorval = gr_background_rgb;
-	parms.fg_pixelval = gr_foreground;			/* for drawarea fallback*/
+	parms.fg_pixelval = gr_foreground;			/* for palette mask convblit*/
 	parms.bg_pixelval = gr_background;
 	parms.usebg = gr_usebg;
 	parms.srcx = 0;
 	parms.srcy = 0;
 
-	// FIXME: don't use antialias settings if no alphacol driver (psd->flags & PSF_HAVEOP_ALPHACOL)
-	if (pf->fontattr & MWTF_ANTIALIAS) {
+	/* Determine blitter and data format*/
+	if (drawantialias) {
 		parms.data_format = MWIF_ALPHABYTE;		/* data is 8bpp alpha channel*/
 		parms.op = MWROP_BLENDFGBG;				/* blend fg/bg with alpha channel -> dst*/
 	} else {

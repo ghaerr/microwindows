@@ -1,4 +1,14 @@
-	* cleaned up MWIMAGEINFO, added 1bpp options to GdCreatePixmap
+8 Jan 2011
+	* added MWIF_MONOWORDLSB blit to fblin1 for PCF/core font drawing
+	* added MWIF_MONOBYTELSB blit to fblin1 for T1LIB font non-aliased drawing
+	* freetype/t1lib driver auto downgrade to non-antialias if blend blitter not present
+	* added fast 1bpp raster ops from Dan Bloomberg's leptonica library (www.leptonica.com)
+		all raster ops now supported
+	* added support for 1bpp (pseudo-palette) pixmaps (use MWIF_PAL1), demos/nanox/monobitmap.c
+		must set fg and possibly bg color and usebg when calling GrCopyArea with
+			palette (1,2,4,8 bpp) pixmap to truecolor (higher bpp) pixmap
+			for 1bpp pixmap conversion, fg/bg color used is bit 0 of MWCOLORVAL
+	* cleaned up MWIMAGEINFO, added MWIF_PAL1 1bpp option to GdCreatePixmap
 31 Dec 2010
 	* cleanup jpeg loader, forces pal8 in palette mode else pal8 or RGB888 from image
 	* remove sscanf from xpm and pnm loaders

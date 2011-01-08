@@ -27,7 +27,9 @@ else
   MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2rev.o
 endif
 else
-  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1.o $(MW_DIR_OBJ)/drivers/fblin2.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin2.o
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/rasterops.o
 endif
 
 ifeq ($(FBREVERSE), Y)

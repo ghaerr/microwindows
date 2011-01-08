@@ -463,8 +463,8 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	parms.data_format = MWIF_MONOWORDMSB;	/* data is 1bpp words, msb first*/
 	parms.fg_colorval = gr_foreground_rgb;
 	parms.bg_colorval = gr_background_rgb;
-	//parms.fg_pixelval = gr_foreground;	/* not required for mono convblit*/
-	//parms.bg_pixelval = gr_background;
+	parms.fg_pixelval = gr_foreground;		/* for palette mask convblit*/
+	parms.bg_pixelval = gr_background;
 	parms.usebg = gr_usebg;
 	parms.srcx = 0;
 	parms.srcy = 0;

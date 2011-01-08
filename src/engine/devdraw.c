@@ -680,11 +680,11 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	parms.srcx = 0;
 	parms.srcy = 0;
 	parms.src_pitch = pimage->pitch;
-	//parms.fg_colorval = gr_foreground_rgb;	/* these are ignored in copy blits*/
-	//parms.bg_colorval = gr_background_rgb;
-	//parms.fg_pixelval = gr_foreground;
-	//parms.bg_pixelval = gr_background;
-	//parms.usebg = gr_usebg;
+	parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
+	parms.bg_colorval = gr_background_rgb;
+	parms.fg_pixelval = gr_foreground;			/* for palette mask convblit*/
+	parms.bg_pixelval = gr_background;
+	parms.usebg = gr_usebg;
 	parms.data = pimage->imagebits;
 	parms.dst_pitch = psd->pitch;		/* usually set in GdConversionBlit*/
 	parms.data_out = psd->addr;
@@ -1228,8 +1228,8 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, const MWI
 	parms.src_pitch = ((width + 15) >> 4) << 1;	/* pad to WORD boundary*/
 	parms.fg_colorval = gr_foreground_rgb;
 	parms.bg_colorval = gr_background_rgb;
-	//parms.fg_pixelval = gr_foreground;	/* not required for mono convblit*/
-	//parms.bg_pixelval = gr_background;
+	parms.fg_pixelval = gr_foreground;			/* for palette mask convblit*/
+	parms.bg_pixelval = gr_background;
 	parms.usebg = gr_usebg;
 	parms.data = (char *)imagebits;
 	parms.dst_pitch = psd->pitch;			/* usually set in GdConversionBlit*/
@@ -1248,6 +1248,7 @@ GdBitmapByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
 	int bitcount;			/* number of bits left in bitmap word */
 
+printf("Using slow GdBitmapByPoint\n");
 	if (width <= 0 || height <= 0)
 		return;
 
@@ -1446,11 +1447,11 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 	parms.srcx = 0;
 	parms.srcy = 0;
 	parms.src_pitch = width * pixsize;
-	//parms.fg_colorval = gr_foreground_rgb;	/* these are ignored in copy blits*/
-	//parms.bg_colorval = gr_background_rgb;
-	//parms.fg_pixelval = gr_foreground;
-	//parms.bg_pixelval = gr_background;
-	//parms.usebg = gr_usebg;
+	parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
+	parms.bg_colorval = gr_background_rgb;
+	parms.fg_pixelval = gr_foreground;			/* for palette mask convblit*/
+	parms.bg_pixelval = gr_background;
+	parms.usebg = gr_usebg;
 	parms.data = pixels;
 	parms.dst_pitch = psd->pitch;		/* usually set in GdConversionBlit*/
 	parms.data_out = psd->addr;

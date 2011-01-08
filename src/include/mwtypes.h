@@ -97,13 +97,14 @@
 #define MWIF_MONO			0x00000040L
 #define MWIF_HASALPHA		0x00000080L
 #define MWIF_BYTEDATA		0x00000100L
-#define MWIF_WORDDATA		0x00000200L
-#define MWIF_DWORDDATA		0x00000400L
-#define MWIF_MSBFIRST		0x00000800L
-#define MWIF_LSBFIRST		0x00001000L
+#define MWIF_LEWORDDATA		0x00000200L		/* 16-bit little endian format (retrofit format)*/
+//#define MWIF_BEQUADDATA	0x00000400L		/* 32-bit big endian format*/
+#define MWIF_MSBFIRST		0x00000800L		/* highest bit displayed leftmost*/
+#define MWIF_LSBFIRST		0x00001000L		/* lowest bit displayed leftmost*/
 #define MWIF_MONOBYTEMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_MSBFIRST)
 #define MWIF_MONOBYTELSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_LSBFIRST)
-#define MWIF_MONOWORDMSB	(MWIF_1BPP | MWIF_MONO | MWIF_WORDDATA | MWIF_MSBFIRST)
+#define MWIF_MONOWORDMSB	(MWIF_1BPP | MWIF_MONO | MWIF_LEWORDDATA | MWIF_MSBFIRST)
+//#define MWIF_MONOQUADMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BEQUADDATA | MWIF_MSBFIRST)
 #define MWIF_ALPHABYTE		(MWIF_8BPP | MWIF_HASALPHA| MWIF_BYTEDATA)
 
 /* framebuffer and image data formats - yet unsupported formats commented out*/
@@ -122,11 +123,11 @@
 //#define MWIF_BGR555_BE 0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
 #define MWIF_RGB332		 0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
 #define MWIF_BGR233		 0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
-#define MWIF_PAL1		 0x00100000L		/*  1bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL1		 MWIF_MONOBYTEMSB	/*  1bpp palette (old MWPF_PALETTE)*/
 #define MWIF_PAL2		 0x00200000L		/*  2bpp palette (old MWPF_PALETTE)*/
 #define MWIF_PAL4		 0x00400000L		/*  4bpp palette (old MWPF_PALETTE)*/
 #define MWIF_PAL8		 0x00800000L		/*  8bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PALETTE	 0x00F00000L		/* requires palette*/
+//#define MWIF_PALETTE	 0x00F00000L		/* requires palette*/
 
 /* Line modes */
 #define MWLINE_SOLID      0
@@ -142,17 +143,17 @@
 /* Drawing modes (raster ops)*/
 #define	MWROP_COPY			0	/* src*/
 #define	MWROP_XOR			1	/* src ^ dst*/
-#define	MWROP_OR			2	/* src | dst*/
-#define	MWROP_AND			3	/* src & dst*/
+#define	MWROP_OR			2	/* src | dst (PAINT)*/
+#define	MWROP_AND			3	/* src & dst (MASK)*/
 #define	MWROP_CLEAR			4	/* 0*/
-#define	MWROP_SET			5	/* ~0, was MWROP_SETTO1*/
+#define	MWROP_SET			5	/* ~0*/
 #define	MWROP_EQUIV			6	/* ~(src ^ dst)*/
 #define	MWROP_NOR			7	/* ~(src | dst)*/
 #define	MWROP_NAND			8	/* ~(src & dst)*/
 #define	MWROP_INVERT		9	/* ~dst*/
 #define	MWROP_COPYINVERTED	10	/* ~src*/
 #define	MWROP_ORINVERTED	11	/* ~src | dst*/
-#define	MWROP_ANDINVERTED	12	/* ~src & dst*/
+#define	MWROP_ANDINVERTED	12	/* ~src & dst (SUBTRACT)*/
 #define MWROP_ORREVERSE		13	/* src | ~dst*/
 #define	MWROP_ANDREVERSE	14	/* src & ~dst*/
 #define	MWROP_NOOP			15	/* dst*/

@@ -313,6 +313,10 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 
 	/* case MWPF_PALETTE: must be running 1, 2, 4 or 8 bit palette*/
 
+	/* handle 1bpp pixmaps, not running in palette mode*/
+	if (psd->ncolors == 2 && scrdev.pixtype != MWPF_PALETTE)
+		return c & 1;
+
 	/* search palette for closest match*/
 	return GdFindNearestColor(gr_palette, (int)psd->ncolors, c);
 }

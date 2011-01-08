@@ -259,3 +259,7 @@ void fbportrait_down_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, M
 void fbportrait_down_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc);
 void fbportrait_down_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc);
 void fbportrait_down_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc);
+
+/* rasterops.c*/
+void GdRasterOp(PMWIMAGEHDR pixd, MWCOORD dx, MWCOORD dy, MWCOORD dw, MWCOORD dh, int op,
+			PMWIMAGEHDR pixs, MWCOORD sx, MWCOORD sy);

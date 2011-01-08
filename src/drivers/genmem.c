@@ -47,11 +47,16 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 		data_format = format;
 		pixtype = MWPF_TRUECOLOR8888;
 		break;
-	case MWIF_PAL1:
+	/*case MWIF_PAL1:*/				/* MWIF_PAL1 is MWIF_MONOBYTEMSB*/
 	case MWIF_MONOBYTEMSB:			/* ft2 non-alias*/
 	case MWIF_MONOBYTELSB:			/* t1lib non-alias*/
 	case MWIF_MONOWORDMSB:			/* core mwcfont, pcf*/
 		bpp = 1;
+		data_format = format;
+		pixtype = MWPF_PALETTE;
+		break;
+	case MWIF_PAL2:
+		bpp = 2;
 		data_format = format;
 		pixtype = MWPF_PALETTE;
 		break;

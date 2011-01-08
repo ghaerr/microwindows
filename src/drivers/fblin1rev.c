@@ -1,7 +1,9 @@
 /*
  * Copyright (c) 1999, 2010 Greg Haerr <greg@censoft.com>
  *
- * 1bpp Packed Linear Video Driver for Microwindows (LSB first bit order)
+ * 1bpp Packed Linear Video Driver for Microwindows
+ * Writes MWIF_MONOBYTELSB data format (LSB first bit order)
+ *
  * For Psion S5
  */
 /*#define NDEBUG*/

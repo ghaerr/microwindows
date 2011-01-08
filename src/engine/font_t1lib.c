@@ -198,9 +198,13 @@ t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 {
 	PMWT1LIBFONT pf = (PMWT1LIBFONT)pfont;
 	GLYPH 		*glyph; 		/* glyph structure, memory handling by T1lib */
+	int			drawantialias;
 	MWBLITPARMS parms;
 
-	if (pf->fontattr & MWTF_ANTIALIAS) {
+	/* Don't use antialias settings if no alpha channel blitter*/
+	drawantialias = (pf->fontattr & MWTF_ANTIALIAS) && psd->BlitBlendMaskAlphaByte;
+
+	if (drawantialias) {
 		parms.data_format = MWIF_ALPHABYTE;		/* data is 8bpp alpha channel*/
 		parms.op = MWROP_BLENDFGBG;				/* blend fg/bg with alpha channel -> dst*/
 
@@ -226,7 +230,7 @@ t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 
 		parms.fg_colorval = gr_foreground_rgb;		/* for convblit*/
 		parms.bg_colorval = gr_background_rgb;
-		parms.fg_pixelval = gr_foreground;			/* for drawarea fallback*/
+		parms.fg_pixelval = gr_foreground;			/* for palette mask convblit*/
 		parms.bg_pixelval = gr_background;
 		parms.usebg = gr_usebg;
 		parms.srcx = 0;
@@ -236,7 +240,7 @@ t1lib_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 		parms.height = height;
 		parms.width = width;
 		parms.data = (char *)glyph->bits;
-		if (pf->fontattr & MWTF_ANTIALIAS)
+		if (drawantialias)
 			parms.src_pitch = width;
 		else
 			parms.src_pitch = (width + 7) >> 3;	/* pad to BYTE boundary*/

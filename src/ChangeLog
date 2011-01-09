@@ -1,4 +1,5 @@
 8 Jan 2011
+	* prelim C++ linkages: agg rasterizer demo (src/agglite), canny edge detector src/canny)
 	* added MWIF_MONOWORDLSB blit to fblin1 for PCF/core font drawing
 	* added MWIF_MONOBYTELSB blit to fblin1 for T1LIB font non-aliased drawing
 	* freetype/t1lib driver auto downgrade to non-antialias if blend blitter not present

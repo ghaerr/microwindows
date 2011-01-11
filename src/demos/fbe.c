@@ -907,13 +907,19 @@ main(int argc, char **argv)
 	if (fd >= 0) {
 		close(fd);
 	} else {
+		char *	p;
+		int 	size = ((CRTY * PITCH) + 4095) & ~4095;		/* extend to page boundary*/
 		if ((fd = open(PATH_FRAMEBUFFER, O_CREAT | O_WRONLY, 0777)) < 0) {
 			fprintf(stderr, PROGNAME ": Can't create %s\n", PATH_FRAMEBUFFER);
 			exit(1);
 		}
-		for (i = 0; i < CRTY * PITCH; i++)
-			write(fd, "\000", 1);
+		if ((p = calloc(size, 1)) == NULL) {
+			fprintf(stderr, PROGNAME ": Can't allocate screen buffer\n");
+			exit(1);
+		}
+		write(fd, p, size);
 		close(fd);
+		free(p);
 	}
 
 	cfd = open(PATH_COLORMAP, O_RDONLY);

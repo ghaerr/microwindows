@@ -34,9 +34,9 @@
 
 /* frame buffer emulator defaults - not used with real framebuffer*/
 #define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
-#define XRES				640			/* default fb emulator xres*/
-#define YRES				480			/* default fb emulator yres*/
-#define BPP					1			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
+#define XRES				800			/* default fb emulator xres*/
+#define YRES				600			/* default fb emulator yres*/
+#define BPP					32			/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
 
 #define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
 
@@ -49,7 +49,7 @@ static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
 
 SCREENDEVICE	scrdev = {
-	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	fb_open,
 	fb_close,

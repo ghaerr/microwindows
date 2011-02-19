@@ -2131,7 +2131,7 @@ GrSetFocus(GR_WINDOW_ID wid)
 	}
 
 	if (!wp->realized) {
-		GsError(GR_ERROR_UNMAPPED_FOCUS_WINDOW, wid);
+		/*GsError(GR_ERROR_UNMAPPED_FOCUS_WINDOW, wid);*/ /* fix FLTK 1.1.10 desync problem*/
 		SERVER_UNLOCK();
 		return;
 	}

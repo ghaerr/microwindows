@@ -1,3 +1,6 @@
+fix compiletime SCREEN_PIXTYPE requirement, convblit RGB2PIXEL etc macros
+add XOR/rasterop capability to mono FT antialiased drawing
+
 consider removing GdStretchImage, test convblits available in different pixtypes
 	make sure that similar bpp's are supported
 

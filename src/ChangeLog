@@ -1,3 +1,11 @@
+19 Feb 2011
+	* remove GsError() in GrSetFocus to fix FLTK 1.1.10 crash/desync problem (Martin)
+	* fix scr_fb.c typo
+	* NOTE: unlike v0.92, config SCREEN_PIXTYPE _must_ be set to target framebuffer pixel format.
+		The convblit routines use RGB2PIXEL/RED2PIXEL macros which fail when converting
+		to 16bpp, and GdDrawImage display is incorrect.  The inability to use
+		multiple fb pixel formats selected at runtime will be fixed soon.
+10 Jan 2011
 	* fix slow fbe startup creating framebuffer
 8 Jan 2011
 	* prelim C++ linkages: agg rasterizer demo (src/agglite), canny edge detector src/canny)

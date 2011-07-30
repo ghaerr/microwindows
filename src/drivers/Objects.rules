@@ -80,6 +80,12 @@ MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_mem.o
 endif
 
+# NDS screen device
+ifeq ($(SCRNDS), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nds.o
+endif
+
 # PSP
 ifeq ($(ARCH), PSP)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
@@ -115,6 +121,10 @@ endif
 ifeq ($(ADS7846MOUSE), Y)
 CFLAGS += -DTOUCHSCREEN_ADS7846=1
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(EVENTMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_event.o
 endif
 
 ifeq ($(IPAQMOUSE), Y)
@@ -191,6 +201,10 @@ ifeq ($(PSPMOUSE), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_psp.o
 endif
 
+ifeq ($(NDSMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nds.o
+endif
+
 #
 # Keyboard driver specific for every system
 #
@@ -209,6 +223,10 @@ endif
 
 ifeq ($(SCANKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
+endif
+
+ifeq ($(EVENTKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_event.o
 endif
 
 ifeq ($(ARCH), FREEBSD-X86)

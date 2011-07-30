@@ -287,6 +287,10 @@ GrOpen(void)
 		sceKernelStartThread(thid, 0, 0);
 #endif
 
+#if NDS
+	consoleDemoInit();  //setup the sub screen for printing
+#endif
+
 	SERVER_LOCK();
 	escape_quits = 1;
 
@@ -1060,6 +1064,25 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 }
 
 #endif /* NONETWORK */
+
+
+#elif NDS /* UNIX && defined(HAVESELECT)*/
+
+void
+GsSelect(GR_TIMEOUT timeout)
+{
+	/* If mouse data present, service it*/
+	if(mousedev.Poll())
+		while(GsCheckMouseEvent())
+			continue;
+
+	/* If keyboard data present, service it*/
+	if(kbddev.Poll())
+		while(GsCheckKeyboardEvent())
+			continue;
+
+}
+
 
 #endif /* UNIX && HAVE_SELECT*/
 

@@ -72,6 +72,7 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 
 	case MWIF_RGB565:				/* GdArea MWPF_TRUECOLOR565*/
 	case MWIF_RGB555:				/* GdArea MWPF_TRUECOLOR555*/
+	case MWIF_RGB1555:                              /* GdArea MWPF_TRUECOLOR1555*/
 		if (psd->data_format == data_format)
 			convblit = convblit_copy_16bpp_16bpp;	/* 16bpp to 16bpp copy*/
 		break;

@@ -612,6 +612,17 @@ int GdOpenVNC( PSD psd, int argc, char *argv[] )
 
            break;
 
+   case MWPF_TRUECOLOR1555:
+           rfbScreen->serverFormat.greenMax = 31;
+           rfbScreen->serverFormat.redMax = 31;
+           rfbScreen->serverFormat.blueMax = 31;
+
+           rfbScreen->serverFormat.redShift = 0;
+           rfbScreen->serverFormat.greenShift = 5;
+           rfbScreen->serverFormat.blueShift = 10;
+
+           break;
+
    case MWPF_PALETTE:
      cmap = &(rfbScreen->colourMap);
      rfbScreen->serverFormat.trueColour = FALSE;

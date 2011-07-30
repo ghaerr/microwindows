@@ -119,7 +119,7 @@
 //#define MWIF_RGB565_BE 0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
 #define MWIF_RGB555		 0x000A0000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
 //#define MWIF_RGB555_BE 0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
-//#define MWIF_BGR555	 0x000C0000L		/* 16bpp 5/5/5 BGR packed l.endian (old TRUECOLOR1555)*/
+#define MWIF_RGB1555	 0x000C0000L		        /* 16bpp 1/5/5/5 NDS color format */
 //#define MWIF_BGR555_BE 0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
 #define MWIF_RGB332		 0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
 #define MWIF_BGR233		 0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
@@ -207,6 +207,7 @@
 #define MWPF_TRUECOLOR233  9	/* pixel is packed  8 bits 2/3/3 BGR truecolor*/
 #define MWPF_HWPIXELVAL   10	/* pseudo, no convert, pixels are in hw format*/
 #define MWPF_TRUECOLORABGR 11	/* pixel is packed 32 bits A/B/G/R ABGR truecolor with alpha */
+#define MWPF_TRUECOLOR1555 12   /* pixel is packed 16 bits 1/5/5/5 NDS truecolor */
 
 /*
  * MWPIXELVALHW definition: changes based on target system
@@ -908,6 +909,11 @@ typedef struct {
 						  (((((((d) & 0x7C00) - (sr)) * as) >> 8) + (sr)) & 0x7C00)\
 						| (((((((d) & 0x03E0) - (sg)) * as) >> 8) + (sg)) & 0x03E0)\
 						| (((((((d) & 0x001F) - (sb)) * as) >> 8) + (sb)) & 0x001F)
+#define muldiv255_rgb1555(d, sr, sg, sb, as) \
+						  (((((((d) & 0x001F) - (sr)) * as) >> 8) + (sr)) & 0x001F)\
+						| (((((((d) & 0x03E0) - (sg)) * as) >> 8) + (sg)) & 0x03E0)\
+						| (((((((d) & 0x7C00) - (sb)) * as) >> 8) + (sb)) & 0x7C00)
+
 
 /* palette color definition*/
 #define RGBDEF(r,g,b)	{r, g, b}
@@ -1019,6 +1025,11 @@ typedef struct {
 #define GREEN2PIXEL555(byte)	(((byte) & 0xf8) << 2)
 #define BLUE2PIXEL555(byte)		(((byte) & 0xf8) >> 3)
 
+/* create single component of 1/5/5/5format pixel from color byte*/
+#define RED2PIXEL1555(byte)		(((byte) & 0xf8) >> 3)
+#define GREEN2PIXEL1555(byte)	(((byte) & 0xf8) << 2)
+#define BLUE2PIXEL1555(byte)		(((byte) & 0xf8) << 7)
+
 /* these defines used in convblits, must be available regardless of MWPIXEL_FORMAT, default 565*/
 #if MWPIXEL_FORMAT == MWPF_TRUECOLOR555
 #define muldiv255_16bpp		muldiv255_rgb555
@@ -1029,6 +1040,15 @@ typedef struct {
 #define GREENMASK(pixel)	((pixel) & 0x03e0)
 #define BLUEMASK(pixel)		((pixel) & 0x001f)
 #else
+ #if MWPIXEL_FORMAT == MWPF_TRUECOLOR1555
+#define muldiv255_16bpp		muldiv255_rgb1555
+#define RED2PIXEL(byte)		RED2PIXEL1555(byte)
+#define GREEN2PIXEL(byte)	GREEN2PIXEL1555(byte)
+#define BLUE2PIXEL(byte)	BLUE2PIXEL1555(byte)
+#define REDMASK(pixel)		((pixel) & 0x001f)
+#define GREENMASK(pixel)	((pixel) & 0x03e0)
+#define BLUEMASK(pixel)		((pixel) & 0x7c00)
+ #else
 #define muldiv255_16bpp		muldiv255_rgb565
 #define RED2PIXEL(byte)		RED2PIXEL565(byte)
 #define GREEN2PIXEL(byte)	GREEN2PIXEL565(byte)
@@ -1036,6 +1056,7 @@ typedef struct {
 #define REDMASK(pixel)		((pixel) & 0xf800)
 #define GREENMASK(pixel)	((pixel) & 0x07e0)
 #define BLUEMASK(pixel)		((pixel) & 0x001f)
+ #endif
 #endif
 
 /*
@@ -1238,6 +1259,10 @@ typedef struct {
 #define PIXEL555TOCOLORVAL(p)	\
 	(0xff000000ul | (((p) & 0x7c00u) >> 7) | (((p) & 0x03e0u) << 6) | (((p) & 0x1ful) << 19) | 0xff000000ul)
 
+/* create ABGR colorval (0xFFBBGGRR) from 1/5/5/5 format pixel*/
+#define PIXEL1555TOCOLORVAL(p)  \
+        (0xff000000ul | (((p) & 0x7c00u) << 9) | (((p) & 0x03e0u) << 6) | (((p) & 0x1ful) << 3) | 0xff000000ul)
+
 /* create ABGR colorval (0xFFBBGGRR) from 3/3/2 format pixel*/
 #define PIXEL332TOCOLORVAL(p)	\
 	(0xff000000ul | (((p) & 0xe0u)) | (((p) & 0x1cu) << 11) | (((p) & 0x03ul) << 19) | 0xff000000ul)
@@ -1300,6 +1325,15 @@ typedef struct {
 #define PIXEL2RED(p)		PIXEL555RED(p)
 #define PIXEL2GREEN(p)		PIXEL555GREEN(p)
 #define PIXEL2BLUE(p)		PIXEL555BLUE(p)
+#endif
+
+#if MWPIXEL_FORMAT == MWPF_TRUECOLOR1555
+#define RGB2PIXEL(r,g,b)	RGB2PIXEL1555(r,g,b)
+#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL1555(c)
+#define PIXELVALTOCOLORVAL(p)	PIXEL1555TOCOLORVAL(p)
+#define PIXEL2RED(p)		PIXEL1555RED(p)
+#define PIXEL2GREEN(p)		PIXEL1555GREEN(p)
+#define PIXEL2BLUE(p)		PIXEL1555BLUE(p)
 #endif
 
 #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332

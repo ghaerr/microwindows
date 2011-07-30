@@ -70,6 +70,11 @@ GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pix
 		data_format = format;
 		pixtype = MWPF_PALETTE;
 		break;
+        case MWIF_RGB1555:
+ 	        bpp = 16;
+		data_format = format;
+		pixtype = MWPF_TRUECOLOR1555;
+		break;
 	case MWIF_RGB555:
 		bpp = 16;
 		data_format = format;

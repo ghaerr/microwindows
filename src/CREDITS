@@ -1,5 +1,5 @@
 The Nano-X Window System
-Copyright (c) 1999-2010 Greg Haerr <greg@censoft.com>
+Copyright (c) 1999-2011 Greg Haerr <greg@censoft.com>
 
 CREDITS
 Thanks to everyone who has contributed to this project.
@@ -8,7 +8,7 @@ If I've missed you, please remind me or submit something!
 
 Contributors
 Engine				Greg Haerr, David Bell, Morten Rolland, Alex Holden
-Win32 api			Greg Haerr, Gabriele Brugnoni
+Win32 api			Greg Haerr, Gabriele Brugnoni, Ludwig Ertl
 Nano-X api			David Bell, Alan Cox, Alex Holden, Greg Haerr
 Nano-X window manager		Alex Holden, Greg Haerr
 Nano-X popup keyboard		Vladimir Cotfas, Jay Carlson, Greg Haerr
@@ -27,7 +27,7 @@ X11 driver			Tony Rogvall, Jonathan Foster
 Portrait mode fb driver		Martin Jolicoeur
 BMP and JPEG file read/display	Martin Jolicoeur
 RTEMS port			Rosimildo daSilva, Joel Sherrill, Roxana Leontie
-DJGPP/GRX port			Victor Rogachev
+DJGPP/GRX port			Victor Rogachev, Georg Potthast
 C++ objects framework		Chris Johns
 Arc clipping routines		Eero Tamminen
 Mozilla kbd,rops,font enum	Matthew Wlazlo
@@ -58,3 +58,5 @@ Eero Tamminen		<oak@welho.com>
 Matthew Wlazlo		<mattw@igelaus.com.au>
 Alexander Neundorf	<neundorf@kde.org>
 Jim Paris		<ps2dev.org>
+Ludwig Ertl		<ert@csp.at>
+Georg Potthast		<mailbox@georgpotthast.de>

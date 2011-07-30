@@ -300,6 +300,10 @@ ifeq ($(LIRCKBD2), Y)
 DEFINES += -DMW_FEATURE_TWO_KEYBOARDS=1
 endif
 
+ifeq ($(EVENTMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_EVENT=1
+endif
+
 # Nano-X specific stuff
 ifeq ($(NANOX), Y)
 

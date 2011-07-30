@@ -1,3 +1,8 @@
+30 Jul 2011
+	* Nintendo DS port, added MWPF_TRUECOLOR1555 format (Derek Carter)
+	* add Standard Event mouse/kbd drivers (/dev/input/event0) EVENTMOUSE/EVENTKBD config (David Rizzo)
+	* updated DJGPP support in contrib/djgpp, GRX lib and VESA (Georg Potthast)
+	* add GetSysColorBrush (Ludwig)
 19 Feb 2011
 	* remove GsError() in GrSetFocus to fix FLTK 1.1.10 crash/desync problem (Martin)
 	* fix scr_fb.c typo

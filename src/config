@@ -26,6 +26,7 @@
 # LINUX-SH
 # SOLARIS (BIGENDIAN=Y)
 # PSP
+# NDS (Nintendo DS)
 # TRIMEDIA
 # MACOSX
 # RTEMS
@@ -265,6 +266,9 @@ SCRMEM                   = N
 # PSP screen driver
 PSP                      = N
 
+# Nintendo DS screen driver
+SCRNDS                   = N
+
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set GRAYPALETTE to link with Gray Palette (valid only for 4bpp modes)
@@ -299,6 +303,7 @@ INVERT4BPP               = N
 # YOPYMOUSE	Yopy (/dev/yopy-ts)
 # HARRIERMOUSE	NEC Harrier (/dev/tpanel)
 # TSLIBMOUSE    Use tslib (/dev/input/event0)
+# EVENTMOUSE	Simple standard event interface (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
 GPMMOUSE                 = N
@@ -318,8 +323,10 @@ YOPYMOUSE                = N
 HARRIERMOUSE             = N
 LIRCMOUSE                = N
 TSLIBMOUSE               = N
-TTMOUSE		             = N
+TTMOUSE                  = N
 PSPMOUSE                 = N
+NDSMOUSE                 = N
+EVENTMOUSE               = N
 
 # keyboard or null kbd driver
 TTYKBD                   = N
@@ -328,6 +335,7 @@ PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
 PSPKBD                   = N
+EVENTKBD                 = N
 NOKBD                    = N
 # Secondary keyboard drivers for IR input
 LIRCKBD2                 = N

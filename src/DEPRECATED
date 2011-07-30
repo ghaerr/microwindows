@@ -1,4 +1,4 @@
-DEPRECATED FILES AND DRIVERS	12/29/2010
+DEPRECATED FILES AND DRIVERS	07/30/2011
 
 After v0.92, the internal drawing model has changed slightly.
 Instead of having screen drivers implement drawpixel, drawhline,
@@ -21,7 +21,6 @@ similar to the way the X11 scr_x11.c driver was rewritten.
 
 DEPRECATED SCREEN DRIVERS (moved to src/drivers/deprecated)
 scr_bios.c		- PC BIOS
-scr_djgr.c		- DJGPP GRX Library
 scr_em84xx.c	- Experimental EM8400 driver
 scr_em86xx.c	- EM8600 driver (has blit, slight rewrite would make ok)
 scr_fbsd.c		- FreeBSD VGL driver (has blit, needs rewrite)
@@ -53,7 +52,6 @@ VGALIB=Y		- SVGA Library
 EM8400=Y		- EM8400 driver
 HERCDRIVER=Y	- BIOS Hercules driver
 UCLINUX-PRISMA=Y- Isicad Prisma screen driver
-ARCH=DJGPP		- DJGPP GRX Library
 ARCH=FREEBSD-X86- FreeBSD VGL driver
 ARCH=ELKS		- Elks OS support
 ASMVGADRIVER=Y	- BIOS VGA (Elks)

@@ -1,0 +1,68 @@
+# Micro-Windows libimages.a library makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by Greg Haerr and V. Rogachev
+#
+LIB=libimages.a
+OBJECTS=car8.o min4.o max4.o close4.o under4.o\
+	zion208.o cs1.o rle8.o penguin.o microwin.o 
+    
+#OBJECTS += dragon.o
+
+all: convbmp makebmp $(LIB)
+
+clean:
+	rm -f *.o *.a core convbmp makebmp
+
+realclean: clean
+	rm -f car8.c min4.c max4.c close4.c under4.c\
+	zion208.c cs1.c rle8.c microwin.c dragon.c
+
+# compile for host not target
+convbmp: convbmp.c
+	$(HOSTCC) $(HOSTCFLAGS) convbmp.c $(LIBS) -o convbmp
+
+# compile for host not target
+makebmp: makebmp.c
+	$(HOSTCC) $(HOSTCFLAGS) makebmp.c $(LIBS) -o makebmp
+
+$(LIB): $(OBJECTS)
+	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(OBJECTS)
+
+car8.c: car8.bmp
+	./convbmp car8.bmp > car8.c
+
+min4.c: min4.bmp
+	./convbmp min4.bmp > min4.c
+
+max4.c: max4.bmp
+	./convbmp max4.bmp > max4.c
+
+close4.c: close4.bmp
+	./convbmp close4.bmp > close4.c
+
+under4.c: under4.bmp
+	./convbmp under4.bmp > under4.c
+
+tits208.c: tits208.bmp
+	./convbmp tits208.bmp > tits208.c
+
+tits236.c: tits236.bmp
+	./convbmp tits236.bmp > tits236.c
+
+zion208.c: zion208.bmp
+	./convbmp zion208.bmp > zion208.c
+
+cs1.c: cs1.bmp
+	./convbmp cs1.bmp > cs1.c
+
+rle8.c: rle8.bmp
+	./convbmp rle8.bmp > rle8.c
+
+penguin.c: penguin.bmp
+	./convbmp penguin.bmp > penguin.c
+
+microwin.c: microwin.bmp
+	./convbmp microwin.bmp > microwin.c
+
+dragon.c: dragon.bmp
+	./convbmp dragon.bmp > dragon.c

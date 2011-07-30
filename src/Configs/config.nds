@@ -26,14 +26,14 @@
 # LINUX-SH
 # SOLARIS (BIGENDIAN=Y)
 # PSP
-# NDS (Nintendo DS)
 # TRIMEDIA
 # MACOSX
 # RTEMS
 # ECOS
 # CYGWIN
+# NDS
 ####################################################################
-ARCH                     = LINUX-NATIVE
+ARCH                     = NDS
 BIGENDIAN                = N
 NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
@@ -50,9 +50,9 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = Y
-VERBOSE                  = N
-THREADSAFE               = Y
+DEBUG                    = N
+VERBOSE                  = Y
+THREADSAFE               = N
 GPROF                    = N
 
 ####################################################################
@@ -63,7 +63,7 @@ GPROF                    = N
 MICROWIN                 = Y
 NANOX                    = Y
 ENGINE                   = Y
-SHAREDLIBS               = Y
+SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
 ####################################################################
@@ -71,16 +71,16 @@ OBJFRAMEWORK             = N
 # Demos to build
 #
 ####################################################################
-MICROWINDEMO             = Y
-NANOXDEMO                = Y
+MICROWINDEMO             = N
+NANOXDEMO                = N
 
 ####################################################################
 #
 # Applications to build
 #
 ####################################################################
-NANOWM                   = Y
-FBEMULATOR               = Y
+NANOWM                   = N
+FBEMULATOR               = N
 
 ####################################################################
 #
@@ -101,18 +101,19 @@ FBEMULATOR               = Y
 # define MWPF_TRUECOLOR888  /* pixel is packed 24 bits byte order |B|G|R|*/
 # define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
 # define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
+# define MWPF_TRUECOLOR1555 /* pixel is packed 16 bits A/B/G/R truecolor for NDS*/
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 #
 ####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR1555
 
 ####################################################################
 # NanoX: Put Y to the following line to link the nano-X application
 # with the server. This is required if UNIX sockets aren't available,
 # or for speed or debugging.  This affects the nano-X server only.
 ####################################################################
-LINK_APP_INTO_SERVER     = N
+LINK_APP_INTO_SERVER     = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
@@ -130,20 +131,20 @@ HAVE_FILEIO              = Y
 ####################################################################
 HAVE_BMP_SUPPORT         = Y
 HAVE_GIF_SUPPORT         = Y
-HAVE_PNM_SUPPORT         = Y
-HAVE_XPM_SUPPORT         = Y
+HAVE_PNM_SUPPORT         = N
+HAVE_XPM_SUPPORT         = N
 
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
 LIBJPEG                  = /usr/lib/libjpeg.so
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
-HAVE_PNG_SUPPORT         = Y
+HAVE_PNG_SUPPORT         = N
 INCPNG                   = .
 LIBPNG                   = /usr/lib/libpng.so
 INCZ                     = .
@@ -159,14 +160,14 @@ LIBTIFF                  = /usr/lib/libtiff.so
 ####################################################################
 # PCF font support - .pcf/.pcf.gz loadable fonts
 ####################################################################
-HAVE_PCF_SUPPORT         = Y
-HAVE_PCFGZ_SUPPORT       = Y
+HAVE_PCF_SUPPORT         = N
+HAVE_PCFGZ_SUPPORT       = N
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
 # Truetype fonts - .ttf loadable fonts thru Freetype 2.x
 ####################################################################
-HAVE_FREETYPE_2_SUPPORT  = Y
+HAVE_FREETYPE_2_SUPPORT  = N
 INCFT2LIB                = /usr/include
 LIBFT2LIB                = /usr/local/lib/libfreetype.a
 FREETYPE_FONT_DIR        = "fonts/truetype"
@@ -183,8 +184,8 @@ LIBT1LIB                 = /usr/lib/libt1.so
 ####################################################################
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
 ####################################################################
-HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = Y
+HAVE_FNT_SUPPORT         = N
+HAVE_FNTGZ_SUPPORT       = N
 FNT_FONT_DIR             = "fonts/fnt"
 
 ####################################################################
@@ -240,7 +241,7 @@ NOCLIPPING               = N
 # Otherwise an XOR redraw is used for window moves only after button up
 # UPDATEREGIONS (win32 api only)paints in update clipping region only
 ####################################################################
-ERASEMOVE                = Y
+ERASEMOVE                = N
 UPDATEREGIONS            = Y
 
 ####################################################################
@@ -258,7 +259,7 @@ X11                      = N
 USE_EXPOSURE             = N
 
 # Framebuffer screen driver
-FRAMEBUFFER              = Y
+FRAMEBUFFER              = N
 
 # memory screen driver
 SCRMEM                   = N
@@ -266,8 +267,8 @@ SCRMEM                   = N
 # PSP screen driver
 PSP                      = N
 
-# Nintendo DS screen driver
-SCRNDS                   = N
+# NDS screen driver
+SCRNDS                   = Y
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
@@ -303,10 +304,9 @@ INVERT4BPP               = N
 # YOPYMOUSE	Yopy (/dev/yopy-ts)
 # HARRIERMOUSE	NEC Harrier (/dev/tpanel)
 # TSLIBMOUSE    Use tslib (/dev/input/event0)
-# EVENTMOUSE	Simple standard event interface (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
-GPMMOUSE                 = Y
+GPMMOUSE                 = N
 SERMOUSE                 = N
 SUNMOUSE                 = N
 NOMOUSE                  = N
@@ -325,18 +325,16 @@ LIRCMOUSE                = N
 TSLIBMOUSE               = N
 TTMOUSE		             = N
 PSPMOUSE                 = N
-NDSMOUSE                 = N
-EVENTMOUSE               = N
+NDSMOUSE                 = Y
 
 # keyboard or null kbd driver
 TTYKBD                   = N
-SCANKBD                  = Y
+SCANKBD                  = N
 PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
 PSPKBD                   = N
-EVENTKBD                 = N
-NOKBD                    = N
+NOKBD                    = Y
 # Secondary keyboard drivers for IR input
 LIRCKBD2                 = N
 

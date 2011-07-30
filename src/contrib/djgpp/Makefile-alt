@@ -1,0 +1,307 @@
+# Micro-Windows Makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by V. Rogachev
+#
+# use the makefile with DOS command line, not bash
+
+# export variables for sublevel makefiles
+export MW_SRC_DIR CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS HAVEMSFONTS VESA
+
+# set to one to build microwin and/or nano-X demos
+MICROWIN=1
+NANOX=1
+#select just one demo for testing
+#TESTPROG=1
+
+# network libs location
+NETLIBS=
+#NETLIBS=-lsocket -lnsl
+
+# grxlib library location
+LIBGRX=-lgrx20
+# set to 1 to use VESA screen driver instead of GRX
+VESA=1
+
+# for recursive makes
+MW_SRC_DIR := $(CURDIR)
+
+# set variable to compile with gcc
+CC = gcc
+AS = as
+LD = ld
+AR = ar
+STRIP = strip
+HOSTCC = gcc
+HOSTCFLAGS = -I$(MW_SRC_DIR)/include
+#OPTIMIZE = 1
+#DEBUG= 1
+#VERBOSE= 1
+
+# DJGPP cc flags, includes
+INC = -I$(MW_SRC_DIR)/include
+CFLAGS = $(INC) -Wall -g -s
+ifdef OPTIMIZE
+CFLAGS += -O3
+endif
+ifdef VERBOSE
+CFLAGS += -v
+endif
+
+#MATHLIB
+#CLIBS += -lm
+
+CFLAGS += -DHAVE_FILEIO=1 -DMW_FEATURE_IMAGES=1 -DMW_FEATURE_TIMERS=1
+CFLAGS += -DHAVE_SIGNAL=0 
+
+ifdef DEBUG
+#HAVE_FPRINTF=0 uses Nano-X error function and outputs to STDOUT=SCREEN
+CFLAGS += -DHAVE_FPRINTF=1
+else
+CFLAGS += -DHAVE_FPRINTF=0
+endif
+
+#Add defines to CFLAGS variable
+
+# uncomment the following line to link the nano-X application
+# with the server.  This is required, if no network is present,
+# or for speed or debugging.  This affects the nano-X server only.
+LINK_APP_INTO_SERVER=1
+#set to one if linking app into server
+CFLAGS += -DNONETWORK=1
+
+# Window move algorithms, change for tradeoff between cpu speed and looks
+# UPDATEREGIONS paints in update clipping region only for better look and feel
+# ERASEMOVE repaints only backgrounds while window dragging, quicker
+# XORMOVE moves windows only after button up, quickest 
+
+#CFLAGS += -DUPDATEREGIONS=1
+#CFLAGS += -DERASEMOVE=1
+CFLAGS += -DXORMOVE=1
+
+#set to 1 for MS FONTS
+#CFLAGS += -DHAVEMSFONTS=1
+
+# define arch: DOS & DJGPP
+CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1 
+
+#needed in devimage.c
+CFLAGS += -DHAVE_MMAP=0
+
+#set to 1 for BMP SUPPORT
+CFLAGS += -DHAVE_BMP_SUPPORT=1
+#set to 1 for GIF SUPPORT
+CFLAGS += -DHAVE_GIF_SUPPORT=1
+#set to 1 for PNM SUPPORT
+CFLAGS += -DHAVE_PNM_SUPPORT=1
+#set to 1 for XPM SUPPORT
+CFLAGS += -DHAVE_XPM_SUPPORT=1
+
+#put libs mentioned below in djgpp\lib
+##set for JPEG support - libjpeg.a
+#CFLAGS += -DHAVE_JPEG_SUPPORT=1
+CLIBS += -ljpeg
+##set for PNG support - libpng.a + libz.a
+#CFLAGS += -DHAVE_PNG_SUPPORT=1
+#CLIBS += -lpng -lz
+##set for TIFF support - libtiff.a
+#CFLAGS += -DHAVE_TIFF_SUPPORT=1
+#CLIBS += -ltiff
+
+#font support settings
+
+CFLAGS += -DHAVE_FNT_SUPPORT=1
+CFLAGS += -DFNT_FONT_DIR="../fonts/fnt/" 
+#"fonts\\fnt\\"
+
+CFLAGS += -DHAVE_PCF_SUPPORT=1
+CFLAGS += -DPCF_FONT_DIR="../fonts/pcf/"
+#need zlib for gz format
+CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
+CLIBS += -lz
+
+CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
+#CFLAGS += -DFREETYPE_FONT_DIR="../fonts/truetype/"
+CLIBS += -lfreetype
+
+#CFLAGS += -DHAVE_T1LIB_SUPPORT=1
+#T1LIB_FONT_DIR = "../fonts/type1/"
+
+# SCREEN SETTINGS #########################
+SCREEN_WIDTH=1024
+SCREEN_HEIGHT=768
+SCREEN_DEPTH=8
+
+#/* pixel is packed 8 bits 1, 4 or 8 pal index*/
+#SCREEN_PIXTYPE = MWPF_PALETTE       
+
+#/* pixel is packed 32 bits byte order |B|G|R|A|*/
+SCREEN_PIXTYPE = MWPF_TRUECOLOR8888 
+
+#/* pixel is packed 32 bits byte order |R|G|B|A|*/
+#SCREEN_PIXTYPE = MWPF_TRUECOLORABGR 
+
+#/* pixel is packed 24 bits byte order |B|G|R|*/
+#SCREEN_PIXTYPE = MWPF_TRUECOLOR888  
+
+#/* pixel is packed 16 bits little endian RGB565*/
+#SCREEN_PIXTYPE = MWPF_TRUECOLOR565  
+
+ifdef SCREEN_HEIGHT
+CFLAGS += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
+endif
+
+ifdef SCREEN_WIDTH
+CFLAGS += -DSCREEN_WIDTH=$(SCREEN_WIDTH)
+endif
+
+ifdef SCREEN_DEPTH
+CFLAGS += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
+endif
+
+ifdef SCREEN_PIXTYPE
+CFLAGS += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
+endif
+
+# define ALL target ********************************
+
+ALL += init drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a mwin/libmwin.a mwin/bmp/libimages.a nanox/libnano-X.a
+
+ifdef MICROWIN
+ALL += mwindemos 
+endif
+
+ifdef NANOX 
+ALL += nanoxdemos
+endif
+
+ifdef TESTPROG
+ALL += testprog
+endif
+
+#define LIBS and NANOLIBS variable - CLIBS = common libs **************
+
+ifndef VESA  
+#LIBGRX=-lgrx20
+CLIBS += $(LIBGRX) 
+endif
+
+#drivers/libmwdrivers.a
+#CLIBS += -lmwdrivers
+#fonts/libfonts.a 
+#CLIBS += -lfonts
+#engine/libmwengine.a
+#CLIBS += -lmwengine
+
+#mwin/bmp/libimages.a 
+CLIBS += -limages
+
+#nanox/libnano-X.a 
+NANOLIBS = -lnano-X $(CLIBS)
+
+#mwin/libmwin.a 
+LIBS = -lmwin $(CLIBS)
+
+LIBS += $(NETLIBS)
+
+CFLAGS += -L$(MW_SRC_DIR)/lib
+
+#####################
+all: $(ALL)
+
+init:
+	$(warning Please ignore these two error messages should they be displayed)
+	-$(shell md lib)
+	-$(shell md bin)   
+
+mwindemos:
+	$(CC) $(CFLAGS) -o bin\malpha.exe demos\mwin\malpha.c $(LIBS)              
+	$(CC) $(CFLAGS) -o bin\mtest.exe demos\mwin\mtest.c $(LIBS)       
+	$(CC) $(CFLAGS) -o bin\mtest2.exe demos\mwin\mtest2.c $(LIBS)       
+	$(CC) $(CFLAGS) -o bin\mdemo.exe demos\mwin\mdemo.c $(LIBS)       
+#	$(CC) $(CFLAGS) -o bin\mterm.exe demos\mwin\mterm.c $(LIBS)       
+#	$(CC) $(CFLAGS) -o bin\mine.exe demos\mwin\mine.c $(LIBS)       
+	$(CC) $(CFLAGS) -o bin\mstretch.exe demos\mwin\mstretch.c $(LIBS)       
+#	$(CC) $(CFLAGS) -o bin\muserfd.exe demos\mwin\muserfd.c $(LIBS)       
+
+nanoxdemos:
+	$(CC) $(CFLAGS) -o bin\demo.exe demos\nanox\demo.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\nxmove.exe demos\nanox\move.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\nxeyes.exe demos\nanox\nxeyes.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\landmine.exe demos\nanox\landmine.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\world.exe demos\nanox\world.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\nxclock.exe demos\nanox\nxclock.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin\nterm.exe demos\nanox\nterm.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\demo2.exe demos\nanox\demo2.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\grabdemo.exe demos\nanox\grabdemo.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin\demo4.exe demos\nanox\demo4.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\demo5.exe demos\nanox\demo5.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\demo6.exe demos\nanox\demo6.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\nxview.exe demos\nanox\nxview.c $(NANOLIBS) -lz
+	$(CC) $(CFLAGS) -o bin\snap_ppm.exe demos\nanox\snap_ppm.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\snap_jpg.exe demos\nanox\snap_jpg.c $(NANOLIBS) -ljpeg
+#	$(CC) $(CFLAGS) -o bin\ntetris.exe demos\nanox\ntetris.c $(NANOLIBS)            	
+#	$(CC) $(CFLAGS) -o bin\info.exe demos\nanox\info.c $(NANOLIBS)            		
+	$(CC) $(CFLAGS) -o bin\tsdemo.exe demos\nanox\tsdemo.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin\tux.exe demos\nanox\tux.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin\polydemo.exe demos\nanox\polydemo.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin\slider.exe demos\nanox\slider.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin\arcdemo.exe demos\nanox\arcdemo.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin\blitdemo.exe demos\nanox\blitdemo.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin\bmpdemo.exe demos\nanox\bmpdemo.c $(NANOLIBS)	
+#	$(CC) $(CFLAGS) -o bin\getselection.exe demos\nanox\getselection.c $(NANOLIBS)	            	
+	$(CC) $(CFLAGS) -o bin\npanel.exe demos\nanox\npanel.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin\fontdemo.exe demos\nanox\fontdemo.c $(NANOLIBS)		
+	$(CC) $(CFLAGS) -o bin\ftdemo.exe demos\nanox\ftdemo.c $(NANOLIBS)
+	
+testprog:
+	$(CC) $(CFLAGS) -o bin\malpha.exe demos\mwin\malpha.c $(LIBS)   
+#	$(CC) $(CFLAGS) -o bin\demo2.exe demos\nanox\demo2.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin\pcfdemo.exe demos\nanox\pcfdemo.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin\fontdemo.exe demos\nanox\fontdemo.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin\ftdemo.exe demos\nanox\ftdemo.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin\nxview.exe demos\nanox\nxview.c $(NANOLIBS) -lz
+#####################
+clean:
+	
+	del mwin\*.o
+	del mwin\*.a
+	del mwin\bmp\*.o
+	del mwin\bmp\*.a
+	del mwin\winlib\*.o
+	del mwin\winlib\*.a	
+	del fonts\*.o
+	del fonts\*.a
+	del nanox\*.o
+	del nanox\*.a
+	del drivers\*.o
+	del drivers\*.a
+	del engine\*.o
+	del engine\*.a
+	del demos\mwin\*.o
+	del demos\nanox\*.o
+	del lib\*.a
+
+#############################################################################
+#targets for libraries - engine,fonts,drivers make just object files, no libs
+#using AR these will be merged into libmwin.a and libnano-X.a
+
+nanox/libnano-X.a: 
+	$(MAKE) -C nanox
+
+#mwin/winlib/libwinlib.a:
+#	$(MAKE) -C mwin/winlib
+
+mwin/libmwin.a:
+	$(MAKE) -C mwin
+	
+fonts/libfonts.a:
+	$(MAKE) -C fonts
+
+engine/libmwengine.a:
+	$(MAKE) -C engine
+
+drivers/libmwdrivers.a:
+	$(MAKE) -C drivers
+
+mwin/bmp/libimages.a:
+	$(MAKE) -C mwin/bmp

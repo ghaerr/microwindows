@@ -43,6 +43,8 @@ extern MWCFONT font_X5x7, font_X6x13;
 MWFONTPROCS mwfontprocs = {
 	0,				/* capabilities*/
 	MWTF_ASCII,		/* routines expect ascii*/
+	NULL,			/* init*/
+	NULL,			/* createfont*/
 	gen_getfontinfo,
 	gen_gettextsize,
 	gen_gettextbits,
@@ -51,6 +53,7 @@ MWFONTPROCS mwfontprocs = {
 	NULL,			/* setfontsize*/
 	NULL,			/* setfontrotation*/
 	NULL,			/* setfontattr*/
+	NULL			/* duplicate*/
 };
 
 /*

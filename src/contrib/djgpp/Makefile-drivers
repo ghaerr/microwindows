@@ -1,0 +1,42 @@
+# Micro-Windows libmwdrovers.a library makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by Greg Haerr and V. Rogachev
+#
+LIB = libmwdrivers.a
+
+# List of objects to compile 
+# screen driver
+ifdef VESA  
+          OBJECTS := scr_djvesa.o 
+else
+          OBJECTS := scr_djgrx.o 
+endif
+
+          OBJECTS += genfont.o        
+          OBJECTS += fblin8.o 
+          OBJECTS +=fblin16.o 
+          OBJECTS +=fblin24.o 
+          OBJECTS +=fblin32.o 
+          OBJECTS +=genmem.o 
+          OBJECTS +=fb.o 
+          OBJECTS +=fbportrait_left.o fbportrait_right.o fbportrait_down.o 
+          OBJECTS +=fblin1.o  
+          OBJECTS +=fblin2.o  
+          OBJECTS +=fblin4.o  
+          OBJECTS +=rasterops.o 
+
+
+# mouse driver
+OBJECTS += mou_dos.o
+
+# keyboard driver
+OBJECTS += kbd_dj.o
+
+all: $(LIB)
+
+clean:
+	rm -f *.o *.a core
+
+$(LIB): $(OBJECTS)
+#	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(OBJECTS)
+	

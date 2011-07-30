@@ -1061,7 +1061,7 @@ mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags
 	MWCOORD baseline;
 
 	if(!hDC)
-		return 0;
+		return;
 
 	for (i = 0, j = 0, k = 0, x1 = 0; i < len; i++) {
 		if (str[i] == '&') {
@@ -1400,6 +1400,25 @@ SetSysColor(int nIndex, COLORREF crColor)	/* Microwindows only*/
 	}
 	return 0;
 }
+
+static MWBRUSHOBJ syscolorBrushes[MAXSYSCOLORS];
+
+HBRUSH WINAPI
+GetSysColorBrush(int nIndex)
+{
+	MWBRUSHOBJ *hbr;
+
+	if(nIndex >= 0 && nIndex < MAXSYSCOLORS) {
+		hbr = &syscolorBrushes[nIndex];
+		hbr->hdr.type = OBJ_BRUSH;
+		hbr->hdr.stockobj = TRUE;
+		hbr->style = BS_SOLID;
+		hbr->color = sysColors[nIndex];
+		return (HBRUSH)hbr;
+	}
+	return 0;
+}
+
 
 static MWBRUSHOBJ OBJ_WHITE_BRUSH = {
 	{OBJ_BRUSH, TRUE}, BS_SOLID, RGB(255, 255, 255)

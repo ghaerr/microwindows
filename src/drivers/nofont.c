@@ -19,6 +19,8 @@ static MWCFONT nullfont = {
 MWFONTPROCS mwfontprocs = {
 	0,				/* capabilities*/
 	MWTF_ASCII,		/* routines expect ascii*/
+	NULL,			/* init*/
+	NULL,			/* createfont*/
 	NULL,			/* getfontinfo*/
 	NULL,			/* gettextsize*/
 	NULL,			/* gettextbits*/
@@ -27,6 +29,7 @@ MWFONTPROCS mwfontprocs = {
 	NULL,			/* setfontsize*/
 	NULL,			/* setfontrotation*/
 	NULL,			/* setfontattr*/
+	NULL			/* duplicate*/
 };
 
 /* first font is default font if no match*/

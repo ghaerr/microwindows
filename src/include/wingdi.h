@@ -242,6 +242,7 @@ BOOL WINAPI	DrawDIB(HDC hdc,int x, int y,PMWIMAGEHDR pimage); /* microwin*/
 
 DWORD WINAPI	GetSysColor(int nIndex);
 COLORREF WINAPI	SetSysColor(int nIndex, COLORREF crColor);/* Microwindows only*/
+HBRUSH WINAPI	GetSysColorBrush(int nIndex);
 
 /* Stock Logical Objects */
 #define WHITE_BRUSH         0

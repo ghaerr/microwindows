@@ -82,7 +82,7 @@ void CallbackThread(void *arg)
 #endif
 
 int
-#if __ECOS
+#if __ECOS | NOMAIN
 invoke_WinMain(int ac, char **av)
 #else
 main(int ac, char **av)
@@ -279,6 +279,24 @@ MwUnregisterFdExcept(HWND hwnd, int fd)
 }
 
 #endif /* UNIX && HAVE_SELECT*/
+
+#if NDS
+void
+MwSelect(BOOL mayWait)
+{
+	/* If mouse data present, service it*/
+	if(mousedev.Poll())
+		while(MwCheckMouseEvent())
+			continue;
+
+	/* If keyboard data present, service it*/
+	if(kbddev.Poll())
+		while(MwCheckKeyboardEvent())
+			continue;
+
+	MwHandleTimers();
+}
+#endif
 
 #if MSDOS | _MINIX
 void

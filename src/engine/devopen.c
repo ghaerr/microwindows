@@ -301,6 +301,11 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 		/*RGB2PIXEL555(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
 		return COLOR2PIXEL555(c);
 
+	case MWPF_TRUECOLOR1555:
+		/* create 16 bit RGB5/5/5 format pixel from ABGR colorval (0xAABBGGRR)*/
+		/*RGB2PIXEL1555(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
+		return COLOR2PIXEL1555(c);
+
 	case MWPF_TRUECOLOR332:
 		/* create 8 bit RGB3/3/2 format pixel from ABGR colorval (0xAABBGGRR)*/
 		/*RGB2PIXEL332(REDVALUE(c), GREENVALUE(c), BLUEVALUE(c))*/
@@ -390,6 +395,9 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 
 	case MWPF_TRUECOLOR555:
 		return PIXEL555TOCOLORVAL(pixel);
+
+	case MWPF_TRUECOLOR1555:
+ 	        return PIXEL1555TOCOLORVAL(pixel);
 
 	case MWPF_TRUECOLOR332:
 		return PIXEL332TOCOLORVAL(pixel);

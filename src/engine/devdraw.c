@@ -750,6 +750,25 @@ typedef union {
 	unsigned short v; 
 } RGB555;	
 
+typedef union {
+	/* bitfield order should use __BIG_ENDIAN_BITFIELDS, assuming so with big endian byte order*/
+	struct {
+#if !MW_CPU_BIG_ENDIAN	
+		unsigned short r:5; 
+		unsigned short g:5;
+		unsigned short b:5;
+		unsigned short a:1; // MSBit on little endian
+#else
+		unsigned short a:1; // MSBit on big endian
+		unsigned short b:5;
+		unsigned short g:5;
+		unsigned short r:5; 
+#endif		
+	} f;
+	unsigned short v; 
+} RGB1555;	
+
+
 /* slow draw point by point with clipping*/
 static void
 GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
@@ -979,11 +998,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 						break;
 					case MWPF_TRUECOLOR555:
 						if (alpha == 255)
-							pixel = (
-										(((cr) & 0x0000f8) >> 3) | 
-										(((cr) & 0x00f800) >> 6) | 
-										(((cr) & 0xf80000) >> 9)
-									);
+						  pixel = COLOR2PIXEL555(cr);
 						else {
 							/* ARGB8888   : 0xAARRGGBB*/
 							/* MWPIXELVAL : r/g/b 5/5/5*/
@@ -1002,6 +1017,29 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 							pixel = bg.v;
 						}
 						break;
+
+					case MWPF_TRUECOLOR1555:
+						if (alpha == 255)
+						        pixel = COLOR2PIXEL1555(cr);
+						else {
+							/* ARGB8888   : 0xAARRGGBB*/
+							/* MWPIXELVAL : r/g/b 5/5/5*/
+							ARGB8888  fg;
+							RGB1555   bg;
+							
+							fg.v = cr;
+							bg.v = psd->ReadPixel(psd,x,y);
+
+ 							//bg +=mulscale(a,fg-bg)
+							bg.f.r += mulscale(alpha, fg.f.r - PIXEL1555RED8(bg.v), 11);
+							bg.f.g += mulscale(alpha, fg.f.g - PIXEL1555GREEN8(bg.v), 11);
+							bg.f.b += mulscale(alpha, fg.f.b - PIXEL1555BLUE(bg.v), 11);
+
+							//bg.f.a = 0;
+							pixel = bg.v;
+						}
+						break;
+
 #else /* !alpha blending*/
 					/* implement image draw without alpha blending*/
 					/*
@@ -1023,6 +1061,8 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					case MWPF_TRUECOLOR555:
 						pixel = COLOR2PIXEL555(ARGB2COLORVAL(cr));
 						break;
+					case MWPF_TRUECOLOR1555:
+					        pixel = COLOR2PIXEL1555(ARGB2COLORVAL(cr));
 #endif /* alpha blending*/
 
 					case MWPF_PALETTE:
@@ -1069,9 +1109,18 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 #else
 				unsigned int pv = (imagebits[1] << 8) | imagebits[0];
 #endif
-
-				cr = (pimage->data_format == MWIF_RGB555)?
-					PIXEL555TOCOLORVAL(pv): PIXEL565TOCOLORVAL(pv);
+				switch (pimage->data_format)
+				{
+				  case MWIF_RGB555:
+				    cr =  PIXEL555TOCOLORVAL(pv);
+				    break;
+				  case MWIF_RGB565:
+				    cr = PIXEL565TOCOLORVAL(pv);
+				    break;
+				  case MWIF_RGB1555:
+				    cr = PIXEL1555TOCOLORVAL(pv);
+				    break;
+				}
 				imagebits += 2;
 			}
 
@@ -1097,6 +1146,9 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 					break;
 				case MWPF_TRUECOLOR555:
 					pixel = COLOR2PIXEL555(cr);
+					break;
+				case MWPF_TRUECOLOR1555:
+				        pixel = COLOR2PIXEL1555(cr);
 					break;
 				case MWPF_TRUECOLOR332:
 					pixel = COLOR2PIXEL332(cr);
@@ -1416,9 +1468,13 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 		pixsize = 2;
 		break;
 	case MWPF_TRUECOLOR555:
-		data_format = MWIF_RGB565;
+		data_format = MWIF_RGB555;
 		pixsize = 2;
 		break;
+	case MWPF_TRUECOLOR1555:
+	        data_format = MWIF_RGB1555;
+		pixsize = 2;
+                break;
 	case MWPF_PALETTE:
 	case MWPF_TRUECOLOR233:
 	case MWPF_TRUECOLOR332:
@@ -1512,6 +1568,7 @@ GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void
 		break;
 	case MWPF_TRUECOLOR565:
 	case MWPF_TRUECOLOR555:
+	case MWPF_TRUECOLOR1555:
 		gr_foreground = *(unsigned short *)PIXELS;
 		PIXELS += sizeof(unsigned short);
 		break;
@@ -1563,6 +1620,7 @@ GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void
 			break;
 		case MWPF_TRUECOLOR565:
 		case MWPF_TRUECOLOR555:
+		case MWPF_TRUECOLOR1555:
 			if(gr_foreground != *(unsigned short *)PIXELS)
 				goto breakwhile;
 			PIXELS += sizeof(unsigned short);
@@ -1728,6 +1786,11 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			colorval = PIXEL555TOCOLORVAL(pixelval);
 			inbuf += sizeof(unsigned short);
 			break;
+		case MWPF_TRUECOLOR1555:
+		        pixelval = *(unsigned short *)inbuf;
+			colorval = PIXEL1555TOCOLORVAL(pixelval);
+			inbuf += sizeof(unsigned short);
+			break;
 		default:
 			return;
 		}
@@ -1776,6 +1839,10 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			break;
 		case MWPF_TRUECOLOR555:
 			*(unsigned short *)outbuf = COLOR2PIXEL555(colorval);
+			outbuf += sizeof(unsigned short);
+			break;
+		case MWPF_TRUECOLOR1555:
+		        *(unsigned short *)outbuf = COLOR2PIXEL1555(colorval);
 			outbuf += sizeof(unsigned short);
 			break;
 		}

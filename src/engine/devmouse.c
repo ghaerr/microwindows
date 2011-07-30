@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2002, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002, 2010, 2011 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (C) 1999 Bradley D. LaRonde (brad@ltc.com)
  * Copyright (c) 1991 David I. Bell
@@ -526,7 +526,11 @@ GdFixCursor(PSD psd)
 }
 
 /* Input filter routines - global mouse filtering is cool */
+#if TOUCHSCREEN_EVENT
+#define JITTER_SHIFT_BITS	0	/* no jitter handling in standard event driver*/
+#else
 #define JITTER_SHIFT_BITS	2
+#endif
 #define JITTER_DEPTH		(1 << (JITTER_SHIFT_BITS))
 
 static MWTRANSFORM g_trans;	/* current transform*/

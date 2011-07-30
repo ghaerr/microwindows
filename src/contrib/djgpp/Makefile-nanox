@@ -1,0 +1,27 @@
+# Micro-Windows libnano-X.a library makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by Greg Haerr and V. Rogachev
+#
+# no network support - LINK_APP_INTO_SERVER = Y
+LIB=libnano-X.a
+
+# Nano-X server files
+NANOXFILES := \
+	srvmain.o \
+	srvfunc.o \
+	srvutil.o \
+	srvevent.o \
+	nxutil.o \
+	srvclip.o \
+	clientfb.o \
+	error.o
+
+OBJECTS += $(NANOXFILES)
+
+all: $(LIB)
+
+clean:
+	rm -f *.o *.a core
+
+$(LIB): $(OBJECTS)
+	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(MW_SRC_DIR)/engine/*.o $(MW_SRC_DIR)/fonts/*.o $(MW_SRC_DIR)/drivers/*.o $(OBJECTS)

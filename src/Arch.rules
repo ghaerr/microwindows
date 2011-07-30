@@ -250,6 +250,30 @@ CFLAGS += -Wall $(OPTFLAGS)
 LDFLAGS +=
 endif
 
+ifeq ($(ARCH), NDS)
+COMPILER = gcc
+HOSTCC = gcc
+MAKE = make
+CXX_COMPILER = g++
+TOOLSPREFIX = arm-eabi-
+DEFINES += -DNDS=1 -DUNIX=0 -DHAVE_MMAP=0 -DNOMAIN
+##DEFINES += -DPSP=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_FPRINTF=0
+INCLUDEDIRS += -I$(DEVKITPRO)/libnds/include -DARM9
+CFLAGS += -g -Wall -O2 -s \
+          -march=armv5te -mtune=arm946e-s -fomit-frame-pointer\
+                  -ffast-math \
+                  -mthumb-interwork
+#-mthumb 
+
+export PORTLIBS	        :=	$(DEVKITPRO)/portlibs/arm
+export PATH		:=	$(DEVKITARM)/bin:$(PORTLIBS)/bin:$(PATH)
+
+# Additional settings for a NDS
+SCREEN_HEIGHT=192
+SCREEN_WIDTH=256
+
+endif
+
 ifeq ($(BIGENDIAN), Y)
 DEFINES += -DMW_CPU_BIG_ENDIAN=1
 endif

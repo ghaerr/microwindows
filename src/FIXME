@@ -6,6 +6,8 @@ look at tc1555.diff patch
 consider removing GdStretchImage, test convblits available in different pixtypes
 	make sure that similar bpp's are supported
 
+remove move.c demo, debug move handling bugs/issues
+
 merge GdFindConvBlit and GdFindFrameBlit
 consider rasterops for 2-32bpp pixmaps
 consider quad vs byte MWIF for mono pixmaps, former can use rasterops, check case statements

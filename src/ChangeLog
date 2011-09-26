@@ -1,3 +1,4 @@
+	* deprecate demos/nanox/move.c demo
 30 Jul 2011
 	* Nintendo DS port, added MWPF_TRUECOLOR1555 format (Derek Carter)
 	* add Standard Event mouse/kbd drivers (/dev/input/event0) EVENTMOUSE/EVENTKBD config (David Rizzo)

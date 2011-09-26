@@ -4,6 +4,9 @@
 #include "nano-X.h"
 /*
  * Demo to test child window movement and redrawing
+ *
+ * NOTE: THIS DEMO IS DEPRECATED AND IS NOT INDICATIVE OF
+ * GOOD NANO-X PROGRAMMING.  DON'T USE!
  */
 int 
 main(int ac,char **av)
@@ -13,6 +16,7 @@ main(int ac,char **av)
   GR_WINDOW_ID 	window2, subwindow2;
   /*GR_WINDOW_ID	subsubwin2;*/
   GR_EVENT 	event;
+  GR_GC_ID gc;
 
   fprintf(stderr,"This is a demo program.\n");
   fprintf(stderr,"Left-button drags window\n");
@@ -46,8 +50,13 @@ main(int ac,char **av)
 		 GR_EVENT_MASK_CLOSE_REQ);
 
   GrSelectEvents(subsubwin1, 
+  		 GR_EVENT_MASK_EXPOSURE |
 		 GR_EVENT_MASK_BUTTON_DOWN |
 		 0);
+
+  GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_EXPOSURE);
+  gc = GrNewGC();
+  GrSetGCForeground(gc, GREEN);
 
   GrMapWindow(subsubwin1);
   GrMapWindow(subwindow1);
@@ -66,7 +75,7 @@ main(int ac,char **av)
     case GR_EVENT_TYPE_BUTTON_DOWN:
 	offset_x = event.button.x;
 	offset_y = event.button.y;
-
+#if 0
       if (event.button.changebuttons & GR_BUTTON_R) {
 	GrRaiseWindow(event.button.wid);
       }
@@ -79,6 +88,7 @@ main(int ac,char **av)
 	  GrReparentWindow(subsubwin1, subwindow1, 10, 10);
 	}
       }
+#endif
     case GR_EVENT_TYPE_MOUSE_MOTION:
       if (event.mouse.buttons == GR_BUTTON_L && 
 	  (event.mouse.wid == window1 || event.mouse.wid == window2)) {
@@ -93,15 +103,16 @@ main(int ac,char **av)
       }
       break;
     case GR_EVENT_TYPE_EXPOSURE:
-      /*GrFillRect(event.exposure.wid, defgc,
+	  printf("expose %d\n", event.exposure.wid);
+      GrFillRect(event.exposure.wid, gc,
 	event.exposure.x, event.exposure.y,
-	event.exposure.width, event.exposure.height);*/
+	event.exposure.width, event.exposure.height);
       break;
     case GR_EVENT_TYPE_CLOSE_REQ:
       GrClose();
       exit(0);
     default:
-      fprintf(stderr, "%d\n", event.type);
+      fprintf(stderr, "unhandled event type %d\n", event.type);
     }
   }
   GrClose();

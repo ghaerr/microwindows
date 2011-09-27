@@ -1422,8 +1422,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 				if (drawbold)
 				{
+					/* resultant alpha bitmap is one pixel wider... GdGetTextSize doesn't know about it*/
+					unsigned dst_pitch = parms.src_pitch + 1;
 					unsigned char *src = parms.data;
-					unsigned char *dst = parms.data = malloc(parms.height * parms.src_pitch);
+					unsigned char *dst = parms.data = malloc(parms.height * dst_pitch);
 					if (dst)
 					{
 						int height = parms.height;
@@ -1433,7 +1435,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 							int width = parms.width - 1;
 							unsigned char *d = dst;
 							register unsigned char *s = src;
-							
+
 							*d++ = *s;								/* copy first column alpha*/
 							while (--width >= 0)
 							{
@@ -1443,9 +1445,15 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 									*d++ = 255;
 								else *d++ = (unsigned char)alpha;
 							}
+							*d++ = *s;								/* copy last column alpha*/
+
 							src += parms.src_pitch;
-							dst += parms.src_pitch;			/* dst pitch same as src for now*/
+							dst += dst_pitch;
 						}
+
+						/* done, set parm struct for wider character*/
+						++parms.width;
+						parms.src_pitch = dst_pitch;
 					}
 				}
 

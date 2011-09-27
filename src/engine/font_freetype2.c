@@ -1416,8 +1416,43 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 			ax += face->glyph->advance.x >> 6;
 #endif
 			if (parms.width > 0 && parms.height > 0)
-				GdConversionBlit(psd, &parms);
+			{
+				/* simulate bold if requested and drawing 8bpp alpha*/
+				int drawbold = drawantialias && (pf->fontattr & MWTF_BOLD);
 
+				if (drawbold)
+				{
+					unsigned char *src = parms.data;
+					unsigned char *dst = parms.data = malloc(parms.height * parms.src_pitch);
+					if (dst)
+					{
+						int height = parms.height;
+						while (--height >= 0)
+						{
+							/* add alpha values with right shift, no change to character width*/
+							int width = parms.width - 1;
+							unsigned char *d = dst;
+							register unsigned char *s = src;
+							
+							*d++ = *s;								/* copy first column alpha*/
+							while (--width >= 0)
+							{
+								register unsigned int alpha = *s++;	/* get previous alpha*/
+								alpha += *s;						/* add to next (right) column*/
+								if (alpha > 255)
+									*d++ = 255;
+								else *d++ = (unsigned char)alpha;
+							}
+							src += parms.src_pitch;
+							dst += parms.src_pitch;			/* dst pitch same as src for now*/
+						}
+					}
+				}
+
+				GdConversionBlit(psd, &parms);
+				if (drawbold)
+					free(parms.data);
+			}
 		}
 		if (pf->fontattr & MWTF_UNDERLINE)
 			GdLine(psd, startx, starty, ax, ay, FALSE);

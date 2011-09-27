@@ -1,3 +1,5 @@
+26 Sep 2011
+	* added MWTF_BOLD flag to GrSetFontAttr to simulate bold fonts using FT2, nonrotated only
 	* deprecate demos/nanox/move.c demo
 30 Jul 2011
 	* Nintendo DS port, added MWPF_TRUECOLOR1555 format (Derek Carter)

@@ -138,6 +138,7 @@ typedef struct {
 #define GR_TFKERNING		MWTF_KERNING
 #define GR_TFANTIALIAS		MWTF_ANTIALIAS
 #define GR_TFUNDERLINE		MWTF_UNDERLINE
+#define GR_TFBOLD			MWTF_BOLD
 
 /* GrArc, GrArcAngle types*/
 #define GR_ARC		MWARC		/* arc only*/

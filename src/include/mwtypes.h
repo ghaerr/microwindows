@@ -77,6 +77,7 @@
 #define MWTF_KERNING	0x0001		/* font kerning*/
 #define MWTF_ANTIALIAS	0x0002		/* antialiased output*/
 #define MWTF_UNDERLINE	0x0004		/* draw underline*/
+#define MWTF_BOLD		0x0008		/* draw bold glyph (not present on all renderers)*/
 
 #define MWTF_FREETYPE	0x1000		/* FIXME: remove*/
 #define MWTF_SCALEHEIGHT 0x2000		/* font can scale height seperately*/

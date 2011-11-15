@@ -1,7 +1,7 @@
 #ifndef _MWTYPES_H
 #define _MWTYPES_H
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010, 2011 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Exported Microwindows engine typedefs and defines
@@ -78,6 +78,10 @@
 #define MWTF_ANTIALIAS	0x0002		/* antialiased output*/
 #define MWTF_UNDERLINE	0x0004		/* draw underline*/
 #define MWTF_BOLD		0x0008		/* draw bold glyph (not present on all renderers)*/
+
+#define MWTF_CMAP_DEFAULT 0x0010	/* use default (unicode) charset in truetype font (not required)*/
+#define MWTF_CMAP_0		  0x0020	/* use charmap 0 in truetype font*/
+#define MWTF_CMAP_1       0x0040	/* use charmap 1 in truetype font*/
 
 #define MWTF_FREETYPE	0x1000		/* FIXME: remove*/
 #define MWTF_SCALEHEIGHT 0x2000		/* font can scale height seperately*/

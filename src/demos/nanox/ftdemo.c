@@ -13,6 +13,8 @@
 #define FONTNAME "fonts/type1/bchr.pfb"
 #elif HAVE_FREETYPE_2_SUPPORT
 #define FONTNAME "lt1-r-omega-serif"
+//#define FONTNAME "termcs1"
+//#define FONTNAME "lucon"
 //#define FONTNAME "cour"
 #elif HAVE_PCF_SUPPORT
 //#define FONTNAME	"jiskan24.pcf.gz"
@@ -149,6 +151,8 @@ void Render(GR_WINDOW_ID window)
    if (bold)
    	flags |= GR_TFBOLD;
 
+// flags |= MWTF_CMAP_0;	/* termcs1 only*/
+
    GrGetScreenInfo(&info);
    GrSetGCBackground(gid, WHITE);
    GrSetGCForeground (gid, WHITE);
@@ -162,7 +166,7 @@ void Render(GR_WINDOW_ID window)
  
    /* Draw menu */
    GrSetGCFont(gid, fontid);
-   GrSetFontAttr(fontid, flags&(GR_TFANTIALIAS|GR_TFKERNING|GR_TFBOLD), -1);
+   GrSetFontAttr(fontid, flags & ~GR_TFUNDERLINE, -1);
    GrText(window, gid, 5, 20, "+ Rotate string clockwise", 25, GR_TFASCII);
    GrText(window, gid, 5, 40, "-  Rotate string counter-clockwise", 34, GR_TFASCII);
    GrText(window, gid, 5, 60, "a Toggle anti-aliasing", 22, GR_TFASCII);

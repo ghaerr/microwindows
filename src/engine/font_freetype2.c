@@ -201,6 +201,7 @@ typedef struct {
 	FT_Face face;
 #endif
 	FT_Matrix matrix;
+	int charmap;	/* -1 for default (currently UNICODE), >= 0 for specific charset */
 
 } MWFREETYPE2FONT, *PMWFREETYPE2FONT;
 
@@ -313,7 +314,6 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 {
 	freetype2_fontdata *fontdata = (freetype2_fontdata *) face_id;	// simple typecast
 	FT_Error rr;
-	char *p;
 
 	assert(fontdata);
 
@@ -330,11 +330,6 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 		assert(filename);
 		rr = FT_New_Face(library, filename, 0, aface);
 
-		/* FIXME special case termcs*.ttf*/
-		if ((p = strrchr(filename, '.')) != NULL && strcasecmp(p, ".ttf") == 0) {
-			if (&p[-7] >= filename && isprefix(&p[-7], "termcs"))
-				FT_Set_Charmap(*aface, (*aface)->charmaps[1]);
-		}
 	}
 	
 	return rr;
@@ -354,7 +349,7 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
  */
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 #define LOOKUP_CHAR(pf_,face_,ch_) \
-	(FTC_CMapCache_Lookup(freetype2_cache_cmap, (pf_)->imagedesc.face_id, -1, (ch_)))
+	(FTC_CMapCache_Lookup(freetype2_cache_cmap, (pf_)->imagedesc.face_id, (pf_)->charmap, (ch_)))
 #else
 #define LOOKUP_CHAR(pf_,face_,ch_) \
 	(FTC_CMapCache_Lookup(freetype2_cache_cmap, &((pf_)->cmapdesc), (ch_)))
@@ -614,6 +609,7 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 	pf->fontprocs = &freetype2_fontprocs;
 	pf->faceid = faceid;
 	pf->filename = filename;
+	pf->charmap = -1;
 #if HAVE_FREETYPE_2_CACHE
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->imagedesc.face_id = faceid;
@@ -658,9 +654,10 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 	}
 
 	error = FT_Select_Charmap(pf->face, FT_ENCODING_UNICODE);
-	//error = FT_Set_Charmap(pf->face, pf->face->charmaps[1]);
+	pf->charmap = -1;
+
 	if (error != FT_Err_Ok) {
-		EPRINTF("freetype2_createfont_internal: No unicode map table, error 0x%x\n", error);
+		EPRINTF("freetype2_createfont_internal: Can't set default UNICODE encoding 0x%x\n", error);
 		goto out;
 	}
 #endif
@@ -897,11 +894,33 @@ freetype2_setfontattr(PMWFONT pfont, int setflags, int clrflags)
 {
 	PMWFREETYPE2FONT pf = (PMWFREETYPE2FONT)pfont;
 	int oldattr = pf->fontattr;
+	int error = FT_Err_Ok;
 
 	assert(pfont);
 
 	pfont->fontattr &= ~clrflags;
 	pfont->fontattr |= setflags;
+
+	if(pfont->fontattr & MWTF_CMAP_0) {
+#if !HAVE_FREETYPE_2_CMAP_CACHE
+		error = FT_Set_Charmap(pf->face, pf->face->charmaps[0]);
+#endif
+		pf->charmap = 0;
+	} else if(pfont->fontattr & MWTF_CMAP_1) {
+#if !HAVE_FREETYPE_2_CMAP_CACHE
+		error = FT_Set_Charmap(pf->face, pf->face->charmaps[1]);
+#endif
+		pf->charmap = 1;
+	} else {
+#if !HAVE_FREETYPE_2_CMAP_CACHE
+		error = FT_Select_Charmap(pf->face, FT_ENCODING_UNICODE);
+#endif
+		pf->charmap = -1;
+	}
+
+	if (error != FT_Err_Ok) {
+		EPRINTF("freetype2_setfontattr: Cannot load charmap %d 0x%x\n", pf->charmap, error);
+	}
 
 #if HAVE_FREETYPE_2_CACHE
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,1,3)

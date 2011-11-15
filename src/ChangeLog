@@ -1,3 +1,5 @@
+15 Nov 2011
+	* fix termcs1 freetype kluge, add MWTF_CMAP_DEFAULT/0/1 charmap select to GdSetFontAttr
 26 Sep 2011
 	* added MWTF_BOLD flag to GrSetFontAttr to simulate bold fonts using FT2, nonrotated only
 	* deprecate demos/nanox/move.c demo

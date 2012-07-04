@@ -17,6 +17,9 @@ export LDFLAGS
 all: 
 	@$(MAKE) -f Makefile $@
 
+install: 
+	@$(MAKE) -f Makefile $@
+
 clean:
 	@$(MAKE) -f Makefile $@
 	rm -rf rtems/rootfs rtems/FilesystemImage* rtems/stamp-filesystem

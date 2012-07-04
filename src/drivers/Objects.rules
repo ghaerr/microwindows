@@ -53,7 +53,7 @@ ifeq ($(ARCH), ECOS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_ecos.o
 else
 ifeq ($(ARCH), RTEMS)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_rtems.o $(MW_DIR_OBJ)/drivers/romfont.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_rtems.o $(MW_DIR_OBJ)/drivers/deprecated/romfont.o
 else
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
 endif

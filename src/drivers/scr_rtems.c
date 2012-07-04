@@ -87,11 +87,14 @@ fb_open(PSD psd)
 	psd->xres = psd->xvirtres = fb_var.xres;
 	psd->yres = psd->yvirtres = fb_var.yres;
 
+	
 	/* set planes from fb type*/
-	if (type == FB_TYPE_PACKED_PIXELS)
+	if (type == FB_TYPE_VGA_PLANES)
+		psd->planes = 4;
+	else if (type == FB_TYPE_PACKED_PIXELS)
 		psd->planes = 1;
 	else psd->planes = 0;	/* force error later*/
-
+	
 	psd->bpp = fb_var.bits_per_pixel;
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
 	psd->pitch = fb_fix.line_length;

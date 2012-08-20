@@ -64,6 +64,9 @@ e.g.:
 
 If that all works, you should have a few demo executables in src/bin.
 
+NOTE2: Everything added to add_to_root folder will be built into the image
+       and moved into the filesystem on startup
+
 Credits
 =======
 

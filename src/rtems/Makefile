@@ -71,6 +71,11 @@ ifeq ($(HAVE_PNG_SUPPORT),Y)
 	mkdir -p rootfs/logos
 	cp RTEMS_logo.png rootfs/logos
 endif
+ifeq ($(HAVE_TIFF_SUPPORT),Y)
+	# /logos
+	mkdir -p rootfs/logos
+	cp RTEMS_logo.tiff rootfs/logos
+endif
 	# /bin
 	mkdir -p rootfs/bin
 	cp ../../src/demos/nanox/tux.gif rootfs/bin
@@ -123,6 +128,8 @@ ifeq ($(HAVE_FREETYPE_2_SUPPORT),Y)
 	cp ../../src/fonts/truetype/arial*.ttf rootfs/fonts/truetype
 	cp ../../src/fonts/truetype/times*.ttf rootfs/fonts/truetype
 endif
+	# add other user files
+	cp add_to_root/* rootfs/ -r
 	# Tar
 	cd rootfs ; \
 	    tar cf ../FilesystemImage --exclude CVS --exclude .cvsignore .

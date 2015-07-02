@@ -26,6 +26,7 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 ifeq ($(NANOX), Y)
 ifeq ($(NANOXDEMO), Y)
 
@@ -37,6 +38,7 @@ OBJS = \
 	$(MW_DIR_OBJ)/demos/vnc/libvncauth/d3des.o \
 	$(MW_DIR_OBJ)/demos/vnc/libvncauth/vncauth.o
 
+endif
 endif
 endif
 

@@ -26,6 +26,7 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 ifeq ($(NANOX), Y)
 ifeq ($(NANOXDEMO), Y)
 
@@ -48,6 +49,7 @@ endif
 
 endif
 endif
+endif
 
 ######################### Makefile.rules section #############################
 
@@ -55,9 +57,13 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
+
 NANOXCLIENTLIBS += $(MW_DIR_LIB)/libvncauth.a
 
 
 $(MW_DIR_BIN)/vnc: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
+
+endif
 

@@ -9,7 +9,7 @@
 ##############################################################################
 
 # Standard set of warnings for all platforms that use GCC
-GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes # -Werror
+GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes # -Werror
 #GCC_WARNINGS := -Wall -Wpointer-arith
 
 # Platform dependent flags & definitions

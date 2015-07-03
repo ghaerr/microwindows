@@ -138,23 +138,23 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 HAVE_JPEG_SUPPORT        = Y
 INCJPEG                  = .
-LIBJPEG                  = /usr/lib/libjpeg.so
+LIBJPEG                  = -ljpeg
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
-LIBPNG                   = /usr/lib/libpng.so
+LIBPNG                   = -lpng
 INCZ                     = .
-LIBZ                     = /usr/lib/libz.so
+LIBZ                     = -lz
 
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
 INCTIFF                  = .
-LIBTIFF                  = /usr/lib/libtiff.so
+LIBTIFF                  = -ltiff
 
 ####################################################################
 # PCF font support - .pcf/.pcf.gz loadable fonts
@@ -168,7 +168,7 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/local/lib/libfreetype.a
+LIBFT2LIB                = -lfreetype
 FREETYPE_FONT_DIR        = "fonts/truetype"
 
 ####################################################################
@@ -178,7 +178,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 HAVE_T1LIB_SUPPORT       = N
 T1LIB_FONT_DIR           = "fonts/type1"
 INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.so
+LIBT1LIB                 = -lt1
 
 ####################################################################
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
@@ -345,5 +345,5 @@ LIRCKBD2                 = N
 ####################################################################
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
-LIBVNC                   = /usr/lib/libvncserver.a
+LIBVNC                   = -lvncserver
 INCVNC                   = /usr/include

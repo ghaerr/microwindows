@@ -28,11 +28,17 @@
 #define png_jmpbuf(png_ptr)	((png_ptr)->jmpbuf)
 #endif
 
-/* This is a quick user defined function to read from the buffer instead of from the file pointer */
+/* This is a quick user defined function to read from the buffer instead of from the file pointer
+*/
 static void
 png_read_buffer(png_structp pstruct, png_bytep pointer, png_size_t size)
 {
-	GdImageBufferRead(pstruct->io_ptr, pointer, size);
+#if (PNG_LIBPNG_VER >= 10510)
+    png_voidp ptr =  png_get_io_ptr(pstruct);
+    GdImageBufferRead(ptr, pointer, size);
+#else
+    GdImageBufferRead(pstruct->io_ptr, pointer, size);
+#endif
 }
 
 PSD

@@ -137,5 +137,5 @@ Draw3dUpFrame(HDC hDC, int l, int t, int r, int b)
 		GetSysColor(COLOR_BTNSHADOW));
 	InflateRect(&rc, -1, -1);
 
-	FillRect(hDC, &rc, (COLOR_BTNFACE+1));
+	FillRect(hDC, &rc, (HBRUSH)(COLOR_BTNFACE+1));
 }

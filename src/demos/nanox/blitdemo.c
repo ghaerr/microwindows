@@ -108,7 +108,7 @@ init_stretchblit(void)
 }
 
 int
-main(void)
+main(int argc, char **argv)
 {
 	int quit = 0;
 

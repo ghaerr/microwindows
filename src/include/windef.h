@@ -7,6 +7,7 @@
 
 #define _WINDEF_H
 
+#include <stdint.h>
 
 #ifdef VXWORKS
 /* Don't include the internal Tornado header file <ntcontext.h>, **
@@ -85,7 +86,7 @@ typedef int                 	INT;
 #endif
 typedef unsigned int        	*PUINT;
 
-typedef uint32_t       DWORD;
+typedef unsigned long       DWORD;
 typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
 
@@ -132,7 +133,7 @@ typedef int (FAR WINAPI *FARPROC)();
 typedef int (NEAR WINAPI *NEARPROC)();
 typedef int (WINAPI *PROC)();
 
-typedef UINT WPARAM;
+typedef unsigned long WPARAM;
 typedef LONG LPARAM;
 typedef LONG LRESULT;
 typedef LONG HRESULT;
@@ -144,10 +145,10 @@ typedef LONG HRESULT;
 #define LOBYTE(w)           ((BYTE)(w))
 #define HIBYTE(w)           ((BYTE)(((WORD)(w) >> 8) & 0xFF))
 
-#define PALETTEINDEX(i)     ((COLORREF)(0x01000000 | (DWORD)(WORD)(i)))
+#define PALETTEINDEX(i)     ((COLORREF)(0x01000000 | (COLORREF)(WORD)(i)))
 
-typedef DWORD   COLORREF;
-typedef DWORD   *LPCOLORREF;
+typedef uint32_t COLORREF;
+typedef COLORREF *LPCOLORREF;
 
 /* handle typedef*/
 typedef PVOID HANDLE;

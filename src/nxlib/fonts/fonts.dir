@@ -1,0 +1,20 @@
+19
+6x13-ISO8859-1.pcf.gz fixed
+6x13-ISO8859-1.pcf.gz 6x13
+6x13B-ISO8859-1.pcf.gz 6x13bold
+6x13-ISO8859-1.pcf.gz -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
+6x13B-ISO8859-1.pcf.gz -misc-fixed-bold-r-semicondensed--13-120-75-75-c-60-iso8859-1
+ariblk.ttf -monotype-arial black-medium-r-normal--0-0-0-0-p-0-iso8859-1
+arial.ttf -adobe-helvetica-medium-r-normal--0-0-0-0-p-0-iso8859-1
+arialb.ttf -adobe-helvetica-bold-r-normal--0-0-0-0-p-0-iso8859-1
+ariali.ttf -adobe-helvetica-medium-o-normal--0-0-0-0-p-0-iso8859-1
+arialz.ttf -adobe-helvetica-bold-o-normal--0-0-0-0-p-0-iso8859-1
+cour.ttf -adobe-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1
+courb.ttf -adobe-courier-bold-r-normal--0-0-0-0-m-0-iso8859-1
+couri.ttf -adobe-courier-medium-o-normal--0-0-0-0-m-0-iso8859-1
+courz.ttf -adobe-courier-bold-o-normal--0-0-0-0-m-0-iso8859-1
+times.ttf -adobe-times-medium-r-normal--0-0-0-0-p-0-iso8859-1
+timesb.ttf -adobe-times-bold-r-normal--0-0-0-0-p-0-iso8859-1
+timesi.ttf -adobe-times-medium-i-normal--0-0-0-0-p-0-iso8859-1
+timesz.ttf -adobe-times-bold-i-normal--0-0-0-0-p-0-iso8859-1
+cursor.pcf.gz cursor

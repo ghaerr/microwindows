@@ -43,7 +43,7 @@ After changing any options in microwin/src/config, Microwindows
 is built by typing "make clean; make".
 
 Microwindows' header files can be written to /usr/lib/microwin,
-and libraries to /usr/lib by typing "make install".  This
+and libraries to /usr/lib by typing "sudo make install".  This
 is not required unless using Microwindows to build other
 applications, however.  All demos build using the headers
 and libraries built in the source tree.

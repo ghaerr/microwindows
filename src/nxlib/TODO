@@ -1,0 +1,89 @@
+check min2/min1 byte calc in QueryFont.c with > 255 glyph fonts
+add local fonts for testing into fonts dir
+reorder X11 fonts dir: misc, 100dpi, 75dpi, Type1,
+	remove from Makefile?
+check putTrueColorImage could be called with XGetImage-created
+	MWPF_PIXELVAL, not hw format, yet match depth
+fix X/WhitePixel to align with bpp size, also Background in GC
+clipping on oval windows on fltk forms
+width/height vs radius in Arc draws buggy for all even widths
+	fltk valuators dial problems, arc/fill borders incorrect
+	fltk forms round down border problem, fltk radio buttons
+make Xt programs work
+handle shift/control/alt in X kbd state
+get scancode keymap from microwindows
+fill in events for UPDATE event handling
+	fix in .window and .parent locations for *Notify events
+send ReparentNotify seperately in addition to ConfigureNotify
+scrollbars still don't work w/gtk
+likely have to make XSetGraphicsExposures work for scrolling in qt
+XPutBackEvent doesn't work with XCheckEvent
+add time fields in nano-X events for X11 compatibility
+strdup/free check
+mwin font additions for XCharStruct deficiencies
+	no 256 limit on XCharStruct entry in QueryFont
+	this needs change in TextExt.c as well
+man pages X style -> html
+check ascent/baseline in XDrawString/Text
+byte2 might be incorrect when fontsize > 256
+test XListFonts with -* and other wildcards
+ChangeProperty needs checking
+implement Xext as well
+allow multiple GrOpen/GrClose calls for multiple XOpenDisplay calls
+implement QLength() dpy->qlen
+fill in font structure
+fix ParentRelative in XSetWindowBackgroundPixmap
+
+arc drawing in nano-X is broken (sonar)
+XAllocColor doesn't actually write colormap in truecolor mode: error?
+	no colormap entries unless palette mode?
+Fix putImage depth = 1 (ace freecell)
+***_XConst issues between systems...
+expose events don't work in qt
+implement GrCopyRegion, must copy region in XSetClipMask, XSetRegion
+	perhaps need to set rectangles only in NX
+implement PutPixel1
+depth = 1 in XCreateImage... (flag.c) SLOW
+XMapRaised also maps children...
+VisibilityChangeMask -> SubstructureNotifyMask??
+can't call XSetForeground within lib cause of saved Gc values
+look through FIXMEs (CrGC.c?)
+check depth = 1 in other cases of XCreatePixmapFromBitmapData
+	add MWMONOPIXMAP flag, then use GC fg/bg during CopyArea
+	XCopyArea check bpp = 1 remove
+	CopyArea must use GC mode during copy
+copyright notice...
+16bpp only for XGetImage in Image.c
+fix Shape.c ShapeClip/ShapeBounding
+helvR08 bug between X systems - get X11 version #
+remove dependency issue with -lXext and xfreecell
+
+add X11 include files for compilation?
+sunclock still doesn't work with -fg green -bg blue
+
+TRUECOLOR332 bug in OpenDis
+
+Atoms, Window Properties and X11 font managment are located here and not in the server.
+These may need to be moved over for desktop and other stuff to work.  
+
+allow mwin to take pixelval rather than colorval in COLORVAL routines
+
+change to Query Truecolor or not for display
+
+think about GrReadArea return size based on MWPF_xxx
+	should it be based on bpp?  no.
+
+
+is Cursor black/white reversed? (X11 bits reverse meaning?)
+
+Region.c local regions?
+
+fix/check bitmaps on qdir demo
+need way to turn off wm on popup windows (qdir)
+closeboxes don't automatically work on qt
+
+XPutImage: GrArea doesn't translate pixels yet to different hw format
+
+need XGrabPointer for qt, popdowns for qt
+add more XChangeWindowAttributes value, add XCreateWindow?
+add SetWMHints stuff

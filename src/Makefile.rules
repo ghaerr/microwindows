@@ -721,7 +721,7 @@ endif
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 
-install: default
+install:
 	$(INSTALL_DIR) $(HDRINSTALLDIR)
 	echo "Copying hdrs to $(HDRINSTALLDIR)"
 	$(INSTALL_HDR) $(MW_DIR_SRC)/include/*.h $(HDRINSTALLDIR)

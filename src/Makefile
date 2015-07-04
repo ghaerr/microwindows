@@ -31,6 +31,7 @@ endif
 
 ifeq ($(NANOX), Y)
 dirs += $(MW_DIR_SRC)/nanox
+dirs += $(MW_DIR_SRC)/nxlib
 endif
 
 all: default

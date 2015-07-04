@@ -1,0 +1,28 @@
+NXLIB X11 Emulation Library for Nano-X
+
+These source files build an X11 -> Nano-X conversion library,
+allowing binaries compiled for X11 to run unmodified on a
+Microwindows based system, using the Nano-X API.
+
+This software has been used to run the following libraries
+and applications, although much work is yet to be completed:
+
+fltk-1.0.11
+fltk-1.1.10
+gtk+-1.2.7, glib-1.2.7
+gtk+-1.2.10, glib-1.2.10
+gtk+-2.0.6, glib-2.0.6, atk-1.0.3, pango-1.0.4
+qt-x11-2.3.1
+xfreecell-1.0.5a
+xsunclock-1.5
+xscreensaver-3.26
+
+See INSTALL for build and installation instructions.
+
+See LICENSE for the licensing agreement.
+
+See ChangeLog for change information.
+
+For questions, join the Microwindows mailing list at microwindows.org.
+
+Maintainer: Greg Haerr <greg@censoft.com>

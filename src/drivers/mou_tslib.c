@@ -6,6 +6,8 @@
  * Based on mou_touchscreen.c:
  * Copyright (c) 2003, Century Software, Inc.
  * Written by Jordan Crouse <jordan@cosmicpenguin.net>
+ * 
+ * Download tslib from: http://sourceforge.net/projects/tslib.berlios/
  */
 
 #include <stdio.h>

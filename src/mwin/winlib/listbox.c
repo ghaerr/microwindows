@@ -967,7 +967,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					newItem->dwData = 0L;
 			} else
 				if (!(dwStyle & LBS_HASSTRINGS))
-					newItem->dwData = newItem->key;
+					newItem->dwData = (intptr_t)newItem->key;
 			newItem->dwAddData = 0L;
 
 			if (message == LB_ADDSTRING)

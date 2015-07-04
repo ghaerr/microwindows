@@ -53,7 +53,7 @@ CreateAppWindow(void)
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
-		NULL, (HMENU)++nextid, NULL, NULL);
+		NULL, (HMENU)(intptr_t)++nextid, NULL, NULL);
 
 	return hwnd;
 }

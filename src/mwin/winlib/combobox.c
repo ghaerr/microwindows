@@ -363,7 +363,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         lp->bExtended  = TRUE;
         lp->hFont = 0;
         lp->hWndParent = lpcs->hwndParent;
-        lp->nID  = (UINT)lpcs->hMenu;
+        lp->nID  = (UINT)(intptr_t)lpcs->hMenu;
 
         dwStyle = GetWindowLong(hWnd, GWL_STYLE);
         dwStyle &= ~(WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_DLGFRAME | WS_THICKFRAME);

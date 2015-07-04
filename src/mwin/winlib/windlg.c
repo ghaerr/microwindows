@@ -1027,7 +1027,7 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 				 pItemExtra->szCaption, style,
 				 rc.left, rc.top,
 				 rc.right - rc.left, rc.bottom - rc.top,
-				 hDlg, (HMENU) (int) pItem->id,
+				 hDlg, (HMENU) (intptr_t) pItem->id,
 				 hInstance, pItemExtra->lpData);
 
 			if (hCtrl != NULL) {

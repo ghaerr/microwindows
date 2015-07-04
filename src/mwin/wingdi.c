@@ -760,8 +760,8 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 		MapWindowPoints(hwnd, NULL, (LPPOINT)&rc, 2);
 
 	/* handle COLOR_xxx + 1 passed as HBRUSH*/
-	if((PTRTOINT)obr <= MAXSYSCOLORS)
-		crFill = GetSysColor((int)obr-1);
+	if((intptr_t)obr <= MAXSYSCOLORS)
+		crFill = GetSysColor((intptr_t)obr-1);
 	else {
 		/* get color from passed HBRUSH*/
 		if(obr->style == BS_NULL)

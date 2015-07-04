@@ -56,7 +56,7 @@ BOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 				HBRUSH hbr = (HBRUSH)DefWindowProc ( hWnd, message, wParam, lParam );
 				SetTextColor ( (HDC)wParam, RGB(255,0,0) );
 				SetBkColor ( (HDC)wParam, GetSysColor(COLOR_3DFACE) );
-				return (BOOL) hbr;
+				return (BOOL) (intptr_t)hbr;
 				}
 			}
 			return DefWindowProc ( hWnd, message, wParam, lParam );

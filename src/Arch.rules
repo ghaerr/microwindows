@@ -9,8 +9,12 @@
 ##############################################################################
 
 # Standard set of warnings for all platforms that use GCC
+ifneq ($(DEBUG), Y)
+GCC_WARNINGS := -Wno-deprecated-declarations
+else
 GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes # -Werror
 #GCC_WARNINGS := -Wall -Wpointer-arith
+endif
 
 # Platform dependent flags & definitions
 

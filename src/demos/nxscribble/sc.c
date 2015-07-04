@@ -409,7 +409,7 @@ register sClassifier sc;
 {
 	register sClassIndex c;
 
-	printf("\n----Classifier %x, %d features:-----\n", (int)sc, sc->nfeatures);
+	printf("\n----Classifier %x, %d features:-----\n", (int*)sc, sc->nfeatures);
 	printf("%d classes: ", sc->nclasses);
 	for(c = 0; c < sc->nclasses; c++)
 		printf("%s  ", sc->classdope[c]->name);

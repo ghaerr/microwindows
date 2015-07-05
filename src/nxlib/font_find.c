@@ -906,7 +906,7 @@ DPRINTF("XLoadFont: mapping 'fixed' to builtin SystemFixed\n");
 		height = 13;
 		font = GrCreateFontEx(fontname, 0, 0, NULL); /* height zero to force builtin lookup by name*/
 	}
-
+    GrSetFontAttr(font, GR_TFKERNING | GR_TFANTIALIAS, 0);
 DPRINTF("XLoadFont('%s') = '%s' height %d [%d]\n", name, fontname, height, font);
 	if (fontname)
 		Xfree(fontname);

@@ -50,6 +50,7 @@ from The Open Group.
 /*#include "Xlibint.h"*/
 #include "nxlib.h"
 #include "X11/Xresource.h"
+#include <string.h> /* avoid bzero warning */
 
 /* Not cost effective, at least for vanilla MIT clients */
 /* #define PERMQ */

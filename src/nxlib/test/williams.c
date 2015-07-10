@@ -1,5 +1,6 @@
 #include <X11/Xlib.h>
 #include <unistd.h>
+#include <stdio.h>
 typedef long O; typedef struct                    { O b,f,u,s,c,a,t,e,d; } C;
 Display *d; Window w; GC g; XEvent e;
 char Q[] = "Level %d   Score %d", m[222];

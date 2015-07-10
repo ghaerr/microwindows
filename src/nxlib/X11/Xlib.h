@@ -397,8 +397,8 @@ typedef struct _XImage {
 		int		/* bitmap_pad */,
 		int		/* bytes_per_line */);
 	int (*destroy_image)        (struct _XImage *);
-	unsigned long (*get_pixel)  (struct _XImage *, int, int);
-	int (*put_pixel)            (struct _XImage *, int, int, unsigned long);
+	unsigned long (*get_pixel)  (struct _XImage *, unsigned int, unsigned int);
+	int (*put_pixel)            (struct _XImage *, unsigned int, unsigned int, unsigned long);
 	struct _XImage *(*sub_image)(struct _XImage *, int, int, unsigned int, unsigned int);
 	int (*add_pixel)            (struct _XImage *, long);
 #else

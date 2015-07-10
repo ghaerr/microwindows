@@ -65,7 +65,7 @@ get_pixel16(XImage *image, unsigned int x, unsigned int y)
 }
 
 static int
-put_pixel16(XImage *image, int x, int y, unsigned long pixel)
+put_pixel16(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
 {
 	unsigned short *src = (unsigned short *)(image->data + (y * image->bytes_per_line) + (x << 1));
 

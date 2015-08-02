@@ -57,6 +57,7 @@ X11_RGBTXT=/usr/share/X11/rgb.txt
 # is possible (as libX11.so would be replaced), and
 # the link command is changed from '-lX11' to '-lNX11 -lnano-X'
 LIBNAME=NX11
+PLIBNAME=PX11
 xINSTALL_DIR=.
 INSTALL_DIR=/usr/local/lib
 
@@ -68,6 +69,7 @@ else
 SHAREDLIB=N
 endif
 SOLIBREV=0.47
+MAJVERSION=0
 SOEXTRALIBS = -L$(MWIN_LIB) -lnano-X
 
 # set to Y to include (unmodifed X11) Xrm routines
@@ -96,7 +98,7 @@ CFLAGS += -O3
 
 # If you dont want to see every executed command ...
 ifeq ($(VERBOSE), N)
-.SILENT:
+#.SILENT:
 endif
 
 OBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
@@ -137,7 +139,15 @@ CFLAGS += -fPIC
 LIBS += lib$(LIBNAME).so.$(SOLIBREV)
 endif
 
-all: $(LIBS)
+LIBS += lib$(PLIBNAME).a
+ifeq ($(SHAREDLIB), Y)
+LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
+endif
+
+ODIR = .
+ARSCRIPT = arscript
+
+all: $(LIBS) testprogs
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)
@@ -145,7 +155,7 @@ lib$(LIBNAME).a: keysymstr.h $(OBJS)
 	$(CP) lib$(LIBNAME).a $(MWIN_LIB)
 	
 	
-# shared X11 library
+# shared NX11 library
 lib$(LIBNAME).so.$(SOLIBREV): $(OBJS)
 	$(RM) $@~
 	@SONAME=`echo $@ | sed 's/\.[^\.]*$$//'`; set -x; \
@@ -156,7 +166,41 @@ lib$(LIBNAME).so.$(SOLIBREV): $(OBJS)
 #	$(RM) lib$(LIBNAME).so; $(LN) $@ lib$(LIBNAME).so
 #	$(CP) $@ $(MW_DIR_SRC)/lib/lib$(LIBNAME).so
 	$(MV) $@ lib$(LIBNAME).so
-	$(CP) lib$(LIBNAME).so $(MWIN_LIB)	
+	$(CP) lib$(LIBNAME).so $(MWIN_LIB)
+	-$(RM) lib$(LIBNAME).so.$(MAJVERSION)
+	-ln -s lib$(LIBNAME).so lib$(LIBNAME).so.$(MAJVERSION)
+	-$(CP)d lib$(LIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
+	
+# static PXLIB library
+lib$(PLIBNAME).a: $(OBJS)
+#	ar crsT $@ ../lib/libNX11.a ../lib/libnano-X.a
+#create an AR script and execute that with ar -M to combine libNX11.a and libnano-X.a
+	$(SILENT)echo "CREATE $@" > $(ODIR)/$(ARSCRIPT)
+#	$(SILENT)echo "ADDLIB ../lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
+#	$(SILENT)echo "ADDLIB ../lib/libNX11.a" >> $(ODIR)/$(ARSCRIPT)		
+	$(SILENT)echo "ADDLIB $(MW_DIR_SRC)/lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
+	$(SILENT)echo "ADDLIB $(MW_DIR_SRC)/lib/lib$(LIBNAME).a" >> $(ODIR)/$(ARSCRIPT)		
+	$(SILENT)echo "SAVE" >> $(ODIR)/$(ARSCRIPT)
+	$(SILENT)echo "END" >> $(ODIR)/$(ARSCRIPT)
+	$(SILENT)$(AR) -M < $(ODIR)/$(ARSCRIPT)	
+	$(CP) $@ $(MWIN_LIB)
+	$(RM) $(ODIR)/$(ARSCRIPT)
+
+# shared PX11 library
+lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
+	$(RM) $@~
+	@SONAME=`echo $@ | sed 's/\.[^\.]*$$//'`; set -x; \
+	$(CC) -o ./$@~ -shared -Wl,-soname,$$SONAME $(OBJS) -Wl,-whole-archive ../lib/libnano-X.a -Wl,-no-whole-archive -lc;
+	$(MV) $@~ $@
+	$(MV) $@ lib$(PLIBNAME).so
+	$(CP) lib$(PLIBNAME).so $(MWIN_LIB)
+	-$(RM) lib$(PLIBNAME).so.$(MAJVERSION)
+	-ln -s lib$(PLIBNAME).so lib$(PLIBNAME).so.$(MAJVERSION)
+	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
+	
+testprogs:
+	$(MAKE) -C test
+	$(MAKE) -C ptest
 
 install: $(LIBS)
 #nxlib.a and nxlib.so are copied into src/lib above, so these are installed
@@ -173,13 +217,19 @@ install: $(LIBS)
 
 clean: cleanlibs
 	$(RM) *.o *~
+	$(RM) *.a	
+	$(RM) *.so
+	$(MAKE) -C test clean
+	$(MAKE) -C ptest clean
 
 cleanlibs:
 	$(RM) lib$(LIBNAME).a
 	$(RM) lib$(LIBNAME).so
+	$(RM) lib$(LIBNAME).so.*
 	@MAJREV=`expr $(SOLIBREV) : '\(.*\)\.'`; \
 	set -x; $(RM) lib$(LIBNAME).so.$$MAJREV
 	$(RM) lib$(LIBNAME).so.$(SOLIBREV)
+	$(RM) lib$(PLIBNAME).so.*
 
 distclean: clean
 	rm -f keysymstr.h

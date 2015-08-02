@@ -6,13 +6,17 @@
 #include "X11/Xutil.h"
 #include "keysymstr.h"
 
-#if linux
+#if 1 /* linux */
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/keyboard.h>
 #include <linux/kd.h>
+
+/* nano-X provides correct keys when called - no need to reload. It even causes
+ * the wrong keys to be returned if e.g. a framebuffer driver is used */
+#define NORELOAD 1 
 
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/
 
@@ -21,7 +25,7 @@
 static unsigned short	os_keymap[NUM_VGAKEYMAPS][NR_KEYS];
 static MWKEYMOD modstate;
 static int map_loaded = 0;
-#endif /* linux*/
+#endif /* linux */
 
 /* Standard keymapings for kernel values */
 /* (from microwin/src/drivers/keymap_standard.h)*/
@@ -59,6 +63,10 @@ MWKEY_LMETA, MWKEY_RMETA, MWKEY_MENU					/* 125*/
 static void
 LoadKernelKeymaps(void)
 {
+#if NORELOAD
+	map_loaded = 1;
+	return;
+#endif
 #if linux
 	int 		map, i;
 	struct kbentry 	entry;
@@ -275,6 +283,7 @@ XRefreshKeyboardMapping(XMappingEvent* event)
 }
 
 /* translate keycode to KeySym, no control/shift processing*/
+/* no international keyboard support - gp */
 KeySym
 XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
 {
@@ -297,11 +306,39 @@ XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
 	return mwkey;
 }
 
+/* translate keyvalue to KeySym, no control/shift processing*/
+KeySym
+XMWKeyToKeysym(Display *dpy, unsigned int kv, int index)
+{
+	int	i;
+	MWKEY	mwkey;
+
+	//if (kv > 127)
+	//	return NoSymbol;
+
+	//DPRINTF("XMWKeyToKeysym called - %X\n",(unsigned int)kv);
+
+	mwkey = kv;
+
+	/* then possibly convert mwkey to X KeySym*/
+	for (i=0; mwkey_to_xkey[i].nxKey != 0xffff; i++) {
+		if (mwkey == mwkey_to_xkey[i].nxKey)
+			return mwkey_to_xkey[i].xKey;
+	}
+
+	/* assume X KeySym is same as MWKEY value*/
+	return mwkey;
+}
+
 /* translate event->keycode into KeySym, no control/shift processing*/
 KeySym
 XLookupKeysym(XKeyEvent *event, int index)
 {
+#if NORELOAD
+	return XMWKeyToKeysym(event->display, (unsigned int) event->y_root, index);
+#else
 	return XKeycodeToKeysym(event->display, event->keycode, index);
+#endif
 }
 
 /* translate event->keycode into *keysym, control/shift processing*/
@@ -325,6 +362,11 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 
 	k = XLookupKeysym(event, 0);
 
+	//DPRINTF("XLookupString called - %X\n",(unsigned int)k);
+
+#if NORELOAD
+	//skip translation
+#else
 	if(!map_loaded) {
 		/* translate Control/Shift*/
 		if ((event->state & ControlMask) && k < 256)
@@ -357,8 +399,12 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 			}
 		}
 	}
+#endif
 
 	*keysym = k;
+	buffer[0] = (char)k;
+	//return 1; //one key returned - stops cursor keys from working in FLTK
+
 	if (nbytes > 0)
 		buffer[0] = '\0';
 	return 0;

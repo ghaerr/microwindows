@@ -1,0 +1,13 @@
+How to execute the programs depends on the settings in the config file.
+
+If LINK_APP_INTO_SERVER was set to "N" when you compiled the programs then 
+you have to run the scripts included to execute the programs.
+
+Otherwise you can click on the program name in your file manager or enter e.g.
+./xhello on the command line. If SHAREDLIBS had been set to "Y" you have to 
+execute "sudo make install" in the microwindows/src directory first before 
+executing the programs. Otherwise the programs won't find the required "*.so.0" libraries
+in usr/lib or usr/lib64.
+
+If LINK_APP_INTO_SERVER is set to "Y", the programs are compiled with the "-PIC" parameter
+which is included in the LDFLAGS variable. Otherwise the programs will crash.

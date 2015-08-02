@@ -8,9 +8,6 @@ include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 ##############################################################################
 
-$(info ) #blank line
-$(info Compiling nxlib/test)
-
 INCLUDE=-I..
 
 ifeq ($(SHAREDLIBS), Y)
@@ -19,24 +16,28 @@ else
 LIBS =$(LDFLAGS) $(NANOXCLIENTLIBS) ../../lib/libNX11.a 
 endif
 
-all:
+TARGETS = williams queryfont loadfont xhello xmouse xgreen
+
+all: $(TARGETS)
+
+williams:
 	@echo "Compiling nxlib/test/williams.c ..."
 	$(CC) $(CFLAGS) -o williams $(INCLUDE) williams.c $(LIBS)
+queryfont:
 	@echo "Compiling nxlib/test/queryfont.c ..."
 	$(CC) $(CFLAGS) -o queryfont $(INCLUDE) queryfont.c $(LIBS)
+loadfont:
 	@echo "Compiling nxlib/test/loadfont.c ..."
 	$(CC) $(CFLAGS) -o loadfont $(INCLUDE) loadfont.c $(LIBS)
+xhello:
 	@echo "Compiling nxlib/test/xhello.c ..."
 	$(CC) $(CFLAGS) -g -o xhello $(INCLUDE) xhello.c $(LIBS)	
+xmouse:
 	@echo "Compiling nxlib/test/xmouse.c ..."
 	$(CC) $(CFLAGS) -g -o xmouse $(INCLUDE) xmouse.c $(LIBS)	
+xgreen:
 	@echo "Compiling nxlib/test/xgreen.c ..."
 	$(CC) $(CFLAGS) -g -o xgreen $(INCLUDE) xgreen.c $(LIBS)	
 	
 clean:
-	-rm williams
-	-rm queryfont
-	-rm loadfont
-	-rm xhello
-	-rm xmouse
-	-rm xgreen
+	-rm $(TARGETS)

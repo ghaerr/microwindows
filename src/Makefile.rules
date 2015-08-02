@@ -49,6 +49,12 @@ INCLUDEDIRS += -I. -I$(MW_DIR_SRC)/include
 # Libraries required for the 'engine' functionality.
 MW_CORE_LIBS :=
 
+# Clear these first since Makefile.rules is called several times
+NANOXCLIENTLIBS :=
+CCNANOXCLIENTLIBS :=
+NANOXSERVERLIBS :=
+CCNANOXSERVERLIBS :=
+
 
 ifeq ($(VTSWITCH), Y)
 DEFINES += -DVTSWITCH=1
@@ -459,6 +465,8 @@ CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
 	-lpspuser -lpspkernel -lpsplibc
 endif
 
+#export for nxlib/test makefile
+export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS)
 ##############################################################################
 # Build rules
 ##############################################################################
@@ -712,7 +720,8 @@ endif
 		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)*.d \
 		$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)TAGS \
 		$(MW_DIR_LIB)/*.a \
-		$(MW_DIR_LIB)/*.so
+		$(MW_DIR_LIB)/*.so \
+		$(MW_DIR_LIB)/*.so.* 
 	for file in $(wildcard $(MW_DIR_BIN)/*); do \
 		if [ ! -d $$file ]; then \
 			$(RM) $$file; \
@@ -720,7 +729,25 @@ endif
 	done
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
+	$(foreach dir, $(nxlib), $(MAKE) -C $(dir) clean;)
 
+cleanusr:
+	-rm -f /usr/bin/nano-X
+	-rm -f /usr/bin/nanowm
+	-rm -f /usr/lib/libnano-X.a
+	-rm -f /usr/lib/libnano-X.so
+	-rm -f /usr/lib/libNX11.a
+	-rm -f /usr/lib/libNX11.so
+	-rm -f /usr/lib/libNX11.so.0	
+	-rm -f /usr/lib/libPX11.a
+	-rm -f /usr/lib/libPX11.so
+	-rm -f /usr/lib/libPX11.so.0	
+	-rm -f /usr/lib64/libnano-X.so
+	-rm -f /usr/lib64/libNX11.so
+	-rm -f /usr/lib64/libNX11.so.0
+	-rm -f /usr/lib64/libPX11.so
+	-rm -f /usr/lib64/libPX11.so.0	
+	
 install:
 	$(INSTALL_DIR) $(HDRINSTALLDIR)
 	echo "Copying hdrs to $(HDRINSTALLDIR)"
@@ -730,16 +757,29 @@ install:
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.a $(LIBINSTALLDIR)
 ifeq ($(SHAREDLIBS), Y)
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)
+	#if 64bit system, install in /usr/lib64 too
+	if [ -d "$(LIBINSTALLDIR)64" ]; then \
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)64; \
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64; \
+	fi
+else
+	rm -f $(LIBINSTALLDIR)/nano-X.so
+	-rm -f $(LIBINSTALLDIR)64/nano-X.so
 endif
 ifeq ($(NANOX), Y)
 ifeq ($(LINK_APP_INTO_SERVER), N)
 	echo "Copying binaries to $(BININSTALLDIR)"
 	$(INSTALL_DIR) $(BININSTALLDIR)
 	$(INSTALL_BIN) $(MW_DIR_BIN)/nano-X $(BININSTALLDIR)
-else
+ifeq ($(NANOWM), Y)
+	$(INSTALL_BIN) $(MW_DIR_BIN)/nanowm $(BININSTALLDIR)
+endif
+	
+else # ==($(LINK_APP_INTO_SERVER), Y)
 	rm -f $(BININSTALLDIR)/nano-X
 endif
-else
+else # ==($(NANOX), N)
 	rm -f $(BININSTALLDIR)/nano-X
 endif
 	echo "Installation completed successfully."

@@ -1111,7 +1111,7 @@ mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags
 static int WINAPI
 MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 {
-	LPSTR str = lpsz;
+	LPSTR str = (LPSTR)lpsz;
 	int lineheight;
 	int textwidth;
 	int x, y, baseline, baselinefnt;

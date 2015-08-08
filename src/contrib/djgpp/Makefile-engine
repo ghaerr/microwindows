@@ -32,6 +32,6 @@ clean:
 	rm -f *.o *.a core
 
 $(LIB): $(OBJECTS)
-#	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(OBJECTS)
+#	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(OBJECTS)
 
 

@@ -26,7 +26,7 @@ makebmp: makebmp.c
 	$(HOSTCC) $(HOSTCFLAGS) makebmp.c $(LIBS) -o makebmp
 
 $(LIB): $(OBJECTS)
-	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(OBJECTS)
+	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(OBJECTS)
 
 car8.c: car8.bmp
 	./convbmp car8.bmp > car8.c

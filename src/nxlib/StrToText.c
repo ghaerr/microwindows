@@ -95,6 +95,7 @@ XwcTextListToTextProperty(Display *display, wchar_t **list, int count,
 	for(i = 0; i < count; i++) {
 		wchar_t *wstr = list[i];
 		char *ptr = 0;
+#ifndef __DJGPP__		
 		int len = wcslen(wstr);
 
 		ptr = strs[i] = (char *)Xcalloc(wcslen(wstr) + 1, sizeof(char));
@@ -105,6 +106,19 @@ XwcTextListToTextProperty(Display *display, wchar_t **list, int count,
 			int ch = wctob(*wstr++);
 			if (ch != EOF) *ptr++ = ch;
 		}
+#else
+		int len = 1;
+
+		ptr = strs[i] = (char *)Xcalloc(len + 1, sizeof(char));
+		if (!strs[i])
+			continue;
+
+		for(l = 0; l < len; l++) {
+			int ch = *wstr++;
+			if (ch != EOF) *ptr++ = ch;
+		}
+
+#endif		
 	}
 
 	ret = XStringListToTextProperty((char **) strs, count, text_prop_return);
@@ -155,8 +169,11 @@ XwcTextPropertyToTextList(Display* display, const XTextProperty* text_prop,
 			goto next_string;
 
 		for(l = 0; l < strlen(value); l++) 
+#ifndef __DJGPP__		
 			*rptr++ = btowc(*vptr++);
-		
+#else
+            *rptr++ = *vptr++;
+#endif		
 		*rptr++ = L'\0';
 		count++;
 

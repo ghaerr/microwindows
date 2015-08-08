@@ -46,7 +46,13 @@ openfontalias(char *str)
 	char path[256];
 
 	sprintf(path, "%s/fonts.alias", str);
-	return fopen(path, "r");
+	//return fopen(path, "r");
+	FILE *f = fopen(path, "r");
+	if (f == NULL) {
+	sprintf(path, "%s/fonts.ali", str); //try this for short file name support
+	f = fopen(path, "r");
+	}
+	return f;
 }
 
 

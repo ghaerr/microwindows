@@ -14,7 +14,9 @@ NANOXFILES := \
 	nxutil.o \
 	srvclip.o \
 	clientfb.o \
-	error.o
+	error.o \
+	nxdraw.o wmevents.o wmutil.o wmaction.o wmclients.o
+#the last line are the files for the window manager
 
 OBJECTS += $(NANOXFILES)
 
@@ -24,4 +26,4 @@ clean:
 	rm -f *.o *.a core
 
 $(LIB): $(OBJECTS)
-	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(MW_SRC_DIR)/engine/*.o $(MW_SRC_DIR)/fonts/*.o $(MW_SRC_DIR)/drivers/*.o $(OBJECTS)
+	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(OBJECTS)

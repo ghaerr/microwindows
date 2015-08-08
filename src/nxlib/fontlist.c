@@ -24,6 +24,9 @@
  */
 char *FONT_DIR_LIST[] = {
 	"fonts",									/* local font dir w/fonts.alias*/
+#if __DJGPP__
+	"/usr/share/fonts/", //for fldesk as central fonts place
+#endif
 	"/usr/share/fonts/X11/misc",				/* pcf fonts w/fonts.dir*/
 	"/usr/share/fonts/X11/100dpi",
 	"/usr/share/fonts/truetype/freefont",		/* truetype fonts, no fonts.dir*/

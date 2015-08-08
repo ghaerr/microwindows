@@ -21,8 +21,13 @@ else
 endif
 # Compile-time nano-X include and lib directories. (relative paths ok)
 #
+ifneq ($(DOS_DJGPP), Y)
 MWIN_INCLUDE=../include
 MWIN_LIB=../lib
+else
+MWIN_INCLUDE=/djgpp/include/mwin -I/myprogs/nxlib
+MWIN_LIB=../lib
+endif
 
 # Compile-time X11 include directory
 #
@@ -46,8 +51,11 @@ X11_INCLUDE=.
 # For release, full paths are required matching target system locations
 #	X11_RGBTXT=/usr/share/X11/rgb.txt
 #
-#X11_RGBTXT=fonts/rgb.txt
+ifeq ($(DOS_DJGPP), Y)
+X11_RGBTXT=fonts/rgb.txt
+else
 X11_RGBTXT=/usr/share/X11/rgb.txt
+endif
 
 # NXLIB library name and installation directory for "make install"
 # Installation is only required when wanting to completely
@@ -59,7 +67,11 @@ X11_RGBTXT=/usr/share/X11/rgb.txt
 LIBNAME=NX11
 PLIBNAME=PX11
 xINSTALL_DIR=.
+ifneq ($(DOS_DJGPP), Y)
 INSTALL_DIR=/usr/local/lib
+else
+INSTALL_DIR=/djgpp/lib
+endif
 
 # set to Y to make shared libNX11.so library, shared lib dependencies e.g. shared nano-X
 ifeq ($(SHAREDLIBS), Y)
@@ -73,7 +85,11 @@ MAJVERSION=0
 SOEXTRALIBS = -L$(MWIN_LIB) -lnano-X
 
 # set to Y to include (unmodifed X11) Xrm routines
+ifneq ($(DOS_DJGPP), Y)
 INCLUDE_XRM=Y
+else
+INCLUDE_XRM=N
+endif
 
 # compiler flags
 CC = gcc
@@ -83,7 +99,7 @@ CP = cp -p
 RM = rm -f
 
 ifneq ($(DEBUG), Y)
-	CFLAGS += -Wno-deprecated-declarations
+	CFLAGS += -s -Wno-deprecated-declarations
 else
 	CFLAGS += -Wall
 endif
@@ -98,7 +114,7 @@ CFLAGS += -O3
 
 # If you dont want to see every executed command ...
 ifeq ($(VERBOSE), N)
-#.SILENT:
+.SILENT:
 endif
 
 OBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
@@ -156,6 +172,7 @@ lib$(LIBNAME).a: keysymstr.h $(OBJS)
 	
 	
 # shared NX11 library
+#$@~ is the target ($@) with a ~ added as a suffix to indicate a temp file
 lib$(LIBNAME).so.$(SOLIBREV): $(OBJS)
 	$(RM) $@~
 	@SONAME=`echo $@ | sed 's/\.[^\.]*$$//'`; set -x; \
@@ -199,9 +216,11 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	
 testprogs:
-	$(MAKE) -C test
-	$(MAKE) -C ptest
-
+	-$(MAKE) -C test
+	-$(MAKE) -C ptest
+	-$(RM) lib$(LIBNAME).a
+	-$(RM) lib$(PLIBNAME).a
+    	
 install: $(LIBS)
 #nxlib.a and nxlib.so are copied into src/lib above, so these are installed
 #by Makefile.rules already together with the other libs in /usr/lib
@@ -216,20 +235,20 @@ install: $(LIBS)
 #	$(MV) lib$(LIBNAME).a $(INSTALL_DIR)
 
 clean: cleanlibs
-	$(RM) *.o *~
-	$(RM) *.a	
-	$(RM) *.so
-	$(MAKE) -C test clean
-	$(MAKE) -C ptest clean
+	-$(RM) *.o *~
+	-$(RM) *.a	
+	-$(RM) *.so
+	-$(MAKE) -C test clean
+	-$(MAKE) -C ptest clean
 
 cleanlibs:
-	$(RM) lib$(LIBNAME).a
-	$(RM) lib$(LIBNAME).so
-	$(RM) lib$(LIBNAME).so.*
+	-$(RM) lib$(LIBNAME).a
+	-$(RM) lib$(LIBNAME).so
+	-$(RM) lib$(LIBNAME).so.*
 	@MAJREV=`expr $(SOLIBREV) : '\(.*\)\.'`; \
 	set -x; $(RM) lib$(LIBNAME).so.$$MAJREV
-	$(RM) lib$(LIBNAME).so.$(SOLIBREV)
-	$(RM) lib$(PLIBNAME).so.*
+	-$(RM) lib$(LIBNAME).so.$(SOLIBREV)
+	-$(RM) lib$(PLIBNAME).so.*
 
 distclean: clean
 	rm -f keysymstr.h

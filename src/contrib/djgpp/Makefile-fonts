@@ -26,7 +26,7 @@ realclean: clean
 	rm -f helvB10.c helvB12.c helvR10.c timBI18.c
 
 $(LIB): $(OBJECTS)
-#	$(AR) rcs $(MW_SRC_DIR)/lib/$(LIB) $(OBJECTS)
+#	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(OBJECTS)
 
 helvR10.c:	helvR10.bdf
 	./convbdf helvR10.bdf > helvR10.c

@@ -6,18 +6,18 @@
 #include "X11/Xutil.h"
 #include "keysymstr.h"
 
-#if 1 /* linux */
+//#if linux
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#ifndef __DJGPP__
 #include <linux/keyboard.h>
 #include <linux/kd.h>
-
-/* nano-X provides correct keys when called - no need to reload. It even causes
- * the wrong keys to be returned if e.g. a framebuffer driver is used */
-#define NORELOAD 1 
-
+#else
+#include "include/linux/keyboard.h"
+#include "include/linux/kd.h"
+#endif
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/
 
 /* kernel unicode tables per shiftstate and scancode*/
@@ -25,7 +25,7 @@
 static unsigned short	os_keymap[NUM_VGAKEYMAPS][NR_KEYS];
 static MWKEYMOD modstate;
 static int map_loaded = 0;
-#endif /* linux */
+//#endif /* linux*/
 
 /* Standard keymapings for kernel values */
 /* (from microwin/src/drivers/keymap_standard.h)*/
@@ -63,11 +63,8 @@ MWKEY_LMETA, MWKEY_RMETA, MWKEY_MENU					/* 125*/
 static void
 LoadKernelKeymaps(void)
 {
-#if NORELOAD
-	map_loaded = 1;
-	return;
-#endif
-#if linux
+//#if linux
+#ifndef __DJGPP__
 	int 		map, i;
 	struct kbentry 	entry;
 	char *		kbd;
@@ -114,8 +111,9 @@ LoadKernelKeymaps(void)
 	}
 
 	close(fd);
+#endif /*DJGPP*/
 	map_loaded = 1;
-#endif /* linux*/
+//#endif /* linux*/
 }
 
 /* translate a scancode and modifier state to an MWKEY*/
@@ -283,10 +281,11 @@ XRefreshKeyboardMapping(XMappingEvent* event)
 }
 
 /* translate keycode to KeySym, no control/shift processing*/
-/* no international keyboard support - gp */
+/* no international keyboard support */
 KeySym
 XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
 {
+	//DPRINTF("XKeycodeToKeysym called\n");
 	int	i;
 	MWKEY	mwkey;
 
@@ -305,7 +304,6 @@ XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
 	/* assume X KeySym is same as MWKEY value*/
 	return mwkey;
 }
-
 /* translate keyvalue to KeySym, no control/shift processing*/
 KeySym
 XMWKeyToKeysym(Display *dpy, unsigned int kv, int index)
@@ -334,7 +332,8 @@ XMWKeyToKeysym(Display *dpy, unsigned int kv, int index)
 KeySym
 XLookupKeysym(XKeyEvent *event, int index)
 {
-#if NORELOAD
+	//DPRINTF("XLookupKeysym called\n");
+#ifdef __DJGPP__
 	return XMWKeyToKeysym(event->display, (unsigned int) event->y_root, index);
 #else
 	return XKeycodeToKeysym(event->display, event->keycode, index);
@@ -364,9 +363,7 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 
 	//DPRINTF("XLookupString called - %X\n",(unsigned int)k);
 
-#if NORELOAD
-	//skip translation
-#else
+#ifndef __DJGPP__
 	if(!map_loaded) {
 		/* translate Control/Shift*/
 		if ((event->state & ControlMask) && k < 256)
@@ -407,7 +404,7 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 
 	if (nbytes > 0)
 		buffer[0] = '\0';
-	return 0;
+	return 0; 
 }
 
 /* Freeking ugly! */

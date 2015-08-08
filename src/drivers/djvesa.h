@@ -129,7 +129,7 @@ typedef struct VESA_PM_INFO
 
 VESA_PM_INFO *vesa_pm_info;
 
-void *pm_bank_switcher=0;
+static void *pm_bank_switcher=0;
 
 
 int get_vesa_pm_functions()
@@ -575,7 +575,7 @@ void line(short x, short y, short x2, short y2, unsigned long c) {
   putpixel(x2, y2, c);
 }
 
-void circle(short xc, short yc, short r, unsigned long c) {
+void vcircle(short xc, short yc, short r, unsigned long c) {
   int x = 0, y = r, d = 2 * (1 - r);
 
   while(y >= 0) {

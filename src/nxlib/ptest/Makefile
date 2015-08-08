@@ -9,6 +9,7 @@ include $(CONFIG)
 ##############################################################################
 
 INCLUDE=-I..
+DOSEXT :=
 
 ifeq ($(SHAREDLIBS), Y)
 LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libPX11.so 
@@ -16,28 +17,26 @@ else
 LIBS =$(LDFLAGS) $(NANOXCLIENTLIBS) ../../lib/libPX11.a 
 endif
 
-TARGETS = williams queryfont loadfont xhello xmouse xgreen
+ifeq ($(DOS_DJGPP),Y)
+LIBS =$(LDFLAGS) -s -O2 ../../lib/libPX11.a ../../lib/libnano-X.a
+endif
 
-all: $(TARGETS)
+TARGETS = queryfont loadfont xhello xmouse xgreen
+ifeq ($(DOS_DJGPP), N)
+TARGETS += williams
+endif
+SOURCES = $(addprefix ../test/,$(TARGETS:=.c))
+TARGETSX = $(addsuffix $(DOSEXT),$(TARGETS))
 
-williams:
-	@echo "Compiling nxlib/ptest/williams.c ..."
-	$(CC) $(CFLAGS) -o williams $(INCLUDE) ../test/williams.c $(LIBS)
-queryfont:
-	@echo "Compiling nxlib/ptest/queryfont.c ..."
-	$(CC) $(CFLAGS) -o queryfont $(INCLUDE) ../test/queryfont.c $(LIBS)
-loadfont:
-	@echo "Compiling nxlib/ptest/loadfont.c ..."
-	$(CC) $(CFLAGS) -o loadfont $(INCLUDE) ../test/loadfont.c $(LIBS)
-xhello:
-	@echo "Compiling nxlib/ptest/xhello.c ..."
-	$(CC) $(CFLAGS) -g -o xhello $(INCLUDE) ../test/xhello.c $(LIBS)	
-xmouse:
-	@echo "Compiling nxlib/ptest/xmouse.c ..."
-	$(CC) $(CFLAGS) -g -o xmouse $(INCLUDE) ../test/xmouse.c $(LIBS)	
-xgreen:
-	@echo "Compiling nxlib/ptest/xgreen.c ..."
-	$(CC) $(CFLAGS) -g -o xgreen $(INCLUDE) ../test/xgreen.c $(LIBS)	
+ifeq ($(DOS_DJGPP),Y)
+DOSEXT :=.exe
+endif
+
+all: $(TARGETSX) 
+
+$(TARGETSX): $(SOURCES)
+	@echo "Compiling nxlib/ptest/$@ ..."
+	$(CC) $(CFLAGS) -o $@ $(INCLUDE) ../test/$(basename $@).c $(LIBS)
 	
 clean:
-	-rm $(TARGETS)
+	-rm $(TARGETSX) 

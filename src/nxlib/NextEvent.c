@@ -209,7 +209,12 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 			event->xkey.x = pev->x;
 			event->xkey.y = pev->y;;
 			event->xkey.x_root = pev->rootx;
+#ifndef __DJGPP__
 			event->xkey.y_root = pev->rooty;
+#else
+			//using unused y_root to read pev->ch in StrKeysym.c if djgpp
+			event->xkey.y_root = pev->ch; //write MWKey value into y_root 
+#endif
 			event->xkey.keycode = pev->scancode; /* note: not mwkey value*/
 			event->xkey.same_screen = True;
 

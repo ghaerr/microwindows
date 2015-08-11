@@ -6,6 +6,7 @@
  * Yes, this is just a demo, and doesn't repaint contents on refresh.
  */
 
+#define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -119,8 +120,10 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	switch(msg) {
 	case WM_CREATE:
 		ttyfd = CreatePtyShell();
-		/*if(ttyfd == -1)
-			return -1;*/
+		if(ttyfd == -1){			
+		fprintf(stderr,"\nCould not create terminal\n\n");
+		return -1;		  
+		}
 		MwRegisterFdInput(hwnd, ttyfd);
 		xpos = XMARGIN;
 		ypos = YMARGIN;
@@ -310,24 +313,19 @@ fprintf(stderr, "CYGWIN: Opened pty_name %s\n", pty_name);
 int
 CreatePtyShell(void)
 {
-	int	n = 0;
-	int	tfd;
+	int tfd;
+	pid_t pid;
 	char *	argv[2];
-
-	char *pty_name;
-
-	/* opens /dev/ptmx, can't use getpt() as needs nonblocking*/
-	if ((tfd = open("/dev/ptmx", O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
-err:
-		fprintf(stderr, "Can't create pty /dev/ptmx\n");
-		return -1;
-	}
+	char ptyname[50];
+	tfd = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (tfd < 0) goto err;
+      
 	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
-    if (grantpt(tfd) || unlockpt(tfd) || !( *pty_name = ptsname(tfd)))
-		goto err;
-
+	if (grantpt(tfd) || unlockpt(tfd)) goto err; 
 	signal(SIGCHLD, ptysignaled);
 	signal(SIGINT, ptysignaled);
+	sprintf(ptyname,"%s",ptsname(tfd));
+
 	if ((pid = fork()) == -1) {
 		fprintf(stderr, "No processes\n");
 		return -1;
@@ -335,25 +333,30 @@ err:
 	if (!pid) {
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
-		close(STDERR_FILENO);
 		close(tfd);
-		
+
 		setsid();
-		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+		if ((tfd = open(ptyname, O_RDWR)) < 0) {
+			fprintf(stderr, "Child: Can't open pty %s\n", ptyname);
 			exit(1);
 		}
+		
+		close(STDERR_FILENO);
 		dup2(tfd, STDIN_FILENO);
 		dup2(tfd, STDOUT_FILENO);
 		dup2(tfd, STDERR_FILENO);
 		/*if(!(argv[0] = getenv("SHELL")))*/
-			argv[0] = SHELL;
+		argv[0] = SHELL;
 		argv[1] = NULL;
 		execv(argv[0], argv);
 		exit(1);
 	}
 	return tfd;
+err:
+		fprintf(stderr, "Can't create pty /dev/ptmx\n");
+		return -1;	
 }
+
 #elif UNIX /* non-UNIX98 pty*/
 int
 CreatePtyShell(void)

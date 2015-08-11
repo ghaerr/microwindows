@@ -5,6 +5,10 @@
  * Greg Haerr
  */
 
+#define _XOPEN_SOURCE 600
+#if LINUX || MACOSX
+  #define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -48,13 +52,15 @@ void char_del(GR_COORD x, GR_COORD y);
 void char_out(GR_CHAR ch);
 void sigchild(int signo);
 
+GR_BOOL		havefocus = GR_FALSE;
+
 int main(int argc, char ** argv)
 {
 	GR_BITMAP	bitmap1fg[7];	/* mouse cursor */
 	GR_BITMAP	bitmap1bg[7];
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
+		fprintf(stderr, "\ncannot open graphics\n\n");
 		exit(1);
 	}
 	
@@ -103,19 +109,21 @@ int main(int argc, char ** argv)
 	GrSetGCForeground(gc1, BLACK);
 	GrSetGCBackground(gc1, WHITE);
 	text_init();
+	
 	if (term_init() < 0) {
+		fprintf(stderr,"\nCould not open terminal, terminating\n\n");
 		GrClose();
 		exit(1);
 	}
+	
 	/* we want tfd events also*/
 	GrRegisterInput(tfdMaster);
 
 #if 1
 	GrMainLoop(HandleEvent);
 #else
-	while(1) {
-		GR_EVENT ev;
-
+        GR_EVENT ev;
+	while(1) {	
 		GrGetNextEvent(&ev);
 		HandleEvent(&ev);
 	}
@@ -133,10 +141,12 @@ HandleEvent(GR_EVENT *ep)
 			break;
 
 		case GR_EVENT_TYPE_FOCUS_IN:
+		  havefocus = GR_TRUE;
 			do_focusin(&ep->general);
 			break;
 
 		case GR_EVENT_TYPE_FOCUS_OUT:
+		  havefocus = GR_FALSE;
 			do_focusout(&ep->general);
 			break;
 
@@ -162,11 +172,57 @@ char * nargv[2] = {"/bin/sh", NULL};
 
 void sigchild(int signo)
 {
-	printg("We have a signal right now!\n");
+	printg("\nWe have a signal right now!\n\n");
 	GrClose();
 	exit(0);
 }
 
+#if UNIX98
+int term_init(void)
+{
+	int tfd;
+	pid_t pid;
+	char ptyname[50];
+	
+	tfd = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (tfd < 0) goto err;
+        tfdMaster=tfd;
+	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
+	if (grantpt(tfd) || unlockpt(tfd)) goto err; 
+	signal(SIGCHLD, sigchild);
+	signal(SIGINT, sigchild);
+
+	sprintf(ptyname,"%s",ptsname(tfd));
+
+	if ((pid = fork()) == -1) {
+		fprintf(stderr, "\nNo processes\n\n");
+		return -1;
+	}
+	if (!pid) {
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(tfd);
+
+		setsid();
+		if ((tfd = open(ptyname, O_RDWR)) < 0) {
+			fprintf(stderr, "\nChild: Can't open pty %s\n\n", ptyname);
+			exit(1);
+		}
+		tfdSlave = tfd;	
+		close(STDERR_FILENO);
+		dup2(tfd, STDIN_FILENO);
+		dup2(tfd, STDOUT_FILENO);
+		dup2(tfd, STDERR_FILENO);
+		execv(nargv[0], nargv);
+		exit(1);
+	}
+	return 0; //tfd;
+err:
+		fprintf(stderr, "\nCan't create pty /dev/ptmx\n\n");
+		return -1;	
+}
+
+#else /* !UNIX98*/
 int term_init(void)
 {
 	char pty_name[12];
@@ -214,7 +270,7 @@ again:
 	}
 	return 0;
 }
-	
+#endif /*!UNIX98*/	
 
 GR_SIZE		width;		/* width of character */
 GR_SIZE		height;		/* height of character */

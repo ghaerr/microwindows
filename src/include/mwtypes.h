@@ -1423,6 +1423,9 @@ typedef struct {
 #define MWBUTTON_L	04
 #define MWBUTTON_M	02
 #define MWBUTTON_R	01
+#define MWBUTTON_U	16
+#define MWBUTTON_D	32
+#define MWBUTTON_F	08
 
 /* Keyboard values*/
 typedef unsigned short	MWKEY;

@@ -453,7 +453,7 @@ pcf_readbitmaps(FILEP file, unsigned char **bits, int *bits_size, int *glyph_pad
 
 /* read character metric data*/
 static uint32_t
-pcf_readmetrics(FILE * file, struct metric_entry **metrics)
+pcf_readmetrics(FILEP file, struct metric_entry **metrics)
 {
 	long offset;
 	uint32_t i, size;
@@ -505,7 +505,7 @@ pcf_readmetrics(FILE * file, struct metric_entry **metrics)
 
 /* read encoding table*/
 static int
-pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
+pcf_read_encoding(FILEP file, struct encoding_entry **encoding)
 {
 	long offset;
 	uint32_t n;
@@ -546,7 +546,7 @@ pcf_read_encoding(FILE * file, struct encoding_entry **encoding)
 }
 
 static int
-pcf_read_toc(FILE * file, struct toc_entry **toc, uint32_t *size)
+pcf_read_toc(FILEP file, struct toc_entry **toc, uint32_t *size)
 {
 	uint32_t i;
 	uint32_t version;
@@ -578,7 +578,7 @@ pcf_read_toc(FILE * file, struct toc_entry **toc, uint32_t *size)
 /* create font and allocate MWCOREFONT struct*/
 PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 {
-	FILE *file = NULL;
+	FILEP file = NULL;
 	MWCOREFONT *pf = NULL;
 	uint32_t i, count, offset;
 	int bsize;
@@ -601,7 +601,11 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 	/* Try to open the file */
 	file = FOPEN(name, "rb");
 	if (!file) {
+#if defined(__DJGPP__) || defined(__MINGW32__)
+		sprintf(fname, "%s/%s", "PCF_FONT_DIR", name);
+#else
 		sprintf(fname, "%s/%s", PCF_FONT_DIR, name);
+#endif
 		file = FOPEN(fname, "rb");
 	}
 	if (!file)

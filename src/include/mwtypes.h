@@ -6,9 +6,23 @@
  *
  * Exported Microwindows engine typedefs and defines
  */
+ 
+/* Microwindows version macros */ 
+/* We must not include leading zeros e.g. 092 would be octal.*/
+#define MW_VERSION          9
+#define MW_SUB_VERSION      2
+#define MW_WIP_VERSION      2 /* work in progress */
+#define MW_VERSION_STR      "92.2"
+#define MW_DATE_STR         "2015"
+#define MW_DATE             20150829    /* yyyymmdd */
+  
 #include <stdint.h> 		/* for uint32_t, int32_t*/
 #if __ECOS
 #include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */
+#endif
+
+#if __MINGW32__
+#include <malloc.h> /* for alloca */
 #endif
 
 /* configurable options*/

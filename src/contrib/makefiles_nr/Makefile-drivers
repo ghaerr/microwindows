@@ -1,0 +1,63 @@
+# Micro-Windows libmwdrovers.a library makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by Greg Haerr and V. Rogachev
+#
+LIB = libmwdrivers.a
+
+# List of objects to compile 
+# screen driver
+ifdef DOS_DJGPP
+          OBJECTS := scr_djvesa.o 
+endif          
+ifdef ALLEGRO4
+          OBJECTS := scr_allegro.o 
+endif
+ifdef ALLEGRO5          
+          OBJECTS := scr_allegro5.o           
+endif
+          OBJECTS += genfont.o        
+          OBJECTS += fblin8.o 
+          OBJECTS +=fblin16.o 
+          OBJECTS +=fblin24.o 
+          OBJECTS +=fblin32.o 
+          OBJECTS +=genmem.o 
+          OBJECTS +=fb.o 
+          OBJECTS +=fbportrait_left.o fbportrait_right.o fbportrait_down.o 
+          OBJECTS +=fblin1.o  
+          OBJECTS +=fblin2.o  
+          OBJECTS +=fblin4.o  
+          OBJECTS +=rasterops.o 
+
+
+# mouse driver
+ifdef DOS_DJGPP
+    OBJECTS += mou_dos.o
+endif
+ifdef ALLEGRO4
+    OBJECTS += mou_allegro.o
+endif
+ifdef ALLEGRO5
+    //OBJECTS += mou_allegro5.o
+    OBJECTS += mou_null.o
+endif
+
+# keyboard driver
+ifdef DOS_DJGPP
+    OBJECTS += kbd_dj.o
+endif
+ifdef ALLEGRO4
+    OBJECTS += kbd_allegro.o
+endif
+ifdef ALLEGRO5
+    //OBJECTS += kbd_allegro5.o
+    OBJECTS += kbd_null.o
+endif
+
+all: $(LIB)
+
+clean:
+	rm -f *.o *.a core
+
+$(LIB): $(OBJECTS)
+#	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(OBJECTS)
+	

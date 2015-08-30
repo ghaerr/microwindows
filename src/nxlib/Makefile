@@ -80,15 +80,20 @@ else
 # cannot make shared libNX11.so library if static nano-X lib
 SHAREDLIB=N
 endif
+
 SOLIBREV=0.47
 MAJVERSION=0
 SOEXTRALIBS = -L$(MWIN_LIB) -lnano-X
 
 # set to Y to include (unmodifed X11) Xrm routines
-ifneq ($(DOS_DJGPP), Y)
-INCLUDE_XRM=Y
-else
+ifeq ($(DOS_DJGPP), Y)
 INCLUDE_XRM=N
+else
+ ifeq ($(MINGW), Y)
+  INCLUDE_XRM=N
+ else #e.g Linux
+  INCLUDE_XRM=Y
+ endif
 endif
 
 # compiler flags
@@ -167,8 +172,10 @@ all: $(LIBS) testprogs
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)
-	ar r lib$(LIBNAME).a $(OBJS)
+	echo "Linking lib$(LIBNAME).a"
+	ar r lib$(LIBNAME).a ../lib/libnano-X.a $(OBJS)
 	$(CP) lib$(LIBNAME).a $(MWIN_LIB)
+
 	
 	
 # shared NX11 library
@@ -190,18 +197,24 @@ lib$(LIBNAME).so.$(SOLIBREV): $(OBJS)
 	
 # static PXLIB library
 lib$(PLIBNAME).a: $(OBJS)
+	echo "Linking lib$(PLIBNAME).a"
 #	ar crsT $@ ../lib/libNX11.a ../lib/libnano-X.a
 #create an AR script and execute that with ar -M to combine libNX11.a and libnano-X.a
 	$(SILENT)echo "CREATE $@" > $(ODIR)/$(ARSCRIPT)
 #	$(SILENT)echo "ADDLIB ../lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
 #	$(SILENT)echo "ADDLIB ../lib/libNX11.a" >> $(ODIR)/$(ARSCRIPT)		
+ifeq ($(MINGW), Y)
+	$(SILENT)echo "ADDLIB ../lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
+	$(SILENT)echo "ADDLIB ../lib/lib$(LIBNAME).a" >> $(ODIR)/$(ARSCRIPT)		
+else    	
 	$(SILENT)echo "ADDLIB $(MW_DIR_SRC)/lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
 	$(SILENT)echo "ADDLIB $(MW_DIR_SRC)/lib/lib$(LIBNAME).a" >> $(ODIR)/$(ARSCRIPT)		
+endif	
 	$(SILENT)echo "SAVE" >> $(ODIR)/$(ARSCRIPT)
 	$(SILENT)echo "END" >> $(ODIR)/$(ARSCRIPT)
-	$(SILENT)$(AR) -M < $(ODIR)/$(ARSCRIPT)	
-	$(CP) $@ $(MWIN_LIB)
-	$(RM) $(ODIR)/$(ARSCRIPT)
+	-$(SILENT)$(AR) -M < $(ODIR)/$(ARSCRIPT)
+	-$(CP) $@ $(MWIN_LIB)
+#	-$(RM) $(ODIR)/$(ARSCRIPT)
 
 # shared PX11 library
 lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
@@ -216,7 +229,9 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	
 testprogs:
+	echo "Compiling programs in test"
 	-$(MAKE) -C test
+	echo "Compiling programs in ptest"
 	-$(MAKE) -C ptest
 	-$(RM) lib$(LIBNAME).a
 	-$(RM) lib$(PLIBNAME).a

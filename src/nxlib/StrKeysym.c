@@ -10,13 +10,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#if !__MINGW32__
 #include <sys/ioctl.h>
-#ifndef __DJGPP__
-#include <linux/keyboard.h>
-#include <linux/kd.h>
-#else
+#endif
+#if defined(__DJGPP__) || defined(__MINGW32__)
 #include "include/linux/keyboard.h"
 #include "include/linux/kd.h"
+#else
+#include <linux/keyboard.h>
+#include <linux/kd.h>
 #endif
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/
 
@@ -64,7 +66,7 @@ static void
 LoadKernelKeymaps(void)
 {
 //#if linux
-#ifndef __DJGPP__
+#if !(defined(__DJGPP__) || defined(__MINGW32__))
 	int 		map, i;
 	struct kbentry 	entry;
 	char *		kbd;
@@ -333,7 +335,7 @@ KeySym
 XLookupKeysym(XKeyEvent *event, int index)
 {
 	//DPRINTF("XLookupKeysym called\n");
-#ifdef __DJGPP__
+#if defined(__DJGPP__) || defined(__MINGW32__)
 	return XMWKeyToKeysym(event->display, (unsigned int) event->y_root, index);
 #else
 	return XKeycodeToKeysym(event->display, event->keycode, index);
@@ -363,7 +365,8 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 
 	//DPRINTF("XLookupString called - %X\n",(unsigned int)k);
 
-#ifndef __DJGPP__
+//#ifndef __DJGPP__
+#if !(defined(__DJGPP__) || defined(__MINGW32__))
 	if(!map_loaded) {
 		/* translate Control/Shift*/
 		if ((event->state & ControlMask) && k < 256)

@@ -28,13 +28,31 @@
 
 #define MWINCLUDECOLORS
 #include "serv.h"
-#if UNIX | DOS_DJGPP
+#if UNIX | DOS_DJGPP | WIN32
 #include <unistd.h>
 #if _MINIX
 #include <sys/times.h>
 #else
 #include <sys/time.h>
 #endif
+#endif
+
+#if __MINGW32__ || WIN32
+#include "windows.h"
+/* Allow including program to override.  */
+#ifndef FD_SETSIZE
+#define FD_SETSIZE 256
+#endif
+
+typedef struct fd_set {
+  unsigned char fd_bits [((FD_SETSIZE) + 7) / 8];
+} fd_set;
+
+#define FD_SET(n, p)    ((p)->fd_bits[(n) / 8] |= (1 << ((n) & 7)))
+#define FD_CLR(n, p)	((p)->fd_bits[(n) / 8] &= ~(1 << ((n) & 7)))
+#define FD_ISSET(n, p)	((p)->fd_bits[(n) / 8] & (1 << ((n) & 7)))
+#define FD_ZERO(p)	memset ((void *)(p), 0, sizeof (*(p)))
+
 #endif
 
 #if ELKS
@@ -345,7 +363,7 @@ GsDropClient(int fd)
 }
 #endif
 
-#if UNIX | DOS_DJGPP
+#if UNIX | DOS_DJGPP || __MINGW32__
 #if NONETWORK && HAVE_SELECT
 /*
  * Register the specified file descriptor to return an event
@@ -435,8 +453,8 @@ GrReqShmCmds(long shmsize)
 }
 #endif
 
-
-#if WIN32
+/********************************************************************************/
+#if WIN32  && !__MINGW32__
 static void
 HandleKeyMessage(MSG *msg, GR_EVENT_TYPE keyType)
 {
@@ -528,6 +546,8 @@ GsSelect(GR_TIMEOUT timeout)
 err_exit:
 	GsTerminate();
 }
+
+/********************************************************************************/
 #elif VXWORKS
 
 #define POLLTIME	100   /* polling sleep interval (in msec) */
@@ -614,6 +634,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 }
 
+/********************************************************************************/
 #elif PSP
 
 #define POLLTIME	1     /* polling sleep interval (in msec) */
@@ -697,8 +718,8 @@ GsSelect(GR_TIMEOUT timeout)
 
 }
 
-
-#elif MSDOS | _MINIX
+/********************************************************************************/
+#elif MSDOS || _MINIX  || __MINGW32__
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -715,7 +736,9 @@ GsSelect(GR_TIMEOUT timeout)
 
 }
 
-#elif UNIX && HAVE_SELECT
+/********************************************************************************/
+/* next elif to below is #elif NDS */
+#elif UNIX && HAVE_SELECT && !__MINGW32__
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -1065,7 +1088,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 
 #endif /* NONETWORK */
 
-
+/********************************************************************************/
 #elif NDS /* UNIX && defined(HAVESELECT)*/
 
 void
@@ -1083,8 +1106,9 @@ GsSelect(GR_TIMEOUT timeout)
 
 }
 
-
+/********************************************************************************/
 #endif /* UNIX && HAVE_SELECT*/
+/********************************************************************************/
 
 #if RTEMS
 extern struct MW_UID_MESSAGE m_kbd;

@@ -21,7 +21,7 @@
 #include <fcntl.h>
 #endif
 
-#if LINUX || MACOSX || DOS_DJGPP || defined(__CYGWIN__)
+#if LINUX || MACOSX || DOS_DJGPP || defined(__CYGWIN__) || __MINGW32__
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

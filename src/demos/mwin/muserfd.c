@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if DOS_DJGPP || defined(__FreeBSD__)
+#if DOS_DJGPP || defined(__FreeBSD__) || defined(__MINGW__)
 #include <sys/types.h>
 #endif
 

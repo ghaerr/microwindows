@@ -298,7 +298,7 @@ MwSelect(BOOL mayWait)
 }
 #endif
 
-#if MSDOS | _MINIX
+#if MSDOS | _MINIX | __MINGW32__ 
 void
 MwSelect(BOOL mayWait)
 {
@@ -349,7 +349,7 @@ MwSelect(BOOL mayWait)
 #endif
 
 
-#if UNIX && HAVE_SELECT
+#if UNIX && HAVE_SELECT && !__MINGW32__ 
 #if ANIMATEPALETTE
 static int fade = 0;
 #endif

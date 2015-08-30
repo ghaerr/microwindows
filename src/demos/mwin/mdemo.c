@@ -45,7 +45,7 @@ unsigned _stklen = 4096;
 #define USEBLIT		0	/* use blit rather than DrawDIB()*/
 #endif
 
-#if RTEMS || ECOS || PSP
+#if RTEMS || ECOS || PSP || __MINGW32__
 #define  srandom  srand
 #define  random   rand
 #endif

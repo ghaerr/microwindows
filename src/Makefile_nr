@@ -1,0 +1,464 @@
+# Micro-Windows Non-Recursive Makefile for DOS/DJGPP and MinGW
+# by Georg Potthast August 2015
+# based on makefile by V. Rogachev
+#
+
+#call e.g. make -f Makefile_nr ARCH=DOS
+# or       make -f Makefile_nr clean ARCH=DOS
+ifeq ($(ARCH), dos)
+DOS_DJGPP=Y
+$(info Compiling for DOS DJGPP)
+$(info    )
+endif
+ifeq ($(ARCH), DOS)
+DOS_DJGPP=Y
+$(info Compiling for DOS DJGPP)
+$(info    )
+else
+#default is MINGW
+MINGW = Y
+$(info Compiling for MinGW)
+$(info    )
+endif
+
+# define arch: DOS/DJGPP or MINGW
+ifdef MINGW
+CFLAGS += -DMINGW 
+ALLEGRO4 = 1
+#ALLEGRO5 = 1
+endif
+
+ifdef DOS_DJGPP
+CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1 
+endif
+
+# export variables for sublevel makefiles
+export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS HAVEMSFONTS VESA MINGW DOS_DJGPP ALLEGRO4 ALLEGRO5 CLIBS
+
+# set to one to build microwin and/or nano-X demos
+MICROWIN=1
+NANOX=1
+
+#select just a few examples for testing
+#TESTPROG=1
+
+# network libs location
+NETLIBS=
+#NETLIBS=-lsocket -lnsl
+
+ifdef ALLEGRO4
+LIBALLEGRO= -lalleg #.dll
+endif
+ifdef ALLEGRO5
+LIBALLEGRO= -lallegro #.dll
+endif
+
+# for recursive makes into subdirectories
+MW_DIR_SRC := $(CURDIR)
+MW_DIR_BIN := $(CURDIR)/bin
+
+# set variable to compile with gcc
+CC = gcc
+AS = as
+LD = ld
+AR = ar
+STRIP = strip
+HOSTCC = gcc
+HOSTCFLAGS = -I$(MW_DIR_SRC)/include
+#OPTIMIZE = 1
+
+#enable EPRINTF and DPRINTF statements in code
+#or use fprintf(stdout,"foo\n");
+DEBUG= 1
+
+#add -g flag for GDB
+#GDB= 1
+
+#get Make to print full details
+#VERBOSE= 1
+
+# DJGPP cc flags, includes
+ifdef DOS_DJGPP
+INC = -I$(MW_DIR_SRC)/include
+endif
+
+ifdef MINGW
+# MINGW cc flags, includes
+INC = -I$(MW_DIR_SRC)/include -I/c/MinGW/msys/1.0/local/include/freetype
+INC += -I/usr/local/include
+endif
+
+ifdef GDB
+# -g - include debugging information in source code
+CFLAGS = $(INC) -Wall -g
+else
+# -s - removes all symbol table and relocation information
+CFLAGS = $(INC) -s -L/c/MinGW/msys/1.0/lib
+CFLAGS += -L/usr/local/lib -L/local/lib
+CFLAGS += -L/c/MinGW/msys/1.0/local/lib -L/c/MinGW/lib
+endif
+
+ifdef OPTIMIZE
+CFLAGS += -O3
+endif
+ifdef VERBOSE
+CFLAGS += -v
+endif
+
+#MATHLIB
+#CLIBS += -lm
+
+CFLAGS += -DHAVE_FILEIO=1 -DMW_FEATURE_IMAGES=1 -DMW_FEATURE_TIMERS=1
+CFLAGS += -DHAVE_SIGNAL=0 
+
+ifdef DEBUG
+#HAVE_FPRINTF=0 uses Nano-X error function and outputs to STDOUT=SCREEN
+CFLAGS += -DHAVE_FPRINTF=1
+else
+CFLAGS += -DHAVE_FPRINTF=0
+endif
+
+#Add defines to CFLAGS variable
+
+# uncomment the following line to link the nano-X application
+# with the server.  This is required, if no network is present,
+# or for speed or debugging.  This affects the nano-X server only.
+LINK_APP_INTO_SERVER=1
+#set to one if linking app into server
+CFLAGS += -DNONETWORK=1
+
+# Window move algorithms, change for tradeoff between cpu speed and looks
+# UPDATEREGIONS paints in update clipping region only for better look and feel
+# ERASEMOVE repaints only backgrounds while window dragging, quicker
+# XORMOVE moves windows only after button up, quickest 
+
+#CFLAGS += -DUPDATEREGIONS=1
+#CFLAGS += -DERASEMOVE=1
+CFLAGS += -DXORMOVE=1
+
+#set to 1 for MS FONTS
+#CFLAGS += -DHAVEMSFONTS=1
+
+#needed in devimage.c
+CFLAGS += -DHAVE_MMAP=0
+
+#link in window manager - decorate windows and color background
+#needed for nanowm and better for nxlib
+CFLAGS += -DNANOWM=1
+
+#set to 1 for BMP SUPPORT
+CFLAGS += -DHAVE_BMP_SUPPORT=1
+#set to 1 for GIF SUPPORT
+CFLAGS += -DHAVE_GIF_SUPPORT=1
+#set to 1 for PNM SUPPORT
+CFLAGS += -DHAVE_PNM_SUPPORT=1
+#set to 1 for XPM SUPPORT
+CFLAGS += -DHAVE_XPM_SUPPORT=1
+
+##set for JPEG support - libjpeg.a
+CFLAGS += -DHAVE_JPEG_SUPPORT=1
+CLIBS += -ljpeg
+##set for PNG support - libpng.a + libz.a
+CFLAGS += -DHAVE_PNG_SUPPORT=1
+CLIBS += -lpng -lz
+##set for TIFF support - libtiff.a
+#CFLAGS += -DHAVE_TIFF_SUPPORT=1
+#CLIBS += -ltiff
+
+#font support settings
+#Do not use the FONT_DIR macros here with MinGW.
+#Within the programs these are set to the
+#defaults as specified below, however, the
+#macros here are not used properly. Run the
+#demos from the root directory e.g. bin/fontdemo
+#When run from the bin directory you'll need a fonts
+#directory within bin.
+
+CFLAGS += -DHAVE_FNT_SUPPORT=1
+#CFLAGS += -DFNT_FONT_DIR="fonts/fnt/" 
+
+CFLAGS += -DHAVE_PCF_SUPPORT=1
+#CFLAGS += -DPCF_FONT_DIR="fonts/pcf/"
+#need zlib for gz format
+CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
+CLIBS += -lz
+
+CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
+#plus compile font_freetype2.o in engine/makefile!
+#CFLAGS += -DFREETYPE_FONT_DIR="fonts/truetype/"
+CLIBS += -lfreetype -lz
+
+#CFLAGS += -DHAVE_T1LIB_SUPPORT=1
+#T1LIB_FONT_DIR = "fonts/type1/"
+#CLIBS += -lt1
+
+# SCREEN SETTINGS #########################
+# these settings are used if the environment variable NANOSCR is not used
+# e.g. NANOSCR=800 600 565 for TRUECOLOR565
+
+ifndef SCREEN_WIDTH
+#SCREEN_WIDTH=800
+SCREEN_WIDTH=1024
+#SCREEN_WIDTH=1400
+endif
+ifndef SCREEN_HEIGHT
+#SCREEN_HEIGHT=600
+SCREEN_HEIGHT=768
+#SCREEN_HEIGHT=1050
+endif
+ifndef SCREEN_DEPTH
+#SCREEN_DEPTH=16
+#SCREEN_DEPTH=24
+SCREEN_DEPTH=32
+endif
+
+#/* pixel is packed 8 bits 1, 4 or 8 pal index*/
+#SCREEN_PIXTYPE = MWPF_PALETTE       
+
+#/* pixel is packed 32 bits byte order |B|G|R|A|*/
+SCREEN_PIXTYPE = MWPF_TRUECOLOR8888 
+
+#/* pixel is packed 32 bits byte order |R|G|B|A|*/
+#SCREEN_PIXTYPE = MWPF_TRUECOLORABGR 
+
+#/* pixel is packed 24 bits byte order |B|G|R|*/
+#SCREEN_PIXTYPE = MWPF_TRUECOLOR888  
+
+#/* pixel is packed 16 bits little endian RGB565*/
+# use this making screenshots with snarf
+#SCREEN_PIXTYPE = MWPF_TRUECOLOR565  
+
+ifdef SCREEN_HEIGHT
+CFLAGS += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
+endif
+
+ifdef SCREEN_WIDTH
+CFLAGS += -DSCREEN_WIDTH=$(SCREEN_WIDTH)
+endif
+
+ifdef SCREEN_DEPTH
+CFLAGS += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
+endif
+
+ifdef SCREEN_PIXTYPE
+CFLAGS += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
+endif
+
+# define ALL target ********************************
+
+ALL += clean init drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a mwin/libmwin.a mwin/bmp/libimages.a nanox/libnano-X.a nxlib/libNX11.a
+
+ifdef MICROWIN
+ALL += mwindemos 
+endif
+
+ifdef NANOX 
+ALL += nanoxdemos
+endif
+
+ifdef TESTPROG
+ALL += testprog
+endif
+
+#define LIBS and NANOLIBS variable - CLIBS = common libs **************
+
+ifdef MINGW
+CLIBS += $(LIBALLEGRO) 
+endif
+
+#drivers/libmwdrivers.a
+#CLIBS += -lmwdrivers
+#fonts/libfonts.a 
+#CLIBS += -lfonts
+#engine/libmwengine.a
+#CLIBS += -lmwengine
+
+#mwin/bmp/libimages.a 
+CLIBS += -limages
+
+#nanox/libnano-X.a 
+NANOLIBS = -lnano-X $(CLIBS)
+
+#mwin/libmwin.a 
+#LIBS = -lmwin -lnano-X $(CLIBS)
+LIBS = -lmwin $(CLIBS)
+
+LIBS += $(NETLIBS)
+
+CFLAGS += -L$(MW_DIR_SRC)/lib
+
+#define mwin demo programs
+MTARGETS1 := malpha mtest mtest2 mdemo mstretch
+#MTARGETS1 += mterm mine muserfd # not working in DOS
+MTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(MTARGETS1))
+MTARGETS := $(addsuffix .exe,$(MTARGETS2))
+
+#define nanox demo programs
+NTARGETS1 := demo move nxeyes landmine world nxclock demo2 grabdemo demo5 demo6 snap_ppm 
+NTARGETS1 += tsdemo polydemo slider arcdemo blitdemo bmpdemo fontdemo ftdemo pcfdemo
+NTARGETS1 += nxview snap_jpg tux # not working in DOS
+#NTARGETS1 += nterm demo4 ntetris info tux getselection npanel # not working in DOS
+NTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(NTARGETS1))
+NTARGETS := $(addsuffix .exe,$(NTARGETS2))
+
+#####################
+all: $(ALL)
+
+# If you dont want to see every executed command ...
+ifndef VERBOSE
+.SILENT:
+endif
+
+init:
+	-$("shell md lib 2>NUL")
+	-$("shell md bin 2>NUL")   
+	-$("shell md obj 2>NUL")
+ifdef MINGW   
+	-cp \
+		$(MW_DIR_SRC)/demos/nanox/world.map \
+		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
+		$(MW_DIR_SRC)/demos/nanox/tux.gif \
+		$(MW_DIR_SRC)/demos/nanox/slidebmp.bmp \
+		$(MW_DIR_SRC)/demos/nanox/uponface.ppm \
+		$(MW_DIR_SRC)/demos/nanox/mwlogo.ppm \
+		$(MW_DIR_SRC)/demos/nanox/icons/*.ppm \
+		$(MW_DIR_SRC)/demos/nanox/icons/*.pgm \
+		$(MW_DIR_SRC)/demos/nanox/ftdemo.txt\
+		$(MW_DIR_BIN)
+
+else
+	-$("shell copy demos/nanox/ftdemo.txt bin")
+	-$("shell copy demos/nanox/world.map bin")
+	-$("shell copy demos/nanox/launcher.cnf bin")
+	-$("shell copy demos/nanox/tux.gif bin")
+	-$("shell copy demos/nanox/slidebmp.bmp bin")
+	-$("shell copy demos/nanox/uponface.ppm bin")
+	-$("shell copy demos/nanox/mwlogo.ppm bin")
+	-$("shell copy demos/nanox/icons/*.ppm bin")
+	-$("shell copy demos/nanox/icons/*.pgm bin")
+	-$("shell copy demos/nanox/ftdemo.txt bin")
+endif
+
+mwindemos: $(MTARGETS)
+
+demos/mwin/%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+$(MW_DIR_BIN)/%.exe: demos/mwin/%.o
+	echo "compiling $@"
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+
+nanoxdemos: $(NTARGETS)
+
+demos/nanox/%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+$(MW_DIR_BIN)/%.exe: demos/nanox/%.o
+	echo "compiling $@"
+	$(CC) $(CFLAGS) -o $@ $< $(NANOLIBS)
+	
+testprog:
+	echo "Compiling testprograms"
+#	$(info $(CFLAGS))
+#	$(info $(LIBS))
+	$(CC) $(CFLAGS) -o bin/malpha.exe demos/mwin/malpha.c $(LIBS)   
+#	$(CC) $(CFLAGS) -o bin/nxview.exe demos/nanox/nxview.c $(NANOLIBS) -lz
+	$(CC) $(CFLAGS) -o bin/arcdemo.exe demos/nanox/arcdemo.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin/grabdemo.exe demos/nanox/grabdemo.c $(NANOLIBS)	
+#####################
+ifdef MINGW    
+clean:
+	echo "Cleaning MinGW files"
+	-rm obj/mwin/*.o 2>/dev/null
+	-rm obj/drivers/*.o 2>/dev/null
+	-rm obj/mwin/winlib/*.o 2>/dev/null
+	-rm obj/engine/*.o 2>/dev/null
+	-rm obj/fonts/*.o 2>/dev/null
+	-rm drivers/*.o 2>/dev/null
+	-rm mwin/*.o 2>/dev/null	
+	-rm mwin/bmp/*.o 2>/dev/null
+	-rm mwin/winlib/*.o 2>/dev/null
+	-rm nanox/*.o 2>/dev/null
+	-rm fonts/*.o 2>/dev/null
+	-rm engine/*.o 2>/dev/null
+	-rm lib/*.a	 2>/dev/null
+	-rm bin/*.exe 2>/dev/null
+	-rm mwin/bmp/*.exe 2>/dev/null
+	-$(MAKE) -C nxlib clean
+	echo "Cleaned *.o, *.a, and *.exe files"
+endif
+
+ifdef DOS_DJGPP
+clean:
+	echo "Cleaning DOS files"
+	-del mwin\*.o
+	-del mwin\bmp\*.o
+	-del mwin\winlib\*.o
+	-del fonts\*.o
+	-del nanox\*.o
+	-del drivers\*.o
+	-del engine\*.o
+	-del lib\*.a
+# or demos will not be compiled again	
+	-del bin\*.exe 
+	-del nxlib\*.o
+	-$(MAKE) -C nxlib clean
+	echo "Cleaned *.o, *.a, and *.exe files"
+endif
+
+#there is a file install in the directory - so define as phony
+.PHONY: install
+
+ifdef MINGW
+install:
+	cp lib/*.a /local/lib
+	cp inc /local/include/mwin
+endif
+
+ifdef DOS_DJGPP
+install:
+	copy lib\*.a \djgpp\lib
+	copy inc \djgpp\include\mwin
+endif
+	
+#############################################################################
+#targets for libraries - engine,fonts,drivers make just object files, no libs
+#using AR these will be merged into libmwin.a and libnano-X.a
+
+nanox/libnano-X.a: 
+	echo "Generating $@"
+#	$(MAKE) -C nanox
+	$(MAKE) -C nanox  -f ../contrib/makefiles_nr/Makefile-nanox
+
+#obsolete
+#mwin/winlib/libwinlib.a:
+#	$(MAKE) -C mwin/winlib
+
+mwin/libmwin.a:
+	echo "Generating $@"
+#	$(MAKE) -C mwin	
+	$(MAKE) -C mwin -f ../contrib/makefiles_nr/Makefile-mwin
+	
+fonts/libfonts.a:
+	echo "Generating font object files"    
+#	$(MAKE) -C fonts	
+	$(MAKE) -C fonts -f ../contrib/makefiles_nr/Makefile-fonts
+
+engine/libmwengine.a:
+	echo "Generating engine object files"    
+#	$(MAKE) -C engine
+	$(MAKE) -C engine -f ../contrib/makefiles_nr/Makefile-engine
+
+drivers/libmwdrivers.a:
+	echo "Generating driver object files" 
+#	$(MAKE) -C drivers       
+	$(MAKE) -C drivers -f ../contrib/makefiles_nr/Makefile-drivers
+
+mwin/bmp/libimages.a:
+	echo "Generating $@"  
+#	$(MAKE) -C mwin/bmp      
+	$(MAKE) -C mwin/bmp -f ../../contrib/makefiles_nr/Makefile-bmp
+
+nxlib/libNX11.a:
+	echo "Generating $@"
+	$(MAKE) -C nxlib  

@@ -37,7 +37,8 @@ png_read_buffer(png_structp pstruct, png_bytep pointer, png_size_t size)
     png_voidp ptr =  png_get_io_ptr(pstruct);
     GdImageBufferRead(ptr, pointer, size);
 #else
-    GdImageBufferRead(pstruct->io_ptr, pointer, size);
+    //GdImageBufferRead(pstruct->io_ptr, pointer, size);
+    GdImageBufferRead(png_get_io_ptr(pstruct), pointer, size);
 #endif
 }
 

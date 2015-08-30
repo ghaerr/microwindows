@@ -5,6 +5,9 @@
 #include "nano-X.h"
 
 #include <signal.h>
+#if __MINGW32__
+#include <time.h>
+#endif
 
 int
 main(int ac,char **av)
@@ -28,7 +31,7 @@ main(int ac,char **av)
 	w = GrNewWindow(GR_ROOT_WINDOW_ID, 20, 20, WIDTH, HEIGHT,
 		0, GREEN, BLACK);
 
-	w2 = GrNewWindow(w, 20, 20, 40, 40, 0, BLUE, BLACK);
+	//w2 = GrNewWindow(w, 20, 20, 40, 40, 0, BLUE, BLACK);
 
 	props.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
 	props.props = GR_WM_PROPS_NOBACKGROUND;
@@ -37,7 +40,7 @@ main(int ac,char **av)
 
 	gc = GrNewGC();
 	/*font = GrCreateFontEx("/tmp/lubI24.fnt", 0, 0, NULL);*/
-	font = GrCreateFontEx("fonts/pcf/lubI24.pcf", 0, 0, NULL);
+	font = GrCreateFontEx("lubI24.pcf", 0, 0, NULL);
 	GrSetGCFont(gc, font);
 
 	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ
@@ -60,7 +63,7 @@ main(int ac,char **av)
 			GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPTEXT));
 			GrSetGCUseBackground(gc, GR_FALSE);
 			GrText(w, gc, 10, 30, "Hello World @MNOPmn", -1, GR_TFASCII);
-GrRect(w, gc, 5, 5, 300, 60);
+            		GrRect(w, gc, 5, 5, 300, 60);
 			break;
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
@@ -70,11 +73,17 @@ GrRect(w, gc, 5, 5, 300, 60);
 			printf("\7demo2: Error (%s) ", event.error.name);
 			printf(nxErrorStrings[event.error.code],event.error.id);
 			break;
-#if 1
+#if 0
 		case GR_EVENT_TYPE_BUTTON_DOWN:
 			GrUnmapWindow(w);
 			GrFlush();
+			
+#if !__MINGW32__
 			sleep(1);
+#else
+            clock_t goal = 1000 + clock();
+            while (goal > clock());			
+#endif
 			GrMapWindow(w);
 			break;
 #endif

@@ -1,0 +1,51 @@
+# Micro-Windows libmwin.a library makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by Greg Haerr and V. Rogachev
+#
+LIB=libmwin.a
+
+# Get list of core files (engine, fonts and drivers).
+
+# List of objects to compile
+OBJECTS := \
+	winmain.o \
+	winuser.o \
+	wingdi.o \
+	winexpos.o \
+	winclip.o \
+	winevent.o \
+	windefw.o \
+	winrgn.o \
+	winfont.o \
+	winsbar.o \
+	winres.o
+
+OBJECTS += \
+	winlib/draw3d.o \
+	winlib/ptinsid.o \
+	winlib/insetr.o \
+	winlib/fastfill.o \
+	winlib/graph3d.o \
+	winlib/mwuser.o
+
+OBJECTS += \
+	winlib/windlg.o \
+	winlib/msgbox.o \
+	winlib/button.o \
+	winlib/edit.o \
+	winlib/newedit.o \
+	winlib/listbox.o \
+	winlib/progbar.o \
+	winlib/static.o \
+	winlib/combobox.o \
+	winlib/caret.o \
+	winlib/scrlbar.o \
+	winlib/medit.o
+
+all: $(LIB)
+
+clean:
+	rm -f *.o *.a core
+
+$(LIB): $(OBJECTS)
+	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(OBJECTS)

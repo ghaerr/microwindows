@@ -11,6 +11,7 @@
  *	__ECOS
  *	__FreeBSD__
  *	__CYGWIN__
+ *  __MINGW32__
  *	TRIMEDIA
  *	MACOSX
  */
@@ -21,7 +22,7 @@
 /*
  *  First try to set MW_CPU_xxx_ENDIAN automatically for those OSes that can do so.
  */
-#if LINUX && !__ECOS
+#if LINUX && !__ECOS && !__MINGW32__
 #include <endian.h>
 #endif
 
@@ -86,7 +87,7 @@
 /* Both LINUX and __ECOS are checked, because when compiling for the     */
 /* synthetic target of eCos, both LINUX and __ECOS are defined           */
 /* ********************************************************************* */
-#elif LINUX && !__ECOS
+#elif LINUX && !__ECOS && !__MINGW32__
 
 # if __BYTE_ORDER == __BIG_ENDIAN
 #  undef host_to_little_endian_16
@@ -143,7 +144,7 @@
 /* ********************************************************************* */
 /* Cygwin only works on x86/win32, therefore it's always little endian   */
 /* ********************************************************************* */
-#elif defined(__CYGWIN__)
+#elif defined(__CYGWIN__) || defined(__MINGW32__)
 
 /* *********************************************************************
  * RTEMS

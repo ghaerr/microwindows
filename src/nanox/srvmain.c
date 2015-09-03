@@ -719,7 +719,7 @@ GsSelect(GR_TIMEOUT timeout)
 }
 
 /********************************************************************************/
-#elif MSDOS || _MINIX  || __MINGW32__
+#elif MSDOS || _MINIX  || __MINGW32__ || defined(_ALLEGRO_)
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -738,7 +738,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 /********************************************************************************/
 /* next elif to below is #elif NDS */
-#elif UNIX && HAVE_SELECT && !__MINGW32__
+#elif UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_)
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -1089,7 +1089,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 #endif /* NONETWORK */
 
 /********************************************************************************/
-#elif NDS /* UNIX && defined(HAVESELECT)*/
+#elif NDS /* UNIX && defined(HAVE_SELECT)*/
 
 void
 GsSelect(GR_TIMEOUT timeout)

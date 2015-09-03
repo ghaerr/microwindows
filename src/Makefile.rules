@@ -74,13 +74,14 @@ LDFLAGS += $(X11LDFLAGS)
 else
 MW_CORE_LIBS += /usr/X11R6/lib/libX11.a
 endif
+
 ifeq ($(ARCH),FREEBSD-X86)
 INCLUDEDIRS += -I/usr/X11R6/include
 endif
 ifeq ($(ARCH),CYGWIN)
 INCLUDEDIRS += -I/usr/X11R6/include
 endif
-endif
+endif #ifeq X11
 
 ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 INCLUDEDIRS += -I$(INCVNC) -I$(INCZ)
@@ -227,6 +228,18 @@ else
 LDFLAGS += -lfribidi
 endif
 endif
+
+# ALLEGRO4+5
+ifeq ($(ALLEGRO5), Y)
+LDFLAGS += -lallegro #if allegro5
+DEFINES += -D_ALLEGRO_=1
+endif
+
+ifeq ($(ALLEGRO4), Y)
+LDFLAGS += -lalleg 
+DEFINES += -D_ALLEGRO_=1
+endif
+
 ifeq ($(HAVE_SHAPEJOINING_SUPPORT), Y)
 DEFINES += -DHAVE_SHAPEJOINING_SUPPORT=1
 endif

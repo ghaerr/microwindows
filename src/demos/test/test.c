@@ -68,7 +68,7 @@ GsSelect(void)
 }
 #endif
 
-#if UNIX && defined(HAVESELECT)
+#if UNIX && defined(HAVE_SELECT)
 void
 GsSelect(void)
 {

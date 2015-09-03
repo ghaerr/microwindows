@@ -12,9 +12,9 @@ INCLUDE=-I..
 DOSEXT :=
 
 ifeq ($(SHAREDLIBS), Y)
-LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libNX11.so 
+LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libNX11.so  ../../lib/libnano-X.so
 else
-LIBS =$(LDFLAGS) $(NANOXCLIENTLIBS) ../../lib/libNX11.a 
+LIBS =$(LDFLAGS) $(NANOXCLIENTLIBS) ../../lib/libNX11.a  ../../lib/libnano-X.a
 endif
 
 ifeq ($(DOS_DJGPP), Y)

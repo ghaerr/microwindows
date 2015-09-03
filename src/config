@@ -50,7 +50,7 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = Y
+DEBUG                    = N
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
@@ -63,7 +63,7 @@ GPROF                    = N
 MICROWIN                 = Y
 NANOX                    = Y
 ENGINE                   = Y
-SHAREDLIBS               = Y
+SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
 ####################################################################
@@ -112,7 +112,7 @@ SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
 # with the server. This is required if UNIX sockets aren't available,
 # or for speed or debugging.  This affects the nano-X server only.
 ####################################################################
-LINK_APP_INTO_SERVER     = N
+LINK_APP_INTO_SERVER     = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
@@ -268,6 +268,10 @@ PSP                      = N
 
 # Nintendo DS screen driver
 SCRNDS                   = N
+
+# allegro drivers
+ALLEGRO4                  = N
+ALLEGRO5                  = N
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp

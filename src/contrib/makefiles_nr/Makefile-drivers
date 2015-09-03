@@ -37,8 +37,8 @@ ifdef ALLEGRO4
     OBJECTS += mou_allegro.o
 endif
 ifdef ALLEGRO5
-    //OBJECTS += mou_allegro5.o
-    OBJECTS += mou_null.o
+    OBJECTS += mou_allegro5.o
+    #OBJECTS += mou_null.o
 endif
 
 # keyboard driver
@@ -49,8 +49,8 @@ ifdef ALLEGRO4
     OBJECTS += kbd_allegro.o
 endif
 ifdef ALLEGRO5
-    //OBJECTS += kbd_allegro5.o
-    OBJECTS += kbd_null.o
+    OBJECTS += kbd_allegro5.o
+    #OBJECTS += kbd_null.o
 endif
 
 all: $(LIB)

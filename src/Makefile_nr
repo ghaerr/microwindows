@@ -24,8 +24,8 @@ endif
 # define arch: DOS/DJGPP or MINGW
 ifdef MINGW
 CFLAGS += -DMINGW 
-ALLEGRO4 = 1
-#ALLEGRO5 = 1
+#ALLEGRO4 = 1
+ALLEGRO5 = 1
 endif
 
 ifdef DOS_DJGPP
@@ -246,7 +246,8 @@ endif
 
 # define ALL target ********************************
 
-ALL += clean init drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a mwin/libmwin.a mwin/bmp/libimages.a nanox/libnano-X.a nxlib/libNX11.a
+ALL += clean init drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a mwin/libmwin.a mwin/bmp/libimages.a nanox/libnano-X.a 
+ALL += nxlib/libNX11.a
 
 ifdef MICROWIN
 ALL += mwindemos 
@@ -314,7 +315,7 @@ init:
 	-$("shell md bin 2>NUL")   
 	-$("shell md obj 2>NUL")
 ifdef MINGW   
-	-cp \
+	-cp -r \
 		$(MW_DIR_SRC)/demos/nanox/world.map \
 		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
 		$(MW_DIR_SRC)/demos/nanox/tux.gif \
@@ -324,6 +325,7 @@ ifdef MINGW
 		$(MW_DIR_SRC)/demos/nanox/icons/*.ppm \
 		$(MW_DIR_SRC)/demos/nanox/icons/*.pgm \
 		$(MW_DIR_SRC)/demos/nanox/ftdemo.txt\
+		$(MW_DIR_SRC)/fonts\
 		$(MW_DIR_BIN)
 
 else
@@ -337,6 +339,7 @@ else
 	-$("shell copy demos/nanox/icons/*.ppm bin")
 	-$("shell copy demos/nanox/icons/*.pgm bin")
 	-$("shell copy demos/nanox/ftdemo.txt bin")
+	-$("shell xcopy fonts bin /E")
 endif
 
 mwindemos: $(MTARGETS)
@@ -363,6 +366,7 @@ testprog:
 #	$(info $(LIBS))
 	$(CC) $(CFLAGS) -o bin/malpha.exe demos/mwin/malpha.c $(LIBS)   
 #	$(CC) $(CFLAGS) -o bin/nxview.exe demos/nanox/nxview.c $(NANOLIBS) -lz
+	$(CC) $(CFLAGS) -o bin/demo.exe demos/nanox/demo.c $(NANOLIBS)
 	$(CC) $(CFLAGS) -o bin/arcdemo.exe demos/nanox/arcdemo.c $(NANOLIBS)
 	$(CC) $(CFLAGS) -o bin/grabdemo.exe demos/nanox/grabdemo.c $(NANOLIBS)	
 #####################
@@ -383,6 +387,9 @@ clean:
 	-rm engine/*.o 2>/dev/null
 	-rm lib/*.a	 2>/dev/null
 	-rm bin/*.exe 2>/dev/null
+	-rm bin/*.ppm 2>/dev/null
+	-rm bin/*.pgm 2>/dev/null
+	-rm -rf bin/fonts/ 2>/dev/null
 	-rm mwin/bmp/*.exe 2>/dev/null
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -401,6 +408,9 @@ clean:
 	-del lib\*.a
 # or demos will not be compiled again	
 	-del bin\*.exe 
+	-del bin\*.ppm
+	-del bin\*.pgm  
+	-rd -S -Q bin\fonts
 	-del nxlib\*.o
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, and *.exe files"

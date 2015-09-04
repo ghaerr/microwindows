@@ -180,7 +180,7 @@ CFLAGS += -DHAVE_FNT_SUPPORT=1
 #CFLAGS += -DFNT_FONT_DIR="fonts/fnt" 
 
 CFLAGS += -DHAVE_PCF_SUPPORT=1
-#FLAGS += -DPCF_FONT_DIR="fonts/pcf"
+#CFLAGS += -DPCF_FONT_DIR="fonts/pcf"
 #need zlib for gz format
 CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
 CLIBS += -lz

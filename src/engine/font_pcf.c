@@ -601,8 +601,8 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 	/* Try to open the file */
 	file = FOPEN(name, "rb");
 	if (!file) {
-#if defined(__DJGPP__) //|| defined(__MINGW32__)
-		sprintf(fname, "%s/%s", "PCF_FONT_DIR", name);
+#if defined(__DJGPP__)
+		sprintf(fname, "fonts/pcf/%s", name);
 #else
 		sprintf(fname, "%s/%s", PCF_FONT_DIR, name);
 #endif

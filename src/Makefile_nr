@@ -173,19 +173,20 @@ CLIBS += -lpng -lz
 #demos from the root directory e.g. bin/fontdemo
 #When run from the bin directory you'll need a fonts
 #directory within bin.
+#With DJGPP the directory is fixed in font_fnt.c,
+#font_pcf.c and font_freetype2.c
 
 CFLAGS += -DHAVE_FNT_SUPPORT=1
-#CFLAGS += -DFNT_FONT_DIR="fonts/fnt/" 
+#CFLAGS += -DFNT_FONT_DIR="fonts/fnt" 
 
 CFLAGS += -DHAVE_PCF_SUPPORT=1
-#CFLAGS += -DPCF_FONT_DIR="fonts/pcf/"
+#FLAGS += -DPCF_FONT_DIR="fonts/pcf"
 #need zlib for gz format
 CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
 CLIBS += -lz
 
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
-#plus compile font_freetype2.o in engine/makefile!
-#CFLAGS += -DFREETYPE_FONT_DIR="fonts/truetype/"
+#CFLAGS += -DFREETYPE_FONT_DIR="fonts/truetype"
 CLIBS += -lfreetype -lz
 
 #CFLAGS += -DHAVE_T1LIB_SUPPORT=1
@@ -296,7 +297,7 @@ MTARGETS := $(addsuffix .exe,$(MTARGETS2))
 
 #define nanox demo programs
 NTARGETS1 := demo move nxeyes landmine world nxclock demo2 grabdemo demo5 demo6 snap_ppm 
-NTARGETS1 += tsdemo polydemo slider arcdemo blitdemo bmpdemo fontdemo ftdemo pcfdemo
+NTARGETS1 += tsdemo polydemo slider arcdemo blitdemo bmpdemo fontdemo ftdemo pcfdemo t1demo
 NTARGETS1 += nxview snap_jpg tux # not working in DOS
 #NTARGETS1 += nterm demo4 ntetris info tux getselection npanel # not working in DOS
 NTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(NTARGETS1))
@@ -310,11 +311,12 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-init:
+.PHONY: init
+
+init:  
 	-$("shell md lib 2>NUL")
 	-$("shell md bin 2>NUL")   
 	-$("shell md obj 2>NUL")
-ifdef MINGW   
 	-cp -r \
 		$(MW_DIR_SRC)/demos/nanox/world.map \
 		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
@@ -327,20 +329,6 @@ ifdef MINGW
 		$(MW_DIR_SRC)/demos/nanox/ftdemo.txt\
 		$(MW_DIR_SRC)/fonts\
 		$(MW_DIR_BIN)
-
-else
-	-$("shell copy demos/nanox/ftdemo.txt bin")
-	-$("shell copy demos/nanox/world.map bin")
-	-$("shell copy demos/nanox/launcher.cnf bin")
-	-$("shell copy demos/nanox/tux.gif bin")
-	-$("shell copy demos/nanox/slidebmp.bmp bin")
-	-$("shell copy demos/nanox/uponface.ppm bin")
-	-$("shell copy demos/nanox/mwlogo.ppm bin")
-	-$("shell copy demos/nanox/icons/*.ppm bin")
-	-$("shell copy demos/nanox/icons/*.pgm bin")
-	-$("shell copy demos/nanox/ftdemo.txt bin")
-	-$("shell xcopy fonts bin /E")
-endif
 
 mwindemos: $(MTARGETS)
 
@@ -410,7 +398,7 @@ clean:
 	-del bin\*.exe 
 	-del bin\*.ppm
 	-del bin\*.pgm  
-	-rd -S -Q bin\fonts
+	-rm -rf bin\fonts
 	-del nxlib\*.o
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, and *.exe files"

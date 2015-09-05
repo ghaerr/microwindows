@@ -1,0 +1,242 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Microwindows Frequently Asked Questions- Part 2</title>
+</head>
+
+<body>
+
+<h1>Microwindows Frequently Asked Questions - Part 2</h1>
+
+<p>2015/09/05 Microwindows FAQ2<br>
+<br>
+</p>
+
+<h3>Where is the configure file?</h3>
+
+<p>Microwindows does not have a configure file. For Linux it uses a makefile based build system.<br>
+This are several linked Makefiles and *.rules files which are called recursively. To customise<br>
+this for the various platforms there is a config file which you can edit. Examples of this<br>
+config file for different platforms are in the src/Configs directory.<br>
+<br>
+
+In addition for specific platforms there are special makefiles. So there is the<br>
+Makefile_nr, a non-recursive makefile for MinGW and DOS or the Makefile.rtems for the RTEMS<br>
+system etc.<br>
+<br>
+
+The Makefile, which is used for Linux, includes the Path.rules file and the config file<br>
+mentioned above. Then it includes the Makefile.rules file where make will continue.<br>
+Makefile.rules has the targets for Make and calls the Makefiles in the subdirectories.<br>
+This is the file where the main action for make is. It also includes Arch.rules which <br>
+contains special settings for the different platforms supported.<br>
+<br>
+
+The Makefiles in the subdirectories will also include the Path.rules file and the config file<br>
+plus Objects.rules files. Then they recursively call the Makefile.rules file again to compile<br> 
+their files. There are also clean and install targets in Makefile.rules and the Makefiles in<br>
+the subdirectories.<br>
+<br>
+
+This Makefile system works well but is difficult to modify if it does not work on a new platform.<br>
+Therefore there are additional Makefiles provided which are designed more simple and can easily<br>
+be adapted to new platforms.<br>
+<br>
+</p>
+
+<h3>How to compile on Windows with MinGW?</h3>
+
+<p>The MinGW port is based on the Allegro graphics library and the Makefile_nr file. You can<br>
+edit this file to use either Allegro4 or Allegro5. Depending on the Allegro library you specify<br>
+for linking it will be linked statically or as a shared library. If you link with a shared<br>
+library you have to distribute the corresponding Allegro dll with your application.<br>
+<br>
+Do not select png or jpeg in the Makefile_nr file since these are only used for the nano-X demos<br>
+or other nano-X applications.<br>
+<br>
+So download a binary version of Allegro for MinGW or compile Allegro with MinGW.<br>
+<br>
+Run "make -f Makefile_nr" to compile Microwindows for MinGW.<br>
+<br>
+</p>
+
+<h3>How to use Allegro5 on a Linux platform?</h3>
+
+<p>There is an Allegro macro defined in the config file. If you set that the Allegro drivers<br>
+are compiled in and the Allegro library is linked with nano-X. Currently only Allegro5 does work,<br> 
+Allegro4 not yet on Linux.<br>
+<br>
+</p>
+
+<h3>How to compile for DOS?</h3>
+
+<p>To use Microwindows on DOS you need to compile with DJGPP. Once you have that set up use the<br>
+makedos.bat file to compile. This batch file calls "make -f Makefile_nr ARCH=DOS".<br>
+<br>
+</p>
+
+<h3>What are NXlib and PXlib?</h3>
+
+<p>Since nano-X is not fully compatible to X11 it is quite some work to port X11 applications to<br>
+nano-X. NXlib is a wrapper library for nano-X which does provide X11 compatibility.<br>
+<br>
+Users of Microwindows currently mainly want to port X11 applications to it. Writing applications<br>
+based on nano-X from scratch is rarely done. So applications are now based on NX11 instead of<br>
+nano-X directly. Furthermore applications now are not based on X11 directly but using a GUI toolkit.<br>
+For NX11 this is FLTK which can be based well on NX11.<br>
+<br>
+If you link an application with libNXlib you also have to link it with libnano-X, i.e. -lNXlib and -lnano-X.<br>
+<br>
+PXlib is a library that is NXlib plus nano-X compiled together. So when porting applictions to <br>
+Microwindows you do not have to replace -lX11 with both -lNX11 and -lnano-X any more, just -lPXlib <br>
+will do.<br>
+<br>
+Before this release NXlib was a separate archive to download. It now is added as a subdirectory to the<br>
+Microwindows package.<br>
+<br>
+Initially NXlib was implemented as the XtoNX.h header file.<br>
+<br>
+</p>
+
+<h3>How to port a Linux application to Microwindows?</h3>
+
+<p>
+Since the configure script of the new application will not find NXlib or PXlib, it will look for <br>
+standard X11.<br>
+<br>
+However, after you run ./configure on your Linux system you can edit the resulting Makefile and <br>
+replace in it the references to the "-lX11 and -lXext" libraries with "-lNX11 -lnano-X" or just <br>
+"-lPX11". Many applications will compile then.<br>
+<br>
+You can also use the replace-lX11.sh script in the src directory to replace "-lX11 and -lXext" in a<br>
+Makefile for you. Enter the name of the makefile on the command line when executing this script and it will<br>
+output a file called "replace-lX11.out" with "-lX11 and -lXext" replaced. Rename that to e.g. Makefile then.<br>
+<br>
+The alternative is to modify the automake files so configure will generate a makefile that uses PXlib instead of
+Xlib and Xext.<br>
+<br>
+</p>
+
+
+<h3>How to compile FLTK for Microwindows?</h3>
+
+<p>Download FLTK 1.3.x and cd into the fltk directory. Then enter:<br>
+<br>
+./configure --x-includes=/home/test/src/nanoX/nxlib/X11 \<br>
+  --x-libraries=/home/test/src/nanoX/microwin/src/lib \<br>
+  --disable-gl \<br>
+  --disable-xinerama \<br>
+  --disable-xft  \<br>
+  --disable-xdbe \<br>
+  --disable-xfixes<br>
+<br>
+Then replace the "-lX11 and -lXext" files with "-lNX11 -lnano-X" or "-lPX11" in makeinclude <br>
+and fltk-config.<br>
+The replace-lX11.sh script in the src directory will do that for you. You can run that once<br>
+with makeinclude entered on the command line and once with fltk-config specified on the command line.<br>
+<br>
+You can also add -lfreetype here, but usually this is already done in the config file or Makefile_nr<br>
+file which you used to compile nano-X.<br>
+However, you do not need to enable png or jpeg in the config file or Makefile_nr, since this is done by<br>
+fltk anyway.<br>
+<br>
+Then enter make in the fltk directory.<br>
+<br>
+Additional details are provided by Ian MacArthur here:  <a href="http://www.fltk.org/articles.php?L1352+I60+T+P1+Q">Article #1352</a><br>
+This article now refers to an earlier version of Microwindows and thus is partially deprecated now.<br>
+<br>
+There is also flnx which is a modified version of FLTK 1.1 to work with nano-X before<br>
+NXlib was availabe. Flnx is deprecated now.<br>
+<br>
+</p>
+
+
+<h3>My application does not use truetype fonts! It uses just a small fixed font.</h3>
+
+<p>This means Microwindows has not found any truetype fonts on your platform und uses the default<br>
+system font.<br>
+<br>
+Microwindows comes with a fonts directory which contains a number of fonts. You can copy that<br>
+into your application directory where your application then will usually find them.<br>
+Nano-X uses the path "fonts/truetype" as default.<br>
+<br>
+NXlib will also scan the /usr/share/fonts directory for available fonts.<br>
+<br>
+If your application requests fonts that are not available, you can set up a fonts.alias file<br>
+which will map the requested fonts to other fonts that are availabe. For DOS this file is<br>
+called fonts.ali. You can also use a fonts.alias file if you only want to provide just a few fonts<br>
+with your application to reduce the disk space required.<br>
+<br>
+Finally you can specify the path to the truetype fonts on your system by setting the global<br>
+variable "TTFONTDIR" to this path. This variable is read by nano-X when searching for the truetype font.<br>
+<br>
+</p>
+
+<h3>Does Microwindows support GTK or QT?</h3>
+<p>
+This are applications which are too large to be ported to Microwindows.<br>
+<br>
+There is NanoGTK which is GTK version 1.2 ported to nano-X. With NXlib it is also possible to compile GTK1.<br>
+However, today there are almost no applications using GTK1 since that is not compatible with GTK2.<br>
+<br>
+Greg Haerr did some tests with an early version of QT. This version is probably also too old now to be useful.<br>
+<br>
+</p>
+
+<h3>Should I use mwin or nano-X?</h3>
+
+<p>In the early days of the Microwindows project there was a need for a GUI with widgets and dialogs.<br> 
+It was decided to implement that as an Windows API compatible library called libmwin. So if you prefer<br> 
+to code on the Windows API level you can use that. This library provides a Windows compatible API that<br>
+can be used on any platfrom that Microwindows will run on.<br>
+<br>
+The Microwindows library therefore has two APIs: one is Windows API compatible (mwin) and one is<br>
+X11 compatible (nano-X with NXlib).<br>
+<br>
+With the current support for FLTK it is usually better to start an application based on that. FLTK is a<br>
+more extensive GUI toolkit than the Windows API compatible mwin library.<br>
+<br>
+</p>
+
+
+<h3>Can you use Java with Microwindows?</h3>
+<p>
+Greg Haerr got <a href="http://www.kaffe.org/">Kaffe</a> to work with Microwindows. This way you can run Java with Microwindows.<br>
+<br>
+</p>
+
+<h3>Why does printf not work?</h3>
+
+<p>Microwindows uses the DPRINTF/EPRINTF macros in debug mode to print information to the console window. These<br>
+are defined in the src/include/device.h header file.<br>
+<br>
+If the HAVE_FPRINTF macro, also defined in this header file, is set to 0 in e.g. Arch.rules, fprintf/printf <br>
+will no longer work. <br>
+<br>
+</p>
+
+<h3>My mouse wheel does not work!</h3>
+
+<p>Nano-X and NXlib do support the mouse wheel, but not all mouse drivers are adapted to report more than three mouse<br>
+buttons yet. Currently only the gpm and Allegro mouse driver report the up- and down wheel movement.<br>
+<br>
+</p>
+
+<h3>Why are there so many warnings in debug mode?</h3>
+
+</p>The majority of the code was written over ten years ago and gcc constantly increased the number of warnings<br>
+from release to release. In debug mode the code is compiled with the -Wall parameter plus requesting some<br>
+additional warnings. This causes all these warnings with the old code base and it would take a very long<br>
+time to remove all these now.<br>
+<br>
+In release mode the -Wall parameter is not set and Microwindows compiles with just a few warnings.<br>
+<br>
+</p>
+
+<p>
+5th of September 2015, Georg Potthast
+</p>
+</body>
+</html>

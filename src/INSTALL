@@ -19,14 +19,16 @@ To build Microwindows for desktop demonstration:
 4. Run the default mouse driver if using GPM mouse:
 	./mouse.sh
 
-5. Run one of the demonstration program scripts (*.sh):
-	./demo.sh or ./demo2.sh
+5. Run the demonstration program scripts (*.sh) using:
+	./rundemos.sh
 
 6. More information below.
 
 Microwindows compiles and runs on Linux, UNIX, ELKS, MSDOS, PSP,
-RTEMS, X11 and bare hardware.  There is support for the MIPS,
+RTEMS, X11, MinGW and bare hardware.  There is support for the MIPS,
 ARM, and x86 cpu's using the GNU C cross compiler.
+
+Use the Makefile_nr file to compile for MinGW or DOS.
 
 For notes on Intel Assabet, see bottom of file.
 

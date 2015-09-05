@@ -1,3 +1,3 @@
 
 # Nano-X applications, press <BREAK> key to exit
-bin/nano-X -N & bin/nanowm & bin/nxterm ls
+../bin/nano-X -N & ../bin/nanowm & ../bin/nxterm

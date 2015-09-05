@@ -125,6 +125,7 @@ all: default $(TARGETS)
 		$(MW_DIR_SRC)/demos/nanox/icons/*.ppm \
 		$(MW_DIR_SRC)/demos/nanox/icons/*.pgm \
 		$(MW_DIR_SRC)/demos/nanox/ftdemo.txt\
+		$(MW_DIR_SRC)/demos/nanox/rundemos.sh\
 		$(MW_DIR_BIN)
 
 #		$(MW_DIR_SRC)/demos/nanox/transtest.gif

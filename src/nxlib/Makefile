@@ -214,7 +214,7 @@ endif
 	$(SILENT)echo "END" >> $(ODIR)/$(ARSCRIPT)
 	-$(SILENT)$(AR) -M < $(ODIR)/$(ARSCRIPT)
 	-$(CP) $@ $(MWIN_LIB)
-#	-$(RM) $(ODIR)/$(ARSCRIPT)
+	-$(RM) $(ODIR)/$(ARSCRIPT)
 
 # shared PX11 library
 lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)

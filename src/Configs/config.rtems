@@ -185,7 +185,7 @@ FNT_FONT_DIR             = "fonts/bdf"
 # T1 adobe type1 font support thru t1lib
 ####################################################################
 LIBT1LIB = $(RTEMS_MAKEFILE_PATH)/lib/libt1.a
-INCT1LIB = $(RTEMS_MAKEFILE_PATH)/lib/include/t1lib.h
+INCT1LIB = $(RTEMS_MAKEFILE_PATH)/lib/include
 
 ifeq ($(shell test -r $(LIBT1LIB) && echo Y),Y)
   HAVE_T1LIB_SUPPORT       = Y

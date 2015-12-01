@@ -95,8 +95,11 @@ NANOWM                   = N
 # TBD: Get this information somehow from the BSP itself.
 # This is right for PC386
 SCREEN_PIXTYPE           = MWPF_PALETTE
+# This is right for PC386 - QEMU Cirrus driver
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR0888
 # This is right for gumstix
 # SCREEN_PIXTYPE           = MWPF_TRUECOLOR555
+
 
 ####################################################################
 #
@@ -182,7 +185,7 @@ FNT_FONT_DIR             = "fonts/bdf"
 # T1 adobe type1 font support thru t1lib
 ####################################################################
 LIBT1LIB = $(RTEMS_MAKEFILE_PATH)/lib/libt1.a
-INCT1LIB = 
+INCT1LIB = $(RTEMS_MAKEFILE_PATH)/lib/include
 
 ifeq ($(shell test -r $(LIBT1LIB) && echo Y),Y)
   HAVE_T1LIB_SUPPORT       = Y
@@ -200,7 +203,7 @@ endif
 HAVE_FREETYPE_SUPPORT    = N
 INCFTLIB                 = /usr/include
 LIBFTLIB                 = /usr/lib/libttf.so
-FREETYPE_FONT_DIR        = "fonts/truetype"
+FREETYPE_FONT_DIR        = "/fonts/truetype"
 
 ####################################################################
 # Support for many kinds of font thru FreeType 2.x
@@ -209,7 +212,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 LIBFT2LIB = $(RTEMS_MAKEFILE_PATH)/lib/libfreetype.a
 INCFT2LIB = $(RTEMS_MAKEFILE_PATH)/lib/include
 
-ifeq ($(shell test -r $(LIBTIFF) && echo Y),Y)
+ifeq ($(shell test -r $(LIBFT2LIB) && echo Y),Y)
   HAVE_FREETYPE_2_SUPPORT  = Y
   LIBFT2LIB                = -lfreetype
 else
@@ -223,7 +226,7 @@ endif
 # .pcf.gz files, but it will add libz to the size of the server
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
-HAVE_PCFGZ_SUPPORT       = Y
+HAVE_PCFGZ_SUPPORT       = N
 PCF_FONT_DIR             = "fonts/pcf"
 
 # Chinese Han Zi Ku loadable font support
@@ -415,6 +418,6 @@ HERCDRIVER               = N
 DBGDRIVER                = N
 
 # Mouse support
-SERMOUSE                 = Y
+SERMOUSE                 = N
 
 endif

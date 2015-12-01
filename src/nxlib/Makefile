@@ -227,7 +227,11 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	-$(RM) lib$(PLIBNAME).so.$(MAJVERSION)
 	-ln -s lib$(PLIBNAME).so lib$(PLIBNAME).so.$(MAJVERSION)
 	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
-	
+
+ifeq ($(ARCH), RTEMS)
+testprogs:
+	echo "Test programs compile skipped for RTEMS"
+else
 testprogs:
 	echo "Compiling programs in test"
 	-$(MAKE) -C test
@@ -235,7 +239,8 @@ testprogs:
 	-$(MAKE) -C ptest
 	-$(RM) lib$(LIBNAME).a
 	-$(RM) lib$(PLIBNAME).a
-    	
+endif
+
 install: $(LIBS)
 #nxlib.a and nxlib.so are copied into src/lib above, so these are installed
 #by Makefile.rules already together with the other libs in /usr/lib

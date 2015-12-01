@@ -38,6 +38,8 @@
 /* TBD: Find better way than this to deal with BSPs which do not have
  *      these driver entries.  This is a hacky cover up.
  */
+#if 0
+
 #ifndef PAUX_DRIVER_TABLE_ENTRY
   #define PAUX_DRIVER_TABLE_ENTRY NULL_DRIVER_TABLE_ENTRY
 #endif
@@ -46,6 +48,8 @@
 #endif
 #ifndef SERIAL_MOUSE_DRIVER_TABLE_ENTRY
   #define SERIAL_MOUSE_DRIVER_TABLE_ENTRY NULL_DRIVER_TABLE_ENTRY
+#endif
+
 #endif
 
 /* TBD: For now assume there is a network configuration.  The default is
@@ -109,7 +113,7 @@ void *POSIX_Init( void *argument )
 
   strcpy( Line, "RTEMS " );
 
-  #if 1 /* defined(WITH_ARGS) */
+  #if 0 /* defined(WITH_ARGS) */
     DPRINTF("With arguments\n" );
     {
       char   *p;
@@ -147,8 +151,9 @@ void *POSIX_Init( void *argument )
  *  too high.
  */
 #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES              20
-#define CONFIGURE_MAXIMUM_POSIX_MUTEXES               32
+#define CONFIGURE_MAXIMUM_POSIX_MUTEXES               40
 #define CONFIGURE_MAXIMUM_POSIX_THREADS               10
+#define CONFIGURE_MAXIMUM_SEMAPHORES                  40
 #define CONFIGURE_MAXIMUM_TASKS                       10
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS      20
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
@@ -183,8 +188,8 @@ void *POSIX_Init( void *argument )
 #endif
 
 #define CONFIGURE_APPLICATION_EXTRA_DRIVERS \
-          TTY2_DRIVER_TABLE_ENTRY, \
           MOUSE_DRIVER
+//        TTY2_DRIVER_TABLE_ENTRY,
 
 #define  CONFIGURE_INIT
 #include <rtems/confdefs.h>

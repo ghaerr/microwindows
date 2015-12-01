@@ -26,6 +26,10 @@
 /*
  * Loopback interface
  */
+// deprecated initialization
+
+#if 0
+
 extern int rtems_bsdnet_loopattach(struct rtems_bsdnet_ifconfig *, int);
 
 /*
@@ -68,5 +72,7 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
   0                    /* tcp_rx_buf_size */
 
 };
+
+#endif
 
 #endif

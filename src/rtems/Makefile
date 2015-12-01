@@ -66,6 +66,16 @@ ifeq ($(HAVE_JPEG_SUPPORT),Y)
 	mkdir -p rootfs/logos
 	cp RTEMS_logo.jpg rootfs/logos
 endif
+ifeq ($(HAVE_PNG_SUPPORT),Y)
+	# /logos
+	mkdir -p rootfs/logos
+	cp RTEMS_logo.png rootfs/logos
+endif
+ifeq ($(HAVE_TIFF_SUPPORT),Y)
+	# /logos
+	mkdir -p rootfs/logos
+	cp RTEMS_logo.tiff rootfs/logos
+endif
 	# /bin
 	mkdir -p rootfs/bin
 	cp ../../src/demos/nanox/tux.gif rootfs/bin
@@ -101,16 +111,16 @@ ifeq ($(HAVE_PCFGZ_SUPPORT),Y)
 	cp ../../src/fonts/pcf/vga.pcf.gz rootfs/fonts/pcf
 endif
 ifeq ($(HAVE_T1LIB_SUPPORT),Y)
-	# /fonts/t1lib
-	mkdir -p rootfs/fonts/t1lib
-	cp ../../src/fonts/t1lib/FontDataBase rootfs/fonts/t1lib
-	cp ../../src/fonts/t1lib/t1lib.config rootfs/fonts/t1lib
-	mkdir -p rootfs/fonts/t1lib/afm
-	cp ../../src/fonts/t1lib/afm/* rootfs/fonts/t1lib/afm
-	mkdir -p rootfs/fonts/t1lib/enc
-	cp ../../src/fonts/t1lib/enc/* rootfs/fonts/t1lib/enc
-	mkdir -p rootfs/fonts/t1lib/type1
-	cp ../../src/fonts/t1lib/type1/* rootfs/fonts/t1lib/type1
+	# /fonts/type1
+	mkdir -p rootfs/fonts/type1
+	cp ../../src/fonts/type1/FontDataBase rootfs/fonts/type1
+	cp ../../src/fonts/type1/t1lib.config rootfs/fonts/type1
+	mkdir -p rootfs/fonts/type1/afm
+	cp ../../src/fonts/type1/*.afm rootfs/fonts/type1/afm
+	mkdir -p rootfs/fonts/type1/enc
+	cp ../../src/fonts/type1/*.enc rootfs/fonts/type1/enc
+	mkdir -p rootfs/fonts/type1/pfb
+	cp ../../src/fonts/type1/*.pfb rootfs/fonts/type1/pfb
 endif
 ifeq ($(HAVE_FREETYPE_2_SUPPORT),Y)
 	# /fonts/truetype
@@ -118,6 +128,8 @@ ifeq ($(HAVE_FREETYPE_2_SUPPORT),Y)
 	cp ../../src/fonts/truetype/arial*.ttf rootfs/fonts/truetype
 	cp ../../src/fonts/truetype/times*.ttf rootfs/fonts/truetype
 endif
+	# add other user files
+	cp add_to_root/* rootfs/ -r
 	# Tar
 	cd rootfs ; \
 	    tar cf ../FilesystemImage --exclude CVS --exclude .cvsignore .

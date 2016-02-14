@@ -108,6 +108,7 @@ FBEMULATOR               = Y
 #
 ####################################################################
 SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+
 ####################################################################
 # NanoX: Put Y to the following line to link the nano-X application
 # with the server. This is required if UNIX sockets aren't available,

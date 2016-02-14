@@ -1,2 +1,2 @@
 
-../../microwin/src/bin/nano-X & ../../microwin/src/bin/nanowm & ./loadfont & sleep 10000
+../../bin/nano-X & ../../bin/nanowm & ./loadfont & sleep 10000

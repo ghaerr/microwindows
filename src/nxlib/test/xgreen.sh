@@ -1,1 +1,1 @@
-../../microwin/src/bin/nano-X & ../../microwin/src/bin/nanowm & ./xgreen & sleep 10000
+../../bin/nano-X & ../../bin/nanowm & ./xgreen & sleep 10000

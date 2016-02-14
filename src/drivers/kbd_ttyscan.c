@@ -86,13 +86,15 @@ TTY_Open(KBDDEVICE *pkd)
 		return -1;
 
 	/* Save previous settings*/
+#ifndef LINUX_LINARO
 	if (ioctl(fd, KDGKBMODE, &old_kbd_mode) < 0) {
 		perror("KDGKMODE");
 		goto err;
 	}
 	if (tcgetattr(fd, &old) < 0)
 		goto err;
-
+#endif
+	
 	/* Set medium-raw keyboard mode */
 	new = old;
 	/* ISIG and BRKINT must be set otherwise '2' is ^C (scancode 3)!!*/
@@ -150,6 +152,7 @@ TTY_Close(void)
 	int	ledstate = 0x80000000L;
 
 	if (fd >= 0) {
+#ifndef LINUX_LINARO
 		/* revert LEDs to follow key modifiers*/
 		if (ioctl(fd, KDSETLED, ledstate) < 0)
 			perror("KDSETLED");
@@ -158,7 +161,7 @@ TTY_Close(void)
 		if (ioctl(fd, KDSKBMODE, old_kbd_mode) < 0)
 			perror("KDSKBMODE");
 		tcsetattr(fd, TCSAFLUSH, &old);
-
+#endif
 		close(fd);
 	}
 	fd = -1;

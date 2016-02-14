@@ -97,7 +97,8 @@ else
 endif
 
 # compiler flags
-CC = gcc
+#avoid to use default CC which is cc
+CC = $(TOOLSPREFIX)gcc
 LN = ln -s
 MV = mv
 CP = cp -p

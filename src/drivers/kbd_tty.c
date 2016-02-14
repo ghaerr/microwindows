@@ -25,7 +25,9 @@
 #   define KEYBOARD	"/dev/tty"	/* keyboard associated with screen*/
 #endif
 
+#ifndef CTRL
 #define CTRL(x)	  ((x) & 0x1f)
+#endif
 
 extern int escape_quits;
 

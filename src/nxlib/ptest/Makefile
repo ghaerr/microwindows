@@ -10,6 +10,8 @@ include $(CONFIG)
 
 INCLUDE=-I..
 DOSEXT :=
+#avoid to use default CC which is cc
+CC=$(TOOLSPREFIX)gcc
 
 ifeq ($(SHAREDLIBS), Y)
 LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libPX11.so 

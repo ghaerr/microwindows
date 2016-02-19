@@ -109,6 +109,10 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		    button |= MWBUTTON_M;
 		if (ev.xmotion.state & Button3Mask)
 		    button |= MWBUTTON_R;
+		if (ev.xmotion.state & Button4Mask)
+		    button |= MWBUTTON_U;
+		if (ev.xmotion.state & Button5Mask)
+		    button |= MWBUTTON_D;
 		*bp = button;
 		events++;
 	    }
@@ -124,6 +128,10 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			button = MWBUTTON_M;
 		else if(ev.xbutton.button == 3)
 			button = MWBUTTON_R;
+		else if(ev.xbutton.button == 4)
+			button = MWBUTTON_U;
+		else if(ev.xbutton.button == 5)
+			button = MWBUTTON_D;
 
 		/* Get any other buttons that might be already held */
 		if (ev.xbutton.state & Button1Mask)
@@ -132,6 +140,10 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		    button |= MWBUTTON_M;
 		if (ev.xbutton.state & Button3Mask)
 		    button |= MWBUTTON_R;
+		if (ev.xbutton.state & Button4Mask)
+		    button |= MWBUTTON_U;
+		if (ev.xbutton.state & Button5Mask)
+		    button |= MWBUTTON_D;
 		
 /*		DPRINTF("!Pressing button: 0x%x, state: 0x%x, button: 0x%x\n",
 			button,ev.xbutton.state, ev.xbutton.button);*/
@@ -154,6 +166,10 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			released = MWBUTTON_M;
 		else if(ev.xbutton.button == 3)
 			released = MWBUTTON_R;
+		else if(ev.xbutton.button == 4)
+			released = MWBUTTON_U;
+		else if(ev.xbutton.button == 5)
+			released = MWBUTTON_D;
 		
 		/* Get any other buttons that might be already held */
 		if (ev.xbutton.state & Button1Mask)
@@ -162,6 +178,10 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		    button |= MWBUTTON_M;
 		if (ev.xbutton.state & Button3Mask)
 		    button |= MWBUTTON_R;
+		if (ev.xbutton.state & Button4Mask)
+		    button |= MWBUTTON_U;
+		if (ev.xbutton.state & Button5Mask)
+		    button |= MWBUTTON_D;
 	
 		/* We need to remove the released button from the button mask*/
 		button &= ~released; 

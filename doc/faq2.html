@@ -65,9 +65,8 @@ Run "make -f Makefile_nr" to compile Microwindows for MinGW.<br>
 <h3>How to use Allegro5 on a Linux platform?</h3>
 
 <p>There is an Allegro macro defined in the config file. If you set that the Allegro drivers<br>
-are compiled in and the Allegro library is linked with nano-X. Currently only Allegro5 does work,<br> 
-Allegro4 not yet on Linux.<br>
-<br>
+are compiled in and the Allegro library is linked with nano-X. Currently only Allegro5 does work<br> 
+with Nano-X applications, NX11/FLTK does not work. Allegro4 does not yet work on Linux.<br>
 </p>
 
 <h3>How to compile for DOS?</h3>
@@ -122,7 +121,7 @@ Xlib and Xext.<br>
 
 <h3>How to compile FLTK for Microwindows?</h3>
 
-<p>Download FLTK 1.3.x and cd into the fltk directory. Then enter:<br>
+<p>Download FLTK 1.3.2 and cd into the fltk directory. FLTK 1.3.3 is not yet supported. Then enter:<br>
 <br>
 ./configure --x-includes=/home/test/src/nanoX/nxlib/X11 \<br>
   --x-libraries=/home/test/src/nanoX/microwin/src/lib \<br>
@@ -133,16 +132,31 @@ Xlib and Xext.<br>
   --disable-xfixes<br>
 <br>
 Then replace the "-lX11 and -lXext" files with "-lNX11 -lnano-X" or "-lPX11" in makeinclude <br>
-and fltk-config.<br>
-The replace-lX11.sh script in the src directory will do that for you. You can run that once<br>
-with makeinclude entered on the command line and once with fltk-config specified on the command line.<br>
+and fltk-config. You can use the replace-lX11.sh script in the microwindows/src directory for that.<br>
+You can run that once with makeinclude entered on the command line and once with fltk-config specified <br>
+on the command line.<br>
 <br>
 You can also add -lfreetype here, but usually this is already done in the config file or Makefile_nr<br>
 file which you used to compile nano-X.<br>
 However, you do not need to enable png or jpeg in the config file or Makefile_nr, since this is done by<br>
 fltk anyway.<br>
 <br>
+If you are using Microwindows on the Linux X11 platform, you will need to make a patch to the FLTK source code<br>
+since FLTK will dynamically load XRANDR support when starting and that causes your program to crash immediately.<br>
+So open the file "src/Fl_x.cxx" and add the line "#undef USE_XRANDR" right after the line<br>
+"#define USE_XRANDR (HAVE_DLSYM && HAVE_DLFCN_H)" which currently is line 51. This will avoid that XRANDR support<br>
+will be loaded.<br>
+<br>
 Then enter make in the fltk directory.<br>
+<br>
+Then you can run the examples, however, you will find that the fonts do not work, you just get the small default font.<br>
+To enable you can either copy the fonts.alias file example from the "src/nxlib/fonts" directory into the truetype<br>
+directory into e.g. "/usr/share/fonts/truetype" using sudo. Or you change the selected fonts from FLTK by modifying<br>
+the font names in the file "fltk-1.3.2/src/fl_font_x.cxx" if you are comfortable with XLFD descriptions.<br>
+<br>
+If you set LINK_APP_INTO_SERVER=Y in the microwindows config file, you can start the examples with "test/hello". If have<br>
+set this macro to N you have to use a script like that: "nano-X & nanowm & test/hello & sleep 10000". On some platforms<br>
+this does not work from the command line, just from a script. Sometimes the application window hides behind other windows.<br>
 <br>
 Additional details are provided by Ian MacArthur here:  <a href="http://www.fltk.org/articles.php?L1352+I60+T+P1+Q">Article #1352</a><br>
 This article now refers to an earlier version of Microwindows and thus is partially deprecated now.<br>
@@ -219,9 +233,9 @@ will no longer work. <br>
 
 <h3>My mouse wheel does not work!</h3>
 
-<p>Nano-X and NXlib do support the mouse wheel, but not all mouse drivers are adapted to report more than three mouse<br>
-buttons yet. Currently only the gpm and Allegro mouse driver report the up- and down wheel movement.<br>
-<br>
+<p>Nano-X and NXlib do support the mouse wheel, but not all mouse drivers in the drivers directory are adapted<br>
+to report more than three mouse buttons yet. Currently only the gpm, x11 and Allegro mouse driver report the <br>
+up- and down wheel movement.<br>
 </p>
 
 <h3>Why are there so many warnings in debug mode?</h3>
@@ -235,8 +249,30 @@ In release mode the -Wall parameter is not set and Microwindows compiles with ju
 <br>
 </p>
 
+<h3>What difference does the LINK_APP_INTO_SERVER macro make? - Linking options in config</h3>
+Microwindows can be compiled to a separate server and window manager and the application linked with<br>
+the nano-X.a or mwin.a library will have the client part that communicates via sockets with this server.<br>
+So you first have to load nano-X and nanowm before starting your application. A typical script for that<br>
+looks like this: "bin/nano-X & bin/nanowm & bin/$progname".<br>
+<br>
+If you set the LINK_APP_INTO_SERVER macro to "Y" Microwindows will compile to a single nano-X.a library and not <br>
+generate separate nano-X server und nanowm window manager programs. The client and server parts plus the window <br>
+manager are linked together to one library. If you link your application with this library, you do not have to <br>
+load the server before the application, you can just click on the application in your file manager and that will <br>
+start it. You can also start your application from the command line as a single program.<br>
+<br>
+The window manager will be build only if you set the NANOWM macro to "Y". Otherwise the application will run<br>
+without this window manager and thus without window decorations.<br>
+<br>
+If you set the SHAREDLIBS macro to "Y" the nano-X, NXlib etc. libraries are compiled as shared libries in<br>
+addition to being compiled to static libaries. So the application does not have to link statically with nano-X<br> 
+or NX11 but can load these dynamically at runtime. You find all these libraries in the "src/lib" directory.<br>
 <p>
-5th of September 2015, Georg Potthast
+
+</p>
+
+<p>
+20th of February 2016, Georg Potthast
 </p>
 </body>
 </html>

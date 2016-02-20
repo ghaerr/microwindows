@@ -32,7 +32,7 @@ endif
 ifeq ($(LINUX_LINARO), Y)
 TARGETS = xhello xmouse xgreen
 else
-TARGETS = queryfont loadfont xhello xmouse xgreen
+TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen
 endif
 
 ifeq ($(DOS_DJGPP), N)

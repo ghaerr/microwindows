@@ -31,7 +31,7 @@ ifdef MINGW #workaround
 LIBS =$(LDFLAGS) -s -O2 ../../lib/libPX11.a $(CLIBS) -lz
 endif
 
-TARGETS = queryfont loadfont xhello xmouse xgreen
+TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen
 ifeq ($(DOS_DJGPP), N)
 TARGETS += williams
 endif

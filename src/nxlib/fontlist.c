@@ -22,18 +22,23 @@
  * PCF files will be found by filename.pcf or filename.pcf.gz if in a directory
  * Adobe Type1 files will be found by filename.pfb if in a directory
  */
-char *FONT_DIR_LIST[] = {
-	"fonts",									/* local font dir w/fonts.alias*/
+char *FONT_DIR_LIST[] = {									
 #if __DJGPP__
 	"/usr/share/fonts/", //for fldesk as central fonts place
 #endif
+#if defined(__ANDROID__)
+	"/system/fonts/",
+#else	
+	"fonts",						/* local font dir w/fonts.alias*/
 	"/usr/share/fonts/X11/misc",				/* pcf fonts w/fonts.dir*/
 	"/usr/share/fonts/X11/100dpi",
-	"/usr/share/fonts/truetype/freefont",		/* truetype fonts, no fonts.dir*/
+	"/usr/share/fonts/truetype",				/* truetype fonts, Suse 64bit distro*/
+	"/usr/share/fonts/truetype/freefont",			/* truetype fonts, no fonts.dir*/
 	"/usr/share/fonts/truetype/ttf-dejavu",
 	"/usr/share/fonts/truetype/openoffice",
 	"/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType",	/* truetype fonts, w/fonts.dir & fonts.scale*/
 	"/usr/share/fonts/X11/Type1",				/* t1lib type1 .pfb fonts, w/fonts.dir*/
+#endif
 	0
 };
 

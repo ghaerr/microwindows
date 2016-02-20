@@ -1,11 +1,20 @@
-! fonts.alias file
-!fixed        -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
-fixed		6x13
-variable     -*-helvetica-bold-r-normal-*-*-*iso8859-1
-10x20        -misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1
-system		FreeMono.ttf
-terminal	DejaVuSansMono.ttf
+fixed -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+System -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+!-*-iso10646-1 -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-medium-r-normal--* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-bold-r-normal--* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-medium-o-normal--* -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-bold-o-normal--* -misc-dejavu sans-bold-o-normal--0-0-0-0-p-0-iso10646-1
+-*-courier-medium-r-normal--* -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-iso10646-1
+-*-courier-bold-r-normal--* -misc-liberation sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-courier-medium-o-normal--* -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-iso10646-1
+-*-courier-bold-o-normal--* -misc-liberation sans-bold-i-normal--0-0-0-0-p-0-iso10646-1
+-*-times-medium-r-normal--* -misc-droid serif-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-times-bold-r-normal--* -misc-droid serif-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-times-medium-i-normal--* -misc-droid serif-medium-i-normal--0-0-0-0-p-0-iso10646-1
+-*-times-bold-i-normal--* -misc-droid serif-bold-i-normal--0-0-0-0-p-0-iso10646-1
+-*-symbol-*
+-*-lucidatypewriter-medium-r-normal-sans-* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-lucidatypewriter-bold-r-normal-sans-* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-*zapf dingbats-*
 
-lucon		truetype/lucon.ttf
-
-bchr		fonts/type1/bchr.pfb

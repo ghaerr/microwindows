@@ -18,6 +18,16 @@ int XQueryKeymap() { DPRINTF("XQueryKeymap called\n"); return 0; }
 int XGetDefault(void *d, char *program, char *option) { DPRINTF("XGetDefault %s %s\n", program, option); return 0; } 
 int XRecolorCursor() { DPRINTF("XRecolorCursor called\n"); return 0; } 
 int XListExtensions() { DPRINTF("XListExtensions called\n"); return 0; } 
+ 	
+/* required for FLTK 1.3.3 */
+//int XGetPointerControl(Display *display, int *accel_numerator_return, int *accel_denominator_return, int *threshold_return) { DPRINTF("XGetPointerControl called\n"); return 0; }
+int XGetPointerControl() { DPRINTF("XGetPointerControl called\n"); return 0; }
+int XChangePointerControl() { DPRINTF("XChangePointerControl called\n"); return 0; } 
+
+int XDefaultGC() { DPRINTF("XDefaultGC called\n"); return 0; }
+int XkbGetIndicatorState() { DPRINTF("XkbGetIndicatorState called\n"); return 0; }
+int XScreenOfDisplay() { DPRINTF("XScreenOfDisplay called\n"); return 0; } 
+
 
 /* required for gtk+ 1.2.7*/
 int XAutoRepeatOn() { DPRINTF("XAutoRepeatOn called\n"); return 0; } 

@@ -8,7 +8,7 @@ Areas where Microwindows can be used are:
 
 * provide an excellent GUI for small embedded devices with FLTK
 * port the FLTK GUI toolkit to new platforms
-* linking an application with Microwindows can provide them with a GUI 
+* linking an application with Microwindows can provide it with a GUI 
   on console based Linux distros
 * provide Xlib support for platforms without Xlib
 

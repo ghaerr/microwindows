@@ -70,6 +70,10 @@ from The Open Group.
 #define RConst /**/
 #endif
 
+#ifndef	HAVE_BZERO
+#define	bzero(ptr,n)		memset(ptr, 0, n)
+#endif
+
 extern XrmQuark _XrmInternalStringToQuark();
 
 /*

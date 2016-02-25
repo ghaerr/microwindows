@@ -72,10 +72,10 @@ SCREENDEVICE	scrdev = {
 };
 
 extern ALLEGRO_DISPLAY *display;
-ALLEGRO_BITMAP *display_bitmap;
+ALLEGRO_BITMAP *display_bitmap, *scrmem;
 ALLEGRO_LOCKED_REGION *locked_region;
 int lock_flags = ALLEGRO_LOCK_READWRITE;
-//ALLEGRO_COLOR colors[3];
+int zoomfactor=1;
 
 #ifdef logfile
 FILE *dateihandle, *fopen();
@@ -91,6 +91,14 @@ allegro_open(PSD psd)
 
 #ifdef logfile
 dateihandle = fopen("test.log","w");
+#endif
+
+#if _ANDROID_
+scrmem = al_create_bitmap(al_get_bitmap_width(al_get_backbuffer(display)),al_get_bitmap_height(al_get_backbuffer(display)));
+al_set_target_bitmap(scrmem);
+al_clear_to_color(al_map_rgb_f(0x0, 0, 0)); //black background
+//calc zoom factor being a multiple of 0.2 (f.e. 6) for nice looking zoom - assume letter orientation of Android device
+zoomfactor=al_get_bitmap_width(al_get_backbuffer(display))/SCREEN_WIDTH; //2575/640 =4
 #endif
 
 	int avwidth,avheight,avbpp;
@@ -237,7 +245,7 @@ if (psd->pixtype == MWPF_TRUECOLOR332)
 	}
 else if ((psd->pixtype == MWPF_TRUECOLOR565) || (psd->pixtype == MWPF_TRUECOLOR555))
 	{	
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
+	        unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
 		for (y = 0; y < height; y++) {
 			for (x = 0; x < width*2; x++) {
 				MWPIXELVAL c = ((unsigned short *)addr)[x]; 
@@ -263,34 +271,47 @@ else if (psd->pixtype == MWPF_TRUECOLOR888)
 	}
 else if (((MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)) & (psd->bpp != 8))
 	{
-
-#if 0
-static int counter;
-counter++; //let flicker
-fprintf(stdout,"writing pixel width:%d,%d\n",width,counter); fflush(stdout);
-if (counter >10) counter=0;
-#endif
-
+/*
+psd->addr = fixed pointer to start of entire internal microwindows pixel buffer
+destx = logical pixel start horizontal axsis, desty = logical pixel start vertical axsis
+width = logical line width, height = number of lines
+addr = physical start of pixel block to render passed by microwindows
+addr += psd->pitch = physical start of next line of pixel block to render
+width*4 (=width <<2) = physical line length of pixel block to render
+*/  
+#if _ANDROID_
+if(!al_is_bitmap_locked(scrmem)) al_lock_bitmap(scrmem, ALLEGRO_PIXEL_FORMAT_ANY, 0);
+al_set_target_bitmap(scrmem);
+  
+	    unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width*4; x = x+4) { 			
+				if ((addr+y+x*4)>(psd->addr+psd->size)) return; //do not read outside the screen buffer memory area or crash
+				 //the android display is created as default by Allegro as 565 (16 bit) therefore al_draw_pixel to do conversion from 32bit
+				 al_draw_pixel(destx+(x/4),desty+y,al_map_rgb((unsigned char)addr[x+2],(unsigned char)addr[x+1],(unsigned char)addr[x]));				
+			}
+			addr += psd->pitch;  
+		}
+	}
+#else
 display_bitmap = al_get_backbuffer(display);
+al_set_target_bitmap(display_bitmap);
 al_set_target_backbuffer(display);
 
 if(!al_is_bitmap_locked(display_bitmap))locked_region = al_lock_bitmap(display_bitmap, ALLEGRO_PIXEL_FORMAT_RGBA_8888, lock_flags);
+//if(!al_is_bitmap_locked(display_bitmap))locked_region = al_lock_bitmap(display_bitmap, ALLEGRO_PIXEL_FORMAT_ANY, lock_flags);
 
 	    unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 		for (y = 0; y < height; y++) {
 			for (x = 0; x < width*4; x = x+4) { 			
 				if ((addr+y+x*4)>(psd->addr+psd->size)) return; //do not read outside the screen buffer memory area or crash
-				
-				al_put_pixel(destx+(x/4),desty+y,al_map_rgb((unsigned char)addr[x+2],(unsigned char)addr[x+1],(unsigned char)addr[x]));				
-				    //al_draw_pixel(destx+(x/4),desty+y,al_map_rgb((unsigned char)addr[x+2],(unsigned char)addr[x+1],(unsigned char)addr[x]));				
-				
+				al_put_pixel(destx+(x/4),desty+y,al_map_rgb((unsigned char)addr[x+2],(unsigned char)addr[x+1],(unsigned char)addr[x]));
 			}
 			addr += psd->pitch;  
 		}
-		//done in mou_allegro5.c now - after screen has been painted completely - lock is very slow
-		//if(al_is_bitmap_locked(display_bitmap)) al_unlock_bitmap(display_bitmap);
-		//al_flip_display();
 	}
+#endif
+
 else /* MWPF_PALETTE*/
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + destx;

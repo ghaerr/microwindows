@@ -58,7 +58,9 @@ DEMOS = $(MW_DIR_BIN)/mdemo\
 	$(MW_DIR_BIN)/mine
 
 ifneq ($(ARCH), RTEMS)
+ifneq ($(ARCH), ANDROID)
 DEMOS += $(MW_DIR_BIN)/mterm
+endif
 endif
 
 ifneq ($(ARCH), ELKS)

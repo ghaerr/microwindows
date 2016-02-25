@@ -76,15 +76,19 @@ TARGETS += \
 	$(MW_DIR_BIN)/grabdemo
 endif
 ifneq ($(ARCH),RTEMS)
+ifneq ($(ARCH),ANDROID)
 TARGETS += \
 	$(MW_DIR_BIN)/nterm \
 #	$(MW_DIR_BIN)/threadtest \
 	$(MW_DIR_BIN)/convpbm
+endif	
 endif
 ifneq ($(ARCH),CYGWIN) 
   ifneq ($(ARCH),RTEMS)
+  ifneq ($(ARCH),ANDROID)
     TARGETS += \
 	$(MW_DIR_BIN)/nxterm
+  endif
   endif
 endif
 

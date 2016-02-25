@@ -52,6 +52,10 @@ from The Open Group.
 #include "X11/Xresource.h"
 #include <string.h> /* avoid bzero warning */
 
+#ifndef	HAVE_BZERO
+#define	bzero(ptr,n)		memset(ptr, 0, n)
+#endif
+
 /* Not cost effective, at least for vanilla MIT clients */
 /* #define PERMQ */
 

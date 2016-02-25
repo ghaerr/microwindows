@@ -29,6 +29,9 @@ ifeq ($(MINGW), Y)
 LIBS =$(LDFLAGS) -s -O2 ../../lib/libNX11.a ../../lib/libnano-X.a $(CLIBS)
 endif
 
+#for draw
+LIBS += -lm 
+
 ifeq ($(LINUX_LINARO), Y)
 TARGETS = xhello xmouse xgreen
 else

@@ -1,0 +1,236 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Application note - using FLTK on Android</title>
+</head>
+
+<body>
+
+<h1>Application note - using FLTK on Android</h1>
+
+<p>2016/02/23<br>
+<br>
+</p>
+
+
+<h3>1. Introduction</h3>
+<p>
+This project is based on the Android NDK (native development kit) and the JNI interface.<br>
+The JNI (Java native interface) was developed to allow Java applications to access <br>
+libraries written in C/C++. JNI has been part of Java for a long time.<br>
+<br>
+JNI allows to compile C/C++ code to libraries that can be called from an Android JAVA <br>
+program. So you make a tiny JAVA program and a bigger C/C++ library with your code.<br>
+<br> 
+This project is based on the Allegro graphics library which can be used with Android. <br>
+To compile this library you install an Android toolchain which can also be used to<br>
+cross-compile FLTK.<br> 
+Between FLTK and Allegro there is the Microwindows/PX11 library which is used instead<br>
+of the standard X11 library. PX11 is the NX11 and nano-X libraries linked together. <br>
+This Microwindows/PX11 library is also cross-compiled for Android.  <br>
+This library features screen, mouse and keyboard drivers for Allegro so the Allegro <br>
+graphics library can be used as a backend for Microwindows/PX11. <br>
+<br>
+The Allegro and PX11 libraries together allow to compile FLTK programs for Android. <br>
+These get compiled to shared libraries which link FLTK, PX11 and Allegro and are called <br>
+from a tiny JAVA program for Android.<br>
+<br> 
+So you have to compile an FLTK program to a shared library and not to an elf executable. <br>
+Then you need a "stub" Java program that calls your FLTK program which is compiled to a <br>
+shared library. Once the FLTK shared library "program" is called it works (within limits) <br>
+like a normal FLTK program. In addition you link libfltk.a etc. to this project.<br>
+<br></p>
+
+
+<h3>2. Installing the Android cross-compiling environment.</h3>
+<p>
+Since you will not compile on your Android device, you need a cross compile environment<br>
+to develop applications for the Android device.<br>
+<br>
+For this you have to download ant, the JAVA Development Kit for Java from Oracle directly,<br>
+the Android SDK and the Android NDK. Then you have to setup the Android SDK which means<br>
+you have to download various packages for it.<br>
+<br>
+Then you need to specify required environment variables and generate a standalone toolchain.<br>
+After that you can connect your Android device to your PC.<br>
+<br>
+All this is described in detail in this Wiki page that I wrote:<br>
+<br>
+<a href="https://wiki.allegro.cc/index.php?title=Running_Allegro_applications_on_Android">Running_Allegro_applications_on_Android</a><br>
+<br>
+You can skip for now the section "Compile Allegro for Android " since these libraries are <br>
+already included as binaries on Github. This to save you the time to compile these.<br>
+<br></p>
+
+<h3>3. Compile and run the test and demo programs for the Android device</h3>
+<p>
+After you have completed the steps outlined above and the environment variables are set,<br>
+you get into the "microwindows/src/android/" directory. This contains the ex_fltk.project<br>
+directory and the ex_nanox.project directory.<br>
+<br>
+The ex_fltk.project directory is setup to compile FLTK C++ programs while the ex_nanox.project <br>
+directory is set up to compile the nano-x demo programs in C. The difference between these two <br>
+directories is the line to the source code file in the jni/Android.mk makefile. This makefile <br>
+also determines that the libfltk.a and libPX11.a libraries are linked with the application.<br>
+<br>
+In the ex_nanox.project directory the APK file ex_nanox-debug.apk will be compiled while <br>
+in the ex_fltk.project directory the APK file ex_fltk-debug.apk will be generated.<br>
+<br>
+In both directories there are two files where you have to edit the path to your home directory:<br>
+"local.properties" and "localgen.properties". Please do that now.<br>
+<br>
+Then go into the ex_fltk.project directory. In there you will find the csrc directory<br>
+and in there the file ex_fltk.cpp. This is the source file that will be compiled. If you e.g.<br>
+want to compile the editor.cxx program you have to copy it to the name of ex_fltk.cpp.<br>
+There is a script in this directory called "copy-from-test.sh" which will list the files<br>
+in the fltk test directory (check the path in the script) and copy the selected file to<br>
+ex_fltk.cpp in the csrc directory. If you would not copy the file to this name, you would<br>
+have to make separate project directories for each source file.<br>
+<br>
+Then you can get back into the ex_fltk.project directory and execute the "run.sh" script.<br>
+This will generate the ex_fltk-debug.apk file and install and run it on the Android device.<br>
+See the Wiki page why you need to compile these APKs in debug mode.<br>
+<br>
+The same procedure applies to the ex_nanox.project/csrc directory. In there the file<br>
+ex_nanox.c will be compiled and you can use the "copy-from-nanox.sh" script there for your <br>
+convenience.<br>
+<br>
+You do not need to include Android or Allegro headers in your programs. Only if you want<br>
+to use logcat for debugging, you have to add "#include &lt;android/log.h&gt;".<br>
+<br>
+If you add libraries you have to check that these are included in your java program <br>
+"src/org/liballeg/example/ExampleActivity.java". E.g.:<br>
+<pre>
+ System.loadLibrary("allegro_font-debug");
+</pre>
+to load the allegro_font-debug.so library.<br>
+<br>
+Read the Wiki page for further information how to make Android applications.<br>
+<br>
+<b>The following sections cover instructions how to compile the libraries that are <br>
+already included in binary form.</b>
+<br><br></p>
+
+<h3>4. Compile and install Allegro for Android</h3>
+<p>
+If you want to compile the Allegro libraries from scratch, please follow the section<br>
+"Compile Allegro for Android" on the Wiki page:<br>
+<a href="https://wiki.allegro.cc/index.php?title=Running_Allegro_applications_on_Android">Running_Allegro_applications_on_Android</a><br>
+<br>
+When done copy the resulting libraries from buildandroid/lib into <br>
+microwindows/src/android/buildandroid/lib.<br>
+<br></p>
+
+<h3>5. Cross compile the freetype library</h3>
+<p>
+To run FLTK you need the freetype library. There is a section in the Wiki page<br>
+called "Build dependency libraries - libfreetype" which describes how to do that.<br>
+<br>
+When done copy the resulting library into microwindows/src/android/buildandroid/lib.<br>
+I renamed the library to libfreetype-android.a to avoid confusion with the freetype <br>
+library in /usr/lib. Thus it is also in the Android.mk makefile under this name plus<br>
+in the src/Configs/config.allegro-android file. <br>
+<br></p>
+
+<h3>6. Cross-compile PX11</h3>
+<p>
+Microwindows is a small X11 compatible library for embedded devices. It started with<br>
+nano-X which later got a wrapper to make it more X11 compatible called NX11. Currently<br>
+the nano-X and NX11 libraries are compiled to one library called PX11. We will use this<br>
+here since it is more convenient than using two separate libraries.<br>
+<br>
+Download the current Microwindows library from Github if you have not already done so:<br>
+<a href="https://github.com/ghaerr/microwindows">https://github.com/ghaerr/microwindows</a><br>
+Click on the "Download ZIP" button to download it as a ZIP file. <br>
+<br>
+Unzip that file into your home directory naming it microwindows.<br>
+<br>
+Microwindows does not have a configure script. It uses a Makefile system which<br>
+gets configured with the "config" file.In the src/configs directory you will find<br>
+an config.android file which you have to copy into the src directory and name it just<br>
+"config". Replacing the default "config" file in the src directory.<br>
+<br>
+Then set the environment variables so Microwindows will be compiled with the <br>
+Android toolchain. You probably already have done that, it is described in the <br>
+Wiki page.<br>
+<br>
+Now enter "make" in the src directory and Microwindows should compile for Android.<br>
+<br>
+In the src/lib directory you will find a new libPX11.a library which you have to copy<br>
+to the "microwindows/src/android/buildandroid/lib" directory.<br>
+<br>
+Then copy the "X11" directory from the src/nxlib/ directory to the <br>
+"microwindows/src/android/buildandroid/include" directory.<br>
+<br>
+Plus add the cursorfont.h and Xlocale.h headers from your /usr/include/X11 <br>
+directory into this directory.<br>
+<br></p>
+
+<h3>7. Cross-compile FLTK</h3>
+<p>
+First check that you have set the environment variables required for cross compiling <br>
+for Android.<br>
+<br>
+Since you have to pass a lot of options to configure I use the following script:<br>
+<pre>
+export CXXFLAGS=-fno-rtti
+
+./configure --disable-gl \
+  --disable-xinerama \
+  --disable-xft  \
+  --disable-xdbe \
+  --disable-xfixes \
+  --disable-localjpeg \
+  --disable-localpng \
+  --disable-localzlib \
+  --disable-threads \
+  --host=arm-linux-androideabi \
+  --target=arm-linux-androideabi \
+  --prefix=/home/georg/android-toolchain/sysroot/usr \
+  --exec_prefix=/home/georg/android-toolchain/sysroot/usr \
+  --x-includes=/home/georg/microwindows-android/src/nxlib/X11 \
+  --x-libraries=/home/georg/microwindows-android/src/lib 
+</pre>  
+You will have to change "/home/georg" to your home directory path.  <br>
+<br>
+After running this script you have to manually replace -lX11 with -lPX11 in the <br>
+makeinclude file or use the replace-lX11.sh script for that:<br>
+<pre>
+LDLIBS		= -ldl -lm  -lPX11 
+GLDLIBS		=  -ldl -lm  -lPX11 
+</pre>
+If you are using FLTK 1.3.3 you will now have to patch the file:<br>
+"src/Fl_Native_File_Chooser_FLTK.cxx"<br>
+<br>
+In there commment out the line 28:<br>
+<pre>
+//#include "Fl_Native_File_Chooser_GTK.cxx"
+</pre>
+and the line 56:
+<pre>
+//Fl_GTK_File_Chooser::probe_for_GTK_libs();
+</pre>
+and change the lines 76-77 to:
+<pre>
+  //if (Fl_GTK_File_Chooser::did_find_GTK_libs) _gtk_file_chooser = new Fl_GTK_File_Chooser(val);
+  //else 
+  _x11_file_chooser = new Fl_FLTK_File_Chooser(val);
+</pre>
+Then you can enter "make" to compile FLTK for Android. Make will stop when compiling<br>
+fluid but that does not matter since we do not want to use fluid on Android. But the <br>
+libraries libfltk.a, libfltk-forms.a and libfltk-images.a, are compiled in the "libs" directory. <br>
+Copy libfltk.a to the "microwindows/src/android/buildandroid/lib" directory.<br>
+<br>
+Then copy the "FL" directory from the fltk directory to the <br>
+"microwindows/src/android/buildandroid/include" directory.<br>
+<br>
+The default stdc++ library for Android has a very limited functionality. Therefore<br>
+you find the -fno-rtti and -fno-exceptions flags in the makeinclude file.<br>
+<br></p>
+<p>
+23rd of February 2016, Georg Potthast
+</p>
+</body>
+</html>

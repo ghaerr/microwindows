@@ -232,6 +232,9 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 ifeq ($(ARCH), RTEMS)
 testprogs:
 	echo "Test programs compile skipped for RTEMS"
+else ifeq ($(ARCH), ANDROID) 
+testprogs:
+	echo "Test programs compile skipped for ANDROID"
 else
 testprogs:
 	echo "Compiling programs in test"

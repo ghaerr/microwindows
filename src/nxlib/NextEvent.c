@@ -234,7 +234,7 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 			event->xkey.x = pev->x;
 			event->xkey.y = pev->y;;
 			event->xkey.x_root = pev->rootx;
-#if defined(__DJGPP__) || defined(__MINGW32__)
+#if 1 //use it now always!  defined(__FORALL__) in StrKeysym //defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__)
 			//using unused y_root to read pev->ch in StrKeysym.c if djgpp
 			event->xkey.y_root = pev->ch; //write MWKey value into y_root 
 #else

@@ -26,8 +26,25 @@ console features and also to disable the special processing of the main() functi
 */
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
-
+#if _ANDROID_
+  #include "allegro5/allegro_android.h"
+  #include <android/log.h>
+#endif
 #define CTRL(x)	  ((x) & 0x1f)
+
+/* SCREEN_WIDTH, SCREEN_HEIGHT and MWPIXEL_FORMAT define server X window*/
+#ifndef SCREEN_WIDTH
+#define SCREEN_WIDTH 800
+#endif
+
+#ifndef SCREEN_HEIGHT
+#define SCREEN_HEIGHT 600
+#endif
+
+#ifndef MWPIXEL_FORMAT
+#define MWPIXEL_FORMAT MWPF_TRUECOLOR8888
+#endif
+
 
 extern int escape_quits;
 
@@ -66,25 +83,40 @@ int init_allegro(void){
 
     if(!al_init())
     {
+#if _ANDROID_
+	__android_log_print(ANDROID_LOG_INFO,"AllegroActivity","Error!, Allegro has failed to initialize.");	
+#else      
         fprintf(stderr,"Error!, Allegro has failed to initialize.\n");
-        return 0;
+#endif
+	return -1;
     }  else {
         //fprintf(stderr,"al_init successful\n");
     }
-
+#if _ANDROID_    
+    //al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+    al_set_new_display_flags(ALLEGRO_WINDOWED);
+    //al_set_new_display_option(ALLEGRO_COLOR_SIZE,32,ALLEGRO_SUGGEST);
     //al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP,1,ALLEGRO_REQUIRE);
-    display = al_create_display(800, 600);
+#endif  
+    //al_set_new_display_option(ALLEGRO_COLOR_SIZE,32,ALLEGRO_SUGGEST);
+    display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    //display = al_create_display(800, 600);
+
     if(display == NULL)
     {
+#if _ANDROID_
+	__android_log_print(ANDROID_LOG_INFO,"AllegroActivity","Error!, Failed to create the display.");	
+#else      
         fprintf(stderr,"Error!, Failed to create the display.");
-        return 0;
+#endif
+	return -1;
     }    
     al_set_system_mouse_cursor(display,ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
     if(!al_install_keyboard())
     {
         fprintf(stderr,"Error!, Failed to install keyboard.\n");
-        return 0;
+        return -1;
     }  else {
         //fprintf(stderr,"al_install_keyboard successful\n");
     }   
@@ -92,14 +124,14 @@ int init_allegro(void){
     if(!al_install_mouse())
     {
         fprintf(stderr,"Error!, Failed to install mouse.");
-        return 0;
+        return -1;
     }    
 
     a_event_queue_k = al_create_event_queue();
     if(a_event_queue_k == NULL)
     {
        fprintf(stderr,"Error!, Failed to create the keyboard event queue.");
-       return 0;
+       return -1;
     }    
     al_register_event_source(a_event_queue_k, al_get_keyboard_event_source());
 
@@ -107,17 +139,37 @@ int init_allegro(void){
     if(a_event_queue_m == NULL)
     {
        fprintf(stderr,"Error!, Failed to create the mouse event queue.");
-       return 0;
+       return -1;
     }    
+#if _ANDROID_    
+//do below at touch input
+#else
     al_register_event_source(a_event_queue_m, al_get_mouse_event_source());
-
+#endif
     a_event_queue_d = al_create_event_queue();
     if(a_event_queue_d == NULL)
     {
        fprintf(stderr,"Error!, Failed to create the display event queue.");
-       return 0;
+       return -1;
     }    
     al_register_event_source(a_event_queue_d, al_get_display_event_source(display));
+
+#if _ANDROID_
+    if(!al_install_touch_input())
+    {
+      __android_log_print(ANDROID_LOG_INFO,"AllegroActivity","Error!, Failed to install touch_input.");	
+    } else {
+      __android_log_print(ANDROID_LOG_INFO,"AllegroActivity","Installed touch_input successfully.");	
+      al_set_mouse_emulation_mode(ALLEGRO_MOUSE_EMULATION_5_0_x);
+      
+      al_register_event_source(a_event_queue_m, al_get_touch_input_mouse_emulation_event_source());
+    }
+#endif 
+
+#if _ANDROID_
+//allow to use al_open to read (only) files from the apk store, e.g. fonts
+    al_android_set_apk_file_interface();
+#endif
 
     return 1; //ok    
 }

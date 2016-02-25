@@ -66,6 +66,9 @@ CXX_COMPILER = g++
 TOOLSPREFIX = $(ARMTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32
 CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
 LDFLAGS +=
 endif
 
@@ -86,6 +89,23 @@ DEFINES += -DLINUX=1 -DUNIX=1 -DARM_LINUX -D__uClinux__
 CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
 LDFLAGS += -elf2flt
 FLTFLAGS += -s 64000
+endif
+
+ifeq ($(ARCH), ANDROID)
+COMPILER = gcc
+CXX_COMPILER = g++
+TOOLSPREFIX = $(ANDROIDTOOLSPREFIX)
+DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -D_ANDROID_=1
+#set __ANDROID__ enviroment variable for NXLIB (StrKeysym.c + NextEvent.c)
+__ANDROID__ := 1
+export __ANDROID__ 
+CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8 -I$(HOME)/android-toolchain/user/armeabi-v7a/include
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
+LDFLAGS += -L$(HOME)/android-toolchain/usr/armeabi-v7a/lib
+#add liblog to support logcat
+LDFLAGS += -L$(HOME)/android-toolchain/sysroot/usr/lib -llog
 endif
 
 ifeq ($(ARCH), LINUX-MIPS)

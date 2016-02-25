@@ -10,6 +10,10 @@
 #include <unistd.h>
 #include "nxlib.h"
 
+#if defined(__ANDROID__)
+  #include <android/log.h>
+#endif
+
 /* fontlist.c*/
 extern char *FONT_DIR_LIST[]; 				/* pcf/truetype/type1 font dir list*/
 extern nxStaticFontList staticFontList[];	/* static font dir list*/
@@ -317,6 +321,23 @@ DPRINTF("enumfont add: %s\n", xlfd);
 		}
 		fclose(fontdir);
 	}
+
+#if defined(__ANDROID__)
+//Android has no fonts dir so emulated this here - so far no fontlist was found above
+	if (maxnames == 1) {
+	  _addFontToList(fontlist, pattern); //FLTK just checks again if selected size is supported
+	} else {
+	  pattern[strlen(pattern) - 1] = '\0'; //cut off last *
+	  char * pch;
+	  pch = strstr (pattern,"-*-courier-");
+	  if (pch) {
+	    sprintf(pattern,"%s%s",pattern,"0-0-0-0-m-0-iso8859-1"); //m= monospaced
+	  } else {
+	    sprintf(pattern,"%s%s",pattern,"0-0-0-0-p-0-iso8859-1"); //size=0 means all sizes available
+	  }
+	  _addFontToList(fontlist, pattern);
+	}
+#endif
 
 #if HAVE_STATICFONTS
 	for (i = 0; staticFontList[i].file; i++) {
@@ -883,6 +904,88 @@ DPRINTF("findfont: FINI nowild %s = %s height %d\n", name, fontpath, *return_hei
 #include "nxlib.h"
 #include "X11/Xatom.h"
 
+#if defined(__ANDROID__)
+/* convert helvetica to Roboto, times to Georgia and use Courier far all disregarding italic and bold */
+Font android_create_font_alias(const char *name)
+{
+  	GR_FONT_ID font = 0;
+	int height;
+	char * pch;
+	char fontnamestring[120];
+
+	height=xlfdheight(name); //read height from XLFD description received
+
+        pch = strstr (name,"-helvetica-medium-r-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Roboto-Regular");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-helvetica-medium-o-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Roboto-Italic");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-helvetica-bold-r-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Roboto-Bold");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-helvetica-bold-o-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Roboto-BoldItalic");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+
+	pch = strstr (name,"-times-medium-r-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Georgia-Regular");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-times-medium-o-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Georgia-Italic");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-times-bold-r-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Georgia-Bold");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-times-bold-o-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"Georgia-BoldItalic");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+//android has just one courier font
+	pch = strstr (name,"-courier-medium-r-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"courier");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-courier-medium-o-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"courier");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-courier-bold-r-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"courier");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+        pch = strstr (name,"-courier-bold-o-normal");
+	if (pch) {
+	  sprintf(fontnamestring,"courier");
+	  font = GrCreateFontEx(fontnamestring, height, height, NULL);
+	}
+	
+	GrSetFontAttr(font, GR_TFKERNING | GR_TFANTIALIAS, 0);
+
+__android_log_print(ANDROID_LOG_INFO,"AllegroActivityf","android_create_font_alias(xlfd name:'%s') = aliased fontnamestring used: '%s' height %d font-id: [%d]\n", name, fontnamestring, height, font);
+
+  return font;
+}
+#endif
+
 /* old LoadFont.c*/
 Font
 XLoadFont(Display * dpy, _Xconst char *name)
@@ -891,7 +994,11 @@ XLoadFont(Display * dpy, _Xconst char *name)
 	int height;
 	char *fontname;
 
-DPRINTF("XLoadFont('%s')\n", name);
+#if defined(__ANDROID__)	
+        return android_create_font_alias(name);
+#endif
+
+	DPRINTF("XLoadFont('%s')\n", name);
 	/* first try to find XLFD or fontname from X11/fonts.dir and fonts.alias files*/
 	fontname = font_findfont((char *)name, 0, 0, &height);
 	if(fontname) {

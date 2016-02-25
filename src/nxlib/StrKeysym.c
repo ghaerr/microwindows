@@ -13,7 +13,7 @@
 #if !__MINGW32__
 #include <sys/ioctl.h>
 #endif
-#if defined(__DJGPP__) || defined(__MINGW32__)
+#if defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__)
 #include "include/linux/keyboard.h"
 #include "include/linux/kd.h"
 #else
@@ -21,6 +21,8 @@
 #include <linux/kd.h>
 #endif
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/
+
+#define __FORALL__ //re-reading does not work for FLTK and X11 too - so always use it now
 
 /* kernel unicode tables per shiftstate and scancode*/
 #define NUM_VGAKEYMAPS	(1<<KG_CAPSSHIFT)	/* kernel key maps*/
@@ -66,7 +68,7 @@ static void
 LoadKernelKeymaps(void)
 {
 //#if linux
-#if !(defined(__DJGPP__) || defined(__MINGW32__))
+#if !(defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__FORALL__) ) 
 	int 		map, i;
 	struct kbentry 	entry;
 	char *		kbd;
@@ -335,7 +337,8 @@ KeySym
 XLookupKeysym(XKeyEvent *event, int index)
 {
 	//DPRINTF("XLookupKeysym called\n");
-#if defined(__DJGPP__) || defined(__MINGW32__)
+#if defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__FORALL__)
+  //if extending above, also set at event->y_root in NextEvent.c
 	return XMWKeyToKeysym(event->display, (unsigned int) event->y_root, index);
 #else
 	return XKeycodeToKeysym(event->display, event->keycode, index);
@@ -366,7 +369,7 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 	//DPRINTF("XLookupString called - %X\n",(unsigned int)k);
 
 //#ifndef __DJGPP__
-#if !(defined(__DJGPP__) || defined(__MINGW32__))
+#if !(defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__FORALL__) )
 	if(!map_loaded) {
 		/* translate Control/Shift*/
 		if ((event->state & ControlMask) && k < 256)

@@ -37,6 +37,9 @@ extern ALLEGRO_BITMAP *display_bitmap;
 extern ALLEGRO_EVENT_QUEUE *a_event_queue_m;
 extern ALLEGRO_EVENT a_event;
 ALLEGRO_MOUSE_STATE mstate;
+extern int flip_flag;
+extern ALLEGRO_BITMAP *scrmem;
+extern int zoomfactor;
 
 /*
  * Poll for events
@@ -44,9 +47,24 @@ ALLEGRO_MOUSE_STATE mstate;
 
 static int mallegro_Poll(void)
 {
-  if(al_is_bitmap_locked(display_bitmap)) al_unlock_bitmap(display_bitmap);
-  al_flip_display();
-  
+#if _ANDROID_
+
+if(al_is_bitmap_locked(scrmem)){  
+    al_unlock_bitmap(scrmem);
+    al_set_target_bitmap(al_get_backbuffer(display));
+    //al_draw_bitmap(scrmem, 0, 0, 0);
+    al_draw_scaled_rotated_bitmap(scrmem, 0, 0, 0, 0, zoomfactor, zoomfactor, 0, 0);
+    //al_draw_scaled_rotated_bitmap(scrmem, 0, al_get_bitmap_height(al_get_backbuffer(display)), 0, 0, 2, 2, ALLEGRO_PI/2, 0);
+    //al_draw_scaled_rotated_bitmap(scrmem, 0, 500, 0, 0, 3, 3, ALLEGRO_PI/2, 0); //would have to recalculate mouse
+    al_flip_display();
+}  
+#else
+    if(al_is_bitmap_locked(display_bitmap)) {
+      al_unlock_bitmap(display_bitmap);       
+      al_flip_display(); 
+    }
+#endif
+
   if (!al_is_mouse_installed()) return 0;
   
   if (al_peek_next_event(a_event_queue_m, &a_event)) return 1; //read event in read function
@@ -131,7 +149,9 @@ switch(a_event.type){
 	mz = mstate.z;
 	
 	al_get_mouse_state(&mstate); //call above returns no button press
-	*dx=mstate.x; *dy=mstate.y;
+	//microwindows expects the mouse position at the unzoomed position - so divide
+	*dx=mstate.x/zoomfactor; 
+	*dy=mstate.y/zoomfactor;
     *dz = 0; //unused
 	*bp = 0;
 

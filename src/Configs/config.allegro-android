@@ -35,8 +35,8 @@
 # LINUX-LINARO (RPI cross compile)
 # ANDROID
 ####################################################################
-ARCH                     = LINUX-NATIVE
-#ARCH                     = ANDROID
+#ARCH                     = LINUX-NATIVE
+ARCH                     = ANDROID
 BIGENDIAN                = N
 NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
@@ -57,7 +57,7 @@ PSPTOOLSPREFIX           = psp-
 OPTIMIZE                 = Y
 DEBUG                    = N
 VERBOSE                  = N
-THREADSAFE               = Y
+THREADSAFE               = N
 GPROF                    = N
 
 ####################################################################
@@ -68,7 +68,7 @@ GPROF                    = N
 MICROWIN                 = N
 NANOX                    = Y
 ENGINE                   = Y
-SHAREDLIBS               = Y
+SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 
 ####################################################################
@@ -77,7 +77,7 @@ OBJFRAMEWORK             = N
 #
 ####################################################################
 MICROWINDEMO             = N
-NANOXDEMO                = Y
+NANOXDEMO                = N
 
 ####################################################################
 #
@@ -119,7 +119,7 @@ SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
 # with the server. This is required if UNIX sockets aren't available,
 # or for speed or debugging.  This affects the nano-X server only.
 ####################################################################
-LINK_APP_INTO_SERVER     = N
+LINK_APP_INTO_SERVER     = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
@@ -167,7 +167,7 @@ LIBTIFF                  = -ltiff
 # PCF font support - .pcf/.pcf.gz loadable fonts
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
-HAVE_PCFGZ_SUPPORT       = N
+HAVE_PCFGZ_SUPPORT       = Y
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
@@ -196,7 +196,7 @@ LIBT1LIB                 = -lt1
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = N
+HAVE_FNTGZ_SUPPORT       = Y
 FNT_FONT_DIR             = "fonts/fnt"
 
 ####################################################################
@@ -260,14 +260,16 @@ UPDATEREGIONS            = Y
 ####################################################################
 
 # X11 and FBE startup screen width, height, (depth for palette mode only)
-SCREEN_WIDTH             = 800
-SCREEN_HEIGHT            = 600
+SCREEN_WIDTH             = 640 
+#800
+SCREEN_HEIGHT            = 480
+#600
 SCREEN_DEPTH             = 8
 
 # X Window screen driver
 # USE_EXPOSURE for XFree86 4.x or if backing store not working
-X11                      = Y
-USE_EXPOSURE             = Y
+X11                      = N
+USE_EXPOSURE             = N
 
 # Framebuffer screen driver
 FRAMEBUFFER              = N
@@ -283,7 +285,7 @@ SCRNDS                   = N
 
 # allegro drivers
 ALLEGRO4                  = N
-ALLEGRO5                  = N
+ALLEGRO5                  = Y
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp

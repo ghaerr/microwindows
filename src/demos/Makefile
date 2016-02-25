@@ -47,6 +47,10 @@ ifeq ($(ARCH), PSP)
 dirs = nanox mwin
 endif
 
+ifeq ($(ARCH), ANDROID)
+dirs = nanox mwin
+endif
+
 ######################### Makefile.rules section #############################
 
 include $(MW_DIR_SRC)/Makefile.rules

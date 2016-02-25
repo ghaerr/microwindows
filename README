@@ -1,70 +1,51 @@
-To build Nano-X/Microwindows, see src/INSTALL and src/CONTENTS.
+=== NEW: MICROWINDOWS AND FLTK PORTED TO THE ANDROID PLATFORM === 
 
-The Microwindows Project has been renamed to The Nano-X
-Window System, due to conflicts with the Windows trademark
-registered by Microsoft, in 2005.
+Microwindows or Nano-X is a small, Xlib compatible library. It is
+Open Source and licenced under the the Mozilla Public License.
+The main GUI toolkit that can be used with Microwindows is FLTK. 
 
-Nano-X is an Open Source project aimed at bringing
-the features of modern graphical windowing environments
-to smaller devices.  Nano-X's genesis was with the
-NanoGUI project, and is now the primary distribution.
-Nano-X currently runs on Linux, UNIX, X11, ELKS, MSDOS, RTEMS
-and bare VGA hardware.  It uses the same device-
-independent graphics engine built for the NanoGUI project.
-Nano-X compiles a sample application and the WinCE 
-graphics api in about 42k.
+Areas where Microwindows can be used are:
 
-The architecture of Nano-X allows it to be ported
-or run on a wide variety of systems.  Cross-compilation
-for MIPS, ARM and x86 processors is supported. There are currently
-screen drivers for Linux 2.2.x framebuffers and Linux 2.0.x
-svgalib, as well as an X11 driver that allows applications
-to be built and tested under X11 before running on the
-target platform.  There exists a portable 4-planes VGA driver
-that will run on bare hardware, ELKS, MSDOS, or RTEMS.
-There are mouse drivers written for bare hardware, direct
-serial port, Linux GPM driver, and touchpads.  The Nano-X
-graphics engine is capable of running on any system that
-support readpixel, writepixel, drawhline and drawvline,
-although more advanced bit blit routines are provided.
+* provide an excellent GUI for small embedded devices with FLTK
+* port the FLTK GUI toolkit to new platforms
+* linking an application with Microwindows can provide them with a GUI 
+  on console based Linux distros
+* provide Xlib support for platforms without Xlib
 
-Nano-X features full RGB color support, optimized
-palette bitmap drawing, and a 3d look-and-feel.
-Overlapped and child windows are supported, with complete
-window and client area clipping.  Proportional and fixed
-fonts are supported, along with utilities for converting
-any MS Windows font or .bmp file.  Optimized painting
-algorithms are used to allow maximum response while the
-user is moving windows on the screen.
+Microwindows features two APIs: Nano-X/NX11 which provides an 
+X11 compatible API and MWIN which is compatible to the Win32 API.
 
-In addition, the Nano-X server can also be built on top of
-the device-independent graphics engine.
+It is very portable, is written in C and can be used on a wide range 
+of platforms. 
+Currently it is available for Linux, Windows, Mac OS X, Android, DOS, 
+uclinux, RTEMS, ELKS, PSP and more. 
+It can be compiled for x86, x86_64, ARM, PowerPC and MIPS processors.
 
-WEB SITE
-========
-The main Nano-X web site is at
-	http://nano-x.org/
+Microwindows has a layered design. At the lowest level there are drivers 
+for screen output as well as mouse and keyboard input. Touch input 
+devices are also supported. Drivers are available for X11, frame buffer, 
+the Allegro graphics library, VESA or the SVGA library. Additional 
+drivers can be added to port Microwindows to more platforms.
 
-An HTML based FAQ and Architecture document are available from
-the web site.
+At the mid level, a portable graphics engine is implemented, providing 
+support for line draws, area fills, polygons, clipping and color models. 
 
-Nano-X may be downloaded at
-	ftp://nano-x.org/pub/microwindows
+At the upper level, the Nano-X/NX11 and MWIN API's are implemented 
+providing access to the graphics applications programmer. 
+
+Nano-X can be compiled either as a separate server for several clients 
+or linked together to a single, standalone library.
+
+The main Nano-X web site is at http://www.microwindows.org
+
+To build Microwindows, see the files /src/INSTALL and /src/CONTENTS 
+plus the faq files in the doc directory.
+
+An HTML based FAQ and Architecture document are available from the web site.
 
 The chief maintainer of the project is Greg Haerr <greg@censoft.com>
 
-MAILING LIST
-============
-Microwindows and Nano-X are discussed on the NanoGUI mailing
-list.  To subscribe, send mail to nanogui-subscribe@linuxhacker.org.
-The list is nanogui@linuxhacker.org.
-
-Mailing list archives are available at
-	http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/0
-
-ELKS
-====
-The ELKS mailing list is linux-8086@vger.rutgers.edu.  To subscribe,
-send a message to majordomo@vger.rutgers.edu containing the words
-subscribe linux-8086 in the body.
+Microwindows and Nano-X are discussed on the NanoGUI mailing list. 
+Mailing list archives are available at: 
+http://www.linuxhacker.org/ezmlm-browse/index.cgi?list=nanogui
 

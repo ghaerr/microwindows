@@ -66,6 +66,7 @@ endif
 # the link command is changed from '-lX11' to '-lNX11 -lnano-X'
 LIBNAME=NX11
 PLIBNAME=PX11
+ELIBNAME=NXext
 xINSTALL_DIR=.
 ifneq ($(DOS_DJGPP), Y)
 INSTALL_DIR=/usr/local/lib
@@ -150,6 +151,8 @@ xOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
 CFLAGS += -I.
 endif
 
+EOBJS = NXext.o
+
 LIBS = lib$(LIBNAME).a
 
 ifeq ($(BIGENDIAN), Y)
@@ -169,14 +172,13 @@ endif
 ODIR = .
 ARSCRIPT = arscript
 
-all: $(LIBS) testprogs
+all: $(LIBS) testprogs nxext
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)
 	echo "Linking lib$(LIBNAME).a"
 	ar r lib$(LIBNAME).a ../lib/libnano-X.a $(OBJS)
 	$(CP) lib$(LIBNAME).a $(MWIN_LIB)
-
 	
 	
 # shared NX11 library
@@ -195,6 +197,7 @@ lib$(LIBNAME).so.$(SOLIBREV): $(OBJS)
 	-$(RM) lib$(LIBNAME).so.$(MAJVERSION)
 	-ln -s lib$(LIBNAME).so lib$(LIBNAME).so.$(MAJVERSION)
 	-$(CP)d lib$(LIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
+	-$(RM) lib$(LIBNAME).so.$(MAJVERSION)
 	
 # static PXLIB library
 lib$(PLIBNAME).a: $(OBJS)
@@ -228,6 +231,7 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	-$(RM) lib$(PLIBNAME).so.$(MAJVERSION)
 	-ln -s lib$(PLIBNAME).so lib$(PLIBNAME).so.$(MAJVERSION)
 	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
+	-$(RM) lib$(PLIBNAME).so.$(MAJVERSION)
 
 ifeq ($(ARCH), RTEMS)
 testprogs:
@@ -245,9 +249,34 @@ testprogs:
 	-$(RM) lib$(PLIBNAME).a
 endif
 
+#LIBS += lib$(ELIBNAME).a
+ifeq ($(SHAREDLIB), Y)
+#LIBS += lib$(ELIBNAME).so.$(SOLIBREV)
+endif
+
+
+.PHONY: nxext
+nxext:
+	echo "Building NXext library"
+	$(CC) -s -c $(ELIBNAME).c
+	ar -cvq lib$(ELIBNAME).a $(ELIBNAME).o
+	-$(RM) $(ELIBNAME).o
+	$(MV) lib$(ELIBNAME).a $(MWIN_LIB)
+ifeq ($(SHAREDLIB), Y)
+	$(CC) -s -fPIC -c $(ELIBNAME).c
+	$(CC) -shared -Wl,-soname,lib$(ELIBNAME).so -o lib$(ELIBNAME).so $(ELIBNAME).o
+	ln -sf lib$(ELIBNAME).so lib$(ELIBNAME).so.$(MAJVERSION)
+	-$(RM) $(ELIBNAME).o
+	$(CP) lib$(ELIBNAME).so $(MWIN_LIB)
+	$(CP) -d lib$(ELIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
+	-$(RM) lib$(ELIBNAME).so.$(MAJVERSION)
+
+endif
+
 install: $(LIBS)
 #nxlib.a and nxlib.so are copied into src/lib above, so these are installed
 #by Makefile.rules already together with the other libs in /usr/lib
+#same for NXext.a
 #	$(RM) $(INSTALL_DIR)/lib$(LIBNAME).so; \
 #	$(CP) lib$(LIBNAME).so $(INSTALL_DIR)
 

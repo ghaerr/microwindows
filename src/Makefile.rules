@@ -763,17 +763,43 @@ cleanusr:
 	-rm -f /usr/bin/nanowm
 	-rm -f /usr/lib/libnano-X.a
 	-rm -f /usr/lib/libnano-X.so
+
+	-rm -f /usr/lib/libmwengine.a
+	-rm -f /usr/lib/libmwengine.so
+	-rm -f /usr/lib/libmwimages.a
+	-rm -f /usr/lib/libmwimages.so
+	-rm -f /usr/lib/libmwin.a
+	-rm -f /usr/lib/libmwin.so
+	
 	-rm -f /usr/lib/libNX11.a
 	-rm -f /usr/lib/libNX11.so
 	-rm -f /usr/lib/libNX11.so.0	
 	-rm -f /usr/lib/libPX11.a
 	-rm -f /usr/lib/libPX11.so
 	-rm -f /usr/lib/libPX11.so.0	
+	-rm -f /usr/lib/libNXext.a
+	-rm -f /usr/lib/libNXext.so
+	-rm -f /usr/lib/libNXext.so.0	
+
+	-rm -f /usr/lib64/libnano-X.a
 	-rm -f /usr/lib64/libnano-X.so
+
+	-rm -f /usr/lib64/libmwengine.a
+	-rm -f /usr/lib64/libmwengine.so
+	-rm -f /usr/lib64/libmwimages.a
+	-rm -f /usr/lib64/libmwimages.so
+	-rm -f /usr/lib64/libmwin.a
+	-rm -f /usr/lib64/libmwin.so
+
+	-rm -f /usr/lib64/libNX11.a
 	-rm -f /usr/lib64/libNX11.so
 	-rm -f /usr/lib64/libNX11.so.0
+	-rm -f /usr/lib64/libPX11.a
 	-rm -f /usr/lib64/libPX11.so
 	-rm -f /usr/lib64/libPX11.so.0	
+	-rm -f /usr/lib64/libNXext.a
+	-rm -f /usr/lib64/libNXext.so
+	-rm -f /usr/lib64/libNXext.so.0	
 	
 install:
 	$(INSTALL_DIR) $(HDRINSTALLDIR)
@@ -782,13 +808,19 @@ install:
 	echo "Copying libs to $(LIBINSTALLDIR)"
 	$(INSTALL_DIR) $(LIBINSTALLDIR)
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.a $(LIBINSTALLDIR)
-ifeq ($(SHAREDLIBS), Y)
-	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
-	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)
 	#if 64bit system, install in /usr/lib64 too
 	if [ -d "$(LIBINSTALLDIR)64" ]; then \
+	echo "Copying libs to $(LIBINSTALLDIR)64"; \
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.a $(LIBINSTALLDIR)64; \
+	fi
+ifeq ($(SHAREDLIBS), Y)
+	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
+	# copy logical links
+	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)
+	#if 64bit system, install in /usr/lib64 too and copy logical links
+	if [ -d "$(LIBINSTALLDIR)64" ]; then \
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)64; \
-	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64; \
+	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64; \
 	fi
 else
 	rm -f $(LIBINSTALLDIR)/nano-X.so

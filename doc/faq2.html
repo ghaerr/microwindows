@@ -10,7 +10,7 @@
 
 <h1>Microwindows Frequently Asked Questions - Part 2</h1>
 
-<p>2015/09/05 Microwindows FAQ2<br>
+<p>2016/02/28 Microwindows FAQ2<br>
 <br>
 </p>
 
@@ -46,7 +46,7 @@ be adapted to new platforms.<br>
 <br>
 </p>
 
-<h3>What are NXlib and PXlib?</h3>
+<h3>What are the NXlib and PXlib libraries?</h3>
 
 <p>Since nano-X is not fully compatible to X11 it is quite some work to port X11 applications to<br>
 nano-X. NXlib is a wrapper library for nano-X which does provide X11 compatibility.<br>
@@ -68,6 +68,13 @@ Microwindows package.<br>
 Initially NXlib was implemented as the XtoNX.h header file.<br>
 <br>
 </p>
+
+<h3>What is the NXext library?</h3>
+
+<p>Some programs require the libXext library to compile. To help supporting these programs libNXext provides<br>
+stubs for the functions included in libXext.<br>
+<br></p>
+
 
 <h3>How to use Microwindows and FLTK on the Android platform?</h3>
 
@@ -264,7 +271,11 @@ In release mode the -Wall parameter is not set and Microwindows compiles with ju
 </p>
 
 <h3>Why does make fail if I use the '-j' or '--jobs' option?</h3>
-<p> The Microwindows makefile is written as a recursive makefile and therefore cannot be run with this option.<br><br></p>
+<p> The Microwindows makefile is written as a recursive makefile and therefore cannot be run with this option.<br>
+<br>
+You can set MICROWIN = N and MICROWINDEMO = N in the config file to reduce compile time if you will <br>
+use the X11 compatible API only. If you do not need the demo applications you can set NANOXDEMO = N too.<br>
+<br></p>
 
 
 <h3>What difference does the LINK_APP_INTO_SERVER macro make? - Linking options in config</h3>
@@ -288,8 +299,16 @@ addition to being compiled to static libaries. So the application does not have 
 or NX11 but can load these dynamically at runtime. You find all these libraries in the "src/lib" directory.<br>
 <br></p>
 
+
+<h3>How can I uninstall the Microwindows files from the /usr directory?</h3>
 <p>
-20th of February 2016, Georg Potthast
+There is the "cleanusr" target in the makefile for that. So "sudo make cleanusr" will remove the files from /usr/bin,<br>
+/usr/lib and if availabe /usr/lib64.<br>
+<br></p>
+
+
+<p>
+28th of February 2016, Georg Potthast
 </p>
 </body>
 </html>

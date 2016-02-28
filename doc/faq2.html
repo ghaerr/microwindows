@@ -185,6 +185,13 @@ are compiled in and the Allegro library is linked with nano-X. Currently only Al
 with Nano-X applications, NX11/FLTK does not work. Allegro4 does not yet work on Linux.<br>
 <br></p>
 
+<h3>How to use SDL as a Microwindows backend?</h3>
+
+<p>There are SDL macros defined in the config file. You can select either SDL1 (version 1.2) or SDL2.<br>
+After you set these macros as required the SDL1 or SDL2 drivers are compiled in and the <br>
+relevant SDL library is linked with nano-X. Currently only SDL2 works with NXlib/PXlib.<br> 
+<br></p>
+
 <h3>How to compile for DOS?</h3>
 
 <p>To use Microwindows on DOS you need to compile with DJGPP. Once you have that set up use the<br>
@@ -202,14 +209,28 @@ However, after you run ./configure on your Linux system you can edit the resulti
 replace in it the references to the "-lX11 and -lXext" libraries with "-lNX11 -lnano-X" or just <br>
 "-lPX11". Many applications will compile then.<br>
 <br>
-You can also use the replace-lX11.sh script in the src directory to replace "-lX11 and -lXext" in a<br>
-Makefile for you. Enter the name of the makefile on the command line when executing this script and it will<br>
-output a file called "replace-lX11.out" with "-lX11 and -lXext" replaced. Rename that to e.g. Makefile then.<br>
+You can also use the <b>replace-lX11.sh script</b> in the src directory to replace "-lX11 and -lXext" in a<br>
+Makefile or any other file for you. Enter the name of the makefile on the command line when executing<br>
+this script and it will replace "-lX11" and -lXext" with "-lNX11 and remove "-lXext" in this file.<br>
 <br>
-The alternative is to modify the automake files so configure will generate a makefile that uses PXlib instead of
-Xlib and Xext.<br>
+You can also add "-e" as the second parameter. In this case "-lXext" will be replaced with "-lNXext".<br>
+"libNXext" is a library with stubs for the functions in the "libXext" library. You can use this if the<br>
+application you want to port uses functions from the libXext library.<br>
+<br>
+The alternative is to modify the automake files so configure will generate a makefile that uses PXlib <br>
+instead of Xlib and Xext.<br>
 <br>
 </p>
+
+<h3>How to add new drivers to Microwindows?</h3>
+
+<p>Follow e.g. the SDL example. Typically you will add a macro which selects the new drivers into the config file. <br>
+Then set the library your drivers may need to link with in Makefile.rules and the drivers to compile with <br>
+Microwindows in drivers/Objects.rules.<br>
+<br>
+Also check the files "nanox/srvmain" und "mwin/winmain". These contain #if / #elseif statements for <br>
+different platforms which you will have to set for your platform too.<br>
+<br></p>
 
 
 <h3>Does Microwindows support GTK or QT?</h3>
@@ -245,8 +266,11 @@ Greg Haerr got <a href="http://www.kaffe.org/">Kaffe</a> to work with Microwindo
 </p>
 
 <h3>Why does printf not work?</h3>
-<p>Microwindows uses the DPRINTF/EPRINTF macros in debug mode to print information to the console window. These<br>
-are defined in the src/include/device.h header file.<br>
+<p>If you set DEBUG = Y in the config file, printf statements you add into the code will work. Otherwise<br>
+Microwindows uses a #define macro to disable printf statements in the code.<br>
+<br>
+Microwindows uses the DPRINTF/EPRINTF macros in debug mode to print information to the console<br>
+window. These are defined in the src/include/device.h header file.<br>
 <br>
 If the HAVE_FPRINTF macro, also defined in this header file, is set to 0 in e.g. Arch.rules, fprintf/printf <br>
 will no longer work. <br>

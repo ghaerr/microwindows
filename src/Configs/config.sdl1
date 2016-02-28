@@ -1,0 +1,369 @@
+####################################################################
+# config: Microwindows and Nano-X configuration file
+#
+# This package is configured using this file for desktop Linux running
+# framebuffer (FRAMEBUFFER=Y) or X11 (X11=Y), or cross-compiled
+# for a variety of architectures (see ARCH= below).
+# In addition, a variety of mouse and keyboards drivers can be
+# selected (see MOUSE AND KBD below)
+#
+# See the src/Configs directory for pre-built config files.
+# Edit this or copy one src/config, and type "make clean; make"
+####################################################################
+
+####################################################################
+# Build target platform.  Valid ARCH values are:
+#
+# LINUX-NATIVE
+# LINUX-AVR32 (BIGENDIAN=Y)
+# LINUX-TCC
+# LINUX-ARM
+# UCLINUX-ARM
+# LINUX-MIPS
+# LINUX-POWERPC (BIGENDIAN=Y)
+# LINUX-SPARC (BIGENDIAN=Y)
+# LINUX-BLACKFIN
+# LINUX-SH
+# SOLARIS (BIGENDIAN=Y)
+# PSP
+# NDS (Nintendo DS)
+# TRIMEDIA
+# MACOSX
+# RTEMS
+# ECOS
+# CYGWIN
+# LINUX-LINARO (RPI cross compile)
+# ANDROID
+####################################################################
+ARCH                     = LINUX-NATIVE
+#ARCH                     = ANDROID
+BIGENDIAN                = N
+NATIVETOOLSPREFIX        = 
+ARMTOOLSPREFIX           = arm-linux-
+ANDROIDTOOLSPREFIX       = arm-linux-androideabi-
+RPITOOLSPREFIX           = arm-linux-gnueabihf-
+MIPSTOOLSPREFIX          = mipsel-linux-
+POWERPCTOOLSPREFIX       = powerpc-linux-
+SHTOOLSPREFIX            = sh-linux-gnu
+AVR32TOOLSPREFIX	 	 = avr32-linux-
+BLACKFINTOOLSPREFIX	 	 = bfin-uclinux-
+PSPTOOLSPREFIX           = psp-
+
+####################################################################
+#
+# Compiling options
+#
+####################################################################
+OPTIMIZE                 = Y
+DEBUG                    = N
+VERBOSE                  = N
+THREADSAFE               = Y
+GPROF                    = N
+
+####################################################################
+#
+# Libraries to build: microwin, nano-X, engine, object frameworks
+#
+####################################################################
+MICROWIN                 = N
+NANOX                    = Y
+ENGINE                   = Y
+SHAREDLIBS               = N
+OBJFRAMEWORK             = N
+
+####################################################################
+#
+# Demos to build
+#
+####################################################################
+MICROWINDEMO             = N
+NANOXDEMO                = Y
+
+####################################################################
+#
+# Applications to build
+#
+####################################################################
+NANOWM                   = Y
+FBEMULATOR               = N
+
+####################################################################
+#
+# If using Linux framebuffer, set to MWPF_TRUECOLOR8888, and use fbset.
+# When running X11, this sets the X11 pixel emulation at runtime.
+#
+# On Linux or when running the standard framebuffer subdrivers,
+# the runtime framebuffer BPP (bits per pixel) is used to select 
+# the runtime screen subdriver.  However, the format of the pixel
+# itself must be selected at compile time, which sets macros used
+# for MWCOLORVAL color conversions and conversion blit byte order.
+# This also sets sizeof(MWPIXELVAL) for optimizing buffers sizes
+# in GrArea/GrReadArea.
+#
+# define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
+# define MWPF_TRUECOLOR8888 /* pixel is packed 32 bits byte order |B|G|R|A|*/
+# define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
+# define MWPF_TRUECOLOR888  /* pixel is packed 24 bits byte order |B|G|R|*/
+# define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
+# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
+# define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
+# define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
+#
+####################################################################
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+#SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+
+####################################################################
+# NanoX: Put Y to the following line to link the nano-X application
+# with the server. This is required if UNIX sockets aren't available,
+# or for speed or debugging.  This affects the nano-X server only.
+####################################################################
+LINK_APP_INTO_SERVER     = Y
+
+####################################################################
+# Shared memory support for Nano-X client/server protocol speedup
+####################################################################
+HAVE_SHAREDMEM_SUPPORT   = N
+
+####################################################################
+# File I/O support
+# Supporting either below drags in libc stdio, which may not be wanted
+####################################################################
+HAVE_FILEIO              = Y
+
+####################################################################
+# BMP, GIF reading support
+####################################################################
+HAVE_BMP_SUPPORT         = Y
+HAVE_GIF_SUPPORT         = Y
+HAVE_PNM_SUPPORT         = Y
+HAVE_XPM_SUPPORT         = Y
+
+####################################################################
+# JPEG support through libjpeg, see README.txt in contrib/jpeg
+####################################################################
+HAVE_JPEG_SUPPORT        = N
+INCJPEG                  = .
+LIBJPEG                  = -ljpeg
+
+####################################################################
+# PNG support via libpng and libz
+####################################################################
+HAVE_PNG_SUPPORT         = N
+INCPNG                   = .
+LIBPNG                   = -lpng
+INCZ                     = .
+LIBZ                     = -lz
+
+####################################################################
+# TIFF support through libtiff
+####################################################################
+HAVE_TIFF_SUPPORT        = N
+INCTIFF                  = .
+LIBTIFF                  = -ltiff
+
+####################################################################
+# PCF font support - .pcf/.pcf.gz loadable fonts
+####################################################################
+HAVE_PCF_SUPPORT         = Y
+HAVE_PCFGZ_SUPPORT       = N
+PCF_FONT_DIR             = "fonts/pcf"
+
+####################################################################
+# Truetype fonts - .ttf loadable fonts thru Freetype 2.x
+####################################################################
+HAVE_FREETYPE_2_SUPPORT  = Y
+INCFT2LIB                = /usr/include
+ifneq ($(ARCH),ANDROID)
+LIBFT2LIB                = -lfreetype
+FREETYPE_FONT_DIR        = "fonts/truetype"
+else
+LIBFT2LIB                = -lfreetype-android
+FREETYPE_FONT_DIR        = "/system/fonts"
+endif
+
+####################################################################
+# T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
+# t1lib.config must be setup and in T1LIB_FONT_DIR
+####################################################################
+HAVE_T1LIB_SUPPORT       = N
+T1LIB_FONT_DIR           = "fonts/type1"
+INCT1LIB                 = /usr/include
+LIBT1LIB                 = -lt1
+
+####################################################################
+# FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
+####################################################################
+HAVE_FNT_SUPPORT         = Y
+HAVE_FNTGZ_SUPPORT       = N
+FNT_FONT_DIR             = "fonts/fnt"
+
+####################################################################
+# Japanese EUC-JP support using loadable MGL font
+####################################################################
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
+
+####################################################################
+# Chinese Han Zi Ku loadable font support
+####################################################################
+HAVE_HZK_SUPPORT         = N
+HZK_FONT_DIR             = "fonts/chinese"
+
+####################################################################
+# DBCS Chinese BIG5 compiled in font support (big5font.c)
+####################################################################
+HAVE_BIG5_SUPPORT        = N
+
+####################################################################
+# DBCS Chinese GB2312 compiled in font support (gb2312font.c)
+####################################################################
+HAVE_GB2312_SUPPORT      = N
+
+####################################################################
+# DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+####################################################################
+HAVE_JISX0213_SUPPORT    = N
+
+####################################################################
+# DBCS Korean HANGUL font support (jo16x16.c)
+####################################################################
+HAVE_KSC5601_SUPPORT     = N
+
+####################################################################
+# Fribidi and shape/joining support for right to left rendering
+####################################################################
+HAVE_FRIBIDI_SUPPORT     = N
+HAVE_SHAPEJOINING_SUPPORT = N
+INCFRIBIDI               = $(TOP)/../../../include
+LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
+
+####################################################################
+# Generate screen driver interface only with no fonts or clipping
+####################################################################
+NOFONTS                  = N
+NOCLIPPING               = N
+
+####################################################################
+# Window move algorithms for Microwindows
+# Change for tradeoff between cpu speed and looks
+# ERASEMOVE (nanowm) repaints only backgrounds while window dragging
+# Otherwise an XOR redraw is used for window moves only after button up
+# UPDATEREGIONS (win32 api only)paints in update clipping region only
+####################################################################
+ERASEMOVE                = Y
+UPDATEREGIONS            = Y
+
+####################################################################
+# SCREEN DRIVERS
+####################################################################
+
+# X11 and FBE startup screen width, height, (depth for palette mode only)
+SCREEN_WIDTH             = 800
+SCREEN_HEIGHT            = 600
+SCREEN_DEPTH             = 8
+
+# X Window screen driver
+# USE_EXPOSURE for XFree86 4.x or if backing store not working
+X11                      = N
+USE_EXPOSURE             = N
+
+# Framebuffer screen driver
+FRAMEBUFFER              = N
+
+# memory screen driver
+SCRMEM                   = N
+
+# PSP screen driver
+PSP                      = N
+
+# Nintendo DS screen driver
+SCRNDS                   = N
+
+# allegro drivers
+ALLEGRO4                 = N
+ALLEGRO5                 = N
+
+#SDL drivers
+SDL1			 = Y
+SDL2			 = N
+
+# set VTSWITCH to include virtual terminal switch code
+# set FBREVERSE to reverse bit orders in 1,2,4 bpp
+# set GRAYPALETTE to link with Gray Palette (valid only for 4bpp modes)
+# set HAVETEXTMODE=Y for systems that can switch between text & graphics.
+VTSWITCH                 = N
+FBREVERSE                = N
+GRAYPALETTE              = N
+HAVETEXTMODE             = N
+
+# SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
+# INVERT4BPP 4bpp inverted pixel driver for VTech Helio
+SA1100_LCD_LTLEND        = N
+INVERT4BPP               = N
+
+####################################################################
+# Mouse drivers
+# GPMMOUSE	gpm mouse
+# SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# SUNMOUSE	Sun Workstation mouse (/dev/sunmouse)
+# NOMOUSE	no mouse driver
+#
+# Touchscreen drivers
+# IPAQMOUSE	Compaq iPAQ, Intel Assabet (/dev/h3600_tsraw)
+# ZAURUSMOUSE	Sharp Zaurus (/dev/sharp_ts)
+# TUXMOUSE	TuxScreen (/dev/ucb1x00-ts)
+# ADSMOUSE	Applied Data Systems GC+ (/dev/ts)
+# ADS7846MOUSE	ADS7846 chip, PSI OMAP Innovator (/dev/innnovator_ts)
+# EPMOUSE	Embedded Planet (/dev/tpanel)
+# VHMOUSE	Vtech Helio (/dev/tpanel)
+# MTMOUSE	MicroTouch serial (/dev/ttyS1)
+# PSIONMOUSE	Psion 5 (/dev/touch_psion)
+# YOPYMOUSE	Yopy (/dev/yopy-ts)
+# HARRIERMOUSE	NEC Harrier (/dev/tpanel)
+# TSLIBMOUSE    Use tslib (/dev/input/event0)
+# EVENTMOUSE	Simple standard event interface (/dev/input/event0)
+# TTMOUSE       TomTom GO and ONE (/dev/ts)
+####################################################################
+GPMMOUSE                 = N
+SERMOUSE                 = N
+SUNMOUSE                 = N
+NOMOUSE                  = N
+IPAQMOUSE                = N
+ZAURUSMOUSE              = N
+TUXMOUSE                 = N
+ADSMOUSE                 = N
+ADS7846MOUSE             = N
+EPMOUSE                  = N
+VHMOUSE                  = N
+MTMOUSE                  = N
+PSIONMOUSE               = N
+YOPYMOUSE                = N
+HARRIERMOUSE             = N
+LIRCMOUSE                = N
+TSLIBMOUSE               = N
+TTMOUSE                  = N
+PSPMOUSE                 = N
+NDSMOUSE                 = N
+EVENTMOUSE               = N
+
+# keyboard or null kbd driver
+TTYKBD                   = N
+SCANKBD                  = N
+PIPEKBD                  = N
+IPAQKBD                  = N
+LIRCKBD                  = N
+PSPKBD                   = N
+EVENTKBD                 = N
+NOKBD                    = N
+# Secondary keyboard drivers for IR input
+LIRCKBD2                 = N
+
+####################################################################
+# VNC server support through libvncserver
+####################################################################
+HAVE_VNCSERVER_SUPPORT   = N
+VNCSERVER_PTHREADED      = N
+LIBVNC                   = -lvncserver
+INCVNC                   = /usr/include

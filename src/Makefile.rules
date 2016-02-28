@@ -233,11 +233,12 @@ endif
 ifeq ($(ALLEGRO5), Y)
 ifneq ($(ARCH),ANDROID)
 #if allegro5
-LDFLAGS += -lallegro 
+ #for srvmain.c and winmain.c
+ LDFLAGS += -lallegro 
 else
  #if android
 #LDFLAGS += -L$(HOME)/allegro5111/ba/lib -lallegro-debug 
-LDFLAGS += -Landroid//buildandroid/lib -lallegro-debug 
+LDFLAGS += -Landroid/buildandroid/lib -lallegro-debug 
 endif
 DEFINES += -D_ALLEGRO_=1
 endif
@@ -245,6 +246,18 @@ endif
 ifeq ($(ALLEGRO4), Y)
 LDFLAGS += -lalleg 
 DEFINES += -D_ALLEGRO_=1
+endif
+
+ifeq ($(SDL1), Y)
+ LDFLAGS += -lSDL 
+ #for srvmain.c and winmain.c
+ DEFINES += -D_SDL1_2_=1
+endif
+
+ifeq ($(SDL2), Y)
+ LDFLAGS += -lSDL2 
+ #for srvmain.c and winmain.c
+ DEFINES += -D_SDL1_2_=1
 endif
 
 ifeq ($(HAVE_SHAPEJOINING_SUPPORT), Y)

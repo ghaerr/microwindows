@@ -719,7 +719,7 @@ GsSelect(GR_TIMEOUT timeout)
 }
 
 /********************************************************************************/
-#elif MSDOS || _MINIX  || __MINGW32__ || defined(_ALLEGRO_)
+#elif MSDOS || _MINIX  || __MINGW32__ || defined(_ALLEGRO_) || defined(_SDL1_2_)
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -738,7 +738,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 /********************************************************************************/
 /* next elif to below is #elif NDS */
-#elif UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_)
+#elif UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_) && !defined(_SDL1_2_)
 
 void
 GsSelect(GR_TIMEOUT timeout)

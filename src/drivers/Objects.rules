@@ -108,6 +108,22 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/kbd_allegro.o
 endif
 
+ifeq ($(SDL1), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_sdl1.o \
+	$(MW_DIR_OBJ)/drivers/mou_sdl1.o \
+	$(MW_DIR_OBJ)/drivers/kbd_sdl1.o
+endif
+
+ifeq ($(SDL2), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_sdl2.o \
+	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
+	$(MW_DIR_OBJ)/drivers/kbd_sdl2.o
+endif
+
 ifeq ($(EM8400), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_em84xx.o

@@ -1,4 +1,4 @@
-# [NEW: MICROWINDOWS AND FLTK PORTED TO THE ANDROID PLATFORM] (https://github.com/ghaerr/microwindows)
+# [NEW: MICROWINDOWS AND FLTK PORTED TO THE ANDROID PLATFORM] (https://github.com/georgp24/microwindows-android-bin)
 
 Download  this from the Microwindows-Android-bin repo:
 <https://github.com/georgp24/microwindows-android-bin>

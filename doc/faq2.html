@@ -162,6 +162,18 @@ variable "TTFONTDIR" to this path. This variable is read by nano-X when searchin
 <br>
 </p>
 
+<h3>How to compile XForms for Microwindows?</h3>
+
+<p>Compile Microwindows with the config.fltk config file and run "sudo make install".<br>
+<br>
+Then unpack the XForms archive, go into the XForms root directory and enter: <br>
+"./configure --disable-gl --enable-demos".<br>
+After the configure script has generated the Makefile copy the replace-lX11.sh script<br>
+in the same directory and run "replace-lX11.sh Makefile". Then execute "make". <br>
+Following that you can get into the demos directory and run the demos.<br>
+<br></p>
+
+
 <h3>How to compile on Windows with MinGW?</h3>
 
 <p>The MinGW port is based on the Allegro graphics library and the Makefile_nr file. You can<br>

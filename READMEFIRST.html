@@ -1,0 +1,40 @@
+<h3>------------------------------------------------------------------------------------------------------------</h3>
+<h3>Installing Microwindows and executing the demo programs</h3>
+<h3>------------------------------------------------------------------------------------------------------------</h3>
+After downloading the Microwindows package unpack it into your personal folder on your Linux system.<br>
+<br>
+Then enter the "microwindows/src" directory and enter: <br>
+<br>
+"make". <br>
+<br>
+No need to run configure. Make will compile the Microwindows libraries and the demo applications. In the  <br>
+"src/lib" directory there will be the libraries generated and in the "src/bin" directory the compiled demo <br>
+programs.<br>
+<br>
+Then enter "make install".<br>
+<br>
+The Makefile assumes that you use a Linux system with X11 installed. For testing purposes Microwindows<br>
+will run based on X11 then. It will generate shared libraries.<br>
+<h3>------------------------------------------------------------------------------------------------------------</h3>
+To execute the demo programs run the script "rundemos.sh" in the "src" directory. This will list the <br>
+available demos and allow you to select a program to run. Before selecting a new demo program, close all <br> 
+windows opened by the previous demo. <br>
+<br>
+These demos are based on the Nano-X and MWIN apis. Demos for the X11 compatibility layer NX11 <br>
+are located in the "nxlib/test" folder. You can run them in there e.g. with "./textbox". The scripts provided <br>
+in the "nxlib/test" folder can be used if Nano-X is used as a static library. <br>
+<br>
+The Nano-X libray and the NXlib compatibility layer library are also available linked together <br>
+to the PX11 library. The demo programs linked with that are available in the "nxlib/ptest" folder.<br>
+<h3>------------------------------------------------------------------------------------------------------------</h3>
+Further documentation is available in the "docs" folder. The latest information is in the "doc/faq2" file. <br>
+Further documentation is currently dated. The Microwindows Architecture is described in the <br>
+"doc/microwindows_architecture.html" file. It does not cover the X11 compatibility layer NX11 yet. <br>
+NX11 is a subset of the X11 library, implemented to be sufficient to support the FLTK GUI based on Nano-X. <br>
+The faq2 file contains some information about NX11 and instructions how to compile FLTK for NX11<br>
+<br>
+There is a reference for the Nano-X API in the "doc/nanox/latex/refman.pdf" document. The Microsoft Windows<br>
+compatible MWIN API is described in the "doc/mwinapi.html" file.<br>
+<br>
+6th of May - Georg Potthast<br>
+<p>

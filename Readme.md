@@ -1,16 +1,9 @@
-# [NEW: MICROWINDOWS AND FLTK PORTED TO THE ANDROID PLATFORM] (https://github.com/georgp24/microwindows-android-bin)
-
-Download  this from the Microwindows-Android-bin repo:
-<https://github.com/georgp24/microwindows-android-bin>
-
-- - - -
 
 # Microwindows or the Nano-X Window System
 
 Microwindows or Nano-X is a small, Xlib compatible library. It is
 Open Source and licenced under the the Mozilla Public License.
-The main GUI toolkit that can be used with Microwindows is FLTK,
-but XForms is available too. 
+The main GUI toolkit that can be used with Microwindows is FLTK.
 
 ## Areas where Microwindows can be used are:
 
@@ -29,9 +22,16 @@ Microwindows is very portable, is written in C and can be used on a wide range
 of platforms. 
 
 Currently it is available for **Linux, Windows, Mac OS X, Android, DOS, 
-uclinux, RTEMS, ELKS, PSP** and more. 
+Raspberry Pi, uclinux, RTEMS, ELKS, PSP** and more. 
 
 It can be compiled for **x86, x86_64, ARM, PowerPC and MIPS** processors.
+
+**Microwindows has been ported to the Android platform. This way you can
+use Microwindows and FLTK on Android smartphones.**
+
+Download  this port from the Microwindows-Android-bin repo:
+<https://github.com/georgp24/microwindows-android-bin>
+
 
 ## Library design
 

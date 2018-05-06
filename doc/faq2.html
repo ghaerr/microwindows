@@ -76,6 +76,39 @@ stubs for the functions included in libXext.<br>
 <br></p>
 
 
+<h3>How to compile a program using the Nano-X or NXlib libraries on the command line?</h3>
+Nano-X:<br>
+<br>
+First make e.g. a "mytests" folder in the "microwindows/src" directory. Copy e.g. the "src/demos/nanox/arcdemo.c" program<br>
+into the "mytests" folder. Then, while in the "src" folder, enter:<br>
+<br>
+"gcc -Llib -Iinclude mytests/arcdemo.c -lnano-X -o mytests/arcdemo"<br>
+<br>
+This will compile the arcdemo program in the mytests folder. To run the program enter, while in the "src" directory,<br> 
+the following line:<br>
+<br>
+"bin/nano-X -N & bin/nanowm & mytests/arcdemo"<br>
+<br>
+Calling "bin/nanwm" adds a Nano-X window manager background window.<br>
+<br>
+NXlib:<br>
+<br>
+To use the NXlib library copy e.g. the "src/nxlib/test/xgreen.c" program into the "mytests" folder. <br>
+Then, while in the "src" folder, enter:<br>
+<br>
+"gcc -Llib -Iinclude mytests/xgreen.c -lnano-X -lNX11 -o mytests/xgreen"<br>
+<br>
+This will compile the xgreen program in the mytests folder. To run the program enter, while in the "src" directory, <br> 
+the following line:<br>
+<br>
+"nano-X -N & bin/nanowm & mytests/xgreen"<br>
+<br>
+To use the PX11 library compile with: "gcc -Llib -Iinclude mytests/xgreen.c -lPX11 -o mytests/xgreen" <br> 
+and run with: "nano-X -N & bin/nanowm & mytests/xgreen"<br>
+<br>
+</p>
+
+
 <h3>How to use Microwindows and FLTK on the Android platform?</h3>
 
 <p>There is a separate application note in this directory for Android.<br>
@@ -162,17 +195,6 @@ variable "TTFONTDIR" to this path. This variable is read by nano-X when searchin
 <br>
 </p>
 
-<h3>How to compile XForms for Microwindows?</h3>
-
-<p>Compile Microwindows with the config.fltk config file and run "sudo make install".<br>
-<br>
-Then unpack the XForms archive, go into the XForms root directory and enter: <br>
-"./configure --disable-gl --enable-demos".<br>
-After the configure script has generated the Makefile copy the replace-lX11.sh script<br>
-in the same directory and run "replace-lX11.sh Makefile". Then execute "make". <br>
-Following that you can get into the demos directory and run the demos.<br>
-<br></p>
-
 
 <h3>How to compile on Windows with MinGW?</h3>
 
@@ -252,7 +274,7 @@ This are applications which are too large to be ported to Microwindows.<br>
 There is NanoGTK which is GTK version 1.2 ported to nano-X. With NXlib it is also possible to compile GTK1.<br>
 However, today there are almost no applications using GTK1 since that is not compatible with GTK2.<br>
 <br>
-Greg Haerr did some tests with an early version of QT. This version is probably also too old now to be useful.<br>
+Greg Haerr did some tests with an early version of QT (qt-x11-2.3.1).<br>
 <br>
 </p>
 
@@ -276,6 +298,16 @@ more extensive GUI toolkit than the Windows API compatible mwin library.<br>
 Greg Haerr got <a href="http://www.kaffe.org/">Kaffe</a> to work with Microwindows. This way you can run Java with Microwindows.<br>
 <br>
 </p>
+
+
+<h3>How to use Microwindows with ELKS?</h3>
+<p>
+ELKS is 16bit version of Linux. The website is: http://elks.sourceforge.net/<br>
+Due to memory constraints ELKS does support version 0.86 of Microwindows only. This has been reenabled in the year 2017 and added <br>
+to the ELKS package. Details about this port are availabe at: https://github.com/jbruchon/elks/blob/master/nano-X/Readme-ELKS <br>
+<br>
+</p>
+
 
 <h3>Why does printf not work?</h3>
 <p>If you set DEBUG = Y in the config file, printf statements you add into the code will work. Otherwise<br>

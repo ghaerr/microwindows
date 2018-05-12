@@ -1,0 +1,751 @@
+<HTML
+><HEAD
+><TITLE
+>GR_COLOR</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_COORD"
+HREF="nxstruct_GR_COORD.html"><LINK
+REL="NEXT"
+TITLE="GR_COUNT"
+HREF="nxstruct_GR_COUNT.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_COORD.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_COUNT.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.COLOR"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN8617"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+>&nbsp;--&nbsp;Color value</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN8621"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef unsigned long GR_COLOR;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8623"
+></A
+><H2
+>Description</H2
+><P
+>    A <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+> type is a device independent value used to
+    define a color within nano-X.
+    </P
+><P
+>    Nano-X uses an unsigned 32 bit integer to represent colors. The
+    lowest order three bytes define the color, while the highest order
+    byte is always <TT
+CLASS="CONSTANT"
+>0</TT
+>. This results in
+    approximately 16 million colors that can be sopecified. The
+    colorvalue is laid out as:
+
+    <DIV
+CLASS="TABLE"
+><A
+NAME="AEN8629"
+></A
+><P
+><B
+>Table 3-1. 32bit Color Value</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="CENTER"
+VALIGN="TOP"
+>31 . . . 24</TH
+><TH
+ALIGN="CENTER"
+VALIGN="TOP"
+>23 . . . 16</TH
+><TH
+ALIGN="CENTER"
+VALIGN="TOP"
+>15 . . . 8</TH
+><TH
+ALIGN="CENTER"
+VALIGN="TOP"
+>7 . . . 0</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>0</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>Blue</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>Green</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>Red</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+    The macro 
+    <A
+HREF="nxapi_GR_RGB.html"
+><TT
+CLASS="FUNCTION"
+>GR_RGB()</TT
+></A
+>
+    can be used to specify a color.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8646"
+></A
+><H2
+>Color Definitions</H2
+><P
+>    If you define <TT
+CLASS="CONSTANT"
+>MWINCLUDECOLORS</TT
+> before
+    inclusion of the nano-X header file.
+  <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#define MWINCLUDECOLORS
+#include "nano-X.h"
+  </PRE
+></TD
+></TR
+></TABLE
+>
+    Your application will have access to the following basic color definitions.
+
+    <DIV
+CLASS="TABLE"
+><A
+NAME="AEN8651"
+></A
+><P
+><B
+>Table 3-2. Basic Color Definitions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>BLACK</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>BLUE</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>GREEN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>CYAN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>RED</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>MAGENTA</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>BROWN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTGRAY</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTBLUE</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTGREEN</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTCYAN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTRED</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTMAGENTA</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>YELLOW</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>WHITE</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>DKGRAY</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+    </P
+><P
+>    The following definitions are not actually colors of
+    <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+> but they can be used with the 
+    <A
+HREF="nxapi_GrGetSysColor.html"
+>    <TT
+CLASS="FUNCTION"
+>GrGetSysColor()</TT
+></A
+> to retrieve a
+    <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+> type value.
+
+    <DIV
+CLASS="TABLE"
+><A
+NAME="AEN8684"
+></A
+><P
+><B
+>Table 3-3. System Color Definitions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Color Index</TH
+><TH
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_DESKTOP</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Desktop background color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_ACTIVECAPTION</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Active window caption color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_ACTIVECAPTIONTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Active window caption text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_INACTIVECAPTION</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Inactive window caption color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_INACTIVECAPTIONTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Inactive window caption text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_WINDOWFRAME</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3-D Window frame color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_BTNSHADOW</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3-D button shadow color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_3DLIGHT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3-D window light color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_BTNHIGHLIGHT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3-D button highlight color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_APPWINDOW</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Top level window background color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_APPTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Top level window text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_BTNFACE</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Button face color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_BTNTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Button text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_WINDOW</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Normal backgrouns color in a window</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_WINDOWTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Normal text color in a window.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_HIGHLIGHT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Highlight background color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_HIGHLIGHTTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Highlighted text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_GRAYTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Grayed out text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_MENUTEXT</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Menu text color</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GR_COLOR_MENU</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Menu background color</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8754"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GR_RGB.html"
+>            <TT
+CLASS="FUNCTION"
+>GR_RGB()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetSysColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetSysColor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetBorderColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetBorderColor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCForeground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCBackground()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrFindColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFindColor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetWindowBackgroundColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWindowBackgroundColor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetWindowBorderColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWindowBorderColor()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_COORD.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_COUNT.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

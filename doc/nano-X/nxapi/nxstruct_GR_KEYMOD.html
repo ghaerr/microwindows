@@ -1,0 +1,531 @@
+<HTML
+><HEAD
+><TITLE
+>GR_KEYMOD</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_KEY"
+HREF="nxstruct_GR_KEY.html"><LINK
+REL="NEXT"
+TITLE="GR_LOGFONT"
+HREF="nxstruct_GR_LOGFONT.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_KEY.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_LOGFONT.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.KEYMOD"
+>GR_KEYMOD</A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN11049"
+></A
+><H2
+>Name</H2
+>GR_KEYMOD&nbsp;--&nbsp;Keyboard modifier key codes</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN11052"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef unsigned int GR_KEYMOD;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11054"
+></A
+><H2
+>Description</H2
+><P
+>    A <SPAN
+CLASS="TYPE"
+>GR_KEYMOD</SPAN
+> type is a bitwise OR combination of one
+    or more of the following flags. The set flags indicate keyboard
+    modifier keys that are being pressed.
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN11058"
+></A
+><P
+><B
+>Table 3-1. Modifier Key Codes</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Value</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_NONE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates no modifier keys are pressed.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_LSHIFT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the left <B
+CLASS="KEYCAP"
+>Shift</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_RSHIFT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the right <B
+CLASS="KEYCAP"
+>Shift</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_SHIFT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Bitwise OR of the left and right <B
+CLASS="KEYCAP"
+>Shift</B
+>
+        keys. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_LCTRL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the left <B
+CLASS="KEYCAP"
+>Ctrl</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_RCTRL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the right <B
+CLASS="KEYCAP"
+>Ctrl</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_CTRL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Bit wise OR of the left and right <B
+CLASS="KEYCAP"
+>Ctrl</B
+>
+        keys.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_LALT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the left <B
+CLASS="KEYCAP"
+>Alt</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_RALT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the right <B
+CLASS="KEYCAP"
+>Alt</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_ALT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Bitwise OR if the left and right <B
+CLASS="KEYCAP"
+>Alt</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_LMETA</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the left <B
+CLASS="KEYCAP"
+>window</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_RMETA</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the right <B
+CLASS="KEYCAP"
+>window</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_META</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Bitwise OR of the left and right
+        <B
+CLASS="KEYCAP"
+>window</B
+> keys. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_NUM</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the <B
+CLASS="KEYCAP"
+>Num Lock</B
+> key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_CAPS</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the<B
+CLASS="KEYCAP"
+>Caps Lock</B
+>  key.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWKMOD_ALTGR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the <B
+CLASS="KEYCAP"
+>AltGr</B
+> key.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11147"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_KEY.html"
+>            <TT
+CLASS="CONSTANT"
+>GR_KEY</TT
+></A
+>, 
+      <A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+>            <TT
+CLASS="CONSTANT"
+>GR_EVENT_BUTTON</TT
+></A
+>, 
+      <A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"
+>            <TT
+CLASS="CONSTANT"
+>GR_EVENT_KEYSTROKE</TT
+></A
+>, 
+      <A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+>            <TT
+CLASS="CONSTANT"
+>GR_EVENT_MOUSE</TT
+></A
+>. 
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_KEY.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_LOGFONT.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GR_KEY</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_LOGFONT</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

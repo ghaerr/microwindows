@@ -1,0 +1,491 @@
+<HTML
+><HEAD
+><TITLE
+>GrCreateFont()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrCopyGC()"
+HREF="nxapi_GrCopyGC.html"><LINK
+REL="NEXT"
+TITLE="GrDefaultErrorHandler()"
+HREF="nxapi_GrDefaultErrorHandler.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrCopyGC.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrDefaultErrorHandler.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRCREATEFONT"
+><TT
+CLASS="FUNCTION"
+>GrCreateFont()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1713"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrCreateFont()</TT
+>&nbsp;--&nbsp;Create a font</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1717"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN1718"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_FONT_ID         <B
+CLASS="FSFUNC"
+>  GrCreateFont          </B
+></CODE
+>( GR_CHAR *          <VAR
+CLASS="PDPARAM"
+> name                  </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> height                </VAR
+>,  GR_LOGFONT *       <VAR
+CLASS="PDPARAM"
+> plogfont              </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1728"
+></A
+><H2
+>Description</H2
+><P
+>    This function finds the closest available font to the the
+    parameters specified. If <TT
+CLASS="PARAMETER"
+><I
+>plogfont</I
+></TT
+> is not
+    <TT
+CLASS="CONSTANT"
+>NULL</TT
+> then the parameters specified in the
+    <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+> structure that
+    <TT
+CLASS="PARAMETER"
+><I
+>plogfont</I
+></TT
+> points to are used to choose the
+    font. Otherwise, if the <TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+> parameter
+    is non-zero, then the builtin font closest in height to the
+    specified height will be used. Otherwise, the builtin font with
+    a name that matches the <TT
+CLASS="PARAMETER"
+><I
+>name</I
+></TT
+>, will be
+    chosen. As a lst resort, if none of the previous criteria finds a
+    match, the first builtin font will be returned.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1737"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1739"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>name</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>ASCII string containing the face name of the desired
+        font. The table <A
+HREF="nxapi_GrCreateFont.html#NXAPI.GRCREATEFONT.NAME"
+>below</A
+> lists the face
+        names of the builtin fonts.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The desired font height. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_LOGFONT.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>plogfont</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pointer to a 
+        <A
+HREF="nxstruct_GR_LOGFONT.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+></A
+> structure. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><P
+>  Built in font face names for the <TT
+CLASS="STRUCTFIELD"
+><I
+>name</I
+></TT
+> field.
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1776"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_SYSTEM_VAR</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_OEM_FIXED</TT
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_GUI_VAR</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_SYSTEM_FIXED</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1789"
+></A
+><H2
+>Returns</H2
+><P
+>    The ID of the newly created font. This ID must be used in
+    subsequent font functions.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1792"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrDestroyFont.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDestroyFont()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCFont.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCFont()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetFontSize.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetFontSize()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetFontRotation.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetFontRotation()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetFontAttr.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetFontAttr()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetFontInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetFontInfo()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrCopyGC.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrDefaultErrorHandler.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrCopyGC()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrDefaultErrorHandler()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

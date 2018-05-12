@@ -1,0 +1,419 @@
+<HTML
+><HEAD
+><TITLE
+>GR_EVENT_ERROR</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_EVENT_BUTTON"
+HREF="nxstruct_GR_EVENT_BUTTON.html"><LINK
+REL="NEXT"
+TITLE="GR_EVENT_EXPOSURE"
+HREF="nxstruct_GR_EVENT_EXPOSURE.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_EXPOSURE.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.EVENT.ERROR"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN9160"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+>&nbsp;--&nbsp;Error event structure</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN9164"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_EVENT_TYPE   type;
+    GR_FUNC_NAME    name;
+    GR_ERROR        code;
+    GR_ID           id;
+} GR_EVENT_ERROR;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9166"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+> structure is used by
+    nano-X to report runtime errors. Some errors are system errors,
+    such as <TT
+CLASS="CONSTANT"
+>GR_ERROR_MALLOC_FAILED</TT
+> which
+    indicates that a memory allocation failed. Other error types are
+    program errors, such as
+    <TT
+CLASS="CONSTANT"
+>GR_ERROR_ILLEGAL_ON_ROOT_WINDOW</TT
+> which
+    will occur if for example the program tries to move the root window.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9172"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN9174"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>type</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The event type will be
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_ERROR</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_FUNC_NAME.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_FUNC_NAME</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>name</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The name of the function in which
+        the error occured.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_ERROR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_ERROR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>code</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The type of error that occured.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>id</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The window ID of the window that an error occured on,
+        if the event is related to a window. The GC ID of the graphics
+        context that an error occured on if the error occured on a
+        GC. Set to <TT
+CLASS="CONSTANT"
+>0</TT
+> if the error is not related
+        to a window or a GC. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9211"
+></A
+><H2
+>Example</H2
+><P
+>    The following example shows a typical error handler.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN9214"
+></A
+><P
+><B
+>Example 3-1. Using <SPAN
+CLASS="TYPE"
+>GR_EVENT_ERROR</SPAN
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+char *error_strings[] = { GR_ERROR_STRINGS };  /* See nano-X.h */
+
+void  process_error_event (GR_EVENT_ERROR *event)
+{
+    printf ("NANO-X ERROR (function %s): ", event-&#62;name);
+    printf (error_strings[event-&#62;code], event-&#62;id);
+    printf ("\n");
+    fflush (stdout);
+
+    GrClose();
+    exit (1);
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9218"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+>, 
+      <A
+HREF="nxapi_GrDefaultErrorHandler.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDefaultErrorHandler()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_EXPOSURE.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_BUTTON</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_EXPOSURE</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

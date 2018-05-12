@@ -1,0 +1,456 @@
+<HTML
+><HEAD
+><TITLE
+>GrNewPixmap()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrNewInputWindow()"
+HREF="nxapi_GrNewInputWindow.html"><LINK
+REL="NEXT"
+TITLE="GrNewPixmapFromData()"
+HREF="nxapi_GrNewPixmapFromData.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewInputWindow.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRNEWPIXMAP"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4782"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+>&nbsp;--&nbsp;Create a new pixmap</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4786"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4787"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_WINDOW_ID       <B
+CLASS="FSFUNC"
+>  GrNewPixmap           </B
+></CODE
+>( GR_SIZE            <VAR
+CLASS="PDPARAM"
+> width                 </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> height                </VAR
+>,  void *             <VAR
+CLASS="PDPARAM"
+> addr                  </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4797"
+></A
+><H2
+>Description</H2
+><P
+>    This function creates a new server side pixmap of the specified
+    width and height.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    A pixmap is basically an offscreen window. You can draw to a
+    pixmap just as you would an on screen window. The return value of
+    this function is a bit misleading, in that it should probably be a 
+    <A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+>
+    rather than a window ID. From a drawing point of view nano-X does
+    not make much of a difference between window IDs and drawable IDs.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    When finished with the pixmap, the application must free the
+    resources allocated to the pixmap by calling the function 
+    <A
+HREF="nxapi_GrDestroyWindow.html"
+>    <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+>
+    with the pixmap ID as the ID of the window to destroy.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4808"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4810"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width in pixels of the pixmap.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The height in pixels of the pixmap.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>void*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>addr</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Optional pointer to pixel buffer. If you have a pixel
+        buffer already allocated for the pixmap, then pass that buffer
+        via this parameter. If this parameter is
+        <TT
+CLASS="CONSTANT"
+>NULL</TT
+> then the function will attemp to
+        allocate a proper sized pixel buffer. If the pixel buffer is
+        automatically allocated the buffer will automatically be freed
+        when the pixmap is destroyed using
+        <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+>.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4843"
+></A
+><H2
+>Returns</H2
+><P
+>    The ID of the newly created pixmap.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4846"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrNewPixmapFromData.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrDestroyWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrCopyArea.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCopyArea()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetBackgroundPixmap.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetBackgroundPixmap()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewInputWindow.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewInputWindow()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

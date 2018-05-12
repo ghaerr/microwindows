@@ -1,0 +1,641 @@
+<HTML
+><HEAD
+><TITLE
+>GrGetGCTextSize()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrGetGCInfo()"
+HREF="nxapi_GrGetGCInfo.html"><LINK
+REL="NEXT"
+TITLE="GrGetImageInfo()"
+HREF="nxapi_GrGetImageInfo.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrGetGCInfo.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrGetImageInfo.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRGETGCTEXTSIZE"
+><TT
+CLASS="FUNCTION"
+>GrGetGCTextSize()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3207"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrGetGCTextSize()</TT
+>&nbsp;--&nbsp;Calculate size of a text drawing</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3211"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN3212"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrGetGCTextSize       </B
+></CODE
+>( GR_GC_ID           <VAR
+CLASS="PDPARAM"
+> gc                    </VAR
+>,  void *             <VAR
+CLASS="PDPARAM"
+> str                   </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> count                 </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> flags                 </VAR
+>,  GR_SIZE *          <VAR
+CLASS="PDPARAM"
+> retwidth              </VAR
+>,  GR_SIZE *          <VAR
+CLASS="PDPARAM"
+> retheight             </VAR
+>,  GR_SIZE *          <VAR
+CLASS="PDPARAM"
+> retbase               </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3230"
+></A
+><H2
+>Description</H2
+><P
+>    This function calculates the dimensions of the specified text
+    string, if the string were to be drawn with the graphics context
+    <TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>. 
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3234"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3236"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the graphics context to use when
+        calculating the string dimensions.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>void*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>str</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The input string. If the string is
+        <I
+CLASS="EMPHASIS"
+>NOT</I
+> zero terminated, then the length of
+        the string must be specified in the
+        <TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+> parameter. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The length of the string. This parameter can be set to
+        <TT
+CLASS="CONSTANT"
+>-1</TT
+> if the string is zero terminated
+        and<TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+> contains
+        <TT
+CLASS="CONSTANT"
+>GR_TFASCII</TT
+>. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Text rendering flags, can be a combination of the flags
+        listed below.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>retwidth</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Points to the variable that the text width will be
+        returned in.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>retheight</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Points to the variable that the text height will be
+        returned in.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>retbase</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Points to the variable that the text baseline
+        height will be returned in.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><P
+>  The flags parameter is a combination of flags from the following
+  three groups. The combination can include one encoding flag, one
+  alignment flag and multiple attribute flags.
+  </P
+><P
+>  String encoding flags:
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3300"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFASCII</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUTF8</TT
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUC16</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUC32</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Text alignment flags:
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3314"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFTOP</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFBASELINE</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFBOTTOM</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Text attribute flags:
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3325"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFKERNING</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFANTIALIAS</TT
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUNDERLINE</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3335"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrText.html"
+>            <TT
+CLASS="FUNCTION"
+>GrText()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCFont.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCFont()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrGetGCInfo.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrGetImageInfo.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrGetGCInfo()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrGetImageInfo()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

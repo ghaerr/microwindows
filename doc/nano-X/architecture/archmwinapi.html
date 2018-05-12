@@ -1,0 +1,1559 @@
+<HTML
+><HEAD
+><TITLE
+>Microwindows API</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Microwindows Architecture"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Microwindows Architecture"
+HREF="ch1.html"><LINK
+REL="PREVIOUS"
+TITLE="Device-Independent Engine Features"
+HREF="archengine.html"><LINK
+REL="NEXT"
+TITLE="Nano-X API"
+HREF="archnanoapi.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Microwindows Architecture</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="archengine.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Microwindows Architecture</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="archnanoapi.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="ARCHMWINAPI"
+>Microwindows API</A
+></H1
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN279"
+>Message-passing architecture</A
+></H2
+><P
+>    The fundamental communications mechanism in the Microwindows API
+    is the message.  A message consists of a well-known message
+    number, and two parameters, known as wParam and lParam.  Messages
+    are stored in an application's message-queue, and retrieved via
+    the <TT
+CLASS="FUNCTION"
+>GetMessage</TT
+> function.  The application
+    blocks while waiting for a message. There are messages that
+    correspond to hardware events, like WM_CHAR for keyboard input or
+    WM_LBUTTONDOWN for mouse button down. In addtiion, events
+    signaling window creation and destruction WM_CREATE and WM_DESTROY
+    are sent.  In most cases, a message is associated with a window,
+    identified as an HWND.  After retrieving the message, the
+    application sends the message to the associated window's handling
+    procedure using <TT
+CLASS="FUNCTION"
+>DispatchMessage</TT
+>.  When a
+    window class is created, it's associated message handling
+    procedure is specified, so the system knows where to send the 
+    message.
+  </P
+><P
+>    The message-passing architecture allows the core API to manage
+     many system functions by sending messages on all sorts of events,
+     like window creation, painting needed, moving, etc.  By default,
+     the associated window handling function gets a "first pass" at
+     the message, and then calls the
+     <TT
+CLASS="FUNCTION"
+>DefWindowProc</TT
+> function, which handles
+     default actions for all the messages.  In this way, all windows
+     can behave the same way when dragged, etc, unless specifically
+     overridden by the user. Major window management policies can be
+     redefined by merely re-implementing
+     <TT
+CLASS="FUNCTION"
+>DefWindowProc</TT
+>, rather than making changes
+     throughout the system.
+  </P
+><P
+>    The following functions deal with messages directly:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN288"
+></A
+><P
+><B
+>Table 1-3. Microwindows Messaging Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SendMessage</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Send a message directly to a window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PostMessage</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Queue a message on the application's message queue for
+        later dispatch.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PostQuitMessage</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Queue a WM_QUIT message telling the application to
+        terminate when read.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetMessage</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Block until a message is queued for this application.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>TranslateMessage</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Translate up/down keystrokes to WM_CHAR messages.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>DispatchMessage</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Send a messages to it's associated window procedure.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    A Microwindows application's entry point is the function
+    <TT
+CLASS="FUNCTION"
+>WinMain</TT
+>, rather than main.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN316"
+>Window creation and destruction</A
+></H2
+><P
+>    The basic unit of screen organization in Microwindows API is the
+    window.  Windows describe an area of the screen to draw onto, as
+    well as an associate "window procedure" for handling messages
+    destined for this window.  Applications programmers can create
+    windows from pre-defined classes, like buttons, edit boxes, and
+    the like, or define their own window classes.  In both cases, the
+    method of creating and communicating with the windows remains
+    exactly the same.  The following functions deal with window
+    registration, creation, and destruction:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN319"
+></A
+><P
+><B
+>Table 1-4. Microwindows Window Registration, Creation &#38; Destruction Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>RegisterClass</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Define a new window class name and associated window
+        procedure.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>UnRegisterClass</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Undefine a window class.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateWindowEx</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create an instance of a window of a certain class.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>DestroyWindow</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Destroy a window instance.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetWindowLong</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return information about a window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetWindowLong</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set information about a window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetWindowWord</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return user information about a window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetWindowWord</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set user information about a window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetClassLong</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return information about a window class.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetWindowText</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get a window's title or text.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetWindowText</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's title or text.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    The WM_CREATE message is just after window creation, before
+     returning from <TT
+CLASS="FUNCTION"
+>CreateWindowEx</TT
+>.  The
+     WM_DESTROY message is sent just before destroying a window with
+     <TT
+CLASS="FUNCTION"
+>DestroyWindow</TT
+>.
+  </P
+><P
+>    When a window is registered, extra bytes can be allocated to the
+    window structure when created. The 
+    <TT
+CLASS="FUNCTION"
+>GetWindowLong</TT
+>, 
+    <TT
+CLASS="FUNCTION"
+>GetWindowWord</TT
+>, 
+    <TT
+CLASS="FUNCTION"
+>SetWindowLong</TT
+> and 
+    <TT
+CLASS="FUNCTION"
+>SetWindowWord</TT
+> 
+    manipulate these bytes.  In addition, a fixed number of extra
+    bytes per window class can be allocated on registration and
+    retrieved via the <TT
+CLASS="FUNCTION"
+>GetClassLong</TT
+> function.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN369"
+>Window showing, hiding and moving</A
+></H2
+><P
+>    The ShowWindow function allows windows to be made visible or
+    hidden.  In addition, this can be specified during the creation of
+    the window, through
+    <TT
+CLASS="FUNCTION"
+>CreateWindowEx</TT
+>.
+    <TT
+CLASS="FUNCTION"
+>MoveWindow</TT
+> is called to change a window's
+    position or size. A WM_MOVE message is sent if the window's
+    position changes, and WM_SIZE is sent on size changes.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN374"
+>Window painting</A
+></H2
+><P
+>    The Microwindows system determines when a window needs to be
+    initially painted or repainted as the result of other window
+    movement, and a WM_PAINT message is sent to the associated window
+    procedure.  At this point, it's up the the application to use the
+    graphics primitives available to paint the window, described
+    below.  Microwindows keeps track of a windows' "update" region,
+    and sends WM_PAINT whenever the region is non-empty.  For speed
+    reasons, the WM_PAINT message is only sent when there are no other
+    messages in the application's queue.  This allows the application
+    to repaint in one, rather than possibly many, steps.  To force a
+    repaint rather than waiting, the UpdateWindow function can be
+    called.  The <TT
+CLASS="FUNCTION"
+>InvalidateRect</TT
+> function
+    specifies a rectangle to add to the update region, causing a
+    subsequent WM_PAINT.
+  </P
+><P
+>    The window title is automatically painted and is set with the
+    <TT
+CLASS="FUNCTION"
+>SetWindowText</TT
+> function, and retrieved with
+    the <TT
+CLASS="FUNCTION"
+>GetWindowText</TT
+> function.
+  </P
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN381"
+>Client and screen coordinates</A
+></H3
+><P
+>    Every window is drawn on the screen using the device global screen
+    coordinate system for absolute reference to any pixel on the
+    screen. The Microwindows API allows applications programmers to be
+    concerned with only the relative coordinates from the upper left
+    portion of their window, not including the title bar and 3d
+    effects. This coordinate system is called <I
+CLASS="EMPHASIS"
+>"client
+    coordinates."</I
+> As will be explained below, the
+    Microwindows programmer has the option of getting a device context
+    in either screen or client coordinates.  If device coordinates are
+    specified, then the coordinate system is device-based and includes
+    the title area and 3d areas of the window.  Otherwise, the
+    drawable region is clipped to just that  area that is reserved by
+    the system for the application's drawing. The
+    <TT
+CLASS="FUNCTION"
+>GetClientRect</TT
+> and
+    <TT
+CLASS="FUNCTION"
+>GetWindowRect</TT
+> functions return client or
+    screen coordinates for the passed
+    window. <TT
+CLASS="FUNCTION"
+>ClientToScreen</TT
+> and
+    <TT
+CLASS="FUNCTION"
+>ScreenToClient</TT
+> can be called to translate
+    between window coordinate systems.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN389"
+>Device contexts</A
+></H3
+><P
+>    An applications programmer must obtain a <I
+CLASS="EMPHASIS"
+>"device
+    context"</I
+> before calling any graphics drawing API
+    functions.  As explained above, this specifies to the system which
+    window and what coordinate system are desired, so that these don't
+    have to be passed to every graphics function.  In addition,
+    various other attributes like foreground and background color are
+    also set in a device context, so that these parameters don't have
+    to be specified for every graphics operation. The device context
+    selects the appropriate clipping region based on the window
+    specified and the coordinate system. When a device context is
+    obtained, various graphics values are set to default values.
+  </P
+><P
+>    To obtain a client device context, call
+    <TT
+CLASS="FUNCTION"
+>GetDC</TT
+>.  To obtain a screen device context,
+    required when drawing onto title bars and the like, call
+    <TT
+CLASS="FUNCTION"
+>GetWindowDC</TT
+>. In addition, fancy clipping
+    operations and child/sibling window clipping can be specified if
+    <TT
+CLASS="FUNCTION"
+>GetDCEx</TT
+> is called. When finished drawing, the
+    <TT
+CLASS="FUNCTION"
+>ReleaseDC</TT
+> function must be called to
+    deallocate the DC.
+  </P
+><P
+>    On receipt of the WM_PAINT message, two special calls,
+    <TT
+CLASS="FUNCTION"
+>BeginPaint</TT
+> and <TT
+CLASS="FUNCTION"
+>EndPaint</TT
+> are
+    called, that serve as replacements to the 
+    <TT
+CLASS="FUNCTION"
+>GetDC</TT
+>/<TT
+CLASS="FUNCTION"
+>ReleaseDC</TT
+> 
+    functions. These functions essentially allocate a DC but also
+    validate the update region so that no subsequent WM_PAINT messages
+    are generated. <TT
+CLASS="FUNCTION"
+>BeginPaint</TT
+> also combines the
+    update region and the clipping region so that user output will
+    only occur where previously invalidated.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN404"
+>Graphics Drawing Functions</A
+></H3
+><P
+>    There are many graphics drawing API's in the Microwindows API.
+    Following is a list, most of these match up to the engine GdXXX
+    functions discussed in <A
+HREF="archengine.html"
+>the section called <I
+>Device-Independent Engine Features</I
+></A
+>.
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN408"
+></A
+><P
+><B
+>Table 1-5. Microwindows Graphics Drawing API</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetTextColor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the foreground text color in a DC.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetBkColor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the background color in a DC.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetSysColor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get the system color defined for the current look and
+        feel scheme.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetSysColor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a system color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetBkMode</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the use background flag in a DC.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetROP2</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the drawing mode (XOR, SET, etc) for drawing.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetPixel</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a pixel in the current fg color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>MoveToEx</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Prepare to draw a line.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>LineTo</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a line from the last location to this one in the
+        current fg color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Rectangle</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a rectangle in the current pen color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>FillRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Fill a rectangle with the current brush color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>TextOut</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw text in the current fg/bg color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ExtTextOut</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw text in the current fg/bg color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>DrawText</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw text or compute text height and width 
+        sizes.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>DrawDIB</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a color bitmap.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SelectObject</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Select a pen, brush or font to use in a DC.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetStockObject</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get a predefined standard pen, brush or font.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreatePen</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a pen of a certain color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateSolidBrush</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a brush of a certain color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateCompatibleBitmap</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create an offscreen area to draw onto.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>DeleteObject</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Delete a pen, brush or bitmap.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateCompatibleDC</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create an offscreen DC.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>DeleteDC</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Delete an offscreen DC.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>BitBlit</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Copy from one bitmap in a DC to another.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetSystemPaletteEntries</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get the currently in-use system palette entries.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN491"
+>Utility functions</A
+></H2
+><P
+>    A number of routines are provided for various purposes, described
+    below. In addition, Microwindows currently exports some helper
+    routines, named WndXXX, that are useful but subject to
+    change. These are detailed following:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN494"
+></A
+><P
+><B
+>Table 1-6. Microwindows Utility Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndSetDesktopWallpaper</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the desktop background image.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndSetCursor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the cursor for a window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndRaiseWindow</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Raise a window's z-order.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndLowerWindow</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Lower a window's z-order.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndGetTopWindow</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return the topmost window's handle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndRegisterFdInput</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Register to send a message when file descriptor has
+	    read data available.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WndUnregisterFdInput</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Unregister file descriptor for read data messages.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetTickCount</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return # milliseconds elapsed since startup.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Sleep</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Delay processing for specified milliseconds.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetTimer</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a millisecond timer.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>KillTimer</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Destroy a millsecond timer.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetCursorPos</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return mouse cursor coordinates.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN538"
+>Setting window focus</A
+></H3
+><P
+>    The <TT
+CLASS="FUNCTION"
+>SetFocus</TT
+> routine is used to pass keyboard
+    focus from one window to another.  Keystrokes are always sent to
+    the window with focus.  The WM_SETFOCUS and WM_KILLFOCUS messages
+    are sent to windows just receiving and losing focus.  The
+    <TT
+CLASS="FUNCTION"
+>GetActiveWindow</TT
+> routines returns the first
+    non-child ancestor of the focus window, which is the window that
+    is currently highlighted.  The
+    <TT
+CLASS="FUNCTION"
+>GetDesktopWindow</TT
+> routine returns the window
+    handle of the desktop window.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN544"
+>Mouse capture</A
+></H3
+><P
+>    Normally, Microwindows sends WM_MOUSEMOVE messages to the window
+    the mouse is currently moving over.  If desired, the applications
+    programmer can "capture" the mouse and receive all mouse move
+    messages by calling <TT
+CLASS="FUNCTION"
+>SetCapture</TT
+>.
+    <TT
+CLASS="FUNCTION"
+>ReleaseCapture</TT
+> returns the processing to
+    normal.  In addition, the <TT
+CLASS="FUNCTION"
+>GetCapture</TT
+>
+    function will return the window with capture, if any.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN550"
+>Rectangle and Region management</A
+></H3
+><P
+>    There are a number of functions that are used for rectangles and
+    regions.  Following is the group:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN553"
+></A
+><P
+><B
+>Table 1-7. Microwindows Rectangle &#38; Region Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Define a rectangle structure.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetRectEmpty</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Define an empty rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CopyRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Copy a rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>IsRectEmpty</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return TRUE if empty rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>InflateRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Enlarge a rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>OffsetRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Move a rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PtInRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Determine if a point is in a rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PtInRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Determine if a point is in a rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>IntersectRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Intersect two rectangles.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>UnionRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Union two rectangles.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SubtractRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Difference two rectangles.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>EqualRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Determine if two rectangles are the same.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    The following functions are used for region creation and
+    manipulation:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN598"
+></A
+><P
+><B
+>Table 1-8. Microwindows Region Creation &#38; Manipulation Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateRectRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a rectangular region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateRectRgnIndirect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a rectangular region from a RECT.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SetRectRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a region to a single rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateRoundRectRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a round rectangular region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateEllipticRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create an elliptical or circular region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CreateEllipticRgnIndirect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create an elliptical or circular region from a RECT.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>OffsetRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Offset a region by x, y values.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetRgnBox</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get a region's bounding rect.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GetRegionData</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get a region's internal data structure.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PtInRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Determine if a point is in a region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>RectInRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Determine if a rectangle intersects a region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>EqualRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Determine if two regions are equal.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CombineRgn</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Copy/And/Or/Xor/Subtract a region from another.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    The following regions are used to set user specified clipping
+    regions.  These regions are then intersected with the visible
+    clipping region that Microwindows maintains prior to drawing:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN646"
+></A
+><P
+><B
+>Table 1-9. Microwindows Clip Region Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SelectClipRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Assign a user specified clipping region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ExtSelectClipRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>And/Or/Xor/Subtract user clipping region with another
+        region.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="archengine.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="archnanoapi.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Device-Independent Engine Features</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Nano-X API</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

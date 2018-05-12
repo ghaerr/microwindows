@@ -1,0 +1,583 @@
+<HTML
+><HEAD
+><TITLE
+>Working With Images</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Getting Started With Microwindows & Nano-X"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Hello World Example"
+HREF="inst_hello.html"><LINK
+REL="NEXT"
+TITLE="Drawing Images Fom Files"
+HREF="image_tux2.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started With Microwindows &#38; Nano-X</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="inst_hello.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="image_tux2.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CH2"
+>Chapter 2. Working With Images</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="ch2.html#IMAGE.TUX1"
+>Embeddeding Images in an Application</A
+></DT
+><DT
+><A
+HREF="image_tux2.html"
+>Drawing Images Fom Files</A
+></DT
+><DT
+><A
+HREF="image_tux3.html"
+>Loading Images Fom Files</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="IMAGE.TUX1"
+>Embeddeding Images in an Application</A
+></H1
+><P
+>    Microwindows comes with a utility program called
+    <SPAN
+CLASS="APPLICATION"
+>convbmp</SPAN
+>. This utility is used to
+    convert <SPAN
+CLASS="TRADEMARK"
+>Windows</SPAN
+>&trade; style bitmap files into C
+    source code. This allows an your application to have a small
+    number of images embedded within its program memory. This method
+    is very useful for small embedded systems with no file system to
+    store images.
+    </P
+><P
+>    This first image example will show you how to embed an image wthin
+    your application. After the first example more examples will be
+    given to show you how to read the same image from a file at run
+    time.
+    </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN271"
+>Convert a Bitmap Image to C Source</A
+></H2
+><P
+>    Create a directory in which to build this example. Then copy
+    the bitmap image of Tux from the Microwindows sources to this
+    directory. Lastly use <SPAN
+CLASS="APPLICATION"
+>convbmp</SPAN
+> to
+    convert the bitmap file to a C source file that we can compile
+    into our application.
+
+      <DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      In this example assume that Microwindows is installed to 
+      <TT
+CLASS="FILENAME"
+>~/microwin</TT
+> and the examples
+      are built in <TT
+CLASS="FILENAME"
+>~/mymw/ex_image_01</TT
+>. If you have different
+      locations then you will have to modify the paths used in the
+      example accordingly.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cd ~/mymw/ex_image_01</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cp ~/microwin/src/mwin/bmp/penguin.bmp penguin.bmp</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>convbmp penguin.bmp</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    Examine the contents of the file <TT
+CLASS="FILENAME"
+>penguin.c</TT
+>
+    that you just created. The file contains three structures. The
+    first static structure is a color palette of up to 256 unique
+    colors that <SPAN
+CLASS="APPLICATION"
+>convbmp</SPAN
+> found within the
+    image. The second static structure is an array of the bits from the
+    image. The last structure is the public
+    <SPAN
+CLASS="STRUCTNAME"
+>MWIMAGEHDR</SPAN
+> structure that your
+    application will reference. This structure is named
+    <SPAN
+CLASS="STRUCTNAME"
+>image_penguin</SPAN
+> in this
+    example. <SPAN
+CLASS="APPLICATION"
+>convbmp</SPAN
+> will always use the
+    naming convention "image_" followed by the base
+    filename. In this example we started with
+    <TT
+CLASS="FILENAME"
+>penguin.bmp</TT
+>, therefore our image structure
+    name "<SPAN
+CLASS="STRUCTNAME"
+>image_penguin</SPAN
+>".
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN294"
+>Nano-X Client Fixup</A
+></H2
+><P
+>    The current version of nano-X (0.89pre7) has an arbitrary limit of
+    10,000 bytes per message that may be sent through the socket from
+    the client to the server. Some functions, such as
+    <TT
+CLASS="FUNCTION"
+>GrArea()</TT
+> will break up messages that exceed
+    this size into smaller chunks. Unfortunately the function
+    <TT
+CLASS="FUNCTION"
+>GrDrawImageBits()</TT
+> does not break up large
+    messages into smaller chunks. The penguin bitmap is larger than
+    10,000 bytes so this example is not going to work as is. You could
+    run the example with a smaller image, or increase the maximum
+    message length. To increase the maximum image length you need to
+    edit the nano-X source file
+    <TT
+CLASS="FILENAME"
+>~/microwin/src/nanox/nxproto.h</TT
+>. Change the
+    line:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#define MAXREQUESTSZ	10000		/* max request size (65532)*/</PRE
+></TD
+></TR
+></TABLE
+>
+    to:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#define MAXREQUESTSZ	30000		/* max request size (65532)*/</PRE
+></TD
+></TR
+></TABLE
+>
+
+    Then rebuild and reinstall the Microwindows package.
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN302"
+>Example Drawing Tux I</A
+></H2
+><P
+>    Copy the source shown below into a file named
+    "<TT
+CLASS="FILENAME"
+>image_01.c</TT
+>". Compile the application with the
+    following command.
+
+      <DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      If you did not install Microwindows you will need to change the
+      path <TT
+CLASS="FILENAME"
+>/usr/include/microwin</TT
+>
+      so that it points to the include directory where you extracted 
+      the Microwindows source.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>gcc image_01.c penguin.c \</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>&#62;</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>-I/usr/include/microwin \</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>&#62;</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>-o image_01 -lnano-X</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN317"
+></A
+><P
+><B
+>Example 2-1. image_01.c</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+
+extern GR_IMAGE_HDR  image_penguin;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Tux Window I",
+                         GR_ROOT_WINDOW_ID, 50, 50, 
+                         image_penguin.width, 
+                         image_penguin.height, 
+                         WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+    return 0;
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrDrawImageBits (wid , gc , 0 , 0, &#38;image_penguin);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>    Run the example application with the following command. You will
+    see a window appear as shown below.
+    </P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X&#38; sleep 1; nanowm&#38; sleep 1; ./image_01&#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+></P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN325"
+></A
+><P
+><B
+>Figure 2-1. Tux I Example</B
+></P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="../images/ex_image_01.gif"
+ALT="<< Image Object Missing >>"
+></IMG
+></P
+></DIV
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="inst_hello.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="image_tux2.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Hello World Example</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Drawing Images Fom Files</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

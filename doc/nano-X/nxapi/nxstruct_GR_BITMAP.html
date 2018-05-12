@@ -1,0 +1,299 @@
+<HTML
+><HEAD
+><TITLE
+>GR_BITMAP</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="NEXT"
+TITLE="GR_BOOL"
+HREF="nxstruct_GR_BOOL.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_BOOL.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.BITMAP"
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN8489"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+>&nbsp;--&nbsp;Bitmap unit</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN8493"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef unsigned short  GR_BITMAP;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8495"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+> type is used to specify small
+    monochrome bitmapped images. These bitmap images are generally used
+    for mouse cursors. 
+    </P
+><P
+>    Each pixel is represented by a bit in a <SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+>
+    value. The bitmaps can be up to 16x16 pixels in size. Therefore
+    this type will define a complete row of the bitmap within one
+    <SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+> value. To define a 16x16 bitmap, you would
+    use a 16 element array of <SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+> values.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8503"
+></A
+><H2
+>Example</H2
+><P
+>    The following example builds an X shaped mouse cursor.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN8506"
+></A
+><P
+><B
+>Example 3-1. Using <SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+void set_x_cursor (GR_WINDOW_ID wid)
+{
+    GR_BITMAP fg_bitmap[16];
+    GR_BITMAP bg_bitmap[16];
+
+    fg_bitmap[0]  = 0x8001;  /* X______________X */
+    fg_bitmap[1]  = 0x4002;  /* _X____________X_ */
+    fg_bitmap[2]  = 0x2004;  /* __X__________X__ */
+    fg_bitmap[3]  = 0x1008;  /* ___X________X___ */
+    fg_bitmap[4]  = 0x0810;  /* ____X______X____ */
+    fg_bitmap[5]  = 0x0420;  /* _____X____X_____ */
+    fg_bitmap[6]  = 0x0240;  /* ______X__X______ */
+    fg_bitmap[7]  = 0x0180;  /* _______XX_______ */
+    fg_bitmap[8]  = 0x0180;  /* _______XX_______ */
+    fg_bitmap[9]  = 0x0240;  /* ______X__X______ */
+    fg_bitmap[10] = 0x0420;  /* _____X____X_____ */
+    fg_bitmap[11] = 0x0810;  /* ____X______X____ */
+    fg_bitmap[12] = 0x1008;  /* ___X________X___ */
+    fg_bitmap[13] = 0x2004;  /* __X__________X__ */
+    fg_bitmap[14] = 0x4002;  /* _X____________X_ */
+    fg_bitmap[15] = 0x8001;  /* X______________X */
+
+    bg_bitmap[0]  = 0x4002;  /* _X____________X_ */
+    bg_bitmap[1]  = 0xA005;  /* X_X__________X_X */
+    bg_bitmap[2]  = 0x500A;  /* _X_X________X_X_ */
+    bg_bitmap[3]  = 0x2814;  /* __X_X______X_X__ */
+    bg_bitmap[4]  = 0x1428;  /* ___X_X____X_X___ */
+    bg_bitmap[5]  = 0x0A50;  /* ____X_X__X_X____ */
+    bg_bitmap[6]  = 0x05A0;  /* _____X_XX_X_____ */
+    bg_bitmap[7]  = 0x0240;  /* ______X__X______ */
+    bg_bitmap[8]  = 0x0240;  /* ______X__X______ */
+    bg_bitmap[9]  = 0x05A0;  /* _____X_XX_X_____ */
+    bg_bitmap[10] = 0x0A50;  /* ____X_X__X_X____ */
+    bg_bitmap[11] = 0x1428;  /* ___X_X____X_X___ */
+    bg_bitmap[12] = 0x2814;  /* __X_X______X_X__ */
+    bg_bitmap[13] = 0x500A;  /* _X_X________X_X_ */
+    bg_bitmap[14] = 0xA005;  /* X_X__________X_X */
+    bg_bitmap[15] = 0x4002;  /* _X____________X_ */
+
+    GrSetCursor (wid, 16, 16, 8, 8, 
+                 BLACK, BLACK, fg_bitmap, bg_bitmap);
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8510"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrSetCursor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrBitmap.html"
+>            <TT
+CLASS="FUNCTION"
+>GrBitmap()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_BOOL.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Nano-X Data Types</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_BOOL</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

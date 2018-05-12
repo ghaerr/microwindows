@@ -1,0 +1,721 @@
+<HTML
+><HEAD
+><TITLE
+>Microwindows Architecture</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Microwindows Architecture"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Microwindows Architecture"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="Device-Independent Engine Features"
+HREF="archengine.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Microwindows Architecture</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="archengine.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CH1"
+>Chapter 1. Microwindows Architecture</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="ch1.html#ARCHARCH"
+>Architecture</A
+></DT
+><DT
+><A
+HREF="archengine.html"
+>Device-Independent Engine Features</A
+></DT
+><DT
+><A
+HREF="archmwinapi.html"
+>Microwindows API</A
+></DT
+><DT
+><A
+HREF="archnanoapi.html"
+>Nano-X API</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="ARCHARCH"
+>Architecture</A
+></H1
+><P
+>    This is my first cut at getting the architecture and implementation 
+    spilled out. Please let me know if there's more detail needed in
+    some areas, or whether you're confused by my explanations. This 
+    document is for educational and porting purposes, so please read 
+    on.
+  </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN24"
+>Layered Design</A
+></H2
+><P
+>    Microwindows is essentially a layered design that allows different 
+    layers to be used or rewritten to suite the needs of the
+    implementation. At the lowest level, screen, mouse/touchpad and 
+    keyboard drivers provide access to the actual display and other 
+    user-input hardware. At the mid level, a portable graphics engine 
+    is implemented, providing support for line draws, area fills, 
+    polygons, clipping and color models.  At the upper level, various 
+    API's are implemented providing access to the graphics applications 
+    programmer.  These APIs may or may not provide desktop and/or window 
+    look and feel.  Currently, Microwindows supports the ECMA APIW and 
+    Nano-X APIs.  These APIs provide close compatibility with the Win32 
+    and X Window systems, allowing programs to be ported from other 
+    systems easily.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN27"
+>Device Drivers</A
+></H2
+><P
+>    The device driver interfaces are defined in 
+    <TT
+CLASS="FILENAME"
+>device.h</TT
+>.  A given 
+    implementation of Microwindows will link at least one screen,
+    mouse and keyboard driver into the system.  The mid level routines 
+    in the device-independent graphics engine core then call the
+    device driver directly to perform the hardware-specific
+    operations. This setup allows varying hardware devices to be added 
+    to the Microwindows system without affecting the way the entire 
+    system works.
+  </P
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN31"
+>Screen Driver</A
+></H3
+><P
+>    There are currently screen drivers written for Linux 2.2.x 
+    framebuffer systems, as well as 16-bit ELKS and MSDOS drivers for 
+    real-mode VGA cards.  The real mode drivers (
+    <TT
+CLASS="FILENAME"
+>scr_bios.c</TT
+>,
+    <TT
+CLASS="FILENAME"
+>vgaplan4.c</TT
+>, 
+    <TT
+CLASS="FILENAME"
+>mempl4.c</TT
+>, 
+    <TT
+CLASS="FILENAME"
+>scr_her.c</TT
+>
+    ) can be configured to initialize the VGA hardware directly, or 
+    utilize the PC BIOS to begin and end graphics mode.  The
+    framebuffer drivers (
+    <TT
+CLASS="FILENAME"
+>scr_fb.c</TT
+>, 
+    <TT
+CLASS="FILENAME"
+>fb.c</TT
+>, 
+    <TT
+CLASS="FILENAME"
+>fblin?.c</TT
+>
+    ) have routines for 1, 2, 4 and 8bpp palletized displays, as well 
+    as 8, 15, 16, and 32 bpp truecolor displays. The framebuffer
+    system works in Linux by opening <TT
+CLASS="FILENAME"
+>/dev/fd0</TT
+> 
+    (or <TT
+CLASS="FUNCTION"
+>getenv("FRAMEBUFFER")</TT
+>) and mmap()ing 
+    the display memory into a linear buffer in memory.  Some display 
+    modes, like the VGA 4 planes mode, require that OUT instructions 
+    be issued by the screen driver, while packed pixel drivers
+    typically can get away with just reading and writing the
+    framebuffer only.  All the graphics mode initialization and 
+    deinitialization is handled by the Linux kernel.  Getting this set 
+    up can be a real pain.
+  </P
+><P
+>    The screen driver is the most complex driver in the system, but
+    was designed so that it can be extremely easy to port new hardware 
+    to Microwindows.  For this reason, there are but a few entry
+    points that must actually talk to the hardware, while other
+    routines are provided that allow just the small set of core
+    routines to be used, if desired.  For example, a screen driver
+    must implement 
+    <TT
+CLASS="FUNCTION"
+>ReadPixel</TT
+>, 
+    <TT
+CLASS="FUNCTION"
+>DrawPixel</TT
+>, 
+    <TT
+CLASS="FUNCTION"
+>DrawHorzLine</TT
+>, and 
+    <TT
+CLASS="FUNCTION"
+>DrawVertLine</TT
+>.  
+    These routines read and write a pixel from display memory, as well
+    as draw a horizontal and vertical line.  Clipping is handled at
+    the device-independent layer.  Currently, all mouse movement, text 
+    drawing, and bitmap drawing run on top of these low level
+    functions.  In the future, entry points will be provided for fast
+    text and bitmap drawing capabilities.  If the display is
+    palletized, a <TT
+CLASS="FUNCTION"
+>SetPalette</TT
+> routine must be
+    included, unless a static palette that matches the system palette
+    is linked into the system.  
+    The screen driver, on initialization, returns values telling the
+    system the x,y size of the screen, along with the color model supported.
+  </P
+><P
+>    Two font models are currently provided, to be linked in at your
+    desire. The proportional font model has in-core font tables built
+    from <TT
+CLASS="FILENAME"
+>.bdf</TT
+> and other font conversion
+    utilities provided.  The rom-based font uses the PC BIOS to find
+    the character generator table address and has routines to draw
+    that fixed-pitch font format.
+  </P
+><P
+>    The screen driver can choose to implement bitblitting, by ORing in 
+    PSF_HAVEBLIT into the returned flags field.  When present, bit
+    blitting allows Microwindows to perform off-screen drawing.
+    Microwindows allows any graphics operation that can be performed
+    on a physical screen to be performed off-screen, and then copied 
+    (bit-blitted) to the physical screen.  Implementing a blitting
+    screen driver can be fairly complex.  The first consideration in 
+    implementing a blitting driver is whether the low-level display
+    hardware can be passed a hardware address for a framebuffer.  If
+    so, then the same routines that draw to the physical screen can be
+    used to draw to off-screen buffers.  This is the method used for
+    the linear framebuffer drivers provided for Linux packed-pixel
+    displays.  The system replaces the mmap()'d physical framebuffer
+    address with a malloc()'d memory address and calls the original
+    screen driver entry point.  In the case where the system doesn't
+    use an actual physical memory address, like when running on top of
+    X or MS Windows, then two sets of routines must be written; one to
+    write the the underlying graphics system hardware, and another to
+    write to memory addresses.  In addition, the blit entry point must
+    then know how to copy both ways between the two formats.  In fact,
+    all four operations, screen-to-memory, memory-to-screen, 
+    memory-to-memory, and screen-to-screen are supported by
+    Microwindows and may need to be performed.  And of course the bit 
+    blitting routine must be _fast_.  See the files <TT
+CLASS="FILENAME"
+>fblin8.c
+    </TT
+> and <TT
+CLASS="FILENAME"
+>mempl4.c</TT
+> for examples of
+    supporting both types of display hardware.
+  </P
+><P
+>    If writing your first screen driver, I would recommend you start
+    with the PC BIOS real mode driver,
+    <TT
+CLASS="FILENAME"
+>scr_bios.c</TT
+>, or take a look at the framebuffer 
+    driver, <TT
+CLASS="FILENAME"
+>scr_fb.c</TT
+>, which is essentially a
+    wrapper around all the <TT
+CLASS="FILENAME"
+>fblin?.c</TT
+> routines to
+    read and write various framebuffer formats.  Don't set the 
+    PSF_HAVEBLIT flag at first, and you won't have to write a bitblit 
+    routine from the start.
+  </P
+><P
+>    <I
+CLASS="EMPHASIS"
+>Note that currently, all SCREENDEVICE function pointers
+    must be filled in to at least a void function.</I
+>  For
+    speed reasons, the system always assumes that the function
+    pointers are valid.  Thus, even if not implementing bitblit, a
+    do-nothing bit-blit procedure must be provided.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN60"
+>Mouse Driver</A
+></H3
+><P
+>    There are three mouse drivers currently included in Microwindows.
+    A GPM driver for Linux, <TT
+CLASS="FILENAME"
+>mou_gpm.c</TT
+>, as well as
+    a serial port mouse driver for Linux and ELKS, <TT
+CLASS="FILENAME"
+>mou_ser.c
+    </TT
+>.  For MSDOS, an int33 driver
+    <TT
+CLASS="FILENAME"
+>mou_dos.c</TT
+> is provided.  The provided mouse
+    drivers decode MS, PC and Logitech mice formats.  A mouse driver's
+    basic function is to decode the mouse data and return either
+    relative or absolute data for the mouse position and buttons.
+  </P
+><P
+>    In addition, Brad LaRonde has written a touch panel driver 
+    <TT
+CLASS="FILENAME"
+>mou_tp.c</TT
+>, which masquerades as a mouse
+    driver.  It returns the value of x, y value of the pen on the
+    display surface, and can be used like a mouse.
+  </P
+><P
+>    Under Linux, the main loop of Microwindows is a
+    <TT
+CLASS="FUNCTION"
+>select()</TT
+> statement, with file descriptors for
+    the mouse and keyboard driver always passed in.  If the system
+    that Microwindows is running on doesn't support 
+    <TT
+CLASS="FUNCTION"
+>select()</TT
+> or doesn't pass mouse data through a
+    file descriptor, a <TT
+CLASS="FUNCTION"
+>Poll()</TT
+> entry point is 
+    provided.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN72"
+>Keyboard Driver</A
+></H3
+><P
+>    There are two keyboard drivers provided. The first, 
+    <TT
+CLASS="FILENAME"
+>kbd_tty.c</TT
+>, is used for Linux and ELKS systems
+    where the keyboard is opened and read as through a file
+    descriptor.  The second, <TT
+CLASS="FILENAME"
+>kbd_bios.c</TT
+>, read the
+    PC BIOS for keystrokes and is used in MSDOS real mode.  The
+    keyboard driver currently returns 8-bit data from the keyboard,
+    but doesn't decode multi-character function key codes. This
+    functionality will need to be added soon, by reading termcap files
+    or the like.
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN77"
+>MicroGUI - Device Independent Graphics Engine</A
+></H2
+><P
+>    The core graphics functionality of Microwindows resides in the
+    device independent graphics engine, which calls the screen, mouse
+    and keyboard drivers to interface with the hardware.  User
+    applications programs never all the core graphics engine routines 
+    directly, but rather through the programmer API's, discussed in
+    the next sections. The core engine routines are separated from the 
+    applications API's is for a variety of reasons.  The core routines
+    will always reside on the server in a client/server environment.
+    Also, the core routines use internal text font and bitmap formats
+    that are designed for speed and may or may not be the same as the 
+    structures used in standard API's.  In addition, the core routines
+    always use pointers, never ID's, and can then be used together to 
+    implement more complex functions without always converting
+    handles, etc.
+  </P
+><P
+>    In Microwindows, the core routines all begin as <TT
+CLASS="FUNCTION"
+>GdXXX()
+    </TT
+> functions, and are concerned with graphics output, not
+    window management. In addition, all clipping and color conversion
+    is handled within this layer.  The following files comprise the
+    core modules of Microwindows:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN82"
+></A
+><P
+><B
+>Table 1-1. Microwindows Core Modules</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>File</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>devdraw.c</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Core graphics routines for line, circle, polygon draw
+        and fill, text and bitmap drawing, color conversion</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>devclip.c</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Core clipping routines.  (devclip2.c is the new
+        y-x-banding algorithm, devclip1.c an older method)</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>devrgn.c</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>New dynamically allocated routines for
+        intersect/union/subtract/xor region creation.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>devmouse.c</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Core routines for keeping the mouse pointer updated or
+        clipped from the screen.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>devkbd.c</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Core keyboard handling routines.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>devpalX.c</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Linked in static palettes for 1, 2, 4 and 8bpp
+        palletized systems.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    The MicroGUI graphics engine routines are discussed in detail
+    in <A
+HREF="archengine.html"
+>the section called <I
+>Device-Independent Engine Features</I
+></A
+>.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN110"
+>Applications Programmer Interfaces</A
+></H2
+><P
+>    Microwindows currently supports two different application
+    programming interfaces.  This set of routines handles
+    client/server activity, window manager activities like drawing
+    title bars, close boxes, etc, as well as, of course, handling the 
+    programmer's requests for graphics output.  Both the API's run on
+    top of the core graphics engine routines and device drivers.
+  </P
+><P
+>    The basic model of any API on top of Microwindows is to hang in
+    initialize the screen, keyboard and mouse drivers, then hang in a 
+    <TT
+CLASS="FUNCTION"
+>select()</TT
+> loop waiting for an event.  When an
+    event occurs, if it's a system event like keyboard or mouse
+    activity, then this information is passed to the user program
+    converted to an expose event, paint message, etc.  If it's a user 
+    requesting a graphics operation, then the parameters are decoded
+    and passed to the appropriate <TT
+CLASS="FUNCTION"
+>GdXXX</TT
+> engine
+    routine. <I
+CLASS="EMPHASIS"
+>Note</I
+> that the concept of a window
+    versus raw graphics operations are handled at this API level.
+    That is, the API defines the concepts of what a window is, what
+    the coordinate systems are, etc, and then the coordinates are all 
+    converted to "screen coordinates" and passed to the core GdXXX
+    engine routines to do the real work.  This level also defines
+    graphics or display contexts and passes that information,
+    including clipping information, to the core engine routines.
+  </P
+><P
+>    Currently, the Microwindows API code is in
+    <TT
+CLASS="FILENAME"
+>mwin/win*.c</TT
+>, while the Nano-X API code is in 
+    <TT
+CLASS="FILENAME"
+>nanox/srv*.c</TT
+>.
+  </P
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN120"
+>Microwindows API</A
+></H3
+><P
+>    The Microwindows API tries to be compliant with the Microsoft
+    Win32 and WinCE GDI standard. Currently, there is support for most
+    of the graphics drawing and clipping routines, as well as
+    automatic window title bar drawing and dragging windows for
+    movement. The Microwindows API is message-based, and allows
+    programs to be written without regard to the eventual window
+    management policies implemented by the system. The Microwindows
+    API is not currently client/server, and will be discussed in more
+    detail in <A
+HREF="archnanoapi.html"
+>the section called <I
+>Nano-X API</I
+></A
+>.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN124"
+>Nano-X API</A
+></H3
+><P
+>    The Nano-X API is modeled after the mini-x server written
+    initially by David Bell, which was a reimplementation of X on the
+    MINIX operating system.  It loosely follows the X Window System
+    Xlib API, but the names all being with
+    <TT
+CLASS="FUNCTION"
+>GrXXX()</TT
+> rather than
+    <TT
+CLASS="FUNCTION"
+>X...()</TT
+>. Currently, the Nano-X API is
+    client/server, but does not have any provisions for automatic
+    window dressings, title bars, or user window moves.  There are
+    several groups writing widget sets currently, which will provide
+    such things.  Unfortunately, the user programs must also then
+    write only to a specific widget set API, rather than using the
+    Nano-X API directly, which means that only the functionality
+    provided by the widget set will be upwardly available to the
+    applications programmer.  (Although this could be considerable, in
+    the case that, say Gdk was ported.)
+  </P
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="archengine.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Microwindows Architecture</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Device-Independent Engine Features</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

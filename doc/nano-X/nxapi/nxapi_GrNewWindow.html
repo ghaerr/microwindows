@@ -1,0 +1,621 @@
+<HTML
+><HEAD
+><TITLE
+>GrNewWindow()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrNewRegion()"
+HREF="nxapi_GrNewRegion.html"><LINK
+REL="NEXT"
+TITLE="GrNewWindowEx()"
+HREF="nxapi_GrNewWindowEx.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewRegion.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewWindowEx.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRNEWWINDOW"
+><TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN5099"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+>&nbsp;--&nbsp;Create a new window</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN5103"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN5104"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_WINDOW_ID       <B
+CLASS="FSFUNC"
+>  GrNewWindow           </B
+></CODE
+>( GR_WINDOW_ID       <VAR
+CLASS="PDPARAM"
+> parent                </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> x                     </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> y                     </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> width                 </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> height                </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> bordersize            </VAR
+>,  GR_COLOR           <VAR
+CLASS="PDPARAM"
+> background            </VAR
+>,  GR_COLOR           <VAR
+CLASS="PDPARAM"
+> bordercolor           </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5124"
+></A
+><H2
+>Description</H2
+><P
+>    This function will create a new window with the specified parent
+    window and the specified window attributes.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    This function has been depreciated. You should use 
+    <A
+HREF="nxapi_GrNewWindowEx.html"
+>    <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+> instead since it works
+    better in the presence of a window manager.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5131"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN5133"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>parent</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The parent of window of the window that will be created.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X position of the new window with
+        respect to its parent window.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y position of the new window with
+        respect to its parent window.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width (in pixels) of the new window.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The hieght (in pixels) of the new window.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bordersize</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width in pixels of the window border.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>background</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color of the window background.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bordercolor</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>he color of the window border.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5200"
+></A
+><H2
+>Returns</H2
+><P
+>      The ID of the newly created window or <TT
+CLASS="CONSTANT"
+>0</TT
+> in
+      case of failure.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5204"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrDestroyWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrNewWindowEx.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrNewInputWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewInputWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrMapWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrRaiseWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrRaiseWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrMoveWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMoveWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrResizeWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrResizeWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrReparentWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrReparentWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetBorderColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetBorderColor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrClearWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrClearWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetWindowInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></A
+>, 
+      <A
+HREF="nxapi.window.html"
+>            Window Functions</A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewRegion.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewWindowEx.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewRegion()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

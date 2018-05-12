@@ -1,0 +1,488 @@
+<HTML
+><HEAD
+><TITLE
+>GrEllipse()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrDrawLines()"
+HREF="nxapi_GrDrawLines.html"><LINK
+REL="NEXT"
+TITLE="GrEmptyRegion()"
+HREF="nxapi_GrEmptyRegion.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrDrawLines.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrEmptyRegion.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRELLIPSE"
+><TT
+CLASS="FUNCTION"
+>GrEllipse()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2438"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrEllipse()</TT
+>&nbsp;--&nbsp;Draw an ellipse or circle</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2442"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN2443"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrEllipse             </B
+></CODE
+>( GR_DRAW_ID         <VAR
+CLASS="PDPARAM"
+> id                    </VAR
+>,  GR_GC_ID           <VAR
+CLASS="PDPARAM"
+> gc                    </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> x                     </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> y                     </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> rx                    </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> ry                    </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2459"
+></A
+><H2
+>Description</H2
+><P
+>    This function draws an ellipse outline onto the specified
+    drawable. The ellipse is drawn with it's center located at
+    the position (<TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>,<TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>).
+    The ellipse is drawn with a vertical radius of
+    <TT
+CLASS="PARAMETER"
+><I
+>ry</I
+></TT
+> and a horizontal radius of
+    <TT
+CLASS="PARAMETER"
+><I
+>rx</I
+></TT
+>.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2466"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2468"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the drawable to draw the ellipse onto.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the graphics context to use when drawing
+        the ellipse. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate to draw the ellipse at relative to
+        the drawable. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate to to draw the ellipse at relative
+        to the drawable. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rx</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The radius of the ellipse along the X axis. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ry</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The radius of the ellipse along the Y axis. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2521"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrRect.html"
+>            <TT
+CLASS="FUNCTION"
+>GrRect()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrPoly.html"
+>            <TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrFillEllipse.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFillEllipse()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrArc.html"
+>            <TT
+CLASS="FUNCTION"
+>GrArc()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrArcAngle.html"
+>            <TT
+CLASS="FUNCTION"
+>GrArcAngle()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrDrawLines.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrEmptyRegion.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrDrawLines()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrEmptyRegion()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

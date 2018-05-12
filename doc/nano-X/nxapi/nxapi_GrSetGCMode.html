@@ -1,0 +1,456 @@
+<HTML
+><HEAD
+><TITLE
+>GrSetGCMode()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrSetGCForeground()"
+HREF="nxapi_GrSetGCForeground.html"><LINK
+REL="NEXT"
+TITLE="GrSetGCRegion()"
+HREF="nxapi_GrSetGCRegion.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetGCForeground.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetGCRegion.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRSETGCMODE"
+><TT
+CLASS="FUNCTION"
+>GrSetGCMode()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN7401"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrSetGCMode()</TT
+>&nbsp;--&nbsp;Set the drawing mode of a graphics context</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN7405"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN7406"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrSetGCMode           </B
+></CODE
+>( GR_GC_ID           <VAR
+CLASS="PDPARAM"
+> gc                    </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> mode                  </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7414"
+></A
+><H2
+>Description</H2
+><P
+>    This function sets the drawing mode for the specified graphics
+    context. The mode defines how nano-X will draw pixels over each
+    other. Generally drawi9ng is done with the
+    <TT
+CLASS="CONSTANT"
+>GR_MODE_SET</TT
+>. In this case if you draw a black
+    object you get a black object. In the other drawing modes you
+    would get a loical combination of the black object and whatever
+    else is already on the screen.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7418"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN7420"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the graphics context to modify.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>mode</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The new drawing mode.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><P
+>    The following table shows the drawing modes that are available for
+    use with graphics contexts in nano-X.
+    </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN7445"
+></A
+><P
+><B
+>Table 2-1. Drawing Modes</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Value</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_SET</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will represent the
+        selected forground color.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_XOR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will be th XOR of the
+        GC's foreground color and the current color on the drawable.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_OR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will be th OR of the
+        GC's foreground color and the current color on the drawable.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_AND</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will be th AND of the
+        GC's foreground color and the current color on the drawable.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_DRAWMASK</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set bits in this mask correspond to GC mode bits that
+        define drawing style. Clear bits of this mask correspond to GC
+        mode bits that have an extended meaning beyond the drawing
+        style. In this table all of the preceding mode bits define drawing
+        style, all of the following bits have an extended meaning. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_EXCLUDECHILDREN</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>If this flag is set, then while clipping child windows are
+        excluded from the clip region. Normally the area covered by
+        child windows is clipped when drawing on the parent
+        window. This flag disables the normal clipping action.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7479"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrNewGC.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewGC()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetGCInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetGCInfo()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetGCForeground.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetGCRegion.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetGCRegion()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

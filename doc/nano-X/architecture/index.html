@@ -1,0 +1,306 @@
+<HTML
+><HEAD
+><TITLE
+>Microwindows Architecture</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="NEXT"
+TITLE="Microwindows Architecture"
+HREF="ch1.html"></HEAD
+><BODY
+CLASS="BOOK"
+><DIV
+CLASS="BOOK"
+><A
+NAME="INDEX"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Microwindows Architecture</A
+></H1
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN6"
+>Greg Haerr</A
+></H3
+><DIV
+CLASS="AFFILIATION"
+><SPAN
+CLASS="JOBTITLE"
+>CEO<BR></SPAN
+><SPAN
+CLASS="ORGNAME"
+>          <A
+HREF="http://www.centurysoftware.com"
+TARGET="_top"
+>          Century Software, Inc.</A
+><BR></SPAN
+><DIV
+CLASS="ADDRESS"
+><P
+CLASS="ADDRESS"
+>greg@censoft.com</P
+></DIV
+></DIV
+><P
+CLASS="COPYRIGHT"
+>Copyright &copy; 1999, 2000 by Greg Haerr</P
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="ch1.html"
+>Microwindows Architecture</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch1.html#ARCHARCH"
+>Architecture</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch1.html#AEN24"
+>Layered Design</A
+></DT
+><DT
+><A
+HREF="ch1.html#AEN27"
+>Device Drivers</A
+></DT
+><DT
+><A
+HREF="ch1.html#AEN77"
+>MicroGUI - Device Independent Graphics Engine</A
+></DT
+><DT
+><A
+HREF="ch1.html#AEN110"
+>Applications Programmer Interfaces</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="archengine.html"
+>Device-Independent Engine Features</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="archengine.html#AEN132"
+>Graphics Engine Features and Implementation</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="archmwinapi.html"
+>Microwindows API</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="archmwinapi.html#AEN279"
+>Message-passing architecture</A
+></DT
+><DT
+><A
+HREF="archmwinapi.html#AEN316"
+>Window creation and destruction</A
+></DT
+><DT
+><A
+HREF="archmwinapi.html#AEN369"
+>Window showing, hiding and moving</A
+></DT
+><DT
+><A
+HREF="archmwinapi.html#AEN374"
+>Window painting</A
+></DT
+><DT
+><A
+HREF="archmwinapi.html#AEN491"
+>Utility functions</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="archnanoapi.html"
+>Nano-X API</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="archnanoapi.html#AEN664"
+>Client/Server model</A
+></DT
+><DT
+><A
+HREF="archnanoapi.html#AEN685"
+>Events</A
+></DT
+><DT
+><A
+HREF="archnanoapi.html#AEN696"
+>Window creation and destruction</A
+></DT
+><DT
+><A
+HREF="archnanoapi.html#AEN702"
+>Window showing, hiding and moving</A
+></DT
+><DT
+><A
+HREF="archnanoapi.html#AEN711"
+>Drawing to a window</A
+></DT
+><DT
+><A
+HREF="archnanoapi.html#AEN802"
+>Utility functions</A
+></DT
+></DL
+></DD
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Tables</B
+></DT
+><DT
+>1-1. <A
+HREF="ch1.html#AEN82"
+>Microwindows Core Modules</A
+></DT
+><DT
+>1-2. <A
+HREF="archengine.html#AEN140"
+>Region Routines</A
+></DT
+><DT
+>1-3. <A
+HREF="archmwinapi.html#AEN288"
+>Microwindows Messaging Functions</A
+></DT
+><DT
+>1-4. <A
+HREF="archmwinapi.html#AEN319"
+>Microwindows Window Registration, Creation &#38; Destruction Functions</A
+></DT
+><DT
+>1-5. <A
+HREF="archmwinapi.html#AEN408"
+>Microwindows Graphics Drawing API</A
+></DT
+><DT
+>1-6. <A
+HREF="archmwinapi.html#AEN494"
+>Microwindows Utility Functions</A
+></DT
+><DT
+>1-7. <A
+HREF="archmwinapi.html#AEN553"
+>Microwindows Rectangle &#38; Region Functions</A
+></DT
+><DT
+>1-8. <A
+HREF="archmwinapi.html#AEN598"
+>Microwindows Region Creation &#38; Manipulation Functions</A
+></DT
+><DT
+>1-9. <A
+HREF="archmwinapi.html#AEN646"
+>Microwindows Clip Region Functions</A
+></DT
+><DT
+>1-10. <A
+HREF="archnanoapi.html#AEN725"
+>Nano-X Graphics Drawing Functions</A
+></DT
+><DT
+>1-11. <A
+HREF="archnanoapi.html#AEN805"
+>Nano-X Utility Functions</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Microwindows Architecture</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

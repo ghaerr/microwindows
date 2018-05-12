@@ -1,0 +1,448 @@
+<HTML
+><HEAD
+><TITLE
+>GR_ERROR</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_DRAW_ID"
+HREF="nxstruct_GR_DRAW_ID.html"><LINK
+REL="NEXT"
+TITLE="GR_EVENT"
+HREF="nxstruct_GR_EVENT.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.ERROR"
+>GR_ERROR</A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN8812"
+></A
+><H2
+>Name</H2
+>GR_ERROR&nbsp;--&nbsp;Error event codes</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN8815"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef int GR_ERROR;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8817"
+></A
+><H2
+>Description</H2
+><P
+>    A <SPAN
+CLASS="TYPE"
+>GR_ERROR</SPAN
+> enumeration type identifies the cause of
+    an error event. When a window receives an error event, the
+    associated 
+    <A
+HREF="nxstruct_GR_EVENT_ERROR.html"
+>    <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+></A
+>
+    structure contains a field of this type that specifies the error.
+  </P
+><P
+>    The following table shows all of the available values that may be
+    assigned to a <SPAN
+CLASS="TYPE"
+>GR_ERROR</SPAN
+> variable.
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN8825"
+></A
+><P
+><B
+>Table 3-1. Error Codes</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Value</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_BAD_WINDOW_ID</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A function call was made into the nano-X library with
+        an invalid window ID specified.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_BAD_GC_ID</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A function call was made into the nano-X library with
+        an invalid graphics context ID specified.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_BAD_CURSOR_SIZE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A cursor with an invalid size was specified.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_MALLOC_FAILED</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A memory allocation within the server failed.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_BAD_WINDOW_SIZE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An invalid window size was specified.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_KEYBOARD_ERROR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An error occred while the server was reading from the keyboard.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_MOUSE_ERROR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An error occred while the server was reading from the mouse.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_INPUT_ONLY_WINDOW</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A graphics drawing function was illegaly invoked on an
+        input only window.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_ILLEGAL_ON_ROOT_WINDOW</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An illegal attempt was made to perform an operation
+        that can not be performed on the "root" window. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_TOO_MUCH_CLIPPING</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The clipping region became too complex for nano-X to handle.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_SCREEN_ERROR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An error occred while the server was writing to the
+        screen driver.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_UNMAPPED_FOCUS_WINDOW</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An illegal attempt was made to set focus to an
+        unmapped window.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_ERROR_BAD_DRAWING_MODE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An invalid drawing mode was specified to a graphics context.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8887"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT_ERROR.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+></A
+>, 
+      <A
+HREF="nxapi_GrDefaultErrorHandler.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDefaultErrorHandler()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

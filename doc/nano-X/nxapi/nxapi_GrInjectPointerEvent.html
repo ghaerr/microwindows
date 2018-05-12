@@ -1,0 +1,445 @@
+<HTML
+><HEAD
+><TITLE
+>GrInjectPointerEvent()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrInjectKeyboardEvent()"
+HREF="nxapi_GrInjectKeyboardEvent.html"><LINK
+REL="NEXT"
+TITLE="GrIntersectRegion()"
+HREF="nxapi_GrIntersectRegion.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrIntersectRegion.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRINJECTPOINTEREVENT"
+><TT
+CLASS="FUNCTION"
+>GrInjectPointerEvent()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3959"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrInjectPointerEvent()</TT
+>&nbsp;--&nbsp;Simulate a pointer event</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3963"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN3964"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrInjectPointerEvent  </B
+></CODE
+>( GR_COORD           <VAR
+CLASS="PDPARAM"
+> x                     </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> y                     </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> button                </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> visible               </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3976"
+></A
+><H2
+>Description</H2
+><P
+>    This function injects a mouse event into the event queue. The
+    mouse event will occur at the coordinates
+    (<TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>,<TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>). The event
+    will contain the specified button status. The mouse may be hidden
+    or made visible depending on the state of the
+    <TT
+CLASS="PARAMETER"
+><I
+>visible</I
+></TT
+> parameter.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    A <A
+HREF="nxapi_GrFlush.html"
+><TT
+CLASS="FUNCTION"
+>GrFlush()</TT
+></A
+> is
+    performed so that the event takes place immediately.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3986"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3988"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate to move the cursor too.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate to move the cursor too.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>button</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The status of the pointer buttons. Indicate which
+        buttons are down by ORing any combination of these flags: 
+        <TT
+CLASS="CONSTANT"
+>GR_BUTTON_R</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_BUTTON_M</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_BUTTON_L</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>visible</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> to show the mouse cursor,
+        <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+> to hide the cursor.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4030"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrMoveCursor.html"
+>            <TT
+CLASS="FUNCTION"
+> GrMoveCursor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrInjectKeyboardEvent()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrIntersectRegion.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrInjectKeyboardEvent()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrIntersectRegion()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,374 @@
+<HTML
+><HEAD
+><TITLE
+>GrSetScreenSaverTimeout()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrSetGCUseBackground()"
+HREF="nxapi_GrSetGCUseBackground.html"><LINK
+REL="NEXT"
+TITLE="GrSetSystemPalette()"
+HREF="nxapi_GrSetSystemPalette.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetGCUseBackground.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetSystemPalette.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRSETSCREENSAVERTIMEOUT"
+><TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN7604"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+>&nbsp;--&nbsp;Set screen saver timeout</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN7608"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN7609"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrSetScreenSaverTimeout </B
+></CODE
+>( GR_TIMEOUT         <VAR
+CLASS="PDPARAM"
+> timeout               </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7615"
+></A
+><H2
+>Description</H2
+><P
+>    This function sets the timeout period of the system's screen saver event.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    A bug in version 0.89-pre7 of Microwindows causes the timeout to
+    be multiplied internally by 1000. Therefore when building with
+    0.89-pre7 you must set the timeout in seconds rather than milli-seconds.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7620"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN7622"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_TIMEOUT.html"
+><SPAN
+CLASS="TYPE"
+>GR_TIMEOUT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>timeout</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The screen saver timeout period in milliseconds. If no
+        pointer or keyboard input occurs for the duration of this
+        timeout period, a 
+        <A
+HREF="nxstruct_GR_EVENT_SCREENSAVER.html"
+>        <TT
+CLASS="CONSTANT"
+>GR_EVENT_SCREENSAVER</TT
+></A
+>
+        event is sent to each window that has selected the event.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7642"
+></A
+><H2
+>Example</H2
+><P
+>    The following example will turn an LCD backlight off when a 60
+    second screen saver timer expires, and restore the backlight when
+    user input is resumed.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN7645"
+></A
+><P
+><B
+>Example 2-1. Using <TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+void setup_screensaver (void)
+{
+    /* Set a one minute timeout for the LCD backlight */
+    /* nano-X BUG: use seconds rather than mS for 0.89-pre7 */
+    GrSetScreenSaverTimeout (60 * 1000);
+}
+
+void process_screensaver_event (GR_EVENT_SCREENSAVER *event)
+{
+    if (event-&#62;activate)
+    {
+        /* Turn the LCD backlight off */
+        your_platforms_backlight_off();
+    }
+    else
+    {
+        /* Turn the LCD backlight on */
+        your_platforms_backlight_on();
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7649"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT_SCREENSAVER.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_SCREENSAVER</SPAN
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetGCUseBackground.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetSystemPalette.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetGCUseBackground()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetSystemPalette()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

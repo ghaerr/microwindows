@@ -1,0 +1,439 @@
+<HTML
+><HEAD
+><TITLE
+>GrMainLoop()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrLowerWindow()"
+HREF="nxapi_GrLowerWindow.html"><LINK
+REL="NEXT"
+TITLE="GrMapWindow()"
+HREF="nxapi_GrMapWindow.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrLowerWindow.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrMapWindow.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRMAINLOOP"
+><TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4372"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+>&nbsp;--&nbsp;Generic application event dispatch loop</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4376"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4377"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrMainLoop            </B
+></CODE
+>( GR_FNCALLBACKEVENT <VAR
+CLASS="PDPARAM"
+> fncb                  </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4383"
+></A
+><H2
+>Description</H2
+><P
+>    This function is the applications main message pump. While this
+    function is running all events that go through the nano-X event
+    queue will be dispatched to the specified event callback function.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    This function never returns.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4388"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4390"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fncb</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pointer to the event callback function. This callback
+        function will be called each time an event enters the nano-X
+        event queue.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4408"
+></A
+><H2
+>Example</H2
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN4410"
+></A
+><P
+><B
+>Example 2-1. Using <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+    GrSetGCUseBackground (gc, GR_FALSE);
+    GrSetGCForeground (gc, RED);
+
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Hello Window",
+                         GR_ROOT_WINDOW_ID, 
+                         50, 50, 200, 100, WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrText (wid, gc, 50, 50, 
+                "Hello World",  -1, GR_TFASCII);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4414"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_FNCALLBACKEVENT</SPAN
+></A
+>, 
+      <A
+HREF="nxapi_GrSelectEvents.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSelectEvents()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetNextEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetNextEvent()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetNextEventTimeout.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetNextEventTimeout()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrCheckNextEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCheckNextEvent()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrPeekEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrPeekEvent()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrRegisterInput.html"
+>            <TT
+CLASS="FUNCTION"
+>GrRegisterInput()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrServiceSelect.html"
+>            <TT
+CLASS="FUNCTION"
+>GrServiceSelect()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrLowerWindow.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrMapWindow.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrLowerWindow()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

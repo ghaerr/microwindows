@@ -1,0 +1,778 @@
+<HTML
+><HEAD
+><TITLE
+>GrText()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrSubtractRegion()"
+HREF="nxapi_GrSubtractRegion.html"><LINK
+REL="NEXT"
+TITLE="GrUnionRectWithRegion()"
+HREF="nxapi_GrUnionRectWithRegion.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSubtractRegion.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrUnionRectWithRegion.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRTEXT"
+><TT
+CLASS="FUNCTION"
+>GrText()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN8083"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrText()</TT
+>&nbsp;--&nbsp;Draw text</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN8087"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN8088"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrText                </B
+></CODE
+>( GR_DRAW_ID         <VAR
+CLASS="PDPARAM"
+> id                    </VAR
+>,  GR_GC_ID           <VAR
+CLASS="PDPARAM"
+> gc                    </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> x                     </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> y                     </VAR
+>,  void *             <VAR
+CLASS="PDPARAM"
+> str                   </VAR
+>,  GR_COUNT           <VAR
+CLASS="PDPARAM"
+> count                 </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> flags                 </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8106"
+></A
+><H2
+>Description</H2
+><P
+>    This function draws the text <TT
+CLASS="PARAMETER"
+><I
+>str</I
+></TT
+> at
+    position (<TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>, <TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>) 
+    on the specified drawable. The text will be drawn in the
+    foreground color of the graphics context
+    <TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>. If the
+    <TT
+CLASS="STRUCTFIELD"
+><I
+>usebackground</I
+></TT
+> flag of the GC is set,
+    then the text background will be drawn in the GC's background
+    color. If the <TT
+CLASS="STRUCTFIELD"
+><I
+>usebackground</I
+></TT
+> flag is
+    clear, then the text background will not be drawn.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8115"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN8117"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the drawable to draw the text onto. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the graphics context to use when drawing
+        the text. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate to draw the text at, relative to
+        the drawable. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate to draw the text at, relative to
+        the drawable. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>void*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>str</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The input string. If the string is
+        <I
+CLASS="EMPHASIS"
+>NOT</I
+> zero terminated, then the length
+        of the string must be specified in the
+        <TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+> parameter.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COUNT.html"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The length of the string. This parameter can be set
+        to <TT
+CLASS="CONSTANT"
+>-1</TT
+> if the string is zero
+        terminated and <TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+> contains
+        <TT
+CLASS="CONSTANT"
+>GR_TFASCII</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fags</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Text rendering flags, can be a combination of flags
+        listed below.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><P
+>  The flags parameter is a combination of flags from the following
+  three groups. The combination can include one string encoding flag,
+  one alignment flag and multiple attribute flags.
+  </P
+><P
+>  String encoding flags:
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN8182"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFASCII</TT
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUTF8</TT
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUC16</TT
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUC32</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Text alignment flags:
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN8199"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFTOP</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFBASELINE</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFBOTTOM</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Text attribute flags:
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN8213"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFKERNING</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFANTIALIAS</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TFUNDERLINE</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8226"
+></A
+><H2
+>Example</H2
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN8228"
+></A
+><P
+><B
+>Example 2-1. Using <TT
+CLASS="FUNCTION"
+>GrText()</TT
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+    GrSetGCUseBackground (gc, GR_FALSE);
+    GrSetGCForeground (gc, RED);
+
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Hello Window",
+                         GR_ROOT_WINDOW_ID, 
+                         50, 50, 200, 100, WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrText (wid, gc, 50, 50, 
+                "Hello World",  -1, GR_TFASCII);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8232"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrSetGCForeground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCBackground()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCUseBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCUseBackground()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetGCTextSize.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetGCTextSize()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrSubtractRegion.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrUnionRectWithRegion.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSubtractRegion()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrUnionRectWithRegion()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

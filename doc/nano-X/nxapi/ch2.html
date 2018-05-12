@@ -1,0 +1,1000 @@
+<HTML
+><HEAD
+><TITLE
+>Nano-X Function Reference</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Misc. Functions"
+HREF="nxapi.misc.html"><LINK
+REL="NEXT"
+TITLE="GrArc()"
+HREF="nxapi_GrArc.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi.misc.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrArc.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CH2"
+>Chapter 2. Nano-X Function Reference</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="nxapi_GrArc.html"
+><TT
+CLASS="FUNCTION"
+>GrArc()</TT
+></A
+> &#8212; Draw an arc</DT
+><DT
+><A
+HREF="nxapi_GrArcAngle.html"
+><TT
+CLASS="FUNCTION"
+>GrArcAngle()</TT
+></A
+> &#8212; Draw an arc</DT
+><DT
+><A
+HREF="nxapi_GrArea.html"
+><TT
+CLASS="FUNCTION"
+>GrArea()</TT
+></A
+> &#8212; Draw a pixel array</DT
+><DT
+><A
+HREF="nxapi_GrBell.html"
+><TT
+CLASS="FUNCTION"
+>GrBell()</TT
+></A
+> &#8212; Ring bell on server</DT
+><DT
+><A
+HREF="nxapi_GrBitmap.html"
+><TT
+CLASS="FUNCTION"
+>GrBitmap()</TT
+></A
+> &#8212; Draw a monochrome bitmap</DT
+><DT
+><A
+HREF="nxapi_GrCheckNextEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrCheckNextEvent()</TT
+></A
+> &#8212; Get an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrClearWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrClearWindow()</TT
+></A
+> &#8212; Clear a window</DT
+><DT
+><A
+HREF="nxapi_GrClose.html"
+><TT
+CLASS="FUNCTION"
+>GrClose()</TT
+></A
+> &#8212; Close the connection to the nano-X server</DT
+><DT
+><A
+HREF="nxapi_GrCloseWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrCloseWindow()</TT
+></A
+> &#8212; Close the specified window</DT
+><DT
+><A
+HREF="nxapi_GrCopyArea.html"
+><TT
+CLASS="FUNCTION"
+>GrCopyArea()</TT
+></A
+> &#8212; Copy from one drawable to another</DT
+><DT
+><A
+HREF="nxapi_GrCopyGC.html"
+><TT
+CLASS="FUNCTION"
+>GrCopyGC()</TT
+></A
+> &#8212; Copy a graphics context into a new graphics context</DT
+><DT
+><A
+HREF="nxapi_GrCreateFont.html"
+><TT
+CLASS="FUNCTION"
+>GrCreateFont()</TT
+></A
+> &#8212; Create a font</DT
+><DT
+><A
+HREF="nxapi_GrDefaultErrorHandler.html"
+><TT
+CLASS="FUNCTION"
+>GrDefaultErrorHandler()</TT
+></A
+> &#8212; The default error handler</DT
+><DT
+><A
+HREF="nxapi_GrDestroyFont.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyFont()</TT
+></A
+> &#8212; Destroy a font</DT
+><DT
+><A
+HREF="nxapi_GrDestroyGC.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyGC()</TT
+></A
+> &#8212; Destroy a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrDestroyRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyRegion()</TT
+></A
+> &#8212; Destroy a region</DT
+><DT
+><A
+HREF="nxapi_GrDestroyWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+> &#8212; Destroy a window</DT
+><DT
+><A
+HREF="nxapi_GrDrawImageBits.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawImageBits()</TT
+></A
+> &#8212; Draw an image</DT
+><DT
+><A
+HREF="nxapi_GrDrawImageFromFile.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawImageFromFile()</TT
+></A
+> &#8212; Draw an image from a file</DT
+><DT
+><A
+HREF="nxapi_GrDrawImageToFit.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawImageToFit()</TT
+></A
+> &#8212; Draw an image with scaling</DT
+><DT
+><A
+HREF="nxapi_GrDrawLines.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawLines()</TT
+></A
+> &#8212; Draw a set of lines</DT
+><DT
+><A
+HREF="nxapi_GrEllipse.html"
+><TT
+CLASS="FUNCTION"
+>GrEllipse()</TT
+></A
+> &#8212; Draw an ellipse or circle</DT
+><DT
+><A
+HREF="nxapi_GrEmptyRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrEmptyRegion()</TT
+></A
+> &#8212; Test for empty region</DT
+><DT
+><A
+HREF="nxapi_GrEqualRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrEqualRegion()</TT
+></A
+> &#8212; Test two regions for equality</DT
+><DT
+><A
+HREF="nxapi_GrFillEllipse.html"
+><TT
+CLASS="FUNCTION"
+>GrFillEllipse()</TT
+></A
+> &#8212; Draw a filled ellipse or circle</DT
+><DT
+><A
+HREF="nxapi_GrFillPoly.html"
+><TT
+CLASS="FUNCTION"
+>GrFillPoly()</TT
+></A
+> &#8212; Draw a filled polygon</DT
+><DT
+><A
+HREF="nxapi_GrFillRect.html"
+><TT
+CLASS="FUNCTION"
+>GrFillRect()</TT
+></A
+> &#8212; Draw a filled rectangle</DT
+><DT
+><A
+HREF="nxapi_GrFindColor.html"
+><TT
+CLASS="FUNCTION"
+>GrFindColor()</TT
+></A
+> &#8212; Find closest color match</DT
+><DT
+><A
+HREF="nxapi_GrFlush.html"
+><TT
+CLASS="FUNCTION"
+>GrFlush()</TT
+></A
+> &#8212; Flushes the client/server message buffer</DT
+><DT
+><A
+HREF="nxapi_GrFreeImage.html"
+><TT
+CLASS="FUNCTION"
+>GrFreeImage()</TT
+></A
+> &#8212; Destroy an image buffer</DT
+><DT
+><A
+HREF="nxapi_GrGetFocus.html"
+><TT
+CLASS="FUNCTION"
+>GrGetFocus()</TT
+></A
+> &#8212; Get the current focus window</DT
+><DT
+><A
+HREF="nxapi_GrGetFontInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetFontInfo()</TT
+></A
+> &#8212; Get information about a font</DT
+><DT
+><A
+HREF="nxapi_GrGetGCInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetGCInfo()</TT
+></A
+> &#8212; Retrieve graphics context settings</DT
+><DT
+><A
+HREF="nxapi_GrGetGCTextSize.html"
+><TT
+CLASS="FUNCTION"
+>GrGetGCTextSize()</TT
+></A
+> &#8212; Calculate size of a text drawing</DT
+><DT
+><A
+HREF="nxapi_GrGetImageInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetImageInfo()</TT
+></A
+> &#8212; Retrieve information about an image</DT
+><DT
+><A
+HREF="nxapi_GrGetNextEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrGetNextEvent()</TT
+></A
+> &#8212; Get an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrGetNextEventTimeout.html"
+><TT
+CLASS="FUNCTION"
+>GrGetNextEventTimeout()</TT
+></A
+> &#8212; Get an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrGetRegionBox.html"
+><TT
+CLASS="FUNCTION"
+>GrGetRegionBox()</TT
+></A
+> &#8212; Get a region's bounding rectangle</DT
+><DT
+><A
+HREF="nxapi_GrGetScreenInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetScreenInfo()</TT
+></A
+> &#8212; Return screen properties</DT
+><DT
+><A
+HREF="nxapi_GrGetSysColor.html"
+><TT
+CLASS="FUNCTION"
+>GrGetSysColor()</TT
+></A
+> &#8212; Get color by palette index</DT
+><DT
+><A
+HREF="nxapi_GrGetSystemPalette.html"
+><TT
+CLASS="FUNCTION"
+>GrGetSystemPalette()</TT
+></A
+> &#8212; Get the colors of the system palette</DT
+><DT
+><A
+HREF="nxapi_GrGetWindowInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></A
+> &#8212; Retrieve window information</DT
+><DT
+><A
+HREF="nxapi_GrGetWMProperties.html"
+><TT
+CLASS="FUNCTION"
+>GrGetWMProperties()</TT
+></A
+> &#8212; Retrieve a window's properties</DT
+><DT
+><A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrInjectKeyboardEvent()</TT
+></A
+> &#8212; Simulate a keyboard event</DT
+><DT
+><A
+HREF="nxapi_GrInjectPointerEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrInjectPointerEvent()</TT
+></A
+> &#8212; Simulate a pointer event</DT
+><DT
+><A
+HREF="nxapi_GrIntersectRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrIntersectRegion()</TT
+></A
+> &#8212; Form a region from the intersection of two regions</DT
+><DT
+><A
+HREF="nxapi_GrKillWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrKillWindow()</TT
+></A
+> &#8212; Kill the specified window</DT
+><DT
+><A
+HREF="nxapi_GrLine.html"
+><TT
+CLASS="FUNCTION"
+>GrLine()</TT
+></A
+> &#8212; Draw a line</DT
+><DT
+><A
+HREF="nxapi_GrLoadImageFromFile.html"
+><TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+></A
+> &#8212; Load an image from a file into memory</DT
+><DT
+><A
+HREF="nxapi_GrLowerWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrLowerWindow()</TT
+></A
+> &#8212; Lower a window</DT
+><DT
+><A
+HREF="nxapi_GrMainLoop.html"
+><TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+> &#8212; Generic application event dispatch loop</DT
+><DT
+><A
+HREF="nxapi_GrMapWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></A
+> &#8212; Map a window and it's children</DT
+><DT
+><A
+HREF="nxapi_GrMoveCursor.html"
+><TT
+CLASS="FUNCTION"
+>GrMoveCursor()</TT
+></A
+> &#8212; Move the mouse cursor</DT
+><DT
+><A
+HREF="nxapi_GrMoveWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrMoveWindow()</TT
+></A
+> &#8212; Move a window</DT
+><DT
+><A
+HREF="nxapi_GrNewGC.html"
+><TT
+CLASS="FUNCTION"
+>GrNewGC()</TT
+></A
+> &#8212; Create a new graphics context</DT
+><DT
+><A
+HREF="nxapi_GrNewInputWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrNewInputWindow()</TT
+></A
+> &#8212; Create a new input window</DT
+><DT
+><A
+HREF="nxapi_GrNewPixmap.html"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+></A
+> &#8212; Create a new pixmap</DT
+><DT
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></A
+> &#8212; Create a new pixmap and initialize it</DT
+><DT
+><A
+HREF="nxapi_GrNewPolygonRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrNewPolygonRegion()</TT
+></A
+> &#8212; Create a polygon region</DT
+><DT
+><A
+HREF="nxapi_GrNewRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrNewRegion()</TT
+></A
+> &#8212; Create a new region</DT
+><DT
+><A
+HREF="nxapi_GrNewWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+></A
+> &#8212; Create a new window</DT
+><DT
+><A
+HREF="nxapi_GrNewWindowEx.html"
+><TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+> &#8212; Create a new window</DT
+><DT
+><A
+HREF="nxapi_GrOffsetRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrOffsetRegion()</TT
+></A
+> &#8212; Offset a region</DT
+><DT
+><A
+HREF="nxapi_GrOpen.html"
+><TT
+CLASS="FUNCTION"
+>GrOpen()</TT
+></A
+> &#8212; Open a connection to the nano-X server</DT
+><DT
+><A
+HREF="nxapi_GrPeekEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrPeekEvent()</TT
+></A
+> &#8212; Peek an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrPoint.html"
+><TT
+CLASS="FUNCTION"
+>GrPoint()</TT
+></A
+> &#8212; Draw a point</DT
+><DT
+><A
+HREF="nxapi_GrPointInRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrPointInRegion()</TT
+></A
+> &#8212; Test for point in region</DT
+><DT
+><A
+HREF="nxapi_GrPoints.html"
+><TT
+CLASS="FUNCTION"
+>GrPoints()</TT
+></A
+> &#8212; Draw a set of points</DT
+><DT
+><A
+HREF="nxapi_GrPoly.html"
+><TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></A
+> &#8212; Draw a polygon</DT
+><DT
+><A
+HREF="nxapi_GrPrepareSelect.html"
+><TT
+CLASS="FUNCTION"
+>GrPrepareSelect()</TT
+></A
+> &#8212; Prepare an fdset for a select</DT
+><DT
+><A
+HREF="nxapi_GrRaiseWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrRaiseWindow()</TT
+></A
+> &#8212; Raise a window</DT
+><DT
+><A
+HREF="nxapi_GrReadArea.html"
+><TT
+CLASS="FUNCTION"
+>GrReadArea()</TT
+></A
+> &#8212; Read pixel data from a drawable</DT
+><DT
+><A
+HREF="nxapi_GrRect.html"
+><TT
+CLASS="FUNCTION"
+>GrRect()</TT
+></A
+> &#8212; Draw a rectangle</DT
+><DT
+><A
+HREF="nxapi_GrRectInRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrRectInRegion()</TT
+></A
+> &#8212; Test for rectangle in region</DT
+><DT
+><A
+HREF="nxapi_GrRegisterInput.html"
+><TT
+CLASS="FUNCTION"
+>GrRegisterInput()</TT
+></A
+> &#8212; Register a file descriptor to generate events</DT
+><DT
+><A
+HREF="nxapi_GrReparentWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrReparentWindow()</TT
+></A
+> &#8212; Change a window's parent</DT
+><DT
+><A
+HREF="nxapi_GrReqShmCmds.html"
+><TT
+CLASS="FUNCTION"
+>GrReqShmCmds()</TT
+></A
+> &#8212; Setup a shared memory interface</DT
+><DT
+><A
+HREF="nxapi_GrResizeWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrResizeWindow()</TT
+></A
+> &#8212; Resize a window</DT
+><DT
+><A
+HREF="nxapi_GR_RGB.html"
+><TT
+CLASS="FUNCTION"
+>GR_RGB()</TT
+></A
+> &#8212; Create a color by RGB components</DT
+><DT
+><A
+HREF="nxapi_GrSelectEvents.html"
+><TT
+CLASS="FUNCTION"
+>GrSelectEvents()</TT
+></A
+> &#8212; Select event types to receive</DT
+><DT
+><A
+HREF="nxapi_GrServiceSelect.html"
+><TT
+CLASS="FUNCTION"
+>GrServiceSelect()</TT
+></A
+> &#8212; Dispatch nano-X events</DT
+><DT
+><A
+HREF="nxapi_GrSetBackgroundPixmap.html"
+><TT
+CLASS="FUNCTION"
+>GrSetBackgroundPixmap()</TT
+></A
+> &#8212; Set the windows background image</DT
+><DT
+><A
+HREF="nxapi_GrSetBorderColor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetBorderColor()</TT
+></A
+> &#8212; Set a window's border color</DT
+><DT
+><A
+HREF="nxapi_GrSetCursor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></A
+> &#8212; Specify a mouse cursor image</DT
+><DT
+><A
+HREF="nxapi_GrSetErrorHandler.html"
+><TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+></A
+> &#8212; Setup an error handler</DT
+><DT
+><A
+HREF="nxapi_GrSetFocus.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFocus()</TT
+></A
+> &#8212; Set the window focus</DT
+><DT
+><A
+HREF="nxapi_GrSetFontAttr.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFontAttr()</TT
+></A
+> &#8212; Change font attributes</DT
+><DT
+><A
+HREF="nxapi_GrSetFontRotation.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFontRotation()</TT
+></A
+> &#8212; Set the angle of a font</DT
+><DT
+><A
+HREF="nxapi_GrSetFontSize.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFontSize()</TT
+></A
+> &#8212; Set the size of a font</DT
+><DT
+><A
+HREF="nxapi_GrSetGCBackground.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCBackground()</TT
+></A
+> &#8212; Change the background color of a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCFont.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCFont()</TT
+></A
+> &#8212; Select a font to draw with</DT
+><DT
+><A
+HREF="nxapi_GrSetGCForeground.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></A
+> &#8212; Change the foreground color of a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCMode.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCMode()</TT
+></A
+> &#8212; Set the drawing mode of a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCRegion()</TT
+></A
+> &#8212; Set the clipping region for a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCUseBackground.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCUseBackground()</TT
+></A
+> &#8212; Enables/disables background usage</DT
+><DT
+><A
+HREF="nxapi_GrSetScreenSaverTimeout.html"
+><TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></A
+> &#8212; Set screen saver timeout</DT
+><DT
+><A
+HREF="nxapi_GrSetSystemPalette.html"
+><TT
+CLASS="FUNCTION"
+>GrSetSystemPalette()</TT
+></A
+> &#8212; Set the colors of the system palette</DT
+><DT
+><A
+HREF="nxapi_GrSetWMProperties.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></A
+> &#8212; Set a window's properties</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowBackgroundColor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowBackgroundColor()</TT
+></A
+> &#8212; Set a window's background color</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowBorderColor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowBorderColor()</TT
+></A
+> &#8212; Set a window's border color</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowBorderSize.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowBorderSize()</TT
+></A
+> &#8212; Set a window's border width</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowTitle.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowTitle()</TT
+></A
+> &#8212; Set a window's title</DT
+><DT
+><A
+HREF="nxapi_GrSubtractRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrSubtractRegion()</TT
+></A
+> &#8212; Form a region from the difference of two regions</DT
+><DT
+><A
+HREF="nxapi_GrText.html"
+><TT
+CLASS="FUNCTION"
+>GrText()</TT
+></A
+> &#8212; Draw text</DT
+><DT
+><A
+HREF="nxapi_GrUnionRectWithRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrUnionRectWithRegion()</TT
+></A
+> &#8212; Form union of rectangle and region</DT
+><DT
+><A
+HREF="nxapi_GrUnionRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrUnionRegion()</TT
+></A
+> &#8212; Form a region from the union of two other regions</DT
+><DT
+><A
+HREF="nxapi_GrUnmapWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrUnmapWindow()</TT
+></A
+> &#8212; Unmap a window and it's children</DT
+><DT
+><A
+HREF="nxapi_GrXorRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrXorRegion()</TT
+></A
+> &#8212; Form a region form the XOR two regions</DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi.misc.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrArc.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Misc. Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrArc()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

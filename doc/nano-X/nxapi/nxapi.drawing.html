@@ -1,0 +1,575 @@
+<HTML
+><HEAD
+><TITLE
+>Graphics Drawing Functions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Groups"
+HREF="ch1.html"><LINK
+REL="PREVIOUS"
+TITLE="Graphics Context Functions"
+HREF="nxapi.graphics.html"><LINK
+REL="NEXT"
+TITLE="Event Functions"
+HREF="nxapi.event.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi.graphics.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Nano-X Function Groups</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi.event.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="NXAPI.DRAWING"
+>Graphics Drawing Functions</A
+></H1
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN296"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrPoint.html"
+>        <TT
+CLASS="FUNCTION"
+>GrPoint()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a point</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrPoints.html"
+>        <TT
+CLASS="FUNCTION"
+>GrPoints()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a set of points</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrLine.html"
+>        <TT
+CLASS="FUNCTION"
+>GrLine()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a line</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrRect.html"
+>        <TT
+CLASS="FUNCTION"
+>GrRect()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a rectangle</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrFillRect.html"
+>        <TT
+CLASS="FUNCTION"
+>GrFillRect()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a filled rectangle</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrPoly.html"
+>        <TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a polygon</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrFillPoly.html"
+>        <TT
+CLASS="FUNCTION"
+>GrFillPoly()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a filled polygon</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrEllipse.html"
+>        <TT
+CLASS="FUNCTION"
+>GrEllipse()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an ellipse or circle</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrFillEllipse.html"
+>        <TT
+CLASS="FUNCTION"
+>GrFillEllipse()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a filled ellipse or circle</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrArc.html"
+>        <TT
+CLASS="FUNCTION"
+>GrArc()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an arc</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrArcAngle.html"
+>        <TT
+CLASS="FUNCTION"
+>GrArcAngle()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an arc</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrReadArea.html"
+>        <TT
+CLASS="FUNCTION"
+>GrReadArea()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Read pixel data from a drawable</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrArea.html"
+>        <TT
+CLASS="FUNCTION"
+>GrArea()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a pixel array</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrCopyArea.html"
+>        <TT
+CLASS="FUNCTION"
+>GrCopyArea()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Copy from one drawable to another</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrBitmap.html"
+>        <TT
+CLASS="FUNCTION"
+>GrBitmap()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a monochrome bitmap</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrFreeImage.html"
+>        <TT
+CLASS="FUNCTION"
+>GrFreeImage()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Destroy an image buffer</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrGetImageInfo.html"
+>        <TT
+CLASS="FUNCTION"
+>GrGetImageInfo()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Retrieve information about an image</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrDrawImageFromFile.html"
+>        <TT
+CLASS="FUNCTION"
+>GrDrawImageFromFile()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an image from a file</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrLoadImageFromFile.html"
+>        <TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Load an image from a file into memory</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrDrawImageToFit.html"
+>        <TT
+CLASS="FUNCTION"
+>GrDrawImageToFit()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an image with scaling</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrDrawImageBits.html"
+>        <TT
+CLASS="FUNCTION"
+>GrDrawImageBits()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an image</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrText.html"
+>        <TT
+CLASS="FUNCTION"
+>GrText()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw text</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrDrawLines.html"
+>        <TT
+CLASS="FUNCTION"
+>GrDrawLines()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a set of lines</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi.graphics.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi.event.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Graphics Context Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Event Functions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,602 @@
+<HTML
+><HEAD
+><TITLE
+>GR_EVENT_KEYSTROKE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_EVENT_GENERAL"
+HREF="nxstruct_GR_EVENT_GENERAL.html"><LINK
+REL="NEXT"
+TITLE="GR_EVENT_MASK"
+HREF="nxstruct_GR_EVENT_MASK.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_GENERAL.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_MASK.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.EVENT.KEYSTROKE"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_KEYSTROKE</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN9446"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_KEYSTROKE</SPAN
+>&nbsp;--&nbsp;Keyboard event structure</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN9450"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_EVENT_TYPE   type;
+    GR_WINDOW_ID    wid;
+    GR_WINDOW_ID    subwid;
+    GR_COORD        rootx;
+    GR_COORD        rooty;
+    GR_COORD        x;
+    GR_COORD        y;
+    GR_BUTTON       buttons;
+    GR_KEYMOD       modifiers;
+    GR_KEY          ch;
+    GR_SCANCODE     scancode;
+} GR_EVENT_KEYSTROKE;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9452"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_KEYSTROKE</SPAN
+> structure is used by
+    nano-X to pass the application keyboard events.
+    </P
+><P
+>    The keystroke will be sent to the highest window that contains the
+    mouse cursor and has selected to receive keystroke events, if that
+    window is a decendant of the focus window. Otherwise the keystroke
+    is sent to the focus window or it's highest ancestor that has
+    selected to receive keystroke events.    
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9457"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN9459"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>type</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The event type will be either a 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_KEY_DOWN</TT
+> or a
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_KEY_UP</TT
+> type.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>wid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the window that the keystroke event is being
+        sent to. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>subwid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the window that the mouse is in. Generally
+        this field will be the same as <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+>,
+        but in some cases if the mouse event occurs in a decendant of
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+>, then this field indicates that
+        child window. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>rootx</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate of the mouse pointer relative to the
+        root window. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>rooty</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate of the mouse pointer relative to the
+        root window. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>x</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate of the mouse pointer relative to the
+        window <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+>. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>y</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate of the mouse pointer relative to the
+        window <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+>. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_BUTTON.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_BUTTON</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>buttons</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the mouse buttons that are being pressed.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_KEYMOD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_KEYMOD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>modifiers</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Indicates the status of the keyboard modifier
+        keys.  </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_KEY.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_KEY</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>ch</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The key that caused the keystroke event.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SCANCODE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_SCANCODE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>scancode</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The OEM scancode for the key if it is available.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9542"
+></A
+><H2
+>Example</H2
+><P
+> 
+    The following example will print all keystroke codes to the console.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN9545"
+></A
+><P
+><B
+>Example 3-1. Using <SPAN
+CLASS="TYPE"
+>GR_EVENT_KEYSTROKE</SPAN
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+void process_key_event (GR_EVENT_KEYSTROKE *event)
+{
+    printf ("%s  MOD:0x%08X  CH:0x%04X  SCAN:0x%02X\n",
+            (event-&#62;type == GR_EVENT_TYPE_KEY_DOWN) ? "DN" : "UP",
+            event-&#62;modifiers, event-&#62;ch, event-&#62;scancode);
+    fflush (stdout);
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9549"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+>, 
+      <A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_MOUSE</SPAN
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_GENERAL.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_MASK.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_GENERAL</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GR_EVENT_MASK</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

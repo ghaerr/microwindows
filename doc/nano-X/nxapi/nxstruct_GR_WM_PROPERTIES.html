@@ -1,0 +1,559 @@
+<HTML
+><HEAD
+><TITLE
+>GR_WM_PROPERTIES</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_WM_PROPS"
+HREF="nxstruct_GR_WM_PROPS.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_WM_PROPS.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.WM.PROPERTIES"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN12288"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES</SPAN
+>&nbsp;--&nbsp;Window manager property configuration</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN12292"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_WM_PROPS     flags;
+    GR_WM_PROPS     props;
+    GR_CHAR        *title;
+    GR_COLOR        background;
+    GR_SIZE         bordersize;
+    GR_COLOR        bordercolor;
+} GR_WM_PROPERTIES;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN12294"
+></A
+><H2
+>Description</H2
+><P
+>    A <SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES</SPAN
+> structure is used to
+    set and get a window's window manager properties.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN12298"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN12300"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WM_PROPERTIES.html#NXSTRUCT.GR.WM.PROPERTIES.FLAGS"
+>        <SPAN
+CLASS="TYPE"
+>GR_WM_PROPS</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>flags</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>These flags indicate which fields within this structure
+        have significance when this structure is used with the
+        function <A
+HREF="nxapi_GrSetWMProperties.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></A
+>.
+        NOTE: This variable has nothing in common with a
+        <SPAN
+CLASS="TYPE"
+>GR_WM_PROPS</SPAN
+> type, except that it consumes the
+        same amount of memory. See the table 
+        <A
+HREF="nxstruct_GR_WM_PROPERTIES.html#NXSTRUCT.GR.WM.PROPERTIES.FLAGS"
+>below</A
+>
+        for the meaning of the bits within this field.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WM_PROPS.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_WM_PROPS</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>props</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The window manager property flags.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_CHAR *</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>title</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The text that appears on the window title bar.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>background</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color of the window background.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>bordersize</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width of the window border.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>bordercolor</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color of the window border.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="NXSTRUCT.GR.WM.PROPERTIES.FLAGS"
+></A
+><P
+><B
+>Table 3-1. GR_WM_PROPERTIES Flags</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Value</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_WM_FLAGS_PROPS</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The <TT
+CLASS="STRUCTFIELD"
+><I
+>props</I
+></TT
+> field is set.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_WM_FLAGS_TITLE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The <TT
+CLASS="STRUCTFIELD"
+><I
+>title</I
+></TT
+> field is set.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_WM_FLAGS_BACKGROUND</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The <TT
+CLASS="STRUCTFIELD"
+><I
+>background</I
+></TT
+> field is set.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_WM_FLAGS_BORDERSIZE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The <TT
+CLASS="STRUCTFIELD"
+><I
+>bordersize</I
+></TT
+> field is set.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_WM_FLAGS_BORDERCOLOR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The <TT
+CLASS="STRUCTFIELD"
+><I
+>bordercolor</I
+></TT
+> field is set.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN12386"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrSetWMProperties.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetWMProperties.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetWMProperties()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetWindowBackgroundColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWindowBackgroundColor()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetWindowBorderSize.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWindowBorderSize()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetWindowBorderColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWindowBorderColor()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetWindowTitle.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWindowTitle()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_WM_PROPS.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GR_WM_PROPS</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

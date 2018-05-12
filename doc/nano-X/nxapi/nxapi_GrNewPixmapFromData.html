@@ -1,0 +1,600 @@
+<HTML
+><HEAD
+><TITLE
+>GrNewPixmapFromData()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrNewPixmap()"
+HREF="nxapi_GrNewPixmap.html"><LINK
+REL="NEXT"
+TITLE="GrNewPolygonRegion()"
+HREF="nxapi_GrNewPolygonRegion.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewPixmap.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewPolygonRegion.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRNEWPIXMAPFROMDATA"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4861"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+>&nbsp;--&nbsp;Create a new pixmap and initialize it</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4865"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4866"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_WINDOW_ID       <B
+CLASS="FSFUNC"
+>  GrNewPixmapFromData   </B
+></CODE
+>( GR_SIZE            <VAR
+CLASS="PDPARAM"
+> width                 </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> height                </VAR
+>,  GR_COLOR           <VAR
+CLASS="PDPARAM"
+> foreground            </VAR
+>,  GR_COLOR           <VAR
+CLASS="PDPARAM"
+> background            </VAR
+>,  void *             <VAR
+CLASS="PDPARAM"
+> bits                  </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> flags                 </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4882"
+></A
+><H2
+>Description</H2
+><P
+>    This function creates a new server side pixmap of the specified
+    width and height. The pixmap is initialized with a monochrome
+    bitmap corresponding to the specified bit array. If specified byte
+    and/or bit reversal will be performed on each short word within
+    the bit array.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    A pixmap is basically an offscreen window. You can draw to a
+    pixmap just as you would an on screen window. The return value of
+    this function is a bit misleading, in that it should probably be a 
+    <A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+>
+    rather than a window ID. From a drawing point of view nano-X does
+    not make much of a difference between window IDs and drawable IDs.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    When finished with the pixmap, the application must free the
+    resources allocated to the pixmap by calling the function 
+    <A
+HREF="nxapi_GrDestroyWindow.html"
+>    <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+>
+    with the pixmap ID as the ID of the window to destroy.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4893"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4895"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width in pixels of the pixmap.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The height in pixels of the pixmap.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>foreground</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color to use as the pixmap foreground.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>background</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color to use as the pixmap background.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>void*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bits</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pinter to the bit array. All set bits in this array are
+        drawn in the specfied foreground color. All clear bits in this
+        array are drawn in the specified background color.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This fields hold flags from the table below.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4946"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Mode</TH
+><TH
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_BMDATA_BYTEREVERSE</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Swap every other byte of the bit array (short word byte
+        swap). </TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_BMDATA_BYTESWAP</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Reverse the bit order of every byte within the bit
+        array. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4963"
+></A
+><H2
+>Returns</H2
+><P
+>    The ID of the newly created pixmap.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4966"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrNewPixmap.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrDestroyWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrCopyArea.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCopyArea()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetBackgroundPixmap.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetBackgroundPixmap()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewPixmap.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewPolygonRegion.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewPolygonRegion()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

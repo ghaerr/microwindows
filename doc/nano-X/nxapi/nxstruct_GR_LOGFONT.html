@@ -1,0 +1,1523 @@
+<HTML
+><HEAD
+><TITLE
+>GR_LOGFONT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_KEYMOD"
+HREF="nxstruct_GR_KEYMOD.html"><LINK
+REL="NEXT"
+TITLE="GR_PALENTRY"
+HREF="nxstruct_GR_PALNTRY.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_KEYMOD.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_PALNTRY.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.LOGFONT"
+><SPAN
+CLASS="TYPE"
+>GR_LOGFONT</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN11162"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="TYPE"
+>GR_LOGFONT</SPAN
+>&nbsp;--&nbsp;Font properties</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN11166"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    long     lfHeight;
+    long     lfWidth;
+    long     lfEscapement;
+    long     lfOrientation;
+    long     lfWeight;
+    GR_CHAR  lfItalic;
+    GR_CHAR  lfUnderline;
+    GR_CHAR  lfStrikeOut;
+    GR_CHAR  lfCharSet;
+    GR_CHAR  lfOutPrecision;
+    GR_CHAR  lfClipPrecision;
+    GR_CHAR  lfQuality;
+    GR_CHAR  lfRoman;
+    GR_CHAR  lfSerif;
+    GR_CHAR  lfSansSerif;
+    GR_CHAR  lfModern;
+    GR_CHAR  lfMonospace;
+    GR_CHAR  lfProportional;
+    GR_CHAR  lfOblique;
+    GR_CHAR  lfSmallCaps;
+    GR_CHAR  lfPitch;
+    char     lfFaceName[MWLF_FACESIZE];
+} GR_LOGFONT;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11168"
+></A
+><H2
+>Description</H2
+><P
+>    A <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+> structure is a logical font
+    descriptor it is used to specify the desired font characteristics
+    when creating a font. An application passes one of these
+    structures into the
+    <A
+HREF="nxapi_GrCreateFont.html"
+>    <TT
+CLASS="FUNCTION"
+>GrCreateFont()</TT
+></A
+> 
+    function when a font is created.
+    </P
+><P
+> 
+    Several macros are defined in <TT
+CLASS="FILENAME"
+>mwtypes.h</TT
+> to
+    help build the <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+>
+    structure. These macros are shown 
+    <A
+HREF="nxstruct_GR_LOGFONT.html#NXSTRUCT.GR.LOGFONT.MACROS"
+>below</A
+>.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11178"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN11180"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>long</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfHeight</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The font height in pixels.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>long</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfWidth</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The font width in pixels.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>long</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfEscapement</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The rotation of the font in tenths of a degree.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>long</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfOrientation</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field is not currently used.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>long</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfWeight</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The font weight.
+        See <A
+HREF="nxstruct_GR_LOGFONT.html#NXSTRUCT.GR.LOGFONT.LFWEIGHT"
+>below</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfItalic</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for an italic font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfUnderline</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for an underlined font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfStrikeOut</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field is currently not used.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfCharSet</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The font character set.
+        See <A
+HREF="nxstruct_GR_LOGFONT.html#NXSTRUCT.GR.LOGFONT.LFCHARSET"
+>below</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfOutPrecision</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Font type selection.
+        See <A
+HREF="nxstruct_GR_LOGFONT.html#NXSTRUCT.GR.LOGFONT.LFOUTPRECISION"
+>below</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfClipPrecision</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field is currently not used.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfQuality</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field is currently not used.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfRoman</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for Roman (upright) letters,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfSerif</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for a serifed font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfSansSerif</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for a sans-serif font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfModern</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for a modern font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfMonospace</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for a monsspaced font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfProportional</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for a proportionally spaced,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfOblique</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for an oblique font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfSmallCaps</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> for a small caps font,
+        otherwise GR_FALSE.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfPitch</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The font pitch.
+        See <A
+HREF="nxstruct_GR_LOGFONT.html#NXSTRUCT.GR.LOGFONT.LFPITCH"
+>below</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>char</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>lfFaceName[]</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Zero terminated ASCII string containing the font face
+        name. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11331"
+></A
+><H2
+>Field Enumerations</H2
+><P
+>  The following paragraphs list the enumeration values that may be used
+  with the fields of the <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+> structure.
+  </P
+><P
+>  Enumerations for the <TT
+CLASS="STRUCTFIELD"
+><I
+>lfOutPrecision</I
+></TT
+>
+  field.
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN11337"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_TYPE_DEFAULT</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_TYPE_SCALED</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_TYPE_RASTER</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_TYPE_TRUETYPE</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_TYPE_ADOBE</TT
+></TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+></TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Enumerations for the <TT
+CLASS="STRUCTFIELD"
+><I
+>lfWeight</I
+></TT
+> field.
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN11359"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_DEFAULT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_MEDIUM</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_THIN</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_DEMIBOLD</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_EXTRALIGHT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_BOLD</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_LIGHT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGTH_EXTRABOLD</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_NORMAL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_BLACK</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_REGULAR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+></TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Enumerations for the <TT
+CLASS="STRUCTFIELD"
+><I
+>lfCharSet</I
+></TT
+> field.
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN11396"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_CHARSET_ANSI</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_CHARSET_DEFAULT</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_CHARSET_UNICODE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_CHARSET_OEM</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Enumerations for the <TT
+CLASS="STRUCTFIELD"
+><I
+>lfPitch</I
+></TT
+> field.
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN11413"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_DEFAULT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_NORMAL</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_ULTRACONDENSED</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_SEMIEXPANDED</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_EXTRACONDENSED</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_EXPANDED</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_CONDENSED</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_EXTRAEXPANDED</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_SEMICONDENSED</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWLF_PITCH_ULTRAEXPANDED</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+><P
+>  Built in font face names for the <TT
+CLASS="STRUCTFIELD"
+><I
+>lfFaceName</I
+></TT
+> field.
+  <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN11445"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_SYSTEM_VAR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_OEM_FIXED</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_GUI_VAR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_FONT_SYSTEM_FIXED</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="NXSTRUCT.GR.LOGFONT.MACROS"
+></A
+><H2
+>Macros</H2
+><P
+>  The following macros set the 
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN11463"
+></A
+><P
+><B
+>Table 3-1. GR_LOGFONT Macros</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FUNCTION"
+>MWLF_Clear (GR_LOGFONT *lf)</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This macro sets the size fields of the structure to
+        zero, the weight to <TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_REGULAR</TT
+>,
+        all of the flags to GR_FALSE and the face name to  an empty
+        string. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FUNCTION"
+>MWLF_SetBold (GR_LOGFONT *lf)</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This macro modifies the <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+>
+        so that it describes a bold font. The
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfWeight</I
+></TT
+> is set to the constant
+        value <TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_BOLD</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FUNCTION"
+>MWLF_SetRegular (GR_LOGFONT *lf)</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This macro modifies the <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+>
+        so that it describes a non-bold font. The
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfWeight</I
+></TT
+> is set to the constant
+        value <TT
+CLASS="CONSTANT"
+>MWLF_WEIGHT_REGULAR</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FUNCTION"
+>MWLF_SetItalics (GR_LOGFONT *lf)</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This macro modifies the <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+>
+        so that it describes an italic font. The
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfItalic</I
+></TT
+> is set to
+        <TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+>, the
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfOblique</I
+></TT
+> is set to
+        <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+> and the
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfRoman</I
+></TT
+> is set to
+        <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+>. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FUNCTION"
+>MWLF_SetRoman (GR_LOGFONT *lf)</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This macro modifies the <SPAN
+CLASS="STRUCTNAME"
+>GR_LOGFONT</SPAN
+>
+        so that it describes a roman font. The
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfItalic</I
+></TT
+> is set to
+        <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+>, the
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfOblique</I
+></TT
+> is set to
+        <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+> and the
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>lfRoman</I
+></TT
+> is set to
+        <TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+>. </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11514"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrCreateFont.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCreateFont()</TT
+></A
+>, 
+      <A
+HREF="nxstruct_GR_FONT_INFO.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_FONT_INFO</SPAN
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_KEYMOD.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_PALNTRY.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GR_KEYMOD</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_PALENTRY</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

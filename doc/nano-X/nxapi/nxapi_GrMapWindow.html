@@ -1,0 +1,377 @@
+<HTML
+><HEAD
+><TITLE
+>GrMapWindow()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrMainLoop()"
+HREF="nxapi_GrMainLoop.html"><LINK
+REL="NEXT"
+TITLE="GrMoveCursor()"
+HREF="nxapi_GrMoveCursor.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrMainLoop.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrMoveCursor.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRMAPWINDOW"
+><TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4437"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+>&nbsp;--&nbsp;Map a window and it's children</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4441"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4442"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrMapWindow           </B
+></CODE
+>( GR_WINDOW_ID       <VAR
+CLASS="PDPARAM"
+> wid                   </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4448"
+></A
+><H2
+>Description</H2
+><P
+>    This function recursively maps (shows) the specified
+    window and all of its child windows that have a sufficient map
+    count. The border and background of the window are painted, and
+    an exposure event is generated for the window and every child
+    which becomes visible.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4451"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4453"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the window to map.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4471"
+></A
+><H2
+>Example</H2
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN4473"
+></A
+><P
+><B
+>Example 2-1. Using <TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+    GrSetGCUseBackground (gc, GR_FALSE);
+    GrSetGCForeground (gc, RED);
+
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Hello Window",
+                         GR_ROOT_WINDOW_ID, 
+                         50, 50, 200, 100, WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrText (wid, gc, 50, 50, 
+                "Hello World",  -1, GR_TFASCII);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4477"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrNewWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrUnmapWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrUnmapWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetWindowInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrMainLoop.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrMoveCursor.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrMoveCursor()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

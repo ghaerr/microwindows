@@ -1,0 +1,238 @@
+<HTML
+><HEAD
+><TITLE
+>GR_FNCALLBACKEVENT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_EVENT_UPDATE"
+HREF="nxstruct_GR_EVENT_UPDATE.html"><LINK
+REL="NEXT"
+TITLE="GR_FONT_ID"
+HREF="nxstruct_GR_FONT_ID.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_UPDATE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_FONT_ID.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.FNCALLBACKEVENT"
+><SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN10135"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+>&nbsp;--&nbsp;Call back function prototype</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN10139"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10141"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+> type is used to pass the
+    address of a callback function to nano-X. The nano-X library uses
+    callback functions for passing error information to the
+    application (see 
+    <A
+HREF="nxapi_GrSetErrorHandler.html"
+>    <TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+></A
+>)
+    and for driving the applications main event processor (see
+    <A
+HREF="nxapi_GrMainLoop.html"
+>    <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+> or 
+    <A
+HREF="nxapi_GrServiceSelect.html"
+>    <TT
+CLASS="FUNCTION"
+>GrServiceSelect()</TT
+></A
+>).
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10151"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrSetErrorHandler.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrServiceSelect.html"
+>            <TT
+CLASS="FUNCTION"
+>GrServiceSelect()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrMainLoop.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_UPDATE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_FONT_ID.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_UPDATE</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_FONT_ID</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

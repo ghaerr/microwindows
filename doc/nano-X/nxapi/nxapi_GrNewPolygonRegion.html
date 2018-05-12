@@ -1,0 +1,449 @@
+<HTML
+><HEAD
+><TITLE
+>GrNewPolygonRegion()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrNewPixmapFromData()"
+HREF="nxapi_GrNewPixmapFromData.html"><LINK
+REL="NEXT"
+TITLE="GrNewRegion()"
+HREF="nxapi_GrNewRegion.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewRegion.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRNEWPOLYGONREGION"
+><TT
+CLASS="FUNCTION"
+>GrNewPolygonRegion()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4981"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrNewPolygonRegion()</TT
+>&nbsp;--&nbsp;Create a polygon region</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4985"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4986"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_REGION_ID       <B
+CLASS="FSFUNC"
+>  GrNewPolygonRegion    </B
+></CODE
+>( int                <VAR
+CLASS="PDPARAM"
+> mode                  </VAR
+>,  GR_COUNT           <VAR
+CLASS="PDPARAM"
+> count                 </VAR
+>,  GR_POINT *         <VAR
+CLASS="PDPARAM"
+> points                </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4996"
+></A
+><H2
+>Description</H2
+><P
+>    This function creates a new region and returns its ID. The new
+    region is created by connecting the points in the specified
+    <SPAN
+CLASS="TYPE"
+>GR_POINT</SPAN
+> array.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5000"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN5002"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>mode</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The method for handling overlapping sections of the
+        polygon. See the mode description table below.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COUNT.html"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The number of points in the
+        <SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+> array used to define the
+        polygon. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_POINT.html"
+><SPAN
+CLASS="TYPE"
+>GR_POINT*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>points</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pointer to an array of 
+        <A
+HREF="nxstruct_GR_POINT.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+></A
+>
+        structures that define the vertices of the polygon. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN5036"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Mode</TH
+><TH
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPOLY_EVENODD</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Areas of the polygon that overlap an odd number of
+        times are not a part of the resulting region.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPOLY_WINDING</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Areas of the polygon that overlap are always considered
+        a part of the region.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5053"
+></A
+><H2
+>Returns</H2
+><P
+>    The ID of the newly created region.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5056"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_POINT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+></A
+>, 
+      <A
+HREF="nxapi_GrNewRegion.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewRegion()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrDestroyRegion.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDestroyRegion()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrPoly.html"
+>            <TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewRegion.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewRegion()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

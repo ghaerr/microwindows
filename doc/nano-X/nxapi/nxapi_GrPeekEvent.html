@@ -1,0 +1,335 @@
+<HTML
+><HEAD
+><TITLE
+>GrPeekEvent()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrOpen()"
+HREF="nxapi_GrOpen.html"><LINK
+REL="NEXT"
+TITLE="GrPoint()"
+HREF="nxapi_GrPoint.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrOpen.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrPoint.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRPEEKEVENT"
+><TT
+CLASS="FUNCTION"
+>GrPeekEvent()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN5459"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrPeekEvent()</TT
+>&nbsp;--&nbsp;Peek an event from the queue</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN5463"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN5464"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  int                <B
+CLASS="FSFUNC"
+>  GrPeekEvent           </B
+></CODE
+>( GR_EVENT *         <VAR
+CLASS="PDPARAM"
+> ep                    </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5470"
+></A
+><H2
+>Description</H2
+><P
+>    This function retrieves the next nano-X event from the event
+    queue without actually removing the event from the queue. The
+    retrieved event is returned in the caller supplied
+    <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+> structure. If the event queue
+    is empty, the function will return with an event type of
+    <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_NONE</TT
+>.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5475"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN5477"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>ep</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pointer to the caller supplied structure to
+        receive the next event from the event queue. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5495"
+></A
+><H2
+>Returns</H2
+><P
+>    <TT
+CLASS="CONSTANT"
+>1</TT
+> if an event is returned from the queue,
+    <TT
+CLASS="CONSTANT"
+>0</TT
+> if the queue was empty.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5500"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrSelectEvents.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSelectEvents()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetNextEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetNextEvent()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetNextEventTimeout.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetNextEventTimeout()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrCheckNextEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCheckNextEvent()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrMainLoop.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrOpen.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrPoint.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrOpen()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrPoint()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

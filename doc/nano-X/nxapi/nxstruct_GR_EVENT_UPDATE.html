@@ -1,0 +1,586 @@
+<HTML
+><HEAD
+><TITLE
+>GR_EVENT_UPDATE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_EVENT_TYPE"
+HREF="nxstruct_GR_EVENT_TYPE.html"><LINK
+REL="NEXT"
+TITLE="GR_FNCALLBACKEVENT"
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.EVENT.UPDATE"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_UPDATE</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN10024"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_UPDATE</SPAN
+>&nbsp;--&nbsp;Window update event structure</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN10028"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_EVENT_TYPE   type;
+    GR_WINDOW_ID    wid;
+    GR_WINDOW_ID    subwid;
+    GR_COORD        x;
+    GR_COORD        y;
+    GR_SIZE         width;
+    GR_SIZE         height;
+    GR_UPDATE_TYPE  utype;
+} GR_EVENT_UPDATE;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10030"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_UPDATE</SPAN
+> structure is used by
+    nano-X to pass data related to the events 
+    <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_UPDATE</TT
+> and 
+    <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CHILD_UPDATE</TT
+>.
+    </P
+><P
+>    Update events are sent to the nano-X client if they have been
+    selected for a window. The update events are "sent to" the
+    window that the event is selected
+    for. <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_UPDATE</TT
+> events are sent to
+    a window when that window is updated. 
+    <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CHILD_UPDATE</TT
+> events are sent to
+    a window when one of it's child windows is updated. Windows are
+    "updated" when they are moved, resized, mapped,
+    unmapped, activated and destroyed.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10039"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN10041"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>type</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The event type will be
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_UPDATE</TT
+> or
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CHLD_UPDATE</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>wid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> This field is the ID of the window to which the event
+        is being sent. When the event type is
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_UPDATE</TT
+> this is the window
+        that is being updated. When the event type is
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CHILD_UPDATE</TT
+> then this field
+        indicates one of the updated window's ancestors. The
+        particular ancestor is the window that the event is being sent
+        to.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>subwid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field indicates the window that was updated. If the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_UPDATE</TT
+> then this
+        field is the same as the <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+>
+        field. Otherwise this field is a decendant of
+        <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+>. In that case this is the
+        actual window that is being updated.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>x</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The updated X position of the window. 
+        The field is unused if the update type is
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAP</TT
+>,
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAPTEMP</TT
+> or
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_ACTIVATE</TT
+>.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>y</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The updated Y position of the window. 
+        The field is unused if the update type is
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAP</TT
+>,
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAPTEMP</TT
+> or
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_ACTIVATE</TT
+>.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>width</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The updated width of the window. 
+        The field is unused if the update type is
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAP</TT
+>,
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAPTEMP</TT
+> or
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_ACTIVATE</TT
+>.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>height</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The updated height of the window. 
+        The field is unused if the update type is
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAP</TT
+>,
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAPTEMP</TT
+> or
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_ACTIVATE</TT
+>.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_UPDATE_TYPE.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_UPDATE_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>utype</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field indicates the type of update that triggered
+        the event. The update type may be one of: 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_MAP</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAP</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_MOVE</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_SIZE</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_UNMAPTEMP</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_ACTIVATE</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_UPDATE_DESTROY</TT
+>.
+        </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10126"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GR_EVENT_TYPE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

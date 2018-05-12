@@ -1,0 +1,437 @@
+<HTML
+><HEAD
+><TITLE
+>GrFillPoly()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrFillEllipse()"
+HREF="nxapi_GrFillEllipse.html"><LINK
+REL="NEXT"
+TITLE="GrFillRect()"
+HREF="nxapi_GrFillRect.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrFillEllipse.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrFillRect.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRFILLPOLY"
+><TT
+CLASS="FUNCTION"
+>GrFillPoly()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2750"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrFillPoly()</TT
+>&nbsp;--&nbsp;Draw a filled polygon</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2754"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN2755"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrFillPoly            </B
+></CODE
+>( GR_DRAW_ID         <VAR
+CLASS="PDPARAM"
+> id                    </VAR
+>,  GR_GC_ID           <VAR
+CLASS="PDPARAM"
+> gc                    </VAR
+>,  GR_COUNT           <VAR
+CLASS="PDPARAM"
+> count                 </VAR
+>,  GR_POINT *         <VAR
+CLASS="PDPARAM"
+> pointtable            </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2767"
+></A
+><H2
+>Description</H2
+><P
+>    This function draws a filled polygon on the specified drawable
+    using the graphics context <TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+>. The polygon
+    is specified by an array of <SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+>
+    structures in which each point represents a vertex of the
+    polygon. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    The polygon is automatically closed, the last point in the point
+    table does not need to be explicitly specified to be the same as
+    the first point.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2774"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN2776"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the drawable to draw the polygon onto.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the graphics context to use when drawing
+        the polygon. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COUNT.html"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The number of points in the point table.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_POINT.html"
+><SPAN
+CLASS="TYPE"
+>GR_POINT*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pointtable</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> A pointer to an array of <SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+>
+        structures which define the vertices of the polygon. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2816"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrFillRect.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFillRect()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrPoly.html"
+>            <TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrFillPoly.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFillPoly()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrFillEllipse.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFillEllipse()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrFillEllipse.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrFillRect.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrFillEllipse()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrFillRect()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

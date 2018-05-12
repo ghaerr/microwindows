@@ -58,7 +58,7 @@ For NX11 this is FLTK which can be based well on NX11.<br>
 <br>
 If you link an application with libNXlib you also have to link it with libnano-X, i.e. -lNXlib and -lnano-X.<br>
 <br>
-PXlib is a library that is NXlib plus nano-X compiled together. So when porting applictions to <br>
+PXlib is a library that is NXlib plus nano-X compiled together. So when porting applications to <br>
 Microwindows you do not have to replace -lX11 with both -lNX11 and -lnano-X any more, just -lPXlib <br>
 will do.<br>
 <br>
@@ -89,7 +89,8 @@ the following line:<br>
 <br>
 "bin/nano-X -N & bin/nanowm & mytests/arcdemo"<br>
 <br>
-Calling "bin/nanwm" adds a Nano-X window manager background window.<br>
+Calling "bin/nanwm" adds a Nano-X window manager background window. On some platforms you need to add some delays:<br>
+"bin/nano-X -N & sleep 1; bin/nanowm & sleep 1; mytests/arcdemo & sleep 10000"<br>
 <br>
 NXlib:<br>
 <br>
@@ -101,10 +102,10 @@ Then, while in the "src" folder, enter:<br>
 This will compile the xgreen program in the mytests folder. To run the program enter, while in the "src" directory, <br> 
 the following line:<br>
 <br>
-"nano-X -N & bin/nanowm & mytests/xgreen"<br>
+"bin/nano-X -N & bin/nanowm & mytests/xgreen"<br>
 <br>
 To use the PX11 library compile with: "gcc -Llib -Iinclude mytests/xgreen.c -lPX11 -o mytests/xgreen" <br> 
-and run with: "nano-X -N & bin/nanowm & mytests/xgreen"<br>
+and run with: "bin/nano-X -N & bin/nanowm & mytests/xgreen"<br>
 <br>
 </p>
 
@@ -132,9 +133,9 @@ Download FLTK 1.3.x and cd into the fltk directory. Then enter:<br>
   --disable-xdbe \<br>
   --disable-xfixes<br>
 <br>
-Then replace the "-lX11 and -lXext" files with "-lNX11 -lnano-X" or "-lPX11" in makeinclude <br>
+Then replace the "-lX11 and -lXext" entries with "-lNX11 -lnano-X" or "-lPX11" in makeinclude <br>
 and fltk-config. You can use the replace-lX11.sh script in the microwindows/src directory for that.<br>
-You can run that once with makeinclude entered on the command line and once with fltk-config specified <br>
+You can run that script once with makeinclude entered on the command line and once with fltk-config specified <br>
 on the command line.<br>
 However, behind the -lPX11 parameter in makeinclude you have to add "-lfreetype" to get<br>
 FLTK to compile.<br>

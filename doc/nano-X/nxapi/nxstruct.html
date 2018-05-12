@@ -1,0 +1,515 @@
+<HTML
+><HEAD
+><TITLE
+>Nano-X Data Types</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="GrXorRegion()"
+HREF="nxapi_GrXorRegion.html"><LINK
+REL="NEXT"
+TITLE="GR_BITMAP"
+HREF="nxstruct_GR_BITMAP.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrXorRegion.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_BITMAP.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="NXSTRUCT"
+>Chapter 3. Nano-X Data Types</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="nxstruct_GR_BITMAP.html"
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+></A
+> &#8212; Bitmap unit</DT
+><DT
+><A
+HREF="nxstruct_GR_BOOL.html"
+><SPAN
+CLASS="TYPE"
+>GR_BOOL</SPAN
+></A
+> &#8212; Boolean type</DT
+><DT
+><A
+HREF="nxstruct_GR_BUTTON.html"
+>GR_BUTTON</A
+> &#8212; Mouse button codes</DT
+><DT
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+> &#8212; Text character</DT
+><DT
+><A
+HREF="nxstruct_GR_CHAR_WIDTH.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR_WIDTH</SPAN
+></A
+> &#8212; Character width</DT
+><DT
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+> &#8212; Coordinate value</DT
+><DT
+><A
+HREF="nxstruct_GR_COLOR.html"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+> &#8212; Color value</DT
+><DT
+><A
+HREF="nxstruct_GR_COUNT.html"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></A
+> &#8212; Number of items</DT
+><DT
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+> &#8212; Drawable ID</DT
+><DT
+><A
+HREF="nxstruct_GR_ERROR.html"
+>GR_ERROR</A
+> &#8212; Error event codes</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+> &#8212; Generic event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_BUTTON</SPAN
+></A
+> &#8212; Mouse button event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_ERROR.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+></A
+> &#8212; Error event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_EXPOSURE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_EXPOSURE</SPAN
+></A
+> &#8212; Window exposure event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_FDINPUT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_FDINPUT</SPAN
+></A
+> &#8212; File descriptor input event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_GENERAL.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_GENERAL</SPAN
+></A
+> &#8212; General purpose event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_KEYSTROKE</SPAN
+></A
+> &#8212; Keyboard event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_MASK.html"
+>GR_EVENT_MASK</A
+> &#8212; Event masks</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_MOUSE</SPAN
+></A
+> &#8212; Mouse position event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_SCREENSAVER.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_SCREENSAVER</SPAN
+></A
+> &#8212; Screen saver event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>GR_EVENT_TYPE</A
+> &#8212; Event types</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_UPDATE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_UPDATE</SPAN
+></A
+> &#8212; Window update event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+><SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+></A
+> &#8212; Call back function prototype</DT
+><DT
+><A
+HREF="nxstruct_GR_FONT_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_FONT_ID</SPAN
+></A
+> &#8212; Font ID</DT
+><DT
+><A
+HREF="nxstruct_GR_FONT_INFO.html"
+><SPAN
+CLASS="TYPE"
+>GR_FONT_INFO</SPAN
+></A
+> &#8212; Font properties</DT
+><DT
+><A
+HREF="nxstruct_GR_FUNC_NAME.html"
+><SPAN
+CLASS="TYPE"
+>GR_FUNC_NAME</SPAN
+></A
+> &#8212; Function name string</DT
+><DT
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+> &#8212; Graphics context ID</DT
+><DT
+><A
+HREF="nxstruct_GR_GC_INFO.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_GC_INFO</SPAN
+></A
+> &#8212; Graphics context information</DT
+><DT
+><A
+HREF="nxstruct_GR_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_ID</SPAN
+></A
+> &#8212; Generic ID type</DT
+><DT
+><A
+HREF="nxstruct_GR_IMAGE_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_IMAGE_ID</SPAN
+></A
+> &#8212; Image ID</DT
+><DT
+><A
+HREF="nxstruct_GR_IMAGE_INFO.html"
+><SPAN
+CLASS="TYPE"
+>GR_IMAGE_INFO</SPAN
+></A
+> &#8212; Image properties</DT
+><DT
+><A
+HREF="nxstruct_GR_IMAGE_HDR.html"
+><SPAN
+CLASS="TYPE"
+>GR_IMAGE_HDR</SPAN
+></A
+> &#8212; Image header</DT
+><DT
+><A
+HREF="nxstruct_GR_KEY.html"
+>GR_KEY</A
+> &#8212; Keyboard key codes</DT
+><DT
+><A
+HREF="nxstruct_GR_KEYMOD.html"
+>GR_KEYMOD</A
+> &#8212; Keyboard modifier key codes</DT
+><DT
+><A
+HREF="nxstruct_GR_LOGFONT.html"
+><SPAN
+CLASS="TYPE"
+>GR_LOGFONT</SPAN
+></A
+> &#8212; Font properties</DT
+><DT
+><A
+HREF="nxstruct_GR_PALNTRY.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_PALENTRY</SPAN
+></A
+> &#8212; Palette entry</DT
+><DT
+><A
+HREF="nxstruct_GR_PALETTE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_PALETTE</SPAN
+></A
+> &#8212; Color palette</DT
+><DT
+><A
+HREF="nxstruct_GR_PIXELVAL.html"
+><SPAN
+CLASS="TYPE"
+>GR_PIXELVAL</SPAN
+></A
+> &#8212; Hardware dependent color value</DT
+><DT
+><A
+HREF="nxstruct_GR_POINT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+></A
+> &#8212; Point structure</DT
+><DT
+><A
+HREF="nxstruct_GR_RECT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_RECT</SPAN
+></A
+> &#8212; Rectangle structure</DT
+><DT
+><A
+HREF="nxstruct_GR_REGION_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_REGION_ID</SPAN
+></A
+> &#8212; Region ID</DT
+><DT
+><A
+HREF="nxstruct_GR_SCANCODE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SCANCODE</SPAN
+></A
+> &#8212; OEM keyboard scancode</DT
+><DT
+><A
+HREF="nxstruct_GR_SCREEN_INFO.html"
+><SPAN
+CLASS="TYPE"
+>GR_SCREEN_INFO</SPAN
+></A
+> &#8212; Screen properties</DT
+><DT
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+> &#8212; Graphic object size</DT
+><DT
+><A
+HREF="nxstruct_GR_TIMEOUT.html"
+><SPAN
+CLASS="TYPE"
+>GR_TIMEOUT</SPAN
+></A
+> &#8212; Time out value</DT
+><DT
+><A
+HREF="nxstruct_GR_UPDATE_TYPE.html"
+>GR_UPDATE_TYPE</A
+> &#8212; Window update event, event subtypes</DT
+><DT
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+> &#8212; Window ID</DT
+><DT
+><A
+HREF="nxstruct_GR_WINDOW_INFO.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_WINDOW_INFO</SPAN
+></A
+> &#8212; Retrieve window properties</DT
+><DT
+><A
+HREF="nxstruct_GR_WM_PROPS.html"
+>GR_WM_PROPS</A
+> &#8212; Window manager properties</DT
+><DT
+><A
+HREF="nxstruct_GR_WM_PROPERTIES.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES</SPAN
+></A
+> &#8212; Window manager property configuration</DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrXorRegion.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_BITMAP.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrXorRegion()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

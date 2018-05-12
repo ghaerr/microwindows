@@ -1,0 +1,598 @@
+<HTML
+><HEAD
+><TITLE
+>GR_GC_INFO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_GC_ID"
+HREF="nxstruct_GR_GC_ID.html"><LINK
+REL="NEXT"
+TITLE="GR_ID"
+HREF="nxstruct_GR_ID.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_ID.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.GC.INFO"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_GC_INFO</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN10296"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_GC_INFO</SPAN
+>&nbsp;--&nbsp;Graphics context information</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN10300"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_GC_ID        gcid;
+    int             mode;
+    GR_REGION_ID    region;
+    GR_FONT_ID      font;
+    GR_COLOR        foreground;
+    GR_COLOR        background;
+    GR_BOOL         usebackground;
+} GR_GC_INFO;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10302"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_GC_INFO</SPAN
+> structure is used to
+    retrieve information regarding the current state of a graphics context.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10306"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN10308"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>gcid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the graphics context.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>mode</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The current drawing mode of the GC.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_REGION_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_REGION_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>region</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The current drawing region of the GC.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_FONT_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_FONT_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>font</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The current font for drawing text with the GC.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>foreground</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The current foreground color for drawing functions
+        using the GC.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>background</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The current background color for drawing functions
+        using the GC.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_BOOL.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_BOOL</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>usebackground</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>If <TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> the window background
+        will be drawn when an exposure event occurs. If
+        <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+> the window background will not
+        automatically be drawn.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><P
+>    The following table shows the drawing modes that are available for
+    use with graphics contexts in nano-X.
+    </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN10363"
+></A
+><P
+><B
+>Table 3-1. Drawing Modes</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Value</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_SET</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will represent the
+        selected forground color.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_XOR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will be th XOR of the
+        GC's foreground color and the current color on the drawable.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_OR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will be th OR of the
+        GC's foreground color and the current color on the drawable.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_AND</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>When drawing the graphic output will be th AND of the
+        GC's foreground color and the current color on the drawable.</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_DRAWMASK</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set bits in this mask correspond to GC mode bits that
+        define drawing style. Clear bits of this mask correspond to GC
+        mode bits that have an extended meaning beyond the drawing
+        style. In this table all of the preceding mode bits define drawing
+        style, all of the following bits have an extended meaning. </TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_EXCLUDECHILDREN</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>If this flag is set, then while clipping child windows are
+        excluded from the clip region. Normally the area covered by
+        child windows is clipped when drawing on the parent
+        window. This flag disables the normal clipping action.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN10397"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrGetGCInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetGCInfo()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCMode.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCMode()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCRegion.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCRegion()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCFont.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCFont()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCForeground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCBackground()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCUseBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCUseBackground()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_ID.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="TYPE"
+>GR_ID</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

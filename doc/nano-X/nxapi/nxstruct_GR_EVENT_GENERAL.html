@@ -1,0 +1,528 @@
+<HTML
+><HEAD
+><TITLE
+>GR_EVENT_GENERAL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_EVENT_FDINPUT"
+HREF="nxstruct_GR_EVENT_FDINPUT.html"><LINK
+REL="NEXT"
+TITLE="GR_EVENT_KEYSTROKE"
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_FDINPUT.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.EVENT.GENERAL"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_GENERAL</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN9354"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_GENERAL</SPAN
+>&nbsp;--&nbsp;General purpose event structure</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN9358"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_EVENT_TYPE   type;
+    GR_WINDOW_ID    wid;
+    GR_WINDOW_ID    otherid;
+} GR_EVENT_GENERAL;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9360"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_GENERAL</SPAN
+> structure is used by
+    nano-X to pass data related to the events:
+      <P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_TIMEOUT</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_EXIT</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_ENTER</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_OUT</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_IN</TT
+></P
+></LI
+></UL
+>
+    Each of these events use the <TT
+CLASS="STRUCTFIELD"
+><I
+>type</I
+></TT
+> and
+    <TT
+CLASS="STRUCTFIELD"
+><I
+>wid</I
+></TT
+> fields. The third field
+    (<TT
+CLASS="STRUCTFIELD"
+><I
+>otherid</I
+></TT
+> is only used for the focus events.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9386"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN9388"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>type</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The event type will be one of
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_TIMEOUT</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_ENTER</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_EXIT</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_IN</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_OUT</TT
+>.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>wid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>For <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+> events
+        this is the ID of the window that is being closed. For
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_ENTER</TT
+> and
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_EXIT</TT
+> events this is
+        the ID of the window the mouse is entering or exiting,
+        respectively. For <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_IN</TT
+>
+        events this is the ID of the window that is receiving the
+        focus. For <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_OUT</TT
+> events
+        this is the window that is loosing the focus. This field is
+        unused for <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_TIMEOUT</TT
+> events.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>otherid</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>        For <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_IN</TT
+> events this is
+        the ID of the window that is loosing the focus. For
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_OUT</TT
+> events this is
+        the ID of the window that is receiving the focus. This field is unused
+        for all other event types.
+        </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9431"
+></A
+><H2
+>Example</H2
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN9433"
+></A
+><P
+><B
+>Example 3-1. Using <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+    GrSetGCUseBackground (gc, GR_FALSE);
+    GrSetGCForeground (gc, RED);
+
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Hello Window",
+                         GR_ROOT_WINDOW_ID, 
+                         50, 50, 200, 100, WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrText (wid, gc, 50, 50, 
+                "Hello World",  -1, GR_TFASCII);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9437"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_FDINPUT.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_FDINPUT</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_KEYSTROKE</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,647 @@
+<HTML
+><HEAD
+><TITLE
+>Window Functions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Groups"
+HREF="ch1.html"><LINK
+REL="PREVIOUS"
+TITLE="Nano-X Function Groups"
+HREF="ch1.html"><LINK
+REL="NEXT"
+TITLE="Graphics Context Functions"
+HREF="nxapi.graphics.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="ch1.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Nano-X Function Groups</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi.graphics.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="NXAPI.WINDOW"
+>Window Functions</A
+></H1
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN84"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrNewWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a new window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrNewWindowEx.html"
+>        <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a new window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrNewInputWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrNewInputWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a new input window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrDestroyWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Destroy a window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetWMProperties.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's properties</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrGetWMProperties.html"
+>        <TT
+CLASS="FUNCTION"
+>GrGetWMProperties()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Retrieve a window's properties</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrMapWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Map a window and it's children</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrUnmapWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrUnmapWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Unmap a window and it's children</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrRaiseWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrRaiseWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Raise a window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrLowerWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrLowerWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Lower a window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrMoveWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrMoveWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Move a window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrResizeWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrResizeWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Resize a window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrReparentWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrReparentWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Change a window's parent</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetBorderColor.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetBorderColor()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's border color</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetWindowBackgroundColor.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetWindowBackgroundColor()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's background color</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetWindowBorderColor.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetWindowBorderColor()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's border color</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetWindowBorderSize.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetWindowBorderSize()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's border width</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetWindowTitle.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetWindowTitle()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a window's title</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrGetWindowInfo.html"
+>        <TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Retrieve window information</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetFocus.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetFocus()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the window focus</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrGetFocus.html"
+>        <TT
+CLASS="FUNCTION"
+>GrGetFocus()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get the current focus window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrNewPixmap.html"
+>        <TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a new pixmap</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+>        <TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a new pixmap and initialize it</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrSetBackgroundPixmap.html"
+>        <TT
+CLASS="FUNCTION"
+>GrSetBackgroundPixmap()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the windows background image</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrClearWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrClearWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Clear a window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrCloseWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrCloseWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Close the specified window</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxapi_GrKillWindow.html"
+>        <TT
+CLASS="FUNCTION"
+>GrKillWindow()</TT
+></A
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Kill the specified window</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi.graphics.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Nano-X Function Groups</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Graphics Context Functions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

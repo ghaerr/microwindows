@@ -1,0 +1,426 @@
+<HTML
+><HEAD
+><TITLE
+>Getting Started With Microwindows &#38; Nano-X</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="NEXT"
+TITLE="Release Information"
+HREF="releaseinfo.html"><META
+NAME="KEYWORD"
+CONTENT="microwindows"><META
+NAME="KEYWORD"
+CONTENT="nanox"><META
+NAME="KEYWORD"
+CONTENT="nano-x"><META
+NAME="KEYWORD"
+CONTENT="documentation"><META
+NAME="KEYWORD"
+CONTENT="howto"><META
+NAME="KEYWORD"
+CONTENT="how-to"></HEAD
+><BODY
+CLASS="BOOK"
+><DIV
+CLASS="BOOK"
+><A
+NAME="INDEX"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Getting Started With Microwindows &#38; Nano-X</A
+></H1
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN5"
+>Gary James</A
+></H3
+><DIV
+CLASS="AFFILIATION"
+><SPAN
+CLASS="JOBTITLE"
+>Sr Software Engineer<BR></SPAN
+><SPAN
+CLASS="ORGNAME"
+>          <A
+HREF="http://www.criticallink.com"
+TARGET="_top"
+>          Critical Link, LLC</A
+>, 
+          <A
+HREF="http://home.twcny.rr.com/embedded"
+TARGET="_top"
+>          Personel Homepage</A
+>
+        <BR></SPAN
+><DIV
+CLASS="ADDRESS"
+><P
+CLASS="ADDRESS"
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          gary.james@criticallink.com<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          gjames@twcny.rr.com<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+></DIV
+></DIV
+><P
+CLASS="COPYRIGHT"
+>Copyright &copy; 2000,2001 by Gary James</P
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="releaseinfo.html"
+>Release Information</A
+></DT
+><DT
+>1. <A
+HREF="ch1.html"
+>Getting Started With Microwindows</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch1.html#INSTMAIN"
+>Installing Microwindows</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch1.html#AEN42"
+>Download The Latest Sources</A
+></DT
+><DT
+><A
+HREF="ch1.html#AEN53"
+>Configure The Build Scripts</A
+></DT
+><DT
+><A
+HREF="ch1.html#AEN69"
+>Build The Library And Demos</A
+></DT
+><DT
+><A
+HREF="ch1.html#AEN125"
+>Install The Libraries</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="inst_hello.html"
+>Hello World Example</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="inst_hello.html#AEN150"
+>hello.c</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN160"
+>Include Files</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN194"
+>Library Initialization</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN199"
+>Create a Graphics Context</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN206"
+>Create a Window</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN215"
+>Select Events</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN221"
+>Show The Window</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN226"
+>Handle Events</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN247"
+>Drum Roll Please...</A
+></DT
+><DT
+><A
+HREF="inst_hello.html#AEN260"
+>Summary</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>2. <A
+HREF="ch2.html"
+>Working With Images</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch2.html#IMAGE.TUX1"
+>Embeddeding Images in an Application</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch2.html#AEN271"
+>Convert a Bitmap Image to C Source</A
+></DT
+><DT
+><A
+HREF="ch2.html#AEN294"
+>Nano-X Client Fixup</A
+></DT
+><DT
+><A
+HREF="ch2.html#AEN302"
+>Example Drawing Tux I</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="image_tux2.html"
+>Drawing Images Fom Files</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="image_tux2.html#AEN341"
+>Example Drawing Tux II</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="image_tux3.html"
+>Loading Images Fom Files</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="image_tux3.html#AEN384"
+>Example Drawing Tux III</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>3. <A
+HREF="ch3.html"
+>Working With Fonts</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch3.html#FONTS.INTRO"
+>Using TrueType Fonts in Your Application</A
+></DT
+><DT
+><A
+HREF="fonts_install.html"
+>Installing The FreeType Library</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="fonts_install.html#AEN427"
+>Download The FreeType Library</A
+></DT
+><DT
+><A
+HREF="fonts_install.html#AEN434"
+>Extract The Sources</A
+></DT
+><DT
+><A
+HREF="fonts_install.html#AEN441"
+>Build &#38; Install The Library</A
+></DT
+><DT
+><A
+HREF="fonts_install.html#AEN458"
+>Modify The Microwindows Configuration File</A
+></DT
+><DT
+><A
+HREF="fonts_install.html#AEN492"
+>Rebuild Microwindows With FreeType Support</A
+></DT
+><DT
+><A
+HREF="fonts_install.html#AEN495"
+>Get Some TrueType Fonts</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="fonts_example.html"
+>Font Example</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="fonts_example.html#AEN511"
+>Example Using Fonts</A
+></DT
+></DL
+></DD
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Figures</B
+></DT
+><DT
+>1-1. <A
+HREF="inst_hello.html#AEN253"
+>Hello World Example</A
+></DT
+><DT
+>2-1. <A
+HREF="ch2.html#AEN325"
+>Tux I Example</A
+></DT
+><DT
+>3-1. <A
+HREF="fonts_example.html#AEN529"
+>TrueType Font Example</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Examples</B
+></DT
+><DT
+>1-1. <A
+HREF="inst_hello.html#AEN157"
+>hello.c</A
+></DT
+><DT
+>2-1. <A
+HREF="ch2.html#AEN317"
+>image_01.c</A
+></DT
+><DT
+>2-2. <A
+HREF="image_tux2.html#AEN366"
+>image_02.c</A
+></DT
+><DT
+>2-3. <A
+HREF="image_tux3.html#AEN409"
+>image_03.c</A
+></DT
+><DT
+>3-1. <A
+HREF="fonts_example.html#AEN521"
+>fonts.c</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="releaseinfo.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Release Information</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

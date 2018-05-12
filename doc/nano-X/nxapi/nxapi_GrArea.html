@@ -1,0 +1,730 @@
+<HTML
+><HEAD
+><TITLE
+>GrArea()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrArcAngle()"
+HREF="nxapi_GrArcAngle.html"><LINK
+REL="NEXT"
+TITLE="GrBell()"
+HREF="nxapi_GrBell.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrArcAngle.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrBell.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRAREA"
+><TT
+CLASS="FUNCTION"
+>GrArea()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1017"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrArea()</TT
+>&nbsp;--&nbsp;Draw a pixel array</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1021"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN1022"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrArea                </B
+></CODE
+>( GR_DRAW_ID         <VAR
+CLASS="PDPARAM"
+> id                    </VAR
+>,  GR_GC_ID           <VAR
+CLASS="PDPARAM"
+> gc                    </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> x                     </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> y                     </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> width                 </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> height                </VAR
+>,  GR_PIXELVAL *      <VAR
+CLASS="PDPARAM"
+> pixels                </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> pixtype               </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1042"
+></A
+><H2
+>Description</H2
+><P
+>    This function draws a bitmap on the specified drawable. The bitmap
+    is drawn at the location
+    (<TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+>,<TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+>) relative to
+    the drawable. 
+    </P
+><P
+>    The bitmap image is drawn using the specified graphics context. If
+    the graphis context variable <TT
+CLASS="VARNAME"
+>usebackground</TT
+> is
+    set then pixels in the bitmap that match color with the graphics
+    context's background color are not drawn. This way you can have
+    transparent sections in the bitmap image.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    Color conversion is only performed when using the
+    <TT
+CLASS="CONSTANT"
+>MWPF_RGB</TT
+> format.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1052"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1054"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>id</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the drawable to red pixel data from. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>gc</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>x</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate at which to draw the area,
+        relative to the drawable. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>y</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate at which to draw the area,
+        relative to the drawable. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width of the area. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The height of the area. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_PIXELVAL.html"
+><SPAN
+CLASS="TYPE"
+>GR_PIXELVAL*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixels</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pointer to an array of pixel data. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pixtype</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The format of the pixel data. See 
+        <A
+HREF="nxapi_GrArea.html#NXAPI.PIXEL.FORMAT"
+>below</A
+>
+        for a list of the available pixel formats.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="NXAPI.PIXEL.FORMAT"
+></A
+><H2
+>Pixel Formats</H2
+><P
+>    The following table lists the possible pixel format values that may
+    be used with the <TT
+CLASS="FUNCTION"
+>GrArea()</TT
+> function.
+    </P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN1125"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pixel Format</TH
+><TH
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_RGB</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This psuedo format is used as a conversion specifier
+        when working with 32 bit RGB format pixel colors.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_PIXELVAL</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This psuedo format is used as a <I
+CLASS="EMPHASIS"
+>no</I
+>
+        conversion specifier when working with GR_PIXELVAL pixel
+        colors. </TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_PALETTE</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Palettized pixel color format.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_TRUECOLOR0888</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Packed 32 bit 0/8/8/8 true color format.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_TRUECOLOR888</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Packed 24 bit 8/8/8 truecolor format.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_TRUECOLOR565</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Packed 16 bit 5/6/5 truecolor format.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_TRUECOLOR555</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Packed 16 bit 0/5/5/5 truecolor format.</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>MWPF_TRUECOLOR332</TT
+></TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Packed 8 bit 3/3/2 truecolor format.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1167"
+></A
+><H2
+>See Also</H2
+><P
+>    <A
+HREF="nxapi_GrReadArea.html"
+>          <TT
+CLASS="FUNCTION"
+>GrReadArea()</TT
+></A
+>, 
+    <A
+HREF="nxapi_GrCopyArea.html"
+>          <TT
+CLASS="FUNCTION"
+>GrCopyArea()</TT
+></A
+>.
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrArcAngle.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrBell.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrArcAngle()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrBell()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,331 @@
+<HTML
+><HEAD
+><TITLE
+>GrPrepareSelect()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrPoly()"
+HREF="nxapi_GrPoly.html"><LINK
+REL="NEXT"
+TITLE="GrRaiseWindow()"
+HREF="nxapi_GrRaiseWindow.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrPoly.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrRaiseWindow.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRPREPARESELECT"
+><TT
+CLASS="FUNCTION"
+>GrPrepareSelect()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN5832"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrPrepareSelect()</TT
+>&nbsp;--&nbsp;Prepare an fdset for a select</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN5836"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN5837"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrPrepareSelect       </B
+></CODE
+>( int *              <VAR
+CLASS="PDPARAM"
+> maxfd                 </VAR
+>,  void *             <VAR
+CLASS="PDPARAM"
+> rfdset                </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5845"
+></A
+><H2
+>Description</H2
+><P
+>    This function prepares a file descriptor set for use in a
+    subsequent <TT
+CLASS="FUNCTION"
+>select()</TT
+> call. The file
+    descriptor set is initialized with the nano-X client/server
+    socket descriptor and all registered external file
+    descriptors. The parameter <TT
+CLASS="PARAMETER"
+><I
+>maxfd</I
+></TT
+> is set
+    to the highest of the file descriptors in the set.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5850"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN5852"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>maxfd</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pointer to an integer to receive the highest file
+        descriptor in the file descriptor set.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>void*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>rfdset</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pointer to a caller supplied file descriptor set
+        structure to fill in.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN5875"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrServiceSelect.html"
+>             <TT
+CLASS="FUNCTION"
+>GrServiceSelect()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrRegisterInput.html"
+>            <TT
+CLASS="FUNCTION"
+>GrRegisterInput()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrMainLoop.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrPoly.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrRaiseWindow.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrRaiseWindow()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

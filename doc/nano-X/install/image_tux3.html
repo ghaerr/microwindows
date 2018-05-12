@@ -1,0 +1,442 @@
+<HTML
+><HEAD
+><TITLE
+>Loading Images Fom Files</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Getting Started With Microwindows & Nano-X"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Working With Images"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="Drawing Images Fom Files"
+HREF="image_tux2.html"><LINK
+REL="NEXT"
+TITLE="Working With Fonts"
+HREF="ch3.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started With Microwindows &#38; Nano-X</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="image_tux2.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Working With Images</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="ch3.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="IMAGE.TUX3"
+>Loading Images Fom Files</A
+></H1
+><P
+>    The nano-X API contains a function,
+    <TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+>, which will read an image
+    from a file into the nano-X server's memory and return a
+    <SPAN
+CLASS="TYPE"
+>GR_IMAGE_ID</SPAN
+> ID. With this ID the image can be drawn
+    to a window at a later time using the
+    <TT
+CLASS="FUNCTION"
+>GrDrawImageToFit()</TT
+> function. Multiple
+    image formats (GIF, JPEG, BMP, PNG, XPM, PBM, PGM and PPM) are
+    supported by <TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+>. The image
+    type is automatically determined when the file is read.
+    </P
+><P
+>    Just as with the <TT
+CLASS="FUNCTION"
+>GrDrawImageFromFile()</TT
+>
+    function the image file must reside within the nano-X server's
+    file system. The client application just passes the filename to
+    the server then the server reads the file. This is no problem
+    as long as the the client and server are on the same
+    machine. Another thing to be aware of is that since the server is
+    opening the file, all relative paths in the image file name are
+    relative to the nano-X server's current directory rather than the
+    client's current working directory.
+    </P
+><P
+>    The following example shows how to display Tux as an image loaded
+    from file at run time. This approach is a little quicker than the
+    previous example since the program does not go out to disk during
+    each exposure event.
+    </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN384"
+>Example Drawing Tux III</A
+></H2
+><P
+>    Create a directory in which to build this example. Then copy
+    the bitmap image of Tux from the Microwindows sources to this
+    directory. Also copy the example source shown below into a file
+    named "<TT
+CLASS="FILENAME"
+>image_03.c</TT
+>".
+
+      <DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      In this example assume that Microwindows is installed to 
+      <TT
+CLASS="FILENAME"
+>~/microwin</TT
+> and the examples
+      are built in <TT
+CLASS="FILENAME"
+>~/mymw/ex_image_03</TT
+>. If you have different
+      locations then you will have to modify the paths used in the
+      example accordingly.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cd ~/mymw/ex_image_03</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cp ~/microwin/src/mwin/bmp/penguin.bmp penguin.bmp</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    Compile the application with the following command.
+
+      <DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      If you did not install Microwindows you will need to change the
+      path <TT
+CLASS="FILENAME"
+>/usr/include/microwin</TT
+>
+      so that it points to the include directory where you extracted 
+      the Microwindows source.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>gcc image_03.c \</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>&#62;</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>-I/usr/include/microwin \</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>&#62;</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>-o image_03 -lnano-X</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN409"
+></A
+><P
+><B
+>Example 2-3. image_03.c</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+GR_IMAGE_ID   image;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+     if (GrOpen() &#60; 0)
+     {
+          fprintf (stderr, "GrOpen failed");
+          exit (1);
+     }
+
+     image = GrLoadImageFromFile ("penguin.bmp", 0);
+
+     gc = GrNewGC();
+
+     wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                          GR_WM_PROPS_CAPTION  |
+                          GR_WM_PROPS_CLOSEBOX,
+                          "Tux Window III",
+                          GR_ROOT_WINDOW_ID, 50, 50, 
+                          100, 200,
+                          WHITE);
+
+     GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                          GR_EVENT_MASK_CLOSE_REQ);
+
+     GrMapWindow (wid);
+     GrMainLoop (event_handler);
+     return 0;
+}
+
+void event_handler (GR_EVENT *event)
+{
+     switch (event-&#62;type)
+     {
+     case GR_EVENT_TYPE_EXPOSURE:
+     {
+          GR_WINDOW_INFO info;
+
+          GrGetWindowInfo (wid, &#38;info);
+          GrDrawImageToFit (wid, gc, 0, 0, 
+                            info.width, info.height, 
+                            image);
+          break;
+     }
+     case GR_EVENT_TYPE_CLOSE_REQ:
+          GrClose();
+          exit (0);
+     }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>    Run the example application with the following command.
+    </P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X&#38; sleep 1; nanowm&#38; sleep 1; ./image_03&#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="image_tux2.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ch3.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Drawing Images Fom Files</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Working With Fonts</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

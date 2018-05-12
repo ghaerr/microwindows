@@ -1,0 +1,315 @@
+<HTML
+><HEAD
+><TITLE
+>GrSetErrorHandler()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrSetCursor()"
+HREF="nxapi_GrSetCursor.html"><LINK
+REL="NEXT"
+TITLE="GrSetFocus()"
+HREF="nxapi_GrSetFocus.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetCursor.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetFocus.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRSETERRORHANDLER"
+><TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN6940"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+>&nbsp;--&nbsp;Setup an error handler</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN6944"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN6945"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_FNCALLBACKEVENT <B
+CLASS="FSFUNC"
+>  GrSetErrorHandler     </B
+></CODE
+>( GR_FNCALLBACKEVENT <VAR
+CLASS="PDPARAM"
+> fncb                  </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6951"
+></A
+><H2
+>Description</H2
+><P
+>    This function allows you to specify an error handing function,
+    for all errors that the server sends to the client. If an error
+    occurs the specified error handler is called with an error
+    event. If a <TT
+CLASS="CONSTANT"
+>NULL</TT
+> function pointer is
+    specified, then errors will be sent through the nano-X event queue
+    rather than through an error handler callback function.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6955"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN6957"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fncb</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pointer to the error handler function or
+        <TT
+CLASS="CONSTANT"
+>NULL</TT
+> to send errors through the
+        event queue. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6976"
+></A
+><H2
+>Returns</H2
+><P
+>    A pointer to the previous error handler function.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6979"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrDefaultErrorHandler.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDefaultErrorHandler()</TT
+></A
+>, 
+      <A
+HREF="nxstruct_GR_ERROR.html"
+>            <SPAN
+CLASS="TYPE"
+>GR_ERROR</SPAN
+></A
+>, 
+      <A
+HREF="nxstruct_GR_EVENT_ERROR.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetCursor.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetFocus.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetFocus()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

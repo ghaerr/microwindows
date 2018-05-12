@@ -1,0 +1,439 @@
+<HTML
+><HEAD
+><TITLE
+>GrLoadImageFromFile()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrLine()"
+HREF="nxapi_GrLine.html"><LINK
+REL="NEXT"
+TITLE="GrLowerWindow()"
+HREF="nxapi_GrLowerWindow.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrLine.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrLowerWindow.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRLOADIMAGEFROMFILE"
+><TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4259"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+>&nbsp;--&nbsp;Load an image from a file into memory</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4263"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4264"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_IMAGE_ID        <B
+CLASS="FSFUNC"
+>  GrLoadImageFromFile   </B
+></CODE
+>( char *             <VAR
+CLASS="PDPARAM"
+> path                  </VAR
+>,  int                <VAR
+CLASS="PDPARAM"
+> flags                 </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4272"
+></A
+><H2
+>Description</H2
+><P
+>    This function loads the image file specified by
+    <TT
+CLASS="PARAMETER"
+><I
+>path</I
+></TT
+> into a newly created image in the
+    nano-X server's memory and returns the ID of the new
+    image. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    The actual image types supported by the Nano-X server depend on
+    the image types that were compiled in at server build time.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    Filename extensions are irrelevant. The algorithm examines the
+    magic numbers in the file's header to determine the image
+    type. Supported image types include GIF, JPEG, Windows BMP, PNG,
+    XPM and both ASCII and binary variants of PBM, PGM and PPM.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    The file is read from a file by the nano-X server not the nano-X
+    client. This distinction will become more important when nano-X
+    gains support for remote cient operation over network. When the
+    client and server are on the same machine the distinction becomes
+    less important, unless the path is relative. If the path is
+    relative, it must be specified relative to the servers current
+    working directory rather than the client's.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4282"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4284"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>char*</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>path</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A string containing the filename of the file to
+        load. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="TYPE"
+>int</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Flags based of the specific image type. Currenly
+        <TT
+CLASS="PARAMETER"
+><I
+>flags</I
+></TT
+> is only used for loading JPEG
+        files. If set to <TT
+CLASS="CONSTANT"
+>TRUE</TT
+> the JPEG will be
+        loaded in "fast grayscale" mode. If set to
+        <TT
+CLASS="CONSTANT"
+>FALSE</TT
+> the image will be drawn in RGB
+        color mode. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4310"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrFreeImage.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFreeImage()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrGetImageInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetImageInfo()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrDrawImageFromFile.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDrawImageFromFile()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrDrawImageToFit.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDrawImageToFit()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrLine.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrLowerWindow.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrLine()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrLowerWindow()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

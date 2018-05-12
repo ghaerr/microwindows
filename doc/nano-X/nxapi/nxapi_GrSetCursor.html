@@ -1,0 +1,633 @@
+<HTML
+><HEAD
+><TITLE
+>GrSetCursor()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrSetBorderColor()"
+HREF="nxapi_GrSetBorderColor.html"><LINK
+REL="NEXT"
+TITLE="GrSetErrorHandler()"
+HREF="nxapi_GrSetErrorHandler.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetBorderColor.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetErrorHandler.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRSETCURSOR"
+><TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN6817"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+>&nbsp;--&nbsp;Specify a mouse cursor image</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN6821"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN6822"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrSetCursor           </B
+></CODE
+>( GR_WINDOW_ID       <VAR
+CLASS="PDPARAM"
+> wid                   </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> width                 </VAR
+>,  GR_SIZE            <VAR
+CLASS="PDPARAM"
+> height                </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> hotx                  </VAR
+>,  GR_COORD           <VAR
+CLASS="PDPARAM"
+> hoty                  </VAR
+>,  GR_COLOR           <VAR
+CLASS="PDPARAM"
+> foreground            </VAR
+>,  GR_COLOR           <VAR
+CLASS="PDPARAM"
+> background            </VAR
+>,  GR_BITMAP *        <VAR
+CLASS="PDPARAM"
+> fgbitmap              </VAR
+>,  GR_BITMAP *        <VAR
+CLASS="PDPARAM"
+> bgbitmap              </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6844"
+></A
+><H2
+>Description</H2
+><P
+>    This function allows you to specify the image to use as the
+    mouse pointer for the specified window and it's children.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    Pixels that are not set in either the foreground or the
+    background bitmaps will be transparent.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6849"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN6851"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the window to set the cursor for. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>width</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The width of the pointer bitmap in pixels. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>height</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The height of the pointer bitmap in pixels. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>hotx</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The X coordinate within the bitmap used as the
+        target for the pointer. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>hoty</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Y coordinate within the bitmap used as the
+        target for the pointer. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>foreground</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color to use for the foreground bitmap image. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COLOR.html"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>background</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The color to use for the background bitmap image. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_BITMAP.html"
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>fgbitmap</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pointer to a bitmap data array to use as the
+        foreground bitmap. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_BITMAP.html"
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>bgbitmap</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Pointer to a bitmap data array to use as the
+        background bitmap. </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6925"
+></A
+><H2
+>Example</H2
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN6927"
+></A
+><P
+><B
+>Example 2-1. Using <TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+void set_x_cursor (GR_WINDOW_ID wid)
+{
+    GR_BITMAP fg_bitmap[16];
+    GR_BITMAP bg_bitmap[16];
+
+    fg_bitmap[0]  = 0x8001;  /* X______________X */
+    fg_bitmap[1]  = 0x4002;  /* _X____________X_ */
+    fg_bitmap[2]  = 0x2004;  /* __X__________X__ */
+    fg_bitmap[3]  = 0x1008;  /* ___X________X___ */
+    fg_bitmap[4]  = 0x0810;  /* ____X______X____ */
+    fg_bitmap[5]  = 0x0420;  /* _____X____X_____ */
+    fg_bitmap[6]  = 0x0240;  /* ______X__X______ */
+    fg_bitmap[7]  = 0x0180;  /* _______XX_______ */
+    fg_bitmap[8]  = 0x0180;  /* _______XX_______ */
+    fg_bitmap[9]  = 0x0240;  /* ______X__X______ */
+    fg_bitmap[10] = 0x0420;  /* _____X____X_____ */
+    fg_bitmap[11] = 0x0810;  /* ____X______X____ */
+    fg_bitmap[12] = 0x1008;  /* ___X________X___ */
+    fg_bitmap[13] = 0x2004;  /* __X__________X__ */
+    fg_bitmap[14] = 0x4002;  /* _X____________X_ */
+    fg_bitmap[15] = 0x8001;  /* X______________X */
+
+    bg_bitmap[0]  = 0x4002;  /* _X____________X_ */
+    bg_bitmap[1]  = 0xA005;  /* X_X__________X_X */
+    bg_bitmap[2]  = 0x500A;  /* _X_X________X_X_ */
+    bg_bitmap[3]  = 0x2814;  /* __X_X______X_X__ */
+    bg_bitmap[4]  = 0x1428;  /* ___X_X____X_X___ */
+    bg_bitmap[5]  = 0x0A50;  /* ____X_X__X_X____ */
+    bg_bitmap[6]  = 0x05A0;  /* _____X_XX_X_____ */
+    bg_bitmap[7]  = 0x0240;  /* ______X__X______ */
+    bg_bitmap[8]  = 0x0240;  /* ______X__X______ */
+    bg_bitmap[9]  = 0x05A0;  /* _____X_XX_X_____ */
+    bg_bitmap[10] = 0x0A50;  /* ____X_X__X_X____ */
+    bg_bitmap[11] = 0x1428;  /* ___X_X____X_X___ */
+    bg_bitmap[12] = 0x2814;  /* __X_X______X_X__ */
+    bg_bitmap[13] = 0x500A;  /* _X_X________X_X_ */
+    bg_bitmap[14] = 0xA005;  /* X_X__________X_X */
+    bg_bitmap[15] = 0x4002;  /* _X____________X_ */
+
+    GrSetCursor (wid, 16, 16, 8, 8, 
+                 BLACK, BLACK, fg_bitmap, bg_bitmap);
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN6931"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrMoveCursor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMoveCursor()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetBorderColor.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetErrorHandler.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetBorderColor()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

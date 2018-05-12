@@ -1,0 +1,402 @@
+<HTML
+><HEAD
+><TITLE
+>GR_EVENT_SCREENSAVER</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_EVENT_MOUSE"
+HREF="nxstruct_GR_EVENT_MOUSE.html"><LINK
+REL="NEXT"
+TITLE="GR_EVENT_TYPE"
+HREF="nxstruct_GR_EVENT_TYPE.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.EVENT.SCREENSAVER"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_SCREENSAVER</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN9815"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_SCREENSAVER</SPAN
+>&nbsp;--&nbsp;Screen saver event structure</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN9819"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct 
+{
+    GR_EVENT_TYPE   type;
+    GR_BOOL         activate;
+} GR_EVENT_SCREENSAVER;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9821"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_SCREENSAVER</SPAN
+> structure is
+    used to facilitate activation and deactivation of a screen
+    saver. The event is sent to activate a screen saver when the
+    screen saver timer expires with no user input. The event is also
+    sent to deactivate a screen saver if the screen saver is active
+    and some user input is detected.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    A bug in version 0.89-pre7 of Microwindows causes the timeout to
+    be multiplied internally by 1000. Therefore when building with
+    0.89-pre7 you must set the timeout in seconds rather than milli-seconds.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9827"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN9829"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>type</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The event type will be a
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_SCREENSAVER</TT
+>. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_BOOL.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_BOOL</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>activate</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This field indicates whether the screen saver is being
+        activated or deactivated.  If the value is
+        <TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+> then the screen saver should be
+        started. If the value is <TT
+CLASS="CONSTANT"
+>GR_FALSE</TT
+> then
+        the screen saver should be turned off (screen restored).</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9855"
+></A
+><H2
+>Example</H2
+><P
+>    The following example will turn an LCD backlight off when a 60
+    second screen saver timer expires, and restore the backlight when
+    user input is resumed.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN9858"
+></A
+><P
+><B
+>Example 3-1. Using <SPAN
+CLASS="TYPE"
+>GR_EVENT_SCREENSAVER</SPAN
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+void setup_screensaver (void)
+{
+    /* Set a one minute timeout for the LCD backlight */
+    /* nano-X BUG: use seconds rather than mS for 0.89-pre7 */
+    GrSetScreenSaverTimeout (60 * 1000);
+}
+
+void process_screensaver_event (GR_EVENT_SCREENSAVER *event)
+{
+    if (event-&#62;activate)
+    {
+        /* Turn the LCD backlight off */
+        your_platforms_backlight_off();
+    }
+    else
+    {
+        /* Turn the LCD backlight on */
+        your_platforms_backlight_on();
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9862"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_EVENT.html"
+>            <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+>, 
+      <A
+HREF="nxapi_GrSetScreenSaverTimeout.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_MOUSE</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GR_EVENT_TYPE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

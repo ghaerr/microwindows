@@ -1,0 +1,897 @@
+<HTML
+><HEAD
+><TITLE
+>Nano-X API</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Microwindows Architecture"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Microwindows Architecture"
+HREF="ch1.html"><LINK
+REL="PREVIOUS"
+TITLE="Microwindows API"
+HREF="archmwinapi.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Microwindows Architecture</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="archmwinapi.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Microwindows Architecture</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="ARCHNANOAPI"
+>Nano-X API</A
+></H1
+><P
+>    The Nano-X API was originally designed by David Bell, with his
+    mini-x package for the MINIX operating system.  Nano-X is now
+    running on top of the core graphics engine routines discussed in
+    <A
+HREF="archengine.html"
+>the section called <I
+>Device-Independent Engine Features</I
+></A
+>.  
+    Nano-X was designed for a client/server environment,
+    as no pointers to structures are passed to the API routines,
+    instead a call is made to the server to get an ID, which is passed
+    to the API functions and is used to reference the data on the
+    server.  In addition, Nano-X is not message-oriented, instead
+    modeled after the X protocol which was designed for speed on
+    systems where the client and server machines were different.
+  </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN664"
+>Client/Server model</A
+></H2
+><P
+>    In Nano-X, there are two linking mechanisms that can be used for
+    applications programs.  In the client/server model, the
+    application program is linked with a client library that forms a
+    UNIX socket connection with the Nano-X server, a separate process.
+    Each application then communicates all parameters over the UNIX
+    socket. For speed and debugging, it is sometimes desirable to link
+    the application directly with the server. In this case, a stub
+    library is provided that just passes the client routines
+    parameters to the server function.
+  </P
+><P
+>    The Nano-X naming convention uses GrXXX to designate client side
+    callable routines, with a marshalling layer implemented in the files
+    <TT
+CLASS="FILENAME"
+> nanox/client.c  </TT
+>, 
+    <TT
+CLASS="FILENAME"
+> nanox/nxproto.c </TT
+>, and
+    <TT
+CLASS="FILENAME"
+> nanox/srvnet.c </TT
+>.  
+    The client/server network layer currently uses a fast approach to
+    marshalling the data from the Gr routine into a buffer, and sent
+    all at once to the receiving stubs in
+    <TT
+CLASS="FILENAME"
+>nanox/srvnet.c</TT
+>, before calling the server
+    drawing routines in <TT
+CLASS="FILENAME"
+>nanox/srvfunc.c</TT
+>.  In the
+    linked application scenario, the Nano-X client links directly with
+    the functions in 
+    <TT
+CLASS="FILENAME"
+> nanox/srvfunc.c </TT
+>, and the 
+    <TT
+CLASS="FILENAME"
+> nanox/client.c  </TT
+> and 
+    <TT
+CLASS="FILENAME"
+> nanox/srvnet.c  </TT
+> files are not required.
+  </P
+><P
+>    A Nano-X application must call <TT
+CLASS="FUNCTION"
+>GrOpen</TT
+> before
+    calling any other Nano-X function, and call
+    <TT
+CLASS="FUNCTION"
+>GrClose</TT
+> before exiting.  These functions
+    establish a connection with the server when running the
+    client/server model, and return an error status if the server
+    can't be found or isn't currently running.
+  </P
+><P
+>    The main loop in a Nano-X application is to create some windows,
+    define the events you want with
+    <TT
+CLASS="FUNCTION"
+>GrSelectEvents</TT
+>, and then wait for an event
+    with <TT
+CLASS="FUNCTION"
+>GrGetNextEvent</TT
+>. If it is desired to
+    merely check for an event, but not wait if there isn't one,
+    <TT
+CLASS="FUNCTION"
+>GrCheckNextEvent</TT
+> can be
+    used. <TT
+CLASS="FUNCTION"
+>GrPeekEvent</TT
+> can be used to examine the
+    next event without removing it from the queue.
+  </P
+><P
+>    When running Nano-X programs in the client/server model, it's
+    currently necessary to run the server first in a shell script,
+    then wait a second, then run the application.  Some rewriting is
+    needed to fire up the server when an application requires it, I
+    believe.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN685"
+>Events</A
+></H2
+><P
+>    Nano-X applications specify which events they would like to see on
+    a per-window basis using <TT
+CLASS="FUNCTION"
+>GrSelectEvents</TT
+>.
+    Then, in the main loop, the application calls
+    <TT
+CLASS="FUNCTION"
+>GrGetNextEvent</TT
+> and waits for one of the event
+    types selected for in any of the windows. Typically, a switch
+    statement is used to determine what to do after receiving the
+    event. This is similar to the Microwindows's API
+    <TT
+CLASS="FUNCTION"
+>GetMessage</TT
+>/<TT
+CLASS="FUNCTION"
+>DispatchMessage</TT
+>
+    loop, except that in Microwindows API,
+    <TT
+CLASS="FUNCTION"
+>DispatchMessage</TT
+> is used to send the event to
+    the window's handling procedure, typically located with the window
+    object. In Nano-X, all the event handling code for each of the
+    windows must be placed together in the main event loop, there is
+    no automatic dispatching.  Of course, widget sets serve to provide
+    object-orientation, but this is in addition to the Nano-X API.
+  </P
+><P
+>    Following are the event types that Nano-X programs can recieve:
+  </P
+><P
+>    GR_EVENT_TYPE_NONE, ERROR, EXPOSURE, BUTTON_DOWN, BUTTON_UP,
+    MOUSE_ENTER, MOUSE_EXIT, MOUSE_MOTION, MOUSE_POSITION, KEY_UP,
+    KEY_DOWN, FOCUS_IN, FOCUS_OUT, FDINPUT, UPDATE, CHLD_UPDATE
+  </P
+><P
+>    Note that Nano-X API provides mouse enter and exit events whereas
+     Microwindows API does not. Also, the exposure events are
+     calculated and sent immediately by the server, and not combined
+     and possibly delayed for better paint throughput as in the
+     Microwindows API.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN696"
+>Window creation and destruction</A
+></H2
+><P
+>    Windows are created in Nano-X with the
+    <TT
+CLASS="FUNCTION"
+>GrNewWindow</TT
+> function. Windows can be
+    specified to be input-only, in which case the
+    <TT
+CLASS="FUNCTION"
+>GrNewInputWindow</TT
+> function is used. The window
+    border and color is specified in these calls, but will have to be
+    rewritten when fancier window dressings are required. The return
+    value from these functions is an ID that can be used in later
+    calls to get a graphics context or perform window manipulation.
+  </P
+><P
+>    Pixmaps, which are offscreen windows, are created with GrNewPixmap.
+    The ID returned can be used with any drawing function. Pixmaps are
+    copied to windows using the GrCopyArea function, and destroyed like
+    windows with GrDestroyWindow.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN702"
+>Window showing, hiding and moving</A
+></H2
+><P
+>    Windows are shown by calling the <TT
+CLASS="FUNCTION"
+>GrMapWindow</TT
+>
+    function, and hidden using <TT
+CLASS="FUNCTION"
+>GrUnmapWindow</TT
+>.
+    Mapping a window is required for all ancestors of a window in
+    order for it to be visible. The GrRaiseWindow call is used to
+    raise the Z order of a window, while
+    <TT
+CLASS="FUNCTION"
+>GrLowerWindow</TT
+> is used to lower the Z
+    order. <TT
+CLASS="FUNCTION"
+>GrMoveWindow</TT
+> is used to change the
+    position of a window, and <TT
+CLASS="FUNCTION"
+>GrResizeWindow</TT
+> is
+    used to resize a window. A window can be reparented with
+    <TT
+CLASS="FUNCTION"
+>GrReparentWindow</TT
+>.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN711"
+>Drawing to a window</A
+></H2
+><P
+>    Nano-X requires both a window ID and a graphics context ID in
+    order to draw to a window.  Nano-X sends expose events to the
+    application when a window needs to be redrawn. Unlike the
+    Microwindows API, Nano-X clients are typically required to create
+    their drawing graphics contexts early on and keep them for the
+    duration of the application. Like Microwindows though, the
+    graphics contexts record information like the current background
+    and foreground colors so they don't have to be specified in every
+    graphics API call.
+  </P
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN714"
+>Graphics contexts</A
+></H3
+><P
+>    To allocate a graphics context for a window, call
+    <TT
+CLASS="FUNCTION"
+>GrNewGC</TT
+>.  On termination, call
+    <TT
+CLASS="FUNCTION"
+>GrDestroyGC</TT
+>.  <TT
+CLASS="FUNCTION"
+>GrCopyGC</TT
+>
+    can be used to copy on GC to another.
+    <TT
+CLASS="FUNCTION"
+>GrGetGCInfo</TT
+> is used to retrieve the settings
+    contained in a GC. After creating a graphics context, the server
+    returns a graphics context ID. This is then used as a parameter in
+    all the graphics drawing API functions. In Nano-X programs, the
+    current clipping region and window coordinate system aren't stored
+    with the GC, as they are in Microwindows' DCs. This is because,
+    first, Nano-X doesn't support dual coordinate systems for drawing
+    to the "window dressing" area versus the "user" area of the window
+    (window and client coordinates in Microwindows). User programs
+    can't draw the border area of the window, only a single color and
+    width can be specified.  Although resembling X, this will have to
+    change, so that widget sets can specify the look and feel of all
+    aspects of the windows they maintain.  Since the clipping region
+    isn't maintained with the graphics context, but instead with the
+    window data structure, Nano-X applications must specify both a
+    window ID and a graphics context ID when calling any graphics API
+    function.  Because of this, many Nano-X applications allocate all
+    graphics contexts in the beginning of the program, and hold them
+    throughout execution, since the graphics contexts hold only things
+    like foreground color, etc, and no window information.  This
+    cannot be done with Microwindows API because the DC's contain
+    window clipping information and must be released before processing
+    the next message.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN721"
+>Graphics drawing API</A
+></H3
+><P
+>    Following are the graphics drawing functions available with
+    Nano-X.  Like Microwindows API, these all match up eventually to
+    the graphics engine <TT
+CLASS="FUNCTION"
+>GdXXX</TT
+> routines.
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN725"
+></A
+><P
+><B
+>Table 1-10. Nano-X Graphics Drawing Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrGetGCTextSize</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return text width and height information.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrClearWindow</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Clear a window to it's background color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetGCForeground</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the foreground color in a graphics context.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetGCBackground</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the background color in a graphics context.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetGCUseBackground</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the "use background color" in a graphics context.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetGCMode</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the drawing mode.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetGCFont</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the font.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrPoint</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a point in the passed gc's foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrLine</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a line in the passed gc's foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a rectangle in passed gc's foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrFillRect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Fill a rectangle with the passed gc's foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrEllipse</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a circle or ellipse with the passed gc's
+        foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrFillEllipse</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Fill a circle or ellipse with the passed gc's
+        foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrPoly</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a polygon using the passed gc's foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrFillPoly</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Fill a polygon using the passed gc's foreground color.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrText</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a text string using the foreground and possibly
+        background colors.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrBitmap</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an image using a passed monocrhome bitmap, use
+        fb/bg colors.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrBMP</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an image from a .bmp file.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrJPEG</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw an image from a .jpg file.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrArea</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Draw a rectangular area using the passed
+        device-dependent pixels.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrReadArea</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Read the pixel values from the screen and return them.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrGetSystemPaletteEntries</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Get the currently in-use system palette entries.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrFindColor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Translate an RGB color value to a PIXELVAL pixel value.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN802"
+>Utility functions</A
+></H2
+><P
+>    Various functions serve as utility functions to manipulate windows
+    and provide other information. These include the following:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN805"
+></A
+><P
+><B
+>Table 1-11. Nano-X Utility Functions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetBorderColor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the border color of a window. Not suitable for 3d
+        look and feel.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetCursor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the cursor bitmap for the window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrMoveCursor</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Move the cursor to absolute screen coordinates.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrSetFocus</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set the keyboard input focus window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrRedrawScreen</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Redraw the entire screen.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrGetScreenInfo</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return information about the size of the physical
+        display.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrGetWindowInfo</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return information about the passed window.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrGetGCInfo</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return information about the passed graphics context.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrGetFontInfo</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Return information about the passed font number.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrRegisterInput</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Register a file descriptor to return an event when read
+        data available.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrPrepareSelect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Prepare the fd_set and maxfd variables for using Nano-X
+        as a passive library.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrServiceSelect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Callback the passed GetNextEvent routine when Nano-X
+        has events requiring processing.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GrMainLoop</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>A convenience routine for a typical Nano-X application
+        main loop.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="archmwinapi.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Microwindows API</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

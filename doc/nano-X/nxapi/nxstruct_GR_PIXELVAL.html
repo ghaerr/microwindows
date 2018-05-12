@@ -1,0 +1,197 @@
+<HTML
+><HEAD
+><TITLE
+>GR_PIXELVAL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_PALETTE"
+HREF="nxstruct_GR_PALETTE.html"><LINK
+REL="NEXT"
+TITLE="GR_POINT"
+HREF="nxstruct_GR_POINT.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_PALETTE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_POINT.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.PIXELVAL"
+><SPAN
+CLASS="TYPE"
+>GR_PIXELVAL</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN11614"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="TYPE"
+>GR_PIXELVAL</SPAN
+>&nbsp;--&nbsp;Hardware dependent color value</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN11618"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#if MWPIXEL_FORMAT == MWPF_TRUECOLOR565
+typedef unsigned short GR_PIXELVAL;
+#else
+  #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
+  typedef unsigned char GR_PIXELVAL;
+  #else
+    #if MWPIXEL_FORMAT == MWPF_PALETTE
+    typedef unsigned char GR_PIXELVAL;
+    #else
+      typedef unsigned long GR_PIXELVAL;
+    #endif
+  #endif
+#endif
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN11620"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="TYPE"
+>GR_PIXELVAL</SPAN
+> type is a hardware dependent color
+    value it is typically used for device dependent image storage. The
+    size of this value is dependent on the configuration settings that
+    were used to build the Microwindows libraries.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_PALETTE.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_POINT.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_PALETTE</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

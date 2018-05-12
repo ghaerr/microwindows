@@ -1,0 +1,754 @@
+<HTML
+><HEAD
+><TITLE
+>GR_EVENT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Data Types"
+HREF="nxstruct.html"><LINK
+REL="PREVIOUS"
+TITLE="GR_ERROR"
+HREF="nxstruct_GR_ERROR.html"><LINK
+REL="NEXT"
+TITLE="GR_EVENT_BUTTON"
+HREF="nxstruct_GR_EVENT_BUTTON.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_ERROR.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXSTRUCT.GR.EVENT"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN8898"
+></A
+><H2
+>Name</H2
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+>&nbsp;--&nbsp;Generic event structure</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN8902"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>typedef union 
+{
+    GR_EVENT_TYPE              type;
+    GR_EVENT_ERROR             error;
+    GR_EVENT_GENERAL           general;
+    GR_EVENT_BUTTON            button;
+    GR_EVENT_KEYSTROKE         keystroke;
+    GR_EVENT_EXPOSURE          exposure;
+    GR_EVENT_MOUSE             mouse;
+    GR_EVENT_FDINPUT           fdinput;
+    GR_EVENT_UPDATE            update;
+    GR_EVENT_SCREENSAVER       screensaver;
+    GR_EVENT_CLIENT_DATA_REQ   clientdatareq;
+    GR_EVENT_CLIENT_DATA       clientdata;
+    GR_EVENT_SELECTION_CHANGED selectionchanged;
+} GR_EVENT;
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8904"
+></A
+><H2
+>Description</H2
+><P
+>    The <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+> structure is used to retrieve
+    event information from the nano-X event queue. When you pull an
+    event out of the event queue you don't know what type of event it
+    is until after you have the event. Various event structures are different
+    sizes, this structure is a union of all event types. Since this
+    structure is a union, it is guarenteed to be large enough to hold
+    the largest possible event when you get an event from the event queue.
+    </P
+><P
+>    The <A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+><TT
+CLASS="STRUCTFIELD"
+><I
+>type</I
+></TT
+></A
+>
+    field identifies the structure type. After receiving an event it
+    is common for an application to switch on type.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN8911"
+></A
+><H2
+>Fields</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN8913"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_TYPE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>type</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The type of event that this
+        structure corresponds too.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_ERROR.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_ERROR</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>error</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_ERROR</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_GENERAL.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_GENERAL</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>general</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_EXIT</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_ENTER</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_OUT</TT
+> or 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FOCUS_IN</TT
+>.
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_BUTTON</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>button</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_BUTTON_UP</TT
+> or 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_BUTTON_DOWN</TT
+>. 
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_KEYSTROKE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>keystroke</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_KEY_DOWN</TT
+> or
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_KEY_UP</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_EXPOSURE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_EXPOSURE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>exposure</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_EXPOSURE</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_MOUSE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>mouse</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_ENTER</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_EXIT</TT
+>, 
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_MOUSE_MOTION</TT
+> or  
+        <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_Mouse_POSITION</TT
+>. 
+        </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_FDINPUT.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_FDINPUT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>fdinput</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_FDINPUT</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_UPDATE.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_UPDATE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>update</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_UPDATE</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_EVENT_SCREENSAVER.html"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_SCREENSAVER</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>screensaver</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_SCREENSAVER</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_CLIENT_DATA_REQ</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>clientdatareq</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLIENT_DATA_REQ</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_CLIENT_DATA</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>clientdata</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLIENT_DATA</TT
+>.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>        <SPAN
+CLASS="TYPE"
+>GR_EVENT_SELECTION_CHANGED</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>selectionchanged</TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Additional event data, if the
+        event type is <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_SELECTION_CHANGED</TT
+>.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9023"
+></A
+><H2
+>Example</H2
+><P
+>    The following example shows a typical event loop. The first line
+    of the infinite while loop will suspend the client application
+    until an event is available in the event queue. Then the example
+    switches on the event type calling the appropriate application
+    function to process the event.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN9026"
+></A
+><P
+><B
+>Example 3-1. Using <SPAN
+CLASS="TYPE"
+>GR_EVENT</SPAN
+></B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+void typical_event_loop (void)
+{
+    GR_EVENT  event;
+
+    while (1)
+    {
+        GrGetNextEvent (&#38;event);
+        switch (event.type)
+        {
+        case GR_EVENT_TYPE_EXPOSURE:
+            process_exposure_event ((GR_EVENT_EXPOSURE*) event);
+            break;
+
+        case GR_EVENT_TYPE_BUTTON_DOWN:
+            process_button_event ((GR_EVENT_BUTTON*) event);
+            break;
+
+        case GR_EVENT_TYPE_KEY_DOWN:
+        case GR_EVENT_TYPE_KEY_UP:
+            process_key_event ((GR_EVENT_KEYSTROKE*) event);
+            break;
+
+        case GR_EVENT_TYPE_SCREENSAVER:
+            process_screensaver_event ((GR_EVENT_SCREENSAVER*) event);
+            break;
+
+        case GR_EVENT_TYPE_CLOSE_REQ:
+            GrClose();
+            exit (0);
+        }
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN9030"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrMainLoop.html"
+>            <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetNextEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetNextEvent()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetNextEventTimeout.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetNextEventTimeout()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrCheckNextEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCheckNextEvent()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrPeekEvent.html"
+>            <TT
+CLASS="FUNCTION"
+>GrPeekEvent()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_ERROR.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GR_ERROR</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nxstruct.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_BUTTON</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

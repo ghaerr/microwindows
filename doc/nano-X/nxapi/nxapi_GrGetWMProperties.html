@@ -1,0 +1,388 @@
+<HTML
+><HEAD
+><TITLE
+>GrGetWMProperties()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrGetWindowInfo()"
+HREF="nxapi_GrGetWindowInfo.html"><LINK
+REL="NEXT"
+TITLE="GrInjectKeyboardEvent()"
+HREF="nxapi_GrInjectKeyboardEvent.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrGetWindowInfo.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRGETWMPROPERTIES"
+><TT
+CLASS="FUNCTION"
+>GrGetWMProperties()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3809"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrGetWMProperties()</TT
+>&nbsp;--&nbsp;Retrieve a window's properties</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3813"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN3814"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrGetWMProperties     </B
+></CODE
+>( GR_WINDOW_ID       <VAR
+CLASS="PDPARAM"
+> wid                   </VAR
+>,  GR_WM_PROPERTIES * <VAR
+CLASS="PDPARAM"
+> props                 </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3822"
+></A
+><H2
+>Description</H2
+><P
+>    This function returns the window <TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+>'s
+    window manager properties in the caller supplied
+    <SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES</SPAN
+>.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    It is the callers responsibility to free the <TT
+CLASS="STRUCTFIELD"
+><I
+> title
+    </I
+></TT
+> member of the returned
+    <SPAN
+CLASS="STRUCTNAME"
+>GR_WM_POPERTIES</SPAN
+> structure, since it is
+    dynamically allocated. The <TT
+CLASS="STRUCTFIELD"
+><I
+> title </I
+></TT
+>
+    will be set to NULL, if the window has no title.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3832"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN3834"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>wid</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The ID of the window to get the properties of.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_WM_PROPERTIES.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES*</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>props</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pointer to the caller supplied <SPAN
+CLASS="STRUCTNAME"
+> GR_WM_PROPERTIES
+        </SPAN
+> structure that receives the current
+        window properties.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3860"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrSetWMProperties.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrNewWindow.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrNewWindowEx.html"
+>            <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetWindowInfo.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrGetWindowInfo.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrInjectKeyboardEvent()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

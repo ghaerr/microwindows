@@ -1,0 +1,674 @@
+<HTML
+><HEAD
+><TITLE
+>Hello World Example</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Getting Started With Microwindows & Nano-X"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Getting Started With Microwindows"
+HREF="ch1.html"><LINK
+REL="PREVIOUS"
+TITLE="Getting Started With Microwindows"
+HREF="ch1.html"><LINK
+REL="NEXT"
+TITLE="Working With Images"
+HREF="ch2.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started With Microwindows &#38; Nano-X</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="ch1.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Getting Started With Microwindows</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="ch2.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="INSTHELLO"
+>Hello World Example</A
+></H1
+><P
+>  In this section I present a simple nano-X application. This
+  application is the classic "hello world" in nano-X style. When you
+  run the application you will see a single white window with the text
+  "Hello World". If you run the application with
+  <SPAN
+CLASS="APPLICATION"
+>nanowm</SPAN
+> the application's window will have
+  a title bar, and a resizable border.
+  </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN150"
+>hello.c</A
+></H2
+><P
+>    Copy the source shown below into a file named
+    "<TT
+CLASS="FILENAME"
+>hello.c</TT
+>". Compile the application with the
+    following command.
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>gcc hello.c -o hello -lnano-X</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN157"
+></A
+><P
+><B
+>Example 1-1. hello.c</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+    GrSetGCUseBackground (gc, GR_FALSE);
+    GrSetGCForeground (gc, RED);
+
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Hello Window",
+                         GR_ROOT_WINDOW_ID, 
+                         50, 50, 200, 100, WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrText (wid, gc, 50, 50, 
+                "Hello World",  -1, GR_TFASCII);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN160"
+>Include Files</A
+></H2
+><P
+>    The header file "<TT
+CLASS="FILENAME"
+>microwin/nano-X</TT
+>" defines
+    the Microwindows and nano-X data structures, variables and
+    functions. This file will be included in all source files that make
+    nano-X API calls.
+    </P
+><P
+>    If we start at the top with the include files you will first notice
+    the define for <TT
+CLASS="CONSTANT"
+>MWINCLUDECOLORS</TT
+>. This definition
+    enables the definition of common system colors. The following color
+    names can be used if <TT
+CLASS="CONSTANT"
+>MWINCLUDECOLORS</TT
+> is defined
+    before the nano-X header files.
+
+    <DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN167"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>BLACK</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>BLUE</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>GREEN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>CYAN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>RED</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>MAGENTA</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>BROWN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTGRAY</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTBLUE</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTGREEN</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTCYAN</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTRED</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>LTMAGENTA</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>YELLOW</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>WHITE</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>DKGRAY</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+VALIGN="TOP"
+>&nbsp;</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN194"
+>Library Initialization</A
+></H2
+><P
+>    A single function call, <TT
+CLASS="FUNCTION"
+>GrOpen()</TT
+>, will
+    open and initialize the nano-X library. The function sets up the
+    screen, keyboard and mouse device interfaces. This must be the
+    first nano-X function that your application calls.
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN199"
+>Create a Graphics Context</A
+></H2
+><P
+>    Nano-X uses objects called graphics contexts to describe drawing
+    attributes. Among other things a graphics context (GC) will describe the
+    colors to use when drawing graphical objects using nano-X. 
+    </P
+><P
+>    Your application may allocate as many graphics contexts as you
+    wish. Each drawing function call takes a GC as a parameter. For
+    example if you wanted to draw red and blue text on a white
+    background you might create one GC. You could set the foreground
+    color to red and draw the red text. Then set the foreground color
+    to blue and draw the blue text. Another approach is to create two
+    GCs, one with a red foreground and the other with a blue
+    foreground. With two GCs you would use the first GC for drawing
+    red text and the second GC for drawing blue text.
+    </P
+><P
+>    In the "hello world" example I create one GC using the
+    <TT
+CLASS="FUNCTION"
+>GrNewGC()</TT
+>
+    function. Then I configure the GC so that it does not use a
+    background color and I set the foreground color to red. I save the
+    ID of the GC for use later when I start drawing onto the
+    application window.
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN206"
+>Create a Window</A
+></H2
+><P
+>    Now you're going to need a window to draw onto. The next section
+    of the example creates a main window for the application. The
+    <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+>
+    function creates our "hello world" application's main
+    window. <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+> is the preferred
+    method to create windows. Another function <TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+>
+    has been depreciated since it can not specify window decoration
+    options to a window manager.
+    </P
+><P
+> 
+    In this example we have a single main window with a title bar. The
+    title bar caption reads "Hello Window".
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN215"
+>Select Events</A
+></H2
+><P
+>    In nano-X you must select the types of events that you want a
+    window to receive. After you create the window, you must make a
+    call to the <TT
+CLASS="FUNCTION"
+>GrSelectEvents()</TT
+>
+    function to choose the events that the window will receive. In our
+    example we choose to receive exposure events and close request
+    events.
+    </P
+><P
+>    By selecting exposure events you will know when the window needs to
+    be redrawn. By selecting close request events, you will know when
+    the window is closed.
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN221"
+>Show The Window</A
+></H2
+><P
+>    To make the window visible your application must "map"
+    the window. You will call the function <TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+>
+    to make the window visible.
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN226"
+>Handle Events</A
+></H2
+><P
+>    After creating the main window, selecting events and mapping the
+    window, the application can enter it's main event dispatch
+    loop. The nano-X library provides several ways to implement the
+    application's event dispatch loop. The easiest of these methods is
+    the 
+        <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+>
+    function. This function takes as a parameter, a pointer to your
+    application's event handler. The event handler function will be
+    invoked each time that the nano-X event queue receives a selected
+    event.
+    </P
+><P
+>    In the example the function <TT
+CLASS="FUNCTION"
+>event_handler()</TT
+>
+    serves as the event handler. Within this function is a switch
+    on the event type. The two events that we select in the example
+    are the exposure event and the close request event.
+    </P
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN233"
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_EXPOSURE</TT
+></A
+></H3
+><P
+>      Exposure events are nano-X's means of asking the application to
+      redraw the contents of a window. Your application must redraw
+      the window contents each time it gets an exposure event. You can
+      not draw the window once and then forget about what's in there. 
+      </P
+><P
+>      You will receive an exposure event after the window is mapped for
+      the first time. You will also receive exposure events when the
+      window is re-exposed. For example, let's imagine another window
+      within your application or another application covers your
+      window. When that window is moved exposing a portion, or all of,
+      your window, nano-X will send your application an exposure event.
+      </P
+><P
+>      In our example we handle the exposure event by drawing the text
+      "hello world" onto the window. Notice that when we call
+      the function <TT
+CLASS="FUNCTION"
+>GrText()</TT
+> we
+      specify a window ID and a graphics context ID. These are the
+      IDs that we received earlier when we created the window and the
+      GC.
+      </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN241"
+><TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+></A
+></H3
+><P
+>      When you close the application window nano-X sends a close request
+      event. The hello world application calls 
+            <TT
+CLASS="FUNCTION"
+>GrClose()</TT
+> to close the
+      connection to the nano-X server. Then we exit the application.
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN247"
+>Drum Roll Please...</A
+></H2
+><P
+>    Run the "hello world" application with the following command. You
+    will see a window appear as shown below.
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X&#38; sleep 1; nanowm&#38; sleep 1; ./hello&#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN253"
+></A
+><P
+><B
+>Figure 1-1. Hello World Example</B
+></P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="../images/ex_hello.gif"
+ALT="<< Image Object Missing >>"
+></IMG
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN260"
+>Summary</A
+></H2
+><P
+>    This simple example program shows the structure of most, even much
+    more complicated, nano-X applications. You will almost always connect to
+    server, create windows and GCs, select events, map the windows and
+    then process events.
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Getting Started With Microwindows</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Working With Images</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

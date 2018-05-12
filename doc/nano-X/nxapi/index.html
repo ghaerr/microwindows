@@ -1,0 +1,1693 @@
+<HTML
+><HEAD
+><TITLE
+>Nano-X Library API</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="NEXT"
+TITLE="Release Information"
+HREF="releaseinfo.html"><META
+NAME="KEYWORD"
+CONTENT="microwindows"><META
+NAME="KEYWORD"
+CONTENT="nanox"><META
+NAME="KEYWORD"
+CONTENT="nano-x"><META
+NAME="KEYWORD"
+CONTENT="documentation"><META
+NAME="KEYWORD"
+CONTENT="howto"><META
+NAME="KEYWORD"
+CONTENT="how-to"></HEAD
+><BODY
+CLASS="BOOK"
+><DIV
+CLASS="BOOK"
+><A
+NAME="INDEX"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+>Nano-X Library API</A
+></H1
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN6"
+>Gary James</A
+></H3
+><DIV
+CLASS="AFFILIATION"
+><SPAN
+CLASS="JOBTITLE"
+>Sr Software Engineer<BR></SPAN
+><SPAN
+CLASS="ORGNAME"
+>          <A
+HREF="http://www.criticallink.com"
+TARGET="_top"
+>          Critical Link, LLC</A
+><BR></SPAN
+><DIV
+CLASS="ADDRESS"
+><P
+CLASS="ADDRESS"
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gjames@twcny.rr.com<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gary.james@criticallink.com<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+></DIV
+></DIV
+><P
+CLASS="COPYRIGHT"
+>Copyright &copy; 2001 by Gary James</P
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="releaseinfo.html"
+>Release Information</A
+></DT
+><DT
+>1. <A
+HREF="ch1.html"
+>Nano-X Function Groups</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="ch1.html#NXAPI.GENERAL"
+>General Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.window.html"
+>Window Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.graphics.html"
+>Graphics Context Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.drawing.html"
+>Graphics Drawing Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.event.html"
+>Event Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.font.html"
+>Font Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.color.html"
+>Color Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.region.html"
+>Region Functions</A
+></DT
+><DT
+><A
+HREF="nxapi.misc.html"
+>Misc. Functions</A
+></DT
+></DL
+></DD
+><DT
+>2. <A
+HREF="ch2.html"
+>Nano-X Function Reference</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="nxapi_GrArc.html"
+><TT
+CLASS="FUNCTION"
+>GrArc()</TT
+></A
+> &#8212; Draw an arc</DT
+><DT
+><A
+HREF="nxapi_GrArcAngle.html"
+><TT
+CLASS="FUNCTION"
+>GrArcAngle()</TT
+></A
+> &#8212; Draw an arc</DT
+><DT
+><A
+HREF="nxapi_GrArea.html"
+><TT
+CLASS="FUNCTION"
+>GrArea()</TT
+></A
+> &#8212; Draw a pixel array</DT
+><DT
+><A
+HREF="nxapi_GrBell.html"
+><TT
+CLASS="FUNCTION"
+>GrBell()</TT
+></A
+> &#8212; Ring bell on server</DT
+><DT
+><A
+HREF="nxapi_GrBitmap.html"
+><TT
+CLASS="FUNCTION"
+>GrBitmap()</TT
+></A
+> &#8212; Draw a monochrome bitmap</DT
+><DT
+><A
+HREF="nxapi_GrCheckNextEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrCheckNextEvent()</TT
+></A
+> &#8212; Get an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrClearWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrClearWindow()</TT
+></A
+> &#8212; Clear a window</DT
+><DT
+><A
+HREF="nxapi_GrClose.html"
+><TT
+CLASS="FUNCTION"
+>GrClose()</TT
+></A
+> &#8212; Close the connection to the nano-X server</DT
+><DT
+><A
+HREF="nxapi_GrCloseWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrCloseWindow()</TT
+></A
+> &#8212; Close the specified window</DT
+><DT
+><A
+HREF="nxapi_GrCopyArea.html"
+><TT
+CLASS="FUNCTION"
+>GrCopyArea()</TT
+></A
+> &#8212; Copy from one drawable to another</DT
+><DT
+><A
+HREF="nxapi_GrCopyGC.html"
+><TT
+CLASS="FUNCTION"
+>GrCopyGC()</TT
+></A
+> &#8212; Copy a graphics context into a new graphics context</DT
+><DT
+><A
+HREF="nxapi_GrCreateFont.html"
+><TT
+CLASS="FUNCTION"
+>GrCreateFont()</TT
+></A
+> &#8212; Create a font</DT
+><DT
+><A
+HREF="nxapi_GrDefaultErrorHandler.html"
+><TT
+CLASS="FUNCTION"
+>GrDefaultErrorHandler()</TT
+></A
+> &#8212; The default error handler</DT
+><DT
+><A
+HREF="nxapi_GrDestroyFont.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyFont()</TT
+></A
+> &#8212; Destroy a font</DT
+><DT
+><A
+HREF="nxapi_GrDestroyGC.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyGC()</TT
+></A
+> &#8212; Destroy a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrDestroyRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyRegion()</TT
+></A
+> &#8212; Destroy a region</DT
+><DT
+><A
+HREF="nxapi_GrDestroyWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrDestroyWindow()</TT
+></A
+> &#8212; Destroy a window</DT
+><DT
+><A
+HREF="nxapi_GrDrawImageBits.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawImageBits()</TT
+></A
+> &#8212; Draw an image</DT
+><DT
+><A
+HREF="nxapi_GrDrawImageFromFile.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawImageFromFile()</TT
+></A
+> &#8212; Draw an image from a file</DT
+><DT
+><A
+HREF="nxapi_GrDrawImageToFit.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawImageToFit()</TT
+></A
+> &#8212; Draw an image with scaling</DT
+><DT
+><A
+HREF="nxapi_GrDrawLines.html"
+><TT
+CLASS="FUNCTION"
+>GrDrawLines()</TT
+></A
+> &#8212; Draw a set of lines</DT
+><DT
+><A
+HREF="nxapi_GrEllipse.html"
+><TT
+CLASS="FUNCTION"
+>GrEllipse()</TT
+></A
+> &#8212; Draw an ellipse or circle</DT
+><DT
+><A
+HREF="nxapi_GrEmptyRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrEmptyRegion()</TT
+></A
+> &#8212; Test for empty region</DT
+><DT
+><A
+HREF="nxapi_GrEqualRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrEqualRegion()</TT
+></A
+> &#8212; Test two regions for equality</DT
+><DT
+><A
+HREF="nxapi_GrFillEllipse.html"
+><TT
+CLASS="FUNCTION"
+>GrFillEllipse()</TT
+></A
+> &#8212; Draw a filled ellipse or circle</DT
+><DT
+><A
+HREF="nxapi_GrFillPoly.html"
+><TT
+CLASS="FUNCTION"
+>GrFillPoly()</TT
+></A
+> &#8212; Draw a filled polygon</DT
+><DT
+><A
+HREF="nxapi_GrFillRect.html"
+><TT
+CLASS="FUNCTION"
+>GrFillRect()</TT
+></A
+> &#8212; Draw a filled rectangle</DT
+><DT
+><A
+HREF="nxapi_GrFindColor.html"
+><TT
+CLASS="FUNCTION"
+>GrFindColor()</TT
+></A
+> &#8212; Find closest color match</DT
+><DT
+><A
+HREF="nxapi_GrFlush.html"
+><TT
+CLASS="FUNCTION"
+>GrFlush()</TT
+></A
+> &#8212; Flushes the client/server message buffer</DT
+><DT
+><A
+HREF="nxapi_GrFreeImage.html"
+><TT
+CLASS="FUNCTION"
+>GrFreeImage()</TT
+></A
+> &#8212; Destroy an image buffer</DT
+><DT
+><A
+HREF="nxapi_GrGetFocus.html"
+><TT
+CLASS="FUNCTION"
+>GrGetFocus()</TT
+></A
+> &#8212; Get the current focus window</DT
+><DT
+><A
+HREF="nxapi_GrGetFontInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetFontInfo()</TT
+></A
+> &#8212; Get information about a font</DT
+><DT
+><A
+HREF="nxapi_GrGetGCInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetGCInfo()</TT
+></A
+> &#8212; Retrieve graphics context settings</DT
+><DT
+><A
+HREF="nxapi_GrGetGCTextSize.html"
+><TT
+CLASS="FUNCTION"
+>GrGetGCTextSize()</TT
+></A
+> &#8212; Calculate size of a text drawing</DT
+><DT
+><A
+HREF="nxapi_GrGetImageInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetImageInfo()</TT
+></A
+> &#8212; Retrieve information about an image</DT
+><DT
+><A
+HREF="nxapi_GrGetNextEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrGetNextEvent()</TT
+></A
+> &#8212; Get an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrGetNextEventTimeout.html"
+><TT
+CLASS="FUNCTION"
+>GrGetNextEventTimeout()</TT
+></A
+> &#8212; Get an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrGetRegionBox.html"
+><TT
+CLASS="FUNCTION"
+>GrGetRegionBox()</TT
+></A
+> &#8212; Get a region's bounding rectangle</DT
+><DT
+><A
+HREF="nxapi_GrGetScreenInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetScreenInfo()</TT
+></A
+> &#8212; Return screen properties</DT
+><DT
+><A
+HREF="nxapi_GrGetSysColor.html"
+><TT
+CLASS="FUNCTION"
+>GrGetSysColor()</TT
+></A
+> &#8212; Get color by palette index</DT
+><DT
+><A
+HREF="nxapi_GrGetSystemPalette.html"
+><TT
+CLASS="FUNCTION"
+>GrGetSystemPalette()</TT
+></A
+> &#8212; Get the colors of the system palette</DT
+><DT
+><A
+HREF="nxapi_GrGetWindowInfo.html"
+><TT
+CLASS="FUNCTION"
+>GrGetWindowInfo()</TT
+></A
+> &#8212; Retrieve window information</DT
+><DT
+><A
+HREF="nxapi_GrGetWMProperties.html"
+><TT
+CLASS="FUNCTION"
+>GrGetWMProperties()</TT
+></A
+> &#8212; Retrieve a window's properties</DT
+><DT
+><A
+HREF="nxapi_GrInjectKeyboardEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrInjectKeyboardEvent()</TT
+></A
+> &#8212; Simulate a keyboard event</DT
+><DT
+><A
+HREF="nxapi_GrInjectPointerEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrInjectPointerEvent()</TT
+></A
+> &#8212; Simulate a pointer event</DT
+><DT
+><A
+HREF="nxapi_GrIntersectRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrIntersectRegion()</TT
+></A
+> &#8212; Form a region from the intersection of two regions</DT
+><DT
+><A
+HREF="nxapi_GrKillWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrKillWindow()</TT
+></A
+> &#8212; Kill the specified window</DT
+><DT
+><A
+HREF="nxapi_GrLine.html"
+><TT
+CLASS="FUNCTION"
+>GrLine()</TT
+></A
+> &#8212; Draw a line</DT
+><DT
+><A
+HREF="nxapi_GrLoadImageFromFile.html"
+><TT
+CLASS="FUNCTION"
+>GrLoadImageFromFile()</TT
+></A
+> &#8212; Load an image from a file into memory</DT
+><DT
+><A
+HREF="nxapi_GrLowerWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrLowerWindow()</TT
+></A
+> &#8212; Lower a window</DT
+><DT
+><A
+HREF="nxapi_GrMainLoop.html"
+><TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+> &#8212; Generic application event dispatch loop</DT
+><DT
+><A
+HREF="nxapi_GrMapWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></A
+> &#8212; Map a window and it's children</DT
+><DT
+><A
+HREF="nxapi_GrMoveCursor.html"
+><TT
+CLASS="FUNCTION"
+>GrMoveCursor()</TT
+></A
+> &#8212; Move the mouse cursor</DT
+><DT
+><A
+HREF="nxapi_GrMoveWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrMoveWindow()</TT
+></A
+> &#8212; Move a window</DT
+><DT
+><A
+HREF="nxapi_GrNewGC.html"
+><TT
+CLASS="FUNCTION"
+>GrNewGC()</TT
+></A
+> &#8212; Create a new graphics context</DT
+><DT
+><A
+HREF="nxapi_GrNewInputWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrNewInputWindow()</TT
+></A
+> &#8212; Create a new input window</DT
+><DT
+><A
+HREF="nxapi_GrNewPixmap.html"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmap()</TT
+></A
+> &#8212; Create a new pixmap</DT
+><DT
+><A
+HREF="nxapi_GrNewPixmapFromData.html"
+><TT
+CLASS="FUNCTION"
+>GrNewPixmapFromData()</TT
+></A
+> &#8212; Create a new pixmap and initialize it</DT
+><DT
+><A
+HREF="nxapi_GrNewPolygonRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrNewPolygonRegion()</TT
+></A
+> &#8212; Create a polygon region</DT
+><DT
+><A
+HREF="nxapi_GrNewRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrNewRegion()</TT
+></A
+> &#8212; Create a new region</DT
+><DT
+><A
+HREF="nxapi_GrNewWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrNewWindow()</TT
+></A
+> &#8212; Create a new window</DT
+><DT
+><A
+HREF="nxapi_GrNewWindowEx.html"
+><TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+> &#8212; Create a new window</DT
+><DT
+><A
+HREF="nxapi_GrOffsetRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrOffsetRegion()</TT
+></A
+> &#8212; Offset a region</DT
+><DT
+><A
+HREF="nxapi_GrOpen.html"
+><TT
+CLASS="FUNCTION"
+>GrOpen()</TT
+></A
+> &#8212; Open a connection to the nano-X server</DT
+><DT
+><A
+HREF="nxapi_GrPeekEvent.html"
+><TT
+CLASS="FUNCTION"
+>GrPeekEvent()</TT
+></A
+> &#8212; Peek an event from the queue</DT
+><DT
+><A
+HREF="nxapi_GrPoint.html"
+><TT
+CLASS="FUNCTION"
+>GrPoint()</TT
+></A
+> &#8212; Draw a point</DT
+><DT
+><A
+HREF="nxapi_GrPointInRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrPointInRegion()</TT
+></A
+> &#8212; Test for point in region</DT
+><DT
+><A
+HREF="nxapi_GrPoints.html"
+><TT
+CLASS="FUNCTION"
+>GrPoints()</TT
+></A
+> &#8212; Draw a set of points</DT
+><DT
+><A
+HREF="nxapi_GrPoly.html"
+><TT
+CLASS="FUNCTION"
+>GrPoly()</TT
+></A
+> &#8212; Draw a polygon</DT
+><DT
+><A
+HREF="nxapi_GrPrepareSelect.html"
+><TT
+CLASS="FUNCTION"
+>GrPrepareSelect()</TT
+></A
+> &#8212; Prepare an fdset for a select</DT
+><DT
+><A
+HREF="nxapi_GrRaiseWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrRaiseWindow()</TT
+></A
+> &#8212; Raise a window</DT
+><DT
+><A
+HREF="nxapi_GrReadArea.html"
+><TT
+CLASS="FUNCTION"
+>GrReadArea()</TT
+></A
+> &#8212; Read pixel data from a drawable</DT
+><DT
+><A
+HREF="nxapi_GrRect.html"
+><TT
+CLASS="FUNCTION"
+>GrRect()</TT
+></A
+> &#8212; Draw a rectangle</DT
+><DT
+><A
+HREF="nxapi_GrRectInRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrRectInRegion()</TT
+></A
+> &#8212; Test for rectangle in region</DT
+><DT
+><A
+HREF="nxapi_GrRegisterInput.html"
+><TT
+CLASS="FUNCTION"
+>GrRegisterInput()</TT
+></A
+> &#8212; Register a file descriptor to generate events</DT
+><DT
+><A
+HREF="nxapi_GrReparentWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrReparentWindow()</TT
+></A
+> &#8212; Change a window's parent</DT
+><DT
+><A
+HREF="nxapi_GrReqShmCmds.html"
+><TT
+CLASS="FUNCTION"
+>GrReqShmCmds()</TT
+></A
+> &#8212; Setup a shared memory interface</DT
+><DT
+><A
+HREF="nxapi_GrResizeWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrResizeWindow()</TT
+></A
+> &#8212; Resize a window</DT
+><DT
+><A
+HREF="nxapi_GR_RGB.html"
+><TT
+CLASS="FUNCTION"
+>GR_RGB()</TT
+></A
+> &#8212; Create a color by RGB components</DT
+><DT
+><A
+HREF="nxapi_GrSelectEvents.html"
+><TT
+CLASS="FUNCTION"
+>GrSelectEvents()</TT
+></A
+> &#8212; Select event types to receive</DT
+><DT
+><A
+HREF="nxapi_GrServiceSelect.html"
+><TT
+CLASS="FUNCTION"
+>GrServiceSelect()</TT
+></A
+> &#8212; Dispatch nano-X events</DT
+><DT
+><A
+HREF="nxapi_GrSetBackgroundPixmap.html"
+><TT
+CLASS="FUNCTION"
+>GrSetBackgroundPixmap()</TT
+></A
+> &#8212; Set the windows background image</DT
+><DT
+><A
+HREF="nxapi_GrSetBorderColor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetBorderColor()</TT
+></A
+> &#8212; Set a window's border color</DT
+><DT
+><A
+HREF="nxapi_GrSetCursor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></A
+> &#8212; Specify a mouse cursor image</DT
+><DT
+><A
+HREF="nxapi_GrSetErrorHandler.html"
+><TT
+CLASS="FUNCTION"
+>GrSetErrorHandler()</TT
+></A
+> &#8212; Setup an error handler</DT
+><DT
+><A
+HREF="nxapi_GrSetFocus.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFocus()</TT
+></A
+> &#8212; Set the window focus</DT
+><DT
+><A
+HREF="nxapi_GrSetFontAttr.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFontAttr()</TT
+></A
+> &#8212; Change font attributes</DT
+><DT
+><A
+HREF="nxapi_GrSetFontRotation.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFontRotation()</TT
+></A
+> &#8212; Set the angle of a font</DT
+><DT
+><A
+HREF="nxapi_GrSetFontSize.html"
+><TT
+CLASS="FUNCTION"
+>GrSetFontSize()</TT
+></A
+> &#8212; Set the size of a font</DT
+><DT
+><A
+HREF="nxapi_GrSetGCBackground.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCBackground()</TT
+></A
+> &#8212; Change the background color of a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCFont.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCFont()</TT
+></A
+> &#8212; Select a font to draw with</DT
+><DT
+><A
+HREF="nxapi_GrSetGCForeground.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></A
+> &#8212; Change the foreground color of a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCMode.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCMode()</TT
+></A
+> &#8212; Set the drawing mode of a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCRegion()</TT
+></A
+> &#8212; Set the clipping region for a graphics context</DT
+><DT
+><A
+HREF="nxapi_GrSetGCUseBackground.html"
+><TT
+CLASS="FUNCTION"
+>GrSetGCUseBackground()</TT
+></A
+> &#8212; Enables/disables background usage</DT
+><DT
+><A
+HREF="nxapi_GrSetScreenSaverTimeout.html"
+><TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></A
+> &#8212; Set screen saver timeout</DT
+><DT
+><A
+HREF="nxapi_GrSetSystemPalette.html"
+><TT
+CLASS="FUNCTION"
+>GrSetSystemPalette()</TT
+></A
+> &#8212; Set the colors of the system palette</DT
+><DT
+><A
+HREF="nxapi_GrSetWMProperties.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></A
+> &#8212; Set a window's properties</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowBackgroundColor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowBackgroundColor()</TT
+></A
+> &#8212; Set a window's background color</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowBorderColor.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowBorderColor()</TT
+></A
+> &#8212; Set a window's border color</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowBorderSize.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowBorderSize()</TT
+></A
+> &#8212; Set a window's border width</DT
+><DT
+><A
+HREF="nxapi_GrSetWindowTitle.html"
+><TT
+CLASS="FUNCTION"
+>GrSetWindowTitle()</TT
+></A
+> &#8212; Set a window's title</DT
+><DT
+><A
+HREF="nxapi_GrSubtractRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrSubtractRegion()</TT
+></A
+> &#8212; Form a region from the difference of two regions</DT
+><DT
+><A
+HREF="nxapi_GrText.html"
+><TT
+CLASS="FUNCTION"
+>GrText()</TT
+></A
+> &#8212; Draw text</DT
+><DT
+><A
+HREF="nxapi_GrUnionRectWithRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrUnionRectWithRegion()</TT
+></A
+> &#8212; Form union of rectangle and region</DT
+><DT
+><A
+HREF="nxapi_GrUnionRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrUnionRegion()</TT
+></A
+> &#8212; Form a region from the union of two other regions</DT
+><DT
+><A
+HREF="nxapi_GrUnmapWindow.html"
+><TT
+CLASS="FUNCTION"
+>GrUnmapWindow()</TT
+></A
+> &#8212; Unmap a window and it's children</DT
+><DT
+><A
+HREF="nxapi_GrXorRegion.html"
+><TT
+CLASS="FUNCTION"
+>GrXorRegion()</TT
+></A
+> &#8212; Form a region form the XOR two regions</DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="nxstruct.html"
+>Nano-X Data Types</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="nxstruct_GR_BITMAP.html"
+><SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+></A
+> &#8212; Bitmap unit</DT
+><DT
+><A
+HREF="nxstruct_GR_BOOL.html"
+><SPAN
+CLASS="TYPE"
+>GR_BOOL</SPAN
+></A
+> &#8212; Boolean type</DT
+><DT
+><A
+HREF="nxstruct_GR_BUTTON.html"
+>GR_BUTTON</A
+> &#8212; Mouse button codes</DT
+><DT
+><A
+HREF="nxstruct_GR_CHAR.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR</SPAN
+></A
+> &#8212; Text character</DT
+><DT
+><A
+HREF="nxstruct_GR_CHAR_WIDTH.html"
+><SPAN
+CLASS="TYPE"
+>GR_CHAR_WIDTH</SPAN
+></A
+> &#8212; Character width</DT
+><DT
+><A
+HREF="nxstruct_GR_COORD.html"
+><SPAN
+CLASS="TYPE"
+>GR_COORD</SPAN
+></A
+> &#8212; Coordinate value</DT
+><DT
+><A
+HREF="nxstruct_GR_COLOR.html"
+><SPAN
+CLASS="TYPE"
+>GR_COLOR</SPAN
+></A
+> &#8212; Color value</DT
+><DT
+><A
+HREF="nxstruct_GR_COUNT.html"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></A
+> &#8212; Number of items</DT
+><DT
+><A
+HREF="nxstruct_GR_DRAW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_DRAW_ID</SPAN
+></A
+> &#8212; Drawable ID</DT
+><DT
+><A
+HREF="nxstruct_GR_ERROR.html"
+>GR_ERROR</A
+> &#8212; Error event codes</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT</SPAN
+></A
+> &#8212; Generic event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_BUTTON.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_BUTTON</SPAN
+></A
+> &#8212; Mouse button event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_ERROR.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_ERROR</SPAN
+></A
+> &#8212; Error event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_EXPOSURE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_EXPOSURE</SPAN
+></A
+> &#8212; Window exposure event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_FDINPUT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_FDINPUT</SPAN
+></A
+> &#8212; File descriptor input event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_GENERAL.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_GENERAL</SPAN
+></A
+> &#8212; General purpose event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_KEYSTROKE</SPAN
+></A
+> &#8212; Keyboard event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_MASK.html"
+>GR_EVENT_MASK</A
+> &#8212; Event masks</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_MOUSE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_MOUSE</SPAN
+></A
+> &#8212; Mouse position event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_SCREENSAVER.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_SCREENSAVER</SPAN
+></A
+> &#8212; Screen saver event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_TYPE.html"
+>GR_EVENT_TYPE</A
+> &#8212; Event types</DT
+><DT
+><A
+HREF="nxstruct_GR_EVENT_UPDATE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_UPDATE</SPAN
+></A
+> &#8212; Window update event structure</DT
+><DT
+><A
+HREF="nxstruct_GR_FNCALLBACKEVENT.html"
+><SPAN
+CLASS="TYPE"
+>GR_FNCALLBACKEVENT</SPAN
+></A
+> &#8212; Call back function prototype</DT
+><DT
+><A
+HREF="nxstruct_GR_FONT_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_FONT_ID</SPAN
+></A
+> &#8212; Font ID</DT
+><DT
+><A
+HREF="nxstruct_GR_FONT_INFO.html"
+><SPAN
+CLASS="TYPE"
+>GR_FONT_INFO</SPAN
+></A
+> &#8212; Font properties</DT
+><DT
+><A
+HREF="nxstruct_GR_FUNC_NAME.html"
+><SPAN
+CLASS="TYPE"
+>GR_FUNC_NAME</SPAN
+></A
+> &#8212; Function name string</DT
+><DT
+><A
+HREF="nxstruct_GR_GC_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+> &#8212; Graphics context ID</DT
+><DT
+><A
+HREF="nxstruct_GR_GC_INFO.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_GC_INFO</SPAN
+></A
+> &#8212; Graphics context information</DT
+><DT
+><A
+HREF="nxstruct_GR_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_ID</SPAN
+></A
+> &#8212; Generic ID type</DT
+><DT
+><A
+HREF="nxstruct_GR_IMAGE_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_IMAGE_ID</SPAN
+></A
+> &#8212; Image ID</DT
+><DT
+><A
+HREF="nxstruct_GR_IMAGE_INFO.html"
+><SPAN
+CLASS="TYPE"
+>GR_IMAGE_INFO</SPAN
+></A
+> &#8212; Image properties</DT
+><DT
+><A
+HREF="nxstruct_GR_IMAGE_HDR.html"
+><SPAN
+CLASS="TYPE"
+>GR_IMAGE_HDR</SPAN
+></A
+> &#8212; Image header</DT
+><DT
+><A
+HREF="nxstruct_GR_KEY.html"
+>GR_KEY</A
+> &#8212; Keyboard key codes</DT
+><DT
+><A
+HREF="nxstruct_GR_KEYMOD.html"
+>GR_KEYMOD</A
+> &#8212; Keyboard modifier key codes</DT
+><DT
+><A
+HREF="nxstruct_GR_LOGFONT.html"
+><SPAN
+CLASS="TYPE"
+>GR_LOGFONT</SPAN
+></A
+> &#8212; Font properties</DT
+><DT
+><A
+HREF="nxstruct_GR_PALNTRY.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_PALENTRY</SPAN
+></A
+> &#8212; Palette entry</DT
+><DT
+><A
+HREF="nxstruct_GR_PALETTE.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_PALETTE</SPAN
+></A
+> &#8212; Color palette</DT
+><DT
+><A
+HREF="nxstruct_GR_PIXELVAL.html"
+><SPAN
+CLASS="TYPE"
+>GR_PIXELVAL</SPAN
+></A
+> &#8212; Hardware dependent color value</DT
+><DT
+><A
+HREF="nxstruct_GR_POINT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_POINT</SPAN
+></A
+> &#8212; Point structure</DT
+><DT
+><A
+HREF="nxstruct_GR_RECT.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_RECT</SPAN
+></A
+> &#8212; Rectangle structure</DT
+><DT
+><A
+HREF="nxstruct_GR_REGION_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_REGION_ID</SPAN
+></A
+> &#8212; Region ID</DT
+><DT
+><A
+HREF="nxstruct_GR_SCANCODE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SCANCODE</SPAN
+></A
+> &#8212; OEM keyboard scancode</DT
+><DT
+><A
+HREF="nxstruct_GR_SCREEN_INFO.html"
+><SPAN
+CLASS="TYPE"
+>GR_SCREEN_INFO</SPAN
+></A
+> &#8212; Screen properties</DT
+><DT
+><A
+HREF="nxstruct_GR_SIZE.html"
+><SPAN
+CLASS="TYPE"
+>GR_SIZE</SPAN
+></A
+> &#8212; Graphic object size</DT
+><DT
+><A
+HREF="nxstruct_GR_TIMEOUT.html"
+><SPAN
+CLASS="TYPE"
+>GR_TIMEOUT</SPAN
+></A
+> &#8212; Time out value</DT
+><DT
+><A
+HREF="nxstruct_GR_UPDATE_TYPE.html"
+>GR_UPDATE_TYPE</A
+> &#8212; Window update event, event subtypes</DT
+><DT
+><A
+HREF="nxstruct_GR_WINDOW_ID.html"
+><SPAN
+CLASS="TYPE"
+>GR_WINDOW_ID</SPAN
+></A
+> &#8212; Window ID</DT
+><DT
+><A
+HREF="nxstruct_GR_WINDOW_INFO.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_WINDOW_INFO</SPAN
+></A
+> &#8212; Retrieve window properties</DT
+><DT
+><A
+HREF="nxstruct_GR_WM_PROPS.html"
+>GR_WM_PROPS</A
+> &#8212; Window manager properties</DT
+><DT
+><A
+HREF="nxstruct_GR_WM_PROPERTIES.html"
+><SPAN
+CLASS="STRUCTNAME"
+>GR_WM_PROPERTIES</SPAN
+></A
+> &#8212; Window manager property configuration</DT
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Tables</B
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrCopyArea.html#AEN1613"
+>ROP Codes</A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrSetBackgroundPixmap.html#AEN6717"
+>GrSetBackgroundPixmap Flags</A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrSetFontAttr.html#AEN7087"
+>Font Attribute Flags</A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrSetGCMode.html#AEN7445"
+>Drawing Modes</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_BUTTON.html#AEN8545"
+>Mouse Buton Enumerations</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_COLOR.html#AEN8629"
+>32bit Color Value</A
+></DT
+><DT
+>3-2. <A
+HREF="nxstruct_GR_COLOR.html#AEN8651"
+>Basic Color Definitions</A
+></DT
+><DT
+>3-3. <A
+HREF="nxstruct_GR_COLOR.html#AEN8684"
+>System Color Definitions</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_ERROR.html#AEN8825"
+>Error Codes</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_MASK.html#AEN9570"
+>Event Mask Bits</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_TYPE.html#AEN9885"
+>Event Type Enumerations</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_GC_INFO.html#AEN10363"
+>Drawing Modes</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_KEY.html#AEN10661"
+>Key Codes</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_KEYMOD.html#AEN11058"
+>Modifier Key Codes</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_LOGFONT.html#AEN11463"
+>GR_LOGFONT Macros</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_UPDATE_TYPE.html#AEN11990"
+>Update Enumerations</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_WM_PROPS.html#AEN12213"
+>Window Manager Properties</A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_WM_PROPERTIES.html#NXSTRUCT.GR.WM.PROPERTIES.FLAGS"
+>GR_WM_PROPERTIES Flags</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Examples</B
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrClose.html#AEN1418"
+>Using <TT
+CLASS="FUNCTION"
+>GrClose()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrGetNextEvent.html#AEN3444"
+>Using <TT
+CLASS="FUNCTION"
+>GrGetNextEvent()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrMainLoop.html#AEN4410"
+>Using <TT
+CLASS="FUNCTION"
+>GrMainLoop()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrMapWindow.html#AEN4473"
+>Using <TT
+CLASS="FUNCTION"
+>GrMapWindow()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrNewWindowEx.html#AEN5337"
+>Using <TT
+CLASS="FUNCTION"
+>GrNewWindowEx()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrOpen.html#AEN5446"
+>Using <TT
+CLASS="FUNCTION"
+>GrOpen()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrSelectEvents.html#AEN6583"
+>Using <TT
+CLASS="FUNCTION"
+>GrSelectEvents()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrSetCursor.html#AEN6927"
+>Using <TT
+CLASS="FUNCTION"
+>GrSetCursor()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrSetScreenSaverTimeout.html#AEN7645"
+>Using <TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></A
+></DT
+><DT
+>2-1. <A
+HREF="nxapi_GrText.html#AEN8228"
+>Using <TT
+CLASS="FUNCTION"
+>GrText()</TT
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_BITMAP.html#AEN8506"
+>Using <SPAN
+CLASS="TYPE"
+>GR_BITMAP</SPAN
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT.html#AEN9026"
+>Using <SPAN
+CLASS="TYPE"
+>GR_EVENT</SPAN
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_ERROR.html#AEN9214"
+>Using <SPAN
+CLASS="TYPE"
+>GR_EVENT_ERROR</SPAN
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_EXPOSURE.html#AEN9294"
+>Using <SPAN
+CLASS="STRUCTNAME"
+>GR_EVENT_TYPE_EXPOSURE</SPAN
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_GENERAL.html#AEN9433"
+>Using <TT
+CLASS="CONSTANT"
+>GR_EVENT_TYPE_CLOSE_REQ</TT
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_KEYSTROKE.html#AEN9545"
+>Using <SPAN
+CLASS="TYPE"
+>GR_EVENT_KEYSTROKE</SPAN
+></A
+></DT
+><DT
+>3-1. <A
+HREF="nxstruct_GR_EVENT_SCREENSAVER.html#AEN9858"
+>Using <SPAN
+CLASS="TYPE"
+>GR_EVENT_SCREENSAVER</SPAN
+></A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="releaseinfo.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Release Information</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

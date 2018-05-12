@@ -1,0 +1,371 @@
+<HTML
+><HEAD
+><TITLE
+>GrSetSystemPalette()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrSetScreenSaverTimeout()"
+HREF="nxapi_GrSetScreenSaverTimeout.html"><LINK
+REL="NEXT"
+TITLE="GrSetWMProperties()"
+HREF="nxapi_GrSetWMProperties.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetScreenSaverTimeout.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrSetWMProperties.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRSETSYSTEMPALETTE"
+><TT
+CLASS="FUNCTION"
+>GrSetSystemPalette()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN7658"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrSetSystemPalette()</TT
+>&nbsp;--&nbsp;Set the colors of the system palette</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN7662"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN7663"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void               <B
+CLASS="FSFUNC"
+>  GrSetSystemPalette    </B
+></CODE
+>( GR_COUNT           <VAR
+CLASS="PDPARAM"
+> first                 </VAR
+>,  GR_PALETTE *       <VAR
+CLASS="PDPARAM"
+> pal                   </VAR
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7671"
+></A
+><H2
+>Description</H2
+><P
+>    This function copies the colors in the specified palette into the
+    system palette. All colors in <TT
+CLASS="PARAMETER"
+><I
+>pal</I
+></TT
+> are
+    copied to the system palette. The first palette entry in
+    <TT
+CLASS="PARAMETER"
+><I
+>pal</I
+></TT
+> is copied into the system palette at
+    the index specified by <TT
+CLASS="PARAMETER"
+><I
+>first</I
+></TT
+>. Therefore
+    all existing entries in the system palette before
+    <TT
+CLASS="PARAMETER"
+><I
+>first</I
+></TT
+> will remain unchanged.
+    </P
+><P
+>    For example if the system palete has 50 colors defined, and you use
+    <TT
+CLASS="FUNCTION"
+>GrSetSystemPalette()</TT
+> to add a 50 color
+    palette. If you specify <TT
+CLASS="PARAMETER"
+><I
+>first</I
+></TT
+> as 50, then
+    the resulting system palette will have 100 colors. If you
+    specify <TT
+CLASS="PARAMETER"
+><I
+>first</I
+></TT
+> as 20, then you will have a
+    70 color palette, and the last 30 colors of the original
+    system palette will be overwritten with new colors.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7682"
+></A
+><H2
+>Parameters</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN7684"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Type</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_COUNT.html"
+><SPAN
+CLASS="TYPE"
+>GR_COUNT</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>first</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The first palette entry in the system palette to
+        receive new colors from the new palette.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="nxstruct_GR_PALETTE.html"
+>        <SPAN
+CLASS="STRUCTNAME"
+>GR_PALETTE</SPAN
+></A
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="PARAMETER"
+><I
+>pal</I
+></TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The new color palette.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN7709"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxapi_GrGetSystemPalette.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetSystemPalette()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrFindColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrFindColor()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrGetSysColor.html"
+>            <TT
+CLASS="FUNCTION"
+>GrGetSysColor()</TT
+></A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetScreenSaverTimeout.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrSetWMProperties.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetScreenSaverTimeout()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrSetWMProperties()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

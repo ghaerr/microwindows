@@ -282,8 +282,12 @@ PSP                      = N
 SCRNDS                   = N
 
 # allegro drivers
-ALLEGRO4                  = N
-ALLEGRO5                  = N
+ALLEGRO4                 = N
+ALLEGRO5                 = N
+
+#SDL drivers
+#SDL1			 = N
+#SDL2			 = N
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp

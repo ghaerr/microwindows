@@ -1,0 +1,854 @@
+<HTML
+><HEAD
+><TITLE
+>Device-Independent Engine Features</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Microwindows Architecture"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Microwindows Architecture"
+HREF="ch1.html"><LINK
+REL="PREVIOUS"
+TITLE="Microwindows Architecture"
+HREF="ch1.html"><LINK
+REL="NEXT"
+TITLE="Microwindows API"
+HREF="archmwinapi.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Microwindows Architecture</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="ch1.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Microwindows Architecture</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="archmwinapi.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="ARCHENGINE"
+>Device-Independent Engine Features</A
+></H1
+><P
+>    This section discusses in the capabilities and implementation of 
+    Microwindows' core graphics engine in detail.  It's purpose is
+    both educational and to allow extending an API by understanding
+    how the engine works.
+  </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN132"
+>Graphics Engine Features and Implementation</A
+></H2
+><P
+>    These routines concern themselves with drawing operations to
+    off-screen or screen surfaces.  Each routine starts with Gd... and
+    is passed a pointer to the SCREENDEVICE structure (PSD) as it's
+    first parameter.  The PSD parameter specifies the low level
+    display details, like the x, y size of the device and the color
+    model used by the hardware, for example.  In addition, the actual 
+    routines to perform drawing are function pointers in this
+    structure.  All screen coordinates are of type COORD, and
+    specified in device coordinates, that is, offsets from the upper
+    left corner of the screen.
+  </P
+><P
+>    Colors are always specified as an RGB COLORVAL value into the
+    graphics engine.  They are then possibly converted to palette
+    indices and sent to the display hardware as PIXELVAL values.  In
+    the case of 32bpp truecolor displays, no conversion is required.
+    The color model will be discussed in detail below.
+  </P
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN136"
+>Regions</A
+></H3
+><P
+>    Regions are used to describe arbitrary sets of pixels on the
+    screen.  A simple, square region of pixels can be described by a
+    single rectangle.  More complex sets of pixels require more
+    complex data structures.  In Microwindows, regions are described
+    by an array of non-overlapping rectangles.  Currently, there are
+    two different implementations of regions in Microwindows, the
+    original design for systems with limited memory, and a new design
+    with dynamically allocated sets of rectangles.  The original
+    design used a single static array of MWCLIPRECTs to describe
+    complex regions.  Any point within any rectangle in the array was
+    considered to be in the region.  The array wasn't sorted in any
+    particular order, but was always guaranteed to contain
+    non-overlapping rectangles.  Another global variable, clipcount,
+    specified the number of rectangles in the array.  This original
+    design had no engine entry points for region management, the
+    entire array was passed to the clipping functions, described below.
+  </P
+><P
+>    In the new design set with #define DYNAMICREGIONS 1, any number of
+    regions can be created, as the regions (MWCLIPREGION *) are stored
+    as dynamically allocated arrays of rectangles.  In this
+    implementation, the non-overlapping rectangles are always kept in
+    "y-x" sorted bands, such that each band's y height is the same for
+    all rectangles in the band.  This means that only the x position
+    and width of the rectangles in each band varied.  Because of this,
+    it is easier to create a set of functions for combining regions,
+    since effectively only a single dimension had to be compared for
+    each region operation.  The new region handling routines allow for
+    creating and destroying regions, as well as combining rectangles
+    and regions with regions using Intersection, Union, Subtraction,
+    and Exclusive Or.  This model allows regions to be implemented
+    apart from the clipping routines, unlike the first version.
+    Following are the new region routines:
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN140"
+></A
+><P
+><B
+>Table 1-2. Region Routines</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Function</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdAllocRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdAllocRectRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a rectangular region from left,top,right,bottom.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdAllocRectRegionIndirect</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a rectanglular region from a MWRECT.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdSetRectRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Set a region to a single rectangle.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdDestroyRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Destroy a region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdCopyRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Copy a region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdUnionRectWithRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Union a rectangle with a region.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdIntersectRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a region from the intersection of two regions.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdSubtractRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a region from the difference of two regions.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdUnionRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a region from the union of two regions.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GdXorRegion</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Create a region from the XOR of two regions.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN181"
+>Clipping</A
+></H3
+><P
+>    Clipping in Microwindows is closely tied to the region management
+    code.  At any point in time, the graphics engine has a single
+    clipping region, that is a set of rectangles, defined for any
+    graphics operation.  A point is drawn if it is "inside" any of the 
+    current set of clip rectangles.  Two slightly modified versions of
+    the clipping algorithm are supplied,
+    <TT
+CLASS="FILENAME"
+>devclip1.c</TT
+> for the original, static rectangle
+    array, and <TT
+CLASS="FILENAME"
+>devclip2.c</TT
+> for the newer
+    dynamically allocated array.  A single entry point GdSetClipRects,
+    takes the passed region and specifies it's use for all subsequent
+    graphics operations.  All the drawing routines then use the two
+    additional routines to determine whether or not to draw.
+    <TT
+CLASS="FUNCTION"
+>GdClipPoint</TT
+> takes an x,y point in screen
+    coordinates and returns TRUE if the point can be drawn, that is,
+    the point is within one of the region rectangles.
+    <TT
+CLASS="FUNCTION"
+>GdClipArea</TT
+> takes an upper left and lower
+    right point, and returns one of the following: CLIP_VISIBLE, if
+    the specified area is completely within the region,
+    CLIP_INVISIBLE, if the area is completely not in the region, which
+    means that no drawing should be performed, or CLIP_PARTIAL, if a
+    part but not the whole area is within the region.  A typical
+    graphics primitive will call the screen driver with unmodified
+    passed inputs if CLIP_VISIBLE is returned, or return if
+    CLIP_INIVISIBLE is returned.  In the CLIP_PARTIAL case, the
+    primitive must break up the original request into areas that are
+    within the clip region before calling the screen driver.  This
+    slows down the operation considerably.
+  </P
+><P
+>    Because the clipping code is called constantly before drawing
+    operations, Microwindows keeps a global cache rectangle of the
+    last rectangle checked with <TT
+CLASS="FUNCTION"
+>GdClipArea</TT
+>, for
+    speed and also to allow the mid level to quickly calculate how
+    partial drawing lengths.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN190"
+>Line Drawing</A
+></H3
+><P
+>    Line drawing is the simplest of graphics operations.  Microwindows
+    supports <TT
+CLASS="FUNCTION"
+>GdPoint</TT
+> to draw a point, and
+    <TT
+CLASS="FUNCTION"
+>GdLine</TT
+> to draw a horizontal, vertical or
+    diagonal (using Bresenham algorithm) line.  Just before any call
+    to the screen driver, a call to <TT
+CLASS="FUNCTION"
+>GdCheckCursor</TT
+>
+    assures that the software cursor is removed prior to drawing.
+    <TT
+CLASS="FUNCTION"
+>GdFixCursor</TT
+> restores the cursor if previously 
+    visible.
+  </P
+><P
+>    There is a tricky part to line drawing that had to be added during
+    the support for multiple API's.  This has to do with whether or
+    not the last point in specified line segment is drawn or not.
+    There are two schools of thought on this, and to make it short,
+    Microwindows supports both of them.  The last parameter to GdLine
+    specifies whether or not to draw the last point. The Microwindows
+    API doesn't draw the last point, but the Nano-X API does.
+  </P
+><P
+>    Most drawing functions, including line drawing draw using the
+    "current" foreground color, specified using
+    <TT
+CLASS="FUNCTION"
+>GdSetForeground</TT
+>.  In addition a drawing mode,
+    currently either MODE_SET or MODE_XOR can be specified using 
+    <TT
+CLASS="FUNCTION"
+>GdSetMode</TT
+>.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN201"
+>Rectangles, Circles, Ellipses</A
+></H3
+><P
+>    Rectangles, circles and ellipses are drawn using the
+    <TT
+CLASS="FUNCTION"
+>GdRect</TT
+> and <TT
+CLASS="FUNCTION"
+>GdEllipse</TT
+> 
+    routines.  A circle is an ellipse with the same x and y radius.
+    As with lines, rectangles and ellipses are drawn using the current 
+    foreground color and mode.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN206"
+>Polygons</A
+></H3
+><P
+>    Microwindows supports polygon drawing by specifying an array of x,y 
+    points. The points are then connected using the
+    <TT
+CLASS="FUNCTION"
+>GdLine</TT
+> function.  The current foreground
+    color, drawing mode, and clip region is used during output.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN210"
+>Area Fills</A
+></H3
+><P
+>    Microwindows supports filled rectangular areas using the
+    <TT
+CLASS="FUNCTION"
+>GdFillRect</TT
+> function. The rectangle's outline
+    and contents are filled using the current foreground color.
+    Filled circles and ellipses are performed with
+    <TT
+CLASS="FUNCTION"
+>GdFillEllipse</TT
+>, and polygon fills with
+    <TT
+CLASS="FUNCTION"
+>GdFillPoly</TT
+>. Area filling is implemented
+    through successive calls to the <TT
+CLASS="FUNCTION"
+>DrawHorzLine</TT
+>
+    in the screen driver, and are much faster if fully not clipped.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN217"
+>Fonts</A
+></H3
+><P
+>    Both fixed pitch and proportional fonts are supported in
+    Microwindows.  Because of potentially large differences in display
+    hardware, the actual font format is known only to the screen
+    driver, although a set of standard functions are supplied for
+    dealing with converted <TT
+CLASS="FILENAME"
+>.bdf</TT
+> fonts and
+    Microsoft Windows fonts, if you have a license.  The engine
+    function <TT
+CLASS="FUNCTION"
+>GdSetFont</TT
+> specifies a font number
+    that is passed to the driver and used to index a static array of
+    linked in fonts.  Screen driver entry points GetTextSize return
+    the font height and width for a passed string, and
+    <TT
+CLASS="FUNCTION"
+>GetTextBits</TT
+> returns an individual character
+    bitmap.  The engine layer uses these values to calculate a
+    clipping region for text drawing, as well as to draw the character
+    as a monochrome bitmap.
+  </P
+><P
+>    The screen drivers currently supplied implement both fixed pitch
+    PC ROM based fonts, as well as a proportional font format that is
+    linked into the screen driver.  A few conversion programs allow
+    conversion of fonts from different formats to the driver format.
+    <TT
+CLASS="FILENAME"
+>Bdftobogl</TT
+> converts X Window System
+    <TT
+CLASS="FILENAME"
+>.bdf</TT
+> files to Microwindows format.
+    <TT
+CLASS="FILENAME"
+>Convfnt32</TT
+> converts raster and truetype
+    Microsoft Windows fonts, if you have a license, to Microwindows
+    format.  Convrom converts PC ROM bios fonts.
+  </P
+><P
+>    A number of free fonts are supplied with the system, a heavier
+    proportional 14x16 system font, and a sans-serif 11x13 font for
+    title bar and edit box displays.  Any number of fonts can be
+    linked into the system, and it's fairly easy to dynamically load
+    fonts if one writes the routines for it.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN228"
+>Text Drawing</A
+></H3
+><P
+>    Text output is performed by first selecting the desired font with
+    <TT
+CLASS="FUNCTION"
+>GdSetFont</TT
+>, and then calling the
+    <TT
+CLASS="FUNCTION"
+>GdText</TT
+> function.  Full text clipping is
+    performed, although currently there is no "fast" text output entry
+    point in the screen driver, so each character bitmap is grabbed
+    using the <TT
+CLASS="FUNCTION"
+>GetTextBits</TT
+> entrypoint and then
+    drawn using <TT
+CLASS="FUNCTION"
+>Drawpixel</TT
+>.  While this will have
+    to remain the same for partially clipped text, a screen driver
+    entry point to draw fast text will probably be required shortly.
+  </P
+><P
+>    Text is drawn using the current foreground color.  The background
+    is drawn if the current "use background" mode set via
+    <TT
+CLASS="FUNCTION"
+>GdUseBackground</TT
+> is TRUE. In this case the
+    background is drawn using the current background color set via
+    <TT
+CLASS="FUNCTION"
+>GdSetBackground</TT
+>.  The
+    <TT
+CLASS="FUNCTION"
+>GdText</TT
+> function also takes a bottomAlign
+    parameter that specifies whether the text is to be bottom or top
+    aligned, to help with differing API's.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN239"
+>Color model and palettes</A
+></H3
+><P
+>    The Microwindows graphics engine requires all colors to be
+    specified as either 24-bit RGB color values, or in rare cases, as
+    palette indices for speed.  The palette index method will only
+    work on systems that have hardware palettes, so it's not
+    recommended.  All of the upper-level color parameters are
+    specified to the engine routines using a COLORVAL value, which is
+    a long containing the desired RGB color, created using the
+    <TT
+CLASS="FUNCTION"
+>RGB()</TT
+> macro.  The engine then converts the
+    COLORVAL to a PIXELVAL value, which is normally a long also, but
+    on some smaller systems can be compiled as an unsigned char.  The
+    PIXELVAL value is the actual value passed to any screen driver
+    entry point requiring a color.  So the mid level routines all work
+    with RGB COLORVALs, while the device driver routines all work with
+    PIXELVALs.  The graphics engine converts these values using two
+    routines, <TT
+CLASS="FUNCTION"
+>GdFindColor</TT
+> and
+    <TT
+CLASS="FUNCTION"
+>GdFindNearestColor</TT
+>, described below.
+  </P
+><P
+>    <TT
+CLASS="FUNCTION"
+>GdFindColor</TT
+> takes a hardware independent RGB
+    value and converts it to a hardware dependent PIXELVAL pixel
+    value.  In the case of 32bpp display drivers, no conversion is
+    required.  Otherwise for truecolor systems, Microwindows converts
+    the RGB value to a 5/5/5 15-bit or 5/6/5 16 bit truecolor value.
+    For 8bpp truecolor displays, the RGB value is converted to 3/3/2.
+    For palletized displays, the
+    <TT
+CLASS="FUNCTION"
+>GdFindNearestColor</TT
+> function is called to
+    convert the RGB color to the nearest palette index in the current
+    system palette.  <TT
+CLASS="FUNCTION"
+>GdFindNearestColor</TT
+> uses a
+    weighted distance-cubed method to find the palette value nearest
+    to the requested color, and returns it.  Standard palettes for 1,
+    2, 4 and 8bpp are included in the files
+    <TT
+CLASS="FILENAME"
+>devpal1.c</TT
+>, <TT
+CLASS="FILENAME"
+>devpal2.c</TT
+>, 
+    <TT
+CLASS="FILENAME"
+>devpal4.c</TT
+> and <TT
+CLASS="FILENAME"
+>devpal8.c</TT
+>.  
+    These palettes associate an RGB value with an index, but may be 
+    overwritten.
+  </P
+><P
+>    The <TT
+CLASS="FUNCTION"
+>GdSetPalette</TT
+> function determines whether
+    there are any free entries in the system palette (discussed
+    shortly) and if so, adds entries to the system palette, and calls
+    the screen driver <TT
+CLASS="FUNCTION"
+>SetPalette</TT
+> entry point to
+    set the hardware palette.  There is a single global variable,
+    gr_firstuserpalentry, that contains the index of the next
+    available system palette entry.  Initially, this is set to 24.
+    Thus, systems with less than 24 total palette entries will never
+    have an available palette entry to remap.  On systems that do,
+    like 256 color systems, then images requiring more color entries
+    keep calling <TT
+CLASS="FUNCTION"
+>GdSetPalette</TT
+> until the system
+    palette is full. To reset marker, the function
+    <TT
+CLASS="FUNCTION"
+>GdResetPalette</TT
+> is called.  This allows upper
+    level API's to distinguish between different images and force the
+    system palette to be rewritten.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN258"
+>Image Drawing</A
+></H3
+><P
+>    Microwindows supports two styles of images, monochrome and
+    palettized.  Monochrome images are specified with an IMAGEBITS
+    structure, which is an array of words with 1 bits specifying the
+    foreground color and 0 bits the background.  The IMAGEBITS bits
+    are short-word padded to the width of the bitmap.  The
+    <TT
+CLASS="FUNCTION"
+>GdBitmap</TT
+> routine draws monochrome bitmaps,
+    similar to <TT
+CLASS="FUNCTION"
+>GdText</TT
+>, by drawing all the 1 bits
+    in the foreground color, and the 0 bits in the background color if
+    the "use background" set by <TT
+CLASS="FUNCTION"
+>GdUseBackground</TT
+>
+    is TRUE.
+  </P
+><P
+>    Color bitmaps are specified using a 1, 4 or 8bpp image palette,
+    and an array of indices into this palette, all stuffed into an
+    IMAGEHDR structure, and drawn via
+    <TT
+CLASS="FUNCTION"
+>GdDrawImage</TT
+>.  First, the system creates a
+    conversion palette by calling
+    <TT
+CLASS="FUNCTION"
+>GdMakePaletteConversionTable</TT
+>, which converts
+    the images' palette entries into system indices.  At the same
+    time, the system attempts to increase the system palette if
+    necessary by calling the <TT
+CLASS="FUNCTION"
+>GdSetPalette</TT
+>
+    function described above.  At the end of this operation, the image
+    has a converted palette which necessarily corresponds to the
+    system palette.  In the case of truecolor hardware, the image's
+    palette entries are converted to hardware truecolor pixel values,
+    and output directly.
+  </P
+><P
+>    After converting the image color entries the
+    <TT
+CLASS="FUNCTION"
+>GdDrawImage</TT
+> determines whether the image
+    is clipped, and outputs the image, pixel by pixel.  In the future,
+    a blitting routine could be used for faster image drawing.
+  </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN270"
+>Blitting</A
+></H3
+><P
+>    Blitting functionality is required in the screen driver for
+    offscreen drawing capability, discussed earlier in the screen
+    drivers section. The engine function <TT
+CLASS="FUNCTION"
+>GdBlit</TT
+>
+    allows upper level APIs to implement copy operations from
+    offscreen memory to the display, or vice versa. The blit format is
+    driver specific, and generally only works for memory images
+    created by the screen driver during runtime. The upper level APIs
+    implement this by allocating a new SCREENDRIVER structure, copying
+    an existing SCREENDRIVER structure into it, replacing the address
+    field with a <TT
+CLASS="FUNCTION"
+>malloc()</TT
+>'d value, and setting
+    the PSF_MEMORY bit, which indicates to the display driver that
+    this is now an offscreen surface.  Any subsequent calls to the
+    engine routines then draw onto this surface.  When it is desired
+    to copy the offscreen surface back to the physical display, the
+    GdBlit routine is called.  Currently, only SRCCOPY operations are
+    performed, but future plans will add blitting opcodes.
+  </P
+><P
+>    The function <TT
+CLASS="FUNCTION"
+>GdCalcMemGCAlloc</TT
+> calculates the
+    byte size and line length (pitch) of an offscreen memory area
+    given the passed bpp and planes parameters. This is before calling
+    the screen driver to allocate an offscreen screen device.
+  </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="archmwinapi.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Microwindows Architecture</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch1.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Microwindows API</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

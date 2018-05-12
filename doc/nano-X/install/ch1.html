@@ -1,0 +1,707 @@
+<HTML
+><HEAD
+><TITLE
+>Getting Started With Microwindows</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Getting Started With Microwindows & Nano-X"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Release Information"
+HREF="releaseinfo.html"><LINK
+REL="NEXT"
+TITLE="Hello World Example"
+HREF="inst_hello.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started With Microwindows &#38; Nano-X</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="releaseinfo.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="inst_hello.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CH1"
+>Chapter 1. Getting Started With Microwindows</A
+></H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="ch1.html#INSTMAIN"
+>Installing Microwindows</A
+></DT
+><DT
+><A
+HREF="inst_hello.html"
+>Hello World Example</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="INSTMAIN"
+>Installing Microwindows</A
+></H1
+><P
+>    This document will guide you through installation of Microwindows
+    onto a Linux host. At the end of this tutorial you will be able to
+    execute the Microwindows demo applications in an X window that
+    simulates the screen of your embedded device. You will also be
+    able to create and execute a simple hello world application using
+    the nano-X API. 
+  </P
+><P
+>    In the following chapters you will also learn how to work with images
+    and TrueType fonts. 
+  </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN42"
+>Download The Latest Sources</A
+></H2
+><P
+>    Download the latest source code from  
+    <A
+HREF="ftp://microwindows.org/pub/microwindows/"
+TARGET="_top"
+>    the Microwindows ftp site</A
+>. 
+    In the following example I'll be building revision 0.89pre7. 
+    The sources come in a tarball named
+    <TT
+CLASS="FILENAME"
+>microwindows-0.89pre7.tar.gz</TT
+>. 
+    Copy this file into a convenient spot. I copied the file into my 
+    home directory <TT
+CLASS="FILENAME"
+>/home/gary</TT
+>. 
+    </P
+><P
+>    Extract the sources. The tarball is a compressed tar file. You
+    must first uncompress the file using gunzip, then extract the 
+    sources from the tar file using tar. This creates a new directory 
+    named <TT
+CLASS="FILENAME"
+>microwin</TT
+> 
+    that contains the Microwindows source tree. Type the following commands. 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>tar -xzf microwindows-0.89pre7.tar.gz</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN53"
+>Configure The Build Scripts</A
+></H2
+><P
+>    Change directories to the new Microwindows source directory. 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cd microwin/src</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    You should take the time to read the file
+    <TT
+CLASS="FILENAME"
+>microwin/src/INSTALL</TT
+>
+    and then look through the file
+    <TT
+CLASS="FILENAME"
+>microwin/src/config</TT
+>. 
+    There are many different options that you can compile into 
+    Microwindows. For now the only difference that you want from 
+    the default is to build for X11 display. When your application
+    goes into your embedded system you will most likely want to use
+    FRAMBUFFER drivers. But for now we will be prototyping our system
+    on a desktop machine running X windows. This will let us see our
+    output in a window on the same desktop as our compiler and debugger. 
+    </P
+><P
+>    To build for X windows you need to first set the configuration
+    file for the proper X11 settings. Luckily there are preset
+    configurations in the <TT
+CLASS="FILENAME"
+>microwin/src/Configs</TT
+>
+    directory. Copy the file <TT
+CLASS="FILENAME"
+>config.x11</TT
+> over the
+    file <TT
+CLASS="FILENAME"
+>config</TT
+>.
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cp Configs/config.x11 config</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN69"
+>Build The Library And Demos</A
+></H2
+><P
+>    After making modifications to the configuration file you can build 
+    the Microwindows library and demo applications. Build the
+    libraries and demos by typing: 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>make clean; make</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    You should add the microwindows binary directory to your path. We
+    will be running applications in that directly quite a bit,
+    especially when we start using nano-X. Run the following command,
+    you may also want to add the command to your
+    <TT
+CLASS="FILENAME"
+>~/.bashrc</TT
+> file.
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>export PATH=~/microwin/src/bin:$PATH</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN80"
+>Run the WIN32 demos</A
+></H3
+><P
+>      Test the build by running a few of the Microwindows demo
+      applications. Press the <B
+CLASS="KEYCAP"
+>Pause</B
+> key to exit
+      each of these applications.
+      </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>mine</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>mtest</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>mdemo</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>malpha</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>      Currently the WIN32 layer of Microwindows can only support one 
+      application running on the desktop at a time. If you are
+      interested in running multiple applications simultaneously you 
+      will need to use the nano-X layer of microwindows rather than
+      the WIN32 layer. 
+      </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="AEN94"
+>Run the NANO-X demos</A
+></H3
+><P
+>      Also run a few of the nano-X demo applications. To run the nano-X 
+      applications you must first run the nano-X server, then the 
+      application. The following three commands will start a <SPAN
+CLASS="APPLICATION"
+>nano-X</SPAN
+> 
+      server, then start the <SPAN
+CLASS="APPLICATION"
+>nxclock</SPAN
+>
+      application, then the <SPAN
+CLASS="APPLICATION"
+>nxscribble</SPAN
+>
+      application. You will see a black screen with two windows, one
+      for each application. Press the <B
+CLASS="KEYCAP"
+>Break</B
+> key
+      to exit each of these applications.
+      </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X &#38; sleep 1</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nxclock &#38;</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nxscribble &#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+><P
+>      An alternative command line to accomplish the same thing is shown
+      below. The sleep command is required to give the nano-X server a
+      bit of time to initialize before starting the client applications.
+      </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X&#38; sleep 1; nxclock&#38; nxscribble&#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+><P
+>      You can't move the windows around within the nano-X screen, 
+      without the aid of a window manager. Luckily a window manager 
+      is included in the demo directory. Kill the previous demo by
+      pressing the <B
+CLASS="KEYCAP"
+>Break</B
+> key. This time run the
+      <SPAN
+CLASS="APPLICATION"
+>nanowm</SPAN
+> window manager before running
+      the <SPAN
+CLASS="APPLICATION"
+>nxclock</SPAN
+> or
+      <SPAN
+CLASS="APPLICATION"
+>nxscribble</SPAN
+> applications. 
+      </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X&#38; sleep 1; nanowm&#38; sleep 1; nxclock&#38; nxscribble&#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+><P
+>      Now you will see a cyan screen with two decorated windows, one for each 
+      application. The significant difference is not that we have a 
+      cyan background. The significant difference is that we have 
+      title bars on the two applications. Now you can move the windows 
+      around the screen by dragging their title bars. You can also exit 
+      an individual application. Try this by clicking the X button on 
+      the top of the <SPAN
+CLASS="APPLICATION"
+>nxclock</SPAN
+> window. The
+      <SPAN
+CLASS="APPLICATION"
+>nxclock</SPAN
+> application will quit, while
+      the <SPAN
+CLASS="APPLICATION"
+>nxscribble</SPAN
+> application continues
+      to run. You can restart the <SPAN
+CLASS="APPLICATION"
+>nxclock</SPAN
+>
+      application back at the command line, and a new clock window
+      will appear. 
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN125"
+>Install The Libraries</A
+></H2
+><P
+>    If everything went as planned and the demo applications ran then you 
+    should install the libraries now. Switch to <I
+CLASS="EMPHASIS"
+> root
+    </I
+> user id and type:
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>#</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>make install</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    This will copy the appropiate files to 
+    <TT
+CLASS="FILENAME"
+>/usr/include/microwin</TT
+>
+     and <TT
+CLASS="FILENAME"
+>/usr/lib</TT
+>. 
+    You don't need to install the libraries to run the demo
+    applications, but you will need them to build your own 
+    applications. The libraries that will be installed are: 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="FILENAME"
+> usr/lib/libmwdrivers.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libmwengine.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libmwfonts.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libmwimages.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libmwin.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libmwinlib.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libmwobjects.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libnano-X.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libnwidget.a </TT
+>
+<TT
+CLASS="FILENAME"
+> usr/lib/libvncauth.a </TT
+> </PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="releaseinfo.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="inst_hello.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Release Information</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Hello World Example</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

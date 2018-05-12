@@ -1,0 +1,302 @@
+<HTML
+><HEAD
+><TITLE
+>Font Example</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Getting Started With Microwindows & Nano-X"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Working With Fonts"
+HREF="ch3.html"><LINK
+REL="PREVIOUS"
+TITLE="Installing The FreeType Library"
+HREF="fonts_install.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started With Microwindows &#38; Nano-X</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="fonts_install.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Working With Fonts</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="FONTS.EXAMPLE"
+>Font Example</A
+></H1
+><P
+>  In this section I present a simple nano-X TrueType font application.
+  </P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN511"
+>Example Using Fonts</A
+></H2
+><P
+>    Copy the source shown below into a file named
+    "<TT
+CLASS="FILENAME"
+>fonts.c</TT
+>". Compile the application with the
+    following command.
+    </P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>gcc fonts.c -I/usr/include/microwin \</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>&#62;</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>-o fonts -lnano-X</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN521"
+></A
+><P
+><B
+>Example 3-1. fonts.c</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include &#60;stdio.h&#62;
+#define MWINCLUDECOLORS
+#include "microwin/nano-X.h"
+
+GR_WINDOW_ID  wid;
+GR_GC_ID      gc;
+GR_FONT_ID    font_a, font_b, font_c, font_d;
+
+void event_handler (GR_EVENT *event);
+
+int main (void)
+{
+    if (GrOpen() &#60; 0)
+    {
+        fprintf (stderr, "GrOpen failed");
+        exit (1);
+    }
+
+    gc = GrNewGC();
+    GrSetGCUseBackground (gc, GR_FALSE);
+    GrSetGCForeground (gc, RED);
+ 
+    wid = GrNewWindowEx (GR_WM_PROPS_APPFRAME |
+                         GR_WM_PROPS_CAPTION  |
+                         GR_WM_PROPS_CLOSEBOX,
+                         "Font Test Window",
+                         GR_ROOT_WINDOW_ID, 50, 50, 
+                         200, 130, WHITE);
+
+    GrSelectEvents (wid, GR_EVENT_MASK_EXPOSURE | 
+                         GR_EVENT_MASK_CLOSE_REQ);
+
+    font_a = GrCreateFont ("arial", 12, NULL);
+    font_b = GrCreateFont ("comic", 16, NULL);
+    font_c = GrCreateFont ("comic", 24, NULL);
+    font_d = GrCreateFont ("arial", 36, NULL);
+
+    GrMapWindow (wid);
+    GrMainLoop (event_handler);
+    return 0;
+}
+
+void event_handler (GR_EVENT *event)
+{
+    switch (event-&#62;type)
+    {
+    case GR_EVENT_TYPE_EXPOSURE:
+        GrSetGCFont (gc, font_a);
+        GrText (wid, gc, 20, 20, "Arial 12",  -1, GR_TFASCII);
+        GrSetGCFont (gc, font_b);
+        GrText (wid, gc, 20, 40, "Comic 16",  -1, GR_TFASCII);
+        GrSetGCFont (gc, font_c);
+        GrText (wid, gc, 20, 70, "Comic 24",  -1, GR_TFASCII);
+        GrSetGCFont (gc, font_d);
+        GrText (wid, gc, 20, 110, "Arial 36",  -1, GR_TFASCII);
+        break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        exit (0);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>    Run the example application with the following command. You will
+    see a window appear as shown below.
+    </P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>nano-X&#38; sleep 1; nanowm&#38; sleep 1; ./fonts&#38;</B
+></TT
+> </PRE
+></TD
+></TR
+></TABLE
+></P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN529"
+></A
+><P
+><B
+>Figure 3-1. TrueType Font Example</B
+></P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="../images/ex_fonts.gif"
+ALT="<< Image Object Missing >>"
+></IMG
+></P
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="fonts_install.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Installing The FreeType Library</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch3.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

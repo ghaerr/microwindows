@@ -1,0 +1,395 @@
+<HTML
+><HEAD
+><TITLE
+>GrNewGC()</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Nano-X Library API"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Nano-X Function Reference"
+HREF="ch2.html"><LINK
+REL="PREVIOUS"
+TITLE="GrMoveWindow()"
+HREF="nxapi_GrMoveWindow.html"><LINK
+REL="NEXT"
+TITLE="GrNewInputWindow()"
+HREF="nxapi_GrNewInputWindow.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Nano-X Library API</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrMoveWindow.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="nxapi_GrNewInputWindow.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="NXAPI.GRNEWGC"
+><TT
+CLASS="FUNCTION"
+>GrNewGC()</TT
+></A
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN4616"
+></A
+><H2
+>Name</H2
+><TT
+CLASS="FUNCTION"
+>GrNewGC()</TT
+>&nbsp;--&nbsp;Create a new graphics context</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN4620"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><A
+NAME="AEN4621"
+></A
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  GR_GC_ID           <B
+CLASS="FSFUNC"
+>  GrNewGC               </B
+></CODE
+>(void);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4626"
+></A
+><H2
+>Description</H2
+><P
+>    This function creates a new graphics context. The newly created
+    structure is initialized with the default values shown in the
+    following table.
+    </P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN4629"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>GC Parameter</TH
+><TH
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default Value</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>mode</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_MODE_SET</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>region</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>No region selected</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>font</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The default system font</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>foreground</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>WHITE</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>background</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>BLACK</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>usebackground</TD
+><TD
+WIDTH="67%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>GR_TRUE</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4658"
+></A
+><H2
+>Returns</H2
+><P
+>    The ID of the newly created graphics context structure, or <SPAN
+CLASS="RETURNVALUE"
+> 0
+    </SPAN
+> if unsuccessful.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN4662"
+></A
+><H2
+>See Also</H2
+><P
+>      <A
+HREF="nxstruct_GR_GC_ID.html"
+>            <SPAN
+CLASS="TYPE"
+>GR_GC_ID</SPAN
+></A
+>,
+      <A
+HREF="nxstruct_GR_GC_INFO.html"
+>            <SPAN
+CLASS="TYPE"
+>GR_GC_INFO</SPAN
+></A
+>,
+      <A
+HREF="nxapi_GrCopyGC.html"
+>            <TT
+CLASS="FUNCTION"
+>GrCopyGC()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrDestroyGC.html"
+>            <TT
+CLASS="FUNCTION"
+>GrDestroyGC()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCForeground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCForeground()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCBackground()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCUseBackground.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCUseBackground()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCMode.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCMode()</TT
+></A
+>,
+      <A
+HREF="nxapi_GrSetGCFont.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCFont()</TT
+></A
+>, 
+      <A
+HREF="nxapi_GrSetGCRegion.html"
+>            <TT
+CLASS="FUNCTION"
+>GrSetGCRegion()</TT
+></A
+>, 
+      <A
+HREF="nxapi.graphics.html"
+>            GC Functions</A
+>.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nxapi_GrMoveWindow.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nxapi_GrNewInputWindow.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrMoveWindow()</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch2.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FUNCTION"
+>GrNewInputWindow()</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

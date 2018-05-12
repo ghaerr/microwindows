@@ -1,0 +1,548 @@
+<HTML
+><HEAD
+><TITLE
+>Installing The FreeType Library</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.61
+"><LINK
+REL="HOME"
+TITLE="Getting Started With Microwindows & Nano-X"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Working With Fonts"
+HREF="ch3.html"><LINK
+REL="PREVIOUS"
+TITLE="Working With Fonts"
+HREF="ch3.html"><LINK
+REL="NEXT"
+TITLE="Font Example"
+HREF="fonts_example.html"></HEAD
+><BODY
+CLASS="SECTION"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Getting Started With Microwindows &#38; Nano-X</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="ch3.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Working With Fonts</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="fonts_example.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="FONTS.INSTALL"
+>Installing The FreeType Library</A
+></H1
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN427"
+>Download The FreeType Library</A
+></H2
+><P
+>    Microwindows uses the open source 
+    <A
+HREF="http://www.freetype.org"
+TARGET="_top"
+>    FreeType</A
+> library to render TrueType fonts. Microwindows
+    works with version 1.3.1 of the FreeType library. At the time of
+    this article the FreeType library is at version 2.0.3. I do not
+    know if this version works with Microwindows. FreeType version 1.3.1 is
+    known to work and can be downloaded from <A
+HREF="ftp://microwindows.org/pub/microwindows/"
+TARGET="_top"
+> the Microwindows
+    ftp site</A
+>. The sources come in a tarball named
+    <TT
+CLASS="FILENAME"
+>freetype-1.3.1.tar.gz</TT
+>. Copy this file into a
+    convenient spot. I copied the file into my home directory
+    <TT
+CLASS="FILENAME"
+>/home/gary</TT
+>. 
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN434"
+>Extract The Sources</A
+></H2
+><P
+>    The tarball is a compressed tar file. You
+    must first uncompress the file using gunzip, then extract the 
+    sources from the tar file using tar. This creates a new directory 
+    named <TT
+CLASS="FILENAME"
+>freetype-1.3.1</TT
+> 
+    that contains the FreeType source tree. Type the following commands. 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>tar -xzf freetype-1.3.1.tar.gz</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN441"
+>Build &#38; Install The Library</A
+></H2
+><P
+>    Change directories to the new FreeType source directory. 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>cd freetype-1.3.1</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    Build the FreeType library by typing: 
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>./configure</B
+></TT
+>
+<TT
+CLASS="PROMPT"
+>$</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>make</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+><P
+>    If everything went as planned and the library built without errors
+    then you should install the libraries now. Switch to <I
+CLASS="EMPHASIS"
+>    root</I
+> user id and type:
+    </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>#</TT
+> <TT
+CLASS="USERINPUT"
+><B
+>make install</B
+></TT
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN458"
+>Modify The Microwindows Configuration File</A
+></H2
+><P
+>    Modify the Microwindows config file  
+    <TT
+CLASS="FILENAME"
+>.../microwin/src/config</TT
+>. Change
+    <TT
+CLASS="VARNAME"
+>HAVE_FREETYPE_SUPPORT</TT
+> to
+    <TT
+CLASS="CONSTANT"
+>Y</TT
+>. Modify <TT
+CLASS="VARNAME"
+>INCFTLIB</TT
+> and
+    <TT
+CLASS="VARNAME"
+>LIBFTLIB</TT
+> to point to the directories that
+    contain the FreeType libraries that you just built. On my system
+    it's as shwon below:
+
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>####################################################################
+# TrueType font support thru FreeType
+####################################################################
+HAVE_FREETYPE_SUPPORT    = Y
+INCFTLIB                 = /usr/local/include
+LIBFTLIB                 = /usr/local/lib/libttf.so
+FREETYPE_FONT_DIR        = "/usr/local/microwin/fonts"</PRE
+></TD
+></TR
+></TABLE
+>
+    </P
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN467"
+></A
+><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Symbol</TH
+><TH
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>DescriptionPurpose</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>HAVE_FREETYPE_SUPPORT</TT
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This symbol controls the conditional compilation of the
+        FreeType code within Microwindows. If set to "Y"
+        then FreeType support will be included. If set to
+        "N" the FreeType support is not compiled in.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>INCFTLIB</TT
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This symbol defines the path to the FreeType include
+        files (on the development system). This path will be added to
+        the include file search path during compilation of
+        Microwindows. </TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>LIBFTLIB</TT
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This symbol defines the path to the FreeType library
+        files (on th development system). This path will be added to
+        the include file search path during linking of Microwindows.</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="CONSTANT"
+>FREETYPE_FONT_DIR</TT
+></TD
+><TD
+WIDTH="75%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>This symbol defines the path to the TrueType fonts on
+        the target system. When you setup your target system you will
+        use this directory on the target system to hold the TrueType
+        fonts.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN492"
+>Rebuild Microwindows With FreeType Support</A
+></H2
+><P
+>    After you modify the config file, re-build and re-install Microwindows.
+    </P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN495"
+>Get Some TrueType Fonts</A
+></H2
+><P
+>    Create a directory "/usr/local/microwin/fonts/" on your target
+    machine to hold your TrueType fonts. When you get some TrueType
+    fonts, you will put the <TT
+CLASS="FILENAME"
+>*.ttf</TT
+> files in this
+    directory. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>    This directory must match the directory that you specified with
+    the symbol <TT
+CLASS="CONSTANT"
+>FREETYPE_FONT_DIR</TT
+> in your
+    Microwindows configuration file.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>    You need to pay attention to the license on the TrueType fonts
+    that you plan to use. For quick evaluation purposes you can grab
+    some TrueType fonts from the nearest Windows machine. But you
+    should not use these font on a production system unless you get
+    the proper permissions from the copyright holders. You can get
+    some TrueType fonts from the following sites. If you do a quick
+    seach on the web, dozens of additional sites offering free
+    TrueType fonts will show up.
+    <P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><A
+HREF="ftp://microwindows.censoft.com/pub/microwindows/microwindows-fonts-truetype-0.89pre2.tar.gz"
+TARGET="_top"
+>ftp://microwindows.censoft.com/pub/microwindows/microwindows-fonts-truetype-0.89pre2.tar.gz</A
+></TD
+></TR
+><TR
+><TD
+><A
+HREF="http://www.microsoft.com/typography/fontpack/default.htm"
+TARGET="_top"
+>http://www.microsoft.com/typography/fontpack/default.htm</A
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ch3.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="fonts_example.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Working With Fonts</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ch3.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Font Example</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

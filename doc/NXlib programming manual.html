@@ -6,11 +6,7 @@
 	<META NAME="GENERATOR" CONTENT="OpenOffice 4.1.2  (Win32)">
 	<META NAME="CREATED" CONTENT="0;0">
 	<META NAME="CHANGEDBY" CONTENT="Georg Potthast">
-	<META NAME="CHANGED" CONTENT="20180512;11005028">
-	<META NAME="CHANGEDBY" CONTENT="Georg Potthast">
-	<META NAME="CHANGEDBY" CONTENT="Georg Potthast">
-	<META NAME="CHANGEDBY" CONTENT="Georg Potthast">
-	<META NAME="CHANGEDBY" CONTENT="Georg Potthast">
+	<META NAME="CHANGED" CONTENT="20180513;15332801">
 </HEAD>
 <BODY LANG="de-DE" DIR="LTR">
 <P><BR><BR>
@@ -97,8 +93,14 @@
 			Makefiles that need to be changed. Or use the &bdquo;ltrace&ldquo;
 			command described in the next section to find the X11 functions
 			used that are not supported by NX11 and require e.g. an additional
-			stub in the stub.c file. So you cannot expect that it does work
-			for you out of the box. Sometimes code changes may be required.</P>
+			stub in the stub.c file. You can also use the DEBUG or SHOWSTUBS
+			macros to print a message to stdout if one of these stubs is
+			called by the application.  So you can look into the code of the
+			application why it needs that function and if it can handle a
+			unsuccessful call.</P>
+			<P STYLE="margin-bottom: 0cm; font-weight: normal">Please do not
+			expect that it does work out of the box. It takes some time and
+			sometimes code changes may be required.</P>
 			<P STYLE="margin-bottom: 0cm"><BR>
 			</P>
 			<P STYLE="margin-bottom: 0cm"><FONT SIZE=4><B>Using NX11 as a
@@ -199,6 +201,9 @@
 			<P STYLE="margin-bottom: 0cm"><FONT SIZE=4><B>X11 links</B></FONT></P>
 			<P STYLE="margin-bottom: 0cm"><A HREF="https://www.niksula.hut.fi/~jkirma/books/xlib.pdf"><SPAN STYLE="font-weight: normal">Adrian
 			Nye, Xlib Programming Manual for Version 11 of the X Window System</SPAN></A></P>
+			<P STYLE="margin-bottom: 0cm"><A HREF="Adrian%20Nye,%20Xlib%20Programming%20Manual%20for%20Version%2011%20of%20the%20X%20Window%20System"><SPAN STYLE="font-weight: normal">Adrian
+			Nye, Xlib Programming Manual for Version 11 of the X Window System
+			- HTML version</SPAN></A></P>
 			<P STYLE="margin-bottom: 0cm"><A HREF="http://neuron-ai.tuke.sk/hudecm/Tutorials/C/special/xlib-programming/xlib-programming.html"><SPAN STYLE="font-weight: normal">Basic
 			Graphics Programming With The Xlib Library</SPAN></A></P>
 			<P STYLE="margin-bottom: 0cm"><A HREF="http://xopendisplay.hilltopia.ca/2009/Jan/Xlib-tutorial-part-1----Beginnings.html"><SPAN STYLE="font-weight: normal">Alan's
@@ -2756,6 +2761,19 @@ stub.c file in the nxlib directory.</P>
 		</TD>
 		<TD WIDTH=268 VALIGN=TOP>
 			<P>Merges the contents of one database into another; overrides.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=209>
+			<P><A HREF="https://tronche.com/gui/x/xlib/resource-manager/XrmParseCommand.html">XrmParseCommand</A>
+						</P>
+		</TD>
+		<TD WIDTH=201>
+			<P>ParseCmd.c</P>
+		</TD>
+		<TD WIDTH=268 VALIGN=TOP>
+			<P>Loads a resource database from a C command line 
+			</P>
 		</TD>
 	</TR>
 	<TR>

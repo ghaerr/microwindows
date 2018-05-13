@@ -1,5 +1,6 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
+
 /*
  * Arc drawing demo for X11
  */
@@ -23,11 +24,11 @@ draw(XEvent *ep)
 {
 	Window wid = ((XExposeEvent *)ep)->window;
 	GC gc = XCreateGC(d, wid, 0, NULL);
-	int x = 40;
-	int y = 40;
+	int x = 20;
+	int y = 20;
 	int w, h;
 
-	w = h = 8;
+	w = h = 60;
 	XSetForeground(d, gc, BLACK);
 	XDrawRectangle(d, wid, gc, x, y, w-1, h-1);
 	XSetForeground(d, gc, GREEN);
@@ -36,7 +37,8 @@ draw(XEvent *ep)
 
 	XSetForeground(d, gc, BLACK);
 	XDrawPoint(d, wid, gc, x+w/2, y+h/2);
-
+	//show if using libNX11 - prints CSET then
+	XDrawString(d,wid,gc,1,10,XServerVendor(d),4);
 	XFreeGC(d, gc);
 }
 
@@ -47,7 +49,7 @@ main(int ac, char **av)
 	Window wid;
 
 	if ((d = XOpenDisplay(NULL)) == NULL)
-		exit(1);
+		return 1;
 
 	wid = XCreateSimpleWindow(d, RootWindow(d, 0),
 		0, 0, 100, 100,

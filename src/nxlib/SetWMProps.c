@@ -20,18 +20,27 @@ XSetWMName(Display * display, Window w, XTextProperty * name)
 void
 XSetWMIconName(Display * display, Window w, XTextProperty * name)
 {
+#if DEBUG || SHOWSTUBS
+	DPRINTF("XSetWMIconName\n");
+#endif 
 }
 
 /* Not used */
 void
 XSetWMNormalHints(Display * display, Window w, XSizeHints * hints)
 {
+#if DEBUG || SHOWSTUBS
+	DPRINTF("XSetWMNormalHints\n");
+#endif   
 }
 
 /* Not used */
 int
 XSetWMHints(Display * display, Window w, XWMHints * hints)
 {
+#if DEBUG || SHOWSTUBS
+	DPRINTF("XSetWMHints\n");
+#endif   
 	return 1;
 }
 
@@ -39,6 +48,9 @@ XSetWMHints(Display * display, Window w, XWMHints * hints)
 void
 XSetWMClassHints(Display * display, Window w, XClassHint * hints)
 {
+#if DEBUG || SHOWSTUBS
+	DPRINTF("XSetWMClassHints\n");
+#endif     
 }
 
 XSizeHints *

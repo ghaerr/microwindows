@@ -142,7 +142,7 @@ OBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
 	Selection.o XMisc.o Free.o stub.o
 
 ifeq ($(INCLUDE_XRM), Y)
-OBJS += Quarks.o Xrm.o
+OBJS += Quarks.o Xrm.o ParseCmd.o
 xOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
     xrm/lcInit.o xrm/lcGenConv.o xrm/SetLocale.o xrm/lcConv.o xrm/lcUTF8.o \
     xrm/lcDefConv.o xrm/lcPubWrap.o xrm/lcDynamic.o xrm/lcCharSet.o \

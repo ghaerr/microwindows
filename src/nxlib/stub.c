@@ -1,6 +1,8 @@
 #include <stdio.h>
 
-#if DEBUG
+// #define SHOWSTUBS 1 /* just show called stubs, no additional debug messages */
+
+#if DEBUG || SHOWSTUBS
 #define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
 #else
 #define DPRINTF(str, ...)									  /* no debug output*/
@@ -13,7 +15,6 @@ int XGetIconSizes() { DPRINTF("XGetIconSizes called\n"); return 0; }
 int XQueryBestCursor() { DPRINTF("XQueryBestCursor called\n"); return 0; } 
 int XSetState() { DPRINTF("XSetState called\n"); return 0; } 
 int XResourceManagerString() { DPRINTF("XResourceManagerString called\n"); return 0; } 
-int XrmParseCommand() { DPRINTF("XrmParseCommand called\n"); return 0; } 
 int XQueryKeymap() { DPRINTF("XQueryKeymap called\n"); return 0; } 
 int XGetDefault(void *d, char *program, char *option) { DPRINTF("XGetDefault %s %s\n", program, option); return 0; } 
 int XRecolorCursor() { DPRINTF("XRecolorCursor called\n"); return 0; } 
@@ -64,6 +65,12 @@ int XShmAttach() { DPRINTF("XShmAttach called\n"); return 0; }
 int XShmCreateImage() { DPRINTF("XShmCreateImage called\n"); return 0; } 
 int XShmPutImage() { DPRINTF("XShmPutImage called\n"); return 0; } 
 
+/* required for Xforms toolkit */
+XGetStandardColormap() { DPRINTF("XGetStandardColormap called\n"); return 0; }
+XChangeKeyboardControl() { DPRINTF("XChangeKeyboardControl called\n"); return 0; } 
+XFetchBuffer() { DPRINTF("XFetchBuffer called\n"); return 0; } 
+XCopyColormapAndFree() { DPRINTF("XCopyColormapAndFree called\n"); return 0; }
+
 /* other required*/
 int XAddExtension() { DPRINTF("XAddExtension called\n"); return 0; } 
 int XAllocColorCells() { DPRINTF("XAllocColorCells called\n"); return 0; }
@@ -103,7 +110,6 @@ int XIconifyWindow() { DPRINTF("XIconifyWindow called\n"); return 0; }
 int XInitExtension() { DPRINTF("XInitExtension called\n"); return 0; } 
 int _XInitImageFuncPtrs() { DPRINTF("_XInitImageFuncPtrs called\n"); return 0; } 
 int XKillClient() { DPRINTF("XKillClient called\n"); return 0; } 
-int XMaxRequestSize() { DPRINTF("XMaxRequestSize called\n"); return 0; } 
 int XmbDrawImageString() { DPRINTF("XmbDrawImageString called\n"); return 0; } 
 int XmbDrawString() { DPRINTF("XmbDrawString called\n"); return 0; } 
 int XmbLookupString() { DPRINTF("XmbLookupString called\n"); return 0; } 
@@ -126,7 +132,7 @@ int XSetLocaleModifiers() { DPRINTF("XSetLocaleModifiers called\n"); return 0; }
 int XSetStandardProperties() { DPRINTF("XSetStandardProperties called\n"); return 0; } 
 int XSetNormalHints() { DPRINTF("XSetNormalHints called\n"); return 0; }
 int XSetWMProtocols() { DPRINTF("XSetWMProtocols called\n"); return 0; } 
-int XSupportsLocale() { DPRINTF("XSupportsLocale called\n"); return 1; } 
+int XSupportsLocale() { DPRINTF("XSupportsLocale called\n"); return 0; } /* 0 = does not support locale */
 int XSynchronize() { DPRINTF("XSynchronize called\n"); return 0; } 
 int XUngrabKeyboard() { DPRINTF("XUngrabKeyboard called\n"); return 0; } 
 int XUngrabPointer() { DPRINTF("XUngrabPointer called\n"); return 0; } 
@@ -147,7 +153,7 @@ int XGetWMColormapWindows() { DPRINTF("XGetWMColormapWindows called\n"); return 
 int XKeysymToString() { DPRINTF("XKeysymToString called\n"); return 0; } 
 int XListHosts() { DPRINTF("XListHosts called\n"); return 0; } 
 int XSetClassHint() { DPRINTF("XSetClassHint called\n"); return 0; } 
-int XSetCommand() { DPRINTF("XSetCommand called\n"); return 0; } 
+int XSetCommand() { DPRINTF("XSetCommand called\n"); return 11; } /* 11 = BADALLOC */
 int XSetWindowBorderPixmap() { DPRINTF("XSetWindowBorderPixmap called\n"); return 0; } 
 int XSetWMClientMachine() { DPRINTF("XSetWMClientMachine called\n"); return 0; } 
 int XSetWMColormapWindows() { DPRINTF("XSetWMColormapWindows called\n"); return 0; } 

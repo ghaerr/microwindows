@@ -59,6 +59,7 @@ DEBUG                    = N
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
+#SHOWSTUBS		 = 1
 
 ####################################################################
 #

@@ -14,5 +14,8 @@ XStoreName(Display *dpy, Window w, _Xconst char *name)
 int
 XSetIconName(Display *dpy, Window w, _Xconst char *icon_name)
 {
+#if DEBUG || SHOWSTUBS
+	DPRINTF("XAllocNamedColor %s\n", icon_name);
+#endif 
 	return 0;
 }

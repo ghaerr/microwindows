@@ -15,6 +15,10 @@ DOSEXT :=
 #avoid to use default CC which is cc
 CC=$(TOOLSPREFIX)gcc 
 
+ifeq ($(X11), Y)
+LDFLAGS=-L$(MW_DIR_LIB)
+endif
+
 ifeq ($(SHAREDLIBS), Y)
 LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libNX11.so  ../../lib/libnano-X.so
 else
@@ -35,7 +39,7 @@ LIBS += -lm
 ifeq ($(LINUX_LINARO), Y)
 TARGETS = xhello xmouse xgreen
 else
-TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen
+TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen testarc xservervendor
 endif
 
 ifeq ($(DOS_DJGPP), N)

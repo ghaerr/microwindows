@@ -13,6 +13,10 @@ DOSEXT :=
 #avoid to use default CC which is cc
 CC=$(TOOLSPREFIX)gcc
 
+ifeq ($(X11), Y)
+LDFLAGS=-L$(MW_DIR_LIB)
+endif
+
 ifeq ($(SHAREDLIBS), Y)
 LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libPX11.so 
 else
@@ -34,7 +38,7 @@ endif
 #for draw
 LIBS += -lm 
 
-TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen
+TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen testarc xservervendor
 ifeq ($(DOS_DJGPP), N)
 TARGETS += williams
 endif

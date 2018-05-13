@@ -67,6 +67,17 @@ Stubs for stubbing out libXext for Microwindows
 //int XScreenResourceString() { DPRINTF("XScreenResourceString called\n"); return 0; } 
 #endif
 
+struct xagstuff {
+    int attrib_mask;
+    Bool app_group_leader;
+    Bool single_screen;
+    Window default_root;
+    VisualID root_visual;
+    Colormap default_colormap;
+    unsigned long black_pixel;
+    unsigned long white_pixel;
+};
+
 //	DPMS.c	
 Bool
 DPMSQueryExtension (Display *dpy, int *event_basep, int *error_basep)

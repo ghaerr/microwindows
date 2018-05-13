@@ -627,3 +627,18 @@ XMaskEvent(Display * display, long event_mask, XEvent * ev)
 	FUNC_EXIT;
 	return 0;
 }
+
+long
+XExtendedMaxRequestSize(Display * display)
+{ 
+/*function returns zero if the specified display does not support 
+ * an extended-length protocol encoding */
+	return 0; 
+} 
+
+long
+XMaxRequestSize(Display * display)
+{ 
+/* The protocol guarantees the size to be no smaller than 4096 units (16384 bytes). */  
+	return 4096; 
+} 

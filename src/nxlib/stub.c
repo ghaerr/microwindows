@@ -124,7 +124,7 @@ int _XSend() { DPRINTF("_XSend called\n"); return 0; }
 int XSendEvent() { DPRINTF("XSendEvent called\n"); return 0; } 
 int XSetArcMode() { DPRINTF("XSetArcMode called\n"); return 0; } 
 int XSetCloseDownMode() { DPRINTF("XSetCloseDownMode called\n"); return 0; } 
-int XSetErrorHandler() { DPRINTF("XSetErrorHandler called\n"); return 0; } 
+/* int XSetErrorHandler() { DPRINTF("XSetErrorHandler called\n"); return 0; }  */
 int XSetFillRule() { DPRINTF("XSetFillRule called\n"); return 0; } 
 int _XSetLastRequestRead() { DPRINTF("_XSetLastRequestRead called\n"); return 0; } 
 int XSetLocaleModifiers() { DPRINTF("XSetLocaleModifiers called\n"); return 0; } 

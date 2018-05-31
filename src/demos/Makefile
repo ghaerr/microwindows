@@ -53,7 +53,18 @@ endif
 
 ######################### Makefile.rules section #############################
 
+#set to one to compile just the programs in the test directory
+justtest = 0
+
+ifeq ($(justtest), 1)
+default:
+	echo "Compiling programs in test"
+	-$(MAKE) -C test -f Makefile-gcc
+else
+
 include $(MW_DIR_SRC)/Makefile.rules
+
+endif
 
 ######################## Tools targets section ###############################
 

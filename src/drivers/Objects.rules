@@ -92,6 +92,12 @@ MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_psp.o
 endif
 
+# NULL
+ifeq ($(NOSCR), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_null.o
+endif
+
 # ALLEGRO
 ifeq ($(ALLEGRO5), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)

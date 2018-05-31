@@ -172,7 +172,14 @@ endif
 ODIR = .
 ARSCRIPT = arscript
 
+ifeq ($(WITH_NX11),N)
+$(info    )
+$(info WITH_NX11 flag set to N - will not compile NX11!)
+$(info    )
+all:
+else
 all: $(LIBS) testprogs nxext
+endif
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)

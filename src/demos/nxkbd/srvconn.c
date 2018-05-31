@@ -6,12 +6,18 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "nano-X.h"
+#include <stdio.h>
 
-#define KBDPIPE		0	/* =1 to use named pipe for soft kbd*/
+#define KBDPIPE		1	/* =1 to use named pipe for soft kbd*/
 
 #if KBDPIPE
 static char KBD_NAMED_PIPE[] = "/tmp/.nano-X-softkbd";
 static int kbd_fd = -1;
+
+int KbdOpen(void);
+void KbdClose(void);
+int KbdWrite(int c);
+
 
 int 
 KbdOpen(void)
@@ -21,7 +27,7 @@ KbdOpen(void)
 	
         if ((kbd_fd = open(KBD_NAMED_PIPE, O_WRONLY)) < 0)
 		return -1;
-			
+		
         return kbd_fd;
 }
 
@@ -38,7 +44,6 @@ int
 KbdWrite(int c)
 {
 	char cc = c & 0xff;
-	
 	return write(kbd_fd, &cc, 1);
 }
 

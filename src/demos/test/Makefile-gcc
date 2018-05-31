@@ -1,0 +1,7 @@
+CC = gcc
+CFLAGS = -L../../lib -I../../include 
+#if compiling on X11 platform
+CFLAGS += -L/usr/X11R6/lib -lX11
+all: 
+	echo "Compiling polydemo"
+	$(CC) $(CFLAGS) ../nanox/polydemo.c -lnano-X -o ../../bin/polydemo

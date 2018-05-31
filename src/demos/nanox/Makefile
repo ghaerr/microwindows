@@ -59,6 +59,7 @@ TARGETS = \
 	$(MW_DIR_BIN)/arcdemo \
 	$(MW_DIR_BIN)/polydemo \
 	$(MW_DIR_BIN)/bmpdemo \
+	$(MW_DIR_BIN)/hello \
 	$(MW_DIR_BIN)/rgndemo 
 
 ifneq ($(ARCH), PSP)

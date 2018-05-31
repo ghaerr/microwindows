@@ -30,8 +30,13 @@ static int  soft_Open(KBDDEVICE* pkd);
 static void soft_Close();
 static void soft_GetModifierInfo(MWKEYMOD* modifiers, MWKEYMOD* curmodifiers);
 static int  soft_Read(MWKEY* buf, MWKEYMOD* modifiers, MWSCANCODE* scancode);
-
-KBDDEVICE kbddev = {
+ 
+#if MW_FEATURE_TWO_KEYBOARDS
+KBDDEVICE kbddev2
+#else
+KBDDEVICE kbddev
+#endif
+    = {
     soft_Open,
     soft_Close,
     soft_GetModifierInfo,

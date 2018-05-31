@@ -376,8 +376,33 @@ There is the "cleanusr" target in the makefile for that. So "sudo make cleanusr"
 <br></p>
 
 
+<h3>How can you enable two keyboards?</h3>
 <p>
-28th of February 2016, Georg Potthast
+You can enable e.g. the soft keyboard as a second keyboard. For this set the "2NDKBD" parameter in the "config" file to "Y".<br>
+This will cause the Makefile.rules file to set the macro "MW_FEATURE_TWO_KEYBOARDS" to one and the "pipe_kbd.c" driver will<br>
+be compiled. This driver uses a named pipe. You also have to set the LINK_APP_INTO_SERVER macro to "N". The soft keyboard example<br>
+in the "demos/nxkbd" directory will use the "pipe_kbd" driver. The nxkbd example is always compiled by the Makefile as part of<br>
+the demos.<br>
+<br>
+To test the soft keyboard as the second keyboard you can execute the "nxkbd.sh" file in the "src/demoscripts" directory. This will<br>
+load both the soft keyboard and the "grabdemo" program. You can then click the keys on the soft keyboard which will be displayed in<br>
+the grabdemo program or type keys on your standard keyboard, the keys from both keyboards will be displayed.<br>
+<br>
+In general the macro "MW_FEATURE_TWO_KEYBOARDS" has to be set to one and you have to set the parameter "KBDDEVICE kbddev2"<br> 
+in the keyboard driver you want to use as the second keyboard. In the "pipe_kbd.c" program the "MW_FEATURE_TWO_KEYBOARDS" macro<br> 
+selects whether the driver uses "kbddev" for the first and often only keyboard or or "kbdev2" for the second keyboard.<br>
+<br>
+If you change the "KBDPIPE" macro in the "demos/nxkbd/srvconn.c" program to zero, it will not use the "pipe_kbd.c" driver but the<br>
+"GrInjectKeyboardEvent()" function of the Nano-X API to write the keyclick and keyrelease of the soft keyboard into the standard<br>
+event queue. Then you do not have to use the "MW_FEATURE_TWO_KEYBOARDS" macro.<br>
+<br></p>
+
+
+
+
+
+<p>
+31st of May 2018, Georg Potthast
 </p>
 </body>
 </html>

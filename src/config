@@ -45,8 +45,8 @@ RPITOOLSPREFIX           = arm-linux-gnueabihf-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
 SHTOOLSPREFIX            = sh-linux-gnu
-AVR32TOOLSPREFIX	 	 = avr32-linux-
-BLACKFINTOOLSPREFIX	 	 = bfin-uclinux-
+AVR32TOOLSPREFIX	 = avr32-linux-
+BLACKFINTOOLSPREFIX	 = bfin-uclinux-
 PSPTOOLSPREFIX           = psp-
 
 ####################################################################
@@ -71,6 +71,7 @@ NANOX                    = Y
 ENGINE                   = Y
 SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
+WITH_NX11		 = Y
 
 ####################################################################
 #
@@ -288,7 +289,12 @@ ALLEGRO5                 = N
 
 #SDL drivers
 #SDL1			 = N
-#SDL2			 = N
+#SDL2			 = Y
+
+#NULL screen driver
+NOSCR			 = N
+#enable second keyboard
+2NDKBD			 = N
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
@@ -358,7 +364,7 @@ LIRCKBD                  = N
 PSPKBD                   = N
 EVENTKBD                 = N
 NOKBD                    = N
-# Secondary keyboard drivers for IR input
+# Secondary keyboard drivers for IR input - set 2NDKBD above too
 LIRCKBD2                 = N
 
 ####################################################################

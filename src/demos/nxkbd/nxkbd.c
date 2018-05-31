@@ -280,7 +280,7 @@ main(int argc, char* argv[])
         GR_EVENT        event;          /* current event */
 	GR_WM_PROPERTIES props;
 
-        if (GrOpen() < 0) {
+	if (GrOpen() < 0) {
                 fprintf(stderr, "nxkbd: cannot open graphics\n");
                 exit(1);
         }

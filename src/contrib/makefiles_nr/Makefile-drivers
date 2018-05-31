@@ -1,4 +1,4 @@
-# Micro-Windows libmwdrovers.a library makefile for DJGPP
+# Micro-Windows libmwdrivers.a library makefile for DJGPP
 # by Georg Potthast June 2011
 # based on makefile by Greg Haerr and V. Rogachev
 #
@@ -27,6 +27,33 @@ endif
           OBJECTS +=fblin2.o  
           OBJECTS +=fblin4.o  
           OBJECTS +=rasterops.o 
+          
+# for EMSCRIPTEN
+ifeq ($(SDL1), Y)
+    OBJECTS += scr_sdl1.o 
+    OBJECTS += mou_sdl1.o
+    OBJECTS += kbd_sdl1.o
+endif
+
+ifeq ($(SDL2), Y)
+    OBJECTS += scr_sdl2.o 
+#    OBJECTS += scr_null.o 
+    OBJECTS += mou_sdl2.o 
+    OBJECTS += kbd_sdl2.o
+endif
+
+#for testing
+ifeq ($(NOMOUSE), Y)
+    OBJECTS += mou_null.o
+endif
+
+ifeq ($(NOKBD), Y)
+    OBJECTS += kbd_null.o
+endif
+
+ifeq ($(NOSCR), Y)
+    OBJECTS += scr_null.o
+endif
 
 
 # mouse driver

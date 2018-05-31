@@ -342,7 +342,7 @@ ifeq ($(LIRCMOUSE), Y)
 DEFINES += -DHAVE_LIRC_MOUSE=1
 endif
 
-ifeq ($(LIRCKBD2), Y)
+ifeq ($(2NDKBD), Y)
 DEFINES += -DMW_FEATURE_TWO_KEYBOARDS=1
 endif
 

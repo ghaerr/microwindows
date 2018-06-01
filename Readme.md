@@ -5,7 +5,7 @@ Microwindows or Nano-X is a small, Xlib compatible library. It is
 Open Source and licenced under the the Mozilla Public License.
 The main GUI toolkit that can be used with Microwindows is FLTK.
 
-![Image of the Nano-X / Microwindows Architecture](https://github.com/ghaerr/microwindows/tree/master/doc/Microwindows-Architecture.png)
+<img src="https://user-images.githubusercontent.com/10487642/40860798-38ddb54a-65d6-11e8-8ab8-9c1f1f329f47.png" width="90%"></img> 
 
 ## Areas where Microwindows can be used are:
 

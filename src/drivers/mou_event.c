@@ -41,7 +41,7 @@ static int PD_Open(MOUSEDEVICE *pmd)
 		GdHideCursor(&scrdev);
 		return fd;
 	}
-	EPRINTF("Error %d opening keyboard input device\n", errno);
+	EPRINTF("Error %d opening mouse input device\n", errno);
 	return errno;
 }
 

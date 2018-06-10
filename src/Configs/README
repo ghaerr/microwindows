@@ -20,6 +20,7 @@ config.ads	ARM Linux FB for ADS Graphics Client
 config.blackfin	Blackfin Linux port
 config.dj	DJGPP 32-bit MSDOS
 config.elks	ELKS 16-bit Linux (bcc compiler)
+config.fbe	Framebuffer emulator on X11
 config.freebsd	FreeBSD port
 config.harrier	MIPS Linux FB for NEC Harrier
 config.helio	MIPS Linux FB for VTech Helio

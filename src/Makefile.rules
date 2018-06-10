@@ -75,6 +75,12 @@ else
 MW_CORE_LIBS += /usr/X11R6/lib/libX11.a
 endif
 
+ifeq ($(FBEMULATOR), Y)
+DEFINES += -DX11=1
+LDFLAGS += $(X11LDFLAGS)
+INCLUDEDIRS += -I/usr/X11R6/include
+endif
+
 ifeq ($(ARCH),FREEBSD-X86)
 INCLUDEDIRS += -I/usr/X11R6/include
 endif

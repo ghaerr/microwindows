@@ -5,7 +5,19 @@ Microwindows or Nano-X is a small, Xlib compatible library. It is
 Open Source and licenced under the the Mozilla Public License.
 The main GUI toolkit that can be used with Microwindows is FLTK.
 
+This is an overview of the system:
+
 <img src="https://user-images.githubusercontent.com/10487642/40860798-38ddb54a-65d6-11e8-8ab8-9c1f1f329f47.png" width="90%"></img> 
+
+The supported platforms are listed at the bottom on the left side. Next to
+that there are the available screen drivers, mouse drivers and keyboard
+drivers. The Nano-X / Microwindows engine is the core code which calls the 
+various drivers and provides a platform for the two available APIs. These
+are the Nano-X API and the MWin API which can be used to write applications.
+To provide close X11 compatibility there are the NX11 and PX11 libraries
+which are based on the Nano-X API. Based on these compatibility libraries
+which provide a limited X11 compatibility, X11 applications can be used. 
+The FLTK GUI toolkit will run based on NX11 or PX11.
 
 ## Areas where Microwindows can be used are:
 

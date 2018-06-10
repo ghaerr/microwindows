@@ -15,6 +15,28 @@
  *			added support for 2, 4, 15, 16, 24 and 32bpp
  *
  * Original from picoTK project
+ * 
+ * Instructions:
+ * the source code in "demos/fbe.c" will be compiled into "bin/fbe" 
+ * this is a frame buffer emulator on X11 for 1, 2, 4 and 8bpp!
+   to use set FBEMULATOR=Y and FRAMEBUFFER = Y in the src/config file and the
+   default BPP/XRES/YRES in drivers/scr_fb.c
+   to run set the environment variable: FRAMEBUFFER=/tmp/fb0 
+   and execute: bin/fbe -d<bpp>
+   a reverse bit order is supported for 1,2,4 bpp (-r option)
+
+   see this help text coded below:
+       "Usage: " PROGNAME " [-<options>]\n"
+       "   Options:\n"
+       "       -x   X size            [%3d]\n"
+       "       -y   Y Size            [%3d]\n"
+       "       -t   Total X Size      [%3d]\n"
+       "       -d   Color depths bpp  [%d] (1,2,4,8,15,16,24,32)\n"
+       "       -z   Zoom factor       [%d] \n"
+	   "       -r   Reverse bit order (1,2,4bpp LSB first)\n"
+	   "       -g   Gray palette (4bpp only)\n"
+	   "       -c   Force create new framebuffer (required when size changes)\n",
+       CRTX, CRTY, CRTX_TOTAL, BITS_PER_PIXEL, ZOOM);
 
 TODO
 assumes 32bpp X server (fix)

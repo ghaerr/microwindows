@@ -1,0 +1,50 @@
+# Micro-Windows makefile to generate object files in nxlib folder
+# to link these to libPX11.a in separate makefile
+
+LIB=libPX11.a
+
+OBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
+	Window.o CrGC.o FreeGC.o StName.o Sync.o Flush.o CrWindow.o\
+	Text.o DrLine.o DrLines.o DrPoint.o DrRect.o DrArc.o\
+	MapRaised.o RaiseWin.o LowerWin.o FillRct.o CrPixmap.o Clear.o\
+	MoveWin.o ClearArea.o UnmapWin.o RepWindow.o\
+	ChWindow.o Backgnd.o BdrWidth.o Border.o PmapBgnd.o\
+	fontlist.o font_find.o UnloadFont.o QueryFont.o\
+	DefCursor.o UndefCurs.o CrCursor.o FontCursor.o\
+	CrBFData.o CrPFBData.o Region.o SelInput.o Atom.o\
+	QueryTree.o Image.o WindowProperty.o Misc.o SetWMProps.o Bell.o\
+	Copy.o SetClip.o Visual.o StrToText.o SetAttributes.o FillPolygon.o\
+	StrKeysym.o ChProperty.o QueryPointer.o ErrorHandler.o\
+	ListPix.o GetGeom.o SetIFocus.o Shape.o\
+	ClassHint.o Text16.o TextExt.o\
+	AllocColor.o ParseColor.o QueryColor.o Colormap.o Colorname.o\
+	Selection.o XMisc.o Free.o stub.o
+
+ifeq ($(INCLUDE_XRM), Y)
+OBJS += Quarks.o Xrm.o ParseCmd.o
+xOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
+    xrm/lcInit.o xrm/lcGenConv.o xrm/SetLocale.o xrm/lcConv.o xrm/lcUTF8.o \
+    xrm/lcDefConv.o xrm/lcPubWrap.o xrm/lcDynamic.o xrm/lcCharSet.o \
+    xrm/lcDB.o xrm/lcGeneric.o xrm/lcUtil.o xrm/lcCT.o xrm/lcFile.o \
+    xrm/lcPublic.o xrm/lcRM.o xrm/imInt.o
+CFLAGS += -I.
+endif
+
+CFLAGS = -DX11_RGBTXT=\"/usr/share/X11/rgb.txt\"
+
+#ifneq ($(DEBUG), Y)
+#	CFLAGS += -s -Wno-deprecated-declarations
+#else
+#	CFLAGS += -Wall
+#endif
+
+$(LIB): $(OBJS)
+	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(MW_DIR_SRC)/nanox/*.o $(MW_DIR_SRC)/nxlib/*.o
+
+$(OBJS):%.o: %.c
+	emcc $(CFLAGS) -c -o $@ $< 
+clean:
+	rm -f *.o
+
+
+

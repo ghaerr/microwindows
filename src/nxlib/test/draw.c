@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <X11/Xutil.h>
 #include <math.h>
+#include <unistd.h>
 
-main (argc, argv)
+int main (argc, argv)
 int argc;
 char **argv;
 {

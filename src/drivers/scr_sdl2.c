@@ -24,7 +24,12 @@
 #include "genmem.h"
 #include "genfont.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 
 //#define logfile
 
@@ -337,7 +342,14 @@ if (unlock_flag==0) { if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen); }
 		unlock_flag=1;
 
 	}
-
+/* usually done in SDL2 mouse driver for performance reasons */
+#if 0
+	if (unlock_flag==1){
+		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+		SDL_UpdateWindowSurface(sdlWindow);
+		unlock_flag=0;
+	}
+#endif  
 else /* MWPF_PALETTE*/
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + destx;

@@ -4,7 +4,7 @@ endif
 CC = emcc
 CFLAGS = -s USE_SDL=2 -I$(MW_DIR_SRC)/include -L$(MW_DIR_SRC)/lib
 all: 
-	$(CC) $(CFLAGS) -o $(MW_DIR_SRC)/bin/arcdemo.html  arcdemo.c  -lnano-X
-	$(CC) $(CFLAGS) -o $(MW_DIR_SRC)/bin/grabdemo.html grabdemo.c -lnano-X
-	$(CC) $(CFLAGS) -o $(MW_DIR_SRC)/bin/demo.html     demo.c     -lnano-X	
+	$(CC) $(CFLAGS) -o $(MW_DIR_SRC)/bin/arcdemo.html  $(MW_DIR_SRC)/demos/nanox/arcdemo.c  -lnano-X
+	$(CC) $(CFLAGS) -o $(MW_DIR_SRC)/bin/grabdemo.html $(MW_DIR_SRC)/demos/nanox/grabdemo.c -lnano-X
+	$(CC) $(CFLAGS) -o $(MW_DIR_SRC)/bin/demo.html     $(MW_DIR_SRC)/demos/nanox/demo.c     -lnano-X	
   

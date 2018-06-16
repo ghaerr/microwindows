@@ -31,7 +31,11 @@ static void x_connect ()
     text_box.display = XOpenDisplay (NULL);
     if (! text_box.display) {
         fprintf (stderr, "Could not open display.\n");
-        exit (1);
+#if defined(__EMSCRIPTEN__)
+	 return;
+#else 
+         exit(1);
+#endif
     }
     text_box.screen = DefaultScreen (text_box.display);
     text_box.root = RootWindow (text_box.display, text_box.screen);

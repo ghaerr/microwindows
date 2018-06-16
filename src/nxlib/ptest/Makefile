@@ -14,7 +14,8 @@ DOSEXT :=
 CC=$(TOOLSPREFIX)gcc
 
 ifeq ($(X11), Y)
-LDFLAGS=-L$(MW_DIR_LIB)
+#-lX11 needs to be first in command line nano-X depends on that
+LDFLAGS=-L$(MW_DIR_LIB) -lX11
 endif
 
 ifeq ($(SHAREDLIBS), Y)
@@ -39,7 +40,7 @@ endif
 LIBS += -lm 
 
 TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen testarc xservervendor
-ifeq ($(DOS_DJGPP), N)
+ifneq ($(DOS_DJGPP), Y)
 TARGETS += williams
 endif
 SOURCES = $(addprefix ../test/,$(TARGETS:=.c))

@@ -1,0 +1,19 @@
+fixed -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-medium-r-normal--* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-bold-r-normal--* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-medium-o-normal--* -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-bold-o-normal--* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-courier-medium-r-normal--* -*-courier-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-courier-bold-r-normal--* -*-courier-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-courier-medium-o-normal--* -*-courier-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-courier-bold-o-normal--* -*-courier-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-times-medium-r-normal--* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-times-bold-r-normal--* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-times-medium-i-normal--* -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+-*-times-bold-i-normal--* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-symbol-*
+-*-lucidatypewriter-medium-r-normal-sans-* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-lucidatypewriter-bold-r-normal-sans-* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-*zapf dingbats-*
+
+

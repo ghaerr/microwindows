@@ -10,39 +10,65 @@
 
 <h1>Microwindows Frequently Asked Questions - Part 2</h1>
 
-<p>2016/02/28 Microwindows FAQ2<br>
+<p>2018/06/10 Microwindows FAQ2<br>
 <br>
 </p>
+
+<h3>How to install Microwindows?</h3>
+
+<p>Download the current version of Microwindows from GitHub and unpack it into your HOME directory.<br>
+For a start run the system on your Linux system using an X11 based desktop like Gnome or KDE. Then get<br>
+into the "Microwindows/src" directory. In there enter "Make" on the command line. This will compile<br>
+Microwindows and the examples for an X11 platform. Then run the "rundemos.sh" script to execute the<br>
+various demos. Or get into the "nxlib/test/" directory and enter e.g. "./testarc.sh" or "./xhello.sh"<br>
+to run the examples for the X11 compatibility library NX11.<br>
+<br>
+
+<h3>What do the different directories contain?</h3>
+Here is an overview of the directory structure in the main "src" directory:
+<pre>
+bin:		compiled executables
+Configs:	"config" file examples for different platforms
+contrib:	sublevel makefiles for Maken_nr and user contributed files
+demoscripts:	example scripts to execute demos. Need to be moved into the "src" directory to run
+docs:		old programming notes
+drivers:	source code of the device drivers for the various platforms
+ecos:		special files for the ECOS operating system
+engine:		source code to call the drivers and handle fonts
+fonts:		a selection of fonts
+include:	header files for Nano-X or Microwindows
+lib:		compiled libraries
+mwin:		source code for the Microsoft compatible MWin API
+nanox:		source code for the Nano-X API
+nxlib:		source code for the X11 compatibility libraries NX11 or PX11
+obj:		temporary object files
+rtems:		special files for the RTEMS operating system
+</pre>
+<p>
+
 
 <h3>Where is the configure file?</h3>
 
 <p>Microwindows does not have a configure file. For Linux it uses a makefile based build system.<br>
-This are several linked Makefiles and *.rules files which are called recursively. To customise<br>
+This are several linked Makefiles files which are called recursively. To customise<br>
 this for the various platforms there is a config file which you can edit. Examples of this<br>
-config file for different platforms are in the src/Configs directory.<br>
+config file for different platforms are in the "src/Configs" directory.<br>
 <br>
 
-In addition for specific platforms there are special makefiles. So there is the<br>
-Makefile_nr, a non-recursive makefile for MinGW and DOS or the Makefile.rtems for the RTEMS<br>
-system etc.<br>
+For specific platforms there are additional special makefiles. So there is the Makefile_nr,<br>
+a non-recursive makefile for MinGW, DOS and Emscripten or the Makefile.rtems for the<br>
+RTEMS system etc.<br>
 <br>
 
 The Makefile, which is used for Linux, includes the Path.rules file and the config file<br>
-mentioned above. Then it includes the Makefile.rules file where make will continue.<br>
-Makefile.rules has the targets for Make and calls the Makefiles in the subdirectories.<br>
-This is the file where the main action for make is. It also includes Arch.rules which <br>
-contains special settings for the different platforms supported.<br>
+mentioned above. Then it includes the Makefile.rules file which contains the clean and install <br>
+targets for Make and calls the Makefiles in the subdirectories. It also includes Arch.rules which <br>
+contains special settings for the different platforms supported. The Makefiles in the subdirectories<br>
+will also include the Path.rules file, the config file plus Objects.rules files. They call the<br>
+Makefile.rules file again to compile the required files.<br>
 <br>
-
-The Makefiles in the subdirectories will also include the Path.rules file and the config file<br>
-plus Objects.rules files. Then they recursively call the Makefile.rules file again to compile<br> 
-their files. There are also clean and install targets in Makefile.rules and the Makefiles in<br>
-the subdirectories.<br>
-<br>
-
-This Makefile system works well but is difficult to modify if it does not work on a new platform.<br>
-Therefore there are additional Makefiles provided which are designed more simple and can easily<br>
-be adapted to new platforms.<br>
+This Makefile system works well but is difficult to modify for new platforms. Therefore there are <br>
+additional Makefiles provided which are more simple and can easily be adapted to new platforms.<br>
 <br>
 </p>
 
@@ -110,67 +136,137 @@ and run with: "bin/nano-X -N & bin/nanowm & mytests/xgreen"<br>
 </p>
 
 
-<h3>How to use Microwindows and FLTK on the Android platform?</h3>
-
-<p>There is a separate application note in this directory for Android.<br>
-<br>
-</p>
-
-
 <h3>How to compile FLTK for Microwindows?</h3>
 
 <p>For this you should compile Microwindows with the config.fltk file in the configs directory. Rename config<br>
 in the src directory to e.g. config.default and then copy the config.fltk file as config into the src directory.<br>
-When using the X11 platform, leave SHAREDLIBS=Y and LINK_APP_INTO_SERVER=N.
-<br><br>
-Download FLTK 1.3.x and cd into the fltk directory. Then enter:<br>
+When using the X11 platform, leave SHAREDLIBS=Y and LINK_APP_INTO_SERVER=N.<br>
+Then compile Microwindows and enter "sudo make install" to install the shared libraries PX11, NX11 and nano-X plus<br>
+the nano-X and nanowm programs in the "/usr" directory so FLTK can access them there.<br>
+You can remove these again with the "sudo make cleanusr" command.<br>
 <br>
-./configure --x-includes=/home/test/src/nanoX/nxlib/X11 \<br>
-  --x-libraries=/home/test/src/nanoX/microwin/src/lib \<br>
-  --disable-gl \<br>
-  --disable-xinerama \<br>
-  --disable-xft  \<br>
-  --disable-xdbe \<br>
-  --disable-xfixes<br>
+Download <b>FLTK 1.3.2</b> and cd into the fltk directory. If you are using a later version, you have to follow the<br>
+additional instructions provided below. Then enter:<br>
+<pre>
+./configure --x-includes=/home/georg/microwindows/src/nxlib/X11 \
+  --x-libraries=/home/georg/microwindows/src/lib \
+  --disable-gl \
+  --disable-xinerama \
+  --disable-xft  \
+  --disable-xdbe \
+  --disable-xfixes
+</pre>
+Modify the paths specified to match your situation. You can put this command into a script to repeat it if <br>
+required.<br>
 <br>
-Then replace the "-lX11 and -lXext" entries with "-lNX11 -lnano-X" or "-lPX11" in makeinclude <br>
-and fltk-config. You can use the replace-lX11.sh script in the microwindows/src directory for that.<br>
-You can run that script once with makeinclude entered on the command line and once with fltk-config specified <br>
-on the command line.<br>
-However, behind the -lPX11 parameter in makeinclude you have to add "-lfreetype" to get<br>
-FLTK to compile.<br>
-<br>
+Then replace the "-lX11 and -lXext" entries with "-lNX11 -lnano-X" or "-lPX11" in the files makeinclude <br>
+and fltk-config. You can use the replace-lX11.sh script in the microwindows/src directory for that. You can<br>
+run that script once with makeinclude entered on the command line and once with fltk-config specified <br>
+on the command line:<br>
+<pre>
+./replace-lX11.sh makeinclude
+./replace-lX11.sh fltk-config
+</pre>
 If you are using Microwindows on the Linux X11 platform, you will need to make a patch to the FLTK source code<br>
 since FLTK will dynamically load XRANDR support when starting and that causes your program to crash immediately.<br>
 So open the file "src/Fl_x.cxx" and add the line "#undef USE_XRANDR" right after the line<br>
 "#define USE_XRANDR (HAVE_DLSYM && HAVE_DLFCN_H)" which currently is line 51. This will avoid that XRANDR support<br>
 will be loaded.<br>
 <br>
-Then enter make in the fltk directory. If you enter make -k it will not stop when trying to compile the sudoku game.<br>
-It may stop at the UTF-8 program, but the examples and FLTK will work anyway.<br> 
-<br> 
+Then enter "make" in the fltk directory. <br> 
+<br>
+After that you can execute the examples using a script like that: "nano-X & nanowm & test/hello & sleep 10000".<br>
+On some platforms these commands do not work from the command line, just from a script. After terminating the <br>
+application you have to terminate this script with CTRL-C. Sometimes the application window hides behind other windows.<br>
+As an alternative you can also start each program in this script separately on the command line like that:
+<pre>
+nano-X&
+nanowm&
+test/hello
+</pre>
+This way the programs nano-X and nanowm will continue to run in the background and you can execute different demos<br>
+sequentially.<br>
+<br>
+If you run the examples, however, you will find that the fonts do not work. You just get the small default font.<br>
+To enable truetype fonts you can either copy the fonts.alias file example from the "src/nxlib/fonts" directory<br> 
+into the truetype directory into e.g. "/usr/share/fonts/truetype" using sudo. Or you change the selected fonts<br>
+from FLTK by modifying the font names in the file "fltk-1.3.2/src/fl_font_x.cxx" if you are comfortable with<br>
+XLFD descriptions. There is also the TTFONTS environment variable which points Microwindows to the truetype fonts<br>
+directory.<br>
+<br>
 If you want to compile a program from the command line you can enter:<br> 
 "g++ test/hello.cxx -o hello -Llib  -lPX11 -lfreetype -lfltk -ldl"<br>
+If you do not need to compile fluid and the demos you can "cd" into the "fltk-1.3.2/src" directory and enter "make" there.<br>
+This will just compile the FLTK libraries.<br>
 <br>
-Then you can run the examples, however, you will find that the fonts do not work, you just get the small default font.<br>
-To enable truetype fonts you can either copy the fonts.alias file example from the "src/nxlib/fonts" directory into the truetype<br>
-directory into e.g. "/usr/share/fonts/truetype" using sudo. Or you change the selected fonts from FLTK by modifying<br>
-the font names in the file "fltk-1.3.2/src/fl_font_x.cxx" if you are comfortable with XLFD descriptions.<br>
+The instructions above assumed that the Microwindows libraries were compiled as shared libraries. You can also use<br>
+static libraries. In this case you have to set SHAREDLIBS=N in the "config" file and compile Microwindows with this <br>
+parameter set. Then enter "sudo make install". In the "makeinclude" file in the FLTK directory you have to specify<br>
+the path to the static library instead of "-lPX11": "/home/georg/microwindows/src/lib/libPX11.a". Modify to path to your<br>
+situation. Also, behind the -lPX11 parameter in "makeinclude" you have to add "-lfreetype" to get FLTK to compile using the<br>
+static library. Then enter "make".<br>
+If you enter "make -k" it will not stop when trying to compile the sudoku game. It may stop at the UTF-8 program,<br>
+but the examples and FLTK will work anyway.<br>
 <br>
-If you are not using the X11 platform and have set LINK_APP_INTO_SERVER=Y in the microwindows config file, you can start <br>
-the examples with "test/hello".<br>
-If have set this macro to N as required for X11 you have to use a script like that: "nano-X & nanowm & test/hello & sleep 10000".<br>
-On some platforms these commands do not work from the command line, just from a script. After terminating the <br>
-application you have to terminate this script with CTRL-C.<br>
-Also, sometimes the application window hides behind other windows.<br>
+Again, you can then execute the demos using this script: "nano-X & nanowm & test/hello & sleep 10000"<br>
 <br>
-Additional details are provided by Ian MacArthur here:  <a href="http://www.fltk.org/articles.php?L1352+I60+T+P1+Q">Article #1352</a><br>
-This article now refers to an earlier version of Microwindows and thus is partially deprecated now. The NX11 library does not <br>
-need to be compiled separately any more and you do not need to remove VNC or patch the image_png.c and Text16.c files.<br> 
-You can use -PX11 instead of -lNX11 and -lnano-X now.<br>
+If you are <b>not</b> using the X11 platform and have set SHAREDLIBS=N plus LINK_APP_INTO_SERVER=Y in the microwindows<br>
+config file, you can start the examples without a script and just enter "test/hello" on the command line. Or click on the<br>
+program in your file explorer.<br>
+<br>
+Since FLTK does not need PNG or JPEG support by Microwindows, you can disable these in the "config" file before<br>
+compiling Microwindows. You can disable all fonts except FREETYPE2 also.<br>
+<br>
+If you port Microwindows to a platform without ZLIB, PNG or JPEG libraries, FLTK will compile its own support for this. <br>
+In that case you can add the following additional parameters when running "configure" in the FLTK directory:<br>
+<pre>
+  --enable-localjpeg \
+  --enable-localpng \
+  --enable-localzlib \
+  --disable-threads \
+</pre>
+<br>
+If you are using <b>FLTK 1.3.3</b> and want to use the native file chooser you will now have to patch the file:<br>
+"src/Fl_Native_File_Chooser_FLTK.cxx". This because Microwindows does provide a GTK file chooser.<br>
+<br>
+In this source file add the following two lines right at the beginning of the "Fl_GTK_File_Chooser::probe_for_GTK_libs()" function:<br>
+<pre>
+    did_find_GTK_libs = 0;
+    return;
+</pre>
+<br>
+If you are using <b>FLTK 1.3.4</b> you have to put "#undef USE_XRANDR" into the "screen_xywh.cxx" file too. Add this<br> 
+line right after the line "#define USE_XRANDR (HAVE_DLSYM && HAVE_DLFCN_H)". Here you you have to put it right after<br> 
+line 159 where USE_XRANDR is defined. For this version you also have to add the following lines to the configure command:<br>
+<pre>
+  --disable-xcursor \
+  --disable-xrender \
+</pre>
+<br>
+For <b>FLTK 1.4.x</b> follow the instructions for FLTK 1.3.4 above with the following modifications:<br>
+Don't put "#undef USE_XRANDR" into the file "screen_xywh.cxx" but into "Fl_X11_Screen_Driver.cxx". In there currently<BR>
+at line 272 where USE_XRANDR is defined. For this version you also have to change the following lines at the very end<BR>
+in the config.h file in the fltk directory:<BR>
+<pre>
+#define HAVE_DLFCN_H 0
+#define HAVE_DLSYM 0
+</pre>
+
+Additional details regarding FLTK on Microwindows are provided by Ian MacArthur here:  
+<a href="http://www.fltk.org/articles.php?L1352+I60+T+P1+Q">Article #1352</a><br>
+This article now refers to an earlier version of Microwindows and thus is partially deprecated now. The NX11 library<br>
+does not need to be compiled separately any more and you do not need to remove VNC or patch the image_png.c<br>
+and Text16.c files. You can use -PX11 instead of -lNX11 and -lnano-X now.<br>
 <br>
 There is also flnx which is a modified version of FLTK 1.1 to work with nano-X before<br>
 NXlib was availabe. Flnx is deprecated now.<br>
+<br>
+</p>
+
+
+<h3>How to use Microwindows and FLTK on the Android platform?</h3>
+
+<p>There is a separate application note in this directory for Android.<br>
 <br>
 </p>
 
@@ -195,6 +291,44 @@ Finally you can specify the path to the truetype fonts on your system by setting
 variable "TTFONTDIR" to this path. This variable is read by nano-X when searching for the truetype font.<br>
 <br>
 </p>
+
+<h3>How do you use Microwindows with emscripten?</h3>
+<p>Emscripten allows to compile a Microwindows application to Javascript and execute it<br>
+in a tab of Firefox or some other browser. The Microwindows implementation is based on<br>
+the SDL2 drivers.<br>
+<br>
+First download and install the emscripten package using the instructions from this page: <br>
+<a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">Download and install -Emscripten 1.38.5</a><br>
+<br>
+Within your "emsdk" directory enter "source ./emsdk_env.sh" to set the required paths for<br>
+emscripten. You will have to run this script each time you open a new terminal window to compile<br>
+Microwindows for emscripten.<br>
+<br>
+Then copy the "config" file "config.em" from the "src/Configs" directory to the "src" directory<br>
+and name it "config".<br>
+<br>
+To compile emscripten get into the "microwindows/src" directory and enter:<br>
+"emmake make -f Makefile_nr ARCH=EM" on the command line. This will compile the entire<br>
+Microwindows system including the demos for emscripten.<br>
+<br>
+You can then run the demos with a click on e.g. the "bin/arcdemo.html" file or the <br>
+"nxlib/test/xgreen.html" file using your file explorer. Your browser will load and run<br>
+the application then. If the program terminates, emscripten will raise an exception to<br>
+stop the Javascript code in the browser to contine. This causes an "Exception thrown" message<br>
+displayed in the browser.<br>
+<br>
+To execute "make clean" enter: "make -f Makefile_nr clean ARCH=EM"<br>
+<br>
+Emscripten provides ports of libz, libpng, libfreetype, libm and more. These have to be added with<br>
+the "-s" parameter to the command line, e.g. "-s USE_FREETYPE=1". Then -lfreetype should not be<br>
+added in addition to that via the CLIBS variable.<br>
+A Javascript program cannot access local files. Therefore emscripten allows to load these into its<br>
+virtual file system. The parameter "--preload-file $(MW_DIR_SRC)/fonts/em-fonts@/usr/share/fonts/truetype"<br>
+will load the directory "src/fonts/em-fonts" and its files at location "/usr/share/fonts/truetype" into<br>
+the virtual file system to be used with freetype.<br>
+<br>
+FLTK currently does not run using the emscripten platform.<br>
+<br>
 
 
 <h3>How to compile on Windows with MinGW?</h3>
@@ -222,10 +356,11 @@ with Nano-X applications, NX11/FLTK does not work. Allegro4 does not yet work on
 
 <h3>How to use SDL as a Microwindows backend?</h3>
 
-<p>There are SDL macros defined in the config file. You can select either SDL1 (version 1.2) or SDL2.<br>
-After you set these macros as required the SDL1 or SDL2 drivers are compiled in and the <br>
-relevant SDL library is linked with nano-X. Currently only SDL2 works with NXlib/PXlib.<br> 
-<br></p>
+<p>There are SDL macros defined in the config file. Use "src/Config/config.sdl2" or "config.sdl1"<br>
+renaming them to config in the src directory. These files are prepared for either SDL1 (version 1.2)<br>
+or SDL2. Then the SDL1 or SDL2 drivers are compiled in and the relevant SDL library is linked with<br>
+nano-X. Currently only SDL2 works with NXlib/PXlib. If you work on the X11 platform, you have to<br>
+use LINK_APP_INTO_SERVER=Y.<br></p>
 
 <h3>How to compile for DOS?</h3>
 
@@ -275,7 +410,8 @@ This are applications which are too large to be ported to Microwindows.<br>
 There is NanoGTK which is GTK version 1.2 ported to nano-X. With NXlib it is also possible to compile GTK1.<br>
 However, today there are almost no applications using GTK1 since that is not compatible with GTK2.<br>
 <br>
-Greg Haerr did some tests with an early version of QT (qt-x11-2.3.1).<br>
+Greg Haerr did some tests with an early version of QT (qt-x11-2.3.1). The NX11 library was sufficiently<br>
+binary compatible to run demos compiled with QT.
 <br>
 </p>
 
@@ -397,12 +533,34 @@ If you change the "KBDPIPE" macro in the "demos/nxkbd/srvconn.c" program to zero
 event queue. Then you do not have to use the "MW_FEATURE_TWO_KEYBOARDS" macro.<br>
 <br></p>
 
-
-
-
+<h3>How to use the frame buffer emulator?</h3>
+<p>
+The frame buffer emulator is an X11 program that emulates a frame buffer using Xlib. This allows to test frame buffer programs while<br>
+an X11 based desktop is loaded.<br>
+<br>
+If you set FBEMULATOR=Y in the "src/config" file, the frame buffer emulator code in "src/demos/fbe.c" will be compiled. To get<br>
+Microwindows to use the frame buffer for screen output select FRAMEBUFFER=Y in the "src/config" file too. If you set FRAMEBUFFER=Y<br>
+Microwindows will compile and use the framebuffer screen driver in "drivers/scr_fb.c". In this code you have to set the desired<br>
+x/y resolution and color depth (bpp) which you plan to use. Set SCREEN_PIXTYPE=MWPF_TRUECOLORABGR in the "src/config" file for<br>
+32 bpp which we will use below. For initial testing select the NOMOUSE and NOKBD drivers.<br>
+<br>
+To run the frame buffer emulator set the environment variable FRAMEBUFFER to: "FRAMEBUFFER=/tmp/fb0". The frame buffer driver<br>
+Microwindows is using reads this environment variable on startup.<br>
+<br>
+Then execute the frame buffer emulator: "bin/fbe -d32&". The emulator will then run in the background. After that you can run your<br>
+Nano-X or Microwindows program which will use the frame buffer screen driver on the X11 desktop. To use a mouse and a keyboard you<br>
+also need to select drivers for these in the "src/config" file and unselect the NOMOUSE and NOKBD drivers in the config.fbe file.<br> 
+The SERMOUSE and TTYKBD drivers should work. However, you have to allow read access to "dev/psaux" for the mouse and "dev/tty" for<br>
+the keyboard. Otherwise you get "error 13". So enter "sudo chmod 666 /dev/psaux" and ""sudo chmod 666 /dev/tty" before running your<br>
+application.<br>
+<br>
+The frame buffer emulator supports the following command line options:<br>
+-x [X size], -y [Y Size], -t [Total X Size], -d [Color depths bpp(1,2,4,8,15,16,24,32)], -z [Zoom factor]<br>
+-r [Reverse bit order (1,2,4bpp LSB first)], -g [Gray palette (4bpp only)], -c [Force create new framebuffer (required when size changes)] <br>
+<br>
 
 <p>
-31st of May 2018, Georg Potthast
+10th of June 2018, Georg Potthast
 </p>
 </body>
 </html>

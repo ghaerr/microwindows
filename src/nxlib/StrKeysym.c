@@ -13,7 +13,7 @@
 #if !__MINGW32__
 #include <sys/ioctl.h>
 #endif
-#if defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__)
+#if defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 #include "include/linux/keyboard.h"
 #include "include/linux/kd.h"
 #else

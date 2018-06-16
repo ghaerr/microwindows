@@ -7,6 +7,7 @@
 #include "windows.h"
 #include "wintern.h"
 #include "device.h"
+#include "../drivers/genmem.h"
 #include "intl.h"
 #include <stdlib.h>
 #include <string.h>

@@ -177,7 +177,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			0,0,0,0,0,0,0,0,0,0,0,
 			FF_DONTCARE|DEFAULT_PITCH,
 			"HZXFONT"));
-                DrawText(hdc, "Hola, NOS, ¤¤¤å´ú¸Õ", -1, &rect,
+                DrawText(hdc, "Hola, NOS   ", -1, &rect,
                          DT_SINGLELINE|DT_CENTER|DT_VCENTER);
 		DeleteObject(SelectObject(hdc,oldfont));
 

@@ -374,7 +374,7 @@ freetype2_init(PSD psd)
 		return 1;
 
 	if ((freetype2_font_dir = getenv("TTFONTDIR")) == NULL)
-#if defined(__DJGPP__) 
+#if defined(__DJGPP__) || defined(__EMSCRIPTEN__)
 		freetype2_font_dir = "fonts/truetype";
 #else
 		freetype2_font_dir = FREETYPE_FONT_DIR;

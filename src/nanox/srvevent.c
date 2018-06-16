@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "serv.h"
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
 
 #if HAVE_VNCSERVER && VNCSERVER_PTHREADED
 #include "lock.h"

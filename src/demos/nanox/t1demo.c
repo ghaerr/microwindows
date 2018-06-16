@@ -11,7 +11,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#if UNIX | DOS_DJGPP
+#if UNIX | DOS_DJGPP | EMSCRIPTEN
 #include <time.h>
 #endif
 #define MWINCLUDECOLORS

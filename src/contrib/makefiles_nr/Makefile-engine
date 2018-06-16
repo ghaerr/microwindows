@@ -7,9 +7,9 @@ LIB = libmwengine.a
 # List of objects to compile
 OBJECTS := \
     devdraw.o devmouse.o devkbd.o\
-	devclip.o devrgn.o devrgn2.o \
+    devclip.o devrgn.o devrgn2.o \
     devlist.o devfont.o devimage.o\
-	devarc.o devopen.o devpoly.o devstipple.o \
+    devarc.o devopen.o devpoly.o devstipple.o \
     devtimer.o devblit.o convblit_8888.o \
     image_bmp.o image_gif.o image_pnm.o image_xpm.o\
     image_jpeg.o image_png.o image_tiff.o\
@@ -19,7 +19,9 @@ OBJECTS := \
 #    \
 #    font_t1lib.o  
 
+ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
 OBJECTS += font_freetype2.o
+endif
     
 ifdef GRAYPALETTE
 OBJECTS += devpal1.o devpal2.o devpalgray4.o

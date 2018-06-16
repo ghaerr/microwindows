@@ -40,7 +40,8 @@ GdError(const char *format, ...)
 #else
 #if HAVE_FILEIO
 	vsprintf(buf, format, args);
-	write(2, buf, strlen(buf));
+	//write(2, buf, strlen(buf));
+	fprintf(stderr, "%s\n", buf);
 #else
 	/* discard EPRINTF/DPRINTF output!*/
 #endif

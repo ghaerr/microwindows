@@ -59,7 +59,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         /*case WM_MOUSEFIRST:*/
                 hdc=BeginPaint(hwnd,&ps);
                 GetClientRect(hwnd,&rect);
-                DrawText(hdc, "Hola, NOS ¤¾¤¿¤¤ÇÑ", -1, &rect,
+                DrawText(hdc, "Hola, NOS   ", -1, &rect,
                          DT_SINGLELINE|DT_CENTER|DT_VCENTER);
                 EndPaint(hwnd,&ps);
                 break;

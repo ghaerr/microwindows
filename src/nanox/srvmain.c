@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 #if PSP
 #include <pspkernel.h>
@@ -350,8 +351,9 @@ void
 GsClose(int fd)
 {
 	GsDropClient(fd);
-	if(!persistent_mode && connectcount == 0)
+	if(!persistent_mode && connectcount == 0) {
 		GsTerminate();
+	}
 }
 
 #if NONETWORK
@@ -363,7 +365,7 @@ GsDropClient(int fd)
 }
 #endif
 
-#if UNIX | DOS_DJGPP || __MINGW32__
+#if UNIX || DOS_DJGPP || __MINGW32__ || defined(__EMSCRIPTEN__)
 #if NONETWORK && HAVE_SELECT
 /*
  * Register the specified file descriptor to return an event
@@ -719,7 +721,7 @@ GsSelect(GR_TIMEOUT timeout)
 }
 
 /********************************************************************************/
-#elif MSDOS || _MINIX  || __MINGW32__ || defined(_ALLEGRO_) || defined(_SDL1_2_)
+#elif MSDOS || _MINIX  || __MINGW32__ || defined(_ALLEGRO_) || defined(_SDL1_2_) || defined(__EMSCRIPTEN__)
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -738,7 +740,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 /********************************************************************************/
 /* next elif to below is #elif NDS */
-#elif UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_) && !defined(_SDL1_2_)
+#elif UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_) && !defined(_SDL1_2_) && !defined(__EMSCRIPTEN__)
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -1422,7 +1424,11 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
+#if !defined(__EMSCRIPTEN__)
 	exit(0);
+#else	
+	return;
+#endif
 }
 
 /*
@@ -1457,7 +1463,7 @@ void
 GrBell(void)
 {
 	SERVER_LOCK();
-#if !PSP
+#if !PSP && !defined(__EMSCRIPTEN__)
 	write(2, "\7", 1);
 #endif
 	SERVER_UNLOCK();

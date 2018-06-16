@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#if UNIX | DOS_DJGPP
+#if UNIX | DOS_DJGPP | EMSCRIPTEN
 #include <fcntl.h>
 #include <unistd.h>
 #include <time.h>

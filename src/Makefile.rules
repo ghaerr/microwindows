@@ -396,7 +396,13 @@ CFLAGS += -fpic
 endif
 
 ifeq ($(OPTIMIZE), Y)
+ifneq (,$(findstring -O,$(OPTLEVEL)))
+# found - comma means: compare empty string with result of findstring, 
+# which is not empty if -O is found
+OPTFLAGS += $(OPTLEVEL)
+else
 OPTFLAGS += -O3
+endif
 endif
 
 ifeq ($(GPROF), Y)
@@ -407,7 +413,8 @@ endif
 endif
 
 ifeq ($(DEBUG), Y)
-OPTFLAGS += -ggdb
+OPTFLAGS += -g
+#OPTFLAGS += -ggdb
 DEFINES += -DDEBUG=1
 else
 #OPTFLAGS += -DNDEBUG
@@ -512,7 +519,7 @@ CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
 endif
 
 #export for nxlib/test makefile
-export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS
+export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS
 ##############################################################################
 # Build rules
 ##############################################################################

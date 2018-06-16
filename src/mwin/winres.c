@@ -248,7 +248,7 @@ mwIsSameType(FILE * f, LPCTSTR id, BOOL * pEof)
 	WORD w;
 	int i, n;
 
-	if ((id == NULL)) {
+	if (id == NULL) {
 		w = resReadWord(f, pEof);
 		w = resReadWord(f, pEof);
 		return !(*pEof);

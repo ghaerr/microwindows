@@ -22,7 +22,8 @@
 #if HAVE_T1LIB_SUPPORT
    #define FONTNAME "fonts/type1/bchr.pfb"
 #elif HAVE_FREETYPE_2_SUPPORT
-   #define FONTNAME "lt1-r-omega-serif"
+   //#define FONTNAME "lt1-r-omega-serif"
+    #define FONTNAME "times.ttf"
    //#define FONTNAME "termcs1"
    //#define FONTNAME "lucon"
    //#define FONTNAME "cour"

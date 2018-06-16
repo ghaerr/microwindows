@@ -10,6 +10,9 @@
 #define MWINCLUDECOLORS
 #include "serv.h"
 #include "../drivers/genmem.h"
+#ifdef __EMSCRIPTEN__
+  #include <emscripten.h>
+#endif  
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
@@ -85,8 +88,17 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	/* If no event ready, wait for one*/
 	/* Note: won't work for multiple clients*/
 	/* This is OK, since only static linked apps call this function*/
-	while(curclient->eventhead == NULL)
-		GsSelect(timeout);
+
+/*	while(curclient->eventhead == NULL)
+		GsSelect(timeout); */ /*old version*/
+
+	while(curclient->eventhead == NULL) {
+	    GsSelect(timeout);
+	    #ifdef __EMSCRIPTEN__
+	    if (curclient->eventhead == NULL) {emscripten_sleep(1);}
+	    else {emscripten_sleep(1);}
+	    #endif
+	}
 	CheckNextEvent(ep, GR_FALSE);
 	SERVER_UNLOCK();
 }
@@ -98,8 +110,13 @@ void
 GrPeekWaitEvent(GR_EVENT *ep)
 {
 	SERVER_LOCK();
-	while(curclient->eventhead == NULL)
+	while(curclient->eventhead == NULL) {
 		GsSelect(0L);
+	        #ifdef __EMSCRIPTEN__
+	        if (curclient->eventhead == NULL) {emscripten_sleep(1);}
+	        else {emscripten_sleep(1);}
+	        #endif
+	}
 	GrPeekEvent(ep);
 	SERVER_UNLOCK();
 }
@@ -207,6 +224,10 @@ getevent:
 		elp = elp->next;
 	}
 
+	#ifdef __EMSCRIPTEN__
+	    emscripten_sleep(1);
+        #endif
+
 	/* if event still not found and waiting ok, then wait*/
 	if (block)
 		goto getevent;
@@ -229,6 +250,9 @@ GrCheckNextEvent(GR_EVENT *ep)
 {
 	SERVER_LOCK();
 	CheckNextEvent(ep, GR_TRUE);
+	#ifdef __EMSCRIPTEN__
+	emscripten_sleep(1);
+	#endif
 	SERVER_UNLOCK();
 }
 

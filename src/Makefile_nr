@@ -5,42 +5,60 @@
 
 #call e.g. make -f Makefile_nr ARCH=DOS
 # or       make -f Makefile_nr clean ARCH=DOS
-ifeq ($(ARCH), dos)
+# or       make -f Makefile_nr ARCH=EM
+# or       make -f Makefile_nr ARCH=X11
+# or	   make -f Makefile_nr ARCH=MIN
+
+EMSCRIPTEN=N
+DOS_DJGPP =N
+X11       =N
+MINGW     =N
+#convert em to EM
+ifeq ($(subst em,EM,$(ARCH)), EM)
+EMSCRIPTEN=Y
+$(info Compiling for EMSCRIPTEN)
+$(info    )
+endif
+
+ifeq ($(subst dos,DOS,$(ARCH))), DOS)
 DOS_DJGPP=Y
 $(info Compiling for DOS DJGPP)
 $(info    )
 endif
-ifeq ($(ARCH), DOS)
-DOS_DJGPP=Y
-$(info Compiling for DOS DJGPP)
+
+ifeq ($(subst x,X,$(ARCH)), X11)
+X11=Y
+$(info Compiling for X11)
 $(info    )
-else
-#default is MINGW
+endif
+
+ifeq ($(subst min,MIN,$(ARCH)), MIN)
 MINGW = Y
 $(info Compiling for MinGW)
 $(info    )
 endif
 
-# define arch: DOS/DJGPP or MINGW
-ifdef MINGW
-CFLAGS += -DMINGW 
-#ALLEGRO4 = 1
-ALLEGRO5 = 1
+#is ARCH empty? - strip removes blanks
+ifeq ($(strip $(ARCH)),) 
+$(info    )
+$(info Please enter ARCH as parameter!)
+$(info e.g. make -f Makefile_nr ARCH=DOS)
+$(info    )
+#generate error to stop make!
+$(patsubst pattern,replacement,text)
 endif
 
-ifdef DOS_DJGPP
-CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1 
-endif
+# define arch: DOS/DJGPP or MINGW or EMSCRIPTEN or X11 #######################
 
 # export variables for sublevel makefiles
-export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS HAVEMSFONTS VESA MINGW DOS_DJGPP ALLEGRO4 ALLEGRO5 CLIBS
+export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS HAVEMSFONTS VESA MINGW DOS_DJGPP SDL1 SDL2 ALLEGRO4 ALLEGRO5 CLIBS EMSCRIPTEN VERBOSE HAVE_FREETYPE_2_SUPPORT SHOWSTUBS X11 
 
-# set to one to build microwin and/or nano-X demos
+# uncomment to build microwin and/or nano-X demos and libraries
 MICROWIN=1
 NANOX=1
 
-#select just a few examples for testing
-#TESTPROG=1
+#uncomment to select just a few examples for testing
+TESTPROG=1
 
 # network libs location
 NETLIBS=
@@ -65,53 +83,126 @@ AR = ar
 STRIP = strip
 HOSTCC = gcc
 HOSTCFLAGS = -I$(MW_DIR_SRC)/include
-#OPTIMIZE = 1
+OPTIMIZE = Y
+OPTLEVEL = -O3
+
+ifeq ($(EMSCRIPTEN), Y)
+#SDL1 = Y
+SDL2 = Y
+CC = emcc
+#assembler
+AS = 
+LD = emcc
+AR = emar
+STRIP = strip
+HOSTCC = emcc
+HOSTCFLAGS = -I$(MW_DIR_SRC)/include
+OPTIMIZE = Y
+OPTLEVEL = -O3
+endif
 
 #enable EPRINTF and DPRINTF statements in code
 #or use fprintf(stdout,"foo\n");
-DEBUG= 1
+DEBUG= N
+
+#show stubs called in nxlib
+SHOWSTUBS= N
 
 #add -g flag for GDB
-#GDB= 1
+GDB= N
 
 #get Make to print full details
-#VERBOSE= 1
+VERBOSE= Y
 
 # DJGPP cc flags, includes
-ifdef DOS_DJGPP
+ifeq ($(DOS_DJGPP), Y)
 INC = -I$(MW_DIR_SRC)/include
 endif
 
-ifdef MINGW
+ifeq ($(MINGW), Y)
 # MINGW cc flags, includes
 INC = -I$(MW_DIR_SRC)/include -I/c/MinGW/msys/1.0/local/include/freetype
 INC += -I/usr/local/include
 endif
 
-ifdef GDB
-# -g - include debugging information in source code
-CFLAGS = $(INC) -Wall -g
-else
-# -s - removes all symbol table and relocation information
-CFLAGS = $(INC) -s -L/c/MinGW/msys/1.0/lib
-CFLAGS += -L/usr/local/lib -L/local/lib
-CFLAGS += -L/c/MinGW/msys/1.0/local/lib -L/c/MinGW/lib
+ifeq ($(EMSCRIPTEN), Y)
+INC += -I$(MW_DIR_SRC)/include 
+endif
+ifeq ($(SDL2), Y)
+INC += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=67108864
+INC +=  -s USE_LIBPNG=1
+#INC +=  -s ASSERTIONS=1
+#INC += -s EMTERPRETIFY_ADVISE=1
+#WHITELIST  =  -s EMTERPRETIFY_WHITELIST='["_GrGetNextEventTimeout"]' -s EMTERPRETIFY_WHITELIST='["_GrPeekWaitEvent"]' -s EMTERPRETIFY_WHITELIST='["_GrCheckNextEvent"]' 
+#WHITELIST +=  -s EMTERPRETIFY_WHITELIST='["_GrGetTypedEventPred"]' -s EMTERPRETIFY_WHITELIST='["_GetMessage"]' -s EMTERPRETIFY_WHITELIST='["_main"]'
+EMTERPRET = -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1 
+#$(WHITELIST)
+#INC += EMTERPRET
+#INC += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
+NANOFONTS = --preload-file $(MW_DIR_SRC)/fonts/truetype@fonts/truetype 
+#INC += --embed-file $(MW_DIR_SRC)/demos/nanox/ftdemo.txt@/bin/
+#INC += -s VERBOSE=1
+NX11fonts = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@/usr/share/fonts/truetype
 endif
 
-ifdef OPTIMIZE
+ifeq ($(X11), Y)
+INC = -I$(MW_DIR_SRC)/include 
+#-L/usr/X11R6/lib -lX11
+endif
+
+ifeq ($(GDB), Y)
+# -g - include debugging information in source code
+CFLAGS += $(INC) -Wall -g
+else
+# -s - removes all symbol table and relocation information
+CFLAGS += $(INC) 
+#-s -L/c/MinGW/msys/1.0/lib
+CFLAGS += -Wno-deprecated-declarations 
+#-Wno-implicit-function-declaration
+#CFLAGS += -L/usr/local/lib -L/local/lib
+#CFLAGS += -L/c/MinGW/msys/1.0/local/lib -L/c/MinGW/lib
+endif
+
+ifeq ($(OPTIMIZE), Y)
+ifneq (,$(findstring -O,$(OPTLEVEL)))
+# found - comma means: compare empty string with result of findstring, 
+# which is not empty if -O is found
+CFLAGS += $(OPTLEVEL)
+else
 CFLAGS += -O3
 endif
+endif
 ifdef VERBOSE
+
 CFLAGS += -v
 endif
 
 #MATHLIB
 #CLIBS += -lm
 
+ifeq ($(MINGW), Y)
+CFLAGS += -DMINGW 
+#ALLEGRO4 = 1
+ALLEGRO5 = 1
+endif
+
+ifeq ($(DOS_DJGPP), Y)
+CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1 
+endif
+
+ifeq ($(EMSCRIPTEN), Y)
+CFLAGS += -DEMSCRIPTEN=1 -D_SDL1_2_=1 
+endif
+
+ifeq ($(X11), Y)
+USE_EXPOSURE = Y
+CFLAGS += -DX11=1 -DLINUX=1 -DUNIX=1 
+endif
+
 CFLAGS += -DHAVE_FILEIO=1 -DMW_FEATURE_IMAGES=1 -DMW_FEATURE_TIMERS=1
 CFLAGS += -DHAVE_SIGNAL=0 
 
-ifdef DEBUG
+ifeq ($(DEBUG), Y)
 #HAVE_FPRINTF=0 uses Nano-X error function and outputs to STDOUT=SCREEN
 CFLAGS += -DHAVE_FPRINTF=1
 else
@@ -132,9 +223,9 @@ CFLAGS += -DNONETWORK=1
 # ERASEMOVE repaints only backgrounds while window dragging, quicker
 # XORMOVE moves windows only after button up, quickest 
 
-#CFLAGS += -DUPDATEREGIONS=1
-#CFLAGS += -DERASEMOVE=1
-CFLAGS += -DXORMOVE=1
+CFLAGS += -DUPDATEREGIONS=1
+CFLAGS += -DERASEMOVE=1
+#CFLAGS += -DXORMOVE=1
 
 #set to 1 for MS FONTS
 #CFLAGS += -DHAVEMSFONTS=1
@@ -156,11 +247,13 @@ CFLAGS += -DHAVE_PNM_SUPPORT=1
 CFLAGS += -DHAVE_XPM_SUPPORT=1
 
 ##set for JPEG support - libjpeg.a
-CFLAGS += -DHAVE_JPEG_SUPPORT=1
-CLIBS += -ljpeg
+#CFLAGS += -DHAVE_JPEG_SUPPORT=1
+#CLIBS += -ljpeg
 ##set for PNG support - libpng.a + libz.a
 CFLAGS += -DHAVE_PNG_SUPPORT=1
+ifneq ($(EMSCRIPTEN), Y)
 CLIBS += -lpng -lz
+endif
 ##set for TIFF support - libtiff.a
 #CFLAGS += -DHAVE_TIFF_SUPPORT=1
 #CLIBS += -ltiff
@@ -179,15 +272,18 @@ CLIBS += -lpng -lz
 CFLAGS += -DHAVE_FNT_SUPPORT=1
 #CFLAGS += -DFNT_FONT_DIR="fonts/fnt" 
 
-CFLAGS += -DHAVE_PCF_SUPPORT=1
+#CFLAGS += -DHAVE_PCF_SUPPORT=1
 #CFLAGS += -DPCF_FONT_DIR="fonts/pcf"
 #need zlib for gz format
-CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
-CLIBS += -lz
+#CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
+#CLIBS += -lz
 
+HAVE_FREETYPE_2_SUPPORT = Y
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
-#CFLAGS += -DFREETYPE_FONT_DIR="fonts/truetype"
+CFLAGS += -DFREETYPE_FONT_DIR="fonts/truetype"
+ifneq ($(EMSCRIPTEN), Y)
 CLIBS += -lfreetype -lz
+endif
 
 #CFLAGS += -DHAVE_T1LIB_SUPPORT=1
 #T1LIB_FONT_DIR = "fonts/type1/"
@@ -198,13 +294,13 @@ CLIBS += -lfreetype -lz
 # e.g. NANOSCR=800 600 565 for TRUECOLOR565
 
 ifndef SCREEN_WIDTH
-#SCREEN_WIDTH=800
-SCREEN_WIDTH=1024
+SCREEN_WIDTH=800
+#SCREEN_WIDTH=1024
 #SCREEN_WIDTH=1400
 endif
 ifndef SCREEN_HEIGHT
-#SCREEN_HEIGHT=600
-SCREEN_HEIGHT=768
+SCREEN_HEIGHT=600
+#SCREEN_HEIGHT=768
 #SCREEN_HEIGHT=1050
 endif
 ifndef SCREEN_DEPTH
@@ -247,24 +343,55 @@ endif
 
 # define ALL target ********************************
 
-ALL += clean init drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a mwin/libmwin.a mwin/bmp/libimages.a nanox/libnano-X.a 
+ifeq ($(DOS_DJGPP), Y)
+ALL += clean init  
+endif
+ifeq ($(MINGW), Y)
+ALL += clean init  
+endif
+
+ALL += drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a nanox/libnano-X.a 
+ifeq ($(EMSCRIPTEN), Y)
 ALL += nxlib/libNX11.a
+ALL += nxlib/libPX11.a
+else
+ALL += nxlib/libNX11.a
+endif
 
 ifdef MICROWIN
-ALL += mwindemos 
+ALL += mwin/libmwin.a 
+ifneq ($(EMSCRIPTEN), Y)
+ALL += mwin/bmp/libimages.a
+endif
+ifndef TESTPROG
+ALL += mwindemos
+endif
 endif
 
 ifdef NANOX 
+ifndef TESTPROG
 ALL += nanoxdemos
+endif
 endif
 
 ifdef TESTPROG
-ALL += testprog
+  ifeq ($(DOS_DJGPP), Y)
+     ALL += testprog
+  endif
+  ifeq ($(MINGW), Y)
+     ALL += testprog
+  endif
+  ifeq ($(EMSCRIPTEN), Y)
+     ALL += emprog
+  endif
+  ifeq ($(X11), Y)
+     ALL += X11prog
+  endif
 endif
 
 #define LIBS and NANOLIBS variable - CLIBS = common libs **************
 
-ifdef MINGW
+ifeq ($(MINGW), Y)
 CLIBS += $(LIBALLEGRO) 
 endif
 
@@ -276,18 +403,25 @@ endif
 #CLIBS += -lmwengine
 
 #mwin/bmp/libimages.a 
-CLIBS += -limages
+#CLIBS += -limages
 
+NANOLIBS = $(CLIBS)
 #nanox/libnano-X.a 
-NANOLIBS = -lnano-X $(CLIBS)
+ifdef NANOX
+NANOLIBS += -lnano-X 
+endif
 
 #mwin/libmwin.a 
-#LIBS = -lmwin -lnano-X $(CLIBS)
-LIBS = -lmwin $(CLIBS)
+ifdef MICROWIN
+LIBS += -lmwin 
+endif
 
 LIBS += $(NETLIBS)
 
 CFLAGS += -L$(MW_DIR_SRC)/lib
+ifeq ($(X11), Y)
+CFLAGS += -L/usr/X11R6/lib -lX11
+endif
 
 #define mwin demo programs
 MTARGETS1 := malpha mtest mtest2 mdemo mstretch
@@ -296,12 +430,31 @@ MTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(MTARGETS1))
 MTARGETS := $(addsuffix .exe,$(MTARGETS2))
 
 #define nanox demo programs
-NTARGETS1 := demo move nxeyes landmine world nxclock demo2 grabdemo demo5 demo6 snap_ppm 
+NTARGETS1 := demo move landmine world dashdemo hello
+NTARGETS1 += snap_ppm monobitmap
 NTARGETS1 += tsdemo polydemo slider arcdemo blitdemo bmpdemo fontdemo ftdemo pcfdemo t1demo
-NTARGETS1 += nxview snap_jpg tux # not working in DOS
-#NTARGETS1 += nterm demo4 ntetris info tux getselection npanel # not working in DOS
+# not working in DOS 
+ifeq ($(DOS_DJGPP), N)
+NTARGETS1 += nxview tux nterm ntetris tux getselection npanel 
+# tuxchess
+# snap_jpg 
+endif
+ifeq ($(X11), N)
+NTARGETS1 += nxeyes nxclock demo2 grabdemo demo5 demo6
+endif
+
 NTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(NTARGETS1))
+ifeq ($(X11), N)
+ifeq ($(EMSCRIPTEN), Y)
+NTARGETS := $(addsuffix .html,$(NTARGETS2))
+else
 NTARGETS := $(addsuffix .exe,$(NTARGETS2))
+endif
+#X11
+else
+#no suffix for X11
+NTARGETS := $(NTARGETS2)
+endif
 
 #####################
 all: $(ALL)
@@ -313,6 +466,7 @@ endif
 
 .PHONY: init
 
+#make directories for DOS and copy support files for demos to bin directory
 init:  
 	-$("shell md lib 2>NUL")
 	-$("shell md bin 2>NUL")   
@@ -330,6 +484,7 @@ init:
 		$(MW_DIR_SRC)/fonts\
 		$(MW_DIR_BIN)
 
+#target for mwin API demos
 mwindemos: $(MTARGETS)
 
 demos/mwin/%.o: %.c
@@ -339,26 +494,81 @@ $(MW_DIR_BIN)/%.exe: demos/mwin/%.o
 	echo "compiling $@"
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
+#target for nanox API demos
 nanoxdemos: $(NTARGETS)
 
 demos/nanox/%.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
+ifeq ($(EMSCRIPTEN), Y)
+$(MW_DIR_BIN)/%.html: demos/nanox/%.o
+else
+ifeq ($(X11), Y)
+$(MW_DIR_BIN)/%: demos/nanox/%.o
+else
 $(MW_DIR_BIN)/%.exe: demos/nanox/%.o
+endif
+endif
 	echo "compiling $@"
 	$(CC) $(CFLAGS) -o $@ $< $(NANOLIBS)
-	
+
+#target for test programs
 testprog:
 	echo "Compiling testprograms"
-#	$(info $(CFLAGS))
-#	$(info $(LIBS))
-	$(CC) $(CFLAGS) -o bin/malpha.exe demos/mwin/malpha.c $(LIBS)   
+	$(info    )
+	$(info $(CFLAGS))
+	$(info    )
+	$(info $(LIBS))
+	$(info    )	
+#	$(CC) $(CFLAGS) -o bin/malpha.exe demos/mwin/malpha.c $(LIBS)   
 #	$(CC) $(CFLAGS) -o bin/nxview.exe demos/nanox/nxview.c $(NANOLIBS) -lz
 	$(CC) $(CFLAGS) -o bin/demo.exe demos/nanox/demo.c $(NANOLIBS)
 	$(CC) $(CFLAGS) -o bin/arcdemo.exe demos/nanox/arcdemo.c $(NANOLIBS)
-	$(CC) $(CFLAGS) -o bin/grabdemo.exe demos/nanox/grabdemo.c $(NANOLIBS)	
-#####################
-ifdef MINGW    
+#	$(CC) $(CFLAGS) -o bin/grabdemo.exe demos/nanox/grabdemo.c $(NANOLIBS)	
+
+#target for emscripten test programs
+emprog:
+	echo "Compiling testprograms for emscripten"
+	$(info CFLAGS: $(CFLAGS))
+	$(info NANOLIBS: $(NANOLIBS))
+	$(info **************** )
+ifdef MICROWIN
+	$(CC) $(CFLAGS) -o bin/mdemo.html demos/mwin/mdemo.c $(LIBS)  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mtest.html demos/mwin/mtest.c $(LIBS)  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mtest2.html demos/mwin/mtest2.c $(LIBS) $(EMTERPRET)
+endif
+#	$(CC) $(CFLAGS) -o bin/demo.html demos/test/demo.c lib/libnano-X.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/arcdemo.html demos/nanox/arcdemo.c $(NANOLIBS)  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/arcdemo.html demos/nanox/arcdemo.c lib/libnano-X.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/fontdemo.html demos/nanox/fontdemo.c lib/libnano-X.a $(NANOFONTS)  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/ftdemo.html demos/nanox/ftdemo.c lib/libnano-X.a $(NANOFONTS) --embed-file $(MW_DIR_SRC)/demos/nanox/ftdemo.txt@/bin/  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/hello.html demos/nanox/hello.c lib/libnano-X.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/hello.html demos/test/hello.c lib/libnano-X.a  $(EMTERPRET)	
+	$(CC) $(CFLAGS) -o bin/grabdemo.html demos/nanox/grabdemo.c lib/libnano-X.a $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/testarc.html nxlib/test/testarc.c lib/libPX11.a  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/xhello.html nxlib/test/xhello.c lib/libPX11.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/xmouse.html nxlib/test/xmouse.c lib/libPX11.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/xgreen.html nxlib/test/xgreen.c lib/libNX11.a lib/libnano-X.a $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/draw.html nxlib/test/draw.c lib/libPX11.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/williams.html nxlib/test/williams.c lib/libPX11.a  $(EMTERPRET)
+#	strace $(CC) $(CFLAGS) -o bin/xhello.html nxlib/test/xhello.c lib/libNX11.a lib/libnano-X.a >~/microwindows-em/src/strace.log  $(EMTERPRET)
+
+X11prog:
+	echo "Compiling testprograms for X11"
+	$(info ######### CFLAGS: )
+	$(info $(CFLAGS))
+	$(info ######### NANOLIBS:    )
+	$(info $(NANOLIBS))
+	$(info #########    )	
+#	$(CC) $(CFLAGS) -o bin/demo.html demos/nanox/demo.c $(NANOLIBS)
+#	$(CC) $(CFLAGS) -o bin/arcdemo.html demos/nanox/arcdemo.c $(NANOLIBS)
+	$(CC) $(CFLAGS) -o bin/arcdemo demos/nanox/arcdemo.c lib/libnano-X.a -L/usr/X11R6/lib -lX11
+#	-Llib/libnano-X.a
+#	$(CC) $(CFLAGS) -o bin/grabdemo.exe demos/nanox/grabdemo.c $(NANOLIBS)	
+	$(CC) $(CFLAGS) -o bin/xgreen nxlib/test/xgreen.c lib/libnano-X.a lib/libNX11.a -L/usr/X11R6/lib -lX11
+	$(CC) $(CFLAGS) -o bin/xmouse nxlib/test/xmouse.c lib/libPX11.a -L/usr/X11R6/lib -lX11
+##################### clean ###################################
+ifeq ($(MINGW), Y)
 clean:
 	echo "Cleaning MinGW files"
 	-rm obj/mwin/*.o 2>/dev/null
@@ -383,7 +593,7 @@ clean:
 	echo "Cleaned *.o, *.a, and *.exe files"
 endif
 
-ifdef DOS_DJGPP
+ifeq ($(DOS_DJGPP), Y)
 clean:
 	echo "Cleaning DOS files"
 	-del mwin\*.o
@@ -404,16 +614,68 @@ clean:
 	echo "Cleaned *.o, *.a, and *.exe files"
 endif
 
+ifeq ($(EMSCRIPTEN), Y)
+clean:
+	echo "Cleaning EMSCRIPTEN files"
+	-rm obj/mwin/*.o 2>/dev/null
+	-rm obj/drivers/*.o 2>/dev/null
+	-rm obj/mwin/winlib/*.o 2>/dev/null
+	-rm obj/engine/*.o 2>/dev/null
+	-rm obj/fonts/*.o 2>/dev/null
+	-rm drivers/*.o 2>/dev/null
+	-rm mwin/*.o 2>/dev/null	
+	-rm mwin/bmp/*.o 2>/dev/null
+	-rm mwin/winlib/*.o 2>/dev/null
+	-rm nanox/*.o 2>/dev/null
+	-rm fonts/*.o 2>/dev/null
+	-rm engine/*.o 2>/dev/null
+	-rm lib/*.a	 2>/dev/null
+	-rm bin/*.html 2>/dev/null
+	-rm bin/*.js 2>/dev/null
+	-rm bin/*.mem 2>/dev/null
+	-rm bin/*.ppm 2>/dev/null
+	-rm bin/*.pgm 2>/dev/null
+	-rm -rf bin/fonts/ 2>/dev/null
+#	-rm mwin/bmp/*.exe 2>/dev/null
+	-$(MAKE) -C nxlib clean
+	echo "Cleaned *.o, *.a, bin/*.html, bin/*.mem and bin/*.js files"
+endif
+
+ifeq ($(X11), Y)
+clean:
+	echo "Cleaning EMSCRIPTEN files"
+	-rm obj/mwin/*.o 2>/dev/null
+	-rm obj/drivers/*.o 2>/dev/null
+	-rm obj/mwin/winlib/*.o 2>/dev/null
+	-rm obj/engine/*.o 2>/dev/null
+	-rm obj/fonts/*.o 2>/dev/null
+	-rm drivers/*.o 2>/dev/null
+	-rm mwin/*.o 2>/dev/null	
+	-rm mwin/bmp/*.o 2>/dev/null
+	-rm mwin/winlib/*.o 2>/dev/null
+	-rm nanox/*.o 2>/dev/null
+	-rm fonts/*.o 2>/dev/null
+	-rm engine/*.o 2>/dev/null
+	-rm lib/*.a	 2>/dev/null
+	-rm bin/* 2>/dev/null
+	-rm bin/*.ppm 2>/dev/null
+	-rm bin/*.pgm 2>/dev/null
+	-rm -rf bin/fonts/ 2>/dev/null
+#	-rm mwin/bmp/*.exe 2>/dev/null
+	-$(MAKE) -C nxlib clean
+	echo "Cleaned *.o, *.a, bin/*.* files"
+endif
+
 #there is a file install in the directory - so define as phony
 .PHONY: install
 
-ifdef MINGW
+ifeq ($(MINGW), Y)
 install:
 	cp lib/*.a /local/lib
 	cp inc /local/include/mwin
 endif
 
-ifdef DOS_DJGPP
+ifeq ($(DOS_DJGPP), Y)
 install:
 	copy lib\*.a \djgpp\lib
 	copy inc \djgpp\include\mwin
@@ -425,7 +687,6 @@ endif
 
 nanox/libnano-X.a: 
 	echo "Generating $@"
-#	$(MAKE) -C nanox
 	$(MAKE) -C nanox  -f ../contrib/makefiles_nr/Makefile-nanox
 
 #obsolete
@@ -434,29 +695,32 @@ nanox/libnano-X.a:
 
 mwin/libmwin.a:
 	echo "Generating $@"
-#	$(MAKE) -C mwin	
 	$(MAKE) -C mwin -f ../contrib/makefiles_nr/Makefile-mwin
 	
 fonts/libfonts.a:
 	echo "Generating font object files"    
-#	$(MAKE) -C fonts	
 	$(MAKE) -C fonts -f ../contrib/makefiles_nr/Makefile-fonts
 
 engine/libmwengine.a:
 	echo "Generating engine object files"    
-#	$(MAKE) -C engine
 	$(MAKE) -C engine -f ../contrib/makefiles_nr/Makefile-engine
 
 drivers/libmwdrivers.a:
 	echo "Generating driver object files" 
-#	$(MAKE) -C drivers       
 	$(MAKE) -C drivers -f ../contrib/makefiles_nr/Makefile-drivers
 
 mwin/bmp/libimages.a:
 	echo "Generating $@"  
-#	$(MAKE) -C mwin/bmp      
 	$(MAKE) -C mwin/bmp -f ../../contrib/makefiles_nr/Makefile-bmp
 
 nxlib/libNX11.a:
 	echo "Generating $@"
-	$(MAKE) -C nxlib  
+ifeq ($(EMSCRIPTEN), N)	
+	$(MAKE) -C nxlib
+else	
+	$(MAKE) -C nxlib -f ../contrib/makefiles_nr/Makefile-nx11
+endif	
+	
+nxlib/libPX11.a:	
+	echo "Generating $@"
+	$(MAKE) -C nxlib -f ../contrib/makefiles_nr/Makefile-px11

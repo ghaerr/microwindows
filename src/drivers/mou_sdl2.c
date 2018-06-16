@@ -10,7 +10,12 @@
 #include <stdlib.h>
 //#include <unistd.h>
 #include "device.h"
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
@@ -108,8 +113,10 @@ int ym;
 int buttons = 0;
 
 if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_QUIT, SDL_QUIT)) {
+#if !defined(__EMSCRIPTEN__)  
     GrClose();
     SDL_Quit();
+#endif    
     return 1; //i.e. clicked on X11 close window
 }
 

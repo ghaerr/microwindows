@@ -1,7 +1,12 @@
 CC = gcc
 CFLAGS = -L../../lib -I../../include 
 #if compiling on X11 platform
-CFLAGS += -L/usr/X11R6/lib -lX11
+CFLAGS += -lX11
 all: 
 	echo "Compiling polydemo"
-	$(CC) $(CFLAGS) ../nanox/polydemo.c -lnano-X -o ../../bin/polydemo
+	$(CC) $(CFLAGS) ../nanox/polydemo.c -lfreetype -lnano-X -o ../../bin/polydemo 
+	echo "Compiling xgreen"
+	$(CC) $(CFLAGS) -o ../../bin/xgreen ../../nxlib/test/xgreen.c -lnano-X -lNX11
+	echo "Compiling xmouse"
+	$(CC) $(CFLAGS) -o ../../bin/xmouse ../../nxlib/test/xmouse.c -lfreetype -lPX11 
+

@@ -1,0 +1,14 @@
+To save disc space there are only the fonts in fonts.dir.
+
+This means, using the fonts alias file, 
+the dejavu bold oblique font is mapped to bold normal.
+the courier italic and bold italic fonts are mapped to normal and bold.
+the fixed system font - if used ? - is mapped to a non-fixed dejavu font.
+
+So if you select a font in fltk, the result will not always be correct,
+since some fonts are mapped to different fonts using the fonts.alias file.
+
+To extend fonts enter them in the fonts.dir file and update the font.alias
+file.
+
+7.Dec 2013 Georg Potthast

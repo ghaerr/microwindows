@@ -15,7 +15,7 @@ drivers. The Nano-X / Microwindows engine is the core code which calls the
 various drivers and provides a platform for the two available APIs. These
 are the Nano-X API and the MWin API which can be used to write applications.
 To provide close X11 compatibility there are the NX11 and PX11 libraries
-which are based on the Nano-X API. Based on these compatibility libraries
+which are based on the Nano-X API. Based on these compatibility libraries,
 which provide a limited X11 compatibility, X11 applications can be used. 
 The FLTK GUI toolkit will run based on NX11 or PX11.
 

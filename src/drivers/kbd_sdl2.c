@@ -11,10 +11,22 @@
 #include <string.h>
 #include <stdio.h>
 #include "device.h"
-
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 
 #define CTRL(x)	  ((x) & 0x1f)
+
+#ifndef SCREEN_WIDTH
+#define SCREEN_WIDTH 1024
+#endif
+
+#ifndef SCREEN_HEIGHT
+#define SCREEN_HEIGHT 768
+#endif
 
 extern int escape_quits;
 SDL_Window *sdlWindow;
@@ -89,7 +101,7 @@ sdl_Poll(void)
   SDL_PumpEvents();
   if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) return 1; //read event in read function
 
-  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_QUIT, SDL_QUIT)) {
     closedown=1;
     return 1; //i.e. received the "closedown" key
   }

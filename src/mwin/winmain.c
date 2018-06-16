@@ -298,7 +298,7 @@ MwSelect(BOOL mayWait)
 }
 #endif
 
-#if MSDOS | _MINIX | __MINGW32__ | defined(_ALLEGRO_) | defined(_SDL1_2_)
+#if MSDOS | _MINIX | __MINGW32__ | defined(_ALLEGRO_) | defined(_SDL1_2_) | defined(__EMSCRIPTEN__)
 void
 MwSelect(BOOL mayWait)
 {

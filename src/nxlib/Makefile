@@ -17,7 +17,7 @@ include $(CONFIG)
 ifneq ($(DEBUG), Y)
 	CFLAGS += -DDEBUG=0
 else
-	CFLAGS += -DDEBUG=1 -g
+	CFLAGS += -DDEBUG=1
 endif
 # Compile-time nano-X include and lib directories. (relative paths ok)
 #
@@ -117,7 +117,14 @@ CFLAGS += -DX11_FONT_DIR2=\"$(X11_FONT_DIR2)\"
 CFLAGS += -DX11_FONT_DIR3=\"$(X11_FONT_DIR3)\"
 CFLAGS += -DX11_RGBTXT=\"$(X11_RGBTXT)\"
 xCFLAGS += -O2 -fno-strength-reduce
+
+#OPTFLAGS may contain flags for gprof and gdb too
+ifndef OPTFLAGS
 CFLAGS += -O3
+else
+CFLAGS += $(OPTFLAGS)
+endif
+
 
 # If you dont want to see every executed command ...
 ifeq ($(VERBOSE), N)

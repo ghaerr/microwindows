@@ -26,3 +26,8 @@ clean:
 
 $(LIB): $(OBJECTS)
 	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(OBJECTS)
+
+$(OBJECTS):%.o: %.c
+#	echo " CFLAGS: $(CFLAGS)"
+#	echo "$(CC) $(CFLAGS) -c -o $@ $<"
+	$(CC) $(CFLAGS) -c -o $@ $< 

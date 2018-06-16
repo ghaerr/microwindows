@@ -308,7 +308,7 @@ nextTabStop(HWND hDlg, HWND hChild, BOOL bPrevious)
 	i = -1;
 	obj = hDlg->children;
 	while (obj && (n < 256)) {
-		if ((obj == hChild))
+		if (obj == hChild)
 			i = n;
 		if ((obj->style & WS_TABSTOP) && IsWindowEnabled(obj)
 		    && IsWindowVisible(obj))

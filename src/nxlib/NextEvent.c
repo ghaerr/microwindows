@@ -179,7 +179,7 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xbutton.state |= Button4Mask;
 			if (pev->buttons & GR_BUTTON_D)
 				event->xbutton.state |= Button5Mask;
-//printf("NextEvent.c: pev->changebuttons-%d,event->xbutton.button-%d,pev->buttons-%d,event->xbutton.state-%d\n",pev->changebuttons,event->xbutton.button,pev->buttons,event->xbutton.state);
+//DPRINTF("NextEvent.c: pev->changebuttons-%d,event->xbutton.button-%d,pev->buttons-%d,event->xbutton.state-%d\n",pev->changebuttons,event->xbutton.button,pev->buttons,event->xbutton.state);
 		}
 		break;
 	case GR_EVENT_TYPE_BUTTON_UP:

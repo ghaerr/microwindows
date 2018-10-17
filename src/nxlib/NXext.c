@@ -180,10 +180,10 @@ XagDestroyAssociation(Display* dpy, Window window)
 //	XEVI.c - no public functions	
 
 //	XLbx.c	
-Bool XLbxQueryExtension (
+/* Bool XLbxQueryExtension (
     Display *dpy,
     int *requestp, int *event_basep, int *error_basep)
-{DPRINTF("libXext called\n"); return 0;}
+{DPRINTF("libXext called\n"); return 0;} */
 	
 int XLbxGetEventBase(Display *dpy)
 {DPRINTF("libXext called\n"); return 0;}
@@ -400,7 +400,7 @@ XRectangle *XShapeGetRectangles (
 //	XShm.c	
 #if 0 //these are already in nx11/stub-xhm.c
 /* XShm - shared memory extensions - include/X11/extensions/XShm.h */
-Bool XShmQueryExtension() { DPRINTF("XShmQueryExtension called\n"); return 0; }
+//Bool XShmQueryExtension() { DPRINTF("XShmQueryExtension called\n"); return 0; }
 int XShmGetEventBase() { DPRINTF("XShmGetEventBase called\n"); return 0; }
 Bool XShmQueryVersion() { DPRINTF("XShmQueryVersion called\n"); return 0; }
 int XShmPixmapFormat() { DPRINTF("XShmPixmapFormat called\n"); return 0; }

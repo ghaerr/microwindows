@@ -53,6 +53,7 @@ XCreateGlyphCursor(Display * display, Font source_font, Font mask_font,
 	GrGetGCTextSize(gc, &ch[1], 1, GR_TFTOP, &tw[1], &th[1], &tb[1]);
 
 	cursor = GrNewPixmap(tw[1] * 2, th[1], 0);
+	//cursor = GrNewPixmapEx(tw[1] * 2, th[1], 0, 0);
 
 	/* Draw the mask first, to avoid having to switch fonts in the GC */
 	GrText(cursor, gc, tw[1], 0, &ch[1], 1, GR_TFTOP|GR_TFASCII);

@@ -74,7 +74,19 @@ XUnionRectWithRegion(XRectangle *rect, Region source, Region dest)
 	gr_rect.width = rect->width;
 	gr_rect.height = rect->height;
 
-	GrUnionRectWithRegion(dest->rid, &gr_rect);
+	if (source != dest) {
+		/*Region r = XCreateRegion();
+		if (!r) return 0;
+		//GrUnionRectWithRegion(r->rid, &gr_rect);
+		GrSetRectRegionIndirect(r->rid, &gr_rect);
+		XUnionRegion(r, source, dest);
+		XDestroyRegion(r);*/
+
+		DPRINTF("XUnionRectWithRegion - Source and dest different FIXME\n");
+		GrUnionRectWithRegion(dest->rid, &gr_rect);
+	} else {
+		GrUnionRectWithRegion(dest->rid, &gr_rect);
+	}
 
 #if CLIENTREGIONS
 	GR_RECT extents;
@@ -84,6 +96,21 @@ XUnionRectWithRegion(XRectangle *rect, Region source, Region dest)
 #endif
 	return 1;
 }
+/*int XUnionRectWithRegion(XRectangle *rect, Region source, Region dest)
+{
+	REGION region;
+
+	if (!rect->width || !rect->height) return 0;
+	region.rects = &region.extents;
+	region.numRects = 1;
+	region.extents.x1 = rect->x;
+	region.extents.y1 = rect->y;
+	region.extents.x2 = rect->x + rect->width;
+	region.extents.y2 = rect->y + rect->height;
+	region.size = 1;
+
+	return XUnionRegion(&region, source, dest);
+}*/
 
 int
 XPointInRegion(Region region, int x, int y)

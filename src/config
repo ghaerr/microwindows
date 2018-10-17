@@ -262,8 +262,21 @@ UPDATEREGIONS            = Y
 ####################################################################
 
 # X11 and FBE startup screen width, height, (depth for palette mode only)
-SCREEN_WIDTH             = 800
-SCREEN_HEIGHT            = 600
+#SCREEN_WIDTH             = 800
+#SCREEN_HEIGHT            = 600
+#SCREEN_WIDTH             = 1024
+#SCREEN_HEIGHT            = 768
+
+SCREEN_WIDTH             = 1280
+SCREEN_HEIGHT            = 800
+
+#SCREEN_WIDTH             = 1280
+#SCREEN_HEIGHT            = 1024
+#SCREEN_WIDTH             = 1366
+#SCREEN_HEIGHT            = 768
+#SCREEN_WIDTH             = 1440
+#SCREEN_HEIGHT            = 900
+
 SCREEN_DEPTH             = 8
 
 # X Window screen driver

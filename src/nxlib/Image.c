@@ -124,14 +124,44 @@ computePitch(int bpp, int width, int *pitch, int *bytesperpixel)
 	*bytesperpixel = bytespp;
 }
 
+void setImageFunc(XImage *image)
+{
+	image->f.create_image = XCreateImage;
+	image->f.destroy_image = destroy_image;
+	image->f.sub_image = 0;		//FIXME
+	image->f.add_pixel = 0;
+	switch (image->bits_per_pixel) {
+	case 1:
+		image->f.get_pixel = get_pixel1;
+		image->f.put_pixel = put_pixel1;
+		break;
+	case 8:
+		image->f.get_pixel = get_pixel8;
+		image->f.put_pixel = put_pixel8;
+		break;
+	case 16:
+		image->f.get_pixel = get_pixel16;
+		image->f.put_pixel = put_pixel16;
+		break;
+	case 32:
+		image->f.get_pixel = get_pixel32;
+		image->f.put_pixel = put_pixel32;
+		break;
+	default:
+		DPRINTF("createImageStruct: unsupported bpp\n");
+	}
+
+	return;
+}
+
 static XImage *
 createImageStruct(unsigned int width, unsigned int height, unsigned int depth,
 	int format, int bytes_per_line, int bitmap_pad, unsigned long red_mask,
 	unsigned long green_mask, unsigned long blue_mask)
 {
-	XImage *image = (XImage *) Xcalloc(sizeof(XImage), 1);
-	if (!image)
-		return 0;
+	//XImage *image = (XImage *) Xcalloc(sizeof(XImage), 1);
+	XImage *image = (XImage *) Xcalloc(1, sizeof(XImage));
+	if (!image) return 0;
 
 	image->width = width;
 	image->height = height;
@@ -162,6 +192,7 @@ createImageStruct(unsigned int width, unsigned int height, unsigned int depth,
 	image->green_mask = green_mask;
 	image->blue_mask = blue_mask;
 
+#if 0
 	image->f.create_image = XCreateImage;
 	image->f.destroy_image = destroy_image;
 	image->f.sub_image = 0;		//FIXME
@@ -186,6 +217,8 @@ createImageStruct(unsigned int width, unsigned int height, unsigned int depth,
 	default:
 		DPRINTF("createImageStruct: unsupported bpp\n");
 	}
+#endif
+	setImageFunc(image);
 
 	return image;
 }
@@ -206,7 +239,7 @@ XCreateImage(Display * display, Visual * visual, unsigned int depth,
 		depth = sizeof(GR_PIXELVAL) * 8;
 	}
 	if (depth != display->screens[0].root_depth) {
-		DPRINTF("XCreateImage: depth != hw_format\n");
+		DPRINTF("XCreateImage: depth[%d] != hw_format[%d]\n", depth, display->screens[0].root_depth);
 		//if (depth == 1)	//FIXME
 			//depth = sizeof(GR_PIXELVAL) * 8;
 	}
@@ -224,6 +257,14 @@ XCreateImage(Display * display, Visual * visual, unsigned int depth,
 
 	return image;
 }
+
+/*unsigned int Ones(unsigned long mask)
+{
+	register unsigned long y;
+	y = (mask >> 1) &033333333333;
+	y = mask - y - ((y >>1) & 033333333333);
+	return ((unsigned int) (((y + (y >> 3)) & 030707070707) % 077));
+}*/
 
 /*
  * Create an image, (always in GR_PIXELVAL format), and initialize
@@ -250,14 +291,27 @@ XGetImage(Display * display, Drawable d, int x, int y,
 		return NULL;
 	}
 
-	if (format == XYPixmap)
-		DPRINTF("XGetImage warning: broken for XYPixmap\n");
+	if (format == XYPixmap) {
+		/*depth = Ones(plane_mask &
+			(((unsigned long)0xFFFFFFFF) >> (32 - sizeof(GR_PIXELVAL)*8)));*/
+		//depth = sizeof(GR_PIXELVAL) * 8;
+		depth = 1;	// for Qt (Mask)
+		DPRINTF("XGetImage warning: broken for XYPixmap (bpp %d)\n", depth);
 
-	/* 
-	 * create XImage in GrReadArea compatible format,
-	 * which is always sizeof(GR_PIXELVAL), not hw display format
-	 */
-	depth = sizeof(GR_PIXELVAL) * 8;
+		visual = XDefaultVisual(display, 0);
+		image = createImageStruct(width, height, 1, format, 0, 0,
+			visual->red_mask, visual->green_mask, visual->blue_mask);
+		if (!image) return NULL;
+		image->data = (char *)malloc(width/*image->bytes_per_line*/ * height);
+		memset(image->data, 0xff, width/*image->bytes_per_line*/ * height);
+		return image;
+	} else {
+		/*
+		* create XImage in GrReadArea compatible format,
+		* which is always sizeof(GR_PIXELVAL), not hw display format
+		*/
+		depth = sizeof(GR_PIXELVAL) * 8;
+	}
 #if 0
 	if (depth <= 8)
 		drawsize = 1;
@@ -269,13 +323,14 @@ XGetImage(Display * display, Drawable d, int x, int y,
 	drawsize = sizeof(GR_PIXELVAL);
 
 	visual = XDefaultVisual(display, 0);
-	image = createImageStruct(width, height, depth, format, 0, 0,
+	image = createImageStruct(width, height, depth, format, 0, 0/*display->bitmap_pad*/,
 		visual->red_mask, visual->green_mask, visual->blue_mask);
 	if (!image)
 		return NULL;
 
 	src_rowsize = width * drawsize;		/* bytes per line of image*/
-	image->data = (char *) Xcalloc(src_rowsize * height, 1);
+	//image->data = (char *) Xcalloc(src_rowsize * height, 1);
+	image->data = (char *) Xcalloc(1, src_rowsize * height);
 	GrReadArea(d, x, y, width, height, (void *) image->data);
 
 	/* createImage may have padded image width, may have to copy/re-pad*/
@@ -304,6 +359,69 @@ XGetImage(Display * display, Drawable d, int x, int y,
 		DPRINTF("XGetImage: plane_mask ignored\n");
 
 	return image;
+}
+
+#if 0
+int _XSetImage(XImage *srcimg, XImage *dstimg, int x, int y)
+{
+	unsigned long pixel;
+	int row, col;
+	int width, height, startrow, startcol;
+
+	if (x < 0) {
+		startcol = -x;
+		x = 0;
+	} else
+		startcol = 0;
+	if (y < 0) {
+		startrow = -y;
+		y = 0;
+	} else
+		startrow = 0;
+	width = dstimg->width - x;
+	if (srcimg->width < width) width = srcimg->width;
+	height = dstimg->height - y;
+	if (srcimg->height < height) height = srcimg->height;
+
+	/* this is slow, will do better later */
+	for (row = startrow; row < height; row++) {
+		for (col = startcol; col < width; col++) {
+			//pixel = XGetPixel(srcimg, col, row);
+			//XPutPixel(dstimg, x + col, y + row, pixel);
+			dstimg->f.put_pixel(dstimg, x + col, y + row, srcimg->f.get_pixel(srcimg, col, row));
+		}
+	}
+	return 1;
+}
+#endif
+
+XImage *XGetSubImage(Display *dpy, Drawable d, int x, int y,
+	unsigned int width, unsigned int height, unsigned long plane_mask,
+	int format, XImage *dest_image, int dest_x, int dest_y)
+{
+	XImage *img;
+	int i, n;
+	char *p, *s;
+
+	DPRINTF("XGetSubImage src %d,%d wxh %d,%d dst %d,%d\n",
+		x, y, width, height, dest_x, dest_y);
+	img = XGetImage(dpy, d, x, y, width, height, plane_mask, format);
+	if (!img) return NULL;
+
+	// Both routines are fine
+	//_XSetImage(img, dest_image, dest_x, dest_y);
+	n = width * sizeof(GR_PIXELVAL);
+	s = img->data;
+	p = dest_image->data + (dest_y * dest_image->bytes_per_line) + (dest_x * dest_image->depth/8);
+	for (i=0; i<height; i++) {
+		memcpy(p, s, n);
+		p += dest_image->bytes_per_line;
+		s += img->bytes_per_line;
+	}
+	//XDestroyImage(img);
+	destroy_image(img);
+
+	return dest_image;
 }
 
 /* This takes a portion of the image buffer and rearranges it to keep from 
@@ -477,7 +595,12 @@ DPRINTF("putImage: bpp %d\n", image->depth);
 				src += 4;
 				continue;
 
-			//case 24: FIXME
+			//case 24: FIXME			
+			/*case 24:
+				cl = (unsigned short) *((unsigned long *) src);
+				src += 3;
+				continue;*/
+			
 			case 16:
 				cl = (unsigned short) *((unsigned short *) src);
 				src += 2;
@@ -524,14 +647,116 @@ DPRINTF("putImage: bpp %d\n", image->depth);
 	return 1;
 }
 
-int
-XPutImage(Display * display, Drawable d, GC gc, XImage * image,
-	int src_x, int src_y, int dest_x, int dest_y, unsigned int width,
-	unsigned int height)
+int XPutImage(Display *display, Drawable d, GC gc, XImage *image,
+	int src_x, int src_y, int dest_x, int dest_y, unsigned int _width,
+	unsigned int _height)
 {
-DPRINTF("XputImage %d,%d %d,%d depth %d\n", dest_x, dest_y, width, height, image->depth);
+	long width = _width;
+	long height = _height;
+
+	// Why is scrolling going wrong
+	/*if (src_x<0) {
+		width += src_x;
+		src_x = 0;
+	}
+	if (src_y<0) {
+		height += src_y;
+		src_y = 0;
+	}
+	if (dest_x<0) {
+		DPRINTF("XPutImage warning src(%d,%d) wxh(%d,%d) dst(%d,%d)\n", src_x, src_y, width, height, dest_x, dest_y);
+		width += dest_x;
+		if (width <= 0) return 0;
+		dest_x = 0;
+	}
+	if (dest_y<0) {
+		DPRINTF("XPutImage warning src(%d,%d) wxh(%d,%d) dst(%d,%d)\n", src_x, src_y, width, height, dest_x, dest_y);
+		height += dest_y;
+		if (height <= 0) return 0;
+		dest_y = 0;
+	}*/
+
 	// FIXME bpp 1
 	if (display->screens[0].root_visual->class == TrueColor && image->depth != 1)
-		return putTrueColorImage(display, d, gc, image, src_x, src_y, dest_x, dest_y, width, height);
-	return putImage(display, d, gc, image, src_x, src_y, dest_x, dest_y, width, height);
+		return putTrueColorImage(display, d, gc, image, src_x, src_y,
+			dest_x, dest_y, width, height);
+	return putImage(display, d, gc, image, src_x, src_y, dest_x, dest_y,
+			width, height);
+}
+
+#if 0
+/*
+ * This routine initializes the image object function pointers.  The
+ * intent is to provide native (i.e. fast) routines for native format images
+ * only using the generic (i.e. slow) routines when fast ones don't exist.
+ * However, with the current rather botched external interface, clients may
+ * have to mung image attributes after the image gets created, so the fast
+ * routines always have to check to make sure the optimization is still
+ * valid, and reinit the functions if not.
+ */
+void _XInitImageFuncPtrs(XImage *image)
+{
+	image->f.create_image = XCreateImage;
+	image->f.destroy_image = _XDestroyImage;
+	if ((image->format == ZPixmap) && (image->bits_per_pixel == 8)) {
+		image->f.get_pixel = _XGetPixel8;
+		image->f.put_pixel = _XPutPixel8;
+	} else if (((image->bits_per_pixel | image->depth) == 1) &&
+		(image->byte_order == image->bitmap_bit_order)) {
+		image->f.get_pixel = _XGetPixel1;
+		image->f.put_pixel = _XPutPixel1;
+	} else if ((image->format == ZPixmap) &&
+		(image->bits_per_pixel == 32)) {
+		image->f.get_pixel = _XGetPixel32;
+		image->f.put_pixel = _XPutPixel32;
+	} else if ((image->format == ZPixmap) &&
+		(image->bits_per_pixel == 16)) {
+		image->f.get_pixel = _XGetPixel16;
+		image->f.put_pixel = _XPutPixel16;
+	} else {
+		image->f.get_pixel = _XGetPixel;
+		image->f.put_pixel = _XPutPixel;
+	}
+	image->f.sub_image = _XSubImage;
+/*	image->f.set_image = _XSetImage;*/
+	image->f.add_pixel = _XAddPixel;
+}
+#endif
+
+// required for gtk
+#define ROUNDUP(nbytes, pad) ((((nbytes) + ((pad)-1)) / (pad)) * ((pad)>>3))
+Status XInitImage(XImage *image)
+{
+	int min_bytes_per_line;
+	DPRINTF("XInitImage called..\n");
+//	return 0;
+
+	if (image->depth == 0 || image->depth > 32 ||
+		image->bits_per_pixel > 32 || image->bitmap_unit > 32 ||
+		image->bits_per_pixel < 0 || image->bitmap_unit < 0 ||
+		(image->format != XYBitmap && image->format != XYPixmap &&
+		image->format != ZPixmap) ||
+		(image->format == XYBitmap && image->depth != 1) ||
+		(image->bitmap_pad != 8 && image->bitmap_pad != 16 &&
+		image->bitmap_pad != 32) || image->xoffset < 0)
+		return 0;
+
+	// compute per line accelerator.
+	if (image->format == ZPixmap) {
+		min_bytes_per_line =
+			ROUNDUP((image->bits_per_pixel * image->width), image->bitmap_pad);
+	} else {
+		min_bytes_per_line =
+			ROUNDUP((image->width + image->xoffset), image->bitmap_pad);
+	}
+
+	if (image->bytes_per_line == 0) {
+		image->bytes_per_line = min_bytes_per_line;
+	} else if (image->bytes_per_line < min_bytes_per_line) {
+		return 0;
+	}
+	//_XInitImageFuncPtrs(image);
+	setImageFunc(image);
+
+	return 1;
 }

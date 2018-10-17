@@ -225,16 +225,24 @@ In that case you can add the following additional parameters when running "confi
   --enable-localzlib \
   --disable-threads \
 </pre>
-<br>
 If you are using <b>FLTK 1.3.3</b> and want to use the native file chooser you will now have to patch the file:<br>
-"src/Fl_Native_File_Chooser_FLTK.cxx". This because Microwindows does provide a GTK file chooser.<br>
+"src/Fl_Native_File_Chooser_GTK.cxx". This because Microwindows does provide a GTK file chooser.<br>
 <br>
 In this source file add the following two lines right at the beginning of the "Fl_GTK_File_Chooser::probe_for_GTK_libs()" function:<br>
 <pre>
     did_find_GTK_libs = 0;
     return;
 </pre>
-<br>
+Here is a snippet of the resulting code:<br>
+<pre>
+[...]
+void Fl_GTK_File_Chooser::probe_for_GTK_libs(void) {
+    did_find_GTK_libs = 0;
+    return;
+
+#if HAVE_DLSYM && HAVE_DLFCN_H
+[...]
+</pre>
 If you are using <b>FLTK 1.3.4</b> you have to put "#undef USE_XRANDR" into the "screen_xywh.cxx" file too. Add this<br> 
 line right after the line "#define USE_XRANDR (HAVE_DLSYM && HAVE_DLFCN_H)". Here you you have to put it right after<br> 
 line 159 where USE_XRANDR is defined. For this version you also have to add the following lines to the configure command:<br>
@@ -242,7 +250,6 @@ line 159 where USE_XRANDR is defined. For this version you also have to add the 
   --disable-xcursor \
   --disable-xrender \
 </pre>
-<br>
 For <b>FLTK 1.4.x</b> follow the instructions for FLTK 1.3.4 above with the following modifications:<br>
 Don't put "#undef USE_XRANDR" into the file "screen_xywh.cxx" but into "Fl_X11_Screen_Driver.cxx". In there currently<BR>
 at line 272 where USE_XRANDR is defined. For this version you also have to change the following lines at the very end<BR>
@@ -440,8 +447,9 @@ Greg Haerr got <a href="http://www.kaffe.org/">Kaffe</a> to work with Microwindo
 <h3>How to use Microwindows with ELKS?</h3>
 <p>
 ELKS is 16bit version of Linux. The website is: http://elks.sourceforge.net/<br>
-Due to memory constraints ELKS does support version 0.86 of Microwindows only. This has been reenabled in the year 2017 and added <br>
-to the ELKS package. Details about this port are availabe at: https://github.com/jbruchon/elks/blob/master/nano-X/Readme-ELKS <br>
+Due to memory constraints ELKS does support version 0.86 of Microwindows only. This has been <br>
+reenabled in the year 2017 and added to the ELKS package. Details about this port are availabe at:<br>
+<a href="https://github.com/jbruchon/elks/blob/master/nano-X/Readme-ELKS">https://github.com/jbruchon/elks/blob/master/nano-X/Readme-ELKS</a> <br>
 <br>
 </p>
 

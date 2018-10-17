@@ -149,3 +149,17 @@ XFreeColormap(Display * display, Colormap colormap)
 #endif
 	return 1;
 }
+
+#include "X11/Xutil.h"
+// required for Qt
+Status XGetRGBColormaps(Display *display, Window w, XStandardColormap **std_colormap, int *count, Atom property)
+{
+	DPRINTF("XGetRGBColormaps called...\n");
+//	*std_colormap = _nxDefaultColormap(display);
+	return 0;
+}
+
+XStandardColormap *XAllocStandardColormap()
+{
+	return calloc(1, sizeof(XStandardColormap));
+}

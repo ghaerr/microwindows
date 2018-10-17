@@ -6,14 +6,29 @@ XChangeWindowAttributes(Display * display, Window w, unsigned long valuemask,
 {
 DPRINTF("XChangeWindowAttributes: valuemask 0x%X\n", (int)valuemask);
 
-	if (valuemask & CWBackPixel)
+	if (valuemask & CWBackPixmap)	// 1
+		XSetWindowBackgroundPixmap(display, w, attributes->background_pixmap);
+	if (valuemask & CWBackPixel)	// 2
 		XSetWindowBackground(display, w, attributes->background_pixel);
 
-	if (valuemask & CWBorderPixel)
+	if (valuemask & CWBorderPixmap)	// 4
+		XSetWindowBorderPixmap(display, w, attributes->border_pixmap);
+	if (valuemask & CWBorderPixel)	// 8
 		XSetWindowBorder(display, w, attributes->border_pixel);
 
+//http://karel.tsuda.ac.jp/lec/x/c1/
+//	if (valuemask & CWBitGravity)	// 0x10
+//		XSetWindowBorder(display, w, attributes->border_pixel);
+
+	//CWSaveUnder
 	if (valuemask & CWEventMask)
 		XSelectInput(display, w, attributes->event_mask);
+	//CWDontPropagate
+
+	if (valuemask & CWColormap)
+		XSetWindowColormap(display, w, attributes->colormap);
+	if (valuemask & CWCursor)
+		XDefineCursor(display, w, attributes->cursor);
 
 	if (valuemask & CWOverrideRedirect) {
 		GR_WM_PROPERTIES props;

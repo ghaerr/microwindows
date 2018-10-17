@@ -426,6 +426,17 @@ XStringToKeysym(_Xconst char *string)
 	return NoSymbol;
 }
 
+char *XKeysymToString(KeySym ks)
+{
+	int i;
+
+	DPRINTF("XKeysymToString called [%x]\n", (int)ks);
+	for (i=0; i < NX_KEYSYMSTR_COUNT; i++)
+		if (nxKeyStrings[i].keysym == ks) return nxKeyStrings[i].str;
+
+	return NULL;
+}
+
 /* translate KeySym to KeyCode*/
 KeyCode
 XKeysymToKeycode(Display *dpy, KeySym ks)

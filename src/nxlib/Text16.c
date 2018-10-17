@@ -24,3 +24,11 @@ XDrawImageString16(Display *dpy, Drawable d, GC gc, int x, int y,
 	return 0;
 }
 
+//http://xjman.dsl.gr.jp/X11R6/X11/CH08.html
+int XDrawText16(Display *dpy, Drawable d, GC gc, int x, int y, XTextItem16 *items, int nitems)
+{
+	DPRINTF("XDrawText16 called..\n");
+//	item = items;
+//	for (i=0; i < nitems; i++) {
+	return XDrawString16(dpy, d, gc, x, y, items->chars, items->nchars);
+}

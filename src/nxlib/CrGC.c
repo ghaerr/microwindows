@@ -100,10 +100,10 @@ setupGC(Display * dpy, GC gc, unsigned long valuemask, XGCValues * values)
 		XSetSubwindowMode(dpy, gc, values->subwindow_mode);
 
 	if (valuemask & GCPlaneMask)
-		DPRINTF("XCreatGC: GCPlaneMask not implemented\n");
+		DPRINTF("XCreateGC: GCPlaneMask not implemented\n");
 
 	if (valuemask & GCArcMode)
-		DPRINTF("XCreatGC: GCArcMode not implemented\n");
+		DPRINTF("XCreateGC: GCArcMode not implemented\n");
 }
 
 /* note: unused Drawable d */

@@ -146,7 +146,10 @@ OBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
 	ListPix.o GetGeom.o SetIFocus.o Shape.o\
 	ClassHint.o Text16.o TextExt.o\
 	AllocColor.o ParseColor.o QueryColor.o Colormap.o Colorname.o\
-	Selection.o XMisc.o Free.o stub.o
+	Selection.o XMisc.o Free.o stub.o \
+	Request.o Context.o Grab.o Screen.o Extension.o XKB.o Locale.o \
+	Resource.o GetGCVals.o Threads.o IM.o SetWMProto.o FontInfo.o \
+	GetPntMap.o GetWMProps.o ChSaveSet.o TextToStr.o QueryBest.o
 
 ifeq ($(INCLUDE_XRM), Y)
 OBJS += Quarks.o Xrm.o ParseCmd.o
@@ -330,4 +333,5 @@ tt: tt.o $(LIBS)
 .SUFFIXES: .c .o
 
 .c.o:
+	@echo "Compiling nxlib/$(patsubst $(OBJS)/%,%,$<) ..."
 	$(CC) $(CFLAGS) -o $@ -c $<

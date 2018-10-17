@@ -31,13 +31,17 @@ XChangeProperty(Display * display, Window w, Atom property,
 	int hash = w % SZHASHTABLE;
 	GR_WM_PROPERTIES props;
 	
-	if(!nelements || data == NULL)
+	if (!nelements || data == NULL) {
+		DPRINTF("XChangeProperty called with NULL data [Atom:%x,m:%x,d:%x]\n", type, mode, data);
 		return 1;
+	}
 
+	DPRINTF("XChangeProperty called [Atom:%x, mode:%x, data:%x]\n", type, mode, data);
 	win = window_list[hash];
 	if (!win) {
 		win = window_list[hash] =
-			(struct windows *) Xcalloc(sizeof(struct windows), 1);
+//			(struct windows *) Xcalloc(sizeof(struct windows), 1);
+			(struct windows *) Xcalloc(1, sizeof(struct windows));
 	} else {
 		struct windows *t;
 
@@ -52,14 +56,16 @@ XChangeProperty(Display * display, Window w, Atom property,
 
 		if (!win) {
 			win = t->next =
-				(struct windows *) Xcalloc(sizeof(struct windows), 1);
+				//(struct windows *) Xcalloc(sizeof(struct windows), 1);
+				(struct windows *) Xcalloc(1, sizeof(struct windows));
 		}
 	}
 	win->w = w;
 
 	if (!win->properties) {
 		prop = win->properties =
-			(struct window_props *) Xcalloc(sizeof(struct window_props), 1);
+			//(struct window_props *) Xcalloc(sizeof(struct window_props), 1);
+			(struct window_props *) Xcalloc(1, sizeof(struct window_props));
 	} else {
 		struct window_props *t;
 
@@ -74,18 +80,21 @@ XChangeProperty(Display * display, Window w, Atom property,
 
 		if (!prop) {
 			prop = t->next =
-				(struct window_props *) Xcalloc(sizeof(struct window_props), 1);
+				//(struct window_props *) Xcalloc(sizeof(struct window_props), 1);
+				(struct window_props *) Xcalloc(1, sizeof(struct window_props));
 		}
 	}
+	DPRINTF("XChangeProperty: win:%x prop:%x\n", (int)w, prop);
 
 	switch (mode) {
-	case PropModeAppend:
-	case PropModePrepend:
+	case PropModeAppend:	// 2
+	case PropModePrepend:	// 1
 		if (prop->data) {
 			int f8 = prop->format / 8;
 			char *p;
 			int bytes;
 
+			//DPRINTF("XChangeProperty: %d,%d\n", format, bytes);
 			if (type != prop->type || format != prop->format)
 				return 0;
 
@@ -111,13 +120,17 @@ XChangeProperty(Display * display, Window w, Atom property,
 		}
 		/* Fall through */
 
-	case PropModeReplace:
-		if (prop->data)
-			Xfree(prop->data);
+	case PropModeReplace:	// 0
+		if (prop->data) Xfree(prop->data);
+		if (format<0 || format/8 > 4) {
+			DPRINTF("XChangeProperty: format[%d]\n", format);
+			format = 8;
+		}
 		prop->bytes = nelements * (format / 8);
 		prop->data = (unsigned char *) Xmalloc(prop->bytes+1); /* +1 for string '\0'*/
 		prop->data[prop->bytes] = '\0';
 
+		//DPRINTF("XChangeProperty: [%x,%d,%x]\n", prop,nelements,prop->bytes);
 		memcpy(prop->data, data, prop->bytes);
 
 		prop->property = property;

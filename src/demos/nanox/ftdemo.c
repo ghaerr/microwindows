@@ -7,7 +7,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#define ANTIALIAS	0		/* set =1 to enable anti aliasing*/
+#define ANTIALIAS	1		/* set =1 to enable anti aliasing*/
 
 #if defined(__ANDROID__)
 //#define FONTNAME "Times"

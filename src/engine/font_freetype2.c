@@ -59,12 +59,24 @@ void winfillrect(PSD psd, int x, int y, int w, int h);
 #include FT_FREETYPE_H
 #include FT_TRIGONOMETRY_H
 #include FT_GLYPH_H
+#include FT_OUTLINE_H
+
+#if HAVE_HARFBUZZ_SUPPORT
+/* HarfBuzz 0.9.x */
+#include <harfbuzz/hb.h>
+#include <harfbuzz/hb-ft.h>
+#endif
 
 /* configurable defaults*/
 #define FILL_BACKGROUND_ON_USEBG	1	/* fill background when usebg TRUE*/
-#define FACE_CACHE_MAX		3			/* Faces*/
 #define SIZES_CACHE_MAX		5			/* Sizes*/
+#if HAVE_HARFBUZZ_SUPPORT
+#define FACE_CACHE_MAX		16			/* Faces*/
+#define CACHE_SIZE		(2*1024*1024)	/* Bytes - 2Mb*/
+#else
+#define FACE_CACHE_MAX		3			/* Faces*/
 #define CACHE_SIZE			(512*1024)	/* Bytes - 512K*/
+#endif
 #ifndef FREETYPE_FONT_DIR
 #define FREETYPE_FONT_DIR "fonts/truetype"		/* default truetype font directory*/
 #endif
@@ -197,6 +209,11 @@ typedef struct {
 	FT_CharMapRec cmapdesc;
 #endif
 #endif
+#if HAVE_HARFBUZZ_SUPPORT
+	hb_font_t *hb_font;
+	hb_script_t hb_script;
+	int use_harfbuzz;
+#endif	
 #else
 	FT_Face face;
 #endif
@@ -358,6 +375,31 @@ freetype2_face_requester(FTC_FaceID face_id, FT_Library library,
 #define LOOKUP_CHAR(pf_,face_,ch_) (FT_Get_Char_Index((face_), (ch_)))
 #endif
 
+#if HAVE_HARFBUZZ_SUPPORT
+static hb_buffer_t *HB_buff = NULL;
+static struct {
+    const char *name;
+    hb_script_t script;
+} fontname_to_hb_script[] = { // to do: update this table!
+    { "Amiri", HB_SCRIPT_ARABIC },
+    { "Traditional Arabic", HB_SCRIPT_ARABIC },
+    { "AR PL New Sung", HB_SCRIPT_HAN },
+    { "Tunga", HB_SCRIPT_KANNADA },
+    { 0, HB_SCRIPT_UNKNOWN },
+};
+
+static hb_script_t get_hb_script(FT_Face ftf) {
+    int i;
+    if(!ftf) return HB_SCRIPT_INVALID;
+    DPRINTF("font family name = %s\n", ftf->family_name);
+    for(i=0; fontname_to_hb_script[i].name!=0; i++){
+        if( strncmp(ftf->family_name, fontname_to_hb_script[i].name, sizeof(fontname_to_hb_script[i].name)) == 0 )
+            return fontname_to_hb_script[i].script;
+    }
+    return HB_SCRIPT_UNKNOWN;
+}
+#endif // HAVE_HARFBUZZ_SUPPORT
+
 /**
  * Initialize the FreeType 2 driver.  If successful, this is a one-time
  * operation. Subsequent calls will do nothing, successfully.
@@ -423,6 +465,9 @@ freetype2_init(PSD psd)
 		return 0;
 	}
 #endif
+#if HAVE_HARFBUZZ_SUPPORT
+	HB_buff = hb_buffer_create();
+#endif // HAVE_HARFBUZZ_SUPPORT
 #endif
 
 	return 1;
@@ -466,9 +511,9 @@ freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	else
 		sprintf(fontname, "%s/%s", freetype2_font_dir, name);
 
-	/* check .ttf or .pfr, add .ttf if no extension*/
+	/* check .ttf or .pfr or otf, add .ttf if no extension, freetype supports otf as well now*/
 	if ((p = strrchr(fontname, '.')) != NULL) {
-		if ((strcasecmp(p, ".ttf") != 0) && (strcasecmp(p, ".pfr") != 0))
+		if ((strcasecmp(p, ".ttf") != 0) && (strcasecmp(p, ".pfr") != 0) && (strcasecmp(p, ".otf") != 0))
 			return NULL;
 	} else
 		strcat(fontname, ".ttf");
@@ -695,6 +740,12 @@ freetype2_createfont_internal(freetype2_fontdata * faceid, char *filename, MWCOO
 		free(pf);
 		return NULL;
 	}
+#if HAVE_HARFBUZZ_SUPPORT
+	pf->hb_font = hb_ft_font_create(size->face, NULL);
+	pf->hb_script = get_hb_script(size->face);
+	pf->use_harfbuzz = (HB_buff && HB_buff!=hb_buffer_get_empty() \
+		&& pf->hb_script!=HB_SCRIPT_INVALID && pf->hb_script!=HB_SCRIPT_UNKNOWN)? 1:0;
+#endif
 #endif
 
 	return pf;
@@ -1175,7 +1226,10 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	int last_glyph_code = 0;	/* Used for kerning */
 	int drawantialias;
 	MWBLITPARMS parms;
-
+#if HAVE_HARFBUZZ_SUPPORT
+	hb_glyph_info_t *glyph_info = NULL;
+#endif // HAVE_HARFBUZZ_SUPPORT
+	
 	assert(pf);
 	assert(text);
 	assert(psd); // note in STANDALONE case, 'app_t' is passed as psd, must not inspect pointer!
@@ -1253,6 +1307,28 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	else
 		pos.y = 0;
 
+#if HAVE_HARFBUZZ_SUPPORT
+	if(pf->use_harfbuzz) {
+		/* clean up the buffer */
+		hb_buffer_clear_contents(HB_buff);
+		/* layout the text */
+		hb_buffer_add_utf16(HB_buff, str, -1, 0, cc);
+
+	#if 1
+		hb_buffer_guess_segment_properties (HB_buff);
+	#else
+		hb_buffer_set_script(HB_buff, pf->hb_script);
+		hb_buffer_set_direction(HB_buff, HB_DIRECTION_LTR);
+		if(pf->hb_script==HB_SCRIPT_ARABIC)
+			hb_buffer_set_direction(HB_buff, HB_DIRECTION_RTL);
+	#endif
+		hb_shape(pf->hb_font, HB_buff, NULL, 0);
+
+		glyph_info = hb_buffer_get_glyph_infos(HB_buff, NULL);
+		cc = hb_buffer_get_length(HB_buff);
+	}
+#endif // HAVE_HARFBUZZ_SUPPORT
+
 	/* Use slow routine for rotated text or cache not supported*/
 	if ((pf->fontrotation != 0)
 #if !HAVE_FREETYPE_2_CACHE
@@ -1300,6 +1376,11 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 		pos.x = 0;
 		for (i = 0; i < cc; i++) {
+#if HAVE_HARFBUZZ_SUPPORT
+			if(pf->use_harfbuzz)
+				curchar = glyph_info[i].codepoint;
+			else
+#endif // HAVE_HARFBUZZ_SUPPORT		  
 			curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 			if (use_kerning && last_glyph_code && curchar) {
@@ -1397,6 +1478,11 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 #endif /* FILL_BACKGROUND_ON_USEBG*/
 
 		for (i = 0; i < cc; i++) {
+#if HAVE_HARFBUZZ_SUPPORT
+			if(pf->use_harfbuzz)
+				curchar = glyph_info[i].codepoint;
+			else
+#endif // HAVE_HARFBUZZ_SUPPORT		  
 			curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 			if (use_kerning && last_glyph_code && curchar) {
@@ -1523,7 +1609,10 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf, const void *text, int cc,
 
 	FT_BBox bbox;
 	FT_BBox glyph_bbox;
-
+#if HAVE_HARFBUZZ_SUPPORT
+	hb_glyph_info_t *glyph_info = NULL;
+#endif
+	
 #if HAVE_FREETYPE_2_CACHE
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
@@ -1563,8 +1652,26 @@ freetype2_gettextsize_rotated(PMWFREETYPE2FONT pf, const void *text, int cc,
 	bbox.yMax = 0;
 	pos.x = 0;
 	pos.y = 0;
+#if HAVE_HARFBUZZ_SUPPORT
+	if(pf->use_harfbuzz) {
+		/* clean up the buffer */
+		hb_buffer_clear_contents(HB_buff);
+		/* layout the text */
+		hb_buffer_add_utf16(HB_buff, str, -1, 0, cc);
 
+		hb_buffer_guess_segment_properties (HB_buff);
+		hb_shape(pf->hb_font, HB_buff, NULL, 0);
+
+		glyph_info = hb_buffer_get_glyph_infos(HB_buff, NULL);
+		cc = hb_buffer_get_length(HB_buff);
+	}
+#endif
 	for (i = 0; i < cc; i++) {
+#if HAVE_HARFBUZZ_SUPPORT
+		if(pf->use_harfbuzz)
+			curchar = glyph_info[i].codepoint;
+		else
+#endif 
 		curchar = LOOKUP_CHAR(pf, face, str[i]);
 
 		if (use_kerning && last_glyph_code && curchar) {
@@ -1664,7 +1771,10 @@ freetype2_gettextsize_fast(PMWFREETYPE2FONT pf, const void *text, int char_count
 	int use_kerning;
 	int cur_glyph_code;
 	int last_glyph_code = 0;	/* Used for kerning */
-
+#if HAVE_HARFBUZZ_SUPPORT
+	hb_glyph_info_t *glyph_info = NULL;
+#endif
+	
 #if HAVE_FREETYPE_2_CACHE
 #if HAVE_FREETYPE_VERSION_AFTER_OR_EQUAL(2,3,9)
 	pf->scaler.face_id = pf->imagedesc.face_id;
@@ -1702,7 +1812,27 @@ freetype2_gettextsize_fast(PMWFREETYPE2FONT pf, const void *text, int char_count
 	max_ascent  = 0;
 	max_descent = 0;
 
+#if HAVE_HARFBUZZ_SUPPORT
+	if(pf->use_harfbuzz) {
+		/* clean up the buffer */
+		hb_buffer_clear_contents(HB_buff);
+		/* layout the text */
+		hb_buffer_add_utf16(HB_buff, str, -1, 0, char_count);
+
+		hb_buffer_guess_segment_properties (HB_buff);
+		hb_shape(pf->hb_font, HB_buff, NULL, 0);
+
+		glyph_info = hb_buffer_get_glyph_infos(HB_buff, NULL);
+		char_count = hb_buffer_get_length(HB_buff);
+	}
+#endif
+
 	for (char_index = 0; char_index < char_count; char_index++) {
+#if HAVE_HARFBUZZ_SUPPORT
+		if(pf->use_harfbuzz)
+			cur_glyph_code = glyph_info[char_index].codepoint;
+		else
+#endif	  
 		cur_glyph_code = LOOKUP_CHAR(pf, face, str[char_index]);
 
 		if (use_kerning && last_glyph_code && cur_glyph_code) {

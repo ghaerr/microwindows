@@ -173,7 +173,7 @@ HAVE_PCFGZ_SUPPORT       = N
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
-# Truetype fonts - .ttf loadable fonts thru Freetype 2.x
+# Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 INCFT2LIB                = /usr/include
@@ -184,6 +184,14 @@ else
 LIBFT2LIB                = -lfreetype-android
 FREETYPE_FONT_DIR        = "/system/fonts"
 endif
+
+# Add Harfbuzz support to freetype
+HAVE_HARFBUZZ_SUPPORT=N
+ifeq ($(HAVE_HARFBUZZ_SUPPORT),Y)
+LIBFT2LIB                += -lharfbuzz
+endif
+#print value of LIBFT2LIB to the command line
+#$(info $$LIBFT2LIB is [${LIBFT2LIB}])
 
 ####################################################################
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib

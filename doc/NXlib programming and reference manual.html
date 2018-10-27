@@ -5,7 +5,7 @@
 	<title>NXlib programming manual</title>
 	<meta name="generator" content="LibreOffice 4.3.2.2.0 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2018-10-14T21:48:26.735521260"/>
+	<meta name="changed" content="2018-10-27T09:08:30.542758793"/>
 	<style type="text/css">
 		@page { size: landscape }
 		p { color: #000000 }
@@ -74,15 +74,18 @@
 			with „make“, the libraries in the „src/lib“ directory will
 			be copied to the directories in the default search path of the
 			program loader. Then the loader will find these even if they are
-			not in the „src/lib“ directory.<br><br>A larger package using
-			X11 will usually have a configure script to generate a makefile.
-			If this script has command line options, you should at first turn
-			off those you do not really need, since NX11 just provides a
-			subset of the X11 functions. After running configure, a makefile
-			will be generated which expects the standard X11 libraries. You
-			have to replace these references in this Makefile. So replace the
-			&quot;-lX11“ entries with &quot;-lNX11 -lnano-X&quot; or
-			&quot;-lPX11&quot; in the Makefile and -lXext with -lNXext&quot;.
+			not in the „src/lib“ directory.</p>
+			<p style="margin-bottom: 0cm; font-weight: normal">You can check
+			the libraries the application program is linked with using the
+			„ldd“ command. E.g. „ldd test/testarc“<br><br>A larger
+			package using X11 will usually have a configure script to generate
+			a makefile. If this script has command line options, you should at
+			first turn off those you do not really need, since NX11 just
+			provides a subset of the X11 functions. After running configure, a
+			makefile will be generated which expects the standard X11
+			libraries. You have to replace these references in this Makefile.
+			So replace the &quot;-lX11“ entries with &quot;-lNX11 -lnano-X&quot;
+			or &quot;-lPX11&quot; in the Makefile and -lXext with -lNXext&quot;.
 			You can use the replace-lX11.sh script in the microwindows/src
 			directory for that. After that use e.g. the MELD program to
 			compare the original Makefile with the modified one to see if that
@@ -1800,7 +1803,7 @@ information.</p>
 			<p>GetWMProps.c</p>
 		</td>
 		<td width="268" valign="top" style="border-top: none; border-bottom: 1px solid #000000; border-left: none; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.05cm; padding-left: 0cm; padding-right: 0.05cm">
-			<p>Reads the window manager hints and  returns a pointer to a
+			<p>Reads the window manager hints and returns a pointer to a
 			XWMHints structure.</p>
 		</td>
 	</tr>

@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 4.3.2.2.0 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="2018-10-27T10:44:17.296158320"/>
+	<style type="text/css">
+		@page { size: landscape; margin: 2cm }
+		p { margin-bottom: 0.21cm }
+		td p { margin-bottom: 0.21cm }
+		pre.cjk { font-family: "Nimbus Mono L", monospace }
+		a:link { so-language: en-US }
+	</style>
+</head>
+<body lang="de-DE" dir="ltr" style="background: transparent">
+<table width="735" cellpadding="4" cellspacing="0" style="page-break-before: always">
+	<col width="727">
+	<tr>
+		<td width="727" valign="top" style="border: none; padding: 0cm">
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt"><b>Debugging
+			Microwindows code with GDB</b></font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm; font-weight: normal"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">This
+			is a short walk-through of a GDB session with an Xlib program
+			using the libNX11 and libnano-X libraries. It explains the most
+			often used GDB commands.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">This
+			GDB session uses our xhello.c example in the nxlib/test directory.
+			To add debugging information for GDB we have to compile the
+			example with the -g flag and without the -s flag. If we set the
+			DEBUG macro to &quot;Y&quot; in the config file, Microwindows will
+			compile with these switches.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font face="Cantarell"><font color="#000000"><font size="3" style="font-size: 12pt">If
+			you compiled</font></font> shared libraries, which is the default
+			setting in the config file, you have to execute the<br>command
+			&quot;sudo make install&quot; so the xhello application will find
+			the required libraries. Then load nano-X and nanowm as background
+			programs before running gdb:</font></p>
+			<pre class="western" style="text-align: left"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">nano-X&amp;</font></font></font>
+<font face="Cantarell"><font size="3" style="font-size: 12pt">nanowm&amp;</font></font>
+<font face="Cantarell"><font size="3" style="font-size: 12pt">This is not required if you selected „LINK_APP_INTO_SERVER“ in the config file</font></font>
+
+<font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Then w</font></font></font><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">e get into the nxlib/test directory and load xhello into GDB by entering: &quot;gdb xhello&quot;. Then the (gdb) prompt will appear.</font></font></font></pre><p align="left" style="margin-bottom: 0cm">
+			<font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">If
+			we would enter &quot;q&quot; now, we would exit GDB again.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Entering
+			&quot;l 1&quot; (list from line 1) will display the first 10 lines
+			of our xhello example. Pressing enter will display the next lines.
+			Entering &quot;l 50&quot; will display ten lines with line 50 in
+			the middle. The command <br>&quot;l 5,25&quot; will list the lines
+			5 to 25. We can also specify a function name here: &quot;l
+			terminate&quot; will display our &quot;terminate&quot; function.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">If
+			there are several source files linked together, you have to
+			preceed the line number with the name of that file and a colon. So
+			you can e.g. enter &quot;l foo.c:10&quot; to list line 10 and the
+			following ones in source file &quot;foo.c&quot;.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Before
+			you run the program, you usually set some breakpoints first. The
+			most common command now is &quot;break main&quot; which will stop
+			the program execution at the first command in the main function.
+			Then you can single step through the program from there. Here, we
+			will now set a breakpoint if one clicks into the window. This is
+			handled in &quot;case ButtonPress:&quot;. Since the code below
+			that is commented out, we set the breakpoint on the &quot;break&quot;
+			statement in line 109. Entering &quot;b 109&quot; sets a
+			breakpoint at statement 109. &quot;clear 109&quot; would remove
+			that breakpoint again. We can also enter a function name here, so
+			&quot;b terminate&quot; will break when this function is called.
+			An alternative is &quot;advance 109&quot;, this will continue
+			execution up to line number 109.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">You
+			can also add a condition to the breakpoint. If you enter &quot;b
+			109 blackColor = 0&quot; the breakpoint will only be triggered if
+			the variable blackColor has the value zero.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Now
+			we start our the program by entering &quot;r&quot; at the (gdb)
+			prompt. GDB will report that the breakpoint has been reached and
+			display its (gdb) prompt which allows you to enter further
+			commands.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">To
+			inspect the value of a variable you can use the &quot;p&quot;
+			command. So &quot;p text&quot; will display &quot;Hello world&quot;
+			while &quot;p whiteColor&quot; (capital C!) will display the
+			numeric value of that color. Local variables within functions can
+			only be displayed while you are within that function.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">To
+			see the color value in hex you can enter: &quot;p /x whiteColor&quot;.
+			These format specifiers are similiar to the ones used by the
+			printf statement in C. In fact you can also enter statements like
+			that: &quot;printf &quot;Colorvalue: %X&quot;,whiteColor&quot;. Do
+			not use parentheses here.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">If
+			you enter &quot;display whiteColor&quot; this variable will be
+			displayed automatically whenever the program is interrupted.
+			&quot;undisplay&quot; will terminate this display command again,
+			but you have to specify the number for this command. &quot;info
+			display&quot; will output the numbers for the display commands
+			specified so far.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">You
+			can also change variables with GDB. If you enter &quot;set
+			blackColor = 10000&quot; the updated part of the window background
+			will turn dark green.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">If
+			you enter &quot;c&quot; the program will continue. We can also
+			interrupt it entering CTRL-C and return to GDB. Sometimes you have
+			to enter CTRL-C several times till it is accepted. Then the (gdb)
+			prompt will appear and you can enter commands again.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">You
+			could now search for an expression: &quot;search dpy&quot; will
+			display the next line containing &quot;dpy&quot; while
+			&quot;reverse-search Hello&quot; will move up the code to &quot;Hello
+			World&quot;.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Here
+			you could enter &quot;s&quot; to single-step through the code. &quot;s
+			10&quot; will make ten steps. If you do not want to step into a
+			function, you can step over that by entering &quot;n&quot; for
+			&quot;next&quot; to step to the line following that function call.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Now
+			enter &quot;c&quot; to make the program continue again to trigger
+			our breakpoint.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Using
+			the &quot;call&quot; statement we can call functions from the
+			(gdb) prompt. If we enter &quot;call terminate(dpy)&quot; now, the
+			program will exit.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">However,
+			if we enter &quot;call terminate(1)&quot; instead we will get an
+			error. Now we can use the &quot;bt&quot; or backtrace command will
+			allow to display the lines of code executed before the error
+			occured. If you want to determine the reason for a program crash,
+			you can just enter &quot;r&quot; after loading the program and
+			enter &quot;bt&quot; after the program crash occured.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">If
+			you want to trace into the Nano-X or NX11 libraries, you have to
+			compile these with the -g switch too. If you set &quot;DEBUG=Y&quot;
+			in the &quot;config&quot; file, the &quot;Makefile.rules&quot;
+			file will add the &quot;-g&quot; switch when compiling the
+			libraries.</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">Commands
+			covered in this walk-through:</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">q
+			- quit</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">r
+			- run program</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">c
+			- continue program</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">advance
+			- continue program execution up to the line number specified</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">s
+			- single step through program code</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">n
+			- step through program code, skipping current function</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">CTRL-C
+			- interrupt program and return to GDB</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">b
+			- set breakpoint</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">call
+			- call function</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">bt
+			- backtrace</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">p
+			- display value of variable</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">display
+			- set variable to display on each breakpoint</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">set
+			- change value of variable</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">l
+			- list lines of code</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">search
+			- search expression in code</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">A
+			manual for GDB can be found here:</font></font></font></p>
+			<p align="left" style="margin-bottom: 0cm"><font color="#000081"><font face="Cantarell"><font size="3" style="font-size: 12pt">http://sourceware.org/gdb/onlinedocs/gdb/index.html#Top</font></font></font></p>
+			<p style="margin-bottom: 0cm"><font color="#000000"><font face="Cantarell"><font size="3" style="font-size: 12pt">October
+			2018 Georg Potthast</font></font></font></p>
+			<p><br/>
+
+			</p>
+		</td>
+	</tr>
+</table>
+<p align="left" style="margin-bottom: 0cm"><br/>
+
+</p>
+<p align="left" style="margin-bottom: 0cm"><br/>
+
+</p>
+</body>
+</html>

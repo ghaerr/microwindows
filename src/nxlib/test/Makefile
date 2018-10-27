@@ -16,8 +16,19 @@ DOSEXT :=
 CC=$(TOOLSPREFIX)gcc 
 
 ifeq ($(X11), Y)
-#-lX11 needs to be first in command line nano-X depends on that
-LDFLAGS=-L$(MW_DIR_LIB) -lX11
+#LDFLAGS contains -lX11 which we don't want here
+LDFLAGS=-L$(MW_DIR_LIB) 
+endif
+
+# should be e.g. -L/home/georg/microwindows/src/lib
+#$(info    LDFLAGS is $(LDFLAGS))
+#should be -lnano-X
+#$(info    CCNANOXCLIENTLIBS is $(CCNANOXCLIENTLIBS))
+
+ifeq ($(DEBUG), Y)
+GDBFLAG = -g
+else
+GDBFLAG = -s
 endif
 
 ifeq ($(SHAREDLIBS), Y)
@@ -60,9 +71,9 @@ endif
 all: $(TARGETSX)
 
 $(TARGETSX): $(SOURCES)
-#	@echo "Compiling nxlib/test/$@ ..."
-#	echo "$(CC) $(CFLAGS) -o $@ $(INCLUDE) $(basename $@).c $(LIBS)"
-	$(CC) $(CFLAGS) -o $@ $(INCLUDE) $(basename $@).c $(LIBS)
+	@echo "Compiling nxlib/test/$@.c ..."
+	#echo "$(CC) $(GDBFLAG) $(CFLAGS) -o $@ $(INCLUDE) $(basename $@).c $(LIBS)"
+	$(CC) $(GDBFLAG) $(CFLAGS) -o $@ $(INCLUDE) $(basename $@).c $(LIBS)
 	
 clean:
 ifeq ($(DOS_DJGPP), Y)

@@ -10,6 +10,8 @@
 
 # Standard set of warnings for all platforms that use GCC
 ifneq ($(DEBUG), Y)
+#line below removes not required warnings
+#ifneq ($(DEBUG), not-Wall)
 GCC_WARNINGS := -Wno-deprecated-declarations
 else
 GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes # -Werror
@@ -28,9 +30,13 @@ CXX_COMPILER = g++
 TOOLSPREFIX = $(NATIVETOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
 CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
+ifneq ($(DEBUG), Y)
+CFLAGS += -s
+endif
 LDFLAGS +=
 # include the following line for static libraries
 #LDFLAGS += -static
+#CFLAGS += -DHAVE_FPRINTF=1
 endif
 
 ifeq ($(ARCH), LINUX-AVR32)

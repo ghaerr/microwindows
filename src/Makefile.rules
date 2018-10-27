@@ -221,6 +221,10 @@ endif
 ifneq ($(INCFT2LIB),)
 INCLUDEDIRS += -I$(INCFT2LIB)/freetype2
 endif
+#Harfbuzz together with Freetype only
+ifeq ($(HAVE_HARFBUZZ_SUPPORT),Y)
+DEFINES += -DHAVE_HARFBUZZ_SUPPORT=1
+endif
 endif
 
 ifeq ($(HAVE_FRIBIDI_SUPPORT), Y)
@@ -518,7 +522,9 @@ CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
 	-lpspuser -lpspkernel -lpsplibc
 endif
 
-#export for nxlib/test makefile
+#$(info    CFLAGS is $(CFLAGS))
+
+#export for nxlib/test makefile - CC and CFLAGS not passed
 export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS
 ##############################################################################
 # Build rules
@@ -826,6 +832,8 @@ cleanusr:
 	-rm -f /usr/lib64/libNXext.a
 	-rm -f /usr/lib64/libNXext.so
 	-rm -f /usr/lib64/libNXext.so.0	
+	#avoid "Cannot bind to named socket" error - see faq.html
+	-rm -f /tmp/.nano-X
 	
 install:
 	$(INSTALL_DIR) $(HDRINSTALLDIR)

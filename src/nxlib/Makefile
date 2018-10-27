@@ -13,7 +13,13 @@ include $(CONFIG)
 #
 #BIGENDIAN=N
 
-# comment out to stop debug printfs
+#OPTFLAGS may contain flags for gprof and gdb too - set in Makefile.rules
+ifndef OPTFLAGS
+CFLAGS += -O3
+else
+CFLAGS += $(OPTFLAGS)
+endif
+
 ifneq ($(DEBUG), Y)
 	CFLAGS += -DDEBUG=0
 else
@@ -118,13 +124,7 @@ CFLAGS += -DX11_FONT_DIR3=\"$(X11_FONT_DIR3)\"
 CFLAGS += -DX11_RGBTXT=\"$(X11_RGBTXT)\"
 xCFLAGS += -O2 -fno-strength-reduce
 
-#OPTFLAGS may contain flags for gprof and gdb too
-ifndef OPTFLAGS
-CFLAGS += -O3
-else
-CFLAGS += $(OPTFLAGS)
-endif
-
+#$(info    CFLAGS is $(CFLAGS))
 
 # If you dont want to see every executed command ...
 ifeq ($(VERBOSE), N)
@@ -334,4 +334,5 @@ tt: tt.o $(LIBS)
 
 .c.o:
 	@echo "Compiling nxlib/$(patsubst $(OBJS)/%,%,$<) ..."
+	#echo "$(CC) $(CFLAGS) -o $@ -c $<"
 	$(CC) $(CFLAGS) -o $@ -c $<

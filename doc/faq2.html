@@ -120,6 +120,9 @@ Calling "bin/nanwm" adds a Nano-X window manager background window. On some plat
 <br>
 NXlib:<br>
 <br>
+If you compiled shared libraries, which is the default setting in the config file, you have to execute the<br>
+command "sudo make install" so the applications using NXlib will find the required libraries they depend on.<br>
+<br>
 To use the NXlib library copy e.g. the "src/nxlib/test/xgreen.c" program into the "mytests" folder. <br>
 Then, while in the "src" folder, enter:<br>
 <br>
@@ -341,7 +344,7 @@ Microwindows system including the demos for emscripten.<br>
 You can then run the demos with a click on e.g. the "bin/arcdemo.html" file or the <br>
 "nxlib/test/xgreen.html" file using your file explorer. Your browser will load and run<br>
 the application then. If the program terminates, emscripten will raise an exception to<br>
-stop the Javascript code in the browser to contine. This causes an "Exception thrown" message<br>
+stop the Javascript code in the browser to continue. This causes an "Exception thrown" message<br>
 displayed in the browser.<br>
 <br>
 To execute "make clean" enter: "make -f Makefile_nr clean ARCH=EM"<br>

@@ -27,6 +27,8 @@
 //#define FONT "-*-lucidatypewriter-bold-r-normal-sans-*" 
 //#define FONT "-*-*zapf dingbats-*"
 //#define FONT "*helv*"
+//#define FONT "*Dejavu*"
+//#define FONT "-misc-cantarell-bold-r-normal--0-0-0-0-p-0-iso8859-1"
 
 int
 main(int ac, char **av)

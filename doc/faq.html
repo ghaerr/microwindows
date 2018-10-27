@@ -1,6 +1,4 @@
-<html>
-
-<head>
+<html><head>
 <meta http-equiv="Content-Language" content="en-us">
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <meta name="GENERATOR" content="Microsoft FrontPage 4.0">
@@ -10,81 +8,121 @@
 
 <body>
 
-<h1><img border="0" src="file:///C:/My%20Documents/My%20Webs/myweb2/images/evearth.gif" WIDTH="36" HEIGHT="36">&nbsp; Microwindows Frequently Asked
+<h1><img src="evearth.gif" border="0" width="36" height="36">&nbsp; Nano-X
+Frequently Asked
 Questions</h1>
 
-<p>1999/12/04 Microwindows FAQ - <a href="mailto:greg@censoft.com">greg@censoft.com</a></p>
+<p>2010/01/24 Nano-X FAQ - greg [at] censoft.com</p>
 
-<h3>What is Microwindows?</h3>
+<h3>What is the difference between Microwindows and the Nano-X Window System?</h3>
 
-<p>Microwindows is an Open Source project that brings some of the features of modern
+<p>There is no difference.&nbsp; In January 2005, the project changed its name
+from Microwindows to the Nano-X Window System.&nbsp; This is a result of
+conflicts with Microsoft's registered trademark, Windows.</p>
+
+<h3>What is The Nano-X Window System?</h3>
+
+<p>The Nano-X Window System is an Open Source project that brings some of the features of modern
 graphical windowing systems to the programming community not wanting or requiring the
 large disk and ram requirements of higher-end windowing systems like Microsoft Windows or
-the X Window System.&nbsp; Microwindows does not require any operating system or other
+the X Window System.&nbsp; Nano-X does not require any operating system or other
 graphics system support, as it writes directly to the display hardware, although it runs
-well on Linux framebuffer systems.&nbsp; Microwindows is designed to be portable, and can
+well on Linux framebuffer systems.&nbsp; Nano-X is designed to be portable, and can
 run in a wide variety of hardware and software environments.&nbsp; One the of more
 interesting targets is the emerging market of portable handheld and pocket PC's running
 Linux, also known as LinuxCE. </p>
 
-<h3>What does Microwindows run on?</h3>
+<h3>What does Nano-X run on?</h3>
 
-<p>Microwindows currently runs on 32-bit Linux systems with kernel framebuffer support, or
-through the popular SVGAlib library.&nbsp; In addition, it has been ported to 16-bit Linux
-ELKS, and real-mode MSDOS.&nbsp; Microwindows screen drivers for 1, 2, 4, 8, 16 and 32
-bits-per-pixel have been written, as well as a VGA 16 color 4 planes driver.&nbsp;
-Microwindows has been ported to a number of Handheld and Pocket PC's, as well.&nbsp; The
-Microwindows graphics engine is capable of running on any system that supports readpixel,
-writepixel, drawhorzline and drawvertline, and setpalette.&nbsp; Blitting support is
-optional, but if implemented allows enhanced functionality.&nbsp; All bitmap, font, cursor
-and color support is implemented on top of these routines.&nbsp; Support for 8, 15, 16 and
-32 bit truecolor systems as well as 1, 2, 4 and 8bpp palletized systems is implemented.<br>
+<p>Nano-X currently runs on 32-bit Linux systems with kernel framebuffer
+support, under the X Window system, or
+through the popular SVGAlib library.&nbsp; In addition, it has been 
+ported to 16-bit Linux
+ELKS, real-mode and protected mode MSDOS, and the RTEMS real time 
+operating
+system.&nbsp; Screen drivers for 1, 2, 4, 8, 16, 24 and 32
+bits-per-pixel have been written, as well as a VGA 16 color 4 planes 
+driver.&nbsp;
+The Nano-X system has been ported to a number of Handheld and Pocket 
+PC's, as well.&nbsp; The graphics engine is capable of running on any 
+system that supports readpixel,
+writepixel, drawhorzline and drawvertline, and setpalette.&nbsp; 
+Blitting support is
+optional, but if implemented allows enhanced functionality.&nbsp; All 
+bitmap, font, cursor
+and color support is implemented on top of these routines.&nbsp; Support
+ for 8, 15, 16,
+24 and
+32 bit truecolor systems as well as 1, 2, 4 and 8bpp palletized systems 
+is implemented.<br>
 <br>
-Recently, an X11 driver was completed that allows Microwindows applications to be run on
-top of the X Window desktop.&nbsp; This driver emulates all of Microwindows' truecolor and
+An X11 driver was completed that allows Nano-X applications to be run on
+top of the X Window desktop.&nbsp; This driver emulates all of Nano-X's truecolor and
 palette modes so that an application can be previewed using the target system's display
 characteristics directly on the desktop display, regardless of the desktop display
-characteristics.</p>
+characteristics.&nbsp; This allows Nano-X graphical applications to be
+built and tested on the desktop without having to cross-compile for the target,
+with complete emulation of the target's display.&nbsp; If the desktop is running
+Linux as well as the target, then the entire application can typically be
+tested, as the POSIX api is available on both systems.</p>
 
 <h3>What CPU's are supported?</h3>
 
-<p>Microwindows is extremely portable, and completely written in C, although some routines
+<p>The Nano-X Window System is extremely portable, and completely written in C, although some routines
 have been recoded in assembly for speed.&nbsp; It has been ported to the Intel 16 and 32
-bit cpu's, as well as MIPS R4000 (NEC Vr41xx) and ARM chips found on popular handheld and
-pocket PC's.</p>
+bit cpu's, as well as MIPS R4000 (NEC Vr41xx) StrongARM and PowerPC chips found on popular handheld and
+pocket PC's.&nbsp; There have been rumors of an SH3 port as well.</p>
 
-<h3>How big is Microwindows?</h3>
+<h3>How big is Nano-X?</h3>
 
 <p>On 16 bit systems, the entire system, including screen, mouse and keyboard drivers runs
 in less than 64k.&nbsp; On 32-bit systems, support includes proportional fonts and
 applications are typically less than 100k.</p>
 
-<h3>What is Microwindows' architecture and what API's are supported?</h3>
+<h3>What is Nano-X's architecture and what API's are supported?</h3>
 
-<p>Microwindows is essentially a layered design that allows different layers to be used or
-rewritten to suite the needs of the implementation.&nbsp; At the lowest level, screen,
+<p>The Nano-X Window System is essentially a layered design that allows different layers to be used or
+rewritten to suit the needs of the implementation.&nbsp; At the lowest level, screen,
 mouse/touchpad and keyboard drivers provide access to the actual display and other
 user-input hardware.&nbsp; At the mid level, a portable graphics engine is implemented,
 providing support for line draws, area fills, polygons, clipping and color models.&nbsp;
 At the upper level, various API's are implemented providing access to the graphics
 applications programmer.&nbsp; These APIs may or may not provide desktop and/or window
-look and feel.&nbsp; Currently, Microwindows supports the Win32 and Nano-X APIs.&nbsp;
+look and feel.&nbsp; Currently, Nano-X supports the Win32 and Nano-X APIs.&nbsp;
 These APIs provide close compatibility with the Win32 and X Window systems, allowing
 programs to be ported from other systems easily.</p>
 
-<h3>What's the difference between Microwindows and NanoGUI?</h3>
+<h3>What's the difference between Nano-X and NanoGUI?</h3>
 
-<p>Microwindows' origin is with NanoGUI.&nbsp; NanoGUI was created by Alex Holden by
-taking David Bell's mini-X server and Alan Cox's modifications and adding client/server
-networking.&nbsp; Greg Haerr then took interest in the NanoGUI project and began making
-extensive enhancements and modifications to NanoGUI.&nbsp; Around version 0.5, Greg Haerr
-added support for multiple API's, and began distributing Microwindows.&nbsp; In
-Microwindows 0.84, all previous NanoGUI changes were incorporated and since then
-Microwindows has been the combined NanoGUI/Microwindows distribution.</p>
+<p>Nano-X's origin is with NanoGUI.&nbsp; NanoGUI was created by Alex 
+Holden by
+taking David Bell's mini-X server and Alan Cox's modifications and 
+adding client/server
+networking.&nbsp; Greg Haerr then took interest in the NanoGUI project 
+and began making
+extensive enhancements and modifications to NanoGUI.&nbsp; Around 
+version 0.5, Greg Haerr
+added support for multiple API's, and began distributing 
+Microwindows.&nbsp; In
+Microwindows 0.84, all previous NanoGUI changes were incorporated and 
+since then has been the combined NanoGUI/Microwindows 
+distribution.&nbsp;
+In January 2005, the system changed its name to the Nano-X Window 
+System, with a
+planned first release as v0.91.</p>
 
-<h3>What is Nano-X?</h3>
+<h3> What's the difference between Win32 and Nano-X APIs?</h3>
 
-<p>Nano-X is the X-like API that Microwindows supports.&nbsp; It is based on David Bell's
+<p>Win32, Microwindows and Nano-X both refer to programs available 
+within the
+Nano-X Window System. The system supports two APIs, a Win32 compatible 
+API, and an Xlib-like API, known as Nano-X.  The Nano-X is used more 
+commonly than the Win32 API under Linux, since Nano-X supports multiple 
+"client" programs accessing a shared graphics server.</p>
+
+<h3>What is the Nano-X API?</h3>
+
+<p>Nano-X is the Xlib-like API that the Nano-X Window System supports.&nbsp; It is based on David Bell's
 mini-X server API, and includes X-like primitives for low-level window and graphics
 operations.&nbsp; Window management is not included, and the window look and feel must be
 created through a widget set or directly by the applications programmer.&nbsp; Currently,
@@ -93,23 +131,31 @@ discussion about converting the Nano-X API to be X Window System compatible.</p>
 
 <h3>What is the Microwindows API?</h3>
 
-<p>Microwindows supports an API based on the Win32 graphics device interface
-module, and implements a large portion of it. The function calls try to be 100%
-compatible, so that code compiled for other operating systems can usually be
-compiled with no source code changes.&nbsp; In addition, a portion of the Win32
-USER module is implemented, which contains routines for window dragging, title
-bars,&nbsp; message passing, and generating required window messages.&nbsp;
-Because of this, window manager support is built into the system, and a single
-API for applications programs can be used that doesn't change based on the
+<p>The Microwindows API is now known as the Win32 API.&nbsp; The system 
+supports an API based on the Win32 graphics device interface
+module, and implements a large portion of it. The function calls try to 
+be 100%
+compatible, so that code compiled for other operating systems can 
+usually be
+compiled with no source code changes.&nbsp; In addition, a portion of 
+the Win32
+USER module is implemented, which contains routines for window dragging,
+ title
+bars,&nbsp; message passing, and generating required window 
+messages.&nbsp;
+Because of this, window manager support is built into the system, and a 
+single
+API for applications programs can be used that doesn't change based on 
+the
 widget set being used.<br>
 <br>
 Since the WinCE API is mostly a subset of the Win32 API for graphics-related
-functions, the Microwindows API is also WinCE compatible, and can be used to
-implement WinCE graphics functions on platforms Microwindows is running on.</p>
+functions, the Win32 API is also WinCE compatible, and can be used to
+implement WinCE graphics functions on platforms Nano-X is running on.</p>
 
-<h3>What are Microwindows' graphics features?</h3>
+<h3>What are Nano-X's graphics features?</h3>
 
-<p>Microwindows features full RGB color support, color mapping, optimized palette bitmap
+<p>Nano-X features full RGB color support, color mapping, optimized palette bitmap
 drawing, truecolor and palletized displays, and a 3d look-and-feel. Overlapped and child
 windows are supported, with complete window and client area clipping. Proportional and
 fixed fonts are supported, along with utilities for converting fonts or bitmap files.
@@ -118,11 +164,11 @@ windows on the screen.&nbsp; Offscreen drawing and bit-blit routines are impleme
 flicker-free drawing and animation. Polygon draws, fills and arbitrary region clipping are
 also supported.</p>
 
-<h3>What license is Microwindows under?</h3>
+<h3>What license is the Nano-X Window System under?</h3>
 
-<p>The project is licensed under the MPL.&nbsp; Alternatively, the software can be
-licensed under the GPL, if desired.&nbsp; This means that the standard Microwindows
-distribution can be used for commercial purposes, and supports the needs of developers
+<p>The project is licensed under the <a href="http://www.mozilla.org/MPL/">MPL</a>.&nbsp; Alternatively, the software can be
+licensed under the <a href="http://www.gnu.org/copyleft/gpl.html">GPL</a>, if desired.&nbsp; This means that the standard
+Nano-X distribution can be used for commercial purposes, and supports the needs of developers
 working under non-disclosure or writing proprietary device drivers.&nbsp; Modifications to
 source code supplied in the standard distribution must stay open source.&nbsp; Or the
 entire project can be converted to GPL, with files added by a developer considered GPL
@@ -132,40 +178,91 @@ only.</p>
 
 <p>The latest version is available from the GitHub site: <a href="https://github.com/ghaerr/microwindows">https://github.com/ghaerr/microwindows</a>.<p>
 Previous, archived versions can be downloaded from the FTP site <a href="ftp://microwindows.censoft.com/pub/microwindows">ftp://microwindows.censoft.com/pub/microwindows</a>.
-&nbsp;The home web site is at <a href="http://microwindows.censoft.com">http://microwindows.censoft.com</a>.&nbsp; I can be
-reached at <a href="mailto:greg@censoft.com">greg@censoft.com</a>.&nbsp; </p>
+&nbsp;The home web site is at <a href="http://microwindows.org">http://microwindows.org</a>.  I can be reached at greg [at] censoft.com.&nbsp; </p>
 
 <h3>Are there screenshots and/or demos available?</h3>
 
 <p>There are demos for Linux, ELKS and MSDOS, as well as screenshots, available at:</p>
 
 <blockquote>
-  <p><a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/ScreenShots</a></p>
-  <p><a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/LinuxExamples</a>&nbsp;&nbsp;&nbsp;
-  <a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/ElksExamples</a>&nbsp;&nbsp;&nbsp;
-  <a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/DosExamples</a></p>
+  <p><a href="ftp://microwindows.censoft.com/pub/microwindows/ScreenShots">ftp://microwindows.censoft.com/pub/microwindows/ScreenShots<br>
+  </a><a href="ftp://microwindows.censoft.com/pub/microwindows/LinuxExamples">ftp://microwindows.censoft.com/pub/microwindows/Binaries</a>&nbsp;</p>
 </blockquote>
 
 <h3>Is there a mailing list?</h3>
 
-<p>The mailing list is <a href="mailto:nanogui@linuxhacker.org">nanogui@linuxhacker.org</a></p>
+<p>The mailing list is <a href="mailto:nanogui@linuxhacker.org">nanogui@linuxhacker.org</a>.&nbsp;
+A web-based signup is available at <a href="http://www.linuxhacker.org/nanogui/">http://www.linuxhacker.org/nanogui/</a>.</p>
 
-<p>To subscribe, send an empty email to:</p>
+<blockquote>
 
-<p>&nbsp;&nbsp;&nbsp; <a href="mailto:nanogui-subscribe@linuxhacker.org">nanogui-subscribe@linuxhacker.org</a></p>
+<p>To subscribe, send an empty email to:&nbsp; <a href="mailto:nanogui-subscribe@linuxhacker.org">nanogui-subscribe@linuxhacker.org<br>
+</a>To unsubscribe, send an empty email to:&nbsp;&nbsp; <a href="mailto:nanogui-unsubscribe@linuxhacker.org">nanogui-unsubscribe@linuxhacker.org</a></p>
 
-<p>To unsubscribe, send an empty email to:</p>
+</blockquote>
 
-<p>&nbsp;&nbsp;&nbsp; <a href="mailto:nanogui-unsubscribe@linuxhacker.org">nanogui-unsubscribe@linuxhacker.org</a></p>
+<h3>Can I search the mailing list archives?</h3>
+
+<p>Yes you can search through the Nano-X <a href="http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/0">mail list
+archives</a>. When you make a search add the text "NANOGUI" to filter out other projects hosted on the Linux Hacker server.&nbsp;</p>
+
+<h3>I can't setup my framebuffer.&nbsp; Where do I go for help?</h3>
+
+<p>There's a framebuffer HOWTO at <a href="http://www.tahallah.demon.co.uk/">http://www.tahallah.demon.co.uk/</a>
+which should help.&nbsp; In addition, a very useful framebuffer site for
+developers is <a href="http://www.linux-fbdev.org/">http://www.linux-fbdev.org/</a></p>
+
+<h3>The nano-X server gives me an error "Cannot bind to named socket". Why?</h3>
+
+<p>One thing that will cause this error error is the inability to create
+ (or delete) the named socket "/tmp/.nano-X". You may have problems with
+ this if one user creates the socket and then nano-X subsequently 
+crashes if you try to run nano-X from another userid you will get this 
+error.&nbsp;<br>
+Delete the named socket "/tmp/.nano-X" if it exists, otherwise verify 
+that the userid that is attempting to run nano-X has write permissions 
+to the /tmp directory.&nbsp;</p>
+
+<h3>What's the difference between SCANKBD and TTYKBD in the config file?</h3>
+
+<p>SCANKBD is used to link a keyboard driver that knows the difference 
+between keyup and  keydown events, as well as all function and other 
+keys, and reports them separately.  This allows  complete control of the
+ keyboard, for use in games, etc. TTYKBD uses a very simple ascii-only 
+return values, and won't return function key values correctly.</p>
+
+<h3>How do I setup the mouse or touch panel?</h3>
+
+<p>The mouse type is setup in the Nano-X configuration file, src/config.
+  The mouse type to be used with
+Nano-X is set in the config file and the specified mouse driver is then 
+compiled in.  Touch panel drivers use the mouse interface with a 
+specific driver. Following are the currently supported mouse types 
+settable in the config file:<br>
+<br>
+GPMMOUSE - use gpm to get mouse input (drivers/mou_gpm.c)<br>
+SERMOUSE - the the serial port for mouse input (drivers/mou_ser.c)<br>
+TPMOUSE - touch panel driver for Linux-VR compatible kernels and VTech Helio&nbsp;(/dev/tpanel,  char special 10,11)<br>
+ADSMOUSE - touch panel driver for ADS graphics client (/dev/ts, char special 190,34)<br>
+IPAQMOUSE - touch panel driver for iPAQ/Assabet (/dev/h3600_ts, char special 11,0)<br>
+NOMOUSE - no mouse/touch panel in system</p>
+
+<h3>What's the difference between GPMMOUSE and SERMOUSE in the config file?</h3>
+
+<p>GPMMOUSE uses the gpm program to get mouse events, SERMOUSE uses the 
+serial port or  ps/2 port to get events, and decodes them internal to 
+the mouse driver, drivers/mou_ser.c.  If you  run GPM, you must use the 
+-R parameter: 'gpm -R -t ps2'</p>
 
 <h3>What can I do to help?</h3>
 
 <p>We need help in all sorts of areas.&nbsp; There are currently projects to port base
-level widget sets and custom controls to Microwindows.&nbsp; Fast screen drivers and
+level widget sets and custom controls to Nano-X.&nbsp; Fast screen drivers and
 blitting routines are also on the list.&nbsp; There are lots of folks interested in
 getting the system to run on one of the many new Handheld or Pocket PC's.&nbsp; Please
 join the list and join the fun.</p>
 
 <p>&nbsp;</p>
-</body>
-</html>
+
+
+</body></html>

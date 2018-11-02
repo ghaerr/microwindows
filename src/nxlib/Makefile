@@ -188,7 +188,8 @@ $(info WITH_NX11 flag set to N - will not compile NX11!)
 $(info    )
 all:
 else
-all: $(LIBS) testprogs nxext
+all: $(LIBS) nxext 
+#testprogs 
 endif
 
 # static NXLIB library
@@ -249,6 +250,16 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	-ln -s lib$(PLIBNAME).so lib$(PLIBNAME).so.$(MAJVERSION)
 	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	-$(RM) lib$(PLIBNAME).so.$(MAJVERSION)
+ifneq ($(ARCH), RTEMS)
+ifneq ($(ARCH), ANDROID) 
+	echo "Compiling programs in test"
+	-$(MAKE) -C test
+	echo "Compiling programs in ptest"
+	-$(MAKE) -C ptest
+	-$(RM) lib$(LIBNAME).a
+	-$(RM) lib$(PLIBNAME).a
+endif
+endif
 
 ifeq ($(ARCH), RTEMS)
 testprogs:
@@ -258,12 +269,13 @@ testprogs:
 	echo "Test programs compile skipped for ANDROID"
 else
 testprogs:
-	echo "Compiling programs in test"
-	-$(MAKE) -C test
-	echo "Compiling programs in ptest"
-	-$(MAKE) -C ptest
-	-$(RM) lib$(LIBNAME).a
-	-$(RM) lib$(PLIBNAME).a
+#	moved to above to allow for parallel execution
+#	echo "Compiling programs in test"
+#	-$(MAKE) -C test
+#	echo "Compiling programs in ptest"
+#	-$(MAKE) -C ptest
+#	-$(RM) lib$(LIBNAME).a
+#	-$(RM) lib$(PLIBNAME).a
 endif
 
 #LIBS += lib$(ELIBNAME).a

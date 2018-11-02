@@ -525,7 +525,7 @@ endif
 #$(info    CFLAGS is $(CFLAGS))
 
 #export for nxlib/test makefile - CC and CFLAGS not passed
-export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS
+export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS PARALLEL
 ##############################################################################
 # Build rules
 ##############################################################################
@@ -591,7 +591,11 @@ subdirs: $(dirs:%=subdir-%)
 	@#
 
 $(dirs:%=subdir-%): makedestdirs
+ifeq ($(PARALLEL), Y)
+	$(MAKE) -j$(nproc) -C $(subst subdir-,,$@)
+else
 	$(MAKE) -C $(subst subdir-,,$@)
+endif
 
 makedestdirs:
 ifeq ($(ARCH), DJGPP)

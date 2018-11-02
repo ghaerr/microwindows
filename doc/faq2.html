@@ -10,7 +10,7 @@
 
 <h1>Microwindows Frequently Asked Questions - Part 2</h1>
 
-<p>2018/10/20 Microwindows FAQ2<br>
+<p>2018/11/2 Microwindows FAQ2<br>
 <br>
 </p>
 
@@ -506,10 +506,13 @@ In release mode the -Wall parameter is not set and Microwindows compiles with ju
 </p>
 
 <h3>Why does make fail if I use the '-j' or '--jobs' option?</h3>
-<p> The Microwindows makefile is written as a recursive makefile and therefore cannot be run with this option.<br>
+<p> The Microwindows makefile is written as a recursive makefile and the main target cannot be run with this option.<br>
+However, the subdirectories can be compiled with this option and this is done automatically using the number of<br>
+processors in Make's $(nproc) variable if you set the PARALLEL option in the config file to "Y". This is the default now.<br>
 <br>
 You can set MICROWIN = N and MICROWINDEMO = N in the config file to reduce compile time if you will <br>
-use the X11 compatible API only. If you do not need the demo applications you can set NANOXDEMO = N too.<br>
+not use the MWin API and just use the X11 compatible API only. If you do not need the demo applications<br>
+you can set NANOXDEMO = N too to avoid these demos to be compiled.<br>
 <br></p>
 
 
@@ -611,7 +614,7 @@ after compiling Microwindows, this command would be: "nano-X -N & nanowm & ./mup
 <br></p>
 
 <p>
-<br>20th of October 2018, Georg Potthast<br>
+<br>2nd of November 2018, Georg Potthast<br>
 </p>
 <p>.</p>
 </body>

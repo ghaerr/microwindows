@@ -12,11 +12,11 @@
 #define __WINDLG_H__
 
 /*
- * For GetWindowLong - SetWindowLong
+ * For GetWindowLong - SetWindowLong - extend to 8 for 64 bit
  */
 #define DWL_MSGRESULT   0
-#define DWL_DLGPROC     4
-#define DWL_USER        8
+#define DWL_DLGPROC     8  //4
+#define DWL_USER        16 //8
 
 
 /*
@@ -100,7 +100,7 @@ typedef struct tagMEASUREITEMSTRUCT
 	UINT itemID;
 	UINT itemWidth;
 	UINT itemHeight;
-	DWORD itemData;
+	UINT itemData;
 } MEASUREITEMSTRUCT, *LPMEASUREITEMSTRUCT;
 
 /*
@@ -109,8 +109,8 @@ typedef struct tagMEASUREITEMSTRUCT
  */
 #pragma pack(2)
 typedef struct {
-    DWORD style;
-    DWORD dwExtendedStyle;
+    UINT style;
+    UINT dwExtendedStyle;
     WORD PACKEDDATA cdit;
     short PACKEDDATA x;
     short PACKEDDATA y;
@@ -119,8 +119,8 @@ typedef struct {
 } PACKEDDATA DLGTEMPLATE;
 
 typedef struct {
-    DWORD style;
-    DWORD dwExtendedStyle;
+    UINT style;
+    UINT dwExtendedStyle;
     short PACKEDDATA x;
     short PACKEDDATA y;
     short PACKEDDATA cx;

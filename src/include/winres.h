@@ -106,8 +106,8 @@ enum MW_RESOURCE_TYPES {
  */
 typedef struct tagMWDLGTEMPLATE
 {
-    DWORD style;
-    DWORD dwExtendedStyle;
+    UINT style;
+    UINT dwExtendedStyle;
     WORD  PACKEDDATA cdit;
     short PACKEDDATA x;
     short PACKEDDATA y;
@@ -140,8 +140,8 @@ typedef struct tagMWDLGTEMPLEXTRA
  */
 typedef struct tagMWDLGITEMTEMPLATE
 {
-    DWORD style;
-    DWORD dwExtendedStyle;
+    UINT style;
+    UINT dwExtendedStyle;
     short PACKEDDATA x;
     short PACKEDDATA y;
     short PACKEDDATA cx;
@@ -202,8 +202,7 @@ PMWDLGITEMTEMPLATE resFirstDlgItem ( PMWDLGTEMPLATE pDlg );
 void resDiscardDlgTemplExtra ( PMWDLGTEMPLEXTRA pDlgExtra );
 void resGetDlgTemplExtra ( PMWDLGTEMPLATE pDlg, PMWDLGTEMPLEXTRA pDlgExtra );
 void resDiscardDlgItemTemplate ( PMWDLGITEMTEMPLEXTRA pItemExtra );
-PMWDLGITEMTEMPLATE resGetDlgItemTemplExtra ( PMWDLGITEMTEMPLATE pItem,
-							   				 PMWDLGITEMTEMPLEXTRA pItemExtra );
+PMWDLGITEMTEMPLATE resGetDlgItemTemplExtra ( PMWDLGITEMTEMPLATE pItem, PMWDLGITEMTEMPLEXTRA pItemExtra );
 PMWIMAGEHDR resLoadBitmap ( HINSTANCE hInst, LPCTSTR resName );
 void resFreeBitmap ( PMWIMAGEHDR pimage );
 
@@ -213,7 +212,7 @@ void resFreeBitmap ( PMWIMAGEHDR pimage );
  *  Exported functions
  */
 HRSRC WINAPI FindResource ( HMODULE hModule, LPCTSTR resName, LPCTSTR resType );
-DWORD SizeofResource ( HMODULE hModule, HRSRC hResInfo );
+UINT SizeofResource ( HMODULE hModule, HRSRC hResInfo );
 HGLOBAL WINAPI LoadResource ( HMODULE hModule, HRSRC hRes );
 BOOL WINAPI FreeResource ( HGLOBAL hObj );
 int WINAPI UnlockResource ( HGLOBAL hObj );

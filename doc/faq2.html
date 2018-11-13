@@ -10,7 +10,7 @@
 
 <h1>Microwindows Frequently Asked Questions - Part 2</h1>
 
-<p>2018/11/2 Microwindows FAQ2<br>
+<p>2018/11/12 Microwindows FAQ2<br>
 <br>
 </p>
 
@@ -459,6 +459,20 @@ more extensive GUI toolkit than the Windows API compatible mwin library.<br>
 <br>
 </p>
 
+<h3>Can you use Windows resource files with the MWin API?</h3>
+<p>Resource files describe the screen layout of a GUI when you are using Windows. The MWin API also supports<br>
+resource files. The screen layout is developed using a screen designer and stored in a resource file. This file <br>
+has the same name as the application program file but the ending is ".rc". Simple ".rc" files can also be written <br>
+by hand. The ".rc" file is then compiled with a resource compiler to a ".res" file.<br>
+<br>
+If you use Dialog windows in your program, Microwindows will open a ".res" file with the same name as the program <br>
+to load the screen layout to use. Microwindows uses a separate file while Windows adds this file to the program file itself. <br>
+The demo programs, mwdialog and mwdvetest, put a logical link to their ".res" resource file into the "bin" directory.<br>
+<br>
+To write the a resource file and compile it you can use the ResourceHacker program on Windows. This program can <br>
+also extract a ".rc" file from a ".res" file. On Linux there is a resource compiler called "windres".<br>
+<br>
+</p>
 
 <h3>Can you use Java with Microwindows?</h3>
 <p>
@@ -614,7 +628,7 @@ after compiling Microwindows, this command would be: "nano-X -N & nanowm & ./mup
 <br></p>
 
 <p>
-<br>2nd of November 2018, Georg Potthast<br>
+<br>12th of November 2018, Georg Potthast<br>
 </p>
 <p>.</p>
 </body>

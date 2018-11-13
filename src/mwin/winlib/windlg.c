@@ -21,7 +21,7 @@
 #define DEFAULT_FONT			DEFAULT_GUI_FONT
 #define DEFDLG_FONT_QUALITY		ANTIALIASED_QUALITY
 
-#define DWL_DLGDATA	12
+#define DWL_DLGDATA	24 //12 - extend for 64 bit
 
 #define DLG_DEF_STYLE	(0)
 
@@ -38,7 +38,7 @@
  */
 typedef struct tagMWDLGDATA {
 	HFONT hFnt;
-	DWORD flags;
+	UINT flags;
 	BOOL running;
 	HWND hWndFocus;
 	int nResult;
@@ -95,7 +95,7 @@ MwInitializeDialogs(HINSTANCE hInstance)
 	wcl.cbSize = sizeof(wcl);
 #endif
 	wcl.style = CS_BYTEALIGNCLIENT | CS_DBLCLKS;
-	wcl.cbWndExtra = DWL_DLGDATA + 4;
+	wcl.cbWndExtra = DWL_DLGDATA + 8; //extend for 64bit
 	wcl.lpfnWndProc = (WNDPROC) mwDialogProc;
 	wcl.hInstance = hInstance;
 	wcl.lpszClassName = "GDLGCLASS";

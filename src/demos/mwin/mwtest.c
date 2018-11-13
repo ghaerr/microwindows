@@ -6,7 +6,7 @@ LRESULT CALLBACK wproc(HWND,UINT,WPARAM,LPARAM);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    PSTR szCmdLine, int iCmdShow)
 {
-        static char szAppName[]="HolaWin";
+        static char szAppName[]="Hello MWin";
         HWND hwnd;
         MSG msg;
         WNDCLASS wndclass;
@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         RegisterClass(&wndclass);
         hwnd=CreateWindowEx(0L,
                           szAppName,
-                          "Hola",
+                          "Hello",
                           WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                           CW_USEDEFAULT,
                           CW_USEDEFAULT,
@@ -59,7 +59,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         /*case WM_MOUSEFIRST:*/
                 hdc=BeginPaint(hwnd,&ps);
                 GetClientRect(hwnd,&rect);
-                DrawText(hdc, "Hola, NOS   ", -1, &rect,
+                DrawText(hdc, " Hello, friends! ", -1, &rect,
                          DT_SINGLELINE|DT_CENTER|DT_VCENTER);
                 EndPaint(hwnd,&ps);
                 break;

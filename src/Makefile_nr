@@ -424,8 +424,8 @@ CFLAGS += -L/usr/X11R6/lib -lX11
 endif
 
 #define mwin demo programs
-MTARGETS1 := malpha mtest mtest2 mdemo mstretch
-#MTARGETS1 += mterm mine muserfd # not working in DOS
+MTARGETS1 := mwalpha mwtest mwtest2 mwdemo mwstretch
+#MTARGETS1 += mwterm mine mwuserfd # not working in DOS
 MTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(MTARGETS1))
 MTARGETS := $(addsuffix .exe,$(MTARGETS2))
 
@@ -520,7 +520,7 @@ testprog:
 	$(info    )
 	$(info $(LIBS))
 	$(info    )	
-#	$(CC) $(CFLAGS) -o bin/malpha.exe demos/mwin/malpha.c $(LIBS)   
+#	$(CC) $(CFLAGS) -o bin/mwalpha.exe demos/mwin/mwalpha.c $(LIBS)   
 #	$(CC) $(CFLAGS) -o bin/nxview.exe demos/nanox/nxview.c $(NANOLIBS) -lz
 	$(CC) $(CFLAGS) -o bin/demo.exe demos/nanox/demo.c $(NANOLIBS)
 	$(CC) $(CFLAGS) -o bin/arcdemo.exe demos/nanox/arcdemo.c $(NANOLIBS)
@@ -533,9 +533,9 @@ emprog:
 	$(info NANOLIBS: $(NANOLIBS))
 	$(info **************** )
 ifdef MICROWIN
-	$(CC) $(CFLAGS) -o bin/mdemo.html demos/mwin/mdemo.c $(LIBS)  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/mtest.html demos/mwin/mtest.c $(LIBS)  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/mtest2.html demos/mwin/mtest2.c $(LIBS) $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mwdemo.html demos/mwin/mwdemo.c $(LIBS)  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mwtest.html demos/mwin/mwtest.c $(LIBS)  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mwtest2.html demos/mwin/mwtest2.c $(LIBS) $(EMTERPRET)
 endif
 #	$(CC) $(CFLAGS) -o bin/demo.html demos/test/demo.c lib/libnano-X.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/arcdemo.html demos/nanox/arcdemo.c $(NANOLIBS)  $(EMTERPRET)

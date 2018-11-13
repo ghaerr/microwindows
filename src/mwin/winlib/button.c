@@ -33,16 +33,16 @@
 #define GET_PBWASINSIDE(h)		(GetWindowWord(h, 4))
 #define GET_PBDELETEFONT(h)		(GetWindowWord(h, 6))
 #define GET_PBFONT(h)			(GetWindowWord(h, 8))
-#define GET_WND_FONT(h)			((HFONT)GetWindowLong(h, 12))
-#define GET_PBTXTRECT(h,t)		{(t).left=GetWindowLong(h, 16); (t).right=GetWindowLong(h, 20);}
+#define GET_WND_FONT(h)			((HFONT)GetWindowLong(h, 16))
+#define GET_PBTXTRECT(h,t)		{(t).left=GetWindowLong(h, 24); (t).right=GetWindowLong(h, 32);}
 
 #define SET_PBSTATE(h,x)		(SetWindowWord(h, 0, x))
 #define SET_PBCAPTURE(h,x)		(SetWindowWord(h, 2, x))
 #define SET_PBWASINSIDE(h,x)		(SetWindowWord(h, 4, x))
 #define SET_PBDELETEFONT(h,x)		(SetWindowWord(h, 6, x))
 #define SET_PBFONT(h,x)			(SetWindowWord(h, 8, x))
-#define SET_WND_FONT(h, f)		(SetWindowLong(h, 12, (LPARAM)(f)))
-#define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, 16, MAKELONG((t).left, (t).top)); SetWindowLong(h, 20, MAKELONG((t).right, (t).bottom)); }
+#define SET_WND_FONT(h, f)		(SetWindowLong(h, 16, (LPARAM)(f)))
+#define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, 24, MAKELONG((t).left, (t).top)); SetWindowLong(h, 32, MAKELONG((t).right, (t).bottom)); }
 
 #define PARENT(hwnd)		((HWND)GetWindowLong(hwnd,GWL_HWNDPARENT))
 
@@ -975,7 +975,7 @@ MwRegisterButtonControl(HINSTANCE hInstance)
 	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc	= (WNDPROC)cenButtonWndFn;
 	wc.cbClsExtra	= 0;
-	wc.cbWndExtra	= 24;
+	wc.cbWndExtra	= 40; //24; extend for 64bit
 	wc.hInstance	= hInstance;
 	wc.hIcon	= NULL;
 	wc.hCursor	= 0; /*LoadCursor(NULL, IDC_ARROW);*/

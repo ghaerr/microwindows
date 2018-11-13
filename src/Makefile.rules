@@ -852,12 +852,21 @@ install:
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.a $(LIBINSTALLDIR)64; \
 	fi
 ifeq ($(SHAREDLIBS), Y)
+	echo "Copying shared libs to $(LIBINSTALLDIR)"
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
 	# copy logical links
-	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)
+	if [ -d "$(MW_DIR_LIB)/*.so.*" ]; then \
+	echo "Copying logical links to $(LIBINSTALLDIR)"; \
+	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR); \
+	fi
 	#if 64bit system, install in /usr/lib64 too and copy logical links
 	if [ -d "$(LIBINSTALLDIR)64" ]; then \
+	echo "Copying shared libs to $(LIBINSTALLDIR)64"; \
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)64; \
+	fi
+	# copy logical links
+	if [ -d "$(LIBINSTALLDIR)64" ] && [ -d "$(MW_DIR_LIB)/*.so.*" ]; then \
+	echo "Copying logical links to $(LIBINSTALLDIR)64"; \
 	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64; \
 	fi
 else

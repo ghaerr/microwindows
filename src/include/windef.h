@@ -66,7 +66,7 @@ typedef unsigned char 		UCHAR;
 typedef unsigned short 		USHORT;
 typedef uint32_t		ULONG;
 #ifndef __ITRON_TYPES_h_ /* FIXME RTEMS hack*/
-typedef unsigned int		UINT;
+typedef uint32_t		UINT;
 #endif
 
 #ifndef __ITRON_TYPES_h_
@@ -82,9 +82,9 @@ typedef USHORT *		PUSHORT;
 typedef UCHAR *			PUCHAR;
 typedef char *			PSZ;
 #ifndef __ITRON_TYPES_h_
-typedef int                 	INT;
+typedef int32_t                	INT;
 #endif
-typedef unsigned int        	*PUINT;
+typedef uint32_t        	*PUINT;
 
 typedef unsigned long       DWORD;
 typedef unsigned char       BYTE;
@@ -129,9 +129,9 @@ typedef LPCSTR LPCTSTR;
 #define __TEXT(quote) quote
 #define TEXT(quote) __TEXT(quote)
 
-typedef int (FAR WINAPI *FARPROC)();
-typedef int (NEAR WINAPI *NEARPROC)();
-typedef int (WINAPI *PROC)();
+typedef int32_t (FAR WINAPI *FARPROC)();
+typedef int32_t (NEAR WINAPI *NEARPROC)();
+typedef int32_t (WINAPI *PROC)();
 
 typedef unsigned long WPARAM;
 typedef LONG LPARAM;

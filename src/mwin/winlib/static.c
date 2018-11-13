@@ -74,7 +74,7 @@ MwRegisterStaticControl(HINSTANCE hInstance)
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc = (WNDPROC) StaticControlProc;
 	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 4;	// allow space for storing font information
+	wc.cbWndExtra = 8;	// allow space for storing font information 4 for 32 bit
 	wc.hInstance = hInstance;
 	wc.hIcon = NULL;
 	wc.hCursor = 0;		/*LoadCursor(NULL, IDC_ARROW); */

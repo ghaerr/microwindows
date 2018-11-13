@@ -106,16 +106,8 @@ Displays a font in several attributes.
 - makebmp -
 Framebuffer data to .bmp file converter.
 
-- malpha -
-Shows alpha blending.
-
-- mdemo -
-Shows windows implemented with the
-mwin API.
-demo.sh will call this demo.
-
 - mine -
-Minesweeper game.
+Minesweeper game using the MWin API.
 
 - monobitmap -
 Displays 1bpp mono bitmap.
@@ -125,23 +117,59 @@ monobitmap.sh will call this program together with nxmag.
 Deprecated demo.
 Shows child window movement and redrawing.
 
-- mterm -
+- mwalpha -
+Alpha blending using the MWin API.
+
+- mwcontrols -
+Shows several controls of the MWin API.
+
+- mwdemo -
+Several windows implemented with the
+MWin API.
+demo.sh will call this demo.
+
+- mwdialog -
+Displays a window and a button using the 
+MWin API with a resource file.
+
+- mwdraw -
+Simple graphics using the MWin API.
+
+- mwdvetest -
+Mwin API demo using dialogs and a resource file
+implemented by dveprojects.com in Italy.
+
+- mwhello -
+Shows a static text in a window and
+displays a message box using the MWin API.
+
+- mwmsgbox -
+A messagebox using the MWin API.
+
+- mwsimple -
+Shows an empty window using the MWin API.
+
+- mwstatictext -
+Displays a static text box. Text changes if click the
+mouse in the window or press a key. Implemented with
+the MWin API.
+
+- mwstretch -
+Shows an image and the same image with an increased size 
+using "StretchBlt". Implemented with the MWin API.
+
+- mwterm -
 Terminal application using the mwin API.
 mterm.sh will call this program.
 
-- mtest -
+- mwtest -
 Displays window using the mwin API.
 
-- mtest2 -
+- mwtest2 -
 Displays widgets using the mwin API.
 
-- muserfd -
+- mwuserfd -
 Mwin API test.
-
-- mwdvetest -
-Mwin API demo using dialogs implemented
-by dveprojects.com in Italy.
-Demo not functional.
 
 - npanel -
 Select applications from a list window

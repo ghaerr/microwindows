@@ -43,28 +43,35 @@ MINEIMAGES := \
 
 ifeq ($(ARCH), PSP)
 
-DEMOS = $(MW_DIR_BIN)/mdemo\
-	$(MW_DIR_BIN)/malpha\
-	$(MW_DIR_BIN)/mtest\
-	$(MW_DIR_BIN)/mtest2\
+DEMOS = $(MW_DIR_BIN)/mwdemo\
+	$(MW_DIR_BIN)/mwalpha\
+	$(MW_DIR_BIN)/mwtest\
+	$(MW_DIR_BIN)/mwtest2\
 	$(MW_DIR_BIN)/mine
 
 else
 
-DEMOS = $(MW_DIR_BIN)/mdemo\
-	$(MW_DIR_BIN)/malpha\
-	$(MW_DIR_BIN)/mtest\
-	$(MW_DIR_BIN)/mtest2\
-	$(MW_DIR_BIN)/mine
+DEMOS = $(MW_DIR_BIN)/mwdemo\
+	$(MW_DIR_BIN)/mwalpha\
+	$(MW_DIR_BIN)/mwtest\
+	$(MW_DIR_BIN)/mwtest2\
+	$(MW_DIR_BIN)/mwstretch\
+	$(MW_DIR_BIN)/mine\
+	$(MW_DIR_BIN)/mwmsgbox\
+	$(MW_DIR_BIN)/mwsimple\
+	$(MW_DIR_BIN)/mwhello\
+	$(MW_DIR_BIN)/mwcontrols\
+	$(MW_DIR_BIN)/mwstatictext\
+	$(MW_DIR_BIN)/mwdraw
 
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)
-DEMOS += $(MW_DIR_BIN)/mterm
+DEMOS += $(MW_DIR_BIN)/mwterm
 endif
 endif
 
 ifneq ($(ARCH), ELKS)
-DEMOS += $(MW_DIR_BIN)/muserfd
+DEMOS += $(MW_DIR_BIN)/mwuserfd
 endif
 
 endif

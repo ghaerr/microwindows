@@ -6,7 +6,7 @@ LRESULT CALLBACK wproc(HWND,UINT,WPARAM,LPARAM);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    PSTR szCmdLine, int iCmdShow)
 {
-        static char szAppName[]="HolaWin";
+        static char szAppName[]="HelloMWin";
         HWND hwnd;
         MSG msg;
         WNDCLASS wndclass;
@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         RegisterClass(&wndclass);
         hwnd=CreateWindowEx(0L,
                           szAppName,
-                          "Hola",
+                          "Hello",
                           WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                           CW_USEDEFAULT,
                           CW_USEDEFAULT,
@@ -99,32 +99,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		WS_CHILD | WS_VISIBLE,
 		width * 5 / 8, 106+34+6, 100, 18,
 		hwnd, (HMENU)9, NULL, NULL);
-#if 0
-	{
-	HWND hcombo;
-
-	hcombo = CreateWindowEx(0L, "COMBOBOX",
-		 "Combobox",
-#if 0
-		 CBS_SIMPLE | 		/* edit+list */
-#endif
-#if 0
-		 CBS_DROPDOWNLIST | 	/* static+pop */
-#endif
-#if 1
-		 CBS_DROPDOWN | 	/* edit+pop */
-#endif
-
-		 WS_VSCROLL | WS_CHILD | WS_VISIBLE,
-		 width * 5 / 8, 106+14+4+18+4, 100, (18*5),
-		 hwnd, (HMENU)10, NULL, NULL);
-
-	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Cherry");
-	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Apple");
-	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Orange");
-	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Banana");
-	}
-#endif
 
 #if 1
 	CreateWindowEx(0L, "SCROLLBAR",
@@ -141,6 +115,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		width * 5 / 8 -18 , 106+68, 128, 18,
 		hwnd, (HMENU)12, NULL, NULL);
 #endif
+	
+	
+#if 1
+	{
+	HWND hcombo;
+
+	hcombo = CreateWindowEx(0L, "COMBOBOX",
+		 "Combobox",
+#if 0
+		 CBS_SIMPLE | 		/* edit+list */
+#endif
+#if 0
+		 CBS_DROPDOWNLIST | 	/* static+pop */
+#endif
+#if 1
+		 CBS_DROPDOWN | 	/* edit+pop */
+#endif
+
+		 WS_VSCROLL | WS_CHILD | WS_VISIBLE,
+		 width * 5 / 8, 106+14+4+18+4+68, 100, (18*5),
+		 hwnd, (HMENU)10, NULL, NULL);
+
+	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Cherry");
+	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Apple");
+	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Orange");
+	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Banana");
+	}
+#endif
+
 
 #endif
                
@@ -177,7 +180,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			0,0,0,0,0,0,0,0,0,0,0,
 			FF_DONTCARE|DEFAULT_PITCH,
 			"HZXFONT"));
-                DrawText(hdc, "Hola, NOS   ", -1, &rect,
+                DrawText(hdc, " Hello friends ", -1, &rect,
                          DT_SINGLELINE|DT_CENTER|DT_VCENTER);
 		DeleteObject(SelectObject(hdc,oldfont));
 

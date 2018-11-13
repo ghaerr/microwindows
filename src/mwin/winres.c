@@ -304,19 +304,19 @@ mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName, PMWRESOURCEHEA
 
 		while (!feof(f)) {
 			pos = ftell(f);
-			pResHead->DataSize = resReadDWord(f, &bEof);
-			pResHead->HeaderSize = resReadDWord(f, &bEof);
+			pResHead->DataSize = (int)resReadDWord(f, &bEof);
+			pResHead->HeaderSize = (int)resReadDWord(f, &bEof);
 			if (bEof)
 				break;
 
 			bType = mwIsSameType(f, resType, &bEof);
 			bName = mwIsSameType(f, resName, &bEof);
 			if (bType && bName) {
-				pResHead->DataVersion = resReadDWord(f, &bEof);
+				pResHead->DataVersion = (int)resReadDWord(f, &bEof);
 				pResHead->MemoryFlags = resReadWord(f, &bEof);
 				pResHead->LanguageId = resReadWord(f, &bEof);
-				pResHead->Version = resReadDWord(f, &bEof);
-				pResHead->Characteristics = resReadDWord(f, &bEof);
+				pResHead->Version = (int)resReadDWord(f, &bEof);
+				pResHead->Characteristics = (int)resReadDWord(f, &bEof);
 				if (bEof)
 					break;
 				fseek(f, pos + pResHead->HeaderSize, SEEK_SET);
@@ -555,7 +555,7 @@ FindResource(HMODULE hModule, LPCTSTR resName, LPCTSTR resType)
 /*
  *  Return the size of a resource
  */
-DWORD
+UINT
 SizeofResource(HMODULE hModule, HRSRC hResInfo)
 {
 	return hResInfo->head.DataSize;

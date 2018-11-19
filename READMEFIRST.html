@@ -1,30 +1,36 @@
 <h3>------------------------------------------------------------------------------------------------------------</h3>
-<h3>Installing Microwindows and executing the demo programs</h3>
+<h3>Basic Instructions for Building, Installing, and Executing Microwindows under X11</h3>
 <h3>------------------------------------------------------------------------------------------------------------</h3>
-After downloading the Microwindows package unpack it into your personal folder on your Linux system.<br>
+After downloading the Microwindows package, unpack it into a suitable directory. This is usually a new one under <br>
+your personal or home directory on your Linux system.<br>
 <br>
-Then get into the "microwindows/src" directory and enter: <br>
+<br> For a Quickbuild, you can follow these instructions, for further details and the Latest FAQ, please read <br>
+the /doc/faq2.<br>
 <br>
-"make". <br>
+Open up a Terminal or Console and go into the "microwindows/src" directory. <br>
 <br>
-No need to run configure. Make will compile the Microwindows libraries and the demo applications. In the  <br>
-"src/lib" directory there will be the libraries generated and in the "src/bin" directory the compiled demo <br>
-programs.<br>
+There is no need to run ./configure with Microwindows, it's makefile is smart enough and builds everything locally. <br>
+<br>
+Enter: "make". <br>
+<br>
+Make will now build the Microwindows libraries and the demo applications for you, and in the "src/lib" directory <br>
+you will now find the newly generated libraries and in the "src/bin" directory the newly compiled demo programs.<br>
 <br>
 Then enter "make install".<br>
-<br>
-The Makefile assumes that you use a Linux system with X11 installed. For testing purposes Microwindows<br>
-will run based on X11 then. It will generate shared libraries.<br>
+<br> 
+This installs the newly created files to your systems standard locations.<br>
+The Makefile does assume that you are using a Linux system with X11 installed. <br>
+For testing purposes, Microwindows should run on your X11 version and will generate shared not static libraries.<br>
 <h3>------------------------------------------------------------------------------------------------------------</h3>
 To execute the demo programs run the script "rundemos.sh" in the "src" directory. This will list the <br>
 available demos and allow you to select a program to run. Before selecting a new demo program, close all <br> 
-windows opened by the previous demo. <br>
+windows opened by the previous demo. There is a "demos.txt" which contains short descriptions of these demos.<br>
 <br>
-These demos are based on the Nano-X and MWIN apis. Demos for the X11 compatibility layer NX11 <br>
+These demos are based on the Nano-X and MWin apis. Demos for the X11 compatibility layer NX11 <br>
 are located in the "nxlib/test" folder. You can run them in there e.g. with "./textbox". The scripts provided <br>
 in the "nxlib/test" folder can be used if Nano-X is used as a static library. <br>
 <br>
-The Nano-X libray and the NXlib compatibility layer library are also available linked together <br>
+The Nano-X library and the NXlib compatibility layer library are also available linked together <br>
 to the PX11 library. The demo programs linked with that are available in the "nxlib/ptest" folder.<br>
 <h3>------------------------------------------------------------------------------------------------------------</h3>
 Documentation is available in the "doc" folder. The latest information is in the "doc/faq2" file and in the <br>
@@ -32,8 +38,8 @@ Documentation is available in the "doc" folder. The latest information is in the
 Further documentation is currently dated. There is a tutorial for Nano-X and documentation regarding Nano-X in the <br>
 nano-X folder. <br> 
 <br>
-A reference for the Nano-X API is in the "doc" folder. The Microsoft Windows compatible MWIN API is described in<br>
-the "doc/mwinapi.html" file.<br>
+A reference for the Nano-X API is in the "doc" folder. The Microsoft Windows compatible MWin API is described in<br>
+the "doc/mwinapi.html" file. The MWin API implements a subset of the Microsoft Windows API.<br>
 <br>
-14th of October 2018 - Georg Potthast<br>
+19th of November 2018 - Georg Potthast with help from scsijon<br>
 <p>

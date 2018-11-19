@@ -95,7 +95,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		hwnd, (HMENU)8, NULL, NULL);
 
 	CreateWindowEx(0L, "STATIC",
-		"Static",
+		"Static text",
 		WS_CHILD | WS_VISIBLE,
 		width * 5 / 8, 106+34+6, 100, 18,
 		hwnd, (HMENU)9, NULL, NULL);

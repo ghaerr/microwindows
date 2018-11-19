@@ -62,7 +62,9 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwhello\
 	$(MW_DIR_BIN)/mwcontrols\
 	$(MW_DIR_BIN)/mwstatictext\
-	$(MW_DIR_BIN)/mwdraw
+	$(MW_DIR_BIN)/mwdraw\
+	$(MW_DIR_BIN)/mwprogbar\
+	$(MW_DIR_BIN)/mwbrush
 
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)

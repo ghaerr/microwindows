@@ -56,7 +56,7 @@
 
 	   if (hwnd == NULL)
 	   {
-	      MessageBox(NULL, "Window Creation Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+	      MessageBox(NULL, "Window Creation Failed!", "Error!", MB_OK);
 	      return 0;
 	   }
 	   

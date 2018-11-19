@@ -120,6 +120,10 @@ Shows child window movement and redrawing.
 - mwalpha -
 Alpha blending using the MWin API.
 
+- mwbrush -
+Create 4 rectangles filled with 4 different colours
+using the MWin API.
+
 - mwcontrols -
 Shows several controls of the MWin API.
 
@@ -145,6 +149,9 @@ displays a message box using the MWin API.
 
 - mwmsgbox -
 A messagebox using the MWin API.
+
+- mwprogbar -
+A progress bar using the MWin API.
 
 - mwsimple -
 Shows an empty window using the MWin API.

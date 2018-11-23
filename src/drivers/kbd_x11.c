@@ -47,9 +47,6 @@ KBDDEVICE kbddev = {
 
 /*
  * Open the keyboard.
- * This is real simple, we just use a special file handle
- * that allows non-blocking I/O, and put the terminal into
- * character mode.
  */
 static int
 X11_Open(KBDDEVICE *pkd)
@@ -100,6 +97,9 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	XEvent ev;
 	MWKEY mwkey;
 	char ignored_char;
+	unsigned int mods;
+	Window w;
+	int i;
 
 	static int grabbed = 0;
 	static int x11_accel_num;
@@ -109,29 +109,29 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
     /* check if we have a KeyPressedEvent */
     if (XCheckMaskEvent(x11_dpy, KeyPressMask|KeyReleaseMask, &ev)) {
 	KeySym sym = XKeycodeToKeysym(x11_dpy, ev.xkey.keycode, 0);
-
 	if (sym == NoSymbol)
 	    return -1;
 
 	/* calculate kbd modifiers*/
-	key_modstate &= (MWKMOD_NUM|MWKMOD_CAPS|MWKMOD_SCR); 
-	if (ev.xkey.state & ControlMask)
+	key_modstate = mods = 0;
+	XQueryPointer(x11_dpy, x11_win, &w, &w, &i, &i, &i, &i, &mods);
+	if (mods & ControlMask)
 		key_modstate |= MWKMOD_CTRL; 
-	if (ev.xkey.state & ShiftMask)
+	if (mods & ShiftMask)
 		key_modstate |= MWKMOD_SHIFT;
-	if (ev.xkey.state & Mod1Mask)
+	if (mods & (Mod1Mask | 0x2000))		// OSX alt/option returns 0x2000
 		key_modstate |= MWKMOD_ALT;
-	if (ev.xkey.state & X_CAP_MASK)
+	if (mods & X_CAP_MASK)
 		key_modstate |= MWKMOD_CAPS;
-	if (ev.xkey.state & X_SCR_MASK)
+	if (mods & X_SCR_MASK)
 		key_modstate |= MWKMOD_SCR;
-	if (ev.xkey.state & X_NUM_MASK)
+	if (mods & X_NUM_MASK)
 		key_modstate |= MWKMOD_NUM;
 
 	if (sym == XK_Escape) {
 	    mwkey = MWKEY_ESCAPE;
 
-	    if (ev.xkey.state & ControlMask) {
+	    if (mods & ControlMask) {
 		/* toggle grab control */
 		if (grabbed) {
 		    XUngrabPointer(x11_dpy, CurrentTime);

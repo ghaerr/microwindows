@@ -56,7 +56,7 @@
 	   hwnd = CreateWindowEx(
 	      WS_EX_CLIENTEDGE,                         // what the border looks like
 	      g_class_name,
-	      "The title of my window",                 // text appearing in top bar
+	      "Assorted Controls",                 // text appearing in top bar
 	      WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 	      CW_USEDEFAULT, CW_USEDEFAULT, 520, 620,   // window xpos, ypos, width, height
 	      NULL, NULL, hInstance, NULL);
@@ -139,9 +139,10 @@
 	      PostQuitMessage(0);
 	      return 0;
 	  default:
-	      return DefWindowProc(hwnd, msg, wParam, lParam);
-   }
-}
+	    break;
+	  }
+	  return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
 
 HWND myCreateBox(HWND hwnd, int id, char* type, char* s, 
                  int x, int y, int width, int height)
@@ -156,9 +157,10 @@ HWND myCreateBox(HWND hwnd, int id, char* type, char* s,
 { HWND h;
 
   char typechar = type[0];
-  DWORD styleex;
-  DWORD style;
-  char* classname;
+  DWORD styleex = 0;
+  DWORD style = 0;
+  char* classname = {0};
+  
   switch ( typechar )
   { // first consider button, checkbox, radio button
     case 'b': case 'B':

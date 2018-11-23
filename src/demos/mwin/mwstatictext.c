@@ -49,7 +49,7 @@
 	   hwnd = CreateWindowEx(
 	      WS_EX_CLIENTEDGE,                         // what the border looks like
 	      g_class_name,
-	      "The title of my window",                 // text appearing in top bar
+	      "Example of a static conrol",                 // text appearing in top bar
 	      WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 	      CW_USEDEFAULT, CW_USEDEFAULT, 240, 120,   // window xpos, ypos, width, height
 	      NULL, NULL, hInstance, NULL);
@@ -109,8 +109,9 @@
 	      PostQuitMessage(0);
 	      return 0;
 	  default:
-	      return DefWindowProc(hwnd, msg, wParam, lParam);
-   }
+	    break;
+	  }
+	  return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 HWND myCreateStatic(HWND hwnd, int id, char* s, int x, int y, int width, int height)

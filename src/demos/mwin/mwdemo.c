@@ -45,7 +45,7 @@ unsigned _stklen = 4096;
 #define USEBLIT		0	/* use blit rather than DrawDIB()*/
 #endif
 
-#if RTEMS || ECOS || PSP || __MINGW32__
+#if RTEMS || ECOS || PSP
 #define  srandom  srand
 #define  random   rand
 #endif
@@ -102,7 +102,7 @@ RegisterAppClass(void)
 	wc.style = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc = (WNDPROC)WndProc;
 	wc.cbClsExtra = 0;
-	wc.cbWndExtra = sizeof(void*);
+	wc.cbWndExtra = sizeof(LONG_PTR);
 	wc.hInstance = 0;
 	wc.hIcon = 0; /*LoadIcon(GetHInstance(), MAKEINTRESOURCE( 1));*/
 	wc.hCursor = 0; /*LoadCursor(NULL, IDC_ARROW);*/
@@ -134,7 +134,7 @@ CreateAppWindow(void)
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
-		NULL, (HMENU)(intptr_t)nextid++, NULL, NULL);
+		NULL, (HMENU)nextid++, NULL, NULL);
 
 #if CONTROLS
 	if(hwnd
@@ -262,7 +262,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	switch( msg) {
 	case WM_CREATE:
 		pData = (pdemoWndData) malloc(sizeof(demoWndData));
-		SetWindowLong(hwnd, 0, (LONG)pData);
+		SetWindowLongPtr(hwnd, 0, (LONG_PTR)pData);
 		mousept.x = 60;
 		mousept.y = 20;
 		pData->startdegrees = 0;
@@ -273,7 +273,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		break;
 
 	case WM_TIMER:
-		pData = (pdemoWndData) GetWindowLong(hwnd, 0);
+		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
 #if GRAPH3D
 		GetClientRect(hwnd, &rc);
 		if(countup) {
@@ -302,9 +302,9 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		break;
 	case WM_DESTROY:
 		KillTimer(hwnd, 1);
-		pData = (pdemoWndData) GetWindowLong(hwnd, 0);
+		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
 		free ( pData );
-		SetWindowLong(hwnd, 0, 0);
+		SetWindowLongPtr(hwnd, 0, NULL);
 		break;
 	case WM_SIZE:
 		break;
@@ -325,8 +325,9 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 #endif
 #if GRAPH3D
 	case WM_ERASEBKGND:
-		if((GetWindowLong(hwnd, GWL_ID) & 03) == 1)
+		if((GetWindowLong(hwnd, GWL_ID) & 03) == 1) {
 			return 1;
+		}
 		return DefWindowProc(hwnd, msg, wp, lp);
 #endif
 	case WM_PAINT:
@@ -411,7 +412,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	RECT rc;
 
 	if(hdc != NULL) {
-		pData = (pdemoWndData) GetWindowLong(hwnd, 0);
+		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
 		GetWindowRect(hwnd, &rc);
 		rc.top += 13;
 		InflateRect(&rc, -3, -3);
@@ -442,7 +443,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_MOUSEMOVE:
 #if GRAPH3D
-		pData = (pdemoWndData) GetWindowLong(hwnd, 0);
+		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
 		if((GetWindowLong(hwnd, GWL_ID) & 03) == 1) {
 			POINT pt;
 
@@ -477,7 +478,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	RECT	rc;
 
 	srandom(time(NULL));
-
 	RegisterAppClass();
 	GetWindowRect(GetDesktopWindow(), &rc);
 
@@ -496,16 +496,16 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	CreateAppWindow();
 	CreateAppWindow();
 #endif
+	/* set background wallpaper*/
+	MwSetDesktopWallpaper(&image_microwin);
+	/*MwSetDesktopWallpaper(&image_under4);*/
+	/*MwSetDesktopWallpaper(&image_car8);*/
+
 	hwnd = CreateAppWindow();
 	GetWindowRect(hwnd, &rc);
 	OffsetRect(&rc, 50, 50);
 	MoveWindow(hwnd, rc.left, rc.top, rc.bottom-rc.top,
 		rc.right-rc.left, TRUE);
-
-	/* set background wallpaper*/
-	MwSetDesktopWallpaper(&image_microwin);
-	/*MwSetDesktopWallpaper(&image_under4);*/
-	/*MwSetDesktopWallpaper(&image_car8);*/
 
 	/* type ESC to quit...*/
 	while( GetMessage(&msg, NULL, 0, 0)) {

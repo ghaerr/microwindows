@@ -762,9 +762,19 @@ GsSelect(GR_TIMEOUT timeout)
 #endif 
 #endif
 
-	/* perform pre-select duties, if any*/
+	/* X11 update screen & flush buffers*/
 	if(rootwp->psd->PreSelect)
-		rootwp->psd->PreSelect(rootwp->psd);
+	{
+		/* returns # pending events*/
+		if (rootwp->psd->PreSelect(rootwp->psd))
+		{
+			while(GsCheckMouseEvent())
+				continue;
+			while(GsCheckKeyboardEvent())
+				continue;
+			return;
+		}
+	}
 
 	/* Set up the FDs for use in the main select(): */
 	FD_ZERO(&rfds);

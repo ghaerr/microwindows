@@ -32,7 +32,7 @@
 	}   
 
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-	{    
+	{   
 	   HDC hdc;
 	   PAINTSTRUCT ps;
 	  
@@ -54,8 +54,9 @@
 	      PostQuitMessage(0);
 	      break;
 	   default:
-	      return DefWindowProc(hwnd, msg, wParam, lParam);
+	      break;
 	   }
+	   return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 
 	// here is the main function:
@@ -93,7 +94,7 @@
 	   hwnd = CreateWindowEx(
 	      WS_EX_CLIENTEDGE,                         // what the border looks like
 	      g_class_name,
-	      "The title of my window",                 // text appearing in top bar
+	      "Using TextOut",                 // text appearing in top bar
 	      WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 	      CW_USEDEFAULT, CW_USEDEFAULT, 240, 120,   // window xpos, ypos, width, height
 	      NULL, NULL, hInstance, NULL);

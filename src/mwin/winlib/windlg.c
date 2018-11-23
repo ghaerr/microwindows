@@ -21,8 +21,6 @@
 #define DEFAULT_FONT			DEFAULT_GUI_FONT
 #define DEFDLG_FONT_QUALITY		ANTIALIASED_QUALITY
 
-#define DWL_DLGDATA	24 //12 - extend for 64 bit
-
 #define DLG_DEF_STYLE	(0)
 
 #define ISDLGCONTROL(hDlg, hCtrl)	(((hCtrl) != NULL) && ((hDlg) != (hCtrl)) && \
@@ -38,7 +36,7 @@
  */
 typedef struct tagMWDLGDATA {
 	HFONT hFnt;
-	UINT flags;
+	DWORD flags;
 	BOOL running;
 	HWND hWndFocus;
 	int nResult;
@@ -46,12 +44,11 @@ typedef struct tagMWDLGDATA {
 
 #define DLGF_DESTROYFONT	0x80000000L
 
-#define DLG_PMWDLGDATA(dlg)	((PMWDLGDATA)GetWindowLong(dlg, DWL_DLGDATA))
-#define DLG_DLGPROC(dlg)	((DLGPROC)GetWindowLong(dlg, DWL_DLGPROC))
-#define DLG_MSGRESULT(dlg)	((LRESULT)GetWindowLong(dlg, DWL_MSGRESULT))
+#define DLG_PMWDLGDATA(dlg)	((PMWDLGDATA)GetWindowLongPtr(dlg, DWL_DLGDATA))
+#define DLG_DLGPROC(dlg)	((DLGPROC)GetWindowLongPtr(dlg, DWL_DLGPROC))
+#define DLG_MSGRESULT(dlg)	((LRESULT)GetWindowLongPtr(dlg, DWL_MSGRESULT))
 
-static LRESULT CALLBACK mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam,
-				     LPARAM lParam);
+static DLGBOOL CALLBACK mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 /*
  *  Used to find the top-control in dialogs.
@@ -95,7 +92,7 @@ MwInitializeDialogs(HINSTANCE hInstance)
 	wcl.cbSize = sizeof(wcl);
 #endif
 	wcl.style = CS_BYTEALIGNCLIENT | CS_DBLCLKS;
-	wcl.cbWndExtra = DWL_DLGDATA + 8; //extend for 64bit
+	wcl.cbWndExtra = DWL_EXTRABYTES;
 	wcl.lpfnWndProc = (WNDPROC) mwDialogProc;
 	wcl.hInstance = hInstance;
 	wcl.lpszClassName = "GDLGCLASS";
@@ -149,22 +146,19 @@ SetDlgItemInt(HWND hwnd, int id, UINT val, BOOL bSigned)
 UINT WINAPI
 GetDlgItemInt(HWND hwnd, int id, BOOL * pbTransl, BOOL bSigned)
 {
-	int x, n;
-	UINT ux;
+	UINT n;
 	char s[64];
 
 	GetWindowText(GetDlgItem(hwnd, id), s, sizeof(s));
 
 	if (bSigned)
-		n = strtol (s, NULL, 10);
+		n = strtol(s, NULL, 10);
 	else
-		n = strtoul (s, NULL, 10);
+		n = strtoul(s, NULL, 10);
 
-	if (pbTransl != NULL)
-		*pbTransl = (n == 1);
-	if (n != 1)
-		return 0;
-	return (bSigned) ? (UINT) x : ux;
+	if (pbTransl)
+		*pbTransl = TRUE;
+	return n;
 }
 
 
@@ -426,7 +420,7 @@ dlgSaveCtrlFocus(HWND hWnd, HWND hFocus)
 /*
  *  Handles default dialog messages
  */
-BOOL CALLBACK
+DLGBOOL CALLBACK
 DefDlgProc(HWND hDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	HWND hChild;
@@ -491,7 +485,7 @@ dlgGetItemClass(PMWDLGITEMTEMPLEXTRA pItem)
 		"BUTTON", "EDIT", "STATIC", "LISTBOX", "SCROLLBAR", "COMBOBOX"
 	};
 
-	if ((pItem->szClassName[0] == (TCHAR) - 1)) {
+	if (pItem->szClassName[0] == (TCHAR)-1) {
 		unsigned idx = ((unsigned char) pItem->szClassName[1]) -
 			DLGITEM_CLASS_FIRSTID;
 
@@ -539,7 +533,7 @@ dlgReturnLValue(UINT msg)
 /*
  *  Handler for dialog windows
  */
-static LRESULT CALLBACK
+static DLGBOOL CALLBACK
 mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	PMWDLGDATA pData;
@@ -547,6 +541,7 @@ mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	DLGPROC lpFnDlg = DLG_DLGPROC(hWnd);
 
 
+	// FIXME 64bit requires LRESULT not BOOL, DLG_MSGRESULT not implemented
 	if (lpFnDlg)
 		retV = lpFnDlg(hWnd, Msg, wParam, lParam);
 
@@ -566,8 +561,8 @@ mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 				dlgDestroyInitFont(hWnd, pData);
 				free(pData);
-				SetWindowLong(hWnd, DWL_DLGDATA, 0);
-				SetWindowLong(hWnd, DWL_DLGPROC, 0);
+				SetWindowLongPtr(hWnd, DWL_DLGDATA, NULL);
+				SetWindowLongPtr(hWnd, DWL_DLGPROC, NULL);
 				if (hPar)
 					SetActiveWindow(hPar);
 			} else
@@ -902,8 +897,7 @@ MapDialogRect(HWND hWnd, LPRECT lpRc)
 	//TEXTMETRIC tm;
 
 	hdc = GetDC(hWnd);
-	oldFnt = SelectObject(hdc,
-			      (HFONT) SendMessage(hWnd, WM_GETFONT, 0, 0));
+	oldFnt = SelectObject(hdc, (HFONT)SendMessage(hWnd, WM_GETFONT, 0, 0));
 	if (GetTextExtentPoint(hdc, defAlpha, sizeof(defAlpha) - 1, &sz))
 	//if( GetTextMetrics(hdc, &tm) )
 	{
@@ -987,9 +981,9 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 		if (pData == NULL)
 			break;
 
-		SetWindowLong(hDlg, DWL_DLGDATA, (LPARAM) pData);
-		SetWindowLong(hDlg, DWL_DLGPROC, (LPARAM) lpDialogFunc);
-		SetWindowLong(hDlg, DWL_USER, dwInitParam);
+		SetWindowLongPtr(hDlg, DWL_DLGDATA, pData);
+		SetWindowLongPtr(hDlg, DWL_DLGPROC, lpDialogFunc);
+		SetWindowLongPtr(hDlg, DWL_USER, dwInitParam);
 		pData->flags = 0;
 		pData->running = FALSE;
 		pData->nResult = 0;
@@ -1022,12 +1016,13 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 			rc.right = rc.left + pItem->cx;
 			rc.bottom = rc.top + pItem->cy;
 			MapDialogRect(hDlg, &rc);
+//printf("CTL %s\n", dlgGetItemClass(pItemExtra));
 			hCtrl = CreateWindowEx(pItem->dwExtendedStyle,
 				 dlgGetItemClass(pItemExtra),
 				 pItemExtra->szCaption, style,
 				 rc.left, rc.top,
 				 rc.right - rc.left, rc.bottom - rc.top,
-				 hDlg, (HMENU) (intptr_t) pItem->id,
+				 hDlg, (HMENU) (int) pItem->id,
 				 hInstance, pItemExtra->lpData);
 
 			if (hCtrl != NULL) {
@@ -1093,7 +1088,6 @@ CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
 	pDlg = (PMWDLGTEMPLATE) LockResource(hResDlg);
 	if (pDlg == NULL)
 		return NULL;
-
 	hRet = CreateDialogIndirectParam(hInstance, (LPCDLGTEMPLATE)pDlg,
 			  hWndParent, lpDialogFunc, dwInitParam);
 

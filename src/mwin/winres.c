@@ -304,19 +304,19 @@ mwFindResource(HINSTANCE hInst, LPCTSTR resType, LPCTSTR resName, PMWRESOURCEHEA
 
 		while (!feof(f)) {
 			pos = ftell(f);
-			pResHead->DataSize = (int)resReadDWord(f, &bEof);
-			pResHead->HeaderSize = (int)resReadDWord(f, &bEof);
+			pResHead->DataSize = resReadDWord(f, &bEof);
+			pResHead->HeaderSize = resReadDWord(f, &bEof);
 			if (bEof)
 				break;
 
 			bType = mwIsSameType(f, resType, &bEof);
 			bName = mwIsSameType(f, resName, &bEof);
 			if (bType && bName) {
-				pResHead->DataVersion = (int)resReadDWord(f, &bEof);
+				pResHead->DataVersion = resReadDWord(f, &bEof);
 				pResHead->MemoryFlags = resReadWord(f, &bEof);
 				pResHead->LanguageId = resReadWord(f, &bEof);
-				pResHead->Version = (int)resReadDWord(f, &bEof);
-				pResHead->Characteristics = (int)resReadDWord(f, &bEof);
+				pResHead->Version = resReadDWord(f, &bEof);
+				pResHead->Characteristics = resReadDWord(f, &bEof);
 				if (bEof)
 					break;
 				fseek(f, pos + pResHead->HeaderSize, SEEK_SET);
@@ -492,7 +492,7 @@ resFirstDlgItem(PMWDLGTEMPLATE pDlg)
 		RES_SKIP_WSTRING(pw);	// skip font name
 	}
 	//  dword align
-	if ((((intptr_t) pw) & 2) != 0)
+	if ((((uint32_t) pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
@@ -510,7 +510,7 @@ resNextDlgItem(PMWDLGITEMTEMPLATE pItem)
 	RES_SKIP_WSTRING(pw);
 	pw += 1 + ((*pw) >> 1);
 	//  dword align
-	if ((((intptr_t) pw) & 2) != 0)
+	if ((((uint32_t) pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
@@ -555,7 +555,7 @@ FindResource(HMODULE hModule, LPCTSTR resName, LPCTSTR resType)
 /*
  *  Return the size of a resource
  */
-UINT
+DWORD
 SizeofResource(HMODULE hModule, HRSRC hResInfo)
 {
 	return hResInfo->head.DataSize;
@@ -576,6 +576,7 @@ LoadResource(HMODULE hModule, HRSRC hRes)
 	if (hRes->pData == NULL)
 		return NULL;
 
+//printf("LoadResource size %d\n", hRes->head.DataSize);
 	fseek(hRes->f, hRes->fPos, SEEK_SET);
 	if (fread(hRes->pData, 1, hRes->head.DataSize, hRes->f) < hRes->head.DataSize) {
 		free(hRes->pData);

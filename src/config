@@ -67,7 +67,7 @@ PARALLEL		 = Y
 # Libraries to build: microwin, nano-X, engine, object frameworks
 #
 ####################################################################
-MICROWIN                 = N
+MICROWIN                 = Y
 NANOX                    = Y
 ENGINE                   = Y
 SHAREDLIBS               = Y
@@ -79,7 +79,7 @@ WITH_NX11		 = Y
 # Demos to build
 #
 ####################################################################
-MICROWINDEMO             = N
+MICROWINDEMO             = Y
 NANOXDEMO                = Y
 
 ####################################################################

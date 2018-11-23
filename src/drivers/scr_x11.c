@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2010, 2017 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 1999 Tony Rogvall <tony@bluetail.com>
  * 	Rewritten to avoid multiple function calls by Greg Haerr
@@ -39,6 +39,9 @@
 #error SCREEN_DEPTH not defined - must be set for palette modes
 #endif
 
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+
 /* externally set override values from nanox/srvmain.c*/
 MWCOORD	nxres;			/* requested server x res*/
 MWCOORD	nyres;			/* requested server y res*/
@@ -48,7 +51,7 @@ static PSD X11_open(PSD psd);
 static void X11_close(PSD psd);
 static void X11_getscreeninfo(PSD psd, PMWSCREENINFO psi);
 static void X11_setpalette(PSD psd, int first, int count, MWPALENTRY * pal);
-static void X11_preselect(PSD psd);
+static int  X11_preselect(PSD psd);
 static void X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
 
 SCREENDEVICE scrdev = {
@@ -77,7 +80,6 @@ unsigned int x11_event_mask;
 
 static int x11_width, x11_height;
 static int x11_depth;		/* Screen depth in bpp */
-
 static int x11_is_palette;	/* Nonzero for palette, zero for true color */
 
 /* For a truecolor X11 system, the following constants define the colors */
@@ -105,6 +107,8 @@ struct color_cache {
 	XColor c;
 };
 static struct color_cache ccache[COLOR_CACHE_SIZE];
+
+static MWCOORD upminX, upminY, upmaxX, upmaxY;
 
 /* called from mou_x11.c*/
 void x11_handle_event(XEvent * ev);
@@ -198,16 +202,16 @@ x11_handle_event(XEvent * ev)
 	if (ev->type == ColormapNotify) {
 		if (ev->xcolormap.window == x11_win) {
 			if (ev->xcolormap.state == ColormapInstalled) {
-				DPRINTF("colormap uninstalled\n");
+				//DPRINTF("colormap uninstalled\n");
 				x11_colormap_installed = 0;
 			} else if (ev->xcolormap.state == ColormapInstalled) {
 				x11_colormap_installed = 1;
-				DPRINTF("colormap installed\n");
+				//DPRINTF("colormap installed\n");
 			}
 		}
 	} else if (ev->type == FocusIn) {
 		if (!x11_colormap_installed) {
-			DPRINTF("setting colormap\n");
+			//DPRINTF("setting colormap\n");
 			XInstallColormap(x11_dpy, x11_colormap);
 			inited = 1;
 		}
@@ -224,7 +228,6 @@ x11_handle_event(XEvent * ev)
 			GdHideCursor(&scrdev);
 	}
 #endif
-
 #if USE_EXPOSURE
 	else if (ev->type == Expose) {
 		scrdev.Update(&scrdev, ev->xexpose.x, ev->xexpose.y, ev->xexpose.width, ev->xexpose.height);
@@ -466,20 +469,20 @@ X11_open(PSD psd)
 		return NULL;
 
 	x11_event_mask = ColormapChangeMask | FocusChangeMask;
-	/*x11_event_mask |= EnterWindowMask | LeaveWindowMask;*/
-
-	event_mask = x11_event_mask | ExposureMask | KeyPressMask |	/* handled by kbd_x11 */
-		KeyReleaseMask |	/* handled by kbd_x11 */
-		ButtonPressMask |	/* handled by mou_x11 */
-		ButtonReleaseMask |	/* handled by mou_x11 */
-		PointerMotionMask;	/* handled by mou_x11 */
-
-
 #if USE_EXPOSURE
+	x11_event_mask |= ExposureMask;	/* handled by mou_x11*/
 	valuemask = CWSaveUnder | CWEventMask;
 #else
 	valuemask = CWSaveUnder | CWEventMask | CWBackingStore;
 #endif
+	/*x11_event_mask |= EnterWindowMask | LeaveWindowMask;*/
+
+	event_mask = x11_event_mask | 
+		KeyPressMask |		/* handled by kbd_x11 */
+		KeyReleaseMask |	/* handled by kbd_x11 */
+		ButtonPressMask |	/* handled by mou_x11 */
+		ButtonReleaseMask |	/* handled by mou_x11 */
+		PointerMotionMask;	/* handled by mou_x11 */
 
 	attr.backing_store = Always;	/* auto expose */
 	attr.save_under = True;		/* popups ... */
@@ -596,7 +599,7 @@ X11_open(PSD psd)
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
+	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
 	psd->portrait = MWPORTRAIT_NONE;
 DPRINTF("x11 emulated bpp %d\n", psd->bpp);
 
@@ -656,13 +659,6 @@ X11_setpalette(PSD psd, int first, int count, MWPALENTRY * pal)
 	n = first + count - 1;
 	if (n > x11_pal_max)
 		x11_pal_max = n;
-}
-
-/* perform pre-select() duties*/
-static void
-X11_preselect(PSD psd)
-{
-	XFlush(x11_dpy);
 }
 
 static void
@@ -753,6 +749,21 @@ update_from_savebits(PSD psd, unsigned int destx, unsigned int desty, int w, int
 	XDestroyImage(img);
 }
 
+/* called before select(), returns # pending events*/
+static int
+X11_preselect(PSD psd)
+{
+	/* perform single blit update of aggregate update region to X11 server*/
+	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
+		update_from_savebits(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
+		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
+		upmaxX = upmaxY = 0;
+	}
+
+	XFlush(x11_dpy);
+	return XPending(x11_dpy);
+}
+
 static void
 X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
@@ -760,5 +771,14 @@ X11_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 		width = psd->xres;
 	if (!height)
 		height = psd->yres;
-	update_from_savebits(psd, x, y, width, height);
+
+	/* window moves require delaying updates until preselect for speed*/
+	if ((psd->flags & PSF_DELAYUPDATE)) {
+			/* calc aggregate update rectangle*/
+			upminX = min(x, upminX);
+			upminY = min(y, upminY);
+			upmaxX = max(upmaxX, x+width-1);
+			upmaxY = max(upmaxY, y+height-1);
+	} else
+		update_from_savebits(psd, x, y, width, height);
 }

@@ -303,17 +303,19 @@ ifeq ($(SHAREDLIB), Y)
 endif
 
 install: $(LIBS)
+#
 #nxlib.a and nxlib.so are copied into src/lib above, so these are installed
-#by Makefile.rules already together with the other libs in /usr/lib
+#by Makefile.rules already together with the other libs in /usr/lib !!!
 #same for NXext.a
+#
 #	$(RM) $(INSTALL_DIR)/lib$(LIBNAME).so; \
 #	$(CP) lib$(LIBNAME).so $(INSTALL_DIR)
-
+#
 #	@MAJREV=`expr $(SOLIBREV) : '\(.*\)\.'`; set -x; \
 #	$(RM) $(INSTALL_DIR)/lib$(LIBNAME).so.$$MAJREV; \
-	$(MV) lib$(LIBNAME).so.$$MAJREV $(INSTALL_DIR)
+#	$(MV) lib$(LIBNAME).so.$$MAJREV $(INSTALL_DIR)
 #	$(RM) $(INSTALL_DIR)/lib$(LIBNAME).so.$(SOLIBREV); \
-	$(MV) lib$(LIBNAME).so.$(SOLIBREV) $(INSTALL_DIR)
+#	$(MV) lib$(LIBNAME).so.$(SOLIBREV) $(INSTALL_DIR)
 #	$(MV) lib$(LIBNAME).a $(INSTALL_DIR)
 
 clean: cleanlibs

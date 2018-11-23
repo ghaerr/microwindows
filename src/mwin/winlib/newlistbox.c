@@ -82,7 +82,7 @@ typedef struct
     LPCSTR  str;       /* Item text */
     BOOL    selected;  /* Is item selected? */
     UINT    height;    /* Item height (only for OWNERDRAWVARIABLE) */
-    DWORD   data;      /* User data */
+    LONG   data;      /* User data */
 } LB_ITEMDATA;
 
 /* Listbox structure */
@@ -810,8 +810,8 @@ static LRESULT LISTBOX_GetText( LB_DESCR *descr, INT index, LPARAM lParam)
         return strlen(buffer);
     } else {
         if (lParam)
-            *((LPDWORD)lParam)=*(LPDWORD)(&descr->items[index].data);
-        return sizeof(DWORD);
+            *((LONG *)lParam)=*(LONG *)(&descr->items[index].data);
+        return sizeof(LONG);
     }
 }
 
@@ -846,7 +846,7 @@ static INT LISTBOX_FindStringPos( HWND hwnd, LB_DESCR *descr, LPCTSTR str,
             /* note that some application (MetaStock) expects the second item
              * to be in the listbox */
             cis.itemID1    = -1;
-            cis.itemData1  = (DWORD)str;
+            cis.itemData1  = (LONG)str;
             cis.itemID2    = index;
             cis.itemData2  = descr->items[index].data;
 #if 0
@@ -963,9 +963,9 @@ static INT LISTBOX_FindString( HWND hwnd, LB_DESCR *descr, INT start,
 
         /* Otherwise use a linear search */
         for (i = start + 1; i < descr->nb_items; i++, item++)
-            if (item->data == (DWORD)str) return i;
+            if (item->data == (LONG)str) return i;
         for (i = 0, item = descr->items; i <= start; i++, item++)
-            if (item->data == (DWORD)str) return i;
+            if (item->data == (LONG)str) return i;
     }
     return LB_ERR;
 }
@@ -1468,7 +1468,7 @@ static void LISTBOX_MoveCaret( HWND hwnd, LB_DESCR *descr, INT index,
  *           LISTBOX_InsertItem
  */
 static LRESULT LISTBOX_InsertItem( HWND hwnd, LB_DESCR *descr, INT index,
-                                   LPCSTR str, DWORD data )
+                                   LPCSTR str, LONG data )
 {
     LB_ITEMDATA *item;
     INT max_items;
@@ -1565,7 +1565,7 @@ static LRESULT LISTBOX_InsertString( HWND hwnd, LB_DESCR *descr, INT index,
                                      LPCTSTR str )
 {
     LPTSTR new_str = NULL;
-    DWORD data = 0;
+    LONG data = 0;
     LRESULT ret;
 
     if (HAS_STRINGS(descr))
@@ -1578,7 +1578,7 @@ static LRESULT LISTBOX_InsertString( HWND hwnd, LB_DESCR *descr, INT index,
         }
         strcpy(new_str, str);
     }
-    else data = (DWORD)str;
+    else data = (LONG)str;
 
     if (index == -1) index = descr->nb_items;
     if ((ret = LISTBOX_InsertItem( hwnd, descr, index, new_str, data )) != 0)
@@ -2466,7 +2466,7 @@ static BOOL LISTBOX_Create( HWND hwnd, LPHEADCOMBO lphc )
         descr->owner = lphc->self;
     }
 
-    SetWindowLong( hwnd, 0, (LONG)descr );
+    SetWindowLongPtr( hwnd, 0, (LONG_PTR)descr );
 
 /*    if (wnd->dwExStyle & WS_EX_NOPARENTNOTIFY) descr->style &= ~LBS_NOTIFY;
  */
@@ -2506,7 +2506,7 @@ static BOOL LISTBOX_Create( HWND hwnd, LPHEADCOMBO lphc )
 static BOOL LISTBOX_Destroy( HWND hwnd, LB_DESCR *descr )
 {
     LISTBOX_ResetContent( hwnd, descr );
-    SetWindowLong( hwnd, 0, 0 );
+    SetWindowLongPtr( hwnd, 0, NULL );
     free( descr );
     return TRUE;
 }
@@ -2521,7 +2521,7 @@ static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
     LRESULT ret;
     LB_DESCR *descr;
 
-    if (!(descr = (LB_DESCR *)GetWindowLong( hwnd, 0 )))
+    if (!(descr = (LB_DESCR *)GetWindowLongPtr( hwnd, 0 )))
     {
         if (msg == WM_CREATE)
         {
@@ -2599,7 +2599,7 @@ static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
     case LB_SETITEMDATA:
         if (((INT)wParam < 0) || ((INT)wParam >= descr->nb_items))
             return LB_ERR;
-        descr->items[wParam].data = (DWORD)lParam;
+        descr->items[wParam].data = (LONG)lParam;
         return LB_OKAY;
 
     case LB_GETCOUNT:
@@ -2611,7 +2611,7 @@ static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
     case LB_GETTEXTLEN:
         if ((INT)wParam >= descr->nb_items || (INT)wParam < 0)
             return LB_ERR;
-        if (!HAS_STRINGS(descr)) return sizeof(DWORD);
+        if (!HAS_STRINGS(descr)) return sizeof(LONG);
         return strlen ( descr->items[wParam].str );
 
     case LB_GETCURSEL:
@@ -3096,7 +3096,7 @@ LRESULT WINAPI ComboLBWndProcW( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 }
 
 
-DWORD STDCALL
+LONG STDCALL
 GetListBoxInfo(HWND hwnd)
 {
   UNIMPLEMENTED;

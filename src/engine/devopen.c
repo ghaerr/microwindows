@@ -49,12 +49,12 @@ MWTILE     gr_tile;
 MWPOINT    gr_ts_offset;
 
 /**
- * Open low level graphics driver.
+ * Open low level graphics driver and optionally clear screen.
  *
  * @return The screen drawing surface.
  */
 PSD
-GdOpenScreen(void)
+GdOpenScreenExt(MWBOOL clearflag)
 {
 	PSD			psd;
 	MWPALENTRY *		stdpal;
@@ -146,8 +146,20 @@ GdOpenScreen(void)
 #endif /* NOCLIPPING*/
 
 	/* fill black (actually fill to first palette entry or truecolor 0*/
-	psd->FillRect(psd, 0, 0, psd->xvirtres-1, psd->yvirtres-1, 0);
+	if (clearflag)
+		psd->FillRect(psd, 0, 0, psd->xvirtres-1, psd->yvirtres-1, 0);
 	return psd;
+}
+
+/**
+ * Open low level graphics driver and clear screen.
+ *
+ * @return The screen drawing surface.
+ */
+PSD
+GdOpenScreen(void)
+{
+	return GdOpenScreenExt(TRUE);
 }
 
 /**

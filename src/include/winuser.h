@@ -8,7 +8,7 @@
 
 /* moved from windef.h for resource compiler*/
 typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
-typedef BOOL (CALLBACK* DLGPROC)(HWND, UINT, WPARAM, LPARAM);
+typedef DLGBOOL (CALLBACK* DLGPROC)(HWND, UINT, WPARAM, LPARAM);
 
 /* win api*/
 #define DefWindowProcW(hwnd, msg, wParam, lParam) DefWindowProc(hwnd, msg, wParam, lParam)
@@ -252,6 +252,8 @@ BOOL RegisterHotKey(HWND hWnd, int id, UINT fsModifiers, UINT vk);
 BOOL UnregisterHotKey(HWND hWnd, int id);
 BOOL MwDeliverHotkey (WPARAM VK_Code, BOOL pressed);
 
+SHORT WINAPI GetKeyState(int nVirtKey);
+
 /* note: the following struct is in reverse order from the
  * microsoft version since WINAPI is cdecl in this implementation
  */
@@ -468,18 +470,19 @@ BOOL WINAPI	OffsetRect(LPRECT lprc, int dx, int dy);
 BOOL WINAPI	MwPTINRECT(CONST RECT *lprc, POINT pt);
 
 /*
- * Window field offsets for GetWindowLong()
+ * Window field offsets for GetWindowLong()/GetWindowLongPtr()
  */
 #define GWL_WNDPROC         (-4)
 #define GWL_HINSTANCE       (-6)
 #define GWL_HWNDPARENT      (-8)
+#define GWL_ID              (-12)
 #define GWL_STYLE           (-16)
 #define GWL_EXSTYLE         (-20)
 #define GWL_USERDATA        (-21)
-#define GWL_ID              (-12)
+
 
 /*
- * Class field offsets for GetClassLong()
+ * Class field offsets for GetClassLong()/GetClassLongPtr
  */
 #define GCL_MENUNAME        (-8)
 #define GCL_HBRBACKGROUND   (-10)
@@ -494,7 +497,9 @@ BOOL WINAPI	MwPTINRECT(CONST RECT *lprc, POINT pt);
 #define GCL_HICONSM         (-34)
 
 LONG WINAPI	GetWindowLong(HWND hwnd, int nIndex);
+LONG_PTR WINAPI	GetWindowLongPtr(HWND hwnd, int nIndex);			// 64bit
 LONG WINAPI	SetWindowLong(HWND hwnd, int nIndex, LONG lNewLong);
+LONG_PTR WINAPI	SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong);	// 64bit
 WORD WINAPI	GetWindowWord(HWND hwnd, int nIndex);
 WORD WINAPI	SetWindowWord(HWND hwnd, int nIndex, WORD wNewWord);
 BOOL WINAPI SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData);
@@ -503,6 +508,7 @@ HANDLE WINAPI RemoveProp(HWND hWnd, LPCSTR lpString);
 
 #define GetDlgCtrlID(hwnd)	((int)(hwnd)->id)
 DWORD WINAPI	GetClassLong(HWND hwnd, int nIndex);
+ULONG_PTR WINAPI GetClassLongPtr(HWND hwnd, int nIndex);
 #define GetWindowTextLengthW(hwnd) GetWindowTextLength(hwnd);
 int WINAPI	GetWindowTextLength(HWND hwnd);
 #define GetWindowTextW(hwnd, lpString, nMaxCount) GetWindowText(hwnd, lpString, nMaxCount)

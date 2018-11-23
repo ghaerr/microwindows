@@ -1,0 +1,6 @@
+These are some test routines using AGG Lite rendering and an AdaFruit compatible
+GFX library implementation for much nicer round rects and circles for embedded devices.
+
+These routines run directly on the engine layer and don't use the NX or win32/mwin APIs.
+I hope to get further along in another revision and add the round rect and circle
+routines into microwindows main draw routines, as well as experiment with float coordinates.

@@ -353,7 +353,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_ERASEBKGND:
 		/* erase background with class background brush*/
-		hbr = (HBRUSH)GetClassLong(hwnd, GCL_HBRBACKGROUND);
+		hbr = (HBRUSH)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND);
 		if(!hbr)
 			return 0;
 		/* don't exclude update region*/
@@ -418,7 +418,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetTextColor (hdc, BLACK);
 		SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
 		SetBkMode(hdc, TRANSPARENT);
-		SelectObject(hdc, (HFONT)SendMessage(hCtl, WM_GETFONT, 0, 0));
+		SelectObject(hdc, (HFONT)SendMessage(hCtl, WM_GETFONT, (WPARAM)0, (LPARAM)0));
 		SelectObject(hdc, GetStockObject(BLACK_PEN) );
 
 		switch ( dwStyle & SS_ETCTYPEMAKS )

@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static MWKEYMOD mwCurrentModifiers;
+
 static LPFN_KEYBTRANSLATE mwPtrKeyboardTranslator = NULL;
 
 /*
@@ -181,7 +183,6 @@ MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest,int buttons)
 /*
  * Deliver a mouse button or motion event.
  */
-int mwCurrentButtons;
 
 void 
 MwDeliverMouseEvent(int buttons, int changebuttons, MWKEYMOD modifiers)
@@ -190,7 +191,7 @@ MwDeliverMouseEvent(int buttons, int changebuttons, MWKEYMOD modifiers)
 	int	hittest;
 	UINT	msg;
 
-	mwCurrentButtons = buttons;
+	mwCurrentModifiers = modifiers;
 
 	hwnd = GetCapture();
 	if(!hwnd)
@@ -243,6 +244,8 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 {
 	WPARAM VK_Code = -1;		/* set to default if no VK found. */
     	LPARAM lParam = 0L;		/* used to specify control keys */
+
+	mwCurrentModifiers = modifiers;	/* save current keyboard modifiers*/
 
 	/* Keysyms from 1-255 are mapped to ASCII*/
 	if (keyvalue < 1 || keyvalue > 255)
@@ -462,6 +465,26 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 		else
 			PostMessage(focuswp, WM_KEYUP, VK_Code, lParam);
 	}
+}
+
+SHORT WINAPI
+GetKeyState(int nVirtKey)
+{
+	switch(nVirtKey) {
+	case VK_CONTROL:
+		if (mwCurrentModifiers & MWKMOD_CTRL)
+			return 0x8000;
+		break;
+	case VK_SHIFT:
+		if (mwCurrentModifiers & MWKMOD_SHIFT)
+			return 0x8000;
+		break;
+	case VK_MENU:		/* alt*/
+		if (mwCurrentModifiers & (MWKMOD_ALT|MWKMOD_META))
+			return 0x8000;
+		break;
+	}
+	return 0;
 }
 
 /*

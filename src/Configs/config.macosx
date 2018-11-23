@@ -26,6 +26,7 @@
 # LINUX-SH
 # SOLARIS (BIGENDIAN=Y)
 # PSP
+# NDS (Nintendo DS)
 # TRIMEDIA
 # MACOSX
 # RTEMS
@@ -56,10 +57,11 @@ GPROF                    = N
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, nanowidget, object frameworks
+# Libraries to build: microwin, nano-X, engine, object frameworks
 #
 ####################################################################
 MICROWIN                 = Y
+ENGINE                   = Y
 NANOX                    = Y
 SHAREDLIBS               = N
 OBJFRAMEWORK             = N
@@ -228,7 +230,8 @@ LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping
 ####################################################################
-NOFONTSORCLIPPING        = N
+NOFONTS                  = N
+NOCLIPPING               = N
 
 ####################################################################
 # Window move algorithms for Microwindows
@@ -259,6 +262,9 @@ FRAMEBUFFER              = N
 
 # memory screen driver
 SCRMEM                   = N
+
+# Nintendo DS screen driver
+SCRNDS                   = N
 
 # PSP screen driver
 PSP                      = N
@@ -291,6 +297,7 @@ INVERT4BPP               = N
 # ADSMOUSE	Applied Data Systems GC+ (/dev/ts)
 # ADS7846MOUSE	ADS7846 chip, PSI OMAP Innovator (/dev/innnovator_ts)
 # EPMOUSE	Embedded Planet (/dev/tpanel)
+# EVENTMOUSE	Simple standard event interface (/dev/input/event0)
 # VHMOUSE	Vtech Helio (/dev/tpanel)
 # MTMOUSE	MicroTouch serial (/dev/ttyS1)
 # PSIONMOUSE	Psion 5 (/dev/touch_psion)
@@ -311,12 +318,14 @@ ADS7846MOUSE             = N
 EPMOUSE                  = N
 VHMOUSE                  = N
 MTMOUSE                  = N
+NDSMOUSE                 = N
+EVENTMOUSE               = N
 PSIONMOUSE               = N
 YOPYMOUSE                = N
 HARRIERMOUSE             = N
 LIRCMOUSE                = N
 TSLIBMOUSE               = N
-TTMOUSE		             = N
+TTMOUSE	                 = N
 PSPMOUSE                 = N
 
 # keyboard or null kbd driver
@@ -326,6 +335,7 @@ PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
 PSPKBD                   = N
+EVENTKBD                 = N
 NOKBD                    = N
 # Secondary keyboard drivers for IR input
 LIRCKBD2                 = N

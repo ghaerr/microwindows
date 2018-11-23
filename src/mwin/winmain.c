@@ -367,9 +367,19 @@ MwSelect(BOOL mayWait)
 	struct timeval to, *pto;
 	BOOL    maybeInfinite = TRUE;
 
-	/* perform pre-select duties, if any*/
+	/* X11 update screen & flush buffers*/
 	if(scrdev.PreSelect)
-		scrdev.PreSelect(&scrdev);
+	{
+		/* returns # pending events*/
+		if (scrdev.PreSelect(&scrdev))
+		{
+			while(MwCheckMouseEvent())
+				continue;
+			while(MwCheckKeyboardEvent())
+				continue;
+			return;
+		}
+	}
 
 	/* Set up the FDs for use in the main select(): */
 	FD_ZERO(&rfds);
@@ -423,16 +433,16 @@ MwSelect(BOOL mayWait)
 			to.tv_usec = (timeout % 1000) * 1000;
 		} else
 			maybeInfinite = FALSE;
-#else /* if ! MW_FEATURE_TIMERS */
+#else
 		to.tv_sec = timeout / 1000;
 		to.tv_usec = (timeout % 1000) * 1000;
-#endif /* ! MW_FEATURE_TIMERS */
+#endif
 		/*  If no timers are scheduled 
 		    so the select function will wait forever...  */
 		if( maybeInfinite && (to.tv_sec == 0) && (to.tv_usec == 0) )
 			pto = NULL;
 	}
-		
+
 	/* Wait for some input on any of the fds in the set or a timeout: */
 	if((e = select(setsize, &rfds, &wfds, &efds, pto)) > 0) {
 		
@@ -446,7 +456,7 @@ MwSelect(BOOL mayWait)
 			MwCheckKeyboardEvent();
 /*	GB: Only one key at a time is posted to focused window...
 			while(MwCheckKeyboardEvent())
-				continue;	*/
+				continue;
 
 		/* If registered descriptor, handle it */
 		fd = userregfd_head;
@@ -460,8 +470,7 @@ MwSelect(BOOL mayWait)
 			fd = userregfd[fd].next;
 		}
 	} 
-	else if(e == 0) {
-		/* timeout has occured*/
+	else if(e == 0) { /* timeout*/
 #if MW_FEATURE_TIMERS
 		if(GdTimeout() == FALSE)
 			return;
@@ -604,11 +613,13 @@ MwInitialize(void)
 		return -1;
 	}
 
-	if ((psd = GdOpenScreen()) == NULL) {
+	if ((psd = GdOpenScreenExt(FALSE)) == NULL) {
 		EPRINTF("Cannot initialise screen\n");
 		GdCloseKeyboard();
 		return -1;
 	}
+	/* delay x11 driver updates until preselect time for speed*/
+	psd->flags |= PSF_DELAYUPDATE;
 
 	if ((mouse_fd = GdOpenMouse()) == -1) {
 		EPRINTF("Cannot initialise mouse\n");

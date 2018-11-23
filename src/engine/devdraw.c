@@ -34,7 +34,7 @@ extern int        gr_fillmode;
 /*static*/ void drawpoint(PSD psd,MWCOORD x, MWCOORD y);
 
 /*static*/ void drawrow(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y);
-static void drawcol(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2);
+/*static*/ void drawcol(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2);
 
 /**
  * Set the drawing mode for future calls.
@@ -156,14 +156,14 @@ GdSetDash(uint32_t *mask, int *count)
 	int oldm = gr_dashmask;
 	int oldc = gr_dashcount;
 
-	if (!mask || !count)
-		return;
+	//if (!mask || !count)
+		//return;
 
-	gr_dashmask = *mask;
-	gr_dashcount = *count;
+	gr_dashmask = mask? *mask: 0;
+	gr_dashcount = count? *count: 0;
 
-	*mask = oldm;
-	*count = oldc;
+	if (mask) *mask = oldm;
+	if (count) *count = oldc;
 }
 
 /**
@@ -401,7 +401,7 @@ drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y)
 /* Draw a vertical line from y1 to and including y2 in the
  * foreground color, applying clipping if necessary.
  */
-static void
+/*static*/ void
 drawcol(PSD psd, MWCOORD x,MWCOORD y1,MWCOORD y2)
 {
 	MWCOORD temp;
@@ -665,7 +665,8 @@ GdDrawImage(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 
 	/* if not using new MWIF_ format and convblit drivers, must draw pixel by pixel*/
 	if (!convblit) {
-		DPRINTF("GdDrawImage: not RGBA/RGB format or no convblit, using slow GdDrawImageByPoint\n");
+		if (pimage->bpp != 4)		/* don't complain about win32 bmp format conversions*/
+			DPRINTF("GdDrawImage: not RGBA/RGB format or no convblit, using slow GdDrawImageByPoint\n");
 		GdDrawImageByPoint(psd, x, y, pimage);			/* old pixel-by-pixel drawing*/
 		return;
 	}

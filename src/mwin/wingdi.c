@@ -209,9 +209,9 @@ BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
 	 * and indicate delayed painting required, which
 	 * will occur after user completes window move.
 	 */
-	if(mwERASEMOVE && dragwp) {
+	if(mwERASEMOVE && dragwp && hwnd != rootwp) {	/* don't prohibit root window wallpaper*/
 		hdc = NULL;
-		lpPaint->fErase = !DefWindowProc(hwnd, WM_ERASEBKGND, 0, 0L);
+		lpPaint->fErase = !DefWindowProc(hwnd, WM_ERASEBKGND, (WPARAM)0, (LPARAM)0);
 		hwnd->gotPaintMsg = PAINT_DELAYPAINT;
 	} else {
 		HideCaret(hwnd);
@@ -222,7 +222,7 @@ BeginPaint(HWND hwnd, LPPAINTSTRUCT lpPaint)
 
 		/* erase client background, always w/alpha blending*/
 		if(hwnd->nEraseBkGnd > 0 || mwforceNCpaint)
-			lpPaint->fErase = !SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)hdc, 0L);
+			lpPaint->fErase = !SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)hdc, (LPARAM)0);
 		else
 			lpPaint->fErase = 0;
 
@@ -761,9 +761,9 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 		MapWindowPoints(hwnd, NULL, (LPPOINT)&rc, 2);
 
 	/* handle COLOR_xxx + 1 passed as HBRUSH*/
-	if((intptr_t)obr <= MAXSYSCOLORS)
-		crFill = GetSysColor((intptr_t)obr-1);
-	else {
+	if((UINT_PTR)obr <= MAXSYSCOLORS) {		// 64bit convert pointer to UINT without truncation
+		crFill = GetSysColor((int)obr-1);
+	} else {
 		/* get color from passed HBRUSH*/
 		if(obr->style == BS_NULL)
 			return TRUE;
@@ -1112,7 +1112,7 @@ mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags
 static int WINAPI
 MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 {
-	LPSTR str = (LPSTR)lpsz;
+	LPCSTR str = lpsz;
 	int lineheight;
 	int textwidth;
 	int x, y, baseline, baselinefnt;
@@ -1775,7 +1775,7 @@ HBITMAP CreateDIBSection(
   VOID **ppvBits, HANDLE hSection, DWORD dwOffset)
 {
 	MWBITMAPOBJ *	hbitmap;
-	int		size;
+	unsigned int	size;
 	unsigned int pitch;
 	PSD psd = hdc? hdc->psd: &scrdev;
 

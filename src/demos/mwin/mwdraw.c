@@ -42,7 +42,7 @@
 	   hwnd = CreateWindowEx(
 	      WS_EX_CLIENTEDGE,                         // what the border looks like
 	      g_class_name,
-	      "The title of my window",                 // text appearing in top bar
+	      "Simple Graphics Routines",                 // text appearing in top bar
 	      WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 	      CW_USEDEFAULT, CW_USEDEFAULT, 540, 620,   // window xpos, ypos, width, height
 	      NULL, NULL, hInstance, NULL);
@@ -90,8 +90,9 @@
 	     PostQuitMessage(0);
 	     return 0;
 	  default:
-	     return DefWindowProc(hwnd, msg, wParam, lParam);
-   }
+	     break;
+	  }
+	  return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 int EZplot(HWND hwnd, int x, int y)
@@ -131,7 +132,6 @@ int EZplot(HWND hwnd, int x, int y)
       DeleteObject(pen);
       DeleteObject(brush);
       DeleteObject(wbrush);
-  
-      return 0;
    }
+   return 0;
 }

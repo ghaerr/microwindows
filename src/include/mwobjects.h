@@ -146,8 +146,14 @@ namespace MicroWindowsObjects
 
     LONG get_long (int nIndex)
       { return ::GetWindowLong (hwnd, nIndex); }
-    LONG set_long (int nIndex, LONG wNewLong)
-      { return ::SetWindowWord (hwnd, nIndex, wNewLong); }
+    LONG_PTR get_long_ptr (int nIndex)
+      { return ::GetWindowLongPtr (hwnd, nIndex); }
+
+    LONG set_long (int nIndex, LONG lNewLong)
+      { return ::SetWindowWord (hwnd, nIndex, lNewLong); }
+    LONG_PTR set_long_ptr (int nIndex, LONG lNewLong)
+      { return ::SetWindowLong (hwnd, nIndex, lNewLong); }
+
     WORD get_word (int nIndex)
       { return ::GetWindowWord (hwnd, nIndex); }
     WORD set_word (int nIndex, WORD wNewWord)
@@ -155,6 +161,9 @@ namespace MicroWindowsObjects
 
     DWORD get_class_long (int nIndex)
       { return ::GetClassLong (hwnd, nIndex); }
+
+    LONG_PTR get_class_long_ptr (int nIndex)
+      { return ::GetClassLongPtr (hwnd, nIndex); }
 
     int get_text (LPSTR lpString, int nMaxCount)
       { return GetWindowText (hwnd, lpString, nMaxCount); }

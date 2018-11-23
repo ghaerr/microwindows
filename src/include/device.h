@@ -12,6 +12,9 @@
 #include "mwtypes.h"			/* public export typedefs*/
 #include "mwsystem.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* Changeable limits and options*/
 #define UNIFORMPALETTE	1	/* =1 for 256 entry uniform palette (required for palette alpha blending)*/
 #define POLYREGIONS		1		/* =1 includes polygon regions*/
@@ -165,7 +168,7 @@ typedef struct _mwscreendevice {
 	void	(*FreeMemGC)(PSD mempsd);
 	void	(*SetPortrait)(PSD psd,int portraitmode);
 	void	(*Update)(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
-	void	(*PreSelect)(PSD psd);
+	int	(*PreSelect)(PSD psd);
 	int	portrait;	 /* screen portrait mode*/
 	PSUBDRIVER orgsubdriver; /* original subdriver for portrait modes*/
 	PSUBDRIVER left_subdriver;
@@ -200,6 +203,7 @@ typedef struct _mwscreendevice {
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
 #define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
 #define PSF_IMAGEHDR		0x0040	/* psd is actually MWIMAGEHDR*/
+#define PSF_DELAYUPDATE		0x0080	/* for X11: delay Update() calls until PreSelect()*/
 
 /* Interface to Mouse Device Driver*/
 typedef struct _mousedevice {
@@ -240,6 +244,7 @@ typedef struct _kbddevice {
 
 /* devdraw.c*/
 PSD		GdOpenScreen(void);
+PSD		GdOpenScreenExt(MWBOOL clearflag);
 void	GdCloseScreen(PSD psd);
 int		GdSetPortraitMode(PSD psd, int portraitmode);
 int		GdSetMode(int mode);
@@ -276,6 +281,7 @@ void	GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 			MWCOORD inpitch, void *out, int outpixtype, int outpitch);
 void	drawpoint(PSD psd, MWCOORD x, MWCOORD y);
 void	drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y);
+void	drawcol(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2);
 extern SCREENDEVICE scrdev;
 extern MWPIXELVAL gr_foreground;		/* current foreground color */
 extern MWPIXELVAL gr_background;		/* current background color */
@@ -378,6 +384,7 @@ void	GdSetCursor(PMWCURSOR pcursor);
 int 	GdShowCursor(PSD psd);
 int 	GdHideCursor(PSD psd);
 void	GdCheckCursor(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2);
+void	GdEraseCursor(PSD psd);
 void 	GdFixCursor(PSD psd);
 void    GdSetTransform(MWTRANSFORM *);
 
@@ -517,4 +524,7 @@ int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
   #define main	rtems_main
 #endif
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 #endif /*_DEVICE_H*/

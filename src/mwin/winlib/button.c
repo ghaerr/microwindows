@@ -28,23 +28,34 @@
 
 #define CONFIG_AUTORADIOBUTTONSIZE
 
-#define GET_PBSTATE(h)			(GetWindowWord(h, 0))
-#define GET_PBCAPTURE(h)		(GetWindowWord(h, 2))
-#define GET_PBWASINSIDE(h)		(GetWindowWord(h, 4))
-#define GET_PBDELETEFONT(h)		(GetWindowWord(h, 6))
-#define GET_PBFONT(h)			(GetWindowWord(h, 8))
-#define GET_WND_FONT(h)			((HFONT)GetWindowLong(h, 16))
-#define GET_PBTXTRECT(h,t)		{(t).left=GetWindowLong(h, 24); (t).right=GetWindowLong(h, 32);}
+// GetWindowLong offsets
+#define PBL_STATE		(0)
+#define PBL_CAPTURE		(PBL_STATE+sizeof(LONG))
+#define PBL_WASINSIDE		(PBL_CAPTURE+sizeof(LONG))
+#define PBL_DELETEFONT		(PBL_WASINSIDE+sizeof(LONG))
+#define PBL_FONT		(PBL_DELETEFONT+sizeof(LONG))
+#define PBL_WND_FONT		(PBL_FONT+sizeof(LONG_PTR))
+#define PBL_TXTLEFTTOP		(PBL_WND_FONT+sizeof(LONG_PTR))
+#define PBL_TXTRIGHTBOTTOM	(PBL_TXTLEFTTOP+sizeof(LONG))
+#define PB_EXTRABYTES		(PBL_TXTRIGHTBOTTOM+sizeof(LONG))
 
-#define SET_PBSTATE(h,x)		(SetWindowWord(h, 0, x))
-#define SET_PBCAPTURE(h,x)		(SetWindowWord(h, 2, x))
-#define SET_PBWASINSIDE(h,x)		(SetWindowWord(h, 4, x))
-#define SET_PBDELETEFONT(h,x)		(SetWindowWord(h, 6, x))
-#define SET_PBFONT(h,x)			(SetWindowWord(h, 8, x))
-#define SET_WND_FONT(h, f)		(SetWindowLong(h, 16, (LPARAM)(f)))
-#define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, 24, MAKELONG((t).left, (t).top)); SetWindowLong(h, 32, MAKELONG((t).right, (t).bottom)); }
+#define GET_PBSTATE(h)			(GetWindowLong(h, PBL_STATE))
+#define GET_PBCAPTURE(h)		(GetWindowLong(h, PBL_CAPTURE))
+#define GET_PBWASINSIDE(h)		(GetWindowLong(h, PBL_WASINSIDE))
+#define GET_PBDELETEFONT(h)		(GetWindowLong(h, PBL_DELETEFONT))
+#define GET_PBFONT(h)			(GetWindowLongPtr(h, PBL_FONT))
+#define GET_WND_FONT(h)			((HFONT)GetWindowLongPtr(h, PBL_WND_FONT))
+#define GET_PBTXTRECT(h,t)		{(t).left=GetWindowLong(h, PBL_TXTLEFTTOP); (t).right=GetWindowLong(h, PBL_TXTRIGHTBOTTOM);}
 
-#define PARENT(hwnd)		((HWND)GetWindowLong(hwnd,GWL_HWNDPARENT))
+#define SET_PBSTATE(h,x)		(SetWindowLong(h, PBL_STATE, x))
+#define SET_PBCAPTURE(h,x)		(SetWindowLong(h, PBL_CAPTURE, x))
+#define SET_PBWASINSIDE(h,x)		(SetWindowLong(h, PBL_WASINSIDE, x))
+#define SET_PBDELETEFONT(h,x)		(SetWindowLong(h, PBL_DELETEFONT, x))
+#define SET_PBFONT(h,x)			(SetWindowLongPtr(h, PBL_FONT, x))
+#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, PBL_WND_FONT, (f)))
+#define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, PBL_TXTLEFTTOP, MAKELONG((t).left, (t).top)); SetWindowLong(h, PBL_TXTRIGHTBOTTOM, MAKELONG((t).right, (t).bottom)); }
+
+#define PARENT(hwnd)		((HWND)GetWindowLongPtr(hwnd,GWL_HWNDPARENT))
 
 /* Internal state variable bit positions				*/
 #define PUSH_UP		0x0000
@@ -107,6 +118,8 @@ static void WINAPI	cenButton_OnSetStyle( HWND, WORD, BOOL);
 static void WINAPI	cenButton_OnSetState( HWND, WORD);
 static void WINAPI	cenButton_SetState( HWND, WORD, BOOL);
 static void WINAPI	cenButton_OnSetText( HWND, LPCSTR);
+
+LRESULT CALLBACK cenButtonWndFn(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 static void WINAPI
 cenButton_FnEnd(
@@ -819,11 +832,7 @@ LPCSTR		lpszText)
 }
 
 LRESULT CALLBACK
-cenButtonWndFn(
-HWND	hwnd,
-UINT	message,
-WPARAM	wParam,
-LPARAM	lParam)
+cenButtonWndFn(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	/* This is the window proc for the pushbutton control.	Most of	   */
 	/* the drawing is accomplished in the DrawPushButton() function. */
@@ -975,7 +984,7 @@ MwRegisterButtonControl(HINSTANCE hInstance)
 	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc	= (WNDPROC)cenButtonWndFn;
 	wc.cbClsExtra	= 0;
-	wc.cbWndExtra	= 40; //24; extend for 64bit
+	wc.cbWndExtra	= PB_EXTRABYTES;
 	wc.hInstance	= hInstance;
 	wc.hIcon	= NULL;
 	wc.hCursor	= 0; /*LoadCursor(NULL, IDC_ARROW);*/

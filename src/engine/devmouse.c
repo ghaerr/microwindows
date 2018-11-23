@@ -512,6 +512,18 @@ GdCheckCursor(PSD psd,MWCOORD x1,MWCOORD y1,MWCOORD x2,MWCOORD y2)
 	curneedsrestore = TRUE;
 }
 
+/**
+ * Remove cursor from display, restored with GdFixCursor.
+ */
+void
+GdEraseCursor(PSD psd)
+{
+	if (curvisible <= 0 || (psd->flags & PSF_SCREEN) == 0)
+		return;
+
+	GdHideCursor(psd);
+	curneedsrestore = TRUE;
+}
 
 /**
  * Redisplay the cursor if it was removed because of a graphics operation.

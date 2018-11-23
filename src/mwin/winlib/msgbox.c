@@ -125,8 +125,8 @@ static int CopyToWchar (PWCHAR lpDest, LPCSTR lpText, int nChars)
 /*
  * Window procedure for the dialog box
  */
-static BOOL MessageBoxProc( HWND hwnd, UINT message,
-                                        WPARAM wParam, LPARAM lParam )
+static LRESULT
+MessageBoxProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
   int i;
   PMSGBOXINFO mbi;
@@ -491,7 +491,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
 #endif
 
     /* create static for text */
-    dest = (BYTE*)(((DWORD)dest + 3) & ~3);
+    dest = (BYTE*)(((LONG)dest + 3) & ~3);
     itxt = (DLGITEMTEMPLATE *)dest;
     itxt->style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
     if(lpMsgBoxParams->dwStyle & MB_RIGHT)
@@ -515,7 +515,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     btnrect.left = btnrect.top = 0;
     for(i = 0; i < nButtons; i++)
     {
-      dest = (BYTE*)(((DWORD)dest + 3) & ~3);
+      dest = (BYTE*)(((LONG)dest + 3) & ~3);
       ibtn[i] = (DLGITEMTEMPLATE *)dest;
       ibtn[i]->style = WS_CHILD | WS_VISIBLE | WS_TABSTOP;
       if(!defbtn && (i == ((lpMsgBoxParams->dwStyle & MB_DEFMASK) >> 8)))

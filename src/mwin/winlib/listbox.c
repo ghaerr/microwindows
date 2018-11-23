@@ -66,10 +66,11 @@
 #include "wintern.h"
 #include "wintools.h"		/* Draw3dBox */
 #include "device.h"		/* GdGetTextSize */
+#include <assert.h>
 
 //  WM_SETFONT implementation
-#define GET_WND_FONT(h)			((HFONT)GetWindowLong(h, 0))
-#define SET_WND_FONT(h, f)		(SetWindowLong(h, 0, (LPARAM)(f)))
+#define GET_WND_FONT(h)			((HFONT)GetWindowLongPtr(h, 0))
+#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, 0, (LONG_PTR)(f)))
 #define ISOWNERDRAW(dwStyle)	((dwStyle & (LBS_OWNERDRAWFIXED | LBS_OWNERDRAWVARIABLE)) != 0)
 
 #define FixStrAlloc(n)	malloc((n)+1)
@@ -96,8 +97,8 @@ typedef struct _LISTBOXITEM
 {
 	char *key;		/* item sort key */
 	DWORD dwFlags;		/* item flags */
-	DWORD dwData;		/* item data */
-	DWORD dwAddData;	/* item additional data */
+	LONG dwData;		/* item data */
+	LONG dwAddData;		/* item additional data */
 	struct _LISTBOXITEM *next;	/* next item */
 } LISTBOXITEM, *PLISTBOXITEM;
 
@@ -159,7 +160,7 @@ MwRegisterListboxControl(HINSTANCE hInstance)
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc = (WNDPROC) ListboxCtrlProc;
 	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 4;	// WM_SETFONT
+	wc.cbWndExtra = sizeof(LONG_PTR);	// WM_SETFONT
 	wc.hInstance = hInstance;
 	wc.hIcon = NULL;
 	wc.hCursor = 0;		/*LoadCursor(NULL, IDC_ARROW); */
@@ -167,6 +168,7 @@ MwRegisterListboxControl(HINSTANCE hInstance)
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = "LISTBOX";
 
+assert(sizeof(LPARAM) == sizeof(LONG_PTR));
 	return RegisterClass(&wc);
 }
 
@@ -237,6 +239,7 @@ lstCalcHeight(HWND hwnd)
 	int xw, xh, xb;
 	PLISTBOXDATA pData = (PLISTBOXDATA) hwnd->userdata;
 	BOOL other = FALSE;
+
 	if (ISOWNERDRAW(GetWindowLong(hwnd, GWL_STYLE)))
 		other = lbAskMeasureItem(hwnd, -1, &pData->itemHeight);
 
@@ -896,7 +899,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (pData == NULL)
 			return -1;
 
-		pCtrl->userdata = (DWORD) pData;
+		pCtrl->userdata = (LONG) pData;
 		if (!lstInitListBoxData(hwnd, pData, DEF_LB_BUFFER_LEN)) {
 			free(pData);
 			return -1;
@@ -946,7 +949,6 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				NotifyParent(hwnd, pCtrl->id, LBN_ERRSPACE);
 				return LB_ERRSPACE;
 			}
-
 			newItem->key = FixStrAlloc(strlen(string));
 			strcpy(newItem->key, string);
 			newItem->dwFlags = LBIF_NORMAL;
@@ -962,12 +964,12 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				if (dwStyle & LBS_USEICON)
 					newItem->dwData =
-						(DWORD) plbii->hIcon;
+						(LONG) plbii->hIcon;
 				else
 					newItem->dwData = 0L;
 			} else
 				if (!(dwStyle & LBS_HASSTRINGS))
-					newItem->dwData = (intptr_t)newItem->key;
+					newItem->dwData = newItem->key;
 			newItem->dwAddData = 0L;
 
 			if (message == LB_ADDSTRING)
@@ -1258,7 +1260,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!
 			    (dwStyle & LBS_CHECKBOX
 			     || dwStyle & LBS_USEICON)) {
-				plbi->dwData = (DWORD) lParam;
+				plbi->dwData = (LONG) lParam;
 				return LB_OKAY;
 			}
 
@@ -1277,7 +1279,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			if (dwStyle & LBS_USEICON)
-				plbi->dwData = (DWORD) plbii->hIcon;
+				plbi->dwData = (LONG) plbii->hIcon;
 			else
 				plbi->dwData = 0;
 
@@ -1307,7 +1309,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!(plbi = lstGetItem(pData, (int) wParam)))
 				return LB_ERR;
 
-			plbi->dwAddData = (DWORD) lParam;
+			plbi->dwAddData = (LONG) lParam;
 
 			return LB_OKAY;
 		}
@@ -1529,7 +1531,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HDC hdc;
 			HBRUSH hbr;
 
-			if (hbr = ((HBRUSH)SendMessage (GetParent(hwnd), WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd)))
+			if (hbr = (HBRUSH)SendMessage (GetParent(hwnd), WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd))
 			{
 				hdc = GetDCEx(hwnd, NULL, DCX_DEFAULTCLIP);
 				FillRect(hdc, NULL, hbr);
@@ -1592,10 +1594,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if ((dwStyle & LBS_NOTIFY) && (oldSel != hit))
 				NotifyParent(hwnd, pCtrl->id, LBN_SELCHANGE);
 			if (oldSel >= 0) {
-				if (oldSel >= pData->itemTop
-				    && (oldSel <=
-					pData->itemTop +
-					pData->itemVisibles)) {
+				if (oldSel >= pData->itemTop && (oldSel <= pData->itemTop + pData->itemVisibles)) {
 					lstInvalidateItem(hwnd, pData, oldSel, FALSE);
 				}
 			}
@@ -1611,19 +1610,15 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			pData->itemHilighted = hit;
 
 			if (dwStyle & LBS_CHECKBOX) {
-				if (mouseX > 0
-				    && mouseX < LST_WIDTH_CHECKMARK) {
-					NotifyParent(hwnd, pCtrl->id,
-						     LBN_CLICKCHECKMARK);
+				if (mouseX > 0 && mouseX < LST_WIDTH_CHECKMARK) {
+					NotifyParent(hwnd, pCtrl->id, LBN_CLICKCHECKMARK);
 
 					if (dwStyle & LBS_AUTOCHECK) {
 						PLISTBOXITEM plbi;
 
 						plbi = lstGetItem(pData, hit);
 
-						switch (plbi->
-							dwFlags &
-							LBIF_CHECKMARKMASK) {
+						switch (plbi->dwFlags & LBIF_CHECKMARKMASK) {
 						case LBIF_CHECKED:
 							plbi->dwFlags &= ~LBIF_CHECKMARKMASK;
 							break;
@@ -1732,8 +1727,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					pData->itemHilighted = newSel;
 					if (!(dwStyle & LBS_MULTIPLESEL)) {
 						oldSel = lstSelectItem(dwStyle, pData, newSel);
-						if ((dwStyle & LBS_NOTIFY)
-						    && (oldSel != newSel))
+						if ((dwStyle & LBS_NOTIFY) && (oldSel != newSel))
 							NotifyParent(hwnd, pCtrl->id,LBN_SELCHANGE);
 					}
 					InvalidateRect(hwnd, NULL, TRUE);
@@ -1741,13 +1735,11 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (!(dwStyle & LBS_MULTIPLESEL))
 						oldSel = lstSelectItem(dwStyle, pData, newSel);
 					pData->itemHilighted = newSel;
-					if ((dwStyle & LBS_NOTIFY)
-					    && (oldSel != newSel))
+					if ((dwStyle & LBS_NOTIFY) && (oldSel != newSel))
 						NotifyParent(hwnd, pCtrl->id, LBN_SELCHANGE);
 					if (oldSel != newSel)
 						lstInvalidateItem(hwnd, pData, oldSel, FALSE);
-					if ((oldHighlight != newSel)
-					    && (oldHighlight != oldSel))
+					if ((oldHighlight != newSel) && (oldHighlight != oldSel))
 						lstInvalidateItem(hwnd, pData, oldHighlight, FALSE);
 
 					lstInvalidateItem(hwnd, pData, newSel, FALSE);
@@ -1787,8 +1779,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (head[0] == ' ') {
 				if (dwStyle & LBS_MULTIPLESEL) {
 					lstSelectItem(dwStyle, pData, pData->itemHilighted);
-					lstInvalidateItem(hwnd, pData, pData-> itemHilighted,
-							  FALSE);
+					lstInvalidateItem(hwnd, pData, pData-> itemHilighted, FALSE);
 				} else if (dwStyle & LBS_CHECKBOX) {
 					NotifyParent(hwnd, pCtrl->id, LBN_CLICKCHECKMARK);
 
@@ -1814,8 +1805,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 
-			index = lstFindItem(pData, pData->itemHilighted + 1,
-					    head, FALSE);
+			index = lstFindItem(pData, pData->itemHilighted + 1, head, FALSE);
 			if (index < 0) {
 				index = lstFindItem(pData, 0, head, FALSE);
 			}
@@ -1854,8 +1844,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				DPRINTF("itemVisibles:%d\n", pData->itemVisibles);
 				DPRINTF("SB_LINEDOWN:(%d:%d)\n", ITEM_BOTTOM(pData), (pData->itemCount - 1));
 #endif
-				if (ITEM_BOTTOM(pData) <
-				    (pData->itemCount - 1)) {
+				if (ITEM_BOTTOM(pData) < (pData->itemCount - 1)) {
 					newTop++;
 					scrollHeight = -pData->itemHeight; /* for ScrollWindow() */
 				}
@@ -1869,9 +1858,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case SB_PAGEDOWN:
-				if ((pData->itemTop +
-				     (pData->itemVisibles << 1)) <=
-				    pData->itemCount)
+				if ((pData->itemTop + (pData->itemVisibles << 1)) <= pData->itemCount)
 					newTop += pData->itemVisibles;
 				else
 					newTop = pData->itemCount - pData->itemVisibles;

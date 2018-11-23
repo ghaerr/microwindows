@@ -14,7 +14,9 @@ ifneq ($(DEBUG), Y)
 #ifneq ($(DEBUG), not-Wall)
 GCC_WARNINGS := -Wno-deprecated-declarations
 else
-GCC_WARNINGS := -Wall -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes # -Werror
+GCC_WARNINGS := -Wall -Wpointer-arith  # -Werror
+#GCC_WARNINGS += -Wstrict-prototypes -Wmissing-prototypes
+GCC_WARNINGS += -Wbad-function-cast
 #GCC_WARNINGS := -Wall -Wpointer-arith
 endif
 
@@ -27,6 +29,9 @@ else
 COMPILER = gcc
 endif
 CXX_COMPILER = g++
+#suffix for c++ files
+#needed is cpp for agglite and canny demos
+CPP = cpp
 TOOLSPREFIX = $(NATIVETOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
 CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
@@ -195,6 +200,8 @@ endif
 ifeq ($(ARCH), MACOSX)
 COMPILER = gcc
 CXX_COMPILER = g++
+#suffix for c++ files
+CPP = cpp
 TOOLSPREFIX = $(NATIVETOOLSPREFIX)
 DEFINES += -DUNIX=1 -DMACOSX=1
 CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)

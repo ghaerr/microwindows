@@ -22,6 +22,7 @@
 #include "device.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #ifdef __EMSCRIPTEN__
   #include <emscripten.h>
 #endif  
@@ -159,10 +160,10 @@ chkPaintMsg(HWND wp, LPMSG lpMsg)
 		/*
 		 * Tricky: only repaint window if there
 		 * isn't a mouse capture (window move) in progress,
-		 * or the window is the moving window.
+		 * the window is the moving window, or its the root window (for wallpaper).
 		 */
 		if(wp->gotPaintMsg == PAINT_NEEDSPAINT &&
-		    (!dragwp || dragwp == wp)) {
+		    (!dragwp || dragwp == wp || wp == rootwp)) {
 	paint:
 			wp->gotPaintMsg = PAINT_PAINTED;
 			lpMsg->hwnd = wp;
@@ -469,7 +470,7 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 	wp->cursor = pwp->cursor;
 	wp->cursor->usecount++;
 	wp->unmapcount = pwp->unmapcount + 1;
-	wp->id = (intptr_t)hMenu;
+	wp->id = (int)hMenu;
 	wp->gotPaintMsg = PAINT_PAINTED;
 
 	titLen = 0;
@@ -990,6 +991,8 @@ GetParent(HWND hwnd)
 BOOL WINAPI
 EnableWindow(HWND hwnd, BOOL bEnable)
 {
+	if(!hwnd)
+		return TRUE;
 	if(bEnable && (hwnd->style & WS_DISABLED)) {
 		/* enable window*/
 		hwnd->style &= ~WS_DISABLED;
@@ -1183,91 +1186,175 @@ MwPTINRECT(CONST RECT *lprc, POINT pt)
 		pt.y >= lprc->top && pt.y < lprc->bottom);
 }
 
-LONG WINAPI
-GetWindowLong(HWND hwnd, int nIndex)
+// 64bit function
+ULONG_PTR WINAPI
+GetClassLongPtr(HWND hwnd, int nIndex)
 {
 	switch(nIndex) {
-	case GWL_WNDPROC:
-		return (LONG)hwnd->lpfnWndProc;
-	case GWL_HINSTANCE:
-		return (LONG)hwnd->hInstance;
-	case GWL_HWNDPARENT:
-		return (LONG)hwnd->parent;
-	case GWL_ID:
-		return hwnd->id;
-	case GWL_STYLE:
-		return hwnd->style;
-	case GWL_EXSTYLE:
-		return hwnd->exstyle;
-	case GWL_USERDATA:
-		return hwnd->userdata;
-	default:
-#ifdef ARCH_NEED_ALIGN32  /* some architecture needs data to be 32bit aligned*/
-		if(nIndex+3 < hwnd->nextrabytes) {
-			if(!(nIndex & 3))
-				return *(LONG *)&hwnd->extrabytes[nIndex];
-			return MAKELONG(
-				MAKEWORD(hwnd->extrabytes[nIndex+0], hwnd->extrabytes[nIndex+1]),
-				MAKEWORD(hwnd->extrabytes[nIndex+2], hwnd->extrabytes[nIndex+3]));
-		}
-#else
-		if(nIndex+3 < hwnd->nextrabytes)
-			return *(LONG *)&hwnd->extrabytes[nIndex];
-#endif	
+	case GCL_HBRBACKGROUND:
+		return (ULONG_PTR)hwnd->pClass->hbrBackground;
+	}
+	return (ULONG_PTR)GetClassLong(hwnd, nIndex);
+}
+
+// 32bit function
+DWORD WINAPI
+GetClassLong(HWND hwnd, int nIndex)
+{
+	switch(nIndex) {
+	case GCL_CBWNDEXTRA:
+		return (DWORD)hwnd->pClass->cbWndExtra;
+	case GCL_HBRBACKGROUND:
+		assert(sizeof(LONG_PTR) <= 32);		// 64bit must use GetClassLongPtr
+		return (DWORD)hwnd->pClass->hbrBackground;
+	case GCL_HCURSOR:
+	case GCL_HICON:
+	case GCL_HMODULE:
+	case GCL_CBCLSEXTRA:
+	case GCL_WNDPROC:
+	case GCL_HICONSM:
+	default:					// NYI
+		DPRINTF("GetClassLong unsupported GCL_ flag\n");
+		break;
 	}
 	return 0;
 }
 
-LONG WINAPI
-SetWindowLong(HWND hwnd, int nIndex, LONG lNewLong)
+// 64bit function
+LONG_PTR
+GetWindowLongPtr(HWND hwnd, int nIndex)
 {
-	LONG	oldval = 0;
+	switch(nIndex) {
+	case GWL_WNDPROC:
+		return (LONG_PTR)hwnd->lpfnWndProc;
+	case GWL_HINSTANCE:
+		return (LONG_PTR)hwnd->hInstance;
+	case GWL_HWNDPARENT:
+		return (LONG_PTR)hwnd->parent;
+	case GWL_USERDATA:
+		return (LONG_PTR)hwnd->userdata;
+	case GWL_ID:
+		return (LONG_PTR)hwnd->id;
+	case GWL_STYLE:
+		return (LONG_PTR)hwnd->style;
+	case GWL_EXSTYLE:
+		return (LONG_PTR)hwnd->exstyle;
+	default:
+#if DEBUG
+		if (nIndex < 0) {
+			DPRINTF("GetWindowLongPtr unsupported GWL_ flag\n");
+			break;
+		} else if(nIndex+sizeof(LONG_PTR) > hwnd->nextrabytes) {
+			DPRINTF("GetWindowLongPtr bad nIndex\n");
+			break;
+		} else
+#endif
+#ifdef ARCH_NEED_ALIGN32  /* architecture needs data to be 32bit aligned*/
+		if(nIndex & (sizeof(LONG_PTR)-1)) {
+			DPRINTF("GetWindowLongPtr bad alignment\n");
+			assert(sizeof(LONG_PTR) == 32);
+			return MAKELONG( MAKEWORD(hwnd->extrabytes[nIndex+0], hwnd->extrabytes[nIndex+1]),
+					 MAKEWORD(hwnd->extrabytes[nIndex+2], hwnd->extrabytes[nIndex+3]));
+			break;
+		}
+#endif	
+		return *(LONG_PTR *)&hwnd->extrabytes[nIndex];
+	}
+	return 0;
+}
+
+// 32bit function
+LONG WINAPI
+GetWindowLong(HWND hwnd, int nIndex)
+{
+#if DEBUG
+	if (sizeof(char *) > 32) {	// 64bit systems should use GetWindowLongPtr and revised indexes
+		switch(nIndex) {
+		case GWL_WNDPROC:
+		case GWL_HINSTANCE:
+		case GWL_HWNDPARENT:
+		case GWL_USERDATA:
+			DPRINTF("GetWindowLong 32bit returns DWORD, revise windows extrabytes\n");
+			break;
+		}
+	}
+	assert(sizeof(LONG) >= sizeof(LONG_PTR)); // if LONG truncates LONG_PTR, must recode this function
+#endif
+	return (LONG)GetWindowLongPtr(hwnd, nIndex);
+}
+
+// 64bit function
+LONG_PTR
+SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong)
+{
+	LONG_PTR oldval = GetWindowLongPtr(hwnd, nIndex);
 
 	switch(nIndex) {
-	case GWL_USERDATA:
-		oldval = hwnd->userdata;
-		hwnd->userdata = lNewLong;
-		break;
 	case GWL_WNDPROC:
-		oldval = (LONG)hwnd->lpfnWndProc;
 		hwnd->lpfnWndProc = (WNDPROC)lNewLong;
 		break;
 	case GWL_HINSTANCE:
-		oldval = (LONG)hwnd->hInstance;
-		hwnd->hInstance = (HINSTANCE) lNewLong;
+		hwnd->hInstance = (HINSTANCE)lNewLong;
+		break;
+	case GWL_USERDATA:
+		hwnd->userdata = (LONG)lNewLong;
 		break;
 	case GWL_STYLE:
-		oldval = (LONG)hwnd->style;
-		hwnd->style = lNewLong;
+		hwnd->style = lNewLong;		// style is currently DWORD
 		break;
 	case GWL_EXSTYLE:
-		oldval = (LONG)hwnd->exstyle;
-		hwnd->exstyle = lNewLong;
+		hwnd->exstyle = lNewLong;	// exstyle currently DWORD
 		break;
-	case GWL_HWNDPARENT:
-	case GWL_ID:
-		/* nyi*/
+	case GWL_HWNDPARENT:			// NYI
+	case GWL_ID:				// NYI
+		DPRINTF("mwSetWindowLongPtr unsupported GWL_ flag\n");
 		break;
 	default:
-		if(nIndex+3 < hwnd->nextrabytes) {
-#ifdef ARCH_NEED_ALIGN32 /* some architecture needs data to be 32bit aligned*/
-			oldval = GetWindowLong(hwnd, nIndex);
-			if(!(nIndex & 3))
-			    *(LONG *)&hwnd->extrabytes[nIndex] = lNewLong;
-			else {
-			    hwnd->extrabytes[nIndex+0] = LOBYTE(LOWORD(lNewLong));
-			    hwnd->extrabytes[nIndex+1] = HIBYTE(LOWORD(lNewLong));
-			    hwnd->extrabytes[nIndex+2] = LOBYTE(HIWORD(lNewLong));
-			    hwnd->extrabytes[nIndex+3] = HIBYTE(HIWORD(lNewLong));
-			}
-#else
-			oldval = GetWindowLong(hwnd, nIndex);
-			*(LONG *)&hwnd->extrabytes[nIndex] = lNewLong;
+#if DEBUG
+		if (nIndex < 0) {
+			DPRINTF("mwSetWindowLongPtr unsupported GWL_ flag\n");
+			break;
+		} else
+		if(nIndex+sizeof(LONG_PTR) > hwnd->nextrabytes) {
+			DPRINTF("mwSetWindowLongPtr bad nIndex\n");
+			break;
+		} else
 #endif
+#ifdef ARCH_NEED_ALIGN32 /* architecture needs data to be 32bit aligned*/
+		if(nIndex & (sizeof(LONG_PTR)-1)) {
+			DPRINTF("mwSetWindowLongPtr bad alignment\n");
+			assert(sizeof(LONG_PTR) == 32);
+			hwnd->extrabytes[nIndex+0] = LOBYTE(LOWORD(lNewLong));
+			hwnd->extrabytes[nIndex+1] = HIBYTE(LOWORD(lNewLong));
+			hwnd->extrabytes[nIndex+2] = LOBYTE(HIWORD(lNewLong));
+			hwnd->extrabytes[nIndex+3] = HIBYTE(HIWORD(lNewLong));
+			break;
 		}
+#endif
+		*(LONG_PTR *)&hwnd->extrabytes[nIndex] = lNewLong;
 		break;
 	}
 	return oldval;
+}
+
+// 32bit function
+LONG WINAPI
+SetWindowLong(HWND hwnd, int nIndex, LONG lNewLong)
+{
+#if DEBUG
+	if (sizeof(char *) > 32) {	// 64bit systems should use GetWindowLongPtr and revised indexes
+		switch(nIndex) {
+		case GWL_WNDPROC:
+		case GWL_HINSTANCE:
+		case GWL_HWNDPARENT:
+		case GWL_USERDATA:
+			DPRINTF("GetWindowLong 32bit returns DWORD, revise windows extrabytes\n");
+			break;
+		}
+	}
+	assert(sizeof(LONG) >= sizeof(LONG_PTR)); // if LONG truncates LONG_PTR, must recode this function
+#endif
+	return (LONG)SetWindowLongPtr(hwnd, nIndex, (LONG_PTR)lNewLong);
 }
 
 WORD WINAPI
@@ -1327,7 +1414,7 @@ SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData)
 
 	if (!(pProp = GdItemNew(MWPROP)))
 		return FALSE;
-	if (HIWORD(lpString))
+	if (HIWORD(lpString))		// FIXME 64bit UNSAFE!!
 		pProp->Atom = GlobalAddAtom(lpString);
 	else
 		pProp->Atom = LOWORD((DWORD)lpString);
@@ -1344,7 +1431,7 @@ GetProp(HWND hWnd, LPCSTR lpString)
 	PMWLIST p;
 	MWPROP *pProp;
 
-	if (HIWORD(lpString))
+	if (HIWORD(lpString))		// FIXME 64bit UNSAFE!!
 		Atom = GlobalFindAtom(lpString);
 	else
 		Atom = LOWORD((DWORD)lpString);
@@ -1380,18 +1467,6 @@ RemoveProp(HWND hWnd, LPCSTR lpString)
 		}
 	}
 	return NULL;
-}
-
-DWORD WINAPI
-GetClassLong(HWND hwnd, int nIndex)
-{
-	switch(nIndex) {
-	case GCL_HBRBACKGROUND:
-		return (DWORD)hwnd->pClass->hbrBackground;
-	case GCL_CBWNDEXTRA:
-		return (DWORD)hwnd->pClass->cbWndExtra;
-	}
-	return 0;
 }
 
 int WINAPI
@@ -1476,11 +1551,11 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 	hidden = hwnd->unmapcount || (fuFlags & SWP_NOREDRAW);
 
 	if(bZorder) {
-		switch((intptr_t)hwndInsertAfter) {
-		case (intptr_t)HWND_TOP:
+		switch((int)hwndInsertAfter) {
+		case (int)HWND_TOP:
 			MwRaiseWindow(hwnd);
 			break;
-		case (intptr_t)HWND_BOTTOM:
+		case (int)HWND_BOTTOM:
 			MwLowerWindow(hwnd);
 			break;
 		default:
@@ -1939,7 +2014,7 @@ GetClassName(HWND hWnd, LPTSTR lpClassName, int nMaxCount)
 {
 	int	ln = 0;
 
-	if (hWnd->pClass && hWnd->pClass->szClassName) {
+	if (hWnd->pClass) {
 		ln = strlen(hWnd->pClass->szClassName);
 		if (ln > nMaxCount)
 			ln = nMaxCount;

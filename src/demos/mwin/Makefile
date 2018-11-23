@@ -64,16 +64,18 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwstatictext\
 	$(MW_DIR_BIN)/mwdraw\
 	$(MW_DIR_BIN)/mwprogbar\
-	$(MW_DIR_BIN)/mwbrush
+	$(MW_DIR_BIN)/mwbrush\
+	$(MW_DIR_BIN)/mwlistcombo\
+	$(MW_DIR_BIN)/mwmenu
 
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)
-DEMOS += $(MW_DIR_BIN)/mwterm
+#DEMOS += $(MW_DIR_BIN)/mwterm
 endif
 endif
 
 ifneq ($(ARCH), ELKS)
-DEMOS += $(MW_DIR_BIN)/mwuserfd
+#DEMOS += $(MW_DIR_BIN)/mwuserfd
 endif
 
 endif

@@ -33,6 +33,10 @@ together with nxmag.
 - bmpdemo -
 Displays b/w penguin in window.
 
+- canny -
+Demo that shows the canny edge dector applied
+to the dragon.bmp image.
+
 - composite -
 Compositioning demo.
 compositedemo.sh will call this
@@ -147,6 +151,15 @@ implemented by dveprojects.com in Italy.
 Shows a static text in a window and
 displays a message box using the MWin API.
 
+- mwlistcombo -
+Displays a listbox and a combobox using
+the MWin API.
+
+- mwmenu -
+Shows how to implement a menu system using 
+buttons for the horizontal menu bar and lists
+for the drop-down submenus.
+
 - mwmsgbox -
 A messagebox using the MWin API.
 
@@ -192,6 +205,12 @@ nterm.sh will call this program.
 - ntetris -
 Tetris game.
 
+- nxaggdemo -
+Uses the libagg library with Nano-X. If you
+run this with the aggdemo.sh script in the src
+directory, the nxmag program will be run in parallel.
+This allows to analyse the rendered image in detail.
+
 - nxcal -
 Standard screen calibrator for Nano-X.
 
@@ -213,8 +232,7 @@ properties in the console window.
 
 - nxmag -
 A real time magnifier program that magnifies the area 
-around the mouse in a separate window. Requires
-LINK_APP_INTO_SERVER = N to run.
+around the mouse in a separate window.
 Enter "nxmag -h" to list the command line parameters.
 
 - nxroach -

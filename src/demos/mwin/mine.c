@@ -5,7 +5,6 @@
 /*
  * Minesweeper for Microwindows, adapted from MiniGUI
  */
-extern int mwCurrentButtons;	/* FIXME */
 
 #if RTEMS || __ECOS || PSP
 #define  srandom  srand
@@ -45,7 +44,7 @@ typedef struct {
 	WNDPROC	MainWindowProc;
 	int	lx, ty, rx, by;
 	COLORREF iBkColor;
-	DWORD	dwAddData;
+	PVOID	dwAddData;
 	HWND	hHosting;
 } MAINWINCREATE, *PMAINWINCREATE;
 
@@ -144,6 +143,39 @@ static HWND hHighscore,hCongratulate;
 static int offsetx;
 static int x_face, x_bomnum, x_clock;
 
+BOOL
+PtInRect2(const RECT *lprc, int x, int y)
+{
+	POINT	p;
+
+	p.x = x;
+	p.y = y;
+	return PtInRect(lprc, p);
+}
+
+void
+Draw3DUpFrame(HDC hDC, int l, int t, int r, int b, int fillc)
+{
+	RECT	rc;
+	HBRUSH	hbr;
+
+	SetRect(&rc, l, t, r, b);
+	Draw3dBox(hDC, rc.left, rc.top,
+		rc.right-rc.left, rc.bottom-rc.top,
+		GetSysColor(COLOR_3DLIGHT),
+		GetSysColor(COLOR_WINDOWFRAME));
+	InflateRect(&rc, -1, -1);
+	Draw3dBox(hDC, rc.left, rc.top,
+		rc.right-rc.left, rc.bottom-rc.top,
+		GetSysColor(COLOR_BTNHIGHLIGHT),
+		GetSysColor(COLOR_BTNSHADOW));
+	InflateRect(&rc, -1, -1);
+
+	hbr = CreateSolidBrush(LTGRAY);
+	FillRect(hDC, &rc, hbr);
+	DeleteObject(hbr);
+}
+
 void Cancel3DFrame(HDC hdc, int  l, int  t, int w, int h)
 {
     HBRUSH hbr;
@@ -175,7 +207,6 @@ void TextValue(HDC hdc, int x, int y, int value)
     SetBkColor(hdc,LTGRAY);
     SetTextColor(hdc,color);
     sprintf(va,"%d",value);
-    
     TextOut(hdc, x + ((WIDTH_BOX - GetCharWidth ()) >> 1), 
         y + ((HEIGHT_BOX - GetCharHeight ()) >> 1), va, -1);
 }  
@@ -344,14 +375,15 @@ void Finished(HWND hWnd)
     SetRect (&bombnumber, x_bomnum, 0,
                          x_bomnum + WIDTH_BOMNUM, HEIGHT_BOMNUM);
     InvalidateRect (hWnd, &bombnumber, FALSE);
-   
+#if 0
     if (second < score[flag_size].highscore){
         InitCongratulationCreateInfo(hWnd, &CreateInfo);
         hCongratulate = CreateMainWindow (&CreateInfo);
     }    
+#endif
 }    
 
-#if 0
+#if 0000
 HMENU createpmenuabout()
 {
     HMENU hmnu;
@@ -464,593 +496,6 @@ HMENU createmenu1()
                    
     return hmnu;
 }
-#endif
-
-void BothButtonDownProc(HWND hWnd,int adrx,int adry)
-{
-    int test_open = 0; 
-    int i = 1;
-    int adrx1 = 0, adry1 = 0;
-    int flag_opened = 1;
-
-    if (!bom[adrx][adry].test)
-    return;
-    if (!bom[adrx][adry].value)
-    return;
-    if (bom[adrx][adry].hit)
-    return;
-    while (i <= 8)
-    {
-       switch (i)
-       {
-        case 1:
-           adrx1 = adrx-1;
-           adry1 = adry;
-        break;
-                        
-        case 2:
-           adrx1 = adrx-1;
-           adry1 = adry-1;
-        break;
-
-        case 3:
-           adrx1 = adrx-1;
-           adry1 = adry+1;
-        break;
-        
-        case 4:
-           adrx1 = adrx;
-           adry1 = adry-1;
-        break;
-        
-        case 5:
-            adrx1 = adrx;
-            adry1 = adry+1;
-        break;
-        
-        case 6:
-            adrx1 = adrx+1;
-            adry1 = adry; 
-        break; 
-        
-        case 7:
-            adrx1 = adrx+1;
-            adry1 = adry+1;
-        break; 
-        
-        case 8:
-            adrx1 = adrx+1;
-            adry1 = adry-1;
-        break;
-       }
-       
-       if (adrx1>=0 && adry1>=0 && adrx1<sg_boxnumx && adry1<sg_boxnumy
-                            && bom[adrx1][adry1].hit)
-           test_open++;
-       else
-            if(adrx>=0 && adry1>=0 && adrx1<sg_boxnumx && adry1<sg_boxnumy
-                            && !bom[adrx1][adry1].test)
-                flag_opened = 0;            
-       i++;
-    }
-    if ((test_open == bom[adrx][adry].value) && !flag_opened)
-    {
-        if (!Open (hWnd, adrx, adry))
-            BombOut (hWnd);
-        if (itime == (sg_boxnumx*sg_boxnumy-bombnum))
-            Finished(hWnd);
-             
-    }
-            
-}
-
-void DrawDigit(HDC hdc, char* buffer, int CLOCK)
-{
-    int x;
-    
-    if (CLOCK)
-        x = x_clock;
-    else
-        x = x_bomnum;
-        
-    	SetBkMode(hdc, OPAQUE);
-	SetBkColor(hdc, LTGRAY);
-	TextOut(hdc, x, 0, buffer, -1);
-	return;
-}
-
-LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    HDC hdc;
-    char  bomn[30], seconds[30];
-    int i, j;
-    int ran1, ran2;
-    static RECT bombregion, face, onerect, bombnumber, clock; 
-    static RECT winposition;
-    MAINWINCREATE  CreateInfo;
-
-    PAINTSTRUCT ps;
-    switch (message) {
-      
-        case WM_CREATE:
-#if 0
-    	    FILE* pHighscore;
-    	    char  buffer[256];
-            if( LoadBitmap(&bmpbom,"res/lei.bmp")<0)
-                fprintf(stderr,"bitmap error");
-            else
-                fValidbom = TRUE;
-  
-            if( LoadBitmap(&bmpface,"res/face1.bmp")<0)
-                fprintf(stderr,"bitmap error");
-            else
-                fValidface = TRUE;
-                
-            if( LoadBitmap(&bitmap1,"res/face.bmp")<0)
-                fprintf(stderr,"bitmap error");
-            else
-                fValid1 = TRUE;
-                
-            if( LoadBitmap(&bmpflag,"res/flag.bmp")<0)
-                fprintf(stderr,"bitmap error");
-            else
-                fValidflag = TRUE;   
-                
-            if( LoadBitmap(&bmpfinalface,"res/finished.bmp")<0)
-                fprintf(stderr,"bitmap error");
-            else
-                fValidfinalface = TRUE;   
-               
-            if( LoadBitmap(&bmphitfalse,"res/hitfalse.bmp")<0)
-                fprintf(stderr,"bitmap error");
-            else
-                fValidhitfalse = TRUE;   
-                
-            for (i = 0; i < 10; i++){
-                sprintf(buffer, "res/%d.bmp", i);
-                LoadBitmap(sg_bmpDigit + i, buffer);
-            }
-
-            if ((pHighscore = fopen("res/.highscore.bomb","r"))){
-                for (i = 0; i < 3; i++)
-                    fscanf(pHighscore, "%d, %s",
-                            &score[i].highscore, score[i].name);
-                fclose(pHighscore);
-            }
-            else
-                for (i = 0; i < 3; i++){
-                    score[i].highscore = 999;
-                    strcpy(score[i].name, "unknown");
-                }    
-#endif
-            SetTimer(hWnd, ID_CLOCK, FREQ_CLOCK, NULL);
-            
-            PostMessage(hWnd,WM_COMMAND,ID_NEW,0);
-        break;
-
-        case WM_COMMAND:
-            if (LOWORD(wParam) == ID_ABOUT)
-            {
-               InitAbHostedCreateInfo(hWnd,&CreateInfo);
-               CreateMainWindow(&CreateInfo);  
-            }
-            
-            if (LOWORD(wParam) == ID_CLOSE)
-            {
-                PostMessage(hWnd, WM_CLOSE, 0, 0);
-            }
-            
-            if (LOWORD(wParam) == ID_HIGHSCORE)
-            {
-               InitHighScoreCreateInfo(hWnd,&CreateInfo);
-               hHighscore =  CreateMainWindow(&CreateInfo);  
-               ShowWindow(hHighscore,SW_SHOW); 
-            }
-            
-            if (LOWORD(wParam) == ID_LARGE)
-            {
-                bombnum = 99;
-                sg_boxnumx = 30;
-                sg_boxnumy = 18;
-                winwidth = WIDTH_LARGEWIN;
-                flag_size = 2;
-                GetWindowRect(hWnd, &winposition);
-                MoveWindow(hWnd, winposition.left, winposition.top, 
-                           WIDTH_LARGEWIN, HEIGHT_LARGEWIN, FALSE);
-                PostMessage(hWnd, WM_COMMAND, ID_NEW, 0);
-            }    
-            if (LOWORD(wParam) == ID_MIDDLE)
-            {
-                bombnum = 40;
-                sg_boxnumx = 16;
-                sg_boxnumy = 16;
-                winwidth = WIDTH_MIDDLEWIN;
-                flag_size = 1;
-                GetWindowRect(hWnd, &winposition);
-                MoveWindow(hWnd, winposition.left, winposition.top, 
-                           WIDTH_MIDDLEWIN, HEIGHT_MIDDLEWIN, FALSE);
-                PostMessage(hWnd, WM_COMMAND, ID_NEW, 0);
-            }
-            
-            if (LOWORD(wParam) == ID_SMALL)
-            {
-                bombnum = 10;
-                sg_boxnumx = 8;
-                sg_boxnumy = 8;
-                winwidth = WIDTH_SMALLWIN;
-                flag_size = 0;
-                GetWindowRect(hWnd, &winposition);
-                MoveWindow(hWnd, winposition.left, winposition.top, 
-                           WIDTH_SMALLWIN, HEIGHT_SMALLWIN, FALSE);
-                PostMessage(hWnd, WM_COMMAND, ID_NEW, 0);
-            }    
-                
-            if (LOWORD(wParam) == ID_NEW)
-            {
-                bTimer = FALSE;
-                second = 0;
-                itime = 0;
-                leftbombnum = bombnum;
-                flag_bombout = 0;
-                flag_finished = 0;
-                x_bomnum = winwidth / 6;
-                x_face = (winwidth*2) / 5;
-                x_clock = (winwidth*3) / 5;
-                offsetx = (winwidth - WIDTH_BOX*sg_boxnumx)/2-2;
-                SetRect (&clock, x_clock, 0, 
-                            x_clock + WIDTH_CLOCK, HEIGHT_CLOCK);
-                            
-                SetRect (&face, x_face, 0,
-                            x_face + WIDTH_FACE, HEIGHT_FACE);
-                            
-                SetRect (&bombregion, offsetx, HEIGHT_FACE,
-                           WIDTH_BOX*sg_boxnumx+offsetx,
-                           HEIGHT_BOX*sg_boxnumy+HEIGHT_FACE);
-                     
-                SetRect (&bombnumber, x_bomnum, 0,
-                     x_bomnum + WIDTH_BOMNUM, HEIGHT_BOMNUM);
-                     
-               /* ************initial bomb value************** */
-               
-              for (i = 0; i < sg_boxnumx; i++)
-                for (j = 0; j < sg_boxnumy; j++)
-                { bom[i][j].flag  = 0;
-                  bom[i][j].hit   = FALSE;
-                  bom[i][j].value = 0;
-                  bom[i][j].test  = FALSE;
-                  bom[i][j].bombout = FALSE;
-                  bom[i][j].error = FALSE;
-                 }; 
-              for (i = 0; i < (sg_boxnumx*sg_boxnumy); i++)
-                  NoAdr[i].NY = FALSE; 
-                   
-              srandom( time(NULL));
-              i = 0;
-              while( i < bombnum )
-               {
-                  ran1 = random()%sg_boxnumx;
-                  ran2 = random()%sg_boxnumy;
-                  if(!bom[ran1][ran2].flag)
-                     { 
-                        bom[ran1][ran2].flag = 1;
-			i++;
-                     } 
-#if RTEMS
-		      else i++;		/* bad rtems random function*/
-#endif
-                }
- 
-               for (i = 0; i < sg_boxnumx; i++)         
-                  for (j = 0; j < sg_boxnumy; j++)
-                    {
-                if (!bom[i][j].flag) {
-                if(i-1>=0&&j-1>=0&&bom[i-1][j-1].flag)
-                        bom[i][j].value++;
-                        
-                if(i-1>=0&&bom[i-1][j].flag)
-                        bom[i][j].value++;
-                        
-                if(i-1>=0&&j+1<sg_boxnumy&&bom[i-1][j+1].flag)
-                        bom[i][j].value++;
-                        
-                if(j-1>=0&&bom[i][j-1].flag)
-                        bom[i][j].value++;
-                        
-                if(j+1<sg_boxnumy&&bom[i][j+1].flag)
-                        bom[i][j].value++;
-                        
-                if(i+1<sg_boxnumx&&j+1<sg_boxnumy&&bom[i+1][j+1].flag)
-                        bom[i][j].value++; 
-                        
-                if(i+1<sg_boxnumx&&bom[i+1][j].flag) 
-                        bom[i][j].value++;
-                        
-                if(i+1<sg_boxnumx&&j-1>=0&&bom[i+1][j-1].flag)
-                        bom[i][j].value++;
-                } 
-                     }    
-               InvalidateRect (hWnd, NULL, TRUE);
-               }
-        break;
-        
-        case WM_TIMER:
-            if (wParam == ID_CLOCK)
-                if (bTimer){
-                    if (second < 1000){
-                        second++;
-                        InvalidateRect(hWnd, &clock, FALSE);
-                    }
-                }
-        break;        
-
-        case WM_LBUTTONDOWN:
-
-            oldx = LOWORD (lParam);
-            oldy = HIWORD (lParam);
-
-            adrx = (oldx-offsetx)/WIDTH_BOX;
-            adry = (oldy-HEIGHT_FACE)/HEIGHT_BOX;
-            
-            if (hCongratulate || hHighscore)
-                break;
-                
-            if (!PtInRect2 (&bombregion, oldx, oldy)) {
-                if (PtInRect2 (&face, oldx, oldy)){
-                    PostMessage (hWnd, WM_COMMAND, ID_NEW, 0);
-                    break;
-                }    
-                else
-                    break;
-            }
-            if (flag_bombout)
-                break;
-            if (flag_finished)
-                break;
-            if (!bTimer)
-                bTimer = TRUE;
-                
-            if (bom[adrx][adry].hit)
-                break;
-
-#if 0
-            if (GetShiftKeyStatus() & 0x00000200) {
-#endif
-	    if(mwCurrentButtons & MWBUTTON_R) {
-                BothButtonDownProc(hWnd,adrx,adry);
-                break;
-            }
-            
-                
-            if (bom[adrx][adry].test)
-                break;
-                
-            if (bom[adrx][adry].flag) {
-                BombOut(hWnd);   
-                break;
-            }    
-            if (bom[adrx][adry].value != 0)
-            {
-                    NoAdr[itime].x  = adrx;
-                    NoAdr[itime].y  = adry;
-                    NoAdr[itime].NY = TRUE;
-                    itime++;
-                    bom[adrx][adry].test = TRUE;
-                    
-                    SetRect (&onerect, adrx*WIDTH_BOX+offsetx,
-                           adry*HEIGHT_BOX+HEIGHT_FACE,
-                           (adrx+1)*WIDTH_BOX+offsetx,
-                           (adry+1)*HEIGHT_BOX+HEIGHT_FACE);
-                    InvalidateRect (hWnd, &onerect, FALSE);
-             }
-             else {
-                    hdc = GetDC(hWnd);
-                    SearchGround (hdc, adrx, adry);
-                    ReleaseDC(hWnd, hdc);
-             }
-             
-             if (itime == (sg_boxnumx*sg_boxnumy - bombnum))
-                Finished(hWnd);
-             
-        break;
-
-        case WM_MBUTTONDOWN:
-             oldx = LOWORD (lParam);
-             oldy = HIWORD (lParam);
-             adrx = (oldx-offsetx)/WIDTH_BOX;
-             adry = (oldy-HEIGHT_FACE)/HEIGHT_BOX;  
-
-            if (!PtInRect2 (&bombregion, oldx, oldy))
-                break;
-            if (flag_bombout)
-                break;
-            if (flag_finished)
-                break;
-                
-            if (!bTimer)
-                bTimer = TRUE;
-                
-           /* ***RBUTTONDOWN & LBUTTONDOWN******/
-            
-                BothButtonDownProc(hWnd,adrx,adry); 
-		break;
-
-        case WM_RBUTTONDOWN:
-#if 0
-             SetCapture (hWnd);
-#endif
-             oldx = LOWORD (lParam);
-             oldy = HIWORD (lParam);
-             adrx = (oldx-offsetx)/WIDTH_BOX;
-             adry = (oldy-HEIGHT_FACE)/HEIGHT_BOX;  
-
-            if (!PtInRect2 (&bombregion, oldx, oldy))
-                break;
-            if (flag_bombout)
-                break;
-            if (flag_finished)
-                break;
-                
-            if (!bTimer)
-                bTimer = TRUE;
-                
-           /* ***RBUTTONDOWN & LBUTTONDOWN******/
-            
-#if 0
-            if (GetShiftKeyStatus() & 0x00000100){
-#endif
-	    if(mwCurrentButtons & MWBUTTON_L) {
-                BothButtonDownProc(hWnd,adrx,adry); 
-                break; 
-            }    
-           /* *****  only  rbuttondown   *******/
-                
-            if (bom[adrx][adry].test)
-               break;
-            if (!bom[adrx][adry].hit )
-               {
-                     bom[adrx][adry].hit = TRUE;
-                     leftbombnum--;    
-               }
-            else
-               { bom[adrx][adry].hit = FALSE;
-                 leftbombnum++;
-               }
-            SetRect (&onerect, adrx*WIDTH_BOX+offsetx,
-                      adry*HEIGHT_BOX+HEIGHT_FACE, 
-                      (adrx+1)*WIDTH_BOX+offsetx,
-                      (adry+1)*HEIGHT_BOX+HEIGHT_FACE);
-            InvalidateRect (hWnd, &onerect, FALSE);
-            InvalidateRect (hWnd, &bombnumber, FALSE);
-        break;
-      
-        case WM_PAINT:
-            hdc = BeginPaint (hWnd, &ps);
-           
-            sprintf(seconds, "%03d", second);
-            DrawDigit(hdc, seconds, TRUE);
-
-            if (leftbombnum >= 0){                     
-                sprintf(bomn,"%02d",leftbombnum);
-                DrawDigit(hdc, bomn, FALSE);
-            }
-            
-            if (flag_finished)
-		DrawDIB(hdc, x_face+1, 1, &image_minedone);
-#if 0
-                DrawMyBitmap (hdc, fValidfinalface?&bmpfinalface:NULL,
-#endif
-            else 
-                if (flag_bombout)
-		    DrawDIB(hdc, x_face, 0, &image_minefacelost);
-                else
-		    DrawDIB(hdc, x_face, 0, &image_mineface);
-            
-            for (i = 0; i < sg_boxnumx; i++)
-                for (j = 0; j < sg_boxnumy; j++)
-            {
-                if (!bom[i][j].test && !bom[i][j].bombout){
-                    SetTextColor (hdc,BLACK);
-		    SelectObject(hdc, GetStockObject(NULL_BRUSH));
-                    Draw3DUpFrame(hdc,
-                            i*WIDTH_BOX+offsetx,
-                            j*HEIGHT_BOX+HEIGHT_FACE,
-                            (i+1)*WIDTH_BOX+offsetx,
-                            (j+1)*HEIGHT_BOX+HEIGHT_FACE,
-                            LTGRAY);
-                }
-              
-           
-                if ( bom[i][j].hit)
-		    DrawDIB(hdc, i*WIDTH_BOX+offsetx+3, j*HEIGHT_BOX+3+HEIGHT_FACE,
-				 &image_mineflag);
-            
-                if (bom[i][j].error) {
-                    Cancel3DFrame(hdc,i*WIDTH_BOX+offsetx,
-                                 j*HEIGHT_BOX+HEIGHT_FACE,
-                                 WIDTH_BOX,HEIGHT_BOX);
-                    
-		    DrawDIB(hdc, i*WIDTH_BOX+offsetx+1, j*HEIGHT_BOX+1+HEIGHT_FACE,
-		       &image_minehitfalse);
-                }
-                
-                if (bom[i][j].bombout) {
-                    Cancel3DFrame(hdc,i*WIDTH_BOX+offsetx,
-                                        j*HEIGHT_BOX+HEIGHT_FACE,
-                                        WIDTH_BOX,HEIGHT_BOX);
-                    
-		    DrawDIB(hdc, i*WIDTH_BOX+offsetx+1, j*HEIGHT_BOX+1+HEIGHT_FACE,
-		       &image_minebomb);
-                }
-            }
-            
-            for ( i = 0; i < itime; i++ )
-            {
-             Cancel3DFrame(hdc,(NoAdr[i].x)*WIDTH_BOX+offsetx,
-                        (NoAdr[i].y)*HEIGHT_BOX+HEIGHT_FACE,
-                        WIDTH_BOX, HEIGHT_BOX);
-             if(NoAdr[i].NY) 
-                 TextValue(hdc,(NoAdr[i].x)*WIDTH_BOX+offsetx,
-                          (NoAdr[i].y)*HEIGHT_BOX+HEIGHT_FACE, 
-                          bom[NoAdr[i].x][NoAdr[i].y].value);
-            }
-            EndPaint (hWnd, &ps);
-        break;    
-
-        case WM_CLOSE:
-            KillTimer(hWnd, ID_CLOCK);  
-            DestroyWindow (hWnd);
-            PostQuitMessage (0);
-        return 0;
-    }
-    return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-void InitMyWinCreateInfo(PMAINWINCREATE pCreateInfo)
-{
-    pCreateInfo->dwStyle = WS_CAPTION | WS_BORDER | WS_SYSMENU |  WS_VISIBLE;
-    pCreateInfo->spCaption="Microwindows Minesweeper";
-    pCreateInfo->hMenu = 0; 	/* createmenu1(); */
-    pCreateInfo->hCursor = 0; 	/* GetSystemCursor(0); */
-    pCreateInfo->hIcon = 0;
-    pCreateInfo->MainWindowProc = TestMyWinProc;
-    pCreateInfo->lx = 0;
-    pCreateInfo->ty = 0;
-    pCreateInfo->rx = winwidth;
-    pCreateInfo->by = winheight;
-    pCreateInfo->iBkColor = LTGRAY; 
-    pCreateInfo->dwAddData = 0;
-    pCreateInfo->hHosting = HWND_DESKTOP;
-}
-
-void* TestMyWindow(void* data) 
-{
-    MSG Msg;
-    MAINWINCREATE CreateInfo;
-    HWND hMainWnd;
-
-    InitMyWinCreateInfo(&CreateInfo);
-
-    hMainWnd = CreateMainWindow(&CreateInfo);
-
-    if (hMainWnd == 0)
-        return NULL;
-
-    ShowWindow(hMainWnd,SW_SHOWNORMAL);
-    while( GetMessage(&Msg, NULL, 0, 0) ) {
-        TranslateMessage (&Msg);
-        DispatchMessage(&Msg);
-    }
-
-    return NULL;
-}
-
-int WINAPI 
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
-	int nShowCmd)
-{
-    TestMyWindow (NULL);
-    return 0;
-}
 
 /* ********   create a hosted about window****/
 LRESULT AbHostedWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1083,6 +528,7 @@ LRESULT AbHostedWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
+
 void InitAbHostedCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
 {
     pCreateInfo->dwStyle   = WS_BORDER | WS_CAPTION | WS_VISIBLE;
@@ -1249,7 +695,8 @@ LRESULT CongratulationWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             }
         }
         break;
-                                                                                        case WM_CLOSE:
+
+        case WM_CLOSE:
             DestroyWindow (hPrompt);
             DestroyWindow (hName);
             DestroyWindow (hOK);
@@ -1277,6 +724,550 @@ void InitCongratulationCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo)
     pCreateInfo->dwAddData = 0;
     pCreateInfo->hHosting  = hHosting;
 }
+#endif /* 0000*/
+
+void BothButtonDownProc(HWND hWnd,int adrx,int adry)
+{
+    int test_open = 0; 
+    int i = 1;
+    int adrx1 = 0, adry1 = 0;
+    int flag_opened = 1;
+
+    if (!bom[adrx][adry].test)
+    	return;
+    if (!bom[adrx][adry].value)
+    	return;
+    if (bom[adrx][adry].hit)
+    	return;
+    while (i <= 8)
+    {
+       switch (i)
+       {
+        case 1:
+           adrx1 = adrx-1;
+           adry1 = adry;
+        break;
+                        
+        case 2:
+           adrx1 = adrx-1;
+           adry1 = adry-1;
+        break;
+
+        case 3:
+           adrx1 = adrx-1;
+           adry1 = adry+1;
+        break;
+        
+        case 4:
+           adrx1 = adrx;
+           adry1 = adry-1;
+        break;
+        
+        case 5:
+            adrx1 = adrx;
+            adry1 = adry+1;
+        break;
+        
+        case 6:
+            adrx1 = adrx+1;
+            adry1 = adry; 
+        break; 
+        
+        case 7:
+            adrx1 = adrx+1;
+            adry1 = adry+1;
+        break; 
+        
+        case 8:
+            adrx1 = adrx+1;
+            adry1 = adry-1;
+        break;
+       }
+       
+       if (adrx1>=0 && adry1>=0 && adrx1<sg_boxnumx && adry1<sg_boxnumy
+                            && bom[adrx1][adry1].hit)
+           test_open++;
+       else
+            if(adrx>=0 && adry1>=0 && adrx1<sg_boxnumx && adry1<sg_boxnumy
+                            && !bom[adrx1][adry1].test)
+                flag_opened = 0;            
+       i++;
+    }
+    if ((test_open == bom[adrx][adry].value) && !flag_opened)
+    {
+        if (!Open (hWnd, adrx, adry))
+            BombOut (hWnd);
+        if (itime == (sg_boxnumx*sg_boxnumy-bombnum))
+            Finished(hWnd);
+             
+    }
+            
+}
+
+void DrawDigit(HDC hdc, char* buffer, int CLOCK)
+{
+    int x;
+    
+    if (CLOCK)
+        x = x_clock;
+    else
+        x = x_bomnum;
+        
+    	SetBkMode(hdc, OPAQUE);
+	SetBkColor(hdc, LTGRAY);
+	TextOut(hdc, x, 0, buffer, -1);
+	return;
+}
+
+LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    HDC hdc;
+    char  bomn[30], seconds[30];
+    int i, j;
+    int ran1, ran2;
+    static RECT bombregion, face, onerect, bombnumber, clock; 
+    static RECT winposition;
+    MAINWINCREATE  CreateInfo;
+
+    PAINTSTRUCT ps;
+    switch (message) {
+      
+        case WM_CREATE:
+#if 0
+    	    FILE* pHighscore;
+    	    char  buffer[256];
+            if( LoadBitmap(&bmpbom,"res/lei.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidbom = TRUE;
+  
+            if( LoadBitmap(&bmpface,"res/face1.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidface = TRUE;
+                
+            if( LoadBitmap(&bitmap1,"res/face.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValid1 = TRUE;
+                
+            if( LoadBitmap(&bmpflag,"res/flag.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidflag = TRUE;   
+                
+            if( LoadBitmap(&bmpfinalface,"res/finished.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidfinalface = TRUE;   
+               
+            if( LoadBitmap(&bmphitfalse,"res/hitfalse.bmp")<0)
+                fprintf(stderr,"bitmap error");
+            else
+                fValidhitfalse = TRUE;   
+                
+            for (i = 0; i < 10; i++){
+                sprintf(buffer, "res/%d.bmp", i);
+                LoadBitmap(sg_bmpDigit + i, buffer);
+            }
+
+            if ((pHighscore = fopen("res/.highscore.bomb","r"))){
+                for (i = 0; i < 3; i++)
+                    fscanf(pHighscore, "%d, %s",
+                            &score[i].highscore, score[i].name);
+                fclose(pHighscore);
+            }
+            else
+                for (i = 0; i < 3; i++){
+                    score[i].highscore = 999;
+                    strcpy(score[i].name, "unknown");
+                }    
+#endif
+            SetTimer(hWnd, ID_CLOCK, FREQ_CLOCK, NULL);
+            
+            PostMessage(hWnd,WM_COMMAND,ID_NEW,0);
+        break;
+
+        case WM_COMMAND:
+#if 0
+            if (LOWORD(wParam) == ID_ABOUT)
+            {
+               InitAbHostedCreateInfo(hWnd,&CreateInfo);
+               CreateMainWindow(&CreateInfo);  
+            }
+            if (LOWORD(wParam) == ID_HIGHSCORE)
+            {
+               InitHighScoreCreateInfo(hWnd,&CreateInfo);
+               hHighscore =  CreateMainWindow(&CreateInfo);  
+               ShowWindow(hHighscore,SW_SHOW); 
+            }
+#endif
+            if (LOWORD(wParam) == ID_CLOSE)
+            {
+                PostMessage(hWnd, WM_CLOSE, 0, 0);
+            }
+            if (LOWORD(wParam) == ID_LARGE)
+            {
+                bombnum = 99;
+                sg_boxnumx = 30;
+                sg_boxnumy = 18;
+                winwidth = WIDTH_LARGEWIN;
+                flag_size = 2;
+                GetWindowRect(hWnd, &winposition);
+                MoveWindow(hWnd, winposition.left, winposition.top, 
+                           WIDTH_LARGEWIN, HEIGHT_LARGEWIN, FALSE);
+                PostMessage(hWnd, WM_COMMAND, ID_NEW, 0);
+            }    
+            if (LOWORD(wParam) == ID_MIDDLE)
+            {
+                bombnum = 40;
+                sg_boxnumx = 16;
+                sg_boxnumy = 16;
+                winwidth = WIDTH_MIDDLEWIN;
+                flag_size = 1;
+                GetWindowRect(hWnd, &winposition);
+                MoveWindow(hWnd, winposition.left, winposition.top, 
+                           WIDTH_MIDDLEWIN, HEIGHT_MIDDLEWIN, FALSE);
+                PostMessage(hWnd, WM_COMMAND, ID_NEW, 0);
+            }
+            
+            if (LOWORD(wParam) == ID_SMALL)
+            {
+                bombnum = 10;
+                sg_boxnumx = 8;
+                sg_boxnumy = 8;
+                winwidth = WIDTH_SMALLWIN;
+                flag_size = 0;
+                GetWindowRect(hWnd, &winposition);
+                MoveWindow(hWnd, winposition.left, winposition.top, 
+                           WIDTH_SMALLWIN, HEIGHT_SMALLWIN, FALSE);
+                PostMessage(hWnd, WM_COMMAND, ID_NEW, 0);
+            }    
+                
+            if (LOWORD(wParam) == ID_NEW)
+            {
+                bTimer = FALSE;
+                second = 0;
+                itime = 0;
+                leftbombnum = bombnum;
+                flag_bombout = 0;
+                flag_finished = 0;
+                x_bomnum = winwidth / 6;
+                x_face = (winwidth*2) / 5;
+                x_clock = (winwidth*3) / 5;
+                offsetx = (winwidth - WIDTH_BOX*sg_boxnumx)/2-2;
+                SetRect (&clock, x_clock, 0, 
+                            x_clock + WIDTH_CLOCK, HEIGHT_CLOCK);
+                            
+                SetRect (&face, x_face, 0,
+                            x_face + WIDTH_FACE, HEIGHT_FACE);
+                            
+                SetRect (&bombregion, offsetx, HEIGHT_FACE,
+                           WIDTH_BOX*sg_boxnumx+offsetx,
+                           HEIGHT_BOX*sg_boxnumy+HEIGHT_FACE);
+                     
+                SetRect (&bombnumber, x_bomnum, 0,
+                     x_bomnum + WIDTH_BOMNUM, HEIGHT_BOMNUM);
+                     
+               /* ************initial bomb value************** */
+               
+              for (i = 0; i < sg_boxnumx; i++)
+                for (j = 0; j < sg_boxnumy; j++)
+                { bom[i][j].flag  = 0;
+                  bom[i][j].hit   = FALSE;
+                  bom[i][j].value = 0;
+                  bom[i][j].test  = FALSE;
+                  bom[i][j].bombout = FALSE;
+                  bom[i][j].error = FALSE;
+                 }; 
+              for (i = 0; i < (sg_boxnumx*sg_boxnumy); i++)
+                  NoAdr[i].NY = FALSE; 
+                   
+              srandom( time(NULL));
+              i = 0;
+              while( i < bombnum )
+               {
+                  ran1 = random()%sg_boxnumx;
+                  ran2 = random()%sg_boxnumy;
+                  if(!bom[ran1][ran2].flag)
+                     { 
+                        bom[ran1][ran2].flag = 1;
+			i++;
+                     } 
+#if RTEMS
+		      else i++;		/* bad rtems random function*/
+#endif
+                }
+ 
+               for (i = 0; i < sg_boxnumx; i++)         
+                  for (j = 0; j < sg_boxnumy; j++)
+                    {
+                if (!bom[i][j].flag) {
+                if(i-1>=0&&j-1>=0&&bom[i-1][j-1].flag)
+                        bom[i][j].value++;
+                        
+                if(i-1>=0&&bom[i-1][j].flag)
+                        bom[i][j].value++;
+                        
+                if(i-1>=0&&j+1<sg_boxnumy&&bom[i-1][j+1].flag)
+                        bom[i][j].value++;
+                        
+                if(j-1>=0&&bom[i][j-1].flag)
+                        bom[i][j].value++;
+                        
+                if(j+1<sg_boxnumy&&bom[i][j+1].flag)
+                        bom[i][j].value++;
+                        
+                if(i+1<sg_boxnumx&&j+1<sg_boxnumy&&bom[i+1][j+1].flag)
+                        bom[i][j].value++; 
+                        
+                if(i+1<sg_boxnumx&&bom[i+1][j].flag) 
+                        bom[i][j].value++;
+                        
+                if(i+1<sg_boxnumx&&j-1>=0&&bom[i+1][j-1].flag)
+                        bom[i][j].value++;
+                } 
+                     }    
+               InvalidateRect (hWnd, NULL, TRUE);
+               }
+        break;
+        
+        case WM_TIMER:
+            if (wParam == ID_CLOCK)
+                if (bTimer){
+                    if (second < 1000){
+                        second++;
+                        //InvalidateRect(hWnd, &clock, FALSE);
+                        InvalidateRect(hWnd, NULL, FALSE);
+                    }
+                }
+            break;        
+
+        case WM_LBUTTONDOWN:
+            oldx = LOWORD (lParam);
+            oldy = HIWORD (lParam);
+
+            adrx = (oldx-offsetx)/WIDTH_BOX;
+            adry = (oldy-HEIGHT_FACE)/HEIGHT_BOX;
+            
+            if (hCongratulate || hHighscore)
+                break;
+                
+            if (!PtInRect2 (&bombregion, oldx, oldy)) {
+                if (PtInRect2 (&face, oldx, oldy)){
+                    PostMessage (hWnd, WM_COMMAND, ID_NEW, 0);
+                    break;
+                }    
+                else
+                    break;
+            }
+            if (flag_bombout)
+                break;
+            if (flag_finished)
+                break;
+            if (!bTimer)
+                bTimer = TRUE;
+                
+            if (bom[adrx][adry].hit)
+                break;
+
+            if (GetKeyState(VK_CONTROL)) {
+                BothButtonDownProc(hWnd,adrx,adry);
+                break;
+            }
+            
+            if (bom[adrx][adry].test)
+                break;
+                
+            if (bom[adrx][adry].flag) {
+                BombOut(hWnd);   
+                break;
+            }    
+            if (bom[adrx][adry].value != 0)
+            {
+                    NoAdr[itime].x  = adrx;
+                    NoAdr[itime].y  = adry;
+                    NoAdr[itime].NY = TRUE;
+                    itime++;
+                    bom[adrx][adry].test = TRUE;
+                    
+                    SetRect (&onerect, adrx*WIDTH_BOX+offsetx,
+                           adry*HEIGHT_BOX+HEIGHT_FACE,
+                           (adrx+1)*WIDTH_BOX+offsetx,
+                           (adry+1)*HEIGHT_BOX+HEIGHT_FACE);
+                    InvalidateRect (hWnd, &onerect, FALSE);
+             }
+             else {
+                    hdc = GetDC(hWnd);
+                    SearchGround (hdc, adrx, adry);
+                    ReleaseDC(hWnd, hdc);
+             }
+             
+             if (itime == (sg_boxnumx*sg_boxnumy - bombnum))
+                Finished(hWnd);
+             
+        break;
+
+        case WM_MBUTTONDOWN:
+             oldx = LOWORD (lParam);
+             oldy = HIWORD (lParam);
+             adrx = (oldx-offsetx)/WIDTH_BOX;
+             adry = (oldy-HEIGHT_FACE)/HEIGHT_BOX;  
+
+            if (!PtInRect2 (&bombregion, oldx, oldy))
+                break;
+            if (flag_bombout)
+                break;
+            if (flag_finished)
+                break;
+                
+            if (!bTimer)
+                bTimer = TRUE;
+                
+           /* ***RBUTTONDOWN & LBUTTONDOWN******/
+            BothButtonDownProc(hWnd,adrx,adry); 
+	    break;
+
+        case WM_RBUTTONDOWN:
+             //SetCapture (hWnd);
+             oldx = LOWORD (lParam);
+             oldy = HIWORD (lParam);
+             adrx = (oldx-offsetx)/WIDTH_BOX;
+             adry = (oldy-HEIGHT_FACE)/HEIGHT_BOX;  
+
+            if (!PtInRect2 (&bombregion, oldx, oldy))
+                break;
+            if (flag_bombout)
+                break;
+            if (flag_finished)
+                break;
+                
+            if (!bTimer)
+                bTimer = TRUE;
+                
+           /* ***RBUTTONDOWN & LBUTTONDOWN******/
+            
+            if (GetKeyState(VK_CONTROL)) {
+                BothButtonDownProc(hWnd,adrx,adry); 
+                break; 
+            }    
+           /* *****  only  rbuttondown   *******/
+                
+            if (bom[adrx][adry].test)
+               break;
+            if (!bom[adrx][adry].hit )
+               {
+                     bom[adrx][adry].hit = TRUE;
+                     leftbombnum--;    
+               }
+            else
+               { bom[adrx][adry].hit = FALSE;
+                 leftbombnum++;
+               }
+            SetRect (&onerect, adrx*WIDTH_BOX+offsetx,
+                      adry*HEIGHT_BOX+HEIGHT_FACE, 
+                      (adrx+1)*WIDTH_BOX+offsetx,
+                      (adry+1)*HEIGHT_BOX+HEIGHT_FACE);
+            InvalidateRect (hWnd, &onerect, FALSE);
+            InvalidateRect (hWnd, &bombnumber, FALSE);
+        break;
+      
+        case WM_PAINT:
+            hdc = BeginPaint (hWnd, &ps);
+           
+            sprintf(seconds, "%03d", second);
+            DrawDigit(hdc, seconds, TRUE);
+
+            if (leftbombnum >= 0){                     
+                sprintf(bomn,"%02d",leftbombnum);
+                DrawDigit(hdc, bomn, FALSE);
+            }
+            
+            if (flag_finished)
+		DrawDIB(hdc, x_face+1, 1, &image_minedone);
+            else 
+                if (flag_bombout)
+		    DrawDIB(hdc, x_face, 0, &image_minefacelost);
+                else
+		    DrawDIB(hdc, x_face, 0, &image_mineface);
+            
+            for (i = 0; i < sg_boxnumx; i++)
+                for (j = 0; j < sg_boxnumy; j++)
+            {
+                if (!bom[i][j].test && !bom[i][j].bombout){
+                    SetTextColor (hdc,BLACK);
+		    SelectObject(hdc, GetStockObject(NULL_BRUSH));
+                    Draw3DUpFrame(hdc,
+                            i*WIDTH_BOX+offsetx,
+                            j*HEIGHT_BOX+HEIGHT_FACE,
+                            (i+1)*WIDTH_BOX+offsetx,
+                            (j+1)*HEIGHT_BOX+HEIGHT_FACE,
+                            LTGRAY);
+                }
+              
+           
+                if ( bom[i][j].hit)
+		    DrawDIB(hdc, i*WIDTH_BOX+offsetx+3, j*HEIGHT_BOX+3+HEIGHT_FACE,
+				 &image_mineflag);
+            
+                if (bom[i][j].error) {
+                    Cancel3DFrame(hdc,i*WIDTH_BOX+offsetx,
+                                 j*HEIGHT_BOX+HEIGHT_FACE,
+                                 WIDTH_BOX,HEIGHT_BOX);
+                    
+		    DrawDIB(hdc, i*WIDTH_BOX+offsetx+1, j*HEIGHT_BOX+1+HEIGHT_FACE,
+		       &image_minehitfalse);
+                }
+                
+                if (bom[i][j].bombout) {
+                    Cancel3DFrame(hdc,i*WIDTH_BOX+offsetx,
+                                        j*HEIGHT_BOX+HEIGHT_FACE,
+                                        WIDTH_BOX,HEIGHT_BOX);
+                    
+		    DrawDIB(hdc, i*WIDTH_BOX+offsetx+1, j*HEIGHT_BOX+1+HEIGHT_FACE,
+		       &image_minebomb);
+                }
+            }
+            
+            for ( i = 0; i < itime; i++ )
+            {
+             Cancel3DFrame(hdc,(NoAdr[i].x)*WIDTH_BOX+offsetx,
+                        (NoAdr[i].y)*HEIGHT_BOX+HEIGHT_FACE,
+                        WIDTH_BOX, HEIGHT_BOX);
+             if(NoAdr[i].NY) 
+                 TextValue(hdc,(NoAdr[i].x)*WIDTH_BOX+offsetx,
+                          (NoAdr[i].y)*HEIGHT_BOX+HEIGHT_FACE, 
+                          bom[NoAdr[i].x][NoAdr[i].y].value);
+            }
+            EndPaint (hWnd, &ps);
+        	break;    
+
+        case WM_CLOSE:
+            KillTimer(hWnd, ID_CLOCK);  
+            DestroyWindow (hWnd);
+            PostQuitMessage (0);
+        return 0;
+    }
+    return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void InitMyWinCreateInfo(PMAINWINCREATE pCreateInfo)
+{
+    pCreateInfo->dwStyle = WS_CAPTION | WS_BORDER | WS_SYSMENU |  WS_VISIBLE;
+    pCreateInfo->dwStyle = WS_OVERLAPPEDWINDOW;
+    pCreateInfo->spCaption="Microwindows Minesweeper";
+    pCreateInfo->hMenu = 0; 	/* createmenu1(); */
+    pCreateInfo->hCursor = 0; 	/* GetSystemCursor(0); */
+    pCreateInfo->hIcon = 0;
+    pCreateInfo->MainWindowProc = TestMyWinProc;
+    pCreateInfo->lx = 0;
+    pCreateInfo->ty = 0;
+    pCreateInfo->rx = winwidth;
+    pCreateInfo->by = winheight;
+    pCreateInfo->iBkColor = LTGRAY; 
+    pCreateInfo->dwAddData = 0;
+    pCreateInfo->hHosting = HWND_DESKTOP;
+}
 
 HWND
 CreateMainWindow(PMAINWINCREATE pCreateInfo)
@@ -1285,7 +1276,7 @@ CreateMainWindow(PMAINWINCREATE pCreateInfo)
 	RECT		rc;
 	WNDCLASS	wc;
 
-	wc.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = (WNDPROC)pCreateInfo->MainWindowProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
@@ -1311,35 +1302,32 @@ CreateMainWindow(PMAINWINCREATE pCreateInfo)
 	return hwnd;
 }
 
-BOOL
-PtInRect2(const RECT *lprc, int x, int y)
+void* TestMyWindow(void* data) 
 {
-	POINT	p;
+    MSG Msg;
+    MAINWINCREATE CreateInfo;
+    HWND hMainWnd;
 
-	p.x = x;
-	p.y = y;
-	return PtInRect(lprc, p);
+    InitMyWinCreateInfo(&CreateInfo);
+
+    hMainWnd = CreateMainWindow(&CreateInfo);
+
+    if (hMainWnd == 0)
+        return NULL;
+
+    ShowWindow(hMainWnd,SW_SHOWNORMAL);
+    while( GetMessage(&Msg, NULL, 0, 0) ) {
+        TranslateMessage (&Msg);
+        DispatchMessage(&Msg);
+    }
+
+    return NULL;
 }
 
-void
-Draw3DUpFrame(HDC hDC, int l, int t, int r, int b, int fillc)
+int WINAPI 
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
+	int nShowCmd)
 {
-	RECT	rc;
-	HBRUSH	hbr;
-
-	SetRect(&rc, l, t, r, b);
-	Draw3dBox(hDC, rc.left, rc.top,
-		rc.right-rc.left, rc.bottom-rc.top,
-		GetSysColor(COLOR_3DLIGHT),
-		GetSysColor(COLOR_WINDOWFRAME));
-	InflateRect(&rc, -1, -1);
-	Draw3dBox(hDC, rc.left, rc.top,
-		rc.right-rc.left, rc.bottom-rc.top,
-		GetSysColor(COLOR_BTNHIGHLIGHT),
-		GetSysColor(COLOR_BTNSHADOW));
-	InflateRect(&rc, -1, -1);
-
-	hbr = CreateSolidBrush(LTGRAY);
-	FillRect(hDC, &rc, hbr);
-	DeleteObject(hbr);
+    TestMyWindow (NULL);
+    return 0;
 }

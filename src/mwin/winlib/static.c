@@ -63,8 +63,8 @@
 static LRESULT CALLBACK
 StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-#define GET_WND_FONT(hWnd)	((HFONT)GetWindowLong(hWnd, 0))
-#define SET_WND_FONT(hWnd, fnt)	SetWindowLong(hWnd, 0, (LPARAM)fnt)
+#define GET_WND_FONT(hWnd)	((HFONT)GetWindowLongPtr(hWnd, 0))
+#define SET_WND_FONT(hWnd, fnt)	SetWindowLongPtr(hWnd, 0, fnt)
 
 int WINAPI
 MwRegisterStaticControl(HINSTANCE hInstance)
@@ -74,7 +74,7 @@ MwRegisterStaticControl(HINSTANCE hInstance)
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc = (WNDPROC) StaticControlProc;
 	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 8;	// allow space for storing font information 4 for 32 bit
+	wc.cbWndExtra = sizeof(LONG_PTR);	// allow space for storing font information
 	wc.hInstance = hInstance;
 	wc.hIcon = NULL;
 	wc.hCursor = 0;		/*LoadCursor(NULL, IDC_ARROW); */
@@ -294,20 +294,13 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	pCtrl = hwnd;
 	switch (message) {
-	case WM_CREATE:
-		SET_WND_FONT(hwnd, GET_WND_FONT(hwnd));
-		return 0;
-
-	case WM_DESTROY:
-		break;
-
 	case STM_GETIMAGE:
-		return (int)pCtrl->userdata;
+		return (LRESULT)pCtrl->userdata;
 
 	case STM_SETIMAGE:
 		{
-			int pOldValue = (int)pCtrl->userdata;
-			pCtrl->userdata = (DWORD)lParam;
+			LRESULT pOldValue = (LRESULT)pCtrl->userdata;
+			pCtrl->userdata = (LONG)lParam;
 			InvalidateRect(hwnd, NULL, FALSE);
 			return pOldValue;
 		}
@@ -320,7 +313,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HBRUSH hbr;
 			dwStyle = GetWindowStyle(hwnd);
 			hbr = (HBRUSH)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
-					  wParam, (LPARAM) hwnd);
+	 				  wParam, (LPARAM) hwnd);
 			if (hbr == NULL)
 				return DefWindowProc(hwnd, message, wParam, lParam);
 			GetClientRect(hwnd, &rcClient);

@@ -185,14 +185,14 @@ char* GetWindowCaption (HWND hWnd)
     return hWnd->szTitle;
 }
 
-DWORD GetWindowAdditionalData (HWND hWnd)
+LONG GetWindowAdditionalData (HWND hWnd)
 {
         return hWnd->userdata;
 }
 
-DWORD SetWindowAdditionalData (HWND hWnd, DWORD newData)
+LONG SetWindowAdditionalData (HWND hWnd, LONG newData)
 {
-    DWORD    oldOne = 0L;
+    LONG    oldOne = 0L;
 
     oldOne = hWnd->userdata;
     hWnd->userdata = newData;
@@ -200,14 +200,14 @@ DWORD SetWindowAdditionalData (HWND hWnd, DWORD newData)
     return oldOne;
 }
 
-DWORD GetWindowAdditionalData2 (HWND hWnd)
+LONG GetWindowAdditionalData2 (HWND hWnd)
 {
         return hWnd->userdata2;
 }
 
-DWORD SetWindowAdditionalData2 (HWND hWnd, DWORD newData)
+LONG SetWindowAdditionalData2 (HWND hWnd, LONG newData)
 {
-    DWORD    oldOne = 0L;
+    LONG    oldOne = 0L;
 
     oldOne = hWnd->userdata2;
     hWnd->userdata2 = newData;
@@ -616,8 +616,8 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             pMLEditData->affectedLen    = 0;
             pMLEditData->undoBufferLen  = LEN_MLEDIT_UNDOBUFFER;
             pMLEditData->undoBuffer [0] = '\0';
-			SetWindowAdditionalData2(hWnd,(DWORD)pMLEditData);
-			SetWindowAdditionalData(hWnd,(DWORD)0);
+			SetWindowAdditionalData2(hWnd,(LONG)pMLEditData);
+			SetWindowAdditionalData(hWnd,(LONG)0);
             break;
 	}
         case WM_DESTROY:

@@ -22,7 +22,7 @@ static HFONT hFntCyber12 = NULL;
 static HFONT hFntCyber14 = NULL;
 
 
-BOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
     switch ( message )
 		{
@@ -56,7 +56,7 @@ BOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 				HBRUSH hbr = (HBRUSH)DefWindowProc ( hWnd, message, wParam, lParam );
 				SetTextColor ( (HDC)wParam, RGB(255,0,0) );
 				SetBkColor ( (HDC)wParam, GetSysColor(COLOR_3DFACE) );
-				return (BOOL) (intptr_t)hbr;
+				return hbr;
 				}
 			}
 			return DefWindowProc ( hWnd, message, wParam, lParam );
@@ -83,7 +83,7 @@ BOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 
 
 
-BOOL CALLBACK dlgDemoStatic ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoStatic ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	// Vedere: 	GdConvertEncoding 
 	if( message == WM_INITDIALOG ) {
@@ -104,7 +104,7 @@ BOOL CALLBACK dlgDemoStatic ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 }
 
 
-BOOL CALLBACK dlgDemoInternational ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoInternational ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	/* References: 
 		Cyberbit: http://www.math.nus.edu.sg/aslaksen/cs/cjk.html
@@ -136,7 +136,7 @@ BOOL CALLBACK dlgDemoInternational ( HWND hWnd, UINT message, WPARAM wParam, LPA
 }
 
 
-BOOL CALLBACK dlgDemoMultiline ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoMultiline ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	/* References: 
 		Cyberbit: http://www.math.nus.edu.sg/aslaksen/cs/cjk.html
@@ -169,7 +169,7 @@ BOOL CALLBACK dlgDemoMultiline ( HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 }
 
 
-BOOL CALLBACK dlgDemoStrings ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoStrings ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	if( message == WM_INITDIALOG )
 		{
@@ -188,7 +188,7 @@ BOOL CALLBACK dlgDemoStrings ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 
-BOOL CALLBACK dlgDemoEdit ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoEdit ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch ( message )
 		{
@@ -218,7 +218,7 @@ BOOL CALLBACK dlgDemoEdit ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 
 
-BOOL CALLBACK dlgDemoList ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoList ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
     switch ( message )
 		{
@@ -311,7 +311,7 @@ BOOL CALLBACK dlgDemoList ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 
 
-BOOL CALLBACK dlgDemoTimers ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK dlgDemoTimers ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	if( message == WM_TIMER )
 		SetDlgItemInt ( hWnd, wParam, 1+GetDlgItemInt(hWnd, wParam, NULL, TRUE), TRUE );
@@ -329,7 +329,7 @@ BOOL CALLBACK dlgDemoTimers ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 
 
-BOOL CALLBACK mainDlgProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+DLGBOOL CALLBACK mainDlgProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	static struct tagDlgFunctions { 
 		int id; 
@@ -473,7 +473,8 @@ int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int 
 	MwSetKeyboardTranslator ( kbdTranslate );
 	escape_quits = 0;
 #endif
+	UpdateWindow(GetDesktopWindow());
 	hInst = hInstance;
-    DialogBox ( hInstance, MAKEINTRESOURCE(IDD_DLGMAIN), NULL, (DLGPROC)mainDlgProc );
-    return 0;
+	DialogBox ( hInstance, MAKEINTRESOURCE(IDD_DLGMAIN), NULL, (DLGPROC)mainDlgProc );
+	return 0;
 }

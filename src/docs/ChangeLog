@@ -1,3 +1,48 @@
+19 Nov 2018
+	* Committed all 0.94 changes from 2017 into microwindows.org repository - Greg
+Version 0.94 - 28 Sep 2017 - 64bit port, AGG, Raspberry Pi, tested on MACOS, X11 fixed
+28 Sep 17
+	* revised win32 paint algorithm for better looks when moving windows, repaints root window also
+	* removed ANIMATEPALETTE option
+	* fixed longstanding X11 bug where select() called while XPending requests not handled
+	* changed PreSelect driver to int, returns # events pending
+	* added GdEraseCursor
+	* fix upminX/Y bug in X11 PreSelect PSF_DELAYUPDATE handling
+	* added platform & application classes for mouse & keyboard processing
+15 Sep 17
+	* added PSF_DELAYUPDATE screen driver flag for X11, delays Update()s until PreSelect()
+	* fixed min scrollbar size crash bug in mdemo
+	* combined update region in X11 driver to avoid 16x16 single-point cursor draws
+	* large speed update on win32 initial window and drag window from combined X11 update regions
+10 Sep 17
+	* added GetKeyState win32 function
+	* fix longtime GdText/GdConvertEncoding textlen = -1 bug (many mwin/win32api demos) test DBCS
+06 Sep 17
+	* fixed modifier keys on X11 (shift/ctrl/alt)
+01 Sep 17
+	* added Agglite drawing
+	* Raspberry Pi port
+23 Aug 2017
+	* added GdOpenScreenAndClear(clearflag), no double clearscreen on mwin startup
+	* added 3d inset box & roundrects in Adafruit draw lib
+6 Aug 2017
+	* added Adafruit RoundRect/Circle drawing lib, created RoundRect/Circle clip regions
+	* fix GdSetDash(0, 0) for proper reset
+	* added AntiGrain Geometry demo aggdemo.sh, Canny Edge detection demo canny.sh
+5 Aug 2017
+	* fixed GetDlgItemInt
+	* MACOS update, fix ARCH_NEED_ALIGN32, Get/SetWindowWord
+	* changed BOOL to DLGBOOL for all DialogProcs
+	* DialogProcs must be LRESULT not BOOL(int) for 64 bit, DLG_MSGRESULT not working (win32 incompatible)
+	* WPARAM must hold ptr or UINT for Dialog messages, uses new UINT_PTR definition
+	* new LONG_PTR, ULONG_PTR and UINT_PTR holds long/unsigned long/unsigned int OR pointer value
+	* various HIWORD/LOWORD uses suspect for 64bit
+	* Get/SetProp still 64bit unsafe, uses HIWORD(ptr), needs HILONG() macro
+	* change DWL_ offsets, hwnd struct userdata, pointer DWORDs that should be LONGs
+	* application, control  & dialog Class/Window extra bytes updated for variable pointer size
+	* 64 bit port, add GetClassLongPtr, Get/SetWindowLongPtr, add LONG_PTR, ULONG_PTR, changed ULONG from uint32_t
+No commits or pulls made between 15 Nov 2011 and 19 Nov 2018
+Version 0.93 - 15 Nov 2011 - Entirely new fast blitting model with conversion blits and alpha compositing
 15 Nov 2011
 	* fix termcs1 freetype kluge, add MWTF_CMAP_DEFAULT/0/1 charmap select to GdSetFontAttr
 26 Sep 2011

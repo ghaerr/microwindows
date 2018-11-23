@@ -61,7 +61,11 @@ DEFINES += -DVTSWITCH=1
 endif
 
 # X11 libs, used to build nano-X on X11 and fbe
+ifeq ($(ARCH),MACOSX)
+X11LDFLAGS += -L/opt/X11/lib -lX11
+else
 X11LDFLAGS += -L/usr/X11R6/lib -lX11
+endif
 
 ifeq ($(X11), Y)
 DEFINES += -DX11=1
@@ -86,6 +90,9 @@ INCLUDEDIRS += -I/usr/X11R6/include
 endif
 ifeq ($(ARCH),CYGWIN)
 INCLUDEDIRS += -I/usr/X11R6/include
+endif
+ifeq ($(ARCH),MACOSX)
+INCLUDEDIRS += -I/opt/X11/include
 endif
 endif #ifeq X11
 
@@ -442,6 +449,8 @@ endif
 HOSTCC = gcc
 COMPILER = gcc
 CXX_COMPILER = g++
+#suffix for c++ files
+CPP = cpp 
 ACHIVER = ar
 LINKER = ld
 
@@ -482,7 +491,10 @@ MWINLIBS = \
 	$(MW_DIR_LIB)/libmwin.a \
 	$(MW_DIR_LIB)/libmwimages.a \
 	$(MW_CORE_LIBS)
-CCMWINLIBS = -lmwin -lmwimages -lm $(MW_CORE_LIBS)
+ifeq ($(ARCH), MACOSX)
+CCMWINLIBS = $(MWINLIBS)
+endif
+CCMWINLIBS +=-lmwin -lmwimages -lm $(MW_CORE_LIBS)
 
 NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
 CCNANOXCLIENTLIBS += -lnano-X
@@ -690,7 +702,7 @@ endif
 #
 # Compilation target for C++ files
 #
-$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.cc $(CONFIG)
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.$(CPP) $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	@$(MW_RULE_MAKE_TARGET_DIR)
@@ -702,7 +714,7 @@ ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 #
 # Compilation target for generated C++ files
 #
-$(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.cc $(CONFIG)
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.$(CPP) $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
 	@$(MW_RULE_MAKE_TARGET_DIR)
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
@@ -855,20 +867,16 @@ ifeq ($(SHAREDLIBS), Y)
 	echo "Copying shared libs to $(LIBINSTALLDIR)"
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
 	# copy logical links
-	if [ -d "$(MW_DIR_LIB)/*.so.*" ]; then \
-	echo "Copying logical links to $(LIBINSTALLDIR)"; \
-	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR); \
-	fi
+	echo "Copying logical links to $(LIBINSTALLDIR)"; 
+	-$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR) 2>/dev/null; 
 	#if 64bit system, install in /usr/lib64 too and copy logical links
 	if [ -d "$(LIBINSTALLDIR)64" ]; then \
 	echo "Copying shared libs to $(LIBINSTALLDIR)64"; \
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)64; \
 	fi
 	# copy logical links
-	if [ -d "$(LIBINSTALLDIR)64" ] && [ -d "$(MW_DIR_LIB)/*.so.*" ]; then \
-	echo "Copying logical links to $(LIBINSTALLDIR)64"; \
-	$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64; \
-	fi
+	echo "Copying logical links to $(LIBINSTALLDIR)64"; 
+	-$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64 2>/dev/null; 
 else
 	rm -f $(LIBINSTALLDIR)/nano-X.so
 	-rm -f $(LIBINSTALLDIR)64/nano-X.so

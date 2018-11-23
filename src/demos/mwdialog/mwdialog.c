@@ -6,6 +6,7 @@
 * Georg Potthast 2018 */
 
 #include <windows.h>
+#include <unistd.h>
 #include "mwdialog.h" //defines e.g. IDD_DLGMAIN
 
 #define ID_BUTTON 10   //specified in the resource file
@@ -28,17 +29,17 @@ BOOL CALLBACK mainDlgProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
   switch(message)
     {
       case WM_COMMAND:
-	    //printf("ID_BUTTON:%d\n",LOWORD(wParam));
+	    sleep(1); //do not update too fast
 	    if (LOWORD(wParam)==ID_BUTTON) 
                 {
 		if (toggle==0) {
-		SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM) (char*)" You clicked the button! ");
-		toggle=1;		  
-		MoveWindow(hWnd, 50, 50, 127*1.55, 59*1.8, 1);
+		  SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM) (char*)" This is the new title! ");
+		  toggle=1;
+		  InvalidateRect(hWnd, NULL, TRUE);
 		} else {
-		SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM) (char*)"Simple Dialog Window");
-		toggle=0; 
-		MoveWindow(hWnd, 0, 0, 197, 106, 1);
+		  SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM) (char*)"Simple Dialog Window");
+		  toggle=0; 
+		  InvalidateRect(hWnd, NULL, TRUE);
 		}
                 break;
 	      }

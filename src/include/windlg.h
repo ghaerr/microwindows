@@ -12,11 +12,14 @@
 #define __WINDLG_H__
 
 /*
- * For GetWindowLong - SetWindowLong - extend to 8 for 64 bit
+ * For GetWindowLongPtr - SetWindowLongPtr
  */
 #define DWL_MSGRESULT   0
-#define DWL_DLGPROC     8  //4
-#define DWL_USER        16 //8
+#define DWL_DLGPROC     (sizeof(LONG_PTR))
+#define DWL_DLGDATA	(2*sizeof(LONG_PTR))
+#define DWL_USER        (3*sizeof(LONG_PTR))
+#define DWL_EXTRABYTES	(4*sizeof(LONG_PTR))
+
 
 
 /*
@@ -100,7 +103,7 @@ typedef struct tagMEASUREITEMSTRUCT
 	UINT itemID;
 	UINT itemWidth;
 	UINT itemHeight;
-	UINT itemData;
+	DWORD itemData;
 } MEASUREITEMSTRUCT, *LPMEASUREITEMSTRUCT;
 
 /*
@@ -109,8 +112,8 @@ typedef struct tagMEASUREITEMSTRUCT
  */
 #pragma pack(2)
 typedef struct {
-    UINT style;
-    UINT dwExtendedStyle;
+    DWORD style;
+    DWORD dwExtendedStyle;
     WORD PACKEDDATA cdit;
     short PACKEDDATA x;
     short PACKEDDATA y;
@@ -119,8 +122,8 @@ typedef struct {
 } PACKEDDATA DLGTEMPLATE;
 
 typedef struct {
-    UINT style;
-    UINT dwExtendedStyle;
+    DWORD style;
+    DWORD dwExtendedStyle;
     short PACKEDDATA x;
     short PACKEDDATA y;
     short PACKEDDATA cx;
@@ -160,7 +163,7 @@ int WINAPI DialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTem
 LONG WINAPI GetDialogBaseUnits(VOID);
 
 BOOL WINAPI EndDialog ( HWND hDlg, int nResult );
-BOOL CALLBACK DefDlgProc ( HWND hDlg, UINT Msg, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK DefDlgProc ( HWND hDlg, UINT Msg, WPARAM wParam, LPARAM lParam );
 
 
 LRESULT WINAPI SendDlgItemMessage ( HWND hwnd, int id, UINT Msg, WPARAM wParam, LPARAM lParam );

@@ -146,8 +146,8 @@ struct hwnd {
 	HBRUSH		paintBrush;	/* brush created to paint some controls */
 	HPEN		paintPen;	/* pen created to paint some controls */
 	MWCLIPREGION *	update;		/* update region in screen coords*/
-	DWORD		userdata;	/* setwindowlong user data*/
-	DWORD		userdata2;	/* additional user data (will remove)*/
+	LONG		userdata;	/* setwindowlong user data*/
+	LONG		userdata2;	/* additional user data (will remove)*/
 	MWLISTHEAD  	props;		/* windows property list */
 	MWSCROLLBARINFO	hscroll;	/* NC scrollbars*/
 	MWSCROLLBARINFO	vscroll;

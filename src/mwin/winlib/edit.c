@@ -396,7 +396,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             memcpy (pSLEditData->buffer, pCtrl->szTitle,
                     min (LEN_SLEDIT_BUFFER, pSLEditData->dataEnd));
 
-            pCtrl->userdata2 = (DWORD) pSLEditData;
+            pCtrl->userdata2 = (LONG) pSLEditData;
 
             pCtrl->userdata  = 0;
         break;

@@ -212,7 +212,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     rc = CB_OKAY;
     if ((uMsg != WM_CREATE/*WM_NCCREATE*/) && /*(uMsg != WM_CONVERT) &&*/
-       !(lp = (COMBOBOX *)hWnd->userdata/*GetWindowLong(hWnd,CWD_LPCBDATA)*/))
+       !(lp = (COMBOBOX *)hWnd->userdata/*GetWindowLongPtr(hWnd,CWD_LPCBDATA)*/))
     	return rc;
 
     switch(uMsg) {
@@ -352,7 +352,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         memset((LPSTR)lp,'\0',sizeof(COMBOBOX));
 
         /* save ptr to internal structure */
-        hWnd->userdata=(DWORD)lp;	/* -SetWindowLong(hWnd, CWD_LPCBDATA, (LONG) lp); */
+        hWnd->userdata=(LONG)lp;	/* -SetWindowLongPtr(hWnd, CWD_LPCBDATA, (LONG) lp); */
         lpcs = (LPCREATESTRUCT)lParam;
 
         /* fill in the internal structure */
@@ -364,7 +364,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         lp->bExtended  = TRUE;
         lp->hFont = 0;
         lp->hWndParent = lpcs->hwndParent;
-        lp->nID  = (UINT)(intptr_t)lpcs->hMenu;
+        lp->nID  = (UINT)lpcs->hMenu;
 
         dwStyle = GetWindowLong(hWnd, GWL_STYLE);
         dwStyle &= ~(WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_DLGFRAME | WS_THICKFRAME);
@@ -1140,7 +1140,7 @@ static LRESULT DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     int   rc;
     POINT   cp;
 
-    lp = (COMBOBOX *) hWnd->userdata/*GetWindowLong(hWnd,CWD_LPCBDATA)*/;
+    lp = (COMBOBOX *) hWnd->userdata/*GetWindowLongPtr(hWnd,CWD_LPCBDATA)*/;
     switch(uMsg) {
         /* *******************************************/
         /* messages specific to the list box control */

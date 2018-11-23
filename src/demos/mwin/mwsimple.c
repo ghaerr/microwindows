@@ -44,7 +44,7 @@
 	   hwnd = CreateWindowEx(
 	      WS_EX_CLIENTEDGE,                         // what the border looks like
 	      g_class_name,
-	      "The title of my window",                 // text appearing in top bar
+	      "Simply a window",                 // text appearing in top bar
 	      WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 	      CW_USEDEFAULT, CW_USEDEFAULT, 240, 120,   // window xpos, ypos, width, height
 	      NULL, NULL, hInstance, NULL);

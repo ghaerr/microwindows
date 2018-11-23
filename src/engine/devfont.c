@@ -388,7 +388,7 @@ void
 GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWTEXTFLAGS flags)
 {
 	const void *	text;
-	int		defencoding = pfont->fontprocs->encoding;
+	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
 	int		force_uc16 = 0;
 	uint32_t *buf = NULL;
 
@@ -412,8 +412,12 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 	}
 
 	/* use strlen for char count when ascii or dbcs*/
-	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
-		cc = strlen((char *)str);
+	if(cc == -1) {
+		MWTEXTFLAGS inflag = flags & MWTF_PACKMASK;
+		if (inflag == MWTF_ASCII || inflag == MWTF_UTF8)
+			cc = strlen((char *)str);
+		else DPRINTF("GdText: Bad cc argument\n");
+	}
 
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {

@@ -1,13 +1,12 @@
 /* windef.h*/
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999-2017 Greg Haerr <greg@censoft.com>
  *
  * Win32 API base type definitions
  */
 
 #define _WINDEF_H
 
-#include <stdint.h>
 
 #ifdef VXWORKS
 /* Don't include the internal Tornado header file <ntcontext.h>, **
@@ -52,43 +51,51 @@
 #define NEAR
 #define CONST		const
 #define CDECL
-
-#define VOID void
-typedef void *PVOID;
-typedef char CHAR;
-typedef short SHORT;
-typedef long LONG;
-typedef SHORT *PSHORT;  
-typedef LONG *PLONG;    
+#define VOID		void
 
 #ifndef VXWORKS
 typedef unsigned char 		UCHAR;
 typedef unsigned short 		USHORT;
-typedef uint32_t		ULONG;
+typedef unsigned long		ULONG;
 #ifndef __ITRON_TYPES_h_ /* FIXME RTEMS hack*/
-typedef uint32_t		UINT;
-#endif
-
-#ifndef __ITRON_TYPES_h_
+typedef int                 	INT;
+typedef unsigned int		UINT;
 #ifndef COMMON_H	 /* MiniGUI hack*/
 typedef int			BOOL;
 #endif
 #endif
-
 #endif /* !VXWORKS*/
 
-typedef ULONG *			PULONG;
-typedef USHORT *		PUSHORT;
-typedef UCHAR *			PUCHAR;
-typedef char *			PSZ;
-#ifndef __ITRON_TYPES_h_
-typedef int32_t                	INT;
-#endif
-typedef uint32_t        	*PUINT;
+// new definitions for 64bit port (int=32, long=64, ptr=64) or 32bit port (int=32, long=32, ptr=32)
+typedef long			LONG_PTR;	// must hold long and pointer
+typedef unsigned long		ULONG_PTR;	// must hold unsigned long and pointer
+typedef unsigned long		UINT_PTR;	// must hold unsigned int and pointer
+//typedef unsigned int		UINT_PTR;	// smaller definition WPARAM for 16bit (int=16, long=32, ptr=16)
 
-typedef unsigned long       DWORD;
+// Window procedure arguments WPARAM,LPARAM and return value LRESULT must also hold pointers
+typedef UINT_PTR		WPARAM;		// holds unsigned int and pointer
+typedef LONG_PTR		LPARAM;		// holds long and pointer
+typedef LONG_PTR		LRESULT;	// holds long and pointer
+
+// Our dialog procedures return DLGBOOL (incompatible with win32 when sizeof(int) != sizeof(char *))
+typedef LRESULT			DLGBOOL;	// mwin dialog procedures return BOOL and pointers
+//typedef BOOL			DLGBOOL;	// compatible definition for 16/32 bit systems
+
+// standard definitions
+typedef void *PVOID;
+typedef char CHAR;
+typedef short SHORT;
+typedef long LONG;
+typedef UCHAR *PUCHAR;
+typedef SHORT *PSHORT;  
+typedef USHORT *PUSHORT;
+typedef LONG *PLONG;    
+typedef ULONG *PULONG;    
+typedef char *PSZ;
+
 typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
+typedef uint32_t            DWORD;		// fixed size regardless of architecture
 
 typedef float               FLOAT;
 typedef FLOAT               *PFLOAT;
@@ -98,6 +105,7 @@ typedef BYTE NEAR           *PBYTE;
 typedef BYTE FAR            *LPBYTE;
 typedef int NEAR            *PINT;
 typedef int FAR             *LPINT;
+typedef unsigned int        *PUINT;
 typedef WORD NEAR           *PWORD;
 typedef WORD FAR            *LPWORD;
 typedef long FAR            *LPLONG;
@@ -129,14 +137,9 @@ typedef LPCSTR LPCTSTR;
 #define __TEXT(quote) quote
 #define TEXT(quote) __TEXT(quote)
 
-typedef int32_t (FAR WINAPI *FARPROC)();
-typedef int32_t (NEAR WINAPI *NEARPROC)();
-typedef int32_t (WINAPI *PROC)();
-
-typedef unsigned long WPARAM;
-typedef LONG LPARAM;
-typedef LONG LRESULT;
-typedef LONG HRESULT;
+typedef int (FAR WINAPI *FARPROC)();
+typedef int (NEAR WINAPI *NEARPROC)();
+typedef int (WINAPI *PROC)();
 
 #define MAKEWORD(a, b)      ((WORD)(((BYTE)(a)) | ((WORD)((BYTE)(b))) << 8))
 #define MAKELONG(a, b)      ((LONG)(((WORD)(a)) | ((DWORD)((WORD)(b))) << 16))
@@ -145,10 +148,12 @@ typedef LONG HRESULT;
 #define LOBYTE(w)           ((BYTE)(w))
 #define HIBYTE(w)           ((BYTE)(((WORD)(w) >> 8) & 0xFF))
 
-#define PALETTEINDEX(i)     ((COLORREF)(0x01000000 | (COLORREF)(WORD)(i)))
+#define PALETTEINDEX(i)     ((COLORREF)(0x01000000 | (DWORD)(WORD)(i)))
 
-typedef uint32_t COLORREF;
-typedef COLORREF *LPCOLORREF;
+typedef DWORD   COLORREF;
+typedef DWORD   *LPCOLORREF;
+
+typedef LONG	HRESULT;
 
 /* handle typedef*/
 typedef PVOID HANDLE;
@@ -180,4 +185,3 @@ typedef HANDLE		HMENU;
 
 /* moved to winuser.h for resource compiler*/
 /*typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);*/
-

@@ -66,7 +66,8 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwprogbar\
 	$(MW_DIR_BIN)/mwbrush\
 	$(MW_DIR_BIN)/mwlistcombo\
-	$(MW_DIR_BIN)/mwmenu
+	$(MW_DIR_BIN)/mwmenu\
+	$(MW_DIR_BIN)/mwpenstyles
 
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)

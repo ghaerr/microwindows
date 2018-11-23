@@ -299,6 +299,10 @@ HBRUSH WINAPI	CreateSolidBrush(COLORREF crColor);
 
 /* Pen Styles */
 #define PS_SOLID            0
+#define PS_DASH		    1
+#define PS_DOT		    2
+#define PS_DASHDOT	    3
+#define PS_DASHDOTDOT	    4
 #define PS_NULL             5
 
 HPEN WINAPI	CreatePen(int nPenStyle, int nWidth, COLORREF crColor);

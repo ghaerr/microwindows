@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <string.h>
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void DrawLines(HWND);

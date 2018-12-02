@@ -767,3 +767,48 @@ void WINAPI idle_handler(void);
 
 //LoadCursor not supported - replace with a zero
 #define LoadCursor(...) 0
+
+typedef LONG_PTR LPOFNHOOKPROC;
+
+typedef struct tagEDITMENU
+{
+	HMENU	hmenu;
+	WORD	idEdit;
+	WORD	idCut;
+	WORD	idCopy;
+	WORD	idPaste;
+	WORD	idClear;
+	WORD	idUndo;
+} EDITMENU;
+typedef EDITMENU FAR *LPEDITMENU;
+
+typedef struct tagOFN {
+  DWORD         lStructSize;
+  HWND          hwndOwner;
+  HINSTANCE     hInstance;
+  LPCSTR        lpstrFilter;
+  LPSTR         lpstrCustomFilter;
+  DWORD         nMaxCustFilter;
+  DWORD         nFilterIndex;
+  LPSTR         lpstrFile;
+  DWORD         nMaxFile;
+  LPSTR         lpstrFileTitle;
+  DWORD         nMaxFileTitle;
+  LPCSTR        lpstrInitialDir;
+  LPCSTR        lpstrTitle;
+  DWORD         Flags;
+  WORD          nFileOffset;
+  WORD          nFileExtension;
+  LPCSTR        lpstrDefExt;
+  LPARAM        lCustData;
+  LPOFNHOOKPROC lpfnHook;
+  LPCSTR        lpTemplateName;
+  LPEDITMENU    lpEditInfo;
+  LPCSTR        lpstrPrompt;
+  void          *pvReserved;
+  DWORD         dwSaveDialog;
+  DWORD         FlagsEx;
+} OPENFILENAME, *LPOPENFILENAME;
+
+BOOL WINAPI GetOpenFileName (LPOPENFILENAME Arg1);
+BOOL WINAPI GetSaveFileName (LPOPENFILENAME Arg1);

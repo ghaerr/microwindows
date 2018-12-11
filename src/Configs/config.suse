@@ -35,7 +35,7 @@
 # LINUX-LINARO (RPI cross compile)
 # ANDROID
 ####################################################################
-ARCH                     = MACOSX
+ARCH                     = LINUX-NATIVE
 BIGENDIAN                = N
 NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
@@ -148,11 +148,9 @@ LIBJPEG                  = -ljpeg
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
-#LIBPNG                   = -lpng
-LIBPNG                   = /usr/X11/lib/libpng.dylib
+LIBPNG                   = -lpng
 INCZ                     = .
-#LIBZ                     = -lz
-LIBZ                     = /usr/lib/libz.dylib
+LIBZ                     = -lz
 
 ####################################################################
 # TIFF support through libtiff
@@ -173,11 +171,12 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 HAVE_HARFBUZZ_SUPPORT    = N
-INCFT2LIB                = /usr/local/include
-LIBFT2LIB                = /usr/local/lib/libfreetype.a /usr/lib/libbz2.dylib
-#LIBFT2LIB                = -lfreetype
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = -lfreetype
 #LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
+#LIBFT2LIB                = -lfreetype-android
+#FREETYPE_FONT_DIR        = "/system/fonts"
 
 ####################################################################
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
@@ -256,12 +255,14 @@ UPDATEREGIONS            = Y
 ####################################################################
 
 # X11 and FBE startup screen width, height, (depth for palette mode only)
-SCREEN_WIDTH             = 800
-SCREEN_HEIGHT            = 600
+#SCREEN_WIDTH             = 800
+#SCREEN_HEIGHT            = 600
 #SCREEN_WIDTH             = 1024
 #SCREEN_HEIGHT            = 768
-#SCREEN_WIDTH             = 1280
-#SCREEN_HEIGHT            = 800
+
+SCREEN_WIDTH             = 1280
+SCREEN_HEIGHT            = 800
+
 #SCREEN_WIDTH             = 1280
 #SCREEN_HEIGHT            = 1024
 #SCREEN_WIDTH             = 1366
@@ -377,6 +378,5 @@ LIRCKBD2                 = N
 ####################################################################
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
-#LIBVNC                   = -lvncserver
-LIBVNC                   = /usr/lib/libvncserver.a
+LIBVNC                   = -lvncserver
 INCVNC                   = /usr/include

@@ -161,7 +161,7 @@ FileOpenCtrlProc ( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 			strcpy(curpath,dirpath);
 			} else {
 			//double click - return filename in ofn structure just as OK button
-			SendMessageW(hwnd, WM_COMMAND, (WPARAM)ID_OK, 0);
+			SendMessage(hwnd, WM_COMMAND, (WPARAM)ID_OK, 0);
 			PostQuitMessage(0);
 			}
 		    }

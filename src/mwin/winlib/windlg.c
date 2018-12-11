@@ -8,6 +8,18 @@
  * gabrielebrugnoni@dveprojects.com
  * DVE Prog. El. - Varese, Italy
  */
+
+/*Dokumentation:
+CreateDialogIndirectParam function: (see remarks)
+https://web.archive.org/web/20140419194756/http://msdn.microsoft.com:80/en-us/library/ms645441(v=vs.85).aspx
+DLGTEMPLATE structure:
+https://web.archive.org/web/20160921091028/https://msdn.microsoft.com/en-us/library/ms645394(v=VS.85).aspx
+DLGITEMTEMPLATE structure:
+https://web.archive.org/web/20160329205358/https://msdn.microsoft.com/en-us/library/ms644997(v=vs.85).aspx
+DialogBoxIndirectParam function:
+https://web.archive.org/web/20140417222151/http://msdn.microsoft.com:80/en-us/library/ms645461(v=vs.85).aspx
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

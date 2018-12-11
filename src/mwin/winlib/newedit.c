@@ -1697,7 +1697,7 @@ SLEditCtrlProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int len;
 
 			pSLEditData = (PSLEDITDATA) (pCtrl->userdata2);
-			len = min((int) wParam, pSLEditData->dataEnd+1);
+			len = min((int) wParam, pSLEditData->dataEnd);
 			//memcpy_fromedit (buffer, pSLEditData->buffer, len);
 			return GdConvertEncoding(pSLEditData->buffer, MWTF_UC16, len,
 					  buffer, mwTextCoding)?strlen(buffer):0;

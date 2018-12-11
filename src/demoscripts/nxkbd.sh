@@ -1,7 +1,2 @@
-#!/bin/bash
-cd ..
-bin/nano-X&
-bin/nanowm&
-bin/nxkbd&
-bin/grabdemo
-cd demoscripts
+# onscreen keyboard and key grabber
+bin/nano-X& bin/nxkbd & bin/grabdemo

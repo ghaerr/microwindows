@@ -157,12 +157,9 @@ typedef struct {
 #define GR_IMAGE_MAX_SIZE	(-1)
 
 /* Button flags */
-#define	GR_BUTTON_R		MWBUTTON_R 	/* right button     - 1*/
-#define	GR_BUTTON_M		MWBUTTON_M	/* middle button    - 2*/
-#define	GR_BUTTON_L		MWBUTTON_L	/* left button      - 4*/
-#define	GR_BUTTON_F		MWBUTTON_F	/* fourth button    - 8*/
-#define	GR_BUTTON_U		MWBUTTON_U	/* mouse wheel up   - 16*/
-#define	GR_BUTTON_D		MWBUTTON_D	/* mouse wheel down - 32*/
+#define	GR_BUTTON_R		MWBUTTON_R 	/* right button*/
+#define	GR_BUTTON_M		MWBUTTON_M	/* middle button*/
+#define	GR_BUTTON_L		MWBUTTON_L	/* left button*/
 #define	GR_BUTTON_ANY		(MWBUTTON_R|MWBUTTON_M|MWBUTTON_L) /* any*/
 
 /* GrSetBackgroundPixmap flags */

@@ -96,7 +96,7 @@ static void mallegro_Close(void)
  */
 static int mallegro_GetButtonInfo(void)
 {
-	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_U | MWBUTTON_D;
+	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_SCROLLUP | MWBUTTON_SCROLLDN;
 }
 
 /*
@@ -169,9 +169,9 @@ if (mstate.buttons & 4) {
 }
 
 if (mickeyz > 0)
-    buttons |= MWBUTTON_U;  
+    buttons |= MWBUTTON_SCROLLUP;  
 if (mickeyz < 0)
-    buttons |= MWBUTTON_D;  
+    buttons |= MWBUTTON_SCROLLDN;
 
 *bp = buttons;
 

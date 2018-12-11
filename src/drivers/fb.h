@@ -215,7 +215,6 @@ extern int 	gr_mode;	/* temp kluge*/
 /* scr_fb.c*/
 void ioctl_getpalette(int start, int len, short *red, short *green,short *blue);
 void ioctl_setpalette(int start, int len, short *red, short *green,short *blue);
-void setfadelevel(PSD psd, int f);
 
 /* fb.c*/
 PSUBDRIVER select_fb_subdriver(PSD psd);

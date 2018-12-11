@@ -1,4 +1,2 @@
-cd ..
-# Nano-X applications, press <BREAK> key to exit
-bin/nano-X -N & bin/nanowm & bin/tuxchess
-cd demoscripts
+# Chess with bugs
+bin/nano-X -N & bin/tuxchess & bin/nxroach &

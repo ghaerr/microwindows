@@ -23,9 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#ifdef __EMSCRIPTEN__
-  #include <emscripten.h>
-#endif  
 
 #define PAINTONCE	1	/* =1 to queue paint msgs only once*/
 #define MOUSETEST	1
@@ -232,9 +229,6 @@ GetMessage(LPMSG lpMsg,HWND hwnd,UINT wMsgFilterMin,UINT wMsgFilterMax)
 	 * so this code will work
 	 */
 	while(!PeekMessage(lpMsg, hwnd, wMsgFilterMin, wMsgFilterMax,PM_REMOVE)) {
-#ifdef __EMSCRIPTEN__
-	    emscripten_sleep(1);
-#endif
 		/* Call select to suspend process until user input or scheduled timer */
 		MwSelect(TRUE);
 	    MwHandleTimers();

@@ -179,7 +179,8 @@ sprite *load_sprite(nbstate *state, char *fname, int width, int height)
 
 	/* Draw the image into the specified pixmap and alpha channel, scaling
 	 * it up or down if necessary: */
-	GrDrawImageToFit(p, state->gc, 0, 0, width, height, img, a);
+	GrDrawImageToFit(p, state->gc, 0, 0, width, height, img);
+	GrDrawImageToFit(a, state->gc, 0, 0, width, height, img);
 	GrFreeImage(img); /* Destroy the server image object. */
 
 	/* Make a new sprite and link it into the list, then return its

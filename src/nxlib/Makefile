@@ -1,4 +1,4 @@
-# 9 Dec 2010
+# 10 Dec 2018
 #
 # NXLIB library makefile - X11 Conversion Library for Nano-X
 # Greg Haerr <greg@censoft.com>
@@ -6,36 +6,22 @@
 # Note: if build fails, rebuild keysymstr.h by "make distclean", then "make"
 #
 
-#get shared flag, BIGENDIAN
+# get BIGENDIAN, OPTFLAGS settings
 include $(CONFIG)
 
-# set to Y for big endian architecture (should be automatic)
-#
-#BIGENDIAN=N
-
-#OPTFLAGS may contain flags for gprof and gdb too - set in Makefile.rules
-ifndef OPTFLAGS
-CFLAGS += -O3
-else
-CFLAGS += $(OPTFLAGS)
-endif
-
-ifneq ($(DEBUG), Y)
-	CFLAGS += -DDEBUG=0
-else
-	CFLAGS += -DDEBUG=1
-endif
 # Compile-time nano-X include and lib directories. (relative paths ok)
 #
-ifneq ($(DOS_DJGPP), Y)
-MWIN_INCLUDE=../include
+MWIN_INCLUDE=../include -I/usr/local/include -I./include
 MWIN_LIB=../lib
-else
+
+X11_INCLUDE=.
+X11_RGBTXT=fonts/rgb.txt
+
+ifeq ($(DOS_DJGPP), Y)
 MWIN_INCLUDE=/djgpp/include/mwin -I/myprogs/nxlib
-MWIN_LIB=../lib
 endif
 
-# Compile-time X11 include directory
+# Compile-time X11 include directory and X11 release location
 #
 # Although X11 headers haven't changed structurally in years,
 # these locations should match headers on target system.
@@ -47,8 +33,7 @@ endif
 # if X11 installed:
 #	X11_INCLUDE=/usr/include/X11
 #
-X11_INCLUDE=.
-#X11_INCLUDE=/usr/include/X11
+#X11_INCLUDE=/usr/X11/include
 
 # Run-time font directory and rgb.txt file location:
 # For testing, relative paths are ok, default is local rgb.txt and fonts
@@ -57,11 +42,12 @@ X11_INCLUDE=.
 # For release, full paths are required matching target system locations
 #	X11_RGBTXT=/usr/share/X11/rgb.txt
 #
-ifeq ($(DOS_DJGPP), Y)
-X11_RGBTXT=fonts/rgb.txt
-else
-X11_RGBTXT=/usr/share/X11/rgb.txt
-endif
+#X11_RGBTXT=/usr/share/X11/rgb.txt
+
+# Xrm routines can be compiled in with INCLUDE_XRM=Y
+# set to Y to include (unmodifed X11) Xrm routines
+#
+#INCLUDE_XRM=Y
 
 # NXLIB library name and installation directory for "make install"
 # Installation is only required when wanting to completely
@@ -73,34 +59,26 @@ endif
 LIBNAME=NX11
 PLIBNAME=PX11
 ELIBNAME=NXext
-xINSTALL_DIR=.
-ifneq ($(DOS_DJGPP), Y)
-INSTALL_DIR=/usr/local/lib
-else
-INSTALL_DIR=/djgpp/lib
-endif
 
-# set to Y to make shared libNX11.so library, shared lib dependencies e.g. shared nano-X
-ifeq ($(SHAREDLIBS), Y)
-SHAREDLIB=Y
-else
-# cannot make shared libNX11.so library if static nano-X lib
-SHAREDLIB=N
-endif
-
-SOLIBREV=0.47
+SOLIBREV=0.48
 MAJVERSION=0
 SOEXTRALIBS = -L$(MWIN_LIB) -lnano-X
 
-# set to Y to include (unmodifed X11) Xrm routines
-ifeq ($(DOS_DJGPP), Y)
-INCLUDE_XRM=N
+ifeq ($(DEBUG), Y)
+	CFLAGS += -DDEBUG=1 $(OPTFLAGS)
+	CFLAGS += -Wall
 else
- ifeq ($(MINGW), Y)
-  INCLUDE_XRM=N
- else #e.g Linux
-  INCLUDE_XRM=Y
- endif
+	CFLAGS += -DDEBUG=0 -O3
+	CFLAGS += -s -Wno-deprecated-declarations
+endif
+CFLAGS += -I$(MWIN_INCLUDE) -I$(X11_INCLUDE)
+CFLAGS += -DX11_FONT_DIR1=\"$(X11_FONT_DIR1)\"
+CFLAGS += -DX11_FONT_DIR2=\"$(X11_FONT_DIR2)\"
+CFLAGS += -DX11_FONT_DIR3=\"$(X11_FONT_DIR3)\"
+CFLAGS += -DX11_RGBTXT=\"$(X11_RGBTXT)\"
+xCFLAGS += -O2 -fno-strength-reduce
+ifeq ($(BIGENDIAN), Y)
+CFLAGS += -DCPU_BIG_ENDIAN=1
 endif
 
 # compiler flags
@@ -110,23 +88,8 @@ LN = ln -s
 MV = mv
 CP = cp -p
 RM = rm -f
+AR = ar
 
-ifneq ($(DEBUG), Y)
-	CFLAGS += -s -Wno-deprecated-declarations
-else
-	CFLAGS += -Wall
-endif
-
-CFLAGS += -I$(MWIN_INCLUDE) -I$(X11_INCLUDE)
-CFLAGS += -DX11_FONT_DIR1=\"$(X11_FONT_DIR1)\"
-CFLAGS += -DX11_FONT_DIR2=\"$(X11_FONT_DIR2)\"
-CFLAGS += -DX11_FONT_DIR3=\"$(X11_FONT_DIR3)\"
-CFLAGS += -DX11_RGBTXT=\"$(X11_RGBTXT)\"
-xCFLAGS += -O2 -fno-strength-reduce
-
-#$(info    CFLAGS is $(CFLAGS))
-
-# If you dont want to see every executed command ...
 ifeq ($(VERBOSE), N)
 .SILENT:
 endif
@@ -161,41 +124,43 @@ xOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
 CFLAGS += -I.
 endif
 
-EOBJS = NXext.o
+# comment out the next line to not compile in X extension dummy stubs into NXLIB
+#OBJS += NXext.o
 
-LIBS = lib$(LIBNAME).a
-
-ifeq ($(BIGENDIAN), Y)
-CFLAGS += -DCPU_BIG_ENDIAN=1
-endif
-
-ifeq ($(SHAREDLIB), Y)
+ifeq ($(NX11),Y)
+ifeq ($(SHAREDLIBS), Y)
 CFLAGS += -fPIC
 LIBS += lib$(LIBNAME).so.$(SOLIBREV)
-endif
-
-LIBS += lib$(PLIBNAME).a
-ifeq ($(SHAREDLIB), Y)
-LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
-endif
-
-ODIR = .
-ARSCRIPT = arscript
-
-ifeq ($(WITH_NX11),N)
-$(info    )
-$(info WITH_NX11 flag set to N - will not compile NX11!)
-$(info    )
-all:
+#LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
 else
-all: $(LIBS) nxext 
-#testprogs 
+LIBS = lib$(LIBNAME).a
+#LIBS += lib$(PLIBNAME).a
 endif
+endif
+
+#ifeq ($(NXEXT),Y)
+#ifeq ($(SHAREDLIBS), Y)
+##LIBS += lib$(ELIBNAME).so.$(SOLIBREV)
+#else
+##LIBS += lib$(ELIBNAME).a
+#endif
+#endif
+
+all: $(LIBS)
+
+testprogs:
+	echo "Compiling programs in test"
+	-$(MAKE) -C test
+	echo "Compiling programs in ptest"
+	-$(MAKE) -C ptest
+	-$(RM) lib$(LIBNAME).a
+	-$(RM) lib$(PLIBNAME).a
+
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)
 	echo "Linking lib$(LIBNAME).a"
-	ar r lib$(LIBNAME).a ../lib/libnano-X.a $(OBJS)
+	$(AR) r lib$(LIBNAME).a ../lib/libnano-X.a $(OBJS)
 	$(CP) lib$(LIBNAME).a $(MWIN_LIB)
 	
 	
@@ -217,7 +182,13 @@ lib$(LIBNAME).so.$(SOLIBREV): $(OBJS)
 	-$(CP)d lib$(LIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	-$(RM) lib$(LIBNAME).so.$(MAJVERSION)
 	
+ODIR = .
+ARSCRIPT = arscript
+
 # static PXLIB library
+# FIXME we don't need more rules about how to link libraries
+# use the automatic make mechanism already in place for linking. Also, "ar" scripts cannot be used.
+# Makefile.rules is the place to put MINGW specific link instructions, not here.
 lib$(PLIBNAME).a: $(OBJS)
 	echo "Linking lib$(PLIBNAME).a"
 #	ar crsT $@ ../lib/libNX11.a ../lib/libnano-X.a
@@ -239,6 +210,8 @@ endif
 	-$(RM) $(ODIR)/$(ARSCRIPT)
 
 # shared PX11 library
+# FIXME we don't need more rules about how to link libraries
+# use the automatic make mechanism already in place for linking.
 lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	$(RM) $@~
 	@SONAME=`echo $@ | sed 's/\.[^\.]*$$//'`; set -x; \
@@ -250,48 +223,18 @@ lib$(PLIBNAME).so.$(SOLIBREV): $(OBJS)
 	-ln -s lib$(PLIBNAME).so lib$(PLIBNAME).so.$(MAJVERSION)
 	-$(CP) -d lib$(PLIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	-$(RM) lib$(PLIBNAME).so.$(MAJVERSION)
-ifneq ($(ARCH), RTEMS)
-ifneq ($(ARCH), ANDROID) 
-	echo "Compiling programs in test"
-	-$(MAKE) -C test
-	echo "Compiling programs in ptest"
-	-$(MAKE) -C ptest
-	-$(RM) lib$(LIBNAME).a
-	-$(RM) lib$(PLIBNAME).a
-endif
-endif
 
-ifeq ($(ARCH), RTEMS)
-testprogs:
-	echo "Test programs compile skipped for RTEMS"
-else ifeq ($(ARCH), ANDROID) 
-testprogs:
-	echo "Test programs compile skipped for ANDROID"
-else
-testprogs:
-#	moved to above to allow for parallel execution
-#	echo "Compiling programs in test"
-#	-$(MAKE) -C test
-#	echo "Compiling programs in ptest"
-#	-$(MAKE) -C ptest
-#	-$(RM) lib$(LIBNAME).a
-#	-$(RM) lib$(PLIBNAME).a
-endif
-
-#LIBS += lib$(ELIBNAME).a
-ifeq ($(SHAREDLIB), Y)
-#LIBS += lib$(ELIBNAME).so.$(SOLIBREV)
-endif
-
-
-.PHONY: nxext
-nxext:
+#
+# FIXME we don't need more rules about how to compile .c files, this should
+# use the automatic make mechanism already in place for CC. Also, "ar" cannot be assumed.
+lib$(ELIBNAME).a:
 	echo "Building NXext library"
 	$(CC) -s -c $(ELIBNAME).c
 	ar -cvq lib$(ELIBNAME).a $(ELIBNAME).o
 	-$(RM) $(ELIBNAME).o
 	$(MV) lib$(ELIBNAME).a $(MWIN_LIB)
-ifeq ($(SHAREDLIB), Y)
+
+lib$(ELIBNAME).so.$(SOLIBREV):
 	$(CC) -s -fPIC -c $(ELIBNAME).c
 	$(CC) -shared -Wl,-soname,lib$(ELIBNAME).so -o lib$(ELIBNAME).so $(ELIBNAME).o
 	ln -sf lib$(ELIBNAME).so lib$(ELIBNAME).so.$(MAJVERSION)
@@ -300,13 +243,10 @@ ifeq ($(SHAREDLIB), Y)
 	$(CP) -d lib$(ELIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	-$(RM) lib$(ELIBNAME).so.$(MAJVERSION)
 
-endif
 
 install: $(LIBS)
-#
-#nxlib.a and nxlib.so are copied into src/lib above, so these are installed
-#by Makefile.rules already together with the other libs in /usr/lib !!!
-#same for NXext.a
+# No mv to INSTALL_DIR since NXLIB moved into Microwindows source tree
+# All libs are copied into ../lib instead
 #
 #	$(RM) $(INSTALL_DIR)/lib$(LIBNAME).so; \
 #	$(CP) lib$(LIBNAME).so $(INSTALL_DIR)

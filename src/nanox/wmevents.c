@@ -28,6 +28,7 @@ void wm_init(void)
 		window.data = NULL;
 		wm_add_window(&window);
 
+		/* when window mgr linked in, this sets update only for current client of root window*/
 		GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_CHLD_UPDATE);
 
 		/* Set new root window background color*/

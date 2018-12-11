@@ -124,7 +124,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                 SendMessage(hprogbar, PBM_SETPOS, 0, 0);
                 SetTimer(hwnd, ID_TIMER, 5, NULL);
                 //SendMessage(hbutton, WM_SETTEXT, (WPARAM) NULL, (LPARAM) "In progress");
-		SetWindowTextW(hbutton, "In progress");
+		SetWindowText(hbutton, "In progress");
             }
 
           break;

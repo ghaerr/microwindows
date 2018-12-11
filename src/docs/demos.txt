@@ -4,19 +4,14 @@ These can be found in the bin directory after executing "make".
 
 If compiled with shared=N and link_app_into_server=Y
 the demos can be called from src directory with e.g.
-"./bin/demo6 landmine.ppm"
+"bin/demo6 landmine.ppm"
 
 Otherwise use a shell script and load nano-X
-and nanowm before the application. E.g.:
-"bin/nano-X -N & bin/nanowm & bin/tuxchess".
+before the application. E.g.:
+"bin/nano-X & bin/tuxchess".
 
 There are a number of shell scripts in the src/demoscripts
-directory. 
-
-There is also a rundemos.sh script in the src/ and bin/
-directories which can be used to run the demos. Select
-a demo from the list or enter it on the command line.
-
+directory for running demos.
 
 Following is a list of the demo programs with short
 descriptions.

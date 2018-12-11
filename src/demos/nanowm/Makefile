@@ -27,7 +27,6 @@ LDFLAGS +=
 ############################# targets section ################################
 
 ifeq ($(NANOX), Y)
-ifeq ($(NANOWM), Y)
 ifeq ($(LINK_APP_INTO_SERVER), N)
 
 # If you want to create a library with the objects files, define the name here
@@ -44,7 +43,6 @@ endif
 
 all: default $(TARGET)
 
-endif
 endif
 endif
 

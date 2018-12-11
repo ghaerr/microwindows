@@ -84,7 +84,7 @@ static void msdl_Close(void)
  */
 static int msdl_GetButtonInfo(void)
 {
-	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_U | MWBUTTON_D;
+	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_SCROLLUP | MWBUTTON_SCROLLDN;
 }
 
 /*
@@ -137,9 +137,9 @@ if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(3)) {
 
 if (event.type == SDL_MOUSEWHEEL) {
    if (event.wheel.y < 0)
-        buttons |= MWBUTTON_D; // WHEEL DOWN
+        buttons |= MWBUTTON_SCROLLDN; // WHEEL DOWN
    else
-        buttons |= MWBUTTON_U; // WHEEL UP
+        buttons |= MWBUTTON_SCROLLUP; // WHEEL UP
 } //SDL_MOUSEWHEEL
 
 *dx=xm;

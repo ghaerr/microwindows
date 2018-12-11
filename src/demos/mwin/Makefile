@@ -71,7 +71,7 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)
-#DEMOS += $(MW_DIR_BIN)/mwterm
+DEMOS += $(MW_DIR_BIN)/mwterm
 endif
 endif
 

@@ -1,2 +1,2 @@
-# Nano-X applications, press <BREAK> key to exit
-../bin/nano-X -N & ../bin/nanowm & ../bin/nterm
+# older terminal emulator
+bin/nano-X -N & bin/nterm

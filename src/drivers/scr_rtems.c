@@ -278,25 +278,3 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 
 	ioctl( fb, FBIOPUTCMAP, &cmap );
 }
-
-/* experimental palette animation*/
-void
-setfadelevel(PSD psd, int f)
-{
-	int 		i;
-	unsigned short 	r[256], g[256], b[256];
-	extern MWPALENTRY gr_palette[256];
-
-	if(psd->pixtype != MWPF_PALETTE)
-		return;
-
-	fade = f;
-	if(fade > 100)
-		fade = 100;
-	for(i=0; i<256; ++i) {
-		r[i] = (gr_palette[i].r * fade / 100) << 8;
-		g[i] = (gr_palette[i].g * fade / 100) << 8;
-		b[i] = (gr_palette[i].b * fade / 100) << 8;
-	}
-	ioctl_setpalette(0, 256, r, g, b);
-}

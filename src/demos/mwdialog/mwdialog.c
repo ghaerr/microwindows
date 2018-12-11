@@ -29,7 +29,6 @@ BOOL CALLBACK mainDlgProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
   switch(message)
     {
       case WM_COMMAND:
-	    sleep(1); //do not update too fast
 	    if (LOWORD(wParam)==ID_BUTTON) 
                 {
 		if (toggle==0) {

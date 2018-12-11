@@ -13,12 +13,6 @@
  * Device-independent font and text drawing routines
  */
 /*#define NDEBUG*/
-#if defined(__MINGW32__)
-#ifdef ui
-#undef ui
-#endif
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

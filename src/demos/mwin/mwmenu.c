@@ -179,7 +179,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                     sel = SendDlgItemMessage ( hwnd, ID_LIST1, LB_GETCURSEL, 1, 0 );
 		    ShowWindow(GetDlgItem(hwnd, ID_LIST1), SW_HIDE);
 		    sprintf(printselection,"You selected: %s",farray[sel]);
-		    SetWindowTextW(hbutton, printselection);
+		    SetWindowText(hbutton, printselection);
 		    if (sel==5) PostQuitMessage(0);
                }
 	    }
@@ -188,7 +188,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                     sel = SendDlgItemMessage ( hwnd, ID_LIST2, LB_GETCURSEL, 1, 0 );
 		    ShowWindow(GetDlgItem(hwnd, ID_LIST2), SW_HIDE);
 		    sprintf(printselection,"You selected: %s",earray[sel]);
-		    SetWindowTextW(hbutton, printselection);
+		    SetWindowText(hbutton, printselection);
                }
 	    }
             if (LOWORD(wParam) == ID_LIST3) {     
@@ -196,7 +196,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                     sel = SendDlgItemMessage ( hwnd, ID_LIST3, LB_GETCURSEL, 1, 0 );
 		    ShowWindow(GetDlgItem(hwnd, ID_LIST3), SW_HIDE);
 		    sprintf(printselection,"You selected: %s",harray[sel]);
-		    SetWindowTextW(hbutton, printselection);
+		    SetWindowText(hbutton, printselection);
                }
 	    }
             if (LOWORD(wParam) == ID_LIST4) {     
@@ -204,7 +204,7 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
                     sel = SendDlgItemMessage ( hwnd, ID_LIST4, LB_GETCURSEL, 1, 0 );
 		    ShowWindow(GetDlgItem(hwnd, ID_LIST4), SW_HIDE);
 		    sprintf(printselection,"You selected: %s",carray[sel]);
-		    SetWindowTextW(hbutton, printselection);
+		    SetWindowText(hbutton, printselection);
                }
 	    }
 

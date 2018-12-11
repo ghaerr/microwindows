@@ -83,7 +83,7 @@ static void msdl_Close(void)
  */
 static int msdl_GetButtonInfo(void)
 {
-	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_U | MWBUTTON_D;
+	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_SCROLLUP | MWBUTTON_SCROLLDN;
 }
 
 /*
@@ -128,11 +128,11 @@ if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(3)) {
 }
 if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(4)) {
     /* wheel mouse up button */
-    buttons |= MWBUTTON_U;
+    buttons |= MWBUTTON_SCROLLUP;
 }
 if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(5)) {
     /* wheel mouse down button */
-    buttons |= MWBUTTON_D;
+    buttons |= MWBUTTON_SCROLLDN;
 }
 
 *dx=xm;

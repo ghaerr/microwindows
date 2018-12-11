@@ -11,7 +11,6 @@ typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 typedef DLGBOOL (CALLBACK* DLGPROC)(HWND, UINT, WPARAM, LPARAM);
 
 /* win api*/
-#define DefWindowProcW(hwnd, msg, wParam, lParam) DefWindowProc(hwnd, msg, wParam, lParam)
 LRESULT WINAPI 	DefWindowProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
 
 /* Class styles*/
@@ -39,12 +38,10 @@ typedef struct tagWNDCLASSA {
     HBRUSH      hbrBackground;
     LPCSTR      lpszMenuName;		/* nyi*/
     LPCSTR      lpszClassName;
-    CHAR	szClassName[40];	/* microwin*/
-    UINT	cbSize;			/* WNDCLASSEXW unused */
-} WNDCLASS, WNDCLASSW, WNDCLASSEXW, *PWNDCLASS, NEAR *NPWNDCLASS, FAR *LPWNDCLASS; /* WNDCLASSEXW not fully implemented */
+    CHAR        szClassName[40];	/* microwin*/
+//  UINT        cbSize;			/* WNDCLASSEXW (nyi)*/
+} WNDCLASS, *PWNDCLASS, NEAR *NPWNDCLASS, FAR *LPWNDCLASS;
 
-#define RegisterClassW(lpWndClass) RegisterClass(lpWndClass)
-#define RegisterClassExW(lpWndClass) RegisterClass(lpWndClass)
 ATOM WINAPI	RegisterClass(CONST WNDCLASS *lpWndClass);
 BOOL WINAPI UnregisterClass(LPCSTR lpClassName, HINSTANCE hInstance);
 
@@ -228,7 +225,6 @@ typedef struct tagMSG {
 
 LRESULT WINAPI  CallWindowProc(WNDPROC lpPrevWndFunc, HWND hwnd, UINT Msg,
 			WPARAM wParam, LPARAM lParam);
-#define SendMessageW(hwnd, Msg, wParam, lParam) SendMessage(hwnd, Msg, wParam, lParam)
 LRESULT WINAPI	SendMessage(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 BOOL WINAPI	PostMessage(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 BOOL WINAPI	PostThreadMessage(DWORD dwThreadId, UINT Msg, WPARAM wParam,
@@ -386,14 +382,6 @@ typedef NMHDR FAR * LPNMHDR;
 #define CreateWindow(lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hwndParent, hMenu, hInstance, lpParam)\
 		CreateWindowEx(0L, lpClassName, lpWindowName, dwStyle, x, y,\
 		nWidth, nHeight, hwndParent, hMenu, hInstance, lpParam)
-		
-#define CreateWindowW(lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)\
-		CreateWindowEx(0L, lpClassName, lpWindowName, dwStyle, x, y,\
-		nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)		
-
-#define CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)\
-		CreateWindowEx(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y,\
-		nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)		
 
 HWND WINAPI	CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName,
     			LPCSTR lpWindowName, DWORD dwStyle, int X, int Y,
@@ -509,11 +497,8 @@ HANDLE WINAPI RemoveProp(HWND hWnd, LPCSTR lpString);
 #define GetDlgCtrlID(hwnd)	((int)(hwnd)->id)
 DWORD WINAPI	GetClassLong(HWND hwnd, int nIndex);
 ULONG_PTR WINAPI GetClassLongPtr(HWND hwnd, int nIndex);
-#define GetWindowTextLengthW(hwnd) GetWindowTextLength(hwnd);
 int WINAPI	GetWindowTextLength(HWND hwnd);
-#define GetWindowTextW(hwnd, lpString, nMaxCount) GetWindowText(hwnd, lpString, nMaxCount)
 int WINAPI	GetWindowText(HWND hwnd, LPSTR lpString, int nMaxCount);
-#define SetWindowTextW(hwnd, lpString) SetWindowText(hwnd, lpString)
 BOOL WINAPI	SetWindowText(HWND hwnd, LPCSTR lpString);
 
 BOOL WINAPI 	MoveWindow(HWND hwnd, int x, int y, int nWidth, int nHeight,
@@ -753,17 +738,37 @@ BOOL WINAPI EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc,
 void WINAPI idle_handler(void);
 #endif
 
-/* dummy definitions for cursor styles */
-#define IDC_ARROW 0
-#define IDC_APPSTARTING 0
-#define IDC_CROSS 0
-#define IDC_HAND 0
-#define IDC_HELP 0
-#define IDC_IBEAM 0
-#define IDC_ICON 0
-#define IDC_NO 0
-#define IDC_SIZE 0
-#define IDC_SIZEALL 0
+#if later
+/* All wide Functions jammed into A functions and unimplemented*/
+typedef WNDCLASS	WNDCLASSW;
+typedef WNDCLASS	WNDCLASSEXW;
+#define DefWindowProcW		DefWindowProc
+#define RegisterClassW		RegisterClass
+#define RegisterClassExW	RegisterClassEx
+#define SendMessageW		SendMessage
+#define CreateWindowW		CreateWindow
+#define CreateWindowExW		CreateWindowEx
+#define GetWindowTextLengthW GetWindowTextLength
+#define GetWindowTextW		GetWindowText
+#define SetWindowTextW		SetWindowText
 
-//LoadCursor not supported - replace with a zero
-#define LoadCursor(...) 0
+/********* UNIMPLEMENTED FUNCTIONS *********/
+/* Cursor styles (unimplemented)*/
+#define IDC_ARROW MAKEINTRESOURCE(32512)
+#define IDC_IBEAM MAKEINTRESOURCE(32513)
+#define IDC_WAIT MAKEINTRESOURCE(32514)
+#define IDC_CROSS MAKEINTRESOURCE(32515)
+#define IDC_UPARROW MAKEINTRESOURCE(32516)
+#define IDC_SIZENWSE MAKEINTRESOURCE(32642)
+#define IDC_SIZENESW MAKEINTRESOURCE(32643)
+#define IDC_SIZEWE MAKEINTRESOURCE(32644)
+#define IDC_SIZENS MAKEINTRESOURCE(32645)
+#define IDC_SIZEALL MAKEINTRESOURCE(32646)
+#define IDC_NO MAKEINTRESOURCE(32648)
+#define IDC_HAND MAKEINTRESOURCE(32649)
+#define IDC_APPSTARTING MAKEINTRESOURCE(32650)
+#define IDC_HELP MAKEINTRESOURCE(32651)
+#define IDC_ICON MAKEINTRESOURCE(32641)
+#define IDC_SIZE MAKEINTRESOURCE(32640)
+HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR pCursor);
+#endif /* unimplemented*/

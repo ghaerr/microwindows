@@ -41,6 +41,10 @@
 #define exit(...) sceKernelExitGame()
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif  
+
 #include "windows.h"
 #include "wintern.h"
 #include "winres.h"
@@ -302,6 +306,10 @@ MwSelect(BOOL mayWait)
 void
 MwSelect(BOOL mayWait)
 {
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(1);
+#endif
+
 	/* If mouse data present, service it*/
 	if(mousedev.Poll())
 		while(MwCheckMouseEvent())
@@ -350,10 +358,6 @@ MwSelect(BOOL mayWait)
 
 
 #if UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_) && !defined(_SDL1_2_)
-#if ANIMATEPALETTE
-static int fade = 0;
-#endif
-
 void
 MwSelect(BOOL mayWait)
 {
@@ -422,11 +426,6 @@ MwSelect(BOOL mayWait)
 			timeout = 0;
 		else
 			maybeInfinite = FALSE;
-#if ANIMATEPALETTE
-		if(fade < 100)
-			timeout = 40;
-#endif
-//if (!timeout) timeout = 10;	/* temp kluge required for mdemo to run ok*/
 #if MW_FEATURE_TIMERS
 		if( !GdGetNextTimeout(&to, timeout) ) {
 			to.tv_sec = timeout / 1000;
@@ -445,16 +444,11 @@ MwSelect(BOOL mayWait)
 
 	/* Wait for some input on any of the fds in the set or a timeout: */
 	if((e = select(setsize, &rfds, &wfds, &efds, pto)) > 0) {
-		
-		/* If data is present on the mouse fd, service it: */
 		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
 			while(MwCheckMouseEvent())
 				continue;
 
-		/* If data is present on the keyboard fd, service it: */
 		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
-			MwCheckKeyboardEvent();
-/*	GB: Only one key at a time is posted to focused window...
 			while(MwCheckKeyboardEvent())
 				continue;
 
@@ -475,12 +469,6 @@ MwSelect(BOOL mayWait)
 		if(GdTimeout() == FALSE)
 			return;
 #endif /* MW_FEATURE_TIMERS */
-#if ANIMATEPALETTE
-		if(fade <= 100) {
-			setfadelevel(&scrdev, fade);
-			fade += 5;
-		}
-#endif
 		MwHandleTimers();
 	} else
 		if(errno != EINTR)
@@ -555,9 +543,6 @@ static void
 CheckVtChange(void *arg)
 {
 	if(MwCheckVtChange()) {
-#if ANIMATEPALETTE
-		fade = 0;
-#endif
 		MwRedrawScreen();
 	}
 	GdAddTimer(50, CheckVtChange, NULL);
@@ -628,9 +613,6 @@ MwInitialize(void)
 		return -1;
 	}
 
-#if ANIMATEPALETTE
-	setfadelevel(psd, 0);
-#endif
 	/*
 	 * Initialize the root window.
 	 */

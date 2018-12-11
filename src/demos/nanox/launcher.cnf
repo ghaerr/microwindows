@@ -42,8 +42,8 @@ $screensaver_rotate_time 300
 # Run the screen calibrator at startup.
 # $startup bin/nanocal
 
-# Start the window manager
-$startup bin/nanowm
+# Start the window manager (not needed when NANOWM=Y)
+#$startup bin/nanowm
 
 # This is the file to use as the root window background image:
 $window_background_image bin/uponface.ppm

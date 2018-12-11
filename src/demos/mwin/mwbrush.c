@@ -3,21 +3,21 @@
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void DrawRectangles(HWND);
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    PWSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine, int nCmdShow) {
     
     MSG  msg;
-    WNDCLASSW wc = {0};
+    WNDCLASS wc;
 
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpszClassName = "Brush";
     wc.hInstance     = hInstance;
     wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
     wc.lpfnWndProc   = WndProc;
-    wc.hCursor       = LoadCursor(0, IDC_ARROW);
+    wc.hCursor       = 0; /*LoadCursor(0, IDC_ARROW);*/
 
-    RegisterClassW(&wc);
-    CreateWindowW(wc.lpszClassName, "Several Brushes",
+    RegisterClass(&wc);
+    CreateWindow(wc.lpszClassName, "Several Brushes",
           WS_OVERLAPPEDWINDOW | WS_VISIBLE,
           100, 100, 220, 240, NULL, NULL, hInstance, NULL);
 
@@ -46,7 +46,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
             return 0;
     }
 
-    return DefWindowProcW(hwnd, msg, wParam, lParam);
+    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 void DrawRectangles(HWND hwnd) {

@@ -1,4 +1,3 @@
-
-# Nano-X grabkey test, press <BREAK> key to exit
+# Nano-X grabkey test
 # grab the 'a' key as exclusive hotkey
-../bin/nano-X & ../bin/nanowm & ../bin/grabdemo 97 n & sleep 10000
+bin/nano-X & bin/grabdemo 97 n &

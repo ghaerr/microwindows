@@ -16,6 +16,10 @@
 #include <pspdebug.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif  
+
 #ifdef __PACIFIC__
 #include <unixio.h>
 #else
@@ -39,7 +43,8 @@
 #endif
 
 #if __MINGW32__ || WIN32
-#include "windows.h"
+//all this needs to move somewhere else
+//#include "windows.h"
 /* Allow including program to override.  */
 #ifndef FD_SETSIZE
 #define FD_SETSIZE 256
@@ -300,8 +305,7 @@ GrOpen(void)
 #if NONETWORK
 
 #if PSP
-	int thid;
-	thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
 	if(thid >= 0)
 		sceKernelStartThread(thid, 0, 0);
 #endif
@@ -325,11 +329,11 @@ GrOpen(void)
 		curclient = root_client;
 	}
 	SERVER_UNLOCK();
+#endif /* NONETWORK*/
 
 #if NANOWM
 	wm_init();	/* init built-in window manager*/
 #endif
-#endif /* NONETWORK*/
     return 1;
 }
 
@@ -721,11 +725,15 @@ GsSelect(GR_TIMEOUT timeout)
 }
 
 /********************************************************************************/
-#elif MSDOS || _MINIX  || __MINGW32__ || defined(_ALLEGRO_) || defined(_SDL1_2_) || defined(__EMSCRIPTEN__)
+#elif MSDOS || _MINIX  || NDS || __MINGW32__ || defined(_ALLEGRO_) || defined(_SDL1_2_) || defined(__EMSCRIPTEN__)
 
 void
 GsSelect(GR_TIMEOUT timeout)
 {
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(1);
+#endif
+
 	/* If mouse data present, service it*/
 	if(mousedev.Poll())
 		while(GsCheckMouseEvent())
@@ -739,8 +747,7 @@ GsSelect(GR_TIMEOUT timeout)
 }
 
 /********************************************************************************/
-/* next elif to below is #elif NDS */
-#elif UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_) && !defined(_SDL1_2_) && !defined(__EMSCRIPTEN__)
+#elif UNIX && HAVE_SELECT
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -1101,26 +1108,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 #endif /* NONETWORK */
 
 /********************************************************************************/
-#elif NDS /* UNIX && defined(HAVE_SELECT)*/
-
-void
-GsSelect(GR_TIMEOUT timeout)
-{
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(GsCheckMouseEvent())
-			continue;
-
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(GsCheckKeyboardEvent())
-			continue;
-
-}
-
-/********************************************************************************/
-#endif /* UNIX && HAVE_SELECT*/
-/********************************************************************************/
+#endif /* UNIX && HAVESELECT*/
 
 #if RTEMS
 extern struct MW_UID_MESSAGE m_kbd;
@@ -1434,11 +1422,10 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
-#if !defined(__EMSCRIPTEN__)
-	exit(0);
-#else	
+#if defined(__EMSCRIPTEN__)
 	return;
 #endif
+	exit(0);
 }
 
 /*

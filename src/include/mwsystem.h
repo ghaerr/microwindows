@@ -27,6 +27,10 @@
  * Note the extra "old_size" parameter to GdRealloc().
  */
 
+#if __MINGW32__
+#include <malloc.h> /* for alloca */
+#endif
+
 /* for definitions of calloc, malloc, realloc, and free */
 #include <stdlib.h>
 

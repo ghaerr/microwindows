@@ -37,6 +37,14 @@
 #ifndef NBREAKER_H
 #define NBREAKER_H
 
+#define GR_PIXMAP_ID	GR_WINDOW_ID
+#define GR_ALPHA_ID		GR_WINDOW_ID
+#define GR_CONST_BLEND	MWROP_BLENDCONSTANT
+#define GR_ALPHA_BLEND	MWROP_BLENDFGBG
+#define GR_CONST_ADD	MWROP_BLENDCONSTANT		/* not implemented*/
+#define GrNewAlpha(w,h)	GrNewPixmap(w,h,NULL)
+#define GrCopyAreaAlpha(id,gc,a,x,y,w,h,srcid,srcx,srcy,op)	GrCopyArea(id,gc,x,y,w,h,srcid,srcx,srcy,op)
+
 /* Define this to include code which dumps (almost) the entire game state when
  * F10 is pressed. */
 #define NB_DEBUG

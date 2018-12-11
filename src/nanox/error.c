@@ -2,7 +2,7 @@
  * Reconfigurable error handler.
  *
  * Note: There are two identical copies of this file.  One is nanox/error.c,
- * and is used by Nano-X client apps, the other is engine/merror.c and is
+ * and is used by Nano-X client apps, the other is engine/error.c and is
  * used by everything else (including the Nano-X server and apps using the
  * Win32 API).  If you change one, you probably want to make the same changes
  * to the other copy.
@@ -40,8 +40,8 @@ GdError(const char *format, ...)
 #else
 #if HAVE_FILEIO
 	vsprintf(buf, format, args);
-	//write(2, buf, strlen(buf));
-	fprintf(stderr, "%s\n", buf);
+	write(2, buf, strlen(buf));
+	//fprintf(stderr, "%s\n", buf);
 #else
 	/* discard EPRINTF/DPRINTF output!*/
 #endif

@@ -82,7 +82,8 @@ endif
 ifeq ($(FBEMULATOR), Y)
 DEFINES += -DX11=1
 LDFLAGS += $(X11LDFLAGS)
-INCLUDEDIRS += -I/usr/X11R6/include
+HOSTCFLAGS += -I/usr/X11R6/include
+HOSTCFLAGS += -I/usr/X11/include
 endif
 
 ifeq ($(ARCH),FREEBSD-X86)
@@ -886,9 +887,6 @@ ifeq ($(LINK_APP_INTO_SERVER), N)
 	echo "Copying binaries to $(BININSTALLDIR)"
 	$(INSTALL_DIR) $(BININSTALLDIR)
 	$(INSTALL_BIN) $(MW_DIR_BIN)/nano-X $(BININSTALLDIR)
-ifeq ($(NANOWM), Y)
-	$(INSTALL_BIN) $(MW_DIR_BIN)/nanowm $(BININSTALLDIR)
-endif
 	
 else # ==($(LINK_APP_INTO_SERVER), Y)
 	rm -f $(BININSTALLDIR)/nano-X

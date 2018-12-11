@@ -425,6 +425,7 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 #endif
 }
 
+#ifdef DEPRECATED
 /* experimental palette animation*/
 void
 setfadelevel(PSD psd, int f)
@@ -446,3 +447,4 @@ setfadelevel(PSD psd, int f)
 	}
 	ioctl_setpalette(0, 256, r, g, b);
 }
+#endif

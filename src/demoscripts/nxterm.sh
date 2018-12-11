@@ -1,3 +1,2 @@
-
-# Nano-X applications, press <BREAK> key to exit
-../bin/nano-X -N & ../bin/nanowm & ../bin/nxterm
+# terminal emulator with onscreen keyboard and handwriting recognition
+bin/nano-X -N -x 1024 -y 768 & bin/nxterm & bin/nxscribble & bin/nxkbd & bin/nxterm & bin/nxroach -roaches 10 &

@@ -169,7 +169,8 @@ int handle_keystroke_event(nbstate *state, GR_EVENT_KEYSTROKE *ev)
  * still move the bat when the cursor strays out of the window). */
 void handle_update_event(nbstate *state, GR_EVENT_UPDATE *ev)
 {
-	state->winx = ev->rootx;
+	//FIXME no rootx in UPDATE struct
+	//state->winx = ev->rootx;
 }
 
 /* Handle a timer event. Currently there is only one timer; a 1 second

@@ -22,7 +22,7 @@
 #include "../include/nano-X.h"
 
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>		/* for malloc.h*/
 
 /* malloc stuff*/
 #if MALLOC_0_RETURNS_NULL

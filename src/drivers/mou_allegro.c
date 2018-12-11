@@ -142,9 +142,9 @@ if (ALLEGRO_SUB_VERSION >2){
 		if (mouse_b & 4)
 			buttons |= MWBUTTON_M;
 		if (mickeyz > 0)
-		    buttons |= MWBUTTON_U;  
+		    buttons |= MWBUTTON_SCROLLUP;  
 		if (mickeyz < 0)
-		    buttons |= MWBUTTON_D;  
+		    buttons |= MWBUTTON_SCROLLDN;  
 			
 		*bp = buttons;
         /* return relative mouse position */

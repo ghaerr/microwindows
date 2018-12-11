@@ -128,7 +128,6 @@ static nmstate *init(int argc, char **argv)
 	GR_COORD x = 0;
 	nmstate *state;
 	GR_SCREEN_INFO si;
-	GR_WM_PROPERTIES props;
 	int updateperiod = DEFAULT_UPDATE_PERIOD;
 
 	if(!(state = malloc(sizeof(nmstate)))) return NULL;
@@ -195,8 +194,8 @@ static nmstate *init(int argc, char **argv)
 	state->lx = -1;
 	state->ly = -1;
 
-	state->wid = GrNewWindow(GR_ROOT_WINDOW_ID, x, 0, state->pwidth,
-				state->pheight, 0, GR_COLOR_WHITE, 0);
+	state->wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "nxmag", GR_ROOT_WINDOW_ID, x, 0,
+					state->pwidth, state->pheight, GR_COLOR_WHITE);
 
 	GrSelectEvents(state->wid, GR_EVENT_TYPE_EXPOSURE |
 					GR_EVENT_MASK_TIMER |
@@ -204,17 +203,13 @@ static nmstate *init(int argc, char **argv)
 
 	GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_MOUSE_POSITION);
 
-	props.flags = GR_WM_FLAGS_TITLE;
-	props.title = "nxmag";
-	GrSetWMProperties(state->wid, &props);
-
 	GrMapWindow(state->wid);
 
 	state->gc = GrNewGC();
 
 	GrCreateTimer(state->wid, updateperiod); /*, GR_TRUE); */
 
-	do_update(state);
+	//do_update(state);
 
 	return state;
 
@@ -250,9 +245,12 @@ int main(int argc, char *argv[])
 				free(state);
 				GrClose();
 				return 0;
+			case GR_EVENT_TYPE_MOUSE_ENTER:
+			case GR_EVENT_TYPE_MOUSE_EXIT:
+			case GR_EVENT_TYPE_CHLD_UPDATE:
+				break;
 			default:
-				fprintf(stderr, "Got unknown event type %d\n",
-						ev.type);
+				fprintf(stderr, "Got unknown event type %d\n", ev.type);
 				break;
 		}
 	}

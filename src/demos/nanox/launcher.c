@@ -430,8 +430,7 @@ void handle_exposure_event(lstate *state)
 		i = i->next;
 	}
 
-	fprintf(stderr, "Got exposure event for unknown window %d\n",
-							event->wid);
+	fprintf(stderr, "Got exposure event for unknown window %d\n", event->wid);
 }
 
 pid_t launch_program(prog_item *prog)
@@ -551,10 +550,10 @@ void handle_event(lstate *state)
 			handle_timer_event(state);
 			break;
 		case GR_EVENT_TYPE_NONE:
+		case GR_EVENT_TYPE_CHLD_UPDATE:
 			break;
 		default:
-			fprintf(stderr, "Got unknown event type %d\n",
-							state->event.type);
+			fprintf(stderr, "Got unknown event type %d\n", state->event.type);
 			break;
 	}
 }
@@ -658,11 +657,9 @@ void initialise(lstate *state)
 
 	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, 0, y, width, height,
 						0, ITEM_BACKGROUND_COLOUR, 0);
-	GrSelectEvents(state->main_window, GR_EVENT_MASK_CLOSE_REQ |
-					GR_EVENT_MASK_TIMER);
+	GrSelectEvents(state->main_window, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_TIMER);
 	props.flags = GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_NOMOVE | GR_WM_PROPS_NODECORATE |
-			GR_WM_PROPS_NOAUTOMOVE | GR_WM_PROPS_NOAUTORESIZE;
+	props.props = GR_WM_PROPS_NOMOVE | GR_WM_PROPS_NODECORATE | GR_WM_PROPS_NOAUTOMOVE | GR_WM_PROPS_NOAUTORESIZE;
 	GrSetWMProperties(state->main_window, &props);
 
 	i = state->lastlitem;
@@ -671,10 +668,8 @@ void initialise(lstate *state)
 		i->wid = GrNewWindow(state->main_window,
 					(x * ITEM_WIDTH) + x + 1,
 					(y * ITEM_HEIGHT) + y + 1, ITEM_WIDTH,
-					ITEM_HEIGHT, 1, ITEM_BACKGROUND_COLOUR,
-							ITEM_BORDER_COLOUR);
-		GrSelectEvents(i->wid, GR_EVENT_MASK_EXPOSURE |
-					GR_EVENT_MASK_BUTTON_DOWN);
+					ITEM_HEIGHT, 1, ITEM_BACKGROUND_COLOUR, ITEM_BORDER_COLOUR);
+		GrSelectEvents(i->wid, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_BUTTON_DOWN);
 		GrMapWindow(i->wid);
 		i = i->prev;
 		if(++x == columns) {

@@ -15,9 +15,9 @@
  */
 #include <string.h>
 #include "device.h"
-#ifdef __EMSCRIPTEN__
-  #include <emscripten.h>
-#endif  
+//#if defined(__EMSCRIPTEN__)
+//#include <emscripten.h>
+//#endif
 
 /*
  * The following define specifies whether returned mouse

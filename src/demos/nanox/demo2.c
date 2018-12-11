@@ -4,57 +4,42 @@
 #include <unistd.h>
 #include "nano-X.h"
 
-#include <signal.h>
-#if __MINGW32__
-#include <time.h>
-#endif
-
 int
 main(int ac,char **av)
 {
-	GR_WINDOW_ID 	w, w2;
+	GR_WINDOW_ID 	w;
 	GR_GC_ID	gc;
-	GR_EVENT 	event;
-	GR_WM_PROPERTIES props;
 	GR_FONT_ID	font;
+	GR_WINDOW_INFO wi;
 
 	if (GrOpen() < 0) {
 		printf("Can't open graphics\n");
 		exit(1);
 	}
 
-	/* pass errors through main loop*/
-	GrSetErrorHandler(NULL);
-
-#define WIDTH	320
-#define HEIGHT	240
-	w = GrNewWindow(GR_ROOT_WINDOW_ID, 20, 20, WIDTH, HEIGHT,
-		0, GREEN, BLACK);
-
-	//w2 = GrNewWindow(w, 20, 20, 40, 40, 0, BLUE, BLACK);
-
-	props.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
-	props.props = GR_WM_PROPS_NOBACKGROUND;
-	props.title = "Nano-X Demo2";
-	GrSetWMProperties(w, &props);
+	//w = GrNewWindowEx(GR_WM_PROPS_APPWINDOW|GR_WM_PROPS_NOBACKGROUND, "Nano-X Demo2",
+		//GR_ROOT_WINDOW_ID, 20, 20, 320, 240, BLACK);
+	w = GrNewWindowEx(GR_WM_PROPS_BORDER|GR_WM_PROPS_NOBACKGROUND, "Nano-X Demo2",
+		GR_ROOT_WINDOW_ID, 20, 20, 320, 240, BLACK);
 
 	gc = GrNewGC();
-	/*font = GrCreateFontEx("/tmp/lubI24.fnt", 0, 0, NULL);*/
-	font = GrCreateFontEx("lubI24.pcf", 0, 0, NULL);
+	//font = GrCreateFontEx("lubI24.pcf", 0, 0, NULL);
+	font = GrCreateFontEx("helvB12.pcf.gz", 0, 0, NULL);
 	GrSetGCFont(gc, font);
 
 	GrSelectEvents(w, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ
-		| GR_EVENT_MASK_BUTTON_DOWN
-		| GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_KEY_UP);
+		| GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_KEY_UP);
 	GrMapWindow(w);
 	GrSetFocus(w);
-	/* serious bug here: when wm running, w2 is mapped anyway!!*/
-	/*GrMapWindow(w2);*/
+
+	// pass errors through main loop
+	GrSetErrorHandler(NULL);
 
 	for (;;) {
-		/*GR_EVENT_KEYSTROKE *kev;*/
+		GR_EVENT 	event;
 
 		GrGetNextEvent(&event);
+
 		switch (event.type) {
 		case GR_EVENT_TYPE_EXPOSURE:
 			GrSetGCForeground(gc,GrGetSysColor(GR_COLOR_APPWINDOW));
@@ -62,54 +47,34 @@ main(int ac,char **av)
 				event.exposure.width, event.exposure.height);
 			GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPTEXT));
 			GrSetGCUseBackground(gc, GR_FALSE);
-			GrText(w, gc, 10, 30, "Hello World @MNOPmn", -1, GR_TFASCII);
-            		GrRect(w, gc, 5, 5, 300, 60);
+			GrText(w, gc, 10, 30, "Hello World", -1, GR_TFASCII);
+            GrRect(w, gc, 5, 5, 300, 60);
+			GrGetWindowInfo(w, &wi);
+			printf("Exposure:wi.width:%d,wi.height:%d,wi.x:%d,wi.y:%d,wi.parent:%d\n",wi.width,wi.height,wi.x,wi.y,wi.parent);
 			break;
+
+		case GR_EVENT_TYPE_BUTTON_DOWN:
+			// FIXME unmap window is broken
+			//GrUnmapWindow(w);
+			//GrFlush();
+			//GrMapWindow(w);
+
+			//uncomment to test server error on bad syscall
+			//GrMoveWindow(GR_ROOT_WINDOW_ID, 0, 0);
+
+			GrGetWindowInfo(w, &wi);
+			printf("Button:  wi.width:%d,wi.height:%d,wi.x:%d,wi.y:%d,wi.parent:%d\n",wi.width,wi.height,wi.x,wi.y,wi.parent);
+			break;
+
+		case GR_EVENT_TYPE_ERROR:
+			printf("demo2: Error (%s) ", event.error.name);
+			printf(nxErrorStrings[event.error.code], event.error.id);
+			break;
+
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
 			exit(0);
-			break;
-		case GR_EVENT_TYPE_ERROR:
-			printf("\7demo2: Error (%s) ", event.error.name);
-			printf(nxErrorStrings[event.error.code],event.error.id);
-			break;
-#if 0
-		case GR_EVENT_TYPE_BUTTON_DOWN:
-			GrUnmapWindow(w);
-			GrFlush();
-			
-#if !__MINGW32__
-			sleep(1);
-#else
-            clock_t goal = 1000 + clock();
-            while (goal > clock());			
-#endif
-			GrMapWindow(w);
-			break;
-#endif
-#if 0
-		case GR_EVENT_TYPE_BUTTON_DOWN:
-			/* test server error on bad syscall*/
-			GrMapWindow(w2);
-			GrMoveWindow(GR_ROOT_WINDOW_ID, 0, 0);
-			{ GR_SCREEN_INFO sinfo; GrGetScreenInfo(&sinfo); }
-			break;
-#endif
-#if 0
-		case GR_EVENT_TYPE_KEY_DOWN:
-			kev = (GR_EVENT_KEYSTROKE *)&event;
-			printf("DOWN %d (%04x) %04x\n",
-				kev->ch, kev->ch, kev->modifiers);
-			break;
-		case GR_EVENT_TYPE_KEY_UP:
-			kev = (GR_EVENT_KEYSTROKE *)&event;
-			printf("UP %d (%04x) %04x\n",
-				kev->ch, kev->ch, kev->modifiers);
-			break;
-#endif
 		}
 	}
-
-	GrClose();
 	return 0;
 }

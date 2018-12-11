@@ -1,23 +1,20 @@
 #define MWINCLUDECOLORS
 #include <windows.h>
 
-LRESULT CALLBACK wproc(HWND,UINT,WPARAM,LPARAM);
+LRESULT CALLBACK windowproc(HWND,UINT,WPARAM,LPARAM);
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                   PSTR szCmdLine, int iCmdShow)
+int WINAPI
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
-        static char szAppName[]="HelloMWin";
-        HWND hwnd;
-        MSG msg;
-        WNDCLASS wndclass;
-
+	HWND hwnd;
+	MSG msg;
+	WNDCLASS wndclass;
 	int width, height;
 	RECT r;
-        HWND hlist,hedit;
+	HWND hlist,hcombo;
+	static char szMainWindowClass[] = "main";
 
-	GetWindowRect(GetDesktopWindow(), &r);
-	width = height = r.right / 2;
-
+	/* register internal classes*/
 	MwRegisterButtonControl(NULL);
 	MwRegisterEditControl(NULL);
 	MwRegisterListboxControl(NULL);
@@ -26,33 +23,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	MwRegisterComboboxControl(NULL);
 	MwRegisterScrollbarControl(NULL);
 
-        wndclass.style          = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-        wndclass.lpfnWndProc    = (WNDPROC)wproc;
-        wndclass.cbClsExtra     =0;
-        wndclass.cbWndExtra     =0;
-        wndclass.hInstance      =0;
-        wndclass.hIcon          =0;
-        wndclass.hCursor        =0;
-        wndclass.hbrBackground  =(HBRUSH)GetStockObject(LTGRAY_BRUSH);
-        wndclass.lpszMenuName   =NULL;
-        wndclass.lpszClassName  = szAppName;
+	/* calc main window size as half total area*/
+	GetWindowRect(GetDesktopWindow(), &r);
+	width = height = r.right / 2;
 
-        RegisterClass(&wndclass);
-        hwnd=CreateWindowEx(0L,
-                          szAppName,
-                          "Hello",
-                          WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                          CW_USEDEFAULT,
-                          CW_USEDEFAULT,
-                          width,	/* 80, */
-                          height,	/* 80, */
-                          NULL,
-                          NULL,
-                          NULL,
-                          NULL);
-#if !ELKS
+	/* register our main window class*/
+	wndclass.style          = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	wndclass.lpfnWndProc    = (WNDPROC)windowproc;
+	wndclass.cbClsExtra     =0;
+	wndclass.cbWndExtra     =0;
+	wndclass.hInstance      =0;
+	wndclass.hIcon          =0;
+	wndclass.hCursor        =0;
+	wndclass.hbrBackground  =(HBRUSH)GetStockObject(LTGRAY_BRUSH);
+	wndclass.lpszMenuName   =NULL;
+	wndclass.lpszClassName  = szMainWindowClass;
+	RegisterClass(&wndclass);
 
-	hedit=CreateWindowEx(0L, "EDIT",
+	/* create main window*/
+	hwnd = CreateWindowEx(0L, szMainWindowClass,
+		"Hello",
+		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		width,
+		height,
+		NULL,
+		NULL,
+		NULL,
+		NULL);
+
+	CreateWindowEx(0L, "EDIT",
 		"OK",
 		WS_BORDER|WS_CHILD | WS_VISIBLE,
 		width * 5 / 8, 10, 100, 18,
@@ -67,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	hlist = CreateWindowEx(0L, "LISTBOX",
 		"OK",
 		WS_VSCROLL|
-		/*WS_HSCROLL|*/
+		//WS_HSCROLL|
 		WS_BORDER|WS_CHILD | WS_VISIBLE,
 		width * 5 / 8, 54, 100, 54,
 		hwnd, (HMENU)7, NULL, NULL);
@@ -100,7 +101,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		width * 5 / 8, 106+34+6, 100, 18,
 		hwnd, (HMENU)9, NULL, NULL);
 
-#if 1
 	CreateWindowEx(0L, "SCROLLBAR",
 		"OK",
 		SBS_VERT | 
@@ -113,87 +113,71 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		SBS_HORZ | 
 		WS_CHILD | WS_VISIBLE ,
 		width * 5 / 8 -18 , 106+68, 128, 18,
-		hwnd, (HMENU)12, NULL, NULL);
-#endif
-	
-	
-#if 1
-	{
-	HWND hcombo;
+	hwnd, (HMENU)12, NULL, NULL);
+
 
 	hcombo = CreateWindowEx(0L, "COMBOBOX",
-		 "Combobox",
-#if 0
-		 CBS_SIMPLE | 		/* edit+list */
-#endif
-#if 0
-		 CBS_DROPDOWNLIST | 	/* static+pop */
-#endif
-#if 1
-		 CBS_DROPDOWN | 	/* edit+pop */
-#endif
-
+ 		"Combobox",
+		 //CBS_SIMPLE | 				/* edit+list */
+		 //CBS_DROPDOWNLIST | 			/* static+pop */
+		 CBS_DROPDOWN | 				/* edit+pop */
 		 WS_VSCROLL | WS_CHILD | WS_VISIBLE,
 		 width * 5 / 8, 106+14+4+18+4+68, 100, (18*5),
-		 hwnd, (HMENU)10, NULL, NULL);
+ 		hwnd, (HMENU)10, NULL, NULL);
 
 	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Cherry");
 	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Apple");
 	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Orange");
 	SendMessage(hcombo, CB_ADDSTRING, 0, (LPARAM)(LPSTR)"Banana");
-	}
-#endif
 
+	ShowWindow(hwnd,iCmdShow);
+	UpdateWindow(hwnd);
 
-#endif
-               
-        ShowWindow(hwnd,iCmdShow);
-        UpdateWindow(hwnd);
+	while (GetMessage(&msg,NULL,0,0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}      
 
-        while (GetMessage(&msg,NULL,0,0)) {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-        }      
-
-        return msg.wParam;
+	return msg.wParam;
 }       
-LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+
+/* main window callback procedure*/
+LRESULT CALLBACK windowproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {       
-        HDC hdc;
-        PAINTSTRUCT ps;
-        RECT rect;
+	HDC hdc;
+	PAINTSTRUCT ps;
+	RECT rc;
+	int i;
 	HGDIOBJ oldfont;
-        
-        switch (iMsg) {
-        case WM_CREATE:
-                break;
-        case WM_PAINT:
-        /*case WM_MOUSEFIRST:*/
-                hdc=BeginPaint(hwnd,&ps);
 
-                /*GetClientRect(hwnd,&rc);*/
-		/*Arc(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);*/
-		/*Pie(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);*/
+	switch (iMsg) {
+	case WM_CREATE:
+		break;
 
-                GetClientRect(hwnd,&rect);
-	        oldfont=SelectObject(hdc,CreateFont(12,
-			0,0,0,0,0,0,0,0,0,0,0,
-			FF_DONTCARE|DEFAULT_PITCH,
-			"HZXFONT"));
-                DrawText(hdc, " Hello friends ", -1, &rect,
-                         DT_SINGLELINE|DT_CENTER|DT_VCENTER);
+	case WM_PAINT:
+		hdc = BeginPaint(hwnd,&ps);
+		GetClientRect(hwnd,&rc);
+
+		/* draw on window background*/
+		Arc(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);
+		Pie(hdc, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 0,0, 0,0);
+		for (i=0;i<100;i++)
+			SetPixel(hdc,i,i,BLUE);
+
+		/* select chinese HZXFONT and draw text*/
+		oldfont = SelectObject(hdc,CreateFont(12, 0,0,0,0,0,0,0,0,0,0,0, FF_DONTCARE|DEFAULT_PITCH, "HZXFONT"));
+		DrawText(hdc, " Hello World ", -1, &rc, DT_SINGLELINE|DT_CENTER|DT_VCENTER);
 		DeleteObject(SelectObject(hdc,oldfont));
 
-		/*for (i=0;i<100;i++)
-			SetPixel(hdc,i,i,BLUE);*/
+		EndPaint(hwnd,&ps);
+		break;
 
-                EndPaint(hwnd,&ps);
-                break;
-        case WM_DESTROY:
-                PostQuitMessage(0);
-                break;
-        default:
-                return DefWindowProc(hwnd,iMsg,wParam,lParam);
-        }      
-        return 0;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
+	default:
+		return DefWindowProc(hwnd,iMsg,wParam,lParam);
+	}      
+	return 0;
 }

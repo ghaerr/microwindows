@@ -1,3 +1,23 @@
+10 Dec 2018
+	* cleaned up src/demos/nanox, lots more to do
+	* fixed GdDrawImagePartToFit when src width/height = 0 (whole image stretch)
+9 Dec 2018
+	* fixed GP commit problem in mwin/winmain.c with nested comments in MwSelect()
+	* rewrote and renamed SetPenStyle to internal fn MwSetPenStyle
+	* modified NXLIB for mouse wheel buttons to use mwtypes.h values as not implemented in nano-X or win32
+	* commented out unimplemented LoadCursor as real function and IDC_ types
+	* removed all win32 wide functions and moved to end of winuser.h
+	* removed version info from include/mwtypes.h; version is src/Version
+	* put back fprintf() with write() in nanox/error.c to keep library from pulling in stdio
+	* re-removed ANIMATEPALETTE
+	* EMSCRIPTEN port cleanup, coroutine yield move to GsSelect/MwSelect
+	* cleaned up demoscript *.sh shell scripts to run various demos
+	* fix subsequent app GrSelectEvent calls after CHLD_UPDATE set on root window with linked in window mgr
+8 Dec 2018
+	* changed meaning of NANOWM=Y in config to include nx window manager in server, no need to run bin/nanowm anymore
+	* cleaned up various mwin demo source and added comments
+	* fixed win32 scrollbar by removing DWORD cast
+	* Version 0.94pre - moved microwindows git 0.94 changes to github, cleanup from 2011-2018 in process
 19 Nov 2018
 	* Committed all 0.94 changes from 2017 into microwindows.org repository - Greg
 Version 0.94 - 28 Sep 2017 - 64bit port, AGG, Raspberry Pi, tested on MACOS, X11 fixed

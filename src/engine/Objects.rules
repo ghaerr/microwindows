@@ -39,7 +39,7 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/engine/image_xpm.o \
 	$(MW_DIR_OBJ)/engine/devlist.o \
 	$(MW_DIR_OBJ)/engine/selfont.o \
-	$(MW_DIR_OBJ)/engine/merror.o \
+	$(MW_DIR_OBJ)/engine/error.o \
 	$(MW_DIR_OBJ)/engine/devrgn2.o \
 	$(MW_DIR_OBJ)/engine/devarc.o \
 	$(MW_DIR_OBJ)/engine/devpoly.o \

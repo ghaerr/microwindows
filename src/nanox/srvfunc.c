@@ -10,9 +10,6 @@
 #define MWINCLUDECOLORS
 #include "serv.h"
 #include "../drivers/genmem.h"
-#ifdef __EMSCRIPTEN__
-  #include <emscripten.h>
-#endif  
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
@@ -89,16 +86,11 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	/* Note: won't work for multiple clients*/
 	/* This is OK, since only static linked apps call this function*/
 
-/*	while(curclient->eventhead == NULL)
-		GsSelect(timeout); */ /*old version*/
-
-	while(curclient->eventhead == NULL) {
-	    GsSelect(timeout);
-	    #ifdef __EMSCRIPTEN__
-	    if (curclient->eventhead == NULL) {emscripten_sleep(1);}
-	    else {emscripten_sleep(1);}
-	    #endif
+	while(curclient->eventhead == NULL)
+	{
+		GsSelect(timeout);
 	}
+
 	CheckNextEvent(ep, GR_FALSE);
 	SERVER_UNLOCK();
 }
@@ -110,13 +102,8 @@ void
 GrPeekWaitEvent(GR_EVENT *ep)
 {
 	SERVER_LOCK();
-	while(curclient->eventhead == NULL) {
+	while(curclient->eventhead == NULL)
 		GsSelect(0L);
-	        #ifdef __EMSCRIPTEN__
-	        if (curclient->eventhead == NULL) {emscripten_sleep(1);}
-	        else {emscripten_sleep(1);}
-	        #endif
-	}
 	GrPeekEvent(ep);
 	SERVER_UNLOCK();
 }
@@ -224,10 +211,6 @@ getevent:
 		elp = elp->next;
 	}
 
-	#ifdef __EMSCRIPTEN__
-	    emscripten_sleep(1);
-        #endif
-
 	/* if event still not found and waiting ok, then wait*/
 	if (block)
 		goto getevent;
@@ -250,9 +233,6 @@ GrCheckNextEvent(GR_EVENT *ep)
 {
 	SERVER_LOCK();
 	CheckNextEvent(ep, GR_TRUE);
-	#ifdef __EMSCRIPTEN__
-	emscripten_sleep(1);
-	#endif
 	SERVER_UNLOCK();
 }
 
@@ -286,7 +266,7 @@ CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 	elp->next = eventfree;
 	eventfree = elp;
 
-#if (NONETWORK && NANOWM)
+#if NANOWM
 	/* let inline window manager look at event*/
 	if (wm_handle_event(ep))
 		ep->type = GR_EVENT_TYPE_NONE;
@@ -1841,6 +1821,14 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 	 */
 	for (evp = wp->eventclients; evp; evp = evp->next) {
 		if (evp->client == curclient) {
+#if NANOWM
+			/*
+			 * Keep root window child updates by window manager when
+			 * application sets other root window event selections
+			 */
+			if (wid == GR_ROOT_WINDOW_ID && (evp->eventmask & GR_EVENT_MASK_CHLD_UPDATE))
+					eventmask |= GR_EVENT_MASK_CHLD_UPDATE;
+#endif
 			evp->eventmask = eventmask;
 			SERVER_UNLOCK();
 			return;

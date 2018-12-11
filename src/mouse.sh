@@ -1,3 +1,6 @@
+#
+# GPM mouse driver
+#
 # kill old mouse driver
 gpm -k
 

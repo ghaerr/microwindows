@@ -26,8 +26,6 @@ extern "C" {
 
 
 /* external routines*/
-#define PWSTR LPSTR /* PWSTR unused in the Microwindows code yet, need this define for lpCmdLine */
-#define wWinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd) WinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd)
 int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     			LPSTR lpCmdLine, int nShowCmd);
 

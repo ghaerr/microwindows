@@ -26,13 +26,6 @@ BOOL mwERASEMOVE = FALSE;	/* default ERASEMOVE repaint algorithm*/
 /* current encoding for non-wide char text functions*/
 long mwTextCoding = MWTF_UTF8;	/* usually MWTF_ASCII or MWTF_UTF8*/
 
-/* cast a pointer to an integer*/
-#if DOS_TURBOC | MACOSX
-#define PTRTOINT	unsigned long
-#else
-#define PTRTOINT	unsigned int
-#endif
-
 static HDC	cliphdc;	/* current window cliprects*/
 
 /* default bitmap for new DCs*/
@@ -286,45 +279,6 @@ EndDeferWindowPos(HDWP hWinPosInfo)
 	return TRUE;
 }
 
-BOOL
-SetPenStyle(HDC hdc){
-	uint32_t dm;
-	int dc;
-  switch (hdc->pen->style) {
-    case PS_SOLID:
-        dm=0xFFFFFFFF;
-	dc=32;
-        GdSetDash(&dm, &dc);
-	break;
-    case PS_DASH:
-	dm = 0x1F1F1F1F; //0001 1111
-	dc=32; 
-	GdSetDash(&dm, &dc);
-	break;
-    case PS_DOT:
-        dm=0x11111111; //0001 0001
-	dc=32;
-	GdSetDash(&dm, &dc);
-	break;
-    case PS_DASHDOT:
-        dm=0x18FF18FF; //0001 1000 1111 1111
-	dc=32; 
-	GdSetDash(&dm, &dc);
-	break;
-    case PS_DASHDOTDOT:
-        dm=0x88F888F8; //1000 1000 1111 1000
-	dc=32; 
-	GdSetDash(&dm, &dc);
-	break;
-    case PS_NULL:
-        dm=0;
-	dc=32; 
-	GdSetDash(&dm, &dc);
-	break;
-  }
-  return 1;
-}
-
 COLORREF WINAPI
 SetTextColor(HDC hdc, COLORREF crColor)
 {
@@ -553,7 +507,7 @@ LineTo(HDC hdc, int x, int y)
 	/* draw line in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
 		GdSetForegroundColor(hdc->psd, hdc->pen->color);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		/* don't draw last point*/
 		GdLine(hdc->psd, beg.x, beg.y, end.x, end.y, FALSE);
 	}
@@ -589,7 +543,7 @@ Polyline(HDC hdc, CONST POINT *lppt, int cPoints)
 		end = *lppt++;
 		if(MwIsClientDC(hdc))
 			ClientToScreen(hwnd, &end);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		/* don't draw last point*/
 		GdLine(hdc->psd, beg.x, beg.y, end.x, end.y, FALSE);
 
@@ -615,7 +569,7 @@ Rectangle(HDC hdc, int nLeft, int nTop, int nRight, int nBottom)
 	/* draw rectangle in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
 		GdSetForegroundColor(hdc->psd, hdc->pen->color);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		GdRect(hdc->psd, rc.left, rc.top,
 			rc.right - rc.left, rc.bottom - rc.top);
 	}
@@ -655,14 +609,14 @@ Ellipse(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
 	if(hdc->brush->style != BS_NULL) {
 		InflateRect(&rc, -1, -1);
 		GdSetForegroundColor(hdc->psd, hdc->brush->color);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		GdEllipse(hdc->psd, rc.left, rc.top, rx, ry, TRUE);
 	}
 
 	/* draw ellipse outline in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
 		GdSetForegroundColor(hdc->psd, hdc->pen->color);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		GdEllipse(hdc->psd, rc.left, rc.top, rx, ry, FALSE);
 	}
 
@@ -696,7 +650,7 @@ dopiearc(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
 	/* fill ellipse in current brush color*/
 	if(hdc->brush->style != BS_NULL && type == MWPIE) {
 		GdSetForegroundColor(hdc->psd, hdc->brush->color);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		GdArc(hdc->psd, rc.left, rc.top, rx, ry,
 			rc2.left, rc2.top, rc2.right, rc2.bottom, MWPIE);
 	}
@@ -706,7 +660,7 @@ dopiearc(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect,
 		GdSetForegroundColor(hdc->psd, hdc->pen->color);
 		if(type == MWPIE)
 			type = MWARC;	/* MWARCOUTLINE?*/
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		GdArc(hdc->psd, rc.left, rc.top, rx, ry,
 			rc2.left, rc2.top, rc2.right, rc2.bottom, type);
 	}
@@ -762,7 +716,7 @@ Polygon(HDC hdc, CONST POINT *lpPoints, int nCount)
 	/* draw polygon outline in current pen color*/
 	if(hdc->pen->style != PS_NULL) {
 		GdSetForegroundColor(hdc->psd, hdc->pen->color);
-		SetPenStyle(hdc);
+		MwSetPenStyle(hdc);
 		GdPoly(hdc->psd, nCount, pp);
 	}
 
@@ -1778,6 +1732,36 @@ CreatePen(int nPenStyle, int nWidth, COLORREF crColor)
 	hpen->style = nPenStyle;
 	hpen->color = crColor;
 	return (HPEN)hpen;
+}
+
+void
+MwSetPenStyle(HDC hdc)
+{
+	uint32_t dm;
+	int 	dc = 32;
+
+	switch (hdc->pen->style) {
+	case PS_SOLID:
+		dm = 0xFFFFFFFF;		/* 1111 1111 1111 1111*/
+		break;
+	case PS_DASH:
+		dm = 0x1F1F1F1F; 		/*0001 1111 0001 1111*/
+		break;
+	case PS_DOT:
+		dm = 0x11111111; 		/*0001 0001 0001 0001*/
+		break;
+	case PS_DASHDOT:
+		dm = 0x18FF18FF; 		/*0001 1000 1111 1111*/
+		break;
+	case PS_DASHDOTDOT:
+		dm = 0x88F888F8; 		/*1000 1000 1111 1000*/
+		break;
+	case PS_NULL:
+	default:
+		dm = 0;
+		break;
+	}
+	GdSetDash(&dm, &dc);
 }
 
 HBITMAP WINAPI

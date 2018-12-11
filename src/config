@@ -35,8 +35,7 @@
 # LINUX-LINARO (RPI cross compile)
 # ANDROID
 ####################################################################
-ARCH                     = LINUX-NATIVE
-#ARCH                     = ANDROID
+ARCH                     = MACOSX
 BIGENDIAN                = N
 NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
@@ -55,24 +54,24 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = N
-VERBOSE                  = N
+DEBUG                    = Y
+VERBOSE                  = Y
 THREADSAFE               = Y
 GPROF                    = N
 #SHOWSTUBS		 = 1
-PARALLEL		 = Y
+PARALLEL		 = N
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, engine, object frameworks
+# Libraries to build: microwin, nano-X, nxlib, engine, object frameworks
 #
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NX11                     = Y
 ENGINE                   = Y
-SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
-WITH_NX11		 = Y
+SHAREDLIBS               = N
 
 ####################################################################
 #
@@ -81,14 +80,7 @@ WITH_NX11		 = Y
 ####################################################################
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
-
-####################################################################
-#
-# Applications to build
-#
-####################################################################
-NANOWM                   = Y
-FBEMULATOR               = N
+FBEMULATOR               = Y
 
 ####################################################################
 #
@@ -118,11 +110,12 @@ SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
 
 ####################################################################
-# NanoX: Put Y to the following line to link the nano-X application
-# with the server. This is required if UNIX sockets aren't available,
-# or for speed or debugging.  This affects the nano-X server only.
+# LINK_APP_INTO_SERVER links the nano-X application into the server.
+# Required if UNIX sockets aren't available or for debugging.
+# NANOWM links the window manager into the server.
 ####################################################################
 LINK_APP_INTO_SERVER     = N
+NANOWM                   = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
@@ -153,11 +146,13 @@ LIBJPEG                  = -ljpeg
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
-HAVE_PNG_SUPPORT         = N
+HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
-LIBPNG                   = -lpng
+#LIBPNG                   = -lpng
+LIBPNG                   = /usr/X11/lib/libpng.dylib
 INCZ                     = .
-LIBZ                     = -lz
+#LIBZ                     = -lz
+LIBZ                     = /usr/lib/libz.dylib
 
 ####################################################################
 # TIFF support through libtiff
@@ -170,29 +165,19 @@ LIBTIFF                  = -ltiff
 # PCF font support - .pcf/.pcf.gz loadable fonts
 ####################################################################
 HAVE_PCF_SUPPORT         = Y
-HAVE_PCFGZ_SUPPORT       = N
+HAVE_PCFGZ_SUPPORT       = Y
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
 # Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
-INCFT2LIB                = /usr/include
-ifneq ($(ARCH),ANDROID)
-LIBFT2LIB                = -lfreetype
+HAVE_HARFBUZZ_SUPPORT    = N
+INCFT2LIB                = /usr/local/include
+LIBFT2LIB                = /usr/local/lib/libfreetype.a /usr/lib/libbz2.dylib
+#LIBFT2LIB                = -lfreetype
+#LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
-else
-LIBFT2LIB                = -lfreetype-android
-FREETYPE_FONT_DIR        = "/system/fonts"
-endif
-
-# Add Harfbuzz support to freetype
-HAVE_HARFBUZZ_SUPPORT=N
-ifeq ($(HAVE_HARFBUZZ_SUPPORT),Y)
-LIBFT2LIB                += -lharfbuzz
-endif
-#print value of LIBFT2LIB to the command line
-#$(info $$LIBFT2LIB is [${LIBFT2LIB}])
 
 ####################################################################
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
@@ -207,7 +192,7 @@ LIBT1LIB                 = -lt1
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
 ####################################################################
 HAVE_FNT_SUPPORT         = Y
-HAVE_FNTGZ_SUPPORT       = N
+HAVE_FNTGZ_SUPPORT       = Y
 FNT_FONT_DIR             = "fonts/fnt"
 
 ####################################################################
@@ -271,14 +256,12 @@ UPDATEREGIONS            = Y
 ####################################################################
 
 # X11 and FBE startup screen width, height, (depth for palette mode only)
-#SCREEN_WIDTH             = 800
-#SCREEN_HEIGHT            = 600
+SCREEN_WIDTH             = 800
+SCREEN_HEIGHT            = 600
 #SCREEN_WIDTH             = 1024
 #SCREEN_HEIGHT            = 768
-
-SCREEN_WIDTH             = 1280
-SCREEN_HEIGHT            = 800
-
+#SCREEN_WIDTH             = 1280
+#SCREEN_HEIGHT            = 800
 #SCREEN_WIDTH             = 1280
 #SCREEN_HEIGHT            = 1024
 #SCREEN_WIDTH             = 1366
@@ -394,5 +377,6 @@ LIRCKBD2                 = N
 ####################################################################
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
-LIBVNC                   = -lvncserver
+#LIBVNC                   = -lvncserver
+LIBVNC                   = /usr/lib/libvncserver.a
 INCVNC                   = /usr/include

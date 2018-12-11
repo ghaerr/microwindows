@@ -170,7 +170,7 @@ XagQueryApplicationGroup(
 
 Bool
 XagCreateAssociation(Display* dpy, Window* window_return, void* system_window)
-{DPRINTF("libXext called\n"); return ;}
+{DPRINTF("libXext called\n"); return 0;}
 
 Bool
 XagDestroyAssociation(Display* dpy, Window window)
@@ -287,7 +287,7 @@ Status XSecurityQueryExtension (
     
 Xauth *
 XSecurityAllocXauth(void)
-{DPRINTF("libXext called\n"); return ;}
+{DPRINTF("libXext called\n"); return 0;}
 
 void
 XSecurityFreeXauth(Xauth *auth)
@@ -809,7 +809,7 @@ XGEQueryVersion(Display* dpy,
 	
 //	extutil.c
 XExtensionInfo *XextCreateExtension (void)
-{DPRINTF("libXext called\n"); return ;}
+{DPRINTF("libXext called\n"); return 0;}
                
 void XextDestroyExtension (XExtensionInfo *info)
 {DPRINTF("libXext called\n"); return ;}

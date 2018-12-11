@@ -6,23 +6,10 @@
  *
  * Exported Microwindows engine typedefs and defines
  */
- 
-/* Microwindows version macros */ 
-/* We must not include leading zeros e.g. 092 would be octal.*/
-#define MW_VERSION          9
-#define MW_SUB_VERSION      2
-#define MW_WIP_VERSION      2 /* work in progress */
-#define MW_VERSION_STR      "92.2"
-#define MW_DATE_STR         "2015"
-#define MW_DATE             20150829    /* yyyymmdd */
-  
 #include <stdint.h> 		/* for uint32_t, int32_t*/
+
 #if __ECOS
 #include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */
-#endif
-
-#if __MINGW32__
-#include <malloc.h> /* for alloca */
 #endif
 
 /* configurable options*/
@@ -1434,12 +1421,11 @@ typedef struct {
 #endif /* MWINCLUDECOLORS*/
 
 /* Mouse button bits*/
-#define MWBUTTON_L	04
-#define MWBUTTON_M	02
-#define MWBUTTON_R	01
-#define MWBUTTON_U	16
-#define MWBUTTON_D	32
-#define MWBUTTON_F	08
+#define MWBUTTON_R		  0x01		/* right button*/
+#define MWBUTTON_M		  0x02		/* middle*/
+#define MWBUTTON_L		  0x04		/* left*/
+#define MWBUTTON_SCROLLUP 0x08		/* wheel up*/
+#define MWBUTTON_SCROLLDN 0x10		/* wheel down*/
 
 /* Keyboard values*/
 typedef unsigned short	MWKEY;

@@ -54,10 +54,6 @@ GPM_Open(MOUSEDEVICE *pmd)
 		return -1;
 
 	wheel_fd = open(GPM_WHEEL_FILE, O_NONBLOCK);
-	if (wheel_fd < 0){
-		//printf("Could not open gpmwheel\n"); 
-		//return -1; //not required
-	}
 
 	return mouse_fd;
 }
@@ -108,23 +104,23 @@ GPM_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	static unsigned char buf[5];
 	static int nbytes;
 	int n;
-	char wheelbyte=0;
+	char wheelbyte = 0;
 	static char lastwheelbyte;
 
-    if (wheel_fd > 0){
-	 while((n = read(wheel_fd, &buf[nbytes], 1 - nbytes))) {
-		if(n < 0) break;
-		nbytes += n;
-        } //while
-	//if (nbytes>0) printf("wheel:%i,%i\n",nbytes,(signed char)(buf[0]) );
-	 if (nbytes>0) wheelbyte=(signed char)(buf[0]);
-	 //simulate release button by returning *bp=0
-	 if (wheelbyte==lastwheelbyte) {
-	 	wheelbyte=0;
-	 	buf[0]=buf[1]=buf[2]=buf[3]=buf[4]=0; //to be save	
-	 }
-	 lastwheelbyte=wheelbyte;
-    } //if (wheel_fd > 0)
+    if (wheel_fd > 0) {
+	    while((n = read(wheel_fd, &buf[nbytes], 1 - nbytes))) {
+		    if(n < 0) break;
+		    nbytes += n;
+         }
+	     if (nbytes>0) wheelbyte = (signed char)(buf[0]);
+
+	     //simulate release button by returning *bp=0
+	     if (wheelbyte==lastwheelbyte) {
+	 	    wheelbyte = 0;
+	 	    buf[0]=buf[1]=buf[2]=buf[3]=buf[4]=0; //to be save	
+	     }
+	     lastwheelbyte = wheelbyte;
+    }
 
 	nbytes = 0; //clear again
 
@@ -138,16 +134,15 @@ GPM_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		nbytes += n;
 
 		if(nbytes == 5) {
-			/* just for wheelbyte - 4=up, 5=down */
+			// just for wheelbyte - 4=up, 5=down
 			if (wheelbyte>0){
-				if (wheelbyte==4) *bp = 16;
-				if (wheelbyte==5) *bp = 32;
+				if (wheelbyte==4) *bp = MWBUTTON_SCROLLUP;
+				if (wheelbyte==5) *bp = MWBUTTON_SCROLLDN;
 			} else {
-			/* button data matches defines, no conversion*/
+				// button data matches defines, no conversion
 				*bp = (~buf[0]) & 0x07;
 			}
-			//if (*bp>0) printf("button:%i\n",*bp);
-			if (*bp>256) *bp=0; //remove invalid values
+			if (*bp>256) *bp = 0; //remove invalid values
 
 			//buttons done, handle mouse movement now
 			*dx = (signed char)(buf[1]) + (signed char)(buf[3]);

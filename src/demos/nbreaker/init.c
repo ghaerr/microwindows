@@ -179,11 +179,11 @@ static void setup_default_state(nbstate *state)
 /* Initialise the game and return the state structure or NULL on failure: */
 nbstate *init(int argc, char *argv[])
 {
-	GR_PROP *prop;
 	nbstate *state;
-	GR_SCREEN_INFO si;
 	GR_BITMAP cursor = 0;
 	GR_WM_PROPERTIES props;
+	//GR_PROP *prop;
+	//GR_SCREEN_INFO si;
 
 	/* Try to connect to the Nano-X server: */
 	if(GrOpen() < 1) {
@@ -191,6 +191,7 @@ nbstate *init(int argc, char *argv[])
 		return NULL;
 	}
 
+#if 0
 	/* Check that the server was built with alpha blending support
 	 * (necessary for the alpha blended sprites and special effects): */
 	GrGetScreenInfo(&si);
@@ -200,6 +201,7 @@ nbstate *init(int argc, char *argv[])
 				"include/device.h, rebuild, and try again.\n");
 		return NULL;
 	}
+#endif
 
 	/* Allocate the state structure and initialise it with defaults: */
 	if(!(state = malloc(sizeof(nbstate)))) return NULL;
@@ -251,6 +253,7 @@ nbstate *init(int argc, char *argv[])
 	GrFillRect(state->canvas, state->gc, 0, 0, state->canvaswidth,
 						state->canvasheight);
 
+#if 0
 	/* If there is a window manager running, place the window off the
 	 * screen and let the window manager move it where it wants (avoids
 	 * flicker if we were to draw the window on screen before the window
@@ -259,6 +262,7 @@ nbstate *init(int argc, char *argv[])
 		free(prop);
 		state->winx = GR_OFF_SCREEN;
 	}
+#endif
 
 	/* Create the output window: */
 	state->wid = GrNewWindow(GR_ROOT_WINDOW_ID, state->winx, 0,
@@ -292,7 +296,7 @@ nbstate *init(int argc, char *argv[])
 
 	/* Create the one second periodic timer that is used to decrement the
 	 * power-up and power-down timers: */
-	state->tid = GrCreateTimer(state->wid, 1000, GR_TRUE);
+	state->tid = GrCreateTimer(state->wid, 1000);
 
 	/* Reset the game: */
 	reset_game(state);

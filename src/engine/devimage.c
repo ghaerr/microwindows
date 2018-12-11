@@ -492,9 +492,6 @@ void
 GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, PSD pmd)
 {
-	PSD			pmd2;
-	MWCLIPRECT	rcDst,rcSrc;
-
 	if (height < 0)
 		height = pmd->yvirtres;
 	if (width < 0)
@@ -507,8 +504,9 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 	}
 
 #if OLDWAY
+	MWCLIPRECT	rcDst,rcSrc;
 	/* create similar image, different width/height, no palette*/
-	pmd2 = GdCreatePixmap(&scrdev, width, height, pmd->data_format, NULL, 0);
+	PSD pmd2 = GdCreatePixmap(&scrdev, width, height, pmd->data_format, NULL, 0);
 	if (!pmd2) {
 		EPRINTF("GdDrawImagePartToFit: no memory\n");
 		return;
@@ -540,6 +538,11 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 	pmd2->palette = NULL;
 	GdFreePixmap(pmd2);
 #else
+	/* if drawing whole part of source image, set source width/height from image*/
+	if (swidth == 0) {
+		swidth = pmd->xvirtres;
+		sheight = pmd->yvirtres;
+	}
 	GdStretchBlit(psd, x, y, width, height, pmd, sx, sy, sx+swidth, sy+sheight, MWROP_COPY);
 #endif
 }

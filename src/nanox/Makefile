@@ -34,18 +34,21 @@ NANOXFILES := \
 	$(MW_DIR_OBJ)/nanox/srvevent.o \
 	$(MW_DIR_OBJ)/nanox/srvclip.o
 
+NANOWMOBJS := \
+	$(MW_DIR_OBJ)/nanox/wmaction.o \
+	$(MW_DIR_OBJ)/nanox/wmclients.o \
+	$(MW_DIR_OBJ)/nanox/wmevents.o \
+	$(MW_DIR_OBJ)/nanox/wmutil.o
+
 # Nano-X client files
 OBJS := \
 	$(MW_DIR_OBJ)/nanox/nxdraw.o \
 	$(MW_DIR_OBJ)/nanox/nxutil.o \
 	$(MW_DIR_OBJ)/nanox/nxtransform.o
+OBJS += $(NANOWMOBJS)
 
 ifeq ($(NANOWM), Y)
-OBJS += \
-	$(MW_DIR_OBJ)/nanox/wmaction.o \
-	$(MW_DIR_OBJ)/nanox/wmclients.o \
-	$(MW_DIR_OBJ)/nanox/wmevents.o \
-	$(MW_DIR_OBJ)/nanox/wmutil.o
+NANOXFILES += $(OBJS)
 endif
 
 ifeq ($(LINK_APP_INTO_SERVER), Y)

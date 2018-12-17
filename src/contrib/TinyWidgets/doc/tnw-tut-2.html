@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>The TinyWidgets Tutorial: Getting started</TITLE>
+ <LINK HREF="tnw-tut-3.html" REL=next>
+ <LINK HREF="tnw-tut-1.html" REL=previous>
+ <LINK HREF="tnw-tut.html#toc2" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="tnw-tut-3.html">Next</A>
+<A HREF="tnw-tut-1.html">Previous</A>
+<A HREF="tnw-tut.html#toc2">Contents</A>
+<HR>
+<H2><A NAME="s2">2. Getting started</A></H2>
+
+<P>To begin our introduction to TinyWidgets, we'll start with the  simplest program possible. This program will create a 200x200 pixel window.
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+   
+/* base.c */
+
+#include &lt;TinyWidgets/tnWidgets.h>
+
+int main( int   argc,
+          char *argv[] )
+{
+    TN_WIDGETS *main_window,*window;
+
+    main_window = tnAppInitialize(argc, argv);
+
+    window = tnCreateWidget (TN_WINDOW,main_window,50,50,TN_HEIGHT,200, TN_WIDT
+H,200,TN_END);
+    tnMainLoop ();
+
+    return(0);
+}
+/* example-end */
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+
+You can compile the above program with gcc using:
+<BLOCKQUOTE><CODE>
+<PRE>
+   
+% gcc base.c -o base -ltnW -lnano-X
+</PRE>
+</CODE></BLOCKQUOTE>
+     
+<P>All programs will of course include the header <CODE>tnWidgets.h</CODE> which declares the variables, functions, structures etc. that will be used in your TinyWidgets application.
+<P>The next line:
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+        tnAppInitialize (argc, argv);
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+
+will be called in all TinyWidgets applications. This sets up a few things for us and then proceeds to call GrOpen() which opens a socket connection with the Nano-X server . This function initializes the library for use. As of yet there are no provisions for handling the command line parameters but it has been included for later implementation.
+<P>The next line creates and displays a window.
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+   
+window = tnCreateWidget (TN_WINDOW,main_window,50,50,TN_HEIGHT,200, TN_WIDTH,20
+0,TN_END);
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+
+The tnCreateWidget is a generalised function which accepts variable number of parameters. Only the first 4 parameters are mandatory. They are widget type, parent widget, xposition &amp;  yposition relative to parent. The rest of the parameters are optional and default values will be taken if they are not specified. Also the optional parameters can be specified in any order but they have to be specified as pairs of (parameter type, value). For eg to specify the height of the widget you have got to specify it as TN_HEIGHT, 200. The argument list must be terminated with TN_END to indicate end of parameter list. The use of this function will be more clear with further examples.
+<P>The last line enters the tnWidgets main processing loop.
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+   
+        tnMainLoop ();
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+
+This is another call you will see in every TinyWidgets application. When control reaches this point, tnWidgets will sleep waiting for Nano-X events (such as button or key presses). In our simple example however, events are ignored.
+To end the application, you will have to call <I>tnEndApp</I> (within a call back).
+<HR>
+<A HREF="tnw-tut-3.html">Next</A>
+<A HREF="tnw-tut-1.html">Previous</A>
+<A HREF="tnw-tut.html#toc2">Contents</A>
+</BODY>
+</HTML>

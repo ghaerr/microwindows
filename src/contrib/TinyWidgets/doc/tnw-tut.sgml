@@ -1,0 +1,991 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<!-- Title information -->
+
+<title>The TinyWidgets Tutorial
+<author>
+<sl/Sunil Soman, Amit Kulkarni, Navin Thadani/
+</author>
+<date>v1.0, Sun Jan 21 2001
+<abstract>
+This document briefly decribes TinyWidgets. TinyWidgets is a Free Source widget set for the Nano-X API.
+</abstract>
+
+<!-- Table of contents -->
+<toc>
+<!-- Begin the document -->
+<sect>Introduction
+<p>
+TinyWidgets is a Free Source Project licensed under the GPL. It is intended to be used with the Nano-X API, which is a part of Greg Haerr's <tt/&lt;greg@censoft.com&gt;/ <url url="http://www.microwindows.org" name="Microwindows"> project. 
+This document should (hopefully) be enough to get you started with writing your application using TinyWidgets. 
+
+<sect>Getting started
+<p>
+To begin our introduction to TinyWidgets, we'll start with the  simplest program possible. This program will create a 200x200 pixel window.
+<tscreen><code>   
+/* base.c */
+
+#include <TinyWidgets/tnWidgets.h>
+
+int main( int   argc,
+          char *argv[] )
+{
+    TN_WIDGETS *main_window,*window;
+
+    main_window = tnAppInitialize(argc, argv);
+
+    window = tnCreateWidget (TN_WINDOW,main_window,50,50,TN_HEIGHT,200, TN_WIDT
+H,200,TN_END);
+    tnMainLoop ();
+
+    return(0);
+}
+/* example-end */
+</code></tscreen>
+You can compile the above program with gcc using:
+<tscreen><verb>   
+% gcc base.c -o base -ltnW -lnano-X
+</verb></tscreen>     
+
+All programs will of course include the header <tt/tnWidgets.h/ which declares the variables, functions, structures etc. that will be used in your TinyWidgets application.
+   
+The next line:
+<tscreen><code>
+	tnAppInitialize (argc, argv);
+</code></tscreen>
+will be called in all TinyWidgets applications. This sets up a few things for us and then proceeds to call GrOpen() which opens a socket connection with the Nano-X server . This function initializes the library for use. As of yet there are no provisions for handling the command line parameters but it has been included for later implementation.
+   
+The next line creates and displays a window.
+<tscreen><code>   
+window = tnCreateWidget (TN_WINDOW,main_window,50,50,TN_HEIGHT,200, TN_WIDTH,20
+0,TN_END);
+</code></tscreen>
+The tnCreateWidget is a generalised function which accepts variable number of parameters. Only the first 4 parameters are mandatory. They are widget type, parent widget, xposition &  yposition relative to parent. The rest of the parameters are optional and default values will be taken if they are not specified. Also the optional parameters can be specified in any order but they have to be specified as pairs of (parameter type, value). For eg to specify the height of the widget you have got to specify it as TN_HEIGHT, 200. The argument list must be terminated with TN_END to indicate end of parameter list. The use of this function will be more clear with further examples.
+   
+The last line enters the tnWidgets main processing loop.
+<tscreen><code>   
+ 	tnMainLoop ();
+</code></tscreen>
+This is another call you will see in every TinyWidgets application. When control reaches this point, tnWidgets will sleep waiting for Nano-X events (such as button or key presses). In our simple example however, events are ignored.
+To end the application, you will have to call <sl/tnEndApp/ (within a call back).
+<sect>The TinyWidgets API
+<p>
+<sect1>tnAppInitialize
+<p>                                    
+<tscreen><code>
+TN_WIDGET * tnAppInitialize(int argc, char *argv[])
+</code></tscreen>   
+Initializes various parameters of the internal state machine for Tiny Widgets and calls GrOpen to open a socket to Nano-X. It returns a pointer to TN_WIDGET which is supposed to be the main widget (actually the root window) and should be used as parent to the main window widget that will be created. Takes command line parameters.
+<sect1>tnCreateWidget
+<p>   
+<tscreen><code>
+TN_WIDGET * tnCreateWidget(TN_WIDGET_TYPE type, 
+			   TN_WIDGET   *parent, int posx, int posy,...)
+</code></tscreen>   
+Creates a widget specified by the type arguement and places it at position specified by posx, posy, relative to the parent widget specified by the parent arguement. The various types of widgets that can be created are:
+<itemize>
+<item><ref id="TN_WINDOW">: This creates a window widget which behaves as the container for all other widgets. 
+<item><ref id="TN_BUTTON">: This creates a push button. The parent for this must be a widget of type TN_WINDOW.
+<item><ref id="TN_LABEL">: This is a static Label. Parent must be TN_WINDOW.
+<item><ref id="TN_CHECKBUTTON">: This creates a check button widget.
+<item><ref id="TN_RADIOBUTTONGROUP">: This creates a frame on the form which behaves as a container for radiobuttons.
+<item><ref id="TN_RADIOBUTTON">: This creates a radiobutton. Within a radiobutton group only a single radiobutton can be active at any time. The parent for this widget must be widget of type TN_RADIOBUTTONGROUP.
+<item><ref id="TN_TEXTBOX">: This creates a single or multi-line editable textbox with infinite text length.
+<item><ref id="TN_SCROLLBAR">: This creates a scrollbar. Vertical or Horizontal scroll bars can be specified by an optinonal orientation arguement. By default a vertical scrollbar is created if the style arguement is not specified.
+<item><ref id="TN_PROGRESSBAR">: This creates a progress bar widget, which can be of type discrete or continous.
+<item><ref id="TN_LISTBOX">: This will create a list box widget.
+<item><ref id="TN_PICTURE">: This creates a container for diplaying a picture (a pixmap).
+<item><ref id="TN_MENUBAR">: This widget will add menu bar (with pull down menus functionality) to a window.
+<item><ref id="TN_POPUPMENU">: This widget is the basic pull down menu widget to be used within a menu bar.
+<item><ref id="TN_CASCADEDMENU">: This widget will provide a cascde (horizonatl) menu functionality within a pull down menu.
+<item><ref id="TN_MENUITEM">: This is the basic menu item. An action routine will be called when this is clicked by the application user.
+</itemize>       
+There are various optional arguements that can be specified for every widget. The optional arguements have to be specified as a pair of values, the first specifying the type of arguement and the second the value. The various types of arguments that can be specified are:
+<itemize>
+<item>TN_FONTNAME : This specifies a font to be used for any text that is to be visible within the widget. The arguement is invalid for a widget like scrollbar where there is no text output.
+<item>TN_FONTSIZE : This gives the size of the font to be used for text output.
+<item>TN_BGCOLOR : This allows setting of the background color of the widget. The arguement following this should be of type GR_COLOR.
+<item>TN_FGCOLOR : The color of the foreground. This has different meanings with respect to each widget.
+<item>TN_HEIGHT : The widget height.
+<item>TN_WIDTH : The widget width.
+</itemize>       
+(Besides the above, each widget has certain widget specific properties. For these, please refer to the specific documentation for each widget).
+<sect1>tnMainLoop
+<p>
+<tscreen><code>
+void tnMainLoop(void)
+</code></tscreen>
+This call invokes the main event processing loop for the application. This call will never return. Event processing will not begin until this function is invoked.
+<sect1>tnEndApp
+<p>
+<label id="tnEndApp">
+<tscreen><code>
+void tnEndApp(void) 
+</code></tscreen>
+This call causes the application to terminate and the connection to the server to be closed.
+<sect>Default Widget Properties
+TODO: Write TN_HEIGHT width xpos ypos etc. here
+<sect>The Widgets
+<sect1>TN_WINDOW<label id="TN_WINDOW">
+<p>
+
+<sect2>Introduction
+<p>
+This is the Window widget. For every application you will need atleast one window. All other widgets can be added to a Window widget. The parent for the window widget must be the widget returned by <sl/tnAppInitialize/. 
+
+<sect2>Specifications
+<p>
+A Window can take the following optional properties in the call to <sl/tnCreateWidget/.
+<itemize>
+<item>TN_BGCOLOR : Background color for the window (defaults to grey).
+<item>TN_CAPTION : The window title. The default window title is "Window".
+</itemize>
+
+Examples:
+
+A window specification with a window title "My App"
+
+<tscreen><code>
+window1 = tnCreateWidget(TN_WINDOW,main_widget,50,50,TN_HEIGHT,200,TN_WIDTH,200,TN_CAPTION,"My App",TN_END);
+</code></tscreen>
+
+<sect2>Callbacks
+<p>
+The following callbacks can be specified when calling <sl/tnRegisterCallBack/ for a window.
+<itemize>
+<item> CLICKED : Event occurs when user clicks on the window.
+<item> CLOSED : Event occurs when user clicks on the close button of the window. If the user wishes to terminate his application with the closing of a particular window, he must call <ref id="tnEndApp"> in this callback.
+</itemize>
+
+<sect2>Utility Functions
+<p>
+The following utility functions have been provided to manipulate the properties of the window
+
+<tscreen><code>
+tnGetClickedPos(TN_WIDGET *window, int *x, int *y)
+</code></tscreen>
+Description : Returns the x and y co-ordinates where the last clicked event occured on the window. The co-ordinates are relative to the upper left corner of the window.
+
+<tscreen><code>
+tnGetWindowTitle(TN_WIDGET *window, char *title)
+</code></tscreen>
+Returns : The currently set title of the window.
+
+<tscreen><code>
+tnSetWindowTitle(TN_WIDGET *window, char *title)
+</code></tscreen>
+Description : Sets the window title as specified.
+
+
+<sect1>TN_BUTTON<label id="TN_BUTTON">
+<p>
+
+<sect2>Introduction
+<p>
+This is the Push Button widget. It can be placed inside a window widget. The push button supports either a text caption or a pixmap as its face.
+
+<sect2>Specifications
+<p>
+By default a button has a caption which is set to "Button".
+The following properties can be specified optionally for a button while calling <sl/tnCreateWidget/
+<itemize>
+<item>TN_PIXMAP   : Set to TN_TRUE if pixmap on the button is to be specified.
+<item>TN_CAPTION  : Specifies the caption to be used when TN_PIXMAP is not set.
+<item>TN_FILENAME : Specifies the pixmap filename if TN_PIXMAP is set.
+</itemize>
+Examples:
+
+A  button specification with pixmap file "/usr/share/pixmaps/foo.xpm"
+
+<tscreen><code>
+mybutton=tnCreateWidget(TN_BUTTON,mywindow,10,10,TN_HEIGHT,50,TN_WIDTH,50,
+			TN_PIXMAP,TN_TRUE,
+			TN_FILENAME,"/usr/share/pixmaps/foo.xpm",
+			TN_END);
+			
+</code></tscreen>
+
+A button with default values and a caption "TinyWidgets"
+<tscreen><code>
+
+mybutton=tnCreateWidget(TN_BUTTON,mywindow,10,10,
+			TN_CAPTION,"TinyWidgets",
+			TN_END);
+</code></tscreen>
+
+
+<sect2>Callbacks
+<p>
+The following callbacks can be specified while calling <sl/tnRegisterCallBack/ for a button.
+<itemize>
+CLICKED : Event occurs when user clicks and releases the button.
+</itemize>
+
+<sect2>Utility Functions
+<p>
+The following utility functions can be used for a button to access and change its properties.
+<tscreen>
+<code>
+int tnGetButtonPressed(TN_WIDGET *widget)
+</code>
+</tscreen>
+Description: Get the button number for the last CLICKED event on the button.
+
+Returns: A mask containing set bits for number of mouse buttons which were involved in the clicked event.
+<tscreen>
+<code>
+int tnSetButtonPixmap(TN_WIDGET *widget,char *filename)
+</code>
+</tscreen>
+Description: Sets pixmap for the face of a button.
+
+Returns: 1 on success, -1 on failure.
+<tscreen>
+<code>
+int tnRemoveButtonPixmap(TN_WIDGET *widget)
+</code>
+</tscreen>
+Description: Removes a pixmap on the face of the button and sets empty caption.
+
+Returns: 1 on success, -1 on failure.
+<tscreen>
+<code>
+int tnSetButtonCaption(TN_WIDGET *widget,char *caption)
+</code>
+</tscreen>
+Description: Sets a caption on the face of a button.
+
+Returns: 1 on success, 0 if a pixmap already present on button, -1 on failure.
+<tscreen>
+<code>
+int tnGetButtonCaption(TN_WIDGET *widget,char *caption)
+</code>
+</tscreen>
+Description: Copies the caption of the button into the string pointed by <sl/caption/
+
+Returns: 1 on success, -1 on failure.
+<tscreen><code>
+TN_HASPIXMAP(TN_WIDGET *widget)
+</code></tscreen>
+Description: This is a macro that returns 1 if the face of the button is a pixmap , 0 otherwise.
+
+Returns: 1 if face has a pixmap, 0 otherwise.
+<sect1>TN_LABEL<label id="TN_LABEL">
+<p>
+This is the static label widget. It provides the facility of adding static text labels to a window widget. The label supports various fonts,font sizes and colors. By default the label is black colored and automatically resizes itself according to the font size.
+<sect2>Specifications
+<p>
+By default a label has a caption which is set to "Label".
+The following properties can be specified optionally for a label while calling <sl/tnCreateWidget/
+
+<itemize>
+<item>TN_CAPTION  : Specifies the caption to be used for the label.
+<item>TN_FONTNAME : Specifies the name of the font to be used for the label.
+<item>TN_FONTSIZE : Specifies the font size to be used for the label.
+<item>TN_FGCOLOR  : Specifies the foreground color to be used for the label.
+<item>TN_BGCOLOR  : Specifies the background color to be used for the label.
+</itemize>
+
+Examples:
+
+A  label specification with foreground black,background white and caption "Hello World!"
+
+<tscreen><code>
+mylabel=tnCreateWidget(TN_LABEL,mywindow,10,10,
+			TN_CAPTION,"Hello World!",
+			TN_BGCOLOR,TN_RGB(255,255,255),
+			TN_FGCOLOR,TN_RGB(0,0,0),
+			TN_END);
+			
+</code></tscreen>
+
+A label with  a caption "TinyWidgets",and with <sl/courier new/ font, size 16 points 
+<tscreen><code>
+
+mylabel=tnCreateWidget(TN_LABEL,mywindow,10,10,
+			TN_FONTNAME,"cour",
+			TN_FONTSIZE,16,
+			TN_CAPTION,"TinyWidgets",
+			TN_END);
+</code></tscreen>
+
+<sect2>Callbacks
+<p>
+The following callbacks can be specified while calling <sl/tnRegisterCallBack/ for a label.
+<itemize>
+CLICKED : Event occurs when user clicks and releases the label.
+</itemize>
+
+<sect2>Utility Functions
+<p>
+The following utility functions can be used for a label to access and change its properties.
+
+<tscreen><code>
+int tnSetLabelCaption(TN_WIDGET *widget, char *caption)
+</code></tscreen>
+Description: Sets the caption for a label to <sl/caption/
+
+Returns: 1 on success, -1 on failure.
+
+<tscreen><code>
+int tnSetLabelCaptionColor(TN_WIDGET *widget, TN_COLOR color)
+</code></tscreen>
+Description: Sets the color of the caption to <sl/color/ for the label
+
+Returns: 1 on success, -1 on error.
+
+<tscreen><code>
+TN_COLOR tnGetLabelCaptionColor(TN_WIDGET *widget)
+</code></tscreen>
+Description: Gets the color of caption for the label 
+
+Returns: The color of caption on success , -1 on error.
+<tscreen><code>
+int tnGetLabelCaption(TN_WIDGET *widget,char *caption)
+</code></tscreen>
+Description: Gets the caption for the label.
+
+Returns: 1 on success, -1 on failure.
+<sect1>TN_CHECKBUTTON<label id="TN_CHECKBUTTON">
+<p>
+<sect2>Introduction
+<p>
+This is the checkbutton widget. It can be placed inside a window widget. It is like a toggle button.
+<sect2>Specification
+<p>
+The following properties can be optionally set via the <sl/tnCreateWidget/ call:
+<itemize>
+<item> TN_CAPTION: The text to be displayed in the check button. It defaults to "Check Button"
+<item> TN_FONTNAME: The font (if installed) in which the text is to be displayed.
+<item> TN_FONTSIZE: The size of the font in which the text is to be displayed.
+<item> TN_FGCOLOR: The color in which the text is to be displayed.
+<item> TN_BGCOLOR: The background color of the checkbutton.
+</itemize>
+Examples:
+
+A checkbutton with a caption of "TinyWidgets", to be displayed in Courier Font and fontsize 8.
+
+<tscreen><code>
+checkbtn0 = tnCreateWidget(TN_CHECKBUTTON,window0,35,45,TN_FONTNAME,"cour",TN_FONTSIZE,8,TN_CAPTION,"TinyWidgets",TN_END);
+</code></tscreen>
+
+<sect2>Callbacks
+<p>
+The following callbacks can be registered for a checkbutton via <sl/tnRegisterCallBack/.
+<itemize>
+<item> CLICKED : This event occurs when the user clicks on the checkbutton.
+</itemize>
+<sect2>Utility Functions
+<p>
+The following utility functions have been provided to manipulate the checkbutton
+
+<tscreen><code>
+int tnGetCheckButtonCaption(TN_WIDGET *checkbutton, char *caption)
+</code></tscreen>
+Description : Returns the currently set caption of the checkbutton.
+
+<tscreen><code>
+int tnSetCheckButtonCaption(TN_WIDGET *checkbutton, char *caption)
+</code></tscreen>
+Description : Sets the caption of the checkbutton.
+
+<tscreen><code>
+int tnSetCheckButtonStatus(TN_WIDGET *checkbutton, TN_BOOL status)
+</code></tscreen>
+Description : Sets the status of the checkbutton as specified.
+
+<tscreen><code>
+TN_CHECKBUTTONACTIVE(checkbutton)
+</code></tscreen>
+Description :  A macro which tests if the checkbutton is active.
+
+
+<sect1>TN_RADIOBUTTONGROUP<label id="TN_RADIOBUTTONGROUP">
+<p>
+<sect2>Introduction
+<p>
+This is the radio button group widget. It can be placed inside a window widget. A radio button group needs to be created for grouping radio buttons. All radio buttons in a group will behave in a mutually exclusive manner. 
+<sect2>Specification
+<p>
+The default caption for a radio button group is "RadioButton Group". The following properties can be optionally set via the <sl/tnCreateWidget/ call:
+<itemize>
+<item>TN_CAPTION : The radio button group caption text.
+</itemize>
+<sect2>Callbacks
+<p>
+The following callbacks can be registered via <sl/tnRegisterCallBack/
+<itemize>
+<item>CLICKED : a pointer click occurs anywhere withing the radio button group.
+<item>SELECTED : a radio button within the group has been selected.
+</itemize>
+<sect2>Utility Functions
+<p>
+<tscreen><code>
+int tnSetRadioButtonGroupCaption(TN_WIDGET *widget,char *caption)
+</code></tscreen>
+Description: Sets the radio button group caption text.
+
+Returns: 1 on success. -1 on failure.
+<tscreen><code>
+int tnGetRadioButtonGroupCaption(TN_WIDGET *widget,char *caption)
+</code></tscreen>
+Description: Gets the radio button group caption.
+
+Returns: 1 on success. -1 on failure.
+<tscreen><code>
+int tnGetRadioButtonGroupClickedPos(TN_WIDGET *widget,int *x,int *y)
+</code></tscreen>
+Description: Returns the x & y co-ordinates at which the pointer is clicked inside the radio button group.
+
+Returns: 1 on success. -1 on failure.
+<sect1>TN_RADIOBUTTON<label id="TN_RADIOBUTTON">
+<p>
+<sect2>Introduction
+<p>
+This is the radio button widget. It is to be placed inside a radio button group widget.
+<sect2>Specification
+<p>
+The default caption for a radio button is "Radio Button". The following properties can be defined via the <sl/tnCreateWidget/ call
+<itemize>
+<item>TN_CAPTION : The radio button caption.
+</itemize>
+<sect2>Utility Functions
+<p>
+<tscreen><code>
+int tnSetRadioButtonCaption(TN_WIDGET *widget,char *caption)
+</code></tscreen>
+Description: Sets the caption text for the radio button.
+
+Returns: 1 on success. -1 on failure.
+<tscreen><code>
+int tnGetRadioButtonCaption(TN_WIDGET *widget,char *caption)
+</code></tscreen>
+Description: Gets the radio button caption.
+
+Returns: 1 on success. -1 on failure.
+<tscreen><code>
+int tnSetRadioButtonStatus(TN_WIDGET *widget,TN_BOOL status)
+</code></tscreen>
+Description: Sets the radio button status to selected (TN_TRUE) or unselected (TN_FALSE).
+
+Returns: 1 on success. -1 on failure.
+<sect1>TN_TEXTBOX<label id="TN_TEXTBOX">
+<p>
+<sect2>Introduction
+<p>
+<bf><sl/The current textbox implementation although is almost usable is still under development. The user is advised to use the textbox widget with care./</bf>
+
+This is the textbox widget. The textbox provides an editable text box on a window. Currenltly TinyWidgets supports single line (text entry field) and multiline textboxes(text areas). The textbox uses many special keys and hence relies on the scancode driver of microwindows. It has <bf/NOT/ been tested on other keyboard drivers and we wish to state clearly that it may not work with them. By default the textbox is a single line textbox with no default text.
+<sect2>Specifications
+<p>
+The following properties can be specified optionally for a textbox while calling <sl/tnCreateWidget/
+<itemize>
+<item>TN_TEXTBOXTYPE : Choose either of TN_SINGLE_LINE or TN_MULTI_LINE.
+<item>TN_DEFAULTTEXT : Sets the default(initial) text for the textbox.
+<item>TN_FONTNAME    : Selects the font to be used in the textbox.
+<item>TN_FONTSIZE    : Chooses the size of the font.
+<item>TN_FGCOLOR     : Sets the foreground color of text.
+</itemize>
+Examples:
+
+A single line textbox with font <sl/Times New Roman/, size 16 points and default text set to "Hello World!"
+<tscreen><code>
+mytextbox=tnCreateWidget(TN_TEXTBOX,mywindow,10,10,
+			 TN_TEXTBOXTYPE,TN_SINGLE_LINE,
+			 TN_DEFAULTTEXT,"Hello World!",
+			 TN_FONTNAME,"times",
+			 TN_FONTSIZE,16,
+			 TN_END);
+</code></tscreen>
+
+A simple multiline textbox with no default text.
+<tscreen><code>
+mytextbox=tnCreateWidget(TN_TEXTBOX,mywindow,10,10,
+			 TN_TEXTBOXTYPE,TN_MULTI_LINE,
+			 TN_END);
+</code></tscreen>		
+<sect2>Callbacks
+<p>
+The following callbacks can be specified while calling <sl/tnRegisterCallBack/ for a textbox.
+<itemize>
+<item>GOTFOCUS	:Event occurs typically when user clicks in a textbox.
+<item>LOSTFOCUS	:Event occurs typically when a user clicks elsewhere.
+<item>MODIFIED	:Event occurs when keyboard activity modifies text in the textbox.
+</itemize>
+
+<sect2>Utility Functions
+<p>
+The following utility functions can be used for a textbox to access and change its properties.
+
+<tscreen><code>
+char * tnGetText(TN_WIDGET *widget)
+</code></tscreen>
+Description: Returns the text in a buffer contained in the textbox. The user has to free the returned buffer.
+
+Returns: A pointer to a character buffer containing the characters in the textbox on success, NULL on error.
+<tscreen><code>
+int tnSetText(TN_WIDGET *widget,char *text)
+</code></tscreen>
+Description: Sets the text in the textbox to <sl/text/
+
+Returns: 1 on success. -1 on failure.
+<sect1>TN_SCROLLBAR<label id="TN_SCROLLBAR">
+<p>
+This is the scrollbar widget. These scrollbars can be placed on windows. The scrollbar widget has two orientations, namely TN_HORIZONTAL and TN_VERTICAL. By default the scrollbar is is a vertical scrollbar, with range set from 0 to 100 and linestep = 1 , pagestep = 5. The thumb can also  be dragged to an arbitary position using the mouse.
+
+<sect2>Specifications
+<p>
+The following properties can be specified optionally for a scrollbar while calling <sl/tnCreateWidget/
+
+<itemize>
+<item>TN_ORIENTATION	:Selects one of TN_VERTICAL and TN_HORIZONTAL.
+<item>TN_MINVAL		:Sets the value for the scrollbar when it is at minimum scrolled position
+<item>TN_MAXVAL		:Sets the value for the scrollbar when it is at maxmum scrolled position
+<item>TN_LINESTEP	:Sets the increment per single line of scrolling.
+<item>TN_PAGESTEP	:Sets the increment per a page of scrolling.
+</itemize>
+
+Example: 
+A vertical scrollbar with range 50 to 100 and pagestep = 10 , linestep = 2 
+<tscreen><code>
+myscrollbar=tnCreateWidget(TN_SCROLLBAR,mywindow,10,10,
+			   TN_ORIENTATION,TN_VERTICAL,
+			   TN_MINVAL,50,
+			   TN_MAXVAL,100,
+			   TN_LINESTEP,2
+			   TN_PAGESTEP,10,
+			   TN_END);
+</code></tscreen>
+A horizontal scrollbar with default properties
+<tscreen><code>
+myscrollbar=tnCreateWidget(TN_SCROLLBAR,mywindow,10,10,
+			   TN_ORIENTATION,TN_HORIZONTAL,
+			   TN_END);
+</code></tscreen>
+
+<sect2>Callbacks
+<p>
+The following callbacks can be specified while calling <sl/tnRegisterCallBack/ for a scrollbar.
+
+<itemize>
+<item>CLICKED		:This event occurs when user clicks on any part of the scrollbar.
+</itemize>
+
+<sect2>Utility functions 
+<p>
+<tscreen><code>
+int tnGetScrollbarOrientation(TN_WIDGET *widget,int *orientation)
+</code></tscreen>
+Description: Sets *orientation to either of TN_HORIZONTAL or TN_VERTICAL
+
+Returns: 1 on success, -1 on error
+<tscreen><code>
+int tnSetScrollbarOrientation(TN_WIDGET *widget,int orientation)
+</code></tscreen>
+Description: Sets the orientation of scrollbar to <sl/orientation/
+
+Returns: 1 on success, -1 on error
+<tscreen><code>
+int tnGetScrollRange(TN_WIDGET *widget,int *minval,int *maxval)
+</code></tscreen>
+Description: Gets the range of scrollbar into *minval and *maxval
+
+Returns: 1 on success, -1 on failure.
+
+<tscreen><code>
+int tnSetScrollRange(TN_WIDGET *widget,int minval,int maxval)
+</code></tscreen>
+Description: Sets the range of scrollbar from <sl/minval/ to <sl/maxval/
+
+Returns: 1 on success, -1 on failure.
+
+<tscreen><code>
+int tnGetScrollStepSizes(TN_WIDGET *widget,int *pagestep,int *linestep)
+</code></tscreen>
+Description: Gets the pagestep and linestep of scrollbar into *pagestep and *linestep respectively
+
+Returns: 1 on success , -1 on failure.
+
+<tscreen><code>
+int tnSetScrollStepSizes(TN_WIDGET *widget,int pagestep,int linestep)
+</code></tscreen>
+Description: Sets the pagestep and linestep of scrollbar to <sl/pagestep/ and <sl/linestep/ respectively
+
+Returns: 1 on success , -1 on failure.
+
+<tscreen><code>
+int tnSetThumbPosition(TN_WIDGET *widget,int position)
+</code></tscreen>
+Description: Sets the position of the thumb to <sl/position/
+
+Returns: 1 on success , -1 on failure.
+
+<tscreen><code>
+int tnGetThumbPosition(TN_WIDGET *widget)
+</code></tscreen>
+
+Description: Gets the position of the thumb 
+
+Returns: Thumb position on success , -1 on failure.
+
+<tscreen><code>
+int tnGetLastScrollEvent(TN_WIDGET *scrollbar)
+</code></tscreen>
+Description: Gets the last scrolling event that occured with the scrollbar.
+
+Returns: On success returns one of 
+<itemize>
+<item>TN_SCROLL_NOSCROLL
+<item>TN_SCROLL_LINEUP
+<item>TN_SCROLL_LINEDOWN
+<item>TN_SCROLL_PAGEUP
+<item>TN_SCROLL_PAGEDOWN
+<item>TN_SCROLL_THUMBMOVE
+</itemize>
+On failure returns -1
+
+
+<sect1>TN_PROGRESSBAR<label id="TN_PROGRESSBAR">
+<p>
+<sect2>Introduction
+<p>
+This is the progressbar widget. It can be placed inside a window widget.
+<sect2>Specifications
+<p>A progress bar can be of type :
+<itemize>
+<item>Continuous
+<item>Discrete
+</itemize>
+A continous progressbar is created by default. The following properties can be optionally specified for a progressbar via the a call to <sl/tnCreateWidget/
+<itemize>
+<item>TN_STEPSIZE : The step size for the discrete progressbar.
+<item>TN_FILLCOLOR : The fill color for the bar.
+<item>TN_FONTNAME : The font to be used for the text which indicate completion status.
+<item>TN_FONTSIZE : The font size for the above mentioned text.
+</itemize>
+<sect2>Utility functions
+<p>
+<tscreen><code>
+void tnProgressBarUpdate(TN_WIDGET *pbar, int value)
+</code></tscreen>
+Description: Set the value for the progress bar.
+Returns: nothing
+<p>
+<tscreen><code>
+int tnGetProgressBarValue(TN_WIDGET *widget)
+</code></tscreen>
+Description:  Returns the current value for the progress bar.
+
+Returns: The current value on success. -1 on failure.
+<tscreen><code>
+int tnSetProgressBarFillColor(TN_WIDGET *widget,TN_COLOR color)
+</code></tscreen>
+Description: Set the current fill color to "color".
+
+Returns: 1 on success. -1 on failure.
+<tscreen><code>
+TN_COLOR tnGetProgressBarFillColor(TN_WIDGET *widget)
+</code></tscreen>
+Description: Returns the fill color.
+
+Returns: The current fill color on success. -1 on failure.
+<tscreen><code>
+int tnSetProgressBarStepSize(TN_WIDGET *widget,int stepsize)
+</code></tscreen>
+Description: Sets the step size for a discrete progress bar.
+
+Returns: 1 on success. -1 on failure; will return -1 for a continuous progress bar.
+<tscreen><code>
+int tnGetProgressBarStepSize(TN_WIDGET *widget)
+</code></tscreen>
+Description: Returns the current step size.
+
+Returns: The current step size on success. -1 on failure ; will return -1 for a continuous progress bar.
+<sect1>TN_LISTBOX<label id="TN_LISTBOX">
+<p>
+
+<sect2>Introduction
+<p>
+This is a listbox widget which allows the user to display a list of items on the screen.
+
+<Sect2>Specifications
+<p>
+The following optional properties can be specified while calling <sl/tnCreateWidget/.
+<itemize> 
+<item> TN_FONTNAME : The name of the font to be used to display the List items. This property will be valid only if the specified fontname is installed and Nano-X is compiled with freetype support.
+<item> TN_FONTSIZE : The size of the font to be used.
+<item> TN_FGCOLOR : The color to be used for displaying the ListItems in the Listbox.
+<item> TN_COUNT : The number of items to be displayed in the Listbox
+<item> TN_LISTITEMS : The list of items to be displayed in the ListBox. This property will be valid only if the TN_COUNT property is specified correctly.
+<item> TN_RESIZE : This property, if set to TN_TRUE, causes the listbox to be resized whenever the number of items in the listbox does not fit in the specified height. By default it is set to TN_TRUE.
+</itemize>
+Examples:
+
+A listbox specification with default properties and 5 Items to be displayed.
+
+<tscreen><code> 
+char *s[] = {"Monday","Tuesday","Wednesday","Thursday","Friday"};
+listbox1 = tnCreateWidget(TN_LISTBOX,window1,10,20,TN_COUNT,5,TN_LISTITEMS,s,TN_END);
+</code></tscreen>
+
+An empty Listbox with Times Font to be used to display the List Items.
+
+<tscreen><code>
+listbox2 = tnCreateWidget(TN_LISTBOX,window1,20,30,TN_FONTNAME,"times",TN_FONTSIZE,12,TN_END);
+</code></tscreen>
+
+<sect2>Callbacks
+<p>
+The following callbacks can be specified while calling <sl/tnRegisterCallBack/ for a listbox.
+<itemize>
+<item> CLICKED : Event occurs when user clicks in the listbox.
+</itemize>
+
+<sect2>Utility Functions
+<p>
+The following utility functions have been provided for manipulating the listbox.
+<tscreen><code>
+int tnGetSelectedListItems(TN_WIDGET *widget, char ***listitems,int *count)
+</code></tscreen>
+Description : Allocates space and returns the selected items in the listbox(multiple items can be selected using the Cntrl key modifier). Count contains the number of selected items. The user is expected to free the Listitems after he has finished using them.
+
+<tscreen><code>
+int tnGetAllListItems(TN_WIDGET *listbox, char ***items, int *count)
+</code></tscreen>
+Description : Returns all the items in the Listbox. The user is again expected to free the list of items.
+
+<tscreen><code>
+int tnGetSelectedListNum(TN_WIDGET *listbox)
+</code></tscreen>
+Returns: The number of items selected in the Listbox, -1 if there is an error.
+
+<tscreen><code>
+int tnGetSelectedListPos(TN_WIDGET *listbox,int **pos,int *count)
+</code></tscreen>
+Description : Returns the indices of the selected list items and their count. The pos array is allocated in the function and hence the user must free it after he is finished.
+
+<tscreen><code>
+int tnGetListItemPos(TN_WIDGET *listbox, char *item)
+</code></tscreen>
+Description : Given an item, it returns its index in the Listbox.
+
+Returns : -1 if the item was not found in the Listbox, or some error occured.
+
+<tscreen><code>
+int tnAddItemToListBox(TN_WIDGET *listbox, char *item)
+</code></tscreen>
+Description :  Adds the item to the end of the list of items currently in the Listbox.
+
+<tscreen><code>
+int tnAddItemToListBoxAt(TN_WIDGET *listbox, char *item, int pos)
+</code></tscreen>
+Description : Adds the item to the list of items currently in the Listbox at the position specified by pos. If pos is greater than the number of items currently in the listbox then the item is added to the end of the list of items.
+
+<tscreen><code>
+int tnDeleteItemFromListBox(TN_WIDGET *listbox, char *item)
+</code></tscreen>
+Description : Deletes the item from the list of items currently displayed in the listbox.
+
+Returns: -1 if the item was not found in the Listbox.
+
+<tscreen><code>
+int tnDeleteItemFromListBoxAt(TN_WIDGET *listbox, int pos)
+</code></tscreen>
+Description : Deletes the item from the Listbox whose index is specified by pos. 
+
+Returns: -1 if pos is greater than the number of items in the listbox.
+
+<tscreen><code>
+int tnDeleteSelectedItems(TN_WIDGET *listbox)
+</code></tscreen>
+Description : Deletes all the items in the listbox which have been selected by the user.
+
+<tscreen><code>
+int tnDeleteAllItemsFromListBox(TN_WIDGET *listbox)
+</code></tscreen>
+Description : Deletes all the items from the Listbox.
+
+<tscreen><code>
+int tnSetSelectedListItem(TN_WIDGET *listbox,char *item, TN_BOOL selected)
+</code></tscreen>
+Description : Sets the status of the item in the listbox as specified by the selected parameter (TN_TRUE = selected, TN_FALSE = unselected).
+
+Returns : -1 if the item is not found in the Listbox.
+
+<tscreen><code>
+int tnSetSelectedListItemAt(TN_WIDGET *listbox, int pos, TN_BOOL selected)
+</code></tscreen>
+Description : Sets the status to selected, of the item whose index is specified by pos.  
+
+Returns : -1 if the index is specified is greater than the number of items in the listbox.
+
+<tscreen><code>
+int tnListItemsLineUp(TN_WIDGET *widget, int number)
+</code></tscreen>
+Description : Scrolls the list of items displayed in the listbox up by the number of lines specified. Work only if the TN_RESIZE property of the listbox is set to TN_FALSE. 
+
+<tscreen><code>
+int tnListItemsLineDown(TN_WIDGET *widget, int number)
+</code></tscreen>
+Description :  Scrolls the list of items displayed in the listbox up by the number of lines specified. Works only if the TN_RESIZE property of the listbox is set to TN_FALSE. 
+
+<tscreen><code>
+int tnGetListTop(TN_WIDGET *listbox)
+</code></tscreen>
+Description : Gets the index of the item displayed at the top of the Listbox. Works only if the TN_RESIZE property of the listbox is set to TN_FALSE. 
+The above three functions can be used in conjunction with the scrollbar to scroll the items displayed in the Listbox.
+
+<tscreen><code>
+int tnGetListBoxResize(TN_WIDGET *listbox, TN_BOOL *resize)
+</code></tscreen>
+Description : Returns the currently set resize property of the listbox
+
+<tscreen><code>
+int tnSetListBoxResize(TN_WIDGET *listbox, TN_BOOL resize)
+</code></tscreen>
+Description : Sets the resize property of the listbox as sepcified.
+
+<sect1>TN_PICTURE<label id="TN_PICTURE">
+<p>
+<sect2>Introduction
+<p>
+This is the picture widget and allows the user to display images(BMP, JPEG, GIF etc) in a picture container. 
+
+<Sect2>Specifications
+<p>
+The following optional properties can be specified for a picture while calling <sl/tnCreateWidget/
+<itemize>
+<item> TN_FILENAME : The filename of the image to be displayed in the container. The full path of the filename must be specified.
+<item> TN_STRETCH : This is a Boolean value. If True then the container will be resized to the size of the image to be displayed. If this value is false the image will be resized to the size of the container.By default this property is set to TN_FALSE. 
+</itemize>
+Examples:
+
+A picture specification with the image file "/root/Images/liz.jpg" where the container is resized to the size of the image.
+
+<tscreen><code>
+mypicture=tnCreateWidget(TN_PICTURE,window0,50,50,TN_FILENAME,"/root/Images/liz.jpg",TN_STRETCH,TN_TRUE,TN_END);
+</code></tscreen>
+
+<sect2>Callbacks
+<p>
+The following callbacks can be specified while calling <sl/tnRegisterCallBack/ for a Picture.
+<itemize>
+<item> CLICKED : Event occurs when user clicks on the Picture container.
+</itemize>
+
+<Sect2>Utility Functions
+<p>
+
+The following utility functions have been provided for the Picture widget to access and change its properties. 
+<tscreen> <code> int tnGetPictureProps(TN_WIDGET *picture, TN_BOOL *stretch, char **filename) </code> </tscreen>
+Description: This function returns the currently set properties of the picture i.e. Stretch and the filename of the currently displayed image in the picture. The user is expected to free the filename string which this function allocates. 
+
+Returns: 1 on success, -1 on failure.
+
+<tscreen> <code> int tnSetPicture(TN_WIDGET *picture, char *filename) </code></tscreen>
+Description: This function loads the image specified by filename into the picture widget. 
+
+Returns: 1 if succesful, -1 in case of error. 
+
+<tscreen> <code> int tnSetPictureStretch(TN_WIDGET *picture,GR_BOOL stretch) </code> </tscreen>
+Description: This function sets the Stretch property of the picture widget. 
+
+<tscreen> <code> int tnPictureDup(TN_WIDGET *destpic,TN_WIDGET *srcpic) </code> </tscreen>
+Description: This function duplicates the image displayed in the srcpic widget into the destpic widget. This is especially useful in order to save memory. By using the Duplication of the image it is not loaded by the server again. 
+
+<tscreen> <code> int tnGetPictureImageProps(TN_WIDGET *picture, TN_IMAGE_INFO *iinfo) </code> </tscreen>
+Description: Fills the iinfo structure with the following properties relevant to the image displayed in the picture container. 
+<itemize>
+<item> Height of the image.
+<item> Width of the image.
+<item> Bits per pixel.
+<item> Bytes per pixel.
+</itemize>
+
+<sect1>TN_MENUBAR<label id="TN_MENUBAR">
+<p>
+<sect2>Introduction
+<p>
+This is the menu bar widget. It is to be placed in a window widget. 
+<sect2>Specification
+<p>
+A call to <sl/tnCreateWidget/ will create a horizontal menu bar, which is aligned to the window top and resized to the window width, by default. The x & y position can optionally be specified.
+
+Examples:
+The following call will create a default menu bar (aligned to the window top) 
+<tscreen><code>
+menu_bar = tnCreateWidget(TN_MENUBAR,window,0,0,TN_END);
+</code></tscreen>
+<sect1>TN_POPUPMENU<label id="TN_POPUPMENU">
+<p>
+<sect2>Introduction
+<p>
+This is the popup menu widget. It allows for creation of popup menus. It is to be placed inside a menubar widget.
+A popup menu widget must be defined for providing pull down menu functionality. <sect2>Specification
+<p>
+The following properties can be set via the <sl/tnCreateWidget/ call
+<itemize>
+<item>TN_CAPTION : The label for the popup menu.
+<item>TN_EXCLUSIVE : This atrribute if set makes the subsequently added checkable menu items behave in a mutually exclusive manner.
+</itemize>
+Examples:
+The following call will create a default popup menu with the label "File". (The TN_AUTO keyword indicates that positioning will be automatically handled).
+<tscreen><code>
+popup_menu = tnCreateWidget(TN_POPUPMENU,menu_bar,TN_AUTO,TN_AUTO,TN_CAPTION,"File",TN_END);
+</code></tscreen>
+<sect1>TN_CASCADEDMENU<label id="TN_CASCADEDMENU">
+<p>
+<sect2>Introduction
+<p>
+This is the cascade menu widget. It is to be placed inside a popup menu widget. It provides cascade (horizontal menus) functionality. A cascade menu will be displayed as a label with a rightward pointing arrow.
+<sect2>Specification
+<p>
+The following properties can be set via the <sl/tnCreateWidget/ call
+<itemize>
+<item>TN_CAPTION : The label for the cascade menu.
+<item>TN_EXCLUSIVE : This atrribute if set makes the subsequently added checkable menu items behave in a mutually exclusive manner.
+</itemize>
+Examples:
+The following call will create a default cascade menu atached to a popup menu, with the label "Tools". (The TN_AUTO keyword indicates that positioning will be automatically handled).
+<tscreen><code>
+cascade_menu = tnCreateWidget(TN_CASCADEMENU,popup_menu,TN_AUTO,TN_AUTO,TN_CAPTION,"Tools",TN_END);
+</code></tscreen>
+<sect1>TN_MENUITEM<label id="TN_MENUITEM">
+<p>
+<sect2>Introduction
+<p>
+This is the menu item widget. It can be placed inside any of the following
+<itemize>
+<item>Menu Bar
+<item>PopUp Menu
+<item>Cascade Menu
+</itemize>
+It is the basic menu item which when clicked, a programmer defined action can be taken.
+<sect2>Specification
+<p>
+The following properties may be set via the <sl/tnCreateWidget/ call
+<itemize>
+<item>TN_CAPTION : The label for the menu item.
+<item>TN_CHECKABLE : This attribute, if set, causes the menu item to toggle state when clicked. A dot appears against a selected menu item. (This can be used in conjunction with the TN_EXCLUSIVE flag for the popup & cascade menus to provide a mutually exclusive group of menu items).
+</itemize>
+Examples:
+The following call will create a basic menu item with the label "Open", within a popup menu. (TN_AUTO for the x & y positions indicates automatic positioning).
+<tscreen><code>
+mitem0 = tnCreateWidget(TN_MENUITEM,popup_menu,TN_AUTO,TN_AUTO,TN_CAPTION,"Open",TN_END);
+</code></tscreen>
+
+The following call will create a checkable (toggle) menu item within a cascade menu.
+<tscreen><code>
+mitem1 = tnCreateWidget(TN_MENUITEM,cascade_menu,TN_AUTO,TN_AUTO,TN_CAPTION,"Tool1",TN_CHECKABLE,TN_TRUE,TN_END);
+</code></tscreen>
+<sect2>Callbacks
+<p>
+The following callback(s) can be registered via the <sl/tnRegisterCallBack/ call
+<itemize>
+<item>CLICKED : Specifies the action routine to be called when the menu item is clicked.
+</itemize>
+<sect>Examples
+
+</article>

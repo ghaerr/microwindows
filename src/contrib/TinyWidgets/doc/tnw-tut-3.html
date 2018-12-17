@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>The TinyWidgets Tutorial: The TinyWidgets API</TITLE>
+ <LINK HREF="tnw-tut-4.html" REL=next>
+ <LINK HREF="tnw-tut-2.html" REL=previous>
+ <LINK HREF="tnw-tut.html#toc3" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="tnw-tut-4.html">Next</A>
+<A HREF="tnw-tut-2.html">Previous</A>
+<A HREF="tnw-tut.html#toc3">Contents</A>
+<HR>
+<H2><A NAME="s3">3. The TinyWidgets API</A></H2>
+
+<P>
+<H2><A NAME="ss3.1">3.1 tnAppInitialize</A>
+</H2>
+
+<P>                                    
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+TN_WIDGET * tnAppInitialize(int argc, char *argv[])
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+   
+Initializes various parameters of the internal state machine for Tiny Widgets and calls GrOpen to open a socket to Nano-X. It returns a pointer to TN_WIDGET which is supposed to be the main widget (actually the root window) and should be used as parent to the main window widget that will be created. Takes command line parameters.
+<H2><A NAME="ss3.2">3.2 tnCreateWidget</A>
+</H2>
+
+<P>   
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+TN_WIDGET * tnCreateWidget(TN_WIDGET_TYPE type, 
+                           TN_WIDGET   *parent, int posx, int posy,...)
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+   
+Creates a widget specified by the type arguement and places it at position specified by posx, posy, relative to the parent widget specified by the parent arguement. The various types of widgets that can be created are:
+<UL>
+<LI>
+<A HREF="tnw-tut-5.html#TN_WINDOW">TN_WINDOW</A>
+: This creates a window widget which behaves as the container for all other widgets. </LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_BUTTON">TN_BUTTON</A>
+: This creates a push button. The parent for this must be a widget of type TN_WINDOW.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_LABEL">TN_LABEL</A>
+: This is a static Label. Parent must be TN_WINDOW.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_CHECKBUTTON">TN_CHECKBUTTON</A>
+: This creates a check button widget.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_RADIOBUTTONGROUP">TN_RADIOBUTTONGROUP</A>
+: This creates a frame on the form which behaves as a container for radiobuttons.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_RADIOBUTTON">TN_RADIOBUTTON</A>
+: This creates a radiobutton. Within a radiobutton group only a single radiobutton can be active at any time. The parent for this widget must be widget of type TN_RADIOBUTTONGROUP.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_TEXTBOX">TN_TEXTBOX</A>
+: This creates a single or multi-line editable textbox with infinite text length.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_SCROLLBAR">TN_SCROLLBAR</A>
+: This creates a scrollbar. Vertical or Horizontal scroll bars can be specified by an optinonal orientation arguement. By default a vertical scrollbar is created if the style arguement is not specified.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_PROGRESSBAR">TN_PROGRESSBAR</A>
+: This creates a progress bar widget, which can be of type discrete or continous.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_LISTBOX">TN_LISTBOX</A>
+: This will create a list box widget.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_PICTURE">TN_PICTURE</A>
+: This creates a container for diplaying a picture (a pixmap).</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_MENUBAR">TN_MENUBAR</A>
+: This widget will add menu bar (with pull down menus functionality) to a window.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_POPUPMENU">TN_POPUPMENU</A>
+: This widget is the basic pull down menu widget to be used within a menu bar.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_CASCADEDMENU">TN_CASCADEDMENU</A>
+: This widget will provide a cascde (horizonatl) menu functionality within a pull down menu.</LI>
+<LI>
+<A HREF="tnw-tut-5.html#TN_MENUITEM">TN_MENUITEM</A>
+: This is the basic menu item. An action routine will be called when this is clicked by the application user.</LI>
+</UL>
+       
+There are various optional arguements that can be specified for every widget. The optional arguements have to be specified as a pair of values, the first specifying the type of arguement and the second the value. The various types of arguments that can be specified are:
+<UL>
+<LI>TN_FONTNAME : This specifies a font to be used for any text that is to be visible within the widget. The arguement is invalid for a widget like scrollbar where there is no text output.</LI>
+<LI>TN_FONTSIZE : This gives the size of the font to be used for text output.</LI>
+<LI>TN_BGCOLOR : This allows setting of the background color of the widget. The arguement following this should be of type GR_COLOR.</LI>
+<LI>TN_FGCOLOR : The color of the foreground. This has different meanings with respect to each widget.</LI>
+<LI>TN_HEIGHT : The widget height.</LI>
+<LI>TN_WIDTH : The widget width.</LI>
+</UL>
+       
+(Besides the above, each widget has certain widget specific properties. For these, please refer to the specific documentation for each widget).
+<H2><A NAME="ss3.3">3.3 tnMainLoop</A>
+</H2>
+
+<P>
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+void tnMainLoop(void)
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+
+This call invokes the main event processing loop for the application. This call will never return. Event processing will not begin until this function is invoked.
+<H2><A NAME="ss3.4">3.4 tnEndApp</A>
+</H2>
+
+<P>
+<A NAME="tnEndApp"></A> 
+<BLOCKQUOTE><CODE>
+<HR>
+<PRE>
+void tnEndApp(void) 
+</PRE>
+<HR>
+</CODE></BLOCKQUOTE>
+
+This call causes the application to terminate and the connection to the server to be closed.
+<HR>
+<A HREF="tnw-tut-4.html">Next</A>
+<A HREF="tnw-tut-2.html">Previous</A>
+<A HREF="tnw-tut.html#toc3">Contents</A>
+</BODY>
+</HTML>

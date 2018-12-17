@@ -1,0 +1,15 @@
+INSTALL for installation inscructions.
+
+src : source for the widget set.
+include : headers for the widget set.
+demos : some demo progs.
+doc : the TinyWidgets tutorial.
+lib : the library will be built here.
+tndesigner : the deisgner.
+Icons : pixmaps for the designer.
+
+Once you install the library (libtnW), use
+gcc -o <binfile> <srcfile> -ltnW -lnano-X 
+to compile your programs.
+
+Thank you.

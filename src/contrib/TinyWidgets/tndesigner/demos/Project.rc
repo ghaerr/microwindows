@@ -1,0 +1,101 @@
+built 1
+counts 1 1 0 1 1 7 0 0 0 0 1 1 0 0
+widgetname window0
+parent NULL
+xpos -207
+ypos -341
+type 0
+height 411
+width 517
+enabled 1
+visible 1
+caption "Window"
+menubarypos 0
+callbackcount 0
+$
+widgetname button0
+parent window0
+xpos 101
+ypos 5
+type 1
+height 30
+width 60
+enabled 1
+visible 1
+haspixmap 0
+caption "Button"
+callbackcount 0
+$
+widgetname checkbutton0
+parent window0
+xpos 106
+ypos 87
+type 3
+height 13
+width 83
+enabled 1
+visible 1
+caption "Check Button"
+callbackcount 0
+$
+widgetname radiobuttongroup0
+parent window0
+xpos 302
+ypos 7
+type 4
+height 150
+width 100
+enabled 1
+visible 1
+caption "RadioButtonGroup"
+callbackcount 0
+$
+widgetname radiobutton2
+parent radiobuttongroup0
+xpos -6
+ypos -12
+type 5
+height 13
+width 80
+enabled 1
+visible 1
+caption "Radio Button"
+callbackcount 0
+$
+widgetname radiobutton5
+parent radiobuttongroup0
+xpos -7
+ypos -5
+type 5
+height 13
+width 80
+enabled 1
+visible 1
+caption "Radio Button"
+callbackcount 0
+$
+widgetname radiobutton6
+parent radiobuttongroup0
+xpos -5
+ypos 28
+type 5
+height 13
+width 80
+enabled 1
+visible 1
+caption "Radio Button"
+callbackcount 0
+$
+widgetname picture0
+parent window0
+xpos 37
+ypos 110
+type 10
+height 200
+width 200
+enabled 1
+visible 1
+stretch 0
+filename "../Icons/build.xpm"
+callbackcount 0
+$

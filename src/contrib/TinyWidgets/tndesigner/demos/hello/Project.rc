@@ -1,0 +1,55 @@
+built 1
+counts 1 2 0 0 0 0 1 0 0 0 0 0 0 0
+widgetname window0
+parent NULL
+xpos 3
+ypos 16
+type 0
+height 200
+width 300
+enabled 1
+visible 1
+caption "Window"
+callbackcount 1
+callback CLOSED on_window_close NULL 1
+$
+widgetname textbox0
+parent window0
+xpos 111
+ypos 41
+type 6
+height 15
+width 90
+enabled 1
+visible 1
+defaulttext ""
+callbackcount 0
+$
+widgetname button0
+parent window0
+xpos 123
+ypos 119
+type 1
+height 30
+width 60
+enabled 1
+visible 1
+haspixmap 0
+caption "Click me!"
+callbackcount 1
+callback CLICKED on_button_clicked window0 1
+$
+widgetname button1
+parent window0
+xpos 220
+ypos 40
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "Clear"
+callbackcount 1
+callback CLICKED on_clear_clicked textbox0 1
+$

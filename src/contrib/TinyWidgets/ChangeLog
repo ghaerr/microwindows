@@ -1,0 +1,19 @@
+16 Dec 2018
+	* confirmed GrResizeWindow enhancement breaks combobox because combobox doesn't handle EXPOSE events on initial dropdown
+		temp fix is use old unmap/map in GrResizeWindow implementation
+	* fix listbox segfault when clicked on empty
+	* changed paths in tndesigner to use Icons/*.xpm not ../Icons/, need image pathing mechanism in mwin
+15 Dec 2018
+	* nanowm fix by ignoring CHLD_UPDATE case and fix crash by dispatching only < MAXWIDGETS to tnWidgets.c
+	* ported to OSX:
+		replace -lfl with -ll for flex lib in tndesigner/Makefile
+		removed -lX11 and added ../../../include for microwindows /contrib build in Make.rules
+		fixed return value in yacc .y and y.tab.c files
+	* changed #include <microwin/nano-X.h> from all .h into single "nano-X.h" in tnBase.h
+TinyWidgets v0.1 from CVS ported by Georg Potthast to Nano-X contrib/ directory:
+	* tndesigner loadsave.c uses non-portable opendir()
+	* tndesigner starts from current dir, codegen.c outputs #include <microwin/tnWidgets.h> header
+	* removed "cour" font requests
+	* changed to -lnano-X -lX11" in configure and configure.in files
+	* added 'break' statement in tndesigner/combobox.c and tndesigner/rawwidget.c
+	* set 'iinfo->bytesperpixel = 4;' in src/tnPicture.c

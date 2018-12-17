@@ -1,0 +1,54 @@
+/*------------------------------------------------------------------------*/
+The TinyWidgets web site is: http://tinywidgets.sourceforge.net/
+/*------------------------------------------------------------------------*/
+
+The TinyWidgets version in this directory is already configured, you just have to
+enter 'make' to compile the package.
+
+If compiling Microwindows using the default config file, you can run the
+demos, e.g. progresstest, in the demos directory with this command line:
+../../bin/nano-X & demos/progresstest
+
+or the screen designer in the tndesigner directory with this command line:
+../../bin/nano-X & tndesigner/tndesigner
+
+Otherwise here are the steps if you want to run ./configure:
+
+Configuring TinyWidgets: 
+
+./configure
+
+To specify a specific Microwindows directory, use the --with-microwin option:
+
+./configure --with-microwin=/path_to/microwin/src
+
+e.g. from this directory:
+./configure --with-microwin=../..
+ 
+Building TinyWidgets:
+Run 'make' 
+
+If you wish to compile individual stuff, use:
+'make tnw' to make the TinyWidgets library.
+'make demo' to make the demo programs.
+'make tnd' to make the TinyWidgets Designer.
+
+Installing TinyWidgets:
+Run 'sudo make install'
+
+This will copy the libtnW.a library, this is the TinyWidgets library, to
+/usr/lib and therefore will require "sudo". On a 64bit system it should be
+copied to /usr/lib64 depending on the distribution. The install target will 
+also copy the TinyWidgets header files to /usr/include/microwin. This is the
+location Microwindows copies its header files to.
+
+To clean the object files and binaries:
+run 'make clean'
+
+To clean the entire distribution (including build system)
+run 'make distclean'
+
+Should you enter 'make distclean', the Makefiles are erased and you have to 
+run ./configure as instructed above.
+
+/*------------------------------------------------------------------------*/

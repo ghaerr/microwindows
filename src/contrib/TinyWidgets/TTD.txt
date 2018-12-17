@@ -1,0 +1,30 @@
+The top bar of the screen designer shows no icons. This should be:
+new
+open
+save
+build
+apparently the icons are too small, just little black boxes are visible
+the designer tries to find them in:
+../Icons/filenew.xpm
+so run the designer from within the tndesigner directory.
+Wie man an SaveProject in loadsave.c sehen kann, soll zuerst ein Project directory geladen sein, bevor man
+die Arbeit sichern kann. Er schreibt wohl auch automatische Dateien und Makefiles da rein.
+
+Wenn man den vierten Button clicked, so kann man ein directory auswählen, dies muss wohl vorher angelegt sein,
+und dann schreibt er die Dateien da rein. Das Programm heißt dann immer "main.c".
+Wahrscheinlich legt er es immer an, wenn es fehlt (testen). Ansonsten den Namen main.c auch im Makefile zu ändern.
+
+Es sollte auch nicht immer bei root anfangen, sondern im home directory mit der Suche nach dem Projektverzeichnis.
+Oder im current Verzeichnis.
+
+Er behält das Verzeichnis, wenn es geöffnet ist und speichert darin. 
+
+Bei einer Radiogruppe müssen wohl erst die Radiobuttons gesetzt werden und diese zur Gruppe zusammengefasst werden.
+Sonst sind die Buttons weg und nur die Gruppe wird gespeichert. Wenn aber nochmal gespeichert und geladen, so
+sind sie wieder da, nur an falscher Position.
+
+Im Moment können wohl keine Bilder geladen werden. Es muss der Dateiname mit dem Pfad ab dem tndesigner directory 
+eingegeben werden. Es wird aber nicht angezeigt. Liegt das an meinem bytesperpixel?
+
+Ich glaube, GrDrawImageToFit hat sich geändert, man müsste tux.c etc mit der .89pre8 version vergleichen und auch
+TinyWidgets entsprechend anpassen.

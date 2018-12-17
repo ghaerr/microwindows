@@ -1,0 +1,279 @@
+built 1
+counts 1 18 0 0 0 0 1 0 0 0 0 0 0 0
+widgetname window0
+parent NULL
+xpos 3
+ypos 16
+type 0
+height 247
+width 310
+enabled 1
+visible 1
+caption "Calculator"
+callbackcount 1
+callback CLOSED on_window_closed NULL 1
+$
+widgetname textbox0
+parent window0
+xpos 44
+ypos 20
+type 6
+height 15
+width 230
+enabled 0
+visible 1
+defaulttext ""
+callbackcount 0
+$
+widgetname button7
+parent window0
+xpos 44
+ypos 55
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "7"
+callbackcount 1
+callback CLICKED on_7_clicked window0 1
+$
+widgetname button8
+parent window0
+xpos 94
+ypos 55
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "8"
+callbackcount 1
+callback CLICKED on_8_clicked window0 1
+$
+widgetname button9
+parent window0
+xpos 144
+ypos 55
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "9"
+callbackcount 1
+callback CLICKED on_9_clicked window0 1
+$
+widgetname button4
+parent window0
+xpos 44
+ypos 105
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "4"
+callbackcount 1
+callback CLICKED on_4_clicked window0 1
+$
+widgetname button5
+parent window0
+xpos 94
+ypos 105
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "5"
+callbackcount 1
+callback CLICKED on_5_clicked window0 1
+$
+widgetname button6
+parent window0
+xpos 144
+ypos 105
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "6"
+callbackcount 1
+callback CLICKED on_6_clicked window0 1
+$
+widgetname button1
+parent window0
+xpos 44
+ypos 155
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "1"
+callbackcount 1
+callback CLICKED on_1_clicked window0 1
+$
+widgetname button2
+parent window0
+xpos 94
+ypos 155
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "2"
+callbackcount 1
+callback CLICKED on_2_clicked window0 1
+$
+widgetname button3
+parent window0
+xpos 144
+ypos 155
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "3"
+callbackcount 1
+callback CLICKED on_3_clicked window0 1
+$
+widgetname button0
+parent window0
+xpos 44
+ypos 205
+type 1
+height 30
+width 80
+enabled 1
+visible 1
+haspixmap 0
+caption "0"
+callbackcount 1
+callback CLICKED on_0_clicked window0 1
+$
+widgetname button_dot
+parent window0
+xpos 144
+ypos 205
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "."
+callbackcount 1
+callback CLICKED on_dot_clicked window0 1
+$
+widgetname button_mul
+parent window0
+xpos 194
+ypos 105
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "*"
+callbackcount 1
+callback CLICKED on_mul_clicked window0 1
+$
+widgetname button_minus
+parent window0
+xpos 244
+ypos 155
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "-"
+callbackcount 1
+callback CLICKED on_minus_clicked window0 1
+$
+widgetname button_div
+parent window0
+xpos 244
+ypos 105
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "/"
+callbackcount 1
+callback CLICKED on_div_clicked window0 1
+$
+widgetname button_plus
+parent window0
+xpos 194
+ypos 155
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "+"
+callbackcount 1
+callback CLICKED on_plus_clicked window0 1
+$
+widgetname button_equal
+parent window0
+xpos 194
+ypos 205
+type 1
+height 30
+width 80
+enabled 1
+visible 1
+haspixmap 0
+caption "="
+callbackcount 1
+callback CLICKED on_equal_clicked window0 1
+$
+widgetname button_clear
+parent window0
+xpos 194
+ypos 55
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "C"
+callbackcount 1
+callback CLICKED on_clear_clicked window0 1
+$
+widgetname button_allclear
+parent window0
+xpos 244
+ypos 55
+type 1
+height 30
+width 30
+enabled 1
+visible 1
+haspixmap 0
+caption "AC"
+callbackcount 1
+callback CLICKED on_allclear_clicked window0 1
+$

@@ -1,0 +1,72 @@
+built 1
+counts 1 0 0 0 0 0 0 0 0 0 0 0 0 1
+widgetname window0
+parent NULL
+xpos 128
+ypos 220
+type 0
+height 424
+width 551
+enabled 1
+visible 1
+caption "Window"
+menubarypos 20
+callbackcount 0
+$
+widgetname menubar0
+parent window0
+xpos 3
+ypos 16
+type 13
+height 20
+width 551
+enabled 1
+visible 1
+callbackcount 0
+$
+widgetname myfile
+parent menubar0
+type 14
+label "File"
+enabled 1
+exclusive 0
+$
+widgetname myopen
+parent myfile
+type 15
+label "Open"
+enabled 1
+checkable 0
+callback CLICKED opencall NULL 1
+$
+widgetname mysave
+parent myfile
+type 15
+label "Save"
+enabled 1
+checkable 0
+callback CLICKED savecall NULL 1
+$
+widgetname mysettings
+parent myfile
+type 16
+label "Settings"
+enabled 1
+exclusive 0
+$
+widgetname myscreen
+parent mysettings
+type 15
+label "Screen"
+enabled 1
+checkable 0
+callback CLICKED screencall NULL 1
+$
+widgetname mycolor
+parent mysettings
+type 15
+label "Color"
+enabled 1
+checkable 0
+callback CLICKED colorcall NULL 1
+$

@@ -818,7 +818,19 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-#if 1
+#define RESIZE_USING_UNMAP	1		/* =1 use old way by unmap/map*/
+#if RESIZE_USING_UNMAP
+	/*
+	 * This should be optimized to not require redrawing of the window
+	 * when possible.
+	 */
+	GsUnrealizeWindow(wp, GR_TRUE);
+	wp->width = width;
+	wp->height = height;
+	/* send size update before expose event*/
+	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
+	GsRealizeWindow(wp, GR_FALSE);
+#else
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
@@ -844,17 +856,6 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		GsExposeArea(wp->parent, x + wp->width, y, w - wp->width, h, NULL);
 		GsExposeArea(wp->parent, x, y + wp->height, w - (oldw - wp->width), h - wp->height, NULL);
 	}
-#else
-	/*
-	 * This should be optimized to not require redrawing of the window
-	 * when possible.
-	 */
-	GsUnrealizeWindow(wp, GR_TRUE);
-	wp->width = width;
-	wp->height = height;
-	/* send size update before expose event*/
-	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
-	GsRealizeWindow(wp, GR_FALSE);
 #endif
 
 	SERVER_UNLOCK();

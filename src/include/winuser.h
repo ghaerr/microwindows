@@ -39,7 +39,6 @@ typedef struct tagWNDCLASSA {
     LPCSTR      lpszMenuName;		/* nyi*/
     LPCSTR      lpszClassName;
     CHAR        szClassName[40];	/* microwin*/
-//  UINT        cbSize;			/* WNDCLASSEXW (nyi)*/
 } WNDCLASS, *PWNDCLASS, NEAR *NPWNDCLASS, FAR *LPWNDCLASS;
 
 ATOM WINAPI	RegisterClass(CONST WNDCLASS *lpWndClass);
@@ -744,7 +743,6 @@ typedef WNDCLASS	WNDCLASSW;
 typedef WNDCLASS	WNDCLASSEXW;
 #define DefWindowProcW		DefWindowProc
 #define RegisterClassW		RegisterClass
-#define RegisterClassExW	RegisterClassEx
 #define SendMessageW		SendMessage
 #define CreateWindowW		CreateWindow
 #define CreateWindowExW		CreateWindowEx

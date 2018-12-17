@@ -81,7 +81,7 @@ void fill_listbox(HWND hwnd,const char *path)
 
 int isDirectory(const char *path) {
    struct stat statbuf;
-   if (stat(path, &statbuf) != 0)
+   if (stat(path, &statbuf) != 0)				// FIXME non-portable 
        return 0;
    return S_ISDIR(statbuf.st_mode);
 }
@@ -265,7 +265,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     HICON Icon = (HICON)0;
     HDC hDC;
     int bufsize, ret, caplen, textlen, btnlen, i, btnleft, btntop, lmargin, nButtons = 0;
-    LONG Buttons[OFN_MAXBTNS];
+    DWORD Buttons[OFN_MAXBTNS];
     char ButtonText[OFN_MAXBTNS][OFN_MAXBTNSTR];
     DLGITEMTEMPLATE *ibtn[OFN_MAXBTNS];
     RECT btnrect, txtrect, rc;
@@ -276,6 +276,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     caption = (LPCSTR)mdData->lpstrTitle;
     caplen = strlen(caption);    
 
+    //FIXME terrible fixed size for buffer based on nothing, should call calloc/malloc on small systems
     bufsize=296; //select 4096 first while testing and then use value at end of resource definition
     if (!(buf = calloc( 1, bufsize + SAFETY_MARGIN))) return 0;
 
@@ -283,9 +284,10 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     hFont = GetStockObject(DEFAULT_GUI_FONT);
     
     GetWindowRect(GetDesktopWindow(), &r);
-    width = height = r.right / 2.5;
+    width = height = r.right / 2.5;	// FIXME: terrible code, drags in floating point lib
     height /= 1.3;
 
+    // FIXME should use resource template in .res
     tpl = (DLGTEMPLATE *)buf;
     tpl->style = WS_CAPTION | WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_SYSMENU;
     tpl->style |= DS_CENTER | DS_MODALFRAME | DS_NOIDLEMSG;
@@ -305,7 +307,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     dest += CopyToWchar ((PWCHAR)dest, caption, caplen);
 
     /* create listbox */
-    dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+    dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word		// FIXME non-portable, crash on 64 bit
     ilist = (DLGITEMTEMPLATE *)dest;
     ilist->style = WS_VSCROLL | WS_BORDER | WS_CHILD | WS_VISIBLE | LBS_NOTIFY;
     ilist->dwExtendedStyle = 0;
@@ -319,14 +321,14 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     dest += DLGITEMTEMPLATE_SIZE;
     *(WORD*)dest = 0xFFFF;
     dest += sizeof(WORD);
-    *(WORD*)dest = 0x0083; /* listbox control */
+    *(WORD*)dest = 0x0083; /* listbox control */		// FIXME terrible use of hex, use enum
     dest += sizeof(WORD);
     dest += CopyToWchar ((PWCHAR)dest, "",0); //no creation data array
     *(WORD*)dest = 0;
     dest += sizeof(WORD);
 
     /* create editbox */
-    dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+    dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word
     iedit = (DLGITEMTEMPLATE *)dest;
     iedit->style = WS_BORDER | WS_CHILD | WS_VISIBLE;
     iedit->dwExtendedStyle = 0;
@@ -347,7 +349,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     dest += sizeof(WORD);
 
     /* create static for text "Name:" */
-    dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+    dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word
     itxt = (DLGITEMTEMPLATE *)dest;
     itxt->style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
     itxt->style |= SS_LEFT;
@@ -370,7 +372,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
 
     /* create OK button */
    i=0;
-   dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+   dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word
    ibtn[i] = (DLGITEMTEMPLATE *)dest;
    ibtn[i]->style = WS_CHILD | WS_VISIBLE; 
    ibtn[i]->dwExtendedStyle = 0;
@@ -397,7 +399,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
 
    /* create Cancel button */
    i=1;
-   dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+   dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word
    ibtn[i] = (DLGITEMTEMPLATE *)dest;
    ibtn[i]->style = WS_CHILD | WS_VISIBLE; 
    ibtn[i]->dwExtendedStyle = 0;
@@ -423,7 +425,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
    DrawText(hDC, ButtonText[i], btnlen, &btnrect, DT_LEFT | DT_SINGLELINE | DT_CALCRECT);
 
    /* create combobox for filters*/
-    dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+    dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word
     ilist = (DLGITEMTEMPLATE *)dest;
     ilist->style = CBS_DROPDOWN | WS_VSCROLL | WS_CHILD | WS_VISIBLE;
     ilist->dwExtendedStyle = 0;
@@ -444,7 +446,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     dest += sizeof(WORD);
 
     /* create static for text "Filter:" */
-    dest = (BYTE*)(((LONG)dest + 3) & ~3); //align to word
+    dest = (BYTE*)(((DWORD)dest + 3) & ~3); //align to word
     itxt = (DLGITEMTEMPLATE *)dest;
     itxt->style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
     itxt->style |= SS_LEFT;
@@ -468,7 +470,7 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
    //printf("dest:%d\n",dest+4-(BYTE *)tpl); //calc buffer size 
    if(hDC) DeleteDC(hDC);
 
-#if 0
+#if 1
     {
     	int i;
     	unsigned char *pChar = (unsigned char*)tpl;
@@ -510,7 +512,7 @@ BOOL WINAPI GetOpenFileName (LPOPENFILENAME Arg1){
 }
 
 BOOL WINAPI GetSaveFileName (LPOPENFILENAME Arg1){
-  LPOPENFILENAME ofnData;
+  LPOPENFILENAME ofnData;		// FIXME no need for this, also bad argument naming
   ofnData=Arg1;
   ofnData->dwSaveDialog=1;
   return GetOpenFileNameIndirect (ofnData);

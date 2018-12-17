@@ -146,13 +146,6 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 		| GR_EVENT_MASK_MOUSE_ENTER | GR_EVENT_MASK_MOUSE_EXIT
 		| GR_EVENT_MASK_EXPOSURE);
 
-	/* reparent client to container window (child is already mapped)*/
-	GrReparentWindow(wid, pid, xoffset, yoffset);
-
-	/* map container window*/
-	GrMapWindow(pid);
-
-	GrSetFocus(wid);	/* force fixed focus*/
 
 	/* add client window*/
 	window.wid = wid;
@@ -163,6 +156,14 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 	window.clientid = 0;
 	window.data = NULL;
 	wm_add_window(&window);
+
+	/* reparent client to container window (child is already mapped)*/
+	GrReparentWindow(wid, pid, xoffset, yoffset);
+
+	/* map container window*/
+	GrMapWindow(pid);
+
+	GrSetFocus(wid);	/* force fixed focus*/
 
 #if 0000
 	/* add system utility button*/

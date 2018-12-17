@@ -503,6 +503,7 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		return;
 	}
 
+#define OLDWAY 1
 #if OLDWAY
 	MWCLIPRECT	rcDst,rcSrc;
 	/* create similar image, different width/height, no palette*/
@@ -543,7 +544,7 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		swidth = pmd->xvirtres;
 		sheight = pmd->yvirtres;
 	}
-	GdStretchBlit(psd, x, y, width, height, pmd, sx, sy, sx+swidth, sy+sheight, MWROP_COPY);
+	GdStretchBlit(psd, x, y, x+width, y+height, pmd, sx, sy, sx+swidth-1, sy+sheight-1, MWROP_COPY);
 #endif
 }
 

@@ -492,7 +492,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
 
     /* create static for text */
     dest = (BYTE*)(((LONG)dest + 3) & ~3);
-    itxt = (DLGITEMTEMPLATE *)dest;
+    itxt = (DLGITEMTEMPLATE *)dest;					// FIXME non-portable
     itxt->style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
     if(lpMsgBoxParams->dwStyle & MB_RIGHT)
       itxt->style |= SS_RIGHT;
@@ -716,7 +716,7 @@ MessageBoxTimeout(
     msgbox.lpfnMsgBoxCallback = NULL;
     msgbox.dwLanguageId = wLanguageId;
 
-    return MessageBoxTimeoutIndirect(&msgbox, (UINT)dwTime);
+    return MessageBoxTimeoutIndirect(&msgbox, (UINT)dwTime);		// FIXME
 }
 
 int

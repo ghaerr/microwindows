@@ -13,7 +13,7 @@
 #else
 #include <stdio.h>
 #include <string.h>
-#if UNIX | DOS_DJGPP
+#if UNIX | DOS_DJGPP | defined(__EMSCRIPTEN__)
 #include <unistd.h>
 #endif
 #endif

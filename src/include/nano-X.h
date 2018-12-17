@@ -481,7 +481,7 @@ typedef struct {
 } GR_EVENT_FDINPUT;
 
 /**
- * GR_EVENT_TYPE_UPDATE
+ * GR_EVENT_TYPE_UPDATE and GR_EVENT_TYPE_CHLD_UPDATE
  */
 typedef struct {
   GR_EVENT_TYPE type;		/**< event type */

@@ -86,11 +86,7 @@ dlgGetCtrlTop(HWND hDlg, HWND hChild)
 BOOL WINAPI
 MwInitializeDialogs(HINSTANCE hInstance)
 {
-#ifdef  WNDCLASSEX
-	WNDCLASSEX wcl;
-#else
 	WNDCLASS wcl;
-#endif
 
 	MwRegisterStaticControl(hInstance);
 	MwRegisterButtonControl(hInstance);
@@ -100,9 +96,6 @@ MwInitializeDialogs(HINSTANCE hInstance)
 	MwRegisterComboboxControl(hInstance);
 
 	memset(&wcl, 0, sizeof(wcl));
-#ifdef  WNDCLASSEX
-	wcl.cbSize = sizeof(wcl);
-#endif
 	wcl.style = CS_BYTEALIGNCLIENT | CS_DBLCLKS;
 	wcl.cbWndExtra = DWL_EXTRABYTES;
 	wcl.lpfnWndProc = (WNDPROC) mwDialogProc;
@@ -110,11 +103,7 @@ MwInitializeDialogs(HINSTANCE hInstance)
 	wcl.lpszClassName = "GDLGCLASS";
 	wcl.hbrBackground = GetStockObject(LTGRAY_BRUSH);
 
-#ifdef  WNDCLASSEX
-	return (RegisterClassEx(&wcl) != 0);
-#else
 	return (RegisterClass(&wcl) != 0);
-#endif
 }
 
 

@@ -328,8 +328,17 @@ in a tab of Firefox or some other browser. The Microwindows implementation is ba
 the SDL2 drivers.<br>
 <br>
 First download and install the emscripten package using the instructions from this page: <br>
-<a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">Download and install -Emscripten 1.38.5</a><br>
-<br>
+<a href="https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html">Download and install</a><br>
+This are currently the following commands on the command line of a Linux terminal window which will download<br>
+about 400 MB of SDK tools.<br>
+<pre>
+git clone https://github.com/juj/emsdk.git
+cd emsdk
+git pull
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+</pre>
 Within your "emsdk" directory enter "source ./emsdk_env.sh" to set the required paths for<br>
 emscripten. You will have to run this script each time you open a new terminal window to compile<br>
 Microwindows for emscripten.<br>
@@ -349,9 +358,9 @@ displayed in the browser.<br>
 <br>
 To execute "make clean" enter: "make -f Makefile_nr clean ARCH=EM"<br>
 <br>
-Emscripten provides ports of libz, libpng, libfreetype, libm and more. These have to be added with<br>
-the "-s" parameter to the command line, e.g. "-s USE_FREETYPE=1". Then -lfreetype should not be<br>
-added in addition to that via the CLIBS variable.<br>
+Emscripten provides ports of libz, libpng, libfreetype, libm and more. If you compile your applications,<br>
+these have to be added with the "-s" parameter to the command line, e.g. "-s USE_FREETYPE=1". Then -lfreetype <br>
+should not be added in addition to that via the CLIBS variable.<br>
 A Javascript program cannot access local files. Therefore emscripten allows to load these into its<br>
 virtual file system. The parameter "--preload-file $(MW_DIR_SRC)/fonts/em-fonts@/usr/share/fonts/truetype"<br>
 will load the directory "src/fonts/em-fonts" and its files at location "/usr/share/fonts/truetype" into<br>

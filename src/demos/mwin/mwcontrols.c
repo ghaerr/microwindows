@@ -26,7 +26,7 @@
 	   
 	   MwInitializeDialogs ( hInstance ); //enable MessageBox dialog
 	
-	   MwRegisterStaticControl(NULL); //required by Microwindows
+	   MwRegisterStaticControl(NULL); //required by Microwindows		// FIXME not required with above
 	   MwRegisterEditControl(NULL);
 	   MwRegisterListboxControl(NULL);
 	   MwRegisterProgressBarControl(NULL);
@@ -112,8 +112,13 @@
 	  case WM_COMMAND:
 	    if (LOWORD(wParam)==ID_BUTTON) 
               {MessageBox(hwnd, "You pushed the clear button", " ", MB_OK);
+printf("1\n");
                SendDlgItemMessage(hwnd,ID_DOT,BM_SETCHECK,BST_UNCHECKED,0);
+			   printf("2\n");
                SetDlgItemText(hwnd,ID_STATIC+2,"not set");
+			   printf("3\n");
+               SetDlgItemText(hwnd,ID_STATIC+2,"not set");
+               return 0;
                break;
               } 
               else if (LOWORD(wParam)==ID_CHECKBOX)

@@ -129,7 +129,7 @@ ifeq ($(EMSCRIPTEN), Y)
 INC += -I$(MW_DIR_SRC)/include 
 endif
 ifeq ($(SDL2), Y)
-INC += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=67108864
+INC += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s TOTAL_MEMORY=67108864 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s WASM=0
 INC +=  -s USE_LIBPNG=1
 #INC +=  -s ASSERTIONS=1
 #INC += -s EMTERPRETIFY_ADVISE=1
@@ -587,7 +587,7 @@ clean:
 	-rm bin/*.exe 2>/dev/null
 	-rm bin/*.ppm 2>/dev/null
 	-rm bin/*.pgm 2>/dev/null
-	-rm -rf bin/fonts/ 2>/dev/null
+#	-rm -rf bin/fonts/ 2>/dev/null
 	-rm mwin/bmp/*.exe 2>/dev/null
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -608,7 +608,7 @@ clean:
 	-del bin\*.exe 
 	-del bin\*.ppm
 	-del bin\*.pgm  
-	-rm -rf bin\fonts
+#	-rm -rf bin\fonts
 	-del nxlib\*.o
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -635,7 +635,7 @@ clean:
 	-rm bin/*.mem 2>/dev/null
 	-rm bin/*.ppm 2>/dev/null
 	-rm bin/*.pgm 2>/dev/null
-	-rm -rf bin/fonts/ 2>/dev/null
+#	-rm -rf bin/fonts/ 2>/dev/null
 #	-rm mwin/bmp/*.exe 2>/dev/null
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, bin/*.html, bin/*.mem and bin/*.js files"
@@ -660,7 +660,7 @@ clean:
 	-rm bin/* 2>/dev/null
 	-rm bin/*.ppm 2>/dev/null
 	-rm bin/*.pgm 2>/dev/null
-	-rm -rf bin/fonts/ 2>/dev/null
+#	-rm -rf bin/fonts/ 2>/dev/null
 #	-rm mwin/bmp/*.exe 2>/dev/null
 	-$(MAKE) -C nxlib clean
 	echo "Cleaned *.o, *.a, bin/*.* files"

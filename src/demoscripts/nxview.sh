@@ -1,10 +1,10 @@
 # image viewer demos for different image formats, bpp and portrait modes
 
 # GIF image, test stretchblit
-#bin/nano-X & bin/nxview -p -s bin/tux.gif &
+bin/nano-X & bin/nxview -p -s bin/tux.gif & bin/nxmag &
 
 # PPM image
-bin/nano-X & bin/nxview bin/mwlogo.ppm & bin/nxclock & bin/nxmag &
+#bin/nano-X & bin/nxview bin/mwlogo.ppm & bin/nxclock & bin/nxmag &
 
 # png 32bpp RGBA srcover
 #bin/nano-X -x 1024 -y 768 -N & bin/tux& bin/nxview -p mwin/bmp/32rgba.png

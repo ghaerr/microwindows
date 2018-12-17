@@ -1,3 +1,17 @@
+16 Dec 2018
+	* temp OLDWAY in GrDrawImagePartToFit and RESIZE_USING_UNMAP in GrResizeWindow for TinyWidgets
+	* added Amit's nanowm focus patch from TinyWidgets, fixes combobox focus issues
+	* fix GdDrawImagePartToFit for stretched images, requires old version for TW (needs SRC_TRANSCOPY for XPM)
+		GdStretchBlit in GdDrawImagePartToFit requires sw-1,sh-1, but dest w,h
+	* debugged TinyWidgets combobox, requires old GrResizeWindow unmap/map implementation for now
+	* EMSCRIPTEN fixes for their latest version
+	* reverse nxterm.c fix for L/RMETA modifiers
+15 Dec 2018
+	* fixed server client and window resource freeup on client disconnects
+	* fixed internal NANWOM bugs: nanowm client alloc ordering, server client & resource free() and multiple app starts,
+		root window SelectEvent again wm_init()
+	* further cleanup on win32 controls,
+	* fix 64-bit port of messagebox, openfile incore dialog templates, winres.c
 10 Dec 2018
 	* cleaned up src/demos/nanox, lots more to do
 	* fixed GdDrawImagePartToFit when src width/height = 0 (whole image stretch)

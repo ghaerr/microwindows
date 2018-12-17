@@ -36,6 +36,12 @@ void wm_init(void)
 		props.background = GrGetSysColor(GR_COLOR_DESKTOP);
 		GrSetWMProperties(GR_ROOT_WINDOW_ID, &props);
 	}
+#if NANOWM
+	else {
+		/* must reselect root window child update events for each client when linked in*/
+		GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_CHLD_UPDATE);
+	}
+#endif
 }
 
 /* return 1 if event was handled by window manager*/
@@ -60,9 +66,11 @@ int wm_handle_event(GR_EVENT *event)
 		return wm_key_up(&event->keystroke);
     case GR_EVENT_TYPE_FOCUS_IN:
 		return wm_focus_in(&event->general);
-    case GR_EVENT_TYPE_CHLD_UPDATE:
+    case GR_EVENT_TYPE_CHLD_UPDATE:	/* the frame's child had an update, update frame*/
 		return wm_update(&event->update);
 	case GR_EVENT_TYPE_NONE:
+	case GR_EVENT_TYPE_TIMER:
+	case GR_EVENT_TYPE_UPDATE:		/* no need for frame event handling*/
 		break;
 	case GR_EVENT_TYPE_ERROR:
 		Dprintf("nanowm: error event code %d\n", event->error.code);
@@ -87,7 +95,7 @@ int wm_exposure(GR_EVENT_EXPOSURE *event)
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
 			wm_container_exposure(window, event);
-			return 0; 	/* dont' eat event*/
+			return 0; 	/* don't eat event*/
 		default:
 			Dprintf("Unhandled exposure on window %d (type %d)\n",
 				window->wid, window->type);
@@ -106,7 +114,8 @@ int wm_button_down(GR_EVENT_BUTTON *event)
 		event->y, event->buttons, event->changebuttons,
 		event->modifiers);
 
-	if(!(window = wm_find_window(event->wid))) return 0;
+	if(!(window = wm_find_window(event->wid)))
+		return 0;
 
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
@@ -136,7 +145,7 @@ int wm_button_up(GR_EVENT_BUTTON *event)
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
 			wm_container_buttonup(window, event);
-			return 1;
+			return 1;	/* eat event*/
 		default:
 			Dprintf("Unhandled button up on window %d "
 				"(type %d)\n", window->wid, window->type);

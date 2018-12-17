@@ -13,11 +13,42 @@
 
 static void set_resize_cursor(int wid);
 
+/*
+ * This function performs a depth first search on window 
+ * and finds if any of its children has focus. 
+ * i.e. wid equal to ref 
+ * -- Amit Kulkarni
+ */
+static GR_BOOL
+checkHasFocus(GR_WINDOW_ID wid,GR_WINDOW_ID ref)
+{
+	GR_WINDOW_INFO winfo;
+	GR_WINDOW_ID childwid;
+	if(wid==ref)
+		return GR_TRUE;
+	GrGetWindowInfo(wid, &winfo);
+
+	/*Go down*/
+	childwid = winfo.child;
+	while (childwid)
+	{
+		if(checkHasFocus(childwid,ref)) 
+			return GR_TRUE;
+		GrGetWindowInfo (childwid,&winfo);
+
+		/*Go right*/
+		childwid=winfo.sibling;
+	}
+	/*Nah.. no match here*/
+	return GR_FALSE;
+}
+
 void wm_redraw_ncarea(win *window)
 {
 	GR_WINDOW_INFO info;
 	GR_WM_PROPERTIES props;
 	GR_BOOL active;
+	GR_WINDOW_ID focusedwindow;
 
 	Dprintf("wm_container_exposure window %d\n", window->wid);
 
@@ -30,7 +61,20 @@ void wm_redraw_ncarea(win *window)
 	 * getting the paint notification for our parent.
 	 */
 	if (props.flags) {
-		active = (window->clientid == GrGetFocus());
+ 		/* Get window with keyboard focus*/
+ 		focusedwindow = GrGetFocus();
+ 		/*
+ 	 	 * Check if the current window or any of its ancestors has the focus 
+ 	 	 * A window is active even if any of its ancestors has focus
+ 	 	 * --Amit Kulkarni
+ 	 	 */	 
+ 		active = checkHasFocus(window->clientid,focusedwindow);
+ 		/*
+ 	 	 * Note that we should also raise the window if its active and behind.
+ 	 	 * an active window deserves to be on the top :-)
+ 	 	 */
+ 		//if(active)
+ 			//GrRaiseWindow(window->wid);			// FIXME
 		nxPaintNCArea(window->wid, info.width, info.height, props.title, active, props.props);
 	}
 
@@ -97,8 +141,17 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 		}
 	}
 
-	/* Set focus on button down*/
-	GrSetFocus(window->clientid);
+	/* 
+	 * Set focus to the window only if client 
+	 * or the container itself is clicked.
+	 * if any of the  children (of the client)
+	 * are clicked better not take the focus 
+	 * away from them. They might require handling
+	 * the focus themself.
+	 * -- Amit Kulkarni
+	 */
+	if(window->wid==event->subwid)
+		GrSetFocus(window->wid);
 
 	/* check for corner resize */
 	r.x = info.width - 5;
@@ -137,6 +190,14 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	  pos->height = info.height;
       pos->xorig = event->x;
       pos->yorig = event->y;
+
+	  /*
+	   * This window is being resized.
+	   * The client should have focus now.
+	   * -- Amit Kulkarni
+	   */
+	  GrSetFocus(window->clientid);	  
+
 	  return;
 #endif /* !NO_CORNER_RESIZE*/
 	} else
@@ -155,6 +216,14 @@ void wm_container_buttondown(win *window, GR_EVENT_BUTTON *event)
 	/* Check for mousedn in caption box*/
 	if (!PtInRect(&r, event->x, event->y))
 		return;
+	
+	/*
+	 * Now we have a click on the caption. 
+	 * So window is active. 
+	 * Set focus to the client
+	 * --Amit Kulkarni
+	 */	
+	GrSetFocus(window->clientid);
 
 	/* Raise window if mouse down and allowed*/
 	if (!(info.props & GR_WM_PROPS_NORAISE) && !(cinfo.props & GR_WM_PROPS_NORAISE))
@@ -460,7 +529,7 @@ void topbar_buttondown(win *window, GR_EVENT_BUTTON *event)
 			return;
 
 	pos = (struct position *) window->data;
-	pos->x = event->x + TITLE_BAR_HEIGHT;	/* actually width*/
+	pos->x = event->x; //+ TITLE_BAR_HEIGHT;	/* actually width*/
 	pos->y = event->y;
 
 	window->active = GR_TRUE;
@@ -581,6 +650,7 @@ void leftresize_mousemoved(win *window, GR_EVENT_MOUSE *event)
 	if(!window->active) return;
 
 	pos = (struct pos_size *) window->data;
+	if(!pos)return;
 
 	newx = event->rootx - pos->xoff;
 	newheight = event->rooty - pos->yorig;

@@ -8,9 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "serv.h"
-//#if defined(__EMSCRIPTEN__)
-//#include <emscripten.h>
-//#endif
 
 #if HAVE_VNCSERVER && VNCSERVER_PTHREADED
 #include "lock.h"
@@ -149,6 +146,7 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	/*
 	 * Add the event to the end of the event list.
 	 */
+#if 0
 	if (client->eventhead)
 	  if (!client->eventtail)
 	    client->eventtail = elp;
@@ -156,7 +154,13 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	    client->eventtail->next = elp;
 	else
 	  client->eventhead = elp;
-	
+#endif
+
+	if (!client->eventhead)					// FIXME
+	  client->eventhead = elp;
+	if (client->eventtail)
+		client->eventtail->next = elp;
+
 	client->eventtail = elp;
 	elp->next = NULL;
 	elp->event.type = GR_EVENT_TYPE_NONE;

@@ -1917,6 +1917,7 @@ GsDestroyClientResources(GR_CLIENT * client)
 
 DPRINTF("Destroy client %d resources\n", client->id);
 	/* search window list, destroy windows owned by client*/
+again:
 	for(wp=listwp; wp; wp=nwp) {
 		nwp = wp->next;
 		/*
@@ -1931,6 +1932,7 @@ DPRINTF( "  Destroy window %d eventclient mask %08lx\n", wp->id, ecp->eventmask)
 					wp->eventclients = ecp->next;
 				else
 					pecp->next = ecp->next;
+DPRINTF("FREE 2 %x\n", ecp);		// FIXME
 				free(ecp);
 			} else
 				pecp = ecp;
@@ -1939,6 +1941,8 @@ DPRINTF( "  Destroy window %d eventclient mask %08lx\n", wp->id, ecp->eventmask)
 		if (wp->owner == client) {
 DPRINTF("  Destroy window %d\n", wp->id);
 			GrDestroyWindow(wp->id);
+			/* GsDestroyWindow frees client structs and changes the listwp window list, so start over*/
+			goto again;
 		}
 	}
 
@@ -2016,6 +2020,8 @@ DPRINTF("  Destroy event %d\n", evp->event.type);
 		eventfree = evp;
 		evp = client->eventhead;
 	}
+//client->eventtail = NULL;
+DPRINTF("EXIT GsDestroyClientResources\n");		// FIXME
 }
 
 /*
@@ -2092,7 +2098,8 @@ GsDropClient(int fd)
 		}
 #endif
 GsPrintResources();
-		free(client);	/* Free the structure */
+DPRINTF("WOULD HAVE FREED %x\n", client);				// FIXME
+//		free(client);	/* Free the structure */		// fixes NANOWM bug FIXME where is it freed?
 
 		clipwp = NULL;	/* reset clip window*/
 		--connectcount;

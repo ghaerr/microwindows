@@ -96,6 +96,10 @@ GR_FONT_ID   	regFont;
 /*GR_FONT_ID boldFont;*/
 GR_SCREEN_INFO	si;	/* screen info */
 GR_FONT_INFO    fi;	/* Font Info */
+
+#define fonh fi.height
+#define fonw fi.maxwidth
+
 GR_WINDOW_INFO  wi;
 GR_GC_INFO  gi;
 GR_BOOL		havefocus = GR_FALSE;
@@ -108,7 +112,7 @@ int 		bgcolor[12] = { 0,1,2,3,4,5,6,7,8,9,11 };
 int 		scrolledFlag; 	/* set when screen has been scrolled up */
 int 		isMaximized = 0;
 
-char prog_to_start[512];
+char prog_to_start[128];
 int scrolltop;
 int scrollbottom;
 int ReverseMode=0;
@@ -127,9 +131,6 @@ short	sbufcnt = 0;
 short	sbufx, sbufy;
 char    lineBuffer[SMALLBUFFER+1];
 char	*sbuf = lineBuffer;
-
-#define fonh fi.height
-#define fonw fi.maxwidth
 
 void sigchild(int signo);
 int term_init(void);
@@ -1121,11 +1122,11 @@ term(void)
 
 	GrRegisterInput(pipeh);
 
-	if (prog_to_start != NULL){
+	if (prog_to_start[0]) {
 		//enter program name from command line plus newline to call it now
 		//printf("prog_to_start:%s,len:%d\n",prog_to_start,strlen(prog_to_start));
 		write(pipeh,prog_to_start,strlen(prog_to_start));
-		}
+	}
 
 	while (42) {
 		if (havefocus)
@@ -1284,14 +1285,14 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 		len=3;
 		break;
 	case MWKEY_F1 ... MWKEY_F12:
-		if ( modifier && MWKMOD_LMETA) {
+		if ( modifier & MWKMOD_LMETA) {
 			/* we set background color */
 			locbuff[0]=033;
 			locbuff[1]='c';
 			locbuff[2]=(char)bgcolor[key - MWKEY_F1];
 			str = locbuff;
 			len=3;
-		} else if ( modifier && MWKMOD_RMETA ) {
+		} else if ( modifier & MWKMOD_RMETA ) {
 			/* we set foreground color */
 			locbuff[0]=033;
 			locbuff[1]='b';
@@ -1459,14 +1460,14 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 		len=4;
 		break;
 	case MWKEY_F1 ... MWKEY_F12:
-		if ( modifier && MWKMOD_LMETA) {
+		if ( modifier & MWKMOD_LMETA) {
 			/* we set background color */
 			locbuff[0]=033;
 			locbuff[1]='c';
 			locbuff[2]=(char)bgcolor[key - MWKEY_F1];
 			str = locbuff;
 			len=3;
-		} else if ( modifier && MWKMOD_RMETA ) {
+		} else if ( modifier & MWKMOD_RMETA ) {
 			/* we set foreground color */
 			locbuff[0]=033;
 			locbuff[1]='b';
@@ -1697,23 +1698,17 @@ int main(int argc, char **argv)
     /*
      * now *argv either points to a program to start or is zero
      */
-#ifndef __FreeBSD__ //now UNIX98 - shell is passed in FreeBSD only
-
-    if (*argv) {
-		while (*argv){
-			strcat(prog_to_start,*argv);
-			strcat(prog_to_start," ");
-			//printf("%s\n",prog_to_start);
-			argv++;
-			}
-		strcat(prog_to_start,"\n");
-		}
-
-#else /* __FreeBSD*/
-    if (*argv) {
+#ifdef __FreeBSD__ 
+	//now UNIX98 - shell is passed in FreeBSD only
+    if (*argv)
 		shell = *argv;
-		}
-#endif /* __FreeBSD*/
+#else
+    if (*argv) {
+		while (*argv)
+			sprintf(prog_to_start, "%s ", *argv++);
+		strcat(prog_to_start,"\n");
+	}
+#endif
 
     if (!shell)
 		shell = getenv("SHELL=");

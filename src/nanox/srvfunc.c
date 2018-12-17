@@ -776,6 +776,29 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 }
 
 /*
+ * Recursive routine to draw backgrounds and send expose events for window and all its children.
+ * Used by GrResizeWindow.
+ */
+static void
+drawBackgroundAndExpose(GR_WINDOW *wp)
+{
+	/*
+	 * If the window is an output window, then draw its border, 
+	 * clear it to the background color, and generate an exposure event.
+	 */
+	if (wp->output) {
+		GsDrawBorder(wp);
+		GsClearWindow(wp, 0, 0, wp->width, wp->height, 1);
+	}
+
+	/*
+	 * Do the same thing for the children.
+	 */
+	for (wp = wp->children; wp; wp = wp->siblings)
+		drawBackgroundAndExpose(wp);
+}
+
+/*
  * Resize the window to be the specified size.
  */
 void
@@ -818,7 +841,7 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-#define RESIZE_USING_UNMAP	1		/* =1 use old way by unmap/map*/
+#define RESIZE_USING_UNMAP	0		/* =1 use old way by unmap/map*/
 #if RESIZE_USING_UNMAP
 	/*
 	 * This should be optimized to not require redrawing of the window
@@ -831,16 +854,15 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 	GsRealizeWindow(wp, GR_FALSE);
 #else
+	/* new method generates expose events rather than using unmap/map window*/
     oldw = wp->width;
 	oldh = wp->height;
 	wp->width = width;
 	wp->height = height;
 
-	/* draw background and send expose events in resized window*/
-	if (wp->output) {
-		GsDrawBorder(wp);
-		GsClearWindow(wp, 0, 0, wp->width, wp->height, 1);
-	}
+	/* draw background and send expose events in resized window and all children*/
+	drawBackgroundAndExpose(wp);
+
 	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
 
 	/* draw backgrounds in newly exposed window regions*/

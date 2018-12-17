@@ -1,3 +1,5 @@
+17 Dec 2018
+	* fixed GrResizeWindow to expose window and all children, fixing RESIZE_USING_UNMAP problem with TW
 16 Dec 2018
 	* temp OLDWAY in GrDrawImagePartToFit and RESIZE_USING_UNMAP in GrResizeWindow for TinyWidgets
 	* added Amit's nanowm focus patch from TinyWidgets, fixes combobox focus issues

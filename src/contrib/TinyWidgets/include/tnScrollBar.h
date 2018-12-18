@@ -24,6 +24,8 @@
 #ifndef _TNSCROLLBAR_H_
 #define _TNSCROLLBAR_H_
 #define SCROLLBAR_CALLBACKS 1
+#define SCROLLBAR_TIMEOUT 50
+
 #define TN_SCROLLBAR_PAGESTEP 5
 #define TN_SCROLLBAR_LINESTEP 1
 #define TN_SCROLLBAR_MINVAL 0
@@ -64,6 +66,8 @@ typedef struct
   GR_BOOL st_upleft_down;	
   GR_BOOL st_downright_down;
   GR_BOOL st_thumb_down;	 
+  GR_BOOL st_pageup;
+  GR_TIMER_ID tid;
   
   CallBackStruct CallBack[SCROLLBAR_CALLBACKS];	/*ScrollBar CLICKED Callbacks*/
 }

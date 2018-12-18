@@ -72,6 +72,7 @@ CreateRawWidget (
 		  GR_EVENT_MASK_UPDATE |
 		  GR_EVENT_MASK_CHLD_UPDATE |
 		  GR_EVENT_MASK_CLOSE_REQ |
+		  GR_EVENT_MASK_TIMER |
 		  GR_EVENT_MASK_EXPOSURE 
 		  );
   return;
@@ -123,6 +124,8 @@ RawWidgetEventHandler (GR_EVENT * event, TN_WIDGET * widget)
     case GR_EVENT_TYPE_CHLD_UPDATE:
 	    InvokeCallBack(widget,TN_SYSTEM_EVENT_CHILD_UPDATE);
 	    break;
+    case GR_EVENT_TYPE_TIMER:
+	    InvokeCallBack(widget,TN_SYSTEM_EVENT_TIMER);
     case GR_EVENT_TYPE_CLOSE_REQ:
 	    InvokeCallBack(widget,TN_SYSTEM_EVENT_CLOSE_REQ);
 	    break;

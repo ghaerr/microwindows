@@ -62,6 +62,7 @@ EventResolveRoutine (GR_EVENT * event)
     case GR_EVENT_TYPE_FOCUS_OUT:
     case GR_EVENT_TYPE_UPDATE:
     case GR_EVENT_TYPE_CLOSE_REQ:
+	case GR_EVENT_TYPE_TIMER:
       wid = event->general.wid;				// check that all above events have valid general.wid value
       WidgetPtr = GetFromRegistry (wid);
       if (WidgetPtr)

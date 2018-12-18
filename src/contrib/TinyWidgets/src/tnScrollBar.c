@@ -114,7 +114,7 @@ CreateScrollBar(TN_WIDGET * widget,
   
   GrSelectEvents (widget->wid,
 		  GR_EVENT_MASK_BUTTON_UP | GR_EVENT_MASK_BUTTON_DOWN |
-		  GR_EVENT_MASK_EXPOSURE);
+		  GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_TIMER );
   GrSelectEvents (widget->WSpec.scrollbar.upleft,0);
   GrSelectEvents (widget->WSpec.scrollbar.downright,0);
   GrSelectEvents (widget->WSpec.scrollbar.thumb,0);
@@ -150,6 +150,7 @@ ScrollBarEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 	         widget->WSpec.scrollbar.thumbpos-=widget->WSpec.scrollbar.linestep;
 	      else
 		 widget->WSpec.scrollbar.thumbpos = widget->WSpec.scrollbar.minval;
+	      widget->WSpec.scrollbar.tid=GrCreateTimer(widget->wid,SCROLLBAR_TIMEOUT);
       }
      
       else if(event->button.subwid == widget->WSpec.scrollbar.downright)
@@ -160,6 +161,7 @@ ScrollBarEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 	      widget->WSpec.scrollbar.thumbpos+=widget->WSpec.scrollbar.linestep;
 	      else
 		      widget->WSpec.scrollbar.thumbpos = widget->WSpec.scrollbar.maxval;
+	      widget->WSpec.scrollbar.tid=GrCreateTimer(widget->wid,SCROLLBAR_TIMEOUT);	      
       }
       else if(event->button.subwid==widget->WSpec.scrollbar.thumb)
       {
@@ -180,6 +182,7 @@ ScrollBarEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 	   		      widget->WSpec.scrollbar.thumbpos-=widget->WSpec.scrollbar.pagestep;
     		      else
     			      widget->WSpec.scrollbar.thumbpos = min;
+		      widget->WSpec.scrollbar.st_pageup=GR_FALSE;
 	      }
 	      else
 	      {
@@ -188,7 +191,9 @@ ScrollBarEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 	       		      widget->WSpec.scrollbar.thumbpos+=widget->WSpec.scrollbar.pagestep;
      		      else
 		    	      widget->WSpec.scrollbar.thumbpos = max;
+		      widget->WSpec.scrollbar.st_pageup=GR_TRUE;
 	      }
+	      widget->WSpec.scrollbar.tid=GrCreateTimer(widget->wid,SCROLLBAR_TIMEOUT);
 	      
       }      
       if(range!=0)
@@ -209,6 +214,8 @@ ScrollBarEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 		break;	
       widget->WSpec.scrollbar.st_upleft_down=GR_FALSE;
       widget->WSpec.scrollbar.st_downright_down=GR_FALSE;
+      widget->WSpec.scrollbar.st_pageup=GR_FALSE;
+      GrDestroyTimer(widget->WSpec.scrollbar.tid);
       if(widget->WSpec.scrollbar.st_thumb_down&&event->button.subwid!=widget->WSpec.scrollbar.thumb)
       {
 	      /*Calculate new thumbpos based on released location*/
@@ -244,10 +251,64 @@ ScrollBarEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 						        widget->WSpec.scrollbar.						        CallBack[CLICKED].dptr);
       }
             break;	    
+    case GR_EVENT_TYPE_TIMER:
+	    if(widget->WSpec.scrollbar.st_upleft_down==GR_TRUE)	
+	    {
+		    widget->WSpec.scrollbar.LastScrollEvent=TN_SCROLL_LINEDOWN;
+      		    if((widget->WSpec.scrollbar.thumbpos - widget->WSpec.scrollbar.linestep) >= min)
+	   		    widget->WSpec.scrollbar.thumbpos-=widget->WSpec.scrollbar.linestep;
+      		    else
+	   		    widget->WSpec.scrollbar.thumbpos = widget->WSpec.scrollbar.minval;
+
+	    }
+	    
+	    else if(widget->WSpec.scrollbar.st_downright_down==GR_TRUE)
+	    {
+		    /*st_downright_down==GR_TRUE*/
+      		    widget->WSpec.scrollbar.LastScrollEvent=TN_SCROLL_LINEUP;
+		    if( (widget->WSpec.scrollbar.thumbpos + widget->WSpec.scrollbar.linestep) <= max)
+	      		    widget->WSpec.scrollbar.thumbpos+=widget->WSpec.scrollbar.linestep;
+      		    else
+      			    widget->WSpec.scrollbar.thumbpos = widget->WSpec.scrollbar.maxval;
+	    }
+	    
+	    else 
+	    {
+		    /*pageup or pagedown*/
+		    if(widget->WSpec.scrollbar.st_pageup==GR_FALSE)
+      		    {
+      			    widget->WSpec.scrollbar.LastScrollEvent=TN_SCROLL_PAGEDOWN;
+      		    if( (widget->WSpec.scrollbar.thumbpos - widget->WSpec.scrollbar.pagestep) >= min)
+			    widget->WSpec.scrollbar.thumbpos-=widget->WSpec.scrollbar.pagestep;
+		    else
+			    widget->WSpec.scrollbar.thumbpos = min;
+      		    }
+      		    else
+      		    {
+      			    widget->WSpec.scrollbar.LastScrollEvent=TN_SCROLL_PAGEUP;	
+      			    if( (widget->WSpec.scrollbar.thumbpos + widget->WSpec.scrollbar.pagestep) <= max)
+      				    widget->WSpec.scrollbar.thumbpos+=widget->WSpec.scrollbar.pagestep;
+      			    else
+      				    widget->WSpec.scrollbar.thumbpos = max;
+      		    }
+		    
+	    }
+	    
+	    if(range!=0)
+      	    {
+	     	    GrClearWindow (widget->wid, GR_FALSE);
+	     	    DrawScrollBar(widget);
+      	    }
+	    
+      	    if (widget->WSpec.scrollbar.CallBack[CLICKED].fp)
+	  	    (*(widget->WSpec.scrollbar.CallBack[CLICKED].fp)) (widget,
+								       widget->WSpec.scrollbar.CallBack[CLICKED].dptr);
+	    break;
+	    
     case GR_EVENT_TYPE_EXPOSURE:
-      if(widget->visible)
-         DrawScrollBar(widget);
-      break;
+      	    if(widget->visible)
+	   	    DrawScrollBar(widget);
+      	    break;
     }
 }
 

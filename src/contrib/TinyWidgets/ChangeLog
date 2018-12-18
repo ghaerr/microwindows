@@ -1,3 +1,5 @@
+17 Dec 2018
+	* applied Gary James' timeout patch for auto scroll scrollbar line/page on mouse down
 16 Dec 2018
 	* confirmed GrResizeWindow enhancement breaks combobox because combobox doesn't handle EXPOSE events on initial dropdown
 		temp fix is use old unmap/map in GrResizeWindow implementation

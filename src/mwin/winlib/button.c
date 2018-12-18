@@ -981,7 +981,7 @@ MwRegisterButtonControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
-	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
+	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_GLOBALCLASS;
 	wc.lpfnWndProc	= (WNDPROC)cenButtonWndFn;
 	wc.cbClsExtra	= 0;
 	wc.cbWndExtra	= PB_EXTRABYTES;

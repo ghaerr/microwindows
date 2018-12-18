@@ -1,4 +1,7 @@
 17 Dec 2018
+	* cleaned up win32 fileopen routines considerably
+	* added resDialogTemplate, resDialogItemTemplate for creating memory dialog templates
+	* remove CS_DBLCLKS on win32 button style to allow fast button pressing
 	* fixed GrResizeWindow to expose window and all children, fixing RESIZE_USING_UNMAP problem with TW
 16 Dec 2018
 	* temp OLDWAY in GrDrawImagePartToFit and RESIZE_USING_UNMAP in GrResizeWindow for TinyWidgets

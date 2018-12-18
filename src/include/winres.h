@@ -167,16 +167,22 @@ typedef struct tagMWDLGITEMTEMPLEXTRA
 enum MW_DLGITEMS_CLASSID
 {
     DLGITEM_CLASS_BUTTON = 0x80,
-    DLGITEM_CLASS_EDIT,
-    DLGITEM_CLASS_STATIC,
-    DLGITEM_CLASS_LISTBOX,
-    DLGITEM_CLASS_SCROLLBAR,
-    DLGITEM_CLASS_COMBOBOX,
+    DLGITEM_CLASS_EDIT,				// 0x81
+    DLGITEM_CLASS_STATIC,			// 0x82
+    DLGITEM_CLASS_LISTBOX,			// 0x83
+    DLGITEM_CLASS_SCROLLBAR,		// 0x84
+    DLGITEM_CLASS_COMBOBOX,			// 0x85
 }; 
 
 #define DLGITEM_CLASS_FIRSTID	DLGITEM_CLASS_BUTTON
 
-
+/*
+ * In-memory dialog template creating routines
+ */
+BYTE *resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle,
+		int x, int y, int cx, int cy, LPSTR menu, LPSTR class, int cdit);
+BYTE *resDialogItemTemplate(BYTE *dest, DWORD style, DWORD dwExtendedStyle, int id,
+		int x, int y, int cx, int cy, int class, LPSTR data);
 
 /*
  *  Identify a resource.

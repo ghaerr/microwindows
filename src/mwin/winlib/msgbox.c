@@ -470,7 +470,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     /* Create icon */
     if(Icon)
     {
-      dest = (BYTE*)(((ULONG)dest + 3) & (~3));
+      dest = (BYTE*)(((UINT_PTR)dest + 3) & (~3));
       iico = (DLGITEMTEMPLATE *)dest;
       iico->style = WS_CHILD | WS_VISIBLE | SS_ICON;
       iico->dwExtendedStyle = 0;
@@ -491,7 +491,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
 #endif
 
     /* create static for text */
-    dest = (BYTE*)(((LONG)dest + 3) & ~3);
+    dest = (BYTE*)(((UINT_PTR)dest + 3) & ~3);
     itxt = (DLGITEMTEMPLATE *)dest;					// FIXME non-portable
     itxt->style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
     if(lpMsgBoxParams->dwStyle & MB_RIGHT)
@@ -515,7 +515,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     btnrect.left = btnrect.top = 0;
     for(i = 0; i < nButtons; i++)
     {
-      dest = (BYTE*)(((LONG)dest + 3) & ~3);
+      dest = (BYTE*)(((UINT_PTR)dest + 3) & ~3);
       ibtn[i] = (DLGITEMTEMPLATE *)dest;
       ibtn[i]->style = WS_CHILD | WS_VISIBLE | WS_TABSTOP;
       if(!defbtn && (i == ((lpMsgBoxParams->dwStyle & MB_DEFMASK) >> 8)))

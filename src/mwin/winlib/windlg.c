@@ -487,12 +487,10 @@ dlgGetItemClass(PMWDLGITEMTEMPLEXTRA pItem)
 	};
 
 	if (pItem->szClassName[0] == (TCHAR)-1) {
-		unsigned idx = ((unsigned char) pItem->szClassName[1]) -
-			DLGITEM_CLASS_FIRSTID;
+		unsigned idx = ((unsigned char) pItem->szClassName[1]) - DLGITEM_CLASS_FIRSTID;
 
 		if ((idx < (sizeof(defClass) / sizeof(defClass[0]))))
 			return defClass[idx];
-
 		return "";
 	}
 
@@ -1032,8 +1030,7 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 					hFocus = hCtrl;
 				}
 
-				SendMessage(hCtrl, WM_SETFONT,
-					    (WPARAM) pData->hFnt, 0);
+				SendMessage(hCtrl, WM_SETFONT, (WPARAM) pData->hFnt, 0);
 			} else
 				EPRINTF("Error on creating item %d\n", i);
 		}

@@ -390,7 +390,7 @@ resGetDlgItemTemplExtra(PMWDLGITEMTEMPLATE pItem, PMWDLGITEMTEMPLEXTRA pItemExtr
 
 	pw += 1 + ((*pw) >> 1);
 	//  dword align
-	if ((((DWORD)pw) & 2) != 0)
+	if ((((UINT_PTR)pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
@@ -492,7 +492,7 @@ resFirstDlgItem(PMWDLGTEMPLATE pDlg)
 		RES_SKIP_WSTRING(pw);	// skip font name
 	}
 	//  dword align
-	if ((((DWORD)pw) & 2) != 0)
+	if ((((UINT_PTR)pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
@@ -510,11 +510,70 @@ resNextDlgItem(PMWDLGITEMTEMPLATE pItem)
 	RES_SKIP_WSTRING(pw);
 	pw += 1 + ((*pw) >> 1);
 	//  dword align
-	if ((((DWORD)pw) & 2) != 0)
+	if ((((UINT_PTR)pw) & 2) != 0)
 		pw++;
 	return (PMWDLGITEMTEMPLATE) pw;
 }
 
+/*
+ * In-memory dialog template creating routines
+ */
+BYTE *
+resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle,
+	int x, int y, int cx, int cy, LPSTR menu, LPSTR class, int cdit)
+{
+	DLGTEMPLATE *dialog = (DLGTEMPLATE *)dest;
+	WORD *extra;
+
+	dialog->style = style;
+	dialog->dwExtendedStyle = dwExtendedStyle;
+	dialog->x = (short)x;
+	dialog->y = (short)y;
+	dialog->cx = (short)cx;
+	dialog->cy = (short)cy;
+	dialog->cdit = (WORD)cdit;
+
+	extra = (WORD *)(((BYTE *)dialog) + 18); 	// FIXSZ_MWDLGTEMPLATE
+	*extra++ = (WORD)menu;	// no string menus yet
+	*extra++ = (WORD)class;	// no string classes yet
+	if (caption)
+		while (*caption)
+			*extra++ = (WORD)*caption++;
+	*extra++ = 0;			// 0 terminate caption
+
+	dest = (BYTE *)extra;
+	dest = (BYTE *)(((UINT_PTR)dest + 3) & ~3);		// DWORD align
+	return dest;
+}
+
+BYTE *
+resDialogItemTemplate(BYTE *dest, DWORD style, DWORD dwExtendedStyle, int id,
+		int x, int y, int cx, int cy, int class, LPSTR data)
+{
+	DLGITEMTEMPLATE *item = (DLGITEMTEMPLATE *)dest;
+	WORD *extra;
+
+	item->style = style;
+	item->dwExtendedStyle = dwExtendedStyle;
+	item->id = (WORD)id;
+	item->x = (short)x;
+	item->y = (short)y;
+	item->cx = (short)cx;
+	item->cy = (short)cy;
+
+	extra = (WORD *)(((BYTE *)item) + FIXSZ_MWDLGITEMTEMPLATE);
+	*extra++ = 0xFFFF;
+	*extra++ = (WORD)class;	// no string classes yet
+	if (data)
+		while (*data)
+			*extra++ = (WORD)*data++;
+	*extra++ = 0;			// 0 terminate data
+	*extra++ = 0;			// lpData
+
+	dest = (BYTE *)extra;
+	dest = (BYTE *)(((UINT_PTR)dest + 3) & ~3);		// DWORD align
+	return dest;
+}
 
 /***********************  EXPORTED FUNCTIONS  *******************************/
 

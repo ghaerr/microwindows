@@ -117,7 +117,7 @@ typedef struct tagMWDLGTEMPLATE
 	char extraData[1];
 } MWDLGTEMPLATE, *PMWDLGTEMPLATE;
 
-#define FIXSZ_MWDLGTEMPLATE		20
+#define FIXSZ_MWDLGTEMPLATE		18
 
 
 // Dialog Extra data, dynamic allocated
@@ -182,7 +182,7 @@ enum MW_DLGITEMS_CLASSID
 BYTE *resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle,
 		int x, int y, int cx, int cy, LPSTR menu, LPSTR class, int cdit);
 BYTE *resDialogItemTemplate(BYTE *dest, DWORD style, DWORD dwExtendedStyle, int id,
-		int x, int y, int cx, int cy, int class, LPSTR data);
+		int x, int y, int cx, int cy, int class, LPCSTR data);
 
 /*
  *  Identify a resource.

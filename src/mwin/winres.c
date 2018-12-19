@@ -533,7 +533,7 @@ resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle
 	dialog->cy = (short)cy;
 	dialog->cdit = (WORD)cdit;
 
-	extra = (WORD *)(((BYTE *)dialog) + 18); 	// FIXSZ_MWDLGTEMPLATE
+	extra = (WORD *)(((BYTE *)dialog) + FIXSZ_MWDLGTEMPLATE);
 	*extra++ = (WORD)menu;	// no string menus yet
 	*extra++ = (WORD)class;	// no string classes yet
 	if (caption)
@@ -548,7 +548,7 @@ resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle
 
 BYTE *
 resDialogItemTemplate(BYTE *dest, DWORD style, DWORD dwExtendedStyle, int id,
-		int x, int y, int cx, int cy, int class, LPSTR data)
+		int x, int y, int cx, int cy, int class, LPCSTR data)
 {
 	DLGITEMTEMPLATE *item = (DLGITEMTEMPLATE *)dest;
 	WORD *extra;

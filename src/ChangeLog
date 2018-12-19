@@ -1,3 +1,6 @@
+19 Dec 2018
+	* cleaned up MessageBox implementation to use new resDialogTemplate dialog templates
+	* fix draw code infinite loop in WM_PAINT in contributed mwcontrols.c demo
 18 Dec 2018
 	* cleaned up compiler warnings in various files by careful casting
 17 Dec 2018

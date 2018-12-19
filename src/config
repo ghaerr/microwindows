@@ -54,7 +54,7 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = N
+DEBUG                    = Y
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N

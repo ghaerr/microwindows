@@ -14,6 +14,7 @@
 #include <string.h>
 #include "windows.h"
 
+#define USEICON		0			/* =1 for icons in messagebox*/
 /*
  * Here are the identifiers for the stringtable, you may have to
  * move them to another module (i.e. resource.h for user32).
@@ -40,16 +41,10 @@
 #define IDI_WINLOGO       MAKEINTRESOURCE(32517)
 
 
-/* Seems like MoSync GCC compiler has difficulties with #pragma pack(1) */
-#define DLGTEMPLATE_SIZE 18 /* sizeof(DLGTEMPLATE) */
-#define DLGITEMTEMPLATE_SIZE 18  /* sizeof(DLGITEMTEMPLATE) */
-
 /*
  * Internal stuff
  */
-#ifndef LANG_NEUTRAL
 #define LANG_NEUTRAL                     0x00
-#endif
 
 #define MSGBOXEX_SPACING    (16)
 #define MSGBOXEX_BUTTONSPACING  (6)
@@ -76,10 +71,10 @@ typedef struct _MSGBOXINFO {
 /* This contains all the static strings used by the MessageBox.
  * They are used in case you don't have a resource with the real string.
  */
-static char *GetMsgboxString(UINT uid)
+static char *
+GetMsgboxString(UINT uid)
 {
-	switch (uid)
-	{
+	switch (uid) {
 	case IDS_OK:	return "Ok";
 	case IDS_ERROR:	return "&Error";
 	case IDS_CANCEL:return "&Cancel";
@@ -99,7 +94,7 @@ static char *GetMsgboxString(UINT uid)
  * Internal LoadString with fallback to hardcoded strings
  */
 static int WINAPI
-_LoadString(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
+loadstring(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 {
 	char *pszRes;
 
@@ -110,19 +105,6 @@ _LoadString(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 }
 
 /*
- * Converts ASCIIZ String to WCHAR-String for Resource template
- */
-static int CopyToWchar (PWCHAR lpDest, LPCSTR lpText, int nChars)
-{
-	int i;
-
-	for (i=0; i<nChars; i++)
-		lpDest[i] = lpText[i];
-	lpDest[i]=0;
-	return (i+1)*sizeof(WCHAR);
-}
-
-/*
  * Window procedure for the dialog box
  */
 static LRESULT
@@ -130,8 +112,6 @@ MessageBoxProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
   int i;
   PMSGBOXINFO mbi;
-  //HELPINFO hi;
-  //HWND owner;
 
   switch(message) {
     case WM_INITDIALOG:
@@ -141,16 +121,11 @@ MessageBoxProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
         SetProp(hwnd, "ROS_MSGBOX", (HANDLE)lParam);
         if(mbi->Icon)
           SendDlgItemMessage(hwnd, MSGBOX_IDICON, STM_SETICON, (WPARAM)mbi->Icon, 0);
-#if 0
-        SetWindowContextHelpId(hwnd, mbi->ContextHelpId);
-#endif
 
         /* set control fonts */
         SendDlgItemMessage(hwnd, MSGBOX_IDTEXT, WM_SETFONT, (WPARAM)mbi->Font, 0);
         for(i = 0; i < mbi->nButtons; i++)
-        {
           SendDlgItemMessage(hwnd, mbi->Btns[i], WM_SETFONT, (WPARAM)mbi->Font, 0);
-        }
 #if 0
         switch(mbi->Style & MB_TYPEMASK)
         {
@@ -180,38 +155,8 @@ MessageBoxProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
         case IDCONTINUE:
           EndDialog(hwnd, wParam);
           return TRUE;
-#if 0
-        case IDHELP:
-          /* send WM_HELP message to messagebox window */
-          hi.cbSize = sizeof(HELPINFO);
-          hi.iContextType = HELPINFO_WINDOW;
-          hi.iCtrlId = LOWORD(wParam);
-          hi.hItemHandle = (HANDLE)lParam;
-          hi.dwContextId = 0;
-          GetCursorPos(&hi.MousePos);
-          SendMessageW(hwnd, WM_HELP, 0, (LPARAM)&hi);
-          return 0;
-#endif
       }
       return 0;
-#if 0
-    case WM_HELP:
-      mbi = (PMSGBOXINFO)GetProp(hwnd, "ROS_MSGBOX");
-      if(!mbi)
-        return 0;
-      memcpy(&hi, (void *)lParam, sizeof(hi));
-      hi.dwContextId = GetWindowContextHelpId(hwnd);
-
-      if (mbi->Callback)
-        mbi->Callback(&hi);
-      else
-      {
-        owner = GetWindow(hwnd, GW_OWNER);
-        if(owner)
-          SendMessageW(GetWindow(hwnd, GW_OWNER), WM_HELP, 0, (LPARAM)&hi);
-      }
-      return 0;
-#endif
     case WM_CLOSE:
       mbi = (PMSGBOXINFO)GetProp(hwnd, "ROS_MSGBOX");
       if(!mbi)
@@ -235,16 +180,12 @@ MessageBoxProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
   return 0;
 }
 
-#define SAFETY_MARGIN 32 /* Extra number of bytes to allocate in case we counted wrong */
-
-
-static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
+static int
+MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
 {
     DLGTEMPLATE *tpl;
-    DLGITEMTEMPLATE *iico, *itxt;
-#if 0
-    NONCLIENTMETRICSW nclm;
-#endif
+    DLGITEMTEMPLATE *itxt;
+    //DLGITEMTEMPLATE *iico;
     char capbuf[32];
     HMODULE hUser32 = 0;
     LPVOID buf;
@@ -253,7 +194,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     HFONT hFont;
     HICON Icon = (HICON)0;
     HDC hDC;
-    int bufsize, ret, caplen, textlen, btnlen, i, btnleft, btntop, lmargin, nButtons = 0;
+    int ret, caplen, textlen, btnlen, i, btnleft, btntop, lmargin, nButtons = 0;
     LONG Buttons[MSGBOXEX_MAXBTNS];
     char ButtonText[MSGBOXEX_MAXBTNS][MSGBOXEX_MAXBTNSTR];
     DLGITEMTEMPLATE *ibtn[MSGBOXEX_MAXBTNS];
@@ -263,13 +204,9 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     BOOL defbtn = FALSE;
     DWORD units = GetDialogBaseUnits();
 
-#if 0
-    hUser32 = GetModuleHandle(L"USER32");
-#endif
-
     if(!lpMsgBoxParams->lpszCaption || !*lpMsgBoxParams->lpszCaption)
     {
-      _LoadString(hUser32, IDS_ERROR, &capbuf[0], 32);
+      loadstring(hUser32, IDS_ERROR, &capbuf[0], 32);
       caption = &capbuf[0];
     }
     else
@@ -330,7 +267,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     if(lpMsgBoxParams->dwStyle & MB_HELP)
       Buttons[nButtons++] = IDHELP;
 
-#if 0
+#if USEICON
     switch(lpMsgBoxParams->dwStyle & MB_ICONMASK)
     {
       case MB_ICONEXCLAMATION:
@@ -363,151 +300,77 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     }
 #endif
 
-    /* Basic space */
-    bufsize = DLGTEMPLATE_SIZE +
-              2 * sizeof(WORD) +                         /* menu and class */
-              (caplen + 1) * sizeof(WCHAR);              /* title */
-
-    /* Space for icon */
-#if 0
-    if (NULL != Icon)
-    {
-      bufsize = (bufsize + 3) & ~3;
-      bufsize += DLGITEMTEMPLATE_SIZE +
-                 4 * sizeof(WORD) +
-                 sizeof(WCHAR);
-    }
-#endif
-
-    /* Space for text */
-    bufsize = (bufsize + 3) & ~3;
-    bufsize += DLGITEMTEMPLATE_SIZE +
-               3 * sizeof(WORD) +
-               (textlen + 1) * sizeof(WCHAR);
-
-
-    for(i = 0; i < nButtons; i++)
-    {
+    for(i = 0; i < nButtons; i++) {
       switch(Buttons[i])
       {
         case IDOK:
-          _LoadString(hUser32, IDS_OK, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_OK, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDCANCEL:
-          _LoadString(hUser32, IDS_CANCEL, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_CANCEL, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDYES:
-          _LoadString(hUser32, IDS_YES, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_YES, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDNO:
-          _LoadString(hUser32, IDS_NO, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_NO, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDTRYAGAIN:
-          _LoadString(hUser32, IDS_TRYAGAIN, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_TRYAGAIN, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDCONTINUE:
-          _LoadString(hUser32, IDS_CONTINUE, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_CONTINUE, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDABORT:
-          _LoadString(hUser32, IDS_ABORT, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_ABORT, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDRETRY:
-          _LoadString(hUser32, IDS_RETRY, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_RETRY, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDIGNORE:
-          _LoadString(hUser32, IDS_IGNORE, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_IGNORE, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         case IDHELP:
-          _LoadString(hUser32, IDS_HELP, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
+          loadstring(hUser32, IDS_HELP, ButtonText[i], MSGBOXEX_MAXBTNSTR - 1);
           break;
         default:
           ButtonText[i][0] = 0;
           break;
       }
-
-      /* Space for buttons */
-      bufsize = (bufsize + 3) & ~3;
-      bufsize += DLGITEMTEMPLATE_SIZE +
-                 3 * sizeof(WORD) +
-                 (strlen(ButtonText[i]) + 1) * sizeof(WCHAR);
     }
 
-    if (!(buf = calloc( 1, bufsize + SAFETY_MARGIN)))
+	/* allocate dialog template*/
+    if (!(buf = malloc(512)))
       return 0;
 
-    iico = itxt = NULL;
-
     hDC = CreateCompatibleDC(0);
-
-#if 0
-    nclm.cbSize = sizeof(nclm);
-    SystemParametersInfo (SPI_GETNONCLIENTMETRICS, sizeof(nclm), &nclm, 0);
-    hFont = CreateFontIndirect (&nclm.lfMessageFont);
-#else
     hFont = GetStockObject(DEFAULT_GUI_FONT);
-#endif
 
     tpl = (DLGTEMPLATE *)buf;
-
-    tpl->style = WS_CAPTION | WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_SYSMENU | DS_CENTER | DS_MODALFRAME | DS_NOIDLEMSG;
-    tpl->dwExtendedStyle = WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CONTROLPARENT;
+    DWORD style = WS_CAPTION | WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_SYSMENU | DS_CENTER | DS_MODALFRAME|DS_NOIDLEMSG;
+    DWORD dwExtendedStyle = WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CONTROLPARENT;
+    int cdit = nButtons + (Icon != NULL) + 1;
     if(lpMsgBoxParams->dwStyle & MB_TOPMOST)
-      tpl->dwExtendedStyle |= WS_EX_TOPMOST;
+      dwExtendedStyle |= WS_EX_TOPMOST;
     if(lpMsgBoxParams->dwStyle & MB_RIGHT)
-      tpl->dwExtendedStyle |= WS_EX_RIGHT;
-    tpl->x = 100;
-    tpl->y = 100;
-    tpl->cdit = nButtons + (Icon != (HICON)0) + 1;
+      dwExtendedStyle |= WS_EX_RIGHT;
+	dest = resDialogTemplate((BYTE *)tpl, caption, style, dwExtendedStyle, 100, 100, 0, 0, NULL, NULL, cdit);
 
-    dest = ((BYTE *)tpl + DLGTEMPLATE_SIZE);
-
-    *(WORD*)dest = 0; /* no menu */
-    *(((WORD*)dest) + 1) = 0; /* use default window class */
-    dest += 2 * sizeof(WORD);
-    dest += CopyToWchar ((PWCHAR)dest, caption, caplen);
-
-#if 0
+#if USEICON
     /* Create icon */
     if(Icon)
     {
-      dest = (BYTE*)(((UINT_PTR)dest + 3) & (~3));
       iico = (DLGITEMTEMPLATE *)dest;
-      iico->style = WS_CHILD | WS_VISIBLE | SS_ICON;
-      iico->dwExtendedStyle = 0;
-      iico->id = MSGBOX_IDICON;
-
-      dest += DLGITEMTEMPLATE_SIZE;
-      *(WORD*)dest = 0xFFFF;
-      dest += sizeof(WORD);
-      *(WORD*)dest = 0x0082; /* static control */
-      dest += sizeof(WORD);
-      *(WORD*)dest = 0xFFFF;
-      dest += sizeof(WORD);
-      *(WCHAR*)dest = 0;
-      dest += sizeof(WCHAR);
-      *(WORD*)dest = 0;
-      dest += sizeof(WORD);
+	  dest = resDialogItemTemplate(dest, WS_CHILD|WS_VISIBLE|SS_ICON, 0, MSGBOX_IDICON,
+	  		0, 0, 0, 0, DLGIGTEM_CLASS_STATIC, NULL);
     }
 #endif
 
     /* create static for text */
-    dest = (BYTE*)(((UINT_PTR)dest + 3) & ~3);
-    itxt = (DLGITEMTEMPLATE *)dest;					// FIXME non-portable
-    itxt->style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
-    if(lpMsgBoxParams->dwStyle & MB_RIGHT)
-      itxt->style |= SS_RIGHT;
-    else
-      itxt->style |= SS_LEFT;
-    itxt->dwExtendedStyle = 0;
-    itxt->id = MSGBOX_IDTEXT;
-    dest += DLGITEMTEMPLATE_SIZE;
-    *(WORD*)dest = 0xFFFF;
-    dest += sizeof(WORD);
-    *(WORD*)dest = 0x0082; /* static control */
-    dest += sizeof(WORD);
-    dest += CopyToWchar ((PWCHAR)dest, text, textlen);
-    *(WORD*)dest = 0;
-    dest += sizeof(WORD);
+    itxt = (DLGITEMTEMPLATE *)dest;
+    style = WS_CHILD | WS_VISIBLE | SS_NOPREFIX;
+    itxt->style |= (lpMsgBoxParams->dwStyle & MB_RIGHT)? SS_RIGHT: SS_LEFT;
+	dest = resDialogItemTemplate(dest, style, 0, MSGBOX_IDTEXT, 0, 0, 0, 0, DLGITEM_CLASS_STATIC, text);
 
     /* create buttons */
     btnsize.cx = BTN_CX;
@@ -515,7 +378,6 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     btnrect.left = btnrect.top = 0;
     for(i = 0; i < nButtons; i++)
     {
-      dest = (BYTE*)(((UINT_PTR)dest + 3) & ~3);
       ibtn[i] = (DLGITEMTEMPLATE *)dest;
       ibtn[i]->style = WS_CHILD | WS_VISIBLE | WS_TABSTOP;
       if(!defbtn && (i == ((lpMsgBoxParams->dwStyle & MB_DEFMASK) >> 8)))
@@ -526,17 +388,8 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
       }
       else
         ibtn[i]->style |= BS_PUSHBUTTON;
-      ibtn[i]->dwExtendedStyle = 0;
-      ibtn[i]->id = Buttons[i];
-      dest += DLGITEMTEMPLATE_SIZE;
-      *(WORD*)dest = 0xFFFF;
-      dest += sizeof(WORD);
-      *(WORD*)dest = 0x0080; /* button control */
-      dest += sizeof(WORD);
+	  dest = resDialogItemTemplate(dest, ibtn[i]->style, 0, Buttons[i], 0, 0, 0, 0, DLGITEM_CLASS_BUTTON, ButtonText[i]);
       btnlen = strlen(ButtonText[i]);
-      dest += CopyToWchar ((PWCHAR)dest, ButtonText[i], btnlen);
-      *(WORD*)dest = 0;
-      dest += sizeof(WORD);
       SelectObject(hDC, hFont);
       DrawText(hDC, ButtonText[i], btnlen, &btnrect, DT_LEFT | DT_SINGLELINE | DT_CALCRECT);
       btnsize.cx = max(btnsize.cx, btnrect.right);
@@ -553,7 +406,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
 
     /* calculate position and size of controls */
     txtrect.right = GetSystemMetrics(SM_CXSCREEN) / 5 * 4;
-#if 0
+#if USEICON
     if(Icon)
       txtrect.right -= GetSystemMetrics(SM_CXICON) + MSGBOXEX_SPACING;
 #endif
@@ -565,25 +418,25 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
     /* calculate position and size of the icon */
     rc.left = rc.bottom = rc.right = 0;
     btntop = 0;
-#if 0
+#if USEICON
     if(iico)
     {
       rc.right = GetSystemMetrics(SM_CXICON);
       rc.bottom = GetSystemMetrics(SM_CYICON);
-      #ifdef MSGBOX_ICONVCENTER
+#ifdef MSGBOX_ICONVCENTER
       rc.top = MSGBOXEX_MARGIN + (max(txtrect.bottom, rc.bottom) / 2) - (GetSystemMetrics(SM_CYICON) / 2);
       rc.top = max(MSGBOXEX_SPACING, rc.top);
-      #else
+#else
       rc.top = MSGBOXEX_MARGIN;
-      #endif
+#endif
       btnleft = (nButtons * (btnsize.cx + MSGBOXEX_BUTTONSPACING)) - MSGBOXEX_BUTTONSPACING;
       if(btnleft > txtrect.right + rc.right + MSGBOXEX_SPACING)
       {
-        #ifdef MSGBOX_TEXTHCENTER
+#ifdef MSGBOX_TEXTHCENTER
         lmargin = MSGBOXEX_MARGIN + ((btnleft - txtrect.right - rc.right - MSGBOXEX_SPACING) / 2);
-        #else
+#else
         lmargin = MSGBOXEX_MARGIN;
-        #endif
+#endif
         btnleft = MSGBOXEX_MARGIN;
       }
       else
@@ -605,11 +458,11 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
       btnleft = (nButtons * (btnsize.cx + MSGBOXEX_BUTTONSPACING)) - MSGBOXEX_BUTTONSPACING;
       if(btnleft > txtrect.right)
       {
-        #ifdef MSGBOX_TEXTHCENTER
+#ifdef MSGBOX_TEXTHCENTER
         lmargin = MSGBOXEX_MARGIN + ((btnleft - txtrect.right) / 2);
-        #else
+#else
         lmargin = MSGBOXEX_MARGIN;
-        #endif
+#endif
         btnleft = MSGBOXEX_MARGIN;
       }
       else
@@ -657,37 +510,10 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
 
     if(hDC)
       DeleteDC(hDC);
-
-#ifdef DEBUG_RESDATA
-    {
-    	int i;
-    	unsigned char *pChar = (unsigned char*)tpl;
-    	char szBuf[64], *pDest=szBuf;
-
-    	for (i=0; i<128; i++)
-    	{
-    		if (i && i%8 == 0)
-    		{
-    			int j;
-
-    			for (j=i-8; j<i; j++)
-    				sprintf(pDest++, "%c", isprint(((unsigned char*)tpl)[j])?((unsigned char*)tpl)[j]:'.');
-    			*pDest=0;
-    			lprintfln ("%s\n", szBuf);
-    			pDest = szBuf;
-    		}
-    		sprintf (pDest, "%02X ", *pChar);
-    		pDest+=3;
-    		pChar++;
-    	}
-    }
-#endif
-
-    ret =  DialogBoxIndirectParam(lpMsgBoxParams->hInstance, tpl, lpMsgBoxParams->hwndOwner,
-                                   MessageBoxProc, (LPARAM)&mbi);
-
     if(hFont)
       DeleteObject(hFont);
+
+    ret =  DialogBoxIndirectParam(lpMsgBoxParams->hInstance, tpl, lpMsgBoxParams->hwndOwner, MessageBoxProc, (LPARAM)&mbi);
 
     free (buf);
     return ret;
@@ -695,13 +521,7 @@ static int MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Ti
 
 
 int
-MessageBoxTimeout(
-  HWND hWnd,
-  LPCSTR lpText,
-  LPCSTR lpCaption,
-  UINT uType,
-  WORD wLanguageId,
-  DWORD dwTime)
+MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId, DWORD dwTime)
 {
     MSGBOXPARAMS msgbox;
 
@@ -720,12 +540,7 @@ MessageBoxTimeout(
 }
 
 int
-MessageBoxEx(
-  HWND hWnd,
-  LPCSTR lpText,
-  LPCSTR lpCaption,
-  UINT uType,
-  WORD wLanguageId)
+MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId)
 {
     MSGBOXPARAMS msgbox;
 
@@ -744,11 +559,7 @@ MessageBoxEx(
 }
 
 int
-MessageBox(
-  HWND hWnd,
-  LPCTSTR lpText,
-  LPCTSTR lpCaption,
-  UINT uType)
+MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType)
 {
     return MessageBoxEx(hWnd, lpText, lpCaption, uType, LANG_NEUTRAL);
 }
@@ -758,4 +569,3 @@ int MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams)
 {
     return MessageBoxTimeoutIndirect(lpMsgBoxParams, (UINT)-1);
 }
-

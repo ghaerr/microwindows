@@ -88,7 +88,6 @@
 	  switch(msg)
 	  {
 	  case WM_CREATE:
-	  case WM_PAINT:
 	      myCreateBox(hwnd, -1,"frame", "", 1,9,82,82);
 	      myCreateBox(hwnd, ID_STATIC,"static", "the quick brown fox", 2, 10, 80, 30);
 	      myCreateBox(hwnd, ID_STATIC+1,"static", "Static Text2", 2, 50, 60, 20);
@@ -100,7 +99,8 @@
 	      myCreateBox(hwnd, ID_BUTTON,"button", "Clear radio", 350,10,60,20);
 	      myCreateBox(hwnd, ID_CHECKBOX,"check", "Toggle", 150,10,60,20);
 	      myCreateBox(hwnd, ID_DOT,"radio", "Radio", 250,10,60,20);
-
+			break;
+	  case WM_PAINT:
               hdc=BeginPaint(hwnd,&ps);
               EndPaint(hwnd,&ps);
 	      break; 
@@ -112,11 +112,8 @@
 	  case WM_COMMAND:
 	    if (LOWORD(wParam)==ID_BUTTON) 
               {MessageBox(hwnd, "You pushed the clear button", " ", MB_OK);
-printf("1\n");
                SendDlgItemMessage(hwnd,ID_DOT,BM_SETCHECK,BST_UNCHECKED,0);
-			   printf("2\n");
                SetDlgItemText(hwnd,ID_STATIC+2,"not set");
-			   printf("3\n");
                SetDlgItemText(hwnd,ID_STATIC+2,"not set");
                return 0;
                break;

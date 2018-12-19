@@ -1245,7 +1245,7 @@ MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 		if ((uFormat & DT_CALCRECT) == 0) {
 			/* handle prefixes */
 			if (Ampersands)
-				mwDrawTextOut(hDC, x, y, str, cnt, uFormat, flags);
+				mwDrawTextOut(hDC, x, y, (LPSTR)str, cnt, uFormat, flags);
 			else {
 				if (uFormat & DT_EXPANDTABS) {
 					mwTabbedTextOut(hDC, x, y, str, cnt, 0, 0, x, FALSE, flags);
@@ -1768,7 +1768,7 @@ HBITMAP WINAPI
 CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 {
 	MWBITMAPOBJ *	hbitmap;
-	int		size;
+	unsigned int	size;
 	unsigned int pitch;
 
 	if(!hdc)

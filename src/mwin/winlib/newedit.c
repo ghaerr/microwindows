@@ -170,8 +170,8 @@ neCreate(HWND hwnd)
 	PSLEDITDATA pSLEditData;
 	HWND pCtrl = hwnd;
 	int len;
-	int charH;
-	int nl;
+	//int charH;
+	//int nl;
 	RECT rc;
 
 

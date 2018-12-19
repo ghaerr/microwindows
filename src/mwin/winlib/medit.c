@@ -93,7 +93,7 @@ typedef    LINEDATA*     PLINEDATA;
 #define ATTENG 0	/* english */
 #define ATTCHL 1	/* chinese left(1st) byte */
 #define ATTCHR 2	/* chinese right(2nd) byte */
-static char attr[LEN_MLEDIT_BUFFER];
+/*static char attr[LEN_MLEDIT_BUFFER];*/
 
 typedef struct tagMLEDITDATA {
     int     totalLen;      /* length of buffer,可能没有用 */
@@ -259,7 +259,7 @@ int WINAPI MwRegisterMEditControl(HINSTANCE hInstance)
 
 static inline int edtGetOutWidth (HWND hWnd)
 {
-	PMLEDITDATA pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+	PMLEDITDATA pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
 	RECT rc;
 	GetClientRect(hWnd,&rc);
     return rc.right - rc.left 
@@ -272,7 +272,7 @@ static int edtGetStartDispPosAtEnd (HWND hWnd,
 {
     int         nOutWidth = edtGetOutWidth (hWnd);
     int         endPos  = pLineData->dataEnd;
-    PMLEDITDATA pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+    PMLEDITDATA pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
     int         newStartPos = pMLEditData->dispPos;
     const char* buffer = pLineData->buffer;
 
@@ -309,7 +309,7 @@ static int edtGetDispLen (HWND hWnd,PLINEDATA pLineData)
     int i, n = 0;
     int nOutWidth = edtGetOutWidth (hWnd);
     int nTextWidth = 0;
-    PMLEDITDATA pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+    PMLEDITDATA pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
     const char* buffer = pLineData->buffer;
     
     if(buffer[0]==0||pLineData->dataEnd<pMLEditData->dispPos)
@@ -442,6 +442,7 @@ static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
     return FALSE;
 }
 
+#if 0
 static void str2attr(const char* str,int len)
 {
     int i=0;
@@ -460,6 +461,7 @@ static void str2attr(const char* str,int len)
 	}
     }while(i<len);
 }
+#endif
 
 static BOOL edtIsACCharBeforePosition (const char* string,int len, int pos)
 {
@@ -623,7 +625,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         case WM_DESTROY:
         {
 		PLINEDATA temp;
-		pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+		pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
 	    	DestroyCaret ();
 		pLineData = pMLEditData->head;	
 		while(pLineData)
@@ -681,7 +683,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             dw |= EST_FOCUSED;
 			SetWindowAdditionalData(hWnd,dw);
 
-            pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+            pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
 
             /* only implemented for ES_LEFT align format. */
 
@@ -773,7 +775,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 
             SetTextColor (hdc, BLACK/*PIXEL_black*/);
 
-            pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+            pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
 			for(i = pMLEditData->StartlineDisp; i <= pMLEditData->EndlineDisp; i++)
 			{
 				pLineData= GetLineData(pMLEditData,i);
@@ -835,7 +837,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 			PLINEDATA temp = NULL;
 			char *  tempP = NULL;
 
-            pMLEditData =(PMLEDITDATA) GetWindowAdditionalData2(hWnd);
+            pMLEditData =(PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd);
         
             switch (LOWORD (wParam))
             {
@@ -1417,7 +1419,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             int  i, chars, scrollStep, inserting;
 			UINT format;
 	
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
 
 			pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
 
@@ -1555,7 +1557,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 		{
 			PLINEDATA temp;
 			int    lineNO = (int)wParam;
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
 			temp = pMLEditData->head;
 			while(temp)
 			{
@@ -1570,7 +1572,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 			PLINEDATA temp;
 			int len,total = 0,lineNO;
 			char * buffer = (char*)lParam;
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
 			len = (int)wParam;
             lineNO = (int)wParam;
 			temp = pMLEditData->head;
@@ -1591,7 +1593,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             char*   buffer = (char*)lParam;
             int     lineNO,len;
 
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
             lineNO = (int)wParam;
 			temp = GetLineData(pMLEditData,lineNO);
 			if(temp)
@@ -1620,7 +1622,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             if (dwStyle & ES_READONLY)
                 return 0;
 
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
             
             len = strlen ((char*)lParam);
 			lineNO = (int)wParam;
@@ -1654,7 +1656,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 			PLINEDATA temp;
 			BOOL bScroll = FALSE;
             
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
             lineNO = edtGetLineNO (hWnd,pMLEditData, HIWORD (lParam));
 			if ( lineNO < 0 )
 				return 0;
@@ -1701,7 +1703,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         return 0;
         
         case EM_SETPASSWORDCHAR:
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
 
             if (pMLEditData->passwdChar != (int)wParam) {
                 if (dwStyle & ES_PASSWORD) {
@@ -1715,7 +1717,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         {
             int* passwdchar;
             
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
             passwdchar = (int*) lParam;
 
             *passwdchar = pMLEditData->passwdChar;
@@ -1727,7 +1729,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
             int newLimit = (int)wParam;
             
             if (newLimit >= 0) {
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
                 if (pMLEditData->totalLen < newLimit)
                     pMLEditData->hardLimit = -1;
                 else

@@ -114,6 +114,7 @@ typedef struct tagSLEDITDATA {
 static LRESULT CALLBACK
 SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+#if 0
 static int GetSysCharHeight (HWND hwnd) 
 {
 #ifndef USE_BIG5	    
@@ -130,6 +131,7 @@ static int GetSysCharHeight (HWND hwnd)
 	return 12;
 #endif
 }
+#endif
 
 static int GetSysCharWidth (HWND hwnd) 
 {
@@ -178,6 +180,7 @@ static int edtGetOutWidth (const HWND pCtrl)
             - ((PSLEDITDATA)(pCtrl->userdata2))->rightMargin;
 }
 
+#if 0
 static int edtGetStartDispPosAtEnd (const HWND pCtrl, PSLEDITDATA pSLEditData)
 {
     int         nOutWidth = edtGetOutWidth (pCtrl);
@@ -210,6 +213,7 @@ static int edtGetStartDispPosAtEnd (const HWND pCtrl, PSLEDITDATA pSLEditData)
 
     return newStartPos;
 }
+#endif
 
 static int edtGetDispLen (const HWND pCtrl)
 {

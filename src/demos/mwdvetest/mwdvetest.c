@@ -53,10 +53,10 @@ DLGBOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			{
 			if( GetDlgCtrlID((HWND)lParam) == IDC_CTLCOLOR )
 				{
-				HBRUSH hbr = (HBRUSH)DefWindowProc ( hWnd, message, wParam, lParam );
+				HBRUSH hbr = (HBRUSH)(LRESULT)DefWindowProc ( hWnd, message, wParam, lParam );
 				SetTextColor ( (HDC)wParam, RGB(255,0,0) );
 				SetBkColor ( (HDC)wParam, GetSysColor(COLOR_3DFACE) );
-				return hbr;
+				return (DLGBOOL)hbr;
 				}
 			}
 			return DefWindowProc ( hWnd, message, wParam, lParam );
@@ -97,7 +97,7 @@ DLGBOOL CALLBACK dlgDemoStatic ( HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			"\xd8\xaa\xd8\xab\xd8\xac\xd8\xad 12345\n"
 			 );
 		SendDlgItemMessage(hWnd, IDC_STATICFONT1, WM_SETFONT, 
-			(WPARAM)GetStockObject(SYSTEM_FONT), 0 );
+			(WPARAM)(HGDIOBJ)GetStockObject(SYSTEM_FONT), 0 );
 	}
 	
 	return defDemoDlg ( hWnd, message, wParam, lParam );
@@ -298,7 +298,7 @@ DLGBOOL CALLBACK dlgDemoList ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			//printf ( "WM_MEASUREITEM\n" );
 			if( lpMs->CtlID == IDC_LIST_ODV )
 				{
-				lpMs->itemHeight = 14+3*abs(3-lpMs->itemID);
+				lpMs->itemHeight = 14+3*abs(3-(INT)lpMs->itemID);
 				}
 			else
 				lpMs->itemHeight = 20;

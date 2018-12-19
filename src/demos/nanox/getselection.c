@@ -16,7 +16,7 @@ static int got_client_data(GR_EVENT *event)
 {
 	GR_EVENT_CLIENT_DATA *ev = &event->clientdata;
 
-	fprintf(stderr, "Got client data packet with serial number %ld for window %d from window %d\n",
+	fprintf(stderr, "Got client data packet with serial number %d for window %d from window %d\n",
 		ev->serial, ev->wid, ev->rid);
 
 	if(!(data = realloc(data, bytes_received + ev->datalen + 1))) {
@@ -25,10 +25,10 @@ static int got_client_data(GR_EVENT *event)
 	}
 	memcpy(data + bytes_received, ev->data, ev->datalen);
 
-	fprintf(stderr, "Got client data packet with serial number %ld for window %d from window %d\n",
+	fprintf(stderr, "Got client data packet with serial number %d for window %d from window %d\n",
 		ev->serial, ev->wid, ev->rid);
 
-	fprintf(stderr, "Already received %ld bytes, this packet is %ld bytes, total data length is %ld bytes so ",
+	fprintf(stderr, "Already received %d bytes, this packet is %d bytes, total data length is %d bytes so ",
 		bytes_received, ev->datalen, ev->len);
 
 	bytes_received += ev->datalen;

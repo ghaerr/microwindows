@@ -22,7 +22,7 @@ Bool XkbSetDetectableAutoRepeat(Display *dpy, Bool detectable, Bool *supported)
 unsigned XkbKeysymToModifiers(Display *dpy, KeySym ks)
 {
 	//return XKeysymToModifiers(dpy, ks);
-	DPRINTF("XkbKeysymToModifiers called [%x]???\n", ks);
+	DPRINTF("XkbKeysymToModifiers called [%lx]???\n", ks);
 	return 0;
 }
 
@@ -80,7 +80,7 @@ int XkbTranslateKeySym(Display *dpy, KeySym *sym, unsigned int mods,
 	p = XKeysymToString(sym[0]);
 	nbytes = strlen(p);
 	memcpy(buf, p, nbytes);
-	DPRINTF("XkbTranslateKeySym called [%x/%s]...\n", *sym, p);
+	DPRINTF("XkbTranslateKeySym called [%lx/%s]...\n", *sym, p);
 	if (extra) *extra = 0;
 	/*if (!buf || !nbytes) {
 		buf = tmp;

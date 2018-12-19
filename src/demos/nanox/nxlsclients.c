@@ -139,11 +139,9 @@ main(int argc, char* argv[])
 		printf("\tAbsolute upper-left Y: %d\n", info.y);
 		printf("\tWidth = %d\n", info.width);
 		printf("\tHeight = %d\n", info.height);
-		printf("\tBorder: size = %d, colour = %s (#%06lX)\n", \
-		       info.bordersize,
-		       lookupColour(info.bordercolor), info.bordercolor);
-		printf("\tBackground colour = %s (#%06lX)\n", \
-		       lookupColour(info.background), info.background);
+		printf("\tBorder: size = %d, colour = %s (#%06X)\n",
+		       info.bordersize, lookupColour(info.bordercolor), info.bordercolor);
+		printf("\tBackground colour = %s (#%06X)\n", lookupColour(info.background), info.background);
 
 		printf("\tParent = %d\n", info.parent);
 		printf("\tFirst child = %d\n", info.child);
@@ -155,7 +153,7 @@ main(int argc, char* argv[])
 			printf(", realized = %d", info.realized);
 		printf("\n");
 
-		printf("\tEvent mask (0x%08lX):\n", info.eventmask);
+		printf("\tEvent mask (0x%08X):\n", info.eventmask);
 		{
 			int i, n = 0;
 			GR_EVENT_MASK tmp = info.eventmask;
@@ -190,8 +188,7 @@ main(int argc, char* argv[])
 
 			printf("\t\tBackground colour: ");
 			if ((wm_props.flags & GR_WM_FLAGS_BACKGROUND) == GR_WM_FLAGS_BACKGROUND)
-				printf("%s (#%06lX)\n", lookupColour(wm_props.background), 
-				       wm_props.background);
+				printf("%s (#%06X)\n", lookupColour(wm_props.background), wm_props.background);
 			else
 				printf("<unspecified>\n");
 
@@ -201,7 +198,7 @@ main(int argc, char* argv[])
 			else
 				printf("<unspecified>\n");
 
-			printf("\t\tProperty bits (0x%08lX):\n", wm_props.props);
+			printf("\t\tProperty bits (0x%08X):\n", wm_props.props);
 			{
 				int i, n = 0;
 

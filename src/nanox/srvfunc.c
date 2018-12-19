@@ -3474,7 +3474,7 @@ GrGetSystemPalette(GR_PALETTE *pal)
 	SERVER_LOCK();
 
 	/* return 0 count if not in palettized mode*/
-	memset(pal, 0, sizeof(GR_PALETTE *));
+	memset(pal, 0, sizeof(GR_PALETTE));
 
 	if(rootwp->psd->pixtype == MWPF_PALETTE) {
 		pal->count = (int)rootwp->psd->ncolors;

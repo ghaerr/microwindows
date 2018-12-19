@@ -60,8 +60,6 @@ char	*tempstring();	/* returns a pointer to space that will reused soon */
 
 #ifdef __ECOS
 extern char *strdup(char *);
-#else
-#define	bcopy	movmem
 #endif
 #define index	strchr
 #define	rindex	strrchr

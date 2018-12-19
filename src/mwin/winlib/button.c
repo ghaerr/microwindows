@@ -44,7 +44,7 @@
 #define GET_PBWASINSIDE(h)		(GetWindowLong(h, PBL_WASINSIDE))
 #define GET_PBDELETEFONT(h)		(GetWindowLong(h, PBL_DELETEFONT))
 #define GET_PBFONT(h)			(GetWindowLongPtr(h, PBL_FONT))
-#define GET_WND_FONT(h)			((HFONT)GetWindowLongPtr(h, PBL_WND_FONT))
+#define GET_WND_FONT(h)			((HFONT)(LONG_PTR)GetWindowLongPtr(h, PBL_WND_FONT))
 #define GET_PBTXTRECT(h,t)		{(t).left=GetWindowLong(h, PBL_TXTLEFTTOP); (t).right=GetWindowLong(h, PBL_TXTRIGHTBOTTOM);}
 
 #define SET_PBSTATE(h,x)		(SetWindowLong(h, PBL_STATE, x))
@@ -52,10 +52,10 @@
 #define SET_PBWASINSIDE(h,x)		(SetWindowLong(h, PBL_WASINSIDE, x))
 #define SET_PBDELETEFONT(h,x)		(SetWindowLong(h, PBL_DELETEFONT, x))
 #define SET_PBFONT(h,x)			(SetWindowLongPtr(h, PBL_FONT, x))
-#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, PBL_WND_FONT, (f)))
+#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, PBL_WND_FONT, (LONG_PTR)(f)))
 #define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, PBL_TXTLEFTTOP, MAKELONG((t).left, (t).top)); SetWindowLong(h, PBL_TXTRIGHTBOTTOM, MAKELONG((t).right, (t).bottom)); }
 
-#define PARENT(hwnd)		((HWND)GetWindowLongPtr(hwnd,GWL_HWNDPARENT))
+#define PARENT(hwnd)		((HWND)(LONG_PTR)GetWindowLongPtr(hwnd,GWL_HWNDPARENT))
 
 /* Internal state variable bit positions				*/
 #define PUSH_UP		0x0000

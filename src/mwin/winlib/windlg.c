@@ -56,8 +56,8 @@ typedef struct tagMWDLGDATA {
 
 #define DLGF_DESTROYFONT	0x80000000L
 
-#define DLG_PMWDLGDATA(dlg)	((PMWDLGDATA)GetWindowLongPtr(dlg, DWL_DLGDATA))
-#define DLG_DLGPROC(dlg)	((DLGPROC)GetWindowLongPtr(dlg, DWL_DLGPROC))
+#define DLG_PMWDLGDATA(dlg)	((PMWDLGDATA)(LONG_PTR)GetWindowLongPtr(dlg, DWL_DLGDATA))
+#define DLG_DLGPROC(dlg)	((DLGPROC)(LONG_PTR)GetWindowLongPtr(dlg, DWL_DLGPROC))
 #define DLG_MSGRESULT(dlg)	((LRESULT)GetWindowLongPtr(dlg, DWL_MSGRESULT))
 
 static DLGBOOL CALLBACK mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
@@ -560,8 +560,8 @@ mwDialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 				dlgDestroyInitFont(hWnd, pData);
 				free(pData);
-				SetWindowLongPtr(hWnd, DWL_DLGDATA, NULL);
-				SetWindowLongPtr(hWnd, DWL_DLGPROC, NULL);
+				SetWindowLongPtr(hWnd, DWL_DLGDATA, (LONG_PTR)0);
+				SetWindowLongPtr(hWnd, DWL_DLGPROC, (LONG_PTR)0);
 				if (hPar)
 					SetActiveWindow(hPar);
 			} else
@@ -737,7 +737,7 @@ IsDialogMessage(HWND hDlg, LPMSG lpMsg)
 			case VK_CANCEL:
 			case VK_ESCAPE:
 				PostMessage(hDlg, WM_COMMAND, IDCANCEL,
-					    (LPARAM) GetDlgItem(hDlg, IDCANCEL));
+					    (LPARAM)(HWND)GetDlgItem(hDlg, IDCANCEL));
 				return TRUE;
 			}
 			break;
@@ -755,8 +755,7 @@ IsDialogMessage(HWND hDlg, LPMSG lpMsg)
 		case WM_SYSCHAR:
 			if (parseAccelerator(hDlg, lpMsg->wParam))
 				return TRUE;
-			DPRINTF("SYSCHAR %08X %08X\n", lpMsg->wParam,
-			       lpMsg->lParam);
+			DPRINTF("SYSCHAR %08lx %08lx\n", lpMsg->wParam, lpMsg->lParam);
 			break;
 		}
 
@@ -896,7 +895,7 @@ MapDialogRect(HWND hWnd, LPRECT lpRc)
 	//TEXTMETRIC tm;
 
 	hdc = GetDC(hWnd);
-	oldFnt = SelectObject(hdc, (HFONT)SendMessage(hWnd, WM_GETFONT, 0, 0));
+	oldFnt = SelectObject(hdc, (HFONT)(LRESULT)SendMessage(hWnd, WM_GETFONT, 0, 0));
 	if (GetTextExtentPoint(hdc, defAlpha, sizeof(defAlpha) - 1, &sz))
 	//if( GetTextMetrics(hdc, &tm) )
 	{
@@ -980,8 +979,8 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 		if (pData == NULL)
 			break;
 
-		SetWindowLongPtr(hDlg, DWL_DLGDATA, pData);
-		SetWindowLongPtr(hDlg, DWL_DLGPROC, lpDialogFunc);
+		SetWindowLongPtr(hDlg, DWL_DLGDATA, (LONG_PTR)pData);
+		SetWindowLongPtr(hDlg, DWL_DLGPROC, (LONG_PTR)lpDialogFunc);
 		SetWindowLongPtr(hDlg, DWL_USER, dwInitParam);
 		pData->flags = 0;
 		pData->running = FALSE;
@@ -1021,7 +1020,7 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 				 pItemExtra->szCaption, style,
 				 rc.left, rc.top,
 				 rc.right - rc.left, rc.bottom - rc.top,
-				 hDlg, (HMENU) (int) pItem->id,
+				 hDlg, (HMENU)(LONG_PTR)pItem->id,
 				 hInstance, pItemExtra->lpData);
 
 			if (hCtrl != NULL) {

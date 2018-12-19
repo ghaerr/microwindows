@@ -27,7 +27,7 @@ long XExtendedMaxRequestSize(Display *display)
  */
 void *_XGetRequest(Display *dpy, /*CARD8*/char type, size_t len)
 {
-	DPRINTF("_XGetRequest called...type:%x len:%d\n", type, len);
+	DPRINTF("_XGetRequest called...type:%x len:%ld\n", type, (long)len);
 	return (void*)dpy->request;
 
 /*	xReq *req;

@@ -578,7 +578,7 @@ X11_init(void)
 	sprintf(name, "fbe %dx%dx%dbpp", CRTX, CRTY, BITS_PER_PIXEL);
 
 	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8,
-		PropModeReplace, name, strlen(name));
+		PropModeReplace, (unsigned char *)name, strlen(name));
 	XMapWindow(display, window);
 
 	gc = XCreateGC(display, window, 0, NULL);

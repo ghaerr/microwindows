@@ -32,11 +32,11 @@ XChangeProperty(Display * display, Window w, Atom property,
 	GR_WM_PROPERTIES props;
 	
 	if (!nelements || data == NULL) {
-		DPRINTF("XChangeProperty called with NULL data [Atom:%x,m:%x,d:%x]\n", type, mode, data);
+		DPRINTF("XChangeProperty called with NULL data [Atom:%lx,m:%x,d:%lx]\n", type, mode, (long)data);
 		return 1;
 	}
 
-	DPRINTF("XChangeProperty called [Atom:%x, mode:%x, data:%x]\n", type, mode, data);
+	DPRINTF("XChangeProperty called [Atom:%lx, mode:%x, data:%lx]\n", type, mode, (long)data);
 	win = window_list[hash];
 	if (!win) {
 		win = window_list[hash] =
@@ -84,7 +84,7 @@ XChangeProperty(Display * display, Window w, Atom property,
 				(struct window_props *) Xcalloc(1, sizeof(struct window_props));
 		}
 	}
-	DPRINTF("XChangeProperty: win:%x prop:%x\n", (int)w, prop);
+	DPRINTF("XChangeProperty: win:%x prop:%x\n", (int)w, (int)prop);
 
 	switch (mode) {
 	case PropModeAppend:	// 2

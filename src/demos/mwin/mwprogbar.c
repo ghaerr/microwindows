@@ -28,7 +28,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         MSG msg;
         WNDCLASS wndclass;
 
-        HWND hlist;
 	int width, height;
 
 	width=270;

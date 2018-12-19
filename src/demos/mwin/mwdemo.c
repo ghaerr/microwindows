@@ -122,7 +122,7 @@ RegisterAppClass(void)
 HWND
 CreateAppWindow(void)
 {
-	HWND	hwnd, hlist;
+	HWND	hwnd;
 	static int nextid = 1;
 	int width, height;
 	RECT r;
@@ -134,7 +134,7 @@ CreateAppWindow(void)
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
-		NULL, (HMENU)nextid++, NULL, NULL);
+		NULL, (HMENU)(LONG_PTR)nextid++, NULL, NULL);
 
 #if CONTROLS
 	if(hwnd
@@ -169,7 +169,7 @@ CreateAppWindow(void)
 			width * 5 / 8, 32, 100, 18,
 			hwnd, (HMENU)6, NULL, NULL);
 
-		hlist = CreateWindowEx(0L, "LISTBOX",
+		HWND hlist = CreateWindowEx(0L, "LISTBOX",
 			"OK",
 			WS_HSCROLL|WS_VSCROLL|WS_BORDER|WS_CHILD | WS_VISIBLE,
 			width * 5 / 8, 54, 100, 48,
@@ -273,7 +273,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		break;
 
 	case WM_TIMER:
-		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
+		pData = (pdemoWndData)(LONG_PTR)GetWindowLongPtr(hwnd, 0);
 #if GRAPH3D
 		GetClientRect(hwnd, &rc);
 		if(countup) {
@@ -302,9 +302,9 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		break;
 	case WM_DESTROY:
 		KillTimer(hwnd, 1);
-		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
+		pData = (pdemoWndData)(LONG_PTR)GetWindowLongPtr(hwnd, 0);
 		free ( pData );
-		SetWindowLongPtr(hwnd, 0, NULL);
+		SetWindowLongPtr(hwnd, 0, (LONG_PTR)0);
 		break;
 	case WM_SIZE:
 		break;
@@ -443,7 +443,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_MOUSEMOVE:
 #if GRAPH3D
-		pData = (pdemoWndData) GetWindowLongPtr(hwnd, 0);
+		pData = (pdemoWndData)(LONG_PTR)GetWindowLongPtr(hwnd, 0);
 		if((GetWindowLong(hwnd, GWL_ID) & 03) == 1) {
 			POINT pt;
 

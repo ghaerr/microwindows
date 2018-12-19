@@ -63,8 +63,8 @@
 static LRESULT CALLBACK
 StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-#define GET_WND_FONT(hWnd)	((HFONT)GetWindowLongPtr(hWnd, 0))
-#define SET_WND_FONT(hWnd, fnt)	SetWindowLongPtr(hWnd, 0, fnt)
+#define GET_WND_FONT(hWnd)	((HFONT)(LONG_PTR)GetWindowLongPtr(hWnd, 0))
+#define SET_WND_FONT(hWnd, fnt)	SetWindowLongPtr(hWnd, 0, (LONG_PTR)fnt)
 
 int WINAPI
 MwRegisterStaticControl(HINSTANCE hInstance)
@@ -96,13 +96,13 @@ GetWindowStyle(HWND hwnd)
 	return hwnd->style;
 }
 
-static COLORREF
-GetWindowBkColor(HWND hwnd)
-{
-	MWBRUSHOBJ *hbr;
-	hbr = (MWBRUSHOBJ *) hwnd->pClass->hbrBackground;
-	return hbr->color;
-}
+//static COLORREF
+//GetWindowBkColor(HWND hwnd)
+//{
+//	MWBRUSHOBJ *hbr;
+//	hbr = (MWBRUSHOBJ *) hwnd->pClass->hbrBackground;
+//	return hbr->color;
+//}
 
 static char *
 GetWindowCaption(HWND hwnd)
@@ -161,7 +161,7 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 #ifdef OLD_DRAWTEXT
 	int y, maxy;
 #endif
-	SIZE sz;
+	//SIZE sz;
 	DWORD dwStyle = hwnd->style;
 	unsigned long attrib = 0;
 
@@ -312,8 +312,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			HBRUSH hbr;
 			dwStyle = GetWindowStyle(hwnd);
-			hbr = (HBRUSH)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
-	 				  wParam, (LPARAM) hwnd);
+			hbr = (HBRUSH)(LRESULT)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC, wParam, (LPARAM)hwnd);
 			if (hbr == NULL)
 				return DefWindowProc(hwnd, message, wParam, lParam);
 			GetClientRect(hwnd, &rcClient);
@@ -329,8 +328,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			hdc = BeginPaint(hwnd, &ps);
 			/* Color, pen and brush are now choosed by defwindowproc, or by user. */
-			hbr = (HBRUSH)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC,
-					  (WPARAM) hdc, (LPARAM) hwnd);
+			hbr = (HBRUSH)(LRESULT)SendMessage(GetParent(hwnd), WM_CTLCOLORSTATIC, (WPARAM)hdc, (LPARAM)hwnd);
 			if (hbr == NULL)
 				hbr = (HBRUSH)GetStockObject(NULL_BRUSH);
 

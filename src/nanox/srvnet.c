@@ -1927,12 +1927,12 @@ again:
 		while (ecp) {
 			necp = ecp->next;
 			if (ecp->client == client) {
-DPRINTF( "  Destroy window %d eventclient mask %08lx\n", wp->id, ecp->eventmask);
+DPRINTF( "  Destroy window %d eventclient mask %08x\n", wp->id, ecp->eventmask);
 				if (ecp == wp->eventclients)
 					wp->eventclients = ecp->next;
 				else
 					pecp->next = ecp->next;
-DPRINTF("FREE 2 %x\n", ecp);		// FIXME
+DPRINTF("FREE 2 %lx\n", (long)ecp);		// FIXME
 				free(ecp);
 			} else
 				pecp = ecp;
@@ -2098,7 +2098,7 @@ GsDropClient(int fd)
 		}
 #endif
 GsPrintResources();
-DPRINTF("WOULD HAVE FREED %x\n", client);				// FIXME
+DPRINTF("WOULD HAVE FREED %lx\n", (long)client);				// FIXME
 //		free(client);	/* Free the structure */		// fixes NANOWM bug FIXME where is it freed?
 
 		clipwp = NULL;	/* reset clip window*/

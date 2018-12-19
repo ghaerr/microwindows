@@ -1346,8 +1346,6 @@ CBoxDrawButton(HWND hWnd,UINT wState,COMBOBOX *lp)
     HDC       hdcSrc;
     COLORREF  rgbText, rgbBk;
 #endif
-    HBRUSH    hBrush;
-    HPEN      hPenHigh,hPenShadow;
     RECT      rc;
 
     hDC = GetDC(hWnd);

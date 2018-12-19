@@ -66,10 +66,10 @@ int XShmCreateImage() { DPRINTF("XShmCreateImage called\n"); return 0; }
 int XShmPutImage() { DPRINTF("XShmPutImage called\n"); return 0; } 
 
 /* required for Xforms toolkit */
-XGetStandardColormap() { DPRINTF("XGetStandardColormap called\n"); return 0; }
-XChangeKeyboardControl() { DPRINTF("XChangeKeyboardControl called\n"); return 0; } 
-XFetchBuffer() { DPRINTF("XFetchBuffer called\n"); return 0; } 
-XCopyColormapAndFree() { DPRINTF("XCopyColormapAndFree called\n"); return 0; }
+int XGetStandardColormap() { DPRINTF("XGetStandardColormap called\n"); return 0; }
+int XChangeKeyboardControl() { DPRINTF("XChangeKeyboardControl called\n"); return 0; } 
+int XFetchBuffer() { DPRINTF("XFetchBuffer called\n"); return 0; } 
+int XCopyColormapAndFree() { DPRINTF("XCopyColormapAndFree called\n"); return 0; }
 
 /* other required*/
 //int XAddExtension() { DPRINTF("XAddExtension called\n"); return 0; } 

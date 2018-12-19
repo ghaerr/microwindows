@@ -69,7 +69,7 @@
 #include <assert.h>
 
 //  WM_SETFONT implementation
-#define GET_WND_FONT(h)			((HFONT)GetWindowLongPtr(h, 0))
+#define GET_WND_FONT(h)			((HFONT)(LONG_PTR)GetWindowLongPtr(h, 0))
 #define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, 0, (LONG_PTR)(f)))
 #define ISOWNERDRAW(dwStyle)	((dwStyle & (LBS_OWNERDRAWFIXED | LBS_OWNERDRAWVARIABLE)) != 0)
 
@@ -218,8 +218,7 @@ lbAskMeasureItem(HWND hwnd, int id, int *ph)
 	ms.itemHeight = pData->itemHeight;
 	if (id >= 0)
 		ms.itemData = SendMessage(hwnd, LB_GETITEMDATA, id, 0);
-	res = SendMessage(GetParent(hwnd), WM_MEASUREITEM, ms.CtlType,
-			  (LPARAM) & ms);
+	res = SendMessage(GetParent(hwnd), WM_MEASUREITEM, ms.CtlType, (LPARAM) & ms);
 	if (res) {
 		*ph = ms.itemHeight;
 	}
@@ -229,8 +228,7 @@ lbAskMeasureItem(HWND hwnd, int id, int *ph)
 static LRESULT
 NotifyParent(HWND hwnd, int id, int code)
 {
-	return SendMessage(GetParent(hwnd), WM_COMMAND,
-			   (WPARAM) MAKELONG(id, code), (LPARAM) hwnd);
+	return SendMessage(GetParent(hwnd), WM_COMMAND, (WPARAM) MAKELONG(id, code), (LPARAM) hwnd);
 }
 
 static void
@@ -641,9 +639,7 @@ lstOnDrawSListBoxItems(HWND hwnd, HDC hdc, DWORD dwStyle,
 			lbFillDrawitemstruct(hwnd, hdc, &drw, &rc,
 					     ODA_DRAWENTIRE,
 					     pData->itemTop + i, plbi);
-			if (!SendMessage
-			    (GetParent(hwnd), WM_DRAWITEM, drw.CtlID,
-			     (LPARAM) & drw))
+			if (!SendMessage(GetParent(hwnd), WM_DRAWITEM, drw.CtlID, (LPARAM) & drw))
 				FastFillRect(hdc, &rc, WHITE);
 
 			if (pData->itemTop + i == pData->itemHilighted) {
@@ -782,8 +778,7 @@ lstDrawFocusRect(HWND hwnd, HDC hdc, PLISTBOXDATA pData, BOOL bFocus)
 		if ((pData->dwFlags & LBF_FOCUS)
 		    && !(pData->dwFlags & LBF_FOCUSRECT)) {
 			if (ISOWNERDRAW(dwStyle))
-				painted = SendMessage(GetParent(hwnd),
-						    WM_DRAWITEM, drw.CtlID, (LPARAM) & drw);
+				painted = SendMessage(GetParent(hwnd), WM_DRAWITEM, drw.CtlID, (LPARAM) & drw);
 			if (!painted)
 				DrawFocusRect(hdc, &rc);
 			pData->dwFlags |= LBF_FOCUSRECT;
@@ -791,8 +786,7 @@ lstDrawFocusRect(HWND hwnd, HDC hdc, PLISTBOXDATA pData, BOOL bFocus)
 	} else {
 		if ((pData->dwFlags & LBF_FOCUSRECT)) {
 			if (ISOWNERDRAW(dwStyle))
-				painted = SendMessage(GetParent(hwnd),
-						    WM_DRAWITEM, drw.CtlID, (LPARAM) & drw);
+				painted = SendMessage(GetParent(hwnd), WM_DRAWITEM, drw.CtlID, (LPARAM) & drw);
 			if (!painted)
 				DrawFocusRect(hdc, &rc);
 			pData->dwFlags &= ~LBF_FOCUSRECT;
@@ -969,7 +963,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					newItem->dwData = 0L;
 			} else
 				if (!(dwStyle & LBS_HASSTRINGS))
-					newItem->dwData = newItem->key;
+					newItem->dwData = (LONG)newItem->key;
 			newItem->dwAddData = 0L;
 
 			if (message == LB_ADDSTRING)
@@ -1531,7 +1525,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HDC hdc;
 			HBRUSH hbr;
 
-			if (hbr = (HBRUSH)SendMessage (GetParent(hwnd), WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd))
+			if ((hbr = (HBRUSH)(LRESULT)SendMessage (GetParent(hwnd), WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd)))
 			{
 				hdc = GetDCEx(hwnd, NULL, DCX_DEFAULTCLIP);
 				FillRect(hdc, NULL, hbr);
@@ -1647,7 +1641,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 		{
-			int oldSel, newSel, newTop, oldHighlight;
+			int oldSel = -1, newSel, newTop, oldHighlight;
 
 			pData = (PLISTBOXDATA) pCtrl->userdata;
 			newTop = pData->itemTop;
@@ -1767,8 +1761,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case 0x0C:	/* FF */
 			case 0x0D:	/* CR */
 			case 0x1B:	/* Escape */
-				return SendMessage(GetParent(hwnd), WM_CHAR,
-						   wParam, lParam);;
+				return SendMessage(GetParent(hwnd), WM_CHAR, wParam, lParam);;
 			}
 
 			head[0] = (char) (wParam);

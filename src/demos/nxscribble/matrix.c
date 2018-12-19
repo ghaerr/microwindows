@@ -630,7 +630,7 @@ Matrix m, inv;
 			printf("det = %g\n", det);
 		}
 		*/
-		if(abs(det) > abs(maxdet))
+		if(fabs(det) > fabs(maxdet))
 			maxdet = det, mi = i, mj = j;
 		FreeMatrix(sm);
 	    }

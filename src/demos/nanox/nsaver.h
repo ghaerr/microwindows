@@ -41,7 +41,7 @@
 #define MAX(X, Y) ((X) > (Y) ? (X) : (Y))
 #define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
 #define RANDRANGE(LO, HI) ((rand() % ((int)(HI) - (int)(LO) + 1)) + (int)(LO))
-#define FRANDRANGE(LO, HI) (((double)rand() * ((double)(HI) - (double)(LO)) / \
+#define FRANDRANGE(LO, HI) (((double)(int)rand() * ((double)(HI) - (double)(LO)) / \
 			(double)((double)RAND_MAX + 1.0)) + (double)(LO))
 
 #define PI 3.14159265358979323846264338327

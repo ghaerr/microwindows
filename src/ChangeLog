@@ -1,3 +1,5 @@
+18 Dec 2018
+	* cleaned up compiler warnings in various files by careful casting
 17 Dec 2018
 	* cleaned up win32 fileopen routines considerably
 	* added resDialogTemplate, resDialogItemTemplate for creating memory dialog templates

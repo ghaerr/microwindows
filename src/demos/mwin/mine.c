@@ -133,7 +133,7 @@ static int bombnum = 10;
 
 static BOM bom[30][18];
 static NO NoAdr[540];
-static SCORE score[3];
+//static SCORE score[3];
 static int itime, leftbombnum;
 static int oldx, oldy, adrx, adry;
 static int flag_bombout, flag_finished, flag_size = 2;
@@ -350,7 +350,7 @@ void Finished(HWND hWnd)
     int i,j;
     HDC hdc;
     RECT bombnumber;
-    MAINWINCREATE CreateInfo;
+    //MAINWINCREATE CreateInfo;
   
     hdc = GetDC(hWnd);
   
@@ -827,7 +827,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     int ran1, ran2;
     static RECT bombregion, face, onerect, bombnumber, clock; 
     static RECT winposition;
-    MAINWINCREATE  CreateInfo;
+    //MAINWINCREATE  CreateInfo;
 
     PAINTSTRUCT ps;
     switch (message) {

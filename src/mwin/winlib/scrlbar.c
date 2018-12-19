@@ -531,7 +531,7 @@ MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWO
 	}
 }
 
-
+#if 0
 static BOOL
 PtInRect2(const RECT *lprc, int x, int y)
 {
@@ -541,6 +541,7 @@ PtInRect2(const RECT *lprc, int x, int y)
 	p.y = y;
 	return PtInRect(lprc, p);
 }
+#endif
 
 static void
 wndScrollBarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)	/* jmt: 2k0820 */
@@ -1027,7 +1028,7 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* 
 #if 0	/* jmt: must handle WM_MOVE */
 		pData->rc=hwnd->winrect;   /* screen coordinates position*/
 #endif
-            	hwnd->userdata = pData;
+            	hwnd->userdata = (LONG)pData;
 
 		if (dwStyle == SBS_VERT)
 		{

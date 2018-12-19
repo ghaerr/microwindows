@@ -158,7 +158,7 @@ static int writeout(snapstate *state)
 					return 1;
 			}
 
-			if(fwrite(rgb, 3, 1, fp) < 0) goto badwrite;
+			if(!fwrite(rgb, 3, 1, fp)) goto badwrite;
 		}
 	}
 	

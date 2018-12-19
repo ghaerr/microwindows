@@ -34,7 +34,7 @@ int XConfigureWindow(Display *dpy, Window w, unsigned int mask, XWindowChanges *
 	}
 
 	if (mask & CWSibling) {
-		DPRINTF(" Sib(%d)", changes->sibling);
+		DPRINTF(" Sib(%lu)", changes->sibling);
 	}
 	if (mask & CWStackMode) {
 		DPRINTF(" Stc(%d)", changes->stack_mode);

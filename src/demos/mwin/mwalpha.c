@@ -53,7 +53,7 @@ CreateAppWindow(void)
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
-		NULL, (HMENU)++nextid, NULL, NULL);
+		NULL, (HMENU)(LONG_PTR)++nextid, NULL, NULL);
 
 	return hwnd;
 }
@@ -111,7 +111,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		hbmpOrg = SelectObject(hdcMem, hbmp);
 
 		/* paint window to offscreen*/
-		hbr = (HBRUSH)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND);
+		hbr = (HBRUSH)(ULONG_PTR)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND);
 		FillRect(hdcMem, &rc, hbr);
 		SelectObject(hdcMem, GetStockObject(DEFAULT_GUI_FONT));
 		SetBkMode(hdcMem, TRANSPARENT);

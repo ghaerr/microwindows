@@ -277,7 +277,7 @@ GsDestroyWindow(GR_WINDOW *wp)
 	while (wp->eventclients) {
 		ecp = wp->eventclients;
 		wp->eventclients = ecp->next;
-DPRINTF("FREE 1 %x\n", ecp);			// FIXME
+DPRINTF("FREE 1 %lx\n", (long)ecp);			// FIXME
 		free(ecp);
 	}
 

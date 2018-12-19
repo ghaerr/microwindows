@@ -325,7 +325,7 @@ ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (wParam == 0)
                 break;
             
-            fErase = (wParam < 0);
+            fErase = ((INT)wParam < 0);
             pData->nPos += wParam;
             pbarNormalizeParams (pCtrl, pData, hwnd->style & PBS_NOTIFY);
 	    InvalidateRect(hwnd, NULL, fErase);
@@ -337,7 +337,7 @@ ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (pData->nStepInc == 0)
                 break;
 
-            fErase = (pData->nStepInc < 0);
+            fErase = ((INT)pData->nStepInc < 0);
             pData->nPos += pData->nStepInc;
             pbarNormalizeParams (pCtrl, pData, hwnd->style & PBS_NOTIFY);
 	    InvalidateRect(hwnd, NULL, fErase);

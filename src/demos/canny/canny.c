@@ -55,7 +55,6 @@ PMWIMAGEHDR
 read_image_pixmap(GR_WINDOW_ID wid)
 {
 	MWIMAGEINFO info;
-	GR_PIXELVAL *buf, *out;
 	static MWIMAGEHDR image;
 	
 	GrGetImageInfo(wid, &info);

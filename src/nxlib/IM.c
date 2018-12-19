@@ -257,7 +257,7 @@ XIM XOpenIM(Display *dpy,
 
 Status XCloseIM(XIM im)
 {
-	DPRINTF("XCloseIM called.. %x\n", im);
+	DPRINTF("XCloseIM called.. %x\n", (int)im);
 	/*StaticXIM im = (StaticXIM)xim;
 	_XlcCloseConverter(im->private->ctom_conv);
 	_XlcCloseConverter(im->private->ctow_conv);
@@ -272,14 +272,14 @@ Status XCloseIM(XIM im)
 // Return the Display associated with the input method.
 Display *XDisplayOfIM(XIM im)
 {
-	DPRINTF("XDisplayOfIM called.. %x\n", im);
+	DPRINTF("XDisplayOfIM called.. %x\n", (int)im);
 	return im->core.display;
 }
 
 // Return the Locale associated with the input method.
 char *XLocaleOfIM(XIM im)
 {
-	DPRINTF("XLocaleOfIM called.. %x\n", im);
+	DPRINTF("XLocaleOfIM called.. %x\n", (int)im);
 	return im ? im->core.lcd->core->name : 0;
 }
 

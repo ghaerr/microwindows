@@ -75,7 +75,7 @@ nxAssignReqbuffer(char *buffer, long size)
 
 	if ( reqbuf.buffer != 0 )
 		free(reqbuf.buffer);
-	reqbuf.buffer = buffer;
+	reqbuf.buffer = (unsigned char *)buffer;
 	reqbuf.bufptr = reqbuf.buffer;
 	reqbuf.bufmax = reqbuf.buffer + size;
 }
@@ -116,7 +116,7 @@ nxFlushReq(long newsize, int reply_needed)
 
 	/* flush buffer if required*/
 	if(reqbuf.bufptr > reqbuf.buffer) {
-		char *	buf = reqbuf.buffer;
+		char *	buf = (char *)reqbuf.buffer;
 		int	todo = reqbuf.bufptr - reqbuf.buffer;
 
 #if HAVE_SHAREDMEM_SUPPORT

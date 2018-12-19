@@ -53,9 +53,11 @@ static char *lialg_recognize_stroke(rClassifier *, point_list *);
 char* li_err_msg = NULL;
 char _zdebug_flag[128];
 
-#ifndef __ECOS
+#ifdef __ECOS
+#define BCOPY		bcopy
+#else
 /* This is standard - defined in <stdlib.h> */
-#define bcopy(s1,s2,n) memcpy(s2,s1,n)
+#define BCOPY(s1,s2,n) memcpy(s2,s1,n)
 #endif
 
 #if 0 /* was #ifdef mips*/
@@ -93,7 +95,7 @@ add_example(point_list* l,int npts,pen_point* pts)
 
     /*Copy points.*/
 
-    bcopy(pts,lpts,npts * sizeof(pen_point));
+    BCOPY(pts,lpts,npts * sizeof(pen_point));
 
     return(p);
 }
@@ -261,8 +263,8 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
 
     /*Transfer to recognizer.*/
 
-    bcopy(examples,ex,sizeof(examples));
-    bcopy(names,cnames,sizeof(names));
+    BCOPY(examples,ex,sizeof(examples));
+    BCOPY(names,cnames,sizeof(names));
 
     return(0);
 

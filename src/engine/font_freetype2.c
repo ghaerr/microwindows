@@ -400,6 +400,14 @@ static hb_script_t get_hb_script(FT_Face ftf) {
 }
 #endif // HAVE_HARFBUZZ_SUPPORT
 
+static long
+LABS(long value)
+{
+	if (value < 0)
+		return -value;
+	return value;
+}
+
 /**
  * Initialize the FreeType 2 driver.  If successful, this is a one-time
  * operation. Subsequent calls will do nothing, successfully.
@@ -1162,9 +1170,9 @@ freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	pfontinfo->maxdescent = ROUND_26_6_TO_INT(FT_MulFix(-bbox->yMin, metrics->y_scale));
 	pfontinfo->fixed = ((face->face_flags & FT_FACE_FLAG_FIXED_WIDTH) != 0);
 	pfontinfo->baseline = ROUND_26_6_TO_INT(metrics->ascender);
-	pfontinfo->descent =  ROUND_26_6_TO_INT(abs(metrics->descender));
+	pfontinfo->descent =  ROUND_26_6_TO_INT(LABS(metrics->descender));
 	pfontinfo->height = pfontinfo->baseline + pfontinfo->descent;
-	leading = ROUND_26_6_TO_INT(metrics->height - (metrics->ascender + abs(metrics->descender)));
+	leading = ROUND_26_6_TO_INT(metrics->height - (metrics->ascender + LABS(metrics->descender)));
 	pfontinfo->linespacing = pfontinfo->height + leading;
 
 	//DPRINTF("Nano-X-Freetype2: Font metrics:"
@@ -1301,7 +1309,7 @@ freetype2_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	 * Offset the starting point if necessary, FreeType always aligns at baseline
 	 */
 	if (flags & MWTF_BOTTOM)
-		pos.y = (abs(size->metrics.descender) + 63) & ~63;	/* descent */
+		pos.y = (LABS(size->metrics.descender) + 63) & ~63;	/* descent */
 	else if (flags & MWTF_TOP)
 		pos.y = -((size->metrics.ascender + 63) & ~63);		/* -ascent */
 	else

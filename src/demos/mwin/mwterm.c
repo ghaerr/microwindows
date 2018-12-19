@@ -139,11 +139,11 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			if(ch == '\r')
 				EmOutChar(hwnd, '\n');
 		} else
-			WritePtyShell(ttyfd, &ch, 1);
+			WritePtyShell(ttyfd, (char *)&ch, 1);
 		break;
 
 	case WM_FDINPUT:
-		if(ReadPtyShell(ttyfd, &ch, 1) == 1)
+		if(ReadPtyShell(ttyfd, (char *)&ch, 1) == 1)
 			EmOutChar(hwnd, ch);
 		break;
 
@@ -208,7 +208,7 @@ EmOutChar(HWND hwnd, unsigned char ch)
 			rc.right -= XMARGIN;
 			rc.bottom -= YMARGIN;
 			FillRect(hdc, &rc,
-				(HBRUSH)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND));
+				(HBRUSH)(ULONG_PTR)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND));
 			ReleaseDC(hwnd, hdc);
 		}
 		return;

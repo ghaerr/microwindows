@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 		switch(event.type) {
 			case GR_EVENT_TYPE_CLIENT_DATA_REQ:
 				req = &event.clientdatareq;
-				fprintf(stderr, "Got request with serial number %ld from window %d for mime type %d\n",
+				fprintf(stderr, "Got request with serial number %d from window %d for mime type %d\n",
 					req->serial, req->rid, req->mimetype);
 				GrSendClientData(wid, req->rid, req->serial, data_len, data_len, buf);
 				break;

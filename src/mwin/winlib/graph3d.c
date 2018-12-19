@@ -54,7 +54,7 @@ init3(HDC hDC, HWND memhwnd)
 				hbmpOrg = SelectObject(hdcMem, hbmp);
 				hdc = hdcMem;
 			}
-			hbr = (HBRUSH)GetClassLongPtr(memhwnd, GCL_HBRBACKGROUND);
+			hbr = (HBRUSH)(ULONG_PTR)GetClassLongPtr(memhwnd, GCL_HBRBACKGROUND);
 			FillRect(hdc, NULL, hbr);
 		}
 		/* create pen for setcolor3() color override*/

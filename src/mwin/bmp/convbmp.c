@@ -136,11 +136,11 @@ char	oname[MAX_FILENAME_LEN];
 
    if (o_flag) {
    	if (strlen(argv[0]) > MAX_FILENAME_LEN - 3) {
-   		fprintf(stderr, "Filename too long (%d bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
+   		fprintf(stderr, "Filename too long (%ld bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
    		return 1;
    	}
    	if (strlen(argv[1]) > MAX_FILENAME_LEN - 3) {
-   		fprintf(stderr, "Filename too long (%d bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
+   		fprintf(stderr, "Filename too long (%ld bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
    		return 1;
    	}
    	if(ConvBMPFile(argv[1], argv[0])) {
@@ -155,7 +155,7 @@ char	oname[MAX_FILENAME_LEN];
 	argv++;
 	if (strlen(*argv) > MAX_FILENAME_LEN - 3) {
 	   /* The 3 is for ".c\0" */
-		fprintf(stderr, "Filename too long (%d bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
+		fprintf(stderr, "Filename too long (%ld bytes, max is %d): '%s'\n", strlen(*argv), MAX_FILENAME_LEN - 3, *argv);
 		return 1;
 	}
 	strcpy(name, *argv);

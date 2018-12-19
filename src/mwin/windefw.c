@@ -353,7 +353,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_ERASEBKGND:
 		/* erase background with class background brush*/
-		hbr = (HBRUSH)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND);
+		hbr = (HBRUSH)(LONG_PTR)GetClassLongPtr(hwnd, GCL_HBRBACKGROUND);
 		if(!hbr)
 			return 0;
 		/* don't exclude update region*/
@@ -418,7 +418,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetTextColor (hdc, BLACK);
 		SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
 		SetBkMode(hdc, TRANSPARENT);
-		SelectObject(hdc, (HFONT)SendMessage(hCtl, WM_GETFONT, (WPARAM)0, (LPARAM)0));
+		SelectObject(hdc, (HFONT)(LRESULT)SendMessage(hCtl, WM_GETFONT, (WPARAM)0, (LPARAM)0));
 		SelectObject(hdc, GetStockObject(BLACK_PEN) );
 
 		switch ( dwStyle & SS_ETCTYPEMAKS )
@@ -442,13 +442,13 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				return (LPARAM)hCtl->paintBrush;
 
 			case SS_GRAYRECT:
-				return (LPARAM)GetStockObject(DKGRAY_BRUSH);
+				return (LPARAM)(HGDIOBJ)GetStockObject(DKGRAY_BRUSH);
 
 			case SS_BLACKRECT:
-				return (LPARAM)GetStockObject(BLACK_BRUSH);
+				return (LPARAM)(HGDIOBJ)GetStockObject(BLACK_BRUSH);
 
 			case SS_WHITERECT:
-				return (LPARAM)GetStockObject(WHITE_BRUSH);
+				return (LPARAM)(HGDIOBJ)GetStockObject(WHITE_BRUSH);
 
 			case SS_SIMPLE:
 				hCtl->paintBrush = CreateSolidBrush(((MWBRUSHOBJ *)hCtl->pClass->hbrBackground)->color);

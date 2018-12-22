@@ -1,3 +1,5 @@
+22 Dec 2018
+	* fixed cascading menus to work using relative window position returned by GrGetWindowInfo
 17 Dec 2018
 	* applied Gary James' timeout patch for auto scroll scrollbar line/page on mouse down
 16 Dec 2018

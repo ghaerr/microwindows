@@ -642,6 +642,8 @@ void tnGetWidgetProps(TN_WIDGET *widget,TN_WIDGET_PROPS *props)
 	GrGetWindowInfo(winfo.parent,&parentinfo);
 	props->posx=winfo.x;		// returns relative coords
 	props->posy=winfo.y;
+//	props->posx=winfo.x-parentinfo.x;
+//	props->posy=winfo.y-parentinfo.y;
 	props->parent=GetFromRegistry(winfo.parent);
 	sibling = winfo.sibling;
 	child = winfo.child;

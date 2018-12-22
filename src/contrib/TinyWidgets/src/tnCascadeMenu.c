@@ -83,25 +83,32 @@ CreateCascadeMenu (TN_WIDGET * widget,
     GrNewWindow (parentwid, posx, posy, width, height, 0, bgcolor, 0);
   /*Find posx posxy for the container*/
     GrGetWindowInfo(widget->wid,&winfo);
-    containerx=winfo.x+winfo.width;
-    containery=winfo.y;
-    
+	containerx = winfo.width - 4 - 1;			// frame width is 2*2
+	containery = winfo.height + 2 - 1;
+
   /*Find parent for the container & create container window for menu items */
    temp=widget;
 
   while(1)
   {
 	  temp=GetFromRegistry(temp->WSpec.cascademenu.popupmenuwid);
+  	GrGetWindowInfo(temp->wid,&winfo);			// this code may need to move up one line or down two lines
+  	containerx += winfo.width;
+  	containery += winfo.height;
 	  if(temp->type!=TN_CASCADEMENU)
 	  	break;
   }
 
   GrGetWindowInfo(temp->wid,&winfo);
+  //containerx += winfo.width;
+  //containery += winfo.height;
   GrGetWindowInfo(winfo.parent,&winfo);
   appwindowwid=winfo.parent;
   GrGetWindowInfo(winfo.parent,&winfo);
-  containerx-=winfo.x;
-  containery-=winfo.y;
+  //containerx -= winfo.x;
+  //containery -= winfo.height;
+  //containerx-=winfo.x;			// original code
+  //containery-=winfo.y;
   widget->WSpec.cascademenu.container =
 	  GrNewWindow (appwindowwid, containerx,containery, CONTAINER_WIDTH, CONTAINER_HEIGHT, 0, bgcolor, 0);
   
@@ -187,7 +194,6 @@ DrawCascadeMenu(TN_WIDGET *cascademenu)
   GR_POINT arrow[3];
   if(cascademenu->visible==GR_FALSE) return;
   GrGetWindowInfo (cascademenu->wid, &winfo);
-
 
   /*Draw Cascade Menu caption */
 

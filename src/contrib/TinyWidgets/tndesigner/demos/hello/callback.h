@@ -2,3 +2,4 @@
 void on_button_clicked(TN_WIDGET *, DATA_POINTER);
 void on_window_close(TN_WIDGET *, DATA_POINTER);
 void on_clear_clicked(TN_WIDGET *, DATA_POINTER);
+TN_WIDGET *lookup_widget(TN_WIDGET *,char *);

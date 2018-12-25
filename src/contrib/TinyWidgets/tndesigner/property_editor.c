@@ -134,7 +134,6 @@ void invoke_property_editor(RECORD *record)
 	pe_nametb=tnCreateWidget(TN_TEXTBOX,propeditwin,85,pe_ypos,TN_DEFAULTTEXT,text,TN_END);
 	
 	pe_ypos+=20;
-	printf("invoke_property_editor,pe_ypos:%d,type:%d\n",pe_ypos,record->widget->type);
 	tnGetWidgetProps(record->widget,&wprops);
 	tnCreateWidget(TN_LABEL,propeditwin,20,pe_ypos,TN_CAPTION,"Height",TN_END);
 	sprintf(pe_string,"%d",wprops.height);

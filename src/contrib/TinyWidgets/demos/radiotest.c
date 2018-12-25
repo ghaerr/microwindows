@@ -14,7 +14,7 @@ void u_func(TN_WIDGET *c, DATA_POINTER p)
 	GR_COORD x,y;
 	if(tnGetRadioButtonGroupClickedPos(c,&x,&y))
 	{
-		printf("\nX=%d\tY=%d",x,y);
+		printf("\nYou clicked outside the radio buttons at position: X=%d,Y=%d (Unused=-1)\n",x,y);
 		fflush(stdout);
 	}
 	

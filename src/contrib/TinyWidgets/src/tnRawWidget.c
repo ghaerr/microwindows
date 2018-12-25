@@ -134,10 +134,11 @@ RawWidgetEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 
 void InvokeCallBack(TN_WIDGET *widget,int callback_event)
 {
+/* fp = function pointer. Call function, after checking if it exists, using the pointer to it
+ * and add widget and data_pointer as parameters to the called function */ 
 	if (widget->WSpec.rawwidget.CallBack[callback_event].fp)
       		(*(widget->WSpec.rawwidget.CallBack[callback_event].fp)) 
-			(widget,
-			 widget->WSpec.rawwidget.CallBack[callback_event].dptr);
+			(widget, widget->WSpec.rawwidget.CallBack[callback_event].dptr);
 	return;
 }
 

@@ -1,4 +1,4 @@
-#include <tnWidgets.h>
+#include "../../../include/tnWidgets.h"
 #include "callback.h"
 
 void on_window_closed(TN_WIDGET *widget, DATA_POINTER dptr)

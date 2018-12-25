@@ -1,5 +1,5 @@
 /*This (callback.c) file has been generated automatically by TinyDesigner. This file will always be APPENDED and NEVER OVERWRITTEN. Add code for callbacks in this file*/
-#include <microwin/tnWidgets.h>
+#include "../../../include/tnWidgets.h"
 
 void on_button_clicked(TN_WIDGET *widget, DATA_POINTER dptr)
 {

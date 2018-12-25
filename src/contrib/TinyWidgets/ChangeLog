@@ -1,3 +1,10 @@
+25 Dec 2018 - Georg Potthast
+	* added lib directory, improved the demos in the demos directory, added minesweeper and launchtest demos
+	* wrote a new colorpicker demo
+	* removed obsolete demos/extra directory and TTD file
+	* made demos in tndesigner directory work
+	* extended the CheckValidParent function in tnWidgets.c for menus and removed the fixme remark there
+	* got the Makefile in the microwindows/src directory to call the TinyWidgets Makefile to compile and clean
 22 Dec 2018
 	* fixed cascading menus to work using relative window position returned by GrGetWindowInfo
 17 Dec 2018

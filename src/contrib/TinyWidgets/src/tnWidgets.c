@@ -196,7 +196,7 @@ tnCreateWidget (TN_WIDGET_TYPE type,
   GR_SIZE width=0;
   GR_COLOR bgcolor=GR_RGB(200,200,200);
   GR_COLOR fgcolor=0;
-  GR_COLOR fillcolor=0;
+  //GR_COLOR fillcolor=0;
   char fontname[20];
   GR_SIZE fontsize=6;
   char *caption=NULL;
@@ -260,7 +260,7 @@ tnCreateWidget (TN_WIDGET_TYPE type,
 			 fgcolor=va_arg(ap,GR_COLOR);
 			 break;
 		 case TN_FILLCOLOR:
-			 fillcolor=va_arg(ap,GR_COLOR);
+			 //fillcolor=va_arg(ap,GR_COLOR);
                          break;
 		 case TN_CAPTION:
 			 caption=va_arg(ap,char *);
@@ -715,12 +715,15 @@ int CheckValidParent(int child,TN_WIDGET *parent_widget)
 			return(parent_type==TN_WINDOW);
 		case TN_RADIOBUTTON:
 			return(parent_type==TN_RADIOBUTTONGROUP);
+		case TN_MENUBAR:
+			return (parent_type==TN_WINDOW);
+		case TN_POPUPMENU:
+			return (parent_type==TN_MENUBAR || parent_type==TN_POPUPMENU || TN_WINDOW);
+		case TN_CASCADEMENU:
+			return (parent_type==TN_POPUPMENU || TN_CASCADEMENU);  
+		case TN_MENUITEM:
+			return (parent_type==TN_MENUBAR || parent_type==TN_POPUPMENU || parent_type==TN_CASCADEMENU);
 		default:
-			/*
-			 * FIXME: these are actually for the menu related 
-			 * widgets. There are a lot of parent checking issues 
-			 * here. So currently ignore their parent types.
-			 */ 
 			return 1;
 	}
 }

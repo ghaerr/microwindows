@@ -62,7 +62,7 @@ void openall(void)
 			{
 				tnDestroyWidget(minefield[i][j].button);
 				minefield[i][j].button = NULL;
-				minefield[i][j].picture = tnCreateWidget(TN_PICTURE,window,minefield[i][j].x,minefield[i][j].y,TN_FILENAME,"/home/amit/TinyWidgets/demos/minehitfalse.bmp",TN_HEIGHT,20,TN_WIDTH,20,TN_STRETCH,GR_FALSE,TN_END);
+				minefield[i][j].picture = tnCreateWidget(TN_PICTURE,window,minefield[i][j].x,minefield[i][j].y,TN_FILENAME,"demos/bmp/minehitfalse.bmp",TN_HEIGHT,20,TN_WIDTH,20,TN_STRETCH,GR_FALSE,TN_END);
 			}
 			if(minefield[i][j].button)
 				tnSetEnabled(minefield[i][j].button,GR_FALSE);
@@ -94,7 +94,7 @@ void openzero(int i,int j)
 				minefield[i1][j1].button = NULL;
 				s[0] = minefield[i1][j1].labelvalue + '0';
 				s[1] = '\0';
-				minefield[i1][j1].label = tnCreateWidget(TN_LABEL,window,minefield[i1][j1].x,minefield[i1][j1].y,TN_CAPTION,s,TN_FONTNAME,"impact",TN_HEIGHT,20,TN_WIDTH,20,TN_FGCOLOR,colors[minefield[i1][j1].labelvalue],TN_END);
+				minefield[i1][j1].label = tnCreateWidget(TN_LABEL,window,minefield[i1][j1].x,minefield[i1][j1].y,TN_CAPTION,s,TN_HEIGHT,20,TN_WIDTH,20,TN_FGCOLOR,colors[minefield[i1][j1].labelvalue],TN_END);
 			}
 		}
 	}
@@ -129,7 +129,7 @@ void minefunc(TN_WIDGET *button,DATA_POINTER dptr)
 			{
 				s[0] = minefield[i][j].labelvalue + '0';
 				s[1] = '\0';
-				minefield[i][j].label = tnCreateWidget(TN_LABEL,window,minefield[i][j].x,minefield[i][j].y,TN_CAPTION,s,TN_FONTNAME,"impact",TN_HEIGHT,20,TN_WIDTH,20,TN_FGCOLOR,colors[minefield[i][j].labelvalue],TN_END);
+				minefield[i][j].label = tnCreateWidget(TN_LABEL,window,minefield[i][j].x,minefield[i][j].y,TN_CAPTION,s,TN_HEIGHT,20,TN_WIDTH,20,TN_FGCOLOR,colors[minefield[i][j].labelvalue],TN_END);
 			}
 		}
 	}
@@ -137,7 +137,7 @@ void minefunc(TN_WIDGET *button,DATA_POINTER dptr)
 	{
 		if(!(minefield[i][j].ismarked))
 		{
-			tnSetButtonPixmap(button,"/home/amit/TinyWidgets/demos/mineflag.bmp");
+			tnSetButtonPixmap(button,"demos/bmp/mineflag.bmp");
 			minefield[i][j].ismarked = GR_TRUE;
 		}
 		else
@@ -186,11 +186,11 @@ int main(int argc, char *argv[])
 		
 	main_app = tnAppInitialize(argc,argv);
 	window = tnCreateWidget(TN_WINDOW,main_app,50,50,TN_WIDTH,200,TN_HEIGHT,250,TN_CAPTION,"MineSweeper",TN_END);
-	minepic = tnCreateWidget(TN_PICTURE,window,50,50,TN_WIDTH,20,TN_HEIGHT,20,TN_FILENAME,"/home/amit/TinyWidgets/demos/minebomb.bmp",TN_VISIBLE,GR_FALSE,TN_END);
+	minepic = tnCreateWidget(TN_PICTURE,window,50,50,TN_WIDTH,20,TN_HEIGHT,20,TN_FILENAME,"demos/bmp/minebomb.bmp",TN_VISIBLE,GR_FALSE,TN_END);
 	for(i=0;i<10;i++)
 		for(j=0;j<10;j++)
 		{
-			minefield[i][j].button = tnCreateWidget(TN_BUTTON,window,j*20,i*20+50,TN_WIDTH,20,TN_HEIGHT,20,TN_END);
+			minefield[i][j].button = tnCreateWidget(TN_BUTTON,window,j*20,i*20+50,TN_WIDTH,20,TN_HEIGHT,20,TN_CAPTION," ",TN_BGCOLOR,GR_RGB(244,176,066),TN_END);
 			minefield[i][j].x = j*20;
 			minefield[i][j].y = i*20+50;
 			p = (struct index *)malloc(sizeof(struct index));

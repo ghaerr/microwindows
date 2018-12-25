@@ -42,6 +42,11 @@ endif
 ifeq ($(ARCH), ECOS)
 	$(MAKE) -C $(MW_DIR_SRC)/ecos
 endif
+ifeq ($(TINYWIDGETS), Y)
+#TinyWidgets most of the time needs a clean first
+	$(MAKE) -C $(MW_DIR_SRC)/contrib/TinyWidgets clean
+	$(MAKE) -C $(MW_DIR_SRC)/contrib/TinyWidgets 
+endif
 
 .PHONY: realclean
 

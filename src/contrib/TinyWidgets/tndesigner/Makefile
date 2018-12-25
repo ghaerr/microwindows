@@ -12,8 +12,11 @@ clean:
 
 tndesigner: $(OBJS)
 	@echo "Compiling tndesigner..."
+ifeq ($(ARCH), MACOSX)	
 	$(CC) -o $@ $(OBJS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) -ll
-#	$(CC) -o $@ $(OBJS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) -lfl
+else
+	$(CC) -o $@ $(OBJS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) -lfl
+endif
 
 lex.yy.c:
 	$(LEX) fileio.l

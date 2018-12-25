@@ -26,21 +26,26 @@
 # LINUX-SH
 # SOLARIS (BIGENDIAN=Y)
 # PSP
+# NDS (Nintendo DS)
 # TRIMEDIA
 # MACOSX
 # RTEMS
 # ECOS
 # CYGWIN
+# LINUX-LINARO (RPI cross compile)
+# ANDROID
 ####################################################################
 ARCH                     = LINUX-NATIVE
 BIGENDIAN                = N
 NATIVETOOLSPREFIX        = 
 ARMTOOLSPREFIX           = arm-linux-
+ANDROIDTOOLSPREFIX       = arm-linux-androideabi-
+RPITOOLSPREFIX           = arm-linux-gnueabihf-
 MIPSTOOLSPREFIX          = mipsel-linux-
 POWERPCTOOLSPREFIX       = powerpc-linux-
 SHTOOLSPREFIX            = sh-linux-gnu
-AVR32TOOLSPREFIX	 	 = avr32-linux-
-BLACKFINTOOLSPREFIX	 	 = bfin-uclinux-
+AVR32TOOLSPREFIX	 = avr32-linux-
+BLACKFINTOOLSPREFIX	 = bfin-uclinux-
 PSPTOOLSPREFIX           = psp-
 
 ####################################################################
@@ -49,21 +54,25 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = Y
+DEBUG                    = N
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
+#SHOWSTUBS		 = 1
+PARALLEL		 = Y
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, engine, object frameworks
+# Libraries to build: microwin, nano-X, nxlib, engine, object frameworks
 #
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NX11                     = Y
 ENGINE                   = Y
-SHAREDLIBS               = Y
 OBJFRAMEWORK             = N
+SHAREDLIBS               = N
+TINYWIDGETS		 = Y
 
 ####################################################################
 #
@@ -72,13 +81,6 @@ OBJFRAMEWORK             = N
 ####################################################################
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
-
-####################################################################
-#
-# Applications to build
-#
-####################################################################
-NANOWM                   = Y
 FBEMULATOR               = Y
 
 ####################################################################
@@ -105,13 +107,16 @@ FBEMULATOR               = Y
 #
 ####################################################################
 SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+#SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
 
 ####################################################################
-# NanoX: Put Y to the following line to link the nano-X application
-# with the server. This is required if UNIX sockets aren't available,
-# or for speed or debugging.  This affects the nano-X server only.
+# LINK_APP_INTO_SERVER links the nano-X application into the server.
+# Required if UNIX sockets aren't available or for debugging.
+# NANOWM links the window manager into the server.
 ####################################################################
 LINK_APP_INTO_SERVER     = N
+NANOWM                   = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
@@ -135,25 +140,25 @@ HAVE_XPM_SUPPORT         = Y
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
-HAVE_JPEG_SUPPORT        = Y
+HAVE_JPEG_SUPPORT        = N
 INCJPEG                  = .
-LIBJPEG                  = /usr/lib/libjpeg.so
+LIBJPEG                  = -ljpeg
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
-LIBPNG                   = /usr/lib/libpng.so
+LIBPNG                   = -lpng
 INCZ                     = .
-LIBZ                     = /usr/lib/libz.so
+LIBZ                     = -lz
 
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
 INCTIFF                  = .
-LIBTIFF                  = /usr/lib/libtiff.so
+LIBTIFF                  = -ltiff
 
 ####################################################################
 # PCF font support - .pcf/.pcf.gz loadable fonts
@@ -163,12 +168,16 @@ HAVE_PCFGZ_SUPPORT       = Y
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
-# Truetype fonts - .ttf loadable fonts thru Freetype 2.x
+# Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
+HAVE_HARFBUZZ_SUPPORT    = N
 INCFT2LIB                = /usr/include
-LIBFT2LIB                = /usr/local/lib/libfreetype.a
+LIBFT2LIB                = -lfreetype
+#LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
+#LIBFT2LIB                = -lfreetype-android
+#FREETYPE_FONT_DIR        = "/system/fonts"
 
 ####################################################################
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
@@ -177,7 +186,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 HAVE_T1LIB_SUPPORT       = N
 T1LIB_FONT_DIR           = "fonts/type1"
 INCT1LIB                 = /usr/include
-LIBT1LIB                 = /usr/lib/libt1.so
+LIBT1LIB                 = -lt1
 
 ####################################################################
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
@@ -247,8 +256,21 @@ UPDATEREGIONS            = Y
 ####################################################################
 
 # X11 and FBE startup screen width, height, (depth for palette mode only)
-SCREEN_WIDTH             = 800
-SCREEN_HEIGHT            = 600
+#SCREEN_WIDTH             = 800
+#SCREEN_HEIGHT            = 600
+#SCREEN_WIDTH             = 1024
+#SCREEN_HEIGHT            = 768
+
+SCREEN_WIDTH             = 1280
+SCREEN_HEIGHT            = 800
+
+#SCREEN_WIDTH             = 1280
+#SCREEN_HEIGHT            = 1024
+#SCREEN_WIDTH             = 1366
+#SCREEN_HEIGHT            = 768
+#SCREEN_WIDTH             = 1440
+#SCREEN_HEIGHT            = 900
+
 SCREEN_DEPTH             = 8
 
 # X Window screen driver
@@ -264,6 +286,22 @@ SCRMEM                   = N
 
 # PSP screen driver
 PSP                      = N
+
+# Nintendo DS screen driver
+SCRNDS                   = N
+
+# allegro drivers
+ALLEGRO4                 = N
+ALLEGRO5                 = N
+
+#SDL drivers
+#SDL1			 = N
+#SDL2			 = Y
+
+#NULL screen driver
+NOSCR			 = N
+#enable second keyboard
+2NDKBD			 = N
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
@@ -299,6 +337,7 @@ INVERT4BPP               = N
 # YOPYMOUSE	Yopy (/dev/yopy-ts)
 # HARRIERMOUSE	NEC Harrier (/dev/tpanel)
 # TSLIBMOUSE    Use tslib (/dev/input/event0)
+# EVENTMOUSE	Simple standard event interface (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
 GPMMOUSE                 = N
@@ -318,8 +357,10 @@ YOPYMOUSE                = N
 HARRIERMOUSE             = N
 LIRCMOUSE                = N
 TSLIBMOUSE               = N
-TTMOUSE		             = N
+TTMOUSE                  = N
 PSPMOUSE                 = N
+NDSMOUSE                 = N
+EVENTMOUSE               = N
 
 # keyboard or null kbd driver
 TTYKBD                   = N
@@ -328,8 +369,9 @@ PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
 PSPKBD                   = N
+EVENTKBD                 = N
 NOKBD                    = N
-# Secondary keyboard drivers for IR input
+# Secondary keyboard drivers for IR input - set 2NDKBD above too
 LIRCKBD2                 = N
 
 ####################################################################
@@ -337,5 +379,5 @@ LIRCKBD2                 = N
 ####################################################################
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
-LIBVNC                   = /usr/lib/libvncserver.a
+LIBVNC                   = -lvncserver
 INCVNC                   = /usr/include

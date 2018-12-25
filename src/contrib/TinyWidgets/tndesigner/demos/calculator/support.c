@@ -1,4 +1,4 @@
-#include <tnWidgets.h>
+#include "../../../include/tnWidgets.h"
 
 TN_WIDGET *lookup_widget(TN_WIDGET *start,char *name)
 {

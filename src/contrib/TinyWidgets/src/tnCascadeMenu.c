@@ -36,7 +36,7 @@ CreateCascadeMenu (TN_WIDGET * widget,
   GR_WINDOW_ID parentwid,appwindowwid;
   TN_WIDGET *temp;
   GR_SIZE captionwidth, captionheight, base;
-  GR_COORD containerx,containery,lasty;
+  GR_COORD containerx,containery; //,lasty;
   if(strcmp(fontname,""))
 	  font=GrCreateFont (fontname, fontsize, NULL);
   else
@@ -55,14 +55,14 @@ CreateCascadeMenu (TN_WIDGET * widget,
   if(parent->type==TN_POPUPMENU)
   {
 	  posy=parent->WSpec.popupmenu.lasty;
-	  lasty=parent->WSpec.popupmenu.lasty;
+	  //lasty=parent->WSpec.popupmenu.lasty;
 	  parent->WSpec.popupmenu.lasty+=height;
 	  parentwid=parent->WSpec.popupmenu.container;
   }
   else
   {
 	            posy=parent->WSpec.cascademenu.lasty;
-	            lasty=parent->WSpec.cascademenu.lasty;
+	            //lasty=parent->WSpec.cascademenu.lasty;
 		    parent->WSpec.cascademenu.lasty+=height;
 		    parentwid=parent->WSpec.cascademenu.container;
   }
@@ -124,10 +124,10 @@ CascadeMenuEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 {
   GR_WINDOW_INFO winfo;
   GR_WINDOW_ID siblingwid, parentwid;
-  TN_WIDGET *sibling,*parent,*popupmenu;
+  TN_WIDGET *sibling,*popupmenu; //*parent
   
   GrGetWindowInfo(widget->wid,&winfo);
-  parent=GetFromRegistry(winfo.parent);
+  //parent=GetFromRegistry(winfo.parent);
       
   switch (event->type)
     {

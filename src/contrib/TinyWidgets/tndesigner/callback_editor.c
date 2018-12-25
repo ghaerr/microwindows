@@ -90,7 +90,7 @@ void event_clicked(TN_WIDGET *widget,DATA_POINTER p)
 	
 void invoke_callbacks_editor(RECORD *record)
 {
-	TN_WIDGET *addbutton,*delbutton,*dismissbutton,*label;
+	TN_WIDGET *addbutton,*delbutton,*dismissbutton;
 	char wintitle[100];
 	int i;
 	
@@ -98,9 +98,9 @@ void invoke_callbacks_editor(RECORD *record)
 	strcat(wintitle," - Callbacks");
 	
 	window=tnCreateWidget(TN_WINDOW,main_widget,20,20,TN_HEIGHT,350,TN_WIDTH,450,TN_CAPTION,wintitle,TN_END);
-	label=tnCreateWidget(TN_LABEL,window,100,2,TN_CAPTION,"Event",TN_END);
-	label=tnCreateWidget(TN_LABEL,window,200,2,TN_CAPTION,"Function",TN_END);
-	label=tnCreateWidget(TN_LABEL,window,300,2,TN_CAPTION,"Data Pointer",TN_END);
+	tnCreateWidget(TN_LABEL,window,100,2,TN_CAPTION,"Event",TN_END);
+	tnCreateWidget(TN_LABEL,window,200,2,TN_CAPTION,"Function",TN_END);
+	tnCreateWidget(TN_LABEL,window,300,2,TN_CAPTION,"Data Pointer",TN_END);
 	callbackevent=tnCreateWidget(TN_LISTBOX,window,100,20,TN_WIDTH,100,TN_HEIGHT,200,TN_END);
 	callbackfunc=tnCreateWidget(TN_LISTBOX,window,200,20,TN_WIDTH,100,TN_HEIGHT,200,TN_ENABLED,TN_FALSE,TN_END);
 	callbackdptr=tnCreateWidget(TN_LISTBOX,window,300,20,TN_WIDTH,100,TN_HEIGHT,200,TN_ENABLED,TN_FALSE,TN_END);

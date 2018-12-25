@@ -537,8 +537,8 @@ endif
 
 #$(info    CFLAGS is $(CFLAGS))
 
-#export for nxlib/test makefile - CC and CFLAGS not passed
-export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS PARALLEL
+#export for nxlib/test makefile - CC and CFLAGS not passed ARCH for TinyWidgets
+export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS PARALLEL ARCH
 ##############################################################################
 # Build rules
 ##############################################################################
@@ -807,6 +807,14 @@ endif
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(nxlib), $(MAKE) -C $(dir) clean;)
 
+ifeq ($(TINYWIDGETS), Y)
+#avoid multiple calls to clean
+ifneq ("$(wildcard contrib/TinyWidgets/lib/*.a)","")
+	@echo "Cleaning TinyWidgets"
+	$(MAKE) -C $(MW_DIR_SRC)/contrib/TinyWidgets clean
+endif
+endif
+
 cleanusr:
 	-rm -f /usr/bin/nano-X
 	-rm -f /usr/bin/nanowm
@@ -851,6 +859,9 @@ cleanusr:
 	-rm -f /usr/lib64/libNXext.so.0	
 	#avoid "Cannot bind to named socket" error - see faq.html
 	-rm -f /tmp/.nano-X
+ifeq ($(TINYWIDGETS), Y)
+	-rm -f /usr/lib/libtnW.a
+endif
 	
 install:
 	$(INSTALL_DIR) $(HDRINSTALLDIR)

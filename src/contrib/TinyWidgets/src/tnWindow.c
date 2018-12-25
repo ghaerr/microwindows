@@ -66,7 +66,8 @@ TN_WIDGET *child;
 					GrSetFocus(event->button.subwid);
 				widget->WSpec.window.clickedx=event->button.x;
 				widget->WSpec.window.clickedy=event->button.y;
-				if (widget->WSpec.window.CallBack[CLICKED].fp)		                                (*(widget->WSpec.window.CallBack[CLICKED].fp)) (widget, widget->WSpec.window.CallBack[CLICKED].dptr);
+				if (widget->WSpec.window.CallBack[CLICKED].fp)
+				  (*(widget->WSpec.window.CallBack[CLICKED].fp)) (widget, widget->WSpec.window.CallBack[CLICKED].dptr);
 			break;
 		case GR_EVENT_TYPE_EXPOSURE:
 			if(widget->visible==GR_FALSE)

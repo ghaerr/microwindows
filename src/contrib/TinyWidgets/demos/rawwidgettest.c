@@ -42,7 +42,7 @@ void do_mousemove(TN_WIDGET *widget,DATA_POINTER ptr)
 int main(int argc,char **argv)
 {
 
-	TN_WIDGET *main_widget,*rawwidget1,*window1,*label1,*rawwidget2[40];
+	TN_WIDGET *main_widget,*rawwidget1,*window1,*rawwidget2[40];
 	int xpos,i;
 	
 	main_widget=tnAppInitialize(argc,argv);
@@ -54,7 +54,7 @@ int main(int argc,char **argv)
 	for(i=0,xpos=10;i<40;i++,xpos+=10)
 		rawwidget2[i]=tnCreateWidget(TN_RAWWIDGET,window1,xpos,260,TN_HEIGHT,20,TN_WIDTH,5,TN_BGCOLOR,GR_RGB(0,255,0),TN_END);
 	
-	label1=tnCreateWidget(TN_LABEL,rawwidget1,50,50,TN_CAPTION,"Click or move the pointer around in this area",TN_END);
+	tnCreateWidget(TN_LABEL,rawwidget1,50,50,TN_CAPTION,"Click or move the pointer around in this area",TN_END);
 	tnRegisterCallBack(rawwidget1,TN_SYSTEM_EVENT_BUTTON_DOWN,do_mousedown,rawwidget2);
 	tnRegisterCallBack(rawwidget1,TN_SYSTEM_EVENT_MOUSE_MOTION,do_mousemove,NULL);
 	tnRegisterCallBack(rawwidget1,TN_SYSTEM_EVENT_BUTTON_UP,do_mouseup,rawwidget2);

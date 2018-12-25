@@ -1,5 +1,5 @@
 /* This (main.c) file has been generated automatically by TinyDesigner. This file will be generated only once. Edit according to your need*/
-#include<microwin/tnWidgets.h>
+#include "../../../include/tnWidgets.h"
 #include "interface.h"
 #include "callback.h"
 

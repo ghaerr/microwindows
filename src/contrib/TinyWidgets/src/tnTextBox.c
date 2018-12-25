@@ -982,7 +982,7 @@ SetCursorxy (TN_WIDGET * textbox, int xtarget, int ytarget)
 void
 tnLineUp (TN_WIDGET * textbox)
 {
-	int position;
+	//int position;
 	char str[256];
 	int i=0;
 	GR_FONT_INFO fontinfo;
@@ -994,7 +994,7 @@ tnLineUp (TN_WIDGET * textbox)
 	GrGetGCInfo(textbox->gc,&gcinfo);
 	GrGetFontInfo(gcinfo.font,&fontinfo);
 
-	position=textbox->WSpec.textbox.viewstart;
+	//position=textbox->WSpec.textbox.viewstart;
 	for(i=0;i<255;i++)
 	{
 		str[i]=textbox->WSpec.textbox.buffer[textbox->WSpec.textbox.viewstart-i-1];

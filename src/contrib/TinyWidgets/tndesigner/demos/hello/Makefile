@@ -4,7 +4,7 @@
 #by TinyWidgets Designer
 	
 CC=gcc
-CFLAGS=-Wall -O2 -I ../../../include
+CFLAGS=-Wall -O2 -I ../../../include -I ../../../../../include
 LIBS=-ltnW -lnano-X -L ../../../lib
 			
 OBJS=main.o interface.o support.o callback.o			
@@ -15,4 +15,4 @@ clean:
 	@rm -f *.o core *~ hello
 			
 %.o:%.c
-		$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $<

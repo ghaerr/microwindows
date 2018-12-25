@@ -72,6 +72,7 @@ NX11                     = Y
 ENGINE                   = Y
 OBJFRAMEWORK             = N
 SHAREDLIBS               = N
+TINYWIDGETS		 = Y
 
 ####################################################################
 #

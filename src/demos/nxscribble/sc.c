@@ -22,6 +22,7 @@ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ***********************************************************************/
 
 #include <string.h>
+#include <unistd.h>
 #include "bitvector.h"
 #include "matrix.h"
 #include "util.h"
@@ -409,7 +410,7 @@ register sClassifier sc;
 {
 	register sClassIndex c;
 
-	printf("\n----Classifier %x, %d features:-----\n", (int)sc, sc->nfeatures);
+	printf("\n----Classifier %x, %d features:-----\n", (intptr_t)sc, sc->nfeatures);
 	printf("%d classes: ", sc->nclasses);
 	for(c = 0; c < sc->nclasses; c++)
 		printf("%s  ", sc->classdope[c]->name);

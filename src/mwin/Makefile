@@ -61,7 +61,7 @@ OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/caret.o \
 	$(MW_DIR_OBJ)/mwin/winlib/scrlbar.o \
 	$(MW_DIR_OBJ)/mwin/winlib/medit.o \
-	$(MW_DIR_OBJ)/mwin/winlib/fileopen.o
+	$(MW_DIR_OBJ)/mwin/winlib/openfile.o
 endif
 
 endif

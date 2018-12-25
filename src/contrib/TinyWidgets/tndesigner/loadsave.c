@@ -6,7 +6,7 @@ void WriteWidget(RECORD *win,RECORD *parent,FILE *savefd)
 {
 
 		TN_WIDGET_PROPS wprops;
-		TN_WIDGET_TYPE type;
+		TN_WIDGET_TYPE type=0;
 		char *name;
 		int i;
 		struct mhead *currmhead;

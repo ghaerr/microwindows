@@ -322,7 +322,7 @@ err:
 		return -1;
 	}
 	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
-    if (grantpt(tfd) || unlockpt(tfd) || !( pty_name = ptsname(tfd)))
+        if (grantpt(tfd) || unlockpt(tfd) || !( pty_name = (char *)(intptr_t)ptsname(tfd)))
 		goto err;
 
 	signal(SIGCHLD, ptysignaled);

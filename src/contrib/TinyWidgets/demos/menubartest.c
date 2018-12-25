@@ -8,22 +8,51 @@ void endapp(TN_WIDGET *widget,DATA_POINTER d)
 }
 
 void u_func1(TN_WIDGET *w, DATA_POINTER dptr)
-{
-	printf("\nOpening File ...");
-		fflush(stdout);
+{ 
+  switch ((intptr_t)dptr) {
+    case 1:
+	printf("Opening File ...\n");
+	break;
+    case 2:
+	printf("Saving File ...\n");
+        break;
+    case 3:
+	printf("About ...\n");
+	break;
+    case 4:
+	printf("Window selected ...\n");
+	break;
+    case 5:
+	printf("Pushbutton ...\n");
+	break;
+    case 6:
+	printf("Radiobutton ...\n");
+	break;
+    case 7:
+	printf("PopUp Menu ...\n");
+	break;
+    case 8:
+	printf("Cascade Menu ...\n");
+	break;
+    default:
+	break;
+  }
+  fflush(stdout);
+  return;
 }
 
 void u_func2(TN_WIDGET *w, DATA_POINTER dptr)
 {
-	        printf("\nNo Help Available");
-                fflush(stdout);
+        printf("No Help Available\n");
+        fflush(stdout);
 }
 
 void u_func3(TN_WIDGET *w, DATA_POINTER dptr)
 {
-	printf("\nExiting...");
+	printf("Exiting...\n");
 	fflush(stdout);
 	tnDestroyWidget(window1);
+	tnEndApp();
 }
 	
 
@@ -31,6 +60,7 @@ int main(int argc,char **argv)
 {
 	
 	TN_WIDGET *main_widget,*popup1,*popup2,*mitem1,*mitem2,*mitem4,*mitem5,*mitem6,*cmenu1,*cmenu2,*cmenu3,*mitem7,*mitem8,*mitem9,*mitem10,*mitem11;
+	mitem6=mitem7=mitem8=mitem9=mitem10=mitem11=0;
 	
 	main_widget=tnAppInitialize(argc,argv);
 	window1=tnCreateWidget(TN_WINDOW,main_widget,50,50,TN_HEIGHT,300,TN_WIDTH,400,TN_CAPTION,"Pull Down Menus",TN_END);
@@ -56,10 +86,18 @@ int main(int argc,char **argv)
 	mitem10=tnCreateWidget(TN_MENUITEM,cmenu3,TN_AUTO,TN_AUTO,TN_CAPTION,"PopUp",TN_CHECKABLE,1,TN_END);
 	mitem11=tnCreateWidget(TN_MENUITEM,cmenu3,TN_AUTO,TN_AUTO,TN_CAPTION,"Cascade",TN_CHECKABLE,1,TN_ENABLED,0,TN_END);
 
-	tnRegisterCallBack(mitem1,CLICKED,u_func1,NULL);		
-	tnRegisterCallBack(mitem4,CLICKED,u_func2,NULL);
-	tnRegisterCallBack(mitem2,CLICKED,u_func1,NULL);
-	tnRegisterCallBack(mitem6,CLICKED,u_func3,NULL);
+	tnRegisterCallBack(mitem1,CLICKED,u_func1,(void*)1); //Open
+	tnRegisterCallBack(mitem5,CLICKED,u_func1,(void*)2); //Save
+	tnRegisterCallBack(mitem6,CLICKED,u_func3,NULL); //Exit
+	
+	tnRegisterCallBack(mitem2,CLICKED,u_func1,(void*)3); //About - disabled
+	tnRegisterCallBack(mitem4,CLICKED,u_func2,NULL); //Help
+	tnRegisterCallBack(mitem7,CLICKED,u_func1,(void*)4); //Window
+	tnRegisterCallBack(mitem8,CLICKED,u_func1,(void*)5); //PushB
+	tnRegisterCallBack(mitem9,CLICKED,u_func1,(void*)6); //RadioB
+	tnRegisterCallBack(mitem10,CLICKED,u_func1,(void*)7); //PopUp
+	tnRegisterCallBack(mitem11,CLICKED,u_func1,(void*)8); //Cascade - disabled
+	
 	tnRegisterCallBack(window1,CLOSED,endapp,NULL);
 	tnMainLoop();
 	return 0;

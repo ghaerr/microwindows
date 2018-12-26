@@ -1,3 +1,7 @@
+25 Dec 2018
+	* fixed and removed need for  TinyWidgets clean every make
+	* fix msgbox.c DrawText bug requiring initialized lpRect
+	* further cleaned up 64bit mwin port, remove warnings by careful casting
 19 Dec 2018
 	* cleaned up MessageBox implementation to use new resDialogTemplate dialog templates
 	* fix draw code infinite loop in WM_PAINT in contributed mwcontrols.c demo

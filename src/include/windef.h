@@ -166,6 +166,7 @@ typedef HANDLE              HLOCAL;
 typedef HANDLE              GLOBALHANDLE;
 typedef HANDLE              LOCALHANDLE;
 
+#define PTR_IS_ATOM(ptr)		((((UINT_PTR)ptr) & ~(UINT_PTR)0xFFFFL) == 0)	/* any bits 16+ and higher zero*/
 typedef WORD                ATOM;
 
 typedef struct hwnd *	HWND;

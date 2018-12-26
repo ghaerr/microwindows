@@ -762,7 +762,7 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 
 	/* handle COLOR_xxx + 1 passed as HBRUSH*/
 	if((UINT_PTR)obr <= MAXSYSCOLORS) {		// 64bit convert pointer to UINT without truncation
-		crFill = GetSysColor((int)obr-1);
+		crFill = GetSysColor((int)obr-1);	// OK: Not pointer. Convert to int then decrement.
 	} else {
 		/* get color from passed HBRUSH*/
 		if(obr->style == BS_NULL)

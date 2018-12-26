@@ -6,6 +6,7 @@
  * Yes, this is just a demo, and doesn't repaint contents on refresh.
  */
 
+#define __USE_XOPEN			/* for ptsname()*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -322,7 +323,7 @@ err:
 		return -1;
 	}
 	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
-        if (grantpt(tfd) || unlockpt(tfd) || !( pty_name = (char *)(intptr_t)ptsname(tfd)))
+        if (grantpt(tfd) || unlockpt(tfd) || !(pty_name = ptsname(tfd)))
 		goto err;
 
 	signal(SIGCHLD, ptysignaled);

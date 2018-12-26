@@ -364,7 +364,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         lp->bExtended  = TRUE;
         lp->hFont = 0;
         lp->hWndParent = lpcs->hwndParent;
-        lp->nID  = (UINT)lpcs->hMenu;
+        lp->nID  = (UINT)(HMENU)lpcs->hMenu;
 
         dwStyle = GetWindowLong(hWnd, GWL_STYLE);
         dwStyle &= ~(WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_DLGFRAME | WS_THICKFRAME);
@@ -378,7 +378,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (0)	/* (BOWNERDRAW(lp)) */
            {
            mis.CtlType = ODT_COMBOBOX;
-           mis.CtlID = (UINT)lpcs->hMenu;
+           mis.CtlID = (UINT)(HMENU)lpcs->hMenu;
            mis.itemID = (UINT)-1;
            mis.itemData = 0L;
            SendMessage(lpcs->hwndParent, WM_MEASUREITEM, (WPARAM)lpcs->hMenu, (LPARAM)&mis);

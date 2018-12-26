@@ -376,6 +376,7 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
     btnsize.cx = BTN_CX;
     btnsize.cy = BTN_CY;
     btnrect.left = btnrect.top = 0;
+	btnrect.right = btnrect.bottom = 0;
     for(i = 0; i < nButtons; i++)
     {
       ibtn[i] = (DLGITEMTEMPLATE *)dest;
@@ -453,7 +454,7 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
       rc.left += rc.right + MSGBOXEX_SPACING;
     }
     else
-#endif
+#endif /* USEICON*/
     {
       btnleft = (nButtons * (btnsize.cx + MSGBOXEX_BUTTONSPACING)) - MSGBOXEX_BUTTONSPACING;
       if(btnleft > txtrect.right)
@@ -475,6 +476,7 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
     /* calculate position of the text */
     rc.top = MSGBOXEX_MARGIN + (rc.bottom / 2) - (txtrect.bottom / 2);
     rc.top = max(rc.top, MSGBOXEX_MARGIN);
+
     /* calculate position of the buttons */
     btntop = max(rc.top + txtrect.bottom + MSGBOXEX_SPACING, btntop);
     for(i = 0; i < nButtons; i++)

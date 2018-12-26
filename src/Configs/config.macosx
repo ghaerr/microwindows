@@ -54,7 +54,7 @@ PSPTOOLSPREFIX           = psp-
 #
 ####################################################################
 OPTIMIZE                 = Y
-DEBUG                    = N
+DEBUG                    = Y
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
@@ -72,7 +72,7 @@ NX11                     = Y
 ENGINE                   = Y
 OBJFRAMEWORK             = N
 SHAREDLIBS               = N
-TINYWIDGETS		 = Y
+TINYWIDGETS              = Y
 
 ####################################################################
 #

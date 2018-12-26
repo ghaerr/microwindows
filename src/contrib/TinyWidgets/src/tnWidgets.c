@@ -718,9 +718,9 @@ int CheckValidParent(int child,TN_WIDGET *parent_widget)
 		case TN_MENUBAR:
 			return (parent_type==TN_WINDOW);
 		case TN_POPUPMENU:
-			return (parent_type==TN_MENUBAR || parent_type==TN_POPUPMENU || TN_WINDOW);
+			return (parent_type==TN_MENUBAR || parent_type==TN_POPUPMENU || parent_type==TN_WINDOW);
 		case TN_CASCADEMENU:
-			return (parent_type==TN_POPUPMENU || TN_CASCADEMENU);  
+			return (parent_type==TN_POPUPMENU || parent_type==TN_CASCADEMENU);  
 		case TN_MENUITEM:
 			return (parent_type==TN_MENUBAR || parent_type==TN_POPUPMENU || parent_type==TN_CASCADEMENU);
 		default:

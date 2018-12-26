@@ -9,7 +9,7 @@
 TN_WIDGET *rawwidget1, *label1, *scrollbar1, *scrollbar2, *scrollbar3;
 TN_WIDGET *colors16[16];
 GR_COLOR red=64,green=128,blue=128;
-char rgbcolor[20];
+char rgbcolor[32];
 
 void endapp(TN_WIDGET *widget,DATA_POINTER d)
 {

@@ -464,7 +464,7 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 	wp->cursor = pwp->cursor;
 	wp->cursor->usecount++;
 	wp->unmapcount = pwp->unmapcount + 1;
-	wp->id = (int)hMenu;
+	wp->id = (int)(HMENU)hMenu;
 	wp->gotPaintMsg = PAINT_PAINTED;
 
 	titLen = 0;
@@ -1200,7 +1200,7 @@ GetClassLong(HWND hwnd, int nIndex)
 		return (DWORD)hwnd->pClass->cbWndExtra;
 	case GCL_HBRBACKGROUND:
 		assert(sizeof(LONG_PTR) <= 32);		// 64bit must use GetClassLongPtr
-		return (DWORD)hwnd->pClass->hbrBackground;
+		return (DWORD)hwnd->pClass->hbrBackground;		// OK: ptr must truncate to DWORD here, use GetClassLongPtr()
 	case GCL_HCURSOR:
 	case GCL_HICON:
 	case GCL_HMODULE:
@@ -1408,10 +1408,11 @@ SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData)
 
 	if (!(pProp = GdItemNew(MWPROP)))
 		return FALSE;
-	if (HIWORD(lpString))		// FIXME 64bit UNSAFE!!
+	/* check if 16 bit atom passed instead of pointer*/
+	if (PTR_IS_ATOM(lpString))
 		pProp->Atom = GlobalAddAtom(lpString);
 	else
-		pProp->Atom = LOWORD((DWORD)lpString);
+		pProp->Atom = LOWORD((DWORD)(LPCSTR)lpString);
 	pProp->hData = hData;
 
 	GdListAdd (&hWnd->props, &pProp->link);
@@ -1425,10 +1426,11 @@ GetProp(HWND hWnd, LPCSTR lpString)
 	PMWLIST p;
 	MWPROP *pProp;
 
-	if (HIWORD(lpString))		// FIXME 64bit UNSAFE!!
+	/* check if 16 bit atom passed instead of pointer*/
+	if (PTR_IS_ATOM(lpString))
 		Atom = GlobalFindAtom(lpString);
 	else
-		Atom = LOWORD((DWORD)lpString);
+		Atom = LOWORD((DWORD)(LPCSTR)lpString);
 
 	for(p=hWnd->props.head; p; p=p->next) {
 		pProp = GdItemAddr(p, MWPROP, link);
@@ -1446,10 +1448,11 @@ RemoveProp(HWND hWnd, LPCSTR lpString)
 	MWPROP *pProp;
 	HANDLE hRet;
 
-	if (HIWORD(lpString))
+	/* check if 16 bit atom passed instead of pointer*/
+	if (PTR_IS_ATOM(lpString))
 		Atom = GlobalFindAtom(lpString);
 	else
-		Atom = LOWORD((DWORD)lpString);
+		Atom = LOWORD((DWORD)(LPCSTR)lpString);
 
 	for(p=hWnd->props.head; p; p=p->next) {
 		pProp = GdItemAddr(p, MWPROP, link);
@@ -1546,10 +1549,10 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 
 	if(bZorder) {
 		switch((int)hwndInsertAfter) {
-		case (int)HWND_TOP:
+		case (int)(HWND)HWND_TOP:
 			MwRaiseWindow(hwnd);
 			break;
-		case (int)HWND_BOTTOM:
+		case (int)(HWND)HWND_BOTTOM:
 			MwLowerWindow(hwnd);
 			break;
 		default:

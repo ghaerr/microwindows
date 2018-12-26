@@ -1,3 +1,7 @@
+25 Dec 2018
+	* fix sprintf() buffer too small crash in ufunc5() colorpicker demo
+	* fixed CheckValidParent errors
+	* fixed tndesigner/Makefile to list OBJS directly, removing multiple y.tab.o link error
 25 Dec 2018 - Georg Potthast
 	* added lib directory, improved the demos in the demos directory, added minesweeper and launchtest demos
 	* wrote a new colorpicker demo

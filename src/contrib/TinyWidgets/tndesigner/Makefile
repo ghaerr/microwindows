@@ -3,7 +3,11 @@ TOP=..
 include $(TOP)/Make.rules
 
 SRCS := $(wildcard *.c) y.tab.c lex.yy.c
-OBJS := $(patsubst %.c,%.o,$(SRCS)) 
+#OBJS := $(patsubst %.c,%.o,$(SRCS)) 
+OBJS := button.o callback_editor.o checkbutton.o codegen.o combobox.o label.o \
+		listbox.o loadsave.o main.o menu_editor.o picture.o progressbar.o \
+		property_editor.o radiobutton.o radiobuttongroup.o rawwidget.o scrollbar.o textbox.o window.o \
+		y.tab.o lex.yy.o
 
 all: tndesigner
 
@@ -19,6 +23,8 @@ else
 endif
 
 lex.yy.c:
+	@echo $(LEX) fileio.l
 	$(LEX) fileio.l
 y.tab.c:
+	@echo $(YACC) -d fileio.y
 	$(YACC) -d fileio.y

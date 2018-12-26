@@ -1,3 +1,6 @@
+#include "../../../include/tnWidgets.h"
+TN_WIDGET *lookup_widget(TN_WIDGET *start,char *name);
+
 void on_window_closed(TN_WIDGET *, DATA_POINTER);
 void on_7_clicked(TN_WIDGET *, DATA_POINTER);
 void on_8_clicked(TN_WIDGET *, DATA_POINTER);

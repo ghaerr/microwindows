@@ -11,7 +11,12 @@ INCDIR=$(TOP)/include
 
 TWLIB=$(LIBDIR)/libtnW.a
 
-CFLAGS=-Wall -O2 -DNANOX -D_NANOX  -I../../../include -I$(INCDIR)
+CFLAGS=
+ifeq ($(DEBUG), Y)
+CFLAGS=-g 
+endif
+CFLAGS += -Wall -O2 -DNANOX -D_NANOX  -I../../../include -I$(INCDIR)
+
 LIBS=-ltnW -ljpeg -L../../../lib -lnano-X
 
 # Common rules that everyone uses 

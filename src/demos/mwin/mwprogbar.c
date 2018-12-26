@@ -78,10 +78,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 }       
 LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {       
-        HDC hdc;
+        HDC hdc=0;
         PAINTSTRUCT ps;
         RECT rect;
-	HFONT hfont, hOldfont;
+	HFONT hfont=0, hOldfont=0;
 	static int i;
 	char percent[2];
         

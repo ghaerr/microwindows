@@ -1,3 +1,7 @@
+26 Dec 2018
+	* export DEBUG macro to TinyWidgets make system
+	* get demos in TnDesigner to work
+	* silence warnings in Tiny Widgets
 25 Dec 2018
 	* fix sprintf() buffer too small crash in ufunc5() colorpicker demo
 	* fixed CheckValidParent errors

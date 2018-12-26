@@ -38,13 +38,13 @@ all: default
 ifeq ($(ARCH), RTEMS)
 	$(MAKE) -C $(MW_DIR_SRC)/rtems
 endif
-	-$(MAKE) -C $(MW_DIR_SRC)/demos
 ifeq ($(ARCH), ECOS)
 	$(MAKE) -C $(MW_DIR_SRC)/ecos
 endif
 ifeq ($(TINYWIDGETS), Y)
 	$(MAKE) -C $(MW_DIR_SRC)/contrib/TinyWidgets 
 endif
+	-$(MAKE) -C $(MW_DIR_SRC)/demos
 
 .PHONY: realclean
 

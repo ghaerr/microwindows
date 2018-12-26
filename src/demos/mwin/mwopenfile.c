@@ -5,8 +5,9 @@
 #include <windows.h>
 #include <string.h>
 #include <limits.h>
+#include <ctype.h>
 
-#define DEBUG 0
+#define OFDEBUG 0
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -29,14 +30,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   char *token;
   token = strtok(filter, s); /* get the first token */
   while( token != NULL ) { /* walk through other tokens */
-      if (DEBUG) printf( "%s,", token );   
+      if (OFDEBUG) printf( "%s,", token );   
       token = strtok(NULL, s);
    }
-   if (DEBUG) printf("\n");
+   if (OFDEBUG) printf("\n");
   int i;
   //replace non-printable chars (NULL here) with exclamation mark
-  if (DEBUG) for (i=0;i<totallen;i++) printf("%c",isprint(((unsigned char*)filter)[i])?((unsigned char*)filter)[i]:'!'); //filter[i]);
-  if (DEBUG) printf("\n");
+  if (OFDEBUG) for (i=0;i<totallen;i++) printf("%c",isprint(((unsigned char*)filter)[i])?((unsigned char*)filter)[i]:'!'); //filter[i]);
+  if (OFDEBUG) printf("\n");
   //done with filter buffer
   
   OPENFILENAME mdData;

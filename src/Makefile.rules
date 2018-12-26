@@ -538,7 +538,7 @@ endif
 #$(info    CFLAGS is $(CFLAGS))
 
 #export for nxlib/test makefile - CC and CFLAGS not passed ARCH for TinyWidgets
-export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS PARALLEL ARCH
+export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS $(CC) $(CFLAGS) TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS PARALLEL ARCH DEBUG
 ##############################################################################
 # Build rules
 ##############################################################################

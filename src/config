@@ -55,11 +55,11 @@ PSPTOOLSPREFIX           = psp-
 ####################################################################
 OPTIMIZE                 = Y
 DEBUG                    = N
+#DEBUG                    = -Wpointer-to-int-cast
 VERBOSE                  = N
 THREADSAFE               = Y
 GPROF                    = N
-#SHOWSTUBS		 = 1
-PARALLEL		 = Y
+PARALLEL                 = Y
 
 ####################################################################
 #

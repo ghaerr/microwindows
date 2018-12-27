@@ -771,8 +771,7 @@ typedef WNDCLASS	WNDCLASSEXW;
 HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR pCursor);
 #endif /* unimplemented*/
 
-typedef LONG_PTR LPOFNHOOKPROC;
-
+/* GetOpenFileName stuff*/
 typedef struct tagEDITMENU
 {
 	HMENU	hmenu;
@@ -785,6 +784,7 @@ typedef struct tagEDITMENU
 } EDITMENU;
 typedef EDITMENU FAR *LPEDITMENU;
 
+typedef LONG_PTR LPOFNHOOKPROC;
 typedef struct tagOFN {
   DWORD         lStructSize;
   HWND          hwndOwner;
@@ -815,3 +815,4 @@ typedef struct tagOFN {
 
 BOOL WINAPI GetOpenFileName (LPOPENFILENAME Arg1);
 BOOL WINAPI GetSaveFileName (LPOPENFILENAME Arg1);
+BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME Arg1);

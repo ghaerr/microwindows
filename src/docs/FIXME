@@ -1,3 +1,4 @@
+winres.c: mwResCompare checks HIWORD of template pointers, but then calls strcmp() if not FFFF
 fix compiletime SCREEN_PIXTYPE requirement, convblit RGB2PIXEL etc macros
 add XOR/rasterop capability to mono FT antialiased drawing
 

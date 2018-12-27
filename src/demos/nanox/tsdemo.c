@@ -70,7 +70,7 @@ static GR_BITMAP g_stipple4[] = {
 int g_x;
 GR_WINDOW_ID g_main, g_pixmap;
 
-void
+static void
 draw_set(char *name, int mode)
 {
 	int x;
@@ -129,7 +129,7 @@ draw_set(char *name, int mode)
 	GrDestroyGC(gc);
 }
 
-void
+static void
 load_pixmap(void)
 {
 	GR_GC_ID gc = GrNewGC();

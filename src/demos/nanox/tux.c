@@ -42,7 +42,7 @@
 
 static int button_down = 0, x = 0, y = 0;
 
-GR_WINDOW_ID init(char *tuxfile)
+static GR_WINDOW_ID init(char *tuxfile)
 {
 	GR_GC_ID gc;
 	GR_IMAGE_ID iid;
@@ -96,7 +96,7 @@ GR_WINDOW_ID init(char *tuxfile)
 	return wid;
 }
 
-void button_event(GR_EVENT_BUTTON *ev)
+static void button_event(GR_EVENT_BUTTON *ev)
 {
 	if(ev->type == GR_EVENT_TYPE_BUTTON_DOWN) {
 		if(ev->buttons & GR_BUTTON_R) {
@@ -110,7 +110,7 @@ void button_event(GR_EVENT_BUTTON *ev)
 	} else button_down = 0;
 }
 
-void position_event(GR_EVENT_MOUSE *ev)
+static void position_event(GR_EVENT_MOUSE *ev)
 {
 	static int newx = 0, newy = 0, oldx = 0, oldy = 0;
 

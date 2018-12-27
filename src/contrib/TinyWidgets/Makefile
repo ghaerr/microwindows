@@ -8,12 +8,14 @@ MAKE=make
 
 TOP=.
 CC=gcc
-CFLAGS=
 
+CFLAGS=
 ifeq ($(DEBUG), Y)
-CFLAGS=-g 
+CFLAGS += -g
+else
+CFLAGS += -O2
 endif
-CFLAGS += -Wall -O2 -DNANOX -D_NANOX
+CFLAGS += -Wall
 #$(info    CFLAGS is $(CFLAGS))
 
 LIBPATH=$(TOP)/lib

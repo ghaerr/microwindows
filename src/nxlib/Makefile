@@ -69,7 +69,6 @@ ifeq ($(DEBUG), Y)
 	CFLAGS += -Wall
 else
 	CFLAGS += -DDEBUG=0 -O3
-	CFLAGS += -s -Wno-deprecated-declarations
 endif
 CFLAGS += -I$(MWIN_INCLUDE) -I$(X11_INCLUDE)
 CFLAGS += -DX11_FONT_DIR1=\"$(X11_FONT_DIR1)\"

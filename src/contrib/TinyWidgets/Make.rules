@@ -13,11 +13,13 @@ TWLIB=$(LIBDIR)/libtnW.a
 
 CFLAGS=
 ifeq ($(DEBUG), Y)
-CFLAGS=-g 
+CFLAGS += -g
+else
+CFLAGS += -O2
 endif
-CFLAGS += -Wall -O2 -DNANOX -D_NANOX  -I../../../include -I$(INCDIR)
+CFLAGS += -Wall -I../../../include -I$(INCDIR)
 
-LIBS=-ltnW -ljpeg -L../../../lib -lnano-X
+LIBS=-ltnW -L../../../lib -lnano-X
 
 # Common rules that everyone uses 
 

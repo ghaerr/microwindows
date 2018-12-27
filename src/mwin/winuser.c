@@ -464,7 +464,7 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 	wp->cursor = pwp->cursor;
 	wp->cursor->usecount++;
 	wp->unmapcount = pwp->unmapcount + 1;
-	wp->id = (int)(HMENU)hMenu;
+	wp->id = (int)hMenu;				// OK: Not pointer. Menu id always passed as int.
 	wp->gotPaintMsg = PAINT_PAINTED;
 
 	titLen = 0;
@@ -1200,7 +1200,7 @@ GetClassLong(HWND hwnd, int nIndex)
 		return (DWORD)hwnd->pClass->cbWndExtra;
 	case GCL_HBRBACKGROUND:
 		assert(sizeof(LONG_PTR) <= 32);		// 64bit must use GetClassLongPtr
-		return (DWORD)hwnd->pClass->hbrBackground;		// OK: ptr must truncate to DWORD here, use GetClassLongPtr()
+		return (DWORD)hwnd->pClass->hbrBackground;		// OK: Pointer size checked above and is 32 bit.
 	case GCL_HCURSOR:
 	case GCL_HICON:
 	case GCL_HMODULE:
@@ -1410,9 +1410,9 @@ SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData)
 		return FALSE;
 	/* check if 16 bit atom passed instead of pointer*/
 	if (PTR_IS_ATOM(lpString))
-		pProp->Atom = GlobalAddAtom(lpString);
+		pProp->Atom = LOWORD((DWORD)lpString);			// OK: Not pointer. Atom passed in low 16 bits.
 	else
-		pProp->Atom = LOWORD((DWORD)(LPCSTR)lpString);
+		pProp->Atom = GlobalAddAtom(lpString);
 	pProp->hData = hData;
 
 	GdListAdd (&hWnd->props, &pProp->link);
@@ -1428,9 +1428,9 @@ GetProp(HWND hWnd, LPCSTR lpString)
 
 	/* check if 16 bit atom passed instead of pointer*/
 	if (PTR_IS_ATOM(lpString))
-		Atom = GlobalFindAtom(lpString);
+		Atom = LOWORD((DWORD)lpString);				// OK: Not pointer. Atom passed in low 16 bits.
 	else
-		Atom = LOWORD((DWORD)(LPCSTR)lpString);
+		Atom = GlobalFindAtom(lpString);
 
 	for(p=hWnd->props.head; p; p=p->next) {
 		pProp = GdItemAddr(p, MWPROP, link);
@@ -1450,9 +1450,9 @@ RemoveProp(HWND hWnd, LPCSTR lpString)
 
 	/* check if 16 bit atom passed instead of pointer*/
 	if (PTR_IS_ATOM(lpString))
-		Atom = GlobalFindAtom(lpString);
+		Atom = LOWORD((DWORD)lpString);				// OK: Not pointer. Atom passed in low 16 bits.
 	else
-		Atom = LOWORD((DWORD)(LPCSTR)lpString);
+		Atom = GlobalFindAtom(lpString);
 
 	for(p=hWnd->props.head; p; p=p->next) {
 		pProp = GdItemAddr(p, MWPROP, link);
@@ -1548,11 +1548,11 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 	hidden = hwnd->unmapcount || (fuFlags & SWP_NOREDRAW);
 
 	if(bZorder) {
-		switch((int)hwndInsertAfter) {
-		case (int)(HWND)HWND_TOP:
+		switch((int)hwndInsertAfter) {			// OK: intentional HWND to int cast
+		case (int)(HWND)HWND_TOP:				// OK: intentional HWND to int cast
 			MwRaiseWindow(hwnd);
 			break;
-		case (int)(HWND)HWND_BOTTOM:
+		case (int)(HWND)HWND_BOTTOM:			// OK: intentional HWND to int cast
 			MwLowerWindow(hwnd);
 			break;
 		default:

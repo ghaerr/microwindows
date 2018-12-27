@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
 #include "device.h"

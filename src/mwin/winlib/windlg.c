@@ -501,7 +501,7 @@ dlgGetItemClass(PMWDLGITEMTEMPLEXTRA pItem)
 }
 
 
-DWORD
+static DWORD
 dlgItemStyle(PMWDLGITEMTEMPLATE pItem, PMWDLGITEMTEMPLEXTRA pItemExtra)
 {
 	if (((pItemExtra->szClassName[0] == (TCHAR)-1) &&

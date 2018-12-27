@@ -82,15 +82,13 @@ AC_ARG_WITH(microwin, [  --with-microwin=[microwindows base path]  Specifies whe
   echo "Using Microwindows from $with_microwin..."
   MWFOLDER=$with_microwin
   INCLUDES="$INCLUDES -I$MWFOLDER/include" 
-  CFLAGS="$CFLAGS -DNANOX -D_NANOX"
-  LIBS="$LIBS -ljpeg -L$MWFOLDER/lib -lnano-X -lX11"
+  LIBS="$LIBS -L$MWFOLDER/lib -lnano-X -lX11"
   NANOX=1 
 ],
 [
   echo "Using Microwindows from default location..."
   INCLUDES="$INCLUDES -I/usr/include/microwin" 
-  CFLAGS="$CFLAGS -DNANOX -D_NANOX"
-  LIBS="$LIBS -ljpeg -L/usr/lib -lnano-X -lX11"
+  LIBS="$LIBS -L/usr/lib -lnano-X -lX11"
 ])
 
 AC_PROG_MAKE_SET

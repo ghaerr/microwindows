@@ -9,15 +9,25 @@
 ##############################################################################
 
 # Standard set of warnings for all platforms that use GCC
-ifneq ($(DEBUG), Y)
-#line below removes not required warnings
-#ifneq ($(DEBUG), not-Wall)
-GCC_WARNINGS := -Wno-deprecated-declarations
-else
-GCC_WARNINGS := -Wall -Wpointer-arith  # -Werror
-#GCC_WARNINGS += -Wstrict-prototypes -Wmissing-prototypes
+ifeq ($(DEBUG), Y)
+GCC_WARNINGS := -Wall
+GCC_WARNINGS += -Wunused-variable
+GCC_WARNINGS += -Wpointer-arith
 GCC_WARNINGS += -Wbad-function-cast
-#GCC_WARNINGS := -Wall -Wpointer-arith
+#GCC_WARNINGS += -Wmissing-prototypes				# still problems in nxscribble & tuxchess
+#GCC_WARNINGS += -Wstrict-prototypes				# win32 FARPROC can't be strict
+else
+ifeq ($(DEBUG), N)
+GCC_WARNINGS := 
+GCC_WARNINGS += -Wunused-variable
+GCC_WARNINGS += -Wno-missing-prototypes
+GCC_WARNINGS += -Wno-pointer-to-int-cast			# win32 converts pointers to ints with menuID,ctrlID,atoms,rsrcs
+else
+GCC_WARNINGS := 
+GCC_WARNINGS += -Wunused-variable
+GCC_WARNINGS += -Wmissing-prototypes
+GCC_WARNINGS := $(DEBUG)
+endif
 endif
 
 # Platform dependent flags & definitions

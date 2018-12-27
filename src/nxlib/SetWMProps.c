@@ -78,9 +78,7 @@ int XSetWMHints(Display *dpy, Window w, XWMHints *hints)
 void
 XSetWMClassHints(Display * display, Window w, XClassHint * hints)
 {
-#if DEBUG || SHOWSTUBS
-	DPRINTF("XSetWMClassHints\n");
-#endif     
+	DPRINTF("XSetWMClassHints called\n");
 }
 
 XSizeHints *

@@ -32,7 +32,7 @@ on_init(void)
 }
 
 /* draw pattern on mono pixmap*/
-GR_WINDOW_ID
+static GR_WINDOW_ID
 getpixmap(void)
 {
 	GR_GC_ID 		gc = GrNewGC();

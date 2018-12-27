@@ -1551,7 +1551,7 @@ void usage(char *s)
 }
 
 #if 1
-void *mysignal(int signum, void *handler)
+static void *mysignal(int signum, void *handler)
 {
 	struct sigaction sa, so;
 
@@ -1563,6 +1563,7 @@ void *mysignal(int signum, void *handler)
 	return so.sa_handler;
 }
 
+#if unused
 void maximize(void)
 {
     static short x0, y0, w, h, w_max,h_max;
@@ -1579,8 +1580,9 @@ void maximize(void)
 		isMaximized=0;
     }
 }
+#endif
 
-void sigpipe(int sig)
+static void sigpipe(int sig)
 {
 	/* this one musn't close the window */
 	/*_write_utmp(pty, "", "", 0);  */
@@ -1589,14 +1591,14 @@ void sigpipe(int sig)
 }
 
 
-void sigchld(int sig)
+static void sigchld(int sig)
 {
 	/*  _write_utmp(pty, "", "", 0);  */
 	_exit(sig);
 }
 
 
-void sigquit(int sig)
+static void sigquit(int sig)
 {
 	signal(sig, SIG_IGN);
 	kill(-pid, SIGHUP);

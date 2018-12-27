@@ -16,13 +16,6 @@
 #include <unistd.h>
 #include "windows.h"	
 
-//#define OFN_MAXBTNSTR  (32)
-//#define OFN_MAXBTNS    (4)
-//#define OFN_IDTEXT   (100)
-//#define DLGTEMPLATE_SIZE 18 /* sizeof(DLGTEMPLATE) */
-//#define DLGITEMTEMPLATE_SIZE 18  /* sizeof(DLGITEMTEMPLATE) */
-//#define SAFETY_MARGIN 32 /* Extra number of bytes to allocate just in case */
-
 #define ID_EDIT 5
 #define ID_LIST 7
 #define ID_OK 8
@@ -36,12 +29,12 @@ struct filters {
   char suffix[32];
 };
 struct filters filterpairs[10];
-
 char currentfilter[128];
-
 char curpath[PATH_MAX] = {"."};
 
-void fill_listbox(HWND hwnd,const char *path)
+LRESULT FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+static void fill_listbox(HWND hwnd,const char *path)
 {
        struct dirent **namelist;
        int n;
@@ -70,7 +63,7 @@ void fill_listbox(HWND hwnd,const char *path)
        }
 }
 
-int isDirectory(const char *path) {
+static int isDirectory(const char *path) {
    struct stat statbuf;
    if (stat(path, &statbuf) != 0)				// FIXME non-portable 
        return 0;
@@ -78,8 +71,7 @@ int isDirectory(const char *path) {
 }
 
 /* Window procedure for the dialog box */
-static LRESULT
-FileOpenCtrlProc ( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
+LRESULT FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static LPOPENFILENAME mdData;
 	int sel,isdir;
@@ -87,23 +79,24 @@ FileOpenCtrlProc ( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 	char dirpath[PATH_MAX];
 	char* slashptr;
 	int dirflag;
-	HWND hEdit,htty;
+	HWND hEdit;
+	HFONT hFont;
 	const char blank[2]=" ";
 
   dirflag=0;
   switch(message) {
     case WM_INITDIALOG:
-      mdData=lParam; //valid if WM_INITDIALOG message only
+      mdData = (LPOPENFILENAME)lParam; //valid if WM_INITDIALOG message only
       if (mdData->lpstrInitialDir != NULL) {
 	sprintf(curpath,"%s",mdData->lpstrInitialDir);
       }
       if (strcmp(curpath,".")==0) getcwd(curpath, sizeof(curpath));
       fill_listbox(hwnd,curpath);
-      htty = CreateFont ( 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, "arial" );
-      SendDlgItemMessage(hwnd, ID_LIST, WM_SETFONT, (WPARAM)htty, 0 );
+      hFont = CreateFont ( 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, "arial" );
+      SendDlgItemMessage(hwnd, ID_LIST, WM_SETFONT, (WPARAM)hFont, 0 );
       SendDlgItemMessage(hwnd, ID_LIST, LB_SETITEMHEIGHT, 0, 15 );
       
-      SendDlgItemMessage(hwnd, ID_EDIT, WM_SETFONT, (WPARAM)htty, 0 );
+      SendDlgItemMessage(hwnd, ID_EDIT, WM_SETFONT, (WPARAM)hFont, 0 );
       //now the only difference of save file to open file - initialize edit control if specified
       if ((mdData->lpstrFileTitle != NULL) && (mdData->dwSaveDialog==1)) { 
 	SendDlgItemMessage (hwnd, ID_EDIT, WM_SETTEXT, 0, (LPARAM)(char*)mdData->lpstrFileTitle);
@@ -114,7 +107,7 @@ FileOpenCtrlProc ( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
       char filtertmp[1024];
       char edittmp[1024];
      if (mdData->lpstrFilter!=0) {
-      SendDlgItemMessage(hwnd, ID_COMBO, WM_SETFONT, (WPARAM)htty, 0 );
+      SendDlgItemMessage(hwnd, ID_COMBO, WM_SETFONT, (WPARAM)hFont, 0 );
       while (strlen(mdData->lpstrFilter+fptr) !=0) {
 	sprintf(filterpairs[i].name,"%s",mdData->lpstrFilter+fptr);
 	fptr=fptr+strlen(filterpairs[i].name)+1;
@@ -239,22 +232,16 @@ FileOpenCtrlProc ( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
   return 0;
 }
 
-BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
-    LPOPENFILENAME mdData;
-    mdData=Arg1;
+BOOL WINAPI
+GetOpenFileNameIndirect(LPOPENFILENAME Arg1){
+    LPOPENFILENAME mdData = Arg1;
     DLGTEMPLATE *tpl;
-    DLGITEMTEMPLATE *itxt,*ilist,*iedit,*ifilter,*icombo;
-    
     int width, height;
     RECT r;
-
-    char capbuf[32];
-    HMODULE hUser32 = 0;
     LPVOID buf;
     BYTE *dest;
-    LPCSTR caption, text;
-    int ret, textlen, btnlen, i, btnleft, btntop, lmargin, nButtons = 0;
-    DWORD units = GetDialogBaseUnits();
+    LPCSTR caption;
+    int ret;
 
     caption = (LPCSTR)mdData->lpstrTitle;
 
@@ -296,17 +283,16 @@ BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME *Arg1){
     return ret;
 }
 
-
-BOOL WINAPI GetOpenFileName (LPOPENFILENAME Arg1){
-  LPOPENFILENAME ofnData;
-  ofnData=Arg1;
-  ofnData->dwSaveDialog=0;
-  return GetOpenFileNameIndirect (ofnData);
+BOOL WINAPI
+GetOpenFileName(LPOPENFILENAME Arg1)
+{
+	Arg1->dwSaveDialog = 0;
+	return GetOpenFileNameIndirect(Arg1);
 }
 
-BOOL WINAPI GetSaveFileName (LPOPENFILENAME Arg1){
-  LPOPENFILENAME ofnData;		// FIXME no need for this, also bad argument naming
-  ofnData=Arg1;
-  ofnData->dwSaveDialog=1;
-  return GetOpenFileNameIndirect (ofnData);
+BOOL WINAPI
+GetSaveFileName(LPOPENFILENAME Arg1)
+{
+	Arg1->dwSaveDialog=1;
+	return GetOpenFileNameIndirect(Arg1);
 }

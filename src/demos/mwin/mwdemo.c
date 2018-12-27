@@ -88,7 +88,7 @@ MwUserInit(int ac, char **av)
 	return 0;
 }
 
-int
+static int
 RegisterAppClass(void)
 {
 	WNDCLASS	wc;
@@ -119,7 +119,7 @@ RegisterAppClass(void)
 	return 1;
 }
 
-HWND
+static HWND
 CreateAppWindow(void)
 {
 	HWND	hwnd;

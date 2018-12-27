@@ -6,7 +6,7 @@
  * Yes, this is just a demo, and doesn't repaint contents on refresh.
  */
 
-#define __USE_XOPEN			/* for ptsname()*/
+#define _XOPEN_SOURCE 600	/* for ptsname()*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -58,7 +58,7 @@ static int ypos = YMARGIN;
 static int nCharWidth, nCharHeight;
 static int nScreenWidth, nScreenHeight;
 
-int
+static int
 RegisterAppClass(void)
 {
 	WNDCLASS	wc;
@@ -77,7 +77,7 @@ RegisterAppClass(void)
 	return 1;
 }
 
-HWND
+static HWND
 CreateAppWindow(void)
 {
 	HWND	hwnd;

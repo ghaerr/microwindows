@@ -1,4 +1,5 @@
 26 Dec 2018
+	* remove -ljpeg from link and -DNANOX -D_NANOX from compile, not needed
 	* export DEBUG macro to TinyWidgets make system
 	* get demos in TnDesigner to work
 	* silence warnings in Tiny Widgets

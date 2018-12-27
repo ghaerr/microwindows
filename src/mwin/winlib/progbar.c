@@ -54,7 +54,7 @@
 #include "wintools.h" 	/* Draw3dBox */
 #include "device.h" 	/* GdGetTextSize */
 
-#define TEST	1	/* =1 for testing*/
+#define TEST	0	/* =1 for testing*/
 
 #define  WIDTH_PBAR_BORDER  2 
 
@@ -115,7 +115,7 @@ GetSysCharHeight(HDC hdc)
 	return ch;
 }
 
-void pbarOnDraw (HWND hwnd, HDC hdc, PROGRESSDATA* pData, BOOL fVertical,
+static void pbarOnDraw (HWND hwnd, HDC hdc, PROGRESSDATA* pData, BOOL fVertical,
 	BOOL fErase)
 {
     int     x, y, w, h;
@@ -216,20 +216,19 @@ void pbarOnDraw (HWND hwnd, HDC hdc, PROGRESSDATA* pData, BOOL fVertical,
     }
 }
 
-static void pbarNormalizeParams (const HWND pCtrl, 
-                PROGRESSDATA* pData, BOOL fNotify)
+static void pbarNormalizeParams (const HWND pCtrl, PROGRESSDATA* pData, BOOL fNotify)
 {
     if (pData->nPos > pData->nMax) {
         if (fNotify)
             SendMessage (GetParent ((HWND)pCtrl), WM_COMMAND, 
-		(WPARAM)MAKELONG (pCtrl->id, PBN_REACHMAX), (LPARAM)pCtrl);
+				(WPARAM)MAKELONG (pCtrl->id, PBN_REACHMAX), (LPARAM)pCtrl);
         pData->nPos = pData->nMax;
     }
 
     if (pData->nPos < pData->nMin) {
         if (fNotify)
             SendMessage (GetParent ((HWND)pCtrl), WM_COMMAND, 
-		(WPARAM)MAKELONG (pCtrl->id, PBN_REACHMIN), (LPARAM)pCtrl);
+				(WPARAM)MAKELONG (pCtrl->id, PBN_REACHMIN), (LPARAM)pCtrl);
         pData->nPos = pData->nMin;
     }
 }
@@ -243,7 +242,6 @@ ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     BOOL          fErase;
     RECT	rc;
     PAINTSTRUCT ps;
-    int		pos;
     
     pCtrl = hwnd;
     
@@ -309,7 +307,6 @@ ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         
         case PBM_SETPOS:
             pData = (PROGRESSDATA *)pCtrl->userdata;
-            
             if (pData->nPos == wParam)
                 break;
 
@@ -347,7 +344,7 @@ ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
                 pData = (PROGRESSDATA *)pCtrl->userdata;
-		pos = pData->nPos;
+		int pos = pData->nPos;
 		pos += pData->nStepInc;
 		if (pos > pData->nMax)
 			pos = pData->nMin;

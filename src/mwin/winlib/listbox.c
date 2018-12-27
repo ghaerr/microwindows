@@ -133,7 +133,7 @@ typedef struct _LISTBOXDATA
 	LISTBOXITEM *freeList;	/* free list in buffer */
 } LISTBOXDATA, *PLISTBOXDATA;
 
-void ListboxControlCleanup();
+void ListboxControlCleanup(void);
 static LRESULT CALLBACK
 ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 static void lstDrawFocusRect(HWND hwnd, HDC hdc, PLISTBOXDATA pData,
@@ -173,7 +173,7 @@ assert(sizeof(LPARAM) == sizeof(LONG_PTR));
 }
 
 void
-ListboxControlCleanup()
+ListboxControlCleanup(void)
 {
 #if 0
 	UnloadBitmap(&sg_bmpCheckMark);
@@ -825,9 +825,6 @@ lstCalcParams(HWND hwnd, RECT * rcClient, PLISTBOXDATA pData)
 		pData->itemVisibles++;
 #endif
 }
-
-extern BOOL SetScrollPos(HWND hWnd, int iSBar, int iNewPos);
-extern BOOL EnableScrollBar(HWND hWnd, int iSBar, BOOL bEnable);
 
 static void
 lstSetVScrollInfo(HWND hwnd, PLISTBOXDATA pData, BOOL fRedraw)

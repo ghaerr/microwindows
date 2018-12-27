@@ -21,6 +21,16 @@ HINSTANCE hInst;
 static HFONT hFntCyber12 = NULL;
 static HFONT hFntCyber14 = NULL;
 
+DLGBOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoStatic ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoMultiline ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoInternational ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoStrings ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoEdit ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoList ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK dlgDemoTimers ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+DLGBOOL CALLBACK mainDlgProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+BOOL CALLBACK kbdTranslate ( WPARAM *pVK, LPARAM *pControlMask, BOOL *pressed );
 
 DLGBOOL CALLBACK defDemoDlg ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
@@ -180,8 +190,7 @@ DLGBOOL CALLBACK dlgDemoStrings ( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			if( !LoadString(hInst, IDS_STRING1+i, s, sizeof(s)) )
 				strcpy ( s, "NOT FOUND!!" );
 			
-			SendDlgItemMessage(hWnd, IDC_STRING1+i, WM_SETTEXT, 
-				0, (LPARAM)s );
+			SendDlgItemMessage(hWnd, IDC_STRING1+i, WM_SETTEXT, 0, (LPARAM)s );
 			}
 		}
 	return defDemoDlg ( hWnd, message, wParam, lParam );

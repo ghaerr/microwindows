@@ -761,7 +761,7 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 		MapWindowPoints(hwnd, NULL, (LPPOINT)&rc, 2);
 
 	/* handle COLOR_xxx + 1 passed as HBRUSH*/
-	if((UINT_PTR)obr <= MAXSYSCOLORS) {		// 64bit convert pointer to UINT without truncation
+	if((UINT_PTR)obr <= MAXSYSCOLORS) {		// Convert pointer to long without truncation to check if small int passed
 		crFill = GetSysColor((int)obr-1);	// OK: Not pointer. Convert to int then decrement.
 	} else {
 		/* get color from passed HBRUSH*/

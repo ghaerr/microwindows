@@ -57,6 +57,7 @@ float roachSpeed = 20.0;
 void Usage(void);
 void SigHandler(int sig);
 void AddRoach(void);
+void TurnRoach(Roach *roach);
 void MoveRoach(int Rx);
 void DrawRoaches(void);
 void CoverRoot(void);
@@ -213,7 +214,7 @@ SigHandler(int sig)
 /*
    Generate random integer between 0 and maxVal-1.
 */
-int
+static int
 RandInt(int maxVal)
 {
 	return rand() % maxVal;
@@ -222,7 +223,7 @@ RandInt(int maxVal)
 /*
    Check for roach completely in specified rectangle.
 */
-int
+static int
 RoachInRect(Roach *roach, int rx, int ry, int x, int y,
 	unsigned int width, unsigned int height)
 {
@@ -237,7 +238,7 @@ RoachInRect(Roach *roach, int rx, int ry, int x, int y,
 /*
    Check for roach overlapping specified rectangle.
 */
-int
+static int
 RoachOverRect(Roach *roach, int rx, int ry, int x, int y,
 	unsigned int width, unsigned int height)
 {

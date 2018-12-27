@@ -65,9 +65,10 @@ mwAddResource(HRSRC hRes)
 static int
 mwResCompare(LPCTSTR res1, LPCTSTR res2)
 {
-	if ((HIWORD(res1) == 0xFFFF) || (HIWORD(res2) == 0xFFFF))	// OK: Not pointer. Checks high word of DWORD.
+	if ((HIWORD(res1) == 0xFFFF) || (HIWORD(res2) == 0xFFFF))	// OK: Not pointer. Checks high word of resource DWORD.
 		return (res1 != res2);
 
+	// FIXME: resource string names not handled properly here
 	return strcmp(res1, res2);
 }
 
@@ -534,8 +535,8 @@ resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle
 	dialog->cdit = (WORD)cdit;
 
 	extra = (WORD *)(((BYTE *)dialog) + FIXSZ_MWDLGTEMPLATE);
-	*extra++ = (WORD)(LPSTR)menu;	// no string menus yet
-	*extra++ = (WORD)(LPSTR)class;	// no string classes yet
+	*extra++ = (WORD)menu;	// OK: No string menus yet, menu id always passed as WORD.
+	*extra++ = (WORD)class;	// OK: No string classes yet, class id always passed as WORD.
 	if (caption)
 		while (*caption)
 			*extra++ = (WORD)*caption++;

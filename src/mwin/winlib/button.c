@@ -969,13 +969,6 @@ cenButtonWndFn(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc( hwnd, message, wParam, lParam);
 }
 
-/* backwards compatibility*/
-int WINAPI
-MwButtonRegister(HINSTANCE hInstance)
-{
-	return MwRegisterButtonControl(hInstance);
-}
-
 int WINAPI
 MwRegisterButtonControl(HINSTANCE hInstance)
 {

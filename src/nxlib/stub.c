@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-// #define SHOWSTUBS 1 /* just show called stubs, no additional debug messages */
+#define SHOWSTUBS 0		/* just show called stubs, no additional debug messages */
 
-#if DEBUG || SHOWSTUBS
+#if DEBUG | SHOWSTUBS
 #define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
 #else
 #define DPRINTF(str, ...)									  /* no debug output*/

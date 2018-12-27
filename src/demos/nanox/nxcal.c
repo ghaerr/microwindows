@@ -29,14 +29,14 @@ static GR_SCREEN_INFO g_si;
 static int g_rotate = MWPORTRAIT_NONE;
 
 static int state = 0;
-void
+static void
 usage(void)
 {
 	printf("Usage: nxcal [-f] [-d <datafile>]\n");
 	exit(0);
 }
 
-void
+static void
 swapem(int *a, int *b)
 {
 	int t = *a;
@@ -44,7 +44,7 @@ swapem(int *a, int *b)
 	*b = t;
 }
 
-void
+static void
 calculate_transform(GR_TRANSFORM * trans)
 {
 
@@ -179,7 +179,7 @@ calculate_transform(GR_TRANSFORM * trans)
 	GrCalcTransform(&data, trans);
 }
 
-void
+static void
 draw_target(GR_WINDOW_ID wid, GR_GC_ID gc, int x, int y)
 {
 
@@ -193,7 +193,7 @@ draw_target(GR_WINDOW_ID wid, GR_GC_ID gc, int x, int y)
 	GrFillRect(wid, gc, x + 1, y - 1, CROSS_SIZE / 2, 2);
 }
 
-void
+static void
 draw_text(char *str, int row, GR_GC_ID gc)
 {
 	int tw, th, tb;
@@ -202,7 +202,7 @@ draw_text(char *str, int row, GR_GC_ID gc)
 	GrText(g_wid, gc, (g_si.cols - tw) / 2, row, str, -1, GR_TFTOP);
 }
 
-void
+static void
 redraw(void)
 {
 	GR_GC_ID gc = GrNewGC();
@@ -220,7 +220,7 @@ redraw(void)
 	GrDestroyGC(gc);
 }
 
-int
+static int
 handle_pos(GR_EVENT_MOUSE * raw)
 {
 
@@ -244,7 +244,7 @@ handle_pos(GR_EVENT_MOUSE * raw)
 
 /* The main calibration loop - this handles all the wierd stuff */
 
-void
+static void
 calibrate(GR_TRANSFORM * trans)
 {
 

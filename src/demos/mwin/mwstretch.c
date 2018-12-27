@@ -16,7 +16,7 @@ PMWIMAGEHDR image = &image_penguin;
 /* forward decls*/
 LRESULT CALLBACK ChildWndProc(HWND hwnd,UINT uMsg,WPARAM wp,LPARAM lp);
 
-int
+static int
 RegisterAppClass(void)
 {
 	WNDCLASS	wc;

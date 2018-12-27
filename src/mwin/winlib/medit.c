@@ -180,17 +180,17 @@ static int GetSysCCharWidth (HWND hwnd)
 {
 	return (2*GetSysCharWidth(hwnd));
 }
-char* GetWindowCaption (HWND hWnd)
+static char* GetWindowCaption (HWND hWnd)
 {
     return hWnd->szTitle;
 }
 
-LONG GetWindowAdditionalData (HWND hWnd)
+static LONG GetWindowAdditionalData (HWND hWnd)
 {
         return hWnd->userdata;
 }
 
-LONG SetWindowAdditionalData (HWND hWnd, LONG newData)
+static LONG SetWindowAdditionalData (HWND hWnd, LONG newData)
 {
     LONG    oldOne = 0L;
 
@@ -200,12 +200,12 @@ LONG SetWindowAdditionalData (HWND hWnd, LONG newData)
     return oldOne;
 }
 
-LONG GetWindowAdditionalData2 (HWND hWnd)
+static LONG GetWindowAdditionalData2 (HWND hWnd)
 {
         return hWnd->userdata2;
 }
 
-LONG SetWindowAdditionalData2 (HWND hWnd, LONG newData)
+static LONG SetWindowAdditionalData2 (HWND hWnd, LONG newData)
 {
     LONG    oldOne = 0L;
 
@@ -215,12 +215,12 @@ LONG SetWindowAdditionalData2 (HWND hWnd, LONG newData)
     return oldOne;
 }
 
-DWORD GetWindowStyle (HWND hWnd)
+static DWORD GetWindowStyle (HWND hWnd)
 {
         return hWnd->style;
 }
 
-BOOL ExcludeWindowStyle (HWND hWnd, DWORD dwStyle)
+static BOOL ExcludeWindowStyle (HWND hWnd, DWORD dwStyle)
 {
     	if (hWnd == rootwp/*HWND_DESKTOP*/)
         	return FALSE;
@@ -229,7 +229,7 @@ BOOL ExcludeWindowStyle (HWND hWnd, DWORD dwStyle)
         return TRUE;
 }
 
-BOOL IncludeWindowStyle (HWND hWnd, DWORD dwStyle)
+static BOOL IncludeWindowStyle (HWND hWnd, DWORD dwStyle)
 {
 
     	if (hWnd == rootwp/*HWND_DESKTOP*/)
@@ -511,7 +511,7 @@ static BOOL edtIsACCharFromBegin(const char* string,int len,int pos)
 	return FALSE;
 }
 
-int GetRETURNPos(char *str)
+static int GetRETURNPos(char *str)
 {
 	int i;
 	for(i=0;i<strlen(str);i++)
@@ -522,7 +522,7 @@ int GetRETURNPos(char *str)
 	return -1;
 }
 
-void MLEditInitBuffer (PMLEDITDATA pMLEditData,char *spcaption)
+static void MLEditInitBuffer (PMLEDITDATA pMLEditData,char *spcaption)
 {
 	char *caption=spcaption; 
     int off1;
@@ -558,7 +558,7 @@ void MLEditInitBuffer (PMLEDITDATA pMLEditData,char *spcaption)
 	pMLEditData->lines      = lineNO ; 
 }
 
-PLINEDATA GetLineData(PMLEDITDATA pMLEditData,int lineNO)
+static PLINEDATA GetLineData(PMLEDITDATA pMLEditData,int lineNO)
 {
 	PLINEDATA pLineData=pMLEditData->head;
 	while(pLineData)

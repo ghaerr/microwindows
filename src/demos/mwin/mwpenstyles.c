@@ -4,7 +4,7 @@
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void DrawLines(HWND);
 
-	void disp(HWND hwnd, char* s, int x, int y)
+static void disp(HWND hwnd, char* s, int x, int y)
 	// display a string
 	{  HFONT hfont, hOldfont;
 	   HDC hdc;
@@ -24,8 +24,7 @@ void DrawLines(HWND);
 	}   
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    LPSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     
     MSG  msg;
     WNDCLASS wc;
@@ -51,8 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   return (int) msg.wParam;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
-    WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     
     switch(msg) {
   

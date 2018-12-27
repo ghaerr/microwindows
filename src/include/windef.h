@@ -166,6 +166,7 @@ typedef HANDLE              HLOCAL;
 typedef HANDLE              GLOBALHANDLE;
 typedef HANDLE              LOCALHANDLE;
 
+/* macro for checking if 16 bit "atom" is passed as pointer*/
 #define PTR_IS_ATOM(ptr)		((((UINT_PTR)ptr) & ~(UINT_PTR)0xFFFFL) == 0)	/* any bits 16+ and higher zero*/
 typedef WORD                ATOM;
 

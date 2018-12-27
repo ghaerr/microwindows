@@ -538,7 +538,8 @@ static PMWSCROLLBARINFO wndGetScrollBar (HWND pWin, int iSBar)
     return NULL;
 }
 
-BOOL  EnableScrollBar (HWND hWnd, int iSBar, BOOL bEnable)
+BOOL WINAPI
+EnableScrollBar (HWND hWnd, int iSBar, BOOL bEnable)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -569,7 +570,8 @@ BOOL  EnableScrollBar (HWND hWnd, int iSBar, BOOL bEnable)
     return TRUE;
 }
 
-BOOL  GetScrollPos (HWND hWnd, int iSBar, int* pPos)
+BOOL WINAPI
+GetScrollPos (HWND hWnd, int iSBar, int* pPos)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -583,7 +585,8 @@ BOOL  GetScrollPos (HWND hWnd, int iSBar, int* pPos)
     return TRUE;
 }
 
-BOOL  GetScrollRange (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)
+BOOL WINAPI
+GetScrollRange (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -598,7 +601,8 @@ BOOL  GetScrollRange (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)
     return TRUE;
 }
 
-BOOL  SetScrollPos (HWND hWnd, int iSBar, int iNewPos)
+BOOL WINAPI
+SetScrollPos (HWND hWnd, int iSBar, int iNewPos)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -633,7 +637,8 @@ BOOL  SetScrollPos (HWND hWnd, int iSBar, int iNewPos)
     return TRUE;
 }
 
-BOOL  SetScrollRange (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)
+BOOL WINAPI
+SetScrollRange (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -676,7 +681,8 @@ BOOL  SetScrollRange (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)
     return TRUE;
 }
 
-BOOL  SetScrollInfo (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw)
+BOOL WINAPI
+SetScrollInfo (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -730,7 +736,8 @@ BOOL  SetScrollInfo (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw)
     return TRUE;
 }
 
-BOOL  GetScrollInfo(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)
+BOOL WINAPI
+GetScrollInfo(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -760,7 +767,8 @@ BOOL  GetScrollInfo(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)
     return TRUE;
 }
 
-BOOL  ShowScrollBar (HWND hWnd, int iSBar, BOOL bShow)
+BOOL WINAPI
+ShowScrollBar (HWND hWnd, int iSBar, BOOL bShow)
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;

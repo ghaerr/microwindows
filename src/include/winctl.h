@@ -428,5 +428,20 @@ typedef struct tagSCROLLINFO {
 } SCROLLINFO, *LPSCROLLINFO;
 typedef SCROLLINFO CONST *LPCSCROLLINFO;
 
-int     WINAPI SetScrollInfo(HWND, int, LPCSCROLLINFO, BOOL);
-BOOL    WINAPI GetScrollInfo(HWND, int, LPSCROLLINFO);
+BOOL WINAPI EnableScrollBar (HWND hWnd, int iSBar, BOOL bEnable);
+BOOL WINAPI EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable);
+BOOL WINAPI GetScrollPos (HWND hWnd, int iSBar, int* pPos);
+BOOL WINAPI GetScrollPos (HWND hWnd, int iSBar, int* pPos);
+BOOL WINAPI GetScrollRange (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos);
+BOOL WINAPI SetScrollPos (HWND hWnd, int iSBar, int iNewPos);
+BOOL WINAPI SetScrollRange (HWND hWnd, int iSBar, int iMinPos, int iMaxPos);
+int  WINAPI SetScrollInfo(HWND, int, LPCSCROLLINFO, BOOL);
+BOOL WINAPI GetScrollInfo(HWND, int, LPSCROLLINFO);
+BOOL WINAPI ShowScrollBar (HWND hWnd, int iSBar, BOOL bShow);
+BOOL WINAPI GetScrollPosEx (HWND hWnd, int iSBar, int* pPos);
+BOOL WINAPI GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos);
+BOOL WINAPI SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos);
+BOOL WINAPI SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos);
+BOOL WINAPI SetScrollInfoEx (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw);
+BOOL WINAPI GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi);
+BOOL WINAPI ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow);

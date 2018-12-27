@@ -34,9 +34,7 @@
 #define MWM_DEFBARLEN	18
 #define MWM_MINBARLEN	8
 
-static LRESULT CALLBACK
-ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
+LRESULT CALLBACK ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 int WINAPI MwRegisterScrollbarControl(HINSTANCE hInstance)
 {
@@ -112,7 +110,7 @@ wndGetHScrollBarRect (HWND hwnd, RECT* rcHBar)
         return TRUE;
 }
 
-void
+static void
 MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 {
 	BOOL	vertbar = (style==SBS_VERT);
@@ -285,7 +283,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 }
 
 /* handle a non-client message for a scrollbar*/
-void
+static void
 MwHandleMessageScrollbar(HWND hwnd, WPARAM hitcode, LPARAM lParam, UINT msg, DWORD style)
 {
 	int	pos = SBS_UNKNOWN;
@@ -606,7 +604,8 @@ static PMWSCROLLBARINFO wndGetScrollBar (HWND pWin)	/* jmt: 2k0820 */
     		return NULL;
 }
 
-BOOL EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)	/* jmt: iSBar not used */
+BOOL WINAPI
+EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -652,7 +651,8 @@ BOOL EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)	/* jmt: iSBar not us
     return TRUE;
 }
 
-BOOL GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)	/* jmt: iSBar not used */
+BOOL WINAPI
+GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -666,7 +666,8 @@ BOOL GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)	/* jmt: iSBar not used */
     return TRUE;
 }
 
-BOOL GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)	/* jmt: iSBar not used */
+BOOL WINAPI
+GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -681,7 +682,8 @@ BOOL GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)	/* jmt:
     return TRUE;
 }
 
-BOOL SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)	/* jmt: iSBar not used */
+BOOL WINAPI
+SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -732,7 +734,8 @@ BOOL SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)	/* jmt: iSBar not used *
     return TRUE;
 }
 
-BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)	/* jmt: iSBar not used */
+BOOL WINAPI
+SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -790,8 +793,8 @@ BOOL SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)	/* jmt: i
     return TRUE;
 }
 
-BOOL SetScrollInfoEx (HWND hWnd, int iSBar, 
-                LPCSCROLLINFO lpsi, BOOL fRedraw)	/* jmt: iSBar not used */
+BOOL WINAPI
+SetScrollInfoEx (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -861,7 +864,8 @@ BOOL SetScrollInfoEx (HWND hWnd, int iSBar,
     return TRUE;
 }
 
-BOOL GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)	/* jmt: iSBar not used */
+BOOL WINAPI
+GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -888,7 +892,8 @@ BOOL GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)	/* jmt: iSBar not 
     return TRUE;
 }
 
-BOOL ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)	/* jmt: iSBar not used */
+BOOL WINAPI
+ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)	/* jmt: iSBar not used */
 {
     PMWSCROLLBARINFO pSBar;
     HWND pWin;
@@ -980,7 +985,7 @@ static void sbSetScrollInfo (HWND hwnd, PMWSCROLLBARINFO pData, BOOL fRedraw)	/*
     EnableScrollBarEx (hwnd, 0, TRUE);	/* jmt: arg2 not used */
 }
 
-static LRESULT CALLBACK
+LRESULT CALLBACK
 ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* jmt:2k0820 */
 {
     DWORD dwStyle;
@@ -1129,4 +1134,3 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* 
     	}
     	return 0;
 }
-

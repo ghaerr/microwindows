@@ -145,6 +145,7 @@ typedef struct tagSLEDITDATA {
 #define NEDRAW_CALC_CURSOR		0x0004
 #define NEDRAW_CALC_EDITPOS		0x0008
 
+LRESULT CALLBACK SLEditCtrlProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 static int neGetTextHeight(HWND hWnd, HDC hdc);
 static int neGetTextWith(HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData,

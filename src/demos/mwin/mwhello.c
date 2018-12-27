@@ -12,7 +12,7 @@
 	// declare the WndProc function (see later)
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	void disp(HWND hwnd, char* s)
+	static void disp(HWND hwnd, char* s)
 	// display a string
 	{  HFONT hfont, hOldfont;
 	   HDC hdc;

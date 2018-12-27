@@ -17,7 +17,7 @@ extern MWIMAGEHDR image_car8;
 LRESULT CALLBACK WndProc(HWND hwnd,UINT uMsg,WPARAM wp,LPARAM lp);
 LRESULT CALLBACK ChildWndProc(HWND hwnd,UINT uMsg,WPARAM wp,LPARAM lp);
 
-int
+static int
 RegisterAppClass(void)
 {
 	WNDCLASS	wc;
@@ -37,7 +37,7 @@ RegisterAppClass(void)
 	return 1;
 }
 
-HWND
+static HWND
 CreateAppWindow(void)
 {
 	HWND	hwnd;

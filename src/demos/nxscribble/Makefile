@@ -18,7 +18,7 @@ INCLUDEDIRS +=
 DEFINES +=
 
 # Compilation flags for C files OTHER than include directories
-CFLAGS +=
+CFLAGS += -Wno-missing-prototypes
 # Preprocessor flags OTHER than defines
 CPPFLAGS +=
 # Linking flags

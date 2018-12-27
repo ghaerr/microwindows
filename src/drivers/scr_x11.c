@@ -245,14 +245,15 @@ x11_error(Display * dpy, XErrorEvent * ev)
 	return 0;
 }
 
-static const char * const classnm[] = {
-	"StaticGray", "GrayScale", "StaticColor",
-	"PseudoColor", "TrueColor", "DirectColor"
-};
-
 static void
 show_visual(Visual * v)
 {
+#if DEBUG
+	static const char * const classnm[] = {
+		"StaticGray", "GrayScale", "StaticColor",
+		"PseudoColor", "TrueColor", "DirectColor"
+	};
+
 	const char *name = ((v->class < 0) || (v->class > 5)) ? "???" : classnm[v->class];
 	DPRINTF("  Visual  class: %s (%d)\n", name, v->class);
 	DPRINTF("             id: %ld\n", v->visualid);
@@ -261,6 +262,7 @@ show_visual(Visual * v)
 	DPRINTF("       red_mask: 0x%08lx\n", v->red_mask);
 	DPRINTF("     green_mask: 0x%08lx\n", v->green_mask);
 	DPRINTF("      blue_mask: 0x%08lx\n", v->blue_mask);
+#endif
 }
 
 static Visual *

@@ -19,7 +19,7 @@ GR_WINDOW_INFO winfo;
 
 extern PMWIMAGEHDR CannyEdgeDetect(PMWIMAGEHDR pimage);
 
-void
+static void
 load_image(void)
 {
 	int width, height;
@@ -51,7 +51,7 @@ load_image(void)
 	GrFreeImage(iid);
 }
 
-PMWIMAGEHDR
+static PMWIMAGEHDR
 read_image_pixmap(GR_WINDOW_ID wid)
 {
 	MWIMAGEINFO info;
@@ -77,7 +77,7 @@ read_image_pixmap(GR_WINDOW_ID wid)
 	return &image;
 }
 
-void
+static void
 convert_image(void)
 {
 	PMWIMAGEHDR convimage;
@@ -96,7 +96,7 @@ convert_image(void)
 	GrFlushWindow(wid);
 }
 
-void
+static void
 app_window(void)
 {
 	int x, y, flags;

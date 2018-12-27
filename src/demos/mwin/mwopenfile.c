@@ -43,13 +43,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   OPENFILENAME mdData;
   memset(&mdData,0,sizeof(mdData));
   
-  mdData.lpstrFilter=(LPCSTR)filter;
-  mdData.lpstrTitle=(LPCSTR)"Select file to open";
+  mdData.lpstrFilter=filter;
+  mdData.lpstrTitle="Select file to open";
   
-  mdData.lpstrFileTitle=(char *)(LPCSTR)myfilename; 
+  mdData.lpstrFileTitle=myfilename; 
   mdData.nMaxFileTitle=PATH_MAX; //buffer size
    
-  mdData.lpstrFile=(char *)(LPCSTR)myfile;
+  mdData.lpstrFile=myfile;
   mdData.nMaxFile=PATH_MAX; //buffer size
 
   MwInitializeDialogs ( hInstance );

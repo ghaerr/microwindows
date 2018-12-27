@@ -1,3 +1,11 @@
+26 Dec 2018
+	* added -Wno-pointer-to-int-cast when DEBUG=N to suppress win32 conversions
+	* tried fixing demos/nxscribble/Makefile by adding CFLAGS += -Wno-missing-prototypes:
+		this fails because the Arch.rules CFLAGS gets copied *after* this CFLAGS for some reason
+	* rewrote demos/mwin/mwprogbar.c
+	* removed TEST=1 defaults in mwin/winlib/progbar.c (progress bar)
+	* cleanup of missing-prototype functions, changed to static functions or added prototype
+	* set better default compiler warnings in Arch.rules and also allow DEBUG=-Wflags from config
 25 Dec 2018
 	* fixed and removed need for  TinyWidgets clean every make
 	* fix msgbox.c DrawText bug requiring initialized lpRect

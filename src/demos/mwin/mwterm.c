@@ -166,7 +166,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	int nShowCmd)
 {
 	MSG 	msg;
-	extern MWIMAGEHDR image_car8;
+	//extern MWIMAGEHDR image_car8;
 	extern MWIMAGEHDR image_dragon;
 
 	RegisterAppClass();

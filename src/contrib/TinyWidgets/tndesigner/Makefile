@@ -9,6 +9,10 @@ OBJS := button.o callback_editor.o checkbutton.o codegen.o combobox.o label.o \
 		property_editor.o radiobutton.o radiobuttongroup.o rawwidget.o scrollbar.o textbox.o window.o \
 		y.tab.o lex.yy.o
 
+ifneq ($(DEBUG), Y)
+SILENCE_WARNINGS = -Wno-unused-function -Wno-unused-label
+endif
+
 all: tndesigner
 
 clean:
@@ -28,3 +32,11 @@ lex.yy.c:
 y.tab.c:
 	@echo $(YACC) -d fileio.y
 	$(YACC) -d fileio.y
+
+lex.yy.o: lex.yy.c
+	@ echo "Compiling $<..."
+	@ $(CC) $(CFLAGS) $(SILENCE_WARNINGS) -o $@ -c $<
+
+y.tab.o: y.tab.c
+	@ echo "Compiling $<..."
+	@ $(CC) $(CFLAGS) $(SILENCE_WARNINGS) -o $@ -c $<

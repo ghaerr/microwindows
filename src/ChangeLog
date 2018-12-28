@@ -1,3 +1,5 @@
+27 Dec 2018
+	* removed GCC_WARNINGS from c++ compiles in Arch.rules
 26 Dec 2018
 	* added -Wno-pointer-to-int-cast when DEBUG=N to suppress win32 conversions
 	* tried fixing demos/nxscribble/Makefile by adding CFLAGS += -Wno-missing-prototypes:

@@ -156,11 +156,12 @@ GdSetDash(uint32_t *mask, int *count)
 	int oldm = gr_dashmask;
 	int oldc = gr_dashcount;
 
-	//if (!mask || !count)
-		//return;
-
 	gr_dashmask = mask? *mask: 0;
 	gr_dashcount = count? *count: 0;
+
+	/* special case for solid line sets no dashcount for speed*/
+	if (gr_dashcount == 32 && gr_dashmask == 0xFFFFFFFFL)
+		gr_dashcount = 0;
 
 	if (mask) *mask = oldm;
 	if (count) *count = oldc;
@@ -375,7 +376,6 @@ drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y)
 	GdCheckCursor(psd, x1, y, x2, y);
 
 	/* If aren't trying to draw a dash, then head for the speed */
-
 	if (!gr_dashcount) {
 		while (x1 <= x2) {
 			if (GdClipPoint(psd, x1, y)) {
@@ -386,7 +386,8 @@ drawrow(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y)
 			x1 = temp + 1;
 		}
 	} else {
-		unsigned int p, bit = 0;
+		unsigned bit = 0;
+		int p;				/* must use "int" to handle case when x2 < 0*/
 
 		/* We want to draw a dashed line instead */
 		for (p = x1; p <= x2; p++) {

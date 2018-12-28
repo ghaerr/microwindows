@@ -1,3 +1,5 @@
+	* fixed drawrow bug when passed x2 < 0 and dashed lines from GdFillPoly routine
+	* fixed GdSetDash bug introduced with contributed MwSetPenStyle()
 27 Dec 2018
 	* removed GCC_WARNINGS from c++ compiles in Arch.rules
 26 Dec 2018

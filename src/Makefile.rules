@@ -481,6 +481,10 @@ MV = mv
 CFLAGS += $(INCLUDEDIRS)
 MAKEDEPCFLAGS += $(INCLUDEDIRS)
 
+# these parameters may not be used with c++
+TEMPVAR = $(patsubst -Wno-pointer-to-int-cast, ,$(CFLAGS))
+CXXFLAGS = $(patsubst -Wno-missing-prototypes, ,$(TEMPVAR))
+
 ##############################################################################
 # Libraries.
 #
@@ -708,7 +712,7 @@ $(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.$(CPP) $(CONFIG)
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	@$(MW_RULE_MAKE_TARGET_DIR)
 endif
-	$(CXX) -c $(CFLAGS) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 	$(MW_RULE_DEPEND_C)
 
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))

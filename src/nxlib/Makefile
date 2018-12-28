@@ -130,10 +130,10 @@ ifeq ($(NX11),Y)
 ifeq ($(SHAREDLIBS), Y)
 CFLAGS += -fPIC
 LIBS += lib$(LIBNAME).so.$(SOLIBREV)
-#LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
+LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
 else
 LIBS = lib$(LIBNAME).a
-#LIBS += lib$(PLIBNAME).a
+LIBS += lib$(PLIBNAME).a
 endif
 endif
 
@@ -147,14 +147,8 @@ endif
 
 all: $(LIBS)
 
-testprogs:
-	echo "Compiling programs in test"
-	-$(MAKE) -C test
-	echo "Compiling programs in ptest"
-	-$(MAKE) -C ptest
-	-$(RM) lib$(LIBNAME).a
-	-$(RM) lib$(PLIBNAME).a
-
+#avoid testprogs to be compiled before libs are done if parallel execution
+	$(MAKE) testprogs
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)
@@ -242,6 +236,17 @@ lib$(ELIBNAME).so.$(SOLIBREV):
 	$(CP) -d lib$(ELIBNAME).so.$(MAJVERSION) $(MWIN_LIB)
 	-$(RM) lib$(ELIBNAME).so.$(MAJVERSION)
 
+testprogs:
+ifneq ($(ARCH), RTEMS)
+ifneq ($(ARCH), ANDROID) 
+	echo "Compiling programs in test"
+	-$(MAKE) -C test
+	echo "Compiling programs in ptest"
+	-$(MAKE) -C ptest
+	-$(RM) lib$(LIBNAME).a
+	-$(RM) lib$(PLIBNAME).a
+endif
+endif
 
 install: $(LIBS)
 # No mv to INSTALL_DIR since NXLIB moved into Microwindows source tree

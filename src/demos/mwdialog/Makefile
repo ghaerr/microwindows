@@ -53,11 +53,10 @@ include $(MW_DIR_SRC)/Makefile.rules
 ######################## Tools targets section ###############################
 
 $(MW_DIR_BIN)/mwdialog: $(OBJS) $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCMWINLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCMWINLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/mwdialog.res:
 	ln -s ../demos/mwdialog/mwdialog.res $@
 
 $(FONTSPATH):
 	(cd $(MW_DIR_BIN) && ln -s ../fonts)
-		

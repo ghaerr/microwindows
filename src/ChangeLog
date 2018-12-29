@@ -1,3 +1,4 @@
+	* Ubuntu 18.10 linux port. Added config.ubuntu and Makefile fixes
 28 Dec 2018
 	* temp comment out PXLIB build and nxlib/test examples build: breaks build on MACOSX
 	* fixed problem of passing -W options in submakefiles to silence nxscribble and tuxchess subbuilds

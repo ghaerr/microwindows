@@ -62,9 +62,10 @@ endif
 
 # X11 libs, used to build nano-X on X11 and fbe
 ifeq ($(ARCH),MACOSX)
-X11LDFLAGS += -L/opt/X11/lib -lX11
+X11LDFLAGS += -L/opt/X11/lib -lX11					# OSX X11 libs
 else
-X11LDFLAGS += -L/usr/X11R6/lib -lX11
+X11LDFLAGS += -L/usr/X11R6/lib -lX11				# standard linux X11 libs
+#X11LDFLAGS += -L/usr/lib/x86_64-linux-gnu -lX11		# ubuntu X11 libs
 endif
 
 ifeq ($(X11), Y)

@@ -25,7 +25,8 @@ CFLAGS +=
 # Preprocessor flags OTHER than defines
 CPPFLAGS +=
 # Linking flags
-LDFLAGS += -lm
+LDFLAGS +=
+LIBM = -lm
 
 ############################# targets section ################################
 
@@ -68,10 +69,10 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) $(LIBM)
 else
 $(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LIBM)
 endif
 
 endif

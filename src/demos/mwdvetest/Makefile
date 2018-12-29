@@ -57,7 +57,7 @@ include $(MW_DIR_SRC)/Makefile.rules
 ######################## Tools targets section ###############################
 
 $(MW_DIR_BIN)/mwdvetest: $(OBJS) $(MWINLIBS) $(CONFIG)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCMWINLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCMWINLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/mwdvetest.res:
 	ln -s ../demos/mwdvetest/dveres.res $@

@@ -365,7 +365,7 @@ DEFINES += -DMW_FEATURE_TWO_KEYBOARDS=1
 endif
 
 ifeq ($(EVENTMOUSE), Y)
-CFLAGS += -DTOUCHSCREEN_EVENT=1
+DEFINES += -DTOUCHSCREEN_EVENT=1
 endif
 
 # Nano-X specific stuff
@@ -392,7 +392,7 @@ ifeq ($(UPDATEREGIONS), Y)
 DEFINES += -DUPDATEREGIONS=1
 endif
 
-endif
+endif # MICROWIN
 
 
 ##############################################################################

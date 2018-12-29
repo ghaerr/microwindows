@@ -14,13 +14,13 @@ GCC_WARNINGS := -Wall
 GCC_WARNINGS += -Wunused-variable
 GCC_WARNINGS += -Wpointer-arith
 GCC_WARNINGS += -Wbad-function-cast
-#GCC_WARNINGS += -Wmissing-prototypes				# still problems in nxscribble & tuxchess
+GCC_WARNINGS += -Wmissing-prototypes
 #GCC_WARNINGS += -Wstrict-prototypes				# win32 FARPROC can't be strict
 else
 ifeq ($(DEBUG), N)
 GCC_WARNINGS := 
 GCC_WARNINGS += -Wunused-variable
-GCC_WARNINGS += -Wno-missing-prototypes
+GCC_WARNINGS += -Wmissing-prototypes
 GCC_WARNINGS += -Wno-pointer-to-int-cast			# win32 converts pointers to ints with menuID,ctrlID,atoms,rsrcs
 else
 GCC_WARNINGS := 

@@ -1,3 +1,6 @@
+28 Dec 2018
+	* temp comment out PXLIB build and nxlib/test examples build: breaks build on MACOSX
+	* fixed problem of passing -W options in submakefiles to silence nxscribble and tuxchess subbuilds
 	* fixed drawrow bug when passed x2 < 0 and dashed lines from GdFillPoly routine
 	* fixed GdSetDash bug introduced with contributed MwSetPenStyle()
 27 Dec 2018

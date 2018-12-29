@@ -133,7 +133,7 @@ LIBS += lib$(LIBNAME).so.$(SOLIBREV)
 LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
 else
 LIBS = lib$(LIBNAME).a
-LIBS += lib$(PLIBNAME).a
+#LIBS += lib$(PLIBNAME).a
 endif
 endif
 
@@ -148,7 +148,7 @@ endif
 all: $(LIBS)
 
 #avoid testprogs to be compiled before libs are done if parallel execution
-	$(MAKE) testprogs
+#	$(MAKE) testprogs
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)

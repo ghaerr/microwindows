@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
 /* move_str returns a string with move m in coordinate notation */
 char *move_str(move_bytes m)
 {
-	static char str[6];
+	static char str[64];
 	char c;
 
 	if (m.bits & 32) {

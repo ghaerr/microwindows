@@ -389,8 +389,7 @@ void dump_state(nbstate *state)
 						state->animateperiod);
 
 	/* Print the time of the last animate() call: */
-	printf("lastanim = %ldS %duS\n", state->lastanim.tv_sec,
-					state->lastanim.tv_usec);
+	printf("lastanim = %ldS %lduS\n", state->lastanim.tv_sec, (long)state->lastanim.tv_usec);
 
 	/* Print the current power-up and power-down timer values: */
 	printf("powertimes:\n"

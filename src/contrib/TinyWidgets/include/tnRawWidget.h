@@ -22,7 +22,6 @@
 
 #ifndef _TNRAWWIDGET_H_
 #define _TNRAWWIDGET_H_
-#define RAWWIDGET_CALLBACKS 14
 
 /*
  * These are the events that have been taken upward from the nano-X architecture
@@ -44,8 +43,7 @@
 #define TN_SYSTEM_EVENT_CHILD_UPDATE		12
 #define TN_SYSTEM_EVENT_CLOSE_REQ		13
 #define TN_SYSTEM_EVENT_TIMER			14
-
-
+#define RAWWIDGET_CALLBACKS			15	/* +1 from line above*/
 
 #include "tnBase.h"
 #define TN_RAWWIDGET_HEIGHT 30

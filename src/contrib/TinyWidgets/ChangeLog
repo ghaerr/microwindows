@@ -1,3 +1,5 @@
+29 Dec 2018
+	* increased size of rawwidget callback struct for bug with timer event
 27 Dec 2018
 	* make clean now removes *.dSYM directories from OSX clang -g make
 	* add -Wno-unused-function -Wno-unused-label into tndesigner/Makefile when DEBUG=N to suppress yacc warnings

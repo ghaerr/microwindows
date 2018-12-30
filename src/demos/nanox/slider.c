@@ -120,7 +120,7 @@ main(int argc,char **argv)
 /*
  * Read the next event and handle it.
  */
-void
+static void
 HandleEvents(GR_EVENT *ep)
 {
 int hole_x_pos, hole_y_pos;
@@ -219,7 +219,7 @@ int tempx, tempy;
 
 }
 
-void
+static void
 RefreshWindow()
 {
 	int xpos, ypos;
@@ -247,7 +247,7 @@ RefreshWindow()
 	}
 }
 
-void
+static void
 RandomiseTiles()
 {
 	int count, xpos, ypos;
@@ -298,7 +298,7 @@ return;
 	}
 }
 
-void
+static void
 MoveTile(int xpos, int ypos)
 {
 	/* check all possible moves to see if there is the blank (N,E,S,W) */
@@ -367,7 +367,7 @@ MoveTile(int xpos, int ypos)
 }
 
 
-void
+static void
 DrawTile(int xpos, int ypos)
 {
 	char text[]="00";

@@ -126,16 +126,16 @@ endif
 # comment out the next line to not compile in X extension dummy stubs into NXLIB
 #OBJS += NXext.o
 
-ifeq ($(NX11),Y)
+#ifeq ($(NX11),Y)
 ifeq ($(SHAREDLIBS), Y)
 CFLAGS += -fPIC
 LIBS += lib$(LIBNAME).so.$(SOLIBREV)
 LIBS += lib$(PLIBNAME).so.$(SOLIBREV)
 else
 LIBS = lib$(LIBNAME).a
-#LIBS += lib$(PLIBNAME).a
+LIBS += lib$(PLIBNAME).a
 endif
-endif
+#endif
 
 #ifeq ($(NXEXT),Y)
 #ifeq ($(SHAREDLIBS), Y)
@@ -147,13 +147,15 @@ endif
 
 all: $(LIBS)
 
+ifneq ($(ARCH),MACOSX)
 #avoid testprogs to be compiled before libs are done if parallel execution
-#	$(MAKE) testprogs
+	$(MAKE) testprogs
+endif
 
 # static NXLIB library
 lib$(LIBNAME).a: keysymstr.h $(OBJS)
 	echo "Linking lib$(LIBNAME).a"
-	$(AR) r lib$(LIBNAME).a ../lib/libnano-X.a $(OBJS)
+	$(AR) r lib$(LIBNAME).a $(OBJS)
 	$(CP) lib$(LIBNAME).a $(MWIN_LIB)
 	
 	
@@ -184,23 +186,8 @@ ARSCRIPT = arscript
 # Makefile.rules is the place to put MINGW specific link instructions, not here.
 lib$(PLIBNAME).a: $(OBJS)
 	echo "Linking lib$(PLIBNAME).a"
-#	ar crsT $@ ../lib/libNX11.a ../lib/libnano-X.a
-#create an AR script and execute that with ar -M to combine libNX11.a and libnano-X.a
-	$(SILENT)echo "CREATE $@" > $(ODIR)/$(ARSCRIPT)
-#	$(SILENT)echo "ADDLIB ../lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
-#	$(SILENT)echo "ADDLIB ../lib/libNX11.a" >> $(ODIR)/$(ARSCRIPT)		
-ifeq ($(MINGW), Y)
-	$(SILENT)echo "ADDLIB ../lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
-	$(SILENT)echo "ADDLIB ../lib/lib$(LIBNAME).a" >> $(ODIR)/$(ARSCRIPT)		
-else    	
-	$(SILENT)echo "ADDLIB $(MW_DIR_SRC)/lib/libnano-X.a" >> $(ODIR)/$(ARSCRIPT)	
-	$(SILENT)echo "ADDLIB $(MW_DIR_SRC)/lib/lib$(LIBNAME).a" >> $(ODIR)/$(ARSCRIPT)		
-endif	
-	$(SILENT)echo "SAVE" >> $(ODIR)/$(ARSCRIPT)
-	$(SILENT)echo "END" >> $(ODIR)/$(ARSCRIPT)
-	-$(SILENT)$(AR) -M < $(ODIR)/$(ARSCRIPT)
-	-$(CP) $@ $(MWIN_LIB)
-	-$(RM) $(ODIR)/$(ARSCRIPT)
+	$(AR) r lib$(PLIBNAME).a $(OBJS) ../obj/engine/*.o ../obj/fonts/*.o ../obj/drivers/*.o ../obj/nanox/*.o
+	$(CP) lib$(PLIBNAME).a $(MWIN_LIB)
 
 # shared PX11 library
 # FIXME we don't need more rules about how to link libraries
@@ -243,8 +230,8 @@ ifneq ($(ARCH), ANDROID)
 	-$(MAKE) -C test
 	echo "Compiling programs in ptest"
 	-$(MAKE) -C ptest
-	-$(RM) lib$(LIBNAME).a
-	-$(RM) lib$(PLIBNAME).a
+#	-$(RM) lib$(LIBNAME).a
+#	-$(RM) lib$(PLIBNAME).a
 endif
 endif
 

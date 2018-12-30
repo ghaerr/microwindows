@@ -31,6 +31,9 @@ endif
 
 ifeq ($(NANOX), Y)
 dirs += $(MW_DIR_SRC)/nanox
+endif
+
+ifeq ($(NX11), Y)
 dirs += $(MW_DIR_SRC)/nxlib
 endif
 

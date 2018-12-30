@@ -16,7 +16,7 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 SHAREDLIBS               = Y
-#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+EXTRAFLAGS               = -Wno-unused-result -Wno-implicit-int
 #EXTRAFLAGS               += -s
 DEBUG                    = Y
 OPTIMIZE                 = Y
@@ -35,7 +35,6 @@ SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 X11HDRLOCATION           = /usr/X11R6/include
 X11LIBLOCATION           = /usr/lib/x86_64-linux-gnu
-#X11LIBLOCATION           = /opt/X11R6/lib					# standard X11 libs
 USE_EXPOSURE             = Y
 
 FRAMEBUFFER              = N

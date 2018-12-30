@@ -1,4 +1,5 @@
 29 Dec 2018
+	* update nxlib build from Georg, too many warnings in nxlib/test builds, more cleanup
 	* updated config.suse, more cleanup
 	* source cleanup from ubuntu warnings
 	* ported scr_fb.c to OSX without requiring scr_mem.c

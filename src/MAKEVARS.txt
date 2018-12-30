@@ -1,4 +1,4 @@
-Microwindows Makefile System Overview 12/28/18
+Microwindows Makefile System Overview 12/30/18
 ----------------------------------------------
 
 src/Makefile
@@ -26,7 +26,7 @@ src/Makefile.rules
 	EXTRAFLAGS=				new config option to add -W warnings and -s linker strip options to compiler
 
 	LDFLAGS=				-L and link flags only (prepend link line)
-	LDLIBS=					new, -llibs only       (append link line)
+	LDLIBS=					new, -llibs only       (append link line) [NOT YET IMPLEMENTED, appending LDFLAGS now]
 
 	X11LIBLOCATION=			new config option, location of X11 libraries
 	X11HDRLOCATION=			new config option, location of X11 headers
@@ -57,9 +57,9 @@ src/Makefile.rules
 	LIBS = $(NANOXFILES) $(NANOXSERVERLIBS)		# static nanox
 	LIBS = $(NANOXFILES) $(CCNANOXSERVERLIBS)	# shared nanox
 	LIBS = $(CCMWINLIBS)						# mwin
-	LINKARGS = $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $(LDLIBS)
+	LINKARGS = $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $(LDFLAGS)		[final LDFLAGS will be replaced with LDLIB soon]
 .o.exe:			# new expanded link rule vs old
-	$(CC) $(LINKFLAGS) -o $@
+	$(CC) $(LINKARGS) -o $@
 
 
 src/Arch.rules

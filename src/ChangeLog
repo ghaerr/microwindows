@@ -1,3 +1,5 @@
+30 Dec 2018
+	* combine config.suse/config.ubuntuX11 into single config.linux-X11 for linux desktop systems, fix TW link
 29 Dec 2018
 	* update nxlib build from Georg, too many warnings in nxlib/test builds, more cleanup
 	* updated config.suse, more cleanup

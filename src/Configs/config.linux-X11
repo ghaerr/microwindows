@@ -16,9 +16,8 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 SHAREDLIBS               = Y
-EXTRAFLAGS               = -Wno-unused-result -Wno-implicit-int
-#EXTRAFLAGS               += -s
-DEBUG                    = Y
+#EXTRAFLAGS               = -Wno-unused-result -Wno-implicit-int
+DEBUG                    = N
 OPTIMIZE                 = Y
 #OPTIMIZE                 = -O1
 VERBOSE                  = N
@@ -34,7 +33,9 @@ X11                      = Y
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 X11HDRLOCATION           = /usr/X11R6/include
-X11LIBLOCATION           = /usr/lib/x86_64-linux-gnu
+X11LIBLOCATION           = /usr/X11R6/lib
+#X11HDRLOCATION           = /usr/include/X11
+#X11LIBLOCATION           = /usr/lib/x86_64-linux-gnu
 USE_EXPOSURE             = Y
 
 FRAMEBUFFER              = N

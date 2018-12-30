@@ -41,11 +41,11 @@ static	GR_WINDOW_ID	tiles;		/* id for play area */
 static	GR_GC_ID	gc1;		/* graphics context for text */
 
 /* function prototypes */
-static	void	HandleEvents();
-static	void	RefreshWindow();
-static	void	RandomiseTiles();
-static	void	MoveTile();
-static	void	DrawTile();
+static	void	HandleEvents(GR_EVENT *);
+static	void	RefreshWindow(void);
+static	void	RandomiseTiles(void);
+static	void	MoveTile(int xpos, int ypos);
+static	void	DrawTile(int xpos, int ypos);
 
 int
 main(int argc,char **argv)
@@ -220,7 +220,7 @@ int tempx, tempy;
 }
 
 static void
-RefreshWindow()
+RefreshWindow(void)
 {
 	int xpos, ypos;
 

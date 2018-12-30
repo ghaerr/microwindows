@@ -20,14 +20,9 @@ MW_DIR_OBJ := $(MW_DIR_SRC)/obj
 # NOTE: In a future release this may change to: $(MW_DIR_SRC)/../obj
 endif
 
-# See if the user has a local config file. If so use that else
-# use the one provided in the distribution.
+# Configuration file.
 ifndef CONFIG
-ifeq ($(HOME)/microwin/config,$(wildcard $(HOME)/microwin/config))
-CONFIG = $(HOME)/microwin/config
-else
 CONFIG = $(MW_DIR_SRC)/config
-endif
 endif
 
 # Catch Makefile errors.

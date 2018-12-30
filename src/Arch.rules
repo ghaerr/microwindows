@@ -1,71 +1,117 @@
 ##############################################################################
 # Microwindows Architecture rules Makefile
+# Updated 2018 Greg Haerr
 # Copyright (c) 2000 Martin Jolicoeur, Greg Haerr
 # Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
 #
-# Architecture-specific settings.
+# Architecture-specific rules
 #
-# NOTE: The MW_DIR_SRC environment variable should be set to that top directory
+# Current Target Platforms (set with ARCH= in config)
+# LINUX-NATIVE
+# LINUX-AVR32 (BIGENDIAN=Y)
+# LINUX-TCC
+# LINUX-ARM
+# UCLINUX-ARM
+# LINUX-MIPS
+# LINUX-POWERPC (BIGENDIAN=Y)
+# LINUX-SPARC (BIGENDIAN=Y)
+# SOLARIS (BIGENDIAN=Y)
+# LINUX-BLACKFIN
+# LINUX-SH
+# LINUX-LINARO (RPI cross compile)
+# MACOSX
+# RTEMS
+# ECOS
+# PSP
+# NDS (Nintendo DS)
+# TRIMEDIA
+# CYGWIN
+# ANDROID
+
 ##############################################################################
-
-# Standard set of warnings for all platforms that use GCC
-ifeq ($(DEBUG), Y)
-GCC_WARNINGS := -Wall
-GCC_WARNINGS += -Wunused-variable
-GCC_WARNINGS += -Wpointer-arith
-GCC_WARNINGS += -Wbad-function-cast
-GCC_WARNINGS += -Wmissing-prototypes
-#GCC_WARNINGS += -Wstrict-prototypes				# win32 FARPROC can't be strict
-else
-ifeq ($(DEBUG), N)
-GCC_WARNINGS := 
-GCC_WARNINGS += -Wunused-variable
-GCC_WARNINGS += -Wmissing-prototypes
-GCC_WARNINGS += -Wno-pointer-to-int-cast			# win32 converts pointers to ints with menuID,ctrlID,atoms,rsrcs
-else
-GCC_WARNINGS := 
-GCC_WARNINGS += -Wunused-variable
-GCC_WARNINGS += -Wmissing-prototypes
-GCC_WARNINGS := $(DEBUG)
-endif
-endif
-
-# Platform dependent flags & definitions
-
-ifeq ($(ARCH), LINUX-NATIVE)
-ifeq ($(USE_CCACHE), 1)
-COMPILER = ccache gcc
-else
-COMPILER = gcc
-endif
-CXX_COMPILER = g++
-#suffix for c++ files
-#needed is cpp for agglite and canny demos
-CPP = cpp
+# Default tools names (overriden in platform-specific section below)
+##############################################################################
 TOOLSPREFIX = $(NATIVETOOLSPREFIX)
-DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
-#CFLAGS += $(OPTFLAGS)						# removed GCC_WARNINGS from C++ compiles
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
+HOSTCC = gcc				# host compiler
+COMPILER = gcc				# cross compiler
+CXX_COMPILER = g++			# c++ compiler
+CPP = cpp 					# suffix for c++ files
+ARCHIVER = ar				# static library creator
+ARFLAGS = rs				# ar flags
+LINKER = ld					# linker
+CP = cp						# copy
+MV = mv						# move
+SHELL = /bin/sh
+NM = $(TOOLSPREFIX)nm		# following used for ECOS port only
+STRIP = $(TOOLSPREFIX)strip
+OBJCOPY = $(TOOLSPREFIX)objcopy
+
+##############################################################################
+# Default tools locations (overridden in config)
+##############################################################################
+NATIVETOOLSPREFIX        =
+ARMTOOLSPREFIX           = arm-linux-
+ANDROIDTOOLSPREFIX       = arm-linux-androideabi-
+RPITOOLSPREFIX           = arm-linux-gnueabihf-
+MIPSTOOLSPREFIX          = mipsel-linux-
+POWERPCTOOLSPREFIX       = powerpc-linux-
+SHTOOLSPREFIX            = sh-linux-gnu
+AVR32TOOLSPREFIX         = avr32-linux-
+BLACKFINTOOLSPREFIX      = bfin-uclinux-
+PSPTOOLSPREFIX           = psp-
+
+##############################################################################
+# Warning options
+##############################################################################
+WARNINGS += -Wall
+WARNINGS += -Wunused-variable
+WARNINGS += -Wmissing-prototypes
+ifeq ($(DEBUG), Y)
+WARNINGS += -Wpointer-arith
+WARNINGS += -Wbad-function-cast
+#WARNINGS += -Wstrict-prototypes				# win32 FARPROC can't be strict
+else
+WARNINGS += -Wno-pointer-to-int-cast			# win32 converts pointers to ints with menuID,ctrlID,atoms,rsrcs
 endif
-LDFLAGS +=
+
+##############################################################################
+# Handle general architecture options
+##############################################################################
+ifeq ($(SHAREDLIBS), Y)
+CFLAGS += -fpic
+endif
+
+# Set special optimization flags with OPTIMIZE= in config when not =Y or =N
+ifeq ($(OPTIMIZE), Y)
+CFLAGS += -O3
+else
+ifneq ($(OPTIMIZE), N)
+CFLAGS += $(OPTIMIZE)
+endif
+endif
+
+ifeq ($(DEBUG), Y)
+CFLAGS += -g
+DEFINES += -DDEBUG=1
+#CFLAGS += -ggdb
+else
+#DEFINES += -DNDEBUG
+endif
+
+##############################################################################
+# Platform dependent compilers, tools & flags
+##############################################################################
+ifeq ($(ARCH), LINUX-NATIVE)
+DEFINES += -DLINUX=1 -DUNIX=1
 # include the following line for static libraries
 #LDFLAGS += -static
 #CFLAGS += -DHAVE_FPRINTF=1
 endif
 
 ifeq ($(ARCH), LINUX-AVR32)
-ifeq ($(USE_CCACHE), 1)
-COMPILER = ccache gcc
-else
-COMPILER = gcc
-endif
-CXX_COMPILER = g++
 TOOLSPREFIX = $(AVR32TOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -D_GNU_SOURCE
-LDFLAGS +=
+CFLAGS += -D_GNU_SOURCE
 # include the following line for static libraries
 #LDFLAGS += -static
 endif
@@ -73,180 +119,102 @@ endif
 ifeq ($(ARCH), LINUX-TCC)
 COMPILER = tcc
 CXX_COMPILER = tcc
-TOOLSPREFIX =
 DEFINES += -DLINUX=1 -DUNIX=1
 CFLAGS += -Dlinux=1
-#CFLAGS += -Wall $(OPTFLAGS)
-LDFLAGS +=
 # include the following line for static libraries
 #LDFLAGS += -static
 endif
 
 ifeq ($(ARCH), LINUX-ARM)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX = $(ARMTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
-endif
-LDFLAGS +=
+CFLAGS += -mstructure-size-boundary=8
+#CFLAGS += -s
 endif
 
 ifeq ($(ARCH), LINUX-LINARO)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX = $(RPITOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -DLINUX_LINARO
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
-LDFLAGS +=
+CFLAGS += -mstructure-size-boundary=8
 endif
 
 ifeq ($(ARCH), UCLINUX-ARM)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX = $(ARMTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1 -DARM_LINUX -D__uClinux__
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8
+CFLAGS += -mstructure-size-boundary=8
 LDFLAGS += -elf2flt
 FLTFLAGS += -s 64000
 endif
 
-ifeq ($(ARCH), ANDROID)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX = $(ANDROIDTOOLSPREFIX)
-DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -D_ANDROID_=1
-#set __ANDROID__ enviroment variable for NXLIB (StrKeysym.c + NextEvent.c)
-__ANDROID__ := 1
-export __ANDROID__ 
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -mstructure-size-boundary=8 -I$(HOME)/android-toolchain/user/armeabi-v7a/include
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
-endif
-LDFLAGS += -L$(HOME)/android-toolchain/usr/armeabi-v7a/lib
-#add liblog to support logcat
-LDFLAGS += -L$(HOME)/android-toolchain/sysroot/usr/lib -llog
-endif
-
 ifeq ($(ARCH), LINUX-MIPS)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX = $(MIPSTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32
-CFLAGS += -msoft-float $(GCC_WARNINGS) $(OPTFLAGS)
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
-endif
-LDFLAGS +=
+CFLAGS += -msoft-float
+#CFLAGS += -s
 endif
 
 ifeq ($(ARCH), LINUX-POWERPC)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX = $(POWERPCTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -msoft-float $(GCC_WARNINGS) $(OPTFLAGS)
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
-endif
-LDFLAGS +=
 # Added define to avoid compiler error for PPC
 DEFINES += -DARCH_LINUX_POWERPPC=1
+CFLAGS += -msoft-float
+#CFLAGS += -s
 endif
 
 ifeq ($(ARCH), LINUX-SH)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX =$(SHTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1
-CFLAGS += -m1 -m3 $(GCC_WARNINGS) $(OPTFLAGS)
-LDFLAGS +=
+CFLAGS += -m1 -m3
 endif
 
 ifeq ($(ARCH), LINUX-SPARC)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX =
 DEFINES += -DLINUX=1 -DUNIX=1 -DMW_CPU_BIG_ENDIAN=1
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
-LDFLAGS +=
-# include the following line for static libraries
-#LDFLAGS += -static
 # Added define to avoid compiler error for SPARC
 DEFINES += -DARCH_LINUX_SPARC=1
+# include the following line for static libraries
+#LDFLAGS += -static
 endif
 
 ifeq ($(ARCH), LINUX-BLACKFIN)
-COMPILER = gcc
-CXX_COMPILER = g++
 TOOLSPREFIX = $(BLACKFINTOOLSPREFIX)
 DEFINES += -DLINUX=1 -DUNIX=1 -Dlinux -DBLACKFIN
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS += -Wl,-elf2flt
 endif
 
 ifeq ($(ARCH), SOLARIS)
-# may require using cc if gcc not installed:
-COMPILER = gcc
-HOSTCC = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX =
 DEFINES += -DUNIX=1 -DMW_CPU_BIG_ENDIAN=1
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
 LDFLAGS += -lsocket -lnsl -lrt
 endif
 
 ifeq ($(ARCH), FREEBSD-X86)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX =
 # __FreeBSD__ is automatically defined
 DEFINES += -DUNIX=1
-CFLAGS += -Wall $(OPTFLAGS)
+CFLAGS += -Wall
 LDFLAGS += -lvgl
 endif
 
 ifeq ($(ARCH), MACOSX)
-COMPILER = gcc
-CXX_COMPILER = g++
-#suffix for c++ files
-CPP = cpp
-TOOLSPREFIX = $(NATIVETOOLSPREFIX)
 DEFINES += -DUNIX=1 -DMACOSX=1
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS)
-LDFLAGS +=
 # include the following line for static libraries
 #LDFLAGS += -static
 endif
 
-ifeq ($(ARCH), PSP)
-PSPSDK = $(shell psp-config --pspsdk-path)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX = $(PSPTOOLSPREFIX)
-DEFINES += -DPSP=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_FPRINTF=0
-CFLAGS += $(GCC_WARNINGS) $(OPTFLAGS) -I$(PSPSDK)/include -G0 -O2 -DARCH_NEED_ALIGN32
-ifneq ($(DEBUG), Y)
-CFLAGS += -s
-endif
-LDFLAGS += -L$(PSPSDK)/lib
-endif
-
-# For RTEMS all variables are passed from Makefile.rtems after being
-# extracted from the BSP specific installation.
 ifeq ($(ARCH), RTEMS)
     COMPILER = $(RTEMS_CC)
     CXX_COMPILER = $(RTEMS_CC)
     INCLUDEDIRS += -I$(RTEMS_MAKEFILE_PATH)/lib/include
     DEFINES += -DUNIX=1 -DRTEMS=1 -DHAVE_MMAP=0 -DHAVE_SELECT=0
-    CFLAGS += -O4 $(GCC_WARNINGS) -fasm -g -B$(RTEMS_MAKEFILE_PATH)/lib/ -specs bsp_specs -qrtems
+    CFLAGS += -O4 -fasm -g -B$(RTEMS_MAKEFILE_PATH)/lib/ -specs bsp_specs -qrtems
+# For RTEMS all variables are passed from Makefile.rtems after being
+# extracted from the BSP specific installation.
+ifneq ($(findstring rtems_init,$(LDFLAGS)),rtems_init)
+    OS_OBJS = $(MW_DIR_OBJ)/FilesystemImage.o $(MW_DIR_OBJ)/rtems_init.o 
+    LDFLAGS += $(OS_OBJS)
+endif
 endif
 
 ifeq ($(ARCH), ECOS)
-    COMPILER = gcc
-    CXX_COMPILER = g++
     TOOLSPREFIX = $(ARMTOOLSPREFIX)
     ECOS_PREFIX = /work/iPAQ/ecos/install
     INCLUDEDIRS += -I$(ECOS_PREFIX)/include
@@ -256,10 +224,10 @@ ifeq ($(ARCH), ECOS)
 endif
 
 ifeq ($(ARCH), TRIMEDIA)
-LUD_ROOT = ../../../../../../..
 COMPILER = cc
 CXX_COMPILER = CC
 TOOLSPREFIX = tm
+ARFLAGS = r
 DEFINES += -DTRIMEDIA=1 -DTCS2 -DOSAL -DLUD_USE_MEMSPACE
 DEFINES += -DHAVE_SIGNAL=0 -DHAVE_FPRINTF=0 -DMW_FEATURE_TIMERS=0
 INCLUDEDIRS += -I$(LUD_ROOT)/src/include -I$(LUD_ROOT)/src/modules/fb/include
@@ -268,69 +236,91 @@ CFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconf
 LDFLAGS += -O2 -el -target tm1 -host nohost -tmconfig=$(LUD_ROOT)/src/misc/tmconfig2.1 -B -Xdiag=1
 # include the following line for static libraries
 #LDFLAGS += -static
+LUD_ROOT = ../../../../../../..
 endif
 
-ifeq ($(ARCH), CYGWIN)
-ifeq ($(USE_CCACHE), 1)
-COMPILER = ccache gcc
-else
-COMPILER = gcc
+ifeq ($(ARCH), NDS)
+TOOLSPREFIX = arm-eabi-
+DEFINES += -DNDS=1 -DUNIX=0 -DHAVE_MMAP=0 -DNOMAIN
+INCLUDEDIRS += -I$(DEVKITPRO)/libnds/include -DARM9
+CFLAGS += -march=armv5te -mtune=arm946e-s -fomit-frame-pointer -ffast-math -mthumb-interwork
+#CFLAGS += -mthumb 
+CFLAGS += -O2 -s
+export PORTLIBS	:=	$(DEVKITPRO)/portlibs/arm
+export PATH		:=	$(DEVKITARM)/bin:$(PORTLIBS)/bin:$(PATH)
+SCREEN_HEIGHT=192
+SCREEN_WIDTH=256
 endif
-CXX_COMPILER = g++
-TOOLSPREFIX =
-#Note: to detect from C code, do "#ifdef __CYGWIN__"
-# __CYGWIN__ is automatically defined
-DEFINES += -DUNIX=1
-CFLAGS += -Wall $(OPTFLAGS)
-LDFLAGS +=
-# include the following line for static libraries
-#LDFLAGS += -static
+
+ifeq ($(ARCH), PSP)
+PSPSDK = $(shell psp-config --pspsdk-path)
+TOOLSPREFIX = $(PSPTOOLSPREFIX)
+DEFINES += -DPSP=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_FPRINTF=0
+CFLAGS += -I$(PSPSDK)/include -G0 -O2 -DARCH_NEED_ALIGN32
+#CFLAGS += -s
+LDFLAGS += -L$(PSPSDK)/lib
 endif
 
 ifeq ($(ARCH), ELKS)
 COMPILER = bcc
-HOSTCC = gcc
-CXX_COMPILER =
-TOOLSPREFIX =
 INCLUDEDIRS += -I/usr/bcc/include -I/home/greg/net/elks/include
 DEFINES += -DELKS=1 -DUNIX=1 -Dconst= -Dvolatile=
 CFLAGS += -0 -ansi -O
-LDFLAGS +=
+endif
+
+ifeq ($(ARCH), CYGWIN)
+# __CYGWIN__ is automatically defined
+DEFINES += -DUNIX=1
+# include the following line for static libraries
+#LDFLAGS += -static
+#MW_CORE_LIBS += /usr/X11R6/lib/libX11.a
 endif
 
 ifeq ($(ARCH), DJGPP)
-COMPILER = gcc
-CXX_COMPILER = g++
-TOOLSPREFIX =
+SHELL = bash
 DEFINES += -DDOS_DJGPP=1 -D_NAIVE_DOS_REGS=1 -DMSDOS=1
-CFLAGS += -Wall $(OPTFLAGS)
-LDFLAGS +=
 endif
 
-ifeq ($(ARCH), NDS)
-COMPILER = gcc
-HOSTCC = gcc
-MAKE = make
-CXX_COMPILER = g++
-TOOLSPREFIX = arm-eabi-
-DEFINES += -DNDS=1 -DUNIX=0 -DHAVE_MMAP=0 -DNOMAIN
-##DEFINES += -DPSP=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_FPRINTF=0
-INCLUDEDIRS += -I$(DEVKITPRO)/libnds/include -DARM9
-CFLAGS += -g -Wall -O2 -s \
-          -march=armv5te -mtune=arm946e-s -fomit-frame-pointer\
-                  -ffast-math \
-                  -mthumb-interwork
-#-mthumb 
-
-export PORTLIBS	        :=	$(DEVKITPRO)/portlibs/arm
-export PATH		:=	$(DEVKITARM)/bin:$(PORTLIBS)/bin:$(PATH)
-
-# Additional settings for a NDS
-SCREEN_HEIGHT=192
-SCREEN_WIDTH=256
-
+ifeq ($(ARCH), ANDROID)
+TOOLSPREFIX = $(ANDROIDTOOLSPREFIX)
+DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -D_ANDROID_=1
+#set __ANDROID__ enviroment variable for NXLIB (StrKeysym.c + NextEvent.c)
+__ANDROID__ := 1
+export __ANDROID__ 
+CFLAGS += -mstructure-size-boundary=8 -I$(HOME)/android-toolchain/user/armeabi-v7a/include
+#CFLAGS += -s
+LDFLAGS += -L$(HOME)/android-toolchain/usr/armeabi-v7a/lib
+#add liblog to support logcat
+LDFLAGS += -L$(HOME)/android-toolchain/sysroot/usr/lib -llog
 endif
 
-ifeq ($(BIGENDIAN), Y)
-DEFINES += -DMW_CPU_BIG_ENDIAN=1
+# ALLEGRO4+5
+ifeq ($(ALLEGRO5), Y)
+DEFINES += -D_ALLEGRO_=1
+ifneq ($(ARCH),ANDROID)
+#if allegro5
+ #for srvmain.c and winmain.c
+ LDFLAGS += -lallegro 
+else
+ #if android
+#LDFLAGS += -L$(HOME)/allegro5111/ba/lib -lallegro-debug 
+LDFLAGS += -Landroid/buildandroid/lib -lallegro-debug 
+endif
+endif
+
+ifeq ($(ALLEGRO4), Y)
+DEFINES += -D_ALLEGRO_=1
+LDFLAGS += -lalleg 
+endif
+
+ifeq ($(SDL1), Y)
+#for srvmain.c and winmain.c
+DEFINES += -D_SDL1_2_=1
+LDFLAGS += -lSDL 
+endif
+
+ifeq ($(SDL2), Y)
+#for srvmain.c and winmain.c
+DEFINES += -D_SDL1_2_=1
+LDFLAGS += -lSDL2 
 endif

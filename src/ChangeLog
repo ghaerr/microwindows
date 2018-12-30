@@ -1,3 +1,6 @@
+29 Dec 2018
+	* ported scr_fb.c to OSX without requiring scr_mem.c
+	* Heavy cleanup and rewrite of Makefile.rules, Arch.rules and config files. See MAKEVARS.txt
 	* Ubuntu 18.10 linux port. Added config.ubuntu and Makefile fixes
 28 Dec 2018
 	* temp comment out PXLIB build and nxlib/test examples build: breaks build on MACOSX

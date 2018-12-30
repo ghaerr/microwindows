@@ -1,0 +1,90 @@
+Microwindows Makefile System Overview 12/28/18
+----------------------------------------------
+
+src/Makefile
+	MW_DIR_SRC := $(CURDIR)
+	MW_DIR_RELATIVE := 
+	includes Path.rules
+	includes config
+	sets dirs=
+	all: default
+	make -C rtems
+	make -C ecos
+	make -C demos
+	make -C TinyWidgets
+	includes Makefile.rules
+
+
+src/Makefile.rules
+	CFLAGS=					platform-specific flags, optimization and debug options
+	CXXFLAGS=				c++ flags
+	OPTFLAGS=				removed
+	CPPFLAGS=				removed
+
+	DEFINES=				should only set -D defines for config-specified options
+	INCLUDEDIRS=			should only set -I include directories
+	EXTRAFLAGS=				new config option to add -W warnings and -s linker strip options to compiler
+
+	LDFLAGS=				-L and link flags only (prepend link line)
+	LDLIBS=					new, -llibs only       (append link line)
+
+	X11LIBLOCATION=			new config option, location of X11 libraries
+	X11HDRLOCATION=			new config option, location of X11 headers
+
+	MW_CORE_LIBS=
+	NANOXFILES=				nanox links
+	NANOXSERVERFILES=		used for static nanox links
+	CCNANOXSERVERFILES=		rename, used for shared nanox links
+	CCMWINLIBS=				mwin links
+
+	HOSTCFLAGS=				change, only used for -I X11 includes & SCREEN H/W for fbe.c build
+	HOSTLDFLAGS=			new
+
+	include Arch.rules
+
+	CC = $(TOOLSPREFIX)$(COMPILER)
+	CXX = $(TOOLSPREFIX)$(CXX_COMPILER)
+	AR = $(TOOLSPREFIX)$(ACHIVER)
+	LD = $(TOOLSPREFIX)$(LINKER)
+
+# new compile and link uses more make vars
+	COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES)
+.c.o:
+	$(CC) -c $(COMPILEARGS) $(EXTRAFLAGS) -o $@ $<
+.cpp.o:
+	$(CXX) -c $(CXXFLAGS) $(INCLUDEDIRS) -o $@ $<
+
+	LIBS = $(NANOXFILES) $(NANOXSERVERLIBS)		# static nanox
+	LIBS = $(NANOXFILES) $(CCNANOXSERVERLIBS)	# shared nanox
+	LIBS = $(CCMWINLIBS)						# mwin
+	LINKARGS = $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $(LDLIBS)
+.o.exe:			# new expanded link rule vs old
+	$(CC) $(LINKFLAGS) -o $@
+
+
+src/Arch.rules
+	GCC_WARNINGS=				change, only add to CFLAGS, not CXXFLAGS
+	TOOLSPREFIX=
+	DEFINES +=
+	CFLAGS +=
+	FLTFLAGS +=
+
+	HOSTCC=
+	COMPILER=
+	CXX_COMPILER=
+	CPP=
+	ACHIVER=
+	LINKER=
+
+	SCREEN_HEIGHT			new
+	SCREEN_WIDTH			new
+
+
+library/Objects.rules
+
+
+
+library/Makefile
+	LIBNAME=
+	LIBNAMESO=
+	OBJS=

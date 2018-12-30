@@ -74,7 +74,7 @@ $(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/mwin/bmp/makebmp.c
 $(OBJS): $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.c $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
 	@$(MW_RULE_MAKE_TARGET_DIR)
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(CC) -c $(COMPILEARGS) -o $@ $<
 	$(MW_RULE_DEPEND_C)
 
 $(OBJS:.o=.c):

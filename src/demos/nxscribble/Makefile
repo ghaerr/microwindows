@@ -10,6 +10,20 @@ MW_DIR_RELATIVE := demos/nxscribble/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
+######################## Additional Flags section ############################
+
+# Directories list for header files
+INCLUDEDIRS +=
+# Defines for preprocessor
+DEFINES +=
+
+# Compilation flags for C files OTHER than include directories
+EXTRAFLAGS += -Wno-missing-prototypes				# turn off missing prototype warnings in nxscribble compile
+# Preprocessor flags OTHER than defines
+CPPFLAGS +=
+# Linking flags
+LDFLAGS +=
+
 ############################# targets section ################################
 
 ifeq ($(NANOX), Y)
@@ -49,20 +63,6 @@ endif
 ######################### Makefile.rules section #############################
 
 include $(MW_DIR_SRC)/Makefile.rules
-
-######################## Additional Flags section ############################
-
-# Directories list for header files
-INCLUDEDIRS +=
-# Defines for preprocessor
-DEFINES +=
-
-# Compilation flags for C files OTHER than include directories
-CFLAGS += -Wno-missing-prototypes				# turn off missing prototype warnings in nxscribble compile
-# Preprocessor flags OTHER than defines
-CPPFLAGS +=
-# Linking flags
-LDFLAGS +=
 
 ######################## Tools targets section ###############################
 

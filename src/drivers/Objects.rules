@@ -74,60 +74,20 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/kbd_x11.o
 endif
 
+# X11 overrides all other drivers
+ifneq ($(X11), Y)
+
+
 # memory screen device
 ifeq ($(SCRMEM), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_mem.o
 endif
 
-# NDS screen device
-ifeq ($(SCRNDS), Y)
-MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nds.o
-endif
-
-# PSP
-ifeq ($(ARCH), PSP)
-MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_psp.o
-endif
-
 # NULL
 ifeq ($(NOSCR), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_null.o
-endif
-
-# ALLEGRO
-ifeq ($(ALLEGRO5), Y)
-MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_allegro5.o \
-	$(MW_DIR_OBJ)/drivers/mou_allegro5.o \
-	$(MW_DIR_OBJ)/drivers/kbd_allegro5.o
-endif
-ifeq ($(ALLEGRO4), Y)
-MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_allegro.o \
-	$(MW_DIR_OBJ)/drivers/mou_allegro.o \
-	$(MW_DIR_OBJ)/drivers/kbd_allegro.o
-endif
-
-ifeq ($(SDL1), Y)
-MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_sdl1.o \
-	$(MW_DIR_OBJ)/drivers/mou_sdl1.o \
-	$(MW_DIR_OBJ)/drivers/kbd_sdl1.o
-endif
-
-ifeq ($(SDL2), Y)
-MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_sdl2.o \
-	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
-	$(MW_DIR_OBJ)/drivers/kbd_sdl2.o
 endif
 
 ifeq ($(EM8400), Y)
@@ -141,12 +101,12 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vncserver.o
 endif
 
 ### Desktop GPM mouse driver
-ifeq ($(GPMMOUSE), Y)
+ifeq ($(MOUSE), GPMMOUSE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_gpm.o
 endif
 
 ### serial mouse driver
-ifeq ($(SERMOUSE), Y)
+ifeq ($(MOUSE), SERMOUSE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ser.o
 endif
 
@@ -231,22 +191,14 @@ LDFLAGS += -lts
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_tslib.o
 endif
 
-ifeq ($(NOMOUSE), Y)
+ifeq ($(MOUSE), NOMOUSE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_null.o
-endif
-
-ifeq ($(PSPMOUSE), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_psp.o
-endif
-
-ifeq ($(NDSMOUSE), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nds.o
 endif
 
 #
 # Keyboard driver specific for every system
 #
-ifeq ($(TTYKBD), Y)
+ifeq ($(KEYBOARD), TTYKBD)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_tty.o
 endif
 
@@ -259,7 +211,7 @@ CFLAGS += -DKBD_ZAURUS=1
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
 endif
 
-ifeq ($(SCANKBD), Y)
+ifeq ($(KEYBOARD), SCANKBD)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
 endif
 
@@ -278,16 +230,18 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/kbd_lirc.o
 endif
 
-ifeq ($(NOKBD), Y)
+ifeq ($(KEYBOARD), NOKBD)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_null.o
-endif
-
-ifeq ($(PSPKBD), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_psp.o
 endif
 
 ifeq ($(PIPEKBD), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_pipe.o
+endif
+
+ifeq ($(LIRCKBD2), Y)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/mwlirc.o \
+	$(MW_DIR_OBJ)/drivers/kbd_lirc.o
 endif
 
 ifeq ($(ARCH), RTEMS)
@@ -295,8 +249,51 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_rtems.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_rtems.o
 endif # RTEMS architecture
 
-ifeq ($(LIRCKBD2), Y)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/mwlirc.o \
-	$(MW_DIR_OBJ)/drivers/kbd_lirc.o
+# Nintendo DS
+ifeq ($(SCRNDS), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nds.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nds.o
 endif
+
+# PSP
+ifeq ($(ARCH), PSP)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_psp.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_psp.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_psp.o
+endif
+
+# ALLEGRO
+ifeq ($(ALLEGRO5), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_allegro5.o \
+	$(MW_DIR_OBJ)/drivers/mou_allegro5.o \
+	$(MW_DIR_OBJ)/drivers/kbd_allegro5.o
+endif
+ifeq ($(ALLEGRO4), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_allegro.o \
+	$(MW_DIR_OBJ)/drivers/mou_allegro.o \
+	$(MW_DIR_OBJ)/drivers/kbd_allegro.o
+endif
+
+ifeq ($(SDL1), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_sdl1.o \
+	$(MW_DIR_OBJ)/drivers/mou_sdl1.o \
+	$(MW_DIR_OBJ)/drivers/kbd_sdl1.o
+endif
+
+ifeq ($(SDL2), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_sdl2.o \
+	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
+	$(MW_DIR_OBJ)/drivers/kbd_sdl2.o
+endif
+
+endif # X11

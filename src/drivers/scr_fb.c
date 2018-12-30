@@ -12,9 +12,11 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <limits.h>
+#if !MACOSX
 #include <linux/fb.h>
 #include <linux/kd.h>
 #include <linux/vt.h>
+#endif
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,6 +64,54 @@ SCREENDEVICE	scrdev = {
 	NULL,				/* Update*/
 	NULL				/* PreSelect*/
 };
+
+#if MACOSX
+#define FB_TYPE_PACKED_PIXELS	0	/* Packed Pixels*/
+#define FB_TYPE_PLANES		1	/* Non interleaved planes*/
+#define FB_TYPE_VGA_PLANES	4	/* EGA/VGA planes*/
+
+#define FB_VISUAL_MONO01	0	/* Mnochr. 1=Black 0=White*/
+#define FB_VISUAL_MONO10	1	/* Mnochr. 1=White 0=Black*/
+#define FB_VISUAL_TRUECOLOR	2	/* True color*/
+#define FB_VISUAL_PSEUDOCOLOR	3	/* Pseudo color (like atari)*/
+#define FB_VISUAL_DIRECTCOLOR	4
+
+#define FB_ACCEL_NONE		0	/* No hardware accelerator*/
+
+struct fb_fix_screeninfo {
+	int type;
+	int visual;
+	int line_length;
+	int accel;
+};
+
+struct fb_color {
+	int u;
+	int length;
+	int v;
+};
+
+struct fb_var_screeninfo {
+	int xres;
+	int yres;
+	int xres_virtual;
+	int yres_virtual;
+	int bits_per_pixel;
+	struct fb_color red;
+	struct fb_color green;
+	struct fb_color blue;
+	struct fb_color transp;
+};
+
+struct fb_cmap {
+	int start;
+	int len;
+	unsigned short *red;
+	unsigned short *green;
+	unsigned short *blue;
+	unsigned short *transp;
+};
+#endif
 
 /* framebuffer info defaults for emulator*/
 static struct fb_fix_screeninfo  fb_fix = {
@@ -140,7 +190,8 @@ fb_open(PSD psd)
 		return NULL;
 	}
 
-	/* get framebuffer info*/
+#if defined(FBIOGET_FSCREENINFO) && defined(FBIOGET_VSCREENINFO)
+	/* get dynamic framebuffer info*/
 	if (ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
 		ioctl(fb, FBIOGET_VSCREENINFO, &fb_var) == -1) {
 			/* allow framebuffer emulator to fail ioctl*/
@@ -149,7 +200,7 @@ fb_open(PSD psd)
 				goto fail;
 			}
 	}
-
+#endif
 	/* setup screen device from framebuffer info*/
 	type = fb_fix.type;
 	visual = fb_fix.visual;
@@ -391,8 +442,9 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.green = (unsigned short *)green;
 	cmap.blue = (unsigned short *)blue;
 	cmap.transp = NULL;
-
+#ifdef FBIOGETCMAP
 	ioctl(fb, FBIOGETCMAP, &cmap);
+#endif
 #endif
 }
 
@@ -421,7 +473,9 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.blue = (unsigned short *)blue;
 	cmap.transp = NULL;
 
+#ifdef FBIOPUTCMAP
 	ioctl(fb, FBIOPUTCMAP, &cmap);
+#endif
 #endif
 }
 

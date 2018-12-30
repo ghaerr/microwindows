@@ -1,65 +1,47 @@
 ####################################################################
-# config: Microwindows and Nano-X configuration file
+# config - Microwindows and Nano-X configuration file
 #
-# This package is configured using this file for desktop Linux running
-# framebuffer (FRAMEBUFFER=Y) or X11 (X11=Y), or cross-compiled
-# for a variety of architectures (see ARCH= below).
-# In addition, a variety of mouse and keyboards drivers can be
-# selected (see MOUSE AND KBD below)
+# Set target architecture using ARCH= from options in Arch.rules
+# Set drawing method: X11 or FRAMEBUFFER/MOUSE/KEYBOARD options
+# Set various libraries to build or include and their locations
 #
 # See the src/Configs directory for pre-built config files.
-# Edit this or copy one src/config, and type "make clean; make"
+# Edit this or copy one from src/Configs, and type "make clean; make"
 ####################################################################
 
 ####################################################################
-# Build target platform.  Valid ARCH values are:
 #
-# LINUX-NATIVE
-# LINUX-AVR32 (BIGENDIAN=Y)
-# LINUX-TCC
-# LINUX-ARM
-# UCLINUX-ARM
-# LINUX-MIPS
-# LINUX-POWERPC (BIGENDIAN=Y)
-# LINUX-SPARC (BIGENDIAN=Y)
-# LINUX-BLACKFIN
-# LINUX-SH
-# SOLARIS (BIGENDIAN=Y)
-# PSP
-# NDS (Nintendo DS)
-# TRIMEDIA
-# MACOSX
-# RTEMS
-# ECOS
-# CYGWIN
-# LINUX-LINARO (RPI cross compile)
-# ANDROID
-####################################################################
-ARCH                     = LINUX-NATIVE
-BIGENDIAN                = N
-NATIVETOOLSPREFIX        = 
-ARMTOOLSPREFIX           = arm-linux-
-ANDROIDTOOLSPREFIX       = arm-linux-androideabi-
-RPITOOLSPREFIX           = arm-linux-gnueabihf-
-MIPSTOOLSPREFIX          = mipsel-linux-
-POWERPCTOOLSPREFIX       = powerpc-linux-
-SHTOOLSPREFIX            = sh-linux-gnu
-AVR32TOOLSPREFIX	 = avr32-linux-
-BLACKFINTOOLSPREFIX	 = bfin-uclinux-
-PSPTOOLSPREFIX           = psp-
-
-####################################################################
-#
-# Compiling options
+# Target platform and compilation options
 #
 ####################################################################
+ARCH                     = NATIVE-LINUX
+SHAREDLIBS               = N
+#EXTRAFLAGS                = -Wno-missing-prototypes
+#EXTRAFLAGS               = -s
+DEBUG                    = Y
 OPTIMIZE                 = Y
-DEBUG                    = N
-#DEBUG                    = -Wpointer-to-int-cast
+#OPTIMIZE                 = -O1
 VERBOSE                  = N
 THREADSAFE               = Y
-GPROF                    = N
 PARALLEL                 = N
+
+####################################################################
+# Draw using X11 versus framebuffer
+# Screen width/height for X11 and FBE window size
+# USE_EXPOSURE for XFree86 4.x or if backing store not working
+####################################################################
+X11                      = Y
+SCREEN_WIDTH             = 1024
+SCREEN_HEIGHT            = 768
+X11HDRLOCATION           = /usr/X11R6/include				# standard X11 headers
+X11LIBLOCATION           = /usr/lib/x86_64-linux-gnu		# ubuntu X11 libs
+USE_EXPOSURE             = Y
+
+FRAMEBUFFER              = N
+MOUSE                    = GPMMOUSE
+KEYBOARD                 = TTYKBD
+#MOUSE                    = NOMOUSE
+#KEYBOARD                 = NOBKD
 
 ####################################################################
 #
@@ -70,45 +52,23 @@ MICROWIN                 = Y
 NANOX                    = Y
 NX11                     = Y
 ENGINE                   = Y
-OBJFRAMEWORK             = N
-SHAREDLIBS               = N
 TINYWIDGETS              = Y
+OBJFRAMEWORK             = N
 
 ####################################################################
 #
-# Demos to build
+# Applications and demos to build
 #
 ####################################################################
+FBEMULATOR               = Y
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
-FBEMULATOR               = Y
-
-####################################################################
-#
-# If using Linux framebuffer, set to MWPF_TRUECOLOR8888, and use fbset.
-# When running X11, this sets the X11 pixel emulation at runtime.
-#
-# On Linux or when running the standard framebuffer subdrivers,
-# the runtime framebuffer BPP (bits per pixel) is used to select 
-# the runtime screen subdriver.  However, the format of the pixel
-# itself must be selected at compile time, which sets macros used
-# for MWCOLORVAL color conversions and conversion blit byte order.
-# This also sets sizeof(MWPIXELVAL) for optimizing buffers sizes
-# in GrArea/GrReadArea.
-#
-# define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
-# define MWPF_TRUECOLOR8888 /* pixel is packed 32 bits byte order |B|G|R|A|*/
-# define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
-# define MWPF_TRUECOLOR888  /* pixel is packed 24 bits byte order |B|G|R|*/
-# define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
-# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
-# define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
-# define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
-#
-####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
-#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
-#SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+# VNC server support through libvncserver
+HAVE_VNCSERVER_SUPPORT   = N
+VNCSERVER_PTHREADED      = N
+#LIBVNC                   = -lvncserver
+LIBVNC                   = /usr/lib/libvncserver.a
+INCVNC                   = /usr/include
 
 ####################################################################
 # LINK_APP_INTO_SERVER links the nano-X application into the server.
@@ -149,9 +109,11 @@ LIBJPEG                  = -ljpeg
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
 INCPNG                   = .
-LIBPNG                   = -lpng
+#LIBPNG                   = -lpng
+LIBPNG                   = /usr/X11/lib/libpng.dylib
 INCZ                     = .
-LIBZ                     = -lz
+#LIBZ                     = -lz
+LIBZ                     = /usr/lib/libz.dylib
 
 ####################################################################
 # TIFF support through libtiff
@@ -172,12 +134,11 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 HAVE_HARFBUZZ_SUPPORT    = N
-INCFT2LIB                = /usr/include
-LIBFT2LIB                = -lfreetype
+INCFT2LIB                = /usr/local/include
+LIBFT2LIB                = /usr/local/lib/libfreetype.a /usr/lib/libbz2.dylib
+#LIBFT2LIB                = -lfreetype
 #LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
-#LIBFT2LIB                = -lfreetype-android
-#FREETYPE_FONT_DIR        = "/system/fonts"
 
 ####################################################################
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
@@ -242,66 +203,16 @@ NOFONTS                  = N
 NOCLIPPING               = N
 
 ####################################################################
+# Misc Options
+####################################################################
+
 # Window move algorithms for Microwindows
 # Change for tradeoff between cpu speed and looks
 # ERASEMOVE (nanowm) repaints only backgrounds while window dragging
 # Otherwise an XOR redraw is used for window moves only after button up
 # UPDATEREGIONS (win32 api only)paints in update clipping region only
-####################################################################
 ERASEMOVE                = Y
 UPDATEREGIONS            = Y
-
-####################################################################
-# SCREEN DRIVERS
-####################################################################
-
-# X11 and FBE startup screen width, height, (depth for palette mode only)
-#SCREEN_WIDTH             = 800
-#SCREEN_HEIGHT            = 600
-SCREEN_WIDTH             = 1024
-SCREEN_HEIGHT            = 768
-
-#SCREEN_WIDTH             = 1280
-#SCREEN_HEIGHT            = 800
-
-#SCREEN_WIDTH             = 1280
-#SCREEN_HEIGHT            = 1024
-#SCREEN_WIDTH             = 1366
-#SCREEN_HEIGHT            = 768
-#SCREEN_WIDTH             = 1440
-#SCREEN_HEIGHT            = 900
-
-SCREEN_DEPTH             = 8
-
-# X Window screen driver
-# USE_EXPOSURE for XFree86 4.x or if backing store not working
-X11                      = Y
-USE_EXPOSURE             = Y
-
-# Framebuffer screen driver
-FRAMEBUFFER              = N
-
-# memory screen driver
-SCRMEM                   = N
-
-# PSP screen driver
-PSP                      = N
-
-# Nintendo DS screen driver
-SCRNDS                   = N
-
-# allegro drivers
-ALLEGRO4                 = N
-ALLEGRO5                 = N
-
-#SDL drivers
-#SDL1			 = N
-#SDL2			 = Y
-
-#NULL screen driver
-NOSCR			 = N
-#enable second keyboard
-2NDKBD			 = N
 
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
@@ -312,10 +223,61 @@ FBREVERSE                = N
 GRAYPALETTE              = N
 HAVETEXTMODE             = N
 
+####################################################################
+#
+# If using Linux framebuffer, set to MWPF_TRUECOLOR8888, and use fbset.
+# When running X11, this sets the X11 pixel emulation at runtime.
+#
+# On Linux or when running the standard framebuffer subdrivers,
+# the runtime framebuffer BPP (bits per pixel) is used to select 
+# the runtime screen subdriver.  However, the format of the pixel
+# itself must be selected at compile time, which sets macros used
+# for MWCOLORVAL color conversions and conversion blit byte order.
+# This also sets sizeof(MWPIXELVAL) for optimizing buffers sizes
+# in GrArea/GrReadArea.
+#
+# define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
+# define MWPF_TRUECOLOR8888 /* pixel is packed 32 bits byte order |B|G|R|A|*/
+# define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
+# define MWPF_TRUECOLOR888  /* pixel is packed 24 bits byte order |B|G|R|*/
+# define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
+# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
+# define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
+# define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
+#
+####################################################################
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+#SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+
+####################################################################
+# Screen drivers
 # SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
 # INVERT4BPP 4bpp inverted pixel driver for VTech Helio
+####################################################################
+# X11 typical window size and palette bits
+#SCREEN_WIDTH             = 800
+#SCREEN_HEIGHT            = 600
+#SCREEN_WIDTH             = 1024
+#SCREEN_HEIGHT            = 768
+#SCREEN_WIDTH             = 1280
+#SCREEN_HEIGHT            = 800
+#SCREEN_WIDTH             = 1280
+#SCREEN_HEIGHT            = 1024
+#SCREEN_WIDTH             = 1366
+#SCREEN_HEIGHT            = 768
+#SCREEN_WIDTH             = 1440
+#SCREEN_HEIGHT            = 900
+SCREEN_DEPTH             = 8
+
+NOSCR                    = N
+SCRMEM                   = N
 SA1100_LCD_LTLEND        = N
 INVERT4BPP               = N
+ALLEGRO4                 = N
+ALLEGRO5                 = N
+SDL1                     = N
+SDL2                     = N
 
 ####################################################################
 # Mouse drivers
@@ -340,44 +302,34 @@ INVERT4BPP               = N
 # EVENTMOUSE	Simple standard event interface (/dev/input/event0)
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
-GPMMOUSE                 = N
-SERMOUSE                 = N
-SUNMOUSE                 = N
-NOMOUSE                  = N
-IPAQMOUSE                = N
-ZAURUSMOUSE              = N
-TUXMOUSE                 = N
-ADSMOUSE                 = N
-ADS7846MOUSE             = N
-EPMOUSE                  = N
-VHMOUSE                  = N
-MTMOUSE                  = N
-PSIONMOUSE               = N
-YOPYMOUSE                = N
-HARRIERMOUSE             = N
-LIRCMOUSE                = N
-TSLIBMOUSE               = N
-TTMOUSE                  = N
-PSPMOUSE                 = N
-NDSMOUSE                 = N
-EVENTMOUSE               = N
-
-# keyboard or null kbd driver
-TTYKBD                   = N
-SCANKBD                  = N
-PIPEKBD                  = N
-IPAQKBD                  = N
-LIRCKBD                  = N
-PSPKBD                   = N
-EVENTKBD                 = N
-NOKBD                    = N
-# Secondary keyboard drivers for IR input - set 2NDKBD above too
-LIRCKBD2                 = N
+GPMMOUSE                 = $(MOUSE)
+SERMOUSE                 = $(MOUSE)
+SUNMOUSE                 = $(MOUSE)
+IPAQMOUSE                = $(MOUSE)
+ZAURUSMOUSE              = $(MOUSE)
+TUXMOUSE                 = $(MOUSE)
+ADSMOUSE                 = $(MOUSE)
+ADS7846MOUSE             = $(MOUSE)
+EPMOUSE                  = $(MOUSE)
+VHMOUSE                  = $(MOUSE)
+MTMOUSE                  = $(MOUSE)
+PSIONMOUSE               = $(MOUSE)
+YOPYMOUSE                = $(MOUSE)
+HARRIERMOUSE             = $(MOUSE)
+LIRCMOUSE                = $(MOUSE)
+TSLIBMOUSE               = $(MOUSE)
+TTMOUSE                  = $(MOUSE)
+EVENTMOUSE               = $(MOUSE)
 
 ####################################################################
-# VNC server support through libvncserver
+# Keyboard drivers
 ####################################################################
-HAVE_VNCSERVER_SUPPORT   = N
-VNCSERVER_PTHREADED      = N
-LIBVNC                   = -lvncserver
-INCVNC                   = /usr/include
+TTYKBD                   = $(KEYBOARD)
+SCANKBD                  = $(KEYBOARD)
+PIPEKBD                  = $(KEYBOARD)
+IPAQKBD                  = $(KEYBOARD)
+LIRCKBD                  = $(KEYBOARD)
+PSPKBD                   = $(KEYBOARD)
+EVENTKBD                 = $(KEYBOARD)
+LIRCKBD2                 = $(KEYBOARD)
+2NDKBD                   = $(KEYBOARD)

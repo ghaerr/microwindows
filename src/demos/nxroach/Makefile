@@ -13,7 +13,7 @@ include $(CONFIG)
 ######################## Additional Flags section ############################
 
 # Directories list for header files
-INCLUDEDIRS += -I$(MW_DIR_SRC)/demos/nxroach/bitmaps
+INCLUDEDIRS +=  -I$(MW_DIR_SRC)/demos/nxroach/bitmaps
 # Defines for preprocessor
 DEFINES +=
 

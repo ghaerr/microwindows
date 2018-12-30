@@ -365,7 +365,7 @@ pcf_readbitmaps(FILEP file, unsigned char **bits, int *bits_size, int *glyph_pad
 	uint32_t num_glyphs;
 	uint32_t pad_index;
 	unsigned int i;
-	int endian_bits;
+	//int endian_bits;
 	uint32_t *o;
 	unsigned char *b;
 	FP_READ8	f_read8;
@@ -409,7 +409,7 @@ pcf_readbitmaps(FILEP file, unsigned char **bits, int *bits_size, int *glyph_pad
 	}
 
 
-	endian_bits = (format & PCF_BIT_MASK)? PCF_MSB_FIRST: PCF_LSB_FIRST;
+	//endian_bits = (format & PCF_BIT_MASK)? PCF_MSB_FIRST: PCF_LSB_FIRST;
 
 	num_glyphs = f_read32(file);
 

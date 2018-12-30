@@ -74,15 +74,12 @@ static BOOL
 wndGetVScrollBarRect (HWND hwnd, RECT* rcVBar)
 {
 	int cx,cy; RECT rc;
-    	MWSCROLLBARINFO* pData;
-	
-        pData = (MWSCROLLBARINFO *)hwnd->userdata;
+
 	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
-	rcVBar->left = hwnd->winrect.right - cx
-		- wndGetBorder (hwnd);
+	rcVBar->left = hwnd->winrect.right - cx - wndGetBorder (hwnd);
 	rcVBar->right = hwnd->winrect.right - wndGetBorder (hwnd);
 	rcVBar->top  = hwnd->winrect.top;
 	rcVBar->bottom = hwnd->winrect.bottom - wndGetBorder (hwnd);
@@ -94,15 +91,12 @@ static BOOL
 wndGetHScrollBarRect (HWND hwnd, RECT* rcHBar)
 {
 	int cx,cy; RECT rc;
-    	MWSCROLLBARINFO* pData;
-	
-        pData = (MWSCROLLBARINFO *)hwnd->userdata;
+
 	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
-        rcHBar->top = hwnd->winrect.bottom - cy
-                        - wndGetBorder (hwnd);
+        rcHBar->top = hwnd->winrect.bottom - cy - wndGetBorder (hwnd);
         rcHBar->bottom = hwnd->winrect.bottom - wndGetBorder (hwnd);
         rcHBar->left  = hwnd->winrect.left;
         rcHBar->right = hwnd->winrect.right - wndGetBorder (hwnd);

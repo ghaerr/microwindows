@@ -80,7 +80,7 @@ fbportrait_left_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 {
 	ADDR8 alpha_in, alpha_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
-	MWCOORD	out_x, out_y, out_w, out_h;
+	MWCOORD	out_x, out_y, out_h;
 	MWBLITPARMS	l_gc;
 
 	if (!dstpsd->orgsubdriver->BlitBlendMaskAlphaByte)
@@ -111,7 +111,7 @@ fbportrait_left_convblit_blend_mask_alpha_byte(PSD dstpsd, PMWBLITPARMS gc)
 	in_h = gc->height;
 
 	alpha_out = l_gc.data;
-	out_w = l_gc.width;
+	//out_w = l_gc.width;
 	out_h = l_gc.height;
 
 	/* rotate_left_8bpp*/
@@ -135,7 +135,7 @@ fbportrait_left_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
-	MWCOORD	out_x, out_y, out_w, out_h;
+	MWCOORD	out_x, out_y, out_h;
 	MWBLITPARMS	l_gc;
 
 	if (!psd->orgsubdriver->BlitCopyMaskMonoByteMSB)
@@ -167,7 +167,7 @@ fbportrait_left_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 	in_h = gc->height;
 
 	pixel_out = l_gc.data;
-	out_w = l_gc.width;
+	//out_w = l_gc.width;
 	out_h = l_gc.height;
 
 	/* rotate_left_1bpp*/
@@ -192,7 +192,7 @@ fbportrait_left_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 {
 	ADDR8 pixel_in, pixel_out;
 	MWCOORD	in_x, in_y, in_w, in_h;
-	MWCOORD	out_x, out_y, out_w, out_h;
+	MWCOORD	out_x, out_y, out_h;
 	MWBLITPARMS	l_gc;
 
 	if (!psd->orgsubdriver->BlitCopyMaskMonoByteLSB)
@@ -223,7 +223,7 @@ fbportrait_left_convblit_copy_mask_mono_byte_lsb(PSD psd, PMWBLITPARMS gc)
 	in_h = gc->height;
 
 	pixel_out = l_gc.data;
-	out_w = l_gc.width;
+	//out_w = l_gc.width;
 	out_h = l_gc.height;
 
 	/* rotate_left_1bpp*/

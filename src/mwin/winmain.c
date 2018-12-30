@@ -751,7 +751,8 @@ GetTickCount(VOID)
 VOID WINAPI
 Sleep(DWORD dwMilliseconds)
 {
-	int i, j, k;
+	int i, j;
+	volatile int k;
 	const int loops_per_ms = 20000;
 
 	/* FIXME this is not calibrated */

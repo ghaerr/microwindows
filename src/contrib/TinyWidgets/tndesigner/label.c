@@ -46,7 +46,7 @@ void labelPropEditFunc(int operation)
 			if(strcmp(string,""))
 			{
 				color=(int)strtol(string,&endp,10);
-				if(endp=='\0' && color >=0)
+				if(*endp=='\0' && color >=0)
 					tnSetLabelCaptionColor(active_widget,color);
 			}
 			free(string);

@@ -161,11 +161,11 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
 		p3[2].y= rc.bottom-mwSYSMETRICS_CYHSCROLL + 2 + shrink;
 		Polygon(hdc,p3,3);
 
-        /* draw moving bar */
-    	wndGetVScrollBarRect (hwnd, &rcVBar);
-        start = rcVBar.top + mwSYSMETRICS_CYVSCROLL + hwnd->vscroll.barStart;
-        if (start + hwnd->vscroll.barLen > rcVBar.bottom)
-            	start = rcVBar.bottom - hwnd->vscroll.barLen;
+        	/* draw moving bar */
+    		wndGetVScrollBarRect (hwnd, &rcVBar);
+        	start = rcVBar.top + mwSYSMETRICS_CYVSCROLL + hwnd->vscroll.barStart;
+        	if (start + hwnd->vscroll.barLen > rcVBar.bottom)
+            		start = rcVBar.bottom - hwnd->vscroll.barLen;
 		if (hwnd->vscroll.barLen == 0)
 			hwnd->vscroll.barLen=rc.bottom-rc.top-(mwSYSMETRICS_CYVSCROLL*2); 
 		
@@ -181,7 +181,7 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
 		if (rc2.bottom>rc2.top)
 			FillRect(hdc, &rc2, (HBRUSH)GetStockObject(DKGRAY_BRUSH));   
 
-        Draw3dUpFrame (hdc, rcVBar.left, start, rcVBar.right, start + hwnd->vscroll.barLen);
+        	Draw3dUpFrame (hdc, rcVBar.left, start, rcVBar.right, start + hwnd->vscroll.barLen);
 		/*DPRINTF("barv:(l,t,r,b):(%d,%d,%d,%d)\n", rcVBar.left, start, rcVBar.right,
 	    		start + hwnd->vscroll.barLen);*/
 	}
@@ -226,13 +226,13 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
 		p3[2].y= rc.bottom - 4 - shrink + 1;
 		Polygon(hdc,p3,3);
 
-        /* draw moving bar. */
-    	wndGetHScrollBarRect (hwnd, &rcHBar);
+        	/* draw moving bar. */
+    		wndGetHScrollBarRect (hwnd, &rcHBar);
 
-        start = rcHBar.left + mwSYSMETRICS_CXHSCROLL + hwnd->hscroll.barStart;
+        	start = rcHBar.left + mwSYSMETRICS_CXHSCROLL + hwnd->hscroll.barStart;
 
-        if (start + hwnd->hscroll.barLen > rcHBar.right)
-            	start = rcHBar.right - hwnd->hscroll.barLen;
+        	if (start + hwnd->hscroll.barLen > rcHBar.right)
+            		start = rcHBar.right - hwnd->hscroll.barLen;
 
 		if (hwnd->hscroll.barLen == 0)
 			hwnd->hscroll.barLen=rc.right-rc.left-(mwSYSMETRICS_CXHSCROLL*2); 
@@ -249,7 +249,7 @@ MwPaintNCScrollbars(HWND hwnd, HDC hdc)
 		if (rc2.right>rc2.left)
 			FillRect(hdc, &rc2, (HBRUSH)GetStockObject(DKGRAY_BRUSH));   
 
-        Draw3dUpFrame (hdc, start, rcHBar.top, start + hwnd->hscroll.barLen, rcHBar.bottom);
+        	Draw3dUpFrame (hdc, start, rcHBar.top, start + hwnd->hscroll.barLen, rcHBar.bottom);
 		/*DPRINTF("barh:(l,t,r,b):(%d,%d,%d,%d)\n", start, rcHBar.top, start + hwnd->hscroll.barLen,
 	    		rcHBar.bottom);*/
 	}

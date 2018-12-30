@@ -170,7 +170,7 @@ CascadeMenuEventHandler (GR_EVENT * event, TN_WIDGET * widget)
 	}
       else
 	GrUnmapWindow (widget->WSpec.cascademenu.container);
-        UnmapForwardContainers(widget->WSpec.cascademenu.container);
+      UnmapForwardContainers(widget->WSpec.cascademenu.container);
       break;
 
     case GR_EVENT_TYPE_EXPOSURE:

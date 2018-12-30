@@ -194,7 +194,7 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
     HFONT hFont;
     HICON Icon = (HICON)0;
     HDC hDC;
-    int ret, caplen, textlen, btnlen, i, btnleft, btntop, lmargin, nButtons = 0;
+    int ret, i, btnleft, btntop, lmargin, nButtons = 0;
     LONG Buttons[MSGBOXEX_MAXBTNS];
     char ButtonText[MSGBOXEX_MAXBTNS][MSGBOXEX_MAXBTNSTR];
     DLGITEMTEMPLATE *ibtn[MSGBOXEX_MAXBTNS];
@@ -216,9 +216,6 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
       text = "";
     else
       text = (LPCSTR)lpMsgBoxParams->lpszText;
-
-    caplen = strlen(caption);
-    textlen = strlen(text);
 
     /* Create selected buttons */
     switch(lpMsgBoxParams->dwStyle & MB_TYPEMASK)
@@ -390,9 +387,8 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
       else
         ibtn[i]->style |= BS_PUSHBUTTON;
 	  dest = resDialogItemTemplate(dest, ibtn[i]->style, 0, Buttons[i], 0, 0, 0, 0, DLGITEM_CLASS_BUTTON, ButtonText[i]);
-      btnlen = strlen(ButtonText[i]);
       SelectObject(hDC, hFont);
-      DrawText(hDC, ButtonText[i], btnlen, &btnrect, DT_LEFT | DT_SINGLELINE | DT_CALCRECT);
+      DrawText(hDC, ButtonText[i], -1, &btnrect, DT_LEFT | DT_SINGLELINE | DT_CALCRECT);
       btnsize.cx = max(btnsize.cx, btnrect.right);
       btnsize.cy = max(btnsize.cy, btnrect.bottom);
     }
@@ -413,7 +409,7 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
 #endif
     txtrect.top = txtrect.left = txtrect.bottom = 0;
     SelectObject(hDC, hFont);
-    DrawText(hDC, text, textlen, &txtrect, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK | DT_CALCRECT);
+    DrawText(hDC, text, -1, &txtrect, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK | DT_CALCRECT);
     txtrect.right++;
 
     /* calculate position and size of the icon */

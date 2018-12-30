@@ -897,7 +897,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 				}
                 case VK_HOME: 	/* SCANCODE_HOME: */
 				{
-					PLINEDATA temp;
+					//PLINEDATA temp;
                     if (pMLEditData->editPos == 0)
                         return 0;
 
@@ -907,7 +907,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
                     SetCaretPos (pMLEditData->leftMargin, 
                         (pMLEditData->editLine-pMLEditData->StartlineDisp) * GetSysCharHeight(hWnd)
 							+pMLEditData->topMargin);
-					temp = GetLineData(pMLEditData,pMLEditData->editLine);	
+					//temp = GetLineData(pMLEditData,pMLEditData->editLine);	
                     if (pMLEditData->dispPos != 0)
 					{
 						pMLEditData->dispPos = 0;
@@ -1417,7 +1417,6 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
         {
             char charBuffer [2];
             int  i, chars, scrollStep, inserting;
-			UINT format;
 	
             pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
 
@@ -1546,7 +1545,7 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 					    (pMLEditData->editLine - pMLEditData->StartlineDisp) * GetSysCharHeight(hWnd)
                             + pMLEditData->topMargin);
             InvalidateRect (hWnd, NULL,FALSE);
-			format = DT_NOPREFIX;
+			//format = DT_NOPREFIX;
             SendMessage (GetParent (hWnd), WM_COMMAND,
                     (WPARAM) MAKELONG (GetDlgCtrlID(hWnd), EN_CHANGE),
                     (LPARAM) hWnd);
@@ -1570,11 +1569,10 @@ int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 		case WM_GETTEXT:
 		{
 			PLINEDATA temp;
-			int len,total = 0,lineNO;
+			int len,total = 0;
 			char * buffer = (char*)lParam;
             pMLEditData = (PMLEDITDATA)(LONG)GetWindowAdditionalData2(hWnd); 
 			len = (int)wParam;
-            lineNO = (int)wParam;
 			temp = pMLEditData->head;
 			while (temp && total + temp->dataEnd < len)  
 			{

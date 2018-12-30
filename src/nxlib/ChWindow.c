@@ -11,8 +11,8 @@ XResizeWindow(Display *dpy, Window w, unsigned int width, unsigned int height)
 //	2009 Yuichiro Nakada
 //---------------------------------------------------------
 
-//#define AllMaskBits (CWX|CWY|CWWidth|CWHeight|\
-//		     CWBorderWidth|CWSibling|CWStackMode)
+#define AllMaskBits (CWX|CWY|CWWidth|CWHeight|CWBorderWidth|CWSibling|CWStackMode)
+
 int XConfigureWindow(Display *dpy, Window w, unsigned int mask, XWindowChanges *changes)
 {
 	GR_WINDOW_INFO wp;

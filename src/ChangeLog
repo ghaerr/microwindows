@@ -1,4 +1,5 @@
 29 Dec 2018
+	* source cleanup from ubuntu warnings
 	* ported scr_fb.c to OSX without requiring scr_mem.c
 	* Heavy cleanup and rewrite of Makefile.rules, Arch.rules and config files. See MAKEVARS.txt
 	* Ubuntu 18.10 linux port. Added config.ubuntu and Makefile fixes

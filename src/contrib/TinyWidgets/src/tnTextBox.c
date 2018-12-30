@@ -47,7 +47,7 @@ CreateTextBox (TN_WIDGET * widget,
   else
 	  font = TN_DEFAULT_FONT_NO;
 
-	  GrSetGCFont (widget->gc, font);
+  GrSetGCFont (widget->gc, font);
   if (height == 0)
     {
       if (type == TN_SINGLE_LINE)

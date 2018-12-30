@@ -813,7 +813,7 @@ void DrawDigit(HDC hdc, char* buffer, int CLOCK)
     else
         x = x_bomnum;
         
-    	SetBkMode(hdc, OPAQUE);
+    SetBkMode(hdc, OPAQUE);
 	SetBkColor(hdc, LTGRAY);
 	TextOut(hdc, x, 0, buffer, -1);
 	return;

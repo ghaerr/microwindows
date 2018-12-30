@@ -520,9 +520,6 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             RECT    rect,rc;
 	    PAINTSTRUCT ps;
 
-	    HGDIOBJ oldfont;
-	    oldfont=NULL;
-
             hdc = BeginPaint (hWnd,&ps);
             GetClientRect (hWnd, &rect);
     
@@ -590,7 +587,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 
 #ifdef USE_BIG5	    
-	    oldfont=SelectObject(hdc,CreateFont(12,
+	    HGDIOBJ oldfont=SelectObject(hdc,CreateFont(12,
 			0,0,0,0,0,0,0,0,0,0,0,
 			FF_DONTCARE|DEFAULT_PITCH,
 			"HZXFONT"));

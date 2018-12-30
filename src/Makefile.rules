@@ -387,6 +387,7 @@ CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
 	-lpspuser -lpspkernel -lpsplibc
 endif
 
+ifeq ($(DEBUG), Y)
 $(info    CFLAGS is $(CFLAGS))
 $(info    WARNINGS is $(WARNINGS))
 $(info    INCLUDEDIRS is $(INCLUDEDIRS))
@@ -394,9 +395,10 @@ $(info    DEFINES is $(DEFINES))
 $(info    EXTRAFLAGS is $(EXTRAFLAGS))
 $(info    LDFLAGS is $(LDFLAGS))
 #$(info    COMPILEARGS $(COMPILEARGS))
+endif
 
 #export for nxlib/test makefile - CC and CFLAGS not passed ARCH for TinyWidgets
-export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS TOOLSPREFIX MW_DIR_LIB SHOWSTUBS OPTFLAGS PARALLEL ARCH DEBUG
+export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS TOOLSPREFIX OPTFLAGS PARALLEL DEBUG
 # Add any exportable variable here
 export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB MW_DIR_OBJ ARCH CONFIG
 

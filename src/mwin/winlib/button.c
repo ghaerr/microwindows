@@ -52,7 +52,7 @@
 #define SET_PBWASINSIDE(h,x)		(SetWindowLong(h, PBL_WASINSIDE, x))
 #define SET_PBDELETEFONT(h,x)		(SetWindowLong(h, PBL_DELETEFONT, x))
 #define SET_PBFONT(h,x)			(SetWindowLongPtr(h, PBL_FONT, x))
-#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, PBL_WND_FONT, (LONG_PTR)(f)))
+#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, PBL_WND_FONT, (LONG_PTR)(HFONT)(f)))
 #define SET_PBTXTRECT(h,t)		{ SetWindowLong(h, PBL_TXTLEFTTOP, MAKELONG((t).left, (t).top)); SetWindowLong(h, PBL_TXTRIGHTBOTTOM, MAKELONG((t).right, (t).bottom)); }
 
 #define PARENT(hwnd)		((HWND)(LONG_PTR)GetWindowLongPtr(hwnd,GWL_HWNDPARENT))
@@ -394,10 +394,8 @@ UINT		keys)
 	/* back into the control, change back to the down state.   */
 
 	WORD		wState;
-	DWORD		dwStyle;
 	
 	wState = cenButton_FnStart( hwnd);
-	dwStyle = GetWindowLong(hwnd, GWL_STYLE);
 	if( GET_PBCAPTURE( hwnd)) {
 		if( !PtInsideWindow( hwnd, x, y) ) {
 			if( GET_PBWASINSIDE( hwnd)) {
@@ -458,7 +456,6 @@ static void WINAPI
 DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 {
 	HDC		hdc;
-	HBRUSH		hNewBrush;
 	RECT		rect;
 	RECT		rectClient;
 	RECT		rectSave;
@@ -489,7 +486,6 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	uiWidth	= rectClient.right - rectClient.left;
 	uiHeight = rectClient.bottom - rectClient.top;
 
-	hNewBrush = (HBRUSH) GetStockObject(LTGRAY_BRUSH);
 	crOld = SetTextColor( hdc, GetSysColor( COLOR_BTNTEXT));
 	crBkOld = SetBkColor( hdc, GetSysColor( COLOR_BTNFACE));
 

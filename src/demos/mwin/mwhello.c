@@ -12,13 +12,11 @@
 	// declare the WndProc function (see later)
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	static void disp(HWND hwnd, char* s)
+	static void disp(HWND hwnd, HDC hdc, char* s)
 	// display a string
 	{  HFONT hfont, hOldfont;
-	   HDC hdc;
 
 	   hfont = (HFONT) GetStockObject(ANSI_VAR_FONT);    // obtain a standard font
-	   hdc = GetDC(hwnd);                       // point to the "device context" for this window
 	   hOldfont = (HFONT) SelectObject(hdc, hfont);      // select font into the device context
 	   if (hOldfont)  // if succesful
 	   {
@@ -27,8 +25,6 @@
 	   }
 	   else MessageBox(hwnd, "disp could not select the font", "Error!",
                    MB_ICONEXCLAMATION | MB_OK);
-
-	   ReleaseDC(hwnd, hdc);                   // tidy up
 	}   
 
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -41,7 +37,7 @@
 	   case WM_SIZE:  
 	   case WM_PAINT:
 	     hdc=BeginPaint(hwnd,&ps);
-	     disp(hwnd, "Hello world");
+	     disp(hwnd, hdc, "Hello world");
 	     EndPaint(hwnd,&ps);
 	     break; 
 	   case WM_LBUTTONDOWN:

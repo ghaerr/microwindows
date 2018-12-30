@@ -70,7 +70,7 @@
 
 //  WM_SETFONT implementation
 #define GET_WND_FONT(h)			((HFONT)(LONG_PTR)GetWindowLongPtr(h, 0))
-#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, 0, (LONG_PTR)(f)))
+#define SET_WND_FONT(h, f)		(SetWindowLongPtr(h, 0, (LONG_PTR)(HFONT)(f)))
 #define ISOWNERDRAW(dwStyle)	((dwStyle & (LBS_OWNERDRAWFIXED | LBS_OWNERDRAWVARIABLE)) != 0)
 
 #define FixStrAlloc(n)	malloc((n)+1)
@@ -516,7 +516,7 @@ lstGetItemsRect(HWND hwnd, PLISTBOXDATA pData, int start, int end, RECT * prc)
 		int i;
 
 		for (i = pData->itemTop; (i <= end) || (end < 0); i++) {
-			int h;
+			int h = 0;
 			lbAskMeasureItem(hwnd, i, &h);
 			if (i < start)
 				prc->top += h;
@@ -810,8 +810,7 @@ lstCalcParams(HWND hwnd, RECT * rcClient, PLISTBOXDATA pData)
 		int i, y;
 		for (i = 0, y = rcClient->top;
 		     (i < pData->itemCount) && (y <= rcClient->bottom); i++) {
-			int h;
-
+			int h = 0;
 			lbAskMeasureItem(hwnd, i, &h);
 			y += h;
 		}

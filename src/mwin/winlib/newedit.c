@@ -638,7 +638,6 @@ neDrawAllText(HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, int action)
 	int cx;
 	int ln;
 	int xs;
-	int idxLine;
 	int done;
 	unsigned long attrib = 0;
 
@@ -678,7 +677,6 @@ neDrawAllText(HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, int action)
 	szy = neGetTextHeight(hWnd, hdc);
 	cx = rc.left;
 
-	idxLine = 0;
 	done = 0;
 
 	while ((pTxt < pEnd) && !done) {

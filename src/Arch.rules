@@ -63,10 +63,10 @@ PSPTOOLSPREFIX           = psp-
 ##############################################################################
 # Warning options
 ##############################################################################
-WARNINGS += -Wall
 WARNINGS += -Wunused-variable
 WARNINGS += -Wmissing-prototypes
 ifeq ($(DEBUG), Y)
+WARNINGS += -Wall
 WARNINGS += -Wpointer-arith
 WARNINGS += -Wbad-function-cast
 #WARNINGS += -Wstrict-prototypes				# win32 FARPROC can't be strict

@@ -73,4 +73,4 @@ endif
 #
 $(MW_DIR_BIN)/fbe: $(MW_DIR_SRC)/demos/fbe.c
 	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) $< -o $@
+	$(HOSTCC) $(HOSTCFLAGS) $< -o $@ $(HOSTLDFLAGS)

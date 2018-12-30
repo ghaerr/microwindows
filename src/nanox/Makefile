@@ -95,7 +95,7 @@ include $(MW_DIR_SRC)/Makefile.rules
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(CCNANOXSERVERLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(CCNANOXSERVERLIBS) $(LDFLAGS)
 else
 $(MW_DIR_BIN)/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."

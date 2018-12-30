@@ -56,6 +56,7 @@ $(MW_DIR_BIN)/nxaggdemo: $(OBJS) $(CXXOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 else
 $(MW_DIR_BIN)/nxaggdemo: $(OBJS) $(CXXOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	echo $(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS)
 	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS)
 endif
 

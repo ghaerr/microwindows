@@ -16,8 +16,8 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 SHAREDLIBS               = Y
-#EXTRAFLAGS                = -Wall -Wno-missing-prototypes
-#EXTRAFLAGS               = -s
+#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+#EXTRAFLAGS               += -s
 DEBUG                    = Y
 OPTIMIZE                 = Y
 #OPTIMIZE                 = -O1
@@ -136,7 +136,6 @@ INCFT2LIB                = /usr/include
 LIBFT2LIB                = -lfreetype
 #LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
-
 
 ####################################################################
 # T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib

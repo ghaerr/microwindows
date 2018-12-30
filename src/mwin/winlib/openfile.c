@@ -114,7 +114,7 @@ LRESULT FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	sprintf(filterpairs[i].suffix,"%s",mdData->lpstrFilter+fptr);
 	fptr=fptr+strlen(filterpairs[i].suffix)+1;
 	i++;
-	sprintf(filterpairs[i].name,""); //='\0'; //clear first
+	filterpairs[i].name[0]='\0'; //clear first
 	if (i>10) break; //safety
       }
       i=0;

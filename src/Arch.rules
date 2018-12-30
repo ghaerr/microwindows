@@ -192,9 +192,12 @@ ifeq ($(ARCH), FREEBSD-X86)
 DEFINES += -DUNIX=1
 CFLAGS += -Wall
 LDFLAGS += -lvgl
+# For forkpty in nxterm.
+NANOXCLIENTLIBS += -lutil
 endif
 
 ifeq ($(ARCH), MACOSX)
+COMPILER = clang
 DEFINES += -DUNIX=1 -DMACOSX=1
 # include the following line for static libraries
 #LDFLAGS += -static
@@ -279,6 +282,7 @@ endif
 ifeq ($(ARCH), DJGPP)
 SHELL = bash
 DEFINES += -DDOS_DJGPP=1 -D_NAIVE_DOS_REGS=1 -DMSDOS=1
+LDFLAGS += -lgrx20
 endif
 
 ifeq ($(ARCH), ANDROID)

@@ -17,8 +17,9 @@ INCLUDEDIRS +=
 # Defines for preprocessor
 DEFINES +=
 
-# Compilation flags for C files OTHER than include directories
 EXTRAFLAGS += -Wno-missing-prototypes				# turn off missing prototype warnings in nxscribble compile
+# Compilation flags for C files OTHER than include directories
+CFLAGS +=
 # Preprocessor flags OTHER than defines
 CPPFLAGS +=
 # Linking flags

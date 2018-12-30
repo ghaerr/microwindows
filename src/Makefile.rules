@@ -8,12 +8,6 @@
 # NOTE: The MW_DIR_SRC environment variable should be set to that top directory
 ##############################################################################
 
-# Clear these first since Makefile.rules is called several times
-NANOXCLIENTLIBS :=
-CCNANOXCLIENTLIBS :=
-NANOXSERVERLIBS :=
-CCNANOXSERVERLIBS :=
-
 ##############################################################################
 # Handle core engine/library options
 ##############################################################################
@@ -21,14 +15,21 @@ CCNANOXSERVERLIBS :=
 # Arch.rules will add platform-specific options to these flags
 CFLAGS=
 WARNINGS=
+# INCLUDEDIRS is += and EXTRAFLAGS is not here for their use in submakefiles before they include Makefile.rules
 INCLUDEDIRS += -I. -I$(MW_DIR_SRC)/include
 LDFLAGS = -L$(MW_DIR_LIB)
 DEFINES=
-MW_CORE_LIBS :=
-MAKEDEPCFLAGS :=
 HOSTCFLAGS=
 HOSTLDFLAGS=
+MAKEDEPCFLAGS=
 
+MW_CORE_LIBS=
+MWINLIBS=
+CCMWINLIBS=
+NANOXCLIENTLIBS=
+CCNANOXCLIENTLIBS=
+NANOXSERVERLIBS=
+CCNANOXSERVERLIBS=
 
 ifeq ($(HAVE_FILEIO), Y)
 DEFINES += -DHAVE_FILEIO=1
@@ -341,17 +342,12 @@ MAKEDEPCFLAGS += $(INCLUDEDIRS)
 # already set in MW_CORE_LIBS.
 ##############################################################################
 
-MWINLIBS = \
-	$(MW_DIR_LIB)/libmwin.a \
-	$(MW_DIR_LIB)/libmwimages.a \
-	$(MW_CORE_LIBS)
-ifeq ($(ARCH), MACOSX)
-CCMWINLIBS = $(MWINLIBS)
-endif
-CCMWINLIBS +=-lmwin -lmwimages -lm $(MW_CORE_LIBS)
+MWINLIBS += $(MW_DIR_LIB)/libmwin.a $(MW_DIR_LIB)/libmwimages.a $(MW_CORE_LIBS)
+CCMWINLIBS += -lmwin -lmwimages -lm $(MW_CORE_LIBS)
 
 NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
 CCNANOXCLIENTLIBS += -lnano-X
+
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 NANOXCLIENTLIBS += $(MW_CORE_LIBS)
 CCNANOXCLIENTLIBS += $(MW_CORE_LIBS)
@@ -362,18 +358,12 @@ ifeq ($(SHAREDLIBS), Y)
 	CCNANOXSERVERLIBS += $(MW_CORE_LIBS)
 endif
 
-ifeq ($(ARCH), ELKS)
+ifeq ($(ARCH), MACOSX)			# FIXME unknown reason have to use .a in shared build
 CCMWINLIBS = $(MWINLIBS)
 endif
 
-ifeq ($(ARCH), DJGPP)
-CCMWINLIBS += -lgrx20
-NANOXCLIENTLIBS += -lgrx20
-endif
-
-ifeq ($(ARCH), FREEBSD-X86)
-# For forkpty in nxterm.
-NANOXCLIENTLIBS += -lutil
+ifeq ($(ARCH), ELKS)
+CCMWINLIBS = $(MWINLIBS)
 endif
 
 ifeq ($(ARCH),PSP)
@@ -388,6 +378,11 @@ CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
 endif
 
 ifeq ($(DEBUG), Y)
+$(info    MWINLIBS is $(MWINLIBS))
+$(info    CCMWINLIBS is $(CCMWINLIBS))
+$(info    NANOXCLIENTLIBS is $(NANOXCLIENTLIBS))
+$(info    CCNANOXCLIENTLIBS is $(CCNANOXCLIENTLIBS))
+
 $(info    CFLAGS is $(CFLAGS))
 $(info    WARNINGS is $(WARNINGS))
 $(info    INCLUDEDIRS is $(INCLUDEDIRS))
@@ -661,12 +656,10 @@ endif
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(nxlib), $(MAKE) -C $(dir) clean;)
 
-ifeq ($(TINYWIDGETS), Y)
-#avoid multiple calls to clean
+# avoid multiple calls to clean FIXME
 ifneq ("$(wildcard contrib/TinyWidgets/lib/*.a)","")
 	@echo "Cleaning TinyWidgets"
 	$(MAKE) -C $(MW_DIR_SRC)/contrib/TinyWidgets clean
-endif
 endif
 
 cleanusr:
@@ -713,9 +706,7 @@ cleanusr:
 	-rm -f /usr/lib64/libNXext.so.0	
 	#avoid "Cannot bind to named socket" error - see faq.html
 	-rm -f /tmp/.nano-X
-ifeq ($(TINYWIDGETS), Y)
 	-rm -f /usr/lib/libtnW.a
-endif
 	
 # install directories for headers and libraries
 ifeq ($(ARCH), RTEMS)

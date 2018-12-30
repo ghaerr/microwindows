@@ -16,8 +16,8 @@
 ####################################################################
 ARCH                     = MACOSX
 SHAREDLIBS               = N
-#EXTRAFLAGS                = -Wall -Wno-missing-prototypes
-#EXTRAFLAGS               = -s
+#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+#EXTRAFLAGS               += -s
 DEBUG                    = Y
 OPTIMIZE                 = Y
 #OPTIMIZE                 = -O1

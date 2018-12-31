@@ -32,10 +32,13 @@ GDBFLAG = -s
 endif
 
 ifeq ($(SHAREDLIBS), Y)
-LIBS =$(LDFLAGS) $(CCNANOXCLIENTLIBS) ../../lib/libNX11.so  ../../lib/libnano-X.so
+LIBS =$(LDFLAGS) -lNX11 -lnano-X $(CCNANOXCLIENTLIBS)
 else
-LIBS =$(LDFLAGS) $(NANOXCLIENTLIBS) ../../lib/libNX11.a ../../lib/libnano-X.a
+LIBS =$(LDFLAGS) -lNX11 -lnano-X $(NANOXCLIENTLIBS)
 endif
+
+#$(info LDFLAGS $(LDFLAGS))
+#$(info LIBS $(LIBS))
 
 ifeq ($(DOS_DJGPP), Y)
 LIBS =$(LDFLAGS) -s -O2 ../../lib/libNX11.a ../../lib/libnano-X.a $(CLIBS)

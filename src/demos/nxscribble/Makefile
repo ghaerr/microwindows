@@ -24,6 +24,7 @@ CFLAGS +=
 CPPFLAGS +=
 # Linking flags
 LDFLAGS +=
+LIBM = -lm
 
 ############################# targets section ################################
 
@@ -70,7 +71,7 @@ include $(MW_DIR_SRC)/Makefile.rules
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) -lm
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
 else
 ifeq ($(ARCH), ECOS)
 $(MW_DIR_BIN)/nxscribble.o: $(OBJS) $(CONFIG)
@@ -81,6 +82,6 @@ $(MW_DIR_BIN)/nxscribble.o: $(OBJS) $(CONFIG)
 else
 $(MW_DIR_BIN)/nxscribble: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) -lm
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
 endif
 endif

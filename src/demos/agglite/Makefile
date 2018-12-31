@@ -52,11 +52,10 @@ include $(MW_DIR_SRC)/Makefile.rules
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nxaggdemo: $(OBJS) $(CXXOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(CCNANOXCLIENTLIBS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(CCNANOXCLIENTLIBS) $(LDFLAGS)
 else
 $(MW_DIR_BIN)/nxaggdemo: $(OBJS) $(CXXOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	echo $(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS)
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
 endif
-

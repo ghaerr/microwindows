@@ -171,20 +171,20 @@ NANOX_DEMOS_WITH_STANDARD_LINK := \
 # Standard link rule used for most demos.
 $(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(CCNXLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(CCNXLIBS) $(LDFLAGS)
 
 # Link rule used for demos with libm.
 $(NANOX_DEMOS_WITH_LIBM_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBM) $(LD_NANOXCLIENTLIBS) $(CCNXLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBM) $(LD_NANOXCLIENTLIBS) $(CCNXLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBJPEG) $(LD_NANOXCLIENTLIBS) $(CCNXLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBJPEG) $(LD_NANOXCLIENTLIBS) $(CCNXLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/threadtest: $(MW_DIR_OBJ)/demos/nanox/threadtest.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(CCNXLIBS) -lpthread
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LD_NANOXCLIENTLIBS) $(CCNXLIBS) $(LDFLAGS) -lpthread
 
 $(MW_DIR_BIN)/convpbm: $(MW_DIR_OBJ)/demos/nanox/convpbm.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."

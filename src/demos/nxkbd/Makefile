@@ -61,7 +61,7 @@ include $(MW_DIR_SRC)/Makefile.rules
 ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nxkbd: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) $(LDFLAGS)
 else
 ifeq ($(ARCH), ECOS)
 $(MW_DIR_BIN)/nxkbd.o: $(OBJS) $(CONFIG)
@@ -72,7 +72,6 @@ $(MW_DIR_BIN)/nxkbd.o: $(OBJS) $(CONFIG)
 else
 $(MW_DIR_BIN)/nxkbd: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
 endif
 endif
-

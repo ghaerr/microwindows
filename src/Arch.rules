@@ -42,6 +42,8 @@ LINKER = ld					# linker
 CP = cp						# copy
 MV = mv						# move
 SHELL = /bin/sh
+LIBM = -lm
+LIBFLEX = -lfl
 NM = $(TOOLSPREFIX)nm		# following used for ECOS port only
 STRIP = $(TOOLSPREFIX)strip
 OBJCOPY = $(TOOLSPREFIX)objcopy
@@ -103,8 +105,6 @@ endif
 ##############################################################################
 ifeq ($(ARCH), LINUX-NATIVE)
 DEFINES += -DLINUX=1 -DUNIX=1
-# include the following line for static libraries
-#LDFLAGS += -static
 #CFLAGS += -DHAVE_FPRINTF=1
 endif
 
@@ -199,8 +199,7 @@ endif
 ifeq ($(ARCH), MACOSX)
 COMPILER = clang
 DEFINES += -DUNIX=1 -DMACOSX=1
-# include the following line for static libraries
-#LDFLAGS += -static
+LIBFLEX = -ll
 endif
 
 ifeq ($(ARCH), RTEMS)
@@ -224,6 +223,7 @@ ifeq ($(ARCH), ECOS)
     DEFINES += -D__ECOS=1 -DUNIX=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_SELECT=0 -DHAVE_FPRINTF=0
     CFLAGS += -mcpu=strongarm -Wall -ffunction-sections -fdata-sections -O2 -g
     LDFLAGS += -nostdlib
+	LIBM =
 endif
 
 ifeq ($(ARCH), TRIMEDIA)
@@ -259,9 +259,12 @@ ifeq ($(ARCH), PSP)
 PSPSDK = $(shell psp-config --pspsdk-path)
 TOOLSPREFIX = $(PSPTOOLSPREFIX)
 DEFINES += -DPSP=1 -DHAVE_SIGNAL=0 -DHAVE_MMAP=0 -DHAVE_FPRINTF=0
-CFLAGS += -I$(PSPSDK)/include -G0 -O2 -DARCH_NEED_ALIGN32
+CFLAGS += -I$(PSPSDK)/include -G0 -O2 -DARCH_NEED_ALIGN32 -D_PSP_FW_VERSION=371
 #CFLAGS += -s
 LDFLAGS += -L$(PSPSDK)/lib
+PLIB := $(shell psp-config --pspsdk-path)/lib
+LDFLAGS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
+	-lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility -lpspuser -lpspkernel -lpsplibc 
 endif
 
 ifeq ($(ARCH), ELKS)
@@ -276,7 +279,6 @@ ifeq ($(ARCH), CYGWIN)
 DEFINES += -DUNIX=1
 # include the following line for static libraries
 #LDFLAGS += -static
-#MW_CORE_LIBS += /usr/X11R6/lib/libX11.a
 endif
 
 ifeq ($(ARCH), DJGPP)

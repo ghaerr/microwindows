@@ -124,7 +124,7 @@ computePitch(int bpp, int width, int *pitch, int *bytesperpixel)
 	*bytesperpixel = bytespp;
 }
 
-void setImageFunc(XImage *image)
+static void setImageFunc(XImage *image)
 {
 	image->f.create_image = XCreateImage;
 	image->f.destroy_image = destroy_image;

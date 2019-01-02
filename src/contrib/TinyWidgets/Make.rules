@@ -19,7 +19,7 @@ CFLAGS += -O2
 endif
 CFLAGS += -Wall -I../../../include -I$(INCDIR)
 
-LIBS=-ltnW -L../../../lib -lnano-X $(MW_CORE_LIBS) $(LDFLAGS)
+LIBS=-ltnW -L../../../lib -lnano-X $(LDFLAGS)
 #$(info LIBS $(LIBS))
 
 # Common rules that everyone uses 

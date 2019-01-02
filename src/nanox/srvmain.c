@@ -138,12 +138,12 @@ GR_GRABBED_KEY  *list_grabbed_keys = NULL;     /* list of all grabbed keys */
 
 static int	persistent_mode = FALSE;
 static int	portraitmode = MWPORTRAIT_NONE;
-static int	Argc;
-static char **	Argv;
 
 SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THREADSAFE) */
 
 #if !NONETWORK
+static int	Argc;
+static char **	Argv;
 int		un_sock;		/* the server socket descriptor */
 
 static void

@@ -67,13 +67,9 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-ifeq ($(SHAREDLIBS), Y)
-$(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
-else
 $(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
-endif
+
 
 endif
 endif

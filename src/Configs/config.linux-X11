@@ -15,7 +15,7 @@
 #
 ####################################################################
 ARCH                     = LINUX-NATIVE
-SHAREDLIBS               = N
+SHAREDLIBS               = Y
 #EXTRAFLAGS               = -Wno-unused-result -Wno-implicit-int
 DEBUG                    = N
 OPTIMIZE                 = Y
@@ -32,10 +32,9 @@ PARALLEL                 = N
 X11                      = Y
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-X11HDRLOCATION           = /usr/include/X11
-X11LIBLOCATION           = /usr/lib
 #X11HDRLOCATION           = /usr/X11R6/include
 #X11LIBLOCATION           = /usr/X11R6/lib
+#X11HDRLOCATION           = /usr/include/X11
 #X11LIBLOCATION           = /usr/lib/x86_64-linux-gnu
 USE_EXPOSURE             = Y
 
@@ -65,11 +64,10 @@ OBJFRAMEWORK             = N
 FBEMULATOR               = Y
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
-# VNC server support through libvncserver
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
 LIBVNC                   = -lvncserver
-INCVNC                   = /usr/include
+INCVNC                   =
 
 ####################################################################
 # LINK_APP_INTO_SERVER links the nano-X application into the server.
@@ -102,23 +100,23 @@ HAVE_XPM_SUPPORT         = Y
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
 HAVE_JPEG_SUPPORT        = N
-INCJPEG                  = .
+INCJPEG                  =
 LIBJPEG                  = -ljpeg
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
-INCPNG                   = .
+INCPNG                   =
 LIBPNG                   = -lpng
-INCZ                     = .
+INCZ                     =
 LIBZ                     = -lz
 
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
-INCTIFF                  = .
+INCTIFF                  =
 LIBTIFF                  = -ltiff
 
 ####################################################################
@@ -144,7 +142,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 ####################################################################
 HAVE_T1LIB_SUPPORT       = N
 T1LIB_FONT_DIR           = "fonts/type1"
-INCT1LIB                 = /usr/include
+INCT1LIB                 =
 LIBT1LIB                 = -lt1
 
 ####################################################################
@@ -191,8 +189,8 @@ HAVE_KSC5601_SUPPORT     = N
 ####################################################################
 HAVE_FRIBIDI_SUPPORT     = N
 HAVE_SHAPEJOINING_SUPPORT = N
-INCFRIBIDI               = $(TOP)/../../../include
-LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
+INCFRIBIDI               =
+LIBFRIBIDI               = -lfribidi
 
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping

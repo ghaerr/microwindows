@@ -1,5 +1,5 @@
-Microwindows Makefile System Overview 12/30/18
-----------------------------------------------
+Microwindows Makefile System Overview
+-------------------------------------
 
 src/Makefile
 	MW_DIR_SRC := $(CURDIR)
@@ -15,6 +15,12 @@ src/Makefile
 	includes Makefile.rules
 
 
+src/config
+	X11LIBLOCATION=			new config option, location of X11 libraries
+	X11HDRLOCATION=			new config option, location of X11 headers
+	SCREEN_HEIGHT			new
+	SCREEN_WIDTH			new
+
 src/Makefile.rules
 	CFLAGS=					platform-specific flags, optimization and debug options
 	CXXFLAGS=				c++ flags
@@ -28,31 +34,22 @@ src/Makefile.rules
 	LDFLAGS=				-L and link flags only (prepend link line)
 	LDLIBS=					new, -llibs only       (append link line) [NOT YET IMPLEMENTED, appending LDFLAGS now]
 
-	X11LIBLOCATION=			new config option, location of X11 libraries
-	X11HDRLOCATION=			new config option, location of X11 headers
-
-	MW_CORE_LIBS=
-	NANOXFILES=				nanox links
-	NANOXSERVERFILES=		used for static nanox links
-	CCNANOXSERVERFILES=		rename, used for shared nanox links
-	CCMWINLIBS=				mwin links
-
 	HOSTCFLAGS=				change, only used for -I X11 includes & SCREEN H/W for fbe.c build
 	HOSTLDFLAGS=			new
 
+	EXTENGINELIBS=			external libs required to link engine into an app
+	MWINLIBS=				files required for linking mwin API apps (libmwin.a)
+	NANOXCLIENTLIBS=		files required for linking nanox API aps (libnano-X.a)
+
 	include Arch.rules
 
-	CC = $(TOOLSPREFIX)$(COMPILER)
-	CXX = $(TOOLSPREFIX)$(CXX_COMPILER)
-	AR = $(TOOLSPREFIX)$(ACHIVER)
-	LD = $(TOOLSPREFIX)$(LINKER)
-
 # new compile and link uses more make vars
-	COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES)
+	COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS)
+	CXXCOMPILEARGS = $(CXXFLAGS) $(INCLUDEDIRS)
 .c.o:
-	$(CC) -c $(COMPILEARGS) $(EXTRAFLAGS) -o $@ $<
+	$(CC) -c $(COMPILEARGS) -o $@ $<
 .cpp.o:
-	$(CXX) -c $(CXXFLAGS) $(INCLUDEDIRS) -o $@ $<
+	$(CXX) -c $(CXXCOMPILEARGS) -o $@ $<
 
 	LIBS = $(NANOXFILES) $(NANOXSERVERLIBS)		# static nanox
 	LIBS = $(NANOXFILES) $(CCNANOXSERVERLIBS)	# shared nanox
@@ -63,25 +60,18 @@ src/Makefile.rules
 
 
 src/Arch.rules
-	GCC_WARNINGS=				change, only add to CFLAGS, not CXXFLAGS
+	WARNINGS=				change, only add to CFLAGS, not CXXFLAGS
 	TOOLSPREFIX=
 	DEFINES +=
 	CFLAGS +=
-	FLTFLAGS +=
+	LDFLAGS +=
 
 	HOSTCC=
 	COMPILER=
 	CXX_COMPILER=
-	CPP=
-	ACHIVER=
-	LINKER=
-
-	SCREEN_HEIGHT			new
-	SCREEN_WIDTH			new
 
 
 library/Objects.rules
-
 
 
 library/Makefile

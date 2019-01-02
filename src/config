@@ -15,9 +15,8 @@
 #
 ####################################################################
 ARCH                     = MACOSX
-SHAREDLIBS               = N
+SHAREDLIBS               = Y
 #EXTRAFLAGS               = -Wall -Wno-missing-prototypes
-#EXTRAFLAGS               += -s
 DEBUG                    = N
 OPTIMIZE                 = Y
 #OPTIMIZE                 = -O1
@@ -33,8 +32,8 @@ PARALLEL                 = N
 X11                      = Y
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-X11LIBLOCATION           = /opt/X11/lib
-X11HDRLOCATION           = /opt/X11/include
+X11LIBLOCATION           = /usr/X11/lib
+X11HDRLOCATION           = /usr/X11/include
 USE_EXPOSURE             = Y
 
 FRAMEBUFFER              = N
@@ -63,12 +62,10 @@ OBJFRAMEWORK             = N
 FBEMULATOR               = Y
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
-# VNC server support through libvncserver
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
-#LIBVNC                   = -lvncserver
-LIBVNC                   = /usr/lib/libvncserver.a
-INCVNC                   = /usr/include
+LIBVNC                   = -lvncserver
+INCVNC                   =
 
 ####################################################################
 # LINK_APP_INTO_SERVER links the nano-X application into the server.
@@ -101,25 +98,24 @@ HAVE_XPM_SUPPORT         = Y
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
 ####################################################################
 HAVE_JPEG_SUPPORT        = N
-INCJPEG                  = .
+INCJPEG                  =
 LIBJPEG                  = -ljpeg
 
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
 HAVE_PNG_SUPPORT         = Y
-INCPNG                   = .
-#LIBPNG                   = -lpng
-LIBPNG                   = /usr/X11/lib/libpng.dylib
-INCZ                     = .
-#LIBZ                     = -lz
-LIBZ                     = /usr/lib/libz.dylib
+INCPNG                   =
+LIBPNG                   = -lpng
+INCZ                     =
+LIBZ                     = -lz
+#LIBPNG                   = /usr/X11/lib/libpng.dylib
 
 ####################################################################
 # TIFF support through libtiff
 ####################################################################
 HAVE_TIFF_SUPPORT        = N
-INCTIFF                  = .
+INCTIFF                  =
 LIBTIFF                  = -ltiff
 
 ####################################################################
@@ -135,8 +131,7 @@ PCF_FONT_DIR             = "fonts/pcf"
 HAVE_FREETYPE_2_SUPPORT  = Y
 HAVE_HARFBUZZ_SUPPORT    = N
 INCFT2LIB                = /usr/local/include
-LIBFT2LIB                = /usr/local/lib/libfreetype.a /usr/lib/libbz2.dylib
-#LIBFT2LIB                = -lfreetype
+LIBFT2LIB                = -lfreetype -lbz2
 #LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
 
@@ -146,7 +141,7 @@ FREETYPE_FONT_DIR        = "fonts/truetype"
 ####################################################################
 HAVE_T1LIB_SUPPORT       = N
 T1LIB_FONT_DIR           = "fonts/type1"
-INCT1LIB                 = /usr/include
+INCT1LIB                 =
 LIBT1LIB                 = -lt1
 
 ####################################################################
@@ -193,8 +188,8 @@ HAVE_KSC5601_SUPPORT     = N
 ####################################################################
 HAVE_FRIBIDI_SUPPORT     = N
 HAVE_SHAPEJOINING_SUPPORT = N
-INCFRIBIDI               = $(TOP)/../../../include
-LIBFRIBIDI               = $(TOP)/../../../lib/libfribidi.a
+INCFRIBIDI               =
+LIBFRIBIDI               = -lfribidi
 
 ####################################################################
 # Generate screen driver interface only with no fonts or clipping

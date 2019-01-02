@@ -12,7 +12,7 @@ INCDIR=$(TOP)/include
 TWLIB=$(LIBDIR)/libtnW.a
 
 CFLAGS=@CFLAGS@ @INCLUDES@ -I$(INCDIR)
-LIBS=@LIBS@
+LIBS=@LIBS@ $(LDFLAGS)
 
 # Common rules that everyone uses 
 

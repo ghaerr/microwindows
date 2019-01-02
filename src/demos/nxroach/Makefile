@@ -23,7 +23,6 @@ CFLAGS +=
 CPPFLAGS +=
 # Linking flags
 LDFLAGS +=
-LIBM = -lm
 
 ############################# targets section ################################
 
@@ -47,12 +46,6 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-ifeq ($(SHAREDLIBS), Y)
-$(MW_DIR_BIN)/nxroach: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
-else
 $(MW_DIR_BIN)/nxroach: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
-endif

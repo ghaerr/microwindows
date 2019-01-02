@@ -1,3 +1,10 @@
+1 Jan 2019
+	* rewrote nxlib/Makefile to use internal system. test/ and ptest/ temporarily not building
+	* more build and library cleanup, removed INC=. defaults in config to fix -I. generated
+	* removed CCNANOXCLIENTLIBS, CCMWINLIBS, cleaned up links to use only MWINLIBS and NANOXCLIENTLIBS
+	* SHAREDLIBS=Y builds lib/*.so but only uses lib/*.a for app linking
+	* fixed circular make dependency bug
+	* fixed OSX dynamic library creation
 30 Dec 2018
 	* fix Makefiles for LINK_APP_INTO_SERVER=Y case, updated config.linux-X11
 	* combine config.suse/config.ubuntuX11 into single config.linux-X11 for linux desktop systems, fix TW link

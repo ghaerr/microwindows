@@ -47,13 +47,13 @@ OBJS := \
 	$(MW_DIR_OBJ)/nanox/nxtransform.o
 OBJS += $(NANOWMOBJS)
 
-ifeq ($(NANOWM), Y)
-NANOXFILES += $(OBJS)
-endif
-
 ifeq ($(LINK_APP_INTO_SERVER), Y)
 OBJS += $(NANOXFILES)
 else
+
+ifeq ($(NANOWM), Y)
+NANOXFILES += $(OBJS)
+endif
 
 # Nano-X server files (network only)
 NANOXFILES += $(MW_DIR_OBJ)/nanox/srvnet.o
@@ -79,6 +79,8 @@ endif
 all: default $(TARGET)
 endif
 
+NANOXSERVERLIBS = $(EXTENGINELIBS)
+
 ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 NANOXSERVERLIBS += $(LIBVNC) $(LIBJPEG) $(LIBZ)
 endif 
@@ -91,20 +93,18 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
+#$(info NANOXSERVERLIBS $(NANOXSERVERLIBS))
+
 # Server binary ...
-ifeq ($(SHAREDLIBS), Y)
-$(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
+$(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(CCNANOXSERVERLIBS) $(LDFLAGS)
-else
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS) $(LDFLAGS)
+
+ifeq ($(ARCH), ECOS) 
 $(MW_DIR_BIN)/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 #	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--retain-symbols-file -Wl,nanox.syms -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) -Wl,-r -Wl,--defsym -Wl,nanox_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep -v Gr | grep -v nx | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 #	rm -f XX.o
-
-$(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS) $(LDFLAGS)
 endif

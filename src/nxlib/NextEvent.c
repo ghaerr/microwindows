@@ -487,8 +487,7 @@ _XIfEventCallback(GR_WINDOW_ID wid, GR_EVENT_MASK mask,
 }
 
 Bool
-_XIfEvent(Display * display, XEvent * ev, PredFunc predicate, XPointer arg,
-	int block)
+_XIfEvent(Display * display, XEvent * ev, PredFunc predicate, XPointer arg, int block)
 {
 	XIfEventParm p;
 	GR_EVENT event;

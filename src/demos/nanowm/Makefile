@@ -51,20 +51,14 @@ endif
 include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
-ifeq ($(SHAREDLIBS), Y)
 $(MW_DIR_BIN)/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(CCNANOXCLIENTLIBS)
-else
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
+
 ifeq ($(ARCH), ECOS)
 $(MW_DIR_BIN)/nanowm.o: $(OBJS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nanowm_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
-else
-$(MW_DIR_BIN)/nanowm: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS)
-endif
 endif

@@ -12,40 +12,33 @@
 # Handle core engine/library options
 ##############################################################################
 
+#$(info MAKELEVEL $(MAKELEVEL))
+
 # Arch.rules will add platform-specific options to these flags
 CFLAGS=
 WARNINGS=
-# INCLUDEDIRS is += and EXTRAFLAGS is not here for their use in submakefiles before they include Makefile.rules
+# INCLUDEDIRS is += and EXTRAFLAGS= not here for their use in submakefiles before they include Makefile.rules
 INCLUDEDIRS += -I. -I$(MW_DIR_SRC)/include
-LDFLAGS = -L$(MW_DIR_LIB)
+#LDFLAGS = -L$(MW_DIR_LIB)
+LDFLAGS=
 DEFINES=
 HOSTCFLAGS=
 HOSTLDFLAGS=
 MAKEDEPCFLAGS=
 
-MW_CORE_LIBS=
+EXTENGINELIBS=
 MWINLIBS=
-CCMWINLIBS=
 NANOXCLIENTLIBS=
-CCNANOXCLIENTLIBS=
-NANOXSERVERLIBS=
-CCNANOXSERVERLIBS=
 
+##############################################################################
+# Handle File I/O options
+##############################################################################
 ifeq ($(HAVE_FILEIO), Y)
 DEFINES += -DHAVE_FILEIO=1
 
-ifeq ($(HAVE_TIFF_SUPPORT), Y)
-DEFINES += -DHAVE_TIFF_SUPPORT=1
-MW_CORE_LIBS += $(LIBTIFF)
-LDFLAGS += -lm
-ifneq ($(INCTIFF),)
-INCLUDEDIRS += -I$(INCTIFF)
-endif
-endif
-
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 DEFINES += -DHAVE_JPEG_SUPPORT=1
-MW_CORE_LIBS += $(LIBJPEG)
+EXTENGINELIBS += $(LIBJPEG)
 ifneq ($(INCJPEG),)
 INCLUDEDIRS += -I$(INCJPEG)
 endif
@@ -53,12 +46,22 @@ endif
 
 ifeq ($(HAVE_PNG_SUPPORT), Y)
 DEFINES += -DHAVE_PNG_SUPPORT=1
-MW_CORE_LIBS += $(LIBPNG) $(LIBZ) 
+EXTENGINELIBS += $(LIBPNG) $(LIBZ) 
 ifneq ($(INCPNG),)
 INCLUDEDIRS += -I$(INCPNG)
 endif
-ifneq ($(ARCH), ECOS)
-LDFLAGS += -lm
+ifneq ($(INCZ),)
+INCLUDEDIRS += -I$(INCZ)
+endif
+LDFLAGS += $(LIBM)
+endif
+
+ifeq ($(HAVE_TIFF_SUPPORT), Y)
+DEFINES += -DHAVE_TIFF_SUPPORT=1
+EXTENGINELIBS += $(LIBTIFF)
+LDFLAGS += $(LIBM)
+ifneq ($(INCTIFF),)
+INCLUDEDIRS += -I$(INCTIFF)
 endif
 endif
 
@@ -67,18 +70,18 @@ DEFINES += -DHAVE_FNT_SUPPORT=1
 DEFINES += -DFNT_FONT_DIR="\"$(FNT_FONT_DIR)"\"
 ifeq ($(HAVE_FNTGZ_SUPPORT), Y)
 DEFINES += -DHAVE_FNTGZ_SUPPORT=1
-MW_CORE_LIBS += $(LIBZ)
+EXTENGINELIBS += $(LIBZ)
 endif
 endif
 
 ifeq ($(HAVE_T1LIB_SUPPORT), Y)
 DEFINES += -DHAVE_T1LIB_SUPPORT=1
 DEFINES += -DT1LIB_FONT_DIR="\"$(T1LIB_FONT_DIR)"\"
-MW_CORE_LIBS += $(LIBT1LIB)
+EXTENGINELIBS += $(LIBT1LIB)
 ifneq ($(INCT1LIB),)
 INCLUDEDIRS += -I$(INCT1LIB)
 endif
-LDFLAGS += -lm
+LDFLAGS += $(LIBM)
 endif
 
 ifeq ($(HAVE_PCF_SUPPORT), Y)
@@ -86,7 +89,7 @@ DEFINES += -DHAVE_PCF_SUPPORT=1
 DEFINES += -DPCF_FONT_DIR="\"$(PCF_FONT_DIR)"\"
 ifeq ($(HAVE_PCFGZ_SUPPORT), Y)
 DEFINES += -DHAVE_PCFGZ_SUPPORT=1
-MW_CORE_LIBS += $(LIBZ)
+EXTENGINELIBS += $(LIBZ)
 endif
 endif
 
@@ -140,7 +143,7 @@ endif	# HAVE_FILEIO
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
 DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
-MW_CORE_LIBS += $(LIBFT2LIB)
+EXTENGINELIBS += $(LIBFT2LIB)
 # GCC 3.2 complains if system directories (e.g. /usr/include) are
 # specified with "-I".  For most INCxxx, we simply allow the
 # value to be set to empty to mean "no -I required".
@@ -155,7 +158,6 @@ endif
 ifneq ($(INCFT2LIB),)
 INCLUDEDIRS += -I$(INCFT2LIB)/freetype2
 endif
-#Harfbuzz together with Freetype only
 ifeq ($(HAVE_HARFBUZZ_SUPPORT),Y)
 DEFINES += -DHAVE_HARFBUZZ_SUPPORT=1
 endif
@@ -167,9 +169,7 @@ ifneq ($(INCFRIBIDI),)
 INCLUDEDIRS += -I$(INCFRIBIDI)
 endif
 ifneq ($(LIBFRIBIDI),)
-MW_CORE_LIBS += $(LIBFRIBIDI)
-else
-LDFLAGS += -lfribidi
+EXTENGINELIBS += $(LIBFRIBIDI)
 endif
 endif
 
@@ -190,14 +190,24 @@ endif
 
 ifeq ($(X11), Y)
 DEFINES += -DX11=1
+ifneq ($(X11HDRLOCATION),)
 INCLUDEDIRS += -I$(X11HDRLOCATION)
-LDFLAGS += -L$(X11LIBLOCATION) -lX11
+endif
+ifneq ($(X11LIBLOCATION),)
+LDFLAGS += -L$(X11LIBLOCATION)
+endif
+LDFLAGS += -lX11
 endif
 
 ifeq ($(FBEMULATOR), Y)
 DEFINES += -DX11=1
+ifneq ($(X11HDRLOCATION),)
 HOSTCFLAGS += -I$(X11HDRLOCATION)
-HOSTLDFLAGS += -L$(X11LIBLOCATION) -lX11
+endif
+ifneq ($(X11LIBLOCATION),)
+HOSTLDFLAGS += -L$(X11LIBLOCATION)
+endif
+HOSTLDFLAGS += -lX11
 endif
 
 ifeq ($(BIGENDIAN), Y)
@@ -245,8 +255,13 @@ endif
 # Handle application build options
 ##############################################################################
 ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
-INCLUDEDIRS += -I$(INCVNC) -I$(INCZ)
 DEFINES += -DHAVE_VNCSERVER=1
+ifneq ($(INCNVC),)
+INCLUDEDIRS += -I$(INCVNC)
+endif
+ifneq ($(INCZ),)
+INCLUDEDIRS += -I$(INCZ)
+endif
 ifeq ($(VNCSERVER_PTHREADED), Y)
 DEFINES += -DVNCSERVER_PTHREADED=1
 LDFLAGS += -lpthread 
@@ -257,23 +272,6 @@ endif
 # Handle screen, keyboard and mouse config options
 ##############################################################################
 DEFINES += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
-
-ifeq ($(EM8400), Y)
-DEFINES += -I$(EM8400_DIR)/include
-LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
-endif
-
-ifeq ($(INVERT4BPP), Y)
-DEFINES += -DINVERT4BPP=1
-endif
-
-ifeq ($(INVERT2BPP), Y)
-DEFINES += -DINVERT2BPP=1
-endif
-
-ifeq ($(USE_EXPOSURE), Y)
-DEFINES += -DUSE_EXPOSURE
-endif
 
 ifdef SCREEN_HEIGHT
 DEFINES += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
@@ -296,6 +294,23 @@ DEFINES += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
 HOSTCFLAGS += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
 endif
 
+ifeq ($(USE_EXPOSURE), Y)
+DEFINES += -DUSE_EXPOSURE
+endif
+
+ifeq ($(EM8400), Y)
+DEFINES += -I$(EM8400_DIR)/include
+LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
+endif
+
+ifeq ($(INVERT4BPP), Y)
+DEFINES += -DINVERT4BPP=1
+endif
+
+ifeq ($(INVERT2BPP), Y)
+DEFINES += -DINVERT2BPP=1
+endif
+
 ifeq ($(TPHELIO), Y)
 DEFINES += -DTPHELIO=1
 endif
@@ -315,10 +330,30 @@ endif
 
 
 ##############################################################################
-# Create Tools Locations
+# Setup libraries and command line libs for mwin API and nanox API linking
 ##############################################################################
-# Include platform-specific architecture rules
+
+# mwin API apps
+MWINLIBS += $(MW_DIR_LIB)/libmwin.a $(MW_DIR_LIB)/libmwimages.a
+LDFLAGS += $(EXTENGINELIBS) $(LIBM)
+
+# nanox API apps use .a even when link_app_into_server
+NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
+
+# standalone apps require external engine libs
+ifeq ($(LINK_APP_INTO_SERVER), Y)
+NANOXCLIENTLIBS +=
+#LDFLAGS += $(EXTENGINELIBS)		# already done for mwin API above
+endif
+
+##############################################################################
+# Include platform-specific compiler and linker flags, defines and locations
+##############################################################################
 include $(MW_DIR_SRC)/Arch.rules
+
+##############################################################################
+# Create tool paths, compile/link arguments, dependency dirs
+##############################################################################
 
 # Create full tool paths
 CC = $(TOOLSPREFIX)$(COMPILER)
@@ -326,76 +361,42 @@ CXX = $(TOOLSPREFIX)$(CXX_COMPILER)
 AR = $(TOOLSPREFIX)$(ARCHIVER)
 LD = $(TOOLSPREFIX)$(LINKER)
 
-# BUILD
-# Note: We don't put INCLUDEDIRS in HOSTCFLAGS. FIXME for FBEMULATOR case
 # When cross-compiling, we want to use the target headers for
 # generating dependencies (MAKEDEPCFLAGS), but the host's default
 # headers for compiling tools (HOSTCFLAGS).
-COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES)
-#LINKFLAGS = $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $(LDLIBS)
+# Note: We don't put INCLUDEDIRS in HOSTCFLAGS.
 MAKEDEPCFLAGS += $(INCLUDEDIRS)
 
+# Aggegrate flags, warnings, include dirs, defines, and extraflags for C compiler
+COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS)
+# C++ uses only cxx flags and include dirs
+CXXCOMPILEARGS = $(CXXFLAGS) $(INCLUDEDIRS)
+#LINKARGS = $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $(LDLIBS)
+
 ##############################################################################
-# MWIN and NANOX Libraries
-#
-# Note that libraries required by the engine (and only by the engine) are
-# already set in MW_CORE_LIBS.
+# Variable Exports
 ##############################################################################
+# exports for internal make system
+export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB MW_DIR_OBJ CONFIG
 
-MWINLIBS += $(MW_DIR_LIB)/libmwin.a $(MW_DIR_LIB)/libmwimages.a $(MW_CORE_LIBS)
-CCMWINLIBS += -lmwin -lmwimages -lm $(MW_CORE_LIBS)
+# exports useable by contrib/ builds
+export LDFLAGS LIBFLEX
+#export COMPILEARGS
 
-NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
-CCNANOXCLIENTLIBS += -lnano-X
-
-ifeq ($(LINK_APP_INTO_SERVER), Y)
-NANOXCLIENTLIBS += $(MW_CORE_LIBS)
-CCNANOXCLIENTLIBS += $(MW_CORE_LIBS)
-endif
-
-NANOXSERVERLIBS += $(MW_CORE_LIBS)
-ifeq ($(SHAREDLIBS), Y)
-	CCNANOXSERVERLIBS += $(MW_CORE_LIBS)
-endif
-
-ifeq ($(ARCH), MACOSX)			# FIXME unknown reason have to use .a in shared build
-CCMWINLIBS = $(MWINLIBS)
-endif
-
-ifeq ($(ARCH), ELKS)
-CCMWINLIBS = $(MWINLIBS)
-endif
-
-ifeq ($(ARCH),PSP)
-CFLAGS += -D_PSP_FW_VERSION=371
-PLIB := $(shell psp-config --pspsdk-path)/lib
-CCNXLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
-	-lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility \
-	-lpspuser -lpspkernel -lpsplibc 
-CCMWINLIBS += -lc -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk \
-	-lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility \
-	-lpspuser -lpspkernel -lpsplibc
-endif
+#$(info    LDFLAGS is $(LDFLAGS))
 
 ifeq ($(DEBUG), Y)
 $(info    MWINLIBS is $(MWINLIBS))
-$(info    CCMWINLIBS is $(CCMWINLIBS))
 $(info    NANOXCLIENTLIBS is $(NANOXCLIENTLIBS))
-$(info    CCNANOXCLIENTLIBS is $(CCNANOXCLIENTLIBS))
-
+$(info    EXTENGINELIBS is $(EXTENGINELIBS))
 $(info    CFLAGS is $(CFLAGS))
 $(info    WARNINGS is $(WARNINGS))
 $(info    INCLUDEDIRS is $(INCLUDEDIRS))
 $(info    DEFINES is $(DEFINES))
 $(info    EXTRAFLAGS is $(EXTRAFLAGS))
 $(info    LDFLAGS is $(LDFLAGS))
-#$(info    COMPILEARGS $(COMPILEARGS))
+$(info    COMPILEARGS $(COMPILEARGS))
 endif
-
-#export for nxlib/test makefile - CC and CFLAGS not passed ARCH for TinyWidgets
-export NANOXCLIENTLIBS CCNANOXCLIENTLIBS LDFLAGS TOOLSPREFIX OPTFLAGS PARALLEL DEBUG MW_CORE_LIBS
-# Add any exportable variable here
-export MW_DIR_SRC MW_DIR_BIN MW_DIR_LIB MW_DIR_OBJ ARCH CONFIG
 
 ##############################################################################
 # Build rules
@@ -427,6 +428,8 @@ ifeq ($(dirs), )
 # variable is empty if the directories do not exist.
 dirs := $(dir $(wildcard $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)*/Makefile))
 dirs := $(filter-out $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)demos/,$(dirs))
+dirs := $(filter-out $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)test/,$(dirs))		# FIXME
+dirs := $(filter-out $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)ptest/,$(dirs))	# FIXME
 dirs := $(filter-out $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)ecos/,$(dirs))
 dirs := $(filter-out $(MW_DIR_SRC)/$(MW_DIR_RELATIVE)rtems/,$(dirs))
 endif
@@ -450,8 +453,7 @@ endif
 .PHONY: subdirs $(dirs:%=subdir-%)
 
 subdirs: $(dirs:%=subdir-%)
-	@#
-
+	@# 
 $(dirs:%=subdir-%): makedestdirs
 ifeq ($(PARALLEL), Y)
 	$(MAKE) -j -C $(subst subdir-,,$@)
@@ -481,21 +483,21 @@ endef
 ifneq ($(LIBNAME),)
 $(MW_DIR_LIB)/$(LIBNAME): $(OBJS) $(CXXOBJS)
 	@echo "Creating library $(patsubst $(MW_DIR_LIB)/%,%,$@) ..."
-	$(AR) $(ARFLAGS) $(MW_DIR_LIB)/$(LIBNAME) $(OBJS) $(CXXOBJS) $(ASMOBJS)
+	$(AR) $(ARFLAGS) $(MW_DIR_LIB)/$(LIBNAME) $(OBJS) $(CXXOBJS)
 endif
 
 #
 # If a shared object library name is specified, link this object
 #
 ifeq ($(SHAREDLIBS), Y)
+ifneq ($(LIBNAMESO),)		# stop circular dependecy when no LIBNAMESO in current Makefile
+$(MW_DIR_LIB)/$(LIBNAMESO): $(MW_DIR_LIB)/$(LIBNAME) $(OBJS) $(CXXOBJS)
+	@echo "Creating shared library $(patsubst $(MW_DIR_LIB)/%,%,$@) ..."
 ifeq ($(ARCH), MACOSX)
-$(MW_DIR_LIB)/$(LIBNAMESO): $(MW_DIR_LIB)/$(LIBNAME)
-	@echo "Creating shared library $(patsubst $(MW_DIR_LIB)/%,%,$@) ..."
-	$(CC) -shared -dylib -o $@ $^
+	$(CC) -shared -fpic -undefined dynamic_lookup -o $@ $(LDFLAGS) $(OBJS) $(CXXOBJS)
 else
-$(MW_DIR_LIB)/$(LIBNAMESO): $(MW_DIR_LIB)/$(LIBNAME)
-	@echo "Creating shared library $(patsubst $(MW_DIR_LIB)/%,%,$@) ..."
-	$(CC) -shared -o $@ -Wl,--whole-archive $^ -Wl,--no-whole-archive
+	$(CC) -shared -o $@ -Wl,--whole-archive $(OBJS) $(CXXOBJS) -Wl,--no-whole-archive
+endif
 endif
 endif
 
@@ -518,7 +520,7 @@ $(MW_DIR_BIN) $(MW_DIR_LIB):
 # Note that on error, this rule removes the (incomplete) .d file, and
 # also removes the .o file so that the rule will be run again next
 # time the user runs make.
-#
+# FIXME CREATES CIRCULAR DEPENDENCY
 define MW_RULE_DEPEND_C
 	$(HOSTCC) -MM $(MAKEDEPCFLAGS) $(DEFINES) $< \
 		| sed 's/.*\.o[ :]*/$(subst /,\/,$@) : /g' \
@@ -534,7 +536,7 @@ $(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.c $(CONFIG)
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	@$(MW_RULE_MAKE_TARGET_DIR)
 endif
-	$(CC) -c $(COMPILEARGS) $(EXTRAFLAGS) -o $@ $<
+	$(CC) -c $(COMPILEARGS) -o $@ $<
 	$(MW_RULE_DEPEND_C)
 
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
@@ -545,7 +547,7 @@ ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.c $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
 	@$(MW_RULE_MAKE_TARGET_DIR)
-	$(CC) -c $(COMPILEARGS) $(EXTRAFLAGS) -o $@ $<
+	$(CC) -c $(COMPILEARGS) -o $@ $<
 	$(MW_RULE_DEPEND_C)
 endif
 
@@ -557,7 +559,7 @@ $(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.$(CPP) $(CONFIG)
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	@$(MW_RULE_MAKE_TARGET_DIR)
 endif
-	$(CXX) -c $(CXXFLAGS) $(INCLUDEDIRS) -o $@ $<
+	$(CXX) -c $(CXXCOMPILEARGS) -o $@ $<
 	$(MW_RULE_DEPEND_C)
 
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
@@ -567,7 +569,7 @@ ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.$(CPP) $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
 	@$(MW_RULE_MAKE_TARGET_DIR)
-	$(CXX) -c $(CXXFLAGS) $(INCLUDEDIRS) -o $@ $<
+	$(CXX) -c $(CXXCOMPILEARGS) -o $@ $<
 	$(MW_RULE_DEPEND_C)
 endif
 

@@ -6,20 +6,20 @@
 #include "X11/Xutil.h"
 #include "keysymstr.h"
 
-//#if linux
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #if !__MINGW32__
 #include <sys/ioctl.h>
 #endif
-#if defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
-#include "include/linux/keyboard.h"
-#include "include/linux/kd.h"
-#else
+#if linux
 #include <linux/keyboard.h>
 #include <linux/kd.h>
+#else
+#include "include/linux/keyboard.h"
+#include "include/linux/kd.h"
 #endif
+
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/
 
 #define __FORALL__ //re-reading does not work for FLTK and X11 too - so always use it now
@@ -309,6 +309,7 @@ XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
 	return mwkey;
 }
 /* translate keyvalue to KeySym, no control/shift processing*/
+
 KeySym
 XMWKeyToKeysym(Display *dpy, unsigned int kv, int index)
 {

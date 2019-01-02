@@ -11,7 +11,7 @@ clean:
 
 tndesigner: $(OBJS)
 	@echo "Compiling tndesigner..."
-	$(CC) -o $@ $(OBJS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) -lfl
+	$(CC) -o $@ $(OBJS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) $(LIBFLEX)
 
 lex.yy.c:
 	$(LEX) fileio.l

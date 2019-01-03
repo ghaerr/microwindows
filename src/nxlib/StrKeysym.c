@@ -16,8 +16,8 @@
 #include <linux/keyboard.h>
 #include <linux/kd.h>
 #else
-#include "include/linux/keyboard.h"
-#include "include/linux/kd.h"
+#include "linux/keyboard.h"
+#include "linux/kd.h"
 #endif
 
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/

@@ -36,8 +36,8 @@ typedef void* recognizer;
 
 typedef void* wordset;
 
-#include <hre.h>
-#include <hre_api_internal.h>
+#include "hre.h"
+#include "hre_api_internal.h"
 
 
 #endif

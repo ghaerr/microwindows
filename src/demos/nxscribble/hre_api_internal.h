@@ -25,7 +25,7 @@
 
 /*Need structs for return types.*/
 
-#include <hre.h>
+#include "hre.h"
 
 /*
  * ADMINISTRATION

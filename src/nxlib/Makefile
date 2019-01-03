@@ -14,36 +14,38 @@ include $(CONFIG)
 #
 # NXLIB Makefile
 #
-EXTRAFLAGS += -Wno-missing-prototypes				# turn off missing prototype warnings in nxscribble compile
+EXTRAFLAGS += -Wno-missing-prototypes			# nxlib/*.c needs cleaning up
+EXTRAFLAGS += -Wno-incompatible-pointer-types	# for Image.c
+EXTRAFLAGS += -Wno-deprecated-declarations		# for XKeycodeToKeysym
 
-# Compile-time X11 include directory and X11 release location
+# Compile-time X11 include directory, colornames and fonts locations
 #
 # Although X11 headers haven't changed structurally in years,
 # these locations should match headers on target system.
-# NXLIB includes local X11R6 headers in case X11 isn't installed
-# on the cross-compiling host.
+# NXLIB includes local X11R6 headers for compilation testing in case X11
+# isn't installed on the cross-compiling host.
 #
-# if X11 not installed:
-#	X11_INCLUDE=.
-# if X11 installed:
-#	X11_INCLUDE=/usr/include/X11
+# if X11 installed on host:
+#	X11_INCLUDE=<from config file>
+# if X11 not installed on host:
+#	X11_INCLUDE=./X11-local
 #
-X11_INCLUDE=.
-#X11_INCLUDE=/usr/X11/include
+X11_INCLUDE=$(X11HDRLOCATION)
+#X11_INCLUDE=./X11-local
+
+# Run-time font directory:
+# Modify FONT_DIR_LIST[] in fontlist.c to add font search directories!
+# by default, fontlist.c includes "fonts/" as a relative search path
 
 # Run-time font directory and rgb.txt file location:
-# For testing, relative paths are ok, default is local rgb.txt and fonts
-# Modify FONT_DIR_LIST in fontlist.c to add font search directories
-#
+# For testing, relative paths are ok, default is local fonts/rgb.txt
 # For release, full paths are required matching target system locations
 #	X11_RGBTXT=/usr/share/X11/rgb.txt
 #
 X11_RGBTXT=fonts/rgb.txt
 #X11_RGBTXT=/usr/share/X11/rgb.txt
 
-# Xrm routines can be compiled in with INCLUDE_XRM=Y
-# set to Y to include (unmodifed X11) Xrm routines
-#
+# set INCLUDE_XRM=Y to include (unmodifed X11) Xrm routines
 #INCLUDE_XRM=Y
 
 ############################# targets section ################################
@@ -51,6 +53,11 @@ X11_RGBTXT=fonts/rgb.txt
 ifeq ($(NX11), Y)
 LIBNAME = libNX11.a
 LIBNAMESO = libNX11.so
+
+ifneq ($(X11_INCLUDE),)
+INCLUDEDIRS += -I$(X11_INCLUDE)
+endif
+EXTRAFLAGS += -DX11_RGBTXT=\"$(X11_RGBTXT)\"
 
 NXOBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
 	Window.o CrGC.o FreeGC.o StName.o Sync.o Flush.o CrWindow.o\
@@ -69,21 +76,23 @@ NXOBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
 	AllocColor.o ParseColor.o QueryColor.o Colormap.o Colorname.o\
 	Selection.o XMisc.o Free.o stub.o \
 	Request.o Context.o Grab.o Screen.o Extension.o XKB.o Locale.o \
-	Resource.o GetGCVals.o Threads.o IM.o SetWMProto.o FontInfo.o \
+	Resource.o GetGCVals.o Threads.o SetWMProto.o FontInfo.o \
 	GetPntMap.o GetWMProps.o ChSaveSet.o TextToStr.o QueryBest.o
+
+# compile in X extension dummy stubs into NXLIB
+NXOBJS += NXext.o
+
+# incompatible routine: missing real X11/Xlcint.h header on installed X11
+#NXOBJS += IM.o
 
 ifeq ($(INCLUDE_XRM), Y)
 NXOBJS += Quarks.o Xrm.o ParseCmd.o
-xNXOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
+#NXOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
     xrm/lcInit.o xrm/lcGenConv.o xrm/SetLocale.o xrm/lcConv.o xrm/lcUTF8.o \
     xrm/lcDefConv.o xrm/lcPubWrap.o xrm/lcDynamic.o xrm/lcCharSet.o \
     xrm/lcDB.o xrm/lcGeneric.o xrm/lcUtil.o xrm/lcCT.o xrm/lcFile.o \
     xrm/lcPublic.o xrm/lcRM.o xrm/imInt.o
-CFLAGS += -I.
 endif
-
-# comment out the next line to not compile in X extension dummy stubs into NXLIB
-#NXOBJS += NXext.o
 
 OBJS = $(patsubst %.o,$(MW_DIR_OBJ)/$(MW_DIR_RELATIVE)%.o,$(NXOBJS))
 
@@ -94,13 +103,6 @@ endif
 include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
-
-# FIXME these won't work after Makefile.rules include above
-CFLAGS += -I$(MWIN_INCLUDE) -I$(X11_INCLUDE)
-CFLAGS += -DX11_FONT_DIR1=\"$(X11_FONT_DIR1)\"
-CFLAGS += -DX11_FONT_DIR2=\"$(X11_FONT_DIR2)\"
-CFLAGS += -DX11_FONT_DIR3=\"$(X11_FONT_DIR3)\"
-CFLAGS += -DX11_RGBTXT=\"$(X11_RGBTXT)\"
 
 distclean: clean
 	rm -f keysymstr.h

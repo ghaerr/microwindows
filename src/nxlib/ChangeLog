@@ -1,3 +1,9 @@
+2 Jan 2019
+	* renamed nxlib/X11 headers to nxlib/X11-local/X11, no -I., headers are out of date, default now uses installed X11 hdrs
+	* removed IM.c from default nxlib build, missing system X11/Xlcint.h 
+	* added NXext.c to default nxlib build, rewrote to not require any extension headers. Allows removing -lXext entirely.
+1 Jan 2019
+	* rewrote nxlib/Makefile to use internal system. test/ and ptest/ temporarily not building
 29 Jul 2011
 	* support for FLTK 1.3.0
 	* preserve height info when aliasing to scaleable font filename (allows non-XLFD aliases)

@@ -1,6 +1,6 @@
 #include "nxlib.h"
 #include "X11/Xutil.h"
-#include "X11/shape.h"	/* X11/extensions/shape.h*/
+#include "X11/extensions/shape.h"
 
 void
 XShapeCombineMask(Display *dpy, Window dest, int destKind, int xOff, int yOff,

@@ -4,8 +4,15 @@
 
 #include <string.h>
 #include "nxlib.h"
-//#include "Xutil.h"
-#include "X11/Xlcint.h"
+#include "X11/Xlcint.h"		/* this file is missing in some X11 distributions*/
+
+// moved from FontInfo.c to compile with missing Xlcint.h
+XFontSetExtents *XExtentsOfFontSet(XFontSet font_set)
+{
+	//DPRINTF("XExtentsOfFontSet called...\n");
+	if (!font_set) return NULL;
+	return &font_set->core.font_set_extents;
+}
 
 #if 0
 typedef enum {

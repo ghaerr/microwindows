@@ -5,9 +5,6 @@
  * This file must be modified on a per-installation basis.
  */
 #include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-//#include <unistd.h>
 
 /*
  * Default pcf/truetype/type1 font directory list, add directories if desired.

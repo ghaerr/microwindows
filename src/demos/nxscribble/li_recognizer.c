@@ -25,7 +25,7 @@
 #endif
 #include <math.h>
 #include <locale.h>
-#include <hre_internal.h>
+#include "hre_internal.h"
 #include <setjmp.h>
 #include "util.h"
 #include "matrix.h"

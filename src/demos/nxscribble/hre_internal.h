@@ -27,7 +27,7 @@
 
 #define wordset void*
 
-#include <hre.h>
+#include "hre.h"
 
 #undef wordset
 
@@ -280,7 +280,7 @@ initialize_rec_element(rec_element* re,
 #define RECHOME			"RECHOME"
 #define LANG			"LANG"
 
-#include <hre_api_internal.h>
+#include "hre_api_internal.h"
 
 #endif
 

@@ -9,7 +9,7 @@
 
 #define _LI_RECOGNIZER_INTERNAL_H_
 
-#include <hre_internal.h>
+#include "hre_internal.h"
 #include "sc.h"
 
 typedef struct PointList {

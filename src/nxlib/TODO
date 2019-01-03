@@ -1,3 +1,4 @@
+fix TRUECOLORABGR in Image.c
 check min2/min1 byte calc in QueryFont.c with > 255 glyph fonts
 add local fonts for testing into fonts dir
 reorder X11 fonts dir: misc, 100dpi, 75dpi, Type1,

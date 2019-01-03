@@ -1,14 +1,9 @@
 NXLIB build and installation instructions
-Version 0.47, Dec 8, 2010
+Version 0.48, now included in Microwindows source tree in microwindows/src/nxlib/.
 
-1. Modify Makefile to set Microwindows and X11 include and lib directories
-	MWIN_INCLUDE=/pathto/microwin/src/include
-	MWIN_LIB=/pathto/microwin/src/lib
-	X11_INCLUDE=/usr/X11R6/include
-	or, if X11 not installed on cross-compiling host, use nxlib's X11 headers
-	X11_INCLUDE=.
-
-	Microwindows v0.92 or later should be used.
+1. If X11 not installed on host, or nxlib target X11 different than cross-compiling host,
+	or use nxlib's X11 headers.
+	X11_INCLUDE=./X11-local
 
 2. Modify fontlist.c to set X11 PCF and Truetype font search directories
 	Modify FONT_DIR_LIST for search directory list.
@@ -18,32 +13,5 @@ Version 0.47, Dec 8, 2010
 3. Modify Makefile to set X11 rgb.txt file location
 	X11_RGBTXT=/usr/share/X11/rgb.txt
 
-4. Modify Makefile to enable NXLIB shared library and version if required.
-	SHAREDLIB=Y
-	LIBNAME=NX11
-	SOLIBREV=0.47
-	CFLAGS += -DXCONST=_Xconst
-
-	Because of X11 hdr version inconstencies, you may need to set 
-		CFLAGS += -DXCONST=_Xconst  or  CFLAGS += -DXCONST=
-	to compile _Xconst in or out of a couple of function declarations.
-
-5. Type "make".
-	This builds the library using your already-installed X11 headers.
-	If DEBUG = -g, a larger library will be built with debug information.
-	If INCLUDE_XRM=Y, unmodified Xrm database routines will be included.
-
-6. Modify X11 application link lines to use '-lNX11 -lnano-X'.
-	Otherwise you will have to install NXLIB as libX11.so.
-	Change LIBNAME=X11 above, and then set INSTALL_DIR=<path to X11 libraries>.
-	DO NOT "make install" UNTIL YOU BACK UP THE FOLLOWING LIBRARIES.
-	NOTE "make install" WILL BY DEFAULT OVERWRITE THE FOLLOWING FILES:
-
-	/usr/X11R6/lib/libX11.so.*
-	(/usr/X11R6/lib/libX11.so /usr/X11R6/lib/libX11.so.6 /usr/X11R6/lib/libX11.so.6.2)
-
-For more information, visit http://microwindows.org or email <greg@censoft.com>
-
-Have fun!
-
-Greg Haerr
+4. Modify X11 application link lines to use '-lNX11 -lnano-X', and remove '-lXext'.
+	The shell script "replace-lX11.sh" is provided to do this for you.

@@ -18,13 +18,14 @@
 CFLAGS=
 WARNINGS=
 # INCLUDEDIRS is += and EXTRAFLAGS= not here for their use in submakefiles before they include Makefile.rules
-INCLUDEDIRS += -I. -I$(MW_DIR_SRC)/include
+INCLUDEDIRS += -I$(MW_DIR_SRC)/include
 #LDFLAGS = -L$(MW_DIR_LIB)
 LDFLAGS=
 DEFINES=
 HOSTCFLAGS=
 HOSTLDFLAGS=
 MAKEDEPCFLAGS=
+MAKEOPTS=
 
 EXTENGINELIBS=
 MWINLIBS=
@@ -188,6 +189,10 @@ ifeq ($(VERBOSE), N)
 .SILENT:					# silences command executions
 endif
 
+ifeq ($(PARALLEL), Y)
+MAKEOPTS += -j
+endif
+
 ifeq ($(X11), Y)
 DEFINES += -DX11=1
 ifneq ($(X11HDRLOCATION),)
@@ -200,7 +205,6 @@ LDFLAGS += -lX11
 endif
 
 ifeq ($(FBEMULATOR), Y)
-DEFINES += -DX11=1
 ifneq ($(X11HDRLOCATION),)
 HOSTCFLAGS += -I$(X11HDRLOCATION)
 endif
@@ -414,11 +418,12 @@ endif
 # This is the default target
 # It looks for sub-directories with makefiles in it and tries to execute them
 #
+DEFAULTTARGETS = $(MW_DIR_BIN) $(MW_DIR_LIB) subdirs $(MW_DIR_LIB)/$(LIBNAME)
 ifeq ($(SHAREDLIBS), Y)
-default: $(MW_DIR_BIN) $(MW_DIR_LIB) subdirs $(MW_DIR_LIB)/$(LIBNAME) $(MW_DIR_LIB)/$(LIBNAMESO)
-else
-default: $(MW_DIR_BIN) $(MW_DIR_LIB) subdirs $(MW_DIR_LIB)/$(LIBNAME)
+DEFAULTTARGETS += $(MW_DIR_LIB)/$(LIBNAMESO)
 endif
+
+default: $(DEFAULTTARGETS)
 
 # 'dirs' can be pre-specified
 ifeq ($(dirs), )
@@ -455,11 +460,7 @@ endif
 subdirs: $(dirs:%=subdir-%)
 	@# 
 $(dirs:%=subdir-%): makedestdirs
-ifeq ($(PARALLEL), Y)
-	$(MAKE) -j -C $(subst subdir-,,$@)
-else
-	$(MAKE) -C $(subst subdir-,,$@)
-endif
+	$(MAKE) $(MAKEOPTS) -C $(subst subdir-,,$@)
 
 makedestdirs:
 ifeq ($(ARCH), DJGPP)
@@ -487,7 +488,7 @@ $(MW_DIR_LIB)/$(LIBNAME): $(OBJS) $(CXXOBJS)
 endif
 
 #
-# If a shared object library name is specified, link this object
+# If a shared object library name is specified, create it from OBJS
 #
 ifeq ($(SHAREDLIBS), Y)
 ifneq ($(LIBNAMESO),)		# stop circular dependecy when no LIBNAMESO in current Makefile
@@ -520,7 +521,6 @@ $(MW_DIR_BIN) $(MW_DIR_LIB):
 # Note that on error, this rule removes the (incomplete) .d file, and
 # also removes the .o file so that the rule will be run again next
 # time the user runs make.
-# FIXME CREATES CIRCULAR DEPENDENCY
 define MW_RULE_DEPEND_C
 	$(HOSTCC) -MM $(MAKEDEPCFLAGS) $(DEFINES) $< \
 		| sed 's/.*\.o[ :]*/$(subst /,\/,$@) : /g' \
@@ -657,6 +657,7 @@ endif
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(nxlib), $(MAKE) -C $(dir) clean;)
+	-rm -f /tmp/.nano-X
 
 # avoid multiple calls to clean FIXME
 ifneq ("$(wildcard contrib/TinyWidgets/lib/*.a)","")
@@ -669,45 +670,24 @@ cleanusr:
 	-rm -f /usr/bin/nanowm
 	-rm -f /usr/lib/libnano-X.a
 	-rm -f /usr/lib/libnano-X.so
-
+	-rm -f /usr/lib/libNX11.a
+	-rm -f /usr/lib/libNX11.so
 	-rm -f /usr/lib/libmwengine.a
 	-rm -f /usr/lib/libmwengine.so
 	-rm -f /usr/lib/libmwimages.a
 	-rm -f /usr/lib/libmwimages.so
 	-rm -f /usr/lib/libmwin.a
 	-rm -f /usr/lib/libmwin.so
-	
-	-rm -f /usr/lib/libNX11.a
-	-rm -f /usr/lib/libNX11.so
-	-rm -f /usr/lib/libNX11.so.0	
-	-rm -f /usr/lib/libPX11.a
-	-rm -f /usr/lib/libPX11.so
-	-rm -f /usr/lib/libPX11.so.0	
-	-rm -f /usr/lib/libNXext.a
-	-rm -f /usr/lib/libNXext.so
-	-rm -f /usr/lib/libNXext.so.0	
-
 	-rm -f /usr/lib64/libnano-X.a
 	-rm -f /usr/lib64/libnano-X.so
-
+	-rm -f /usr/lib64/libNX11.a
+	-rm -f /usr/lib64/libNX11.so
 	-rm -f /usr/lib64/libmwengine.a
 	-rm -f /usr/lib64/libmwengine.so
 	-rm -f /usr/lib64/libmwimages.a
 	-rm -f /usr/lib64/libmwimages.so
 	-rm -f /usr/lib64/libmwin.a
 	-rm -f /usr/lib64/libmwin.so
-
-	-rm -f /usr/lib64/libNX11.a
-	-rm -f /usr/lib64/libNX11.so
-	-rm -f /usr/lib64/libNX11.so.0
-	-rm -f /usr/lib64/libPX11.a
-	-rm -f /usr/lib64/libPX11.so
-	-rm -f /usr/lib64/libPX11.so.0	
-	-rm -f /usr/lib64/libNXext.a
-	-rm -f /usr/lib64/libNXext.so
-	-rm -f /usr/lib64/libNXext.so.0	
-	#avoid "Cannot bind to named socket" error - see faq.html
-	-rm -f /tmp/.nano-X
 	-rm -f /usr/lib/libtnW.a
 	
 # install directories for headers and libraries
@@ -747,19 +727,13 @@ install:
 ifeq ($(SHAREDLIBS), Y)
 	echo "Copying shared libs to $(LIBINSTALLDIR)"
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)
-	# copy logical links
-	echo "Copying logical links to $(LIBINSTALLDIR)"; 
-	-$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR) 2>/dev/null; 
 	#if 64bit system, install in /usr/lib64 too and copy logical links
 	if [ -d "$(LIBINSTALLDIR)64" ]; then \
 	echo "Copying shared libs to $(LIBINSTALLDIR)64"; \
 	$(INSTALL_LIB) $(MW_DIR_LIB)/*.so $(LIBINSTALLDIR)64; \
 	fi
-	# copy logical links
-	echo "Copying logical links to $(LIBINSTALLDIR)64"; 
-	-$(CP) -d $(MW_DIR_LIB)/*.so.* $(LIBINSTALLDIR)64 2>/dev/null; 
 else
-	rm -f $(LIBINSTALLDIR)/nano-X.so
+	-rm -f $(LIBINSTALLDIR)/nano-X.so
 	-rm -f $(LIBINSTALLDIR)64/nano-X.so
 endif
 ifeq ($(NANOX), Y)
@@ -769,10 +743,10 @@ ifeq ($(LINK_APP_INTO_SERVER), N)
 	$(INSTALL_BIN) $(MW_DIR_BIN)/nano-X $(BININSTALLDIR)
 	
 else # ==($(LINK_APP_INTO_SERVER), Y)
-	rm -f $(BININSTALLDIR)/nano-X
+	-rm -f $(BININSTALLDIR)/nano-X
 endif
 else # ==($(NANOX), N)
-	rm -f $(BININSTALLDIR)/nano-X
+	-rm -f $(BININSTALLDIR)/nano-X
 endif
 	echo "Installation completed successfully."
 

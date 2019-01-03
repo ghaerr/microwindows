@@ -62,8 +62,11 @@ int XkbLibraryVersion() { DPRINTF("XkbLibraryVersion called\n"); return 0; }
 int XGetKeyboardControl() { DPRINTF("XGetKeyboardControl called\n"); return 0; } 
 //int XShmQueryExtension() { DPRINTF("XShmQueryExtension called\n"); return 0; } 
 int XShmAttach() { DPRINTF("XShmAttach called\n"); return 0; } 
+int XShmDetach() { DPRINTF("XShmDetach called\n"); return 0; }
 int XShmCreateImage() { DPRINTF("XShmCreateImage called\n"); return 0; } 
+int XShmCreatePixmap () {DPRINTF("XShmCreatePixmap called\n"); return 0; }
 int XShmPutImage() { DPRINTF("XShmPutImage called\n"); return 0; } 
+int XShmGetImage() { DPRINTF("XShmGetImage called\n"); return 0; }
 
 /* required for Xforms toolkit */
 int XGetStandardColormap() { DPRINTF("XGetStandardColormap called\n"); return 0; }

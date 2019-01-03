@@ -1,8 +1,6 @@
 #include <stdio.h>
 
-#define SHOWSTUBS 0		/* just show called stubs, no additional debug messages */
-
-#if DEBUG | SHOWSTUBS
+#if DEBUG | 0
 #define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
 #else
 #define DPRINTF(str, ...)									  /* no debug output*/
@@ -21,14 +19,19 @@ int XRecolorCursor() { DPRINTF("XRecolorCursor called\n"); return 0; }
 int XListExtensions() { DPRINTF("XListExtensions called\n"); return 0; } 
  	
 /* required for FLTK 1.3.3 */
-//int XGetPointerControl(Display *display, int *accel_numerator_return, int *accel_denominator_return, int *threshold_return) { DPRINTF("XGetPointerControl called\n"); return 0; }
 int XGetPointerControl() { DPRINTF("XGetPointerControl called\n"); return 0; }
 int XChangePointerControl() { DPRINTF("XChangePointerControl called\n"); return 0; } 
-
 int XDefaultGC() { DPRINTF("XDefaultGC called\n"); return 0; }
 int XkbGetIndicatorState() { DPRINTF("XkbGetIndicatorState called\n"); return 0; }
 int XScreenOfDisplay() { DPRINTF("XScreenOfDisplay called\n"); return 0; } 
 
+/* required for FLTK 1.3.4 (also must #define USE_XRANDR 0 in FLTK src*/
+int XFixesQueryExtension() { DPRINTF("XFixesQueryExtension called\n"); return 0; }
+int XFixesSelectSelectionInput() { DPRINTF("XFixesSelectSelectionInput called\n"); return 0; }
+/* following in IM.c but here until it compiles*/
+int XOpenIM() { DPRINTF("XOpenIM called\n"); return 0; }
+int XCloseIM() { DPRINTF("XCloseIM called\n"); return 0; }
+int XCreateIC() { DPRINTF("XCreateIC called\n"); return 0; }
 
 /* required for gtk+ 1.2.7*/
 int XAutoRepeatOn() { DPRINTF("XAutoRepeatOn called\n"); return 0; } 
@@ -166,14 +169,11 @@ int XStoreColors() { DPRINTF("XStoreColors called\n"); return 0; }
 int _XUnknownNativeEvent() { DPRINTF("_XUnknownNativeEvent called\n"); return 0; }
 int Xutf8LookupString() { DPRINTF("Xutf8LookupString called\n"); return 0; }
 
-//int XCreateIC() { DPRINTF("XCreateIC called\n"); return 0; } 
+/* also in IM.c*/
 int XDestroyIC() { DPRINTF("XDestroyIC called\n"); return 0; } 
 int XSetICFocus() { DPRINTF("XSetICFocus called\n"); return 0; } 
 int XSetICValues() { DPRINTF("XSetICValues called\n"); return 0; } 
 int XUnsetICFocus() { DPRINTF("XUnsetICFocus called\n"); return 0; } 
-
-//int XOpenIM() { DPRINTF("XOpenIM called\n"); return 0; } 
-//int XCloseIM() { DPRINTF("XCloseIM called\n"); return 0; } 
 int XGetIMValues() { DPRINTF("XGetIMValues called\n"); return 0; } 
 int XSetIMValues() { DPRINTF("XSetIMValues called\n"); return 0; } 
 int XRegisterIMInstantiateCallback() { DPRINTF("XRegisterIMInstantiateCallback called\n"); return 0; } 
@@ -181,16 +181,10 @@ int XUnregisterIMInstantiateCallback() { DPRINTF("XUnregisterIMInstantiateCallba
 int XIMOfIC() { DPRINTF("XIMOfIC called\n"); return 0; }
 //int XLocaleOfIM() { DPRINTF("XLocaleOfIM called\n"); return 0; }
 
-// required for xine
-int XResetScreenSaver() { printf("XResetScreenSaver called\n"); return 0; }
-// required for wine
-int XGetScreenSaver() { printf("XGetScreenSaver called\n"); return 0; }
-int XSetScreenSaver() { printf("XSetScreenSaver called\n"); return 0; }
-// required for gmplayer
-int _XDefaultError(/*Display *dpy, XErrorEvent *event*/)
-{
-	//if (_XPrintDefaultError(dpy, event, stderr) == 0) return 0;
-	//exit(1);
-	printf("_XDefaultError called\n");
-	return 0;
-}
+/* required for xine*/
+int XResetScreenSaver() { DPRINTF("XResetScreenSaver called\n"); return 0; }
+/* required for wine*/
+int XGetScreenSaver() { DPRINTF("XGetScreenSaver called\n"); return 0; }
+int XSetScreenSaver() { DPRINTF("XSetScreenSaver called\n"); return 0; }
+/* required for gmplayer*/
+int _XDefaultError() { DPRINTF("_XDefaultError called\n"); return 0; }

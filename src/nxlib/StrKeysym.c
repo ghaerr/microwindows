@@ -286,8 +286,11 @@ XRefreshKeyboardMapping(XMappingEvent* event)
 
 /* translate keycode to KeySym, no control/shift processing*/
 /* no international keyboard support */
-KeySym
-XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
+#if NeedWidePrototypes
+KeySym XKeycodeToKeysym(Display *dpy, unsigned int kc, int index)
+#else
+KeySym XKeycodeToKeysym(Display *dpy, KeyCode kc, int index)
+#endif
 {
 	//DPRINTF("XKeycodeToKeysym called\n");
 	int	i;

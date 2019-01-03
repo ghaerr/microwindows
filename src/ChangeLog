@@ -1,4 +1,5 @@
 2 Jan 2019
+	* added more to nxlib/stubs.c for FLTK 1.3.4 on Ubuntu compile
 	* renamed nxlib/X11 headers to nxlib/X11-local/X11, no -I., headers are out of date, default now uses installed X11 hdrs
 	* removed IM.c from default nxlib build, missing system X11/Xlcint.h 
 	* added NXext.c to default nxlib build, rewrote to not require any extension headers. Allows removing -lXext entirely.

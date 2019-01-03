@@ -25,8 +25,11 @@ int XDisplayKeycodes(Display *dpy,
 	return 1;
 }
 
-KeySym *XGetKeyboardMapping(Display *dpy, /*KeyCode*/unsigned int first_keycode,
-	int count, int *keysyms_per_keycode)
+#if NeedWidePrototypes
+KeySym *XGetKeyboardMapping(Display *dpy, unsigned int first_keycode, int count, int *keysyms_per_keycode)
+#else
+KeySym *XGetKeyboardMapping(Display *dpy, KeyCode first_keycode, int count, int *keysyms_per_keycode)
+#endif
 {
 	int kc = first_keycode;
 	KeySym *p, *ks = Xcalloc(1, count);

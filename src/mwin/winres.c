@@ -521,7 +521,7 @@ resNextDlgItem(PMWDLGITEMTEMPLATE pItem)
  */
 BYTE *
 resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle,
-	int x, int y, int cx, int cy, LPSTR menu, LPSTR class, int cdit)
+	int x, int y, int cx, int cy, LPSTR menu, LPSTR classname, int cdit)
 {
 	DLGTEMPLATE *dialog = (DLGTEMPLATE *)dest;
 	WORD *extra;
@@ -535,8 +535,8 @@ resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle
 	dialog->cdit = (WORD)cdit;
 
 	extra = (WORD *)(((BYTE *)dialog) + FIXSZ_MWDLGTEMPLATE);
-	*extra++ = (WORD)menu;	// OK: No string menus yet, menu id always passed as WORD.
-	*extra++ = (WORD)class;	// OK: No string classes yet, class id always passed as WORD.
+	*extra++ = (WORD)menu;		// OK: No string menus yet, menu id always passed as WORD.
+	*extra++ = (WORD)classname;	// OK: No string classes yet, class id always passed as WORD.
 	if (caption)
 		while (*caption)
 			*extra++ = (WORD)*caption++;
@@ -549,7 +549,7 @@ resDialogTemplate(BYTE *dest, LPCSTR caption, DWORD style, DWORD dwExtendedStyle
 
 BYTE *
 resDialogItemTemplate(BYTE *dest, DWORD style, DWORD dwExtendedStyle, int id,
-		int x, int y, int cx, int cy, int class, LPCSTR data)
+		int x, int y, int cx, int cy, int classname, LPCSTR data)
 {
 	DLGITEMTEMPLATE *item = (DLGITEMTEMPLATE *)dest;
 	WORD *extra;
@@ -564,7 +564,7 @@ resDialogItemTemplate(BYTE *dest, DWORD style, DWORD dwExtendedStyle, int id,
 
 	extra = (WORD *)(((BYTE *)item) + FIXSZ_MWDLGITEMTEMPLATE);
 	*extra++ = 0xFFFF;
-	*extra++ = (WORD)class;	// no string classes yet
+	*extra++ = (WORD)classname;	// no string classes yet
 	if (data)
 		while (*data)
 			*extra++ = (WORD)*data++;

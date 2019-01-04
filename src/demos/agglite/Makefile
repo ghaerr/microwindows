@@ -33,8 +33,8 @@ ifeq ($(NANOXDEMO), Y)
 LIBNAME =
 
 # List of objects to compile
-OBJS := $(MW_DIR_OBJ)/demos/agglite/nxaggdemo.o 
-CXXOBJS := $(MW_DIR_OBJ)/demos/agglite/agglite.o
+CXXOBJS := $(MW_DIR_OBJ)/demos/agglite/agglite.o \
+	$(MW_DIR_OBJ)/demos/agglite/nxaggdemo.o 
 
 TARGET = $(MW_DIR_BIN)/nxaggdemo
 
@@ -51,5 +51,4 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 $(MW_DIR_BIN)/nxaggdemo: $(OBJS) $(CXXOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	echo $(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
 	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) $(CXXOBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)

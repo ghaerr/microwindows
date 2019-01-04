@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <limits.h>
-#if !MACOSX
+#if LINUX
 #include <linux/fb.h>
 #include <linux/kd.h>
 #include <linux/vt.h>
@@ -65,7 +65,9 @@ SCREENDEVICE	scrdev = {
 	NULL				/* PreSelect*/
 };
 
-#if MACOSX
+#if !LINUX
+/* define linux structures and create framebuffer from defaults without ioctl*/
+/* FIXME nanox/clientfb.c direct framebuffer needs access to this*/
 #define FB_TYPE_PACKED_PIXELS	0	/* Packed Pixels*/
 #define FB_TYPE_PLANES		1	/* Non interleaved planes*/
 #define FB_TYPE_VGA_PLANES	4	/* EGA/VGA planes*/

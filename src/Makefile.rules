@@ -202,6 +202,8 @@ ifneq ($(X11LIBLOCATION),)
 LDFLAGS += -L$(X11LIBLOCATION)
 endif
 LDFLAGS += -lX11
+# the following used instead of -lX11 to resolve X11 apps linked using -lNX11 but standalone -lnano-X on X11!
+#LDFLAGS += libX11.a -Wl,-Bsymbolic		# local resolution of X11 symbols requires linked in .a on LINUX
 endif
 
 ifeq ($(FBEMULATOR), Y)
@@ -338,11 +340,20 @@ endif
 ##############################################################################
 
 # mwin API apps
-MWINLIBS += $(MW_DIR_LIB)/libmwin.a $(MW_DIR_LIB)/libmwimages.a
+ifeq ($(SHAREDLINK), Y)
+MWINLIBS += $(MW_DIR_LIB)/libmwin.so
+else
+MWINLIBS += $(MW_DIR_LIB)/libmwin.a
+endif
+MWINLIBS += $(MW_DIR_LIB)/libmwimages.a
 LDFLAGS += $(EXTENGINELIBS) $(LIBM)
 
-# nanox API apps use .a even when link_app_into_server
+# FIXME nanox API apps use .a even when link_app_into_server
+ifeq ($(SHAREDLINK), Y)
+NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.so
+else
 NANOXCLIENTLIBS += $(MW_DIR_LIB)/libnano-X.a
+endif
 
 # standalone apps require external engine libs
 ifeq ($(LINK_APP_INTO_SERVER), Y)
@@ -673,9 +684,7 @@ cleanusr:
 	-rm -f /usr/lib/libNX11.a
 	-rm -f /usr/lib/libNX11.so
 	-rm -f /usr/lib/libmwengine.a
-	-rm -f /usr/lib/libmwengine.so
 	-rm -f /usr/lib/libmwimages.a
-	-rm -f /usr/lib/libmwimages.so
 	-rm -f /usr/lib/libmwin.a
 	-rm -f /usr/lib/libmwin.so
 	-rm -f /usr/lib64/libnano-X.a
@@ -683,9 +692,7 @@ cleanusr:
 	-rm -f /usr/lib64/libNX11.a
 	-rm -f /usr/lib64/libNX11.so
 	-rm -f /usr/lib64/libmwengine.a
-	-rm -f /usr/lib64/libmwengine.so
 	-rm -f /usr/lib64/libmwimages.a
-	-rm -f /usr/lib64/libmwimages.so
 	-rm -f /usr/lib64/libmwin.a
 	-rm -f /usr/lib64/libmwin.so
 	-rm -f /usr/lib/libtnW.a

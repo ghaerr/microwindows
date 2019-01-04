@@ -20,7 +20,7 @@ ifeq ($(MICROWIN), Y)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME = libmwimages.a
-LIBNAMESO = libmwimages.so
+LIBNAMESO =
 
 # List of objects to compile
 OBJS := \

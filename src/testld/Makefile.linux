@@ -1,0 +1,40 @@
+# LINUX version
+# demonstration of linking with same symbol name "x1"
+#
+# main -> x1() -> nx1() -> "real" x1();
+#
+
+all: clean main
+
+clean:
+	-rm -f *.o *.so *.a main
+
+CFLAGS=-fpic
+RPATH=-Wl,-rpath=`pwd`
+LDFLAGS=-shared $(RPATH)
+NM=ldd
+
+# main is linked with "wrapper" x1 (APP)
+main: x1.so
+	cc $(CFLAGS) -c main.c
+	cc $(RPATH) main.c -o main x1.so
+	$(NM) main
+
+# x1 wrapper calls nx1 (NXLIB)
+x1.so: nx1.so
+	cc $(CFLAGS) -c x1.c
+	cc $(LDFLAGS) x1.o -o x1.so nx1.so
+	$(NM) x1.so
+
+# nx1 implementation calls real x1 (NXSTANDALONE = libnano-X.so w/LINK_APP_INTO_SERVER=Y)
+# -Bsymbolic causes dynamic loader to resolve extern symbols locally first (to internal static realx1)
+nx1.so: realx1.a realx1.o
+	cc $(CFLAGS) -c nx1.c
+	cc $(LDFLAGS) -Wl,-Bsymbolic nx1.o realx1.a -o nx1.so
+	$(NM) nx1.so
+
+# the real x1 (X11)
+# must have STATIC version available for linking with nx1.so
+realx1.a:
+	cc $(CFLAGS) -c realx1.c -o realx1.o
+	ar r realx1.a realx1.o

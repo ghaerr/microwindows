@@ -5,7 +5,7 @@
  */
 
 #define MWINCLUDECOLORS
-#include <mwobjects.h>
+#include "mwobjects.h"
 #include <iostream>
 
 extern MWIMAGEHDR image_microwin;

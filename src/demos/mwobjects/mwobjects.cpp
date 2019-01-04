@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <stdarg.h>
 #include <stdio.h>
-#include <mwobjects.h>
+#include "mwobjects.h"
 
 namespace MicroWindowsObjects
 {

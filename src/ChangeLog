@@ -1,3 +1,7 @@
+3 Jan 2019
+	* added src/testld to show method of linking X11 apps with standalone nxlib on X11 with duplicate X11 syms
+	* added SHAREDLINK=Y config option to link with shared libmwin.so or libnano-X.so (use with SHAREDLIBS=Y)
+	* removed OBJFRAMEWORK from config, moved mwobjects.* to demos/mwobjects (all out of date)
 2 Jan 2019
 	* added more to nxlib/stubs.c for FLTK 1.3.4 on Ubuntu compile
 	* renamed nxlib/X11 headers to nxlib/X11-local/X11, no -I., headers are out of date, default now uses installed X11 hdrs
@@ -8,7 +12,7 @@
 	* rewrote nxlib/Makefile to use internal system. test/ and ptest/ temporarily not building
 	* more build and library cleanup, removed INC=. defaults in config to fix -I. generated
 	* removed CCNANOXCLIENTLIBS, CCMWINLIBS, cleaned up links to use only MWINLIBS and NANOXCLIENTLIBS
-	* SHAREDLIBS=Y builds lib/*.so but only uses lib/*.a for app linking
+	* SHAREDLIBS=Y builds lib/*.so but only uses lib/*.a for app linking (fixed Jan 3 above)
 	* fixed circular make dependency bug
 	* fixed OSX dynamic library creation
 30 Dec 2018

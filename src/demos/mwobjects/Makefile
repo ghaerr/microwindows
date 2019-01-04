@@ -29,7 +29,13 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
-ifeq ($(OBJFRAMEWORK), Y)
+ifeq ($(__DEPRECATED), Y)
+
+# If you want to create a library with the objects files, define the name here
+LIBNAME =
+
+# List of objects to compile
+CXXOBJS :=	$(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o
 
 all: default $(MW_DIR_BIN)/mwo-test
 
@@ -41,9 +47,6 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-CCMWINLIBS = -lmwobjects -lmwin -lmwimages -lm
-
-$(MW_DIR_BIN)/mwo-test: $(MW_DIR_OBJ)/demos/mwobjects/mwo-test.o
+$(MW_DIR_BIN)/mwo-test: $(CXXOBJS) $(MWINLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CXX) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(CCMWINLIBS)
-
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(CXXOBJS) -o $@ $(MWINLIBS) $(LDFLAGS)

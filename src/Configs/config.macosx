@@ -16,6 +16,7 @@
 ####################################################################
 ARCH                     = MACOSX
 SHAREDLIBS               = Y
+SHAREDLINK               = N
 #EXTRAFLAGS               = -Wall -Wno-missing-prototypes
 DEBUG                    = N
 OPTIMIZE                 = Y
@@ -44,7 +45,7 @@ KEYBOARD                 = TTYKBD
 
 ####################################################################
 #
-# Libraries to build: microwin, nano-X, nxlib, engine, object frameworks
+# Libraries to build: microwin, nano-X, nxlib, engine
 #
 ####################################################################
 MICROWIN                 = Y
@@ -52,7 +53,6 @@ NANOX                    = Y
 NX11                     = Y
 ENGINE                   = Y
 TINYWIDGETS              = Y
-OBJFRAMEWORK             = N
 
 ####################################################################
 #
@@ -68,8 +68,10 @@ LIBVNC                   = -lvncserver
 INCVNC                   =
 
 ####################################################################
-# LINK_APP_INTO_SERVER links the nano-X application into the server.
-# Required if UNIX sockets aren't available or for debugging.
+# LINK_APP_INTO_SERVER links the nano-X server into the application,
+# by building a libnano-X.{a,so} that runs standalone.
+# Required if UNIX sockets aren't available, for debugging,
+# and also used to support running X11 apps through NXLIB on X11.
 # NANOWM links the window manager into the server.
 ####################################################################
 LINK_APP_INTO_SERVER     = N

@@ -48,6 +48,10 @@ OBJS := \
 OBJS += $(NANOWMOBJS)
 
 ifeq ($(LINK_APP_INTO_SERVER), Y)
+#
+# LINK_APP_INTO_SERVER doesn't build bin/nano-X because the files are compiled with -DNONETWORK=1
+# Instead, only the nano-X.a/.so is built, which links the Gr routines directly into the library
+#
 OBJS += $(NANOXFILES)
 else
 
@@ -85,7 +89,7 @@ ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 NANOXSERVERLIBS += $(LIBVNC) $(LIBJPEG) $(LIBZ)
 endif 
 
-endif
+endif # LINK_APP_INTO_SERVER
 
 ######################### Makefile.rules section #############################
 

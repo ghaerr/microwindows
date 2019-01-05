@@ -7,14 +7,14 @@
 ifndef MW_DIR_SRC
 MW_DIR_SRC := $(CURDIR)/..
 endif
-MW_DIR_RELATIVE := nxlib/
+MW_DIR_RELATIVE := nx11/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
 #
 # NXLIB Makefile
 #
-EXTRAFLAGS += -Wno-missing-prototypes			# nxlib/*.c needs cleaning up
+EXTRAFLAGS += -Wno-missing-prototypes			# nx11/*.c needs cleaning up
 EXTRAFLAGS += -Wno-incompatible-pointer-types	# for Image.c
 EXTRAFLAGS += -Wno-deprecated-declarations		# for XKeycodeToKeysym
 

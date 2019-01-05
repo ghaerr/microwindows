@@ -105,7 +105,7 @@ endif
 #or use fprintf(stdout,"foo\n");
 DEBUG= N
 
-#show stubs called in nxlib
+#show stubs called in nx11
 SHOWSTUBS= N
 
 #add -g flag for GDB
@@ -234,7 +234,7 @@ CFLAGS += -DERASEMOVE=1
 CFLAGS += -DHAVE_MMAP=0
 
 #link in window manager - decorate windows and color background
-#needed for nanowm and better for nxlib
+#needed for nanowm and better for nx11
 CFLAGS += -DNANOWM=1
 
 #set to 1 for BMP SUPPORT
@@ -352,10 +352,10 @@ endif
 
 ALL += drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a nanox/libnano-X.a 
 ifeq ($(EMSCRIPTEN), Y)
-ALL += nxlib/libNX11.a
-ALL += nxlib/libPX11.a
+ALL += nx11/libNX11.a
+ALL += nx11/libPX11.a
 else
-ALL += nxlib/libNX11.a
+ALL += nx11/libNX11.a
 endif
 
 ifdef MICROWIN
@@ -545,13 +545,13 @@ endif
 #	$(CC) $(CFLAGS) -o bin/hello.html demos/nanox/hello.c lib/libnano-X.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/hello.html demos/test/hello.c lib/libnano-X.a  $(EMTERPRET)	
 	$(CC) $(CFLAGS) -o bin/grabdemo.html demos/nanox/grabdemo.c lib/libnano-X.a $(EMTERPRET)
-#	$(CC) $(CFLAGS) -o bin/testarc.html nxlib/test/testarc.c lib/libPX11.a  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/xhello.html nxlib/test/xhello.c lib/libPX11.a  $(EMTERPRET)
-#	$(CC) $(CFLAGS) -o bin/xmouse.html nxlib/test/xmouse.c lib/libPX11.a  $(EMTERPRET)
-#	$(CC) $(CFLAGS) -o bin/xgreen.html nxlib/test/xgreen.c lib/libNX11.a lib/libnano-X.a $(EMTERPRET)
-#	$(CC) $(CFLAGS) -o bin/draw.html nxlib/test/draw.c lib/libPX11.a  $(EMTERPRET)
-#	$(CC) $(CFLAGS) -o bin/williams.html nxlib/test/williams.c lib/libPX11.a  $(EMTERPRET)
-#	strace $(CC) $(CFLAGS) -o bin/xhello.html nxlib/test/xhello.c lib/libNX11.a lib/libnano-X.a >~/microwindows-em/src/strace.log  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/testarc.html contrib/nx11-test/testarc.c lib/libPX11.a  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/xhello.html contrib/nx11-test/xhello.c lib/libPX11.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/xmouse.html contrib/nx11-test/xmouse.c lib/libPX11.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/xgreen.html contrib/nx11-test/xgreen.c lib/libNX11.a lib/libnano-X.a $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/draw.html contrib/nx11-test/draw.c lib/libPX11.a  $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/williams.html contrib/nx11-test/williams.c lib/libPX11.a  $(EMTERPRET)
+#	strace $(CC) $(CFLAGS) -o bin/xhello.html contrib/nx11-test/xhello.c lib/libNX11.a lib/libnano-X.a >~/microwindows-em/src/strace.log  $(EMTERPRET)
 
 X11prog:
 	echo "Compiling testprograms for X11"
@@ -565,8 +565,8 @@ X11prog:
 	$(CC) $(CFLAGS) -o bin/arcdemo demos/nanox/arcdemo.c lib/libnano-X.a -L/usr/X11R6/lib -lX11
 #	-Llib/libnano-X.a
 #	$(CC) $(CFLAGS) -o bin/grabdemo.exe demos/nanox/grabdemo.c $(NANOLIBS)	
-	$(CC) $(CFLAGS) -o bin/xgreen nxlib/test/xgreen.c lib/libnano-X.a lib/libNX11.a -L/usr/X11R6/lib -lX11
-	$(CC) $(CFLAGS) -o bin/xmouse nxlib/test/xmouse.c lib/libPX11.a -L/usr/X11R6/lib -lX11
+	$(CC) $(CFLAGS) -o bin/xgreen contrib/nx11-test/xgreen.c lib/libnano-X.a lib/libNX11.a -L/usr/X11R6/lib -lX11
+	$(CC) $(CFLAGS) -o bin/xmouse contrib/nx11-test/xmouse.c lib/libPX11.a -L/usr/X11R6/lib -lX11
 ##################### clean ###################################
 ifeq ($(MINGW), Y)
 clean:
@@ -589,7 +589,7 @@ clean:
 	-rm bin/*.pgm 2>/dev/null
 #	-rm -rf bin/fonts/ 2>/dev/null
 	-rm mwin/bmp/*.exe 2>/dev/null
-	-$(MAKE) -C nxlib clean
+	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
 endif
 
@@ -609,8 +609,8 @@ clean:
 	-del bin\*.ppm
 	-del bin\*.pgm  
 #	-rm -rf bin\fonts
-	-del nxlib\*.o
-	-$(MAKE) -C nxlib clean
+	-del nx11\*.o
+	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
 endif
 
@@ -637,7 +637,7 @@ clean:
 	-rm bin/*.pgm 2>/dev/null
 #	-rm -rf bin/fonts/ 2>/dev/null
 #	-rm mwin/bmp/*.exe 2>/dev/null
-	-$(MAKE) -C nxlib clean
+	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, bin/*.html, bin/*.mem and bin/*.js files"
 endif
 
@@ -662,7 +662,7 @@ clean:
 	-rm bin/*.pgm 2>/dev/null
 #	-rm -rf bin/fonts/ 2>/dev/null
 #	-rm mwin/bmp/*.exe 2>/dev/null
-	-$(MAKE) -C nxlib clean
+	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, bin/*.* files"
 endif
 
@@ -713,14 +713,14 @@ mwin/bmp/libimages.a:
 	echo "Generating $@"  
 	$(MAKE) -C mwin/bmp -f ../../contrib/makefiles_nr/Makefile-bmp
 
-nxlib/libNX11.a:
+nx11/libNX11.a:
 	echo "Generating $@"
 ifeq ($(EMSCRIPTEN), N)	
-	$(MAKE) -C nxlib
+	$(MAKE) -C nx11
 else	
-	$(MAKE) -C nxlib -f ../contrib/makefiles_nr/Makefile-nx11
+	$(MAKE) -C nx11 -f ../contrib/makefiles_nr/Makefile-nx11
 endif	
 	
-nxlib/libPX11.a:	
+nx11/libPX11.a:	
 	echo "Generating $@"
-	$(MAKE) -C nxlib -f ../contrib/makefiles_nr/Makefile-px11
+	$(MAKE) -C nx11 -f ../contrib/makefiles_nr/Makefile-px11

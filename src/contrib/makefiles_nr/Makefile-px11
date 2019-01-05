@@ -1,4 +1,4 @@
-# Micro-Windows makefile to generate object files in nxlib folder
+# Micro-Windows makefile to generate object files in nx11 folder
 # to link these to libPX11.a in separate makefile
 
 LIB=libPX11.a
@@ -39,7 +39,7 @@ CFLAGS = -DX11_RGBTXT=\"/usr/share/X11/rgb.txt\"
 #endif
 
 $(LIB): $(OBJS)
-	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(MW_DIR_SRC)/nanox/*.o $(MW_DIR_SRC)/nxlib/*.o
+	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(MW_DIR_SRC)/nanox/*.o $(MW_DIR_SRC)/nx11/*.o
 
 $(OBJS):%.o: %.c
 	emcc $(CFLAGS) -c -o $@ $< 

@@ -674,7 +674,7 @@ endif
 	done
 	$(foreach dir, $(dirs), $(MAKE) -C $(dir) clean;)
 	$(foreach dir, $(demos), $(MAKE) -C $(dir) clean;)
-	$(foreach dir, $(nxlib), $(MAKE) -C $(dir) clean;)
+#	$(foreach dir, $(nx11), $(MAKE) -C $(dir) clean;)
 	-rm -f /tmp/.nano-X
 
 # avoid multiple calls to clean FIXME

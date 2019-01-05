@@ -59,8 +59,8 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         /*case WM_MOUSEFIRST:*/
                 hdc=BeginPaint(hwnd,&ps);
                 GetClientRect(hwnd,&rect);
-                DrawText(hdc, " Hello, friends! ", -1, &rect,
-                         DT_SINGLELINE|DT_CENTER|DT_VCENTER);
+				SetBkMode(hdc, TRANSPARENT);
+                DrawText(hdc, " Hello, friends! ", -1, &rect, DT_SINGLELINE|DT_CENTER|DT_VCENTER);
                 EndPaint(hwnd,&ps);
                 break;
         case WM_DESTROY:

@@ -425,7 +425,7 @@ endif
 
 #define mwin demo programs
 MTARGETS1 := mwalpha mwtest mwtest2 mwdemo mwstretch
-#MTARGETS1 += mwterm mine mwuserfd # not working in DOS
+#MTARGETS1 += mwterm mwmine mwuserfd # not working in DOS
 MTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(MTARGETS1))
 MTARGETS := $(addsuffix .exe,$(MTARGETS2))
 

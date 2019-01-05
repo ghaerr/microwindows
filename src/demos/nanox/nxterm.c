@@ -1125,7 +1125,7 @@ term(void)
 	if (prog_to_start[0]) {
 		//enter program name from command line plus newline to call it now
 		//printf("prog_to_start:%s,len:%d\n",prog_to_start,strlen(prog_to_start));
-		write(pipeh,prog_to_start,strlen(prog_to_start));
+		(void)write(pipeh,prog_to_start,strlen(prog_to_start));
 	}
 
 	while (42) {
@@ -1157,7 +1157,7 @@ term(void)
 				bufflen = 1;
 			}
 			if( bufflen > 0)
-				write(pipeh, buf, bufflen);
+				(void)write(pipeh, buf, bufflen);
 #if debug_kbd
 	printf("key-out:%X,%X,bufflen:%d\n",buf[0],buf[1],bufflen);
 #endif
@@ -1185,7 +1185,7 @@ term(void)
 
 		case GR_EVENT_TYPE_EXPOSURE:
 			//screen is empty otherwise - so this workaround
-		        write(pipeh,"clear\n",strlen("clear\n"));
+		    (void)write(pipeh,"clear\n",strlen("clear\n"));
 			break;
 
 		case GR_EVENT_TYPE_FDINPUT:

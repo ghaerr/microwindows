@@ -345,7 +345,7 @@ do_keystroke(GR_EVENT_KEYSTROKE *kp)
 	char foo;
 
 	foo = kp->ch;
-	write(tfdMaster, &foo, 1);
+	(void)write(tfdMaster, &foo, 1);
 }
 
 

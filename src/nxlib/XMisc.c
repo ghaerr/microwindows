@@ -46,29 +46,30 @@ XReadBitmapFileData(_Xconst char *filename, unsigned int *width_return,
 	*data_return = NULL;
 	*x_hot_return = 0;
 	*y_hot_return = 0;
+	int ret;
 
 	if (file) {
 		const char *define = "#define";
 		char str[100];
 
-		fscanf(file, "%s", str);
-		if (!strcmp(str, define)) {
-			fscanf(file, "%s%d", str, width_return);
-			fscanf(file, "%s", str);
-			if (!strcmp(str, define)) {
-				fscanf(file, "%s%d", str, height_return);
-				fscanf(file, "%s", str);
-				if (!strcmp(str, define)) {
-					fscanf(file, "%s%d", str,
-					       x_hot_return);
-					fscanf(file, "%s", str);
-					if (!strcmp(str, define)) {
-						fscanf(file, "%s%d", str,
-						       y_hot_return);
+		ret = fscanf(file, "%s", str);
+		if (ret > 0 && !strcmp(str, define)) {
+			ret = fscanf(file, "%s%d", str, width_return);
+			if (ret > 0) ret = fscanf(file, "%s", str);
+			if (ret > 0 && !strcmp(str, define)) {
+				ret = fscanf(file, "%s%d", str, height_return);
+				if (ret > 0) ret = fscanf(file, "%s", str);
+				if (ret > 0 && !strcmp(str, define)) {
+					ret = fscanf(file, "%s%d", str, x_hot_return);
+					if (ret > 0) ret = fscanf(file, "%s", str);
+					if (ret > 0 && !strcmp(str, define)) {
+						ret = fscanf(file, "%s%d", str, y_hot_return);
 					}
 				}
 			}
 		}
+		if (ret <= 0)
+			return BitmapFileInvalid;
 		if ((*width_return > 0) && (*height_return > 0)) {
 			int dataSize = ((*width_return + 7) / 8) * (*height_return);
 			int c, value, i, dataIndex = 0;
@@ -95,8 +96,7 @@ XReadBitmapFileData(_Xconst char *filename, unsigned int *width_return,
 							 && (c <= 'f'))
 							value |= c - 'a' + 10;
 					}
-					(*data_return)[dataIndex++] =
-						(unsigned char) value;
+					(*data_return)[dataIndex++] = (unsigned char) value;
 				}
 			}
 			fclose(file);

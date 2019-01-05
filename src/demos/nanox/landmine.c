@@ -630,7 +630,7 @@ dobutton(GR_EVENT_BUTTON *bp)
 		if (savefile == NULL)
 			savefile = SAVEFILE;
 		if (writegame(savefile))
-			write(1, "\007", 1);
+			(void)write(1, "\007", 1);
 		else
 			delay();
 		GrFillRect(savewid, xorgc, 0, 0, BUTTONWIDTH, BUTTONHEIGHT);
@@ -759,7 +759,7 @@ drawbomb(POS pos, GR_GC_ID gc, GR_BOOL animate)
 	GR_COUNT	count;
 
 	if (animate)
-		write(1, "\007", 1);
+		(void)write(1, "\007", 1);
 
 	cellcenter(pos, &x, &y);
 

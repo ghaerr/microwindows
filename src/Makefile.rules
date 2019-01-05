@@ -202,8 +202,15 @@ ifneq ($(X11LIBLOCATION),)
 LDFLAGS += -L$(X11LIBLOCATION)
 endif
 LDFLAGS += -lX11
-# the following used instead of -lX11 to resolve X11 apps linked using -lNX11 but standalone -lnano-X on X11!
-#LDFLAGS += libX11.a -Wl,-Bsymbolic		# local resolution of X11 symbols requires linked in .a on LINUX
+# Use the following on LINUX instead of -lX11 above to link X11 apps linked using
+# -lNX11 -lnano-X running on X11. Use standalone libnano-X.a built with (LINK_APP_INTO_SERVER=Y).
+# Local resolution of X11 symbols using -Bsymbolic requires linking in libX11.a on LINUX
+#LDFLAGS += -Wl,-Bsymbolic \
+	$(X11LIBLOCATION)/libX11.a \
+	$(X11LIBLOCATION)/libxcb.a \
+	$(X11LIBLOCATION)/libXdmcp.a \
+#	$(X11LIBLOCATION)/libXau.a 	# error, not compiled -fpic \
+	-ldl
 endif
 
 ifeq ($(FBEMULATOR), Y)

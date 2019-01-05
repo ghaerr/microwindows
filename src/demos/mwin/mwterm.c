@@ -214,7 +214,7 @@ EmOutChar(HWND hwnd, unsigned char ch)
 		}
 		return;
 	case '\007':			/* bel*/
-		write(STDERR_FILENO, "\007", 1);
+		(void)write(STDERR_FILENO, "\007", 1);
 		return;
 	case '\t':
 		xpos += nCharWidth;

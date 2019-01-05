@@ -158,7 +158,7 @@ typedef uint32_t *			ADDR32;
 
 /* APPLYOP w/return value - used only in fblin4.c*/
 #define DEFINE_applyOpR				\
-static inline int applyOpR(op, src, dst)	\
+static inline int applyOpR(int op, unsigned char src, unsigned char dst)	\
 {						\
 	switch (op) {				\
 	case MWROP_XOR:			\

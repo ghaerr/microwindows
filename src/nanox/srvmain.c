@@ -1461,7 +1461,7 @@ GrBell(void)
 {
 	SERVER_LOCK();
 #if !PSP && !defined(__EMSCRIPTEN__)
-	write(2, "\7", 1);
+	(void)write(2, "\7", 1);
 #endif
 	SERVER_UNLOCK();
 }

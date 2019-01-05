@@ -32,7 +32,12 @@ OBJS := \
 	$(MW_DIR_OBJ)/images/demos/mwin/penguin.o \
 	$(MW_DIR_OBJ)/images/demos/mwin/dragon.o
 
-all: $(MW_DIR_BIN)/convbmp $(MW_DIR_BIN)/makebmp default
+TOOLS = \
+	$(MW_DIR_BIN)/convbmp \
+	$(MW_DIR_BIN)/makebmp \
+	$(MW_DIR_BIN)/convpbm
+
+all: $(TOOLS) default
 
 endif
 
@@ -61,6 +66,10 @@ ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 endif
 
 $(MW_DIR_BIN)/makebmp: $(MW_DIR_SRC)/images/tools/makebmp.c
+	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
+	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
+$(MW_DIR_BIN)/convpbm: $(MW_DIR_SRC)/images/tools/convpbm.c
 	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 

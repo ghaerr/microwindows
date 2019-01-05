@@ -28,6 +28,11 @@ LDFLAGS +=
 ############################# targets section ################################
 
 ifeq ($(NANOX), Y)
+
+ifeq ($(LINK_APP_INTO_SERVER), N)
+TARGETS += $(MW_DIR_BIN)/nanowm
+endif
+
 ifeq ($(NANOXDEMO), Y)
 
 # If you want to create a library with the objects files, define the name here
@@ -35,9 +40,9 @@ LIBNAME =
 
 # List of binaries to compile
 ifeq ($(ARCH), ECOS)
-TARGETS = $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
+TARGETS += $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
 else
-TARGETS = \
+TARGETS += \
 	$(MW_DIR_BIN)/demo \
 	$(MW_DIR_BIN)/move \
 	$(MW_DIR_BIN)/nxlsclients \
@@ -66,6 +71,7 @@ TARGETS += \
 	$(MW_DIR_BIN)/landmine \
 	$(MW_DIR_BIN)/world \
 	$(MW_DIR_BIN)/nxclock \
+	$(MW_DIR_BIN)/nxroach \
 	$(MW_DIR_BIN)/npanel \
 	$(MW_DIR_BIN)/demo2 \
 	$(MW_DIR_BIN)/demo6 \
@@ -79,15 +85,13 @@ ifneq ($(ARCH),RTEMS)
 ifneq ($(ARCH),ANDROID)
 TARGETS += \
 	$(MW_DIR_BIN)/nterm \
-#	$(MW_DIR_BIN)/threadtest \
-	$(MW_DIR_BIN)/convpbm
+#	$(MW_DIR_BIN)/threadtest
 endif	
 endif
 ifneq ($(ARCH),CYGWIN) 
   ifneq ($(ARCH),RTEMS)
   ifneq ($(ARCH),ANDROID)
-    TARGETS += \
-	$(MW_DIR_BIN)/nxterm
+    TARGETS += $(MW_DIR_BIN)/nxterm
   endif
   endif
 endif
@@ -105,8 +109,7 @@ TARGETS += \
 	$(MW_DIR_BIN)/nxeyes
 
 # Require both MW_FEATURE_IMAGES and MW_FEATURE_TIMERS support:
-TARGETS += \
-	$(MW_DIR_BIN)/launcher \
+TARGETS += $(MW_DIR_BIN)/launcher 
 
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
 ifeq ($(FRAMEBUFFER), Y)
@@ -116,9 +119,23 @@ endif
 endif
 endif
 
-endif
+# nxkbd requires .bmp conversion and additional .c file
+OBJS += \
+	$(MW_DIR_OBJ)/images/demos/nanox/nxkbd/keynorm.o \
+	$(MW_DIR_OBJ)/images/demos/nanox/nxkbd/keyctrl.o \
+	$(MW_DIR_OBJ)/images/demos/nanox/nxkbd/keyshft.o \
+	$(MW_DIR_OBJ)/images/demos/nanox/nxkbd/keynum.o \
+	$(MW_DIR_OBJ)/demos/nanox/nxkbd_srvconn.o
+TARGETS += $(MW_DIR_BIN)/nxkbd
 
-all: default $(TARGETS)	
+# canny demo
+CXXOBJS += $(MW_DIR_OBJ)/demos/nanox/canny.o
+CXXOBJS += $(MW_DIR_OBJ)/demos/nanox/cannyedgedetect.o
+CXXTARGETS = $(MW_DIR_BIN)/canny
+
+endif # !ECOS
+
+all: default $(TARGETS)	$(CXXTARGETS)
 	$(CP) \
 		$(MW_DIR_SRC)/demos/nanox/world.map \
 		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
@@ -153,8 +170,8 @@ NANOX_DEMOS_WITH_LIBM_LINK := \
 # These demos use a hardcoded link line.
 NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
 	$(NANOX_DEMOS_WITH_LIBM_LINK) \
-	$(MW_DIR_BIN)/convpbm \
-	$(MW_DIR_BIN)/snap_jpg
+	$(MW_DIR_BIN)/snap_jpg \
+	$(MW_DIR_BIN)/canny
 
 # All other demos use a standard link line, that just
 # links against the Nano-X client libraries.
@@ -162,14 +179,20 @@ NANOX_DEMOS_WITH_STANDARD_LINK := \
 	$(filter-out $(NANOX_DEMOS_WITH_NONSTANDARD_LINK),$(TARGETS))
 
 # Standard link rule used for most demos.
-$(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
+$(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(OBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
 
 # Link rule used for demos with libm.
 $(NANOX_DEMOS_WITH_LIBM_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBM) $(NANOXCLIENTLIBS) $(LDFLAGS)
+
+# Canny link
+$(CXXTARGETS): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(CXXOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	echo $(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(CXXOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(CXXOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
@@ -178,10 +201,6 @@ $(MW_DIR_BIN)/snap_jpg: $(MW_DIR_OBJ)/demos/nanox/snap_jpg.o $(NANOXCLIENTLIBS) 
 $(MW_DIR_BIN)/threadtest: $(MW_DIR_OBJ)/demos/nanox/threadtest.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) -lpthread
-
-$(MW_DIR_BIN)/convpbm: $(MW_DIR_OBJ)/demos/nanox/convpbm.o
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 
 ifeq ($(ARCH), ECOS)
 # Special build rules for linked in applications
@@ -201,6 +220,12 @@ $(MW_DIR_BIN)/ntetris.o: $(MW_DIR_OBJ)/demos/nanox/ntetris.o
 $(MW_DIR_BIN)/world.o: $(MW_DIR_OBJ)/demos/nanox/world.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,world_main=main -o XX.o
+	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
+	rm -f XX.o
+
+$(MW_DIR_BIN)/nxkbd.o: $(OBJS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -Wl,-r -Wl,--defsym -Wl,nxkbd_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 endif

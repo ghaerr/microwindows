@@ -68,6 +68,12 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwpenstyles\
 	$(MW_DIR_BIN)/mwopenfile
 
+DEMOS += $(MW_DIR_BIN)/mwdialog
+RES   += $(MW_DIR_BIN)/mwdialog.res
+
+DEMOS += $(MW_DIR_BIN)/mwdvetest
+RES   += $(MW_DIR_BIN)/mwdvetest.res
+
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)
 DEMOS += $(MW_DIR_BIN)/mwterm
@@ -76,7 +82,7 @@ endif
 
 endif # !PSP
 
-all: default $(DEMOS)
+all: default $(DEMOS) $(RES)
 
 endif
 endif
@@ -103,3 +109,9 @@ $(MWIN_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/mwin/%.o 
 $(MW_DIR_BIN)/mwmine: $(MW_DIR_OBJ)/demos/mwin/mwmine.o $(MINEIMAGES) $(MWINLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $< $(MINEIMAGES) -o $@ $(MWINLIBS) $(LDFLAGS)
+
+$(MW_DIR_BIN)/mwdialog.res:
+	ln -s ../images/demos/mwin/mwdialog/mwdialog.res $@
+
+$(MW_DIR_BIN)/mwdvetest.res:
+	ln -s ../images/demos/mwin/mwdvetest/dveres.res $@

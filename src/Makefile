@@ -23,7 +23,8 @@ OBJS =
 dirs := \
 	$(MW_DIR_SRC)/drivers \
 	$(MW_DIR_SRC)/engine \
-	$(MW_DIR_SRC)/fonts
+	$(MW_DIR_SRC)/fonts \
+	$(MW_DIR_SRC)/images
 
 ifeq ($(MICROWIN), Y)
 dirs += $(MW_DIR_SRC)/mwin
@@ -54,7 +55,7 @@ endif
 realclean: clean
 ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	$(MAKE) -C $(MW_DIR_SRC)/fonts realclean
-	$(MAKE) -C $(MW_DIR_SRC)/mwin/bmp realclean
+	$(MAKE) -C $(MW_DIR_SRC)/images realclean
 endif
 
 #

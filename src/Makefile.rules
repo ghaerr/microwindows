@@ -604,7 +604,7 @@ endif
 #
 # Compilation target for tool that does bmp file conversion
 #
-$(MW_DIR_BIN)/convbmp: $(MW_DIR_SRC)/mwin/bmp/convbmp.c
+$(MW_DIR_BIN)/convbmp: $(MW_DIR_SRC)/images/tools/convbmp.c
 	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 
@@ -621,7 +621,7 @@ endif
 #
 # Compilation target for tool that does bdf font file conversion
 #
-$(MW_DIR_BIN)/convbdf: $(MW_DIR_SRC)/fonts/convbdf.c
+$(MW_DIR_BIN)/convbdf: $(MW_DIR_SRC)/fonts/tools/convbdf.c
 	echo "Building $(patsubst $(MW_DIR_BIN)/%,%,$@) tool ..."
 	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
 

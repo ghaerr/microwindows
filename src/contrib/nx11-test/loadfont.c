@@ -26,19 +26,19 @@ main(int ac, char **av)
 		exit(1);
 
 	f = XLoadFont(d, FONT1);	/* 6x10 prefix*/
-	printf("Font1 number:%d is %s\n",f,FONT1);
+	printf("Font1 number:%ld is %s\n",f,FONT1);
 	XUnloadFont(d, f);
 	f = XLoadFont(d, FONT2);	/* non-scaled*/
-	printf("Font2 number:%d is %s\n",f,FONT2);
+	printf("Font2 number:%ld is %s\n",f,FONT2);
 	XUnloadFont(d, f);
 	f = XLoadFont(d, FONT3);	/* scaled, pixelsize 24*/
-	printf("Font3 number:%d is %s\n",f,FONT3);
+	printf("Font3 number:%ld is %s\n",f,FONT3);
 	XUnloadFont(d, f);
 	f = XLoadFont(d, FONT4);	/* FLTK helvB10 non-scaled*/
-	printf("Font4 number:%d is %s\n",f,FONT4);
+	printf("Font4 number:%ld is %s\n",f,FONT4);
 	XUnloadFont(d, f);
 	f = XLoadFont(d, FONT5);	/* sample fonts.dir adobe TTF*/
-	printf("Font5 number:%d is %s\n",f,FONT5);
+	printf("Font5 number:%ld is %s\n",f,FONT5);
 	XUnloadFont(d, f);
 
 	return 0;

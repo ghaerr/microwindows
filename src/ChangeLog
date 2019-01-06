@@ -1,4 +1,5 @@
 5 Jan 2019
+	* Cleanup and get contrib/nx11-test/ working
 	* Cleanup demoscripts/, update docs/
 	* Cleanup demos/nanox/, move images to images/demos/nanox/, updated Makefile and Makefile_nr
 	* Renamed demos in demos/nanox/ to demo-xxx, moved outdated code to contrib/nanox-test

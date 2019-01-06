@@ -22,7 +22,6 @@ void terminate(Display *dpy)
 #if defined(__EMSCRIPTEN__)
 	 return;
 #else	 
-         GrClose(); //Nano-X function - return to text screen mode
          exit(0);
 #endif
 }

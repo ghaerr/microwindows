@@ -19,12 +19,11 @@
 void terminate(Display *dpy)
 {
          XCloseDisplay(dpy);
-#if !defined(__EMSCRIPTEN__)
-         GrClose(); //Nano-X function - return to text screen mode
+#if defined(__EMSCRIPTEN__)
+         return;
 #else
-	 return;
-#endif
          exit(0);
+#endif
 }
 
 int main(int argc, char ** argv){

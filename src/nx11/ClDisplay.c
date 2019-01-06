@@ -13,7 +13,7 @@ XCloseDisplay (Display *dpy)
 	}
 
 	GrFlush();
-	//GrClose();	// FIXME
+	GrClose();
 	_XFreeDisplayStructure(dpy);
 	return 0;
 }

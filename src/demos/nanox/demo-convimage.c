@@ -107,7 +107,7 @@ app_window(void)
 x = y = 20;
 	flags = GR_WM_PROPS_APPWINDOW | GR_WM_PROPS_NOBACKGROUND;
 	flags |= GR_WM_PROPS_BUFFERED;
-	wid = GrNewWindowEx(flags, "Microwindows Image Demo", GR_ROOT_WINDOW_ID,
+	wid = GrNewWindowEx(flags, "Image Conversion Demo", GR_ROOT_WINDOW_ID,
 		x, y, image_info.width, image_info.height, GR_COLOR_WHITE);
  
 	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE | GR_EVENT_MASK_EXPOSURE);

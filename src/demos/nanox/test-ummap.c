@@ -55,9 +55,9 @@ main(int ac,char **av)
 
 		case GR_EVENT_TYPE_BUTTON_DOWN:
 			// FIXME unmap window is broken
-			//GrUnmapWindow(w);
-			//GrFlush();
-			//GrMapWindow(w);
+			GrUnmapWindow(w);
+			GrFlush();
+			GrMapWindow(w);
 
 			//uncomment to test server error on bad syscall
 			//GrMoveWindow(GR_ROOT_WINDOW_ID, 0, 0);

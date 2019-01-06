@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "agg.h"
+#include "agglite.h"
 #include "nano-X.h"
 #include "nxcolors.h"
 /*
@@ -194,7 +194,7 @@ int main()
 		return 0;
 
 	// create buffered window for offscreen compositing before paint
-	GR_WINDOW_ID wid = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Microwindows Rasterizer Demo",
+	GR_WINDOW_ID wid = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Microwindows AGG Rasterizer Demo",
 		GR_ROOT_WINDOW_ID, 10, 10, 300, 400, GR_COLOR_BLACK);
 	GrSelectEvents(wid, GR_EVENT_MASK_KEY_DOWN|GR_EVENT_MASK_MOUSE_MOTION|
 		GR_EVENT_MASK_UPDATE|GR_EVENT_MASK_CLOSE_REQ);

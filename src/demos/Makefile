@@ -26,21 +26,8 @@ LDFLAGS +=
 
 ############################# targets section ################################
 
-# If you want to create a library with the objects files, define the name here
-LIBNAME =
-
-# List of objects to compile
-OBJS =
-
 ifeq ($(FBEMULATOR), Y)
 all: default $(MW_DIR_BIN)/fbe
-endif
-
-#ifeq ($(ARCH), ECOS)
-#dirs = nanowm nanox nxkbd nxscribble
-#endif
-ifeq ($(ARCH), UCLINUX-ARM)
-dirs = nxkbd
 endif
 
 ifeq ($(ARCH), PSP)
@@ -53,18 +40,7 @@ endif
 
 ######################### Makefile.rules section #############################
 
-#set to one to compile just the programs in the test directory
-justtest = 0
-
-ifeq ($(justtest), 1)
-default:
-	echo "Compiling programs in test"
-	-$(MAKE) -C test -f Makefile-gcc
-else
-
 include $(MW_DIR_SRC)/Makefile.rules
-
-endif
 
 ######################## Tools targets section ###############################
 

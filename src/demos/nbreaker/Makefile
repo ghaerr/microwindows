@@ -10,9 +10,6 @@ MW_DIR_RELATIVE := demos/nbreaker/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
-ifeq ($(NANOX), Y)
-ifeq ($(NANOXDEMO), Y)
-
 ######################## Additional Flags section ############################
 
 # Directories list for header files
@@ -26,9 +23,11 @@ CFLAGS +=
 CPPFLAGS +=
 # Linking flags
 LDFLAGS +=
-LIBM = -lm
 
 ############################# targets section ################################
+
+ifeq ($(NANOX), Y)
+ifeq ($(NANOXDEMO), Y)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME =

@@ -1,3 +1,11 @@
+5 Jan 2019
+	* Cleanup demos/nanox/, move images to images/demos/nanox/, updated Makefile and Makefile_nr
+	* Renamed demos in demos/nanox/ to demo-xxx, moved outdated code to contrib/nanox-test
+	* Cleanup fonts/ directory, move fonts/convbdf.c to fonts/tools/
+	* Move mwin/bmp/ to images/demos/mwiun
+	* Cleanup demos/mwin/, moved images to images/demos/mwin/, moved convbmp.c and makebmp.c to images/tools/
+	* Rename nxlib/ to nx11/, updated Makefile and Makefile_nr
+	* Cleanup contrib/ directory, move nxlib/test to contrib/nx11-test, cleanup linux compile warnings
 3 Jan 2019
 	* added src/testld to show method of linking X11 apps with standalone nxlib on X11 with duplicate X11 syms
 	* added SHAREDLINK=Y config option to link with shared libmwin.so or libnano-X.so (use with SHAREDLIBS=Y)

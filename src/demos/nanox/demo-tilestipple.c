@@ -153,7 +153,7 @@ main(int argc, char **argv)
 
 	load_pixmap();
 
-	g_main = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "tsdemo",
+	g_main = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "tile/stipple demo",
 		    GR_ROOT_WINDOW_ID, 100, 50, COLS - 120, ROWS - 60, GRAY);
 
 	GrSelectEvents(g_main,

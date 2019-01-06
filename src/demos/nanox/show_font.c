@@ -97,7 +97,7 @@ main(int argc, char **argv)
 	chars_to_show = lines * line_width;
 
 	/* create the main application window*/
-	main_wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "pcfdemo",
+	main_wid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, argv[1],
 			GR_ROOT_WINDOW_ID, 0, 0, width, height, BLACK);
 	GrSelectEvents(main_wid, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(main_wid);

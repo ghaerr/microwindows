@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	exit(1);
   }
 
-  window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "ftdemo",
+  window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "Antialias Fonts Demo",
   	GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, WHITE);
   GrMapWindow(window);
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	break;
   }
 #else
-  if ((file = fopen("bin/ftdemo.txt", "r")) == NULL) {
+  if ((file = fopen("bin/aademo.txt", "r")) == NULL) {
 	printf("Can't open text file\n");
 	return (-1);
   }

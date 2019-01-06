@@ -79,7 +79,7 @@ main(int ac, char **av)
 	if (GrOpen() < 0)
 		exit(1);
 
-	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "fontdemo", GR_ROOT_WINDOW_ID,
+	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Truetype Font Demo", GR_ROOT_WINDOW_ID,
 		10, 10, 640, 530, BGCOLOR);
 	GrSelectEvents(w, GR_EVENT_MASK_BUTTON_DOWN|GR_EVENT_MASK_UPDATE|
 		GR_EVENT_MASK_KEY_DOWN|GR_EVENT_MASK_CLOSE_REQ);

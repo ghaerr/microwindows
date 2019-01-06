@@ -34,7 +34,7 @@
 
 
 #include <math.h>
-#include "agg.h"
+#include "agglite.h"
 
 
 namespace agg

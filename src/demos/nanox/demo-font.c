@@ -103,7 +103,7 @@ main(int ac, char **av)
 		exit(1);
 
 	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
-		"t1demo loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
+		"loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
 		GR_ROOT_WINDOW_ID, 50, 50, WIDTH, HEIGHT, BLACK);
 	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(window);

@@ -4,7 +4,7 @@ These can be found in the bin directory after executing "make".
 
 If compiled with shared=N and link_app_into_server=Y
 the demos can be called from src directory with e.g.
-"bin/demo6 landmine.ppm"
+"bin/show_ppm landmine.ppm"
 
 Otherwise use a shell script and load nano-X
 before the application. E.g.:
@@ -17,24 +17,21 @@ Following is a list of the demo programs with short
 descriptions.
 ------------------------------------------------------
 
-- arcdemo - 
+- demo-arc - 
 Shows arcs and circles.
 
-- blitdemo - 
+- demo-blit - 
 Shows blitting using dice images.
-blitdemo.sh will call this demo
+demo-blit.sh will call this demo
 together with nxmag.
 
-- bmpdemo -
-Displays b/w penguin in window.
-
-- canny -
+- demo-convimage -
 Demo that shows the canny edge dector applied
 to the dragon.bmp image.
 
-- composite -
+- demo-composite -
 Compositioning demo.
-compositedemo.sh will call this
+demo-composite.sh will call this
 program together with nxmag.
 
 - convbmp -
@@ -42,23 +39,10 @@ Windows BMP to Microwindows image converter.
 Converts bmp file into a Nano-X format bitmap
 that can be included in a header file.
 
-- dashdemo -
+- demo-dash -
 Draw shapes with dashed lines.
 
-- demos -
-Displays various boxes, click in upper left box
-to terminate.
-
-- demo2 -
-Shows a box and a text using a pcf font.
-
-- demo5 -
-Displays various boxes, can scribble and draw
-in some of them. Promote boxes by clicking
-on them. Terminate by clicking in upper left
-box.
-
-- demo6 -
+- show_ppm -
 Displays ppm images. Enter ppm image name
 on command line.
 
@@ -67,16 +51,16 @@ No demo, emulate framebuffer with X11 for
 developing framebuffer programs using X11
 environment.
 
-- fontdemo -
+- demo-ttfont -
 Shows "quick brown fox" text in increasing sizes.
 You can specify different fonts on the command line.
-fontdemo.sh will call this program.
+demo-ttfont.sh will call this program.
 
-- ftdemo -
+- demo-aafont -
 Allows to rotate text or select other font
 attributes. Some will work only if text is 
 not rotated.
-fontdemo2.sh will call this program.
+demo-aafont.sh will call this program.
 Will run from src directory only.
 
 - getselection -
@@ -84,10 +68,10 @@ Reads text from the clipboard. Mark any
 text and enter Ctrl-C to add to the
 clipboard before. Or use the setselection program.
 
-- grabdemo -
+- demo-grabkey -
 Displays keys entered. Can be used for testing
 keyboard drivers.
-grabdemo.sh will call this program.
+demo-grabkey.sh will call this program.
 
 - landmine -
 A landmine game.
@@ -99,24 +83,17 @@ Implements a screensaver that quickly starts to
 display screensavers with changing graphics.
 launcher.sh will start this program.
 
-- logfont -
-Displays a font in several attributes.
-
 - makebmp -
 Framebuffer data to .bmp file converter.
 
-- mine -
+- mwmine -
 Minesweeper game using the MWin API.
 
-- monobitmap -
+- demo-monobitmap -
 Displays 1bpp mono bitmap.
-monobitmap.sh will call this program together with nxmag.
+demo-monobitmap.sh will call this program together with nxmag.
 
-- move -
-Deprecated demo.
-Shows child window movement and redrawing.
-
-- mwalpha -
+- mwdemoalpha -
 Alpha blending using the MWin API.
 
 - mwbrush -
@@ -127,13 +104,13 @@ using the MWin API.
 Shows several controls of the MWin API.
 
 - mwdemo -
-Several windows implemented with the
-MWin API.
-demo.sh will call this demo.
+Graphics display implemented with the MWin API.
+
+- mwdemo2 -
+Several controls implemented with the MWin API.
 
 - mwdialog -
-Displays a window and a button using the 
-MWin API with a resource file.
+Displays a window and a button using the MWin API with a resource file.
 
 - mwdraw -
 Simple graphics using the MWin API.
@@ -175,16 +152,9 @@ using "StretchBlt". Implemented with the MWin API.
 
 - mwterm -
 Terminal application using the mwin API.
-mterm.sh will call this program.
 
 - mwtest -
-Displays window using the mwin API.
-
-- mwtest2 -
-Displays widgets using the mwin API.
-
-- mwuserfd -
-Mwin API test.
+Very basic window using the mwin API.
 
 - npanel -
 Select applications from a list window
@@ -193,16 +163,12 @@ and run them in child windows.
 - nsaver -
 A collection of screen savers for Nano-X.
 
-- nterm -
-Terminal application using the nano-X API.
-nterm.sh will call this program.
-
 - ntetris -
 Tetris game.
 
-- nxaggdemo -
+- demo-agg -
 Uses the libagg library with Nano-X. If you
-run this with the aggdemo.sh script in the src
+run this with demo-agg.sh script in the demoscripts/
 directory, the nxmag program will be run in parallel.
 This allows to analyse the rendered image in detail.
 
@@ -246,12 +212,10 @@ nxterm.sh will call this program.
 Displays image specified including the path on the command line.
 nxview.sh will call this program. Pass image on command line or
 uncomment lines in the script.
-nxviewalpha.sh will display the alphademo.png image.
 
-- pcfdemo -
-Shows PCF fonts. Needs path to PCF font on the command line.
-The fontdemo3.sh and pdfdemo.sh scripts call this demo with 
-four or three different fonts.
+- show_font -
+Display any font. Needs path to font file on the command line.
+The show_font.sh calls this demo with four or three different fonts.
 
 - polydemo -
 Shows polygons.
@@ -259,7 +223,7 @@ Shows polygons.
 - rgndemo -
 Shows several different types of regions.
 
-- setportrait -
+- nxsetportrait -
 A utility to set the portrait mode of the display.
 
 - setselection -
@@ -271,11 +235,11 @@ A slider game.
 - snap_ppm -
 A screenshot program saving in ppm format images.
 
-- t1demo -
-T1 font demo.
-fontdemo4.sh will call this program.
+- demo-font -
+Draws fonts at an angle.
+demo-font.sh will call this program.
 
-- tsdemo -
+- demo-tilestipple -
 Tile/stipple demo program.
 
 - tux -
@@ -291,7 +255,7 @@ Shows a map of the world. Select areas to zoom.
 ------------------------------------------------------
 further scripts:
 
-demo2.sh will open nxterm, nxeyes and tux.
-grdemo.sh will open rgndemo, dashdemo, tsdemo arcdemo, polydemo, tux and nxmag
-vnc.sh will run the vnc demo if this is enabled in the configure file.
+nxterm.sh will open nxterm, nxeyes and tux.
+demo-graphics.sh will open rgndemo, dashdemo, tsdemo arcdemo, polydemo, tux and nxmag
+start-vnc.sh will run the vnc demo if this is enabled in the configure file.
 ------------------------------------------------------

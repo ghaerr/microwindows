@@ -1,28 +1,27 @@
 Microwindows Installation Documentation
-April 11, 2010 g haerr <greg@censoft.com>
+January 5, 2019 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
 1. cd microwin/src
 
-2. Edit the default configuration file "config", if desired.
-   There are pre-built configuration files for X11, framebuffer,
-   and a variety of target systems, see Configs/README.
+2. The default configuration is for MAC OSX (Configs/config.macosx).
+   Type "cp Configs/config.linuxX11 config" for the X11 configuration on Linux.
+   Edit the default configuration file "config", if desired.
 
-   The default configuration is for framebuffer (Configs/config.fb2)
-   	Type "cp Configs/config.x11 config" for the X11 configuration.
-
+   There are (outdated) pre-built configuration files for a variety
+   of target systems, see Configs/README.
    See docs/CONTENTS and Configs/README for more information.
 
 3. Type "make"
 
-4. Run the default mouse driver if using GPM mouse:
+4. Run the default mouse driver if using GPM mouse and not on X11:
 	./mouse.sh
 
 5.  Run some demonstration programs. The mwin (win32 api) programs
 	are run directly, e.g.:
 
-	bin/mine
+	bin/mwmine
 
 	The nano-X programs require running the nano-X server and the
 	application, and there are a variety of *.sh shell scripts in
@@ -30,7 +29,9 @@ To build Microwindows for desktop demonstration:
 	script rundemos.sh that runs the nano-X server prior to the application:
 
 	cd demoscripts
-	./compositedemo.sh
+	./demo-composite.sh
+
+	You can edit LINK_APP_INTO_SERVER=Y in config to create standalone executables.
 
 6. More information below.
 

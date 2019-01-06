@@ -10,10 +10,10 @@
 #define FONT	"arial.ttf"
 
 
-//#define IMAGE	 "bin/tux.gif"
-#define IMAGE	 "mwin/bmp/alphademo.png"
-//#define IMAGE	 "mwin/bmp/earth.jpg"
-//#define IMAGE	 "mwin/bmp/bigapple.gif"
+//#define IMAGE	 "images/demos/nanox/tux.gif"
+#define IMAGE	 "images/demos/nanox/alphademo.png"
+//#define IMAGE	 "images/test/earth.jpg"
+//#define IMAGE	 "images/test/bigapple.gif"
 
 GR_IMAGE_INFO image_info;
 GR_WINDOW_ID pixmap;

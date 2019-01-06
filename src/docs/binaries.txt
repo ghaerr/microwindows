@@ -1,0 +1,109 @@
+Nano-X utilities
+----------------
+nano-X			server
+launcher		desktop launcher
+nsaver			screen saver
+nxcal			touchsreen calibrator
+nxmag			screen magnifier
+nxkbd			onscreen keyboard
+nxscribble		handwriting recognition
+nxterm			terminal emulator
+nxview			show image
+nxsetportrait	set portrait mode *untested
+nxclock			clock, needs frame
+nxev			list events
+nxlsclients		list clients
+show_ppm <file.ppm>	display PPM file
+show_font <fontfile> display font
+snap_ppm <outfile.ppm>	screenshot to .ppm
+npanel			*program launcher, bug w/nterm
+nanowm			window manager (obsolete, built-in now)
+fbe				frame buffer emulator for X11
+convbmp			convert bmp to .c
+makebmp			create .bmp file
+convbdf			convert bdf to .c
+
+Nano-X fun/games
+----------------
+tuxchess		chess
+nxeyes			X eyes
+nxroach			crawling roaches
+landmine		needs frame
+ntetris			needs frame
+nbreaker		broken
+slider			slider game
+tux				displays penguin with no frame
+world			displays resizable world map
+
+Nano-X demos
+----------------
+demo-arc			arc demos
+demo-blitdemo		*bug when exit, root needs clear
+demo-convimage		image conversion demo using canny algorithm
+demo-composite		composite drawing demo
+demo-dash			ashed lines demo
+demo-ttfont			freetype demos quick brown fox
+demo-aafont			antialiasing text display
+demo-grabkey		keyboard grab demo
+demo-monobitmap		monochrome bitmap demo
+demo-agg			2D AGG demo
+demo-poly			display polygons
+demo-region			display regions
+demo-font			fonts demo diagonally (t1, freetype, pcf, ...)
+demo-tilestipple	tile/stipple demo
+hello				basic hello world
+
+nx11 demos
+----------------
+contrib/nx11-test/	*not building
+contrib-nx11-ptest/	*remove
+
+Images
+----------------
+images/demos/mwin/
+images/demos/nanox/
+images/demos/nanox/icons/
+
+Other files
+----------------
+demos/nxscribble/*.cl
+
+*.sh files
+----------------
+demoscript/			run various nano-X client app and server
+
+Mwin utilities
+----------------
+mwterm
+
+Mwin games
+----------------
+mwmine				landmine
+
+Mwin demos
+----------------
+mwdvetest			extensive mwin demo
+mwdemo				mwin demo
+mwdemo2				mwin demo
+mwdemoalpha			alpha blend demo
+mwstretch			stretchblit demo
+mwbrush				GP
+mwcontrols			GP
+mwdialog			GP
+mwdraw				GP
+mwhello				GP
+mwlistcombo			GP
+mwmenu				GP
+mwmsgbox			GP
+mwopenfile			GP
+mwpenstyles			GP
+mwprogbar			GP
+mwsimple			GP
+mwstatictext		GP
+mwtest				GP very basic hello world
+
+demoscript/ Links
+----------------
+fonts				../fonts
+images				../images
+bin					../bin

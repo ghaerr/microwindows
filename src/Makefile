@@ -83,9 +83,9 @@ doc: doc-internal doc-nanox
 pdfdoc: doc-internal pdfdoc-nanox
 	@#
 doc-internal:
-	doxygen Doxyfile-internal
+	doxygen ../doc/Doxyfile-internal
 doc-nanox:
-	doxygen Doxyfile-nanox
+	doxygen ../doc/Doxyfile-nanox
 pdfdoc-nanox: doc-nanox
 	cd ../doc/nano-X/latex && $(MAKE)
 doc-clean:

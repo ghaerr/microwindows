@@ -64,7 +64,7 @@ FILE_PATTERNS          = *.c \
 RECURSIVE              = YES
 EXCLUDE                = demos \
                          fonts \
-                         mwin/bmp \
+                         images \
                          drivers/asm.h \
 			 drivers/asmmsc.h
 EXCLUDE_SYMLINKS       = NO

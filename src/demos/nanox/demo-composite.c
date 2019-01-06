@@ -13,7 +13,7 @@
 
 //#define FONT	"DejaVuSans-Bold.ttf"
 #define FONT	"arial.ttf"
-#define IMAGE	 "mwin/bmp/alphademo.png"
+#define IMAGE	 "images/demos/nanox/alphademo.png"
 
 GR_WINDOW_ID wid = 0, p1, p2 = 0;
 GR_IMAGE_INFO image_info;

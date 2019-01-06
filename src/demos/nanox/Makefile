@@ -75,8 +75,9 @@ TARGETS += \
 	$(MW_DIR_BIN)/nxlsclients \
 	$(MW_DIR_BIN)/nxev \
 	$(MW_DIR_BIN)/nxcal \
-	$(MW_DIR_BIN)/setportrait \
+	$(MW_DIR_BIN)/nxsetportrait \
 	$(MW_DIR_BIN)/show_font \
+	$(MW_DIR_BIN)/show_ppm \
 	$(MW_DIR_BIN)/snap_ppm \
 	$(MW_DIR_BIN)/launcher \
 	$(MW_DIR_BIN)/nsaver \

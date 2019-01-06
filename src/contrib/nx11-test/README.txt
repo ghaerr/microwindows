@@ -5,7 +5,3 @@ you have to run the nano-X server first using ./run.sh to execute the programs.
 
 Then, you can click on the program name in your file manager or enter e.g.
 ./xhello on the command line.
-
-If SHAREDLIBS had been set to "Y" you may have to execute "sudo make install"
-in the microwindows/src directory first before executing the programs. 
-Otherwise the programs may not find the required "*.so" shared libraries.

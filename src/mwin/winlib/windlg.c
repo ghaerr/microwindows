@@ -90,10 +90,12 @@ MwInitializeDialogs(HINSTANCE hInstance)
 
 	MwRegisterStaticControl(hInstance);
 	MwRegisterButtonControl(hInstance);
-	MwRegisterEditControl(hInstance);
-	MwRegisterListboxControl(hInstance);
+	MwRegisterEditControl(hInstance);			/* newedit.c*/
+	MwRegisterListboxControl(hInstance);		/* newlistbox.c*/
 	MwRegisterProgressBarControl(hInstance);
 	MwRegisterComboboxControl(hInstance);
+	//MwRegisterOldEditControl(hInstance);		/* edit.c - obsolete*/
+	//MwRegisterOldListboxControl(hInstance);	/* listbox.c - obsolete*/
 
 	memset(&wcl, 0, sizeof(wcl));
 	wcl.style = CS_BYTEALIGNCLIENT | CS_DBLCLKS;
@@ -374,11 +376,9 @@ parseAccelerator(HWND hWnd, int key)
 					if ((dlgCode & (DLGC_STATIC | DLGC_RADIOBUTTON)) != 0) {
 						obj = nextTabStop(hWnd, obj, FALSE);
 						if (obj)
-							PostMessage(hWnd, WM_NEXTDLGCTL,
-								    (WPARAM) obj, 1);
+							PostMessage(hWnd, WM_NEXTDLGCTL, (WPARAM) obj, 1);
 					} else
-						PostMessage(hWnd, WM_COMMAND,
-							    obj->id, (LPARAM) obj);
+						PostMessage(hWnd, WM_COMMAND, obj->id, (LPARAM) obj);
 					return TRUE;
 				}
 			}
@@ -879,49 +879,122 @@ EndDialog(HWND hDlg, int nResult)
 	return FALSE;
 }
 
-
 /*
- *  Convert dialog base units in screen units
+ * Get average character size of font, used by GetDlgBaseUnits and MapDialogRect
  */
-BOOL WINAPI
-MapDialogRect(HWND hWnd, LPRECT lpRc)
+static BOOL
+DIALOG_GetCharSize(HDC hDC, HFONT hFont, SIZE *pSize)
+{
+    HFONT hFontPrev = NULL;
+    char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    SIZE sz;
+    TEXTMETRIC tm;
+
+    if(!hDC)
+		return FALSE;
+
+    if (hFont)
+		hFontPrev = SelectObject(hDC, hFont);
+    if (!GetTextMetrics(hDC, &tm))
+		return FALSE;
+    if (!GetTextExtentPoint(hDC, alphabet, 52, &sz))
+		return FALSE;
+
+    pSize->cy = tm.tmHeight;
+    pSize->cx = (sz.cx / 26 + 1) / 2;
+
+    if (hFontPrev)
+		SelectObject(hDC, hFontPrev);
+
+    return TRUE;
+}
+
+#if 0
+/* uses incorrect calculation*/
+static BOOL
+DIALOG_GetCharSize2(HDC hdc, HFONT hFont, SIZE *pSize)
 {
 	static const char defAlpha[] =
 		" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	SIZE sz;
-	HDC hdc;
-	HFONT oldFnt;
+	HFONT hFontPrev = NULL;
 	BOOL retV = FALSE;
 	//TEXTMETRIC tm;
 
-	hdc = GetDC(hWnd);
-	oldFnt = SelectObject(hdc, (HFONT)(LRESULT)SendMessage(hWnd, WM_GETFONT, 0, 0));
-	if (GetTextExtentPoint(hdc, defAlpha, sizeof(defAlpha) - 1, &sz))
+	if (!hdc)
+		return FALSE;
+	hFontPrev = SelectObject(hdc, hFont);
+	if (GetTextExtentPoint(hdc, defAlpha, sizeof(defAlpha) - 1, pSize))
 	//if( GetTextMetrics(hdc, &tm) )
 	{
-		//sz.cx = tm.tmAveCharWidth + tm.tmOverhang;
-		//sz.cy = tm.tmHeight + tm.tmExternalLeading;
-		sz.cx = (sz.cx +
-			 (sizeof(defAlpha) - 1) / 2) / (sizeof(defAlpha) - 1);
+		//pSize->cx = tm.tmAveCharWidth + tm.tmOverhang;
+		//pSize->cy = tm.tmHeight + tm.tmExternalLeading;
+		pSize->cx = (pSize->cx + (sizeof(defAlpha) - 1) / 2) / (sizeof(defAlpha) - 1);
+		retV = TRUE;
+	}
+
+	if (hFontPrev)
+		SelectObject(hdc, hFontPrev);
+	return retV;
+}
+#endif
+
+/*
+ * Helper function for MapDialogRect, used by CreateDialog() before
+ * the dialog window is created.
+ */
+static BOOL
+calcDialogRect(HDC hdc, HFONT hFont, LPRECT lpRc)
+{
+	SIZE sz;
+
+	if (DIALOG_GetCharSize(hdc, hFont, &sz)) {
 		lpRc->left = MulDiv(lpRc->left, sz.cx, 4);
 		lpRc->right = MulDiv(lpRc->right, sz.cx, 4);
 		lpRc->top = MulDiv(lpRc->top, sz.cy, 8);
 		lpRc->bottom = MulDiv(lpRc->bottom, sz.cy, 8);
-		retV = TRUE;
+		return TRUE;
 	}
+	return FALSE;
+}
 
-	SelectObject(hdc, oldFnt);
+/*
+ *  Convert dialog base units to screen units
+ */
+BOOL WINAPI
+MapDialogRect(HWND hWnd, LPRECT lpRc)
+{
+	HFONT hFnt = (HFONT)(LRESULT)SendMessage(hWnd, WM_GETFONT, 0, 0);
+	HDC hdc = GetDC(hWnd);
+	BOOL retV = calcDialogRect(hdc, hFnt, lpRc);
 	ReleaseDC(hWnd, hdc);
 	return retV;
 }
 
+/*
+ *  Get base units of dialogs
+ */
+LONG
+GetDialogBaseUnits(VOID)
+{
+	HDC hdc;
+	SIZE size;
+    static DWORD units;
+
+    if (!units) {
+        if ((hdc = GetDC(NULL)) != NULL) {
+            if (DIALOG_GetCharSize(hdc, 0, &size))
+				units = MAKELONG(size.cx, size.cy);
+            ReleaseDC(NULL, hdc);
+        }
+    }
+    return units;
+}
 
 HWND WINAPI
 CreateDialog(HINSTANCE hInstance, LPCSTR lpTemplate, HWND hWndParent,
 	     DLGPROC lpDialogFunc)
 {
-	return CreateDialogParam(hInstance, lpTemplate, hWndParent,
-				 lpDialogFunc, 0);
+	return CreateDialogParam(hInstance, lpTemplate, hWndParent, lpDialogFunc, 0);
 }
 
 HWND WINAPI
@@ -933,10 +1006,10 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 	HWND hDlg, retV;
 	HWND hFocus, hCtrl;
 	HFONT hFnt;
-	RECT rc;
 	HDC hdc;
+	RECT rc;
 	PMWDLGDATA pData;
-	int i;
+	int i, fontsize;
 
 	resGetDlgTemplExtra(pDlg, &dlgExtra);
 
@@ -947,11 +1020,39 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 	do {
 		BOOL bVisible = ((pDlg->style & WS_VISIBLE) != 0);
 
-		rc.left = pDlg->x;
-		rc.top = pDlg->y;
+		pData = (PMWDLGDATA) malloc(sizeof(MWDLGDATA));
+		if (pData == NULL)
+			break;
+
+		pData->flags = 0;
+		pData->running = FALSE;
+		pData->nResult = 0;
+		pData->hWndFocus = NULL;
+
+		// first create font specified in dialog template
+		fontsize = -MulDivRD(dlgExtra.fontSize, GetDeviceCaps(NULL, LOGPIXELSY), 72);
+		if ((dlgExtra.szFontName != NULL) &&
+		    ((hFnt = CreateFont(fontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, DEFDLG_FONT_QUALITY, FF_DONTCARE | DEFAULT_PITCH,
+				dlgExtra.szFontName)) != NULL)) {
+			pData->flags |= DLGF_DESTROYFONT;
+		} else
+			hFnt = GetStockObject(DEFAULT_FONT);
+		pData->hFnt = hFnt;
+
+		// position dialog
+		if (pDlg->x == 0 && pDlg->y == 0 && hWndParent) {
+				rc.left = hWndParent->winrect.left + 20;
+				rc.top = hWndParent->winrect.top + 20;
+		} else {
+				rc.left = pDlg->x;
+				rc.top = pDlg->y;
+		}
+		// now calculate dialog box size from font average character size
 		rc.right = rc.left + pDlg->cx;
 		rc.bottom = rc.top + pDlg->cy;
-		MapDialogRect(hDlg, &rc);
+		hdc = GetDC(NULL);
+		calcDialogRect(hdc, hFnt, &rc);
+		ReleaseDC(NULL, hdc);
 
 		if (pDlg->style & DS_CENTER) {
 			rc.right -= rc.left;
@@ -964,49 +1065,21 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 
 		pDlg->style &= ~WS_VISIBLE;	/* dlg should be showed at end.*/
 
-		hDlg = CreateWindowEx(pDlg->dwExtendedStyle, "GDLGCLASS",
-				      dlgExtra.szDlgName,
-				      pDlg->style | DLG_DEF_STYLE,
-				      rc.left, rc.top, rc.right - rc.left,
-				      16 + rc.bottom - rc.top,
+		hDlg = CreateWindowEx(pDlg->dwExtendedStyle, "GDLGCLASS", dlgExtra.szDlgName, pDlg->style | DLG_DEF_STYLE,
+				      rc.left, rc.top,
+					  rc.right - rc.left, rc.bottom - rc.top + 16,
 				      hWndParent, NULL, hInstance, NULL);
 		if (hDlg == NULL)
-			break;
-
-		hdc = GetDC(hDlg);
-
-		pData = (PMWDLGDATA) malloc(sizeof(MWDLGDATA));
-		if (pData == NULL)
 			break;
 
 		SetWindowLongPtr(hDlg, DWL_DLGDATA, (LONG_PTR)pData);
 		SetWindowLongPtr(hDlg, DWL_DLGPROC, (LONG_PTR)lpDialogFunc);
 		SetWindowLongPtr(hDlg, DWL_USER, dwInitParam);
-		pData->flags = 0;
-		pData->running = FALSE;
-		pData->nResult = 0;
-		pData->hWndFocus = NULL;
 
-		// create a font or use default
-		if ((dlgExtra.szFontName != NULL) &&
-		    ((hFnt = CreateFont(-MulDivRD(dlgExtra.fontSize,
-				 GetDeviceCaps(hdc, LOGPIXELSY), 72), 0, 0,
-				 0, 0, 0, 0, 0, 0, 0, 0, DEFDLG_FONT_QUALITY,
-				 FF_DONTCARE | DEFAULT_PITCH,
-				 dlgExtra.szFontName)) != NULL)) {
-			pData->flags |= DLGF_DESTROYFONT;
-		} else
-			hFnt = GetStockObject(DEFAULT_FONT);
-
-		pData->hFnt = hFnt;
-		SelectObject(hdc, pData->hFnt);
-
-
-		//  items creation
+		//  create each dialog item (control)
 		for (i = 0; i < pDlg->cdit; i++) {
 			PMWDLGITEMTEMPLATE pItem = dlgExtra.pItems[i];
-			PMWDLGITEMTEMPLEXTRA pItemExtra =
-				&dlgExtra.pItemsExtra[i];
+			PMWDLGITEMTEMPLEXTRA pItemExtra = &dlgExtra.pItemsExtra[i];
 			DWORD style = dlgItemStyle(pItem, pItemExtra);
 
 			rc.left = pItem->x;
@@ -1014,32 +1087,25 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 			rc.right = rc.left + pItem->cx;
 			rc.bottom = rc.top + pItem->cy;
 			MapDialogRect(hDlg, &rc);
-//printf("CTL %s\n", dlgGetItemClass(pItemExtra));
-			hCtrl = CreateWindowEx(pItem->dwExtendedStyle,
-				 dlgGetItemClass(pItemExtra),
-				 pItemExtra->szCaption, style,
+//printf("CTL %s %d,%d\n", dlgGetItemClass(pItemExtra), rc.left, rc.top);
+			hCtrl = CreateWindowEx(pItem->dwExtendedStyle, dlgGetItemClass(pItemExtra), pItemExtra->szCaption, style,
 				 rc.left, rc.top,
 				 rc.right - rc.left, rc.bottom - rc.top,
-				 hDlg, (HMENU)(LONG_PTR)pItem->id,
-				 hInstance, pItemExtra->lpData);
+				 hDlg, (HMENU)(LONG_PTR)pItem->id, hInstance, pItemExtra->lpData);
 
 			if (hCtrl != NULL) {
-				if ((hFocus == NULL)
-				    && (pItem->style & WS_TABSTOP)) {
+				if ((hFocus == NULL) && (pItem->style & WS_TABSTOP))
 					hFocus = hCtrl;
-				}
 
 				SendMessage(hCtrl, WM_SETFONT, (WPARAM) pData->hFnt, 0);
 			} else
 				EPRINTF("Error on creating item %d\n", i);
 		}
 
-		ReleaseDC(hDlg, hdc);
-
 		if (bVisible) {
 			MSG msg;
 			ShowWindow(hDlg, SW_SHOW);
-			//SetActiveWindow ( hDlg );
+			//SetActiveWindow(hDlg);
 			UpdateWindow(hDlg);
 
 			// MW needs to be painted
@@ -1050,10 +1116,8 @@ CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 		}
 		//  Finally, send a WM_INITDIALOG message.
 		//  If returned value is nonzero, sets the focus to the first available item.
-		if (SendMessage(hDlg, WM_INITDIALOG, (WPARAM) hFocus, dwInitParam)
-		    && (hFocus != NULL)) {
+		if (SendMessage(hDlg, WM_INITDIALOG, (WPARAM) hFocus, dwInitParam) && (hFocus != NULL))
 			pData->hWndFocus = hFocus;
-		}
 
 		retV = hDlg;
 	} while (0);
@@ -1092,51 +1156,4 @@ CreateDialogParam(HINSTANCE hInstance, LPCTSTR lpTemplate,
 	FreeResource(hResDlg);
 
 	return hRet;
-}
-
-static BOOL
-DIALOG_GetCharSize( HDC hDC, HFONT hFont, SIZE * pSize )
-{
-    HFONT hFontPrev = NULL;
-    char *alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    SIZE sz;
-    TEXTMETRIC tm;
-
-    if(!hDC)
-		return FALSE;
-
-    if (hFont)
-		hFontPrev = SelectObject(hDC, hFont);
-    if (!GetTextMetrics(hDC, &tm))
-		return FALSE;
-    if (!GetTextExtentPoint(hDC, alphabet, 52, &sz))
-		return FALSE;
-
-    pSize->cy = tm.tmHeight;
-    pSize->cx = (sz.cx / 26 + 1) / 2;
-
-    if (hFontPrev)
-		SelectObject(hDC, hFontPrev);
-
-    return TRUE;
-}
-
-/*
- *  Get base units of dialogs
- */
-LONG
-GetDialogBaseUnits(VOID)
-{
-	HDC hdc;
-	SIZE size;
-    static DWORD units;
-
-    if (!units) {
-        if ((hdc = GetDC(NULL)) != NULL) {
-            if (DIALOG_GetCharSize(hdc, 0, &size))
-				units = MAKELONG(size.cx, size.cy);
-            ReleaseDC(NULL, hdc);
-        }
-    }
-    return units;
 }

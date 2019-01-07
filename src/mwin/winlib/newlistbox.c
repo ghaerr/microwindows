@@ -16,14 +16,14 @@
 #include "windows.h"
 
 /* FIXME: Some definitions that are currently not defined in microwindows */
-#define UINT_PTR UINT
-#define STDCALL
-#define WINBOOL BOOL
-#define MK_LBUTTON      0x0001
-#define MK_RBUTTON      0x0002
-#define MK_SHIFT        0x0004
-#define MK_CONTROL      0x0008
-#define MK_MBUTTON      0x0010
+//#define MK_LBUTTON      0x0004
+//#define MK_MBUTTON      0x0002
+//#define MK_RBUTTON      0x0001
+
+// FIXME: check if kbd state modifiers are implemented*/
+#define MK_SHIFT        MWKMOD_SHIFT
+#define MK_CONTROL      MWKMOD_CTRL
+
 #define CBF_NOROLLUP            0x0004
 #define CBF_SELCHANGE           0x0400
 #define LBS_NOSEL 		0x4000
@@ -52,11 +52,6 @@ typedef struct {
 /* Start of hack section -------------------------------- */
 
 typedef short *LPINT16;
-
-BOOL is_old_app(HWND hwnd)
-{
-	return FALSE;
-}
 
 #define WM_LBTRACKPOINT     0x0131
 #define WS_EX_DRAGDETECT    0x00000002L
@@ -142,7 +137,7 @@ typedef enum
     LB_TIMER_RIGHT
 } TIMER_DIRECTION;
 
-static TIMER_DIRECTION LISTBOX_Timer = LB_TIMER_NONE;
+//static TIMER_DIRECTION LISTBOX_Timer = LB_TIMER_NONE;
 
 #if 0
 static LRESULT WINAPI ComboLBWndProcA( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam );
@@ -282,7 +277,6 @@ static INT LISTBOX_GetMaxTopIndex( LB_DESCR *descr )
 static void LISTBOX_UpdateScroll( HWND hwnd, LB_DESCR *descr )
 {
     SCROLLINFO info;
-    RECT rc;
 
     /* Check the listbox scroll bar flags individually before we call
        SetScrollInfo otherwise when the listbox style is WS_HSCROLL and
@@ -362,8 +356,8 @@ static LRESULT LISTBOX_SetTopItem( HWND hwnd, LB_DESCR *descr, INT index,
     if (descr->top_item == index) return LB_OKAY;
     if (descr->style & LBS_MULTICOLUMN)
     {
-        INT diff = (descr->top_item - index) / descr->page_size * descr->column_width;
 #if 0	/* No ScrollWindowEx */
+        INT diff = (descr->top_item - index) / descr->page_size * descr->column_width;
         if (scroll && (abs(diff) < descr->width))
             ScrollWindowEx( hwnd, diff, 0, NULL, NULL, 0, NULL,
                               SW_INVALIDATE | SW_ERASE | SW_SCROLLCHILDREN );
@@ -453,6 +447,7 @@ static void LISTBOX_UpdateSize( HWND hwnd, LB_DESCR *descr )
             remaining = 0;
         if ((descr->height > descr->item_height) && remaining)
         {
+#if 0
             if (is_old_app(hwnd))
             { /* give a margin for error to 16 bits programs - if we need
                  less than the height of the nonclient area, round to the
@@ -461,6 +456,7 @@ static void LISTBOX_UpdateSize( HWND hwnd, LB_DESCR *descr )
                 if ((descr->item_height - remaining) <= ncheight)
                     remaining = remaining - descr->item_height;
             }
+#endif
             SetWindowPos( hwnd, 0, 0, 0, rect.right - rect.left,
                             rect.bottom - rect.top - remaining,
                             SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE );
@@ -806,7 +802,7 @@ static LRESULT LISTBOX_GetText( LB_DESCR *descr, INT index, LPARAM lParam)
         if (!lParam)
             return strlen(descr->items[index].str);
 
-        strcpy (buffer, descr->items[index].str );
+        strcpy ((char *)buffer, descr->items[index].str );
         return strlen(buffer);
     } else {
         if (lParam)
@@ -936,20 +932,20 @@ static INT LISTBOX_FindString( HWND hwnd, LB_DESCR *descr, INT start,
 #define CHECK_DRIVE(item) \
     if ((item)->str[0] == '[') \
     { \
-        if (!strnicmp( str, (item)->str+1, len )) return i; \
-        if (((item)->str[1] == '-') && !strnicmp(str, (item)->str+2, len)) \
+        if (!strncasecmp( str, (item)->str+1, len )) return i; \
+        if (((item)->str[1] == '-') && !strncasecmp(str, (item)->str+2, len)) \
         return i; \
     }
 
             INT len = strlen(str);
             for (i = start + 1; i < descr->nb_items; i++, item++)
             {
-               if (!strnicmp( str, item->str, len )) return i;
+               if (!strncasecmp( str, item->str, len )) return i;
                CHECK_DRIVE(item);
             }
             for (i = 0, item = descr->items; i <= start; i++, item++)
             {
-               if (!strnicmp( str, item->str, len )) return i;
+               if (!strncasecmp( str, item->str, len )) return i;
                CHECK_DRIVE(item);
             }
 #undef CHECK_DRIVE
@@ -1616,7 +1612,7 @@ static void LISTBOX_DeleteItem( HWND hwnd, LB_DESCR *descr, INT index )
         SendMessage( descr->owner, WM_DELETEITEM, id, (LPARAM)&dis );
     }
     if (HAS_STRINGS(descr) && descr->items[index].str)
-        free( descr->items[index].str );
+        free( (char *)descr->items[index].str );
 }
 
 
@@ -2004,6 +2000,7 @@ static LRESULT LISTBOX_HandleLButtonDown( HWND hwnd, LB_DESCR *descr,
 
     descr->captured = TRUE;
     SetCapture( hwnd );
+	InvalidateRect(hwnd, NULL, TRUE);		/* draw selection*/
 
     if (!descr->lphc)
     {
@@ -2451,6 +2448,7 @@ static BOOL LISTBOX_Create( HWND hwnd, LPHEADCOMBO lphc )
 #endif
     descr->lphc		 = lphc;
 
+#if 0
     if (is_old_app(hwnd) && ( descr->style & ( WS_VSCROLL | WS_HSCROLL ) ) )
     {
 	/* Win95 document "List Box Differences" from MSDN:
@@ -2460,7 +2458,7 @@ static BOOL LISTBOX_Create( HWND hwnd, LPHEADCOMBO lphc )
 	*/
 	descr->style |= WS_VSCROLL | WS_HSCROLL;
     }
-
+#endif
     if( lphc )
     {
         descr->owner = lphc->self;
@@ -2506,7 +2504,7 @@ static BOOL LISTBOX_Create( HWND hwnd, LPHEADCOMBO lphc )
 static BOOL LISTBOX_Destroy( HWND hwnd, LB_DESCR *descr )
 {
     LISTBOX_ResetContent( hwnd, descr );
-    SetWindowLongPtr( hwnd, 0, NULL );
+    SetWindowLongPtr( hwnd, 0, (LONG_PTR)0);
     free( descr );
     return TRUE;
 }
@@ -2886,7 +2884,7 @@ static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
 		HDC hdc;
 		HBRUSH hbr;
 
-		if (hbr = (HBRUSH)SendMessage (descr->owner, WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd))
+		if ((hbr = (HBRUSH)SendMessage (descr->owner, WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd)) != 0)
 		{
 			hdc = GetDCEx(hwnd, NULL, DCX_DEFAULTCLIP);
 			FillRect(hdc, NULL, hbr);

@@ -1049,7 +1049,7 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat, i
 	}
 	return height;
 }
-#else
+#else /* !OLD_DRAWTEXT*/
 /*
  * MwDrawText Support routine: given a position, a string and length,
  *	process underline, ampersands and tabs, and output

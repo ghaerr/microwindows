@@ -55,6 +55,7 @@ OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
 	$(MW_DIR_OBJ)/mwin/winlib/newedit.o \
 	$(MW_DIR_OBJ)/mwin/winlib/listbox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/newlistbox.o \
 	$(MW_DIR_OBJ)/mwin/winlib/progbar.o \
 	$(MW_DIR_OBJ)/mwin/winlib/static.o \
 	$(MW_DIR_OBJ)/mwin/winlib/combobox.o \

@@ -13,7 +13,8 @@ int WINAPI	MwRegisterProgressBarControl(HINSTANCE hInstance);
 int WINAPI	MwRegisterComboboxControl(HINSTANCE hInstance);
 int WINAPI	MwRegisterScrollbarControl(HINSTANCE hInstance);
 int WINAPI	MwRegisterMEditControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterOldEditControl(HINSTANCE hInstance); /* FIXME*/
+int WINAPI	MwRegisterOldEditControl(HINSTANCE hInstance);		/* obsolete*/
+int WINAPI	MwRegisterOldListboxControl(HINSTANCE hInstance);	/* obsolete*/
 
 
 /* Dialog Codes*/

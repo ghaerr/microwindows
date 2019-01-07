@@ -1,3 +1,10 @@
+6 Jan 2019
+	* fix SetWindowPos when SWP_NOMOVE specified (size only), this fixes combobox popup in wrong location
+	* fix newlistbox highlight on mouse down
+	* changed win32 listbox to newlistbox.c, fixes font handling with mwdvest.c. Old available via MwRegisterOldListbox()
+	* fix text size calcuation in MapDialogRect, uses same calculation as GetDialogBaseUnits now
+	* fix CreateDialog size bug calling MapDialogRect before dialog font created
+	* use wine resource compiler (wrc) for testing images/demos/mwin/mwdvetest/dveres.{rc,res}
 5 Jan 2019
 	* Cleanup and get contrib/nx11-test/ working
 	* Cleanup demoscripts/, update docs/

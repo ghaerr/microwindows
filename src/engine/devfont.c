@@ -105,7 +105,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 		if (plogfont->lfUnderline)
 			fontattr = MWTF_UNDERLINE;
 	}
-	height = abs(height);
+	height = abs(height);			/* FIXME win32 height < 0 specifies character height not cell height*/
 
 	/* check builtin fonts first for speed*/
  	if (!height && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {

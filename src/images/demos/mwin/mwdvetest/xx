@@ -1,0 +1,4 @@
+# RC compile
+cpp -E dveres.rc > dveres.pp
+./wrc dveres.pp -o dveres.res
+rm dveres.pp

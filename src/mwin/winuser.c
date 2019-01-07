@@ -1568,11 +1568,15 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 		offx = x - hwnd->winrect.left;
 		offy = y - hwnd->winrect.top;
 	}
-	if(bMove || bSize) {
+	if(bMove) {
 		hwnd->winrect.left = x;
 		hwnd->winrect.top = y;
 		hwnd->winrect.right = x + cx;
 		hwnd->winrect.bottom = y + cy;
+	}
+	if(bSize) {
+		hwnd->winrect.right = hwnd->winrect.left + cx;
+		hwnd->winrect.bottom = hwnd->winrect.top + cy;
 	}
 	if(bMove)
 		MwOffsetChildren(hwnd, offx, offy);

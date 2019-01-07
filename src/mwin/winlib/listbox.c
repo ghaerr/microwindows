@@ -147,7 +147,7 @@ static PLISTBOXITEM lstGetItem(PLISTBOXDATA pData, int pos);
 #define LST_INTER_BMPTEXT       2
 
 int WINAPI
-MwRegisterListboxControl(HINSTANCE hInstance)
+MwRegisterOldListboxControl(HINSTANCE hInstance)
 {
 	WNDCLASS wc;
 #if 0

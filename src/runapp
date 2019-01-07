@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# Wrapper script to run Microwindows apps from inside the source tree
+# The nano-X server will be started if necessary
+#
+
+# first determine the directory that contains this script itself
+scriptdir=""
+scriptname=$0
+
+case "$0" in
+  */*)
+    # $0 contains a path, use it
+    scriptdir=`dirname "$0"`
+    scriptname=`basename "$0"`
+    ;;
+  *)
+    # no directory in $0, search in PATH
+    saved_ifs=$IFS
+    IFS=:
+    for d in $PATH
+    do
+      IFS=$saved_ifs
+      if [ -x "$d/$scriptname" ]
+      then
+        scriptdir="$d"
+        break
+      fi
+    done
+    ;;
+esac
+
+# now find the top-level directory of the build tree
+if [ -x "$scriptdir/bin/nano-X" ]
+then topdir="$scriptdir"
+elif [ -x "$scriptdir/../bin/nano-X" ]
+then topdir="$scriptdir/.."
+elif [ -x "$scriptdir/../../bin/nano-X" ]
+then topdir="$scriptdir/../.."
+elif [ -x "$scriptdir/../../../bin/nano-X" ]
+then topdir="$scriptdir/../../.."
+else
+  echo "$scriptname: could not locate the Microwindows build tree"
+  exit 1
+fi
+
+topdir=`cd "$topdir" && pwd`
+bindir=$topdir/bin
+
+# find nano-X server
+if [ -x "$bindir/nano-X" ]
+then NANOXSERVER="$bindir/nano-X"
+else
+  echo "$scriptname: could not find nano-X server in $bindir"
+  exit 1
+fi
+
+# now find application specified
+if [ "$1" = "" ]
+then
+  	# no app specified, give usage
+	echo "Usage: $scriptname <appname>"
+	exit 1
+fi
+case "$1" in
+  */*)
+    # $1 contains a path, use it
+    application=$1
+    ;;
+  *)
+    # no directory in $1
+	application=$bindir/$1
+    ;;
+esac
+# check if application present
+if [ ! -x $application ]
+then
+	echo "$scriptname: can't find $application"
+	exit 1
+fi
+
+# determine if nano-X server required
+appname=`basename "$application"`
+case "$appname" in
+  mw*)
+	need_server=NO
+    ;;
+  *)
+	need_server=YES
+    ;;
+esac
+
+# setup the environment
+
+if [ "`uname -s`" = "Darwin" ]
+then
+  if [ -n "$DYLD_LIBRARY_PATH" ]
+  then
+    DYLD_LIBRARY_PATH="$topdir/lib:$DYLD_LIBRARY_PATH"
+  else
+    DYLD_LIBRARY_PATH="$topdir/lib"
+  fi
+  export DYLD_LIBRARY_PATH
+else
+  if [ -n "$LD_LIBRARY_PATH" ]
+  then
+    LD_LIBRARY_PATH="$topdir/lib:$LD_LIBRARY_PATH"
+  else
+    LD_LIBRARY_PATH="$topdir/lib"
+  fi
+  export LD_LIBRARY_PATH
+fi
+
+#echo $need_server $NANOXSERVER $application libs=$DYLD_LIBRARY_PATH
+
+# now check if nano-X server needs to be run, and exec application
+shift
+server_running=`ps | grep nano-X | sed '/grep/d'`
+if [ "$need_server" = "YES" ] && [ "$server_running" = "" ]
+then
+	$NANOXSERVER & exec $application $@
+else
+	exec $application $@
+fi

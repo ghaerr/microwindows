@@ -1,17 +1,18 @@
 -----------------------------------------------------
 This is an overview of the demo programs provided. 
-These can be found in the bin directory after executing "make".
+These can be found in the microwindows/src/bin directory
+after executing "make" from microwindows/src.
 
-If compiled with shared=N and link_app_into_server=Y
-the demos can be called from src directory with e.g.
-"bin/show_ppm landmine.ppm"
+All the demonstration programs can be run using "./runapp <appname>".
 
-Otherwise use a shell script and load nano-X
-before the application. E.g.:
-"bin/nano-X & bin/tuxchess".
+Any application can be run using the application launch
+script, runapp, which automatically starts the nano-X server if required.
+Some examples:
 
-There are a number of shell scripts in the src/demoscripts
-directory for running demos.
+	./runapp demo-aafont
+	./runapp demo-composite
+	./runapp mwdvetest
+	./runapp mwmine
 
 Following is a list of the demo programs with short
 descriptions.

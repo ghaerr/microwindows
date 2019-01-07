@@ -1,13 +1,14 @@
 Microwindows Configuration Documentation
-January 5, 2019 g haerr <greg@censoft.com>
+January 7, 2019 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
-1. cd microwin/src
+1. cd microwindows/src
 
-2. The default configuration is for MAC OSX (Configs/config.macosx).
-   Type "cp Configs/config.linuxX11 config" for the X11 configuration on Linux.
-   Edit the default configuration file "config", if desired.
+2. The default configuration is for MAC OSX running X11 (Configs/config.macosx).
+   For Linux X11 type "cp Configs/config.linuxX11 config".
+
+   Edit the default configuration file "config" for library support desired.
 
    There are (outdated) pre-built configuration files for a variety
    of target systems, see Configs/README.
@@ -18,20 +19,20 @@ To build Microwindows for desktop demonstration:
 4. Run the default mouse driver if using GPM mouse and not on X11:
 	./mouse.sh
 
-5.  Run some demonstration programs. The mwin (win32 api) programs
-	are run directly, e.g.:
+5.  Run the demonstration programs using "./runapp <appname>".
 
-	bin/mwmine
+	Any application in src/bin can be run using the application launch
+	script, runapp, which automatically starts the nano-X server if required.
+	Some examples:
 
-	The nano-X programs require running the nano-X server and the
-	application, and there are a variety of *.sh shell scripts in
-	the demoscripts/ directory that run samples, as well as a
-	script rundemos.sh that runs the nano-X server prior to the application:
+	./runapp demo-aafont
+	./runapp demo-composite
+	./runapp mwdvetest
+	./runapp mwmine
 
-	cd demoscripts
-	./demo-composite.sh
-
-	You can edit LINK_APP_INTO_SERVER=Y in config to create standalone executables.
+	The runapp shell script sets up LD_LIBRARY_PATH properly
+	so that the shared libraries are loaded from src/lib when
+	configured for SHAREDLINK=Y.
 
 6. More information below.
 
@@ -58,7 +59,7 @@ is built by typing "make clean; make".
 Microwindows' header files can be written to /usr/lib/microwin,
 and libraries to /usr/lib by typing "sudo make install".  This
 is not required unless using Microwindows to build other
-applications, however.  All demos build using the headers
+applications, however.  All demos build and run using the headers
 and libraries built in the source tree.
 
 Config options are detailed in the config file itself and
@@ -74,17 +75,20 @@ the full compiler command line when making.  When cross-compiling
 for different platforms, the various XXXTOOLSPREFIX values
 must be set accordingly.
 
-The Nano-X server can be built with a compiled-in application,
+The Nano-X server can be built as a compiled-in application,
 or use UNIX sockets to allow seperately compiled applications
 to connect to the server.  Setting the line
 	LINK_APP_INTO_SERVER=Y
-will build a linked application/server, which is useful for debugging
-and speed.  The client/server networking code has been rewritten for speed.
+will create libnanoX with the server files necessary to create
+a standalone nano-X application, which is useful for debugging,
+or for not having to run a seperate client/server connection
+to the nano-X server. The downside is that multiple applications
+cannot be run simultaneously.
 
 We now have support for scaled, rotated, and antialiased
 fonts with both truetype and adobe type 1 fonts.  To include
 support for truetype fonts, download freetype-1.3.1.tar.gz 
-or freetype-2.3.12.tar.gz from either microwindows.org or
+or freetype-2.3.12.tar.gz or later from either microwindows.org or
 www.freetype.org, and set:
 	HAVE_FREETYPE_SUPPORT=Y
 	or
@@ -97,14 +101,12 @@ and set:
 in the config file.  The ftdemo and t1demo programs demonstrate
 use of both truetype and type 1 fonts (see fontdemo*.sh)
 
-If compiling for use with multi-threaded applications, set
-	THREADSAFE=Y
-which enables a global mutex around all GrXXX() functions.
+If compiling for use with multi-threaded applications, setting
+	THREADSAFE=Y (default)
+enables a global mutex around all GrXXX() functions.
 This is necessary when using Nano-X with the SDL library and SMPEG.
 
 All the demos are built in the microwin/src/bin directory. 
-See the *.sh shell scripts and the src/demos/nanox directories
-for more infomation.
 
 Linux
 =====
@@ -129,12 +131,12 @@ If FRAMEBUFFER is set, the following line enables the optional
 For MIPS and SuperH compilations, set FBVGA=N, since system header
 files don't contain outb() and outw() macros.
 
-When building the X11 version, it is very important to 
+When building the X11 version, it is important to
 set the SCREEN_PIXTYPE value correctly, as Microwindows
 will emulate the target pixel depth in X11.  See the
-config file for more details.
+config file for more details, the default is 32 bit color.
 
-Linux users can use either the GPM mouse driver, or a "bare"
+Linux framebuffer users can use either the GPM mouse driver, or a "bare"
 serial mouse driver that decodes the mouse directly from the 
 serial port.  Set either line in the config file.
 	GPMMOUSE=Y	or
@@ -155,18 +157,6 @@ MS-Windows look and feel.  You must own a MS license in order
 to use an MS font.  To use the MS fonts, run mwin/src/fonts/convfnt32.exe
 on a Windows system, and it will create the win*.c font tables.
 These fonts can then be linked in by modifying the drivers/genfont.c file.
-
-FreeBSD
-=====
-FreeBSD users set the line below in the config file.
- ARCH=FREEBSD-X86
-
-You must use GNU make.  The easiest way is to install the 
-ports/devel/gmake package and use a command line such as "gmake MAKE=gmake"
-
-PSP
-===
-See src/contrib/README.psp
 
 ELKS (not tested since version 0.86)
 ====

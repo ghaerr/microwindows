@@ -1,3 +1,4 @@
+	* added runapp script to run win32 and nano-X applications, automatically starts nano-X server if required
 6 Jan 2019
 	* fix SetWindowPos when SWP_NOMOVE specified (size only), this fixes combobox popup in wrong location
 	* fix newlistbox highlight on mouse down

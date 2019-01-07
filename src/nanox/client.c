@@ -365,7 +365,7 @@ GrOpen(void)
 
 	/*
 	 * Try to open the connection ten times,
-	 * waiting 0.1 or 2.0 seconds between attempts.
+	 * waiting 0.1 seconds between attempts.
 	 */
 	for (tries=1; tries<=10; ++tries) {
 		struct timespec req;
@@ -377,11 +377,12 @@ GrOpen(void)
 		req.tv_sec = 0;
 		req.tv_nsec = 100000000L;
 #else
-		req.tv_sec = 2;
-		req.tv_nsec = 0;
+		req.tv_sec = 0;
+		req.tv_nsec = 100000000L;
 #endif
 		nanosleep(&req, NULL);
-		EPRINTF("nxclient: retry connect attempt %d\n", tries);
+		if (tries > 1)
+			EPRINTF("nxclient: retry connect attempt %d\n", tries);
 	}
 	if (ret == -1) {
 		close(nxSocket);

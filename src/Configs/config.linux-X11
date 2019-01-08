@@ -16,7 +16,7 @@
 ####################################################################
 ARCH                     = LINUX-NATIVE
 SHAREDLIBS               = Y
-SHAREDLINK               = N
+SHAREDLINK               = Y
 #EXTRAFLAGS               = -Wno-unused-result -Wno-implicit-int
 DEBUG                    = N
 OPTIMIZE                 = Y

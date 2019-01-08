@@ -30,10 +30,10 @@ To build Microwindows for desktop demonstration:
 	./runapp mwdvetest
 	./runapp mwmine
 
-	The runapp shell script sets up LD_LIBRARY_PATH properly
-	so that the shared libraries are loaded from microwindows/src/lib/ when
-	configured for SHAREDLINK=Y. To not link the demo programs
-	with Microwindows shared libraries, set SHAREDLINK=N.
+	The runapp shell script sets up and exports LD_LIBRARY_PATH so that the
+	required shared libraries are loaded from microwindows/src/lib/ when
+	configured with SHAREDLINK=Y. To link the demo programs
+	with Microwindows static libraries, set SHAREDLINK=N.
 
 	Microwindows by default builds both .a share libraries.
 	To not generate any shared libraries, set SHAREDLIBS=N.

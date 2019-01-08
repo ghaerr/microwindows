@@ -111,7 +111,7 @@ else
   export LD_LIBRARY_PATH
 fi
 
-#echo $need_server $NANOXSERVER $application libs=$DYLD_LIBRARY_PATH
+#echo $need_server $NANOXSERVER $application libs=$DYLD_LIBRARY_PATH libs=$LD_LIBRARY_PATH
 
 # now check if nano-X server needs to be run, and exec application
 shift

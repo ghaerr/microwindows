@@ -23,8 +23,9 @@ extern "C" {
 #define DEBUG_EXPOSE	0		/* =1 to flash yellow before painting expose areas*/
 #define DEBUG_BLIT		0		/* =1 to flash brown before painting areas with convblit*/
 
-/* the fontmapper is obsolete*/
+/* obsolete features*/
 #define FONTMAPPER	0			/* =1 for Morten's font mapper*/
+#define OLD_TEXT	0			/* =1 for old text draw in wingdi.c::mwDrawText() & static.c*/
 
 /* the following defines are unset in Arch.rules based on ARCH= setting*/
 #ifndef HAVE_SELECT

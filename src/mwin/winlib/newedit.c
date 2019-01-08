@@ -7,7 +7,7 @@
  *
  * Based on microwindows edit.c
  *  Copyright (C) 1999, 2000, Wei Yongming.
- *  Portions Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ *  Portions Copyright (c) 2000, 2019 Greg Haerr <greg@censoft.com>
  *
  */
 
@@ -1781,7 +1781,7 @@ SLEditCtrlProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-int WINAPI
+int
 MwRegisterEditControl(HINSTANCE hInstance)
 {
 	WNDCLASS wc;

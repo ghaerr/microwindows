@@ -26,15 +26,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
         HWND hwnd;
         MSG msg;
         WNDCLASS wndclass;
-
 	int width, height;
 
 	width=270;
 	height=120;
 
-	MwRegisterButtonControl(NULL);
-	MwRegisterProgressBarControl(NULL);
-	MwRegisterStaticControl(NULL);
+		MwInitializeDialogs(hInstance); // register stand control and dialog classes
 
         wndclass.style          = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wndclass.lpfnWndProc    = (WNDPROC)wproc;

@@ -421,7 +421,7 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		SelectObject(hdc, (HFONT)(LRESULT)SendMessage(hCtl, WM_GETFONT, (WPARAM)0, (LPARAM)0));
 		SelectObject(hdc, GetStockObject(BLACK_PEN) );
 
-		switch ( dwStyle & SS_ETCTYPEMAKS )
+		switch ( dwStyle & SS_ETCTYPEMASK )
 			{
 			/*  FIXME: Frames should use NULL_BRUSH, but with current
 			    microwindows version does not works... */

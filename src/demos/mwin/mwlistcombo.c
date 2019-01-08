@@ -42,8 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	width = height = r.right / 4;
 	height /= 2;
 
-	MwRegisterListboxControl(NULL);
-	MwRegisterComboboxControl(NULL);
+		MwInitializeDialogs(hInstance); // register stand control and dialog classes
 
         wndclass.style          = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wndclass.lpfnWndProc    = (WNDPROC)wproc;

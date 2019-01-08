@@ -89,15 +89,12 @@ MwUserInit(int ac, char **av)
 }
 
 static int
-RegisterAppClass(void)
+RegisterAppClass(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
-	MwRegisterButtonControl(NULL);
-	MwRegisterEditControl(NULL);
-	MwRegisterListboxControl(NULL);
-	MwRegisterProgressBarControl(NULL);
-	/*MwRegisterComboboxControl(NULL);*/
+	/* register builtin controls and dialog classes*/
+	MwInitializeDialogs(hInstance);
 
 	wc.style = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc = (WNDPROC)WndProc;
@@ -478,7 +475,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	RECT	rc;
 
 	srandom(time(NULL));
-	RegisterAppClass();
+	RegisterAppClass(hInstance);
 	GetWindowRect(GetDesktopWindow(), &rc);
 
 	/* create penguin window*/

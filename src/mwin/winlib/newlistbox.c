@@ -177,7 +177,7 @@ const struct builtin_class_descr COMBOLBOX_builtin_class =
     0                     /* brush */
 };
 #else
-int WINAPI
+int
 MwRegisterListboxControl(HINSTANCE hInstance)
 {
 	WNDCLASS wc={0};

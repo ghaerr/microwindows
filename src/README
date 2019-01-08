@@ -21,7 +21,7 @@ To build Microwindows for desktop demonstration:
 
 5.  Run the demonstration programs using "./runapp <appname>".
 
-	Any application in src/bin can be run using the application launch
+	Any application in microwindows/src/bin/ can be run using the application launch
 	script, runapp, which automatically starts the nano-X server if required.
 	Some examples:
 
@@ -31,8 +31,12 @@ To build Microwindows for desktop demonstration:
 	./runapp mwmine
 
 	The runapp shell script sets up LD_LIBRARY_PATH properly
-	so that the shared libraries are loaded from src/lib when
-	configured for SHAREDLINK=Y.
+	so that the shared libraries are loaded from microwindows/src/lib/ when
+	configured for SHAREDLINK=Y. To not link the demo programs
+	with Microwindows shared libraries, set SHAREDLINK=N.
+
+	Microwindows by default builds both .a share libraries.
+	To not generate any shared libraries, set SHAREDLIBS=N.
 
 6. More information below.
 
@@ -46,14 +50,14 @@ For notes on Intel Assabet, see bottom of file.
 
 Microwindows can be compiled to use different screen, 
 mouse and keyboard drivers for a given operating system environment.
-Most options are set using configuration file (microwin/src/config) options.
+Most options are set using configuration file (microwindows/src/config) options.
 These options can be manually editted, or if running X11,
 by running a graphical configuration program that will read and 
 write the config file if desired by running "make xconfig".
 Other options are set in the graphics drawing engine's header
-file microwin/src/include/device.h.
+file microwindows/src/include/device.h.
 
-After changing any options in microwin/src/config, Microwindows
+After changing any options in microwindows/src/config, Microwindows
 is built by typing "make clean; make".
 
 Microwindows' header files can be written to /usr/lib/microwin,
@@ -106,7 +110,7 @@ If compiling for use with multi-threaded applications, setting
 enables a global mutex around all GrXXX() functions.
 This is necessary when using Nano-X with the SDL library and SMPEG.
 
-All the demos are built in the microwin/src/bin directory. 
+All the demos are built in the microwindows/src/bin directory. 
 
 Linux
 =====
@@ -147,14 +151,14 @@ Note that to use the GPM driver, you must start GPM with
 the -R option, and usually specify the mouse type with -t.
 See mouse.sh for an example.  If using the direct serial
 mouse driver, the serial port may have to be specified in
-microwin/src/drivers/mou_ser.c, as it defaults to /dev/psaux,
+microwindows/src/drivers/mou_ser.c, as it defaults to /dev/psaux,
 and expects a ps2-compatible mouse (changeable in mou_ser.c
 or through environment variables MOUSE_TYPE={ms,pc,logi,ps2},
 and MOUSE_PORT=/dev/ttyS1).
 
 I have written a utility that converts MS fonts, for exact
 MS-Windows look and feel.  You must own a MS license in order
-to use an MS font.  To use the MS fonts, run mwin/src/fonts/convfnt32.exe
+to use an MS font.  To use the MS fonts, compile microwindows/src/fonts/tools/convfnt.c
 on a Windows system, and it will create the win*.c font tables.
 These fonts can then be linked in by modifying the drivers/genfont.c file.
 
@@ -166,7 +170,7 @@ ELKS users set the line below in the config file.
 The NWIDGET=N line must be set, as bcc can't handle
 ansi C's token paste operator, used in the widget library.
 
-The serial mouse driver is in microwin/src/drivers/mou_ser.c.
+The serial mouse driver is in microwindows/src/drivers/mou_ser.c.
 The default mouse port and type can be changed with the following
 environment variables, or changed in the driver.
 
@@ -183,7 +187,7 @@ completed, which works well on slower cpu's.
 
 Since ELKS doesn't currently have a floating point library,
 the 3d demo is automatically compiled out of
-microwin/src/demos/microwin/demo.c:
+microwindows/src/demos/mwin/mwdemo.c:
 	#define GRAPH3D	0
 	#define IMAGE	0
 The IMAGE define is set to 0 as bringing in most
@@ -200,7 +204,7 @@ the ANSI C '##' token pasting operator which is used
 in the client request code, client.c.  Run the following
 perl script to preprocess the client.c source file:
 
-	cd microwin/src/nanox
+	cd microwindows/src/nanox
 	mv client.c client.dist
 	./elkspatch.pl < client.dist > client.c
 
@@ -214,7 +218,7 @@ different nano-X demos.
 DJGPP and others
 ================
 There are contributed DJGPP, TURBO C and PACIFIC C ports.  
-Instructions are in microwin/src/contrib/djgpp, turboc and 
+Instructions are in microwindows/src/contrib/ports/djgpp, turboc and 
 pacific.
 
 Framebuffer notes:

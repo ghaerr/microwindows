@@ -20,7 +20,7 @@
 #ifdef _WIN32
 LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
 #pragma code_page(1252)
-#endif //_WIN32
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -29,8 +29,9 @@ LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
 
 IDD_DLGMAIN DIALOG DISCARDABLE  0, 0, 127, 59
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialogs DEMO"
-FONT 20, "Accidental Presidency"
+CAPTION "Microwindows Dialogs Demo"
+//FONT 20, "Accidental Presidency"
+FONT 18, "Bitstream Cyberbit"
 BEGIN
     CONTROL         105,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,90,3,32,10
     LTEXT           "&Select demo:",IDC_STATIC,7,7,60,8
@@ -42,8 +43,8 @@ END
 
 IDD_DLGSTATIC DIALOG DISCARDABLE  0, 0, 183, 119
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Static Control demo"
-FONT 10, "VAGRounded Lt"
+CAPTION "Static Controls Demo"
+FONT 16,"VAGRounded Lt"
 BEGIN
     DEFPUSHBUTTON   "O&K",IDOK,126,95,50,17
     LTEXT           "This demo shows the Static control features:\nSupports '\\n' and word wrap for text",
@@ -67,7 +68,7 @@ BEGIN
     LTEXT           "",IDC_STATIC,81,76,20,13,SS_SUNKEN | NOT WS_GROUP
     CONTROL         103,IDC_STATIC,"Static",SS_BITMAP,106,34,18,17
     LTEXT           "Bitmap",IDC_STATIC,106,26,25,8
-    LTEXT           "You can handle WM_CTLCOLOR message to change color, font, etc...",
+    LTEXT           "You can handle WM_CTLCOLOR message to change color && font",
                     IDC_CTLCOLOR,7,93,112,18
     CTEXT           "Vert. cent. txt",IDC_STATIC,126,34,46,17,SS_CENTERIMAGE | 
                     WS_BORDER
@@ -78,7 +79,7 @@ END
 
 IDD_DLGCONTROLS DIALOG DISCARDABLE  0, 0, 183, 143
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Control navigation"
+CAPTION "Control Navigation Demo"
 FONT 8, "Bitstream Cyberbit"
 BEGIN
     LTEXT           "E&dit 1",IDC_STATIC,7,10,20,9
@@ -117,8 +118,9 @@ END
 
 IDD_DLGEDIT DIALOG DISCARDABLE  0, 0, 206, 110
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Edit controls demo"
-FONT 11, "Accidental Presidency"
+CAPTION "Edit Controls Demo"
+//FONT 11, "Accidental Presidency"
+FONT 16, "Bitstream Cyberbit"
 BEGIN
     LTEXT           "Edit &1  -  Normal",IDC_STATIC,7,7,79,8
     EDITTEXT        IDC_EDIT1,7,16,103,14,ES_AUTOHSCROLL
@@ -129,7 +131,7 @@ BEGIN
     LTEXT           "Edit &4  -  RdOnly",IDC_STATIC,115,7,61,8
     EDITTEXT        IDC_EDIT4,115,17,84,14,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "&Copy from 1",IDC_BUTT_COPY,116,33,50,11
-    LTEXT           "Note:you can select text with mouse or by holding down the Shift  key. You can copy text by pressing Ctrl+INS and paste with Shift+INS.",
+    LTEXT           "Note: You can select text with mouse or by holding down the Shift key. You can copy text by pressing Ctrl+INS and paste with Shift+INS.",
                     IDC_STATIC,95,46,104,41
     DEFPUSHBUTTON   "O&K",IDOK,141,88,58,15
 END
@@ -156,8 +158,8 @@ END
 
 IDD_DLGLIST DIALOG DISCARDABLE  0, 0, 210, 107
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Listboxes demo"
-FONT 11, "Accidental Presidency"
+CAPTION "Listboxes Demo"
+FONT 12, "Accidental Presidency"
 BEGIN
     LTEXT           "Listbox with &USETABSTOPS property.",IDC_STATIC,7,1,119,
                     8
@@ -183,8 +185,8 @@ END
 
 IDD_DLGSTRINGS DIALOG DISCARDABLE  0, 0, 183, 118
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Static Control demo"
-FONT 10, "VAGRounded Lt"
+CAPTION "LoadString Demo"
+FONT 12, "VAGRounded Lt"
 BEGIN
     DEFPUSHBUTTON   "O&K",IDOK,125,2,50,22
     LTEXT           "String id 1",IDC_STATIC,7,18,30,8
@@ -212,8 +214,8 @@ END
 
 IDD_DLGINTERNAT DIALOG DISCARDABLE  0, 0, 183, 119
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Internationals Character Demo"
-FONT 10, "VAGRounded Lt"
+CAPTION "International Characters Demo"
+FONT 20, "VAGRounded Lt"
 BEGIN
     DEFPUSHBUTTON   "O&K",IDOK,126,95,50,17
     LTEXT           "",IDC_STATICFONT1,7,7,170,87
@@ -221,12 +223,14 @@ END
 
 IDD_DLGMULTILINE DIALOG DISCARDABLE  0, 0, 183, 119
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Multilene edit and Internationals Character Demo"
-FONT 10, "VAGRounded Lt"
+CAPTION "Multiline Edit with International Characters Demo"
+FONT 20, "VAGRounded Lt"
 BEGIN
     DEFPUSHBUTTON   "O&K",IDOK,126,95,50,17
-    EDITTEXT        IDC_EDIT1,7,7,169,85,ES_MULTILINE | ES_AUTOHSCROLL | 
-                    ES_WANTRETURN
+    EDITTEXT        IDC_EDIT1,7,7,169,85,ES_MULTILINE | ES_AUTOHSCROLL | ES_WANTRETURN
+//  CONTROL         IDC_EDIT1,IDC_EDIT1,"MEDIT",
+//						ES_MULTILINE|ES_AUTOHSCROLL|ES_WANTRETURN|WS_CHILD|WS_VISIBLE,
+//						7,7,169,85
 END
 
 
@@ -318,7 +322,7 @@ BEGIN
         BOTTOMMARGIN, 112
     END
 END
-#endif    // APSTUDIO_INVOKED
+#endif
 
 
 #ifdef APSTUDIO_INVOKED
@@ -344,7 +348,7 @@ BEGIN
     "\0"
 END
 
-#endif    // APSTUDIO_INVOKED
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -369,7 +373,7 @@ BEGIN
     IDS_STRING4             "This is string 4 in STRINGTABLE"
 END
 
-#endif    // Italian (Italy) resources
+#endif
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -382,5 +386,4 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-
+#endif

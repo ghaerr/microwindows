@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2019 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1999, 2000, Wei Yongming.
  * jmt: scrollbar thumb ported
  *
@@ -36,7 +36,7 @@
 
 LRESULT CALLBACK ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-int WINAPI MwRegisterScrollbarControl(HINSTANCE hInstance)
+int MwRegisterScrollbarControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
@@ -71,7 +71,7 @@ wndGetBorder(HWND hwnd)
 }
 
 static BOOL
-wndGetVScrollBarRect (HWND hwnd, RECT* rcVBar)
+wndGetVScrollbarRect (HWND hwnd, RECT* rcVBar)
 {
 	int cx,cy; RECT rc;
 
@@ -88,7 +88,7 @@ wndGetVScrollBarRect (HWND hwnd, RECT* rcVBar)
 }
 
 static BOOL
-wndGetHScrollBarRect (HWND hwnd, RECT* rcHBar)
+wndGetHScrollbarRect (HWND hwnd, RECT* rcHBar)
 {
 	int cx,cy; RECT rc;
 
@@ -172,7 +172,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 
         	/* draw moving bar */
 
-    		wndGetVScrollBarRect (hwnd, &rcVBar);
+    		wndGetVScrollbarRect (hwnd, &rcVBar);
     		rcVBar.left -- ;
     		/*rcVBar.right -- ;*/
 
@@ -242,7 +242,7 @@ MwPaintScrollbars(HWND hwnd, HDC hdc, DWORD style)
 
         	/* draw moving bar. */
 
-    		wndGetHScrollBarRect (hwnd, &rcHBar);
+    		wndGetHScrollbarRect (hwnd, &rcHBar);
     		rcHBar.top -- ;
     		/*rcHBar.bottom -- ;*/
 
@@ -536,7 +536,7 @@ PtInRect2(const RECT *lprc, int x, int y)
 #endif
 
 static void
-wndScrollBarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)	/* jmt: 2k0820 */
+wndScrollbarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)	/* jmt: 2k0820 */
 {
     UINT moveRange;
     PMWSCROLLBARINFO pSBar;
@@ -586,7 +586,7 @@ wndScrollBarPos (HWND hwnd, BOOL bIsHBar, RECT* rcBar)	/* jmt: 2k0820 */
         pSBar->barStart = 0;
 }
 
-static PMWSCROLLBARINFO wndGetScrollBar (HWND pWin)	/* jmt: 2k0820 */
+static PMWSCROLLBARINFO wndGetScrollbar (HWND pWin)	/* jmt: 2k0820 */
 {
     	MWSCROLLBARINFO* pData;
 	
@@ -610,7 +610,7 @@ EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)	/* jmt: iSBar not used */
 
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
 
     bPrevState = !(pSBar->status & SBS_DISABLED);
@@ -626,13 +626,13 @@ EnableScrollBarEx (HWND hWnd, int iSBar, BOOL bEnable)	/* jmt: iSBar not used */
 
     if (dwStyle == SBS_VERT)
     {
-        wndGetVScrollBarRect (pWin, &rcBar);
+        wndGetVScrollbarRect (pWin, &rcBar);
         rcBar.left --;
         rcBar.right --;
     }
     else
     {
-        wndGetHScrollBarRect (pWin, &rcBar);
+        wndGetHScrollbarRect (pWin, &rcBar);
         rcBar.top  --;
         rcBar.bottom --;
     }
@@ -653,7 +653,7 @@ GetScrollPosEx (HWND hWnd, int iSBar, int* pPos)	/* jmt: iSBar not used */
     
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
 
     *pPos = pSBar->curPos;
@@ -668,7 +668,7 @@ GetScrollRangeEx (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos)	/* jmt: iSBa
     
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
 
     *pMinPos = pSBar->minPos;
@@ -687,7 +687,7 @@ SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)	/* jmt: iSBar not used */
 
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
 
     if (iNewPos < pSBar->minPos)
@@ -707,18 +707,18 @@ SetScrollPosEx (HWND hWnd, int iSBar, int iNewPos)	/* jmt: iSBar not used */
 
     if (dwStyle == SBS_VERT)
     {
-        wndGetVScrollBarRect (pWin, &rcBar);
+        wndGetVScrollbarRect (pWin, &rcBar);
         rcBar.left --;
         rcBar.right --;
     }
     else
     {
-        wndGetHScrollBarRect (pWin, &rcBar);
+        wndGetHScrollbarRect (pWin, &rcBar);
         rcBar.top  --;
         rcBar.bottom --;
     }
 
-    wndScrollBarPos (pWin, dwStyle == SBS_HORZ, &rcBar);
+    wndScrollbarPos (pWin, dwStyle == SBS_HORZ, &rcBar);
 
 #if 0
     SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
@@ -739,7 +739,7 @@ SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)	/* jmt: iSBar 
 
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
 
     pSBar->minPos = (iMinPos < iMaxPos)?iMinPos:iMaxPos;
@@ -766,17 +766,17 @@ SetScrollRangeEx (HWND hWnd, int iSBar, int iMinPos, int iMaxPos)	/* jmt: iSBar 
 
     if (dwStyle == SBS_VERT)
     {
-        wndGetVScrollBarRect (pWin, &rcBar);
+        wndGetVScrollbarRect (pWin, &rcBar);
     	rcBar.left --;
       	rcBar.right --;
     }
     else
     {
-        wndGetHScrollBarRect (pWin, &rcBar);
+        wndGetHScrollbarRect (pWin, &rcBar);
     	rcBar.top  --;
     	rcBar.bottom --;
     }
-    wndScrollBarPos (pWin, dwStyle == SBS_HORZ, &rcBar);
+    wndScrollbarPos (pWin, dwStyle == SBS_HORZ, &rcBar);
 
 #if 0
     SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
@@ -798,7 +798,7 @@ SetScrollInfoEx (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw)	/* jmt:
 
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
         
     if( lpsi->fMask & SIF_RANGE )
@@ -836,17 +836,17 @@ SetScrollInfoEx (HWND hWnd, int iSBar, LPCSCROLLINFO lpsi, BOOL fRedraw)	/* jmt:
     {
         if (dwStyle == SBS_VERT)
 	{
-            wndGetVScrollBarRect (pWin, &rcBar);
+            wndGetVScrollbarRect (pWin, &rcBar);
             rcBar.left --;
             rcBar.right --;
 	}
         else
 	{
-            wndGetHScrollBarRect (pWin, &rcBar);
+            wndGetHScrollbarRect (pWin, &rcBar);
             rcBar.top --;
             rcBar.bottom --;
 	}
-        wndScrollBarPos (pWin, dwStyle == SBS_HORZ, &rcBar);
+        wndScrollbarPos (pWin, dwStyle == SBS_HORZ, &rcBar);
 
 #if 0
         SendMessage (hWnd, WM_NCPAINT, 0, (LPARAM)(&rcBar));
@@ -866,7 +866,7 @@ GetScrollInfoEx(HWND hWnd, int iSBar, LPSCROLLINFO lpsi)	/* jmt: iSBar not used 
     
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
         
     if( lpsi->fMask & SIF_RANGE )
@@ -898,7 +898,7 @@ ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)	/* jmt: iSBar not used */
 
     pWin = (HWND)hWnd;
     
-    if ( !(pSBar = wndGetScrollBar (pWin)) )
+    if ( !(pSBar = wndGetScrollbar (pWin)) )
         return FALSE;
 
     bPrevState = !(pSBar->status & SBS_HIDE);
@@ -917,9 +917,9 @@ ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)	/* jmt: iSBar not used */
     dwStyle = (GetWindowStyle (hWnd) & SBS_TYPEMASK);	/* jmt: 2k0820 */
 
     if (dwStyle == SBS_VERT)
-        wndGetVScrollBarRect (pWin, &rcBar);
+        wndGetVScrollbarRect (pWin, &rcBar);
     else
-        wndGetHScrollBarRect (pWin, &rcBar);
+        wndGetHScrollbarRect (pWin, &rcBar);
 
     {
         RECT rcWin, rcClient;
@@ -1031,18 +1031,18 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* 
 
 		if (dwStyle == SBS_VERT)
 		{
-		    wndGetVScrollBarRect (hwnd, &rcBar);
+		    wndGetVScrollbarRect (hwnd, &rcBar);
 		    rcBar.left --;
 		    rcBar.right --;
 		}
 		else
 		{
-		    wndGetHScrollBarRect (hwnd, &rcBar);
+		    wndGetHScrollbarRect (hwnd, &rcBar);
 		    rcBar.top --;
 		    rcBar.bottom --;
 		}
 		/* adjust pData->barLen */
-		wndScrollBarPos (hwnd, dwStyle == SBS_HORZ, &rcBar);
+		wndScrollbarPos (hwnd, dwStyle == SBS_HORZ, &rcBar);
 
         	break;
             

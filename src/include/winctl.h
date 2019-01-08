@@ -1,20 +1,21 @@
 /* winctl.h*/
 /*
  * Header file for builtin controls
- * This currently includes button, progressbar, listbox, edit
+ * This currently includes static, button, edit, listbox, combobox, progressbar and scrollbar
  */
 
-/* entry points*/
-int WINAPI	MwRegisterButtonControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterListboxControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterEditControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterStaticControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterProgressBarControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterComboboxControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterScrollbarControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterMEditControl(HINSTANCE hInstance);
-int WINAPI	MwRegisterOldEditControl(HINSTANCE hInstance);		/* obsolete*/
-int WINAPI	MwRegisterOldListboxControl(HINSTANCE hInstance);	/* obsolete*/
+/* individual control registrations when size matters*/
+/* use MwInitializeDialogs(), not individually below*/
+int MwRegisterStaticControl(HINSTANCE hInstance);
+int MwRegisterButtonControl(HINSTANCE hInstance);
+int MwRegisterEditControl(HINSTANCE hInstance);
+int MwRegisterMEditControl(HINSTANCE hInstance);
+int MwRegisterListboxControl(HINSTANCE hInstance);
+int MwRegisterComboboxControl(HINSTANCE hInstance);
+int MwRegisterProgressbarControl(HINSTANCE hInstance);
+int MwRegisterScrollbarControl(HINSTANCE hInstance);
+int MwRegisterOldEditControl(HINSTANCE hInstance);		/* obsolete*/
+int MwRegisterOldListboxControl(HINSTANCE hInstance);	/* obsolete*/
 
 
 /* Dialog Codes*/
@@ -294,7 +295,7 @@ int WINAPI	MwRegisterOldListboxControl(HINSTANCE hInstance);	/* obsolete*/
 #define SS_ETCHEDHORZ       0x00000010L
 #define SS_ETCHEDVERT       0x00000011L
 #define SS_ETCHEDFRAME      0x00000012L
-#define SS_ETCTYPEMAKS      0x0000001FL
+#define SS_ETCTYPEMASK      0x0000001FL
 #define SS_NOTIFY           0x00000100L
 #define SS_CENTERIMAGE      0x00000200L
 #define SS_RIGHTJUST        0x00000400L

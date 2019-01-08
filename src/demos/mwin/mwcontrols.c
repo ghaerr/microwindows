@@ -24,17 +24,8 @@
 	   HWND hwnd;
 	   MSG Msg;
 	   
-	   MwInitializeDialogs ( hInstance ); //enable MessageBox dialog
+	   MwInitializeDialogs(hInstance); // register stand control and dialog classes
 	
-	   MwRegisterStaticControl(NULL); //required by Microwindows		// FIXME not required with above
-	   MwRegisterEditControl(NULL);
-	   MwRegisterListboxControl(NULL);
-	   MwRegisterProgressBarControl(NULL);
-	   MwRegisterStaticControl(NULL);
-	   MwRegisterComboboxControl(NULL);
-	   MwRegisterScrollbarControl(NULL);
-	   MwRegisterButtonControl(NULL);
-	   
 	   //First we create a structure describing the window
 	   wc.style         = 0;
 	   wc.lpfnWndProc   = WndProc;       // N.B. here we specify the name of our function

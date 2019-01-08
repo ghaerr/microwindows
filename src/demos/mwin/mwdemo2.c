@@ -14,14 +14,8 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdSh
 	HWND hlist,hcombo;
 	static char szMainWindowClass[] = "main";
 
-	/* register internal classes*/
-	MwRegisterButtonControl(NULL);
-	MwRegisterEditControl(NULL);
-	MwRegisterListboxControl(NULL);
-	MwRegisterProgressBarControl(NULL);
-	MwRegisterStaticControl(NULL);
-	MwRegisterComboboxControl(NULL);
-	MwRegisterScrollbarControl(NULL);
+	/* register builtin controls and dialog classes*/
+	MwInitializeDialogs(hInstance);
 
 	/* calc main window size as half total area*/
 	GetWindowRect(GetDesktopWindow(), &r);

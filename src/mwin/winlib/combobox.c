@@ -162,11 +162,11 @@ static WNDPROC lpComboBinToNat = 0;
 static LRESULT CALLBACK 
 DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-int WINAPI MwRegisterComboboxControl(HINSTANCE hInstance)
+int MwRegisterComboboxControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
-	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
+	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_GLOBALCLASS;
 	wc.lpfnWndProc	= (WNDPROC)DefComboboxProc;
 	wc.cbClsExtra	= 0;
 	wc.cbWndExtra	= 0;
@@ -369,8 +369,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         dwStyle = GetWindowLong(hWnd, GWL_STYLE);
         dwStyle &= ~(WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_DLGFRAME | WS_THICKFRAME);
         SetWindowLong(hWnd, GWL_STYLE, dwStyle);
-        SetWindowLong( hWnd, GWL_EXSTYLE,
-                        GetWindowLong( hWnd, GWL_EXSTYLE ) & ~WS_EX_CLIENTEDGE );
+        SetWindowLong( hWnd, GWL_EXSTYLE, GetWindowLong( hWnd, GWL_EXSTYLE ) & ~WS_EX_CLIENTEDGE );
 
 
 #if 0	/* jmt: fix: no ownerdraw */
@@ -437,15 +436,16 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 wEditHeight -= 4;
                 dwStyle &= ~WS_BORDER;
 	   }
-           /* create edit control */
-           lp->EditControl = CreateWindow("EDIT", NULL, dwStyle,
-                                          0, 0, wEditWidth, wEditHeight,
+           	/* create edit control */
+           	lp->EditControl = CreateWindow("EDIT", NULL, dwStyle,
+                                          2, 2, wEditWidth, wEditHeight,
                                           hWnd, (HMENU)CBC_EDITID,
                                           lpcs->hInstance,(LPVOID)NULL);
            }
-        else /* CBS_DROPDOWN -- static instead of edit */
+        else {
+		/* CBS_DROPDOWN -- static instead of edit */
              lp->EditControl = 0;
-             
+	}
         /* listbox style */
 	/* jmt: fix: no WS_EX_SAVEBITS, WS_EX_NOCAPTURE, WS_EX_POPUPMENU */
         dwExStyle = 0L;	/* WS_EX_SAVEBITS | WS_EX_NOCAPTURE | WS_EX_POPUPMENU; */
@@ -567,7 +567,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         cp.x = (int)(short)LOWORD(lParam);
         cp.y = (int)(short)HIWORD(lParam);
-#if 1	/* WM_NCLBUTTONDOWM: */
+#if 1	/* WM_NCLBUTTONDOWN: */
         ScreenToClient(hWnd, &cp);	/* jmt: a must */
 #endif
         if (!IS_SET(lp, CSF_CAPTUREACTIVE)) /* no listbox yet */
@@ -726,10 +726,12 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
               }   
            if ((lp->wStyle & 0xf) != CBS_SIMPLE)
               ClientToScreen(hWnd,&cp);
+#if 0 /* don't hand off mouse move messages to listbox*/
            if (PtInRect(&lp->ListBoxRect,cp)) 
               {
               CBoxSendMouseToLBox(lp,WM_MOUSEMOVE,wParam,cp);
               }
+#endif
            if (IS_SET(lp,CSF_LOCALBUTTONDOWN) && ((lp->wStyle & 0xf) != CBS_SIMPLE))
               CBoxDrawButton(hWnd,0,lp);
            }
@@ -840,6 +842,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_COMMAND:
         if (GET_WM_COMMAND_ID(wParam,lParam) == CBC_EDITID) {
+	    DPRINTF("EDIT command %d\n", (WORD)GET_WM_COMMAND_CMD( wParam, lParam));
             /* edit/static control notifications */
             switch((short)GET_WM_COMMAND_CMD(wParam,lParam)) {
             case EN_SETFOCUS:
@@ -881,12 +884,12 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
             }
             if (wCBN)
-            return SendMessage(lp->hWndParent,WM_COMMAND,
-                GET_WM_COMMAND_MPS(lp->nID,hWnd,wCBN));
+            return SendMessage(lp->hWndParent,WM_COMMAND, GET_WM_COMMAND_MPS(lp->nID,hWnd,wCBN));
             else
             return rc;
         }
         if (GET_WM_COMMAND_ID(wParam,lParam) == 0) {
+	    DPRINTF("LIST command %d\n", (WORD)GET_WM_COMMAND_CMD( wParam, lParam));
             /* listbox notifications */
             switch ((short)GET_WM_COMMAND_CMD(wParam,lParam)) {
             case LBN_ERRSPACE:
@@ -902,6 +905,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                          CBoxDrawEdit(lp, hWnd, uiKey);
                          }
                    }
+		CBoxCapture(hWnd, 1);		/* capture mouse from listbox again*/
                 wCBN = CBN_SELCHANGE;
                 break;
             case LBN_DBLCLK:
@@ -1473,6 +1477,7 @@ static void CBoxCapture(HWND hWnd, WORD wFunc)
 {
     static HWND hWndCapture = (HWND)0;
 
+    DPRINTF("CAPTURE %d\n", wFunc);
     if (wFunc) 
        {
        hWndCapture = SetCapture(hWnd);
@@ -1568,13 +1573,13 @@ static void CBoxDrawStatic(COMBOBOX *lp, HWND hWnd, UINT uiKey)
     /*   Draw rectangle regardless of ownerdraw style...
     */           
     hdc = GetDC(hWnd);
-    rcClient.left   = 0;
-    rcClient.top    = 0;
-    rcClient.right  = lp->ButtonRect.left+1;
-    rcClient.bottom = lp->uHeight;
+    rcClient.left   = 2;
+    rcClient.top    = 2;
+    rcClient.right  = lp->ButtonRect.left;
+    rcClient.bottom = lp->uHeight - 2;
     hbrStatic = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
     hbrOld = SelectObject(hdc, hbrStatic);
-    SelectObject(hdc, GetStockObject(BLACK_PEN));/* ??? COLOR_WINDOWFRAME */
+    SelectObject(hdc, GetStockObject(WHITE_PEN));/* ??? COLOR_WINDOWFRAME */
     Rectangle(hdc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
     SelectObject(hdc, hbrOld);
     DeleteObject(hbrStatic);

@@ -20,8 +20,7 @@
 	   HWND hwnd;
 	   MSG Msg;
 	
-	   MwInitializeDialogs ( hInstance ); //enable MessageBox dialog
-	   MwRegisterStaticControl(NULL); //required by Microwindows
+		MwInitializeDialogs(hInstance); // register stand control and dialog classes
 	   
 	   //First we create a structure describing the window
 	   wc.style         = 0;

@@ -157,8 +157,7 @@ DLGBOOL CALLBACK dlgDemoMultiline ( HWND hWnd, UINT message, WPARAM wParam, LPAR
 		//char *arabic_utf8 = "اةتثجحخدذرزسشصضطظعغ اةتثجحخدذرزسشصضطظعغ اةتثجحخدذرزسشصضطظعغ اةتثجحخدذرزسشصضطظعغ";
 		if( hFntCyber14 == NULL )
 			hFntCyber14 = CreateFont ( -14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, "Cyberbit" );
-		SendDlgItemMessage(hWnd, IDC_EDIT1, WM_SETFONT, 
-			(WPARAM)hFntCyber14, 0 );
+		SendDlgItemMessage(hWnd, IDC_EDIT1, WM_SETFONT, (WPARAM)hFntCyber14, 0 );
 		SetWindowLong(GetDlgItem(hWnd, IDC_EDIT1), GWL_STYLE, GetWindowLong(GetDlgItem(hWnd, IDC_EDIT1), GWL_STYLE) & ~ES_AUTOHSCROLL);
 		SetWindowText(GetDlgItem(hWnd, IDC_EDIT1), 
 			"Arabic:\n"
@@ -403,16 +402,17 @@ DLGBOOL CALLBACK mainDlgProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			ReleaseDC ( hWnd, hdc );
 #endif
 			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_SETTABSTOPS, 3, (LPARAM)tabs );
-			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "1)\tControls" );
+			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "1)\tControl Navigation" );
 			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "2)\tStatic" );
 			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "3)\tEdit" );
-			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "4)\tListbox\t!" );
-			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "5)\tInternat.\tسلام " );
-			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "6)\tMultiline edit" );
+			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "4)\tListbox" );
+			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "5)\tInternational\tسلام " );
+			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "6)\tMultiline Edit" );
 			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "7)\tTimers" );
 			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "8)\tLoadString" );
-			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "9)\tCredits..." );
-			EnableWindow ( GetDlgItem(hWnd, IDOK), FALSE );
+			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM) "9)\tCredits" );
+			SendDlgItemMessage ( hWnd, IDC_LIST1, LB_SETSEL, 0, 0);
+			//EnableWindow ( GetDlgItem(hWnd, IDOK), FALSE );
 			}
 			break;
 		}

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1999, 2000, Wei Yongming.
- * Portions Copyright (c) 2000, 2005, 2010 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2000, 2005, 2010, 2019 Greg Haerr <greg@censoft.com>
  *
  * Static control for Microwindows win32 api.
  */
@@ -66,7 +66,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 #define GET_WND_FONT(hWnd)	((HFONT)(LONG_PTR)GetWindowLongPtr(hWnd, 0))
 #define SET_WND_FONT(hWnd, fnt)	SetWindowLongPtr(hWnd, 0, (LONG_PTR)fnt)
 
-int WINAPI
+int
 MwRegisterStaticControl(HINSTANCE hInstance)
 {
 	WNDCLASS wc;
@@ -158,15 +158,15 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 	LPTSTR spCaption;
 	UINT uFormat;
 	RECT rc;
-#ifdef OLD_DRAWTEXT
+#if OLD_DRAWTEXT
 	int y, maxy;
+	SIZE sz;
 #endif
-	//SIZE sz;
 	DWORD dwStyle = hwnd->style;
 	unsigned long attrib = 0;
 
 	rc = *pRcClient;
-#ifdef OLD_DRAWTEXT
+#if OLD_DRAWTEXT
 	maxy = rc.bottom - rc.top;
 	y = rc.top;
 #endif
@@ -180,6 +180,9 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 		uFormat |= DT_RIGHT | DT_WORDBREAK;
 	else if ((dwStyle & SS_TYPEMASK) == SS_LEFTNOWORDWRAP)
 		uFormat |= DT_LEFT | DT_SINGLELINE | DT_EXPANDTABS;
+
+	if (dwStyle & SS_CENTERIMAGE)
+		uFormat |= DT_VCENTER | DT_WORDBREAK;
 
 
 	spCaption = GetWindowCaption(hwnd);
@@ -202,7 +205,7 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 		spCaption = caption;
 		SelectObject(hdc, GET_WND_FONT(hwnd));
 
-#ifdef OLD_DRAWTEXT
+#if OLD_DRAWTEXT
 		while (ln > 0) {
 			int n, nCount;
 			for (n = 0; n < ln; n += MW_CHRNBYTE(spCaption[n]))
@@ -253,7 +256,7 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 				}
 			} else
 				DrawTextA(hdc, spCaption, n, &rc, uFormat);
-#ifdef OLD_DRAWTEXT
+#if OLD_DRAWTEXT
 			y += sz.cy;
 			if (y > maxy)
 				break;
@@ -337,7 +340,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hwnd, &rcClient);
 			dwStyle = GetWindowStyle(hwnd);
 
-			switch (dwStyle & SS_ETCTYPEMAKS) {
+			switch (dwStyle & SS_ETCTYPEMASK) {
 			case SS_GRAYRECT:
 			case SS_BLACKRECT:
 			case SS_WHITERECT:
@@ -455,7 +458,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_NCHITTEST:
 		dwStyle = GetWindowStyle(hwnd);
-		if ((dwStyle & SS_ETCTYPEMAKS) == SS_GROUPBOX)
+		if ((dwStyle & SS_ETCTYPEMASK) == SS_GROUPBOX)
 			return HTTRANSPARENT;
 
 #if 0				/* jmt: SS_NOTIFY isn't standard in win32 */

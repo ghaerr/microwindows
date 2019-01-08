@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Win32 API upper level graphics drawing routines
@@ -11,8 +11,6 @@
 #include "intl.h"
 #include <stdlib.h>
 #include <string.h>
-
-#define OLD_DRAWTEXT	0	/* use old mwDrawText routine, deprecated*/
 
 #define MAXSYSCOLORS	29	/* # of COLOR_* system colors*/
 #define MAXSTOCKOBJECTS	18	/* # of stock objects*/
@@ -924,6 +922,7 @@ DrawTextW(HDC hdc, LPCWSTR lpString, int nCount, LPRECT lpRect, UINT uFormat)
 /*
  *  Check in text for the '&' chr, remove it from text and sets rect for pos
  */
+/* OLD_DRAWTEXT function*/
 static LPCSTR
 MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine)
 {
@@ -961,6 +960,7 @@ MwCheckUnderlineChar(HDC hdc, char *text, int *pLen, LPRECT rcLine)
 
 /* note: many DT_x aren't implemented in this function*/
 /* internal version of DrawText, passed flags for text data type*/
+/* OLD_DRAWTEXT function*/
 static int
 MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat, int flags)
 {
@@ -1055,6 +1055,7 @@ MwDrawText(HDC hdc, LPCVOID lpString, int nCount, LPRECT lpRect, UINT uFormat, i
  *	process underline, ampersands and tabs, and output
  *	using mwExtTextOut ormwTabbedTextOut
  */
+/* !OLD_DRAWTEXT function*/
 static void
 mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags)
 {
@@ -1109,6 +1110,7 @@ mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags
  *	DT_LEFT, DT_RIGHT, DT_SINGLELINE, DT_TOP (default), DT_VCENTER,
  *	DT_WORDBREAK, DT_NOCLIP (default), DT_NOPREFIX, DT_EXPANDTABS
  */
+/* !OLD_DRAWTEXT function*/
 static int WINAPI
 MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 {

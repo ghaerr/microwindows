@@ -77,8 +77,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	GetWindowRect(GetDesktopWindow(), &r);
 	width = height = r.right / 2;
 
-	MwRegisterListboxControl(NULL);
-	MwRegisterButtonControl(NULL);
+		MwInitializeDialogs(hInstance); // register stand control and dialog classes
 
         wndclass.style          = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wndclass.lpfnWndProc    = (WNDPROC)wproc;

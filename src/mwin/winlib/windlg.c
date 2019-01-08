@@ -7,6 +7,8 @@
  *
  * gabrielebrugnoni@dveprojects.com
  * DVE Prog. El. - Varese, Italy
+ *
+ * Portions Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  */
 
 /*Dokumentation:
@@ -81,19 +83,22 @@ dlgGetCtrlTop(HWND hDlg, HWND hChild)
 #define dlgGetCtrlFocus(hDlg)	dlgGetCtrlTop(hDlg, GetFocus())
 
 /*
- * Initialize module
+ * Initialize standard controls and dialog class
  */
-BOOL WINAPI
+BOOL
 MwInitializeDialogs(HINSTANCE hInstance)
 {
 	WNDCLASS wcl;
 
+	/* for embedded systems, comment out registrations for unused builtin controls for space*/
 	MwRegisterStaticControl(hInstance);
 	MwRegisterButtonControl(hInstance);
 	MwRegisterEditControl(hInstance);			/* newedit.c*/
+	MwRegisterMEditControl(hInstance);			/* medit.c - not working*/
 	MwRegisterListboxControl(hInstance);		/* newlistbox.c*/
-	MwRegisterProgressBarControl(hInstance);
 	MwRegisterComboboxControl(hInstance);
+	MwRegisterProgressbarControl(hInstance);
+	MwRegisterScrollbarControl(hInstance);
 	//MwRegisterOldEditControl(hInstance);		/* edit.c - obsolete*/
 	//MwRegisterOldListboxControl(hInstance);	/* listbox.c - obsolete*/
 

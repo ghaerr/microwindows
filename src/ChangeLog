@@ -1,3 +1,11 @@
+7 Jan 2019
+	* builtin control registration cleanup, added all controls to MwInitializeDialogs(), mwin demos changed to use this
+	* fixed mwlistcombox.c bug with non-registered edit control using CBS_DROPDOWN combobox
+	* fixed combobox don't hand off mouse move messages to listbox
+	* fixed combobox recapture mouse after listbox selchange, remove CS_DBLCLK
+	* adjusted combobox CBS_DROPDPOWN (edit+popup) edit control placement
+	* adjusted combobox CBS_DROPDPOWNLIST (static+popup) static control placement
+	* fixed SS_CENTERIMAGE for vertical centering on static controls
 	* added runapp script to run win32 and nano-X applications, automatically starts nano-X server if required
 6 Jan 2019
 	* fix SetWindowPos when SWP_NOMOVE specified (size only), this fixes combobox popup in wrong location

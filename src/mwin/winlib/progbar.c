@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1999, 2000, Wei Yongming.
- * Portions Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Portions Copyright (c) 2000, 2019 Greg Haerr <greg@censoft.com>
  *
  * Progress bar for Microwindows win32 api.
  */
@@ -65,15 +65,14 @@ typedef  struct _PROGRESSDATA {
     unsigned int nStepInc;
 } PROGRESSDATA, *PPROGRESSDATA;
 
-static LRESULT CALLBACK
-ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ProgressbarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-int WINAPI MwRegisterProgressBarControl(HINSTANCE hInstance)
+int MwRegisterProgressbarControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
 	wc.style	= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
-	wc.lpfnWndProc	= (WNDPROC)ProgressBarCtrlProc;
+	wc.lpfnWndProc	= (WNDPROC)ProgressbarCtrlProc;
 	wc.cbClsExtra	= 0;
 	wc.cbWndExtra	= 0;
 	wc.hInstance	= hInstance;
@@ -234,7 +233,7 @@ static void pbarNormalizeParams (const HWND pCtrl, PROGRESSDATA* pData, BOOL fNo
 }
 
 static LRESULT CALLBACK
-ProgressBarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+ProgressbarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC           hdc;
     HWND	  pCtrl;

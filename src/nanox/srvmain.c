@@ -11,14 +11,23 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif  
+
+#if ELKS
+#include <linuxmt/posix_types.h>
+#include <linuxmt/time.h>
+#endif
+
+#if RTEMS
+#include <rtems/mw_uid.h>
+#endif
+
 #if PSP
 #include <pspkernel.h>
 #include <pspdebug.h>
 #endif
-
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif  
 
 #ifdef __PACIFIC__
 #include <unixio.h>
@@ -33,6 +42,7 @@
 
 #define MWINCLUDECOLORS
 #include "serv.h"
+
 #if UNIX | DOS_DJGPP | WIN32
 #include <unistd.h>
 #if _MINIX
@@ -42,9 +52,10 @@
 #endif
 #endif
 
-#if __MINGW32__ || WIN32
-//all this needs to move somewhere else
+#if __MINGW32__ | WIN32
+//FIXME all this needs to move somewhere else
 //#include "windows.h"
+
 /* Allow including program to override.  */
 #ifndef FD_SETSIZE
 #define FD_SETSIZE 256
@@ -58,17 +69,7 @@ typedef struct fd_set {
 #define FD_CLR(n, p)	((p)->fd_bits[(n) / 8] &= ~(1 << ((n) & 7)))
 #define FD_ISSET(n, p)	((p)->fd_bits[(n) / 8] & (1 << ((n) & 7)))
 #define FD_ZERO(p)	memset ((void *)(p), 0, sizeof (*(p)))
-
-#endif
-
-#if ELKS
-#include <linuxmt/posix_types.h>
-#include <linuxmt/time.h>
-#endif
-
-#if RTEMS
-#include <rtems/mw_uid.h>
-#endif
+#endif /* __MINGW32__ | WIN32*/
 
 #if HAVE_VNCSERVER
 #include "rfb/rfb.h"
@@ -116,9 +117,6 @@ GR_CLIENT	*current_client;	/* the client we are currently talking*/
 char		*current_shm_cmds;
 int		current_shm_cmds_size;
 static int	keyb_fd;		/* the keyboard file descriptor */
-#if MW_FEATURE_TWO_KEYBOARDS
-static int	keyb2_fd;		/* the keyboard file descriptor */
-#endif
 static int	mouse_fd;		/* the mouse file descriptor */
 char		*curfunc;		/* the name of the current server func*/
 GR_BOOL		screensaver_active;	/* time before screensaver activates */
@@ -127,19 +125,24 @@ GR_TIMEOUT	startTicks;		/* ms time server started*/
 int		autoportrait = FALSE;	/* auto portrait mode switching*/
 MWCOORD		nxres;			/* requested server x resolution*/
 MWCOORD		nyres;			/* requested server y resolution*/
+GR_GRABBED_KEY  *list_grabbed_keys = NULL;     /* list of all grabbed keys */
 
 #if MW_FEATURE_TIMERS
 GR_TIMEOUT	screensaver_delay;	/* time before screensaver activates */
 GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 GR_TIMER        *cache_timer;           /* cached timer */
 GR_TIMER        *list_timer;            /* list of all timers */
-#endif /* MW_FEATURE_TIMERS */
-GR_GRABBED_KEY  *list_grabbed_keys = NULL;     /* list of all grabbed keys */
+#endif
+#if MW_FEATURE_TWO_KEYBOARDS
+static int	keyb2_fd;		/* the keyboard file descriptor */
+#endif
 
 static int	persistent_mode = FALSE;
 static int	portraitmode = MWPORTRAIT_NONE;
 
 SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THREADSAFE) */
+
+static void GsPlatformInit(void);	/* platform specific init goes here*/
 
 #if !NONETWORK
 static int	Argc;
@@ -278,23 +281,6 @@ GsAcceptClientFd(int i)
 	}
 }
 
-#if PSP
-int exit_callback(void)
-{
-	sceKernelExitGame();
-	return 0;
-}
-
-void CallbackThread(void *arg)
-{
-	int cbid;
-
-	cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-	sceKernelRegisterExitCallback(cbid);
-	sceKernelSleepThreadCB();
-}
-#endif
-
 /*
  * Open a connection from a new client to the server.
  * Returns -1 on failure.
@@ -302,24 +288,13 @@ void CallbackThread(void *arg)
 int
 GrOpen(void)
 {
+	GsPlatformInit();			/* platform-specific initialization*/
+
 #if NONETWORK
-
-#if PSP
-	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-	if(thid >= 0)
-		sceKernelStartThread(thid, 0, 0);
-#endif
-
-#if NDS
-	consoleDemoInit();  //setup the sub screen for printing
-#endif
-
 	SERVER_LOCK();
 	escape_quits = 1;
 
-	/* Client calls this routine once.  We 
-	 * init everything here
-	 */
+	/* Client calls this routine once.  We init everything here*/
 	if (connectcount <= 0) {
 		if(GsInitialize() < 0) {
 			SERVER_UNLOCK();
@@ -355,9 +330,8 @@ void
 GsClose(int fd)
 {
 	GsDropClient(fd);
-	if(!persistent_mode && connectcount == 0) {
+	if(!persistent_mode && connectcount == 0)
 		GsTerminate();
-	}
 }
 
 #if NONETWORK
@@ -460,295 +434,7 @@ GrReqShmCmds(long shmsize)
 #endif
 
 /********************************************************************************/
-#if WIN32  && !__MINGW32__
-static void
-HandleKeyMessage(MSG *msg, GR_EVENT_TYPE keyType)
-{
-	int keystatus = -1;
-	MWKEY mwkey = msg->wParam; // virtual-key code
-	MWKEYMOD modifiers = 0;
-	unsigned char scanCode;
-	int repeat, extended, context, previous;
-
-	repeat = msg->lParam & 0xffff;
-	scanCode = (msg->lParam >> 16) & 0xff;
-	previous = msg->lParam & 0x40000000L;
-	context = msg->lParam & 0x20000000L;
-	extended = msg->lParam & 0x1000000L;
-	if (extended) {
-	}
-	GsDeliverKeyboardEvent(0, keyType, mwkey, modifiers, scanCode);
-}
-
-extern HWND winRootWindow;
-extern MSG *winMouseMsg;
-
-void
-GsSelect(GR_TIMEOUT timeout)
-{
-	MSG msg;
-	int mouseevents = 0;
-	int keybdevents = 0;
-	GR_EVENT_GENERAL *gp;
-
-	if (winRootWindow == NULL)
-		goto err_exit;
-
-	if (timeout == 0) {
-		if (!PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE)) {
-			Sleep(20);
-			return;
-		}
-	} else if (timeout == -1) {
-		if (GetMessage(&msg, winRootWindow, 0, 0) < 0)
-			goto err_exit;
-	} else {
-		while (1) {
-			if (PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE))
-				break;
-			Sleep(20);
-			if (timeout < 20) {
-				/* Timeout has occured.
-				** Currently return a timeout event regardless of whether client
-				** has selected for it.
-				*/
-				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
-					gp->type = GR_EVENT_TYPE_TIMEOUT;
-				return;
-			}
-			timeout -= 20;
-		}
-	}
-
-	switch (msg.message) {
-	case WM_KEYDOWN:
-	case WM_SYSKEYDOWN:
-		HandleKeyMessage(&msg, GR_EVENT_TYPE_KEY_DOWN);
-		break;
-	case WM_KEYUP:
-	case WM_SYSKEYUP:
-		HandleKeyMessage(&msg, GR_EVENT_TYPE_KEY_UP);
-		break;
-	case WM_MOUSEMOVE:
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_LBUTTONDBLCLK:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_MBUTTONDBLCLK:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_RBUTTONDBLCLK:
-		winMouseMsg = &msg;
-		GsCheckMouseEvent();
-		winMouseMsg = NULL;
-		break;
-	}
-
-	TranslateMessage(&msg);
-	DispatchMessage(&msg);
-	return;
-
-err_exit:
-	GsTerminate();
-}
-
-/********************************************************************************/
-#elif VXWORKS
-
-#define POLLTIME	100   /* polling sleep interval (in msec) */
-#define MAX_MOUSEEVENTS	10    /* max number of mouse event to get in 1 select */
-#define MAX_KEYBDEVENTS	10    /* max number of mouse event to get in 1 select */
-
-extern void GdSleep(int dwMilliseconds);
-
-void 
-GsSelect(GR_TIMEOUT timeout)
-{
-	int mouseevents = 0;
-	int keybdevents = 0;
-	GR_TIMEOUT waittime = 0;
-	GR_EVENT_GENERAL *gp;
-
-
-	/* input gathering loop */
-	while (1)
-	{
-
-		/* perform pre-select duties, if any */
-		if(scrdev.PreSelect)
-		{
-			scrdev.PreSelect(&scrdev);
-		}
-
-
-		/* If mouse data present, service it */
-		while (mousedev.Poll() > 0)
-		{
-			GsCheckMouseEvent();
-			if (mouseevents++ > MAX_MOUSEEVENTS)
-			{
-				/* don't handle too many events at one shot */
-				break;
-			}
-		}
-
-
-		/* If keyboard data present, service it */
-		while (kbddev.Poll() > 0)
-		{
-			GsCheckKeyboardEvent();
-			if (keybdevents++ > MAX_KEYBDEVENTS)
-			{
-				/* don't handle too many events at one shot */
-				break;
-			}
-		}
-
-		
-		/* did we process any input yet? */
-		if ((mouseevents > 0) || (keybdevents > 0))
-		{
-			/* yep -- return without sleeping */
-			return;
-		}
-
-
-		/* give up time-slice & sleep for a bit */
-		GdSleep(POLLTIME);
-		waittime += POLLTIME; 
-
-
-		/* have we timed out? */
-		if (waittime >= timeout)
-		{
-			/* special case: polling when timeout == 0 -- don't send timeout event */
-			if (timeout != 0)
-			{
-				/* Timeout has occured.  
-				** Currently return a timeout event regardless of whether client 
-				**   has selected for it.
-				*/
-				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
-				{
-					gp->type = GR_EVENT_TYPE_TIMEOUT;
-				}
-			}
-			return;
-		}
-	}
-
-}
-
-/********************************************************************************/
-#elif PSP
-
-#define POLLTIME	1     /* polling sleep interval (in msec) */
-#define MAX_MOUSEEVENTS	10    /* max number of mouse event to get in 1 select */
-#define MAX_KEYBDEVENTS	10    /* max number of mouse event to get in 1 select */
-
-void 
-GsSelect(GR_TIMEOUT timeout)
-{
-	int mouseevents = 0;
-	int keybdevents = 0;
-	GR_TIMEOUT waittime = 0;
-	GR_EVENT_GENERAL *gp;
-
-	/* input gathering loop */
-	while (1)
-	{
-
-		/* perform pre-select duties, if any */
-		if(scrdev.PreSelect)
-		{
-			scrdev.PreSelect(&scrdev);
-		}
-
-
-		/* If mouse data present, service it */
-		while (mousedev.Poll() > 0)
-		{
-			GsCheckMouseEvent();
-			if (mouseevents++ > MAX_MOUSEEVENTS)
-			{
-				/* don't handle too many events at one shot */
-				break;
-			}
-		}
-
-
-		/* If keyboard data present, service it */
-		while (kbddev.Poll() > 0)
-		{
-			GsCheckKeyboardEvent();
-			if (keybdevents++ > MAX_KEYBDEVENTS)
-			{
-				/* don't handle too many events at one shot */
-				break;
-			}
-		}
-
-		
-		/* did we process any input yet? */
-		if ((mouseevents > 0) || (keybdevents > 0))
-		{
-			/* yep -- return without sleeping */
-			return;
-		}
-
-
-		/* give up time-slice & sleep for a bit */
-		GrDelay(POLLTIME);
-		waittime += POLLTIME; 
-
-
-		/* have we timed out? */
-		if (waittime >= timeout)
-		{
-			/* special case: polling when timeout == 0 -- don't send timeout event */
-			if (timeout != 0)
-			{
-				/* Timeout has occured.  
-				** Currently return a timeout event regardless of whether client 
-				**   has selected for it.
-				*/
-				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
-				{
-					gp->type = GR_EVENT_TYPE_TIMEOUT;
-				}
-			}
-			return;
-		}
-	}
-
-}
-
-/********************************************************************************/
-#elif MSDOS || _MINIX  || NDS || __MINGW32__ || defined(_ALLEGRO_) || defined(_SDL1_2_) || defined(__EMSCRIPTEN__)
-
-void
-GsSelect(GR_TIMEOUT timeout)
-{
-#ifdef __EMSCRIPTEN__
-	emscripten_sleep(1);
-#endif
-
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(GsCheckMouseEvent())
-			continue;
-
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(GsCheckKeyboardEvent())
-			continue;
-
-}
-
-/********************************************************************************/
-#elif UNIX && HAVE_SELECT
-
+#if UNIX && HAVE_SELECT
 void
 GsSelect(GR_TIMEOUT timeout)
 {
@@ -895,16 +581,16 @@ GsSelect(GR_TIMEOUT timeout)
 		/* If data is present on the keyboard fd, service it: */
 		if( (keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
 #if MW_FEATURE_TWO_KEYBOARDS
-		 || (keyb2_fd >= 0 && FD_ISSET(keyb2_fd, &rfds))
+		    || (keyb2_fd >= 0 && FD_ISSET(keyb2_fd, &rfds))
 #endif
 		  )
 			while(GsCheckKeyboardEvent())
 				continue;
 
 #if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-                if ( vnc_thread_fd >= 0 && FD_ISSET(vnc_thread_fd, &rfds) )
-                        /* Read from vnc pipe */
-                        read( vnc_thread_fd, &dummy, sizeof(int));
+        if(vnc_thread_fd >= 0 && FD_ISSET(vnc_thread_fd, &rfds))
+            /* Read from vnc pipe */
+            read( vnc_thread_fd, &dummy, sizeof(int));
 
 #endif
 #if NONETWORK
@@ -973,7 +659,301 @@ GsSelect(GR_TIMEOUT timeout)
 			EPRINTF("Select() call in main failed\n");
 }
 
-#if NONETWORK
+/********************************************************************************/
+#elif VXWORKS | PSP
+
+#if PSP
+#define POLLTIME	1     /* polling sleep interval (in msec) */
+#else
+#define POLLTIME	100   /* polling sleep interval (in msec) */
+extern void GdSleep(int dwMilliseconds);
+#endif
+#define MAX_MOUSEEVENTS	10    /* max number of mouse event to get in 1 select */
+#define MAX_KEYBDEVENTS	10    /* max number of mouse event to get in 1 select */
+
+void 
+GsSelect(GR_TIMEOUT timeout)
+{
+	int mouseevents = 0;
+	int keybdevents = 0;
+	GR_TIMEOUT waittime = 0;
+	GR_EVENT_GENERAL *gp;
+
+
+	/* input gathering loop */
+	while (1)
+	{
+
+		/* perform pre-select duties, if any */
+		if(scrdev.PreSelect)
+		{
+			scrdev.PreSelect(&scrdev);
+		}
+
+
+		/* If mouse data present, service it */
+		while (mousedev.Poll() > 0)
+		{
+			GsCheckMouseEvent();
+			if (mouseevents++ > MAX_MOUSEEVENTS)
+			{
+				/* don't handle too many events at one shot */
+				break;
+			}
+		}
+
+
+		/* If keyboard data present, service it */
+		while (kbddev.Poll() > 0)
+		{
+			GsCheckKeyboardEvent();
+			if (keybdevents++ > MAX_KEYBDEVENTS)
+			{
+				/* don't handle too many events at one shot */
+				break;
+			}
+		}
+
+		
+		/* did we process any input yet? */
+		if ((mouseevents > 0) || (keybdevents > 0))
+		{
+			/* yep -- return without sleeping */
+			return;
+		}
+
+
+		/* give up time-slice & sleep for a bit */
+#if PSP
+		GrDelay(POLLTIME);
+#else
+		GdSleep(POLLTIME);
+#endif
+		waittime += POLLTIME; 
+
+
+		/* have we timed out? */
+		if (waittime >= timeout)
+		{
+			/* special case: polling when timeout == 0 -- don't send timeout event */
+			if (timeout != 0)
+			{
+				/* Timeout has occured.  
+				** Currently return a timeout event regardless of whether client 
+				**   has selected for it.
+				*/
+				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
+				{
+					gp->type = GR_EVENT_TYPE_TIMEOUT;
+				}
+			}
+			return;
+		}
+	}
+}
+
+/********************************************************************************/
+#elif RTEMS
+extern struct MW_UID_MESSAGE m_kbd;
+extern struct MW_UID_MESSAGE m_mou;
+
+void
+GsSelect (GR_TIMEOUT timeout)
+{
+	struct MW_UID_MESSAGE m;
+	long uid_timeout;
+#if MW_FEATURE_TIMERS
+	struct timeval tout;
+#endif
+	GR_EVENT_GENERAL *gp;
+	int rc;
+
+	/* perform pre-select duties, if any*/
+	if (scrdev.PreSelect)
+		scrdev.PreSelect (&scrdev);
+
+	/* let's make sure that the type is invalid */
+	m.type = MV_UID_INVALID;
+
+	/* wait up for events */
+	if (timeout == (GR_TIMEOUT) -1)
+		uid_timeout = 0;
+	else {
+#if MW_FEATURE_TIMERS
+		if (GdGetNextTimeout(&tout, timeout))
+			uid_timeout = tout.tv_sec * 1000 + (tout.tv_usec + 500) / 1000;
+		else
+#endif
+		{
+			if (timeout == 0)
+				uid_timeout = (unsigned long) -1;
+			else
+				uid_timeout = timeout;
+		}
+	}
+	rc = uid_read_message (&m, uid_timeout);
+
+	/* return if timed-out or something went wrong */
+	if (rc < 0) {
+	        if (errno != ETIMEDOUT)
+		        EPRINTF(" rc= %d, errno=%d\n", rc, errno);
+		else {
+		        /* timeout handling */
+#if MW_FEATURE_TIMERS
+			if (GdTimeout())
+#else
+			if (timeout != 0)
+#endif
+			{
+				/* Timeout has occured.
+				** Currently return a timeout event regardless of whether client
+				**   has selected for it.
+				*/
+				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
+					gp->type = GR_EVENT_TYPE_TIMEOUT;
+			}
+		}
+		return;
+	}
+
+	/* let's pass the event up to Microwindows */
+	switch (m.type) {
+	case MV_UID_REL_POS:	/* Mouse or Touch Screen event */
+	case MV_UID_ABS_POS:
+		m_mou = m;
+		while (GsCheckMouseEvent())
+			continue;
+		break;
+	case MV_UID_KBD:	/* KBD event */
+		m_kbd = m;
+		GsCheckKeyboardEvent ();
+		break;
+	case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
+	case MV_UID_INVALID:
+	default:
+	        break;
+	}
+}
+
+/********************************************************************************/
+#elif WIN32  && !__MINGW32__
+static void
+handleKeyMessage(MSG *msg, GR_EVENT_TYPE keyType)
+{
+	int keystatus = -1;
+	MWKEY mwkey = msg->wParam; // virtual-key code
+	MWKEYMOD modifiers = 0;
+	unsigned char scanCode;
+	int repeat, extended, context, previous;
+
+	repeat = msg->lParam & 0xffff;
+	scanCode = (msg->lParam >> 16) & 0xff;
+	previous = msg->lParam & 0x40000000L;
+	context = msg->lParam & 0x20000000L;
+	extended = msg->lParam & 0x1000000L;
+	if (extended) {
+	}
+	GsDeliverKeyboardEvent(0, keyType, mwkey, modifiers, scanCode);
+}
+
+void
+GsSelect(GR_TIMEOUT timeout)
+{
+	MSG msg;
+	int mouseevents = 0;
+	int keybdevents = 0;
+	GR_EVENT_GENERAL *gp;
+	extern HWND winRootWindow;
+	extern MSG *winMouseMsg;
+
+	if (winRootWindow == NULL)
+		goto err_exit;
+
+	if (timeout == 0) {
+		if (!PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE)) {
+			Sleep(20);
+			return;
+		}
+	} else if (timeout == -1) {
+		if (GetMessage(&msg, winRootWindow, 0, 0) < 0)
+			goto err_exit;
+	} else {
+		while (1) {
+			if (PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE))
+				break;
+			Sleep(20);
+			if (timeout < 20) {
+				/* Timeout has occured.
+				** Currently return a timeout event regardless of whether client
+				** has selected for it.
+				*/
+				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
+					gp->type = GR_EVENT_TYPE_TIMEOUT;
+				return;
+			}
+			timeout -= 20;
+		}
+	}
+
+	switch (msg.message) {
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		handleKeyMessage(&msg, GR_EVENT_TYPE_KEY_DOWN);
+		break;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		HandleKeyMessage(&msg, GR_EVENT_TYPE_KEY_UP);
+		break;
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_RBUTTONDBLCLK:
+		winMouseMsg = &msg;
+		GsCheckMouseEvent();
+		winMouseMsg = NULL;
+		break;
+	}
+
+	TranslateMessage(&msg);
+	DispatchMessage(&msg);
+	return;
+
+err_exit:
+	GsTerminate();
+}
+
+/********************************************************************************/
+#else /* MSDOS | _MINIX | NDS | __MINGW32__ | defined(_ALLEGRO_) | defined(_SDL1_2_) | defined(__EMSCRIPTEN__)*/
+
+void
+GsSelect(GR_TIMEOUT timeout)
+{
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(1);
+#endif
+
+	/* If mouse data present, service it*/
+	if(mousedev.Poll())
+		while(GsCheckMouseEvent())
+			continue;
+
+	/* If keyboard data present, service it*/
+	if(kbddev.Poll())
+		while(GsCheckKeyboardEvent())
+			continue;
+
+}
+
+/********************************************************************************/
+#endif /* GsSelect() cases*/
+
+#if UNIX && HAVE_SELECT && NONETWORK
 /*
  * Prepare for the client to call select().  Asks the server to send the next
  * event but does not wait around for it to arrive.  Initializes the
@@ -1104,94 +1084,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 
 	SERVER_UNLOCK();
 }
-
-#endif /* NONETWORK */
-
-/********************************************************************************/
-#endif /* UNIX && HAVESELECT*/
-
-#if RTEMS
-extern struct MW_UID_MESSAGE m_kbd;
-extern struct MW_UID_MESSAGE m_mou;
-
-void
-GsSelect (GR_TIMEOUT timeout)
-{
-	struct MW_UID_MESSAGE m;
-	long uid_timeout;
-#if MW_FEATURE_TIMERS
-	struct timeval tout;
-#endif
-	GR_EVENT_GENERAL *gp;
-	int rc;
-
-	/* perform pre-select duties, if any*/
-	if (scrdev.PreSelect)
-		scrdev.PreSelect (&scrdev);
-
-	/* let's make sure that the type is invalid */
-	m.type = MV_UID_INVALID;
-
-	/* wait up for events */
-	if (timeout == (GR_TIMEOUT) -1)
-		uid_timeout = 0;
-	else {
-#if MW_FEATURE_TIMERS
-		if (GdGetNextTimeout(&tout, timeout))
-			uid_timeout = tout.tv_sec * 1000 + (tout.tv_usec + 500) / 1000;
-		else
-#endif
-		{
-			if (timeout == 0)
-				uid_timeout = (unsigned long) -1;
-			else
-				uid_timeout = timeout;
-		}
-	}
-	rc = uid_read_message (&m, uid_timeout);
-
-	/* return if timed-out or something went wrong */
-	if (rc < 0) {
-	        if (errno != ETIMEDOUT)
-		        EPRINTF(" rc= %d, errno=%d\n", rc, errno);
-		else {
-		        /* timeout handling */
-#if MW_FEATURE_TIMERS
-			if (GdTimeout())
-#else
-			if (timeout != 0)
-#endif
-			{
-				/* Timeout has occured.
-				** Currently return a timeout event regardless of whether client
-				**   has selected for it.
-				*/
-				if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
-					gp->type = GR_EVENT_TYPE_TIMEOUT;
-			}
-		}
-		return;
-	}
-
-	/* let's pass the event up to Microwindows */
-	switch (m.type) {
-	case MV_UID_REL_POS:	/* Mouse or Touch Screen event */
-	case MV_UID_ABS_POS:
-		m_mou = m;
-		while (GsCheckMouseEvent())
-			continue;
-		break;
-	case MV_UID_KBD:	/* KBD event */
-		m_kbd = m;
-		GsCheckKeyboardEvent ();
-		break;
-	case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
-	case MV_UID_INVALID:
-	default:
-	        break;
-	}
-}
-#endif /* RTEMS*/
+#endif /* UNIX && HAVESELECT && NONETWORK*/
 
 #if VTSWITCH
 static void
@@ -1460,8 +1353,38 @@ void
 GrBell(void)
 {
 	SERVER_LOCK();
-#if !PSP && !defined(__EMSCRIPTEN__)
+#if !(PSP | defined(__EMSCRIPTEN__))
 	(void)write(2, "\7", 1);
 #endif
 	SERVER_UNLOCK();
+}
+
+#if PSP
+int exit_callback(void)
+{
+	sceKernelExitGame();
+	return 0;
+}
+
+void CallbackThread(void *arg)
+{
+	int cbid;
+
+	cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+	sceKernelRegisterExitCallback(cbid);
+	sceKernelSleepThreadCB();
+}
+#endif
+
+static void
+GsPlatformInit(void)
+{
+#if PSP
+	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+	if(thid >= 0)
+		sceKernelStartThread(thid, 0, 0);
+#endif
+#if NDS
+	consoleDemoInit();  //setup the sub screen for printing
+#endif
 }

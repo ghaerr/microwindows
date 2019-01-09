@@ -76,9 +76,9 @@ TARGETS += \
 	$(MW_DIR_BIN)/nxev \
 	$(MW_DIR_BIN)/nxcal \
 	$(MW_DIR_BIN)/nxsetportrait \
-	$(MW_DIR_BIN)/show_font \
-	$(MW_DIR_BIN)/show_ppm \
-	$(MW_DIR_BIN)/snap_ppm \
+	$(MW_DIR_BIN)/show-font \
+	$(MW_DIR_BIN)/show-ppm \
+	$(MW_DIR_BIN)/screenshot-ppm \
 	$(MW_DIR_BIN)/launcher \
 	$(MW_DIR_BIN)/nsaver \
 	$(MW_DIR_BIN)/npanel
@@ -106,7 +106,7 @@ endif
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
   ifeq ($(FRAMEBUFFER), Y)
     ifneq ($(LINK_APP_INTO_SERVER), Y)
-      TARGETS += $(MW_DIR_BIN)/snap_jpg
+      TARGETS += $(MW_DIR_BIN)/screenshot-jpg
     endif
   endif
 endif

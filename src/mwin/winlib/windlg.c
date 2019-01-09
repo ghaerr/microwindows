@@ -94,13 +94,13 @@ MwInitializeDialogs(HINSTANCE hInstance)
 	MwRegisterStaticControl(hInstance);
 	MwRegisterButtonControl(hInstance);
 	MwRegisterEditControl(hInstance);			/* newedit.c*/
-	MwRegisterMEditControl(hInstance);			/* medit.c - not working*/
 	MwRegisterListboxControl(hInstance);		/* newlistbox.c*/
 	MwRegisterComboboxControl(hInstance);
 	MwRegisterProgressbarControl(hInstance);
 	MwRegisterScrollbarControl(hInstance);
+	MwRegisterMEditControl(hInstance);			/* medit.c - not working*/
 	//MwRegisterOldEditControl(hInstance);		/* edit.c - obsolete*/
-	//MwRegisterOldListboxControl(hInstance);	/* listbox.c - obsolete*/
+	//MwRegisterOldListboxControl(hInstance);	/* listbox.c - not working with ownerdraw in mwdvetest.c*/
 
 	memset(&wcl, 0, sizeof(wcl));
 	wcl.style = CS_BYTEALIGNCLIENT | CS_DBLCLKS;

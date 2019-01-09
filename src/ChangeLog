@@ -1,3 +1,4 @@
+	* edited various winlib/ builtin control source for readability, reformatted entire combobox.c
 7 Jan 2019
 	* builtin control registration cleanup, added all controls to MwInitializeDialogs(), mwin demos changed to use this
 	* fixed mwlistcombox.c bug with non-registered edit control using CBS_DROPDOWN combobox

@@ -52,11 +52,7 @@ OBJS := \
 	$(MW_DIR_OBJ)/demos/nbreaker/scores.o \
 	$(MW_DIR_OBJ)/demos/nbreaker/sprite.o \
 
-ifeq ($(ARCH), ECOS)
-TARGET = $(MW_DIR_BIN)/nbreaker.o
-else
 TARGET = $(MW_DIR_BIN)/nbreaker
-endif
 
 all: default $(TARGET)
 

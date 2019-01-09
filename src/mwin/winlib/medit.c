@@ -56,7 +56,7 @@
 #include "wintools.h"
 #include "device.h" 	/* GdGetTextSize */
 
-#if HAVE_HZK_SUPPORT || HAVE_BIG5_SUPPORT
+#if HAVE_HZK_SUPPORT | HAVE_BIG5_SUPPORT
 #define USE_BIG5
 #else
 #define DEFAULT_FONT	DEFAULT_GUI_FONT

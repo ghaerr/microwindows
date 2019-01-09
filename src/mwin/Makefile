@@ -49,19 +49,19 @@ OBJS += \
 
 ifneq ($(ARCH), ELKS)
 OBJS += \
+	$(MW_DIR_OBJ)/mwin/winlib/static.o \
+	$(MW_DIR_OBJ)/mwin/winlib/button.o \
+	$(MW_DIR_OBJ)/mwin/winlib/newedit.o \
+	$(MW_DIR_OBJ)/mwin/winlib/newlistbox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/combobox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/progbar.o \
+	$(MW_DIR_OBJ)/mwin/winlib/scrlbar.o \
+	$(MW_DIR_OBJ)/mwin/winlib/caret.o \
 	$(MW_DIR_OBJ)/mwin/winlib/windlg.o \
 	$(MW_DIR_OBJ)/mwin/winlib/msgbox.o \
-	$(MW_DIR_OBJ)/mwin/winlib/button.o \
-	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
-	$(MW_DIR_OBJ)/mwin/winlib/newedit.o \
-	$(MW_DIR_OBJ)/mwin/winlib/listbox.o \
-	$(MW_DIR_OBJ)/mwin/winlib/newlistbox.o \
-	$(MW_DIR_OBJ)/mwin/winlib/progbar.o \
-	$(MW_DIR_OBJ)/mwin/winlib/static.o \
-	$(MW_DIR_OBJ)/mwin/winlib/combobox.o \
-	$(MW_DIR_OBJ)/mwin/winlib/caret.o \
-	$(MW_DIR_OBJ)/mwin/winlib/scrlbar.o \
 	$(MW_DIR_OBJ)/mwin/winlib/medit.o \
+	$(MW_DIR_OBJ)/mwin/winlib/listbox.o \
+	$(MW_DIR_OBJ)/mwin/winlib/edit.o \
 	$(MW_DIR_OBJ)/mwin/winlib/openfile.o
 endif
 

@@ -111,8 +111,7 @@ typedef struct tagSLEDITDATA {
     char    buffer [LEN_SLEDIT_BUFFER];		/* buffer */
 } SLEDITDATA, *PSLEDITDATA;
 
-static LRESULT CALLBACK
-SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 #if 0
 static int GetSysCharHeight (HWND hwnd) 
@@ -140,7 +139,7 @@ static int GetSysCharWidth (HWND hwnd)
     	int xw, xh, xb;
 
     	hdc = GetDC(hwnd);
-	SelectObject(hdc, GetStockObject(DEFAULT_FONT));
+		SelectObject(hdc, GetStockObject(DEFAULT_FONT));
     	GdGetTextSize(hdc->font->pfont,"X",1, &xw,&xh,&xb,MWTF_ASCII);
     	ReleaseDC(hwnd,hdc);
 
@@ -587,15 +586,11 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 
 #ifdef USE_BIG5	    
-	    HGDIOBJ oldfont=SelectObject(hdc,CreateFont(12,
-			0,0,0,0,0,0,0,0,0,0,0,
-			FF_DONTCARE|DEFAULT_PITCH,
-			"HZXFONT"));
+	    HGDIOBJ oldfont=SelectObject(hdc,CreateFont(12, 0,0,0,0,0,0,0,0,0,0,0, FF_DONTCARE|DEFAULT_PITCH, "HZXFONT"));
 #else
     	    SelectObject(hdc, pSLEditData->hFont);
 #endif
-            TextOut (hdc, pSLEditData->leftMargin, pSLEditData->topMargin, 
-                dispBuffer,-1);
+            TextOut (hdc, pSLEditData->leftMargin, pSLEditData->topMargin, dispBuffer,-1);
 
 #ifdef USE_BIG5	    
     	    DeleteObject(SelectObject(hdc,oldfont));

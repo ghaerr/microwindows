@@ -9,11 +9,11 @@
 int MwRegisterStaticControl(HINSTANCE hInstance);
 int MwRegisterButtonControl(HINSTANCE hInstance);
 int MwRegisterEditControl(HINSTANCE hInstance);
-int MwRegisterMEditControl(HINSTANCE hInstance);
 int MwRegisterListboxControl(HINSTANCE hInstance);
 int MwRegisterComboboxControl(HINSTANCE hInstance);
 int MwRegisterProgressbarControl(HINSTANCE hInstance);
 int MwRegisterScrollbarControl(HINSTANCE hInstance);
+int MwRegisterMEditControl(HINSTANCE hInstance);		/* not working*/
 int MwRegisterOldEditControl(HINSTANCE hInstance);		/* obsolete*/
 int MwRegisterOldListboxControl(HINSTANCE hInstance);	/* obsolete*/
 

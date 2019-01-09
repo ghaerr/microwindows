@@ -76,11 +76,11 @@ $(MW_DIR_BIN)/convpbm: $(MW_DIR_SRC)/images/tools/convpbm.c
 # Sigh.  Old versions of make are completely broken and need this.
 # They should be able to pick it up from the pattern rule in
 # Makefile.rules.
-$(OBJS): $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.c $(CONFIG)
-	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
-	@$(MW_RULE_MAKE_TARGET_DIR)
-	$(CC) -c $(COMPILEARGS) -o $@ $<
-	$(MW_RULE_DEPEND_C)
-
-$(OBJS:.o=.c):
+#$(OBJS): $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.c $(CONFIG)
+#	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
+#	@$(MW_RULE_MAKE_TARGET_DIR)
+#	$(CC) -c $(COMPILEARGS) -o $@ $<
+#	$(MW_RULE_DEPEND_C)
+#
+#$(OBJS:.o=.c):
 

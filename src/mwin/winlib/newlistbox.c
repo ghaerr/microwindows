@@ -15,11 +15,6 @@
 #include <stdlib.h>
 #include "windows.h"
 
-/* FIXME: Some definitions that are currently not defined in microwindows */
-//#define MK_LBUTTON      0x0004
-//#define MK_MBUTTON      0x0002
-//#define MK_RBUTTON      0x0001
-
 // FIXME: check if kbd state modifiers are implemented*/
 #define MK_SHIFT        MWKMOD_SHIFT
 #define MK_CONTROL      MWKMOD_CTRL

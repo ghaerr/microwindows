@@ -104,6 +104,7 @@ MWIN_DEMOS_WITH_STANDARD_LINK := \
 
 $(MWIN_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/mwin/%.o $(MWINLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	echo $(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(MWINLIBS) $(LDFLAGS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(MWINLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/mwmine: $(MW_DIR_OBJ)/demos/mwin/mwmine.o $(MINEIMAGES) $(MWINLIBS) $(CONFIG)

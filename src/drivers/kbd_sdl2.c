@@ -11,7 +11,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "device.h"
-#if defined(__EMSCRIPTEN__)
+
+#if EMSCRIPTEN
 #include <emscripten.h>
 #include <SDL.h>
 #else
@@ -67,17 +68,29 @@ sdl_Open(KBDDEVICE *pkd)
 {
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS); 
-
-  sdlWindow = SDL_CreateWindow("Microwindows",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            SCREEN_WIDTH, SCREEN_HEIGHT,
-	    0);
-
   atexit(SDL_Quit);
-  SDL_StartTextInput();
+
+  sdlWindow = SDL_CreateWindow("Microwindows", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+  if (!sdlWindow) {
+    printf("Can't create window\n");
+  	return -1;
+  }
+
+  //sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
+  //if (!sdlRenderer) {
+    //printf("Can't create renderer\n");
+  	//return -1;
+  //}
 
   screen = SDL_GetWindowSurface(sdlWindow);
+  if (!screen) {
+    printf("Can't create screen\n");
+  	return -1;
+  }
+  printf("SDL pixel format %0x, type %0x\n", screen->format->format, SDL_PIXELTYPE(screen->format->format));
+
+  SDL_StartTextInput();
 
   return 1; //ok    
 }
@@ -103,6 +116,7 @@ sdl_Poll(void)
 
   if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_QUIT, SDL_QUIT)) {
     closedown=1;
+	printf("CLOSE\n");
     return 1; //i.e. received the "closedown" key
   }
 

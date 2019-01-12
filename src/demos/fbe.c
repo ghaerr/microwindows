@@ -19,9 +19,9 @@
  * Instructions:
  * the source code in "demos/fbe.c" will be compiled into "bin/fbe" 
  * this is a frame buffer emulator on X11 for 1, 2, 4 and 8bpp!
-   to use set FBEMULATOR=Y and FRAMEBUFFER = Y in the src/config file and the
-   default BPP/XRES/YRES in drivers/scr_fb.c
-   to run set the environment variable: FRAMEBUFFER=/tmp/fb0 
+ *  to use set FBEMULATOR=Y in the src/config file and the
+ *  default BPP/XRES/YRES in drivers/scr_fb.c
+   To run set the environment variable: FRAMEBUFFER=/tmp/fb0 
    and execute: bin/fbe -d<bpp>
    a reverse bit order is supported for 1,2,4 bpp (-r option)
 
@@ -741,7 +741,7 @@ check_and_paint(int ix, int iy)
 					g = *data++;
 					b = *data++;
 					a = *data;
-#else /* MWPF_TRUECOLOR8888*/
+#else /* MWPF_TRUECOLORARGB*/
 					b = *data++;
 					g = *data++;
 					r = *data++;

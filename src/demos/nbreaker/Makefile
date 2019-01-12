@@ -54,6 +54,9 @@ OBJS := \
 
 TARGET = $(MW_DIR_BIN)/nbreaker
 
+endif
+endif
+
 all: default $(TARGET)
 
 ######################### Makefile.rules section #############################
@@ -64,7 +67,3 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 $(MW_DIR_SRC)/bin/nbreaker: $(OBJS) $(NANOXCLIENTLIBS) $(MW_DIR_SRC)/config
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
-
-
-endif
-endif

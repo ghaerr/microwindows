@@ -13,7 +13,7 @@
 #else
 #include <stdio.h>
 #include <string.h>
-#if UNIX | DOS_DJGPP | defined(__EMSCRIPTEN__)
+#if UNIX | DOS_DJGPP | EMSCRIPTEN
 #include <unistd.h>
 #endif
 #endif
@@ -33,19 +33,17 @@ GdError(const char *format, ...)
 #if __ECOS
 	/* diag_printf() has much less dependencies than write() */
 	diag_printf(format, args);
-#else
-#if PSP
+#elif PSP
 	vsprintf(buf, format, args);
 	pspDebugScreenPrintf("%s\n", buf);
-#else
-#if HAVE_FILEIO
+#elif EMSCRIPTEN
+	vsprintf(buf, format, args);
+	fprintf(stderr, "%s\n", buf);
+#elif HAVE_FILEIO
 	vsprintf(buf, format, args);
 	write(2, buf, strlen(buf));
-	//fprintf(stderr, "%s\n", buf);
 #else
 	/* discard EPRINTF/DPRINTF output!*/
-#endif
-#endif
 #endif
 	va_end(args);
 	return -1;

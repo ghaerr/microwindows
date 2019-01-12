@@ -22,11 +22,12 @@
 # MACOSX
 # RTEMS
 # ECOS
-# PSP
+# PSP (Sony PSP)
 # NDS (Nintendo DS)
 # TRIMEDIA
 # CYGWIN
 # ANDROID
+# EMSCRIPTEN
 
 ##############################################################################
 # Default tools names (overriden in platform-specific section below)
@@ -289,10 +290,8 @@ endif
 
 ifeq ($(ARCH), ANDROID)
 TOOLSPREFIX = $(ANDROIDTOOLSPREFIX)
-DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -D_ANDROID_=1
-#set __ANDROID__ enviroment variable for NXLIB (StrKeysym.c + NextEvent.c)
-__ANDROID__ := 1
-export __ANDROID__ 
+# FIXME remove __ANDROID__ instead of _ANDROID_ in nx11/*.c
+DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -D_ANDROID_=1 -D__ANDROID__=1
 CFLAGS += -mstructure-size-boundary=8 -I$(HOME)/android-toolchain/user/armeabi-v7a/include
 #CFLAGS += -s
 LDFLAGS += -L$(HOME)/android-toolchain/usr/armeabi-v7a/lib
@@ -300,33 +299,44 @@ LDFLAGS += -L$(HOME)/android-toolchain/usr/armeabi-v7a/lib
 LDFLAGS += -L$(HOME)/android-toolchain/sysroot/usr/lib -llog
 endif
 
-# ALLEGRO4+5
-ifeq ($(ALLEGRO5), Y)
-DEFINES += -D_ALLEGRO_=1
-ifneq ($(ARCH),ANDROID)
-#if allegro5
- #for srvmain.c and winmain.c
- LDFLAGS += -lallegro 
+ifeq ($(ARCH), EMSCRIPTEN)
+COMPILER = emcc
+CXX_COMPILER = emcc
+AR = emar
+DEFINES += -DEMSCRIPTEN=1
+TOOLSPREFIX = $(EMSCRIPTENTOOLSPREFIX)
+endif
+
+#
+# FIXME the following ALLEGRO4/5 and SDL1/2 should completely within config and not here
+#
+
+# ALLEGRO5
+ifeq ($(SCREEN), ALLEGRO5)
+DEFINES += -DALLEGRO=1
+ifeq ($(ARCH),ANDROID)
+  #LDFLAGS += -L$(HOME)/allegro5111/ba/lib -lallegro-debug 
+  LDFLAGS += -Landroid/buildandroid/lib -lallegro-debug 
 else
- #if android
-#LDFLAGS += -L$(HOME)/allegro5111/ba/lib -lallegro-debug 
-LDFLAGS += -Landroid/buildandroid/lib -lallegro-debug 
+  LDFLAGS += -lallegro 
 endif
 endif
 
-ifeq ($(ALLEGRO4), Y)
-DEFINES += -D_ALLEGRO_=1
+# ALLEGRO4
+ifeq ($(SCREEN), ALLEGRO4)
+#for srvmain.c and winmain.c
+DEFINES += -DALLEGRO=1
 LDFLAGS += -lalleg 
 endif
 
-ifeq ($(SDL1), Y)
+ifeq ($(SCREEN), SDL1)
 #for srvmain.c and winmain.c
-DEFINES += -D_SDL1_2_=1
+DEFINES += -DSDL=1
 LDFLAGS += -lSDL 
 endif
 
-ifeq ($(SDL2), Y)
+ifeq ($(SCREEN), SDL2)
 #for srvmain.c and winmain.c
-DEFINES += -D_SDL1_2_=1
+DEFINES += -DSDL=1
 LDFLAGS += -lSDL2 
 endif

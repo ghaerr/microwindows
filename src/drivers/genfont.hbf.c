@@ -16,6 +16,8 @@
 #include "device.h"
 #include "genfont.h"
 
+#define USE_HBF_FONT	1
+
 #ifdef USE_HBF_FONT
 #include "hbf.h"
 
@@ -78,17 +80,17 @@ MWFONTPROCS mwfontprocs = {
 MWCOREFONT gen_fonts[NUMBER_FONTS] = {
 #if HAVEMSFONTS
 #error
-	{&fontprocs, 0, 0, 0, "arial20", &font_arial20},
-	{&fontprocs, 0, 0, 0, "arial24", &font_arial24},
-	{&fontprocs, 0, 0, 0, "arial28", &font_arial28},
-	{&fontprocs, 0, 0, 0, MWFONT_GUI_VAR, &font_winMSSansSerif11x13},
-	{&fontprocs, 0, 0, 0, MWFONT_OEM_FIXED, &font_winTerminal8x12},
-	{&fontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13}
+	{&mwfontprocs, 0, 0, 0, "arial20", &font_arial20},
+	{&mwfontprocs, 0, 0, 0, "arial24", &font_arial24},
+	{&mwfontprocs, 0, 0, 0, "arial28", &font_arial28},
+	{&mwfontprocs, 0, 0, 0, MWFONT_GUI_VAR, &font_winMSSansSerif11x13},
+	{&mwfontprocs, 0, 0, 0, MWFONT_OEM_FIXED, &font_winTerminal8x12},
+	{&mwfontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13}
 #else
-	{&fontprocs, 0, 0, 0, "arial16", &font_arial16},
-	{&fontprocs, 0, 0, 0, "arial20", &font_arial20},
-	{&fontprocs, 0, 0, 0, "arial24", &font_arial24},
-	{&fontprocs, 0, 0, 0, "arial28", &font_arial28},
+	{&mwfontprocs, 0, 0, 0, "arial16", &font_arial16},
+	{&mwfontprocs, 0, 0, 0, "arial20", &font_arial20},
+	{&mwfontprocs, 0, 0, 0, "arial24", &font_arial24},
+	{&mwfontprocs, 0, 0, 0, "arial28", &font_arial28},
 #endif
 };
 

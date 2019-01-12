@@ -1,3 +1,9 @@
+11 Jan 2019
+	* initial port of SDL2 driver to MACOSX
+	* cleaned up MwSelect and GsSelect routines and #if processing
+	* renamed MWPF_TRUECOLOR8888 to MWPF_TRUECOLORARGB, cleaned up config
+	* cleaned up drivers/Objects.rules and config screen/mouse/keyboard drivers, deprecated old kbd & mouse drivers
+9 Jan 2019
 	* edited various winlib/ builtin control source for readability, reformatted entire combobox.c
 7 Jan 2019
 	* builtin control registration cleanup, added all controls to MwInitializeDialogs(), mwin demos changed to use this

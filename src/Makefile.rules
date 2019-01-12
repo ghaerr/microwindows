@@ -27,7 +27,7 @@ HOSTLDFLAGS=
 MAKEDEPCFLAGS=
 MAKEOPTS=
 
-EXTENGINELIBS=
+#EXTENGINELIBS=
 MWINLIBS=
 NANOXCLIENTLIBS=
 
@@ -193,7 +193,7 @@ ifeq ($(PARALLEL), Y)
 MAKEOPTS += -j
 endif
 
-ifeq ($(X11), Y)
+ifeq ($(SCREEN), X11)
 DEFINES += -DX11=1
 ifneq ($(X11HDRLOCATION),)
 INCLUDEDIRS += -I$(X11HDRLOCATION)
@@ -311,34 +311,12 @@ ifeq ($(USE_EXPOSURE), Y)
 DEFINES += -DUSE_EXPOSURE
 endif
 
-ifeq ($(EM8400), Y)
-DEFINES += -I$(EM8400_DIR)/include
-LDFLAGS += -L$(EM8400_DIR)/lib -lEM8400
-endif
-
-ifeq ($(INVERT4BPP), Y)
-DEFINES += -DINVERT4BPP=1
-endif
-
-ifeq ($(INVERT2BPP), Y)
-DEFINES += -DINVERT2BPP=1
-endif
-
-ifeq ($(TPHELIO), Y)
-DEFINES += -DTPHELIO=1
-endif
-
-# compile mouse driver in lirc keyboard driver kbd_lirc.c (LIRCKBD=Y)
-ifeq ($(LIRCMOUSE), Y)
-DEFINES += -DHAVE_LIRC_MOUSE=1
+ifeq ($(FBREVERSE), Y)
+DEFINES += -DINVERT4BPP=1 -DINVERT2BPP=1
 endif
 
 ifeq ($(2NDKBD), Y)
 DEFINES += -DMW_FEATURE_TWO_KEYBOARDS=1
-endif
-
-ifeq ($(EVENTMOUSE), Y)
-DEFINES += -DTOUCHSCREEN_EVENT=1
 endif
 
 

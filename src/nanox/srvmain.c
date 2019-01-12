@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2003, 2004, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2003, 2004, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  *
@@ -10,14 +10,16 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif  
-
-#if ELKS
-#include <linuxmt/posix_types.h>
-#include <linuxmt/time.h>
+#if UNIX | DOS_DJGPP | WIN32
+#include <unistd.h>
+#if _MINIX
+#include <sys/times.h>
+#else
+#include <sys/time.h>
+#endif
 #endif
 
 #if RTEMS
@@ -29,28 +31,12 @@
 #include <pspdebug.h>
 #endif
 
-#ifdef __PACIFIC__
-#include <unixio.h>
-#else
-#include <errno.h>
-#include <sys/types.h>
-#endif
-
-#ifdef DOS_TURBOC
-#include <io.h>
-#endif
+#if EMSCRIPTEN
+#include <emscripten.h>
+#endif  
 
 #define MWINCLUDECOLORS
 #include "serv.h"
-
-#if UNIX | DOS_DJGPP | WIN32
-#include <unistd.h>
-#if _MINIX
-#include <sys/times.h>
-#else
-#include <sys/time.h>
-#endif
-#endif
 
 #if __MINGW32__ | WIN32
 //FIXME all this needs to move somewhere else
@@ -343,7 +329,7 @@ GsDropClient(int fd)
 }
 #endif
 
-#if UNIX || DOS_DJGPP || __MINGW32__ || defined(__EMSCRIPTEN__)
+#if UNIX | DOS_DJGPP | __MINGW32__ | EMSCRIPTEN
 #if NONETWORK && HAVE_SELECT
 /*
  * Register the specified file descriptor to return an event
@@ -434,7 +420,34 @@ GrReqShmCmds(long shmsize)
 #endif
 
 /********************************************************************************/
-#if UNIX && HAVE_SELECT
+#if MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | SDL | EMSCRIPTEN
+
+void
+GsSelect(GR_TIMEOUT timeout)
+{
+#if EMSCRIPTEN
+	emscripten_sleep(1);
+#endif
+
+	/* update screen & flush buffers*/
+	if(scrdev.PreSelect)
+		scrdev.PreSelect(&scrdev);
+
+	/* If mouse data present, service it*/
+	if(mousedev.Poll())
+		while(GsCheckMouseEvent())
+			continue;
+
+	/* If keyboard data present, service it*/
+	if(kbddev.Poll())
+		while(GsCheckKeyboardEvent())
+			continue;
+
+}
+
+/********************************************************************************/
+#elif UNIX && HAVE_SELECT
+
 void
 GsSelect(GR_TIMEOUT timeout)
 {
@@ -684,11 +697,9 @@ GsSelect(GR_TIMEOUT timeout)
 	while (1)
 	{
 
-		/* perform pre-select duties, if any */
+		/* update screen & flush buffers*/
 		if(scrdev.PreSelect)
-		{
 			scrdev.PreSelect(&scrdev);
-		}
 
 
 		/* If mouse data present, service it */
@@ -770,7 +781,7 @@ GsSelect (GR_TIMEOUT timeout)
 
 	/* perform pre-select duties, if any*/
 	if (scrdev.PreSelect)
-		scrdev.PreSelect (&scrdev);
+		scrdev.PreSelect(&scrdev);
 
 	/* let's make sure that the type is invalid */
 	m.type = MV_UID_INVALID;
@@ -929,28 +940,6 @@ err_exit:
 }
 
 /********************************************************************************/
-#else /* MSDOS | _MINIX | NDS | __MINGW32__ | defined(_ALLEGRO_) | defined(_SDL1_2_) | defined(__EMSCRIPTEN__)*/
-
-void
-GsSelect(GR_TIMEOUT timeout)
-{
-#ifdef __EMSCRIPTEN__
-	emscripten_sleep(1);
-#endif
-
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(GsCheckMouseEvent())
-			continue;
-
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(GsCheckKeyboardEvent())
-			continue;
-
-}
-
-/********************************************************************************/
 #endif /* GsSelect() cases*/
 
 #if UNIX && HAVE_SELECT && NONETWORK
@@ -985,7 +974,7 @@ GrPrepareSelect(int *maxfd, void *rfdset)
 
 	SERVER_LOCK();
 
-	/* perform pre-select duties, if any*/
+	/* update screen & flush buffers*/
 	if(rootwp->psd->PreSelect)
 		rootwp->psd->PreSelect(rootwp->psd);
 
@@ -1315,7 +1304,7 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
-#if defined(__EMSCRIPTEN__)
+#if EMSCRIPTEN
 	return;
 #endif
 	exit(0);
@@ -1353,7 +1342,7 @@ void
 GrBell(void)
 {
 	SERVER_LOCK();
-#if !(PSP | defined(__EMSCRIPTEN__))
+#if !(PSP | EMSCRIPTEN)
 	(void)write(2, "\7", 1);
 #endif
 	SERVER_UNLOCK();

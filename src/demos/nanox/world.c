@@ -11,7 +11,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
-#if MSDOS || RTEMS || __ECOS  || EMSCRIPTEN
+#if MSDOS | RTEMS | __ECOS  | EMSCRIPTEN
 #include <fcntl.h>
 #endif
 
@@ -21,7 +21,7 @@
 #include <fcntl.h>
 #endif
 
-#if LINUX || MACOSX || DOS_DJGPP || defined(__CYGWIN__) || __MINGW32__  || EMSCRIPTEN
+#if LINUX | MACOSX | DOS_DJGPP | defined(__CYGWIN__) | __MINGW32__  | EMSCRIPTEN
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

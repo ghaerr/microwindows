@@ -67,20 +67,14 @@ OBJS += \
 	$(MW_DIR_OBJ)/nanox/client.o \
 	$(MW_DIR_OBJ)/nanox/nxproto.o \
 	$(MW_DIR_OBJ)/nanox/error.o
-ifeq ($(FRAMEBUFFER), Y)
-OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
-else
-ifeq ($(X11), Y)
-OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
-endif
-endif
 
-ifeq ($(ARCH), ECOS) 
-TARGET = $(MW_DIR_BIN)/nano-X.o
+# add in memory mapped framebuffer from client if available
+ifeq ($(SCREEN), FB)
+  OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
 else
-TARGET = $(MW_DIR_BIN)/nano-X
-endif
-all: default $(TARGET)
+  ifeq ($(SCREEN), X11)
+    OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
+  endif
 endif
 
 NANOXSERVERLIBS = $(EXTENGINELIBS)
@@ -89,7 +83,16 @@ ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 NANOXSERVERLIBS += $(LIBVNC) $(LIBJPEG) $(LIBZ)
 endif 
 
-endif # LINK_APP_INTO_SERVER
+ifeq ($(ARCH), ECOS) 
+TARGET = $(MW_DIR_BIN)/nano-X.o
+else
+TARGET = $(MW_DIR_BIN)/nano-X
+endif
+
+all: default $(TARGET)
+
+endif # !LINK_APP_INTO_SERVER
+endif # NANOX
 
 ######################### Makefile.rules section #############################
 

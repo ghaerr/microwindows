@@ -8,9 +8,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-//#include <unistd.h>
 #include "device.h"
-#if defined(__EMSCRIPTEN__)
+
+#if EMSCRIPTEN
 #include <emscripten.h>
 #include <SDL.h>
 #else
@@ -37,6 +37,8 @@ MOUSEDEVICE mousedev = {
 };
 
 extern SDL_Window *sdlWindow;
+extern SDL_Renderer *sdlRenderer;
+extern SDL_Texture *sdlTexture;
 extern SDL_Surface *screen;
 extern int unlock_flag;
 SDL_Event event;
@@ -113,8 +115,8 @@ int ym;
 int buttons = 0;
 
 if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_QUIT, SDL_QUIT)) {
-#if !defined(__EMSCRIPTEN__)  
-    GrClose();
+#if !EMSCRIPTEN
+    //GrClose();		// FIXME can't call nano-X routines from driver
     SDL_Quit();
 #endif    
     return 1; //i.e. clicked on X11 close window
@@ -153,5 +155,5 @@ return 2; //2=absolute mouse position
 
 } //SDL_PeepEvents    
 
+return 0;
 } //msdl_Read
-

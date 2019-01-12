@@ -16,10 +16,14 @@ src/Makefile
 
 
 src/config
+	SCREEN					screen driver (X11, FB, SDL1, etc)
+	SCREEN_HEIGHT			new, size of screen on non-dynamic framebuffer systems and FBE
+	SCREEN_WIDTH			new
+	SCREEN_DEPTH			new, screen bits per pixel
+	MOUSE=					new, mouse driver
+	KEYBOARD=				new, keyboard driver
 	X11LIBLOCATION=			new config option, location of X11 libraries
 	X11HDRLOCATION=			new config option, location of X11 headers
-	SCREEN_HEIGHT			new
-	SCREEN_WIDTH			new
 
 src/Makefile.rules
 	CFLAGS=					platform-specific flags, optimization and debug options

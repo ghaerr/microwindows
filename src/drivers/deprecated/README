@@ -1,3 +1,35 @@
+DEPRECATED DRIVER FILES			01/11/2019
+
+In preparation for v0.94, various extremely old drivers were
+deprecated to cleanup drivers/Object.rules and the config file.
+These files have been moved to src/drivers/deprecated/, and can be re-added
+should someone care about running Microwindows on these ancient systems.
+
+DEPRECATED MOUSE AND KEYBOARD DRIVERS
+
+Config option	Driver				Description
+ADSMOUSE		mou_touchscreen.c	Applied Data Systems GC+ (/dev/ts)
+ADS7846MOUSE	mou_touchscreen.c	ADS7846 chip, PSI OMAP Innovator (/dev/innnovator_ts)
+IPAQMOUSE		mou_touchscreen.c	Compaq iPAQ, Intel Assabet (/dev/h3600_tsraw)
+TUXMOUSE		mou_touchscreen.c	TuxScreen (/dev/ucb1x00-ts)
+ZAURUSMOUSE		mou_touchscreen.c	Sharp Zaurus (/dev/sharp_ts)
+TTMOUSE			mou_touchscreen.c ttmouse_init.c TomTom GO and ONE (/dev/ts)
+EPMOUSE			mou_vrlinux.c		Embedded Planet (/dev/tpanel)
+VHMOUSE			mou_vrlinux.c		Vtech Helio (/dev/tpanel)
+YOPYMOUSE		mou_yopy.c 			Yopy (/dev/yopy-ts)
+PSIONMOUSE		mou_ps5.c			Psion 5 (/dev/touch_psion)
+HARRIERMOUSE	mou_harrier.c		NEC Harrier (/dev/tpanel)
+MTMOUSE			mou_mt.c			MicroTouch serial (/dev/ttyS1)
+SUNMOUSE		mou_sun.c			Sun Workstation mouse (/dev/sunmouse)
+EVENTMOUSE		mou_event.c			Simple standard event interface (/dev/input/event0)
+				mou_dynapro.c, dynacal.c	Dynaproc SC3
+				scr_mosync.c, mou_mosync.c	MoSync touchscreen
+IPAQKBD			kbd_ipaq.c			Compaq iPaq
+ZAURUSKBD							Sharp Zaurus (kbd_ttyscan.c)
+EVENTKBD		kbd_event.c			Simple standard event interface (/sys/class/input/event)
+LIRCKBD			kbd_lirc.c mwlirc.c IR remote control
+PIPEKBD			kbd_pipe.c			Pipe keyboard
+
 DEPRECATED FILES AND DRIVERS	07/30/2011
 
 After v0.92, the internal drawing model has changed slightly.

@@ -2,7 +2,7 @@
 # config - Microwindows and Nano-X configuration file
 #
 # Set target architecture using ARCH= from options in Arch.rules
-# Set drawing method: X11 or FRAMEBUFFER/MOUSE/KEYBOARD options
+# Set SCREEN/MOUSE/KEYBOARD drivers (typically X11 or FB)
 # Set various libraries to build or include and their locations
 #
 # See the src/Configs directory for pre-built config files.
@@ -26,22 +26,26 @@ THREADSAFE               = Y
 PARALLEL                 = N
 
 ####################################################################
-# Draw using X11 versus framebuffer
-# Screen width/height for X11 and FBE window size
-# USE_EXPOSURE for XFree86 4.x or if backing store not working
+# Screen Driver
+# Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
+# Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-X11                      = Y
+SCREEN                   = X11
+MOUSE                    =
+KEYBOARD                 =
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
+SCREEN_DEPTH             = 8
 X11LIBLOCATION           = /usr/X11/lib
 X11HDRLOCATION           = /usr/X11/include
-USE_EXPOSURE             = Y
 
-FRAMEBUFFER              = N
-MOUSE                    = GPMMOUSE
-KEYBOARD                 = TTYKBD
-#MOUSE                    = NOMOUSE
-#KEYBOARD                 = NOBKD
+#SCREEN                   = SDL2
+#MOUSE                    =
+#KEYBOARD                 =
+#EXTENGINELIBS            += -lSDL2
+#SCREEN                   = FB
+#MOUSE                    = GPMMOUSE
+#KEYBOARD                 = TTYKBD
 
 ####################################################################
 #
@@ -154,50 +158,30 @@ HAVE_FNTGZ_SUPPORT       = Y
 FNT_FONT_DIR             = "fonts/fnt"
 
 ####################################################################
+# Specialized font support
+#
+# Chinese Han Zi Ku HZK loadable font support
+# DBCS Chinese BIG5 compiled in font support (big5font.c)
+# DBCS Chinese GB2312 compiled in font support (gb2312font.c)
+# Chinese HBF font support (genfont.hbf.c, hbf.c)
+# DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
 # Japanese EUC-JP support using loadable MGL font
-####################################################################
-HAVE_EUCJP_SUPPORT       = N
-EUCJP_FONT_DIR           = "fonts/japanese"
-
-####################################################################
-# Chinese Han Zi Ku loadable font support
+# DBCS Korean HANGUL font support (jo16x16.c)
+# Fribidi and shape/joining support for right to left rendering
 ####################################################################
 HAVE_HZK_SUPPORT         = N
 HZK_FONT_DIR             = "fonts/chinese"
-
-####################################################################
-# DBCS Chinese BIG5 compiled in font support (big5font.c)
-####################################################################
 HAVE_BIG5_SUPPORT        = N
-
-####################################################################
-# DBCS Chinese GB2312 compiled in font support (gb2312font.c)
-####################################################################
 HAVE_GB2312_SUPPORT      = N
-
-####################################################################
-# DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
-####################################################################
+HAVE_HBF_SUPPORT         = N
 HAVE_JISX0213_SUPPORT    = N
-
-####################################################################
-# DBCS Korean HANGUL font support (jo16x16.c)
-####################################################################
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
 HAVE_KSC5601_SUPPORT     = N
-
-####################################################################
-# Fribidi and shape/joining support for right to left rendering
-####################################################################
 HAVE_FRIBIDI_SUPPORT     = N
 HAVE_SHAPEJOINING_SUPPORT = N
 INCFRIBIDI               =
 LIBFRIBIDI               = -lfribidi
-
-####################################################################
-# Generate screen driver interface only with no fonts or clipping
-####################################################################
-NOFONTS                  = N
-NOCLIPPING               = N
 
 ####################################################################
 # Misc Options
@@ -211,18 +195,24 @@ NOCLIPPING               = N
 ERASEMOVE                = Y
 UPDATEREGIONS            = Y
 
+# Generate screen driver interface only with no fonts or clipping
+NOFONTS                  = N
+NOCLIPPING               = N
+
+# set USE_EXPOSURE for X11 on XFree86 4.x or if backing store not working
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set GRAYPALETTE to link with Gray Palette (valid only for 4bpp modes)
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.
+USE_EXPOSURE             = Y
 VTSWITCH                 = N
 FBREVERSE                = N
 GRAYPALETTE              = N
 HAVETEXTMODE             = N
 
 ####################################################################
-#
-# If using Linux framebuffer, set to MWPF_TRUECOLOR8888, and use fbset.
+# Screen pixel format
+# If using Linux framebuffer, set to MWPF_TRUECOLORARGB, and use fbset.
 # When running X11, this sets the X11 pixel emulation at runtime.
 #
 # On Linux or when running the standard framebuffer subdrivers,
@@ -234,7 +224,7 @@ HAVETEXTMODE             = N
 # in GrArea/GrReadArea.
 #
 # define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
-# define MWPF_TRUECOLOR8888 /* pixel is packed 32 bits byte order |B|G|R|A|*/
+# define MWPF_TRUECOLORARGB /* pixel is packed 32 bits byte order |B|G|R|A|*/
 # define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
 # define MWPF_TRUECOLOR888  /* pixel is packed 24 bits byte order |B|G|R|*/
 # define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
@@ -243,90 +233,34 @@ HAVETEXTMODE             = N
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 #
 ####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
 #SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
 
 ####################################################################
 # Screen drivers
-# SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
-# INVERT4BPP 4bpp inverted pixel driver for VTech Helio
+# SCREEN=X11		X11
+# SCREEN=FB			framebuffer
+# SCREEN=NOSCR		no screen driver
+# SCREEN=SCRMEM		memory buffer
+# SCREEN=SDL1		SDL v1
+# SCREEN=SDL2		SDL v2
+# SCREEN=ALLEGRO4
+# SCREEN=ALLEGRO5
 ####################################################################
-# X11 typical window size and palette bits
-#SCREEN_WIDTH             = 800
-#SCREEN_HEIGHT            = 600
-#SCREEN_WIDTH             = 1024
-#SCREEN_HEIGHT            = 768
-#SCREEN_WIDTH             = 1280
-#SCREEN_HEIGHT            = 800
-#SCREEN_WIDTH             = 1280
-#SCREEN_HEIGHT            = 1024
-#SCREEN_WIDTH             = 1366
-#SCREEN_HEIGHT            = 768
-#SCREEN_WIDTH             = 1440
-#SCREEN_HEIGHT            = 900
-SCREEN_DEPTH             = 8
-
-NOSCR                    = N
-SCRMEM                   = N
-SA1100_LCD_LTLEND        = N
-INVERT4BPP               = N
-ALLEGRO4                 = N
-ALLEGRO5                 = N
-SDL1                     = N
-SDL2                     = N
 
 ####################################################################
 # Mouse drivers
-# GPMMOUSE	gpm mouse
-# SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
-# SUNMOUSE	Sun Workstation mouse (/dev/sunmouse)
-# NOMOUSE	no mouse driver
-#
-# Touchscreen drivers
-# IPAQMOUSE	Compaq iPAQ, Intel Assabet (/dev/h3600_tsraw)
-# ZAURUSMOUSE	Sharp Zaurus (/dev/sharp_ts)
-# TUXMOUSE	TuxScreen (/dev/ucb1x00-ts)
-# ADSMOUSE	Applied Data Systems GC+ (/dev/ts)
-# ADS7846MOUSE	ADS7846 chip, PSI OMAP Innovator (/dev/innnovator_ts)
-# EPMOUSE	Embedded Planet (/dev/tpanel)
-# VHMOUSE	Vtech Helio (/dev/tpanel)
-# MTMOUSE	MicroTouch serial (/dev/ttyS1)
-# PSIONMOUSE	Psion 5 (/dev/touch_psion)
-# YOPYMOUSE	Yopy (/dev/yopy-ts)
-# HARRIERMOUSE	NEC Harrier (/dev/tpanel)
-# TSLIBMOUSE    Use tslib (/dev/input/event0)
-# EVENTMOUSE	Simple standard event interface (/dev/input/event0)
-# TTMOUSE       TomTom GO and ONE (/dev/ts)
+# MOUSE=NOMOUSE		no mouse driver
+# MOUSE=GPMMOUSE	gpm mouse
+# MOUSE=SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# MOUSE=TSLIBMOUSE	Use tslib (/dev/input/event0)
 ####################################################################
-GPMMOUSE                 = $(MOUSE)
-SERMOUSE                 = $(MOUSE)
-SUNMOUSE                 = $(MOUSE)
-IPAQMOUSE                = $(MOUSE)
-ZAURUSMOUSE              = $(MOUSE)
-TUXMOUSE                 = $(MOUSE)
-ADSMOUSE                 = $(MOUSE)
-ADS7846MOUSE             = $(MOUSE)
-EPMOUSE                  = $(MOUSE)
-VHMOUSE                  = $(MOUSE)
-MTMOUSE                  = $(MOUSE)
-PSIONMOUSE               = $(MOUSE)
-YOPYMOUSE                = $(MOUSE)
-HARRIERMOUSE             = $(MOUSE)
-LIRCMOUSE                = $(MOUSE)
-TSLIBMOUSE               = $(MOUSE)
-TTMOUSE                  = $(MOUSE)
-EVENTMOUSE               = $(MOUSE)
 
 ####################################################################
 # Keyboard drivers
+# KEYBOARD=NOKBD		no keyboard driver
+# KEYBOARD=TTYKBD		tty keyboard
+# KEYBOARD=SCANKBD		scanmode keyboard
+# KEYBOARD=2NDKBD		two keyboards support
 ####################################################################
-TTYKBD                   = $(KEYBOARD)
-SCANKBD                  = $(KEYBOARD)
-PIPEKBD                  = $(KEYBOARD)
-IPAQKBD                  = $(KEYBOARD)
-LIRCKBD                  = $(KEYBOARD)
-PSPKBD                   = $(KEYBOARD)
-EVENTKBD                 = $(KEYBOARD)
-LIRCKBD2                 = $(KEYBOARD)
-2NDKBD                   = $(KEYBOARD)

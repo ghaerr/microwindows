@@ -7,11 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-
-#ifndef __PACIFIC__
 #include <errno.h>
 #include <sys/types.h>
-#endif
 
 #if UNIX | DOS_DJGPP
 #include <unistd.h>
@@ -20,11 +17,6 @@
 #else
 #include <sys/time.h>
 #endif
-#endif
-
-#if ELKS
-#include <linuxmt/posix_types.h>
-#include <linuxmt/time.h>
 #endif
 
 #if RTEMS
@@ -41,7 +33,7 @@
 #define exit(...) sceKernelExitGame()
 #endif
 
-#ifdef __EMSCRIPTEN__
+#if EMSCRIPTEN
 #include <emscripten.h>
 #endif  
 
@@ -284,32 +276,20 @@ MwUnregisterFdExcept(HWND hwnd, int fd)
 
 #endif /* UNIX && HAVE_SELECT*/
 
-#if NDS
+/********************************************************************************/
+#if MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | SDL | EMSCRIPTEN
+
 void
 MwSelect(BOOL mayWait)
 {
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(MwCheckMouseEvent())
-			continue;
-
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(MwCheckKeyboardEvent())
-			continue;
-
-	MwHandleTimers();
-}
-#endif
-
-#if MSDOS | _MINIX | __MINGW32__ | defined(_ALLEGRO_) | defined(_SDL1_2_) | defined(__EMSCRIPTEN__)
-void
-MwSelect(BOOL mayWait)
-{
-#ifdef __EMSCRIPTEN__
+#if EMSCRIPTEN
 	emscripten_sleep(1);
 #endif
 
+	/* update screen & flush buffers*/
+	if(scrdev.PreSelect)
+		scrdev.PreSelect(&scrdev);
+
 	/* If mouse data present, service it*/
 	if(mousedev.Poll())
 		while(MwCheckMouseEvent())
@@ -322,14 +302,19 @@ MwSelect(BOOL mayWait)
 
 	MwHandleTimers();
 }
-#endif
 
-#if PSP
+/********************************************************************************/
+#elif VXWORKS | PSP
+
 void 
 MwSelect(BOOL mayWait)
 {
 	int mouseevents = 0;
 	int keybdevents = 0;
+
+	/* update screen & flush buffers*/
+	if(scrdev.PreSelect)
+		scrdev.PreSelect(&scrdev);
 
 	/* If mouse data present, service it */
 	while (mousedev.Poll() > 0)
@@ -354,10 +339,10 @@ MwSelect(BOOL mayWait)
 
 	MwHandleTimers();
 }
-#endif
 
+/********************************************************************************/
+#elif UNIX && HAVE_SELECT
 
-#if UNIX && HAVE_SELECT && !__MINGW32__ && !defined(_ALLEGRO_) && !defined(_SDL1_2_)
 void
 MwSelect(BOOL mayWait)
 {
@@ -474,9 +459,10 @@ MwSelect(BOOL mayWait)
 		if(errno != EINTR)
 			EPRINTF("Select() call in main failed. Errno=%d\n", errno);
 }
-#endif /* UNIX && HAVE_SELECT*/
 
-#if RTEMS | __ECOS
+/********************************************************************************/
+#elif RTEMS | __ECOS
+
 extern MWBOOL MwCheckMouseEvent();
 extern MWBOOL MwCheckKeyboardEvent();
 extern struct MW_UID_MESSAGE m_kbd;
@@ -536,7 +522,8 @@ void MwSelect (BOOL mayWait)
 	        break;
 	}
 }
-#endif /* RTEMS | __ECOS*/
+/********************************************************************************/
+#endif /* MwSelect() cases*/
 
 #if VTSWITCH
 static void

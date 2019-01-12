@@ -1,4 +1,4 @@
-# Micro-Windows Non-Recursive Makefile for DOS/DJGPP and MinGW
+# Microwindows Non-Recursive Makefile for DOS/DJGPP and MinGW
 # by Georg Potthast August 2015
 # based on makefile by V. Rogachev
 #
@@ -191,7 +191,7 @@ CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1
 endif
 
 ifeq ($(EMSCRIPTEN), Y)
-CFLAGS += -DEMSCRIPTEN=1 -D_SDL1_2_=1 
+CFLAGS += -DEMSCRIPTEN=1 -DSDL=1 
 endif
 
 ifeq ($(X11), Y)

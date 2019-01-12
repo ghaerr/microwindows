@@ -145,7 +145,7 @@ lookup_color(unsigned short r, unsigned short g, unsigned short b)
 
 #if MWPIXEL_FORMAT != MWPF_PALETTE
 
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888)
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB)
 #define PIXEL2RED8(p)           PIXEL888RED8(p)
 #define PIXEL2GREEN8(p)         PIXEL888GREEN8(p)
 #define PIXEL2BLUE8(p)          PIXEL888BLUE8(p)
@@ -574,7 +574,7 @@ X11_open(PSD psd)
 		psd->bpp = SCREEN_DEPTH;
 		break;
 #endif
-	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLORARGB:
 	case MWPF_TRUECOLORABGR:
 	default:
 		psd->bpp = 32;
@@ -721,7 +721,7 @@ update_from_savebits(PSD psd, unsigned int destx, unsigned int desty, int w, int
 			addr += extra;
 		}
 	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 		for (y = 0; y < h; y++) {

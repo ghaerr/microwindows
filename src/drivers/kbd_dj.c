@@ -1,8 +1,4 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
- *
- * Copyright (c) 1999 Victor Rogachev <rogach@sut.ru>
- *
  * Keyboard Driver, DOS & DJGPP & GRX version
  *
  * adapted to version 0.93 by Georg Potthast

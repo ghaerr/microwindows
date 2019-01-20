@@ -1,3 +1,11 @@
+check EMSCRIPTEN #include in srvmain.c and winmain.c
+check #CFLAGS += -DFREETYPE_FONT_DIR=... on EMSCRIPTEN build
+adjust 10ms timing for GsSelect/MwSelect for SDL
+right click mouse support on touchpad for SDL
+update runapp for nx11-test and contrib/TinyWidgets/{demo,tndesigner}
+rename PIXEL888*, PIXEL8888* in mwtypes.h
+fix nanox/clientfb.c for direct fb access
+
 add scr_sgm.c, suifont.c, DrawBitmap
 add X11 mag driver
 wide border rects, ^R redisplay screen

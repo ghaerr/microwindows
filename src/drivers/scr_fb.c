@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2001, 2002, 2007,2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2001, 2002, 2007, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  *
  * Microwindows Screen Driver for Linux kernel framebuffers
@@ -34,13 +34,10 @@
 
 #define PATH_FRAMEBUFFER	"/dev/fb0"	/* real framebuffer*/
 
-/* frame buffer emulator defaults - not used with real framebuffer*/
-#define PATH_EMULATORFB		"/tmp/fb0"	/* framebuffer emulator when used*/
-#define XRES	800	/* default fb emulator xres*/
-#define YRES	600	/* default fb emulator yres*/
-#define BPP	32	/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
-
-#define EMBEDDEDPLANET	0	/* =1 for kluge embeddedplanet ppc framebuffer*/
+/* Frame buffer emulator defaults - not used with real framebuffer*/
+/* To use with bin/fbe, set environment FRAMEBUFFER=/tmp/fb0 or use scr_fbe.c driver*/
+#define PATH_EMULATORFB		"/tmp/fb0"	/* bin/fbe framebuffer memory*/
+#define BPP	32							/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
 
 #ifndef FB_TYPE_VGA_PLANES
 #define FB_TYPE_VGA_PLANES 4
@@ -66,7 +63,8 @@ SCREENDEVICE	scrdev = {
 };
 
 #if !LINUX
-/* define linux structures and create framebuffer from defaults without ioctl*/
+/* Allow compilation on non-linux systems. For bin/fbe use, set FRAMEBUFFER=/tmp/fb0 in environment*/
+/* Defines linux structures to set framebuffer defaults without ioctl*/
 /* FIXME nanox/clientfb.c direct framebuffer needs access to this*/
 #define FB_TYPE_PACKED_PIXELS	0	/* Packed Pixels*/
 #define FB_TYPE_PLANES		1	/* Non interleaved planes*/
@@ -113,29 +111,29 @@ struct fb_cmap {
 	unsigned short *blue;
 	unsigned short *transp;
 };
-#endif
+#endif /* !LINUX*/
 
 /* framebuffer info defaults for emulator*/
 static struct fb_fix_screeninfo  fb_fix = {
 	  .type = FB_TYPE_PACKED_PIXELS,
 #if BPP == 1
 	  .visual = FB_VISUAL_MONO10,
-	  .line_length = XRES / (8 / BPP),
+	  .line_length = SCREEN_WIDTH / (8 / BPP),
 #elif BPP <= 8
 	  .visual = FB_VISUAL_PSEUDOCOLOR,
-	  .line_length = XRES / (8 / BPP),
+	  .line_length = SCREEN_WIDTH / (8 / BPP),
 #else /* 15,16,24,32bpp*/
 	  .visual = FB_VISUAL_TRUECOLOR,
-	  .line_length = XRES * ((BPP+1)/8),	/* +1 to make 15bpp work*/
+	  .line_length = SCREEN_WIDTH * ((BPP+1)/8),	/* +1 to make 15bpp work*/
 #endif
 	  .accel = FB_ACCEL_NONE,
 };
 
 static struct fb_var_screeninfo fb_var = {
-	  .xres = XRES,
-	  .yres = YRES,
-	  .xres_virtual = XRES,
-	  .yres_virtual = YRES,
+	  .xres = SCREEN_WIDTH,
+	  .yres = SCREEN_HEIGHT,
+	  .xres_virtual = SCREEN_WIDTH,
+	  .yres_virtual = SCREEN_HEIGHT,
 	  .bits_per_pixel = BPP,
 #if BPP <= 8
 	  /* offset, length, msb_right*/
@@ -249,7 +247,7 @@ fb_open(PSD psd)
 			psd->pixtype = MWPF_TRUECOLORRGB;
 			break;
 		case 32:
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORARGB
 			psd->pixtype = MWPF_TRUECOLORARGB;
 #else
 			psd->pixtype = MWPF_TRUECOLORABGR;
@@ -392,8 +390,6 @@ set_directcolor_palette(PSD psd)
 	}
 }
 
-static int fade = 100;
-
 /* convert Microwindows palette to framebuffer format and set it*/
 static void
 fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
@@ -402,6 +398,7 @@ fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 	short 	red[256];
 	short 	green[256];
 	short 	blue[256];
+	static const int fade = 100;
 
 	if (count > 256)
 		count = 256;
@@ -425,17 +422,7 @@ fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette)
 void
 ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 {
-#if EMBEDDEDPLANET
-	int 		i;
-	unsigned short 	colors[256];
-
-	ioctl(fb, 4, colors);
-	for (i = start; ((i - start) < len) && (i < 256); i++) {
-		red[i - start] = (colors[i] & 0xf00) << 4;
-		green[i - start] = (colors[i] & 0x0f0) << 8;
-		blue[i - start] = (colors[i] & 0x00f) << 12;
-	}
-#else
+#ifdef FBIOGETCMAP
 	struct fb_cmap cmap;
 
 	cmap.start = start;
@@ -444,9 +431,7 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.green = (unsigned short *)green;
 	cmap.blue = (unsigned short *)blue;
 	cmap.transp = NULL;
-#ifdef FBIOGETCMAP
 	ioctl(fb, FBIOGETCMAP, &cmap);
-#endif
 #endif
 }
 
@@ -454,18 +439,7 @@ ioctl_getpalette(int start, int len, short *red, short *green, short *blue)
 void
 ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 {
-#if EMBEDDEDPLANET
-	int 		i;
-	unsigned short 	colors[256];
-
-	ioctl(fb, 4, colors);
-	for (i = start; ((i - start) < len) && (i < 256); i++) {
-		colors[i] = ((red[i - start] & 0xf000) >> 4)
-			| ((green[i - start] & 0xf000) >> 8)
-			| ((blue[i - start] & 0xf000) >> 12);
-	}
-	ioctl(fb, 3, colors);
-#else
+#ifdef FBIOPUTCMAP
 	struct fb_cmap cmap;
 
 	cmap.start = start;
@@ -475,32 +449,6 @@ ioctl_setpalette(int start, int len, short *red, short *green, short *blue)
 	cmap.blue = (unsigned short *)blue;
 	cmap.transp = NULL;
 
-#ifdef FBIOPUTCMAP
 	ioctl(fb, FBIOPUTCMAP, &cmap);
 #endif
-#endif
 }
-
-#ifdef DEPRECATED
-/* experimental palette animation*/
-void
-setfadelevel(PSD psd, int f)
-{
-	int 		i;
-	short 	r[256], g[256], b[256];
-	extern MWPALENTRY gr_palette[256];
-
-	if(psd->pixtype != MWPF_PALETTE)
-		return;
-
-	fade = f;
-	if(fade > 100)
-		fade = 100;
-	for(i=0; i<256; ++i) {
-		r[i] = (gr_palette[i].r * fade / 100) << 8;
-		g[i] = (gr_palette[i].g * fade / 100) << 8;
-		b[i] = (gr_palette[i].b * fade / 100) << 8;
-	}
-	ioctl_setpalette(0, 256, r, g, b);
-}
-#endif

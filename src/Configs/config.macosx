@@ -35,11 +35,10 @@ MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-SCREEN_DEPTH             = 8
 X11LIBLOCATION           = /usr/X11/lib
 X11HDRLOCATION           = /usr/X11/include
 
-#SCREEN                   = SDL2
+#SCREEN                   = SDL
 #MOUSE                    =
 #KEYBOARD                 =
 #EXTENGINELIBS            += -lSDL2
@@ -115,7 +114,6 @@ INCPNG                   =
 LIBPNG                   = -lpng
 INCZ                     =
 LIBZ                     = -lz
-#LIBPNG                   = /usr/X11/lib/libpng.dylib
 
 ####################################################################
 # TIFF support through libtiff
@@ -213,7 +211,7 @@ HAVETEXTMODE             = N
 ####################################################################
 # Screen pixel format
 # If using Linux framebuffer, set to MWPF_TRUECOLORARGB, and use fbset.
-# When running X11, this sets the X11 pixel emulation at runtime.
+# When running X11 or FBE, this sets the pixel emulation at runtime.
 #
 # On Linux or when running the standard framebuffer subdrivers,
 # the runtime framebuffer BPP (bits per pixel) is used to select 
@@ -226,25 +224,24 @@ HAVETEXTMODE             = N
 # define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
 # define MWPF_TRUECOLORARGB /* pixel is packed 32 bits byte order |B|G|R|A|*/
 # define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
-# define MWPF_TRUECOLOR888  /* pixel is packed 24 bits byte order |B|G|R|*/
+# define MWPF_TRUECOLORRGB  /* pixel is packed 24 bits byte order |B|G|R|*/
 # define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
 # define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
-#
+# SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
 ####################################################################
 SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
 #SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+SCREEN_DEPTH             = 8
 
 ####################################################################
 # Screen drivers
 # SCREEN=X11		X11
-# SCREEN=FB			framebuffer
-# SCREEN=NOSCR		no screen driver
-# SCREEN=SCRMEM		memory buffer
-# SCREEN=SDL1		SDL v1
-# SCREEN=SDL2		SDL v2
+# SCREEN=FB			linux framebuffer
+# SCREEN=FBE		framebuffer emulator
+# SCREEN=SDL		SDL v2
 # SCREEN=ALLEGRO4
 # SCREEN=ALLEGRO5
 ####################################################################

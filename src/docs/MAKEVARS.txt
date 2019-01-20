@@ -16,10 +16,10 @@ src/Makefile
 
 
 src/config
-	SCREEN					screen driver (X11, FB, SDL1, etc)
+	SCREEN					screen driver (X11, FB, FBE, SDL, etc)
 	SCREEN_HEIGHT			new, size of screen on non-dynamic framebuffer systems and FBE
 	SCREEN_WIDTH			new
-	SCREEN_DEPTH			new, screen bits per pixel
+	SCREEN_DEPTH			new, palette bits per pixel for MWPF_PALETTE mode only
 	MOUSE=					new, mouse driver
 	KEYBOARD=				new, keyboard driver
 	X11LIBLOCATION=			new config option, location of X11 libraries

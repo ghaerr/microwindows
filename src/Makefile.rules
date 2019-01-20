@@ -285,6 +285,9 @@ endif
 # Handle screen, keyboard and mouse config options
 ##############################################################################
 DEFINES += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
+HOSTCFLAGS += -DMWPIXEL_FORMAT=$(SCREEN_PIXTYPE)
+# Some screen drivers use SCREEN_PIXTYPE instead of MWPIXEL_FORMAT (FIXME)
+DEFINES += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
 
 ifdef SCREEN_HEIGHT
 DEFINES += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
@@ -301,12 +304,6 @@ DEFINES += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
 HOSTCFLAGS += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
 endif
 
-#some screen drivers use this instead of MWPIXEL_FORMAT defined above
-ifdef SCREEN_PIXTYPE
-DEFINES += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
-HOSTCFLAGS += -DSCREEN_PIXTYPE=$(SCREEN_PIXTYPE)
-endif
-
 ifeq ($(USE_EXPOSURE), Y)
 DEFINES += -DUSE_EXPOSURE
 endif
@@ -318,7 +315,6 @@ endif
 ifeq ($(2NDKBD), Y)
 DEFINES += -DMW_FEATURE_TWO_KEYBOARDS=1
 endif
-
 
 ##############################################################################
 # Setup libraries and command line libs for mwin API and nanox API linking

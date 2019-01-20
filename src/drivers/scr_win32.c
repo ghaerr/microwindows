@@ -29,7 +29,7 @@
 #endif
 
 #ifndef MWPIXEL_FORMAT
-#define MWPIXEL_FORMAT	MWPF_TRUECOLOR8888
+#define MWPIXEL_FORMAT	MWPF_TRUECOLORARGB
 #endif
 
 /* externally set override values from nanox/srvmain.c*/
@@ -140,9 +140,9 @@ win32_open(PSD psd)
 	psd->yres = psd->yvirtres;
 	psd->planes = 1;
 	psd->pixtype = MWPIXEL_FORMAT;
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	psd->bpp = 32;
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR888)
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLORRGB)
 	psd->bpp = 24;
 #elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
 	psd->bpp = 16;
@@ -338,7 +338,7 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
             bmpInfo.bV4BlueMask = 0x001fu;
             bmpInfo.bV4V4Compression = BI_BITFIELDS;
             break;
-        case MWPF_TRUECOLOR888:
+        case MWPF_TRUECOLORRGB:
             if ((bits = (unsigned char *)malloc(bmpInfo.bV4SizeImage)) != NULL) {
                 for (i=0; i<bmpInfo.bV4SizeImage; i+=3) {
                     bits[i] = addr[i+2];
@@ -356,7 +356,7 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
             bmpInfo.bV4BlueMask  = 0xff0000;
             bmpInfo.bV4V4Compression = BI_BITFIELDS;
 			break;
-        case MWPF_TRUECOLOR8888:
+        case MWPF_TRUECOLORARGB:
             bmpInfo.bV4AlphaMask = 0xff000000;
             bmpInfo.bV4RedMask  = 0xff0000;
             bmpInfo.bV4GreenMask= 0x00ff00;
@@ -437,7 +437,7 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 			addr += psd->pitch;
 		}
 	}
-#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLORRGB
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
 		unsigned int extra = psd->pitch - w * 3;
@@ -451,7 +451,7 @@ update_from_savebits(PSD psd, int destx, int desty, int w, int h)
 			addr += extra;
 		}
 	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
+#elif (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 		for (y = 0; y < h; y++) {

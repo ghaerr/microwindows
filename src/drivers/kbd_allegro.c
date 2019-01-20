@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 1999, 2003 Greg Haerr <greg@censoft.com>
  * Georg Potthast 2015
  *
  * Allegro Keyboard Driver

@@ -3,7 +3,7 @@
  * 	1, 2, 4, 8, 15, 16, 24 and 32bpp supported
  *	MSB and LSB first bit order supported for 1, 2 and 4bpp
  *
- * Copyright (c) 2010 by Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2010, 2019 by Greg Haerr <greg@censoft.com>
  * Copyright (c) 2004 by Vince Busam <vince@sixpak.org>
  * Copyright (c) 2000 by Thomas Gallenkamp <tgkamp@users.sourceforge.net>
  * Credits: Used the X11/Xlib demo application xscdemo v2.2b 
@@ -17,13 +17,13 @@
  * Original from picoTK project
  * 
  * Instructions:
- * the source code in "demos/fbe.c" will be compiled into "bin/fbe" 
- * this is a frame buffer emulator on X11 for 1, 2, 4 and 8bpp!
- *  to use set FBEMULATOR=Y in the src/config file and the
- *  default BPP/XRES/YRES in drivers/scr_fb.c
-   To run set the environment variable: FRAMEBUFFER=/tmp/fb0 
-   and execute: bin/fbe -d<bpp>
-   a reverse bit order is supported for 1,2,4 bpp (-r option)
+ * This is a frame buffer emulator on X11.
+ * To use set SCREEN=FBE in the src/config file and run "bin/fbe".
+ *
+ * Can also be used with SCREEN=FB (linux framebuffer):
+ *   To run set the environment variable: FRAMEBUFFER=/tmp/fb0 
+ *   and execute: bin/fbe -d<bpp>
+ *   a reverse bit order is supported for 1,2,4 bpp (-r option)
 
    see this help text coded below:
        "Usage: " PROGNAME " [-<options>]\n"
@@ -75,6 +75,7 @@ get bpp via ioctl from fbe for nano-X?
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include "../include/mwtypes.h"
 
 #define PROGNAME "fbe"
 #define VERSION  "1.0"
@@ -88,9 +89,14 @@ get bpp via ioctl from fbe for nano-X?
 
 #define INVERT2BPP	0	/* inverted palette for 2 bits/pixel*/
 
+#if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
+/* SCREEN_DEPTH is used only for palette modes*/
+#error SCREEN_DEPTH not defined - must be set for palette modes
+#endif
+
 int CRTX = SCREEN_WIDTH;			/* default x size*/
 int CRTY = SCREEN_HEIGHT;			/* default y size*/
-int BITS_PER_PIXEL = 32;			/* default bpp*/
+int BITS_PER_PIXEL;					/* bpp set by MWPIXEL_FORMAT (SCREEN_PIXTYPE)*/
 
 /* flags*/
 int ZOOM = 1;			/* integral zoom factor*/
@@ -736,7 +742,7 @@ check_and_paint(int ix, int iy)
 					break;
 				case 32:
 					data = ((unsigned char *)crtbuf) + off + (x + y*CRTX_TOTAL)*4;
-#if defined(MWPIXEL_FORMAT) && (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
 					r = *data++;
 					g = *data++;
 					b = *data++;
@@ -813,7 +819,7 @@ main(int argc, char **argv)
 {
 	int fd = -1, cfd;
 	int i;
-	int leave, ok, help;
+	int leave, ok, help, bpp = 0;
 	char *arg, *argp, buf[64];
 	FILE *fp;
 
@@ -866,7 +872,7 @@ main(int argc, char **argv)
 					ok = sscanf(argp, "%d", &CRTX_TOTAL) == 1;
 					break;
 				case 'd':
-					ok = sscanf(argp, "%d", &BITS_PER_PIXEL) == 1;
+					ok = sscanf(argp, "%d", &bpp) == 1;
 					break;
 				case 'z':
 					ok = sscanf(argp, "%d", &ZOOM) == 1;
@@ -886,6 +892,37 @@ main(int argc, char **argv)
 			}
 		}		/* else
 				   fname = arg; */
+	}
+
+	/* use config SCREEN_PIXTYPE to set bpp unless -d<bpp> specified*/
+	if (bpp)
+		BITS_PER_PIXEL = bpp;
+	else
+	switch (MWPIXEL_FORMAT) {
+	case MWPF_TRUECOLORARGB:
+	case MWPF_TRUECOLORABGR:
+	default:
+		BITS_PER_PIXEL = 32;
+		break;
+
+	case MWPF_TRUECOLORRGB:
+		BITS_PER_PIXEL = 24;
+		break;
+
+	case MWPF_TRUECOLOR565:
+	case MWPF_TRUECOLOR555:
+		BITS_PER_PIXEL = 16;
+		break;
+
+	case MWPF_TRUECOLOR332:
+		BITS_PER_PIXEL = 8;
+		break;
+
+#if MWPIXEL_FORMAT == MWPF_PALETTE
+	case MWPF_PALETTE:
+		BITS_PER_PIXEL = SCREEN_DEPTH;
+		break;
+#endif
 	}
 
 	if (!CRTX_TOTAL)

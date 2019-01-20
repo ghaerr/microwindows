@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
- *
  * written by Georg Potthast 2012
  *
  * Allegro Mouse Driver

@@ -1,8 +1,4 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com> 
- *
- * Copyright (c) 1999 Victor Rogachev <rogach@sut.ru>
- *
  * Screen Driver using Allegro 4  Library
  *
  * adapted by Georg Potthast 2015

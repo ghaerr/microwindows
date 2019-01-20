@@ -1,41 +1,43 @@
 The config files in this directory are pre-built for ease
 in building Microwindows on various systems.  Three config files,
 are kept up with the latest configuration options.
-Use config.fb it if you are building a configuration from scratch for
-framebuffer.  The configuration config.fb2 contains more
-options, still running on framebuffer. Use config.x11 if
-you are building to run on top of X11. You must use config.x11
-if your kernel doesn't support framebuffer (errmsg: Can't open /dev/fb).
 
 To build Microwindows, copy one of these files to microwin/src/config,
 and type "make clean; make".
 
-// Common configurations (also kept up-to-date with current options)
+config.linux-X11	X11 on Linux
+config.macosx		X11 on OSX
+config.sdl			SDL on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
+config.fbe			FBE on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
+
+// need updating to new format
+config.rtems		RTEMS port
+config.ecos			ECOS port
+config.psp			Sony PSP port
+config.allegro
+config.allegro-android
+config.dj
+config.dj-2
+
+// deprecated configurations
 config.fb	Basic Linux Framebuffer (pcf,fnt,threadsafe,vtswitch,debug)
 config.fb2	Linux Framebuffer (+png,jpeg,freetype2,sharedlibs)
-config.x11	Microwindows running on X11 (pcf,fnt,threadsafe,png,jpeg,freetype2,sharedlibs)
-
-// Specific ports (not necessarily up-to-date with new options)
 config.ads	ARM Linux FB for ADS Graphics Client
 config.blackfin	Blackfin Linux port
 config.dj	DJGPP 32-bit MSDOS
 config.elks	ELKS 16-bit Linux (bcc compiler)
-config.fbe	Framebuffer emulator on X11
 config.freebsd	FreeBSD port
 config.harrier	MIPS Linux FB for NEC Harrier
 config.helio	MIPS Linux FB for VTech Helio
 config.innovator PSI OMAP Innovator (ADS7846 touchscreen)
 config.ipaq	ARM Linux FB for iPAQ
 config.l7200	ARM Linux FB for L7200
-config.macosx	Mac OSX X11 port
 config.ns	x86 Linux for National Semi Geode
 config.oti	PPC Linux for OTI
 config.pixil	Sample minimum requirements for PIXIL Operating Environment
 config.ppc	PPC Linux for Embedded Planet Linux Planet
 config.prisma	Prisma port
 config.psion	Psion port
-config.psp	Sony PSP port
-config.rtems	RTEMS port
 config.sparc.fb	Basic Linux Framebuffer (FB) (linux-sparc)
 config.sparc.x11 Microwindows running on X11 (linux-sparc)
 config.svga	x86 Linux SVGALib screen driver

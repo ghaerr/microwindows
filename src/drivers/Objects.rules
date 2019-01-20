@@ -56,16 +56,8 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/kbd_x11.o
 endif
 
-# Simple Direct Media Layer v1
-ifeq ($(SCREEN), SDL1)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_sdl1.o \
-	$(MW_DIR_OBJ)/drivers/mou_sdl1.o \
-	$(MW_DIR_OBJ)/drivers/kbd_sdl1.o
-endif
-
 # Simple Direct Media Layer v2
-ifeq ($(SCREEN), SDL2)
+ifeq ($(SCREEN), SDL)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/scr_sdl2.o \
 	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
@@ -131,19 +123,14 @@ endif
 # Screen driver set by SCREEN=
 #
 
-# Framebuffer screen device
+# linux framebuffer driver
 ifeq ($(SCREEN), FB)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
 endif
 
-# no screen driver
-ifeq ($(SCREEN), NOSCR)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_null.o
-endif
-
-# memory screen device
-ifeq ($(SCREEN), SCRMEM)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_mem.o
+# framebuffer emulator driver
+ifeq ($(SCREEN), FBE)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fbe.o
 endif
 
 #

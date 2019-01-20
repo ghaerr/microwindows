@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2003, 2010, 2017 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2003, 2010, 2017, 2019 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
  * Copyright (c) 1999 Tony Rogvall <tony@bluetail.com>
  * 	Rewritten to avoid multiple function calls by Greg Haerr
@@ -21,21 +21,8 @@
 #include "genmem.h"
 #include "genfont.h"
 
-/* SCREEN_WIDTH, SCREEN_HEIGHT and MWPIXEL_FORMAT define server X window*/
-#ifndef SCREEN_WIDTH
-#error SCREEN_WIDTH not defined
-#endif
-
-#ifndef SCREEN_HEIGHT
-#error SCREEN_HEIGHT not defined
-#endif
-
-#ifndef MWPIXEL_FORMAT
-#error MWPIXEL_FORMAT not defined
-#endif
-
-/* SCREEN_DEPTH is used only for palette modes*/
 #if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
+/* SCREEN_DEPTH is used only for palette modes*/
 #error SCREEN_DEPTH not defined - must be set for palette modes
 #endif
 
@@ -569,11 +556,6 @@ X11_open(PSD psd)
 	psd->planes = 1;
 	psd->pixtype = MWPIXEL_FORMAT;
 	switch (psd->pixtype) {
-#if MWPIXEL_FORMAT == MWPF_PALETTE
-	case MWPF_PALETTE:
-		psd->bpp = SCREEN_DEPTH;
-		break;
-#endif
 	case MWPF_TRUECOLORARGB:
 	case MWPF_TRUECOLORABGR:
 	default:
@@ -589,6 +571,11 @@ X11_open(PSD psd)
 	case MWPF_TRUECOLOR332:
 		psd->bpp = 8;
 		break;
+#if MWPIXEL_FORMAT == MWPF_PALETTE
+	case MWPF_PALETTE:
+		psd->bpp = SCREEN_DEPTH;
+		break;
+#endif
 	}
 
 	/* set standard data format from bpp and pixtype*/

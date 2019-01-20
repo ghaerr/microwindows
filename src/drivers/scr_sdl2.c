@@ -26,16 +26,9 @@ static int  sdl_preselect(PSD psd);
 static int sdl_setup(PSD psd);
 int sdl_pollevents(void);
 
-#ifndef SCREEN_WIDTH
-#define SCREEN_WIDTH 1024
-#endif
-
-#ifndef SCREEN_HEIGHT
-#define SCREEN_HEIGHT 768
-#endif
-
-#ifndef SCREEN_DEPTH
-#define SCREEN_DEPTH 8		/* bits per pixel, palette mode only*/
+#if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
+/* SCREEN_DEPTH is used only for palette modes*/
+#error SCREEN_DEPTH not defined - must be set for palette modes
 #endif
 
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
@@ -195,9 +188,11 @@ sdl_open(PSD psd)
 		psd->bpp = 8;
 		break;
 
+#if MWPIXEL_FORMAT == MWPF_PALETTE
 	case MWPF_PALETTE:
 		psd->bpp = SCREEN_DEPTH;				/* SCREEN_DEPTH in config*/
 		break;
+#endif
 	}
 	psd->planes = 1;
 

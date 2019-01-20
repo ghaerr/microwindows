@@ -1,4 +1,5 @@
 20 Jan 2019
+	* more driver/config cleanup, deprecate SDL1,SCRMEM,NOSCR drivers, add FBE (framebuffer emulator) driver
 	* rename MWPF_TRUECOLOR888 to MWPF_TRUECOLORRGB
 	* update scr_sdl2.c to allocate matching framebuffer and eliminate update_from_savebits
 	* update SDL2 to use renderer and textures, remove SDL_GetWindowSurface

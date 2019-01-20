@@ -8,13 +8,13 @@ LIB = libmwengine.a
 OBJECTS := \
     devdraw.o devmouse.o devkbd.o\
     devclip.o devrgn.o devrgn2.o \
-    devlist.o devfont.o devimage.o\
+    devlist.o devfont.o devimage.o devimage_stretch.o\
     devarc.o devopen.o devpoly.o devstipple.o \
     devtimer.o devblit.o convblit_8888.o \
     image_bmp.o image_gif.o image_pnm.o image_xpm.o\
     image_jpeg.o image_png.o image_tiff.o\
     font_dbcs.o convblit_frameb.o \
-    convblit_mask.o merror.o \
+    convblit_mask.o error.o \
     font_pcf.o font_dbcs.o font_fnt.o
 #    \
 #    font_t1lib.o  

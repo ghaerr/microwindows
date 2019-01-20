@@ -42,7 +42,7 @@ $(LIB): $(OBJS)
 	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/nx11/*.o 
 
 $(OBJS):%.o: %.c
-	emcc $(CFLAGS) -c -o $@ $< 
+	$(CC) $(CFLAGS) -c -o $@ $< 
 clean:
 	rm -f *.o
 

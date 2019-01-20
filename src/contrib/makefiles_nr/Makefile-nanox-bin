@@ -1,0 +1,39 @@
+# Micro-Windows libnano-X.a library makefile for DJGPP
+# by Georg Potthast June 2011
+# based on makefile by Greg Haerr and V. Rogachev
+#
+# with network support - LINK_APP_INTO_SERVER = N
+LIB=libnano-X.a
+
+# Nano-X server files
+NANOXFILES := \
+	srvmain.o \
+	srvfunc.o \
+	srvutil.o \
+	srvevent.o \
+	nxutil.o \
+	srvclip.o \
+	clientfb.o \
+	error.o \
+	nxdraw.o wmevents.o wmutil.o wmaction.o wmclients.o\
+	nxtransform.o srvnet.o client.o nxproto.o 
+
+OBJECTS += $(NANOXFILES)
+
+TARGET = $(MW_DIR_SRC)/bin/nano-X
+
+all: $(TARGET)
+
+$(MW_DIR_SRC)/bin/nano-X: $(NANOXFILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS) $(LDFLAGS)
+
+clean:
+	rm -f *.o *.a core
+
+#$(LIB): $(OBJECTS)
+#	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(OBJECTS)
+
+$(OBJECTS):%.o: %.c
+#	echo " CFLAGS: $(CFLAGS)"
+#	echo "$(CC) $(CFLAGS) -c -o $@ $<"
+	$(CC) $(CFLAGS) -c -o $@ $< 

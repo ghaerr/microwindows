@@ -6,6 +6,12 @@
 	* cleaned up SDL2 update_from_savebits() routine for speed, renamed to copy_framebuffer
 	* fix GsSelect() and MwSelect() to never block for SDL polling backend on OSX/Linux
 	* move UNIX&&HAVESELECT case before polling systems in mwin/winmain.c, nanox/srvmain.c
+13 Jan 2019 Georg Potthast
+	* changed name to demo-grabkey in TinyWidgets/demos/launchtest.c 
+	* remove usage/exit in runapp script and prompt user for app instead
+	* use modified runapp scripts in nx11-test and TinyWidgets, removed old scripts
+	* get demos to find Xresources in nx11-test
+	* Update Makefile_nr and Makefiles in contrib/Makefiles_nr
 11 Jan 2019
 	* initial port of SDL2 driver to MACOSX
 	* cleaned up MwSelect and GsSelect routines and #if processing

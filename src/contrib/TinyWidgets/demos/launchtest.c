@@ -32,7 +32,7 @@ void u_func2(TN_WIDGET *c, DATA_POINTER p)
 void u_func1(TN_WIDGET *button,DATA_POINTER ptr)
 {
 	//tnSetVisible(button2,GR_TRUE);
-	system("../../bin/grabdemo &");
+	system("../../bin/demo-grabkey &");
 	return;
 }
 

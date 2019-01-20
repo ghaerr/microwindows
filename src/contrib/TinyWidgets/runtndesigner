@@ -46,7 +46,7 @@ fi
 
 topdir=`cd "$topdir" && pwd`
 bindir=$topdir/bin
-progname=$1
+progname=tndesigner/tndesigner
 
 # find nano-X server
 if [ -x "$bindir/nano-X" ]
@@ -61,16 +61,10 @@ if [ "$progname" = "" ]
 then
   	# no app specified, give usage
   	clear
-  	ls -C bin
+  	find demos -maxdepth 1 -type f -executable -exec basename {} \;
 	echo -n "Please enter demo program name: "
 	read progname
 fi
-if [ "$progname" = "" ]
-then
-  	# no app specified, exit
-  	exit 1
-fi
-
 case "$progname" in
   */*)
     # progname contains a path, use it
@@ -78,7 +72,7 @@ case "$progname" in
     ;;
   *)
     # no directory in progname
-	application=$bindir/$progname
+	application=tndesigner/tndesigner
     ;;
 esac
 # check if application present

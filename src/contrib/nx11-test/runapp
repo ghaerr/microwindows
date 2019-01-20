@@ -61,7 +61,7 @@ if [ "$progname" = "" ]
 then
   	# no app specified, give usage
   	clear
-  	ls -C bin
+  	ls --color=auto -C -I '*.*'
 	echo -n "Please enter demo program name: "
 	read progname
 fi
@@ -78,7 +78,7 @@ case "$progname" in
     ;;
   *)
     # no directory in progname
-	application=$bindir/$progname
+	application=./$progname
     ;;
 esac
 # check if application present

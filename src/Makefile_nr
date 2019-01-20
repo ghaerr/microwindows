@@ -17,30 +17,26 @@ MINGW     =N
 ifeq ($(subst em,EM,$(ARCH)), EM)
 EMSCRIPTEN=Y
 $(info Compiling for EMSCRIPTEN)
-$(info    )
 endif
 
 ifeq ($(subst dos,DOS,$(ARCH))), DOS)
 DOS_DJGPP=Y
 $(info Compiling for DOS DJGPP)
-$(info    )
 endif
 
 ifeq ($(subst x,X,$(ARCH)), X11)
 X11=Y
 $(info Compiling for X11)
-$(info    )
 endif
 
 ifeq ($(subst min,MIN,$(ARCH)), MIN)
 MINGW = Y
 $(info Compiling for MinGW)
-$(info    )
 endif
+$(info    )
 
 #is ARCH empty? - strip removes blanks
 ifeq ($(strip $(ARCH)),) 
-$(info    )
 $(info Please enter ARCH as parameter!)
 $(info e.g. make -f Makefile_nr ARCH=DOS)
 $(info    )
@@ -172,9 +168,11 @@ else
 CFLAGS += -O3
 endif
 endif
-ifdef VERBOSE
 
+ifeq ($(VERBOSE), Y)
 CFLAGS += -v
+else
+CFLAGS += -s 
 endif
 
 #MATHLIB
@@ -211,10 +209,11 @@ endif
 
 #Add defines to CFLAGS variable
 
-# uncomment the following line to link the nano-X application
+# this links the nano-X application
 # with the server.  This is required, if no network is present,
 # or for speed or debugging.  This affects the nano-X server only.
-LINK_APP_INTO_SERVER=1
+# this Makefile supports this option only!
+#LINK_APP_INTO_SERVER=Y
 #set to one if linking app into server
 CFLAGS += -DNONETWORK=1
 
@@ -280,7 +279,8 @@ CFLAGS += -DHAVE_FNT_SUPPORT=1
 
 HAVE_FREETYPE_2_SUPPORT = Y
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
-CFLAGS += -DFREETYPE_FONT_DIR="fonts/truetype"
+#CFLAGS += -DFREETYPE_FONT_DIR=\"fonts/truetype\"
+CFLAGS += -I/usr/include/freetype2
 ifneq ($(EMSCRIPTEN), Y)
 CLIBS += -lfreetype -lz
 endif
@@ -420,7 +420,8 @@ LIBS += $(NETLIBS)
 
 CFLAGS += -L$(MW_DIR_SRC)/lib
 ifeq ($(X11), Y)
-CFLAGS += -L/usr/X11R6/lib -lX11
+#CFLAGS += -L/usr/X11R6/lib -lX11
+CFLAGS += -L/usr/lib -lX11
 endif
 
 #define mwin demo programs
@@ -440,7 +441,7 @@ NTARGETS1 += nxview tux ntetris tux npanel
 # snap_jpg 
 endif
 ifeq ($(X11), N)
-NTARGETS1 += nxeyes nxclock demo-grab
+NTARGETS1 += nxeyes nxclock demo-grabkey
 endif
 
 NTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(NTARGETS1))
@@ -466,7 +467,6 @@ endif
 
 .PHONY: init
 
-	$(CC) $(CFLAGS) -o bin/mwtest2.html demos/mwin/mwdemo2.c $(LIBS) $(EMTERPRET)
 #make directories for DOS and copy support files for demos to bin directory
 init:  
 	-$("shell md lib 2>NUL")
@@ -524,7 +524,7 @@ testprog:
 #	$(CC) $(CFLAGS) -o bin/mwdemoalpha.exe demos/mwin/mwdemoalpha.c $(LIBS)   
 #	$(CC) $(CFLAGS) -o bin/nxview.exe demos/nanox/nxview.c $(NANOLIBS) -lz
 	$(CC) $(CFLAGS) -o bin/demo-arc.exe demos/nanox/demo-arc.c $(NANOLIBS)
-#	$(CC) $(CFLAGS) -o bin/demo-grab.exe demos/nanox/demo-grab.c $(NANOLIBS)	
+#	$(CC) $(CFLAGS) -o bin/demo-grabkey.exe demos/nanox/demo-grabkey.c $(NANOLIBS)	
 
 #target for emscripten test programs
 emprog:
@@ -534,7 +534,7 @@ emprog:
 	$(info **************** )
 ifdef MICROWIN
 	$(CC) $(CFLAGS) -o bin/mwdemo.html demos/mwin/mwdemo.c $(LIBS)  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/mwtest2.html demos/mwin/mwdemo2.c $(LIBS) $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mwdemo2.html demos/mwin/mwdemo2.c $(LIBS) $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/mwtest.html demos/mwin/mwtest.c $(LIBS)  $(EMTERPRET)
 endif
 #	$(CC) $(CFLAGS) -o bin/demo.html demos/test/demo.c lib/libnano-X.a  $(EMTERPRET)
@@ -544,7 +544,7 @@ endif
 #	$(CC) $(CFLAGS) -o bin/ftdemo.html demos/nanox/demo-aafont.c lib/libnano-X.a $(NANOFONTS) --embed-file $(MW_DIR_SRC)/demos/nanox/ftdemo.txt@/bin/  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/hello.html demos/nanox/hello.c lib/libnano-X.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/hello.html demos/test/hello.c lib/libnano-X.a  $(EMTERPRET)	
-	$(CC) $(CFLAGS) -o bin/grabdemo.html demos/nanox/demo-grab.c lib/libnano-X.a $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/demo-grabkey.html demos/nanox/demo-grabkey.c lib/libnano-X.a $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/testarc.html contrib/nx11-test/testarc.c lib/libPX11.a  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/xhello.html contrib/nx11-test/xhello.c lib/libPX11.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/xmouse.html contrib/nx11-test/xmouse.c lib/libPX11.a  $(EMTERPRET)
@@ -563,9 +563,10 @@ X11prog:
 #	$(CC) $(CFLAGS) -o bin/arcdemo.html demos/nanox/demo-arc.c $(NANOLIBS)
 	$(CC) $(CFLAGS) -o bin/arcdemo demos/nanox/demo-arc.c lib/libnano-X.a -L/usr/X11R6/lib -lX11
 #	-Llib/libnano-X.a
-#	$(CC) $(CFLAGS) -o bin/demo-grab.exe demos/nanox/demo-grab.c $(NANOLIBS)	
+#	$(CC) $(CFLAGS) -o bin/demo-grabkey.exe demos/nanox/demo-grabkey.c $(NANOLIBS)	
 	$(CC) $(CFLAGS) -o bin/xgreen contrib/nx11-test/xgreen.c lib/libnano-X.a lib/libNX11.a -L/usr/X11R6/lib -lX11
 	$(CC) $(CFLAGS) -o bin/xmouse contrib/nx11-test/xmouse.c lib/libPX11.a -L/usr/X11R6/lib -lX11
+#	$(CC) -Llib -Iinclude -o bin/xmouse nxlib/test/xmouse.c -lz -lfreetype -lz -lX11 -lPX11
 ##################### clean ###################################
 ifeq ($(MINGW), Y)
 clean:
@@ -719,6 +720,8 @@ ifeq ($(EMSCRIPTEN), N)
 else	
 	$(MAKE) -C nx11 -f ../contrib/makefiles_nr/Makefile-nx11
 endif	
+#also set nonetwork=0 above - does not work yet
+#	$(MAKE) -C nanox -f ../contrib/makefiles_nr/Makefile-nanox-bin
 	
 nx11/libPX11.a:	
 	echo "Generating $@"

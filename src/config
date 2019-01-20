@@ -30,19 +30,19 @@ PARALLEL                 = N
 # Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-#SCREEN                   = X11
-#MOUSE                    =
-#KEYBOARD                 =
+SCREEN                   = X11
+MOUSE                    =
+KEYBOARD                 =
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 SCREEN_DEPTH             = 8
 X11LIBLOCATION           = /usr/X11/lib
 X11HDRLOCATION           = /usr/X11/include
 
-SCREEN                   = SDL2
-MOUSE                    =
-KEYBOARD                 =
-EXTENGINELIBS            += -lSDL2
+#SCREEN                   = SDL2
+#MOUSE                    =
+#KEYBOARD                 =
+#EXTENGINELIBS            += -lSDL2
 #SCREEN                   = FB
 #MOUSE                    = GPMMOUSE
 #KEYBOARD                 = TTYKBD
@@ -54,7 +54,7 @@ EXTENGINELIBS            += -lSDL2
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-NX11                     = N
+NX11                     = Y
 ENGINE                   = Y
 TINYWIDGETS              = Y
 
@@ -63,7 +63,7 @@ TINYWIDGETS              = Y
 # Applications and demos to build
 #
 ####################################################################
-FBEMULATOR               = N
+FBEMULATOR               = Y
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N

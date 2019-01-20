@@ -61,7 +61,7 @@ if [ "$progname" = "" ]
 then
   	# no app specified, give usage
   	clear
-  	ls -C bin
+  	find tndesigner/demos -maxdepth 5 -type f -executable -exec basename {} \;
 	echo -n "Please enter demo program name: "
 	read progname
 fi
@@ -77,8 +77,8 @@ case "$progname" in
     application=$progname
     ;;
   *)
-    # no directory in progname
-	application=$bindir/$progname
+    # no directory in progname - assume same name as program
+	application=tndesigner/demos/$progname/$progname
     ;;
 esac
 # check if application present

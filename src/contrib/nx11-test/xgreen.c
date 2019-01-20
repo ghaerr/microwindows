@@ -3,7 +3,7 @@
 #include <X11/Xlib.h> // Every Xlib program must include this
 #include <X11/Xutil.h>
 #if __EMSCRIPTEN__
-#include "../X11/Xresource.h"
+#include "../../nx11/X11-local/X11/Xresource.h"
 #else
 #include <X11/Xresource.h>
 #endif

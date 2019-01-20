@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
- *
- * written by Georg Potthast 2016
+ * Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  *
  * SDL2 Mouse Driver
- *
+ * based on original SDL port by Georg Potthast
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,71 +18,45 @@
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
 
-static int  	msdl_Open(MOUSEDEVICE *pmd);
-static void 	msdl_Close(void);
-static int  	msdl_GetButtonInfo(void);
-static void	msdl_GetDefaultAccel(int *pscale,int *pthresh);
-static int  	msdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
-static int  	msdl_Poll(void);
+static int  	sdl_Open(MOUSEDEVICE *pmd);
+static void 	sdl_Close(void);
+static int  	sdl_GetButtonInfo(void);
+static void	sdl_GetDefaultAccel(int *pscale,int *pthresh);
+static int  	sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
+static int  	sdl_Poll(void);
 
 MOUSEDEVICE mousedev = {
-	msdl_Open,
-	msdl_Close,
-	msdl_GetButtonInfo,
-	msdl_GetDefaultAccel,
-	msdl_Read,
-	msdl_Poll,
+	sdl_Open,
+	sdl_Close,
+	sdl_GetButtonInfo,
+	sdl_GetDefaultAccel,
+	sdl_Read,
+	sdl_Poll,
 };
 
-extern SDL_Window *sdlWindow;
-extern SDL_Renderer *sdlRenderer;
-extern SDL_Texture *sdlTexture;
-extern SDL_Surface *screen;
-extern int unlock_flag;
-SDL_Event event;
-int closedown;
+int sdl_pollevents(void);
 
 /*
- * Poll for events
+ * Open the mouse
  */
-
-static int msdl_Poll(void)
+static int
+sdl_Open(MOUSEDEVICE *pmd)
 {
-  if (unlock_flag==1){
-    if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-    SDL_UpdateWindowSurface(sdlWindow);
-    unlock_flag=0;
-  }
-
-  SDL_PumpEvents();
-  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) return 1; //read event in read function
-
-  return 0;   //no event that we are interested in
-  
+	return -3;		/* ok, not file descriptor and not null mouse driver*/
 }
 
 /*
- * Open up the mouse device.
+ * Close the mouse
  */
-static int msdl_Open(MOUSEDEVICE *pmd)
+static void sdl_Close(void)
 {
-  SDL_ShowCursor(SDL_DISABLE); //here, or two mouse cursors
-     
-  return 1; //ok
-}
-
-/*
- * Close the mouse device.
- */
-static void msdl_Close(void)
-{
-//void
 }
 
 /*
  * Get mouse buttons supported
  */
-static int msdl_GetButtonInfo(void)
+static int
+sdl_GetButtonInfo(void)
 {
 	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_SCROLLUP | MWBUTTON_SCROLLDN;
 }
@@ -92,68 +64,98 @@ static int msdl_GetButtonInfo(void)
 /*
  * Get default mouse acceleration settings
  */
-static void msdl_GetDefaultAccel(int *pscale,int *pthresh)
+static void
+sdl_GetDefaultAccel(int *pscale,int *pthresh)
 {
 	*pscale = SCALE;
 	*pthresh = THRESH;
 }
 
 /*
- * Attempt to read bytes from the mouse and interpret them.
- * Returns -1 on error, 0 if either no bytes were read or not enough
- * was read for a complete state, or 1 if the new state was read.
- * When a new state is read, the current buttons and x and y deltas
- * are returned.  This routine does not block.
+ * Mouse poll entry point
+ */
+static int
+sdl_Poll(void)
+{
+	return (sdl_pollevents() == 1);	/* 1=mouse*/
+}
+
+/*
+ * Read mouse event.
+ * Returns -1 on error, 0 for no mouse event, and 1 on mouse event.
+ * This is a non-blocking call.
  */
 
-static int msdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
+static int
+sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
+	int xm, ym;
+	int buttons = 0;
+	SDL_Event event;
+	static int lastx, lasty, lastdn;
+	extern SCREENDEVICE scrdev;
 
-int xm;
-int ym; 
+	if (sdl_pollevents() != 1)		/* 1=mouse*/
+		return 0;
 
-int buttons = 0;
+	/* handle mouse events*/
+	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEWHEEL)) {
+		int state = SDL_GetMouseState(&xm, &ym);
+//printf("mouseev %x, %d,%d\n", state, xm, ym);
+		if (state & SDL_BUTTON(SDL_BUTTON_LEFT))
+    		buttons |= MWBUTTON_L;
+		if (state & (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_X1)))
+			buttons |= MWBUTTON_R;
+		if (state & SDL_BUTTON(SDL_BUTTON_MIDDLE))
+			buttons |= MWBUTTON_M;
 
-if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_QUIT, SDL_QUIT)) {
-#if !EMSCRIPTEN
-    //GrClose();		// FIXME can't call nano-X routines from driver
-    SDL_Quit();
-#endif    
-    return 1; //i.e. clicked on X11 close window
+		if (event.type == SDL_MOUSEWHEEL) {
+			if (event.wheel.y < 0)
+				buttons |= MWBUTTON_SCROLLDN; /* wheel down*/
+			else
+				buttons |= MWBUTTON_SCROLLUP; /* wheel up*/
+		}
+		*dx = xm;
+		*dy = ym;
+		*dz = 0;
+		*bp = buttons;
+
+		return 2;	/* absolute position**/
+	}
+
+	/* handle touchpad events FIXME need right mouse button support*/
+	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FINGERDOWN, SDL_FINGERMOTION)) {
+		if (event.type == SDL_FINGERDOWN) {
+			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
+			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
+    			lastdn = MWBUTTON_L;
+//printf("mousedn %d,%d\n", lastx, lasty);
+			*dz = 0;
+			*bp = lastdn;
+			return 0;
+		}
+
+		if (event.type == SDL_FINGERUP) {
+			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
+			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
+			lastdn = 0;
+//printf("mouseup %d,%d\n", lastx, lasty);
+			*dz = 0;
+			*bp = lastdn;
+			return 0;	/* absolute position*/
+		}
+
+		if (event.type == SDL_FINGERMOTION) {
+			if (lastdn == 0)
+				return 0;	/* no motion without finger down*/
+			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
+			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
+//printf("mousemv %d,%d\n", lastx, lasty);
+			*dz = 0;
+			*bp = lastdn;
+
+			return 0;	/* absolute position**/
+		}
+	}
+	return 0;		/* no event*/
 }
-
-if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEWHEEL)) {
-  
-if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(1)) {
-    /* Primary (e.g. left) mouse button */
-    buttons |= MWBUTTON_L;
-}
-if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(2)) {
-    buttons |= MWBUTTON_R;
-    /* Secondary (e.g. right) mouse button */
-}
-if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(3)) {
-    /* Tertiary (e.g. middle) mouse button */
-    buttons |= MWBUTTON_M;
-}
-
-if (event.type == SDL_MOUSEWHEEL) {
-   if (event.wheel.y < 0)
-        buttons |= MWBUTTON_SCROLLDN; // WHEEL DOWN
-   else
-        buttons |= MWBUTTON_SCROLLUP; // WHEEL UP
-} //SDL_MOUSEWHEEL
-
-*dx=xm;
-*dy=ym;
-*dz = 0; //unused
-*bp = 0;
-
-*bp = buttons;
-
-return 2; //2=absolute mouse position
-
-} //SDL_PeepEvents    
-
-return 0;
-} //msdl_Read

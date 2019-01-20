@@ -3436,9 +3436,9 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
  * MWPF_PALETTE		unsigned char
  * MWPF_TRUECOLORARGB	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
- * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
- * MWPF_TRUECOLOR565	unsigned short
- * MWPF_TRUECOLOR555	unsigned short
+ * MWPF_TRUECOLORRGB	3 bytes
+ * MWPF_TRUECOLOR565	uint16_t
+ * MWPF_TRUECOLOR555	uint16_t
  * MWPF_TRUECOLOR332	unsigned char
  * MWPF_TRUECOLOR233	unsigned char
  * MWPF_HWPIXELVAL	one of the above values (run-time dependent)
@@ -3500,7 +3500,7 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 	case MWPF_TRUECOLORABGR:
 		pixsize = sizeof(uint32_t);
 		break;
-	case MWPF_TRUECOLOR888:
+	case MWPF_TRUECOLORRGB:
 		pixsize = 3;
 		break;
 	case MWPF_TRUECOLOR565:

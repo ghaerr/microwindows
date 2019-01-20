@@ -445,7 +445,7 @@ showPartialImage(Display *display, GR_WINDOW_ID d, GR_GC_ID gc, GR_RECT *srect,
 	case MWPF_TRUECOLOR565:
 		size = 2;
 		break;
-	case MWPF_TRUECOLOR888:
+	case MWPF_TRUECOLORRGB:
 		size = 3;
 		break;
 	case MWPF_TRUECOLORARGB:
@@ -514,7 +514,7 @@ putTrueColorImage(Display * display, Drawable d, GC gc, XImage *image,
 		break;
 	case 24:
 		if (display->screens[0].root_depth != 24)
-			pixtype = MWPF_TRUECOLOR888;
+			pixtype = MWPF_TRUECOLORRGB;
 		src = image->data + (src_y * image->bytes_per_line) + (src_x * 3);
 		break;
 	case 32:

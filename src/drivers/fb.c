@@ -200,7 +200,11 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	//psp
     //psi->ydpcm = 120;
     //psi->xdpcm = 120;
-	if(psd->yvirtres > 480) {	//FIXME update
+	if(psd->yvirtres > 600) {	// FIXME update
+		/* SVGA 1024x768*/
+		psi->xdpcm = 42;
+		psi->ydpcm = 42;
+	} else if(psd->yvirtres > 480) {
 		/* SVGA 800x600*/
 		psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
 		psi->ydpcm = 33;	/* assumes screen height of 18 cm*/

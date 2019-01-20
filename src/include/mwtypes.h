@@ -204,7 +204,8 @@
 #define MWPF_RGB	   0	/* pseudo, convert from packed 32 bit RGB*/
 #define MWPF_PIXELVAL	   1	/* pseudo, no convert from packed PIXELVAL*/
 #define MWPF_PALETTE	   2	/* pixel is packed 8 bits 1, 4 or 8 pal index*/
-#define MWPF_TRUECOLOR888  4	/* pixel is packed 24 bits R/G/B RGB truecolor*/
+#define MWPF_TRUECOLORRGB  4	/* pixel is packed 24 bits R/G/B RGB truecolor*/
+#define MWPF_TRUECOLOR888  4	/* deprecated*/
 #define MWPF_TRUECOLOR565  5	/* pixel is packed 16 bits 5/6/5 RGB truecolor*/
 #define MWPF_TRUECOLOR555  6	/* pixel is packed 16 bits 5/5/5 RGB truecolor*/
 #define MWPF_TRUECOLOR332  7	/* pixel is packed  8 bits 3/3/2 RGB truecolor*/
@@ -1307,7 +1308,7 @@ typedef struct {
 #define PIXEL2BLUE(p)		PIXELABGRBLUE(p)
 #endif
 
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR888
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORRGB
 #define RGB2PIXEL(r,g,b)	RGB2PIXEL888(r,g,b)
 #define COLORVALTOPIXELVAL(c)	COLOR2PIXEL888(c)
 #define PIXELVALTOCOLORVAL(p)	PIXEL888TOCOLORVAL(p)

@@ -51,18 +51,17 @@ fb_open(PSD psd)
 	/* set statically in struct definition, may be overridden before calling fb_open*/
 	//psd->xres = psd->xvirtres = SCREEN_WIDTH;
 	//psd->yres = psd->yvirtres = SCREEN_HEIGHT;
-	psd->planes = 1;
 
 	/* use pixel format to set bpp*/
 	psd->pixtype = MWPIXEL_FORMAT;
 	switch (psd->pixtype) {
-	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLORARGB:
 	case MWPF_TRUECOLORABGR:
 	default:
 		psd->bpp = 32;
 		break;
 
-	case MWPF_TRUECOLOR888:
+	case MWPF_TRUECOLORRGB:
 		psd->bpp = 24;
 		break;
 
@@ -81,20 +80,21 @@ fb_open(PSD psd)
 		break;
 #endif
 	}
+	psd->planes = 1;
 
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
 	/* Calculate the correct size and pitch from xres, yres and bpp*/
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
-		&psd->size, &psd->pitch);
+	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
 
 	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-    psd->flags = PSF_SCREEN;
+	psd->flags = PSF_SCREEN;
 	psd->portrait = MWPORTRAIT_NONE;
 
 	/* select an fb subdriver matching our planes and bpp for backing store*/
 	subdriver = select_fb_subdriver(psd);
+	psd->orgsubdriver = subdriver;
 	if (!subdriver)
 		return NULL;
 

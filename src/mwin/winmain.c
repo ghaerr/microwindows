@@ -19,6 +19,10 @@
 #endif
 #endif
 
+#if MSDOS
+#include <time.h>
+#endif
+
 #if RTEMS
 #include <rtems/mw_uid.h>
 #endif
@@ -33,9 +37,9 @@
 #define exit(...) sceKernelExitGame()
 #endif
 
-#if EMSCRIPTEN
-#include <emscripten.h>
-#endif  
+//#if EMSCRIPTEN
+//#include <emscripten.h>
+//#endif  
 
 #include "windows.h"
 #include "wintern.h"
@@ -277,71 +281,7 @@ MwUnregisterFdExcept(HWND hwnd, int fd)
 #endif /* UNIX && HAVE_SELECT*/
 
 /********************************************************************************/
-#if MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | SDL | EMSCRIPTEN
-
-void
-MwSelect(BOOL mayWait)
-{
-#if EMSCRIPTEN
-	emscripten_sleep(1);
-#endif
-
-	/* update screen & flush buffers*/
-	if(scrdev.PreSelect)
-		scrdev.PreSelect(&scrdev);
-
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(MwCheckMouseEvent())
-			continue;
-
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(MwCheckKeyboardEvent())
-			continue;
-
-	MwHandleTimers();
-}
-
-/********************************************************************************/
-#elif VXWORKS | PSP
-
-void 
-MwSelect(BOOL mayWait)
-{
-	int mouseevents = 0;
-	int keybdevents = 0;
-
-	/* update screen & flush buffers*/
-	if(scrdev.PreSelect)
-		scrdev.PreSelect(&scrdev);
-
-	/* If mouse data present, service it */
-	while (mousedev.Poll() > 0)
-	{
-		MwCheckMouseEvent();
-		if (mouseevents++ > 10)
-			break;
-	}
-	
-	
-	/* If keyboard data present, service it */
-	while (kbddev.Poll() > 0)
-	{
-		MwCheckKeyboardEvent();
-		if (keybdevents++ > 10)
-			break;
-	}
-	
-	/* did we not process any input? if so, yield so we don't freeze system */
-	if (mouseevents==0 && keybdevents==0)
-		sceKernelDelayThread(100);
-
-	MwHandleTimers();
-}
-
-/********************************************************************************/
-#elif UNIX && HAVE_SELECT
+#if UNIX && HAVE_SELECT
 
 void
 MwSelect(BOOL mayWait)
@@ -356,7 +296,7 @@ MwSelect(BOOL mayWait)
 	struct timeval to, *pto;
 	BOOL    maybeInfinite = TRUE;
 
-	/* X11 update screen & flush buffers*/
+	/* x11/sdl update screen & flush buffers*/
 	if(scrdev.PreSelect)
 	{
 		/* returns # pending events*/
@@ -421,10 +361,19 @@ MwSelect(BOOL mayWait)
 		to.tv_sec = timeout / 1000;
 		to.tv_usec = (timeout % 1000) * 1000;
 #endif
-		/*  If no timers are scheduled 
-		    so the select function will wait forever...  */
+#if SDL
+//printf("May %d %d,%d\n", maybeInfinite, to.tv_sec, to.tv_usec);
+		to.tv_sec = 0;
+		to.tv_usec = 10;
+#endif
+		/*  If no timers are scheduled so the select function will wait forever...  */
 		if( maybeInfinite && (to.tv_sec == 0) && (to.tv_usec == 0) )
+#if SDL
+			/* can't block in select as SDL backend is poll based*/
+			;
+#else
 			pto = NULL;
+#endif
 	}
 
 	/* Wait for some input on any of the fds in the set or a timeout: */
@@ -458,6 +407,43 @@ MwSelect(BOOL mayWait)
 	} else
 		if(errno != EINTR)
 			EPRINTF("Select() call in main failed. Errno=%d\n", errno);
+}
+
+/********************************************************************************/
+#elif VXWORKS | PSP
+
+void 
+MwSelect(BOOL mayWait)
+{
+	int mouseevents = 0;
+	int keybdevents = 0;
+
+	/* update screen & flush buffers*/
+	if(scrdev.PreSelect)
+		scrdev.PreSelect(&scrdev);
+
+	/* If mouse data present, service it */
+	while (mousedev.Poll() > 0)
+	{
+		MwCheckMouseEvent();
+		if (mouseevents++ > 10)
+			break;
+	}
+	
+	
+	/* If keyboard data present, service it */
+	while (kbddev.Poll() > 0)
+	{
+		MwCheckKeyboardEvent();
+		if (keybdevents++ > 10)
+			break;
+	}
+	
+	/* did we not process any input? if so, yield so we don't freeze system */
+	if (mouseevents==0 && keybdevents==0)
+		sceKernelDelayThread(100);
+
+	MwHandleTimers();
 }
 
 /********************************************************************************/
@@ -522,6 +508,30 @@ void MwSelect (BOOL mayWait)
 	        break;
 	}
 }
+
+/********************************************************************************/
+#else /*MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | EMSCRIPTEN*/
+
+void
+MwSelect(BOOL mayWait)
+{
+	/* update screen & flush buffers*/
+	if(scrdev.PreSelect)
+		scrdev.PreSelect(&scrdev);
+
+	/* If mouse data present, service it*/
+	if(mousedev.Poll())
+		while(MwCheckMouseEvent())
+			continue;
+
+	/* If keyboard data present, service it*/
+	if(kbddev.Poll())
+		while(MwCheckKeyboardEvent())
+			continue;
+
+	MwHandleTimers();
+}
+
 /********************************************************************************/
 #endif /* MwSelect() cases*/
 
@@ -590,7 +600,7 @@ MwInitialize(void)
 		GdCloseKeyboard();
 		return -1;
 	}
-	/* delay x11 driver updates until preselect time for speed*/
+	/* delay x11/sdl driver updates until preselect time for speed*/
 	psd->flags |= PSF_DELAYUPDATE;
 
 	if ((mouse_fd = GdOpenMouse()) == -1) {
@@ -709,29 +719,22 @@ MwTerminate(void)
 DWORD WINAPI
 GetTickCount(VOID)
 {
-#if MSDOS
-#include <time.h>
-	return (DWORD)(clock() * 1000 / CLOCKS_PER_SEC);
-#else
-#if _MINIX
-	struct tms	t;
-	
-	return (DWORD)times(&t) * 16;
-#else
-#if __ECOS
-  /* CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR gives the length of one tick in nanoseconds */
-   return (cyg_current_time()*(CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR))/(1000*1000);
-#else
 #if UNIX
 	struct timeval t;
 
 	gettimeofday(&t, NULL);
 	return ((t.tv_sec * 1000) + (t.tv_usec / 25000) * 25) - startTicks;
+#elif MSDOS
+	return (DWORD)(clock() * 1000 / CLOCKS_PER_SEC);
+#elif _MINIX
+	struct tms	t;
+	
+	return (DWORD)times(&t) * 16;
+#elif __ECOS
+  /* CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR gives the length of one tick in nanoseconds */
+   return (cyg_current_time()*(CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR))/(1000*1000);
 #else
 	return 0L;
-#endif
-#endif
-#endif
 #endif
 }
 

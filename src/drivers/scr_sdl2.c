@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com> 
+ * Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  *
- *
- *  SDL2 driver by Georg Potthast 2016
- *
+ * SDL2 Screen Driver
+ * based on original SDL port by Georg Potthast
  */
 #include <stdio.h>
 #include "device.h"
@@ -18,12 +17,14 @@
 #include <SDL2/SDL.h>
 #endif
 
-/* specific grxlib driver entry points*/
 static PSD  sdl_open(PSD psd);
 static void sdl_close(PSD psd);
-static void sdl_getscreeninfo(PSD psd,PMWSCREENINFO psi);
 static void sdl_setpalette(PSD psd,int first,int count,MWPALENTRY *pal);
-static void sdl_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWCOORD height);
+static void sdl_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h);
+static int  sdl_preselect(PSD psd);
+
+static int sdl_setup(PSD psd);
+int sdl_pollevents(void);
 
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH 1024
@@ -33,11 +34,12 @@ static void sdl_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWC
 #define SCREEN_HEIGHT 768
 #endif
 
-#ifndef SCREEN_PIXTYPE
-#define SCREEN_PIXTYPE MWPF_TRUECOLORARGB
+#ifndef SCREEN_DEPTH
+#define SCREEN_DEPTH 8		/* bits per pixel, palette mode only*/
 #endif
 
-SUBDRIVER subdriver;
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
@@ -45,361 +47,271 @@ SCREENDEVICE	scrdev = {
 	sdl_open,
 	sdl_close,
 	sdl_setpalette,       
-	sdl_getscreeninfo,
+	gen_getscreeninfo,
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,  /*gen_setportrait,        */
-	sdl_update,		/* Update*/
-	NULL				/* PreSelect*/
+	NULL,  			/* gen_setportrait*/
+	sdl_update,
+	sdl_preselect
 };
 
-extern SDL_Window *sdlWindow;
-extern SDL_Renderer *sdlRenderer;
-extern SDL_Texture *sdlTexture;
-extern SDL_Surface *screen;
-int unlock_flag;
-Uint32 colour;
+static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* sdl_preselect and sdl_update*/
+
+static SDL_Window *sdlWindow;
+static SDL_Renderer *sdlRenderer;
+static SDL_Texture *sdlTexture;
 
 /*
-**	Open graphics
-*/
+ * init sdl subsystem, return < 0 on error
+ */
+static int
+sdl_setup(PSD psd)
+{
+	int	pixelformat;
+
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
+		printf("Can't initialize SDL\n");
+		return -1;
+	}
+
+	sdlWindow = SDL_CreateWindow("Microwindows SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+					psd->xres, psd->yres, SDL_WINDOW_RESIZABLE);
+	if (!sdlWindow) {
+		printf("SDL: Can't create window\n");
+		return -1;
+	}
+#if 0
+	SDL_Surface *screen = SDL_GetWindowSurface(sdlWindow);
+	printf("SDL pixel format %0x, type %0x\n", screen->format->format,
+		SDL_PIXELTYPE(screen->format->format));
+#else
+	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
+	if (!sdlRenderer) {
+		printf("SDL: Can't create renderer\n");
+		return -1;
+	}
+	/* 
+	 * The config file SCREEN_PIXTYPE is used to set the SDL texture pixel format
+	 * to match the Microwindows framebuffer format, which eliminates pixel conversions.
+	 */
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLORARGB:
+		pixelformat = SDL_PIXELFORMAT_ARGB8888;
+		break;
+	case MWPF_TRUECOLORABGR:
+		pixelformat = SDL_PIXELFORMAT_ABGR8888;
+		break;
+	case MWPF_TRUECOLOR888:
+		pixelformat = SDL_PIXELFORMAT_RGB24;
+		break;
+	case MWPF_TRUECOLOR565:
+		pixelformat = SDL_PIXELFORMAT_RGB565;
+		break;
+	case MWPF_TRUECOLOR555:
+		pixelformat = SDL_PIXELFORMAT_RGB555;
+		break;
+	case MWPF_TRUECOLOR332:
+		pixelformat = SDL_PIXELFORMAT_RGB332;
+		break;
+	case MWPF_PALETTE:
+		pixelformat = SDL_PIXELFORMAT_INDEX8;
+		break;
+	default:
+		printf("SDL: Unsupported pixel format %d\n", psd->pixtype);
+		return -1;
+	}
+	sdlTexture = SDL_CreateTexture(sdlRenderer, pixelformat, SDL_TEXTUREACCESS_STREAMING,
+							psd->xres, psd->yres);
+	if (!sdlTexture) {
+		printf("SDL: Can't create texture\n");
+		return -1;
+	}
+#endif
+
+	//SDL_StartTextInput();
+  	SDL_ShowCursor(SDL_DISABLE);	/* hide SDL cursor*/
+
+	SDL_PumpEvents();			/* SDL bug: must call before output or black window overwrite*/
+
+	return 0;
+}
+
+/* return nonzero if event available*/
+int
+sdl_pollevents(void)
+{
+	SDL_Event event;
+
+  	if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+		if (event.type >= SDL_MOUSEMOTION && event.type <= SDL_MOUSEWHEEL)
+			return 1;
+		if (event.type >= SDL_FINGERDOWN && event.type <= SDL_FINGERMOTION)
+			return 1;
+		if (event.type >= SDL_KEYDOWN && event.type <= SDL_TEXTINPUT)
+			return 2;
+		if (event.type == SDL_QUIT)
+			return 3;
+
+		/* dump event*/
+  		SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+		DPRINTF("SDL: dumping event %x\n", event.type);
+	}
+	SDL_PumpEvents();
+
+	return 0;
+}
+
+/*
+ * Open graphics
+ */
 static PSD
 sdl_open(PSD psd)
 {
 	PSUBDRIVER subdriver;
 
-	if(SCREEN_PIXTYPE == MWPF_TRUECOLORARGB) {
-		psd->bpp = 32;
-	} else if(SCREEN_PIXTYPE == MWPF_TRUECOLOR888) {
-		psd->bpp = 24;
-	} else if(SCREEN_PIXTYPE == MWPF_TRUECOLOR565)  {
-		psd->bpp = 16;
-	} else {
-		psd->bpp = 8;
-	}
+	psd->pixtype = MWPIXEL_FORMAT;				/* SCREEN_PIXTYPE in config*/
+	psd->xres = psd->xvirtres = SCREEN_WIDTH;	/* SCREEN_WIDTH in config*/
+	psd->yres = psd->yvirtres = SCREEN_HEIGHT;	/* SCREEN_HEIGHT in config*/
 
-	psd->xres = psd->xvirtres = SCREEN_WIDTH;
-	psd->yres = psd->yvirtres = SCREEN_HEIGHT;
+	/* use pixel format to set bpp*/
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLORARGB:
+	case MWPF_TRUECOLORABGR:
+	default:
+		psd->bpp = 32;
+		break;
+
+	case MWPF_TRUECOLORRGB:
+		psd->bpp = 24;
+		break;
+
+	case MWPF_TRUECOLOR565:
+	case MWPF_TRUECOLOR555:
+		psd->bpp = 16;
+		break;
+
+	case MWPF_TRUECOLOR332:
+		psd->bpp = 8;
+		break;
+
+	case MWPF_PALETTE:
+		psd->bpp = SCREEN_DEPTH;				/* SCREEN_DEPTH in config*/
+		break;
+	}
 	psd->planes = 1;
-	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
-	/* Calculate the correct size and linelen here */
+
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
+
+	/* Calculate the correct size and pitch from xres, yres and bpp*/
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
 
-    if(psd->bpp == 32) {
-		psd->pixtype = MWPF_TRUECOLORARGB;	
-	} else if(psd->bpp == 16) {
-		psd->pixtype = MWPF_TRUECOLOR565; 
-	} else if(psd->bpp == 24)  {
-		psd->pixtype = MWPF_TRUECOLOR888;
-	} else {
-		psd->pixtype = MWPF_PALETTE;
-	}
-		  
-  psd->portrait = MWPORTRAIT_NONE;
-  psd->data_format = set_data_format(psd);
+	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
+	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
+	psd->portrait = MWPORTRAIT_NONE;
 
-  /*
-   * set and initialize subdriver into screen driver
-   * psd->size is calculated by subdriver init
-   */
-  subdriver = select_fb_subdriver(psd);
-  
-  psd->orgsubdriver = subdriver;
-
-  set_subdriver(psd, subdriver);
-  if ((psd->addr = malloc(psd->size)) == NULL)
+	/* select an fb subdriver matching our planes and bpp for backing store*/
+	subdriver = select_fb_subdriver(psd);
+	psd->orgsubdriver = subdriver;
+	if (!subdriver)
 		return NULL;
-  return psd;
 
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
+
+	/* initialize SDL subsystem*/
+	if (sdl_setup(psd) < 0)
+		return NULL;	/* error*/
+
+	/*
+	 * Allocate framebuffer
+	 * psd->size is calculated by subdriver init
+	 */
+	if ((psd->addr = malloc(psd->size)) == NULL)
+		return NULL;
+	return psd;
 }
 
 /*
-**	Close graphics
-*/
+ * Close graphics
+ */
 static void
 sdl_close(PSD psd)
 {
 	/* free framebuffer memory */
 	free(psd->addr);
-	//GrSetMode(GR_default_text);
-	//set_gfx_mode(GFX_TEXT,640,480,0,0);
+
 	SDL_Quit();
 }
 
 /*
-**	Get Screen Info
-*/
-static void
-sdl_getscreeninfo(PSD psd,PMWSCREENINFO psi)
-{
-	gen_getscreeninfo(psd, psi);
-
-	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
-
-	if(scrdev.yvirtres > 600) {
-		/* SVGA 1024x768*/
-		psi->xdpcm = 42;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 42;	/* assumes screen height of 18 cm*/        
-	} else if(scrdev.yvirtres > 480) {
-		/* SVGA 800x600*/
-		psi->xdpcm = 33;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 33;	/* assumes screen height of 18 cm*/
-	} else if(scrdev.yvirtres > 350) {
-		/* VGA 640x480*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
-	} else {
-		/* EGA 640x350*/
-		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
-		psi->ydpcm = 19;	/* assumes screen height of 18 cm*/
-	}
-}
-
-/*
-**	Set Palette
-*/
+ * Set Palette
+ */
 static void
 sdl_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
-	int i;
-	for(i=first; i < (first+count); i++) {
-		//will set to all black screen if no valid palette data passed
-		//GrSetColor(i, pal->r, pal->g, pal->b);
-	}
 }
 
+/* update SDL from Microwindows framebuffer*/
 static void
-sdl_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWCOORD height)
+sdl_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
-	MWCOORD x,y;
-
-//printf("sdl_update %d,%d %d,%d\n", destx, desty, width, height);
-	if (!width)
-		width = psd->xres;
-	if (!height)
-		height = psd->yres;
-
+//printf("update %d,%d %d,%d\n", x, y, width, height);
 #if 0
-if (psd->pixtype == MWPF_TRUECOLOR332)
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width; x++) {
-				c = addr[x];
-				//GrPlot(destx+x, desty+y, c); 
-				////_putpixel(screen,destx+x,desty+y,(int)c);
-			}
-			addr += psd->pitch;
-		}
-	}
-else if ((psd->pixtype == MWPF_TRUECOLOR565) || (psd->pixtype == MWPF_TRUECOLOR555))
-	{	
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width*2; x++) {
-				MWPIXELVAL c = ((unsigned short *)addr)[x]; 
-				//GrPlot(destx+x, desty+y, c); 
-				////_putpixel16(screen,destx+x,desty+y,(int)c);
-			}
-			addr += psd->pitch;
-		}
-	}
-else if (psd->pixtype == MWPF_TRUECOLOR888)
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
-		unsigned int extra = psd->pitch - width * 3;
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width*3; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(addr[2], addr[1], addr[0]);
-				//GrPlot(destx+x, desty+y, c);
-				////_putpixel24(screen,destx+x,desty+y,(int)c);
-				addr += 3;
-			}
-			addr += extra;
-		}
-	}
-else if ((psd->pixtype == MWPF_TRUECOLOR565) || (psd->pixtype == MWPF_TRUECOLOR555))
-	{	
-if (unlock_flag==0){ if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen); }
+	/* tell SDL we're going to write to window surface*/
+	if (SDL_MUSTLOCK(screen))
+		SDL_LockSurface(screen);
 
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
+	/* copy from Microwindows framebuffer to SDL*/
+	copy_framebuffer(psd, x, y, width, height, screen->pixels, screen->pitch);
 
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width+2; x++) { 
-			         //if ((addr+y+x)>(psd->addr+psd->size)) return; //do not read outside the screen buffer memory area or crash
-				 unsigned long redcolor   =  ((((unsigned short *)addr)[x]) & 0xF800) >>11;
-				 unsigned long greencolor =  ((((unsigned short *)addr)[x]) & 0x07E0) >>5;
-				 unsigned long bluecolor  =  ((((unsigned short *)addr)[x]) & 0x001F);
-				 redcolor   = redcolor * 255 /31;
-				 greencolor = greencolor * 255 /63;
-				 bluecolor  = bluecolor * 255 /31;
-				 //al_draw_pixel(destx+x,desty+y,al_map_rgb(redcolor,greencolor,bluecolor));
-				colour=SDL_MapRGBA(screen->format, redcolor,greencolor,bluecolor,0xFF);
-				*((Uint32*)screen->pixels + ((desty * psd->pitch + (destx <<1)) + y*psd->pitch + (x))/2) = colour; //divide by 2 since cast to Uint32*			
-				 
-			}
-			addr += psd->pitch;
-		}
-	}
+	/* flush buffer*/
+	if (SDL_MUSTLOCK(screen))
+		SDL_UnlockSurface(screen);
+	SDL_UpdateWindowSurface(sdlWindow);
+#else
+	/* set region to update*/
+	SDL_Rect r;
+	r.x = x;
+	r.y = y;
+	r.w = width;
+	r.h = height;
 
-else if (psd->pixtype == MWPF_TRUECOLOR888)
-	{
-if (unlock_flag==0){ if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen); }
+	unsigned char *pixels = psd->addr + y * psd->pitch + x * (psd->bpp >> 3);
+	SDL_UpdateTexture(sdlTexture, &r, pixels, psd->pitch);
 
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
-		unsigned int extra = psd->pitch - width * 3;
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width*3; x = x+3) { 			
-				 //al_draw_pixel(destx+(x/3),desty+y,al_map_rgb((unsigned char)addr[x+2],(unsigned char)addr[x+1],(unsigned char)addr[x]));				
-				colour=SDL_MapRGBA(screen->format, (unsigned char)addr[x+2],(unsigned char)addr[x+1],(unsigned char)addr[x],0xFF);
-				*((Uint32*)screen->pixels + ((desty * psd->pitch + (destx *3)) + y*psd->pitch + (x))/3) = colour; //divide by 3 since cast to Uint32*			
-			}
-			addr += psd->pitch;
-		}
-	}
-else if ((MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR))
+	/* copy texture to display*/
+	SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_RenderClear(sdlRenderer);
+	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+	SDL_RenderPresent(sdlRenderer);
 #endif
-	{
-if (unlock_flag==0) { if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen); }
-
-		// our framebuffer is MWPF_TRUECOLORARGB which is BGRA byte order, and so are SDL screenbits
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
-		for (y = 0; y < height; y++) {
-			unsigned char *framebuffer = screen->pixels + (desty+y) * screen->pitch + (destx << 2);
-			for (x = 0; x < width; x++) { 			
-				unsigned long pixel = ((uint32_t *)addr)[x];
-				*(uint32_t *)framebuffer = pixel;
-				framebuffer += 4;
-			}
-			addr += psd->pitch;  
-		}
-		unlock_flag=1;
-
-	}
-#if 0
-else /* MWPF_PALETTE*/
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width; x++) {
-				MWPIXELVAL c = addr[x];
-				//GrPlot(destx+x, desty+y, c); 
-				//putpixel(screen,destx+x,desty+y,(int)c);
-			}
-			addr += psd->pitch;
-		}
-	}
-#endif  
-}
-
-#if 0
-static void
-update_from_savebits(PSD psd, unsigned int destx, unsigned int desty, int w, int h)
-{
-	XImage *img;
-	unsigned int x, y;
-	char *data;
-
-	/* allocate buffer */
-	if (x11_depth >= 24)
-		data = malloc(w * 4 * h);
-	else if (x11_depth > 8)	/* 15, 16 */
-		data = malloc(w * 2 * h);
-	else			/* 1,2,4,8 */
-		data = malloc((w * x11_depth + 7) / 8 * h);
-
-	/* copy from offscreen to screen */
-	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap, 0, data, w, h, 8, 0);
-
-	/* Use optimized loops for most common framebuffer modes */
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = addr[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = ((ADDR16)addr)[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
-		unsigned int extra = psd->pitch - w * 3;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(addr[2], addr[1], addr[0]);
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-				addr += 3;
-			}
-			addr += extra;
-		}
-	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = ((ADDR32)addr)[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#else /* MWPF_PALETTE*/
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = addr[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#endif
-
-	XPutImage(x11_dpy, x11_win, x11_gc, img, 0, 0, destx, desty, w, h);
-	XDestroyImage(img);
 }
 
 /* called before select(), returns # pending events*/
 static int
-sdl2_preselect(PSD psd)
+sdl_preselect(PSD psd)
 {
-	/* perform single blit update of aggregate update region to X11 server*/
+	/* perform single blit update of aggregate update region to SDL server*/
 	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
-		update_from_savebits(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
+		sdl_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
+
+		/* reset update region*/
 		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
 		upmaxX = upmaxY = 0;
 	}
 
-	XFlush(x11_dpy);
-	return XPending(x11_dpy);
+#if EMSCRIPTEN
+	emscripten_sleep(1);
+#endif
+
+	/* return nonzero if SDL event available*/
+	return sdl_pollevents();
 }
 
 static void
-sdl2_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
+sdl_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
 	if (!width)
 		width = psd->xres;
@@ -414,6 +326,5 @@ sdl2_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 			upmaxX = max(upmaxX, x+width-1);
 			upmaxY = max(upmaxY, y+height-1);
 	} else
-		update_from_savebits(psd, x, y, width, height);
+		sdl_draw(psd, x, y, width, height);
 }
-#endif

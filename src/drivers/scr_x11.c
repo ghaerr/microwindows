@@ -145,7 +145,7 @@ lookup_color(unsigned short r, unsigned short g, unsigned short b)
 
 #if MWPIXEL_FORMAT != MWPF_PALETTE
 
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB)
+#if (MWPIXEL_FORMAT == MWPF_TRUECOLORRGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB)
 #define PIXEL2RED8(p)           PIXEL888RED8(p)
 #define PIXEL2GREEN8(p)         PIXEL888GREEN8(p)
 #define PIXEL2BLUE8(p)          PIXEL888BLUE8(p)
@@ -579,7 +579,7 @@ X11_open(PSD psd)
 	default:
 		psd->bpp = 32;
 		break;
-	case MWPF_TRUECOLOR888:
+	case MWPF_TRUECOLORRGB:
 		psd->bpp = 24;
 		break;
 	case MWPF_TRUECOLOR565:
@@ -707,7 +707,7 @@ update_from_savebits(PSD psd, unsigned int destx, unsigned int desty, int w, int
 			addr += psd->pitch;
 		}
 	}
-#elif MWPIXEL_FORMAT == MWPF_TRUECOLOR888
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLORRGB
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
 		unsigned int extra = psd->pitch - w * 3;

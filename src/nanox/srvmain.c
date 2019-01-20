@@ -31,31 +31,12 @@
 #include <pspdebug.h>
 #endif
 
-#if EMSCRIPTEN
-#include <emscripten.h>
-#endif  
+//#if EMSCRIPTEN
+//#include <emscripten.h>
+//#endif  
 
 #define MWINCLUDECOLORS
 #include "serv.h"
-
-#if __MINGW32__ | WIN32
-//FIXME all this needs to move somewhere else
-//#include "windows.h"
-
-/* Allow including program to override.  */
-#ifndef FD_SETSIZE
-#define FD_SETSIZE 256
-#endif
-
-typedef struct fd_set {
-  unsigned char fd_bits [((FD_SETSIZE) + 7) / 8];
-} fd_set;
-
-#define FD_SET(n, p)    ((p)->fd_bits[(n) / 8] |= (1 << ((n) & 7)))
-#define FD_CLR(n, p)	((p)->fd_bits[(n) / 8] &= ~(1 << ((n) & 7)))
-#define FD_ISSET(n, p)	((p)->fd_bits[(n) / 8] & (1 << ((n) & 7)))
-#define FD_ZERO(p)	memset ((void *)(p), 0, sizeof (*(p)))
-#endif /* __MINGW32__ | WIN32*/
 
 #if HAVE_VNCSERVER
 #include "rfb/rfb.h"
@@ -329,8 +310,7 @@ GsDropClient(int fd)
 }
 #endif
 
-#if UNIX | DOS_DJGPP | __MINGW32__ | EMSCRIPTEN
-#if NONETWORK && HAVE_SELECT
+#if UNIX && HAVE_SELECT && NONETWORK
 /*
  * Register the specified file descriptor to return an event
  * when input is ready.
@@ -372,8 +352,7 @@ GrUnregisterInput(int fd)
 	SERVER_UNLOCK();
 }
 
-#endif /* NONETWORK && HAVE_SELECT */
-#endif /* UNIX | DOS_DJGPP*/
+#endif /* UNIX && HAVE_SELECT && NONETWORK*/
 
 /*
  * This function suspends execution of the program for the specified
@@ -420,33 +399,7 @@ GrReqShmCmds(long shmsize)
 #endif
 
 /********************************************************************************/
-#if MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | SDL | EMSCRIPTEN
-
-void
-GsSelect(GR_TIMEOUT timeout)
-{
-#if EMSCRIPTEN
-	emscripten_sleep(1);
-#endif
-
-	/* update screen & flush buffers*/
-	if(scrdev.PreSelect)
-		scrdev.PreSelect(&scrdev);
-
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(GsCheckMouseEvent())
-			continue;
-
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(GsCheckKeyboardEvent())
-			continue;
-
-}
-
-/********************************************************************************/
-#elif UNIX && HAVE_SELECT
+#if UNIX && HAVE_SELECT
 
 void
 GsSelect(GR_TIMEOUT timeout)
@@ -481,7 +434,11 @@ GsSelect(GR_TIMEOUT timeout)
 			return;
 		}
 	}
-
+#if SDL
+	/* can't block in select as SDL backend is poll based*/
+	if (timeout == 0)
+		timeout = 10;
+#endif
 	/* Set up the FDs for use in the main select(): */
 	FD_ZERO(&rfds);
 	if(mouse_fd >= 0) {
@@ -940,6 +897,27 @@ err_exit:
 }
 
 /********************************************************************************/
+#else /* MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | EMSCRIPTEN*/
+
+void
+GsSelect(GR_TIMEOUT timeout)
+{
+	/* update screen & flush buffers*/
+	if(scrdev.PreSelect)
+		scrdev.PreSelect(&scrdev);
+
+	/* If mouse data present, service it*/
+	if(mousedev.Poll())
+		while(GsCheckMouseEvent())
+			continue;
+
+	/* If keyboard data present, service it*/
+	if(kbddev.Poll())
+		while(GsCheckKeyboardEvent())
+			continue;
+}
+
+/********************************************************************************/
 #endif /* GsSelect() cases*/
 
 #if UNIX && HAVE_SELECT && NONETWORK
@@ -1306,8 +1284,9 @@ GsTerminate(void)
 #endif
 #if EMSCRIPTEN
 	return;
-#endif
+#else
 	exit(0);
+#endif
 }
 
 /*

@@ -118,11 +118,11 @@ if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(1)) {
     /* Primary (e.g. left) mouse button */
     buttons |= MWBUTTON_L;
 }
-if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(2)) {
+if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(3)) {
     buttons |= MWBUTTON_R;
     /* Secondary (e.g. right) mouse button */
 }
-if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(3)) {
+if(SDL_GetMouseState(&xm,&ym) & SDL_BUTTON(2)) {
     /* Tertiary (e.g. middle) mouse button */
     buttons |= MWBUTTON_M;
 }

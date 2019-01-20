@@ -1,12 +1,8 @@
 /*
- * Copyright (c) 1999, 2003 Greg Haerr <greg@censoft.com>
- * Georg Potthast 2016
+ * Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  *
  * SDL2 Keyboard Driver
- * 
- * if TRANSLATE_ESCAPE_SEQUENCES is set in device.h, then we
- * hard-decode function keys for Linux console and KDE konsole.
- not tested with allegro yet.
+ * based on original SDL port by Georg Potthast
  */
 #include <string.h>
 #include <stdio.h>
@@ -18,24 +14,6 @@
 #else
 #include <SDL2/SDL.h>
 #endif
-
-#define CTRL(x)	  ((x) & 0x1f)
-
-#ifndef SCREEN_WIDTH
-#define SCREEN_WIDTH 1024
-#endif
-
-#ifndef SCREEN_HEIGHT
-#define SCREEN_HEIGHT 768
-#endif
-
-extern int escape_quits;
-SDL_Window *sdlWindow;
-SDL_Renderer *sdlRenderer;
-SDL_Texture *sdlTexture;
-SDL_Surface *screen;
-SDL_Event event;
-Uint16 mod;
 
 static int  sdl_Open(KBDDEVICE *pkd);
 static void sdl_Close(void);
@@ -51,82 +29,41 @@ KBDDEVICE kbddev = {
 	sdl_Poll	
 };
 
-static int closedown;
+int sdl_pollevents(void);
+
 static MWKEYMOD save_modifiers;
  
 /*
  * Open the keyboard.
- * This is real simple, we just use a special file handle
- * that allows non-blocking I/O, and put the terminal into
- * character mode.
- */
-/*
- * keyboard driver is called first, so initialize sdl here 
  */
 static int
 sdl_Open(KBDDEVICE *pkd)
 {
 
-  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS); 
-  atexit(SDL_Quit);
-
-  sdlWindow = SDL_CreateWindow("Microwindows", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-  if (!sdlWindow) {
-    printf("Can't create window\n");
-  	return -1;
-  }
-
-  //sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
-  //if (!sdlRenderer) {
-    //printf("Can't create renderer\n");
-  	//return -1;
-  //}
-
-  screen = SDL_GetWindowSurface(sdlWindow);
-  if (!screen) {
-    printf("Can't create screen\n");
-  	return -1;
-  }
-  printf("SDL pixel format %0x, type %0x\n", screen->format->format, SDL_PIXELTYPE(screen->format->format));
-
-  SDL_StartTextInput();
-
-  return 1; //ok    
+	return -3;		/* ok, not file descriptor and not null kbd driver*/
 }
 
 /*
  * Close the keyboard.
- * This resets the terminal modes.
  */
 static void
 sdl_Close(void)
 {
-  SDL_Quit();
 }
 
 /*
-**
-*/
+ * Keyboard poll entry point
+ */
 static int
 sdl_Poll(void)
 {
-  SDL_PumpEvents();
-  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) return 1; //read event in read function
-
-  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_QUIT, SDL_QUIT)) {
-    closedown=1;
-	printf("CLOSE\n");
-    return 1; //i.e. received the "closedown" key
-  }
-
-  return 0;   //no event that we are interested in
+	return (sdl_pollevents() >= 2);	/* 2=keyboard, 3=quit*/
 }
 
 /*
  * Return the possible modifiers for the keyboard.
  */
-static  void
+static void
 sdl_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 {
 	if (modifiers)
@@ -135,53 +72,112 @@ sdl_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 	   *curmodifiers = save_modifiers;
 }
 
+/* convert key code to shift-key code*/
+static int
+shift_convert(int key)
+{
+	if (key >= 'a' && key < 127)
+		return (key ^ 0x20);			/* upper case*/
+	switch (key) {
+	case '`':
+		return '~';
+	case '1':
+		return '!';
+	case '2':
+		return '@';
+	case '3':
+		return '#';
+	case '4':
+		return '$';
+	case '5':
+		return '%';
+	case '6':
+		return '^';
+	case '7':
+		return '&';
+	case '8':
+		return '*';
+	case '9':
+		return '(';
+	case '0':
+		return ')';
+	case '-':
+		return '_';
+	case '=':
+		return '+';
+	case '[':
+		return '{';
+	case ']':
+		return '}';
+	case '\\':
+		return '|';
+	case ';':
+		return ':';
+	case '\'':
+		return '"';
+	case ',':
+		return '<';
+	case '.':
+		return '>';
+	case '/':
+		return '?';
+	}
+	return key;
+}
+
 /*
- * This reads one keystroke from the keyboard, and the current state of
- * the modifier keys (ALT, SHIFT, etc).  Returns -1 on error, 0 if no data
- * is ready, 1 on a keypress, and 2 on keyrelease.
+ * This reads a keystroke event, and the current state of the modifier keys (ALT, SHIFT, etc). 
+ * Returns -1 on error, 0 if no data is ready, 1 on a keypress, and 2 on keyrelease.
  * This is a non-blocking call.
  */
 static int
 sdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
+	int mwkey, m;
+	SDL_Scancode sc;
+	SDL_Keymod mod;
+	SDL_Event event;
 
-  static int mwkey;
-  static SDL_Scancode sdlScancode;
-  char text[120];
+	if (sdl_pollevents() < 2)		/* 2=keyboard, 3=quit*/
+		return 0;
 
-  if (closedown == 1) {SDL_Quit(); return -2;} /* special case ESC - terminate application*/
-  //read key event
-  if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_TEXTINPUT )) { 
-    if (event.type == SDL_KEYDOWN){
-      sdlScancode = event.key.keysym.scancode;
-      mwkey = (char) SDL_GetKeyFromScancode(sdlScancode);
-      if (mwkey == SDLK_ESCAPE) {SDL_Quit(); return -2;} /* special case ESC - terminate application*/
-      //continue after else section if now - i.e. receive Textinput event
-  } else if (event.type == SDL_TEXTINPUT) {
-      mwkey = event.text.text[ 0 ];
-      //printf("Textinput: %c\n",mwkey);
-  } else if (event.type == SDL_KEYUP) {
-            *kbuf = mwkey;		
-            *scancode = sdlScancode;
-            return 2; //key released    
-  }
-    
-   *modifiers = 0;
-   mod = SDL_GetModState();
-   if( mod & KMOD_SHIFT) *modifiers |= MWKMOD_SHIFT;
-   if( mod & KMOD_CTRL ) *modifiers |= MWKMOD_CTRL;
-   if( mod & KMOD_LALT ) *modifiers |= MWKMOD_ALT;
-   if( mod & KMOD_RALT ) *modifiers |= MWKMOD_ALTGR;
-   save_modifiers=*modifiers;
-   
-    *kbuf = mwkey;		
-    *scancode = sdlScancode;
+	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_TEXTINPUT)) { 
+		switch (event.type) {
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			sc = event.key.keysym.scancode;
+			mwkey = event.key.keysym.sym;
+			mod = SDL_GetModState();
+//printf("key %x,%x %x = %x\n", mwkey, sc, mod, SDL_GetKeyFromScancode(sc));
+			m = 0;
+			if (mod & (KMOD_SHIFT|KMOD_CAPS)) {
+				m |= MWKMOD_SHIFT;
+				mwkey = shift_convert(mwkey);
+			}
+			if (mod & KMOD_CTRL) {
+				m |= MWKMOD_CTRL;
+				mwkey &= 0x1f;			/* convert to control char*/
+			}
+			if (mod & KMOD_ALT)
+				m |= MWKMOD_ALT;
+			save_modifiers = m;	/* save for GetModifierInfo*/
+			*modifiers = m;
 
-    return 1;		/* keypress received*/
-    
-  } 
-  return 0; //if no event received
+			if (mwkey > 127)			/* return only ascii for now*/
+				mwkey = 0;
+			*kbuf = mwkey;		
+			*scancode = sc;
+			return (event.type == SDL_KEYDOWN)? 1: 2;
 
-} //end of sdl_read
+		case SDL_TEXTINPUT:
+			mwkey = event.text.text[0];
+			return 0;	/* ignore for now*/
+		}
+	}
+	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT)) {
+		//printf("SDL: Quit\n");
+		return -2;	/* terminate application*/
+	}
 
-
+	return 0;		/* no event*/
+}

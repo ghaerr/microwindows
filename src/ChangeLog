@@ -1,3 +1,11 @@
+20 Jan 2019
+	* rename MWPF_TRUECOLOR888 to MWPF_TRUECOLORRGB
+	* update scr_sdl2.c to allocate matching framebuffer and eliminate update_from_savebits
+	* update SDL2 to use renderer and textures, remove SDL_GetWindowSurface
+	* rewrote SDL2 mouse, keyboard and screen driver for OSX/Linux, added support for OSX touchpad, support shift/ctrl
+	* cleaned up SDL2 update_from_savebits() routine for speed, renamed to copy_framebuffer
+	* fix GsSelect() and MwSelect() to never block for SDL polling backend on OSX/Linux
+	* move UNIX&&HAVESELECT case before polling systems in mwin/winmain.c, nanox/srvmain.c
 11 Jan 2019
 	* initial port of SDL2 driver to MACOSX
 	* cleaned up MwSelect and GsSelect routines and #if processing

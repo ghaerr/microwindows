@@ -7,13 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "device.h"
-
-#if EMSCRIPTEN
-#include <emscripten.h>
-#include <SDL.h>
-#else
 #include <SDL2/SDL.h>
-#endif
 
 static int  sdl_Open(KBDDEVICE *pkd);
 static void sdl_Close(void);

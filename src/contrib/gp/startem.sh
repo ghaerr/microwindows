@@ -1,4 +1,3 @@
-#The "dot" is shorthand for the "source" command.
-cd ~/emsdk
-source ./emsdk_env.sh
-cd ~/microwindows-testing/src
+# setup EMSCRIPTEN environment
+# usage: "source startem.sh"
+source ~/emsdk/emsdk_env.sh

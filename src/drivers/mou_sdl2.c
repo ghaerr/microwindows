@@ -7,13 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "device.h"
-
-#if EMSCRIPTEN
-#include <emscripten.h>
-#include <SDL.h>
-#else
 #include <SDL2/SDL.h>
-#endif
 
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */

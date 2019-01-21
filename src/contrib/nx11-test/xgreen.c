@@ -18,10 +18,11 @@ XColor green_col;
 Colormap colormap;
 
 /*
-The color can also be from /usr/X11R6/lib/X11/rgb.txt, such as RoyalBlue4.
+The color can also be from $(X11_RGBTXT) (rgb.txt), such as RoyalBlue4.
 A # (number sign) is only needed when using hexadecimal colors.
 */
-char green[] = "#00FF00";
+char green[] = "aquamarine";
+//char green[] = "#00FF00";
 
 int main() {
 	dis = XOpenDisplay(NULL);
@@ -29,8 +30,9 @@ int main() {
 	XMapWindow(dis, win);
 	colormap = DefaultColormap(dis, 0);
 	green_gc = XCreateGC(dis, win, 0, 0);
-	XParseColor(dis, colormap, green, &green_col);
-	XAllocColor(dis, colormap, &green_col);
+	XAllocNamedColor(dis, colormap, green, &green_col, &green_col);
+	//XParseColor(dis, colormap, green, &green_col);
+	//XAllocColor(dis, colormap, &green_col);
 	XSetForeground(dis, green_gc, green_col.pixel);
 
 	XSelectInput(dis, win, StructureNotifyMask | ExposureMask | KeyPressMask | ButtonPressMask);

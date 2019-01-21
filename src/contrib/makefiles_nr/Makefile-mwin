@@ -29,17 +29,16 @@ OBJECTS += \
 	winlib/mwuser.o
 
 OBJECTS += \
+	winlib/static.o \
+	winlib/button.o \
+	winlib/newedit.o \
+	winlib/newlistbox.o \
+	winlib/combobox.o \
+	winlib/progbar.o \
+	winlib/scrlbar.o \
+	winlib/caret.o \
 	winlib/windlg.o \
 	winlib/msgbox.o \
-	winlib/button.o \
-	winlib/edit.o \
-	winlib/newedit.o \
-	winlib/listbox.o \
-	winlib/progbar.o \
-	winlib/static.o \
-	winlib/combobox.o \
-	winlib/caret.o \
-	winlib/scrlbar.o \
 	winlib/medit.o
 
 all: $(LIB)

@@ -1,4 +1,4 @@
-# Micro-Windows makefile to generate object files in nx11 folder
+# Microwindows makefile to generate object files in nx11 folder
 # to link these to libPX11.a in separate makefile
 
 LIB=libNX11.a
@@ -30,7 +30,11 @@ xOBJS += xrm/Xrm.o xrm/ParseCmd.o xrm/Misc.o xrm/Quarks.o xrm/lcWrap.o \
 CFLAGS += -I.
 endif
 
+ifeq ($(EMSCRIPTEN), Y)
+CFLAGS = -DX11_RGBTXT=\"/usr/share/fonts/truetype/rgb.txt\"
+else
 CFLAGS = -DX11_RGBTXT=\"/usr/share/X11/rgb.txt\"
+endif
 
 #ifneq ($(DEBUG), Y)
 #	CFLAGS += -s -Wno-deprecated-declarations

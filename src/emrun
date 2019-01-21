@@ -1,0 +1,35 @@
+# Run EMSCRIPTEN programs
+scriptname=$0
+bindir=bin
+progname=$1
+
+if [ "$progname" = "" ]
+then
+	echo "Usage: emrun <program>.html"
+	exit 1
+fi
+case "$progname" in
+  */*)
+    # progname contains a path, use it
+    application=$progname
+    ;;
+  *)
+    # no directory in progname
+	application=$bindir/$progname
+    ;;
+esac
+# check if application present
+if [ ! -f $application.html ]
+then
+	echo "$scriptname: can't find $application.html"
+	exit 1
+fi
+
+# Load EMSCRIPTEN environment variables
+if [ "$EMSCRIPTEN" = "" ]
+then
+	source ~/emsdk/emsdk_env.sh
+fi
+
+# Run EMSCRIPTEN application in browser
+emrun $application.html

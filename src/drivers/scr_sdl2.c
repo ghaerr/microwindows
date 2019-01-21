@@ -9,12 +9,10 @@
 #include "fb.h"
 #include "genmem.h"
 #include "genfont.h"
+#include <SDL2/SDL.h>
 
 #if EMSCRIPTEN
 #include <emscripten.h>
-#include <SDL.h>
-#else
-#include <SDL2/SDL.h>
 #endif
 
 static PSD  sdl_open(PSD psd);

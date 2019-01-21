@@ -42,7 +42,7 @@ X11_INCLUDE=$(X11HDRLOCATION)
 # For release, full paths are required matching target system locations
 #	X11_RGBTXT=/usr/share/X11/rgb.txt
 #
-X11_RGBTXT=fonts/rgb.txt
+X11_RGBTXT=$(MW_DIR_SRC)/nx11/fonts/rgb.txt
 #X11_RGBTXT=/usr/share/X11/rgb.txt
 
 # set INCLUDE_XRM=Y to include (unmodifed X11) Xrm routines

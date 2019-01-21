@@ -1,4 +1,5 @@
 20 Jan 2019
+	* nx11/Makefile fix for nx11/Colorname.c, use full path to src/nx11/fonts/rgb.txt for link of nx11-test/xgreen.c
 	* EMSCRIPTEN fixes, added emrun, demo-aafont, demo-ttfont, demo-composite, mwdvetest
 	* more driver/config cleanup, deprecate SDL1,SCRMEM,NOSCR drivers, add FBE (framebuffer emulator) driver
 	* rename MWPF_TRUECOLOR888 to MWPF_TRUECOLORRGB

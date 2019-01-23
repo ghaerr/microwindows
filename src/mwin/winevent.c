@@ -23,8 +23,8 @@ static LPFN_KEYBTRANSLATE mwPtrKeyboardTranslator = NULL;
 
 /*
  * Update mouse status and issue events on it if necessary.
- * This function doesn't block, but is normally only called when
- * there is known to be some data waiting to be read from the mouse.
+ * This function doesn't block, but is only called when Poll() returns TRUE
+ * or MwSelect shows some data waiting to be read on the mouse file descriptor.
  */
 BOOL
 MwCheckMouseEvent(void)
@@ -34,22 +34,23 @@ MwCheckMouseEvent(void)
 	int		newbuttons;	/* latest buttons */
 	int		mousestatus;	/* latest mouse status */
 
-	/* Read the latest mouse status: */
+	if (mousedev.Poll && (mousedev.Poll() == 0))
+			return FALSE;
+
+	/* Read the latest mouse status*/
 	mousestatus = GdReadMouse(&rootx, &rooty, &newbuttons);
-	if(mousestatus < 0) {
-		/*MwError(GR_ERROR_MOUSE_ERROR, 0);*/
-		return FALSE;
-	} else if(mousestatus) {	/* Deliver events as appropriate: */	
-		MwHandleMouseStatus(rootx, rooty, newbuttons);
-		return TRUE;
-	}
-	return FALSE;
+	if (mousestatus <= 0)
+		return FALSE;		/* read failed or no new data*/
+
+	/* Deliver mouse events as appropriate*/
+	MwHandleMouseStatus(rootx, rooty, newbuttons);
+	return TRUE;
 }
 
 /*
  * Update keyboard status and issue events on it if necessary.
- * This function doesn't block, but is normally only called when
- * there is known to be some data waiting to be read from the keyboard.
+ * This function doesn't block, but is only called when Poll() returns TRUE
+ * or MwSelect shows some data waiting to be read on the keyboard file descriptor.
  */
 BOOL
 MwCheckKeyboardEvent(void)
@@ -59,37 +60,43 @@ MwCheckKeyboardEvent(void)
 	MWSCANCODE	scancode;
 	int	 	keystatus;	/* latest keyboard status */
 
-	/* Read the latest keyboard status: */
+	if (kbddev.Poll && (kbddev.Poll() == 0))
+			return FALSE;
+
+	/* Read the latest keyboard status*/
 	keystatus = GdReadKeyboard(&mwkey, &modifiers, &scancode);
-	if(keystatus < 0) {
-		if(keystatus == -2)	/* special case for ESC pressed*/
+	if (keystatus <= 0)
+	{
+		if (keystatus == KBD_QUIT)	/* special case for quit message*/
 			MwTerminate();
-		/*MwError(GR_ERROR_KEYBOARD_ERROR, 0);*/
-		return FALSE;
-	} else if(keystatus) {		/* Deliver events as appropriate: */	
-		switch (mwkey) {
-		case MWKEY_QUIT:
-#if DEBUG
-			if (modifiers & MWKMOD_CTRL)
-				GdCaptureScreen(NULL, "screen.bmp");
-			else
-#endif
-				MwTerminate();
-			break;
-		case MWKEY_REDRAW:
-			MwRedrawScreen();
-			break;
-		case MWKEY_PRINT:
-#if DEBUG
-			if (keystatus == 1)
-				GdCaptureScreen(NULL, "screen.bmp");
-#endif
-			break;
-		}
-		MwDeliverKeyboardEvent(mwkey, modifiers, scancode, keystatus==1? TRUE: FALSE);
-		return TRUE;
+		return FALSE;				/* read failed or no new data*/
 	}
-	return FALSE;
+
+	/* handle special keys*/
+	switch (mwkey)
+	{
+	case MWKEY_QUIT:
+#if DEBUG
+		if (modifiers & MWKMOD_CTRL)
+			GdCaptureScreen(NULL, "screen.bmp");
+		else
+#endif
+		MwTerminate();
+		break;
+	case MWKEY_REDRAW:
+		MwRedrawScreen();
+		break;
+#if DEBUG
+	case MWKEY_PRINT:
+		if (keystatus == KBD_KEYPRESS)
+			GdCaptureScreen(NULL, "screen.bmp");
+		break;
+#endif
+	}
+
+	/* Deliver keyboard events as appropriate*/
+	MwDeliverKeyboardEvent(mwkey, modifiers, scancode, keystatus == KBD_KEYPRESS? TRUE: FALSE);
+	return TRUE;
 }
 
 /*

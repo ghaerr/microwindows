@@ -36,7 +36,7 @@ int sdl_pollevents(void);
 static int
 sdl_Open(MOUSEDEVICE *pmd)
 {
-	return -3;		/* ok, not file descriptor and not null mouse driver*/
+	return DRIVER_OKNOTFILEDESC;		/* ok, not file descriptor and not null mouse driver*/
 }
 
 /*
@@ -76,7 +76,7 @@ sdl_Poll(void)
 
 /*
  * Read mouse event.
- * Returns -1 on error, 0 for no mouse event, and 1 on mouse event.
+ * Returns MOUSE_NODATA or MOUSE_ABSPOS
  * This is a non-blocking call.
  */
 
@@ -88,9 +88,6 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	SDL_Event event;
 	static int lastx, lasty, lastdn;
 	extern SCREENDEVICE scrdev;
-
-	if (sdl_pollevents() != 1)		/* 1=mouse*/
-		return 0;
 
 	/* handle mouse events*/
 	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEWHEEL)) {
@@ -114,7 +111,7 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		*dz = 0;
 		*bp = buttons;
 
-		return 2;	/* absolute position**/
+		return MOUSE_ABSPOS;
 	}
 
 	/* handle touchpad events FIXME need right mouse button support*/
@@ -126,7 +123,7 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 //printf("mousedn %d,%d\n", lastx, lasty);
 			*dz = 0;
 			*bp = lastdn;
-			return 0;
+			return MOUSE_NODATA;
 		}
 
 		if (event.type == SDL_FINGERUP) {
@@ -136,20 +133,20 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 //printf("mouseup %d,%d\n", lastx, lasty);
 			*dz = 0;
 			*bp = lastdn;
-			return 0;	/* absolute position*/
+			return MOUSE_NODATA;		/* absolute position*/
 		}
 
 		if (event.type == SDL_FINGERMOTION) {
 			if (lastdn == 0)
-				return 0;	/* no motion without finger down*/
+				return MOUSE_NODATA;	/* no motion without finger down*/
 			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
 			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
 //printf("mousemv %d,%d\n", lastx, lasty);
 			*dz = 0;
 			*bp = lastdn;
 
-			return 0;	/* absolute position**/
+			return MOUSE_NODATA;		/* absolute position**/
 		}
 	}
-	return 0;		/* no event*/
+	return MOUSE_NODATA;
 }

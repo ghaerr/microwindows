@@ -219,7 +219,7 @@ GdMoveMouse(MWCOORD newx, MWCOORD newy)
  * @param px On return, holds the mouse X co-ordinate.
  * @param py On return, holds the mouse Y co-ordinate.
  * @param pb On return, holds the buttons status.
- * @return -1 on error, 0 if mouse has not moved, 1 if mouse has moved.
+ * @return -1 on error, 0 if no data found, 1 if mouse has moved.
  */
 int
 GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
@@ -233,22 +233,20 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	*py = ypos;
 	*pb = buttons;
 
-	if (changed) {
+	if (changed)
+	{
 		changed = FALSE;
 		return 1;
 	}
 
 	/* read the mouse position */
 	status = mousedev.Read(&x, &y, &z, &newbuttons);
-	if (status < 0)
-		return -1;
+	if (status <= 0)
+		return status;		/* read fail or no new data*/
 
-	/* no new info from the mouse driver? */
-	if (status == 0)
-		return 0;
-
-	/* Relative mice have their own process */
-	if (status == 1) {
+	/* Relative mice have their own process*/
+	if (status == MOUSE_RELPOS)
+	{
 		int rx, ry;
 		filter_relative(status, thresh, scale, &rx, &ry, x, y);
 #if FLIP_MOUSE_IN_PORTRAIT_MODE
@@ -259,12 +257,16 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 		dx = xpos + rx;
 		dy = ypos + ry;
 #endif
-	} else {
+	}
+	else
+	{
+		/* absolute position*/
 		dx = x;
 		dy = y;
 
 		/* Transformed coords should already have their rotation handled */
-		if (mousedev.flags & MOUSE_TRANSFORM)  {
+		if (mousedev.flags & MOUSE_TRANSFORM)
+		{
 			if (!filter_transform(status, &dx, &dy))
 				return 0;
 		}
@@ -280,13 +282,14 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 	 * because some of the filters (like the transform) need to be called
 	 * several times before we get valid data.
 	 */
-	if (buttons != newbuttons) {
+	if (buttons != newbuttons)
+	{
 		changed = TRUE;
 		buttons = newbuttons;
 	}
 
 	/* Finally, move the mouse */
-	if (status != 3)
+	if (status != MOUSE_NOMOVE)
 		GdMoveMouse(dx, dy);
 
 	/* anything change? */

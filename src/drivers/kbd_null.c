@@ -35,7 +35,7 @@ NUL_Poll(void)
 static int
 NUL_Open(KBDDEVICE *pkd)
 {
-	return -2;	/* no kbd*/
+	return DRIVER_OKNULLDEV;	/* ok, no kbd*/
 }
 
 /*
@@ -67,5 +67,5 @@ NUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 static int
 NUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
-	return 0;
+	return KBD_NODATA;
 }

@@ -79,16 +79,15 @@ GdGetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
  * @param buf Recieves the key.
  * @param modifiers Recieves the state of the modifiers (shift etc).
  * @param scancode Recieves the scancode of the key.
- * @return -1 on error, 0 if no data is ready,
- * 1 if keypress, 2 if keyrelease.
+ * @return -1 on error, 0 if no data is ready, 1 if keypress, 2 if keyrelease.
  */
 int
 GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
-	int result = kbddev.Read(buf, modifiers, scancode);
+	int status = kbddev.Read(buf, modifiers, scancode);
 #if MW_FEATURE_TWO_KEYBOARDS
-	if (result == 0)
-		result = kbddev2.Read(buf, modifiers, scancode);
+	if (status == KBD_NODATA)
+		status = kbddev2.Read(buf, modifiers, scancode);
 #endif
-	return result;
+	return status;
 }

@@ -94,11 +94,11 @@ extern BOOL	mwERASEMOVE;	/* default repaint algorithm*/
 extern long	mwTextCoding;	/* current text encoding*/
 
 /* winmain.c*/
-int		MwOpen(void);
-void		MwClose(void);
-void		MwSelect(BOOL mayWait);
+void	MwSelect(BOOL canBlock);
 int		MwInitialize(void);
-void		MwTerminate(void);
+void	MwTerminate(void);
+void	MwDelay(MWTIMEOUT msecs);
+
 extern	HWND	listwp;			/* list of all windows */
 extern	HWND	rootwp;			/* root window pointer */
 extern	HWND	focuswp;		/* focus window for keyboard */

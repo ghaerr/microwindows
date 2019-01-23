@@ -203,7 +203,8 @@ typedef struct _mwscreendevice {
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
 #define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
 #define PSF_IMAGEHDR		0x0040	/* psd is actually MWIMAGEHDR*/
-#define PSF_DELAYUPDATE		0x0080	/* for X11: delay Update() calls until PreSelect()*/
+#define PSF_DELAYUPDATE		0x0080	/* for X11&SDL, delay Update() blits until PreSelect()*/
+#define PSF_CANTBLOCK		0x0100	/* never block in select() as backend requires polling*/
 
 /* Interface to Mouse Device Driver*/
 typedef struct _mousedevice {
@@ -216,6 +217,7 @@ typedef struct _mousedevice {
 	int     flags;			/* raw, normal, transform flags*/
 } MOUSEDEVICE;
 
+/* mouse flags*/
 #define MOUSE_NORMAL		0x0000	/* mouse in normal mode*/
 #define MOUSE_RAW			0x0001	/* mouse in raw mode*/
 #define MOUSE_TRANSFORM		0x0002	/* perform transform*/
@@ -228,6 +230,26 @@ typedef struct _kbddevice {
 	int  (*Read)(MWKEY *buf,MWKEYMOD *modifiers,MWSCANCODE *scancode);
 	int  (*Poll)(void);		/* not required if have select()*/
 } KBDDEVICE;
+
+/* mouse and keyboard driver Open() return codes*/
+#define DRIVER_OKFILEDESC(fd)	fd		/* ok, return value is file descriptor*/
+#define DRIVER_FAIL				-1		/* open failed, terminate*/
+#define DRIVER_OKNULLDEV		-2		/* ok, null mouse or keyboard device (hide cursor)*/
+#define DRIVER_OKNOTFILEDESC	-3		/* ok, not file descriptor and not null device*/
+
+/* mouse Read() return codes*/
+#define MOUSE_FAIL			-1			/* read failed, no data*/
+#define MOUSE_NODATA		0			/* no data returned*/
+#define MOUSE_RELPOS		1			/* relative position returned*/
+#define MOUSE_ABSPOS		2			/* absolute position returned*/
+#define MOUSE_NOMOVE		3			/* abs positioned returned, don't move mouse cursor*/
+
+/* keyboard Read() return codes*/
+#define KBD_FAIL			-1			/* read failed, no data*/
+#define KBD_QUIT			-2			/* quit key pressed, terminate*/
+#define KBD_NODATA			0			/* no data returned*/
+#define KBD_KEYPRESS		1			/* key pressed*/
+#define KBD_KEYRELEASE		2			/* key released*/
 
 /* Clip areas*/
 #define CLIP_VISIBLE		0

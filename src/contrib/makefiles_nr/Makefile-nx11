@@ -31,9 +31,10 @@ CFLAGS += -I.
 endif
 
 ifeq ($(EMSCRIPTEN), Y)
-CFLAGS = -DX11_RGBTXT=\"/usr/share/fonts/truetype/rgb.txt\"
+CFLAGS += -I$(MW_DIR_SRC)/nx11/X11-local
+CFLAGS += -DX11_RGBTXT=\"/usr/share/fonts/truetype/rgb.txt\"
 else
-CFLAGS = -DX11_RGBTXT=\"/usr/share/X11/rgb.txt\"
+CFLAGS += -DX11_RGBTXT=\"/usr/share/X11/rgb.txt\"
 endif
 
 #ifneq ($(DEBUG), Y)

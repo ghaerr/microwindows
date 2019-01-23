@@ -11,10 +11,6 @@
 #include "genfont.h"
 #include <SDL2/SDL.h>
 
-#if EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
 static PSD  sdl_open(PSD psd);
 static void sdl_close(PSD psd);
 static void sdl_setpalette(PSD psd,int first,int count,MWPALENTRY *pal);
@@ -201,7 +197,7 @@ sdl_open(PSD psd)
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
 
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
+	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE | PSF_CANTBLOCK;
 	psd->portrait = MWPORTRAIT_NONE;
 
 	/* select an fb subdriver matching our planes and bpp for backing store*/
@@ -294,10 +290,6 @@ sdl_preselect(PSD psd)
 		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
 		upmaxX = upmaxY = 0;
 	}
-
-#if EMSCRIPTEN
-	emscripten_sleep(1);
-#endif
 
 	/* return nonzero if SDL event available*/
 	return sdl_pollevents();

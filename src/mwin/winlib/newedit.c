@@ -971,11 +971,9 @@ neSetFocus(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	pSLEditData = (PSLEDITDATA) (hWnd->userdata2);
 
 	if ((hWnd->userdata & EST_REPLACE))
-		CreateCaret(hWnd, NULL, mwDefEditCaretSizeIns,
-			    pSLEditData->charHeight);
+		CreateCaret(hWnd, NULL, mwDefEditCaretSizeIns, pSLEditData->charHeight);
 	else
-		CreateCaret(hWnd, NULL, mwDefEditCaretSize,
-			    pSLEditData->charHeight);
+		CreateCaret(hWnd, NULL, mwDefEditCaretSize, pSLEditData->charHeight);
 
 	neUpdateCaretPos(hWnd);
 	ShowCaret(hWnd);

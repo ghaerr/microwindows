@@ -106,7 +106,6 @@ endif
 ##############################################################################
 ifeq ($(ARCH), LINUX-NATIVE)
 DEFINES += -DLINUX=1 -DUNIX=1
-#CFLAGS += -DHAVE_FPRINTF=1
 endif
 
 ifeq ($(ARCH), LINUX-AVR32)
@@ -308,7 +307,7 @@ TOOLSPREFIX = $(EMSCRIPTENTOOLSPREFIX)
 endif
 
 #
-# FIXME the following ALLEGRO4/5 and SDL1/2 should completely within config and not here
+# FIXME the following ALLEGRO4/5 should completely be specified in config and not here
 #
 
 # ALLEGRO5
@@ -327,16 +326,4 @@ ifeq ($(SCREEN), ALLEGRO4)
 #for srvmain.c and winmain.c
 DEFINES += -DALLEGRO=1
 LDFLAGS += -lalleg 
-endif
-
-ifeq ($(SCREEN), SDL1)
-#for srvmain.c and winmain.c
-DEFINES += -DSDL=1
-LDFLAGS += -lSDL 
-endif
-
-ifeq ($(SCREEN), SDL2)
-#for srvmain.c and winmain.c
-DEFINES += -DSDL=1
-LDFLAGS += -lSDL2 
 endif

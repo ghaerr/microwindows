@@ -4043,6 +4043,14 @@ nochildren:
 #if MW_FEATURE_TIMERS
 static int next_timer_id = 1000;
 
+static void
+GsTimerCB (void *arg) 
+{
+    GR_TIMER *timer = (GR_TIMER *)arg;
+
+    GsDeliverTimerEvent (timer->owner, timer->wid, timer->id);
+}
+
 /**
  * Creates a Nano-X timer with the specified period.
  * NOTE: There is a potential for more GR_TIMER_EVENTS to be queued
@@ -4096,6 +4104,32 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 	SERVER_UNLOCK();
 
 	return id;
+}
+
+static GR_TIMER *
+GsFindTimer (GR_TIMER_ID timer_id)
+{
+    GR_TIMER   *timer;
+    
+    /*
+     * See if this is the same graphics context as last time.
+     */
+    if ((timer_id == cache_timer_id) && timer_id)
+        return cache_timer;
+    
+    /*
+     * No, search for it and cache it for future calls.
+     */
+    for (timer = list_timer; timer != NULL; timer = timer->next) 
+    {
+        if (timer->id == timer_id) 
+        {
+            cache_timer_id = timer_id;
+            cache_timer = timer;
+            return timer;
+        }
+    }
+    return NULL;
 }
 
 /**

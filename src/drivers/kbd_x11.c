@@ -54,14 +54,14 @@ X11_Open(KBDDEVICE *pkd)
 {
     if (x11_setup_display() < 0) {
 		EPRINTF("nano-X: Can't connect to X11 server\n");
-		return -2;	/* don't display another errmsg*/
+		return DRIVER_OKNULLDEV;	/* don't display another errmsg*/
     }
 
     if(init_modstate() < 0)
-    	return -1;
+    	return DRIVER_FAIL;
     
     /* return the x11 file descriptor for select */
-    return ConnectionNumber(x11_dpy);  
+    return DRIVER_OKFILEDESC(ConnectionNumber(x11_dpy));
 }
 
 /*
@@ -111,7 +111,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
     if (XCheckMaskEvent(x11_dpy, KeyPressMask|KeyReleaseMask, &ev)) {
 	KeySym sym = XKeycodeToKeysym(x11_dpy, ev.xkey.keycode, 0);
 	if (sym == NoSymbol)
-	    return -1;
+	    return KBD_FAIL;
 
 	/* calculate kbd modifiers*/
 	key_modstate = mods = 0;
@@ -155,14 +155,14 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 				 CurrentTime);
 		    grabbed = 1;
 		}
-		return 0;
+		return KBD_NODATA;
 	    } else if (grabbed)
 		XChangePointerControl(x11_dpy, True, False, x11_accel_num, 
 		      x11_accel_den, 0);
 	    *kbuf = mwkey;
 	    *modifiers = key_modstate;
 	    *scancode = ev.xkey.keycode;
-	    return (ev.xkey.type == KeyPress)? 1: 2;
+	    return (ev.xkey.type == KeyPress)? KBD_KEYPRESS: KBD_KEYRELEASE;
 	} else {
 	    switch (sym) {
 	    case XK_Delete:
@@ -307,18 +307,18 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		    /* not sent, used only for state*/
 		    if (ev.xkey.type == KeyRelease)
 		    	key_modstate ^= MWKMOD_NUM;
-		    return 0;
+		    return KBD_NODATA;
 	    case XK_Shift_Lock:
 	    case XK_Caps_Lock:
 		    /* not sent, used only for state*/
 		    if (ev.xkey.type == KeyRelease)
 		    	key_modstate ^= MWKMOD_CAPS;
-		    return 0;
+		    return KBD_NODATA;
 	    case XK_Scroll_Lock:
 		    /* not sent, used only for state*/
 		    if (ev.xkey.type == KeyRelease)
 		    	key_modstate ^= MWKMOD_SCR;
-		    return 0;
+		    return KBD_NODATA;
 		    break;
 	    case XK_Shift_L:
 		    mwkey = MWKEY_LSHIFT;
@@ -411,10 +411,10 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	    *kbuf = mwkey;
 
 	    /*printf("mods: 0x%x  scan: 0x%x  key: 0x%x\n",*modifiers,*scancode, *kbuf);*/
-	    return (ev.xkey.type == KeyPress)? 1 : 2;
+	    return (ev.xkey.type == KeyPress)? KBD_KEYPRESS : KBD_KEYRELEASE;
 	}
     }
-    return 0;
+    return KBD_NODATA;
 }
 
 #define NUM_LOCK_MASK    0x00000002

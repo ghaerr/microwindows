@@ -189,7 +189,7 @@ CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1
 endif
 
 ifeq ($(EMSCRIPTEN), Y)
-CFLAGS += -DEMSCRIPTEN=1 -DSDL=1 
+CFLAGS += -DEMSCRIPTEN=1
 endif
 
 ifeq ($(X11), Y)
@@ -531,24 +531,29 @@ emprog:
 	$(info CFLAGS: $(CFLAGS))
 	$(info NANOLIBS: $(NANOLIBS))
 	$(info **************** )
-	$(CC) $(CFLAGS) -o bin/mwdvetest.html demos/mwin/mwdvetest.c $(LIBS) $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/mwin/mwdvetest/this.res@/ $(EMTERPRET)
+ifdef MICROWIN
 	$(CC) $(CFLAGS) -o bin/mwdemo.html demos/mwin/mwdemo.c $(LIBS)  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/mwdemo2.html demos/mwin/mwdemo2.c $(LIBS) $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mwdvetest.html demos/mwin/mwdvetest.c $(LIBS) $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/mwin/mwdvetest/this.res@/ $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/mwlistcombo.html demos/mwin/mwlistcombo.c $(LIBS)  $(EMTERPRET)
+endif
+ifdef NANOX
 	$(CC) $(CFLAGS) -o bin/demo-ttfont.html demos/nanox/demo-ttfont.c lib/libnano-X.a $(NANOFONTS)  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/demo-aafont.html demos/nanox/demo-aafont.c lib/libnano-X.a $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/nanox/aademo.txt@/bin/  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/demo-composite.html demos/nanox/demo-composite.c lib/libnano-X.a $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/nanox/alphademo.png  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/demo-composite.html demos/nanox/demo-composite.c lib/libnano-X.a $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/nanox/alphademo.png@images/demos/nanox/  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/demo-agg.html demos/nanox/demo-agg.cpp demos/nanox/agglite.cpp lib/libnano-X.a  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/demo-grabkey.html demos/nanox/demo-grabkey.c lib/libnano-X.a $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/nxeyes.html demos/nanox/nxeyes.c lib/libnano-X.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/demo-arc.html demos/nanox/demo-arc.c lib/libnano-X.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/hello.html demos/nanox/hello.c lib/libnano-X.a  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/demo-grabkey.html demos/nanox/demo-grabkey.c lib/libnano-X.a $(EMTERPRET)
-#	$(CC) $(CFLAGS) -o bin/testarc.html contrib/nx11-test/testarc.c lib/libPX11.a  $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/draw.html contrib/nx11-test/draw.c lib/libPX11.a  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/xhello.html contrib/nx11-test/xhello.c lib/libPX11.a  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/xgreen.html contrib/nx11-test/xgreen.c lib/libNX11.a lib/libnano-X.a $(NX11fonts) $(EMTERPRET)
+#	$(CC) $(CFLAGS) -o bin/testarc.html contrib/nx11-test/testarc.c lib/libPX11.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/xmouse.html contrib/nx11-test/xmouse.c lib/libPX11.a  $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/draw.html contrib/nx11-test/draw.c lib/libPX11.a  $(EMTERPRET)
 #	$(CC) $(CFLAGS) -o bin/williams.html contrib/nx11-test/williams.c lib/libPX11.a  $(EMTERPRET)
 #	strace $(CC) $(CFLAGS) -o bin/xhello.html contrib/nx11-test/xhello.c lib/libNX11.a lib/libnano-X.a >~/microwindows-em/src/strace.log  $(EMTERPRET)
+endif
 
 X11prog:
 	echo "Compiling testprograms for X11"

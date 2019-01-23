@@ -449,9 +449,7 @@ void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner);
 #if MW_FEATURE_TIMERS
 void		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid);
-GR_TIMER	*GsFindTimer(GR_TIMER_ID timer_id);
-void		GsTimerCB(void *arg);
-#endif /* MW_FEATURE_TIMERS */
+#endif
 
 void		GsCheckMouseWindow(void);
 void		GsCheckFocusWindow(void);
@@ -521,12 +519,11 @@ extern	PMWFONT		stdfont;		/* default font*/
 extern	int		escape_quits;		/* terminate when pressing ESC*/
 extern	int		connectcount;		/* # of connections to server */
 #if MW_FEATURE_TIMERS
-extern	GR_TIMEOUT	screensaver_delay;	/* time before screensaver */
-						/* activates */
+extern	GR_TIMEOUT	screensaver_delay;	/* time before screensaver activates*/
 extern  GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 extern  GR_TIMER        *cache_timer;           /* cached timer */
 extern  GR_TIMER        *list_timer;            /* list of all timers */
-#endif /* MW_FEATURE_TIMERS */
+#endif
 extern  GR_GRABBED_KEY  *list_grabbed_keys;
 
 extern	GR_BOOL		screensaver_active;	/* screensaver is active */

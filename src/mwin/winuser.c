@@ -1861,16 +1861,17 @@ MwGetNextTimeoutValue(void)
 void
 MwHandleTimers(void)
 {
-	DWORD	dwTime = 0;	/* should be system time in UTC*/
 	struct timer *tm = timerList;
 	struct timer *ltm = NULL;
+	DWORD	dwTime = 0;	/* should be system time in UTC*/
 
 	while (tm != NULL) {
 		if (!tm->bRemove) {
 			if (GetTickCount() >= tm->dwClockExpires) {
+
 				/* call timer function or post timer message*/
 				if (tm->lpTimerFunc)
-					tm->lpTimerFunc (tm->hwnd, WM_TIMER, tm->idTimer, dwTime);
+					tm->lpTimerFunc(tm->hwnd, WM_TIMER, tm->idTimer, dwTime);
 				else
 					PostMessage (tm->hwnd, WM_TIMER, tm->idTimer, 0);
 

@@ -34,7 +34,7 @@ static int
 sdl_Open(KBDDEVICE *pkd)
 {
 
-	return -3;		/* ok, not file descriptor and not null kbd driver*/
+	return DRIVER_OKNOTFILEDESC;		/* ok, not file descriptor and not null kbd driver*/
 }
 
 /*
@@ -121,7 +121,7 @@ shift_convert(int key)
 
 /*
  * This reads a keystroke event, and the current state of the modifier keys (ALT, SHIFT, etc). 
- * Returns -1 on error, 0 if no data is ready, 1 on a keypress, and 2 on keyrelease.
+ * Returns KBD_NODATA, KBD_QUIT, KBD_KEYPRESS or KBD_KEYRELEASE
  * This is a non-blocking call.
  */
 static int
@@ -131,9 +131,6 @@ sdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	SDL_Scancode sc;
 	SDL_Keymod mod;
 	SDL_Event event;
-
-	if (sdl_pollevents() < 2)		/* 2=keyboard, 3=quit*/
-		return 0;
 
 	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_TEXTINPUT)) { 
 		switch (event.type) {
@@ -161,17 +158,16 @@ sdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 				mwkey = 0;
 			*kbuf = mwkey;		
 			*scancode = sc;
-			return (event.type == SDL_KEYDOWN)? 1: 2;
+			return (event.type == SDL_KEYDOWN)? KBD_KEYPRESS: KBD_KEYRELEASE;
 
 		case SDL_TEXTINPUT:
 			mwkey = event.text.text[0];
-			return 0;	/* ignore for now*/
+			return KBD_NODATA;			/* ignore for now*/
 		}
 	}
 	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT)) {
-		//printf("SDL: Quit\n");
-		return -2;	/* terminate application*/
+		return KBD_QUIT;				/* terminate application*/
 	}
 
-	return 0;		/* no event*/
+	return KBD_NODATA;
 }

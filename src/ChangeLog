@@ -1,3 +1,12 @@
+22 Jan 2019
+	* rewrote and cleaned up Gs/MwSelect for polling systems (SDL, EMSCRIPTEN, etc) and UNIX/Linux (X11, SDL)
+21 Jan 2019
+	* rewrote Gs/MwCheckMouseEvent and Gs/MwCheckKeyboardEvent to handle various drivers Poll/NULL entry points
+	* defines for keyboard/mouse Open() and Read() return values in device.h
+	* debug EMSCRIPTEN cursur blink: int FARPROC() vs void FARPROC() callback caused failure of function pointer!
+	* fixed timers for EMSCRIPTEN to allow cursor blinks and automotion
+	* use X11-local X11 headers for nx11 EMSCRIPTEN build, since its extensions/shape.h missing
+	* call scrdev.Preselect() to update SDL canvas in GrFlush() for EMSCRIPTEN and NX11 XFlush()
 20 Jan 2019
 	* nx11/Makefile fix for nx11/Colorname.c, use full path to src/nx11/fonts/rgb.txt for link of nx11-test/xgreen.c
 	* EMSCRIPTEN fixes, added emrun, demo-aafont, demo-ttfont, demo-composite, mwdvetest

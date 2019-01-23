@@ -40,22 +40,23 @@ static void MwHideCaret(void);
 static void MwUpdateCaret(void);
 
 /* Timer function call for caret blinking */
-static void CALLBACK fnCaretBlink ( HWND hwnd, UINT uMsg, 
-									UINT idEvent, DWORD dwTime )
+static int CALLBACK
+fnCaretBlink(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 {
     static UINT lastBlinkTime = DEF_BLINK_TIME;
 
-    if( sysCaret.nShowCount > 0 )
+	if( sysCaret.nShowCount > 0 )
 	{
-	MwUpdateCaret();
-	sysCaret.fShown = !sysCaret.fShown;
+		MwUpdateCaret();
+		sysCaret.fShown = !sysCaret.fShown;
 	}
-    if( sysCaret.nBlinkTime != lastBlinkTime )
+	if( sysCaret.nBlinkTime != lastBlinkTime )
 	{
-	KillTimer ( hwnd, idEvent );
-	sysCaret.nTimerID = SetTimer ( NULL, 0, sysCaret.nBlinkTime, 
-					(TIMERPROC)fnCaretBlink );
+		KillTimer(hwnd, idEvent);
+		sysCaret.nTimerID = SetTimer(NULL, 0, sysCaret.nBlinkTime, (TIMERPROC)fnCaretBlink);
+		lastBlinkTime = sysCaret.nBlinkTime;
 	}
+	return 0;
 }
 
 BOOL WINAPI
@@ -69,16 +70,15 @@ CreateCaret(HWND hwnd, HBITMAP hBitmap, int nWidth, int nHeight)
 	if (nHeight <= 0)
 		nHeight = 1;
 
-        sysCaret.hwnd = hwnd;
-        sysCaret.x = 0;
+	sysCaret.hwnd = hwnd;
+	sysCaret.x = 0;
 	sysCaret.y = 0;
 	sysCaret.nWidth = nWidth;
-        sysCaret.nHeight = nHeight;
-        sysCaret.fShown = FALSE;
-        sysCaret.nShowCount = 0;
-        sysCaret.nBlinkTime = DEF_BLINK_TIME;
-    sysCaret.nTimerID = SetTimer ( NULL, 0, sysCaret.nBlinkTime, 
-							       (TIMERPROC)fnCaretBlink );
+	sysCaret.nHeight = nHeight;
+	sysCaret.fShown = FALSE;
+	sysCaret.nShowCount = 0;
+	sysCaret.nBlinkTime = DEF_BLINK_TIME;
+    sysCaret.nTimerID = SetTimer(NULL, 0, sysCaret.nBlinkTime, (TIMERPROC)fnCaretBlink);
 	return TRUE;
 }
 
@@ -87,8 +87,8 @@ DestroyCaret(VOID)
 {
 	if (sysCaret.fShown)
 		MwHideCaret();
-    if( sysCaret.nTimerID != 0 )
-	KillTimer ( NULL, sysCaret.nTimerID );
+	if( sysCaret.nTimerID != 0 )
+		KillTimer ( NULL, sysCaret.nTimerID );
 	sysCaret.hwnd = NULL;
 	sysCaret.fShown = FALSE;
 	return TRUE;
@@ -116,16 +116,13 @@ ShowCaret(HWND hwnd)
 	if (hwnd == NULL)
 		hwnd = sysCaret.hwnd;
     
-    /*GB: Why check nShowCount < 0 ? 
-      if we call HideCaret when nShowCount is 0, 
-      then it's never possible to show again caret.*/
-    if (hwnd == NULL || hwnd != sysCaret.hwnd /*|| sysCaret.nShowCount < 0*/ )
+    if (hwnd == NULL || hwnd != sysCaret.hwnd)
 		return FALSE;
 
 	if (++sysCaret.nShowCount > 1)
 		return TRUE;
 
-	/* show caret, this call made it visible*/
+	/* make cursor visible*/
 	MwShowCaret();
 	return TRUE;
 }
@@ -163,7 +160,7 @@ BOOL WINAPI
 SetCaretBlinkTime(UINT uMSeconds)
 {
 	sysCaret.nBlinkTime = uMSeconds;
-	/* SetSysTimer */
+	/* will change on next timer callback*/
 	return TRUE;
 }
 

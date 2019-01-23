@@ -578,8 +578,7 @@ typedef struct tagNCCALCSIZE_PARAMS {
 
 typedef FARPROC TIMERPROC;
 
-UINT WINAPI	SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout,
-			TIMERPROC lpTimerFunc);
+UINT WINAPI	SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout, TIMERPROC lpTimerFunc);
 BOOL WINAPI	KillTimer(HWND hwnd, UINT idTimer);
 UINT		MwGetNextTimeoutValue(void);
 void		MwHandleTimers(void);
@@ -720,18 +719,16 @@ typedef MSGBOXPARAMSA MSGBOXPARAMS;
 
 int WINAPI MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
 		UINT uType, WORD wLanguageId, DWORD dwTime);
-int MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType,
-  WORD wLanguageId);
+int MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId);
 int MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);
 int MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
 
 /*
- *  Windows enumeration functions
+ *  Window enumeration functions
  */
 typedef BOOL CALLBACK (*WNDENUMPROC)(HWND, LPARAM);
 
-BOOL WINAPI EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc,
-			       LPARAM lParam);
+BOOL WINAPI EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc, LPARAM lParam);
 
 #ifdef MW_CALL_IDLE_HANDLER
 void WINAPI idle_handler(void);

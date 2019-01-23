@@ -173,8 +173,8 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 
 /*
  * Update mouse status and issue events on it if necessary.
- * This function doesn't block, but is normally only called when
- * there is known to be some data waiting to be read from the mouse.
+ * This function doesn't block, but is only called when Poll() returns TRUE
+ * or GsSelect shows some data waiting to be read on the mouse file descriptor.
  */
 GR_BOOL GsCheckMouseEvent(void)
 {
@@ -183,26 +183,31 @@ GR_BOOL GsCheckMouseEvent(void)
 	int		newbuttons;	/* latest buttons */
 	int		mousestatus;	/* latest mouse status */
 
-	/* Read the latest mouse status: */
-	mousestatus = GdReadMouse(&rootx, &rooty, &newbuttons);
-	if(mousestatus < 0) {
-		GsError(GR_ERROR_MOUSE_ERROR, 0);
-		return FALSE;
-	} else if(mousestatus) {	/* Deliver events as appropriate: */	
-		GsHandleMouseStatus(rootx, rooty, newbuttons);
+	if (mousedev.Poll && (mousedev.Poll() == 0))
+			return FALSE;
 
-		/* possibly reset portrait mode based on mouse position*/
-		if (autoportrait)
-			GsSetPortraitModeFromXY(rootx, rooty);
-		return TRUE;
+	/* Read the latest mouse status*/
+	mousestatus = GdReadMouse(&rootx, &rooty, &newbuttons);
+	if (mousestatus <= 0)
+	{
+		if (mousestatus == MOUSE_FAIL)
+			GsError(GR_ERROR_MOUSE_ERROR, 0);
+		return FALSE;
 	}
-	return FALSE;
+
+	/* Deliver events as appropriate*/
+	GsHandleMouseStatus(rootx, rooty, newbuttons);
+
+	/* possibly reset portrait mode based on mouse position*/
+	if (autoportrait)
+		GsSetPortraitModeFromXY(rootx, rooty);
+	return TRUE;
 }
 
 /*
  * Update keyboard status and issue events on it if necessary.
- * This function doesn't block, but is normally only called when
- * there is known to be some data waiting to be read from the keyboard.
+ * This function doesn't block, but is only called when Poll() returns TRUE
+ * or GsSelect shows some data waiting to be read on the keyboard file descriptor.
  */
 GR_BOOL GsCheckKeyboardEvent(void)
 {
@@ -211,41 +216,47 @@ GR_BOOL GsCheckKeyboardEvent(void)
 	MWSCANCODE	scancode;
 	int	 	keystatus;	/* latest keyboard status */
 
+	if (kbddev.Poll && (kbddev.Poll() == 0))
+			return FALSE;
+
 	/* Read the latest keyboard status: */
 	keystatus = GdReadKeyboard(&mwkey, &modifiers, &scancode);
 
-	if(keystatus < 0) {
-		if(keystatus == -2)	/* special case return code*/
+	if (keystatus <= 0)
+	{
+		if (keystatus == KBD_QUIT)	/* special case for quit message*/
 			GsTerminate();
-		GsError(GR_ERROR_KEYBOARD_ERROR, 0);
-		return FALSE;
-	} else if(keystatus) {		/* Deliver events as appropriate: */	
-		switch (mwkey) {
-		case MWKEY_QUIT:
-#if DEBUG
-			if (modifiers & MWKMOD_CTRL)
-				GdCaptureScreen(NULL, "screen.bmp");
-			else 
-#endif
-				GsTerminate(); /* no return*/
-			break;
-		case MWKEY_REDRAW:
-			GsRedrawScreen();
-			break;
-		case MWKEY_PRINT:
-#if DEBUG
-			if (keystatus == 1)
-				GdCaptureScreen(NULL, "screen.bmp");
-#endif
-			break;
-		}
-				
-		GsDeliverKeyboardEvent(0,
-			(keystatus==1?  GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
-			mwkey, modifiers, scancode);
-		return TRUE;
+		if (keystatus == KBD_FAIL)
+			GsError(GR_ERROR_KEYBOARD_ERROR, 0);
+		return FALSE;				/* read failed or no new data*/
 	}
-	return FALSE;
+
+	/* handle special keys*/
+	switch (mwkey)
+	{
+	case MWKEY_QUIT:
+#if DEBUG
+		if (modifiers & MWKMOD_CTRL)
+			GdCaptureScreen(NULL, "screen.bmp");
+		else 
+#endif
+		GsTerminate();
+		break;
+	case MWKEY_REDRAW:
+		GsRedrawScreen();
+		break;
+#if DEBUG
+	case MWKEY_PRINT:
+		if (keystatus == KBD_KEYPRESS)
+			GdCaptureScreen(NULL, "screen.bmp");
+		break;
+#endif
+	}
+
+	/* Deliver events as appropriate*/
+	GsDeliverKeyboardEvent(0, (keystatus == KBD_KEYPRESS?  GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
+			mwkey, modifiers, scancode);
+	return TRUE;
 }
 
 /*
@@ -1060,8 +1071,7 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 		ep->buttons = buttons;
 		ep->modifiers = modifiers;
 
-		if ((wp == rootwp)
-		    || (wp->nopropmask & GR_EVENT_MASK_MOUSE_POSITION))
+		if ((wp == rootwp) || (wp->nopropmask & GR_EVENT_MASK_MOUSE_POSITION))
 			break;
 
 		wp = wp->parent;
@@ -1070,9 +1080,8 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 	/* Deliver button events if we have to */
 	for (i = 0; i < 2; i++) {
 		GR_EVENT_BUTTON *gp;
-		uint32_t cbuttons = 0;
-		GR_EVENT_TYPE etype = (i == 0) ? GR_EVENT_TYPE_BUTTON_DOWN :
-			GR_EVENT_TYPE_BUTTON_UP;
+		GR_BUTTON cbuttons = 0;
+		GR_EVENT_TYPE etype = (i == 0)? GR_EVENT_TYPE_BUTTON_DOWN : GR_EVENT_TYPE_BUTTON_UP;
 
 		if (i == 0)
 			cbuttons = (curbuttons & ~buttons);

@@ -18,9 +18,12 @@
 #include <sys/time.h>
 #endif
 #endif
-
 #if MSDOS
 #include <time.h>
+#endif
+
+#if EMSCRIPTEN
+#include <emscripten.h>
 #endif
 
 #if RTEMS
@@ -30,16 +33,15 @@
 #if __ECOS
 #include <cyg/kernel/kapi.h>
 #endif
+#if __ECOS | NOMAIN
+#define main	invoke_WinMain
+#endif
 
 #if PSP
 #include <pspkernel.h>
 #include <psputils.h>
 #define exit(...) sceKernelExitGame()
 #endif
-
-//#if EMSCRIPTEN
-//#include <emscripten.h>
-//#endif  
 
 #include "windows.h"
 #include "wintern.h"
@@ -64,85 +66,33 @@ int		mouse_fd;		/* the mouse file descriptor */
 int		escape_quits = 1;	/* terminate when pressing ESC */
 DWORD		lastWIN32Error = 0;	/* Last error */
 
-#if PSP
-int exit_callback(void)
-{
-	sceKernelExitGame();
-	return 0;
-}
-
-void CallbackThread(void *arg)
-{
-	int cbid;
-
-	cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-	sceKernelRegisterExitCallback(cbid);
-	sceKernelSleepThreadCB();
-}
-#endif
+static void MwPlatformInit(void);	/* platform specific init goes here*/
 
 int
-#if __ECOS | NOMAIN
-invoke_WinMain(int ac, char **av)
-#else
 main(int ac, char **av)
-#endif
 {
     HINSTANCE hInstance;
-
-#if PSP
-	int thid;
-	thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-	if (thid >= 0)
-		sceKernelStartThread(thid, 0, 0);
-
-        pspDebugScreenInit();
-		pspDebugScreenPrintf("\n Microwindows init...");
-#endif
 
 	/* call user hook routine before anything*/
 	if (MwUserInit(ac, av) < 0)
 		exit(1);
 
-	if (MwOpen() < 0)
+	MwPlatformInit();			/* platform-specific initialization*/
+
+	if(MwInitialize() < 0)
 		exit(1);
 
 	if ((hInstance = mwCreateInstance(ac, av)) == NULL)
 	    exit(1);
-		
 	rootwp->hInstance = hInstance;
 
 	/* call windows main program entry point*/
 	WinMain(hInstance, NULL, (LPSTR)((PMWAPPINSTANCE)hInstance)->szCmdLine, SW_SHOW);
 
 	mwFreeInstance(hInstance);
-	MwClose();
+	MwTerminate();
 
 	exit(0);
-}
-
-/*
- * Open a connection from a new client to the server.
- * Returns -1 on failure.
- */
-int
-MwOpen(void)
-{
-	/* Client calls this routine once.  We 
-	 * init everything here
-	 */
-	if(MwInitialize() < 0)
-		return -1;
-        return 1;
-}
-
-/*
- * Close the connection to the server.
- */
-void
-MwClose(void)
-{
-	MwTerminate();
 }
 
 #if UNIX && HAVE_SELECT
@@ -284,7 +234,7 @@ MwUnregisterFdExcept(HWND hwnd, int fd)
 #if UNIX && HAVE_SELECT
 
 void
-MwSelect(BOOL mayWait)
+MwSelect(BOOL canBlock)
 {
 	fd_set	rfds;
 	fd_set	wfds;
@@ -292,9 +242,8 @@ MwSelect(BOOL mayWait)
 	int 	fd;
 	int 	e;
 	int	setsize = 0;
-	UINT	timeout;
-	struct timeval to, *pto;
-	BOOL    maybeInfinite = TRUE;
+	MWTIMEOUT	timeout;
+	struct timeval tout, *to;
 
 	/* x11/sdl update screen & flush buffers*/
 	if(scrdev.PreSelect)
@@ -302,10 +251,15 @@ MwSelect(BOOL mayWait)
 		/* returns # pending events*/
 		if (scrdev.PreSelect(&scrdev))
 		{
-			while(MwCheckMouseEvent())
+			/* poll for mouse data and service if found*/
+			while (MwCheckMouseEvent())
 				continue;
-			while(MwCheckKeyboardEvent())
+
+			/* poll for keyboard data and service if found*/
+			while (MwCheckKeyboardEvent())
 				continue;
+
+			/* events found, return with no sleep*/
 			return;
 		}
 	}
@@ -315,12 +269,14 @@ MwSelect(BOOL mayWait)
 	FD_ZERO(&wfds);
 	FD_ZERO(&efds);
   
-	if(mouse_fd >= 0) {
+	if (mouse_fd >= 0)
+	{
 		FD_SET(mouse_fd, &rfds);
 		if(mouse_fd > setsize)
 			setsize = mouse_fd;
 	}
-	if(keyb_fd >= 0) {
+	if (keyb_fd >= 0)
+	{
 		FD_SET(keyb_fd, &rfds);
 		if(keyb_fd > setsize)
 			setsize = keyb_fd;
@@ -328,67 +284,77 @@ MwSelect(BOOL mayWait)
 
 	/* handle registered file descriptors */
 	fd = userregfd_head;
-	while (fd != -1) {
+	while (fd != -1)
+	{
 		if (userregfd[fd].read) FD_SET(fd, &rfds);
 		if (userregfd[fd].write) FD_SET(fd, &wfds);
 		if (userregfd[fd].except) FD_SET(fd, &efds);
-		if(fd > setsize) setsize = fd;
+		if (fd > setsize) setsize = fd;
 		fd = userregfd[fd].next;
 	}
 
 	++setsize;
 
-	/* Set up the timeout for the main select().  If
-	 * the mouse is captured we're probably moving a window,
-	 * so poll quickly to allow other windows to repaint while
-	 * checking for more event input.
+	/*
+	 * Setup timeval struct for block or poll in select().
+	 * If we're moving a window, poll quickly to allow other windows
+	 * to repaint while checking for more event input.
 	 */
-	timeout = to.tv_sec = to.tv_usec = 0L;
-	pto = &to;
-	if( !dragwp && mayWait ) {
-		timeout = MwGetNextTimeoutValue();	/* returns ms*/
-		if( (int)timeout == -1 ) // this means that no timers exists
-			timeout = 0;
-		else
-			maybeInfinite = FALSE;
+	timeout = tout.tv_sec = tout.tv_usec = 0L;
+	to = &tout;
+	int poll = (!canBlock || dragwp);		/* just poll if can't block or window move in progress*/
+	if (!poll)
+	{
+		if ((timeout = MwGetNextTimeoutValue()) == (MWTIMEOUT) -1L)	/* get next mwin timer*/
+			timeout = 0;											/* no mwin timers*/
 #if MW_FEATURE_TIMERS
-		if( !GdGetNextTimeout(&to, timeout) ) {
-			to.tv_sec = timeout / 1000;
-			to.tv_usec = (timeout % 1000) * 1000;
-		} else
-			maybeInfinite = FALSE;
+		/* get next timer or use passed timeout and convert to timeval struct*/
+		if (!GdGetNextTimeout(&tout, timeout))		/* no VTSWITCH timer?*/
 #else
-		to.tv_sec = timeout / 1000;
-		to.tv_usec = (timeout % 1000) * 1000;
+		if (timeout)								/* setup mwin poll timer*/
+		{
+			/* convert wait timeout to timeval struct*/
+			tout.tv_sec = timeout / 1000;
+			tout.tv_usec = (timeout % 1000) * 1000;
+		}
+		else
 #endif
-#if SDL
-//printf("May %d %d,%d\n", maybeInfinite, to.tv_sec, to.tv_usec);
-		to.tv_sec = 0;
-		to.tv_usec = 10;
-#endif
-		/*  If no timers are scheduled so the select function will wait forever...  */
-		if( maybeInfinite && (to.tv_sec == 0) && (to.tv_usec == 0) )
-#if SDL
-			/* can't block in select as SDL backend is poll based*/
-			;
-#else
-			pto = NULL;
-#endif
+		{
+			to = NULL;								/* no timers, block*/
+		}
 	}
 
-	/* Wait for some input on any of the fds in the set or a timeout: */
-	if((e = select(setsize, &rfds, &wfds, &efds, pto)) > 0) {
-		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
-			while(MwCheckMouseEvent())
+	/* some drivers can't block in select as backend is poll based (SDL)*/
+	if (scrdev.flags & PSF_CANTBLOCK)
+	{
+#define WAITTIME	100
+		/* check if would block permanently or timeout > WAITTIME*/
+		if (to == NULL || tout.tv_sec != 0 || tout.tv_usec > WAITTIME)
+		{
+			/* override timeouts and wait for max WAITTIME ms*/
+			to = &tout;
+			tout.tv_sec = 0;
+			tout.tv_usec = WAITTIME;
+		}
+	}
+
+	/* Wait for some input on any of the fds in the set or a timeout*/
+	if ((e = select(setsize, &rfds, &wfds, &efds, to)) > 0)
+	{
+		/* service mouse file descriptor*/
+		if (mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
+			while (MwCheckMouseEvent())
 				continue;
 
-		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
-			while(MwCheckKeyboardEvent())
+		/* service keyboard file descriptor*/
+		if (keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
+			while (MwCheckKeyboardEvent())
 				continue;
 
 		/* If registered descriptor, handle it */
 		fd = userregfd_head;
-		while (fd != -1) {
+		while (fd != -1)
+		{
 			if (userregfd[fd].read && FD_ISSET(fd, &rfds))
 				PostMessage(userregfd[fd].read, WM_FDINPUT, fd, 0);
 			if (userregfd[fd].write && FD_ISSET(fd, &wfds))
@@ -398,64 +364,23 @@ MwSelect(BOOL mayWait)
 			fd = userregfd[fd].next;
 		}
 	} 
-	else if(e == 0) { /* timeout*/
+	else if(e == 0)			/* timeout*/
+	{
 #if MW_FEATURE_TIMERS
-		if(GdTimeout() == FALSE)
-			return;
-#endif /* MW_FEATURE_TIMERS */
-		MwHandleTimers();
-	} else
-		if(errno != EINTR)
-			EPRINTF("Select() call in main failed. Errno=%d\n", errno);
-}
-
-/********************************************************************************/
-#elif VXWORKS | PSP
-
-void 
-MwSelect(BOOL mayWait)
-{
-	int mouseevents = 0;
-	int keybdevents = 0;
-
-	/* update screen & flush buffers*/
-	if(scrdev.PreSelect)
-		scrdev.PreSelect(&scrdev);
-
-	/* If mouse data present, service it */
-	while (mousedev.Poll() > 0)
-	{
-		MwCheckMouseEvent();
-		if (mouseevents++ > 10)
-			break;
-	}
-	
-	
-	/* If keyboard data present, service it */
-	while (kbddev.Poll() > 0)
-	{
-		MwCheckKeyboardEvent();
-		if (keybdevents++ > 10)
-			break;
-	}
-	
-	/* did we not process any input? if so, yield so we don't freeze system */
-	if (mouseevents==0 && keybdevents==0)
-		sceKernelDelayThread(100);
-
-	MwHandleTimers();
+		/* check for timer timeouts and service if found*/
+		GdTimeout();
+#endif
+	} else if(errno != EINTR)
+		EPRINTF("Select() call in main failed. Errno=%d\n", errno);
 }
 
 /********************************************************************************/
 #elif RTEMS | __ECOS
 
-extern MWBOOL MwCheckMouseEvent();
-extern MWBOOL MwCheckKeyboardEvent();
 extern struct MW_UID_MESSAGE m_kbd;
 extern struct MW_UID_MESSAGE m_mou;
-extern HWND  dragwp;     /* window user is dragging*/
 
-void MwSelect (BOOL mayWait)
+void MwSelect (BOOL canBlock)
 {
         struct MW_UID_MESSAGE m;
 	int rc;
@@ -465,7 +390,7 @@ void MwSelect (BOOL mayWait)
 	if (scrdev.PreSelect)
 		scrdev.PreSelect (&scrdev);
 
-	/* Set up the timeout for the main select().
+	/* Set up the timeout for waiting.
 	 * If the mouse is captured we're probably moving a window,
 	 * so poll quickly to allow other windows to repaint while
 	 * checking for more event input.
@@ -478,16 +403,13 @@ void MwSelect (BOOL mayWait)
 	/* let's make sure that the type is invalid */
 	m.type = MV_UID_INVALID;
 	
-	/* wait up to 100 milisecons for events */
+	/* wait up to 100 miliseconds for events */
 	rc = uid_read_message (&m, timeout);
 
 	/* return if timed-out or something went wrong */
 	if (rc < 0) {
-	        if ( errno != ETIMEDOUT )
+	    if ( errno != ETIMEDOUT )
 		        EPRINTF (" rc= %d, errno=%d\n", rc, errno);
-		else {
-			MwHandleTimers ();
-		}
 		return;
 	}
 
@@ -495,14 +417,15 @@ void MwSelect (BOOL mayWait)
 	switch (m.type) {
 	case MV_UID_REL_POS:	/* Mouse or Touch Screen event */
 	case MV_UID_ABS_POS:
-	        m_mou = m;
-		while (MwCheckMouseEvent ()) continue;
+		m_mou = m;
+		while (MwCheckMouseEvent())
+			continue;
 		break;
 	case MV_UID_KBD:	/* KBD event */
-	        m_kbd = m;
+		m_kbd = m;
 		MwCheckKeyboardEvent();
 		break;
-        case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
+	case MV_UID_TIMER:	/* Microwindows does nothing with these.. */
 	case MV_UID_INVALID:
 	default:
 	        break;
@@ -510,26 +433,42 @@ void MwSelect (BOOL mayWait)
 }
 
 /********************************************************************************/
-#else /*MSDOS | _MINIX | NDS | __MINGW32__ | ALLEGRO | EMSCRIPTEN*/
+#else /* MSDOS | _MINIX | NDS | VXWORKS | PSP | __MINGW32__ | ALLEGRO | EMSCRIPTEN*/
 
-void
-MwSelect(BOOL mayWait)
+/* this MwSelect() is used for all polling-based platforms not specially handled above*/
+#define WAITTIME	50		/* blocking sleep interval in msecs unless polling*/
+
+void 
+MwSelect(BOOL canBlock)
 {
-	/* update screen & flush buffers*/
-	if(scrdev.PreSelect)
+	int numevents = 0;
+
+	/* perform single update of aggregate screen update region*/
+	if (scrdev.PreSelect)
 		scrdev.PreSelect(&scrdev);
 
-	/* If mouse data present, service it*/
-	if(mousedev.Poll())
-		while(MwCheckMouseEvent())
-			continue;
+	/* poll for mouse data and service if found*/
+	while (MwCheckMouseEvent())
+		if (++numevents > 10)
+			break;				/* don't handle too many events at one shot*/
+	
+	/* poll for keyboard data and service if found*/
+	while (MwCheckKeyboardEvent())
+		if (++numevents > 10)
+			break;				/* don't handle too many events at one shot*/
+	
+#if MW_FEATURE_TIMERS
+	/* check for timer timeouts and service if found*/
+	if (GdTimeout())
+		++numevents;
+#endif
 
-	/* If keyboard data present, service it*/
-	if(kbddev.Poll())
-		while(MwCheckKeyboardEvent())
-			continue;
+	/* did we handle any input or were we just polling?*/
+	if (numevents || !canBlock)
+		return;					/* yes - return without sleeping*/
 
-	MwHandleTimers();
+	/* no input processed, yield so we don't freeze system*/
+	MwDelay(WAITTIME);
 }
 
 /********************************************************************************/
@@ -712,6 +651,12 @@ MwTerminate(void)
 	exit(0);
 }
 
+VOID WINAPI
+Sleep(DWORD dwMilliseconds)
+{
+	MwDelay(dwMilliseconds);
+}
+
 /*
  * Return # milliseconds elapsed since start of Microwindows
  * Granularity is 25 msec
@@ -719,7 +664,7 @@ MwTerminate(void)
 DWORD WINAPI
 GetTickCount(VOID)
 {
-#if UNIX
+#if UNIX | EMSCRIPTEN
 	struct timeval t;
 
 	gettimeofday(&t, NULL);
@@ -738,15 +683,53 @@ GetTickCount(VOID)
 #endif
 }
 
-VOID WINAPI
-Sleep(DWORD dwMilliseconds)
+/*
+ * Suspend execution of the program for the specified number of milliseconds.
+ */
+void
+MwDelay(MWTIMEOUT msecs)
 {
-	int i, j;
-	volatile int k;
-	const int loops_per_ms = 20000;
+#if UNIX && HAVE_SELECT
+	struct timeval timeval;
 
-	/* FIXME this is not calibrated */
-	for(i=0; i < dwMilliseconds; i++)
-		for(j=0; j < loops_per_ms; j++)
-			k = i * j;
+	timeval.tv_sec = msecs / 1000;
+	timeval.tv_usec = (msecs % 1000) * 1000;
+	select(0, NULL, NULL, NULL, &timeval);
+#elif EMSCRIPTEN
+	emscripten_sleep(msecs);
+#elif PSP
+	sceKernelDelayThread(1000 * msecs);
+#else
+	/* no delay implemented, */
+#endif
+}
+
+#if PSP
+static int
+exit_callback(void)
+{
+	sceKernelExitGame();
+	return 0;
+}
+
+static void
+CallbackThread(void *arg)
+{
+	int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+	sceKernelRegisterExitCallback(cbid);
+	sceKernelSleepThreadCB();
+}
+#endif
+
+static void
+MwPlatformInit(void)
+{
+#if PSP
+	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+	if (thid >= 0)
+		sceKernelStartThread(thid, 0, 0);
+#endif
+#if NDS
+	consoleDemoInit();  //setup the sub screen for printing
+#endif
 }

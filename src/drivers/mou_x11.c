@@ -43,9 +43,9 @@ MOUSEDEVICE mousedev = {
 static int X11_Open(MOUSEDEVICE *pmd)
 {
     if (x11_setup_display() < 0)
-		return -1;
+		return DRIVER_FAIL;
     /* return the x11 file descriptor for select */
-    return ConnectionNumber(x11_dpy);  
+    return DRIVER_OKFILEDESC(ConnectionNumber(x11_dpy));
 }
 
 /*
@@ -172,7 +172,7 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	}
     }
     if (events == 0)
-	return 0;
+		return MOUSE_NODATA;
 
-    return 2;		/* absolute position returned*/
+    return MOUSE_ABSPOS;		/* absolute position returned*/
 }

@@ -175,6 +175,7 @@ NANOX_DEMOS_WITH_STANDARD_LINK := \
 # Standard link rule used for most demos.
 $(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+#	echo $(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
 
 # Link rule used for demos with libm.

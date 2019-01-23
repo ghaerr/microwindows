@@ -90,8 +90,8 @@ MWTIMER *GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg)
 	newtimer->arg = arg;
 	newtimer->next = timerlist;
 	newtimer->prev = NULL;
-        newtimer->type   = MWTIMER_ONESHOT;
-        newtimer->period = timeout;
+	newtimer->type   = MWTIMER_ONESHOT;
+	newtimer->period = timeout;
 	timerlist = newtimer;
 
 	return newtimer;

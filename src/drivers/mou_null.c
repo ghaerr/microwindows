@@ -41,7 +41,7 @@ NUL_Poll(void)
 static int
 NUL_Open(MOUSEDEVICE *pmd)
 {
-	return -2;	/* no mouse*/
+	return DRIVER_OKNULLDEV;	/* ok, no mouse*/
 }
 
 /*
@@ -81,5 +81,5 @@ NUL_GetDefaultAccel(int *pscale,int *pthresh)
 static int
 NUL_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
-	return 0;
+	return MOUSE_NODATA;
 }

@@ -38,34 +38,21 @@ GsActivateScreenSaver(void *arg)
 void
 GsResetScreenSaver(void)
 {
-#if MW_FEATURE_TIMERS
-	MWTIMER *timer;
-#endif /* MW_FEATURE_TIMERS */
-
 	if(screensaver_active == GR_TRUE) {
 		screensaver_active = GR_FALSE;
 		GsDeliverScreenSaverEvent(GR_FALSE);
 	}
 #if MW_FEATURE_TIMERS
 	if(screensaver_delay) {
+		MWTIMER *timer;
+
 		if((timer = GdFindTimer(GsActivateScreenSaver)))
 			GdDestroyTimer(timer);
-		GdAddTimer(screensaver_delay, GsActivateScreenSaver,
-			GsActivateScreenSaver);
+
+		GdAddTimer(screensaver_delay, GsActivateScreenSaver, GsActivateScreenSaver);
 	}
-#endif /* MW_FEATURE_TIMERS */
+#endif
 }
-
-#if MW_FEATURE_TIMERS
-void
-GsTimerCB (void *arg) 
-{
-    GR_TIMER *timer = (GR_TIMER*) arg;
-
-    GsDeliverTimerEvent (timer->owner, timer->wid, timer->id);
-}
-#endif /* MW_FEATURE_TIMERS */
-
 
 /*
  * Unmap the window to make it and its children invisible on the screen.
@@ -1040,35 +1027,6 @@ GsFindCursor(GR_CURSOR_ID cursorid)
 	}
 	return NULL;
 }
-
-#if MW_FEATURE_TIMERS
-GR_TIMER *
-GsFindTimer (GR_TIMER_ID timer_id)
-{
-    GR_TIMER   *timer;
-    
-    /*
-     * See if this is the same graphics context as last time.
-     */
-    if ((timer_id == cache_timer_id) && timer_id)
-        return cache_timer;
-    
-    /*
-     * No, search for it and cache it for future calls.
-     */
-    for (timer = list_timer; timer != NULL; timer = timer->next) 
-    {
-        if (timer->id == timer_id) 
-        {
-            cache_timer_id = timer_id;
-            cache_timer = timer;
-            return timer;
-        }
-    }
-    return NULL;
-}
-#endif /* MW_FEATURE_TIMERS */
-
 
 /*
  * Prepare to do drawing in a window or pixmap using the specified

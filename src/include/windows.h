@@ -154,9 +154,9 @@ struct hwnd {
 	char		extrabytes[1];	/* window extra bytes - must be last*/
 };
 
-/* misc apis - will move to another header file*/
+/* misc apis in winmain.c*/
 DWORD WINAPI	GetTickCount(VOID);
-VOID WINAPI	Sleep(DWORD dwMilliseconds);
+VOID WINAPI		Sleep(DWORD dwMilliseconds);
 
 #ifdef __cplusplus
 }

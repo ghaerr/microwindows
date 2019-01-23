@@ -37,14 +37,14 @@ static int PD_Open(MOUSEDEVICE *pmd)
 	if (!ts) {
 		EPRINTF("Error opening touchscreen device [%s]: %s\n",
 			tsdevice, strerror(errno));
-		return -1;
+		return DRIVER_FAIL;
 	}
 
 	if (ts_config(ts)) {
 		EPRINTF("Error configuring touchscreen device: %s\n",
 			strerror(errno));
 		ts_close(ts);
-		return -1;
+		DRIVER_FAIL1;
 	}
 
 	GdHideCursor(&scrdev);
@@ -82,9 +82,9 @@ static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb)
 
 	if (ret <= 0) {
 		if (errno == EINTR || errno == EAGAIN)
-			return 0;
+			return MOUSE_NODATA;
 		EPRINTF("Error reading from touchscreen: %s\n", strerror(errno));
-		return -1;
+		return MOUSE_FAIL;
 	}
 
 	*px = samp.x;
@@ -93,8 +93,8 @@ static int PD_Read(MWCOORD *px, MWCOORD *py, MWCOORD *pz, int *pb)
 	*pz = samp.pressure;
 
 	if(!*pb)
-		return 3;
-	return 2;
+		return MOUSE_NOMOVE;	/* report position but don't move mouse cursor*/
+	return MOUSE_ABSPOS;
 }
 
 MOUSEDEVICE mousedev = {

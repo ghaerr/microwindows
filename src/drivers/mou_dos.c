@@ -31,8 +31,6 @@ MOUSEDEVICE mousedev = {
 	MOU_Poll
 };
 
-static int mouse_fd;
-
 /*
  * Open up the mouse device.
  */
@@ -55,7 +53,7 @@ MOU_Open(MOUSEDEVICE *pmd)
 	regset.x.ax = 0x0b;
 	int86(0x33, &regset, &regset);
 
-	return 1;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -119,7 +117,7 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		buttons |= MWBUTTON_M;
 	*bp = buttons;
 
-	return 1;
+	return MOUSE_RELPOS;
 }
 
 static int

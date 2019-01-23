@@ -55,19 +55,19 @@ soft_Open(KBDDEVICE* pkd)
         /* Check if the file already exists: */
         if (!stat(KBD_NAMED_PIPE, &s)) {
                 if (unlink(KBD_NAMED_PIPE) < 0)
-                        return -1;
+                        return DRIVER_FAIL;
         }
 	if (mkfifo(KBD_NAMED_PIPE, 0600) < 0) {
 		EPRINTF("mkfifo() error %d ('%s')\n", \
 			errno, strerror(errno));
-		return -1;
+		return DRIVER_FAIL;
 	}
 
         /* Open the named pipe */
         if ((kbd_fd = open(KBD_NAMED_PIPE, O_RDONLY | O_NONBLOCK)) < 0) {
 		EPRINTF("open() error %d ('%s')\n", \
 			errno, strerror(errno));
-                return -1;
+                return DRIVER_FAIL;
 	}
 	
     	return kbd_fd;

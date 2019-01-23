@@ -55,7 +55,7 @@ NDS_Open(MOUSEDEVICE *pmd)
 {
   touchRead( &cur_pos );
   cur_keypad = keysCurrent();
-  return 1;
+  return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -135,7 +135,7 @@ NDS_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
     }
   
   cur_keypad = new_keypad;
-  return 1;
+  return MOUSE_RELPOS;
 }
 
 /*

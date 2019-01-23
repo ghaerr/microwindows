@@ -83,7 +83,7 @@ TTY_Open(KBDDEVICE *pkd)
 		kbd = KEYBOARD;
 	fd = open(kbd, O_NONBLOCK);
 	if (fd < 0)
-		return -1;
+		return DRIVER_FAIL1;
 
 	/* Save previous settings*/
 #ifndef LINUX_LINARO
@@ -106,11 +106,11 @@ TTY_Open(KBDDEVICE *pkd)
 
 	if (tcsetattr(fd, TCSAFLUSH, &new) < 0) {
 		TTY_Close();
-		return -1;
+		return DRIVER_FAIL1;
 	}
 	if (ioctl(fd, KDSKBMODE, K_MEDIUMRAW) < 0) {
 		TTY_Close();
-		return -1;
+		return DRIVER_FAIL1;
 	}
 
 	/* Load OS keymappings*/
@@ -139,7 +139,7 @@ TTY_Open(KBDDEVICE *pkd)
 err:
 	close(fd);
 	fd = -1;
-	return -1;
+	return DRIVER_FAIL1;
 }
 
 /*
@@ -321,12 +321,12 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *pscancode)
 			printf("Returning: mwkey: 0x%04x, mods: 0x%x,
 				sc:0x%04x\n\n", *kbuf, *modifiers, *pscancode);
 		}**/
-		return pressed ? 1 : 2;
+		return pressed ? KBD_KEYPRESS : KBD_KEYRELEASE;
 	}
 
 	if ((cc < 0) && (errno != EINTR) && (errno != EAGAIN))
-		return -1;
-	return 0;
+		return KBD_FAIL;
+	return KBD_NODATA;
 }
 
 /* Update the internal keyboard state, return TRUE if changed*/

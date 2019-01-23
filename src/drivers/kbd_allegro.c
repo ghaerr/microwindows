@@ -55,7 +55,7 @@ int closedownflag;
 static int
 Alleg_Open(KBDDEVICE *pkd)
 {
-	return 1;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*

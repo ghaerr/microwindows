@@ -38,7 +38,7 @@ NUL_Poll(void)
 static int
 NUL_Open(KBDDEVICE *pkd)
 {
-	return 0;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*

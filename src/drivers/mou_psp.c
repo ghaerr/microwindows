@@ -58,7 +58,7 @@ MOU_Open(MOUSEDEVICE *pmd)
 	sceCtrlSetSamplingMode(1);
 
 	psp_keypress = 0;
-	return 1;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -148,7 +148,7 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	if(psp_keypress==0)
 		psp_keypress = new_keypress;
 
-	return 1;
+	return MOUSE_RELPOS;
 }
 
 #define timerdiff(a,b) ((float)((a).tv_sec - (b).tv_sec) + \

@@ -28,7 +28,6 @@ IPAQKBD			kbd_ipaq.c			Compaq iPaq
 ZAURUSKBD							Sharp Zaurus (kbd_ttyscan.c)
 EVENTKBD		kbd_event.c			Simple standard event interface (/sys/class/input/event)
 LIRCKBD			kbd_lirc.c mwlirc.c IR remote control
-PIPEKBD			kbd_pipe.c			Pipe keyboard
 
 DEPRECATED FILES AND DRIVERS	07/30/2011
 

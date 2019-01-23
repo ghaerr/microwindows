@@ -53,6 +53,7 @@ ifeq ($(LINK_APP_INTO_SERVER), Y)
 # Instead, only the nano-X.a/.so is built, which links the Gr routines directly into the library
 #
 OBJS += $(NANOXFILES)
+OBJS += $(MW_DIR_OBJ)/nanox/srvnonet.o
 else
 
 ifeq ($(NANOWM), Y)

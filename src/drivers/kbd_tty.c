@@ -69,7 +69,7 @@ TTY_Open(KBDDEVICE *pkd)
 		kbd = KEYBOARD;
 	fd = open(kbd, O_NONBLOCK);
 	if (fd < 0)
-		return -1;
+		return DRIVER_FAIL;
 
 	if (tcgetattr(fd, &old) < 0)
 		goto err;
@@ -90,7 +90,7 @@ TTY_Open(KBDDEVICE *pkd)
 err:
 	close(fd);
 	fd = 0;
-	return -1;
+	return DRIVER_FAIL;
 }
 
 /*
@@ -138,7 +138,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 
 	cc = read(fd, buf + buflen, 1);
 	if ((cc < 0) && (errno != EINTR) && (errno != EAGAIN)) {
-		return -1;
+		return KBD_FAIL;
 	}
 	if (cc <= 0) {
 		return 0;
@@ -155,7 +155,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 				cc = read(fd, buf + buflen, 3 - buflen);
 			} while ((cc < 0) && ((errno == EINTR) || (errno == EAGAIN)));
 			if (cc < 0) {
-				return -1;
+				return KBD_FAIL1;
 			}
 			buflen += cc;
 			if (buflen < 3) {

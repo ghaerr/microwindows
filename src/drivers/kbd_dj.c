@@ -92,8 +92,8 @@ static int
 KBD_Open(KBDDEVICE *pkd)
 {
 	if(update_modstate() < 0)
-    	return -1;
-	return 1;
+    	return DRIVER_FAIL;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*

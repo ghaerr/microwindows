@@ -34,7 +34,7 @@ extern int psp_keypress;
 static int
 KBD_Open(KBDDEVICE *pkd)
 {
-	return 1;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*

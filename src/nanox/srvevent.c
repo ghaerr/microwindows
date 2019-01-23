@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2003, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2003, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
  *
  * Graphics server event routines for windows.
@@ -18,54 +18,6 @@ LOCK_DECLARE(eventMutex);
 const char *nxErrorStrings[] = {
 	GR_ERROR_STRINGS
 };
-
-extern MOUSEDEVICE mousedev;
-
-#if NONETWORK
-/* [copied from client.c]
- * The following is the user defined function for handling errors.
- * If this is not set, then the default action is to close the connection
- * to the server, describe the error, and then exit.  This error function
- * will only be called when the client asks for events.
- */
-static GR_FNCALLBACKEVENT ErrorFunc = GrDefaultErrorHandler;
-
-/* 
- * The default error handler which is called when the server
- * reports an error event and the client hasn't set a handler for error events.
- */
-void 
-GrDefaultErrorHandler(GR_EVENT *ep)
-{
-	if (ep->type == GR_EVENT_TYPE_ERROR) {
-		EPRINTF("nxclient: Error (%s) ", ep->error.name);
-		EPRINTF(nxErrorStrings[ep->error.code], ep->error.id);
-		GrClose();
-		exit(1);
-	}
-}
-
-/*
- * Set an error handling routine, which will be called on any errors from
- * the server (when events are asked for by the client).  If zero is given,
- * then errors will be returned as regular events.  
- * Returns the previous error handler.
- */
-GR_FNCALLBACKEVENT
-GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
-{
-	GR_FNCALLBACKEVENT orig;
-
-	SERVER_LOCK();
-
-	orig = ErrorFunc;
-	ErrorFunc = fncb;
-
-	SERVER_UNLOCK();
-
-	return orig;
-}
-#endif /* NONETWORK*/
 
 /*
  * Generate an error from a graphics function.
@@ -137,7 +89,7 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 			GsError(GR_ERROR_MALLOC_FAILED, 0);
 			curclient = oldcurclient;
 #if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-                        UNLOCK(&eventMutex);
+			UNLOCK(&eventMutex);
 #endif
 			return NULL;
 		}
@@ -313,8 +265,7 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 			GsTerminate();
 ***/
 		GsResetScreenSaver();
-		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN,
-			newbuttons, changebuttons, modifiers);
+		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN, newbuttons, changebuttons, modifiers);
 	}
 
 	curbuttons = newbuttons;

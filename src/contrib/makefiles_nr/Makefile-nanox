@@ -8,6 +8,7 @@ LIB=libnano-X.a
 # Nano-X server files
 NANOXFILES := \
 	srvmain.o \
+	srvnonet.o \
 	srvfunc.o \
 	srvutil.o \
 	srvevent.o \

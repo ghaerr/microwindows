@@ -406,6 +406,7 @@ int			GsReadKeyboard(char *buf, int *modifiers);
 int			GsOpenKeyboard(void);
 void		GsGetButtonInfo(int *buttons);
 void		GsGetModifierInfo(int *modifiers);
+void		GsCheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent);
 void		GsCloseKeyboard(void);
 void		GsExposeArea(GR_WINDOW *wp, GR_COORD rootx, GR_COORD rooty,
 				GR_SIZE width, GR_SIZE height, GR_WINDOW *stopwp);

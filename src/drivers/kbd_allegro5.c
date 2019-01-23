@@ -183,11 +183,11 @@ static int
 allegro_Open(KBDDEVICE *pkd)
 {
 
-  if (!init_allegro()) return -2; //no kbd
+  if (init_allegro() != 1) return DRIVER_OKNULLDEV; //no kbd
 
   //fprintf(stderr,"opened keyboard\n");  fflush(stderr);
       
-  return 1;
+  return DRIVER_OKNOTFILEDESC;
 }
 
 /*

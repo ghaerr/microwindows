@@ -164,14 +164,13 @@ MOU_Open(MOUSEDEVICE *pmd)
 		middle = 0;
 		parse = ParsePS2;
 	} else
-		return -1;
+		return DRIVER_FAIL;
 
 	/* open mouse port*/
 	mouse_fd = open(port, O_NONBLOCK);
 	if (mouse_fd < 0) {
-		EPRINTF("Error %d opening serial mouse type %s on port %s.\n",
-			errno, type, port);
- 		return -1;
+		EPRINTF("Error %d opening serial mouse type %s on port %s.\n", errno, type, port);
+ 		return DRIVER_FAIL;
 	}
 
 #if SGTTY
@@ -236,7 +235,7 @@ MOU_Open(MOUSEDEVICE *pmd)
 err:
 	close(mouse_fd);
 	mouse_fd = 0;
-	return -1;
+	return DRIVER_FAIL;
 }
 
 /*
@@ -291,11 +290,11 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr)
 		nbytes = read(mouse_fd, bp, MAX_BYTES);
 		if (nbytes < 0) {
 			if (errno == EINTR || errno == EAGAIN)
-				return 0;
+				return MOUSE_NODATA;
 #if _MINIX
-			return 0;
+			return MOUSE_NODATA;
 #else
-			return -1;
+			return MOUSE_FAIL;
 #endif
 		}
 	}
@@ -318,10 +317,10 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr)
 			if(buttons & middle)
 				b |= MWBUTTON_M;
 			*bptr = b;
-			return 1;
+			return MOUSE_RELPOS;
 		}
 	}
-	return 0;
+	return MOUSE_NODATA;
 }
 
 /*

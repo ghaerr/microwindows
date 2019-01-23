@@ -217,7 +217,7 @@ main(int argc, char *argv[])
 		GsSelect(0L);
 	return 0;
 }
-#endif
+#endif /* !NONETWORK*/
 
 void
 GsAcceptClientFd(int i)
@@ -356,40 +356,6 @@ GrUnregisterInput(int fd)
 }
 
 #endif /* UNIX && HAVE_SELECT && NONETWORK*/
-
-#if NONETWORK
-void
-GrFlush(void)
-{
-	/* flush systems with delayed screen output by calling driver Preselect()*/
-	if (scrdev.flags & PSF_DELAYUPDATE)
-	{
-		/* perform single update of aggregate screen update region*/
-		if(scrdev.PreSelect)
-			scrdev.PreSelect(&scrdev);
-	}
-#if EMSCRIPTEN
-	emscripten_sleep(1);		/* allow EMSCRIPTEN/SDL javascript to run after SDL screen flush*/
-#endif
-}
-
-void
-GrMainLoop(GR_FNCALLBACKEVENT fncb)
-{
-	GR_EVENT event;
-
-	for(;;) {
-		GrGetNextEvent(&event);
-		fncb(&event);
-	}
-}
-
-void
-GrReqShmCmds(long shmsize)
-{
-	/* no action required, no client/server*/
-}
-#endif
 
 /********************************************************************************/
 #if UNIX && HAVE_SELECT

@@ -78,7 +78,7 @@ static int mallegro_Open(MOUSEDEVICE *pmd)
 {
   al_hide_mouse_cursor(display); //here, or two mouse cursors
       
-  return 1; //return -2; //no mouse
+  return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -135,7 +135,7 @@ switch(a_event.type){
     case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:        
     case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
     default:
-        return 0;
+        return MOUSE_NODATA;
 }
 
 	al_get_mouse_state_axis(&mstate, 2); // 2= read z-axis vertical wheel	
@@ -173,6 +173,6 @@ if (mickeyz < 0)
 
 *bp = buttons;
 
-return 2; //2=absolute mouse position
+return MOUSE_ABSPOS; //2=absolute mouse position
 
 }

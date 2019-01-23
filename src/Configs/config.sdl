@@ -53,7 +53,7 @@ EXTENGINELIBS            += -lSDL2
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-NX11                     = Y
+NX11                     = N
 ENGINE                   = Y
 TINYWIDGETS              = Y
 

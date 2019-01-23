@@ -166,11 +166,9 @@ X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		*dz = 0;
 		events++;
 	    }
-	}
-	else {
+	} else 
 	    x11_handle_event(&ev);
-	}
-    }
+    } /* while*/
     if (events == 0)
 		return MOUSE_NODATA;
 

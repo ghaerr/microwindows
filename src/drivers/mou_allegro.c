@@ -47,7 +47,7 @@ AM_Poll(void)
 static int
 AM_Open(MOUSEDEVICE *pmd)
 {
-	return 1;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -145,8 +145,6 @@ if (ALLEGRO_SUB_VERSION >2){
 		    buttons |= MWBUTTON_SCROLLDN;  
 			
 		*bp = buttons;
-        /* return relative mouse position */
-		//return 1;
         /* return absolute mouse position */
-		return 2;
+		return MOUSE_ABSPOS;
 }

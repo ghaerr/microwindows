@@ -13,7 +13,6 @@
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
-static void CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent);
 static int IsUnobscuredBySiblings(GR_WINDOW *wp);
  
 /*
@@ -60,168 +59,6 @@ GrGetGCTextSize(GR_GC_ID gc, void *str, int count, GR_TEXTFLAGS flags,
 	SERVER_UNLOCK();
 }
 
-#if NONETWORK
-/*
- * Return the next waiting event for a client, or wait for one if there
- * is none yet.  The event is copied into the specified structure, and
- * then is moved from the event queue to the free event queue.  If there
- * is an error event waiting, it is delivered before any other events.
- */
-void
-GrGetNextEvent(GR_EVENT *ep)
-{
-	GrGetNextEventTimeout(ep, 0L);
-}
-
-/*
- * Return the next event from the event queue, or
- * wait for a new one if one is not ready.  If timeout
- * is nonzero, return timeout event if time elapsed.
- */
-void
-GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
-{
-	SERVER_LOCK();
-	/* If no event ready, wait for one*/
-	/* Note: won't work for multiple clients*/
-	/* This is OK, since only static linked apps call this function*/
-
-	while(curclient->eventhead == NULL)
-	{
-		GsSelect(timeout);
-	}
-
-	CheckNextEvent(ep, GR_FALSE);
-	SERVER_UNLOCK();
-}
-
-/*
- * Wait until an event is available for a client, and then peek at it.
- */
-void
-GrPeekWaitEvent(GR_EVENT *ep)
-{
-	SERVER_LOCK();
-	while(curclient->eventhead == NULL)
-		GsSelect(0L);
-	GrPeekEvent(ep);
-	SERVER_UNLOCK();
-}
-
-/*
- * Return the current length of the input queue.
- */
-int 
-GrQueueLength(void)
-{
-	int count = 0;
-	GR_EVENT_LIST *elp;
-
-	SERVER_LOCK();
-	for (elp=curclient->eventhead; elp; elp=elp->next)
-		++count;
-	SERVER_UNLOCK();
-	return count;
-}
-
-/* builtin callback function for GrGetTypedEvent*/
-static GR_BOOL
-GetTypedEventCallback(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
-	GR_EVENT *ep, void *arg)
-{
-	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
-
-DPRINTF("GetTypedEventCallback: wid %d mask %x update %d from %d type %d\n", wid, (unsigned)mask, update, ep->general.wid, ep->type);
-
-	/* FIXME: not all events have wid field here... */
-	if (wid && (wid != ep->general.wid))
-		return 0;
-
-	if (mask) {
-		if ((mask & emask) == 0)
-			return 0;
-
-		if (update && ((mask & emask) == GR_EVENT_MASK_UPDATE))
-			if (update != ep->update.utype)
-				return 0;
-	}
-
-	return 1;
-}
-
-/*
- * Fills in the specified event structure with a copy of the next event on the
- * queue that matches the type parameters passed and removes it from the queue.
- * If block is GR_TRUE, the call will block until a matching event is found.
- * Otherwise, only the local queue is searched, and an event type of
- * GR_EVENT_TYPE_NONE is returned if the a match is not found.
- */
-int
-GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
-	GR_EVENT *ep, GR_BOOL block)
-{
-	return GrGetTypedEventPred(wid, mask, update, ep, block,
-		GetTypedEventCallback, NULL);
-}
-
-/*
- * The specified callback function is called with the passed event type parameters
- * for each event on the queue, until the callback function CheckFunction
- * returns GR_TRUE.  The event is then removed from the queue and returned.
- * If block is GR_TRUE, the call will block until a matching event is found.
- * Otherwise, only the local queue is searched, and an event type of
- * GR_EVENT_TYPE_NONE is returned if a match is not found.
- */
-int
-GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
-	GR_EVENT *ep, GR_BOOL block, GR_TYPED_EVENT_CALLBACK matchfn, void *arg)
-{
-	GR_EVENT_LIST *elp, *prevelp;
-
-	SERVER_LOCK();
-	/* determine if we need to wait for any events*/
-	while(curclient->eventhead == NULL) {
-getevent:
-		GsSelect(block? 0L: -1L); /* wait/poll for event*/
-		if (!block)
-			break;
-	}
-
-	/* Now, run through the event queue, looking for matches of the type
-	 * info that was passed.
-	 */
-	prevelp = NULL;
-	elp = curclient->eventhead;
-	while (elp) {
-		if (matchfn(wid, mask, update, &elp->event, arg)) {
-			/* remove event from queue, return it*/
-			if (prevelp == NULL)
-				curclient->eventhead = elp->next;
-			else prevelp->next = elp->next;
-			if (curclient->eventtail == elp)
-				curclient->eventtail = NULL;
-			elp->next = eventfree;
-			eventfree = elp;
-
-			*ep = elp->event;
-			SERVER_UNLOCK();
-			return ep->type;
-		}
-		prevelp = elp;
-		elp = elp->next;
-	}
-
-	/* if event still not found and waiting ok, then wait*/
-	if (block)
-		goto getevent;
-
-	/* return no event*/
-	ep->type = GR_EVENT_TYPE_NONE;
-	SERVER_UNLOCK();
-	return GR_EVENT_TYPE_NONE;
-} 
-#endif /* NONETWORK*/
-
 /*
  * Return the next event from the event queue if one is ready.
  * If one is not ready, then the type GR_EVENT_TYPE_NONE is returned.
@@ -232,20 +69,15 @@ void
 GrCheckNextEvent(GR_EVENT *ep)
 {
 	SERVER_LOCK();
-	CheckNextEvent(ep, GR_TRUE);
+	GsCheckNextEvent(ep, GR_TRUE);
 	SERVER_UNLOCK();
 }
 
-static void
-CheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
+void
+GsCheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 {
 	GR_EVENT_LIST *	elp;
 
-#if 0 /* was NONETWORK*/
-	/* NOTE: select() now called through GrPeekEvent when bound to server*/
-	if (doCheckEvent)
-		GsSelect(1L);
-#endif
 	/* Copy first event if any*/
 	if(!GrPeekEvent(ep))
 		return;

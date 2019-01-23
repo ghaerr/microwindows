@@ -51,7 +51,7 @@ GPM_Open(MOUSEDEVICE *pmd)
 	mouse_fd = open(GPM_DEV_FILE, O_NONBLOCK);
 
 	if (mouse_fd < 0)
-		return -1;
+		return DRIVER_FAIL;
 
 	wheel_fd = open(GPM_WHEEL_FILE, O_NONBLOCK);
 
@@ -127,8 +127,8 @@ GPM_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	while((n = read(mouse_fd, &buf[nbytes], 5 - nbytes))) {
 		if(n < 0) {
 			if ((errno == EINTR) || (errno == EAGAIN))
-				return 0;
-			else return -1;
+				return MOUSE_NODATA;
+			else return MOUSE_FAIL;
 		}
 
 		nbytes += n;
@@ -149,9 +149,9 @@ GPM_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			*dy = -((signed char)(buf[2]) + (signed char)(buf[4]));
 			*dz = 0;
 			nbytes = 0;
-			return 1;
+			return MOUSE_RELPOS;
 		}
 
 	}
-	return 0;
+	return MOUSE_NODATA;
 }

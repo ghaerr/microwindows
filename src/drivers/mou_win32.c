@@ -46,7 +46,7 @@ NUL_Poll(void)
 static int
 NUL_Open(MOUSEDEVICE *pmd)
 {
-	return -2;	/* no mouse*/
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -105,7 +105,7 @@ NUL_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
         {
             *bp |= MWBUTTON_R;
         }
-        return 2;
+        return MOUSE_ABSPOS;
     }
-    return 0;
+    return MOUSE_NODATA;
 }

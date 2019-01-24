@@ -534,7 +534,7 @@ emprog:
 ifdef MICROWIN
 	$(CC) $(CFLAGS) -o bin/mwdemo.html demos/mwin/mwdemo.c $(LIBS)  $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/mwdemo2.html demos/mwin/mwdemo2.c $(LIBS) $(EMTERPRET)
-	$(CC) $(CFLAGS) -o bin/mwdvetest.html demos/mwin/mwdvetest.c $(LIBS) $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/mwin/mwdvetest/this.res@/ $(EMTERPRET)
+	$(CC) $(CFLAGS) -o bin/mwdvetest.html demos/mwin/mwdvetest.c $(LIBS) $(NANOFONTS) --embed-file $(MW_DIR_SRC)/images/demos/mwin/mwdvetest/dveres.res@/this.res $(EMTERPRET)
 	$(CC) $(CFLAGS) -o bin/mwlistcombo.html demos/mwin/mwlistcombo.c $(LIBS)  $(EMTERPRET)
 endif
 ifdef NANOX

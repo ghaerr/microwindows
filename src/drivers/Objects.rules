@@ -152,7 +152,7 @@ endif
 
 # Linux /dev/input/mice driver
 ifeq ($(MOUSE), DEVMICEMOUSE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_micedev.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_devmice.o
 endif
 
 # Tslib touchscreen driver

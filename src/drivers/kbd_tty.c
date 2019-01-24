@@ -155,7 +155,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 				cc = read(fd, buf + buflen, 3 - buflen);
 			} while ((cc < 0) && ((errno == EINTR) || (errno == EAGAIN)));
 			if (cc < 0) {
-				return KBD_FAIL1;
+				return KBD_FAIL;
 			}
 			buflen += cc;
 			if (buflen < 3) {

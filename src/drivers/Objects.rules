@@ -15,165 +15,290 @@ MW_SUBDRIVER_OBJS += \
 	$(MW_DIR_OBJ)/drivers/fblin16.o \
 	$(MW_DIR_OBJ)/drivers/fblin24.o \
 	$(MW_DIR_OBJ)/drivers/fblin32.o \
+	$(MW_DIR_OBJ)/drivers/genmem.o \
 	$(MW_DIR_OBJ)/drivers/fb.o \
 	$(MW_DIR_OBJ)/drivers/fbportrait_left.o \
 	$(MW_DIR_OBJ)/drivers/fbportrait_right.o \
 	$(MW_DIR_OBJ)/drivers/fbportrait_down.o
 ifeq ($(FBREVERSE), Y)
-  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o
-  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin2rev.o
-  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4rev.o
+ifeq ($(IPOD_LCD), Y)
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2revipod.o
+else
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1rev.o $(MW_DIR_OBJ)/drivers/fblin2rev.o
+endif
 else
   MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin1.o
   MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin2.o
-  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4.o
   MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/rasterops.o
 endif
 
-MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genmem.o
-
-ifeq ($(HAVE_HBF_SUPPORT), Y)
-MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genfont.hbf.o
+ifeq ($(FBREVERSE), Y)
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4rev.o
 else
-# genfont.c compiles with no fonts with -DNOFONTS=1
-MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genfont.o
+ifeq ($(SA1100_LCD_LTLEND), Y)
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4sa1100.o
+else
+  MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/fblin4.o
+endif
 endif
 
-# framebuffer drivers always linked in
+# genfont.c compiles with no fonts with -DNOFONTS=1
+MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genfont.o
+
+# framebuffer driver stuff
+ifeq ($(FRAMEBUFFER), Y)
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+
+ifeq ($(ARCH), ECOS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_ecos.o
+else
+ifeq ($(ARCH), RTEMS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_rtems.o $(MW_DIR_OBJ)/drivers/deprecated/romfont.o
+else
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
+endif
+endif
 
 ifeq ($(VTSWITCH), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vtswitch.o
 endif
 
-#### The following platforms when defined include specific screen, keyboard and mouse drivers
-#### set by SCREEN= only, must set MOUSE=<blank> and KEYBOARD=<blank>
+endif # FRAMEBUFFER
 
-ifeq ($(SCREEN), X11)
+# X11
+ifeq ($(X11), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/scr_x11.o \
 	$(MW_DIR_OBJ)/drivers/mou_x11.o \
 	$(MW_DIR_OBJ)/drivers/kbd_x11.o
 endif
 
-# Simple Direct Media Layer v2
-ifeq ($(SCREEN), SDL)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_sdl2.o \
-	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
-	$(MW_DIR_OBJ)/drivers/kbd_sdl2.o
+# X11 overrides all other drivers
+ifneq ($(X11), Y)
+
+
+# memory screen device
+ifeq ($(SCRMEM), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_mem.o
 endif
 
-# ALLEGRO
-ifeq ($(SCREEN), ALLEGRO5)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_allegro5.o \
-	$(MW_DIR_OBJ)/drivers/mou_allegro5.o \
-	$(MW_DIR_OBJ)/drivers/kbd_allegro5.o
+# NULL
+ifeq ($(NOSCR), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_null.o
 endif
 
-ifeq ($(SCREEN), ALLEGRO4)
-MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/drivers/scr_allegro.o \
-	$(MW_DIR_OBJ)/drivers/mou_allegro.o \
-	$(MW_DIR_OBJ)/drivers/kbd_allegro.o
+ifeq ($(EM8400), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_em84xx.o
 endif
 
-#### The following platforms when defined include specific screen, keyboard and mouse drivers
-#### set by ARCH=
+ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vncserver.o
+endif
 
-ifeq ($(ARCH), RTEMS)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_rtems.o
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_rtems.o
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_rtems.o
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/deprecated/romfont.o
-endif # RTEMS architecture
+### Desktop GPM mouse driver
+ifeq ($(GPMMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_gpm.o
+endif
 
-ifeq ($(ARCH), ECOS)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_ecos.o
+### Desktop DEVMICE mouse driver
+ifeq ($(DEVMICEMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_devmice.o
+endif
+
+### serial mouse driver
+ifeq ($(SERMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ser.o
+endif
+
+### Generic touchscreen driver
+ifeq ($(ADSMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_ADS=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(ADS7846MOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_ADS7846=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(EVENTMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_event.o
+endif
+
+ifeq ($(IPAQMOUSE), Y)
 CFLAGS += -DTOUCHSCREEN_IPAQ=1
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/deprecated/mou_touchscreen.o
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/deprecated/kbd_ipaq.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(TUXMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_TUXSCREEN=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(ZAURUSMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_ZAURUS=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+ifeq ($(TTMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_TOMTOM=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/ttmouse_init.o $(MW_DIR_OBJ)/drivers/mou_touchscreen.o
+endif
+
+### Embedded Planet touchscreen
+ifeq ($(EPMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_EPLANET
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_vrlinux.o
+endif
+
+### Vtech Helio touchscreen
+ifeq ($(VHMOUSE), Y)
+CFLAGS += -DTOUCHSCREEN_HELIO=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_vrlinux.o
+endif
+
+#### Yopy touchscreen
+ifeq ($(YOPYMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_yopy.o
+endif
+
+#### Psion 5 touchscreen
+ifeq ($(PSIONMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ps5.o
+endif
+
+#### NEC Harrier touchscreen
+ifeq ($(HARRIERMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_harrier.o
+endif
+
+#### MicroTouch serial touchscreen
+ifeq ($(MTMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_mt.o
+endif
+
+ifeq ($(SUNMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_sun.o
 endif
 
 ifeq ($(ARCH), FREEBSD-X86)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_fbsd.o
+endif
+
+### tslib touchscreen driver
+ifeq ($(TSLIBMOUSE), Y)
+LDFLAGS += -lts
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_tslib.o
+endif
+
+ifeq ($(NOMOUSE), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_null.o
+endif
+
+#
+# Keyboard driver specific for every system
+#
+ifeq ($(TTYKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_tty.o
+endif
+
+ifeq ($(IPAQKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ipaq.o
+endif
+
+ifeq ($(ZAURUSKBD),Y)
+CFLAGS += -DKBD_ZAURUS=1
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
+endif
+
+ifeq ($(SCANKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
+endif
+
+ifeq ($(EVENTKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_event.o
+endif
+
+ifeq ($(ARCH), FREEBSD-X86)
 #MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_fbsd.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_tty.o
 endif
 
+ifeq ($(LIRCKBD), Y)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/mwlirc.o \
+	$(MW_DIR_OBJ)/drivers/kbd_lirc.o
+endif
+
+ifeq ($(NOKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_null.o
+endif
+
+ifeq ($(PIPEKBD), Y)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_pipe.o
+endif
+
+ifeq ($(LIRCKBD2), Y)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/mwlirc.o \
+	$(MW_DIR_OBJ)/drivers/kbd_lirc.o
+endif
+
+ifeq ($(ARCH), RTEMS)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_rtems.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_rtems.o
+endif # RTEMS architecture
+
 # Nintendo DS
-ifeq ($(ARCH), NDS)
+ifeq ($(SCRNDS), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nds.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nds.o
 endif
 
 # PSP
 ifeq ($(ARCH), PSP)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_psp.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_psp.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_psp.o
 endif
 
-#### end platforms
-
-### The following are screen, keyboard and mouse drivers used on non-specific platforms
-
-#
-# Screen driver set by SCREEN=
-#
-
-# linux framebuffer driver
-ifeq ($(SCREEN), FB)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
+# ALLEGRO
+ifeq ($(ALLEGRO5), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_allegro5.o \
+	$(MW_DIR_OBJ)/drivers/mou_allegro5.o \
+	$(MW_DIR_OBJ)/drivers/kbd_allegro5.o
+endif
+ifeq ($(ALLEGRO4), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_allegro.o \
+	$(MW_DIR_OBJ)/drivers/mou_allegro.o \
+	$(MW_DIR_OBJ)/drivers/kbd_allegro.o
 endif
 
-# framebuffer emulator driver
-ifeq ($(SCREEN), FBE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fbe.o
+ifeq ($(SDL1), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_sdl1.o \
+	$(MW_DIR_OBJ)/drivers/mou_sdl1.o \
+	$(MW_DIR_OBJ)/drivers/kbd_sdl1.o
 endif
 
-#
-# Mouse driver set by MOUSE=
-#
-ifeq ($(MOUSE), NOMOUSE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_null.o
+ifeq ($(SDL2), Y)
+MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_sdl2.o \
+	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
+	$(MW_DIR_OBJ)/drivers/kbd_sdl2.o
 endif
 
-# Desktop GPM mouse driver
-ifeq ($(MOUSE), GPMMOUSE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_gpm.o
-endif
-
-# Serial mouse driver
-ifeq ($(MOUSE), SERMOUSE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ser.o
-endif
-
-# Tslib touchscreen driver
-ifeq ($(MOUSE), TSLIBMOUSE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_tslib.o
-LDFLAGS += -lts
-endif
-
-#
-# Keyboard driver set by KEYBOARD=
-#
-ifeq ($(KEYBOARD), NOKBD)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_null.o
-endif
-
-ifeq ($(KEYBOARD), TTYKBD)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_tty.o
-endif
-
-ifeq ($(KEYBOARD), SCANKBD)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
-endif
-
-#
-# Other
-#
-ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vncserver.o
-endif
+endif # X11

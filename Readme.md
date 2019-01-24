@@ -5,9 +5,8 @@ Microwindows or Nano-X is a small graphical windowing system that implements
 both Win32 and Nano-X (X11-like) APIs for clipped graphics drawing in windows
 on Linux, OSX, EMSCRIPTEN, Android and other platforms. It is
 Open Source and licenced under the the Mozilla Public License.
-For creating GUIs, the Win32 builtin controls and TinyWidget's
-Nano-X controls are included. FLTK can be used with the X11 compability library NX11.
-GUI toolkits that can be used with the Nano-X API are FLTK and the
+For creating GUIs, the Win32 builtin controls and TinyWidget's controls
+based on Nano-X are included. FLTK can be used with the X11 compability library NX11.
 
 This is an overview of the system:
 
@@ -19,14 +18,14 @@ drivers. The Nano-X / Microwindows engine is the core code that implements
 all drawing and clipping, with the Win32 and Nano-X graphical windowing APIs implemented in seperately
 configurable layers on top of that. The engine is configured to use various
 OS platforms and associated screen, mouse and keyboard drivers, or bare hardware.
-The Nano-X API and the Win32 API which can be used to write applications.
+The Nano-X API and the Win32 APIs are used to write applications.
 To provide close X11 compatibility the NX11 library
 can be built on top of the Nano-X API, which allows X11 applications to be linked
-without recompilation.  The FLTK GUI toolkit runs based on NX11.
+and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 
 ## Areas where Microwindows can be used are:
 
-- ***New: run X11 or Win32 applications in a browser using EMSCRIPTEN
+- run X11 or Win32 applications in a browser using EMSCRIPTEN
 - provide an excellent GUI for small embedded devices with FLTK, TinyWidgets or Win32
 - port the FLTK GUI toolkit to small platforms
 - linking an application with Microwindows can provide it with a GUI 

@@ -50,7 +50,12 @@ To build Microwindows for desktop demonstration:
 	./emrun demo-aafont
 	./emrun mwmine
 
-6. More information below.
+6. Documentation is available in microwindows/doc and microwindows/src/docs directories.
+	Win32 API documentation is in docs/Win32API.html
+	Nano-X API documentation is in docs/nano-X
+	NX11 API documentation is in docs/NXlib programming and reference manual.html
+
+7. More information below.
 
 Microwindows compiles and runs on Linux, MACOSX, UNIX, X11, EMSCRIPTEN, Android, PSP,
 RTEMS, MinGW and bare hardware.  There is support for the MIPS,

@@ -31,6 +31,7 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 - linking an application with Microwindows can provide it with a GUI 
   on console based Linux distros
 - provide Xlib support for platforms without Xlib
+- run FLTK or Win32 applications on Android phones
 - Portrait and Landscape modes and auto-flipping are supported for handheld devies
 
 ## Platforms
@@ -46,13 +47,6 @@ SDL 2, Allegro, and an X11 based framebuffer emulator.**
 
 Support for cross-compiler toolchains on **x86, x86_64, ARM, PowerPC and MIPS**,
 big- and little-endian, and other processors.
-
-Microwindows has been ported to the Android platform. This way you can
-use Microwindows and FLTK on Android smartphones.
-
-Download the Android port from the Microwindows-Android-bin repo:
-<https://github.com/georgp24/microwindows-android-bin>
-
 
 ## Library design
 

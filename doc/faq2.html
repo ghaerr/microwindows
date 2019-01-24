@@ -16,31 +16,27 @@
 
 <h3>How to install Microwindows?</h3>
 
-<p>Download the current version of Microwindows from GitHub and unpack it into your HOME directory.<br>
-For a start run the system on your Linux system using an X11 based desktop like Gnome or KDE. Then get<br>
-into the "Microwindows/src" directory. In there enter "Make" on the command line. This will compile<br>
-Microwindows and the examples for an X11 platform. Then run the "rundemos.sh" script to execute the<br>
-various demos. Or get into the "nxlib/test/" directory and enter e.g. "./testarc.sh" or "./xhello.sh"<br>
-to run the examples for the X11 compatibility library NX11.<br>
+<p>Download the current version of Microwindows from GitHub.<br>
+Read the instructions in microwindows/src/README.
 <br>
 
 <h3>What do the different directories contain?</h3>
 Here is an overview of the directory structure in the main "src" directory:
 <pre>
 bin:		compiled executables
-Configs:	"config" file examples for different platforms
-contrib:	sublevel makefiles for Maken_nr and user contributed files
-demoscripts:	example scripts to execute demos. Need to be moved into the "src" directory to run
-docs:		old programming notes
-drivers:	source code of the device drivers for the various platforms
+Configs:	"config" file examples for different platforms, see Configs/README
+contrib:	user contributed, TinyWidgets and alternative Makefile_nr make system for EMSCRIPTEN, Android and DJGPP
+demoscripts:	outdated example scripts to execute demos. Use ./runapp instead, see src/README.
+docs:		programming notes
+drivers:	source code of the screen, mouse and screen device drivers
 ecos:		special files for the ECOS operating system
-engine:		source code to call the drivers and handle fonts
-fonts:		a selection of fonts
-include:	header files for Nano-X or Microwindows
+engine:		source code for Microwindows graphics drawing and clipping engine
+fonts:		fonts required for demo programs
+include:	header files
 lib:		compiled libraries
-mwin:		source code for the Microsoft compatible MWin API
-nanox:		source code for the Nano-X API
-nxlib:		source code for the X11 compatibility libraries NX11 or PX11
+mwin:		source code for the Win32 API implementation
+nanox:		source code for the Nano-X API implementation
+nx11:		source code for the NX11 X11 compatibility library
 obj:		temporary object files
 rtems:		special files for the RTEMS operating system
 </pre>
@@ -49,30 +45,28 @@ rtems:		special files for the RTEMS operating system
 
 <h3>Where is the configure file?</h3>
 
-<p>Microwindows does not have a configure file. For Linux it uses a makefile based build system.<br>
+<p>Microwindows does not have a configure file. For all systems other than EMSCRIPTEN,
+Android, or DJGPP, it uses a makefile based build system.<br>
 This are several linked Makefiles files which are called recursively. To customise<br>
 this for the various platforms there is a config file which you can edit. Examples of this<br>
 config file for different platforms are in the "src/Configs" directory.<br>
 <br>
 
-For specific platforms there are additional special makefiles. So there is the Makefile_nr,<br>
-a non-recursive makefile for MinGW, DOS and Emscripten or the Makefile.rtems for the<br>
-RTEMS system etc.<br>
+For Android, EMSCRIPTEN, DJGPP and RTEMS  platforms there are currently additional special makefiles.<br>
+Makefile_nr is used for MinGW, DJGPP and EMSCRIPTEN, and Makefile.rtems for RTEMS.<br>
 <br>
 
-The Makefile, which is used for Linux, includes the Path.rules file and the config file<br>
+The Makefile, which is used for Linux and OSX includes Path.rules and the config file<br>
 mentioned above. Then it includes the Makefile.rules file which contains the clean and install <br>
 targets for Make and calls the Makefiles in the subdirectories. It also includes Arch.rules which <br>
-contains special settings for the different platforms supported. The Makefiles in the subdirectories<br>
+contains handling settings for the different platforms supported. The Makefiles in the subdirectories<br>
 will also include the Path.rules file, the config file plus Objects.rules files. They call the<br>
 Makefile.rules file again to compile the required files.<br>
 <br>
-This Makefile system works well but is difficult to modify for new platforms. Therefore there are <br>
-additional Makefiles provided which are more simple and can easily be adapted to new platforms.<br>
 <br>
 </p>
 
-<h3>What are the NXlib and PXlib libraries?</h3>
+<h3>What is the NXlib library?</h3>
 
 <p>Since nano-X is not fully compatible to X11 it is quite some work to port X11 applications to<br>
 nano-X. NXlib is a wrapper library for nano-X which does provide X11 compatibility.<br>
@@ -88,19 +82,11 @@ PXlib is a library that is NXlib plus nano-X compiled together. So when porting 
 Microwindows you do not have to replace -lX11 with both -lNX11 and -lnano-X any more, just -lPXlib <br>
 will do.<br>
 <br>
-Before this release NXlib was a separate archive to download. It now is added as a subdirectory to the<br>
+Before this release NXlib was a separate archive to download. It now is added in the src/nx11 subdirectory to the<br>
 Microwindows package.<br>
 <br>
-Initially NXlib was implemented as the XtoNX.h header file.<br>
 <br>
 </p>
-
-<h3>What is the NXext library?</h3>
-
-<p>Some programs require the libXext library to compile. To help supporting these programs libNXext provides<br>
-stubs for the functions included in libXext.<br>
-<br></p>
-
 
 <h3>How to compile a program using the Nano-X or NXlib libraries on the command line?</h3>
 Nano-X:<br>
@@ -340,25 +326,21 @@ git pull
 source ./emsdk_env.sh
 </pre>
 Within your "emsdk" directory enter "source ./emsdk_env.sh" to set the required paths for<br>
-emscripten. You will have to run this script each time you open a new terminal window to compile<br>
-Microwindows for emscripten.<br>
-<br>
-Then copy the "config" file "config.em" from the "src/Configs" directory to the "src" directory<br>
-and name it "config".<br>
+emscripten. <br>
 <br>
 To compile emscripten get into the "microwindows/src" directory and enter:<br>
-"emmake make -f Makefile_nr ARCH=EM" on the command line. This will compile the entire<br>
+"./make-emscripten" on the command line. This will compile most of the<br>
 Microwindows system including the demos for emscripten.<br>
 <br>
-You can then run the demos with a click on e.g. the "bin/arcdemo.html" file or the <br>
+You can then run the demos using "./emrun demo-aafont", or with a click on e.g. the "bin/arcdemo.html" file or the <br>
 "nxlib/test/xgreen.html" file using your file explorer. Your browser will load and run<br>
 the application then. If the program terminates, emscripten will raise an exception to<br>
 stop the Javascript code in the browser to continue. This causes an "Exception thrown" message<br>
 displayed in the browser.<br>
 <br>
-To execute "make clean" enter: "make -f Makefile_nr clean ARCH=EM"<br>
+To execute "make clean" enter: "./make-emscripten clean"<br>
 <br>
-Emscripten provides ports of libz, libpng, libfreetype, libm and more. If you compile your applications,<br>
+Emscripten provides ports of libsdl2, libz, libpng, libfreetype, libm and more. If you compile your applications,<br>
 these have to be added with the "-s" parameter to the command line, e.g. "-s USE_FREETYPE=1". Then -lfreetype <br>
 should not be added in addition to that via the CLIBS variable.<br>
 A Javascript program cannot access local files. Therefore emscripten allows to load these into its<br>
@@ -395,11 +377,9 @@ with Nano-X applications, NX11/FLTK does not work. Allegro4 does not yet work on
 
 <h3>How to use SDL as a Microwindows backend?</h3>
 
-<p>There are SDL macros defined in the config file. Use "src/Config/config.sdl2" or "config.sdl1"<br>
-renaming them to config in the src directory. These files are prepared for either SDL1 (version 1.2)<br>
-or SDL2. Then the SDL1 or SDL2 drivers are compiled in and the relevant SDL library is linked with<br>
-nano-X. Currently only SDL2 works with NXlib/PXlib. If you work on the X11 platform, you have to<br>
-use LINK_APP_INTO_SERVER=Y.<br></p>
+<p>There are SDL macros defined in the config file. Use "src/Config/config.sdl"
+Then the SDL2 driver is compiled in and is linked with nano-X. <br>
+</p>
 
 <h3>How to compile for DOS?</h3>
 

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
 <html>
 <head>
-<title>Microwindows API</title>
+<title>Microwindows Win32 API</title>
 <link rel="HOME" title="Microwindows Architecture" href="index.html" rel="UP"
  title="Microwindows Architecture" href="ch1.html" rel="PREVIOUS" title="Device-Independent Engine Features"
  href="archengine.html" rel="NEXT" title="Nano-X API" href="archnanoapi.html">
@@ -13,7 +13,7 @@
 <h1 align="left" class="SECTION"><a name="ARCHMWINAPI">Microwindows API</a></h1>
 <h2 align="left" class="SECTION"><a name="AEN279">Message-passing architecture</a></h2>
 <p align="left">The fundamental communications mechanism in the Microwindows 
-API is the message. A message consists of a well-known message number, and two 
+Win32 API is the message. A message consists of a well-known message number, and two 
 parameters, known as wParam and lParam. Messages are stored in an application's 
 message-queue, and retrieved via the <tt>GetMessage</tt> function. The application 
 blocks while waiting for a message. There are messages that correspond to hardware 

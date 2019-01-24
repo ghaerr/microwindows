@@ -635,6 +635,7 @@ clean:
 	-rm bin/*.html 2>/dev/null
 	-rm bin/*.js 2>/dev/null
 	-rm bin/*.mem 2>/dev/null
+	-rm bin/*.data 2>/dev/null
 	-rm bin/*.ppm 2>/dev/null
 	-rm bin/*.pgm 2>/dev/null
 #	-rm -rf bin/fonts/ 2>/dev/null

@@ -243,6 +243,7 @@ SCREEN_DEPTH             = 8
 # MOUSE=NOMOUSE		no mouse driver
 # MOUSE=GPMMOUSE	gpm mouse
 # MOUSE=SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# MOUSE=DEVMICEMOUSE Use Linux /dev/input/mice driver
 # MOUSE=TSLIBMOUSE	Use tslib (/dev/input/event0)
 ####################################################################
 

@@ -150,6 +150,11 @@ ifeq ($(MOUSE), SERMOUSE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ser.o
 endif
 
+# Linux /dev/input/mice driver
+ifeq ($(MOUSE), DEVMICEMOUSE)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_micedev.o
+endif
+
 # Tslib touchscreen driver
 ifeq ($(MOUSE), TSLIBMOUSE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_tslib.o

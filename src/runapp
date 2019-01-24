@@ -1,7 +1,14 @@
 #!/bin/sh
 #
-# Wrapper script to run Microwindows apps from inside the source tree
-# The nano-X server will be started if necessary
+# Wrapper script to run Microwindows applications from inside the source tree
+# The Nano-X server will be started if necessary
+#
+# Usage: ./runapp [-p|-L|-R|-D|-A] [bin/]application [arguments]
+#			-p	no server quit on application exit
+#			-L	left portrait mode
+#			-R	right portrait mode
+#			-D	upside down portrait mode
+#			-A	auto switch portrait mode with mouse at screen edge
 #
 
 # first determine the directory that contains this script itself
@@ -46,6 +53,16 @@ fi
 
 topdir=`cd "$topdir" && pwd`
 bindir=$topdir/bin
+serverargs=
+
+# Check for Nano-X server argument
+case "$1" in
+  -*)
+    serverargs=$1
+	shift
+    ;;
+esac
+
 progname=$1
 
 # find nano-X server
@@ -127,7 +144,7 @@ shift
 server_running=`ps | grep nano-X | sed '/grep/d'`
 if [ "$need_server" = "YES" ] && [ "$server_running" = "" ]
 then
-	$NANOXSERVER & exec $application $@
+	$NANOXSERVER $serverargs & exec $application $@
 else
 	exec $application $@
 fi

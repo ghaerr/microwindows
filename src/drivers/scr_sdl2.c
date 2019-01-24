@@ -38,7 +38,7 @@ SCREENDEVICE	scrdev = {
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,  			/* gen_setportrait*/
+	gen_setportrait,
 	sdl_update,
 	sdl_preselect
 };

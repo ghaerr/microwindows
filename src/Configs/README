@@ -6,9 +6,10 @@ To build Microwindows, copy one of these files to microwin/src/config,
 and type "make clean; make".
 
 config.linux-X11	X11 on Linux
+config.linux-fb		Linux framebuffer
 config.macosx		X11 on OSX
 config.sdl			SDL on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
-config.fbe			FBE on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
+config.fbe			Framebuffer emulator on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
 
 // need updating to new format
 config.rtems		RTEMS port

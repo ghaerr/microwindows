@@ -1,5 +1,11 @@
-#include "mwtypes.h"
+/*
+ * Copyright (c) 2019 Greg Haerr <greg@censoft.com>
+ *
+ * Fast framebuffer copy routine TEMPLATE - used with scr_fbe.c when TESTDRIVER=1
+ */
+#include "device.h"
 
+/* fwd declaration*/
 void copy_framebuffer(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 	unsigned char *dstpixels, unsigned int dstpitch);
 
@@ -14,7 +20,7 @@ copy_framebuffer(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 //printf("copy_framebuffer %d,%d %d,%d\n", destx, desty, w, h);
 
 	/* Use optimized loops for most common framebuffer modes */
-	/* NOTE: ASSUMES SDL FRAMEBUFFER IN SAME FORMAT AS MWPIXEL_FORMAT!!!*/
+	/* NOTE: ASSUMES DEST FRAMEBUFFER IN SAME FORMAT AS MWPIXEL_FORMAT!!!*/
 #if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
 	{
 		unsigned char *src =  psd->addr + desty * srcpitch + destx;

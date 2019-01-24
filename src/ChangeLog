@@ -1,3 +1,6 @@
+24 Jan 2019
+	* updated SCREEN=FBE drivers/scr_fbe.c to support TESTDRIVER=1 for writing new screen drivers
+	* added portrait mode support for SDL and FBE drivers (use with ./runapp or bin/nano-X [-L|-R|-D|-A])
 23 Jan 2019
 	* added Kurt Nalty's MOUSE=DEVMICEMOUSE /dev/input/mice drivers/mou_devmice.c, config.linux-fb and small fixes
 	* moved nanox/ NONETWORK=1 files to nanox/srvnonet.c

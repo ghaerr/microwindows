@@ -131,6 +131,7 @@ endif
 # framebuffer emulator driver
 ifeq ($(SCREEN), FBE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fbe.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/copyframebuffer.o
 endif
 
 #

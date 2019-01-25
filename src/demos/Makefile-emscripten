@@ -23,7 +23,7 @@ CFLAGS += -s ERROR_ON_UNDEFINED_SYMBOLS=0
 
 COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS)
 
-TTFONTS = --preload-file $(MW_DIR_SRC)/fonts/truetype@fonts/truetype 
+DEMOFONTS = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@fonts/truetype 
 NX11FONTS = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@/usr/share/fonts/truetype
 
 MWINLIBS = lib/libmwin.a
@@ -37,15 +37,15 @@ ifdef MICROWIN
 	$(CC) $(COMPILEARGS) -o bin/mwdemo2.html demos/mwin/mwdemo2.c $(MWINLIBS)
 	$(CC) $(COMPILEARGS) -o bin/mwdemo.html demos/mwin/mwdemo.c $(MWINLIBS)
 	$(CC) $(COMPILEARGS) -o bin/mwdemo2.html demos/mwin/mwdemo2.c $(MWINLIBS)
-	$(CC) $(COMPILEARGS) -o bin/mwdvetest.html demos/mwin/mwdvetest.c $(MWINLIBS) $(TTFONTS) \
+	$(CC) $(COMPILEARGS) -o bin/mwdvetest.html demos/mwin/mwdvetest.c $(MWINLIBS) $(DEMOFONTS) \
 		--embed-file $(MW_DIR_SRC)/images/demos/mwin/mwdvetest/dveres.res@/this.res
 	$(CC) $(COMPILEARGS) -o bin/mwlistcombo.html demos/mwin/mwlistcombo.c $(MWINLIBS) 
 endif
 ifdef NANOX
-	$(CC) $(COMPILEARGS) -o bin/demo-ttfont.html demos/nanox/demo-ttfont.c $(NANOXLIBS) $(TTFONTS)
-	$(CC) $(COMPILEARGS) -o bin/demo-aafont.html demos/nanox/demo-aafont.c $(NANOXLIBS) $(TTFONTS) \
+	$(CC) $(COMPILEARGS) -o bin/demo-ttfont.html demos/nanox/demo-ttfont.c $(NANOXLIBS) $(DEMOFONTS)
+	$(CC) $(COMPILEARGS) -o bin/demo-aafont.html demos/nanox/demo-aafont.c $(NANOXLIBS) $(DEMOFONTS) \
 		--embed-file $(MW_DIR_SRC)/images/demos/nanox/aademo.txt@bin/
-	$(CC) $(COMPILEARGS) -o bin/demo-composite.html demos/nanox/demo-composite.c $(NANOXLIBS) $(TTFONTS) \
+	$(CC) $(COMPILEARGS) -o bin/demo-composite.html demos/nanox/demo-composite.c $(NANOXLIBS) $(DEMOFONTS) \
 		--embed-file $(MW_DIR_SRC)/images/demos/nanox/alphademo.png@images/demos/nanox/
 	$(CC) $(COMPILEARGS) -o bin/demo-agg.html demos/nanox/demo-agg.cpp demos/nanox/agglite.cpp $(NANOXLIBS)
 	$(CC) $(COMPILEARGS) -o bin/demo-grabkey.html demos/nanox/demo-grabkey.c $(NANOXLIBS)

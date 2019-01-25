@@ -1,4 +1,5 @@
 24 Jan 2019
+	* reduced EMSCRIPTEN demo font sizes drastically, demos only use those fonts/truetype linked into fonts/em-fonts
 	* compile EMSCRIPTEN libraries using ./make-emscripten, link demos with ./link-emscripten, run ./emrun <app>
 	* more cleanup, created config.emscripten for ARCH=EMSCRIPTEN native Microwindows Makefile builds
 	* updated SCREEN=FBE drivers/scr_fbe.c to support TESTDRIVER=1 for writing new screen drivers

@@ -1,4 +1,6 @@
 24 Jan 2019
+	* compile EMSCRIPTEN libraries using ./make-emscripten, link demos with ./link-emscripten, run ./emrun <app>
+	* more cleanup, created config.emscripten for ARCH=EMSCRIPTEN native Microwindows Makefile builds
 	* updated SCREEN=FBE drivers/scr_fbe.c to support TESTDRIVER=1 for writing new screen drivers
 	* added portrait mode support for SDL and FBE drivers (use with ./runapp or bin/nano-X [-L|-R|-D|-A])
 23 Jan 2019

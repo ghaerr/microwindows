@@ -260,11 +260,7 @@ fnt_load_font(const char *path)
 
 	ifp = FOPEN(path, "rb");
 	if (!ifp) {
-#if defined(__DJGPP__) 
-		sprintf(fname, "fonts/fnt/%s", path);
-#else
 		sprintf(fname, "%s/%s", FNT_FONT_DIR, path);
-#endif
 		ifp = FOPEN(fname, "rb");
 	
 		/* Try to grab it from the MWFONTDIR directory */

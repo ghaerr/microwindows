@@ -66,6 +66,25 @@ INCLUDEDIRS += -I$(INCTIFF)
 endif
 endif
 
+ifeq ($(HAVE_BMP_SUPPORT), Y)
+DEFINES += -DHAVE_BMP_SUPPORT=1
+endif
+
+ifeq ($(HAVE_GIF_SUPPORT), Y)
+DEFINES += -DHAVE_GIF_SUPPORT=1
+endif
+
+ifeq ($(HAVE_PNM_SUPPORT), Y)
+DEFINES += -DHAVE_PNM_SUPPORT=1
+endif
+
+ifeq ($(HAVE_XPM_SUPPORT), Y)
+DEFINES += -DHAVE_XPM_SUPPORT=1
+endif
+
+##############################################################################
+# Handle font options requireing HAVE_FILEIO
+##############################################################################
 ifeq ($(HAVE_FNT_SUPPORT), Y)
 DEFINES += -DHAVE_FNT_SUPPORT=1
 DEFINES += -DFNT_FONT_DIR="\"$(FNT_FONT_DIR)"\"
@@ -120,27 +139,9 @@ DEFINES += -DHAVE_EUCJP_SUPPORT=1
 DEFINES += -DEUCJP_FONT_DIR=\"$(EUCJP_FONT_DIR)\"
 endif
 
-ifeq ($(HAVE_BMP_SUPPORT), Y)
-DEFINES += -DHAVE_BMP_SUPPORT=1
-endif
-
-ifeq ($(HAVE_GIF_SUPPORT), Y)
-DEFINES += -DHAVE_GIF_SUPPORT=1
-endif
-
-ifeq ($(HAVE_PNM_SUPPORT), Y)
-DEFINES += -DHAVE_PNM_SUPPORT=1
-endif
-
-ifeq ($(HAVE_XPM_SUPPORT), Y)
-DEFINES += -DHAVE_XPM_SUPPORT=1
-endif
 endif	# HAVE_FILEIO
 
-##############################################################################
-# Handle font options
-##############################################################################
-# NOTE: Don't need FILEIO support for FreeType 2, since it can load from memory buffers.
+# Don't need FILEIO support for FreeType 2, since it can load from memory buffers.
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
 DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1
 DEFINES += -DFREETYPE_FONT_DIR=\"$(FREETYPE_FONT_DIR)\"
@@ -153,7 +154,9 @@ EXTENGINELIBS += $(LIBFT2LIB)
 # approach and simply skip the well-known system directories.
 ifneq ($(INCFT2LIB),/usr/include)
 ifneq ($(INCFT2LIB),/usr/local/include)
+ifneq ($(INCFT2LIB),)
 INCLUDEDIRS += -I$(INCFT2LIB)
+endif
 endif
 endif
 ifneq ($(INCFT2LIB),)

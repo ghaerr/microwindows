@@ -44,11 +44,11 @@ To build Microwindows for desktop demonstration:
 	To not generate any shared libraries, set SHAREDLIBS=N.
 
 	For the EMSCRIPTEN port, if the EMSDK is in ~/emsdk/, then compilation
-	is done using ./make-emscripten, and applications are run as above but using
-	./emrun, e.g.:
+	is done using ./make-emscripten, and ./link-emscripten and applications are run
+	as above but using ./emrun, after copying Configs/config.emscripten to src/config:
 
 	./emrun demo-aafont
-	./emrun mwmine
+	./emrun mwdemo2
 
 6. Documentation is available in microwindows/doc and microwindows/src/docs directories.
 	Win32 API documentation is in docs/Win32API.html

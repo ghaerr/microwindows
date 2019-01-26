@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <X11/Xlib.h> // Every Xlib program must include this
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#if __EMSCRIPTEN__
-#include "../../nx11/X11-local/X11/Xresource.h"
-#else
 #include <X11/Xresource.h>
-#endif
-
 #include <X11/keysym.h>
 
 Display *dis;
@@ -47,19 +42,11 @@ int main() {
 			break;
 		case ClientMessage:
 			// Check if click on "X" - close window and exit 
-#if defined(__EMSCRIPTEN__)
-			return 0;
-#else 
 			exit(0);
-#endif
 	 	case KeyPress:
 		/*Close the program if q is pressed.*/
 			if (XLookupKeysym(&report.xkey, 0) == XK_q) {
-#if defined(__EMSCRIPTEN__)
-			return 0;
-#else 
 			exit(0);
-#endif
 		}
 		break;
 		}

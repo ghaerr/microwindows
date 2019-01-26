@@ -1,5 +1,5 @@
 #
-# Compile Microwindows libraries for EMSCRIPTEN
+# Compile & Link Microwindows libraries for EMSCRIPTEN
 #
 # Assume src/config is copied from Configs/config.emscripten already
 #
@@ -8,4 +8,8 @@ then
 	source ~/emsdk/emsdk_env.sh
 fi
 
+# make libraries first using standard make system
 make
+
+# link libraries using external makefile
+make -f demos/Makefile-emscripten

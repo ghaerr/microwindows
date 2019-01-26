@@ -1,11 +1,6 @@
-
-#include <X11/Xlib.h> // Every Xlib program must include this
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#if defined(__EMSCRIPTEN__)
-#include "../../nx11/X11-local/X11/Xresource.h"
-#else
 #include <X11/Xresource.h>
-#endif
 #include <X11/keysym.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,11 +14,7 @@
 void terminate(Display *dpy)
 {
          XCloseDisplay(dpy);
-#if defined(__EMSCRIPTEN__)
-	 return;
-#else	 
          exit(0);
-#endif
 }
 
 int main(int argc, char ** argv){

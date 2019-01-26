@@ -1,5 +1,5 @@
 Microwindows Configuration Documentation
-January 24, 2019 g haerr <greg@censoft.com>
+January 25, 2019 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -43,12 +43,13 @@ To build Microwindows for desktop demonstration:
 	Microwindows by default builds both .a share libraries.
 	To not generate any shared libraries, set SHAREDLIBS=N.
 
-	For the EMSCRIPTEN port, if the EMSDK is in ~/emsdk/, then compilation
-	is done using ./make-emscripten, and ./link-emscripten and applications are run
-	as above but using ./emrun, after copying Configs/config.emscripten to src/config:
+	For the EMSCRIPTEN port, check that the EMSDK is in ~/emsdk/, then compilation
+	is done after copying Configs/config.emscripten to src/config and running
+	./make-emscripten.  Applications are run as above but using ./emrun:
 
 	./emrun demo-aafont
 	./emrun mwdemo2
+	./emrun mwmine
 
 6. Documentation is available in microwindows/doc and microwindows/src/docs directories.
 	Win32 API documentation is in docs/Win32API.html

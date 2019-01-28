@@ -1,0 +1,37 @@
+EMSCRIPTEN Rules for fast application execution
+
+The EMTERPRETIFY=1 link option is required in order to call emscripten_sleep() to allow JS async
+functions to run with the Microwindows design. This also allows the SDL functions
+to actually update the screen in the MwSelect() and GsSelect() functions, where
+the processor is normally given up in non-browser environments.
+
+Applications can be greatly sped up by specifying an EMTERPRETIFY_WHITELIST which
+specifies the only functions that will be interpreted, allowing the application
+itself to run at full speed. A default list for Win32 and Nano-X applications has
+been created and EMTERPRIFY_ADVISE=1 can be used to check whether your application
+meets these requirements, or other functions may need to be added.
+
+When the emscripten_sleep() function is called, all functions in the call stack
+must also be whitelisted, or this method fails. This simplest requirement
+is that the main message proessing loop be called from main() or WinMain().
+
+Applications that can't meet this requirement, which also include all Win32
+applications that call dialog functions (which run a modal message processing
+loop outside WinMain(), must be linked without the whitelist, thus emterpreting
+all functions (slow).
+
+
+Changes made in Microwindows demos
+Fixed xdraw.c, replaced sleep() with GrDelay() in main() which calls emscripten_sleep() to draw
+Added DrawRoaches to whitelist for nxroach.c
+Added J to whitelist for williams.c
+Moved message loop into main() for mwmine.c, xdraw.c
+
+
+Other issues for applications:
+no mainloop get or checkevent outside of main() or WinMain()
+no MwDelay or Sleep() with EMSCRIPTEN applications
+no GrDelay outside main
+XFlush()/GrFlush() won't actually draw until GsSelect()/GrDelay() called (xdraw.c
+no Dialog functions with GetMessage() loop internally
+	mwdvetest,mwdialog have to run full EMTERPRETIFY=1 because of dialog message loop

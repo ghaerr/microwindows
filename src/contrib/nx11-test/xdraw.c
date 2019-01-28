@@ -198,7 +198,12 @@ static XPoint	points10[]=
 	SLEEP FOR 5 SECONDS
 -----------------------------------------------------------------------------*/
 
+#if EMSCRIPTEN
+	extern void		GrDelay(uint32_t msecs);
+	GrDelay(5000);		// required to draw XFlush'd graphics, can only call GrDelay from main()
+#else
 	sleep(5);
+#endif
 
 /*-----------------------------------------------------------------------------
 	DESTROY ALL WINDOWS

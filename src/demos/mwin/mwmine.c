@@ -68,7 +68,6 @@ void InitMyWinCreateInfo(PMAINWINCREATE pCreateInfo);
 void InitAbHostedCreateInfo(HWND hHosting, PMAINWINCREATE  pCreateInfo); 
 void InitHighScoreCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo);
 void InitCongratulationCreateInfo (HWND hHosting, PMAINWINCREATE pCreateInfo);
-void* TestMyWindow(void* data);
 void BombGame(HWND hWnd, int x, int y);
 void Finished(HWND hWnd);
 void Cancel3DFrame(HDC hdc, int l,int t,int r,int b);
@@ -1302,7 +1301,8 @@ CreateMainWindow(PMAINWINCREATE pCreateInfo)
 	return hwnd;
 }
 
-void* TestMyWindow(void* data) 
+int WINAPI 
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     MSG Msg;
     MAINWINCREATE CreateInfo;
@@ -1313,7 +1313,7 @@ void* TestMyWindow(void* data)
     hMainWnd = CreateMainWindow(&CreateInfo);
 
     if (hMainWnd == 0)
-        return NULL;
+        return 0;
 
     ShowWindow(hMainWnd,SW_SHOWNORMAL);
     while( GetMessage(&Msg, NULL, 0, 0) ) {
@@ -1321,13 +1321,5 @@ void* TestMyWindow(void* data)
         DispatchMessage(&Msg);
     }
 
-    return NULL;
-}
-
-int WINAPI 
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
-	int nShowCmd)
-{
-    TestMyWindow (NULL);
     return 0;
 }

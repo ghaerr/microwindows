@@ -22,7 +22,8 @@ ifeq ($(MINGW), Y)
 DOSEXT :=.exe
 endif
 
-# X11 headers
+# use local X11 headers to compile with no X11 or SDL
+X11HDRLOCATION=$(MW_DIR_SRC)/nx11/X11-local
 ifneq ($(X11HDRLOCATION),)
 INCLUDEDIRS += -I$(X11HDRLOCATION)
 endif
@@ -50,7 +51,7 @@ endif
 ifeq ($(LINUX_LINARO), Y)
 TARGETS = xhello xmouse xgreen
 else
-TARGETS = queryfont loadfont listfonts draw textbox xhello xmouse xgreen testarc xservervendor
+TARGETS = queryfont loadfont listfonts xdraw xtextbox xhello xmouse xgreen xtestarc xservervendor
 endif
 
 ifneq ($(DOS_DJGPP), Y)

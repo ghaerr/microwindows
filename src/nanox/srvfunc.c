@@ -119,7 +119,8 @@ GrPeekEvent(GR_EVENT *ep)
 	elp = curclient->eventhead;
 #if NONETWORK
 	/* if no events on queue, force select() event check*/
-	if (elp == NULL) {
+	if (elp == NULL)
+	{
 		GsSelect(-1L);	/* poll*/
 		elp = curclient->eventhead;
 	}
@@ -1700,7 +1701,14 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 		SERVER_UNLOCK();
 		return;
 	}
-
+#if NANOWM
+	/*
+	 * Keep root window child updates by window manager when
+	 * application sets other root window event selections
+	 */
+	if (wid == GR_ROOT_WINDOW_ID && (evp->eventmask & GR_EVENT_MASK_CHLD_UPDATE))
+			eventmask |= GR_EVENT_MASK_CHLD_UPDATE;
+#endif
 	evp->client = curclient;
 	evp->eventmask = eventmask;
 	evp->next = wp->eventclients;
@@ -1904,7 +1912,6 @@ GrMapWindow(GR_WINDOW_ID wid)
 	GR_WINDOW	*wp;		/* window structure */
 
 	SERVER_LOCK();
-
 	wp = GsFindWindow(wid);
 	if (!wp || wp->mapped) {
 		SERVER_UNLOCK();

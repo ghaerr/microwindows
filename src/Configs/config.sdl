@@ -35,8 +35,8 @@ PARALLEL                 = N
 #KEYBOARD                 =
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-X11LIBLOCATION           = /usr/X11/lib
-X11HDRLOCATION           = /usr/X11/include
+#X11LIBLOCATION           = /usr/X11/lib
+X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
 
 SCREEN                   = SDL
 MOUSE                    =
@@ -53,7 +53,7 @@ EXTENGINELIBS            += -lSDL2
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
-NX11                     = N
+NX11                     = Y
 ENGINE                   = Y
 TINYWIDGETS              = Y
 

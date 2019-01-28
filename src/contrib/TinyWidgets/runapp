@@ -10,7 +10,7 @@
 #			-D	upside down portrait mode
 #			-A	auto switch portrait mode with mouse at screen edge
 #
-appdir=bin
+appdir=demos
 
 # first determine the directory that contains this script itself
 scriptdir=""

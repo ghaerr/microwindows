@@ -44,7 +44,7 @@ void wm_init(void)
 #endif
 }
 
-/* return 1 if event was handled by window manager*/
+/* return 1 if event was handled by window manager and should be changed to no event*/
 int wm_handle_event(GR_EVENT *event)
 {
 	switch(event->type) {

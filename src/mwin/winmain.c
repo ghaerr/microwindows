@@ -66,6 +66,7 @@ int		mouse_fd;		/* the mouse file descriptor */
 int		escape_quits = 1;	/* terminate when pressing ESC */
 DWORD		lastWIN32Error = 0;	/* Last error */
 
+static void MwDelay(MWTIMEOUT msecs);
 static void MwPlatformInit(void);	/* platform specific init goes here*/
 
 int
@@ -651,11 +652,13 @@ MwTerminate(void)
 	exit(0);
 }
 
+#if !EMSCRIPTEN
 VOID WINAPI
 Sleep(DWORD dwMilliseconds)
 {
 	MwDelay(dwMilliseconds);
 }
+#endif
 
 /*
  * Return # milliseconds elapsed since start of Microwindows
@@ -686,7 +689,7 @@ GetTickCount(VOID)
 /*
  * Suspend execution of the program for the specified number of milliseconds.
  */
-void
+static void
 MwDelay(MWTIMEOUT msecs)
 {
 #if UNIX && HAVE_SELECT

@@ -34,8 +34,25 @@ LDFLAGS += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
 LDFLAGS += -s WASM=0
 LDFLAGS += -s TOTAL_MEMORY=67108864
 LDFLAGS += -s ERROR_ON_UNDEFINED_SYMBOLS=0
+#LDFLAGS += -s ASSERTIONS=1
+#LDFLAGS += -s EMTERPRETIFY_ADVISE=1			# advise functions to whitelist
 
-COMPILEARGS = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS) $(LDFLAGS)
+# applications not following docs/EMSCRIPTEN.rules may have to add functions here
+WHITELIST = -s EMTERPRETIFY_WHITELIST='[ \
+				"_WinMain", "_MwSelect", "_MwDelay", \
+				"_GetMessage", "_PeekMessage", "_chkPaintMsg", \
+				"_main", "_GsSelect", "_GrDelay", "_GrFlush", \
+				"_GrGetNextEvent", "_GrGetNextEventTimeout", "_GrPeekEvent", "_GsCheckNextEvent", \
+				"_GrPeekWaitEvent", "_GrGetTypedEvent", "_GrGetTypedEventPred", \
+				"_XNextEvent", "_XPeekEvent", "_XFlush", "_XCloseDisplay", \
+				"_XMaskEvent", "_XCheckMaskEvent", "_XWindowEvent", "_XCheckWindowEvent", \
+				"_XCheckTypedEvent", "_XCheckTypedWindowEvent", "_XIfEvent", "__XIfEvent", \
+				"_XCheckIfEvent", \
+				"_J", "_DrawRoaches" \
+				"]'
+
+COMPILEARGS                   = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS) $(LDFLAGS) $(WHITELIST)
+COMPILEARGS_FULL_EMTERPRETIFY = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS) $(LDFLAGS)
 
 DEMOFONTS = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@fonts/truetype 
 NX11FONTS = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@/usr/share/fonts/truetype
@@ -74,6 +91,7 @@ NANOXDEMOS += $(MW_DIR_BIN)/demo-region.html
 NANOXDEMOS += $(MW_DIR_BIN)/demo-grabkey.html
 
 # NANOX demos requiring fonts/em-font truetype fonts
+NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-ttfont.html
 NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-font.html
 
 # specially linked NANOX demos
@@ -87,30 +105,28 @@ DEMOAGG = $(MW_DIR_BIN)/demo-agg.html
 endif
 
 ifdef NX11
+NX11DEMOS += $(MW_DIR_BIN)/williams.html
+NX11DEMOS += $(MW_DIR_BIN)/xdraw.html
 NX11DEMOS += $(MW_DIR_BIN)/xgreen.html
-NX11DEMOS += $(MW_DIR_BIN)/draw.html
 NX11DEMOS += $(MW_DIR_BIN)/xhello.html
-NX11DEMOS += $(MW_DIR_BIN)/testarc.html
-#NX11DEMOS += $(MW_DIR_BIN)/williams.html
+NX11DEMOS += $(MW_DIR_BIN)/xtestarc.html
 endif
 
 ##############################  Rules Section ###############################
 SPECIAL_LINKED_DEMOS = $(MWDVETEST) $(MWMINE) $(DEMOAAFONT) $(DEMOCOMPOSITE) $(DEMOAGG)
 
-all: $(MWINDEMOS) $(SPECIAL_LINKED_DEMOS) $(NANOXDEMOS) $(NANOXFONTDEMOS) $(NX11DEMOS)
+all: $(MWINDEMOS) $(NANOXDEMOS) $(NANOXFONTDEMOS) $(SPECIAL_LINKED_DEMOS) $(NX11DEMOS)
 
 
 ######## MWIN DEMOS ########
 $(MWINDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 ######## MWIN SPECIAL LINKED DEMOS ########
 $(MWDVETEST): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) $(MWDVETESTPRELOAD) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
-	$(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) $(MWDVETESTPRELOAD) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS_FULL_EMTERPRETIFY) -o $@ $< $(MWINLIBS) $(MWDVETESTPRELOAD) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 # List of images for the mwmine demo.
 MINEIMAGES := \
@@ -123,39 +139,32 @@ MINEIMAGES := \
 
 $(MWMINE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(MINEIMAGES) $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(MINEIMAGES) $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 ######## NANOX DEMOS ########
 $(NANOXDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 ######## NANOX FONT DEMOS ########
 $(NANOXFONTDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 ######## NANOX SPECIAL LINKED DEMOS ########
 $(DEMOAAFONT): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOAAFONTPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOAAFONTPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 $(DEMOCOMPOSITE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOCOMPOSITEPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOCOMPOSITEPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 $(DEMOAGG): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.cpp
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< demos/nanox/agglite.cpp $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 ######## NX11 DEMOS ########
 $(NX11DEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/contrib/nx11-test/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	@echo $(CC) $(COMPILEARGS) -o $@ $< $(NX11LIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 	$(CC) $(COMPILEARGS) -o $@ $< $(NX11LIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary

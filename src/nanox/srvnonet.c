@@ -24,9 +24,6 @@ GrFlush(void)
 		if(scrdev.PreSelect)
 			scrdev.PreSelect(&scrdev);
 	}
-#if EMSCRIPTEN
-	emscripten_sleep(1);		/* allow EMSCRIPTEN/SDL javascript to run after SDL screen flush*/
-#endif
 }
 
 void
@@ -74,7 +71,9 @@ GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	 * linked apps call this function.
 	 */
 	while(curclient->eventhead == NULL)
+	{
 		GsSelect(timeout);
+	}
 
 	GsCheckNextEvent(ep, GR_FALSE);
 	SERVER_UNLOCK();
@@ -88,7 +87,9 @@ GrPeekWaitEvent(GR_EVENT *ep)
 {
 	SERVER_LOCK();
 	while(curclient->eventhead == NULL)
+	{
 		GsSelect(0L);
+	}
 	GrPeekEvent(ep);
 	SERVER_UNLOCK();
 }
@@ -111,7 +112,7 @@ GrQueueLength(void)
 
 /* builtin callback function for GrGetTypedEvent*/
 static GR_BOOL
-GetTypedEventCallback(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update, GR_EVENT *ep, void *arg)
+GetTypedEventCallback(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,GR_EVENT *ep,void *arg)
 {
 	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
 
@@ -155,16 +156,34 @@ GrGetTypedEvent(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update, GR_
  * GR_EVENT_TYPE_NONE is returned if a match is not found.
  */
 int
-GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update, GR_EVENT *ep, GR_BOOL block,
-	GR_TYPED_EVENT_CALLBACK matchfn, void *arg)
+GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update, GR_EVENT *ep,
+	GR_BOOL block, GR_TYPED_EVENT_CALLBACK matchfn, void *arg)
 {
 	GR_EVENT_LIST *elp, *prevelp;
 
+	/* process server events, required for williams.c XMaskEvent style app in LINK_APP_INTO_SERVER case*/
+	GsSelect(-1L); 		/* poll for event*/
+#if EMSCRIPTEN
+	/* required for williams.c style XCheckMaskEvent polling apps*/
+	emscripten_sleep(1); /* allow EMSCRIPTEN/SDL javascript to run after SDL screen flush*/
+#endif
+
 	SERVER_LOCK();
 	/* determine if we need to wait for any events*/
-	while(curclient->eventhead == NULL) {
+	while(curclient->eventhead == NULL)
+	{
 getevent:
 		GsSelect(block? 0L: -1L); /* wait/poll for event*/
+
+#if NANOWM
+		if (curclient->eventhead)
+		{
+			GR_EVENT_LIST *	elp = curclient->eventhead;
+			/* let inline window manager look at event, required for williams.c XMaskEvent style app*/
+			wm_handle_event(&elp->event);		/* don't change event type for Mask* functions*/
+		}
+#endif
+
 		if (!block)
 			break;
 	}
@@ -181,12 +200,16 @@ getevent:
 				curclient->eventhead = elp->next;
 			else prevelp->next = elp->next;
 			if (curclient->eventtail == elp)
-				curclient->eventtail = NULL;
+				curclient->eventtail = prevelp;
 			elp->next = eventfree;
 			eventfree = elp;
 
 			*ep = elp->event;
 			SERVER_UNLOCK();
+#if NANOWM
+			/* let inline window manager look at event*/
+			wm_handle_event(ep);	/* don't change even type*/
+#endif
 			return ep->type;
 		}
 		prevelp = elp;

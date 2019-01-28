@@ -97,7 +97,6 @@ extern long	mwTextCoding;	/* current text encoding*/
 void	MwSelect(BOOL canBlock);
 int		MwInitialize(void);
 void	MwTerminate(void);
-void	MwDelay(MWTIMEOUT msecs);
 
 extern	HWND	listwp;			/* list of all windows */
 extern	HWND	rootwp;			/* root window pointer */

@@ -106,18 +106,6 @@ static void draw_screen ()
                  x, y, text_box.text, text_box.text_len);
 }
 
-/* Loop over events. */
-
-static void event_loop ()
-{
-    while (1) {
-        XEvent e;
-        XNextEvent (text_box.display, & e);
-        if (e.type == Expose) {
-            draw_screen ();
-        }
-    }
-}
 
 int main (int argc, char ** argv)
 {
@@ -127,6 +115,13 @@ int main (int argc, char ** argv)
     create_window ();
     set_up_gc ();
     set_up_font ();
-    event_loop ();
+	/* Loop over events. */
+    while (1) {
+        XEvent e;
+        XNextEvent (text_box.display, & e);
+        if (e.type == Expose) {
+            draw_screen ();
+        }
+    }
     return 0;
 }

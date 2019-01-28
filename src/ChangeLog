@@ -1,3 +1,8 @@
+27 Jan 2019
+	* created standard whitelist for EMTERPRITY-only functions to speed up all demos tremendously
+		See src/EMSCRIPTEN.rules for requirements for avoiding EMTERPRITIFY'ing all functions
+	* debugged contrib/nx11-test/williams.c XMaskEvent wait for Exposure and GrGetTypedEventPred bugs
+	* default SDL build NX11=Y with local X11 headers to allow nx11-test compiles w/o X11 installed
 25 Jan 2019
 	* got most Nano-X and Win32 demos compiling and linking with EMSCRIPTEN using standard  make system
 24 Jan 2019

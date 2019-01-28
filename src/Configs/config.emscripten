@@ -34,7 +34,7 @@ SCREEN                   = SDL
 MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 1024
-SCREEN_HEIGHT            = 768
+SCREEN_HEIGHT            = 640
 # EMSCRIPTEN X11 headers are local in nx11
 # X11_RGBTXT is actually --preload fonts/em-fonts@/usr/share/fonts/truetype
 X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local

@@ -987,6 +987,91 @@ GetParent(HWND hwnd)
 	return hwnd->parent;		/* child window*/
 }
 
+HWND WINAPI SetParent(HWND hwnd, HWND parent)
+{
+	WINDOWPOS winpos;
+	HWND full_handle;
+	HWND old_parent = 0;
+	BOOL was_visible;
+	BOOL ret;
+	RECT window_rect, old_screen_rect, new_screen_rect;
+
+	//if (is_broadcast(hwnd) || is_broadcast(parent))
+	//{
+	//	SetLastError(ERROR_INVALID_PARAMETER);
+	//	return 0;
+	//}
+
+	if (!parent)
+		parent = GetDesktopWindow();
+	else if (parent == HWND_MESSAGE)
+		;//parent = get_hwnd_message_parent();
+	else
+		;// parent = WIN_GetFullHandle(parent);
+
+	if (!IsWindow(parent))
+	{
+		//SetLastError(ERROR_INVALID_WINDOW_HANDLE);
+		return 0;
+	}
+
+	/* Some applications try to set a child as a parent */
+	if (IsChild(hwnd, parent))
+	{
+		//SetLastError(ERROR_INVALID_PARAMETER);
+		return 0;
+	}
+
+	//if (full_handle == parent)
+	//{
+	//	SetLastError(ERROR_INVALID_PARAMETER);
+	//	return 0;
+	//}
+
+	/* Windows hides the window first, then shows it again
+	 * including the WM_SHOWWINDOW messages and all */
+	was_visible = ShowWindow(hwnd, SW_HIDE);
+
+	//wndPtr = WIN_GetPtr(hwnd);
+	//if (!wndPtr || wndPtr == WND_OTHER_PROCESS || wndPtr == WND_DESKTOP) return 0;
+	if (!hwnd)
+		return 0;
+	POINT pt;
+	pt.x = hwnd->winrect.left;
+	pt.y = hwnd->winrect.top;
+
+	ScreenToClient(hwnd->parent, &pt);
+	hwnd->parent = parent;
+
+	if (parent == GetDesktopWindow() && !(hwnd->style & WS_CLIPSIBLINGS))
+	{
+		hwnd->style |= WS_CLIPSIBLINGS;
+	}
+
+	SetWindowPos(hwnd, (0 == (hwnd->exstyle & WS_EX_TOPMOST) ? HWND_TOP : HWND_TOPMOST), pt.x, pt.y, 0, 0, SWP_NOSIZE);
+
+	if (was_visible) ShowWindow(hwnd, SW_SHOW);
+
+	return old_parent;
+}
+
+
+HWND WINAPI GetAncestor(HWND hwnd, UINT type)
+{
+	switch (type)
+	{
+	case GA_PARENT:
+		return GetParent(hwnd);
+	case GA_ROOT:
+		return GetParent(hwnd);
+		break;
+	case GA_ROOTOWNER:
+		return GetParent(hwnd);
+		break;
+	}
+}
+
+
 BOOL WINAPI
 EnableWindow(HWND hwnd, BOOL bEnable)
 {

@@ -869,6 +869,26 @@ UpdateWindow(HWND hwnd)
 #endif
 }
 
+BOOL WINAPI	SetLayeredWindowAttributes(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags)
+{
+	if (!hwnd || hwnd->unmapcount)
+		hwnd = rootwp;
+	hwnd->color_key = crKey;
+	hwnd->alpha = bAlpha;
+	hwnd->layered_flags = dwFlags;
+	return TRUE;
+}
+
+BOOL WINAPI GetLayeredWindowAttributes(HWND     hwnd, COLORREF *pcrKey, BYTE     *pbAlpha, DWORD    *pdwFlags)
+{
+	if (!hwnd || hwnd->unmapcount)
+		hwnd = rootwp;
+	*pcrKey = hwnd->color_key;
+	*pbAlpha = hwnd->alpha;
+	*pdwFlags = hwnd->layered_flags;
+	return TRUE;
+}
+
 HWND WINAPI
 GetFocus(VOID)
 {

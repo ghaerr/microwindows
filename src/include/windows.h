@@ -141,6 +141,9 @@ struct hwnd {
 	int		paintSerial;	/* experimental serial # for alphblend*/
 	int		paintNC;	/* experimental NC paint handling*/
 	int		nEraseBkGnd;	/* for InvalidateXX erase bkgnd flag */
+	unsigned int     color_key;       /* color key for a layered window */
+	unsigned int     alpha;           /* alpha value for a layered window */
+	unsigned int     layered_flags;   /* flags for a layered window */
 	HBRUSH		paintBrush;	/* brush created to paint some controls */
 	HPEN		paintPen;	/* pen created to paint some controls */
 	MWCLIPREGION *	update;		/* update region in screen coords*/

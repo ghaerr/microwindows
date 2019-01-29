@@ -885,6 +885,9 @@ SetFocus(HWND hwnd)
 	if(!hwnd || hwnd->unmapcount)
 		hwnd = rootwp;
 
+	if (!IsWindow(hwnd))
+		return FALSE;
+
 	if(hwnd == focuswp)
 		return focuswp;
 
@@ -1444,6 +1447,9 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 	WINDOWPOS	winpos;
 
 	if(!hwnd || hwnd == rootwp || cx < 0 || cy < 0)
+		return FALSE;
+
+	if (!IsWindow(hwnd))
 		return FALSE;
 
 	/* FIXME SWP_NOACTIVATE*/

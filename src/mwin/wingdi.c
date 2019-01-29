@@ -53,6 +53,9 @@ GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 {
 	HDC	hdc;
 
+	if (!IsWindow(hwnd) && (hwnd))
+		return NULL;
+
 	if(!hwnd)		/* handle NULL hwnd => desktop*/
 		hwnd = rootwp;
 

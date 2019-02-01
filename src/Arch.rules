@@ -294,6 +294,7 @@ DEFINES += -DLINUX=1 -DUNIX=1 -DARCH_NEED_ALIGN32 -D_ANDROID_=1 -D__ANDROID__=1
 CFLAGS += -mstructure-size-boundary=8 -I$(HOME)/android-toolchain/user/armeabi-v7a/include
 #CFLAGS += -s
 LDFLAGS += -L$(HOME)/android-toolchain/usr/armeabi-v7a/lib
+LDFLAGS += -Landroid/buildandroid/lib -lallegro-debug 
 #add liblog to support logcat
 LDFLAGS += -L$(HOME)/android-toolchain/sysroot/usr/lib -llog
 endif
@@ -305,7 +306,6 @@ ARCHIVER = emar
 LIBM =
 DEFINES += -DEMSCRIPTEN=1
 CFLAGS += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s USE_LIBPNG=1
-#CFLAGS += -s ASSERTIONS=1
 #LDFLAGS += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
 #LDFLAGS += -s WASM=0
 #LDFLAGS += -s TOTAL_MEMORY=67108864
@@ -313,26 +313,4 @@ CFLAGS += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s USE_LIBPNG=1
 ifeq ($(VERBOSE), Y)
 CFLAGS += -v
 endif
-endif
-
-#
-# FIXME the following ALLEGRO4/5 should completely be specified in config and not here
-#
-
-# ALLEGRO5
-ifeq ($(SCREEN), ALLEGRO5)
-DEFINES += -DALLEGRO=1
-ifeq ($(ARCH),ANDROID)
-  #LDFLAGS += -L$(HOME)/allegro5111/ba/lib -lallegro-debug 
-  LDFLAGS += -Landroid/buildandroid/lib -lallegro-debug 
-else
-  LDFLAGS += -lallegro 
-endif
-endif
-
-# ALLEGRO4
-ifeq ($(SCREEN), ALLEGRO4)
-#for srvmain.c and winmain.c
-DEFINES += -DALLEGRO=1
-LDFLAGS += -lalleg 
 endif

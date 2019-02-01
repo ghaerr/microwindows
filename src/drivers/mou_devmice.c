@@ -138,7 +138,7 @@ Mice_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
 	unsigned char data[4];
 	int Bytes_Read;
-        int left, middle, right;
+        int left, middle, right, button = 0;
         signed char x, y, z;
 
 // Read Mouse. Ask for four bytes, expect three.
@@ -149,17 +149,14 @@ Mice_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
         left = data[0] & 0x1;
         right = data[0] & 0x2;
         middle = data[0] & 0x4;
-// mwtypes.h:1424:#define MWBUTTON_R                 0x01          /* right button*/
-// mwtypes.h:1425:#define MWBUTTON_M                 0x02          /* middle*/
-// mwtypes.h:1426:#define MWBUTTON_L                 0x04          /* left*/
 
 // remap these bits to Nano-X expected format
 
-	left <<= 2;     // 1 goes to 4
-	right >>= 1;    // 2 goes to 1
-	middle >>= 1;   // 4 goes to 2
+	if (left)	button |= MWBUTTON_L;
+	if (middle)	button |= MW_BUTTON_M;
+	if (right)	button |= MW_button_R;
 
-	*bp = (left | middle | right);
+	*bp = buttons;
 
 // mwtypes.h:268:typedef int    MWCOORD;        // device coordinates
 

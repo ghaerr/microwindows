@@ -1,3 +1,6 @@
+31 Jan 2019
+	* added config.android
+	* fix drivers/devmice.c to use MWBUTTON_[L|M|R]
 27 Jan 2019
 	* created standard whitelist for EMTERPRITY-only functions to speed up all demos tremendously
 		See src/EMSCRIPTEN.rules for requirements for avoiding EMTERPRITIFY'ing all functions

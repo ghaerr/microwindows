@@ -26,7 +26,7 @@ console features and also to disable the special processing of the main() functi
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
 #if _ANDROID_
-  #include "allegro5/allegro_android.h"
+  #include <allegro5/allegro_android.h>
   #include <android/log.h>
 #endif
 #define CTRL(x)	  ((x) & 0x1f)

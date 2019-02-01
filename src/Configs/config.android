@@ -32,12 +32,24 @@ PARALLEL                 = N
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
 SCREEN                   = ALLEGRO5
+ALLEGRO5_INCLUDE	 = /home/giri/workspace/fltk_mvc_template/MVC/include
+ALLEGRO5_LIB		 = /home/giri/workspace/fltk_mvc_template/MVC/lib/android_arm
 MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 640
 SCREEN_HEIGHT            = 480
 X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
 #EXTENGINELIBS            = -lallegro
+
+####################################################################
+# Android specific settings (these also allow compiling android)
+# for different architectures + platform versions
+####################################################################
+ANDROID_NDK_HOME	= /usr/lib/android-ndk
+ANDROID_PLATFORM_VER	= android-23
+ANDROID_TOOLCHAIN_NAME	= arm-linux-androideabi-4.9
+ANDROID_ARCH		= arm
+ANDROIDTOOLSPREFIX      = arm-linux-androideabi-
 
 ####################################################################
 #

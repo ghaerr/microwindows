@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include <errno.h>
 #include <string.h>
 #include <sys/socket.h>

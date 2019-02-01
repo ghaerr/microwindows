@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "uni_std.h"
 
 #define PAINTONCE	1	/* =1 to queue paint msgs only once*/
 #define MOUSETEST	1

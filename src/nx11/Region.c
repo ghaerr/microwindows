@@ -1,5 +1,6 @@
 #include "nxlib.h"
 #include <stdlib.h>
+#include "uni_std.h"
 #include "X11/Xutil.h"	/* typedef struct _XRegion *Region */
 
 /*

@@ -7,7 +7,7 @@
 #include "keysymstr.h"
 
 #include <stdlib.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include <fcntl.h>
 #if !__MINGW32__
 #include <sys/ioctl.h>

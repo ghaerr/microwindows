@@ -11,6 +11,7 @@
  */
 #include <assert.h>
 #include <string.h>
+#include "uni_std.h"
 #include "device.h"
 #include "fb.h"
 

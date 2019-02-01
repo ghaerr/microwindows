@@ -10,6 +10,7 @@
 #include "device.h"
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 
 HFONT WINAPI
 CreateFont(int nHeight, int nWidth, int nEscapement, int nOrientation,

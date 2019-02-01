@@ -5,7 +5,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include "uni_std.h"
 #if LINUX
 #include <fcntl.h>
 #include <sys/ioctl.h>

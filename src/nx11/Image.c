@@ -4,6 +4,7 @@
 #include "nxlib.h"
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 
 /*
  * X Image routines.  Messy.  Not done yet.

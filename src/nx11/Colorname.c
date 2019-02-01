@@ -4,6 +4,7 @@
 #include "nxlib.h"
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 
 #define ISBLANK(c)	((c) == ' ' || (c) == '\t')
 #define ISDIGIT(c)	((c) >= '0' && (c) <= '9')

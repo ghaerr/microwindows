@@ -13,9 +13,7 @@
 #else
 #include <stdio.h>
 #include <string.h>
-#if UNIX | DOS_DJGPP | EMSCRIPTEN
-#include <unistd.h>
-#endif
+#include "uni_std.h"
 #endif
 #include "device.h"
 

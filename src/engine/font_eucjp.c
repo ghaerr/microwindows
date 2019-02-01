@@ -10,12 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include <sys/types.h>
-#include <sys/mman.h>
 #include <fcntl.h>
-#ifndef MAP_FAILED
-#define MAP_FAILED  ((void *)-1)
+#if HAVE_MMAP
+#include <sys/mman.h>
 #endif
 #include "device.h"
 #include "devfont.h"
@@ -131,13 +130,24 @@ eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 		EPRINTF("FONT_EUCJP: Not MGL font file(filesize doesn't match).\n");
 		goto EUCJP_FAIL;
 	}
-	pf->font_base = (char *)mmap((caddr_t) 0, pf->koffset + pf->kbytes * 8064,
-			      PROT_READ, MAP_SHARED | MAP_FILE, fd, 0);
-	if (pf->font_base == MAP_FAILED) {
+#if HAVE_MMAP
+	pf->font_base = (char *)mmap(NULL, fsize, PROT_READ, MAP_SHARED|MAP_FILE, fd, 0);
+	if (pf->font_base == NULL || pf->font_base == (char *)-1)) {
 		EPRINTF("FONT_EUCJP: Can't mmap font data.\n");
 		goto EUCJP_FAIL;
 	}
-
+#else
+	pf->font_base = malloc(fsize);
+	if (!pf->font_base) {
+		EPRINTF("FONT_EUCJP: Can't malloc font data.\n");
+		goto EUCJP_FAIL;
+	}
+	lseek(fd, 0L, SEEK_SET);
+	if (read(fd, pf->font_base, fsize) != fsize) {
+		EPRINTF("FONT_EUCJP: Can't read font data.\n");
+		goto EUCJP_FAIL;
+	}
+#endif
 	return (PMWFONT)pf;
 
 EUCJP_FAIL:
@@ -258,6 +268,10 @@ eucjp_destroyfont(PMWFONT pfont)
 {
 	PMWEUCJPFONT pf = (PMWEUCJPFONT) pfont;
 
+#if HAVE_MMAP
 	munmap(pf->font_base, pf->koffset + pf->kbytes * 8064);
+#else
+	free(pf->font_base);
+#endif
 	close(pf->fd);
 }

@@ -9,18 +9,16 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include <errno.h>
 #include <sys/types.h>
 
-#if UNIX | DOS_DJGPP | WIN32
-#include <unistd.h>
 #if _MINIX
 #include <sys/times.h>
-#else
+#elif UNIX | DOS_DJGPP | WIN32
 #include <sys/time.h>
 #endif
-#endif
+
 #if MSDOS
 #include <time.h>
 #endif

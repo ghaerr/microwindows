@@ -53,8 +53,8 @@
  */
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include "uni_std.h"
 #include "device.h"
 
 #if MW_FEATURE_TIMERS

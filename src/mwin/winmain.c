@@ -11,7 +11,7 @@
 #include <sys/types.h>
 
 #if UNIX | DOS_DJGPP
-#include <unistd.h>
+#include "uni_std.h"
 #if _MINIX
 #include <sys/times.h>
 #else

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include "nxlib.h"
 
 #if defined(__ANDROID__)

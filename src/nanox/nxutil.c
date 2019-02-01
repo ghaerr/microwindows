@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 #include "device.h"

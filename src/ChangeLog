@@ -1,5 +1,6 @@
 31 Jan 2019
-	* added config.android
+	* add "uni_std.h" to replace <unistd.h> for Windows (alloca/read etc), fix HAVE_MMAP issues
+	* added config.android, fixed Android build using -DHAVE_SELECT=0, CFLAGS/LDFLAGS
 	* fix drivers/devmice.c to use MWBUTTON_[L|M|R]
 27 Jan 2019
 	* created standard whitelist for EMTERPRITY-only functions to speed up all demos tremendously

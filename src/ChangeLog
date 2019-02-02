@@ -1,3 +1,5 @@
+2 Feb 2019
+	added Daniel's Create android APKs for nanox demos and updated ANDROID config
 1 Feb 2019
 	* remove WINAPI from non-entry point functions, add CALLBACK to WndProcs, WndProcBridge
 	* Added Rooz's IsWindow() fix, GetParent, GetAncestor, Get/SetLayeredWindowAttributes

@@ -32,12 +32,26 @@ PARALLEL                 = N
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
 SCREEN                   = ALLEGRO5
+ALLEGRO5_INCLUDE	 = /home/giri/workspace/fltk_mvc_template/MVC/include
+ALLEGRO5_LIB		 = /home/giri/workspace/fltk_mvc_template/MVC/lib/android_arm
+ALLEGRO5_SRC		 = /home/giri/workspace/fltk_mvc_template/MVC/packages/allegro5.1.13/allegro-5.1.13.1
 MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 640
 SCREEN_HEIGHT            = 480
 X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
 #EXTENGINELIBS            = -lallegro
+
+####################################################################
+# Android specific settings (these also allow compiling android)
+# for different architectures + platform versions
+####################################################################
+ANDROID_NDK_HOME	= /usr/lib/android-ndk
+ANDROID_PLATFORM_VER	= android-23
+ANDROID_ARCH		= arm
+ANDROID_ARCH_VER	= armeabi-v7a
+ANDROID_TOOLCHAIN_NAME	= arm-linux-androideabi-4.9
+ANDROIDTOOLSPREFIX      = arm-linux-androideabi-
 
 ####################################################################
 #
@@ -57,11 +71,21 @@ TINYWIDGETS              = N
 ####################################################################
 FBEMULATOR               = N
 MICROWINDEMO             = N
-NANOXDEMO                = N
+NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
 LIBVNC                   = -lvncserver
 INCVNC                   =
+
+####################################################################
+# Mandatory settings to create android .apk files
+####################################################################
+ANDROID_SDK_ROOT=/usr/lib/android-sdk
+ANDROID_BUILD_TOOLS_VERSION=24.0.0
+ANDROID_KEYSTORE_PATH=~/.android/debug.keystore
+ANDROID_KEYSTORE_NAME=androiddebugkey
+ANDROID_KEYSTORE_PW=android
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 
 ####################################################################
 # LINK_APP_INTO_SERVER links the nano-X server into the application,

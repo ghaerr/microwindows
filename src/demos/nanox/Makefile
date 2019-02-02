@@ -11,6 +11,15 @@ MW_DIR_RELATIVE := demos/nanox/
 include $(MW_DIR_SRC)/Path.rules
 include $(CONFIG)
 
+ifeq ($(ARCH), ANDROID)
+AAPT=$(ANDROID_SDK_ROOT)/build-tools/$(ANDROID_BUILD_TOOLS_VERSION)/aapt
+DX=$(ANDROID_SDK_ROOT)/build-tools/$(ANDROID_BUILD_TOOLS_VERSION)/dx
+ZIPALIGN=$(ANDROID_SDK_ROOT)/build-tools/$(ANDROID_BUILD_TOOLS_VERSION)/zipalign
+JAVAC=$(JAVA_HOME)/bin/javac
+JARSIGNER=$(JAVA_HOME)/bin/jarsigner
+endif
+
+
 ######################## Additional Flags section ############################
 
 # Directories list for header files
@@ -131,7 +140,15 @@ else # ECOS
 TARGETS += $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
 endif
 
-all: default $(TARGETS)	$(CXXTARGETS)
+# needed to create android skel diroctories
+ifeq ($(ARCH), ANDROID)
+LDFLAGS+=-shared
+ANDROID_SKEL := $(TARGETS:=-apk )
+ANDROID_PACK := $(TARGETS:=-pack )
+endif
+
+all: default $(ANDROID_SKEL) $(TARGETS) $(CXXTARGETS) $(ANDROID_PACK)
+ifneq ($(ARCH), ANDROID)
 	$(CP) \
 		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
 		$(MW_DIR_SRC)/images/demos/nanox/world.map \
@@ -143,6 +160,7 @@ all: default $(TARGETS)	$(CXXTARGETS)
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
 		$(MW_DIR_SRC)/images/demos/nanox/aademo.txt \
 		$(MW_DIR_BIN)
+endif
 
 endif # NANOXDEMO
 endif # NANOX
@@ -176,24 +194,90 @@ NANOX_DEMOS_WITH_STANDARD_LINK := \
 $(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 #	echo $(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
+ifeq ($(ARCH), ANDROID)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(NANOXCLIENTLIBS) $(LDFLAGS)
+else
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
+endif
 
 # Link rule used for demos with libm.
 $(NANOX_DEMOS_WITH_LIBM_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+ifeq ($(ARCH), ANDROID)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
+else
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
+endif
 
 $(MW_DIR_BIN)/nxkbd: $(NXKBDOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+ifeq ($(ARCH), ANDROID)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(NXKBDOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+else
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NXKBDOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+endif
 
 $(MW_DIR_BIN)/demo-convimage: $(CANNYOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+ifeq ($(ARCH), ANDROID)
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(CANNYOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+else
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(CANNYOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+endif
 
 $(MW_DIR_BIN)/demo-agg: $(AGGOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+ifeq ($(ARCH), ANDROID)
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(AGGOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+else
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(AGGOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+endif
+
+
+
+ifeq ($(ARCH), ANDROID)
+.PHONY: $(ANDROID_SKEL)
+$(ANDROID_SKEL)/%:
+	test -d $@ || mkdir -p $@
+	$(CP) -r $(MW_DIR_SRC)/demos/nanox/android-skel/* $@/
+	test -d $@/assets || mkdir -p $@/assets
+	$(CP) \
+		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
+		$(MW_DIR_SRC)/images/demos/nanox/world.map \
+		$(MW_DIR_SRC)/images/demos/nanox/tux.gif \
+		$(MW_DIR_SRC)/images/demos/nanox/slidebmp.bmp \
+		$(MW_DIR_SRC)/images/demos/nanox/uponface.ppm \
+		$(MW_DIR_SRC)/images/demos/nanox/mwlogo.ppm \
+		$(MW_DIR_SRC)/images/demos/nanox/icons/*.ppm \
+		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
+		$(MW_DIR_SRC)/images/demos/nanox/aademo.txt \
+		$@/assets
+	test -d $@/lib/$(ANDROID_ARCH_VER) || mkdir -p $@/lib/$(ANDROID_ARCH_VER)
+	$(CP) $(ALLEGRO5_LIB)/liballegro.so $@/lib/$(ANDROID_ARCH_VER)/
+	$(CP) -r $(ALLEGRO5_SRC)/android/allegro_activity/src/* $@/java/
+
+$(MW_DIR_BIN)/%:
+	find $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk -type f -exec sed -i 's/_skeleton/'"$(subst -,,$(patsubst $(MW_DIR_BIN)/%-pack,%,$@))"'/g' {} \;
+	cd $(MW_DIR_BIN); \
+	$(AAPT) package -f -m -J $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk -M $(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/AndroidManifest.xml \
+	-I $(ANDROID_SDK_ROOT)/platforms/$(ANDROID_PLATFORM_VER)/android.jar  -F $(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned
+
+	test -d $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/classes || mkdir $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/classes
+	$(JAVAC) -classpath $(ANDROID_SDK_ROOT)/platforms/$(ANDROID_PLATFORM_VER)/android.jar -sourcepath 'src:$(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/java' \
+	-d '$(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/classes' -target 1.7 -source 1.7  $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/java/*.java
+
+	$(DX) --dex --output=$(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/classes.dex $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/classes
+	$(AAPT) package -f -M $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/AndroidManifest.xml -I $(ANDROID_SDK_ROOT)/platforms/$(ANDROID_PLATFORM_VER)/android.jar -F $(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned
+	cd $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk && $(AAPT) add $(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned classes.dex
+	cd $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk && $(AAPT) add -v $(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)).so
+	cd $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk && $(AAPT) add -v $(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned lib/$(ANDROID_ARCH_VER)/liballegro.so
+
+	cd $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk && find assets -type f -follow -exec  $(AAPT) add -v $(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned {} \;
+
+	$(JARSIGNER) -keystore $(ANDROID_KEYSTORE_PATH) -storepass '$(ANDROID_KEYSTORE_PW)'  $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned  $(ANDROID_KEYSTORE_NAME)
+	cd $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk && $(ZIPALIGN) -f 4 $(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk.unaligned $(patsubst $(MW_DIR_BIN)/%-pack,%,$@).apk
+endif
+
 
 ifeq ($(ARCH), ECOS)
 # Special build rules for linked in applications

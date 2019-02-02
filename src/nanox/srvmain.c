@@ -1264,7 +1264,7 @@ GrDelay(GR_TIMEOUT msecs)
 	sceKernelDelayThread(1000 * msecs);
 #elif MSDOS
 	/* no delay required*/
-#elif
+#else
 	/* no delay implemented*/
 #pragma message("GrDelay - no delay implemented, will have excess CPU in eventloop")
 #endif

@@ -21,6 +21,7 @@
 #include "X11/Xlib.h"
 #include "../include/nano-X.h"
 
+#include "../include/device.h"	/* for DPRINTF*/
 #include <stdio.h>
 #include <stdlib.h>		/* for malloc.h*/
 
@@ -37,6 +38,8 @@
 #endif
 #define Xfree(ptr) free((ptr))
 
+#undef ALLOCA
+#undef FREEA
 #if USE_ALLOCA
 /* alloca() is available, so use it for better performance */
 #define ALLOCA(size)	alloca(size)
@@ -57,11 +60,11 @@
 #define _XFreeMutex(lock)
 
 /* debug defines*/
-#if DEBUG
-#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
-#else
-#define DPRINTF(str, ...)									  /* no debug output*/
-#endif
+//#if DEBUG
+//#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
+//#else
+//#define DPRINTF(str, ...)									  /* no debug output*/
+//#endif
 
 /* Used internally for the colormap */
 typedef struct  {

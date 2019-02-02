@@ -555,6 +555,7 @@ MwInitialize(void)
 	 */
 	wc.style = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc = (WNDPROC)DefWindowProc;
+	wc.lpfnWndProcBridge = NULL;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = 0;
@@ -589,10 +590,14 @@ MwInitialize(void)
 	wp->id = 0;
 	wp->szTitle = (LPTSTR) malloc ( 64 );
 	wp->lpfnWndProc = wc.lpfnWndProc;
+	wp->lpfnWndProcBridge = NULL;
 	wp->hInstance = NULL;
 	wp->nEraseBkGnd = 1;
 	wp->paintBrush = NULL;
 	wp->paintPen = NULL;
+	wp->color_key = 0;
+	wp->alpha = 100;
+	wp->layered_flags = 0;
 
 	strcpy(wp->szTitle, "Microwindows");
 	wp->gotPaintMsg = PAINT_PAINTED;
@@ -702,8 +707,11 @@ MwDelay(MWTIMEOUT msecs)
 	emscripten_sleep(msecs);
 #elif PSP
 	sceKernelDelayThread(1000 * msecs);
+#elif MSDOS
+	/* no delay required*/
 #else
-	/* no delay implemented, */
+	/* no delay implemented*/
+#pragma message("MwDelay - no delay implemented, will have excess CPU in eventloop")
 #endif
 }
 

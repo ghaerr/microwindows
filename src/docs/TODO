@@ -1,4 +1,3 @@
-fix _ANDROID_/__ANDROID__ and ALLEGRO5 issues, nx11 __DJGPP__, __MINGW32__, __FORALL__
 add ANDROID GrDelay(), check whether -DLINUX=1 is needed
 check -DHAVE_MMAP=? for EMSCRIPTEN
 update runapp for nx11-test and contrib/TinyWidgets/{demo,tndesigner}

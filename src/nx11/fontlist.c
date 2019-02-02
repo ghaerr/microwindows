@@ -23,7 +23,7 @@ char *FONT_DIR_LIST[] = {
 #if __DJGPP__
 	"/usr/share/fonts/", //for fldesk as central fonts place
 #endif
-#if defined(__ANDROID__)
+#if ANDROID
 	"/system/fonts/",
 #else	
 	"fonts",						/* local font dir w/fonts.alias*/

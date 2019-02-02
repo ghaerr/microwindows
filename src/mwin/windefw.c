@@ -74,6 +74,9 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	CHAR		szTitle[64];
 	static POINT 	startpt;
 
+	if (!IsWindow(hwnd))
+		return 0;
+
 	switch(msg) {
 	case WM_NCCALCSIZE:
 		/* calculate client rect from passed window rect in rgrc[0]*/

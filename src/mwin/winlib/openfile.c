@@ -32,7 +32,7 @@ struct filters filterpairs[10];
 char currentfilter[128];
 char curpath[PATH_MAX] = {"."};
 
-LRESULT FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 static void fill_listbox(HWND hwnd,const char *path)
 {
@@ -71,7 +71,7 @@ static int isDirectory(const char *path) {
 }
 
 /* Window procedure for the dialog box */
-LRESULT FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static LPOPENFILENAME mdData;
 	int sel,isdir;

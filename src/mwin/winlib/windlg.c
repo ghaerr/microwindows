@@ -85,7 +85,7 @@ dlgGetCtrlTop(HWND hDlg, HWND hChild)
 /*
  * Initialize standard controls and dialog class
  */
-BOOL
+BOOL WINAPI
 MwInitializeDialogs(HINSTANCE hInstance)
 {
 	WNDCLASS wcl;

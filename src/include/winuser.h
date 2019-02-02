@@ -30,6 +30,7 @@ typedef struct tagWNDCLASSA {
     MWLIST	link;			/* microwin*/
     UINT        style;
     WNDPROC     lpfnWndProc;
+    WNDPROC     lpfnWndProcBridge; /* stored only*/
     int         cbClsExtra;		/* nyi*/
     int         cbWndExtra;
     HINSTANCE   hInstance;		/* nyi*/
@@ -416,11 +417,6 @@ BOOL WINAPI	ValidateRect(HWND hwnd, CONST RECT *lprc);
 BOOL WINAPI	ValidateRgn(HWND hwnd, HRGN hrgn);
 BOOL WINAPI	UpdateWindow(HWND hwnd);
 
-BOOL WINAPI	SetLayeredWindowAttributes(HWND hwnd, COLORREF crKey,
-			BYTE bAlpha, DWORD dwFlags);
-#define LWA_COLORKEY	0x00000001
-#define LWA_ALPHA	0x00000002
-
 HWND WINAPI	GetFocus(VOID);
 HWND WINAPI	SetFocus(HWND hwnd);
 BOOL WINAPI	SetForegroundWindow(HWND hwnd);
@@ -429,6 +425,14 @@ HWND WINAPI	GetActiveWindow(VOID);
 BOOL WINAPI	BringWindowToTop(HWND hwnd);
 HWND WINAPI	GetDesktopWindow(VOID);
 HWND WINAPI	GetParent(HWND hwnd);
+HWND WINAPI SetParent(HWND hwnd, HWND parent);
+HWND WINAPI GetAncestor(HWND hwnd, UINT type);
+
+/* GetAncestor() constants*/
+#define GA_PARENT       1
+#define GA_ROOT         2
+#define GA_ROOTOWNER    3
+
 BOOL WINAPI	EnableWindow(HWND hwnd, BOOL bEnable);
 #define IsWindowEnabled(hwnd)	((BOOL)(((hwnd)->style&WS_DISABLED) == 0))
 
@@ -466,6 +470,7 @@ BOOL WINAPI	MwPTINRECT(CONST RECT *lprc, POINT pt);
 #define GWL_STYLE           (-16)
 #define GWL_EXSTYLE         (-20)
 #define GWL_USERDATA        (-21)
+#define GWL_WNDPROCBRIDGE	(-41)
 
 
 /*
@@ -622,8 +627,13 @@ BOOL WINAPI GetCaretPos(LPPOINT lpPoint);
 UINT WINAPI GetCaretBlinkTime(VOID);
 BOOL WINAPI SetCaretBlinkTime(UINT uMSeconds);
 
-
 int WINAPI GetClassName(HWND hWnd, LPTSTR lpClassName, int nMaxCount);
+
+BOOL WINAPI	SetLayeredWindowAttributes(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
+BOOL WINAPI GetLayeredWindowAttributes(HWND hwnd, COLORREF *pcrKey, BYTE *pbAlpha, DWORD *pdwFlags);
+#define LWA_COLORKEY	0x00000001
+#define LWA_ALPHA		0x00000002
+
 HWND WINAPI GetNextDlgGroupItem(HWND hDlg, HWND hCtl, BOOL bPrevious);
 
 /*
@@ -719,9 +729,9 @@ typedef MSGBOXPARAMSA MSGBOXPARAMS;
 
 int WINAPI MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
 		UINT uType, WORD wLanguageId, DWORD dwTime);
-int MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId);
-int MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);
-int MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
+int WINAPI MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId);
+int WINAPI MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);
+int WINAPI MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
 
 /*
  *  Window enumeration functions

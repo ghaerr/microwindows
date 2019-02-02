@@ -126,7 +126,8 @@ struct hwnd {
 	DWORD		style;		/* window style*/
 	DWORD		exstyle;	/* window extended style*/
 	PWNDCLASS	pClass;		/* window class*/
-	WNDPROC     	lpfnWndProc;	/* default window procedure (initialized from pClass) */
+	WNDPROC     lpfnWndProc;/* default window procedure (initialized from pClass)*/
+	WNDPROC		lpfnWndProcBridge;	/* used externally only*/
 	struct hwnd	*parent;	/* z-order parent window */
 	struct hwnd	*owner;		/* owner window*/
 	struct hwnd	*children;	/* first child window */
@@ -150,6 +151,9 @@ struct hwnd {
 	MWSCROLLBARINFO	hscroll;	/* NC scrollbars*/
 	MWSCROLLBARINFO	vscroll;
 	HINSTANCE	hInstance;	/* hInstance */
+	unsigned int     color_key;       /* color key for a layered window */
+	unsigned int     alpha;           /* alpha value for a layered window */
+	unsigned int     layered_flags;   /* flags for a layered window */
 	int		nextrabytes;	/* # window extra bytes*/
 	char		extrabytes[1];	/* window extra bytes - must be last*/
 };

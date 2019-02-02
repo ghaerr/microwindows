@@ -9,10 +9,7 @@
 #include <stdlib.h>
 #include "uni_std.h"
 #include "nxlib.h"
-
-#if defined(__ANDROID__)
-  #include <android/log.h>
-#endif
+#include "X11/Xatom.h"
 
 /* fontlist.c*/
 extern char *FONT_DIR_LIST[]; 				/* pcf/truetype/type1 font dir list*/
@@ -322,8 +319,8 @@ DPRINTF("enumfont add: %s\n", xlfd);
 		fclose(fontdir);
 	}
 
-#if defined(__ANDROID__)
-//Android has no fonts dir so emulated this here - so far no fontlist was found above
+#if ANDROID
+	//Android has no fonts dir so emulated this here - so far no fontlist was found above
 	if (maxnames == 1) {
 	  _addFontToList(fontlist, pattern); //FLTK just checks again if selected size is supported
 	} else {
@@ -901,12 +898,14 @@ DPRINTF("findfont: FINI nowild %s = %s height %d\n", name, fontpath, *return_hei
 }
 
 /* non-portable NXLIB/X11 implementation follows*/
-#include "nxlib.h"
-#include "X11/Xatom.h"
 
-#if defined(__ANDROID__)
-/* convert helvetica to Roboto, times to Georgia and use Courier far all disregarding italic and bold */
-Font android_create_font_alias(const char *name)
+#if ANDROID
+/* 
+ * convert helvetica to Roboto, times to Georgia and use Courier for all
+ * disregarding italic and bold
+ */
+Font
+android_create_font_alias(const char *name)
 {
   	GR_FONT_ID font = 0;
 	int height;
@@ -980,11 +979,11 @@ Font android_create_font_alias(const char *name)
 	
 	GrSetFontAttr(font, GR_TFKERNING | GR_TFANTIALIAS, 0);
 
-__android_log_print(ANDROID_LOG_INFO,"AllegroActivityf","android_create_font_alias(xlfd name:'%s') = aliased fontnamestring used: '%s' height %d font-id: [%d]\n", name, fontnamestring, height, font);
+	DPRINTF("android_create_font_alias(xlfd name:'%s') = aliased fontnamestring used: '%s' height %d font-id: [%d]\n", name, fontnamestring, height, font);
 
   return font;
 }
-#endif
+#endif /* ANDROID*/
 
 /* old LoadFont.c*/
 Font
@@ -994,7 +993,7 @@ XLoadFont(Display * dpy, _Xconst char *name)
 	int height;
 	char *fontname;
 
-#if defined(__ANDROID__)	
+#if ANDROID
         return android_create_font_alias(name);
 #endif
 
@@ -1028,8 +1027,7 @@ DPRINTF("XLoadFont('%s') = '%s' height %d [%d]\n", name, fontname, height, font)
 
 /* old ListFonts.c*/
 char **
-XListFonts(Display * display, _Xconst char *pattern, int maxnames,
-	int *actual_count_return)
+XListFonts(Display * display, _Xconst char *pattern, int maxnames, int *actual_count_return)
 {
 	return font_enumfonts((char *)pattern, maxnames, actual_count_return, 1);
 }

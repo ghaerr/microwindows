@@ -436,7 +436,7 @@ void XrmStringToBindingQuarkList(name, bindings, quarks)
     *quarks = NULLQUARK;
 }
 
-#ifdef DEBUG
+#if DEBUG
 
 static void PrintQuarkList(quarks, stream)
     XrmQuarkList    quarks;
@@ -2078,7 +2078,7 @@ static Bool DumpEntry(db, bindings, quarks, type, value, data)
     return ferror(stream) != 0;
 }
 
-#ifdef DEBUG
+#if DEBUG
 
 void PrintTable(table, file)
     NTable table;

@@ -12,6 +12,7 @@
 #if !__MINGW32__
 #include <sys/ioctl.h>
 #endif
+
 #if linux
 #include <linux/keyboard.h>
 #include <linux/kd.h>
@@ -22,14 +23,13 @@
 
 #define KEYBOARD "/dev/tty0"		/* device to get keymappings from*/
 
-#define __FORALL__ //re-reading does not work for FLTK and X11 too - so always use it now
+#define OLDWAY		0				/* new way required for FLTK on X11, old was linux only*/
 
 /* kernel unicode tables per shiftstate and scancode*/
 #define NUM_VGAKEYMAPS	(1<<KG_CAPSSHIFT)	/* kernel key maps*/
 static unsigned short	os_keymap[NUM_VGAKEYMAPS][NR_KEYS];
 static MWKEYMOD modstate;
 static int map_loaded = 0;
-//#endif /* linux*/
 
 /* Standard keymapings for kernel values */
 /* (from microwin/src/drivers/keymap_standard.h)*/
@@ -67,8 +67,7 @@ MWKEY_LMETA, MWKEY_RMETA, MWKEY_MENU					/* 125*/
 static void
 LoadKernelKeymaps(void)
 {
-//#if linux
-#if !(defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__FORALL__) ) 
+#if OLDWAY
 	int 		map, i;
 	struct kbentry 	entry;
 	char *		kbd;
@@ -115,9 +114,8 @@ LoadKernelKeymaps(void)
 	}
 
 	close(fd);
-#endif /*DJGPP*/
+#endif /* OLDWAY*/
 	map_loaded = 1;
-//#endif /* linux*/
 }
 
 /* translate a scancode and modifier state to an MWKEY*/
@@ -336,16 +334,15 @@ XMWKeyToKeysym(Display *dpy, unsigned int kv, int index)
 	return mwkey;
 }
 
-/* translate event->keycode into KeySym, no control/shift processing*/
+/* translate event->keycode/event->y_root into KeySym, no control/shift processing*/
 KeySym
 XLookupKeysym(XKeyEvent *event, int index)
 {
-	//DPRINTF("XLookupKeysym called\n");
-#if defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__FORALL__)
-  //if extending above, also set at event->y_root in NextEvent.c
-	return XMWKeyToKeysym(event->display, (unsigned int) event->y_root, index);
-#else
+#if OLDWAY
 	return XKeycodeToKeysym(event->display, event->keycode, index);
+#else
+	/* event->y_root set in NextEvent.c*/
+	return XMWKeyToKeysym(event->display, (unsigned int) event->y_root, index);
 #endif
 }
 
@@ -372,8 +369,7 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 
 	//DPRINTF("XLookupString called - %X\n",(unsigned int)k);
 
-//#ifndef __DJGPP__
-#if !(defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__) || defined(__FORALL__) )
+#if OLDWAY
 	if(!map_loaded) {
 		/* translate Control/Shift*/
 		if ((event->state & ControlMask) && k < 256)
@@ -406,7 +402,7 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 			}
 		}
 	}
-#endif
+#endif /* OLDWAY*/
 
 	*keysym = k;
 	buffer[0] = (char)k;

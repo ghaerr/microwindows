@@ -93,7 +93,7 @@ GetMsgboxString(UINT uid)
 /*
  * Internal LoadString with fallback to hardcoded strings
  */
-static int WINAPI
+static int
 loadstring(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 {
 	char *pszRes;
@@ -107,7 +107,7 @@ loadstring(HINSTANCE hInstance, UINT uid, LPTSTR lpBuffer, int nMaxBuff)
 /*
  * Window procedure for the dialog box
  */
-static LRESULT
+static LRESULT CALLBACK
 MessageBoxProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
   int i;
@@ -517,9 +517,9 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
     return ret;
 }
 
-
-int
-MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId, DWORD dwTime)
+int WINAPI
+MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType,
+	WORD wLanguageId, DWORD dwTime)
 {
     MSGBOXPARAMS msgbox;
 
@@ -537,7 +537,7 @@ MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD w
     return MessageBoxTimeoutIndirect(&msgbox, (UINT)dwTime);		// FIXME
 }
 
-int
+int WINAPI
 MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId)
 {
     MSGBOXPARAMS msgbox;
@@ -556,14 +556,14 @@ MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLangu
     return MessageBoxIndirect(&msgbox);
 }
 
-int
+int WINAPI
 MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType)
 {
     return MessageBoxEx(hWnd, lpText, lpCaption, uType, LANG_NEUTRAL);
 }
 
-
-int MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams)
+int WINAPI
+MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams)
 {
     return MessageBoxTimeoutIndirect(lpMsgBoxParams, (UINT)-1);
 }

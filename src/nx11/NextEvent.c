@@ -2,16 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#undef DPRINTF
-#define EVDEBUG  0		/* seperate debug flag for this function*/
+#define EVDEBUG  0		/* seperate debug flag for this file*/
 
 #if EVDEBUG
 #define FUNC_ENTER DPRINTF("ENTER [%s]\n", __FUNCTION__)
 #define FUNC_EXIT DPRINTF("LEAVE [%s]\n", __FUNCTION__)
-#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
+//#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
 #else
 #define FUNC_ENTER
 #define FUNC_EXIT
+#undef DPRINTF
 #define DPRINTF(str, ...)									  /* no debug output*/
 #endif
 
@@ -234,12 +234,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 			event->xkey.x = pev->x;
 			event->xkey.y = pev->y;;
 			event->xkey.x_root = pev->rootx;
-#if 1 //use it now always!  defined(__FORALL__) in StrKeysym //defined(__DJGPP__) || defined(__MINGW32__) || defined(__ANDROID__)
-			//using unused y_root to read pev->ch in StrKeysym.c if djgpp
+			/* use unused y_root to read pev->ch in StrKeysym.c*/
 			event->xkey.y_root = pev->ch; //write MWKey value into y_root 
-#else
-			event->xkey.y_root = pev->rooty;
-#endif	
+			//event->xkey.y_root = pev->rooty;
 			event->xkey.keycode = pev->scancode; /* note: not mwkey value*/
 			event->xkey.same_screen = True;
 

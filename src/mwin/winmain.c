@@ -702,8 +702,11 @@ MwDelay(MWTIMEOUT msecs)
 	emscripten_sleep(msecs);
 #elif PSP
 	sceKernelDelayThread(1000 * msecs);
+#elif MSDOS
+	/* no delay required*/
 #else
-	/* no delay implemented, */
+	/* no delay implemented*/
+#pragma message("MwDelay - no delay implemented, will have excess CPU in eventloop")
 #endif
 }
 

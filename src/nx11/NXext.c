@@ -2,6 +2,7 @@
  * Stubs for stubbing out libXext for Microwindows
  * 2016 Georg Potthast
  */
+#include "nxlib.h"
 
 /***
 #include <X11/Xlibint.h>
@@ -56,8 +57,7 @@
 ***/
 
 #if DEBUG
-#include <stdio.h>
-static void errmsg(void) { fprintf(stderr, "nxlib: libXext called\n"); }
+static void errmsg(void) { DPRINTF("nxlib: libXext called\n"); }
 #else
 static void errmsg(void) {}
 #endif

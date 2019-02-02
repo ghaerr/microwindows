@@ -1262,8 +1262,11 @@ GrDelay(GR_TIMEOUT msecs)
 	emscripten_sleep(msecs);
 #elif PSP
 	sceKernelDelayThread(1000 * msecs);
-#else
-	/* no delay implemented, */
+#elif MSDOS
+	/* no delay required*/
+#elif
+	/* no delay implemented*/
+#pragma message("GrDelay - no delay implemented, will have excess CPU in eventloop")
 #endif
 }
 

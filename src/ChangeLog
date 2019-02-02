@@ -1,3 +1,6 @@
+1 Feb 2019
+	* cleanup Android port, single -DANDROID=1 define, use GdError for EPRINTF/DPRINTF output
+	* cleanup DPRINTF/DEBUG in nx11, use GdError when DEBUG set
 31 Jan 2019
 	* add "uni_std.h" to replace <unistd.h> for Windows (alloca/read etc), fix HAVE_MMAP issues
 	* added config.android, fixed Android build using -DHAVE_SELECT=0, CFLAGS/LDFLAGS

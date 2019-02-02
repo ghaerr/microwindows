@@ -10,6 +10,8 @@
 #include <stdarg.h>
 #if __ECOS
 #include <cyg/infra/diag.h>
+#elif ANDROID
+#include <android/log.h>
 #else
 #include <stdio.h>
 #include <string.h>
@@ -34,6 +36,9 @@ GdError(const char *format, ...)
 #elif PSP
 	vsprintf(buf, format, args);
 	pspDebugScreenPrintf("%s\n", buf);
+#elif ANDROID
+	vsprintf(buf, format, args);
+	__android_log_print(ANDROID_LOG_INFO, "Microwindows", buf);
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);

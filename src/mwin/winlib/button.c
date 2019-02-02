@@ -96,32 +96,31 @@
 
 
 /* local procs*/
-static void WINAPI	cenButton_FnEnd( HWND, WORD);
-static WORD WINAPI	cenButton_FnStart( HWND);
-static BOOL WINAPI	cenButton_OnCreate( HWND, LPCREATESTRUCT);
-/*static void WINAPI	cenButton_OnDestroy( HWND);*/
-/*static void WINAPI	cenButton_OnEnable( HWND, BOOL);*/
-static BOOL WINAPI	cenButton_OnEraseBkgnd( HWND, HDC);
-static UINT WINAPI	cenButton_OnGetDlgCode( HWND, LPMSG);
-static LONG WINAPI	cenButton_OnGetState( HWND);
-/*static void WINAPI	cenButton_OnKey( HWND, UINT, BOOL, int, UINT);*/
-static void WINAPI	cenButton_OnKillFocus( HWND, HWND);
-static void WINAPI	cenButton_OnLButtonDown( HWND, BOOL, UINT, UINT, UINT);
-static void WINAPI	cenButton_OnLButtonUp( HWND, UINT, UINT, UINT);
-static void WINAPI	cenButton_OnMouseMove( HWND, UINT, UINT, UINT);
-static void WINAPI	cenButton_OnPaint( HWND, HDC);
-static void WINAPI 	DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,
-				DWORD dwStyle);
-static void WINAPI 	DrawGroupBox(HWND hwnd,HDC hDCwParam, DWORD dwStyle);
-static void WINAPI	cenButton_OnSetFocus( HWND, HWND);
-static void WINAPI	cenButton_OnSetStyle( HWND, WORD, BOOL);
-static void WINAPI	cenButton_OnSetState( HWND, WORD);
-static void WINAPI	cenButton_SetState( HWND, WORD, BOOL);
-static void WINAPI	cenButton_OnSetText( HWND, LPCSTR);
+static void cenButton_FnEnd( HWND, WORD);
+static WORD cenButton_FnStart( HWND);
+static BOOL cenButton_OnCreate( HWND, LPCREATESTRUCT);
+/*static void cenButton_OnDestroy( HWND);*/
+/*static void cenButton_OnEnable( HWND, BOOL);*/
+static BOOL cenButton_OnEraseBkgnd( HWND, HDC);
+static UINT cenButton_OnGetDlgCode( HWND, LPMSG);
+static LONG cenButton_OnGetState( HWND);
+/*static void cenButton_OnKey( HWND, UINT, BOOL, int, UINT);*/
+static void cenButton_OnKillFocus( HWND, HWND);
+static void cenButton_OnLButtonDown( HWND, BOOL, UINT, UINT, UINT);
+static void cenButton_OnLButtonUp( HWND, UINT, UINT, UINT);
+static void cenButton_OnMouseMove( HWND, UINT, UINT, UINT);
+static void cenButton_OnPaint( HWND, HDC);
+static void DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState, DWORD dwStyle);
+static void DrawGroupBox(HWND hwnd,HDC hDCwParam, DWORD dwStyle);
+static void cenButton_OnSetFocus( HWND, HWND);
+static void cenButton_OnSetStyle( HWND, WORD, BOOL);
+static void cenButton_OnSetState( HWND, WORD);
+static void cenButton_SetState( HWND, WORD, BOOL);
+static void cenButton_OnSetText( HWND, LPCSTR);
 
 LRESULT CALLBACK cenButtonWndFn(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-static void WINAPI
+static void
 cenButton_FnEnd(
 HWND		hwnd,
 WORD		wState)
@@ -132,14 +131,14 @@ WORD		wState)
 	}
 }
 
-static WORD WINAPI
+static WORD
 cenButton_FnStart(
 HWND		hwnd)
 {
 	return GET_PBSTATE( hwnd);
 }
 
-static BOOL WINAPI
+static BOOL
 cenButton_OnCreate(
 HWND			hwnd,
 LPCREATESTRUCT	lpCreate)
@@ -162,7 +161,7 @@ LPCREATESTRUCT	lpCreate)
 }
 
 #if 0
-static void WINAPI
+static void
 cenButton_OnDestroy(
 HWND		hwnd)
 {
@@ -172,7 +171,7 @@ HWND		hwnd)
 	}
 }
 
-static void WINAPI
+static void
 cenButton_OnEnable(
 HWND		hwnd,
 BOOL		bEnable)
@@ -185,7 +184,7 @@ BOOL		bEnable)
 }
 #endif
 
-static BOOL WINAPI
+static BOOL
 cenButton_OnEraseBkgnd(
 HWND		hwnd,
 HDC			hdc)
@@ -194,7 +193,7 @@ HDC			hdc)
 	return TRUE;
 }
 
-static UINT WINAPI
+static UINT
 cenButton_OnGetDlgCode(
 HWND	hwnd,
 LPMSG 	lpMsg)
@@ -237,7 +236,7 @@ LPMSG 	lpMsg)
 				DLGC_DEFPUSHBUTTON : DLGC_UNDEFPUSHBUTTON));
 }
 
-static LONG WINAPI
+static LONG
 cenButton_OnGetState(
 HWND		hwnd)
 {
@@ -249,7 +248,7 @@ HWND		hwnd)
 }
 
 #if 0
-static void WINAPI
+static void
 cenButton_OnKey(
 HWND		hwnd,
 UINT		vk,
@@ -290,7 +289,7 @@ UINT		flag)
 }
 #endif
 
-static void WINAPI
+static void
 cenButton_OnKillFocus(
 HWND		hwnd,
 HWND		hwndNewFocus)
@@ -313,7 +312,7 @@ HWND		hwndNewFocus)
 		}
 }
 
-static void WINAPI
+static void
 cenButton_OnLButtonDown(
 HWND		hwnd,
 BOOL		bDblClick,
@@ -337,7 +336,7 @@ UINT		keyState)
 	cenButton_FnEnd( hwnd, wState);
 }
 
-static void WINAPI
+static void
 cenButton_OnLButtonUp(
 HWND		hwnd,
 UINT		x,
@@ -377,7 +376,7 @@ UINT		keys)
 	cenButton_FnEnd( hwnd, wState);
 }
 
-static void WINAPI
+static void
 cenButton_OnMouseMove(
 HWND		hwnd,
 UINT		x,
@@ -417,7 +416,7 @@ UINT		keys)
 
 }
 
-static void WINAPI
+static void
 cenButton_OnPaint(
 HWND		hwnd,
 HDC		hDCwParam)
@@ -452,7 +451,7 @@ HDC		hDCwParam)
 	}
 }
 
-static void WINAPI
+static void
 DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 {
 	HDC		hdc;
@@ -695,7 +694,7 @@ Return:
 	EndPaint(hwnd, &ps);
 }
 
-static void WINAPI
+static void
 cenButton_OnSetFocus(
 HWND		hwnd,
 HWND		hwndOldFocus)
@@ -727,7 +726,7 @@ HWND		hwndOldFocus)
 		}
 }
 
-static void WINAPI
+static void
 cenButton_OnSetStyle(
 HWND		hwnd,
 WORD		style,
@@ -741,7 +740,7 @@ BOOL		bRedraw)
 	cenButton_FnEnd( hwnd, wState);
 }
 
-static void WINAPI
+static void
 cenButton_OnSetState(
 HWND		hwnd,
 WORD		wState)
@@ -753,7 +752,7 @@ WORD		wState)
 	cenButton_FnEnd( hwnd, wStateOld);
 }
 
-static void WINAPI
+static void
 cenButton_SetState(
 HWND	hwnd,
 WORD	wState,
@@ -778,7 +777,7 @@ BOOL	bEnable )
 }
 
 #if 0
-static void WINAPI
+static void
 cenButton_OnSetFont(
 HWND		hwnd,
 HFONT		hFont,
@@ -809,7 +808,7 @@ BOOL		bRedraw)
 }
 #endif
 
-static void WINAPI
+static void
 cenButton_OnSetText(
 HWND		hwnd,
 LPCSTR		lpszText)
@@ -965,7 +964,7 @@ cenButtonWndFn(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc( hwnd, message, wParam, lParam);
 }
 
-int WINAPI
+int
 MwRegisterButtonControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
@@ -984,7 +983,7 @@ MwRegisterButtonControl(HINSTANCE hInstance)
 	return RegisterClass(&wc);
 }
 
-static void WINAPI
+static void
 DrawGroupBox(HWND hwnd,HDC hDCwParam,DWORD dwStyle)
 {
 	HDC		hdc;
@@ -1055,4 +1054,3 @@ DrawGroupBox(HWND hwnd,HDC hDCwParam,DWORD dwStyle)
 Return:
 	EndPaint(hwnd, &ps);
 }
-

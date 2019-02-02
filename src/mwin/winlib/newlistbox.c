@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "uni_std.h"
 #include "windows.h"
 
 // FIXME: check if kbd state modifiers are implemented*/
@@ -138,8 +139,7 @@ typedef enum
 static LRESULT WINAPI ComboLBWndProcA( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam );
 static LRESULT WINAPI ComboLBWndProcW( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam );
 #endif
-static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
-                                             WPARAM wParam, LPARAM lParam );
+static LRESULT CALLBACK ListBoxWndProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam );
 static LRESULT LISTBOX_GetItemRect( LB_DESCR *descr, INT index, RECT *rect );
 
 #if 0
@@ -2508,8 +2508,7 @@ static BOOL LISTBOX_Destroy( HWND hwnd, LB_DESCR *descr )
 /***********************************************************************
  *           ListBoxWndProc_common
  */
-static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
-                                             WPARAM wParam, LPARAM lParam )
+static LRESULT CALLBACK ListBoxWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT ret;
     LB_DESCR *descr;
@@ -2904,7 +2903,7 @@ static LRESULT WINAPI ListBoxWndProc( HWND hwnd, UINT msg,
 /***********************************************************************
  *           ListBoxWndProcA
  */
-static LRESULT WINAPI ListBoxWndProcA( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
+static LRESULT CALLBACK ListBoxWndProcA( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
     if (!IsWindow(hwnd)) return 0;
     return ListBoxWndProc_common( hwnd, msg, wParam, lParam, FALSE );
@@ -2913,7 +2912,7 @@ static LRESULT WINAPI ListBoxWndProcA( HWND hwnd, UINT msg, WPARAM wParam, LPARA
 /***********************************************************************
  *           ListBoxWndProcW
  */
-static LRESULT WINAPI ListBoxWndProcW( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
+static LRESULT CALLBACK ListBoxWndProcW( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
     if (!IsWindow(hwnd)) return 0;
     return ListBoxWndProc_common( hwnd, msg, wParam, lParam, TRUE );

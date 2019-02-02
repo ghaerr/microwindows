@@ -370,6 +370,7 @@ RegisterClass(CONST WNDCLASS *lpWndClass)
 	if(!pClass)
 		return 0;
 	*pClass = *lpWndClass;
+	pClass->lpfnWndProcBridge = NULL;	/* always init bridge to NULL*/
 	strcpy(pClass->szClassName, lpWndClass->lpszClassName);
 	GdListAdd(&mwClassHead, &pClass->link);
 
@@ -449,6 +450,7 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 
 	wp->pClass = pClass;
 	wp->lpfnWndProc = pClass->lpfnWndProc;
+	wp->lpfnWndProcBridge = pClass->lpfnWndProcBridge;
 	wp->style = dwStyle;
 	wp->exstyle = dwExStyle;
 	wp->parent = pwp;
@@ -568,6 +570,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	 * Disable all sendmessages to this window.
 	 */
 	wp->lpfnWndProc = NULL;
+	wp->lpfnWndProcBridge = NULL;
 
 	/*
 	 * Destroy all children, sending WM_DESTROY messages.
@@ -1283,6 +1286,8 @@ GetWindowLongPtr(HWND hwnd, int nIndex)
 	switch(nIndex) {
 	case GWL_WNDPROC:
 		return (LONG_PTR)hwnd->lpfnWndProc;
+	case GWL_WNDPROCBRIDGE:
+		return (LONG)hwnd->lpfnWndProcBridge;
 	case GWL_HINSTANCE:
 		return (LONG_PTR)hwnd->hInstance;
 	case GWL_HWNDPARENT:
@@ -1348,6 +1353,10 @@ SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong)
 	switch(nIndex) {
 	case GWL_WNDPROC:
 		hwnd->lpfnWndProc = (WNDPROC)lNewLong;
+		break;
+	case GWL_WNDPROCBRIDGE:
+		oldval = (LONG)hwnd->lpfnWndProcBridge;
+		hwnd->lpfnWndProcBridge = (WNDPROC)lNewLong;
 		break;
 	case GWL_HINSTANCE:
 		hwnd->hInstance = (HINSTANCE)lNewLong;

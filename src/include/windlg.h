@@ -135,7 +135,7 @@ typedef CONST DLGTEMPLATE *LPCDLGTEMPLATE;
 #pragma pack()
 
 
-BOOL MwInitializeDialogs ( HINSTANCE hInstance );
+BOOL WINAPI MwInitializeDialogs ( HINSTANCE hInstance );
 
 BOOL WINAPI MapDialogRect ( HWND hWnd, LPRECT lpRc );
 

@@ -555,6 +555,7 @@ MwInitialize(void)
 	 */
 	wc.style = CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc = (WNDPROC)DefWindowProc;
+	wc.lpfnWndProcBridge = NULL;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = 0;
@@ -589,6 +590,7 @@ MwInitialize(void)
 	wp->id = 0;
 	wp->szTitle = (LPTSTR) malloc ( 64 );
 	wp->lpfnWndProc = wc.lpfnWndProc;
+	wp->lpfnWndProcBridge = NULL;
 	wp->hInstance = NULL;
 	wp->nEraseBkGnd = 1;
 	wp->paintBrush = NULL;

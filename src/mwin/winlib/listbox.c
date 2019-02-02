@@ -146,7 +146,7 @@ static PLISTBOXITEM lstGetItem(PLISTBOXDATA pData, int pos);
 #define LST_HEIGHT_CHECKMARK    11
 #define LST_INTER_BMPTEXT       2
 
-int WINAPI
+int
 MwRegisterOldListboxControl(HINSTANCE hInstance)
 {
 	WNDCLASS wc;

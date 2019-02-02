@@ -126,7 +126,8 @@ struct hwnd {
 	DWORD		style;		/* window style*/
 	DWORD		exstyle;	/* window extended style*/
 	PWNDCLASS	pClass;		/* window class*/
-	WNDPROC     	lpfnWndProc;	/* default window procedure (initialized from pClass) */
+	WNDPROC     lpfnWndProc;/* default window procedure (initialized from pClass)*/
+	WNDPROC		lpfnWndProcBridge;	/* used externally only*/
 	struct hwnd	*parent;	/* z-order parent window */
 	struct hwnd	*owner;		/* owner window*/
 	struct hwnd	*children;	/* first child window */

@@ -30,6 +30,7 @@ typedef struct tagWNDCLASSA {
     MWLIST	link;			/* microwin*/
     UINT        style;
     WNDPROC     lpfnWndProc;
+    WNDPROC     lpfnWndProcBridge; /* stored only*/
     int         cbClsExtra;		/* nyi*/
     int         cbWndExtra;
     HINSTANCE   hInstance;		/* nyi*/
@@ -469,6 +470,7 @@ BOOL WINAPI	MwPTINRECT(CONST RECT *lprc, POINT pt);
 #define GWL_STYLE           (-16)
 #define GWL_EXSTYLE         (-20)
 #define GWL_USERDATA        (-21)
+#define GWL_WNDPROCBRIDGE	(-41)
 
 
 /*
@@ -727,9 +729,9 @@ typedef MSGBOXPARAMSA MSGBOXPARAMS;
 
 int WINAPI MessageBoxTimeout(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
 		UINT uType, WORD wLanguageId, DWORD dwTime);
-int MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId);
-int MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);
-int MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
+int WINAPI MessageBoxEx(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId);
+int WINAPI MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);
+int WINAPI MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
 
 /*
  *  Window enumeration functions

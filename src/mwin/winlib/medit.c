@@ -54,6 +54,7 @@
 #define MWINCLUDECOLORS
 #include "windows.h"	/* windef.h, winuser.h */
 #include "wintools.h"
+#include "uni_std.h"
 #include "device.h" 	/* GdGetTextSize */
 
 #if HAVE_HZK_SUPPORT | HAVE_BIG5_SUPPORT
@@ -134,9 +135,7 @@ typedef struct tagMLEDITDATA {
 }MLEDITDATA;
 typedef MLEDITDATA* PMLEDITDATA;
 
-BOOL RegisterMLEditControl (void);
-
-int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam);
+int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam);
 
 #define PIXEL_invalid (-1)
 extern HWND sg_hCaretWnd;
@@ -239,7 +238,7 @@ static BOOL IncludeWindowStyle (HWND hWnd, DWORD dwStyle)
         return TRUE;
 }
 
-int WINAPI MwRegisterMEditControl(HINSTANCE hInstance)
+int MwRegisterMEditControl(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
@@ -570,7 +569,7 @@ static PLINEDATA GetLineData(PMLEDITDATA pMLEditData,int lineNO)
 	return NULL;
 }
 
-int MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
+int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam)
 {   
     DWORD       dwStyle;
 	DWORD 		dw;

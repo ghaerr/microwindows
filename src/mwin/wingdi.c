@@ -11,6 +11,7 @@
 #include "intl.h"
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 
 #define MAXSYSCOLORS	29	/* # of COLOR_* system colors*/
 #define MAXSTOCKOBJECTS	18	/* # of stock objects*/
@@ -46,6 +47,9 @@ GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 
 	if(!hwnd)		/* handle NULL hwnd => desktop*/
 		hwnd = rootwp;
+
+	if (!IsWindow(hwnd))
+		return NULL;
 
 	/* handle private DC's*/
 	if(hwnd->owndc && !(flags & DCX_WINDOW))

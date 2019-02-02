@@ -59,6 +59,7 @@
 /* string routines*/
 #define strcasecmp		_stricmp
 #define strncasecmp		_strnicmp
+#define strdup			_strdup
 
 /* should be in some equivalent to <sys/types.h> */
 //typedef __int8            int8_t;

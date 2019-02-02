@@ -593,6 +593,9 @@ MwInitialize(void)
 	wp->nEraseBkGnd = 1;
 	wp->paintBrush = NULL;
 	wp->paintPen = NULL;
+	wp->color_key = 0;
+	wp->alpha = 100;
+	wp->layered_flags = 0;
 
 	strcpy(wp->szTitle, "Microwindows");
 	wp->gotPaintMsg = PAINT_PAINTED;

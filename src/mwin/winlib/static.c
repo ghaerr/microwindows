@@ -55,6 +55,7 @@
 #include "wintern.h"
 #include "wintools.h"
 #include "device.h"		/* GdGetTextSize */
+#include "uni_std.h"
 #include "intl.h"
 
 /* jmt: should be SYSTEM_FIXED_FONT because of minigui's GetSysCharXXX() */

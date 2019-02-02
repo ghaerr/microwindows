@@ -1,4 +1,5 @@
 1 Feb 2019
+	* Added Rooz's IsWindow() fix, GetParent, GetAncestor, Get/SetLayeredWindowAttributes
 	* cleanup Android port, single -DANDROID=1 define, use GdError for EPRINTF/DPRINTF output
 	* cleanup DPRINTF/DEBUG in nx11, use GdError when DEBUG set
 31 Jan 2019

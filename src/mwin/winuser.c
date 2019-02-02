@@ -881,6 +881,9 @@ SetFocus(HWND hwnd)
 	if(!hwnd || hwnd->unmapcount)
 		hwnd = rootwp;
 
+	if (!IsWindow(hwnd))
+		return 0;
+
 	if(hwnd == focuswp)
 		return focuswp;
 
@@ -981,6 +984,64 @@ GetParent(HWND hwnd)
 	if(hwnd->style & WS_POPUP)
 		return hwnd->owner;	/* popup window*/
 	return hwnd->parent;		/* child window*/
+}
+
+HWND WINAPI
+SetParent(HWND hwnd, HWND parent)
+{
+	HWND old_parent;
+	BOOL was_visible;
+	POINT pt;
+
+	if (!hwnd)
+		return NULL;
+
+	if (!parent)
+		parent = GetDesktopWindow();
+
+	if (!IsWindow(parent))
+		return NULL;
+
+	/* Some applications try to set a child as a parent */
+	if (IsChild(hwnd, parent))
+		return NULL;
+
+	old_parent = hwnd->parent;
+
+	/*
+	 * Windows hides the window first, then shows it again
+	 * including the WM_SHOWWINDOW messages and all
+	 */
+	was_visible = ShowWindow(hwnd, SW_HIDE);
+
+	pt.x = hwnd->winrect.left;
+	pt.y = hwnd->winrect.top;
+	ScreenToClient(hwnd->parent, &pt);
+
+	hwnd->parent = parent;
+
+	if (parent == GetDesktopWindow() && !(hwnd->style & WS_CLIPSIBLINGS))
+		hwnd->style |= WS_CLIPSIBLINGS;
+
+	SetWindowPos(hwnd, (0 == (hwnd->exstyle & WS_EX_TOPMOST) ? HWND_TOP : HWND_TOPMOST),
+			pt.x, pt.y, 0, 0, SWP_NOSIZE);
+
+	if (was_visible)
+		ShowWindow(hwnd, SW_SHOW);
+
+	return old_parent;
+}
+
+HWND WINAPI
+GetAncestor(HWND hwnd, UINT type)
+{
+	switch (type) {
+	case GA_PARENT:
+	case GA_ROOT:
+	case GA_ROOTOWNER:
+	default:
+		return GetParent(hwnd);
+	}
 }
 
 BOOL WINAPI
@@ -1508,8 +1569,7 @@ MwOffsetChildren(HWND hwnd, int offx, int offy)
 }
 
 BOOL
-SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
-	UINT fuFlags)
+SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy, UINT fuFlags)
 {
 	int		hidden;
 	BOOL		bMove, bSize, bZorder;
@@ -1517,6 +1577,9 @@ SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy,
 	WINDOWPOS	winpos;
 
 	if(!hwnd || hwnd == rootwp || cx < 0 || cy < 0)
+		return FALSE;
+
+	if (!IsWindow(hwnd))
 		return FALSE;
 
 	/* FIXME SWP_NOACTIVATE*/
@@ -2024,4 +2087,26 @@ GetClassName(HWND hWnd, LPTSTR lpClassName, int nMaxCount)
 		strncpy(lpClassName, hWnd->pClass->szClassName, nMaxCount);
 	}
 	return ln;
+}
+
+BOOL WINAPI
+SetLayeredWindowAttributes(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags)
+{
+	if (!hwnd || hwnd->unmapcount)
+		hwnd = rootwp;
+	hwnd->color_key = crKey;
+	hwnd->alpha = bAlpha;
+	hwnd->layered_flags = dwFlags;
+	return TRUE;
+}
+
+BOOL WINAPI
+GetLayeredWindowAttributes(HWND hwnd, COLORREF *pcrKey, BYTE *pbAlpha, DWORD *pdwFlags)
+{
+	if (!hwnd || hwnd->unmapcount)
+		hwnd = rootwp;
+	*pcrKey = hwnd->color_key;
+	*pbAlpha = hwnd->alpha;
+	*pdwFlags = hwnd->layered_flags;
+	return TRUE;
 }

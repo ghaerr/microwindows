@@ -150,6 +150,9 @@ struct hwnd {
 	MWSCROLLBARINFO	hscroll;	/* NC scrollbars*/
 	MWSCROLLBARINFO	vscroll;
 	HINSTANCE	hInstance;	/* hInstance */
+	unsigned int     color_key;       /* color key for a layered window */
+	unsigned int     alpha;           /* alpha value for a layered window */
+	unsigned int     layered_flags;   /* flags for a layered window */
 	int		nextrabytes;	/* # window extra bytes*/
 	char		extrabytes[1];	/* window extra bytes - must be last*/
 };

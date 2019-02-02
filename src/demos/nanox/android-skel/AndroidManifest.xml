@@ -1,0 +1,22 @@
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.microwindows._skeleton"
+      android:versionCode="1"
+      android:versionName="1.1">
+  <uses-sdk android:minSdkVersion="22"/>
+  <application
+      android:label="_skeleton">
+    <activity
+        android:name=".MainActivity"
+        android:launchMode="singleTask"
+        android:screenOrientation="unspecified"
+	android:windowSoftInputMode="stateVisible"
+        android:configChanges="screenLayout|uiMode|orientation|screenSize">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+    <activity android:name="org.liballeg.android.AllegroActivity"/>
+  </application>
+</manifest>

@@ -40,8 +40,20 @@
 #endif
 #endif  /* NOMINMAX */
 
+#if WIN32DLL
+#ifdef EXPORTS
+	#define WINAPI	__declspec(dllexport) __stdcall
+#else
+	#define WINAPI	__stdcall
+#endif
+#define STDCALL		__stdcall
+#define CALLBACK	__stdcall
+#else
+#define STDCALL
 #define CALLBACK
 #define WINAPI
+#endif /* !WIN32DLL*/
+
 #define WINAPIV
 #define APIENTRY    	WINAPI
 #define APIPRIVATE
@@ -137,9 +149,9 @@ typedef LPCSTR LPCTSTR;
 #define __TEXT(quote) quote
 #define TEXT(quote) __TEXT(quote)
 
-typedef int (FAR WINAPI *FARPROC)();
-typedef int (NEAR WINAPI *NEARPROC)();
-typedef int (WINAPI *PROC)();
+typedef int (FAR *FARPROC)();
+typedef int (NEAR *NEARPROC)();
+typedef int (*PROC)();
 
 #define MAKEWORD(a, b)      ((WORD)(((BYTE)(a)) | ((WORD)((BYTE)(b))) << 8))
 #define MAKELONG(a, b)      ((LONG)(((WORD)(a)) | ((DWORD)((WORD)(b))) << 16))

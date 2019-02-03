@@ -978,7 +978,7 @@ MapDialogRect(HWND hWnd, LPRECT lpRc)
 /*
  *  Get base units of dialogs
  */
-LONG
+LONG WINAPI
 GetDialogBaseUnits(VOID)
 {
 	HDC hdc;

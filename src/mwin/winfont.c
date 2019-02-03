@@ -118,6 +118,44 @@ CreateFontIndirect(CONST LOGFONT *lplf)
 	return (HFONT)hfont;
 }
 
+#if !WINEXTRA
+#define width_to_LP(hdc, width)			width
+#define height_to_LP(hdc, height)		height
+#define INTERNAL_XDSTOWS(hdc, width)	width
+#define INTERNAL_YDSTOWS(hdc, height)	height
+#endif
+
+static void
+set_text_metrics(HDC hdc, LPTEXTMETRIC lptm, MWFONTINFO *fi)
+{
+	/* many items are guessed for the time being*/
+	lptm->tmHeight = height_to_LP(hdc,fi->height);
+	lptm->tmDescent = height_to_LP(hdc,fi->height - fi->baseline);
+	lptm->tmAscent= height_to_LP(hdc,fi->baseline);
+	lptm->tmInternalLeading = height_to_LP(hdc,0);
+	lptm->tmExternalLeading = height_to_LP(hdc,0);
+	lptm->tmAveCharWidth = width_to_LP(hdc,fi->widths['x']);
+	lptm->tmMaxCharWidth = width_to_LP(hdc, fi->maxwidth);
+	lptm->tmWeight = FW_NORMAL;
+	lptm->tmOverhang = width_to_LP(hdc,0);
+
+	//lptm->tmDigitizedAspectX = fi->maxwidth;
+	//lptm->tmDigitizedAspectY = fi->height;
+	lptm->tmDigitizedAspectX = GetDeviceCaps(hdc, LOGPIXELSX);
+	lptm->tmDigitizedAspectY = GetDeviceCaps(hdc, LOGPIXELSY);
+
+	lptm->tmFirstChar = 32;
+	lptm->tmLastChar = 255;
+	lptm->tmDefaultChar = '?';
+	lptm->tmBreakChar = 0;
+	lptm->tmItalic = 0;
+	lptm->tmUnderlined = 0;
+	lptm->tmStruckOut = 0;
+	/* note that win32 has the TMPF_FIXED_PITCH flags REVERSED...*/
+	lptm->tmPitchAndFamily = fi->fixed? FF_DONTCARE: (FF_DONTCARE | TMPF_FIXED_PITCH);
+	lptm->tmCharSet = OEM_CHARSET;
+}
+
 BOOL WINAPI
 GetTextMetrics(HDC hdc, LPTEXTMETRIC lptm)
 {
@@ -127,36 +165,7 @@ GetTextMetrics(HDC hdc, LPTEXTMETRIC lptm)
 		return FALSE;
 
 	GdGetFontInfo(hdc->font->pfont, &fi);
-
-	/* FIXME many items are guessed for the time being*/
-	lptm->tmHeight = fi.height;
-
-   	 /* reversed for kaffe port
-	lptm->tmAscent = fi.height - fi.baseline;
-	lptm->tmDescent= fi.baseline;
-	 */
-
-	lptm->tmDescent = fi.height - fi.baseline;
-	lptm->tmAscent= fi.baseline;
-	lptm->tmInternalLeading = 0;
-	lptm->tmExternalLeading = 0;
-	lptm->tmAveCharWidth = fi.widths['x'];
-	lptm->tmMaxCharWidth = fi.maxwidth;
-	lptm->tmWeight = FW_NORMAL;
-	lptm->tmOverhang = 0;
-	lptm->tmDigitizedAspectX = fi.maxwidth;
-	lptm->tmDigitizedAspectY = fi.height;
-	lptm->tmFirstChar = 32;
-	lptm->tmLastChar = 255;
-	lptm->tmDefaultChar = '?';
-	lptm->tmBreakChar = 0;
-	lptm->tmItalic = 0;
-	lptm->tmUnderlined = 0;
-	lptm->tmStruckOut = 0;
-	/* note that win32 has the TMPF_FIXED_PITCH flags REVERSED...*/
-	lptm->tmPitchAndFamily = fi.fixed?
-			FF_DONTCARE: (FF_DONTCARE | TMPF_FIXED_PITCH);
-	lptm->tmCharSet = OEM_CHARSET;
+	set_text_metrics(hdc, lptm, &fi);
 	return TRUE;
 }
 
@@ -175,7 +184,7 @@ GetCharWidth(HDC hdc, UINT iFirstChar, UINT iLastChar, LPINT lpBuffer)
 		if(i < fi.firstchar || i > fi.lastchar || i > 255)
 			lpBuffer[j++] = 0;
 		else
-			lpBuffer[j++] = fi.widths[i];
+			lpBuffer[j++] = width_to_LP(hdc,fi.widths[i]);
 
 	return TRUE;
 }
@@ -197,8 +206,8 @@ GetTextExtentPoint(
 		return FALSE;
 	GdGetTextSize(hdc->font->pfont, lpszStr, cchString, &width, &height,
 		&baseline, mwTextCoding);
-	lpSize->cx = width;
-	lpSize->cy = height;
+	lpSize->cx = INTERNAL_XDSTOWS(hdc,width);
+	lpSize->cy = INTERNAL_YDSTOWS(hdc,height);
 
 	/*DPRINTF("<MWIN>: lpszStr=\"%s\", cchString=%d, lpsize->cx=%d, lpSize->cy=%d\n", lpszStr, cchString, lpSize->cx, lpSize->cy);*/
 	return TRUE;
@@ -289,27 +298,7 @@ EnumFonts(
 			break;
 
 		GdGetFontInfo((PMWFONT) pf, &fi);
-		lptm->tmHeight = fi.height;
-		lptm->tmDescent = fi.height - fi.baseline;
-		lptm->tmAscent = fi.baseline;
-		lptm->tmInternalLeading = 0;
-		lptm->tmExternalLeading = 0;
-		lptm->tmAveCharWidth = fi.widths['x'];
-		lptm->tmMaxCharWidth = fi.maxwidth;
-		lptm->tmWeight = FW_NORMAL;
-		lptm->tmOverhang = 0;
-		lptm->tmDigitizedAspectX = fi.maxwidth;
-		lptm->tmDigitizedAspectY = fi.height;
-		lptm->tmFirstChar = 32;
-		lptm->tmLastChar = 255;
-		lptm->tmDefaultChar = '?';
-		lptm->tmBreakChar = 0;
-		lptm->tmItalic = 0;
-		lptm->tmUnderlined = 0;
-		lptm->tmStruckOut = 0;
-		lptm->tmPitchAndFamily = fi.fixed ? FF_DONTCARE :
-			(FF_DONTCARE | TMPF_FIXED_PITCH);
-		lptm->tmCharSet = OEM_CHARSET;
+		set_text_metrics(hdc, lptm, &fi);
 
 		strncpy(lf.lfFaceName, pf->name, sizeof(lf.lfFaceName));
 		lf.lfHeight = fi.height;

@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
-#include "uni_std.h"
 #include <errno.h>
 #include <sys/types.h>
+#include "uni_std.h"
 
 #if _MINIX
 #include <sys/times.h>
-#elif UNIX | DOS_DJGPP | WIN32
+#elif UNIX | DOS_DJGPP
 #include <sys/time.h>
 #endif
 

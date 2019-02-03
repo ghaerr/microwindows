@@ -466,6 +466,12 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	if (mwPtrKeyboardTranslator)
 		mwPtrKeyboardTranslator(&VK_Code, &lParam, &pressed);
 
+#if WINEXTRA
+	extern void update_input_key_state(unsigned char *keystate,UINT message,WPARAM wParam);
+	extern unsigned char MwKeyState[256];
+	update_input_key_state(MwKeyState, pressed? WM_KEYDOWN: WM_KEYUP, VK_Code);
+#endif
+
 	if (!MwDeliverHotkey (VK_Code, pressed)) {
 		if (pressed)
 			PostMessage(focuswp, WM_KEYDOWN, VK_Code, lParam);
@@ -474,6 +480,7 @@ MwDeliverKeyboardEvent(MWKEY keyvalue, MWKEYMOD modifiers, MWSCANCODE scancode,
 	}
 }
 
+#if !WINEXTRA
 SHORT WINAPI
 GetKeyState(int nVirtKey)
 {
@@ -493,6 +500,7 @@ GetKeyState(int nVirtKey)
 	}
 	return 0;
 }
+#endif
 
 /*
  * Deliver a window expose event.

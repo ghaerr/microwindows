@@ -50,7 +50,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if UNIX | DOS_DJGPP
 #include <sys/time.h>
+#endif
 #define MWINCLUDECOLORS
 #include "windows.h"	/* windef.h, winuser.h */
 #include "wintools.h"

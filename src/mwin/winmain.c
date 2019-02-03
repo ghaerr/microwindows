@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2004, 2005, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2004, 2005, 2010, 2019 Greg Haerr <greg@censoft.com>
  *
  * Main module of Microwindows
  */
@@ -9,15 +9,14 @@
 #include <signal.h>
 #include <errno.h>
 #include <sys/types.h>
-
-#if UNIX | DOS_DJGPP
 #include "uni_std.h"
+
 #if _MINIX
 #include <sys/times.h>
-#else
+#elif UNIX | DOS_DJGPP
 #include <sys/time.h>
 #endif
-#endif
+
 #if MSDOS
 #include <time.h>
 #endif
@@ -33,9 +32,6 @@
 #if __ECOS
 #include <cyg/kernel/kapi.h>
 #endif
-#if __ECOS | NOMAIN
-#define main	invoke_WinMain
-#endif
 
 #if PSP
 #include <pspkernel.h>
@@ -46,6 +42,7 @@
 #include "windows.h"
 #include "wintern.h"
 #include "winres.h"
+#include "windlg.h"
 #include "device.h"
 
 /*
@@ -69,8 +66,23 @@ DWORD		lastWIN32Error = 0;	/* Last error */
 static void MwDelay(MWTIMEOUT msecs);
 static void MwPlatformInit(void);	/* platform specific init goes here*/
 
+#if !NOMAIN
 int
 main(int ac, char **av)
+{
+	invoke_WinMain_Start(ac, av);
+
+	/* call windows main program entry point*/
+	WinMain(rootwp->hInstance, NULL,
+		(LPSTR)((PMWAPPINSTANCE)rootwp->hInstance)->szCmdLine, SW_SHOW);
+
+	invoke_WinMain_End();
+	return 0;
+}
+#endif
+
+int WINAPI
+invoke_WinMain_Start(int ac, char **av)
 {
     HINSTANCE hInstance;
 
@@ -87,12 +99,14 @@ main(int ac, char **av)
 	    exit(1);
 	rootwp->hInstance = hInstance;
 
-	/* call windows main program entry point*/
-	WinMain(hInstance, NULL, (LPSTR)((PMWAPPINSTANCE)hInstance)->szCmdLine, SW_SHOW);
+	return 0;
+}
 
-	mwFreeInstance(hInstance);
+void WINAPI
+invoke_WinMain_End(void)
+{
+	mwFreeInstance(rootwp->hInstance);
 	MwTerminate();
-
 	exit(0);
 }
 
@@ -638,6 +652,9 @@ MwInitialize(void)
 	GdRestrictMouse(0, 0, psd->xvirtres - 1, psd->yvirtres - 1);
 	GdMoveMouse(psd->xvirtres / 2, psd->yvirtres / 2);
 
+#if WINEXTRA
+	MwInitializeDialogs(rootwp->hInstance);
+#endif
 	return 0;
 }
 
@@ -672,7 +689,7 @@ Sleep(DWORD dwMilliseconds)
 DWORD WINAPI
 GetTickCount(VOID)
 {
-#if UNIX | EMSCRIPTEN
+#if UNIX | EMSCRIPTEN | _MSC_VER
 	struct timeval t;
 
 	gettimeofday(&t, NULL);

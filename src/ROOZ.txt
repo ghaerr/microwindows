@@ -1,0 +1,91 @@
+Rooz Microwindows WinForms Port
+
+Targets:	Win32/x86/SDL2/DynamicLibs
+			WebAssembly-EMSCRIPTEN/SDL2/StaticLibs
+
+See Configs/config.winextra for configuration details
+
+1. Compiler Defines (Rooz set all these)
+-Imicrowindows/src/contrib/winextra
+-D_MSC_VER					(automatic, don't set. Using this in source #if's)
+-DWIN32=0					(set to 0, don't use this for source #if's)
+-DWIN32DLL=1				(sets WINAPI/STDCALL correctly for DLLS)
+-DWINEXTRA=1				(sets -Icontrib/winextra and adds internal functionality)
+-DNOMAIN=1
+-DHAVE_MMAP=0
+-DHAVE_SIGNAL=0 
+-DHAVE_FILEIO=1
+-DMW_FEATURE_TIMERS=1
+-DUPDATEREGIONS=1
+-DERASEMOVE=1
+-DHAVE_FREETYPE_2_SUPPORT=1
+-DSCREEN_PIXTYPE=MWPF_TRUECOLORARGB
+-DSCREEN_WIDTH=1400
+-DSCREEN_HEIGHT=1400
+
+2. Edit include/mwtypes.h for:
+PACKEDDATA
+
+3. Edit include/windef.h for:
+WINAPI, STDCALL, CALLBACK
+Do you have to use __stdcall? If so, use #define STDCALL/CALLBACK to __stdcall
+Add STDCALL if you have to to various non-WINAPI functions in mwin/*.c
+
+4. Add additional *.h files to contrib/winextra for automatic compiler search
+	Add header to contrib/winextra/winextra.h for automatic windows.h inclusion
+	#include "uni_std.h" before device.h to get special alloca and other handling
+
+5. Changes (Rooz look at these)
+include/mwtypes.h	MWBUTTON fix
+include/winuser.h	WINAPI, STDCALL and CALLBACK
+					various WINAPI fixes
+mwin/winevent.c		set_input_keys_state, update_input_key_state
+					static MwKeyState, no need for zero memset
+					GetKeyState
+mwin/wingdi.c		hdc xforms
+					WINAPI fixes
+mwin/winlib/msgbox.c __stdcall->CALLBACK
+mwin/winlib/static.c __stdcall->CALLBACK
+mwin/winlib/windlg.c WINAPI fixes
+mwin/winuser.c		__stdcall review, -> STDCALL
+					WINAPI Fixes
+
+6. Problem areas (Greg will think about, likely change will be rejected)
+include/winctl.h	#pragma once
+include/winfont.h	LOGFONT - not deleted, LOGFONTA/LOGFONTW in winextra/
+include/wingdi.h	can't delete PACKEDDATA in BITMAPINFOHEADER
+include/winuser.h	can't include mwtypes.h
+					shouldnt use pragma pack(1) for WNDCLASSA or MSG
+					not sure about __stdcall fixes
+mwin/winfont.c		need to review device to world transformations
+mwin/winrgn.c		need to review ExtCreateRegion, GetWorldTransform
+extra/extra_windef.h handles timeval struct, no need for <sys/time.h>
+extra/winbase.h		may need to include guidddef.h
+extra/winstring.h	needs lstrcmpiW
+
+
+7. Move to src/mwinextra (Rooz will do)
+guidddef.h
+initguid.h
+objbase.h
+poppack.h
+pshpack*.h
+schemadef.h
+shlapi.h
+tmschema.h
+vfwmsgs.h
+vsstyle.h
+vssym32.h
+winnls.h
+winreg.h
+uxtheme/*.{ch}
+
+8. No Action
+.vs/*
+.gitignore
+dllmain.c
+nanox.vcxproj.*
+Makefile_nr			(build system uses internal make now)
+config				use Configs/config.winextra
+Makefile.rules		libX11.dll.a
+drivers/kbd_sdl1.c	SDL2 driver has been perfected with EMSCRIPTEN, SDL1 deprecated

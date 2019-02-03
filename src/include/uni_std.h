@@ -11,50 +11,51 @@
 
 #else /* WIN32 || defined(_MSC_VER)*/
 
-//#include <stdlib.h>
 #include <io.h>
-//#include <getopt.h> /* getopt at: https://gist.github.com/ashelly/7776712 */
-//#include <process.h> /* for getpid() and the exec..() family */
-#include <direct.h> /* for _getcwd() and _chdir() */
+#include <direct.h>			/* for _getcwd() and _chdir()*/
+//#include <stdlib.h>
+//#include <getopt.h>		/* getopt at: https://gist.github.com/ashelly/7776712*/
+//#include <process.h>		/* for getpid() and exec() family*/
 
-#define srandom srand
-#define random rand
+/* must include this file before "device.h" for this to work*/
+#define alloca			_alloca
 
-/* Values for the second argument to access*/
-#define R_OK    4       /* Test for read permission.  */
-#define W_OK    2       /* Test for write permission.  */
-#define X_OK    1     	/* execute permission - unsupported in windows*/
-#define F_OK    0       /* Test for existence.  */
-
-#define access _access
-#define dup2 _dup2
-#define execve _execve
-#define ftruncate _chsize
-#define unlink _unlink
-#define fileno _fileno
-#define getcwd _getcwd
-#define chdir _chdir
-#define isatty _isatty
-#define lseek _lseek
+#define access		_access
+#define dup2		_dup2
+#define execve		_execve
+#define ftruncate	_chsize
+#define unlink		_unlink
+#define fileno		_fileno
+#define getcwd		_getcwd
+#define chdir		_chdir
+#define isatty		_isatty
+#define lseek		_lseek
 
 /* read, write, and close are defined here, but they may not work for sockets, e.g. closesocket()*/
-#define open _open
-#define read _read
-#define write _write
-#define close _close
+#define open		_open
+#define read		_read
+#define write		_write
+#define close		_close
 
 #ifdef _WIN64
-#define ssize_t __int64
+#define ssize_t		__int64
 #else
-#define ssize_t long
+#define ssize_t		long
 #endif
 
 #define STDIN_FILENO 0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
 
-/* must include this file before "device.h" for this to work*/
-#define alloca		_alloca
+/* Values for the second argument to access*/
+#define R_OK    4       /* Read permission*/
+#define W_OK    2       /* Write permission*/
+#define X_OK    1     	/* Execute permission - unsupported in windows*/
+#define F_OK    0       /* File exists*/
+
+/* math routines*/
+#define srandom			srand
+#define random			rand
 
 /* string routines*/
 #define strcasecmp		_stricmp

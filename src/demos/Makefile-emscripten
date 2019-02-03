@@ -38,7 +38,7 @@ LDFLAGS += -s ERROR_ON_UNDEFINED_SYMBOLS=0
 
 # applications not following docs/EMSCRIPTEN.rules may have to add functions here
 WHITELIST = -s EMTERPRETIFY_WHITELIST='[ \
-				"_WinMain", "_MwSelect", "_MwDelay", \
+				"_invoke_WinMain_Start", "_WinMain", "_MwSelect", "_MwDelay", \
 				"_GetMessage", "_PeekMessage", "_chkPaintMsg", \
 				"_main", "_GsSelect", "_GrDelay", "_GrFlush", \
 				"_GrGetNextEvent", "_GrGetNextEventTimeout", "_GrPeekEvent", "_GsCheckNextEvent", \

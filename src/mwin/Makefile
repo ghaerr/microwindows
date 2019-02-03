@@ -65,6 +65,17 @@ OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/openfile.o
 endif
 
+ifeq ($(WINEXTRA), Y)
+OBJS += \
+	$(MW_DIR_OBJ)/contrib/winextra/stub_wingdi.o \
+	$(MW_DIR_OBJ)/contrib/winextra/stub_winevent.o \
+	$(MW_DIR_OBJ)/contrib/winextra/stub_winfont.o \
+	$(MW_DIR_OBJ)/contrib/winextra/stub_winrgn.o \
+	$(MW_DIR_OBJ)/contrib/winextra/stub_winuser.o
+#OBJS+= $(MW_DIR_OBJ)/contrib/winextra/setenv.o
+#OBJS+= $(MW_DIR_OBJ)/contrib/winextra/gettimeofday.o
+endif
+
 endif
 
 ######################### Makefile.rules section #############################

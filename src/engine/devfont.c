@@ -29,7 +29,7 @@
 extern MWCOREFONT *user_builtin_fonts;
 
 static int utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16);
-static int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
+int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
 
 
 /**
@@ -980,7 +980,7 @@ utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16)
 /* 
  * warning: the length of output string may exceed six x the length of the input 
  */ 
-static int
+int
 uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s)
 {
 	int i;

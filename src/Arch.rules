@@ -319,3 +319,8 @@ ifeq ($(VERBOSE), Y)
 CFLAGS += -v
 endif
 endif
+
+ifeq ($(WINEXTRA), Y)
+DEFINES += -DWINEXTRA=1
+INCLUDEDIRS += -I$(WINEXTRA_INCLUDE)
+endif

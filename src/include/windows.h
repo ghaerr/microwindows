@@ -2,7 +2,7 @@
 #define _WINDOWS_H
 /* windows.h*/
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2019 Greg Haerr <greg@censoft.com>
  *
  * Microwindows Win32 API master public header file
  * Modifications:
@@ -11,6 +11,7 @@
  *                                      SetWindowLong(GWL_WNDPROC) may works on multiple wnd.
  *  2010/04/23	Ludwig Ertl				Added support for window Props
  */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,10 +25,11 @@ extern "C" {
 #include "winres.h"
 #include "windlg.h"
 
-
 /* external routines*/
 int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     			LPSTR lpCmdLine, int nShowCmd);
+int WINAPI invoke_WinMain_Start(int ac, char **av);
+void WINAPI invoke_WinMain_End(void);
 
 int		MwUserInit(int ac, char **av);
 
@@ -81,6 +83,15 @@ typedef struct {
 	MWCLIPREGION  *	rgn;		/* clip region*/
 } MWRGNOBJ;
 
+typedef struct  _XFORM {
+	FLOAT eM11;
+	FLOAT eM12;
+	FLOAT eM21;
+	FLOAT eM22;
+	FLOAT eDx;
+	FLOAT eDy;
+} XFORM, *PXFORM, *LPXFORM;
+
 /* device context*/
 struct hdc {
 	struct _mwscreendevice *psd;	/* screen or memory device*/
@@ -97,6 +108,12 @@ struct hdc {
 	MWRGNOBJ *	region;		/* user specified clip region*/
 	int		drawmode;	/* rop2 drawing mode */
 	POINT		pt;		/* current pen pos in client coords*/
+#if WINEXTRA
+	INT           GraphicsMode;      /* Graphics mode */
+	XFORM         xformWorld2Wnd;    /* World-to-window transformation */
+	XFORM         xformWorld2Vport;  /* World-to-viewport transformation */
+	XFORM         xformVport2World;  /* Inverse of the above transformation */
+#endif
 };
 
 /* cursor*/
@@ -164,6 +181,10 @@ VOID WINAPI		Sleep(DWORD dwMilliseconds);
 
 #ifdef __cplusplus
 }
+#endif
+
+#if WINEXTRA
+#include "winextra.h"		/* extra windows stuff set by WINEXTRA=Y in config*/
 #endif
 
 #endif /* _WINDOWS_H*/

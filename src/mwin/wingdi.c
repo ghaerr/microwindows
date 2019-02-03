@@ -106,6 +106,18 @@ GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 		hdc->flags |= DCX_EXCLUDEUPDATE;
 		hwnd->owndc = hdc;
 	}
+#if WINEXTRA
+	/* initialize world transform*/
+	hdc->xformWorld2Wnd.eM11 = 1.0f;
+	hdc->xformWorld2Wnd.eM12 = 0.0f;
+	hdc->xformWorld2Wnd.eM21 = 0.0f;
+	hdc->xformWorld2Wnd.eM22 = 1.0f;
+	hdc->xformWorld2Wnd.eDx = 0.0f;
+	hdc->xformWorld2Wnd.eDy = 0.0f;
+	hdc->xformWorld2Vport = hdc->xformWorld2Wnd;
+	hdc->xformVport2World = hdc->xformWorld2Wnd;
+	hdc->GraphicsMode = GM_COMPATIBLE;
+#endif
 
 	return hdc;
 }
@@ -781,7 +793,7 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 
 
 /* set current input coding*/
-void WINAPI
+void
 MwSetTextCoding(long mode)
 {
 	mwTextCoding = mode;
@@ -1115,7 +1127,7 @@ mwDrawTextOut(HDC hDC, int x, int y, LPSTR str, int len, UINT uFormat, int flags
  *	DT_WORDBREAK, DT_NOCLIP (default), DT_NOPREFIX, DT_EXPANDTABS
  */
 /* !OLD_DRAWTEXT function*/
-static int WINAPI
+static int
 MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 {
 	LPCSTR str = lpsz;
@@ -1806,7 +1818,7 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	return (HBRUSH)hbitmap;
 }
 
-HBITMAP CreateDIBSection(
+HBITMAP WINAPI CreateDIBSection(
   HDC hdc, CONST BITMAPINFO *pbmi, UINT iUsage,
   VOID **ppvBits, HANDLE hSection, DWORD dwOffset)
 {
@@ -1816,7 +1828,7 @@ HBITMAP CreateDIBSection(
 	PSD psd = hdc? hdc->psd: &scrdev;
 
 	/* calc memory allocation size and pitch from width and height*/
-	if(!GdCalcMemGCAlloc(psd, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight,
+	if(!GdCalcMemGCAlloc(psd, pbmi->bmiHeader.biWidth, MWABS(pbmi->bmiHeader.biHeight),
 		pbmi->bmiHeader.biPlanes, pbmi->bmiHeader.biBitCount, &size, &pitch))
 			return NULL;
 
@@ -1827,7 +1839,7 @@ HBITMAP CreateDIBSection(
 	hbitmap->hdr.type = OBJ_BITMAP;
 	hbitmap->hdr.stockobj = FALSE;
 	hbitmap->width = pbmi->bmiHeader.biWidth;
-	hbitmap->height = pbmi->bmiHeader.biHeight;
+	hbitmap->height = MWABS(pbmi->bmiHeader.biHeight);
 	hbitmap->planes = pbmi->bmiHeader.biPlanes;
 	hbitmap->bpp = pbmi->bmiHeader.biBitCount;
 	hbitmap->pitch = pitch;

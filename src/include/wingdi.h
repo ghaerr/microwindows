@@ -350,7 +350,7 @@ typedef struct tagBITMAPINFO { // bmi
 #define DIB_RGB_COLORS      0 /* color table in RGBs */
 #define DIB_PAL_COLORS      1 /* color table in palette indices */
 
-HBITMAP CreateDIBSection(
+HBITMAP WINAPI CreateDIBSection(
   HDC hdc, CONST BITMAPINFO *pbmi, UINT iUsage,
   VOID **ppvBits, HANDLE hSection, DWORD dwOffset);
 HDC WINAPI	CreateCompatibleDC(HDC hdc);

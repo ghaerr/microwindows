@@ -1452,7 +1452,6 @@ SetWindowWord(HWND hwnd, int nIndex, WORD wNewWord)
  * out property methods can work as expected.
  *
  */
-static
 ATOM WINAPI
 GlobalFindAtom(LPCSTR lpString)
 {
@@ -1464,7 +1463,6 @@ GlobalFindAtom(LPCSTR lpString)
 	return atom;
 }
 
-static
 ATOM WINAPI
 GlobalAddAtom(LPCSTR lpString)
 {
@@ -1577,7 +1575,7 @@ MwOffsetChildren(HWND hwnd, int offx, int offy)
 	}
 }
 
-BOOL
+BOOL WINAPI
 SetWindowPos(HWND hwnd, HWND hwndInsertAfter, int x, int y, int cx, int cy, UINT fuFlags)
 {
 	int		hidden;

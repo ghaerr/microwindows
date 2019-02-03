@@ -150,7 +150,13 @@ typedef struct tagMSG {
 #define WM_MBUTTONDBLCLK                0x0209
 #define WM_MOUSEWHEEL                   0x020A
 #define WM_MOUSELAST                    0x020A
+
 #define WM_HOTKEY                       0x0312
+#define WM_PRINT                        0x0317
+#define WM_PRINTCLIENT                  0x0318
+#define WM_APPCOMMAND          			0x0319
+#define WM_THEMECHANGED        			0x031A
+#define WM_CLIPBOARDUPDATE     			0x031D
 
 #define WM_CARET_CREATE    		0x03E0 /* Microwindows only*/
 #define WM_CARET_DESTROY   		0x03E1 /* Microwindows only*/
@@ -494,6 +500,8 @@ LONG WINAPI	SetWindowLong(HWND hwnd, int nIndex, LONG lNewLong);
 LONG_PTR WINAPI	SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong);	// 64bit
 WORD WINAPI	GetWindowWord(HWND hwnd, int nIndex);
 WORD WINAPI	SetWindowWord(HWND hwnd, int nIndex, WORD wNewWord);
+ATOM WINAPI GlobalFindAtom(LPCSTR lpString);
+ATOM WINAPI GlobalAddAtom(LPCSTR lpString);
 BOOL WINAPI SetProp(HWND hWnd, LPCSTR lpString, HANDLE hData);
 HANDLE WINAPI GetProp(HWND hWnd, LPCSTR lpString);
 HANDLE WINAPI RemoveProp(HWND hWnd, LPCSTR lpString);

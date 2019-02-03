@@ -1,5 +1,6 @@
 2 Feb 2019
-	added Daniel's Create android APKs for nanox demos and updated ANDROID config
+	* implement WINEXTRA=Y and contrib/winextra functions for Rooz, -DWIN32DLL=1 -DWINEXTRA=1
+	* added Daniel's Create android APKs for nanox demos and updated ANDROID config
 1 Feb 2019
 	* remove WINAPI from non-entry point functions, add CALLBACK to WndProcs, WndProcBridge
 	* Added Rooz's IsWindow() fix, GetParent, GetAncestor, Get/SetLayeredWindowAttributes
@@ -31,7 +32,7 @@
 21 Jan 2019
 	* rewrote Gs/MwCheckMouseEvent and Gs/MwCheckKeyboardEvent to handle various drivers Poll/NULL entry points
 	* defines for keyboard/mouse Open() and Read() return values in device.h
-	* debug EMSCRIPTEN cursur blink: int FARPROC() vs void FARPROC() callback caused failure of function pointer!
+	* debug EMSCRIPTEN cursor blink: int FARPROC() vs void FARPROC() callback caused failure of function pointer!
 	* fixed timers for EMSCRIPTEN to allow cursor blinks and automotion
 	* use X11-local X11 headers for nx11 EMSCRIPTEN build, since its extensions/shape.h missing
 	* call scrdev.Preselect() to update SDL canvas in GrFlush() for EMSCRIPTEN and NX11 XFlush()

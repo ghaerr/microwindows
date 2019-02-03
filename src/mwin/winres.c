@@ -97,6 +97,10 @@ mwCreateInstance(int argc, char *argv[])
 	char *p;
 	int i, tot;
 	PMWAPPINSTANCE mwAppInst = (PMWAPPINSTANCE) malloc(sizeof(MWAPPINSTANCE));
+	char *defaultargv[1] = { "mw.exe" };
+
+	if (!argv)
+		argv = defaultargv;
 
 	if (mwAppInst == NULL)
 		return NULL;

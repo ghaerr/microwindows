@@ -259,7 +259,7 @@ $(ANDROID_SKEL)/%:
 		$@/assets
 	test -d $@/lib/$(ANDROID_ARCH_VER) || mkdir -p $@/lib/$(ANDROID_ARCH_VER)
 	$(CP) $(ALLEGRO5_LIB)/liballegro.so $@/lib/$(ANDROID_ARCH_VER)/
-	$(CP) -r $(ALLEGRO5_SRC)/android/allegro_activity/src/* $@/java/
+	$(CP) -r $(ALLEGRO5_SRC)/android/gradle_project/allegro/src/main/java/org/* $@/java/
 
 $(MW_DIR_BIN)/%:
 	find $(MW_DIR_BIN)/$(patsubst $(MW_DIR_BIN)/%-pack,%,$@)-apk -type f -exec sed -i 's/_skeleton/'"$(subst -,,$(patsubst $(MW_DIR_BIN)/%-pack,%,$@))"'/g' {} \;

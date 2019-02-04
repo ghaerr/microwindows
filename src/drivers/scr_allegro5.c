@@ -11,6 +11,10 @@
 #include "genmem.h"
 #include "genfont.h"
 
+#if ANDROID
+#define ALLEGRO_UNSTABLE
+#endif
+
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
 

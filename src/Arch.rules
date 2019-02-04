@@ -304,6 +304,11 @@ LDFLAGS += -L$(ANDROID_NDK_HOME)/sources/cxx-stl/llvm-libc++/libs/$(ANDROID_ARCH
 LDFLAGS += -lallegro -llog -lc++
 endif
 
+ifeq ($(SCREEN), ALLEGRO)
+# required for al_run_main in winmain.c/srvmain.c
+DEFINES += -DALLEGRO=1
+endif
+
 ifeq ($(ARCH), EMSCRIPTEN)
 COMPILER = emcc
 CXX_COMPILER = emcc

@@ -1,3 +1,9 @@
+3 Feb 2019
+	* updated ALLEGRO driver to use 2.0 zoom factor for better readability
+	* rewrote ALLEGRO screeen driver to support aggregate update region (PSF_DELAYUPDATE)
+	* added PreSelect to ALLEGRO/Android screen driver required for PSF_CANTBLOCK drivers
+	* ported ALLEGRO screen driver to MACOSX win32 apps (uses al_run_main() in main())
+	* deprecated Allegro v4.x screen driver, now supports Allegro v5.2 (SCREEN=ALLEGRO)
 2 Feb 2019
 	* implement WINEXTRA=Y and contrib/winextra functions for Rooz, -DWIN32DLL=1 -DWINEXTRA=1
 	* added Daniel's Create android APKs for nanox demos and updated ANDROID config

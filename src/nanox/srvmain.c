@@ -129,12 +129,21 @@ usage(void)
 	exit(1);
 }
 
-/*
- * This is the main server loop which initialises the server, services
- * the clients, and shuts the server down when there are no more clients.
- */
+#if ALLEGRO
+int real_main(int ac, char **av);	/* ALLEGRO renamed main entry point*/
+int main(int ac, char **av)
+{
+#define MAIN(ac,av)	real_main(ac,av)
+	/* required to force allegro to run OSX API calls on the main thread*/
+	extern int al_run_main(int ac, char **av, int (*main_ptr)());
+	return al_run_main(ac, av, real_main);
+}
+#else
+#define MAIN(ac,av)	main(ac,av)
+#endif /* ALLEGRO*/
+
 int
-main(int argc, char *argv[])
+MAIN(int argc, char **argv)			/* ALLEGRO=real_main(), main() otherwise*/
 {
 	int t;
 
@@ -205,9 +214,12 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-        Argc = argc;
-        Argv = argv;
-	/* Attempt to initialise the server*/
+    Argc = argc;
+    Argv = argv;
+	/*
+	 * This is the main server loop which initialises the server, services
+	 * the clients, and shuts the server down when there are no more clients.
+	 */
 	if(GsInitialize() < 0)
 		exit(1);
 

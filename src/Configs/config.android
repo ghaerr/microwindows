@@ -31,7 +31,7 @@ PARALLEL                 = N
 # Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-SCREEN                   = ALLEGRO5
+SCREEN                   = ALLEGRO
 ALLEGRO5_INCLUDE	 = /home/giri/workspace/fltk_mvc_template/MVC/include
 ALLEGRO5_LIB		 = /home/giri/workspace/fltk_mvc_template/MVC/lib/android_arm
 ALLEGRO5_SRC		 = /home/giri/workspace/fltk_mvc_template/MVC/packages/allegro5.1.13/allegro-5.1.13.1

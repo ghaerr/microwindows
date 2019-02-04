@@ -1,7 +1,8 @@
 /*
  * Allegro/Android Mouse Driver
  *
- * written by Georg Potthast 2012
+ * Written by Georg Potthast 2012
+ * Updated to new driver format Greg Haerr 2019
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,13 +30,8 @@ MOUSEDEVICE mousedev = {
 	mallegro_Poll,
 };
 
-extern ALLEGRO_DISPLAY *display;
-extern ALLEGRO_BITMAP *display_bitmap;
-extern ALLEGRO_EVENT_QUEUE *a_event_queue_m;
-extern ALLEGRO_EVENT a_event;
-ALLEGRO_MOUSE_STATE mstate;
-extern ALLEGRO_BITMAP *scrmem;
-extern int zoomfactor;
+extern ALLEGRO_EVENT_QUEUE *allegro_mouqueue;
+extern float allegro_zoom;
 
 /*
  * Mouse Poll
@@ -43,31 +39,15 @@ extern int zoomfactor;
 static int
 mallegro_Poll(void)
 {
-#if ANDROID
-	if(al_is_bitmap_locked(scrmem))
-	{
-    	al_unlock_bitmap(scrmem);
-    	al_set_target_bitmap(al_get_backbuffer(display));
-    	//al_draw_bitmap(scrmem, 0, 0, 0);
-    	al_draw_scaled_rotated_bitmap(scrmem, 0, 0, 0, 0, zoomfactor, zoomfactor, 0, 0);
-    	//al_draw_scaled_rotated_bitmap(scrmem, 0, al_get_bitmap_height(al_get_backbuffer(display)), 0, 0, 2, 2, ALLEGRO_PI/2, 0);
-    	//al_draw_scaled_rotated_bitmap(scrmem, 0, 500, 0, 0, 3, 3, ALLEGRO_PI/2, 0); //would have to recalculate mouse
-    	al_flip_display();
-	}  
-#else
-    if(al_is_bitmap_locked(display_bitmap)) {
-      al_unlock_bitmap(display_bitmap);       
-      al_flip_display(); 
-    }
-#endif
+	ALLEGRO_EVENT event;
 
-  if (!al_is_mouse_installed())
-  	return 0;
-  
-  if (al_peek_next_event(a_event_queue_m, &a_event))
-  	return 1; 			//read event in read function
+	if (!al_is_mouse_installed())
+		return 0;
 
-  return 0;
+	if (al_peek_next_event(allegro_mouqueue, &event))
+		return 1;
+
+	return 0;
 }
 
 /*
@@ -76,9 +56,7 @@ mallegro_Poll(void)
 static int
 mallegro_Open(MOUSEDEVICE *pmd)
 {
-  al_hide_mouse_cursor(display); //here, or two mouse cursors
-      
-  return DRIVER_OKNOTFILEDESC;
+	return DRIVER_OKNOTFILEDESC;
 }
 
 /*
@@ -115,50 +93,49 @@ mallegro_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
 	int buttons = 0;
 	int mickeyz = 0;
-	static int mz; 
-  
-  if (!al_is_mouse_installed())
-  	return MOUSE_NODATA;
+	ALLEGRO_EVENT event;
+	ALLEGRO_MOUSE_STATE mstate;
+	static int mz;
 
-    al_get_next_event(a_event_queue_m, &a_event); //remove from queue
+    if (!al_get_next_event(allegro_mouqueue, &event))
+		return 0;
 
-	switch(a_event.type) {
+	switch(event.type) {
     case ALLEGRO_EVENT_MOUSE_AXES:
     case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
     case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
-        break; 
+        break;
 
-    case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:        
+    case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
     case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
     default:
         return MOUSE_NODATA;
 	}
 
-	al_get_mouse_state_axis(&mstate, 2); // 2= read z-axis vertical wheel	
-	//calculate wheel button (up/down)
+	/* calculate wheel button (up/down)*/
+	al_get_mouse_state_axis(&mstate, 2); /* 2= read z-axis vertical wheel*/
 	if(mstate.z != mz)
 	    mickeyz = mstate.z - mz;
 	else
 	    mickeyz = 0;
 	mz = mstate.z;
-	
-	al_get_mouse_state(&mstate); //call above returns no button press
-	//microwindows expects the mouse position at the unzoomed position - so divide
-	*dx=mstate.x/zoomfactor; 
-	*dy=mstate.y/zoomfactor;
-    *dz = 0; //unused
+
+	al_get_mouse_state(&mstate);		/* above call doesn't return button press*/
+	*dx = mstate.x / allegro_zoom;		/* divide go get unzoomed postion*/
+	*dy = mstate.y / allegro_zoom;
+    *dz = 0;
 	*bp = 0;
 
-	if (mstate.buttons & 1)		/* Primary (e.g. left) mouse button is held. */
-    	buttons |= MWBUTTON_L;
-	if (mstate.buttons & 2)		/* Secondary (e.g. right) mouse button is held. */
-    	buttons |= MWBUTTON_R;
-	if (mstate.buttons & 4)		/* Tertiary (e.g. middle) mouse button is held. */
-    	buttons |= MWBUTTON_M;
+	if (mstate.buttons & 1)		/* Primary (e.g. left) mouse button is held*/
+		buttons |= MWBUTTON_L;
+	if (mstate.buttons & 2)		/* Secondary (e.g. right) mouse button is held*/
+		buttons |= MWBUTTON_R;
+	if (mstate.buttons & 4)		/* Tertiary (e.g. middle) mouse button is held*/
+		buttons |= MWBUTTON_M;
 	if (mickeyz > 0)
-    	buttons |= MWBUTTON_SCROLLUP;  
+		buttons |= MWBUTTON_SCROLLUP;
 	if (mickeyz < 0)
-    	buttons |= MWBUTTON_SCROLLDN;
+		buttons |= MWBUTTON_SCROLLDN;
 
 	*bp = buttons;
 

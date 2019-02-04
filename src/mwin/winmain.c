@@ -67,8 +67,21 @@ static void MwDelay(MWTIMEOUT msecs);
 static void MwPlatformInit(void);	/* platform specific init goes here*/
 
 #if !NOMAIN
+#if ALLEGRO
+int real_main(int ac, char **av);	/* ALLEGRO renamed main entry point*/
+int main(int ac, char **av)
+{
+#define MAIN(ac,av)	real_main(ac,av)
+	/* required to force allegro to run OSX API calls on the main thread*/
+	extern int al_run_main(int ac, char **av, int (*main_ptr)());
+	return al_run_main(ac, av, real_main);
+}
+#else
+#define MAIN(ac,av)	main(ac,av)
+#endif /* ALLEGRO*/
+
 int
-main(int ac, char **av)
+MAIN(int ac, char **av)			/* ALLEGRO=real_main(), main() otherwise*/
 {
 	invoke_WinMain_Start(ac, av);
 
@@ -79,7 +92,7 @@ main(int ac, char **av)
 	invoke_WinMain_End();
 	return 0;
 }
-#endif
+#endif /* !NOMAIN*/
 
 int WINAPI
 invoke_WinMain_Start(int ac, char **av)

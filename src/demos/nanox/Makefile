@@ -171,6 +171,11 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
+ifeq ($(SCREEN), ALLEGRO5)
+# don't link client apps with -lallegro
+LDFLAGS := $(filter-out $(EXTENGINELIBS),$(LDFLAGS))
+endif
+
 # These demos need -lm
 NANOX_DEMOS_WITH_LIBM_LINK := \
 	$(MW_DIR_BIN)/demo-font \

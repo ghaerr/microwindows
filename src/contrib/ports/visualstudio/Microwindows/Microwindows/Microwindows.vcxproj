@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\nx11\AllocColor.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Atom.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Backgnd.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\BdrWidth.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Bell.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Border.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ChProperty.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ChSaveSet.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ChWindow.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ClassHint.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ClDisplay.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Clear.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ClearArea.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Colormap.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Colorname.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Context.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Copy.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\CrBFData.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\CrCursor.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\CrGC.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\CrPFBData.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\CrPixmap.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\CrWindow.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DefCursor.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DestWind.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DrArc.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DrLine.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DrLines.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DrPoint.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\DrRect.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ErrorHandler.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Extension.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\FillPolygon.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\FillRct.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Flush.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\FontCursor.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\FontInfo.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\fontlist.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\font_find.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Free.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\FreeGC.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\GetGCVals.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\GetGeom.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\GetPntMap.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\GetWMProps.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Grab.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\IM.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Image.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ListPix.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Locale.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\LowerWin.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\MapRaised.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\MapWindow.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Misc.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\MoveWin.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\NextEvent.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\NXext.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\OpenDis.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\ParseColor.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\PmapBgnd.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Quarks.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\QueryBest.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\QueryColor.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\QueryFont.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\QueryPointer.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\QueryTree.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\RaiseWin.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Region.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\RepWindow.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Request.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Resource.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Screen.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Selection.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\SelInput.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\SetAttributes.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\SetClip.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\SetIFocus.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\SetWMProps.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\SetWMProto.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Shape.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\StName.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\StrKeysym.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\StrToText.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\stub.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Sync.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Text.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Text16.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\TextExt.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\TextToStr.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Threads.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\UndefCurs.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\UnloadFont.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\UnmapWin.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Visual.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Window.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\WindowProperty.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\XKB.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\XMisc.c" />
+    <ClCompile Include="..\..\..\..\..\nx11\Xrm.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{5DCDD45C-EA2B-4A86-AFEB-DA056167CE3B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Microwindows</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>NX11</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MICROWINDOWS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\..\..\include;..\..\..\..\winextra;..\..\..\..\..\nx11\X11-local</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;MICROWINDOWS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MICROWINDOWS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\..\..\include;..\..\..\..\winextra;..\..\..\..\..\nx11\X11-local</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;MICROWINDOWS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

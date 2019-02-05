@@ -32,6 +32,7 @@ static void allegro_close(PSD psd);
 static void allegro_setpalette(PSD psd,int first,int count,MWPALENTRY *pal);
 static void allegro_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWCOORD height);
 static int  allegro_preselect(PSD psd);
+static int allegro_pollevents(void);
 
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 #define max(a,b)            (((a) > (b)) ? (a) : (b))
@@ -147,6 +148,24 @@ init_allegro(void)
 	al_hide_mouse_cursor(display);		/* turn off allegro cursor*/
 
 	return 1;
+}
+
+/* return nonzero if event available*/
+static int
+allegro_pollevents(void)
+{
+	ALLEGRO_EVENT event;
+
+	if (al_peek_next_event(allegro_mouqueue, &event))
+		return 1;
+
+	if (al_peek_next_event(allegro_kbdqueue, &event))
+		return 1;
+
+	if (al_peek_next_event(allegro_scrqueue, &event))
+		return 1;
+
+	return 0;
 }
 
 /*
@@ -282,10 +301,14 @@ allegro_preselect(PSD psd)
 		al_set_target_bitmap(al_get_backbuffer(display));
 		al_draw_scaled_rotated_bitmap(scrmem, 0, 0, 0, 0, allegro_zoom, allegro_zoom, 0, 0);
 		al_flip_display();
+
+		/* experimental fix for dual mouse cursor on OSX*/
+		al_show_mouse_cursor(display);		/* turn on allegro cursor*/
+		al_hide_mouse_cursor(display);		/* turn off allegro cursor*/
 	}
 
 	/* return nonzero if event available*/
-	return 1;
+	return allegro_pollevents();
 }
 
 /* framebuffer updated, calculate update rectangle*/

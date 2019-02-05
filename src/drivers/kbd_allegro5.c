@@ -103,7 +103,7 @@ allegro_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	ALLEGRO_KEYBOARD_STATE kbdstate;
 	static int mwkey,scanvalue;
 
-	if (al_peek_next_event(allegro_scrqueue, &event))
+	if (al_get_next_event(allegro_scrqueue, &event))
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			return KBD_QUIT;	/* terminate application*/
 

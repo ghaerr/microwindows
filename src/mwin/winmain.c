@@ -60,7 +60,6 @@ MWCOORD		cursory;		/* current y position of cursor */
 DWORD		startTicks;		/* tickcount on startup */
 int		keyb_fd;		/* the keyboard file descriptor */
 int		mouse_fd;		/* the mouse file descriptor */
-int		escape_quits = 1;	/* terminate when pressing ESC */
 DWORD		lastWIN32Error = 0;	/* Last error */
 
 static void MwDelay(MWTIMEOUT msecs);

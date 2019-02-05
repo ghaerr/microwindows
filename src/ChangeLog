@@ -1,3 +1,5 @@
+5 Feb 2019
+	* more Arch.rules and #ifdef cleanup, remove escape_quits
 4 Feb 2019
 	* experimental fix for Allegro driver mouse cursor display on OSX
 	* fixed Allegro driver to allow client/server nano-X apps to run, mousewheel removed

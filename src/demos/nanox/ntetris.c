@@ -76,7 +76,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include <time.h>
 #include <ctype.h>
 #include <errno.h>
@@ -84,13 +84,7 @@
 
 #include <nano-X.h>
 #include <nxcolors.h>
-
 #include "ntetris.h"
-
-#if RTEMS || __ECOS
-#define  srandom  srand
-#define  random   rand
-#endif
 
 void *my_malloc(size_t size)
 {

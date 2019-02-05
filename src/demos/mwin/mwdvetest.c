@@ -475,12 +475,10 @@ BOOL CALLBACK kbdTranslate ( WPARAM *pVK, LPARAM *pControlMask, BOOL *pressed )
 
 int WINAPI WinMain ( HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int nShow )
 {
-#ifndef WIN32
-	extern int escape_quits;
-    MwInitializeDialogs ( hInstance );
+#if MICROWINDOWS
+	MwInitializeDialogs ( hInstance );
 	MwSetTextCoding ( MWTF_UTF8 );
 	MwSetKeyboardTranslator ( kbdTranslate );
-	escape_quits = 0;
 #endif
 	UpdateWindow(GetDesktopWindow());
 	hInst = hInstance;

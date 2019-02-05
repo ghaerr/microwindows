@@ -301,7 +301,7 @@ typedef unsigned char XrmBits;
 static XrmBits Const xrmtypes[256] = {
     EOS,0,0,0,0,0,0,0,
     0,SPACE,EOL,0,0,
-#if defined(WIN32) || defined(__EMX__) /* || defined(OS2) */
+#if WIN32
                     EOL,	/* treat CR the same as LF, just in case */
 #else
                     0,

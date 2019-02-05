@@ -75,7 +75,6 @@ GR_CLIENT	*curclient;		/* client currently executing for */
 GR_EVENT_LIST	*eventfree;		/* list of free events */
 GR_BOOL		focusfixed;		/* TRUE if focus is fixed on a window */
 PMWFONT		stdfont;		/* default font*/
-int		escape_quits = TRUE;	/* terminate when pressing ESC */
 char		*progname;		/* Name of this program.. */
 
 int		current_fd;		/* the fd of the client talking to */
@@ -120,12 +119,11 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	EPRINTF("Usage: %s [-e] [-p] [-A] [-NLRD] [-x #] [-y #]"
+	EPRINTF("Usage: %s [-p] [-A] [-NLRD] [-x #] [-y #]"
 #if FONTMAPPER
 		" [-c <fontconfig-file>"
 #endif
-		" ...]\n",
-		progname);
+		" ...]\n", progname);
 	exit(1);
 }
 
@@ -151,11 +149,6 @@ MAIN(int argc, char **argv)			/* ALLEGRO=real_main(), main() otherwise*/
 
 	t = 1;
 	while ( t < argc ) {
-		if ( !strcmp("-e",argv[t])) {
-			escape_quits = FALSE;
-			++t;
-			continue;
-		}
 		if ( !strcmp("-p",argv[t]) ) {
 			persistent_mode = TRUE;
 			++t;
@@ -272,7 +265,6 @@ GrOpen(void)
 
 #if NONETWORK
 	SERVER_LOCK();
-	escape_quits = 1;
 
 	/* Client calls this routine once.  We init everything here*/
 	if (connectcount <= 0) {
@@ -713,7 +705,7 @@ GsSelect (GR_TIMEOUT timeout)
 }
 
 /********************************************************************************/
-#elif WIN32  && !__MINGW32__
+#elif WIN32
 static void
 handleKeyMessage(MSG *msg, GR_EVENT_TYPE keyType)
 {

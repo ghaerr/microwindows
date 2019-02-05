@@ -8,6 +8,7 @@
  *                  for new Timers features.
  */
 #include <time.h>
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"
 #include "wintern.h"		/* for MwSetDesktopWallpaper*/
@@ -43,11 +44,6 @@ unsigned _stklen = 4096;
 #define IMAGE		1	/* 256 color image demo*/
 #undef  USEBLIT
 #define USEBLIT		0	/* use blit rather than DrawDIB()*/
-#endif
-
-#if RTEMS || ECOS || PSP
-#define  srandom  srand
-#define  random   rand
 #endif
 
 #if GRAPH3D

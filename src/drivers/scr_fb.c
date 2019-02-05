@@ -206,7 +206,7 @@ fb_open(PSD psd)
 	visual = fb_fix.visual;
 
 	psd->portrait = MWPORTRAIT_NONE;
-#ifdef ARCH_LINUX_SPARC
+#if LINUX_SPARC
 	psd->xres = psd->xvirtres = fb_var.xres_virtual;
 	psd->yres = psd->yvirtres = fb_var.yres_virtual;
 #else
@@ -297,7 +297,7 @@ fb_open(PSD psd)
 	/* mmap framebuffer into this address space*/
 	psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
 
-#ifdef ARCH_LINUX_SPARC
+#if LINUX_SPARC
 #define CG3_MMAP_OFFSET 0x4000000
 #define CG6_RAM    		0x70016000
 #define TCX_RAM8BIT		0x00000000
@@ -316,9 +316,9 @@ fb_open(PSD psd)
 		EPRINTF("Don't know how to mmap %s with accel %d\n", env, fb_fix.accel);
 		goto fail;
 	}
-#elif defined(BLACKFIN)
+#elif LINUX_BLACKFIN
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_FILE,fb,0);
-#elif defined(__uClinux__)
+#elif UCLINUX
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,0,fb,0);
 #else
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,0);

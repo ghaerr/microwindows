@@ -714,6 +714,7 @@ GsSelect (GR_TIMEOUT timeout)
 
 /********************************************************************************/
 #elif WIN32  && !__MINGW32__
+#include <windows.h>
 static void
 handleKeyMessage(MSG *msg, GR_EVENT_TYPE keyType)
 {

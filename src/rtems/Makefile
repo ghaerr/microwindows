@@ -18,8 +18,6 @@ endif
 
 # Compilation flags for C files OTHER than include directories
 # CFLAGS += $(INCLUDEDIRS)
-# Preprocessor flags OTHER than defines
-# CPPFLAGS += $(INCLUDEDIRS)
 # Linking flags
 LDFLAGS += $(LIBJPEG)
 LDFLAGS += $(LIBPNG)

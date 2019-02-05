@@ -1,5 +1,5 @@
 The Nano-X Window System
-Copyright (c) 1999-2011 Greg Haerr <greg@censoft.com>
+Copyright (c) 1999-2019 Greg Haerr <greg@censoft.com>
 
 CREDITS
 Thanks to everyone who has contributed to this project.
@@ -35,6 +35,8 @@ eCos port improvements          Alexander Neundorf
 Sony PSP port, ABGR format	Jim Paris
 NX11 extensions	(in Lime-X)	Yuichiro Nakada
 HarfBuzz			Julius Constante
+EMSCRIPTEN port			Georg Potthast
+Android port			Georg Potthast
 
 Contact Info
 Gabriele Brugnoni	<gabrielebrugnoni@dveprojects.com>

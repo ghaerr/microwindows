@@ -1,3 +1,4 @@
+	* more cleanup, removed CPPFLAGS remnants, CPP, deprecated xconfigure
 3 Feb 2019
 	* updated ALLEGRO driver to use 2.0 zoom factor for better readability
 	* rewrote ALLEGRO screeen driver to support aggregate update region (PSF_DELAYUPDATE)

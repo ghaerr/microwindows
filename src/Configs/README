@@ -5,22 +5,25 @@ are kept up with the latest configuration options.
 To build Microwindows, copy one of these files to microwin/src/config,
 and type "make clean; make".
 
+Config file			"Screen Driver on OS"
+-----------------	------------------------------------------------------------------
 config.linux-X11	X11 on Linux
 config.linux-fb		Linux framebuffer
 config.macosx		X11 on OSX
-config.sdl			SDL on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
+config.sdl			SDL2 on OSX (change ARCH=NATIVE-LINUX for linux)
 config.fbe			Framebuffer emulator on OSX/Linux (change ARCH=NATIVE-LINUX for linux)
+config.emscripten	SDL2 on EMSCRIPTEN
+config.android		Allegro5 on Android
+config.allegro		Allegro5 on OSX (change ARCH=NATIVE-LINUX for linux)
+config.winextra		Special configuration to test -DWINEXTRA=1 windows extra files on OSX
 
 // need updating to new format
 config.rtems		RTEMS port
 config.ecos			ECOS port
 config.psp			Sony PSP port
-config.allegro
-config.allegro-android
-config.dj
-config.dj-2
 
 // deprecated configurations
+xconfigure		X11-based config file configurator (works with old format only)
 config.fb	Basic Linux Framebuffer (pcf,fnt,threadsafe,vtswitch,debug)
 config.fb2	Linux Framebuffer (+png,jpeg,freetype2,sharedlibs)
 config.ads	ARM Linux FB for ADS Graphics Client

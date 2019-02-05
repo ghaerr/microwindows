@@ -64,7 +64,7 @@ NX11LIBS = lib/libNX11.a $(NX11FONTS) $(NANOXLIBS)
 
 MWINDEMOS=			# win32 demos, require $(MWINLIBS)
 NANOXDEMOS=			# nanoX demos, require $(NANOXLIBS)
-NANOXCPPDEMOS=		# nanoX C++ demos, require $(NANOXLIBS)
+NANOXCXXDEMOS=		# nanoX C++ demos, require $(NANOXLIBS)
 NANOXFONTDEMOS=		# nanoX demos, require $(NANOXLIBS) and $(DEMOFONTS) (fonts/em-fonts)
 NX11DEMOS=			# nx11 demos, require $(NX11LIBS)
 

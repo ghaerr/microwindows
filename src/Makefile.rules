@@ -549,7 +549,7 @@ endif
 #
 # Compilation target for C++ files
 #
-$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.$(CPP) $(CONFIG)
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.cpp $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	@$(MW_RULE_MAKE_TARGET_DIR)
@@ -561,7 +561,7 @@ ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 #
 # Compilation target for generated C++ files
 #
-$(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.$(CPP) $(CONFIG)
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.cpp $(CONFIG)
 	@echo "Compiling $(patsubst $(MW_DIR_OBJ)/%,%,$<) ..."
 	@$(MW_RULE_MAKE_TARGET_DIR)
 	$(CXX) -c $(CXXCOMPILEARGS) -o $@ $<

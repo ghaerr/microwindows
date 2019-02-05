@@ -50,6 +50,7 @@ the color palette in the config.rtems/config file between lines 96-100.
 Now build microwindows:
 
   cd microwin/src
+  cp rtems/Makefile.rtems .
   RTEMS_MAKEFILE_PATH=[build directory/prefix]/[target]/[rtemsbsp]/ \
     CONFIG=`pwd`/Configs/config.rtems \
       make -f Makefile.rtems clean all

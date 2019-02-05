@@ -22,8 +22,6 @@ DEFINES +=
 
 # Compilation flags for C files OTHER than include directories
 CFLAGS +=
-# Preprocessor flags OTHER than defines
-CPPFLAGS +=
 # Linking flags
 LDFLAGS +=
 

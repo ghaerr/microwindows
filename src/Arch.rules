@@ -36,7 +36,6 @@ TOOLSPREFIX = $(NATIVETOOLSPREFIX)
 HOSTCC = gcc				# host compiler
 COMPILER = gcc				# cross compiler
 CXX_COMPILER = g++			# c++ compiler
-CPP = cpp				# suffix for c++ files
 ARCHIVER = ar				# static library creator
 ARFLAGS = rs				# ar flags
 LINKER = ld					# linker

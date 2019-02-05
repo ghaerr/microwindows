@@ -1,5 +1,5 @@
 Microwindows Configuration Documentation
-January 25, 2019 g haerr <greg@censoft.com>
+February 4, 2019 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -16,10 +16,7 @@ To build Microwindows for desktop demonstration:
 
 3. Type "make"
 
-4. Start the GPM mouse driver if using GPM mouse and not on X11 or SDL:
-	./mouse.sh
-
-5.  Run the demonstration programs using "./runapp <appname>".
+4.  Run the demonstration programs using "./runapp <appname>".
 
 	Any application in microwindows/src/bin/ can be run using the application launch
 	script, runapp, which automatically starts the nano-X server if required.
@@ -51,18 +48,18 @@ To build Microwindows for desktop demonstration:
 	./emrun mwdemo2
 	./emrun mwmine
 
-6. Documentation is available in microwindows/doc and microwindows/src/docs directories.
+5. Documentation is available in microwindows/doc and microwindows/src/docs directories.
 	Win32 API documentation is in docs/Win32API.html
 	Nano-X API documentation is in docs/nano-X
 	NX11 API documentation is in docs/NXlib programming and reference manual.html
 
-7. More information below.
+6. More information below.
 
 Microwindows compiles and runs on Linux, MACOSX, UNIX, X11, EMSCRIPTEN, Android, PSP,
 RTEMS, MinGW and bare hardware.  There is support for the MIPS,
 ARM, and x86 cpu's using the cross compiler toolchains specified in config.
 
-Use "make -f Makefile_nr ARCH=XXX" to compile for MinGW or DOS.
+Use "make -f Makefile_nr ARCH=XXX" to compile for MinGW or DOS-DJGPP.
 
 Microwindows can be compiled to use different screen, 
 mouse and keyboard drivers for a given operating system environment.

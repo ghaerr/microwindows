@@ -37,14 +37,7 @@ SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 X11LIBLOCATION           = /usr/X11/lib
 X11HDRLOCATION           = /usr/X11/include
-
-#SCREEN                   = SDL
-#MOUSE                    =
-#KEYBOARD                 =
-#EXTENGINELIBS            += -lSDL2
-#SCREEN                   = FB
-#MOUSE                    = GPMMOUSE
-#KEYBOARD                 = TTYKBD
+EXTENGINELIBS            +=
 
 ####################################################################
 #

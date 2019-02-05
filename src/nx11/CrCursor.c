@@ -1,10 +1,11 @@
 #include "nxlib.h"
 
+#ifndef min
 static int min(int a, int b)
 {
 	return (a < b)? a: b;
 }
-
+#endif
 /* Calculate the cursor from the given pixmap */
 GR_CURSOR_ID
 _nxCreateCursor(GR_WINDOW_ID cursor, GR_RECT * cbb,

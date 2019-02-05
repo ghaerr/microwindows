@@ -22,7 +22,7 @@
 #if WMDEBUG
 #define Dprintf printf
 #else
-#define Dprintf(ignore...)
+#define Dprintf(...)
 #endif
 
 /* The different window types which can be used in windowlist->type */

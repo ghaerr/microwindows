@@ -108,7 +108,7 @@ GrOpenClientFramebuffer(void)
 	frame_len = finfo.smem_len + frame_offset;
 	frame_map = (unsigned char *)mmap(NULL, frame_len, PROT_READ|PROT_WRITE,
 		MAP_SHARED, frame_fd,
-#ifdef ARCH_LINUX_SPARC
+#if LINUX_SPARC
 		CG6_RAM);
 #else
 		0);

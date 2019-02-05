@@ -419,7 +419,7 @@ void 	GdGetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 int  	GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 extern KBDDEVICE kbddev;
 
-#ifdef MW_FEATURE_TWO_KEYBOARDS
+#if MW_FEATURE_TWO_KEYBOARDS
 int  	GdOpenKeyboard2(void);
 extern KBDDEVICE kbddev2;
 #endif
@@ -455,25 +455,25 @@ int		GdImageBufferEOF(buffer_t *buffer);
 PSD		GdConvertImageRGBA(PSD pmd);		/* convert palettized image to RGBA*/
 
 /* individual decoders*/
-#ifdef HAVE_BMP_SUPPORT
+#if HAVE_BMP_SUPPORT
 PSD	GdDecodeBMP(buffer_t *src, MWBOOL readfilehdr);
 #endif
-#ifdef HAVE_JPEG_SUPPORT
+#if HAVE_JPEG_SUPPORT
 PSD	GdDecodeJPEG(buffer_t *src, MWBOOL fast_grayscale);
 #endif
-#ifdef HAVE_PNG_SUPPORT
+#if HAVE_PNG_SUPPORT
 PSD	GdDecodePNG(buffer_t *src);
 #endif
-#ifdef HAVE_GIF_SUPPORT
+#if HAVE_GIF_SUPPORT
 PSD	GdDecodeGIF(buffer_t *src);
 #endif
-#ifdef HAVE_PNM_SUPPORT
+#if HAVE_PNM_SUPPORT
 PSD	GdDecodePNM(buffer_t *src);
 #endif
-#ifdef HAVE_XPM_SUPPORT
+#if HAVE_XPM_SUPPORT
 PSD	GdDecodeXPM(buffer_t *src);
 #endif
-#ifdef HAVE_TIFF_SUPPORT
+#if HAVE_TIFF_SUPPORT
 PSD	GdDecodeTIFF(char *path);
 #endif
 #endif /* MW_FEATURE_IMAGES */

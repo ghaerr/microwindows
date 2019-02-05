@@ -11,7 +11,7 @@
  *	__ECOS
  *	__FreeBSD__
  *	__CYGWIN__
- *  __MINGW32__
+ *	__MINGW32__
  *	TRIMEDIA
  *	MACOSX
  */
@@ -77,7 +77,7 @@
 /* Now, some platform-specific optimized macros.                         */
 /* ********************************************************************* */
 
-#if ARCH_LINUX_POWERPPC
+#if LINUX_POWERPPC
 # if !MW_CPU_BIG_ENDIAN
 #  error POWERPC works in BIG ENDIAN only !!!
 # endif

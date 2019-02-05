@@ -5,10 +5,10 @@
  * Greg Haerr
  */
 
-#define _XOPEN_SOURCE 600
-#if LINUX || MACOSX
-  #define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
+#if LINUX | MACOSX
+#define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
 #endif
+#define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -242,7 +242,7 @@ again:
 	signal(SIGCHLD, sigchild);
 	signal(SIGINT, sigchild);
 
-#ifdef __uClinux__
+#if UCLINUX
 #undef fork
 #define fork() vfork()
 #endif

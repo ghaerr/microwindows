@@ -9,11 +9,9 @@
  *	2003/09/01	Gabriele Brugnoni		Implemented blinking using timers
  */
 #include <stdio.h>
+#include <stdlib.h>
 #if UNIX | DOS_DJGPP
 #include <sys/time.h>
-#endif
-#ifndef __ECOS
-#include <stdlib.h>
 #endif
 #include "windows.h"
 #include "device.h"

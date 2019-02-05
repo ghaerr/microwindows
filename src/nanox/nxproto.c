@@ -15,7 +15,7 @@
 
 #define SZREQBUF	2048	/* initial request buffer size*/
 
-#ifndef __ECOS
+#if !__ECOS
 static REQBUF	reqbuf;		/* request buffer*/
 extern int 	nxSocket;
 extern char *	nxSharedMem;

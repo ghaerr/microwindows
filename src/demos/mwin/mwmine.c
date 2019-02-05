@@ -1,16 +1,11 @@
+/*
+ * Minesweeper for Microwindows, adapted from MiniGUI
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-/*
- * Minesweeper for Microwindows, adapted from MiniGUI
- */
-
-#if RTEMS || __ECOS || PSP
-#define  srandom  srand
-#define  random   rand
-#endif
-
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"
 #include "wintools.h"

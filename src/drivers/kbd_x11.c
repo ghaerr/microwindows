@@ -25,7 +25,6 @@ static int  X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 static int init_modstate(void);
 
 static MWKEYMOD key_modstate;
-extern int escape_quits;
 
 extern Display*     x11_dpy;
 extern int          x11_scr;

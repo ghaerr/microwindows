@@ -47,6 +47,8 @@
 #define FREEA(pmem)	free(pmem)
 #endif
 
+#define MICROWINDOWS	1		/* for user application options w/Microwindows*/
+
 /* builtin font std names*/
 #define MWFONT_SYSTEM_VAR	"System"	/* winFreeSansSerif 11x13 (ansi)*/
 #define MWFONT_SYSTEM_FIXED	"SystemFixed"	/* X6x13 (should be ansi)*/

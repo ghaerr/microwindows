@@ -517,7 +517,6 @@ extern	GR_EVENT_LIST	*eventfree;		/* list of free events */
 extern	GR_BOOL		focusfixed;		/* TRUE if focus is fixed */
 extern	GR_SCREEN_INFO	sinfo;			/* screen information */
 extern	PMWFONT		stdfont;		/* default font*/
-extern	int		escape_quits;		/* terminate when pressing ESC*/
 extern	int		connectcount;		/* # of connections to server */
 #if MW_FEATURE_TIMERS
 extern	GR_TIMEOUT	screensaver_delay;	/* time before screensaver activates*/

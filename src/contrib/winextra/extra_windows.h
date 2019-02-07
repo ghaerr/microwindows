@@ -1,3 +1,4 @@
+#pragma once
 /*#ifdef _WINE*/
 #if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)))
 # define __WINE_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))

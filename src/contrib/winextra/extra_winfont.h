@@ -1,5 +1,5 @@
 /* extra_winfont.h*/
-
+#pragma once
 #include <math.h> 
 
 typedef struct tagWCRANGE {

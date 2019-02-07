@@ -1,4 +1,5 @@
 /* extra_windef.h*/
+#pragma once
 
 typedef signed char INT8, *PINT8;
 typedef unsigned char UINT8, *PUINT8;
@@ -45,12 +46,6 @@ typedef struct _ULARGE_INTEGER {
 	ULONGLONG QuadPart;
 } ULARGE_INTEGER;
 
-#if _MSC_VER
-struct timeval {
-	long tv_sec;
-	long tv_usec;
-};
-#endif
 
 typedef struct timeval TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
 

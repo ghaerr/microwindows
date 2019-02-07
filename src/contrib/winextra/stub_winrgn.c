@@ -1,5 +1,6 @@
 /* stub_winrgn.c*/
 #include "windows.h"
+#include "winextra.h"
 
 int WINAPI GetClipBox(HDC    hdc, LPRECT lprect)
 {

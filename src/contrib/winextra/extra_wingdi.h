@@ -1,4 +1,5 @@
 /* extra_windef.h*/
+#pragma once
 
 typedef struct _RECTL {
 	LONG left;

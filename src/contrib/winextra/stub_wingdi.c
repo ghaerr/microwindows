@@ -1,5 +1,6 @@
 /* stub_wingdi.c*/
 #include "windows.h"
+#include "winextra.h"
 
 BOOL WINAPI RestoreDC(
 	HDC hdc,

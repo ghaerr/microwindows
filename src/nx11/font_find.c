@@ -412,11 +412,13 @@ DPRINTF("font_enumfonts: return count %d\n", count);
 }
 
 /* nxlib LoadFont.c*/
+#ifndef min
 static int
 min(int a, int b)
 {
 	return (a < b)? a: b;
 }
+#endif
 
 static int
 prefix(const char *prestr, char *allstr)

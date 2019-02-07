@@ -1,3 +1,4 @@
+#pragma once
 /* extra_winuser.h*/
 
 BOOL WINAPI SetPropW(

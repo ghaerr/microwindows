@@ -6,7 +6,7 @@
  * https://stackoverflow.com/a/826027/1202830
  */
 
-#if !WIN32 && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
 #include <unistd.h>
 
 #if RTEMS | PSP | __ECOS | __MINGW32__
@@ -14,7 +14,7 @@
 #define  random   rand
 #endif
 
-#else /* WIN32 || defined(_MSC_VER)*/
+#else /* defined(_MSC_VER)*/
 
 #include <io.h>
 #include <direct.h>			/* for _getcwd() and _chdir()*/
@@ -80,4 +80,4 @@
 //typedef unsigned __int32  uint32_t;
 //typedef unsigned __int64  uint64_t;
 
-#endif /* !WIN32 && !defined(_MSC_VER)*/
+#endif /* defined(_MSC_VER)*/

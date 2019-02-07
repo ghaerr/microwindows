@@ -133,7 +133,8 @@ extern int sys_nerr;
 #if defined(USL) || defined(CRAY) || defined(MOTOROLA) || (defined(i386) && (defined(SYSV) || defined(SVR4))) || defined(__sxg__)
 #include <unistd.h>
 #endif
-#ifdef WIN32
+#if WIN32
+#include "uni_std.h"
 //#include "Xw32defs.h"
 #else
 #include <sys/file.h>

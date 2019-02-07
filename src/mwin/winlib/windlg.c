@@ -26,12 +26,12 @@ https://web.archive.org/web/20140417222151/http://msdn.microsoft.com:80/en-us/li
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"		/* windef.h, winuser.h */
 #include "wintools.h"
 #include "wintern.h"
 #include "device.h"
-#include "uni_std.h"
 
 #define DEFAULT_FONT			DEFAULT_GUI_FONT
 #define DEFDLG_FONT_QUALITY		ANTIALIASED_QUALITY

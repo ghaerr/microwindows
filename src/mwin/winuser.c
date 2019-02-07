@@ -1280,8 +1280,7 @@ GetClassLong(HWND hwnd, int nIndex)
 }
 
 // 64bit function
-LONG_PTR
-GetWindowLongPtr(HWND hwnd, int nIndex)
+LONG_PTR WINAPI GetWindowLongPtr(HWND hwnd, int nIndex)
 {
 	switch(nIndex) {
 	case GWL_WNDPROC:
@@ -1345,8 +1344,7 @@ GetWindowLong(HWND hwnd, int nIndex)
 }
 
 // 64bit function
-LONG_PTR
-SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong)
+LONG_PTR WINAPI SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong)
 {
 	LONG_PTR oldval = GetWindowLongPtr(hwnd, nIndex);
 

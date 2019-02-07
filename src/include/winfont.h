@@ -159,7 +159,7 @@ HFONT WINAPI CreateFontIndirect(CONST LOGFONT *lplf);
 /*
  * Font enumeration functions
  */
-typedef int CALLBACK (*FONTENUMPROC) ( CONST LOGFONT *lplf, 
+typedef int (CALLBACK *FONTENUMPROC) ( CONST LOGFONT *lplf,
 		CONST TEXTMETRIC *lptm, DWORD dwType, LPARAM lpData );
 
 int WINAPI EnumFonts ( HDC hdc, LPCTSTR lpFaceName, FONTENUMPROC lpFontFunc,  

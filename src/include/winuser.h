@@ -744,7 +744,7 @@ int WINAPI MessageBoxIndirect( const MSGBOXPARAMS *lpMsgBoxParams);
 /*
  *  Window enumeration functions
  */
-typedef BOOL CALLBACK (*WNDENUMPROC)(HWND, LPARAM);
+typedef BOOL (CALLBACK *WNDENUMPROC)(HWND, LPARAM);
 
 BOOL WINAPI EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc, LPARAM lParam);
 

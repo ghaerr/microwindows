@@ -25,6 +25,8 @@
     <ClCompile Include="..\..\..\..\..\mwin\winexpos.c" />
     <ClCompile Include="..\..\..\..\..\mwin\winfont.c" />
     <ClCompile Include="..\..\..\..\..\mwin\wingdi.c" />
+    <ClCompile Include="..\..\..\..\..\mwin\winlib\button.c" />
+    <ClCompile Include="..\..\..\..\..\mwin\winlib\caret.c" />
     <ClCompile Include="..\..\..\..\..\mwin\winlib\combobox.c" />
     <ClCompile Include="..\..\..\..\..\mwin\winlib\draw3d.c" />
     <ClCompile Include="..\..\..\..\..\mwin\winlib\fastfill.c" />
@@ -55,6 +57,9 @@
     </ProjectReference>
     <ProjectReference Include="..\mwfonts\mwfonts.vcxproj">
       <Project>{6dac951d-40fb-4b3a-8e21-d42a2399d75c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\MWinExtra\MWinExtra.vcxproj">
+      <Project>{0892c144-3012-4c3a-9f9c-c4a69de3318f}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -125,7 +130,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WINEXTRA;WIN32;_DEBUG;MWIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMAIN;WIN32DLL;WINEXTRA;WIN32;_DEBUG;MWIN_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\..\..\..\include;..\..\..\..\winextra</AdditionalIncludeDirectories>
     </ClCompile>

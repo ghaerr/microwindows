@@ -15,7 +15,7 @@ See Configs/config.winextra for configuration details
 -DHAVE_MMAP=0
 -DHAVE_SIGNAL=0 
 -DHAVE_FILEIO=1
--DMW_FEATURE_TIMERS=1
+-DHAVE_BMP_SUPPORT=1 (and other HAVE_XXX_SUPPORT for each image decoder)
 -DUPDATEREGIONS=1
 -DERASEMOVE=1
 -DHAVE_FREETYPE_2_SUPPORT=1

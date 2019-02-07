@@ -1,0 +1,23 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:563: checking for a BSD compatible install
+configure:616: checking whether build environment is sane
+configure:673: checking whether make sets ${MAKE}
+configure:719: checking for working aclocal
+configure:732: checking for working autoconf
+configure:745: checking for working automake
+configure:758: checking for working autoheader
+configure:771: checking for working makeinfo
+configure:787: checking whether make sets ${MAKE}
+configure:816: checking for gcc
+configure:929: checking whether the C compiler (gcc  ) works
+configure:945: gcc -o conftest    conftest.c  1>&5
+configure:971: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:976: checking whether we are using GNU C
+configure:985: gcc -E conftest.c
+configure:1004: checking whether gcc accepts -g
+configure:1047: checking for a BSD compatible install
+configure:1142: checking for sdl-config
+configure:1177: checking for SDL - version >= 1.0.1
+configure:1259: gcc -o conftest -g -O2 -I/usr/local/include -I/usr/local/include/SDL -D_REENTRANT   conftest.c  -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lSDL -lpthread 1>&5

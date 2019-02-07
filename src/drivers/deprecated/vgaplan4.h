@@ -19,7 +19,7 @@
 #endif
 
 #if LINUX
-#if !(defined(ARCH_LINUX_POWERPPC) || defined(ARCH_LINUX_SPARC))
+#if !(defined(LINUX_POWERPPC) || defined(LINUX_SPARC))
 #ifdef __GLIBC__
 #include <sys/io.h>		/* for outb def's, requires -O */
 #else

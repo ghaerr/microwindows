@@ -22,10 +22,6 @@
 #include <allegro5/allegro_android.h>
 #endif
 
-#if MWPIXEL_FORMAT != MWPF_TRUECOLORARGB
-#error Allegro driver only supports SCREEN_PIXTYPE=MWPF_TRUECOLORARGB
-#endif
-
 /* specific driver entry points*/
 static PSD  allegro_open(PSD psd);
 static void allegro_close(PSD psd);
@@ -53,11 +49,14 @@ SCREENDEVICE	scrdev = {
 };
 
 /*
- * The Allegro display is created 2 times the size of the requested screen size,
+ * The Allegro display is zoomed times the size of the requested screen size,
  * and then the regular sized screen bitmap is scaled up when copied to the display.
- * This improves the readability of the display tremendously.
+ * Using 2.0 zoom improves the readability of the display tremendously for Android and OSX Retina.
  */
-float allegro_zoom = 2.0;
+#ifndef ALLEGRO_ZOOM
+#define ALLEGRO_ZOOM	1.0			/* normally set in config file*/
+#endif
+float allegro_zoom = ALLEGRO_ZOOM;
 
 ALLEGRO_EVENT_QUEUE *allegro_kbdqueue;
 ALLEGRO_EVENT_QUEUE *allegro_mouqueue;
@@ -65,6 +64,7 @@ ALLEGRO_EVENT_QUEUE *allegro_scrqueue;
 static ALLEGRO_DISPLAY *display;
 static ALLEGRO_BITMAP *scrmem;
 static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* aggregate update region bounding rect*/
+static MWPALENTRY palette[256];
 
 static int
 init_allegro(void)
@@ -76,6 +76,7 @@ init_allegro(void)
 	}
 
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
+	al_set_new_window_title("Microwindows Allegro");
 	//al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	//al_set_new_display_option(ALLEGRO_COLOR_SIZE,32,ALLEGRO_SUGGEST);
 	//al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP,1,ALLEGRO_REQUIRE);
@@ -252,10 +253,18 @@ allegro_close(PSD psd)
 	free(psd->addr);		/* free framebuffer memory */
 }
 
-/* palette mode not supported*/
+/* set palette*/
 static void
 allegro_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
+	int i;
+
+	if (count > 256)
+		count = 256;
+
+	/* just save the palette for use in allegro_draw*/
+	for (i=0; i < count; i++)
+		palette[i] = *pal++;
 }
 
 /* copy from Microwindows framebuffer to Allegro scrmem bitmap*/
@@ -273,13 +282,33 @@ allegro_draw(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWCOORD heigh
 		al_lock_bitmap(scrmem, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READWRITE);
 	al_set_target_bitmap(scrmem);
 
-	/* only MWPF_TRUECOLORARGB supported*/
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORARGB
 	unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < (width<<2); x += 4)
-			al_draw_pixel(destx+(x>>2),desty+y, al_map_rgb(addr[x+2],addr[x+1],addr[x]));
+			al_draw_pixel(destx+(x>>2), desty+y,
+				al_map_rgba(addr[x+2],addr[x+1],addr[x], 255));
 		addr += psd->pitch;
 	}
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+	unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < (width<<2); x += 4)
+			al_draw_pixel(destx+(x>>2), desty+y,
+				al_map_rgba(addr[x],addr[x+1],addr[x+2], 255));
+		addr += psd->pitch;
+	}
+#elif MWPIXEL_FORMAT == MWPF_PALETTE
+	unsigned char *addr = psd->addr + desty * psd->pitch + destx;
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < width; x++) {
+			unsigned char c = addr[x];
+			al_draw_pixel(destx+x, desty+y,
+				al_map_rgba(palette[c].r, palette[c].g, palette[c].b, 255));
+		}
+		addr += psd->pitch;
+	}
+#endif
 }
 
 /* update allegro screen bitmap, returns # pending events*/
@@ -302,9 +331,11 @@ allegro_preselect(PSD psd)
 		al_draw_scaled_rotated_bitmap(scrmem, 0, 0, 0, 0, allegro_zoom, allegro_zoom, 0, 0);
 		al_flip_display();
 
+#if MACOSX
 		/* experimental fix for dual mouse cursor on OSX*/
 		al_show_mouse_cursor(display);		/* turn on allegro cursor*/
 		al_hide_mouse_cursor(display);		/* turn off allegro cursor*/
+#endif
 	}
 
 	/* return nonzero if event available*/

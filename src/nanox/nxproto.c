@@ -15,7 +15,7 @@
 
 #define SZREQBUF	2048	/* initial request buffer size*/
 
-#ifndef __ECOS
+#if !__ECOS
 static REQBUF	reqbuf;		/* request buffer*/
 extern int 	nxSocket;
 extern char *	nxSharedMem;
@@ -92,7 +92,7 @@ nxWriteSocket(char *buf, int todo)
 		if ( written < 0 ) {
 			if ( errno == EAGAIN || errno == EINTR )
 				continue;
-			EPRINTF("nxFlushReq: write failed: %m\n");
+			EPRINTF("nxFlushReq: write failed: errno %d\n", errno);
 			exit(1);
 		}
 		buf += written;

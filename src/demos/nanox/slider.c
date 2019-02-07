@@ -8,15 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "nano-X.h"
-
-#if RTEMS || __ECOS || __MINGW32__
-#define  srandom  srand
-#define  random   rand
-#endif
 
 /* set up size of the grid */
 #define WIDTH_IN_TILES	4
@@ -31,7 +25,7 @@ static	int	tile_height = 40;
 
 #if USE_IMAGE
 static	void *	image_addr;
-static	int	using_image = 1;
+static	int	using_image = 1;	/* set to 0 for numbered tiles*/
 static	GR_WINDOW_ID	image;		/* storage area for image */
 #endif
 
@@ -50,6 +44,8 @@ static	void	DrawTile(int xpos, int ypos);
 int
 main(int argc,char **argv)
 {
+	char *imagefile = "bin/slidebmp.bmp";
+
 	if (GrOpen() < 0) {
 		fprintf(stderr, "cannot open graphics\n");
 		exit(1);
@@ -61,20 +57,14 @@ main(int argc,char **argv)
 	image = GrNewWindow(GR_ROOT_WINDOW_ID, 300, 0, (WIDTH_IN_TILES * tile_width),
 		(HEIGHT_IN_TILES * tile_height), 4, BLACK, WHITE);
 
-	if(argc != 2)
-		/* No image specified, use numered tiles */
-		using_image = 0;
-	else {
-		/* need to find out image size.... */
- 		image_addr = malloc(4 * (WIDTH_IN_TILES * tile_width) *
-			(HEIGHT_IN_TILES * tile_height) );
+	if (argc > 1)
+		imagefile = argv[1];
+	/* need to find out image size.... */
+	image_addr = malloc(4 * (WIDTH_IN_TILES * tile_width) * (HEIGHT_IN_TILES * tile_height));
 
- 		image = GrNewPixmap((WIDTH_IN_TILES * tile_width),
- 			(HEIGHT_IN_TILES * tile_height), image_addr);
- 
-		GrDrawImageFromFile(image, gc1, 0, 0,
-			GR_IMAGE_MAX_SIZE, GR_IMAGE_MAX_SIZE, argv[1], 0);
-	}
+	image = GrNewPixmap((WIDTH_IN_TILES * tile_width), (HEIGHT_IN_TILES * tile_height), image_addr);
+
+	GrDrawImageFromFile(image, gc1, 0, 0, GR_IMAGE_MAX_SIZE, GR_IMAGE_MAX_SIZE, imagefile, 0);
 #endif
 	
 	/* calculate size of tile area */

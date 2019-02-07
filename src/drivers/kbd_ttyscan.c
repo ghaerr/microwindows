@@ -18,10 +18,10 @@
 #include "device.h"
 #include "fb.h"
 
-#ifndef __uClinux__
-#define KEYBOARD	"/dev/tty"	/* console kbd to open*/
-#else
+#if UCLINUX
 #define KEYBOARD	"/dev/console"
+#else
+#define KEYBOARD	"/dev/tty"	/* console kbd to open*/
 #endif
 
 static int  TTY_Open(KBDDEVICE *pkd);
@@ -86,7 +86,7 @@ TTY_Open(KBDDEVICE *pkd)
 		return DRIVER_FAIL1;
 
 	/* Save previous settings*/
-#ifndef LINUX_LINARO
+#ifdef KDGKBMODE
 	if (ioctl(fd, KDGKBMODE, &old_kbd_mode) < 0) {
 		perror("KDGKMODE");
 		goto err;
@@ -152,11 +152,12 @@ TTY_Close(void)
 	int	ledstate = 0x80000000L;
 
 	if (fd >= 0) {
-#ifndef LINUX_LINARO
+#ifdef KDSETLED
 		/* revert LEDs to follow key modifiers*/
 		if (ioctl(fd, KDSETLED, ledstate) < 0)
 			perror("KDSETLED");
-
+#endif
+#ifdef KDSKBMODE
 		/* reset terminal mode*/
 		if (ioctl(fd, KDSKBMODE, old_kbd_mode) < 0)
 			perror("KDSKBMODE");
@@ -436,7 +437,9 @@ UpdateLEDState(MWKEYMOD modstate)
 		ledstate |= LED_CAP;
 	if (modstate & MWKMOD_NUM)
 		ledstate |= LED_NUM;
+#ifdef KDSETLED
 	ioctl(fd, KDSETLED, ledstate);
+#endif
 }
 
 /* translate a scancode and modifier state to an MWKEY*/

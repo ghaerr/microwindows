@@ -8,31 +8,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MWINCLUDECOLORS
-#include "nano-X.h"
-
-#if MSDOS | RTEMS | __ECOS  | EMSCRIPTEN
+#include "uni_std.h"
 #include <fcntl.h>
-#endif
-
-#if defined(__FreeBSD__)
-#include <unistd.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#endif
-
-#if LINUX | MACOSX | DOS_DJGPP | defined(__CYGWIN__) | __MINGW32__  | EMSCRIPTEN
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
+#define MWINCLUDECOLORS
+#include "nano-X.h"
 
 #ifndef O_BINARY
 #define O_BINARY 	0
 #endif
 
-#if DOS_DJGPP || __ECOS
+#if DOS_DJGPP | __ECOS
 #define	MAPFILE	"/world.map"
 #else
 #define	MAPFILE	"bin/world.map"		/* was /usr/lib*/

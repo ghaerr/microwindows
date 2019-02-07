@@ -1,5 +1,4 @@
-port nano-X apps to ALLEGRO5 OSX build, fix mangled main client entry point, no -lallegro_main
-add ANDROID GrDelay(), check whether -DLINUX=1 is needed
+add ANDROID GrDelay()
 check -DHAVE_MMAP=? for EMSCRIPTEN
 update runapp for nx11-test and contrib/TinyWidgets/{demo,tndesigner}
 rename PIXEL888*, PIXEL8888* in mwtypes.h

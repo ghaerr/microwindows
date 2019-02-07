@@ -1,5 +1,5 @@
 /*
- * Microwindows unistd.h for Windows systems
+ * Microwindows unistd.h
  *
  * Usage: replace #include <unistd.h> with "uni_std.h"
  *
@@ -8,6 +8,11 @@
 
 #if !WIN32 && !defined(_MSC_VER)
 #include <unistd.h>
+
+#if RTEMS | PSP | __ECOS | __MINGW32__
+#define  srandom  srand
+#define  random   rand
+#endif
 
 #else /* WIN32 || defined(_MSC_VER)*/
 

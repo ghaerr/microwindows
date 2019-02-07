@@ -7,7 +7,7 @@
  *	++eero
  */
 
-#if LINUX || MACOSX
+#if LINUX | MACOSX
 static char termtype_string[] = "TERM=ngterm";
 static char termcap_string[1024] =
 "TERMCAP=ngterm|nano-X vt52 terminal:\

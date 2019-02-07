@@ -231,6 +231,7 @@ static struct {
 	{MWKEY_LSHIFT, XK_Shift_L},
 	{MWKEY_RSHIFT, XK_Shift_R},
 	{MWKEY_LALT, XK_Alt_L},
+	{MWKEY_LALT, XK_Mode_switch},		/* MACOSX left or right alt/opt*/
 	{MWKEY_RALT, XK_Alt_R},
 	{MWKEY_LMETA, XK_Meta_L},
 	{MWKEY_RMETA, XK_Meta_R},

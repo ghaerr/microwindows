@@ -53,7 +53,7 @@ static char *lialg_recognize_stroke(rClassifier *, point_list *);
 char* li_err_msg = NULL;
 char _zdebug_flag[128];
 
-#ifdef __ECOS
+#if __ECOS
 #define BCOPY		bcopy
 #else
 /* This is standard - defined in <stdlib.h> */
@@ -940,7 +940,7 @@ RECOGNIZER_FINALIZE(r)
 ************************************************** */
 
 /*#include <assert.h>*/
-#if defined(__CYGWIN__) || RTEMS || __ECOS || MACOSX
+#if defined(__CYGWIN__) | RTEMS | MACOSX | __ECOS
 #define MAXINT 0x7FFFFFFF
 #else
 #include <values.h>
@@ -2504,7 +2504,7 @@ static void lialg_compute_lpf_parameters() {
 
     for (i = LP_FILTER_WIDTH; i >= 0; i--) {
 	float x = 0.04 * (i * i);
-#if defined(ARM_LINUX) || !defined(__GLIBC__) || defined(__ECOS) || defined(__UCLIBC__)
+#if !defined(__GLIBC__) | defined(__UCLIBC__) | _ECOS | UCLINUX
 	double tmp = 100.0 * exp((double)x);
 #else
 	float tmp = 100.0 * expf(x);

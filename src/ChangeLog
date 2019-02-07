@@ -1,3 +1,12 @@
+6 Feb 2019
+	* ported original shareware Doom v1.10 to Nano-X! See contrib/doom/README.nanox
+	* added MWPF_PALETTE, MWPF_TRUECOLORBGRA support and kbd fixes to Allegro driver
+	* updated SDL and Allegro keyboard drivers for function key support, left/right alt/option key for X11
+	* updated keyboard drivers Break/Pause/F15 returns MWKEY_QUIT
+	* added ALLEGRO_ZOOM config file option for Android and OSX retina displays
+	* warning Allegro 5.2.4 crashes OSX Sierra 10.12.6
+5 Feb 2019
+	* more Arch.rules and #ifdef cleanup, remove escape_quits
 4 Feb 2019
 	* experimental fix for Allegro driver mouse cursor display on OSX
 	* fixed Allegro driver to allow client/server nano-X apps to run, mousewheel removed

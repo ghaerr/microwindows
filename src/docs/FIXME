@@ -1,4 +1,4 @@
-mou/kbd Poll() entrypoint not called before Gs/MwCheckMouseEvent()
+X11 keypad not working
 fix OLDWAY in devimage.c::DrawImagePartToFit()
 win32 underline text controls underlines in wrong position. Should also use freetype not LineTo
 devfont.c: abs(height) doesn't handle win32 case for char height not cell height when height < 0

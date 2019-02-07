@@ -1,0 +1,31 @@
+A port of the original Doom to Microwindows!
+
+Doom runs internally in 8-bit palette mode. The Nano-X screen
+driver, i_video.c, can ideally pass the screen frames directly
+to Microwindows as 8-bit palette indices, or if the Microwindows screen
+driver isn't configured for palette mode, convert each frame to ARGB format,
+and send more data per frame. Since doom supports screen doubling and tripling,
+it is advisable to run Microwindows in palette mode using
+SCREEN_PIXTYPE=MWPF_PALETTE in the config file. Currently,
+MWPF_PALETTE mode is supported on X11, Allegro/Android, and Linux framebuffer.
+Allegro and SDL run quickly using a hardware surface if available
+on the platform.
+
+To build doomm type "make".
+You will still need to download the doom1.wad shareware doom file.
+It is available from a number of places, try here under doom1.wad.zip:
+
+http://www.doomarchive.com/ListFiles.asp?ContentsFolderId=216&FolderId=216
+
+Rename the DOOM1.WAD to doom1.wad.
+
+Doom can be run along with the nano-X server via:
+
+../../runapp ./doom [args]
+
+You can pass -2 or -3 as an argument to double or triple the display size.
+The game is played with the arrow keys and keyboard, not the mouse.
+
+Have fun!
+
+Greg

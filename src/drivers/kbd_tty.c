@@ -17,7 +17,7 @@
 
 #define DEBUG_ESCAPE_SEQUENCES	0
 
-#ifdef ARCH_LINUX_POWERPPC
+#if LINUX_POWERPPC
 #   define KEYBOARD	"/dev/tty0"	/* keyboard associated with screen Foedrowitz 2006mar15 */
 #elif ELKS
 #   define KEYBOARD	"/dev/tty1"	/* keyboard associated with screen*/
@@ -28,8 +28,6 @@
 #ifndef CTRL
 #define CTRL(x)	  ((x) & 0x1f)
 #endif
-
-extern int escape_quits;
 
 static int  TTY_Open(KBDDEVICE *pkd);
 static void TTY_Close(void);
@@ -326,8 +324,8 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	/*else if (mwkey == CTRL('S') || mwkey == CTRL('Q'))
 		mwkey = MWKEY_SCROLLOCK;*/
 
-	if ((mwkey == MWKEY_ESCAPE) && escape_quits)
-		mwkey = MWKEY_QUIT;
+	//if ((mwkey == MWKEY_ESCAPE) && escape_quits)
+		//mwkey = MWKEY_QUIT;
 
 #if DEBUG_ESCAPE_SEQUENCES
 	if (buf[0] != 27) {

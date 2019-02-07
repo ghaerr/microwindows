@@ -234,8 +234,7 @@ SCREEN_DEPTH             = 8
 # SCREEN=FB			linux framebuffer
 # SCREEN=FBE		framebuffer emulator
 # SCREEN=SDL		SDL v2
-# SCREEN=ALLEGRO4
-# SCREEN=ALLEGRO5
+# SCREEN=ALLEGRO	Allegro v5
 ####################################################################
 
 ####################################################################

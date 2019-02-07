@@ -1302,7 +1302,9 @@ GdBitmapByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	MWIMAGEBITS bitvalue = 0;	/* bitmap word value */
 	int bitcount;			/* number of bits left in bitmap word */
 
+#if MWPIXEL_FORMAT != MWPF_PALETTE
 printf("Using slow GdBitmapByPoint\n");
+#endif
 	if (width <= 0 || height <= 0)
 		return;
 

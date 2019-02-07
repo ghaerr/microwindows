@@ -110,7 +110,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
     if (XCheckMaskEvent(x11_dpy, KeyPressMask|KeyReleaseMask, &ev)) {
 	KeySym sym = XKeycodeToKeysym(x11_dpy, ev.xkey.keycode, 0);
 	if (sym == NoSymbol)
-	    return KBD_FAIL;
+	    return KBD_FAIL;		/* FAIL rather than NODATA will give GsError on unmapped keys*/
 
 	/* calculate kbd modifiers*/
 	key_modstate = mods = 0;
@@ -196,7 +196,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		    break;
 	    case XK_Pause:
 	    case XK_Break:
-		case XK_F15:
+	    case XK_F15:
 		    mwkey = MWKEY_QUIT;
 		    break;
 	    case XK_Print:
@@ -332,6 +332,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		    mwkey = MWKEY_RCTRL;
 		    break;
 	    case XK_Alt_L:
+		case XK_Mode_switch:				/* MACOSX left or right option/alt*/
 		    mwkey = MWKEY_LALT;
 		    break;
 	    case XK_Alt_R:
@@ -445,4 +446,4 @@ static int init_modstate(void)
 
 	return 0;
 }
-
+/* vim: set ts=8 */

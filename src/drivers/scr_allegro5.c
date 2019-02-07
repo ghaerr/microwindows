@@ -53,11 +53,14 @@ SCREENDEVICE	scrdev = {
 };
 
 /*
- * The Allegro display is created 2 times the size of the requested screen size,
+ * The Allegro display is zoomed times the size of the requested screen size,
  * and then the regular sized screen bitmap is scaled up when copied to the display.
- * This improves the readability of the display tremendously.
+ * Using 2.0 zoom improves the readability of the display tremendously for Android and OSX Retina.
  */
-float allegro_zoom = 2.0;
+#ifndef ALLEGRO_ZOOM
+#define ALLEGRO_ZOOM	1.0			/* normally set in config file*/
+#endif
+float allegro_zoom = ALLEGRO_ZOOM;
 
 ALLEGRO_EVENT_QUEUE *allegro_kbdqueue;
 ALLEGRO_EVENT_QUEUE *allegro_mouqueue;
@@ -76,6 +79,7 @@ init_allegro(void)
 	}
 
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
+	al_set_new_window_title("Microwindows Allegro");
 	//al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	//al_set_new_display_option(ALLEGRO_COLOR_SIZE,32,ALLEGRO_SUGGEST);
 	//al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP,1,ALLEGRO_REQUIRE);
@@ -302,9 +306,11 @@ allegro_preselect(PSD psd)
 		al_draw_scaled_rotated_bitmap(scrmem, 0, 0, 0, 0, allegro_zoom, allegro_zoom, 0, 0);
 		al_flip_display();
 
+#if MACOSX
 		/* experimental fix for dual mouse cursor on OSX*/
 		al_show_mouse_cursor(display);		/* turn on allegro cursor*/
 		al_hide_mouse_cursor(display);		/* turn off allegro cursor*/
+#endif
 	}
 
 	/* return nonzero if event available*/

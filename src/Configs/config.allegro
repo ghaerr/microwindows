@@ -34,6 +34,7 @@ SCREEN                   = ALLEGRO
 MOUSE                    =
 KEYBOARD                 =
 EXTENGINELIBS            += -lallegro
+ALLEGRO_ZOOM             = 2.0	# set to 1.0 for non-retina displays
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
@@ -234,8 +235,7 @@ SCREEN_DEPTH             = 8
 # SCREEN=FB			linux framebuffer
 # SCREEN=FBE		framebuffer emulator
 # SCREEN=SDL		SDL v2
-# SCREEN=ALLEGRO4
-# SCREEN=ALLEGRO5
+# SCREEN=ALLEGRO	Allegro v5
 ####################################################################
 
 ####################################################################

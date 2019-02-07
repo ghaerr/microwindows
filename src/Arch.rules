@@ -294,6 +294,9 @@ endif
 ifeq ($(SCREEN), ALLEGRO)
 # required for al_run_main in winmain.c/srvmain.c
 DEFINES += -DALLEGRO=1
+ifneq ($(ALLEGRO_ZOOM),)
+DEFINES += -DALLEGRO_ZOOM=$(ALLEGRO_ZOOM)
+endif
 endif
 
 ifeq ($(ARCH), EMSCRIPTEN)

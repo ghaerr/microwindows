@@ -83,6 +83,11 @@ static int x11_colormap_installed = 0;
 static XColor x11_palette[256];
 static int x11_pal_max = 0;
 
+static MWCOORD upminX, upminY, upmaxX, upmaxY;
+/* called from mou_x11.c*/
+void x11_handle_event(XEvent * ev);
+int x11_setup_display(void);
+
 #if MWPIXEL_FORMAT != MWPF_PALETTE
 /* Color cache for true color lookups */
 #define COLOR_CACHE_SIZE 1001
@@ -94,12 +99,6 @@ struct color_cache {
 	XColor c;
 };
 static struct color_cache ccache[COLOR_CACHE_SIZE];
-
-static MWCOORD upminX, upminY, upmaxX, upmaxY;
-
-/* called from mou_x11.c*/
-void x11_handle_event(XEvent * ev);
-int x11_setup_display(void);
 
 static unsigned long
 lookup_color(unsigned short r, unsigned short g, unsigned short b)

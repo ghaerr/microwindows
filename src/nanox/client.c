@@ -3867,7 +3867,7 @@ GrReqShmCmds(long shmsize)
 
 	shmid = shmget(key, shmsize, 0);
 	if (shmid == -1) {
-		EPRINTF("nxclient: Can't shmget key %d: %m\n", key);
+		EPRINTF("nxclient: Can't shmget key %d: %d\n", key, errno);
 		UNLOCK(&nxGlobalLock);
 		return;
 	}

@@ -35,6 +35,7 @@ SCREEN                   = ALLEGRO
 ALLEGRO5_INCLUDE	 = /home/giri/workspace/fltk_mvc_template/MVC/include
 ALLEGRO5_LIB		 = /home/giri/workspace/fltk_mvc_template/MVC/lib/android_arm
 ALLEGRO5_SRC		 = /home/giri/workspace/fltk_mvc_template/MVC/packages/allegro5.1.13/allegro-5.1.13.1
+ALLEGRO_ZOOM		 = 2.0
 MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 640
@@ -259,8 +260,7 @@ SCREEN_DEPTH             = 8
 # SCREEN=FB			linux framebuffer
 # SCREEN=FBE		framebuffer emulator
 # SCREEN=SDL		SDL v2
-# SCREEN=ALLEGRO4
-# SCREEN=ALLEGRO5
+# SCREEN=ALLEGRO	Allegro v5
 ####################################################################
 
 ####################################################################

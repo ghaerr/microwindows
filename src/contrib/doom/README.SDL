@@ -1,0 +1,19 @@
+
+Simple DirectMedia Library:
+
+This is a quick and dirty port of DOOM to the SDL library.
+The only thing that is system dependent really is the endianness detection
+
+It was very simple, and only took an afternoon, thanks to the efforts
+of all those folks who have ported this game to everything but the toaster. :)
+
+Here's the web page for my library:
+http://www.devolution.com/~slouken/SDL/
+
+Thanks go to all those involved in the DOOM game.  ID Software comes to mind. :)
+
+Note the addition of a "-fullscreen" command line option. 
+
+See ya!
+	-Sam Lantinga			(slouken@devolution.com)
+

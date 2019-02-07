@@ -1,5 +1,6 @@
 /* stub_winfont.c*/
 #include "windows.h"
+#include "winextra.h"
 
 DWORD WINAPI GetGlyphOutlineA(HDC            hdc, UINT           uChar, UINT           fuFormat, LPGLYPHMETRICS lpgm, DWORD          cjBuffer, LPVOID         pvBuffer, const MAT2     *lpmat2)
 {

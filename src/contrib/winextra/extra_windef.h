@@ -1,4 +1,5 @@
 /* extra_windef.h*/
+#pragma once
 
 typedef signed char INT8, *PINT8;
 typedef unsigned char UINT8, *PUINT8;

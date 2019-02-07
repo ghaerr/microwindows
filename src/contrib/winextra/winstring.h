@@ -1,4 +1,5 @@
 /* winstring.h*/
+#pragma once
 #include <string.h>
 
 static inline int lstrcmpiW(LPCWSTR str1, LPCWSTR str2)

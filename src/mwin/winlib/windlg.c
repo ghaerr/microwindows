@@ -31,6 +31,7 @@ https://web.archive.org/web/20140417222151/http://msdn.microsoft.com:80/en-us/li
 #include "wintools.h"
 #include "wintern.h"
 #include "device.h"
+#include "uni_std.h"
 
 #define DEFAULT_FONT			DEFAULT_GUI_FONT
 #define DEFDLG_FONT_QUALITY		ANTIALIASED_QUALITY

@@ -227,6 +227,7 @@ HAVETEXTMODE             = N
 SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
 #SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+#SCREEN_PIXTYPE           = MWPF_PALETTE
 SCREEN_DEPTH             = 8
 
 ####################################################################

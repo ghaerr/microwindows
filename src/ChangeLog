@@ -1,4 +1,5 @@
 6 Feb 2019
+	* added MWPF_PALETTE, MWPF_TRUECOLORBGRA support and kbd fixes to Allegro driver
 	* updated SDL and Allegro keyboard drivers for function key support, left/right alt/option key for X11
 	* updated keyboard drivers Break/Pause/F15 returns MWKEY_QUIT
 	* added ALLEGRO_ZOOM config file option for Android and OSX retina displays

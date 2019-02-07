@@ -22,10 +22,6 @@
 #include <allegro5/allegro_android.h>
 #endif
 
-#if MWPIXEL_FORMAT != MWPF_TRUECOLORARGB
-#error Allegro driver only supports SCREEN_PIXTYPE=MWPF_TRUECOLORARGB
-#endif
-
 /* specific driver entry points*/
 static PSD  allegro_open(PSD psd);
 static void allegro_close(PSD psd);
@@ -68,6 +64,7 @@ ALLEGRO_EVENT_QUEUE *allegro_scrqueue;
 static ALLEGRO_DISPLAY *display;
 static ALLEGRO_BITMAP *scrmem;
 static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* aggregate update region bounding rect*/
+static MWPALENTRY palette[256];
 
 static int
 init_allegro(void)
@@ -256,10 +253,18 @@ allegro_close(PSD psd)
 	free(psd->addr);		/* free framebuffer memory */
 }
 
-/* palette mode not supported*/
+/* set palette*/
 static void
 allegro_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
+	int i;
+
+	if (count > 256)
+		count = 256;
+
+	/* just save the palette for use in allegro_draw*/
+	for (i=0; i < count; i++)
+		palette[i] = *pal++;
 }
 
 /* copy from Microwindows framebuffer to Allegro scrmem bitmap*/
@@ -277,13 +282,33 @@ allegro_draw(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWCOORD heigh
 		al_lock_bitmap(scrmem, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READWRITE);
 	al_set_target_bitmap(scrmem);
 
-	/* only MWPF_TRUECOLORARGB supported*/
+#if MWPIXEL_FORMAT == MWPF_TRUECOLORARGB
 	unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < (width<<2); x += 4)
-			al_draw_pixel(destx+(x>>2),desty+y, al_map_rgb(addr[x+2],addr[x+1],addr[x]));
+			al_draw_pixel(destx+(x>>2), desty+y,
+				al_map_rgba(addr[x+2],addr[x+1],addr[x], 255));
 		addr += psd->pitch;
 	}
+#elif MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
+	unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < (width<<2); x += 4)
+			al_draw_pixel(destx+(x>>2), desty+y,
+				al_map_rgba(addr[x],addr[x+1],addr[x+2], 255));
+		addr += psd->pitch;
+	}
+#elif MWPIXEL_FORMAT == MWPF_PALETTE
+	unsigned char *addr = psd->addr + desty * psd->pitch + destx;
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < width; x++) {
+			unsigned char c = addr[x];
+			al_draw_pixel(destx+x, desty+y,
+				al_map_rgba(palette[c].r, palette[c].g, palette[c].b, 255));
+		}
+		addr += psd->pitch;
+	}
+#endif
 }
 
 /* update allegro screen bitmap, returns # pending events*/

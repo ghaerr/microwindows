@@ -173,6 +173,7 @@ allegro_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	ALLEGRO_EVENT event;
 	ALLEGRO_KEYBOARD_STATE kbdstate;
+	int k;
 	static int mwkey,scanvalue;
 
 	if (al_get_next_event(allegro_scrqueue, &event))
@@ -184,24 +185,26 @@ allegro_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 //printf("keytype %d unicode %d, scan %d\n", event.type, event.keyboard.unichar, event.keyboard.keycode);
 		switch (event.type) {
 		case ALLEGRO_EVENT_KEY_DOWN:
-			if (event.keyboard.keycode < ALLEGRO_KEY_MODIFIERS)
-				return KBD_NODATA;			/* always handled in KEY_CHAR*/
 			/* handle shift/ctrl/alt modifiers specially*/
+			if (event.keyboard.keycode < ALLEGRO_KEY_MODIFIERS)
+				return KBD_NODATA;			/* other keys handled in KEY_CHAR*/
 			mwkey = fnkey_convert(event.keyboard.keycode);
 			break;
 
 		case ALLEGRO_EVENT_KEY_UP:
-			/* handle shift/ctrl/alt modifiers specially*/
-			if (event.keyboard.keycode >= ALLEGRO_KEY_MODIFIERS)
-				mwkey = fnkey_convert(event.keyboard.keycode);
-			/* else use last mwkey and scanvalue, as unichar not reported*/
+			/* check if function or modifier key*/
+			k = fnkey_convert(event.keyboard.keycode);
+			if (k)							/* yes, process it*/
+				mwkey = k;
+			/* else use last mwkey and scanvalue, as keyboard.unichar not reported*/
 			break;
 
 		case ALLEGRO_EVENT_KEY_CHAR:
+			/* if not unicode key, check for fnkey processing*/
 			if (event.keyboard.unichar == 0)
 				mwkey = fnkey_convert(event.keyboard.keycode);
 			else
-				mwkey = event.keyboard.unichar & 0xff;
+				mwkey = event.keyboard.unichar & 0xff;	/* handle non-function key*/
 			scanvalue = event.keyboard.keycode;
 		}
 		if (!mwkey)

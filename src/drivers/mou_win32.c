@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
  *
- * NULL Mouse Driver
+ * Microsoft Windows Mouse Driver
  */
 #include <stdio.h>
 #include "device.h"
@@ -11,40 +11,30 @@
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
 
-MSG *winMouseMsg = NULL;
+static int  	winmou_Open(MOUSEDEVICE *pmd);
+static void 	winmou_Close(void);
+static int  	winmou_GetButtonInfo(void);
+static void	winmou_GetDefaultAccel(int *pscale,int *pthresh);
+static int  	winmou_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
+static int  	winmou_Poll(void);
 
-static int  	NUL_Open(MOUSEDEVICE *pmd);
-static void 	NUL_Close(void);
-static int  	NUL_GetButtonInfo(void);
-static void	NUL_GetDefaultAccel(int *pscale,int *pthresh);
-static int  	NUL_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
-static int  	NUL_Poll(void);
+extern HWND winRootWindow;
 
 MOUSEDEVICE mousedev = {
-	NUL_Open,
-	NUL_Close,
-	NUL_GetButtonInfo,
-	NUL_GetDefaultAccel,
-	NUL_Read,
-	NUL_Poll,
+	winmou_Open,
+	winmou_Close,
+	winmou_GetButtonInfo,
+	winmou_GetDefaultAccel,
+	winmou_Read,
+	winmou_Poll,
     MOUSE_NORMAL	/* flags*/
 };
-
-/*
- * Poll for events
- */
-
-static int
-NUL_Poll(void)
-{
-	return 0;
-}
 
 /*
  * Open up the mouse device.
  */
 static int
-NUL_Open(MOUSEDEVICE *pmd)
+winmou_Open(MOUSEDEVICE *pmd)
 {
 	return DRIVER_OKNOTFILEDESC;
 }
@@ -53,7 +43,7 @@ NUL_Open(MOUSEDEVICE *pmd)
  * Close the mouse device.
  */
 static void
-NUL_Close(void)
+winmou_Close(void)
 {
 }
 
@@ -61,7 +51,7 @@ NUL_Close(void)
  * Get mouse buttons supported
  */
 static int
-NUL_GetButtonInfo(void)
+winmou_GetButtonInfo(void)
 {
 	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R;
 }
@@ -70,38 +60,61 @@ NUL_GetButtonInfo(void)
  * Get default mouse acceleration settings
  */
 static void
-NUL_GetDefaultAccel(int *pscale,int *pthresh)
+winmou_GetDefaultAccel(int *pscale,int *pthresh)
 {
 	*pscale = SCALE;
 	*pthresh = THRESH;
 }
 
 /*
- * Attempt to read bytes from the mouse and interpret them.
- * Returns -1 on error, 0 if either no bytes were read or not enough
- * was read for a complete state, or 1 if the new state was read.
- * When a new state is read, the current buttons and x and y deltas
- * are returned.  This routine does not block.
+ * Mouse poll entry point
+ */
+static int
+winmou_Poll(void)
+{
+	if (PeekMessage(&msg, winRootWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE))
+		return 1;
+	return 0;
+}
+
+/*
+ * Read mouse event.
+ * Returns MOUSE_NODATA or MOUSE_ABSPOS
+ * This is a non-blocking call.
  */
 
 static int
-NUL_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
+winmou_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
-    if (winMouseMsg)
-    {
-        *dx = GET_X_LPARAM(winMouseMsg->lParam);
-        *dy = GET_Y_LPARAM(winMouseMsg->lParam);
+	MSG msg;
+
+	if (!PeekMessage(&msg, winRootWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
+		return MOUSE_NODATA;
+
+	switch (msg.message) {
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_RBUTTONDBLCLK:
+        *dx = GET_X_LPARAM(msg.lParam);
+        *dy = GET_Y_LPARAM(msg.lParam);
         *dz = 0;
         *bp = 0;
-        if (winMouseMsg->wParam & MK_LBUTTON)
+        if (msg.wParam & MK_LBUTTON)
         {
             *bp |= MWBUTTON_L;
         }
-        if (winMouseMsg->wParam & MK_MBUTTON)
+        if (msg.wParam & MK_MBUTTON)
         {
             *bp |= MWBUTTON_M;
         }
-        if (winMouseMsg->wParam & MK_RBUTTON)
+        if (msg.wParam & MK_RBUTTON)
         {
             *bp |= MWBUTTON_R;
         }

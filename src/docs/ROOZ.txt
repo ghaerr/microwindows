@@ -8,7 +8,6 @@ See Configs/config.winextra for configuration details
 1. Compiler Defines (Rooz set all these)
 -Imicrowindows/src/contrib/winextra
 -D_MSC_VER					(automatic, don't set. Using this in source #if's)
--DWIN32=0					(set to 0, don't use this for source #if's)
 -DWIN32DLL=1				(sets WINAPI/STDCALL correctly for DLLS)
 -DWINEXTRA=1				(sets -Icontrib/winextra and adds internal functionality)
 -DNOMAIN=1

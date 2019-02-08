@@ -3,6 +3,7 @@
  *
  * Microsoft Windows screen driver for Microwindows
  *	Tested in NONETWORK mode only
+ *	Needs updating in update_from_savevbits for new driver format
  *
  * by Wilson Loi
  */
@@ -11,7 +12,6 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <wingdi.h>
-#include <assert.h>
 #include "device.h"
 #include "fb.h"
 #include "genmem.h"
@@ -19,54 +19,41 @@
 
 #define APP_NAME "Microwindows"
 
-/* SCREEN_WIDTH, SCREEN_HEIGHT and MWPIXEL_FORMAT define window size*/
-#ifndef SCREEN_WIDTH
-#define SCREEN_WIDTH	800
-#endif
-
-#ifndef SCREEN_HEIGHT
-#define SCREEN_HEIGHT	600
-#endif
-
-#ifndef MWPIXEL_FORMAT
-#define MWPIXEL_FORMAT	MWPF_TRUECOLORARGB
-#endif
-
-/* externally set override values from nanox/srvmain.c*/
-MWCOORD	nxres;			/* requested server x res*/
-MWCOORD	nyres;			/* requested server y res*/
-
 /* specific driver entry points*/
 static PSD win32_open(PSD psd);
 static void win32_close(PSD psd);
+static void win32_setpalette(PSD psd,int first,int count,MWPALENTRY *pal);
 static void win32_getscreeninfo(PSD psd, PMWSCREENINFO psi);
 static void win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
+static int win32_preselect(PSD psd);
 
 SCREENDEVICE scrdev = {
 	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
 	win32_open,
 	win32_close,
-	NULL,				/* SetPalette*/
+	win32_setpalette,       
 	win32_getscreeninfo,
 	gen_allocatememgc,
 	gen_mapmemgc,
 	gen_freememgc,
-	NULL,				/* SetPortrait */
+	gen_setportrait,
 	win32_update,
-	NULL				/* PreSelect*/
+	win32_preselect
 };
 
 HWND winRootWindow = NULL;
 static HDC dcBuffer = NULL;
 static HBITMAP dcBitmap = NULL;
 static HBITMAP dcOldBitmap;
-static HANDLE dummyEvent = NULL;
+static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* win32_preselect and win32_update*/
 
-LRESULT
+static void win32_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height);
+static int win32_pollevents(void);
+
+LRESULT CALLBACK
 myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-	BOOL ret;
 	HDC dc;
 	PAINTSTRUCT ps;
 
@@ -96,11 +83,10 @@ myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_PAINT:
 		dc = BeginPaint(hWnd, &ps);
-		ret = BitBlt(dc, ps.rcPaint.left, ps.rcPaint.top, 
+		BitBlt(dc, ps.rcPaint.left, ps.rcPaint.top, 
 			ps.rcPaint.right - ps.rcPaint.left,
 			ps.rcPaint.bottom - ps.rcPaint.top, 
 			dcBuffer, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
-		assert(ret!=FALSE);
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
@@ -108,8 +94,6 @@ myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		SelectObject(dcBuffer, dcOldBitmap);
 		DeleteDC(dcBuffer);	
 		DeleteObject(dcBitmap);
-		winRootWindow = NULL;
-		CloseHandle(dummyEvent);
 		break;
 	default:
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
@@ -121,82 +105,119 @@ myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 static PSD
 win32_open(PSD psd)
 {
-	HANDLE hInstance = GetModuleHandle(NULL);
-	HDC rootDC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	int depth = GetDeviceCaps(rootDC, BITSPIXEL);
-	RECT rect;
 	PSUBDRIVER subdriver;
-	WNDCLASS wc;
 
-	DeleteDC(rootDC);
-	GetWindowRect(GetDesktopWindow(), &rect);
-	psd->xvirtres = rect.right - rect.left;
-	psd->yvirtres = rect.bottom - rect.top;
-	if (psd->xvirtres > SCREEN_WIDTH)
-		psd->xvirtres = SCREEN_WIDTH;
-	if (psd->yvirtres > SCREEN_HEIGHT)
-		psd->yvirtres = SCREEN_HEIGHT;
-	psd->xres = psd->xvirtres;
-	psd->yres = psd->yvirtres;
+	psd->pixtype = MWPIXEL_FORMAT;				/* SCREEN_PIXTYPE in config*/
+	psd->xres = psd->xvirtres = SCREEN_WIDTH;	/* SCREEN_WIDTH in config*/
+	psd->yres = psd->yvirtres = SCREEN_HEIGHT;	/* SCREEN_HEIGHT in config*/
+
+	/* use pixel format to set bpp*/
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLORARGB:
+	case MWPF_TRUECOLORABGR:
+	default:
+		psd->bpp = 32;
+		break;
+
+	case MWPF_TRUECOLORRGB:
+		psd->bpp = 24;
+		break;
+
+	case MWPF_TRUECOLOR565:
+	case MWPF_TRUECOLOR555:
+		psd->bpp = 16;
+		break;
+
+	case MWPF_TRUECOLOR332:
+		psd->bpp = 8;
+		break;
+
+#if MWPIXEL_FORMAT == MWPF_PALETTE
+	case MWPF_PALETTE:
+		psd->bpp = SCREEN_DEPTH;				/* SCREEN_DEPTH in config*/
+		break;
+#endif
+	}
 	psd->planes = 1;
-	psd->pixtype = MWPIXEL_FORMAT;
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
-	psd->bpp = 32;
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLORRGB)
-	psd->bpp = 24;
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
-	psd->bpp = 16;
-#else
-#error "No support bpp < 16"
-#endif 
+
 	/* set standard data format from bpp and pixtype*/
 	psd->data_format = set_data_format(psd);
 
-	/* Calculate size and pitch*/
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
-		&psd->size, &psd->pitch);
-	if ((psd->addr = malloc(psd->size)) == NULL)
-		return NULL;
+	/* Calculate the correct size and pitch from xres, yres and bpp*/
+	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
+
 	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC;
+	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
 	psd->portrait = MWPORTRAIT_NONE;
-DPRINTF("win32 emulated bpp %d\n", psd->bpp);
 
 	/* select an fb subdriver matching our planes and bpp for backing store*/
 	subdriver = select_fb_subdriver(psd);
+	psd->orgsubdriver = subdriver;
 	if (!subdriver)
 		return NULL;
 
 	/* set subdriver into screen driver*/
 	set_subdriver(psd, subdriver);
 
-		wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
-		wc.lpfnWndProc     = (WNDPROC)myWindowProc;
-		wc.cbClsExtra      = 0;
-		wc.cbWndExtra      = 0;
-		wc.hInstance       = hInstance;
-		wc.hIcon           = LoadIcon(NULL, IDI_APPLICATION);
-		wc.hCursor         = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground   = GetStockObject(WHITE_BRUSH);
-		wc.lpszMenuName    = NULL;
-		wc.lpszClassName   = APP_NAME;
-		RegisterClass(&wc);
+	/*
+	 * Allocate framebuffer
+	 * psd->size is calculated by subdriver init
+	 */
+	if ((psd->addr = malloc(psd->size)) == NULL)
+		return NULL;
+
+	HANDLE hInstance = GetModuleHandle(NULL);
+	WNDCLASS wc;
+	//HDC rootDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+	//int depth = GetDeviceCaps(rootDC, BITSPIXEL);
+	//DeleteDC(rootDC);
+
+	wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
+	wc.lpfnWndProc     = (WNDPROC)myWindowProc;
+	wc.cbClsExtra      = 0;
+	wc.cbWndExtra      = 0;
+	wc.hInstance       = hInstance;
+	wc.hIcon           = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor         = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground   = GetStockObject(WHITE_BRUSH);
+	wc.lpszMenuName    = NULL;
+	wc.lpszClassName   = APP_NAME;
+	RegisterClass(&wc);
 
 	winRootWindow = CreateWindow(APP_NAME, "", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0, 0, 
 			SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, hInstance, NULL);
 	if (winRootWindow) {
 		HDC dc = GetDC(winRootWindow);
-
-		GetClientRect(winRootWindow, &rect);
-		dcBitmap = CreateCompatibleBitmap(dc, rect.right-rect.left,rect.bottom-rect.top);   
+		dcBitmap = CreateCompatibleBitmap(dc, SCREEN_WIDTH, SCREEN_HEIGHT);
 		dcBuffer = CreateCompatibleDC(dc);
 		dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
 		ReleaseDC(winRootWindow, dc);
-		dummyEvent = CreateEvent(NULL, TRUE, FALSE, "");
+
 		ShowWindow(winRootWindow, SW_SHOW);
 		UpdateWindow(winRootWindow);
 	}
+
 	return &scrdev;
+}
+
+/* return nonzero if event available*/
+static int
+win32_pollevents(void)
+{
+	MSG msg;
+
+	if (PeekMessage(&msg, winRootWindow, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
+		return 1;
+
+	if (PeekMessage(&msg, winRootWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE))
+		return 1;
+
+	if (PeekMessage(&msg, winRootWindow, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return 0;
 }
 
 static void
@@ -206,6 +227,10 @@ win32_close(PSD psd)
 		SendMessage(winRootWindow, WM_DESTROY, 0, 0);
 }
 
+static void
+win32_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
+{
+}
 
 static void
 win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
@@ -215,7 +240,7 @@ win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 }
 
 
-#if 0000
+#if 0000 /* from old driver format*/
 static void
 win32_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL pixel)
 {
@@ -274,8 +299,7 @@ win32_drawvline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL pixel)
 }
 
 static void
-win32_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2,
-	MWPIXELVAL pixel)
+win32_fillrect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL pixel)
 {
 	RECT rect;
 	HDC dc;
@@ -306,8 +330,7 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 
 	if (!(dstpsd->flags & PSF_SCREEN)) {
 		/* memory to memory blit, use offscreen blitter */
-		dstpsd->Blit(dstpsd, destx, desty, w, h,
-			srcpsd, srcx, srcy, op);
+		dstpsd->Blit(dstpsd, destx, desty, w, h, srcpsd, srcx, srcy, op);
 		return;
 	}
  
@@ -373,14 +396,14 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
         srcy = srcpsd->yres - h - srcy;
 #if 1
         SetDIBitsToDevice(dc, destx, desty, w, h, srcx, srcy, 0, srcpsd->yres,
-		addr, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+			addr, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
         SetDIBitsToDevice(dcBuffer, destx, desty, w, h, srcx, srcy, 0, srcpsd->yres,
-		addr, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+			addr, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
 #else
         StretchDIBits(dc, destx, desty, w, h, srcx, srcy, w, h,
-		addr, &bmpInfo, DIB_RGB_COLORS, SRCCOPY);
+			addr, &bmpInfo, DIB_RGB_COLORS, SRCCOPY);
         StretchDIBits(dcBuffer, destx, desty, w, h, srcx, srcy, w, h,
-		addr, &bmpInfo, DIB_RGB_COLORS, SRCCOPY);
+			addr, &bmpInfo, DIB_RGB_COLORS, SRCCOPY);
 #endif 
         free(bits);
 	} else if (srcpsd->flags & PSF_SCREEN) {
@@ -390,96 +413,30 @@ win32_blit(PSD dstpsd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
 	}
 	ReleaseDC(winRootWindow, dc);
 }
-#endif
+#endif /* 0000*/
 
+/* update window from Microwindows framebuffer*/
 static void
-update_from_savebits(PSD psd, int destx, int desty, int w, int h)
+win32_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
-#if 0
-	XImage *img;
-	unsigned int x, y;
-	char *data;
+	BITMAPV4HEADER bmpInfo;
 
-	/* allocate buffer */
-	if (x11_depth >= 24)
-		data = malloc(w * 4 * h);
-	else if (x11_depth > 8)	/* 15, 16 */
-		data = malloc(w * 2 * h);
-	else			/* 1,2,4,8 */
-		data = malloc((w * x11_depth + 7) / 8 * h);
+	HDC dc = GetDC(winRootWindow);
 
-	/* copy from offscreen to screen */
-	img = XCreateImage(x11_dpy, x11_vis, x11_depth, ZPixmap, 0, data, w, h, 8, 0);
-
-	/* Use optimized loops for most common framebuffer modes */
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = addr[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 1);
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = ((ADDR16)addr)[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#elif MWPIXEL_FORMAT == MWPF_TRUECOLORRGB
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
-		unsigned int extra = psd->pitch - w * 3;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = RGB2PIXEL888(addr[2], addr[1], addr[0]);
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-				addr += 3;
-			}
-			addr += extra;
-		}
-	}
-#elif (MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + (destx << 2);
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = ((ADDR32)addr)[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#else /* MWPF_PALETTE*/
-	{
-		unsigned char *addr = psd->addr + desty * psd->pitch + destx;
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				MWPIXELVAL c = addr[x];
-				unsigned long pixel = PIXELVAL_to_pixel(c);
-				XPutPixel(img, x, y, pixel);
-			}
-			addr += psd->pitch;
-		}
-	}
-#endif
-
-	XPutImage(x11_dpy, x11_win, x11_gc, img, 0, 0, destx, desty, w, h);
-	XDestroyImage(img);
-#endif
+	/* MWPF_TRUECOLORARGB only for now*/
+	bmpInfo.bV4AlphaMask = 0xff000000;
+	bmpInfo.bV4RedMask  = 0xff0000;
+	bmpInfo.bV4GreenMask= 0x00ff00;
+	bmpInfo.bV4BlueMask = 0x0000ff;
+	bmpInfo.bV4V4Compression = BI_BITFIELDS;
+	bmpInfo.bV4XPelsPerMeter = 3078;
+	bmpInfo.bV4YPelsPerMeter = 3078;
+	bmpInfo.bV4ClrUsed = 0;
+	bmpInfo.bV4ClrImportant = 0;   
+	bmpInfo.bV4CSType = LCS_sRGB;
+	SetDIBitsToDevice(dc, x, y, width, height, 0, 0, 0, psd->yres, psd->addr, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+	SetDIBitsToDevice(dcBuffer, x, y, width, height, 0, 0, 0, psd->yres, psd->addr, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+	ReleaseDC(winRootWindow, dc);
 }
 
 static void
@@ -489,5 +446,31 @@ win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 		width = psd->xres;
 	if (!height)
 		height = psd->yres;
-	update_from_savebits(psd, x, y, width, height);
+
+	/* window moves require delaying updates until preselect for speed*/
+	if ((psd->flags & PSF_DELAYUPDATE)) {
+			/* calc aggregate update rectangle*/
+			upminX = min(x, upminX);
+			upminY = min(y, upminY);
+			upmaxX = max(upmaxX, x+width-1);
+			upmaxY = max(upmaxY, y+height-1);
+	} else
+		win32_draw(psd, x, y, width, height);
+}
+
+/* called before select(), returns # pending events*/
+static int
+win32_preselect(PSD psd)
+{
+	/* perform single blit update of aggregate update region to SDL server*/
+	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
+		win32_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
+
+		/* reset update region*/
+		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
+		upmaxX = upmaxY = 0;
+	}
+
+	/* return nonzero if SDL event available*/
+	return win32_pollevents();
 }

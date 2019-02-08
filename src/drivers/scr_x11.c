@@ -450,8 +450,8 @@ X11_open(PSD psd)
 	XColor color;
 	Cursor cursor;
 	/*XEvent ev; */
-	PSUBDRIVER subdriver;
 	XSizeHints *sizehints;
+	int flags;
 
 	if (x11_setup_display() < 0)
 		return NULL;
@@ -507,14 +507,13 @@ X11_open(PSD psd)
 
 	x11_depth = XDefaultDepth(x11_dpy, x11_scr);
 
+#if 0				/* REMOVED by Patch by Jon to try for 8-bit TrueColor */
 	/* Create a new empty colormap, the colormap will be
 	 ** filled by lookup_color in the case of
 	 ** GrayScale, PseduoColor and DirectColor,
 	 ** or looked up in the case of 
 	 **  StaticGray, StaticColor and TrueColor
 	 */
-
-#if 0				/* REMOVED by Patch by Jon to try for 8-bit TrueColor */
 	x11_colormap = XDefaultColormap(x11_dpy, x11_scr);
 	if (x11_vis->class & 1)
 		x11_colormap = XCopyColormapAndFree(x11_dpy, x11_colormap);
@@ -540,65 +539,23 @@ X11_open(PSD psd)
 	XMapWindow(x11_dpy, x11_win);
 	XFlush(x11_dpy);
 
+#if 0
 	/*
 	 * The following code insures that the colormap
 	 * is installed before display
 	 */
-#if 0
 	XMaskEvent(x11_dpy, x11_event_mask, &ev);
 	XPutBackEvent(x11_dpy, &ev);
 #endif
 	XInstallColormap(x11_dpy, x11_colormap);
 
-	psd->xres = psd->xvirtres = x11_width;
-	psd->yres = psd->yvirtres = x11_height;
-	psd->planes = 1;
-	psd->pixtype = MWPIXEL_FORMAT;
-	switch (psd->pixtype) {
-	case MWPF_TRUECOLORARGB:
-	case MWPF_TRUECOLORABGR:
-	default:
-		psd->bpp = 32;
-		break;
-	case MWPF_TRUECOLORRGB:
-		psd->bpp = 24;
-		break;
-	case MWPF_TRUECOLOR565:
-	case MWPF_TRUECOLOR555:
-		psd->bpp = 16;
-		break;
-	case MWPF_TRUECOLOR332:
-		psd->bpp = 8;
-		break;
-#if MWPIXEL_FORMAT == MWPF_PALETTE
-	case MWPF_PALETTE:
-		psd->bpp = SCREEN_DEPTH;
-		break;
-#endif
-	}
+	/* init psd and allocate framebuffer*/
+	flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
 
-	/* set standard data format from bpp and pixtype*/
-	psd->data_format = set_data_format(psd);
-
-	/* Calculate size and pitch*/
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
-		&psd->size, &psd->pitch);
-
-	if ((psd->addr = malloc(psd->size)) == NULL)
+	if (!gen_initpsd(psd, MWPIXEL_FORMAT, x11_width, x11_height, flags))
 		return NULL;
-	psd->ncolors = psd->bpp >= 24? (1 << 24): (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
-	psd->portrait = MWPORTRAIT_NONE;
+
 DPRINTF("x11 emulated bpp %d\n", psd->bpp);
-
-	/* select an fb subdriver matching our planes and bpp for backing store*/
-	subdriver = select_fb_subdriver(psd);
-	if (!subdriver)
-		return NULL;
-
-	/* set subdriver into screen driver*/
-	set_subdriver(psd, subdriver);
-
 	return psd;
 }
 

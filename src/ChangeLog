@@ -1,3 +1,5 @@
+8 Feb 2019
+	* more driver cleanup, new function gen_initpsd() to init screen driver open
 	* moved Windows WIN32 GsSelect driver to drivers/{scr,mou,kbd}_win32.c, rewrote to new driver format
 7 Feb 2019
 	* added Rooz's contrib/visualstudio project. "uni_std.h" must come before device.h

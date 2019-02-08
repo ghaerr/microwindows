@@ -4,10 +4,7 @@
  * Fast framebuffer copy routine TEMPLATE - used with scr_fbe.c when TESTDRIVER=1
  */
 #include "device.h"
-
-/* fwd declaration*/
-void copy_framebuffer(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
-	unsigned char *dstpixels, unsigned int dstpitch);
+#include "genmem.h"
 
 /* copy Microwindows framebuffer pixels to another framebuffer, same pixel format*/
 void

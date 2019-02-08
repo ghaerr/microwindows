@@ -9,6 +9,8 @@
 /* entry points*/
 
 /* genmem.c*/
+int		gen_initpsd(PSD psd, int pixtype, MWCOORD xres, MWCOORD yres, int flags);
+
 PSD		GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pixels,
 			int palsize);
 void	GdFreePixmap(PSD pmd);
@@ -28,3 +30,7 @@ void	set_portrait_subdriver(PSD psd);
 
 void	set_subdriver(PSD psd, PSUBDRIVER subdriver);
 void	get_subdriver(PSD psd, PSUBDRIVER subdriver);
+
+/* copyframebuffer.c*/
+void	copy_framebuffer(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
+	unsigned char *dstpixels, unsigned int dstpitch);

@@ -64,73 +64,28 @@ SCREENDEVICE scrdev = {
 static PSD
 fbe_open(PSD psd)
 {
-	PSUBDRIVER subdriver;
 	char *env;
 
-	psd->pixtype = MWPIXEL_FORMAT;				/* SCREEN_PIXTYPE in config*/
-	psd->xres = psd->xvirtres = SCREEN_WIDTH;	/* SCREEN_WIDTH in config*/
-	psd->yres = psd->yvirtres = SCREEN_HEIGHT;	/* SCREEN_HEIGHT in config*/
+	int flags = PSF_SCREEN;		/* init psd, don't allocate framebuffer*/
 
-	/* use pixel format to set bpp*/
-	psd->pixtype = MWPIXEL_FORMAT;
-	switch (psd->pixtype) {
-	case MWPF_TRUECOLORARGB:
-	case MWPF_TRUECOLORABGR:
-	default:
-		psd->bpp = 32;
-		break;
-
-	case MWPF_TRUECOLORRGB:
-		psd->bpp = 24;
-		break;
-
-	case MWPF_TRUECOLOR565:
-	case MWPF_TRUECOLOR555:
-		psd->bpp = 16;
-		break;
-
-	case MWPF_TRUECOLOR332:
-		psd->bpp = 8;
-		break;
-
-#if MWPIXEL_FORMAT == MWPF_PALETTE
-	case MWPF_PALETTE:
-		psd->bpp = SCREEN_DEPTH;				/* SCREEN_DEPTH in config*/
-		break;
-#endif
-	}
-	psd->planes = 1;
-
-	/* set standard data format from bpp and pixtype*/
-	psd->data_format = set_data_format(psd);
-
-	/* Calculate the correct size and pitch from xres, yres and bpp*/
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
-
-	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-	psd->flags = PSF_SCREEN;
-	psd->portrait = MWPORTRAIT_NONE;
-
-	/* select an fb subdriver matching our planes and bpp for backing store*/
-	subdriver = select_fb_subdriver(psd);
-	psd->orgsubdriver = subdriver;
-	if (!subdriver)
+	if (!gen_initpsd(psd, MWPIXEL_FORMAT, SCREEN_WIDTH, SCREEN_HEIGHT, flags))
 		return NULL;
 
-	/* set subdriver into screen driver*/
-	set_subdriver(psd, subdriver);
+	/* set to copy aggregate screen update region in Update()*/
+	psd->flags |= PSF_DELAYUPDATE;
+
+	/* set if screen driver subsystem requires polling and select()*/
+	psd->flags |= PSF_CANTBLOCK;
 
 #if TESTDRIVER
-
-	/* allocate framebuffer*/
+	/*
+	 * Allocate framebuffer
+	 * psd->size is calculated by subdriver init
+	 */
 	if ((psd->addr = malloc(psd->size)) == NULL)
 		return NULL;
 	psd->flags |= PSF_ADDRMALLOC;
-	psd->flags |= PSF_DELAYUPDATE;		/* set to copy aggregate screen update region in Update()*/
-	//psd->flags |= PSF_CANTBLOCK;		/* set if screen driver subsystem requires polling and select()*/
-
 #else
-
 	/* open framebuffer file for mmap*/
 	if((env = getenv("FRAMEBUFFER")) == NULL)
 		env = PATH_FRAMEBUFFER;
@@ -185,14 +140,21 @@ fbe_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 #define max(a,b)            (((a) > (b)) ? (a) : (b))
 
-static MWCOORD upminX, upminY, upmaxX, upmaxY;		/* bounding rectangle for aggregrate screen update*/
-static unsigned char *dstpixels = NULL;		/* NEW DRIVER ONLY - set to destination pixels and pitch*/
-static unsigned int   dstpitch;				/* width in bytes of destination pixel row*/
+/* bounding rectangle for aggregrate screen update*/
+static MWCOORD upminX, upminY, upmaxX, upmaxY;
 
-/* drivers/copyframebuffer.c - assumes destination pixels in same format as MWPIXEL_FORMAT set in config!*/
+/* update graphics lib from framebuffer*/
+static void
+fbe_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
+{
+	unsigned char *dstpixels = NULL; /* set to destination pixels in graphics lib*/
+	unsigned int   dstpitch = 0;	 /* set to width in bytes of destination pixel row*/
 
-extern void copy_framebuffer(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD w, MWCOORD h,
-	unsigned char *dstpixels, unsigned int dstpitch);
+	/* assumes destination pixels in same format * as MWPIXEL_FORMAT set in config!*/
+	if (dstpixels)
+		copy_framebuffer(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1,
+			dstpixels, dstpitch);
+}
 
 /* called before select(), returns # pending events*/
 static int
@@ -200,8 +162,7 @@ fbe_preselect(PSD psd)
 {
 	/* perform single blit update of aggregate update region*/
 	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
-		if (dstpixels)
-			copy_framebuffer(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1, dstpixels, dstpitch);
+		fbe_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
 
 		/* reset update region*/
 		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
@@ -212,6 +173,7 @@ fbe_preselect(PSD psd)
 	return 0;
 }
 
+/* called from framebuffer drivers with bounding rect of updated framebuffer region*/
 static void
 fbe_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
@@ -227,9 +189,7 @@ fbe_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 			upminY = min(y, upminY);
 			upmaxX = max(upmaxX, x+width-1);
 			upmaxY = max(upmaxY, y+height-1);
-	} else {
-		if (dstpixels)
-			copy_framebuffer(psd, x, y, width, height, dstpixels, dstpitch);
-	}
+	} else
+		fbe_draw(psd, x, y, width, height);
 }
 #endif /* TESTDRIVER*/

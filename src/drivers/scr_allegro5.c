@@ -175,66 +175,15 @@ allegro_pollevents(void)
 static PSD
 allegro_open(PSD psd)
 {
-	PSUBDRIVER subdriver;
+	/* init psd and allocate framebuffer*/
+	int flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE | PSF_CANTBLOCK;
 
-	psd->pixtype = MWPIXEL_FORMAT;				/* SCREEN_PIXTYPE in config*/
-	psd->xres = psd->xvirtres = SCREEN_WIDTH;	/* SCREEN_WIDTH in config*/
-	psd->yres = psd->yvirtres = SCREEN_HEIGHT;	/* SCREEN_HEIGHT in config*/
-
-	/* use pixel format to set bpp*/
-	psd->pixtype = MWPIXEL_FORMAT;
-	switch (psd->pixtype) {
-	case MWPF_TRUECOLORARGB:
-	case MWPF_TRUECOLORABGR:
-	default:
-		psd->bpp = 32;
-		break;
-
-	case MWPF_TRUECOLORRGB:
-		psd->bpp = 24;
-		break;
-
-	case MWPF_TRUECOLOR565:
-	case MWPF_TRUECOLOR555:
-		psd->bpp = 16;
-		break;
-
-	case MWPF_TRUECOLOR332:
-		psd->bpp = 8;
-		break;
-
-	case MWPF_PALETTE:
-		psd->bpp = SCREEN_DEPTH;				/* SCREEN_DEPTH in config*/
-		break;
-	}
-	psd->planes = 1;
-
-	/* set standard data format from bpp and pixtype*/
-	psd->data_format = set_data_format(psd);
-
-	/* Calculate the correct size and pitch from xres, yres and bpp*/
-	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
-
-	psd->ncolors = (psd->bpp >= 24)? (1 << 24): (1 << psd->bpp);
-	psd->flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE | PSF_CANTBLOCK;
-	psd->portrait = MWPORTRAIT_NONE;
-
-	/* select an fb subdriver matching our planes and bpp for backing store*/
-	subdriver = select_fb_subdriver(psd);
-	psd->orgsubdriver = subdriver;
-	if (!subdriver)
+	if (!gen_initpsd(psd, MWPIXEL_FORMAT, SCREEN_WIDTH, SCREEN_HEIGHT, flags))
 		return NULL;
 
-	/* set subdriver into screen driver*/
-	set_subdriver(psd, subdriver);
-
+	/* init Allegro subsystem*/
 	if (!init_allegro())
 		return NULL;
-
-	/* allocate framebuffer*/
-	if ((psd->addr = malloc(psd->size)) == NULL)
-		return NULL;
-
 	al_rest(0.2);
 
 	return psd;

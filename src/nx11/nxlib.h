@@ -1,8 +1,10 @@
 #ifndef _NXLIB_H_
 #define _NXLIB_H_
+/*
+ * NX11 X11 to Nano-X conversion library internal header file
+ */
 
 /* Changeable options*/
-#define USE_ALLOCA				1	/* set if system has alloca()*/
 #define HAVE_STATICFONTS 		0	/* set to include static buffered fonts when no filesystem*/
 #define MALLOC_0_RETURNS_NULL	0	/* not yet needed*/
 
@@ -21,9 +23,7 @@
 #include "X11/Xlib.h"
 #include "../include/nano-X.h"
 
-#include "../include/device.h"	/* for DPRINTF*/
-#include <stdio.h>
-#include <stdlib.h>		/* for malloc.h*/
+#include "../include/device.h"	/* DPRINTF, <stdlib.h> for malloc*/
 
 /* malloc stuff*/
 #if MALLOC_0_RETURNS_NULL
@@ -38,18 +38,6 @@
 #endif
 #define Xfree(ptr) free((ptr))
 
-#undef ALLOCA
-#undef FREEA
-#if USE_ALLOCA
-/* alloca() is available, so use it for better performance */
-#define ALLOCA(size)	alloca(size)
-#define FREEA(pmem)
-#else
-/* no alloca(), so use malloc()/free() instead */
-#define ALLOCA(size)	Xmalloc(size)
-#define FREEA(pmem)	Xfree(pmem)
-#endif
-
 /* defines for unmodified (Xrm) Xlib routines...*/
 //#define bzero(mem, size)	memset(mem, 0, size)
 #define LockDisplay(dpy)
@@ -58,13 +46,6 @@
 #define _XUnlockMutex(lock)
 #define _XCreateMutex(lock)
 #define _XFreeMutex(lock)
-
-/* debug defines*/
-//#if DEBUG
-//#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
-//#else
-//#define DPRINTF(str, ...)									  /* no debug output*/
-//#endif
 
 /* Used internally for the colormap */
 typedef struct  {

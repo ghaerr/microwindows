@@ -1,9 +1,10 @@
+	* remove src/winextra/sys/time.h (all src uses "sys_time.h"), cleanup USE_ALLOCA
 8 Feb 2019
 	* added "sys_time.h" to cleanup #include "sys/time.h" issues on Windows
 	* more driver cleanup, new function gen_initpsd() to init screen driver open
 	* moved Windows WIN32 GsSelect driver to drivers/{scr,mou,kbd}_win32.c, rewrote to new driver format
 7 Feb 2019
-	* added Rooz's contrib/visualstudio project. "uni_std.h" must come before device.h
+	* added Rooz's contrib/visualstudio project
 6 Feb 2019
 	* ported original shareware Doom v1.10 to Nano-X! See contrib/doom/README.nanox
 	* added MWPF_PALETTE, MWPF_TRUECOLORBGRA support and kbd fixes to Allegro driver

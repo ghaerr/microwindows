@@ -51,10 +51,6 @@
  * the client must call into the server on a regular basis, otherwise the
  * timers may run late.
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include "uni_std.h"
 #include "device.h"
 
 #if MW_FEATURE_TIMERS

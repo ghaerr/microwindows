@@ -77,13 +77,12 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include "uni_std.h"
+#include "sys_time.h"
 #include <time.h>
 #include <ctype.h>
 #include <errno.h>
-#include <sys/time.h>
-
-#include <nano-X.h>
-#include <nxcolors.h>
+#include "nano-X.h"
+#include "nxcolors.h"
 #include "ntetris.h"
 
 void *my_malloc(size_t size)

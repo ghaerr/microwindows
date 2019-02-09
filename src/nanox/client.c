@@ -21,19 +21,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "uni_std.h"
+#include "sys_time.h"
 #include <string.h>
 #include <stddef.h>
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
 #include <assert.h>
+#include <sys/socket.h>
+
 #if HAVE_SHAREDMEM_SUPPORT
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #endif
-#include <sys/time.h>
-#include <sys/socket.h>
+
 #if ELKS
 #include <linuxmt/na.h>
 #include <linuxmt/time.h>
@@ -48,14 +50,11 @@
 #define getpid()	((int)cyg_thread_self())
 #else
 #include <sys/un.h>
-#if hpux
-#include <sys/time.h>
-#else
 #ifdef __GLIBC__
 #include <sys/select.h>
 #endif
 #endif
-#endif
+
 #include "nano-X.h"
 #include "serv.h"
 #include "nxproto.h"

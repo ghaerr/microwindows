@@ -1,4 +1,5 @@
 8 Feb 2019
+	* added "sys_time.h" to cleanup #include "sys/time.h" issues on Windows
 	* more driver cleanup, new function gen_initpsd() to init screen driver open
 	* moved Windows WIN32 GsSelect driver to drivers/{scr,mou,kbd}_win32.c, rewrote to new driver format
 7 Feb 2019

@@ -10,11 +10,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#if UNIX | DOS_DJGPP
-#include <sys/time.h>
-#endif
 #include "windows.h"
-#include "device.h"
 
 #define DEF_BLINK_TIME		500	/* default blink time in ms*/
 

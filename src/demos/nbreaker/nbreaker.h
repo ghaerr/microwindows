@@ -37,6 +37,8 @@
 #ifndef NBREAKER_H
 #define NBREAKER_H
 
+#include "sys_time.h" /* For struct timeval. */
+
 #define GR_PIXMAP_ID	GR_WINDOW_ID
 #define GR_ALPHA_ID		GR_WINDOW_ID
 #define GR_CONST_BLEND	MWROP_BLENDCONSTANT
@@ -323,8 +325,6 @@ typedef struct {
 	int narrowbat;
 	int fastmotion;
 } powertimes_t;
-
-#include <sys/time.h> /* For struct timeval. */
 
 /* The game state structure. This stores (surprise, surprise) the entire
  * game state. */

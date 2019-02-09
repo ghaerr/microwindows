@@ -10,12 +10,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <windows.h>
-#include <wingdi.h>
 #include "device.h"
 #include "fb.h"
 #include "genmem.h"
 #include "genfont.h"
+#include <windows.h>
+#include <wingdi.h>
 
 #define APP_NAME "Microwindows"
 
@@ -105,14 +105,15 @@ myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 static PSD
 win32_open(PSD psd)
 {
+	HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
+	WNDCLASS wc;
+
 	/* init psd and allocate framebuffer*/
 	int flags = PSF_SCREEN | PSF_ADDRMALLOC | PSF_DELAYUPDATE;
 
 	if (!gen_initpsd(psd, MWPIXEL_FORMAT, SCREEN_WIDTH, SCREEN_HEIGHT, flags))
 		return NULL;
 
-	HANDLE hInstance = GetModuleHandle(NULL);
-	WNDCLASS wc;
 	//HDC rootDC = CreateDC("DISPLAY", NULL, NULL, NULL);
 	//int depth = GetDeviceCaps(rootDC, BITSPIXEL);
 	//DeleteDC(rootDC);

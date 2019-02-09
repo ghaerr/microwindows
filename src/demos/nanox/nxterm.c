@@ -50,19 +50,18 @@
 
 #define _XOPEN_SOURCE 600
 #include <stdio.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <utmp.h>
-#include <unistd.h>
-#include <errno.h>
 #include <stdlib.h>
-#include <pwd.h>
 #include <string.h>
+#include "uni_std.h"
+#include <errno.h>
+#include <fcntl.h>
+#include <pwd.h>
+#include <signal.h>
+#include <utmp.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <termios.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 #include "nxterm.h"

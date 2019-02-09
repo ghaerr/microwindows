@@ -61,6 +61,8 @@ winkbd_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 static int
 winkbd_Poll(void)
 {
+	MSG	msg;
+
 	if (PeekMessage(&msg, winRootWindow, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
 		return 1;
 	return 0;
@@ -83,16 +85,16 @@ winkbd_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	switch (msg.message) {
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
-		mwkey = msg->wParam; 		/* virtual-key code*/
+		mwkey = msg.wParam; 		/* virtual-key code*/
 		*kbuf = mwkey;				// FIXME needs MWKEY_ translation
-		*scancode = (msg->lParam >> 16) & 0xff;
+		*scancode = (msg.lParam >> 16) & 0xff;
 		return KBD_KEYPRESS;
 
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
-		mwkey = msg->wParam; 		/* virtual-key code*/
+		mwkey = msg.wParam; 		/* virtual-key code*/
 		*kbuf = mwkey;				// FIXME needs MWKEY_ translation
-		*scancode = (msg->lParam >> 16) & 0xff;
+		*scancode = (msg.lParam >> 16) & 0xff;
 		return KBD_KEYRELEASE;
 	}
 

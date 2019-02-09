@@ -19,10 +19,9 @@
 
 #include <stdio.h>
 #include <signal.h>
-#include <sys/time.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 

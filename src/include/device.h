@@ -10,7 +10,7 @@
  */
 #define MWINCLUDECOLORS			/* bring in color conversion macros*/
 #include "mwtypes.h"			/* public export typedefs*/
-#include "mwsystem.h"
+#include "mwsystem.h"			/* includes <stdlib.h> for malloc, GdMalloc defs*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -503,7 +503,7 @@ void	ts_fillrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h);
 void	set_ts_origin(int x, int y);
 
 #if MW_FEATURE_TIMERS
-#include <sys/time.h>
+#include "sys_time.h"			/* struct timeval*/
 
 typedef void (*MWTIMERCB)(void *);
 

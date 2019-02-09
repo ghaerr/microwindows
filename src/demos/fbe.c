@@ -66,15 +66,15 @@ get bpp via ioctl from fbe for nano-X?
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <signal.h>
-#include <sys/time.h>
 #include <sys/mman.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <unistd.h>
+#include <sys/time.h>
 #include "../include/mwtypes.h"
 
 #define PROGNAME "fbe"

@@ -12,16 +12,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include "uni_std.h"
-
-#if _MINIX
-#include <sys/times.h>
-#elif UNIX | DOS_DJGPP
-#include <sys/time.h>
-#endif
-
-#if MSDOS
-#include <time.h>
-#endif
+#include "sys_time.h"
 
 #if EMSCRIPTEN
 #include <emscripten.h>

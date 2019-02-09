@@ -7,9 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include "uni_std.h"
+#include "sys_time.h"
 #include <time.h>
-#include <sys/time.h>
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 

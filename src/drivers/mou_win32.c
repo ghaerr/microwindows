@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include "device.h"
 #include <windows.h>
-#include <windowsx.h>
 
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
@@ -72,6 +71,8 @@ winmou_GetDefaultAccel(int *pscale,int *pthresh)
 static int
 winmou_Poll(void)
 {
+	MSG msg;
+
 	if (PeekMessage(&msg, winRootWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE))
 		return 1;
 	return 0;

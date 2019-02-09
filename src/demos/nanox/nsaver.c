@@ -37,10 +37,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <sys/time.h>
-
-#include <nano-X.h>
-#include <nxcolors.h>
+#include "sys_time.h"
+#include "nano-X.h"
+#include "nxcolors.h"
 #include "nsaver.h"
 
 void *my_malloc(size_t size)

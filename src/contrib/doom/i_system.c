@@ -27,14 +27,14 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
-#include <sys/time.h>
-#include <nano-X.h>
 #include "doomdef.h"
 #include "m_misc.h"
 #include "i_video.h"
 #include "i_sound.h"
 #include "d_net.h"
 #include "g_game.h"
+#include "sys_time.h"
+#include "nano-X.h"
 
 #ifdef __GNUG__
 #pragma implementation "i_system.h"

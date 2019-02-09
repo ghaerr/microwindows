@@ -945,7 +945,7 @@ RECOGNIZER_FINALIZE(r)
 #else
 #include <values.h>
 #endif
-#include <sys/time.h>
+#include "sys_time.h"
 
 #ifdef	__ultrix
 /* Ultrix doesn't have these declarations in math.h! */

@@ -26,8 +26,6 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #include <stdlib.h>
 #include <alloca.h>
-#define MWINCLUDECOLORS
-#include <nano-X.h>
 #include "m_swap.h"
 #include "doomstat.h"
 #include "i_system.h"
@@ -35,6 +33,8 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include "m_argv.h"
 #include "d_main.h"
 #include "doomdef.h"
+#define MWINCLUDECOLORS
+#include "nano-X.h"
 
 static GR_WINDOW_ID	win;
 static GR_GC_ID		gc;

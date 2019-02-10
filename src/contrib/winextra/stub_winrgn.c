@@ -1,6 +1,7 @@
 /* stub_winrgn.c*/
 #include "windows.h"
 #include "winextra.h"
+#include "device.h"			/* for GdUnionRectWithRegion*/
 
 int WINAPI GetClipBox(HDC    hdc, LPRECT lprect)
 {

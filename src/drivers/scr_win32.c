@@ -415,7 +415,7 @@ win32_preselect(PSD psd)
 
 		/* reset update region*/
 		upminX = upminY = MAX_MWCOORD;
-		upmaxX = upmaxY = MIN_MCOORD;
+		upmaxX = upmaxY = MIN_MWCOORD;
 	}
 
 	/* return nonzero if SDL event available*/

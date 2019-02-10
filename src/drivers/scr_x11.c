@@ -701,7 +701,7 @@ X11_preselect(PSD psd)
 
 		/* reset update region*/
 		upminX = upminY = MAX_MWCOORD;
-		upmaxX = upmaxY = MIN_MCOORD;
+		upmaxX = upmaxY = MIN_MWCOORD;
 	}
 
 	XFlush(x11_dpy);

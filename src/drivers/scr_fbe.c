@@ -163,7 +163,7 @@ fbe_preselect(PSD psd)
 
 		/* reset update region*/
 		upminX = upminY = MAX_MWCOORD;
-		upmaxX = upmaxY = MIN_MCOORD;
+		upmaxX = upmaxY = MIN_MWCOORD;
 	}
 
 	/* return nonzero if subsystem events available and driver uses PSF_CANTBLOCK*/

@@ -58,7 +58,7 @@ float allegro_zoom = ALLEGRO_ZOOM;
 ALLEGRO_EVENT_QUEUE *allegro_kbdqueue;
 ALLEGRO_EVENT_QUEUE *allegro_mouqueue;
 ALLEGRO_EVENT_QUEUE *allegro_scrqueue;
-static ALLEGRO_DISPLAY *display;
+ALLEGRO_DISPLAY *allegro_display;
 static ALLEGRO_BITMAP *scrmem;
 static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* aggregate update region bounding rect*/
 static MWPALENTRY palette[256];
@@ -78,15 +78,15 @@ init_allegro(void)
 	//al_set_new_display_option(ALLEGRO_COLOR_SIZE,32,ALLEGRO_SUGGEST);
 	//al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP,1,ALLEGRO_REQUIRE);
 
-	display = al_create_display(SCREEN_WIDTH*allegro_zoom, SCREEN_HEIGHT*allegro_zoom);
+	allegro_display = al_create_display(SCREEN_WIDTH*allegro_zoom, SCREEN_HEIGHT*allegro_zoom);
 	scrmem = al_create_bitmap(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	if(display == NULL)
+	if(allegro_display == NULL)
 	{
 		EPRINTF("Error!, Failed to create the display.");
 		return 0;
 	}
-	al_set_system_mouse_cursor(display,ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+	al_set_system_mouse_cursor(allegro_display,ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
 	if(!al_install_keyboard())
 	{
@@ -125,7 +125,7 @@ init_allegro(void)
 		EPRINTF("Error!, Failed to create the display event queue.");
 		return 0;
 	}
-	al_register_event_source(allegro_scrqueue, al_get_display_event_source(display));
+	al_register_event_source(allegro_scrqueue, al_get_display_event_source(allegro_display));
 
 #if ANDROID
 	if(!al_install_touch_input())
@@ -143,7 +143,7 @@ init_allegro(void)
 	al_android_set_apk_file_interface();
 #endif
 
-	al_hide_mouse_cursor(display);		/* turn off allegro cursor*/
+	al_hide_mouse_cursor(allegro_display);		/* turn off allegro cursor*/
 
 	return 1;
 }
@@ -192,7 +192,7 @@ allegro_open(PSD psd)
 static void
 allegro_close(PSD psd)
 {
-    al_destroy_display(display);
+    al_destroy_display(allegro_display);
     al_destroy_event_queue(allegro_kbdqueue);
     al_destroy_event_queue(allegro_mouqueue);
     al_destroy_event_queue(allegro_scrqueue);
@@ -267,20 +267,20 @@ allegro_preselect(PSD psd)
 
 		/* reset update region*/
 		upminX = upminY = MAX_MWCOORD;
-		upmaxX = upmaxY = MIN_MCOORD;
+		upmaxX = upmaxY = MIN_MWCOORD;
 	}
 
 	if(al_is_bitmap_locked(scrmem))
 	{
 		al_unlock_bitmap(scrmem);
-		al_set_target_bitmap(al_get_backbuffer(display));
+		al_set_target_bitmap(al_get_backbuffer(allegro_display));
 		al_draw_scaled_rotated_bitmap(scrmem, 0, 0, 0, 0, allegro_zoom, allegro_zoom, 0, 0);
 		al_flip_display();
 
-#if MACOSX
+#if 0 // MACOSX test
 		/* experimental fix for dual mouse cursor on OSX*/
-		al_show_mouse_cursor(display);		/* turn on allegro cursor*/
-		al_hide_mouse_cursor(display);		/* turn off allegro cursor*/
+		al_show_mouse_cursor(allegro_display);		/* turn on allegro cursor*/
+		al_hide_mouse_cursor(allegro_display);		/* turn off allegro cursor*/
 #endif
 	}
 

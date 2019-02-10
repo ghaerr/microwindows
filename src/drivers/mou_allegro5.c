@@ -30,6 +30,7 @@ MOUSEDEVICE mousedev = {
 	mallegro_Poll,
 };
 
+extern ALLEGRO_DISPLAY *allegro_display;
 extern ALLEGRO_EVENT_QUEUE *allegro_mouqueue;
 extern float allegro_zoom;
 
@@ -105,7 +106,13 @@ mallegro_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
         break;
 
     case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+		al_hide_mouse_cursor(allegro_display);		/* turn off allegro cursor*/
+        return MOUSE_NODATA;
+
     case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+		al_show_mouse_cursor(allegro_display);		/* turn on allegro cursor*/
+        return MOUSE_NODATA;
+
     default:
         return MOUSE_NODATA;
 	}

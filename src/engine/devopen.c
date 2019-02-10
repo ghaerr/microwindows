@@ -365,7 +365,7 @@ GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
 		B = rgb->b - b;
 #if 1
 		/* speedy linear distance method*/
-		sq = abs(R) + abs(G) + abs(B);
+		sq = MWABS(R) + MWABS(G) + MWABS(B);
 #else
 		/* slower distance-cubed with luminance adjustment*/
 		/* gray is .30R + .59G + .11B*/

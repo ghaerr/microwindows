@@ -1,5 +1,6 @@
+	* min/max fixups
 9 Feb 2019
-	* moved all configurable options to new include/mwconfig.h
+	* moved all configurable options to new include/mwconfig.h for visual environment make
 	* header file cleanup, removed unneeded and nested #includes
 	* remove device.h from windows.h/nxlib.h, remove mwsystem.h, use stdlib.h for malloc
 	* remove src/winextra/sys/time.h (src now uses "sys_time.h"), cleanup USE_ALLOCA

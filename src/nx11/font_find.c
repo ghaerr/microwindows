@@ -412,14 +412,6 @@ DPRINTF("font_enumfonts: return count %d\n", count);
 }
 
 /* nxlib LoadFont.c*/
-#ifndef min
-static int
-min(int a, int b)
-{
-	return (a < b)? a: b;
-}
-#endif
-
 static int
 prefix(const char *prestr, char *allstr)
 {
@@ -614,7 +606,7 @@ DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", fontspec, xlfd, p
 				 	 * with passed     "...normal--12-0-0-0-0-..."
 				 	 * for height 12.
 				 	 */
-					len = min(strlen(xlfd), strlen(fontspec));
+					len = MWMIN(strlen(xlfd), strlen(fontspec));
 
 					/* match before and after height at '--0-' in XLFD string*/
 					for (j = 0; j < len && dashcount < 8; j++) {
@@ -706,7 +698,7 @@ DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", xlfd, fontspec, s
 				 	 * with passed     "...normal--12-0-0-0-0-..."
 				 	 * for height 12.
 				 	 */
-					len = min(strlen(xlfd), strlen(fontspec));
+					len = MWMIN(strlen(xlfd), strlen(fontspec));
 
 					/* match before and after height at '--0-' in XLFD string*/
 					for (j = 0; j < len && dashcount < 8; j++) {

@@ -106,7 +106,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 		if (plogfont->lfUnderline)
 			fontattr = MWTF_UNDERLINE;
 	}
-	height = abs(height);			/* FIXME win32 height < 0 specifies character height not cell height*/
+	height = MWABS(height);		/* FIXME win32 height < 0 specifies character height not cell height*/
 
 	/* check builtin fonts first for speed*/
  	if (!height && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
@@ -176,7 +176,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 #if HAVE_FREETYPE_2_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_FREETYPE) {
 		/* FIXME auto antialias for height > 14 for kaffe*/
-		if (plogfont && abs(plogfont->lfHeight) > FT_MINAA_HEIGHT && plogfont->lfQuality)
+		if (plogfont && MWABS(plogfont->lfHeight) > FT_MINAA_HEIGHT && plogfont->lfQuality)
 				fontattr |= MWTF_ANTIALIAS;
 
 		pfont = (PMWFONT)freetype2_createfont(fontname, height, width, fontattr);
@@ -255,14 +255,14 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
  	if (height != 0 && (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_BUILTIN)) {
 		/* find builtin font closest in height*/
 		fontno = 0;
-		height = abs(height);
+		height = MWABS(height);
 		fontht = MAX_MWCOORD;
 		for(i = 0; i < scrinfo.fonts; ++i) {
 			pfont = (PMWFONT)&pf[i];
 			GdGetFontInfo(pfont, &fontinfo);
-			if(fontht > abs(height-fontinfo.height)) { 
+			if(fontht > MWABS(height-fontinfo.height)) { 
 				fontno = i;
-				fontht = abs(height-fontinfo.height);
+				fontht = MWABS(height-fontinfo.height);
 			}
 		}
 		pf[fontno].fontsize = pf[fontno].cfont->height;

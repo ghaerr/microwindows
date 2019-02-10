@@ -161,8 +161,8 @@ MwTranslateMouseMessage(HWND hwnd,UINT msg,int hittest,int buttons)
 		if((hwnd->pClass->style & CS_DBLCLKS) &&
 		    msg == lastmsg && hwnd == lasthwnd &&
 		    tick - lasttick < DBLCLICKSPEED &&
-		    abs(cursorx-lastx) < mwSYSMETRICS_CXDOUBLECLK &&
-		    abs(cursory-lasty) < mwSYSMETRICS_CYDOUBLECLK)
+		    MWABS(cursorx-lastx) < mwSYSMETRICS_CXDOUBLECLK &&
+		    MWABS(cursory-lasty) < mwSYSMETRICS_CYDOUBLECLK)
 			msg += (WM_LBUTTONDBLCLK - WM_LBUTTONDOWN);
 		lastmsg = msg;
 		lasthwnd = hwnd;

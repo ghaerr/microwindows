@@ -134,8 +134,8 @@ CreateRoundRectRgn( INT left, INT top, INT right, INT bottom,
     if (left > right) { INT tmp = left; left = right; right = tmp; }
     if (top > bottom) { INT tmp = top; top = bottom; bottom = tmp; }
 
-    ellipse_width = abs(ellipse_width);
-    ellipse_height = abs(ellipse_height);
+    ellipse_width = MWABS(ellipse_width);
+    ellipse_height = MWABS(ellipse_height);
 
     /* Create region */
 

@@ -1,12 +1,6 @@
 #include "nxlib.h"
 #include <stdlib.h>
 
-#ifndef min
-static int min(int a, int b)
-{
-	return (a < b)? a: b;
-}
-#endif
 /* Calculate the cursor from the given pixmap */
 GR_CURSOR_ID
 _nxCreateCursor(GR_WINDOW_ID cursor, GR_RECT * cbb,
@@ -18,14 +12,14 @@ _nxCreateCursor(GR_WINDOW_ID cursor, GR_RECT * cbb,
 	GR_CURSOR_ID cursorid;
 
 	/* force cursor size to max Microwindows size*/
-	w = min(cbb->width, MWMAX_CURSOR_SIZE);
-	h = min(cbb->height, MWMAX_CURSOR_SIZE);
+	w = MWMIN(cbb->width, MWMAX_CURSOR_SIZE);
+	h = MWMIN(cbb->height, MWMAX_CURSOR_SIZE);
 	bcursor = GrNewBitmapFromPixmap(cursor, cbb->x, cbb->y, w, h);
 	if (!bcursor)
 		return 0;
 
-	w = min(mbb->width, MWMAX_CURSOR_SIZE);
-	h = min(mbb->height, MWMAX_CURSOR_SIZE);
+	w = MWMIN(mbb->width, MWMAX_CURSOR_SIZE);
+	h = MWMIN(mbb->height, MWMAX_CURSOR_SIZE);
 	bmask = GrNewBitmapFromPixmap(mask, mbb->x, mbb->y, w, h);
 	if (!bmask) {
 		free(bcursor);

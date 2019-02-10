@@ -644,7 +644,7 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 
 		/* negative left bearing not handled*/
 		//if (metrics[i].leftBearing < 0)
-			//width += abs(metrics[i].leftBearing);
+			//width += MWABS(metrics[i].leftBearing);
 
 		/* handle space and other cases where width > rightBearing*/
 		if (metrics[i].width > width)
@@ -698,7 +698,7 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 
 		/* negative left bearing not handled*/
 		//if (metrics[i].leftBearing < 0)
-			//width += abs(metrics[i].leftBearing);
+			//width += MWABS(metrics[i].leftBearing);
 
 		/* handle space and other cases where width > rightBearing*/
 		if (metrics[i].width > width)

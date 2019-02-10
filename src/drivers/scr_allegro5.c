@@ -30,9 +30,6 @@ static void allegro_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width,
 static int  allegro_preselect(PSD psd);
 static int allegro_pollevents(void);
 
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
 	gen_fonts,
@@ -265,12 +262,12 @@ static int
 allegro_preselect(PSD psd)
 {
 	/* perform single blit update of aggregate update region to allegro lib*/
-	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
+	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX >= 0 || upmaxY >= 0)) {
 		allegro_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
 
 		/* reset update region*/
-		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
-		upmaxX = upmaxY = 0;
+		upminX = upminY = MAX_MWCOORD;
+		upmaxX = upmaxY = MIN_MCOORD;
 	}
 
 	if(al_is_bitmap_locked(scrmem))
@@ -303,10 +300,10 @@ allegro_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	/* window moves require delaying updates until preselect for speed*/
 	if ((psd->flags & PSF_DELAYUPDATE)) {
 			/* calc aggregate update rectangle*/
-			upminX = min(x, upminX);
-			upminY = min(y, upminY);
-			upmaxX = max(upmaxX, x+width-1);
-			upmaxY = max(upmaxY, y+height-1);
+			upminX = MWMIN(x, upminX);
+			upminY = MWMIN(y, upminY);
+			upmaxX = MWMAX(upmaxX, x+width-1);
+			upmaxY = MWMAX(upmaxY, y+height-1);
 	} else
 		allegro_draw(psd, x, y, width, height);
 }

@@ -421,10 +421,10 @@ XUnionRegion(reg1, reg2, newReg)
     miRegionOp (newReg, reg1, reg2, (voidProcp) miUnionO, 
     		(voidProcp) miUnionNonO, (voidProcp) miUnionNonO);
 
-    newReg->extents.x1 = min(reg1->extents.x1, reg2->extents.x1);
-    newReg->extents.y1 = min(reg1->extents.y1, reg2->extents.y1);
-    newReg->extents.x2 = max(reg1->extents.x2, reg2->extents.x2);
-    newReg->extents.y2 = max(reg1->extents.y2, reg2->extents.y2);
+    newReg->extents.x1 = MWMIN(reg1->extents.x1, reg2->extents.x1);
+    newReg->extents.y1 = MWMIN(reg1->extents.y1, reg2->extents.y1);
+    newReg->extents.x2 = MWMAX(reg1->extents.x2, reg2->extents.x2);
+    newReg->extents.y2 = MWMAX(reg1->extents.y2, reg2->extents.y2);
 
     return 1;
 }

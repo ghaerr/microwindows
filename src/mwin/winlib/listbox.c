@@ -839,8 +839,7 @@ lstSetVScrollInfo(HWND hwnd, PLISTBOXDATA pData, BOOL fRedraw)
 	si.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
 	si.nMax = pData->itemCount - 1;
 	si.nMin = 0;
-	si.nPage =
-		min(pData->itemVisibles, (pData->itemCount - pData->itemTop));
+	si.nPage = min(pData->itemVisibles, (pData->itemCount - pData->itemTop));
 	si.nPos = pData->itemTop;
 
 	SetScrollInfo(hwnd, SB_VERT, &si, fRedraw);

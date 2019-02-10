@@ -262,18 +262,16 @@ typedef unsigned short	MWIMAGEBITS;/* bitmap image unit size*/
 typedef uint32_t		MWTIMEOUT;	/* timeout value */
 typedef uint32_t		MWTEXTFLAGS;/* MWTF_ text flag*/
 
-#define MWCOORD_MAX	0x7fff		/* maximum coordinate value*/
-#define MWCOORD_MIN	(-MWCOORD_MAX)	/* minimum coordinate value*/
-
 /* max char height/width must be >= 16 and a multiple of sizeof(MWIMAGEBITS)*/
 #define MAX_CHAR_HEIGHT	128			/* maximum text bitmap height*/
 #define MAX_CHAR_WIDTH	128			/* maximum text bitmap width*/
-#define	MIN_MWCOORD	((MWCOORD) -32768)	/* minimum coordinate value */
-#define	MAX_MWCOORD	((MWCOORD) 32767)	/* maximum coordinate value */
+#define MIN_MWCOORD ((MWCOORD) (1 << ((sizeof(MWCOORD)*8)-1))) /* min coordinate value*/
+#define MAX_MWCOORD ((MWCOORD) ~(MIN_MWCOORD))	/* max coordinate value*/
 
 #ifndef TRUE
 #define TRUE			1
 #endif
+
 #ifndef FALSE
 #define FALSE			0
 #endif

@@ -328,8 +328,8 @@ typedef struct _ScanLineListBlock {
 
 
 
-#define LARGE_COORDINATE  MWCOORD_MAX
-#define SMALL_COORDINATE  MWCOORD_MIN
+#define LARGE_COORDINATE  MAX_MWCOORD
+#define SMALL_COORDINATE  MIN_MWCOORD
 
 /*
  *     REGION_InsertEdgeInET

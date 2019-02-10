@@ -137,9 +137,6 @@ fbe_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
  * SAMPLE UNWORKING CODE, requires dstpixels and dstpitch initialization below.
  */
 
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-
 /* bounding rectangle for aggregrate screen update*/
 static MWCOORD upminX, upminY, upmaxX, upmaxY;
 
@@ -161,12 +158,12 @@ static int
 fbe_preselect(PSD psd)
 {
 	/* perform single blit update of aggregate update region*/
-	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
+	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX >= 0 || upmaxY >= 0)) {
 		fbe_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
 
 		/* reset update region*/
-		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
-		upmaxX = upmaxY = 0;
+		upminX = upminY = MAX_MWCOORD;
+		upmaxX = upmaxY = MIN_MCOORD;
 	}
 
 	/* return nonzero if subsystem events available and driver uses PSF_CANTBLOCK*/
@@ -185,10 +182,10 @@ fbe_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	/* window moves require delaying updates until preselect for speed*/
 	if ((psd->flags & PSF_DELAYUPDATE)) {
 			/* calc aggregate update rectangle*/
-			upminX = min(x, upminX);
-			upminY = min(y, upminY);
-			upmaxX = max(upmaxX, x+width-1);
-			upmaxY = max(upmaxY, y+height-1);
+			upminX = MWMIN(x, upminX);
+			upminY = MWMIN(y, upminY);
+			upmaxX = MWMAX(upmaxX, x+width-1);
+			upmaxY = MWMAX(upmaxY, y+height-1);
 	} else
 		fbe_draw(psd, x, y, width, height);
 }

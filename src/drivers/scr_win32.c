@@ -397,10 +397,10 @@ win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	/* window moves require delaying updates until preselect for speed*/
 	if ((psd->flags & PSF_DELAYUPDATE)) {
 			/* calc aggregate update rectangle*/
-			upminX = min(x, upminX);
-			upminY = min(y, upminY);
-			upmaxX = max(upmaxX, x+width-1);
-			upmaxY = max(upmaxY, y+height-1);
+			upminX = MWMIN(x, upminX);
+			upminY = MWMIN(y, upminY);
+			upmaxX = MWMAX(upmaxX, x+width-1);
+			upmaxY = MWMAX(upmaxY, y+height-1);
 	} else
 		win32_draw(psd, x, y, width, height);
 }
@@ -410,12 +410,12 @@ static int
 win32_preselect(PSD psd)
 {
 	/* perform single blit update of aggregate update region to SDL server*/
-	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX || upmaxY)) {
+	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX >= 0 || upmaxY >= 0)) {
 		win32_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
 
 		/* reset update region*/
-		upminX = upminY = ~(1 << ((sizeof(int)*8)-1));	// largest positive int
-		upmaxX = upmaxY = 0;
+		upminX = upminY = MAX_MWCOORD;
+		upmaxX = upmaxY = MIN_MCOORD;
 	}
 
 	/* return nonzero if SDL event available*/

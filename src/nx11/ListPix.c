@@ -1,4 +1,5 @@
 #include "nxlib.h"
+#include <stdlib.h>
 
 XPixmapFormatValues *
 XListPixmapFormats(Display *dpy, int *count)

@@ -6,7 +6,6 @@
 * Georg Potthast 2018 */
 
 #include <windows.h>
-#include <unistd.h>
 #include "../../images/demos/mwin/mwdialog/mwdialog.h" //defines e.g. IDD_DLGMAIN
 
 #define ID_BUTTON 10   //specified in the resource file

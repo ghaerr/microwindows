@@ -10,28 +10,16 @@
  *
  * Portions Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  */
-
-/*Dokumentation:
-CreateDialogIndirectParam function: (see remarks)
-https://web.archive.org/web/20140419194756/http://msdn.microsoft.com:80/en-us/library/ms645441(v=vs.85).aspx
-DLGTEMPLATE structure:
-https://web.archive.org/web/20160921091028/https://msdn.microsoft.com/en-us/library/ms645394(v=VS.85).aspx
-DLGITEMTEMPLATE structure:
-https://web.archive.org/web/20160329205358/https://msdn.microsoft.com/en-us/library/ms644997(v=vs.85).aspx
-DialogBoxIndirectParam function:
-https://web.archive.org/web/20140417222151/http://msdn.microsoft.com:80/en-us/library/ms645461(v=vs.85).aspx
-*/
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"		/* windef.h, winuser.h */
 #include "wintools.h"
 #include "wintern.h"
-#include "device.h"
+#include "mwconfig.h"		/* for DPRINTF/EPRINTF*/
 
 #define DEFAULT_FONT			DEFAULT_GUI_FONT
 #define DEFDLG_FONT_QUALITY		ANTIALIASED_QUALITY

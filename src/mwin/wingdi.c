@@ -23,7 +23,7 @@ BOOL mwERASEMOVE = FALSE;	/* default ERASEMOVE repaint algorithm*/
 #endif
 
 /* current encoding for non-wide char text functions*/
-long mwTextCoding = MWTF_UTF8;	/* usually MWTF_ASCII or MWTF_UTF8*/
+LONG mwTextCoding = MWTF_UTF8;	/* usually MWTF_ASCII or MWTF_UTF8*/
 
 static HDC	cliphdc;	/* current window cliprects*/
 
@@ -793,8 +793,8 @@ FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
 
 
 /* set current input coding*/
-void
-MwSetTextCoding(long mode)
+void WINAPI
+MwSetTextCoding(LONG mode)
 {
 	mwTextCoding = mode;
 }

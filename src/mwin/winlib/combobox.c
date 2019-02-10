@@ -36,11 +36,8 @@
 #include <string.h>
 #include "windows.h"
 #include "windowsx.h"
-#include "mwsystem.h"
 #include "wintools.h"
-
-#define WinMalloc(n)	malloc((n))
-#define WinFree(p)	free(p)
+#include "mwconfig.h"		/* for DPRINTF*/
 
 #define GET_WM_COMMAND_ID(wp, lp)               LOWORD(wp)
 #define GET_WM_COMMAND_HWND(wp, lp)             (HWND)(lp)
@@ -335,7 +332,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 #endif
     case WM_CREATE:            /* WM_NCCREATE: */
-        lp = (COMBOBOX *) WinMalloc(sizeof(COMBOBOX));
+        lp = (COMBOBOX *) malloc(sizeof(COMBOBOX));
         memset((LPSTR) lp, '\0', sizeof(COMBOBOX));
 
         /* save ptr to internal structure */
@@ -524,7 +521,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             DestroyWindow(lp->ListBoxControl);
         if (IsWindow(lp->EditControl))
             DestroyWindow(lp->EditControl);
-        WinFree((LPSTR) lp);
+        free((LPSTR) lp);
         return 0L;
 
     case WM_GETDLGCODE:
@@ -1169,13 +1166,13 @@ DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (len <= 0)
             return CB_ERR;
 
-        selection = (LPSTR) WinMalloc((UINT) len + 1);
+        selection = (LPSTR) malloc((UINT) len + 1);
         rc = (int)SendMessage(lp->ListBoxControl, LB_GETTEXT, (WPARAM) index, (LPARAM) selection);
         if (lp->EditControl)
             rc = (int)SendMessage(lp->EditControl, WM_SETTEXT, 0, (LPARAM) selection);
         else
             CBoxDrawStatic(lp, hWnd, index);
-        WinFree(selection);
+        free(selection);
         break;
 
     case CB_SETCURSEL:
@@ -1186,13 +1183,13 @@ DefCBProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (len <= 0)
             return CB_ERR;
 
-        selection = (LPSTR) WinMalloc((UINT) len + 1);
+        selection = (LPSTR) malloc((UINT) len + 1);
         rc = (int)SendMessage(lp->ListBoxControl, LB_GETTEXT, wParam, (LPARAM) selection);
         if (lp->EditControl)
             rc = (int)SendMessage(lp->EditControl, WM_SETTEXT, 0, (LPARAM) selection);
         else
             CBoxDrawStatic(lp, hWnd, wParam);
-        WinFree(selection);
+        free(selection);
         return (LRESULT) wParam;
 
     case CB_SETEXTENDEDUI:
@@ -1431,11 +1428,11 @@ CBoxDrawEdit(COMBOBOX * lp, HWND hWnd, UINT uiKey)
         nLen = (int)SendMessage(lp->ListBoxControl, LB_GETTEXTLEN, uiKey, 0L);
         if (nLen <= 0)
             return;
-        lpData = (LPVOID) WinMalloc(nLen + 1);
+        lpData = (LPVOID) malloc(nLen + 1);
         SendMessage(lp->ListBoxControl, LB_GETTEXT, uiKey, (LPARAM) lpData);
         SendMessage(lp->EditControl, WM_SETTEXT, strlen(lpData), (LPARAM) lpData);
         Edit_SetSel(lp->EditControl, 0, -1);
-        WinFree((LPSTR) lpData);
+        free((LPSTR) lpData);
     }
 #if 0                           /* jmt: fix: no ownerdraw */
     else {
@@ -1502,7 +1499,7 @@ CBoxDrawStatic(COMBOBOX * lp, HWND hWnd, UINT uiKey)
         hdc = GetDC(hWnd);
         nLen = (int)SendMessage(lp->ListBoxControl, LB_GETTEXTLEN, (WPARAM) uiKey, 0L);
         if (nLen > 0) {
-            lpData = (LPVOID) WinMalloc(nLen + 1);
+            lpData = (LPVOID) malloc(nLen + 1);
             SendMessage(lp->ListBoxControl, LB_GETTEXT, uiKey, (LPARAM) lpData);
             SetBkMode(hdc, TRANSPARENT);
             if (!IS_SET(lp, CSF_FOCUS)) {
@@ -1525,7 +1522,7 @@ CBoxDrawStatic(COMBOBOX * lp, HWND hWnd, UINT uiKey)
             DrawText(hdc, (LPSTR) lpData, nLen, &rcClient, DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
             if (lp->hFont)
                 SelectObject(hdc, hfonOld);
-            WinFree((LPVOID) lpData);
+            free((LPVOID) lpData);
         }
         ReleaseDC(hWnd, hdc);
     }

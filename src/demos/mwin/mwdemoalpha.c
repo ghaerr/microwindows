@@ -6,8 +6,9 @@
  * This demo requires UPDATEREGIONS=N in microwin/src/config
  */
 #include "windows.h"
-#include "wintern.h"		/* for MwSetDesktopWallpaper*/
+#include "wintern.h"
 #include "wintools.h"
+#include <string.h>
 
 extern MWIMAGEHDR image_car8;
 

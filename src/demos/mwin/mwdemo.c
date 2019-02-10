@@ -8,10 +8,10 @@
  *                  for new Timers features.
  */
 #include <time.h>
+#include <stdlib.h>
 #include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"
-#include "wintern.h"		/* for MwSetDesktopWallpaper*/
 #include "device.h"
 
 #if DOS_TURBOC

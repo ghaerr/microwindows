@@ -10,99 +10,14 @@
  */
 #define MWINCLUDECOLORS			/* bring in color conversion macros*/
 #include "mwtypes.h"			/* public export typedefs*/
-#include "mwsystem.h"			/* includes <stdlib.h> for malloc, GdMalloc defs*/
+#include "mwconfig.h"			/* configurable options*/
+
+#if MW_FEATURE_TIMERS
+#include "sys_time.h"			/* struct timeval*/
+#endif
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-/* Changeable limits and options*/
-#define UNIFORMPALETTE	1	/* =1 for 256 entry uniform palette (required for palette alpha blending)*/
-#define POLYREGIONS		1		/* =1 includes polygon regions*/
-#define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
-#define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
-#define DEBUG_EXPOSE	0		/* =1 to flash yellow before painting expose areas*/
-#define DEBUG_BLIT		0		/* =1 to flash brown before painting areas with convblit*/
-
-/* obsolete features*/
-#define FONTMAPPER	0			/* =1 for Morten's font mapper*/
-#define OLD_TEXT	0			/* =1 for old text draw in wingdi.c::mwDrawText() & static.c*/
-
-/* the following defines are unset in Arch.rules based on ARCH= setting*/
-#ifndef HAVE_SELECT
-#define HAVE_SELECT		1		/* =1 has select system call*/
-#endif
-
-#ifndef HAVE_SIGNAL
-#define HAVE_SIGNAL		1		/* =1 has signal system call*/
-#endif
-
-#ifndef HAVE_MMAP
-#define HAVE_MMAP       1       /* =1 has mmap system call*/
-#endif
-
-/* control whether printf/fprintf required in server and demo programs and C library*/
-/* if this is set to =0 in Arch.rules, fprintf/printf will be no-op in all demo programs,*/
-/* and in the server GdError will be called, which calls write() if HAVE_FILEIO=Y in config*/
-#ifndef HAVE_FPRINTF
-#define HAVE_FPRINTF	1		/* =1 EPRINTF/DPRINTF uses fprintf/printf, otherwise GdError or no-op*/
-#endif
-
-#ifndef HAVE_FLOAT
-#define HAVE_FLOAT		1		/* =1 incl float, GdArcAngle*/
-#endif
-
-/* the following enable Microwindows features, also unset in Arch.rules*/
-#ifndef MW_FEATURE_IMAGES
-#define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage/GdDrawImage etc*/
-#endif
-
-#ifndef MW_FEATURE_TIMERS
-#define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
-#endif
-
-#ifndef MW_FEATURE_TWO_KEYBOARDS
-#define MW_FEATURE_TWO_KEYBOARDS 0	/* =1 to include multiple keybioard support */
-#endif
-
-#ifndef DYNAMICREGIONS
-#define DYNAMICREGIONS	1		/* =1 to use MWCLIPREGIONS*/
-#endif
-
-/* determine compiler capability for handling EPRINTF/DPRINTF macros*/
-#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2)))
-#define HAVE_VARARG_MACROS	1
-#else
-#define HAVE_VARARG_MACROS	0
-#endif
-
-/* see if can use GCC compiler-only macro magic to save space */
-#if HAVE_VARARG_MACROS && HAVE_FPRINTF
-#include <stdio.h>    				/* For stderr */
-#define EPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* error output*/
-#if DEBUG
-#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
-#else
-#define DPRINTF(str, ...)			/* no debug output*/
-#endif
-
-#else	/* must call GdError*/
-
-#define EPRINTF			GdError		/* error output*/
-#if DEBUG
-# define DPRINTF		GdError		/* debug output*/
-#else
-# if HAVE_VARARG_MACROS
-# define DPRINTF(str, ...)			/* no debug output*/
-# else
-# define DPRINTF		GdErrorNull	/* no debug output*/
-# endif
-#endif
-
-#endif /* HAVE_VARARG_MACROS && HAVE_FPRINTF*/
-
-/* Sanity check: VTSWITCH involves a timer. */
-#if VTSWITCH && !MW_FEATURE_TIMERS
-#error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in Arch.rules
 #endif
 
 typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
@@ -503,13 +418,10 @@ void	ts_fillrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h);
 void	set_ts_origin(int x, int y);
 
 #if MW_FEATURE_TIMERS
-#include "sys_time.h"			/* struct timeval*/
-
-typedef void (*MWTIMERCB)(void *);
-
 #define  MWTIMER_ONESHOT         0 
 #define  MWTIMER_PERIODIC        1
 
+typedef void (*MWTIMERCB)(void *);
 typedef struct mw_timer MWTIMER;
 struct mw_timer {
 	struct timeval	timeout;
@@ -522,29 +434,12 @@ struct mw_timer {
 };
 
 MWTIMER		*GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
-MWTIMER         *GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
+MWTIMER		*GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
 void		GdDestroyTimer(MWTIMER *timer);
 MWTIMER		*GdFindTimer(void *arg);
 MWBOOL		GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout);
 MWBOOL		GdTimeout(void);
-
 #endif /* MW_FEATURE_TIMERS */
-
-/* error.c*/
-int	GdError(const char *format, ...);
-int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
-
-/* no assert() in MSDOS or ELKS...*/
-#if MSDOS | ELKS | PSP
-#undef assert
-#define assert(x)
-#endif
-
-#if RTEMS
-  /* RTEMS requires rtems_main()*/
-  int rtems_main(int, char **);
-  #define main	rtems_main
-#endif
 
 #ifdef __cplusplus
 } // extern "C"

@@ -22,6 +22,8 @@ See Configs/config.winextra for configuration details
 -DSCREEN_WIDTH=1400
 -DSCREEN_HEIGHT=1400
 
+**Take a look at include/mwconfig.h for all available options.
+
 2. Edit include/mwtypes.h for:
 PACKEDDATA
 
@@ -32,7 +34,7 @@ Add STDCALL if you have to to various non-WINAPI functions in mwin/*.c
 
 4. Add additional *.h files to contrib/winextra for automatic compiler search
 	Add header to contrib/winextra/winextra.h for automatic windows.h inclusion
-	#include "uni_std.h" before device.h to get special alloca and other handling
+	#include "uni_std.h" to get special alloca and other MSC routine handling
 
 5. Changes (Rooz look at these)
 include/mwtypes.h	MWBUTTON fix
@@ -50,11 +52,9 @@ mwin/winuser.c		__stdcall review, -> STDCALL
 					WINAPI Fixes
 
 6. Problem areas (Greg will think about, likely change will be rejected)
-include/winctl.h	#pragma once
 include/winfont.h	LOGFONT - not deleted, LOGFONTA/LOGFONTW in winextra/
 include/wingdi.h	can't delete PACKEDDATA in BITMAPINFOHEADER
-include/winuser.h	can't include mwtypes.h
-					shouldnt use pragma pack(1) for WNDCLASSA or MSG
+include/winuser.h	shouldnt use pragma pack(1) for WNDCLASSA or MSG
 					not sure about __stdcall fixes
 mwin/winfont.c		need to review device to world transformations
 mwin/winrgn.c		need to review ExtCreateRegion, GetWorldTransform

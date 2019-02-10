@@ -11,6 +11,7 @@
 #include "wintern.h"
 #include "device.h"
 #include "wintools.h"		/* Draw3dBox, etc*/
+#include <stdlib.h>
 #include <string.h>
 
 /* desktop wallpaper image*/
@@ -21,7 +22,7 @@ static void	GetCloseBoxRect(HWND hwnd, LPRECT lprc);
 static void	DrawXORFrame(HWND hwnd,int x, int y, BOOL bDrawCurrent);
 static RECT	lastrc;
 
-BOOL
+BOOL WINAPI
 MwSetDesktopWallpaper(PMWIMAGEHDR pImage)
 {
 	pImageWallpaper = pImage;

@@ -1,4 +1,5 @@
 #include "nxlib.h"
+#include <stdlib.h>
 
 int
 XMapWindow(Display *dpy, Window w)

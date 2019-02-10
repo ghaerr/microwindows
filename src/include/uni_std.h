@@ -1,6 +1,8 @@
 /*
  * Microwindows unistd.h
  *
+ * Required header for ALLOCA, MSC functions, strdup/strn string functions
+ *
  * Usage: replace #include <unistd.h> with "uni_std.h"
  *
  * https://stackoverflow.com/a/826027/1202830
@@ -8,6 +10,10 @@
 
 #if !defined(_MSC_VER)
 #include <unistd.h>
+
+#if __MINGW32__
+#include <malloc.h> 		/* for alloca */
+#endif
 
 #if RTEMS | PSP | __ECOS | __MINGW32__
 #define  srandom  srand

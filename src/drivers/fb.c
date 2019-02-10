@@ -17,6 +17,82 @@
 #include "genfont.h"
 #include "fb.h"
 
+#if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
+/* SCREEN_DEPTH is used only for palette modes*/
+#error SCREEN_DEPTH not defined - must be set for palette modes
+#endif
+
+/*
+ * Initialize a PSD struct for screen driver open routine
+ * Allocate framebuffer memory if PSF_ADDRMALLOC passed
+ */
+int
+gen_initpsd(PSD psd, int pixtype, MWCOORD xres, MWCOORD yres, int flags)
+{
+	PSUBDRIVER subdriver;
+
+	psd->pixtype = pixtype;				/* usually SCREEN_PIXTYPE in config*/
+	psd->xres = psd->xvirtres = xres;	/* usually SCREEN_WIDTH in config*/
+	psd->yres = psd->yvirtres = yres;	/* usually SCREEN_HEIGHT in config*/
+	psd->flags = flags;
+
+	/* use pixel format to set bpp*/
+	switch (psd->pixtype) {
+	case MWPF_TRUECOLORARGB:
+	case MWPF_TRUECOLORABGR:
+	default:
+		psd->bpp = 32;
+		break;
+
+	case MWPF_TRUECOLORRGB:
+		psd->bpp = 24;
+		break;
+
+	case MWPF_TRUECOLOR565:
+	case MWPF_TRUECOLOR555:
+		psd->bpp = 16;
+		break;
+
+	case MWPF_TRUECOLOR332:
+		psd->bpp = 8;
+		break;
+
+#if MWPIXEL_FORMAT == MWPF_PALETTE
+	case MWPF_PALETTE:
+		psd->bpp = SCREEN_DEPTH;		/* SCREEN_DEPTH in config*/
+		break;
+#endif
+	}
+	psd->planes = 1;
+
+	/* set standard data format from bpp and pixtype*/
+	psd->data_format = set_data_format(psd);
+
+	/* Calculate the correct size and pitch from xres, yres and bpp*/
+	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
+
+	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
+	psd->portrait = MWPORTRAIT_NONE;
+
+	/* select an fb subdriver matching our planes and bpp for backing store*/
+	subdriver = select_fb_subdriver(psd);
+	psd->orgsubdriver = subdriver;
+	if (!subdriver)
+		return 0;
+
+	/* set subdriver into screen driver*/
+	set_subdriver(psd, subdriver);
+
+	/*
+	 * Allocate framebuffer if requested
+	 * psd->size is calculated by subdriver init
+	 */
+	if ((flags & PSF_ADDRMALLOC) && (psd->addr = malloc(psd->size)) == NULL)
+		return 0;
+	return 1;		/* success*/
+}
+
+
 /* select a framebuffer subdriver based on planes and bpp*/
 /* modify this procedure to add a new framebuffer subdriver*/
 PSUBDRIVER 

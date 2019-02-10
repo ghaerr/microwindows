@@ -1,14 +1,13 @@
-/* Portions Copyright 2003, Jordan Crouse (jordan@cosmicpenguin.net) */
-
+/*
+ * X Image routines.  Messy.  Not done yet.
+ *
+ * Portions Copyright 2003, Jordan Crouse (jordan@cosmicpenguin.net)
+ */
 #define MWINCLUDECOLORS
 #include "nxlib.h"
 #include <stdlib.h>
 #include <string.h>
 #include "uni_std.h"
-
-/*
- * X Image routines.  Messy.  Not done yet.
- */
 
 #define READ_BIT(image, x, y)	\
 	(image->data[(y * image->bytes_per_line) + (x >> 3) ] & (1 << (x & 7)))

@@ -5,7 +5,7 @@
 #include "nxlib.h"
 #include "X11/Xutil.h"
 #include "X11/Xatom.h"
-//#include <string.h>
+#include <stdlib.h>
 
 // from GetTxtProp.c
 // required for kaffeine

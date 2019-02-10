@@ -3,6 +3,7 @@
 //---------------------------------------------------------
 
 #include "nxlib.h"
+#include <stdlib.h>
 
 int XDisplayHeight(Display *display, int screen_number)
 {

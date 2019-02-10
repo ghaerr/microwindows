@@ -10,6 +10,7 @@
  * H -> H
  */
 #include <string.h>
+#include <stdlib.h>
 #include "uni_std.h"
 #include "device.h"
 #include "fb.h"

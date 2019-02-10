@@ -11,6 +11,7 @@
  * PROGRAMMER:      Casper S. Hornstrup (chorns@users.sourceforge.net)
  *                  Thomas Weidenmueller (w3seek@users.sourceforge.net)
  */
+#include <stdlib.h>
 #include <string.h>
 #include "windows.h"
 

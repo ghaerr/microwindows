@@ -1,3 +1,5 @@
+#ifndef __WINRES_H__
+#define __WINRES_H__
 /*
  *  winres.h
  *
@@ -9,10 +11,7 @@
  * gabrielebrugnoni@dveprojects.com
  * DVE Prog. El. - Varese, Italy
  */
-#ifndef __WINRES_H__
-#define __WINRES_H__
 #include <stdio.h>	/* for FILE...*/
-#include "device.h"
 
 /*
  *  Application instance data
@@ -31,8 +30,6 @@ typedef struct tagMWAPPINSTANCE
 //  Some system functions, used by mw core
 void mwFreeInstance ( HINSTANCE hInst );
 HINSTANCE mwCreateInstance ( int argc, char *argv[] );
-
-
 
 
 #define MAKEINTRESOURCE(id)	(LPTSTR) MAKELONG((id), 0xFFFF)

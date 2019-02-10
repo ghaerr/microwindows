@@ -1,4 +1,5 @@
 #include "nxlib.h"
+#include <stdlib.h>
 
 int
 XFree (void *data)

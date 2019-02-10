@@ -130,12 +130,9 @@ typedef struct {
     short PACKEDDATA cy;
     WORD PACKEDDATA id;
 } PACKEDDATA DLGITEMTEMPLATE;
-
-typedef CONST DLGTEMPLATE *LPCDLGTEMPLATE;
 #pragma pack()
 
-
-BOOL WINAPI MwInitializeDialogs ( HINSTANCE hInstance );
+typedef CONST DLGTEMPLATE *LPCDLGTEMPLATE;
 
 BOOL WINAPI MapDialogRect ( HWND hWnd, LPRECT lpRc );
 
@@ -156,8 +153,8 @@ int WINAPI DialogBoxParam ( HINSTANCE hInstance, LPCTSTR lpTemplate,
 			    HWND hWndParent, DLGPROC lpDialogFunc,
 			    LPARAM lParam );
 
-int WINAPI DialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent,
-	       DLGPROC lpDialogFunc, LPARAM lParam);
+int WINAPI DialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate,
+	HWND hWndParent, DLGPROC lpDialogFunc, LPARAM lParam);
 
 LONG WINAPI WINAPI GetDialogBaseUnits(VOID);
 

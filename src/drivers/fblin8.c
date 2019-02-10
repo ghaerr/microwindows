@@ -14,6 +14,7 @@
 #ifndef __OPTIMIZE__
 #define __OPTIMIZE__
 #endif
+#include <stdlib.h>
 #include <string.h>
 #include "device.h"
 #include "convblit.h"

@@ -8,22 +8,16 @@
  */
 #include <stdint.h> 		/* for uint32_t, int32_t*/
 
+//#if __WORDSIZE == 64		/* use if stdint.h missing*/
+//	typedef unsigned int	uint32_t;	/* 32 bit type in 64 bit environment*/
+//	typedef int				int32_t;
+//#else
+//	typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/
+//	typedef long			int32_t;
+//#endif
+
 #if __ECOS
 #include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */
-#endif
-
-/* configurable options*/
-#define USE_ALLOCA	1			/* alloca() is available */
-
-#if 0000	/* use if stdint.h missing*/
-/* typedef 32 bit types for 16 and 64 bit environments*/
-#if __WORDSIZE == 64
-	typedef unsigned int	uint32_t;
-	typedef int				int32_t;
-#else
-	typedef unsigned long	uint32_t;
-	typedef long			int32_t;
-#endif
 #endif
 
 /* force byte-packed structures and inlining*/
@@ -35,16 +29,6 @@
 #define MWPACKED
 #define PACKEDDATA			/* FIXME for MSVC #pragma pack(1) equiv*/
 #define ALWAYS_INLINE
-#endif
-
-#if USE_ALLOCA
-/* alloca() is available, so use it for better performance */
-#define ALLOCA(size)	alloca(size)
-#define FREEA(pmem)
-#else
-/* no alloca(), so use malloc()/free() instead */
-#define ALLOCA(size)	malloc(size)
-#define FREEA(pmem)	free(pmem)
 #endif
 
 #define MICROWINDOWS	1		/* for user application options w/Microwindows*/

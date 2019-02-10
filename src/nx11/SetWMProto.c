@@ -4,6 +4,7 @@
 
 #include "nxlib.h"
 #include "X11/Xatom.h"
+#include <stdlib.h>
 
 // XSetWMProtocols sets the property
 //	WM_PROTOCOLS 	type: ATOM	format: 32
@@ -19,7 +20,6 @@ Status XSetWMProtocols(Display *dpy, Window w, Atom *protocols, int count)
 	return True;
 }
 
-//#include <stdio.h>
 Status XGetWMProtocols(Display *dpy, Window w, Atom **protocols, int *countReturn)
 {
 	Atom *data = NULL;

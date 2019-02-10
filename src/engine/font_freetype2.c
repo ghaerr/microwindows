@@ -38,7 +38,6 @@
 #include <string.h>
 #include <assert.h>
 #include <string.h>
-//#include <dirent.h>
 #include "device.h"
 #include "devfont.h"
 

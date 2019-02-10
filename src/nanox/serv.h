@@ -10,9 +10,6 @@
  * These definitions are not to be used by clients.
  */
 
-#include "mwsystem.h"
-
-
 #if __ECOS && !defined(_NO_SVR_MAPPING)
 /*
  * Since eCos is a single task, multi-threaded environment, the
@@ -127,11 +124,10 @@
 #define GrUnionRegion           SVR_GrUnionRegion
 #define GrUnmapWindow           SVR_GrUnmapWindow
 #define GrXorRegion             SVR_GrXorRegion
-#endif
+#endif /* __ECOS*/
 
 #include "nano-X.h"
 #include "device.h"
-
 
 /*
  * Define the server-side mutex code.  This is a regular mutex (as defined
@@ -142,7 +138,6 @@
 /* Use a server-side mutex. */
 
 #include "lock.h"
-
 LOCK_EXTERN(gr_server_mutex);
 
 #define SERVER_LOCK_DECLARE   LOCK_DECLARE(gr_server_mutex);
@@ -157,9 +152,7 @@ LOCK_EXTERN(gr_server_mutex);
 #define SERVER_LOCK_INIT()  do {} while(0) /* no-op, but require a ";" */
 #define SERVER_LOCK()       do {} while(0) /* no-op, but require a ";" */
 #define SERVER_UNLOCK()     do {} while(0) /* no-op, but require a ";" */
-
 #endif /* !NONETWORK*/
-
 
 /*
  * Drawing types.

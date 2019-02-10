@@ -2,6 +2,7 @@
  * Parse rgb.txt file and return color by name
  */
 #include "nxlib.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "uni_std.h"

@@ -182,7 +182,7 @@ nxFlushReq(long newsize, int reply_needed)
 
 	/* allocate larger buffer for current request, if needed*/
 	if(reqbuf.bufptr + newsize >= reqbuf.bufmax) {
-		reqbuf.buffer = GdRealloc(reqbuf.buffer, reqbuf.bufmax - reqbuf.buffer, newsize);
+		reqbuf.buffer = REALLOC(reqbuf.buffer, reqbuf.bufmax - reqbuf.buffer, newsize);
 		if(!reqbuf.buffer) {
 		       EPRINTF("nxFlushReq: Can't reallocate request buffer\n");
 			exit(1);

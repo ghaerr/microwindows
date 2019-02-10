@@ -1,10 +1,10 @@
 //---------------------------------------------------------
 //	2009 Yuichiro Nakada
 //---------------------------------------------------------
+#include <stdlib.h>
 
 #if 0
 #include <stdio.h>
-#include <stdlib.h>
 
 void* xalloc(size_t sz)
 {

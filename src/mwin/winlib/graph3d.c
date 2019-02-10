@@ -6,7 +6,7 @@
  */
 #define MWINCLUDECOLORS
 #include "windows.h"
-#include "device.h"
+#include "device.h"		/* for GdSetForegroundColor, GdFillPoly*/
 #include "graph3d.h"
 #define USEBLIT		1	/* =1 to use memDC's*/
 

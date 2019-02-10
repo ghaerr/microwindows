@@ -4,6 +4,7 @@
 
 #include "nxlib.h"
 #include <string.h>
+#include <stdlib.h>
 
 // required for opera
 int XGetPointerMapping(Display *dpy, unsigned char *map, int nmap)

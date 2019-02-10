@@ -6,6 +6,7 @@
 #include "X11/Xutil.h"
 #include "X11/Xatom.h"
 #include <string.h>
+#include <stdlib.h>
 
 // XTextPropertyToStringList - set list and count to contain data stored in
 // null-separated STRING property.

@@ -138,7 +138,7 @@ typedef struct {
 static WNDUSERFD userregfd[FD_SETSIZE];
 static int       userregfd_head;
 
-void
+void WINAPI
 MwRegisterFdInput(HWND hwnd, int fd)
 {
 	if (fd < FD_SETSIZE && fd != mouse_fd && fd != keyb_fd) {
@@ -152,7 +152,7 @@ MwRegisterFdInput(HWND hwnd, int fd)
 	}
 }
 
-void
+void WINAPI
 MwUnregisterFdInput(HWND hwnd, int fd)
 {
 	if (fd < FD_SETSIZE && fd != mouse_fd && fd != keyb_fd) {
@@ -174,7 +174,7 @@ MwUnregisterFdInput(HWND hwnd, int fd)
 	}
 }
 
-void
+void WINAPI
 MwRegisterFdOutput(HWND hwnd, int fd)
 {
 	if (fd < FD_SETSIZE && fd != mouse_fd && fd != keyb_fd) {
@@ -188,7 +188,7 @@ MwRegisterFdOutput(HWND hwnd, int fd)
 	}
 }
 
-void
+void WINAPI
 MwUnregisterFdOutput(HWND hwnd, int fd)
 {
 	if (fd < FD_SETSIZE && fd != mouse_fd && fd != keyb_fd) {
@@ -210,7 +210,7 @@ MwUnregisterFdOutput(HWND hwnd, int fd)
 	}
 }
 
-void
+void WINAPI
 MwRegisterFdExcept(HWND hwnd, int fd)
 {
 	if (fd < FD_SETSIZE && fd != mouse_fd && fd != keyb_fd) {
@@ -224,7 +224,7 @@ MwRegisterFdExcept(HWND hwnd, int fd)
 	}
 }
 
-void
+void WINAPI
 MwUnregisterFdExcept(HWND hwnd, int fd)
 {
 	if (fd < FD_SETSIZE && fd != mouse_fd && fd != keyb_fd) {

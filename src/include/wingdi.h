@@ -8,28 +8,12 @@
 #ifndef _WINGDI_H_
 #define _WINGDI_H_
 
-#include "device.h"
-
 /* portable coordinate definition*/
 typedef MWCOORD	GDICOORD;
 
 /* inherit RECT and POINT from mwtypes.h*/
 typedef MWRECT	RECT;
 typedef MWPOINT	POINT;
-
-#if 0000
-typedef struct  tagRECT {
-    GDICOORD left;
-    GDICOORD top;
-    GDICOORD right;
-    GDICOORD bottom;
-} RECT;
-
-typedef struct  tagPOINT {
-    GDICOORD x;
-    GDICOORD y;
-} POINT; 
-#endif
 
 typedef RECT NEAR *PRECT, FAR *LPRECT;
 
@@ -470,4 +454,4 @@ BOOL WINAPI SubtractRect(LPRECT dest, const RECT *src1, const RECT *src2 );
 /* GDI math stuff */
 int WINAPI MulDiv(int nMultiplicand, int nMultiplier, int nDivisor);
 
-#endif
+#endif /* _WINGDI_H_*/

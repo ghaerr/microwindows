@@ -1,4 +1,8 @@
-	* remove src/winextra/sys/time.h (all src uses "sys_time.h"), cleanup USE_ALLOCA
+9 Feb 2019
+	* moved all configurable options to new include/mwconfig.h
+	* header file cleanup, removed unneeded and nested #includes
+	* remove device.h from windows.h/nxlib.h, remove mwsystem.h, use stdlib.h for malloc
+	* remove src/winextra/sys/time.h (src now uses "sys_time.h"), cleanup USE_ALLOCA
 8 Feb 2019
 	* added "sys_time.h" to cleanup #include "sys/time.h" issues on Windows
 	* more driver cleanup, new function gen_initpsd() to init screen driver open

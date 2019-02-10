@@ -9,8 +9,6 @@
 /* entry points*/
 
 /* genmem.c*/
-int		gen_initpsd(PSD psd, int pixtype, MWCOORD xres, MWCOORD yres, int flags);
-
 PSD		GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pixels,
 			int palsize);
 void	GdFreePixmap(PSD pmd);

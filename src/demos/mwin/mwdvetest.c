@@ -12,7 +12,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "windows.h"
-#include "wintern.h"
 #include "../../images/demos/mwin/mwdvetest/dveres.h"
 
 

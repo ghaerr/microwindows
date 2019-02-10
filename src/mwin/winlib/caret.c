@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "windows.h"
+#include "device.h"			/* for GdSetMode()*/
 
 #define DEF_BLINK_TIME		500	/* default blink time in ms*/
 

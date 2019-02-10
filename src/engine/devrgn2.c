@@ -66,7 +66,6 @@ SOFTWARE.
 #include "device.h"
 
 #if POLYREGIONS
-
 /*
  * number of points to buffer before sending them off
  * to scanlines() :  Must be an even number
@@ -676,7 +675,7 @@ static int REGION_PtsToRegion(int numFullPtBlocks, int iCurPtBlock,
 
     numRects = ((numFullPtBlocks * NUMPTSTOBUFFER) + iCurPtBlock) >> 1;
 
-    if (!(reg->rects = GdRealloc( reg->rects, sizeof(MWRECT) * reg->size, sizeof(MWRECT) * numRects )))
+    if (!(reg->rects = REALLOC( reg->rects, sizeof(MWRECT) * reg->size, sizeof(MWRECT) * numRects )))
         return(0);
 
     reg->size = numRects;

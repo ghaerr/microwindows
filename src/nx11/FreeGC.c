@@ -1,4 +1,5 @@
 #include "nxlib.h"
+#include <stdlib.h>
 
 int
 XFreeGC(Display *dpy, GC gc)

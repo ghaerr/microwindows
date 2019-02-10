@@ -4,7 +4,6 @@
  *
  * Microwindows internal routines header file
  */
-#include <string.h>
 
 #define DBLCLICKSPEED	750		/* mouse dblclik speed msecs (was 450)*/
 
@@ -12,15 +11,6 @@
 #define PAINT_PAINTED		0	/* WM_PAINT msg has been processed*/
 #define PAINT_NEEDSPAINT	1	/* WM_PAINT seen, paint when can*/
 #define PAINT_DELAYPAINT	2	/* WM_PAINT seen,paint after user move*/
-
-/* non-win32 api access for microwin*/
-BOOL		MwSetDesktopWallpaper(PMWIMAGEHDR pImage);
-void		MwRegisterFdInput(HWND hwnd,int fd);
-void		MwUnregisterFdInput(HWND hwnd,int fd);
-void		MwRegisterFdOutput(HWND hwnd,int fd);
-void		MwUnregisterFdOutput(HWND hwnd,int fd);
-void		MwRegisterFdExcept(HWND hwnd,int fd);
-void		MwUnregisterFdExcept(HWND hwnd,int fd);
 
 /* internal routines*/
 
@@ -38,7 +28,6 @@ void		MwSetCursor(HWND wp, PMWCURSOR pcursor);
 void		MwPaintNCArea(HWND hwnd);
 HWND		MwPrepareDC(HDC hdc);
 void		MwSetClipWindow(HDC hdc);
-void		MwSetTextCoding(long mode);
 
 /* winsbar.c*/
 void		MwAdjustNCScrollbars(HWND hwnd);

@@ -3,6 +3,7 @@
 //---------------------------------------------------------
 
 #include "nxlib.h"
+#include <stdlib.h>
 
 int XFreeFontInfo(char **names, XFontStruct *info, int actualCount)
 {

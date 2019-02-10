@@ -3,7 +3,6 @@
 int
 XBell(Display *display, int percent)
 { 
-/* Don't bother getting complicated here */
-	printf("\7");
+	GrBell();
 	return 1;
 }

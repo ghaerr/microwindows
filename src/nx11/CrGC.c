@@ -1,5 +1,6 @@
 #include "nxlib.h"
 #include <string.h>
+#include <stdlib.h>
 /*
  * XSetGCxxx routines
  *

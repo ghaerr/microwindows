@@ -217,6 +217,7 @@ void ioctl_getpalette(int start, int len, short *red, short *green,short *blue);
 void ioctl_setpalette(int start, int len, short *red, short *green,short *blue);
 
 /* fb.c*/
+int		gen_initpsd(PSD psd, int pixtype, MWCOORD xres, MWCOORD yres, int flags);
 PSUBDRIVER select_fb_subdriver(PSD psd);
 int		set_data_format(PSD psd);
 void	gen_getscreeninfo(PSD psd, PMWSCREENINFO psi);

@@ -7,7 +7,6 @@
  */
 #define MWINCLUDECOLORS
 #include <windows.h>
-#include <unistd.h>
 #include <string.h>
 
 #define ID_BUTTON 1
@@ -31,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	width=270;
 	height=120;
 
-		MwInitializeDialogs(hInstance); // register stand control and dialog classes
+		MwInitializeDialogs(hInstance); // register control and dialog classes
 
         wndclass.style          = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
         wndclass.lpfnWndProc    = (WNDPROC)wproc;

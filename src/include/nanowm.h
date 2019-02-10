@@ -17,9 +17,7 @@
 /* default window style for GR_WM_PROPS_APPWINDOW*/
 #define DEFAULT_WINDOW_STYLE	(GR_WM_PROPS_APPFRAME | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX)
 
-#define WMDEBUG	0
-
-#if WMDEBUG
+#if DEBUG_NANOWM
 #define Dprintf printf
 #else
 #define Dprintf(...)

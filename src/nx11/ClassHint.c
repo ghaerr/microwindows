@@ -6,6 +6,8 @@
 #include "X11/Xutil.h"
 #include "X11/Xatom.h"
 #include <string.h>
+#include <stdio.h>			/* for BUFSIZ*/
+#include <stdlib.h>
 
 XClassHint *XAllocClassHint(void)
 {

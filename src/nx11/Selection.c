@@ -1,6 +1,7 @@
 /* Copyright 2003, Jordan Crouse (jordan@cosmicpenguin.net) */
 
 #include "nxlib.h"
+#include <stdlib.h>
 #include <time.h>
 
 /* Yet another dummy storage area.  We hold onto the value and

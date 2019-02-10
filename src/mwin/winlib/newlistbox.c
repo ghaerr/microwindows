@@ -175,7 +175,7 @@ const struct builtin_class_descr COMBOLBOX_builtin_class =
 int
 MwRegisterListboxControl(HINSTANCE hInstance)
 {
-	WNDCLASS wc={0};
+	WNDCLASS wc;
 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_GLOBALCLASS;
 	wc.lpfnWndProc = (WNDPROC) ListBoxWndProc;
@@ -2019,6 +2019,7 @@ static LRESULT LISTBOX_HandleLButtonDown( HWND hwnd, LB_DESCR *descr,
 }
 
 
+#if 0
 /*************************************************************************
  * LISTBOX_HandleLButtonDownCombo [Internal]
  *
@@ -2123,6 +2124,7 @@ static LRESULT LISTBOX_HandleLButtonDownCombo( HWND hwnd, LB_DESCR *pDescr,
     }
     return 0;
 }
+#endif
 
 /***********************************************************************
  *           LISTBOX_HandleLButtonUp

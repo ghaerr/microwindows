@@ -1,4 +1,6 @@
 #include "nxlib.h"
+#include <stdlib.h>
+
 /*
  * Local colormap functions to emulate X11 colormap scheme
  */

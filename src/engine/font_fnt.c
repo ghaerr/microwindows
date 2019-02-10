@@ -5,6 +5,7 @@
  * Load a .fnt/.fnt.gz (Microwindows native) binary font, store in incore format.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "device.h"
 #include "devfont.h"

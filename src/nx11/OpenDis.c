@@ -1,4 +1,5 @@
 #include "nxlib.h"
+#include <stdlib.h>
 
 Font _nxCursorFont = None;	/* global because no dpy->cursor_font*/
 
@@ -28,13 +29,13 @@ XOpenDisplay(_Xconst char *display)
  * Connect with Nano-X server and allocate a display structure.
  */
 	if (fd < 0 && (fd = GrOpen()) < 0) {
-		fprintf(stderr, "nxlib: can't connect to nano-X server\r\n");
+		EPRINTF("nxlib: can't connect to nano-X server\r\n");
 		return NULL;
 	}
 
 	GrGetScreenInfo(&sinfo);
 	if (sinfo.bpp < 8) {
-		fprintf(stderr, "nxlib: Unsupported bpp: %d\n", sinfo.bpp);
+		EPRINTF("nxlib: Unsupported bpp: %d\n", sinfo.bpp);
 		GrClose();
 		return NULL;
 	}

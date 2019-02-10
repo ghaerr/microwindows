@@ -8,12 +8,13 @@
  * 
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#include "uni_std.h"
 #include "windows.h"	
 
 #define ID_EDIT 5

@@ -20,6 +20,7 @@
 //#define MWPF_TRUECOLORABGR 11	/* pixel is packed
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "device.h"
 #include "fb.h"
 #include "genmem.h"

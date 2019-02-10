@@ -4,6 +4,7 @@
 
 #include "nxlib.h"
 #include <string.h>
+#include <stdlib.h>
 
 // from /usr/include/X11/extensions/shapestr.h
 #define SHAPENAME "SHAPE"

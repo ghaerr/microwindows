@@ -1,4 +1,5 @@
 #include "nxlib.h"
+#include <stdlib.h>
 
 int
 XChangeWindowAttributes(Display * display, Window w, unsigned long valuemask,

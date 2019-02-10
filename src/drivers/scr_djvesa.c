@@ -12,8 +12,8 @@
  */
 
 #include <stdio.h>
-#include <unistd.h> //for dup
-
+#include <stdlib.h>
+#include "uni_std.h> //for dup
 #include "device.h"  
 #include "genfont.h" 
 #include "genmem.h"

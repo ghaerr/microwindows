@@ -7,8 +7,8 @@
  * These routines are Gr* functionality without requiring new API entry points.
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "nano-X.h"

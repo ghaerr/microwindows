@@ -26,6 +26,7 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/engine/devkbd.o \
 	$(MW_DIR_OBJ)/engine/devclip.o \
 	$(MW_DIR_OBJ)/engine/devrgn.o \
+	$(MW_DIR_OBJ)/engine/devtimer.o \
 	$(MW_DIR_OBJ)/engine/devpal1.o \
 	$(MW_DIR_OBJ)/engine/devpal2.o \
 	$(MW_DIR_OBJ)/engine/devimage.o \
@@ -69,10 +70,6 @@ endif
 ifeq ($(HAVE_EUCJP_SUPPORT), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/font_eucjp.o
 endif
-
-#ifeq ($(UNIX), 1)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/devtimer.o
-#endif
 
 ifneq ($(ARCH), ELKS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/engine/devpal8.o

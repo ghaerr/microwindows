@@ -25,13 +25,26 @@ extern "C" {
 #include "winres.h"
 #include "windlg.h"
 
-/* external routines*/
+/* startup routines*/
 int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     			LPSTR lpCmdLine, int nShowCmd);
 int WINAPI invoke_WinMain_Start(int ac, char **av);
 void WINAPI invoke_WinMain_End(void);
 
-int		MwUserInit(int ac, char **av);
+/* non-Win32 Microwindows routines allowed to be called by user programs*/
+BOOL WINAPI MwInitializeDialogs(HINSTANCE hInstance);	/* windlg.c*/
+BOOL WINAPI MwSetDesktopWallpaper(PMWIMAGEHDR pImage);
+void WINAPI MwRegisterFdInput(HWND hwnd,int fd);
+void WINAPI MwUnregisterFdInput(HWND hwnd,int fd);
+void WINAPI MwRegisterFdOutput(HWND hwnd,int fd);
+void WINAPI MwUnregisterFdOutput(HWND hwnd,int fd);
+void WINAPI MwRegisterFdExcept(HWND hwnd,int fd);
+void WINAPI MwUnregisterFdExcept(HWND hwnd,int fd);
+void WINAPI MwSetKeyboardTranslator(LPFN_KEYBTRANSLATE pFn);
+void WINAPI MwSetTextCoding(LONG mode);
+
+/* optional user hook routine called before anything*/
+int	MwUserInit(int ac, char **av);
 
 /* Internal Microwindows non-win32 definitions*/
 

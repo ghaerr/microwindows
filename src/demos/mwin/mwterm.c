@@ -15,7 +15,6 @@
 #include <signal.h>
 #define MWINCLUDECOLORS
 #include "windows.h"
-#include "wintern.h"		/* for MwRegisterFdInput*/
 #include "wintools.h"		/* Draw3dInset*/
 
 #define UNIX98		1		/* use new-style /dev/ptmx, /dev/pts/0 ptys*/

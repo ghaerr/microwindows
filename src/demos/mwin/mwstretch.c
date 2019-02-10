@@ -5,7 +5,6 @@
  */
 #define MWINCLUDECOLORS
 #include "windows.h"
-#include "device.h"
 
 extern MWIMAGEHDR image_penguin;
 

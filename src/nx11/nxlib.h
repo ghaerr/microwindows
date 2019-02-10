@@ -23,7 +23,8 @@
 #include "X11/Xlib.h"
 #include "../include/nano-X.h"
 
-#include "../include/device.h"	/* DPRINTF, <stdlib.h> for malloc*/
+#include "mwconfig.h"				/* for USE_ALLOC, DPRINTF, EPRINTF*/
+#include <stdio.h>					/* for stderr in DPRINTF*/
 
 /* malloc stuff*/
 #if MALLOC_0_RETURNS_NULL

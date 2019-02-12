@@ -40,6 +40,10 @@ static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* sdl_preselect and sdl_update*/
 static SDL_Window *sdlWindow;
 static SDL_Renderer *sdlRenderer;
 static SDL_Texture *sdlTexture;
+#ifndef SDL_ZOOM
+#define SDL_ZOOM	1.0			/* normally set in config file*/
+#endif
+float sdlZoom = SDL_ZOOM;
 
 /*
  * init sdl subsystem, return < 0 on error
@@ -55,7 +59,7 @@ sdl_setup(PSD psd)
 	}
 
 	sdlWindow = SDL_CreateWindow("Microwindows SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					psd->xres, psd->yres, SDL_WINDOW_RESIZABLE);
+					psd->xres*sdlZoom, psd->yres*sdlZoom, SDL_WINDOW_RESIZABLE);
 	if (!sdlWindow) {
 		printf("SDL: Can't create window\n");
 		return -1;
@@ -107,6 +111,10 @@ sdl_setup(PSD psd)
 		return -1;
 	}
 #endif
+
+	/* setup zoom*/
+	SDL_RenderSetLogicalSize(sdlRenderer, psd->xres, psd->yres);
+	SDL_RenderSetScale(sdlRenderer, sdlZoom, sdlZoom);
 
 	//SDL_StartTextInput();
   	SDL_ShowCursor(SDL_DISABLE);	/* hide SDL cursor*/

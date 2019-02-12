@@ -1,3 +1,7 @@
+12 Feb 2019
+	* added zoom support to SDL2, set by SDL_ZOOM=<zoom_factor> option in config
+	* add Daniel's support for SDL on Android
+10 Feb 2019
 	* min/max fixups, typo, another fix for Allegro mouse cursor
 9 Feb 2019
 	* moved all configurable options to new include/mwconfig.h for visual environment make

@@ -29,6 +29,7 @@ MOUSEDEVICE mousedev = {
 };
 
 int sdl_pollevents(void);
+extern float sdlZoom;
 
 /*
  * Open the mouse
@@ -106,8 +107,8 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			else
 				buttons |= MWBUTTON_SCROLLUP; /* wheel up*/
 		}
-		*dx = xm;
-		*dy = ym;
+		*dx = (int)xm / sdlZoom;
+		*dy = (int)ym / sdlZoom;
 		*dz = 0;
 		*bp = buttons;
 
@@ -117,8 +118,8 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 	/* handle touchpad events FIXME need right mouse button support*/
 	if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FINGERDOWN, SDL_FINGERMOTION)) {
 		if (event.type == SDL_FINGERDOWN) {
-			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
-			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
+			*dx = lastx = (int)(event.tfinger.x * scrdev.xres / sdlZoom);
+			*dy = lasty = (int)(event.tfinger.y * scrdev.yres / sdlZoom);
     			lastdn = MWBUTTON_L;
 //printf("mousedn %d,%d\n", lastx, lasty);
 			*dz = 0;
@@ -127,8 +128,8 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		}
 
 		if (event.type == SDL_FINGERUP) {
-			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
-			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
+			*dx = lastx = (int)(event.tfinger.x * scrdev.xres / sdlZoom);
+			*dy = lasty = (int)(event.tfinger.y * scrdev.yres / sdlZoom);
 			lastdn = 0;
 //printf("mouseup %d,%d\n", lastx, lasty);
 			*dz = 0;
@@ -139,8 +140,8 @@ sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		if (event.type == SDL_FINGERMOTION) {
 			if (lastdn == 0)
 				return MOUSE_NODATA;	/* no motion without finger down*/
-			*dx = lastx = (int)(event.tfinger.x * scrdev.xres);
-			*dy = lasty = (int)(event.tfinger.y * scrdev.yres);
+			*dx = lastx = (int)(event.tfinger.x * scrdev.xres / sdlZoom);
+			*dy = lasty = (int)(event.tfinger.y * scrdev.yres / sdlZoom);
 //printf("mousemv %d,%d\n", lastx, lasty);
 			*dz = 0;
 			*bp = lastdn;

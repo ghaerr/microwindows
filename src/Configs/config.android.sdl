@@ -35,6 +35,7 @@ SCREEN                   = SDL
 SDL2_INCLUDE	 =/home/giri/workspace/fltk_mvc_template/_template/lib_include/android_arm
 SDL2_LIB		 =/home/giri/workspace/fltk_mvc_template/_template/lib/android_arm
 SDL2_SRC		 =/home/giri/workspace/fltk_mvc_template/_template/packages/sdl2.0.9/SDL2-2.0.9
+SDL_ZOOM                 = 2.0
 MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 1080

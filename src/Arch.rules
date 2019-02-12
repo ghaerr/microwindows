@@ -291,15 +291,26 @@ LDFLAGS += -lallegro -llog -lc++
 endif
 
 ifeq ($(SCREEN), SDL)
+ifneq ($(SDL2_INCLUDE),)
 CFLAGS += -I$(SDL2_INCLUDE) 
+endif
+ifneq ($(SDL2_LIB),)
 LDFLAGS += -L$(SDL2_LIB) 
+endif
+ifneq ($(SDL_ZOOM),)
+DEFINES += -DSDL_ZOOM=$(SDL_ZOOM)
+endif
 endif
 
 ifeq ($(SCREEN), ALLEGRO)
 # required for al_run_main in winmain.c/srvmain.c
 DEFINES += -DALLEGRO=1
+ifneq ($(ALLEGRO5_INCLUDE),)
 CFLAGS += -I$(ALLEGRO5_INCLUDE) 
+endif
+ifneq ($(ALLEGRO5_LIB),)
 LDFLAGS += -L$(ALLEGRO5_LIB) 
+endif
 ifneq ($(ALLEGRO_ZOOM),)
 DEFINES += -DALLEGRO_ZOOM=$(ALLEGRO_ZOOM)
 endif

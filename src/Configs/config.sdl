@@ -34,6 +34,7 @@ SCREEN                   = SDL
 MOUSE                    =
 KEYBOARD                 =
 EXTENGINELIBS            += -lSDL2
+SDL_ZOOM                 = 1.0
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local

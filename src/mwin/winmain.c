@@ -53,8 +53,11 @@ int		keyb_fd;		/* the keyboard file descriptor */
 int		mouse_fd;		/* the mouse file descriptor */
 DWORD		lastWIN32Error = 0;	/* Last error */
 
-static void MwDelay(MWTIMEOUT msecs);
+void MwDelay(MWTIMEOUT msecs);
 static void MwPlatformInit(void);	/* platform specific init goes here*/
+
+int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+    			LPSTR lpCmdLine, int nShowCmd);
 
 #if !NOMAIN
 #if ALLEGRO
@@ -711,10 +714,11 @@ GetTickCount(VOID)
 #endif
 }
 
+#if !_MSC_VER
 /*
  * Suspend execution of the program for the specified number of milliseconds.
  */
-static void
+void
 MwDelay(MWTIMEOUT msecs)
 {
 #if UNIX && HAVE_SELECT
@@ -734,6 +738,7 @@ MwDelay(MWTIMEOUT msecs)
 #pragma message("MwDelay - no delay implemented, will have excess CPU in eventloop")
 #endif
 }
+#endif /* _MSC_VER*/
 
 #if PSP
 static int

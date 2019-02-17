@@ -304,7 +304,7 @@ StaticControlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case STM_SETIMAGE:
 		{
 			LRESULT pOldValue = (LRESULT)pCtrl->userdata;
-			pCtrl->userdata = (LONG)lParam;
+			pCtrl->userdata = (ULONG_PTR)lParam;
 			InvalidateRect(hwnd, NULL, FALSE);
 			return pOldValue;
 		}

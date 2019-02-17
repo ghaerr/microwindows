@@ -204,6 +204,8 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
     MSGBOXINFO mbi;
     BOOL defbtn = FALSE;
     DWORD units = GetDialogBaseUnits();
+	DWORD style, dwExtendedStyle;
+	int cdit;
 
     if(!lpMsgBoxParams->lpszCaption || !*lpMsgBoxParams->lpszCaption)
     {
@@ -345,9 +347,9 @@ MessageBoxTimeoutIndirect(const MSGBOXPARAMS *lpMsgBoxParams, UINT Timeout)
     hFont = GetStockObject(DEFAULT_GUI_FONT);
 
     tpl = (DLGTEMPLATE *)buf;
-    DWORD style = WS_CAPTION | WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_SYSMENU | DS_CENTER | DS_MODALFRAME|DS_NOIDLEMSG;
-    DWORD dwExtendedStyle = WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CONTROLPARENT;
-    int cdit = nButtons + (Icon != NULL) + 1;
+    style = WS_CAPTION | WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_SYSMENU | DS_CENTER | DS_MODALFRAME|DS_NOIDLEMSG;
+    dwExtendedStyle = WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CONTROLPARENT;
+    cdit = nButtons + (Icon != NULL) + 1;
     if(lpMsgBoxParams->dwStyle & MB_TOPMOST)
       dwExtendedStyle |= WS_EX_TOPMOST;
     if(lpMsgBoxParams->dwStyle & MB_RIGHT)

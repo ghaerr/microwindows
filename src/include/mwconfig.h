@@ -1,3 +1,5 @@
+#ifndef _MWCONFIG_H
+#define _MWCONFIG_H
 /*
  * Microwindows configurable options header file
  *
@@ -7,6 +9,23 @@
  *
  * Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  */
+
+/* temp settings for Visual Studio 2008 MSC Windows compile*/
+#if _MSC_VER == 1500
+#define WIN64_PORT		0			/* =1 for compiling on 64-bit Windows*/
+#if !WIN64_PORT
+#pragma warning( disable: 4311 )	/* Win64 pointer truncation*/
+#pragma warning( disable: 4312 )	/* Win64 pointer conversion to greater size*/
+#endif
+#pragma warning( disable: 4996 )	/* unsafe functions*/
+#define inline
+#define DEBUG			1		/* =1 for debug output*/
+#define NONETWORK		1		/* =1 to link Nano-X apps with server for standalone*/
+#define HAVE_MMAP       0       /* =1 has mmap system call*/
+#define HAVE_FPRINTF	0		/* =1 EPRINTF/DPRINTF uses fprintf/printf else GdError*/
+#define SCREEN_WIDTH	640
+#define SCREEN_HEIGHT	480
+#endif
 
 /* Changeable limits and options*/
 #define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette,*/
@@ -225,7 +244,7 @@
 #define REALLOC(addr,oldsize,newsize) realloc((addr),(newsize))
 
 /* determine compiler capability for handling EPRINTF/DPRINTF macros*/
-#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2)))
+#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2))) || _MSC_VER
 #define HAVE_VARARG_MACROS	1
 #else
 #define HAVE_VARARG_MACROS	0
@@ -238,6 +257,10 @@
  */
 #ifndef HAVE_FPRINTF
 #define HAVE_FPRINTF	1		/* =1 EPRINTF/DPRINTF uses fprintf/printf else GdError*/
+#endif
+
+#ifndef DEBUG
+#define DEBUG			0		/* =1 for debug output*/
 #endif
 
 /* see if can use GCC compiler-only macro magic to save space */
@@ -283,3 +306,5 @@ int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
   int rtems_main(int, char **);
   #define main	rtems_main
 #endif
+
+#endif /* _MWCONFIG_H*/

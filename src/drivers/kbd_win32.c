@@ -6,8 +6,9 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "device.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "..\include\device.h"
 
 static int  winkbd_Open(KBDDEVICE *pkd);
 static void winkbd_Close(void);
@@ -15,7 +16,7 @@ static void winkbd_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 static int  winkbd_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 static int  winkbd_Poll(void);
 
-extern HWND winRootWindow;
+extern HWND mwAppWindow;
 
 KBDDEVICE kbddev = {
 	winkbd_Open,
@@ -40,7 +41,6 @@ winkbd_Open(KBDDEVICE *pkd)
 static void
 winkbd_Close(void)
 {
-	
 }
 
 /*
@@ -63,8 +63,9 @@ winkbd_Poll(void)
 {
 	MSG	msg;
 
-	if (PeekMessage(&msg, winRootWindow, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
+	if (PeekMessage(&msg, mwAppWindow, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
 		return 1;
+
 	return 0;
 }
 
@@ -79,19 +80,27 @@ winkbd_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	int mwkey;
 	MSG msg;
 
-	if (!PeekMessage(&msg, winRootWindow, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
-		return MOUSE_NODATA;
+	if (!PeekMessage(&msg, mwAppWindow, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
+		return KBD_NODATA;
 
+	/* translate WM_KEYDOWN/UP to WM_CHAR*/
+	TranslateMessage(&msg);
+
+GdError("key message %d\n", msg.message);
 	switch (msg.message) {
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
+		break;
+	case WM_CHAR:
 		mwkey = msg.wParam; 		/* virtual-key code*/
 		*kbuf = mwkey;				// FIXME needs MWKEY_ translation
 		*scancode = (msg.lParam >> 16) & 0xff;
+GdError("key %d\n", mwkey);
 		return KBD_KEYPRESS;
 
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
+			break;
 		mwkey = msg.wParam; 		/* virtual-key code*/
 		*kbuf = mwkey;				// FIXME needs MWKEY_ translation
 		*scancode = (msg.lParam >> 16) & 0xff;

@@ -4,8 +4,10 @@
  * Microsoft Windows Mouse Driver
  */
 #include <stdio.h>
-#include "device.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <windowsx.h>
+#include "..\include\device.h"
 
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
@@ -17,7 +19,7 @@ static void	winmou_GetDefaultAccel(int *pscale,int *pthresh);
 static int  	winmou_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
 static int  	winmou_Poll(void);
 
-extern HWND winRootWindow;
+extern HWND mwAppWindow;
 
 MOUSEDEVICE mousedev = {
 	winmou_Open,
@@ -73,7 +75,7 @@ winmou_Poll(void)
 {
 	MSG msg;
 
-	if (PeekMessage(&msg, winRootWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE))
+	if (PeekMessage(&msg, mwAppWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE))
 		return 1;
 	return 0;
 }
@@ -89,7 +91,7 @@ winmou_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
 	MSG msg;
 
-	if (!PeekMessage(&msg, winRootWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
+	if (!PeekMessage(&msg, mwAppWindow, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
 		return MOUSE_NODATA;
 
 	switch (msg.message) {
@@ -108,17 +110,11 @@ winmou_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
         *dz = 0;
         *bp = 0;
         if (msg.wParam & MK_LBUTTON)
-        {
             *bp |= MWBUTTON_L;
-        }
         if (msg.wParam & MK_MBUTTON)
-        {
             *bp |= MWBUTTON_M;
-        }
         if (msg.wParam & MK_RBUTTON)
-        {
             *bp |= MWBUTTON_R;
-        }
         return MOUSE_ABSPOS;
     }
     return MOUSE_NODATA;

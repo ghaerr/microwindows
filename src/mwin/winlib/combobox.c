@@ -42,7 +42,7 @@
 #define GET_WM_COMMAND_ID(wp, lp)               LOWORD(wp)
 #define GET_WM_COMMAND_HWND(wp, lp)             (HWND)(lp)
 #define GET_WM_COMMAND_CMD(wp, lp)              HIWORD(wp)
-#define GET_WM_COMMAND_MPS(id, hwnd, cmd)       (WPARAM)MAKELONG(id, cmd), (LONG)(hwnd)
+#define GET_WM_COMMAND_MPS(id, hwnd, cmd)       (WPARAM)MAKELONG(id, cmd), (LONG_PTR)(hwnd)
 #define LOSHORT(x)                              (short int)LOWORD(x)
 #define Edit_SetSel(hwndCtl, ichStart, ichEnd)  ((void)SendMessage((hwndCtl), EM_SETSEL, (ichStart), (ichEnd)))
 
@@ -336,8 +336,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         memset((LPSTR) lp, '\0', sizeof(COMBOBOX));
 
         /* save ptr to internal structure */
-        hWnd->userdata = (LONG) lp;     /* -SetWindowLongPtr(hWnd, CWD_LPCBDATA, (LONG)
-                                         * lp); */
+        hWnd->userdata = (ULONG_PTR)lp;    
         lpcs = (LPCREATESTRUCT) lParam;
 
         /* fill in the internal structure */

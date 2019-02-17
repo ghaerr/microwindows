@@ -113,7 +113,7 @@ PostMessage(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	if(Msg == WM_MOUSEMOVE) {
 		PMWLIST	p;
 		for(p=mwMsgHead.head; p; p=p->next) {
-			pMsg = GdItemAddr(p, MSG, link);
+			pMsg = MwItemAddr(p, MSG, link);
 			if(pMsg->hwnd == hwnd && pMsg->message == Msg) {
 				pMsg->wParam = wParam;
 				pMsg->lParam = lParam;
@@ -274,7 +274,7 @@ static MWHOTKEY *MwFindHotkey (int id)
 	MWHOTKEY	*pHotkey;
 
 	for (p=mwHotkeyHead.head; p; p=p->next) {
-		pHotkey = GdItemAddr (p, MWHOTKEY, link);
+		pHotkey = MwItemAddr (p, MWHOTKEY, link);
 		if (pHotkey->id == id)
 			return pHotkey;
 	}
@@ -289,7 +289,7 @@ static BOOL MwRemoveWndFromHotkeys (HWND hWnd)
 
 	for (p=mwHotkeyHead.head; p; p=pNext) {
 		pNext = p->next;
-		pHotkey = GdItemAddr (p, MWHOTKEY, link);
+		pHotkey = MwItemAddr (p, MWHOTKEY, link);
 		if (pHotkey->hWnd == hWnd) {
 			GdListRemove(&mwHotkeyHead, &pHotkey->link);
 			GdItemFree(pHotkey);
@@ -306,7 +306,7 @@ BOOL MwDeliverHotkey (WPARAM VK_Code, BOOL pressed)
 
 	if (!pressed) return FALSE;
 	for (p=mwHotkeyHead.head; p; p=p->next) {
-		pHotkey = GdItemAddr (p, MWHOTKEY, link);
+		pHotkey = MwItemAddr (p, MWHOTKEY, link);
 		if (pHotkey->vk == VK_Code && IsWindow(pHotkey->hWnd)) {
 			PostMessage (pHotkey->hWnd, WM_HOTKEY, 0, MAKELPARAM(0, VK_Code));
 			return TRUE;
@@ -348,7 +348,7 @@ MwFindClassByName(LPCSTR lpClassName)
 	PWNDCLASS	pClass;
 
 	for(p=mwClassHead.head; p; p=p->next) {
-		pClass = GdItemAddr(p, WNDCLASS, link);
+		pClass = MwItemAddr(p, WNDCLASS, link);
 		if(strcasecmp(pClass->szClassName, lpClassName) == 0)
 			return pClass;
 	}
@@ -621,7 +621,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 
 	/* Remove all messages from msg queue for this window*/
 	for(p=mwMsgHead.head; p; ) {
-		pmsg = GdItemAddr(p, MSG, link);
+		pmsg = MwItemAddr(p, MSG, link);
 		if(pmsg->hwnd == wp) {
 			p = p->next;
 			GdListRemove(&mwMsgHead, &pmsg->link);
@@ -634,7 +634,7 @@ MwDestroyWindow(HWND hwnd,BOOL bSendMsg)
 	 * Remove all properties from this window.
 	 */
 	for(p=hwnd->props.head; p; ) {
-		MWPROP  *pProp = GdItemAddr(p, MWPROP, link);
+		MWPROP  *pProp = MwItemAddr(p, MWPROP, link);
 		p = p->next;
 		GdListRemove (&hwnd->props, &pProp->link);
 		GdItemFree (pProp);
@@ -1287,13 +1287,13 @@ GetWindowLongPtr(HWND hwnd, int nIndex)
 	case GWL_WNDPROC:
 		return (LONG_PTR)hwnd->lpfnWndProc;
 	case GWL_WNDPROCBRIDGE:
-		return (LONG)hwnd->lpfnWndProcBridge;
+		return (LONG_PTR)hwnd->lpfnWndProcBridge;
 	case GWL_HINSTANCE:
 		return (LONG_PTR)hwnd->hInstance;
 	case GWL_HWNDPARENT:
 		return (LONG_PTR)hwnd->parent;
 	case GWL_USERDATA:
-		return (LONG_PTR)hwnd->userdata;
+		return hwnd->userdata;
 	case GWL_ID:
 		return (LONG_PTR)hwnd->id;
 	case GWL_STYLE:
@@ -1355,14 +1355,13 @@ SetWindowLongPtr(HWND hwnd, int nIndex, LONG_PTR lNewLong)
 		hwnd->lpfnWndProc = (WNDPROC)lNewLong;
 		break;
 	case GWL_WNDPROCBRIDGE:
-		oldval = (LONG)hwnd->lpfnWndProcBridge;
 		hwnd->lpfnWndProcBridge = (WNDPROC)lNewLong;
 		break;
 	case GWL_HINSTANCE:
 		hwnd->hInstance = (HINSTANCE)lNewLong;
 		break;
 	case GWL_USERDATA:
-		hwnd->userdata = (LONG)lNewLong;
+		hwnd->userdata = lNewLong;
 		break;
 	case GWL_STYLE:
 		hwnd->style = lNewLong;		// style is currently DWORD
@@ -1502,7 +1501,7 @@ GetProp(HWND hWnd, LPCSTR lpString)
 		Atom = GlobalFindAtom(lpString);
 
 	for(p=hWnd->props.head; p; p=p->next) {
-		pProp = GdItemAddr(p, MWPROP, link);
+		pProp = MwItemAddr(p, MWPROP, link);
 		if (pProp->Atom == Atom)
 			return pProp->hData;
 	}
@@ -1524,7 +1523,7 @@ RemoveProp(HWND hWnd, LPCSTR lpString)
 		Atom = GlobalFindAtom(lpString);
 
 	for(p=hWnd->props.head; p; p=p->next) {
-		pProp = GdItemAddr(p, MWPROP, link);
+		pProp = MwItemAddr(p, MWPROP, link);
 		if (pProp->Atom == Atom) {
 			hRet = pProp->hData;
 			GdListRemove(&hWnd->props, &pProp->link);

@@ -394,17 +394,12 @@ PSD	GdDecodeTIFF(char *path);
 #endif /* MW_FEATURE_IMAGES */
 
 /* devlist.c*/
-/* field offset*/
-#define MWITEM_OFFSET(type, field)    ((long)&(((type *)0)->field))
-
 void * 	GdItemAlloc(unsigned int size);
 void	GdListAdd(PMWLISTHEAD pHead,PMWLIST pItem);
 void	GdListInsert(PMWLISTHEAD pHead,PMWLIST pItem);
 void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
 #define GdItemNew(type)	((type *)GdItemAlloc(sizeof(type)))
 #define GdItemFree(ptr)	free((void *)ptr)
-/* return base item address from list ptr*/
-#define GdItemAddr(p,type,list)	((type *)((long)p - MWITEM_OFFSET(type,list)))
 
 /* devstipple.c */
 void	GdSetDash(uint32_t *mask, int *count);

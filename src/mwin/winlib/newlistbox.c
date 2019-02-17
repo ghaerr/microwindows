@@ -73,7 +73,7 @@ typedef struct
     LPCSTR  str;       /* Item text */
     BOOL    selected;  /* Is item selected? */
     UINT    height;    /* Item height (only for OWNERDRAWVARIABLE) */
-    LONG   data;      /* User data */
+    ULONG_PTR   data;      /* User data */
 } LB_ITEMDATA;
 
 /* Listbox structure */
@@ -801,8 +801,8 @@ static LRESULT LISTBOX_GetText( LB_DESCR *descr, INT index, LPARAM lParam)
         return strlen(buffer);
     } else {
         if (lParam)
-            *((LONG *)lParam)=*(LONG *)(&descr->items[index].data);
-        return sizeof(LONG);
+            *((ULONG_PTR *)lParam) = *(ULONG_PTR *)(&descr->items[index].data);
+        return sizeof(ULONG_PTR);
     }
 }
 
@@ -813,8 +813,7 @@ static LRESULT LISTBOX_GetText( LB_DESCR *descr, INT index, LPARAM lParam)
  * Find the nearest string located before a given string in sort order.
  * If 'exact' is TRUE, return an error if we don't get an exact match.
  */
-static INT LISTBOX_FindStringPos( HWND hwnd, LB_DESCR *descr, LPCTSTR str,
-                                    BOOL exact )
+static INT LISTBOX_FindStringPos( HWND hwnd, LB_DESCR *descr, LPCTSTR str, BOOL exact )
 {
     INT index, min, max, res = -1;
 
@@ -837,7 +836,7 @@ static INT LISTBOX_FindStringPos( HWND hwnd, LB_DESCR *descr, LPCTSTR str,
             /* note that some application (MetaStock) expects the second item
              * to be in the listbox */
             cis.itemID1    = -1;
-            cis.itemData1  = (LONG)str;
+            cis.itemData1  = (ULONG_PTR)str;
             cis.itemID2    = index;
             cis.itemData2  = descr->items[index].data;
 #if 0
@@ -954,9 +953,9 @@ static INT LISTBOX_FindString( HWND hwnd, LB_DESCR *descr, INT start,
 
         /* Otherwise use a linear search */
         for (i = start + 1; i < descr->nb_items; i++, item++)
-            if (item->data == (LONG)str) return i;
+            if (item->data == (ULONG_PTR)str) return i;
         for (i = 0, item = descr->items; i <= start; i++, item++)
-            if (item->data == (LONG)str) return i;
+            if (item->data == (ULONG_PTR)str) return i;
     }
     return LB_ERR;
 }
@@ -1459,7 +1458,7 @@ static void LISTBOX_MoveCaret( HWND hwnd, LB_DESCR *descr, INT index,
  *           LISTBOX_InsertItem
  */
 static LRESULT LISTBOX_InsertItem( HWND hwnd, LB_DESCR *descr, INT index,
-                                   LPCSTR str, LONG data )
+                                   LPCSTR str, ULONG_PTR data )
 {
     LB_ITEMDATA *item;
     INT max_items;
@@ -1556,7 +1555,7 @@ static LRESULT LISTBOX_InsertString( HWND hwnd, LB_DESCR *descr, INT index,
                                      LPCTSTR str )
 {
     LPTSTR new_str = NULL;
-    LONG data = 0;
+    ULONG_PTR data = 0;
     LRESULT ret;
 
     if (HAS_STRINGS(descr))
@@ -1569,7 +1568,7 @@ static LRESULT LISTBOX_InsertString( HWND hwnd, LB_DESCR *descr, INT index,
         }
         strcpy(new_str, str);
     }
-    else data = (LONG)str;
+    else data = (ULONG_PTR)str;
 
     if (index == -1) index = descr->nb_items;
     if ((ret = LISTBOX_InsertItem( hwnd, descr, index, new_str, data )) != 0)
@@ -2593,7 +2592,7 @@ static LRESULT CALLBACK ListBoxWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
     case LB_SETITEMDATA:
         if (((INT)wParam < 0) || ((INT)wParam >= descr->nb_items))
             return LB_ERR;
-        descr->items[wParam].data = (LONG)lParam;
+        descr->items[wParam].data = (ULONG_PTR)lParam;
         return LB_OKAY;
 
     case LB_GETCOUNT:

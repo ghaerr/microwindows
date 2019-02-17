@@ -61,6 +61,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"
 #include "wintern.h"
@@ -97,8 +98,8 @@ typedef struct _LISTBOXITEM
 {
 	char *key;		/* item sort key */
 	DWORD dwFlags;		/* item flags */
-	LONG dwData;		/* item data */
-	LONG dwAddData;		/* item additional data */
+	ULONG_PTR dwData;		/* item data */
+	ULONG_PTR dwAddData;		/* item additional data */
 	struct _LISTBOXITEM *next;	/* next item */
 } LISTBOXITEM, *PLISTBOXITEM;
 
@@ -681,8 +682,7 @@ lstOnDrawSListBoxItems(HWND hwnd, HDC hdc, DWORD dwStyle,
 			}
 #if 0				/* fix: no icon */
 			if (dwStyle & LBS_USEICON && plbi->dwData) {
-				DrawIcon(hdc, x, y, itemHeight, itemHeight,
-					 (HICON) plbi->dwData);
+				DrawIcon(hdc, x, y, itemHeight, itemHeight, (HICON) plbi->dwData);
 				x += itemHeight + LST_INTER_BMPTEXT;
 			}
 #endif
@@ -888,7 +888,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (pData == NULL)
 			return -1;
 
-		pCtrl->userdata = (LONG) pData;
+		pCtrl->userdata = (ULONG_PTR) pData;
 		if (!lstInitListBoxData(hwnd, pData, DEF_LB_BUFFER_LEN)) {
 			free(pData);
 			return -1;
@@ -952,13 +952,12 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 
 				if (dwStyle & LBS_USEICON)
-					newItem->dwData =
-						(LONG) plbii->hIcon;
+					newItem->dwData = (ULONG_PTR) plbii->hIcon;
 				else
 					newItem->dwData = 0L;
 			} else
 				if (!(dwStyle & LBS_HASSTRINGS))
-					newItem->dwData = (LONG)newItem->key;
+					newItem->dwData = (ULONG_PTR)newItem->key;
 			newItem->dwAddData = 0L;
 
 			if (message == LB_ADDSTRING)
@@ -1215,9 +1214,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!(plbi = lstGetItem(pData, (int) wParam)))
 				return LB_ERR;
 
-			if (!
-			    (dwStyle & LBS_CHECKBOX
-			     || dwStyle & LBS_USEICON)) {
+			if (! (dwStyle & LBS_CHECKBOX || dwStyle & LBS_USEICON)) {
 				return plbi->dwData;
 			}
 
@@ -1246,10 +1243,8 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!(plbi = lstGetItem(pData, (int) wParam)))
 				return LB_ERR;
 
-			if (!
-			    (dwStyle & LBS_CHECKBOX
-			     || dwStyle & LBS_USEICON)) {
-				plbi->dwData = (LONG) lParam;
+			if (!(dwStyle & LBS_CHECKBOX || dwStyle & LBS_USEICON)) {
+				plbi->dwData = (ULONG_PTR) lParam;
 				return LB_OKAY;
 			}
 
@@ -1268,7 +1263,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			if (dwStyle & LBS_USEICON)
-				plbi->dwData = (LONG) plbii->hIcon;
+				plbi->dwData = (ULONG_PTR) plbii->hIcon;
 			else
 				plbi->dwData = 0;
 
@@ -1298,7 +1293,7 @@ ListboxCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!(plbi = lstGetItem(pData, (int) wParam)))
 				return LB_ERR;
 
-			plbi->dwAddData = (LONG) lParam;
+			plbi->dwAddData = (ULONG_PTR) lParam;
 
 			return LB_OKAY;
 		}

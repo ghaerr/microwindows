@@ -279,9 +279,9 @@ typedef struct tagCOMPAREITEMSTRUCT {
 	UINT	CtlID;
 	HWND	hwndItem;
 	UINT	itemID1;
-	DWORD	itemData1;
+	ULONG_PTR	itemData1;
 	UINT	itemID2;
-	DWORD	itemData2;
+	ULONG_PTR	itemData2;
 	DWORD	dwLocaleId;
 } COMPAREITEMSTRUCT,*LPCOMPAREITEMSTRUCT;
 typedef struct tagDELETEITEMSTRUCT {
@@ -289,7 +289,7 @@ typedef struct tagDELETEITEMSTRUCT {
 	UINT CtlID;
 	UINT itemID;
 	HWND hwndItem;
-	UINT itemData;
+	ULONG_PTR itemData;
 } DELETEITEMSTRUCT,*PDELETEITEMSTRUCT,*LPDELETEITEMSTRUCT;
 typedef struct tagNMHDR
 {

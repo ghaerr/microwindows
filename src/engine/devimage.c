@@ -492,6 +492,11 @@ void
 GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, PSD pmd)
 {
+#define OLDWAY 1
+#if OLDWAY
+	MWCLIPRECT	rcDst,rcSrc;
+	PSD pmd2;
+#endif
 	if (height < 0)
 		height = pmd->yvirtres;
 	if (width < 0)
@@ -503,11 +508,9 @@ GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD heigh
 		return;
 	}
 
-#define OLDWAY 1
 #if OLDWAY
-	MWCLIPRECT	rcDst,rcSrc;
 	/* create similar image, different width/height, no palette*/
-	PSD pmd2 = GdCreatePixmap(&scrdev, width, height, pmd->data_format, NULL, 0);
+	pmd2 = GdCreatePixmap(&scrdev, width, height, pmd->data_format, NULL, 0);
 	if (!pmd2) {
 		EPRINTF("GdDrawImagePartToFit: no memory\n");
 		return;

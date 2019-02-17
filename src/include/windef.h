@@ -40,7 +40,7 @@
 #endif
 #endif  /* NOMINMAX */
 
-#if WIN32DLL
+#if WIN32DLL | (_MSC_VER == 1500)
 #ifdef EXPORTS
 	#define WINAPI	__declspec(dllexport) __stdcall
 #else
@@ -78,11 +78,21 @@ typedef int			BOOL;
 #endif
 #endif /* !VXWORKS*/
 
-// new definitions for 64bit port (int=32, long=64, ptr=64) or 32bit port (int=32, long=32, ptr=32)
-typedef long			LONG_PTR;	// must hold long and pointer
+// LONG_PTR definition, must hold int, long and pointer
+#if WIN64_PORT
+// definition for 64-bit Microsoft Windows port (int=32, long=32, ptr=64)
+typedef __int64				LONG_PTR;	// must hold long and pointer
+typedef unsigned __int64	ULONG_PTR;	// must hold unsigned long and pointer
+typedef unsigned __int64	UINT_PTR;	// must hold unsigned int and pointer
+#else
+// definition for 64bit port (int=32, long=64, ptr=64)
+//             or 32bit port (int=32, long=32, ptr=32)
+typedef long				LONG_PTR;	// must hold long and pointer
 typedef unsigned long		ULONG_PTR;	// must hold unsigned long and pointer
 typedef unsigned long		UINT_PTR;	// must hold unsigned int and pointer
-//typedef unsigned int		UINT_PTR;	// smaller definition WPARAM for 16bit (int=16, long=32, ptr=16)
+// smaller definition for 16bit WPARAM (int=16, long=32, ptr=16)
+//typedef unsigned int		UINT_PTR;	// holds int and pointer
+#endif
 
 // Window procedure arguments WPARAM,LPARAM and return value LRESULT must also hold pointers
 typedef UINT_PTR		WPARAM;		// holds unsigned int and pointer
@@ -92,6 +102,12 @@ typedef LONG_PTR		LRESULT;	// holds long and pointer
 // Our dialog procedures return DLGBOOL (incompatible with win32 when sizeof(int) != sizeof(char *))
 typedef LRESULT			DLGBOOL;	// mwin dialog procedures return BOOL and pointers
 //typedef BOOL			DLGBOOL;	// compatible definition for 16/32 bit systems
+
+// return field offset, must hold long and pointer, used only by MwItemAddr
+#define MwItemOffset(type, field)    ((LONG_PTR)&(((type *)0)->field))
+
+// return base item address from list ptr
+#define MwItemAddr(p,type,list)	((type *)((LONG_PTR)p - MwItemOffset(type,list)))
 
 // standard definitions
 typedef void *PVOID;

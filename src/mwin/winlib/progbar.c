@@ -262,7 +262,7 @@ ProgressbarCtrlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             pData->nStepInc = 10;
 #endif
 
-            pCtrl->userdata = (LONG)pData;
+            pCtrl->userdata = (ULONG_PTR)pData;
         break;
     
         case WM_DESTROY:

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS
+#include "uni_std.h"
 #include "serv.h"
 #include "../drivers/genmem.h"
 

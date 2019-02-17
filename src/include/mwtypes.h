@@ -6,15 +6,17 @@
  *
  * Exported Microwindows engine typedefs and defines
  */
-#include <stdint.h> 		/* for uint32_t, int32_t*/
 
-//#if __WORDSIZE == 64		/* use if stdint.h missing*/
+#if _MSC_VER == 1500
+// use if stdint.h missing
+	typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/
+	typedef long			int32_t;
 //	typedef unsigned int	uint32_t;	/* 32 bit type in 64 bit environment*/
 //	typedef int				int32_t;
-//#else
-//	typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/
-//	typedef long			int32_t;
-//#endif
+#else
+
+#include <stdint.h> 		/* for uint32_t, int32_t*/
+#endif
 
 #if __ECOS
 #include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */

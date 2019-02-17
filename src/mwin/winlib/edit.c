@@ -51,6 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 #define MWINCLUDECOLORS
 #include "windows.h"	/* windef.h, winuser.h */
 #include "wintools.h"
@@ -399,7 +400,7 @@ SLEditCtrlProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             memcpy (pSLEditData->buffer, pCtrl->szTitle,
                     min (LEN_SLEDIT_BUFFER, pSLEditData->dataEnd));
 
-            pCtrl->userdata2 = (LONG) pSLEditData;
+            pCtrl->userdata2 = (ULONG_PTR) pSLEditData;
 
             pCtrl->userdata  = 0;
         break;

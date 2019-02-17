@@ -102,6 +102,14 @@ SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THR
 
 static void GsPlatformInit(void);	/* platform specific init goes here*/
 
+#if (_MSC_VER == 1500) && NONETWORK
+int __stdcall WinMain(int hInstance, int hPrevInstance, char *lpCmdLine, int nShowCmd)
+{
+	int main(int ac, char **av);
+	return main(0, NULL);
+}
+#endif
+
 #if !NONETWORK
 static int	Argc;
 static char **	Argv;
@@ -708,6 +716,12 @@ GsSelect(GR_TIMEOUT timeout)
 	GR_TIMEOUT waittime = 0;
 	GR_EVENT_GENERAL *gp;
 
+#if MW_FEATURE_TIMERS
+	struct timeval tout;
+	if (timeout != (GR_TIMEOUT)-1L)
+		GdGetNextTimeout(&tout, timeout);	/* set initial mainloop timeout*/
+#endif
+
 	/* input gathering loop */
 	while (1)
 	{
@@ -1178,6 +1192,9 @@ GrDelay(GR_TIMEOUT msecs)
 	sceKernelDelayThread(1000 * msecs);
 #elif MSDOS
 	/* no delay required*/
+#elif _MSC_VER
+	void MwDelay(MWTIMEOUT msecs);
+	MwDelay(msecs);
 #else
 	/* no delay implemented*/
 #pragma message("GrDelay - no delay implemented, will have excess CPU in eventloop")

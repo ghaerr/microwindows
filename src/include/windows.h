@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 #include "mwtypes.h"
+#include "mwconfig.h"
 #include "windef.h"
 #include "wingdi.h"
 #include "winfont.h"
@@ -26,8 +27,8 @@ extern "C" {
 #include "windlg.h"
 
 /* startup routines*/
-int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    			LPSTR lpCmdLine, int nShowCmd);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+			LPSTR lpCmdLine, int nShowCmd);
 int WINAPI invoke_WinMain_Start(int ac, char **av);
 void WINAPI invoke_WinMain_End(void);
 
@@ -175,8 +176,8 @@ struct hwnd {
 	HBRUSH		paintBrush;	/* brush created to paint some controls */
 	HPEN		paintPen;	/* pen created to paint some controls */
 	MWCLIPREGION *	update;		/* update region in screen coords*/
-	LONG		userdata;	/* setwindowlong user data*/
-	LONG		userdata2;	/* additional user data (will remove)*/
+	LONG_PTR		userdata;	/* setwindowlong user data*/
+	LONG_PTR		userdata2;	/* additional user data (will remove)*/
 	MWLISTHEAD  	props;		/* windows property list */
 	MWSCROLLBARINFO	hscroll;	/* NC scrollbars*/
 	MWSCROLLBARINFO	vscroll;

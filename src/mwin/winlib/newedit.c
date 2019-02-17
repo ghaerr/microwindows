@@ -185,7 +185,7 @@ neCreate(HWND hwnd)
 	if (len < LEN_SLEDIT_BUFFER)
 		len = LEN_SLEDIT_BUFFER;
 
-	pCtrl->userdata2 = (LONG) pSLEditData;
+	pCtrl->userdata2 = (ULONG_PTR) pSLEditData;
 	pCtrl->userdata = 0;
 
 #ifdef USE_BIG5
@@ -259,7 +259,7 @@ neRecalcRows(HWND hwnd, PSLEDITDATA * ppData)
 	pSLEditData->charHeight = charH;
 	pSLEditData->cLines = nl;
 	*ppData = pSLEditData;
-	hwnd->userdata2 = (LONG) pSLEditData;
+	hwnd->userdata2 = (ULONG_PTR) pSLEditData;
 	free(pCurData);
 }
 

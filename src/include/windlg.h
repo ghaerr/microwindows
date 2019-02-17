@@ -70,7 +70,7 @@ typedef struct tagDRAWITEMSTRUCT
 	HWND hwndItem;
 	HDC hDC;
 	RECT rcItem;
-	DWORD itemData;
+	ULONG_PTR itemData;
 } DRAWITEMSTRUCT, *LPDRAWITEMSTRUCT;
 
 enum DRWITYPE {
@@ -103,7 +103,7 @@ typedef struct tagMEASUREITEMSTRUCT
 	UINT itemID;
 	UINT itemWidth;
 	UINT itemHeight;
-	DWORD itemData;
+	ULONG_PTR itemData;
 } MEASUREITEMSTRUCT, *LPMEASUREITEMSTRUCT;
 
 /*

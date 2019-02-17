@@ -1026,7 +1026,7 @@ ScrollbarControlProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)	/* 
 #if 0	/* jmt: must handle WM_MOVE */
 		pData->rc=hwnd->winrect;   /* screen coordinates position*/
 #endif
-            	hwnd->userdata = (LONG)pData;
+            	hwnd->userdata = (ULONG_PTR)pData;
 
 		if (dwStyle == SBS_VERT)
 		{

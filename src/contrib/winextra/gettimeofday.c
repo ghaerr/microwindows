@@ -1,6 +1,15 @@
 /* gettimeofday.c*/
 #include "windows.h"
 
+#if _MSC_VER == 1500
+typedef unsigned __int64 uint64_t;
+
+struct timezone {
+	int tz_minuteswest;
+	int tz_dsttime;
+};
+
+#else
 /* gettimeofday() for windows*/
 typedef struct _SYSTEMTIME {
 	WORD wYear;
@@ -21,9 +30,10 @@ typedef struct _FILETIME
 
 extern void STDCALL GetSystemTime(LPSYSTEMTIME lpSystemTime);
 extern BOOL STDCALL SystemTimeToFileTime(SYSTEMTIME *lpSystemTime,LPFILETIME lpFileTime);
+#endif
 
 int
-gettimeofday(struct timeval * tp, void * tzp)
+gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
 	// This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
@@ -39,7 +49,26 @@ gettimeofday(struct timeval * tp, void * tzp)
 	time = ((uint64_t)file_time.dwLowDateTime);
 	time += ((uint64_t)file_time.dwHighDateTime) << 32;
 
-	tp->tv_sec = (long)((time - EPOCH) / 10000000L);
-	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+	if (tv)
+	{
+		tv->tv_sec = (long)((time - EPOCH) / 10000000L);
+		tv->tv_usec = (long)(system_time.wMilliseconds * 1000);
+	}
+	if (tz)
+	{
+#if _MSC_VER
+		tz->tz_minuteswest = 7 * 60;	// FIXME
+		tz->tz_dsttime = 0;
+#else
+		static int tzflag = 0;
+		if (!tzflag)
+		{
+			_tzset();
+			tzflag = 1;
+		}
+		tz->tz_minuteswest - _timezone / 60;
+		tz->tz_dsttime = _daylight;
+#endif
+	}
 	return 0;
 }

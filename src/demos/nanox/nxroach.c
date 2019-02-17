@@ -101,11 +101,12 @@ main(int ac, char **av)
     /*
        Catch some signals so we can erase any visible roaches.
     */
+#if UNIX
     signal(SIGKILL, SigHandler);
     signal(SIGINT, SigHandler);
     signal(SIGTERM, SigHandler);
     signal(SIGHUP, SigHandler);
-
+#endif
     if (GrOpen() < 0) {
 	fprintf(stderr, "can't open graphics\n");
 	exit(1);

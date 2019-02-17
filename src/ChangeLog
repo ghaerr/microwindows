@@ -1,5 +1,14 @@
+16 Feb 2019
+	* added Visual Studio project in contrib/ports/vs2008
+	* rewrote Windows screen, keyboard and mouse drivers, ported to Windows
+	* added GrGetNextEventTimeout handling in polling GsSelect()
+14 Feb 2019
+	* fix and rename GdItemAddr/MWITEM_OFFSET to MwItemAddr, MwItemOffset
+	* added #define WIN64_PORT 1 in mwconfig.h for 64-bit Windows compile
+	* fixes for for 64-bit Windows (int=32, long=32, ptr=64), adjust LONG_PTR
+	* fixes for Windows Visual Studio 2008 compile (_MSC_VER=1500), defaults in mwconfig.h
 12 Feb 2019
-	* added zoom support to SDL2, set by SDL_ZOOM=<zoom_factor> option in config
+	* added zoom support to SDL2, use config SDL_ZOOM=<zoom_factor>, must also divide screen w/h to work
 	* add Daniel's support for SDL on Android
 10 Feb 2019
 	* min/max fixups, typo, another fix for Allegro mouse cursor

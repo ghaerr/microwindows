@@ -1,3 +1,6 @@
+17 Feb 2019
+	* added function key handling to Windows kbd_win32.c
+	* added Microwindows win32 API demos to VS build, app must call MwInitializeDialogs()
 16 Feb 2019
 	* added Visual Studio project in contrib/ports/vs2008
 	* rewrote Windows screen, keyboard and mouse drivers, ported to Windows

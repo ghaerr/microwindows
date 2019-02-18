@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Wrapper script to run Microwindows applications from inside the source tree
 # The Nano-X server will be started if necessary

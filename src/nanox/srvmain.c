@@ -103,10 +103,11 @@ SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THR
 static void GsPlatformInit(void);	/* platform specific init goes here*/
 
 #if (_MSC_VER == 1500) && NONETWORK
-int __stdcall WinMain(int hInstance, int hPrevInstance, char *lpCmdLine, int nShowCmd)
+int WinMain(int hInstance, int hPrevInstance, char *lpCmdLine, int nShowCmd)
 {
+	char *av[1] = { "nanox.exe" };
 	int main(int ac, char **av);
-	return main(0, NULL);
+	return main(1, av);
 }
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2005 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2005, 2019 Greg Haerr <greg@censoft.com>
  *
  * Microsoft Windows Mouse Driver
  */

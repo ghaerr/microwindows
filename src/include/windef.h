@@ -40,7 +40,7 @@
 #endif
 #endif  /* NOMINMAX */
 
-#if WIN32DLL | (_MSC_VER == 1500)
+#if WIN32DLL
 #ifdef EXPORTS
 	#define WINAPI	__declspec(dllexport) __stdcall
 #else

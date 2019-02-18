@@ -140,7 +140,7 @@ win32_init(PSD psd)
 	RegisterClass(&wc);
 
 	/* add non-client area to width and height of window*/
-	mwAppWindow = CreateWindow("mwinAppClass", "Microwindows",
+	mwAppWindow = CreateWindow("mwinAppClass", TEXT("Microwindows"),
 			WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU,
 			0, 0, SCREEN_WIDTH+6, SCREEN_HEIGHT+25, 0, 0, hInstance, NULL);
 	if (!mwAppWindow)

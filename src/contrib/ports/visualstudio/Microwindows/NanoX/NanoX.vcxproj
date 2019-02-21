@@ -44,8 +44,8 @@
     <ProjectReference Include="..\mwfonts\mwfonts.vcxproj">
       <Project>{6dac951d-40fb-4b3a-8e21-d42a2399d75c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\MWin\MWin.vcxproj">
-      <Project>{5a130bb4-73aa-47c4-844a-be323dff845a}</Project>
+    <ProjectReference Include="..\MWinExtra\MWinExtra.vcxproj">
+      <Project>{0892c144-3012-4c3a-9f9c-c4a69de3318f}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -116,7 +116,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>HAVE_SIGNAL=0;WIN32;_DEBUG;NANOX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NONETWORK=1;WIN32;_DEBUG;NANOX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\..\..\..\include;..\..\..\..\winextra</AdditionalIncludeDirectories>
     </ClCompile>
@@ -145,7 +145,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>HAVE_SIGNAL=0;WIN32;NDEBUG;NANOX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NONETWORK=1;WIN32;NDEBUG;NANOX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\..\..\..\include;..\..\..\..\winextra</AdditionalIncludeDirectories>
     </ClCompile>

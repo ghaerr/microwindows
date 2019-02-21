@@ -27,6 +27,17 @@
     <ClCompile Include="..\..\..\..\winextra\stub_winrgn.c" />
     <ClCompile Include="..\..\..\..\winextra\stub_winuser.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\winextra\extra_kernel.h" />
+    <ClInclude Include="..\..\..\..\winextra\extra_windef.h" />
+    <ClInclude Include="..\..\..\..\winextra\extra_windows.h" />
+    <ClInclude Include="..\..\..\..\winextra\extra_winfont.h" />
+    <ClInclude Include="..\..\..\..\winextra\extra_wingdi.h" />
+    <ClInclude Include="..\..\..\..\winextra\extra_winuser.h" />
+    <ClInclude Include="..\..\..\..\winextra\winbase.h" />
+    <ClInclude Include="..\..\..\..\winextra\winextra.h" />
+    <ClInclude Include="..\..\..\..\winextra\winstring.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{0892C144-3012-4C3A-9F9C-C4A69DE3318F}</ProjectGuid>

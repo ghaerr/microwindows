@@ -368,7 +368,7 @@ extern Bool XrmEnumerateDatabase(
 #endif
 );
 
-extern const char *XrmLocaleOfDatabase(
+extern XCONST char *XrmLocaleOfDatabase(
 #if NeedFunctionPrototypes
     XrmDatabase 	/* database */
 #endif

@@ -714,7 +714,7 @@ GetTickCount(VOID)
 #endif
 }
 
-#if !_MSC_VER
+
 /*
  * Suspend execution of the program for the specified number of milliseconds.
  */
@@ -734,11 +734,12 @@ MwDelay(MWTIMEOUT msecs)
 #elif MSDOS
 	/* no delay required*/
 #else
+	SleepEx(msecs,FALSE);
 	/* no delay implemented*/
 #pragma message("MwDelay - no delay implemented, will have excess CPU in eventloop")
 #endif
 }
-#endif /* _MSC_VER*/
+
 
 #if PSP
 static int

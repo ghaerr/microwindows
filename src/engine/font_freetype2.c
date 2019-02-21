@@ -40,6 +40,7 @@
 #include <string.h>
 #include "device.h"
 #include "devfont.h"
+#include "uni_std.h"
 
 #define isprefix(buf,str)	(!strncasecmp(buf, str, strlen(str)))
 

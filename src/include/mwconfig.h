@@ -265,9 +265,9 @@
 
 /* see if can use GCC compiler-only macro magic to save space */
 #if HAVE_VARARG_MACROS && HAVE_FPRINTF
-#define EPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* error output*/
+#define EPRINTF(str, ...)   fprintf(stderr, str, ##__VA_ARGS__)  /* error output*/
 #if DEBUG
-#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
+#define DPRINTF(str, ...)   fprintf(stderr, str, ##__VA_ARGS__)  /* debug output*/
 #else
 #define DPRINTF(str, ...)			/* no debug output*/
 #endif

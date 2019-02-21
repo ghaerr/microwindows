@@ -27,6 +27,10 @@
 #include <pspdebug.h>
 #endif
 
+#if WINEXTRA
+#include "extra_kernel.h"		/* extra windows stuff set by WINEXTRA=Y in config*/
+#endif
+
 #define MWINCLUDECOLORS
 #include "serv.h"
 
@@ -119,11 +123,14 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
+#ifndef _MSC_VER
+//bug in MSVC with macro expansion with ifdefs!
 	EPRINTF("Usage: %s [-p] [-A] [-NLRD] [-x #] [-y #]"
 #if FONTMAPPER
 		" [-c <fontconfig-file>"
 #endif
 		" ...]\n", progname);
+#endif
 	exit(1);
 }
 
@@ -1175,6 +1182,7 @@ GsGetTickCount(void)
 #endif
 }
 
+
 /*
  * Suspend execution of the program for the specified number of milliseconds.
  */
@@ -1194,8 +1202,7 @@ GrDelay(GR_TIMEOUT msecs)
 #elif MSDOS
 	/* no delay required*/
 #elif _MSC_VER
-	void MwDelay(MWTIMEOUT msecs);
-	MwDelay(msecs);
+	SleepEx(msecs, FALSE);
 #else
 	/* no delay implemented*/
 #pragma message("GrDelay - no delay implemented, will have excess CPU in eventloop")

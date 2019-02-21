@@ -1,15 +1,10 @@
 /* gettimeofday.c*/
 #include "windows.h"
+#include "sys_time.h"
 
-#if _MSC_VER == 1500
+#if _MSC_VER >= 1500
 typedef unsigned __int64 uint64_t;
 
-struct timezone {
-	int tz_minuteswest;
-	int tz_dsttime;
-};
-
-#else
 /* gettimeofday() for windows*/
 typedef struct _SYSTEMTIME {
 	WORD wYear;

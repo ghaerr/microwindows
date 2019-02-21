@@ -156,7 +156,7 @@ int WINAPI DialogBoxParam ( HINSTANCE hInstance, LPCTSTR lpTemplate,
 int WINAPI DialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate,
 	HWND hWndParent, DLGPROC lpDialogFunc, LPARAM lParam);
 
-LONG WINAPI WINAPI GetDialogBaseUnits(VOID);
+LONG WINAPI GetDialogBaseUnits(VOID);
 
 BOOL WINAPI EndDialog ( HWND hDlg, int nResult );
 DLGBOOL CALLBACK DefDlgProc ( HWND hDlg, UINT Msg, WPARAM wParam, LPARAM lParam );

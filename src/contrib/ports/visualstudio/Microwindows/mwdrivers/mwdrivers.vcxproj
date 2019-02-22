@@ -40,6 +40,14 @@
     <ClCompile Include="..\..\..\..\..\drivers\fbportrait_right.c" />
     <ClCompile Include="..\..\..\..\..\drivers\genfont.c" />
     <ClCompile Include="..\..\..\..\..\drivers\genmem.c" />
+    <ClCompile Include="..\..\..\..\..\drivers\osdep.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug-SDL2|Win32'">
+      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\..\drivers\rasterops.c" />
   </ItemGroup>
   <Choose>

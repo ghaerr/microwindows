@@ -119,6 +119,11 @@
     <ClCompile Include="..\..\..\..\..\nx11\XMisc.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Xrm.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NanoX\NanoX.vcxproj">
+      <Project>{c2f31b05-2bdc-4264-a254-76edb9bf81dd}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{5DCDD45C-EA2B-4A86-AFEB-DA056167CE3B}</ProjectGuid>

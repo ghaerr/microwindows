@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\winextra\gettimeofday.c" />
     <ClCompile Include="..\..\..\..\winextra\setenv.c" />
     <ClCompile Include="..\..\..\..\winextra\stub_winevent.c" />
     <ClCompile Include="..\..\..\..\winextra\stub_winfont.c" />

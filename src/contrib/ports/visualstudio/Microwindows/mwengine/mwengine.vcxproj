@@ -53,7 +53,6 @@
     <ClCompile Include="..\..\..\..\..\engine\image_pnm.c" />
     <ClCompile Include="..\..\..\..\..\engine\image_tiff.c" />
     <ClCompile Include="..\..\..\..\..\engine\image_xpm.c" />
-    <ClCompile Include="..\..\..\..\..\nanox\error.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

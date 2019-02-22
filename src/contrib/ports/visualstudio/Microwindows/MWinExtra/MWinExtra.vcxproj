@@ -28,7 +28,6 @@
     <ClCompile Include="..\..\..\..\winextra\stub_winuser.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\winextra\extra_kernel.h" />
     <ClInclude Include="..\..\..\..\winextra\extra_windef.h" />
     <ClInclude Include="..\..\..\..\winextra\extra_windows.h" />
     <ClInclude Include="..\..\..\..\winextra\extra_winfont.h" />

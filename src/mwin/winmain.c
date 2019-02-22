@@ -12,10 +12,6 @@
 #include "uni_std.h"
 #include "sys_time.h"
 
-#if EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
 #if RTEMS
 #include <rtems/mw_uid.h>
 #endif
@@ -24,17 +20,12 @@
 #include <cyg/kernel/kapi.h>
 #endif
 
-#if PSP
-#include <pspkernel.h>
-#include <psputils.h>
-#define exit(...) sceKernelExitGame()
-#endif
-
 #include "windows.h"
 #include "wintern.h"
 #include "winres.h"
 #include "windlg.h"
 #include "device.h"
+#include "osdep.h"
 
 /*
  * External definitions defined here.
@@ -48,13 +39,9 @@ HWND		dragwp;			/* window user is dragging*/
 HCURSOR		curcursor;		/* currently enabled cursor */
 MWCOORD		cursorx;		/* current x position of cursor */
 MWCOORD		cursory;		/* current y position of cursor */
-DWORD		startTicks;		/* tickcount on startup */
 int		keyb_fd;		/* the keyboard file descriptor */
 int		mouse_fd;		/* the mouse file descriptor */
 DWORD		lastWIN32Error = 0;	/* Last error */
-
-void MwDelay(MWTIMEOUT msecs);
-static void MwPlatformInit(void);	/* platform specific init goes here*/
 
 int WINAPI 	WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     			LPSTR lpCmdLine, int nShowCmd);
@@ -96,7 +83,7 @@ invoke_WinMain_Start(int ac, char **av)
 	if (MwUserInit(ac, av) < 0)
 		exit(1);
 
-	MwPlatformInit();			/* platform-specific initialization*/
+	GdPlatformInit();			/* platform-specific initialization*/
 
 	if(MwInitialize() < 0)
 		exit(1);
@@ -489,7 +476,7 @@ MwSelect(BOOL canBlock)
 		return;					/* yes - return without sleeping*/
 
 	/* no input processed, yield so we don't freeze system*/
-	MwDelay(WAITTIME);
+	GdDelay(WAITTIME);
 }
 
 /********************************************************************************/
@@ -548,8 +535,6 @@ MwInitialize(void)
 	signal(SIGTERM, (void *)MwTerminate);
 #endif	
 
-	startTicks = GetTickCount();
-	
 	if ((keyb_fd = GdOpenKeyboard()) == -1) {
 		EPRINTF("Cannot initialise keyboard\n");
 		return -1;
@@ -684,89 +669,6 @@ MwTerminate(void)
 VOID WINAPI
 Sleep(DWORD dwMilliseconds)
 {
-	MwDelay(dwMilliseconds);
+	GdDelay(dwMilliseconds);
 }
 #endif
-
-/*
- * Return # milliseconds elapsed since start of Microwindows
- * Granularity is 25 msec
- */
-DWORD WINAPI
-GetTickCount(VOID)
-{
-#if UNIX | EMSCRIPTEN | _MSC_VER
-	struct timeval t;
-
-	gettimeofday(&t, NULL);
-	return ((t.tv_sec * 1000) + (t.tv_usec / 25000) * 25) - startTicks;
-#elif MSDOS
-	return (DWORD)(clock() * 1000 / CLOCKS_PER_SEC);
-#elif _MINIX
-	struct tms	t;
-	
-	return (DWORD)times(&t) * 16;
-#elif __ECOS
-  /* CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR gives the length of one tick in nanoseconds */
-   return (cyg_current_time()*(CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR))/(1000*1000);
-#else
-	return 0L;
-#endif
-}
-
-
-/*
- * Suspend execution of the program for the specified number of milliseconds.
- */
-void
-MwDelay(MWTIMEOUT msecs)
-{
-#if UNIX && HAVE_SELECT
-	struct timeval timeval;
-
-	timeval.tv_sec = msecs / 1000;
-	timeval.tv_usec = (msecs % 1000) * 1000;
-	select(0, NULL, NULL, NULL, &timeval);
-#elif EMSCRIPTEN
-	emscripten_sleep(msecs);
-#elif PSP
-	sceKernelDelayThread(1000 * msecs);
-#elif MSDOS
-	/* no delay required*/
-#else
-	SleepEx(msecs,FALSE);
-	/* no delay implemented*/
-#pragma message("MwDelay - no delay implemented, will have excess CPU in eventloop")
-#endif
-}
-
-
-#if PSP
-static int
-exit_callback(void)
-{
-	sceKernelExitGame();
-	return 0;
-}
-
-static void
-CallbackThread(void *arg)
-{
-	int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-	sceKernelRegisterExitCallback(cbid);
-	sceKernelSleepThreadCB();
-}
-#endif
-
-static void
-MwPlatformInit(void)
-{
-#if PSP
-	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-	if (thid >= 0)
-		sceKernelStartThread(thid, 0, 0);
-#endif
-#if NDS
-	consoleDemoInit();  //setup the sub screen for printing
-#endif
-}

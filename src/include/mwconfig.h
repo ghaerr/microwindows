@@ -22,7 +22,7 @@
 #define DEBUG			1		/* =1 for debug output*/
 #define NONETWORK		1		/* =1 to link Nano-X apps with server for standalone*/
 #define HAVE_MMAP       0       /* =1 has mmap system call*/
-#define HAVE_FPRINTF	0		/* =1 EPRINTF/DPRINTF uses fprintf/printf else GdError*/
+#define HAVE_FPRINTF	0		/* =0 removes fprintf(stderr,... from apps*/
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 #endif
@@ -37,6 +37,10 @@
 #define DEBUG_EXPOSE	0		/* =1 to flash yellow before painting expose areas*/
 #define DEBUG_BLIT		0		/* =1 to flash brown before painting areas with convblit*/
 #define DEBUG_NANOWM	0		/* =1 for window manager debug printfs*/
+
+#ifndef DEBUG
+#define DEBUG			0		/* =1 for debug output*/
+#endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/
 #ifndef HAVE_SELECT
@@ -250,45 +254,19 @@
 #define HAVE_VARARG_MACROS	0
 #endif
 
-/*
- * Control whether printf/fprintf required in server and demo programs and C library.
- * if this is set to =0 in Arch.rules, fprintf/printf will be no-op in all demo programs
- * and in the server GdError will be called, which calls write() if HAVE_FILEIO=1
- */
 #ifndef HAVE_FPRINTF
-#define HAVE_FPRINTF	1		/* =1 EPRINTF/DPRINTF uses fprintf/printf else GdError*/
+#define HAVE_FPRINTF	1		/* =0 removes fprintf(stderr,... from apps*/
 #endif
 
-#ifndef DEBUG
-#define DEBUG			0		/* =1 for debug output*/
-#endif
-
-/* see if can use GCC compiler-only macro magic to save space */
-#if HAVE_VARARG_MACROS && HAVE_FPRINTF
-#define EPRINTF(str, ...)   fprintf(stderr, str, ##__VA_ARGS__)  /* error output*/
-#if DEBUG
-#define DPRINTF(str, ...)   fprintf(stderr, str, ##__VA_ARGS__)  /* debug output*/
-#else
-#define DPRINTF(str, ...)			/* no debug output*/
-#endif
-
-#else	/* must call GdError*/
 /* error.c*/
 int	GdError(const char *format, ...);
-int	GdErrorNull(const char *format, ...);  /* doesn't print msgs */
 
 #define EPRINTF			GdError		/* error output*/
 #if DEBUG
-# define DPRINTF		GdError		/* debug output*/
+#define DPRINTF			GdError		/* debug output*/
 #else
-# if HAVE_VARARG_MACROS
-# define DPRINTF(str, ...)			/* no debug output*/
-# else
-# define DPRINTF		GdErrorNull	/* no debug output*/
-# endif
+#define DPRINTF(str, ...)			/* no debug output*/
 #endif
-
-#endif /* HAVE_VARARG_MACROS && HAVE_FPRINTF*/
 
 /* Sanity check: VTSWITCH involves a timer. */
 #if VTSWITCH && !MW_FEATURE_TIMERS

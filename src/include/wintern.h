@@ -97,7 +97,6 @@ extern	HCURSOR	curcursor;		/* currently enabled cursor */
 extern	MWCOORD	cursorx;		/* x position of cursor */
 extern	MWCOORD	cursory;		/* y position of cursor */
 extern	MWSCREENINFO	sinfo;		/* screen information */
-extern  DWORD	startTicks;		/* tickcount on startup */
 extern  int	mwpaintNC;		/* experimental nonclient regions*/
 extern  BOOL	mwforceNCpaint;		/* force NC paint for alphablend*/
 

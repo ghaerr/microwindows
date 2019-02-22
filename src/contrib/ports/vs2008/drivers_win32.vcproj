@@ -157,15 +157,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\drivers\..\contrib\winextra\gettimeofday.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\drivers\kbd_win32.c"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\drivers\mou_win32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\drivers\osdep.c"
 				>
 			</File>
 			<File

@@ -38,9 +38,9 @@
 #include <string.h>
 #include <assert.h>
 #include <string.h>
+#include "uni_std.h"
 #include "device.h"
 #include "devfont.h"
-#include "uni_std.h"
 
 #define isprefix(buf,str)	(!strncasecmp(buf, str, strlen(str)))
 

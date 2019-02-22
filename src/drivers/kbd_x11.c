@@ -356,7 +356,7 @@ X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			break;
 		    default:
 		    	if (sym & 0xFF00)
-			    fprintf(stderr, "Unhandled X11 keysym: %04x\n", (int)sym);
+			    	EPRINTF("Unhandled X11 keysym: %04x\n", (int)sym);
 		    }
 
 		    XLookupString(&ev.xkey, &ignored_char, 1, &sym, NULL );
@@ -428,7 +428,7 @@ static int init_modstate(void)
 	int capsl, numl, scrolll;
 
 	if(XkbGetIndicatorState (x11_dpy, XkbUseCoreKbd, &state) != Success) {
-		fprintf(stderr, "nano-X: Error reading kbd indicator status\n");
+		EPRINTF("nano-X: Error reading kbd indicator status\n");
 		return 0;	/* no error*/
 	} 
 	capsl = state & CAPS_LOCK_MASK;

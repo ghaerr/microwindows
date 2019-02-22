@@ -10,6 +10,7 @@
 #define MWINCLUDECOLORS
 #include "uni_std.h"
 #include "serv.h"
+#include "osdep.h"
 #include "../drivers/genmem.h"
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
@@ -4278,5 +4279,27 @@ GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 		keygrab           =  keygrab->next;
 	}
 
+	SERVER_UNLOCK();
+}
+
+/**
+ * Ring Bell
+ */
+void
+GrBell(void)
+{
+	SERVER_LOCK();
+	GdBell();
+	SERVER_UNLOCK();
+}
+
+/**
+ * Suspend execution of the program for the specified number of milliseconds.
+ */
+void
+GrDelay(GR_TIMEOUT msecs)
+{
+	SERVER_LOCK();
+	GdDelay(msecs);
 	SERVER_UNLOCK();
 }

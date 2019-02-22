@@ -573,7 +573,7 @@ l_int32    i, j;
         }
         break;
     //default:
-        //fprintf(stderr, "Operation %d not permitted here!\n", op);
+        //EPRINTF("Operation %d not permitted here!\n", op);
     }
 
     return;
@@ -758,7 +758,7 @@ l_int32    i, j;
         }
         break;
     //default:
-        //fprintf(stderr, "Operation %d not permitted here!\n", op);
+        //EPRINTF("Operation %d not permitted here!\n", op);
     }
 
     return;
@@ -1109,7 +1109,7 @@ l_int32    i, j;
         }
         break;
     //default:
-        //fprintf(stderr, "Operation %d invalid\n", op);
+        //EPRINTF("Operation %d invalid\n", op);
     }
 
     return;
@@ -1610,7 +1610,7 @@ l_int32    i, j;
         }
         break;
     //default: 
-        //fprintf(stderr, "Operation %x invalid\n", op);
+        //EPRINTF("Operation %x invalid\n", op);
     }
 
     return;
@@ -2437,7 +2437,7 @@ l_int32    i, j;
         }
         break;
     //default: 
-        //fprintf(stderr, "Operation %x invalid\n", op);
+        //EPRINTF("Operation %x invalid\n", op);
     }
 
     return;

@@ -62,11 +62,11 @@ SOFTWARE.
 #include <X11/Xresource.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "nxlib.h"
 
 static void _XReportParseError(XrmOptionDescRec *arg, const char *msg)
 {
-    (void) fprintf(stderr, "Error parsing argument \"%s\" (%s); %s\n",
+    EPRINTF("Error parsing argument \"%s\" (%s); %s\n",
 		   arg->option, arg->specifier, msg);
     exit(1);
 }

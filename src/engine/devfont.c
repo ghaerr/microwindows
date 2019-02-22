@@ -225,8 +225,6 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 
 	if (fontclass == MWLF_CLASS_ANY) {
 		EPRINTF("createfont: %s,%d not found\n", fontname, height);
-#ifndef _MSC_VER
-//somehow MSVC compiler have issues with those #ifs in macro!
 		EPRINTF("  (tried "
 			"builtin_createfont"
 #if HAVE_FNT_SUPPORT
@@ -248,7 +246,6 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 			", eujcp_createfont"
 #endif
 			")\n");
-#endif
 	}
 
 	/*

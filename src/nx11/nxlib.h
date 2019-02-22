@@ -24,7 +24,6 @@
 #include "../include/nano-X.h"
 
 #include "mwconfig.h"				/* for USE_ALLOC, DPRINTF, EPRINTF*/
-#include <stdio.h>					/* for stderr in DPRINTF*/
 
 /* malloc stuff*/
 #if MALLOC_0_RETURNS_NULL

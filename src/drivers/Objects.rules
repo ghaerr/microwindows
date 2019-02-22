@@ -42,6 +42,9 @@ endif
 # framebuffer drivers always linked in
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)
 
+# OS dependent routines always linked in
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/osdep.o
+
 ifeq ($(VTSWITCH), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/vtswitch.o
 endif

@@ -326,22 +326,3 @@ win32_preselect(PSD psd)
 	/* return nonzero if SDL event available*/
 	return win32_pollevents();
 }
-
-int
-GdError(const char *format, ...)
-{
-	va_list args;
-	char 	buf[1024];
-
-	va_start(args, format);
-	vsprintf(buf, format, args);
-	OutputDebugString(buf);
-	va_end(args);
-	return -1;
-}
-
-void
-MwDelay(MWTIMEOUT msecs)
-{
-	Sleep(msecs);
-}

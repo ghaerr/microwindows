@@ -38,9 +38,7 @@ void *_XGetRequest(Display *dpy, /*CARD8*/char type, size_t len)
 		_XFlush(dpy);
 
 	if (len % 4)
-		fprintf(stderr,
-			"Xlib: request %d length %zd not a multiple of 4.\n",
-			type, len);
+		EPRINTF("Xlib: request %d length %zd not a multiple of 4.\n", type, len);
 
 	dpy->last_req = dpy->bufptr;
 

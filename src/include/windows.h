@@ -190,7 +190,6 @@ struct hwnd {
 };
 
 /* misc apis in winmain.c*/
-DWORD WINAPI	GetTickCount(VOID);
 VOID WINAPI		Sleep(DWORD dwMilliseconds);
 
 #ifdef __cplusplus

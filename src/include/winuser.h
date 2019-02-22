@@ -831,3 +831,6 @@ typedef struct tagOFN {
 BOOL WINAPI GetOpenFileName (LPOPENFILENAME Arg1);
 BOOL WINAPI GetSaveFileName (LPOPENFILENAME Arg1);
 BOOL WINAPI GetOpenFileNameIndirect (LPOPENFILENAME Arg1);
+
+/* misc APIs*/
+DWORD WINAPI	GetTickCount(VOID);

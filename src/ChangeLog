@@ -1,3 +1,8 @@
+21 Feb 2019
+	* create drivers/osdep.c for all OS dependent routines, cleaned up winmain.c/srvmain.c
+	* changed fprintf(stderr,...) to EPRINTF in libraries, app cleanup will be next
+	* remove {E,D}PRINTF conversion to fprintf(stderr... using varargs macros, use GdError
+	* added Rooz's changes to compile for WebAssembly/C#.Net project
 17 Feb 2019
 	* added function key handling to Windows kbd_win32.c
 	* added Microwindows win32 API demos to VS build, app must call MwInitializeDialogs()

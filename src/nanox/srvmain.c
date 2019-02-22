@@ -14,25 +14,13 @@
 #include "uni_std.h"
 #include "sys_time.h"
 
-#if EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
 #if RTEMS
 #include <rtems/mw_uid.h>
 #endif
 
-#if PSP
-#include <pspkernel.h>
-#include <pspdebug.h>
-#endif
-
-#if WINEXTRA
-#include "extra_kernel.h"		/* extra windows stuff set by WINEXTRA=Y in config*/
-#endif
-
 #define MWINCLUDECOLORS
 #include "serv.h"
+#include "osdep.h"
 
 #if HAVE_VNCSERVER
 #include "rfb/rfb.h"
@@ -83,7 +71,6 @@ static int	mouse_fd;		/* the mouse file descriptor */
 char		*curfunc;		/* the name of the current server func*/
 GR_BOOL		screensaver_active;	/* time before screensaver activates */
 GR_SELECTIONOWNER selection_owner;	/* the selection owner and typelist */
-GR_TIMEOUT	startTicks;		/* ms time server started*/
 int		autoportrait = FALSE;	/* auto portrait mode switching*/
 MWCOORD		nxres;			/* requested server x resolution*/
 MWCOORD		nyres;			/* requested server y resolution*/
@@ -104,8 +91,6 @@ static int	portraitmode = MWPORTRAIT_NONE;
 
 SERVER_LOCK_DECLARE /* Mutex for all public functions (only if NONETWORK and THREADSAFE) */
 
-static void GsPlatformInit(void);	/* platform specific init goes here*/
-
 #if (_MSC_VER == 1500) && NONETWORK
 int WinMain(int hInstance, int hPrevInstance, char *lpCmdLine, int nShowCmd)
 {
@@ -123,14 +108,11 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-#ifndef _MSC_VER
-//bug in MSVC with macro expansion with ifdefs!
 	EPRINTF("Usage: %s [-p] [-A] [-NLRD] [-x #] [-y #]"
 #if FONTMAPPER
 		" [-c <fontconfig-file>"
 #endif
 		" ...]\n", progname);
-#endif
 	exit(1);
 }
 
@@ -268,7 +250,7 @@ GsAcceptClientFd(int i)
 int
 GrOpen(void)
 {
-	GsPlatformInit();			/* platform-specific initialization*/
+	GdPlatformInit();			/* platform-specific initialization*/
 
 #if NONETWORK
 	SERVER_LOCK();
@@ -752,7 +734,7 @@ GsSelect(GR_TIMEOUT timeout)
 			return;					/* yes - return without sleeping*/
 
 		/* give up time-slice & sleep for a bit */
-		GrDelay(WAITTIME);
+		GdDelay(WAITTIME);
 		waittime += WAITTIME; 
 
 		/* have we timed out? */
@@ -950,16 +932,14 @@ GsInitialize(void)
 	/* If needed, initialize the server mutex. */
 	SERVER_LOCK_INIT();
 
-	setbuf(stdout, NULL);
-	setbuf(stderr, NULL);
+	//setbuf(stdout, NULL);
+	//setbuf(stderr, NULL);
 
 	wp = (GR_WINDOW *) malloc(sizeof(GR_WINDOW));
 	if (wp == NULL) {
 		EPRINTF("Cannot allocate root window\n");
 		return -1;
 	}
-
-	startTicks = GsGetTickCount();
 
 #if HAVE_SIGNAL
 	/* catch terminate signal to restore tty state*/
@@ -1144,97 +1124,4 @@ GsTerminate(void)
 	MwRedrawVt(mwvterm);
 #endif
 	exit(0);
-}
-
-void
-GrBell(void)
-{
-	SERVER_LOCK();
-#if !(PSP | EMSCRIPTEN)
-	(void)write(2, "\7", 1);
-#endif
-	SERVER_UNLOCK();
-}
-
-/*
- * Return # milliseconds elapsed since start of Microwindows
- * Granularity is 25 msec
- */
-GR_TIMEOUT
-GsGetTickCount(void)
-{
-#if UNIX | EMSCRIPTEN
-	struct timeval t;
-
-	gettimeofday(&t, NULL);
-	return ((t.tv_sec * 1000) + (t.tv_usec / 25000) * 25) - startTicks;
-#elif MSDOS
-	return (uint32_t)(clock() * 1000 / CLOCKS_PER_SEC);
-#elif _MINIX
-	struct tms	t;
-	
-	return (uint32_t)times(&t) * 16;
-#elif __ECOS
-  /* CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR gives the length of one tick in nanoseconds */
-   return (cyg_current_time()*(CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR))/(1000*1000);
-#else
-	return 0L;
-#endif
-}
-
-
-/*
- * Suspend execution of the program for the specified number of milliseconds.
- */
-void
-GrDelay(GR_TIMEOUT msecs)
-{
-#if UNIX && HAVE_SELECT
-	struct timeval timeval;
-
-	timeval.tv_sec = msecs / 1000;
-	timeval.tv_usec = (msecs % 1000) * 1000;
-	select(0, NULL, NULL, NULL, &timeval);
-#elif EMSCRIPTEN
-	emscripten_sleep(msecs);
-#elif PSP
-	sceKernelDelayThread(1000 * msecs);
-#elif MSDOS
-	/* no delay required*/
-#elif _MSC_VER
-	SleepEx(msecs, FALSE);
-#else
-	/* no delay implemented*/
-#pragma message("GrDelay - no delay implemented, will have excess CPU in eventloop")
-#endif
-}
-
-#if PSP
-static int
-exit_callback(void)
-{
-	sceKernelExitGame();
-	return 0;
-}
-
-static void
-CallbackThread(void *arg)
-{
-	int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-	sceKernelRegisterExitCallback(cbid);
-	sceKernelSleepThreadCB();
-}
-#endif
-
-static void
-GsPlatformInit(void)
-{
-#if PSP
-	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-	if (thid >= 0)
-		sceKernelStartThread(thid, 0, 0);
-#endif
-#if NDS
-	consoleDemoInit();  //setup the sub screen for printing
-#endif
 }

@@ -79,10 +79,10 @@ MwInitializeDialogs(HINSTANCE hInstance)
 {
 	WNDCLASS wcl;
 
-#if _MSC_VER
-	//char *av[1] = { "mwin.exe" };
+#if _MSC_VER == 1500
+	char *av[1] = { "mwin.exe" };
 	/* Windows uses this call to initialize Microwindows from app Winmain*/
-	//invoke_WinMain_Start(1, av);
+	invoke_WinMain_Start(1, av);
 #endif
 
 	/* for embedded systems, comment out registrations for unused builtin controls for space*/

@@ -1,9 +1,10 @@
 #include <stdio.h>
 
 #if DEBUG | 0
-#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
+int	GdError(const char *format, ...);
+#define DPRINTF		GdError			/* debug output*/
 #else
-#define DPRINTF(str, ...)									  /* no debug output*/
+#define DPRINTF(str, ...)			/* no debug output*/
 #endif
 
 /* stubbed out calls, need implementations*/

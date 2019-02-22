@@ -30,7 +30,7 @@ Moved message loop into main() for mwmine.c, xdraw.c
 
 Other issues for applications:
 no mainloop get or checkevent outside of main() or WinMain()
-no MwDelay or Sleep() with EMSCRIPTEN applications
+no GdDelay or Sleep() with EMSCRIPTEN applications
 no GrDelay outside main
 XFlush()/GrFlush() won't actually draw until GsSelect()/GrDelay() called (xdraw.c
 no Dialog functions with GetMessage() loop internally

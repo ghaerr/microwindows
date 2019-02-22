@@ -389,8 +389,8 @@ GrOpen(void)
 		return -1;
 	}
 
-	setbuf(stdout, NULL);
-	setbuf(stderr, NULL);
+	//setbuf(stdout, NULL);
+	//setbuf(stderr, NULL);
 
 	/*
 	 * By Performing the 'GrOpen' without allocating a buffer, just

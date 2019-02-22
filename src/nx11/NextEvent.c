@@ -7,7 +7,6 @@
 #if EVDEBUG
 #define FUNC_ENTER DPRINTF("ENTER [%s]\n", __FUNCTION__)
 #define FUNC_EXIT DPRINTF("LEAVE [%s]\n", __FUNCTION__)
-//#define DPRINTF(str, args...)   fprintf(stderr, str, ##args)  /* debug output*/
 #else
 #define FUNC_ENTER
 #define FUNC_EXIT

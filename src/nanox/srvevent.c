@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "serv.h"
+#include "osdep.h"
 
 #if HAVE_VNCSERVER && VNCSERVER_PTHREADED
 #include "lock.h"
@@ -357,7 +358,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 			ep->buttons = buttons;
 			ep->changebuttons = changebuttons;
 			ep->modifiers = modifiers;
-			ep->time = GsGetTickCount();
+			ep->time = GdGetTickCount();
 		}
 
 		/*
@@ -1065,7 +1066,7 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 			gp->buttons = buttons;
 			gp->changebuttons = cbuttons;
 			gp->modifiers = modifiers;
-			gp->time = GsGetTickCount();
+			gp->time = GdGetTickCount();
 
 			if ((wp == rootwp) || (wp->nopropmask & GR_EVENTMASK(etype)))
 				break;

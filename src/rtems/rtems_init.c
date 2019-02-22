@@ -118,10 +118,10 @@ void *POSIX_Init( void *argument )
     {
       char   *p;
 
-      fprintf( stderr, "Enter arguments> " );
+      DPRINTF("Enter arguments> " );
       p = fgets( &Line[6], LINE_LIMIT - 6, stdin );
       if ( !p ) {
-        fprintf( stderr, "error reading arguments\n" );
+        DPRINTF("error reading arguments\n" );
         exit(0);
       }
     }
@@ -134,7 +134,7 @@ void *POSIX_Init( void *argument )
    */
   sc = rtems_shell_make_args( Line, &mainArgc, mainArgv, ARGV_LIMIT - 1 );
   if ( sc ) {
-    fprintf( stderr, "Error parsing arguments\n" );
+    DPRINTF("Error parsing arguments\n" );
     exit(0);
   }
 

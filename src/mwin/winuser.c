@@ -24,6 +24,7 @@
 #include <string.h>
 #include <assert.h>
 #include "uni_std.h"
+#include "osdep.h"
 
 #define PAINTONCE	1	/* =1 to queue paint msgs only once*/
 #define MOUSETEST	1
@@ -2115,4 +2116,14 @@ GetLayeredWindowAttributes(HWND hwnd, COLORREF *pcrKey, BYTE *pbAlpha, DWORD *pd
 	*pbAlpha = hwnd->alpha;
 	*pdwFlags = hwnd->layered_flags;
 	return TRUE;
+}
+
+/*
+ * Return # milliseconds elapsed since start of Microwindows
+ * Granularity is 25 msec
+ */
+DWORD WINAPI
+GetTickCount(VOID)
+{
+	return GdGetTickCount();
 }

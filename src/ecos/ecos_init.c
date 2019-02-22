@@ -114,7 +114,7 @@ ecos_nx_init(CYG_ADDRWORD data)
     test_file_io();
 
     if(GrOpen() < 0) {
-        fprintf(stderr, "Couldn't connect to Nano-X server\n");
+        diag_printf("Couldn't connect to Nano-X server\n");
         exit(1);
     }
 

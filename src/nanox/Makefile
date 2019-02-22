@@ -67,7 +67,7 @@ NANOXFILES += $(MW_DIR_OBJ)/nanox/srvnet.o
 OBJS += \
 	$(MW_DIR_OBJ)/nanox/client.o \
 	$(MW_DIR_OBJ)/nanox/nxproto.o \
-	$(MW_DIR_OBJ)/nanox/error.o
+	$(MW_DIR_OBJ)/drivers/osdep.o
 
 # add in memory mapped framebuffer from client if available
 ifeq ($(SCREEN), FB)

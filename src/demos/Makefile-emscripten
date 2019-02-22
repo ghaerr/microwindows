@@ -91,11 +91,10 @@ NANOXDEMOS += $(MW_DIR_BIN)/demo-grabkey.html
 
 # NANOX demos requiring fonts/em-font truetype fonts
 NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-ttfont.html
+NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-aafont.html
 NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-font.html
 
 # specially linked NANOX demos
-DEMOAAFONT = $(MW_DIR_BIN)/demo-aafont.html
-DEMOAAFONTPRELOAD = --embed-file $(MW_DIR_SRC)/images/demos/nanox/aademo.txt@bin/
 DEMOCOMPOSITE = $(MW_DIR_BIN)/demo-composite.html
 DEMOCOMPOSITEPRELOAD = --embed-file $(MW_DIR_SRC)/images/demos/nanox/alphademo.png@images/demos/nanox/
 DEMOAGG = $(MW_DIR_BIN)/demo-agg.html
@@ -112,7 +111,7 @@ NX11DEMOS += $(MW_DIR_BIN)/xtestarc.html
 endif
 
 ##############################  Rules Section ###############################
-SPECIAL_LINKED_DEMOS = $(MWDVETEST) $(MWMINE) $(DEMOAAFONT) $(DEMOCOMPOSITE) $(DEMOAGG)
+SPECIAL_LINKED_DEMOS = $(MWDVETEST) $(MWMINE) $(DEMOCOMPOSITE) $(DEMOAGG)
 
 all: $(MWINDEMOS) $(NANOXDEMOS) $(NANOXFONTDEMOS) $(SPECIAL_LINKED_DEMOS) $(NX11DEMOS)
 
@@ -151,10 +150,6 @@ $(NANOXFONTDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
 
 ######## NANOX SPECIAL LINKED DEMOS ########
-$(DEMOAAFONT): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
-	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOAAFONTPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
-
 $(DEMOCOMPOSITE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOCOMPOSITEPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary

@@ -156,7 +156,6 @@ ifneq ($(ARCH), ANDROID)
 		$(MW_DIR_SRC)/images/demos/nanox/mwlogo.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
-		$(MW_DIR_SRC)/images/demos/nanox/aademo.txt \
 		$(MW_DIR_BIN)
 endif
 
@@ -253,7 +252,6 @@ $(ANDROID_SKEL)/%:
 		$(MW_DIR_SRC)/images/demos/nanox/mwlogo.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
-		$(MW_DIR_SRC)/images/demos/nanox/aademo.txt \
 		$@/assets
 	test -d $@/lib/$(ANDROID_ARCH_VER) || mkdir -p $@/lib/$(ANDROID_ARCH_VER)
 	$(CP) $(ALLEGRO5_LIB)/liballegro.so $@/lib/$(ANDROID_ARCH_VER)/

@@ -1,4 +1,5 @@
 21 Feb 2019
+	* demos/nanox/demo-aafont.c cleanup
 	* create drivers/osdep.c for all OS dependent routines, cleaned up winmain.c/srvmain.c
 	* changed fprintf(stderr,...) to EPRINTF in libraries, app cleanup will be next
 	* remove {E,D}PRINTF conversion to fprintf(stderr... using varargs macros, use GdError

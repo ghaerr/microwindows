@@ -16,10 +16,7 @@
 //#define FONTNAME "Cour"
 //#define FONTNAME "Chococooky"
 #define FONTNAME "Georgia-Italic"
-
-#else //defined(__ANDROID__) 
-
-#if HAVE_T1LIB_SUPPORT
+#elif HAVE_T1LIB_SUPPORT
    #define FONTNAME "fonts/type1/bchr.pfb"
 #elif HAVE_FREETYPE_2_SUPPORT
    //#define FONTNAME "lt1-r-omega-serif"
@@ -42,9 +39,6 @@
    #define FONTNAME GR_FONT_SYSTEM_VAR
 #endif
 
-#endif //defined(__ANDROID__)
-
-
 #define MAXW 400
 #define MAXH 400
 
@@ -62,7 +56,6 @@ void Render(GR_WINDOW_ID window);
 
 int main(int argc, char **argv)
 {
-  FILE *file;
   GR_EVENT event;
   GR_WINDOW_ID window;
 
@@ -78,13 +71,14 @@ int main(int argc, char **argv)
   gid = GrNewGC ();
   GrSelectEvents(window, GR_EVENT_MASK_KEY_DOWN |
 		GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_EXPOSURE);
-#if defined(__ANDROID__)
+#if 1
   sprintf(buffer,"%s","gEût été ôté de là ...");
   for (n = 0; n < 128 && buffer[n]; n++) {
 	if (buffer[n] == '\n')
 	break;
   }
 #else
+  FILE *file;
   if ((file = fopen("bin/aademo.txt", "r")) == NULL) {
 	printf("Can't open text file\n");
 	return (-1);

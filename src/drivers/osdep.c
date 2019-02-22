@@ -30,8 +30,8 @@
 #include "../include/mwconfig.h"
 #include "../include/osdep.h"
 
-#if _MSC_VER > 1500		/* remove this if REAL windows.h included above*/
-__declspec(dllimport) unsigned int __stdcall Sleep(unsigned int dwMilliseconds);
+#if _MSC_VER > 15000		/* remove this if REAL windows.h included above*/
+__declspec(dllimport) unsigned int  __stdcall Sleep(unsigned int dwMilliseconds);
 __declspec(dllimport) unsigned int __stdcall OuputDebugString(char *buf);
 #endif
 
@@ -184,7 +184,7 @@ GdPlatformInit(void)
 #if _MSC_VER
 /* gettimeofday() for Windows*/
 
-#if _MSC_VER > 1500		/* remove this if REAL windows.h included above*/
+#if _MSC_VER > 15000		/* remove this if REAL windows.h included above*/
 typedef struct _SYSTEMTIME {
 	WORD wYear;
 	WORD wMonth;

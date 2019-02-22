@@ -47,6 +47,12 @@
     <ClCompile Include="..\..\..\..\..\mwin\winrgn.c" />
     <ClCompile Include="..\..\..\..\..\mwin\winsbar.c" />
     <ClCompile Include="..\..\..\..\..\mwin\winuser.c" />
+    <ClCompile Include="..\..\..\..\winextra\setenv.c" />
+    <ClCompile Include="..\..\..\..\winextra\stub_winevent.c" />
+    <ClCompile Include="..\..\..\..\winextra\stub_winfont.c" />
+    <ClCompile Include="..\..\..\..\winextra\stub_wingdi.c" />
+    <ClCompile Include="..\..\..\..\winextra\stub_winrgn.c" />
+    <ClCompile Include="..\..\..\..\winextra\stub_winuser.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\mwdrivers\mwdrivers.vcxproj">
@@ -57,9 +63,6 @@
     </ProjectReference>
     <ProjectReference Include="..\mwfonts\mwfonts.vcxproj">
       <Project>{6dac951d-40fb-4b3a-8e21-d42a2399d75c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\MWinExtra\MWinExtra.vcxproj">
-      <Project>{0892c144-3012-4c3a-9f9c-c4a69de3318f}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -137,6 +140,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ForceSymbolReferences>
+      </ForceSymbolReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -168,6 +173,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ForceSymbolReferences>_CreateFontIndirectW@4</ForceSymbolReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

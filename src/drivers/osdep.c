@@ -56,7 +56,7 @@ GdError(const char *format, ...)
 	__android_log_print(ANDROID_LOG_INFO, "Microwindows", buf);
 #elif _MSC_VER
 	vsprintf(buf, format, args);
-	OutputDebugString(buf);
+	OutputDebugStringA(buf);
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);

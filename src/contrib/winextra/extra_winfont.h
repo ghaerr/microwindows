@@ -64,3 +64,5 @@ static inline INT height_to_LP(HDC dc, INT height)
 	double em22 = fabs((double)dc->xformVport2World.eM22);
 	return GDI_ROUND((double)height * em22);
 }
+
+HFONT WINAPI CreateFontIndirectW(CONST LOGFONTW *lplf);

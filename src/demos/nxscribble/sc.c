@@ -120,17 +120,17 @@ Vector y;
 
 	scd = sClassNameLookup(sc, classname);
 	if(scd == NULL) {
-/* fprintf(stderr, "sAddExample: calling sAddClass on %s.\n", classname); */
+/* GrError("sAddExample: calling sAddClass on %s.\n", classname); */
 		scd = sAddClass(sc, classname);
 	      }
 
 	if(sc->nfeatures == -1) {
 		sc->nfeatures = NROWS(y);
-/*		fprintf(stderr, "sAddExample: setting sc->nfeatures to NROWS(y).\n"); */
+/*		GrError("sAddExample: setting sc->nfeatures to NROWS(y).\n"); */
 	      }
 
 	if(scd->nexamples == 0) {
-/* 		fprintf(stderr, "sAddExample: allocating  & zeroing scd->average & scd->sumcov.\n"); */
+/* 		GrError("sAddExample: allocating  & zeroing scd->average & scd->sumcov.\n"); */
 		scd->average = NewVector(sc->nfeatures);
 		ZeroVector(scd->average);
 		scd->sumcov = NewMatrix(sc->nfeatures, sc->nfeatures);
@@ -257,10 +257,10 @@ double *dp;
 /* ari */
 	  double IP;
 	  IP = InnerProduct(sc->w[i], fv);
-/*	  fprintf(stderr, "sClassifyAD:  InnerProduct for class %s is %f.\n", sc->classdope[i]->name, IP); */
-/*	  fprintf(stderr, "sClassifyAD:  sc->cnst[i] = %f.\n", sc->cnst[i]); */
+/*	  GrError("sClassifyAD:  InnerProduct for class %s is %f.\n", sc->classdope[i]->name, IP); */
+/*	  GrError("sClassifyAD:  sc->cnst[i] = %f.\n", sc->cnst[i]); */
 	  disc[i] = IP + sc->cnst[i];
-/*	  fprintf(stderr, "sClassifyAD:  Set disc = %f for class %s.\n", disc[i],sc->classdope[i]->name); */
+/*	  GrError("sClassifyAD:  Set disc = %f for class %s.\n", disc[i],sc->classdope[i]->name); */
 	    
 /*	  disc[i] = InnerProduct(sc->w[i], fv) + sc->cnst[i]; */
 	}
@@ -291,19 +291,19 @@ double *dp;
 /* endif                                                             */
 
 /*
-* fprintf(stderr, "\nFeature vector:\n");
-* fprintf(stderr, "    start cosine      %8.4f    path length       %8.4f\n",
+* GrError("\nFeature vector:\n");
+* GrError("    start cosine      %8.4f    path length       %8.4f\n",
 * 	fv[PF_INIT_COS], fv[PF_LEN]);
-* fprintf(stderr, "    start sine        %8.4f    total angle       %8.4f\n",
+* GrError("    start sine        %8.4f    total angle       %8.4f\n",
 * 	fv[PF_INIT_SIN], fv[PF_TH]);
-* fprintf(stderr, "    b.b. length       %8.4f    total abs. angle  %8.4f\n",
+* GrError("    b.b. length       %8.4f    total abs. angle  %8.4f\n",
 * 	fv[PF_BB_LEN], fv[PF_ATH]);
-* fprintf(stderr, "    b.b. angle        %8.4f    total sq. angle   %8.4f\n",
+* GrError("    b.b. angle        %8.4f    total sq. angle   %8.4f\n",
 * 	fv[PF_BB_TH], fv[PF_SQTH]);
-* fprintf(stderr, "    st-end length     %8.4f    duration          %8.4f\n",
+* GrError("    st-end length     %8.4f    duration          %8.4f\n",
 * 	fv[PF_SE_LEN], fv[PF_DUR]);
-* fprintf(stderr, "    st-end cos        %8.4f\n", fv[PF_SE_COS]);
-* fprintf(stderr, "    st-end sin        %8.4f\n", fv[PF_SE_SIN]);
+* GrError("    st-end cos        %8.4f\n", fv[PF_SE_COS]);
+* GrError("    st-end sin        %8.4f\n", fv[PF_SE_SIN]);
 */
  	ZZ('C') {
 		scd = sc->classdope[maxclass];
@@ -319,14 +319,14 @@ double *dp;
 
 	scd = sc->classdope[maxclass];
 /* ari */
-/* fprintf(stderr,"%s", scd->name); */
+/* GrError(%s", scd->name); */
 /*
-   fprintf(stderr,"Stroke identified as %s [ ", scd->name);
+   GrError(Stroke identified as %s [ ", scd->name);
    for (i = 0; i < sc->nclasses; i++) {
       if ( (disc[maxclass] - disc[i] < 5.0) && (i != maxclass) )
-         fprintf(stderr,"%s ", sc->classdope[i]->name);
+         GrError(%s ", sc->classdope[i]->name);
    }
-   fprintf(stderr,"], ");
+   GrError(], ");
 */
 	if(ap) {	/* calculate probability of non-ambiguity */
 		for(denom = 0, i = 0; i < sc->nclasses; i++)

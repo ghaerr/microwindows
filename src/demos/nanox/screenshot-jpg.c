@@ -36,7 +36,7 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *f
 
 	fp = fopen(file, "wb");
 	if (!fp) {
-		fprintf(stderr, "Bad file name (error [%s])\n",
+		GrError("Bad file name (error [%s])\n",
 			strerror(errno));
 		return (-1);
 	}
@@ -115,21 +115,21 @@ main(int argc, char **argv)
 	unsigned char *fb;
 
 	if (argc < 2) {
-		printf("Usage:  snap_jpg <filename>\n");
+		GrError("Usage:  snap_jpg <filename>\n");
 		return (0);
 	}
 
-	if (GrOpen() == -1) {
-		fprintf(stderr, "Error - the Nano-X server is not running\n");
+	if (GrOpen() < 0) {
+		GrError("Error - the Nano-X server is not running\n");
 		return (-1);
 	}
 
-	printf("Taking the picture and storing it in [%s]\n", argv[1]);
+	GrError("Taking the picture and storing it in [%s]\n", argv[1]);
 
 	fb = GrOpenClientFramebuffer();
 
 	if (!fb) {
-		fprintf(stderr,
+		GrError(
 			"Error - Unable to get the snapshot.  leaving!\n");
 		return (-1);
 	}
@@ -138,9 +138,9 @@ main(int argc, char **argv)
 	GrGetSystemPalette(&pal);
 
 	if (save_image(fb, &fbinfo, &pal, argv[1]) == -1)
-		printf("Error!\n");
+		GrError("Error!\n");
 	else
-		printf("Sucessfully saved [%s]\n", argv[1]);
+		GrError("Sucessfully saved [%s]\n", argv[1]);
 
 	GrCloseClientFramebuffer();
 	GrClose();

@@ -145,8 +145,8 @@ main(int argc, char **argv)
 {
 	int COLS, ROWS;
 
-	if (GrOpen() == -1)
-		exit(1);
+	if (GrOpen() < 0)
+		return 1;
 
 	COLS = 480;
 	ROWS = 300;
@@ -175,7 +175,7 @@ main(int argc, char **argv)
 
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
+			return 0;
 		}
 	}
 }

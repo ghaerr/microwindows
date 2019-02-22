@@ -51,7 +51,7 @@ typedef struct snap_state snapstate;
 
 static void oom(void)
 {
-	fprintf(stderr, "Out of memory\n");
+	GrError("Out of memory\n");
 }
 
 static snapstate *init(int argc, char *argv[])
@@ -59,12 +59,12 @@ static snapstate *init(int argc, char *argv[])
 	snapstate *state;
 
 	if(argc != 2) {
-		fprintf(stderr, "Usage: snap output.ppm\n");
+		GrError("Usage: snap output.ppm\n");
 		return NULL;
 	}
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return NULL;
 	}
 
@@ -95,7 +95,7 @@ static int writeout(snapstate *state)
 	GR_PALETTE *palette = NULL;
 
 	if(!(fp = fopen(state->outname, "w"))) {
-		fprintf(stderr, "Couldn't open output file \"%s\": %s\n",
+		GrError("Couldn't open output file \"%s\": %s\n",
 				state->outname, strerror(errno));
 		return 1;
 	}
@@ -153,7 +153,7 @@ static int writeout(snapstate *state)
 					rgb[2] = (pp[0] & 0x03) << 6;
 					break;
 				default:
-					fprintf(stderr, "Unsupported pixel format\n");
+					GrError("Unsupported pixel format\n");
 					fclose(fp);
 					return 1;
 			}
@@ -167,7 +167,7 @@ static int writeout(snapstate *state)
 	return 0;
 
 badwrite:
-	fprintf(stderr, "Error writing to output file: %s\n", strerror(errno));
+	GrError("Error writing to output file: %s\n", strerror(errno));
 	fclose(fp);
 	if(palette) free(palette);
 	return 1;

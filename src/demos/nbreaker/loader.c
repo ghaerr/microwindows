@@ -50,7 +50,7 @@
  * more than once, with the line number of the second definition. */
 static void redefinewarning(char *name, int line, char *gamefile)
 {
-	fprintf(stderr, "Warning: redefining %s on line %d of game file "
+	GrError("Warning: redefining %s on line %d of game file "
 					"\"%s\"\n", name, line, gamefile);
 }
 
@@ -58,7 +58,7 @@ static void redefinewarning(char *name, int line, char *gamefile)
  * a level block was encountered outside a level block. */
 static void notinlevblockerr(char *name, int line, char *gamefile)
 {
-	fprintf(stderr, "Error: %s while not in a level block on "
+	GrError("Error: %s while not in a level block on "
 			"line %d of game file \"%s\"\n", name, line, gamefile);
 }
 
@@ -86,7 +86,7 @@ static int parse_rows(nbstate *state, level *lev, FILE *fp, int *line)
 		if(!(p = strchr(buf, '\n'))) {
 			/* There wasn't one, which probably means that the
 			 * line was longer than 255 characters. */
-			fprintf(stderr, "Too long line on line %d of game file "
+			GrError("Too long line on line %d of game file "
 					"\"%s\"\n", *line, state->gamefile);
 			return 1;
 		}
@@ -98,7 +98,7 @@ static int parse_rows(nbstate *state, level *lev, FILE *fp, int *line)
 		/* If we've gone past the number of rows in the grid: */
 		if(y == state->height) {
 			/* Print an error and return "failure": */
-			fprintf(stderr, "Too many rows in level definition on"
+			GrError("Too many rows in level definition on"
 					"line %d of game file \"%s\"\n",
 					*line, state->gamefile);
 			return 1;
@@ -110,7 +110,7 @@ static int parse_rows(nbstate *state, level *lev, FILE *fp, int *line)
 			/* Increment the column and if we go past the width of
 			 * the grid, print an error and return "failure": */
 			if(++x > state->width) {
-				fprintf(stderr, "Error: row too long on line "
+				GrError("Error: row too long on line "
 					"%d of game file \"%s\" (Width = %d)\n",
 					*line, state->gamefile,
 					state->width);
@@ -136,7 +136,7 @@ static int parse_rows(nbstate *state, level *lev, FILE *fp, int *line)
 				if(!b) {
 					/* Print an error message and return
 					 * "failure": */
-					fprintf(stderr, "Error: undefined brick"
+					GrError("Error: undefined brick"
 						" \"%c\" on line %d of game "
 						"file \"%s\"\n", *p, *line,
 						state->gamefile);
@@ -164,10 +164,10 @@ static int parse_rows(nbstate *state, level *lev, FILE *fp, int *line)
 	 * of some sort occurred. Print an appropriate error message and return
 	 * "failure" to the caller: */
 	if(feof(fp)) {
-		fprintf(stderr, "Error: premature end of file inside rows "
+		GrError("Error: premature end of file inside rows "
 				"block that started on line %d of game file "
 				"\"%s\"\n", startline, state->gamefile);
-	} else fprintf(stderr, "Error reading from game file \"%s\": %s\n",
+	} else GrError("Error reading from game file \"%s\": %s\n",
 			state->gamefile, strerror(errno));
 	return 1;
 }
@@ -192,7 +192,7 @@ static int parse_powers(nbstate *state, level *lev, FILE *fp, int *line)
 		if(!(p = strchr(buf, '\n'))) {
 			/* There wasn't one, which probably means that the
 			 * line was longer than 255 characters. */
-			fprintf(stderr, "Too long line on line %d of game file "
+			GrError("Too long line on line %d of game file "
 					"\"%s\"\n", *line, state->gamefile);
 			return 1;
 		}
@@ -205,7 +205,7 @@ static int parse_powers(nbstate *state, level *lev, FILE *fp, int *line)
 		/* If we've gone past the number of rows in the grid: */
 		if(y == state->height) {
 			/* Print an error and return "failure": */
-			fprintf(stderr, "Too many rows in level definition on"
+			GrError("Too many rows in level definition on"
 					"line %d of game file \"%s\"\n",
 					*line, state->gamefile);
 			return 1;
@@ -217,7 +217,7 @@ static int parse_powers(nbstate *state, level *lev, FILE *fp, int *line)
 			/* Increment the column and if we go past the width of
 			 * the grid, print an error and return "failure": */
 			if(++x > state->width) {
-				fprintf(stderr, "Error: row too long on line "
+				GrError("Error: row too long on line "
 					"%d of game file \"%s\" (Width = %d)\n",
 					*line, state->gamefile,
 					state->width);
@@ -230,7 +230,7 @@ static int parse_powers(nbstate *state, level *lev, FILE *fp, int *line)
 			/* If we didn't find one print an error message and
 			 * return "failure": */
 			if(!powers[i]) {
-				fprintf(stderr, "Error: invalid power \"%c\" "
+				GrError("Error: invalid power \"%c\" "
 					"on line %d of game file \"%s\"\n",
 					*p, *line, state->gamefile);
 				return 1;
@@ -249,10 +249,10 @@ static int parse_powers(nbstate *state, level *lev, FILE *fp, int *line)
 	 * of some sort occurred. Print an appropriate error message and return
 	 * "failure" to the caller: */
 	if(feof(fp)) {
-		fprintf(stderr, "Error: premature end of file inside powers "
+		GrError("Error: premature end of file inside powers "
 				"block that started on line %d of game file "
 				"\"%s\"\n", startline, state->gamefile);
-	} else fprintf(stderr, "Error reading from game file \"%s\": %s\n",
+	} else GrError("Error reading from game file \"%s\": %s\n",
 			state->gamefile, strerror(errno));
 	return 1;
 }
@@ -277,7 +277,7 @@ static int parse_brick(nbstate *state, int inlevel, level *lev, int line,
 	/* If we have found an existing brick with the same identifier, print
 	 * a warning and return: */
 	if(b) {
-		fprintf(stderr, "Warning: ignoring duplicate brick definition "
+		GrError("Warning: ignoring duplicate brick definition "
 				"on line %d of game file \"%s\"\n", line,
 				state->gamefile);
 		return 0;
@@ -317,7 +317,7 @@ static int parse_brick(nbstate *state, int inlevel, level *lev, int line,
 			else {
 				/* The letter wasn't one of the above, so print
 				 * a warning message and ignore the flag. */
-				fprintf(stderr, "Warning: ignoring invalid "
+				GrError("Warning: ignoring invalid "
 						"flag \"%c\" specified for "
 						"brick \"%c\" on line %d "
 						"of game file \"%s\"\n", f,
@@ -336,7 +336,7 @@ static int parse_brick(nbstate *state, int inlevel, level *lev, int line,
 	/* If there was more than one of the above flags set, print a warning
 	 * and cancel all of them: */
 	if(i > 1) {
-		fprintf(stderr, "Warning: brick flags I, 2, and 3 are mutually "
+		GrError("Warning: brick flags I, 2, and 3 are mutually "
 				"exclusive (see brick \"%c\" on line %d of "
 				"game file \"%s\")\n", b->identifier, line,
 				state->gamefile);
@@ -354,7 +354,7 @@ static int parse_brick(nbstate *state, int inlevel, level *lev, int line,
 	/* If there was more than one of the above flags set, print a warning
 	 * and cancel all of them: */
 	if(i > 1) {
-		fprintf(stderr, "Warning: brick flags S, M, L, and H are "
+		GrError("Warning: brick flags S, M, L, and H are "
 				"mutually exclusive (see brick \"%c\" on line "
 				"%d of game file \"%s\")\n", b->identifier,
 				line, state->gamefile);
@@ -370,7 +370,7 @@ static int parse_brick(nbstate *state, int inlevel, level *lev, int line,
 						state->brickheight))) {
 			/* That failed too, so print an error message and
 			 * return "failure": */
-			fprintf(stderr, "Error: failed to create brick "
+			GrError("Error: failed to create brick "
 				"sprite on line %d of game file \"%s\"\n",
 						line, state->gamefile);
 			free(b);
@@ -463,7 +463,7 @@ static int parse_powersprite(nbstate *state, char *buf, int line)
 	/* If it wasn't a valid power identifier, print an error message and
 	 * return "failure": */
 	if(power == NOPOWER) {
-		fprintf(stderr, "Invalid power \"%c\" on line %d of game file "
+		GrError("Invalid power \"%c\" on line %d of game file "
 				"\"%s\"\n", *buf, line, state->gamefile);
 		return 1;
 	}
@@ -482,7 +482,7 @@ static int parse_powersprite(nbstate *state, char *buf, int line)
 						DEFAULT_POWER_HEIGHT))) {
 			/* That failed too, so print an error message and
 			 * return "failure": */
-			fprintf(stderr, "Error: failed to create power sprite "
+			GrError("Error: failed to create power sprite "
 					"on line %d of game file \"%s\"\n",
 					line, state->gamefile);
 			return 1;
@@ -521,7 +521,7 @@ int load_game_file(nbstate *state)
 	/* Try to open the game file: */
 	if(!(fp = fopen(buf, "r"))) {
 		/* It failed, so print an error message and return "failure": */
-		fprintf(stderr, "Failed to open game file \"%s\": %s\n",
+		GrError("Failed to open game file \"%s\": %s\n",
 						buf, strerror(errno));
 		return 1;
 	}
@@ -533,7 +533,7 @@ int load_game_file(nbstate *state)
 		if(!(p = strchr(buf, '\n'))) {
 			/* There wasn't one, which probably means that the
 			 * line was longer than 255 characters. */
-			fprintf(stderr, "Too long line on line %d of game file "
+			GrError("Too long line on line %d of game file "
 					"\"%s\"\n", line, state->gamefile);
 			return 1;
 		}
@@ -638,7 +638,7 @@ int load_game_file(nbstate *state)
 							DEFAULT_BALL_SIZE))) {
 					/* That failed too so print an error
 					 * message and give up: */
-					fprintf(stderr, "Couldn't create "
+					GrError("Couldn't create "
 							"ball sprite on line "
 							"%d of game file "
 							"\"%s\"\n", line,
@@ -689,7 +689,7 @@ int load_game_file(nbstate *state)
 				goto err;
 		} else if(!memcmp(buf, "Width ", 6)) {
 			if(lev) {
-				fprintf(stderr, "Error: Width must be set "
+				GrError("Error: Width must be set "
 					"before the first level is defined "
 					"(see line %d of game file \"%s\")\n",
 					line, state->gamefile);
@@ -699,7 +699,7 @@ int load_game_file(nbstate *state)
 			if(*p) goto parseerr;
 		} else if(!memcmp(buf, "Height ", 7)) {
 			if(lev) {
-				fprintf(stderr, "Error: Height must be set "
+				GrError("Error: Height must be set "
 					"before the first level is defined "
 					"(see line %d of game file \"%s\")\n",
 					line, state->gamefile);
@@ -732,7 +732,7 @@ int load_game_file(nbstate *state)
 					make_empty_sprite(state, buf + 10,
 						state->batwidths[NORMALBAT],
 						state->batheight))) {
-					fprintf(stderr, "Couldn't create "
+					GrError("Couldn't create "
 							"normal bat sprite on "
 							"line %d of game file "
 							"\"%s\"\n", line,
@@ -763,7 +763,7 @@ int load_game_file(nbstate *state)
 					make_empty_sprite(state, buf + 9,
 						state->batwidths[SMALLBAT],
 						state->batheight))) {
-					fprintf(stderr, "Couldn't create "
+					GrError("Couldn't create "
 							"small bat sprite on "
 							"line %d of game file "
 							"\"%s\"\n", line,
@@ -794,7 +794,7 @@ int load_game_file(nbstate *state)
 					make_empty_sprite(state, buf + 9,
 						state->batwidths[LARGEBAT],
 						state->batheight))) {
-					fprintf(stderr, "Couldn't create "
+					GrError("Couldn't create "
 							"large bat sprite on "
 							"line %d of game file "
 							"\"%s\"\n", line,
@@ -825,7 +825,7 @@ int load_game_file(nbstate *state)
 			state->faderate = strtol(buf + 9, &p, 10);
 			if(*p) goto parseerr;
 			if(state->faderate > 255 || state->faderate < 0) {
-				fprintf(stderr, "Invalid fade rate on line "
+				GrError("Invalid fade rate on line "
 					"%d of game file \"%s\"\n", line,
 					state->gamefile);
 				goto err;
@@ -841,7 +841,7 @@ int load_game_file(nbstate *state)
 				goto err;
 			}
 			if(strlen(state->cheats[SFCHEAT]) > MAXCHEATLEN) {
-				fprintf(stderr, "Cheat sequence too long on "
+				GrError("Cheat sequence too long on "
 						"line %d of game file \"%s\"\n",
 						line, state->gamefile);
 				goto err;
@@ -857,7 +857,7 @@ int load_game_file(nbstate *state)
 				goto err;
 			}
 			if(strlen(state->cheats[TPCHEAT]) > MAXCHEATLEN) {
-				fprintf(stderr, "Cheat sequence too long on "
+				GrError("Cheat sequence too long on "
 						"line %d of game file \"%s\"\n",
 						line, state->gamefile);
 				goto err;
@@ -873,7 +873,7 @@ int load_game_file(nbstate *state)
 				goto err;
 			}
 			if(strlen(state->cheats[NBCHEAT]) > MAXCHEATLEN) {
-				fprintf(stderr, "Cheat sequence too long on "
+				GrError("Cheat sequence too long on "
 						"line %d of game file \"%s\"\n",
 						line, state->gamefile);
 				goto err;
@@ -890,7 +890,7 @@ int load_game_file(nbstate *state)
 				goto err;
 			}
 			if(strlen(state->cheats[NPDCHEAT]) > MAXCHEATLEN) {
-				fprintf(stderr, "Cheat sequence too long on "
+				GrError("Cheat sequence too long on "
 						"line %d of game file \"%s\"\n",
 						line, state->gamefile);
 				goto err;
@@ -907,7 +907,7 @@ int load_game_file(nbstate *state)
 				goto err;
 			}
 			if(strlen(state->cheats[NPUTOCHEAT]) > MAXCHEATLEN) {
-				fprintf(stderr, "Cheat sequence too long on "
+				GrError("Cheat sequence too long on "
 						"line %d of game file \"%s\"\n",
 						line, state->gamefile);
 				goto err;
@@ -917,7 +917,7 @@ int load_game_file(nbstate *state)
 			/* Check to make sure we haven't got another BeginLevel
 			 * line while already in a level definition block: */
 			if(inlevelblock) {
-				fprintf(stderr, "Error: BeginLevel while "
+				GrError("Error: BeginLevel while "
 					"already in a level block on line %d "
 					"of game file \"%s\"\n", line,
 					state->gamefile);
@@ -986,7 +986,7 @@ int load_game_file(nbstate *state)
 		} else if(!memcmp(buf, "EndRows", 7)) {
 			/* We should never see an EndRows here in a valid
 			 * level file because parse_rows() consumes it. */
-			fprintf(stderr, "Error: EndRows without corresponding "
+			GrError("Error: EndRows without corresponding "
 					"BeginRows on line %d of game file "
 					"\"%s\"\n", line, state->gamefile);
 			goto err;
@@ -998,14 +998,14 @@ int load_game_file(nbstate *state)
 			}
 			if(parse_powers(state, lev, fp, &line)) goto err;
 		} else if(!memcmp(buf, "EndPowers", 9)) {
-			fprintf(stderr, "Error: EndPowers without "
+			GrError("Error: EndPowers without "
 					"corresponding BeginPowers on line %d "
 					"of game file \"%s\"\n", line,
 					state->gamefile);
 			goto err;
 		} else if(!memcmp(buf, "EndLevel", 8)) {
 			if(!inlevelblock) {
-				fprintf(stderr, "Error: EndLevel while not in "
+				GrError("Error: EndLevel while not in "
 					"in a level block on line %d of game "
 					"file \"%s\"\n", line, state->gamefile);
 				goto err;
@@ -1013,7 +1013,7 @@ int load_game_file(nbstate *state)
 			inlevelblock = 0;
 			state->numlevels++;
 		} else {
-			fprintf(stderr, "Unknown command \"%s\" on line %d "
+			GrError("Unknown command \"%s\" on line %d "
 					"of game file \"%s\"\n", buf,
 					line, state->gamefile);
 		}
@@ -1025,7 +1025,7 @@ int load_game_file(nbstate *state)
 	/* Check if the reason fgets() failed was because of an I/O error
 	 * instead of simply reaching the end of the file: */
 	if(ferror(fp)) {
-		fprintf(stderr, "Error reading from game file \"%s\" on line "
+		GrError("Error reading from game file \"%s\" on line "
 				"%d: %s\n", state->gamefile, line,
 				strerror(errno));
 		goto err;
@@ -1042,7 +1042,7 @@ int load_game_file(nbstate *state)
 	return 0; /* Success. */
 
 parseerr: /* A parse error occured so print an error message: */
-	fprintf(stderr, "Parse error on line %d of game file \"%s\"\n", line,
+	GrError("Parse error on line %d of game file \"%s\"\n", line,
 							state->gamefile);
 err: /* Some other error occured and we've already printed the error message. */
 	fclose(fp); /* Close the game file (may fail but we don't care). */

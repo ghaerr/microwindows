@@ -112,7 +112,7 @@ main(int argc, char **argv)
 	int quit = 0;
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return 1;
 	}
 

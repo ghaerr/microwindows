@@ -22,7 +22,6 @@
 #define DEBUG			1		/* =1 for debug output*/
 #define NONETWORK		1		/* =1 to link Nano-X apps with server for standalone*/
 #define HAVE_MMAP       0       /* =1 has mmap system call*/
-#define HAVE_FPRINTF	0		/* =0 removes fprintf(stderr,... from apps*/
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 #endif
@@ -246,17 +245,6 @@
 #endif
 
 #define REALLOC(addr,oldsize,newsize) realloc((addr),(newsize))
-
-/* determine compiler capability for handling EPRINTF/DPRINTF macros*/
-#if (defined(GCC_VERSION) && (GCC_VERSION >= 2093)) || (defined(__GNUC__) && (((__GNUC__ >= 2) && (__GNUC_MINOR__ >= 95)) || (__GNUC__ > 2))) || _MSC_VER
-#define HAVE_VARARG_MACROS	1
-#else
-#define HAVE_VARARG_MACROS	0
-#endif
-
-#ifndef HAVE_FPRINTF
-#define HAVE_FPRINTF	1		/* =0 removes fprintf(stderr,... from apps*/
-#endif
 
 /* error.c*/
 int	GdError(const char *format, ...);

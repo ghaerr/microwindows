@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 	GR_EVENT event;
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to the Nano-X server\n");
+		GrError("Couldn't connect to the Nano-X server\n");
 		return 1;
 	}
 

@@ -214,7 +214,7 @@ static nmstate *init(int argc, char **argv)
 	return state;
 
 badargs:
-	fprintf(stderr, "usage: -w <width> -h <height> -m <magnification> "
+	GrError("usage: -w <width> -h <height> -m <magnification> "
 			"-u <update-period> -f <force-update-rate>\n");
 	free(state);
 	return NULL;
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 			case GR_EVENT_TYPE_CHLD_UPDATE:
 				break;
 			default:
-				fprintf(stderr, "Got unknown event type %d\n", ev.type);
+				GrError("Got unknown event type %d\n", ev.type);
 				break;
 		}
 	}

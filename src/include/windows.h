@@ -43,6 +43,7 @@ void WINAPI MwRegisterFdExcept(HWND hwnd,int fd);
 void WINAPI MwUnregisterFdExcept(HWND hwnd,int fd);
 void WINAPI MwSetKeyboardTranslator(LPFN_KEYBTRANSLATE pFn);
 void WINAPI MwSetTextCoding(LONG mode);
+#define		MwError GdError		/* calls GdError in osdep.c*/
 
 /* optional user hook routine called before anything*/
 int	MwUserInit(int ac, char **av);

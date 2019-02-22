@@ -108,7 +108,7 @@ main(int ac, char **av)
     signal(SIGHUP, SigHandler);
 #endif
     if (GrOpen() < 0) {
-	fprintf(stderr, "can't open graphics\n");
+	GrError("can't open graphics\n");
 	exit(1);
     }
 
@@ -186,11 +186,11 @@ main(int ac, char **av)
 void
 Usage(void)
 {
-    fprintf(stderr, "Usage: nxroach [options]\n\n");
-    fprintf(stderr, "Options:\n");
-    fprintf(stderr, "       -rc      roachcolor\n");
-    fprintf(stderr, "       -roaches numroaches\n");
-    fprintf(stderr, "       -speed   roachspeed\n");
+    GrError("Usage: nxroach [options]\n\n");
+    GrError("Options:\n");
+    GrError("       -rc      roachcolor\n");
+    GrError("       -roaches numroaches\n");
+    GrError("       -speed   roachspeed\n");
     
     exit(1);
 }

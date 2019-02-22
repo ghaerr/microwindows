@@ -152,7 +152,7 @@ void animate(nbstate *state)
 	/* If the collision detection code got stuck in a loop, park the ball
 	 * and print an error message. */
 	if(!i) {
-		fprintf(stderr, "Internal error: stuck in collision loop\n");
+		GrError("Internal error: stuck in collision loop\n");
 		park_ball(state);
 		move_ball(state);
 		return;

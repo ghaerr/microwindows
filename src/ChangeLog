@@ -1,4 +1,7 @@
 21 Feb 2019
+	* add GrError/MwError() for app error output
+	* deprecate HAVE_FPRINTF and HAVE_VARARG_MACROS
+	* fprintf(stderr,...) and exit() cleanup in nanox demos
 	* demos/nanox/demo-aafont.c cleanup
 	* create drivers/osdep.c for all OS dependent routines, cleaned up winmain.c/srvmain.c
 	* changed fprintf(stderr,...) to EPRINTF in libraries, app cleanup will be next

@@ -145,8 +145,8 @@ main(int ac, char **av)
 	GR_WINDOW_ID w;
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
-		exit(1);
+		GrError("cannot open graphics\n");
+		return 1;
 	}
 
 	/* create window */
@@ -166,7 +166,7 @@ main(int ac, char **av)
 			break;
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
+			return 0;
 		}
 	}
 

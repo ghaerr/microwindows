@@ -287,12 +287,12 @@ int main(int argc, char **argv)
 	nxeyes_state *state;
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return 1;
 	}
 
 	if(!(state = init())) {
-		fprintf(stderr, "Couldn't allocate state structure\n");
+		GrError("Couldn't allocate state structure\n");
 		return 1;
 	}
 

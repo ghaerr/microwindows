@@ -77,7 +77,7 @@ main(int ac, char **av)
 		strcpy(fontname, av[1]);
 
 	if (GrOpen() < 0)
-		exit(1);
+		return 1;
 
 	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Truetype Font Demo", GR_ROOT_WINDOW_ID,
 		10, 10, 640, 530, BGCOLOR);
@@ -113,7 +113,7 @@ main(int ac, char **av)
 
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
+			return 0;
 		}
 	}
 }

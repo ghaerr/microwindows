@@ -96,8 +96,8 @@ main(int argc, char **argv)
 	GR_EVENT	event;		/* current event */
 	
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
-		exit(1);
+		GrError("cannot open graphics\n");
+		return 1;
 	}
 	
 	GrReqShmCmds(65536); /* shared mem is suposed to be faster */
@@ -166,31 +166,31 @@ main(int argc, char **argv)
 	for (;;) {
 		GrGetNextEvent(&event);
 
-		printf("%s (0x%x)\n", \
+		GrError("%s (0x%x)\n", \
 		       lookupEvent(event.type), event.type);
 		
 		switch(event.type) {
 		  case GR_EVENT_TYPE_EXPOSURE:
 			{
-			  printf("\twid = %d\n", event.exposure.wid);
-			  printf("\t(X, Y) = (%d, %d)\n", \
+			  GrError("\twid = %d\n", event.exposure.wid);
+			  GrError("\t(X, Y) = (%d, %d)\n", \
 			         event.exposure.x, event.exposure.y);
-			  printf("\twidth = %d, height = %d\n", \
+			  GrError("\twidth = %d, height = %d\n", \
 			  	 event.exposure.width, event.exposure.height);
 			}
 			break;
 		  case GR_EVENT_TYPE_BUTTON_DOWN:
 		  case GR_EVENT_TYPE_BUTTON_UP:
 			{
-			  printf("\twid = %d\n", event.button.wid);
-			  printf("\tsub-window id = %d\n", event.button.subwid);
-			  printf("\troot window (X, Y) coordinates = (%d, %d)\n", \
+			  GrError("\twid = %d\n", event.button.wid);
+			  GrError("\tsub-window id = %d\n", event.button.subwid);
+			  GrError("\troot window (X, Y) coordinates = (%d, %d)\n", \
 			         event.button.rootx, event.button.rooty);
-			  printf("\t(X, Y) = (%d, %d)\n", \
+			  GrError("\t(X, Y) = (%d, %d)\n", \
 				 event.button.x, event.button.y);
-			  printf("\tbuttons: %04X, ", event.button.buttons);
-			  printf("changed buttons: %04X\n", event.button.changebuttons);
-			  printf("\tmodifiers: %04X\n", event.button.modifiers);
+			  GrError("\tbuttons: %04X, ", event.button.buttons);
+			  GrError("changed buttons: %04X\n", event.button.changebuttons);
+			  GrError("\tmodifiers: %04X\n", event.button.modifiers);
 			}
 			break;
 		  case GR_EVENT_TYPE_MOUSE_ENTER:
@@ -198,49 +198,49 @@ main(int argc, char **argv)
 		  case GR_EVENT_TYPE_MOUSE_MOTION:
 		  case GR_EVENT_TYPE_MOUSE_POSITION:
 			{
-			  printf("\twid = %d\n", event.mouse.wid);
-			  printf("\tsub-window id = %d\n", event.mouse.subwid);
-			  printf("\troot window (X, Y) coordinates = (%d, %d)\n", \
+			  GrError("\twid = %d\n", event.mouse.wid);
+			  GrError("\tsub-window id = %d\n", event.mouse.subwid);
+			  GrError("\troot window (X, Y) coordinates = (%d, %d)\n", \
 			         event.mouse.rootx, event.mouse.rooty);
-			  printf("\t(X, Y) = (%d, %d)\n", \
+			  GrError("\t(X, Y) = (%d, %d)\n", \
 				 event.mouse.x, event.mouse.y);
-			  printf("\tbuttons: %04X\n", event.mouse.buttons);
-			  printf("\tmodifiers: %04X\n", event.mouse.modifiers);
+			  GrError("\tbuttons: %04X\n", event.mouse.buttons);
+			  GrError("\tmodifiers: %04X\n", event.mouse.modifiers);
 			}
 			break;
 		  case GR_EVENT_TYPE_KEY_DOWN:
 		  case GR_EVENT_TYPE_KEY_UP:
 			{
-			  printf("\twid = %d\n", event.keystroke.wid);
-			  printf("\tsub-window id = %d\n", event.keystroke.subwid);
-			  printf("\troot window (X, Y) coordinates = (%d, %d)\n", \
+			  GrError("\twid = %d\n", event.keystroke.wid);
+			  GrError("\tsub-window id = %d\n", event.keystroke.subwid);
+			  GrError("\troot window (X, Y) coordinates = (%d, %d)\n", \
 			         event.keystroke.rootx, event.keystroke.rooty);
-			  printf("\t(X, Y) = (%d, %d)\n", \
+			  GrError("\t(X, Y) = (%d, %d)\n", \
 				 event.keystroke.x, event.keystroke.y);
-			  printf("\tbuttons: %04X\n", event.keystroke.buttons);
-			  printf("\tmodifiers: %04X\n", event.keystroke.modifiers);
-			  printf("\tUnicode-16 keyvalue: %d, ASCII: %d\n", \
+			  GrError("\tbuttons: %04X\n", event.keystroke.buttons);
+			  GrError("\tmodifiers: %04X\n", event.keystroke.modifiers);
+			  GrError("\tUnicode-16 keyvalue: %d, ASCII: %d\n", \
 				 (int)event.keystroke.ch, event.keystroke.ch);
-			  printf("\tscancode: %02X\n",
+			  GrError("\tscancode: %02X\n",
 				(int)event.keystroke.scancode);
 			}
 			break;
 		  case GR_EVENT_TYPE_FOCUS_IN:
-			printf("\twid = %d\n", event.general.wid);
-			printf("\told focus = %d\n", event.general.otherid);
+			GrError("\twid = %d\n", event.general.wid);
+			GrError("\told focus = %d\n", event.general.otherid);
 			break;
 		  case GR_EVENT_TYPE_FOCUS_OUT:
-			printf("\twid = %d\n", event.general.wid);
-			printf("\tnew focus = %d\n", event.general.otherid);
+			GrError("\twid = %d\n", event.general.wid);
+			GrError("\tnew focus = %d\n", event.general.otherid);
 			break;
 		  case GR_EVENT_TYPE_UPDATE:
 		  case GR_EVENT_TYPE_CHLD_UPDATE:
 			{
-			  printf("\twid = %d\n", event.update.wid);
-			  printf("\tsub-window id = %d\n", event.update.subwid);
-			  printf("\t(X, Y) = (%d, %d)\n", \
+			  GrError("\twid = %d\n", event.update.wid);
+			  GrError("\tsub-window id = %d\n", event.update.subwid);
+			  GrError("\t(X, Y) = (%d, %d)\n", \
 				 event.update.x, event.update.y);
-			  printf("\twidth = %d, height = %d\n", \
+			  GrError("\twidth = %d, height = %d\n", \
 			  	 event.update.width, event.update.height);
 			  {
 				  GR_UPDATE_TYPE u = event.update.utype;
@@ -250,18 +250,17 @@ main(int argc, char **argv)
 					  "<unknown>": \
 					  update_types[u].name;
 
-			  	  printf("\tupdate_type: %s (%d)\n",
+			  	  GrError("\tupdate_type: %s (%d)\n",
 					  p, u);
 			  }
 			}
 			break;
 		  case GR_EVENT_TYPE_TIMEOUT:
-		  	printf("\ttimeout?\n");
+		  	GrError("\ttimeout?\n");
 			break;
 		  case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
-			/* no return*/
+			return 0;
 		}
 	}
 

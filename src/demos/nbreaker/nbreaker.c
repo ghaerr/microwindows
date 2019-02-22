@@ -202,7 +202,7 @@ static void nbreaker(nbstate *state)
 				/* Do nothing on time out. */
 				break;
 			default:
-				fprintf(stderr, "Got unknown event type %d\n",
+				GrError("Got unknown event type %d\n",
 						ev.type);
 				break;
 		}

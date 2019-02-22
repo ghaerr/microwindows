@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
 	GR_EVENT event;
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "nanowm: Couldn't connect to Nano-X server!\n");
-		exit(1);
+		GrError("nanowm: Couldn't connect to Nano-X server!\n");
+		return 1;
 	}
 
 	/* pass errors through main loop, don't exit*/
@@ -32,4 +32,5 @@ int main(int argc, char *argv[])
 	}
 
 	GrClose();
+	return 0;
 }

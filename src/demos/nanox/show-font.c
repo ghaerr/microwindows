@@ -37,7 +37,7 @@ draw_string(GR_WINDOW_ID wid)
 	start = first_char;
 	end = first_char + chars_to_show;
 
-	printf("drawing chars %d to %d\n", start, end - 1);
+	GrError("drawing chars %d to %d\n", start, end - 1);
 
 	for (ch = start; ch < end; ch++) {
 		GrSetGCForeground(gc, GR_RGB(64, 64, 64));
@@ -66,23 +66,23 @@ main(int argc, char **argv)
 	int width, height;
 
 	if (argc != 2)
-		return (-1);
+		return 1;
 
-	if (GrOpen() == -1)
-		return (-1);
+	if (GrOpen() < 0)
+		return 1;
 
 	font = GrCreateFontEx(argv[1], 12, 12, 0);
 	if (!font)
-		printf("Unable to load %s\n", argv[1]);
+		GrError("Unable to load %s\n", argv[1]);
 
 	GrGetFontInfo(font, &finfo);
 
-	printf("font_id = %d\n", font);
-	printf("First char = %d, last char = %d\n", finfo.firstchar, finfo.lastchar);
-	printf("Max width = %d, max height = %d\n", finfo.maxwidth, finfo.height);
-	printf("baseline = ascent = %d, descent = %d\n", finfo.baseline, finfo.descent);
-	printf("max ascent = %d, max descent = %d\n", finfo.maxascent, finfo.maxdescent);
-	printf("linespacing = %d, fixed = %s\n", finfo.linespacing, finfo.fixed? "yes": "no");
+	GrError("font_id = %d\n", font);
+	GrError("First char = %d, last char = %d\n", finfo.firstchar, finfo.lastchar);
+	GrError("Max width = %d, max height = %d\n", finfo.maxwidth, finfo.height);
+	GrError("baseline = ascent = %d, descent = %d\n", finfo.baseline, finfo.descent);
+	GrError("max ascent = %d, max descent = %d\n", finfo.maxascent, finfo.maxdescent);
+	GrError("linespacing = %d, fixed = %s\n", finfo.linespacing, finfo.fixed? "yes": "no");
 
 //	finfo.firstchar = 0;	/* force display of undefined chars, test with jiskan24.pcf.gz*/
 
@@ -118,7 +118,7 @@ main(int argc, char **argv)
 			draw_string(main_wid);
 		if(event.type == GR_EVENT_TYPE_CLOSE_REQ) {
 			GrClose();
-			exit(0);
+			return 0;
 	   }
 	}
 }

@@ -164,7 +164,7 @@ static void
 push_character(int c)
 {
 #if _SOFTKBD_DEBUG
-	fprintf(stderr, "pushed %d (0x%x) '%c'\n", c, c, c);
+	GrError("pushed %d (0x%x) '%c'\n", c, c, c);
 #endif
 	KbdWrite(c);
 }
@@ -198,8 +198,8 @@ process_scancode(int scancode)
 	
         c = layout_states[current_layout].scancode_translations[scancode];
 #if _SOFTKBD_DEBUG
-	printf("scancode = %d ", scancode);
-	printf("current_layout = %d ('%s'), scancode (translated) = %d\n", 
+	GrError("scancode = %d ", scancode);
+	GrError("current_layout = %d ('%s'), scancode (translated) = %d\n", 
 	        current_layout, layout_states[current_layout].filename, c);
 #endif
 
@@ -219,7 +219,7 @@ process_scancode(int scancode)
 		/* no action for NONE*/
 		if (c == NONE)
 			return;
-                fprintf(stderr, "nxkbd: key with unknown translation pressed\n");
+                GrError("nxkbd: key with unknown translation pressed\n");
                 return;
         case CNTRL:
                 current_layout = layout_states[current_layout].ctrl_layout;
@@ -235,7 +235,7 @@ process_scancode(int scancode)
                 return;
 	case INTL:
 #if _SOFTKBD_DEBUG
-		printf("INTL not yet implemented\n");
+		GrError("INTL not yet implemented\n");
 #endif
 		return;
         }
@@ -259,7 +259,7 @@ mouse_hit(int x, int y)
 		    y < keyrows[row].yoffset+keyrows[row].height) {
                         for (column = 0; column < 12; column++) {
                                 if (keyrows[row].columns[column].xoffset == 999) {
-                                        fprintf(stderr, "off end of row\n");
+                                        GrError("off end of row\n");
                                         return;
                                 }
                                 if (x < keyrows[row].columns[column + 1].xoffset) {
@@ -271,7 +271,7 @@ mouse_hit(int x, int y)
                 }
         }
 
-        fprintf(stderr, "nxkbd: off bottom\n");
+        GrError("nxkbd: off bottom\n");
 }
                                 
 int
@@ -281,14 +281,14 @@ main(int argc, char* argv[])
 	GR_WM_PROPERTIES props;
 
 	if (GrOpen() < 0) {
-                fprintf(stderr, "nxkbd: cannot open graphics\n");
-                exit(1);
+                GrError("nxkbd: cannot open graphics\n");
+                return 1;
         }
 
 	if (KbdOpen() < 0) {
-                fprintf(stderr, "nxkbd: cannot open kbd named pipe\n");
+                GrError("nxkbd: cannot open kbd named pipe\n");
 #if 0
-                exit(1);
+                return 1;
 #endif
         }
     
@@ -350,7 +350,7 @@ main(int argc, char* argv[])
 				}
 #endif
 				GrClose();
-				exit(0);
+				return 0;
 				/* no return*/
 			case GR_EVENT_TYPE_EXPOSURE:
 				display_layout(current_layout);

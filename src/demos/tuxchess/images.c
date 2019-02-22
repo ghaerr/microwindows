@@ -64,7 +64,7 @@ int load_images(void)
 
 	sprintf(buf,"%s/board.gif",IMAGE_PATH);
         if (!(board_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load board image file\n");
+                GrError("Can't load board image file\n");
                 exit(-1);
         }
         GrGetImageInfo(board_image_id, &board_info);
@@ -74,7 +74,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/w_p.gif",IMAGE_PATH);
         if (!(w_p_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load white pawn image file\n");
+                GrError("Can't load white pawn image file\n");
                 exit(-1);
         }
         GrGetImageInfo(w_p_image_id, &w_p_info);
@@ -84,7 +84,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/w_n.gif",IMAGE_PATH);
         if (!(w_n_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load white knight image file\n");
+                GrError("Can't load white knight image file\n");
                 exit(-1);
         }
         GrGetImageInfo(w_n_image_id, &w_n_info);
@@ -95,7 +95,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/w_b.gif",IMAGE_PATH);
         if (!(w_b_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load white bishop image file\n");
+                GrError("Can't load white bishop image file\n");
                 exit(-1);
         }
         GrGetImageInfo(w_b_image_id, &w_b_info);
@@ -106,7 +106,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/w_r.gif",IMAGE_PATH);
         if (!(w_r_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load white rook image file\n");
+                GrError("Can't load white rook image file\n");
                 exit(-1);
         }
         GrGetImageInfo(w_r_image_id, &w_r_info);
@@ -117,7 +117,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/w_k.gif",IMAGE_PATH);
         if (!(w_k_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load white king image file\n");
+                GrError("Can't load white king image file\n");
                 exit(-1);
         }
         GrGetImageInfo(w_k_image_id, &w_k_info);
@@ -128,7 +128,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/w_q.gif",IMAGE_PATH);
         if (!(w_q_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load white queen image file\n");
+                GrError("Can't load white queen image file\n");
                 exit(-1);
         }
         GrGetImageInfo(w_q_image_id, &w_q_info);
@@ -139,7 +139,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/b_p.gif",IMAGE_PATH);
         if (!(b_p_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load black pawn image file\n");
+                GrError("Can't load black pawn image file\n");
                 exit(-1);
         }
         GrGetImageInfo(b_p_image_id, &b_p_info);
@@ -149,7 +149,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/b_n.gif",IMAGE_PATH);
         if (!(b_n_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load black knight image file\n");
+                GrError("Can't load black knight image file\n");
                 exit(-1);
         }
         GrGetImageInfo(b_n_image_id, &b_n_info);
@@ -160,7 +160,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/b_b.gif",IMAGE_PATH);
         if (!(b_b_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load black bishop image file\n");
+                GrError("Can't load black bishop image file\n");
                 exit(-1);
         }
         GrGetImageInfo(b_b_image_id, &b_b_info);
@@ -171,7 +171,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/b_r.gif",IMAGE_PATH);
         if (!(b_r_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load black rook image file\n");
+                GrError("Can't load black rook image file\n");
                 exit(-1);
         }
         GrGetImageInfo(b_r_image_id, &b_r_info);
@@ -182,7 +182,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/b_k.gif",IMAGE_PATH);
         if (!(b_k_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load black king image file\n");
+                GrError("Can't load black king image file\n");
                 exit(-1);
         }
         GrGetImageInfo(b_k_image_id, &b_k_info);
@@ -193,7 +193,7 @@ int load_images(void)
 	/* ****************/
 	sprintf(buf,"%s/b_q.gif",IMAGE_PATH);
         if (!(b_q_image_id = GrLoadImageFromFile(buf, 0))) {
-                fprintf(stderr, "Can't load black queen image file\n");
+                GrError("Can't load black queen image file\n");
                 exit(-1);
         }
         GrGetImageInfo(b_q_image_id, &b_q_info);

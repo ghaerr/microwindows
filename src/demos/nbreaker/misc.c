@@ -53,5 +53,5 @@ void myfree(void *p)
 /* Print an out of memory error to stderr. */
 void oom(void)
 {
-	fprintf(stderr, "Out of memory\n");
+	GrError("Out of memory\n");
 }

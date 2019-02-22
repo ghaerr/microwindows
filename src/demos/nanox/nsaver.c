@@ -47,7 +47,7 @@ void *my_malloc(size_t size)
 	void *ret;
 
 	if(!(ret = malloc(size))) {
-		fprintf(stderr, "Out of memory\n");
+		GrError("Out of memory\n");
 		exit(1);
 	}
 
@@ -1136,7 +1136,7 @@ int init(nstate *state)
 	GR_BITMAP cursor = 0;
 
 	if(!GrOpen()) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return 3;
 	}
 
@@ -1235,7 +1235,7 @@ int do_screensaver_event(nstate *state)
 	GR_EVENT_SCREENSAVER *event = &state->event.screensaver;
 
 	if(event->activate != GR_FALSE) {
-		fprintf(stderr, "Got a non-deactivate screensaver event\n");
+		GrError("Got a non-deactivate screensaver event\n");
 		return 0;
 	}
 
@@ -1262,7 +1262,7 @@ int handle_event(nstate *state)
 		case GR_EVENT_TYPE_FOCUS_OUT:
 			return 0;
 		default:
-			fprintf(stderr, "Got unknown event type %d\n",
+			GrError("Got unknown event type %d\n",
 							state->event.type);
 			break;
 	}
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
 	if(argc == 2) {
 		state->saver = atoi(argv[1]) - 1;
 		if((state->saver) < 0 || (state->saver >= NUM_SAVERS)) {
-			fprintf(stderr, "Invalid saver number \"%s\"\n",
+			GrError("Invalid saver number \"%s\"\n",
 								argv[1]);
 			return 2;
 		}

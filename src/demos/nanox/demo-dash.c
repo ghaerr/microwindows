@@ -46,8 +46,8 @@ main(int argc, char **argv)
 	int COLS, ROWS;
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "Cannot open graphics\n");
-		exit(1);
+		GrError("Cannot open graphics\n");
+		return 1;
 	}
 
 	COLS = 350;
@@ -70,7 +70,7 @@ main(int argc, char **argv)
 
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
+			return 0;
 		}
 	}
 }

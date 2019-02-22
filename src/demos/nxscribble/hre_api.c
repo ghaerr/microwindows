@@ -142,14 +142,14 @@ recognizer_load(char* directory,char* name,char** subset)
 		   "Ran out of memory during prelinking initialization.");
 	return((recognizer)NULL);
     } 
-    /*fprintf(stderr, "Got past make_rec_info.\n");*/
+    /*GrError("Got past make_rec_info.\n");*/
 
     /*Let recognition code create recognizer and initialize*/
     rec = __recognizer_internal_initialize(rinf);
     if (rec == NULL) {
 	return((recognizer)NULL);
     }
-    /*fprintf(stderr, "Did rii.\n");*/
+    /*GrError("Did rii.\n");*/
     /*Check whether it's been correctly initialized*/
 
     if( rec->recognizer_load_state == NULL ||
@@ -172,7 +172,7 @@ recognizer_load(char* directory,char* name,char** subset)
        ) {
 
 	recognizer_unload(rec);
-fprintf(stderr, "Unloading b/c null function pointer.\n");
+GrError("Unloading b/c null function pointer.\n");
 	the_last_error = 
 	  dgettext(INTL_DOMAIN,
 		   "One or more recognizer function pointers is NULL.");
@@ -197,7 +197,7 @@ fprintf(stderr, "Unloading b/c null function pointer.\n");
  *   }
  */
     /*We got it!*/
-    /*fprintf(stderr, "Done.\n");*/
+    /*GrError("Done.\n");*/
 
     return(rec);
 }
@@ -556,9 +556,9 @@ int recognizer_translate(recognizer rec,
  *      for (i = 0; i < nstrokes; i++) {
  *	ari_pstr = strokes[i];
  *	ari_pts = ari_pstr.ps_pts;
- *	fprintf(stderr, "\nrecognizer_translate: ari_pts = %ld, sizeof(Time) = %d, sizeof(ari_pts[0] = %d, %d points are...\n", ari_pts, sizeof(Time), sizeof(ari_pts[0]), ari_pstr.ps_npts);
+ *	GrError("\nrecognizer_translate: ari_pts = %ld, sizeof(Time) = %d, sizeof(ari_pts[0] = %d, %d points are...\n", ari_pts, sizeof(Time), sizeof(ari_pts[0]), ari_pstr.ps_npts);
  *	for (ari = 0; ari < ari_pstr.ps_npts; ari++)
- *	   fprintf(stderr, "%ld -- (%d, %d)  ", ari_pts[ari], ari_pts[ari].x, ari_pts[ari].y);
+ *	   GrError("%ld -- (%d, %d)  ", ari_pts[ari], ari_pts[ari].x, ari_pts[ari].y);
  *      }
  *    }     
 */

@@ -30,8 +30,8 @@ main(int argc,char **argv)
 	char		title[256];
 
 	if (argc < 2) {
-		printf("Usage: nxview [-p] [-s] <image file>\n");
-		exit(1);
+		GrError("Usage: nxview [-p] [-s] <image file>\n");
+		return 1;
 	}
 
 	t = 1;
@@ -50,13 +50,13 @@ main(int argc,char **argv)
 	}
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
-		exit(1);
+		GrError("cannot open graphics\n");
+		return 1;
 	}
 	
 	if (!(image_id = GrLoadImageFromFile(argv[t], 0))) {
-		fprintf(stderr, "Can't load image file: %s\n", argv[t]);
-		exit(1);
+		GrError("Can't load image file: %s\n", argv[t]);
+		return 1;
 	}
 
 	if(sflag) {
@@ -88,7 +88,7 @@ main(int argc,char **argv)
 			GrDestroyGC(gc_id);
 			GrFreeImage(image_id);
 			GrClose();
-			exit(0);
+			return 0;
 			/* no return*/
 		case GR_EVENT_TYPE_EXPOSURE:
 			if (pflag) {

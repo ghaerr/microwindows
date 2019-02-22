@@ -831,32 +831,32 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     	    FILE* pHighscore;
     	    char  buffer[256];
             if( LoadBitmap(&bmpbom,"res/lei.bmp")<0)
-                fprintf(stderr,"bitmap error");
+                MwError("bitmap error");
             else
                 fValidbom = TRUE;
   
             if( LoadBitmap(&bmpface,"res/face1.bmp")<0)
-                fprintf(stderr,"bitmap error");
+                MwError("bitmap error");
             else
                 fValidface = TRUE;
                 
             if( LoadBitmap(&bitmap1,"res/face.bmp")<0)
-                fprintf(stderr,"bitmap error");
+                MwError("bitmap error");
             else
                 fValid1 = TRUE;
                 
             if( LoadBitmap(&bmpflag,"res/flag.bmp")<0)
-                fprintf(stderr,"bitmap error");
+                MwError("bitmap error");
             else
                 fValidflag = TRUE;   
                 
             if( LoadBitmap(&bmpfinalface,"res/finished.bmp")<0)
-                fprintf(stderr,"bitmap error");
+                MwError("bitmap error");
             else
                 fValidfinalface = TRUE;   
                
             if( LoadBitmap(&bmphitfalse,"res/hitfalse.bmp")<0)
-                fprintf(stderr,"bitmap error");
+                MwError("bitmap error");
             else
                 fValidhitfalse = TRUE;   
                 

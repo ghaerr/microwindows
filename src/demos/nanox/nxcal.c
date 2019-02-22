@@ -32,7 +32,7 @@ static int state = 0;
 static void
 usage(void)
 {
-	printf("Usage: nxcal [-f] [-d <datafile>]\n");
+	GrError("Usage: nxcal [-f] [-d <datafile>]\n");
 	exit(0);
 }
 
@@ -69,12 +69,12 @@ calculate_transform(GR_TRANSFORM * trans)
 		break;
 	}
 
-	//printf("DEBUG:  xyswap is %d\n", xyswap);
-	//printf("INCOMING: ");
+	//GrError("DEBUG:  xyswap is %d\n", xyswap);
+	//GrError("INCOMING: ");
 
 	//for(i = 0; i < 4; i++) 
-	//printf("(%d,%d) ", input[i].x, input[i].y);
-	//printf("\n");
+	//GrError("(%d,%d) ", input[i].x, input[i].y);
+	//GrError("\n");
 
 	switch (g_rotate) {
 	case MWPORTRAIT_NONE:
@@ -164,7 +164,7 @@ calculate_transform(GR_TRANSFORM * trans)
 	data.maxx += (int) (xdiff * TARGET_DIST);
 	data.maxy += (int) (ydiff * TARGET_DIST);
 
-	//printf("DEBUG:  %d,%d,%d,%d\n", 
+	//GrError("DEBUG:  %d,%d,%d,%d\n", 
 	//data.minx, data.maxx, data.miny, data.maxy);
 
 	/* Here's a dirty little secret - xswap and yswap don't work.  */
@@ -173,7 +173,7 @@ calculate_transform(GR_TRANSFORM * trans)
 		swapem(&data.minx, &data.maxx);
 		swapem(&data.miny, &data.maxy);
 	}
-	//printf("TRANSFORM:  %d,%d,%d,%d\n", 
+	//GrError("TRANSFORM:  %d,%d,%d,%d\n", 
 	//data.minx, data.maxx, data.miny, data.maxy);
 
 	GrCalcTransform(&data, trans);
@@ -301,7 +301,7 @@ main(int argc, char **argv)
 	datafile[0] = 0;
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return 1;
 	}
 

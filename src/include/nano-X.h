@@ -895,6 +895,8 @@ void		GrUnregisterInput(int fd);
 void		GrMainLoop(GR_FNCALLBACKEVENT fncb);
 GR_FNCALLBACKEVENT GrSetErrorHandler(GR_FNCALLBACKEVENT fncb);
 void		GrDefaultErrorHandler(GR_EVENT *ep);
+int			GdError(const char *format, ...);
+#define GrError	GdError		/* calls client-side error output routine in osdep.c*/
 
 /* passive library entry points - available with client/server only*/
 void		GrPrepareSelect(int *maxfd,void *rfdset);
@@ -993,19 +995,6 @@ typedef struct {
 	unsigned char *bufmax;		/* max buffer location*/
 	unsigned char *buffer;		/* request buffer*/
 } REQBUF;
-
-#if PSP
-#include <pspkernel.h>
-#include <psputils.h>
-#define setbuf(...)		do {} while(0)
-#define exit(...)		sceKernelExitGame()
-#endif
-
-/* delete all printf/fprintf references for demos without fprintf/printf in C library*/
-#if defined(HAVE_FPRINTF) && (HAVE_FPRINTF == 0) && HAVE_VARARG_MACROS
-#define fprintf(...)	do {} while(0)
-#define printf(...)		do {} while(0)
-#endif
 
 #if RTEMS
   /* RTEMS requires rtems_main()*/

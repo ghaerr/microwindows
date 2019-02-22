@@ -30,7 +30,7 @@ load_image(void)
 
 	/* load image from file into RGBA format*/
 	if(!(iid = GrLoadImageFromFile(IMAGE, 0))) {
-		fprintf(stderr, "Failed to load image file \"%s\"\n", IMAGE);
+		GrError("Failed to load image file \"%s\"\n", IMAGE);
 		return;
 	}
 	GrGetImageInfo(iid, &image_info);
@@ -119,7 +119,7 @@ main()
 	int quit = 0;
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return 1;
 	}
 

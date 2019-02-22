@@ -44,7 +44,7 @@
 /* Print the usage message (used when bad command line arguments are given). */
 static void usage(void)
 {
-	fprintf(stderr, "Usage: nbreaker [ -d game-dir ] [ game-file ]\n");
+	GrError("Usage: nbreaker [ -d game-dir ] [ game-file ]\n");
 }
 
 /* Parse the command line arguments. */
@@ -187,7 +187,7 @@ nbstate *init(int argc, char *argv[])
 
 	/* Try to connect to the Nano-X server: */
 	if(GrOpen() < 1) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return NULL;
 	}
 
@@ -196,7 +196,7 @@ nbstate *init(int argc, char *argv[])
 	 * (necessary for the alpha blended sprites and special effects): */
 	GrGetScreenInfo(&si);
 	if(!si.alphablend) {
-		fprintf(stderr, "Error: Nano-X server was built without alpha "
+		GrError("Error: Nano-X server was built without alpha "
 				"blending support\nSet ALPHABLENDING = 1 in "
 				"include/device.h, rebuild, and try again.\n");
 		return NULL;

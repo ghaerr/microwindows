@@ -115,8 +115,8 @@ main(int argc, char* argv[])
 	GR_WINDOW_INFO info;
 
         if (GrOpen() < 0) {
-                fprintf(stderr, "nxlsclients: cannot open graphics\n");
-                exit(1);
+                GrError("nxlsclients: cannot open graphics\n");
+                return 1;
         }
 
 	for (w = 0; w < LIMIT; w++) {
@@ -125,35 +125,35 @@ main(int argc, char* argv[])
 		GrGetWindowInfo(w, &info);
 		
 		if (info.wid == -1) {
-			printf("Query wid = %d, GrGetWindowInfo() is not working!\n", w);
+			GrError("Query wid = %d, GrGetWindowInfo() is not working!\n", w);
 			continue;
 		}
 		if (info.wid == 0) {
 #if 0
-			printf("Query wid = %d --> does not exist\n", w);
+			GrError("Query wid = %d --> does not exist\n", w);
 #endif
 			continue;
 		}
-		printf("Window id = %d\n", info.wid);
-		printf("\tAbsolute upper-left X: %d\n", info.x);
-		printf("\tAbsolute upper-left Y: %d\n", info.y);
-		printf("\tWidth = %d\n", info.width);
-		printf("\tHeight = %d\n", info.height);
-		printf("\tBorder: size = %d, colour = %s (#%06X)\n",
+		GrError("Window id = %d\n", info.wid);
+		GrError("\tAbsolute upper-left X: %d\n", info.x);
+		GrError("\tAbsolute upper-left Y: %d\n", info.y);
+		GrError("\tWidth = %d\n", info.width);
+		GrError("\tHeight = %d\n", info.height);
+		GrError("\tBorder: size = %d, colour = %s (#%06X)\n",
 		       info.bordersize, lookupColour(info.bordercolor), info.bordercolor);
-		printf("\tBackground colour = %s (#%06X)\n", lookupColour(info.background), info.background);
+		GrError("\tBackground colour = %s (#%06X)\n", lookupColour(info.background), info.background);
 
-		printf("\tParent = %d\n", info.parent);
-		printf("\tFirst child = %d\n", info.child);
-		printf("\tNext sibling? = %d\n", info.sibling);
+		GrError("\tParent = %d\n", info.parent);
+		GrError("\tFirst child = %d\n", info.child);
+		GrError("\tNext sibling? = %d\n", info.sibling);
 
-		printf("\t%sinput-only, ", (info.inputonly == TRUE)?"": "not ");
-		printf("%smapped", (info.mapped == TRUE)?"": "not ");
+		GrError("\t%sinput-only, ", (info.inputonly == TRUE)?"": "not ");
+		GrError("%smapped", (info.mapped == TRUE)?"": "not ");
 		if (info.mapped != TRUE)
-			printf(", realized = %d", info.realized);
-		printf("\n");
+			GrError(", realized = %d", info.realized);
+		GrError("\n");
 
-		printf("\tEvent mask (0x%08X):\n", info.eventmask);
+		GrError("\tEvent mask (0x%08X):\n", info.eventmask);
 		{
 			int i, n = 0;
 			GR_EVENT_MASK tmp = info.eventmask;
@@ -162,50 +162,50 @@ main(int argc, char* argv[])
 				GR_EVENT_MASK mask = GR_EVENTMASK(event_table[i].event_type);	
 
 				if ((tmp  & mask) == mask) {
-					printf("\t\t%s\n", event_table[i].event_desc);
+					GrError("\t\t%s\n", event_table[i].event_desc);
 					n++;
 				}
 			}
 			if (!n)
-				printf("\t\tGR_EVENT_MASK_NONE (?!?!?)\n");
+				GrError("\t\tGR_EVENT_MASK_NONE (?!?!?)\n");
 		}
 
 		/* We don't use info.props, use GrGetWMProperties() intead */
-		printf("\tWM Properties:\n");
+		GrError("\tWM Properties:\n");
 		{
 			GR_WM_PROPERTIES wm_props;
 
 			GrGetWMProperties(w, &wm_props);
 			
-			printf("\t\tTitle: ");	
+			GrError("\t\tTitle: ");	
 			if ((wm_props.flags & GR_WM_FLAGS_TITLE ) == GR_WM_FLAGS_TITLE) 
-				printf("'%s'\n", (char*)wm_props.title ?
+				GrError("'%s'\n", (char*)wm_props.title ?
 						(char *)wm_props.title : "(null)");
 			else
-				printf("<untitled>\n");
+				GrError("<untitled>\n");
 			if (wm_props.title)
 				free(wm_props.title);
 
-			printf("\t\tBackground colour: ");
+			GrError("\t\tBackground colour: ");
 			if ((wm_props.flags & GR_WM_FLAGS_BACKGROUND) == GR_WM_FLAGS_BACKGROUND)
-				printf("%s (#%06X)\n", lookupColour(wm_props.background), wm_props.background);
+				GrError("%s (#%06X)\n", lookupColour(wm_props.background), wm_props.background);
 			else
-				printf("<unspecified>\n");
+				GrError("<unspecified>\n");
 
-			printf("\t\tBorder size: ");
+			GrError("\t\tBorder size: ");
 			if ((wm_props.flags & GR_WM_FLAGS_BORDERSIZE) == GR_WM_FLAGS_BORDERSIZE)
-				printf("%d\n", wm_props.bordersize);
+				GrError("%d\n", wm_props.bordersize);
 			else
-				printf("<unspecified>\n");
+				GrError("<unspecified>\n");
 
-			printf("\t\tProperty bits (0x%08X):\n", wm_props.props);
+			GrError("\t\tProperty bits (0x%08X):\n", wm_props.props);
 			{
 				int i, n = 0;
 
 				for (i = 0; i < NR_PROPS; i++) {
 					GR_WM_PROPS prop = props_table[i].prop;
 					if ((wm_props.props & prop) == prop) {
-						printf("\t\t\t%s (%s)\n", \
+						GrError("\t\t\t%s (%s)\n", \
 								props_table[i].prop_symbol, \
 								props_table[i].prop_descr);
 						n++;
@@ -213,7 +213,7 @@ main(int argc, char* argv[])
 				}
 
 				if (!n)
-				       	printf("\t\tNONE (?!?!?)\n");
+				       	GrError("\t\tNONE (?!?!?)\n");
 			}
 
 		}

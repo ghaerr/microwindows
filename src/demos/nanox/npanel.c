@@ -112,8 +112,8 @@ main(int argc,char **argv)
 	for(act = Apps; act->app_id[0] != '\0'; act++, num_apps++);
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
-		exit(1);
+		GrError("cannot open graphics\n");
+		return 1;
 	}
 	
 	GrGetScreenInfo(&si);
@@ -186,7 +186,7 @@ main(int argc,char **argv)
 				break;
 			case GR_EVENT_TYPE_CLOSE_REQ:
 				GrClose();
-				exit(0);
+				return 0;
 		}
 	}
 }
@@ -238,7 +238,7 @@ do_update(GR_EVENT_UPDATE *ep)
 		/* We have a new window */
 		if (ep->utype != GR_UPDATE_MAP) return;
 		if ((mwp = NewWindow(ep->wid)) == NULL) {
-			printf("malloc failed\n");
+			GrError("malloc failed\n");
 			return;
 		}
 		GrGetWindowInfo(ep->wid, &winfo);

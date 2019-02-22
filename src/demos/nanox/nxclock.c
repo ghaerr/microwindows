@@ -59,8 +59,8 @@ main(int ac, char **av)
 	GR_BITMAP	bitmap1bg[7];
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
-		exit(1);
+		GrError("cannot open graphics\n");
+		return 1;
 	}
 	
 	/* create window*/
@@ -108,7 +108,7 @@ main(int ac, char **av)
 
 			case GR_EVENT_TYPE_CLOSE_REQ:
 				GrClose();
-				exit(0);
+				return 0;
 
 			case GR_EVENT_TYPE_TIMEOUT:
 				do_clock();

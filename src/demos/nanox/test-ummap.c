@@ -13,8 +13,8 @@ main(int ac,char **av)
 	GR_WINDOW_INFO wi;
 
 	if (GrOpen() < 0) {
-		printf("Can't open graphics\n");
-		exit(1);
+		GrError("Can't open graphics\n");
+		return 1;
 	}
 
 	//w = GrNewWindowEx(GR_WM_PROPS_APPWINDOW|GR_WM_PROPS_NOBACKGROUND, "Nano-X Demo2",
@@ -50,7 +50,7 @@ main(int ac,char **av)
 			GrText(w, gc, 10, 30, "Hello World", -1, GR_TFASCII);
             GrRect(w, gc, 5, 5, 300, 60);
 			GrGetWindowInfo(w, &wi);
-			printf("Exposure:wi.width:%d,wi.height:%d,wi.x:%d,wi.y:%d,wi.parent:%d\n",wi.width,wi.height,wi.x,wi.y,wi.parent);
+			GrError("Exposure:wi.width:%d,wi.height:%d,wi.x:%d,wi.y:%d,wi.parent:%d\n",wi.width,wi.height,wi.x,wi.y,wi.parent);
 			break;
 
 		case GR_EVENT_TYPE_BUTTON_DOWN:
@@ -63,17 +63,17 @@ main(int ac,char **av)
 			//GrMoveWindow(GR_ROOT_WINDOW_ID, 0, 0);
 
 			GrGetWindowInfo(w, &wi);
-			printf("Button:  wi.width:%d,wi.height:%d,wi.x:%d,wi.y:%d,wi.parent:%d\n",wi.width,wi.height,wi.x,wi.y,wi.parent);
+			GrError("Button:  wi.width:%d,wi.height:%d,wi.x:%d,wi.y:%d,wi.parent:%d\n",wi.width,wi.height,wi.x,wi.y,wi.parent);
 			break;
 
 		case GR_EVENT_TYPE_ERROR:
-			printf("demo2: Error (%s) ", event.error.name);
-			printf(nxErrorStrings[event.error.code], event.error.id);
+			GrError("demo2: Error (%s) ", event.error.name);
+			GrError(nxErrorStrings[event.error.code], event.error.id);
 			break;
 
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
+			return 0;
 		}
 	}
 	return 0;

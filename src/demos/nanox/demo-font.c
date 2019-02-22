@@ -100,7 +100,7 @@ main(int ac, char **av)
 #endif
 
 	if (GrOpen() < 0)
-		exit(1);
+		return 1;
 
 	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
 		"loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
@@ -129,7 +129,7 @@ main(int ac, char **av)
 		GrCheckNextEvent(&event);
 		if (event.type == GR_EVENT_TYPE_CLOSE_REQ) {
 			GrClose();
-			exit(0);
+			return 0;
 		}
 
 		fontid = GrCreateFontEx(names[fnum=RAND(MAXFONTS)], 0, 0, NULL);

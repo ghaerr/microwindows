@@ -12,8 +12,8 @@ int main (void)
 {
     if (GrOpen() < 0)
     {
-        fprintf (stderr, "GrOpen failed");
-        exit (1);
+        GrError("GrOpen failed");
+        return 1;
     }
 
     gc = GrNewGC();
@@ -39,8 +39,7 @@ void event_handler (GR_EVENT *event)
     switch (event->type)
     {
     case GR_EVENT_TYPE_EXPOSURE:
-        GrText (wid, gc, 50, 50, 
-                "Hello World",  -1, GR_TFASCII);
+        GrText (wid, gc, 50, 50, "Hello World",  -1, GR_TFASCII);
         break;
 
     case GR_EVENT_TYPE_CLOSE_REQ:

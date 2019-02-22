@@ -144,14 +144,14 @@ sprite *load_sprite(nbstate *state, char *fname, int width, int height)
 	/* Make the full path to the filename because the Nano-X server
 	 * probably isn't running from the game data directory: */
 	if(snprintf(buf, 256, "%s/%s", state->gamedir, fname) >= 256){
-		fprintf(stderr, "Warning: image path \"%s/%s\" is too long\n",
+		GrError("Warning: image path \"%s/%s\" is too long\n",
 				state->gamedir, state->gamefile);
 		return NULL;
 	}
 
 	/* Try to load the image file, and return NULL on failure: */
 	if(!(img = GrLoadImageFromFile(buf, 0))) {
-		fprintf(stderr, "Warning: failed to load image \"%s\"- make "
+		GrError("Warning: failed to load image \"%s\"- make "
 				"sure it is where the server can find it and "
 				"that support for loading the relevant image "
 				"type has been built into the server\n", buf);

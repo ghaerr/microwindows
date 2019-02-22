@@ -55,14 +55,14 @@ static GR_WINDOW_ID init(char *tuxfile)
 	int x, y;
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
-		return 0;
+		GrError("Couldn't connect to Nano-X server\n");
+		return 1;
 	}
 	GrGetScreenInfo(&sinfo);
 
 	if(!(iid = GrLoadImageFromFile(tuxfile, 0))) {
-		fprintf(stderr, "Failed to load image file \"%s\"\n", tuxfile);
-		return 0;
+		GrError("Failed to load image file \"%s\"\n", tuxfile);
+		return 1;
 	}
 	GrGetImageInfo(iid, &iif);
 	pid = GrNewPixmap(iif.width, iif.height, NULL);

@@ -68,7 +68,7 @@ void load_hiscore(nbstate *state)
 		 * first time the game has been run. If it was any other error,
 		 * Print a warning. */
 		if(errno != ENOENT)
-			fprintf(stderr, "Couldn't open high score file \"%s\""
+			GrError("Couldn't open high score file \"%s\""
 				"for reading: %s\n", buf, strerror(errno));
 		/* Set the high score to 0: */
 		state->scores.hi = state->scores.fhi = 0;
@@ -82,7 +82,7 @@ void load_hiscore(nbstate *state)
 	/* If we failed to read a valid number from the file, print a warning
 	 * and set the high score to 0: */
 	if(i != 1) {
-		fprintf(stderr, "Couldn't read high score file\n");
+		GrError("Couldn't read high score file\n");
 		n = 0;
 	}
 
@@ -113,7 +113,7 @@ void save_hiscore(nbstate *state)
 	/* Try to open the high score file for writing. If there is an error,
 	 * print a warning and return: */
 	if(!(fp = fopen(buf, "w"))) {
-		fprintf(stderr, "Couldn't open high score file for writing: "
+		GrError("Couldn't open high score file for writing: "
 				"%s\n", strerror(errno));
 		return;
 	}
@@ -121,7 +121,7 @@ void save_hiscore(nbstate *state)
 	/* Try to print the new high score to the high score file. If it
 	 * fails print an error message: */
 	if((fprintf(fp, "%d", state->scores.hi)) == -1) {
-		fprintf(stderr, "Couldn't write to high score file: %s",
+		GrError("Couldn't write to high score file: %s",
 							strerror(errno));
 		/* Otherwise remember the new file high score: */
 	} else state->scores.fhi = state->scores.hi;

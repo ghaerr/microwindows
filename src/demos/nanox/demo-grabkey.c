@@ -125,7 +125,7 @@ main(int argc,char **argv)
 				grabKind = GR_GRAB_EXCLUSIVE_MOUSE;
 				break;
 			default:
-				printf( "Usage: %s key {n|h|x|s}\n"
+				GrError( "Usage: %s key {n|h|x|s}\n"
 					"Key is numeric MWKEY value (default 55='a'), type is:\n"
 					" n - Normal    (GR_GRAB_HOTKEY_EXCLUSIVE) (default)\n"
 					" h - Hotkey    (GR_GRAB_HOTKEY)\n"
@@ -137,8 +137,8 @@ main(int argc,char **argv)
 	}
 	
 	if (GrOpen() < 0) {
-		printf("Can't open graphics\n");
-		exit(1);
+		GrError("Can't open graphics\n");
+		return 1;
 	}
 
 	/* pass errors through main loop*/
@@ -154,9 +154,9 @@ main(int argc,char **argv)
 
 	main_gc = GrNewGC();
 
-	printf("Exclusively reserving key %d ('%c'): ", key, keyToChar(key));
+	GrError("Exclusively reserving key %d ('%c'): ", key, keyToChar(key));
 	grabResult = GrGrabKey(main_window, key, grabKind);
-	printf("%d\n", grabResult);
+	GrError("%d\n", grabResult);
 	
 	GrSelectEvents(main_window, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ
 			| GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_KEY_UP);
@@ -177,11 +177,10 @@ main(int argc,char **argv)
 			break;
 		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
-			exit(0);
-			break;
+			return 0;
 		case GR_EVENT_TYPE_ERROR:
-			printf("\7grabdemo: Error (%s) ", event.error.name);
-			printf(nxErrorStrings[event.error.code],event.error.id);
+			GrError("\7grabdemo: Error (%s) ", event.error.name);
+			GrError(nxErrorStrings[event.error.code],event.error.id);
 			break;
 		case GR_EVENT_TYPE_KEY_DOWN:
 			if (event.keystroke.hotkey)

@@ -243,7 +243,7 @@ void destroy_power(nbstate *state, power *p)
 	
 		/* Paranoid check to make sure we found it: */
 		if(!pp) {
-			fprintf(stderr, "Internal error: couldn't find "
+			GrError("Internal error: couldn't find "
 					"power in list in destroy_power()\n");
 			return;
 		}

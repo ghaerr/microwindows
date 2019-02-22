@@ -219,7 +219,7 @@ static void mouse_hit(int x, int y)
 		    y < keyrows[row].yoffset+keyrows[row].height) {
                         for (column = 0; column < 8; column++) {
                                 if (keyrows[row].columns[column].xoffset == 999) {
-                                        fprintf(stderr, "off end of row\n");
+                                        GrError("off end of row\n");
                                         return;
                                 }
                                 if (x < keyrows[row].columns[column + 1].xoffset) {
@@ -230,7 +230,7 @@ static void mouse_hit(int x, int y)
                         }
                 }
         }
-        fprintf(stderr, "off bottom\n");
+        GrError("off bottom\n");
 }
 
 
@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
 	char temp[50];	
 
         if (GrOpen() < 0) {
-                fprintf(stderr, "tuxchess: cannot open graphics\n");
+                GrError("tuxchess: cannot open graphics\n");
                 exit(1);
         }
 

@@ -333,7 +333,7 @@ main(int argc,char **argv)
 		switch (argv[0][1]) {
 			case 'm':
 				if (argc <= 0) {
-					fprintf(stderr, "Missing mine count\n");
+					GrError("Missing mine count\n");
 					exit(1);
 				}
 				argc--;
@@ -344,7 +344,7 @@ main(int argc,char **argv)
 
 			case 's':
 				if (argc <= 0) {
-					fprintf(stderr, "Missing size\n");
+					GrError("Missing size\n");
 					exit(1);
 				}
 				argc--;
@@ -354,7 +354,7 @@ main(int argc,char **argv)
 				break;
 
 			default:
-				fprintf(stderr, "Unknown option \"-%c\"\n",
+				GrError("Unknown option \"-%c\"\n",
 					argv[0][1]);
 				exit(1);
 		}
@@ -370,12 +370,12 @@ main(int argc,char **argv)
 
 	if (setsize) {
 		if ((newsize < MINSIZE) || (newsize > MAXSIZE)) {
-			fprintf(stderr, "Illegal board size\n");
+			GrError("Illegal board size\n");
 			exit(1);
 		}
 		if (newsize != size) {
 			if (steps && playing) {
-				fprintf(stderr,
+				GrError(
 					"Cannot change size while game is in progress\n");
 				exit(1);
 			}
@@ -388,12 +388,12 @@ main(int argc,char **argv)
 
 	if (setmines) {
 		if ((newmines <= 0) || ((newmines > (size * size) / 2))) {
-			fprintf(stderr, "Illegal number of mines\n");
+			GrError("Illegal number of mines\n");
 			exit(1);
 		}
 		if (newmines != mines) {
 			if (steps && playing) {
-				fprintf(stderr,
+				GrError(
 					"Cannot change mines while game is in progress\n");
 				exit(1);
 			}
@@ -410,7 +410,7 @@ main(int argc,char **argv)
 	 */
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "Cannot open graphics\n");
+		GrError("Cannot open graphics\n");
 		exit(1);
 	}
 
@@ -1253,7 +1253,7 @@ findindex(void)
 			return;
 		}
 	}
-	fprintf(stderr, "Too many parameters in save file\n");
+	GrError("Too many parameters in save file\n");
 	exit(1);
 }
 
@@ -1284,7 +1284,7 @@ readgame(char *name)
 	close(fd);
 
 	if ((magic != MAGIC) || (size > MAXSIZE)) {
-		fprintf(stderr, "Save file format is incorrect\n");
+		GrError("Save file format is incorrect\n");
 		exit(1);
 	}
 }

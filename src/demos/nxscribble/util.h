@@ -50,6 +50,9 @@ char	*tempstring();	/* returns a pointer to space that will reused soon */
    every file includes this one
  */
 
+int			GdError(const char *format, ...);
+#define GrError	GdError		/* calls client-side error output routine in osdep.c*/
+
 #ifdef unix
 #	define GRAPHICS		/* only GDEV on unix machines */
 #endif

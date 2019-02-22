@@ -60,8 +60,8 @@ int main(int argc, char **argv)
   GR_WINDOW_ID window;
 
   if (GrOpen() < 0) {
-	fprintf(stderr, "cannot open graphics\n");
-	exit(1);
+	GrError("cannot open graphics\n");
+	return 1;
   }
 
   window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "Antialias Fonts Demo",
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
 #else
   FILE *file;
   if ((file = fopen("bin/aademo.txt", "r")) == NULL) {
-	printf("Can't open text file\n");
-	return (-1);
+	GrError("Can't open text file\n");
+	return 1;
   }
 
   n = 0;
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
       break;
     case GR_EVENT_TYPE_CLOSE_REQ:
       GrClose();
-      exit(0);
+      return 0;
     }
   }
 

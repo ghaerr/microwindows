@@ -47,7 +47,7 @@ main(int argc,char **argv)
 	char *imagefile = "bin/slidebmp.bmp";
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
+		GrError("cannot open graphics\n");
 		exit(1);
 	}
 		

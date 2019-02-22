@@ -90,7 +90,7 @@ void *my_malloc(size_t size)
 	void *ret;
 
 	if(!(ret = malloc(size))) {
-		fprintf(stderr, "Out of memory\n");
+		GrError("Out of memory\n");
 		exit(1);
 	}
 
@@ -140,7 +140,7 @@ void read_hiscore(nstate *state)
 	fclose(f);
 
 	if(i != 1) {
-		fprintf(stderr, "Couldn't read high score file\n");
+		GrError("Couldn't read high score file\n");
 		n = 0;
 	}
 
@@ -670,7 +670,7 @@ void handle_event(nstate *state)
 		case GR_EVENT_TYPE_TIMEOUT:
 			break;
 		default:
-			fprintf(stderr, "Unhandled event type %d\n",
+			GrError("Unhandled event type %d\n",
 							state->event.type);
 			break;
 	}
@@ -721,7 +721,7 @@ void init_game(nstate *state)
 	GR_COORD x = MAIN_WINDOW_X_POSITION;
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		exit(1);
 	}
 
@@ -892,7 +892,7 @@ unsigned long timeout_delay(nstate *state)
 	m = ((state->timeout.tv_usec - t.tv_usec) / 1000);
 	ret = (unsigned long)((1000 * s) + m);
 /*
-	fprintf(stderr, "t.tv_sec = %ld, t.tv_usec = %ld, timeout.tv_sec = "
+	GrError("t.tv_sec = %ld, t.tv_usec = %ld, timeout.tv_sec = "
 		"%ld, timeout.tv_usec = %ld, s = %ld, m = %ld, ret = %ld\n",
 		t.tv_sec, t.tv_usec, state->timeout.tv_sec,	
 		state->timeout.tv_usec, s, m, ret);

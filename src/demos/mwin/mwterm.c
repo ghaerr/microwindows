@@ -261,7 +261,7 @@ ptysignaled(int signo)
 		CreateAppWindow();
 		return;
 	}
-	fprintf(stderr, "Uncaught signal %d\n", signo);
+	MwError("Uncaught signal %d\n", signo);
 }
 
 /*
@@ -278,10 +278,10 @@ CreatePtyShell(void)
 	signal(SIGCHLD, ptysignaled);
 	signal(SIGINT, ptysignaled);
 	if ((pid = forkpty(&master, pty_name, NULL, NULL)) == -1) {
-		fprintf(stderr, "No processes\n");
+		MwError("No processes\n");
 		return -1;
 	}
-fprintf(stderr, "CYGWIN: Opened pty_name %s\n", pty_name);
+MwError("CYGWIN: Opened pty_name %s\n", pty_name);
 	if (!pid) {
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
@@ -292,7 +292,7 @@ fprintf(stderr, "CYGWIN: Opened pty_name %s\n", pty_name);
 		grantpt(master);
 		unlockpt(master);
 		if ((slave = open(pty_name, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			MwError("Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
 		dup2(slave, STDIN_FILENO);
@@ -318,7 +318,7 @@ CreatePtyShell(void)
 	/* opens /dev/ptmx, can't use getpt() as needs nonblocking*/
 	if ((tfd = open("/dev/ptmx", O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0) {
 err:
-		fprintf(stderr, "Can't create pty /dev/ptmx\n");
+		MwError("Can't create pty /dev/ptmx\n");
 		return -1;
 	}
 	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
@@ -328,7 +328,7 @@ err:
 	signal(SIGCHLD, ptysignaled);
 	signal(SIGINT, ptysignaled);
 	if ((pid = fork()) == -1) {
-		fprintf(stderr, "No processes\n");
+		MwError("No processes\n");
 		return -1;
 	}
 	if (!pid) {
@@ -339,7 +339,7 @@ err:
 		
 		setsid();
 		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			MwError("Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
 		dup2(tfd, STDIN_FILENO);
@@ -369,13 +369,13 @@ again:
 			++n;
 			goto again;
 		}
-		fprintf(stderr, "Can't create pty %s\n", pty_name);
+		MwError("Can't create pty %s\n", pty_name);
 		return -1;
 	}
 	signal(SIGCHLD, ptysignaled);
 	signal(SIGINT, ptysignaled);
 	if ((pid = fork()) == -1) {
-		fprintf(stderr, "No processes\n");
+		MwError("No processes\n");
 		return -1;
 	}
 	if (!pid) {
@@ -387,7 +387,7 @@ again:
 		setsid();
 		pty_name[5] = 't';
 		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			MwError("Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
 		dup2(tfd, STDIN_FILENO);

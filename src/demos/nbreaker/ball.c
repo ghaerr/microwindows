@@ -240,7 +240,7 @@ int check_ball_collision(nbstate *state, coords *c)
 				} else {
 					/* This shouldn't happen, but I don't
 					 * trust the above algorithm 100%. */
-					fprintf(stderr, "Internal error: "
+					GrError("Internal error: "
 						"couldn't figure out brick "
 						"collision face\n");
 				}

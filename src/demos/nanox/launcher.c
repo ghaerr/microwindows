@@ -90,7 +90,7 @@ void *my_malloc(size_t size)
 	void *ret;
 
 	if(!(ret = malloc(size))) {
-		fprintf(stderr, "Out of memory\n");
+		GrError("Out of memory\n");
 		exit(1);
 	}
 
@@ -99,7 +99,7 @@ void *my_malloc(size_t size)
 
 void usage(void)
 {
-	fprintf(stderr, "Usage: launcher <config-file>\n");
+	GrError("Usage: launcher <config-file>\n");
 	exit(3);
 }
 
@@ -127,7 +127,7 @@ prog_item *make_prog_item(char *buf, int lineno)
 
 	while(isspace(*p)) p++;
 	if(!*p) {
-		fprintf(stderr, "Premature end of line on line %d of config "
+		GrError("Premature end of line on line %d of config "
 				"file\n", lineno);
 		return 0;
 	}
@@ -160,7 +160,7 @@ prog_item *make_prog_item(char *buf, int lineno)
 		*p++ = 0;
 		if(!(prog->argv[n] = strdup(pp))) goto nomem;
 		if(++n == (MAX_ARGUMENTS - 1)) {
-			fprintf(stderr, "Too many arguments on line "
+			GrError("Too many arguments on line "
 				"%d of the config file\n", lineno);
 			break; 
 		}
@@ -169,7 +169,7 @@ prog_item *make_prog_item(char *buf, int lineno)
 	return prog;
 
 nomem:
-	fprintf(stderr, "Out of memory parsing line %d of the config "
+	GrError("Out of memory parsing line %d of the config "
 			"file\n", lineno);
 	return 0;
 }
@@ -181,7 +181,7 @@ void set_window_background_colour(char *buf, int lineno)
 
 	while(isspace(*p)) p++;
 	if(!*p) {
-		fprintf(stderr, "Premature end of line on line %d of config "
+		GrError("Premature end of line on line %d of config "
 				"file\n", lineno);
 		return;
 	}
@@ -202,7 +202,7 @@ void set_window_background_colour(char *buf, int lineno)
 	else if(!strcmp(pp, "BROWN")) props.background = GR_COLOR_BROWN;
 	else if(!strcmp(pp, "GRAY")) props.background = GR_COLOR_GRAY;
 	else {
-		fprintf(stderr, "Invalid colour \"%s\" on line %d of config "
+		GrError("Invalid colour \"%s\" on line %d of config "
 							"file\n", pp, lineno);
 		return;
 	}
@@ -321,13 +321,13 @@ void parse_config_line(lstate *state, char *buf, int lineno)
 		}
 		if(!new_litem->iconid) {
 			if(!(new_litem->iconid = GrLoadImageFromFile(icon, 0))){
-				fprintf(stderr, "Couldn't load icon \"%s\"\n",
+				GrError("Couldn't load icon \"%s\"\n",
 									icon);
 			} else {
 				GrGetImageInfo(new_litem->iconid, &imageinfo);
 				if((imageinfo.width != ICON_WIDTH) ||
 					(imageinfo.height != ICON_HEIGHT)) {
-					fprintf(stderr, "Icon \"%s\" is the "
+					GrError("Icon \"%s\" is the "
 					"wrong size (%dx%d instead of %dx%d)"
 					"\n", icon, imageinfo.width,
 					imageinfo.height, ICON_WIDTH,
@@ -355,11 +355,11 @@ void parse_config_line(lstate *state, char *buf, int lineno)
 	return;
 
 nomem:
-	fprintf(stderr, "Out of memory\n");
+	GrError("Out of memory\n");
 	exit(1);
 
 premature:
-	fprintf(stderr, "Premature end of line on line %d of config file\n",
+	GrError("Premature end of line on line %d of config file\n",
 								lineno);
 }
 
@@ -370,7 +370,7 @@ void read_config(lstate *state)
 	char *buf = my_malloc(256);
 
 	if(!(fp = fopen(state->config_file, "r"))) {
-		fprintf(stderr, "Couldn't open config file \"%s\"\n",
+		GrError("Couldn't open config file \"%s\"\n",
 							state->config_file);
 		exit(2);
 	}
@@ -395,7 +395,7 @@ void read_config(lstate *state)
 	else state->curssitem = state->ssitems;
 	
 	if(!state->numlitems) {
-		fprintf(stderr, "No valid launcher items in config file\n");
+		GrError("No valid launcher items in config file\n");
 		exit(5);
 	}
 }
@@ -430,7 +430,7 @@ void handle_exposure_event(lstate *state)
 		i = i->next;
 	}
 
-	fprintf(stderr, "Got exposure event for unknown window %d\n", event->wid);
+	GrError("Got exposure event for unknown window %d\n", event->wid);
 }
 
 pid_t launch_program(prog_item *prog)
@@ -440,7 +440,7 @@ pid_t launch_program(prog_item *prog)
 	if((pid = fork()) == -1) perror("Couldn't fork");
 	else if(!pid) {
 		if(execvp(prog->command, prog->argv) == -1)
-			fprintf(stderr, "Couldn't start \"%s\": %s\n",
+			GrError("Couldn't start \"%s\": %s\n",
 					prog->command, strerror(errno));
 		exit(7);
 	}
@@ -463,7 +463,7 @@ void handle_mouse_event(lstate *state)
 		i = i->next;
 	}
 
-	fprintf(stderr, "Got mouse event for unknown window %d\n", event->wid);
+	GrError("Got mouse event for unknown window %d\n", event->wid);
 }
 
 void choose_random_screensaver(lstate *state)
@@ -509,7 +509,7 @@ void handle_screensaver_event(lstate *state)
 	}
 
 	if(!state->ssitems) {
-		fprintf(stderr, "Got screensaver activate event with no "
+		GrError("Got screensaver activate event with no "
 				"screensavers defined\n");
 		return;
 	}
@@ -553,7 +553,7 @@ void handle_event(lstate *state)
 		case GR_EVENT_TYPE_CHLD_UPDATE:
 			break;
 		default:
-			fprintf(stderr, "Got unknown event type %d\n", state->event.type);
+			GrError("Got unknown event type %d\n", state->event.type);
 			break;
 	}
 }
@@ -589,7 +589,7 @@ void initialise(lstate *state)
 	litem *i;
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		exit(4);
 	}
 
@@ -631,13 +631,13 @@ void initialise(lstate *state)
 	if(state->window_background_image) {
 		if(!(back_image = GrLoadImageFromFile(
 					state->window_background_image, 0))) {
-			fprintf(stderr, "Couldn't load background image\n");
+			GrError("Couldn't load background image\n");
 		} else {
 			GrGetImageInfo(back_image, &imageinfo);
 			if(!(state->background_pixmap = GrNewPixmap(
 							imageinfo.width,
 						imageinfo.height, NULL))) {
-				fprintf(stderr, "Couldn't allocate pixmap "	
+				GrError("Couldn't allocate pixmap "	
 						"for background image\n");
 			} else {
 				GrDrawImageToFit(state->background_pixmap,
@@ -687,7 +687,7 @@ void initialise(lstate *state)
 	return;
 
 toomany:
-	fprintf(stderr, "Too many items to fit on screen\n");
+	GrError("Too many items to fit on screen\n");
 	exit(6);
 }
 

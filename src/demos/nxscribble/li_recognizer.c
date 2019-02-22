@@ -191,14 +191,14 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
     /*Go thru classes.*/
 
 /* ari */
-/* fprintf(stderr, "Classes: [ "); */
+/* GrError("Classes: [ "); */
 
     for( k = 0; k < nclss; k++ ) {
 
 	/*Read class name and number of examples.*/
 	
 	if( fscanf(fd,"%d %s",&nex,buf) != 2 ) {
-            printf("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
+            GrError("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
 	    goto unallocate;
 	}
 	
@@ -206,7 +206,7 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
 	
 	names[k] = strdup(buf);
 /* ari */
-/* fprintf(stderr, "%s ", buf); */
+/* GrError("%s ", buf); */
 
 	/*Read examples.*/
 	
@@ -215,14 +215,14 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
 	    /*Read number of points.*/
 	    
 	    if( fscanf(fd,"%d",&npts) != 1 ) {
-                printf("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
+                GrError("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
 		goto unallocate; /*Boy would I like exceptions!*/
 	    }
 	    
 	    /*Allocate array for points.*/
 	    
 	    if( (pts = make_pen_point_array(npts)) == NULL ) {
-                printf("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
+                GrError("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
 		goto unallocate;
 	    }
 	    
@@ -233,11 +233,11 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
                 int jj;
 		if( fscanf(fd,"%d %d",&x,&y) != 2 ) {
 		    delete_pen_point_array(pts);
-                    printf("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
-                    printf("class = %d/%d/%s, ex = %d/%d, pt: %d/%d\n", 
+                    GrError("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
+                    GrError("class = %d/%d/%s, ex = %d/%d, pt: %d/%d\n", 
                                 k, nclss, names[k], i, nex, j, npts);
                     for (jj = 0;  jj < j;  jj++) {
-                        printf("pts[%d] = %d/%d\n", jj, pts[jj].x, pts[jj].y);
+                        GrError("pts[%d] = %d/%d\n", jj, pts[jj].x, pts[jj].y);
                     }
 		    goto unallocate;
 		}
@@ -249,7 +249,7 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
 	    
 	    if( (examples[k] = add_example(examples[k],npts,pts)) == NULL ) {
 		delete_pen_point_array(pts);
-                printf("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
+                GrError("%s *FAILED* - line: %d\n", __FUNCTION__, __LINE__);
 		goto unallocate;
 	    }
 	    
@@ -259,7 +259,7 @@ read_classifier_points(FILE* fd,int nclss,point_list** ex,char** cnames)
       }
 
 /* ari -- end of list of classes */
-/* fprintf(stderr, "]\n"); */
+/* GrError("]\n"); */
 
     /*Transfer to recognizer.*/
 
@@ -462,7 +462,7 @@ static int li_recognizer_load(recognizer r,char* dir,char* filename)
 	free(pathname);
 	li_err_msg = "Can't open classifier file";
 /* ari */
-	/* fprintf(stderr, "Trying to open %s.\n", pathname); */
+	/* GrError("Trying to open %s.\n", pathname); */
 	return(-1);
 
     }
@@ -792,7 +792,7 @@ RECOGNIZER_INITIALIZE(ri)
 
     if( strcmp(ri->ri_locale,LI_SUPPORTED_LOCALE) != 0 ) {
 	li_err_msg = "Not a supported locale";
-fprintf(stderr, "Locale error.\n");
+GrError("Locale error.\n");
 #if 0
 	return(NULL);
 #endif
@@ -811,7 +811,7 @@ fprintf(stderr, "Locale error.\n");
 	    strcmp(ri->ri_subset[i],DIGITS) != 0 &&
 	    strcmp(ri->ri_subset[i],GESTURE) != 0 ) {
 	  li_err_msg = "Not a supported character set";
-fprintf(stderr, "charset error.\n");
+GrError("charset error.\n");
 
 	  return(NULL);
 	}
@@ -820,7 +820,7 @@ fprintf(stderr, "charset error.\n");
 	     
 /* ari */
     r = make_recognizer(ri);
-    /*fprintf(stderr, "past make_recognizer.\n");*/
+    /*GrError("past make_recognizer.\n");*/
 
     if( r == NULL ) {
 	li_err_msg = "Can't allocate storage";
@@ -1124,7 +1124,7 @@ static char *lialg_recognize_stroke(rClassifier *rec, point_list *stroke) {
 	curr_score = dist;
 
 	if (lidebug && curr_score < DIST_THLD)
-	    fprintf(stderr, "(%s, %d, %d) ", curr_name, sim, dist);
+	    GrError("(%s, %d, %d) ", curr_name, sim, dist);
 
 	/* Is it the best so far? */
 	if (curr_score < best_score && curr_score <= DIST_THLD) {
@@ -1134,7 +1134,7 @@ static char *lialg_recognize_stroke(rClassifier *rec, point_list *stroke) {
     }
 
     if (lidebug)
-	fprintf(stderr, "\n");
+	GrError("\n");
 
     /* No errors. */
     name = best_name;
@@ -1143,7 +1143,7 @@ done:
     delete_examples(input_dompts);
     /*    (void)gettimeofday(&etv, NULL);
 	  elapsed = (1000 * (etv.tv_sec - stv.tv_sec)) + ((etv.tv_usec - stv.tv_usec + 500) / 1000);
-	  fprintf(stderr, "elapsed = %d\n", elapsed);
+	  GrError("elapsed = %d\n", elapsed);
      */
     return(name);
 }
@@ -1187,10 +1187,10 @@ static int lialg_preprocess_stroke(point_list *points) {
 
     if (lidebug) {
 	int i;
-	fprintf(stderr, "After pre-processing:   %d %d %d %d\n",
+	GrError("After pre-processing:   %d %d %d %d\n",
 		minx, miny, maxx, maxy);
 	for (i = 0; i < points->npts; i++)
-	    fprintf(stderr, "      (%d %d)\n",
+	    GrError("      (%d %d)\n",
 		    points->pts[i].x, points->pts[i].y);
 	fflush(stderr);
     }
@@ -1209,9 +1209,9 @@ static point_list *lialg_compute_dominant_points(point_list *points) {
     if (ipts == NULL) return(NULL);
     if (lidebug) {
 	int j;
-	fprintf(stderr, "After interpolation:  %d ipts\n", ipts->npts);
+	GrError("After interpolation:  %d ipts\n", ipts->npts);
 	for (j = 0; j < ipts->npts; j++) {
-	    fprintf(stderr, "  (%d, %d), %ld\n",
+	    GrError("  (%d, %d), %ld\n",
 		    ipts->pts[j].x, ipts->pts[j].y, ipts->pts[j].chaincode);
 	}
 	fflush(stderr);
@@ -1225,12 +1225,12 @@ static point_list *lialg_compute_dominant_points(point_list *points) {
     dpts = lialg_compute_dompts(ipts, regions);
     if (lidebug) {
 	int j;
-	fprintf(stderr, "Dominant points:  ");
+	GrError("Dominant points:  ");
 	for (j = 0; j < dpts->npts; j++) {
-	    fprintf(stderr, "%d %d (%ld)  ",
+	    GrError("%d %d (%ld)  ",
 		    dpts->pts[j].x, dpts->pts[j].y, dpts->pts[j].chaincode);
 	}
-	fprintf(stderr, "\n");
+	GrError("\n");
 	fflush(stderr);
     }
 
@@ -1467,11 +1467,11 @@ static region_list *lialg_compute_regions(point_list *pts) {
     /* Debugging. */
     if (lidebug > 1) {
 	for (i = 0; i < pts->npts; i++) {
-	    fprintf(stderr, "%3d:  (%3d, %3d)  %ld  ",
+	    GrError("%3d:  (%3d, %3d)  %ld  ",
 		    i, pts->pts[i].x, pts->pts[i].y, pts->pts[i].chaincode);
 	    for (j = 0; j < 2 + LP_FILTER_ITERS; j++)
-		fprintf(stderr, "%d  ", R[j][i]);
-	    fprintf(stderr, "\n");
+		GrError("%d  ", R[j][i]);
+	    GrError("\n");
 	}
     }
 
@@ -1503,7 +1503,7 @@ static region_list *lialg_compute_regions(point_list *pts) {
 		end = i - 1;
 		curr_reg->end = end;
 		if (lidebug > 1)
-		    fprintf(stderr, "  (%d, %d), %d\n", start, end, currtype);
+		    GrError("  (%d, %d), %d\n", start, end, currtype);
 
 		start = i;
 		currtype = nexttype;
@@ -1521,7 +1521,7 @@ static region_list *lialg_compute_regions(point_list *pts) {
 	end = i - 1;
 	curr_reg->end = end;
 	if (lidebug > 1)
-	    fprintf(stderr, "  (%d, %d), %d\n", start, end, currtype);
+	    GrError("  (%d, %d), %d\n", start, end, currtype);
 
 	/* Filter out convex/concave regions that are too short. */
 	for (curr_reg = regions; curr_reg; curr_reg = curr_reg->next)
@@ -1564,7 +1564,7 @@ static region_list *lialg_compute_regions(point_list *pts) {
 		    int atcr = (chordlen == 0) ? 0 : (100 * arclen + chordlen / 2) / chordlen;
 
 		    if (lidebug)
-			fprintf(stderr, "%d, %d, %d\n", arclen, chordlen, atcr);
+			GrError("%d, %d, %d\n", arclen, chordlen, atcr);
 
 		    /* Split region if necessary. */
 		    if (arclen >= PE_AL_THLD && atcr >= PE_ATCR_THLD) {
@@ -1667,7 +1667,7 @@ static point_list *lialg_compute_dompts(point_list *pts, region_list *regions) {
 		    if (v > max_v) { max_v = v; max_ix = i; }
 		    if (v < min_v) { min_v = v; min_ix = i; }
 		    if (lidebug > 1)
-			fprintf(stderr, "  %d\n", v);
+			GrError("  %d\n", v);
 		}
 
 		currix = (curr->type == RGN_CONVEX ? max_ix : min_ix);
@@ -1784,7 +1784,7 @@ static void lialg_score_stroke(point_list *input_dompts, point_list *curr_dompts
 
 done:
     if (lidebug)
-	fprintf(stderr, "%d, %d\n", *sim, *dist);
+	GrError("%d, %d\n", *sim, *dist);
 }
 
 
@@ -2064,7 +2064,7 @@ static int lialg_read_classifier_digest(rClassifier *rec) {
 	continue;
 
 failed:
-	fprintf(stderr, "read_classifier_digest failed...\n");
+	GrError("read_classifier_digest failed...\n");
 	for (; nclasses >= 0; nclasses--) {
 	    if (rec->cnames[nclasses] != NULL) {
 		free(rec->cnames[nclasses]);
@@ -2097,7 +2097,7 @@ static int lialg_canonicalize_examples(rClassifier *rec) {
     int nclasses;
 
     if (lidebug) {
-        fprintf(stderr, "lialg_canonicalize_examples working on %s\n",
+        GrError("lialg_canonicalize_examples working on %s\n",
 		rec->file_name);
     }
     /* Initialize canonical-example arrays. */
@@ -2122,7 +2122,7 @@ static int lialg_canonicalize_examples(rClassifier *rec) {
 
 	
 	if (lidebug) {
-	    fprintf(stderr, "lialg_canonicalize_examples working on class %s\n",
+	    GrError("lialg_canonicalize_examples working on class %s\n",
 		    rec->cnames[i]);
 	}
 	/* Make a copy of the examples. */
@@ -2141,7 +2141,7 @@ static int lialg_canonicalize_examples(rClassifier *rec) {
 	for (j = 0, tmp = pts; j < nex; j++, tmp = tmp->next) {
 	    if (lialg_canonicalize_example_stroke(tmp) != 0) {
   	        if (lidebug) {
-		    fprintf(stderr, "lialg_canonicalize_example_stroke returned error\n");
+		    GrError("lialg_canonicalize_example_stroke returned error\n");
 		}
 		return(-1);
 	    }
@@ -2219,9 +2219,9 @@ static int lialg_canonicalize_examples(rClassifier *rec) {
 	(rec->canonex[i])->yrange = maxy - miny;
 
 	if (lidebug) {
-	    fprintf(stderr, "%s, avgpts = %d\n", rec->cnames[i], avg->npts);
+	    GrError("%s, avgpts = %d\n", rec->cnames[i], avg->npts);
 	    for (j = 0; j < avg->npts; j++) {
-		fprintf(stderr, "  (%d, %d)\n",
+		GrError("  (%d, %d)\n",
 			avg->pts[j].x, avg->pts[j].y);
 	    }
 	}
@@ -2238,7 +2238,7 @@ static int lialg_canonicalize_examples(rClassifier *rec) {
 	char *best_name = lialg_recognize_stroke(rec, rec->canonex[i]);
 
 	if (best_name != rec->cnames[i])
-	    fprintf(stderr, "%s, best = %s\n", rec->cnames[i], best_name);
+	    GrError("%s, best = %s\n", rec->cnames[i], best_name);
     }
 
     return(0);
@@ -2254,7 +2254,7 @@ static int lialg_canonicalize_example_stroke(point_list *points) {
     /* Must be at least two points! */
     if (points->npts < 2) {
         if (lidebug) {
-	    fprintf(stderr, "lialg_canonicalize_example_stroke: npts=%d\n",
+	    GrError("lialg_canonicalize_example_stroke: npts=%d\n",
 		    points->npts);
 	}
         return(-1);
@@ -2270,7 +2270,7 @@ static int lialg_canonicalize_example_stroke(point_list *points) {
       : (100 * CANONICAL_Y + yrange / 2) / yrange;
     if (lialg_translate_points(points, minx, miny, scale, scale) != 0) {
         if (lidebug) {
-	    fprintf(stderr, "lialg_translate_points (minx=%d,miny=%d,scale=%d) returned error\n", minx, miny, scale);
+	    GrError("lialg_translate_points (minx=%d,miny=%d,scale=%d) returned error\n", minx, miny, scale);
 	}
 	return(-1);
     }
@@ -2282,7 +2282,7 @@ static int lialg_canonicalize_example_stroke(point_list *points) {
     lialg_get_bounding_box(points, &minx, &miny, &maxx, &maxy);
     if (lialg_translate_points(points, minx, miny, 100, 100) != 0) {
         if (lidebug) {
-	    fprintf(stderr, "lialg_translate_points (minx=%d,miny=%d) returned error\n", minx, miny);
+	    GrError("lialg_translate_points (minx=%d,miny=%d) returned error\n", minx, miny);
 	}
         return(-1);
     }
@@ -2295,9 +2295,9 @@ static int lialg_canonicalize_example_stroke(point_list *points) {
 
     if (lidebug) {
 	int i;
-	fprintf(stderr, "Canonicalized:   %d, %d, %d, %d\n", minx, miny, maxx, maxy);
+	GrError("Canonicalized:   %d, %d, %d, %d\n", minx, miny, maxx, maxy);
 	for (i = 0; i < points->npts; i++)
-	    fprintf(stderr, "      (%d %d)\n",
+	    GrError("      (%d %d)\n",
 		    points->pts[i].x, points->pts[i].y);
 	fflush(stderr);
     }
@@ -2322,7 +2322,7 @@ static int lialg_compute_equipoints(point_list *points) {
     }
 
     if (lidebug) {
-	fprintf(stderr, "compute_equipoints:  npts = %d, pathlen = %d, equidist = %d\n",
+	GrError("compute_equipoints:  npts = %d, pathlen = %d, equidist = %d\n",
 		points->npts, pathlen, equidist);
 	fflush(stderr);
     }
@@ -2385,7 +2385,7 @@ static int lialg_compute_equipoints(point_list *points) {
 	equipoints[nequipoints] = points->pts[points->npts - 1];
     } else {
       if (lidebug) {
-        fprintf(stderr,"lialg_compute_equipoints: nequipoints = %d\n", 
+        GrError("lialg_compute_equipoints: nequipoints = %d\n", 
 		nequipoints);
       }
 /*	assert(false);*/

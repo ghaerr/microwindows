@@ -11,7 +11,7 @@
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: setportrait <none|left|right|down>\n");
+	GrError("Usage: setportrait <none|left|right|down>\n");
 	exit(-1);
 }
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	else usage();
 
 	if(GrOpen() < 0) {
-		fprintf(stderr, "Couldn't connect to Nano-X server\n");
+		GrError("Couldn't connect to Nano-X server\n");
 		return -1;
 	}
 

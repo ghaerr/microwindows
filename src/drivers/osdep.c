@@ -140,7 +140,7 @@ GdDelay(MWTIMEOUT msecs)
 void
 GdBell(void)
 {
-#if !(PSP | EMSCRIPTEN)
+#if HAVE_FILEIO && !(PSP | EMSCRIPTEN)
 	write(2, "\7", 1);
 #endif
 }

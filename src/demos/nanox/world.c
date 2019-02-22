@@ -162,7 +162,7 @@ main(int argc, char **argv)
 	GR_WM_PROPERTIES props;
 
 	if (GrOpen() < 0) {
-		fprintf(stderr, "Cannot open graphics\n");
+		GrError("Cannot open graphics\n");
 		exit(1);
 	}
 
@@ -547,7 +547,7 @@ load(char *fn)
 	fh = open(fn, O_BINARY | O_RDONLY);
 	if (fh < 0) {
 		GrClose();
-		fprintf(stderr, "Cannot open %s\n", fn);
+		GrError("Cannot open %s\n", fn);
 		exit(1);
 	}
 

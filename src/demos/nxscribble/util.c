@@ -77,7 +77,7 @@ void
 exit_error(a, b, c, d, e, f, g, h, i, j)
 char *a;
 {
-	fprintf(stderr, a, b, c, d, e, f, g, h, i, j);
+	GrError( a, b, c, d, e, f, g, h, i, j);
 	exit(1);
 }
 
@@ -93,7 +93,7 @@ debug(a, b, c, d, e, f, g)
 char *a;
 {
 	if(DebugFlag)
-		fprintf(stderr, a, b, c, d, e, f, g);
+		GrError( a, b, c, d, e, f, g);
 }
 
 #define	upper(c)	(islower(c) ? toupper(c) : (c))

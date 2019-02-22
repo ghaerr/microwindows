@@ -493,7 +493,7 @@ void esc1(unsigned char c)	/* various control codes */
 
     default: /* unknown escape sequence */
 #if debug_screen
-	printf("default:>%c<,",c);
+	GrError("default:>%c<,",c);
 #endif
 
 		break;
@@ -684,7 +684,7 @@ col = number of columns for current screen width
 row = number of lines for current screen height
 scrolltop, scrollbottom = upper and lower scroll region limit in lines/rows
 */
-    //printf("\n\nC:%c,val1:%d,val2:%d,val3:%d,scflag:%d,curx:%d,cury:%d,nobracket:%d\n",c,escvalue1,escvalue2,escvalue3,semicolonflag,curx,cury,nobracket);
+    //GrError("\n\nC:%c,val1:%d,val2:%d,val3:%d,scflag:%d,curx:%d,cury:%d,nobracket:%d\n",c,escvalue1,escvalue2,escvalue3,semicolonflag,curx,cury,nobracket);
 
     if (nobracket==1){
     	if (c=='8'){ //Restore cursor
@@ -942,7 +942,7 @@ scrolltop, scrollbottom = upper and lower scroll region limit in lines/rows
     default: /* unknown escape sequence */
 		break;
     }
-    //printf("end-C:%c,val1:%d,val2:%d,val3:%d,scflag:%d,curx:%d,cury:%d\n",c,escvalue1,escvalue2,escvalue3,semicolonflag,curx,cury);
+    //GrError("end-C:%c,val1:%d,val2:%d,val3:%d,scflag:%d,curx:%d,cury:%d\n",c,escvalue1,escvalue2,escvalue3,semicolonflag,curx,cury);
 }
 
 
@@ -1003,7 +1003,7 @@ void esc0 (unsigned char c)
 		break;
 
     case 10: /* line feed */
-//printf("\nLF\n");
+//GrError("\nLF\n");
 		sflush();
 		if (++cury >= scrollbottom) {
 		//have to scroll before moving cursor, so reduce and add again
@@ -1052,7 +1052,7 @@ void esc0 (unsigned char c)
 void printc(unsigned char c)
 {
 #if debug_screen
-	printf("%c,",c);
+	GrError("%c,",c);
 #endif
     switch(escstate) {
     case 0:
@@ -1123,7 +1123,7 @@ term(void)
 
 	if (prog_to_start[0]) {
 		//enter program name from command line plus newline to call it now
-		//printf("prog_to_start:%s,len:%d\n",prog_to_start,strlen(prog_to_start));
+		//GrError("prog_to_start:%s,len:%d\n",prog_to_start,strlen(prog_to_start));
 		(void)write(pipeh,prog_to_start,strlen(prog_to_start));
 	}
 
@@ -1143,7 +1143,7 @@ term(void)
 		  /* deal with special keys*/
 			kp = (GR_EVENT_KEYSTROKE *)&wevent;
 #if debug_kbd
-	printf("key-in:%X\n",kp->ch);
+	GrError("key-in:%X\n",kp->ch);
 #endif
 			if (kp->ch & MWKEY_NONASCII_MASK)
 				if (termtype==0){
@@ -1158,7 +1158,7 @@ term(void)
 			if( bufflen > 0)
 				(void)write(pipeh, buf, bufflen);
 #if debug_kbd
-	printf("key-out:%X,%X,bufflen:%d\n",buf[0],buf[1],bufflen);
+	GrError("key-out:%X,%X,bufflen:%d\n",buf[0],buf[1],bufflen);
 #endif
 			break;
 
@@ -1540,12 +1540,12 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 
 void usage(char *s)
 {
-    if (s) fprintf(stderr, "error: %s\n", s);
+    if (s) GrError("error: %s\n", s);
 
-    printf("usage: nxterm [-f <font family>] [-s <font size>]\n");
-    printf("       [-5] [-c] [-h] [program {args}]\n");
-    printf("       -f = select font, -s = font size -5 = vt52 mode\n");
-    printf("       -c = catch console output (SunOS4) -h = this help\n");
+    GrError("usage: nxterm [-f <font family>] [-s <font size>]\n");
+    GrError("       [-5] [-c] [-h] [program {args}]\n");
+    GrError("       -f = select font, -s = font size -5 = vt52 mode\n");
+    GrError("       -c = catch console output (SunOS4) -h = this help\n");
     exit(0);
 }
 
@@ -1623,12 +1623,12 @@ int main(int argc, char **argv)
 
     /* who am I? */
     if (!(pw = getpwuid((uid = getuid())))) {
-		fprintf(stderr, "error: wterm can't determine determine your login name\n");
+		GrError("error: wterm can't determine determine your login name\n");
 		exit(-1);
     }
 
     if (GrOpen() < 0) {
-		fprintf(stderr, "cannot open graphics\n");
+		GrError("cannot open graphics\n");
 		exit(1);
     }
     GrGetScreenInfo(&si);
@@ -1895,7 +1895,7 @@ int term_init(void)
 	sprintf(ptyname,"%s",ptsname(tfd));
 
 	if ((pid = fork()) == -1) {
-		fprintf(stderr, "No processes\n");
+		GrError("No processes\n");
 		return -1;
 	}
 	if (!pid) {
@@ -1905,7 +1905,7 @@ int term_init(void)
 
 		setsid();
 		if ((tfd = open(ptyname, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", ptyname);
+			GrError("Child: Can't open pty %s\n", ptyname);
 			exit(1);
 		}
 		
@@ -1918,7 +1918,7 @@ int term_init(void)
 	}
 	return tfd;
 err:
-	fprintf(stderr, "Can't create pty /dev/ptmx\n");
+	GrError("Can't create pty /dev/ptmx\n");
 	return -1;	
 }
 
@@ -1932,14 +1932,14 @@ int term_init(void)
 again:
 	sprintf(pty_name, "/dev/ptyp%d", n);
 	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
-		fprintf(stderr, "Can't create pty %s\n", pty_name);
+		GrError("Can't create pty %s\n", pty_name);
 		return -1;
 	}
 
 	signal(SIGCHLD, sigchild);
 	signal(SIGINT, sigchild);
 	if ((pid = fork()) == -1) {
-		fprintf(stderr, "No processes\n");
+		GrError("No processes\n");
 		return -1;
 	}
 	if (!pid) {
@@ -1950,7 +1950,7 @@ again:
 		setsid();
 		pty_name[5] = 't';
 		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			fprintf(stderr, "Child: Can't open pty %s\n", pty_name);
+			GrError("Child: Can't open pty %s\n", pty_name);
 			exit(1);
 		}
 		close(STDERR_FILENO);
@@ -1976,7 +1976,7 @@ term_init(void)
     winsz.ws_col = col;
     winsz.ws_row = row;
     if ((pid = forkpty(&pipeh, pty, NULL, &winsz)) < 0)  {
-		fprintf(stderr,"wterm: can't create pty\r\n");
+		GrError(wterm: can't create pty\r\n");
 		perror("wterm");
 		sleep(2);
 		GrKillWindow(w1);
@@ -2004,7 +2004,7 @@ term_init(void)
 		execvp(shell, argv);
 
 		/* oops? */
-		fprintf(stderr,"wterm: can't start shell\r\n");
+		GrError(wterm: can't start shell\r\n");
 		sleep(3);
 		GrKillWindow(w1);
 		_exit(-1);

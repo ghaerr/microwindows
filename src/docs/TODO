@@ -1,4 +1,4 @@
-add ANDROID GrDelay()
+add ANDROID GdDelay()
 check -DHAVE_MMAP=? for EMSCRIPTEN
 update runapp for nx11-test and contrib/TinyWidgets/{demo,tndesigner}
 rename PIXEL888*, PIXEL8888* in mwtypes.h

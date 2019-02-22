@@ -62,7 +62,7 @@ main(int ac, char **av)
 	GR_WINDOW_ID wid;
 
 	if (GrOpen() < 0)
-		exit(-1);
+		return 1;
 
 	wid = GrNewWindowEx(GR_WM_PROPS_BORDER|GR_WM_PROPS_CAPTION|
 		GR_WM_PROPS_CLOSEBOX, "arcdemo",

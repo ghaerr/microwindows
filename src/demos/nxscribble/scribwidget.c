@@ -226,11 +226,11 @@ graffiti_load_recognizers(struct graffiti *pg)
 		/* Load the recognizer itself... */
 		pg->rec[i] = recognizer_load(DEFAULT_REC_DIR, rec_name, NULL);
 		if (pg->rec[i] == NULL) {
-			fprintf(stderr,"Error loading recognizer from %s.", DEFAULT_REC_DIR);
+			GrError("Error loading recognizer from %s.", DEFAULT_REC_DIR);
 			return 0;
 		}
 		if ((* (int *)(pg->rec[i])) != 0xfeed) {
-			fprintf(stderr,"Error in recognizer_magic.");
+			GrError("Error in recognizer_magic.");
 			return 0;
 		}
 	}
@@ -257,7 +257,7 @@ graffiti_load_recognizers(struct graffiti *pg)
 
 		rec_return = recognizer_load_state(pg->rec[i], pg->cldir, cl_name[i]);
 		if ((rec_return == -1) && (usingDefault == false)) {
-			fprintf(stderr,
+			GrError(
 				"Unable to load custom classifier file %s/%s.\nTrying default classifier file instead.\nOriginal error: %s\n ", 
 				pg->cldir, cl_name[i], 
 				(s = recognizer_error(pg->rec[i])) ? s : "(none)");
@@ -265,7 +265,7 @@ graffiti_load_recognizers(struct graffiti *pg)
 							   REC_DEFAULT_USER_DIR, cl_name[i]);
 		}
 		if (rec_return == -1) {
-			fprintf(stderr, "Unable to load default classifier file %s.\nOriginal error: %s\n",
+			GrError( "Unable to load default classifier file %s.\nOriginal error: %s\n",
 				cl_name[i], 
 				(s = recognizer_error(pg->rec[i])) ? s : "(none)");
 			return 0;
@@ -276,13 +276,13 @@ graffiti_load_recognizers(struct graffiti *pg)
 	/* Get the vector of LIextension functions..     */
 	fns = recognizer_get_extension_functions(pg->rec[CS_LETTERS]);
 	if (fns == NULL) {
-		fprintf(stderr, "LI Recognizer Training:No extension functions!");
+		GrError( "LI Recognizer Training:No extension functions!");
 		return 0;
 	}
 	
 	/* ... and make sure the training & get-classes functions are okay. */
 	if( (pg->rec_train = (li_recognizer_train)fns[LI_TRAIN]) == NULL ) {
-		fprintf(stderr,
+		GrError(
 			"LI Recognizer Training:li_recognizer_train() not found!");
 		if (fns != NULL) {
 			free(fns);
@@ -291,8 +291,7 @@ graffiti_load_recognizers(struct graffiti *pg)
 	}
   
 	if( (pg->rec_getClasses = (li_recognizer_getClasses)fns[LI_GET_CLASSES]) == NULL ) {
-		fprintf(stderr,
-			"LI Recognizer Training:li_recognizer_getClasses() not found!");
+		GrError("LI Recognizer Training:li_recognizer_getClasses() not found!");
 		if (fns != NULL) {
 			free(fns);
 		}

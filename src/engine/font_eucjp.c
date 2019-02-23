@@ -13,12 +13,12 @@
 #include "uni_std.h"
 #include <sys/types.h>
 #include <fcntl.h>
-#if HAVE_MMAP
-#include <sys/mman.h>
-#endif
 #include "device.h"
 #include "devfont.h"
 #include "genfont.h"
+#if HAVE_MMAP
+#include <sys/mman.h>
+#endif
 
 #ifndef EUCJP_FONT_DIR
 #define EUCJP_FONT_DIR	"fonts/japanese"	/* default MGLFONT .fnt font file directory*/
@@ -132,7 +132,7 @@ eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	}
 #if HAVE_MMAP
 	pf->font_base = (char *)mmap(NULL, fsize, PROT_READ, MAP_SHARED|MAP_FILE, fd, 0);
-	if (pf->font_base == NULL || pf->font_base == (char *)-1)) {
+	if (pf->font_base == NULL || pf->font_base == (char *)-1) {
 		EPRINTF("FONT_EUCJP: Can't mmap font data.\n");
 		goto EUCJP_FAIL;
 	}

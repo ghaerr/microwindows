@@ -508,7 +508,7 @@ hzk_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	return (PMWFONT)pf;
 }
 
-int IsBig5(int i)
+static int IsBig5(int i)
 {
 	if ((i>=0xa140 && i<=0xa3bf) || /* a140-a3bf(!a3e0) */
 	    (i>=0xa440 && i<=0xc67e) || /* a440-c67e        */
@@ -523,7 +523,7 @@ int IsBig5(int i)
  * following several function is used in hzk_drawtext
  */
 
-static int getnextchar(char* s, unsigned char* cc)
+static int getnextchar(unsigned char* s, unsigned char* cc)
 {
     	if( s[0] == '\0') return 0;
 
@@ -581,7 +581,7 @@ expandcchar(PMWHZKFONT pf, int bg, int fg, unsigned char* c, MWPIXELVALHW* bitma
 	else
     		seq=((c1 - 161)*94 + c2 - 161); 
 
-	font = pf->cfont_address + ((seq) * (pf->font_height * ((pf->cfont_width + 7) / 8)));
+	font = (unsigned char *)pf->cfont_address + ((seq) * (pf->font_height * ((pf->cfont_width + 7) / 8)));
 
      	for (y = 0; y < pf->font_height; y++)
         	for (x = 0; x < pf->cfont_width; x++) 
@@ -606,7 +606,7 @@ static void expandchar(PMWHZKFONT pf, int bg, int fg, int c, MWPIXELVALHW* bitma
 
 	pixelsize=sizeof(MWPIXELVALHW);
 
-    	font = pf->afont_address + c * (pf->font_height *
+    	font = (unsigned char *)pf->afont_address + c * (pf->font_height *
 		((pf->afont_width + 7) / 8));
 
   	for (y = 0; y < pf->font_height; y++)
@@ -633,9 +633,9 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
     	unsigned char c[2];
 	MWPIXELVALHW *bitmap;
     	unsigned char s1[3];
- 	char *s,*sbegin;
+ 	unsigned char *s,*sbegin;
 
-	s=(char *)text;
+	s=(unsigned char *)text;
 
 	if(cc==1)
 	{
@@ -729,11 +729,11 @@ hzk_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;
 
    	unsigned char c[2];
- 	char *s,*sbegin;
+ 	unsigned char *s,*sbegin;
     	unsigned char s1[3];
 
 	int ax=0;
-	s=(char *)text;
+	s=(unsigned char *)text;
 	if(cc==0)
 	{
 		*pwidth = 0;
@@ -781,3 +781,5 @@ hzk_destroyfont(PMWFONT pfont)
 	UnloadFont(pf);
 	free(pf);
 }
+
+/* vim: set ts=8: */

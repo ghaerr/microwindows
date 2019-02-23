@@ -13,6 +13,8 @@
  * font files.
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "device.h"
 #include "genfont.h"
 
@@ -87,12 +89,22 @@ MWCOREFONT gen_fonts[NUMBER_FONTS] = {
 	{&mwfontprocs, 0, 0, 0, MWFONT_OEM_FIXED, &font_winTerminal8x12},
 	{&mwfontprocs, 0, 0, 0, MWFONT_SYSTEM_FIXED, &font_X6x13}
 #else
-	{&mwfontprocs, 0, 0, 0, "arial16", &font_arial16},
-	{&mwfontprocs, 0, 0, 0, "arial20", &font_arial20},
-	{&mwfontprocs, 0, 0, 0, "arial24", &font_arial24},
-	{&mwfontprocs, 0, 0, 0, "arial28", &font_arial28},
+	{&mwfontprocs, 0, 0, 0, 0, "arial16", &font_arial16},
+	{&mwfontprocs, 0, 0, 0, 0, "arial20", &font_arial20},
+	{&mwfontprocs, 0, 0, 0, 0, "arial24", &font_arial24},
+	{&mwfontprocs, 0, 0, 0, 0, "arial28", &font_arial28},
 #endif
 };
+
+/* Pointer to an user builtin font table. */
+MWCOREFONT *user_builtin_fonts = NULL;
+
+/*  Sets the fontproc to fontprocs.  */
+void
+gen_setfontproc(MWCOREFONT *pf)
+{
+	pf->fontprocs = &mwfontprocs;
+}
 
 /*
  * Generalized low level get font info routine.  This
@@ -179,7 +191,7 @@ gen_gettextsize(PMWFONT pfont, const void *text, int cc, MWTEXTFLAGS flags,
 }
 
 #ifdef USE_HBF_FONT
-int Font_Init()
+static int Font_Init()
 {
     if(getenv("LOCALE")==NULL){
         setenv("LOCALE","tc",1);
@@ -209,7 +221,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	MWCOORD *pwidth, MWCOORD *pheight, MWCOORD *pbase)
 {
     PMWCFONT            pf = ((PMWCOREFONT)pfont)->cfont;
-    int                 count, width;
+    int                 width;
 	const MWIMAGEBITS  *bits;
 	static MWIMAGEBITS  map[MAX_CHAR_HEIGHT * MAX_CHAR_WIDTH / MWIMAGE_BITSPERIMAGE];
 
@@ -248,7 +260,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
                 *pwidth = hbfBitmapBBox(font_big5_16)->hbf_width;
                 *pheight = hbfBitmapBBox(font_big5_16)->hbf_height;
                 *pbase = 0;
-                bitmap = hbfGetBitmap(font_big5_16,(HBF_CHAR)ch);
+                bitmap = (unsigned char *)hbfGetBitmap(font_big5_16,(HBF_CHAR)ch);
 
                 if(bitmap==NULL) {
                     memset(map,0xff,32);
@@ -267,7 +279,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
                 *pwidth = hbfBitmapBBox(font_big5_24)->hbf_width;
                 *pheight = hbfBitmapBBox(font_big5_24)->hbf_height;
                 *pbase = 0;
-                bitmap = hbfGetBitmap(font_big5_24,(HBF_CHAR)ch);
+                bitmap = (unsigned char *)hbfGetBitmap(font_big5_24,(HBF_CHAR)ch);
                 if(bitmap==NULL) {
                     memset(map, 0xff, 112);
                 }
@@ -297,7 +309,7 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	/* get font bitmap depending on fixed pitch or not*/
 	bits = pf->bits + (pf->offset? pf->offset[ch]: (pf->height * ch));
  	width = pf->width ? pf->width[ch] : pf->maxwidth;
-	count = MWIMAGE_WORDS(width) * pf->height; 
+//	count = MWIMAGE_WORDS(width) * pf->height; 
 
 	*retmap = bits;
 

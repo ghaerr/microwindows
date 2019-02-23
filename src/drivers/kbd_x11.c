@@ -446,4 +446,4 @@ static int init_modstate(void)
 
 	return 0;
 }
-/* vim: set ts=8 */
+/* vim: set ts=8: */

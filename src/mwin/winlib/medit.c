@@ -93,7 +93,9 @@ typedef    LINEDATA*     PLINEDATA;
 #define ATTENG 0	/* english */
 #define ATTCHL 1	/* chinese left(1st) byte */
 #define ATTCHR 2	/* chinese right(2nd) byte */
-/*static char attr[LEN_MLEDIT_BUFFER];*/
+#ifdef USE_BIG5
+static char attr[LEN_MLEDIT_BUFFER];
+#endif
 
 typedef struct tagMLEDITDATA {
     int     totalLen;      /* length of buffer,可能没有用 */
@@ -440,7 +442,7 @@ static BOOL edtIsACCharAtPosition (const char* string, int len, int pos)
     return FALSE;
 }
 
-#if 0
+#ifdef USE_BIG5
 static void str2attr(const char* str,int len)
 {
     int i=0;

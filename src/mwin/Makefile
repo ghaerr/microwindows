@@ -73,7 +73,6 @@ OBJS += \
 	$(MW_DIR_OBJ)/contrib/winextra/stub_winrgn.o \
 	$(MW_DIR_OBJ)/contrib/winextra/stub_winuser.o
 #OBJS+= $(MW_DIR_OBJ)/contrib/winextra/setenv.o
-#OBJS+= $(MW_DIR_OBJ)/contrib/winextra/gettimeofday.o
 endif
 
 endif

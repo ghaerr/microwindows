@@ -1287,7 +1287,7 @@ doAssignShapeUtf(const char *txt)
 static void
 storeUc_2_Utf8(char *dest, int *psz, unsigned short wch)
 {
-	int cb = uc16_to_utf8(&wch, 1, dest + (*psz));
+	int cb = uc16_to_utf8(&wch, 1, (unsigned char *)dest + (*psz));
 
 	*psz = *psz + cb;
 }
@@ -1368,7 +1368,7 @@ arabicJoin_UC16(const unsigned short *text, int len, unsigned long *pAttrib)
 /*
  * Note that text is currently left to right
  */
-char *
+static char *
 arabicJoin_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib)
 {
 	int i, sz;

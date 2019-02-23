@@ -38,6 +38,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "hbf.h"
+#include "mwconfig.h"
 
 #ifdef __MSDOS__
 #define msdos
@@ -222,12 +223,12 @@ eprintf(const char *fmt, ...)
 {
 	if (hbfDebug) {
 		va_list	args;
+		char buf[512];
 
-		(void)EPRINTF("HBF: ");
 		va_start(args, fmt);
-		(void)vfprintf(stderr, fmt, args);
+		vsprintf(buf, fmt, args);
+		EPRINTF("HBF: %s\n", buf);
 		va_end(args);
-		(void)EPRINTF("\n");
 	}
 }
 #else /* ! __STDC__ */

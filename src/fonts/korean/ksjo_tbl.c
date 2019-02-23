@@ -7,6 +7,7 @@
  *
  *	No warranties is provided, as to this code.
  */
+unsigned short convert_ksc_to_johab(unsigned char hi, unsigned char lo);
 
 #define	table1_index(hi,lo)	((hi-0xB0)*(0xFF-0xA1)+(lo-0xA1))
 

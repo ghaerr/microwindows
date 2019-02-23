@@ -1,3 +1,4 @@
+update demo-font, demo-aafont to test all CJK fonts
 add ANDROID GdDelay()
 check -DHAVE_MMAP=? for EMSCRIPTEN
 update runapp for nx11-test and contrib/TinyWidgets/{demo,tndesigner}

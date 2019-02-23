@@ -138,6 +138,8 @@ typedef MLEDITDATA* PMLEDITDATA;
 
 int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lParam);
 
+#define GET_WND_DATA(hWnd)	((PMLEDITDATA)(ULONG_PTR)GetWindowAdditionalData2(hWnd))
+
 #define PIXEL_invalid (-1)
 extern HWND sg_hCaretWnd;
 extern HWND rootwp;
@@ -259,7 +261,7 @@ int MwRegisterMEditControl(HINSTANCE hInstance)
 
 static inline int edtGetOutWidth (HWND hWnd)
 {
-	PMLEDITDATA pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+	PMLEDITDATA pMLEditData = GET_WND_DATA(hWnd);
 	RECT rc;
 	GetClientRect(hWnd,&rc);
     return rc.right - rc.left 
@@ -272,7 +274,7 @@ static int edtGetStartDispPosAtEnd (HWND hWnd,
 {
     int         nOutWidth = edtGetOutWidth (hWnd);
     int         endPos  = pLineData->dataEnd;
-    PMLEDITDATA pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+    PMLEDITDATA pMLEditData = GET_WND_DATA(hWnd);
     int         newStartPos = pMLEditData->dispPos;
     const char* buffer = pLineData->buffer;
 
@@ -309,7 +311,7 @@ static int edtGetDispLen (HWND hWnd,PLINEDATA pLineData)
     int i, n = 0;
     int nOutWidth = edtGetOutWidth (hWnd);
     int nTextWidth = 0;
-    PMLEDITDATA pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+    PMLEDITDATA pMLEditData = GET_WND_DATA(hWnd);
     const char* buffer = pLineData->buffer;
     
     if(buffer[0]==0||pLineData->dataEnd<pMLEditData->dispPos)
@@ -625,7 +627,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
         case WM_DESTROY:
         {
 		PLINEDATA temp;
-		pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+		pMLEditData = GET_WND_DATA(hWnd);
 	    	DestroyCaret ();
 		pLineData = pMLEditData->head;	
 		while(pLineData)
@@ -683,7 +685,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
             dw |= EST_FOCUSED;
 			SetWindowAdditionalData(hWnd,dw);
 
-            pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+            pMLEditData = GET_WND_DATA(hWnd);
 
             /* only implemented for ES_LEFT align format. */
 
@@ -775,7 +777,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
 
             SetTextColor (hdc, BLACK/*PIXEL_black*/);
 
-            pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+            pMLEditData = GET_WND_DATA(hWnd);
 			for(i = pMLEditData->StartlineDisp; i <= pMLEditData->EndlineDisp; i++)
 			{
 				pLineData= GetLineData(pMLEditData,i);
@@ -837,7 +839,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
 			PLINEDATA temp = NULL;
 			char *  tempP = NULL;
 
-            pMLEditData =(PMLEDITDATA)GetWindowAdditionalData2(hWnd);
+            pMLEditData = GET_WND_DATA(hWnd);
         
             switch (LOWORD (wParam))
             {
@@ -1418,7 +1420,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
             char charBuffer [2];
             int  i, chars, scrollStep, inserting;
 	
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
 
 			pLineData = GetLineData(pMLEditData,pMLEditData->editLine);
 
@@ -1556,7 +1558,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
 		{
 			PLINEDATA temp;
 			int    lineNO = (int)wParam;
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
 			temp = pMLEditData->head;
 			while(temp)
 			{
@@ -1571,7 +1573,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
 			PLINEDATA temp;
 			int len,total = 0;
 			char * buffer = (char*)lParam;
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
 			len = (int)wParam;
 			temp = pMLEditData->head;
 			while (temp && total + temp->dataEnd < len)  
@@ -1591,7 +1593,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
             char*   buffer = (char*)lParam;
             int     lineNO,len;
 
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
             lineNO = (int)wParam;
 			temp = GetLineData(pMLEditData,lineNO);
 			if(temp)
@@ -1620,7 +1622,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
             if (dwStyle & ES_READONLY)
                 return 0;
 
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
             
             len = strlen ((char*)lParam);
 			lineNO = (int)wParam;
@@ -1654,7 +1656,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
 			PLINEDATA temp;
 			BOOL bScroll = FALSE;
             
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
             lineNO = edtGetLineNO (hWnd,pMLEditData, HIWORD (lParam));
 			if ( lineNO < 0 )
 				return 0;
@@ -1701,7 +1703,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
         return 0;
         
         case EM_SETPASSWORDCHAR:
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
 
             if (pMLEditData->passwdChar != (int)wParam) {
                 if (dwStyle & ES_PASSWORD) {
@@ -1715,7 +1717,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
         {
             int* passwdchar;
             
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
             passwdchar = (int*) lParam;
 
             *passwdchar = pMLEditData->passwdChar;
@@ -1727,7 +1729,7 @@ int CALLBACK MLEditCtrlProc (HWND hWnd, int message, WPARAM wParam, LPARAM lPara
             int newLimit = (int)wParam;
             
             if (newLimit >= 0) {
-            pMLEditData = (PMLEDITDATA)GetWindowAdditionalData2(hWnd); 
+            pMLEditData = GET_WND_DATA(hWnd);
                 if (pMLEditData->totalLen < newLimit)
                     pMLEditData->hardLimit = -1;
                 else

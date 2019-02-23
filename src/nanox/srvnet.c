@@ -1747,8 +1747,8 @@ GrShmCmdsFlushWrapper(void *r)
 		return;
 	}
 
-	do_req = current_shm_cmds;
-	do_req_last = current_shm_cmds + req->size;
+	do_req = (unsigned char *)current_shm_cmds;
+	do_req_last = (unsigned char *)current_shm_cmds + req->size;
 
 	while ( do_req < do_req_last ) {
 		pr = (nxReq *)do_req;

@@ -1,3 +1,4 @@
+	* fix defaults handling for config item set=N when defaulted =1 in mwconfig.h
 	* small fixups for CJK font option compiles
 21 Feb 2019
 	* add GrError/MwError() for app error output

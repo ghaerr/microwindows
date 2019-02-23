@@ -76,7 +76,7 @@ NANOWM                   = Y
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
 ####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
+HAVE_SHAREDMEM_SUPPORT   = Y
 
 ####################################################################
 # File I/O support

@@ -21,15 +21,20 @@
 #define inline
 #define DEBUG			1		/* =1 for debug output*/
 #define NONETWORK		1		/* =1 to link Nano-X apps with server for standalone*/
-#define HAVE_MMAP       0       /* =1 has mmap system call*/
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
+#define HAVE_MMAP       0       /* =1 has mmap system call*/
+#define HAVE_FILEIO		1		/* =1 to include libc stdio and image reading routines*/
+#define HAVE_BMP_SUPPORT 1		/* BMP image support*/
+#define HAVE_FNT_SUPPORT 1		/* Microwindows FNT font support*/
+#define HAVE_PCF_SUPPORT 1		/* PCF font support*/
 #endif
 
 /* Changeable limits and options*/
 #define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette,*/
 								/* (required for palette alpha blending)*/
 #define POLYREGIONS		1		/* =1 includes polygon regions*/
+#define DYNAMICREGIONS	1		/* =1 to use MWCLIPREGIONS*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 #define USE_ALLOCA		1		/* =1 if alloca() is available*/
@@ -62,34 +67,34 @@
 #define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
 #endif
 
+#ifndef MW_FEATURE_IMAGES
+#define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage/GdDrawImage etc*/
+#endif
+
 /* the following enable/disable Microwindows features, set from config or Arch.rules*/
 #ifndef NONETWORK
 #define NONETWORK		0		/* =1 to link Nano-X apps with server for standalone*/
 #endif
 
 #ifndef HAVE_FILEIO
-#define HAVE_FILEIO		1		/* =1 to include libc stdio and image reading routines*/
+#define HAVE_FILEIO		0		/* =1 to include libc stdio and image reading routines*/
 #endif
 
 /* image reading support*/
-#ifndef MW_FEATURE_IMAGES
-#define MW_FEATURE_IMAGES 1		/* =1 to enable GdLoadImage/GdDrawImage etc*/
-#endif
-
 #ifndef HAVE_BMP_SUPPORT
-#define HAVE_BMP_SUPPORT		1	/* BMP image support*/
+#define HAVE_BMP_SUPPORT		0	/* BMP image support*/
 #endif
 
 #ifndef HAVE_GIF_SUPPORT
-#define HAVE_GIF_SUPPORT		1	/* GIF image support*/
+#define HAVE_GIF_SUPPORT		0	/* GIF image support*/
 #endif
 
 #ifndef HAVE_PNM_SUPPORT
-#define HAVE_PNM_SUPPORT		1	/* PNM image support*/
+#define HAVE_PNM_SUPPORT		0	/* PNM image support*/
 #endif
 
 #ifndef HAVE_XPM_SUPPORT
-#define HAVE_XPM_SUPPORT		1	/* XPM image support*/
+#define HAVE_XPM_SUPPORT		0	/* XPM image support*/
 #endif
 
 #ifndef HAVE_JPEG_SUPPORT
@@ -106,7 +111,7 @@
 
 /* font support*/
 #ifndef HAVE_PCF_SUPPORT
-#define HAVE_PCF_SUPPORT		1	/* PCF font support*/
+#define HAVE_PCF_SUPPORT		0	/* PCF font support*/
 #endif
 
 #ifndef HAVE_PCFGZ_SUPPORT
@@ -126,7 +131,7 @@
 #endif
 
 #ifndef HAVE_FNT_SUPPORT
-#define HAVE_FNT_SUPPORT		1	/* Microwindows FNT font support*/
+#define HAVE_FNT_SUPPORT		0	/* Microwindows FNT font support*/
 #endif
 
 #ifndef HAVE_FNTGZ_SUPPORT
@@ -170,6 +175,7 @@
 #endif
 
 /* other options*/
+/* items defaulting to 1 below need Makefile.rules to set=0 when config item=N*/
 #ifndef HAVE_SHAREDMEM_SUPPORT
 #define HAVE_SHAREDMEM_SUPPORT 0 /* =1 to use shared memory between NX client/server*/
 #endif
@@ -216,10 +222,6 @@
 
 #ifndef INVERT2BPP
 #define INVERT2BPP		0		/* =1 for inverted pixels in 2bpp screen driver*/
-#endif
-
-#ifndef DYNAMICREGIONS
-#define DYNAMICREGIONS	1		/* =1 to use MWCLIPREGIONS*/
 #endif
 
 #ifndef MW_FEATURE_TWO_KEYBOARDS

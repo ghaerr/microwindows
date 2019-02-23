@@ -719,7 +719,7 @@ static void LISTBOX_RepaintItem( HWND hwnd, LB_DESCR *descr, INT index,
     if (LISTBOX_GetItemRect( descr, index, &rect ) != 1) return;
     if (!(hdc = GetDCEx( hwnd, 0, DCX_CACHE ))) return;
     if (descr->font) oldFont = SelectObject( hdc, descr->font );
-    hbrush = (HBRUSH)SendMessage( descr->owner, WM_CTLCOLORLISTBOX,
+    hbrush = (HBRUSH)(LRESULT)SendMessage( descr->owner, WM_CTLCOLORLISTBOX,
 				   (WPARAM)hdc, (LPARAM)hwnd );
     if (hbrush) oldBrush = SelectObject( hdc, hbrush );
     if (!IsWindowEnabled(hwnd))
@@ -1015,7 +1015,7 @@ static LRESULT LISTBOX_Paint( HWND hwnd, LB_DESCR *descr, HDC hdc )
     }
 
     if (descr->font) oldFont = SelectObject( hdc, descr->font );
-    hbrush = (HBRUSH)SendMessage( descr->owner, WM_CTLCOLORLISTBOX,
+    hbrush = (HBRUSH)(LRESULT)SendMessage( descr->owner, WM_CTLCOLORLISTBOX,
 			   	   (WPARAM)hdc, (LPARAM)hwnd );
     if (hbrush) oldBrush = SelectObject( hdc, hbrush );
     if (!IsWindowEnabled(hwnd)) SetTextColor( hdc, GetSysColor( COLOR_GRAYTEXT ) );
@@ -2514,7 +2514,7 @@ static LRESULT CALLBACK ListBoxWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
     LRESULT ret;
     LB_DESCR *descr;
 
-    if (!(descr = (LB_DESCR *)GetWindowLongPtr( hwnd, 0 )))
+    if (!(descr = (LB_DESCR *)(ULONG_PTR)GetWindowLongPtr( hwnd, 0 )))
     {
         if (msg == WM_CREATE)
         {
@@ -2879,7 +2879,7 @@ static LRESULT CALLBACK ListBoxWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 		HDC hdc;
 		HBRUSH hbr;
 
-		if ((hbr = (HBRUSH)SendMessage (descr->owner, WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd)) != 0)
+		if ((hbr = (HBRUSH)(LRESULT)SendMessage (descr->owner, WM_CTLCOLORLISTBOX, wParam, (LPARAM)hwnd)) != 0)
 		{
 			hdc = GetDCEx(hwnd, NULL, DCX_DEFAULTCLIP);
 			FillRect(hdc, NULL, hbr);

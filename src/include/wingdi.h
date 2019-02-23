@@ -313,7 +313,7 @@ typedef struct tagBITMAPINFOHEADER { // bmih
     LONG   PACKEDDATA biYPelsPerMeter;
     DWORD  PACKEDDATA biClrUsed;
     DWORD  PACKEDDATA biClrImportant;
-} BITMAPINFOHEADER;
+} BITMAPINFOHEADER, *PBITMAPINFOHEADER, *LPBITMAPINFOHEADER;
 #pragma pack()
 
 typedef struct tagRGBQUAD { // rgbq

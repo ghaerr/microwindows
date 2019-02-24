@@ -258,6 +258,7 @@ win32_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
 	RECT rc;
 	unsigned char *pixels;
+//GdError("update %d,%d %d,%d\n", x, y, width, height);
 
 	/* calc offset to framebuffer and buffer size*/
 	pixels = psd->addr + y * psd->pitch + x * (psd->bpp >> 3);
@@ -290,26 +291,6 @@ win32_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	InvalidateRect(mwAppWindow, &rc, FALSE);
 }
 
-static void
-win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
-{
-	if (!width)
-		width = psd->xres;
-	if (!height)
-		height = psd->yres;
-//GdError("update %d,%d %d,%d\n", x, y, width, height);
-
-	/* window moves require delaying updates until preselect for speed*/
-	if ((psd->flags & PSF_DELAYUPDATE)) {
-			/* calc aggregate update rectangle*/
-			upminX = MWMIN(x, upminX);
-			upminY = MWMIN(y, upminY);
-			upmaxX = MWMAX(upmaxX, x+width-1);
-			upmaxY = MWMAX(upmaxY, y+height-1);
-	} else
-		win32_draw(psd, x, y, width, height);
-}
-
 /* called before select(), returns # pending events*/
 static int
 win32_preselect(PSD psd)
@@ -325,4 +306,18 @@ win32_preselect(PSD psd)
 
 	/* return nonzero if SDL event available*/
 	return win32_pollevents();
+}
+
+static void
+win32_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
+{
+	/* window moves require delaying updates until preselect for speed*/
+	if ((psd->flags & PSF_DELAYUPDATE)) {
+			/* calc aggregate update rectangle*/
+			upminX = MWMIN(x, upminX);
+			upminY = MWMIN(y, upminY);
+			upmaxX = MWMAX(upmaxX, x+width-1);
+			upmaxY = MWMAX(upmaxY, y+height-1);
+	} else
+		win32_draw(psd, x, y, width, height);
 }

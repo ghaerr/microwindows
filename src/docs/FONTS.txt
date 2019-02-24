@@ -1,0 +1,90 @@
+FONT SUPPORT
+
+System Font IDs
+MWFONT_SYSTEM_VAR		"System"
+MWFONT_SYSTEM_FIXED		"SystemFixed"
+MWFONT_GUI_VAR			"System"		(deprecated was "Helvetica")
+MWFONT_OEM_FIXED		"SystemFixed"	(deprecated was "Terminal")
+
+Compiled-In System Fonts
+"System"				winFreeSansSerif11x13.c	(converted from .fon)
+"SystemFixed"			X6x13.c					(converted from X6x13.bdf)
+"Helvetica"				winFreeSansSerif11x13.c
+"Terminal"				X6x13.c
+
+Compiled-In Font Options
+
+HAVE_FNT_SUPPORT:	fonts/fnt		(loadable) (zipped) Microwindows font
+engine:		engine/font_fnt.c
+fontname:	*.fnt
+available:	timBI18
+converter:	tools/convbdf to convert bdf to .fnt or .c
+
+HAVE_PCF_SUPPORT:	fonts/pcf		(loadable) (zipped) X11 PCF font
+engine:		engine/font_pcf.c
+fontname:	*.pcf
+available: 6x13, 7x14, 9x15, helvB12, helvB12_lin, jiskan24, lubI24, symb18, vga
+
+HAVE_FREETYPE_2_SUPPORT: fonts/truetype (loadable) Truetype/OpenType fonts
+engine:		engine/font_freetype2.c
+fontname:	*.ttf, *.otf
+available:	many
+
+HAVE_T1LIB_SUPPORT:		fonts/type1	(loadable) Type 1 fonts
+engine:		engine/font_t1lib.c
+fontname:	*.afm, *.pfb, *.pfa
+configuration:	t1lib.config, FontDataBase
+encodings:	*.enc
+available:	many
+
+HAVE_HZK_SUPPORT:	fonts/chinese	(loadable) Chinese Han Zi Ku font
+engine:		engine/font_hzk.c
+fontname:	"HZKFONT" loads hzk12/hzk16/asc12/UGB2GB.KU
+			"HZXFONT" loads hzx12/hzx16/asc16/BG2UBG.KU (big5 encoding)
+height:		12x12 or 16x16
+encodings:	MWTF_ASCII and MWTF_UC16
+			reads .KU file for *every* UC16 to ASCII conversion
+
+HAVE_HBF_SUPPORT	fonts/chinese	(loadable) Chinese Hanzi Bitmap Font
+engine:		engine/font_hbf.c, drivers/hbf.c
+fontname:	*.hbf
+height:		16x16 fixed for now
+available:	fonts/chinese/chinese16.hbf, chinese.16
+encodings:	16 bit internal, use MWTF_DBCS_BIG5
+
+HAVE_EUCJP_SUPPORT:	fonts/japanese	(loadable) EUC-JP MGL font
+engine:		engine/font_eucjp.c
+fontname:	*.fnt
+available:	k12x10, k12x12, k16x16, k24x24
+
+HAVE_JISX0213_SUPPORT	(compiled-in)	DBCS
+engine:		engine/font_dbcs.c
+fontfile:	fonts/japanese/jisx0213-12x12.c (converted from jiskan16-2000-1.bdf)
+			fonts/japanese/jisx0213-16x16.c (converted from K12-1.bdf) (not linked)
+select flags: MWTF_DBCS_JIS
+
+HAVE_BIG5_SUPPORT		(compiled-in)	DBCS
+engine:		engine/font_dbcs.c
+fontfile:	fonts/chinese/big5font.c	(12x12) (converted by 'pack12hz hzx12')
+select flags: MWTF_DBCS_BIG5
+
+HAVE_GB2312_SUPPORT		(compiled-in)	DBCS
+engine:		engine/font_dbcs.c
+fontfile:	fonts/chinese/gb2312font.c	(12x12) (converted by 'Compress12hz hzk12')
+			fonts/chinese/gb16x16song.c	(16x16) (not linked)
+select flags: MWTF_DBCS_EUCCN (gb2312 + 0x80)
+
+HAVE_KSC5601_SUPPORT	(compiled-in)	DBCS
+engine:		engine/font_dbcs.c
+fontfile:	fonts/korean/jo16x16.c, ksjo_tbl.c (C routines and font data)
+select flags: MWTF_DBCS_EUCKR (ksc5601 + 0x80)
+
+TODO
+show-font
+	add font size
+	left/right arrows to show more characters
+
+demo-ttfont / demo-aafont
+	ability to show any compiled in font
+	arrow keys to load next font
+

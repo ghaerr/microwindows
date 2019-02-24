@@ -211,6 +211,16 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 	}
 #endif
 
+#if HAVE_HBF_SUPPORT
+	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_HZK) {
+		pfont = (PMWFONT)hbf_createfont(fontname, height, width, fontattr);
+		if(pfont)
+			return pfont;
+		if (fontclass != MWLF_CLASS_ANY)
+			EPRINTF("hbf_createfont: %s,%d not found\n", fontname, height);
+	}
+#endif
+
 #if HAVE_EUCJP_SUPPORT
  	if (fontclass == MWLF_CLASS_ANY || fontclass == MWLF_CLASS_MGL) {
 		pfont = (PMWFONT)eucjp_createfont(fontname, height, width, fontattr);
@@ -241,6 +251,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 #endif
 #if HAVE_HZK_SUPPORT
 			", hzk_createfont"
+#endif
+#if HAVE_HBF_SUPPORT
+			", hbf_createfont"
 #endif
 #if HAVE_EUCJP_SUPPORT
 			", eujcp_createfont"
@@ -481,6 +494,10 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	if (flags & MWTF_DBCSMASK)
 		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
 	else pfont->fontprocs->GetTextSize(pfont, str, cc, flags, &width, &height, &base);
+
+	/* return if nothing to draw*/
+	if (width == 0 || height == 0)
+		return;
 	
 	if (flags & MWTF_BASELINE)
 		y -= base;
@@ -524,6 +541,10 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 			else ch = *str++;
 			pfont->fontprocs->GetTextBits(pfont, ch, &bitmap, &width, &height, &base);
 		}
+
+		/* check bad return from GetTextBits*/
+		if (width == 0 || height == 0)
+			continue;
 
 		/* use fast blit for text draw, fallback draw point-by-point*/
 		if (convblit) {
@@ -671,11 +692,22 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			break;
 		case MWTF_DBCS_BIG5:	/* Chinese BIG5*/
 			ch = *istr8++;
-			if (ch >= 0xA1 && ch <= 0xF9 && icc &&
-			    ((*istr8 >= 0x40 && *istr8 <= 0x7E) || (*istr8 >= 0xA1 && *istr8 <= 0xFE))) {
+#if 0 // HAVE_HBF_SUPPORT
+			/* HBF decoding seems smaller range than regular BIG5 - FIXME*/
+			if ((ch >= 0xA4 && ch <= 0xC5 && icc
+				 && ((*istr8 >= 0x40 && *istr8 <= 0x7E) ||
+				     (*istr8 >= 0xA1 && *istr8 <= 0xFE)))
+			 	 || ((ch == 0xC6) && icc &&
+				 	 (*istr8 >= 0x40 && *istr8 <= 0x7E)))
+#else
+			if (ch >= 0xA1 && ch <= 0xF9 && icc
+				&& ((*istr8 >= 0x40 && *istr8 <= 0x7E) ||
+				    (*istr8 >= 0xA1 && *istr8 <= 0xFE)))
+			{
 				ch = (ch << 8) | *istr8++;
 				--icc;
 			}
+#endif
 			break;
 		case MWTF_DBCS_EUCCN:	/* Chinese EUCCN (GB2312+0x80)*/
 			ch = *istr8++;

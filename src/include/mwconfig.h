@@ -142,6 +142,10 @@
 #define HAVE_HZK_SUPPORT		0
 #endif
 
+#ifndef HAVE_HBF_SUPPORT
+#define HAVE_HBF_SUPPORT		0
+#endif
+
 #ifndef HAVE_BIG5_SUPPORT
 #define HAVE_BIG5_SUPPORT		0
 #endif

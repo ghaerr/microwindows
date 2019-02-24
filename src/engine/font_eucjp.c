@@ -274,4 +274,5 @@ eucjp_destroyfont(PMWFONT pfont)
 	free(pf->font_base);
 #endif
 	close(pf->fd);
+	free(pf);
 }

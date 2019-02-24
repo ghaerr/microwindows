@@ -29,6 +29,10 @@ PMWFONT hzk_createfont(const char *name, MWCOORD height, MWCOORD width, int font
 int UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii);
 #endif
 
+#if HAVE_HBF_SUPPORT
+PMWFONT hbf_createfont(const char *name, MWCOORD height, MWCOORD width, int fontattr);
+#endif
+
 #if HAVE_EUCJP_SUPPORT
 PMWFONT eucjp_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
 #endif

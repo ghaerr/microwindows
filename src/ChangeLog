@@ -1,3 +1,7 @@
+23 Feb 2019
+	* fix driver update width/height 0 bug
+	* handle zero width/height return from gettextsize/gettextbits
+	* fix HAVE_HBF_SUPPORT, move routine from drivers/genfont.hbf.c to engine/font_hbf.c
 	* fix defaults handling for config item set=N when defaulted =1 in mwconfig.h
 	* small fixups for CJK font option compiles
 21 Feb 2019

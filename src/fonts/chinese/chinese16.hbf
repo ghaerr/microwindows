@@ -1,0 +1,56 @@
+HBF_START_FONT 1.0
+HBF_CODE_SCHEME Big5
+FONT chinese16
+COMMENT
+COMMENT An equivalent full X11R5 XLFD conforming font name is
+COMMENT	--Ming-medium-r-normal-fantizi-16-160-75-75-c-160-Big5-1
+COMMENT which is formed from the first 15 properties listed in
+COMMENT the STARTPROPERTIES section below.
+COMMENT Any of these properties is optional, as in the simple HBF file.
+COMMENT
+SIZE 16 75 75
+HBF_BITMAP_BOUNDING_BOX 16 16 0 -2
+FONTBOUNDINGBOX 16 16 0 -2
+COMMENT
+COMMENT  Begin Logical Font Description -- 20 special properties for this FONT
+COMMENT
+STARTPROPERTIES 20
+FONTNAME_REGISTRY ""
+FOUNDRY ""
+FAMILY_NAME "Ming"
+WEIGHT_NAME "medium"
+SLANT "r"
+SETWIDTH_NAME "normal"
+ADD_STYLE_NAME "fantizi"
+PIXEL_SIZE 16
+POINT_SIZE 160
+RESOLUTION_X 75
+RESOLUTION_Y 75
+SPACING "c"
+AVERAGE_WIDTH 160
+CHARSET_REGISTRY "Big5"
+CHARSET_ENCODING "1"
+FONT_ASCENT 14
+FONT_DESCENT 2
+DEFAULT_CHAR 0xA140
+COMMENT 0xA140 is the Space character.
+COPYRIGHT "(c) Kuo Chiao Information Systems, Ltd."
+NOTICE "The hanzi bitmap file is chinese.16, a derivative of kcchin16.f00"
+COMMENT Users should observe the copyrights of the hanzi bitmap files.
+ENDPROPERTIES
+CHARS 13524
+HBF_START_BYTE_2_RANGES 2
+HBF_BYTE_2_RANGE 0x40-0x7E
+HBF_BYTE_2_RANGE 0xA1-0xFE
+HBF_END_BYTE_2_RANGES
+COMMENT
+HBF_START_CODE_RANGES 3
+HBF_CODE_RANGE 0xA140-0xA3FE chinese.16 256
+HBF_CODE_RANGE 0xA440-0xC67E chinese.16 24736
+HBF_CODE_RANGE 0xC940-0xF9D5 chinese.16 197568
+HBF_END_CODE_RANGES
+COMMENT Standard symbols 0xA140-0xA3BF (408 chars) plus
+COMMENT non-standard symbols 0xA3C0-0xA3FE (63 characters) in chinese.16
+COMMENT Frequently-used hanzi (5401 chars) in chinese.16
+COMMENT Less-frequently-used hanzi (7652 chars) in chinese.16
+HBF_END_FONT

@@ -37,6 +37,13 @@
 #define FONT3 ""
 #define FONT4 ""
 #define FONT5 ""
+#elif HAVE_HBF_SUPPORT
+#define MAXFONTS 1
+#define FONT1 "chinese16"
+#define FONT2 ""
+#define FONT3 ""
+#define FONT4 ""
+#define FONT5 ""
 #elif HAVE_T1LIB_SUPPORT
 #define MAXFONTS 5
 #define FONT1 "fonts/type1/bchr.pfb"
@@ -187,6 +194,9 @@ main(int ac, char **av)
 		       "Microwindows,欢迎使用中英文点阵字体", -1, GR_TFASCII);
 #endif /* HZKBIG5*/
 		}
+#elif HAVE_HBF_SUPPORT
+		/* encoding BIG5 test 61 B1 64 B1 64 61 */
+		GrText(window, gc, x, y, "\151\261\144\261\144\151", 6, MWTF_DBCS_BIG5);
 #elif HAVE_BIG5_SUPPORT
 		/* encoding BIG5 test 61 B1 64 B1 64 61 */
 		GrText(window, gc, x, y, "\151\261\144\261\144\151", 6, MWTF_DBCS_BIG5);
@@ -240,8 +250,8 @@ main(int ac, char **av)
 		/* ASCII test */
 		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);
 #endif
-		GrFlush();
 		GrDestroyFont(fontid);
+		GrFlush();
 	}
 	GrDestroyRegion(regionid);
 	GrClose();

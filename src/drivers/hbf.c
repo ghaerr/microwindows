@@ -38,7 +38,13 @@
 #include <ctype.h>
 #include <string.h>
 #include "hbf.h"
-#include "mwconfig.h"
+#include "mwconfig.h"	/* for EPRINTF*/
+
+//#define IN_MEMORY
+
+#if UNIX
+#define unix
+#endif
 
 #ifdef __MSDOS__
 #define msdos
@@ -212,8 +218,7 @@ static	FILE	*path_open
 static	bool	real_open _((const char *filename, HBF_STRUCT *hbf));
 
 /* Error reporting */
-
-int	hbfDebug;	/* set this for error reporting */
+int	hbfDebug = 1;	/* set this for error reporting */
 
 #ifdef	__STDC__
 #include <stdarg.h>
@@ -675,7 +680,7 @@ read_bitmap_file(bmf, f)
 	cp = contents = (byte *)malloc((unsigned)GRAIN_SIZE);
 	if (contents == NULL) {
 		eprintf("not enough space for bitmap file");
-		return NULL;
+		return 0;
 	}
 	while ((c = getc(f)) != EOF) {
 		if (size%GRAIN_SIZE == 0) {
@@ -683,7 +688,7 @@ read_bitmap_file(bmf, f)
 					(unsigned)(size + GRAIN_SIZE));
 			if (contents == NULL) {
 				eprintf("not enough space for bitmap file");
-				return NULL;
+				return 0;
 			}
 			cp = contents + size;
 		}

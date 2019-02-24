@@ -162,9 +162,9 @@ FNT_FONT_DIR             = "fonts/fnt"
 # Specialized font support
 #
 # Chinese Han Zi Ku HZK loadable font support
+# Chinese Hanzi Bitmap Font HBF loadable font support
 # DBCS Chinese BIG5 compiled in font support (big5font.c)
 # DBCS Chinese GB2312 compiled in font support (gb2312font.c)
-# Chinese HBF font support (genfont.hbf.c, hbf.c)
 # DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
 # Japanese EUC-JP support using loadable MGL font
 # DBCS Korean HANGUL font support (jo16x16.c)
@@ -172,9 +172,9 @@ FNT_FONT_DIR             = "fonts/fnt"
 ####################################################################
 HAVE_HZK_SUPPORT         = N
 HZK_FONT_DIR             = "fonts/chinese"
+HAVE_HBF_SUPPORT         = N
 HAVE_BIG5_SUPPORT        = N
 HAVE_GB2312_SUPPORT      = N
-HAVE_HBF_SUPPORT         = N
 HAVE_JISX0213_SUPPORT    = N
 HAVE_EUCJP_SUPPORT       = N
 EUCJP_FONT_DIR           = "fonts/japanese"

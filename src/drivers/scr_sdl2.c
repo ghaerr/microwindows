@@ -244,11 +244,6 @@ sdl_preselect(PSD psd)
 static void
 sdl_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
-	if (!width)
-		width = psd->xres;
-	if (!height)
-		height = psd->yres;
-
 	/* window moves require delaying updates until preselect for speed*/
 	if ((psd->flags & PSF_DELAYUPDATE)) {
 			/* calc aggregate update rectangle*/

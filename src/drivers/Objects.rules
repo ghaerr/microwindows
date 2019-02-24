@@ -32,13 +32,8 @@ endif
 
 MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genmem.o
 
-ifeq ($(HAVE_HBF_SUPPORT), Y)
-MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genfont.hbf.o
-MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/hbf.o
-else
 # genfont.c compiles with no fonts with -DNOFONTS=1
 MW_SUBDRIVER_OBJS += $(MW_DIR_OBJ)/drivers/genfont.o
-endif
 
 # framebuffer drivers always linked in
 MW_CORE_OBJS += $(MW_SUBDRIVER_OBJS)

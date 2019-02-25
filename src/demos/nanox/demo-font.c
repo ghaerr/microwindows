@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2001, 2002, 2003, 2019 Greg Haerr <greg@censoft.com>
  *
  * demo-font: Microwindows font demonstration program
- * Displays  examples of all configured fonts, dynamically loaded and compiled-in
+ * Displays examples of all configured fonts, dynamically loaded and compiled-in
  *
  * Use up/down arrow to speed up/slow down, c to clear, r region clip, q to quit
  * 
@@ -23,6 +23,7 @@
 
 #define RAND(max)	((int) (((float)(max)) * rand() / (RAND_MAX + 1.0)))
 
+/* fontlist table structure*/
 typedef struct {
 	int group;
 	char *fontname;
@@ -31,6 +32,7 @@ typedef struct {
 	int textlen;
 } textdata;
 
+/* font types by group*/
 char *groupname[] = {
 	"Truetype TTF",
 	"X11 PCF",
@@ -76,10 +78,10 @@ unsigned char dbcs_jisx0213[] = { "\242\241" };
 unsigned char dbcs_ksc5601[] = { "\273\273" };
 
 /* fonts and text to display randomly*/
-textdata text[] = {
+textdata fontlist[] = {
 #if HAVE_FREETYPE_2_SUPPORT
 #if EMSCRIPTEN
-	0, "courb.ttf",			MWTF_ASCII,"Microwindows",	-1,
+	0, "courb.ttf",			MWTF_ASCII,"Microwindows",		-1,
 	0, "arial.ttf",			MWTF_ASCII, "Microwindows",		-1,
 	0, "times.ttf",			MWTF_ASCII, "Microwindows",		-1,
 	0, "cour.ttf",			MWTF_ASCII, "Microwindows",		-1,
@@ -147,8 +149,7 @@ textdata text[] = {
 #endif
 	-1, 0,					0,			0,					0
 };
-#define TEXTSIZE	((sizeof(text)/sizeof(textdata)) - 1)
-
+#define NUMFONTS	((sizeof(fontlist)/sizeof(textdata)) - 1)
 
 int
 main(int ac, char **av)
@@ -241,9 +242,9 @@ main(int ac, char **av)
 		}
 
 		/* pick random entry from table*/
-		entry = RAND(TEXTSIZE);
+		entry = RAND(NUMFONTS);
 
-		fontid = GrCreateFontEx(text[entry].fontname, 0, 0, NULL);
+		fontid = GrCreateFontEx(fontlist[entry].fontname, 0, 0, NULL);
 		GrSetFontSizeEx(fontid, RAND(80) + 1, RAND(80) + 1);
 		GrSetFontRotation(fontid, 330);		/* 33 degrees */
 		GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
@@ -256,11 +257,11 @@ main(int ac, char **av)
 
 		//FIXME: setting window title causes GrGetNextEventTimeout to ignore timeout
 		//sprintf(title, "Microwindows Font Demo %s %s",
-			//groupname[text[entry].group], text[entry].fontname);
+			//groupname[fontlist[entry].group], fontlist[entry].fontname);
 		//GrSetWindowTitle(window, title);
 
-		GrText(window, gc, x, y, text[entry].text, text[entry].textlen,
-			text[entry].encoding);
+		GrText(window, gc, x, y, fontlist[entry].text, fontlist[entry].textlen,
+			fontlist[entry].encoding);
 
 		GrDestroyFont(fontid);
 		GrFlush();

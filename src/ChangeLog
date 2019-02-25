@@ -1,4 +1,5 @@
 24 Feb 2019
+	* enhance demo-aafont, cycles through fonts and sizes, use arrow keys, a,b,k,u,l,q
 	* enhance demo-ttfont, displays all ttf fonts, use arrow keys,a,q
 	* rewrite demo-font completely, displays all fonts, use arrow keys,c,r,q
 	* fix freetype add cache coredump on non-existent HZKFONT.ttf file

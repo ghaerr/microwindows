@@ -1,6 +1,11 @@
 /*
- * fontdemo - freetype font demonstration program for Nano-X
+ * Copyright (c) 2000, 2001, 2002, 2003, 2019 Greg Haerr <greg@censoft.com>
  *
+ * demo-ttfont: Microwindows Truetype font demonstration program
+ * Browse through Truetype fonts and displays each font in a variety of sizes
+ *
+ * Use left/right arrow to select font, a to toggle antialiasing, q to quit
+ * 
  * Uses buffered windows for automatic double buffering and no blink!
  */
 

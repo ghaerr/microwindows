@@ -30,14 +30,14 @@ PARALLEL                 = N
 # Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-SCREEN                   = SDL
+SCREEN                   = X11
 MOUSE                    =
 KEYBOARD                 =
-EXTENGINELIBS            += -lSDL2
-SDL_ZOOM                 = 1.0	# must divide screen w/h also when not 1.0
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
+X11LIBLOCATION           = /usr/X11/lib
+X11HDRLOCATION           = /usr/X11/include
+EXTENGINELIBS            +=
 
 ####################################################################
 #
@@ -55,7 +55,7 @@ TINYWIDGETS              = Y
 # Applications and demos to build
 #
 ####################################################################
-FBEMULATOR               = N
+FBEMULATOR               = Y
 MICROWINDEMO             = Y
 NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N
@@ -76,7 +76,7 @@ NANOWM                   = Y
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
 ####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
+HAVE_SHAREDMEM_SUPPORT   = Y
 
 ####################################################################
 # File I/O support
@@ -227,6 +227,7 @@ HAVETEXTMODE             = N
 SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
 #SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+#SCREEN_PIXTYPE           = MWPF_PALETTE
 SCREEN_DEPTH             = 8
 
 ####################################################################

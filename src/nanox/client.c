@@ -955,23 +955,22 @@ GrGetNextEventTimeout(GR_EVENT * ep, GR_TIMEOUT timeout)
  * on a file descriptor previously specified by GrRegisterInput(), or
  * a timeout occurs.
  *
- * Note that a value of 0 for the timeout parameter doesn't mean "timeout
- * after 0 milliseconds" but is in fact a magic number meaning "never time
- * out".
+ * The timeout value sets the number of milliseconds to wait for an event.
+ * A timeout value of 0 means never time out.
+ * Timeout set to -1 will poll for events and return immediately regardless.
  *
  * @param ep      Pointer to the GR_EVENT structure to return the event in.
- * @param timeout The number of milliseconds to wait before timing out, or
- *                0 for forever.
+ * @param timeout The number of milliseconds to wait before timing out,
+ *                0 for forever, -1 to poll.
  *
  * @internal
  */
 static void
 _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 {
-	fd_set		rfds;
-	int		setsize = 0;
-	int		e;
-	struct timeval	to;
+	int	e, setsize = 0;
+	fd_set rfds;
+	struct timeval to;
 	ACCESS_PER_THREAD_DATA()
 
 
@@ -986,7 +985,11 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	 * client needs an event queue.
 	 */
 	GrPrepareSelect(&setsize, &rfds);
-	if (timeout) {
+
+	/* setup timeval struct for timeout block or poll in select()*/
+	if (timeout == (GR_TIMEOUT)-1L) {		/* polling*/
+		to.tv_sec = to.tv_usec = 0;
+	} else if (timeout) {					/* block for timeout msecs*/
 		to.tv_sec = timeout / 1000;
 		to.tv_usec = (timeout % 1000) * 1000;
 	}

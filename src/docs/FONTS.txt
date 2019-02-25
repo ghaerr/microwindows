@@ -30,7 +30,7 @@ engine:		engine/font_freetype2.c
 fontname:	*.ttf, *.otf
 available:	many
 
-HAVE_T1LIB_SUPPORT:		fonts/type1	(loadable) Type 1 fonts
+HAVE_T1LIB_SUPPORT:		fonts/type1	(loadable) Adobe Type 1 fonts
 engine:		engine/font_t1lib.c
 fontname:	*.afm, *.pfb, *.pfa
 configuration:	t1lib.config, FontDataBase

@@ -10,21 +10,76 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
+char *fontlist[] = {
 #if defined(__ANDROID__)
-  #define FONTNAME      "Roboto-MediumItalic.ttf"; //if android
+	"Roboto-MediumItalic.ttf",
+#elif EMSCRIPTEN
+	"times.ttf",
+	"arial.ttf",
+	"cour.ttf",
+	"courb.ttf",
+	"Accidental Presidency.ttf",
+	"Cyberbit.ttf",
+	"VAGRounded Lt.ttf",
+	"DejaVuSans.ttf",
+	"DejaVuSans-Bold.ttf",
+	"DejaVuSans-BoldOblique.ttf",
+	"DejaVuSans-Oblique.ttf",
 #else
-  /*#define FONTNAME	"lt1-r-omega-serif.ttf"*/
-  /*#define FONTNAME	"arial.ttf" */
-  #define FONTNAME	"times.ttf"
-  /*#define FONTNAME	"fogblack.otf"*/
+	"times.ttf",
+	"timesb.ttf",
+	"timesz.ttf",
+	"timesi.ttf",
+	"arial.ttf",
+	"arialb.ttf",
+	"ariblk.ttf",
+	"arialz.ttf",
+	"ariali.ttf",
+	"comic.ttf",
+	"comicbd.ttf",
+	"cour.ttf",
+	"courb.ttf",
+	"courz.ttf",
+	"couri.ttf",
+	"fogblack.otf",
+	"accid___.ttf",
+	"VAGROLN.ttf",
+	"Cyberbit.ttf",
+	"DejaVuSansMono.ttf",
+	"impact.ttf",
+	"lucon.ttf",
+	"lt1-r-omega-serif.ttf",
+	"lt2-r-omega-serif.ttf",
+	"lt3-r-omega-serif.ttf",
+	"lt4-r-omega-serif.ttf",
+	"lt5-r-omega-serif.ttf",
+	"lt1-b-omega-serif.ttf",
+	"lt2-b-omega-serif.ttf",
+	"lt3-b-omega-serif.ttf",
+	"lt4-b-omega-serif.ttf",
+	"lt5-b-omega-serif.ttf",
+	"lt1-i-omega-serif.ttf",
+	"lt2-i-omega-serif.ttf",
+	"lt3-i-omega-serif.ttf",
+	"lt4-i-omega-serif.ttf",
+	"lt5-i-omega-serif.ttf",
+	"lt1-bi-omega-serif.ttf",
+	"lt2-bi-omega-serif.ttf",
+	"lt3-bi-omega-serif.ttf",
+	"lt4-bi-omega-serif.ttf",
+	"lt5-bi-omega-serif.ttf",
+	"viscii-omega-serif.ttf",
 #endif
+	0
+};
+#define NUMFONTS	((sizeof(fontlist)/sizeof(char *)) - 1)
 
 #define FGCOLOR		BLACK
 #define BGCOLOR		WHITE
 
 GR_WINDOW_ID	w;
 GR_BOOL		aa = GR_TRUE;
-char		fontname[200] = FONTNAME;
+int			entry = 0;
 
 static void
 do_paint(void)
@@ -33,6 +88,7 @@ do_paint(void)
 	GR_GC_ID	gc;
 	GR_FONT_ID	font;
 	GR_WINDOW_INFO winfo;
+	char title[128];
 
 	GrGetWindowInfo(w, &winfo);
 
@@ -44,6 +100,10 @@ do_paint(void)
 
 	GrSetGCForeground(gc, FGCOLOR);
 
+	sprintf(title, "Microwindows Truetype Font Demo (%s) [Use left/right keys, a, q]",
+		fontlist[entry]);
+	GrSetWindowTitle(w, title);
+
 	for (i=3; i<=30; ++i) {
 		int 	width, height;
 		char	buf[64];
@@ -51,7 +111,7 @@ do_paint(void)
 
 		height = i * winfo.height / 530;
 		width = i * winfo.width / 640;
-		font = GrCreateFontEx(fontname, height, width, NULL);
+		font = GrCreateFontEx(fontlist[entry], height, width, NULL);
 
 		GrSetFontAttr(font, aa? (GR_TFANTIALIAS|GR_TFKERNING): 0, -1);
 		/*GrSetFontRotation(font, 150);*/
@@ -66,7 +126,6 @@ do_paint(void)
 		GrDestroyFont(font);
 	}
 	GrDestroyGC(gc);
-
 	GrFlushWindow(w);
 }
 
@@ -74,13 +133,13 @@ int
 main(int ac, char **av)
 {
 	if (ac > 1)
-		strcpy(fontname, av[1]);
+		fontlist[0] = av[1];
 
 	if (GrOpen() < 0)
 		return 1;
 
-	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Truetype Font Demo", GR_ROOT_WINDOW_ID,
-		10, 10, 640, 530, BGCOLOR);
+	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "",
+		GR_ROOT_WINDOW_ID, 10, 10, 640, 530, BGCOLOR);
 	GrSelectEvents(w, GR_EVENT_MASK_BUTTON_DOWN|GR_EVENT_MASK_UPDATE|
 		GR_EVENT_MASK_KEY_DOWN|GR_EVENT_MASK_CLOSE_REQ);
 	GrMapWindow(w);
@@ -108,6 +167,19 @@ main(int ac, char **av)
 				aa = !aa;
 				do_paint();
           		break;
+			case MWKEY_RIGHT:
+				if (++entry >= NUMFONTS)
+					entry = 0;
+				do_paint();
+				break;
+			case MWKEY_LEFT:
+				if (--entry < 0)
+					entry = NUMFONTS-1;
+				do_paint();
+				break;
+			case 'q':
+				GrClose();
+				return 0;
 			}
 			break;
 

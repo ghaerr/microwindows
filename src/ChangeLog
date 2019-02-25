@@ -1,3 +1,12 @@
+24 Feb 2019
+	* enhance demo-ttfont, displays all ttf fonts, use arrow keys,a,q
+	* rewrite demo-font completely, displays all fonts, use arrow keys,c,r,q
+	* fix freetype add cache coredump on non-existent HZKFONT.ttf file
+	* always build convbdf tool, stop building nbreaker
+	* temp fix HZK ALLOCA mem overwrite on bitmap
+	* remove KSC5601 dbcs hack in engine/devfont.c::GdText() not stripping MASK_DBCS
+	* fix KSC5601 builtin width to be 16, needs testing
+	* fix GrGetNextEventTimeout to poll with -1 passed as timeout in client/server case
 23 Feb 2019
 	* fix driver update width/height 0 bug
 	* handle zero width/height return from gettextsize/gettextbits

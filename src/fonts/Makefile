@@ -36,5 +36,3 @@ ifeq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 		$(MW_DIR_OBJ)/fonts/X5x7.c \
 		$(MW_DIR_OBJ)/fonts/X6x13.c
 endif
-
-

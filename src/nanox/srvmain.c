@@ -711,7 +711,10 @@ GsSelect(GR_TIMEOUT timeout)
 	if (timeout != (GR_TIMEOUT)-1L)
 		GdGetNextTimeout(&tout, timeout);	/* set initial mainloop timeout*/
 #endif
-
+#if EMSCRIPTEN
+	if (timeout == (GR_TIMEOUT)-1L)
+		timeout = 1;				/* need to give up some CPU in GdDelay even on poll*/
+#endif
 	/* input gathering loop */
 	while (1)
 	{

@@ -231,7 +231,7 @@ dbcs_gettextsize(PMWFONT pfont, const unsigned short *str, int cc,
 				width += 12;
 				continue;
 			case MWTF_DBCS_EUCKR:
-				width += 12;
+				width += 16;
 				continue;
 			}
 		} else

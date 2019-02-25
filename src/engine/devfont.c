@@ -445,9 +445,9 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 
 	/* draw text string, DBCS flags may still be set*/
 #if HAVE_KSC5601_SUPPORT
-	if (flags & MWTF_DBCS_EUCKR)
-		;
-	else
+	//if (flags & MWTF_DBCS_EUCKR)
+		//;
+	//else
 #endif
 	if (!force_uc16)	/* remove DBCS flags if not needed*/
 		flags &= ~MWTF_DBCSMASK;

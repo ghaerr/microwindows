@@ -135,6 +135,9 @@ int main(int argc, char **argv)
         case 'u':
           underline = underline? GR_FALSE: GR_TRUE;
           break;
+		case 'q':
+			GrClose();
+			return 0;
         default:
           continue;
           /* Unknown keystroke */

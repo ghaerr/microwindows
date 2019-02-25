@@ -1,3 +1,8 @@
+loadable fonts should have standard method of adding font dir, each is different
+compiled in DBCS fonts are fixed 12x12 size in fonts_dbcs.c, except 16x16 KSC5601
+test KSC5601 16x16 compiled in font
+HZK font drawing uses GdArea, background should be transparent
+HZK font ALLOCA overwrites bitmap, temp fix add 1024 to alloc
 t1lib not working on OSX
 X11 keypad not working
 fix OLDWAY in devimage.c::DrawImagePartToFit()

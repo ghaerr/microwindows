@@ -8,7 +8,9 @@
  */
 
 /* font engine entry points*/
+#if HAVE_FNT_SUPPORT
 PMWFONT fnt_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
+#endif
 
 #if HAVE_T1LIB_SUPPORT
 PMWFONT t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);

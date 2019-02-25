@@ -629,12 +629,13 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 	const void *text, int cc, MWTEXTFLAGS flags)
 {
 	PMWHZKFONT pf=(PMWHZKFONT)pfont;
-
     	unsigned char c[2];
 	MWPIXELVALHW *bitmap;
     	unsigned char s1[3];
  	unsigned char *s,*sbegin;
+	MWBOOL oldbg = gr_usebg;
 
+	gr_usebg = FALSE;
 	s=(unsigned char *)text;
 
 	if(cc==1)
@@ -647,14 +648,13 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 
 	sbegin=s;
     	bitmap = (MWPIXELVALHW *)ALLOCA(pf->cfont_width * pf->font_height *
-			sizeof(MWPIXELVALHW));
+			sizeof(MWPIXELVALHW) + 1024);
 
     	while( getnextchar(s, c) )
 	{
               	if( c[1] != '\0') 
 		{
-                	expandcchar(pf, gr_background,gr_foreground,
-                            c, bitmap);
+                	expandcchar(pf, gr_background,gr_foreground, c, bitmap);
 			/* Now draw the bitmap ... */
 			
 			if (flags&MWTF_TOP)
@@ -670,8 +670,7 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
             	}
             	else 
 		{
-                	expandchar(pf, gr_background,gr_foreground,
-                           c[0], bitmap);
+                	expandchar(pf, gr_background,gr_foreground, c[0], bitmap);
 			/* Now draw the bitmap ... */
 
 			if (flags&MWTF_TOP) 
@@ -689,6 +688,7 @@ hzk_drawtext(PMWFONT pfont, PSD psd, MWCOORD ax, MWCOORD ay,
 		if(s>=sbegin+cc)break;
     	}
 
+	gr_usebg = oldbg;
 	FREEA(bitmap);
 }
 

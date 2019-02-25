@@ -575,7 +575,7 @@ endif
 #
 # Compilation target for bmp file conversion
 #
-$(MW_DIR_OBJ)/%.c: $(MW_DIR_SRC)/%.bmp $(MW_DIR_BIN)/convbmp
+$(MW_DIR_OBJ)/%.c: $(MW_DIR_SRC)/%.bmp $(MW_DIR_BIN)/convbmp $(MW_DIR_BIN)/convbdf
 	echo "Converting $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
 ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
 	@$(MW_RULE_MAKE_TARGET_DIR)

@@ -25,7 +25,7 @@ LDFLAGS +=
 ############################# targets section ################################
 
 ifeq ($(NANOX), Y)
-ifeq ($(NANOXDEMO), Y)
+ifeq ($(xxxNANOXDEMO), Y)
 
 # If you want to create a library with the objects files, define the name here
 LIBNAME =

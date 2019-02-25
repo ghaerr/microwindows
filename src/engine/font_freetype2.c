@@ -522,6 +522,10 @@ freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	} else
 		strcat(fontname, ".ttf");
 
+	/* check if .ttf file exists otherwise add to cache below is an error*/
+	if (access(fontname, F_OK) != 0)
+		return NULL;
+
 #if HAVE_FREETYPE_2_CACHE
 	faceid = freetype2_fonts;
 	while (faceid != NULL && 0 != strcasecmp(faceid->data.filename, fontname))

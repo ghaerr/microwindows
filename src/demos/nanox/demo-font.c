@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2000, 2001, 2002, 2003 Greg Haerr <greg@censoft.com>
  *
- * Loadable font demo for Microwindows
+ * demo-font: Microwindows font demonstration program
+ * Displays  examples of all configured fonts, dynamically loaded and compiled-in
  *
- * Loads FNT, PCF, FREETYPE, T1LIB, MGL and HZK fonts
+ * Use up/down arrow to speed up/slow down, c to clear, r region clip, q to quit
+ * 
+ * Loads FNT, PCF, FREETYPE, T1LIB, MGL, HZK and HBF fonts
  * Must be recompiled when src/config changes
- *
- * To test UC16 international FNT files, PCF and FREETYPE must be turned off,
- * because of the #if defines following.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,81 +16,139 @@
 #endif
 #define MWINCLUDECOLORS
 #include "nano-X.h"
-
-#define CLIP_POLYGON	0	/* =1 for polygonal region test */
-#define HZKBIG5		1	/* =1 for big5 encoding test with HZKFONT*/
+#pragma GCC diagnostic ignored "-Winvalid-source-encoding"
 
 #define WIDTH 		340
 #define HEIGHT 		340
 
-#if HAVE_EUCJP_SUPPORT
-#define MAXFONTS 4
-#define FONT1 "k12x10.fnt"
-#define FONT2 "k12x12.fnt"
-#define FONT3 "k16x16.fnt"
-#define FONT4 "k24x24.fnt"
-#define FONT5 ""
-#elif HAVE_HZK_SUPPORT
-#define MAXFONTS 1
-#define FONT1 "HZXFONT"
-#define FONT2 ""
-#define FONT3 ""
-#define FONT4 ""
-#define FONT5 ""
-#elif HAVE_HBF_SUPPORT
-#define MAXFONTS 1
-#define FONT1 "chinese16"
-#define FONT2 ""
-#define FONT3 ""
-#define FONT4 ""
-#define FONT5 ""
-#elif HAVE_T1LIB_SUPPORT
-#define MAXFONTS 5
-#define FONT1 "fonts/type1/bchr.pfb"
-#define FONT2 "fonts/type1/bchb.pfb"
-#define FONT3 "fonts/type1/dcr10.pfb"
-#define FONT4 "fonts/type1/dcbx10.pfb"
-#define FONT5 "fonts/type1/bchri.pfb"
-#elif HAVE_FREETYPE_2_SUPPORT
-#define MAXFONTS 5
-#define FONT1 "lt1-r-omega-serif"
-#define FONT2 "arial"
-#define FONT3 "times"
-#define FONT4 "cour"
-#define FONT5 "timesi"
-#elif HAVE_PCF_SUPPORT
-#define MAXFONTS 5
-#define FONT1 "7x14.pcf.gz"
-#define FONT2 "9x15.pcf.gz"
-#define FONT3 "helvB12.pcf.gz"
-#define FONT4 "jiskan24.pcf.gz"
-#define FONT5 "gb24st.pcf.gz"
-#elif HAVE_BIG5_SUPPORT | HAVE_GB2312_SUPPORT | HAVE_JISX0213_SUPPORT | HAVE_KSC5601_SUPPORT
-#define MAXFONTS 5
-#define FONT1 ""
-#define FONT2 ""
-#define FONT3 ""
-#define FONT4 ""
-#define FONT5 ""
-#elif HAVE_FNT_SUPPORT
-#define MAXFONTS 5
-#define FONT1 "/tmp/helvB12.fnt"
-#define FONT2 "/tmp/clR6x8.fnt"
-#define FONT3 "/tmp/jiskan24.fnt"		/* UC16 font*/
-#define FONT4 "/tmp/jiskan16-2000-1.fnt"	/* UC16 font*/
-#define FONT5 "/tmp/gbk16-xke.fnt"		/* UC16 font*/
-#else
-#define MAXFONTS 5
-#define FONT1 ""
-#define FONT2 ""
-#define FONT3 ""
-#define FONT4 ""
-#define FONT5 ""
-#endif
-
 #define RAND(max)	((int) (((float)(max)) * rand() / (RAND_MAX + 1.0)))
 
-static char *names[5] = { FONT1, FONT2, FONT3, FONT4, FONT5 };
+typedef struct {
+	int group;
+	char *fontname;
+	int	encoding;
+	void *text;
+	int textlen;
+} textdata;
+
+char *groupname[] = {
+	"Truetype TTF",
+	"X11 PCF",
+	"Mwin FNT",
+	"EUCJP MGL",
+	"Adobe Type1 AFM/PFB",
+	"Hanzi Bitmap Format HBF",
+	"Han Zi Ku HZK",
+	"DBCS Big5",
+	"DBCS GB2312",
+	"DBCS JISX0213",
+	"DBCS KSC5601"
+};
+
+/* UC16 encoded text strings*/
+unsigned short jiskan24[] =	{ 0x213a, 0x213b, 0x2170, 0x2276, 0x2339 };	/* japanese*/
+unsigned short gb24st[] =	{ 0x2129, 0x212a, 0x212b, 0x212c, 0x212d };	/* chinese*/
+//unsigned short gb24st[] =	{ 0x7765, 0x7766, 0x7767, 0x777a, 0x777e };	/* broken*/
+unsigned short gbk16_xke[] = { 0x8144, 0x8147, 0x8148, 0xfe4e, 0xfe4f };/* chinese*/
+unsigned short hzk_uc161[] = { 0x9060, 0x898b, 0x79d1, 0x6280, 0x0061, 0x0041, 0 };
+unsigned short hzk_uc162[] = { 0x496c, 0x8b73, 0xd179, 0x8062, 0x0061,
+							   0x0041, 0xa100, 0xa600, 0x496c, 0 };
+
+/* HZK BIG5 encoded strings (pass as MWTF_ASCII)*/
+unsigned char hzk_asc1[] = { "Microwindows,Åwªï¨Ï¥Î¤¤­^¤åÂI°}¦rÅé" };
+unsigned char hzk_asc2[] = { "£t£u£v£w£¸£¹£º" };
+unsigned char hzk_asc3[] = { "Microwindows,»¶Ó­Ê¹ÓÃÖÐÓ¢ÎÄµãÕó×ÖÌå" };
+
+/* DBCS EUCJP encoded string*/
+unsigned char dbcs_eucjp[] =
+	{ "ï¿½Þ¥ï¿½ï¿½ï¿½ï¿½í¥¦ï¿½ï¿½ï¿½ï¿½ï¿½É¥ï¿½ï¿½ï¿½ï¿½Ø¤è¤¦ï¿½ï¿½ï¿½ï¿½!" };
+
+/* DBCS BIG5 encoded 61 B1 64 B1 64 61 */
+unsigned char dbcs_big5[] = { "\151\261\144\261\144\151" };
+
+/* DBCS GB2312 encoded BD A1 BD A1 */
+unsigned char dbcs_gb2312[] = { "\275\241\275\241" };
+
+/* DBCS JISX0213 encoded A2 A1 */
+unsigned char dbcs_jisx0213[] = { "\242\241" };
+
+/* DBCS KSC5601 encoded B0 B0 */
+unsigned char dbcs_ksc5601[] = { "\273\273" };
+
+/* fonts and text to display randomly*/
+textdata text[] = {
+#if HAVE_FREETYPE_2_SUPPORT
+#if EMSCRIPTEN
+	0, "courb.ttf",			MWTF_ASCII,"Microwindows",	-1,
+	0, "arial.ttf",			MWTF_ASCII, "Microwindows",		-1,
+	0, "times.ttf",			MWTF_ASCII, "Microwindows",		-1,
+	0, "cour.ttf",			MWTF_ASCII, "Microwindows",		-1,
+	0, "DejaVuSans.ttf",	MWTF_ASCII, "Microwindows",		-1,
+#else
+	0, "lt1-r-omega-serif.ttf",MWTF_ASCII,"Microwindows",	-1,
+	0, "arial.ttf",			MWTF_ASCII, "Microwindows",		-1,
+	0, "times.ttf",			MWTF_ASCII, "Microwindows",		-1,
+	0, "cour.ttf",			MWTF_ASCII, "Microwindows",		-1,
+	0, "timesi.ttf",		MWTF_ASCII, "Microwindows",		-1,
+#endif
+#endif
+#if HAVE_PCF_SUPPORT
+/* note: large PCF fonts require XCHAR2B, this is not figured out yet for these fonts*/
+	1, "lubI24.pcf",		MWTF_ASCII, "Microwindows",		-1,
+	1, "9x15.pcf.gz",		MWTF_ASCII, "Microwindows",		-1,
+	1, "helvB12.pcf.gz",	MWTF_ASCII, "Microwindows",		-1,
+	1, "symb18.pcf",		MWTF_ASCII, "Microwindows",		-1,
+	1, "jiskan24.pcf.gz",	MWTF_UC16,  jiskan24,			5,
+	1, "gb24st.pcf.gz",		MWTF_UC16,	gb24st,				5,
+#endif
+#if HAVE_FNT_SUPPORT
+	2, "helvB12.fnt",		MWTF_ASCII,	"Microwindows",		-1,
+	2, "timBI18.fnt",		MWTF_ASCII,	"Microwindows",		-1,
+	2, "jiskan24.fnt.gz",	MWTF_UC16,	jiskan24,			5,
+	2, "jiskan16-2000-1.fnt.gz",MWTF_UC16,	jiskan24,		5,
+	2, "gbk16-xke.fnt.gz",	MWTF_UC16,	gbk16_xke,			5,
+#endif
+#if HAVE_EUCJP_SUPPORT
+	3, "k12x10.fnt",		MWTF_DBCS_EUCJP, dbcs_eucjp,	-1,
+	3, "k12x12.fnt",		MWTF_DBCS_EUCJP, dbcs_eucjp,	-1,
+	3, "k16x16.fnt",		MWTF_DBCS_EUCJP, dbcs_eucjp,	-1,
+	3, "k24x24.fnt",		MWTF_DBCS_EUCJP, dbcs_eucjp,	-1,
+#endif
+#if HAVE_T1LIB_SUPPORT
+	4, "bchr.pfb",			MWTF_ASCII,	"Microwindows",		-1,
+	4, "bchb.pfb",			MWTF_ASCII,	"Microwindows",		-1,
+	4, "dcr10.pfb",			MWTF_ASCII,	"Microwindows",		-1,
+	4, "dcbx10.pfb",		MWTF_ASCII,	"Microwindows",		-1,
+	4, "bchri.pfb",			MWTF_ASCII,	"Microwindows",		-1,
+#endif
+#if HAVE_HBF_SUPPORT
+	5, "chinese16.hbf",		MWTF_DBCS_BIG5, dbcs_big5,		6,
+	5, "chinese16.hbf",		MWTF_DBCS_EUCCN, dbcs_gb2312,	4,
+#endif
+#if HAVE_HZK_SUPPORT
+	6, "HZXFONT",			MWTF_UC16, 	hzk_uc161,			7,
+	6, "HZXFONT",			MWTF_UC16, 	hzk_uc162,			9,
+	6, "HZXFONT",			MWTF_ASCII,	hzk_asc1,			-1,
+	6, "HZXFONT",			MWTF_ASCII,	hzk_asc2,			-1,
+	6, "HZXFONT",			MWTF_ASCII,	hzk_asc3,			-1,
+	//6, "HZKFONT",			MWTF_ASCII,	hzk_asc1,			-1,
+#endif
+#if HAVE_BIG5_SUPPORT
+	7, "",					MWTF_DBCS_BIG5, dbcs_big5,		6,
+#endif
+#if HAVE_GB2312_SUPPORT
+	8, "",					MWTF_DBCS_EUCCN, dbcs_gb2312,	4,
+#endif
+#if HAVE_JISX0213_SUPPORT
+	9, "",					MWTF_DBCS_JIS, dbcs_jisx0213,	2,
+#endif
+#if HAVE_KSC5601_SUPPORT
+	10,"",					MWTF_DBCS_EUCKR, dbcs_ksc5601,	2,
+#endif
+	-1, 0,					0,			0,					0
+};
+#define TEXTSIZE	((sizeof(text)/sizeof(textdata)) - 1)
+
 
 int
 main(int ac, char **av)
@@ -98,162 +156,116 @@ main(int ac, char **av)
 	GR_WINDOW_ID window;
 	GR_GC_ID gc;
 	GR_FONT_ID fontid;
-	int x, y, fnum;
+	GR_TIMEOUT timeout = 40;
 	GR_REGION_ID regionid;
-#if CLIP_POLYGON
-	GR_POINT points[] = { {20, 20}, {300, 20}, {300, 300}, {20, 300} };
-#else
-	GR_RECT clip_rect = { 20, 20, 300, 300 };
-#endif
+	int x, y, entry;
+	int polyregion = 0;
+	GR_RECT cliprect = { 20, 20, 300, 300 };	/* inset square*/
+	GR_POINT poly_points[7];	/* arrow*/
+	poly_points[0].x =  70;
+	poly_points[0].y = 150;
+	poly_points[1].x = 230;
+	poly_points[1].y = 150;
+	poly_points[2].x = 230;
+	poly_points[2].y = 120;
+	poly_points[3].x = 280;
+	poly_points[3].y = 170;
+	poly_points[4].x = 230;
+	poly_points[4].y = 220;
+	poly_points[5].x = 230;
+	poly_points[5].y = 190;
+	poly_points[6].x =  70;
+	poly_points[6].y = 190;
 
 	if (GrOpen() < 0)
 		return 1;
 
 	window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
-		"loadable fonts (truetype, t1lib, pcf, mgl, hzk)",
+		"Microwindows Font Demo [Use up/down keys, c, r, q]",
 		GR_ROOT_WINDOW_ID, 50, 50, WIDTH, HEIGHT, BLACK);
-	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
+	GrSelectEvents(window, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ |
+		GR_EVENT_MASK_KEY_DOWN);
 	GrMapWindow(window);
 
 	gc = GrNewGC();
 	GrSetGCUseBackground(gc, GR_FALSE);
 	GrSetGCBackground(gc, BLACK);
 
-#if CLIP_POLYGON
-	/* polygon clip region */
-	regionid = GrNewPolygonRegion(MWPOLY_EVENODD, 3, points);
-#else
-	/* rectangle clip region */
+	/* start with rectangle clip region */
 	regionid = GrNewRegion();
-	GrUnionRectWithRegion(regionid, &clip_rect);
-#endif
+	GrUnionRectWithRegion(regionid, &cliprect);
 	GrSetGCRegion(gc, regionid);
 
 	srand(time(0));
 	while (1) {
 		GR_EVENT event;
 
-		GrCheckNextEvent(&event);
-		if (event.type == GR_EVENT_TYPE_CLOSE_REQ) {
+		GrGetNextEventTimeout(&event, timeout);
+		switch (event.type) {
+		case GR_EVENT_TYPE_CLOSE_REQ:
 			GrClose();
 			return 0;
+		case GR_EVENT_TYPE_KEY_DOWN:
+			switch (event.keystroke.ch) {
+			case MWKEY_UP:					/* speed up*/
+			case MWKEY_RIGHT:
+				timeout -= 20;
+				if ((int)timeout <= 0)
+					timeout = -1;			/* fastest poll*/
+				break;
+			case MWKEY_DOWN:				/* slow down*/
+			case MWKEY_LEFT:
+				timeout += 20;
+				break;
+			case 'c':						/* clear screen*/
+				GrFillRect(window, gc, 0, 0, WIDTH, HEIGHT);
+				break;
+			case 'r':						/* toggle clip region*/
+				GrSetGCForeground(gc, BLACK);
+				GrFillRect(window, gc, 0, 0, WIDTH, HEIGHT);
+				polyregion = !polyregion;
+				GrDestroyRegion(regionid);
+				if (polyregion) {
+					regionid = GrNewPolygonRegion(MWPOLY_EVENODD, 7, poly_points);
+				} else {
+					regionid = GrNewRegion();
+					GrUnionRectWithRegion(regionid, &cliprect);
+				}
+				GrSetGCRegion(gc, regionid);
+				break;
+			case 'q':						/* quit*/
+				GrClose();
+				return 0;
+			}
+			break;
 		}
 
-		fontid = GrCreateFontEx(names[fnum=RAND(MAXFONTS)], 0, 0, NULL);
+		/* pick random entry from table*/
+		entry = RAND(TEXTSIZE);
+
+		fontid = GrCreateFontEx(text[entry].fontname, 0, 0, NULL);
 		GrSetFontSizeEx(fontid, RAND(80) + 1, RAND(80) + 1);
 		GrSetFontRotation(fontid, 330);		/* 33 degrees */
 		GrSetFontAttr(fontid, GR_TFKERNING | GR_TFANTIALIAS, 0);
 		GrSetGCFont(gc, fontid);
+		x = RAND(WIDTH);
+		y = RAND(HEIGHT);
 
 		GrSetGCForeground(gc, rand() & 0xffffff);
-		/*GrSetGCBackground(gc, rand() & 0xffffff); */
+		//GrSetGCBackground(gc, rand() & 0xffffff);
 
-		x = RAND(WIDTH);
-		y = RAND(HEIGHT);
+		//FIXME: setting window title causes GrGetNextEventTimeout to ignore timeout
+		//sprintf(title, "Microwindows Font Demo %s %s",
+			//groupname[text[entry].group], text[entry].fontname);
+		//GrSetWindowTitle(window, title);
 
-#if HAVE_HZK_SUPPORT
-		{
-#if HZKBIG5
-		/* hzk big5 unicode-16 test*/
-		static unsigned short buffer[] = {
-		    0x9060, 0x898b, 0x79d1, 0x6280, 0x0061, 0x0041, 0
-		};
-		GrText(window, gc, x, y, buffer, 7, GR_TFUC16);
+		GrText(window, gc, x, y, text[entry].text, text[entry].textlen,
+			text[entry].encoding);
 
-		/* hzk big5 dbcs test #1*/
-		x = RAND(WIDTH);
-		y = RAND(HEIGHT);
-		GrText(window, gc, x, y,
-		       "Microwindows,Åwªï¨Ï¥Î¤¤­^¤åÂI°}¦rÅé", -1, GR_TFASCII);
-
-		/* hzk big5 dbcs test #2*/
-		x = RAND(WIDTH);
-		y = RAND(HEIGHT);
-		GrText(window, gc, x, y, "£t£u£v£w£¸£¹£º", -1, GR_TFASCII);
-#else
-	#if 0
-		/* hzk test #1*/
-		static char buffer[] = {
-			0x6c, 0x49, 0x73, 0x8b, 0x79,
-			0xd1, 0x62, 0x80, 0x61, 0x00,
-			0x41, 0x00, 0x00, 0xa1, 0x00,
-			0xa6, 0x6c, 0x49, 0, 0
-		};
-
-		/* *static unsigned short buffer[] = {
-			0x496c, 0x8b73, 0xd179, 0x8062, 0x0061,
-			0x0041, 0xa100, 0xa600, 0x496c, 0
-		};***/
-
-		GrText(window, gc, x, y, buffer, 9, GR_TFUC16);
-	#endif
-		/* HZK Metrix font test, includes Chinese and English */
-		x = RAND(WIDTH);
-		y = RAND(HEIGHT);
-		GrText(window, gc, x, y,
-		       "Microwindows,»¶Ó­Ê¹ÓÃÖÐÓ¢ÎÄµãÕó×ÖÌå", -1, GR_TFASCII);
-#endif /* HZKBIG5*/
-		}
-#elif HAVE_HBF_SUPPORT
-		/* encoding BIG5 test 61 B1 64 B1 64 61 */
-		GrText(window, gc, x, y, "\151\261\144\261\144\151", 6, MWTF_DBCS_BIG5);
-#elif HAVE_BIG5_SUPPORT
-		/* encoding BIG5 test 61 B1 64 B1 64 61 */
-		GrText(window, gc, x, y, "\151\261\144\261\144\151", 6, MWTF_DBCS_BIG5);
-#elif HAVE_GB2312_SUPPORT
-		/* encoding GB2312 test BD A1 BD A1 */
-		GrText(window, gc, x, y, "\275\241\275\241", 4, MWTF_DBCS_GB);
-#elif HAVE_EUCJP_SUPPORT
-		/* encoding EUC_JP test A2 A1 */
-		GrText(window, gc, x, y, "ï¿½Þ¥ï¿½ï¿½ï¿½ï¿½í¥¦ï¿½ï¿½ï¿½ï¿½ï¿½É¥ï¿½ï¿½ï¿½ï¿½Ø¤è¤¦ï¿½ï¿½ï¿½ï¿½!", -1, MWTF_DBCS_EUCJP);
-#elif HAVE_JISX0213_SUPPORT
-		/* encoding JISX0213 test A2 A1 */
-		GrText(window, gc, x, y, "\242\241", 2, MWTF_DBCS_JIS);
-#elif HAVE_KSC5601_SUPPORT
-		/* encoding KSC5601 test B0 B0 */
-		GrText(window, gc, x, y, "\273\273", 2, MWTF_DBCS_EUCKR);
-#elif HAVE_FREETYPE_2_SUPPORT
-		/* ASCII test */
-		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);
-#elif HAVE_PCF_SUPPORT
-		/* note: large PCF fonts require XCHAR2B, this is not
-		   figured out yet for these fonts.  FIXME */
-		if (fnum == 3) {
-			/* japanese jiskan24*/
-			unsigned short text[] =
-			    { 0x213a, 0x213b, 0x2170, 0x2276, 0x2339 };
-			GrText(window, gc, x,y, text, 5, GR_TFUC16);
-		} else if (fnum == 4) {
-			/* chinese gb24st*/
-			unsigned short text[] =
-			    /* FIXME: why doesn't first row index correctly?*/
-			    /*{ 0x7765, 0x7766, 0x7767, 0x777a, 0x777e };*/
-			    { 0x2129, 0x212a, 0x212b, 0x212c, 0x212d };
-			GrText(window, gc, x,y, text, 5, GR_TFUC16);
-		} else
-			GrText(window, gc, x,y, "Microwindows", -1, GR_TFASCII);
-#elif HAVE_FNT_SUPPORT
-		/* UC16 test */
-		if (fnum == 2 || fnum == 3) {
-			/* japanese jiskan24, jiskan16-2000-1*/
-			unsigned short text[] =
-			    { 0x213a, 0x213b, 0x2170, 0x2276, 0x2339 };
-			GrText(window, gc, x,y, text, 5, GR_TFUC16);
-		} else if (fnum == 4) {
-			/* chinese gbk16-xke*/
-			unsigned short text[] =
-			    { 0x8144, 0x8147, 0x8148, 0xfe4e, 0xfe4f };
-			GrText(window, gc, x,y, text, 5, GR_TFUC16);
-		} else
-			GrText(window, gc, x,y, "Microwindows", -1, GR_TFASCII);
-#else
-		/* ASCII test */
-		GrText(window, gc, x, y, "Microwindows", -1, GR_TFASCII);
-#endif
 		GrDestroyFont(fontid);
 		GrFlush();
 	}
-	GrDestroyRegion(regionid);
+
 	GrClose();
 	return 0;
 }

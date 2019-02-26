@@ -30,7 +30,7 @@ char *fontlist[] = {
 	"DejaVuSans-Bold.ttf",
 	"DejaVuSans-BoldOblique.ttf",
 	"DejaVuSans-Oblique.ttf",
-#else
+#else	/* Truetype fonts*/
 	"times.ttf",
 	"timesb.ttf",
 	"timesz.ttf",
@@ -74,7 +74,26 @@ char *fontlist[] = {
 	"lt4-bi-omega-serif.ttf",
 	"lt5-bi-omega-serif.ttf",
 	"viscii-omega-serif.ttf",
-#endif
+#if HAVE_T1LIB_SUPPORT
+	"bchb.pfb",
+	"bchbi.pfb",
+	"bchr.pfb",
+	"bchri.pfb",
+	"c0419bt_.pfb",
+	"c0582bt_.pfb",
+	"c0583bt_.pfb",
+	"c0611bt_.pfb",
+	"c0632bt_.pfb",
+	"c0633bt_.pfb",
+	"c0648bt_.pfb",
+	"c0649bt_.pfb",
+	"dcbx10.pfb",
+	"dcbxti10.pfb",
+	"dcr10.pfb",
+	"dcti10.pfb",
+	"eufm10.pfb",
+#endif	/* Type1 fonts*/
+#endif	/* Truetype fonts*/
 	0
 };
 #define NUMFONTS	((sizeof(fontlist)/sizeof(char *)) - 1)

@@ -141,10 +141,6 @@ t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 			return NULL;		/* non .pfb file specified, not type1*/
 	}
 
-	/* check path and filename for .pfb file*/
-	if (access(fontpath, F_OK) != 0)
-		return NULL;
-
 	/* seperate font path and filename.pfb*/
 	fontname = fontpath;
 	if ((p = strrchr(fontname, '/')) != NULL) {

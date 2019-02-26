@@ -1,3 +1,6 @@
+25 Feb 2019
+	* fix strcmp version bug in .fnt font loader
+	* small t1lib fix, broken on 64bit systems
 24 Feb 2019
 	* enhance demo-aafont, cycles through fonts and sizes, use arrow keys, a,b,k,u,l,q
 	* enhance demo-ttfont, displays all ttf fonts, use arrow keys,a,q

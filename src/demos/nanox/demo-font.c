@@ -133,7 +133,7 @@ textdata fontlist[] = {
 	6, "HZXFONT",			MWTF_ASCII,	hzk_asc1,			-1,
 	6, "HZXFONT",			MWTF_ASCII,	hzk_asc2,			-1,
 	6, "HZXFONT",			MWTF_ASCII,	hzk_asc3,			-1,
-	//6, "HZKFONT",			MWTF_ASCII,	hzk_asc1,			-1,
+	6, "HZKFONT",			MWTF_ASCII,	hzk_asc1,			-1,
 #endif
 #if HAVE_BIG5_SUPPORT
 	7, "",					MWTF_DBCS_BIG5, dbcs_big5,		6,

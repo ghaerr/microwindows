@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "uni_std.h"
 #include "device.h"
 #include "devfont.h"
 #include "genfont.h"
@@ -282,7 +283,7 @@ fnt_load_font(const char *path)
 	/* read magic and version #*/
 	if (READSTR(ifp, version, 4) != 4)
 		goto errout;
-	if (strcmp(version, VERSION) != 0)
+	if (strncmp(version, VERSION, 4) != 0)
 		goto errout;
 
 	pf = (PMWCFONT)calloc(1, sizeof(MWCFONT));

@@ -138,7 +138,10 @@ sdl_pollevents(void)
 		if (event.type >= SDL_KEYDOWN && event.type <= SDL_TEXTINPUT)
 			return 2;
 		if (event.type == SDL_QUIT)
+		{
+			_CrtDumpMemoryLeaks();
 			return 3;
+		}
 
 		/* dump event*/
   		SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);

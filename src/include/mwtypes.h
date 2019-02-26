@@ -7,6 +7,12 @@
  * Exported Microwindows engine typedefs and defines
  */
 
+#ifndef __EMSCRIPTEN__
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h>  
+#endif
+
 #if _MSC_VER == 1500
 // use if stdint.h missing
 	typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/

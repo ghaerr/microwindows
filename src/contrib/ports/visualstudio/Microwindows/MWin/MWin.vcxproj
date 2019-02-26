@@ -65,6 +65,37 @@
       <Project>{6dac951d-40fb-4b3a-8e21-d42a2399d75c}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\include\convblit.h" />
+    <ClInclude Include="..\..\..\..\..\include\device.h" />
+    <ClInclude Include="..\..\..\..\..\include\genfont.h" />
+    <ClInclude Include="..\..\..\..\..\include\graph3d.h" />
+    <ClInclude Include="..\..\..\..\..\include\intl.h" />
+    <ClInclude Include="..\..\..\..\..\include\lock.h" />
+    <ClInclude Include="..\..\..\..\..\include\mwconfig.h" />
+    <ClInclude Include="..\..\..\..\..\include\mwtypes.h" />
+    <ClInclude Include="..\..\..\..\..\include\nano-X.h" />
+    <ClInclude Include="..\..\..\..\..\include\nanowm.h" />
+    <ClInclude Include="..\..\..\..\..\include\nxcolors.h" />
+    <ClInclude Include="..\..\..\..\..\include\nxdraw.h" />
+    <ClInclude Include="..\..\..\..\..\include\osdep.h" />
+    <ClInclude Include="..\..\..\..\..\include\swap.h" />
+    <ClInclude Include="..\..\..\..\..\include\sys_time.h" />
+    <ClInclude Include="..\..\..\..\..\include\uni_std.h" />
+    <ClInclude Include="..\..\..\..\..\include\winctl.h" />
+    <ClInclude Include="..\..\..\..\..\include\windef.h" />
+    <ClInclude Include="..\..\..\..\..\include\windlg.h" />
+    <ClInclude Include="..\..\..\..\..\include\windows.h" />
+    <ClInclude Include="..\..\..\..\..\include\windowsx.h" />
+    <ClInclude Include="..\..\..\..\..\include\winerror.h" />
+    <ClInclude Include="..\..\..\..\..\include\winfont.h" />
+    <ClInclude Include="..\..\..\..\..\include\wingdi.h" />
+    <ClInclude Include="..\..\..\..\..\include\winkbd.h" />
+    <ClInclude Include="..\..\..\..\..\include\winres.h" />
+    <ClInclude Include="..\..\..\..\..\include\wintern.h" />
+    <ClInclude Include="..\..\..\..\..\include\wintools.h" />
+    <ClInclude Include="..\..\..\..\..\include\winuser.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{5A130BB4-73AA-47C4-844A-BE323DFF845A}</ProjectGuid>

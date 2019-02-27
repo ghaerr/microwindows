@@ -1,0 +1,7 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
+    <PropertyGroup>
+      <IncludeNuGetImports>false</IncludeNuGetImports>
+    </PropertyGroup>
+    <Import Project="$(MSBuildBinPath)\NuGet.targets" Condition="exists('$(MSBuildBinPath)\NuGet.targets')"/>
+    <Import Project="$(MSBuildProjectName).nuget.targets" Condition="exists('$(MSBuildProjectName).nuget.targets')"/>
+ </Project>

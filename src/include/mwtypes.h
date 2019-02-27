@@ -7,7 +7,6 @@
  * Exported Microwindows engine typedefs and defines
  */
 
-
 #if _MSC_VER == 1500
 // use if stdint.h missing
 	typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/

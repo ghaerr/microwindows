@@ -30,10 +30,6 @@
 #include "../include/mwconfig.h"
 #include "../include/osdep.h"
 
-#if _MSC_VER > 1500		/* remove this if REAL windows.h included above*/
-__declspec(dllimport) unsigned int __stdcall Sleep(unsigned int dwMilliseconds);
-__declspec(dllimport) unsigned int __stdcall OuputDebugString(char *buf);
-#endif
 
 /**
  * Output error message
@@ -56,7 +52,7 @@ GdError(const char *format, ...)
 	__android_log_print(ANDROID_LOG_INFO, "Microwindows", buf);
 #elif _MSC_VER
 	vsprintf(buf, format, args);
-	OutputDebugString(buf);
+	OutputDebugStringA(buf);
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);
@@ -183,28 +179,6 @@ GdPlatformInit(void)
 
 #if _MSC_VER
 /* gettimeofday() for Windows*/
-
-#if _MSC_VER > 1500		/* remove this if REAL windows.h included above*/
-typedef struct _SYSTEMTIME {
-	WORD wYear;
-	WORD wMonth;
-	WORD wDayOfWeek;
-	WORD wDay;
-	WORD wHour;
-	WORD wMinute;
-	WORD wSecond;
-	WORD wMilliseconds;
-} SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
-
-typedef struct _FILETIME
-{
-	DWORD dwLowDateTime;
-	DWORD dwHighDateTime;
-} FILETIME, *PFILETIME, *LPFILETIME;
-
-__declspec(dllimport) void __stdcall GetSystemTime(LPSYSTEMTIME lpSystemTime);
-__declspec(dllimport) BOOL __stdcall SystemTimeToFileTime(SYSTEMTIME *lpSystemTime,LPFILETIME lpFileTime);
-#endif /* _MSC_VER > 1500*/
 
 int
 gettimeofday(struct timeval *tv, struct timezone *tz)

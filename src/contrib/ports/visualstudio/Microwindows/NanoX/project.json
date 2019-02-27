@@ -1,0 +1,13 @@
+﻿{
+  "dependencies": {
+    "GCCBuildTargets": "1.*"
+  },
+  "frameworks": {
+    "net400": {}
+  },
+  "runtimes": {
+    "win-x86": {},
+    "win-x64": {},
+    "win": {}
+  }
+}

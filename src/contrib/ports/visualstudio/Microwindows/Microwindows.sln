@@ -9,15 +9,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MWin", "MWin\MWin.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NanoX", "NanoX\NanoX.vcxproj", "{C2F31B05-2BDC-4264-A254-76EDB9BF81DD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mwengine", "mwengine\mwengine.vcxproj", "{20F225BC-09B0-4B92-BF44-76B9D00E00BD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MWEngine", "mwengine\mwengine.vcxproj", "{20F225BC-09B0-4B92-BF44-76B9D00E00BD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mwimages", "mwimages\mwimages.vcxproj", "{C1067596-A66C-4BC7-84BB-CB81894B57F1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MWImages", "mwimages\mwimages.vcxproj", "{C1067596-A66C-4BC7-84BB-CB81894B57F1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mwdrivers", "mwdrivers\mwdrivers.vcxproj", "{EBF9534C-A5B5-4366-B097-83238855F836}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MWDrivers", "mwdrivers\mwdrivers.vcxproj", "{EBF9534C-A5B5-4366-B097-83238855F836}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mwfonts", "mwfonts\mwfonts.vcxproj", "{6DAC951D-40FB-4B3A-8E21-D42A2399D75C}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MWinExtra", "MWinExtra\MWinExtra.vcxproj", "{0892C144-3012-4C3A-9F9C-C4A69DE3318F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MWFonts", "mwfonts\mwfonts.vcxproj", "{6DAC951D-40FB-4B3A-8E21-D42A2399D75C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{117D268B-1D1A-4D45-B3E8-3FC98D32C143}"
 	ProjectSection(SolutionItems) = preProject
@@ -88,14 +86,6 @@ Global
 		{6DAC951D-40FB-4B3A-8E21-D42A2399D75C}.Release|x64.Build.0 = Release|x64
 		{6DAC951D-40FB-4B3A-8E21-D42A2399D75C}.Release|x86.ActiveCfg = Release|Win32
 		{6DAC951D-40FB-4B3A-8E21-D42A2399D75C}.Release|x86.Build.0 = Release|Win32
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Debug|x64.ActiveCfg = Debug|x64
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Debug|x64.Build.0 = Debug|x64
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Debug|x86.ActiveCfg = Debug|Win32
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Debug|x86.Build.0 = Debug|Win32
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Release|x64.ActiveCfg = Release|x64
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Release|x64.Build.0 = Release|x64
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Release|x86.ActiveCfg = Release|Win32
-		{0892C144-3012-4C3A-9F9C-C4A69DE3318F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -589,7 +589,7 @@ typedef struct tagNCCALCSIZE_PARAMS {
     /*PWINDOWPOS lppos;*/		/* removed for microwin*/
 } NCCALCSIZE_PARAMS, *LPNCCALCSIZE_PARAMS;
 
-typedef FARPROC TIMERPROC;
+typedef VOID (CALLBACK* TIMERPROC)(HWND, UINT, UINT_PTR, DWORD);
 
 UINT WINAPI	SetTimer(HWND hwnd, UINT idTimer, UINT uTimeout, TIMERPROC lpTimerFunc);
 BOOL WINAPI	KillTimer(HWND hwnd, UINT idTimer);

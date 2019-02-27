@@ -65,7 +65,6 @@
     <ClCompile Include="..\..\..\..\..\nx11\GetPntMap.c" />
     <ClCompile Include="..\..\..\..\..\nx11\GetWMProps.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Grab.c" />
-    <ClCompile Include="..\..\..\..\..\nx11\IM.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Image.c" />
     <ClCompile Include="..\..\..\..\..\nx11\ListPix.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Locale.c" />
@@ -119,7 +118,23 @@
     <ClCompile Include="..\..\..\..\..\nx11\XMisc.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Xrm.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NanoX\NanoX.vcxproj">
+      <Project>{c2f31b05-2bdc-4264-a254-76edb9bf81dd}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Wasm'))">./</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Wasm'))">./</MSBuildProjectExtensionsPath>
+    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>
+    <GCCToolCompilerStyle Condition="$(Configuration.Contains('Wasm'))">llvm</GCCToolCompilerStyle>
+
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('GCC'))">./</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('GCC'))">./</MSBuildProjectExtensionsPath>
+
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Linux'))">./</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Linux'))">./</MSBuildProjectExtensionsPath>
+
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{5DCDD45C-EA2B-4A86-AFEB-DA056167CE3B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -154,7 +169,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition="'$(VCTargetsPath)' != '.' AND '$(VCTargetsPath)' != '.\' AND '$(VCTargetsPath)' != './'" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -246,7 +261,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition="'$(VCTargetsPath)' != '.' AND '$(VCTargetsPath)' != '.\' AND '$(VCTargetsPath)' != './'" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>

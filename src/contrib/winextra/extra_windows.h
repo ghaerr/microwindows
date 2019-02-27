@@ -191,3 +191,5 @@ typedef struct tagNONCLIENTMETRICSW
 #define BF_ADJUST       0x2000  /* Calculate the space left over */
 #define BF_FLAT         0x4000  /* For flat rather than 3D borders */
 #define BF_MONO         0x8000  /* For monochrome borders */
+
+#include "guiddef.h"

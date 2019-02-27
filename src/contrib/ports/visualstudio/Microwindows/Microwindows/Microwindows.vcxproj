@@ -65,7 +65,6 @@
     <ClCompile Include="..\..\..\..\..\nx11\GetPntMap.c" />
     <ClCompile Include="..\..\..\..\..\nx11\GetWMProps.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Grab.c" />
-    <ClCompile Include="..\..\..\..\..\nx11\IM.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Image.c" />
     <ClCompile Include="..\..\..\..\..\nx11\ListPix.c" />
     <ClCompile Include="..\..\..\..\..\nx11\Locale.c" />

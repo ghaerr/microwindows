@@ -89,7 +89,7 @@ typedef unsigned __int64	UINT_PTR;	// must hold unsigned int and pointer
 //             or 32bit port (int=32, long=32, ptr=32)
 typedef long				LONG_PTR;	// must hold long and pointer
 typedef unsigned long		ULONG_PTR;	// must hold unsigned long and pointer
-typedef unsigned long		UINT_PTR;	// must hold unsigned int and pointer
+typedef unsigned int		UINT_PTR;	// must hold unsigned int and pointer
 // smaller definition for 16bit WPARAM (int=16, long=32, ptr=16)
 //typedef unsigned int		UINT_PTR;	// holds int and pointer
 #endif

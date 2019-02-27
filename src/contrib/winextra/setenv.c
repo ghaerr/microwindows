@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 /* setenv for windows*/
+#ifdef NO_SETENV
 int
 setenv(const char *name, const char *value, int overwrite)
 {
@@ -13,3 +14,4 @@ setenv(const char *name, const char *value, int overwrite)
 	}
 	return _putenv_s(name, value);
 }
+#endif

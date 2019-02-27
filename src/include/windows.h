@@ -191,7 +191,7 @@ struct hwnd {
 };
 
 /* misc apis in winmain.c*/
-VOID 		Sleep(DWORD dwMilliseconds);
+VOID /*WINAPI*/ Sleep(DWORD dwMilliseconds);
 
 #ifdef __cplusplus
 }

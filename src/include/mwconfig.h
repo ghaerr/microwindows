@@ -42,7 +42,7 @@
 #define DEBUG_BLIT		0		/* =1 to flash brown before painting areas with convblit*/
 #define DEBUG_NANOWM	0		/* =1 for window manager debug printfs*/
 
-#ifdef _DEBUG
+#ifdef _DEBUG					/* handle _DEBUG from Visual Studio*/
 #define DEBUG 1
 #endif
 

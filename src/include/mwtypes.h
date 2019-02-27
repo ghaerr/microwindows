@@ -1408,10 +1408,10 @@ typedef struct {
 
 #endif /* MWINCLUDECOLORS*/
 
-/* Mouse button bits*/
+/* Mouse button bits, compatible with Windows*/
+#define MWBUTTON_L		  0x01		/* left button*/
 #define MWBUTTON_R		  0x02		/* right button*/
 #define MWBUTTON_M		  0x10		/* middle*/
-#define MWBUTTON_L		  0x01		/* left*/
 #define MWBUTTON_SCROLLUP 0x20		/* wheel up*/
 #define MWBUTTON_SCROLLDN 0x40		/* wheel down*/
 

@@ -666,7 +666,7 @@ MwTerminate(void)
 }
 
 #if !EMSCRIPTEN
-VOID 
+VOID /*WINAPI*/
 Sleep(DWORD dwMilliseconds)
 {
 	GdDelay(dwMilliseconds);

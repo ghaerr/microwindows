@@ -36,8 +36,8 @@ static void MwHideCaret(void);
 static void MwUpdateCaret(void);
 
 /* Timer function call for caret blinking */
-static int CALLBACK
-fnCaretBlink(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+static void CALLBACK
+fnCaretBlink(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
     static UINT lastBlinkTime = DEF_BLINK_TIME;
 
@@ -48,11 +48,10 @@ fnCaretBlink(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 	}
 	if( sysCaret.nBlinkTime != lastBlinkTime )
 	{
-		KillTimer(hwnd, idEvent);
+		KillTimer(hwnd, (UINT)idEvent);
 		sysCaret.nTimerID = SetTimer(NULL, 0, sysCaret.nBlinkTime, (TIMERPROC)fnCaretBlink);
 		lastBlinkTime = sysCaret.nBlinkTime;
 	}
-	return 0;
 }
 
 BOOL WINAPI

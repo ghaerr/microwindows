@@ -1,3 +1,8 @@
+26 Feb 2019
+	* merged Rooz's final changes for WebAssembly/C#.Net project
+	* mapped MWBUTTON_L/R etc mouse buttons to same bits as Windows
+	* removed WINAPI from win32 Sleep
+	* changed TIMERPROC to (HWND, UINT, UINT_PTR, DWORD) signature
 25 Feb 2019
 	* fix strcmp version bug in .fnt font loader
 	* small t1lib fix, broken on 64bit systems

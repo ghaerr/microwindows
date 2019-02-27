@@ -15,8 +15,8 @@ typedef unsigned int UINT32, *PUINT32;
 //typedef int64_t LONG_PTR, *PLONG_PTR, INT_PTR, *PINT_PTR;
 //typedef uint64_t ULONG_PTR, DWORD_PTR, *PULONG_PTR, UINT_PTR, *PUINT_PTR;
 #else
-typedef int32_t LONG_PTR, *PLONG_PTR, INT_PTR, *PINT_PTR;
-typedef uint32_t DWORD_PTR, UINT_PTR, *PUINT_PTR;
+//typedef int32_t LONG_PTR, *PLONG_PTR, INT_PTR, *PINT_PTR;
+//typedef uint32_t DWORD_PTR, UINT_PTR, *PUINT_PTR;
 #endif
 
 #if _MSC_VER

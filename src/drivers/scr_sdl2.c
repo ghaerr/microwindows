@@ -139,7 +139,6 @@ sdl_pollevents(void)
 			return 2;
 		if (event.type == SDL_QUIT)
 		{
-			_CrtDumpMemoryLeaks();
 			return 3;
 		}
 

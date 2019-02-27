@@ -30,7 +30,7 @@ int XScreenOfDisplay() { DPRINTF("XScreenOfDisplay called\n"); return 0; }
 int XFixesQueryExtension() { DPRINTF("XFixesQueryExtension called\n"); return 0; }
 int XFixesSelectSelectionInput() { DPRINTF("XFixesSelectSelectionInput called\n"); return 0; }
 /* following in IM.c but here until it compiles*/
-#if 0
+#if 1
 int XOpenIM() { DPRINTF("XOpenIM called\n"); return 0; }
 int XCloseIM() { DPRINTF("XCloseIM called\n"); return 0; }
 int XCreateIC() { DPRINTF("XCreateIC called\n"); return 0; }

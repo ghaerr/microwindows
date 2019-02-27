@@ -11,8 +11,12 @@
     <Link>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
-    <ClCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);X11_RGBTXT="/usr/share/X11/rgb.txt";WINEXTRA=1;WIN32DLL=1;EXPORTS=1;HAVE_FREETYPE_2_SUPPORT=1;_CRT_SECURE_NO_WARNINGS;NOMAIN=1;HAVE_MMAP=0;HAVE_SIGNAL=0;HAVE_FILEIO=1;MW_FEATURE_TIMERS=1;UPDATEREGIONS=1;ERASEMOVE=1;SCREEN_PIXTYPE=MWPF_TRUECOLORARGB;SCREEN_WIDTH=800;SCREEN_HEIGHT=800</PreprocessorDefinitions>
+    <ClCompile Condition="!$(Configuration.Contains('Wasm'))">
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);X11_RGBTXT="/usr/share/X11/rgb.txt";NO_SETENV=1;WINEXTRA=1;WIN32DLL=1;EXPORTS=1;HAVE_FREETYPE_2_SUPPORT=1;_CRT_SECURE_NO_WARNINGS;NOMAIN=1;HAVE_MMAP=0;HAVE_SIGNAL=0;HAVE_FILEIO=1;MW_FEATURE_TIMERS=1;UPDATEREGIONS=1;ERASEMOVE=1;SCREEN_PIXTYPE=MWPF_TRUECOLORARGB;SCREEN_WIDTH=800;SCREEN_HEIGHT=800</PreprocessorDefinitions>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+    </ClCompile>
+    <ClCompile Condition="$(Configuration.Contains('Wasm'))">
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);X11_RGBTXT="/usr/share/X11/rgb.txt";WINEXTRA=1;HAVE_FREETYPE_2_SUPPORT=1;NOMAIN=1;HAVE_MMAP=0;HAVE_SIGNAL=0;HAVE_FILEIO=1;MW_FEATURE_TIMERS=1;UPDATEREGIONS=1;ERASEMOVE=1;SCREEN_PIXTYPE=MWPF_TRUECOLORARGB;SCREEN_WIDTH=800;SCREEN_HEIGHT=800</PreprocessorDefinitions>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
     <Lib>

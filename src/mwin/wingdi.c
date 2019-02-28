@@ -1905,19 +1905,21 @@ StretchBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest,
 	src.y = nYOriginSrc;
 
 	/* if src screen DC, convert coords*/
-	/* FIXME: src clipping isn't checked, only one set of cliprects also*/
-	if(!MwIsMemDC(hdcSrc) && MwIsClientDC(hdcSrc)) {
-		if(!(hwnd = MwPrepareDC(hdcSrc)))
+	/* FIXME: src clipping doesn't check overlapped source window, only unmapped*/
+	if(!MwIsMemDC(hdcSrc)) {
+		hwnd = hdcSrc->hwnd;
+		if (!hwnd || hwnd->unmapcount)
 			return FALSE;
-		ClientToScreen(hwnd, &src);
+		if (MwIsClientDC(hdcSrc))
+			ClientToScreen(hwnd, &src);
 	}
-	/* if dst screen DC, convert coords and set clipping*/
-	/* FIXME: if dest is also screen, src clipping will be overwritten*/
-	if(!MwIsMemDC(hdcDest) && MwIsClientDC(hdcDest)) {
-		if(!(hwnd = MwPrepareDC(hdcDest)))
+
+	/* set dest clipping; if dst screen DC, convert coords*/
+	hwnd = MwPrepareDC(hdcDest);
+	if(!MwIsMemDC(hdcDest) && MwIsClientDC(hdcDest))
+		if (!hwnd)
 			return FALSE;
 		ClientToScreen(hwnd, &dst);
-	}
 
 	if (nWidthDest == nWidthSrc && nHeightDest == nHeightSrc) {
 		GdBlit(hdcDest->psd, dst.x, dst.y, nWidthDest, nHeightDest,

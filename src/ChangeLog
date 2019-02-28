@@ -1,3 +1,5 @@
+28 Feb 2019
+	* fix BitBlt bug when hdcDest is memory DC
 26 Feb 2019
 	* merged Rooz's final changes for WebAssembly/C#.Net project
 	* mapped MWBUTTON_L/R etc mouse buttons to same bits as Windows

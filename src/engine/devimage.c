@@ -239,7 +239,8 @@ GdLoadImageFromFile(char *path, int flags)
 /*
  * Convert 8bpp palettized image to RGBA
  */
-void convblit_pal8_rgba8888(PMWBLITPARMS gc)
+void
+convblit_pal8_rgba8888(PMWBLITPARMS gc)
 {
 	unsigned char *src = ((unsigned char *)gc->data) +     gc->srcy * gc->src_pitch + gc->srcx;
 	unsigned char *dst = ((unsigned char *)gc->data_out) + gc->dsty * gc->dst_pitch + gc->dstx * 4;
@@ -260,7 +261,7 @@ void convblit_pal8_rgba8888(PMWBLITPARMS gc)
 			d[0] = palette[pixval].r;
 			d[1] = palette[pixval].g;
 			d[2] = palette[pixval].b;
-			d[3] = (pixval == transcolor)? 0: 255;
+			d[3] = (pixval != transcolor || gc->transcolor == MWNOCOLOR)? 255: 0;
 
 			d += 4;
 		}

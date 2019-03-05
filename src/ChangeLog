@@ -1,3 +1,7 @@
+4 March 2019
+	* fix 8bpp palettized image to RGBA convblit when no transparent color from Hendrik van der Heijden
+	* add NDS native keyboard driver from Kenny Lee
+	* fix HZK getfontinfo() bug from walker_jun
 28 Feb 2019
 	* fix BitBlt bug when hdcDest is memory DC
 26 Feb 2019

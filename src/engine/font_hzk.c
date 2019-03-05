@@ -716,7 +716,7 @@ hzk_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo)
 	pfontinfo->lastchar = 0;
 	pfontinfo->fixed = TRUE;
 		
-	for(i=0; i<=256; i++)
+	for(i=0; i<256; i++)
 		pfontinfo->widths[i] = pf->afont_width;
 
 	return TRUE;

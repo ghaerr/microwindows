@@ -98,6 +98,7 @@ endif
 ifeq ($(ARCH), NDS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nds.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nds.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_nds.o
 endif
 
 # PSP

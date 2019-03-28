@@ -98,6 +98,7 @@ GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height, GR_COORD hotx,
 	return cid;
 }
 
+#if MW_FEATURE_IMAGES
 /* byte-reversing table for reversing X bitmaps */
 static const unsigned char revbyte[256] = {
 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -279,7 +280,9 @@ GrNewBitmapFromPixmap(GR_WINDOW_ID pixmap, GR_COORD x, GR_COORD y, GR_SIZE width
 	free(buffer);
 	return bitmap;
 }
+#endif /* MW_FEATURE_IMAGES*/
 
+#if DYNAMICREGIONS
 /**
  * Create a region from a monochrome pixmap
  */
@@ -342,6 +345,7 @@ GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y, GR_SIZE width, G
 
 	return r;
 }
+#endif /* DYNAMICREGIONS*/
 
 /**
  * Copy an event, must be used for CLIENT_DATA events

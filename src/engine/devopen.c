@@ -135,7 +135,9 @@ GdOpenScreenExt(MWBOOL clearflag)
 	//GdSetFont(GdCreateFont(psd, NULL, 0, 0, NULL));
 
 	GdSetDash(0, 0);  /* No dashing to start */
+#if MW_FEATURE_SHAPES
 	GdSetStippleBitmap(0,0,0);  /* No stipple to start */
+#endif
 
 #if !NOCLIPPING
 #if DYNAMICREGIONS

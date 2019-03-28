@@ -66,12 +66,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
         ShowWindow(hwnd,iCmdShow);
 
+#if !MULTIAPP
         while (GetMessage(&msg,NULL,0,0)) {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
         }      
-
-        return msg.wParam;
+#endif
+        return 0;
 }       
 
 LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)

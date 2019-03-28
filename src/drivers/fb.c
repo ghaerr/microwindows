@@ -108,6 +108,9 @@ select_fb_subdriver(PSD psd)
 	extern PSUBDRIVER fblinear32bgra[4];
 	extern PSUBDRIVER fblinear32rgba[4];
 
+#if SWIEROS
+	pdriver = fblinear32rgba;
+#else
 	/* FB_TYPE_PACKED_PIXELS*/
 	/* device and memory drivers are the same for packed pixels*/
 	if(psd->planes == 1) {
@@ -138,6 +141,7 @@ select_fb_subdriver(PSD psd)
 			break;
 		}
 	}
+#endif
 
 	if (!pdriver)
 		return NULL;

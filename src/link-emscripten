@@ -1,6 +1,0 @@
-# Link Microwindows demos for EMSCRIPTEN
-if [ "$EMSCRIPTEN" = "" ]
-then
-	source ~/emsdk/emsdk_env.sh
-fi
-make -f demos/Makefile-emscripten

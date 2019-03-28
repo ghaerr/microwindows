@@ -599,6 +599,7 @@ Rectangle(HDC hdc, int nLeft, int nTop, int nRight, int nBottom)
 	return TRUE;
 }
 
+#if MW_FEATURE_SHAPES
 BOOL WINAPI
 Ellipse(HDC hdc, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect)
 {
@@ -750,6 +751,7 @@ PolyPolygon(HDC hdc, CONST POINT *lpPoints, LPINT lpPolyCounts, int nCount)
 	}
 	return TRUE;
 }
+#endif /* MW_FEATURE_SHAPES*/
 
 int WINAPI
 FillRect(HDC hdc, CONST RECT *lprc, HBRUSH hbr)
@@ -1312,6 +1314,7 @@ MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 }
 #endif /* !OLD_DRAWTEXT*/
 
+#if MW_FEATURE_IMAGES
 /* Microwindows only*/
 BOOL WINAPI
 DrawDIB(HDC hdc,int x,int y,PMWIMAGEHDR pimage)
@@ -1330,6 +1333,7 @@ DrawDIB(HDC hdc,int x,int y,PMWIMAGEHDR pimage)
 	GdDrawImage(hdc->psd, pt.x, pt.y, pimage);
 	return TRUE;
 }
+#endif /* MW_FEATURE_IMAGES*/
 
 /* define color scheme: A (tan), B (winstd) or C (old)*/
 #if ELKS

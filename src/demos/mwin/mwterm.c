@@ -161,24 +161,25 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 
 int WINAPI
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
-	int nShowCmd)
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	MSG 	msg;
 	//extern MWIMAGEHDR image_car8;
 	extern MWIMAGEHDR image_dragon;
 
 	RegisterAppClass();
+#if !MULTIAPP
 	//MwSetDesktopWallpaper(&image_car8);
 	MwSetDesktopWallpaper(&image_dragon);
-
+#endif
 	CreateAppWindow();
 
-	/* type ESC to quit...*/
+#if !MULTIAPP
 	while(GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+#endif
 	return 0;
 }
 

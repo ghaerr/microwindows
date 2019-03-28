@@ -1976,7 +1976,7 @@ term_init(void)
     winsz.ws_col = col;
     winsz.ws_row = row;
     if ((pid = forkpty(&pipeh, pty, NULL, &winsz)) < 0)  {
-		GrError(wterm: can't create pty\r\n");
+		GrError("wterm: can't create pty\r\n");
 		perror("wterm");
 		sleep(2);
 		GrKillWindow(w1);
@@ -2004,7 +2004,7 @@ term_init(void)
 		execvp(shell, argv);
 
 		/* oops? */
-		GrError(wterm: can't start shell\r\n");
+		GrError("wterm: can't start shell\r\n");
 		sleep(3);
 		GrKillWindow(w1);
 		_exit(-1);

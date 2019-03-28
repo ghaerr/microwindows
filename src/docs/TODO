@@ -1,3 +1,9 @@
+look at MwInitializeDialogs for mwapp init and msvc init
+fix undefined externs in mwin MULTIAPP .so links (image lib, mwstretch.c)
+remove main in nanox/srvmain.c
+fix GdDelay for new EMSCRIPTEN
+nano-x event processing for shared event loop
+
 update demo-font, demo-aafont to test all CJK fonts
 win32 SetTimer/KillTimer idTimer is UINT_PTR, not UINT
 add ANDROID GdDelay()

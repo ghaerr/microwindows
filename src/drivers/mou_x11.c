@@ -11,11 +11,11 @@
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
 
-static int  	X11_Open(MOUSEDEVICE *pmd);
-static void 	X11_Close(void);
-static int  	X11_GetButtonInfo(void);
-static void	X11_GetDefaultAccel(int *pscale,int *pthresh);
-static int  	X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
+static int  	mouX11_Open(MOUSEDEVICE *pmd);
+static void 	mouX11_Close(void);
+static int  	mouX11_GetButtonInfo(void);
+static void	mouX11_GetDefaultAccel(int *pscale,int *pthresh);
+static int  	mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
 
 extern Display*     x11_dpy;
 extern int          x11_scr;
@@ -27,11 +27,11 @@ int          x11_setup_display(void);
 void         x11_handle_event(XEvent*);
 
 MOUSEDEVICE mousedev = {
-    X11_Open,
-    X11_Close,
-    X11_GetButtonInfo,
-    X11_GetDefaultAccel,
-    X11_Read,
+    mouX11_Open,
+    mouX11_Close,
+    mouX11_GetButtonInfo,
+    mouX11_GetDefaultAccel,
+    mouX11_Read,
     NULL,
     MOUSE_NORMAL	/* flags*/
 };
@@ -40,7 +40,7 @@ MOUSEDEVICE mousedev = {
  * Open up the mouse device.
  * Returns the fd if successful, or negative if unsuccessful.
  */
-static int X11_Open(MOUSEDEVICE *pmd)
+static int mouX11_Open(MOUSEDEVICE *pmd)
 {
     if (x11_setup_display() < 0)
 		return DRIVER_FAIL;
@@ -52,7 +52,7 @@ static int X11_Open(MOUSEDEVICE *pmd)
  * Close the mouse device.
  */
 static void
-X11_Close(void)
+mouX11_Close(void)
 {
     /* nop */
 }
@@ -61,7 +61,7 @@ X11_Close(void)
  * Get mouse buttons supported
  */
 static int
-X11_GetButtonInfo(void)
+mouX11_GetButtonInfo(void)
 {
 	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R;
 }
@@ -70,7 +70,7 @@ X11_GetButtonInfo(void)
  * Get default mouse acceleration settings
  */
 static void
-X11_GetDefaultAccel(int *pscale,int *pthresh)
+mouX11_GetDefaultAccel(int *pscale,int *pthresh)
 {
     *pscale = SCALE;
     *pthresh = THRESH;
@@ -84,7 +84,7 @@ X11_GetDefaultAccel(int *pscale,int *pthresh)
  * are returned.  This routine does not block.
  */
 static int
-X11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
+mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
     XEvent ev;
     int events = 0;

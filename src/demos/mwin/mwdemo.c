@@ -462,9 +462,12 @@ WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	return 0;
 }
 
-int WINAPI 
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
-	int nShowCmd)
+#if EMSCRIPTEN && MULTIAPP
+#define WinMain	mwdemo_WinMain
+#endif
+
+int WINAPI
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	MSG 	msg;
 	HWND	hwnd;
@@ -489,10 +492,12 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	CreateAppWindow();
 	CreateAppWindow();
 #endif
+#if !MULTIAPP
 	/* set background wallpaper*/
 	MwSetDesktopWallpaper(&image_microwin);
 	/*MwSetDesktopWallpaper(&image_under4);*/
 	/*MwSetDesktopWallpaper(&image_car8);*/
+#endif
 
 	hwnd = CreateAppWindow();
 	GetWindowRect(hwnd, &rc);
@@ -500,10 +505,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	MoveWindow(hwnd, rc.left, rc.top, rc.bottom-rc.top,
 		rc.right-rc.left, TRUE);
 
-	/* type ESC to quit...*/
+#if !MULTIAPP
 	while( GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+#endif
 	return 0;
 }

@@ -1,0 +1,185 @@
+#
+# Link Microwindows EMSCRIPTEN non-EMTERPRETIFY demo Makefile
+# 
+# Execute with "make -f src/link-emscripten-mwapp"
+# Run demos with ./emrun <appname>[.html]
+#
+# This may eventually be integrated into the demos/mwin and demos/nanox Makefiles
+#
+
+##############################  Configuration Section ###############################
+MULTIAPP=Y
+#MICROWIN=Y
+#NANOX=Y
+#NX11=Y
+
+##############################  Link Options Section ###############################
+MW_DIR_SRC = .
+MW_DIR_BIN = bin
+MW_DIR_OBJ = obj
+
+CC = emcc
+CFLAGS =
+LDFLAGS =
+
+DEFINES += -DEMSCRIPTEN=1 -DMULTIAPP=1
+DEFINES += -DHAVE_FREETYPE_2_SUPPORT=1	# for demo-aafont.c
+INCLUDEDIRS += -Iinclude
+CFLAGS += -O3
+# following line uses nx11's local X11 headers for compilation without X11 installed
+CFLAGS += -I$(MW_DIR_SRC)/nx11/X11-local
+LDFLAGS =
+
+CFLAGS += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s USE_LIBPNG=1
+#LDFLAGS += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
+LDFLAGS += -s WASM=0
+LDFLAGS += -s TOTAL_MEMORY=67108864
+LDFLAGS += -s ERROR_ON_UNDEFINED_SYMBOLS=0
+#LDFLAGS += -s ASSERTIONS=1
+#LDFLAGS += -s EMTERPRETIFY_ADVISE=1			# advise functions to whitelist
+
+# applications not following docs/EMSCRIPTEN.rules may have to add functions here
+WHITELIST = -s EMTERPRETIFY_WHITELIST='[ \
+				"_invoke_WinMain_Start", "_WinMain", "_MwSelect", "_GdDelay", \
+				"_GetMessage", "_PeekMessage", "_chkPaintMsg", \
+				"_main", "_GsSelect", "_GrDelay", "_GrFlush", \
+				"_GrGetNextEvent", "_GrGetNextEventTimeout", "_GrPeekEvent", "_GsCheckNextEvent", \
+				"_GrPeekWaitEvent", "_GrGetTypedEvent", "_GrGetTypedEventPred", \
+				"_XNextEvent", "_XPeekEvent", "_XFlush", "_XCloseDisplay", \
+				"_XMaskEvent", "_XCheckMaskEvent", "_XWindowEvent", "_XCheckWindowEvent", \
+				"_XCheckTypedEvent", "_XCheckTypedWindowEvent", "_XIfEvent", "__XIfEvent", \
+				"_XCheckIfEvent", \
+				"_J", "_DrawRoaches" \
+				"]'
+
+COMPILEARGS                   = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS) $(LDFLAGS)
+#COMPILEARGS_FULL_EMTERPRETIFY = $(CFLAGS) $(WARNINGS) $(INCLUDEDIRS) $(DEFINES) $(EXTRAFLAGS) $(LDFLAGS)
+
+DEMOFONTS = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@fonts/truetype 
+NX11FONTS = --preload-file $(MW_DIR_SRC)/fonts/em-fonts@/usr/share/fonts/truetype
+
+MWINLIBS = lib/libmwin.a
+NANOXLIBS = lib/libnano-X.a
+NX11LIBS = lib/libNX11.a $(NX11FONTS) $(NANOXLIBS)
+
+##############################  Demos to Build Section ###############################
+
+MWINDEMOS=			# win32 demos, require $(MWINLIBS)
+NANOXDEMOS=			# nanoX demos, require $(NANOXLIBS)
+NANOXCXXDEMOS=		# nanoX C++ demos, require $(NANOXLIBS)
+NANOXFONTDEMOS=		# nanoX demos, require $(NANOXLIBS) and $(DEMOFONTS) (fonts/em-fonts)
+NX11DEMOS=			# nx11 demos, require $(NX11LIBS)
+
+ifdef MULTIAPP
+MWAPP += $(MW_DIR_BIN)/mwapp.html
+MWAPPSRC = \
+	$(MW_DIR_SRC)/demos/mwin/mwapp.c\
+	$(MW_DIR_SRC)/demos/mwin/mwdemo.c\
+	$(MW_DIR_SRC)/demos/mwin/mwdemo2.c\
+	$(MW_DIR_SRC)/demos/mwin/mwmine.c\
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/mineflag.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/mineface.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minefacelost.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minebomb.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minedone.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minehitfalse.c
+endif
+
+ifdef MICROWIN
+MWINDEMOS += $(MW_DIR_BIN)/mwdemo.html
+MWINDEMOS += $(MW_DIR_BIN)/mwdemo2.html
+MWINDEMOS += $(MW_DIR_BIN)/mwlistcombo.html
+
+# specially linked MWIN demos
+MWDVETEST = $(MW_DIR_BIN)/mwdvetest.html
+MWDVETESTPRELOAD = --embed-file $(MW_DIR_SRC)/images/demos/mwin/mwdvetest/dveres.res@/this.res
+MWMINE = $(MW_DIR_BIN)/mwmine.html
+endif
+
+ifdef NANOX
+NANOXDEMOS += $(MW_DIR_BIN)/nxeyes.html
+NANOXDEMOS += $(MW_DIR_BIN)/nxroach.html
+NANOXDEMOS += $(MW_DIR_BIN)/demo-tilestipple.html
+NANOXDEMOS += $(MW_DIR_BIN)/demo-monobitmap.html
+NANOXDEMOS += $(MW_DIR_BIN)/demo-dash.html
+NANOXDEMOS += $(MW_DIR_BIN)/demo-polygon.html
+NANOXDEMOS += $(MW_DIR_BIN)/demo-region.html
+NANOXDEMOS += $(MW_DIR_BIN)/demo-grabkey.html
+
+# NANOX demos requiring fonts/em-font truetype fonts
+NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-ttfont.html
+NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-aafont.html
+NANOXFONTDEMOS += $(MW_DIR_BIN)/demo-font.html
+
+# specially linked NANOX demos
+DEMOCOMPOSITE = $(MW_DIR_BIN)/demo-composite.html
+DEMOCOMPOSITEPRELOAD = --embed-file $(MW_DIR_SRC)/images/demos/nanox/alphademo.png@images/demos/nanox/
+DEMOAGG = $(MW_DIR_BIN)/demo-agg.html
+#DEMOBLIT = $(MW_DIR_BIN)/demo-blit.html
+#DEMOBLITPRELOAD = --embed-file $(MW_DIR_SRC)/images/demos/nanox/alphademo.png@images/demos/nanox/ $(DEMOFONTS)
+endif
+
+ifdef NX11
+NX11DEMOS += $(MW_DIR_BIN)/williams.html
+NX11DEMOS += $(MW_DIR_BIN)/xdraw.html
+NX11DEMOS += $(MW_DIR_BIN)/xgreen.html
+NX11DEMOS += $(MW_DIR_BIN)/xhello.html
+NX11DEMOS += $(MW_DIR_BIN)/xtestarc.html
+endif
+
+##############################  Rules Section ###############################
+SPECIAL_LINKED_DEMOS = $(MWAPP) $(MWDVETEST) $(MWMINE) $(DEMOCOMPOSITE) $(DEMOAGG)
+
+all: $(MWINDEMOS) $(NANOXDEMOS) $(NANOXFONTDEMOS) $(SPECIAL_LINKED_DEMOS) $(NX11DEMOS)
+
+
+######## MWIN DEMOS ########
+$(MWINDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+######## MWIN SPECIAL LINKED DEMOS ########
+$(MWDVETEST): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS_FULL_EMTERPRETIFY) -o $@ $< $(MWINLIBS) $(MWDVETESTPRELOAD) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+# List of images for the mwmine demo.
+MINEIMAGES := \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/mineflag.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/mineface.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minefacelost.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minebomb.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minedone.c \
+	$(MW_DIR_SRC)/images/demos/mwin/mwmine/minehitfalse.c
+
+$(MWMINE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< $(MINEIMAGES) $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+$(MWAPP): $(MWAPPSRC)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $(MWAPPSRC) $(MWINLIBS)
+
+######## NANOX DEMOS ########
+$(NANOXDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+######## NANOX FONT DEMOS ########
+$(NANOXFONTDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+######## NANOX SPECIAL LINKED DEMOS ########
+$(DEMOCOMPOSITE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOCOMPOSITEPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+$(DEMOAGG): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.cpp
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< demos/nanox/agglite.cpp $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+
+######## NX11 DEMOS ########
+$(NX11DEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/contrib/nx11-test/%.c
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(COMPILEARGS) -o $@ $< $(NX11LIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary

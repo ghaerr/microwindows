@@ -25,6 +25,8 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/engine/devmouse.o \
 	$(MW_DIR_OBJ)/engine/devkbd.o \
 	$(MW_DIR_OBJ)/engine/devclip.o \
+
+MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/engine/devrgn.o \
 	$(MW_DIR_OBJ)/engine/devtimer.o \
 	$(MW_DIR_OBJ)/engine/devpal1.o \

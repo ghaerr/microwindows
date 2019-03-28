@@ -146,12 +146,13 @@ for (i = 0; i < n_carray; i++) {SendDlgItemMessage ( hwnd, ID_LIST4,  LB_ADDSTRI
         ShowWindow(hwnd,iCmdShow);
         UpdateWindow(hwnd);
 
+#if !MULTIAPP
         while (GetMessage(&msg,NULL,0,0)) {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
         }      
-
-        return msg.wParam;
+#endif
+        return 0;
 }       
 LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {       

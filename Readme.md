@@ -1,4 +1,4 @@
-
+running 
 # Microwindows or the Nano-X Window System
 
 Microwindows or Nano-X is a small graphical windowing system that implements
@@ -25,6 +25,7 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 
 ## Areas where Microwindows can be used are:
 
+- NEW: supports running multiple simultaneous Win32 apps on Linux, OS X and in a browser
 - run X11 or Win32 applications in a browser using EMSCRIPTEN
 - provide an excellent GUI for small embedded devices with FLTK, TinyWidgets or Win32
 - port the FLTK GUI toolkit to small platforms

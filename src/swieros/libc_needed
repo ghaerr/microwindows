@@ -1,0 +1,117 @@
+Undefined symbols for architecture x86_64:
+  "___assert_rtn", referenced from:
+      _GdGetColorRGB in smterm-bcd21c.o
+      _GdStretchBlit in smterm-bcd21c.o
+      _gen_allocatememgc in smterm-bcd21c.o
+      _gen_mapmemgc in smterm-bcd21c.o
+      _gen_freememgc in smterm-bcd21c.o
+      _x11_setup_display in smterm-bcd21c.o
+  "___error", referenced from:
+      _GsSelect in smterm-bcd21c.o
+  "___memcpy_chk", referenced from:
+      _doCharShape_UC16 in smterm-bcd21c.o
+      _doCharShape_UTF8 in smterm-bcd21c.o
+      _doCharBidi_UTF8 in smterm-bcd21c.o
+      _doCharBidi_UC16 in smterm-bcd21c.o
+      _GdSetCursor in smterm-bcd21c.o
+      _GrNewCursor in smterm-bcd21c.o
+      _GrSetGCStipple in smterm-bcd21c.o
+      ...
+  "___memset_chk", referenced from:
+      _doCharBidi_UTF8 in smterm-bcd21c.o
+      _doCharBidi_UC16 in smterm-bcd21c.o
+      _GrGetWindowInfo in smterm-bcd21c.o
+      _GrGetGCInfo in smterm-bcd21c.o
+      _GrGetFontInfo in smterm-bcd21c.o
+      _GrGetSystemPalette in smterm-bcd21c.o
+      _GrGetWMProperties in smterm-bcd21c.o
+      ...
+  "___sprintf_chk", referenced from:
+      _X11_setpalette in smterm-bcd21c.o
+      _lookup_color in smterm-bcd21c.o
+  "___stack_chk_fail", referenced from:
+      _GdCreateFont in smterm-bcd21c.o
+      _GdError in smterm-bcd21c.o
+      _GdText in smterm-bcd21c.o
+      _GdConvertEncoding in smterm-bcd21c.o
+      _GdGetTextSize in smterm-bcd21c.o
+      _X11_setpalette in smterm-bcd21c.o
+      _x11_error in smterm-bcd21c.o
+      ...
+  "___stack_chk_guard", referenced from:
+      _GdCreateFont in smterm-bcd21c.o
+      _GdError in smterm-bcd21c.o
+      _GdText in smterm-bcd21c.o
+      _GdConvertEncoding in smterm-bcd21c.o
+      _GdGetTextSize in smterm-bcd21c.o
+      _X11_setpalette in smterm-bcd21c.o
+      _x11_error in smterm-bcd21c.o
+      ...
+  "___strcpy_chk", referenced from:
+      _GrGetWMProperties in smterm-bcd21c.o
+  "___strncpy_chk", referenced from:
+      _GdCreateFont in smterm-bcd21c.o
+      _GsError in smterm-bcd21c.o
+  "___vsprintf_chk", referenced from:
+      _GdError in smterm-bcd21c.o
+  "_calloc", referenced from:
+      _GdCreatePixmap in smterm-bcd21c.o
+  "_exit", referenced from:
+      _GsTerminate in smterm-bcd21c.o
+      _GrDefaultErrorHandler in smterm-bcd21c.o
+     (maybe you meant: _wm_container_mouse_exit, _wm_mouse_exit )
+  "_free", referenced from:
+      _gen_freememgc in smterm-bcd21c.o
+      _X11_close in smterm-bcd21c.o
+      _GsInitialize in smterm-bcd21c.o
+      _GsDestroyWindow in smterm-bcd21c.o
+      _GsDestroyPixmap in smterm-bcd21c.o
+      _GrDestroyGC in smterm-bcd21c.o
+      _GrCreateFontEx in smterm-bcd21c.o
+      ...
+     (maybe you meant: _gen_freememgc)
+  "_getenv", referenced from:
+      _x11_setup_display in smterm-bcd21c.o
+  "_gettimeofday", referenced from:
+      _GdGetTickCount in smterm-bcd21c.o
+  "_main", referenced from:
+     implicit entry/start for main executable
+  "_malloc", referenced from:
+      _doCharShape_UC16 in smterm-bcd21c.o
+      _doCharShape_UTF8 in smterm-bcd21c.o
+      _doCharBidi_UTF8 in smterm-bcd21c.o
+      _doCharBidi_UC16 in smterm-bcd21c.o
+      _gen_allocatememgc in smterm-bcd21c.o
+      _gen_initpsd in smterm-bcd21c.o
+      _GsAcceptClientFd in smterm-bcd21c.o
+      ...
+  "_memcpy", referenced from:
+      _gen_allocatememgc in smterm-bcd21c.o
+      _GrServiceSelect in smterm-bcd21c.o
+      _GrPeekEvent in smterm-bcd21c.o
+      _GrCopyGC in smterm-bcd21c.o
+      _GrGetTypedEventPred in smterm-bcd21c.o
+      _GrCopyEvent in smterm-bcd21c.o
+  "_memset", referenced from:
+      _GrUnregisterInput in smterm-bcd21c.o
+      _GsSelect in smterm-bcd21c.o
+  "_printf", referenced from:
+      _GdBitmapByPoint in smterm-bcd21c.o
+  "_select$1050", referenced from:
+      _GdDelay in smterm-bcd21c.o
+      _GsSelect in smterm-bcd21c.o
+  "_strcasecmp", referenced from:
+      _GdCreateFont in smterm-bcd21c.o
+  "_strdup", referenced from:
+      _GrSetSelectionOwner in smterm-bcd21c.o
+  "_strlen", referenced from:
+      _GdError in smterm-bcd21c.o
+      _GdText in smterm-bcd21c.o
+      _GdConvertEncoding in smterm-bcd21c.o
+      _GdGetTextSize in smterm-bcd21c.o
+      _GrSetWMProperties in smterm-bcd21c.o
+      _GrGetWMProperties in smterm-bcd21c.o
+  "_write", referenced from:
+      _GdError in smterm-bcd21c.o
+ld: symbol(s) not found for architecture x86_64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

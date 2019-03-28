@@ -3,6 +3,10 @@
 
 LRESULT CALLBACK windowproc(HWND,UINT,WPARAM,LPARAM);
 
+#if EMSCRIPTEN && MULTIAPP
+#define WinMain	mwdemo2_WinMain
+#endif
+
 int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
@@ -127,12 +131,13 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdSh
 	ShowWindow(hwnd,iCmdShow);
 	UpdateWindow(hwnd);
 
+#if !MULTIAPP
 	while (GetMessage(&msg,NULL,0,0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}      
-
-	return msg.wParam;
+#endif
+	return 0;
 }       
 
 /* main window callback procedure*/
@@ -142,7 +147,7 @@ LRESULT CALLBACK windowproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	RECT rc;
 	int i;
-	HGDIOBJ oldfont;
+	//HGDIOBJ oldfont;
 
 	switch (iMsg) {
 	case WM_CREATE:
@@ -159,9 +164,9 @@ LRESULT CALLBACK windowproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			SetPixel(hdc,i,i,BLUE);
 
 		/* select chinese HZXFONT and draw text*/
-		oldfont = SelectObject(hdc,CreateFont(12, 0,0,0,0,0,0,0,0,0,0,0, FF_DONTCARE|DEFAULT_PITCH, "HZXFONT"));
+		//oldfont = SelectObject(hdc,CreateFont(12, 0,0,0,0,0,0,0,0,0,0,0, FF_DONTCARE|DEFAULT_PITCH, "HZXFONT"));
 		DrawText(hdc, " Hello World ", -1, &rc, DT_SINGLELINE|DT_CENTER|DT_VCENTER);
-		DeleteObject(SelectObject(hdc,oldfont));
+		//DeleteObject(SelectObject(hdc,oldfont));
 
 		EndPaint(hwnd,&ps);
 		break;

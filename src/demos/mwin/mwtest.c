@@ -40,12 +40,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         ShowWindow(hwnd,iCmdShow);
         UpdateWindow(hwnd);
         
+#if !MULTIAPP
         while (GetMessage(&msg,NULL,0,0)) {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
         }      
-        return msg.wParam;
+#endif
+        return 0;
 }       
+
 LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {       
         HDC hdc;
@@ -69,5 +72,5 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         default:
                 return DefWindowProc(hwnd,iMsg,wParam,lParam);
         }      
-        return (0);
+        return 0;
 }

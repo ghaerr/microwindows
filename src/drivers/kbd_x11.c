@@ -17,10 +17,10 @@
 #include <X11/XKBlib.h>
 #include "device.h"
 
-static int  X11_Open(KBDDEVICE *pkd);
-static void X11_Close(void);
-static void X11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
-static int  X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
+static int  kbdX11_Open(KBDDEVICE *pkd);
+static void kbdX11_Close(void);
+static void kbdX11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
+static int  kbdX11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 
 static int init_modstate(void);
 
@@ -38,10 +38,10 @@ int          x11_setup_display(void);
 #define X_NUM_MASK 0x10
 
 KBDDEVICE kbddev = {
-    X11_Open,
-    X11_Close,
-    X11_GetModifierInfo,
-    X11_Read,
+    kbdX11_Open,
+    kbdX11_Close,
+    kbdX11_GetModifierInfo,
+    kbdX11_Read,
     NULL
 };
 
@@ -49,7 +49,7 @@ KBDDEVICE kbddev = {
  * Open the keyboard.
  */
 static int
-X11_Open(KBDDEVICE *pkd)
+kbdX11_Open(KBDDEVICE *pkd)
 {
     if (x11_setup_display() < 0) {
 		EPRINTF("nano-X: Can't connect to X11 server\n");
@@ -68,7 +68,7 @@ X11_Open(KBDDEVICE *pkd)
  * This resets the terminal modes.
  */
 static void
-X11_Close(void)
+kbdX11_Close(void)
 {
     /* nop */
 }
@@ -77,7 +77,7 @@ X11_Close(void)
  * Return the possible modifiers for the keyboard.
  */
 static  void
-X11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
+kbdX11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 {
 	if (modifiers)
 		*modifiers = MWKMOD_SHIFT | MWKMOD_CTRL | MWKMOD_ALT;
@@ -92,7 +92,7 @@ X11_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
  * This is a non-blocking call.
  */
 static int
-X11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
+kbdX11_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	XEvent ev;
 	MWKEY mwkey;

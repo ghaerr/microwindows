@@ -323,8 +323,10 @@ DPRINTF("FREE 1 %lx\n", (long)ecp);			// FIXME
 		GsDestroyPixmap(wp->bgpixmap);
 	if (wp->buffer)
 		GsDestroyPixmap(wp->buffer);
+#if DYNAMICREGIONS
 	if (wp->clipregion)
 		GdDestroyRegion(wp->clipregion);
+#endif
 
 	/* Remove any grabbed keys for this window. */
 	keygrab_prev_next = &list_grabbed_keys;
@@ -1121,6 +1123,7 @@ havepixmap:
 		 * then make it the current one and define its clip rectangles.
 		 */
 		if (wp != clipwp || gcp->changed) {
+#if DYNAMICREGIONS
 			/* find user region for intersect*/
 			regionp = gcp->regionid? GsFindRegion(gcp->regionid): NULL;
 
@@ -1135,6 +1138,9 @@ havepixmap:
 				GdDestroyRegion(local);
 			} else
 				GsSetClipWindow(wp, regionp? regionp->rgn: NULL, gcp->mode & ~GR_MODE_DRAWMASK);
+#else
+				GsSetClipWindow(wp, NULL, gcp->mode & ~GR_MODE_DRAWMASK);
+#endif /* DYNAMICREGIONS*/
 		}
 	}
 
@@ -1168,6 +1174,7 @@ havepixmap:
 		GdSetMode(gcp->mode & GR_MODE_DRAWMASK);
 		GdSetUseBackground(gcp->usebackground);
 		
+#if MW_FEATURE_SHAPES
 		GdSetDash(&mask, &count);
 		GdSetFillMode(gcp->fillmode);
 		GdSetTSOffset(gcp->ts_offset.x, gcp->ts_offset.y);
@@ -1181,7 +1188,7 @@ havepixmap:
 			GdSetTilePixmap(gcp->tile.psd, gcp->tile.width, gcp->tile.height);
 			break;
 		}
-
+#endif
 		gcp->changed = GR_FALSE;
 	}
 
@@ -1237,8 +1244,11 @@ GsFindVisibleWindow(GR_COORD x, GR_COORD y)
 	while (wp) {
 		if (wp->realized &&
 			((!wp->clipregion && (wp->x <= x) && (wp->y <= y) &&
-		     (wp->x + wp->width > x) && (wp->y + wp->height > y)) ||
-			 (wp->clipregion && GdPtInRegion(wp->clipregion, x - wp->x, y - wp->y)))) {
+		     (wp->x + wp->width > x) && (wp->y + wp->height > y))
+#if DYNAMICREGIONS
+			 || (wp->clipregion && GdPtInRegion(wp->clipregion, x - wp->x, y - wp->y))
+#endif
+			)) {
 				retwp = wp;
 				wp = wp->children;
 				continue;

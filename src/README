@@ -1,5 +1,5 @@
 Microwindows Configuration Documentation
-February 4, 2019 g haerr <greg@censoft.com>
+March 27, 2019 g haerr <greg@censoft.com>
 
 To build Microwindows for desktop demonstration:
 
@@ -37,7 +37,7 @@ To build Microwindows for desktop demonstration:
 	configured with SHAREDLINK=Y. To link the demo programs
 	with Microwindows static libraries, set SHAREDLINK=N.
 
-	Microwindows by default builds both .a share libraries.
+	Microwindows by default builds both .a and shared libraries.
 	To not generate any shared libraries, set SHAREDLIBS=N.
 
 	For the EMSCRIPTEN port, check that the EMSDK is in ~/emsdk/, then compilation
@@ -47,6 +47,15 @@ To build Microwindows for desktop demonstration:
 	./emrun demo-aafont
 	./emrun mwdemo2
 	./emrun mwmine
+	./emrun mwapp		(multiple win32 apps simultaneously)
+
+	If MICROWINMULTIAPP=Y is set in config, win32 apps will be compiled as shared
+	libraries and be loadable dynamically, now supporting multiple simultaneous
+	application execution. These bin/mw*.so apps are loaded using the mwapp loader:
+
+	bin/mwapp					(demo win32 apps simultaneously)
+	bin/mwapp mwdemo2			(to run a single app)
+	bin/mwapp mwdemo mwterm		(to run just specified apps)
 
 5. Documentation is available in microwindows/doc and microwindows/src/docs directories.
 	Win32 API documentation is in docs/Win32API.html

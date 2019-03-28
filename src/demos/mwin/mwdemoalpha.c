@@ -147,8 +147,10 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 
 	RegisterAppClass();
 
+#if !MULTIAPP
 	/* set background wallpaper*/
 	MwSetDesktopWallpaper(&image_car8);
+#endif
 	UpdateWindow(GetDesktopWindow());
 
 	/* must update root window until alpha blend blitting
@@ -159,10 +161,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	CreateAppWindow();
 	CreateAppWindow();
 
-	/* type ESC to quit...*/
+#if !MULTIAPP
 	while( GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+#endif
 	return 0;
 }

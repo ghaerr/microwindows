@@ -448,7 +448,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 	 * move algorithms not requiring unmap/map
 	 */
 
-#if 1
+#if 1 && !SWIEROS
 	/* perform screen blit if topmost and mapped - no flicker!*/
 	if (wp->mapped && IsUnobscuredBySiblings(wp)
 		/* temp don't blit in portrait mode, still buggy*/
@@ -966,6 +966,8 @@ GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
 	SERVER_UNLOCK();
 }
 
+#if DYNAMICREGIONS
+
 static int nextregionid = 1000;
 /*
  * Allocate a new REGION with default parameters.
@@ -1431,6 +1433,7 @@ GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
 	
 	return ret_val;
 }
+#endif /* DYNAMICREGIONS*/
 
 static int nextfontid = 1000;
 /*
@@ -2641,6 +2644,7 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
+#if MW_FEATURE_SHAPES
 /*
  * Draw the boundary of an ellipse in the specified drawable with
  * the specified graphics context.  Integer only.
@@ -2729,7 +2733,9 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 
 	SERVER_UNLOCK();
 }
+#endif /* MW_FEATURE_SHAPES*/
 
+#if MW_FEATURE_IMAGES
 /*
  * Draw a rectangular area in the specified drawable using the specified
  * graphics, as determined by the specified bit map.  This differs from
@@ -2774,6 +2780,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_IMAGE_HDR
 
 	SERVER_UNLOCK();
 }
+#endif /* MW_FEATURE_IMAGES*/
 
 #if MW_FEATURE_IMAGES && HAVE_FILEIO
 /* Draw an image from a file*/
@@ -3169,6 +3176,7 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	SERVER_UNLOCK();
 }
 
+#if MW_FEATURE_SHAPES
 /*
  * Draw a polygon in the specified drawable using the specified
  * graphics context.  The polygon is only complete if the first
@@ -3222,6 +3230,7 @@ GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	SERVER_UNLOCK();
 }
 
+#if POLYREGIONS
 /*
  * Draw a filled polygon in the specified drawable using the specified
  * graphics context.  The last point may be a duplicate of the first
@@ -3274,6 +3283,8 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 
 	SERVER_UNLOCK();
 }
+#endif /* POLYREGIONS*/
+#endif /* MW_FEATURE_SHAPES*/
 
 /*
  * Draw a text string in the specified drawable using the
@@ -3567,21 +3578,21 @@ GrKillWindow(GR_WINDOW_ID wid)
  * GrGetSystemColor color scheme definitions
  */ 
 /* define color scheme: A (tan), B (winstd) or C (old)*/
-#define A
+#define SCHEME_A
 
 #define A_RGB(r,g,b)
 #define B_RGB(r,g,b)
 #define C_RGB(r,g,b)
 
-#ifdef A
+#ifdef SCHEME_A
 #undef  A_RGB
 #define A_RGB(r,g,b)	GR_RGB(r,g,b),
 #endif
-#ifdef B
+#ifdef SCHEME_B
 #undef  B_RGB
 #define B_RGB(r,g,b)	GR_RGB(r,g,b),
 #endif
-#ifdef C
+#ifdef SCHEME_C
 #undef  C_RGB
 #define C_RGB(r,g,b)	GR_RGB(r,g,b),
 #endif

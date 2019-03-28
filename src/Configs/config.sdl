@@ -57,6 +57,7 @@ TINYWIDGETS              = Y
 ####################################################################
 FBEMULATOR               = N
 MICROWINDEMO             = Y
+MICROWINMULTIAPP         = N
 NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N

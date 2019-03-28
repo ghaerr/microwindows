@@ -21,18 +21,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           WS_OVERLAPPEDWINDOW | WS_VISIBLE,
           100, 100, 220, 240, NULL, NULL, hInstance, NULL);
 
+#if !MULTIAPP
     while (GetMessage(&msg, NULL, 0, 0)) {
-    
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
-  return (int) msg.wParam;
+#endif
+  return 0;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,
-    WPARAM wParam, LPARAM lParam) {
-    
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
     switch(msg) {
   
         case WM_PAINT:

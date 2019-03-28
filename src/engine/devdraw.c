@@ -501,6 +501,7 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 	if (width <= 0 || height <= 0)
 		return;
 
+#if MW_FEATURE_SHAPES
 	/* Stipples and tiles have their own drawing routines */
 	if (gr_fillmode != MWFILL_SOLID) {
 		set_ts_origin(x1, y1);
@@ -509,6 +510,7 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 		GdFixCursor(psd);
 		return;
 	}
+#endif
 
 	/* See if the rectangle is either totally visible or totally
 	 * invisible. If so, then the rectangle drawing is easy.
@@ -537,6 +539,7 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 	GdFixCursor(psd);
 }
 
+#if MW_FEATURE_IMAGES
 /**
  * Return true if color is in palette
  *
@@ -1291,6 +1294,7 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, const MWI
 	parms.srcpsd = NULL;
 	GdConvBlitInternal(psd, &parms, convblit);
 }
+#endif /* MW_FEATURE_IMAGES*/
 
 /* slow draw a mono word msb bitmap, use precalced clipresult if passed*/
 void
@@ -1303,7 +1307,7 @@ GdBitmapByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 	int bitcount;			/* number of bits left in bitmap word */
 
 #if MWPIXEL_FORMAT != MWPF_PALETTE
-printf("Using slow GdBitmapByPoint\n");
+	DPRINTF("Using slow GdBitmapByPoint\n");
 #endif
 	if (width <= 0 || height <= 0)
 		return;

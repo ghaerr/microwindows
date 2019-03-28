@@ -26,6 +26,9 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 {
 	MWBLITFUNC convblit = NULL;
 
+#if SWIEROS
+	convblit = psd->BlitCopyMaskMonoWordMSB;	/* conv mono word MSBFirst*/
+#else
 	/* determine which blit to use*/
 	switch (data_format) {
 	case MWIF_ALPHABYTE:			/* ft2 alias, t1lib alias*/
@@ -77,7 +80,7 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 			convblit = convblit_copy_16bpp_16bpp;	/* 16bpp to 16bpp copy*/
 		break;
 	}
-
+#endif
 	return convblit;
 }
 

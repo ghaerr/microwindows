@@ -33,11 +33,11 @@
 /* Changeable limits and options*/
 #define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette,*/
 								/* (required for palette alpha blending)*/
-#define POLYREGIONS		1		/* =1 includes polygon regions*/
-#define DYNAMICREGIONS	1		/* =1 to use MWCLIPREGIONS*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
 #define USE_ALLOCA		1		/* =1 if alloca() is available*/
+
+/* debug options*/
 #define DEBUG_EXPOSE	0		/* =1 to flash yellow before painting expose areas*/
 #define DEBUG_BLIT		0		/* =1 to flash brown before painting areas with convblit*/
 #define DEBUG_NANOWM	0		/* =1 for window manager debug printfs*/
@@ -48,6 +48,17 @@
 
 #ifndef DEBUG
 #define DEBUG			0		/* =1 for debug output*/
+#endif
+
+/* options for smaller footprint*/
+#ifndef POLYREGIONS
+#define POLYREGIONS		1		/* =1 includes polygon regions*/
+#endif
+#ifndef DYNAMICREGIONS
+#define DYNAMICREGIONS	1		/* =1 to use more complex MWCLIPREGION regions*/
+#endif
+#ifndef MW_FEATURE_SHAPES
+#define MW_FEATURE_SHAPES 1		/* =1 for arc, ellipse, polygons, tile/stipple*/
 #endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/

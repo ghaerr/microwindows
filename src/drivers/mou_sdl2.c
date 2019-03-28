@@ -12,20 +12,20 @@
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
 
-static int  	sdl_Open(MOUSEDEVICE *pmd);
-static void 	sdl_Close(void);
-static int  	sdl_GetButtonInfo(void);
-static void	sdl_GetDefaultAccel(int *pscale,int *pthresh);
-static int  	sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
-static int  	sdl_Poll(void);
+static int  	mousdl_Open(MOUSEDEVICE *pmd);
+static void 	mousdl_Close(void);
+static int  	mousdl_GetButtonInfo(void);
+static void		mousdl_GetDefaultAccel(int *pscale,int *pthresh);
+static int  	mousdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
+static int  	mousdl_Poll(void);
 
 MOUSEDEVICE mousedev = {
-	sdl_Open,
-	sdl_Close,
-	sdl_GetButtonInfo,
-	sdl_GetDefaultAccel,
-	sdl_Read,
-	sdl_Poll,
+	mousdl_Open,
+	mousdl_Close,
+	mousdl_GetButtonInfo,
+	mousdl_GetDefaultAccel,
+	mousdl_Read,
+	mousdl_Poll,
 };
 
 int sdl_pollevents(void);
@@ -35,7 +35,7 @@ extern float sdlZoom;
  * Open the mouse
  */
 static int
-sdl_Open(MOUSEDEVICE *pmd)
+mousdl_Open(MOUSEDEVICE *pmd)
 {
 	return DRIVER_OKNOTFILEDESC;		/* ok, not file descriptor and not null mouse driver*/
 }
@@ -43,7 +43,7 @@ sdl_Open(MOUSEDEVICE *pmd)
 /*
  * Close the mouse
  */
-static void sdl_Close(void)
+static void mousdl_Close(void)
 {
 }
 
@@ -51,7 +51,7 @@ static void sdl_Close(void)
  * Get mouse buttons supported
  */
 static int
-sdl_GetButtonInfo(void)
+mousdl_GetButtonInfo(void)
 {
 	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_SCROLLUP | MWBUTTON_SCROLLDN;
 }
@@ -60,7 +60,7 @@ sdl_GetButtonInfo(void)
  * Get default mouse acceleration settings
  */
 static void
-sdl_GetDefaultAccel(int *pscale,int *pthresh)
+mousdl_GetDefaultAccel(int *pscale,int *pthresh)
 {
 	*pscale = SCALE;
 	*pthresh = THRESH;
@@ -70,7 +70,7 @@ sdl_GetDefaultAccel(int *pscale,int *pthresh)
  * Mouse poll entry point
  */
 static int
-sdl_Poll(void)
+mousdl_Poll(void)
 {
 	return (sdl_pollevents() == 1);	/* 1=mouse*/
 }
@@ -82,7 +82,7 @@ sdl_Poll(void)
  */
 
 static int
-sdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
+mousdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
 	int xm, ym;
 	int buttons = 0;

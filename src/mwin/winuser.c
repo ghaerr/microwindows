@@ -371,7 +371,9 @@ RegisterClass(CONST WNDCLASS *lpWndClass)
 	if(!pClass)
 		return 0;
 	*pClass = *lpWndClass;
+#if !WINEXTRA
 	pClass->lpfnWndProcBridge = NULL;	/* always init bridge to NULL*/
+#endif
 	strcpy(pClass->szClassName, lpWndClass->lpszClassName);
 	GdListAdd(&mwClassHead, &pClass->link);
 

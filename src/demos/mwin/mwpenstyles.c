@@ -41,13 +41,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
           WS_OVERLAPPEDWINDOW | WS_VISIBLE,
           100, 100, 430, 190, NULL, NULL, hInstance, NULL);
 
+#if !MULTIAPP
     while (GetMessage(&msg, NULL, 0, 0)) {
-    
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
-  return (int) msg.wParam;
+#endif
+  return 0;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {

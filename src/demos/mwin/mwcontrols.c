@@ -61,12 +61,13 @@
 	   ShowWindow(hwnd, nCmdShow);
 	   UpdateWindow(hwnd);
 
-	   while ( GetMessage(&Msg, NULL, 0, 0) > 0 )
-	   {
+#if !MULTIAPP
+	   while (GetMessage(&Msg, NULL, 0, 0)) {
 	      TranslateMessage(&Msg);
 	      DispatchMessage(&Msg);
 	   }
-	   return Msg.wParam;
+#endif
+	   return 0;
 	}
 
 	

@@ -1296,7 +1296,11 @@ CreateMainWindow(PMAINWINCREATE pCreateInfo)
 	return hwnd;
 }
 
-int WINAPI 
+#if EMSCRIPTEN && MULTIAPP
+#define WinMain	mwmine_WinMain
+#endif
+
+int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     MSG Msg;
@@ -1311,10 +1315,12 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShow
         return 0;
 
     ShowWindow(hMainWnd,SW_SHOWNORMAL);
+
+#if !MULTIAPP
     while( GetMessage(&Msg, NULL, 0, 0) ) {
         TranslateMessage (&Msg);
         DispatchMessage(&Msg);
     }
-
+#endif
     return 0;
 }

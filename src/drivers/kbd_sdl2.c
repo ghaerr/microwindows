@@ -9,18 +9,18 @@
 #include "device.h"
 #include <SDL2/SDL.h>
 
-static int  sdl_Open(KBDDEVICE *pkd);
-static void sdl_Close(void);
-static void sdl_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
-static int  sdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
-static int  sdl_Poll(void);
+static int  kbdsdl_Open(KBDDEVICE *pkd);
+static void kbdsdl_Close(void);
+static void kbdsdl_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
+static int  kbdsdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
+static int  kbdsdl_Poll(void);
 
 KBDDEVICE kbddev = {
-	sdl_Open,
-	sdl_Close,
-	sdl_GetModifierInfo,
-	sdl_Read,
-	sdl_Poll	
+	kbdsdl_Open,
+	kbdsdl_Close,
+	kbdsdl_GetModifierInfo,
+	kbdsdl_Read,
+	kbdsdl_Poll	
 };
 
 int sdl_pollevents(void);
@@ -31,7 +31,7 @@ static MWKEYMOD save_modifiers;
  * Open the keyboard.
  */
 static int
-sdl_Open(KBDDEVICE *pkd)
+kbdsdl_Open(KBDDEVICE *pkd)
 {
 
 	return DRIVER_OKNOTFILEDESC;		/* ok, not file descriptor and not null kbd driver*/
@@ -41,7 +41,7 @@ sdl_Open(KBDDEVICE *pkd)
  * Close the keyboard.
  */
 static void
-sdl_Close(void)
+kbdsdl_Close(void)
 {
 }
 
@@ -49,7 +49,7 @@ sdl_Close(void)
  * Keyboard poll entry point
  */
 static int
-sdl_Poll(void)
+kbdsdl_Poll(void)
 {
 	return (sdl_pollevents() >= 2);	/* 2=keyboard, 3=quit*/
 }
@@ -58,7 +58,7 @@ sdl_Poll(void)
  * Return the possible modifiers for the keyboard.
  */
 static void
-sdl_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
+kbdsdl_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 {
 	if (modifiers)
 		*modifiers = MWKMOD_SHIFT | MWKMOD_CTRL | MWKMOD_ALT;
@@ -202,7 +202,7 @@ fnkey_convert(int key)
  * This is a non-blocking call.
  */
 static int
-sdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
+kbdsdl_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	int mwkey, m;
 	SDL_Scancode sc;

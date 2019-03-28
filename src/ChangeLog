@@ -1,3 +1,19 @@
+27 March 2019
+	* support running multiple win32 applications simultaneously on Linux, OSX and browser
+		win32 apps compiled as shared libs and loaded dynamically into same process
+		uses new MICROWINMULTIAPP=Y config option
+		requires SHAREDLIBS=Y, replaces main loop from app into loader bin/mwapp
+		run 'bin/mwapp [optional dynamically loaded app list]' (see bin/*.so)
+		apps using modal dialog boxes and message boxes not yet supported
+23 March 2019
+	* created single-file nxterm in swieros/smterm.c for possible SWIEROS port
+	* added MW_FEATURES_SHAPES and corrected !DYNAMICREGIONS for small footprints
+5 March 2019
+	* add demos/Makefile-emscripten-mwapp for win32 apps, doesn't require EMTERPRETIFY
+		uses new demos/mwin/mwapp.c external non-blocking main loop
+		allows multiple simultaneous win32 apps and no emscripten emterpreter
+	* move win32 main() out of mwin/winmain.c into mwin/winmain2.c seperate library file
+	* don't initialize lpfnWndProcBridge to NULL in RegisterClass when WINEXTRA
 28 Feb 2019
 	* fix BitBlt bug when hdcDest is memory DC
 26 Feb 2019

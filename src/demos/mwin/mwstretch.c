@@ -68,8 +68,7 @@ ChildWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 
 int WINAPI 
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
-	int nShowCmd)
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	MSG 	msg;
 	RECT	rc;
@@ -86,10 +85,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 		10, 70, 200, 200,
 		GetDesktopWindow(), (HMENU)1001, NULL, NULL);
 
-	/* type ESC to quit...*/
+#if !MULTIAPP
 	while( GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+#endif
 	return 0;
 }

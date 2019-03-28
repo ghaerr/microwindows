@@ -109,11 +109,13 @@
 	      devices, and calling the WndProc function (i.e. the function specified above when we set
 	      wc.lpfnWndProc).
 	   */  
-	   while ( GetMessage(&Msg, NULL, 0, 0) > 0 )
-	   {
+
+#if !MULTIAPP
+	   while (GetMessage(&Msg, NULL, 0, 0)) {
 	      TranslateMessage(&Msg);
 	      DispatchMessage(&Msg);
 	   }
-	   return Msg.wParam;
+#endif
+	   return 0;
 	}
 

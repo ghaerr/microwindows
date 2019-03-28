@@ -56,6 +56,9 @@ GdError(const char *format, ...)
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);
+#elif SWIEROS
+	vsprintf(buf, format, args);
+	write(2, buf, strlen(buf));
 #elif HAVE_FILEIO
 	vsprintf(buf, format, args);
 	write(2, buf, strlen(buf));

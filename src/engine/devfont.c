@@ -491,9 +491,12 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	parms.srcpsd = NULL;
 	convblit = GdFindConvBlit(psd, MWIF_MONOWORDMSB, MWROP_COPY);
 
+#if !SWIEROS
 	if (flags & MWTF_DBCSMASK)
 		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
-	else pfont->fontprocs->GetTextSize(pfont, str, cc, flags, &width, &height, &base);
+	else
+#endif
+		pfont->fontprocs->GetTextSize(pfont, str, cc, flags, &width, &height, &base);
 
 	/* return if nothing to draw*/
 	if (width == 0 || height == 0)
@@ -531,9 +534,12 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	 	 * get the bitmaps from the specially-compiled-in font.  Otherwise,
 	 	 * we draw them using the normal pfont->fontprocs->GetTextBits.
 	 	 */
+#if !SWIEROS
 		if (flags & MWTF_DBCSMASK)
 			dbcs_gettextbits(pfont, *istr++, flags, &bitmap, &width, &height, &base);
-		else {
+		else
+#endif
+		{
 			int ch;
 
 			if (pfont->fontprocs->encoding == MWTF_UC16)
@@ -559,8 +565,11 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 				convblit(psd, &parms);
 			else
 				GdConversionBlit(psd, &parms);
-		} else
+		}
+#if !SWIEROS
+		else
 			GdBitmapByPoint(psd, x, y, width, height, bitmap, clip);
+#endif
 		x += width;
 	}
 
@@ -831,9 +840,12 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	}
 
 	/* calc height and width of string*/
+#if !SWIEROS
 	if (force_uc16)		/* if UC16 conversion forced, string is DBCS*/
 		dbcs_gettextsize(pfont, text, cc, flags, pwidth, pheight, pbase);
-	else pfont->fontprocs->GetTextSize(pfont, text, cc, flags, pwidth, pheight, pbase);
+	else
+#endif
+		pfont->fontprocs->GetTextSize(pfont, text, cc, flags, pwidth, pheight, pbase);
 
 	if (buf)
 		FREEA(buf);

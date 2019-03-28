@@ -56,12 +56,13 @@
 	   ShowWindow(hwnd, nCmdShow);
 	   UpdateWindow(hwnd);
 
-	   while ( GetMessage(&Msg, NULL, 0, 0) > 0 )
-	   {
+#if !MULTIAPP
+	   while (GetMessage(&Msg, NULL, 0, 0)) {
 	      TranslateMessage(&Msg);
 	      DispatchMessage(&Msg);
 	   }
-	   return Msg.wParam;
+#endif
+	   return 0;
 	}
 
 	
@@ -105,7 +106,7 @@ int EZplot(HWND hwnd, int x, int y)
       HPEN pen = CreatePen( PS_SOLID, 0, RGB(0,0,0) );
       HPEN prevpen = (HPEN) SelectObject(hdc, pen);
 
-      HBRUSH brush = CreateSolidBrush( RGB(255,255,200) );
+      HBRUSH brush = CreateSolidBrush(LTGRAY);
       HPEN prevbrush = (HPEN) SelectObject(hdc, brush);
 
       // draw rectangle with current pen, and fill it with current brush

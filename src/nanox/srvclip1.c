@@ -41,7 +41,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 	GR_BOOL		toomany;	/* TRUE if too many clip rects */
 	MWCLIPRECT	cliprects[MAX_CLIPRECTS];	/* clip rectangles */
 
-	if (wp->unmapcount || !wp->output || (wp == clipwp))
+	if (!wp->realized || !wp->output || (wp == clipwp))
 		return;
 
 	clipwp = wp;
@@ -118,7 +118,7 @@ GsSetClipWindow(GR_WINDOW *wp, MWCLIPREGION *userregion, int flags)
 			sibwp = pwp->children;
 
 		for (; sibwp != wp; sibwp = sibwp->siblings) {
-			if (sibwp->unmapcount || !sibwp->output)
+			if (!sibwp->realized || !sibwp->output)
 				continue;
 
 			bs = sibwp->bordersize;

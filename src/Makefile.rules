@@ -274,6 +274,10 @@ endif
 ##############################################################################
 # Handle application build options
 ##############################################################################
+ifeq ($(MICROWINMULTIAPP), Y)
+DEFINES += -DMULTIAPP=1
+endif
+
 ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
 DEFINES += -DHAVE_VNCSERVER=1
 ifneq ($(INCNVC),)

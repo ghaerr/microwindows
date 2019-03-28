@@ -47,13 +47,13 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwtest
 
 else
-DEMOS = $(MW_DIR_BIN)/mwdemo\
+MWAPP = $(MW_DIR_OBJ)/demos/mwin/mwapp.o
+DEMOS = \
+	$(MW_DIR_BIN)/mwapp\
+	$(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwdemo2\
-	$(MW_DIR_BIN)/mwdemoalpha\
-	$(MW_DIR_BIN)/mwstretch\
 	$(MW_DIR_BIN)/mwmine\
 	$(MW_DIR_BIN)/mwtest\
-	$(MW_DIR_BIN)/mwmsgbox\
 	$(MW_DIR_BIN)/mwsimple\
 	$(MW_DIR_BIN)/mwhello\
 	$(MW_DIR_BIN)/mwcontrols\
@@ -63,7 +63,13 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwbrush\
 	$(MW_DIR_BIN)/mwlistcombo\
 	$(MW_DIR_BIN)/mwmenu\
-	$(MW_DIR_BIN)/mwpenstyles\
+	$(MW_DIR_BIN)/mwpenstyles
+
+ifneq ($(MICROWINMULTIAPP), Y)
+DEMOS += \
+	$(MW_DIR_BIN)/mwstretch\
+	$(MW_DIR_BIN)/mwdemoalpha\
+	$(MW_DIR_BIN)/mwmsgbox\
 	$(MW_DIR_BIN)/mwopenfile
 
 DEMOS += $(MW_DIR_BIN)/mwdialog
@@ -71,6 +77,7 @@ RES   += $(MW_DIR_BIN)/mwdialog.res
 
 DEMOS += $(MW_DIR_BIN)/mwdvetest
 RES   += $(MW_DIR_BIN)/mwdvetest.res
+endif # !MICROWINMULTIAPP
 
 ifneq ($(ARCH), RTEMS)
 ifneq ($(ARCH), ANDROID)
@@ -93,7 +100,7 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 # These demos use a hardcoded link line.
 MWIN_DEMOS_WITH_NONSTANDARD_LINK := \
-	$(MW_DIR_BIN)/mwmine
+	$(MW_DIR_BIN)/mwmine $(MW_DIR_BIN)/mwapp
 
 # All other demos use a standard link line, that just
 # links against the Microwindows libraries.
@@ -102,12 +109,31 @@ MWIN_DEMOS_WITH_STANDARD_LINK := \
 
 $(MWIN_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/mwin/%.o $(MWINLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-#	echo $(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(MWINLIBS) $(LDFLAGS)
+ifeq ($(MICROWINMULTIAPP), Y)
+  ifeq ($(ARCH), MACOSX)
+	$(CC) -shared -fpic -undefined dynamic_lookup $< -o $@.so
+  else
+	$(CC) -shared -o $@.so -Wl,--whole-archive $< -Wl,--no-whole-archive
+  endif
+else # !MICROWINMULTIAPP
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(MWINLIBS) $(LDFLAGS)
+endif
 
 $(MW_DIR_BIN)/mwmine: $(MW_DIR_OBJ)/demos/mwin/mwmine.o $(MINEIMAGES) $(MWINLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+ifeq ($(MICROWINMULTIAPP), Y)
+  ifeq ($(ARCH), MACOSX)
+	$(CC) -shared -fpic -undefined dynamic_lookup $< $(MINEIMAGES) -o $@.so
+  else
+	$(CC) -shared -o $@.so -Wl,--whole-archive $< $(MINEIMAGES) -Wl,--no-whole-archive
+  endif
+else
 	$(CC) $(CFLAGS) $(LDFLAGS) $< $(MINEIMAGES) -o $@ $(MWINLIBS) $(LDFLAGS)
+endif
+
+$(MW_DIR_BIN)/mwapp: $(MWAPP) $(MWINLIBS) $(CONFIG)
+	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
+	$(CC) $(CFLAGS) $(LDFLAGS) $(MWAPP) -o $@ $(MWINLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/mwdialog.res:
 	ln -s ../images/demos/mwin/mwdialog/mwdialog.res $@

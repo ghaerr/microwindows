@@ -12,4 +12,5 @@ fi
 make
 
 # link libraries using external makefile
+make -f demos/Makefile-emscripten-mwapp
 make -f demos/Makefile-emscripten

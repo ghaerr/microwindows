@@ -1,5 +1,6 @@
 look at MwInitializeDialogs for mwapp init and msvc init
 fix undefined externs in mwin MULTIAPP .so links (image lib, mwstretch.c)
+test ALLEGRO with winmain2.c and shared libs
 remove main in nanox/srvmain.c
 fix GdDelay for new EMSCRIPTEN
 nano-x event processing for shared event loop

@@ -47,9 +47,7 @@ DEMOS = $(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwtest
 
 else
-MWAPP = $(MW_DIR_OBJ)/demos/mwin/mwapp.o
 DEMOS = \
-	$(MW_DIR_BIN)/mwapp\
 	$(MW_DIR_BIN)/mwdemo\
 	$(MW_DIR_BIN)/mwdemo2\
 	$(MW_DIR_BIN)/mwmine\
@@ -65,7 +63,11 @@ DEMOS = \
 	$(MW_DIR_BIN)/mwmenu\
 	$(MW_DIR_BIN)/mwpenstyles
 
-ifneq ($(MICROWINMULTIAPP), Y)
+
+ifeq ($(MICROWINMULTIAPP), Y)
+MWAPP = $(MW_DIR_OBJ)/demos/mwin/mwapp.o
+DEMOS += $(MW_DIR_BIN)/mwapp
+else
 DEMOS += \
 	$(MW_DIR_BIN)/mwstretch\
 	$(MW_DIR_BIN)/mwdemoalpha\
@@ -133,7 +135,7 @@ endif
 
 $(MW_DIR_BIN)/mwapp: $(MWAPP) $(MWINLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $(MWAPP) -o $@ $(MWINLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(MWAPP) -o $@ $(MWINLIBS) $(LDFLAGS) -ldl
 
 $(MW_DIR_BIN)/mwdialog.res:
 	ln -s ../images/demos/mwin/mwdialog/mwdialog.res $@

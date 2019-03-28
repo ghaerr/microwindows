@@ -28,7 +28,6 @@ include $(MW_DIR_SRC)/drivers/Objects.rules
 OBJS := \
 	$(MW_CORE_OBJS) \
 	$(MW_DIR_OBJ)/mwin/winmain.o \
-	$(MW_DIR_OBJ)/mwin/winmain2.o \
 	$(MW_DIR_OBJ)/mwin/winuser.o \
 	$(MW_DIR_OBJ)/mwin/wingdi.o \
 	$(MW_DIR_OBJ)/mwin/winexpos.o \
@@ -39,6 +38,11 @@ OBJS := \
 	$(MW_DIR_OBJ)/mwin/winfont.o \
 	$(MW_DIR_OBJ)/mwin/winsbar.o \
 	$(MW_DIR_OBJ)/mwin/winres.o
+
+ifneq ($(MICROWINMULTIAPP), Y)
+# adding this on Linux with shared libs errors requiring WinMain from winmain2.o
+OBJS += $(MW_DIR_OBJ)/mwin/winmain2.o
+endif
 
 OBJS += \
 	$(MW_DIR_OBJ)/mwin/winlib/draw3d.o \

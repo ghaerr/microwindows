@@ -1,3 +1,6 @@
+28 March 2019
+	* fix Linux bin/mwapp build and remove mwin/winmain2.c on shared libs and multiapp
+	* don't build bin/mwapp unless MICROWINMULTIAPP=Y
 27 March 2019
 	* support running multiple win32 applications simultaneously on Linux, OSX and browser
 		win32 apps compiled as shared libs and loaded dynamically into same process

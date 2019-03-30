@@ -1,5 +1,5 @@
 30 March 2019
-	* create preprocessor-free source (except #define) for swieros port in src/swieros
+	* create preprocessor-free source (except #define) for swieros port in src/swieros/smterm.c
 	* add following options for smaller footprint:
 		MW_FEATURE_INTL for DBCS, utf8/uc16 etc font/encoding inclusion
 		MW_FEATURE_PALETTE to support palette operations

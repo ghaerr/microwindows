@@ -90,20 +90,26 @@
 //#include "nanox/srvpoll.c"			// for swieros
 
 /* framebuffer screen driver*/
-//#include "drivers/scr_fbe.c"			// for swieros
-//#include "drivers/mou_null.c"
-//#include "drivers/kbd_null.c"
+#include "drivers/scr_fbe.c"			// for swieros or unix with x11 framebuffer emulator
+#include "drivers/mou_null.c"
+#include "drivers/kbd_null.c"
 
 /* X11 screen driver*/
-//#define DRIVER_OKFILEDESC(fd)	fd
+#define DRIVER_OKFILEDESC(fd)	fd
+#define PIXEL888RED8(pixelval)          (((pixelval) >> 16) & 0xff)
+#define PIXEL888GREEN8(pixelval)        (((pixelval) >> 8) & 0xff)
+#define PIXEL888BLUE8(pixelval)         ((pixelval) & 0xff)
+#define PIXEL888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
+#define PIXEL888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
+#define PIXEL888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
 //#include "../drivers/scr_x11.c"
 //#include "../drivers/mou_x11.c"
 //#include "../drivers/kbd_x11.c"
 
 /* SDL screen driver*/
-#include "../drivers/scr_sdl2.c"
-#include "../drivers/mou_sdl2.c"
-#include "../drivers/kbd_sdl2.c"
+//#include "../drivers/scr_sdl2.c"
+//#include "../drivers/mou_sdl2.c"
+//#include "../drivers/kbd_sdl2.c"
 
 /* swieros C lib extras*/
 //#include "swutil.c"					// for swieros

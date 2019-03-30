@@ -66,6 +66,9 @@
 #ifndef MW_FEATURE_INTL
 #define MW_FEATURE_INTL	1		/* =1 for dbcs, utf8/uc16 etc font/encoding support*/
 #endif
+#ifndef MW_FEATURE_PALETTE
+#define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
+#endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/
 #ifndef HAVE_SELECT

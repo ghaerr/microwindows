@@ -1,5 +1,3 @@
-#ifndef	_NANO_X_H
-#define	_NANO_X_H
 /* Copyright (c) 1999, 2000, 2001, 2002, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
@@ -8,11 +6,6 @@
  * Nano-X public definition header file:  user applications should
  * include only this header file.
  */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "mwtypes.h"			/* exported engine MW* types*/
 
 /*
  * The following typedefs are inherited from the Microwindows
@@ -78,8 +71,8 @@ typedef struct {
 #define	GR_ROOT_WINDOW_ID	((GR_WINDOW_ID) 1)
 
 /* GR_COLOR color constructor */
-#define GR_RGB(r,g,b)		MWRGB(r,g,b)
-#define GR_ARGB(a,r,g,b)	MWARGB(a,r,g,b)
+#define GR_RGB				MWRGB
+#define GR_ARGB				MWARGB
 
 /* Drawing modes for GrSetGCMode */
 #define	GR_MODE_COPY		MWROP_COPY			/* src*/
@@ -172,16 +165,6 @@ typedef struct {
 /* GrNewPixmapFromData flags*/
 #define GR_BMDATA_BYTEREVERSE	01	/* byte-reverse bitmap data*/
 #define GR_BMDATA_BYTESWAP	02	/* byte-swap bitmap data*/
-
-#if 0 /* don't define unimp'd flags*/
-/* Window property flags */
-#define GR_WM_PROP_NOICONISE	0x08	/* don't let user iconise window */
-#define GR_WM_PROP_NOWINMENU	0x10	/* don't display a window menu button */
-#define GR_WM_PROP_NOROLLUP	0x20	/* don't let user roll window up */
-#define GR_WM_PROP_ONTOP	0x200	/* try to keep window always on top */
-#define GR_WM_PROP_STICKY	0x400	/* keep window after desktop change */
-#define GR_WM_PROP_DND		0x2000	/* accept drag and drop icons */
-#endif
 
 /* Window properties*/
 #define GR_WM_PROPS_NOBACKGROUND 0x00000001L /* Don't draw window background*/
@@ -337,32 +320,30 @@ typedef struct {
 #define GR_EVENT_TYPE_PORTRAIT_CHANGED  22
 
 /* Event masks */
-#define	GR_EVENTMASK(n)			(((GR_EVENT_MASK) 1) << (n))
-
-#define	GR_EVENT_MASK_NONE		GR_EVENTMASK(GR_EVENT_TYPE_NONE)
+#define	GR_EVENT_MASK_NONE		(1 << GR_EVENT_TYPE_NONE)
 #define	GR_EVENT_MASK_ERROR		0x80000000L
-#define	GR_EVENT_MASK_EXPOSURE		GR_EVENTMASK(GR_EVENT_TYPE_EXPOSURE)
-#define	GR_EVENT_MASK_BUTTON_DOWN	GR_EVENTMASK(GR_EVENT_TYPE_BUTTON_DOWN)
-#define	GR_EVENT_MASK_BUTTON_UP		GR_EVENTMASK(GR_EVENT_TYPE_BUTTON_UP)
-#define	GR_EVENT_MASK_MOUSE_ENTER	GR_EVENTMASK(GR_EVENT_TYPE_MOUSE_ENTER)
-#define	GR_EVENT_MASK_MOUSE_EXIT	GR_EVENTMASK(GR_EVENT_TYPE_MOUSE_EXIT)
-#define	GR_EVENT_MASK_MOUSE_MOTION	GR_EVENTMASK(GR_EVENT_TYPE_MOUSE_MOTION)
-#define	GR_EVENT_MASK_MOUSE_POSITION	GR_EVENTMASK(GR_EVENT_TYPE_MOUSE_POSITION)
-#define	GR_EVENT_MASK_KEY_DOWN		GR_EVENTMASK(GR_EVENT_TYPE_KEY_DOWN)
-#define	GR_EVENT_MASK_KEY_UP		GR_EVENTMASK(GR_EVENT_TYPE_KEY_UP)
-#define	GR_EVENT_MASK_FOCUS_IN		GR_EVENTMASK(GR_EVENT_TYPE_FOCUS_IN)
-#define	GR_EVENT_MASK_FOCUS_OUT		GR_EVENTMASK(GR_EVENT_TYPE_FOCUS_OUT)
-#define	GR_EVENT_MASK_FDINPUT		GR_EVENTMASK(GR_EVENT_TYPE_FDINPUT)
-#define	GR_EVENT_MASK_UPDATE		GR_EVENTMASK(GR_EVENT_TYPE_UPDATE)
-#define	GR_EVENT_MASK_CHLD_UPDATE	GR_EVENTMASK(GR_EVENT_TYPE_CHLD_UPDATE)
-#define	GR_EVENT_MASK_CLOSE_REQ		GR_EVENTMASK(GR_EVENT_TYPE_CLOSE_REQ)
-#define	GR_EVENT_MASK_TIMEOUT		GR_EVENTMASK(GR_EVENT_TYPE_TIMEOUT)
-#define GR_EVENT_MASK_SCREENSAVER	GR_EVENTMASK(GR_EVENT_TYPE_SCREENSAVER)
-#define GR_EVENT_MASK_CLIENT_DATA_REQ	GR_EVENTMASK(GR_EVENT_TYPE_CLIENT_DATA_REQ)
-#define GR_EVENT_MASK_CLIENT_DATA	GR_EVENTMASK(GR_EVENT_TYPE_CLIENT_DATA)
-#define GR_EVENT_MASK_SELECTION_CHANGED GR_EVENTMASK(GR_EVENT_TYPE_SELECTION_CHANGED)
-#define GR_EVENT_MASK_TIMER             GR_EVENTMASK(GR_EVENT_TYPE_TIMER)
-#define GR_EVENT_MASK_PORTRAIT_CHANGED  GR_EVENTMASK(GR_EVENT_TYPE_PORTRAIT_CHANGED)
+#define	GR_EVENT_MASK_EXPOSURE		(1 << GR_EVENT_TYPE_EXPOSURE)
+#define	GR_EVENT_MASK_BUTTON_DOWN	(1 << GR_EVENT_TYPE_BUTTON_DOWN)
+#define	GR_EVENT_MASK_BUTTON_UP		(1 << GR_EVENT_TYPE_BUTTON_UP)
+#define	GR_EVENT_MASK_MOUSE_ENTER	(1 << GR_EVENT_TYPE_MOUSE_ENTER)
+#define	GR_EVENT_MASK_MOUSE_EXIT	(1 << GR_EVENT_TYPE_MOUSE_EXIT)
+#define	GR_EVENT_MASK_MOUSE_MOTION	(1 << GR_EVENT_TYPE_MOUSE_MOTION)
+#define	GR_EVENT_MASK_MOUSE_POSITION	(1 << GR_EVENT_TYPE_MOUSE_POSITION)
+#define	GR_EVENT_MASK_KEY_DOWN		(1 << GR_EVENT_TYPE_KEY_DOWN)
+#define	GR_EVENT_MASK_KEY_UP		(1 << GR_EVENT_TYPE_KEY_UP)
+#define	GR_EVENT_MASK_FOCUS_IN		(1 << GR_EVENT_TYPE_FOCUS_IN)
+#define	GR_EVENT_MASK_FOCUS_OUT		(1 << GR_EVENT_TYPE_FOCUS_OUT)
+#define	GR_EVENT_MASK_FDINPUT		(1 << GR_EVENT_TYPE_FDINPUT)
+#define	GR_EVENT_MASK_UPDATE		(1 << GR_EVENT_TYPE_UPDATE)
+#define	GR_EVENT_MASK_CHLD_UPDATE	(1 << GR_EVENT_TYPE_CHLD_UPDATE)
+#define	GR_EVENT_MASK_CLOSE_REQ		(1 << GR_EVENT_TYPE_CLOSE_REQ)
+#define	GR_EVENT_MASK_TIMEOUT		(1 << GR_EVENT_TYPE_TIMEOUT)
+#define GR_EVENT_MASK_SCREENSAVER	(1 << GR_EVENT_TYPE_SCREENSAVER)
+#define GR_EVENT_MASK_CLIENT_DATA_REQ	(1 << GR_EVENT_TYPE_CLIENT_DATA_REQ)
+#define GR_EVENT_MASK_CLIENT_DATA	(1 << GR_EVENT_TYPE_CLIENT_DATA)
+#define GR_EVENT_MASK_SELECTION_CHANGED (1 << GR_EVENT_TYPE_SELECTION_CHANGED)
+#define GR_EVENT_MASK_TIMER             (1 << GR_EVENT_TYPE_TIMER)
+#define GR_EVENT_MASK_PORTRAIT_CHANGED  (1 << GR_EVENT_TYPE_PORTRAIT_CHANGED)
 /* Event mask does not affect GR_EVENT_TYPE_HOTKEY_DOWN and
  * GR_EVENT_TYPE_HOTKEY_UP, hence no masks for those events. */
 
@@ -568,13 +549,13 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 
 /* GR_BITMAP macros*/
 /* size of GR_BITMAP image in words*/
-#define	GR_BITMAP_SIZE(width, height)	MWIMAGE_SIZE(width, height)
-#define	GR_BITMAPBITS			MWIMAGE_BITSPERIMAGE
-#define	GR_BITVALUE(n)			MWIMAGE_BITVALUE(n)
-#define	GR_FIRSTBIT			MWIMAGE_FIRSTBIT
-#define	GR_NEXTBIT(m)			MWIMAGE_NEXTBIT(m)
-#define	GR_TESTBIT(m)			MWIMAGE_TESTBIT(m)
-#define	GR_SHIFTBIT(m)			MWIMAGE_SHIFTBIT(m)
+#define	GR_BITMAP_SIZE				MWIMAGE_SIZE
+//#define	GR_BITMAPBITS			MWIMAGE_BITSPERIMAGE
+//#define	GR_BITVALUE(n)			MWIMAGE_BITVALUE(n)
+//#define	GR_FIRSTBIT			MWIMAGE_FIRSTBIT
+//#define	GR_NEXTBIT(m)			MWIMAGE_NEXTBIT(m)
+//#define	GR_TESTBIT(m)			MWIMAGE_TESTBIT(m)
+//#define	GR_SHIFTBIT(m)			MWIMAGE_SHIFTBIT(m)
 
 /* GrGrabKey() types. */
 
@@ -699,25 +680,6 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 /**
  * Error strings per error number
  */
-#define GR_ERROR_STRINGS		\
-	"",				\
-	"Bad window id: %d\n",		\
-	"Bad graphics context: %d\n",	\
-	"Bad cursor size\n",		\
-	"Out of server memory\n",	\
-	"Bad window size: %d\n",	\
-	"Keyboard error\n",		\
-	"Mouse error\n",		\
-	"Input only window: %d\n",	\
-	"Illegal on root window: %d\n",	\
-	"Clipping overflow\n",		\
-	"Screen error\n",		\
-	"Unmapped focus window: %d\n",	\
-	"Bad drawing mode gc: %d\n",    \
-        "Bad line attribute gc: %d\n",  \
-        "Bad fill mode gc: %d\n",       \
-	"Bad region id: %d\n",
-        
 extern const char *nxErrorStrings[];
 
 /* Public graphics routines. */
@@ -936,51 +898,24 @@ void		GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo);
 GR_CURSOR_ID GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height,
 				GR_COORD hotx, GR_COORD hoty, GR_COLOR foreground,
 				GR_COLOR background, GR_BITMAP *fbbitmap, GR_BITMAP *bgbitmap);
-//#define GrSetBorderColor					GrSetWindowBorderColor
-#define GrCreateFont(name,height,plogfont)	GrCreateFontEx(name,height,height,plogfont)
-#define GrSetFontSize(fontid,height)		GrSetFontSizeEx(fontid,height,height)
-#define GrNewPixmap(width,height,pixels)	GrNewPixmapEx(width,height,0,pixels)
+//#define GrCreateFont(name,height,plogfont)	GrCreateFontEx(name,height,height,plogfont)
+//#define GrSetFontSize(fontid,height)		GrSetFontSizeEx(fontid,height,height)
+//#define GrNewPixmap(width,height,pixels)	GrNewPixmapEx(width,height,0,pixels)
 
 /* useful function macros*/
 void		GrDrawImageToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x,
 			GR_COORD y, GR_SIZE width, GR_SIZE height,
 			GR_IMAGE_ID imageid);
-#define GrClearWindow(wid,exposeflag)		GrClearArea(wid,0,0,0,0,exposeflag)
-#define GrFlushWindow(wid)					GrClearWindow(wid,2)
-#define GrDrawImageToFit(id,gc,x,y,width,height,imageid) \
-	GrDrawImagePartToFit(id,gc,x,y,width,height,0,0,0,0,imageid)
-#define GrSetWindowBackgroundColor(wid,color) \
-		{	GR_WM_PROPERTIES props;	\
-			props.flags = GR_WM_FLAGS_BACKGROUND; \
-			props.background = color; \
-			GrSetWMProperties(wid, &props); \
-		}
-#define GrSetWindowBorderSize(wid,width) \
-		{	GR_WM_PROPERTIES props;	\
-			props.flags = GR_WM_FLAGS_BORDERSIZE; \
-			props.bordersize = width; \
-			GrSetWMProperties(wid, &props); \
-		}
-#define GrSetWindowBorderColor(wid,color) \
-		{	GR_WM_PROPERTIES props;	\
-			props.flags = GR_WM_FLAGS_BORDERCOLOR; \
-			props.bordercolor = color; \
-			GrSetWMProperties(wid, &props); \
-		}
-#define GrSetWindowTitle(wid,name) \
-		{	GR_WM_PROPERTIES props;	\
-			props.flags = GR_WM_FLAGS_TITLE; \
-			props.title = (char *)name; \
-			GrSetWMProperties(wid, &props); \
-		}
+void GrClearWindow(GR_WINDOW_ID wid,int exposeflag);
+void GrFlushWindow(GR_WINDOW_ID wid);
+void GrSetWindowBackgroundColor(GR_WINDOW_ID wid,GR_COLOR color);
+void GrSetWindowBorderSize(GR_WINDOW_ID wid,GR_COORD width);
+void GrSetWindowBorderColor(GR_WINDOW_ID wid,GR_COLOR color);
+void GrSetWindowTitle(GR_WINDOW_ID wid,char *name);
 
 /* library window manager public routines*/
 void wm_init(void);
 int wm_handle_event(GR_EVENT *event);
-
-#ifdef __cplusplus
-}
-#endif
 
 /* client side event queue (client.c local)*/
 typedef struct event_list EVENT_LIST;
@@ -995,68 +930,3 @@ typedef struct {
 	unsigned char *bufmax;		/* max buffer location*/
 	unsigned char *buffer;		/* request buffer*/
 } REQBUF;
-
-#if RTEMS
-  /* RTEMS requires rtems_main()*/
-  int rtems_main(int, char **);
-  #define main	rtems_main
-#endif
-
-#if __ECOS
-#include <sys/select.h>
-#include <cyg/kernel/kapi.h>
-/*
- * In a single process, multi-threaded environment, we need to keep
- * all static data of shared code in a structure, with a pointer to
- * the structure to be stored in thread-local storage
- */
-typedef struct {                                /* Init to: */
-    int                 _nxSocket;              /*  -1 */
-    MWMUTEX	 	_nxGlobalLock;
-    int                 _storedevent;           /* 0 */
-    GR_EVENT            _storedevent_data;      /* no init(0) */
-    int                 _regfdmax;              /* -1 */
-    fd_set		_regfdset;		/* FD_ZERO */
-    GR_FNCALLBACKEVENT  _GrErrorFunc;           /* GrDefaultErrorHandler */
-    REQBUF              _reqbuf;
-    EVENT_LIST          *_evlist;
-} ecos_nanox_client_data;
-
-extern int     ecos_nanox_client_data_index;
-
-#define ACCESS_PER_THREAD_DATA()                                        \
-    ecos_nanox_client_data *data = (ecos_nanox_client_data*)            \
-        cyg_thread_get_data((cyg_ucount32)ecos_nanox_client_data_index);
-
-#define INIT_PER_THREAD_DATA()                                                  \
-    {                                                                           \
-        ecos_nanox_client_data *dptr = malloc(sizeof(ecos_nanox_client_data));  \
-        ecos_nanox_client_data_index = data;                                    \
-        dptr->_nxSocket = -1;                                                   \
-		dptr->nxGlobalLock = 0;													\
-        dptr->_storedevent = 0;                                                 \
-        dptr->_regfdmax = -1;                                                   \
-        FD_ZERO(&dptr->_regfdset);                                              \
-        dptr->_GrErrorFunc = GrDefaultErrorHandler;                             \
-        dptr->_reqbuf.bufptr = NULL;                                            \
-        dptr->_reqbuf.bufmax = NULL;                                            \
-        dptr->_reqbuf.buffer = NULL;                                            \
-        dptr->_evlist = NULL;                                                   \
-        cyg_thread_set_data(ecos_nanox_client_data_index,(CYG_ADDRWORD)dptr);   \
-    }
-
-#define nxSocket                (data->_nxSocket)
-#define nxGlobalLock            (data->_nxGlobalLock)
-#define storedevent             (data->_storedevent)
-#define storedevent_data        (data->_storedevent_data)
-#define regfdmax                (data->_regfdmax)
-#define regfdset                (data->_regfdset)
-#define ErrorFunc               (data->_GrErrorFunc)
-#define reqbuf                  (data->_reqbuf)
-#define evlist                  (data->_evlist)
-
-#else
-#define ACCESS_PER_THREAD_DATA()
-#endif
-
-#endif /* _NANO_X_H*/

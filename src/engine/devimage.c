@@ -577,6 +577,7 @@ GdGetImageInfo(PSD pmd, PMWIMAGEINFO pinfo)
 	pinfo->pitch = pmd->pitch;
 	pinfo->transcolor = pmd->transcolor;
 	pinfo->palsize = pmd->palsize;
+#if MW_FEATURE_PALETTE
 	if (pmd->palsize) {
 		if (pmd->palette) {
 			for (i=0; i<pmd->palsize; ++i)
@@ -586,6 +587,7 @@ GdGetImageInfo(PSD pmd, PMWIMAGEINFO pinfo)
 			GdGetPalette(&scrdev, 0, pmd->palsize, pinfo->palette);
 		}
 	}
+#endif
 	return TRUE;
 }
 #endif /* MW_FEATURE_IMAGES - whole file */

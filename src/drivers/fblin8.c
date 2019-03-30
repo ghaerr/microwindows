@@ -128,6 +128,7 @@ linear8_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 		psd->Update(psd, x, y1, 1, height);
 }
 
+#if MW_FEATURE_PALETTE
 /* FIXME create lookup table whenever palette changed*/
 static int
 init_alpha_lookup(void)
@@ -170,6 +171,7 @@ init_alpha_lookup(void)
 	}
 	return 1;
 }
+#endif /* MW_FEATURE_PALETTE*/
 
 /*
  * Routine to draw mono 1bpp MSBFirst bitmap to 8bpp
@@ -557,6 +559,7 @@ linear8_convblit_copy_mask_mono_byte_msb(PSD psd, PMWBLITPARMS gc)
 static void
 linear8_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 {
+#if MW_FEATURE_PALETTE
 	ADDR8 dst, alpha;
 	int x, y;
 	unsigned int as;
@@ -602,6 +605,7 @@ linear8_convblit_blend_mask_alpha_byte(PSD psd, PMWBLITPARMS gc)
 	if (psd->Update)
 		psd->Update(psd, gc->dstx, gc->dsty, gc->width, gc->height);
 	DRAWOFF;
+#endif /* MW_FEATURE_PALETTE*/
 }
 
 static SUBDRIVER fblinear8_none = {

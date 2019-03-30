@@ -4,16 +4,7 @@
  *
  * Nano-X server routines for LINK_APP_INTO_SERVER=Y case (NONETWORK=1)
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "serv.h"
 
-#if EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
-#if NONETWORK /* entire file is NONETWORK*/
 void
 GrFlush(void)
 {
@@ -114,7 +105,7 @@ GrQueueLength(void)
 static GR_BOOL
 GetTypedEventCallback(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,GR_EVENT *ep,void *arg)
 {
-	GR_EVENT_MASK	emask = GR_EVENTMASK(ep->type);
+	GR_EVENT_MASK	emask = 1 << (ep->type);
 
 DPRINTF("GetTypedEventCallback: wid %d mask %x update %d from %d type %d\n", wid, (unsigned)mask, update, ep->general.wid, ep->type);
 
@@ -163,10 +154,6 @@ GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 
 	/* process server events, required for williams.c XMaskEvent style app in LINK_APP_INTO_SERVER case*/
 	GsSelect(-1L); 		/* poll for event*/
-#if EMSCRIPTEN
-	/* required for williams.c style XCheckMaskEvent polling apps*/
-	emscripten_sleep(1); /* allow EMSCRIPTEN/SDL javascript to run after SDL screen flush*/
-#endif
 
 	SERVER_LOCK();
 	/* determine if we need to wait for any events*/
@@ -175,14 +162,12 @@ GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 getevent:
 		GsSelect(block? 0L: -1L); /* wait/poll for event*/
 
-#if NANOWM
 		if (curclient->eventhead)
 		{
 			GR_EVENT_LIST *	elp = curclient->eventhead;
 			/* let inline window manager look at event, required for williams.c XMaskEvent style app*/
 			wm_handle_event(&elp->event);		/* don't change event type for Mask* functions*/
 		}
-#endif
 
 		if (!block)
 			break;
@@ -206,10 +191,9 @@ getevent:
 
 			*ep = elp->event;
 			SERVER_UNLOCK();
-#if NANOWM
+
 			/* let inline window manager look at event*/
 			wm_handle_event(ep);	/* don't change even type*/
-#endif
 			return ep->type;
 		}
 		prevelp = elp;
@@ -269,4 +253,3 @@ GrSetErrorHandler(GR_FNCALLBACKEVENT fncb)
 
 	return orig;
 }
-#endif /* NONETWORK*/

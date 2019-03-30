@@ -142,7 +142,7 @@ sdl_pollevents(void)
 
 		/* dump event*/
   		SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
-		DPRINTF("SDL: dumping event %x\n", event.type);
+		//DPRINTF("SDL: dumping event %x\n", event.type);
 	}
 	SDL_PumpEvents();
 

@@ -63,6 +63,7 @@ GdOpenScreenExt(MWBOOL clearflag)
 	if (!psd)
 		return NULL;
 
+#if MW_FEATURE_PALETTE
 	/* assume no user changable palette entries*/
 	gr_firstuserpalentry = (int)psd->ncolors;
 
@@ -123,6 +124,7 @@ GdOpenScreenExt(MWBOOL clearflag)
 	/* reset next user palette entry, write hardware palette*/
 	GdResetPalette();
 	GdSetPalette(psd, 0, (int)psd->ncolors, stdpal);
+#endif /* MW_FEATURE_PALETTE*/
 
 	/* init local vars*/
 	GdSetMode(MWROP_COPY);
@@ -206,6 +208,7 @@ GdGetScreenInfo(PSD psd, PMWSCREENINFO psi)
 	GdGetCursorPos(&psi->xpos, &psi->ypos);
 }
 
+#if MW_FEATURE_PALETTE
 /**
  *
  * reset palette to empty except for system colors
@@ -277,6 +280,51 @@ GdGetPalette(PSD psd, int first, int count, MWPALENTRY *palette)
 }
 
 /**
+ * Search a palette to find the nearest color requested.
+ * Uses a weighted squares comparison.
+ *
+ * @param pal Palette to search.
+ * @param size Size of palette (number of entries).
+ * @param cr Color to look for.
+ */
+MWPIXELVAL
+GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
+{
+	MWPALENTRY *	rgb;
+	int		r, g, b;
+	int		R, G, B;
+	int32_t		diff = 0x7fffffffL;
+	int32_t		sq;
+	int		best = 0;
+
+	r = REDVALUE(cr);
+	g = GREENVALUE(cr);
+	b = BLUEVALUE(cr);
+	for(rgb=pal; diff && rgb < &pal[size]; ++rgb) {
+		R = rgb->r - r;
+		G = rgb->g - g;
+		B = rgb->b - b;
+#if 1
+		/* speedy linear distance method*/
+		sq = MWABS(R) + MWABS(G) + MWABS(B);
+#else
+		/* slower distance-cubed with luminance adjustment*/
+		/* gray is .30R + .59G + .11B*/
+		/* = (R*77 + G*151 + B*28)/256*/
+		sq = (int32_t)R*R*30*30 + (int32_t)G*G*59*59 + (int32_t)B*B*11*11;
+#endif
+
+		if(sq < diff) {
+			best = rgb - pal;
+			if((diff = sq) == 0)
+				return best;
+		}
+	}
+	return best;
+}
+#endif /* MW_FEATURE_PALETTE*/
+
+/**
  * Convert a palette-independent value to a hardware color
  *
  * @param psd Screen device
@@ -336,52 +384,12 @@ GdFindColor(PSD psd, MWCOLORVAL c)
 	if (psd->ncolors == 2 && scrdev.pixtype != MWPF_PALETTE)
 		return c & 1;
 
+#if MW_FEATURE_PALETTE
 	/* search palette for closest match*/
 	return GdFindNearestColor(gr_palette, (int)psd->ncolors, c);
-}
-
-/**
- * Search a palette to find the nearest color requested.
- * Uses a weighted squares comparison.
- *
- * @param pal Palette to search.
- * @param size Size of palette (number of entries).
- * @param cr Color to look for.
- */
-MWPIXELVAL
-GdFindNearestColor(MWPALENTRY *pal, int size, MWCOLORVAL cr)
-{
-	MWPALENTRY *	rgb;
-	int		r, g, b;
-	int		R, G, B;
-	int32_t		diff = 0x7fffffffL;
-	int32_t		sq;
-	int		best = 0;
-
-	r = REDVALUE(cr);
-	g = GREENVALUE(cr);
-	b = BLUEVALUE(cr);
-	for(rgb=pal; diff && rgb < &pal[size]; ++rgb) {
-		R = rgb->r - r;
-		G = rgb->g - g;
-		B = rgb->b - b;
-#if 1
-		/* speedy linear distance method*/
-		sq = MWABS(R) + MWABS(G) + MWABS(B);
 #else
-		/* slower distance-cubed with luminance adjustment*/
-		/* gray is .30R + .59G + .11B*/
-		/* = (R*77 + G*151 + B*28)/256*/
-		sq = (int32_t)R*R*30*30 + (int32_t)G*G*59*59 + (int32_t)B*B*11*11;
+	return 0;
 #endif
-
-		if(sq < diff) {
-			best = rgb - pal;
-			if((diff = sq) == 0)
-				return best;
-		}
-	}
-	return best;
 }
 
 /**
@@ -419,13 +427,14 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 	case MWPF_TRUECOLOR233:
 		return PIXEL233TOCOLORVAL(pixel);
 
+#if MW_FEATURE_PALETTE
 	case MWPF_PALETTE:
 		return GETPALENTRY(gr_palette, pixel);
-
+#endif
 	default:
 		assert(FALSE);
-		return 0;
 	}
+	return 0;
 }
 
 #if DEBUG

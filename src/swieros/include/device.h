@@ -8,17 +8,6 @@
  *
  * Contents of this file are not for general export
  */
-#define MWINCLUDECOLORS			/* bring in color conversion macros*/
-#include "mwtypes.h"			/* public export typedefs*/
-#include "mwconfig.h"			/* configurable options*/
-
-#if MW_FEATURE_TIMERS
-#include "sys_time.h"			/* struct timeval*/
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
 
@@ -147,7 +136,7 @@ typedef struct _kbddevice {
 } KBDDEVICE;
 
 /* mouse and keyboard driver Open() return codes*/
-#define DRIVER_OKFILEDESC(fd)	fd		/* ok, return value is file descriptor*/
+//#define DRIVER_OKFILEDESC(fd)	fd		/* ok, return value is file descriptor*/
 #define DRIVER_FAIL				-1		/* open failed, terminate*/
 #define DRIVER_OKNULLDEV		-2		/* ok, null mouse or keyboard device (hide cursor)*/
 #define DRIVER_OKNOTFILEDESC	-3		/* ok, not file descriptor and not null device*/
@@ -334,72 +323,11 @@ void 	GdGetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 int  	GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 extern KBDDEVICE kbddev;
 
-#if MW_FEATURE_TWO_KEYBOARDS
-int  	GdOpenKeyboard2(void);
-extern KBDDEVICE kbddev2;
-#endif
-
-/* devimage.c */
-#if MW_FEATURE_IMAGES
-PSD		GdLoadImageFromFile(char *path, int flags);
-PSD		GdLoadImageFromBuffer(void *buffer, int size, int flags);
-void	GdDrawImageFromFile(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-			MWCOORD height, char *path, int flags);
-void	GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
-			MWCOORD height, void *buffer, int size, int flags);
-void	GdDrawImagePartToFit(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
-			MWCOORD sx, MWCOORD sy, MWCOORD swidth, MWCOORD sheight, PSD pmd);
-MWBOOL	GdGetImageInfo(PSD pmd, PMWIMAGEINFO pii);
-void	GdStretchImage(PMWIMAGEHDR src, MWCLIPRECT *srcrect, PMWIMAGEHDR dst, MWCLIPRECT *dstrect);
-
-/* Buffered input functions to replace stdio functions*/
-typedef struct {  /* structure for reading images from buffer   */
-	unsigned char *start;	/* The pointer to the beginning of the buffer */
-	unsigned long offset;	/* The current offset within the buffer       */
-	unsigned long size;	/* The total size of the buffer               */
-} buffer_t;
-
-void	GdImageBufferInit(buffer_t *buffer, void *startdata, int size);
-void	GdImageBufferSeekTo(buffer_t *buffer, unsigned long offset);
-int		GdImageBufferRead(buffer_t *buffer, void *dest, unsigned long size);
-int		GdImageBufferGetChar(buffer_t *buffer);
-char *	GdImageBufferGetString(buffer_t *buffer, char *dest, unsigned int size);
-int		GdImageBufferEOF(buffer_t *buffer);
-
-/* image conversion*/
-PSD		GdConvertImageRGBA(PSD pmd);		/* convert palettized image to RGBA*/
-
-/* individual decoders*/
-#if HAVE_BMP_SUPPORT
-PSD	GdDecodeBMP(buffer_t *src, MWBOOL readfilehdr);
-#endif
-#if HAVE_JPEG_SUPPORT
-PSD	GdDecodeJPEG(buffer_t *src, MWBOOL fast_grayscale);
-#endif
-#if HAVE_PNG_SUPPORT
-PSD	GdDecodePNG(buffer_t *src);
-#endif
-#if HAVE_GIF_SUPPORT
-PSD	GdDecodeGIF(buffer_t *src);
-#endif
-#if HAVE_PNM_SUPPORT
-PSD	GdDecodePNM(buffer_t *src);
-#endif
-#if HAVE_XPM_SUPPORT
-PSD	GdDecodeXPM(buffer_t *src);
-#endif
-#if HAVE_TIFF_SUPPORT
-PSD	GdDecodeTIFF(char *path);
-#endif
-#endif /* MW_FEATURE_IMAGES */
-
 /* devlist.c*/
 void * 	GdItemAlloc(unsigned int size);
 void	GdListAdd(PMWLISTHEAD pHead,PMWLIST pItem);
 void	GdListInsert(PMWLISTHEAD pHead,PMWLIST pItem);
 void	GdListRemove(PMWLISTHEAD pHead,PMWLIST pItem);
-#define GdItemNew(type)	((type *)GdItemAlloc(sizeof(type)))
-#define GdItemFree(ptr)	free((void *)ptr)
 
 /* devstipple.c */
 void	GdSetDash(uint32_t *mask, int *count);
@@ -411,32 +339,4 @@ void	ts_drawpoint(PSD psd, MWCOORD x, MWCOORD y);
 void	ts_drawrow(PSD psd, MWCOORD x1, MWCOORD x2,  MWCOORD y);
 void	ts_fillrect(PSD psd, MWCOORD x, MWCOORD y, MWCOORD w, MWCOORD h);
 void	set_ts_origin(int x, int y);
-
-#if MW_FEATURE_TIMERS
-#define  MWTIMER_ONESHOT         0 
-#define  MWTIMER_PERIODIC        1
-
-typedef void (*MWTIMERCB)(void *);
-typedef struct mw_timer MWTIMER;
-struct mw_timer {
-	struct timeval	timeout;
-	MWTIMERCB	callback;
-	void		*arg;
-	MWTIMER		*next;
-	MWTIMER		*prev;
-    int         type;     /* MWTIMER_ONESHOT or MWTIMER_PERIODIC */
-    MWTIMEOUT   period;
-};
-
-MWTIMER		*GdAddTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
-MWTIMER		*GdAddPeriodicTimer(MWTIMEOUT timeout, MWTIMERCB callback, void *arg);
-void		GdDestroyTimer(MWTIMER *timer);
-MWTIMER		*GdFindTimer(void *arg);
-MWBOOL		GdGetNextTimeout(struct timeval *tv, MWTIMEOUT timeout);
-MWBOOL		GdTimeout(void);
-#endif /* MW_FEATURE_TIMERS */
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 #endif /*_DEVICE_H*/

@@ -4,20 +4,26 @@
  *
  * Graphics server event routines for windows.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "serv.h"
-#include "osdep.h"
-
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-#include "lock.h"
-LOCK_DECLARE(eventMutex);
-#endif
 
 /* readable error strings*/
 const char *nxErrorStrings[] = {
-	GR_ERROR_STRINGS
+	"",
+	"Bad window id: %d\n",
+	"Bad graphics context: %d\n",
+	"Bad cursor size\n",
+	"Out of server memory\n",
+	"Bad window size: %d\n",
+	"Keyboard error\n",
+	"Mouse error\n",
+	"Input only window: %d\n",
+	"Illegal on root window: %d\n",
+	"Clipping overflow\n",
+	"Screen error\n",
+	"Unmapped focus window: %d\n",
+	"Bad drawing mode gc: %d\n",
+    "Bad line attribute gc: %d\n",
+    "Bad fill mode gc: %d\n",
+	"Bad region id: %d\n"
 };
 
 /*
@@ -76,9 +82,6 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	 * Get a new event structure from the free list, or else
 	 * allocate it using malloc.
 	 */
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        UNLOCK(&eventMutex);
-#endif
 	elp = eventfree;
 	if (elp)
 		eventfree = elp->next;
@@ -89,9 +92,6 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 			curclient = client;
 			GsError(GR_ERROR_MALLOC_FAILED, 0);
 			curclient = oldcurclient;
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-			UNLOCK(&eventMutex);
-#endif
 			return NULL;
 		}
 	}
@@ -99,16 +99,6 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	/*
 	 * Add the event to the end of the event list.
 	 */
-#if 0
-	if (client->eventhead)
-	  if (!client->eventtail)
-	    client->eventtail = elp;
-	  else
-	    client->eventtail->next = elp;
-	else
-	  client->eventhead = elp;
-#endif
-
 	if (!client->eventhead)					// FIXME
 	  client->eventhead = elp;
 	if (client->eventtail)
@@ -118,9 +108,6 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	elp->next = NULL;
 	elp->event.type = GR_EVENT_TYPE_NONE;
 
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        UNLOCK(&eventMutex);
-#endif
 	return &elp->event;
 }
 
@@ -188,22 +175,11 @@ GR_BOOL GsCheckKeyboardEvent(void)
 	switch (mwkey)
 	{
 	case MWKEY_QUIT:
-#if DEBUG
-		if (modifiers & MWKMOD_CTRL)
-			GdCaptureScreen(NULL, "screen.bmp");
-		else 
-#endif
 		GsTerminate();
 		break;
 	case MWKEY_REDRAW:
 		GsRedrawScreen();
 		break;
-#if DEBUG
-	case MWKEY_PRINT:
-		if (keystatus == KBD_KEYPRESS)
-			GdCaptureScreen(NULL, "screen.bmp");
-		break;
-#endif
 	}
 
 	/* Deliver events as appropriate*/
@@ -298,7 +274,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 	GR_EVENT_MASK	eventmask;	/* event mask */
 	GR_EVENT_MASK	tempmask;	/* to get around compiler bug */
 
-	eventmask = GR_EVENTMASK(type);
+	eventmask = 1 << type;
 	if (eventmask == 0)
 		return;
 
@@ -312,12 +288,6 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 	subwid = wp->id;
 
 	if (grabbuttonwp) {
-#if 0
-		while ((wp != rootwp) && (wp != grabbuttonwp))
-			wp = wp->parent;
-		if (wp != grabbuttonwp)
-			subwid = grabbuttonwp->id;
-#endif
 		wp = grabbuttonwp;
 	}
 
@@ -405,7 +375,7 @@ void GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers)
 	GR_WINDOW_ID	subwid;		/* subwindow id event is for */
 	GR_EVENT_MASK	eventmask;	/* event mask */
 
-	eventmask = GR_EVENTMASK(type);
+	eventmask = 1 << type;
 	if (eventmask == 0)
 		return;
 
@@ -413,12 +383,6 @@ void GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers)
 	subwid = wp->id;
 
 	if (grabbuttonwp) {
-#if 0
-		while ((wp != rootwp) && (wp != grabbuttonwp))
-			wp = wp->parent;
-		if (wp != grabbuttonwp)
-			subwid = grabbuttonwp->id;
-#endif
 		wp = grabbuttonwp;
 	}
 
@@ -481,7 +445,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 	GR_WINDOW		*kwp;
 	GR_GRABBED_KEY		*keygrab;
 
-	eventmask = GR_EVENTMASK(type);
+	eventmask = 1 << type;
 	if (eventmask == 0)
 		return;
 
@@ -755,7 +719,7 @@ GsDeliverGeneralEvent(GR_WINDOW *wp, GR_EVENT_TYPE type, GR_WINDOW *other)
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
 	GR_EVENT_MASK		eventmask;	/* event mask */
 
-	eventmask = GR_EVENTMASK(type);
+	eventmask = 1 << type;
 	if (eventmask == 0)
 		return;
 
@@ -918,9 +882,6 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
 	GR_EVENT_LIST	*elp;		/* current element list */
 	GR_EVENT_LIST	*prevelp;	/* previous element list */
 
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        LOCK(&eventMutex);
-#endif
 	prevelp = NULL;
 	for (elp = client->eventhead; elp; prevelp = elp, elp = elp->next) {
 		if (elp->event.type != GR_EVENT_TYPE_MOUSE_POSITION)
@@ -944,9 +905,6 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
 		eventfree = elp;
 		break;
 	}
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        UNLOCK(&eventMutex);
-#endif
 }
 
 /*
@@ -1048,7 +1006,7 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 		for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
 			client = ecp->client;
 
-			if ((ecp->eventmask & GR_EVENTMASK(etype)) == 0)
+			if ((ecp->eventmask & (1 << etype)) == 0)
 				continue;
 
 			gp = (GR_EVENT_BUTTON *) GsAllocEvent(ecp->client);
@@ -1068,7 +1026,7 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 			gp->modifiers = modifiers;
 			gp->time = GdGetTickCount();
 
-			if ((wp == rootwp) || (wp->nopropmask & GR_EVENTMASK(etype)))
+			if ((wp == rootwp) || (wp->nopropmask & ((1 << etype))))
 				break;
 
 			wp = wp->parent;

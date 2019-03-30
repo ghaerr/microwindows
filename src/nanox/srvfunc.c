@@ -2406,6 +2406,7 @@ GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 	SERVER_UNLOCK();
 }
 
+#if MW_FEATURE_SHAPES
 void
 GrSetGCFillMode(GR_GC_ID gc, int fillmode)
 {
@@ -2534,6 +2535,7 @@ GrSetGCTSOffset(GR_GC_ID gc, GR_COORD xoff, GR_COORD yoff)
 
 	SERVER_UNLOCK();
 }
+#endif /* MW_FEATURE_SHAPES*/
 
 /* 
  * Boolean that sets if we send EXPOSE events on a GrCopyArea
@@ -3325,12 +3327,12 @@ GrGetSystemPalette(GR_PALETTE *pal)
 
 	/* return 0 count if not in palettized mode*/
 	memset(pal, 0, sizeof(GR_PALETTE));
-
+#if MW_FEATURE_PALETTE
 	if(rootwp->psd->pixtype == MWPF_PALETTE) {
 		pal->count = (int)rootwp->psd->ncolors;
 		GdGetPalette(rootwp->psd, 0, pal->count, pal->palette);
 	}
-
+#endif
 	SERVER_UNLOCK();
 }
 
@@ -3338,6 +3340,7 @@ GrGetSystemPalette(GR_PALETTE *pal)
 void
 GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
 {
+#if MW_FEATURE_PALETTE
 	SERVER_LOCK();
 
 	GdSetPalette(rootwp->psd, first, pal->count, pal->palette);
@@ -3345,6 +3348,7 @@ GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
 		GsRedrawScreen();
 
 	SERVER_UNLOCK();
+#endif
 }
 
 /* Convert passed color value to pixel value, depending on system mode*/

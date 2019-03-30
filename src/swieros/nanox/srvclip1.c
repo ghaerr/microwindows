@@ -2,15 +2,12 @@
  * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include "serv.h"
 
 /*
  * Macro to distinguish cases of clipping.
  */
-#define	GAPVAL(leftgap, rightgap, topgap, bottomgap) \
-	(((leftgap) << 3) + ((rightgap) << 2) + ((topgap) << 1) + (bottomgap))
+//#define	GAPVAL(leftgap, rightgap, topgap, bottomgap) \
+//	(((leftgap) << 3) + ((rightgap) << 2) + ((topgap) << 1) + (bottomgap))
 
 static GR_COUNT	GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect,
 			GR_COORD minx, GR_COORD miny, GR_COORD maxx,
@@ -203,33 +200,33 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 	 */
 	gaps = 0;
 	if (x < minx)
-		gaps |= GAPVAL(1, 0, 0, 0);
+		gaps |= 8; //GAPVAL(1, 0, 0, 0);
 	if (x + width - 1 > maxx)
-		gaps |= GAPVAL(0, 1, 0, 0);
+		gaps |= 4; //GAPVAL(0, 1, 0, 0);
 	if (y < miny)
-		gaps |= GAPVAL(0, 0, 1, 0);
+		gaps |= 2; //GAPVAL(0, 0, 1, 0);
 	if (y + height - 1 > maxy)
-		gaps |= GAPVAL(0, 0, 0, 1);
+		gaps |= 1; //GAPVAL(0, 0, 0, 1);
 
 	switch (gaps) {
-		case GAPVAL(0, 0, 0, 0):	/* no gaps at all */
+		case 0: //GAPVAL(0, 0, 0, 0):	/* no gaps at all */
 			srcrect->x = 0;
 			srcrect->y = 0;
 			srcrect->width = 0;
 			srcrect->height = 0;
 			return 0;
 
-		case GAPVAL(0, 0, 0, 1):	/* gap on bottom */
+		case 1: //GAPVAL(0, 0, 0, 1):	/* gap on bottom */
 			dy = maxy - y + 1;
 			srcrect->y += dy;
 			srcrect->height -= dy;
 			return 0;
 
-		case GAPVAL(0, 0, 1, 0):	/* gap on top */
+		case 2: //GAPVAL(0, 0, 1, 0):	/* gap on top */
 			srcrect->height = miny - y;
 			return 0;
 
-		case GAPVAL(0, 0, 1, 1):	/* gap on top, bottom */
+		case 3: //GAPVAL(0, 0, 1, 1):	/* gap on top, bottom */
 			srcrect->height = miny - y;
 			destrect->x = x;
 			destrect->width = width;
@@ -237,13 +234,13 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - maxy - 1;
 			return 1;
 
-		case GAPVAL(0, 1, 0, 0):	/* gap on right */
+		case 4: //GAPVAL(0, 1, 0, 0):	/* gap on right */
 			dx = maxx - x + 1;
 			srcrect->x += dx;
 			srcrect->width -= dx;
 			return 0;
 
-		case GAPVAL(0, 1, 0, 1):	/* gap on right, bottom */
+		case 5: //GAPVAL(0, 1, 0, 1):	/* gap on right, bottom */
 			dx = maxx - x + 1;
 			srcrect->x += dx;
 			srcrect->width -= dx;
@@ -254,7 +251,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - maxy - 1;
 			return 1;
 
-		case GAPVAL(0, 1, 1, 0):	/* gap on right, top */
+		case 6: //GAPVAL(0, 1, 1, 0):	/* gap on right, top */
 			dx = maxx - x + 1;
 			srcrect->height = miny - y;
 			destrect->x = x + dx;
@@ -263,7 +260,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - miny;
 			return 1;
 
-		case GAPVAL(0, 1, 1, 1):	/* gap on right, top, bottom */
+		case 7: //GAPVAL(0, 1, 1, 1):	/* gap on right, top, bottom */
 			dx = maxx - x + 1;
 			srcrect->height = miny - y;
 			destrect->x = x;
@@ -277,11 +274,11 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = maxy - miny + 1;
 			return 2;
 
-		case GAPVAL(1, 0, 0, 0):	/* gap on left */
+		case 8: //GAPVAL(1, 0, 0, 0):	/* gap on left */
 			srcrect->width = minx - x;
 			return 0;
 
-		case GAPVAL(1, 0, 0, 1):	/* gap on left, bottom */
+		case 9: //GAPVAL(1, 0, 0, 1):	/* gap on left, bottom */
 			srcrect->width = minx - x;
 			srcrect->height = maxy - y + 1;
 			destrect->x = x;
@@ -290,7 +287,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - maxy - 1;
 			return 1;
 
-		case GAPVAL(1, 0, 1, 0):	/* gap on left, top */
+		case 10: //GAPVAL(1, 0, 1, 0):	/* gap on left, top */
 			srcrect->height = miny - y;
 			destrect->x = x;
 			destrect->width = minx - x;
@@ -298,7 +295,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - miny;
 			return 1;
 
-		case GAPVAL(1, 0, 1, 1):	/* gap on left, top, bottom */
+		case 11: //GAPVAL(1, 0, 1, 1):	/* gap on left, top, bottom */
 			srcrect->height = miny - y;
 			destrect->x = x;
 			destrect->width = minx - x;
@@ -311,7 +308,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - maxy - 1;
 			return 2;
 
-		case GAPVAL(1, 1, 0, 0):	/* gap on left, right */
+		case 12: //GAPVAL(1, 1, 0, 0):	/* gap on left, right */
 			destrect->x = maxx + 1;
 			destrect->width = x + width - maxx - 1;
 			destrect->y = y;
@@ -319,7 +316,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			srcrect->width = minx - x;
 			return 1;
 
-		case GAPVAL(1, 1, 0, 1):	/* gap on left, right, bottom */
+		case 13: //GAPVAL(1, 1, 0, 1):	/* gap on left, right, bottom */
 			dy = maxy - y + 1;
 			srcrect->y += dy;
 			srcrect->height -= dy;
@@ -334,7 +331,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = dy;
 			return 2;
 
-		case GAPVAL(1, 1, 1, 0):	/* gap on left, right, top */
+		case 14: //GAPVAL(1, 1, 1, 0):	/* gap on left, right, top */
 			srcrect->height = miny - y;
 			destrect->x = x;
 			destrect->width = minx - x;
@@ -347,7 +344,7 @@ GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect, GR_COORD minx,
 			destrect->height = y + height - miny;
 			return 2;
 
-		case GAPVAL(1, 1, 1, 1):	/* gap on all sides */
+		case 15: //GAPVAL(1, 1, 1, 1):	/* gap on all sides */
 			srcrect->height = miny - y;
 			destrect->x = x;
 			destrect->width = minx - x;

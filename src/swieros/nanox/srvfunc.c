@@ -4,14 +4,6 @@
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#define MWINCLUDECOLORS
-#include "uni_std.h"
-#include "serv.h"
-#include "osdep.h"
-#include "genmem.h"
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
@@ -87,11 +79,9 @@ GsCheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 	/* Get first event again*/
 	elp = curclient->eventhead;
 
-#if NONETWORK
 	/* if GrCheckEvent, turn timeouts into no event*/
 	if (doCheckEvent && elp->event.type == GR_EVENT_TYPE_TIMEOUT)
 		ep->type = GR_EVENT_TYPE_NONE;
-#endif
 
 	/* Remove first event from queue*/
 	curclient->eventhead = elp->next;
@@ -100,11 +90,9 @@ GsCheckNextEvent(GR_EVENT *ep, GR_BOOL doCheckEvent)
 	elp->next = eventfree;
 	eventfree = elp;
 
-#if NANOWM
 	/* let inline window manager look at event*/
 	if (wm_handle_event(ep))
 		ep->type = GR_EVENT_TYPE_NONE;
-#endif
 }
 
 /*
@@ -119,14 +107,14 @@ GrPeekEvent(GR_EVENT *ep)
 
 	SERVER_LOCK();
 	elp = curclient->eventhead;
-#if NONETWORK
+
 	/* if no events on queue, force select() event check*/
 	if (elp == NULL)
 	{
 		GsSelect(-1L);	/* poll*/
 		elp = curclient->eventhead;
 	}
-#endif
+
 	if(elp == NULL) {
 		ep->type = GR_EVENT_TYPE_NONE;
 		SERVER_UNLOCK();
@@ -445,159 +433,6 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 	}
 
 	/*
-	 * move algorithms not requiring unmap/map
-	 */
-
-#if 1 && !SWIEROS
-	/* perform screen blit if topmost and mapped - no flicker!*/
-	if (wp->mapped && IsUnobscuredBySiblings(wp)
-		/* temp don't blit in portrait mode, still buggy*/
-		/* *&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))***/
-
-		/* don't blit if window has custom frame, background not right*/
-		&& !wp->clipregion
-	   ) {
-		int 		oldx = wp->x;
-		int 		oldy = wp->y;
-		GR_GC_ID	gc = GrNewGC();
-		GR_WINDOW * 	stopwp = wp;
-		int		X, Y, W, H;
-
-		/* must hide cursor first or GdFixCursor() will show it*/
-		GdHideCursor(rootwp->psd);
-
-		/* turn off clipping of root's children*/
-		GrSetGCMode(gc, GR_MODE_COPY|GR_MODE_EXCLUDECHILDREN);
-
-		/* calc new window offsets*/
-		OffsetWindow(wp, offx, offy);
-
-		/* force recalc of clip region*/
-		clipwp = NULL;
-
-		/* copy window bits to new location*/
-		GrCopyArea(parent->id, gc, wp->x - parent->x, wp->y - parent->y,
-			wp->width, wp->height, parent->id,
-			oldx - parent->x, oldy - parent->y, MWROP_COPY);
-
-		/*
-		 * If any portion of the window was offscreen
-		 * and is coming onscreen, must send expose events
-		 * to this window as well.
-		 */
-		if ((oldx < 0 && wp->x > oldx) ||
-		    (oldy < 0 && wp->y > oldy) ||
-		    (oldx+wp->width > rootwp->width && wp->x < oldx) ||
-		    (oldy+wp->height > rootwp->height && wp->y < oldy))
-			stopwp = NULL;
-
-		/* 
-		 * Calculate bounded exposed area and
-		 * redraw anything lower than stopwp window.
-		 */
-		X = MWMIN(oldx, wp->x);
-		Y = MWMIN(oldy, wp->y);
-		W = MWMAX(oldx, wp->x) + wp->width - X;
-		H = MWMAX(oldy, wp->y) + wp->height - Y;
-		GsExposeArea(rootwp, X, Y, W, H, stopwp);
-
-		GdShowCursor(rootwp->psd);
-		GrDestroyGC(gc);
-		DeliverUpdateMoveEventAndChildren(wp);
-		SERVER_UNLOCK();
-		return;
-	}
-#endif
-#if 0
-	/* perform screen blit if topmost and mapped - no flicker!*/
-	if (wp->mapped && wp == wp->parent->children
-		&& wp->parent->id == GR_ROOT_WINDOW_ID
-
-		/* temp don't blit in portrait mode, still buggy*/
-		/* *&& !(wp->psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT))***/
-
-		/* don't blit if window has custom frame, background not right*/
-		&& !wp->clipregion
-	   ) {
-		int 		oldx = wp->x;
-		int 		oldy = wp->y;
-		GR_WINDOW_ID 	pixid = GrNewPixmapEx(wp->width, wp->height, 0, NULL);
-		GR_GC_ID	gc = GrNewGC();
-		GR_WINDOW * 	stopwp = wp;
-		int		X, Y, W, H;
-
-		/* must hide cursor first or GdFixCursor() will show it*/
-		GdHideCursor(rootwp->psd);
-
-		/* turn off clipping of root's children*/
-		GrSetGCMode(gc, GR_MODE_COPY|GR_MODE_EXCLUDECHILDREN);
-
-		/* copy topmost window contents offscreen*/
-		GrCopyArea(pixid, gc, 0, 0, wp->width, wp->height,
-			GR_ROOT_WINDOW_ID, oldx, oldy, MWROP_COPY);
-
-		/* calc new window offsets*/
-		OffsetWindow(wp, offx, offy);
-
-		/* force recalc of clip region*/
-		clipwp = NULL;
-
-		/* copy window bits to new location*/
-		GrCopyArea(GR_ROOT_WINDOW_ID, gc, wp->x, wp->y, wp->width,
-			wp->height, pixid, 0, 0, MWROP_COPY);
-
-		/*
-		 * If any portion of the window was offscreen
-		 * and is coming onscreen, must send expose events
-		 * to this window as well.
-		 */
-		if ((oldx < 0 && wp->x > oldx) ||
-		    (oldy < 0 && wp->y > oldy) ||
-		    (oldx+wp->width > rootwp->width && wp->x < oldx) ||
-		    (oldy+wp->height > rootwp->height && wp->y < oldy))
-			stopwp = NULL;
-
-		/* 
-		 * Calculate bounded exposed area and
-		 * redraw anything lower than stopwp window.
-		 */
-		X = MWMIN(oldx, wp->x);
-		Y = MWMIN(oldy, wp->y);
-		W = MWMAX(oldx, wp->x) + wp->width - X;
-		H = MWMAX(oldy, wp->y) + wp->height - Y;
-		GsExposeArea(rootwp, X, Y, W, H, stopwp);
-
-		GdShowCursor(rootwp->psd);
-		GrDestroyGC(gc);
-		GrDestroyWindow(pixid);
-		DeliverUpdateMoveEventAndChildren(wp);
-		SERVER_UNLOCK();
-		return;
-	}
-#endif
-#if 0
-	/* perform quick move and expose if topmost and mapped - no blit*/
-	if (wp->mapped && wp == wp->parent->children) {
-		int	oldx = wp->x;
-		int	oldy = wp->y;
-		int	X, Y, W, H;
-
-		OffsetWindow(wp, offx, offy);
-
-		/* force recalc of clip region*/
-		clipwp = NULL;
-
-		X = MWMIN(oldx, wp->x);
-		Y = MWMIN(oldy, wp->y);
-		W = MWMAX(oldx, wp->x) + wp->width - X;
-		H = MWMAX(oldy, wp->y) + wp->height - Y;
-		GsExposeArea(rootwp, X, Y, W, H, NULL);
-		DeliverUpdateMoveEventAndChildren(wp);
-		SERVER_UNLOCK();
-		return;
-	}
-#endif
-	/*
 	 * This method will redraw the window entirely,
 	 * resulting in considerable flicker.
 	 */
@@ -676,19 +511,6 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		return;
 	}
 
-#define RESIZE_USING_UNMAP	0		/* =1 use old way by unmap/map*/
-#if RESIZE_USING_UNMAP
-	/*
-	 * This should be optimized to not require redrawing of the window
-	 * when possible.
-	 */
-	GsUnrealizeWindow(wp, GR_TRUE);
-	wp->width = width;
-	wp->height = height;
-	/* send size update before expose event*/
-	GsDeliverUpdateEvent(wp, GR_UPDATE_SIZE, wp->x, wp->y, width, height);
-	GsRealizeWindow(wp, GR_FALSE);
-#else
 	/* new method generates expose events rather than using unmap/map window*/
     oldw = wp->width;
 	oldh = wp->height;
@@ -713,8 +535,6 @@ GrResizeWindow(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height)
 		GsExposeArea(wp->parent, x + wp->width, y, w - wp->width, h, NULL);
 		GsExposeArea(wp->parent, x, y + wp->height, w - (oldw - wp->width), h - wp->height, NULL);
 	}
-#endif
-
 	SERVER_UNLOCK();
 }
 
@@ -966,473 +786,6 @@ GrGetGCInfo(GR_GC_ID gc, GR_GC_INFO *gcip)
 	SERVER_UNLOCK();
 }
 
-#if DYNAMICREGIONS
-
-static int nextregionid = 1000;
-/*
- * Allocate a new REGION with default parameters.
- * The REGION is owned by the current client.
- */
-GR_REGION_ID
-GrNewRegion(void)
-{
-	GR_REGION *regionp;
-	GR_REGION_ID id;
-
-	SERVER_LOCK();
-           
-	regionp = (GR_REGION *) malloc(sizeof(GR_REGION));
-	if (regionp == NULL) {
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-	
-	regionp->rgn = GdAllocRegion();
-	regionp->id = nextregionid++;
-	regionp->owner = curclient;
-	regionp->next = listregionp;
-
-	listregionp = regionp;
-
-	id = regionp->id;
-
-	SERVER_UNLOCK();
-
-	return id;
-}
-
-#if POLYREGIONS
-/*
- * Allocate a new region from a set of points interpreted as a polygon.
- * The REGION is owned by the current client.
- */
-GR_REGION_ID
-GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
-{
-	GR_REGION *regionp;
-	GR_REGION_ID id;
-
-	SERVER_LOCK();
-           
-	regionp = (GR_REGION *) malloc(sizeof(GR_REGION));
-	if (regionp == NULL) {
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-	
-	regionp->rgn = GdAllocPolygonRegion(points, count, mode);
-	regionp->id = nextregionid++;
-	regionp->owner = curclient;
-	regionp->next = listregionp;
-
-	listregionp = regionp;
-
-	id = regionp->id;
-
-	SERVER_UNLOCK();
-
-	return id;
-}
-#endif /* POLYREGIONS*/
-
-/*
- * Destroy an existing region.
- */
-void
-GrDestroyRegion(GR_REGION_ID region)
-{
-	GR_REGION	*regionp;	/* region */
-	GR_REGION	*prevregionp;	/* previous region */
-
-	SERVER_LOCK();
-
-	regionp = GsFindRegion(region);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	if (listregionp == regionp) {
-		listregionp = regionp->next;
-	} else {
-		prevregionp = listregionp;
-		while (prevregionp->next != regionp)
-			prevregionp = prevregionp->next;
-
-		prevregionp->next = regionp->next;
-	}
-	GdDestroyRegion(regionp->rgn);
-	free(regionp);
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Updates the region from a union of the specified rectangle
- * and the original region.
- */
-void
-GrUnionRectWithRegion(GR_REGION_ID region, GR_RECT *rect)
-{
-	GR_REGION	*regionp;
-	MWRECT		rc;
-	
-	SERVER_LOCK();
-	
-	regionp = GsFindRegion(region);
-	if (regionp) {
-		/* convert Nano-X rect to MW rect*/
-		rc.left = rect->x;
-		rc.top = rect->y;
-		rc.right = rect->x + rect->width;
-		rc.bottom = rect->y + rect->height;
-		GdUnionRectWithRegion(&rc, regionp->rgn);	
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Updates the region from a union of two regions.
- */ 
-void
-GrUnionRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
-	GR_REGION_ID src_rgn2)
-{
-	GR_REGION	*regionp;
-	GR_REGION	*srcregionp1;
-	GR_REGION	*srcregionp2;
-	
-	SERVER_LOCK();
-	
-	regionp = GsFindRegion(dst_rgn);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp1 = GsFindRegion(src_rgn1);
-	if (srcregionp1 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp2 = GsFindRegion(src_rgn2);
-	if (srcregionp2 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	GdUnionRegion(regionp->rgn, srcregionp1->rgn, srcregionp2->rgn);
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Updates the region by subtracting a region from another.
- */ 
-void
-GrSubtractRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
-	GR_REGION_ID src_rgn2)
-{
-	GR_REGION	*regionp;
-	GR_REGION	*srcregionp1;
-	GR_REGION	*srcregionp2;
-	
-	SERVER_LOCK();
-	
-	regionp = GsFindRegion(dst_rgn);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp1 = GsFindRegion(src_rgn1);
-	if (srcregionp1 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp2 = GsFindRegion(src_rgn2);
-	if (srcregionp2 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	GdSubtractRegion(regionp->rgn, srcregionp1->rgn, srcregionp2->rgn);
-	
-	SERVER_UNLOCK();
-}
-
-/*
- * Updates the region to the difference of two regions.
- */ 
-void
-GrXorRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
-	GR_REGION_ID src_rgn2)
-{
-	GR_REGION	*regionp;
-	GR_REGION	*srcregionp1;
-	GR_REGION	*srcregionp2;
-	
-	SERVER_LOCK();
-	
-	regionp = GsFindRegion(dst_rgn);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp1 = GsFindRegion(src_rgn1);
-	if (srcregionp1 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp2 = GsFindRegion(src_rgn2);
-	if (srcregionp2 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	GdXorRegion(regionp->rgn, srcregionp1->rgn, srcregionp2->rgn);
-	
-	SERVER_UNLOCK();
-}
-
-/*
- * Updates the region from a intersection of two regions.
- */ 
-void
-GrIntersectRegion(GR_REGION_ID dst_rgn, GR_REGION_ID src_rgn1,
-	GR_REGION_ID src_rgn2)
-{
-	GR_REGION	*regionp;
-	GR_REGION	*srcregionp1;
-	GR_REGION	*srcregionp2;
-	
-	SERVER_LOCK();
-	
-	regionp = GsFindRegion(dst_rgn);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp1 = GsFindRegion(src_rgn1);
-	if (srcregionp1 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	srcregionp2 = GsFindRegion(src_rgn2);
-	if (srcregionp2 == NULL) {
-		SERVER_UNLOCK();
-		return;
-	}
-	
-	GdIntersectRegion(regionp->rgn, srcregionp1->rgn, srcregionp2->rgn);
-	
-	SERVER_UNLOCK();
-}
-
-/*
- * Sets the clip-mask in the GC to the specified region.
- */
-void
-GrSetGCRegion(GR_GC_ID gc, GR_REGION_ID region)
-{
-	GR_GC		*gcp;
-	
-	SERVER_LOCK();
-	
-	gcp = GsFindGC(gc);
-	if (gcp) {
-		gcp->regionid = region;
-		gcp->changed = GR_TRUE;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Set the x,y origin of user clip region in GC.
- */
-void
-GrSetGCClipOrigin(GR_GC_ID gc, GR_SIZE xoff, GR_SIZE yoff)
-{
-	GR_GC		*gcp;
-
-	SERVER_LOCK();
-
-	gcp = GsFindGC(gc);
-	if (gcp) {
-		gcp->xoff = xoff;
-		gcp->yoff = yoff;
-		gcp->changed = GR_TRUE;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Determines whether a specified point resides in a region.
- */ 
-GR_BOOL
-GrPointInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y)
-{
-	GR_REGION	*regionp;
-	GR_BOOL		result;
-	
-	SERVER_LOCK();
-	
-	regionp =  GsFindRegion(region);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return GR_FALSE;
-	}
-	
-	result = GdPtInRegion(regionp->rgn, x, y);
-	
-	SERVER_UNLOCK();
-	
-	return result;
-}
-
-/*
- * Determines whether a specified rectangle at least partly resides
- * in a region.
- */ 
-int
-GrRectInRegion(GR_REGION_ID region, GR_COORD x, GR_COORD y, GR_COORD w,
-	GR_COORD h)
-{
-	GR_REGION	*regionp;
-	MWRECT		rect;
-	int		result;
-	
-	SERVER_LOCK();
-	
-	regionp =  GsFindRegion(region);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return MWRECT_OUT;
-	}
-	
-	rect.left = x;
-	rect.top = y;
-	rect.right = x + w;
-	rect.bottom = y + h;
-	result = GdRectInRegion(regionp->rgn, &rect);
-	
-	SERVER_UNLOCK();
-	
-	return result;
-}
-
-/*
- * Return GR_TRUE if a region is empty.
- */ 
-GR_BOOL
-GrEmptyRegion(GR_REGION_ID region)
-{
-	GR_REGION	*regionp;
-	GR_BOOL		result;
-	
-	SERVER_LOCK();
-	
-	regionp =  GsFindRegion(region);
-	if (regionp == NULL) {
-		SERVER_UNLOCK();
-		return GR_TRUE;
-	}
-	
-	result = GdEmptyRegion(regionp->rgn);
-	
-	SERVER_UNLOCK();
-	
-	return result;
-}
-
-/*
- * Return GR_TRUE if two regions are identical.
- */ 
-GR_BOOL
-GrEqualRegion(GR_REGION_ID rgn1, GR_REGION_ID rgn2)
-{
-	GR_REGION	*prgn1;
-	GR_REGION	*prgn2;
-	GR_BOOL result;
-	
-	SERVER_LOCK();
-	
-	prgn1 = GsFindRegion(rgn1);
-	prgn2 = GsFindRegion(rgn2);
-
-	if (!prgn1 && !prgn2) {
-		result = GR_TRUE;
-	} else if (!prgn1 || !prgn2) {
-		result = GR_FALSE;
-	} else {
-		result = GdEqualRegion(prgn1->rgn, prgn2->rgn);
-	}
-	
-	SERVER_UNLOCK();
-	
-	return result;
-}
-
-/*
- * Offset a region by dx, dy.
- */ 
-void
-GrOffsetRegion(GR_REGION_ID region, GR_SIZE dx, GR_SIZE dy)
-{
-	GR_REGION	*regionp;
-	
-	SERVER_LOCK();
-	
-	regionp =  GsFindRegion(region);
-	if (regionp)
-		GdOffsetRegion(regionp->rgn, dx, dy);
-	
-	SERVER_UNLOCK();
-}
-
-/*
- * Return the bounding box for the specified region.
- */
-int
-GrGetRegionBox(GR_REGION_ID region, GR_RECT *rect)
-{
-	GR_REGION	*regionp;
-	MWRECT		rc;
-	int		ret_val;
-	
-	SERVER_LOCK();
-	
-	regionp =  GsFindRegion(region);
-	if (regionp == NULL) {
-		memset(rect, 0, sizeof(GR_RECT));
-		SERVER_UNLOCK();
-		return MWREGION_ERROR;
-	}
-	
-	ret_val = GdGetRegionBox(regionp->rgn, &rc);
-	/* convert MW rect to Nano-X rect*/
-	rect->x = rc.left;
-	rect->y = rc.top;
-	rect->width = rc.right - rc.left;
-	rect->height = rc.bottom - rc.top;
-	
-	SERVER_UNLOCK();
-	
-	return ret_val;
-}
-#endif /* DYNAMICREGIONS*/
-
 static int nextfontid = 1000;
 /*
  * Allocate a new GC with default parameters.
@@ -1473,83 +826,6 @@ GrCreateFontEx(const char *name, GR_COORD height, GR_COORD width, GR_LOGFONT *pl
 	
 	return fontp->id;
 }
-
-#if HAVE_FREETYPE_2_SUPPORT
-/*
- * Create a new font from memory.
- * The font is owned by the current client.
- */
-GR_FONT_ID
-GrCreateFontFromBuffer(const void *buffer, unsigned length, const char *format,
-	GR_COORD height, GR_COORD width)
-{
-	GR_FONT *fontp;
-
-	SERVER_LOCK();
-	
-	fontp = (GR_FONT *)malloc(sizeof(GR_FONT));
-	if (fontp == NULL) {
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	/* DPRINTF("Font magic = '%c%c%c%c', len = %u @ GrCreateFontFromBuffer\n",
-	 *         (char) buffer[0], (char) buffer[1],
-	 *         (char) buffer[2], (char) buffer[3], length);
-	 */
-
-	fontp->pfont = GdCreateFontFromBuffer(&scrdev, buffer, length, format, height, width);
-	if (fontp->pfont == NULL) {
-		/* Error loading font, probably corrupt data or unsupported format. */
-		free(fontp);
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	fontp->id = nextfontid++;
-	fontp->owner = curclient;
-	fontp->next = listfontp;
-	listfontp = fontp;
-
-	SERVER_UNLOCK();
-	return fontp->id;
-}
-
-/*
- * Create a new font from memory.
- * The font is owned by the current client.
- */
-GR_FONT_ID
-GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
-{
-	GR_FONT *srcfontp;
-	GR_FONT *fontp;
-
-	SERVER_LOCK();
-
-	fontp = (GR_FONT *)malloc(sizeof(GR_FONT));
-	if (fontp == NULL) {
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	srcfontp = GsFindFont(fontid);
-	if (srcfontp)
-		fontp->pfont = GdDuplicateFont(&scrdev, srcfontp->pfont, height, width);
-	else
-		fontp->pfont = GdCreateFont(&scrdev, NULL, height, width, NULL);
-
-	fontp->id = nextfontid++;
-	fontp->owner = curclient;
-	fontp->next = listfontp;
-	listfontp = fontp;
-	
-	SERVER_UNLOCK();
-	return fontp->id;
-}
-#endif /*HAVE_FREETYPE_2_SUPPORT*/
 
 /* Set the font size for the passed font*/
 void
@@ -1680,14 +956,12 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 	 */
 	for (evp = wp->eventclients; evp; evp = evp->next) {
 		if (evp->client == curclient) {
-#if NANOWM
 			/*
 			 * Keep root window child updates by window manager when
 			 * application sets other root window event selections
 			 */
 			if (wid == GR_ROOT_WINDOW_ID && (evp->eventmask & GR_EVENT_MASK_CHLD_UPDATE))
 					eventmask |= GR_EVENT_MASK_CHLD_UPDATE;
-#endif
 			evp->eventmask = eventmask;
 			SERVER_UNLOCK();
 			return;
@@ -1704,14 +978,14 @@ GrSelectEvents(GR_WINDOW_ID wid, GR_EVENT_MASK eventmask)
 		SERVER_UNLOCK();
 		return;
 	}
-#if NANOWM
+
 	/*
 	 * Keep root window child updates by window manager when
 	 * application sets other root window event selections
 	 */
 	if (wid == GR_ROOT_WINDOW_ID && (evp->eventmask & GR_EVENT_MASK_CHLD_UPDATE))
 			eventmask |= GR_EVENT_MASK_CHLD_UPDATE;
-#endif
+
 	evp->client = curclient;
 	evp->eventmask = eventmask;
 	evp->next = wp->eventclients;
@@ -2406,135 +1680,6 @@ GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 	SERVER_UNLOCK();
 }
 
-void
-GrSetGCFillMode(GR_GC_ID gc, int fillmode)
-{
-	GR_GC *gcp;
-
-	SERVER_LOCK();
-
-	gcp = GsFindGC(gc);
-	if (!gcp) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	switch (fillmode) {
-	case GR_FILL_SOLID:
-	case GR_FILL_STIPPLE:
-	case GR_FILL_OPAQUE_STIPPLE:
-	case GR_FILL_TILE:
-		gcp->fillmode = fillmode;
-		break;
-
-	default:
-		GsError(GR_ERROR_BAD_FILL_MODE, gc);
-		SERVER_UNLOCK();
-		return;
-	}
-	gcp->changed = GR_TRUE;
-
-	SERVER_UNLOCK();
-}
-
-void
-GrSetGCStipple(GR_GC_ID gc, GR_BITMAP * bitmap, GR_SIZE width, GR_SIZE height)
-{
-	GR_GC *gcp;
-
-	SERVER_LOCK();
-
-	gcp = GsFindGC(gc);
-	if (!gcp) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	if (gcp->stipple.bitmap)
-		free(gcp->stipple.bitmap);
-
-	if (!bitmap) {
-		gcp->stipple.bitmap = 0;
-		gcp->stipple.width = gcp->stipple.height = 0;
-		gcp->changed = GR_TRUE;
-		SERVER_UNLOCK();
-		return;
-	}
-
-	gcp->stipple.bitmap =
-		malloc(GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
-	memcpy(gcp->stipple.bitmap, bitmap,
-	       GR_BITMAP_SIZE(width, height) * sizeof(GR_BITMAP));
-
-	gcp->stipple.width = width;
-	gcp->stipple.height = height;
-	gcp->changed = GR_TRUE;
-
-	SERVER_UNLOCK();
-}
-
-void
-GrSetGCTile(GR_GC_ID gc, GR_WINDOW_ID pixmap, GR_SIZE width, GR_SIZE height)
-{
-	GR_WINDOW *win;
-	GR_GC *gcp;
-
-	SERVER_LOCK();
-
-	gcp = GsFindGC(gc);
-	if (!gcp) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	if (!pixmap) {
-		gcp->tile.psd = NULL;
-		gcp->tile.width = gcp->tile.height = 0;
-		gcp->changed = GR_TRUE;
-		SERVER_UNLOCK();
-		return;
-	}
-
-	win = GsFindWindow(pixmap);
-	if (win)
-		gcp->tile.psd = win->psd;
-	else {
-		GR_PIXMAP *pix = GsFindPixmap(pixmap);
-		if (!pix) {
-			gcp->tile.psd = NULL;
-			gcp->tile.width = gcp->tile.height = 0;
-			gcp->changed = GR_TRUE;
-			SERVER_UNLOCK();
-			return;
-		}
-		gcp->tile.psd = pix->psd;
-	}
-
-	/* FIXME:  Set a size restriction here? */
-	gcp->tile.width = width;
-	gcp->tile.height = height;
-	gcp->changed = GR_TRUE;
-
-	SERVER_UNLOCK();
-}
-
-void
-GrSetGCTSOffset(GR_GC_ID gc, GR_COORD xoff, GR_COORD yoff)
-{
-	GR_GC *gcp;
-
-	SERVER_LOCK();
-
-	gcp = GsFindGC(gc);
-	if (gcp) {
-		gcp->ts_offset.x = xoff;
-		gcp->ts_offset.y = yoff;
-		gcp->changed = GR_TRUE;
-	}
-
-	SERVER_UNLOCK();
-}
-
 /* 
  * Boolean that sets if we send EXPOSE events on a GrCopyArea
  */
@@ -2642,320 +1787,6 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-#if MW_FEATURE_SHAPES
-/*
- * Draw the boundary of an ellipse in the specified drawable with
- * the specified graphics context.  Integer only.
- */
-void
-GrEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
-	GR_SIZE ry)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdEllipse(dp->psd, dp->x + x, dp->y + y, rx, ry, FALSE);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Fill an ellipse in the specified drawable using the specified
- * graphics context.  Integer only.
- */
-void
-GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
-	GR_SIZE ry)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdEllipse(dp->psd, dp->x + x, dp->y + y, rx, ry, TRUE);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Draw an arc, pie or ellipse in the specified drawable using
- * the specified graphics context.  Integer only.
- */
-void	
-GrArc(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE rx, GR_SIZE ry, GR_COORD ax, GR_COORD ay,
-	GR_COORD bx, GR_COORD by, int type)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdArc(dp->psd, dp->x + x, dp->y + y, rx, ry, ax, ay, bx, by, type);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
- * Draw an arc or pie in the specified drawable using
- * the specified graphics context.  Requires floating point.
- */
-void
-GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE rx, GR_SIZE ry, GR_COORD angle1, GR_COORD angle2, int type)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdArcAngle(dp->psd, dp->x + x, dp->y + y, rx, ry, angle1, angle2, type);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-#endif /* MW_FEATURE_SHAPES*/
-
-#if MW_FEATURE_IMAGES
-/*
- * Draw a rectangular area in the specified drawable using the specified
- * graphics, as determined by the specified bit map.  This differs from
- * rectangle drawing in that the rectangle is drawn using the foreground
- * color and possibly the background color as determined by the bit map.
- * Each row of bits is aligned to the next bitmap word boundary (so there
- * is padding at the end of the row).  The background bit values are only
- * written if the usebackground flag is set in the GC.
- */
-void
-GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE height, GR_BITMAP *imagebits)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdBitmap(dp->psd, dp->x + x, dp->y + y, width, height, imagebits);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/* draw a multicolor image at x, y*/
-void
-GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_IMAGE_HDR *pimage)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdDrawImage(dp->psd, dp->x + x, dp->y + y, pimage);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-#endif /* MW_FEATURE_IMAGES*/
-
-#if MW_FEATURE_IMAGES && HAVE_FILEIO
-/* Draw an image from a file*/
-void
-GrDrawImageFromFile(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE width, GR_SIZE height, char* path, int flags)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdDrawImageFromFile(dp->psd, dp->x + x, dp->y + y, width, height, path, flags);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/* load image from file into a pixmap*/
-GR_IMAGE_ID
-GrLoadImageFromFile(char *path, int flags)
-{
-	GR_PIXMAP 	*pp;
-	PSD			pmd;
-
-	SERVER_LOCK();
-
-	pmd = GdLoadImageFromFile(path, flags);
-	if (!pmd) {
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	pp = (GR_PIXMAP *)malloc(sizeof(GR_PIXMAP));
-	if (pp == NULL) {
-		pmd->FreeMemGC(pmd);
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	pp->id = nextid++;
-	pp->psd = pmd;
-	pp->x = 0;
-	pp->y = 0;
-	pp->width = pmd->xvirtres;
-	pp->height = pmd->yvirtres;
-	pp->owner = curclient;
-	pp->next = listpp;
-	listpp = pp;
-
-	SERVER_UNLOCK();
-	return pp->id;
-}
-#endif /* MW_FEATURE_IMAGES && HAVE_FILEIO */
-
-#if MW_FEATURE_IMAGES
-/* Draw an image from a buffer*/
-void
-GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE width, GR_SIZE height, void *buffer, int size, int flags)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdDrawImageFromBuffer(dp->psd, dp->x + x, dp->y + y,
-			width, height, buffer, size, flags);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/* load image from the given buffer into pixmap*/
-GR_IMAGE_ID
-GrLoadImageFromBuffer(void *buffer, int size, int flags)
-{
-	GR_PIXMAP 	*pp;
-	PSD			pmd;
-
-	SERVER_LOCK();
-
-	pmd = GdLoadImageFromBuffer(buffer, size, flags);
-	if (!pmd) {
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	pp = (GR_PIXMAP *)malloc(sizeof(GR_PIXMAP));
-	if (pp == NULL) {
-		pmd->FreeMemGC(pmd);
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	pp->id = nextid++;
-	pp->psd = pmd;
-	pp->x = 0;
-	pp->y = 0;
-	pp->width = pmd->xvirtres;
-	pp->height = pmd->yvirtres;
-	pp->owner = curclient;
-	pp->next = listpp;
-	listpp = pp;
-
-	SERVER_UNLOCK();
-	return pp->id;
-}
-
-/* draw part of the pixmap image, or whole if swidth == 0*/
-void
-GrDrawImagePartToFit(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD dx, GR_COORD dy,
-	GR_SIZE dwidth, GR_SIZE dheight, GR_COORD sx, GR_COORD sy,
-	GR_SIZE swidth, GR_SIZE sheight, GR_IMAGE_ID imageid)
-{
-	GR_DRAWABLE	*dp;
-	GR_PIXMAP	*pp;
-	SERVER_LOCK();
-
-	pp = GsFindPixmap(imageid);
-	if (!pp) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdDrawImagePartToFit(dp->psd, dp->x + dx, dp->y + dy, dwidth, dheight,
-			sx, sy, swidth, sheight, pp->psd);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/* free pixmap - same as GrDestroyWindow*/
-void
-GrFreeImage(GR_IMAGE_ID id)
-{
-	GR_PIXMAP	*pp;
-
-	SERVER_LOCK();
-
-	pp = GsFindPixmap(id);
-	if (pp)
-		GsDestroyPixmap(pp);
-
-	SERVER_UNLOCK();
-}
-
-/* return pixmap information*/
-void
-GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
-{
-	GR_PIXMAP	*pp;
-	PSD			pmd = NULL;
-
-	SERVER_LOCK();
-	pp = GsFindPixmap(id);
-	if (pp)
-		pmd = pp->psd;
-	GdGetImageInfo(pmd, iip);
-	if (pp)
-		iip->id = id;
-	SERVER_UNLOCK();
-}
-#endif /* MW_FEATURE_IMAGES */
-
 /*
  * Draw a rectangular area in the specified drawable using the specified
  * graphics context.  This differs from rectangle drawing in that the
@@ -3020,49 +1851,6 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		SERVER_UNLOCK();
 		return;
 	}
-
-#if DYNAMICREGIONS  
-	gcp = GsFindGC(gc);
-	if (gcp)
-		exposure = gcp->exposure;
-	
-	/*
-	 * Skip blit and send expose event if window is partly
-	 * obscured and source and destination are onscreen.
-	 * Also check that receiving window's first client has
-	 * selected for expose events.  This keeps brain-dead
-	 * programs that don't process exposure events somewhat working.
-	 */
-	if (exposure && swp && (srcpsd == dp->psd) && swp->eventclients &&
-	    (swp->eventclients->eventmask & GR_EVENT_MASK_EXPOSURE)) {
-		MWRECT 		rc;
-		extern MWCLIPREGION *clipregion;
-
-		/* clip blit rectangle to source screen/bitmap size*/
-		if(srcx+width > srcpsd->xvirtres)
-			width = srcpsd->xvirtres - srcx;
-		if(srcy+height > srcpsd->yvirtres)
-			height = srcpsd->yvirtres - srcy;
-
-		rc.left = srcx;
-		rc.top = srcy;
-		rc.right = srcx + width;
-		rc.bottom = srcy + height;
-
-		/*
-		 * if source isn't entirely within clip region, then
-		 * the blit is partly obscured and will copy some garbage.
-		 * In this case, skip the blit, punt, and deliver an
-		 * exposure event instead for proper display.
-		 */
-		if (GdRectInRegion(clipregion, &rc) != MWRECT_ALLIN) {
-			DPRINTF("GrCopyArea: skipping blit, sending expose event\n");
-			GsExposeArea(swp, dp->x+x, dp->y+y, width, height, NULL);
-			SERVER_UNLOCK();
-			return;
-		}
-	}
-#endif /* DYNAMICREGIONS*/
 
 	if (op == MWROP_USE_GC_MODE) {
 		GR_GC *gcp = GsFindGC(gc);
@@ -3174,116 +1962,6 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	SERVER_UNLOCK();
 }
 
-#if MW_FEATURE_SHAPES
-/*
- * Draw a polygon in the specified drawable using the specified
- * graphics context.  The polygon is only complete if the first
- * point is repeated at the end.
- */
-void
-GrPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
-{
-	GR_DRAWABLE	*dp;
-	GR_POINT	*pp;
-	GR_COUNT	i;
-        PSD 		psd;
-
-	SERVER_LOCK();
-   
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		psd = dp->psd;
-		break;
-	default:
-		SERVER_UNLOCK();
-		return;
-	}
-
-	/*
-	 * Here for drawing to a window.
-	 * Relocate all the points relative to the window.
-	 */
-	pp = pointtable;
-	for (i = count; i-- > 0; pp++) {
-		pp->x += dp->x;
-		pp->y += dp->y;
-	}
-
-	GdPoly(psd, count, pointtable);
-
-#if NONETWORK   
-	/*
-	 * The following is only necessary when the server
-	 * isn't a separate process.  We don't want to change the
-	 * user's arguments!
-	 */
-	pp = pointtable;
-	for (i = count; i-- > 0; pp++) {
-		pp->x -= dp->x;
-		pp->y -= dp->y;
-	}
-#endif
-
-	SERVER_UNLOCK();
-}
-
-#if POLYREGIONS
-/*
- * Draw a filled polygon in the specified drawable using the specified
- * graphics context.  The last point may be a duplicate of the first
- * point, but this is not required.
- */
-void
-GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
-{
-	GR_DRAWABLE	*dp;
-	GR_POINT	*pp;
-	GR_COUNT	i;
-	PSD 		psd;
-
-	SERVER_LOCK();
-   
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		psd = dp->psd;
-		break;
-	default:
-		SERVER_UNLOCK();
-		return;
-	}
-
-	/*
-	 * Here for drawing to a window.
-	 * Relocate all the points relative to the window.
-	 */
-	pp = pointtable;
-	for (i = count; i-- > 0; pp++) {
-		pp->x += dp->x;
-		pp->y += dp->y;
-	}
-
-	GdFillPoly(psd, count, pointtable);
-
-#if NONETWORK
-	/*
-	 * The following is only necessary when the server
-	 * isn't a separate process.  We don't want to change the
-	 * user's arguments!
-	 */
-	pp = pointtable;
-	for (i = count; i-- > 0; pp++) {
-		pp->x -= dp->x;
-		pp->y -= dp->y;
-	}
-#endif
-
-	SERVER_UNLOCK();
-}
-#endif /* POLYREGIONS*/
-#endif /* MW_FEATURE_SHAPES*/
-
 /*
  * Draw a text string in the specified drawable using the
  * specified graphics context.
@@ -3312,37 +1990,6 @@ GrText(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, void *str,
 		GdText(dp->psd, pf, dp->x + x, dp->y + y, str, count,flags);
 		break;
 	}
-
-	SERVER_UNLOCK();
-}
-
-/* Return the system palette entries*/
-void
-GrGetSystemPalette(GR_PALETTE *pal)
-{
-
-	SERVER_LOCK();
-
-	/* return 0 count if not in palettized mode*/
-	memset(pal, 0, sizeof(GR_PALETTE));
-
-	if(rootwp->psd->pixtype == MWPF_PALETTE) {
-		pal->count = (int)rootwp->psd->ncolors;
-		GdGetPalette(rootwp->psd, 0, pal->count, pal->palette);
-	}
-
-	SERVER_UNLOCK();
-}
-
-/* Set the system palette entries from first for count*/
-void
-GrSetSystemPalette(GR_COUNT first, GR_PALETTE *pal)
-{
-	SERVER_LOCK();
-
-	GdSetPalette(rootwp->psd, first, pal->count, pal->palette);
-	if (first == 0)
-		GsRedrawScreen();
 
 	SERVER_UNLOCK();
 }
@@ -3575,78 +2222,9 @@ GrKillWindow(GR_WINDOW_ID wid)
 /*
  * GrGetSystemColor color scheme definitions
  */ 
-/* define color scheme: A (tan), B (winstd) or C (old)*/
-#define SCHEME_A
-
-#define A_RGB(r,g,b)
-#define B_RGB(r,g,b)
-#define C_RGB(r,g,b)
-
-#ifdef SCHEME_A
-#undef  A_RGB
-#define A_RGB(r,g,b)	GR_RGB(r,g,b),
-#endif
-#ifdef SCHEME_B
-#undef  B_RGB
-#define B_RGB(r,g,b)	GR_RGB(r,g,b),
-#endif
-#ifdef SCHEME_C
-#undef  C_RGB
-#define C_RGB(r,g,b)	GR_RGB(r,g,b),
-#endif
-
 #define MAXSYSCOLORS	20	/* # of GR_COLOR_* system colors*/
 
-static const GR_COLOR sysColors[MAXSYSCOLORS] = {
-	/* desktop background*/
-	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
-
-	/* caption colors*/
-	A_RGB(128,   0,   0)	/* GR_COLOR_ACTIVECAPTION       */
-	B_RGB(128,   0, 128)	/* GR_COLOR_ACTIVECAPTION       */
-	C_RGB(128,   0, 128)	/* GR_COLOR_ACTIVECAPTION       */
-	GR_RGB(255, 255, 255),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
-	A_RGB(162, 141, 104)	/* GR_COLOR_INACTIVECAPTION     */
-	B_RGB(128, 128, 128)  	/* GR_COLOR_INACTIVECAPTION     */
-	C_RGB(  0,  64, 128)	/* GR_COLOR_INACTIVECAPTION     */
-	GR_RGB(192, 192, 192),  /* GR_COLOR_INACTIVECAPTIONTEXT */
-
-	/* 3d border shades*/
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWFRAME         */
-	A_RGB(162, 141, 104)	/* GR_COLOR_BTNSHADOW           */
-	B_RGB(128, 128, 128)	/* GR_COLOR_BTNSHADOW           */
-	C_RGB(128, 128, 128)	/* GR_COLOR_BTNSHADOW           */
-	A_RGB(213, 204, 187)	/* GR_COLOR_3DLIGHT             */
-	B_RGB(223, 223, 223)	/* GR_COLOR_3DLIGHT             */
-	C_RGB(192, 192, 192)	/* GR_COLOR_3DLIGHT             */
-	A_RGB(234, 230, 221)  	/* GR_COLOR_BTNHIGHLIGHT        */
-	B_RGB(255, 255, 255)  	/* GR_COLOR_BTNHIGHLIGHT        */
-	C_RGB(223, 223, 223)  	/* GR_COLOR_BTNHIGHLIGHT        */
-
-	/* top level application window backgrounds/text*/
-	A_RGB(213, 204, 187)	/* GR_COLOR_APPWINDOW           */
-	B_RGB(192, 192, 192)	/* GR_COLOR_APPWINDOW           */
-	C_RGB(160, 160, 160)	/* GR_COLOR_APPWINDOW           */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_APPTEXT             */
-
-	/* button control backgrounds/text (usually same as app window colors)*/
-	A_RGB(213, 204, 187)	/* GR_COLOR_BTNFACE             */
-	B_RGB(192, 192, 192)	/* GR_COLOR_BTNFACE             */
-	C_RGB(160, 160, 160)	/* GR_COLOR_BTNFACE             */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_BTNTEXT             */
-
-	/* edit/listbox control backgrounds/text, selected highlights*/
-	GR_RGB(255, 255, 255),  /* GR_COLOR_WINDOW              */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWTEXT          */
-	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
-	GR_RGB(255, 255, 255),  /* GR_COLOR_HIGHLIGHTTEXT       */
-	GR_RGB( 64,  64,  64),  /* GR_COLOR_GRAYTEXT            */
-
-	/* menu backgrounds/text*/
-	A_RGB(213, 204, 187)	/* GR_COLOR_MENU                */
-	B_RGB(192, 192, 192)	/* GR_COLOR_MENU                */
-	C_RGB(160, 160, 160)	/* GR_COLOR_MENU                */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_MENUTEXT            */
+static GR_COLOR sysColors[MAXSYSCOLORS] = {
 };
 
 /* Return system-defined color*/
@@ -3654,192 +2232,53 @@ GR_COLOR
 GrGetSysColor(int index)
 {
 	GR_COLOR color = 0;
+	GR_COLOR *p = sysColors;
+	static int init = 0;
+
+	if (!init)
+	{
+		/* desktop background*/
+		*p++ = GR_RGB(  0, 128, 128);	/* GR_COLOR_DESKTOP             */
+
+		/* caption colors*/
+		*p++ = GR_RGB(128,   0,   0);	/* GR_COLOR_ACTIVECAPTION       */
+		*p++ = GR_RGB(255, 255, 255);	/* GR_COLOR_ACTIVECAPTIONTEXT   */
+		*p++ = GR_RGB(162, 141, 104);	/* GR_COLOR_INACTIVECAPTION     */
+		*p++ = GR_RGB(192, 192, 192); 	/* GR_COLOR_INACTIVECAPTIONTEXT */
+
+		/* 3d border shades*/
+		*p++ = GR_RGB(  0,   0,   0); 	/* GR_COLOR_WINDOWFRAME         */
+		*p++ = GR_RGB(162, 141, 104);	/* GR_COLOR_BTNSHADOW           */
+		*p++ = GR_RGB(213, 204, 187);	/* GR_COLOR_3DLIGHT             */
+		*p++ = GR_RGB(234, 230, 221);  	/* GR_COLOR_BTNHIGHLIGHT        */
+
+		/* top level application window backgrounds/text*/
+		*p++ = GR_RGB(213, 204, 187);	/* GR_COLOR_APPWINDOW           */
+		*p++ = GR_RGB(  0,   0,   0); 	/* GR_COLOR_APPTEXT             */
+
+		/* button control backgrounds/text (usually same as app window colors)*/
+		*p++ = GR_RGB(213, 204, 187);	/* GR_COLOR_BTNFACE             */
+		*p++ = GR_RGB(  0,   0,   0);	/* GR_COLOR_BTNTEXT             */
+
+		/* edit/listbox control backgrounds/text, selected highlights*/
+		*p++ = GR_RGB(255, 255, 255);	/* GR_COLOR_WINDOW              */
+		*p++ = GR_RGB(  0,   0,   0);	/* GR_COLOR_WINDOWTEXT          */
+		*p++ = GR_RGB(128,   0,   0);	/* GR_COLOR_HIGHLIGHT           */
+		*p++ = GR_RGB(255, 255, 255);	/* GR_COLOR_HIGHLIGHTTEXT       */
+		*p++ = GR_RGB( 64,  64,  64);	/* GR_COLOR_GRAYTEXT            */
+
+		/* menu backgrounds/text*/
+		*p++ = GR_RGB(213, 204, 187);	/* GR_COLOR_MENU                */
+		*p++ = GR_RGB(  0,   0,   0);	/* GR_COLOR_MENUTEXT            */
+		init = 1;
+	}
+
 	SERVER_LOCK();
 	if(index >= 0 && index < MAXSYSCOLORS)
 		color = sysColors[index];
 	SERVER_UNLOCK();
 	return color;
 }
-
-void
-GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
-{
-#if MW_FEATURE_TIMERS
-	MWTIMER *timer;
-
-	SERVER_LOCK();
-
-	screensaver_delay = timeout * 1000;
-
-	if((timer = GdFindTimer(GsActivateScreenSaver)))
-		GdDestroyTimer(timer);
-
-	/* 0 timeout cancels timer*/
-	if (timeout == 0) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	GdAddTimer(screensaver_delay, GsActivateScreenSaver,
-					GsActivateScreenSaver);
-
-	SERVER_UNLOCK();
-#endif /* MW_FEATURE_TIMERS */
-}
-
-#if !SWIEROS
-void
-GrSetSelectionOwner(GR_WINDOW_ID wid, const char *typelist)
-{
-	GR_WINDOW_ID oldwid = selection_owner.wid;
-
-	SERVER_LOCK();
-	if(selection_owner.typelist)
-		free(selection_owner.typelist);
-	selection_owner.typelist = NULL;
-
-	selection_owner.wid = wid;
-	if (wid) {
-		if(!(selection_owner.typelist = strdup(typelist))) {
-			GsError(GR_ERROR_MALLOC_FAILED, wid);
-			selection_owner.wid = 0;
-		}
-	}
-
-	GsDeliverSelectionChangedEvent(oldwid, wid);
-	SERVER_UNLOCK();
-}
-
-GR_WINDOW_ID
-GrGetSelectionOwner(char **typelist)
-{
-	GR_WINDOW_ID result;
-
-	SERVER_LOCK();
-	*typelist = selection_owner.typelist;
-	result = selection_owner.wid;
-	SERVER_UNLOCK();
-
-	return result;
-}
-
-void
-GrRequestClientData(GR_WINDOW_ID wid, GR_WINDOW_ID rid, GR_SERIALNO serial, GR_MIMETYPE mimetype)
-{
-	SERVER_LOCK();
-	GsDeliverClientDataReqEvent(rid, wid, serial, mimetype);
-	SERVER_UNLOCK();
-}
-
-void
-GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
-	GR_LENGTH len, GR_LENGTH thislen, void *data)
-{
-	SERVER_LOCK();
-	GsDeliverClientDataEvent(did, wid, serial, len, thislen, data);
-	SERVER_UNLOCK();
-}
-
-/*
- * Set a window's background pixmap.  Note that this doesn't
- * cause a screen refresh, use GrClearArea if required.
- */
-void
-GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
-{
-	GR_WINDOW *wp;
-	GR_PIXMAP *pp = NULL;
-
-	SERVER_LOCK();
-
-	if (!(wp = GsFindWindow(wid))) {
-		GsError(GR_ERROR_BAD_WINDOW_ID, wid);
-		SERVER_UNLOCK();
-		return;
-	}
-
-	if (pixmap && !(pp = GsFindPixmap(pixmap))) {
-		GsError(GR_ERROR_BAD_WINDOW_ID, pixmap);
-		SERVER_UNLOCK();
-		return;
-	}
-	wp->bgpixmap = pp;
-	wp->bgpixmapflags = flags;
-
-	SERVER_UNLOCK();
-}
-
-void
-GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
-{
-	SERVER_LOCK();
-	GdGetFontList(fonts,numfonts);
-	SERVER_UNLOCK();
-}
-
-void 
-GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
-{
-	SERVER_LOCK();
-	GdFreeFontList(fonts, numfonts);
-	SERVER_UNLOCK();
-}
-
-/*
- * Draw and stretch a rectangular area from source drawable to destination drawable
- */
-void
-GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1, GR_COORD dy1, GR_COORD dx2, GR_COORD dy2,
-	GR_DRAW_ID srcid, GR_COORD sx1, GR_COORD sy1, GR_COORD sx2, GR_COORD sy2, int op)
-{
-	GR_DRAWABLE *dp;
-	GR_WINDOW *swp;
-	GR_PIXMAP *spp = NULL;
-	PSD srcpsd = NULL;
-	GR_DRAW_TYPE type;
-
-	SERVER_LOCK();
-
-	type = GsPrepareDrawing(dstid, gc, &dp);
-	if (type == GR_DRAW_TYPE_NONE) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	dx1 += dp->x;
-	dy1 += dp->y;
-	dx2 += dp->x;
-	dy2 += dp->y;
-
-	swp = GsFindWindow(srcid);
-	if (swp) {
-		srcpsd = swp->psd;
-		sx1 += swp->x;
-		sy1 += swp->y;
-		sx2 += swp->x;
-		sy2 += swp->y;
-	} else {
-		spp = GsFindPixmap(srcid);
-		if (spp)
-			srcpsd = spp->psd;
-	}
-	if (!srcpsd) {
-		SERVER_UNLOCK();
-		return;
-	}
-
-	if (op == MWROP_USE_GC_MODE) {
-		GR_GC *gcp = GsFindGC(gc);
-
-		op = gcp? gcp->mode: MWROP_COPY;
-	}
-
-	/* perform blit */
-	GdStretchBlit(dp->psd, dx1, dy1, dx2, dy2, srcpsd, sx1, sy1, sx2, sy2, op);
-
-	SERVER_UNLOCK();
-}
-#endif /* SWIEROS*/
 
 /*
  * Return window parent and list of children.
@@ -3891,149 +2330,6 @@ nochildren:
 	SERVER_UNLOCK();
 }
 
-
-#if MW_FEATURE_TIMERS
-static int next_timer_id = 1000;
-
-static void
-GsTimerCB (void *arg) 
-{
-    GR_TIMER *timer = (GR_TIMER *)arg;
-
-    GsDeliverTimerEvent (timer->owner, timer->wid, timer->id);
-}
-
-/**
- * Creates a Nano-X timer with the specified period.
- * NOTE: There is a potential for more GR_TIMER_EVENTS to be queued
- * in the connection between the Nano-X server and client.  The client
- * should be able to handle late arriving GR_TIMER_EVENTs.
- *
- * @param wid the ID of the window to use as a destination for GR_TIMER_EVENT
- *	events that result from this timer.
- * @param period the timer period in milliseconds
- * @return the ID of the newly created timer, or 0 if failure.
- */
-GR_TIMER_ID
-GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
-{
-    GR_TIMER  *timer;
-	GR_TIMER_ID id;
-
-	SERVER_LOCK();
-
-    /* Create a nano-X layer timr */
-    timer = (GR_TIMER*) malloc (sizeof (GR_TIMER));
-    if (timer == NULL)
-    {
-        GsError (GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-        return 0;
-    }
-
-    /* Create a device independent layer timer */
-    timer->timer = GdAddPeriodicTimer (period, GsTimerCB, timer);
-    if (timer->timer == NULL)
-    {
-        free (timer);
-        GsError (GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-        return 0;
-    }
-
-    /* 
-     * Fill in the rest of the timer structure, and 
-     * link the new timer into the servers list of timers.
-     */
-    timer->id    = next_timer_id++;
-    timer->owner = curclient;
-    timer->wid   = wid;
-    timer->next  = list_timer;
-    list_timer   = timer;
-
-    id = timer->id;
-
-	SERVER_UNLOCK();
-
-	return id;
-}
-
-static GR_TIMER *
-GsFindTimer (GR_TIMER_ID timer_id)
-{
-    GR_TIMER   *timer;
-    
-    /*
-     * See if this is the same graphics context as last time.
-     */
-    if ((timer_id == cache_timer_id) && timer_id)
-        return cache_timer;
-    
-    /*
-     * No, search for it and cache it for future calls.
-     */
-    for (timer = list_timer; timer != NULL; timer = timer->next) 
-    {
-        if (timer->id == timer_id) 
-        {
-            cache_timer_id = timer_id;
-            cache_timer = timer;
-            return timer;
-        }
-    }
-    return NULL;
-}
-
-/**
- * Destroys a timer previously created with GrCreateTimer().
- *
- * @param tid the ID of the timer to destroy
- */
-void
-GrDestroyTimer (GR_TIMER_ID tid)
-{
-    GR_TIMER  *timer;
-    GR_TIMER  *prev_timer;
-
-	SERVER_LOCK();
-    
-    /* Find the timer structure that corresponds to "tid" */
-    timer = GsFindTimer (tid);
-    if (timer == NULL) {
-		SERVER_UNLOCK();
-        return;
-	}
-
-    if (tid == cache_timer_id) 
-    {
-        cache_timer_id = 0;
-        cache_timer = NULL;
-    }
-
-    /* Delete the timer from the device independent engine layer */
-    GdDestroyTimer (timer->timer);
-
-    /* Pull the timer out of the servers list */
-    if (list_timer == timer)
-    {
-        list_timer = timer->next;
-    }
-    else 
-    {
-        prev_timer = list_timer;
-        while (prev_timer->next != timer)
-        {
-            prev_timer = prev_timer->next;
-        }
-        prev_timer->next = timer->next;
-    }
-    free (timer);
-
-	SERVER_UNLOCK();
-}
-#endif /* MW_FEATURE_TIMERS */
-
-
 /**
  * Sets new server portrait mode and redraws all windows.
  *
@@ -4064,103 +2360,6 @@ GrQueryPointer(GR_WINDOW_ID *mwin, GR_COORD *x, GR_COORD *y, GR_BUTTON *bmask)
 	*y = cursory;
 	*bmask = curbuttons;
 	SERVER_UNLOCK();
-}
-
-/**
- * Creates a new region from a bitmap mask.
- *
- * @param bitmap	monochrome source bitmap
- * @param width		width of source bitmap
- * @param height	height of source bitmap
- */
-GR_REGION_ID
-GrNewBitmapRegion(GR_BITMAP *bitmap, GR_SIZE width, GR_SIZE height)
-{
-#if DYNAMICREGIONS
-	GR_REGION *regionp;
-	GR_REGION_ID id;
-
-	SERVER_LOCK();
-
-	if (!(regionp = malloc(sizeof(GR_REGION)))) {
-		GsError(GR_ERROR_MALLOC_FAILED, 0);
-		SERVER_UNLOCK();
-		return 0;
-	}
-
-	regionp->rgn = GdAllocBitmapRegion(bitmap, width, height);
-	regionp->id = nextregionid++;
-	regionp->owner = curclient;
-	regionp->next = listregionp;
-
-	listregionp = regionp;
-	id = regionp->id;
-	
-	SERVER_UNLOCK();
-	
-	return id;
-#else
-	return 0;
-#endif
-}
-
-/**
- * Sets the bounding region of the specified window, not
- * to be confused with a GC clip region.  The bounding region
- * is used to implement non-rectangular windows.
- * A window is defined by two regions: the bounding region
- * and the clip region.  The bounding region defines the area
- * within the parent window that the window will occupy, including
- * border.  The clip region is the subset of the bounding region
- * that is available for subwindows and graphics.  The area between
- * the bounding region and the clip region is defined to be the
- * border of the window.
- * Currently, only the window bounding region is implemented.
- *
- * @param wid		window id
- * @param rid		region id
- * @param type	region type, GR_WINDOW_BOUNDING_MASK or GR_WINDOW_CLIP_MASK
- */
-void
-GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
-{
-#if DYNAMICREGIONS
-	GR_WINDOW *wp;
-	GR_REGION *region;
-	MWCLIPREGION *newregion;
-
-	SERVER_LOCK();
-
-	/*FIXME clip window region not yet implemented*/
-
-	if (!(wp = GsFindWindow(wid))) {
-		GsError(GR_ERROR_BAD_WINDOW_ID, wid);
-		SERVER_UNLOCK();
-		return;
-	}
-
-	if (rid) {
-		if (!(region = GsFindRegion(rid))) {
-			GsError(GR_ERROR_BAD_REGION_ID, rid);
-			SERVER_UNLOCK();
-			return;
-		}
-
-		if (!(newregion = GdAllocRegion())) {
-			GsError(GR_ERROR_MALLOC_FAILED, 0);
-			SERVER_UNLOCK();
-			return;
-		}
-
-		GdCopyRegion(newregion, region->rgn);
-	} else newregion = NULL;
-
-	if (wp->clipregion)
-		GdDestroyRegion(wp->clipregion);
-	wp->clipregion = newregion;
-
-	SERVER_UNLOCK();
-#endif
 }
 
 /**

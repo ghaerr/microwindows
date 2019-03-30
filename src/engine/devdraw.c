@@ -540,6 +540,7 @@ GdFillRect(PSD psd, MWCOORD x1, MWCOORD y1, MWCOORD width, MWCOORD height)
 }
 
 #if MW_FEATURE_IMAGES
+#if MW_FEATURE_PALETTE
 /**
  * Return true if color is in palette
  *
@@ -637,6 +638,7 @@ GdMakePaletteConversionTable(PSD psd,MWPALENTRY *palette,int palsize,
 		convtable[i] = GdFindColor(psd, cr);
 	}
 }
+#endif /* MW_FEATURE_PALETTE*/
 
 static void GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage);
 /**
@@ -806,6 +808,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	transcolor = pimage->transcolor;
 	bpp = pimage->bpp;
 
+#if MW_FEATURE_PALETTE
 	/*
 	 * Merge the images's palette and build a palette index conversion table.
 	 */
@@ -817,7 +820,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			GdMakePaletteConversionTable(psd, pimage->palette, pimage->palsize,
 				convtable, MERGEPALETTE);
 	}
-
+#endif
 	minx = x;
 	maxx = x + width - 1;
 	imagebits = pimage->imagebits;

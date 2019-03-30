@@ -1,5 +1,3 @@
-#ifndef _MWTYPES_H
-#define _MWTYPES_H
 /*
  * Copyright (c) 1999, 2000, 2001, 2002, 2003, 2005, 2010, 2011 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
@@ -7,33 +5,9 @@
  * Exported Microwindows engine typedefs and defines
  */
 
-#if _MSC_VER == 1500
-// use if stdint.h missing
-	typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/
-	typedef long			int32_t;
-//	typedef unsigned int	uint32_t;	/* 32 bit type in 64 bit environment*/
-//	typedef int				int32_t;
-#else
-
-#include <stdint.h> 		/* for uint32_t, int32_t*/
-#endif
-
-#if __ECOS
-#include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */
-#endif
-
-/* force byte-packed structures and inlining*/
-#if defined(__GNUC__)
-#define MWPACKED			__attribute__ ((aligned(1), packed))	/* for structs*/
-#define PACKEDDATA			__attribute__ ((__packed__))			/* for data members*/
-#define ALWAYS_INLINE		__attribute__ ((always_inline))			/* force inline functions*/
-#else
 #define MWPACKED
 #define PACKEDDATA			/* FIXME for MSVC #pragma pack(1) equiv*/
 #define ALWAYS_INLINE
-#endif
-
-#define MICROWINDOWS	1		/* for user application options w/Microwindows*/
 
 /* builtin font std names*/
 #define MWFONT_SYSTEM_VAR	"System"	/* winFreeSansSerif 11x13 (ansi)*/
@@ -157,7 +131,6 @@
 /* Porter-Duff compositing operations.  Only SRC, CLEAR and SRC_OVER are commonly used*/
 #define	MWROP_SRC			MWROP_COPY
 #define	MWROP_DST			MWROP_NOOP
-//#define MWROP_CLEAR		MWROP_CLEAR
 #define	MWROP_SRC_OVER		17	/* dst = alphablend src,dst*/
 #define	MWROP_DST_OVER		18
 #define	MWROP_SRC_IN		19
@@ -173,14 +146,7 @@
 /* blit ROP modes in addtion to MWROP_xxx */
 #define MWROP_BLENDCONSTANT		32	/* alpha blend src -> dst with constant alpha*/
 #define MWROP_BLENDFGBG			33	/* alpha blend fg/bg color -> dst with src alpha channel*/
-//#define MWROP_BLENDCHANNEL	35	/* alpha blend src -> dst with separate per pixel alpha chan*/
-//#define MWROP_STRETCH			36	/* stretch src -> dst*/
 #define MWROP_USE_GC_MODE		255 /* use current GC mode for ROP.  Nano-X CopyArea only*/
-
-//#define MWROP_SRCCOPY		MWROP_COPY	/* obsolete*/
-//#define MWROP_SRCAND		MWROP_AND	/* obsolete*/
-//#define MWROP_SRCINVERT	MWROP_XOR	/* obsolete*/
-//#define MWROP_BLACKNESS   MWROP_CLEAR	/* obsolete*/
 
 /* 
  * Pixel formats
@@ -222,29 +188,8 @@
  *       and specifiy the pixel format as MWPF_TRUECOLOR565 etc. when
  *       calling the GrArea function(s).
  */
-#ifndef MWPIXEL_FORMAT
-#define MWPIXEL_FORMAT	MWPF_TRUECOLORARGB
-#endif
 
-#if defined(__AS386_16__)
-/* Force 8 bit palettized display for ELKS*/
-#undef MWPIXEL_FORMAT
-#define MWPIXEL_FORMAT	MWPF_PALETTE
-#endif
-
-#if (MWPIXEL_FORMAT == MWPF_TRUECOLOR565) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR555)
-typedef unsigned short MWPIXELVALHW;
-#else
-  #if (MWPIXEL_FORMAT == MWPF_TRUECOLOR332) || (MWPIXEL_FORMAT == MWPF_TRUECOLOR233)
-  typedef unsigned char MWPIXELVALHW;
-  #else
-    #if MWPIXEL_FORMAT == MWPF_PALETTE
-    typedef unsigned char MWPIXELVALHW;
-    #else
-      typedef uint32_t MWPIXELVALHW;
-    #endif
-  #endif
-#endif
+typedef uint32_t MWPIXELVALHW;	/* correct for MWPF_TRUECOLORARGB*/
 
 /* portrait modes*/
 #define MWPORTRAIT_NONE		0x00	/* hw framebuffer, no rotation*/
@@ -270,32 +215,26 @@ typedef uint32_t		MWTEXTFLAGS;/* MWTF_ text flag*/
 #define MIN_MWCOORD ((MWCOORD) (1 << ((sizeof(MWCOORD)*8)-1))) /* min coordinate value*/
 #define MAX_MWCOORD ((MWCOORD) ~(MIN_MWCOORD))	/* max coordinate value*/
 
-#ifndef TRUE
 #define TRUE			1
-#endif
-
-#ifndef FALSE
 #define FALSE			0
-#endif
 
-#define	MWMIN(a,b)		((a) < (b) ? (a) : (b))
-#define	MWMAX(a,b) 		((a) > (b) ? (a) : (b))
-#define MWABS(x)		((x) < 0 ? -(x) : (x))
-#define MWSIGN(x)		(((x) > 0) ? 1 : (((x) == 0) ? 0 : -1))
-#define MWCLAMP(x,a,b)	((x) > (b) ? (b) : ((x) < (a) ? (a) : (x)))
+int	MWMIN(int a,int b);
+int	MWMAX(int a,int b);
+int MWABS(int x);
+int MWIMAGE_SIZE(int width, int height);
 
 /* MWIMAGEBITS macros*/
-#define MWIMAGE_WORDS(x)	(((x)+15)/16)
-#define MWIMAGE_BYTES(x)	(MWIMAGE_WORDS(x)*sizeof(MWIMAGEBITS))
+#define	MWIMAGE_BITSPERIMAGE	16
+#define	MWIMAGE_FIRSTBIT		0x8000
+//#define MWIMAGE_WORDS(x)	(((x)+15)/16)
+//#define MWIMAGE_BYTES(x)	(MWIMAGE_WORDS(x)*sizeof(MWIMAGEBITS))
 /* size of image in words*/
-#define	MWIMAGE_SIZE(width, height)  	\
+//#define	MWIMAGE_SIZE(width, height)  	\
 	((height) * (((width) + MWIMAGE_BITSPERIMAGE - 1) / MWIMAGE_BITSPERIMAGE))
-#define	MWIMAGE_BITSPERIMAGE	(sizeof(MWIMAGEBITS) * 8)
-#define	MWIMAGE_BITVALUE(n)	((MWIMAGEBITS) (((MWIMAGEBITS) 1) << (n)))
-#define	MWIMAGE_FIRSTBIT	(MWIMAGE_BITVALUE(MWIMAGE_BITSPERIMAGE - 1))
-#define	MWIMAGE_NEXTBIT(m)	((MWIMAGEBITS) ((m) >> 1))
-#define	MWIMAGE_TESTBIT(m)	((m) & MWIMAGE_FIRSTBIT)  /* use with shiftbit*/
-#define	MWIMAGE_SHIFTBIT(m)	((MWIMAGEBITS) ((m) << 1))  /* for testbit*/
+//#define	MWIMAGE_BITVALUE(n)	((MWIMAGEBITS) (((MWIMAGEBITS) 1) << (n)))
+//#define	MWIMAGE_NEXTBIT(m)	((MWIMAGEBITS) ((m) >> 1))
+//#define	MWIMAGE_TESTBIT(m)	((m) & MWIMAGE_FIRSTBIT)  /* use with shiftbit*/
+//#define	MWIMAGE_SHIFTBIT(m)	((MWIMAGEBITS) ((m) << 1))  /* for testbit*/
 
 /* dbl linked list data structure*/
 typedef struct _mwlist {		/* LIST must be first decl in struct*/
@@ -471,8 +410,6 @@ typedef struct {
 	/* used in palette conversions only*/
 	MWPALENTRY *palette;		/* palette for image*/
 	uint32_t	transcolor;		/* transparent color in image*/
-
-//	PSD			alphachan;		/* alpha chan for MWROP_BLENDCHANNEL*/
 } MWBLITPARMS, *PMWBLITPARMS;
 
 /**
@@ -665,63 +602,6 @@ typedef struct {
 } MWLOGFONT, *PMWLOGFONT;
 
 /*
- * Macros to initialize the MWLOGFONT structure to the most common defaults
- * needed by application programs and the nano-X server program.
- */
-
-#define MWLF_Clear(lf)					\
-	do {						\
-		(lf)->lfHeight = 0;			\
-		(lf)->lfWidth = 0;			\
-		(lf)->lfEscapement = 0;			\
-		(lf)->lfOrientation = 0;		\
-		(lf)->lfWeight = MWLF_WEIGHT_REGULAR;	\
-		(lf)->lfPitch = 0;			\
-		(lf)->lfClass = MWLF_CLASS_ANY;		\
-		(lf)->lfItalic = 0;			\
-		(lf)->lfOblique = 0;			\
-		(lf)->lfRoman = 0;			\
-		(lf)->lfSerif = 0;			\
-		(lf)->lfSansSerif = 0;			\
-		(lf)->lfModern = 0;			\
-		(lf)->lfMonospace = 0;			\
-		(lf)->lfProportional = 0;		\
-		(lf)->lfSmallCaps = 0;			\
-		(lf)->lfUnderline = 0;			\
-		(lf)->lfStrikeOut = 0;			\
-		(lf)->lfCharSet = 0;			\
-		(lf)->lfOutPrecision = 0;		\
-		(lf)->lfClipPrecision = 0;		\
-		(lf)->lfQuality = 0;			\
-		(lf)->lfPitchAndFamily = 0;		\
-		(lf)->lfFaceName[0] = '\0';		\
-	} while (0)
-
-#define MWLF_SetBold(lf)				\
-	do {						\
-		(lf)->lfWeight = MWLF_WEIGHT_BOLD;	\
-	} while (0)
-
-#define MWLF_SetRegular(lf)				\
-	do {						\
-		(lf)->lfWeight = MWLF_WEIGHT_REGULAR;	\
-	} while (0)
-
-#define MWLF_SetItalics(lf)				\
-	do {						\
-		(lf)->lfItalic = 1;			\
-		(lf)->lfOblique = 0;			\
-		(lf)->lfRoman = 0;			\
-	} while (0)
-
-#define MWLF_SetRoman(lf)				\
-	do {						\
-		(lf)->lfItalic = 0;			\
-		(lf)->lfOblique = 0;			\
-		(lf)->lfRoman = 1;			\
-	} while (0)
-
-/*
  * Rectangle and point structures.
  * These structures are "inherited" in wingdi.h for
  * the Win32 RECT and POINT structures, so they must match
@@ -818,7 +698,7 @@ typedef struct {
 } MWIMAGEINFO, *PMWIMAGEINFO;
 
 #define	MWMAX_CURSOR_SIZE	32		/* maximum cursor x and y size*/
-#define	MWMAX_CURSOR_BUFLEN	MWIMAGE_SIZE(MWMAX_CURSOR_SIZE,MWMAX_CURSOR_SIZE)
+#define	MWMAX_CURSOR_BUFLEN	128
 
 /* In-core software cursor structure*/
 typedef struct {
@@ -848,17 +728,12 @@ typedef struct {
 #define MWELLIPSEFILL	0x0010	/* ellipse filled*/
 
 /* create MWCOLORVAL (0xAABBGGRR format)*/
-#define MWARGB(a,r,g,b)	((MWCOLORVAL)(((unsigned char)(r)|\
-				(((uint32_t)(unsigned char)(g))<<8))|\
-				(((uint32_t)(unsigned char)(b))<<16)|\
-				(((uint32_t)(unsigned char)(a))<<24)))
-#define MWRGB(r,g,b)	MWARGB(255,(r),(g),(b))		/* argb 255 alpha*/
-#define MW0RGB(r,g,b)	MWARGB(0,(r),(g),(b))		/* rgb 0 alpha*/
+MWCOLORVAL MWARGB(int a,int r,int g,int b);
+MWCOLORVAL MWRGB(int r,int g,int b);
 
 /* no color, used for transparency, should not be 0, -1 or any MWRGB color*/
 #define MWNOCOLOR	0x01000000L			/* MWRGBA(1, 0, 0, 0)*/
 
-#ifdef MWINCLUDECOLORS
 /*
  * Alpha blending evolution
  *
@@ -886,72 +761,12 @@ typedef struct {
  * correct macro =						d = muldiv255(d, 255 - a) + a
  */
 /* single byte color macros for 24/32bpp*/
-//#define muldiv255(a,b)	(((a)*(b))/255)		/* slow divide, exact*/
-#define muldiv255(a,b)		((((a)+1)*(b))>>8)		/* very fast, 92% accurate*/
-//#define muldiv255(a,b)	((((a)+((a)>>7))*(b))>>8)	/* fast, 35% accurate*/
-
-/* pixel to pixel blend for 16bpp*/
-#define mulscale(a,b,n)		((((a)+1)*(b))>>(n))	/* very fast, always shift for 16bpp*/
-
-/* single byte color macros for 15/16bpp macros - FIXME endian specific*/
-/* d = muldiv255(255-a, d-s) + s*/
-#define muldiv255_rgb565(d, sr, sg, sb, as) \
-						  (((((((d) & 0xF800) - (sr)) * as) >> 8) + (sr)) & 0xF800)\
-						| (((((((d) & 0x07E0) - (sg)) * as) >> 8) + (sg)) & 0x07E0)\
-						| (((((((d) & 0x001F) - (sb)) * as) >> 8) + (sb)) & 0x001F)
-#define muldiv255_rgb555(d, sr, sg, sb, as) \
-						  (((((((d) & 0x7C00) - (sr)) * as) >> 8) + (sr)) & 0x7C00)\
-						| (((((((d) & 0x03E0) - (sg)) * as) >> 8) + (sg)) & 0x03E0)\
-						| (((((((d) & 0x001F) - (sb)) * as) >> 8) + (sb)) & 0x001F)
-#define muldiv255_rgb1555(d, sr, sg, sb, as) \
-						  (((((((d) & 0x001F) - (sr)) * as) >> 8) + (sr)) & 0x001F)\
-						| (((((((d) & 0x03E0) - (sg)) * as) >> 8) + (sg)) & 0x03E0)\
-						| (((((((d) & 0x7C00) - (sb)) * as) >> 8) + (sb)) & 0x7C00)
-
-
-/* palette color definition*/
-#define RGBDEF(r,g,b)	{r, g, b}
-
-/* return palette entry as MWCOLORVAL (0xAABBGGRR)*/
-#define GETPALENTRY(pal,index) ((MWCOLORVAL)(pal[index].r | (pal[index].g << 8) |\
-									    (pal[index].b << 16) | (255 << 24)))
 
 /* extract MWCOLORVAL (0xAABBGGRR) values*/
-#define REDVALUE(rgb)	((rgb) & 0xff)
-#define GREENVALUE(rgb) (((rgb) >> 8) & 0xff)
-#define BLUEVALUE(rgb)	(((rgb) >> 16) & 0xff)
-#define ALPHAVALUE(rgb)	(((rgb) >> 24) & 0xff)
-
-/* Mask values for MWIF_ image data formats*/
-/* MWIF_BGR233*/
-#define RMASK233	0x07
-#define GMASK233	0x38
-#define BMASK233	0xc0
-#define AMASK233	0x00
-
-/* MWIF_RGB332*/
-#define RMASK332	0xe0
-#define GMASK332	0x1c
-#define BMASK332	0x03
-#define AMASK332	0x00
-
-/* MWIF_RGB555*/
-#define RMASK555	0x7c00
-#define GMASK555	0x03e0
-#define BMASK555	0x001f
-#define AMASK555	0x8000
-
-/* MWIF_RGB565*/
-#define RMASK565	0xf800
-#define GMASK565	0x07e0
-#define BMASK565	0x001f
-#define AMASK565	0x0000
-
-/* MWIF_BGR888*/
-#define RMASKBGR	0xff0000
-#define GMASKBGR	0x00ff00
-#define BMASKBGR	0x0000ff
-#define AMASKBGR	0x000000
+//#define REDVALUE(rgb)	((rgb) & 0xff)
+//#define GREENVALUE(rgb) (((rgb) >> 8) & 0xff)
+//#define BLUEVALUE(rgb)	(((rgb) >> 16) & 0xff)
+//#define ALPHAVALUE(rgb)	(((rgb) >> 24) & 0xff)
 
 /* MWIF_BGRA8888*/
 #define RMASKBGRA	0x00ff0000
@@ -959,402 +774,20 @@ typedef struct {
 #define BMASKBGRA	0x000000ff
 #define AMASKBGRA	0xff000000
 
-/* MWIF_RGBA8888*/
-#define RMASKRGBA	0x000000ff
-#define GMASKRGBA	0x0000ff00
-#define BMASKRGBA	0x00ff0000
-#define AMASKRGBA	0xff000000
-
-/* Truecolor color conversion and extraction macros*/
-/*
- * Conversion from 8-bit RGB components to MWPIXELVAL
- */
-/* create 32 bit 8/8/8/8 format pixel (0xAARRGGBB) from RGB triplet*/
-#define RGB2PIXEL8888(r,g,b)	\
-	(0xFF000000UL | ((r) << 16) | ((g) << 8) | (b))
-
-/* create 32 bit 8/8/8/8 format pixel (0xAABBGGRR) from RGB triplet*/
-#define RGB2PIXELABGR(r,g,b)	\
-	(0xFF000000UL | ((b) << 16) | ((g) << 8) | (r))
-
-/* create 32 bit 8/8/8/8 format pixel (0xAARRGGBB) from ARGB quad*/
-#define ARGB2PIXEL8888(a,r,g,b)	\
-	(((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
-
-/* create 32 bit 8/8/8/8 format pixel (0xAABBGGRR) from ARGB quad*/
-#define ARGB2PIXELABGR(a,r,g,b)	\
-	(((a) << 24) | ((b) << 16) | ((g) << 8) | (r))
-
-/* create 24 bit 8/8/8 format pixel (0x00RRGGBB) from RGB triplet*/
-#define RGB2PIXEL888(r,g,b)	\
-	(((r) << 16) | ((g) << 8) | (b))
-
-/* create 16 bit 5/6/5 format pixel from RGB triplet */
-#define RGB2PIXEL565(r,g,b)	\
-	((((r) & 0xf8) << 8) | (((g) & 0xfc) << 3) | (((b) & 0xf8) >> 3))
-
-/* create 16 bit 5/5/5 format pixel from RGB triplet */
-#define RGB2PIXEL555(r,g,b)	\
-	((((r) & 0xf8) << 7) | (((g) & 0xf8) << 2) | (((b) & 0xf8) >> 3))
-
-/* create 16 bit b/g/r 5/5/5 format pixel from RGB triplet */
-#define RGB2PIXEL1555(r,g,b)	\
-	((((b) & 0xf8) << 7) | (((g) & 0xf8) << 2) | (((r) & 0xf8) >> 3) | 0x8000)
-
-/* create 8 bit 3/3/2 format pixel from RGB triplet*/
-#define RGB2PIXEL332(r,g,b)	\
-	(((r) & 0xe0) | (((g) & 0xe0) >> 3) | (((b) & 0xc0) >> 6))
-
-/* create 8 bit 2/3/3 format pixel from RGB triplet*/
-#define RGB2PIXEL233(r,g,b)	\
-	((((r) & 0xe0) >> 5) | (((g) & 0xe0) >> 2) | (((b) & 0xc0) >> 0))
-
-/* create single component of 5/6/5format pixel from color byte*/
-#define RED2PIXEL565(byte)		(((byte) & 0xf8) << 8)
-#define GREEN2PIXEL565(byte)	(((byte) & 0xfc) << 3)
-#define BLUE2PIXEL565(byte)		(((byte) & 0xf8) >> 3)
-
-/* create single component of 5/5/5format pixel from color byte*/
-#define RED2PIXEL555(byte)		(((byte) & 0xf8) << 7)
-#define GREEN2PIXEL555(byte)	(((byte) & 0xf8) << 2)
-#define BLUE2PIXEL555(byte)		(((byte) & 0xf8) >> 3)
-
-/* create single component of 1/5/5/5format pixel from color byte*/
-#define RED2PIXEL1555(byte)		(((byte) & 0xf8) >> 3)
-#define GREEN2PIXEL1555(byte)	(((byte) & 0xf8) << 2)
-#define BLUE2PIXEL1555(byte)		(((byte) & 0xf8) << 7)
-
-/* these defines used in convblits, must be available regardless of MWPIXEL_FORMAT, default 565*/
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR555
-#define muldiv255_16bpp		muldiv255_rgb555
-#define RED2PIXEL(byte)		RED2PIXEL555(byte)
-#define GREEN2PIXEL(byte)	GREEN2PIXEL555(byte)
-#define BLUE2PIXEL(byte)	BLUE2PIXEL555(byte)
-#define REDMASK(pixel)		((pixel) & 0x7c00)
-#define GREENMASK(pixel)	((pixel) & 0x03e0)
-#define BLUEMASK(pixel)		((pixel) & 0x001f)
-#else
- #if MWPIXEL_FORMAT == MWPF_TRUECOLOR1555
-#define muldiv255_16bpp		muldiv255_rgb1555
-#define RED2PIXEL(byte)		RED2PIXEL1555(byte)
-#define GREEN2PIXEL(byte)	GREEN2PIXEL1555(byte)
-#define BLUE2PIXEL(byte)	BLUE2PIXEL1555(byte)
-#define REDMASK(pixel)		((pixel) & 0x001f)
-#define GREENMASK(pixel)	((pixel) & 0x03e0)
-#define BLUEMASK(pixel)		((pixel) & 0x7c00)
- #else
-#define muldiv255_16bpp		muldiv255_rgb565
-#define RED2PIXEL(byte)		RED2PIXEL565(byte)
-#define GREEN2PIXEL(byte)	GREEN2PIXEL565(byte)
-#define BLUE2PIXEL(byte)	BLUE2PIXEL565(byte)
-#define REDMASK(pixel)		((pixel) & 0xf800)
-#define GREENMASK(pixel)	((pixel) & 0x07e0)
-#define BLUEMASK(pixel)		((pixel) & 0x001f)
- #endif
-#endif
-
 /*
  * Conversion from MWCOLORVAL to MWPIXELVAL
  */
 /* create 32 bit 8/8/8/8 format pixel from ABGR colorval (0xAABBGGRR)*/
 /* In this format, alpha is preserved. */
-#define COLOR2PIXEL8888(c)	\
+//#define COLOR2PIXEL8888(c)	\
 	((((c) & 0xff) << 16) | ((c) & 0xff00ff00ul) | (((c) & 0xff0000) >> 16))
-
-/* convert ABGR pixel to ARGB pixel (RGBA image pixel to BGRA image pixel)*/
-#define PIXELABGR2PIXEL8888(c)	COLOR2PIXEL8888(c)
-
-/* create 32 bit 8/8/8/8 format pixel from ABGR colorval (0xAABBGGRR)*/
-/* In this format, alpha is preserved. */
-#define COLOR2PIXELABGR(c)		(c)
-
-/* create 24 bit 8/8/8 format pixel from 0BGR colorval (0x00BBGGRR)*/
-/* In this format, alpha is ignored. */
-#define COLOR2PIXEL888(c)	\
-	((((c) & 0xff) << 16) | ((c) & 0xff00) | (((c) & 0xff0000) >> 16))
-
-/* create 16 bit 5/6/5 format pixel from 0BGR colorval (0x00BBGGRR)*/
-/* In this format, alpha is ignored. */
-#define COLOR2PIXEL565(c)	\
-	((((c) & 0xf8) << 8) | (((c) & 0xfc00) >> 5) | (((c) & 0xf80000) >> 19))
-
-/* create 16 bit 5/5/5 format pixel from 0BGR colorval (0x00BBGGRR)*/
-/* In this format, alpha is ignored. */
-#define COLOR2PIXEL555(c)	\
-	((((c) & 0xf8) << 7) | (((c) & 0xf800) >> 6) | (((c) & 0xf80000) >> 19))
-
-/* create 16 bit b/g/r 5/5/5 format pixel from 0BGR colorval (0x00BBGGRR)*/
-/* In this format, alpha is ignored. */
-#define COLOR2PIXEL1555(c)	\
-	((((c) & 0xf8) >> 3) | (((c) & 0xf800) >> 6) | (((c) & 0xf80000) >> 9) | 0x8000)
-
-/* create 8 bit 3/3/2 format pixel from 0BGR colorval (0x00BBGGRR)*/
-/* In this format, alpha is ignored. */
-#define COLOR2PIXEL332(c)	\
-	(((c) & 0xe0) | (((c) & 0xe000) >> 11) | (((c) & 0xc00000) >> 22))
-
-/* create 8 bit 2/3/3 format pixel from 0BGR colorval (0x00BBGGRR)*/
-/* In this format, alpha is ignored. */
-#define COLOR2PIXEL233(c)	\
-        ((((c) & 0xC00000) >> 16) | (((c) & 0x00E000) >> 10) | (((c) & 0xE0) >> 5))
-
-/*
- * Conversion from MWPIXELVAL to red, green or blue components
- */
-/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
-#define PIXEL8888ALPHA(pixelval)	(((pixelval) >> 24) & 0xff)
-#define PIXEL8888RED(pixelval)  	(((pixelval) >> 16) & 0xff)
-#define PIXEL8888GREEN(pixelval)	(((pixelval) >> 8) & 0xff)
-#define PIXEL8888BLUE(pixelval) 	((pixelval) & 0xff)
-
-/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
-#define PIXELABGRALPHA(pixelval)	(((pixelval) >> 24) & 0xff)
-#define PIXELABGRBLUE(pixelval)  	(((pixelval) >> 16) & 0xff)
-#define PIXELABGRGREEN(pixelval)	(((pixelval) >> 8) & 0xff)
-#define PIXELABGRRED(pixelval)		((pixelval) & 0xff)
-
-/* return 8/8/8 bit r, g or b component of 24 bit pixelval*/
-#define PIXEL888RED(pixelval)		(((pixelval) >> 16) & 0xff)
-#define PIXEL888GREEN(pixelval)		(((pixelval) >> 8) & 0xff)
-#define PIXEL888BLUE(pixelval)		((pixelval) & 0xff)
-
-/* return 5/6/5 bit r, g or b component of 16 bit pixelval*/
-#define PIXEL565RED(pixelval)		(((pixelval) >> 11) & 0x1f)
-#define PIXEL565GREEN(pixelval)		(((pixelval) >> 5) & 0x3f)
-#define PIXEL565BLUE(pixelval)		((pixelval) & 0x1f)
-
-/* return 5/5/5 bit r, g or b component of 16 bit pixelval*/
-#define PIXEL555RED(pixelval)		(((pixelval) >> 10) & 0x1f)
-#define PIXEL555GREEN(pixelval)		(((pixelval) >> 5) & 0x1f)
-#define PIXEL555BLUE(pixelval)		((pixelval) & 0x1f)
-
-/* return b/g/r 5/5/5 bit r, g or b component of 16 bit pixelval*/
-#define PIXEL1555BLUE(pixelval)		(((pixelval) >> 10) & 0x1f)
-#define PIXEL1555GREEN(pixelval)	(((pixelval) >> 5) & 0x1f)
-#define PIXEL1555RED(pixelval)		((pixelval) & 0x1f)
-
-/* return 3/3/2 bit r, g or b component of 8 bit pixelval*/
-#define PIXEL332RED(pixelval)		(((pixelval) >> 5) & 0x07)
-#define PIXEL332GREEN(pixelval)		(((pixelval) >> 2) & 0x07)
-#define PIXEL332BLUE(pixelval)		((pixelval) & 0x03)
-
-/* return 2/3/3 bit b, g, r component of 8 bit pixelval*/
-#define PIXEL233RED(pixelval)		((pixelval) & 0x07)
-#define PIXEL233GREEN(pixelval)		(((pixelval) >> 3) & 0x07)
-#define PIXEL233BLUE(pixelval)		(((pixelval) >> 6) & 0x03)
-
-/*
- * Conversion from MWPIXELVAL to normal 8-bit red, green or blue components
- */
-/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
-#define PIXEL8888ALPHA8(pixelval)		(((pixelval) >> 24) & 0xff)
-#define PIXEL8888RED8(pixelval)			(((pixelval) >> 16) & 0xff)
-#define PIXEL8888GREEN8(pixelval)		(((pixelval) >> 8) & 0xff)
-#define PIXEL8888BLUE8(pixelval)		((pixelval) & 0xff)
-
-/* return 8/8/8/8 bit a, r, g or b component of 32 bit pixelval*/
-#define PIXELABGRALPHA8(pixelval)		(((pixelval) >> 24) & 0xff)
-#define PIXELABGRBLUE8(pixelval)		(((pixelval) >> 16) & 0xff)
-#define PIXELABGRGREEN8(pixelval)		(((pixelval) >> 8) & 0xff)
-#define PIXELABGRRED8(pixelval)			((pixelval) & 0xff)
-
-/* return 8 bit r, g or b component of 8/8/8 24 bit pixelval*/
-#define PIXEL888RED8(pixelval)          (((pixelval) >> 16) & 0xff)
-#define PIXEL888GREEN8(pixelval)        (((pixelval) >> 8) & 0xff)
-#define PIXEL888BLUE8(pixelval)         ((pixelval) & 0xff)
-
-/* return 8 bit r, g or b component of 5/6/5 16 bit pixelval*/
-#define PIXEL565RED8(pixelval)          (((pixelval) >> 8) & 0xf8)
-#define PIXEL565GREEN8(pixelval)        (((pixelval) >> 3) & 0xfc)
-#define PIXEL565BLUE8(pixelval)         (((pixelval) << 3) & 0xf8)
-
-/* return 8 bit r, g or b component of 5/5/5 16 bit pixelval*/
-#define PIXEL555RED8(pixelval)          (((pixelval) >> 7) & 0xf8)
-#define PIXEL555GREEN8(pixelval)        (((pixelval) >> 2) & 0xf8)
-#define PIXEL555BLUE8(pixelval)         (((pixelval) << 3) & 0xf8)
-
-/* return 8 bit r, g or b component of b/g/r 5/5/5 16 bit pixelval*/
-#define PIXEL1555BLUE8(pixelval)		(((pixelval) >> 7) & 0xf8)
-#define PIXEL1555GREEN8(pixelval)		(((pixelval) >> 2) & 0xf8)
-#define PIXEL1555RED8(pixelval)			(((pixelval) << 3) & 0xf8)
-
-/* return 8 bit r, g or b component of 3/3/2 8 bit pixelval*/
-#define PIXEL332RED8(pixelval)          ( (pixelval)       & 0xe0)
-#define PIXEL332GREEN8(pixelval)        (((pixelval) << 3) & 0xe0)
-#define PIXEL332BLUE8(pixelval)         (((pixelval) << 6) & 0xc0)
-
-/* return 8 bit r, g or b component of 2/3/3 8 bit pixelval*/
-#define PIXEL233RED8(pixelval)          (((pixelval) << 5) & 0xe0)
-#define PIXEL233GREEN8(pixelval)        (((pixelval) << 2) & 0xe0)
-#define PIXEL233BLUE8(pixelval)         ( (pixelval)       & 0xc0)
-
-/*
- * Conversion from MWPIXELVAL to *32-bit* red, green or blue components
- * (i.e. PIXEL888RED32(x) == (PIXEL888RED8(x) << 24).  These macros optimize
- * out the extra shift.)
- */
-/* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
-#define PIXEL8888ALPHA32(pixelval)        ( ((uint32_t)(pixelval))        & 0xff000000UL)
-#define PIXEL8888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
-#define PIXEL8888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
-#define PIXEL8888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
-
-/* return 32 bit a, r, g or b component of 8/8/8/8 32 bit pixelval*/
-#define PIXELABGRALPHA32(pixelval)        ( ((uint32_t)(pixelval))        & 0xff000000UL)
-#define PIXELABGRBLUE32(pixelval)         ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
-#define PIXELABGRGREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
-#define PIXELABGRRED32(pixelval)          ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
-
-/* return 32 bit r, g or b component of 8/8/8 24 bit pixelval*/
-#define PIXEL888RED32(pixelval)          ((((uint32_t)(pixelval)) <<  8) & 0xff000000UL)
-#define PIXEL888GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 16) & 0xff000000UL)
-#define PIXEL888BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xff000000UL)
-
-/* return 32 bit r, g or b component of 5/6/5 16 bit pixelval*/
-#define PIXEL565RED32(pixelval)          ((((uint32_t)(pixelval)) << 16) & 0xf8000000UL)
-#define PIXEL565GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 21) & 0xfc000000UL)
-#define PIXEL565BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 27) & 0xf8000000UL)
-
-/* return 32 bit r, g or b component of 5/5/5 16 bit pixelval*/
-#define PIXEL555RED32(pixelval)          ((((uint32_t)(pixelval)) << 17) & 0xf8000000UL)
-#define PIXEL555GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 22) & 0xf8000000UL)
-#define PIXEL555BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 27) & 0xf8000000UL)
-
-/* return 32 bit r, g or b component of 3/3/2 8 bit pixelval*/
-#define PIXEL332RED32(pixelval)          ((((uint32_t)(pixelval)) << 24) & 0xe0000000UL)
-#define PIXEL332GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 27) & 0xe0000000UL)
-#define PIXEL332BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 30) & 0xc0000000UL)
-
-/* return 32 bit r, g or b component of 2/3/3 8 bit pixelval*/
-#define PIXEL233RED32(pixelval)          ((((uint32_t)(pixelval)) << 29) & 0xe0000000UL)
-#define PIXEL233GREEN32(pixelval)        ((((uint32_t)(pixelval)) << 26) & 0xe0000000UL)
-#define PIXEL233BLUE32(pixelval)         ((((uint32_t)(pixelval)) << 24) & 0xc0000000UL)
 
 /*
  * Conversion from MWPIXELVAL to MWCOLORVAL
  */
 /* create ABGR colorval (0xAABBGGRR) from 8/8/8/8 ARGB (0xAARRGGBB) format pixel*/
-#define PIXEL8888TOCOLORVAL(p)	\
+//#define PIXEL8888TOCOLORVAL(p)	\
 	((((p) & 0xff0000ul) >> 16) | ((p) & 0xff00ff00ul) | (((p) & 0xffu) << 16) | 0xff000000ul)
-
-/* create ABGR colorval (0xAABBGGRR) from 8/8/8/8 ABGR (0xAABBGGRR) format pixel*/
-#define PIXELABGRTOCOLORVAL(p)	\
-	((p) | 0xff000000ul)
-
-/* create ABGR colorval (0xFFBBGGRR) from 8/8/8 RGB (0x00RRGGBB) format pixel*/
-#define PIXEL888TOCOLORVAL(p)	\
-	(0xff000000ul | (((p) & 0xff0000ul) >> 16) | ((p) & 0xff00u) | (((p) & 0xffu) << 16) | 0xff000000ul)
-
-/* create ABGR colorval (0xFFBBGGRR) from 5/6/5 format pixel*/
-#define PIXEL565TOCOLORVAL(p)	\
-	(0xff000000ul | (((p) & 0xf800u) >> 8) | (((p) & 0x07e0u) << 5) | (((p) & 0x1ful) << 19) | 0xff000000ul)
-
-/* create ABGR colorval (0xFFBBGGRR) from 5/5/5 format pixel*/
-#define PIXEL555TOCOLORVAL(p)	\
-	(0xff000000ul | (((p) & 0x7c00u) >> 7) | (((p) & 0x03e0u) << 6) | (((p) & 0x1ful) << 19) | 0xff000000ul)
-
-/* create ABGR colorval (0xFFBBGGRR) from 1/5/5/5 format pixel*/
-#define PIXEL1555TOCOLORVAL(p)  \
-        (0xff000000ul | (((p) & 0x7c00u) << 9) | (((p) & 0x03e0u) << 6) | (((p) & 0x1ful) << 3) | 0xff000000ul)
-
-/* create ABGR colorval (0xFFBBGGRR) from 3/3/2 format pixel*/
-#define PIXEL332TOCOLORVAL(p)	\
-	(0xff000000ul | (((p) & 0xe0u)) | (((p) & 0x1cu) << 11) | (((p) & 0x03ul) << 19) | 0xff000000ul)
-
-/* create ABGR colorval (0x00BBGGRR) from 2/3/3 format pixel*/
-#define PIXEL233TOCOLORVAL(p)	\
-	(((p) & 0x07) | (((p) & 0x38) << 5) | (((p) & 0xC0) << 14))
-
-/*
- * Conversion from ARGB values
- */
-/* create 16 bit 5/6/5 format pixel from ARGB value (0xAARRGGBB)*/
-#define ARGB2PIXEL565(c) \
-	((((c) & 0x0000f8) >> 3) | (((c) & 0x00fc00) >> 5) | (((c) & 0xf80000) >> 8))
-
-/* convert ARGB (0xAARRGGBB) to ABGR colorval (0xAABBGGRR)*/
-#define ARGB2COLORVAL(c) \
-	(((c) & 0xFF00FF00UL) | (((c) & 0x00FF0000UL) >> 16) | (((c) & 0x000000FFUL) << 16))
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORARGB
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL8888(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL8888(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL8888TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL8888RED(p)
-#define PIXEL2GREEN(p)		PIXEL8888GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL8888BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORABGR
-#define RGB2PIXEL(r,g,b)	RGB2PIXELABGR(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXELABGR(c)
-#define PIXELVALTOCOLORVAL(p)	PIXELABGRTOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXELABGRRED(p)
-#define PIXEL2GREEN(p)		PIXELABGRGREEN(p)
-#define PIXEL2BLUE(p)		PIXELABGRBLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORRGB
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL888(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL888(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL888TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL888RED(p)
-#define PIXEL2GREEN(p)		PIXEL888GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL888BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR565
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL565(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL565(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL565TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL565RED(p)
-#define PIXEL2GREEN(p)		PIXEL565GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL565BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR555
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL555(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL555(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL555TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL555RED(p)
-#define PIXEL2GREEN(p)		PIXEL555GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL555BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR1555
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL1555(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL1555(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL1555TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL1555RED(p)
-#define PIXEL2GREEN(p)		PIXEL1555GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL1555BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR332
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL332(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL332(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL332TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL332RED(p)
-#define PIXEL2GREEN(p)		PIXEL332GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL332BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_TRUECOLOR233
-#define RGB2PIXEL(r,g,b)	RGB2PIXEL233(r,g,b)
-#define COLORVALTOPIXELVAL(c)	COLOR2PIXEL233(c)
-#define PIXELVALTOCOLORVAL(p)	PIXEL233TOCOLORVAL(p)
-#define PIXEL2RED(p)		PIXEL233RED(p)
-#define PIXEL2GREEN(p)		PIXEL233GREEN(p)
-#define PIXEL2BLUE(p)		PIXEL233BLUE(p)
-#endif
-
-#if MWPIXEL_FORMAT == MWPF_PALETTE
-//only required for compiling in palette pixel size, not supported in convblits
-//extern MWPALENTRY	gr_palette[256];
-//extern int32_t	gr_ncolors;
-//#define RGB2PIXEL(r,g,b)	GdFindNearestColor(gr_palette, gr_ncolors, MWRGB(r,g,b))
-#define RGB2PIXEL(r,g,b)	0
-#endif
 
 /*
  * Common colors - note any color including these may not be
@@ -1382,31 +815,6 @@ typedef struct {
 #define WHITE		MWRGB( 255, 255, 255 )
 /* other common colors*/
 #define DKGRAY		MWRGB( 32,  32,  32)
-
-#if 0000
-/* colors assumed in first 16 palette entries*/
-/* note: don't use palette indices if the palette may
- * be reloaded.  Use the RGB values instead.
- */
-#define BLACK		PALINDEX(0)		/*   0,   0,   0*/
-#define BLUE		PALINDEX(1)
-#define GREEN		PALINDEX(2)
-#define CYAN		PALINDEX(3)
-#define RED			PALINDEX(4)
-#define MAGENTA		PALINDEX(5)
-#define BROWN		PALINDEX(6)
-#define LTGRAY		PALINDEX(7)		/* 192, 192, 192*/
-#define GRAY		PALINDEX(8)		/* 128, 128, 128*/
-#define LTBLUE		PALINDEX(9)
-#define LTGREEN		PALINDEX(10)
-#define LTCYAN		PALINDEX(11)
-#define LTRED		PALINDEX(12)
-#define LTMAGENTA	PALINDEX(13)
-#define YELLOW		PALINDEX(14)
-#define WHITE		PALINDEX(15)	/* 255, 255, 255*/
-#endif
-
-#endif /* MWINCLUDECOLORS*/
 
 /* Mouse button bits, compatible with Windows*/
 #define MWBUTTON_L		  0x01		/* left button*/
@@ -1514,89 +922,7 @@ typedef unsigned short	MWSCANCODE;
 #define MWKEY_SUSPEND           0xF84C
 #define MWKEY_END_NORMAL	0xF84D	/* insert additional keys before this*/
 
-/*
- * The following keys are useful for remote controls on consumer
- * electronics devices (e.g. TVs, videos, DVD players, cable
- * boxes, satellite boxes, digital terrestrial recievers, ...)
- *
- * The codes are taken from the HAVi specification:
- *   HAVi Level 2 User Interface version 1.1, May 15th 2001
- * They are listed in section 8.7.
- *
- * For more information see http://www.havi.org/
- */
-
-#define MWKEY_HAVI_KEY_BASE   (MWKEY_END_NORMAL+1) /* MWKEY code for first HAVi key */
-#define MWKEY_HAVI_CODE_FIRST  403			/* HAVi code for first HAVi key */
-#define MWKEY_HAVI_CODE_LAST   460			/* HAVi code for last HAVi key */
-/* HRcEvent.VK_... code to MWKEY_... code */
-#define MWKEY_FROM_HAVI_CODE(h) ((h) + (MWKEY_HAVI_KEY_BASE - MWKEY_HAVI_CODE_FIRST))
-/* MWKEY_... code to HRcEvent.VK_... code */
-#define MWKEY_TO_HAVI_CODE(m)   ((m) - (MWKEY_HAVI_KEY_BASE - MWKEY_HAVI_CODE_FIRST))
-/* Can an MWKEY_... code be converted into a HRcEvent.VK_... code? */
-#define MWKEY_IS_HAVI_CODE(m)   (  (unsigned)((m) - MWKEY_HAVI_KEY_BASE) \
-               <= (unsigned)(MWKEY_HAVI_CODE_LAST - MWKEY_HAVI_CODE_FIRST) )
-
-#define MWKEY_COLORED_KEY_0         MWKEY_FROM_HAVI_CODE(403)
-#define MWKEY_COLORED_KEY_1         MWKEY_FROM_HAVI_CODE(404)
-#define MWKEY_COLORED_KEY_2         MWKEY_FROM_HAVI_CODE(405)
-#define MWKEY_COLORED_KEY_3         MWKEY_FROM_HAVI_CODE(406)
-#define MWKEY_COLORED_KEY_4         MWKEY_FROM_HAVI_CODE(407)
-#define MWKEY_COLORED_KEY_5         MWKEY_FROM_HAVI_CODE(408)
-#define MWKEY_POWER                 MWKEY_FROM_HAVI_CODE(409)
-#define MWKEY_DIMMER                MWKEY_FROM_HAVI_CODE(410)
-#define MWKEY_WINK                  MWKEY_FROM_HAVI_CODE(411)
-#define MWKEY_REWIND                MWKEY_FROM_HAVI_CODE(412)
-#define MWKEY_STOP                  MWKEY_FROM_HAVI_CODE(413)
-#define MWKEY_EJECT_TOGGLE          MWKEY_FROM_HAVI_CODE(414)
-#define MWKEY_PLAY                  MWKEY_FROM_HAVI_CODE(415)
-#define MWKEY_RECORD                MWKEY_FROM_HAVI_CODE(416)
-#define MWKEY_FAST_FWD              MWKEY_FROM_HAVI_CODE(417)
-#define MWKEY_PLAY_SPEED_UP         MWKEY_FROM_HAVI_CODE(418)
-#define MWKEY_PLAY_SPEED_DOWN       MWKEY_FROM_HAVI_CODE(419)
-#define MWKEY_PLAY_SPEED_RESET      MWKEY_FROM_HAVI_CODE(420)
-#define MWKEY_RECORD_SPEED_NEXT     MWKEY_FROM_HAVI_CODE(421)
-#define MWKEY_GO_TO_START           MWKEY_FROM_HAVI_CODE(422)
-#define MWKEY_GO_TO_END             MWKEY_FROM_HAVI_CODE(423)
-#define MWKEY_TRACK_PREV            MWKEY_FROM_HAVI_CODE(424)
-#define MWKEY_TRACK_NEXT            MWKEY_FROM_HAVI_CODE(425)
-#define MWKEY_RANDOM_TOGGLE         MWKEY_FROM_HAVI_CODE(426)
-#define MWKEY_CHANNEL_UP            MWKEY_FROM_HAVI_CODE(427)
-#define MWKEY_CHANNEL_DOWN          MWKEY_FROM_HAVI_CODE(428)
-#define MWKEY_STORE_FAVORITE_0      MWKEY_FROM_HAVI_CODE(429)
-#define MWKEY_STORE_FAVORITE_1      MWKEY_FROM_HAVI_CODE(430)
-#define MWKEY_STORE_FAVORITE_2      MWKEY_FROM_HAVI_CODE(431)
-#define MWKEY_STORE_FAVORITE_3      MWKEY_FROM_HAVI_CODE(432)
-#define MWKEY_RECALL_FAVORITE_0     MWKEY_FROM_HAVI_CODE(433)
-#define MWKEY_RECALL_FAVORITE_1     MWKEY_FROM_HAVI_CODE(434)
-#define MWKEY_RECALL_FAVORITE_2     MWKEY_FROM_HAVI_CODE(435)
-#define MWKEY_RECALL_FAVORITE_3     MWKEY_FROM_HAVI_CODE(436)
-#define MWKEY_CLEAR_FAVORITE_0      MWKEY_FROM_HAVI_CODE(437)
-#define MWKEY_CLEAR_FAVORITE_1      MWKEY_FROM_HAVI_CODE(438)
-#define MWKEY_CLEAR_FAVORITE_2      MWKEY_FROM_HAVI_CODE(439)
-#define MWKEY_CLEAR_FAVORITE_3      MWKEY_FROM_HAVI_CODE(440)
-#define MWKEY_SCAN_CHANNELS_TOGGLE  MWKEY_FROM_HAVI_CODE(441)
-#define MWKEY_PINP_TOGGLE           MWKEY_FROM_HAVI_CODE(442)
-#define MWKEY_SPLIT_SCREEN_TOGGLE   MWKEY_FROM_HAVI_CODE(443)
-#define MWKEY_DISPLAY_SWAP          MWKEY_FROM_HAVI_CODE(444)
-#define MWKEY_SCREEN_MODE_NEXT      MWKEY_FROM_HAVI_CODE(445)
-#define MWKEY_VIDEO_MODE_NEXT       MWKEY_FROM_HAVI_CODE(446)
-#define MWKEY_VOLUME_UP             MWKEY_FROM_HAVI_CODE(447)
-#define MWKEY_VOLUME_DOWN           MWKEY_FROM_HAVI_CODE(448)
-#define MWKEY_MUTE                  MWKEY_FROM_HAVI_CODE(449)
-#define MWKEY_SURROUND_MODE_NEXT    MWKEY_FROM_HAVI_CODE(450)
-#define MWKEY_BALANCE_RIGHT         MWKEY_FROM_HAVI_CODE(451)
-#define MWKEY_BALANCE_LEFT          MWKEY_FROM_HAVI_CODE(452)
-#define MWKEY_FADER_FRONT           MWKEY_FROM_HAVI_CODE(453)
-#define MWKEY_FADER_REAR            MWKEY_FROM_HAVI_CODE(454)
-#define MWKEY_BASS_BOOST_UP         MWKEY_FROM_HAVI_CODE(455)
-#define MWKEY_BASS_BOOST_DOWN       MWKEY_FROM_HAVI_CODE(456)
-#define MWKEY_INFO                  MWKEY_FROM_HAVI_CODE(457)
-#define MWKEY_GUIDE                 MWKEY_FROM_HAVI_CODE(458)
-#define MWKEY_TELETEXT              MWKEY_FROM_HAVI_CODE(459)
-#define MWKEY_SUBTITLE              MWKEY_FROM_HAVI_CODE(460)
-
-#define MWKEY_LAST                  MWKEY_SUBTITLE
+#define MWKEY_LAST          MWKEY_END_NORMAL
 
 /* Keyboard state modifiers*/
 #define MWKMOD_NONE  		0x0000
@@ -1632,5 +958,3 @@ typedef struct {
 #define MWKINFO_LED_SCR		(1 << 2)
 #define MWKINFO_LED_MODE_ON	(1 << 3)
 #define MWKINFO_LED_MODE_OFF (1 << 4)
-
-#endif /* _MWTYPES_H*/

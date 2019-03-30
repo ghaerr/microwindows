@@ -84,3 +84,10 @@ atoi(char *str)
 		n = n*10 + *str++ - '0';
 	return n;
 }
+
+/* for mmap*/
+int
+getpagesize(void)
+{
+	return 4096;
+}

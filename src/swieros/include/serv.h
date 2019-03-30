@@ -1,5 +1,3 @@
-#ifndef	_SERV_H
-#define	_SERV_H
 /*
  * Copyright (c) 2000, 2003, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
@@ -10,14 +8,11 @@
  * These definitions are not to be used by clients.
  */
 
-#include "nano-X.h"
-#include "device.h"
-
 /* The Nano-X server is single threaded, so disable the server-side mutex (for speed). */
-#define SERVER_LOCK_DECLARE /* no-op */
-#define SERVER_LOCK_INIT()  do {} while(0) /* no-op, but require a ";" */
-#define SERVER_LOCK()       do {} while(0) /* no-op, but require a ";" */
-#define SERVER_UNLOCK()     do {} while(0) /* no-op, but require a ";" */
+#define SERVER_LOCK_DECLARE
+#define SERVER_LOCK_INIT	nop
+#define SERVER_LOCK			nop
+#define SERVER_UNLOCK		nop
 
 /*
  * Drawing types.
@@ -143,21 +138,6 @@ typedef struct {
 	char *typelist;
 } GR_SELECTIONOWNER;
 
-#if MW_FEATURE_TIMERS
-/*
- * Structure to remember timers.
- */
-typedef struct gr_timer	GR_TIMER;
-struct gr_timer 
-{
-    GR_TIMER_ID    id;       /* This instances ID */
-    GR_CLIENT     *owner;    /* client that created it */
-    GR_WINDOW_ID   wid;
-    MWTIMER       *timer;    /* Device independent layer timer */
-    GR_TIMER      *next;
-};
-#endif /* MW_FEATURE_TIMERS */
-
 /*
  * Drawable structure.  This structure must be the first
  * elements in a GR_WINDOW or GR_PIXMAP, as GrPrepareWindow
@@ -244,8 +224,8 @@ struct gr_grabbed_key {
  * Macros to obtain the client number from a resource id, and to
  * produce the first resource id to be used for a client number.
  * Client numbers must not be zero.  This allows for 255 clients.
-#define	GR_ID_CLIENT(n)	(((GR_ID) (n)) >> 24)
-#define	GR_ID_BASE(n)	(((GR_ID) (n)) << 24)
+//#define	GR_ID_CLIENT(n)	(((GR_ID) (n)) >> 24)
+//#define	GR_ID_BASE(n)	(((GR_ID) (n)) << 24)
  */
 
 /*
@@ -306,9 +286,6 @@ void		GsDeliverClientDataReqEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 void		GsDeliverClientDataEvent(GR_WINDOW_ID wid, GR_WINDOW_ID rid,
 				GR_SERIALNO serial, GR_LENGTH len, GR_LENGTH thislen, void *data);
 void		GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner);
-#if MW_FEATURE_TIMERS
-void		GsDeliverTimerEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_TIMER_ID tid);
-#endif
 
 void		GsCheckMouseWindow(void);
 void		GsCheckFocusWindow(void);
@@ -376,12 +353,6 @@ extern	GR_BOOL		focusfixed;		/* TRUE if focus is fixed */
 extern	GR_SCREEN_INFO	sinfo;			/* screen information */
 extern	PMWFONT		stdfont;		/* default font*/
 extern	int		connectcount;		/* # of connections to server */
-#if MW_FEATURE_TIMERS
-extern	GR_TIMEOUT	screensaver_delay;	/* time before screensaver activates*/
-extern  GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
-extern  GR_TIMER        *cache_timer;           /* cached timer */
-extern  GR_TIMER        *list_timer;            /* list of all timers */
-#endif
 extern  GR_GRABBED_KEY  *list_grabbed_keys;
 
 extern	GR_BOOL		screensaver_active;	/* screensaver is active */
@@ -398,17 +369,3 @@ extern  MWCOORD		nyres;			/* requested server y res*/
 #define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
 #define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
 #define GR_ELKS_SOCKET	79			/* AF_NANO socket number*/
-
-#if VTSWITCH
-/* temp framebuffer vt switch stuff at upper level
- * this should be handled at the lower level, just like vgalib does.
- */
-void MwInitVt(void);
-int  MwCurrentVt(void);
-int  MwCheckVtChange(void);
-void MwRedrawVt(int t);
-void MwExitVt(void);
-extern int mwvterm;
-#endif /* VTSWITCH*/
-
-#endif /* _SERV_H*/

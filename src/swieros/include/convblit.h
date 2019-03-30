@@ -58,12 +58,6 @@ void convblit_copy_mask_mono_byte_lsb_16bpp(PSD psd, PMWBLITPARMS gc);
 void convblit_copy_mask_mono_word_msb_16bpp(PSD psd, PMWBLITPARMS gc);
 void convblit_blend_mask_alpha_byte_16bpp(PSD psd, PMWBLITPARMS gc);
 
-#if LATER
-void convblit_copy_mask_mono_byte_msb_bgra_large(PSD psd, PMWBLITPARMS gc);	/* ft2 non-alias*/
-void convblit_copy_mask_mono_byte_lsb_bgra_large(PSD psd, PMWBLITPARMS gc);	/* t1lib non-alias*/
-#endif
-
-
 /* convblit_frameb.c*/
 /* framebuffer pixel format blits - must handle backwards copy, different rotation code*/
 void frameblit_xxxa8888(PSD psd, PMWBLITPARMS gc);		/* 32bpp*/

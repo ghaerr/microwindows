@@ -52,19 +52,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define MWINCLUDECOLORS
+#include "nano-X.h"
+#include "nxterm.h"
 #include "uni_std.h"
+
+#if UNIX
 #include <errno.h>
 #include <fcntl.h>
 #include <pwd.h>
 #include <signal.h>
-#include <utmp.h>
+//#include <utmp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <termios.h>
-#define MWINCLUDECOLORS
-#include "nano-X.h"
-#include "nxterm.h"
+#define NSIG 	_NSIG
+#define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
+#endif
 
 #define stdforeground BLACK
 //#define stdbackground GR_COLOR_GAINSBORO //LTGRAY
@@ -76,12 +81,6 @@
 #define TITLE		"nxterm"
 #define	SMALLBUFFER stdcol //80
 #define	LARGEBUFFER 10240 //keyboard
-
-#if LINUX | MACOSX
-#include <stdlib.h>
-#define NSIG 	_NSIG
-#define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
-#endif
 
 #define debug_screen 0
 #define debug_kbd 0
@@ -1119,7 +1118,6 @@ term(void)
 	unsigned char 	buf[LARGEBUFFER];
 	int			bufflen;
 
-	GrRegisterInput(pipeh);
 
 	if (prog_to_start[0]) {
 		//enter program name from command line plus newline to call it now
@@ -1549,7 +1547,7 @@ void usage(char *s)
     exit(0);
 }
 
-#if 1
+#if UNIX
 static void *mysignal(int signum, void *handler)
 {
 	struct sigaction sa, so;
@@ -1602,7 +1600,7 @@ static void sigquit(int sig)
 	signal(sig, SIG_IGN);
 	kill(-pid, SIGHUP);
 }
-#endif
+#endif /* UNIX*/
 
 int main(int argc, char **argv)
 {
@@ -1616,6 +1614,7 @@ int main(int argc, char **argv)
     GR_BITMAP	bitmap1bg[7];
     GR_WM_PROPERTIES props;
 
+#if UNIX
 #ifdef SIGTTOU
     /* just in case we're started in the background */
     signal(SIGTTOU, SIG_IGN);
@@ -1626,6 +1625,7 @@ int main(int argc, char **argv)
 		GrError("error: wterm can't determine determine your login name\n");
 		exit(-1);
     }
+#endif
 
     if (GrOpen() < 0) {
 		GrError("cannot open graphics\n");
@@ -1696,6 +1696,7 @@ int main(int argc, char **argv)
 	    usage("unknown option");
 	}
 
+#if UNIX
     /*
      * now *argv either points to a program to start or is zero
      */
@@ -1729,6 +1730,7 @@ int main(int argc, char **argv)
 		sprintf (thesh, "-%s", cptr ? cptr + 1 : shell);
 		*--argv = thesh;
     }
+#endif
 
     col = stdcol;
     row = stdrow;
@@ -1771,22 +1773,22 @@ int main(int argc, char **argv)
 
 #define	_	((unsigned) 0)		/* off bits */
 #define	X	((unsigned) 1)		/* on bits */
-#define	MASK(a,b,c,d,e,f,g) (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) << 9)
-	bitmap1fg[0] = MASK(_,_,X,_,X,_,_);
-	bitmap1fg[1] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[2] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[3] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[4] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[5] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[6] = MASK(_,_,X,_,X,_,_);
+#define	MASK7(a,b,c,d,e,f,g) (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) << 9)
+	bitmap1fg[0] = MASK7(_,_,X,_,X,_,_);
+	bitmap1fg[1] = MASK7(_,_,_,X,_,_,_);
+	bitmap1fg[2] = MASK7(_,_,_,X,_,_,_);
+	bitmap1fg[3] = MASK7(_,_,_,X,_,_,_);
+	bitmap1fg[4] = MASK7(_,_,_,X,_,_,_);
+	bitmap1fg[5] = MASK7(_,_,_,X,_,_,_);
+	bitmap1fg[6] = MASK7(_,_,X,_,X,_,_);
 
-	bitmap1bg[0] = MASK(_,X,X,X,X,X,_);
-	bitmap1bg[1] = MASK(_,_,X,X,X,_,_);
-	bitmap1bg[2] = MASK(_,_,X,X,X,_,_);
-	bitmap1bg[3] = MASK(_,_,X,X,X,_,_);
-	bitmap1bg[4] = MASK(_,_,X,X,X,_,_);
-	bitmap1bg[5] = MASK(_,_,X,X,X,_,_);
-	bitmap1bg[6] = MASK(_,X,X,X,X,X,_);
+	bitmap1bg[0] = MASK7(_,X,X,X,X,X,_);
+	bitmap1bg[1] = MASK7(_,_,X,X,X,_,_);
+	bitmap1bg[2] = MASK7(_,_,X,X,X,_,_);
+	bitmap1bg[3] = MASK7(_,_,X,X,X,_,_);
+	bitmap1bg[4] = MASK7(_,_,X,X,X,_,_);
+	bitmap1bg[5] = MASK7(_,_,X,X,X,_,_);
+	bitmap1bg[6] = MASK7(_,X,X,X,X,X,_);
 
     GrSetCursor(w1, 7, 7, 3, 3, stdforeground, stdbackground, bitmap1fg, bitmap1bg);
     GrSetGCForeground(gc1, stdforeground);
@@ -1794,6 +1796,7 @@ int main(int argc, char **argv)
     GrGetWindowInfo(w1,&wi);
     GrGetGCInfo(gc1,&gi);
 
+#if UNIX
 	/*sprintf(buf, "wterm: %s", shell); */
 
 if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "linux"
@@ -1824,18 +1827,19 @@ if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "li
     sprintf(buf, "%d", row);
     setenv("LINES", buf, 1);
 
-    init();
 
     /*
      * create a pty
      */
     pipeh = term_init();
+	GrRegisterInput(pipeh);
 
 	/*_write_utmp(pty, pw->pw_name, "", time(0)); */
 
-#if 1
-/* grantpt docs: "The behavior of grantpt() is unspecified if a signal handler is installed to catch SIGCHLD signals. " */
-
+	/*
+	 * grantpt docs: "The behavior of grantpt() is unspecified if a signal handler
+	 * is installed to catch SIGCHLD signals. "
+	 */
     /* catch some signals */
     mysignal(SIGTERM, sigquit);
     mysignal(SIGHUP, sigquit);
@@ -1843,7 +1847,6 @@ if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "li
     mysignal(SIGQUIT, sigquit);
     mysignal(SIGPIPE, sigpipe);
     mysignal(SIGCHLD, sigchld);
-#endif
 
     /* prepare to catch console output */
     if (console) {
@@ -1852,16 +1855,17 @@ if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "li
 		console = 0;       /* data will come to normal pipe handle */
 		ioctl(pipeh, TIOCCONS, 0);
     }
+#endif /* UNIX*/
 
+    init();
     term();
     return 0;
 }
 
+#if UNIX
 /* 
  * pty create/open routines
  */
-#ifndef __FreeBSD__
-
 #if ELKS
 char * nargv[2] = {"/bin/sash", NULL};
 #elif DOS_DJGPP
@@ -1877,7 +1881,6 @@ void sigchild(int signo)
 }
 
 #if UNIX98
-
 int term_init(void)
 {
 	int tfd;
@@ -1922,7 +1925,7 @@ err:
 	return -1;	
 }
 
-#else /* !UNIX98*/
+#elif !defined(__FreeBSD)	/* !UNIX98*/
 int term_init(void)
 {
 	int tfd;
@@ -1962,9 +1965,8 @@ again:
 	}
 	return tfd;
 }
-#endif /*!UNIX98*/
 
-#else /* __FreeBSD*/
+#elif defined(__FreeBSD)
 #include <libutil.h>
 static char pty[SMALLBUFFER];
 static struct winsize winsz;
@@ -2011,6 +2013,7 @@ term_init(void)
     }
 }
 #endif /* __FreeBSD__*/
+#endif /* UNIX*/
 
 #if 0
 void _write_utmp(char *line, char *user, char *host, int time)

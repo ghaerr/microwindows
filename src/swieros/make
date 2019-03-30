@@ -2,4 +2,5 @@
 #cc -ffunction-sections -fdata-sections -Wl,--gc-sections,--print-gc-sections -I.. -I../include -o smterm smterm.c -I/usr/X11/include -L/usr/X11/lib -lX11
 
 #cc -I.. -I../include -o smterm smterm.c -I/usr/X11/include -L/usr/X11/lib -lX11
-cc -I.. -I../include -o smterm smterm.c -lSDL2
+#cc -I.. -I../include -o smterm smterm.c -lSDL2
+cc -Iinclude -o smterm smterm.c -lSDL2

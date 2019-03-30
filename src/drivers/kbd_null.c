@@ -6,25 +6,25 @@
 #include <stdio.h>
 #include "device.h"
 
-static int  NUL_Open(KBDDEVICE *pkd);
-static void NUL_Close(void);
-static void NUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
-static int  NUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
-static int  NUL_Poll(void);
+static int  kbdNUL_Open(KBDDEVICE *pkd);
+static void kbdNUL_Close(void);
+static void kbdNUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
+static int  kbdNUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
+static int  kbdNUL_Poll(void);
 
 KBDDEVICE kbddev = {
-	NUL_Open,
-	NUL_Close,
-	NUL_GetModifierInfo,
-	NUL_Read,
-	NUL_Poll
+	kbdNUL_Open,
+	kbdNUL_Close,
+	kbdNUL_GetModifierInfo,
+	kbdNUL_Read,
+	kbdNUL_Poll
 };
 
 /*
  * Poll for keyboard events
  */
 static int
-NUL_Poll(void)
+kbdNUL_Poll(void)
 {
 	return 0;
 }
@@ -33,7 +33,7 @@ NUL_Poll(void)
  * Open the keyboard.
  */
 static int
-NUL_Open(KBDDEVICE *pkd)
+kbdNUL_Open(KBDDEVICE *pkd)
 {
 	return DRIVER_OKNULLDEV;	/* ok, no kbd*/
 }
@@ -42,7 +42,7 @@ NUL_Open(KBDDEVICE *pkd)
  * Close the keyboard.
  */
 static void
-NUL_Close(void)
+kbdNUL_Close(void)
 {
 }
 
@@ -50,7 +50,7 @@ NUL_Close(void)
  * Return the possible modifiers for the keyboard.
  */
 static  void
-NUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
+kbdNUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
 {
 	if (modifiers)
 		*modifiers = 0;		/* no modifiers available */
@@ -65,7 +65,7 @@ NUL_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers)
  * This is a non-blocking call.
  */
 static int
-NUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
+kbdNUL_Read(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 {
 	return KBD_NODATA;
 }

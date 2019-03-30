@@ -397,9 +397,10 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 {
 	const void *	text;
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
-	int		force_uc16 = 0;
 	uint32_t *buf = NULL;
 
+#if MW_FEATURE_INTL
+	int		force_uc16 = 0;
 	/*
 	 * DBCS encoding is handled a little special: if the selected
 	 * font is a builtin, then we'll force a conversion to UC16
@@ -418,6 +419,7 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 			force_uc16 = 1;
 		}
 	}
+#endif
 
 	/* use strlen for char count when ascii or dbcs*/
 	if(cc == -1) {
@@ -427,6 +429,7 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 		else DPRINTF("GdText: Bad cc argument\n");
 	}
 
+#if MW_FEATURE_INTL
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
 		/* allocate enough for output string utf8/uc32 is max 4 bytes, uc16 max 2*/
@@ -435,7 +438,9 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 		flags &= ~MWTF_PACKMASK;	/* keep DBCS bits for drawtext*/
 		flags |= defencoding;
 		text = buf;
-	} else text = str;
+	} else
+#endif
+		text = str;
 
 	if(cc <= 0 || !pfont->fontprocs->DrawText) {
 		if (buf)
@@ -443,6 +448,7 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 		return;
 	}
 
+#if MW_FEATURE_INTL
 	/* draw text string, DBCS flags may still be set*/
 #if HAVE_KSC5601_SUPPORT
 	//if (flags & MWTF_DBCS_EUCKR)
@@ -451,6 +457,7 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 #endif
 	if (!force_uc16)	/* remove DBCS flags if not needed*/
 		flags &= ~MWTF_DBCSMASK;
+#endif /* MW_FEATURE_INTL*/
 	pfont->fontprocs->DrawText(pfont, psd, x, y, text, cc, flags);
 
 	if (buf)
@@ -491,7 +498,7 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	parms.srcpsd = NULL;
 	convblit = GdFindConvBlit(psd, MWIF_MONOWORDMSB, MWROP_COPY);
 
-#if !SWIEROS
+#if MW_FEATURE_INTL
 	if (flags & MWTF_DBCSMASK)
 		dbcs_gettextsize(pfont, istr, cc, flags, &width, &height, &base);
 	else
@@ -534,7 +541,7 @@ gen_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
 	 	 * get the bitmaps from the specially-compiled-in font.  Otherwise,
 	 	 * we draw them using the normal pfont->fontprocs->GetTextBits.
 	 	 */
-#if !SWIEROS
+#if MW_FEATURE_INTL
 		if (flags & MWTF_DBCSMASK)
 			dbcs_gettextbits(pfont, *istr++, flags, &bitmap, &width, &height, &base);
 		else
@@ -603,6 +610,7 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 	*numfonts = -1;
 }
 
+#if MW_FEATURE_INTL
 /**
  * Convert text from one encoding to another.
  * Input cc and returned cc is character count, not bytes.
@@ -782,6 +790,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 		FREEA(buf16);
 	return cc;
 }
+#endif /* MW_FEATURE_INTL*/
 
 /**
  * Gets the size of some text in a specified font.
@@ -806,9 +815,10 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 {
 	const void *	text;
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
-	int		force_uc16 = 0;
 	uint32_t *buf = NULL;
 
+#if MW_FEATURE_INTL
+	int		force_uc16 = 0;
 	/* DBCS handled specially: see comment in GdText*/
 	if (flags & MWTF_DBCSMASK) {
 		/* force double-byte sequences to UC16 if builtin font only*/
@@ -817,11 +827,13 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 			force_uc16 = 1;
 		}
 	}
+#endif
 
 	/* use strlen for char count when ascii or dbcs*/
 	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
 		cc = strlen((char *)str);
 
+#if MW_FEATURE_INTL
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
 		/* allocate enough for output string utf8/uc32 is max 4 bytes, uc16 max 2*/
@@ -830,7 +842,9 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 		flags &= ~MWTF_PACKMASK; /* keep DBCS bits for gettextsize*/
 		flags |= defencoding;
 		text = buf;
-	} else text = str;
+	} else
+#endif
+		text = str;
 
 	if(cc <= 0 || !pfont->fontprocs->GetTextSize) {
 		*pwidth = *pheight = *pbase = 0;
@@ -839,8 +853,8 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 		return;
 	}
 
+#if MW_FEATURE_INTL
 	/* calc height and width of string*/
-#if !SWIEROS
 	if (force_uc16)		/* if UC16 conversion forced, string is DBCS*/
 		dbcs_gettextsize(pfont, text, cc, flags, pwidth, pheight, pbase);
 	else
@@ -906,6 +920,7 @@ GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width)
 	return psrcfont;
 }
 
+#if MW_FEATURE_INTL
 /**
  * UTF-8 to UTF-16 conversion.  Surrogates are handeled properly, e.g.
  * a single 4-byte UTF-8 character is encoded into a surrogate pair.
@@ -1062,7 +1077,7 @@ const char utf8_len_map[256] = {
   2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
   3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,6,6,1,1
 };
-
+#endif /* MW_FEATURE_INTL*/
 
 #if DEBUG_TEXT_SHAPING
 /*
@@ -1503,7 +1518,8 @@ doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib
 	return arabicJoin_UTF8(text, len, pNewLen, pAttrib);
 }
 
-#else /* HAVE_SHAPEJOINING_SUPPORT */
+#else /* !HAVE_SHAPEJOINING_SUPPORT */
+#if MW_FEATURE_INTL
 /* DUMMY FUNCTIONS */
 unsigned short *
 doCharShape_UC16(const unsigned short *text, int len, int *pNewLen, unsigned long *pAttrib)
@@ -1536,6 +1552,7 @@ doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib
 		*pAttrib = 0;
 	return conv;
 }
+#endif /* MW_FEATURE_INTL*/
 #endif /* HAVE_SHAPEJOINING_SUPPORT */
 
 

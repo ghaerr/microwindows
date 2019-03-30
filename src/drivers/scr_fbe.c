@@ -103,7 +103,7 @@ fbe_open(PSD psd)
 		}
 	}
 	else {
-		printf("Error opening %s\n", env);
+		EPRINTF("Error opening %s\n", env);
 		return NULL;
 	}
 #endif

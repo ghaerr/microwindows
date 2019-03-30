@@ -54,24 +54,24 @@ sdl_setup(PSD psd)
 	int	pixelformat;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
-		printf("Can't initialize SDL\n");
+		EPRINTF("Can't initialize SDL\n");
 		return -1;
 	}
 
 	sdlWindow = SDL_CreateWindow("Microwindows SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 					psd->xres*sdlZoom, psd->yres*sdlZoom, SDL_WINDOW_RESIZABLE);
 	if (!sdlWindow) {
-		printf("SDL: Can't create window\n");
+		EPRINTF("SDL: Can't create window\n");
 		return -1;
 	}
 #if 0
 	SDL_Surface *screen = SDL_GetWindowSurface(sdlWindow);
-	printf("SDL pixel format %0x, type %0x\n", screen->format->format,
+	EPRINTF("SDL pixel format %0x, type %0x\n", screen->format->format,
 		SDL_PIXELTYPE(screen->format->format));
 #else
 	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
 	if (!sdlRenderer) {
-		printf("SDL: Can't create renderer\n");
+		EPRINTF("SDL: Can't create renderer\n");
 		return -1;
 	}
 	/* 
@@ -101,13 +101,13 @@ sdl_setup(PSD psd)
 		pixelformat = SDL_PIXELFORMAT_INDEX8;
 		break;
 	default:
-		printf("SDL: Unsupported pixel format %d\n", psd->pixtype);
+		EPRINTF("SDL: Unsupported pixel format %d\n", psd->pixtype);
 		return -1;
 	}
 	sdlTexture = SDL_CreateTexture(sdlRenderer, pixelformat, SDL_TEXTUREACCESS_STREAMING,
 							psd->xres, psd->yres);
 	if (!sdlTexture) {
-		printf("SDL: Can't create texture\n");
+		EPRINTF("SDL: Can't create texture\n");
 		return -1;
 	}
 #endif

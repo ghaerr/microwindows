@@ -2047,10 +2047,12 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 	if (cbString == -1)
 		cbString = strlen(lpszString);
 
+#if MW_FEATURE_INTL
 	/* Duplicate text. If coding is UTF-8, generate it by checking shape/joining*/
 	if (flags & MWTF_UTF8)
 		szShaped = doCharShape_UTF8(lpszString, cbString, &cbString, &attrib);
 	else
+#endif
 		szShaped = strdup(lpszString);
 
 	if (szShaped == NULL)
@@ -2085,6 +2087,7 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 			rect.right = x + tabPos;
 			rect.bottom = y + xh;
 			//TextOut ( hdc, x, y, pstr, count );
+#if MW_FEATURE_INTL
 			if (attrib & TEXTIP_EXTENDED) {
 				LPSTR virtText = doCharBidi_UTF8(pstr, count, NULL, NULL, &attrib);
 				if (virtText) {
@@ -2095,6 +2098,7 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 					free(virtText);
 				}
 			} else
+#endif
 				DrawTextA(hdc, pstr, count, &rect, DT_LEFT | DT_SINGLELINE | DT_TOP);
 		}
 

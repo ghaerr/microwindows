@@ -1,3 +1,6 @@
+29 March 2019
+	* more cleanup for swieros port
+	* add MW_FEATURE_INTL for DBCS, utf8/uc16 etc font/encoding inclusion
 28 March 2019
 	* fix Linux bin/mwapp build and remove mwin/winmain2.c on shared libs and multiapp
 	* don't build bin/mwapp unless MICROWINMULTIAPP=Y

@@ -11,7 +11,7 @@
 #include "uni_std.h"
 #include "serv.h"
 #include "osdep.h"
-#include "../drivers/genmem.h"
+#include "genmem.h"
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 

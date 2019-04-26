@@ -1,4 +1,3 @@
-running 
 # Microwindows or the Nano-X Window System
 
 Microwindows or Nano-X is a small graphical windowing system that implements

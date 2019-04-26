@@ -19,25 +19,22 @@
 #define MW_FEATURE_TIMERS	0
 
 /* uint32_t, int32_t*/
-//#include <stdint.h> 		/* for uint32_t, int32_t*/
-typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/
-typedef long			int32_t;
-
-/* swieros specific*/
-#define const
+#include <stdint.h> 		/* for uint32_t, int32_t*/
+//typedef unsigned long	uint32_t;	/* 32 bit type in 16 or 32 bit environment*/
+//typedef long			int32_t;
 
 /* unix settings and includes*/
-//#define UNIX				1	/* for GrRegisterInput and nxterm pty*/
-//#define HAVE_SELECT			1
-//#define _DEFAULT_SOURCE			/* for strcasecmp in string.h and alloca somewhere else*/
+#define UNIX				1	/* for GrRegisterInput and nxterm pty*/
+#define HAVE_SELECT			1
+#define _DEFAULT_SOURCE			/* for strcasecmp in string.h and alloca somewhere else*/
 //#define _XOPEN_SOURCE 600		/* required for linux, not OSX nxterm.c compile*/
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <stdarg.h>
-//#include <unistd.h>
-//#include <fcntl.h>				// for framebuffer open
-//#include <sys/mman.h>			// for framebuffer mmap
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <fcntl.h>				// for framebuffer open
+#include <sys/mman.h>			// for framebuffer mmap
 
 /* include*/
 #include "mwtypes.h"			// for public export
@@ -89,13 +86,13 @@ typedef long			int32_t;
 #include "nanox/nxdraw.c"
 
 /* GsSelect*/
-//#include "nanox/srvunix.c"				// for unix
-#include "nanox/srvpoll.c"			// for swieros
+#include "nanox/srvunix.c"				// for unix
+//#include "nanox/srvpoll.c"			// for swieros
 
 /* framebuffer screen driver*/
-#include "drivers/scr_fbe.c"			// for swieros or unix with x11 framebuffer emulator
-#include "drivers/mou_null.c"
-#include "drivers/kbd_null.c"
+//#include "drivers/scr_fbe.c"			// for swieros or unix with x11 framebuffer emulator
+//#include "drivers/mou_null.c"
+//#include "drivers/kbd_null.c"
 
 /* X11 screen driver*/
 #define DRIVER_OKFILEDESC(fd)	fd
@@ -110,12 +107,12 @@ typedef long			int32_t;
 //#include "../drivers/kbd_x11.c"
 
 /* SDL screen driver*/
-//#include "../drivers/scr_sdl2.c"
-//#include "../drivers/mou_sdl2.c"
-//#include "../drivers/kbd_sdl2.c"
+#include "../drivers/scr_sdl2.c"
+#include "../drivers/mou_sdl2.c"
+#include "../drivers/kbd_sdl2.c"
 
 /* swieros C lib extras*/
-#include "swutil.c"					// for swieros
+//#include "swutil.c"					// for swieros
 
 /* app*/
 #include "demos/nxterm.c"

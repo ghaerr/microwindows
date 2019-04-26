@@ -229,8 +229,7 @@ int MWIMAGE_SIZE(int width, int height);
 //#define MWIMAGE_WORDS(x)	(((x)+15)/16)
 //#define MWIMAGE_BYTES(x)	(MWIMAGE_WORDS(x)*sizeof(MWIMAGEBITS))
 /* size of image in words*/
-//#define	MWIMAGE_SIZE(width, height)  	\
-	((height) * (((width) + MWIMAGE_BITSPERIMAGE - 1) / MWIMAGE_BITSPERIMAGE))
+//#define	MWIMAGE_SIZE(width, height)		((height) * (((width) + MWIMAGE_BITSPERIMAGE - 1) / MWIMAGE_BITSPERIMAGE))
 //#define	MWIMAGE_BITVALUE(n)	((MWIMAGEBITS) (((MWIMAGEBITS) 1) << (n)))
 //#define	MWIMAGE_NEXTBIT(m)	((MWIMAGEBITS) ((m) >> 1))
 //#define	MWIMAGE_TESTBIT(m)	((m) & MWIMAGE_FIRSTBIT)  /* use with shiftbit*/

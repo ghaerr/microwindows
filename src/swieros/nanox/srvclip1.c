@@ -6,7 +6,7 @@
 /*
  * Macro to distinguish cases of clipping.
  */
-//#define	GAPVAL(leftgap, rightgap, topgap, bottomgap) \
+//#define	GAPVAL(leftgap, rightgap, topgap, bottomgap)
 //	(((leftgap) << 3) + ((rightgap) << 2) + ((topgap) << 1) + (bottomgap))
 
 static GR_COUNT	GsSplitClipRect(MWCLIPRECT *srcrect, MWCLIPRECT *destrect,

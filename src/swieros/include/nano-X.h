@@ -677,11 +677,6 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 #define GR_COLOR_MENUTEXT          18
 #define GR_COLOR_MENU              19
 
-/**
- * Error strings per error number
- */
-extern const char *nxErrorStrings[];
-
 /* Public graphics routines. */
 void		GrFlush(void);
 int			GrOpen(void);

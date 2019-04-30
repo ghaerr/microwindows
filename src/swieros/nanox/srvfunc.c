@@ -2224,8 +2224,7 @@ GrKillWindow(GR_WINDOW_ID wid)
  */ 
 #define MAXSYSCOLORS	20	/* # of GR_COLOR_* system colors*/
 
-static GR_COLOR sysColors[MAXSYSCOLORS] = {
-};
+static GR_COLOR sysColors[MAXSYSCOLORS];
 
 /* Return system-defined color*/
 GR_COLOR

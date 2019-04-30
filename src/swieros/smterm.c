@@ -25,6 +25,7 @@ typedef long			int32_t;
 
 /* swieros specific*/
 #define const
+#define extern
 
 /* unix settings and includes*/
 //#define UNIX				1	/* for GrRegisterInput and nxterm pty*/

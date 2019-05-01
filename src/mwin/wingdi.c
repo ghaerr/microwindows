@@ -2047,12 +2047,10 @@ mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbString,
 	if (cbString == -1)
 		cbString = strlen(lpszString);
 
-#if MW_FEATURE_INTL
 	/* Duplicate text. If coding is UTF-8, generate it by checking shape/joining*/
 	if (flags & MWTF_UTF8)
 		szShaped = doCharShape_UTF8(lpszString, cbString, &cbString, &attrib);
 	else
-#endif
 		szShaped = strdup(lpszString);
 
 	if (szShaped == NULL)

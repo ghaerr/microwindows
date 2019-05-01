@@ -399,8 +399,8 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 	MWTEXTFLAGS	defencoding = pfont->fontprocs->encoding;
 	uint32_t *buf = NULL;
 
-#if MW_FEATURE_INTL
 	int		force_uc16 = 0;
+#if MW_FEATURE_INTL
 	/*
 	 * DBCS encoding is handled a little special: if the selected
 	 * font is a builtin, then we'll force a conversion to UC16
@@ -429,7 +429,6 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 		else DPRINTF("GdText: Bad cc argument\n");
 	}
 
-#if MW_FEATURE_INTL
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
 		/* allocate enough for output string utf8/uc32 is max 4 bytes, uc16 max 2*/
@@ -439,7 +438,6 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 		flags |= defencoding;
 		text = buf;
 	} else
-#endif
 		text = str;
 
 	if(cc <= 0 || !pfont->fontprocs->DrawText) {
@@ -448,7 +446,6 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 		return;
 	}
 
-#if MW_FEATURE_INTL
 	/* draw text string, DBCS flags may still be set*/
 #if HAVE_KSC5601_SUPPORT
 	//if (flags & MWTF_DBCS_EUCKR)
@@ -457,7 +454,6 @@ GdText(PSD psd, PMWFONT pfont, MWCOORD x, MWCOORD y, const void *str, int cc,MWT
 #endif
 	if (!force_uc16)	/* remove DBCS flags if not needed*/
 		flags &= ~MWTF_DBCSMASK;
-#endif /* MW_FEATURE_INTL*/
 	pfont->fontprocs->DrawText(pfont, psd, x, y, text, cc, flags);
 
 	if (buf)
@@ -610,7 +606,6 @@ GdGetFontList(MWFONTLIST ***fonts, int *numfonts)
 	*numfonts = -1;
 }
 
-#if MW_FEATURE_INTL
 /**
  * Convert text from one encoding to another.
  * Input cc and returned cc is character count, not bytes.
@@ -707,6 +702,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 		case MWTF_UC32:
 			ch = *istr32++;
 			break;
+#if MW_FEATURE_INTL
 		case MWTF_DBCS_BIG5:	/* Chinese BIG5*/
 			ch = *istr8++;
 #if 0 // HAVE_HBF_SUPPORT
@@ -763,6 +759,7 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 			}
 
 			break;
+#endif /* MW_FEATURE_INTL*/
 		}
 		switch(oflags) {
 		default:
@@ -790,7 +787,6 @@ GdConvertEncoding(const void *istr, MWTEXTFLAGS iflags, int cc, void *ostr,
 		FREEA(buf16);
 	return cc;
 }
-#endif /* MW_FEATURE_INTL*/
 
 /**
  * Gets the size of some text in a specified font.
@@ -833,7 +829,6 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 	if(cc == -1 && (flags & MWTF_PACKMASK) == MWTF_ASCII)
 		cc = strlen((char *)str);
 
-#if MW_FEATURE_INTL
 	/* convert encoding if required*/
 	if((flags & (MWTF_PACKMASK|MWTF_DBCSMASK)) != defencoding) {
 		/* allocate enough for output string utf8/uc32 is max 4 bytes, uc16 max 2*/
@@ -843,7 +838,6 @@ GdGetTextSize(PMWFONT pfont, const void *str, int cc, MWCOORD *pwidth,
 		flags |= defencoding;
 		text = buf;
 	} else
-#endif
 		text = str;
 
 	if(cc <= 0 || !pfont->fontprocs->GetTextSize) {
@@ -920,7 +914,6 @@ GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width)
 	return psrcfont;
 }
 
-#if MW_FEATURE_INTL
 /**
  * UTF-8 to UTF-16 conversion.  Surrogates are handeled properly, e.g.
  * a single 4-byte UTF-8 character is encoded into a surrogate pair.
@@ -1077,7 +1070,6 @@ const char utf8_len_map[256] = {
   2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
   3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,6,6,1,1
 };
-#endif /* MW_FEATURE_INTL*/
 
 #if DEBUG_TEXT_SHAPING
 /*
@@ -1519,7 +1511,6 @@ doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib
 }
 
 #else /* !HAVE_SHAPEJOINING_SUPPORT */
-#if MW_FEATURE_INTL
 /* DUMMY FUNCTIONS */
 unsigned short *
 doCharShape_UC16(const unsigned short *text, int len, int *pNewLen, unsigned long *pAttrib)
@@ -1552,14 +1543,13 @@ doCharShape_UTF8(const char *text, int len, int *pNewLen, unsigned long *pAttrib
 		*pAttrib = 0;
 	return conv;
 }
-#endif /* MW_FEATURE_INTL*/
 #endif /* HAVE_SHAPEJOINING_SUPPORT */
 
 
 #if HAVE_FRIBIDI_SUPPORT
 #include <fribidi/fribidi.h>
 
-char *
+		char *
 doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection, unsigned long *pAttrib)
 {
 	FriBidiChar *ftxt, *fvirt;

@@ -64,7 +64,7 @@
 #define MW_FEATURE_SHAPES 1		/* =1 for arc, ellipse, polygons, tile/stipple*/
 #endif
 #ifndef MW_FEATURE_INTL
-#define MW_FEATURE_INTL	1		/* =1 for dbcs, utf8/uc16 etc font/encoding support*/
+#define MW_FEATURE_INTL	1		/* =1 for dbcs and TEXTIP_EXTENDED font/encoding support*/
 #endif
 #ifndef MW_FEATURE_PALETTE
 #define MW_FEATURE_PALETTE 1	/* =1 for palette support*/

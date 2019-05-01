@@ -698,6 +698,7 @@ neDrawAllText(HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, int action)
 				count = n;
 			}
 
+#if MW_FEATURE_INTL
 			if (attrib & TEXTIP_EXTENDED) {
 				v2l = (int *) malloc(sizeof(int) * (1 + n));
 				direction = (char *) malloc(sizeof(char) * (1 + n));
@@ -705,7 +706,7 @@ neDrawAllText(HWND hWnd, HDC hdc, PSLEDITDATA pSLEditData, int action)
 				if ((vtxt != NULL) && (cx == rc.left) && (attrib & TEXTIP_RTOL))
 					cx = rc.left + xs - neGetTextWith(hWnd, hdc, pSLEditData, vtxt, n);
 			}
-
+#endif
 			isEditRow = ((tot <= pSLEditData->editPos) && (pSLEditData->editPos <= tot + count));
 			//  If this row is the one with editPos, set the index of newline
 			if (isEditRow) {

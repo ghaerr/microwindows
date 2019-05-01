@@ -240,6 +240,7 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 #else
 			n=ln;
 #endif
+#if MW_FEATURE_INTL
 			//  If the UTF8 text has non-ascii characters, check also bidi
 			if (attrib & TEXTIP_EXTENDED) {
 				DWORD vuFormat = uFormat;
@@ -256,6 +257,7 @@ ssDrawStaticLabel(HWND hwnd, HDC hdc, LPRECT pRcClient)
 					free(virtCaption);
 				}
 			} else
+#endif
 				DrawTextA(hdc, spCaption, n, &rc, uFormat);
 #if OLD_DRAWTEXT
 			y += sz.cy;

@@ -153,10 +153,10 @@ Mice_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 // remap these bits to Nano-X expected format
 
 	if (left)	button |= MWBUTTON_L;
-	if (middle)	button |= MW_BUTTON_M;
-	if (right)	button |= MW_button_R;
+	if (middle)	button |= MWBUTTON_M;
+	if (right)	button |= MWBUTTON_R;
 
-	*bp = buttons;
+	*bp = button;
 
 // mwtypes.h:268:typedef int    MWCOORD;        // device coordinates
 

@@ -184,7 +184,7 @@ LIBFRIBIDI               = -lfribidi
 # ERASEMOVE (nanowm) repaints only backgrounds while window dragging
 # Otherwise an XOR redraw is used for window moves only after button up
 # UPDATEREGIONS (win32 api only)paints in update clipping region only
-ERASEMOVE                = N
+ERASEMOVE                = Y
 UPDATEREGIONS            = Y
 
 # Generate screen driver interface only with no fonts or clipping
@@ -225,7 +225,7 @@ HAVETEXTMODE             = Y
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 # SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
 ####################################################################
-#SCREEN_PIXTYPE           = MWPF_TRUECOLOR8888
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
 SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
 SCREEN_DEPTH             = 8

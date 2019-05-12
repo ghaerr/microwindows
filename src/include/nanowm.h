@@ -7,6 +7,8 @@
 #ifndef __NANOWM_H
 #define __NANOWM_H
 
+#include "mwconfig.h"
+
 /* configurable options*/
 #define OUTLINE_MOVE		0		/* draw outline only during window move*/
 #define NO_CORNER_RESIZE	0		/* don't resize windows on corner drag*/

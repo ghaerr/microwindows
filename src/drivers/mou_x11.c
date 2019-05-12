@@ -63,7 +63,7 @@ mouX11_Close(void)
 static int
 mouX11_GetButtonInfo(void)
 {
-	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R;
+	return MWBUTTON_L | MWBUTTON_M | MWBUTTON_R | MWBUTTON_SCROLLUP | MWBUTTON_SCROLLDN;
 }
 
 /*
@@ -103,6 +103,10 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		    button |= MWBUTTON_M;
 		if (ev.xmotion.state & Button3Mask)
 		    button |= MWBUTTON_R;
+		if (ev.xmotion.state & Button4Mask)
+		    button |= MWBUTTON_SCROLLUP;
+		if (ev.xmotion.state & Button5Mask)
+		    button |= MWBUTTON_SCROLLDN;
 		*bp = button;
 		events++;
 	    }
@@ -118,6 +122,10 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			button = MWBUTTON_M;
 		else if(ev.xbutton.button == 3)
 			button = MWBUTTON_R;
+		else if(ev.xbutton.button == 4)
+			button = MWBUTTON_SCROLLUP;
+		else if(ev.xbutton.button == 5)
+			button = MWBUTTON_SCROLLDN;
 
 		/* Get any other buttons that might be already held */
 		if (ev.xbutton.state & Button1Mask)
@@ -126,6 +134,10 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		    button |= MWBUTTON_M;
 		if (ev.xbutton.state & Button3Mask)
 		    button |= MWBUTTON_R;
+		if (ev.xbutton.state & Button4Mask)
+		    button |= MWBUTTON_SCROLLUP;
+		if (ev.xbutton.state & Button5Mask)
+		    button |= MWBUTTON_SCROLLDN;
 		
 /*		DPRINTF("!Pressing button: 0x%x, state: 0x%x, button: 0x%x\n",
 			button,ev.xbutton.state, ev.xbutton.button);*/
@@ -148,6 +160,10 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			released = MWBUTTON_M;
 		else if(ev.xbutton.button == 3)
 			released = MWBUTTON_R;
+		else if(ev.xbutton.button == 4)
+			released = MWBUTTON_SCROLLUP;
+		else if(ev.xbutton.button == 5)
+			released = MWBUTTON_SCROLLDN;
 		
 		/* Get any other buttons that might be already held */
 		if (ev.xbutton.state & Button1Mask)
@@ -156,6 +172,10 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		    button |= MWBUTTON_M;
 		if (ev.xbutton.state & Button3Mask)
 		    button |= MWBUTTON_R;
+		if (ev.xbutton.state & Button4Mask)
+		    button |= MWBUTTON_SCROLLUP;
+		if (ev.xbutton.state & Button5Mask)
+		    button |= MWBUTTON_SCROLLDN;
 	
 		/* We need to remove the released button from the button mask*/
 		button &= ~released; 

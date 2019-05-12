@@ -288,13 +288,17 @@ GdReadMouse(MWCOORD *px, MWCOORD *py, int *pb)
 		buttons = newbuttons;
 	}
 
-	/* Finally, move the mouse */
-	if (status != MOUSE_NOMOVE)
-		GdMoveMouse(dx, dy);
+	/* No mouse movement with scroll wheel*/
+	if (!(buttons & (MWBUTTON_SCROLLUP|MWBUTTON_SCROLLDN))) {
 
-	/* anything change? */
-	if (!changed)
-		return 0;
+		/* Move the mouse */
+		if (status != MOUSE_NOMOVE)
+			GdMoveMouse(dx, dy);
+
+		/* anything change? */
+		if (!changed)
+			return 0;
+	}
 
 	/* report new mouse data */
 	changed = FALSE;

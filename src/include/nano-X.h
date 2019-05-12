@@ -160,7 +160,9 @@ typedef struct {
 #define	GR_BUTTON_R		MWBUTTON_R 	/* right button*/
 #define	GR_BUTTON_M		MWBUTTON_M	/* middle button*/
 #define	GR_BUTTON_L		MWBUTTON_L	/* left button*/
-#define	GR_BUTTON_ANY		(MWBUTTON_R|MWBUTTON_M|MWBUTTON_L) /* any*/
+#define	GR_BUTTON_SCROLLUP	MWBUTTON_SCROLLUP
+#define	GR_BUTTON_SCROLLDN	MWBUTTON_SCROLLDN
+#define	GR_BUTTON_ANY		(MWBUTTON_R|MWBUTTON_M|MWBUTTON_L|MWBUTTON_SCROLLUP|MWBUTTON_SCROLLDN) /* any*/
 
 /* GrSetBackgroundPixmap flags */
 #define GR_BACKGROUND_TILE	0	/* Tile across the window */

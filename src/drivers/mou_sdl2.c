@@ -146,7 +146,7 @@ mousdl_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 			*dz = 0;
 			*bp = lastdn;
 
-			return MOUSE_NODATA;		/* absolute position**/
+			return MOUSE_NODATA;
 		}
 	}
 	return MOUSE_NODATA;

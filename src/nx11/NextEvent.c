@@ -105,9 +105,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xcrossing.state |= Button2Mask;
 			if (pev->buttons & GR_BUTTON_R)
 				event->xcrossing.state |= Button3Mask;
-			if (pev->buttons & MWBUTTON_SCROLLUP)
+			if (pev->buttons & GR_BUTTON_SCROLLUP)
 				event->xcrossing.state |= Button4Mask;
-			if (pev->buttons & MWBUTTON_SCROLLDN)
+			if (pev->buttons & GR_BUTTON_SCROLLDN)
 				event->xcrossing.state |= Button5Mask;
 		}
 		break;
@@ -134,9 +134,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xmotion.state |= Button2Mask;
 			if (pev->buttons & GR_BUTTON_R)
 				event->xmotion.state |= Button3Mask;
-			if (pev->buttons & MWBUTTON_SCROLLUP)
+			if (pev->buttons & GR_BUTTON_SCROLLUP)
 				event->xmotion.state |= Button4Mask;
-			if (pev->buttons & MWBUTTON_SCROLLDN)
+			if (pev->buttons & GR_BUTTON_SCROLLDN)
 				event->xmotion.state |= Button5Mask;
 		}
 		break;
@@ -164,9 +164,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xbutton.button = Button2;
 			else if (pev->changebuttons & GR_BUTTON_R)
 				event->xbutton.button = Button3;
-			else if (pev->changebuttons & MWBUTTON_SCROLLUP)
+			else if (pev->changebuttons & GR_BUTTON_SCROLLUP)
 				event->xbutton.button = Button4;
-			else if (pev->changebuttons & MWBUTTON_SCROLLDN)
+			else if (pev->changebuttons & GR_BUTTON_SCROLLDN)
 				event->xbutton.button = Button5;
 			if (pev->buttons & GR_BUTTON_L)
 				event->xbutton.state |= Button1Mask;
@@ -174,9 +174,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xbutton.state |= Button2Mask;
 			if (pev->buttons & GR_BUTTON_R)
 				event->xbutton.state |= Button3Mask;
-			if (pev->buttons & MWBUTTON_SCROLLUP)
+			if (pev->buttons & GR_BUTTON_SCROLLUP)
 				event->xbutton.state |= Button4Mask;
-			if (pev->buttons & MWBUTTON_SCROLLDN)
+			if (pev->buttons & GR_BUTTON_SCROLLDN)
 				event->xbutton.state |= Button5Mask;
 //DPRINTF("NextEvent.c: pev->changebuttons-%d,event->xbutton.button-%d,pev->buttons-%d,event->xbutton.state-%d\n",pev->changebuttons,event->xbutton.button,pev->buttons,event->xbutton.state);
 		}
@@ -203,9 +203,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xbutton.button = Button2;
 			else if (pev->changebuttons & GR_BUTTON_R)
 				event->xbutton.button = Button3;
-			else if (pev->changebuttons & MWBUTTON_SCROLLUP)
+			else if (pev->changebuttons & GR_BUTTON_SCROLLUP)
 				event->xbutton.button = Button4;
-			else if (pev->changebuttons & MWBUTTON_SCROLLDN)
+			else if (pev->changebuttons & GR_BUTTON_SCROLLDN)
 				event->xbutton.button = Button5;
 			if (pev->buttons & GR_BUTTON_L)
 				event->xbutton.state |= Button1Mask;
@@ -213,9 +213,9 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 				event->xbutton.state |= Button2Mask;
 			if (pev->buttons & GR_BUTTON_R)
 				event->xbutton.state |= Button3Mask;
-			if (pev->buttons & MWBUTTON_SCROLLUP)
+			if (pev->buttons & GR_BUTTON_SCROLLUP)
 				event->xbutton.state |= Button4Mask;
-			if (pev->buttons & MWBUTTON_SCROLLDN)
+			if (pev->buttons & GR_BUTTON_SCROLLDN)
 				event->xbutton.state |= Button5Mask;
 		}
 		break;

@@ -1,4 +1,5 @@
 11 May 2019
+	* Add mouse scroll wheel handling to Nano-X, tested with SDL2 driver and nuklear
 	* fix linked-in nanowm to work after first client exit, was missing mwconfig.h NANOWM define
 	* cleanup nanowm CHLD_UPDATE event handling, don't send events handled by nanowm to application
 	* remove extraneous nanowm container window events being sent to application event loop, fixes nuklear mousedn

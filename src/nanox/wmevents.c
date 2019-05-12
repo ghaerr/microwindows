@@ -1,7 +1,7 @@
 /*
  * NanoWM - Window Manager for Nano-X
  *
- * Copyright (C) 2000, 2003, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (C) 2000, 2003, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Copyright (C) 2000 Alex Holden <alex@linuxhacker.org>
  */
 #include <stdio.h>
@@ -67,7 +67,7 @@ int wm_handle_event(GR_EVENT *event)
     case GR_EVENT_TYPE_FOCUS_IN:
 		return wm_focus_in(&event->general);
     case GR_EVENT_TYPE_CHLD_UPDATE:	/* the frame's child had an update, update frame*/
-		return wm_update(&event->update);
+		return wm_chld_update(&event->update);
 	case GR_EVENT_TYPE_NONE:
 	case GR_EVENT_TYPE_TIMER:
 	case GR_EVENT_TYPE_UPDATE:		/* no need for frame event handling*/
@@ -95,7 +95,7 @@ int wm_exposure(GR_EVENT_EXPOSURE *event)
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
 			wm_container_exposure(window, event);
-			return 0; 	/* don't eat event*/
+			return 1; 	/* eat event*/
 		default:
 			Dprintf("Unhandled exposure on window %d (type %d)\n",
 				window->wid, window->type);
@@ -166,7 +166,7 @@ int wm_mouse_enter(GR_EVENT_GENERAL *event)
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
 			wm_container_mouse_enter(window, event);
-			return 0; 	/* don't eat event*/
+			return 1; 	/* eat event*/
 		default:
 			Dprintf("Unhandled mouse enter from window %d "
 				"(type %d)\n", window->wid, window->type);
@@ -187,7 +187,7 @@ int wm_mouse_exit(GR_EVENT_GENERAL *event)
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
 			wm_container_mouse_exit(window, event);
-			return 0; 	/* don't eat event*/
+			return 1; 	/* eat event*/
 		default:
 			Dprintf("Unhandled mouse exit from window %d "
 				"(type %d)\n", window->wid, window->type);
@@ -211,7 +211,7 @@ int wm_mouse_moved(GR_EVENT_MOUSE *event)
 	switch(window->type) {
 		case WINDOW_TYPE_CONTAINER:
 			wm_container_mousemoved(window, event);
-			return 0; 	/* don't eat event*/
+			return 1; 	/* eat event*/
 		default:
 			Dprintf("Unhandled mouse movement in window %d "
 				"(type %d)\n", window->wid, window->type);
@@ -260,35 +260,44 @@ int wm_key_up(GR_EVENT_KEYSTROKE *event)
 	return 0;
 }
 
-int wm_update(GR_EVENT_UPDATE *event)
+int wm_chld_update(GR_EVENT_UPDATE *event)
 {
 	win *window;
 
-	Dprintf("wm_update: wid %d, subwid %d, x %d, y %d, width %d, height %d, "
+	Dprintf("wm_chld_update: wid %d, subwid %d, x %d, y %d, width %d, height %d, "
 	       "utype %d\n", event->wid, event->subwid, event->x, event->y, event->width,
 	       event->height, event->utype);
 	
 	if(!(window = wm_find_window(event->subwid))) {
-		if (event->utype == GR_UPDATE_MAP)
-			wm_new_client_window(event->subwid);
-	  	return 0;
+		if (event->utype == GR_UPDATE_MAP) {
+			if (wm_new_client_window(event->subwid))
+				return 0;		/* don't eat: allow passthrough in case application selected CHLD_UPDATE*/
+		}
+		return 0;
 	}
 
 	if(window->type == WINDOW_TYPE_CONTAINER) {
 		if (event->utype == GR_UPDATE_ACTIVATE)
 			wm_redraw_ncarea(window);
-		return 0;
+		return 1;				/* eat event*/
 	}
 
 	if (window->type == WINDOW_TYPE_CLIENT) {
+		win *pwin;
+		int eventhandled = 0;
+
+		if((pwin = wm_find_window(window->pid)) && pwin->type == WINDOW_TYPE_CONTAINER)
+			eventhandled = 1;	/* handled by window manager*/
+
 		if(event->utype == GR_UPDATE_MAP)
 			wm_client_window_remap(window);
-		if(event->utype == GR_UPDATE_DESTROY)
+		else if(event->utype == GR_UPDATE_DESTROY)
 			wm_client_window_destroy(window);
-		if(event->utype == GR_UPDATE_UNMAP)
+		else if(event->utype == GR_UPDATE_UNMAP)
 			wm_client_window_unmap(window);
-		if(event->utype == GR_UPDATE_SIZE)
+		else if(event->utype == GR_UPDATE_SIZE)
 			wm_client_window_resize(window);
+		return eventhandled;	/* eat event if handled*/
 	}
 	return 0;
 }

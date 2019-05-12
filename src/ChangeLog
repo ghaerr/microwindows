@@ -1,3 +1,10 @@
+11 May 2019
+	* cleanup nanowm CHLD_UPDATE event handling, don't send events handled by nanowm to application
+	* remove extraneous nanowm container window events being sent to application event loop, fixes nuklear mousedn
+7 May 2019
+	* Add src/aggtest: new AGG-based anti-aliased thick-line stroke/fill draw code for Nuklear GUI port
+1 May 2019
+	* fix link problem when WM_FEATURE_INTL set
 30 March 2019
 	* create preprocessor-free source (except #define) for swieros port in src/swieros/smterm.c
 	* add following options for smaller footprint:

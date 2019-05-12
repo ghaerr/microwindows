@@ -16,7 +16,7 @@ static GR_COORD lasty = FIRST_WINDOW_LOCATION;
 
 /*
  * A new client window has been mapped, so we need to reparent and decorate it.
- * Returns -1 on failure or 0 on success.
+ * Returns 0 if window not handled by window manager, otherwise 1.
  */
 int wm_new_client_window(GR_WINDOW_ID wid)
 {
@@ -58,7 +58,7 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 
 		/* remap the window without borders, call this routine again*/
 		GrMapWindow(wid);
-		return 0;
+		return 1;
 	}
 	
 	/* if default decoration style asked for, set real draw bits*/
@@ -342,7 +342,7 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 				| GR_EVENT_MASK_MOUSE_POSITION);
 	GrMapWindow(nid);
 #endif
-	return 0;
+	return 1;
 }
 
 void wm_client_window_remap(win *window)
@@ -351,7 +351,7 @@ void wm_client_window_remap(win *window)
 	win *pwin;
 
 	if(!(pwin = wm_find_window(window->pid))) {
-		Dprintf("nanowm: Couldn't find parent of destroyed window " "%d\n", window->wid);
+		Dprintf("nanowm: Couldn't find parent of remapped window " "%d\n", window->wid);
 		return;
  	}
 	Dprintf("client_window_remap %d (parent %d)\n", window->wid, window->pid);
@@ -367,7 +367,7 @@ void wm_client_window_unmap(win *window)
 	win *pwin;
 
 	if(!(pwin = wm_find_window(window->pid))) {
-    	Dprintf("nanowm: Couldn't find parent of destroyed window %d\n", window->wid);
+    	Dprintf("nanowm: Couldn't find parent of unmapped window %d\n", window->wid);
 		return;
 	}
 
@@ -397,7 +397,7 @@ wm_client_window_resize(win *window)
 
 	Dprintf("client_window_resize %d (parent %d)\n", window->wid, window->pid);
 	if(!(pwin = wm_find_window(window->pid))) {
-		Dprintf("nanowm: Couldn't find parent of resize window %d\n", window->wid);
+		Dprintf("nanowm: Couldn't find parent of resized window %d\n", window->wid);
 		return;
 	}
 

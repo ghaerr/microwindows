@@ -1,5 +1,8 @@
+12 May 2019
+	* add mouse scroll wheel handling to Allegro 5 mouse driver
 11 May 2019
-	* Add mouse scroll wheel handling to Nano-X, tested with SDL2 driver and nuklear
+	* add mouse scroll wheel handling to SDL2 and X11 mouse drivers
+	* add mouse scroll wheel handling to Nano-X, uses GR_BUTTON_SCROLLUP/DN mouse buttons
 	* fix linked-in nanowm to work after first client exit, was missing mwconfig.h NANOWM define
 	* cleanup nanowm CHLD_UPDATE event handling, don't send events handled by nanowm to application
 	* remove extraneous nanowm container window events being sent to application event loop, fixes nuklear mousedn

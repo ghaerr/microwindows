@@ -93,8 +93,10 @@ static int
 mallegro_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
 	int buttons = 0;
+	int mickeyz = 0;
 	ALLEGRO_EVENT event;
 	ALLEGRO_MOUSE_STATE mstate;
+	static int mz;
 
     if (!al_get_next_event(allegro_mouqueue, &event))
 		return 0;
@@ -117,12 +119,20 @@ mallegro_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
         return MOUSE_NODATA;
 	}
 
-#if notworking
-	int mickeyz = 0;
-	static int mz;
+	al_get_mouse_state(&mstate);		/* above call doesn't return button press*/
+	*dx = mstate.x / allegro_zoom;		/* divide to get unzoomed postion*/
+	*dy = mstate.y / allegro_zoom;
+    *dz = 0;
+	mstate.z /= allegro_zoom;
 
-	/* calculate wheel button (up/down)*/
-	al_get_mouse_state_axis(&mstate, 2); /* 2= read z-axis vertical wheel*/
+	if (mstate.buttons & 1)		/* Primary (e.g. left) mouse button is held*/
+		buttons |= MWBUTTON_L;
+	if (mstate.buttons & 2)		/* Secondary (e.g. right) mouse button is held*/
+		buttons |= MWBUTTON_R;
+	if (mstate.buttons & 4)		/* Tertiary (e.g. middle) mouse button is held*/
+		buttons |= MWBUTTON_M;
+
+	/* calculate wheel button up/down offset from last position*/
 	if(mstate.z != mz)
 	    mickeyz = mstate.z - mz;
 	else
@@ -132,20 +142,7 @@ mallegro_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		buttons |= MWBUTTON_SCROLLUP;
 	if (mickeyz < 0)
 		buttons |= MWBUTTON_SCROLLDN;
-#endif
 
-	al_get_mouse_state(&mstate);		/* above call doesn't return button press*/
-	*dx = mstate.x / allegro_zoom;		/* divide go get unzoomed postion*/
-	*dy = mstate.y / allegro_zoom;
-    *dz = 0;
-
-	if (mstate.buttons & 1)		/* Primary (e.g. left) mouse button is held*/
-		buttons |= MWBUTTON_L;
-	if (mstate.buttons & 2)		/* Secondary (e.g. right) mouse button is held*/
-		buttons |= MWBUTTON_R;
-	if (mstate.buttons & 4)		/* Tertiary (e.g. middle) mouse button is held*/
-		buttons |= MWBUTTON_M;
 	*bp = buttons;
-
 	return MOUSE_ABSPOS; 		// return absolute mouse position
 }

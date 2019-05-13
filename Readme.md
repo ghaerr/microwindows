@@ -9,9 +9,9 @@ based on Nano-X are included. FLTK can be used with the X11 compability library 
 
 This is an overview of the system:
 
-<img src="https://user-images.githubusercontent.com/10487642/40860798-38ddb54a-65d6-11e8-8ab8-9c1f1f329f47.png" width="90%"></img> 
+![Architecture](/screenshots/Architecture-Microwindows.png)
 
-Sopme of the supported platforms are listed at the bottom on the left side. Next to
+Some of the supported platforms are listed at the bottom on the left side. Next to
 that there are available screen drivers, mouse drivers and keyboard
 drivers. The Nano-X / Microwindows engine is the core code that implements
 all drawing and clipping, with the Win32 and Nano-X graphical windowing APIs implemented in seperately
@@ -24,6 +24,7 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 
 ## Areas where Microwindows can be used are:
 
+- NEW: nuklear immmediate-mode GUI now supported
 - NEW: supports running multiple simultaneous Win32 apps on Linux, OS X and in a browser
 - NEW: original classic shareware Doom v1.10 ported to Nano-X
 - run X11 or Win32 applications in a browser using EMSCRIPTEN

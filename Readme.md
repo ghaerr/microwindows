@@ -78,6 +78,10 @@ application note in the doc directory.
 
 An HTML based FAQ and Architecture document are available from the web site.
 
+## Gallery
+
+![Nuklear](/screenshots/Nuklear-Nano-X.png)
+
 ## Links
 
 The chief maintainer of the project is Greg Haerr <greg@censoft.com>

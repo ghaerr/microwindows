@@ -118,8 +118,7 @@ main(int argc, char **argv)
   GrMapWindow(window);
 
   gid = GrNewGC ();
-  GrSelectEvents(window, GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_CLOSE_REQ |
-  	GR_EVENT_MASK_EXPOSURE);
+  GrSelectEvents(window, GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE);
 
   while (1) {
     GrGetNextEvent(&event);
@@ -180,8 +179,13 @@ main(int argc, char **argv)
       }
       Render(window);
       break;
-    case GR_EVENT_TYPE_EXPOSURE:
-      Render(window);
+    case GR_EVENT_TYPE_UPDATE:
+		switch (event.update.utype) {
+		case GR_UPDATE_MAP:			/* initial paint*/
+		case GR_UPDATE_SIZE:		/* resize repaint*/
+			Render(window);
+			break;
+		}
       break;
     case GR_EVENT_TYPE_CLOSE_REQ:
       GrClose();

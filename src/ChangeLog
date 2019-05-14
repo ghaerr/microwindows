@@ -1,3 +1,7 @@
+14 May 2019
+	* fix X11 mouse button/movement event overwrite driver bug
+	* fix demo-aafont: Nano-X buffered window apps must use map not expose events for drawing
+		nanowm extraneous event cleanup was sending extra expose event causing improper behaviour
 12 May 2019
 	* add mouse scroll wheel handling to Allegro 5 mouse driver
 11 May 2019

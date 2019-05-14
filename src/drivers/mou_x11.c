@@ -77,17 +77,14 @@ mouX11_GetDefaultAccel(int *pscale,int *pthresh)
 }
 
 /*
- * Attempt to read bytes from the mouse and interpret them.
- * Returns -1 on error, 0 if either no bytes were read or not enough
- * was read for a complete state, or 1 if the new state was read.
- * When a new state is read, the current buttons and x and y deltas
- * are returned.  This routine does not block.
+ * Read mouse event.
+ * Returns MOUSE_NODATA or MOUSE_ABSPOS.
+ * This is a non-blocking call.
  */
 static int
 mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 {
     XEvent ev;
-    int events = 0;
     long mask = x11_event_mask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
 
     while (XCheckMaskEvent(x11_dpy, mask, &ev)) {
@@ -108,7 +105,7 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		if (ev.xmotion.state & Button5Mask)
 		    button |= MWBUTTON_SCROLLDN;
 		*bp = button;
-		events++;
+		return MOUSE_ABSPOS;		/* absolute position returned*/
 	    }
 	}
 	else if (ev.type == ButtonPress) {
@@ -139,13 +136,13 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		if (ev.xbutton.state & Button5Mask)
 		    button |= MWBUTTON_SCROLLDN;
 		
-/*		DPRINTF("!Pressing button: 0x%x, state: 0x%x, button: 0x%x\n",
+		/*DPRINTF("!Pressing button: 0x%x, state: 0x%x, button: 0x%x\n",
 			button,ev.xbutton.state, ev.xbutton.button);*/
 		*bp = button;
 		*dx = ev.xbutton.x;
 		*dy = ev.xbutton.y;
 		*dz = 0;
-		events++;
+		return MOUSE_ABSPOS;		/* absolute position returned*/
 	    }
 	}
 	else if (ev.type == ButtonRelease) {
@@ -184,13 +181,10 @@ mouX11_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 		*dx = ev.xbutton.x;
 		*dy = ev.xbutton.y;
 		*dz = 0;
-		events++;
+		return MOUSE_ABSPOS;		/* absolute position returned*/
 	    }
 	} else 
 	    x11_handle_event(&ev);
     } /* while*/
-    if (events == 0)
-		return MOUSE_NODATA;
-
-    return MOUSE_ABSPOS;		/* absolute position returned*/
+    return MOUSE_NODATA;
 }

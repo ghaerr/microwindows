@@ -98,11 +98,12 @@ char *fontlist[] = {
 };
 #define NUMFONTS	((sizeof(fontlist)/sizeof(char *)) - 1)
 
-#define FGCOLOR		BLACK
-#define BGCOLOR		WHITE
+#define FGCOLOR		GrGetSysColor(flipcolors? GR_COLOR_WINDOW: GR_COLOR_APPTEXT)
+#define BGCOLOR		GrGetSysColor(flipcolors? GR_COLOR_APPTEXT: GR_COLOR_APPWINDOW)
 
 GR_WINDOW_ID	w;
 GR_BOOL		aa = GR_TRUE;
+GR_BOOL		flipcolors = 0;
 int			entry = 0;
 
 static void
@@ -124,7 +125,7 @@ do_paint(void)
 
 	GrSetGCForeground(gc, FGCOLOR);
 
-	sprintf(title, "Microwindows Truetype Font Demo (%s) [Use left/right keys, a, q]",
+	sprintf(title, "Microwindows Truetype Font Demo (%s) [Use left/right keys, a, f, q]",
 		fontlist[entry]);
 	GrSetWindowTitle(w, title);
 
@@ -189,6 +190,10 @@ main(int ac, char **av)
       		switch(event.keystroke.ch) {
         	case 'a':
 				aa = !aa;
+				do_paint();
+          		break;
+        	case 'f':
+				flipcolors = !flipcolors;
 				do_paint();
           		break;
 			case MWKEY_RIGHT:

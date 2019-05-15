@@ -46,6 +46,7 @@ SCREEN_HEIGHT            = 768
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NUKLEARUI                = Y
 NX11                     = N
 ENGINE                   = Y
 TINYWIDGETS              = N

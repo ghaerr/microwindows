@@ -96,6 +96,7 @@ GR_BOOL aa = 1;
 GR_BOOL kerning = 0;
 GR_BOOL bold = 0;
 GR_BOOL underline = 0;
+GR_BOOL flipcolors = 0;
 int angle = 0;
 int state = GR_TFBOTTOM;
 int entry = 0;
@@ -166,6 +167,9 @@ main(int argc, char **argv)
         case 'u':
           underline = !underline;
           break;
+        case 'f':
+          flipcolors = !flipcolors;
+          break;
         case 'l':
           state = (state == GR_TFBOTTOM)?	GR_TFBASELINE:
 		  		  (state == GR_TFBASELINE)?	GR_TFTOP:
@@ -221,11 +225,10 @@ Render(GR_WINDOW_ID window)
   fontid2 = GrCreateFontEx(fontlist[entry].fontname, fontsize, fontsize, NULL);
 
    GrGetScreenInfo(&info);
-   GrSetGCBackground(gid, WHITE);
-   GrSetGCForeground (gid, WHITE);
+   GrSetGCForeground (gid, GrGetSysColor(flipcolors? GR_COLOR_APPTEXT: GR_COLOR_APPWINDOW));
    GrSetGCUseBackground(gid, GR_FALSE);
    GrFillRect(window, gid, 0, 0, info.cols, info.rows);
-   GrSetGCForeground (gid, BLACK);
+   GrSetGCForeground (gid, GrGetSysColor(flipcolors? GR_COLOR_APPWINDOW: GR_COLOR_APPTEXT));
 
 //	GrSetGCForeground (gid, GREEN);
 //	GrSetGCBackground(gid, BLUE);
@@ -240,8 +243,9 @@ Render(GR_WINDOW_ID window)
    GrText(window, gid, 5, 80, "b Toggle bold", 13, GR_TFASCII);
    GrText(window, gid, 5, 100, "k Toggle kerning", 16, GR_TFASCII);
    GrText(window, gid, 5, 120, "u Toggle underline", 18, GR_TFASCII);
-   GrText(window, gid, 5, 140, "l  Toggle alignment bottom/baseline/top", 39, GR_TFASCII);
-   GrText(window, gid, 5, 160, "   Arrow keys select next font and size", -1, GR_TFASCII);
+   GrText(window, gid, 5, 140, "f Toggle foreground/background", -1, GR_TFASCII);
+   GrText(window, gid, 5, 160, "l  Toggle alignment bottom/baseline/top", 39, GR_TFASCII);
+   GrText(window, gid, 5, 180, "   Arrow keys select next font and size", -1, GR_TFASCII);
 
 #if HAVE_KSC5601_SUPPORT
    //GrText(window, gid, 5, 160, "\xB0\xA1\xB0\xA2\xB0\xA3", 6, MWTF_DBCS_EUCKR);

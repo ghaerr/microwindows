@@ -1,6 +1,6 @@
 /*
  * NanoWM - The Nano-X window manager.
- * Copyright (C) 2000, 2010 Greg Haerr <greg@censoft.com>
+ * Copyright (C) 2000, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Copyright (C) 2000 Alex Holden <alex@linuxhacker.org>
  */
 
@@ -15,9 +15,31 @@
 #define NO_AUTO_MOVE		0		/* don't auto position window on new windows*/
 #define FIRST_WINDOW_LOCATION 2		/* x,y for first window*/
 #define WINDOW_STEP			20	 	/* x,y step between new window placements*/
+#define MAXSYSCOLORS		22		/* # of GR_COLOR_* system colors*/
 
 /* default window style for GR_WM_PROPS_APPWINDOW*/
 #define DEFAULT_WINDOW_STYLE	(GR_WM_PROPS_APPFRAME | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX)
+
+/* nxPaintNCArea window drawing and color scheme*/
+#if NUKLEARUI						/* draw window frames/colors to match Nuklear style*/
+#define SCHEME_NUKLEAR				/* nuklear color scheme*/
+#define CXBORDER	1				/* 3d border width*/
+#define CYBORDER	1				/* 3d border height*/
+#define CYCAPTION	29				/* height of caption*/
+#define CXCLOSEBOX	24				/* width of closebox*/
+#define CYCLOSEBOX	24				/* height of closebox*/
+#define CXFRAME		(CXBORDER*2)	/* width of frame*/
+#define CYFRAME		(CYBORDER*2)	/* height of frame*/
+#else
+#define SCHEME_TAN					/* tan color scheme*/
+#define CXBORDER	3				/* 3d border width*/
+#define CYBORDER	3				/* 3d border height*/
+#define CYCAPTION	12				/* height of caption*/
+#define CXCLOSEBOX	9				/* width of closebox*/
+#define CYCLOSEBOX	9				/* height of closebox*/
+#define CXFRAME		(CXBORDER*2)	/* width of frame*/
+#define CYFRAME		(CYBORDER*2)	/* height of frame*/
+#endif
 
 #if DEBUG_NANOWM
 #define Dprintf printf
@@ -25,12 +47,16 @@
 #define Dprintf(...)
 #endif
 
+/* GrGetSystemColor color scheme definitions*/
+extern const GR_COLOR nxSysColors[MAXSYSCOLORS];
+
 /* The different window types which can be used in windowlist->type */
 enum {
 	WINDOW_TYPE_ROOT,
 	WINDOW_TYPE_CONTAINER,
 	WINDOW_TYPE_CLIENT
-	/* WINDOW_TYPE_TOPBAR,
+	/*
+	WINDOW_TYPE_TOPBAR,
 	WINDOW_TYPE_LEFTBAR,
 	WINDOW_TYPE_RIGHTBAR,
 	WINDOW_TYPE_BOTTOMBAR,
@@ -124,87 +150,5 @@ void wm_container_buttonup(win *window, GR_EVENT_BUTTON *event);
 void wm_container_mousemoved(win *window, GR_EVENT_MOUSE *event);
 void wm_container_mouse_enter(win *window, GR_EVENT_GENERAL *event);
 void wm_container_mouse_exit(win *window, GR_EVENT_GENERAL *event);
-
-#if 0000
-/*
- * Used to record some general information about the client.
- */
-struct clientinfo {
-	GR_WINDOW_ID cid;
-};
-void rootwindow_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void topbar_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void closebutton_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void maximisebutton_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void restorebutton_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void iconisebutton_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void utilitybutton_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void utilitymenu_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void utilitymenuentry_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void rootmenu_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void rootmenuentry_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void icon_exposure(win *window, GR_EVENT_EXPOSURE *event);
-void rootwindow_buttondown(win *window, GR_EVENT_BUTTON *event);
-void topbar_buttondown(win *window, GR_EVENT_BUTTON *event);
-void resizebar_buttondown(win *window, GR_EVENT_BUTTON *event);
-void closebutton_buttondown(win *window, GR_EVENT_BUTTON *event);
-void maximisebutton_buttondown(win *window, GR_EVENT_BUTTON *event);
-void restorebutton_buttondown(win *window, GR_EVENT_BUTTON *event);
-void iconisebutton_buttondown(win *window, GR_EVENT_BUTTON *event);
-void utilitybutton_buttondown(win *window, GR_EVENT_BUTTON *event);
-void icon_buttondown(win *window, GR_EVENT_BUTTON *event);
-void rootwindow_buttonup(win *window, GR_EVENT_BUTTON *event);
-void topbar_buttonup(win *window, GR_EVENT_BUTTON *event);
-void resizebar_buttonup(win *window, GR_EVENT_BUTTON *event);
-void closebutton_buttonup(win *window, GR_EVENT_BUTTON *event);
-void maximisebutton_buttonup(win *window, GR_EVENT_BUTTON *event);
-void restorebutton_buttonup(win *window, GR_EVENT_BUTTON *event);
-void iconisebutton_buttonup(win *window, GR_EVENT_BUTTON *event);
-void utilitybutton_buttonup(win *window, GR_EVENT_BUTTON *event);
-void icon_buttonup(win *window, GR_EVENT_BUTTON *event);
-void utilitymenuentry_buttonup(win *window, GR_EVENT_BUTTON *event);
-void rootmenuentry_buttonup(win *window, GR_EVENT_BUTTON *event);
-void closebutton_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void maximisebutton_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void restorebutton_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void iconisebutton_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void utilitybutton_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void utilitymenu_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void utilitymenuentry_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void rootmenu_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void rootmenuentry_mouseexit(win *window, GR_EVENT_GENERAL *event);
-void topbar_mousemoved(win *window, GR_EVENT_MOUSE *event);
-void leftbar_mousemoved(win *window, GR_EVENT_MOUSE *event);
-void leftresize_mousemoved(win *window, GR_EVENT_MOUSE *event);
-void bottombar_mousemoved(win *window, GR_EVENT_MOUSE *event);
-void rightresize_mousemoved(win *window, GR_EVENT_MOUSE *event);
-void rightbar_mousemoved(win *window, GR_EVENT_MOUSE *event);
-extern GR_BITMAP utilitybutton_notpressed[];
-extern GR_BITMAP utilitybutton_pressed[];
-extern GR_BITMAP maximisebutton_notpressed[];
-extern GR_BITMAP maximisebutton_pressed[];
-extern GR_BITMAP iconisebutton_notpressed[];
-extern GR_BITMAP iconisebutton_pressed[];
-extern GR_BITMAP closebutton_notpressed[];
-extern GR_BITMAP closebutton_pressed[];
-extern GR_BITMAP restorebutton_notpressed[];
-extern GR_BITMAP restorebutton_pressed[];
-extern GR_BITMAP horizontal_resize_fg[];
-extern GR_BITMAP horizontal_resize_bg[];
-extern GR_BITMAP vertical_resize_fg[];
-extern GR_BITMAP vertical_resize_bg[];
-extern GR_BITMAP righthand_resize_fg[];
-extern GR_BITMAP righthand_resize_bg[];
-extern GR_BITMAP lefthand_resize_fg[];
-extern GR_BITMAP lefthand_resize_bg[];
-extern int horizontal_resize_columns, horizontal_resize_rows;
-extern int horizontal_resize_hotx, horizontal_resize_hoty;
-extern int vertical_resize_columns, vertical_resize_rows;
-extern int vertical_resize_hotx, vertical_resize_hoty;
-extern int lefthand_resize_columns, lefthand_resize_rows;
-extern int lefthand_resize_hotx, lefthand_resize_hoty;
-extern int righthand_resize_columns, righthand_resize_rows;
-extern int righthand_resize_hotx, righthand_resize_hoty;
-#endif
 
 #endif /* __NANOWM_H*/

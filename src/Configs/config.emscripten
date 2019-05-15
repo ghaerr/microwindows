@@ -47,6 +47,7 @@ X11_RGBTXT               = /usr/share/fonts/truetype/rgb.txt
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NUKLEARUI                = Y
 NX11                     = Y
 ENGINE                   = N
 TINYWIDGETS              = N

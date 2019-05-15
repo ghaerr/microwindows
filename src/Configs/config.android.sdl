@@ -61,6 +61,7 @@ ANDROIDTOOLSPREFIX      = arm-linux-androideabi-
 ####################################################################
 MICROWIN                 = N
 NANOX                    = Y
+NUKLEARUI                = N
 NX11                     = Y
 ENGINE                   = Y
 TINYWIDGETS              = N

@@ -1,12 +1,184 @@
 /*
- * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2000, 2019 Greg Haerr <greg@censoft.com>
  *
  * Nano-X Draw Library
  */
 #define MWINCLUDECOLORS
 #include <stdio.h>
 #include "nano-X.h"
+#include "nanowm.h"
 #include "nxdraw.h"
+
+/*
+ * GrGetSystemColor color scheme definitions
+ */ 
+#if NUKLEARUI
+const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
+	/* desktop background*/
+	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
+
+	/* caption colors*/
+	GR_RGB( 40,  40,  40),	/* GR_COLOR_ACTIVECAPTION       */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
+	GR_RGB( 35,  35,  35),	/* GR_COLOR_INACTIVECAPTION     */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_INACTIVECAPTIONTEXT */
+
+	/* 3d border shades (UNUSED in Nuklear)*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_3DFRAME             */
+	GR_RGB(162, 141, 104),	/* GR_COLOR_BTNSHADOW           */
+	GR_RGB(213, 204, 187),	/* GR_COLOR_3DLIGHT             */
+	GR_RGB(234, 230, 221), 	/* GR_COLOR_BTNHIGHLIGHT        */
+
+	/* top level application window backgrounds/text (FIXME REMOVE?)*/
+	GR_RGB( 45,  45,  45),	/* GR_COLOR_APPWINDOW           */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_APPTEXT             */
+
+	/* button control backgrounds/text (usually same as app window colors)*/
+	GR_RGB( 50,  50,  50),	/* GR_COLOR_BTNFACE             */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_BTNTEXT             */
+
+	/* edit/listbox control backgrounds/text, selected highlights*/
+	GR_RGB( 45,  45,  45),  /* GR_COLOR_WINDOW              */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_WINDOWTEXT          */
+	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_HIGHLIGHTTEXT       */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_GRAYTEXT            */
+
+	/* menu backgrounds/text*/
+	GR_RGB( 40,  40,  40),	/* GR_COLOR_MENU                */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_MENUTEXT            */
+
+	/* window border and interior line under caption*/
+	GR_RGB( 65,  65,  65),	/* GR_COLOR_WINDOWFRAME         */
+	GR_RGB( 65,  65,  65)   /* GR_COLOR_WINDOWFRAMELT       */
+};
+#endif
+
+#ifdef SCHEME_TAN
+const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
+	/* desktop background*/
+	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
+
+	/* caption colors*/
+	GR_RGB(128,   0,   0),	/* GR_COLOR_ACTIVECAPTION       */
+	GR_RGB(255, 255, 255),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
+	GR_RGB(162, 141, 104),	/* GR_COLOR_INACTIVECAPTION     */
+	GR_RGB(192, 192, 192),  /* GR_COLOR_INACTIVECAPTIONTEXT */
+
+	/* 3d border shades*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_3DFRAME             */
+	GR_RGB(162, 141, 104),	/* GR_COLOR_BTNSHADOW           */
+	GR_RGB(213, 204, 187),	/* GR_COLOR_3DLIGHT             */
+	GR_RGB(234, 230, 221), 	/* GR_COLOR_BTNHIGHLIGHT        */
+
+	/* top level application window backgrounds/text*/
+	GR_RGB(255, 255, 255),	/* GR_COLOR_APPWINDOW           */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_APPTEXT             */
+
+	/* button control backgrounds/text (usually same as app window colors)*/
+	GR_RGB(213, 204, 187),	/* GR_COLOR_BTNFACE             */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_BTNTEXT             */
+
+	/* edit/listbox control backgrounds/text, selected highlights*/
+	GR_RGB(255, 255, 255),  /* GR_COLOR_WINDOW              */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWTEXT          */
+	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
+	GR_RGB(255, 255, 255),  /* GR_COLOR_HIGHLIGHTTEXT       */
+	GR_RGB( 64,  64,  64),  /* GR_COLOR_GRAYTEXT            */
+
+	/* menu backgrounds/text*/
+	GR_RGB(213, 204, 187),	/* GR_COLOR_MENU                */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_MENUTEXT            */
+
+	/* window border and interior line under caption*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWFRAME         */
+	GR_RGB(213, 204, 187)	/* GR_COLOR_WINDOWFRAMELT       */
+};
+#endif
+
+#ifdef SCHEME_WINSTD
+const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
+	/* desktop background*/
+	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
+
+	/* caption colors*/
+	GR_RGB(128,   0, 128),	/* GR_COLOR_ACTIVECAPTION       */
+	GR_RGB(255, 255, 255),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
+	GR_RGB(128, 128, 128), 	/* GR_COLOR_INACTIVECAPTION     */
+	GR_RGB(192, 192, 192),  /* GR_COLOR_INACTIVECAPTIONTEXT */
+
+	/* 3d border shades*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_3DFRAME             */
+	GR_RGB(128, 128, 128),	/* GR_COLOR_BTNSHADOW           */
+	GR_RGB(223, 223, 223),	/* GR_COLOR_3DLIGHT             */
+	GR_RGB(255, 255, 255), 	/* GR_COLOR_BTNHIGHLIGHT        */
+
+	/* top level application window backgrounds/text*/
+	GR_RGB(192, 192, 192),	/* GR_COLOR_APPWINDOW           */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_APPTEXT             */
+
+	/* button control backgrounds/text (usually same as app window colors)*/
+	GR_RGB(192, 192, 192),	/* GR_COLOR_BTNFACE             */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_BTNTEXT             */
+
+	/* edit/listbox control backgrounds/text, selected highlights*/
+	GR_RGB(255, 255, 255),  /* GR_COLOR_WINDOW              */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWTEXT          */
+	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
+	GR_RGB(255, 255, 255),  /* GR_COLOR_HIGHLIGHTTEXT       */
+	GR_RGB( 64,  64,  64),  /* GR_COLOR_GRAYTEXT            */
+
+	/* menu backgrounds/text*/
+	GR_RGB(192, 192, 192),	/* GR_COLOR_MENU                */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_MENUTEXT            */
+
+	/* window border and interior line under caption*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWFRAME         */
+	GR_RGB(192, 192, 192)	/* GR_COLOR_WINDOWFRAMELT       */
+};
+#endif
+
+#ifdef SCHEME_OLD
+static const GR_COLOR sysColors[MAXSYSCOLORS] = {
+	/* desktop background*/
+	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
+
+	/* caption colors*/
+	GR_RGB(128,   0, 128),	/* GR_COLOR_ACTIVECAPTION       */
+	GR_RGB(255, 255, 255),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
+	GR_RGB(  0,  64, 128),	/* GR_COLOR_INACTIVECAPTION     */
+	GR_RGB(192, 192, 192),  /* GR_COLOR_INACTIVECAPTIONTEXT */
+
+	/* 3d border shades*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_3DFRAME         */
+	GR_RGB(128, 128, 128),	/* GR_COLOR_BTNSHADOW           */
+	GR_RGB(192, 192, 192),	/* GR_COLOR_3DLIGHT             */
+	GR_RGB(223, 223, 223), 	/* GR_COLOR_BTNHIGHLIGHT        */
+
+	/* top level application window backgrounds/text*/
+	GR_RGB(160, 160, 160),	/* GR_COLOR_APPWINDOW           */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_APPTEXT             */
+
+	/* button control backgrounds/text (usually same as app window colors)*/
+	GR_RGB(160, 160, 160),	/* GR_COLOR_BTNFACE             */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_BTNTEXT             */
+
+	/* edit/listbox control backgrounds/text, selected highlights*/
+	GR_RGB(255, 255, 255),  /* GR_COLOR_WINDOW              */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWTEXT          */
+	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
+	GR_RGB(255, 255, 255),  /* GR_COLOR_HIGHLIGHTTEXT       */
+	GR_RGB( 64,  64,  64),  /* GR_COLOR_GRAYTEXT            */
+
+	/* menu backgrounds/text*/
+	GR_RGB(160, 160, 160),	/* GR_COLOR_MENU                */
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_MENUTEXT            */
+
+	/* window border and interior line under caption*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWFRAME         */
+	GR_RGB(160, 160, 160)	/* GR_COLOR_WINDOWFRAMELT        */
+};
+#endif
 
 void
 nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PROPS props)
@@ -14,19 +186,29 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PR
 	int		x = 0;
 	int		y = 0;
 	GR_GC_ID	gc = GrNewGC();
-	GR_RECT		r;
-	/* *static GR_FONT_ID fontid = 0;***/
-
+#if NUKLEARUI
+	static GR_FONT_ID fontid = 0;
+	if (!fontid)
+		fontid = GrCreateFont(GR_FONT_SYSTEM_VAR, 0, NULL);
+	GrSetGCFont(gc, fontid);
+#endif
 
 	if (props & GR_WM_PROPS_APPFRAME) {
+#if NUKLEARUI
+		/* draw 1-line black border around window*/
+		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_WINDOWFRAME));
+		GrRect(id, gc, x, y, w, h);
+		x += 1; y += 1; w -= 2; h -= 2;
+#else
 		/* draw 2-line 3d border around window*/
 		nxDraw3dOutset(id, x, y, w, h);
 		x += 2; y += 2; w -= 4; h -= 4;
 
 		/* draw 1-line inset inside border*/
-		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPWINDOW));
+		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_WINDOWFRAMELT));
 		GrRect(id, gc, x, y, w, h);
 		x += 1; y += 1; w -= 2; h -= 2;
+#endif
 	} else if (props & GR_WM_PROPS_BORDER) {
 		/* draw 1-line black border around window*/
 		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_WINDOWFRAME));
@@ -47,21 +229,32 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PR
 		GrSetGCForeground(gc,
 			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
 		GrSetGCUseBackground(gc, GR_FALSE);
-		/* * no need to create special font now...
-		if (!fontid)
-			fontid = GrCreateFont(GR_FONT_GUI_VAR, 0, NULL);
-		GrSetGCFont(gc, fontid);***/
+#if NUKLEARUI
+		/* X = 2 times padding (4)*/
+		/* Y = 2 times padding (4) + font ascent+descent (11)*/
+		GrText(id, gc, x+2*4, y+2*4+11, title, -1, GR_TFASCII|GR_TFBASELINE);
+#else
 		GrText(id, gc, x+4, y-1, title, -1, GR_TFASCII|GR_TFTOP);
+#endif
 	}
 	y += CYCAPTION;
 
 	/* draw one line under caption*/
 	if (props & GR_WM_PROPS_APPFRAME) {
-		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPWINDOW));
+		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_WINDOWFRAMELT));
 		GrLine(id, gc, x, y, x+w-1, y);
 	}
 
 	if (props & GR_WM_PROPS_CLOSEBOX) {
+#if NUKLEARUI
+		GrSetGCForeground(gc,
+			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
+		GrSetGCUseBackground(gc, GR_FALSE);
+		/* X = width - 3 - "x" width (5) - 2 times padding (4)*/
+		/* Y = 2 times padding (4) + font ascent+descent (11)*/
+		GrText(id, gc, x+w-3-5-8, y-CYCAPTION+8+11, "x", 1, GR_TFASCII|GR_TFBASELINE);
+#else
+		GR_RECT		r;
 		/* draw close box*/
 		r.x = x + w - CXCLOSEBOX - 2;
 		r.y = y - CYCAPTION + 2;
@@ -70,15 +263,16 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PR
 
 		nxDraw3dBox(id, r.x, r.y, r.width, r.height,
 			GrGetSysColor(GR_COLOR_BTNHIGHLIGHT),
-			GrGetSysColor(GR_COLOR_WINDOWFRAME));
+			GrGetSysColor(GR_COLOR_3DFRAME));
 		nxInflateRect(&r, -1, -1);
-		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_APPWINDOW));
+		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_3DLIGHT));
 		GrFillRect(id, gc, r.x, r.y, r.width, r.height);
 
 		nxInflateRect(&r, -1, -1);
 		GrSetGCForeground(gc, GrGetSysColor(GR_COLOR_BTNTEXT));
 		GrLine(id, gc, r.x, r.y, r.x+r.width-1, r.y+r.height-1);
 		GrLine(id, gc, r.x, r.y+r.height-1, r.x+r.width-1, r.y);
+#endif
 	}
 
 #if 0
@@ -183,7 +377,7 @@ nxDraw3dInset(GR_DRAW_ID id,int x,int y,int w,int h)
 		GrGetSysColor(GR_COLOR_BTNHIGHLIGHT));
 	++x; ++y; w -= 2; h -= 2;
 	nxDraw3dBox(id, x, y, w, h,
-		GrGetSysColor(GR_COLOR_WINDOWFRAME),
+		GrGetSysColor(GR_COLOR_3DFRAME),
 		GrGetSysColor(GR_COLOR_3DLIGHT));
 }
 
@@ -195,7 +389,7 @@ nxDraw3dOutset(GR_DRAW_ID id,int x,int y,int w,int h)
 {
 	nxDraw3dBox(id, x, y, w, h,
 		GrGetSysColor(GR_COLOR_3DLIGHT),
-		GrGetSysColor(GR_COLOR_WINDOWFRAME));
+		GrGetSysColor(GR_COLOR_3DFRAME));
 	++x; ++y; w -= 2; h -= 2;
 	nxDraw3dBox(id, x, y, w, h,
 		GrGetSysColor(GR_COLOR_BTNHIGHLIGHT),
@@ -234,7 +428,7 @@ nxDraw3dUpFrame(GR_DRAW_ID id, int l, int t, int r, int b)
 	nxDraw3dBox(hDC, rc.left, rc.top,
 		rc.right-rc.left, rc.bottom-rc.top,
 		GrGetSysColor(GR_COLOR_3DLIGHT),
-		GrGetSysColor(GR_COLOR_WINDOWFRAME));
+		GrGetSysColor(GR_COLOR_3DFRAME));
 	nxInflateRect(&rc, -1, -1);
 	nxDraw3dBox(hDC, rc.left, rc.top,
 		rc.right-rc.left, rc.bottom-rc.top,

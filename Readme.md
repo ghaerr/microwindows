@@ -24,9 +24,10 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 
 ## Areas where Microwindows can be used are:
 
-- NEW: nuklear immmediate-mode GUI now supported
+- NEW: updated Nano-X window frame drawing code resembles Nuklear UI
+- NEW: Nuklear immmediate-mode GUI now supported
 - NEW: supports running multiple simultaneous Win32 apps on Linux, OS X and in a browser
-- NEW: original classic shareware Doom v1.10 ported to Nano-X
+- original classic shareware Doom v1.10 ported to Nano-X
 - run X11 or Win32 applications in a browser using EMSCRIPTEN
 - provide an excellent GUI for small embedded devices with FLTK, TinyWidgets or Win32
 - port the FLTK GUI toolkit to small platforms

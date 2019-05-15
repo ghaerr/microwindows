@@ -21,12 +21,3 @@ void		nxDraw3dUpDownState(GR_DRAW_ID id, int x, int y, int w, int h,
 			GR_BOOL fDown);
 void		nxDraw3dUpFrame(GR_DRAW_ID id, int l, int t, int r, int b);
 void		nxDraw3dShadow(GR_DRAW_ID id, int x, int y, int w, int h, GR_COLOR crTop, GR_COLOR crBottom);
-
-/* nxPaintNCArea offsets*/
-#define CXBORDER	3				/* 3d border width*/
-#define CYBORDER	3				/* 3d border height*/
-#define CYCAPTION	12				/* height of caption*/
-#define CXCLOSEBOX	9				/* width of closebox*/
-#define CYCLOSEBOX	9				/* height of closebox*/
-#define CXFRAME		(CXBORDER*2)			/* width of frame*/
-#define CYFRAME		(CYBORDER*2)			/* height of frame*/

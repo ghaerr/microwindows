@@ -1,3 +1,7 @@
+15 May 2019
+	* added new, updated Nano-X application window frame/color scheme, resembles Nuklear UI
+	* added NUKLEARUI=N config option to use old Nano-X window/color scheme
+	* renamed GR_COLOR_WINDOWFRAME to GR_COLOR_3DFRAME, introduced new GR_COLOR_WINDOWFRAME, GR_COLOR_WINDOWFRAMELT
 14 May 2019
 	* fix X11 mouse button/movement event overwrite driver bug
 	* fix demo-aafont: Nano-X buffered window apps must use map not expose events for drawing

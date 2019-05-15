@@ -46,6 +46,7 @@ EXTENGINELIBS            +=
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NUKLEARUI                = Y
 NX11                     = Y
 ENGINE                   = Y
 TINYWIDGETS              = Y

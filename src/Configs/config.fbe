@@ -45,6 +45,7 @@ X11HDRLOCATION           = /usr/X11/include
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NUKLEARUI                = Y
 NX11                     = N
 ENGINE                   = Y
 TINYWIDGETS              = Y

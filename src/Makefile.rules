@@ -247,6 +247,10 @@ ifeq ($(LINK_APP_INTO_SERVER), Y)
 DEFINES += -DNONETWORK=1
 endif
 
+ifeq ($(NUKLEARUI), N)
+DEFINES += -DNUKLEARUI=0
+endif
+
 ifeq ($(NANOWM), N)
 DEFINES += -DNANOWM=0
 endif

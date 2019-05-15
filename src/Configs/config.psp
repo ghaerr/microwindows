@@ -61,6 +61,7 @@ GPROF                    = N
 ####################################################################
 MICROWIN                 = Y
 NANOX                    = Y
+NUKLEARUI                = Y
 SHAREDLIBS               = N
 OBJFRAMEWORK             = N
 

@@ -10,6 +10,7 @@
 #define MWINCLUDECOLORS
 #include "uni_std.h"
 #include "serv.h"
+#include "nanowm.h"
 #include "osdep.h"
 #include "../drivers/genmem.h"
 
@@ -3576,83 +3577,6 @@ GrKillWindow(GR_WINDOW_ID wid)
 	SERVER_UNLOCK();
 }
 
-/*
- * GrGetSystemColor color scheme definitions
- */ 
-/* define color scheme: A (tan), B (winstd) or C (old)*/
-#define SCHEME_A
-
-#define A_RGB(r,g,b)
-#define B_RGB(r,g,b)
-#define C_RGB(r,g,b)
-
-#ifdef SCHEME_A
-#undef  A_RGB
-#define A_RGB(r,g,b)	GR_RGB(r,g,b),
-#endif
-#ifdef SCHEME_B
-#undef  B_RGB
-#define B_RGB(r,g,b)	GR_RGB(r,g,b),
-#endif
-#ifdef SCHEME_C
-#undef  C_RGB
-#define C_RGB(r,g,b)	GR_RGB(r,g,b),
-#endif
-
-#define MAXSYSCOLORS	20	/* # of GR_COLOR_* system colors*/
-
-static const GR_COLOR sysColors[MAXSYSCOLORS] = {
-	/* desktop background*/
-	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
-
-	/* caption colors*/
-	A_RGB(128,   0,   0)	/* GR_COLOR_ACTIVECAPTION       */
-	B_RGB(128,   0, 128)	/* GR_COLOR_ACTIVECAPTION       */
-	C_RGB(128,   0, 128)	/* GR_COLOR_ACTIVECAPTION       */
-	GR_RGB(255, 255, 255),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
-	A_RGB(162, 141, 104)	/* GR_COLOR_INACTIVECAPTION     */
-	B_RGB(128, 128, 128)  	/* GR_COLOR_INACTIVECAPTION     */
-	C_RGB(  0,  64, 128)	/* GR_COLOR_INACTIVECAPTION     */
-	GR_RGB(192, 192, 192),  /* GR_COLOR_INACTIVECAPTIONTEXT */
-
-	/* 3d border shades*/
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWFRAME         */
-	A_RGB(162, 141, 104)	/* GR_COLOR_BTNSHADOW           */
-	B_RGB(128, 128, 128)	/* GR_COLOR_BTNSHADOW           */
-	C_RGB(128, 128, 128)	/* GR_COLOR_BTNSHADOW           */
-	A_RGB(213, 204, 187)	/* GR_COLOR_3DLIGHT             */
-	B_RGB(223, 223, 223)	/* GR_COLOR_3DLIGHT             */
-	C_RGB(192, 192, 192)	/* GR_COLOR_3DLIGHT             */
-	A_RGB(234, 230, 221)  	/* GR_COLOR_BTNHIGHLIGHT        */
-	B_RGB(255, 255, 255)  	/* GR_COLOR_BTNHIGHLIGHT        */
-	C_RGB(223, 223, 223)  	/* GR_COLOR_BTNHIGHLIGHT        */
-
-	/* top level application window backgrounds/text*/
-	A_RGB(213, 204, 187)	/* GR_COLOR_APPWINDOW           */
-	B_RGB(192, 192, 192)	/* GR_COLOR_APPWINDOW           */
-	C_RGB(160, 160, 160)	/* GR_COLOR_APPWINDOW           */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_APPTEXT             */
-
-	/* button control backgrounds/text (usually same as app window colors)*/
-	A_RGB(213, 204, 187)	/* GR_COLOR_BTNFACE             */
-	B_RGB(192, 192, 192)	/* GR_COLOR_BTNFACE             */
-	C_RGB(160, 160, 160)	/* GR_COLOR_BTNFACE             */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_BTNTEXT             */
-
-	/* edit/listbox control backgrounds/text, selected highlights*/
-	GR_RGB(255, 255, 255),  /* GR_COLOR_WINDOW              */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_WINDOWTEXT          */
-	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
-	GR_RGB(255, 255, 255),  /* GR_COLOR_HIGHLIGHTTEXT       */
-	GR_RGB( 64,  64,  64),  /* GR_COLOR_GRAYTEXT            */
-
-	/* menu backgrounds/text*/
-	A_RGB(213, 204, 187)	/* GR_COLOR_MENU                */
-	B_RGB(192, 192, 192)	/* GR_COLOR_MENU                */
-	C_RGB(160, 160, 160)	/* GR_COLOR_MENU                */
-	GR_RGB(  0,   0,   0),  /* GR_COLOR_MENUTEXT            */
-};
-
 /* Return system-defined color*/
 GR_COLOR
 GrGetSysColor(int index)
@@ -3660,7 +3584,7 @@ GrGetSysColor(int index)
 	GR_COLOR color = 0;
 	SERVER_LOCK();
 	if(index >= 0 && index < MAXSYSCOLORS)
-		color = sysColors[index];
+		color = nxSysColors[index];
 	SERVER_UNLOCK();
 	return color;
 }
@@ -3684,8 +3608,7 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 		return;
 	}
 
-	GdAddTimer(screensaver_delay, GsActivateScreenSaver,
-					GsActivateScreenSaver);
+	GdAddTimer(screensaver_delay, GsActivateScreenSaver, GsActivateScreenSaver);
 
 	SERVER_UNLOCK();
 #endif /* MW_FEATURE_TIMERS */

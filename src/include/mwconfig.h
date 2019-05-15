@@ -100,6 +100,10 @@
 #define NONETWORK		0		/* =1 to link Nano-X apps with server for standalone*/
 #endif
 
+#ifndef NUKLEARUI
+#define NUKLEARUI		1		/* =0 to use older tan windows-style 3d window frame drawing/colors*/
+#endif
+
 #ifndef HAVE_FILEIO
 #define HAVE_FILEIO		0		/* =1 to include libc stdio and image reading routines*/
 #endif

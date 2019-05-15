@@ -674,7 +674,7 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 #define GR_COLOR_INACTIVECAPTIONTEXT 4
 
 /* 3d border shades*/
-#define GR_COLOR_WINDOWFRAME       5
+#define GR_COLOR_3DFRAME	       5
 #define GR_COLOR_BTNSHADOW         6
 #define GR_COLOR_3DLIGHT           7
 #define GR_COLOR_BTNHIGHLIGHT      8
@@ -697,6 +697,10 @@ typedef void (*GR_FNCALLBACKEVENT)(GR_EVENT *);
 /* menu backgrounds/text*/
 #define GR_COLOR_MENUTEXT          18
 #define GR_COLOR_MENU              19
+
+/* window border and interior line under caption*/
+#define GR_COLOR_WINDOWFRAME       20
+#define GR_COLOR_WINDOWFRAMELT     21
 
 /**
  * Error strings per error number

@@ -1,4 +1,5 @@
 15 May 2019
+	* full port of seperate Nuklear applications to Nano-X running client/server (see demos/nuklear, bin/demo-nuklear*)
 	* added new, updated Nano-X application window frame/color scheme, resembles Nuklear UI
 	* added NUKLEARUI=N config option to use old Nano-X window/color scheme
 	* renamed GR_COLOR_WINDOWFRAME to GR_COLOR_3DFRAME, introduced new GR_COLOR_WINDOWFRAME, GR_COLOR_WINDOWFRAMELT

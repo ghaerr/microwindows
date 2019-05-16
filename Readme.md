@@ -4,10 +4,11 @@ Microwindows or Nano-X is a small graphical windowing system that implements
 both Win32 and Nano-X (X11-like) APIs for clipped graphics drawing in windows
 on Linux, Mac OS X, EMSCRIPTEN, Android and other platforms. It is
 Open Source and licenced under the the Mozilla Public License.
-For creating GUIs, the Win32 builtin controls and TinyWidget's controls
-based on Nano-X are included. FLTK can be used with the X11 compability library NX11.
+For creating GUIs, the Nuklear immediate mode GUI, Win32 builtin controls,
+and TinyWidget's controls based on Nano-X are included.
+FLTK can be used with the X11 compability library NX11.
 
-This is an overview of the system:
+This is a slightly outdated overview of the system:
 
 ![Architecture](/screenshots/Architecture-Microwindows.png)
 
@@ -25,7 +26,7 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 ## Areas where Microwindows can be used are:
 
 - NEW: updated Nano-X window frame drawing code resembles Nuklear UI
-- NEW: Nuklear immmediate-mode GUI now supported
+- NEW: Nuklear immmediate-mode GUI apps now supported in seperate windows
 - NEW: supports running multiple simultaneous Win32 apps on Linux, OS X and in a browser
 - original classic shareware Doom v1.10 ported to Nano-X
 - run X11 or Win32 applications in a browser using EMSCRIPTEN
@@ -43,7 +44,7 @@ Microwindows is very portable, is written in C and can be used on a wide range
 of platforms. 
 
 Currently supported platforms include **Linux, Mac OS X, Android, EMSCRIPTEN,
-Windows, Raspberry Pi, DOS DJGPP, RTEMS, ECOS, Sony PSP, Nintendo DS** and more. 
+Nuklear GUI, Windows, Raspberry Pi, DOS DJGPP, RTEMS, ECOS, Sony PSP, Nintendo DS** and more. 
 
 Currently supported screen drivers include **Memory-mapped framebuffer, X11,
 SDL 2, Allegro 5, Windows and an X11 based framebuffer emulator.**

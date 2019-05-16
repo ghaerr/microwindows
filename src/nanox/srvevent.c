@@ -707,6 +707,7 @@ GsDeliverUpdateEvent(GR_WINDOW *wp, GR_UPDATE_TYPE utype, GR_COORD x,
 	GR_EVENT_UPDATE		*ep;		/* update event */
 	GR_EVENT_CLIENT		*ecp;		/* current event client */
 	GR_WINDOW_ID		id = wp->id;
+	GR_WINDOW			*orgwp;
 	int			lcount = 0;
 
 	/* adjust reported x,y to be parent-relative*/
@@ -719,6 +720,15 @@ update_again:
 	for (ecp = wp->eventclients; ecp; ecp = ecp->next) {
 		if ((ecp->eventmask & cmask) == 0)
 			continue;
+
+		/* Ensure we're processing root child update map event for window owner*/
+		if (lcount && wp->id == GR_ROOT_WINDOW_ID && utype == GR_UPDATE_MAP) {
+			DPRINTF("wid %d subwid %d  %d,%d\n", wp->id, id, orgwp->owner->id, ecp->client->id);
+			if (orgwp->owner->id != ecp->client->id) {
+				DPRINTF("SKIP CHLD MAP %d: %d %d\n", id, orgwp->owner->id, ecp->client->id);
+				continue;
+			}
+		}
 
 		ep = (GR_EVENT_UPDATE *) GsAllocEvent(ecp->client);
 		if (ep == NULL)
@@ -737,6 +747,7 @@ update_again:
 	/* If we are currently checking the window updated, go back and 
 	 * check its parent too */
 	if (!lcount++) {	
+		orgwp = wp;
 		wp = wp->parent;
 		/* check for NULL on root window id*/
 		if (wp == NULL)

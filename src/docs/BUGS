@@ -1,4 +1,6 @@
 nanowm always selects CHLD_UPDATE
+	temp kluge stops sending updates for windows not owned by event client
+		needs WM_CHLD_UPDATE to fix properly
 	some update events don't always propogate to client, and client always gets root chld_update events
 	would need WMCHLD_UPDATE or seperate wm client struct allocated
 filled polygons fail with polydemo - check devpoly.c algorithms...

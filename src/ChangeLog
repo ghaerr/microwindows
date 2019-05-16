@@ -1,4 +1,6 @@
 15 May 2019
+	* fix Nano-X multiple app exit bug due to chld updates sent to non-owned window event clients
+		this caused nanowm to create container windows owned by the wrong client
 	* full port of seperate Nuklear applications to Nano-X running client/server (see demos/nuklear, bin/demo-nuklear*)
 	* added new, updated Nano-X application window frame/color scheme, resembles Nuklear UI
 	* added NUKLEARUI=N config option to use old Nano-X window/color scheme

@@ -1939,7 +1939,7 @@ DPRINTF("FREE 2 %lx\n", (long)ecp);		// FIXME
 			ecp = necp;
 		}
 		if (wp->owner == client) {
-DPRINTF("  Destroy window %d\n", wp->id);
+DPRINTF("  Destroy window %d (client %d)\n", wp->id, wp->owner->id);
 			GrDestroyWindow(wp->id);
 			/* GsDestroyWindow frees client structs and changes the listwp window list, so start over*/
 			goto again;
@@ -2071,7 +2071,7 @@ GsPrintResources(void)
 
 /*
  * This is used to drop a client when it is detected that the connection to it
- * has been lost.
+ * has been lost, or on GrClose() from client.
  */
 void
 GsDropClient(int fd)

@@ -1,7 +1,4 @@
 /* nuklear - v1.00 - public domain */
-#define WINDOW_WIDTH    180
-#define WINDOW_HEIGHT   250
-
 static void
 calculator(struct nk_context *ctx)
 {
@@ -13,6 +10,7 @@ calculator(struct nk_context *ctx)
         static double a = 0, b = 0;
         static double *current = &a;
 
+		nk_nxlib_create_window(ctx);
         size_t i = 0;
         int solve = 0;
         {int len; char buffer[256];

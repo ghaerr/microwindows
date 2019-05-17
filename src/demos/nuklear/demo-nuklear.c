@@ -45,12 +45,6 @@
 #include "nuklear.h"
 #include "nuklear_nxlib.h"
 
-typedef struct NXWindow NXWindow;
-struct NXWindow {
-    GR_WINDOW_ID win;
-    NXFont *font;
-};
-
 /* ===============================================================
  *
  *                          EXAMPLES
@@ -80,28 +74,19 @@ struct NXWindow {
 int
 main(void)
 {
-    int running = 1;
-    NXWindow nxw;
+    int running = 0;
+    NXFont *font;
     struct nk_context *ctx;
 
     /* Nano-X*/
-    memset(&nxw, 0, sizeof nxw);
 	if (GrOpen() < 0) {
     	fputs("Unable to open graphics", stderr);
 		exit(EXIT_FAILURE);
 	}
 
-	/* note window width/height is less 1 because Nuklear sizing is off by 1*/
-	nxw.win = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Nuklear on Microwindows", GR_ROOT_WINDOW_ID,
-		0, 0, WINDOW_WIDTH-1, WINDOW_HEIGHT-1, GR_RGB(30,30,30));
-	GrSelectEvents(nxw.win, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE |
-		GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_KEY_UP |
-		GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_BUTTON_UP | GR_EVENT_MASK_MOUSE_POSITION);
-	GrMapWindow(nxw.win);
-
     /* GUI */
-    nxw.font = nk_nxfont_create(GR_FONT_SYSTEM_VAR);
-    ctx = nk_nxlib_init(nxw.font, nxw.win, WINDOW_WIDTH, WINDOW_HEIGHT);
+    font = nk_nxfont_create(GR_FONT_SYSTEM_VAR);
+    ctx = nk_nxlib_init(font);
 
     #ifdef INCLUDE_STYLE
     /*set_style(ctx, THEME_WHITE);*/
@@ -110,22 +95,20 @@ main(void)
     /*set_style(ctx, THEME_DARK);*/
     #endif
 
-    while (running)
-    {
+    do {
         /* Input */
         GR_EVENT evt;
         nk_input_begin(ctx);
+		if (!running)
+			running = 1;
+		else
 		do {
-			GrGetNextEvent(&evt);
+			GrGetNextEventTimeout(&evt, nk_nxlib_timeout);
             if (evt.type == GR_EVENT_TYPE_CLOSE_REQ)
 				running = 0;
             nk_nxlib_handle_event(&evt);
-        }
-        while (running && GrPeekEvent(&evt));
+        } while (GrPeekEvent(&evt));
         nk_input_end(ctx);
-
-		if (!running)
-			break;
 
         /* GUI */
         /* -------------- EXAMPLES ---------------- */
@@ -144,14 +127,11 @@ main(void)
         /* ----------------------------------------- */
 
         /* Draw */
-        nk_nxlib_render(nxw.win, nk_rgb(30,30,30));
-		GrFlushWindow(nxw.win);
-        GrFlush();
-    }
+        nk_nxlib_render(nk_rgb(30,30,30));
+    } while(running);
 
-    nk_nxfont_del(nxw.font);
+    nk_nxfont_del(font);
     nk_nxlib_shutdown();
-	GrDestroyWindow(nxw.win);
 	GrClose();
     return 0;
 }

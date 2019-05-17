@@ -1,0 +1,5 @@
+add ability for  nanowm to handle resize triangle grab and possible display
+	nanowm doesn't recognize 5x5 resize grab on container window
+nuklear non-resizable windows should set Nano-X noresize window bits
+
+combine internal nuklear and nano-X resizing mechanisms

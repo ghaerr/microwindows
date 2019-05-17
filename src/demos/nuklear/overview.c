@@ -1,7 +1,4 @@
 /* nuklear - public domain */
-#define WINDOW_WIDTH    400
-#define WINDOW_HEIGHT   600
-
 static int
 overview(struct nk_context *ctx)
 {
@@ -32,6 +29,7 @@ overview(struct nk_context *ctx)
 
     if (nk_begin(ctx, "Overview", nk_rect(0, 0, 400, 600), window_flags))
     {
+		nk_nxlib_create_window(ctx);
         if (show_menu)
         {
             /* menubar */

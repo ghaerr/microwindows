@@ -1,3 +1,7 @@
+16 May 2019
+	* add Nuklear app resize handling
+	* simplify Nano-X window creation with Nuklear apps, fix title and auto-size window
+		requires adding nk_nxlib_create_window(ctx) inbetween nk_begin/nk_end
 15 May 2019
 	* fix Nano-X multiple app exit bug due to chld updates sent to non-owned window event clients
 		this caused nanowm to create container windows owned by the wrong client

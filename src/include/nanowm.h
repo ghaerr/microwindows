@@ -26,8 +26,8 @@
 #define CXBORDER	1				/* 3d border width*/
 #define CYBORDER	1				/* 3d border height*/
 #define CYCAPTION	29				/* height of caption*/
-#define CXCLOSEBOX	24				/* width of closebox*/
-#define CYCLOSEBOX	24				/* height of closebox*/
+#define CXCLOSEBOX	20				/* width of closebox*/
+#define CYCLOSEBOX	20				/* height of closebox*/
 #define CXFRAME		(CXBORDER*2)	/* width of frame*/
 #define CYFRAME		(CYBORDER*2)	/* height of frame*/
 #else

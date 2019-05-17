@@ -37,9 +37,10 @@
 #include "nano-X.h"
 
 typedef struct NXFont NXFont;
-NK_API struct nk_context*   nk_nxlib_init(NXFont *nxfont, GR_WINDOW_ID wid, unsigned w, unsigned h);
+NK_API struct nk_context*   nk_nxlib_init(NXFont *nxfont);
+NK_API void					nk_nxlib_create_window(struct nk_context *ctx);
 NK_API int                  nk_nxlib_handle_event(GR_EVENT *evt);
-NK_API void                 nk_nxlib_render(GR_WINDOW_ID win, struct nk_color clear);
+NK_API void                 nk_nxlib_render(struct nk_color clear);
 NK_API void                 nk_nxlib_shutdown(void);
 NK_API void                 nk_nxlib_set_font(NXFont *nxfont);
 NK_API void                 nk_nxlib_push_font(NXFont *nxfont);
@@ -54,6 +55,8 @@ NK_API struct nk_image nk_nxsurf_load_image_from_memory(const void *membuf, nk_u
 NK_API NXFont *             nk_nxfont_create(const char *name);
 NK_API void                 nk_nxfont_del(NXFont *font);
 
+/* event wait timeout*/
+int nk_nxlib_timeout;
 #endif
 /*
  * ==============================================================
@@ -100,13 +103,13 @@ struct NXSurface {
 	GR_WINDOW_ID wid;
     GR_GC_ID gc;
 	GR_REGION_ID clip;
-    unsigned int w, h;
+    GR_SIZE w, h;
+	GR_SIZE neww, newh;
 };
 
 static struct {
     struct nk_context ctx;
-	GR_WINDOW_ID wid;
-    struct NXSurface *surf;
+    struct NXSurface surf;
     long last_button_click;
 } nxlib;
 
@@ -131,26 +134,6 @@ NK_INTERN unsigned long
 nk_color_from_byte(const nk_byte *c)
 {
     return GR_RGB(c[0], c[1], c[2]);
-}
-
-NK_INTERN NXSurface*
-nk_nxsurf_create(GR_WINDOW_ID wid, unsigned int w, unsigned int h)
-{
-    NXSurface *surface = (NXSurface*)calloc(1, sizeof(NXSurface));
-    surface->wid = wid;
-    surface->gc = GrNewGC();
-	surface->clip = 0;
-    surface->w = w;
-    surface->h = h;
-	GrSetGCUseBackground(surface->gc, GR_FALSE);
-    return surface;
-}
-
-NK_INTERN void
-nk_nxsurf_resize(NXSurface *surf, unsigned int w, unsigned int h)
-{
-    if(!surf) return;
-    surf->w = w; surf->h = h;
 }
 
 NK_INTERN void
@@ -614,15 +597,6 @@ nk_nxsurf_clear(NXSurface *surf, unsigned long color)
 	GrFillRect(surf->wid, surf->gc, 0, 0, surf->w, surf->h);
 }
 
-NK_INTERN void
-nk_nxsurf_del(NXSurface *surf)
-{
-    GrDestroyGC(surf->gc);
-	if (surf->clip)
-		GrDestroyRegion(surf->clip);
-    free(surf);
-}
-
 NK_API NXFont*
 nk_nxfont_create(const char *name)
 {
@@ -664,14 +638,79 @@ NK_API void
 nk_nxfont_del(NXFont *font)
 {
     if(!font) return;
-
 	GrDestroyFont(font->fontid);
 	GrDestroyGC(font->gc);
     free(font);
 }
 
+/* this routine must be called inbetween nk_begin/nk_end*/
+NK_API void
+nk_nxlib_create_window(struct nk_context *ctx)
+{
+	GR_WINDOW_ID wid;
+	GR_SIZE w, h;
+	const char *title;
+
+	/* only create window first time, but check size changes if already created*/
+	if (nxlib.surf.wid) {
+
+		/* handle container resize by setting nuklear window size*/
+		if (nxlib.surf.neww != nxlib.surf.w || nxlib.surf.newh != nxlib.surf.h) {
+			struct nk_window *win = nk_window_find(ctx, ctx->current->name_string);
+			if (win) {
+				win->bounds.w = (float)nxlib.surf.neww;
+				win->bounds.h = (float)nxlib.surf.newh;
+				nxlib.surf.w = nxlib.surf.neww;
+				nxlib.surf.h = nxlib.surf.newh;
+				nk_nxlib_timeout = 20;	/* run another loop after 20ms for resize*/
+			}
+			return;
+		}
+
+		/* check if nuklear window is resized from within its triangle*/
+		if ((int)ctx->current->bounds.w != nxlib.surf.neww ||
+		    (int)ctx->current->bounds.h != nxlib.surf.newh) {
+			GrResizeWindow(nxlib.surf.wid,
+				(int)ctx->current->bounds.w, (int)ctx->current->bounds.h);
+			return;
+		}
+		return;
+	}
+
+	/* window w/h decreased by 1 because Nuklear draws unwanted extra black line*/
+	w = (int)nk_window_get_width(ctx) - 1;
+	h = (int)nk_window_get_height(ctx) - 1;
+	title = ctx->current->name_string;
+
+	wid = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, title, GR_ROOT_WINDOW_ID,
+		0, 0, w, h, 0);
+	if (!wid)
+		return;
+	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE |
+		GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_KEY_UP |
+		GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_BUTTON_UP | GR_EVENT_MASK_MOUSE_POSITION);
+	GrMapWindow(wid);
+
+	nxlib.surf.wid = wid;
+    nxlib.surf.gc = GrNewGC();
+	nxlib.surf.clip = 0;
+    nxlib.surf.w = w;
+    nxlib.surf.h = h;
+    nxlib.surf.neww = w;
+    nxlib.surf.newh = h;
+	GrSetGCUseBackground(nxlib.surf.gc, GR_FALSE);
+}
+
+NK_INTERN void
+nk_nxlib_resize_window(int w, int h)
+{
+	/* store new w/h for later inspection in nk_nxlib_create_window call during nk_begin*/
+	nxlib.surf.neww = w;
+	nxlib.surf.newh = h;
+}
+
 NK_API struct nk_context*
-nk_nxlib_init(NXFont *nxfont, GR_WINDOW_ID wid, unsigned int w, unsigned int h)
+nk_nxlib_init(NXFont *nxfont)
 {
     struct nk_user_font *font = &nxfont->handle;
     font->userdata = nk_handle_ptr(nxfont);
@@ -686,8 +725,6 @@ nk_nxlib_init(NXFont *nxfont, GR_WINDOW_ID wid, unsigned int w, unsigned int h)
     xlib.cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
     XFreePixmap(dpy, blank);}
 #endif
-    nxlib.surf = nk_nxsurf_create(wid, w, h);
-	nxlib.wid = wid;
     nk_init_default(&nxlib.ctx, font);
     return &nxlib.ctx;
 }
@@ -717,6 +754,7 @@ nk_nxlib_handle_event(GR_EVENT *evt)
 {
     struct nk_context *ctx = &nxlib.ctx;
 
+	nk_nxlib_timeout = 0;		/* reset event wait timeout*/
 	if (evt->type == GR_EVENT_TYPE_NONE)
 		return 0;
     if (evt->type == GR_EVENT_TYPE_KEY_DOWN || evt->type == GR_EVENT_TYPE_KEY_UP)
@@ -835,8 +873,8 @@ nk_nxlib_handle_event(GR_EVENT *evt)
 	if (evt->type == GR_EVENT_TYPE_UPDATE)
 	{
         /* Window resize handler */
-		if (evt->update.wid == nxlib.wid && evt->update.utype == GR_UPDATE_SIZE)
-        	nk_nxsurf_resize(nxlib.surf, evt->update.width, evt->update.height);
+		if (evt->update.wid == nxlib.surf.wid && evt->update.utype == GR_UPDATE_SIZE)
+        	nk_nxlib_resize_window(evt->update.width, evt->update.height);
         return 1;
     }
 
@@ -846,20 +884,23 @@ nk_nxlib_handle_event(GR_EVENT *evt)
 NK_API void
 nk_nxlib_shutdown(void)
 {
-    nk_nxsurf_del(nxlib.surf);
+	GrDestroyWindow(nxlib.surf.wid);
+    GrDestroyGC(nxlib.surf.gc);
+	if (nxlib.surf.clip)
+		GrDestroyRegion(nxlib.surf.clip);
     nk_free(&nxlib.ctx);
     /*XFreeCursor(xlib.dpy, xlib.cursor);*/
-    nk_memset(&nxlib.ctx, 0, sizeof(nxlib.ctx));
+    nk_memset(&nxlib, 0, sizeof(nxlib));
 }
 
 NK_API void
-nk_nxlib_render(GR_WINDOW_ID win, struct nk_color clear)
+nk_nxlib_render(struct nk_color clear)
 {
     const struct nk_command *cmd;
     struct nk_context *ctx = &nxlib.ctx;
-    NXSurface *surf = nxlib.surf;
+    NXSurface *surf = &nxlib.surf;
 
-    nk_nxsurf_clear(nxlib.surf, nk_color_from_byte(&clear.r));
+    nk_nxsurf_clear(surf, nk_color_from_byte(&clear.r));
     nk_foreach(cmd, &nxlib.ctx)
     {
         switch (cmd->type) {
@@ -940,5 +981,7 @@ nk_nxlib_render(GR_WINDOW_ID win, struct nk_color clear)
         }
     }
     nk_clear(ctx);
+	GrFlushWindow(surf->wid);
+	GrFlush();
 }
 #endif

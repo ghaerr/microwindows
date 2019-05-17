@@ -1,7 +1,4 @@
 /* nuklear - v1.00 - public domain */
-#define WINDOW_WIDTH    200
-#define WINDOW_HEIGHT   200
-
 static int
 demo(struct nk_context *ctx)
 {
@@ -11,6 +8,7 @@ demo(struct nk_context *ctx)
             static int op = EASY;
             static int property = 20;
 
+			nk_nxlib_create_window(ctx);
             nk_layout_row_static(ctx, 30, 80, 1);
             if (nk_button_label(ctx, "button"))
                 fputs("button pressed\n", stdout);

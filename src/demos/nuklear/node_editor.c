@@ -11,9 +11,6 @@
  * moment since it is based on a simple fixed array. If this is to be converted
  * into something more serious it is probably best to extend it.
  */
-#define WINDOW_WIDTH    800
-#define WINDOW_HEIGHT   600
-
 struct node {
     int ID;
     char name[32];
@@ -165,6 +162,8 @@ node_editor(struct nk_context *ctx)
 
     if (nk_begin(ctx, "NodeEdit", nk_rect(0, 0, 800, 600), NK_WINDOW_NO_SCROLLBAR))
     {
+		nk_nxlib_create_window(ctx);
+
         /* allocate complete window space */
         canvas = nk_window_get_canvas(ctx);
         total_space = nk_window_get_content_region(ctx);

@@ -721,6 +721,7 @@ update_again:
 		if ((ecp->eventmask & cmask) == 0)
 			continue;
 
+#if NANOWM
 		/* Ensure we're processing root child update map event for window owner*/
 		if (lcount && wp->id == GR_ROOT_WINDOW_ID && utype == GR_UPDATE_MAP) {
 			DPRINTF("wid %d subwid %d  %d,%d\n", wp->id, id, orgwp->owner->id, ecp->client->id);
@@ -729,7 +730,7 @@ update_again:
 				continue;
 			}
 		}
-
+#endif
 		ep = (GR_EVENT_UPDATE *) GsAllocEvent(ecp->client);
 		if (ep == NULL)
 			continue;

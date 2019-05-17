@@ -70,6 +70,7 @@ int wm_handle_event(GR_EVENT *event)
 		return wm_chld_update(&event->update);
 	case GR_EVENT_TYPE_NONE:
 	case GR_EVENT_TYPE_TIMER:
+	case GR_EVENT_TYPE_CLOSE_REQ:
 	case GR_EVENT_TYPE_UPDATE:		/* no need for frame event handling*/
 		break;
 	case GR_EVENT_TYPE_ERROR:

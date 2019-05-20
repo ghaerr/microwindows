@@ -607,7 +607,7 @@ X11_init(void)
 		PropModeReplace, (unsigned char *)name, strlen(name));
 
 	XSelectInput(display, window, ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
-		KeyPressMask | KeyReleaseMask | StructureNotifyMask);
+		KeyPressMask | KeyReleaseMask | StructureNotifyMask | ExposureMask);
 	XMapWindow(display, window);
 
 	gc = XCreateGC(display, window, 0, NULL);
@@ -1096,6 +1096,9 @@ fbe_loop(void)
 			XEvent event;
 			XNextEvent(display, &event);
 			switch (event.type) {
+			case Expose:
+				repaint = 1;
+				break;
 			case ConfigureNotify:
 				if (event.xconfigure.window == window)
 					repaint = 1;
@@ -1143,7 +1146,7 @@ main(int argc, char **argv)
 {
 	int fd = -1, cfd;
 	int i;
-	int leave, ok, help, bpp = 0;
+	int leave, ok = 1, help, bpp = 0;
 	char *arg, *argp, buf[64];
 	FILE *fp;
 

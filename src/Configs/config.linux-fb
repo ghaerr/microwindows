@@ -48,7 +48,7 @@ MICROWIN                 = Y
 NANOX                    = Y
 NUKLEARUI                = Y
 NX11                     = N
-ENGINE                   = Y
+ENGINE                   = N
 TINYWIDGETS              = N
 
 ####################################################################

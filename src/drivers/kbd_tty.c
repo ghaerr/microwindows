@@ -83,11 +83,11 @@ TTY_Open(KBDDEVICE *pkd)
 
 	if(tcsetattr(fd, TCSAFLUSH, &new) < 0)
 		goto err;
-	return fd;
+	return DRIVER_OKFILEDESC(fd);
 
 err:
 	close(fd);
-	fd = 0;
+	fd = -1;
 	return DRIVER_FAIL;
 }
 
@@ -100,7 +100,7 @@ TTY_Close(void)
 {
 	tcsetattr(fd, TCSANOW, &old);
 	close(fd);
-	fd = 0;
+	fd = -1;
 }
 
 /*
@@ -337,7 +337,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	*kbuf = mwkey;		/* no translation*/
 	*modifiers = 0;		/* no modifiers*/
 	*scancode = 0;		/* no scancode*/
-	return 1;		/* keypress*/
+	return KBD_KEYPRESS;/* keypress*/
 }
 
 static int

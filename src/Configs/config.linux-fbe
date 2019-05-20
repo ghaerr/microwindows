@@ -2,6 +2,7 @@
 # config - Microwindows and Nano-X configuration file
 #
 # Set target architecture using ARCH= from options in Arch.rules
+# Set drawing method: X11 or FRAMEBUFFER/MOUSE/KEYBOARD options
 # Set SCREEN/MOUSE/KEYBOARD drivers (typically X11 or FB)
 # Set various libraries to build or include and their locations
 #
@@ -14,10 +15,10 @@
 # Target platform and compilation options
 #
 ####################################################################
-ARCH                     = MACOSX
+ARCH                     = LINUX-NATIVE
 SHAREDLIBS               = Y
 SHAREDLINK               = Y
-#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+#EXTRAFLAGS               = -Wno-unused-result -Wno-implicit-int
 DEBUG                    = N
 OPTIMIZE                 = Y
 #OPTIMIZE                 = -O1
@@ -31,12 +32,14 @@ PARALLEL                 = N
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
 SCREEN                   = FBE
-MOUSE                    = NOMOUSE
-KEYBOARD                 = NOKBD
+MOUSE                    =
+KEYBOARD                 =
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-X11LIBLOCATION           = /usr/X11/lib
-X11HDRLOCATION           = /usr/X11/include
+#X11HDRLOCATION           = /usr/X11R6/include
+#X11LIBLOCATION           = /usr/X11R6/lib
+#X11HDRLOCATION           = /usr/include/X11
+#X11LIBLOCATION           = /usr/lib/x86_64-linux-gnu
 
 ####################################################################
 #
@@ -47,8 +50,8 @@ MICROWIN                 = Y
 NANOX                    = Y
 NUKLEARUI                = Y
 NX11                     = N
-ENGINE                   = Y
-TINYWIDGETS              = Y
+ENGINE                   = N
+TINYWIDGETS              = N
 
 ####################################################################
 #
@@ -57,6 +60,7 @@ TINYWIDGETS              = Y
 ####################################################################
 FBEMULATOR               = Y
 MICROWINDEMO             = Y
+MICROWINMULTIAPP         = N
 NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
@@ -76,7 +80,7 @@ NANOWM                   = Y
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
 ####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
+HAVE_SHAREDMEM_SUPPORT   = Y
 
 ####################################################################
 # File I/O support
@@ -127,8 +131,8 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 HAVE_FREETYPE_2_SUPPORT  = Y
 HAVE_HARFBUZZ_SUPPORT    = N
-INCFT2LIB                = /usr/local/include
-LIBFT2LIB                = -lfreetype -lbz2
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = -lfreetype
 #LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
 

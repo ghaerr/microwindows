@@ -20,6 +20,12 @@
 extern "C" {
 #endif
 
+/* paths for framebuffer emulator drivers*/
+#define MW_PATH_FBE_FRAMEBUFFER		"/tmp/fbe-framebuffer"		/* framebuffer memory file for mmap()*/
+#define MW_PATH_FBE_COLORMAP		"/tmp/fbe-cmap"				/* framebuffer colormap for mmap()*/
+#define MW_PATH_FBE_MOUSE			"/tmp/fbe-mouse"			/* mouse fifo*/
+#define MW_PATH_FBE_KEYBOARD		"/tmp/fbe-keyboard"			/* keyboard fifo*/
+
 typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
 
 /* screen subdriver entry points: one required for each draw function*/

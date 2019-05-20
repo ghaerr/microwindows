@@ -245,6 +245,7 @@ int main(int argc, char *argv[])
 				free(state);
 				GrClose();
 				return 0;
+			case GR_EVENT_TYPE_NONE:
 			case GR_EVENT_TYPE_MOUSE_ENTER:
 			case GR_EVENT_TYPE_MOUSE_EXIT:
 			case GR_EVENT_TYPE_CHLD_UPDATE:

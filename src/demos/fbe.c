@@ -13,6 +13,7 @@
  *			added support for fblin1rev.c reverse bit order 1bpp (-r)
  *			added support for 4bpp gray palette (-g)
  *			added support for 2, 4, 15, 16, 24 and 32bpp
+ * 5/19/2019 added mouse and keyboard fifo drivers, fix screen draw bugs
  *
  * Original from picoTK project
  * 
@@ -24,29 +25,18 @@
  *   To run set the environment variable: FRAMEBUFFER=/tmp/fb0 
  *   and execute: bin/fbe -d<bpp>
  *   a reverse bit order is supported for 1,2,4 bpp (-r option)
-
-   see this help text coded below:
-       "Usage: " PROGNAME " [-<options>]\n"
-       "   Options:\n"
-       "       -x   X size            [%3d]\n"
-       "       -y   Y Size            [%3d]\n"
-       "       -t   Total X Size      [%3d]\n"
-       "       -d   Color depths bpp  [%d] (1,2,4,8,15,16,24,32)\n"
-       "       -z   Zoom factor       [%d] \n"
-	   "       -r   Reverse bit order (1,2,4bpp LSB first)\n"
-	   "       -g   Gray palette (4bpp only)\n"
-	   "       -c   Force create new framebuffer (required when size changes)\n",
-       CRTX, CRTY, CRTX_TOTAL, BITS_PER_PIXEL, ZOOM);
-
-TODO
-assumes 32bpp X server (fix)
-add 8bpp 3/3/2, 2/2/3 truecolor
-add 32bpp BGRA truecolor -d option
-kill nano-X on exit flag
-read/write colormap from nano-X
-get colormap in scr_fb.c
-get bpp via ioctl from fbe for nano-X?
-
+ *
+ *   see this help text coded below:
+ *     Usage:  fbe  [-<options>]
+ *        Options:\n"
+ *            -x   X size            [%3d]
+ *            -y   Y Size            [%3d]
+ *            -t   Total X Size      [%3d]
+ *            -d   Color depths bpp  [%d] (1,2,4,8,15,16,24,32)
+ *            -z   Zoom factor       [%d]
+ *	          -r   Reverse bit order (1,2,4bpp LSB first)
+ *	          -g   Gray palette (4bpp only)
+ *	          -c   Force create new framebuffer (required when size changes)
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -62,28 +52,38 @@ get bpp via ioctl from fbe for nano-X?
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+/*
+	TODO
+	assumes 32bpp X server (fix)
+	add 8bpp 3/3/2, 2/2/3 truecolor
+	add 32bpp BGRA truecolor -d option
+	kill nano-X on exit flag
+	read/write colormap from nano-X
+	get colormap in scr_fb.c
+	get bpp via ioctl from fbe for nano-X?
+*/
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include <math.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 #include <string.h>
 #include <signal.h>
-#include <sys/mman.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <unistd.h>
+#include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/mman.h>
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+#include <X11/Xutil.h>
 #include "../include/mwtypes.h"
+#include "../include/device.h"
 
 #define PROGNAME "fbe"
-#define VERSION  "1.0"
-#define PATH_FRAMEBUFFER "/tmp/fb0"
-#define PATH_COLORMAP	 "/tmp/fb0cmap"
+#define VERSION  "1.1"
 
-#define MAX_CRTX 1200
-#define MAX_CRTY 1024
+#define MAX_CRTX 2048
+#define MAX_CRTY 2048
 #define CHUNKX 32
 #define CHUNKY 20
 
@@ -121,13 +121,14 @@ Window window, root, parent;
 int depth, screen, visibility;
 int repaint;
 Pixmap pixmap;
+int mouse_fd;
+int keyboard_fd;
 
-uint32_t crcs[MAX_CRTX / CHUNKX][MAX_CRTY / CHUNKY];
+uint32_t crcs[(MAX_CRTX + CHUNKX - 1) / CHUNKX][(MAX_CRTY + CHUNKY - 1) / CHUNKY];
 uint32_t colors_X11[256];	/* contains X11 variants, either 8,16 or 24 bits */
 uint32_t colors_24[256];	/* contains 24 bit (00rrggbb) rgb color mappings */
 
 void X11_init(void);
-void fbe_loop(void);
 
 #define RGBDEF(r,g,b)	((uint32_t) ((b) | ((g)<<8) | ((r)<<16)))
 
@@ -557,6 +558,12 @@ X11_init(void)
 	XSetWindowAttributes attr;
 	char name[80];
 	XWMHints xwmhints;
+	Pixmap cur_empty;
+	Cursor cursor;
+	XColor color;
+	XSizeHints *sizehints;
+	int width = CRTX * ZOOM;
+	int height = CRTY * ZOOM;
 
 	if (host == NULL) {
 		if ((host = (char *) getenv("DISPLAY")) == NULL)
@@ -574,26 +581,42 @@ X11_init(void)
 
 	XSelectInput(display, root, SubstructureNotifyMask);
 
-	attr.event_mask = ExposureMask;
 	attr.background_pixel = BlackPixel(display, screen);
 
-	window = XCreateWindow(display, root, 0, 0, CRTX * ZOOM, CRTY * ZOOM,
-		0, depth, InputOutput, DefaultVisual(display, screen),
-		CWEventMask | CWBackPixel, &attr);
+	window = XCreateWindow(display, root, 0, 0, width, height,
+		0, depth, InputOutput, DefaultVisual(display, screen), CWBackPixel, &attr);
 
-	sprintf(name, "fbe %dx%dx%dbpp", CRTX, CRTY, BITS_PER_PIXEL);
-
-	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8,
-		PropModeReplace, (unsigned char *)name, strlen(name));
-	XMapWindow(display, window);
-
-	gc = XCreateGC(display, window, 0, NULL);
+	sizehints = XAllocSizeHints();
+	if (sizehints != NULL) {
+		sizehints->flags = PMinSize | PMaxSize;
+		sizehints->min_width = width;
+		sizehints->min_height = height;
+		sizehints->max_width = width;
+		sizehints->max_height = height;
+		XSetWMNormalHints(display, window, sizehints);
+		XFree(sizehints);
+	}
 
 	//xwmhints.icon_pixmap = iconPixmap;
 	xwmhints.initial_state = NormalState;
 	xwmhints.flags = StateHint; /* | IconPixmapHint*/
-
 	XSetWMHints(display, window, &xwmhints);
+
+	sprintf(name, "fbe %dx%dx%dbpp", CRTX, CRTY, BITS_PER_PIXEL);
+	XChangeProperty(display, window, XA_WM_NAME, XA_STRING, 8,
+		PropModeReplace, (unsigned char *)name, strlen(name));
+
+	XSelectInput(display, window, ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
+		KeyPressMask | KeyReleaseMask | StructureNotifyMask);
+	XMapWindow(display, window);
+
+	gc = XCreateGC(display, window, 0, NULL);
+
+	/* Create an empty (invisible) cursor.  This is because Microwindows will draw it's own cursor.*/
+	cur_empty = XCreateBitmapFromData(display, window, "\0", 1, 1);
+	cursor = XCreatePixmapCursor(display, cur_empty, cur_empty, &color, &color, 0, 0);
+	XDefineCursor(display, window, cursor);
+
 	XClearWindow(display, window);
 	XSync(display, 0);
 }
@@ -620,10 +643,14 @@ calc_patch_crc(int ix, int iy)
 		break;
 	}
 
-	for (x = 0; x < CHUNKX / PIXELS_PER_LONG; x++)
+	for (x = 0; x < CHUNKX / PIXELS_PER_LONG; x++) {
+		if (ix == CRTX/CHUNKX && x >= CRTX%CHUNKX)
+			continue;
 		for (y = 0; y < CHUNKY; y++) {
 			uint32_t dat;
 
+			if (iy == CRTY/CHUNKY && y >= CRTY%CHUNKY)
+				continue;
 			if (BITS_PER_PIXEL <= 8)
 				dat = crtbuf[off + x + y*CRTX_TOTAL/PIXELS_PER_LONG];
 			else {
@@ -660,6 +687,7 @@ calc_patch_crc(int ix, int iy)
 			/* crc^=((crc^dat)<<1)^((dat&0x8000) ? 0x1048:0); */
 			/* crc=(crc<<1)+((crc&0x80000000) ? 1:0);  */
 		}
+	}
 	return crc;
 }
 
@@ -694,8 +722,12 @@ check_and_paint(int ix, int iy)
 	XSetForeground(display, gc, 0x000000);
 	XFillRectangle(display, pixmap, gc, 0, 0, CHUNKX * ZOOM, CHUNKY * ZOOM);
 
-	for (y = 0; y < CHUNKY; y++)
+	for (y = 0; y < CHUNKY; y++) {
+		if (iy == CRTY/CHUNKY && y >= CRTY%CHUNKY)
+			continue;
 		for (x = 0; x < CHUNKX; x++) {
+			if (ix == CRTX/CHUNKX && x >= CRTX%CHUNKX)
+				continue;
 			if (BITS_PER_PIXEL <= 8) {
 				unsigned char data =
 					((unsigned char *)crtbuf)[off + x/PIXELS_PER_BYTE + y*(CRTX_TOTAL/PIXELS_PER_BYTE)];
@@ -759,25 +791,303 @@ check_and_paint(int ix, int iy)
 				XSetForeground(display, gc, dat);
 			}
 			if (ZOOM > 1)
-				XFillRectangle(display, pixmap, gc, x * ZOOM, y * ZOOM, 2, 2);
+				XFillRectangle(display, pixmap, gc, x * ZOOM, y * ZOOM, ZOOM, ZOOM);
 			else
 				XDrawPoint(display, pixmap, gc, x, y);
 		}
-
+	}
 	XCopyArea(display, pixmap, window, gc, 0, 0, CHUNKX * ZOOM, CHUNKY * ZOOM,
 		ix * CHUNKX * ZOOM, iy * CHUNKY * ZOOM);
 }
 
+static void
+handle_keyboard(XEvent *ev)
+{
+	MWKEY mwkey;
+	MWKEYMOD key_modstate;
+	char ignored_char;
+	unsigned int mods;
+	Window w;
+	int i;
+	char buf[8];
 
-void
+	KeySym sym = XKeycodeToKeysym(display, ev->xkey.keycode, 0);
+	if (sym == NoSymbol)
+	    return;
+
+#define X_CAP_MASK 0x02
+#define X_NUM_MASK 0x10
+#define X_SCR_MASK 0x80
+	/* calculate kbd modifiers*/
+	key_modstate = mods = 0;
+	XQueryPointer(display, window, &w, &w, &i, &i, &i, &i, &mods);
+	if (mods & ControlMask)
+		key_modstate |= MWKMOD_CTRL; 
+	if (mods & ShiftMask)
+		key_modstate |= MWKMOD_SHIFT;
+	if (mods & (Mod1Mask | 0x2000))		/* OSX alt/option returns 0x2000*/
+		key_modstate |= MWKMOD_ALT;
+	if (mods & X_CAP_MASK)
+		key_modstate |= MWKMOD_CAPS;
+	if (mods & X_SCR_MASK)
+		key_modstate |= MWKMOD_SCR;
+	if (mods & X_NUM_MASK)
+		key_modstate |= MWKMOD_NUM;
+
+	/* map X11 keys to mwin keys*/
+	switch (sym) {
+	case XK_Escape:		mwkey = MWKEY_ESCAPE;		break;
+	case XK_Delete:		mwkey = MWKEY_DELETE;		break;
+	case XK_Home:		mwkey = MWKEY_HOME;			break;
+	case XK_Left:		mwkey = MWKEY_LEFT;			break;
+	case XK_Up:			mwkey = MWKEY_UP;			break;
+	case XK_Right:		mwkey = MWKEY_RIGHT;		break;
+	case XK_Down:		mwkey = MWKEY_DOWN;			break;
+	case XK_Page_Up:	mwkey = MWKEY_PAGEUP;		break;
+	case XK_Page_Down:	mwkey = MWKEY_PAGEDOWN;		break;
+	case XK_End:		mwkey = MWKEY_END;			break;
+	case XK_Insert:		mwkey = MWKEY_INSERT;		break;
+	case XK_Pause:
+	case XK_Break:
+	case XK_F15:		mwkey = MWKEY_QUIT;			break;
+	case XK_Print:
+	case XK_Sys_Req:	mwkey = MWKEY_PRINT;		break;
+	case XK_Menu:		mwkey = MWKEY_MENU;			break;
+	case XK_Cancel:		mwkey = MWKEY_CANCEL;		break;
+	case XK_KP_Enter:	mwkey = MWKEY_KP_ENTER;		break;
+	case XK_KP_Home:	mwkey = MWKEY_KP7;			break;
+	case XK_KP_Left:	mwkey = MWKEY_KP4;			break;
+	case XK_KP_Up:		mwkey = MWKEY_KP8;			break;
+	case XK_KP_Right:	mwkey = MWKEY_KP6;			break;
+	case XK_KP_Down:	mwkey = MWKEY_KP2;			break;
+	case XK_KP_Page_Up:	mwkey = MWKEY_KP9;			break;
+	case XK_KP_Page_Down:mwkey = MWKEY_KP3;			break;
+	case XK_KP_End:		mwkey = MWKEY_KP1;			break;
+	case XK_KP_Insert:	mwkey = MWKEY_KP0;			break;
+	case XK_KP_Delete:	mwkey = MWKEY_KP_PERIOD;	break;
+	case XK_KP_Equal:	mwkey = MWKEY_KP_EQUALS;	break;
+	case XK_KP_Multiply:mwkey = MWKEY_KP_MULTIPLY;	break;
+	case XK_KP_Add:		mwkey = MWKEY_KP_PLUS;		break;
+	case XK_KP_Subtract:mwkey = MWKEY_KP_MINUS;		break;
+	case XK_KP_Decimal:	mwkey = MWKEY_KP_PERIOD;	break;
+	case XK_KP_Divide:	mwkey = MWKEY_KP_DIVIDE;	break;
+	case XK_KP_5:
+	case XK_KP_Begin:	mwkey = MWKEY_KP5;			break;
+	case XK_F1:			mwkey = MWKEY_F1;			break;
+	case XK_F2:			mwkey = MWKEY_F2;			break;
+	case XK_F3:			mwkey = MWKEY_F3;			break;
+	case XK_F4:			mwkey = MWKEY_F4;			break;
+	case XK_F5:			mwkey = MWKEY_F5;			break;
+	case XK_F6:			mwkey = MWKEY_F6;			break;
+	case XK_F7:			mwkey = MWKEY_F7;			break;
+	case XK_F8:			mwkey = MWKEY_F8;			break;
+	case XK_F9:			mwkey = MWKEY_F9;			break;
+	case XK_F10:		mwkey = MWKEY_F10;			break;
+	case XK_F11:		mwkey = MWKEY_F11;			break;
+	case XK_F12:		mwkey = MWKEY_F12;			break;
+	case XK_Shift_L:	mwkey = MWKEY_LSHIFT;		break;
+	case XK_Shift_R:	mwkey = MWKEY_RSHIFT;		break;
+	case XK_Control_L:	mwkey = MWKEY_LCTRL;		break;
+	case XK_Control_R:	mwkey = MWKEY_RCTRL;		break;
+	case XK_Mode_switch:/* MACOSX left or right option/alt*/
+	case XK_Alt_L:		mwkey = MWKEY_LALT;			break;
+	case XK_Alt_R:		mwkey = MWKEY_RALT;			break;
+	case XK_Meta_L:
+	case XK_Super_L:
+	case XK_Hyper_L:	mwkey = MWKEY_LMETA;		break;
+	case XK_Meta_R:
+	case XK_Super_R:
+	case XK_Hyper_R:	mwkey = MWKEY_RMETA;		break;
+	case XK_BackSpace:	mwkey = MWKEY_BACKSPACE;	break;
+	case XK_Tab:		mwkey = MWKEY_TAB;			break;
+	case XK_Return:		mwkey = MWKEY_ENTER;		break;
+	/* state modifiers*/
+	case XK_Num_Lock:
+		/* not sent, used only for state*/
+		if (ev->xkey.type == KeyRelease)
+			key_modstate ^= MWKMOD_NUM;
+		return;
+	case XK_Shift_Lock:
+	case XK_Caps_Lock:
+		/* not sent, used only for state*/
+		if (ev->xkey.type == KeyRelease)
+			key_modstate ^= MWKMOD_CAPS;
+		return;
+	case XK_Scroll_Lock:
+		/* not sent, used only for state*/
+		if (ev->xkey.type == KeyRelease)
+			key_modstate ^= MWKMOD_SCR;
+		return;
+	default:
+		if (sym & 0xFF00)
+			fprintf(stderr, PROGNAME ": Unhandled X11 keysym: %04x\n", (int)sym);
+		XLookupString(&ev->xkey, &ignored_char, 1, &sym, NULL );
+
+		if (key_modstate & MWKMOD_CTRL)
+			mwkey = sym & 0x1f;	/* Control code */ 
+		else
+			mwkey = sym & 0xff;	/* ASCII*/
+		break;
+	}
+
+	if (key_modstate & MWKMOD_NUM) {
+		switch (mwkey) {
+		case MWKEY_KP0:
+		case MWKEY_KP1:
+		case MWKEY_KP2:
+		case MWKEY_KP3:
+		case MWKEY_KP4:
+		case MWKEY_KP5:
+		case MWKEY_KP6:
+		case MWKEY_KP7:
+		case MWKEY_KP8:
+		case MWKEY_KP9:			mwkey = mwkey - MWKEY_KP0 + '0';	break;
+		case MWKEY_KP_PERIOD:	mwkey = '.';						break;
+		case MWKEY_KP_DIVIDE:	mwkey = '/';						break;
+		case MWKEY_KP_MULTIPLY:	mwkey = '*';						break;
+		case MWKEY_KP_MINUS:	mwkey = '-';						break;
+		case MWKEY_KP_PLUS:		mwkey = '+';						break;
+		case MWKEY_KP_ENTER:	mwkey = MWKEY_ENTER;				break;
+		case MWKEY_KP_EQUALS:	mwkey = '-';						break;
+		}
+	}
+
+	/* write FBE keyboard protocol of eight bytes*/
+	buf[0] = 0xF5;
+	buf[1] = (ev->xkey.type == KeyPress)? KBD_KEYPRESS : KBD_KEYRELEASE;
+	buf[2] = mwkey;					/* MWKEY*/
+	buf[3] = mwkey >> 8;
+	buf[4] = key_modstate;			/* MWKEYMOD*/
+	buf[5] = key_modstate >> 8;
+	buf[6] = ev->xkey.keycode;		/* MWSCANCODE*/
+	buf[7] = ev->xkey.keycode >> 8;
+
+	//printf("key %d mods: 0x%x  scan: 0x%x  key: 0x%x\n", buf[1], key_modstate, ev->xkey.keycode, mwkey);
+
+	if (write(keyboard_fd, buf, 8) != 8)
+		fprintf(stderr, PROGNAME ": Keyboard write fail\n");
+}
+
+static void
+handle_mouse(XEvent *ev)
+{
+	int button = 0;
+	int released = 0;
+	int x, y;
+	char buf[6];
+
+	switch (ev->type) {
+	case MotionNotify:
+		if (ev->xmotion.window != window)
+			return;
+		x = ev->xmotion.x;
+		y = ev->xmotion.y;
+		if (ev->xmotion.state & Button1Mask)
+				button |= MWBUTTON_L;
+		if (ev->xmotion.state & Button2Mask)
+				button |= MWBUTTON_M;
+		if (ev->xmotion.state & Button3Mask)
+				button |= MWBUTTON_R;
+		if (ev->xmotion.state & Button4Mask)
+				button |= MWBUTTON_SCROLLUP;
+		if (ev->xmotion.state & Button5Mask)
+				button |= MWBUTTON_SCROLLDN;
+		break;
+
+	case ButtonPress:
+		if (ev->xbutton.window != window)
+			return;
+		/* Get pressed button */
+		if(ev->xbutton.button == 1)
+			button = MWBUTTON_L;
+		else if(ev->xbutton.button == 2)
+			button = MWBUTTON_M;
+		else if(ev->xbutton.button == 3)
+			button = MWBUTTON_R;
+		else if(ev->xbutton.button == 4)
+			button = MWBUTTON_SCROLLUP;
+		else if(ev->xbutton.button == 5)
+			button = MWBUTTON_SCROLLDN;
+
+		/* Get any other buttons that might be already held */
+		if (ev->xbutton.state & Button1Mask)
+			button |= MWBUTTON_L;
+		if (ev->xbutton.state & Button2Mask)
+			button |= MWBUTTON_M;
+		if (ev->xbutton.state & Button3Mask)
+			button |= MWBUTTON_R;
+		if (ev->xbutton.state & Button4Mask)
+			button |= MWBUTTON_SCROLLUP;
+		if (ev->xbutton.state & Button5Mask)
+			button |= MWBUTTON_SCROLLDN;
+		x = ev->xbutton.x;
+		y = ev->xbutton.y;
+		break;
+
+	case ButtonRelease:
+		if (ev->xbutton.window != window)
+			return;
+		/* Get released button */
+		if(ev->xbutton.button == 1)
+			released = MWBUTTON_L;
+		else if(ev->xbutton.button == 2)
+			released = MWBUTTON_M;
+		else if(ev->xbutton.button == 3)
+			released = MWBUTTON_R;
+		else if(ev->xbutton.button == 4)
+			released = MWBUTTON_SCROLLUP;
+		else if(ev->xbutton.button == 5)
+			released = MWBUTTON_SCROLLDN;
+
+		/* Get any other buttons that might be already held */
+		if (ev->xbutton.state & Button1Mask)
+			button |= MWBUTTON_L;
+		if (ev->xbutton.state & Button2Mask)
+			button |= MWBUTTON_M;
+		if (ev->xbutton.state & Button3Mask)
+			button |= MWBUTTON_R;
+		if (ev->xbutton.state & Button4Mask)
+			button |= MWBUTTON_SCROLLUP;
+		if (ev->xbutton.state & Button5Mask)
+			button |= MWBUTTON_SCROLLDN;
+
+		/* We need to remove the released button from the button mask*/
+		button &= ~released; 
+
+		x = ev->xbutton.x;
+		y = ev->xbutton.y;
+		break;
+
+	default:
+		return;
+	}
+
+	/* adjust mouse position for zoom factor*/
+	x /= ZOOM;
+	y /= ZOOM;
+
+	//printf("mouse %x %d,%d\n", button, x, y);
+
+	/* write FBE mouse protocol of six bytes*/
+	buf[0] = 0xF4;
+	buf[1] = button;
+	buf[2] = x;
+	buf[3] = x >> 8;
+	buf[4] = y;
+	buf[5] = y >> 8;
+	if (write(mouse_fd, buf, 6) != 6)
+		fprintf(stderr, PROGNAME ": Mouse write fail\n");
+}
+
+static void
 fbe_loop(void)
 {
 	pixmap = XCreatePixmap(display, window, CHUNKX * ZOOM, CHUNKY * ZOOM, depth);
 
+	repaint = 1;
 	while (1) {
 		int x, y;
 
-		repaint = 0;
 		/*
 		   Check if to force complete repaint because of window 
 		   expose event
@@ -785,8 +1095,21 @@ fbe_loop(void)
 		while ((XPending(display) > 0)) {
 			XEvent event;
 			XNextEvent(display, &event);
-			if (event.type == Expose)
-				repaint = 1;
+			switch (event.type) {
+			case ConfigureNotify:
+				if (event.xconfigure.window == window)
+					repaint = 1;
+				break;
+			case MotionNotify:
+			case ButtonPress:
+			case ButtonRelease:
+				handle_mouse(&event);
+				break;
+			case KeyPress:
+			case KeyRelease:
+				handle_keyboard(&event);
+				break;
+			}
 		}
 
 		/* 
@@ -794,9 +1117,10 @@ fbe_loop(void)
 		   eventually repaint individual chunks. Repaint everything if
 		   repaint is true (see above)
 		 */
-		for (y = 0; y < CRTY / CHUNKY; y++)
-			for (x = 0; x < CRTX / CHUNKX; x++)
+		for (y = 0; y < (CRTY+CHUNKY-1) / CHUNKY; y++)
+			for (x = 0; x < (CRTX+CHUNKX-1) / CHUNKX; x++)
 				check_and_paint(x, y);
+		repaint = 0;
 		usleep(1000);
 
 		/* re-set color map */
@@ -948,7 +1272,7 @@ main(int argc, char **argv)
 		       "       -y   Y Size            [%3d]\n"
 		       "       -t   Total X Size      [%3d]\n"
 		       "       -d   Color depths bpp  [%d] (1,2,4,8,15,16,24,32)\n"
-		       "       -z   Zoom factor       [%d] \n"
+		       "       -z   Zoom factor       [%d]\n"
 			   "       -r   Reverse bit order (1,2,4bpp LSB first)\n"
 			   "       -g   Gray palette (4bpp only)\n"
 			   "       -c   Force create new framebuffer (required when size changes)\n",
@@ -959,17 +1283,21 @@ main(int argc, char **argv)
 	printf("%dx%dx%dbpp pitch %d\n", CRTX, CRTY, BITS_PER_PIXEL, PITCH);
 
 	/* Create virtual framebuffer and palette*/
-	if (force_create)
-		unlink(PATH_FRAMEBUFFER);
+	if (force_create) {
+		unlink(MW_PATH_FBE_FRAMEBUFFER);
+		unlink(MW_PATH_FBE_COLORMAP);
+		unlink(MW_PATH_FBE_MOUSE);
+		unlink(MW_PATH_FBE_KEYBOARD);
+	}
 
-	fd = open(PATH_FRAMEBUFFER, O_RDONLY);
+	fd = open(MW_PATH_FBE_FRAMEBUFFER, O_RDONLY);
 	if (fd >= 0) {
 		close(fd);
 	} else {
 		char *	p;
 		int 	size = ((CRTY * PITCH) + 4095) & ~4095;		/* extend to page boundary*/
-		if ((fd = open(PATH_FRAMEBUFFER, O_CREAT | O_WRONLY, 0777)) < 0) {
-			fprintf(stderr, PROGNAME ": Can't create %s\n", PATH_FRAMEBUFFER);
+		if ((fd = open(MW_PATH_FBE_FRAMEBUFFER, O_CREAT | O_WRONLY, 0666)) < 0) {
+			fprintf(stderr, PROGNAME ": Can't create %s\n", MW_PATH_FBE_FRAMEBUFFER);
 			exit(1);
 		}
 		if ((p = calloc(size, 1)) == NULL) {
@@ -981,12 +1309,12 @@ main(int argc, char **argv)
 		free(p);
 	}
 
-	cfd = open(PATH_COLORMAP, O_RDONLY);
+	cfd = open(MW_PATH_FBE_COLORMAP, O_RDONLY);
 	if (cfd >= 0) {
 		close(cfd);
 	} else {
-		if ((cfd = open(PATH_COLORMAP, O_CREAT | O_WRONLY, 0777)) < 0) {
-			fprintf(stderr, PROGNAME ": Can't create %s\n", PATH_COLORMAP);
+		if ((cfd = open(MW_PATH_FBE_COLORMAP, O_CREAT | O_WRONLY, 0666)) < 0) {
+			fprintf(stderr, PROGNAME ": Can't create %s\n", MW_PATH_FBE_COLORMAP);
 			exit(1);
 		}
 		for (i = 0; i < 512; i++)
@@ -995,22 +1323,28 @@ main(int argc, char **argv)
 	}
 
 	/* open and mmap virtual framebuffer*/
-	fd = open(PATH_FRAMEBUFFER, O_RDWR);
+	fd = open(MW_PATH_FBE_FRAMEBUFFER, O_RDWR);
 	crtbuf = mmap(NULL, CRTY * PITCH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
 	/* open and mmap virtual palette*/
-	cfd = open(PATH_COLORMAP, O_RDWR);
+	cfd = open(MW_PATH_FBE_COLORMAP, O_RDWR);
 	cmapbuf = mmap(NULL, 512, PROT_READ | PROT_WRITE, MAP_SHARED, cfd, 0);
 	signal(SIGUSR1, usr1_handler);
 
-#if 0
-	fp = fopen("/tmp/fbe.pid", "w");
-	if (fp) {
-		sprintf(buf, "%d", getpid());
-		fputs(buf, fp);
-		fclose(fp);
-	}
-#endif
+	/* ignore pipe signal sent on fifo writes when no readers*/
+	signal(SIGPIPE, SIG_IGN);
+
+	/* open mouse named pipe*/
+	if (mkfifo(MW_PATH_FBE_MOUSE, 0666) < 0 && errno != EEXIST)
+		fprintf(stderr, PROGNAME ": mkfifo %s error %d ('%s')\n", MW_PATH_FBE_MOUSE, errno, strerror(errno));
+	if ((mouse_fd = open(MW_PATH_FBE_MOUSE, O_RDWR | O_NONBLOCK)) < 0)
+		fprintf(stderr, PROGNAME ": open %s error %d ('%s')\n", MW_PATH_FBE_MOUSE, errno, strerror(errno));
+
+	/* open keyboard named pipe*/
+	if (mkfifo(MW_PATH_FBE_KEYBOARD, 0666) < 0 && errno != EEXIST)
+		fprintf(stderr, PROGNAME ": mkfifo %s error %d ('%s')\n", MW_PATH_FBE_KEYBOARD, errno, strerror(errno));
+	if ((keyboard_fd = open(MW_PATH_FBE_KEYBOARD, O_RDWR | O_NONBLOCK)) < 0)
+		fprintf(stderr, PROGNAME ": open %s error %d ('%s')\n", MW_PATH_FBE_KEYBOARD, errno, strerror(errno));
 
 	X11_init();
 	fbe_setcolors();

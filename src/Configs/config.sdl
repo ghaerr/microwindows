@@ -47,9 +47,9 @@ X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
 MICROWIN                 = Y
 NANOX                    = Y
 NUKLEARUI                = Y
-NX11                     = Y
-ENGINE                   = Y
-TINYWIDGETS              = Y
+NX11                     = N
+ENGINE                   = N
+TINYWIDGETS              = N
 
 ####################################################################
 #

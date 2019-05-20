@@ -23,7 +23,7 @@ static void	Mice_GetDefaultAccel(int *pscale,int *pthresh);
 static int  	Mice_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp);
 static int  	Mice_Poll(void);
 
-static int      mouse_fd;
+static int      mouse_fd = -1;
 
 /* Interface to Mouse Device Driver*/
 // (from device.h)
@@ -65,12 +65,10 @@ MOUSEDEVICE mousedev = {
 static int
 Mice_Open(MOUSEDEVICE *pmd)
 {
-        mouse_fd = open(MICE_DEV_FILE, O_NONBLOCK);
+        mouse_fd = open(MICE_DEV_FILE, O_RDONLY | O_NONBLOCK);
 
-        if (mouse_fd < 0) {
-// EPRINTF("KN - mouse failed to open - mouse_fd = %d \n", mouse_fd);
-                return -1;
-        }
+        if (mouse_fd < 0)
+			return MOUSE_FAIL;
 
         return mouse_fd;
 }
@@ -83,7 +81,7 @@ Mice_Open(MOUSEDEVICE *pmd)
 static void
 Mice_Close(void)
 {
-        if (mouse_fd > 0)
+        if (mouse_fd >= 0)
                 close(mouse_fd);
         mouse_fd = -1;
 }
@@ -115,14 +113,6 @@ Mice_GetDefaultAccel(int *pscale,int *pthresh)
 
 
 /*
- * Attempt to read bytes from the mouse and interpret them.
- * Returns -1 on error, 0 if either no bytes were read or not enough
- * was read for a complete state, or 1 if the new state was read.
- * When a new state is read, the current buttons and x and y deltas
- * are returned.  This routine does not block.
- */
-
-/*
 	O_UNBLOCK reads of /dev/input/mice  routinely returns -1 when no
         new data is available. When new data is available, we read three
 	bytes: 
@@ -144,7 +134,8 @@ Mice_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
 // Read Mouse. Ask for four bytes, expect three.
 
         Bytes_Read = read(mouse_fd, data, sizeof(data));
-	if (Bytes_Read != 3) return 0;  // no data
+	if (Bytes_Read != 3)
+		return MOUSE_NODATA;
 
         left = data[0] & 0x1;
         right = data[0] & 0x2;
@@ -163,12 +154,11 @@ Mice_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
         x =   (signed char) data[1];
         y = - (signed char) data[2];  // y axis flipped between conventions
         z =   0;
-	    
 	*dx = x;	// integer from signed char
 	*dy = y;       
 	*dz = z;
 
-	return 1;
+	return MOUSE_RELPOS;
 }
 
 /////////////////////////////////////////////

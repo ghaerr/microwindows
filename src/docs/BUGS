@@ -3,6 +3,7 @@ nanowm always selects CHLD_UPDATE
 		needs WM_CHLD_UPDATE to fix properly
 	some update events don't always propogate to client, and client always gets root chld_update events
 	would need WMCHLD_UPDATE or seperate wm client struct allocated
+TinyWidgets scrollbartest fails in infinite loop, scrollbars don't drag, mousewheel fails
 filled polygons fail with polydemo - check devpoly.c algorithms...
 	should GrPoly close polygon if last point != first?
 cursor clipped above blit area with xteevee - check

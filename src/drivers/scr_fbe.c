@@ -60,7 +60,7 @@ SCREENDEVICE scrdev = {
 #endif
 };
 
-/* init framebuffer*/
+/* open framebuffer mmap'd by FBE*/
 static PSD
 fbe_open(PSD psd)
 {
@@ -88,7 +88,7 @@ fbe_open(PSD psd)
 #else
 	/* open framebuffer file for mmap*/
 	if((env = getenv("FRAMEBUFFER")) == NULL)
-		env = PATH_FRAMEBUFFER;
+		env = MW_PATH_FBE_FRAMEBUFFER;
 	fb = open(env, O_RDWR);
 	if (fb >= 0)
 	{

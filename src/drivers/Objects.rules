@@ -71,6 +71,15 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/kbd_allegro5.o
 endif
 
+# Framebuffer emulator
+ifeq ($(SCREEN), FBE)
+MW_CORE_OBJS += \
+	$(MW_DIR_OBJ)/drivers/scr_fbe.o \
+	$(MW_DIR_OBJ)/drivers/copyframebuffer.o \
+	$(MW_DIR_OBJ)/drivers/mou_fbe.o \
+	$(MW_DIR_OBJ)/drivers/kbd_fbe.o
+endif
+
 #### The following platforms when defined include specific screen, keyboard and mouse drivers
 #### set by ARCH=
 
@@ -119,12 +128,6 @@ endif
 # linux framebuffer driver
 ifeq ($(SCREEN), FB)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
-endif
-
-# framebuffer emulator driver
-ifeq ($(SCREEN), FBE)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fbe.o
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/copyframebuffer.o
 endif
 
 #

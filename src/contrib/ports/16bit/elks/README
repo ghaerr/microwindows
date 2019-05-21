@@ -1,0 +1,45 @@
+ELKS (not tested since version 0.86)
+====
+ELKS users set the line below in the config file.
+	ARCH=ELKS
+
+The NWIDGET=N line must be set, as bcc can't handle
+ansi C's token paste operator, used in the widget library.
+
+The serial mouse driver is in microwindows/src/drivers/mou_ser.c.
+The default mouse port and type can be changed with the following
+environment variables, or changed in the driver.
+
+Environment Var		Default		Allowed
+MOUSE_TYPE		pc		ms, pc, logi(same as pc)
+MOUSE_PORT		/dev/ttys0	any serial port
+
+It might also be a good idea to use the XOR frame-redraw window
+move algorithm, by setting the following lines in the config file.
+The XOR algorithm redraws only after the window move is
+completed, which works well on slower cpu's.
+	ERASEMOVE=N
+	UPDATEREGIONS=N
+
+Since ELKS doesn't currently have a floating point library,
+the 3d demo is automatically compiled out of
+microwindows/src/demos/mwin/mwdemo.c:
+	#define GRAPH3D	0
+	#define IMAGE	0
+The IMAGE define is set to 0 as bringing in most
+images will break the 64k data segment limit.  The ELKS
+version also doesn't include the button control or wallpaper
+in the demo to keep the text/data sizes down.
+
+The latest version of the ELKS kernel supports a variant
+of UNIX sockets, using numbers rather than names.  To
+build a client/server version of Nano-X for ELKS, the config line
+	LINK_APP_INTO_SERVER=y
+must be set.  In addition, the bcc compiler doesn't support
+the ANSI C '##' token pasting operator which is used
+in the client request code, client.c.  Run the following
+perl script to preprocess the client.c source file:
+
+	cd microwindows/src/nanox
+	mv client.c client.dist
+	./elkspatch.pl < client.dist > client.c

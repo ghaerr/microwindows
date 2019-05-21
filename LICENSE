@@ -1,4 +1,4 @@
-The Microwindows, Nano-X, and NXLIB software are licensed under the MPL,
+The Microwindows, Nano-X and NXLIB software are licensed under the MPL,
 as specified below.  Alternatively, the software can be converted to
 the GNU General Public License, Version 2.
 
@@ -13,13 +13,16 @@ the GNU General Public License, Version 2.
  * License for the specific language governing rights and limitations
  * under the License.
  * 
+ * The Original Code is Microwindows.
  * The Original Code is NXLIB.
+ * The Original Code is renamed The Nano-X Window System in 2005.
  * 
  * The Initial Developer of the Original Code is Gregory Haerr.
- * Portions created by Greg Haerr are Copyright (C) 2001, 2002, 2003
- * Gregory Haerr <greg@censoft.com>. All Rights Reserved.
+ * Portions created by Gregory Haerr are Copyright (C) 1999, 2000, 2001, 2002,
+ * 	2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2017, 2018, 2019
+ *  Gregory Haerr <greg@censoft.com>. All Rights Reserved.
  * 
- * Contributor(s):
+ * Contributor(s): see CREDITS file.
  * 
  * Alternatively, the contents of this file may be used under the terms
  * of the GNU General Public license (the  "[GNU] License"), in which case the

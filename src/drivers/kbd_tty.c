@@ -59,13 +59,19 @@ static	struct termios	old;		/* original terminal modes */
 static int
 TTY_Open(KBDDEVICE *pkd)
 {
-	char *		kbd;
 	struct termios	new;
 
+#ifdef AQUILA
+    fd = 0; /* use stdin directly */
+    fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | O_NONBLOCK);
+#else
+	char *		kbd;
 	/* Open "CONSOLE" or /dev/tty device*/
 	if (!(kbd = getenv("CONSOLE")))
 		kbd = KEYBOARD;
 	fd = open(kbd, O_NONBLOCK);
+#endif
+
 	if (fd < 0)
 		return DRIVER_FAIL;
 

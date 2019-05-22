@@ -158,6 +158,11 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_tslib.o
 LDFLAGS += -lts
 endif
 
+# AquilaOS mouse driver
+ifeq ($(MOUSE), AQUILAMOUSE)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_aquila.o
+endif
+
 #
 # Keyboard driver set by KEYBOARD=
 #

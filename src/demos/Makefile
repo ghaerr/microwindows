@@ -36,6 +36,10 @@ ifeq ($(ARCH), ANDROID)
 dirs = nanox mwin
 endif
 
+ifeq ($(ARCH), AQUILA)
+dirs = nanox mwin nuklear
+endif
+
 ######################### Makefile.rules section #############################
 
 include $(MW_DIR_SRC)/Makefile.rules

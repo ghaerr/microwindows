@@ -1,0 +1,259 @@
+####################################################################
+# config - Microwindows and Nano-X configuration file
+#
+# Set target architecture using ARCH= from options in Arch.rules
+# Set drawing method: X11 or FRAMEBUFFER/MOUSE/KEYBOARD options
+# Set SCREEN/MOUSE/KEYBOARD drivers (typically X11 or FB)
+# Set various libraries to build or include and their locations
+#
+# See the src/Configs directory for pre-built config files.
+# Edit this or copy one from src/Configs, and type "make clean; make"
+####################################################################
+
+####################################################################
+#
+# Target platform and compilation options
+#
+####################################################################
+ARCH                     = AQUILA
+SHAREDLIBS               = N
+SHAREDLINK               = N
+#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+DEBUG                    = N
+OPTIMIZE                 = Y
+#OPTIMIZE                 = -O1
+VERBOSE                  = N
+THREADSAFE               = N
+PARALLEL                 = N
+
+####################################################################
+# Screen Driver
+# Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
+# Screen size/depth for X11, FBE and non-dynamic framebuffer systems
+####################################################################
+SCREEN                   = FB
+MOUSE                    = AQUILAMOUSE
+KEYBOARD                 = TTYKBD
+SCREEN_WIDTH             = 1024
+SCREEN_HEIGHT            = 768
+#X11LIBLOCATION           = /usr/X11/lib
+#X11HDRLOCATION           = /usr/X11/include
+
+####################################################################
+#
+# Libraries to build: microwin, nano-X, nxlib, engine
+#
+####################################################################
+MICROWIN                 = Y
+NANOX                    = Y
+NUKLEARUI                = Y
+NX11                     = N
+ENGINE                   = Y
+TINYWIDGETS              = N
+
+####################################################################
+#
+# Applications and demos to build
+#
+####################################################################
+FBEMULATOR               = N
+MICROWINDEMO             = Y
+MICROWINMULTIAPP         = N
+NANOXDEMO                = Y
+HAVE_VNCSERVER_SUPPORT   = N
+VNCSERVER_PTHREADED      = N
+LIBVNC                   = -lvncserver
+INCVNC                   =
+
+####################################################################
+# LINK_APP_INTO_SERVER links the nano-X server into the application,
+# by building a libnano-X.{a,so} that runs standalone.
+# Required if UNIX sockets aren't available, for debugging,
+# and also used to support running X11 apps through NXLIB on X11.
+# NANOWM links the window manager into the server.
+####################################################################
+LINK_APP_INTO_SERVER     = N
+NANOWM                   = Y
+
+####################################################################
+# Shared memory support for Nano-X client/server protocol speedup
+####################################################################
+HAVE_SHAREDMEM_SUPPORT   = N
+
+####################################################################
+# File I/O support
+# Supporting either below drags in libc stdio, which may not be wanted
+####################################################################
+HAVE_FILEIO              = Y
+
+####################################################################
+# BMP, GIF reading support
+####################################################################
+HAVE_BMP_SUPPORT         = Y
+HAVE_GIF_SUPPORT         = N
+HAVE_PNM_SUPPORT         = N
+HAVE_XPM_SUPPORT         = N
+
+####################################################################
+# JPEG support through libjpeg, see README.txt in contrib/jpeg
+####################################################################
+HAVE_JPEG_SUPPORT        = N
+INCJPEG                  =
+LIBJPEG                  = -ljpeg
+
+####################################################################
+# PNG support via libpng and libz
+####################################################################
+HAVE_PNG_SUPPORT         = N
+INCPNG                   =
+LIBPNG                   = -lpng
+INCZ                     =
+LIBZ                     = -lz
+
+####################################################################
+# TIFF support through libtiff
+####################################################################
+HAVE_TIFF_SUPPORT        = N
+INCTIFF                  =
+LIBTIFF                  = -ltiff
+
+####################################################################
+# PCF font support - .pcf/.pcf.gz loadable fonts
+####################################################################
+HAVE_PCF_SUPPORT         = N
+HAVE_PCFGZ_SUPPORT       = N
+PCF_FONT_DIR             = "fonts/pcf"
+
+####################################################################
+# Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
+####################################################################
+HAVE_FREETYPE_2_SUPPORT  = N
+HAVE_HARFBUZZ_SUPPORT    = N
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = -lfreetype -lbz2
+#LIBFT2LIB                += -lharfbuzz
+FREETYPE_FONT_DIR        = "fonts/truetype"
+
+####################################################################
+# T1 adobe type1 fonts - .pfb/.afm loadable thru t1lib
+# t1lib.config must be setup and in T1LIB_FONT_DIR
+####################################################################
+HAVE_T1LIB_SUPPORT       = N
+T1LIB_FONT_DIR           = "fonts/type1"
+INCT1LIB                 =
+LIBT1LIB                 = -lt1
+
+####################################################################
+# FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
+####################################################################
+HAVE_FNT_SUPPORT         = N
+HAVE_FNTGZ_SUPPORT       = N
+FNT_FONT_DIR             = "fonts/fnt"
+
+####################################################################
+# Specialized font support
+#
+# Chinese Han Zi Ku HZK loadable font support
+# Chinese Hanzi Bitmap Font HBF loadable font support
+# DBCS Chinese BIG5 compiled in font support (big5font.c)
+# DBCS Chinese GB2312 compiled in font support (gb2312font.c)
+# DBCS Japanese JISX0213 compiled in font support (jisx0213-12x12.c)
+# Japanese EUC-JP support using loadable MGL font
+# DBCS Korean HANGUL font support (jo16x16.c)
+# Fribidi and shape/joining support for right to left rendering
+####################################################################
+HAVE_HZK_SUPPORT         = N
+HZK_FONT_DIR             = "fonts/chinese"
+HAVE_HBF_SUPPORT         = N
+HAVE_BIG5_SUPPORT        = N
+HAVE_GB2312_SUPPORT      = N
+HAVE_JISX0213_SUPPORT    = N
+HAVE_EUCJP_SUPPORT       = N
+EUCJP_FONT_DIR           = "fonts/japanese"
+HAVE_KSC5601_SUPPORT     = N
+HAVE_FRIBIDI_SUPPORT     = N
+HAVE_SHAPEJOINING_SUPPORT = N
+INCFRIBIDI               =
+LIBFRIBIDI               = -lfribidi
+
+####################################################################
+# Misc Options
+####################################################################
+
+# Window move algorithms for Microwindows
+# Change for tradeoff between cpu speed and looks
+# ERASEMOVE (nanowm) repaints only backgrounds while window dragging
+# Otherwise an XOR redraw is used for window moves only after button up
+# UPDATEREGIONS (win32 api only)paints in update clipping region only
+ERASEMOVE                = Y
+UPDATEREGIONS            = Y
+
+# Generate screen driver interface only with no fonts or clipping
+NOFONTS                  = N
+NOCLIPPING               = N
+
+# set USE_EXPOSURE for X11 on XFree86 4.x or if backing store not working
+# set VTSWITCH to include virtual terminal switch code
+# set FBREVERSE to reverse bit orders in 1,2,4 bpp
+# set GRAYPALETTE to link with Gray Palette (valid only for 4bpp modes)
+# set HAVETEXTMODE=Y for systems that can switch between text & graphics.
+USE_EXPOSURE             = N
+VTSWITCH                 = N
+FBREVERSE                = N
+GRAYPALETTE              = N
+HAVETEXTMODE             = N
+
+####################################################################
+# Screen pixel format
+# If using Linux framebuffer, set to MWPF_TRUECOLORARGB, and use fbset.
+# When running X11 or FBE, this sets the pixel emulation at runtime.
+#
+# On Linux or when running the standard framebuffer subdrivers,
+# the runtime framebuffer BPP (bits per pixel) is used to select 
+# the runtime screen subdriver.  However, the format of the pixel
+# itself must be selected at compile time, which sets macros used
+# for MWCOLORVAL color conversions and conversion blit byte order.
+# This also sets sizeof(MWPIXELVAL) for optimizing buffers sizes
+# in GrArea/GrReadArea.
+#
+# define MWPF_PALETTE       /* pixel is packed 8 bits 1, 4 or 8 pal index*/
+# define MWPF_TRUECOLORARGB /* pixel is packed 32 bits byte order |B|G|R|A|*/
+# define MWPF_TRUECOLORABGR /* pixel is packed 32 bits byte order |R|G|B|A|*/
+# define MWPF_TRUECOLORRGB  /* pixel is packed 24 bits byte order |B|G|R|*/
+# define MWPF_TRUECOLOR565  /* pixel is packed 16 bits little endian RGB565*/
+# define MWPF_TRUECOLOR555  /* pixel is packed 16 bits little endian RGB555*/
+# define MWPF_TRUECOLOR332  /* pixel is packed 8 bits RGB 332*/
+# define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
+# SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
+####################################################################
+SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+#SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
+SCREEN_DEPTH             = 32
+
+####################################################################
+# Screen drivers
+# SCREEN=X11		X11
+# SCREEN=FB			linux framebuffer
+# SCREEN=FBE		framebuffer emulator
+# SCREEN=SDL		SDL v2
+# SCREEN=ALLEGRO	Allegro v5
+####################################################################
+
+####################################################################
+# Mouse drivers
+# MOUSE=NOMOUSE		no mouse driver
+# MOUSE=GPMMOUSE	gpm mouse
+# MOUSE=SERMOUSE	serial Microsoft, PC, Logitech, PS/2 mice (/dev/psaux)
+# MOUSE=DEVMICEMOUSE Use Linux /dev/input/mice driver
+# MOUSE=TSLIBMOUSE	Use tslib (/dev/input/event0)
+# MOUSE=AQUILAMOUSE	Use Aquila (/dev/mouse)
+####################################################################
+
+####################################################################
+# Keyboard drivers
+# KEYBOARD=NOKBD		no keyboard driver
+# KEYBOARD=TTYKBD		tty keyboard
+# KEYBOARD=SCANKBD		scanmode keyboard
+# KEYBOARD=2NDKBD		two keyboards support
+####################################################################

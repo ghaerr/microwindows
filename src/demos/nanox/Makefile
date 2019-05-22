@@ -104,7 +104,9 @@ TARGETS += $(MW_DIR_BIN)/nxkbd
 ifneq ($(ARCH),CYGWIN) 
   ifneq ($(ARCH),RTEMS)
     ifneq ($(ARCH),ANDROID)
-      TARGETS += $(MW_DIR_BIN)/nxterm
+      ifneq ($(ARCH),AQUILA)
+        TARGETS += $(MW_DIR_BIN)/nxterm
+      endif
     endif
   endif
 endif

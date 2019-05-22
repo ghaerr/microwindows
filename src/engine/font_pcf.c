@@ -44,8 +44,6 @@
 *	Set defaultchar in MWCFONT struct.
 */
 #include <stdio.h>
-#include <string.h>
-#include <errno.h>
 #include <stdlib.h>
 #include "uni_std.h"
 #include "device.h"

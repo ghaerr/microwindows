@@ -5,7 +5,6 @@
  *
  * Microwindows win32 Scrollbars control
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS	/* jmt: for color macros */

@@ -8,8 +8,6 @@
  * fonts (ASCII < 0x0100 only) will display out of the 
  * builtin font instead.
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include "device.h"
 #include "devfont.h"
 #include "genfont.h"

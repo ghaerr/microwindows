@@ -8,8 +8,6 @@
  *  Date		Author					Description
  *	2003/09/01	Gabriele Brugnoni		Implemented blinking using timers
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include "windows.h"
 #include "device.h"			/* for GdSetMode()*/
 

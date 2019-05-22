@@ -34,12 +34,9 @@
     License along with this library; if not, write to the Free
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "uni_std.h"
 #include <fcntl.h>
-#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"

@@ -5,7 +5,6 @@
  * T1lib Adobe type1 routines originally contributed by Vidar Hokstad
  * Rewritten heavily by g haerr
  */
-/*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

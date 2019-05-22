@@ -4,7 +4,6 @@
  *
  * Graphics server event routines for windows.
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "serv.h"

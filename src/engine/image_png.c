@@ -9,14 +9,8 @@
  * 2007-Nov-15 - Vladimir Ananiev (vovan888 at gmail com)
  *		alpha channel, gamma correction added - ripped from pngm2pnm.c
  */
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "uni_std.h"
-#include <fcntl.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "device.h"
 #include "../drivers/genmem.h"
 

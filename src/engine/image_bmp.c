@@ -5,11 +5,9 @@
  * Image decode routine for BMP files
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "uni_std.h"
 #include <fcntl.h>
-#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "device.h"

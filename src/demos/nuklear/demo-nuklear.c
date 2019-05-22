@@ -78,9 +78,9 @@ main(void)
     NXFont *font;
     struct nk_context *ctx;
 
-    /* Nano-X*/
+	/* Nano-X*/
 	if (GrOpen() < 0) {
-    	fputs("Unable to open graphics", stderr);
+		fputs("Unable to open graphics", stderr);
 		exit(EXIT_FAILURE);
 	}
 
@@ -104,10 +104,13 @@ main(void)
 		else
 		do {
 			GrGetNextEventTimeout(&evt, nk_nxlib_timeout);
-            if (evt.type == GR_EVENT_TYPE_CLOSE_REQ)
+			nk_nxlib_handle_event(&evt);
+			/* required because GrPeekEvent generates another timeout in LINK_APP_INTO_SERVER case*/
+			if (evt.type == GR_EVENT_TYPE_TIMEOUT)
+				break;
+			if (evt.type == GR_EVENT_TYPE_CLOSE_REQ)
 				running = 0;
-            nk_nxlib_handle_event(&evt);
-        } while (GrPeekEvent(&evt));
+		} while (GrPeekEvent(&evt));
         nk_input_end(ctx);
 
         /* GUI */

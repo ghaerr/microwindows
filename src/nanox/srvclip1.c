@@ -2,7 +2,6 @@
  * Copyright (c) 2000 Greg Haerr <greg@censoft.com>
  * Copyright (c) 1991 David I. Bell
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include "serv.h"
 

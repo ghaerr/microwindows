@@ -8,7 +8,7 @@
  */
 /*#define NDEBUG*/
 #include <assert.h>
-#include <string.h>
+#include <stdlib.h>
 #include "device.h"
 #include "fb.h"
 #include "genmem.h"

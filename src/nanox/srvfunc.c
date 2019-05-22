@@ -4,7 +4,6 @@
  * Copyright (c) 2000 Alex Holden <alex@linuxhacker.org>
  * Copyright (c) 1991 David I. Bell
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS

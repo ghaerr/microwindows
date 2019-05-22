@@ -3,14 +3,8 @@
  *
  * Image decode routine for TIFF files
  */
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "uni_std.h"
-#include <fcntl.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "device.h"
 #include "convblit.h"
 #include "../drivers/genmem.h"

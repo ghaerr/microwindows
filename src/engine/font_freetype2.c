@@ -33,11 +33,9 @@
  */
 
 /*#define NDEBUG*/
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <string.h>
 #include "uni_std.h"
 #include "device.h"
 #include "devfont.h"

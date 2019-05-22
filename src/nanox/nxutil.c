@@ -6,7 +6,6 @@
  *
  * These routines are Gr* functionality without requiring new API entry points.
  */
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "uni_std.h"

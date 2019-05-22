@@ -11,11 +11,7 @@
  * only called when it is known that all the pixels to be drawn are
  * within the device area and are visible.
  */
-/*#define NDEBUG*/
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include "swap.h"
 #include "device.h"
 #include "convblit.h"
@@ -796,7 +792,6 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	uint32_t transcolor;
 	MWPIXELVALHW convtable[256];
 
-	assert(pimage);
 	height = pimage->height;
 	width = pimage->width;
 

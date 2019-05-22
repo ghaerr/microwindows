@@ -7,10 +7,8 @@
  * See the mwopenfile.c example for the usage of this control
  * 
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,7 +29,7 @@ struct filters {
 };
 struct filters filterpairs[10];
 char currentfilter[128];
-char curpath[PATH_MAX] = {"."};
+char curpath[256] = {"."};
 
 LRESULT CALLBACK FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -40,7 +38,7 @@ static void fill_listbox(HWND hwnd,const char *path)
        struct dirent **namelist;
        int n;
        int i=0;
-       char pathtmp[PATH_MAX+2] = {' ',' '};
+       char pathtmp[256+2] = {' ',' '};
 
        n = scandir(path, &namelist, NULL, alphasort);
        if (n < 0)
@@ -76,8 +74,8 @@ LRESULT CALLBACK FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 {
 	static LPOPENFILENAME mdData;
 	int sel,isdir;
-	char dirorfilename[PATH_MAX];
-	char dirpath[PATH_MAX];
+	char dirorfilename[256];
+	char dirpath[256];
 	char* slashptr;
 	int dirflag;
 	HWND hEdit;

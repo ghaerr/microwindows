@@ -3,7 +3,6 @@
  *
  * Copyright (c) 2001, 2002, 2003 by Greg Haerr <greg@censoft.com>
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include "uni_std.h"
 #if LINUX
@@ -13,9 +12,8 @@
 #include <linux/fb.h>
 #endif
 #include "nano-X.h"
+#include "mwconfig.h"
 #include "lock.h"
-
-#define EPRINTF(str)	printf(str)
 
 /* For definition of PAGE_SIZE */
 #define PAGE_SHIFT      12

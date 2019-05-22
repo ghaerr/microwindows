@@ -5,11 +5,7 @@
  *
  * Graphics server utility routines for windows.
  */
-#include <stdio.h>
 #include <stdlib.h>
-#ifndef __PACIFIC__
-#include <fcntl.h>
-#endif
 #include "serv.h"
 
 /*

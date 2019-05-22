@@ -3,12 +3,10 @@
  *
  * Nano-X Core Protocol Client Request Handling Routines
  */ 
-#include <stdio.h>
 #include "uni_std.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <errno.h>
-#include <string.h>
 #include "serv.h"
 #include "nxproto.h"
 #include "lock.h"

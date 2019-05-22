@@ -4,7 +4,7 @@
  * Nano-X Draw Library
  */
 #define MWINCLUDECOLORS
-#include <stdio.h>
+#include <stdlib.h>
 #include "nano-X.h"
 #include "nanowm.h"
 #include "nxdraw.h"

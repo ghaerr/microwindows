@@ -4,9 +4,7 @@
  *
  * Nano-X server routines for LINK_APP_INTO_SERVER=Y case (NONETWORK=1)
  */
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "serv.h"
 
 #if EMSCRIPTEN

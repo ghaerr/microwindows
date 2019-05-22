@@ -12,7 +12,6 @@
  * within the device area and are visible.
  */
 /*#define NDEBUG*/
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

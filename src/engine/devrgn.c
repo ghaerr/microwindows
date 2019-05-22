@@ -82,7 +82,6 @@ SOFTWARE.
  * rectangles in the same places (of the same width, of course). This maintains
  * the y-x-banding that's so nice to have...
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "device.h"

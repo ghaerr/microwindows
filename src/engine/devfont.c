@@ -12,10 +12,8 @@
  *
  * Device-independent font and text drawing routines
  */
-/*#define NDEBUG*/
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include "uni_std.h"
 #include "device.h"
 #include "devfont.h"

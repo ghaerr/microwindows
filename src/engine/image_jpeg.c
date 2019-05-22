@@ -34,13 +34,8 @@
  * temporary files are deleted if the program is interrupted.  See libjpeg.doc.
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "uni_std.h"
-#include <fcntl.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "device.h"
 #include "../drivers/genmem.h"
 

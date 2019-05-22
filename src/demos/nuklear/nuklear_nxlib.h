@@ -56,7 +56,7 @@ NK_API NXFont *             nk_nxfont_create(const char *name);
 NK_API void                 nk_nxfont_del(NXFont *font);
 
 /* event wait timeout*/
-int nk_nxlib_timeout;
+GR_TIMEOUT nk_nxlib_timeout;
 #endif
 /*
  * ==============================================================
@@ -677,13 +677,13 @@ nk_nxlib_create_window(struct nk_context *ctx)
 		return;
 	}
 
-	/* window w/h decreased by 1 because Nuklear draws unwanted extra black line*/
-	w = (int)nk_window_get_width(ctx) - 1;
-	h = (int)nk_window_get_height(ctx) - 1;
+	w = (int)nk_window_get_width(ctx);
+	h = (int)nk_window_get_height(ctx);
 	title = ctx->current->name_string;
 
+	/* window w/h decreased by 1 because Nuklear draws on surface one less than size given*/
 	wid = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, title, GR_ROOT_WINDOW_ID,
-		0, 0, w, h, 0);
+		0, 0, w-1, h-1, 0);
 	if (!wid)
 		return;
 	GrSelectEvents(wid, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_UPDATE |
@@ -705,8 +705,9 @@ NK_INTERN void
 nk_nxlib_resize_window(int w, int h)
 {
 	/* store new w/h for later inspection in nk_nxlib_create_window call during nk_begin*/
-	nxlib.surf.neww = w;
-	nxlib.surf.newh = h;
+	/* window w/h increased by 1 because Nuklear draws on surface one less than size given*/
+	nxlib.surf.neww = w+1;
+	nxlib.surf.newh = h+1;
 }
 
 NK_API struct nk_context*

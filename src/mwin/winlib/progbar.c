@@ -46,7 +46,6 @@
 **  Greg Haerr      2000/06/15  Utah        removed floats          Finished
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS

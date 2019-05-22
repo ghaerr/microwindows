@@ -6,7 +6,6 @@
  * EUC Japanese text drawing using MGL fonts for Microwindows
  * Supports dynamically loading MGL font files
  */
-/*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

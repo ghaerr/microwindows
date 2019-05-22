@@ -1002,6 +1002,15 @@ typedef struct {
 	unsigned char *buffer;		/* request buffer*/
 } REQBUF;
 
+/*
+ * The filename to use for the named socket.  The environment variable
+ * NXDISPLAY will override GR_NAMED_SOCKET for the AF_UNIX case, or
+ * specify the nano-X server address in the AF_INET case (default 127.0.0.1)
+ */
+#define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
+#define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
+#define GR_ELKS_SOCKET	79			/* AF_NANO socket number*/
+
 #if RTEMS
   /* RTEMS requires rtems_main()*/
   int rtems_main(int, char **);

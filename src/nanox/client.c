@@ -18,7 +18,6 @@
  * documentation, just skip that step and we will do it for you.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include "uni_std.h"
 #include "sys_time.h"
@@ -56,7 +55,7 @@
 #endif
 
 #include "nano-X.h"
-#include "serv.h"
+#include "mwconfig.h"
 #include "nxproto.h"
 #include "lock.h"
 

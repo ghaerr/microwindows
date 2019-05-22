@@ -10,7 +10,6 @@
  *
  * Adapted for Microwindows by DI (FH) Ludwig Ertl / CSP GmbH
  */
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "uni_std.h"

@@ -12,8 +12,6 @@
  * connections from clients, receives functions from them, and dispatches
  * events to them.
  */
-#include <stdio.h>
-#include <stddef.h>
 #include <stdlib.h>
 #include "uni_std.h"
 #include <errno.h>

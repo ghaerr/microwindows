@@ -525,15 +525,6 @@ extern  int		autoportrait;		/* auto portrait mode switching*/
 extern  MWCOORD		nxres;			/* requested server x res*/
 extern  MWCOORD		nyres;			/* requested server y res*/
 
-/*
- * The filename to use for the named socket.  The environment variable
- * NXDISPLAY will override GR_NAMED_SOCKET for the AF_UNIX case, or
- * specify the nano-X server address in the AF_INET case (default 127.0.0.1)
- */
-#define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
-#define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
-#define GR_ELKS_SOCKET	79			/* AF_NANO socket number*/
-
 #if VTSWITCH
 /* temp framebuffer vt switch stuff at upper level
  * this should be handled at the lower level, just like vgalib does.

@@ -11,10 +11,7 @@
  * be used to generate a low-level interface to the screen drivers
  * without dragging in any other GdXXX routines.
  */
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include "device.h"
 
 #if MSDOS | ELKS
@@ -431,8 +428,6 @@ GdGetColorRGB(PSD psd, MWPIXELVAL pixel)
 	case MWPF_PALETTE:
 		return GETPALENTRY(gr_palette, pixel);
 #endif
-	default:
-		assert(FALSE);
 	}
 	return 0;
 }

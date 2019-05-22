@@ -4,7 +4,7 @@
  *
  * DYNAMICREGIONS Device-independent routines to set clipping regions.
  */
-#include <stdio.h>
+#include <stdlib.h>
 #include "device.h"
 
 /* Clip cache rectangle information.

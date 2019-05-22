@@ -9,7 +9,7 @@
  */
 /*#define NDEBUG*/
 #include <assert.h>
-#include <string.h>
+#include <stdlib.h>
 #include "device.h"
 #include "convblit.h"
 #include "fb.h"

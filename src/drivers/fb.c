@@ -9,8 +9,6 @@
  * When a new framebuffer subdriver is written, it should be referenced
  * here in select_fb_driver.
  */
-#include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "device.h"
 #include "genmem.h"

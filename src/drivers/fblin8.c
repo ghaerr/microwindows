@@ -9,13 +9,13 @@
  */
 /*#define NDEBUG*/
 #include <assert.h>
+#include <stdlib.h>
 
 /* We want to do string copying fast, so inline assembly if possible */
 #ifndef __OPTIMIZE__
 #define __OPTIMIZE__
 #endif
 #include <stdlib.h>
-#include <string.h>
 #include "device.h"
 #include "convblit.h"
 #include "fb.h"

@@ -108,6 +108,9 @@ error check gdi structures, check for magic word
 
 FIXME
 
+nuklear main loop uses GrGetNextEventTimeout followed by GrPeekEvent
+	doesn't work in LINK_APP_INTO_SERVER case because GrPeekEvent generates poll and timeout event
+	workaround is to break when GrGetNextEventTimeout returns timeout
 nanowm always selects CHLD_UPDATE
 	temp kluge stops sending updates for windows not owned by event client
 		needs WM_CHLD_UPDATE to fix properly

@@ -47,7 +47,6 @@
 ** Gabriele Brugnoni 2004/12/27 Italy      Implemented UTF8 and internationalizations.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define MWINCLUDECOLORS

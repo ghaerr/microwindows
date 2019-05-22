@@ -9,9 +9,7 @@
 #include "windows.h"
 #include "wintern.h"
 #include "wintools.h"
-#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #define MWM_DEFBARLEN	18		/* default scrollbar length*/
 #define MWM_MINBARLEN	8		/* min scrollbar length*/

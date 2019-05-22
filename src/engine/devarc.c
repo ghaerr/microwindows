@@ -17,7 +17,6 @@
  * Bugfixed by Greg Haerr
  */
 
-#include <stdio.h>
 #include "device.h"
 
 #define NEWARCANGLE	1	/* =1 uses new integer-only GdArcAngle*/

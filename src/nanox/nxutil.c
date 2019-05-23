@@ -12,6 +12,7 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 #include "device.h"
+#include "osdep.h"
 
 /**
  * Create a new buffered window.  Sets properties for
@@ -47,6 +48,18 @@ GrNewWindowEx(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
 	GR_WINDOW_ID wid;
 	GR_WM_PROPERTIES wmprops;
 
+#if MW_FEATURE_RESIZEFRAME
+	static int framechk = 1;
+	if (framechk) {
+		/* remove Nano-X frame and adjust placement to 0,0*/
+		props |= GR_WM_PROPS_NODECORATE;
+		x = y = 0;
+
+		/* resize OS frame to app size*/
+		GdResizeFrameWindow(width, height, title);
+		framechk = 0;
+	}
+#endif
 	/* create window with no borders */
 	wid = GrNewWindow(parent, x, y, width, height, 0, background, BLACK);
 	if (wid) {

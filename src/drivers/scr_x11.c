@@ -20,6 +20,7 @@
 #include "fb.h"
 #include "genmem.h"
 #include "genfont.h"
+#include "osdep.h"
 
 #if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
 /* SCREEN_DEPTH is used only for palette modes*/
@@ -436,6 +437,28 @@ x11_setup_display(void)
 	return 0;
 }
 
+#if MW_FEATURE_RESIZEFRAME
+/* resize X11 frame*/
+void
+GdResizeFrameWindow(int width, int height, const char *title)
+{
+	XSizeHints *sizehints = XAllocSizeHints();
+	if (sizehints != NULL) {
+		sizehints->flags = PMinSize | PMaxSize;
+		sizehints->min_width = width;
+		sizehints->min_height = height;
+		sizehints->max_width = width;
+		sizehints->max_height = height;
+		XSetWMNormalHints(x11_dpy, x11_win, sizehints);
+		XFree(sizehints);
+	}
+	XResizeWindow(x11_dpy, x11_win, width, height);
+	if (title)
+		XStoreName(x11_dpy, x11_win, title);
+	XMapWindow(x11_dpy, x11_win);
+}
+#endif
+
 /* Note: only single screen */
 static PSD
 X11_open(PSD psd)
@@ -533,7 +556,9 @@ X11_open(PSD psd)
 	XDefineCursor(x11_dpy, x11_win, cursor);
 	XStoreName(x11_dpy, x11_win, "Microwindows");
 
+#if !MW_FEATURE_RESIZEFRAME
 	XMapWindow(x11_dpy, x11_win);
+#endif
 	XFlush(x11_dpy);
 
 #if 0

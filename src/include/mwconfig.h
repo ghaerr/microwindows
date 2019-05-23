@@ -34,7 +34,8 @@
 #define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette,*/
 								/* (required for palette alpha blending)*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
-#define TRANSLATE_ESCAPE_SEQUENCES  1		/* =1 to parse fnkeys w/tty driver*/
+#define TRANSLATE_ESCAPE_SEQUENCES  1	/* =1 to parse fnkeys w/tty driver*/
+#define MW_FEATURE_RESIZEFRAME		0	/* =1 to resize OS frame to app, requires LINK_APP_TO_SERVER for nx*/
 
 #ifndef USE_ALLOCA
 #define USE_ALLOCA		1		/* =1 if alloca() is available*/

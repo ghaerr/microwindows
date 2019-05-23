@@ -8,3 +8,4 @@ MWTIMEOUT	GdGetTickCount(void);
 void		GdDelay(MWTIMEOUT msecs);
 void		GdPlatformInit(void);
 void		GdBell(void);
+void		GdResizeFrameWindow(int w, int h, const char *title);

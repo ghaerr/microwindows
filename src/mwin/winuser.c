@@ -408,8 +408,21 @@ CreateWindowEx(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName,
 	static int	nextx = 20;
 	static int	nexty = 20;
 	
-	/* WARNING: All modification made here should be reported 
-	   on MwInitialize for the rootwp window */
+#if MW_FEATURE_RESIZEFRAME
+	static int framechk = 1;
+	if ((dwStyle & WS_OVERLAPPEDWINDOW) && framechk) {
+		/* remove Microwindows frame and adjust placement to 0,0*/
+		dwStyle &= ~WS_OVERLAPPEDWINDOW;
+		dwStyle |= WS_POPUP;
+		x = y = 0;
+
+		/* resize OS frame to app size*/
+		GdResizeFrameWindow(nWidth, nHeight, lpWindowName);
+		framechk = 0;
+	}
+#endif
+	/* WARNING: All modification made here should be repeated 
+	   in MwInitialize for the rootwp window */
 
 	pClass = MwFindClassByName(lpClassName);
 	if(!pClass)

@@ -35,8 +35,8 @@ GR_WINDOW_ID    cachepixmapid;         /* cached pixmap id */
 GR_GC_ID	cachegcid;		/* cached graphics context id */
 GR_WINDOW	*cachewp;		/* cached window pointer */
 GR_GC		*cachegcp;		/* cached graphics context */
-GR_PIXMAP       *cachepp;               /* cached pixmap */
-GR_PIXMAP       *listpp;                /* List of all pixmaps */
+GR_PIXMAP	*cachepp;               /* cached pixmap */
+GR_PIXMAP	*listpp;                /* List of all pixmaps */
 GR_WINDOW	*listwp;		/* list of all windows */
 GR_WINDOW	*rootwp;		/* root window pointer */
 GR_GC		*listgcp;		/* list of all gc */
@@ -62,9 +62,8 @@ char		*progname;		/* Name of this program.. */
 int		current_fd;		/* the fd of the client talking to */
 int		connectcount = 0;	/* number of connections to server */
 GR_CLIENT	*root_client;		/* root entry of the client table */
-GR_CLIENT	*current_client;	/* the client we are currently talking*/
 char		*current_shm_cmds;
-int		current_shm_cmds_size;
+int			current_shm_cmds_size;
 static int	keyb_fd;		/* the keyboard file descriptor */
 static int	mouse_fd;		/* the mouse file descriptor */
 char		*curfunc;		/* the name of the current server func*/

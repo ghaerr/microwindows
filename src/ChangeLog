@@ -1,3 +1,5 @@
+22 May 2019
+	* cleanup nano-X eventclient debug printfs
 21 May 2019
 	* fix nuklear demo in LINK_APP_INTO_SERVER case with GrGetNextEventTimeout/GrPeekEvent issue
 	* fix nuklear application window size off-by-one

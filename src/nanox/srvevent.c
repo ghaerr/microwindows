@@ -98,22 +98,12 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	/*
 	 * Add the event to the end of the event list.
 	 */
-#if 0
-	if (client->eventhead)
-	  if (!client->eventtail)
-	    client->eventtail = elp;
-	  else
-	    client->eventtail->next = elp;
-	else
-	  client->eventhead = elp;
-#endif
-
-	if (!client->eventhead)					// FIXME
+	if (!client->eventhead)
 	  client->eventhead = elp;
 	if (client->eventtail)
 		client->eventtail->next = elp;
-
 	client->eventtail = elp;
+
 	elp->next = NULL;
 	elp->event.type = GR_EVENT_TYPE_NONE;
 
@@ -723,9 +713,9 @@ update_again:
 #if NANOWM
 		/* Ensure we're processing root child update map event for window owner*/
 		if (lcount && wp->id == GR_ROOT_WINDOW_ID && utype == GR_UPDATE_MAP) {
-			DPRINTF("wid %d subwid %d  %d,%d\n", wp->id, id, orgwp->owner->id, ecp->client->id);
+			/*DPRINTF("wid %d subwid %d  %d,%d\n", wp->id, id, orgwp->owner->id, ecp->client->id);*/
 			if (orgwp->owner->id != ecp->client->id) {
-				DPRINTF("SKIP CHLD MAP %d: %d %d\n", id, orgwp->owner->id, ecp->client->id);
+				/*DPRINTF("SKIP CHLD MAP %d: %d %d\n", id, orgwp->owner->id, ecp->client->id);*/
 				continue;
 			}
 		}

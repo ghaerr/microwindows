@@ -1930,7 +1930,6 @@ DPRINTF( "  Destroy window %d eventclient mask %08x\n", wp->id, ecp->eventmask);
 					wp->eventclients = ecp->next;
 				else
 					pecp->next = ecp->next;
-DPRINTF("FREE 2 %lx\n", (long)ecp);		// FIXME
 				free(ecp);
 			} else
 				pecp = ecp;
@@ -2018,8 +2017,7 @@ DPRINTF("  Destroy event %d\n", evp->event.type);
 		eventfree = evp;
 		evp = client->eventhead;
 	}
-//client->eventtail = NULL;
-DPRINTF("EXIT GsDestroyClientResources\n");		// FIXME
+	client->eventtail = NULL;
 }
 
 /*
@@ -2028,6 +2026,7 @@ DPRINTF("EXIT GsDestroyClientResources\n");		// FIXME
 static void
 GsPrintResources(void)
 {
+	GR_CLIENT *cp;
 	GR_WINDOW *wp;
 	GR_PIXMAP *pp;
 	GR_GC *gp;
@@ -2037,29 +2036,34 @@ GsPrintResources(void)
 	GR_TIMER *tp;
 #endif
 
+	/* client list*/
+	DPRINTF("Client list: ");
+	for(cp=root_client; cp; cp=cp->next) {
+		DPRINTF("%d,", cp->id);
+	}
 	/* window list*/
-	DPRINTF("Window list:\n");
+	DPRINTF("\nWindow list: ");
 	for(wp=listwp; wp; wp=wp->next) {
 		DPRINTF("%d(%d),", wp->id, wp->owner? wp->owner->id: 0);
 	}
-	DPRINTF("\nPixmap list:\n");
+	DPRINTF("\nPixmap list: ");
 	for(pp=listpp; pp; pp=pp->next) {
 		DPRINTF("%d(%d),", pp->id, pp->owner->id);
 	}
-	DPRINTF("\nGC list:\n");
+	DPRINTF("\nGC list: ");
 	for(gp=listgcp; gp; gp=gp->next) {
 		DPRINTF("%d(%d),", gp->id, gp->owner->id);
 	}
-	DPRINTF("\nFont list:\n");
+	DPRINTF("\nFont list: ");
 	for(fp=listfontp; fp; fp=fp->next) {
 		DPRINTF("%d(%d),", fp->id, fp->owner->id);
 	}
-	DPRINTF("\nRegion list:\n");
+	DPRINTF("\nRegion list: ");
 	for(rp=listregionp; rp; rp=rp->next) {
 		DPRINTF("%d(%d),", rp->id, rp->owner->id);
 	}
 #if MW_FEATURE_TIMERS
-	DPRINTF("\nTimer list:\n");
+	DPRINTF("\nTimer list: ");
 	for(tp=list_timer; tp; tp=tp->next) {
 		DPRINTF("%d(%d),", tp->id, tp->owner->id);
 	}
@@ -2095,13 +2099,15 @@ GsDropClient(int fd)
 			shmdt(client->shm_cmds);
 		}
 #endif
-GsPrintResources();
-DPRINTF("WOULD HAVE FREED %lx\n", (long)client);				// FIXME
-//		free(client);	/* Free the structure */		// fixes NANOWM bug FIXME where is it freed?
+		GsPrintResources();
+
+		if (curclient == client)
+			curclient = root_client;
+		free(client);	/* Free the structure */
 
 		clipwp = NULL;	/* reset clip window*/
 		--connectcount;
-	} else EPRINTF("nano-X: trying to drop non-existent client %d.\n", fd);
+	} /*else DPRINTF("nano-X: trying to drop non-existent client %d.\n", fd);*/
 }
 
 /*
@@ -2109,11 +2115,7 @@ DPRINTF("WOULD HAVE FREED %lx\n", (long)client);				// FIXME
  * returns 0 for both error conditions and no data.
  */
 int
-#if ELKS
-GsRead(int fd, char *buf, int c)
-#else
 GsRead(int fd, void *buf, int c)
-#endif
 {
 	int e, n;
 
@@ -2124,8 +2126,7 @@ GsRead(int fd, void *buf, int c)
 		if(e <= 0) {
 			if (e == 0)
 				EPRINTF("nano-X: client closed socket: %d\n", fd);
-			else EPRINTF("nano-X: GsRead failed %d %d: %d\r\n",
-			       e, n, errno);
+			else EPRINTF("nano-X: GsRead failed %d %d: %d\r\n", e, n, errno);
 			GsClose(fd);
 			return -1;
 		}
@@ -2147,6 +2148,7 @@ int GsWrite(int fd, void *buf, int c)
 	while(n < c) {
 		e = write(fd, ((char *) buf + n), (c - n));
 		if(e <= 0) {
+			/*DPRINTF("nano-X: GsWrite failed %d\n", fd);*/
 			GsClose(fd);
 			return -1;
 		}

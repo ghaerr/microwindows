@@ -1,3 +1,5 @@
+23 May 2019
+	* fix runapp when mwin only, reverse colors in demo-aafont/demo-ttfont when NUKLEAR look
 22 May 2019
 	* fix small compiler-caught bugfixes in StretchBlt client coord conversion, MwPrepareDC clipregion bound 0,0
 	* cleanup nano-X eventclient debug printfs

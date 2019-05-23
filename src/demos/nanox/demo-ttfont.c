@@ -103,7 +103,7 @@ char *fontlist[] = {
 
 GR_WINDOW_ID	w;
 GR_BOOL		aa = GR_TRUE;
-GR_BOOL		flipcolors = 0;
+GR_BOOL		flipcolors = 1;
 int			entry = 0;
 
 static void
@@ -160,8 +160,13 @@ main(int ac, char **av)
 	if (ac > 1)
 		fontlist[0] = av[1];
 
-	if (GrOpen() < 0)
+	if (GrOpen() < 0) {
+		GrError("cannot open graphics\n");
 		return 1;
+	}
+#if defined(NUKLEAR) && !NUKLEAR
+	flipcolors = 0;
+#endif
 
 	w = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "",
 		GR_ROOT_WINDOW_ID, 10, 10, 640, 530, BGCOLOR);

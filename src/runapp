@@ -48,8 +48,7 @@ then topdir="$scriptdir/../.."
 elif [ -x "$scriptdir/../../../bin/nano-X" ]
 then topdir="$scriptdir/../../.."
 else
-  echo "$scriptname: could not locate the Microwindows build tree"
-  exit 1
+  topdir="."
 fi
 
 topdir=`cd "$topdir" && pwd`
@@ -65,14 +64,6 @@ case "$1" in
 esac
 
 progname=$1
-
-# find nano-X server
-if [ -x "$bindir/nano-X" ]
-then NANOXSERVER="$bindir/nano-X"
-else
-  echo "$scriptname: could not find nano-X server in $bindir"
-  exit 1
-fi
 
 # now find application specified
 if [ "$progname" = "" ]
@@ -137,6 +128,7 @@ else
   export LD_LIBRARY_PATH
 fi
 
+NANOXSERVER="$bindir/nano-X"
 #echo $need_server $NANOXSERVER $application libs=$DYLD_LIBRARY_PATH libs=$LD_LIBRARY_PATH
 
 # now check if nano-X server needs to be run, and exec application
@@ -144,6 +136,13 @@ shift
 server_running=`ps | grep nano-X | sed '/grep/d'`
 if [ "$need_server" = "YES" ] && [ "$server_running" = "" ]
 then
+  # find nano-X server
+  if [ -x "$bindir/nano-X" ]
+  then NANOXSERVER="$bindir/nano-X"
+  else
+    echo "$scriptname: could not find nano-X server in $bindir"
+    exit 1
+  fi
 	$NANOXSERVER $serverargs & exec $application $@
 else
 	exec $application $@

@@ -96,7 +96,7 @@ GR_BOOL aa = 1;
 GR_BOOL kerning = 0;
 GR_BOOL bold = 0;
 GR_BOOL underline = 0;
-GR_BOOL flipcolors = 0;
+GR_BOOL flipcolors = 1;
 int angle = 0;
 int state = GR_TFBOTTOM;
 int entry = 0;
@@ -113,6 +113,9 @@ main(int argc, char **argv)
 	GrError("cannot open graphics\n");
 	return 1;
   }
+#if defined(NUKLEAR) && !NUKLEAR
+  flipcolors = 0;
+#endif
 
   window = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, "Antialias Fonts Demo",
   	GR_ROOT_WINDOW_ID, 50,50, MAXW,MAXH, WHITE);

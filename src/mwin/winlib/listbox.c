@@ -610,7 +610,6 @@ lstOnDrawSListBoxItems(HWND hwnd, HDC hdc, DWORD dwStyle,
 	PLISTBOXITEM plbi;
 	int i;
 	int x = 0, y = 0;
-	int offset;
 	RECT rc;
 	COLORREF bk;
 	int width;
@@ -663,13 +662,13 @@ lstOnDrawSListBoxItems(HWND hwnd, HDC hdc, DWORD dwStyle,
 
 			if (dwStyle & LBS_CHECKBOX) {
 				x = LST_INTER_BMPTEXT;
+#if 0				/* fix: no bitmap */
 				if (plbi->dwFlags & LBIF_CHECKED)
 					offset = 0;
 				else if (plbi->dwFlags & LBIF_PARTCHECKED)
 					offset = LST_WIDTH_CHECKMARK << 1;
 				else
 					offset = LST_WIDTH_CHECKMARK;
-#if 0				/* fix: no bitmap */
 				FillBoxWithBitmapPart(hdc, x, y +
 						      ((itemHeight - LST_HEIGHT_CHECKMARK) >> 1),
 						      LST_WIDTH_CHECKMARK,

@@ -400,16 +400,14 @@ MwPrepareDC(HDC hdc)
 			if (hdc->region != NULL && hdc->region->rgn != NULL
 			    && hdc->region->rgn->size != 0) {
 				LPRECT rptr = &(hdc->region->rgn->extents);
-				MWCOORD left, top;
 
 				/* Bound left,top to 0,0 if they are negative
 				 * to avoid an assertion later.
 				 */
-				left = (rptr->left <= 0) ? 0 : rptr->left;
-				top = (rptr->top <= 0) ? 0 : rptr->top;
+				MWCOORD left = (rptr->left <= 0) ? 0 : rptr->left;
+				MWCOORD top = (rptr->top <= 0) ? 0 : rptr->top;
 				GdSetClipRegion(hdc->psd,
-					GdAllocRectRegion(rptr->left, rptr->top,
-						rptr->right, rptr->bottom));
+					GdAllocRectRegion(left, top, rptr->right, rptr->bottom));
 			} else {
 				GdSetClipRegion(hdc->psd,
 					GdAllocRectRegion(0, 0,
@@ -1138,7 +1136,7 @@ MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 	int x, y, baseline, baselinefnt;
 	int dx, dy;
 	int nlines = 0;
-	int tabsize = 8;
+	//int tabsize = 8;
 	int rtotal = 0;
 	HPEN hPen = 0;
 	TEXTMETRIC TextMetrics;
@@ -1148,7 +1146,7 @@ MwDrawText(HDC hDC, LPCVOID lpsz, int cb, LPRECT lprc, UINT uFormat, int flags)
 		return 0;
 
 	if (uFormat & DT_TABSTOP) {
-		tabsize = uFormat >> 8;		/* FIXME: not used*/
+		//tabsize = uFormat >> 8;		/* FIXME: not used*/
 		uFormat &= 0xff;
 	}
 
@@ -1920,10 +1918,11 @@ StretchBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest, int nWidthDest,
 
 	/* set dest clipping; if dst screen DC, convert coords*/
 	hwnd = MwPrepareDC(hdcDest);
-	if(!MwIsMemDC(hdcDest) && MwIsClientDC(hdcDest))
+	if(!MwIsMemDC(hdcDest) && MwIsClientDC(hdcDest)) {
 		if (!hwnd)
 			return FALSE;
 		ClientToScreen(hwnd, &dst);
+	}
 
 	if (nWidthDest == nWidthSrc && nHeightDest == nHeightSrc) {
 		GdBlit(hdcDest->psd, dst.x, dst.y, nWidthDest, nHeightDest,

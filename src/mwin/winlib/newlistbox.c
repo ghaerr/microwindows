@@ -770,8 +770,8 @@ static BOOL LISTBOX_SetTabStops( HWND hwnd, LB_DESCR *descr, INT count,
         return TRUE;
     }
     /* FIXME: count = 1 */
-    if (!(descr->tabs = (INT *)malloc(descr->nb_tabs * sizeof(INT) )))
-        return FALSE;
+	if (!(descr->tabs = (INT *)malloc(descr->nb_tabs * sizeof(INT) )))
+		return FALSE;
 	for (i = 0; i < descr->nb_tabs; i++) {
 		rc.right = tabs[i];
 		MapDialogRect(GetParent(hwnd), &rc);

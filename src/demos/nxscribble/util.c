@@ -33,6 +33,8 @@ static char err_msg[BUFSIZ];
 
 char *
 myalloc(nitems, itemsize, typename)
+int nitems;
+int itemsize;
 char *typename;
 {
 	register unsigned int bytes = nitems * itemsize;

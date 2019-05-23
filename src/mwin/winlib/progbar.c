@@ -119,7 +119,7 @@ static void pbarOnDraw (HWND hwnd, HDC hdc, PROGRESSDATA* pData, BOOL fVertical,
     int     x, y, w, h;
     unsigned int     nAllPart;
     unsigned int     nNowPart;
-    int     whOne, nRem;
+    int     whOne;
     int     ix, iy;
     int     i;
     int     step;
@@ -147,10 +147,10 @@ static void pbarOnDraw (HWND hwnd, HDC hdc, PROGRESSDATA* pData, BOOL fVertical,
     nNowPart = (pData->nPos - pData->nMin) / step;
     if (fVertical) {
         whOne = h / nAllPart;
-        nRem = h % nAllPart;
+        //nRem = h % nAllPart;
     } else {
         whOne = w / nAllPart;
-        nRem = w % nAllPart;
+        //nRem = w % nAllPart;
     }
         
     if (fErase)

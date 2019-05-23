@@ -185,7 +185,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 #endif
     COMBOBOX *lp = (COMBOBOX *) NULL;
     LRESULT rc;
-    POINT   cp, cpScreen, pp;
+    POINT   cp, cpScreen;
     UINT    uiKey;
     LPCREATESTRUCT lpcs;
 #if 1                           /* jmt: fix: no WM_WINDOWPOSCHANGING */
@@ -946,8 +946,7 @@ DefComboboxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_MOVE:              /* WM_WINDOWPOSCHANGING: */
 #if 0
-        lpwp = (LPWINDOWPOS) lParam;
-#else
+        //lpwp = (LPWINDOWPOS) lParam;
         pp.x = LOWORD(lParam);
         pp.y = HIWORD(lParam);
 #endif

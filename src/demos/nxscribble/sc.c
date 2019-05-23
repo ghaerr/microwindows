@@ -231,14 +231,16 @@ register sClassifier sc;
 }
 
 sClassDope
-sClassify(sc, fv) {
+sClassify(sc, fv)
+sClassifier sc;
+Vector fv;
+{
 	return sClassifyAD(sc, fv, NULL, NULL);
 }
 
 sClassDope
 sClassifyAD(sc, fv, ap, dp)
 sClassifier sc;
-Vector fv;
 double *ap;
 double *dp;
 {
@@ -490,6 +492,7 @@ FILE *infile;
 void
 sDistances(sc, nclosest)
 register sClassifier sc;
+int nclosest;
 {
 	register Matrix d = NewMatrix(sc->nclasses, sc->nclasses);
 	register int i, j;

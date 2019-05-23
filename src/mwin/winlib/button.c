@@ -471,7 +471,6 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	COLORREF	hOldColor;
 	PAINTSTRUCT	ps;
 	char		buf[256];
-	int			txtlen;
 	int			n;
 #define uiWidthFrame	0
 #define uiWidthShadow	2
@@ -480,7 +479,7 @@ DrawPushButton(HWND hwnd,HDC hDCwParam,UINT wEnumState,DWORD dwStyle)
 	if(!hdc)
 		goto Return;
 
-	txtlen = GetWindowText(hwnd, buf, sizeof(buf));
+	GetWindowText(hwnd, buf, sizeof(buf));
 	GetClientRect( hwnd, &rectClient );
 	uiWidth	= rectClient.right - rectClient.left;
 	uiHeight = rectClient.bottom - rectClient.top;
@@ -995,14 +994,13 @@ DrawGroupBox(HWND hwnd,HDC hDCwParam,DWORD dwStyle)
 	char		buf[256];
 	HPEN		hPenTop, hPenBottom, holdPen;
 	COLORREF 	crTop,crBottom;
-	int			txtlen;
 
 
 	hdc = BeginPaint(hwnd, &ps);
 	if(!hdc)
 		goto Return;
 
-	txtlen = GetWindowText(hwnd, buf, sizeof(buf));
+	GetWindowText(hwnd, buf, sizeof(buf));
 	GetClientRect( hwnd, &rcClient );
 
 	hFont = GET_WND_FONT ( hwnd );

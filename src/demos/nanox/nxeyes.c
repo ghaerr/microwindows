@@ -238,7 +238,6 @@ void calculate_pupil_position(GR_COORD window_x, GR_COORD window_y,
 
 void draw_eyes(nxeyes_state *state, int full_redraw)
 {
-	GR_COORD x, y;
 	GR_BITMAP *bits;
 
 	if(full_redraw) {
@@ -252,15 +251,11 @@ void draw_eyes(nxeyes_state *state, int full_redraw)
 	}
 
 	if(state->mouse_moved) {
-		x = EYEFG_WIDTH / 2;
-		y = EYEFG_HEIGHT / 2;
 		calculate_pupil_position(state->oldx, state->oldy,
-			(EYEFG_WIDTH / 2),
-			(EYEFG_HEIGHT / 2), state->mousex,
-			state->mousey, &state->lx, &state->ly);
+			(EYEFG_WIDTH / 2), (EYEFG_HEIGHT / 2),
+			state->mousex, state->mousey, &state->lx, &state->ly);
 		calculate_pupil_position(state->oldx, state->oldy,
-			(EYEFG_WIDTH / 2) + EYEFG_WIDTH
-			+ EYE_SPACING, (EYEFG_WIDTH / 2),
+			(EYEFG_WIDTH / 2) + EYEFG_WIDTH + EYE_SPACING, (EYEFG_WIDTH / 2),
 			state->mousex, state->mousey, &state->rx, &state->ry);
 	}
 

@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                           CW_USEDEFAULT, CW_USEDEFAULT, width, height,
                           NULL, NULL, NULL, NULL);
 
-	hlist = CreateWindowEx(0L, "LISTBOX", "OK",			       
+	CreateWindowEx(0L, "LISTBOX", "OK",
 		WS_VSCROLL|
 		//WS_HSCROLL|
 		WS_BORDER|

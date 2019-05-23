@@ -71,11 +71,10 @@ wndGetBorder(HWND hwnd)
 static BOOL
 wndGetVScrollbarRect (HWND hwnd, RECT* rcVBar)
 {
-	int cx,cy; RECT rc;
+	int cx; RECT rc;
 
 	rc = hwnd->winrect;
 	cx=rc.right-rc.left;
-	cy=rc.bottom-rc.top;
 
 	rcVBar->left = hwnd->winrect.right - cx - wndGetBorder (hwnd);
 	rcVBar->right = hwnd->winrect.right - wndGetBorder (hwnd);
@@ -88,18 +87,17 @@ wndGetVScrollbarRect (HWND hwnd, RECT* rcVBar)
 static BOOL
 wndGetHScrollbarRect (HWND hwnd, RECT* rcHBar)
 {
-	int cx,cy; RECT rc;
+	int cy; RECT rc;
 
 	rc = hwnd->winrect;
-	cx=rc.right-rc.left;
 	cy=rc.bottom-rc.top;
 
-        rcHBar->top = hwnd->winrect.bottom - cy - wndGetBorder (hwnd);
-        rcHBar->bottom = hwnd->winrect.bottom - wndGetBorder (hwnd);
-        rcHBar->left  = hwnd->winrect.left;
-        rcHBar->right = hwnd->winrect.right - wndGetBorder (hwnd);
+	rcHBar->top = hwnd->winrect.bottom - cy - wndGetBorder (hwnd);
+	rcHBar->bottom = hwnd->winrect.bottom - wndGetBorder (hwnd);
+	rcHBar->left  = hwnd->winrect.left;
+	rcHBar->right = hwnd->winrect.right - wndGetBorder (hwnd);
 
-        return TRUE;
+	return TRUE;
 }
 
 static void
@@ -920,17 +918,16 @@ ShowScrollBarEx (HWND hWnd, int iSBar, BOOL bShow)	/* jmt: iSBar not used */
         wndGetHScrollbarRect (pWin, &rcBar);
 
     {
-        RECT rcWin, rcClient;
+        RECT rcWin;
         
         memcpy (&rcWin, &pWin->winrect.left, sizeof (RECT));
         
+#if 0	/* fix: no WM_SIZECHANGED */
         rcClient.left = 0;
         rcClient.top  = 0;
         rcClient.right = pWin->clirect.right - pWin->clirect.left;
         rcClient.bottom = pWin->clirect.bottom - pWin->clirect.top;
-#if 0	/* fix: no WM_SIZECHANGED */
-        SendMessage (hWnd, WM_SIZECHANGED, 
-            (WPARAM)&rcWin, (LPARAM)&rcClient);
+        SendMessage (hWnd, WM_SIZECHANGED, (WPARAM)&rcWin, (LPARAM)&rcClient);
 #endif
     }
     

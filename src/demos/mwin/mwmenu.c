@@ -72,7 +72,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	int width, height;
 	int i;
 	RECT r;
-        HWND hlist;
 
 	GetWindowRect(GetDesktopWindow(), &r);
 	width = height = r.right / 2;
@@ -117,24 +116,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		hwnd, NULL, NULL, NULL);
 	
 	/* create unvisible listboxes */
-	hlist = CreateWindowEx(0L, "LISTBOX", "OK",	
-		//WS_BORDER | 
-		//WS_VISIBLE | 
+	CreateWindowEx(0L, "LISTBOX", "OK",	
 		WS_CHILD | LBS_NOTIFY, 1, 1+menuheight, 100, 84, //need 14 for one entry
 		hwnd, (HMENU)ID_LIST1, NULL, NULL);
-	hlist = CreateWindowEx(0L, "LISTBOX", "OK",	
-		//WS_BORDER|
-		//WS_VISIBLE |
+	CreateWindowEx(0L, "LISTBOX", "OK",	
 		WS_CHILD | LBS_NOTIFY, 50, 1+menuheight, 100, 42,
 		hwnd, (HMENU)ID_LIST2, NULL, NULL);
-	hlist = CreateWindowEx(0L, "LISTBOX", "OK",	
-		//WS_BORDER|
-		//WS_VISIBLE |
+	CreateWindowEx(0L, "LISTBOX", "OK",	
 		WS_CHILD | LBS_NOTIFY, 100, 1+menuheight, 100, 28,
 		hwnd, (HMENU)ID_LIST3, NULL, NULL);
-	hlist = CreateWindowEx(0L, "LISTBOX", "OK",	
-		//WS_BORDER|
-		//WS_VISIBLE |
+	CreateWindowEx(0L, "LISTBOX", "OK",	
 		WS_CHILD | LBS_NOTIFY, 300, 250, 100, 28,
 		hwnd, (HMENU)ID_LIST4, NULL, NULL);
 
@@ -159,7 +150,6 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         HDC hdc;
 	int sel;
         PAINTSTRUCT ps;
-        //RECT rect;
 	static POINT	mousept;
 	POINT pt;
 	HWND hctrl;
@@ -243,7 +233,6 @@ LRESULT CALLBACK wproc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		mousept.y = pt.y;
 		//printf("Right button down at:%d,%d\n",mousept.x,mousept.y);
 		hctrl = GetDlgItem(hwnd,ID_LIST4);
-		//GetWindowRect(hctrl, &rect);
 		MoveWindow(hctrl, mousept.x,mousept.y, 100, 28, 1);
 		ShowWindow(GetDlgItem(hwnd, ID_LIST4), SW_NORMAL);
 		SendDlgItemMessage (hwnd, ID_LIST4, LB_SETCURSEL, 0, 0 );

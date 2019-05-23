@@ -630,16 +630,16 @@ nk_nxfont_get_text_width(nk_handle handle, float height, const char *text, int l
     if(!font || !text)
         return 0;
 
-	GrGetGCTextSize(font->gc, (void *)text, len, 0, &w, &h, &b);
-	return (float)w;
+    GrGetGCTextSize(font->gc, (void *)text, len, 0, &w, &h, &b);
+    return (float)w;
 }
 
 NK_API void
 nk_nxfont_del(NXFont *font)
 {
     if(!font) return;
-	GrDestroyFont(font->fontid);
-	GrDestroyGC(font->gc);
+    GrDestroyFont(font->fontid);
+    GrDestroyGC(font->gc);
     free(font);
 }
 

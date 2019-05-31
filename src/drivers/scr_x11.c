@@ -597,7 +597,6 @@ X11_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 
 	psi->xdpcm = (DisplayWidth(x11_dpy, x11_scr) * 10) / DisplayWidthMM(x11_dpy, x11_scr);
 	psi->ydpcm = (DisplayHeight(x11_dpy, x11_scr) * 10) / DisplayHeightMM(x11_dpy, x11_scr);
-	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
 }
 
 static void

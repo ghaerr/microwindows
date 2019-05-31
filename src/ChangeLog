@@ -1,3 +1,11 @@
+31 May 2019
+	* add client memory-mapped window buffers for AGG 2.6, use with GrNewBufferedWindow & GrOpenClientFramebuffer
+	* GrOpenClientFramebuffer works with all systems, allows mmap of window buffer, framebuffer or FBE
+		GR_WM_PROPS_BUFFER_MMAP - direct mmap shared access to window buffer from Nano-X client
+		GR_WM_PROPS_BUFFER_RGBA - buffer format is MWIF_RGBA8888
+		GR_WM_PROPS_BUFFER_BGRA - buffer format is MWIF_BGRA8888
+		GR_WM_PROPS_BUFFER_MWPF - buffer format is same as MWPF_ pixel format from config
+	* remove Linux dependencies from scr_fb.c, can be used as FBE driver by setting FRAMEBUFFER=/tmp/fb0 in env
 23 May 2019
 	* add MW_FEATURE_RESIZEFRAME, allows running standalone win32 or Nano-X apps with resized OS frame to app
 		requires LINK_APP_INTO_SERVER for Nano-X, set in include/mwconfig.h. Implemented on X11 only for now.

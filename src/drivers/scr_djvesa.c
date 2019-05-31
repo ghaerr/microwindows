@@ -247,8 +247,6 @@ vesa_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 {
 	gen_getscreeninfo(psd, psi);
 
-	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
-
 	if(scrdev.yvirtres > 800) {
 		/* SVGA 1400x1050*/
 		psi->xdpcm = 58;	/* assumes screen width of 24 cm*/

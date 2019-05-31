@@ -1298,7 +1298,8 @@ main(int argc, char **argv)
 		close(fd);
 	} else {
 		char *	p;
-		int 	size = ((CRTY * PITCH) + 4095) & ~4095;		/* extend to page boundary*/
+		int		extra = getpagesize() - 1;
+		int 	size = ((CRTY * PITCH) + extra) & ~extra;		/* extend to page boundary*/
 		if ((fd = open(MW_PATH_FBE_FRAMEBUFFER, O_CREAT | O_WRONLY, 0666)) < 0) {
 			fprintf(stderr, PROGNAME ": Can't create %s\n", MW_PATH_FBE_FRAMEBUFFER);
 			exit(1);

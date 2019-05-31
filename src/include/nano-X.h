@@ -29,7 +29,6 @@ typedef MWKEY	 	GR_KEY;		/* keystroke value */
 typedef MWSCANCODE	GR_SCANCODE;	/* oem keystroke scancode value */
 typedef MWKEYMOD	GR_KEYMOD;	/* keystroke modifiers */
 typedef MWSCREENINFO	GR_SCREEN_INFO;	/* screen information */
-typedef MWWINDOWFBINFO	GR_WINDOW_FB_INFO; /* direct client-mapped window info */
 typedef MWFONTINFO	GR_FONT_INFO;	/* font information */
 typedef MWIMAGEINFO	GR_IMAGE_INFO;	/* image information */
 typedef MWIMAGEHDR	GR_IMAGE_HDR;	/* multicolor image representation */
@@ -187,15 +186,19 @@ typedef struct {
 
 /* Window properties*/
 #define GR_WM_PROPS_NOBACKGROUND 0x00000001L /* Don't draw window background*/
-#define GR_WM_PROPS_NOFOCUS	 	 0x00000002L /* Don't set focus to this window*/
-#define GR_WM_PROPS_NOMOVE	 	 0x00000004L /* Don't let user move window*/
-#define GR_WM_PROPS_NORAISE	 	 0x00000008L /* Don't let user raise window*/
+#define GR_WM_PROPS_NOFOCUS	 0x00000002L /* Don't set focus to this window*/
+#define GR_WM_PROPS_NOMOVE	 0x00000004L /* Don't let user move window*/
+#define GR_WM_PROPS_NORAISE	 0x00000008L /* Don't let user raise window*/
 #define GR_WM_PROPS_NODECORATE	 0x00000010L /* Don't redecorate window*/
 #define GR_WM_PROPS_NOAUTOMOVE	 0x00000020L /* Don't move window on 1st map*/
 #define GR_WM_PROPS_NOAUTORESIZE 0x00000040L /* Don't resize window on 1st map*/
 #define GR_WM_PROPS_NORESIZE	 0x00000080L /* Don't let user resize window*/
 #define GR_WM_PROPS_BUFFERED	 0x00000100L /* Buffered window - no expose events*/
-#define GR_WM_PROPS_DRAWING_DONE 0x00000200L /* Buffer valid for output (internal flag)*/
+#define GR_WM_PROPS_BUFFER_MMAP	 0x00000200L /* Memory map window buffer for direct client access*/
+#define GR_WM_PROPS_BUFFER_RGBA	 0x00000000L /* Set window buffer pixtype to MWIF_RGBA8888 (default)*/
+#define GR_WM_PROPS_BUFFER_BGRA	 0x00000400L /* Set window buffer pixtype to MWIF_BGRA8888*/
+#define GR_WM_PROPS_BUFFER_MWPF	 0x00000800L /* Set window buffer pixtype to MWPF_ config value*/
+#define GR_WM_PROPS_DRAWING_DONE 0x00001000L /* Buffer valid for output (internal flag)*/
 
 /* default decoration style*/
 #define GR_WM_PROPS_APPWINDOW	0x00000000L /* Leave appearance to WM*/
@@ -220,7 +223,7 @@ typedef struct {
 typedef struct {
   GR_WM_PROPS flags;		/**< Which properties valid in struct for set*/
   GR_WM_PROPS props;		/**< Window property bits*/
-  char *title;				/**< Window title*/
+  char *title;			/**< Window title*/
   GR_COLOR background;		/**< Window background color*/
   GR_SIZE bordersize;		/**< Window border size*/
   GR_COLOR bordercolor;		/**< Window border color*/
@@ -247,8 +250,27 @@ typedef struct {
   GR_EVENT_MASK eventmask;	/**< current event mask for this client */
   GR_WM_PROPS props;		/**< window properties */
   GR_CURSOR_ID cursor;		/**< cursor id*/
-  uint32_t processid;	/**< process id of owner*/
+  int processid;		/**< process id of owner*/
+  GR_LENGTH bufsize;		/**< mmaped buffer size if GR_WM_PROPS_BUFFER_MMAP*/
 } GR_WINDOW_INFO;
+
+/**
+ * Direct client-mmaped window info
+ */
+typedef struct {
+	unsigned char *	physpixels;	/* address of real framebuffer or window buffer*/
+	unsigned char *	winpixels;	/* address of 0,0 this window in fb (non-portrait only)*/
+	int	pixtype;		/* MWPF_ pixel type*/
+	int	bpp;			/* bits per pixel*/
+	int	bytespp;		/* bytes per pixel*/
+	unsigned int pitch;	/* bytes per scan line for window (=fb pitch)*/
+	GR_COORD x, y;		/* absolute window coordinates*/
+	int	portrait_mode;	/* current portrait mode*/
+	GR_SIZE xres;		/* real framebuffer resolution*/
+	GR_SIZE yres;
+	GR_SIZE xvirtres;	/* virtual framebuffer resolution*/
+	GR_SIZE yvirtres;
+} GR_WINDOW_FB_INFO;
 
 /**
  * Graphics context properties returned by the GrGetGCInfo() call.
@@ -934,8 +956,8 @@ GR_REGION_ID GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y,
 				GR_SIZE width, GR_SIZE height);
 
 /* direct client-side framebuffer mapping routines*/
-unsigned char * GrOpenClientFramebuffer(void);
-void		GrCloseClientFramebuffer(void);
+unsigned char * GrOpenClientFramebuffer(GR_WINDOW_ID wid);
+void		GrCloseClientFramebuffer(GR_WINDOW_ID wid);
 void		GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo);
 
 /* DEPRECATED*/
@@ -1075,3 +1097,4 @@ extern int     ecos_nanox_client_data_index;
 #endif
 
 #endif /* _NANO_X_H*/
+/* vim: set ts=8: */

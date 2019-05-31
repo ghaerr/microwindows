@@ -113,11 +113,7 @@ endif
 
 # screenshot
 ifeq ($(HAVE_JPEG_SUPPORT), Y)
-  ifeq ($(FRAMEBUFFER), Y)
-    ifneq ($(LINK_APP_INTO_SERVER), Y)
-      TARGETS += $(MW_DIR_BIN)/screenshot-jpg
-    endif
-  endif
+  TARGETS += $(MW_DIR_BIN)/screenshot-jpg
 endif
 
 #

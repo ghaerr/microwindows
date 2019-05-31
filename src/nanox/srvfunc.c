@@ -174,6 +174,7 @@ GrGetWindowInfo(GR_WINDOW_ID wid, GR_WINDOW_INFO *infoptr)
 		infoptr->cursor = wp->cursorid;
 		infoptr->processid = wp->owner? wp->owner->processid: 0;
 		infoptr->eventmask = 0;
+		infoptr->bufsize = wp->buffer? wp->buffer->psd->size: 0;
 
 		for (evp = wp->eventclients; evp; evp = evp->next) {
 			if (evp->client == curclient)
@@ -3431,8 +3432,7 @@ GrSetWMProperties(GR_WINDOW_ID wid, GR_WM_PROPERTIES *props)
 	else /* check if window buffer property just unset*/
 		if ((oldprops & GR_WM_PROPS_BUFFERED) && !(wp->props & GR_WM_PROPS_BUFFERED)) {
 			wp->props &= ~GR_WM_PROPS_DRAWING_DONE;
-			GsDestroyPixmap(wp->buffer);
-			wp->buffer = NULL;
+			GsFreeWindowBuffer(wp);
 		}
 
 	/* Set window title*/

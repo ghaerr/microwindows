@@ -151,8 +151,6 @@ DJGR_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 {
 	gen_getscreeninfo(psd, psi);
 
-	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
-
 	if(scrdev.yvirtres > 600) {
 		/* SVGA 1024x768*/
 		psi->xdpcm = 42;	/* assumes screen width of 24 cm*/

@@ -27,9 +27,6 @@
 #include <sys/mman.h>
 #endif
 
-/* path to framebuffer emulator's framebuffer memory file for mmap()*/
-#define PATH_FRAMEBUFFER "/tmp/fb0"
-
 #if !defined(SCREEN_DEPTH) && (MWPIXEL_FORMAT == MWPF_PALETTE)
 /* SCREEN_DEPTH is used only for palette modes*/
 #error SCREEN_DEPTH not defined - must be set for palette modes
@@ -71,13 +68,13 @@ fbe_open(PSD psd)
 	if (!gen_initpsd(psd, MWPIXEL_FORMAT, SCREEN_WIDTH, SCREEN_HEIGHT, flags))
 		return NULL;
 
+#if TESTDRIVER
 	/* set to copy aggregate screen update region in Update()*/
 	psd->flags |= PSF_DELAYUPDATE;
 
 	/* set if screen driver subsystem requires polling and select()*/
 	psd->flags |= PSF_CANTBLOCK;
 
-#if TESTDRIVER
 	/*
 	 * Allocate framebuffer
 	 * psd->size is calculated by subdriver init
@@ -93,7 +90,8 @@ fbe_open(PSD psd)
 	if (fb >= 0)
 	{
 		/* mmap framebuffer into this address space*/
-		psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
+		int extra = getpagesize() - 1;
+		psd->size = (psd->size + extra) & ~extra;	/* extend to page boundary*/
 		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE, MAP_SHARED, fb, 0);
 		if (psd->addr == NULL || psd->addr == (unsigned char *)-1)
 		{

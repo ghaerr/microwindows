@@ -20,11 +20,17 @@
 extern "C" {
 #endif
 
+/* paths for framebuffer driver*/
+#define MW_PATH_FRAMEBUFFER			"/dev/fb0"					/* real framebuffer*/
+
 /* paths for framebuffer emulator drivers*/
 #define MW_PATH_FBE_FRAMEBUFFER		"/tmp/fbe-framebuffer"		/* framebuffer memory file for mmap()*/
 #define MW_PATH_FBE_COLORMAP		"/tmp/fbe-cmap"				/* framebuffer colormap for mmap()*/
 #define MW_PATH_FBE_MOUSE			"/tmp/fbe-mouse"			/* mouse fifo*/
 #define MW_PATH_FBE_KEYBOARD		"/tmp/fbe-keyboard"			/* keyboard fifo*/
+
+/* path for GR_WM_PROPS_BUFFER_MMAP mmap'd window*/
+#define MW_PATH_BUFFER_MMAP			"/tmp/.nano-fb%d"			/* window buffer file for mmap, %d=window id*/
 
 typedef void (*MWBLITFUNC)(PSD, PMWBLITPARMS);		/* proto for blitter functions*/
 
@@ -122,7 +128,7 @@ typedef struct _mwscreendevice {
 #define	PSF_SCREEN			0x0001	/* screen device*/
 #define PSF_MEMORY			0x0002	/* memory device*/
 #define PSF_ADDRMALLOC		0x0010	/* psd->addr was malloc'd*/
-#define PSF_ADDRSHAREDMEM	0x0020	/* psd->addr is shared memory*/
+#define PSF_ADDRMMAP		0x0020	/* psd->addr is mmap'd shared memory*/
 #define PSF_IMAGEHDR		0x0040	/* psd is actually MWIMAGEHDR*/
 #define PSF_DELAYUPDATE		0x0080	/* for X11&SDL, delay Update() blits until PreSelect()*/
 #define PSF_CANTBLOCK		0x0100	/* never block in select() as backend requires polling*/

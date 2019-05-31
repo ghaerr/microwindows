@@ -25,7 +25,7 @@
 	((((p) & 0xe0)) | (((p) & 0x1c) << 11) | (((p) & 0x03) << 19))
 
 
-int
+static int
 save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *file)
 {
 	int y;
@@ -36,8 +36,7 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *f
 
 	fp = fopen(file, "wb");
 	if (!fp) {
-		GrError("Bad file name (error [%s])\n",
-			strerror(errno));
+		GrError("Can't create %s (error [%s])\n", file, strerror(errno));
 		return (-1);
 	}
 
@@ -58,10 +57,8 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *f
 
 	for (y = 0; y < info->yres; y++) {
 		JSAMPROW row[1];
-
 		int x;
 		unsigned char *dest = alloca(info->xres * 3);
-
 		unsigned char *ptr = dest;
 		unsigned char *ch = (fb + (y * info->pitch));
 
@@ -78,8 +75,7 @@ save_image(unsigned char *fb, GR_WINDOW_FB_INFO * info, GR_PALETTE *pal, char *f
 			  break;
 
 			case 16:
-				colorval =
-					PIXEL555TOCOLORVAL(*((unsigned short *)ch));
+				colorval = PIXEL555TOCOLORVAL(*((unsigned short *)ch));
 				break;
 
 			case 24:
@@ -115,34 +111,28 @@ main(int argc, char **argv)
 	unsigned char *fb;
 
 	if (argc < 2) {
-		GrError("Usage:  snap_jpg <filename>\n");
+		GrError("Usage: screenshot-jpg <filename>\n");
 		return (0);
 	}
 
 	if (GrOpen() < 0) {
-		GrError("Error - the Nano-X server is not running\n");
+		GrError("Nano-X server not running\n");
 		return (-1);
 	}
 
-	GrError("Taking the picture and storing it in [%s]\n", argv[1]);
-
-	fb = GrOpenClientFramebuffer();
-
+	fb = GrOpenClientFramebuffer(0);
 	if (!fb) {
-		GrError(
-			"Error - Unable to get the snapshot.  leaving!\n");
+		GrError("Can't mmap framebuffer, try FBE\n");
 		return (-1);
 	}
 
 	GrGetWindowFBInfo(GR_ROOT_WINDOW_ID, &fbinfo);
 	GrGetSystemPalette(&pal);
 
-	if (save_image(fb, &fbinfo, &pal, argv[1]) == -1)
-		GrError("Error!\n");
-	else
-		GrError("Sucessfully saved [%s]\n", argv[1]);
+	if (save_image(fb, &fbinfo, &pal, argv[1]) == 0)
+		GrError("Screenshot saved to %s\n", argv[1]);
 
-	GrCloseClientFramebuffer();
+	GrCloseClientFramebuffer(0);
 	GrClose();
 	return (0);
 }

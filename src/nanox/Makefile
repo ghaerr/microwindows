@@ -66,17 +66,9 @@ NANOXFILES += $(MW_DIR_OBJ)/nanox/srvnet.o
 # Nano-X client files (network only)
 OBJS += \
 	$(MW_DIR_OBJ)/nanox/client.o \
+	$(MW_DIR_OBJ)/nanox/clientfb.o \
 	$(MW_DIR_OBJ)/nanox/nxproto.o \
 	$(MW_DIR_OBJ)/drivers/osdep.o
-
-# add in memory mapped framebuffer from client if available
-ifeq ($(SCREEN), FB)
-  OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
-else
-  ifeq ($(SCREEN), X11)
-    OBJS += $(MW_DIR_OBJ)/nanox/clientfb.o
-  endif
-endif
 
 NANOXSERVERLIBS = $(EXTENGINELIBS)
 

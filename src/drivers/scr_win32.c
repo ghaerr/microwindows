@@ -248,7 +248,6 @@ static void
 win32_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 {
 	gen_getscreeninfo(psd, psi);
-	psi->fbdriver = FALSE;	/* not running fb driver, no direct map */
 }
 
 

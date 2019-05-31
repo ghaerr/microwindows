@@ -327,7 +327,7 @@ typedef struct {
 	MWKEYMOD modifiers;	/* modifiers which are implemented */
 	int	 	pixtype;	/* format of pixel value*/
 	int	 	portrait;	/* current portrait mode*/
-	MWBOOL	fbdriver;	/* true if running mwin fb screen driver*/
+	int		size;		/* size of screen memory*/
 	uint32_t rmask;		/* red mask bits in pixel*/
 	uint32_t gmask;		/* green mask bits in pixel*/
 	uint32_t bmask;		/* blue mask bits in pixel*/
@@ -341,23 +341,6 @@ typedef struct {
 	int	ws_width;	/* workspace width/height*/
 	int	ws_height;
 } MWSCREENINFO, *PMWSCREENINFO;
-
-/* client side window framebuffer info*/
-typedef struct {
-	unsigned char *	physpixels;	/* address of real framebuffer*/
-	/* note winpixels is only correct in non-portrait modes*/
-	unsigned char *	winpixels;	/* address of 0,0 this window in fb*/
-	int	pixtype;		/* MWPF_ pixel type*/
-	int	bpp;			/* bits per pixel*/
-	int	bytespp;		/* bytes per pixel*/
-	unsigned int pitch;	/* bytes per scan line for window (=fb pitch)*/
-	MWCOORD	x, y;		/* absolute window coordinates*/
-	int	portrait_mode;	/* current portrait mode*/
-	MWCOORD	xres;		/* real framebuffer resolution*/
-	MWCOORD	yres;
-	MWCOORD	xvirtres;	/* virtual framebuffer resolution*/
-	MWCOORD	yvirtres;
-} MWWINDOWFBINFO;
 
 /* builtin C-based proportional/fixed font structure*/
 typedef struct {

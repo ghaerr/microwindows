@@ -156,11 +156,11 @@ select_fb_subdriver(PSD psd)
 
 /* set standard data_format from bpp and pixtype*/
 int
-set_data_format(PSD psd)
+set_data_formatex(int pixtype, int bpp)
 {
 	int data_format = 0;
 
-	switch(psd->pixtype) {
+	switch(pixtype) {
 	case MWPF_TRUECOLOR8888:
 		data_format = MWIF_BGRA8888;
 		break;
@@ -186,7 +186,7 @@ set_data_format(PSD psd)
 		data_format = MWIF_BGR233;
 		break;
 	case MWPF_PALETTE:
-		switch (psd->bpp) {
+		switch (bpp) {
 		case 8:
 			data_format = MWIF_PAL8;
 			break;
@@ -206,6 +206,12 @@ set_data_format(PSD psd)
 	return data_format;
 }
 
+int
+set_data_format(PSD psd)
+{
+	return set_data_formatex(psd->pixtype, psd->bpp);
+}
+
 /* general routine to return screen info, ok for all fb devices*/
 void
 gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
@@ -218,7 +224,7 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->ncolors = psd->ncolors;
 	psi->fonts = NUMBER_FONTS;
 	psi->portrait = psd->portrait;
-	psi->fbdriver = TRUE;	/* running fb driver, can direct map*/
+	psi->size = psd->size;
 	psi->pixtype = psd->pixtype;
 
 	switch (psd->data_format) {

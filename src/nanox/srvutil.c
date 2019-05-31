@@ -5,8 +5,16 @@
  *
  * Graphics server utility routines for windows.
  */
+#include <stdio.h>
 #include <stdlib.h>
+#include "uni_std.h"
 #include "serv.h"
+#include "../drivers/fb.h"	/* for set_data_formatex()*/
+#if HAVE_MMAP
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#endif
 
 /*
  * Redraw the screen completely.
@@ -317,7 +325,7 @@ GsDestroyWindow(GR_WINDOW *wp)
 	if (wp->bgpixmap)
 		GsDestroyPixmap(wp->bgpixmap);
 	if (wp->buffer)
-		GsDestroyPixmap(wp->buffer);
+		GsFreeWindowBuffer(wp);
 #if DYNAMICREGIONS
 	if (wp->clipregion)
 		GdDestroyRegion(wp->clipregion);
@@ -580,20 +588,58 @@ GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
 {
 	/* create same size RGBA pixmap for buffer*/
 	GR_WINDOW_ID id;
+	int data_format;
 	
 	/* check if buffer size changed*/
 	if (wp->buffer) {
 		if (wp->width == width && wp->height == height)
 			return;
-		GsDestroyPixmap(wp->buffer);
+		GsFreeWindowBuffer(wp);
 	}
 
-	id = GsNewPixmap(width, height, MWIF_RGBA8888, NULL);
+	/* set window buffer pixel type*/
+	if (wp->props & GR_WM_PROPS_BUFFER_BGRA)
+		data_format = MWIF_BGRA8888;
+	else if (wp->props & GR_WM_PROPS_BUFFER_MWPF)
+		data_format = set_data_formatex(scrdev.pixtype, scrdev.bpp);
+	else data_format = MWIF_RGBA8888;
+
+	id = GsNewPixmap(width, height, data_format, NULL);
 	wp->buffer = GsFindPixmap(id);
 	if (!wp->buffer) {
 		wp->props &= ~(GR_WM_PROPS_BUFFERED | GR_WM_PROPS_DRAWING_DONE);
 		return;
 	}
+
+#if HAVE_MMAP
+	/* convert window buffer to mmap'd file if requested*/
+	if (wp->props & GR_WM_PROPS_BUFFER_MMAP) {
+		int fd;
+		PSD psd = wp->buffer->psd;
+		void *addr;
+		char path[256];
+
+		/* buffer mmap'd to /tmp/.nano-fb{window id}*/
+		sprintf(path, MW_PATH_BUFFER_MMAP, wp->id);
+		unlink(path);
+		/* create file and write buffer*/
+		if ((fd = open(path, O_CREAT | O_WRONLY, 0666)) >= 0) {
+			write(fd, psd->addr, psd->size);
+			close(fd);
+			/* then reopen it and mmap*/
+			if ((fd = open(path, O_RDWR)) >= 0) {
+				addr = mmap(NULL, psd->size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+				if (addr != (char *)-1) {
+					free(psd->addr);
+					psd->addr = addr;
+					psd->flags &= ~PSF_ADDRMALLOC;
+					psd->flags |= PSF_ADDRMMAP;
+					wp->mapfd = fd;
+				} else { close(fd); DPRINTF("Window buffer mmap failed\n"); }
+			}
+		} else DPRINTF("Window buffer create file failed: %s\n", path);
+	}
+#endif /* HAVE_MMAP*/
 
 	/* mark buffer as not ready for display*/
 	wp->props &= ~GR_WM_PROPS_DRAWING_DONE;
@@ -621,6 +667,31 @@ GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
 
 		GdFillRect(pp->psd, 0, 0, pp->width, pp->height);
 	}
+}
+
+/* deallocate window buffer and unmap if mmaped*/
+void
+GsFreeWindowBuffer(GR_WINDOW *wp)
+{
+	if (!wp->buffer)
+		return;
+#if HAVE_MMAP
+	/* destroy mmap file*/
+	if (wp->props & GR_WM_PROPS_BUFFER_MMAP) {
+		PSD psd = wp->buffer->psd;
+		char path[256];
+
+		if (psd->flags & PSF_ADDRMMAP) {
+			munmap(psd->addr, psd->size);
+			close(wp->mapfd);
+			psd->flags &= ~PSF_ADDRMMAP;
+			sprintf(path, MW_PATH_BUFFER_MMAP, wp->id);
+			unlink(path);
+		}
+	}
+#endif
+	GsDestroyPixmap(wp->buffer);
+	wp->buffer = NULL;
 }
 
 /*

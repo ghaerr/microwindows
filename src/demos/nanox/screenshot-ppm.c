@@ -1,8 +1,5 @@
 /*
- * snap_ppm - screen snapshot for Nano-X, ppm format
- */
-/*
- * A simple Nano-X screenshot program using GrReadArea().
+ * A simple Nano-X screenshot program using GrReadArea(), ppm format.
  * 
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
@@ -59,7 +56,7 @@ static snapstate *init(int argc, char *argv[])
 	snapstate *state;
 
 	if(argc != 2) {
-		GrError("Usage: snap output.ppm\n");
+		GrError("Usage: screenshot-ppm output.ppm\n");
 		return NULL;
 	}
 
@@ -100,8 +97,7 @@ static int writeout(snapstate *state)
 		return 1;
 	}
 
-	if(fprintf(fp, "P6\n%d %d\n255\n", state->sinfo.cols, state->sinfo.rows)
-									< 0)
+	if(fprintf(fp, "P6\n%d %d\n255\n", state->sinfo.cols, state->sinfo.rows) < 0)
 		goto badwrite;
 
 	if(state->sinfo.pixtype == MWPF_PALETTE) {

@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 1999, 2000, 2001, 2002, 2007, 2010, 2019 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 Koninklijke Philips Electronics
+ *
+ * Microwindows Screen Driver for Linux kernel framebuffers
+ *
  * Portions used from Ben Pfaff's BOGL <pfaffben@debian.org>
- *
- * Microwindows Screen Driver for Linux kernel framebuffers or framebuffer emulator
- *
- * To use with bin/fbe, setenv FRAMEBUFFER=/tmp/fb0 or use scr_fbe.c driver (SCREEN=FBE in config)
  * 
  * Note: modify select_fb_driver() to add new framebuffer subdrivers
  */
 #define _GNU_SOURCE 1
+#include <assert.h>
 #include <fcntl.h>
 #include <limits.h>
 #if LINUX
@@ -32,6 +32,13 @@
 #include "genmem.h"
 #include "fb.h"
 
+#define PATH_FRAMEBUFFER	"/dev/fb0"	/* real framebuffer*/
+
+/* Frame buffer emulator defaults - not used with real framebuffer*/
+/* To use with bin/fbe, set environment FRAMEBUFFER=/tmp/fb0 or use scr_fbe.c driver*/
+#define PATH_EMULATORFB		"/tmp/fb0"	/* bin/fbe framebuffer memory*/
+#define BPP	32							/* default bpp, 1,2,4,8,15,16,24,32, use 15 for 16bpp 5/5/5*/
+
 #ifndef FB_TYPE_VGA_PLANES
 #define FB_TYPE_VGA_PLANES 4
 #endif
@@ -39,16 +46,6 @@
 static PSD  fb_open(PSD psd);
 static void fb_close(PSD psd);
 static void fb_setpalette(PSD psd,int first, int count, MWPALENTRY *palette);
-static PSD open_linuxfb(PSD psd);
-static void	set_directcolor_palette(PSD psd);
-
-/* static variables*/
-static int fb = -1;				/* framebuffer file handle*/
-#if LINUX
-static short saved_red[16];		/* original hw palette*/
-static short saved_green[16];
-static short saved_blue[16];
-#endif
 
 SCREENDEVICE	scrdev = {
 	0, 0, 0, 0, 0, 0, 0, NULL, 0, NULL, 0, 0, 0, 0, 0, 0,
@@ -65,73 +62,145 @@ SCREENDEVICE	scrdev = {
 	NULL				/* PreSelect*/
 };
 
-/* open framebuffer driver*/
+#if !LINUX
+/* Allow compilation on non-linux systems. For bin/fbe use, set FRAMEBUFFER=/tmp/fb0 in environment*/
+/* Defines linux structures to set framebuffer defaults without ioctl*/
+/* FIXME nanox/clientfb.c direct framebuffer needs access to this*/
+#define FB_TYPE_PACKED_PIXELS	0	/* Packed Pixels*/
+#define FB_TYPE_PLANES		1	/* Non interleaved planes*/
+#define FB_TYPE_VGA_PLANES	4	/* EGA/VGA planes*/
+
+#define FB_VISUAL_MONO01	0	/* Mnochr. 1=Black 0=White*/
+#define FB_VISUAL_MONO10	1	/* Mnochr. 1=White 0=Black*/
+#define FB_VISUAL_TRUECOLOR	2	/* True color*/
+#define FB_VISUAL_PSEUDOCOLOR	3	/* Pseudo color (like atari)*/
+#define FB_VISUAL_DIRECTCOLOR	4
+
+#define FB_ACCEL_NONE		0	/* No hardware accelerator*/
+
+struct fb_fix_screeninfo {
+	int type;
+	int visual;
+	int line_length;
+	int accel;
+};
+
+struct fb_color {
+	int u;
+	int length;
+	int v;
+};
+
+struct fb_var_screeninfo {
+	int xres;
+	int yres;
+	int xres_virtual;
+	int yres_virtual;
+	int bits_per_pixel;
+	struct fb_color red;
+	struct fb_color green;
+	struct fb_color blue;
+	struct fb_color transp;
+};
+
+struct fb_cmap {
+	int start;
+	int len;
+	unsigned short *red;
+	unsigned short *green;
+	unsigned short *blue;
+	unsigned short *transp;
+};
+#endif /* !LINUX*/
+
+/* framebuffer info defaults for emulator*/
+static struct fb_fix_screeninfo  fb_fix = {
+	  .type = FB_TYPE_PACKED_PIXELS,
+#if BPP == 1
+	  .visual = FB_VISUAL_MONO10,
+	  .line_length = SCREEN_WIDTH / (8 / BPP),
+#elif BPP <= 8
+	  .visual = FB_VISUAL_PSEUDOCOLOR,
+	  .line_length = SCREEN_WIDTH / (8 / BPP),
+#else /* 15,16,24,32bpp*/
+	  .visual = FB_VISUAL_TRUECOLOR,
+	  .line_length = SCREEN_WIDTH * ((BPP+1)/8),	/* +1 to make 15bpp work*/
+#endif
+	  .accel = FB_ACCEL_NONE,
+};
+
+static struct fb_var_screeninfo fb_var = {
+	  .xres = SCREEN_WIDTH,
+	  .yres = SCREEN_HEIGHT,
+	  .xres_virtual = SCREEN_WIDTH,
+	  .yres_virtual = SCREEN_HEIGHT,
+	  .bits_per_pixel = BPP,
+#if BPP <= 8
+	  /* offset, length, msb_right*/
+	  .red = { 0, BPP, 0 },
+	  .green = { 0, BPP, 0 },
+	  .blue = { 0, BPP, 0 },
+#elif BPP == 15
+	  .red = { 0, 5, 0 },
+	  .green = { 0, 5, 0 },		/* green.length is checked for MWPF_TRUECOLOR555*/
+	  .blue = { 0, 5, 0 },
+#elif BPP == 16
+	  .red = { 0, 5, 0 },
+	  .green = { 0, 6, 0 },
+	  .blue = { 0, 5, 0 },
+#else
+	  .red = { 0, 8, 0 },
+	  .green = { 0, 8, 0 },
+	  .blue = { 0, 8, 0 },
+#endif
+	  .transp = { 0, 0, 0 },	/* transp.length == 8 indicates alpha channel*/
+};
+
+/* static variables*/
+static int fb;			/* Framebuffer file handle. */
+static int status;		/* 0=never inited, 1=once inited, 2=inited. */
+static short saved_red[16];	/* original hw palette*/
+static short saved_green[16];
+static short saved_blue[16];
+
+/* local functions*/
+static void	set_directcolor_palette(PSD psd);
+
+/* init framebuffer*/
 static PSD
 fb_open(PSD psd)
 {
 	char *	env;
-	int		fbe;
+	int	type, visual;
+	PSUBDRIVER subdriver;
 
-	/* special case framebuffer emulator override*/
-	env = getenv("FRAMEBUFFER");
-	fbe = env && !strcmp(env, MW_PATH_FBE_FRAMEBUFFER);
+	assert(status < 2);
 
-	/*
-	 * Locate and open framebuffer:
-	 * If not FBE, try /dev/fb0 or environment override.
-	 * Otherwise try FBE /tmp/fb0.
-	 */
-	if (!fbe)
-		fb = open(env? env: MW_PATH_FRAMEBUFFER, O_RDWR);
-	if (fb < 0) {	/* fb is < 0 at fb_open() entry or if open() fails above in !fbe case*/
-		/* try framebuffer emulator*/
-		fb = open(MW_PATH_FBE_FRAMEBUFFER, O_RDWR);
-		if (fb >= 0) {
-			int flags = PSF_SCREEN;		/* init psd, don't allocate framebuffer*/
-			int extra = getpagesize() - 1;
-
-			/* init framebuffer emulator to config-set values*/
-			if (!gen_initpsd(psd, MWPIXEL_FORMAT, SCREEN_WIDTH, SCREEN_HEIGHT, flags))
-				goto fail;
-
-			/* mmap framebuffer into this address space*/
-			psd->size = (psd->size + extra) & ~extra;	/* extend to page boundary*/
-			psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE, MAP_SHARED, fb, 0);
-			if (psd->addr == (unsigned char *)-1) {
-				EPRINTF("Error mmaping shared framebuffer %s: %m\n", env);
-fail:
-				close(fb);
-				fb = -1;
-				return NULL;
-			}
-			return psd;		/* FBE success*/
-		}
+	/* locate and open framebuffer, get info*/
+	if((env = getenv("FRAMEBUFFER")) != NULL)
+		fb = open(env, O_RDWR);
+	else {
+		/* try /dev/fb0 then /dev/fb/0 */
+		fb = open(PATH_FRAMEBUFFER, O_RDWR);
+		if (fb < 0)
+			fb = open("/dev/fb/0", O_RDWR);
 	}
 	if(fb < 0) {
-		EPRINTF("Error opening %s: %m. Check kernel config\n", env? env: MW_PATH_FRAMEBUFFER);
+		EPRINTF("Error opening %s: %m. Check kernel config\n", env? env: PATH_FRAMEBUFFER);
 		return NULL;
 	}
 
-	/* continue with Linux framebuffer open*/
-	return open_linuxfb(psd);
-}
-
-/* open linux framebuffer*/
-static PSD
-open_linuxfb(PSD psd)
-{
-#if LINUX
-	int	type, visual;
-	int extra = getpagesize() - 1;
-	PSUBDRIVER subdriver;
-
+#if defined(FBIOGET_FSCREENINFO) && defined(FBIOGET_VSCREENINFO)
 	/* get dynamic framebuffer info*/
 	if (ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
 		ioctl(fb, FBIOGET_VSCREENINFO, &fb_var) == -1) {
-			EPRINTF("Error reading screen info: %m\n");
-			goto fail;
+			/* allow framebuffer emulator to fail ioctl*/
+			if (env && strcmp(env, PATH_EMULATORFB) != 0) {
+				EPRINTF("Error reading screen info: %m\n");
+				goto fail;
+			}
 	}
-
+#endif
 	/* setup screen device from framebuffer info*/
 	type = fb_fix.type;
 	visual = fb_fix.visual;
@@ -226,7 +295,7 @@ open_linuxfb(PSD psd)
 #endif
 
 	/* mmap framebuffer into this address space*/
-	psd->size = (psd->size + extra) & ~extra;		/* extend to page boundary*/
+	psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
 
 #if LINUX_SPARC
 #define CG3_MMAP_OFFSET 0x4000000
@@ -235,7 +304,7 @@ open_linuxfb(PSD psd)
 #define TCX_RAM24BIT	0x01000000
 	switch (fb_fix.accel) {
 	case FB_ACCEL_SUN_CGTHREE:
-		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG3_MMAP_OFFSET);
+	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG3_MMAP_OFFSET);
 		break;
 	case FB_ACCEL_SUN_CGSIX:
 		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,CG6_RAM);
@@ -266,12 +335,11 @@ open_linuxfb(PSD psd)
 	if(visual == FB_VISUAL_DIRECTCOLOR)
 		set_directcolor_palette(psd);
 
+	status = 2;
 	return psd;	/* success*/
 
 fail:
 	close(fb);
-	fb = -1;
-#endif /* LINUX*/
 	return NULL;
 }
 
@@ -280,9 +348,10 @@ static void
 fb_close(PSD psd)
 {
 	/* if not opened, return*/
-	if (fb < 0)
+	if(status != 2)
 		return;
-#if LINUX
+	status = 1;
+
   	/* reset hw palette*/
 	ioctl_setpalette(0, 16, saved_red, saved_green, saved_blue);
   
@@ -297,11 +366,8 @@ fb_close(PSD psd)
 	close(tty);
 	}
 #endif
-#endif /* LINUX*/
-
 	/* close framebuffer*/
 	close(fb);
-	fb = -1;
 }
 
 /* setup directcolor palette - required for ATI cards*/

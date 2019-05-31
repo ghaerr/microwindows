@@ -1400,9 +1400,9 @@ static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD 
  * MWPF_RGB		MWCOLORVAL (uint32_t)
  * MWPF_PIXELVAL	MWPIXELVALHW (compile-time dependent)
  * MWPF_PALETTE		unsigned char
- * MWPF_TRUECOLOR8888	uint32_t
+ * MWPF_TRUECOLORARGB	uint32_t
  * MWPF_TRUECOLORABGR	uint32_t
- * MWPF_TRUECOLOR888	packed struct {char r,char g,char b} (24 bits)
+ * MWPF_TRUECOLORRGB	packed struct {char r,char g,char b} (24 bits)
  * MWPF_TRUECOLOR565	unsigned short
  * MWPF_TRUECOLOR555	unsigned short
  * MWPF_TRUECOLOR332	unsigned char
@@ -1462,10 +1462,10 @@ GdArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, void *pixel
 			break;
 		}
 		break;
-	case MWPF_TRUECOLOR8888:
+	case MWPF_TRUECOLORARGB:
 		data_format = MWIF_BGRA8888;
 		break;
-	case MWPF_TRUECOLOR888:
+	case MWPF_TRUECOLORRGB:
 		data_format = MWIF_BGR888;
 		pixsize = 3;
 		break;

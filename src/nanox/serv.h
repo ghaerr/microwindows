@@ -187,7 +187,7 @@ struct gr_client {
 	char		*shm_cmds;
 	int		shm_cmds_size;
 	int		shm_cmds_shmid;
-	unsigned long	processid;	/* client process id*/
+	int		processid;	/* client process id*/
 };
 
 /*
@@ -344,6 +344,7 @@ struct gr_window {
 	char		*title;		/* window title*/
 	MWCLIPREGION*clipregion;/* window clipping region */
 	GR_PIXMAP	*buffer;	/* window buffer pixmap*/
+	int			mapfd;		/* filedesc of mmap'd buffer*/
 };
 
 /*
@@ -411,6 +412,7 @@ void		GsDrawBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 void		GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm,
 				GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height);
 void		GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height);
+void		GsFreeWindowBuffer(GR_WINDOW *wp);
 void		GsClearWindow(GR_WINDOW *wp, GR_COORD x, GR_COORD y,
 				GR_SIZE width, GR_SIZE height, int exposeflag);
 void		GsUnrealizeWindow(GR_WINDOW *wp, GR_BOOL temp_unmap);
@@ -508,7 +510,6 @@ extern	char		*current_shm_cmds;
 extern	int		current_shm_cmds_size;
 extern	GR_EVENT_LIST	*eventfree;		/* list of free events */
 extern	GR_BOOL		focusfixed;		/* TRUE if focus is fixed */
-extern	GR_SCREEN_INFO	sinfo;			/* screen information */
 extern	PMWFONT		stdfont;		/* default font*/
 extern	int		connectcount;		/* # of connections to server */
 #if MW_FEATURE_TIMERS

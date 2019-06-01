@@ -344,7 +344,6 @@ struct gr_window {
 	char		*title;		/* window title*/
 	MWCLIPREGION*clipregion;/* window clipping region */
 	GR_PIXMAP	*buffer;	/* window buffer pixmap*/
-	int		mapfd;		/* filedesc of mmap'd buffer*/
 };
 
 /*

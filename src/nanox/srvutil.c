@@ -621,22 +621,18 @@ GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
 
 		/* buffer mmap'd to /tmp/.nano-fb{window id}*/
 		sprintf(path, MW_PATH_BUFFER_MMAP, wp->id);
-		unlink(path);
-		/* create file and write buffer*/
-		if ((fd = open(path, O_CREAT | O_WRONLY, 0666)) >= 0) {
-			write(fd, psd->addr, psd->size);
+		/* create file and mmap*/
+		if ((fd = open(path, O_CREAT | O_TRUNC | O_RDWR, 0666)) >= 0) {
+			lseek(fd, psd->size - 1, SEEK_SET);
+			write(fd, "", 1);
+			addr = mmap(NULL, psd->size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 			close(fd);
-			/* then reopen it and mmap*/
-			if ((fd = open(path, O_RDWR)) >= 0) {
-				addr = mmap(NULL, psd->size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-				if (addr != (char *)-1) {
-					free(psd->addr);
-					psd->addr = addr;
-					psd->flags &= ~PSF_ADDRMALLOC;
-					psd->flags |= PSF_ADDRMMAP;
-					wp->mapfd = fd;
-				} else { close(fd); DPRINTF("Window buffer mmap failed\n"); }
-			}
+			if (addr != (char *)-1) {
+				free(psd->addr);
+				psd->addr = addr;
+				psd->flags &= ~PSF_ADDRMALLOC;
+				psd->flags |= PSF_ADDRMMAP;
+			} else DPRINTF("Window buffer mmap failed\n");
 		} else DPRINTF("Window buffer create file failed: %s\n", path);
 	}
 #endif /* HAVE_MMAP*/
@@ -683,7 +679,6 @@ GsFreeWindowBuffer(GR_WINDOW *wp)
 
 		if (psd->flags & PSF_ADDRMMAP) {
 			munmap(psd->addr, psd->size);
-			close(wp->mapfd);
 			psd->flags &= ~PSF_ADDRMMAP;
 			sprintf(path, MW_PATH_BUFFER_MMAP, wp->id);
 			unlink(path);

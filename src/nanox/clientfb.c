@@ -20,7 +20,6 @@ LOCK_EXTERN(nxGlobalLock);	/* global lock for threads safety*/
 typedef struct gr_clientfb GR_CLIENTFB;
 struct gr_clientfb {
 	GR_WINDOW_ID wid;
-	int mapfd;
 	void *mapaddr;
 	int maplen;
 	GR_CLIENTFB *next;
@@ -115,9 +114,9 @@ GrOpenClientFramebuffer(GR_WINDOW_ID wid)
 
 	/* Memory map the device*/
 	mapaddr = (unsigned char *)mmap(NULL, maplen, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	close(fd);
 	if (mapaddr == (unsigned char *)-1) {
 		EPRINTF("GrOpenClientFramebuffer: Can't mmap frame or window buffer\n");
-		close(fd);
 		UNLOCK(&nxGlobalLock);
 		return NULL;
 	}
@@ -125,12 +124,10 @@ GrOpenClientFramebuffer(GR_WINDOW_ID wid)
 	fp = (GR_CLIENTFB *)malloc(sizeof(GR_CLIENTFB));
 	if (fp == NULL) {
 		munmap(mapaddr, maplen);
-		close(fd);
 		return NULL;
 	}
 
 	fp->wid = wid;
-	fp->mapfd = fd;
 	fp->mapaddr = mapaddr;
 	fp->maplen = maplen;
 	fp->next = fbhead;
@@ -160,7 +157,6 @@ GrCloseClientFramebuffer(GR_WINDOW_ID wid)
 	}
 
 	munmap(fp->mapaddr, fp->maplen);
-	close(fp->mapfd);
 
 	/* unlink from clientfb list*/
 	prevfp = fbhead;

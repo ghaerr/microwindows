@@ -36,7 +36,7 @@
  *            -z   Zoom factor       [%d]
  *	          -r   Reverse bit order (1,2,4bpp LSB first)
  *	          -g   Gray palette (4bpp only)
- *	          -c   Force create new framebuffer (required when size changes)
+ *	          -c   Force create new framebuffer
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -100,7 +100,7 @@ int BITS_PER_PIXEL;					/* bpp set by MWPIXEL_FORMAT (SCREEN_PIXTYPE)*/
 
 /* flags*/
 int ZOOM = 1;			/* integral zoom factor*/
-int force_create = 0;	/* force create new framebuffer, required when bpp changed*/
+int force_create = 0;	/* force create new framebuffer*/
 int rev_bitorder = 0;	/* reverse bit order, for fblinXrev.c drivers*/
 int gray_palette = 0;	/* use gray palette in 4bpp*/
 int redocmap = 0;
@@ -1124,7 +1124,7 @@ fbe_loop(void)
 			for (x = 0; x < (CRTX+CHUNKX-1) / CHUNKX; x++)
 				check_and_paint(x, y);
 		repaint = 0;
-		usleep(1000);
+		usleep(2000);
 
 		/* re-set color map */
 		if (redocmap) {
@@ -1145,10 +1145,11 @@ int
 main(int argc, char **argv)
 {
 	int fd = -1, cfd;
-	int i;
+	int i, extra, size;
 	int leave, ok = 1, help, bpp = 0;
 	char *arg, *argp, buf[64];
 	FILE *fp;
+	struct stat st;
 
 	help = 0;
 	for (i = 1; i < argc; i++) {
@@ -1278,7 +1279,7 @@ main(int argc, char **argv)
 		       "       -z   Zoom factor       [%d]\n"
 			   "       -r   Reverse bit order (1,2,4bpp LSB first)\n"
 			   "       -g   Gray palette (4bpp only)\n"
-			   "       -c   Force create new framebuffer (required when size changes)\n",
+			   "       -c   Force create new framebuffer\n",
 		       CRTX, CRTY, CRTX_TOTAL, BITS_PER_PIXEL, ZOOM);
 		return 1;
 	}
@@ -1293,46 +1294,34 @@ main(int argc, char **argv)
 		unlink(MW_PATH_FBE_KEYBOARD);
 	}
 
-	fd = open(MW_PATH_FBE_FRAMEBUFFER, O_RDONLY);
-	if (fd >= 0) {
-		close(fd);
-	} else {
-		char *	p;
-		int		extra = getpagesize() - 1;
-		int 	size = ((CRTY * PITCH) + extra) & ~extra;		/* extend to page boundary*/
-		if ((fd = open(MW_PATH_FBE_FRAMEBUFFER, O_CREAT | O_WRONLY, 0666)) < 0) {
+	/* open and mmap virtual framebuffer, but recreate if missing or wrong size*/
+	extra = getpagesize() - 1;
+	size = ((CRTY * PITCH) + extra) & ~extra;		/* extend to page boundary*/
+	if (!stat(MW_PATH_FBE_FRAMEBUFFER, &st) && st.st_size == size)
+		fd = open(MW_PATH_FBE_FRAMEBUFFER, O_RDWR);
+	if (fd < 0) {
+		if ((fd = open(MW_PATH_FBE_FRAMEBUFFER, O_CREAT | O_TRUNC | O_RDWR, 0666)) < 0) {
 			fprintf(stderr, PROGNAME ": Can't create %s\n", MW_PATH_FBE_FRAMEBUFFER);
 			exit(1);
 		}
-		if ((p = calloc(size, 1)) == NULL) {
-			fprintf(stderr, PROGNAME ": Can't allocate screen buffer\n");
-			exit(1);
-		}
-		write(fd, p, size);
-		close(fd);
-		free(p);
+		lseek(fd, size - 1, SEEK_SET);
+		write(fd, "", 1);
 	}
-
-	cfd = open(MW_PATH_FBE_COLORMAP, O_RDONLY);
-	if (cfd >= 0) {
-		close(cfd);
-	} else {
-		if ((cfd = open(MW_PATH_FBE_COLORMAP, O_CREAT | O_WRONLY, 0666)) < 0) {
-			fprintf(stderr, PROGNAME ": Can't create %s\n", MW_PATH_FBE_COLORMAP);
-			exit(1);
-		}
-		for (i = 0; i < 512; i++)
-			write(cfd, "\000", 1);
-		close(cfd);
-	}
-
-	/* open and mmap virtual framebuffer*/
-	fd = open(MW_PATH_FBE_FRAMEBUFFER, O_RDWR);
 	crtbuf = mmap(NULL, CRTY * PITCH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	close(fd);
 
 	/* open and mmap virtual palette*/
 	cfd = open(MW_PATH_FBE_COLORMAP, O_RDWR);
+	if (cfd < 0) {
+		if ((cfd = open(MW_PATH_FBE_COLORMAP, O_CREAT | O_TRUNC | O_RDWR, 0666)) < 0) {
+			fprintf(stderr, PROGNAME ": Can't create %s\n", MW_PATH_FBE_COLORMAP);
+			exit(1);
+		}
+		lseek(cfd, 511, SEEK_SET);
+		write(cfd, "", 1);
+	}
 	cmapbuf = mmap(NULL, 512, PROT_READ | PROT_WRITE, MAP_SHARED, cfd, 0);
+	close(cfd);
 	signal(SIGUSR1, usr1_handler);
 
 	/* ignore pipe signal sent on fifo writes when no readers*/

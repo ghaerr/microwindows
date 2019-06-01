@@ -1,5 +1,5 @@
 1 Jun 2019
-	* optimize window buffer mmap routines
+	* optimize window buffer mmap routines, fix fbe to automatically recreate framebuffer when size changes
 31 May 2019
 	* add client memory-mapped window buffers for AGG 2.6, use with GrNewBufferedWindow & GrOpenClientFramebuffer
 	* GrOpenClientFramebuffer works with all systems, allows mmap of window buffer, framebuffer or FBE

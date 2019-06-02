@@ -58,6 +58,7 @@ int main(int argc, char** argv)
       if (!buf)
  {
   printf("error malloc(%d)\n",SIZEHZX12);
+  fclose(fp);
   return 2;
  }
  fread(buf,1,SIZEHZX12,fp);

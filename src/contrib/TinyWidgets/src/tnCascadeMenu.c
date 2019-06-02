@@ -46,7 +46,8 @@ CreateCascadeMenu (TN_WIDGET * widget,
     height = TN_CASCADEMENU_HEIGHT;
   if (width == 0)
     width = TN_CASCADEMENU_WIDTH;
-  strcpy ((widget->WSpec.cascademenu.caption), caption);
+  if (caption)
+    strcpy ((widget->WSpec.cascademenu.caption), caption);
   widget->WSpec.cascademenu.FGColor = fgcolor;
   widget->WSpec.cascademenu.selected = GR_FALSE;
   widget->WSpec.cascademenu.exclusive=exclusive;

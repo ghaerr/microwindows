@@ -375,7 +375,7 @@ void I_FinishUpdate (void)
 		argb_start, MWPF_TRUECOLORARGB);
 #elif MWPIXEL_FORMAT == MWPF_PALETTE
     GrArea(win, gc, 0, 0, SCREENWIDTH*multiply, SCREENHEIGHT*multiply, output, MWPF_PALETTE);
-#elif
+#else
 #error MWPIXEL_FORMAT not supported.
 #endif
 }

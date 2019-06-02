@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "uni_std.h> //for dup
+#include "uni_std.h" //for dup
 #include "device.h"  
 #include "genfont.h" 
 #include "genmem.h"

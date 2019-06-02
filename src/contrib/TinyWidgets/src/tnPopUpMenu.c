@@ -46,7 +46,8 @@ CreatePopUpMenu (TN_WIDGET * widget,
     height = TN_POPUPMENU_HEIGHT;
   if (width == 0)
     width = TN_POPUPMENU_WIDTH;
-  strcpy ((widget->WSpec.popupmenu.caption), caption);
+  if (caption)
+    strcpy ((widget->WSpec.popupmenu.caption), caption);
   widget->WSpec.popupmenu.FGColor = fgcolor;
   widget->WSpec.popupmenu.selected = GR_FALSE;
   widget->WSpec.popupmenu.exclusive=exclusive;

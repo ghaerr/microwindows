@@ -48,7 +48,8 @@ CreateMenuItem (TN_WIDGET * widget,
      height = TN_MENUITEM_HEIGHT;
   if(width==0)
       width = TN_MENUITEM_WIDTH;
-  strcpy ((widget->WSpec.menuitem.caption), caption);
+  if (caption)
+    strcpy ((widget->WSpec.menuitem.caption), caption);
   widget->WSpec.menuitem.FGColor = fgcolor;
   widget->WSpec.menuitem.checkable=checkable;
   /*Resize window to accomodate caption*/

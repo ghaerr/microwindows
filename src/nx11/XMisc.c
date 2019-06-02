@@ -69,8 +69,10 @@ XReadBitmapFileData(_Xconst char *filename, unsigned int *width_return,
 				}
 			}
 		}
-		if (ret <= 0)
+		if (ret <= 0) {
+			fclose(file);
 			return BitmapFileInvalid;
+		}
 		if ((*width_return > 0) && (*height_return > 0)) {
 			int dataSize = ((*width_return + 7) / 8) * (*height_return);
 			int c, value, i, dataIndex = 0;

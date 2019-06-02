@@ -103,6 +103,7 @@ static int writeout(snapstate *state)
 	if(state->sinfo.pixtype == MWPF_PALETTE) {
 		if(!(palette = malloc(sizeof(GR_PALETTE)))) {
 			oom();
+			fclose(fp);
 			return 1;
 		}
 		GrGetSystemPalette(palette);

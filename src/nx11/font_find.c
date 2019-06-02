@@ -328,9 +328,9 @@ DPRINTF("enumfont add: %s\n", xlfd);
 	  char * pch;
 	  pch = strstr (pattern,"-*-courier-");
 	  if (pch) {
-	    sprintf(pattern,"%s%s",pattern,"0-0-0-0-m-0-iso8859-1"); //m= monospaced
+	    strcat(pattern,"0-0-0-0-m-0-iso8859-1"); //m= monospaced
 	  } else {
-	    sprintf(pattern,"%s%s",pattern,"0-0-0-0-p-0-iso8859-1"); //size=0 means all sizes available
+	    strcat(pattern,"0-0-0-0-p-0-iso8859-1"); //size=0 means all sizes available
 	  }
 	  _addFontToList(fontlist, pattern);
 	}

@@ -1566,17 +1566,19 @@ doCharBidi_UTF8(const char *text, int len, int *v2lPos, char *pDirection, unsign
 	   if will fit in localBuff, we use it to improve speed */
 	if (len < sizeof(localBuff) / sizeof(localBuff[0]) / 2) {
 		ftxt = localBuff;
-		fvirt = localBuff +
-			sizeof(localBuff) / sizeof(localBuff[0]) / 2;
+		fvirt = localBuff + sizeof(localBuff) / sizeof(localBuff[0]) / 2;
 		isLocal = 1;
 	} else {
 		ftxt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
 		fvirt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
 	}
 
-	if (ftxt == NULL)
+	if (ftxt == NULL) {
+		free(new_str);
 		return NULL;
+	}
 	if (fvirt == NULL) {
+		free(new_str);
 		free(ftxt);
 		return NULL;
 	}
@@ -1618,17 +1620,19 @@ doCharBidi_UC16(const unsigned short *text, int len, int *v2lPos, char *pDirecti
 	   if will fit in localBuff, we use it to improve speed */
 	if (len < sizeof(localBuff) / sizeof(localBuff[0]) / 2) {
 		ftxt = localBuff;
-		fvirt = localBuff +
-			sizeof(localBuff) / sizeof(localBuff[0]) / 2;
+		fvirt = localBuff + sizeof(localBuff) / sizeof(localBuff[0]) / 2;
 		isLocal = 1;
 	} else {
 		ftxt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
 		fvirt = (FriBidiChar *) malloc((len + 1) * sizeof(FriBidiChar));
 	}
 
-	if (ftxt == NULL)
+	if (ftxt == NULL) {
+		free(new_str);
 		return NULL;
+	}
 	if (fvirt == NULL) {
+		free(new_str);
 		free(ftxt);
 		return NULL;
 	}

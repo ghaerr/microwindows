@@ -515,14 +515,18 @@ freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 
 	/* check .ttf or .pfr or otf, add .ttf if no extension, freetype supports otf as well now*/
 	if ((p = strrchr(fontname, '.')) != NULL) {
-		if ((strcasecmp(p, ".ttf") != 0) && (strcasecmp(p, ".pfr") != 0) && (strcasecmp(p, ".otf") != 0))
+		if ((strcasecmp(p, ".ttf") != 0) && (strcasecmp(p, ".pfr") != 0) && (strcasecmp(p, ".otf") != 0)) {
+			free(fontname);
 			return NULL;
+		}
 	} else
 		strcat(fontname, ".ttf");
 
 	/* check if .ttf file exists otherwise add to cache below is an error*/
-	if (access(fontname, F_OK) != 0)
+	if (access(fontname, F_OK) != 0) {
+		free(fontname);
 		return NULL;
+	}
 
 #if HAVE_FREETYPE_2_CACHE
 	faceid = freetype2_fonts;

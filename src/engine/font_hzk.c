@@ -131,6 +131,7 @@ UC16_to_GB(const unsigned char *uc16, int cc, unsigned char *ascii)
 	if(fread(filebuffer, sizeof(char),length, fp) < length) {
 	   	  EPRINTF ("Error in reading ugb2gb.ku file!\n");
 	   	  fclose(fp);
+		  free(filebuffer);
  	     	  return -1;
 	}
     	fclose(fp);

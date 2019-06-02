@@ -98,7 +98,10 @@ vncDecryptPasswdFromFile(char *fname)
     int i, ch;
     unsigned char *passwd = (unsigned char *)malloc(9);
 
-    if ((fp = fopen(fname,"r")) == NULL) return NULL;
+    if ((fp = fopen(fname,"r")) == NULL) {
+		free(passwd);
+		return NULL;
+	}
 
     for (i = 0; i < 8; i++) {
 	ch = getc(fp);

@@ -89,7 +89,7 @@ static XrmQuark nextUniq = -1;	/* next quark from XrmUniqueQuark */
 #define STRQUANTSIZE	(sizeof(XrmString) * (QUANTUMMASK + 1))
 #ifdef PERMQ
 #define QUANTSIZE	(STRQUANTSIZE + \
-			 (sizeof(Bits) * ((QUANTUMMASK + 1) >> 3))
+			 (sizeof(Bits) * ((QUANTUMMASK + 1) >> 3)))
 #else
 #define QUANTSIZE	STRQUANTSIZE
 #endif

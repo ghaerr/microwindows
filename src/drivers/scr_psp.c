@@ -57,7 +57,7 @@ fb_open(PSD psd)
     psd->yres = psd->yvirtres = 272;
     psd->planes = 1;
     psd->bpp = 32;
-    psd->ncolors = 1 << psd->bpp;
+    psd->ncolors = 1 << 24;
     psd->pitch = 512 * 4;
 	psd->size = psd->yres * psd->pitch;
     psd->flags = PSF_SCREEN;

@@ -63,11 +63,13 @@ int main(int argc, char *argv[])
 	if(strcmp(buf, "P4\n")) {
 		fprintf(stderr, "Didn't find valid header. Perhaps this is "
 				"not a binary PBM file?\n");
+		fclose(fp);
 		return 1;
 	}
 
 	if(fscanf(fp, "%d %d\n", &width, &height) != 2) {
 		fprintf(stderr, "Failed to read image dimensions\n");
+		fclose(fp);
 		return 1;
 	}
 

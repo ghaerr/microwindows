@@ -229,7 +229,7 @@ HAVETEXTMODE             = N
 # SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
 ####################################################################
 SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
-#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
 SCREEN_DEPTH             = 8
 

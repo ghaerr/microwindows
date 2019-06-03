@@ -126,8 +126,8 @@ BlitFallback(PSD psd, PMWBLITPARMS gc)
 static MWBLITFUNC
 GdFindFrameBlit(PSD psd, int src_data_format, int op)
 {
-	/* use frameblit if same device*/
-	if (psd->data_format != src_data_format && psd->FrameBlit)
+	/* use frameblit if same format, conversion will fail on same surface*/
+	if (psd->data_format != src_data_format || !psd->FrameBlit)
 	  switch (src_data_format) {	/* try conversion blits if possible*/
 	case MWIF_RGBA8888:
 		if (op == MWROP_SRC_OVER) {

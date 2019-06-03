@@ -33,7 +33,7 @@ PARALLEL                 = N
 ####################################################################
 SCREEN                   = FB
 MOUSE                    = DEVMICEMOUSE
-KEYBOARD                 = TTYKBD
+KEYBOARD                 = SCANKBD
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
 #X11LIBLOCATION           = /usr/X11/lib
@@ -226,8 +226,8 @@ HAVETEXTMODE             = Y
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 # SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
 ####################################################################
-#SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
-SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
 SCREEN_DEPTH             = 8
 

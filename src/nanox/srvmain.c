@@ -933,9 +933,6 @@ GsInitialize(void)
 	/* If needed, initialize the server mutex. */
 	SERVER_LOCK_INIT();
 
-	//setbuf(stdout, NULL);
-	//setbuf(stderr, NULL);
-
 	wp = (GR_WINDOW *) malloc(sizeof(GR_WINDOW));
 	if (wp == NULL) {
 		EPRINTF("Cannot allocate root window\n");

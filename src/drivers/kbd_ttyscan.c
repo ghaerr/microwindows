@@ -83,7 +83,7 @@ TTY_Open(KBDDEVICE *pkd)
 		kbd = KEYBOARD;
 	fd = open(kbd, O_NONBLOCK);
 	if (fd < 0)
-		return DRIVER_FAIL1;
+		return DRIVER_FAIL;
 
 	/* Save previous settings*/
 #ifdef KDGKBMODE
@@ -106,11 +106,11 @@ TTY_Open(KBDDEVICE *pkd)
 
 	if (tcsetattr(fd, TCSAFLUSH, &new) < 0) {
 		TTY_Close();
-		return DRIVER_FAIL1;
+		return DRIVER_FAIL;
 	}
 	if (ioctl(fd, KDSKBMODE, K_MEDIUMRAW) < 0) {
 		TTY_Close();
-		return DRIVER_FAIL1;
+		return DRIVER_FAIL;
 	}
 
 	/* Load OS keymappings*/
@@ -139,7 +139,7 @@ TTY_Open(KBDDEVICE *pkd)
 err:
 	close(fd);
 	fd = -1;
-	return DRIVER_FAIL1;
+	return DRIVER_FAIL;
 }
 
 /*
@@ -515,6 +515,7 @@ TranslateScancode(int scancode, MWKEYMOD modstate)
 		break;
 	case MWKEY_BREAK:
 	case MWKEY_PAUSE:
+	case '\033':	/* ESC QUIT*/
 		mwkey = MWKEY_QUIT;
 		break;
 	case 0x1c:	/* kernel maps print key to ctrl-\ */

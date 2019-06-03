@@ -44,7 +44,7 @@ static int PD_Open(MOUSEDEVICE *pmd)
 		EPRINTF("Error configuring touchscreen device: %s\n",
 			strerror(errno));
 		ts_close(ts);
-		DRIVER_FAIL1;
+		return DRIVER_FAIL;
 	}
 
 	GdHideCursor(&scrdev);

@@ -48,6 +48,8 @@ static int fb = -1;				/* framebuffer file handle*/
 static short saved_red[16];		/* original hw palette*/
 static short saved_green[16];
 static short saved_blue[16];
+static struct fb_fix_screeninfo  fb_fix;
+static struct fb_var_screeninfo fb_var;
 #endif
 
 SCREENDEVICE	scrdev = {
@@ -98,7 +100,7 @@ fb_open(PSD psd)
 			psd->size = (psd->size + extra) & ~extra;	/* extend to page boundary*/
 			psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE, MAP_SHARED, fb, 0);
 			if (psd->addr == (unsigned char *)-1) {
-				EPRINTF("Error mmaping shared framebuffer %s: %m\n", env);
+				EPRINTF("Error mmaping shared framebuffer %s: %m\n", MW_PATH_FBE_FRAMEBUFFER);
 fail:
 				close(fb);
 				fb = -1;
@@ -178,11 +180,7 @@ open_linuxfb(PSD psd)
 			psd->pixtype = MWPF_TRUECOLORRGB;
 			break;
 		case 32:
-#if MWPIXEL_FORMAT == MWPF_TRUECOLORARGB
 			psd->pixtype = MWPF_TRUECOLORARGB;
-#else
-			psd->pixtype = MWPF_TRUECOLORABGR;
-#endif
 			break;
 		default:
 			EPRINTF("Unsupported %d color (%d bpp) truecolor framebuffer\n", psd->ncolors, psd->bpp);
@@ -244,7 +242,7 @@ open_linuxfb(PSD psd)
 		psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,TCX_RAM24BIT);
  		break;
 	default:
-		EPRINTF("Don't know how to mmap %s with accel %d\n", env, fb_fix.accel);
+		EPRINTF("Don't know how to mmap %s with accel %d\n", MW_PATH_FRAMEBUFFER, fb_fix.accel);
 		goto fail;
 	}
 #elif LINUX_BLACKFIN
@@ -255,7 +253,7 @@ open_linuxfb(PSD psd)
 	psd->addr = mmap(NULL, psd->size, PROT_READ|PROT_WRITE,MAP_SHARED,fb,0);
 #endif
 	if(psd->addr == NULL || psd->addr == (unsigned char *)-1) {
-		EPRINTF("Error mmaping %s: %m\n", env);
+		EPRINTF("Error mmaping %s: %m\n", MW_PATH_FRAMEBUFFER);
 		goto fail;
 	}
 

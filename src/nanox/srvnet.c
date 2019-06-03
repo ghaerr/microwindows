@@ -2107,7 +2107,7 @@ GsDropClient(int fd)
 
 		clipwp = NULL;	/* reset clip window*/
 		--connectcount;
-	} /*else DPRINTF("nano-X: trying to drop non-existent client %d.\n", fd);*/
+	} /*else EPRINTF("nano-X: trying to drop non-existent client %d.\n", fd);*/
 }
 
 /*

@@ -74,9 +74,9 @@ Mice_Open(MOUSEDEVICE *pmd)
 #if 1
     /* switch the mouse to ImPS/2 protocol*/
 	if (write(mouse_fd, imps2, sizeof(imps2)) != sizeof(imps2))
-		DPRINTF("Can't switch to ImPS/2 protocol\n");
+		EPRINTF("Can't switch to ImPS/2 protocol\n");
 	if (read(mouse_fd, buf, 4) != 1 || buf[0] != 0xF4)
-		DPRINTF("Failed to switch to ImPS/2 protocol.\n");
+		EPRINTF("Failed to switch to ImPS/2 protocol.\n");
 #endif
 	if (mouse_fd < 0)
 		return MOUSE_FAIL;

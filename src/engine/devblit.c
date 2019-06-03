@@ -126,8 +126,9 @@ BlitFallback(PSD psd, PMWBLITPARMS gc)
 static MWBLITFUNC
 GdFindFrameBlit(PSD psd, int src_data_format, int op)
 {
-	/* try conversion blits if possible*/
-	switch (src_data_format) {
+	/* use frameblit if same device*/
+	if (psd->data_format != src_data_format && psd->FrameBlit)
+	  switch (src_data_format) {	/* try conversion blits if possible*/
 	case MWIF_RGBA8888:
 		if (op == MWROP_SRC_OVER) {
 			if (psd->BlitSrcOverRGBA8888)
@@ -152,7 +153,7 @@ GdFindFrameBlit(PSD psd, int src_data_format, int op)
 		return BlitFallback;		/* wrapper function to reorder parameters*/
 	}
 
-	/* BGRA->BGRA is handled properly with frameblit_xxxa in fblin32.c*/
+	/* BGRA->BGRA and RGBA->RGBA are handled properly with frameblit_xxxa in fblin32.c*/
 
 	/* use frameblit*/
 	return psd->FrameBlit;

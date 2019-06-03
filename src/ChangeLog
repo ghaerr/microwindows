@@ -1,3 +1,7 @@
+2 Jun 2019
+	* fix Linux framebuffer driver scr_fb.c to always use MWPF_TRUECOLORARGB format, fix various compilation errors
+	* ESC key -> MWKEY_QUIT (ESC quits) in SCANKBD (kbd_ttyscan.c) linux keyboard driver
+	* fix RGBA->RGBA window move blit not using frameblit in TRUECOLORABGR case on Linux framebuffer
 1 Jun 2019
 	* cleanup mem and resource leaks reported by cppcheck
 	* optimize window buffer mmap routines, fix fbe to automatically recreate framebuffer when size changes

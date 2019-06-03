@@ -6,6 +6,7 @@
 #include <linux/vt.h>
 #include "device.h"
 #include "fb.h"
+#include "genmem.h"
 /*
  * VT switch handling code for Linux
  */
@@ -32,6 +33,7 @@ int 	MwInitVt(void);
 int  	MwCurrentVt(void);
 int  	MwCheckVtChange(void);
 void 	MwRedrawVt(int t);
+void	MwExitVt(void);
 
 /* local routines*/
 static void draw_enable(void);
@@ -93,7 +95,7 @@ draw_disable(void)
 	get_subdriver(&scrdev, &save);
 
 	/* set null driver*/
-	set_subdriver(&scrdev, &nulldriver, FALSE);
+	set_subdriver(&scrdev, &nulldriver);
 }
 
 /* Timer handler used to do the VT switch at a time when not drawing */

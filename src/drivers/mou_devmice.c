@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2019 Greg Haerr <greg@censoft.com>
  *
  * Kurt Nalty 2019 
  *	5/20/19 added scrollwheel support <greg@censoft.com>
@@ -69,15 +69,14 @@ Mice_Open(MOUSEDEVICE *pmd)
 {
 	unsigned char buf[4];
 
-	mouse_fd = open(MICE_DEV_FILE, O_RDONLY | O_NONBLOCK);
+	mouse_fd = open(MICE_DEV_FILE, O_RDWR | O_NONBLOCK);
 
-#if 1
     /* switch the mouse to ImPS/2 protocol*/
 	if (write(mouse_fd, imps2, sizeof(imps2)) != sizeof(imps2))
 		EPRINTF("Can't switch to ImPS/2 protocol\n");
 	if (read(mouse_fd, buf, 4) != 1 || buf[0] != 0xF4)
 		EPRINTF("Failed to switch to ImPS/2 protocol.\n");
-#endif
+
 	if (mouse_fd < 0)
 		return MOUSE_FAIL;
 

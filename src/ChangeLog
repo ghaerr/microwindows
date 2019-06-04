@@ -1,3 +1,5 @@
+3 Jun 2019
+	* fix DEVMICEMOUSE scrollwheel on Linux
 2 Jun 2019
 	* fix Linux framebuffer driver scr_fb.c to always use MWPF_TRUECOLORARGB format, fix various compilation errors
 	* ESC key -> MWKEY_QUIT (ESC quits) in SCANKBD (kbd_ttyscan.c) linux keyboard driver

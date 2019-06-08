@@ -401,6 +401,11 @@ typedef struct {
 #define GR_UPDATE_DESTROY	7
 #define GR_UPDATE_REPARENT      8
 
+/* Timeout parameters for GrGetNextEventTimeout()*/
+#define GR_TIMEOUT_BLOCK	((GR_TIMEOUT)0)		/* block and wait until next event*/
+#define GR_TIMEOUT_POLL		((GR_TIMEOUT)-1)	/* poll for event and return immediately*/
+#define GR_TIMEOUT_MSECS(n)	((GR_TIMEOUT)n)		/* wait for n millseconds then timeout*/
+
 /**
  * Event for errors detected by the server.
  * These events are not delivered to GrGetNextEvent, but instead call

@@ -1,3 +1,6 @@
+8 Jun 2019
+	* add GR_TIMEOUT_BLOCK, GR_TIMEOUT_POLL and GR_TIMEOUT_MSECS() parameter helpers for GrGetNextEventTimeout()
+	* fix nanowm window reposition on fullscreen to 0,0
 3 Jun 2019
 	* fix DEVMICEMOUSE scrollwheel on Linux
 2 Jun 2019

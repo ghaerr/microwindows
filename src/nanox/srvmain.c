@@ -204,7 +204,7 @@ MAIN(int argc, char **argv)			/* ALLEGRO=real_main(), main() otherwise*/
 		exit(1);
 
 	while(1)
-		GsSelect(0L);
+		GsSelect(GR_TIMEOUT_BLOCK);
 	return 0;
 }
 #endif /* !NONETWORK*/

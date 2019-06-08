@@ -10,8 +10,8 @@
 #include "nxdraw.h"
 #include "nanowm.h"
 
-static GR_COORD lastx = FIRST_WINDOW_LOCATION;
-static GR_COORD lasty = FIRST_WINDOW_LOCATION;
+static GR_COORD lastx = 0;
+static GR_COORD lasty = 0;
 
 /*
  * A new client window has been mapped, so we need to reparent and decorate it.
@@ -112,11 +112,11 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 		GrGetScreenInfo(&si);
 		x = lastx + WINDOW_STEP;
 		if((x + width) > si.cols)
-			x = FIRST_WINDOW_LOCATION;
+			x = 0;
 		lastx = x;
 		y = lasty + WINDOW_STEP;
 		if((y + height) > si.rows)
-			y = FIRST_WINDOW_LOCATION;
+			y = 0;
 		lasty = y;
 	}
 #endif

@@ -50,7 +50,7 @@ GrReqShmCmds(long shmsize)
 void
 GrGetNextEvent(GR_EVENT *ep)
 {
-	GrGetNextEventTimeout(ep, 0L);
+	GrGetNextEventTimeout(ep, GR_TIMEOUT_BLOCK);
 }
 
 /*
@@ -86,7 +86,7 @@ GrPeekWaitEvent(GR_EVENT *ep)
 	SERVER_LOCK();
 	while(curclient->eventhead == NULL)
 	{
-		GsSelect(0L);
+		GsSelect(GR_TIMEOUT_BLOCK);
 	}
 	GrPeekEvent(ep);
 	SERVER_UNLOCK();
@@ -160,7 +160,7 @@ GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 	GR_EVENT_LIST *elp, *prevelp;
 
 	/* process server events, required for williams.c XMaskEvent style app in LINK_APP_INTO_SERVER case*/
-	GsSelect(-1L); 		/* poll for event*/
+	GsSelect(GR_TIMEOUT_POLL); 		/* poll for event*/
 #if EMSCRIPTEN
 	/* required for williams.c style XCheckMaskEvent polling apps*/
 	emscripten_sleep(1); /* allow EMSCRIPTEN/SDL javascript to run after SDL screen flush*/
@@ -171,7 +171,7 @@ GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 	while(curclient->eventhead == NULL)
 	{
 getevent:
-		GsSelect(block? 0L: -1L); /* wait/poll for event*/
+		GsSelect(block? GR_TIMEOUT_BLOCK: GR_TIMEOUT_POLL); /* wait/poll for event*/
 
 #if NANOWM
 		if (curclient->eventhead)

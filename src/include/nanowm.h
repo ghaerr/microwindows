@@ -13,7 +13,6 @@
 #define OUTLINE_MOVE		0		/* draw outline only during window move*/
 #define NO_CORNER_RESIZE	0		/* don't resize windows on corner drag*/
 #define NO_AUTO_MOVE		0		/* don't auto position window on new windows*/
-#define FIRST_WINDOW_LOCATION 2		/* x,y for first window*/
 #define WINDOW_STEP			20	 	/* x,y step between new window placements*/
 #define MAXSYSCOLORS		22		/* # of GR_COLOR_* system colors*/
 

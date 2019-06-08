@@ -123,7 +123,7 @@ GrPeekEvent(GR_EVENT *ep)
 	/* if no events on queue, force select() event check*/
 	if (elp == NULL)
 	{
-		GsSelect(-1L);	/* poll*/
+		GsSelect(GR_TIMEOUT_POLL);	/* poll*/
 		elp = curclient->eventhead;
 	}
 #endif

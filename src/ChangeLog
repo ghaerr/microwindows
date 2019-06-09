@@ -1,4 +1,5 @@
 8 Jun 2019
+	* fix event jam preventing event handling with SDL touch input, don't return from GsSelect preselect
 	* add GR_TIMEOUT_BLOCK, GR_TIMEOUT_POLL and GR_TIMEOUT_MSECS() parameter helpers for GrGetNextEventTimeout()
 	* fix nanowm window reposition on fullscreen to 0,0
 3 Jun 2019

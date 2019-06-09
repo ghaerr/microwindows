@@ -383,8 +383,9 @@ GsSelect(GR_TIMEOUT timeout)
 			while (GsCheckKeyboardEvent())
 				continue;
 
-			/* events found, return with no sleep*/
-			return;
+			/* if events found, don't return unless polling, events handled below*/
+			if (timeout != GR_TIMEOUT_BLOCK)
+				return;
 		}
 	}
 

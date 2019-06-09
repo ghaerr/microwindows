@@ -469,7 +469,7 @@ GrFlush(void)
 
 	/* And stick any incoming events on the local queue */
 	while (_GrPeekEvent(&event)) {
-		_GrGetNextEventTimeout(&event, 0L);
+		_GrGetNextEventTimeout(&event, GR_TIMEOUT_BLOCK);
 		QueueEvent(&event);
 	}
 #endif
@@ -910,7 +910,7 @@ GetNextQueuedEvent(GR_EVENT *ep)
 void 
 GrGetNextEvent(GR_EVENT *ep)
 {
-	GrGetNextEventTimeout(ep, 0L);
+	GrGetNextEventTimeout(ep, GR_TIMEOUT_BLOCK);
 }
 
 /**
@@ -986,7 +986,7 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	GrPrepareSelect(&setsize, &rfds);
 
 	/* setup timeval struct for timeout block or poll in select()*/
-	if (timeout == (GR_TIMEOUT)-1L) {		/* polling*/
+	if (timeout == GR_TIMEOUT_POLL) {		/* polling*/
 		to.tv_sec = to.tv_usec = 0;
 	} else if (timeout) {					/* block for timeout msecs*/
 		to.tv_sec = timeout / 1000;
@@ -1229,7 +1229,7 @@ GrGetTypedEventPred(GR_WINDOW_ID wid, GR_EVENT_MASK mask, GR_UPDATE_TYPE update,
 	/* First, suck up all events and place them into the event queue */
 	while(_GrPeekEvent(&event)) {
 getevent:
-		_GrGetNextEventTimeout(&event, 0L);
+		_GrGetNextEventTimeout(&event, GR_TIMEOUT_BLOCK);
 		QueueEvent(&event);
 	}
 

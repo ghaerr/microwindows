@@ -475,7 +475,7 @@ GsSelect(GR_TIMEOUT timeout)
 	/* setup timeval struct for block or poll in select()*/
 	tout.tv_sec = tout.tv_usec = 0;					/* setup for assumed poll*/
 	to = &tout;
-	int poll = (timeout == (GR_TIMEOUT) -1L);		/* timeout = -1 means just poll*/
+	int poll = (timeout == GR_TIMEOUT_POLL);
 	if (!poll)
 	{
 #if MW_FEATURE_TIMERS
@@ -630,7 +630,7 @@ GsSelect (GR_TIMEOUT timeout)
 	m.type = MV_UID_INVALID;
 
 	/* wait up for events */
-	if (timeout == (GR_TIMEOUT) -1)
+	if (timeout == GR_TIMEOUT_POLL)
 		uid_timeout = 0;
 	else {
 #if MW_FEATURE_TIMERS
@@ -706,11 +706,11 @@ GsSelect(GR_TIMEOUT timeout)
 
 #if MW_FEATURE_TIMERS
 	struct timeval tout;
-	if (timeout != (GR_TIMEOUT)-1L)
+	if (timeout != GR_TIMEOUT_POLL)
 		GdGetNextTimeout(&tout, timeout);	/* set initial mainloop timeout*/
 #endif
 #if EMSCRIPTEN
-	if (timeout == (GR_TIMEOUT)-1L)
+	if (timeout == GR_TIMEOUT_POLL)
 		timeout = 1;				/* need to give up some CPU in GdDelay even on poll*/
 #endif
 	/* input gathering loop */
@@ -731,7 +731,7 @@ GsSelect(GR_TIMEOUT timeout)
 				break;				/* don't handle too many events at one shot*/
 		
 		/* did we handle any input or were we just polling?*/
-		if (numevents || timeout == (GR_TIMEOUT)-1L)
+		if (numevents || timeout == GR_TIMEOUT_POLL)
 			return;					/* yes - return without sleeping*/
 
 		/* give up time-slice & sleep for a bit */

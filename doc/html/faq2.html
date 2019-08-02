@@ -10,7 +10,7 @@
 
 <h1>Microwindows Frequently Asked Questions - Part 2</h1>
 
-<p>2018/11/12 Microwindows FAQ2<br>
+<p>August 2, 2019 Microwindows FAQ2<br>
 <br>
 </p>
 
@@ -45,15 +45,14 @@ rtems:		special files for the RTEMS operating system
 
 <h3>Where is the configure file?</h3>
 
-<p>Microwindows does not have a configure file. For all systems other than EMSCRIPTEN,
-Android, or DJGPP, it uses a makefile based build system.<br>
-This are several linked Makefiles files which are called recursively. To customise<br>
+<p>Microwindows does not have a configure file, but uses a "config" file which is read
+by the automatic makefile system.  To customise<br>
 this for the various platforms there is a config file which you can edit. Examples of this<br>
 config file for different platforms are in the "src/Configs" directory.<br>
 <br>
 
-For Android, EMSCRIPTEN, DJGPP and RTEMS  platforms there are currently additional special makefiles.<br>
-Makefile_nr is used for MinGW, DJGPP and EMSCRIPTEN, and Makefile.rtems for RTEMS.<br>
+For Android, MingGW and DJGPP platforms there are currently additional special makefiles,<br>
+and Makefile_nr is used.<br>
 <br>
 
 The Makefile, which is used for Linux and OSX includes Path.rules and the config file<br>
@@ -66,29 +65,31 @@ Makefile.rules file again to compile the required files.<br>
 <br>
 </p>
 
-<h3>What is the NXlib library?</h3>
+<h3>What is the NX11 library?</h3>
 
-<p>Since nano-X is not fully compatible to X11 it is quite some work to port X11 applications to<br>
-nano-X. NXlib is a wrapper library for nano-X which does provide X11 compatibility.<br>
+<p>Since nano-X was not designed to be fully compatible with X11 it used to be quite some work to port X11 applications to<br>
+nano-X. NX11 is a wrapper library for nano-X which provides X11 compatibility.<br>
 <br>
-Users of Microwindows currently mainly want to port X11 applications to it. Writing applications<br>
-based on nano-X from scratch is rarely done. So applications are now based on NX11 instead of<br>
-nano-X directly. Furthermore applications now are not based on X11 directly but using a GUI toolkit.<br>
-For NX11 this is FLTK which can be based well on NX11.<br>
+Users of Microwindows may want to port X11 applications to it.
+These applications will be linked with NX11 instead of
+X11 directly. Many applications now are not based on X11 directly but using a GUI toolkit.
+A lightweight library is FLTK which can be based well on NX11.<br>
 <br>
-If you link an application with libNXlib you also have to link it with libnano-X, i.e. -lNXlib and -lnano-X.<br>
+If you link an application with libNX11 you also have to link it with libnano-X, i.e. -lNX11 and -lnano-X.<br>
 <br>
-PXlib is a library that is NXlib plus nano-X compiled together. So when porting applications to <br>
-Microwindows you do not have to replace -lX11 with both -lNX11 and -lnano-X any more, just -lPXlib <br>
-will do.<br>
+Before this release NX11 was called NXlib, and was a separate archive to download. It now is included in the src/nx11 subdirectory in the Microwindows sources.<br>
 <br>
-Before this release NXlib was a separate archive to download. It now is added in the src/nx11 subdirectory to the<br>
-Microwindows package.<br>
+To compile the NX11 library, pick a config file that matches your target system from microwindows/src/Configs,
+and copy it to microwindows/src/config. Then, set the following options and type "make".<br>
 <br>
+NANOX=Y		(build nano-X library and server)<br>
+NX11=Y		(builds NX11 library)<br>
+NANOWM=Y	(include built-in window manager in nano-X server)<br>
+NUKLEARUI=N	(use older-style window frames, better match for FLTK graphics)<br>
 <br>
 </p>
 
-<h3>How to compile a program using the Nano-X or NXlib libraries on the command line?</h3>
+<h3>How to compile a program using the Nano-X or NX11 libraries on the command line?</h3>
 Nano-X:<br>
 <br>
 First make e.g. a "mytests" folder in the "microwindows/src" directory. Copy e.g. the "src/demos/nanox/arcdemo.c" program<br>
@@ -99,28 +100,23 @@ into the "mytests" folder. Then, while in the "src" folder, enter:<br>
 This will compile the arcdemo program in the mytests folder. To run the program enter, while in the "src" directory,<br> 
 the following line:<br>
 <br>
-"bin/nano-X -N & bin/nanowm & mytests/arcdemo"<br>
+"bin/nano-X -N & mytests/arcdemo"<br>
 <br>
-Calling "bin/nanwm" adds a Nano-X window manager background window. On some platforms you need to add some delays:<br>
-"bin/nano-X -N & sleep 1; bin/nanowm & sleep 1; mytests/arcdemo & sleep 10000"<br>
+NX11:<br>
 <br>
-NXlib:<br>
+If you compiled shared libraries, which is the default setting in the config file, you may have to execute the<br>
+command "sudo make install" so the applications using NX11 will find the required libraries they depend on.<br>
+Otherwise on Linux, you will need a compiler option to set the shared library path to the microwindows lib directory.
 <br>
-If you compiled shared libraries, which is the default setting in the config file, you have to execute the<br>
-command "sudo make install" so the applications using NXlib will find the required libraries they depend on.<br>
-<br>
-To use the NXlib library copy e.g. the "src/nxlib/test/xgreen.c" program into the "mytests" folder. <br>
+To use the NX11 library copy e.g. the "src/nxlib/test/xgreen.c" program into the "mytests" folder. <br>
 Then, while in the "src" folder, enter:<br>
 <br>
-"gcc -Llib -Iinclude mytests/xgreen.c -lnano-X -lNX11 -o mytests/xgreen"<br>
+"gcc -Llib -Iinclude mytests/xgreen.c -lNX11 -lnano-X -o mytests/xgreen"<br>
 <br>
 This will compile the xgreen program in the mytests folder. To run the program enter, while in the "src" directory, <br> 
 the following line:<br>
 <br>
-"bin/nano-X -N & bin/nanowm & mytests/xgreen"<br>
-<br>
-To use the PX11 library compile with: "gcc -Llib -Iinclude mytests/xgreen.c -lPX11 -o mytests/xgreen" <br> 
-and run with: "bin/nano-X -N & bin/nanowm & mytests/xgreen"<br>
+"bin/nano-X -N & mytests/xgreen"<br>
 <br>
 </p>
 
@@ -130,15 +126,15 @@ and run with: "bin/nano-X -N & bin/nanowm & mytests/xgreen"<br>
 <p>For this you should compile Microwindows with the config.fltk file in the configs directory. Rename config<br>
 in the src directory to e.g. config.default and then copy the config.fltk file as config into the src directory.<br>
 When using the X11 platform, leave SHAREDLIBS=Y and LINK_APP_INTO_SERVER=N.<br>
-Then compile Microwindows and enter "sudo make install" to install the shared libraries PX11, NX11 and nano-X plus<br>
-the nano-X and nanowm programs in the "/usr" directory so FLTK can access them there.<br>
+Then compile Microwindows and enter "sudo make install" to install the shared libraries NX11 and nano-X plus<br>
+the nano-X server in the "/usr/local" directory so FLTK can access them there.<br>
 You can remove these again with the "sudo make cleanusr" command.<br>
 <br>
 Download <b>FLTK 1.3.2</b> and cd into the fltk directory. If you are using a later version, you have to follow the<br>
 additional instructions provided below. Then enter:<br>
 <pre>
-./configure --x-includes=/home/georg/microwindows/src/nxlib/X11 \
-  --x-libraries=/home/georg/microwindows/src/lib \
+./configure --x-includes=/path/to/microwindows/src/nx11/X11-local/X11 \
+  --x-libraries=/path/to/microwindows/src/lib \
   --disable-gl \
   --disable-xinerama \
   --disable-xft  \
@@ -148,13 +144,13 @@ additional instructions provided below. Then enter:<br>
 Modify the paths specified to match your situation. You can put this command into a script to repeat it if <br>
 required.<br>
 <br>
-Then replace the "-lX11 and -lXext" entries with "-lNX11 -lnano-X" or "-lPX11" in the files makeinclude <br>
-and fltk-config. You can use the replace-lX11.sh script in the microwindows/src directory for that. You can<br>
+Then replace the "-lX11 and -lXext" entries with "-lNX11 -lnano-X" in the files makeinclude <br>
+and fltk-config. You can use the replace-lX11.sh script in the microwindows/src/nx11 directory for that. You can<br>
 run that script once with makeinclude entered on the command line and once with fltk-config specified <br>
 on the command line:<br>
 <pre>
-./replace-lX11.sh makeinclude
-./replace-lX11.sh fltk-config
+replace-lX11.sh makeinclude
+replace-lX11.sh fltk-config
 </pre>
 If you are using Microwindows on the Linux X11 platform, you will need to make a patch to the FLTK source code<br>
 since FLTK will dynamically load XRANDR support when starting and that causes your program to crash immediately.<br>
@@ -164,17 +160,16 @@ will be loaded.<br>
 <br>
 Then enter "make" in the fltk directory. <br> 
 <br>
-After that you can execute the examples using a script like that: "nano-X & nanowm & test/hello & sleep 10000".<br>
+After that you can execute the examples using a script like that: "nano-X & test/hello".<br>
 On some platforms these commands do not work from the command line, just from a script. After terminating the <br>
 application you have to terminate this script with CTRL-C. Sometimes the application window hides behind other windows.<br>
 As an alternative you can also start each program in this script separately on the command line like that:
 <pre>
 nano-X&
-nanowm&
 test/hello
 </pre>
 This way the programs nano-X and nanowm will continue to run in the background and you can execute different demos<br>
-sequentially.<br>
+sequentially. The nano-X server can be run with the "-p" persistent option which will stop it from exiting when the last NX11 application exits.<br>
 <br>
 If you run the examples, however, you will find that the fonts do not work. You just get the small default font.<br>
 To enable truetype fonts you can either copy the fonts.alias file example from the "src/nxlib/fonts" directory<br> 
@@ -184,20 +179,20 @@ XLFD descriptions. There is also the TTFONTS environment variable which points M
 directory.<br>
 <br>
 If you want to compile a program from the command line you can enter:<br> 
-"g++ test/hello.cxx -o hello -Llib  -lPX11 -lfreetype -lfltk -ldl"<br>
+"g++ test/hello.cxx -o hello -Llib  -lNX11 -lnano-X -lfreetype -lfltk -ldl"<br>
 If you do not need to compile fluid and the demos you can "cd" into the "fltk-1.3.2/src" directory and enter "make" there.<br>
 This will just compile the FLTK libraries.<br>
 <br>
 The instructions above assumed that the Microwindows libraries were compiled as shared libraries. You can also use<br>
 static libraries. In this case you have to set SHAREDLIBS=N in the "config" file and compile Microwindows with this <br>
 parameter set. Then enter "sudo make install". In the "makeinclude" file in the FLTK directory you have to specify<br>
-the path to the static library instead of "-lPX11": "/home/georg/microwindows/src/lib/libPX11.a". Modify to path to your<br>
-situation. Also, behind the -lPX11 parameter in "makeinclude" you have to add "-lfreetype" to get FLTK to compile using the<br>
+the path to the static library instead of "-lNX11": "/path/to/microwindows/src/lib/libNX11.a". Modify the path to your<br>
+situation. Also, behind the -lNX11 parameter in "makeinclude" you may have to add "-lfreetype" to get FLTK to compile using the<br>
 static library. Then enter "make".<br>
 If you enter "make -k" it will not stop when trying to compile the sudoku game. It may stop at the UTF-8 program,<br>
 but the examples and FLTK will work anyway.<br>
 <br>
-Again, you can then execute the demos using this script: "nano-X & nanowm & test/hello & sleep 10000"<br>
+Again, you can then execute the demos using this script: "nano-X & test/hello &"<br>
 <br>
 If you are <b>not</b> using the X11 platform and have set SHAREDLIBS=N plus LINK_APP_INTO_SERVER=Y in the microwindows<br>
 config file, you can start the examples without a script and just enter "test/hello" on the command line. Or click on the<br>
@@ -245,12 +240,12 @@ a) run configure with the following script:
   --enable-localpng \
   --enable-localzlib \
   --disable-threads \
-  --x-includes=/home/georg/microwindows/src/nxlib/X11 \
-  --x-libraries=/home/georg/microwindows/src/lib \
+  --x-includes=/path/to/microwindows/src/nx11/X11-local/X11 \
+  --x-libraries=/path/to/microwindows/src/lib \
   --disable-xcursor \
   --disable-xrender 
 </pre>
-b) copy the file ./replace-lX11.sh into the fltk-1.4.x directory and run:
+b) copy the file src/nx11/replace-lX11.sh into the fltk-1.4.x directory and run:
 <pre>
 ./replace-lX11.sh makeinclude
 ./replace-lX11.sh fltk-config
@@ -272,10 +267,10 @@ Additional details regarding FLTK on Microwindows are provided by Ian MacArthur 
 <a href="http://www.fltk.org/articles.php?L1352+I60+T+P1+Q">Article #1352</a><br>
 This article now refers to an earlier version of Microwindows and thus is partially deprecated now. The NX11 library<br>
 does not need to be compiled separately any more and you do not need to remove VNC or patch the image_png.c<br>
-and Text16.c files. You can use -PX11 instead of -lNX11 and -lnano-X now.<br>
+and Text16.c files.<br>
 <br>
 There is also flnx which is a modified version of FLTK 1.1 to work with nano-X before<br>
-NXlib was availabe. Flnx is deprecated now.<br>
+NX11 was availabe. Flnx is deprecated now.<br>
 <br>
 </p>
 
@@ -296,7 +291,7 @@ Microwindows comes with a fonts directory which contains a number of fonts. You 
 into your application directory where your application then will usually find them.<br>
 Nano-X uses the path "fonts/truetype" as default.<br>
 <br>
-NXlib will also scan the /usr/share/fonts directory for available fonts.<br>
+NX11 will also scan the /usr/share/fonts directory for available fonts.<br>
 <br>
 If your application requests fonts that are not available, you can set up a fonts.alias file<br>
 which will map the requested fonts to other fonts that are availabe. For DOS this file is<br>
@@ -391,12 +386,11 @@ makedos.bat file to compile. This batch file calls "make -f Makefile_nr ARCH=DOS
 <h3>How to port a Linux application to Microwindows?</h3>
 
 <p>
-Since the configure script of the new application will not find NXlib or PXlib, it will look for <br>
+Since the configure script of the new application will not find NX11, it will look for <br>
 standard X11.<br>
 <br>
 However, after you run ./configure on your Linux system you can edit the resulting Makefile and <br>
-replace in it the references to the "-lX11 and -lXext" libraries with "-lNX11 -lnano-X" or just <br>
-"-lPX11". Many applications will compile then.<br>
+replace in it the references to the "-lX11 and -lXext" libraries with "-lNX11 -lnano-X". Many applications will compile then.<br>
 <br>
 You can also use the <b>replace-lX11.sh script</b> in the src directory to replace "-lX11 and -lXext" in a<br>
 Makefile or any other file for you. Enter the name of the makefile on the command line when executing<br>
@@ -426,7 +420,7 @@ different platforms which you will have to set for your platform too.<br>
 <p>
 This are applications which are too large to be ported to Microwindows.<br>
 <br>
-There is NanoGTK which is GTK version 1.2 ported to nano-X. With NXlib it is also possible to compile GTK1.<br>
+There is NanoGTK which is GTK version 1.2 ported to nano-X. With NX11 it is also possible to compile GTK1.<br>
 However, today there are almost no applications using GTK1 since that is not compatible with GTK2.<br>
 <br>
 Greg Haerr did some tests with an early version of QT (qt-x11-2.3.1). The NX11 library was sufficiently<br>
@@ -441,7 +435,7 @@ to code on the Windows API level you can use that. This library provides a Windo
 can be used on any platfrom that Microwindows will run on.<br>
 <br>
 The Microwindows library therefore has two APIs: one is Windows API compatible (mwin) and one is<br>
-X11 compatible (nano-X with NXlib).<br>
+X11 compatible (nano-X with NX11).<br>
 <br>
 With the current support for FLTK it is usually better to start an application based on that. FLTK is a<br>
 more extensive GUI toolkit than the Windows API compatible mwin library.<br>
@@ -492,7 +486,7 @@ will no longer work. <br>
 </p>
 
 <h3>My mouse wheel does not work!</h3>
-<p>Nano-X and NXlib do support the mouse wheel, but not all mouse drivers in the drivers directory are adapted<br>
+<p>Nano-X and NX11 do support the mouse wheel, but not all mouse drivers in the drivers directory are adapted<br>
 to report more than three mouse buttons yet. Currently only the gpm, x11 and Allegro mouse driver report the <br>
 up- and down wheel movement.<br>
 <br>
@@ -521,21 +515,22 @@ you can set NANOXDEMO = N too to avoid these demos to be compiled.<br>
 
 <h3>What difference does the LINK_APP_INTO_SERVER macro make? - Linking options in config</h3>
 <p>
-Microwindows can be compiled to a separate server and window manager and the application linked with<br>
-the nano-X.a or mwin.a library will have the client part that communicates via sockets with this server.<br>
-So you first have to load nano-X and nanowm before starting your application. A typical script for that<br>
-looks like this: "bin/nano-X & bin/nanowm & bin/$progname".<br>
+Microwindows can be compiled to a separate server and the application linked with<br>
+the nano-X.a library will have the client part that communicates via sockets with this server.<br>
+So you first have to run nano-X before starting your application. A typical script for that<br>
+looks like this: "bin/nano-X & bin/$progname".<br>
+A script has been prewritten for you: src/runapp, usage: "./runapp progname".<br>
 <br>
 If you set the LINK_APP_INTO_SERVER macro to "Y" Microwindows will compile to a single nano-X.a library and not <br>
-generate separate nano-X server und nanowm window manager programs. The client and server parts plus the window <br>
-manager are linked together to one library. If you link your application with this library, you do not have to <br>
+generate a separate nano-X server. The client and server parts <br>
+are linked together to one library. If you link your application with this library, you do not have to <br>
 load the server before the application, you can just click on the application in your file manager and that will <br>
 start it. You can also start your application from the command line as a single program.<br>
 <br>
-The window manager will be build only if you set the NANOWM macro to "Y". Otherwise the application will run<br>
+The window manager will be included in the server only if you set the NANOWM variable to "Y". Otherwise the application will run<br>
 without this window manager and thus without window decorations.<br>
 <br>
-If you set the SHAREDLIBS macro to "Y" the nano-X, NXlib etc. libraries are compiled as shared libries in<br>
+If you set the SHAREDLIBS macro to "Y" the nano-X, NX11 etc. libraries are compiled as shared libries in<br>
 addition to being compiled to static libaries. So the application does not have to link statically with nano-X<br> 
 or NX11 but can load these dynamically at runtime. You find all these libraries in the "src/lib" directory.<br>
 <br></p>
@@ -595,13 +590,13 @@ The frame buffer emulator supports the following command line options:<br>
 -r [Reverse bit order (1,2,4bpp LSB first)], -g [Gray palette (4bpp only)], -c [Force create new framebuffer (required when size changes)] <br>
 <br></p>
 
-<h3>How to compile MuPDF with NXlib or PXlib?</h3>
+<h3>How to compile MuPDF with NX11?</h3>
 <p>
 Download MuPDF from this link: <a href="https://mupdf.com/downloads/archive/mupdf-1.14.0-source.tar.gz">https://mupdf.com/downloads/archive/mupdf-1.14.0-source.tar.gz</a><br>
-After unpacking the archive into your home directory change the Makerules file in line 131 to use libPX11 instead of libX11 like this:<br>
+After unpacking the archive into your home directory change the Makerules file in line 131 to use libNX11 instead of libX11 like this:<br>
 <pre>
 #X11_LIBS = $(shell pkg-config --libs x11 xext)
-X11_LIBS = -L../lib -lPX11 -lNXext
+X11_LIBS = -L../lib -lNX11 -lnano-X
 </pre>
 Then compile MuPDF with the following command:<br>
 <pre>make HAVE_GLUT=no</pre>

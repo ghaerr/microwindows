@@ -250,18 +250,15 @@ b) copy the file src/nx11/replace-lX11.sh into the fltk-1.4.x directory and run:
 ./replace-lX11.sh makeinclude
 ./replace-lX11.sh fltk-config
 </pre>
-c) add the line "#undef USE_XRANDR" right after the line "#define USE_XRANDR ..." in the files "src/Fl_x.cxx" (Line 53) and<br>
-"Fl_X11_Screen_Driver.cxx" (Line 272).<br>
-<br>
-d) Change the following lines at the very end of the config.h file in the fltk directory:<br>
+c) Change the following lines at the very end of the config.h file in the fltk directory:<br>
 <pre>
 #define HAVE_DLFCN_H 0
 #define HAVE_DLSYM 0
 </pre>
-e) run "make" in the fltk directory now.<br>
+d) run "make" in the fltk directory now.<br>
 For this to work make sure you did a "make install" in the "microwindows/src" directory before.<br>
 <br>
-f) execute the examples e.g. like this: "nano-X & nanowm & test/editor & sleep 10000"<br>
+e) execute the examples e.g. like this: "nano-X & test/editor"<br>
 <br>
 Additional details regarding FLTK on Microwindows are provided by Ian MacArthur here:  
 <a href="http://www.fltk.org/articles.php?L1352+I60+T+P1+Q">Article #1352</a><br>

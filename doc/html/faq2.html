@@ -128,8 +128,9 @@ example config files for various platforms. Rename the config file in the src di
 and copy the config file which fits your system into the src directory. E.g. "cp Configs/config.linux-X11 config".<br>
 <br>
 In the config file, check that the path for the freetype2 headers is properly defined in the INCFT2LIB variable.<br>
-The default is set to "/usr/include" but on some Linux distributions this will be "/usr/include/freetype2" instead.<br>
-When using the X11 platform, leave SHAREDLIBS=Y and LINK_APP_INTO_SERVER=N.<br>
+The default is set to "/usr/include". In this case the Makefile.rules file will add "freetype2" to this path so<br>
+this results in the path "/usr/include/freetype2". You can also specify "/usr/include/freetype2" or some other path<br>
+instead. When using the X11 platform, leave SHAREDLIBS=Y and LINK_APP_INTO_SERVER=N.<br>
 <br>
 Then compile Microwindows and enter "sudo make install" to install the shared libraries NX11 and nano-X plus<br>
 the nano-X server in the "/usr/local" directory so FLTK can access them there.<br>
@@ -234,7 +235,7 @@ line 159 where USE_XRANDR is defined. For this version you also have to add the 
   --disable-xrender \
 </pre>
 <br>
-For <b>FLTK 1.4.x</b> the instructions above can be summarized as follows:<br>
+For <b>FLTK 1.3.5</b> and <b>FLTK 1.4.x</b> the instructions above can be summarized as follows:<br>
 <br>
 a) run configure with the following script:
 <pre>

@@ -24,7 +24,6 @@ int XGetPointerControl() { DPRINTF("XGetPointerControl called\n"); return 0; }
 int XChangePointerControl() { DPRINTF("XChangePointerControl called\n"); return 0; } 
 int XDefaultGC() { DPRINTF("XDefaultGC called\n"); return 0; }
 int XkbGetIndicatorState() { DPRINTF("XkbGetIndicatorState called\n"); return 0; }
-int XScreenOfDisplay() { DPRINTF("XScreenOfDisplay called\n"); return 0; } 
 
 /* required for FLTK 1.3.4 (also must #define USE_XRANDR 0 in FLTK src*/
 int XFixesQueryExtension() { DPRINTF("XFixesQueryExtension called\n"); return 0; }

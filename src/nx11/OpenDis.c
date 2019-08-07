@@ -305,6 +305,12 @@ XDefaultScreenOfDisplay(Display * display)
 	return &display->screens[0];
 }
 
+Screen *
+XScreenOfDisplay(Display * display, int screen)
+{
+	return &display->screens[screen];
+}
+
 int
 XScreenNumberOfScreen(Screen *scr)
 {

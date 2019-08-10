@@ -110,7 +110,6 @@ int _XGetScanlinePad() { DPRINTF("_XGetScanlinePad called\n"); return 0; }
 //int XGetWMHints() { DPRINTF("XGetWMHints called\n"); return 0; } 
 int XGetWMNormalHints() { DPRINTF("XGetWMNormalHints called\n"); return 0; } 
 int XGrabKeyboard() { DPRINTF("XGrabKeyboard called\n"); return 0; } 
-int XGrabPointer() { DPRINTF("XGrabPointer called\n"); return 0; } 
 int XGrabServer() { DPRINTF("XGrabServer called\n"); return 0; } 
 int XIconifyWindow() { DPRINTF("XIconifyWindow called\n"); return 0; } 
 //int XInitExtension() { DPRINTF("XInitExtension called\n"); return 0; } 
@@ -142,11 +141,9 @@ int XSetStandardProperties() { DPRINTF("XSetStandardProperties called\n"); retur
 int XSupportsLocale() { DPRINTF("XSupportsLocale called\n"); return 0; } /* 0 = does not support locale */
 int XSynchronize() { DPRINTF("XSynchronize called\n"); return 0; } 
 int XUngrabKeyboard() { DPRINTF("XUngrabKeyboard called\n"); return 0; } 
-int XUngrabPointer() { DPRINTF("XUngrabPointer called\n"); return 0; } 
 int XUngrabServer() { DPRINTF("XUngrabServer called\n"); return 0; } 
 int XVaCreateNestedList() { DPRINTF("XVaCreateNestedList called\n"); return 0; } 
 int _XVIDtoVisual() { DPRINTF("_XVIDtoVisual called\n"); return 0; } 
-int XWarpPointer() { DPRINTF("XWarpPointer called\n"); return 0; } 
 int XInstallColormap() { DPRINTF("XInstallColormap called\n"); return 0; } 
 int XReconfigureWMWindow() { DPRINTF("XReconfigureWMWindow called\n"); return 0; } 
 int XSetWindowColormap() { DPRINTF("XSetWindowColormap called\n"); return 0; } 

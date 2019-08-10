@@ -84,6 +84,8 @@ NXOBJS = DestWind.o MapWindow.o NextEvent.o OpenDis.o ClDisplay.o\
 
 # compile in X extension dummy stubs into NXLIB
 NXOBJS += NXext.o
+# add Xinerama functions
+NXOBJS += Xinerama.o
 
 # incompatible routine: missing real X11/Xlcint.h header on installed X11
 #NXOBJS += IM.o

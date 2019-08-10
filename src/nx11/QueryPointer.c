@@ -108,3 +108,26 @@ XTranslateCoordinates(Display * display, Window src_w, Window dest_w,
 
 	return True;
 }
+
+int XWarpPointer( Display* display, Window srcW, Window destW,
+                 int srcX, int srcY,
+                 unsigned int srcWidth,
+                 unsigned int srcHeight,
+                 int destX, int destY)
+{
+    GrMoveCursor(destX, destY);
+    return 0;
+}
+
+int XGrabPointer(Display* display, Window grab_window,
+                 Bool owner_events, unsigned int event_mask,
+                 int pointer_mode, int keyboard_mode,
+                 Window confine_to, Cursor cursor, Time time)
+{
+    return 0;
+}
+
+int XUngrabPointer(Display* display, Time time)
+{
+    return 0;
+}

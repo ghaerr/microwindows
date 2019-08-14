@@ -1,3 +1,6 @@
+7 Aug 2019 GP
+	* support Xinerama functions for wxWidgets and FLTK
+	* added XScreenOfDisplay and XWarpPointer for wxWidgets
 2 Jan 2019
 	* support removal of -lXfixes by adding stubs
 	* renamed nxlib/X11 headers to nxlib/X11-local/X11, no -I., headers are out of date, default now uses installed X11 hdrs

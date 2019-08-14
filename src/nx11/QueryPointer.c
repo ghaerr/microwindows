@@ -118,16 +118,3 @@ int XWarpPointer( Display* display, Window srcW, Window destW,
     GrMoveCursor(destX, destY);
     return 0;
 }
-
-int XGrabPointer(Display* display, Window grab_window,
-                 Bool owner_events, unsigned int event_mask,
-                 int pointer_mode, int keyboard_mode,
-                 Window confine_to, Cursor cursor, Time time)
-{
-    return 0;
-}
-
-int XUngrabPointer(Display* display, Time time)
-{
-    return 0;
-}

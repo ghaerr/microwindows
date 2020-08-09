@@ -409,7 +409,7 @@ void MwSelect (BOOL canBlock)
 }
 
 /********************************************************************************/
-#else /* MSDOS | _MINIX | NDS | VXWORKS | PSP | __MINGW32__ | ALLEGRO | EMSCRIPTEN*/
+#else /* MSDOS | _MINIX | NDS | VXWORKS | PSP | __MINGW32__ | ALLEGRO | EMSCRIPTEN | AJAGUAR */
 
 /* this MwSelect() is used for all polling-based platforms not specially handled above*/
 #define WAITTIME	50		/* blocking sleep interval in msecs unless polling*/

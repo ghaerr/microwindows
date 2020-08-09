@@ -117,6 +117,13 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_psp.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_psp.o
 endif
 
+# Atari Jaguar
+ifeq ($(ARCH), AJAGUAR)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_ajaguar.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ajaguar.o
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ajaguar.o
+endif
+
 #### end platforms
 
 ### The following are screen, keyboard and mouse drivers used on non-specific platforms

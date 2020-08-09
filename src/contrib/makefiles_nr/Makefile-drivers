@@ -36,6 +36,13 @@ OBJECTS += mou_x11.o
 OBJECTS += kbd_x11.o
 endif
 
+# AJAGUAR
+ifeq ($(AJAGUAR), Y)
+OBJECTS += scr_ajaguar.o
+OBJECTS += mou_ajaguar.o
+OBJECTS += kbd_ajaguar.o
+endif
+
 # for EMSCRIPTEN
 ifeq ($(SDL1), Y)
     OBJECTS += scr_sdl1.o 

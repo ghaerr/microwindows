@@ -1,3 +1,8 @@
+add Atari Jaguar specific features and optimizations.
+try resolution above 320x240.
+console gamepad and mouse/keyboard emulation support.
+to complete/fix the makefile to handle the platform.
+
 look at MwInitializeDialogs for mwapp init and msvc init
 fix undefined externs in mwin MULTIAPP .so links (image lib, mwstretch.c)
 test ALLEGRO with winmain2.c and shared libs

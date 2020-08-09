@@ -30,4 +30,6 @@ int gettimeofday(struct timeval *tv, struct timezone *tz);
 #include <sys/time.h>
 #endif
 
+extern uint32_t timeGetTime(void);
+
 #endif /* SYS_TIME_H*/

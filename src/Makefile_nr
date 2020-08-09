@@ -8,7 +8,9 @@
 # or       make -f Makefile_nr ARCH=EM
 # or       make -f Makefile_nr ARCH=X11
 # or	   make -f Makefile_nr ARCH=MIN
+# or       make -f Makefile_nr ARCH=AJAGUAR
 
+AJAGUAR   =Y
 EMSCRIPTEN=N
 DOS_DJGPP =N
 X11       =N
@@ -22,6 +24,11 @@ endif
 ifeq ($(subst dos,DOS,$(ARCH))), DOS)
 DOS_DJGPP=Y
 $(info Compiling for DOS DJGPP)
+endif
+
+ifeq ($(subst ajaguar,AJAGUAR,$(ARCH)), AJAGUAR)
+AJAGUAR=Y
+$(info Compiling for Atari Jaguar)
 endif
 
 ifeq ($(subst x,X,$(ARCH)), X11)
@@ -44,17 +51,17 @@ $(info    )
 $(patsubst pattern,replacement,text)
 endif
 
-# define arch: DOS/DJGPP or MINGW or EMSCRIPTEN or X11 #######################
+# define arch: DOS/DJGPP or MINGW or EMSCRIPTEN or X11 or AJAGUAR #######################
 
 # export variables for sublevel makefiles
 export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS HAVEMSFONTS VESA MINGW DOS_DJGPP SDL1 SDL2 ALLEGRO4 ALLEGRO5 CLIBS EMSCRIPTEN VERBOSE HAVE_FREETYPE_2_SUPPORT SHOWSTUBS X11 
 
 # uncomment to build microwin and/or nano-X demos and libraries
 MICROWIN=1
-NANOX=1
+#NANOX=1
 
 #uncomment to select just a few examples for testing
-TESTPROG=1
+#TESTPROG=1
 
 # network libs location
 NETLIBS=
@@ -67,15 +74,20 @@ ifdef ALLEGRO5
 LIBALLEGRO= -lallegro #.dll
 endif
 
+# Tools prefix
+ifdef AJAGUAR
+TOOLSPREFIX		 = m68k-elf-
+endif
+
 # for recursive makes into subdirectories
 MW_DIR_SRC := $(CURDIR)
 MW_DIR_BIN := $(CURDIR)/bin
 
 # set variable to compile with gcc
-CC = gcc
-AS = as
-LD = ld
-AR = ar
+CC = $(TOOLSPREFIX)gcc
+AS = $(TOOLSPREFIX)as
+LD = $(TOOLSPREFIX)ld
+AR = $(TOOLSPREFIX)ar
 STRIP = strip
 HOSTCC = gcc
 HOSTCFLAGS = -I$(MW_DIR_SRC)/include
@@ -108,7 +120,13 @@ SHOWSTUBS= N
 GDB= N
 
 #get Make to print full details
-VERBOSE= Y
+VERBOSE= N
+
+# AJAGUAR cc flags, includes
+# Note: to avoid potential issues with modern GCC, better to have dedicated ctype.h
+ifeq ($(AJAGUAR), Y)
+INC = -I$(MW_DIR_SRC)/include -IC:/Projects/Lib-M68K/include
+endif
 
 # DJGPP cc flags, includes
 ifeq ($(DOS_DJGPP), Y)
@@ -178,6 +196,10 @@ endif
 #MATHLIB
 #CLIBS += -lm
 
+ifeq ($(AJAGUAR), Y)
+CFLAGS += -DAJAGUAR
+endif
+
 ifeq ($(MINGW), Y)
 CFLAGS += -DMINGW 
 #ALLEGRO4 = 1
@@ -237,19 +259,19 @@ CFLAGS += -DHAVE_MMAP=0
 CFLAGS += -DNANOWM=1
 
 #set to 1 for BMP SUPPORT
-CFLAGS += -DHAVE_BMP_SUPPORT=1
+CFLAGS += -DHAVE_BMP_SUPPORT=0
 #set to 1 for GIF SUPPORT
-CFLAGS += -DHAVE_GIF_SUPPORT=1
+CFLAGS += -DHAVE_GIF_SUPPORT=0
 #set to 1 for PNM SUPPORT
-CFLAGS += -DHAVE_PNM_SUPPORT=1
+CFLAGS += -DHAVE_PNM_SUPPORT=0
 #set to 1 for XPM SUPPORT
-CFLAGS += -DHAVE_XPM_SUPPORT=1
+CFLAGS += -DHAVE_XPM_SUPPORT=0
 
 ##set for JPEG support - libjpeg.a
 #CFLAGS += -DHAVE_JPEG_SUPPORT=1
 #CLIBS += -ljpeg
 ##set for PNG support - libpng.a + libz.a
-CFLAGS += -DHAVE_PNG_SUPPORT=1
+CFLAGS += -DHAVE_PNG_SUPPORT=0
 ifneq ($(EMSCRIPTEN), Y)
 CLIBS += -lpng -lz
 endif
@@ -277,10 +299,10 @@ CFLAGS += -DHAVE_FNT_SUPPORT=1
 #CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
 #CLIBS += -lz
 
-HAVE_FREETYPE_2_SUPPORT = Y
-CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
+HAVE_FREETYPE_2_SUPPORT = N
+CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=0
 #CFLAGS += -DFREETYPE_FONT_DIR=\"fonts/truetype\"
-CFLAGS += -I/usr/include/freetype2
+#CFLAGS += -I/usr/include/freetype2
 ifneq ($(EMSCRIPTEN), Y)
 CLIBS += -lfreetype -lz
 endif
@@ -294,12 +316,12 @@ endif
 # e.g. NANOSCR=800 600 565 for TRUECOLOR565
 
 ifndef SCREEN_WIDTH
-SCREEN_WIDTH=800
+SCREEN_WIDTH=320
 #SCREEN_WIDTH=1024
 #SCREEN_WIDTH=1400
 endif
 ifndef SCREEN_HEIGHT
-SCREEN_HEIGHT=600
+SCREEN_HEIGHT=240
 #SCREEN_HEIGHT=768
 #SCREEN_HEIGHT=1050
 endif
@@ -308,10 +330,10 @@ SCREEN_DEPTH=8
 endif
 
 #/* pixel is packed 8 bits 1, 4 or 8 pal index*/
-#SCREEN_PIXTYPE = MWPF_PALETTE       
+SCREEN_PIXTYPE = MWPF_PALETTE       
 
 #/* pixel is packed 32 bits byte order |B|G|R|A|*/
-SCREEN_PIXTYPE = MWPF_TRUECOLORARGB 
+#SCREEN_PIXTYPE = MWPF_TRUECOLORARGB 
 
 #/* pixel is packed 32 bits byte order |R|G|B|A|*/
 #SCREEN_PIXTYPE = MWPF_TRUECOLORABGR 
@@ -342,6 +364,9 @@ endif
 
 # define ALL target ********************************
 
+ifeq ($(AJAGUAR), Y)
+ALL += clean init  
+endif
 ifeq ($(DOS_DJGPP), Y)
 ALL += clean init  
 endif
@@ -349,18 +374,25 @@ ifeq ($(MINGW), Y)
 ALL += clean init  
 endif
 
-ALL += drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a nanox/libnano-X.a 
+ALL += drivers/libmwdrivers.a fonts/libfonts.a engine/libmwengine.a
+ifneq ($(AJAGUAR), Y)
+nanox/libnano-X.a 
+endif
 ifeq ($(EMSCRIPTEN), Y)
 ALL += nx11/libNX11.a
 ALL += nx11/libPX11.a
 else
+ifneq ($(AJAGUAR), Y)
 ALL += nx11/libNX11.a
+endif
 endif
 
 ifdef MICROWIN
 ALL += mwin/libmwin.a 
 ifneq ($(EMSCRIPTEN), Y)
+ifneq ($(AJAGUAR), Y)
 ALL += mwin/bmp/libimages.a
+endif
 endif
 ifndef TESTPROG
 ALL += mwindemos
@@ -424,7 +456,11 @@ CFLAGS += -L/usr/lib -lX11
 endif
 
 #define mwin demo programs
-MTARGETS1 := mwdemoalpha mwtest mwtest2 mwdemo mwstretch
+MTARGETS1 := mwdemoalpha mwtest mwdemo mwstretch
+#MTARGETS1 += mwtest2 # not exist
+ifneq ($(DOS_DJGPP), Y)
+MTARGETS1 += mwterm mwmine
+endif
 #MTARGETS1 += mwterm mwmine # not working in DOS
 MTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(MTARGETS1))
 MTARGETS := $(addsuffix .exe,$(MTARGETS2))
@@ -490,9 +526,14 @@ mwindemos: $(MTARGETS)
 demos/mwin/%.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
+# Building demos for Atari Jaguar requires specific files so only object files are made
 $(MW_DIR_BIN)/%.exe: demos/mwin/%.o
+ifeq ($(AJAGUAR), Y)
+	echo "compiling $<"
+else
 	echo "compiling $@"
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+endif
 
 #target for nanox API demos
 nanoxdemos: $(NTARGETS)
@@ -591,6 +632,27 @@ clean:
 	-rm bin/*.pgm 2>/dev/null
 #	-rm -rf bin/fonts/ 2>/dev/null
 	-rm mwin/bmp/*.exe 2>/dev/null
+	-$(MAKE) -C nx11 clean
+	echo "Cleaned *.o, *.a, and *.exe files"
+endif
+
+ifeq ($(AJAGUAR), Y)
+clean:
+	echo "Cleaning Atari Jaguar files"
+	-rm mwin/*.o
+	-rm mwin/bmp/*.o
+	-rm mwin/winlib/*.o
+	-rm fonts/*.o
+	-rm nanox/*.o
+	-rm drivers/*.o
+	-rm engine/*.o
+	-rm lib/*.a
+# or demos will not be compiled again	
+	-rm bin/*.exe 
+	-rm bin/*.ppm
+	-rm bin/*.pgm  
+#	-rm -rf bin/fonts
+	-rm nx11/*.o
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
 endif

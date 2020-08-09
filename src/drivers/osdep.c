@@ -31,6 +31,11 @@
 #include "../include/osdep.h"
 
 
+#if AJAGUAR
+extern	uint32_t ajag_mstimer;
+#endif
+
+
 /**
  * Output error message
  */
@@ -44,6 +49,9 @@ GdError(const char *format, ...)
 #if __ECOS
 	/* diag_printf() has much less dependencies than write() */
 	diag_printf(format, args);
+#elif AJAGUAR
+#pragma message("GdError - not fully implemented for Atari Jaguar platform")
+	vsprintf(buf, format, args);
 #elif PSP
 	vsprintf(buf, format, args);
 	pspDebugScreenPrintf("%s\n", buf);
@@ -85,7 +93,10 @@ GdGetTickCount(void)
 		init = 1;
 		startTicks = GdGetTickCount();
 	}
-#if UNIX | EMSCRIPTEN | _MSC_VER
+#if AJAGUAR
+//#pragma message("GdGetTickCout - not implemented for Atari Jaguar platform")
+	return ajag_mstimer;
+#elif UNIX | EMSCRIPTEN | _MSC_VER
 	{
 	struct timeval t;
 
@@ -121,6 +132,8 @@ GdDelay(MWTIMEOUT msecs)
 	timeval.tv_sec = msecs / 1000;
 	timeval.tv_usec = (msecs % 1000) * 1000;
 	select(0, NULL, NULL, NULL, &timeval);
+#elif AJAGUAR
+#pragma message("GdDelay - not implemented for Atari Jaguar platform")
 #elif EMSCRIPTEN
 	emscripten_sleep(msecs);
 #elif PSP
@@ -139,7 +152,7 @@ GdDelay(MWTIMEOUT msecs)
 void
 GdBell(void)
 {
-#if HAVE_FILEIO && !(PSP | EMSCRIPTEN)
+#if HAVE_FILEIO && !(PSP | EMSCRIPTEN | AJAGUAR)
 	write(2, "\7", 1);
 #endif
 }
@@ -170,6 +183,9 @@ exit(int n)
 void
 GdPlatformInit(void)
 {
+#if AJAGUAR
+#pragma message("GdPlatformInit - not implemented for Atari Jaguar platform")
+#endif
 #if PSP
 	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
 	if (thid >= 0)
@@ -224,3 +240,9 @@ gettimeofday(struct timeval *tv, struct timezone *tz)
 	return 0;
 }
 #endif /* _MSC_VER*/
+
+// The timeGetTime function retrieves the system time, in milliseconds. The system time is the time elapsed since Windows was started.
+uint32_t timeGetTime(void)
+{
+	return GdGetTickCount();
+}

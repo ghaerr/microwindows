@@ -1,0 +1,20 @@
+Microwindows and Nano-X port for the Atari Jaguar contributed by
+   Jean-Paul Mari <djipi.mari@gmail.com>
+
+It is more a proof-of-concept at this point.
+No efforts have been done to support the console capabilities yet.
+Only the cpu (M68000) is used, and the performances are fine.
+
+This port follows the rules provided in the original source and docs.
+The src/Configs/config.ajaguar contains the definitions for the console.
+Once copied in the src directory as config file, it can be edited to fit the need.
+
+To build the library, first make sure m68k compiler is in your PATH, then:
+
+   cd src
+   make -f makefile_nr ARCH=AJAGUAR
+
+The demos will also be compiled but not linked.
+It requires additional work to make the demos run on the console.
+Such work implies use of core, maths and low-level runtime libraries.
+Most of the demos run fine and screenshots show some of them in action.

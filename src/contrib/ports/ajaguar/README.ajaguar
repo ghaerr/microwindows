@@ -9,10 +9,10 @@ This port follows the rules provided in the original source and docs.
 The src/Configs/config.ajaguar contains the definitions for the console.
 Once copied in the src directory as config file, it can be edited to fit the need.
 
-To build the library, first make sure m68k compiler is in your PATH, then:
+To build the library, first make sure a m68k compiler is in your PATH, then:
 
    cd src
-   make -f makefile_nr ARCH=AJAGUAR
+   make -f makefile_ajaguar ARCH=AJAGUAR
 
 The demos will also be compiled but not linked.
 It requires additional work to make the demos run on the console.

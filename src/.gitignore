@@ -3,6 +3,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+Makefile.ajaguar
+config
 
 # Build results
 [Dd]ebug/
@@ -42,5 +44,8 @@ bld/
 *.scc
 *.tlog
 *.filters
+*.o
+*.d
+*.a
 
 lib

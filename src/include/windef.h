@@ -140,7 +140,6 @@ typedef long FAR            *LPLONG;
 typedef DWORD NEAR          *PDWORD;
 typedef DWORD FAR           *LPDWORD;
 typedef void FAR            *LPVOID;
-typedef CONST void 	    *PCVOID;
 typedef CONST void FAR      *LPCVOID;
 
 typedef unsigned short WCHAR;
@@ -201,7 +200,6 @@ typedef WORD                ATOM;
 
 typedef struct hwnd *	HWND;
 typedef struct hdc *	HDC;
-typedef struct hglrc * HGLRC;
 typedef struct hcursor *HCURSOR;
 typedef struct hgdiobj *HGDIOBJ;
 typedef struct hgdiobj *HBRUSH;
@@ -214,8 +212,6 @@ typedef HANDLE		HICON;
 typedef HANDLE		HINSTANCE;
 typedef HANDLE		HMODULE;
 typedef HANDLE		HMENU;
-
-#include <winnt.h>
 
 /* moved to winuser.h for resource compiler*/
 /*typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);*/

@@ -32,10 +32,6 @@ static MWBITMAPOBJ default_bitmap = {
 	{OBJ_BITMAP, TRUE}, 1, 1, 1, 1, 1, 1
 };
 
-static MWPALOBJ default_palette = {
-	{OBJ_PAL, TRUE}, 0, 0
-};
-
 static BOOL MwExtTextOut(HDC hdc, int x, int y, UINT fuOptions,
 		CONST RECT *lprc, LPCVOID lpszString, UINT cbCount,
 		CONST INT *lpDx, int flags);
@@ -47,8 +43,6 @@ static LONG mwTabbedTextOut(HDC hdc, int x, int y, LPCTSTR lpszString, int cbStr
 HDC WINAPI
 GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 {
-#pragma message "GetDCEx needs to be verified"
-
 	HDC	hdc;
 
 	if(!hwnd)		/* handle NULL hwnd => desktop*/
@@ -102,9 +96,6 @@ GetDCEx(HWND hwnd,HRGN hrgnClip,DWORD flags)
 	default_bitmap.data_format = scrdev.data_format;
 	hdc->bitmap = &default_bitmap;
 
-	default_palette.palette.palNumEntries = scrdev.palsize / sizeof(PALETTEENTRY);
-	hdc->palette = &default_palette;
-
 	hdc->drawmode = R2_COPYPEN;
 	hdc->pt.x = 0;
 	hdc->pt.y = 0;
@@ -157,8 +148,6 @@ GetWindowDC(HWND hwnd)
 int WINAPI 
 ReleaseDC(HWND hwnd, HDC hdc)
 {
-#pragma message "ReleaseDC needs to be verified"
-
 	/* don't delete a memory dc on release*/
 	if(!hdc || (hdc->psd->flags&PSF_MEMORY))
 		return 0;
@@ -176,7 +165,6 @@ ReleaseDC(HWND hwnd, HDC hdc)
 	DeleteObject((HFONT)hdc->font);
 #endif
 	DeleteObject((HRGN)hdc->region);
-	DeleteObject((HPALETTE)hdc->palette);
 	/*
 	 * We can only select a bitmap in a memory DC,
 	 * so bitmaps aren't released except through DeleteDC.
@@ -1578,8 +1566,6 @@ GetStockObject(int nObject)
 HGDIOBJ WINAPI
 SelectObject(HDC hdc, HGDIOBJ hObject)
 {
-#pragma message "SelectObject needs to be verified for the OBJ_PAL integration"
-
 	HGDIOBJ		objOrg;
 	MWBITMAPOBJ *	pb;
 
@@ -1587,10 +1573,6 @@ SelectObject(HDC hdc, HGDIOBJ hObject)
 		return NULL;
 
 	switch(hObject->hdr.type) {
-	case OBJ_PAL:
-		objOrg = (HGDIOBJ)hdc->palette;
-		hdc->palette = (MWPALOBJ *)hObject;
-		break;
 	case OBJ_PEN:
 		objOrg = (HGDIOBJ)hdc->pen;
 		hdc->pen = (MWPENOBJ *)hObject;
@@ -1838,9 +1820,6 @@ CreateCompatibleBitmap(HDC hdc, int nWidth, int nHeight)
 	return (HBRUSH)hbitmap;
 }
 
-// The CreateDIBSection function creates a DIB that applications can write to directly.
-// The function gives you a pointer to the location of the bitmap bit values.
-// You can supply a handle to a file-mapping object that the function will use to create the bitmap, or you can let the system allocate the memory for the bitmap.
 HBITMAP WINAPI CreateDIBSection(
   HDC hdc, CONST BITMAPINFO *pbmi, UINT iUsage,
   VOID **ppvBits, HANDLE hSection, DWORD dwOffset)
@@ -1867,9 +1846,6 @@ HBITMAP WINAPI CreateDIBSection(
 	hbitmap->bpp = pbmi->bmiHeader.biBitCount;
 	hbitmap->pitch = pitch;
 	hbitmap->size = size;
-
-	//psd->palsize = 1024;
-	//psd->palette = calloc(256, sizeof(MWPALENTRY));
 
 	if (ppvBits) *ppvBits = &hbitmap->bits[0];
 
@@ -1900,8 +1876,6 @@ CreateCompatibleDC(HDC hdc)
 	}
 	hdcmem->psd = mempsd;
 
-	/* select in default palette */
-	SelectObject(hdcmem, (HGDIOBJ)&default_palette);
 	/* select in default bitmap to setup mem device parms*/
 	SelectObject(hdcmem, (HGDIOBJ)&default_bitmap);
 	return hdcmem;
@@ -1990,7 +1964,6 @@ int WINAPI
 GetDeviceCaps(HDC hdc, int nIndex)
 {
 	PSD	psd;
-	int caps = 0;
 
 	if (!hdc)
 		psd = &scrdev;
@@ -2012,11 +1985,6 @@ GetDeviceCaps(HDC hdc, int nIndex)
 		if (psd->bpp <= 8)
 			return psd->ncolors;
 		break;
-	case RASTERCAPS:
-#ifdef MW_FEATURE_PALETTE
-		caps |= RC_PALETTE;
-#endif
-		return caps;
 	}
 	return 0;
 }
@@ -2172,120 +2140,4 @@ MulDiv(int nMultiplicand, int nMultiplier, int nDivisor)
     if(nDivisor == 0) nDivisor = 1;
     nResult = lMulti / nDivisor;
     return nResult;
-}
-
-// The RealizePalette function maps palette entries from the current logical palette to the system palette
-//
-// Params
-// hdc: A handle to the device context into which a logical palette has been selected
-//
-// Return Value
-// If the function succeeds, the return value is the number of entries in the logical palette mapped to the system palette.
-// If the function fails, the return value is GDI_ERROR.
-UINT WINAPI RealizePalette(HDC hdc)
-{
-#pragma message "RealizePalette needs to be verified"
-
-	PSD psd = hdc ? hdc->psd : &scrdev;
-
-	GdSetPalette(psd, 0, hdc->palette->palette.palNumEntries, hdc->palette->palette.palPalEntry);
-	return hdc->palette->palette.palNumEntries;
-}
-
-// The CreatePalette function creates a logical palette
-//
-// Params
-// plpal: A pointer to a LOGPALETTE structure that contains information about the colors in the logical palette.
-//
-// Return Value:
-// If the function succeeds, the return value is a handle to a logical palette.
-// If the function fails, the return value is NULL.
-HPALETTE WINAPI CreatePalette(const LOGPALETTE *plpal)
-{
-#pragma message "CreatePalette needs to be verified"
-
-	MWPALOBJ *pal;
-
-	if ((pal = (MWPALOBJ *)GdItemAlloc(sizeof(MWPALOBJ) + ((plpal->palNumEntries - 1) * sizeof(PALETTEENTRY)))))
-	{
-		pal->hdr.type = OBJ_PAL;
-		pal->hdr.stockobj = FALSE;
-		pal->palette.palVersion = plpal->palVersion;
-		pal->palette.palNumEntries = plpal->palNumEntries;
-		memcpy(pal->palette.palPalEntry, plpal->palPalEntry, (plpal->palNumEntries * sizeof(PALETTEENTRY)));
-	}
-
-	return (HPALETTE)pal;
-}
-
-// The SelectPalette function selects the specified logical palette into a device context
-//
-// Params
-// hdc: A handle to the device context.
-// hPal: A handle to the logical palette to be selected.
-// bForceBkgd: Specifies whether the logical palette is forced to be a background palette.
-//
-// Return Value
-// If the function succeeds, the return value is a handle to the device context's previous logical palette.
-// If the function fails, the return value is NULL.
-HPALETTE WINAPI SelectPalette(HDC hdc, HPALETTE hPal, BOOL bForceBkgd)
-{
-#pragma message "SelectPalette needs to be verified and the bForceBkgd parameter could be taken in consideration"
-
-	return SelectObject(hdc, hPal);
-}
-
-// The SetDIBColorTable function sets RGB (red, green, blue) color values in a range of entries in the color table of the DIB that is currently selected into a specified device context
-//
-// Params
-// hdc: A device context. A DIB must be selected into this device context
-// iStart: A zero-based color table index that specifies the first color table entry to set
-// Centries: The number of color table entries to set
-// prgbq: A pointer to an array of RGBQUAD structures containing new color information for the DIB's color table
-//
-// Return Value
-// If the function succeeds, the return value is the number of color table entries that the function sets.
-// If the function fails, the return value is zero.
-UINT SetDIBColorTable(HDC hdc, UINT iStart, UINT cEntries, const RGBQUAD *prgbq)
-{
-#pragma message "SetDIBColorTable needs to be verified"
-
-	MWPALENTRY *pal;
-	PSD psd = hdc ? hdc->psd : &scrdev;
-	int i;
-
-	if ((psd->palsize/sizeof(psd->palette)) >= cEntries)
-	{
-		if ((pal = &psd->palette[iStart]))
-		{
-			for (i = 0; i < cEntries; i++)
-			{
-				pal->b = prgbq->rgbBlue;
-				pal->g = prgbq->rgbGreen;
-				pal->r = prgbq->rgbRed;
-				//pal->_padding = prgbq->rgbReserved;
-			}
-
-			return cEntries;
-		}
-	}
-
-	return 0;
-}
-
-// The SetSystemPaletteUse function allows an application to specify whether the system palette contains 2 or 20 static colors.
-// The default system palette contains 20 static colors. (Static colors cannot be changed when an application realizes a logical palette.)
-//
-// Params
-// hdc: A handle to the device context.This device context must refer to a device that supports color palettes
-// use: The new use of the system palette. This parameter can be one of the following values SYSPAL_NOSTATIC, SYSPAL_NOSTATIC256, or SYSPAL_STATIC
-//
-// Return Value
-// If the function succeeds, the return value is the previous system palette.It can be either SYSPAL_NOSTATIC, SYSPAL_NOSTATIC256, or SYSPAL_STATIC.
-// If the function fails, the return value is SYSPAL_ERROR.
-UINT SetSystemPaletteUse(HDC hdc, UINT use)
-{
-#pragma message "SetSystemPaletteUse needs to be done"
-
-	return SYSPAL_NOSTATIC;
 }

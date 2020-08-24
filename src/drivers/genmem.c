@@ -237,13 +237,11 @@ GdCalcMemGCAlloc(PSD psd, int width, int height, int planes, int bpp,
 	 * swap width and height in left/right portrait modes,
 	 * so imagesize is calculated properly
 	 */
-#if MW_FEATURE_PORTRAIT
 	if(psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
 		int tmp = width;
 		width = height;
 		height = tmp;
 	}
-#endif
 
 	/* use 4bpp linear for VGA 4 planes memdc format*/
 	if(planes == 4)
@@ -251,26 +249,18 @@ GdCalcMemGCAlloc(PSD psd, int width, int height, int planes, int bpp,
 
 	/* compute pitch: bytes per line*/
 	switch(bpp) {
-#ifndef NOSTDPAL1
 	case 1:
 		pitch = (width+7)/8;
 		break;
-#endif
-#ifndef NOSTDPAL2
 	case 2:
 		pitch = (width+3)/4;
 		break;
-#endif
-#ifndef NOSTDPAL4
 	case 4:
 		pitch = (width+1)/2;
 		break;
-#endif
-#ifndef NOSTDPAL8
 	case 8:
 		pitch = width;
 		break;
-#endif
 	case 16:
 		pitch = width * 2;
 		break;
@@ -289,15 +279,8 @@ GdCalcMemGCAlloc(PSD psd, int width, int height, int planes, int bpp,
 	/* right align pitch to DWORD boundary*/
 	pitch = (pitch + 3) & ~3;
 
-#if HAVE_BLITTER_SUPPORT
-#if AJAGUAR
-	*psize = (pitch * height) + 8;
-#endif
-#else
 	*psize = pitch * height;
-#endif
 	*ppitch = pitch;
-
 	return 1;
 }
 
@@ -307,14 +290,11 @@ gen_setportrait(PSD psd, int portraitmode)
 	psd->portrait = portraitmode;
 
 	/* swap x and y in left or right portrait modes*/
-#if MW_FEATURE_PORTRAIT
 	if (portraitmode & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
 		/* swap x, y*/
 		psd->xvirtres = psd->yres;
 		psd->yvirtres = psd->xres;
-	} else 
-#endif
-	{
+	} else {
 		/* normal x, y*/
 		psd->xvirtres = psd->xres;
 		psd->yvirtres = psd->yres;
@@ -331,7 +311,6 @@ gen_setportrait(PSD psd, int portraitmode)
 void
 set_portrait_subdriver(PSD psd)
 {
-#if MW_FEATURE_PORTRAIT
 	PSUBDRIVER subdriver;
 
 	switch (psd->portrait) {
@@ -350,9 +329,6 @@ set_portrait_subdriver(PSD psd)
 		break;
 	}
 	set_subdriver(psd, subdriver);
-#else
-	set_subdriver(psd, psd->orgsubdriver);
-#endif
 }
 
 void

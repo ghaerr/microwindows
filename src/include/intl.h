@@ -17,10 +17,8 @@ extern const char utf8_len_map[256];
 /*
  *  Do shaping and joining of some international charactes, and return a new UC16 string
  */
-#if MW_FEATURE_INTL
 unsigned short *doCharShape_UC16(const unsigned short *text, int len,
 			int *pNewLen, unsigned long *pAttrib);
-#endif
 
 /*
  *  Do shaping and joining of some international charactes, and return a new UTF-8 string

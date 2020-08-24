@@ -9,40 +9,34 @@
 # Edit this or copy one from src/Configs, and type "make clean; make"
 ####################################################################
 
-#########################################################################
+####################################################################
 #
 # Target platform and compilation options
-# WINEXTRA can/must remain as 'N', it was needed by a different developer
-# ARCH = 
-# INTL = Support for international (such as fonts, double char, etc.)
 #
-#########################################################################
-ARCH                    = AJAGUAR
-INTL					= N
-LINK_APP_INTO_SERVER	= N
-SHAREDLIBS              = N
-SHAREDLINK              = N
-#EXTRAFLAGS              = -Wall -Wno-missing-prototypes
-DEBUG                   = N
-OPTIMIZE                = N
-#OPTIMIZE                = -O1
-VERBOSE                 = N
-THREADSAFE              = N
-PARALLEL                = N
-EMBEDDED				= Y
-WINEXTRA                 = N
-WINEXTRA_INCLUDE         = C:/Projects/microwindows/src/contrib/winextra
+####################################################################
+ARCH                     = MACOSX
+SHAREDLIBS               = Y
+SHAREDLINK               = Y
+#EXTRAFLAGS               = -Wall -Wno-missing-prototypes
+DEBUG                    = N
+OPTIMIZE                 = Y
+#OPTIMIZE                 = -O1
+VERBOSE                  = N
+THREADSAFE               = Y
+PARALLEL                 = N
 
 ####################################################################
 # Screen Driver
 # Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-SCREEN                   = FB
-SCREEN_WIDTH             = 320
-SCREEN_HEIGHT            = 240
-#X11LIBLOCATION           = /usr/X11/lib
-#X11HDRLOCATION           = /usr/X11/include
+SCREEN                   = X11
+MOUSE                    =
+KEYBOARD                 =
+SCREEN_WIDTH             = 1024
+SCREEN_HEIGHT            = 768
+X11LIBLOCATION           = /usr/X11/lib
+X11HDRLOCATION           = /usr/X11/include
 EXTENGINELIBS            +=
 
 ####################################################################
@@ -51,21 +45,21 @@ EXTENGINELIBS            +=
 #
 ####################################################################
 MICROWIN                 = Y
-NANOX                    = N
-NUKLEARUI                = N
-NX11                     = N
-ENGINE                   = Y
-#TINYWIDGETS              = N
+NANOX                    = Y
+NUKLEARUI                = Y
+NX11                     = Y
+ENGINE                   = N
+TINYWIDGETS              = Y
 
 ####################################################################
 #
 # Applications and demos to build
 #
 ####################################################################
-FBEMULATOR               = N
+FBEMULATOR               = Y
 MICROWINDEMO             = Y
-MICROWINMULTIAPP         = N
-NANOXDEMO                = N
+MICROWINMULTIAPP         = Y
+NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N
 VNCSERVER_PTHREADED      = N
 LIBVNC                   = -lvncserver
@@ -79,37 +73,26 @@ INCVNC                   =
 # NANOWM links the window manager into the server.
 ####################################################################
 LINK_APP_INTO_SERVER     = N
-NANOWM                   = N
+NANOWM                   = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
 ####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
+HAVE_SHAREDMEM_SUPPORT   = Y
 
 ####################################################################
 # File I/O support
 # Supporting either below drags in libc stdio, which may not be wanted
 ####################################################################
-HAVE_FILEIO              = N
-
-####################################################################
-# BLITTER support
-# Not yet functionnal must remain as 'N'
-####################################################################
-HAVE_BLITTER_SUPPORT	=	N
-
-####################################################################
-# Portrait support
-####################################################################
-HAVE_PORTRAIT_SUPPORT	=	N
+HAVE_FILEIO              = Y
 
 ####################################################################
 # BMP, GIF reading support
 ####################################################################
-HAVE_BMP_SUPPORT         = N
-HAVE_GIF_SUPPORT         = N
-HAVE_PNM_SUPPORT         = N
-HAVE_XPM_SUPPORT         = N
+HAVE_BMP_SUPPORT         = Y
+HAVE_GIF_SUPPORT         = Y
+HAVE_PNM_SUPPORT         = Y
+HAVE_XPM_SUPPORT         = Y
 
 ####################################################################
 # JPEG support through libjpeg, see README.txt in contrib/jpeg
@@ -121,7 +104,7 @@ LIBJPEG                  = -ljpeg
 ####################################################################
 # PNG support via libpng and libz
 ####################################################################
-HAVE_PNG_SUPPORT         = N
+HAVE_PNG_SUPPORT         = Y
 INCPNG                   =
 LIBPNG                   = -lpng
 INCZ                     =
@@ -137,14 +120,14 @@ LIBTIFF                  = -ltiff
 ####################################################################
 # PCF font support - .pcf/.pcf.gz loadable fonts
 ####################################################################
-HAVE_PCF_SUPPORT         = N
-HAVE_PCFGZ_SUPPORT       = N
+HAVE_PCF_SUPPORT         = Y
+HAVE_PCFGZ_SUPPORT       = Y
 PCF_FONT_DIR             = "fonts/pcf"
 
 ####################################################################
 # Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
 ####################################################################
-HAVE_FREETYPE_2_SUPPORT  = N
+HAVE_FREETYPE_2_SUPPORT  = Y
 HAVE_HARFBUZZ_SUPPORT    = N
 INCFT2LIB                = /usr/local/include
 LIBFT2LIB                = -lfreetype -lbz2
@@ -163,8 +146,8 @@ LIBT1LIB                 = -lt1
 ####################################################################
 # FNT font support - .fnt/.fnt.gz loadable fonts (native bdf-converted)
 ####################################################################
-HAVE_FNT_SUPPORT         = N
-HAVE_FNTGZ_SUPPORT       = N
+HAVE_FNT_SUPPORT         = Y
+HAVE_FNTGZ_SUPPORT       = Y
 FNT_FONT_DIR             = "fonts/fnt"
 
 ####################################################################
@@ -202,19 +185,19 @@ LIBFRIBIDI               = -lfribidi
 # ERASEMOVE (nanowm) repaints only backgrounds while window dragging
 # Otherwise an XOR redraw is used for window moves only after button up
 # UPDATEREGIONS (win32 api only)paints in update clipping region only
-ERASEMOVE                = N
+ERASEMOVE                = Y
 UPDATEREGIONS            = Y
 
 # Generate screen driver interface only with no fonts or clipping
 NOFONTS                  = N
-NOCLIPPING               = Y
+NOCLIPPING               = N
 
 # set USE_EXPOSURE for X11 on XFree86 4.x or if backing store not working
 # set VTSWITCH to include virtual terminal switch code
 # set FBREVERSE to reverse bit orders in 1,2,4 bpp
 # set GRAYPALETTE to link with Gray Palette (valid only for 4bpp modes)
 # set HAVETEXTMODE=Y for systems that can switch between text & graphics.
-USE_EXPOSURE             = N
+USE_EXPOSURE             = Y
 VTSWITCH                 = N
 FBREVERSE                = N
 GRAYPALETTE              = N
@@ -243,10 +226,10 @@ HAVETEXTMODE             = N
 # define MWPF_TRUECOLOR233  /* pixel is packed 8 bits BGR 332*/
 # SCREEN_DEPTH is bits per pixel, only used with MWPF_PALETTE palette mode
 ####################################################################
-#SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
-#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR 
+SCREEN_PIXTYPE           = MWPF_TRUECOLORARGB
+#SCREEN_PIXTYPE           = MWPF_TRUECOLORABGR
 #SCREEN_PIXTYPE           = MWPF_TRUECOLOR565
-SCREEN_PIXTYPE           = MWPF_PALETTE
+#SCREEN_PIXTYPE           = MWPF_PALETTE
 SCREEN_DEPTH             = 8
 
 ####################################################################
@@ -266,7 +249,6 @@ SCREEN_DEPTH             = 8
 # MOUSE=DEVMICEMOUSE Use Linux /dev/input/mice driver
 # MOUSE=TSLIBMOUSE	Use tslib (/dev/input/event0)
 ####################################################################
-MOUSE                    = NOMOUSE
 
 ####################################################################
 # Keyboard drivers
@@ -275,4 +257,3 @@ MOUSE                    = NOMOUSE
 # KEYBOARD=SCANKBD		scanmode keyboard
 # KEYBOARD=2NDKBD		two keyboards support
 ####################################################################
-KEYBOARD                 = NOKBD

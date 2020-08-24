@@ -33,7 +33,7 @@ CreateFont(int nHeight, int nWidth, int nEscapement, int nOrientation,
 	lf.lfClipPrecision = fdwClipPrecision;
 	lf.lfQuality = fdwQuality;
 	lf.lfPitchAndFamily = fdwPitchAndFamily;
-	strncpy(lf.lfFaceName, lpszFace, sizeof(lf.lfFaceName) - 1);
+	strncpy(lf.lfFaceName, lpszFace, sizeof(lf.lfFaceName));
 
 	return CreateFontIndirect(&lf);
 }
@@ -300,7 +300,7 @@ EnumFonts(
 		GdGetFontInfo((PMWFONT) pf, &fi);
 		set_text_metrics(hdc, lptm, &fi);
 
-		strncpy(lf.lfFaceName, pf->name, sizeof(lf.lfFaceName) - 1);
+		strncpy(lf.lfFaceName, pf->name, sizeof(lf.lfFaceName));
 		lf.lfHeight = fi.height;
 		lf.lfWidth = fi.widths['x'];
 		lf.lfWeight = FW_NORMAL;

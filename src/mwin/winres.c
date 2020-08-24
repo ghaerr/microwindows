@@ -753,7 +753,6 @@ resLoadBitmap(HINSTANCE hInst, LPCTSTR resName)
 static PMWIMAGEHDR
 resDecodeBitmap(unsigned char *buffer, int size)
 {
-#if HAVE_BMP_SUPPORT
 	PSD			pmd;
 	buffer_t stream;
 
@@ -761,9 +760,6 @@ resDecodeBitmap(unsigned char *buffer, int size)
 	pmd = GdDecodeBMP(&stream, FALSE);	/* don't read file hdr*/
 
 	return (PMWIMAGEHDR)pmd;		//FIXME uses shared header for now
-#else
-	return NULL;
-#endif
 }
 
 /*

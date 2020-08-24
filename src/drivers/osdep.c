@@ -240,9 +240,3 @@ gettimeofday(struct timeval *tv, struct timezone *tz)
 	return 0;
 }
 #endif /* _MSC_VER*/
-
-// The timeGetTime function retrieves the system time, in milliseconds. The system time is the time elapsed since Windows was started.
-uint32_t timeGetTime(void)
-{
-	return GdGetTickCount();
-}

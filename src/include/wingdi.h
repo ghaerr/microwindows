@@ -380,15 +380,11 @@ typedef struct tagPALETTEENTRY {
 UINT WINAPI	GetSystemPaletteEntries(HDC hdc,UINT iStartIndex,UINT nEntries,
 			LPPALETTEENTRY lppe);
 
-/* Raster capabilities of the device*/
-#define RC_PALETTE    256	/* Specifies a palette-based device */
-
 /* GetDeviceCaps parameters*/
 #define HORZRES       8     /* Horizontal width in pixels               */
 #define VERTRES       10    /* Vertical height in pixels                */
 #define BITSPIXEL     12    /* Number of bits per pixel                 */
 #define PLANES        14    /* Number of planes                         */
-#define RASTERCAPS    38	/* Raster capabilities of the device        */
 #define LOGPIXELSX    88    /* Logical pixels/inch in X                 */
 #define LOGPIXELSY    90    /* Logical pixels/inch in Y                 */
 #define SIZEPALETTE  104    /* Number of entries in physical palette    */
@@ -431,75 +427,6 @@ typedef struct _RGNDATA {
     char            Buffer[1];
 } RGNDATA, *PRGNDATA, *NPRGNDATA, *LPRGNDATA;
 
-typedef struct _POINTFLOAT {
-	FLOAT x;
-	FLOAT y;
-} POINTFLOAT,*PPOINTFLOAT;
-
-typedef struct _GLYPHMETRICSFLOAT {
-	FLOAT gmfBlackBoxX;
-	FLOAT gmfBlackBoxY;
-	POINTFLOAT gmfptGlyphOrigin;
-	FLOAT gmfCellIncX;
-	FLOAT gmfCellIncY;
-} GLYPHMETRICSFLOAT,*PGLYPHMETRICSFLOAT,*LPGLYPHMETRICSFLOAT;
-
-typedef struct tagLAYERPLANEDESCRIPTOR {
-	WORD nSize;
-	WORD nVersion;
-	DWORD dwFlags;
-	BYTE iPixelType;
-	BYTE cColorBits;
-	BYTE cRedBits;
-	BYTE cRedShift;
-	BYTE cGreenBits;
-	BYTE cGreenShift;
-	BYTE cBlueBits;
-	BYTE cBlueShift;
-	BYTE cAlphaBits;
-	BYTE cAlphaShift;
-	BYTE cAccumBits;
-	BYTE cAccumRedBits;
-	BYTE cAccumGreenBits;
-	BYTE cAccumBlueBits;
-	BYTE cAccumAlphaBits;
-	BYTE cDepthBits;
-	BYTE cStencilBits;
-	BYTE cAuxBuffers;
-	BYTE iLayerPlane;
-	BYTE bReserved;
-	COLORREF crTransparent;
-} LAYERPLANEDESCRIPTOR,*PLAYERPLANEDESCRIPTOR,*LPLAYERPLANEDESCRIPTOR;
-
-typedef struct tagPIXELFORMATDESCRIPTOR {
-	WORD nSize;
-	WORD nVersion;
-	DWORD dwFlags;
-	BYTE iPixelType;
-	BYTE cColorBits;
-	BYTE cRedBits;
-	BYTE cRedShift;
-	BYTE cGreenBits;
-	BYTE cGreenShift;
-	BYTE cBlueBits;
-	BYTE cBlueShift;
-	BYTE cAlphaBits;
-	BYTE cAlphaShift;
-	BYTE cAccumBits;
-	BYTE cAccumRedBits;
-	BYTE cAccumGreenBits;
-	BYTE cAccumBlueBits;
-	BYTE cAccumAlphaBits;
-	BYTE cDepthBits;
-	BYTE cStencilBits;
-	BYTE cAuxBuffers;
-	BYTE iLayerType;
-	BYTE bReserved;
-	DWORD dwLayerMask;
-	DWORD dwVisibleMask;
-	DWORD dwDamageMask;
-} PIXELFORMATDESCRIPTOR,*PPIXELFORMATDESCRIPTOR,*LPPIXELFORMATDESCRIPTOR;
-
 /* Region entry points*/
 INT  WINAPI OffsetRgn(HRGN hrgn, INT x, INT y );
 INT  WINAPI GetRgnBox(HRGN hrgn, LPRECT rect );
@@ -526,23 +453,5 @@ BOOL WINAPI SubtractRect(LPRECT dest, const RECT *src1, const RECT *src2 );
 
 /* GDI math stuff */
 int WINAPI MulDiv(int nMultiplicand, int nMultiplier, int nDivisor);
-
-typedef struct tagLOGPALETTE {
-  WORD         palVersion;
-  WORD         palNumEntries;
-  PALETTEENTRY palPalEntry[1];
-} LOGPALETTE, *PLOGPALETTE, *NPLOGPALETTE, *LPLOGPALETTE;
-
-/* constants for Get/SetSystemPaletteUse() */
-#define SYSPAL_ERROR    0
-#define SYSPAL_STATIC   1
-#define SYSPAL_NOSTATIC 2
-#define SYSPAL_NOSTATIC256 3
-
-HPALETTE WINAPI CreatePalette(const LOGPALETTE *);
-HPALETTE WINAPI SelectPalette(HDC, HPALETTE, BOOL);
-UINT WINAPI RealizePalette(HDC);
-UINT  WINAPI SetSystemPaletteUse(HDC, UINT);
-UINT WINAPI SetDIBColorTable(HDC, UINT, UINT, const RGBQUAD *);
 
 #endif /* _WINGDI_H_*/

@@ -444,7 +444,6 @@ BOOL WINAPI	EnableWindow(HWND hwnd, BOOL bEnable);
 
 BOOL WINAPI	AdjustWindowRectEx(LPRECT lpRect, DWORD dwStyle, BOOL bMenu,
 			DWORD dwExStyle);
-#define AdjustWindowRect(lpRect, dwStyle, bMenu)  AdjustWindowRectEx(lpRect, dwStyle, bMenu, 0L)
 BOOL WINAPI	GetClientRect(HWND hwnd, LPRECT lpRect);
 BOOL WINAPI	GetWindowRect(HWND hwnd, LPRECT lpRect);
 
@@ -785,11 +784,6 @@ typedef WNDCLASS	WNDCLASSEXW;
 #define IDC_ICON MAKEINTRESOURCE(32641)
 #define IDC_SIZE MAKEINTRESOURCE(32640)
 HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR pCursor);
-
-#else
-
-#define IDC_ARROW MAKEINTRESOURCE(32512)
-
 #endif /* unimplemented*/
 
 /* GetOpenFileName stuff*/

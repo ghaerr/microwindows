@@ -70,9 +70,6 @@
 #ifndef MW_FEATURE_PALETTE
 #define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
 #endif
-#ifndef MW_FEATURE_PORTRAIT
-#define MW_FEATURE_PORTRAIT 1
-#endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/
 #ifndef HAVE_SELECT
@@ -110,14 +107,6 @@
 
 #ifndef HAVE_FILEIO
 #define HAVE_FILEIO		0		/* =1 to include libc stdio and image reading routines*/
-#endif
-
-#ifndef EMBEDDED
-#define	EMBEDDED		0		/* =1 for EMBEDDED system (not used yet)*/
-#endif
-
-#ifndef HAVE_BLITTER_SUPPORT
-#define HAVE_BLITTER_SUPPORT	0	/* =1 for blitter support (system dependent) */
 #endif
 
 /* image reading support*/

@@ -61,10 +61,5 @@ extern DWORD lastWIN32Error;
 //
 #define ERROR_IO_PENDING                 997L    // dderror
 
-#define NOERROR S_OK
-#define E_OUTOFMEMORY 0x8007000EL
-#define E_INVALIDARG 0x80070057L
-
-#define S_OK (0x00000000L)
 
 #endif

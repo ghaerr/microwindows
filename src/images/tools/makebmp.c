@@ -8,11 +8,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#ifndef _WIN32
 #include <unistd.h>
-#else
-#define unlink _unlink
-#endif
 #include <string.h>
 
 #define BI_RGB		0L

@@ -627,7 +627,6 @@ static SUBDRIVER fblinear8_none = {
 	NULL		/* BlitStretchRGBA8888*/
 };
 
-#if MW_FEATURE_PORTRAIT
 SUBDRIVER fblinear8_left = {
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
@@ -646,9 +645,7 @@ SUBDRIVER fblinear8_left = {
 	NULL,		/* BlitCopyRGB888*/
 	NULL		/* BlitStretchRGBA8888*/
 };
-#endif
 
-#if MW_FEATURE_PORTRAIT
 SUBDRIVER fblinear8_right = {
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
@@ -667,9 +664,7 @@ SUBDRIVER fblinear8_right = {
 	NULL,		/* BlitCopyRGB888*/
 	NULL		/* BlitStretchRGBA8888*/
 };
-#endif
 
-#if MW_FEATURE_PORTRAIT
 SUBDRIVER fblinear8_down = {
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
@@ -688,12 +683,7 @@ SUBDRIVER fblinear8_down = {
 	NULL,		/* BlitCopyRGB888*/
 	NULL		/* BlitStretchRGBA8888*/
 };
-#endif
 
 PSUBDRIVER fblinear8[4] = {
-#if MW_FEATURE_PORTRAIT
 	&fblinear8_none, &fblinear8_left, &fblinear8_right, &fblinear8_down
-#else
-	&fblinear8_none, NULL, NULL, NULL
-#endif
 };

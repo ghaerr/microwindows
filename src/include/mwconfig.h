@@ -296,7 +296,7 @@ int	GdError(const char *format, ...);
 #error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in Arch.rules
 #endif
 
-/* no assert() in MSDOS or ELKS...*/
+/* no assert() in MSDOS or ELKS or PSP */
 #if MSDOS | ELKS | PSP
 #undef assert
 #define assert(x)

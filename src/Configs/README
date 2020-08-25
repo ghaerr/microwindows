@@ -21,6 +21,7 @@ config.winextra		Special configuration to test -DWINEXTRA=1 windows extra files 
 config.rtems		RTEMS port
 config.ecos			ECOS port
 config.psp			Sony PSP port
+config.ajaguar		Atari Jaguar
 
 // deprecated configurations
 xconfigure		X11-based config file configurator (works with old format only)

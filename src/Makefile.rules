@@ -465,8 +465,15 @@ endif
 # called "subdir-DIRNAME".  To build that target, we recurse into
 # the directory with "$(MAKE) -C DIRNAME".
 #
+ifeq ($(ARCH), AJAGUAR)
+	$(MAKE) $(MAKEOPTS) -C drivers
+	$(MAKE) $(MAKEOPTS) -C engine
+	$(MAKE) $(MAKEOPTS) -C fonts
+	$(MAKE) $(MAKEOPTS) -C images
+	$(MAKE) $(MAKEOPTS) -C mwin
+	$(MAKE) $(MAKEOPTS) -C mwin/winlib
+else
 .PHONY: subdirs $(dirs:%=subdir-%)
-
 subdirs: $(dirs:%=subdir-%)
 	@# 
 $(dirs:%=subdir-%): makedestdirs
@@ -479,6 +486,7 @@ ifeq ($(ARCH), DJGPP)
 	[ -d $(MW_DIR_LIB) ] || mkdir $(MW_DIR_LIB)
 endif
 	@#
+endif
 
 #
 # This rule creates the directory for the target.

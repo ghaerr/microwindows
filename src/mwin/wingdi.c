@@ -2214,7 +2214,6 @@ HPALETTE WINAPI CreatePalette(const LOGPALETTE *plpal)
 // If the function fails, the return value is NULL.
 HPALETTE WINAPI SelectPalette(HDC hdc, HPALETTE hPal, BOOL bForceBkgd)
 {
-#pragma message "SelectPalette doesn't use the bForceBkgd parameter"
 
 	return SelectObject(hdc, hPal);
 }
@@ -2267,7 +2266,6 @@ UINT SetDIBColorTable(HDC hdc, UINT iStart, UINT cEntries, const RGBQUAD *prgbq)
 // If the function fails, the return value is SYSPAL_ERROR.
 UINT SetSystemPaletteUse(HDC hdc, UINT use)
 {
-#pragma message "SetSystemPaletteUse needs to be done"
 
 	return SYSPAL_NOSTATIC;
 }

@@ -380,11 +380,15 @@ typedef struct tagPALETTEENTRY {
 UINT WINAPI	GetSystemPaletteEntries(HDC hdc,UINT iStartIndex,UINT nEntries,
 			LPPALETTEENTRY lppe);
 
+/* Raster capabilities of the device*/
+#define RC_PALETTE    256	/* Specifies a palette-based device */
+
 /* GetDeviceCaps parameters*/
 #define HORZRES       8     /* Horizontal width in pixels               */
 #define VERTRES       10    /* Vertical height in pixels                */
 #define BITSPIXEL     12    /* Number of bits per pixel                 */
 #define PLANES        14    /* Number of planes                         */
+#define RASTERCAPS    38	/* Raster capabilities of the device        */
 #define LOGPIXELSX    88    /* Logical pixels/inch in X                 */
 #define LOGPIXELSY    90    /* Logical pixels/inch in Y                 */
 #define SIZEPALETTE  104    /* Number of entries in physical palette    */
@@ -453,5 +457,23 @@ BOOL WINAPI SubtractRect(LPRECT dest, const RECT *src1, const RECT *src2 );
 
 /* GDI math stuff */
 int WINAPI MulDiv(int nMultiplicand, int nMultiplier, int nDivisor);
+
+typedef struct tagLOGPALETTE {
+  WORD         palVersion;
+  WORD         palNumEntries;
+  PALETTEENTRY palPalEntry[1];
+} LOGPALETTE, *PLOGPALETTE, *NPLOGPALETTE, *LPLOGPALETTE;
+
+/* constants for Get/SetSystemPaletteUse() */
+#define SYSPAL_ERROR    0
+#define SYSPAL_STATIC   1
+#define SYSPAL_NOSTATIC 2
+#define SYSPAL_NOSTATIC256 3
+
+HPALETTE WINAPI CreatePalette(const LOGPALETTE *);
+HPALETTE WINAPI SelectPalette(HDC, HPALETTE, BOOL);
+UINT WINAPI RealizePalette(HDC);
+UINT  WINAPI SetSystemPaletteUse(HDC, UINT);
+UINT WINAPI SetDIBColorTable(HDC, UINT, UINT, const RGBQUAD *);
 
 #endif /* _WINGDI_H_*/

@@ -77,6 +77,11 @@ typedef struct {
 
 typedef struct {
 	MWGDIOBJHDR	hdr;
+	LOGPALETTE palette;
+} MWPALOBJ;
+
+typedef struct {
+	MWGDIOBJHDR	hdr;
 	PMWFONT		pfont;		/* allocated font*/
 	char		name[32];	/* font name (stock objects only)*/
 } MWFONTOBJ;
@@ -121,6 +126,7 @@ struct hdc {
 	MWFONTOBJ *	font;		/* current font*/
 	MWBITMAPOBJ *	bitmap;		/* current bitmap (mem dc's only)*/
 	MWRGNOBJ *	region;		/* user specified clip region*/
+	MWPALOBJ *	palette;
 	int		drawmode;	/* rop2 drawing mode */
 	POINT		pt;		/* current pen pos in client coords*/
 #if WINEXTRA

@@ -249,26 +249,18 @@ GdCalcMemGCAlloc(PSD psd, int width, int height, int planes, int bpp,
 
 	/* compute pitch: bytes per line*/
 	switch(bpp) {
-#ifndef NOSTDPAL1
 	case 1:
 		pitch = (width+7)/8;
 		break;
-#endif
-#ifndef NOSTDPAL2
 	case 2:
 		pitch = (width+3)/4;
 		break;
-#endif
-#ifndef NOSTDPAL4
 	case 4:
 		pitch = (width+1)/2;
 		break;
-#endif
-#ifndef NOSTDPAL8
 	case 8:
 		pitch = width;
 		break;
-#endif
 	case 16:
 		pitch = width * 2;
 		break;

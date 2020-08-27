@@ -113,18 +113,26 @@ select_fb_subdriver(PSD psd)
 	/* device and memory drivers are the same for packed pixels*/
 	if(psd->planes == 1) {
 		switch(psd->bpp) {
+#ifndef NOSTDPAL1
 		case 1:
 			pdriver = fblinear1;
 			break;
+#endif
+#ifndef NOSTDPAL2
 		case 2:
 			pdriver = fblinear2;
 			break;
+#endif
+#ifndef NOSTDPAL4
 		case 4:
 			pdriver = fblinear4;
 			break;
+#endif
+#ifndef NOSTDPAL8
 		case 8:
 			pdriver = fblinear8;
 			break;
+#endif
 		case 16:
 			pdriver = fblinear16;
 			break;
@@ -187,18 +195,26 @@ set_data_formatex(int pixtype, int bpp)
 		break;
 	case MWPF_PALETTE:
 		switch (bpp) {
+#ifndef NOSTDPAL8
 		case 8:
 			data_format = MWIF_PAL8;
 			break;
+#endif
+#ifndef NOSTDPAL4
 		case 4:
 			data_format = MWIF_PAL4;
 			break;
+#endif
+#ifndef NOSTDPAL2
 		case 2:
 			data_format = MWIF_PAL2;
 			break;
+#endif
+#ifndef NOSTDPAL1
 		case 1:
 			data_format = MWIF_PAL1;
 			break;
+#endif
 		}
 		break;
 	}

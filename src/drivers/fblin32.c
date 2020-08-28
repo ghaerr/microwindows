@@ -238,9 +238,7 @@ static SUBDRIVER fblinear32rgba_left = {
 	convblit_copy_rgb888_rgba8888,
 	frameblit_stretch_xxxa8888
 };
-#endif
 
-#if MW_FEATURE_PORTRAIT
 static SUBDRIVER fblinear32rgba_right = {
 	fbportrait_right_drawpixel,
 	fbportrait_right_readpixel,
@@ -259,9 +257,7 @@ static SUBDRIVER fblinear32rgba_right = {
 	convblit_copy_rgb888_rgba8888,
 	frameblit_stretch_xxxa8888
 };
-#endif
 
-#if MW_FEATURE_PORTRAIT
 static SUBDRIVER fblinear32rgba_down = {
 	fbportrait_down_drawpixel,
 	fbportrait_down_readpixel,
@@ -283,9 +279,8 @@ static SUBDRIVER fblinear32rgba_down = {
 #endif
 
 PSUBDRIVER fblinear32rgba[4] = {
+	&fblinear32rgba_none
 #if MW_FEATURE_PORTRAIT
-	&fblinear32rgba_none, &fblinear32rgba_left, &fblinear32rgba_right, &fblinear32rgba_down
-#else
-	&fblinear32rgba_none, NULL, NULL, NULL
+	, &fblinear32rgba_left, &fblinear32rgba_right, &fblinear32rgba_down
 #endif
 };

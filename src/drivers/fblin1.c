@@ -361,5 +361,9 @@ static SUBDRIVER fblinear1_none = {
 };
 
 PSUBDRIVER fblinear1[4] = {
+#if MW_FEATURE_PORTRAIT	
 	&fblinear1_none, &fbportrait_left, &fbportrait_right, &fbportrait_down
+#else
+	&fblinear1_none, NULL, NULL, NULL
+#endif
 };

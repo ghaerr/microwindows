@@ -91,7 +91,7 @@ An HTML based FAQ and Architecture document are available from the web site.
 ![Emscripten](/screenshots/Emscripten-Microwindows.png)
 ![FLTK](/screenshots/FLTK1.3.4-NXlib.png)
 ![Doom](/screenshots/Doom3x.png)
-![AJaguar](/screenshots/Microwindows0.94pre_Demos_AtariJaguar.jpg)
+![AJaguar](/screenshots/Microwindows0.94pre_Demos_AtariJaguar.png)
 
 ## Links
 

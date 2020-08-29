@@ -627,6 +627,7 @@ static SUBDRIVER fblinear8_none = {
 	NULL		/* BlitStretchRGBA8888*/
 };
 
+#if MW_FEATURE_PORTRAIT
 SUBDRIVER fblinear8_left = {
 	fbportrait_left_drawpixel,
 	fbportrait_left_readpixel,
@@ -683,7 +684,11 @@ SUBDRIVER fblinear8_down = {
 	NULL,		/* BlitCopyRGB888*/
 	NULL		/* BlitStretchRGBA8888*/
 };
+#endif
 
 PSUBDRIVER fblinear8[4] = {
-	&fblinear8_none, &fblinear8_left, &fblinear8_right, &fblinear8_down
+	&fblinear8_none
+#if MW_FEATURE_PORTRAIT
+	, &fblinear8_left, &fblinear8_right, &fblinear8_down
+#endif
 };

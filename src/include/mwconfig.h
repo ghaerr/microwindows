@@ -70,6 +70,9 @@
 #ifndef MW_FEATURE_PALETTE
 #define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
 #endif
+#ifndef MW_FEATURE_PORTRAIT
+#define MW_FEATURE_PORTRAIT 1	/* =1 for portrait support */
+#endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/
 #ifndef HAVE_SELECT

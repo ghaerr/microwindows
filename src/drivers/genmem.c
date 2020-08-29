@@ -237,11 +237,13 @@ GdCalcMemGCAlloc(PSD psd, int width, int height, int planes, int bpp,
 	 * swap width and height in left/right portrait modes,
 	 * so imagesize is calculated properly
 	 */
+#if MW_FEATURE_PORTRAIT
 	if(psd->portrait & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
 		int tmp = width;
 		width = height;
 		height = tmp;
 	}
+#endif
 
 	/* use 4bpp linear for VGA 4 planes memdc format*/
 	if(planes == 4)
@@ -290,11 +292,14 @@ gen_setportrait(PSD psd, int portraitmode)
 	psd->portrait = portraitmode;
 
 	/* swap x and y in left or right portrait modes*/
+#if MW_FEATURE_PORTRAIT
 	if (portraitmode & (MWPORTRAIT_LEFT|MWPORTRAIT_RIGHT)) {
 		/* swap x, y*/
 		psd->xvirtres = psd->yres;
 		psd->yvirtres = psd->xres;
-	} else {
+	} else 
+#endif
+	{
 		/* normal x, y*/
 		psd->xvirtres = psd->xres;
 		psd->yvirtres = psd->yres;
@@ -311,6 +316,7 @@ gen_setportrait(PSD psd, int portraitmode)
 void
 set_portrait_subdriver(PSD psd)
 {
+#if MW_FEATURE_PORTRAIT
 	PSUBDRIVER subdriver;
 
 	switch (psd->portrait) {
@@ -329,6 +335,9 @@ set_portrait_subdriver(PSD psd)
 		break;
 	}
 	set_subdriver(psd, subdriver);
+#else
+	set_subdriver(psd, psd->orgsubdriver);
+#endif
 }
 
 void

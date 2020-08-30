@@ -225,5 +225,8 @@ static SUBDRIVER fblinear2_none = {
 };
 
 PSUBDRIVER fblinear2[4] = {
-	&fblinear2_none, &fbportrait_left, &fbportrait_right, &fbportrait_down
+	&fblinear2_none
+#if MW_FEATURE_PORTRAIT
+	, &fbportrait_left, &fbportrait_right, &fbportrait_down
+#endif
 };

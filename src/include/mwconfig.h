@@ -70,6 +70,9 @@
 #ifndef MW_FEATURE_PALETTE
 #define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
 #endif
+#ifndef MW_FEATURE_PORTRAIT
+#define MW_FEATURE_PORTRAIT 1	/* =1 for portrait support */
+#endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/
 #ifndef HAVE_SELECT
@@ -296,7 +299,7 @@ int	GdError(const char *format, ...);
 #error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in Arch.rules
 #endif
 
-/* no assert() in MSDOS or ELKS...*/
+/* no assert() in MSDOS or ELKS or PSP */
 #if MSDOS | ELKS | PSP
 #undef assert
 #define assert(x)

@@ -46,12 +46,12 @@ Microwindows is very portable, is written in C and can be used on a wide range
 of platforms. 
 
 Currently supported platforms include **Linux, Mac OS X, Android, EMSCRIPTEN,
-Nuklear GUI, Windows, Raspberry Pi, DOS DJGPP, RTEMS, ECOS, Sony PSP, Nintendo DS** and more. 
+Nuklear GUI, Windows, Raspberry Pi, DOS DJGPP, RTEMS, ECOS, Sony PSP, Atari Jaguar, Nintendo DS** and more. 
 
 Currently supported screen drivers include **Memory-mapped framebuffer, X11,
 SDL 2, Allegro 5, Windows and an X11 based framebuffer emulator.**
 
-Support for cross-compiler toolchains on **x86, x86_64, ARM, PowerPC and MIPS**,
+Support for cross-compiler toolchains on **x86, x86_64, ARM, M68K, PowerPC and MIPS**,
 big- and little-endian, and other processors.
 
 ## Library design
@@ -79,7 +79,8 @@ The main Nano-X web site is at <http://www.microwindows.org>
 
 To build Microwindows, see microwindows/src/README
 plus the faq files in the doc directory. For Android there is an
-application note in the doc directory.
+application note in the doc directory. The Atari aguar requires
+a specific treatment.
 
 An HTML based FAQ and Architecture document are available from the web site.
 
@@ -90,6 +91,7 @@ An HTML based FAQ and Architecture document are available from the web site.
 ![Emscripten](/screenshots/Emscripten-Microwindows.png)
 ![FLTK](/screenshots/FLTK1.3.4-NXlib.png)
 ![Doom](/screenshots/Doom3x.png)
+![AJaguar](/screenshots/Microwindows0.94pre_Demos_AtariJaguar.png)
 
 ## Links
 

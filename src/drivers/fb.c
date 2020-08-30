@@ -239,6 +239,7 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 		psi->gmask = GMASKRGBA;
 		psi->bmask = BMASKRGBA;
 		psi->amask = AMASKRGBA;
+		break;
 	case MWIF_BGR888:
 		psi->rmask = RMASKBGR;
 		psi->gmask = GMASKBGR;

@@ -79,7 +79,7 @@ The main Nano-X web site is at <http://www.microwindows.org>
 
 To build Microwindows, see microwindows/src/README
 plus the faq files in the doc directory. For Android there is an
-application note in the doc directory. The Atari aguar requires
+application note in the doc directory. The Atari Jaguar requires
 a specific treatment.
 
 An HTML based FAQ and Architecture document are available from the web site.

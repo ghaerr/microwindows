@@ -94,8 +94,7 @@ GdGetTickCount(void)
 		startTicks = GdGetTickCount();
 	}
 #if AJAGUAR
-//#pragma message("GdGetTickCout - not implemented for Atari Jaguar platform")
-	return ajag_mstimer;
+	return ajag_mstimer / 25;
 #elif UNIX | EMSCRIPTEN | _MSC_VER
 	{
 	struct timeval t;
@@ -240,3 +239,23 @@ gettimeofday(struct timeval *tv, struct timezone *tz)
 	return 0;
 }
 #endif /* _MSC_VER*/
+
+// The timeGetTime function retrieves the system time, in milliseconds.
+// The system time is the time elapsed since Microwindows was started.
+uint32_t timeGetTime(void)
+{
+#if AJAGUAR
+	return ajag_mstimer;
+#elif UNIX | EMSCRIPTEN | _MSC_VER
+	{
+	struct timeval t;
+
+	gettimeofday(&t, NULL);
+	return ((t.tv_sec * 1000) + (t.tv_usec / 1000);
+	}
+#elif MSDOS
+	return (clock() / (CLOCKS_PER_SEC / 1000));
+#else
+#pragma message("GdGetTickCout - not implemented")
+#endif
+}

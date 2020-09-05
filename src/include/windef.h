@@ -140,6 +140,7 @@ typedef long FAR            *LPLONG;
 typedef DWORD NEAR          *PDWORD;
 typedef DWORD FAR           *LPDWORD;
 typedef void FAR            *LPVOID;
+typedef CONST void 	    *PCVOID;
 typedef CONST void FAR      *LPCVOID;
 
 typedef unsigned short WCHAR;

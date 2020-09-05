@@ -444,6 +444,7 @@ BOOL WINAPI	EnableWindow(HWND hwnd, BOOL bEnable);
 
 BOOL WINAPI	AdjustWindowRectEx(LPRECT lpRect, DWORD dwStyle, BOOL bMenu,
 			DWORD dwExStyle);
+#define AdjustWindowRect(lpRect, dwStyle, bMenu)  AdjustWindowRectEx(lpRect, dwStyle, bMenu, 0L)
 BOOL WINAPI	GetClientRect(HWND hwnd, LPRECT lpRect);
 BOOL WINAPI	GetWindowRect(HWND hwnd, LPRECT lpRect);
 

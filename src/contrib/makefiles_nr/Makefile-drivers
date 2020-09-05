@@ -26,7 +26,8 @@ endif
           OBJECTS +=fblin1.o  
           OBJECTS +=fblin2.o  
           OBJECTS +=fblin4.o  
-          OBJECTS +=rasterops.o 
+          OBJECTS +=rasterops.o
+		  OBJECTS +=osdep.o
 
 
 # X11

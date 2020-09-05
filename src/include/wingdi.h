@@ -370,6 +370,7 @@ BOOL WINAPI	StretchBlt(HDC hdcDest,int nXOriginDest,int nYOriginDest,
 #define PC_EXPLICIT	0x02
 #define PC_NOCOLLAPSE	0x04
 
+/* note: must match MWPALENTRY structure*/
 typedef struct tagPALETTEENTRY {
 	BYTE	peRed;
 	BYTE	peGreen;

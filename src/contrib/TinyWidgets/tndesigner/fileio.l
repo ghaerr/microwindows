@@ -1,3 +1,4 @@
+%a 3000
 %{
 #include<tnWidgets.h>
 #include<math.h>

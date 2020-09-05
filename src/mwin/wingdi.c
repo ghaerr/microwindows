@@ -2174,7 +2174,7 @@ UINT WINAPI RealizePalette(HDC hdc)
 {
 	PSD psd = hdc ? hdc->psd : &scrdev;
 
-	GdSetPalette(psd, 0, hdc->palette->palette.palNumEntries, hdc->palette->palette.palPalEntry);
+	GdSetPalette(psd, 0, hdc->palette->palette.palNumEntries, (MWPALENTRY *)&hdc->palette->palette.palPalEntry);
 	return hdc->palette->palette.palNumEntries;
 }
 

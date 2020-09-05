@@ -66,7 +66,7 @@ CreateFontIndirect(CONST LOGFONT *lplf)
 	mwlf.lfOutPrecision = lplf->lfOutPrecision;
 	mwlf.lfClipPrecision = lplf->lfClipPrecision;
 	mwlf.lfQuality = lplf->lfQuality;
-	strncpy(mwlf.lfFaceName, lplf->lfFaceName, sizeof(mwlf.lfFaceName));
+	strzcpy(mwlf.lfFaceName, lplf->lfFaceName, sizeof(mwlf.lfFaceName));
 
 	family = lplf->lfPitchAndFamily & 0xf0;
 	switch(family) {
@@ -317,7 +317,7 @@ EnumFonts(
 		GdGetFontList(&lst, &n);
 		memset(&lf, 0, sizeof(lf));
 		for (i = 0; i < n; i++) {
-			strncpy(lf.lfFaceName, lst[i]->mwname, sizeof(lf.lfFaceName));
+			strzcpy(lf.lfFaceName, lst[i]->mwname, sizeof(lf.lfFaceName));
 			p = strrchr(lf.lfFaceName, '.');
 			if (p != NULL && strcasecmp(p, ".ttf") == 0)
 				*p = 0;

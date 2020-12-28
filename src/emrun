@@ -32,4 +32,4 @@ then
 fi
 
 # Run EMSCRIPTEN application in browser
-emrun --no_emrun_detect $application.html
+emrun --no_emrun_detect --serve_after_close $application.html

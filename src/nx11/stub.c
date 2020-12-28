@@ -148,7 +148,7 @@ int XVaCreateNestedList() { DPRINTF("XVaCreateNestedList called\n"); return 0; }
 int _XVIDtoVisual() { DPRINTF("_XVIDtoVisual called\n"); return 0; } 
 int XInstallColormap() { DPRINTF("XInstallColormap called\n"); return 0; } 
 int XReconfigureWMWindow() { DPRINTF("XReconfigureWMWindow called\n"); return 0; } 
-int XSetWindowColormap() { DPRINTF("XSetWindowColormap called\n"); return 0; } 
+int XSetWindowColormap(int i, int j, int k) { DPRINTF("XSetWindowColormap called\n"); return 0; }
 int XUninstallColormap() { DPRINTF("XUninstallColormap called\n"); return 0; } 
 //int XConfigureWindow() { DPRINTF("XConfigureWindow called\n"); return 0; } 
 int XForceScreenSaver() { DPRINTF("XForceScreenSaver called\n"); return 0; } 
@@ -160,7 +160,7 @@ int XGetWMColormapWindows() { DPRINTF("XGetWMColormapWindows called\n"); return 
 int XListHosts() { DPRINTF("XListHosts called\n"); return 0; } 
 //int XSetClassHint() { DPRINTF("XSetClassHint called\n"); return 0; } 
 int XSetCommand() { DPRINTF("XSetCommand called\n"); return 11; } /* 11 = BADALLOC */
-int XSetWindowBorderPixmap() { DPRINTF("XSetWindowBorderPixmap called\n"); return 0; } 
+int XSetWindowBorderPixmap(int i, int j, int k) { DPRINTF("XSetWindowBorderPixmap called\n"); return 0; }
 //int XSetWMClientMachine() { DPRINTF("XSetWMClientMachine called\n"); return 0; } 
 int XSetWMColormapWindows() { DPRINTF("XSetWMColormapWindows called\n"); return 0; } 
 int XStoreColor() { DPRINTF("XStoreColor called\n"); return 0; }

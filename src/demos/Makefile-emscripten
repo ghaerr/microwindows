@@ -1,7 +1,7 @@
 #
 # Link Microwindows EMSCRIPTEN demos Makefile
 # 
-# Execute with "make -f src/link-emscripten"
+# Execute with "make -f demos/Makefile-emscripten"
 # Run demos with ./emrun <appname>[.html]
 #
 # This may eventually be integrated into the demos/mwin and demos/nanox Makefiles
@@ -29,15 +29,17 @@ CFLAGS += -I$(MW_DIR_SRC)/nx11/X11-local
 LDFLAGS =
 
 CFLAGS += -s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1 -s USE_LIBPNG=1
-LDFLAGS += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
-LDFLAGS += -s WASM=0
+LDFLAGS += -s ASYNCIFY -s WASM=1 --closure 1 -flto
 LDFLAGS += -s TOTAL_MEMORY=67108864
 LDFLAGS += -s ERROR_ON_UNDEFINED_SYMBOLS=0
 #LDFLAGS += -s ASSERTIONS=1
-#LDFLAGS += -s EMTERPRETIFY_ADVISE=1			# advise functions to whitelist
 
 # applications not following docs/EMSCRIPTEN.rules may have to add functions here
-WHITELIST = -s EMTERPRETIFY_WHITELIST='[ \
+#LDFLAGS += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
+#LDFLAGS += -s WASM=0
+#LDFLAGS += -s EMTERPRETIFY_ADVISE=1			# advise functions to whitelist
+#EMTERPFILE = -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+#WHITELIST = -s EMTERPRETIFY_WHITELIST='[ \
 				"_invoke_WinMain_Start", "_WinMain", "_MwSelect", "_GdDelay", \
 				"_GetMessage", "_PeekMessage", "_chkPaintMsg", \
 				"_main", "_GsSelect", "_GrDelay", "_GrFlush", \
@@ -119,12 +121,12 @@ all: $(MWINDEMOS) $(NANOXDEMOS) $(NANOXFONTDEMOS) $(SPECIAL_LINKED_DEMOS) $(NX11
 ######## MWIN DEMOS ########
 $(MWINDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< $(MWINLIBS) $(EMTERPFILE)
 
 ######## MWIN SPECIAL LINKED DEMOS ########
 $(MWDVETEST): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS_FULL_EMTERPRETIFY) -o $@ $< $(MWINLIBS) $(MWDVETESTPRELOAD) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS_FULL_EMTERPRETIFY) -o $@ $< $(MWINLIBS) $(MWDVETESTPRELOAD) $(DEMOFONTS) $(EMTERPFILE)
 
 # List of images for the mwmine demo.
 MINEIMAGES := \
@@ -137,28 +139,28 @@ MINEIMAGES := \
 
 $(MWMINE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/mwin/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(MINEIMAGES) $(MWINLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< $(MINEIMAGES) $(MWINLIBS) $(EMTERPFILE)
 
 ######## NANOX DEMOS ########
 $(NANOXDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(EMTERPFILE)
 
 ######## NANOX FONT DEMOS ########
 $(NANOXFONTDEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(EMTERPFILE)
 
 ######## NANOX SPECIAL LINKED DEMOS ########
 $(DEMOCOMPOSITE): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOCOMPOSITEPRELOAD) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< $(NANOXLIBS) $(DEMOFONTS) $(DEMOCOMPOSITEPRELOAD) $(EMTERPFILE)
 
 $(DEMOAGG): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/demos/nanox/%.cpp
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< demos/nanox/agglite.cpp $(NANOXLIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< demos/nanox/agglite.cpp $(NANOXLIBS) $(EMTERPFILE)
 
 ######## NX11 DEMOS ########
 $(NX11DEMOS): $(MW_DIR_BIN)/%.html: $(MW_DIR_SRC)/contrib/nx11-test/%.c
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(COMPILEARGS) -o $@ $< $(NX11LIBS) -s EMTERPRETIFY_FILE=$(patsubst %.html,%,$@).binary
+	$(CC) $(COMPILEARGS) -o $@ $< $(NX11LIBS) $(EMTERPFILE)

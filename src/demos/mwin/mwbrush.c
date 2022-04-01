@@ -14,7 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     wc.hInstance     = hInstance;
     wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
     wc.lpfnWndProc   = WndProc;
-    wc.hCursor       = 0; /*LoadCursor(0, IDC_ARROW);*/
+    wc.hCursor       = LoadCursor(0, IDC_ARROW);
 
     RegisterClass(&wc);
     CreateWindow(wc.lpszClassName, "Several Brushes",

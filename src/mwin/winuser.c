@@ -356,6 +356,12 @@ MwFindClassByName(LPCSTR lpClassName)
 	return NULL;
 }
 
+HMODULE WINAPI
+GetModuleHandle(LPCSTR lpModuleName)
+{
+	return rootwp->hInstance;
+}
+
 ATOM WINAPI
 RegisterClass(CONST WNDCLASS *lpWndClass)
 {
@@ -1804,6 +1810,24 @@ MwSetCursor(HWND wp, PMWCURSOR pcursor)
 			cursory - cp->cursor.hoty);
 		GdSetCursor(&cp->cursor);
 	}
+}
+
+HCURSOR WINAPI
+LoadCursor(HINSTANCE hInstance, LPCSTR lpCursorName)
+{
+	return 0;	/* nyi*/
+}
+
+HCURSOR WINAPI
+SetCursor(HCURSOR hCursor)
+{
+	return 0;	/* nyi*/
+}
+
+HCURSOR WINAPI
+GetCursor(VOID)
+{
+	return 0;	/* nyi*/
 }
 
 BOOL WINAPI

@@ -42,6 +42,7 @@ typedef struct tagWNDCLASSA {
     CHAR        szClassName[40];	/* microwin*/
 } WNDCLASS, *PWNDCLASS, NEAR *NPWNDCLASS, FAR *LPWNDCLASS;
 
+HMODULE WINAPI	GetModuleHandle(LPCSTR lpModuleName);
 ATOM WINAPI	RegisterClass(CONST WNDCLASS *lpWndClass);
 BOOL WINAPI UnregisterClass(LPCSTR lpClassName, HINSTANCE hInstance);
 
@@ -564,6 +565,9 @@ typedef WINDOWPLACEMENT *PWINDOWPLACEMENT, *LPWINDOWPLACEMENT;
 BOOL SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
 BOOL GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
 
+HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR lpCursorName);	/* nyi*/
+HCURSOR WINAPI SetCursor(HCURSOR hCursor);	/* nyi*/
+HCURSOR WINAPI GetCursor(VOID);				/* nyi*/
 BOOL WINAPI	GetCursorPos(LPPOINT lpPoint);
 HWND WINAPI	GetCapture(VOID);
 HWND WINAPI	SetCapture(HWND hwnd);
@@ -764,8 +768,8 @@ typedef WNDCLASS	WNDCLASSEXW;
 #define GetWindowTextLengthW GetWindowTextLength
 #define GetWindowTextW		GetWindowText
 #define SetWindowTextW		SetWindowText
+#endif /* unimplemented*/
 
-/********* UNIMPLEMENTED FUNCTIONS *********/
 /* Cursor styles (unimplemented)*/
 #define IDC_ARROW MAKEINTRESOURCE(32512)
 #define IDC_IBEAM MAKEINTRESOURCE(32513)
@@ -783,8 +787,6 @@ typedef WNDCLASS	WNDCLASSEXW;
 #define IDC_HELP MAKEINTRESOURCE(32651)
 #define IDC_ICON MAKEINTRESOURCE(32641)
 #define IDC_SIZE MAKEINTRESOURCE(32640)
-HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR pCursor);
-#endif /* unimplemented*/
 
 /* GetOpenFileName stuff*/
 typedef struct tagEDITMENU

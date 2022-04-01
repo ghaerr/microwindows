@@ -58,8 +58,10 @@ sdl_setup(PSD psd)
 		return -1;
 	}
 
-	sdlWindow = SDL_CreateWindow("Microwindows SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					psd->xres*sdlZoom, psd->yres*sdlZoom, SDL_WINDOW_RESIZABLE);
+	sdlWindow = SDL_CreateWindow("Microwindows SDL",
+			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+			psd->xres*sdlZoom, psd->yres*sdlZoom,
+			SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
 	if (!sdlWindow) {
 		EPRINTF("SDL: Can't create window\n");
 		return -1;

@@ -84,8 +84,8 @@
 
 #define MAX_CRTX 2048
 #define MAX_CRTY 2048
-#define CHUNKX 32
-#define CHUNKY 20
+#define CHUNKX 1024
+#define CHUNKY 1024
 
 #define INVERT2BPP	0	/* inverted palette for 2 bits/pixel*/
 

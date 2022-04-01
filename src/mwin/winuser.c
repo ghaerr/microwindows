@@ -1565,7 +1565,9 @@ GetWindowText(HWND hwnd, LPSTR lpString, int nMaxCount)
 BOOL WINAPI
 SetWindowText(HWND hwnd, LPCSTR lpString)
 {
-	return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)(LPCSTR)lpString);
+	BOOL r = SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)(LPCSTR)lpString);
+	MwPaintNCArea(hwnd);
+	return r;
 }
 
 /* Recursively offset all children of passed window*/

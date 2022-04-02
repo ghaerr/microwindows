@@ -30,7 +30,7 @@ PARALLEL                 = N
 # Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-SCREEN                   = X11
+SCREEN                   = FBE
 MOUSE                    =
 KEYBOARD                 =
 SCREEN_WIDTH             = 1024
@@ -47,9 +47,9 @@ EXTENGINELIBS            +=
 MICROWIN                 = Y
 NANOX                    = Y
 NUKLEARUI                = Y
-NX11                     = Y
+NX11                     = N
 ENGINE                   = N
-TINYWIDGETS              = Y
+TINYWIDGETS              = N
 
 ####################################################################
 #

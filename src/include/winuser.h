@@ -424,6 +424,22 @@ BOOL WINAPI	ValidateRect(HWND hwnd, CONST RECT *lprc);
 BOOL WINAPI	ValidateRgn(HWND hwnd, HRGN hrgn);
 BOOL WINAPI	UpdateWindow(HWND hwnd);
 
+/* RedrawWindow flags*/
+#define RDW_INVALIDATE		1
+#define RDW_INTERNALPAINT	2
+#define RDW_ERASE		4
+#define RDW_VALIDATE		8
+#define RDW_NOINTERNALPAINT	16
+#define RDW_NOERASE		32
+#define RDW_NOCHILDREN		64
+#define RDW_ALLCHILDREN		128
+#define RDW_UPDATENOW		256
+#define RDW_ERASENOW		512
+#define RDW_FRAME		1024
+#define RDW_NOFRAME		2048
+
+BOOL WINAPI	RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags);
+
 HWND WINAPI	GetFocus(VOID);
 HWND WINAPI	SetFocus(HWND hwnd);
 BOOL WINAPI	SetForegroundWindow(HWND hwnd);

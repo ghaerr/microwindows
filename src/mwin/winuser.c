@@ -761,17 +761,17 @@ InvalidateRect(HWND hwnd, CONST RECT *lpRect, BOOL bErase)
 		RECT	rc;
 
 		/* add to update region*/
-		if(!lpRect) {
+		if(!lpRect)
 			GetClientRect(hwnd, &rc);
-			if( hwnd->style & WS_CAPTION )
-				rc.bottom += mwSYSMETRICS_CYCAPTION;
-			if( (hwnd->style & (WS_BORDER | WS_DLGFRAME)) != 0 ) {
-				rc.bottom += mwSYSMETRICS_CYFRAME + 1;
-		rc.right += mwSYSMETRICS_CXFRAME;
-			}
-		}
 		else
 			rc = *lpRect;
+
+		if( hwnd->style & WS_CAPTION )
+			rc.bottom += mwSYSMETRICS_CYCAPTION;
+		if( (hwnd->style & (WS_BORDER | WS_DLGFRAME)) != 0 ) {
+			rc.bottom += mwSYSMETRICS_CYFRAME + 1;
+			rc.right += mwSYSMETRICS_CXFRAME;
+		}
 
 		MwUnionUpdateRegion(hwnd, rc.left, rc.top,
 			rc.right-rc.left, rc.bottom-rc.top, TRUE);
@@ -888,6 +888,20 @@ UpdateWindow(HWND hwnd)
 	SendMessage(hwnd, WM_PAINT, 0, 0L);
 	return TRUE;
 #endif
+}
+
+BOOL WINAPI
+RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags)
+{
+	/* currently ignores hrgnUpdate*/
+
+	if (flags & RDW_INVALIDATE)
+		InvalidateRect(hWnd, lprcUpdate, (flags & RDW_ERASE));
+	if (flags & RDW_FRAME)
+		MwPaintNCArea(hWnd);
+	if (flags & (RDW_UPDATENOW|RDW_ERASENOW))
+		UpdateWindow(hWnd);
+	return TRUE;
 }
 
 HWND WINAPI

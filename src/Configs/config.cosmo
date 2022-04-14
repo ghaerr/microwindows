@@ -80,7 +80,7 @@ INCVNC                   =
 # and also used to support running X11 apps through NXLIB on X11.
 # NANOWM links the window manager into the server.
 ####################################################################
-LINK_APP_INTO_SERVER     = Y
+LINK_APP_INTO_SERVER     = N
 NANOWM                   = Y
 
 ####################################################################

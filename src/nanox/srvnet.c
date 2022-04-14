@@ -1779,6 +1779,7 @@ GrShmCmdsFlushWrapper(void *r)
 int 
 GsOpenSocket(void)
 {
+#define SUN_LEN(ptr)	(sizeof(sckt))
 #if ELKS
 	struct sockaddr_na sckt;
 #ifndef SUN_LEN

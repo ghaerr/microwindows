@@ -29,8 +29,6 @@
 #define BASICPOLYFILL	0	/* very basic, small polygon fill*/
 
 /* extern definitions*/
-void drawpoint(PSD psd,MWCOORD x, MWCOORD y);
-void drawrow(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y);
 extern int 	  gr_mode; 	      /* drawing mode */
 extern int gr_fillmode;
 

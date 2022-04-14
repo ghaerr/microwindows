@@ -284,6 +284,12 @@ PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width
 /* both devclip1.c and devclip2.c */
 MWBOOL	GdClipPoint(PSD psd,MWCOORD x,MWCOORD y);
 int		GdClipArea(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2);
+#if DYNAMICREGIONS
+extern MWCLIPREGION *clipregion;
+#else
+extern MWCLIPRECT cliprects[];
+extern int	clipcount;
+#endif
 extern MWCOORD clipminx, clipminy, clipmaxx, clipmaxy;
 
 /* devclip1.c only*/

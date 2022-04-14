@@ -55,7 +55,6 @@ static MWIMAGEBITS cursormask[MWMAX_CURSOR_BUFLEN];
 static MWIMAGEBITS cursorcolor[MWMAX_CURSOR_BUFLEN];
 
 extern int gr_mode;
-extern MOUSEDEVICE mousedev;
 
 /* Advance declarations */
 static int filter_relative(int, int, int, int *, int *, int, int);

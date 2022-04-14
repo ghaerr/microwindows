@@ -40,6 +40,10 @@ ifeq ($(ARCH), AQUILA)
 dirs = nanox mwin nuklear
 endif
 
+ifeq ($(ARCH), COSMO)
+dirs = nanox nuklear
+endif
+
 ######################### Makefile.rules section #############################
 
 include $(MW_DIR_SRC)/Makefile.rules

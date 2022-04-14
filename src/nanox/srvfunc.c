@@ -3039,7 +3039,6 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	if (exposure && swp && (srcpsd == dp->psd) && swp->eventclients &&
 	    (swp->eventclients->eventmask & GR_EVENT_MASK_EXPOSURE)) {
 		MWRECT 		rc;
-		extern MWCLIPREGION *clipregion;
 
 		/* clip blit rectangle to source screen/bitmap size*/
 		if(srcx+width > srcpsd->xvirtres)

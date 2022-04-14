@@ -256,7 +256,7 @@ GrGetWindowFBInfo(GR_WINDOW_ID wid, GR_WINDOW_FB_INFO *fbinfo)
 		 * and only valid for non-portrait modes.
 		 */
 		int physoffset = fbinfo->y*fbinfo->pitch + fbinfo->x*fbinfo->bytespp;
-		fbinfo->winpixels = fp? (fp->mapaddr + physoffset): NULL;
+		fbinfo->winpixels = fp? ((unsigned char *)fp->mapaddr + physoffset): NULL;
 	} else {
 		/* No offset for window buffer, both addresses are buffer address*/
 		fbinfo->winpixels = fbinfo->physpixels;

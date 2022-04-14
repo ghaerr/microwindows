@@ -74,6 +74,8 @@ TARGETS += \
 	$(MW_DIR_BIN)/world \
 	$(MW_DIR_BIN)/tux
 
+ifneq ($(ARCH), COSMO)
+
 # tools
 TARGETS += \
 	$(MW_DIR_BIN)/nxmag \
@@ -132,6 +134,8 @@ AGGOBJS += $(MW_DIR_OBJ)/demos/nanox/agglite.o
 CXXOBJS += $(AGGOBJS)
 TARGETS += $(MW_DIR_BIN)/demo-agg
 
+endif # COSMO
+
 else # ECOS
 TARGETS += $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
 endif
@@ -171,12 +175,14 @@ ifeq ($(SCREEN), ALLEGRO5)
 LDFLAGS := $(filter-out $(EXTENGINELIBS),$(LDFLAGS))
 endif
 
+ifneq ($(ARCH), COSMO)
 # These demos need -lm
 NANOX_DEMOS_WITH_LIBM_LINK := \
 	$(MW_DIR_BIN)/demo-font \
 	$(MW_DIR_BIN)/demo-grabkey \
 	$(MW_DIR_BIN)/nxeyes \
 	$(MW_DIR_BIN)/nsaver
+endif
 
 # These demos use a hardcoded link line.
 NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
@@ -197,7 +203,10 @@ $(NANOX_DEMOS_WITH_STANDARD_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.
 ifeq ($(ARCH), ANDROID)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(NANOXCLIENTLIBS) $(LDFLAGS)
 else
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LDLIBS)
+endif
+ifeq ($(ARCH), COSMO)
+	$(OBJCOPY) -S -O binary $@ $@.com
 endif
 
 # Link rule used for demos with libm.
@@ -206,7 +215,7 @@ $(NANOX_DEMOS_WITH_LIBM_LINK): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nanox/%.o $(
 ifeq ($(ARCH), ANDROID)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@-apk/lib/$(ANDROID_ARCH_VER)/$(subst -,,$(patsubst $(MW_DIR_BIN)/%,%,$@)).so $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
 else
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LIBM) $(LDLIBS)
 endif
 
 $(MW_DIR_BIN)/nxkbd: $(NXKBDOBJS) $(NANOXCLIENTLIBS) $(CONFIG)

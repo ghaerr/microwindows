@@ -8,10 +8,10 @@
  * This a stretch blit implementation based on ideas given to me by
  * Tomasz Cejner - thanks! :)
  */
-#include "uni_std.h"
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "uni_std.h"
 #include "device.h"
 
 #if MW_FEATURE_IMAGES /* whole file */

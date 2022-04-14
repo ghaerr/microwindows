@@ -36,7 +36,7 @@ typedef struct Roach {
     float y;
     int intX;
     int intY;
-    int hidden;
+    int Hidden;
     int turnLeft;
     int steps;
 } Roach;
@@ -163,7 +163,7 @@ main(int ac, char **av)
 	switch (ev.type) {
 	    case SCAMPER_EVENT:
 		for (rx=0; rx<curRoaches; rx++) {
-		    if (!roaches[rx].hidden)
+		    if (!roaches[rx].Hidden)
 			MoveRoach(rx);
 		}
 		DrawRoaches();
@@ -267,7 +267,7 @@ AddRoach(void)
 	r->y = RandInt(display_height - r->rp->height);
 	r->intX = -1;
 	r->intY = -1;
-	r->hidden = 0;
+	r->Hidden = 0;
 	r->steps = RandInt(200);
 	r->turnLeft = RandInt(100) >= 50;
     }
@@ -355,7 +355,7 @@ DrawRoaches(void)
     for (rx=0; rx<curRoaches; rx++) {
 	roach = &roaches[rx];
 	
-	if (!roach->hidden) {
+	if (!roach->Hidden) {
 	    int size = roach->rp->width * roach->rp->height;
 	    GR_PIXELVAL roachbuf[PIXBUFSIZ];
 	    GR_PIXELVAL screenbuf[PIXBUFSIZ];
@@ -474,7 +474,7 @@ CalcRootVisible(void)
        Mark all roaches visible.
     */
     for (wx=0; wx<curRoaches; wx++) 
-	roaches[wx].hidden = 0;
+	roaches[wx].Hidden = 0;
 
     return 0;
 }
@@ -493,10 +493,10 @@ MarkHiddenRoaches(void)
     for (rx=0; rx<curRoaches; rx++) {
 	r = &roaches[rx];
 	
-	if (!r->hidden) {
+	if (!r->Hidden) {
 	    if (r->intX > 0 && GrRectInRegion(rootVisible, r->intX, r->intY,
 			    r->rp->width, r->rp->height) == MWRECT_OUT) {
-		r->hidden = 1;
+		r->Hidden = 1;
 	    }
 	    else {
 		nVisible++;

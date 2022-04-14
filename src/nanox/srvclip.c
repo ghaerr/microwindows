@@ -1,3 +1,4 @@
+#include "nano-X.h"
 #include "device.h"
 
 #if DYNAMICREGIONS

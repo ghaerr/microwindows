@@ -16,14 +16,16 @@
 ####################################################################
 ARCH                     = COSMO
 COSMOTOOLSPREFIX         = x86_64-linux-musl-
-#COSMOINCLUDE             = /Users/greg/net/microwindows/src/amalg
-#COSMOAPE                 = /Users/greg/net/microwindows/src/amalg
-#COSMOLIB                 = /Users/greg/net/microwindows/src/amalg
-#COSMOCRT                 = /Users/greg/net/microwindows/src/amalg
-COSMOINCLUDE             = /Users/greg/net/cosmopolitan/o
-COSMOAPE                 = /Users/greg/net/cosmopolitan/o/ape
-COSMOLIB                 = /Users/greg/net/cosmopolitan/o/macOS
-COSMOCRT                 = /Users/greg/net/cosmopolitan/o/macOS/libc/crt
+COSMO                    = /Users/greg/net/cosmopolitan
+COSMOINCLUDE             = $(COSMO)/o
+COSMOLIB                 = $(COSMO)/o/darwin
+COSMOAPE                 = $(COSMO)/o/darwin/ape
+COSMOCRT                 = $(COSMO)/o/darwin/libc/crt
+#COSMO                    = /Users/greg/net/microwindows/src/amalg
+#COSMOINCLUDE             = $(COSMO)
+#COSMOLIB                 = $(COSMO)
+#COSMOAPE                 = $(COSMO)
+#COSMOCRT                 = $(COSMO)
 EXTRAFLAGS               = -Wall -Wno-missing-prototypes
 DEBUG                    = N
 OPTIMIZE                 = -Os

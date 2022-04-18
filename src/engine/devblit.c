@@ -264,6 +264,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
  * @param sy2 Source Y co-ordinate of second corner.
  * @param rop Raster operation.
  */
+
 void
 GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	MWCOORD dy2, PSD srcpsd, MWCOORD sx1, MWCOORD sy1, MWCOORD sx2,
@@ -285,12 +286,9 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 #if DYNAMICREGIONS
 	int 		count;
 	MWRECT *	prc;
-	extern MWCLIPREGION *clipregion;
 #else
 	int 		count;
 	MWCLIPRECT *prc;
-	extern MWCLIPRECT cliprects[];
-	extern int	clipcount;
 #endif
 
 	/* frame->frame stretchblits not yet implemented*/
@@ -576,11 +574,8 @@ GdConvBlitInternal(PSD psd, PMWBLITPARMS gc, MWBLITFUNC convblit)
 	int count, clipresult, checksrc;
 #if DYNAMICREGIONS
 	MWRECT *prc;
-	extern MWCLIPREGION *clipregion;
 #else
 	MWCLIPRECT *prc;
-	extern MWCLIPRECT cliprects[];
-	extern int clipcount;
 #endif
 
 	/* check clipping region*/

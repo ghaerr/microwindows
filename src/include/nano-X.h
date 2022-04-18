@@ -924,6 +924,7 @@ void		GrMainLoop(GR_FNCALLBACKEVENT fncb);
 GR_FNCALLBACKEVENT GrSetErrorHandler(GR_FNCALLBACKEVENT fncb);
 void		GrDefaultErrorHandler(GR_EVENT *ep);
 int			GdError(const char *format, ...);
+#define GdError_defined
 #define GrError	GdError		/* calls client-side error output routine in osdep.c*/
 
 /* passive library entry points - available with client/server only*/

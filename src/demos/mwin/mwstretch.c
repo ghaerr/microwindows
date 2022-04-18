@@ -26,7 +26,7 @@ RegisterAppClass(void)
 	wc.cbWndExtra = 0;
 	wc.hInstance = 0;
 	wc.hIcon = 0; /*LoadIcon(GetHInstance(), MAKEINTRESOURCE( 1));*/
-	wc.hCursor = 0; /*LoadCursor(NULL, IDC_ARROW);*/
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName =  APPCHILD;

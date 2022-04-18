@@ -177,7 +177,7 @@ ReleaseDC(HWND hwnd, HDC hdc)
 	 * We can only select a bitmap in a memory DC,
 	 * so bitmaps aren't released except through DeleteDC.
 	 */
-	DeleteObject((HBITMAP)hdc->bitmap);
+	//DeleteObject((HBITMAP)hdc->bitmap);
 	GdItemFree(hdc);
 	return 1;
 }

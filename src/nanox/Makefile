@@ -98,7 +98,10 @@ include $(MW_DIR_SRC)/Makefile.rules
 # Server binary ...
 $(MW_DIR_BIN)/nano-X: $(NANOXFILES) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NANOXFILES) $(NANOXSERVERLIBS) $(LDFLAGS) $(LDLIBS)
+ifeq ($(ARCH), COSMO)
+	$(OBJCOPY) -S -O binary $@ $@.com
+endif
 
 ifeq ($(ARCH), ECOS) 
 $(MW_DIR_BIN)/nano-X.o: $(OBJS) $(NANOXFILES) $(NANOXSERVERLIBS) $(CONFIG)

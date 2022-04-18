@@ -356,6 +356,12 @@ MwFindClassByName(LPCSTR lpClassName)
 	return NULL;
 }
 
+HMODULE WINAPI
+GetModuleHandle(LPCSTR lpModuleName)
+{
+	return rootwp->hInstance;
+}
+
 ATOM WINAPI
 RegisterClass(CONST WNDCLASS *lpWndClass)
 {
@@ -755,17 +761,17 @@ InvalidateRect(HWND hwnd, CONST RECT *lpRect, BOOL bErase)
 		RECT	rc;
 
 		/* add to update region*/
-		if(!lpRect) {
+		if(!lpRect)
 			GetClientRect(hwnd, &rc);
-			if( hwnd->style & WS_CAPTION )
-				rc.bottom += mwSYSMETRICS_CYCAPTION;
-			if( (hwnd->style & (WS_BORDER | WS_DLGFRAME)) != 0 ) {
-				rc.bottom += mwSYSMETRICS_CYFRAME + 1;
-		rc.right += mwSYSMETRICS_CXFRAME;
-			}
-		}
 		else
 			rc = *lpRect;
+
+		if( hwnd->style & WS_CAPTION )
+			rc.bottom += mwSYSMETRICS_CYCAPTION;
+		if( (hwnd->style & (WS_BORDER | WS_DLGFRAME)) != 0 ) {
+			rc.bottom += mwSYSMETRICS_CYFRAME + 1;
+			rc.right += mwSYSMETRICS_CXFRAME;
+		}
 
 		MwUnionUpdateRegion(hwnd, rc.left, rc.top,
 			rc.right-rc.left, rc.bottom-rc.top, TRUE);
@@ -882,6 +888,20 @@ UpdateWindow(HWND hwnd)
 	SendMessage(hwnd, WM_PAINT, 0, 0L);
 	return TRUE;
 #endif
+}
+
+BOOL WINAPI
+RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags)
+{
+	/* currently ignores hrgnUpdate*/
+
+	if (flags & RDW_INVALIDATE)
+		InvalidateRect(hWnd, lprcUpdate, (flags & RDW_ERASE));
+	if (flags & RDW_FRAME)
+		MwPaintNCArea(hWnd);
+	if (flags & (RDW_UPDATENOW|RDW_ERASENOW))
+		UpdateWindow(hWnd);
+	return TRUE;
 }
 
 HWND WINAPI
@@ -1565,7 +1585,9 @@ GetWindowText(HWND hwnd, LPSTR lpString, int nMaxCount)
 BOOL WINAPI
 SetWindowText(HWND hwnd, LPCSTR lpString)
 {
-	return SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)(LPCSTR)lpString);
+	BOOL r = SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)(LPCSTR)lpString);
+	MwPaintNCArea(hwnd);
+	return r;
 }
 
 /* Recursively offset all children of passed window*/
@@ -1802,6 +1824,24 @@ MwSetCursor(HWND wp, PMWCURSOR pcursor)
 			cursory - cp->cursor.hoty);
 		GdSetCursor(&cp->cursor);
 	}
+}
+
+HCURSOR WINAPI
+LoadCursor(HINSTANCE hInstance, LPCSTR lpCursorName)
+{
+	return 0;	/* nyi*/
+}
+
+HCURSOR WINAPI
+SetCursor(HCURSOR hCursor)
+{
+	return 0;	/* nyi*/
+}
+
+HCURSOR WINAPI
+GetCursor(VOID)
+{
+	return 0;	/* nyi*/
 }
 
 BOOL WINAPI

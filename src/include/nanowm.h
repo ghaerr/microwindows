@@ -135,12 +135,10 @@ int wm_button_up(GR_EVENT_BUTTON *event);
 int wm_mouse_enter(GR_EVENT_GENERAL *event);
 int wm_mouse_exit(GR_EVENT_GENERAL *event);
 int wm_mouse_moved(GR_EVENT_MOUSE *event);
-int wm_focus_in(GR_EVENT_GENERAL *event);
 int wm_key_down(GR_EVENT_KEYSTROKE *event);
 int wm_key_up(GR_EVENT_KEYSTROKE *event);
 int wm_focus_in(GR_EVENT_GENERAL *event);
 int wm_focus_out(GR_EVENT_GENERAL *event);
-int wm_chld_update(GR_EVENT_UPDATE *event);
 int wm_chld_update(GR_EVENT_UPDATE *event);
 
 void wm_container_exposure(win *window, GR_EVENT_EXPOSURE *event);

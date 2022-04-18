@@ -27,11 +27,6 @@ extern uint32_t gr_dashcount;    /* The number of bits defined in the dashmask *
 
 extern int        gr_fillmode;
 
-/*static*/ void drawpoint(PSD psd,MWCOORD x, MWCOORD y);
-
-/*static*/ void drawrow(PSD psd,MWCOORD x1,MWCOORD x2,MWCOORD y);
-/*static*/ void drawcol(PSD psd,MWCOORD x,MWCOORD y1,MWCOORD y2);
-
 /**
  * Set the drawing mode for future calls.
  *
@@ -787,7 +782,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	int clip;
 	int extra, linesize;
 	int rgborder, alpha;
-	MWCOLORVAL cr;
+	MWCOLORVAL cr = 0;
 	MWCOORD yoff;
 	uint32_t transcolor;
 	MWPIXELVALHW convtable[256];

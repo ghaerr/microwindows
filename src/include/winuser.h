@@ -42,6 +42,7 @@ typedef struct tagWNDCLASSA {
     CHAR        szClassName[40];	/* microwin*/
 } WNDCLASS, *PWNDCLASS, NEAR *NPWNDCLASS, FAR *LPWNDCLASS;
 
+HMODULE WINAPI	GetModuleHandle(LPCSTR lpModuleName);
 ATOM WINAPI	RegisterClass(CONST WNDCLASS *lpWndClass);
 BOOL WINAPI UnregisterClass(LPCSTR lpClassName, HINSTANCE hInstance);
 
@@ -423,6 +424,22 @@ BOOL WINAPI	ValidateRect(HWND hwnd, CONST RECT *lprc);
 BOOL WINAPI	ValidateRgn(HWND hwnd, HRGN hrgn);
 BOOL WINAPI	UpdateWindow(HWND hwnd);
 
+/* RedrawWindow flags*/
+#define RDW_INVALIDATE		1
+#define RDW_INTERNALPAINT	2
+#define RDW_ERASE		4
+#define RDW_VALIDATE		8
+#define RDW_NOINTERNALPAINT	16
+#define RDW_NOERASE		32
+#define RDW_NOCHILDREN		64
+#define RDW_ALLCHILDREN		128
+#define RDW_UPDATENOW		256
+#define RDW_ERASENOW		512
+#define RDW_FRAME		1024
+#define RDW_NOFRAME		2048
+
+BOOL WINAPI	RedrawWindow(HWND hWnd, const RECT *lprcUpdate, HRGN hrgnUpdate, UINT flags);
+
 HWND WINAPI	GetFocus(VOID);
 HWND WINAPI	SetFocus(HWND hwnd);
 BOOL WINAPI	SetForegroundWindow(HWND hwnd);
@@ -564,6 +581,9 @@ typedef WINDOWPLACEMENT *PWINDOWPLACEMENT, *LPWINDOWPLACEMENT;
 BOOL SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
 BOOL GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
 
+HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR lpCursorName);	/* nyi*/
+HCURSOR WINAPI SetCursor(HCURSOR hCursor);	/* nyi*/
+HCURSOR WINAPI GetCursor(VOID);				/* nyi*/
 BOOL WINAPI	GetCursorPos(LPPOINT lpPoint);
 HWND WINAPI	GetCapture(VOID);
 HWND WINAPI	SetCapture(HWND hwnd);
@@ -764,8 +784,8 @@ typedef WNDCLASS	WNDCLASSEXW;
 #define GetWindowTextLengthW GetWindowTextLength
 #define GetWindowTextW		GetWindowText
 #define SetWindowTextW		SetWindowText
+#endif /* unimplemented*/
 
-/********* UNIMPLEMENTED FUNCTIONS *********/
 /* Cursor styles (unimplemented)*/
 #define IDC_ARROW MAKEINTRESOURCE(32512)
 #define IDC_IBEAM MAKEINTRESOURCE(32513)
@@ -783,8 +803,6 @@ typedef WNDCLASS	WNDCLASSEXW;
 #define IDC_HELP MAKEINTRESOURCE(32651)
 #define IDC_ICON MAKEINTRESOURCE(32641)
 #define IDC_SIZE MAKEINTRESOURCE(32640)
-HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR pCursor);
-#endif /* unimplemented*/
 
 /* GetOpenFileName stuff*/
 typedef struct tagEDITMENU

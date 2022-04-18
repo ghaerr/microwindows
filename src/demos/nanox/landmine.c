@@ -308,7 +308,6 @@ static void gameover(void);
 static void handleevent(GR_EVENT *ep);
 static void doexposure(GR_EVENT_EXPOSURE *ep);
 static void dobutton(GR_EVENT_BUTTON *bp);
-static void dokey(GR_EVENT_KEYSTROKE *kp);
 
 int
 main(int argc,char **argv)

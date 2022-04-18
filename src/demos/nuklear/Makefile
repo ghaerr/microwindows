@@ -58,12 +58,15 @@ endif
 
 $(TARGETS): $(MW_DIR_BIN)/%: $(MW_DIR_OBJ)/demos/nuklear/%.o $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS) $(LDLIBS)
+ifeq ($(ARCH), COSMO)
+	$(OBJCOPY) -S -O binary $@ $@.com
+endif
 
 DEMO_NUKLEAR=$(MW_DIR_SRC)/demos/nuklear/demo-nuklear.c $(MW_DIR_SRC)/demos/nuklear/nuklear_nxlib.h nuklear.h
 
 $(MW_DIR_OBJ)/demos/nuklear/demo-nuklear-calculator.o: $(MW_DIR_SRC)/demos/nuklear/calculator.c $(DEMO_NUKLEAR)
-	[ -d $(MW_DIR_OBJ)/demos/nuklear ] || mkdir $(MW_DIR_OBJ)/demos/nuklear
+	[ -d $(MW_DIR_OBJ)/demos/nuklear ] || mkdir -p $(MW_DIR_OBJ)/demos/nuklear
 	@echo "Compiling $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
 	$(CC) $(COMPILEARGS) -c $(MW_DIR_SRC)/demos/nuklear/demo-nuklear.c -o $@ -DINCLUDE_CALCULATOR
 

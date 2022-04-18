@@ -285,7 +285,9 @@
 #define REALLOC(addr,oldsize,newsize) realloc((addr),(newsize))
 
 /* error.c*/
+#ifndef GdError_defined
 int	GdError(const char *format, ...);
+#endif
 
 #define EPRINTF			GdError		/* error output*/
 #if DEBUG

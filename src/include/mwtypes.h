@@ -718,7 +718,7 @@ typedef struct {
 } MWPOINT;
 
 /* MWRECT used in region routines*/
-typedef struct {
+typedef struct tagMWRECT {
 	MWCOORD	left;
 	MWCOORD	top;
 	MWCOORD	right;

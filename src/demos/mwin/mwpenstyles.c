@@ -34,7 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.hInstance     = hInstance;
     wc.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
     wc.lpfnWndProc   = WndProc;
-    wc.hCursor       = 0; /*LoadCursor(0, IDC_ARROW);*/
+    wc.hCursor       = LoadCursor(0, IDC_ARROW);
 
     RegisterClass(&wc);
     CreateWindow(wc.lpszClassName, "Pen styles",

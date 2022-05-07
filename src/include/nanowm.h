@@ -10,7 +10,9 @@
 #include "mwconfig.h"
 
 /* configurable options*/
+#ifndef OUTLINE_MOVE
 #define OUTLINE_MOVE		0		/* draw outline only during window move*/
+#endif
 #define NO_CORNER_RESIZE	0		/* don't resize windows on corner drag*/
 #define NO_AUTO_MOVE		0		/* don't auto position window on new windows*/
 #define WINDOW_STEP			20	 	/* x,y step between new window placements*/

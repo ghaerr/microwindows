@@ -1,4 +1,4 @@
-# Micro-Windows libmwdrivers.a library makefile for DJGPP
+# Microwindows libmwdrivers.a library makefile for DJGPP
 # by Georg Potthast June 2011
 # based on makefile by Greg Haerr and V. Rogachev
 #
@@ -15,8 +15,8 @@ endif
 ifeq ($(ALLEGRO5), Y)       
           OBJECTS := scr_allegro5.o           
 endif
-          OBJECTS += genfont.o        
-          OBJECTS += fblin8.o 
+          OBJECTS +=genfont.o
+          OBJECTS +=fblin8.o
           OBJECTS +=fblin16.o 
           OBJECTS +=fblin24.o 
           OBJECTS +=fblin32.o 
@@ -44,16 +44,15 @@ OBJECTS += mou_ajaguar.o
 OBJECTS += kbd_ajaguar.o
 endif
 
-# for EMSCRIPTEN
-ifeq ($(SDL1), Y)
-    OBJECTS += scr_sdl1.o 
-    OBJECTS += mou_sdl1.o
-    OBJECTS += kbd_sdl1.o
+# for LINUX
+ifeq ($(ARCH), LINUX)
+    OBJECTS += scr_fb.o
+    OBJECTS += mou_gpm.o
+    OBJECTS += kbd_ttyscan.o
 endif
 
 ifeq ($(SDL2), Y)
     OBJECTS += scr_sdl2.o 
-#    OBJECTS += scr_null.o 
     OBJECTS += mou_sdl2.o 
     OBJECTS += kbd_sdl2.o
 endif

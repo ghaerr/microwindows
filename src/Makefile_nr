@@ -9,6 +9,8 @@ $(info  ARCH= parameter not specified, please use:)
 $(info  make -f Makefile_nr ARCH=DOS)
 $(info  make -f Makefile_nr ARCH=CROSSDOS)
 $(info  make -f Makefile_nr ARCH=MINGW)
+$(info  make -f Makefile_nr ARCH=MACOS)
+$(info  make -f Makefile_nr ARCH=LINUX)
 $(error exiting)
 endif
 
@@ -44,6 +46,12 @@ ifeq ($(ARCH), MACOS)
 CROSS = Y
 SDL2 = Y
 CFLAGS += -DUNIX=1 -DMACOSX=1
+INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
+endif
+
+ifeq ($(ARCH), LINUX)
+CROSS = Y
+CFLAGS += -DUNIX=1 -DLINUX=1
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
 endif
 
@@ -141,12 +149,14 @@ CLIBS += $(LIBRARY_FLAGS)
 #CLIBS += -lm
 
 #set for JPEG support - libjpeg.a
-#CFLAGS += -DHAVE_JPEG_SUPPORT=1
+CFLAGS += -DHAVE_JPEG_SUPPORT=1
 #CLIBS += -ljpeg
+CLIBS += $(INSTALLED)/lib/libjpeg.a
 
 #set for PNG support - libpng.a + libz.a
-#CFLAGS += -DHAVE_PNG_SUPPORT=1
+CFLAGS += -DHAVE_PNG_SUPPORT=1
 #CLIBS += -lpng -lz
+CLIBS += $(INSTALLED)/lib/libpng.a $(INSTALLED)/lib/libz.a
 
 #set for TIFF support - libtiff.a
 #CFLAGS += -DHAVE_TIFF_SUPPORT=1
@@ -166,20 +176,20 @@ CLIBS += $(LIBRARY_FLAGS)
 #font_pcf.c and font_freetype2.c
 
 CFLAGS += -DHAVE_FNT_SUPPORT=1
-#CFLAGS += -DFNT_FONT_DIR="fonts/fnt"
+CFLAGS += -DFNT_FONT_DIR=\"fonts/fnt\"
 
 CFLAGS += -DHAVE_PCF_SUPPORT=1
-#CFLAGS += -DPCF_FONT_DIR="fonts/pcf"
+CFLAGS += -DPCF_FONT_DIR=\"fonts/pcf\"
 #need zlib for gz format
-#CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
+CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
 #CLIBS += -lz
+CLIBS += $(INSTALLED)/lib/libz.a
 
 HAVE_FREETYPE_2_SUPPORT = Y
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
 CFLAGS += -DFREETYPE_FONT_DIR=\"fonts/truetype\"
-#CFLAGS += -I/usr/include/freetype2
-CFLAGS += -I/usr/local/include/freetype2
-CLIBS += -lfreetype -lz
+#CLIBS += -lfreetype -lz
+CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
 
 #CFLAGS += -DHAVE_T1LIB_SUPPORT=1
 #T1LIB_FONT_DIR = "fonts/type1/"
@@ -257,7 +267,7 @@ endif
 NANOLIBS +=  $(CLIBS)
 
 ifdef MICROWIN
-LIBS += -lmwin -limages $(EXTENGINELIBS)
+LIBS += -lmwin -limages $(CLIBS) $(EXTENGINELIBS)
 endif
 
 #LIBS += -lsocket -lnsl
@@ -396,7 +406,8 @@ clean:
 	echo "Cleaned *.o, *.a, and *.exe files"
 endif
 
-ifeq ($(ARCH), CROSSDOS)
+ifneq ($(ARCH), MINGW)
+ifneq ($(ARCH), DOS)
 clean:
 	echo "Cleaning CROSSDOS files"
 	-rm mwin/*.o
@@ -414,6 +425,7 @@ clean:
 	-rm nx11/*.o
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
+endif
 endif
 
 ifeq ($(ARCH), DOS)

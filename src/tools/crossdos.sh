@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build cross-DJGPP DOS Microwindows/Nano-X
+# Build DOS Microwindows/Nano-X using cross-DJGPP
 
 BUILD_HOME=$(pwd)
 INSTALLED=${BUILD_HOME}/../../installed/dos

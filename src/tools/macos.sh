@@ -5,7 +5,10 @@
 BUILD_HOME=$(pwd)
 export INSTALLED=${BUILD_HOME}/../../installed/macos
 
+#X11HDRLOCATION=${BUILD_HOME}/microwindows/src/nx11/X11-local
+X11HDRLOCATION=/opt/X11/include
+
 make -f Makefile_nr \
     ARCH=MACOS \
-    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${BUILD_HOME}/nx11/X11-local" \
+    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${X11HDRLOCATION}" \
     EXTENGINELIBS="-lSDL2"

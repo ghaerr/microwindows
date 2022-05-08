@@ -1,0 +1,49 @@
+diff --git a/src/Fl_x.cxx b/src/Fl_x.cxx
+index ee4e3d8..e89fc46 100644
+--- a/src/Fl_x.cxx
++++ b/src/Fl_x.cxx
+@@ -50,6 +50,7 @@
+ #  include <X11/keysym.h>
+ #  include "Xutf8.h"
+ #define USE_XRANDR (HAVE_DLSYM && HAVE_DLFCN_H) // means attempt to dynamically load libXrandr.so
++#undef USE_XRANDR
+ #if USE_XRANDR
+ #include <dlfcn.h>
+ #define RRScreenChangeNotifyMask  (1L << 0) // from X11/extensions/Xrandr.h
+@@ -235,6 +236,7 @@ int fl_wait(double time_to_wait) {
+   // unnecessarily and thus cause the file descriptor to not be ready,
+   // so we must check for already-read events:
+   if (fl_display && XQLength(fl_display)) {do_queued_events(); return 1;}
++  do_queued_events(); return 1; // NANOX
+ 
+ #  if !USE_POLL
+   fd_set fdt[3];
+@@ -286,6 +288,7 @@ int fl_wait(double time_to_wait) {
+ int fl_ready() {
+   if (XQLength(fl_display)) return 1;
+   if (!nfds) return 0; // nothing to select or poll
++  return 0; // NANOX
+ #  if USE_POLL
+   return ::poll(pollfds, nfds, 0);
+ #  else
+@@ -764,7 +767,7 @@ void Fl::disable_im() {
+ void fl_open_display() {
+   if (fl_display) return;
+ 
+-  setlocale(LC_CTYPE, "");
++  //setlocale(LC_CTYPE, "");
+   XSetLocaleModifiers("");
+ 
+   XSetIOErrorHandler(io_error_handler);
+diff --git a/src/screen_xywh.cxx b/src/screen_xywh.cxx
+index 35aeb57..1206cc8 100644
+--- a/src/screen_xywh.cxx
++++ b/src/screen_xywh.cxx
+@@ -157,6 +157,7 @@ static FLScreenInfo screens[MAX_SCREENS];
+ static float dpi[MAX_SCREENS][2];
+ 
+ #define USE_XRANDR (HAVE_DLSYM && HAVE_DLFCN_H) // means attempt to dynamically load libXrandr.so
++#undef USE_XRANDR
+ #if USE_XRANDR
+ #include <dlfcn.h>
+ typedef struct {

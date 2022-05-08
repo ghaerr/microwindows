@@ -12,8 +12,8 @@ export INSTALLED=${BUILD_HOME}/installed/macos
 #X11HDRLOCATION=${BUILD_HOME}/microwindows/src/nx11/X11-local
 X11HDRLOCATION=/opt/X11/include
 
-SED="sed -i''"     # macOS sed needs -i parm
-#SED="sed -i"
+# functions
+if test "$(uname)" = "Darwin"; then sed="sed -i ''"; else sed="sed -i"; fi
 
 function build_zlib()
 {
@@ -93,12 +93,43 @@ function build_microwindows()
     popd
 }
 
+function build_fltk()
+{
+    pushd fltk-1.3.8
+    sh autogen.sh
+    ./configure \
+        --prefix=$INSTALLED \
+        --enable-x11 \
+        --disable-xft \
+        --disable-xdbe \
+        --disable-xinerama \
+        --disable-xfixes \
+        --disable-xrender \
+        --disable-xcursor \
+        --disable-gl \
+        --disable-threads \
+        --disable-largefile \
+        --with-x \
+        --x-includes=$X11HDRLOCATION \
+        --x-libraries=$X11LIBLOCATION
+    $sed -e "s#$X11LIBLOCATION#$INSTALLED/lib#" makeinclude
+    $sed -e "s#$X11LIBLOCATION#$INSTALLED/lib#" fltk-config
+    $sed -e "s#^DSOFLAGS.*=.*#DSOFLAGS  = -L. -L$INSTALLED/lib#" makeinclude
+    $sed -e "s#^LDFLAGS.*=.*#LDFLAGS  = \$(OPTIM) -L$INSTALLED/lib#" makeinclude
+    $sed -e "s/-lX11/-lNX11 -lnano-X -lfreetype -ljpeg -lpng -lz -lSDL2/" makeinclude
+    $sed -e "s/-lX11/-lNX11 -lnano-X -lfreetype -ljpeg -lpng -lz -lSDL2/" fltk-config
+    patch -p1 < $BUILD_HOME/microwindows/src/tools/patch-fltk-1.3.8
+    make
+    popd
+}
+
 #mkdir -p installed/dos
 mkdir -p installed/macos
 #source ${DJGPP}/setenv
 
-#build_zlib
-#build_png
-#build_jpeg
-#build_freetype
+build_zlib
+build_png
+build_jpeg
+build_freetype
 build_microwindows
+build_fltk

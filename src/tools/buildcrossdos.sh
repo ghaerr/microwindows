@@ -9,6 +9,9 @@ EXTLIBS_HOME=$(pwd)
 export INSTALLED=${BUILD_HOME}/installed/dos
 export DJGPP=${BUILD_HOME}/djgpp
 
+X11HDRLOCATION=${BUILD_HOME}/microwindows/src/nx11/X11-local
+#X11HDRLOCATION=/usr/X11/include
+
 #SED="sed -i''"     # macOS sed needs -i parm
 SED="sed -i"
 

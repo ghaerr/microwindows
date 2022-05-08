@@ -9,6 +9,9 @@ EXTLIBS_HOME=$(pwd)
 export INSTALLED=${BUILD_HOME}/installed/macos
 #export DJGPP=${BUILD_HOME}/djgpp
 
+#X11HDRLOCATION=${BUILD_HOME}/microwindows/src/nx11/X11-local
+X11HDRLOCATION=/opt/X11/include
+
 SED="sed -i''"     # macOS sed needs -i parm
 #SED="sed -i"
 
@@ -77,12 +80,12 @@ function build_microwindows()
     pushd microwindows/src
     #make -f Makefile_nr ARCH=CROSSDOS clean
     make -f Makefile_nr ARCH=MACOS clean
-    #cp -f ${BUILD_HOME}/Makefile.dos .
+    #cp -f ${BUILD_HOME}/Makefile_nr .
     #make -f Makefile_nr ARCH=CROSSDOS TOOLS=${DJGPP}/bin/i586-pc-msdosdjgpp- \
-	    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${BUILD_HOME}/microwindows/src/nx11/X11-local" \
+	    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${X11HDRLOCATION}" \
 	    LIBRARY_FLAGS="-L${INSTALLED}/lib"
     make -f Makefile_nr ARCH=MACOS \
-	    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${BUILD_HOME}/microwindows/src/nx11/X11-local" \
+	    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${X11HDRLOCATION}" \
 	    EXTENGINELIBS="-lSDL2"
     cp -p -f lib/*.a ${INSTALLED}/lib
     cp -p -f include/nano-X.h ${INSTALLED}/include
@@ -94,7 +97,7 @@ function build_microwindows()
 mkdir -p installed/macos
 #source ${DJGPP}/setenv
 
-build_zlib
+#build_zlib
 #build_png
 #build_jpeg
 #build_freetype

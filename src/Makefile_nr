@@ -107,7 +107,7 @@ CFLAGS += -O3
 
 CFLAGS += -DHAVE_FILEIO=1
 CFLAGS += -DMW_FEATURE_IMAGES=1
-CFLAGS += -DMW_FEATURE_TIMERS=0
+CFLAGS += -DMW_FEATURE_TIMERS=1
 CFLAGS += -DHAVE_SIGNAL=0
 CFLAGS += -DHAVE_MMAP=0
 CFLAGS += -DNONETWORK=1
@@ -385,6 +385,7 @@ clean:
 	echo "Cleaning MINGW files"
 	-rm obj/mwin/*.o 2>/dev/null
 	-rm obj/images/demos/mwin/*.o 2>/dev/null
+	-rm obj/images/demos/mwin/*.c 2>/dev/null
 	-rm obj/images/tools/convbmp obj/images/tools/makebmp 2>/dev/null
 	-rm obj/drivers/*.o 2>/dev/null
 	-rm obj/mwin/winlib/*.o 2>/dev/null
@@ -413,6 +414,7 @@ clean:
 	echo "Cleaning CROSSDOS files"
 	-rm mwin/*.o
 	-rm images/demos/mwin/*.o
+	-rm images/demos/mwin/*.c
 	-rm images/tools/convbmp images/tools/makebmp
 	-rm mwin/winlib/*.o
 	-rm fonts/*.o
@@ -436,6 +438,7 @@ clean:
 	-del mwin\*.o
 	-del mwin\bmp\*.o
 	-del images\demos\mwin\*.o
+	-del images\demos\mwin\*.c
 	-del images\tools\convbmp
 	-del images\tools\makebmp
 	-del mwin\winlib\*.o

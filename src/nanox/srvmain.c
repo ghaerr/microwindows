@@ -499,7 +499,7 @@ GsSelect(GR_TIMEOUT timeout)
 	/* some drivers can't block in select as backend is poll based (SDL)*/
 	if (scrdev.flags & PSF_CANTBLOCK)
 	{
-#define WAITTIME	100
+#define WAITTIME	5000
 		/* check if would block permanently or timeout > WAITTIME*/
 		if (to == NULL || tout.tv_sec != 0 || tout.tv_usec > WAITTIME)
 		{
@@ -512,6 +512,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 	/* Wait for some input on any of the fds in the set or a timeout*/
 #if NONETWORK
+again:
 	SERVER_UNLOCK();	/* allow other threads to run*/
 #endif
 	e = select(setsize+1, &rfds, NULL, NULL, to);
@@ -597,6 +598,8 @@ GsSelect(GR_TIMEOUT timeout)
 			if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
 				gp->type = GR_EVENT_TYPE_TIMEOUT;
 		}
+		else if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK))
+			goto again;		/* retry until passed timeout */
 #else /* !NONETWORK */
 #if MW_FEATURE_TIMERS
 		/* check for timer timeouts and service if found*/

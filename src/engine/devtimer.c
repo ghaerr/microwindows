@@ -61,7 +61,7 @@ static struct timeval mainloop_timeout;
 static struct timeval current_time;
 
 static void calculate_timeval(struct timeval *tv, MWTIMEOUT to); 
-static int32_t time_to_expiry(struct timeval *t);
+static long time_to_expiry(struct timeval *t);
 
 /**
  * Create a new one-shot timer.
@@ -247,12 +247,12 @@ static void calculate_timeval(struct timeval *tv, MWTIMEOUT to)
 	}
 }
 
-static int32_t time_to_expiry(struct timeval *t)
+static long time_to_expiry(struct timeval *t)
 {
-	MWTIMEOUT ret = (((t->tv_sec - current_time.tv_sec) * 1000) +
+	long ret = (((t->tv_sec - current_time.tv_sec) * 1000) +
 			((t->tv_usec - current_time.tv_usec) / 1000));
 
-	return (int32_t)ret;
+	return ret;
 }
 
 #endif /* MW_FEATURE_TIMERS */

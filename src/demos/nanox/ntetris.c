@@ -668,10 +668,10 @@ void handle_event(nstate *state)
 			state->state = STATE_EXIT;
 			break;
 		case GR_EVENT_TYPE_TIMEOUT:
+		case GR_EVENT_TYPE_NONE:
 			break;
 		default:
-			GrError("Unhandled event type %d\n",
-							state->event.type);
+			GrError("Unhandled event type %d\n", state->event.type);
 			break;
 	}
 }

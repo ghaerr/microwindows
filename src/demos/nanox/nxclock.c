@@ -15,8 +15,8 @@
 
 /* If you need a clock bigger than 200x200 you will need to re-write the trig *
  * to use longs. (Only applies under ELKS I think. */
-#define CWIDTH		100		/* Max 200 */
-#define CHEIGHT		100		/* Max 200 */
+#define CWIDTH		256
+#define CHEIGHT		256
 
 /*
  * Definitions to make it easy to define cursors

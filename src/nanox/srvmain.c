@@ -349,6 +349,31 @@ GrUnregisterInput(int fd)
 /********************************************************************************/
 #if UNIX && HAVE_SELECT
 
+#if NONETWORK
+static int
+pumpevents(void)
+{
+	/* update mouse and keyboard events */
+	if (scrdev.PreSelect)
+	{
+		/* returns # pending events*/
+		if (scrdev.PreSelect(&scrdev))
+		{
+			/* poll for mouse data and service if found*/
+			while (GsCheckMouseEvent())
+				continue;
+
+			/* poll for keyboard data and service if found*/
+			while (GsCheckKeyboardEvent())
+				continue;
+
+			return 1;
+		}
+	}
+    return 0;
+}
+#endif
+
 void
 GsSelect(GR_TIMEOUT timeout)
 {
@@ -598,8 +623,10 @@ again:
 			if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
 				gp->type = GR_EVENT_TYPE_TIMEOUT;
 		}
-		else if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK))
-			goto again;		/* retry until passed timeout */
+		else if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK)) {
+			if (!pumpevents())  /* process mouse/kbd events */
+				goto again;		/* retry until passed timeout */
+		}
 #else /* !NONETWORK */
 #if MW_FEATURE_TIMERS
 		/* check for timer timeouts and service if found*/

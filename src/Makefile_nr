@@ -69,12 +69,11 @@ $(info Compiling for $(ARCH))
 
 # what to build and tools  ********************************
 
-# uncomment to build microwin, nano-X, or test demos and libraries
+# uncomment to build microwin or nano-X libraries ano/or demos
 MICROWIN=Y
 MICROWINDEMO=Y
 NANOX=Y
 NANOXDEMO=Y
-TESTPROG=Y
 
 # for recursive makes into subdirectories
 MW_DIR_SRC := $(CURDIR)
@@ -253,36 +252,23 @@ ifdef NANOXDEMO
 ALL += nanoxdemos
 endif
 
-ifdef TESTPROG
-ALL += testprog
-endif
-
 # CLIBS, LIBS and NANOLIBS ******************
 
+CFLAGS += -L$(MW_DIR_SRC)/lib
+
 CLIBS += $(LIBALLEGRO)
-
-#drivers/libmwdrivers.a
-#CLIBS += -lmwdrivers
-#fonts/libfonts.a
-#CLIBS += -lfonts
-#engine/libmwengine.a
-#CLIBS += -lmwengine
-
-#CLIBS += -limages
 
 ifdef NANOX
 NANOLIBS += -lnano-X -lNX11 $(EXTENGINELIBS)
 NANOLIBSA += lib/libnano-X.a lib/libNX11.a
 endif
-NANOLIBS +=  $(CLIBS)
+NANOLIBS += $(CLIBS)
 
 ifdef MICROWIN
 LIBS += -lmwin -limages $(CLIBS) $(EXTENGINELIBS)
 endif
 
-#LIBS += -lsocket -lnsl
-
-CFLAGS += -L$(MW_DIR_SRC)/lib
+#CLIBS += -lsocket -lnsl
 
 # mwin demo programs
 MTARGETS1 := mwdemoalpha mwtest mwdemo mwstretch mwcontrols
@@ -337,8 +323,7 @@ init:
 		$(MW_DIR_SRC)/fonts/pcf \
 		$(MW_DIR_SRC)/fonts/truetype \
 		$(MW_DIR_BIN)/fonts
-	-cp $(MW_DIR_SRC)/images/demos/nanox/world.map \
-		$(MW_DIR_SRC)/images/demos/nanox/tux.gif \
+	-cp \
 		$(MW_DIR_SRC)/images/test/earth.jpg \
 		$(MW_DIR_BIN)
 	#-cp -r \
@@ -376,20 +361,6 @@ TUXOBJS = $(patsubst %.c,%.o,$(wildcard demos/tuxchess/*.c))
 $(MW_DIR_BIN)/tuxchess.exe: $(TUXOBJS)
 	echo "compiling $@"
 	$(CC) $(CFLAGS) -o $@ $(TUXOBJS) $(NANOLIBS)
-
-#target for test programs
-testprog:
-	echo "Compiling testprograms"
-	$(info    )
-	$(info $(CFLAGS))
-	$(info    )
-	$(info $(LIBS))
-	$(info    )
-#	$(CC) $(CFLAGS) -o bin/mwdemoalpha.exe demos/mwin/mwdemoalpha.c $(LIBS)
-#	$(CC) $(CFLAGS) -o bin/nxview.exe demos/nanox/nxview.c $(NANOLIBS) -lz
-	$(CC) $(CFLAGS) -o bin/demo-arc.exe demos/nanox/demo-arc.c $(NANOLIBS)
-#	$(CC) $(CFLAGS) -o bin/demo-grabkey.exe demos/nanox/demo-grabkey.c $(NANOLIBS)
-
 
 # clean target ********************************
 .PHONY: clean

@@ -1,6 +1,7 @@
 # Microwindows Makefile for DOS/DJGPP and MinGW
-# by Georg Potthast August 2015
 # based on makefile by V. Rogachev
+# by Georg Potthast August 2015
+# Atari Jaguar addition by Jean-Paul Mari, August 2020
 # updated May 2022 Greg Haerr
 #
 
@@ -11,6 +12,7 @@ $(info  make -f Makefile_nr ARCH=CROSSDOS)
 $(info  make -f Makefile_nr ARCH=MINGW)
 $(info  make -f Makefile_nr ARCH=MACOS)
 $(info  make -f Makefile_nr ARCH=LINUX)
+$(info  make -f Makefile_nr ARCH=AJAGAUR)
 $(error exiting)
 endif
 
@@ -53,6 +55,14 @@ ifeq ($(ARCH), LINUX)
 CROSS = Y
 CFLAGS += -DUNIX=1 -DLINUX=1
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
+endif
+
+ifeq ($(ARCH), AJAGUAR)
+CROSS = Y
+TOOLSPREFIX = m68k-elf-
+# Note: to avoid potential issues with modern GCC, better to have dedicated ctype.h
+INC = -I$(MW_DIR_SRC)/include -IC:/Projects/Lib-M68K/include
+CFLAGS += -DAJAGUAR=1
 endif
 
 $(info Compiling for $(ARCH))
@@ -349,9 +359,15 @@ mwindemos: $(MTARGETS)
 demos/mwin/%.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
+ifeq ($(ARCH), AJAGUAR)
+# Building demos for Atari Jaguar requires specific files so only object files are made
+$(MW_DIR_BIN)/%.exe: demos/mwin/%.o
+	echo "compiling $<"
+else
 $(MW_DIR_BIN)/%.exe: demos/mwin/%.o
 	echo "compiling $@"
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+endif
 
 #target for nanox API demos
 .PHONY: nanoxdemos
@@ -412,7 +428,7 @@ endif
 ifneq ($(ARCH), MINGW)
 ifneq ($(ARCH), DOS)
 clean:
-	echo "Cleaning CROSSDOS files"
+	echo "Cleaning files"
 	-rm mwin/*.o
 	-rm images/demos/mwin/*.o
 	-rm images/demos/mwin/*.c

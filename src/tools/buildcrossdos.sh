@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Cross compile external libs for Microwindows using cross DJGPP on Linux
 #
@@ -30,13 +30,13 @@ function build_png()
     pushd ${EXTLIBS_HOME}/libpng-1.6.37
     make clean
     cp scripts/makefile.dj2 .
-    $SED "s#\-I\.\./zlib#\-I${INSTALLED}/include \-DPNG_NO_CONSOLE_IO#g" makefile.dj2
-    $SED "s#\-L\.\./zlib/#\-L${INSTALLED}/lib#g" makefile.dj2
+    $sed "s#\-I\.\./zlib#\-I${INSTALLED}/include \-DPNG_NO_CONSOLE_IO#g" makefile.dj2
+    $sed "s#\-L\.\./zlib/#\-L${INSTALLED}/lib#g" makefile.dj2
     make -f makefile.dj2 libpng.a
     cp -p -f *.a ${INSTALLED}/lib
     cp -p -f *.h ${INSTALLED}/include
     #make
-    make install
+    #make install
     popd
 }
 
@@ -57,6 +57,9 @@ function build_freetype()
     PATH=${DJGPP}/bin:$PATH
     pushd ${EXTLIBS_HOME}/freetype-2.12.1
     #pushd ${EXTLIBS_HOME}/freetype-VER-2-10-4
+    mv builds/exports.mk builds/exports.skip
+    touch build/exports.mk
+    touch objs/ftexport.sym
     sh autogen.sh
     make clean
     ZLIB_CFLAGS="-I${INSTALLED}/include" \
@@ -68,6 +71,7 @@ function build_freetype()
     #./configure --without-bzip2 --without-harfbuzz --prefix=${INSTALLED}
     make
     make install
+    mv builds/exports.skip builds/exports.mk
     popd
 }
 
@@ -91,10 +95,17 @@ function build_microwindows()
 
 function build_fltk()
 {
+    cp -f /usr/include/X11/Xmd.h $X11HDRLOCATION/X11/.
+    cp -f /usr/include/X11/cursorfont.h $X11HDRLOCATION/X11/.
     pushd fltk-1.3.8
     sh autogen.sh
+    CFLAGS="-I${INSTALLED}/include" \
+    CPPFLAGS="-I${INSTALLED}/include" \
+    LDFLAGS="-L${INSTALLED}/lib -lz -lpng -ljpeg" \
     ./configure \
         --prefix=$INSTALLED \
+        --build=x86_64-linux-gnu \
+        --host=i586-pc-msdosdjgpp \
         --enable-x11 \
         --disable-xft \
         --disable-xdbe \
@@ -105,6 +116,9 @@ function build_fltk()
         --disable-gl \
         --disable-threads \
         --disable-largefile \
+        --disable-localjpeg \
+        --disable-localzlib \
+        --disable-localpng \
         --with-x \
         --x-includes=$X11HDRLOCATION \
         --x-libraries=$X11LIBLOCATION
@@ -114,16 +128,16 @@ function build_fltk()
     $sed -e "s#^LDFLAGS.*=.*#LDFLAGS  = \$(OPTIM) -L$INSTALLED/lib#" makeinclude
     $sed -e "s/-lX11/-lNX11 -lnano-X -lfreetype -ljpeg -lpng -lz/" makeinclude
     $sed -e "s/-lX11/-lNX11 -lnano-X -lfreetype -ljpeg -lpng -lz/" fltk-config
-    patch -p1 < $BUILD_HOME/microwindows/src/tools/patch-fltk-1.3.8
+    [[ ! -e patched ]] && patch -p1 < $BUILD_HOME/microwindows/src/tools/patch-fltk-1.3.8 && touch patched
     make
     popd
 }
 
 mkdir -p installed/dos
 source ${DJGPP}/setenv
-build_zlib
+#build_zlib
 #build_png
 #build_jpeg
 #build_freetype
 #build_microwindows
-#build_fltk
+build_fltk

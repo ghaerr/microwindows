@@ -28,7 +28,7 @@ endif
 ifeq ($(ARCH), CROSSDOS)
 DOS_DJGPP = Y
 CROSS = Y
-CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1
+CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1 -s
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
 endif
 
@@ -37,7 +37,8 @@ CROSS = Y
 INC += -I$(MW_DIR_SRC)/include
 INC += -I/c/MinGW/msys/1.0/local/include/freetype
 INC += -I/usr/local/include
-CFLAGS += -DMINGW
+CFLAGS += -DMINGW -s
+#CFLAGS += -L/c/MinGW/msys/1.0/local/lib -L/c/MinGW/lib
 #ALLEGRO4 = Y
 #LIBALLEGRO = -lalleg #.dll
 ALLEGRO5 = Y
@@ -53,7 +54,7 @@ endif
 
 ifeq ($(ARCH), LINUX)
 CROSS = Y
-CFLAGS += -DUNIX=1 -DLINUX=1
+CFLAGS += -DUNIX=1 -DLINUX=1 -s
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
 endif
 
@@ -61,8 +62,8 @@ ifeq ($(ARCH), AJAGUAR)
 CROSS = Y
 TOOLSPREFIX = m68k-elf-
 # Note: to avoid potential issues with modern GCC, better to have dedicated ctype.h
+CFLAGS += -DAJAGUAR=1 -s
 INC = -I$(MW_DIR_SRC)/include -IC:/Projects/Lib-M68K/include
-CFLAGS += -DAJAGUAR=1
 endif
 
 $(info Compiling for $(ARCH))
@@ -89,29 +90,18 @@ STRIP = $(TOOLSPREFIX)strip
 HOSTCC = gcc
 HOSTCFLAGS = -I$(MW_DIR_SRC)/include
 
-VERBOSE=N
-ifeq ($(VERBOSE), Y)
-CFLAGS += -v
-else
-CFLAGS += -s
-endif
+# verbose compiler output
+VERBOSE=Y
 
-GDB=N
+#GDB=Y
 ifeq ($(GDB), Y)
-# -g - include debugging information in source code
 CFLAGS += $(INC) -Wall -g
-else
-# -s - removes all symbol table and relocation information
-CFLAGS += $(INC)
-#-s -L/c/MinGW/msys/1.0/lib
-CFLAGS += -Wno-deprecated-declarations
-#-Wno-implicit-function-declaration
-#CFLAGS += -L/usr/local/lib -L/local/lib
-#CFLAGS += -L/c/MinGW/msys/1.0/local/lib -L/c/MinGW/lib
 endif
 
 # CFLAGS and included features  ********************************
 
+CFLAGS += $(INC)
+CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -O3
 
 CFLAGS += -DHAVE_FILEIO=1
@@ -271,8 +261,7 @@ endif
 #CLIBS += -lsocket -lnsl
 
 # mwin demo programs
-MTARGETS1 := mwdemoalpha mwtest mwdemo mwstretch mwcontrols
-#MTARGETS1 += mwmine # not working in DOS
+MTARGETS1 := mwmine mwdemoalpha mwtest mwdemo mwstretch mwcontrols
 MTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(MTARGETS1))
 MTARGETS := $(addsuffix .exe,$(MTARGETS2))
 
@@ -326,14 +315,6 @@ init:
 	-cp \
 		$(MW_DIR_SRC)/images/test/earth.jpg \
 		$(MW_DIR_BIN)
-	#-cp -r \
-		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
-		$(MW_DIR_SRC)/images/demos/nanox/slidebmp.bmp \
-		$(MW_DIR_SRC)/images/demos/nanox/uponface.ppm \
-		$(MW_DIR_SRC)/images/demos/nanox/mwlogo.ppm \
-		$(MW_DIR_SRC)/images/demos/nanox/icons/*.ppm \
-		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
-		$(MW_DIR_BIN)
 
 # build targets ********************************
 
@@ -370,7 +351,7 @@ clean:
 	echo "Cleaning MINGW files"
 	-rm obj/mwin/*.o 2>/dev/null
 	-rm obj/images/demos/mwin/*.o 2>/dev/null
-	-rm obj/images/demos/mwin/*.c 2>/dev/null
+	-rm obj/images/demos/mwin/mwmine/*.o 2>/dev/null
 	-rm obj/images/tools/convbmp obj/images/tools/makebmp 2>/dev/null
 	-rm obj/drivers/*.o 2>/dev/null
 	-rm obj/mwin/winlib/*.o 2>/dev/null
@@ -399,7 +380,7 @@ clean:
 	echo "Cleaning files"
 	-rm mwin/*.o
 	-rm images/demos/mwin/*.o
-	-rm images/demos/mwin/*.c
+	-rm images/demos/mwin/mwmine/*.o
 	-rm images/tools/convbmp images/tools/makebmp
 	-rm mwin/winlib/*.o
 	-rm fonts/*.o
@@ -423,7 +404,7 @@ clean:
 	-del mwin\*.o
 	-del mwin\bmp\*.o
 	-del images\demos\mwin\*.o
-	-del images\demos\mwin\*.c
+	-del images\demos\mwin\mwmine\*.o
 	-del images\tools\convbmp
 	-del images\tools\makebmp
 	-del mwin\winlib\*.o
@@ -485,7 +466,7 @@ drivers/libmwdrivers.a:
 
 images/demos/mwin/libimages.a:
 	echo "Generating $@"
-	$(MAKE) -C images/demos/mwin -f ../../../contrib/makefiles_nr/Makefile-bmp
+	$(MAKE) -C images -f ../contrib/makefiles_nr/Makefile-bmp
 
 nx11/libNX11.a:
 	echo "Generating $@"

@@ -308,9 +308,15 @@ initdos:
 	-$("shell md obj 2>NUL")
 
 init:
-	#-mkdir -p $(MW_DIR_BIN)/fonts
-	#-cp -r $(MW_DIR_SRC)/fonts/fnt $(MW_DIR_SRC)/fonts/pcf $(MW_DIR_SRC)/fonts/truetype $(MW_DIR_BIN)/fonts
-	#-cp $(MW_DIR_SRC)/images/test/earth.jpg $(MW_DIR_BIN)
+	-mkdir -p $(MW_DIR_BIN)/fonts
+	-cp -r \
+		$(MW_DIR_SRC)/fonts/fnt \
+		$(MW_DIR_SRC)/fonts/pcf \
+		$(MW_DIR_SRC)/fonts/truetype \
+		$(MW_DIR_BIN)/fonts \
+	#-cp \
+		$(MW_DIR_SRC)/images/test/earth.jpg \
+		$(MW_DIR_BIN)
 
 # build targets ********************************
 
@@ -346,6 +352,7 @@ ifeq ($(ARCH), MINGW)
 clean:
 	echo "Cleaning MINGW files"
 	-rm obj/mwin/*.o 2>/dev/null
+	-rm obj/demos/tuxchess/*.o 2>/dev/null
 	-rm obj/images/demos/mwin/*.o 2>/dev/null
 	-rm obj/images/demos/mwin/mwmine/*.o 2>/dev/null
 	-rm obj/images/tools/convbmp obj/images/tools/makebmp 2>/dev/null
@@ -363,7 +370,7 @@ clean:
 	-rm bin/*.exe 2>/dev/null
 	-rm bin/*.ppm 2>/dev/null
 	-rm bin/*.pgm 2>/dev/null
-#	-rm -rf bin/fonts/ 2>/dev/null
+	-rm -rf bin/fonts/ 2>/dev/null
 	-rm images/demos/mwin/*.exe 2>/dev/null
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -374,6 +381,7 @@ ifneq ($(ARCH), DOS)
 clean:
 	echo "Cleaning files"
 	-rm mwin/*.o
+	-rm demos/tuxchess/*.o
 	-rm images/demos/mwin/*.o
 	-rm images/demos/mwin/mwmine/*.o
 	-rm images/tools/convbmp images/tools/makebmp
@@ -386,7 +394,7 @@ clean:
 	-rm bin/*.exe
 	-rm bin/*.ppm
 	-rm bin/*.pgm
-	#-rm -rf bin/fonts
+	-rm -rf bin/fonts
 	-rm nx11/*.o
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -397,6 +405,7 @@ ifeq ($(ARCH), DOS)
 clean:
 	echo "Cleaning DOS files"
 	-del mwin\*.o
+	-del demos\tuxchess\*.o
 	-del mwin\bmp\*.o
 	-del images\demos\mwin\*.o
 	-del images\demos\mwin\mwmine\*.o

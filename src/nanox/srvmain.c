@@ -349,6 +349,31 @@ GrUnregisterInput(int fd)
 /********************************************************************************/
 #if UNIX && HAVE_SELECT
 
+#if NONETWORK
+static int
+pumpevents(void)
+{
+	/* update mouse and keyboard events */
+	if (scrdev.PreSelect)
+	{
+		/* returns # pending events*/
+		if (scrdev.PreSelect(&scrdev))
+		{
+			/* poll for mouse data and service if found*/
+			while (GsCheckMouseEvent())
+				continue;
+
+			/* poll for keyboard data and service if found*/
+			while (GsCheckKeyboardEvent())
+				continue;
+
+			return 1;
+		}
+	}
+    return 0;
+}
+#endif
+
 void
 GsSelect(GR_TIMEOUT timeout)
 {
@@ -499,7 +524,7 @@ GsSelect(GR_TIMEOUT timeout)
 	/* some drivers can't block in select as backend is poll based (SDL)*/
 	if (scrdev.flags & PSF_CANTBLOCK)
 	{
-#define WAITTIME	100
+#define WAITTIME	5000
 		/* check if would block permanently or timeout > WAITTIME*/
 		if (to == NULL || tout.tv_sec != 0 || tout.tv_usec > WAITTIME)
 		{
@@ -512,6 +537,7 @@ GsSelect(GR_TIMEOUT timeout)
 
 	/* Wait for some input on any of the fds in the set or a timeout*/
 #if NONETWORK
+again:
 	SERVER_UNLOCK();	/* allow other threads to run*/
 #endif
 	e = select(setsize+1, &rfds, NULL, NULL, to);
@@ -596,6 +622,10 @@ GsSelect(GR_TIMEOUT timeout)
 			GR_EVENT_GENERAL *	gp;
 			if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
 				gp->type = GR_EVENT_TYPE_TIMEOUT;
+		}
+		else if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK)) {
+			if (!pumpevents())  /* process mouse/kbd events */
+				goto again;		/* retry until passed timeout */
 		}
 #else /* !NONETWORK */
 #if MW_FEATURE_TIMERS
@@ -1024,23 +1054,23 @@ GsInitialize(void)
 	/*
 	 * Initialize the root window.
 	 */
-	wp->psd = psd;
-	wp->id = GR_ROOT_WINDOW_ID;
-	wp->parent = NULL;		/* changed: was = NULL*/
-	wp->owner = NULL;
-	wp->children = NULL;
-	wp->siblings = NULL;
-	wp->next = NULL;
 	wp->x = 0;
 	wp->y = 0;
 	wp->width = psd->xvirtres;
 	wp->height = psd->yvirtres;
+	wp->psd = psd;
+	wp->id = GR_ROOT_WINDOW_ID;
+	wp->next = NULL;
+	wp->owner = NULL;
+	wp->parent = NULL;
+	wp->children = NULL;
+	wp->siblings = NULL;
 	wp->bordersize = 0;
 	wp->background = BLACK;
 	wp->bordercolor = wp->background;
-	wp->nopropmask = 0;
 	wp->bgpixmap = NULL;
 	wp->bgpixmapflags = GR_BACKGROUND_TILE;
+	wp->nopropmask = 0;
 	wp->eventclients = NULL;
 	wp->cursorid = 0;
 	wp->mapped = GR_TRUE;
@@ -1049,6 +1079,7 @@ GsInitialize(void)
 	wp->props = 0;
 	wp->title = NULL;
 	wp->clipregion = NULL;
+    wp->buffer = NULL;
 
     listpp = NULL;
 	listwp = wp;

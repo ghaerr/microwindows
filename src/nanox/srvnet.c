@@ -1779,24 +1779,16 @@ GrShmCmdsFlushWrapper(void *r)
 int 
 GsOpenSocket(void)
 {
-#define SUN_LEN(ptr)	(sizeof(sckt))
 #if ELKS
 	struct sockaddr_na sckt;
-#ifndef SUN_LEN
-#define SUN_LEN(ptr)	(sizeof(sckt))
-#endif
 #elif __ECOS
 	struct sockaddr_in sckt;
+#else
+	struct sockaddr_un sckt;
+#endif
 #ifndef SUN_LEN
 #define SUN_LEN(ptr)	(sizeof(sckt))
 #endif
-#else
-	struct sockaddr_un sckt;
-#ifndef SUN_LEN
-#define SUN_LEN(ptr)	((size_t) (((struct sockaddr_un *) 0)->sun_path) \
-		      		+ strlen ((ptr)->sun_path))
-#endif
-#endif /* ELKS */
 
 #if ELKS
 	if((un_sock = socket(AF_NANO, SOCK_STREAM, 0)) == -1)

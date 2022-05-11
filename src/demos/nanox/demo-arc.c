@@ -22,10 +22,10 @@ draw(GR_EVENT *ep)
 #if 1
 	/* filled arc*/
 	GrSetGCForeground(gc, GREEN);
-	GrArcAngle(wid, gc, x, y, 3, 3, 0, 0, GR_PIE);
+	GrArcAngle(wid, gc, x, y, 30, 30, 0, 0, GR_PIE);
 
 	GrSetGCForeground(gc, BLACK);
-	GrArcAngle(wid, gc, x, y, 3, 3, 0, 0, GR_ARC);
+	GrArcAngle(wid, gc, x, y, 30, 30, 0, 0, GR_ARC);
 
 	GrSetGCForeground(gc, BLACK);
 	GrPoint(wid, gc, x, y);

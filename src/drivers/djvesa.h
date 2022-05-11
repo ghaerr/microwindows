@@ -10,7 +10,7 @@
 #include <dos.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys\farptr.h>
+#include <sys/farptr.h>
 
 #pragma pack(1)
 

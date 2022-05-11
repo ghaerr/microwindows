@@ -82,6 +82,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include "nano-X.h"
+#include "osdep.h"
 #include "nxcolors.h"
 #include "ntetris.h"
 
@@ -97,12 +98,12 @@ void *my_malloc(size_t size)
 	return ret;
 }
 
-#ifdef HAVE_USLEEP
+#if 0
 void msleep(long ms)
 {
 	usleep(ms * 1000);
 }
-#else
+
 void msleep(long ms)
 {
 	struct timespec req, rem;
@@ -422,7 +423,7 @@ void block_reached_bottom(nstate *state)
 			}
 		}
 		if(nr) continue;
-		msleep(DELETE_LINE_DELAY);
+		GdDelay(DELETE_LINE_DELAY);
 		delete_line(state, y);
 		state->score += SCORE_INCREMENT;
 		if((LEVELS > (state->level + 1)) && (((state->level + 1) *
@@ -510,7 +511,7 @@ static int drop_block_1(nstate *state)
 
 void drop_block(nstate *state)
 {
-	while(!drop_block_1(state)) msleep(DROP_BLOCK_DELAY);
+	while(!drop_block_1(state)) GdDelay(DROP_BLOCK_DELAY);
 }
 
 void handle_exposure_event(nstate *state)
@@ -668,10 +669,10 @@ void handle_event(nstate *state)
 			state->state = STATE_EXIT;
 			break;
 		case GR_EVENT_TYPE_TIMEOUT:
+		case GR_EVENT_TYPE_NONE:
 			break;
 		default:
-			GrError("Unhandled event type %d\n",
-							state->event.type);
+			GrError("Unhandled event type %d\n", state->event.type);
 			break;
 	}
 }

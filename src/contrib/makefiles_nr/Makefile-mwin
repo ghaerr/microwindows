@@ -9,6 +9,7 @@ LIB=libmwin.a
 # List of objects to compile
 OBJECTS := \
 	winmain.o \
+	winmain2.o \
 	winuser.o \
 	wingdi.o \
 	winexpos.o \

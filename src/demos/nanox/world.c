@@ -15,14 +15,10 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 
+#define	MAPFILE	"images/demos/nanox/world.map"
+
 #ifndef O_BINARY
 #define O_BINARY 	0
-#endif
-
-#if DOS_DJGPP | __ECOS
-#define	MAPFILE	"/world.map"
-#else
-#define	MAPFILE	"bin/world.map"		/* was /usr/lib*/
 #endif
 
 #define	SELECTBUTTON	GR_BUTTON_L

@@ -38,7 +38,7 @@
 #include <nxcolors.h>
 #include "tuxmask.h"
 
-#define DEFAULT_TUX_FILE "bin/tux.gif"
+#define DEFAULT_TUX_FILE "images/demos/nanox/tux.gif"
 
 static int button_down = 0, x = 0, y = 0;
 

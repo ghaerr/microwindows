@@ -379,6 +379,7 @@ clean:
 	-rm images/tools/convbmp images/tools/makebmp
 	-rm mwin/winlib/*.o
 	-rm nanox/*.o
+	-rm fonts/*.o
 	-rm drivers/*.o
 	-rm engine/*.o
 	-rm lib/*.a
@@ -403,6 +404,7 @@ clean:
 	-del images\tools\makebmp
 	-del mwin\winlib\*.o
 	-del nanox\*.o
+	-del fonts\*.o
 	-del drivers\*.o
 	-del engine\*.o
 	-del lib\*.a

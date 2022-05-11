@@ -308,15 +308,9 @@ initdos:
 	-$("shell md obj 2>NUL")
 
 init:
-	-mkdir -p $(MW_DIR_BIN)/fonts
-	-cp -r \
-		$(MW_DIR_SRC)/fonts/fnt \
-		$(MW_DIR_SRC)/fonts/pcf \
-		$(MW_DIR_SRC)/fonts/truetype \
-		$(MW_DIR_BIN)/fonts
-	-cp \
-		$(MW_DIR_SRC)/images/test/earth.jpg \
-		$(MW_DIR_BIN)
+	#-mkdir -p $(MW_DIR_BIN)/fonts
+	#-cp -r $(MW_DIR_SRC)/fonts/fnt $(MW_DIR_SRC)/fonts/pcf $(MW_DIR_SRC)/fonts/truetype $(MW_DIR_BIN)/fonts
+	#-cp $(MW_DIR_SRC)/images/test/earth.jpg $(MW_DIR_BIN)
 
 # build targets ********************************
 
@@ -364,7 +358,6 @@ clean:
 	-rm images/demos/mwin/*.o 2>/dev/null
 	-rm mwin/winlib/*.o 2>/dev/null
 	-rm nanox/*.o 2>/dev/null
-	-rm fonts/*.o 2>/dev/null
 	-rm engine/*.o 2>/dev/null
 	-rm lib/*.a	 2>/dev/null
 	-rm bin/*.exe 2>/dev/null
@@ -385,7 +378,6 @@ clean:
 	-rm images/demos/mwin/mwmine/*.o
 	-rm images/tools/convbmp images/tools/makebmp
 	-rm mwin/winlib/*.o
-	-rm fonts/*.o
 	-rm nanox/*.o
 	-rm drivers/*.o
 	-rm engine/*.o
@@ -393,7 +385,7 @@ clean:
 	-rm bin/*.exe
 	-rm bin/*.ppm
 	-rm bin/*.pgm
-	-rm -rf bin/fonts
+	#-rm -rf bin/fonts
 	-rm nx11/*.o
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -410,7 +402,6 @@ clean:
 	-del images\tools\convbmp
 	-del images\tools\makebmp
 	-del mwin\winlib\*.o
-	-del fonts\*.o
 	-del nanox\*.o
 	-del drivers\*.o
 	-del engine\*.o
@@ -418,7 +409,6 @@ clean:
 	-del bin\*.exe
 	-del bin\*.ppm
 	-del bin\*.pgm
-# -rm -rf bin\fonts
 	-del nx11\*.o
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"

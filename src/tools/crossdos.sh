@@ -3,7 +3,7 @@
 # Build DOS Microwindows/Nano-X using cross-DJGPP
 
 BUILD_HOME=$(pwd)
-INSTALLED=${BUILD_HOME}/../../installed/dos
+export INSTALLED=${BUILD_HOME}/../../installed/dos
 DJGPP=${BUILD_HOME}/../../djgpp
 
 make -f Makefile_nr \

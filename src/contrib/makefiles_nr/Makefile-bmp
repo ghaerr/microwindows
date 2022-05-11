@@ -4,7 +4,10 @@
 #
 LIB=libimages.a
 
-OBJECTS = \
+OBJECTS := \
+    $(patsubst %.bmp,%.o,$(wildcard demos/mwin/mwmine/*.bmp))
+
+OBJECTS += \
     demos/mwin/car8.o \
     demos/mwin/min4.o \
     demos/mwin/max4.o \
@@ -12,9 +15,6 @@ OBJECTS = \
     demos/mwin/under4.o \
     demos/mwin/microwin.o \
     demos/mwin/penguin.o
-
-OBJECTS += \
-    $(patsubst %.bmp,%.o,$(wildcard demos/mwin/mwmine/*.bmp))
 
 all: tools/convbmp tools/makebmp $(LIB)
 

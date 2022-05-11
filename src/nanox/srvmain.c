@@ -1054,23 +1054,23 @@ GsInitialize(void)
 	/*
 	 * Initialize the root window.
 	 */
-	wp->psd = psd;
-	wp->id = GR_ROOT_WINDOW_ID;
-	wp->parent = NULL;		/* changed: was = NULL*/
-	wp->owner = NULL;
-	wp->children = NULL;
-	wp->siblings = NULL;
-	wp->next = NULL;
 	wp->x = 0;
 	wp->y = 0;
 	wp->width = psd->xvirtres;
 	wp->height = psd->yvirtres;
+	wp->psd = psd;
+	wp->id = GR_ROOT_WINDOW_ID;
+	wp->next = NULL;
+	wp->owner = NULL;
+	wp->parent = NULL;
+	wp->children = NULL;
+	wp->siblings = NULL;
 	wp->bordersize = 0;
 	wp->background = BLACK;
 	wp->bordercolor = wp->background;
-	wp->nopropmask = 0;
 	wp->bgpixmap = NULL;
 	wp->bgpixmapflags = GR_BACKGROUND_TILE;
+	wp->nopropmask = 0;
 	wp->eventclients = NULL;
 	wp->cursorid = 0;
 	wp->mapped = GR_TRUE;
@@ -1079,6 +1079,7 @@ GsInitialize(void)
 	wp->props = 0;
 	wp->title = NULL;
 	wp->clipregion = NULL;
+    wp->buffer = NULL;
 
     listpp = NULL;
 	listwp = wp;

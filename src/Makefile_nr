@@ -101,6 +101,10 @@ endif
 # CFLAGS and included features  ********************************
 
 CFLAGS += $(INC)
+
+# Debug output support through GdError
+#CFLAGS += -DDEBUG=1
+
 CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -O3
 
@@ -131,16 +135,6 @@ CFLAGS += -DHAVE_BMP_SUPPORT=1
 CFLAGS += -DHAVE_GIF_SUPPORT=1
 CFLAGS += -DHAVE_PNM_SUPPORT=1
 CFLAGS += -DHAVE_XPM_SUPPORT=1
-
-# Debug support
-DEBUG=N
-ifeq ($(DEBUG), Y)
-# enable EPRINTF and DPRINTF statements in code
-CFLAGS += -DHAVE_FPRINTF=1
-else
-# uses Nano-X error function and outputs to STDOUT=SCREEN
-CFLAGS += -DHAVE_FPRINTF=0
-endif
 
 # external library support  ********************************
 
@@ -173,6 +167,14 @@ CLIBS += $(INSTALLED)/lib/libpng.a $(INSTALLED)/lib/libz.a
 #directory within bin.
 #With DJGPP the directory is fixed in font_fnt.c,
 #font_pcf.c and font_freetype2.c
+
+# NX11 XLFD font directory path used in nx11/fontlist.c
+# for base, base/pcf and base/truetype directories
+LOCALFONTPATH := $(PWD)/
+CFLAGS += -DXLOCALFONTPATH=\"$(LOCALFONTPATH)\"
+
+# use stanard X11 XLFD system directories for fonts
+CFLAGS += -DHAVE_SYSTEM_FONT_PATHS=1
 
 CFLAGS += -DHAVE_FNT_SUPPORT=1
 CFLAGS += -DFNT_FONT_DIR=\"fonts/fnt\"

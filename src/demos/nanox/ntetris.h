@@ -42,7 +42,6 @@
 #define USE_HISCORE_FILE
 #define HISCORE_FILE "/usr/games/nanotetris.hiscore"
 #endif
-#undef HAVE_USLEEP
 #define BLOCK_SIZE 10
 #define BORDER_WIDTH 10
 #define CONTROL_BAR_WIDTH 90
@@ -191,7 +190,6 @@ struct ntetris_state {
 typedef struct ntetris_state nstate;
 
 void *my_malloc(size_t size);
-void msleep(long ms);
 void read_hiscore(nstate *state);
 void write_hiscore(nstate *state);
 int will_collide(nstate *state, int x, int y, int orientation);

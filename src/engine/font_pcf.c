@@ -703,9 +703,9 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 			width = metrics[i].width;
 		gwidth[i] = width;
 
-		if (metrics[i].leftBearing < 0)
+		/*if (metrics[i].leftBearing < 0)
 			DPRINTF("glyph %d (%c) left bearing %d, right bearing %d, width %d\n",
-				i, i, metrics[i].leftBearing, metrics[i].rightBearing, gwidth[i]);
+				i, i, metrics[i].leftBearing, metrics[i].rightBearing, gwidth[i]);*/
 
 		lwidth = (width + 15) / 16;		/* word padding for gen16 routines*/
 

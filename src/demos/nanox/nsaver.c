@@ -39,6 +39,7 @@
 #include <math.h>
 #include "sys_time.h"
 #include "nano-X.h"
+#include "osdep.h"
 #include "nxcolors.h"
 #include "nsaver.h"
 
@@ -115,32 +116,6 @@ void make_random_square(nstate *state, int min_brightness, int min_size,
 	*retsize = size;
 }
 
-#ifdef HAVE_USLEEP
-void msleep(long ms)
-{
-	usleep(ms * 1000);
-}
-#else
-void msleep(long ms)
-{
-	struct timespec req, rem;
-
-	req.tv_sec = ms / 1000000;
-	req.tv_nsec = (ms % 1000000) * 1000000;
-
-	while(nanosleep(&req, &rem) == -1) {
-		if(errno == EINTR) {
-			req.tv_sec = rem.tv_sec;
-			req.tv_nsec = rem.tv_nsec;
-			continue;
-		} else {
-			perror("nanosleep() failed");
-			return;
-		}
-	}
-}
-#endif
-
 GR_WINDOW_ID capture_screen(nstate *state)
 {
 	GR_WINDOW_ID pid;
@@ -149,7 +124,7 @@ GR_WINDOW_ID capture_screen(nstate *state)
 	/* This is a hack to give the system enough time to redraw the screen
 	 * before capturing it when we switch from one screensaver to another.
 	 * without it, we often capture an only partially redrawn screen. */
-	msleep(CAPTURESCREEN_DELAY);
+	GdDelay(CAPTURESCREEN_DELAY);
 #endif
 	
 	pid = GrNewPixmap(state->si.cols, state->si.rows, NULL);
@@ -1064,7 +1039,7 @@ void saver13_init(nstate *state)
 	state->animate_interval = 1;
 
 #if CAPTURESCREEN_DELAY
-	msleep(CAPTURESCREEN_DELAY);
+	GdDelay(CAPTURESCREEN_DELAY);
 #endif
 	
 	GrReadArea(GR_ROOT_WINDOW_ID, 0, 0, state->si.cols, state->si.rows,

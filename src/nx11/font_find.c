@@ -47,11 +47,10 @@ openfontalias(char *str)
 	char path[256];
 
 	sprintf(path, "%s/fonts.alias", str);
-	//return fopen(path, "r");
 	FILE *f = fopen(path, "r");
 	if (f == NULL) {
-	sprintf(path, "%s/fonts.ali", str); //try this for short file name support
-	f = fopen(path, "r");
+		sprintf(path, "%s/fonts.ali", str); //try this for short file name support
+		f = fopen(path, "r");
 	}
 	return f;
 }
@@ -279,13 +278,14 @@ findfont_wildcard(char *pattern, int maxnames, struct _list *fontlist)
 {
 	int f, i;
 
-DPRINTF("findfont_wildcard: '%s' maxnames %d\n", pattern, maxnames);
+	DPRINTF("findfont_wildcard: '%s' maxnames %d\n", pattern, maxnames);
 	/* loop through each font dir and read fonts.dir*/
 	for (f = 0; f < _nxfontcount; f++) {
 		FILE *fontdir = _nxOpenFontDir(_nxfontlist[f]);
 		int fcount;
 		char buffer[128];
 
+		DPRINTF("nxopenfontdir %s\n", _nxfontlist[f]);
 		if (!fontdir)
 			continue;
 
@@ -311,7 +311,7 @@ DPRINTF("findfont_wildcard: '%s' maxnames %d\n", pattern, maxnames);
 
 			/* if XLFD matches pattern, add to fontlist*/
 			if (match(pattern, xlfd)) {
-DPRINTF("enumfont add: %s\n", xlfd);
+				DPRINTF("enumfont add: %s\n", xlfd);
 				if (_addFontToList(fontlist, xlfd) == maxnames)
 					break;
 			}
@@ -319,7 +319,7 @@ DPRINTF("enumfont add: %s\n", xlfd);
 		fclose(fontdir);
 	}
 
-#if ANDROID
+#if ANDROID // FIXME broken, segfaults in strlen code below
 	//Android has no fonts dir so emulated this here - so far no fontlist was found above
 	if (maxnames == 1) {
 	  _addFontToList(fontlist, pattern); //FLTK just checks again if selected size is supported
@@ -399,7 +399,7 @@ char **font_enumfonts(char *pattern, int maxnames, int *count_return, int chkali
 	char **fontlist;
 	int count;
 
-DPRINTF("font_enumfonts: '%s' maxnames %d\n", pattern, maxnames);
+	DPRINTF("font_enumfonts: '%s' maxnames %d\n", pattern, maxnames);
 	fontlist = findXLFDfont(pattern, maxnames, &count, chkalias);
 	*count_return = count;
 
@@ -407,7 +407,7 @@ DPRINTF("font_enumfonts: '%s' maxnames %d\n", pattern, maxnames);
 	if (fontlist)
 		qsort((char *)fontlist, count, sizeof(char *), comparefunc);
 
-DPRINTF("font_enumfonts: return count %d\n", count);
+	DPRINTF("font_enumfonts: return count %d\n", count);
 	return fontlist;
 }
 
@@ -469,7 +469,7 @@ font_findalias(int index, const char *fontspec, char *alias)
 				do ++p; while (*p == ' ' || *p == '\t');
 
 				strcpy(alias, p);
-DPRINTF("font_findalias: replacing %s with %s\n", fontspec, alias);
+				DPRINTF("font_findalias: replacing %s with %s\n", fontspec, alias);
 				match = 1;
 				break;
 			}
@@ -530,7 +530,7 @@ findfont_nowildcard(const char *fontspec, int *height)
 	if (!_nxfontcount)
 		_nxSetDefaultFontDir();
 
-DPRINTF("findfont_nowildcard: '%s'\n", fontspec);
+	DPRINTF("findfont_nowildcard: '%s'\n", fontspec);
 
 	/* set zero return height for cases where we don't have info*/
 	*height = 0;
@@ -552,7 +552,7 @@ DPRINTF("findfont_nowildcard: '%s'\n", fontspec);
 		if (!fontdir) {
 			sprintf(path, "%s/%s", _nxfontlist[f], fontspec);
 			if (access(path, F_OK) == 0) {
-DPRINTF("findfont_nowild: partial path match %s = %s\n", fontspec, path);
+				DPRINTF("findfont_nowild: partial path match %s = %s\n", fontspec, path);
 				return strdup(path);
 			}
 
@@ -588,7 +588,8 @@ DPRINTF("findfont_nowild: partial path match %s = %s\n", fontspec, path);
 					/* return full font pathname and height*/
 					sprintf(path, "%s/%s", _nxfontlist[f], buffer);
 					*height = xlfdheight(xlfd);
-DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", fontspec, xlfd, path, *height);
+					DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n",
+						fontspec, xlfd, path, *height);
 					fclose(fontdir);
 					return strdup(path);
 				} else {
@@ -626,7 +627,7 @@ DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", fontspec, xlfd, p
 									/* match - return full font pathname and height*/
 									sprintf(path, "%s/%s", _nxfontlist[f], buffer);
 									*height = xlfdheight(fontspec);
-DPRINTF("findfont_nowild: XLFD -0- match %s %s = '%s' height %d\n", fontspec, xlfd, path, *height);
+									DPRINTF("findfont_nowild: XLFD -0- match %s %s = '%s' height %d\n", fontspec, xlfd, path, *height);
 									fclose(fontdir);
 									return strdup(path);
 								}
@@ -659,7 +660,8 @@ DPRINTF("findfont_nowild: XLFD -0- match %s %s = '%s' height %d\n", fontspec, xl
 
 					/* return full font pathname*/
 					sprintf(path, "%s/%s", _nxfontlist[f], buffer);
-DPRINTF("findfont_nowild: non-XLFD prefix match %s %s = '%s'\n", fontspec, buffer, path);
+					DPRINTF("findfont_nowild: non-XLFD prefix match %s %s = '%s'\n",
+						fontspec, buffer, path);
 					fclose(fontdir);
 					return strdup(path);
 				}
@@ -681,7 +683,8 @@ DPRINTF("findfont_nowild: non-XLFD prefix match %s %s = '%s'\n", fontspec, buffe
 				if (strcmp(fontspec, xlfd) == 0) {
 
 					*height = xlfdheight(xlfd);
-DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", xlfd, fontspec, staticFontList[i].file, *height);
+					DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n",
+						xlfd, fontspec, staticFontList[i].file, *height);
 					return strdup(staticFontList[i].file);
 				} else {
 					int j;
@@ -717,7 +720,7 @@ DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", xlfd, fontspec, s
 
 									/* match - return full font pathname and height*/
 									*height = xlfdheight(fontspec);
-DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", xlfd, fontspec, staticFontList[i].file, *height);
+									DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", xlfd, fontspec, staticFontList[i].file, *height);
 									return strdup(staticFontList[i].file);
 								}
 							}
@@ -731,11 +734,11 @@ DPRINTF("findfont_nowild: exact XLFD match %s %s = %s (%d)\n", xlfd, fontspec, s
 
 	/* check for partial path specfied.  If so, return as is*/
 	if (any('/', fontspec)) {
-DPRINTF("findfont_nowild: partial path assumed, returning %s\n", fontspec);
+		DPRINTF("findfont_nowild: partial path assumed, returning %s\n", fontspec);
 		return strdup(fontspec);
 	}
 
-DPRINTF("findfont_nowild: fail\n");
+		DPRINTF("findfont_nowild: fail\n");
 	return NULL;
 }
 
@@ -765,9 +768,9 @@ findXLFDfont(char *pattern, int maxnames, int *count, int chkalias)
 		}
 	}
 
-	if (pattern[0] == '-' && (any('*', pattern) || any('?', pattern)))
+	if (pattern[0] == '-' && (any('*', pattern) || any('?', pattern))) {
 		findfont_wildcard(pattern, maxnames, fontlist);
-	else {
+	} else {
 		char *fontfile;
 		int dummy_height;
 
@@ -776,7 +779,7 @@ findXLFDfont(char *pattern, int maxnames, int *count, int chkalias)
 
 		/* special case handling for 'fixed' - return 'fixed'*/
 		if (!fontfile && !strcmp(pattern, "fixed")) {
-DPRINTF("XListFont: forcing add 'fixed' to list\n");
+			DPRINTF("XListFont: forcing add 'fixed' to list\n");
 			fontfile = strdup("fixed");		/* faked to force add pattern to list*/
 		}
 
@@ -832,7 +835,7 @@ font_findfont(char *name, int height, int width, int *return_height)
 	char **	   fontlist = NULL;
 	int f;
 
-DPRINTF("findfont: START %s h/w %d,%d\n", name, height, width);
+	DPRINTF("findfont: start %s h/w %d,%d\n", name, height, width);
 	if (!_nxfontcount)
 		_nxSetDefaultFontDir();
 
@@ -865,7 +868,8 @@ DPRINTF("findfont: START %s h/w %d,%d\n", name, height, width);
 
 			/* return pathname of XLFD font spec*/
 			fontpath = findfont_nowildcard(fontlist[okindex], return_height);
-DPRINTF("findfont: FINI wild %s %d %d = '%s' height %d\n", fontlist[okindex], okindex, count, fontpath, *return_height);
+			DPRINTF("findfont: fini wild %s %d %d = '%s' height %d\n",
+				fontlist[okindex], okindex, count, fontpath, *return_height);
 		}
 	} else {
 		/*
@@ -881,7 +885,7 @@ DPRINTF("findfont: FINI wild %s %d %d = '%s' height %d\n", fontlist[okindex], ok
 		if (*return_height == 0)
 			*return_height = (height? height: 13);
 
-DPRINTF("findfont: FINI nowild %s = %s height %d\n", name, fontpath, *return_height);
+		DPRINTF("findfont: FINI nowild %s = %s height %d\n", name, fontpath, *return_height);
 	}
 
 	/* free temporaries*/
@@ -1006,14 +1010,14 @@ XLoadFont(Display * dpy, _Xconst char *name)
 #endif
  		font = GrCreateFontEx(fontname, height, height, NULL);
 	} else if (!strcmp(name, "fixed")) {
-DPRINTF("XLoadFont: mapping 'fixed' to builtin SystemFixed\n");
+		DPRINTF("XLoadFont: mapping 'fixed' to builtin SystemFixed\n");
 		/* special-case handle 'fixed' and map to builtin system fixed font*/
 		fontname = strdup(MWFONT_SYSTEM_FIXED);
 		height = 13;
 		font = GrCreateFontEx(fontname, 0, 0, NULL); /* height zero to force builtin lookup by name*/
 	}
     GrSetFontAttr(font, GR_TFKERNING | GR_TFANTIALIAS, 0);
-DPRINTF("XLoadFont('%s') = '%s' height %d [%d]\n", name, fontname, height, font);
+	DPRINTF("XLoadFont('%s') = '%s' height %d [%d]\n", name, fontname, height, font);
 	if (fontname)
 		Xfree(fontname);
 	return font;
@@ -1087,7 +1091,7 @@ XCreateFontSet(Display *display, _Xconst char *base_font_name_list,
 Bool
 XGetFontProperty(XFontStruct * font, Atom atom, unsigned long *value_return)
 {
-DPRINTF("XGetFontProperty called\n");
+	DPRINTF("XGetFontProperty called\n");
 	switch (atom) {
 	case XA_FONT:			/* 18*/
 	case XA_UNDERLINE_POSITION:	/* 51*/

@@ -309,11 +309,13 @@ initdos:
 
 init:
 	-mkdir -p $(MW_DIR_BIN)/fonts
+	-mkdir -p $(MW_DIR_BIN)/demos/tuxchess/images
 	-cp -r \
 		$(MW_DIR_SRC)/fonts/fnt \
 		$(MW_DIR_SRC)/fonts/pcf \
 		$(MW_DIR_SRC)/fonts/truetype \
-		$(MW_DIR_BIN)/fonts \
+		$(MW_DIR_BIN)/fonts
+	-cp $(MW_DIR_SRC)/demos/tuxchess/images/*.gif $(MW_DIR_BIN)/demos/tuxchess/images
 	#-cp \
 		$(MW_DIR_SRC)/images/test/earth.jpg \
 		$(MW_DIR_BIN)
@@ -371,6 +373,7 @@ clean:
 	-rm bin/*.ppm 2>/dev/null
 	-rm bin/*.pgm 2>/dev/null
 	-rm -rf bin/fonts/ 2>/dev/null
+	-rm -rf bin/demos
 	-rm images/demos/mwin/*.exe 2>/dev/null
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"
@@ -395,6 +398,7 @@ clean:
 	-rm bin/*.ppm
 	-rm bin/*.pgm
 	-rm -rf bin/fonts
+	-rm -rf bin/demos
 	-rm nx11/*.o
 	-$(MAKE) -C nx11 clean
 	echo "Cleaned *.o, *.a, and *.exe files"

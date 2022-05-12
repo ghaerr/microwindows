@@ -263,6 +263,10 @@ GrOpen(void)
 		curclient = root_client;
 	}
 	SERVER_UNLOCK();
+
+#if MSDOS
+	atexit(GsTerminate);
+#endif
 #endif /* NONETWORK*/
 
 #if NANOWM
@@ -1153,5 +1157,5 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
-	exit(0);
+	_exit(0);
 }

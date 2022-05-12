@@ -5,6 +5,7 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 
@@ -65,10 +66,13 @@ GdError(const char *format, ...)
 #elif MSDOS
     {
 	static int fd = -1;
+	vsprintf(buf, format, args);
 	if (fd < 0)
-		fd = open("log.txt", O_CREAT|O_TRUNC|O_WRONLY, 0666);
-	write(fd, buf, strlen(buf));
-	GrClose();
+		fd = open("/log.txt", O_CREAT|O_TRUNC|O_WRONLY, 0666);
+	if (fd >= 0) {
+		write(fd, buf, strlen(buf));
+		close(fd);
+	}
 	exit(1);
     }
 #elif EMSCRIPTEN

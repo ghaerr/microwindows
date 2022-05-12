@@ -224,6 +224,8 @@ GdLoadImageFromFile(char *path, int flags)
 
 	GdImageBufferInit(&src, buffer, s.st_size);
 	pmd = GdDecodeImage(&src, path, flags);
+	if (!pmd)
+		EPRINTF("GdLoadImageFromFile: No decoder for image: %s\n", path);
 
 #if HAVE_MMAP
 	munmap(buffer, s.st_size);
@@ -455,10 +457,8 @@ GdDecodeImage(buffer_t *src, char *path, int flags)
 #endif
 	} while (0);
 
-	if (!pmd) {
-		EPRINTF("GdLoadImageFromFile: Image load error\n");
+	if (!pmd)
 		return NULL;
-	}
 
 	/* if not running in palette mode and no conversion blit available upgrade image to RGBA*/
 	op = (pmd->data_format & MWIF_HASALPHA)? MWROP_SRC_OVER: MWROP_COPY;

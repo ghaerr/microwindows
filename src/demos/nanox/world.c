@@ -177,7 +177,7 @@ main(int argc, char **argv)
 
 	/* set title */
 	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION;
+	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX;
 	props.title = "Nano-X World Map";
 	GrSetWMProperties(mainwid, &props);
 

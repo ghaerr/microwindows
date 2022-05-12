@@ -194,7 +194,7 @@ GdLoadImageFromFile(char *path, int flags)
 	buffer_t src;
 	struct stat s;
   
-	fd = open(path, O_RDONLY);
+	fd = open(path, O_RDONLY|O_BINARY);
 	if (fd < 0 || fstat(fd, &s) < 0) {
 		EPRINTF("GdLoadImageFromFile: can't open image: %s\n", path);
 		return 0;

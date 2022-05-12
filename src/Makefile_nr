@@ -329,7 +329,7 @@ init:
 		$(MW_DIR_BIN)/fonts
 	-cp $(MW_DIR_SRC)/demos/tuxchess/images/*.gif $(MW_DIR_BIN)/demos/tuxchess/images
 	-cp $(MW_DIR_SRC)/images/demos/nanox/world.map $(MW_DIR_BIN)/images/demos/nanox
-	#-cp \
+	-cp \
 		$(MW_DIR_SRC)/images/test/earth.jpg \
 		$(MW_DIR_BIN)
 

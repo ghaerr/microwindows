@@ -6,6 +6,9 @@ BUILD_HOME=$(pwd)
 export INSTALLED=${BUILD_HOME}/../../installed/dos
 DJGPP=${BUILD_HOME}/../../djgpp
 
+# for macOS testing until possible to compile external libraries
+#export NOEXTLIBS=Y
+
 make -f Makefile_nr \
     ARCH=CROSSDOS \
 	TOOLSPREFIX=${DJGPP}/bin/i586-pc-msdosdjgpp- \

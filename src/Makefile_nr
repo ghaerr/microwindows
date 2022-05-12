@@ -136,24 +136,47 @@ CFLAGS += -DHAVE_GIF_SUPPORT=1
 CFLAGS += -DHAVE_PNM_SUPPORT=1
 CFLAGS += -DHAVE_XPM_SUPPORT=1
 
-# external library support  ********************************
-
 CLIBS += $(LIBRARY_FLAGS)
 #CLIBS += -lm
 
-#set for JPEG support - libjpeg.a
+# external library support  ********************************
+ifndef NOEXTLIBS
+
+# set for JPEG image support
 CFLAGS += -DHAVE_JPEG_SUPPORT=1
-#CLIBS += -ljpeg
 CLIBS += $(INSTALLED)/lib/libjpeg.a
+#CLIBS += -ljpeg
 
-#set for PNG support - libpng.a + libz.a
+# set for PNG image support
 CFLAGS += -DHAVE_PNG_SUPPORT=1
-#CLIBS += -lpng -lz
 CLIBS += $(INSTALLED)/lib/libpng.a $(INSTALLED)/lib/libz.a
+#CLIBS += -lpng -lz
 
-#set for TIFF support - libtiff.a
+# set for PCF or FNT font .gz format
+CFLAGS += -DHAVE_FNTGZ_SUPPORT=1
+CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
+CLIBS += $(INSTALLED)/lib/libz.a
+#CLIBS += -lz
+
+# set for TTF font support
+HAVE_FREETYPE_2_SUPPORT = Y
+CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
+CFLAGS += -DFREETYPE_FONT_DIR=\"fonts/truetype\"
+CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
+#CLIBS += -lfreetype -lz
+
+# set for TIFF image support
 #CFLAGS += -DHAVE_TIFF_SUPPORT=1
+#CLIBS += $(INSTALLED)/lib/libtiff.a
 #CLIBS += -ltiff
+
+# set for Type1 font support
+#CFLAGS += -DHAVE_T1LIB_SUPPORT=1
+#T1LIB_FONT_DIR = \"fonts/type1\"
+#CLIBS += $(INSTALLED)/lib/libt1.a
+#CLIBS += -lt1
+
+endif # NOEXTLIBS
 
 # font support  ********************************
 
@@ -168,33 +191,21 @@ CLIBS += $(INSTALLED)/lib/libpng.a $(INSTALLED)/lib/libz.a
 #With DJGPP the directory is fixed in font_fnt.c,
 #font_pcf.c and font_freetype2.c
 
-# NX11 XLFD font directory path used in nx11/fontlist.c
+CFLAGS += -DHAVE_PCF_SUPPORT=1
+CFLAGS += -DPCF_FONT_DIR=\"fonts/pcf\"
+
+CFLAGS += -DHAVE_FNT_SUPPORT=1
+CFLAGS += -DFNT_FONT_DIR=\"fonts/fnt\"
+
+# NX11 font settings
+
+# XLFD font directory path used in nx11/fontlist.c
 # for base, base/pcf and base/truetype directories
 LOCALFONTPATH := $(PWD)/
 CFLAGS += -DXLOCALFONTPATH=\"$(LOCALFONTPATH)\"
 
 # use stanard X11 XLFD system directories for fonts
 CFLAGS += -DHAVE_SYSTEM_FONT_PATHS=1
-
-CFLAGS += -DHAVE_FNT_SUPPORT=1
-CFLAGS += -DFNT_FONT_DIR=\"fonts/fnt\"
-
-CFLAGS += -DHAVE_PCF_SUPPORT=1
-CFLAGS += -DPCF_FONT_DIR=\"fonts/pcf\"
-#need zlib for gz format
-CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
-#CLIBS += -lz
-CLIBS += $(INSTALLED)/lib/libz.a
-
-HAVE_FREETYPE_2_SUPPORT = Y
-CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
-CFLAGS += -DFREETYPE_FONT_DIR=\"fonts/truetype\"
-#CLIBS += -lfreetype -lz
-CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
-
-#CFLAGS += -DHAVE_T1LIB_SUPPORT=1
-#T1LIB_FONT_DIR = "fonts/type1/"
-#CLIBS += -lt1
 
 # screen size and pixel format  ********************************
 

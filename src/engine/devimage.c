@@ -28,6 +28,10 @@
 #include <sys/mman.h>
 #endif
 
+#ifndef O_BINARY
+#define O_BINARY    0
+#endif
+
 #if MW_FEATURE_IMAGES /* whole file */
 
 static PSD GdDecodeImage(buffer_t *src, char *path, int flags);

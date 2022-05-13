@@ -1,4 +1,4 @@
-19
+31
 ariblk.ttf -monotype-arial black-medium-r-normal--0-0-0-0-p-0-iso8859-1
 arial.ttf -adobe-helvetica-medium-r-normal--0-0-0-0-p-0-iso8859-1
 arialb.ttf -adobe-helvetica-bold-r-normal--0-0-0-0-p-0-iso8859-1
@@ -18,3 +18,15 @@ lucida.ttf -fontsgeek-lucidatypewriter-medium-r-normal--0-0-0-0-p-0-iso8859-1
 lucidab.ttf -fontsgeek-lucidatypewriter-bold-r-normal--0-0-0-0-p-0-iso8859-1
 lucidasans.ttf -fontsgeek-lucidatypewriter-medium-r-normal-sans--0-0-0-0-p-0-iso8859-1
 lucidasansb.ttf -fontsgeek-lucidatypewriter-bold-r-normal-sans--0-0-0-0-p-0-iso8859-1
+DejaVuSansMono.ttf -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+DejaVuSansMonoB.ttf -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+DejaVuSansMonoO.ttf -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+DejaVuSansMonoBO.ttf -misc-dejavu sans-bold-o-normal--0-0-0-0-p-0-iso10646-1
+DroidSerif.ttf -misc-droid serif-medium-r-normal--0-0-0-0-p-0-iso10646-1
+DroidSerifB.ttf -misc-droid serif-bold-r-normal--0-0-0-0-p-0-iso10646-1
+DroidSerifI.ttf -misc-droid serif-medium-i-normal--0-0-0-0-p-0-iso10646-1
+DroidSerifBI.ttf -misc-droid serif-bold-i-normal--0-0-0-0-p-0-iso10646-1
+LiberationMono.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-iso10646-1
+LiberationSansB.ttf -misc-liberation sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+LiberationMonoI.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-iso10646-1
+LiberationSansBI.ttf -misc-liberation sans-bold-i-normal--0-0-0-0-p-0-iso10646-1

@@ -1,0 +1,12 @@
+fixed -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-medium-r-normal--* -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-bold-r-normal--* -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-medium-o-normal--* -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+-*-helvetica-bold-o-normal--* -misc-dejavu sans-bold-o-normal--0-0-0-0-p-0-iso10646-1
+!fixed		6x13
+!System  	DejaVuSans.ttf
+!SystemBold	DejaVuSansB.ttf
+!SystemFixed	DejaVuSansMono.ttf
+!fixed		-misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
+!variable	-*-helvetica-bold-r-normal-*-*-*iso8859-1
+!10x20		-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1

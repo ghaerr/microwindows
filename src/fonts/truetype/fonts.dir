@@ -1,4 +1,4 @@
-31
+33
 ariblk.ttf -monotype-arial black-medium-r-normal--0-0-0-0-p-0-iso8859-1
 arial.ttf -adobe-helvetica-medium-r-normal--0-0-0-0-p-0-iso8859-1
 arialb.ttf -adobe-helvetica-bold-r-normal--0-0-0-0-p-0-iso8859-1
@@ -18,6 +18,8 @@ lucida.ttf -fontsgeek-lucidatypewriter-medium-r-normal--0-0-0-0-p-0-iso8859-1
 lucidab.ttf -fontsgeek-lucidatypewriter-bold-r-normal--0-0-0-0-p-0-iso8859-1
 lucidasans.ttf -fontsgeek-lucidatypewriter-medium-r-normal-sans--0-0-0-0-p-0-iso8859-1
 lucidasansb.ttf -fontsgeek-lucidatypewriter-bold-r-normal-sans--0-0-0-0-p-0-iso8859-1
+DejaVuSans.ttf -misc-dejavu sans var-medium-r-normal--0-0-0-0-p-0-iso10646-1
+DejaVuSansB.ttf -misc-dejavu sans var-bold-r-normal--0-0-0-0-p-0-iso10646-1
 DejaVuSansMono.ttf -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
 DejaVuSansMonoB.ttf -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
 DejaVuSansMonoO.ttf -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1

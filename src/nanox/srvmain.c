@@ -263,6 +263,10 @@ GrOpen(void)
 		curclient = root_client;
 	}
 	SERVER_UNLOCK();
+
+#if MSDOS
+	atexit(GsTerminate);
+#endif
 #endif /* NONETWORK*/
 
 #if NANOWM
@@ -774,7 +778,7 @@ GsSelect(GR_TIMEOUT timeout)
 		{
 #if MW_FEATURE_TIMERS
 			/* check for timer timeouts and service if found*/
-			if (GdTimeout())
+			if (GdTimeout() || timeout != 0)
 #else
 			/* special case: polling when timeout == 0 -- don't send timeout event */
 			if (timeout != 0)
@@ -1079,9 +1083,9 @@ GsInitialize(void)
 	wp->props = 0;
 	wp->title = NULL;
 	wp->clipregion = NULL;
-    wp->buffer = NULL;
+	wp->buffer = NULL;
 
-    listpp = NULL;
+	listpp = NULL;
 	listwp = wp;
 	rootwp = wp;
 	focuswp = wp;
@@ -1153,5 +1157,5 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
-	exit(0);
+	_exit(0);
 }

@@ -38,7 +38,7 @@ void toggle_text_mode();
 #endif
 
 #ifndef SCREEN_PIXTYPE
-#define SCREEN_PIXTYPE MWPF_TRUECOLOR8888 //32
+#define SCREEN_PIXTYPE MWPF_TRUECOLORARGB //32
 #endif
 
 //these are set using nanoscr - 1 stdout, 2 stderr, 3 toggle_text_mode
@@ -82,19 +82,13 @@ static PSD
 vesa_open(PSD psd)
 {
 	PSUBDRIVER subdriver;
-
-	//int vwidth,vheight,vbpp;
-    int vbemode;
+	int vbemode;
    
-	//vwidth = 1024; //SCREEN_WIDTH;
-	//vheight = 786; //SCREEN_HEIGHT;
-    //vbpp=32;
-
 	vwidth = SCREEN_WIDTH;
 	vheight = SCREEN_HEIGHT;
-	if(SCREEN_PIXTYPE == MWPF_TRUECOLOR8888) {
+	if(SCREEN_PIXTYPE == MWPF_TRUECOLORARGB) {
 		vbpp=32;
-	} else if(SCREEN_PIXTYPE == MWPF_TRUECOLOR888) {
+	} else if(SCREEN_PIXTYPE == MWPF_TRUECOLORRGB) {
 		vbpp=24;
 	} else if(SCREEN_PIXTYPE == MWPF_TRUECOLOR565)  {
 		vbpp=16;
@@ -165,13 +159,13 @@ vesa_open(PSD psd)
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp,
 		&psd->size, &psd->pitch);
     if(psd->bpp == 32) {
-		psd->pixtype = MWPF_TRUECOLOR8888;	
+		psd->pixtype = MWPF_TRUECOLORARGB;	
 	} else if(psd->bpp == 16) {
 		psd->pixtype = MWPF_TRUECOLOR565; 
 	} else if(psd->bpp == 15) {
 		psd->pixtype = MWPF_TRUECOLOR555; 
 	} else if(psd->bpp == 24)  {
-		psd->pixtype = MWPF_TRUECOLOR888;
+		psd->pixtype = MWPF_TRUECOLORRGB;
 	} else {
 		psd->pixtype = MWPF_PALETTE;
 	}
@@ -291,12 +285,6 @@ vesa_update(PSD psd, MWCOORD destx, MWCOORD desty, MWCOORD width, MWCOORD height
 	if (!height)
 		height = psd->yres;
 
-/*
-typedef unsigned char *		ADDR8;
-typedef unsigned short *	ADDR16;
-typedef uint32_t *			ADDR32;
-*/
-
 	MWCOORD x,y;
 	MWPIXELVAL c;
 
@@ -337,7 +325,7 @@ else if ((psd->pixtype == MWPF_TRUECOLOR565) || (psd->pixtype == MWPF_TRUECOLOR5
 		blit_to_vesa_screen(addr, destx, desty, width, height);
 		}
 	}
-else if (psd->pixtype == MWPF_TRUECOLOR888)
+else if (psd->pixtype == MWPF_TRUECOLORRGB)
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + destx * 3;
 		//use putpixel for single pixel writes and blit_to_vesa_screen for data blocks
@@ -355,7 +343,7 @@ else if (psd->pixtype == MWPF_TRUECOLOR888)
 		blit_to_vesa_screen(addr, destx, desty, width, height);
 		} 
 	}
-else if (((MWPIXEL_FORMAT == MWPF_TRUECOLOR8888) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)) & (psd->bpp != 8))
+else if (((MWPIXEL_FORMAT == MWPF_TRUECOLORARGB) || (MWPIXEL_FORMAT == MWPF_TRUECOLORABGR)) & (psd->bpp != 8))
 	{
 		unsigned char *addr = psd->addr + desty * psd->pitch + (destx <<2);
 		//use putpixel for single pixel writes and blit_to_vesa_screen for data blocks

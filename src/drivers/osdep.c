@@ -5,7 +5,9 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 
 #if __ECOS
 #include <cyg/infra/diag.h>
@@ -61,6 +63,18 @@ GdError(const char *format, ...)
 #elif _MSC_VER
 	vsprintf(buf, format, args);
 	OutputDebugStringA(buf);
+#elif MSDOS
+    {
+	static int fd = -1;
+	vsprintf(buf, format, args);
+	if (fd < 0)
+		fd = open("/log.txt", O_CREAT|O_TRUNC|O_WRONLY, 0666);
+	if (fd >= 0) {
+		write(fd, buf, strlen(buf));
+		close(fd);
+	}
+	exit(1);
+    }
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);

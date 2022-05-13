@@ -28,6 +28,10 @@
 #include <sys/mman.h>
 #endif
 
+#ifndef O_BINARY
+#define O_BINARY    0
+#endif
+
 #if MW_FEATURE_IMAGES /* whole file */
 
 static PSD GdDecodeImage(buffer_t *src, char *path, int flags);
@@ -194,7 +198,7 @@ GdLoadImageFromFile(char *path, int flags)
 	buffer_t src;
 	struct stat s;
   
-	fd = open(path, O_RDONLY);
+	fd = open(path, O_RDONLY|O_BINARY);
 	if (fd < 0 || fstat(fd, &s) < 0) {
 		EPRINTF("GdLoadImageFromFile: can't open image: %s\n", path);
 		return 0;
@@ -224,6 +228,8 @@ GdLoadImageFromFile(char *path, int flags)
 
 	GdImageBufferInit(&src, buffer, s.st_size);
 	pmd = GdDecodeImage(&src, path, flags);
+	if (!pmd)
+		EPRINTF("GdLoadImageFromFile: No decoder for image: %s\n", path);
 
 #if HAVE_MMAP
 	munmap(buffer, s.st_size);
@@ -455,10 +461,8 @@ GdDecodeImage(buffer_t *src, char *path, int flags)
 #endif
 	} while (0);
 
-	if (!pmd) {
-		EPRINTF("GdLoadImageFromFile: Image load error\n");
+	if (!pmd)
 		return NULL;
-	}
 
 	/* if not running in palette mode and no conversion blit available upgrade image to RGBA*/
 	op = (pmd->data_format & MWIF_HASALPHA)? MWROP_SRC_OVER: MWROP_COPY;

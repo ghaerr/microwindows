@@ -30,7 +30,7 @@
  */
 typedef	long	FLOAT;
 
-#define	SCALE	100		/* fixed point scaling factor */
+#define	SCALE	128		/* fixed point scaling factor */
 
 #define	FFMUL(a,b)	(((FLOAT)(a) * (b) + (SCALE / 2)) / SCALE)
 #define	FFDIV(a,b)	(((FLOAT)(a) * SCALE) / (b))
@@ -165,22 +165,20 @@ main(int argc, char **argv)
         GrReqShmCmds(65536); /* Test by Morten Rolland for shm support */
 
 	GrGetScreenInfo(&si);
-#if __ECOS
-/* 240x320 screen*/
-COLS = si.cols - 10;
-ROWS = si.rows - 40;
-#else
-COLS = si.cols - 40;
-ROWS = si.rows - 80;
-#endif
+	COLS = si.cols - 40;
+	ROWS = si.rows - 80;
 
+#if __ECOS	/* 240x320 screen*/
+	COLS = si.cols - 10;
+	ROWS = si.rows - 40;
+#endif
 	mainwid = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0, COLS, ROWS,
 		0, BLACK, BLACK);
 
 	/* set title */
 	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION;
-	props.title = "NanoX World Map";
+	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX;
+	props.title = "Nano-X World Map";
 	GrSetWMProperties(mainwid, &props);
 
 	mapwidth = COLS - 2;
@@ -191,12 +189,7 @@ ROWS = si.rows - 80;
 	selectyscale = 3;
 	coordx = 0;
 	coordy = ROWS - 1;
-	mapwid = GrNewWindow(mainwid, 1, 1, mapwidth, mapheight,
-#if 0
-		1, BLACK, WHITE);
-#else
-		1, LTGRAY, BLACK);
-#endif
+	mapwid = GrNewWindow(mainwid, 1, 1, mapwidth, mapheight, 1, LTGRAY, BLACK);
 	GrSelectEvents(mainwid, GR_EVENT_MASK_CLOSE_REQ);
 	GrSelectEvents(mapwid, GR_EVENT_MASK_EXPOSURE |
 		GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_BUTTON_UP |

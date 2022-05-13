@@ -12,7 +12,7 @@ $(info  make -f Makefile_nr ARCH=CROSSDOS)
 $(info  make -f Makefile_nr ARCH=MINGW)
 $(info  make -f Makefile_nr ARCH=MACOS)
 $(info  make -f Makefile_nr ARCH=LINUX)
-$(info  make -f Makefile_nr ARCH=AJAGAUR)
+$(info  make -f Makefile_nr ARCH=AJAGUAR)
 $(error exiting)
 endif
 

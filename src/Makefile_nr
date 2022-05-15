@@ -161,7 +161,6 @@ CLIBS += $(INSTALLED)/lib/libz.a
 # set for TTF font support
 HAVE_FREETYPE_2_SUPPORT = Y
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
-CFLAGS += -DFREETYPE_FONT_DIR=\"fonts/truetype\"
 CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
 #CLIBS += -lfreetype -lz
 
@@ -172,7 +171,6 @@ CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
 
 # set for Type1 font support
 #CFLAGS += -DHAVE_T1LIB_SUPPORT=1
-#T1LIB_FONT_DIR = \"fonts/type1\"
 #CLIBS += $(INSTALLED)/lib/libt1.a
 #CLIBS += -lt1
 
@@ -192,16 +190,18 @@ endif # NOEXTLIBS
 #font_pcf.c and font_freetype2.c
 
 CFLAGS += -DHAVE_PCF_SUPPORT=1
-CFLAGS += -DPCF_FONT_DIR=\"fonts/pcf\"
-
 CFLAGS += -DHAVE_FNT_SUPPORT=1
-CFLAGS += -DFNT_FONT_DIR=\"fonts/fnt\"
+
+LOCALFONTPATH := $(shell pwd)/
+CFLAGS += -DPCF_FONT_DIR=\"$(LOCALFONTPATH)fonts/pcf\"
+CFLAGS += -DFNT_FONT_DIR=\"$(LOCALFONTPATH)fonts/fnt\"
+CFLAGS += -DFREETYPE_FONT_DIR=\"$(LOCALFONTPATH)fonts/truetype\"
+CFLAGS += -DT1LIB_FONT_DIR=\"$(LOCALFONTPATH)fonts/type1\"
 
 # NX11 font settings
 
 # XLFD font directory path used in nx11/fontlist.c
 # for base, base/pcf and base/truetype directories
-LOCALFONTPATH := $(shell pwd)/
 CFLAGS += -DXLOCALFONTPATH=\"$(LOCALFONTPATH)\"
 
 # use stanard X11 XLFD system directories for fonts

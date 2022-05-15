@@ -114,6 +114,8 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 #endif
 
 	DPRINTF("GdCreateFont %s, %d,%d\n", name, height, width);
+	//if (!strcmp(name, "System")) name = "arialb.ttf", height = width = 13;
+
 	GdGetScreenInfo(psd, &scrinfo);
 
 	/* if plogfont not specified, use passed name, height and any class*/

@@ -486,6 +486,8 @@ freetype2_createfont(const char *filename, MWCOORD height, MWCOORD width, int at
 
 	char *env = getenv("TTFONTDIR");
 	char *path = mwfont_findpath(filename, env? env: FREETYPE_FONT_DIR, ".ttf|.otf|.pfr");
+	if (!path)
+		return NULL;
 
 	if (!freetype2_init(NULL))
 		return NULL;

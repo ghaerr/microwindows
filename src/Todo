@@ -1,3 +1,7 @@
+add mwfont_findpath to createfont_t1lib, createfont_eujcp, createfont_hbf
+    may need to add extensions to fonts in fonts/xxx dirs
+add PWD to xxx_FONT_DIR in non-Makefile_nr builds to always have absolute font dir path
+
 add Atari Jaguar specific features and optimizations.
 try resolution above 320x240.
 console gamepad and mouse/keyboard emulation support.

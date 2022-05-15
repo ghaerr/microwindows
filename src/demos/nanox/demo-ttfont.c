@@ -30,7 +30,8 @@ char *fontlist[] = {
 	"DejaVuSans-Bold.ttf",
 	"DejaVuSans-BoldOblique.ttf",
 	"DejaVuSans-Oblique.ttf",
-#else	/* Truetype fonts*/
+#else
+#if HAVE_FREETYPE_2_SUPPORT
 	"times.ttf",
 	"timesb.ttf",
 	"timesz.ttf",
@@ -50,7 +51,24 @@ char *fontlist[] = {
 	"accid___.ttf",
 	"VAGROLN.ttf",
 	"Cyberbit.ttf",
+	"DejaVuSans.ttf",
+	"DejaVuSansB.ttf",
 	"DejaVuSansMono.ttf",
+	"DejaVuSansMonoB.ttf",
+	"DejaVuSansMonoO.ttf",
+	"DejaVuSansMonoBO.ttf",
+	"DroidSerif.ttf",
+	"DroidSerifB.ttf",
+	"DroidSerifI.ttf",
+	"DroidSerifBI.ttf",
+	"LiberationMono.ttf",
+	"LiberationSansB.ttf",
+	"LiberationMonoI.ttf",
+	"LiberationSansBI.ttf",
+	"lucida.ttf",
+	"lucidab.ttf",
+	"lucidasans.ttf",
+	"lucidasansb.ttf",
 	"impact.ttf",
 	"lucon.ttf",
 	"lt1-r-omega-serif.ttf",
@@ -74,6 +92,7 @@ char *fontlist[] = {
 	"lt4-bi-omega-serif.ttf",
 	"lt5-bi-omega-serif.ttf",
 	"viscii-omega-serif.ttf",
+#endif
 #if HAVE_T1LIB_SUPPORT
 	"bchb.pfb",
 	"bchbi.pfb",
@@ -92,8 +111,18 @@ char *fontlist[] = {
 	"dcr10.pfb",
 	"dcti10.pfb",
 	"eufm10.pfb",
-#endif	/* Type1 fonts*/
-#endif	/* Truetype fonts*/
+#endif
+#if HAVE_FNT_SUPPORT
+	"helvB12.fnt",
+	"timBI18.fnt",
+	"symb18.fnt",
+#endif
+#if HAVE_PCF_SUPPORT
+	"7x14.pcf.gz",
+	"9x15.pcf.gz",
+	"vga.pcf.gz",
+#endif
+#endif /* ANDROID, EMSCRIPTEN */
 	0
 };
 #define NUMFONTS	((sizeof(fontlist)/sizeof(char *)) - 1)

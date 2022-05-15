@@ -29,6 +29,46 @@ extern MWCOREFONT *user_builtin_fonts;
 static int utf8_to_utf16(const unsigned char *utf8, int cc, unsigned short *unicode16);
 int uc16_to_utf8(const unsigned short *us, int cc, unsigned char *s);
 
+#if HAVE_FILEIO
+#include <stdio.h>
+/*
+ * Try finding filename in default font path, must contain one of
+ * extensions (separated by |).  Returns full pathname if found.
+ */
+char *
+mwfont_findpath(const char *filename, const char *defpath, const char *extension)
+{
+    char *ext;
+    static char fullpath[128];
+
+    DPRINTF("mwfont_findpath: check %s (%s) in %s\n", filename, extension, defpath);
+    /* check allowed extensions */
+    strcpy(fullpath, extension);
+    for (ext=fullpath; ;) {
+        char *p2 = strchr(ext, '|');
+        if (p2) *p2 = '\0';
+        if (strstr(filename, ext))
+            goto out;
+        if (p2) {
+            *p2 = '|';
+            ext = p2 + 1;
+            if (!*ext)
+                return NULL;
+       } else return NULL;
+    }
+out:
+    if (strchr(filename, '/') != NULL)
+        strcpy(fullpath, filename);
+    else {
+        char *env = getenv("MWFONTDIR");
+        sprintf(fullpath, "%s/%s", env? env: defpath, filename);
+    }
+    if (access(fullpath, R_OK) != 0)
+        return NULL;
+    DPRINTF("found: %s\n", fullpath);
+    return fullpath;
+}
+#endif
 
 /**
  * Select a font, based on various parameters.
@@ -73,6 +113,7 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 	char 		fontmapper_fontname[MWLF_FACESIZE + 1];
 #endif
 
+	DPRINTF("GdCreateFont %s, %d,%d\n", name, height, width);
 	GdGetScreenInfo(psd, &scrinfo);
 
 	/* if plogfont not specified, use passed name, height and any class*/

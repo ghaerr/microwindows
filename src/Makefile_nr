@@ -201,7 +201,7 @@ CFLAGS += -DFNT_FONT_DIR=\"fonts/fnt\"
 
 # XLFD font directory path used in nx11/fontlist.c
 # for base, base/pcf and base/truetype directories
-LOCALFONTPATH := $(PWD)/
+LOCALFONTPATH := $(shell pwd)/
 CFLAGS += -DXLOCALFONTPATH=\"$(LOCALFONTPATH)\"
 
 # use stanard X11 XLFD system directories for fonts

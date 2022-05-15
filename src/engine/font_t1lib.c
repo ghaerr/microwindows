@@ -128,9 +128,14 @@ t1lib_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
 	char		fontpath[256];
 	char		t1name[256];
 
+	char *path = mwfont_findpath(name, T1LIB_FONT_DIR, ".pfb");
+	if (!path)
+		return NULL;
+
 	/* ensure library is inited*/
 	t1lib_init(NULL);
 
+	/* FIXME: not needed with mwfont_findpath*/
 	/* if no extension specified, add .pfb, otherwise check for .pfb*/
 	strcpy(fontpath, name);
 	if ((p = strrchr(fontpath, '.')) == NULL)

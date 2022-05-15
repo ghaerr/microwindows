@@ -78,12 +78,7 @@ function build_freetype()
 function build_microwindows()
 {
     pushd microwindows/src
-    #make -f Makefile_nr ARCH=CROSSDOS clean
     make -f Makefile_nr ARCH=MACOS clean
-    #cp -f ${BUILD_HOME}/Makefile_nr .
-    #make -f Makefile_nr ARCH=CROSSDOS TOOLS=${DJGPP}/bin/i586-pc-msdosdjgpp- \
-	    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${X11HDRLOCATION}" \
-	    LIBRARY_FLAGS="-L${INSTALLED}/lib"
     make -f Makefile_nr ARCH=MACOS \
 	    INCLUDE_FLAGS="-I${INSTALLED}/include -I${INSTALLED}/include/freetype2 -I${X11HDRLOCATION}" \
 	    EXTENGINELIBS="-lSDL2"

@@ -63,7 +63,7 @@
 #endif
 
 /* Handling routines for FNT fonts, use MWCOREFONT structure */
-PMWFONT fnt_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
+PMWFONT fnt_createfont(const char *filename, MWCOORD height, MWCOORD width, int attr);
 static void fnt_unloadfont(PMWFONT font);
 static PMWCFONT fnt_load_font(const char *path);
 
@@ -247,7 +247,7 @@ READSTRPAD(FILEP fp, char *buf, int totlen)
 
 /* read and load font, return incore font structure*/
 static PMWCFONT
-fnt_load_font(const char *path)
+fnt_load_font(const char *filename)
 {
 	FILEP ifp;
 	PMWCFONT pf = NULL;
@@ -256,27 +256,13 @@ fnt_load_font(const char *path)
 	uint32_t firstchar, defaultchar, size;
 	uint32_t nbits, noffset, nwidth;
 	char version[4+1];
-	char name[64+1];
 	char copyright[256+1];
-	char fname[256];
+	char name[64+1];
 
+	char *path = mwfont_findpath(filename, FNT_FONT_DIR, ".fnt");
+	if (!path)
+		return NULL;
 	ifp = FOPEN(path, "rb");
-	if (!ifp) {
-		sprintf(fname, "%s/%s", FNT_FONT_DIR, path);
-		ifp = FOPEN(fname, "rb");
-	
-		/* Try to grab it from the MWFONTDIR directory */
-		if (!ifp) {
-			char *env = getenv("MWFONTDIR");
-			if (env) {
-				sprintf(fname, "%s/%s", env, path);
-				
-				DPRINTF("Trying to get font from %s\n", fname);
-				ifp = FOPEN(fname, "rb");
-			}
-		}
-		
-	}
 	if (!ifp)
 		return NULL;
 

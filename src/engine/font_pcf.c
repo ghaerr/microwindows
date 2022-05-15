@@ -78,7 +78,7 @@ typedef	unsigned short (*FP_READ16)(FILEP file);
 typedef	uint32_t 		(*FP_READ32)(FILEP file);
 
 /* Handling routines for PCF fonts, use MWCOREFONT structure */
-PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
+PMWFONT pcf_createfont(const char *filename, MWCOORD height, MWCOORD width, int attr);
 static void pcf_unloadfont(PMWFONT font);
 
 static void	get_endian_read_funcs(uint32_t format, FP_READ8 *p_fp_read8,
@@ -539,8 +539,8 @@ pcf_read_encoding(FILEP file, struct encoding_entry **encoding)
 		e->map[n] = f_read16(file);
 		/*DPRINTF("ncode %x (%c) %x\n", n, n, e->map[n]);*/
 	}
-	DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
-		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);
+	/*DPRINTF("size %d byte1 %d,%d byte2 %d,%d\n", e->count,
+		e->min_byte1, e->max_byte1, e->min_byte2, e->max_byte2);*/
 	return e->count;
 }
 
@@ -575,7 +575,7 @@ pcf_read_toc(FILEP file, struct toc_entry **toc, uint32_t *size)
 }
 
 /* create font and allocate MWCOREFONT struct*/
-PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
+PMWFONT pcf_createfont(const char *filename, MWCOORD height, MWCOORD width, int attr)
 {
 	FILEP file = NULL;
 	MWCOREFONT *pf = NULL;
@@ -595,14 +595,11 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 	unsigned char *gwidth = NULL;
 	int uc16;
 	int glyph_pad;
-	char fname[256];
 
-	/* Try to open the file */
-	file = FOPEN(name, "rb");
-	if (!file) {
-		sprintf(fname, "%s/%s", PCF_FONT_DIR, name);
-		file = FOPEN(fname, "rb");
-	}
+	char *path = mwfont_findpath(filename, PCF_FONT_DIR, ".pcf");
+	if (!path)
+        return NULL;
+	file = FOPEN(path, "rb");
 	if (!file)
 		return NULL;
 
@@ -623,15 +620,15 @@ PMWFONT pcf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr
 		goto err_exit;
 
 	glyph_count = result;
-	DPRINTF("glyph_count = %u (%x)\n", glyph_count, glyph_count);
+	/*DPRINTF("glyph_count = %u (%x)\n", glyph_count, glyph_count);*/
 
 	if (pcf_read_encoding(file, &encoding) == -1)
 		goto err_exit;
 
 	pf->cfont->firstchar = encoding->min_byte2 * (encoding->min_byte1 + 1);
 	pf->cfont->defaultchar = encoding->defaultchar;
-	DPRINTF("firstchar %d\n", pf->cfont->firstchar);
-	DPRINTF("default char %d (%x)\n", pf->cfont->defaultchar, pf->cfont->defaultchar);
+	/*DPRINTF("firstchar %d\n", pf->cfont->firstchar);*/
+	/*DPRINTF("default char %d (%x)\n", pf->cfont->defaultchar, pf->cfont->defaultchar);*/
 
 	/* Read in the metrics */
 	count = pcf_readmetrics(file, &metrics);

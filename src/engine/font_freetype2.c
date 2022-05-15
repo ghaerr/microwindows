@@ -220,7 +220,7 @@ typedef struct {
 
 } MWFREETYPE2FONT, *PMWFREETYPE2FONT;
 
-PMWFONT freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);
+PMWFONT freetype2_createfont(const char *filename, MWCOORD height, MWCOORD width, int attr);
 static int freetype2_init(PSD psd);
 static MWBOOL freetype2_getfontinfo(PMWFONT pfont, PMWFONTINFO pfontinfo);
 void freetype2_gettextsize(PMWFONT pfont, const void *text, int cc,
@@ -258,11 +258,6 @@ MWFONTPROCS freetype2_fontprocs = {
  * The freetype library instance - a singleton.
  */
 static FT_Library freetype2_library = NULL;
-
-/**
- * The default freetype font directory
- */
-static char *freetype2_font_dir;
 
 #if HAVE_FREETYPE_2_CACHE
 /**
@@ -421,9 +416,6 @@ freetype2_init(PSD psd)
 	if (freetype2_library != NULL)
 		return 1;
 
-	if ((freetype2_font_dir = getenv("TTFONTDIR")) == NULL)
-		freetype2_font_dir = FREETYPE_FONT_DIR;
-
 	/* Init freetype library */
 	err = FT_Init_FreeType(&freetype2_library);
 
@@ -478,57 +470,33 @@ freetype2_init(PSD psd)
 /**
  * Create a font from a disk file.
  *
- * @param name The font file name or path.  If no directory is specified,
- *             freetype2_font_dir will be prepended.  If no extension is
- *             specified, ".ttf" will be added.
+ * @param name The font file name or path.
  * @param height The height of the font, in pixels.
  * @param width The width of the font, in pixels.
  * @param attr The font attributes - a bitmask.
  * @return The new font, or NULL on error.
  */
 PMWFONT
-freetype2_createfont(const char *name, MWCOORD height, MWCOORD width, int attr)
+freetype2_createfont(const char *filename, MWCOORD height, MWCOORD width, int attr)
 {
 	PMWFREETYPE2FONT pf;
 	char *p;
 	char *fontname;
 	freetype2_fontdata *faceid = NULL;
-#if HAVE_FREETYPE_2_CACHE
-	int first_time = 0;
-#endif
+
+	char *env = getenv("TTFONTDIR");
+	char *path = mwfont_findpath(filename, env? env: FREETYPE_FONT_DIR, ".ttf|.otf|.pfr");
 
 	if (!freetype2_init(NULL))
 		return NULL;
 
-	fontname = malloc(6 + strlen(name) + strlen(freetype2_font_dir));
+	fontname = malloc(strlen(path) + 1);
 	if (!fontname)
 		return NULL;
-
-	/*
-	 * if name has partial path, use it directly, otherwise
-	 * prepend freetype default font directory to passed name
-	 */
-	if (strchr(name, '/') != NULL)
-		strcpy(fontname, name);
-	else
-		sprintf(fontname, "%s/%s", freetype2_font_dir, name);
-
-	/* check .ttf or .pfr or otf, add .ttf if no extension, freetype supports otf as well now*/
-	if ((p = strrchr(fontname, '.')) != NULL) {
-		if ((strcasecmp(p, ".ttf") != 0) && (strcasecmp(p, ".pfr") != 0) && (strcasecmp(p, ".otf") != 0)) {
-			free(fontname);
-			return NULL;
-		}
-	} else
-		strcat(fontname, ".ttf");
-
-	/* check if .ttf file exists otherwise add to cache below is an error*/
-	if (access(fontname, F_OK) != 0) {
-		free(fontname);
-		return NULL;
-	}
+	strcpy(fontname, path);
 
 #if HAVE_FREETYPE_2_CACHE
+	int first_time = 0;
 	faceid = freetype2_fonts;
 	while (faceid != NULL && 0 != strcasecmp(faceid->data.filename, fontname))
 		faceid = faceid->next;

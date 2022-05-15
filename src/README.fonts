@@ -1,0 +1,108 @@
+Font support define     Font dir define    Default dir      Extensions
+----------------------  ---------------    --------------   ----------
+Compiled-in fonts       none               none             none
+HAVE_FNT_SUPPORT        FNT_FONT_DIR       fonts/fnt       .fnt
+HAVE_FNTGZ_SUPPORT      FNT_FONT_DIR       fonts/fnt       .fnt.gz
+HAVE_PCF_SUPPORT        PCF_FONT_DIR       fonts/pcf       .pcf
+HAVE_PCFGZ_SUPPORT      PCF_FONT_DIR       fonts/pcf       .pcf.gz
+HAVE_FREETYPE_2_SUPPORT FREETYPE_FONT_DIR  fonts/truetype  .ttf,.otf
+HAVE_T1LIB_SUPPORT      T1LIB_FONT_DIR     fonts/type      .pfa,.pfb
+
+Compiled-in Engine Fonts
+    Define               Default Value       C file and origin
+    ------------------   -------------       ----------------------------
+    MWFONT_SYSTEM_VAR    "System"            winFreeSansSerif11x13.c,.fnt
+    MWFONT_SYSTEM_FIXED  "SystemFixed"       X6x13.c,.bdf
+                         "Helvetica"         winFreeSansSerif11x13.c,.fnt
+                         "Terminal"          X6x13.c,.bdf
+NX Fonts
+    GR_FONT_SYSTEM_VAR   MWFONT_SYSTEM_VAR
+    GR_FONT_SYSTEM_FIXED MWFONT_SYSTEM_FIXED
+
+Win32 Fonts
+    OEM_FIXED_FONT       MWFONT_SYSTEM_FIXED
+    ANSI_FIXED_FONT      MWFONT_SYSTEM_FIXED
+    ANSI_VAR_FONT        MWFONT_SYSTEM_VAR
+    SYSTEM_FONT          MWFONT_SYSTEM_VAR
+    SYSTEM_FIXED_FONT    MWFONT_SYSTEM_FIXED
+    DEVICE_DEFAULT_FONT  MWFONT_SYSTEM_VAR
+    DEFAULT_GUI_FONT     MWFONT_SYSTEM_VAR
+
+
+NX Routines             Gd Routines
+GrCreateFont            GdCreateFont
+GrCreateFontEx          GdCreateFont
+GrCreateFontFromBuffer  GdCreateFontFromBuffer
+GrCopyFont              GdDuplicateFont
+GrSetFontSizeEx         GdSetFontSize
+GrSetFontAttr           GdSetFontAttr
+GrSetFontRotation       GdSetFontRotation
+GrDestroyFont           GdDestroyFont
+nxPaintNCArea           GrCreateFont(GR_FONT_SYSTEM_VAR, 0, NULL)
+
+Win32 Routines
+GetStockObject          GdCreateFont(name, 0, 0, NULL) or GdCreateFont(NULL, 0, 0, NULL)
+DeleteObject            GdDestroyFont
+CreateFont              CreateFontIndirect
+CreateFontIndirect      GdCreateFont(NULL, 0, 0, lf) or GdCreateFont(NULL, 0, 0, NULL)
+GetTextMetrics          GdGetFontInfo
+GetTextExtentPoint      GdGetTextSize
+GetTextExtentExPoint    GdGetTextSize
+EnumFonts               GdGetScreenInfo, GdGetFontInfo, GdGetFontList, GdFreeFontList
+WM_NCPAINT              GetStockObject(DEFAULT_GUI_FONT)
+
+X11 Routines            Gr Routines
+XLoadFont(pattern)
+    fontname = font_findfont(pattern, 0, 0, &height)
+                alias = font_findalias(pattern) 
+                if alias call font_findfont(alias, 0, 0, &height)
+                if isxlfd(pattern) and wildcard(pattern)
+                    fontlist = font_enumfonts(pattern, no aliaschk)
+                        fontlist = findXLFDfont(pattern, no aliaschk)
+                            if aliaschk: alias = font_findalias, findXLFD(patther, no aliaschk)
+                            if isxlfd(pattern) and wildcard(pattern)
+                                fontlist = findfont_wildcard(pattern)
+                                    open fonts.dir and add font if xlfd pattern match 
+                            else
+                                fontfile = findfont_nowildcard(pattern)
+                                if !fontfile: if name=="fixed" fontfile = "fixed"
+                            addFontToList(fontfile)
+                        fontlist = list
+                    find tallest font <= to requested height (broken?)
+                    fontpath = findfont_nowildcard(fontlist[i], &height)
+                else
+                    fontpath = findfont_nowildcard(pattern, &height)
+
+    if !fontname: if name=="fixed": GrCreateFontEx(MWFONT_SYSTEM_FIXED, 0, 0, NULL)
+    GrCreateFontEx(fontname, height, height, NULL)
+    or GrCreateFontFromBuffer(fontname, "TTF", height, height)
+    GrSetFontAttr(GR_TFANTIALIAS|GR_TFKERNING)
+    Xfree(fontname)
+XListFonts(pattern)     TEST WITH WILDCARDS
+    font_enumfonts(pattern, chkalias)
+XFreeFontNames
+    font_freefontnames
+XSetFontPath
+    _nxSetFontDir
+XGetFontPath
+    _nxCopyFontDir
+XFreeFontPath
+    _nxFreeFontDir
+
+Engine Font Open Process - GdCreateFont(name, height, width, plogfont)
+    (case-insensitive fontname compares for builtins)
+    if plogfont goto win32 process
+    if !name: name = first builtin (="System")
+    if !height: try builtin match
+    try user_builtin name and height match
+    try loadable fonts drivers
+        check against list of allowed extensions
+        if path in filename, use it directly, else:
+            if MWFONTDIR= in env, use that, otherwise xxx_FNT_DIR= compiled path
+        HAVE_FNT_SUPPORT:       .fnt,.fnt.gz
+        HAVE_PCF_SUPPORT:       .pcf,.pcf.gz
+        HAVE_FREETYPE_2_SUPPORT:.ttf,.otf,.pfr; use TTFONTDIR= if set
+        HAVE_T1LIB_SUPPORT:     .pfa,.pfb
+    try hzk,hbf,eujcp
+    if height: return closest builtin >= height
+    return fail

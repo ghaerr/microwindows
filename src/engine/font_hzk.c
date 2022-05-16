@@ -12,10 +12,6 @@
 #include "device.h"
 #include "devfont.h"
 
-#ifndef HZK_FONT_DIR
-#define HZK_FONT_DIR	"fonts/chinese"	/* default dir for {asc,hzk,hzx}{12,16} and *.KU files*/
-#endif
-
 /*
  * 12x12 and 16x16 ascii and chinese fonts
  * Big5 and GB2312 encodings supported

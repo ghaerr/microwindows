@@ -19,10 +19,6 @@
 #include <sys/mman.h>
 #endif
 
-#ifndef EUCJP_FONT_DIR
-#define EUCJP_FONT_DIR	"fonts/japanese"	/* default MGLFONT .fnt font file directory*/
-#endif
-
 typedef struct MWEUCJPFONT {
 	PMWFONTPROCS fontprocs;	/* common hdr */
 	int fontsize;

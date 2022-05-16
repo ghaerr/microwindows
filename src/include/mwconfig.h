@@ -142,6 +142,42 @@
 #endif
 
 /* font support*/
+#ifndef MWFONTSALIAS
+#define MWFONTSALIAS        "mwfonts.alias"     /* font alias file*/
+#endif
+
+#ifndef MW_FONT_DIR
+#define MW_FONT_DIR         "fonts"             /* default fonts directory for MWALIASFILE*/
+#endif
+
+#ifndef FNT_FONT_DIR
+#define FNT_FONT_DIR	    "fonts/fnt"		    /* default .fnt file location*/
+#endif
+
+#ifndef PCF_FONT_DIR
+#define PCF_FONT_DIR	    "fonts/pcf"         /* default .pcf file location*/
+#endif
+
+#ifndef FREETYPE_FONT_DIR
+#define FREETYPE_FONT_DIR   "fonts/truetype"	/* default .ttf/.otf/.pfr font directory*/
+#endif
+
+#ifndef T1LIB_FONT_DIR
+#define T1LIB_FONT_DIR		"fonts/type1"       /* default .pfb font directory*/
+#endif
+
+#ifndef EUCJP_FONT_DIR
+#define EUCJP_FONT_DIR      "fonts/japanese"	/* default MGLFONT .fnt font file directory*/
+#endif
+
+#ifndef HBF_FONT_DIR
+#define HBF_FONT_DIR        "fonts/chinese"     /* default HBF font file directory*/
+#endif
+
+#ifndef HZK_FONT_DIR
+#define HZK_FONT_DIR    "fonts/chinese"	/* default dir for {asc,hzk,hzx}{12,16} and *.KU files*/
+#endif
+
 #ifndef HAVE_PCF_SUPPORT
 #define HAVE_PCF_SUPPORT		0	/* PCF font support*/
 #endif

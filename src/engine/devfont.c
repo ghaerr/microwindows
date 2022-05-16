@@ -70,6 +70,63 @@ out:
 }
 #endif
 
+/* check if passed fontname is aliased in mwfonts.alias file */
+char *
+mwfont_findalias(const char *fontname, int *height, int *width)
+{
+#if HAVE_FILEIO
+    FILE *afp;
+    char *p, *size;
+    int h = 13;
+    static char buf[80];
+
+    if (!fontname)
+        return NULL;
+    if (*fontname == '/')       /* don't translate NX11 fonts with absolute path */
+        return (char *)fontname;
+    sprintf(buf, "%s/%s", MW_FONT_DIR, MWFONTSALIAS);
+    afp = fopen(buf, "r");
+    if (afp) {
+        for (;;) {
+            if (!fgets(buf, sizeof(buf), afp))
+                break;
+            buf[strlen(buf) - 1] = '\0';
+
+            /* ignore blank and ! comments*/
+            if (buf[0] == '\0' || buf[0] == '!')
+                continue;
+
+            /* fontname is first space separated field*/
+            /* check for tab first as filename may have spaces*/
+            p = strchr(buf, '\t');
+            if (!p)
+                p = strchr(buf, ' ');
+            if (!p)
+                continue;
+            *p = '\0';
+
+            if (strcmp(fontname, buf) == 0) {
+                /* alias is second space separated field*/
+                do ++p; while (*p == ' ' || *p == '\t');
+
+                size = strchr(p, ',');
+                if (size) {
+                    *size++ = '\0';
+                    h = atoi(size);
+                }
+                if (!*height)
+                    *height = *width = h;
+                DPRINTF("mwfont_findalias: %s -> %s,%d\n", fontname, p, *height);
+                fclose(afp);
+                return p;
+            }
+        }
+        fclose(afp);
+    }
+#endif
+    return (char *)fontname;
+}
+
 /**
  * Select a font, based on various parameters.
  * If plogfont is specified, name and height parms are ignored
@@ -114,7 +171,9 @@ GdCreateFont(PSD psd, const char *name, MWCOORD height, MWCOORD width, const PMW
 #endif
 
 	DPRINTF("GdCreateFont %s, %d,%d\n", name, height, width);
-	//if (!strcmp(name, "System")) name = "arialb.ttf", height = width = 13;
+
+	/* check mwfonts.alias file for alias */
+	name = mwfont_findalias(name, &height, &width);
 
 	GdGetScreenInfo(psd, &scrinfo);
 

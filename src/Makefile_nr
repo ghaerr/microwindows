@@ -19,25 +19,26 @@ endif
 # ARCH flags  ********************************
 
 ifeq ($(ARCH), DOS)
-DOS_DJGPP = Y
+DOSTARGET = Y
+VESA = Y
 ALL += initdos
 CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1
 INC += -I$(MW_DIR_SRC)/include
 endif
 
 ifeq ($(ARCH), CROSSDOS)
-DOS_DJGPP = Y
-CROSS = Y
+DOSTARGET = Y
+VESA = Y
 CFLAGS += -DDOS_DJGPP=1 -DMSDOS=1 -s
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
 endif
 
 ifeq ($(ARCH), MINGW)
-CROSS = Y
+DOSTARGET = Y
 INC += -I$(MW_DIR_SRC)/include
 INC += -I/c/MinGW/msys/1.0/local/include/freetype
 INC += -I/usr/local/include
-CFLAGS += -DMINGW -s
+CFLAGS += -DMINGW=1 -s
 #CFLAGS += -L/c/MinGW/msys/1.0/local/lib -L/c/MinGW/lib
 #ALLEGRO4 = Y
 #LIBALLEGRO = -lalleg #.dll
@@ -46,20 +47,18 @@ LIBALLEGRO = -lallegro #.dll
 endif
 
 ifeq ($(ARCH), MACOS)
-CROSS = Y
 SDL2 = Y
 CFLAGS += -DUNIX=1 -DMACOSX=1
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
 endif
 
 ifeq ($(ARCH), LINUX)
-CROSS = Y
+FB = Y
 CFLAGS += -DUNIX=1 -DLINUX=1 -s
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
 endif
 
 ifeq ($(ARCH), AJAGUAR)
-CROSS = Y
 TOOLSPREFIX = m68k-elf-
 # Note: to avoid potential issues with modern GCC, better to have dedicated ctype.h
 CFLAGS += -DAJAGUAR=1 -s
@@ -103,7 +102,7 @@ endif
 CFLAGS += $(INC)
 
 # Debug output support through GdError
-#CFLAGS += -DDEBUG=1
+CFLAGS += -DDEBUG=1
 
 CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -O3
@@ -114,7 +113,6 @@ CFLAGS += -DMW_FEATURE_TIMERS=1
 CFLAGS += -DHAVE_SIGNAL=0
 CFLAGS += -DHAVE_MMAP=0
 CFLAGS += -DNONETWORK=1
-#CFLAGS += -DHAVEMSFONTS=1
 
 # window manager
 CFLAGS += -DNANOWM=1
@@ -161,6 +159,7 @@ CLIBS += $(INSTALLED)/lib/libz.a
 # set for TTF font support
 HAVE_FREETYPE_2_SUPPORT = Y
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
+CFLAGS += -DFREETYPE_FONT_DIR=\"$(MW_FONT_DIR)/truetype\"
 CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
 #CLIBS += -lfreetype -lz
 
@@ -171,6 +170,7 @@ CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
 
 # set for Type1 font support
 #CFLAGS += -DHAVE_T1LIB_SUPPORT=1
+#CFLAGS += -DT1LIB_FONT_DIR=\"$(MW_FONT_DIR)/type1\"
 #CLIBS += $(INSTALLED)/lib/libt1.a
 #CLIBS += -lt1
 
@@ -178,41 +178,34 @@ endif # NOEXTLIBS
 
 # font support  ********************************
 
-#font support settings
-#Do not use the FONT_DIR macros here with MinGW.
-#Within the programs these are set to the
-#defaults as specified below, however, the
-#macros here are not used properly. Run the
-#demos from the root directory e.g. bin/fontdemo
-#When run from the bin directory you'll need a fonts
-#directory within bin.
-#With DJGPP the directory is fixed in font_fnt.c,
-#font_pcf.c and font_freetype2.c
+ifeq ($(DOSTARGET), Y)
+    MW_FONT_DIR := "/fonts"
+else
+    # for hosted testing, use absolute path to mwin fonts dir
+    MW_FONT_DIR := "$(shell pwd)/fonts"
+endif
+CFLAGS += -DMW_FONT_DIR=\"$(MW_FONT_DIR)\"
 
 CFLAGS += -DHAVE_PCF_SUPPORT=1
-CFLAGS += -DHAVE_FNT_SUPPORT=1
+CFLAGS += -DPCF_FONT_DIR=\"$(MW_FONT_DIR)/pcf\"
 
-LOCALFONTPATH := $(shell pwd)/
-CFLAGS += -DPCF_FONT_DIR=\"$(LOCALFONTPATH)fonts/pcf\"
-CFLAGS += -DFNT_FONT_DIR=\"$(LOCALFONTPATH)fonts/fnt\"
-CFLAGS += -DFREETYPE_FONT_DIR=\"$(LOCALFONTPATH)fonts/truetype\"
-CFLAGS += -DT1LIB_FONT_DIR=\"$(LOCALFONTPATH)fonts/type1\"
+CFLAGS += -DHAVE_FNT_SUPPORT=1
+CFLAGS += -DFNT_FONT_DIR=\"$(MW_FONT_DIR)/fnt\"
 
 # NX11 font settings
 
 # XLFD font directory path used in nx11/fontlist.c
-# for base, base/pcf and base/truetype directories
-CFLAGS += -DXLOCALFONTPATH=\"$(LOCALFONTPATH)\"
+CFLAGS += -DXLOCALFONTPATH=\"$(MW_FONT_DIR)\"
 
 # use stanard X11 XLFD system directories for fonts
 CFLAGS += -DHAVE_SYSTEM_FONT_PATHS=1
 
-# screen size and pixel format  ********************************
+# screen size and pixel format  ****************
 
 # 800x600, 1024x768, 1400x1050
-SCREEN_WIDTH ?= 800
-SCREEN_HEIGHT ?= 600
-SCREEN_DEPTH ?= 8
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_DEPTH = 8
 CFLAGS += -DSCREEN_HEIGHT=$(SCREEN_HEIGHT)
 CFLAGS += -DSCREEN_WIDTH=$(SCREEN_WIDTH)
 CFLAGS += -DSCREEN_DEPTH=$(SCREEN_DEPTH)
@@ -292,8 +285,7 @@ NTARGETS := $(addsuffix .exe,$(NTARGETS2))
 
 $(info       )
 $(info ------------------------------------------------------------------)
-$(info DOS_DJGPP = $(DOS_DJGPP))
-$(info CROSS = $(CROSS))
+$(info DOSTARGET = $(DOSTARGET))
 $(info INC = $(INC))
 $(info CFLAGS = $(CFLAGS))
 $(info LIBS = $(LIBS))
@@ -459,7 +451,8 @@ install:
 endif
 
 # export variables for sublevel makefiles
-export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS HAVEMSFONTS VESA DOS_DJGPP SDL1 SDL2 ALLEGRO4 ALLEGRO5 CLIBS VERBOSE HAVE_FREETYPE_2_SUPPORT
+export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS VERBOSE
+export HAVE_FREETYPE_2_SUPPORT VESA SDL2 ALLEGRO4 ALLEGRO5 AJAGUAR X11 FB
 
 # library targets ********************************
 

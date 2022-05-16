@@ -1,0 +1,12 @@
+!Microwindows font alias file
+!name		fontfile[,optional size (default 13)]
+!System		arialb.ttf
+!System		arialb.ttf,16
+!System		10x20.pcf.gz
+!System		6x13.pcf.gz
+!System		DejaVuSans.ttf
+!SystemBold	DejaVuSansB.ttf
+!SystemFixed	DejaVuSansMono.ttf
+!SystemFixed	SFUIDisplay-Medium.otf
+!SystemFixed	SFUIDisplay-Semibold.otf
+!SystemFixed	SFMonoRegular.otf

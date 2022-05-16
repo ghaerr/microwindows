@@ -280,6 +280,7 @@ PMWFONT	GdCreateFontFromBuffer(PSD psd, const unsigned char *buffer,
 			unsigned length, const char *format, MWCOORD height, MWCOORD width);
 PMWFONT	GdDuplicateFont(PSD psd, PMWFONT psrcfont, MWCOORD height, MWCOORD width);
 char *mwfont_findpath(const char *filename, const char *defpath, const char *extension);
+char *mwfont_findalias(const char *fontname, int *height, int *width);
 
 
 /* both devclip1.c and devclip2.c */

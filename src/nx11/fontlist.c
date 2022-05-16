@@ -25,9 +25,9 @@
 #define ANDROID_SYSTEM_PATH "/system/fonts"
 
 char *FONT_DIR_LIST[] = {									
-    XLOCALFONTPATH "fonts",
-    XLOCALFONTPATH "fonts/pcf",
-    XLOCALFONTPATH "fonts/truetype",
+    XLOCALFONTPATH,                             /* path to mwin fonts directory*/
+    XLOCALFONTPATH "/pcf",                      /* mwin pcf fonts w/fonts.dir*/
+    XLOCALFONTPATH "/truetype",                 /* mwin .ttf/.otf fonts w/fonts.dir*/
 #if MACOSX && HAVE_SYSTEM_FONT_PATHS
     MACOSX_SYSTEM_PATH "TTF",
     MACOSX_SYSTEM_PATH "truetype",
@@ -52,7 +52,7 @@ char *FONT_DIR_LIST[] = {
 #if OTHER
     "/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType",
 #endif
-	0
+    0
 };
 
 #if HAVE_STATICFONTS

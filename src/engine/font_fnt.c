@@ -12,11 +12,6 @@
 #include "devfont.h"
 #include "genfont.h"
 
-/* configurable defaults*/
-#ifndef FNT_FONT_DIR
-#define FNT_FONT_DIR	"fonts/fnt"		/* default .fnt file location*/
-#endif
-
 /*
  * .fnt loadable font file format definition
  *

@@ -50,11 +50,6 @@
 #include "devfont.h"
 #include "genfont.h"
 
-/* settable params*/
-#ifndef PCF_FONT_DIR
-#define PCF_FONT_DIR	"fonts/pcf"
-#endif
-
 /* The user hase the option including ZLIB and being able to    */
 /* directly read compressed .pcf files, or to omit it and save  */
 /* space.  The following defines make life much easier          */

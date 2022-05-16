@@ -14,9 +14,6 @@
 #include "devfont.h"
 
 /* settable parameters*/
-#ifndef T1LIB_FONT_DIR
-#define T1LIB_FONT_DIR			"fonts/type1"
-#endif
 #define T1LIB_CONFIG_FILE		"t1lib.config"
 #define T1LIB_DEFAULT_ENCODING	"IsoLatin1.enc"
 #define T1LIB_USE_AA_HIGH		1				/* 17 vs 5 level alpha*/

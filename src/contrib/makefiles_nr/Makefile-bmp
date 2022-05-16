@@ -19,7 +19,7 @@ OBJECTS += \
 all: tools/convbmp tools/makebmp $(LIB)
 
 clean:
-	rm -f *.o *.a convbmp makebmp
+	rm -f *.o *.a tools/convbmp tools/makebmp
 
 # compile for host not target
 tools/convbmp: tools/convbmp.c

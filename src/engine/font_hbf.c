@@ -12,10 +12,6 @@
 #include "genfont.h"
 #include "../drivers/hbf.h"
 
-#ifndef HBF_FONT_DIR
-#define HBF_FONT_DIR	"fonts/chinese"	/* default HBF font file directory*/
-#endif
-
 #define MAX_CHAR_SIZE	32	/* maximum character cell width and height*/
 
 PMWFONT hbf_createfont(const char *name, MWCOORD height, MWCOORD width, int attr);

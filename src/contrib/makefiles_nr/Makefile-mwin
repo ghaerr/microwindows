@@ -1,4 +1,4 @@
-# Micro-Windows libmwin.a library makefile for DJGPP
+# Microwindows libmwin.a library makefile for DJGPP
 # by Georg Potthast June 2011
 # based on makefile by Greg Haerr and V. Rogachev
 #
@@ -48,4 +48,8 @@ clean:
 	rm -f *.o *.a core
 
 $(LIB): $(OBJECTS)
-	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) $(MW_DIR_SRC)/engine/*.o $(MW_DIR_SRC)/fonts/*.o $(MW_DIR_SRC)/drivers/*.o $(OBJECTS)
+	$(AR) rcs $(MW_DIR_SRC)/lib/$(LIB) \
+		$(MW_DIR_SRC)/engine/*.o \
+		$(MW_DIR_SRC)/fonts/compiled/*.o \
+		$(MW_DIR_SRC)/drivers/*.o \
+		$(OBJECTS)

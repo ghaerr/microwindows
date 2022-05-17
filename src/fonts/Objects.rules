@@ -11,18 +11,18 @@
 
 # List of objects to compile
 MW_CORE_OBJS += \
-	$(MW_DIR_OBJ)/fonts/rom8x16.o \
-	$(MW_DIR_OBJ)/fonts/rom8x8.o \
-	$(MW_DIR_OBJ)/fonts/winFreeSansSerif11x13.o \
-	$(MW_DIR_OBJ)/fonts/winFreeSystem14x16.o \
-	$(MW_DIR_OBJ)/fonts/X6x13.o
+	$(MW_DIR_OBJ)/fonts/compiled/rom8x16.o \
+	$(MW_DIR_OBJ)/fonts/compiled/rom8x8.o \
+	$(MW_DIR_OBJ)/fonts/compiled/winFreeSansSerif11x13.o \
+	$(MW_DIR_OBJ)/fonts/compiled/winFreeSystem14x16.o \
+	$(MW_DIR_OBJ)/fonts/compiled/X6x13.o
 
-#	$(MW_DIR_OBJ)/fonts/X5x7.o
-#	$(MW_DIR_OBJ)/fonts/helvB10.o
-#	$(MW_DIR_OBJ)/fonts/helvB12.o
-#	$(MW_DIR_OBJ)/fonts/helvR10.o
-#	$(MW_DIR_OBJ)/fonts/symbol.o
-#	$(MW_DIR_OBJ)/fonts/timBI18.o
+#	$(MW_DIR_OBJ)/fonts/compiled/X5x7.o
+#	$(MW_DIR_OBJ)/fonts/compiled/helvB10.o
+#	$(MW_DIR_OBJ)/fonts/compiled/helvB12.o
+#	$(MW_DIR_OBJ)/fonts/compiled/helvR10.o
+#	$(MW_DIR_OBJ)/fonts/compiled/symbol.o
+#	$(MW_DIR_OBJ)/fonts/compiled/timBI18.o
 
 ifeq ($(HAVE_BIG5_SUPPORT), Y)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/fonts/chinese/big5font.o

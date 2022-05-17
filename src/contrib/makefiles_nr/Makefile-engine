@@ -1,4 +1,4 @@
-# Micro-Windows libmwengine.a library makefile for DJGPP
+# Microwindows libmwengine.a library makefile for DJGPP
 # by Georg Potthast June 2011
 # based on makefile by Greg Haerr and V. Rogachev
 
@@ -11,14 +11,10 @@ OBJECTS := \
     devlist.o devfont.o devimage.o devimage_stretch.o\
     devarc.o devopen.o devpoly.o devstipple.o \
     devtimer.o devblit.o convblit_8888.o \
+    convblit_frameb.o convblit_mask.o \
     image_bmp.o image_gif.o image_pnm.o image_xpm.o\
     image_jpeg.o image_png.o image_tiff.o\
-    font_dbcs.o convblit_frameb.o \
-    convblit_mask.o \
     font_pcf.o font_dbcs.o font_fnt.o
-# error.o	
-#    \
-#    font_t1lib.o  
 
 ifeq ($(HAVE_FREETYPE_2_SUPPORT), Y)
 OBJECTS += font_freetype2.o

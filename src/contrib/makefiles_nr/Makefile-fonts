@@ -5,18 +5,20 @@
 
 LIB=libfonts.a
 
-OBJECTS = rom8x16.o rom8x8.o \
-	winFreeSansSerif11x13.o winFreeSystem14x16.o X6x13.o
+OBJECTS = \
+	compiled/rom8x16.o \
+	compiled/rom8x8.o \
+	compiled/winFreeSansSerif11x13.o \
+	compiled/winFreeSystem14x16.o \
+	compiled/X6x13.o
 
-#OBJECTS += helvB10.o helvB12.o helvR10.o symb18.o lubI24.o timBI18.bdf X5x7.o
+#OBJECTS += compiled/helvB10.o compiled/helvB12.o compiled/helvR10.o
+#OBJECTS += compiled/symb18.o compiled/lubI24.o compiled/timBI18.bdf compiled/X5x7.o
 
 all: tools/convbdf $(LIB)
 
 clean:
 	rm -f *.o *.a tools/convbdf
-
-realclean: clean
-	rm -f helvB10.c helvB12.c helvR10.c timBI18.c
 
 # compile for host not target
 tools/convbdf: tools/convbdf.c

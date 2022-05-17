@@ -102,7 +102,7 @@ endif
 CFLAGS += $(INC)
 
 # Debug output support through GdError
-CFLAGS += -DDEBUG=1
+#CFLAGS += -DDEBUG=1
 
 CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -O3
@@ -179,10 +179,10 @@ endif # NOEXTLIBS
 # font support  ********************************
 
 ifeq ($(DOSTARGET), Y)
-    MW_FONT_DIR := "/fonts"
+    MW_FONT_DIR := /fonts
 else
     # for hosted testing, use absolute path to mwin fonts dir
-    MW_FONT_DIR := "$(shell pwd)/fonts"
+    MW_FONT_DIR := $(shell pwd)/fonts
 endif
 CFLAGS += -DMW_FONT_DIR=\"$(MW_FONT_DIR)\"
 
@@ -366,7 +366,7 @@ clean:
 	-rm obj/drivers/*.o 2>/dev/null
 	-rm obj/mwin/winlib/*.o 2>/dev/null
 	-rm obj/engine/*.o 2>/dev/null
-	-rm obj/fonts/*.o 2>/dev/null
+	-rm obj/fonts/compiled/*.o 2>/dev/null
 	-rm drivers/*.o 2>/dev/null
 	-rm mwin/*.o 2>/dev/null
 	-rm images/demos/mwin/*.o 2>/dev/null
@@ -396,7 +396,7 @@ clean:
 	-rm images/tools/convbmp images/tools/makebmp
 	-rm mwin/winlib/*.o
 	-rm nanox/*.o
-	-rm fonts/*.o
+	-rm fonts/compiled/*.o
 	-rm drivers/*.o
 	-rm engine/*.o
 	-rm lib/*.a
@@ -424,7 +424,7 @@ clean:
 	-del images\tools\makebmp
 	-del mwin\winlib\*.o
 	-del nanox\*.o
-	-del fonts\*.o
+	-del fonts\compiled\*.o
 	-del drivers\*.o
 	-del engine\*.o
 	-del lib\*.a
@@ -451,7 +451,8 @@ install:
 endif
 
 # export variables for sublevel makefiles
-export MW_DIR_SRC CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS VERBOSE
+export CC CFLAGS AS LD AR STRIP HOSTCC HOSTCFLAGS VERBOSE
+export MW_DIR_SRC MW_FONT_DIR
 export HAVE_FREETYPE_2_SUPPORT VESA SDL2 ALLEGRO4 ALLEGRO5 AJAGUAR X11 FB
 
 # library targets ********************************

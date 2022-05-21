@@ -354,8 +354,8 @@ GrUnregisterInput(int fd)
 #if UNIX && HAVE_SELECT
 
 #if NONETWORK
-static int
-pumpevents(void)
+int
+GsPumpEvents(void)
 {
 	/* update mouse and keyboard events */
 	if (scrdev.PreSelect)
@@ -628,7 +628,7 @@ again:
 				gp->type = GR_EVENT_TYPE_TIMEOUT;
 		}
 		else if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK)) {
-			if (!pumpevents())  /* process mouse/kbd events */
+			if (!GsPumpEvents())    /* process mouse/kbd events */
 				goto again;		/* retry until passed timeout */
 		}
 #else /* !NONETWORK */

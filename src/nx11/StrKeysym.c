@@ -405,13 +405,24 @@ XLookupString(XKeyEvent *event, char *buffer, int nbytes, KeySym *keysym,
 	}
 #endif /* OLDWAY*/
 
-	*keysym = k;
+	if (keysym)
+		*keysym = k;
 	buffer[0] = (char)k;
-	//return 1; //one key returned - stops cursor keys from working in FLTK
 
-	if (nbytes > 0)
-		buffer[0] = '\0';
-	return 0; 
+	if (k & 0xFF00) {	/* non-ASCII key, return 0 for cursor keys in FLTK */
+		switch (k) {
+		case XK_BackSpace:
+		case XK_Tab:
+		case XK_Linefeed:
+		case XK_Return:
+		case XK_Escape:
+		case XK_Delete:
+			break;
+		default:
+			return 0;
+		}
+	}
+	return 1;
 }
 
 /* Freeking ugly! */

@@ -119,7 +119,7 @@ int XKillClient() { DPRINTF("XKillClient called\n"); return 0; }
 ////int XMaxRequestSize() { DPRINTF("XMaxRequestSize called\n"); return 0; } 
 int XmbDrawImageString() { DPRINTF("XmbDrawImageString called\n"); return 0; } 
 int XmbDrawString() { DPRINTF("XmbDrawString called\n"); return 0; } 
-//int XmbLookupString() { DPRINTF("XmbLookupString called\n"); return 0; } 
+int XmbLookupString() { DPRINTF("XmbLookupString called\n"); return 0; } 
 int XmbTextExtents() { DPRINTF("XmbTextExtents called\n"); return 0; } 
 
 int XParseGeometry() { DPRINTF("XParseGeometry called\n"); return 0; } 

@@ -388,6 +388,7 @@ struct gr_grabbed_key {
  */
 int		GsInitialize(void);
 void		GsClose(int fd);
+int		GsPumpEvents(void);
 void		GsSelect(GR_TIMEOUT timeout);
 void		GsTerminate(void);
 GR_TIMEOUT	GsGetTickCount(void);

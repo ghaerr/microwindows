@@ -25,6 +25,8 @@ GdFindConvBlit(PSD psd, int data_format, int op)
 {
 	MWBLITFUNC convblit = NULL;
 
+	/*DPRINTF("GdFindConvBlit format %x, op %d\n", data_format, op);*/
+
 #if SWIEROS
 	convblit = psd->BlitCopyMaskMonoWordMSB;	/* conv mono word MSBFirst*/
 #else
@@ -126,6 +128,8 @@ BlitFallback(PSD psd, PMWBLITPARMS gc)
 static MWBLITFUNC
 GdFindFrameBlit(PSD psd, int src_data_format, int op)
 {
+	/*DPRINTF("GdFindFrameBlit format %x, op %d\n", src_data_format, op);*/
+
 	/* use frameblit if same format, conversion will fail on same surface*/
 	if (psd->data_format != src_data_format || !psd->FrameBlit)
 	  switch (src_data_format) {	/* try conversion blits if possible*/

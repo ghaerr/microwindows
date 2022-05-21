@@ -1448,7 +1448,8 @@ GsNotifyActivate(GR_WINDOW *wp)
 		if (pwp->parent->id == GR_ROOT_WINDOW_ID)
 			break;
 	if (pwp->id != GR_ROOT_WINDOW_ID)
-		GsDeliverUpdateEvent(pwp, GR_UPDATE_ACTIVATE, 0, 0, 0, 0);
+		GsDeliverUpdateEvent(pwp, GR_UPDATE_ACTIVATE, wp->x, wp->y,
+			wp->width, wp->height);
 }
 
 /*

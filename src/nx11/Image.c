@@ -489,8 +489,8 @@ putTrueColorImage(Display * display, Drawable d, GC gc, XImage *image,
 	int		drawsize, pad;
 	char 	*src;
 
-	DPRINTF("putTruecolorImabe: bpp %d %d,%d -> %d,%d %d,%d\n", image->depth,
-		src_x, src_y, dest_x, dest_y, width, height);
+	/*DPRINTF("putTruecolorImage: bpp %d %d,%d -> %d,%d %d,%d\n", image->depth,
+		src_x, src_y, dest_x, dest_y, width, height);*/
 
 	/* convert pixtype if image bpp not hw format*/
 	switch (image->bits_per_pixel) {
@@ -580,8 +580,8 @@ putImage(Display * display, Drawable d, GC gc, XImage * image,
 	unsigned char *src = (unsigned char *)image->data
 		+ ((src_y * (image->bytes_per_line)) + src_x);
 
-	DPRINTF("putImage: bpp %d %d,%d -> %d,%d %d,%d\n", image->depth,
-		src_x, src_y, dest_x, dest_y, width, height);
+	/*DPRINTF("putImage: bpp %d %d,%d -> %d,%d %d,%d\n", image->depth,
+		src_x, src_y, dest_x, dest_y, width, height);*/
 
 	if (image->bits_per_pixel >= 8) {
 		colormap = _nxFindColormap(XDefaultColormap(display, 0));

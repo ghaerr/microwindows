@@ -9,8 +9,10 @@
 #include <string.h>
 #include "uni_std.h"
 
-#define READ_BIT(image, x, y)	\
-	(image->data[(y * image->bytes_per_line) + (x >> 3) ] & (1 << (x & 7)))
+#define READ_BIT(image, x, y) \
+	((image->bitmap_bit_order == LSBFirst)? \
+		(image->data[(y * image->bytes_per_line) + (x >> 3) ] & (1 << (x & 7))) : \
+		(image->data[(y * image->bytes_per_line) + (x >> 3) ] & (1 << ((7-x) & 7))))
 
 static int
 destroy_image(XImage *image)
@@ -22,13 +24,13 @@ destroy_image(XImage *image)
 }
 
 static unsigned long
-get_pixel1(XImage *image, unsigned int x, unsigned int y)
+get_pixel1(XImage *image, int x, int y)
 {
 	return READ_BIT(image, x, y) != 0;
 }
 
 static int
-put_pixel1(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
+put_pixel1(XImage *image, int x, int y, unsigned long pixel)
 {
 	static unsigned char mask[] =
 		{ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
@@ -40,7 +42,7 @@ put_pixel1(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
 }
 
 static unsigned long
-get_pixel8(XImage *image, unsigned int x, unsigned int y)
+get_pixel8(XImage *image, int x, int y)
 {
 	unsigned char *src = (unsigned char *)image->data + (y * image->bytes_per_line) + x;
 
@@ -48,7 +50,7 @@ get_pixel8(XImage *image, unsigned int x, unsigned int y)
 }
 
 static int
-put_pixel8(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
+put_pixel8(XImage *image, int x, int y, unsigned long pixel)
 {
 	unsigned char *src = (unsigned char *)image->data + (y * image->bytes_per_line) + x;
 
@@ -57,7 +59,7 @@ put_pixel8(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
 }
 
 static unsigned long
-get_pixel16(XImage *image, unsigned int x, unsigned int y)
+get_pixel16(XImage *image, int x, int y)
 {
 	unsigned short *src = (unsigned short *)(image->data + (y * image->bytes_per_line) + (x << 1));
 
@@ -65,7 +67,7 @@ get_pixel16(XImage *image, unsigned int x, unsigned int y)
 }
 
 static int
-put_pixel16(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
+put_pixel16(XImage *image, int x, int y, unsigned long pixel)
 {
 	unsigned short *src = (unsigned short *)(image->data + (y * image->bytes_per_line) + (x << 1));
 
@@ -74,17 +76,17 @@ put_pixel16(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
 }
 
 static unsigned long
-get_pixel32(XImage *image, unsigned int x, unsigned int y)
+get_pixel32(XImage *image, int x, int y)
 {
-	unsigned long *src = (unsigned long *)(image->data + (y * image->bytes_per_line) + (x << 2));
+	uint32_t *src = (uint32_t *)(image->data + (y * image->bytes_per_line) + (x << 2));
 
 	return *src;
 }
 
 static int
-put_pixel32(XImage *image, unsigned int x, unsigned int y, unsigned long pixel)
+put_pixel32(XImage *image, int x, int y, unsigned long pixel)
 {
-	unsigned long *src = (unsigned long *)(image->data + (y * image->bytes_per_line) + (x << 2));
+	uint32_t *src = (uint32_t *)(image->data + (y * image->bytes_per_line) + (x << 2));
 
 	*src = pixel;
 	return 1;
@@ -148,10 +150,8 @@ static void setImageFunc(XImage *image)
 		image->f.put_pixel = put_pixel32;
 		break;
 	default:
-		DPRINTF("createImageStruct: unsupported bpp\n");
+		DPRINTF("createImageStruct: unsupported bpp %d\n", image->bits_per_pixel);
 	}
-
-	return;
 }
 
 static XImage *
@@ -159,7 +159,6 @@ createImageStruct(unsigned int width, unsigned int height, unsigned int depth,
 	int format, int bytes_per_line, int bitmap_pad, unsigned long red_mask,
 	unsigned long green_mask, unsigned long blue_mask)
 {
-	//XImage *image = (XImage *) Xcalloc(sizeof(XImage), 1);
 	XImage *image = (XImage *) Xcalloc(1, sizeof(XImage));
 	if (!image) return 0;
 
@@ -258,9 +257,9 @@ XCreateImage(Display * display, Visual * visual, unsigned int depth,
 	return image;
 }
 
-/*unsigned int Ones(unsigned long mask)
+/*unsigned int Ones(uint32_t mask)
 {
-	register unsigned long y;
+	register uint32_t y;
 	y = (mask >> 1) &033333333333;
 	y = mask - y - ((y >>1) & 033333333333);
 	return ((unsigned int) (((y + (y >> 3)) & 030707070707) % 077));
@@ -293,7 +292,7 @@ XGetImage(Display * display, Drawable d, int x, int y,
 
 	if (format == XYPixmap) {
 		/*depth = Ones(plane_mask &
-			(((unsigned long)0xFFFFFFFF) >> (32 - sizeof(GR_PIXELVAL)*8)));*/
+			(((uint32_t)0xFFFFFFFF) >> (32 - sizeof(GR_PIXELVAL)*8)));*/
 		//depth = sizeof(GR_PIXELVAL) * 8;
 		depth = 1;	// for Qt (Mask)
 		DPRINTF("XGetImage warning: broken for XYPixmap (bpp %d)\n", depth);
@@ -329,7 +328,6 @@ XGetImage(Display * display, Drawable d, int x, int y,
 		return NULL;
 
 	src_rowsize = width * drawsize;		/* bytes per line of image*/
-	//image->data = (char *) Xcalloc(src_rowsize * height, 1);
 	image->data = (char *) Xcalloc(1, src_rowsize * height);
 	GrReadArea(d, x, y, width, height, (void *) image->data);
 
@@ -491,6 +489,9 @@ putTrueColorImage(Display * display, Drawable d, GC gc, XImage *image,
 	int		drawsize, pad;
 	char 	*src;
 
+	DPRINTF("putTruecolorImabe: bpp %d %d,%d -> %d,%d %d,%d\n", image->depth,
+		src_x, src_y, dest_x, dest_y, width, height);
+
 	/* convert pixtype if image bpp not hw format*/
 	switch (image->bits_per_pixel) {
 	case 1:
@@ -574,33 +575,40 @@ putImage(Display * display, Drawable d, GC gc, XImage * image,
 	unsigned int width, unsigned int height)
 {
 	unsigned int x, y;
-	unsigned long *buffer, *dst;
-	char *src = image->data + ((src_y * (image->bytes_per_line)) + src_x);
-	nxColormap *colormap = _nxFindColormap(XDefaultColormap(display, 0));
+	MWPIXELVAL *buffer, *dst;
+	nxColormap *colormap;
+	unsigned char *src = (unsigned char *)image->data
+		+ ((src_y * (image->bytes_per_line)) + src_x);
 
-DPRINTF("putImage: bpp %d\n", image->depth);
-	if (!colormap)
-		return 0;
+	DPRINTF("putImage: bpp %d %d,%d -> %d,%d %d,%d\n", image->depth,
+		src_x, src_y, dest_x, dest_y, width, height);
 
-	dst = buffer = ALLOCA(width * height * sizeof(unsigned long));
+	if (image->bits_per_pixel >= 8) {
+		colormap = _nxFindColormap(XDefaultColormap(display, 0));
+		if (!colormap)
+			return 0;
+		DPRINTF("curcolor %x\n", colormap->cur_color);
+	}
+
+	buffer = ALLOCA(width * height * sizeof(MWPIXELVAL));
 
 	for (y = src_y; y < src_y + height; y++) {
+		dst = buffer + y * width;
 		for (x = src_x; x < src_x + width; x++, dst++) {
 			unsigned short cl;
 
 			/* get colormap index bits from image*/
 			switch (image->bits_per_pixel) {
 			case 32:
-				cl = (unsigned short) *((unsigned long *) src);
+				cl = (unsigned short) *((MWPIXELVAL *) src);
 				src += 4;
-				continue;
-
-			//case 24: FIXME			
-			/*case 24:
-				cl = (unsigned short) *((unsigned long *) src);
+				break;
+			case 24:
+				cl = src[0];        /* B */
+				cl |= src[1] << 8;  /* G */
+				cl |= src[2] << 16; /* R */
 				src += 3;
-				continue;*/
-			
+				break;
 			case 16:
 				cl = (unsigned short) *((unsigned short *) src);
 				src += 2;
@@ -612,13 +620,15 @@ DPRINTF("putImage: bpp %d\n", image->depth);
 				break;
 
 			case 1:
-				if (READ_BIT(image, x, y))
+				if (READ_BIT(image, x, y)) {
 					//cl = colormap->colorval[1].value;
-					cl = 1;
-				else
+					//cl = ((XGCValues *)gc->ext_data)->foreground;
+					*dst = WHITE;
+				} else {
 					//cl = colormap->colorval[0].value;
-					cl = 0;
-				break;
+					*dst = BLACK;
+				}
+				continue;
 
 			default:
 				cl = 0;
@@ -628,15 +638,9 @@ DPRINTF("putImage: bpp %d\n", image->depth);
 			if (cl < colormap->cur_color)
 				*dst = (unsigned long) colormap->colorval[cl].value;
 			else {
-				// FIXME colors kluged as if truecolor here...
-				// (no colormap entries...)
-				if (image->depth == 1) {
-					//cl = ((XGCValues *)gc->ext_data)->foreground;
-					*dst = cl? WHITE: BLACK;
-				} else {
-					DPRINTF("XPutImage: unknown color index %x\n", cl);
-					*dst = 0;
-				}
+				// FIXME colors kluged as if truecolor here, no colormap entries
+				DPRINTF("XPutImage: unknown color index %x\n", cl);
+				*dst = 0;
 			}
 		}
 	}
@@ -648,14 +652,12 @@ DPRINTF("putImage: bpp %d\n", image->depth);
 }
 
 int XPutImage(Display *display, Drawable d, GC gc, XImage *image,
-	int src_x, int src_y, int dest_x, int dest_y, unsigned int _width,
-	unsigned int _height)
+	int src_x, int src_y, int dest_x, int dest_y, unsigned int width,
+	unsigned int height)
 {
-	long width = _width;
-	long height = _height;
-
+#if 0
 	// Why is scrolling going wrong
-	/*if (src_x<0) {
+	if (src_x<0) {
 		width += src_x;
 		src_x = 0;
 	}
@@ -674,9 +676,9 @@ int XPutImage(Display *display, Drawable d, GC gc, XImage *image,
 		height += dest_y;
 		if (height <= 0) return 0;
 		dest_y = 0;
-	}*/
+	}
+#endif
 
-	// FIXME bpp 1
 	if (display->screens[0].root_visual->class == TrueColor && image->depth != 1)
 		return putTrueColorImage(display, d, gc, image, src_x, src_y,
 			dest_x, dest_y, width, height);
@@ -728,8 +730,10 @@ void _XInitImageFuncPtrs(XImage *image)
 Status XInitImage(XImage *image)
 {
 	int min_bytes_per_line;
-	DPRINTF("XInitImage called..\n");
-//	return 0;
+	DPRINTF("XInitImage depth %d bpp %d\n", image->depth, image->bits_per_pixel);
+
+	if (!image->bits_per_pixel)
+		image->bits_per_pixel = image->depth;
 
 	if (image->depth == 0 || image->depth > 32 ||
 		image->bits_per_pixel > 32 || image->bitmap_unit > 32 ||
@@ -750,11 +754,15 @@ Status XInitImage(XImage *image)
 			ROUNDUP((image->width + image->xoffset), image->bitmap_pad);
 	}
 
-	if (image->bytes_per_line == 0) {
+	DPRINTF("Image %d,%d min_bytes_line %d bytes_line %d\n",
+		image->width, image->height, min_bytes_per_line, image->bytes_per_line);
+
+	if (image->bytes_per_line == 0)
 		image->bytes_per_line = min_bytes_per_line;
-	} else if (image->bytes_per_line < min_bytes_per_line) {
+
+	if (image->bytes_per_line < min_bytes_per_line)
 		return 0;
-	}
+
 	//_XInitImageFuncPtrs(image);
 	setImageFunc(image);
 

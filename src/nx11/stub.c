@@ -100,7 +100,6 @@ int XFetchName() { DPRINTF("XFetchName called\n"); return 0; }
 int _XFlush() { DPRINTF("_XFlush called\n"); return 0; } 
 int _XFlushGCCache() { DPRINTF("_XFlushGCCache called\n"); return 0; } 
 int XFreeFontSet() { DPRINTF("XFreeFontSet called\n"); return 0; } 
-int XFreeStringList() { DPRINTF("XFreeStringList called\n"); return 0; }
 int _XGetBitsPerPixel() { DPRINTF("_XGetBitsPerPixel called\n"); return 0; } 
 int XGetGCValues() { DPRINTF("XGetGCVAlues called\n"); return 0; }
 int XGetErrorDatabaseText() { DPRINTF("XGetErrorDatabaseText called\n"); return 0; } 

@@ -99,7 +99,7 @@ int XESetWireToEvent() { DPRINTF("XESetWireToEvent called\n"); return 0; }
 int XFetchName() { DPRINTF("XFetchName called\n"); return 0; }
 int _XFlush() { DPRINTF("_XFlush called\n"); return 0; } 
 int _XFlushGCCache() { DPRINTF("_XFlushGCCache called\n"); return 0; } 
-int XFreeFontSet(int, int) { DPRINTF("XFreeFontSet called\n"); return 0; } 
+void XFreeFontSet(int, int) { DPRINTF("XFreeFontSet called\n"); return 0; } 
 int _XGetBitsPerPixel() { DPRINTF("_XGetBitsPerPixel called\n"); return 0; } 
 int XGetGCValues(int, int, int, int) { DPRINTF("XGetGCVAlues called\n"); return 0; }
 int XGetErrorDatabaseText(int, int, int, int, int, int) { DPRINTF("XGetErrorDatabaseText called\n"); return 0; } 
@@ -165,13 +165,13 @@ int XSetWMColormapWindows() { DPRINTF("XSetWMColormapWindows called\n"); return 
 int XStoreColor() { DPRINTF("XStoreColor called\n"); return 0; }
 int XStoreColors() { DPRINTF("XStoreColors called\n"); return 0; }
 int _XUnknownNativeEvent() { DPRINTF("_XUnknownNativeEvent called\n"); return 0; }
-int Xutf8LookupString(int, int, int, int, int) { DPRINTF("Xutf8LookupString called\n"); return 0; }
+int Xutf8LookupString(int, int, int, int, int, int) { DPRINTF("Xutf8LookupString called\n"); return 0; }
 
 /* also in IM.c*/
-int XDestroyIC(int) { DPRINTF("XDestroyIC called\n"); return 0; } 
-int XSetICFocus(int) { DPRINTF("XSetICFocus called\n"); return 0; } 
+void XDestroyIC(int) { DPRINTF("XDestroyIC called\n"); return 0; } 
+void XSetICFocus(int) { DPRINTF("XSetICFocus called\n"); return 0; } 
 int XSetICValues(int, int) { DPRINTF("XSetICValues called\n"); return 0; } 
-int XUnsetICFocus(int) { DPRINTF("XUnsetICFocus called\n"); return 0; } 
+void XUnsetICFocus(int) { DPRINTF("XUnsetICFocus called\n"); return 0; } 
 int XGetIMValues(int, int) { DPRINTF("XGetIMValues called\n"); return 0; } 
 int XSetIMValues() { DPRINTF("XSetIMValues called\n"); return 0; } 
 int XRegisterIMInstantiateCallback() { DPRINTF("XRegisterIMInstantiateCallback called\n"); return 0; } 

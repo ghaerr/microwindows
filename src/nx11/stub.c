@@ -103,13 +103,13 @@ void XFreeFontSet(int i, int j) { DPRINTF("XFreeFontSet called\n"); }
 int _XGetBitsPerPixel() { DPRINTF("_XGetBitsPerPixel called\n"); return 0; } 
 int XGetGCValues(void* d, int gc, unsigned long vm, void* vr) { DPRINTF("XGetGCVAlues called\n"); return 0; }
 int XGetErrorDatabaseText(void* i, char* j, char* k, char* l, char* m, int n) { DPRINTF("XGetErrorDatabaseText called\n"); return 0; } 
-int XGetErrorText(void* j, int j, char* k, int l) { DPRINTF("XGetErrorText called\n"); return 0; } 
+int XGetErrorText(void* i, int j, char* k, int l) { DPRINTF("XGetErrorText called\n"); return 0; } 
 int _XGetScanlinePad() { DPRINTF("_XGetScanlinePad called\n"); return 0; } 
 
 //int XGetWMHints() { DPRINTF("XGetWMHints called\n"); return 0; } 
 int XGetWMNormalHints() { DPRINTF("XGetWMNormalHints called\n"); return 0; } 
-int XGrabKeyboard(void* i, int j, bool k, int l, int m, int n) { DPRINTF("XGrabKeyboard called\n"); return 0; } 
-int XGrabPointer(void* i, int j, bool k, unsigned int l, int m, int n, int o, int p, int q) { DPRINTF("XGrabPointer called\n"); return 0; } 
+int XGrabKeyboard(void* i, int j, int k, int l, int m, int n) { DPRINTF("XGrabKeyboard called\n"); return 0; } 
+int XGrabPointer(void* i, int j, int k, unsigned int l, int m, int n, int o, int p, int q) { DPRINTF("XGrabPointer called\n"); return 0; } 
 int XGrabServer() { DPRINTF("XGrabServer called\n"); return 0; } 
 int XIconifyWindow() { DPRINTF("XIconifyWindow called\n"); return 0; } 
 //int XInitExtension() { DPRINTF("XInitExtension called\n"); return 0; } 
@@ -127,7 +127,7 @@ int _XReadPad() { DPRINTF("_XReadPad called\n"); return 0; }
 int _XReply() { DPRINTF("_XReply called\n"); return 0; } 
 int XRestackWindows() { DPRINTF("XRestackWindows called\n"); return 0; } 
 int _XSend() { DPRINTF("_XSend called\n"); return 0; } 
-int XSendEvent(void* i, int j, bool k, long l, void* m) { DPRINTF("XSendEvent called\n"); return 0; } 
+int XSendEvent(void* i, int j, int k, long l, void* m) { DPRINTF("XSendEvent called\n"); return 0; } 
 int XSetArcMode() { DPRINTF("XSetArcMode called\n"); return 0; } 
 int XSetCloseDownMode() { DPRINTF("XSetCloseDownMode called\n"); return 0; } 
 /* int XSetErrorHandler() { DPRINTF("XSetErrorHandler called\n"); return 0; }  */
@@ -172,7 +172,7 @@ void XDestroyIC(int i) { DPRINTF("XDestroyIC called\n"); }
 void XSetICFocus(int i) { DPRINTF("XSetICFocus called\n"); } 
 int XSetICValues(int i, int j) { DPRINTF("XSetICValues called\n"); return 0; } 
 void XUnsetICFocus(int i) { DPRINTF("XUnsetICFocus called\n"); } 
-int XGetIMValues(int i, int i) { DPRINTF("XGetIMValues called\n"); return 0; } 
+int XGetIMValues(int i, int j) { DPRINTF("XGetIMValues called\n"); return 0; } 
 int XSetIMValues() { DPRINTF("XSetIMValues called\n"); return 0; } 
 int XRegisterIMInstantiateCallback() { DPRINTF("XRegisterIMInstantiateCallback called\n"); return 0; } 
 int XUnregisterIMInstantiateCallback() { DPRINTF("XUnregisterIMInstantiateCallback called\n"); return 0; } 

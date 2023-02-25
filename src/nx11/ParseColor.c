@@ -61,7 +61,7 @@ XParseColor(Display * display, Colormap colormap, _Xconst char *spec,
 				break;
 
 			default:
-				DPRINTF("XParseColor: passed '%s' is invalid format\n", p);
+				DPRINTF("XParseColor: passed '%s' is invalid format\n", spec);
 				return 0;
 			}
 		}

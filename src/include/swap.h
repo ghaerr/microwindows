@@ -24,10 +24,10 @@
  */
 #if LINUX && !__ECOS && !__MINGW32__
 #include <endian.h>
-#endif
-
-#if RTEMS | MACOSX | defined(__FreeBSD__)
+#elif RTEMS | MACOS | defined(__FreeBSD__)
 #include <machine/endian.h>
+#else
+#include <sys/types.h>
 #endif
 
 #ifdef __BYTE_ORDER

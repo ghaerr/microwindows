@@ -477,7 +477,6 @@ PMWFONT
 freetype2_createfont(const char *filename, MWCOORD height, MWCOORD width, int attr)
 {
 	PMWFREETYPE2FONT pf;
-	char *p;
 	char *fontname;
 	freetype2_fontdata *faceid = NULL;
 

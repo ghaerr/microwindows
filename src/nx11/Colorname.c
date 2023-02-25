@@ -83,7 +83,6 @@ XAllocNamedColor(Display * dpy, Colormap cmap, _Xconst char *colorname,
 	GR_COLOR c;
 	int r = 0, g = 0, b = 0;
 
-	/* first look up color in rgb.txt color database */
 	if (!strncmp(colorname, "rgb:", 4)) {
 		sscanf(&colorname[4], "%x/%x/%x", &r, &g, &b);
 	} else {

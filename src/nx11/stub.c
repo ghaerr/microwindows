@@ -101,7 +101,7 @@ int _XFlush() { DPRINTF("_XFlush called\n"); return 0; }
 int _XFlushGCCache() { DPRINTF("_XFlushGCCache called\n"); return 0; } 
 void XFreeFontSet(int i, int j) { DPRINTF("XFreeFontSet called\n"); } 
 int _XGetBitsPerPixel() { DPRINTF("_XGetBitsPerPixel called\n"); return 0; } 
-int XGetGCValues(void* d, int gc, unsigned long vm, void* vr) { DPRINTF("XGetGCVAlues called\n"); return 0; }
+//int XGetGCValues(void* d, int gc, unsigned long vm, void* vr) { DPRINTF("XGetGCVAlues called\n"); return 0; }
 int XGetErrorDatabaseText(void* i, char* j, char* k, char* l, char* m, int n) { DPRINTF("XGetErrorDatabaseText called\n"); return 0; } 
 int XGetErrorText(void* i, int j, char* k, int l) { DPRINTF("XGetErrorText called\n"); return 0; } 
 int _XGetScanlinePad() { DPRINTF("_XGetScanlinePad called\n"); return 0; } 
@@ -133,7 +133,7 @@ int XSetCloseDownMode() { DPRINTF("XSetCloseDownMode called\n"); return 0; }
 /* int XSetErrorHandler() { DPRINTF("XSetErrorHandler called\n"); return 0; }  */
 int XSetFillRule() { DPRINTF("XSetFillRule called\n"); return 0; } 
 int _XSetLastRequestRead() { DPRINTF("_XSetLastRequestRead called\n"); return 0; } 
-int XSetLocaleModifiers(char* i) { DPRINTF("XSetLocaleModifiers called\n"); return 0; }
+//int XSetLocaleModifiers(char* i) { DPRINTF("XSetLocaleModifiers called\n"); return 0; }
 
 int XSetStandardProperties() { DPRINTF("XSetStandardProperties called\n"); return 0; } 
 //int XSetNormalHints() { DPRINTF("XSetNormalHints called\n"); return 0; }

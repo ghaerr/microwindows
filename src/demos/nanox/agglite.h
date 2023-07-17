@@ -19,6 +19,7 @@
 #ifndef AGG_INCLUDED
 #define AGG_INCLUDED
 
+#include <stdint.h>
 #include <string.h>
 
 namespace agg
@@ -1240,18 +1241,88 @@ namespace agg
                            const unsigned char* covers, 
                            const rgba8& c)
         {
-            unsigned char* p = ptr + (x << 2);
+            uint32_t* p = (uint32_t *)(ptr + (x << 2));
             do
             {
-                int alpha = (*covers++) * c.a;
-                int r = p[0];
-                int g = p[1];
-                int b = p[2];
-                int a = p[3];
-                *p++ = (((c.r - r) * alpha) + (r << 16)) >> 16;
-                *p++ = (((c.g - g) * alpha) + (g << 16)) >> 16;
-                *p++ = (((c.b - b) * alpha) + (b << 16)) >> 16;
-                *p++ = (((c.a - a) * alpha) + (a << 16)) >> 16;
+                unsigned alpha = (*covers++) * c.a;
+                if (alpha == 255*255) {
+                    //*p = c.r | (c.g << 8) | (c.b << 16) | 0xff000000;
+                    *p = c.r | (c.g << 8) | (c.b << 16) | (c.a << 24);
+                } else if (alpha != 0) {
+                    unsigned dst = *p;
+                    //unsigned r =  dst & 0x000000ff;
+                    //unsigned g = (dst & 0x0000ff00) >> 8;
+                    //unsigned b = (dst & 0x00ff0000) >> 16;
+                    //unsigned a = (dst & 0xff000000) >> 24;
+                    uint8_t r = dst >> 0;
+                    uint8_t g = dst >> 8;
+                    uint8_t b = dst >> 16;
+                    uint8_t a = dst >> 24;
+
+                    //unsigned dalpha = (255*255 - alpha) / 255;
+                    //unsigned dalpha = 255 - c.a;
+                    //uint32_t dr = ((((r * dalpha) >> 8) & 255) + c.r) << 0;
+                    //uint32_t dg = ((((g * dalpha) >> 8) & 255) + c.g) << 8;
+                    //uint32_t db = ((((b * dalpha) >> 8) & 255) + c.b) << 16;
+                    //uint32_t da = ((((a * dalpha) >> 8) & 255) + c.a) << 24;
+
+                    //unsigned dalpha = 255*255 - alpha;
+                    //uint32_t dr = (((r * dalpha) + (c.r << 16)) >> 16) & 0x000000ff;
+                    //uint32_t dg = (((g * dalpha) + (c.g << 16)) >>  8) & 0x0000ff00;
+                    //uint32_t db = (((b * dalpha) + (c.b << 16)) >>  0) & 0x00ff0000;
+                    //uint32_t da = (((a * dalpha) + (c.a << 16)) <<  8) & 0xff000000;
+
+                    //works
+                    //unsigned alpha8 = alpha >> 8;
+                    //uint32_t dr = ((((c.r - r) * alpha8) + (r << 8)) >> 8) & 0x000000ff;
+                    //uint32_t dg = ((((c.g - g) * alpha8) + (g << 8)) >> 0) & 0x0000ff00;
+                    //uint32_t db = ((((c.b - b) * alpha8) + (b << 8)) << 8) & 0x00ff0000;
+                    //uint32_t da = ((((c.a - a) * alpha8) + (a << 8)) << 16) & 0xff000000;
+
+                    //works!
+                    //unsigned alpha8 = alpha >> 8;
+                    //uint32_t dr = (((((c.r - r) * alpha8) >> 8) + r) << 0) & 0x000000ff;
+                    //uint32_t dg = (((((c.g - g) * alpha8) >> 8) + g) << 8) & 0x0000ff00;
+                    //uint32_t db = (((((c.b - b) * alpha8) >> 8) + b) << 16) & 0x00ff0000;
+                    //uint32_t da = (((((c.a - a) * alpha8) >> 8) + a) << 24) & 0xff000000;
+
+                    //small and works!
+                    //unsigned alpha8 = alpha >> 8;
+                    //uint8_t dr = ((c.r - r) * alpha8 >> 8) + r;
+                    //uint8_t dg = ((c.g - g) * alpha8 >> 8) + g;
+                    //uint8_t db = ((c.b - b) * alpha8 >> 8) + b;
+                    //uint8_t da = ((c.a - a) * alpha8 >> 8) + a;
+
+                    //smallest and works!
+                    uint8_t dr = ((c.r - r) * alpha >> 16) + r;
+                    uint8_t dg = ((c.g - g) * alpha >> 16) + g;
+                    uint8_t db = ((c.b - b) * alpha >> 16) + b;
+                    uint8_t da = ((c.a - a) * alpha >> 16) + a;
+
+                    //unsigned alpha8 = alpha >> 8;
+                    //unsigned dalpha = 255 - alpha8;
+                    //uint8_t dr = (r * dalpha >> 8) + c.r;
+                    //uint8_t dg = (g * dalpha >> 8) + c.g;
+                    //uint8_t db = (b * dalpha >> 8) + c.b;
+                    //uint8_t da = (a * dalpha >> 8) + c.a;
+
+                    //unsigned alpha8 = (alpha >> 8) & 255;
+                    //unsigned dalpha = 255 - alpha8;
+                    //uint32_t dr = (((((r * dalpha) >> 8) & 255) + c.r) & 255) << 0;
+                    //uint32_t dg = (((((g * dalpha) >> 8) & 255) + c.g) & 255) << 8;
+                    //uint32_t db = (((((b * dalpha) >> 8) & 255) + c.b) & 255) << 16;
+                    //uint32_t da = (((((a * dalpha) >> 8) & 255) + c.a) & 255) << 24;
+
+                    //original works
+                    //uint32_t dr = ((((c.r - r) * alpha) + (r << 16)) >> 16) & 0x000000ff;
+                    //uint32_t dg = ((((c.g - g) * alpha) + (g << 16)) >>  8) & 0x0000ff00;
+                    //uint32_t db = ((((c.b - b) * alpha) + (b << 16)) >>  0) & 0x00ff0000;
+                    //uint32_t da = ((((c.a - a) * alpha) + (a << 16)) <<  8) & 0xff000000;
+
+                    *p = dr | (dg << 8) | (db << 16) | (da << 24);
+                    //*p = dr + dg + db + da;
+                }
+                p++;
             }
             while(--count);
         }

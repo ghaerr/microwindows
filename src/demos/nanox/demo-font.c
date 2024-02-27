@@ -96,7 +96,7 @@ textdata fontlist[] = {
 #endif
 #if HAVE_PCF_SUPPORT
 /* note: large PCF fonts require XCHAR2B, this is not figured out yet for these fonts*/
-	1, "lubI24.pcf",		MWTF_ASCII, "Microwindows",		-1,
+	//1, "lubI24.pcf",		MWTF_ASCII, "Microwindows",		-1,
 	1, "9x15.pcf.gz",		MWTF_ASCII, "Microwindows",		-1,
 	1, "helvB12.pcf.gz",	MWTF_ASCII, "Microwindows",		-1,
 	1, "symb18.pcf",		MWTF_ASCII, "Microwindows",		-1,

@@ -2,6 +2,7 @@
 # config - Microwindows and Nano-X configuration file
 #
 # Set target architecture using ARCH= from options in Arch.rules
+# Set drawing method: X11 or FRAMEBUFFER/MOUSE/KEYBOARD options
 # Set SCREEN/MOUSE/KEYBOARD drivers (typically X11 or FB)
 # Set various libraries to build or include and their locations
 #
@@ -14,15 +15,15 @@
 # Target platform and compilation options
 #
 ####################################################################
-ARCH                     = MACOSX
-SHAREDLIBS               = Y
-SHAREDLINK               = Y
+ARCH                     = LINUX-NATIVE
+SHAREDLIBS               = N
+SHAREDLINK               = N
 #EXTRAFLAGS               = -Wall -Wno-missing-prototypes
 DEBUG                    = N
 OPTIMIZE                 = Y
 #OPTIMIZE                 = -O1
 VERBOSE                  = N
-THREADSAFE               = Y
+THREADSAFE               = N
 PARALLEL                 = N
 
 ####################################################################
@@ -30,14 +31,13 @@ PARALLEL                 = N
 # Set SCREEN=X11 for X11, SCREEN=FB for framebuffer drawing
 # Screen size/depth for X11, FBE and non-dynamic framebuffer systems
 ####################################################################
-SCREEN                   = SDL
-MOUSE                    =
-KEYBOARD                 =
-EXTENGINELIBS            += -lSDL2
-SDL_ZOOM                 = 1.0	# must divide screen w/h also when not 1.0
+SCREEN                   = FIWIX
+MOUSE                    = SERMOUSE
+KEYBOARD                 = TTYKBD
 SCREEN_WIDTH             = 1024
 SCREEN_HEIGHT            = 768
-X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
+#X11LIBLOCATION           = /usr/X11/lib
+#X11HDRLOCATION           = /usr/X11/include
 
 ####################################################################
 #
@@ -72,13 +72,13 @@ INCVNC                   =
 # and also used to support running X11 apps through NXLIB on X11.
 # NANOWM links the window manager into the server.
 ####################################################################
-LINK_APP_INTO_SERVER     = N
+LINK_APP_INTO_SERVER     = Y
 NANOWM                   = Y
 
 ####################################################################
 # Shared memory support for Nano-X client/server protocol speedup
 ####################################################################
-HAVE_SHAREDMEM_SUPPORT   = N
+HAVE_SHAREDMEM_SUPPORT   = Y
 
 ####################################################################
 # File I/O support
@@ -127,10 +127,10 @@ PCF_FONT_DIR             = "fonts/pcf"
 ####################################################################
 # Truetype fonts - .ttf and .otf loadable fonts thru Freetype 2.x
 ####################################################################
-HAVE_FREETYPE_2_SUPPORT  = Y
+HAVE_FREETYPE_2_SUPPORT  = N
 HAVE_HARFBUZZ_SUPPORT    = N
-INCFT2LIB                = /usr/local/include
-LIBFT2LIB                = -lfreetype -lbz2
+INCFT2LIB                = /usr/include
+LIBFT2LIB                = -lfreetype
 #LIBFT2LIB                += -lharfbuzz
 FREETYPE_FONT_DIR        = "fonts/truetype"
 

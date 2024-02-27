@@ -137,6 +137,11 @@ ifeq ($(SCREEN), FB)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fb.o
 endif
 
+# fiwix framebuffer driver
+ifeq ($(SCREEN), FIWIX)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_fiwix.o
+endif
+
 #
 # Mouse driver set by MOUSE=
 #

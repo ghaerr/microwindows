@@ -22,7 +22,10 @@
 /*
  *  First try to set MW_CPU_xxx_ENDIAN automatically for those OSes that can do so.
  */
-#if LINUX && !__ECOS && !__MINGW32__
+#if __fiwix__
+#   define MW_CPU_BIG_ENDIAN	1
+#   define MW_CPU_LITTLE_ENDIAN 0
+#elif LINUX && !__ECOS && !__MINGW32__
 #include <endian.h>
 #elif RTEMS | MACOS | defined(__FreeBSD__)
 #include <machine/endian.h>
@@ -87,7 +90,7 @@
 /* Both LINUX and __ECOS are checked, because when compiling for the     */
 /* synthetic target of eCos, both LINUX and __ECOS are defined           */
 /* ********************************************************************* */
-#elif LINUX && !__ECOS && !__MINGW32__
+#elif LINUX && !__ECOS && !__MINGW32__ && !__fiwix__
 
 # if __BYTE_ORDER == __BIG_ENDIAN
 #  undef host_to_little_endian_16

@@ -35,6 +35,7 @@ LRESULT CALLBACK FileOpenCtrlProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 static void fill_listbox(HWND hwnd,const char *path)
 {
+#ifndef __fiwix__
        struct dirent **namelist;
        int n;
        int i=0;
@@ -60,6 +61,7 @@ static void fill_listbox(HWND hwnd,const char *path)
            }
            free(namelist);
        }
+#endif
 }
 
 static int isDirectory(const char *path) {

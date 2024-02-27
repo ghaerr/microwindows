@@ -40,18 +40,19 @@
 #if _MINIX
 #define	MOUSE_PORT	"/dev/mouse"
 #define	MOUSE_TYPE	"ms"
-#else
-#if ELKS
+#elif ELKS
 #define	MOUSE_PORT	"/dev/ttys0"
+#define MOUSE_TYPE	"ps2"
+#elif __fiwix__
+#define MOUSE_PORT	"/dev/ttyS0"
+#define MOUSE_TYPE	"ms"
 #else
 /* default mouse tty port: /dev/psaux or /dev/ttyS1 */
+#define MOUSE_PORT	"/dev/ttyS1"
+//#define MOUSE_PORT	"/dev/psaux"
 //#define MOUSE_PORT	"/dev/mouse"
-#define MOUSE_PORT	"/dev/psaux"
-//#define MOUSE_PORT	"/dev/ttyS1"
-#endif
 /* default mouse type: ms, pc, logi, or ps2 */
-#define MOUSE_TYPE	"ps2"
-/*#define MOUSE_TYPE	"pc"*/
+#define MOUSE_TYPE	"ms"
 #endif
 
 #define MAX_BYTES	128		/* number of bytes for buffer */

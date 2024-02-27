@@ -80,7 +80,11 @@ TTY_Open(KBDDEVICE *pkd)
 
 	new = old;
 	/* If you uncomment ISIG and BRKINT below, then ^C will be ignored.*/
+#if __fiwix__
+	new.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
 	new.c_lflag &= ~(ECHO | ICANON | IEXTEN /*| ISIG*/);
+#else
+#endif
 	new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON /*| BRKINT*/);
 	new.c_cflag &= ~(CSIZE | PARENB);
 	new.c_cflag |= CS8;
@@ -149,6 +153,10 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	}
 	
 	mwkey = buf[0];
+#if __fiwix__
+    if (mwkey == 03)
+        mwkey = MWKEY_QUIT;
+#endif
 #if TRANSLATE_ESCAPE_SEQUENCES
 	if (mwkey == 27) {
 		mwkey = 0;

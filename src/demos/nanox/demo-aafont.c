@@ -49,7 +49,7 @@ textdata fontlist[] = {
 #endif
 #endif
 #if HAVE_PCF_SUPPORT
-	1, "lubI24.pcf",		MWTF_UTF8,	basetext,			22,
+	//1, "lubI24.pcf",		MWTF_UTF8,	basetext,			22,
 	1, "9x15.pcf.gz",		MWTF_UTF8,	basetext,			22,
 	1, "helvB12.pcf.gz",	MWTF_UTF8,	basetext,			22,
 	1, "symb18.pcf",		MWTF_UTF8,	basetext,			22,

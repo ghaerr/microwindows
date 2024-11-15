@@ -53,6 +53,7 @@ SOFTWARE.
 
 /* You must include <X11/Xlib.h> before including this file */
 #include "Xlib.h"
+#include "keysym.h"
 
 /* 
  * Bitmask returned by XParseGeometry().  Each bit tells if the corresponding

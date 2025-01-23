@@ -28,8 +28,8 @@
 #endif
 
 /* externally set override values from nanox/srvmain.c*/
-MWCOORD	nxres;			/* requested server x res*/
-MWCOORD	nyres;			/* requested server y res*/
+extern MWCOORD	nxres;			/* requested server x res*/
+extern MWCOORD	nyres;			/* requested server y res*/
 
 /* specific x11 driver entry points*/
 static PSD X11_open(PSD psd);

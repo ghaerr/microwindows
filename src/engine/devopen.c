@@ -45,6 +45,9 @@ MWTILE     gr_tile;
 
 MWPOINT    gr_ts_offset;
 
+MWCOORD    nxres;           /* requested server x resolution*/
+MWCOORD    nyres;           /* requested server y resolution*/
+
 /**
  * Open low level graphics driver and optionally clear screen.
  *

@@ -70,8 +70,6 @@ char		*curfunc;		/* the name of the current server func*/
 GR_BOOL		screensaver_active;	/* time before screensaver activates */
 GR_SELECTIONOWNER selection_owner;	/* the selection owner and typelist */
 int		autoportrait = FALSE;	/* auto portrait mode switching*/
-MWCOORD		nxres;			/* requested server x resolution*/
-MWCOORD		nyres;			/* requested server y resolution*/
 GR_GRABBED_KEY  *list_grabbed_keys = NULL;     /* list of all grabbed keys */
 
 #if MW_FEATURE_TIMERS

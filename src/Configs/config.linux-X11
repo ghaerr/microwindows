@@ -59,7 +59,7 @@ NANOX                    = Y
 NUKLEARUI                = Y
 NX11                     = Y
 ENGINE                   = N
-TINYWIDGETS              = Y
+TINYWIDGETS              = N
 
 ####################################################################
 #

@@ -8,29 +8,29 @@
  *   Written by Ben Pfaff <pfaffben@debian.org>.
  *	 BOGL is licensed under the terms of the GNU General Public License
  *
- * In this driver, psd->linelen is line byte length, not line pixel length
+ * In this driver, psd->pitch is line byte length, not line pixel length
  *
  * This file is meant to compile under Linux, ELKS, and MSDOS
  * without changes.  Please try to keep it that way.
  * 
  */
 /*#define NDEBUG*/
-#if _MINIX
-#include <ibm/portio.h>
-#endif
+#include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "device.h"
 #include "vgaplan4.h"
 #include "fb.h"
+#include "genmem.h"
 
 #if MSDOS | ELKS | RTEMS
-/* assumptions for speed: NOTE: psd is ignored in these routines*/
+/* assumptions for speed: NOTE: psd->addr is ignored in these routines*/
 #define SCREENBASE 		EGA_BASE
 #define BYTESPERLINE		80
 #else
 /* run on top of framebuffer*/
 #define SCREENBASE 		((char *)psd->addr)
-#define BYTESPERLINE		(psd->linelen)
+#define BYTESPERLINE		(psd->pitch)
 #endif
 
 /* Values for the data rotate register to implement drawing modes. */
@@ -46,47 +46,20 @@ static unsigned char mask[8] = {
 	0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
 
-#if HAVEIOPERM
-static int
-fbvga_setiopermissions(PSD psd)
-{
-	/* allow direct access to vga controller space*/
-	return ioperm(0x3c0, 0x20, 1);
-}
-#endif
-
 /* Init VGA controller, calc linelen and mmap size, return 0 on fail*/
 int
 ega_init(PSD psd)
 {
-#if HAVEIOPERM
-	if(fbvga_setiopermissions(psd) == -1) {
-		EPRINTF("Can't set i/o permissions: %m\n");
-		return 0;
-	}
-
-	/* 
-	 * Fill in entry point for applications to call to
-	 * regain i/o permissions.  This is required after 
-	 * calling pthreads_create because pthreads resets 
-	 * the i/o permissions after thread creation.
-	 * Note that this requires that systems using pthreads
-	 * and VGA16 framebuffer to run setuid root :-(
-	 */
-	psd->SetIOPermissions = fbvga_setiopermissions;
-#endif
-
-#if MSDOS | ELKS | RTEMS
+	psd->pitch = BYTESPERLINE;
+#if ELKS | MSDOS | RTEMS | _MINIX
+	psd->addr = 0;			/* addr, size unused in driver */
+	psd->size = 0;
+#else
 	/* fill in screendevice struct if not framebuffer driver*/
 	psd->addr = SCREENBASE;		/* long ptr -> short on 16bit sys*/
-	psd->linelen = BYTESPERLINE;
-#endif
-#if _MINIX
-	psd->addr = 0;			/* long ptr -> short on 16bit sys*/
-	psd->linelen = 80;
+	psd->size = 0x10000;
 #endif
 	/* framebuffer mmap size*/
-	psd->size = 0x10000;
 	/* Set up some default values for the VGA Graphics Registers. */
 	set_enable_sr (0x0f);
 	set_op (0);
@@ -96,7 +69,7 @@ ega_init(PSD psd)
 
 /* draw a pixel at x,y of color c*/
 void
-ega_drawpixel(PSD psd,unsigned int x, unsigned int y, MWPIXELVAL c)
+ega_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
@@ -104,7 +77,7 @@ ega_drawpixel(PSD psd,unsigned int x, unsigned int y, MWPIXELVAL c)
   
 	DRAWON;
 	set_op(mode_table[gr_mode]);
-	set_color (c);
+	set_color ((int)c);
 	select_and_set_mask (mask[x&7]);
 	RMW_FP ((FARADDR)SCREENBASE + (x>>3) + y * BYTESPERLINE);
 	DRAWOFF;
@@ -112,7 +85,7 @@ ega_drawpixel(PSD psd,unsigned int x, unsigned int y, MWPIXELVAL c)
 
 /* Return 4-bit pixel value at x,y*/
 MWPIXELVAL
-ega_readpixel(PSD psd,unsigned int x,unsigned int y)
+ega_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
 	FARADDR		src;
 	int		plane;
@@ -122,11 +95,7 @@ ega_readpixel(PSD psd,unsigned int x,unsigned int y)
 	assert (y >= 0 && y < psd->yres);
   
 	DRAWON;
-#if _MINIX
-	src = (unsigned char *)(SCREENBASE + (x>>3) + y * BYTESPERLINE);
-#else
-	src = SCREENBASE + (x>>3) + y * BYTESPERLINE;
-#endif
+	src = (unsigned char FAR *)(SCREENBASE + (x>>3) + y * BYTESPERLINE);
 	for(plane=0; plane<4; ++plane) {
 		set_read_plane(plane);
 		if(GETBYTE_FP(src) & mask[x&7])
@@ -138,8 +107,7 @@ ega_readpixel(PSD psd,unsigned int x,unsigned int y)
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 void
-ega_drawhorzline(PSD psd, unsigned int x1, unsigned int x2, unsigned int y,
-	MWPIXELVAL c)
+ega_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	FARADDR dst, last;
 
@@ -158,11 +126,7 @@ ega_drawhorzline(PSD psd, unsigned int x1, unsigned int x2, unsigned int y,
 	* method when not drawing MWROP_COPY.
 	*/
 	if(gr_mode == MWROP_COPY) {
-#if _MINIX
-		dst = (unsigned char *)(SCREENBASE + (x1>>3) + y*BYTESPERLINE);
-#else
-		dst = SCREENBASE + (x1>>3) + y * BYTESPERLINE;
-#endif
+		dst = (unsigned char FAR *)(SCREENBASE + (x1>>3) + y*BYTESPERLINE);
 		if ((x1>>3) == (x2>>3)) {
 			select_and_set_mask ((0xff >> (x1 & 7)) & (0xff << (7 - (x2 & 7))));
 			RMW_FP (dst);
@@ -171,11 +135,7 @@ ega_drawhorzline(PSD psd, unsigned int x1, unsigned int x2, unsigned int y,
 			RMW_FP (dst++);
 
 			set_mask (0xff);
-#if _MINIX
-			last = (unsigned char *)(SCREENBASE + (x2>>3) + y * BYTESPERLINE);
-#else
-			last = SCREENBASE + (x2>>3) + y * BYTESPERLINE;
-#endif
+			last = (unsigned char FAR *)(SCREENBASE + (x2>>3) + y * BYTESPERLINE);
 			while (dst < last)
 				PUTBYTE_FP(dst++, 1);
 
@@ -195,8 +155,7 @@ ega_drawhorzline(PSD psd, unsigned int x1, unsigned int x2, unsigned int y,
 
 /* Draw a vertical line from x,y1 to x,y2 including final point*/
 void
-ega_drawvertline(PSD psd,unsigned int x, unsigned int y1, unsigned int y2,
-	MWPIXELVAL c)
+ega_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	FARADDR dst, last;
 
@@ -208,15 +167,10 @@ ega_drawvertline(PSD psd,unsigned int x, unsigned int y1, unsigned int y2,
 
 	DRAWON;
 	set_op(mode_table[gr_mode]);
-	set_color (c);
+	set_color ((int)c);
 	select_and_set_mask (mask[x&7]);
-#if _MINIX
-	dst = (unsigned char *)(SCREENBASE + (x>>3) + y1 * BYTESPERLINE);
-	last = (unsigned char *)(SCREENBASE + (x>>3) + y2 * BYTESPERLINE);
-#else
-	dst = SCREENBASE + (x>>3) + y1 * BYTESPERLINE;
-	last = SCREENBASE + (x>>3) + y2 * BYTESPERLINE;
-#endif
+	dst = (unsigned char FAR *)(SCREENBASE + (x>>3) + y1 * BYTESPERLINE);
+	last = (unsigned char FAR *)(SCREENBASE + (x>>3) + y2 * BYTESPERLINE);
 	while (dst <= last) {
 		RMW_FP (dst);
 		dst += BYTESPERLINE;
@@ -224,14 +178,28 @@ ega_drawvertline(PSD psd,unsigned int x, unsigned int y1, unsigned int y2,
 	DRAWOFF;
 }
 
-#if FBVGA
-SUBDRIVER vgaplan4 = {
-	(void *)ega_init,
-	(void *)ega_drawpixel,
-	(void *)ega_readpixel,
-	(void *)ega_drawhorzline,
-	(void *)ega_drawvertline,
-	(void *)gen_fillrect,
-	(void *)ega_blit
+SUBDRIVER vgaplan4_none = {
+	ega_drawpixel,
+	ega_readpixel,
+	ega_drawhorzline,
+	ega_drawvertline,
+	gen_fillrect,
+	ega_blit,
+	NULL,       /* FrameBlit*/
+	NULL,       /* FrameStretchBlit*/
+	0, //linear4_convblit_copy_mask_mono_byte_msb,
+	NULL,       /* BlitCopyMaskMonoByteLSB*/
+	NULL,       /* BlitCopyMaskMonoWordMSB*/
+	NULL,       /* BlitBlendMaskAlphaByte*/
+	NULL,       /* BlitCopyRGBA8888*/
+	NULL,       /* BlitSrcOverRGBA8888*/
+	NULL        /* BlitCopyRGB888*/
+
 };
-#endif /* FBVGA*/
+
+PSUBDRIVER vgaplan4[4] = {
+	&vgaplan4_none,
+#if MW_FEATURE_PORTRAIT
+	NULL, NULL, NULL
+#endif
+};

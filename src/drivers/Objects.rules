@@ -71,6 +71,20 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/kbd_allegro5.o
 endif
 
+# ELKS
+ifeq ($(SCREEN), ELKS)
+MW_CORE_OBJS = \
+	$(MW_DIR_OBJ)/drivers/scr_vga.o    \
+	$(MW_DIR_OBJ)/drivers/vgaplan4.o    \
+	$(MW_DIR_OBJ)/drivers/memplan4.o    \
+	$(MW_DIR_OBJ)/elksdrivers/mou_ser.o    \
+	$(MW_DIR_OBJ)/elksdrivers/kbd_tty.o    \
+	$(MW_DIR_OBJ)/drivers/genfont.o    \
+	$(MW_DIR_OBJ)/drivers/osdep.o    \
+	$(MW_DIR_OBJ)/drivers/fb.o          \
+	$(MW_DIR_OBJ)/drivers/elksutilasm.o
+endif
+
 # Framebuffer emulator
 ifeq ($(SCREEN), FBE)
 MW_CORE_OBJS += \

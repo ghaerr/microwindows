@@ -7,13 +7,14 @@
  * 
  * 4bpp colors are stored in linear 4pp format in memory dc's
  *
- * 	In this driver, psd->linelen is line byte length, not line pixel length
+ * 	In this driver, psd->pitch is line byte length, not line pixel length
  */
 /*#define NDEBUG*/
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "device.h"
+#include "genmem.h"
 #include "vgaplan4.h"
 #include "fb.h"
 
@@ -26,7 +27,7 @@
 #else
 /* run on top of framebuffer*/
 #define SCREENBASE(psd) 	((char *)((psd)->addr))
-#define BYTESPERLINE(psd)	((psd)->linelen)
+#define BYTESPERLINE(psd)	((psd)->pitch)
 #endif
 
 /* extern data*/
@@ -37,15 +38,17 @@ static unsigned char mask[8] = {
 	0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
 
+#if 0
 /* Calc linelen and mmap size, return 0 on fail*/
 static int
-mempl4_init(PSD psd)
+mempl4_init(PSD psd)    //FIXME unused
 {
 	if (!psd->size)
-		psd->size = psd->yres * psd->linelen;
+		psd->size = psd->yres * psd->pitch;
 	/* linelen in bytes for bpp 1, 2, 4, 8 so no change*/
 	return 1;
 }
+#endif
 
 /* Set pixel at x, y, to pixelval c*/
 static void
@@ -58,7 +61,7 @@ mempl4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 
-	addr += (x>>1) + y * psd->linelen;
+	addr += (x>>1) + y * psd->pitch;
 	if(gr_mode == MWROP_XOR)
 		*addr ^= c << ((1-(x&1))<<2);
 	else
@@ -75,7 +78,7 @@ mempl4_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
 
-	return (addr[(x>>1) + y * psd->linelen] >> ((1-(x&1))<<2) ) & 0x0f;
+	return (addr[(x>>1) + y * psd->pitch] >> ((1-(x&1))<<2) ) & 0x0f;
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
@@ -91,7 +94,7 @@ mempl4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (y >= 0 && y < psd->yres);
 	assert (c < psd->ncolors);
 
-	addr += (x1>>1) + y * psd->linelen;
+	addr += (x1>>1) + y * psd->pitch;
 	if(gr_mode == MWROP_XOR) {
 		while(x1 <= x2) {
 			*addr ^= c << ((1-(x1&1))<<2);
@@ -112,7 +115,7 @@ static void
 mempl4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	ADDR8	addr = psd->addr;
-	int	linelen = psd->linelen;
+	int	pitch = psd->pitch;
 
 	assert (addr != 0);
 	assert (x >= 0 && x < psd->xres);
@@ -121,16 +124,16 @@ mempl4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	assert (y2 >= y1);
 	assert (c < psd->ncolors);
 
-	addr += (x>>1) + y1 * linelen;
+	addr += (x>>1) + y1 * pitch;
 	if(gr_mode == MWROP_XOR)
 		while(y1++ <= y2) {
 			*addr ^= c << ((1-(x&1))<<2);
-			addr += linelen;
+			addr += pitch;
 		}
 	else
 		while(y1++ <= y2) {
 			*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
-			addr += linelen;
+			addr += pitch;
 		}
 }
 
@@ -143,8 +146,8 @@ mempl4_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD
 	ADDR8	dst;
 	ADDR8	src;
 	int	i;
-	int	dlinelen = dstpsd->linelen;
-	int	slinelen = srcpsd->linelen;
+	int	dpitch = dstpsd->pitch;
+	int	spitch = srcpsd->pitch;
 
 	assert (dstpsd->addr != 0);
 	assert (dstx >= 0 && dstx < dstpsd->xres);
@@ -159,8 +162,8 @@ mempl4_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
 
-	dst = (char *)dstpsd->addr + (dstx>>1) + dsty * dlinelen;
-	src = (char *)srcpsd->addr + (srcx>>1) + srcy * slinelen;
+	dst = dstpsd->addr + (dstx>>1) + dsty * dpitch;
+	src = srcpsd->addr + (srcx>>1) + srcy * spitch;
 	while(--h >= 0) {
 		ADDR8	d = dst;
 		ADDR8	s = src;
@@ -174,8 +177,8 @@ mempl4_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD
 			if((++sx & 1) == 0)
 				++s;
 		}
-		dst += dlinelen;
-		src += slinelen;
+		dst += dpitch;
+		src += spitch;
 	}
 }
 
@@ -248,7 +251,7 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	FARADDR	dst;
 	ADDR8	src;
 	int	i;
-	int	slinelen = srcpsd->linelen;
+	int	spitch = srcpsd->pitch;
 	int	color, lastcolor = -1;
 
 	assert (dstx >= 0 && dstx < dstpsd->xres);
@@ -266,7 +269,7 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	DRAWON;
 	set_op(0);		/* modetable[MWROP_COPY]*/
 	dst = SCREENBASE(dstpsd) + (dstx>>3) + dsty * BYTESPERLINE(dstpsd);
-	src = (char *)srcpsd->addr + (srcx>>1) + srcy * slinelen;
+	src = srcpsd->addr + (srcx>>1) + srcy * spitch;
 	while(--h >= 0) {
 		FARADDR d = dst;
 		ADDR8	s = src;
@@ -285,7 +288,7 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 				++s;
 		}
 		dst += BYTESPERLINE(dstpsd);
-		src += slinelen;
+		src += spitch;
 	}
 	DRAWOFF;
 }
@@ -302,7 +305,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	FARADDR s, src;
 	MWCOORD sx, dx;
 	unsigned char color;
-	int dlinelen = dstpsd->linelen;
+	int dpitch = dstpsd->pitch;
 
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -318,7 +321,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 	DRAWON;
 	src = SCREENBASE(srcpsd) + (srcx >> 3) + srcy * BYTESPERLINE(srcpsd);
-	dst = (char *)dstpsd->addr + (dstx >> 1) + dsty * dlinelen;
+	dst = dstpsd->addr + (dstx >> 1) + dsty * dpitch;
 
 	for(y = 0; y < h; y++) {
 		s = src;
@@ -339,7 +342,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 				color = 0;
 			}
 		}
-		dst += dlinelen;
+		dst += dpitch;
 		src += BYTESPERLINE(srcpsd);
 	}
 	DRAWOFF;
@@ -347,7 +350,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 void
 ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
-	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, long op)
+	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	MWBOOL	srcvga, dstvga;
 
@@ -372,14 +375,29 @@ ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	}
 }
 
-SUBDRIVER memplan4 = {
-	mempl4_init,
+static SUBDRIVER memplan4_none = {
 	mempl4_drawpixel,
 	mempl4_readpixel,
 	mempl4_drawhorzline,
 	mempl4_drawvertline,
 	gen_fillrect,
-	ega_blit
+	ega_blit,
+	NULL,       /* FrameBlit*/
+	NULL,       /* FrameStretchBlit*/
+	0, //linear4_convblit_copy_mask_mono_byte_msb,
+	NULL,       /* BlitCopyMaskMonoByteLSB*/
+	NULL,       /* BlitCopyMaskMonoWordMSB*/
+	NULL,       /* BlitBlendMaskAlphaByte*/
+	NULL,       /* BlitCopyRGBA8888*/
+	NULL,       /* BlitSrcOverRGBA8888*/
+	NULL        /* BlitCopyRGB888*/
+};
+
+PSUBDRIVER memplan4[4] = {
+	&memplan4_none,
+#if MW_FEATURE_PORTRAIT
+	NULL, NULL, NULL
+#endif
 };
 
 #endif /* HAVEBLIT*/

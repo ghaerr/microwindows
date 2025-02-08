@@ -1,0 +1,53 @@
+BASEDIR=$(TOPDIR)/elkscmd
+
+include $(BASEDIR)/Makefile-rules
+
+###############################################################################
+
+CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1 -I../../include
+CFLAGS += -DCONFIG_HW_VGA=1
+LDFLAGS += -L../../lib
+#LDFLAGS += -maout-heap=0x2000  #FIXME for LINK_APP_INTO_SERVER =y only
+LDLIBS += -lnano-X
+BIN = ../../bin/
+NXLIB = ../../lib/libnano-X.a
+
+###############################################################################
+
+PROGS   = \
+    $(BIN)nxclock   \
+    $(BIN)nxtetris  \
+    $(BIN)nxworld   \
+    $(BIN)npanel    \
+    $(BIN)nxlandmine\
+
+notyet = \
+    $(BIN)nxterm    \
+
+all: $(PROGS)
+	cp -p $(PROGS) $(TOPDIR)/elkscmd/rootfs_template/root
+
+$(BIN)nxclock: nxclock.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxtetris: ntetris.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxterm: nxterm.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxworld: world.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	cp -p ../../images/demos/nanox/world.map $(BIN)nxworld.map
+
+$(BIN)nxlandmine: landmine.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxdemo: nxdemo.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)npanel: npanel.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+clean:
+	$(RM) $(PROGS) *.o $(BIN)nxworld.map

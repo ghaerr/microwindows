@@ -21,13 +21,13 @@
 /* find a conversion blit based on data format and blit op*/
 /* used by GdBitmap, GdArea and GdDrawImage*/
 MWBLITFUNC
-GdFindConvBlit(PSD psd, int data_format, int op)
+GdFindConvBlit(PSD psd, MWIMGDATFMT data_format, int op)
 {
 	MWBLITFUNC convblit = NULL;
 
 	/*DPRINTF("GdFindConvBlit format %x, op %d\n", data_format, op);*/
 
-#if SWIEROS
+#if SWIEROS | !MW_FEATURE_IMAGES
 	convblit = psd->BlitCopyMaskMonoWordMSB;	/* conv mono word MSBFirst*/
 #else
 	/* determine which blit to use*/
@@ -126,7 +126,7 @@ BlitFallback(PSD psd, PMWBLITPARMS gc)
 /* find a framebuffer blit based on source data format and blit op*/
 /* used by GdBlit*/
 static MWBLITFUNC
-GdFindFrameBlit(PSD psd, int src_data_format, int op)
+GdFindFrameBlit(PSD psd, MWIMGDATFMT src_data_format, int op)
 {
 	/*DPRINTF("GdFindFrameBlit format %x, op %d\n", src_data_format, op);*/
 

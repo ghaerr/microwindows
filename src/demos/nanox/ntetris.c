@@ -86,6 +86,13 @@
 #include "nxcolors.h"
 #include "ntetris.h"
 
+#if ELKS
+#define srandom     srand
+#define random      rand
+#endif
+
+static int delay = 100;
+
 void *my_malloc(size_t size)
 {
 	void *ret;
@@ -311,7 +318,7 @@ void draw_anticlockwise_button(nstate *state)
 	GrFillRect(state->anticlockwise_button, state->buttongcb, 0, 0,
 		ANTICLOCKWISE_BUTTON_WIDTH, ANTICLOCKWISE_BUTTON_HEIGHT);
 	GrText(state->anticlockwise_button, state->buttongcf, TEXT_X_POSITION,
-					TEXT_Y_POSITION, "   /", 4, 0);
+					TEXT_Y_POSITION, (GR_CHAR *)"d  \\", 4, 0);
 }
 
 void draw_clockwise_button(nstate *state)
@@ -320,7 +327,7 @@ void draw_clockwise_button(nstate *state)
 	GrFillRect(state->clockwise_button, state->buttongcb, 0, 0,
 			CLOCKWISE_BUTTON_WIDTH, CLOCKWISE_BUTTON_HEIGHT);
 	GrText(state->clockwise_button, state->buttongcf, TEXT_X_POSITION,
-					TEXT_Y_POSITION, "   \\", 4, 0);
+					TEXT_Y_POSITION, (GR_CHAR *)"f  /", 4, 0);
 }
 
 void draw_left_button(nstate *state)
@@ -329,7 +336,7 @@ void draw_left_button(nstate *state)
 	GrFillRect(state->left_button, state->buttongcb, 0, 0,
 			LEFT_BUTTON_WIDTH, LEFT_BUTTON_HEIGHT);
 	GrText(state->left_button, state->buttongcf, TEXT_X_POSITION,
-					TEXT_Y_POSITION, "  <", 3, 0);
+					TEXT_Y_POSITION, (GR_CHAR *)"j  <", 4, 0);
 }
 
 void draw_right_button(nstate *state)
@@ -338,7 +345,7 @@ void draw_right_button(nstate *state)
 	GrFillRect(state->right_button, state->buttongcb, 0, 0,
 			RIGHT_BUTTON_WIDTH, RIGHT_BUTTON_HEIGHT);
 	GrText(state->right_button, state->buttongcf, TEXT_X_POSITION,
-					TEXT_Y_POSITION, "   >", 4, 0);
+					TEXT_Y_POSITION, (GR_CHAR *)"k  >", 4, 0);
 }
 
 void draw_drop_button(nstate *state)
@@ -347,7 +354,7 @@ void draw_drop_button(nstate *state)
 	GrFillRect(state->drop_button, state->buttongcb, 0, 0,
 			DROP_BUTTON_WIDTH, DROP_BUTTON_HEIGHT);
 	GrText(state->drop_button, state->buttongcf, TEXT_X_POSITION,
-					TEXT_Y_POSITION, "    Drop", 8, 0);
+					TEXT_Y_POSITION, (GR_CHAR *)"sp  Drop", 8, 0);
 }
 
 void draw_pause_continue_button(nstate *state)
@@ -423,7 +430,7 @@ void block_reached_bottom(nstate *state)
 			}
 		}
 		if(nr) continue;
-		GdDelay(DELETE_LINE_DELAY);
+		GrDelay(DELETE_LINE_DELAY);
 		delete_line(state, y);
 		state->score += SCORE_INCREMENT;
 		if((LEVELS > (state->level + 1)) && (((state->level + 1) *
@@ -511,7 +518,7 @@ static int drop_block_1(nstate *state)
 
 void drop_block(nstate *state)
 {
-	while(!drop_block_1(state)) GdDelay(DROP_BLOCK_DELAY);
+	while(!drop_block_1(state)) GrDelay(DROP_BLOCK_DELAY);
 }
 
 void handle_exposure_event(nstate *state)
@@ -615,6 +622,14 @@ void handle_keyboard_event(nstate *state)
 		case MWKEY_APP1:
 			state->state = STATE_NEWGAME;
 			return;
+		case '+':
+		case '=':
+			delay -= 10;
+			if (delay < 0) delay = 0;
+			return;
+		case '-':
+			delay += 10;
+			return;
 	}
 
 	if(state->state == STATE_STOPPED) return;
@@ -627,21 +642,25 @@ void handle_keyboard_event(nstate *state)
 			state->state = STATE_PAUSED;
 			break;
 		case 'j':
+		case 'h':
 		case 'J':
         	case MWKEY_LEFT:
 			move_block(state, 0);
 			break;
 		case 'k':
+		case 'l':
 		case 'K':
         	case MWKEY_RIGHT:
 			move_block(state, 1);
 			break;
 		case 'd':
+		case 's':
 		case 'D':
         	case MWKEY_UP:
 			rotate_block(state, 0);
 			break;
 		case 'f':
+		case 'g':
 		case 'F':
         	case MWKEY_DOWN:
 			rotate_block(state, 1);
@@ -718,25 +737,32 @@ void new_game(nstate *state)
 
 void init_game(nstate *state)
 {
-	GR_WM_PROPERTIES props;
-	GR_COORD x = MAIN_WINDOW_X_POSITION;
+	GR_SCREEN_INFO si;
 
 	if(GrOpen() < 0) {
 		GrError("Couldn't connect to Nano-X server\n");
 		exit(1);
 	}
+	GrGetScreenInfo(&si);
 
-	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, x,
-					MAIN_WINDOW_Y_POSITION,
+	state->main_window = GrNewWindowEx(
+					GR_WM_PROPS_BORDER|GR_WM_PROPS_CAPTION|GR_WM_PROPS_CLOSEBOX,
+					"nxtetris",
+					GR_ROOT_WINDOW_ID,
+					(si.cols - MAIN_WINDOW_WIDTH) / 2,
+					(si.rows - MAIN_WINDOW_HEIGHT) / 2,
 					MAIN_WINDOW_WIDTH,
-					MAIN_WINDOW_HEIGHT, 0,
-					MAIN_WINDOW_BACKGROUND_COLOUR, 0);
+					MAIN_WINDOW_HEIGHT,
+					MAIN_WINDOW_BACKGROUND_COLOUR);
+#if 0
 	/* set title */
+	GR_WM_PROPERTIES props;
 	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
 	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION |
 			GR_WM_PROPS_CLOSEBOX;
 	props.title = "Nano-Tetris";
 	GrSetWMProperties(state->main_window, &props);
+#endif
 	GrSelectEvents(state->main_window, GR_EVENT_MASK_EXPOSURE |
 					GR_EVENT_MASK_CLOSE_REQ |
 					GR_EVENT_MASK_KEY_DOWN |
@@ -854,6 +880,7 @@ void init_game(nstate *state)
 	state->wellgc = GrNewGC();
 
 	GrMapWindow(state->main_window);
+	GrSetFocus(state->main_window);
 
 	state->state = STATE_STOPPED;
 	state->score = 0;
@@ -870,7 +897,7 @@ void init_game(nstate *state)
 void calculate_timeout(nstate *state)
 {
 	struct timeval t;
-	long u;
+	unsigned long u;
 
 	gettimeofday(&t, NULL);
 	u = t.tv_usec + (delays[state->level] * 1000);
@@ -887,7 +914,7 @@ unsigned long timeout_delay(nstate *state)
 
 	if((t.tv_sec > state->timeout.tv_sec) ||
 			((t.tv_sec == state->timeout.tv_sec) &&
-			t.tv_usec >= state->timeout.tv_usec)) return 1;
+			t.tv_usec >= state->timeout.tv_usec)) return 1 + delay;
 
 	s = state->timeout.tv_sec - t.tv_sec;
 	m = ((state->timeout.tv_usec - t.tv_usec) / 1000);
@@ -898,8 +925,8 @@ unsigned long timeout_delay(nstate *state)
 		t.tv_sec, t.tv_usec, state->timeout.tv_sec,	
 		state->timeout.tv_usec, s, m, ret);
 */
-	if(ret <= 0) return 1;
-	else return ret;
+	if(ret <= 0) return 1 + delay;
+	else return ret + delay;
 }
 
 void do_update(nstate *state)
@@ -967,6 +994,7 @@ int main(int argc, char *argv[])
 
 	write_hiscore(state);
 
+	GrUnmapWindow(state->main_window);
 	GrClose();
 
 	return 0;

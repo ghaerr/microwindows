@@ -15,8 +15,6 @@
 
 static int	nextid = GR_ROOT_WINDOW_ID + 1;
 
-static int IsUnobscuredBySiblings(GR_WINDOW *wp);
- 
 /*
  * Return information about the screen for clients to use.
  */
@@ -392,6 +390,7 @@ DeliverUpdateMoveEventAndChildren(GR_WINDOW *wp)
 		DeliverUpdateMoveEventAndChildren(childwp);
 }
 
+#if !(SWIEROS | ELKS)
 static int
 IsUnobscuredBySiblings(GR_WINDOW *wp)
 {
@@ -410,6 +409,7 @@ IsUnobscuredBySiblings(GR_WINDOW *wp)
 	}
 	return 1;
 }
+#endif
 
 /*
  * Move the window to the specified position relative to its parent.
@@ -449,7 +449,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 	 * move algorithms not requiring unmap/map
 	 */
 
-#if 1 && !SWIEROS
+#if 1 && !(SWIEROS | ELKS)
 	/* perform screen blit if topmost and mapped - no flicker!*/
 	if (wp->mapped && IsUnobscuredBySiblings(wp)
 		/* temp don't blit in portrait mode, still buggy*/
@@ -576,7 +576,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		return;
 	}
 #endif
-#if 0
+#if ELKS
 	/* perform quick move and expose if topmost and mapped - no blit*/
 	if (wp->mapped && wp == wp->parent->children) {
 		int	oldx = wp->x;
@@ -1740,6 +1740,7 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
 	GR_SIZE bordersize, GR_COLOR background, GR_COLOR bordercolor)
 {
 	GR_WINDOW	*wp;	/* new window*/
+	static int nextx = 10, nexty = 10;
 
 	if (width <= 0 || height <= 0 || bordersize < 0) {
 		GsError(GR_ERROR_BAD_WINDOW_SIZE, 0);
@@ -1751,6 +1752,10 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		return NULL;
 	}
+	if (x < 0)
+		x = nextx, nextx += 100;
+	if (y < 0)
+		y = nexty, nexty += 100;
 
 	wp->id = nextid++;
 	wp->psd = rootwp->psd;
@@ -2645,7 +2650,6 @@ GrFillRect(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
-#if MW_FEATURE_SHAPES
 /*
  * Draw the boundary of an ellipse in the specified drawable with
  * the specified graphics context.  Integer only.
@@ -2690,6 +2694,7 @@ GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE rx,
 	SERVER_UNLOCK();
 }
 
+#if MW_FEATURE_SHAPES
 /*
  * Draw an arc, pie or ellipse in the specified drawable using
  * the specified graphics context.  Integer only.
@@ -2960,30 +2965,6 @@ GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 #endif /* MW_FEATURE_IMAGES */
 
 /*
- * Draw a rectangular area in the specified drawable using the specified
- * graphics context.  This differs from rectangle drawing in that the
- * color values for each pixel in the rectangle are specified.  
- * The color table is indexed row by row.
- */
-void
-GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
-	GR_SIZE height, void *pixels, int pixtype)
-{
-	GR_DRAWABLE	*dp;
-
-	SERVER_LOCK();
-
-	switch (GsPrepareDrawing(id, gc, &dp)) {
-	case GR_DRAW_TYPE_WINDOW:
-	case GR_DRAW_TYPE_PIXMAP:
-		GdArea(dp->psd, dp->x + x, dp->y + y, width, height, pixels, pixtype);
-		break;
-	}
-
-	SERVER_UNLOCK();
-}
-
-/*
  * Copy a rectangle from one drawable to another or the same
  */
 void
@@ -3078,6 +3059,30 @@ GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	SERVER_UNLOCK();
 }
 
+#if MW_FEATURE_AREAS
+/*
+ * Draw a rectangular area in the specified drawable using the specified
+ * graphics context.  This differs from rectangle drawing in that the
+ * color values for each pixel in the rectangle are specified.
+ * The color table is indexed row by row.
+ */
+void
+GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
+	GR_SIZE height, void *pixels, int pixtype)
+{
+	GR_DRAWABLE	*dp;
+
+	SERVER_LOCK();
+
+	switch (GsPrepareDrawing(id, gc, &dp)) {
+	case GR_DRAW_TYPE_WINDOW:
+	case GR_DRAW_TYPE_PIXMAP:
+		GdArea(dp->psd, dp->x + x, dp->y + y, width, height, pixels, pixtype);
+		break;
+	}
+
+	SERVER_UNLOCK();
+}
 
 /*
  * Read the color values from the specified rectangular area of the
@@ -3123,6 +3128,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,GR_SIZE height, GR_
 
 	SERVER_UNLOCK();
 }
+#endif
 
 /*
  * Draw a point in the specified drawable using the specified
@@ -3360,6 +3366,7 @@ GrFindColor(GR_COLOR c, GR_PIXELVAL *retpixel)
 	SERVER_UNLOCK();
 }
 
+#if !MW_FEATURE_TINY
 /* visible =0, no cursor change; =1, show; else hide*/
 void
 GrInjectPointerEvent(GR_COORD x, GR_COORD y, int button, int visible)
@@ -3392,6 +3399,7 @@ GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue, GR_KEYMOD modifiers,
 
 	SERVER_UNLOCK();
 }
+#endif
 
 /*
  * Set certain window properties, according to flags value
@@ -3613,6 +3621,7 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 }
 
 #if !SWIEROS
+#if MW_FEATURES_CLIENTDATA
 void
 GrSetSelectionOwner(GR_WINDOW_ID wid, const char *typelist)
 {
@@ -3664,7 +3673,9 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 	GsDeliverClientDataEvent(did, wid, serial, len, thislen, data);
 	SERVER_UNLOCK();
 }
+#endif
 
+#if !MW_FEATURE_TINY
 /*
  * Set a window's background pixmap.  Note that this doesn't
  * cause a screen refresh, use GrClearArea if required.
@@ -3693,7 +3704,9 @@ GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
 
 	SERVER_UNLOCK();
 }
+#endif
 
+#if MW_FEATURE_CLIENTDATA
 void
 GrGetFontList(GR_FONTLIST ***fonts, int *numfonts)
 {
@@ -3709,7 +3722,9 @@ GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
 	GdFreeFontList(fonts, numfonts);
 	SERVER_UNLOCK();
 }
+#endif
 
+#if MW_FEATURE_AREAS
 /*
  * Draw and stretch a rectangular area from source drawable to destination drawable
  */
@@ -3764,6 +3779,7 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc, GR_COORD dx1, GR_COORD dy1, GR_COOR
 
 	SERVER_UNLOCK();
 }
+#endif
 #endif /* SWIEROS*/
 
 /*

@@ -444,7 +444,6 @@ GsSelect(GR_TIMEOUT timeout)
 	{
 		if (!FD_ISSET(fd, &regfdset))
 			continue;
-
 		FD_SET(fd, &rfds);
 		if (fd > setsize) setsize = fd;
 	}
@@ -619,13 +618,14 @@ again:
 		 */
 #if MW_FEATURE_TIMERS
 		if(GdTimeout())
-#endif
 		{
 			GR_EVENT_GENERAL *	gp;
 			if ((gp = (GR_EVENT_GENERAL *)GsAllocEvent(curclient)) != NULL)
 				gp->type = GR_EVENT_TYPE_TIMEOUT;
 		}
-		else if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK)) {
+		else
+#endif
+		if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK)) {
 			if (!GsPumpEvents())    /* process mouse/kbd events */
 				goto again;		/* retry until passed timeout */
 		}
@@ -636,7 +636,7 @@ again:
 #endif
 #endif /* NONETWORK */
 	} else if(errno != EINTR)
-		EPRINTF("Select() call in main failed\n");
+		EPRINTF("Select() call in main failed: %d\n", errno);
 }
 
 /********************************************************************************/
@@ -1025,10 +1025,10 @@ GsInitialize(void)
 	GdSetPortraitMode(psd, portraitmode);
 
 	if ((mouse_fd = GdOpenMouse()) == -1) {
-		EPRINTF("Cannot initialise mouse\n");
 		/*GsCloseSocket();*/
 		GdCloseScreen(psd);
 		GdCloseKeyboard();
+		EPRINTF("Cannot initialise mouse\n");
 		free(wp);
 		return -1;
 	}

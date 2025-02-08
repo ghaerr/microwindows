@@ -11,8 +11,6 @@
 #include "nxproto.h"
 #include "lock.h"
 
-#define SZREQBUF	2048	/* initial request buffer size*/
-
 #if !__ECOS
 static REQBUF	reqbuf;		/* request buffer*/
 extern int 	nxSocket;
@@ -22,7 +20,7 @@ LOCK_EXTERN(nxGlobalLock);	/* global lock for threads safety*/
 
 /* Allocate a request buffer of passed size and fill in header fields*/
 void *
-nxAllocReq(int type, long size, long extra)
+nxAllocReq(int type, unsigned long size, long extra)
 {
 	nxReq *	req;
 	long	aligned_len;
@@ -51,11 +49,11 @@ nxAllocReq(int type, long size, long extra)
 	return req;
 }
 
-static void nxAllocReqbuffer(long newsize)
+static void nxAllocReqbuffer(unsigned long newsize)
 {
         ACCESS_PER_THREAD_DATA();
 
-	if(newsize < (long)SZREQBUF)
+	if(newsize < (unsigned long)SZREQBUF)
 		newsize = SZREQBUF;
 	reqbuf.buffer = malloc(newsize);
 	if(!reqbuf.buffer) {
@@ -67,7 +65,7 @@ static void nxAllocReqbuffer(long newsize)
 }
 
 void
-nxAssignReqbuffer(char *buffer, long size)
+nxAssignReqbuffer(char *buffer, unsigned long size)
 {
         ACCESS_PER_THREAD_DATA();
 
@@ -100,7 +98,7 @@ nxWriteSocket(char *buf, int todo)
 
 /* Flush request buffer if required, possibly reallocate buffer size*/
 void
-nxFlushReq(long newsize, int reply_needed)
+nxFlushReq(unsigned long newsize, int reply_needed)
 {
         ACCESS_PER_THREAD_DATA();
 	LOCK(&nxGlobalLock);

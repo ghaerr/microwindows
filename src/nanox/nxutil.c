@@ -15,30 +15,6 @@
 #include "osdep.h"
 
 /**
- * Create a new buffered window.  Sets properties for
- * no background erase and no redraw during resizing.
- * Same parameters as GrNewWindowEx.
- *
- * Quick conversion for double buffered windows in any application:
- * 	add GR_WM_PROPS_BUFFERED to GrNewWindowEx flags
- * 	add GR_WM_PROPS_NOBACKGROUND if app paints background
- * 	add GrFlushWindow(wid) call in paint routine
- * 	add update mask and handling for GR_UPDATE_MAP & GR_UPDATE_SIZE and call paint routine
- * 	remove Exposure mask and event handling
- * Buffered windows allocate a 32bpp RGBA pixmap for automatic offscreen buffered drawing.
- * Pixmap is erased to bg color on create and resize unless GR_WM_PROPS_NOBACKGROUND set
- * On window expose, buffered contents are copied, app never gets expose events.
- * App must process resize and map Update events, flush buffer with GrFlushWindow(wid)
- */
-GR_WINDOW_ID
-GrNewBufferedWindow(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
-	GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_COLOR background)
-{
-	return GrNewWindowEx(props|GR_WM_PROPS_BUFFERED|GR_WM_PROPS_NOBACKGROUND,
-		title, parent, x, y, width, height, background);
-}
-
-/**
  * Create new window with passed style, title and location.
  */
 GR_WINDOW_ID
@@ -70,6 +46,31 @@ GrNewWindowEx(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
 		GrSetWMProperties(wid, &wmprops);
 	}
 	return wid;
+}
+
+#if !MW_FEATURE_TINY
+/**
+ * Create a new buffered window.  Sets properties for
+ * no background erase and no redraw during resizing.
+ * Same parameters as GrNewWindowEx.
+ *
+ * Quick conversion for double buffered windows in any application:
+ * 	add GR_WM_PROPS_BUFFERED to GrNewWindowEx flags
+ * 	add GR_WM_PROPS_NOBACKGROUND if app paints background
+ * 	add GrFlushWindow(wid) call in paint routine
+ * 	add update mask and handling for GR_UPDATE_MAP & GR_UPDATE_SIZE and call paint routine
+ * 	remove Exposure mask and event handling
+ * Buffered windows allocate a 32bpp RGBA pixmap for automatic offscreen buffered drawing.
+ * Pixmap is erased to bg color on create and resize unless GR_WM_PROPS_NOBACKGROUND set
+ * On window expose, buffered contents are copied, app never gets expose events.
+ * App must process resize and map Update events, flush buffer with GrFlushWindow(wid)
+ */
+GR_WINDOW_ID
+GrNewBufferedWindow(GR_WM_PROPS props, const char *title, GR_WINDOW_ID parent,
+	GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height, GR_COLOR background)
+{
+	return GrNewWindowEx(props|GR_WM_PROPS_BUFFERED|GR_WM_PROPS_NOBACKGROUND,
+		title, parent, x, y, width, height, background);
 }
 
 /* draw an array of lines */
@@ -109,6 +110,7 @@ GrSetCursor(GR_WINDOW_ID wid, GR_SIZE width, GR_SIZE height, GR_COORD hotx,
 		GrSetWindowCursor(wid, cid);
 	return cid;
 }
+#endif
 
 #if MW_FEATURE_IMAGES
 /* byte-reversing table for reversing X bitmaps */
@@ -359,6 +361,7 @@ GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y, GR_SIZE width, G
 }
 #endif /* DYNAMICREGIONS*/
 
+#if MW_FEATURE_CLIENTDATA
 /**
  * Copy an event, must be used for CLIENT_DATA events
  * when GrPeekEvent or GrPeekWaitEvent called, as event data later freed.
@@ -403,3 +406,4 @@ GrFreeEvent(GR_EVENT *ev)
 		pev->datalen = 0;
 	}
 }
+#endif

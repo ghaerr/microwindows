@@ -30,12 +30,43 @@
 #define HAVE_PCF_SUPPORT 1		/* PCF font support*/
 #endif
 
+#if ELKS
+#define SCREEN_WIDTH	640
+#define SCREEN_HEIGHT	480
+#define SCREEN_DEPTH    4
+#define USE_ALLOCA		0		/* =1 if alloca() is available*/
+#define HAVE_MMAP       0       /* =1 has mmap system call*/
+#define HAVE_SIGNAL		0		/* =1 has signal system call*/
+#define HAVE_FILEIO		1		/* =1 to include libc stdio and image reading routines*/
+#define HAVE_BMP_SUPPORT 0		/* BMP image support*/
+#define HAVE_FNT_SUPPORT 0		/* Microwindows FNT font support*/
+#define HAVE_PCF_SUPPORT 0		/* PCF font support*/
+#define POLYREGIONS		0		/* =1 includes polygon regions*/
+#define DYNAMICREGIONS	0		/* =1 to use more complex MWCLIPREGION regions*/
+#define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
+#define MW_FEATURE_IMAGES 0		/* =1 to enable GdLoadImage/GdDrawImage etc*/
+#define MW_FEATURE_SHAPES 0		/* =1 for arc, ellipse, polygons, tile/stipple*/
+#define MW_FEATURE_INTL	0		/* =1 for dbcs and TEXTIP_EXTENDED font/encoding support*/
+#define MW_FEATURE_PORTRAIT 0	/* =1 for portrait support */
+#define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
+#define MW_FEATURE_AREAS 0	    /* =1 for GrArea, GrReadArea, GrStretchArea */
+#define MW_FEATURE_TINY 1	    /* =1 to drop various less-used features */
+#define MW_FEATURE_CLIENTDATA 0 /* =1 for copy/paste support */
+#define TRANSLATE_ESCAPE_SEQUENCES 0	/* =1 to parse fnkeys w/tty driver*/
+#define NUKLEARUI		1		/* =0 to use older tan windows-style 3d window frame drawing/colors*/
+#define OUTLINE_MOVE	1		/* =1 draw outline only during window move*/
+#define NO_AUTO_MOVE	1		/* =1 don't auto position window on new windows*/
+#endif
+
 /* Changeable limits and options*/
 #define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette,*/
 								/* (required for palette alpha blending)*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
-#define TRANSLATE_ESCAPE_SEQUENCES  1	/* =1 to parse fnkeys w/tty driver*/
 #define MW_FEATURE_RESIZEFRAME		0	/* =1 to resize OS frame to app, requires LINK_APP_TO_SERVER for nx*/
+
+#ifndef TRANSLATE_ESCAPE_SEQUENCES
+#define TRANSLATE_ESCAPE_SEQUENCES  1	/* =1 to parse fnkeys w/tty driver*/
+#endif
 
 #ifndef USE_ALLOCA
 #define USE_ALLOCA		1		/* =1 if alloca() is available*/
@@ -72,6 +103,15 @@
 #endif
 #ifndef MW_FEATURE_PORTRAIT
 #define MW_FEATURE_PORTRAIT 1	/* =1 for portrait support */
+#endif
+#ifndef MW_FEATURE_AREAS
+#define MW_FEATURE_AREAS 1      /* =1 for GrArea, GrReadArea, GrStretchArea */
+#endif
+#ifndef MW_FEATURE_TINY
+#define MW_FEATURE_TINY 0	    /* =1 to drop various less-used features */
+#endif
+#if MW_FEAATURE_CLIENTDATA
+#define MW_FEATURE_CLIENTDATA 1 /* =1 for copy/paste support */
 #endif
 
 /* the following defines are set=0 in Arch.rules based on ARCH= setting*/
@@ -337,8 +377,8 @@ int	GdError(const char *format, ...);
 #error VTSWITCH depends on MW_FEATURE_TIMERS - disable VTSWITCH in config or enable MW_FEATURE_TIMERS in Arch.rules
 #endif
 
-/* no assert() in MSDOS or ELKS or PSP */
-#if MSDOS | ELKS | PSP
+/* no assert() in MSDOS or PSP */
+#if MSDOS | PSP
 #undef assert
 #define assert(x)
 #endif

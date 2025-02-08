@@ -848,6 +848,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	}
 	extra = pimage->pitch - linesize;
 
+#if MW_FEATURE_IMAGES
 	/* Image format in RGB rather than BGR byte order?*/
 	rgborder = (pimage->data_format == MWIF_RGB888 || pimage->data_format == MWIF_RGBA8888);
 
@@ -1173,7 +1174,9 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			}
 		}
 	} /* end of 16, 18, 24 or 32bpp non-alpha image handling*/
-	else {
+	else
+#endif /* !MW_FEATURE_IMAGES */
+	{
 		/* handle palettized images of 8, 4 or 1bpp*/
 		bitcount = 0;
 		while (height > 0) {
@@ -1382,6 +1385,7 @@ GdReadArea(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, MWPIXEL
 	GdFixCursor(psd);
 }
 
+#if MW_FEATURE_AREAS
 static void GdAreaByPoint(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
 				void *pixels, int pixtype);
 /**
@@ -1690,6 +1694,7 @@ breakwhile:
   gr_foreground = savecolor;
   GdFixCursor(psd);
 }
+#endif
 
 #if LATER
 /**
@@ -1857,3 +1862,171 @@ GdTranslateArea(MWCOORD width, MWCOORD height, void *in, int inpixtype,
 	}
 }
 #endif /* LATER*/
+
+
+#if MW_FEATURE_TINY     /* tiny version for ELKS */
+/* Set four points symmetrically situated around a point. */
+static void
+draw4points(PSD psd, MWCOORD x,MWCOORD y,MWCOORD px,MWCOORD py)
+{
+	drawpoint(psd, x + px, y + py);
+	drawpoint(psd, x - px, y + py);
+	drawpoint(psd, x + px, y - py);
+	drawpoint(psd, x - px, y - py);
+}
+
+/*
+ * Fill an ellipse using the current clipping region and foreground color.
+ */
+static void
+GdFillEllipse(PSD psd, MWCOORD x, MWCOORD y, MWCOORD rx, MWCOORD ry)
+{
+  int xp, yp;			/* current point (based on center) */
+  long Asquared;		/* square of x semi axis */
+  long TwoAsquared;
+  long Bsquared;		/* square of y semi axis */
+  long TwoBsquared;
+  long d;
+  long dx, dy;
+
+  if ((rx < 0) || (ry < 0)) return;
+
+  /* See if the ellipse is either totally visible or totally invisible.
+   * If so, then the ellipse filling is easy.
+   */
+  switch (GdClipArea(psd, x - rx, y - ry, x + rx, y + ry)) {
+      case CLIP_VISIBLE:
+	/*
+	 * For size considerations, there's no low-level ellipse
+	 * fill, so we've got to fill all ellipses
+	 * with per-point clipping for the time being
+	psd->FillEllipse(psd, x, y, rx, ry, gr_foreground);
+	GdFixCursor(psd);
+	return;
+	 */
+	break;
+
+      case CLIP_INVISIBLE:
+	return;
+  }
+
+  /*
+   * Fill ellipse with per-point clipping
+   */
+  xp = 0;
+  yp = ry;
+  Asquared = rx * rx;
+  TwoAsquared = 2 * Asquared;
+  Bsquared = ry * ry;
+  TwoBsquared = 2 * Bsquared;
+  d = Bsquared - Asquared * ry + (Asquared >> 2);
+  dx = 0;
+  dy = TwoAsquared * ry;
+
+  while (dx < dy) {
+	drawrow(psd, x - xp, x + xp, y - yp);
+	drawrow(psd, x - xp, x + xp, y + yp);
+	if (d > 0) {
+		yp--;
+		dy -= TwoAsquared;
+		d -= dy;
+	}
+	xp++;
+	dx += TwoBsquared;
+	d += (Bsquared + dx);
+  }
+  d += ((3L * (Asquared - Bsquared) / 2L - (dx + dy)) >> 1);
+  while (yp >= 0) {
+	drawrow(psd, x - xp, x + xp, y - yp);
+	drawrow(psd, x - xp, x + xp, y + yp);
+	if (d < 0) {
+		xp++;
+		dx += TwoBsquared;
+		d += dx;
+	}
+	yp--;
+	dy -= TwoAsquared;
+	d += (Asquared - dy);
+  }
+  GdFixCursor(psd);
+}
+
+/*
+ * Draw an ellipse using the current clipping region and foreground color.
+ * This just draws in the outline of the ellipse.
+ */
+void
+GdEllipse(PSD psd, MWCOORD x, MWCOORD y, MWCOORD rx, MWCOORD ry, MWBOOL fill)
+{
+  int xp, yp;			/* current point (based on center) */
+  long Asquared;		/* square of x semi axis */
+  long TwoAsquared;
+  long Bsquared;		/* square of y semi axis */
+  long TwoBsquared;
+  long d;
+  long dx, dy;
+
+  if (fill) {
+    GdFillEllipse(psd, x, y, rx, ry);
+    return;
+  }
+  if ((rx < 0) || (ry < 0)) return;
+
+  /* See if the ellipse is either totally visible or totally invisible.
+   * If so, then the ellipse drawing is easy.
+   */
+  switch (GdClipArea(psd, x - rx, y - ry, x + rx, y + ry)) {
+      case CLIP_VISIBLE:
+	/*
+	 * For size considerations, there's no low-level ellipse
+	 * draw, so we've got to draw all ellipses
+	 * with per-point clipping for the time being
+	psd->DrawEllipse(psd, x, y, rx, ry, gr_foreground);
+	GdFixCursor(psd);
+	return;
+	 */
+	break;
+
+      case CLIP_INVISIBLE:
+	return;
+  }
+
+  /*
+   * Draw ellipse with per-point clipping
+   */
+  xp = 0;
+  yp = ry;
+  Asquared = rx * rx;
+  TwoAsquared = 2 * Asquared;
+  Bsquared = ry * ry;
+  TwoBsquared = 2 * Bsquared;
+  d = Bsquared - Asquared * ry + (Asquared >> 2);
+  dx = 0;
+  dy = TwoAsquared * ry;
+
+  while (dx < dy) {
+	draw4points(psd, x, y, xp, yp);
+	if (d > 0) {
+		yp--;
+		dy -= TwoAsquared;
+		d -= dy;
+	}
+	xp++;
+	dx += TwoBsquared;
+	d += (Bsquared + dx);
+  }
+  d += ((3L * (Asquared - Bsquared) / 2L - (dx + dy)) >> 1);
+  while (yp >= 0) {
+	draw4points(psd, x, y, xp, yp);
+	if (d < 0) {
+		xp++;
+		dx += TwoBsquared;
+		d += dx;
+	}
+	yp--;
+	dy -= TwoAsquared;
+	d += (Asquared - dy);
+  }
+  GdFixCursor(psd);
+}
+#endif

@@ -25,14 +25,18 @@ FARADDR rom_char_addr;
 MWFONTPROCS mwfontprocs = {
 	0,				/* capabilities*/
 	MWTF_ASCII,		/* routines expect ascii*/
+	NULL,           /* init*/
+	NULL,           /* createfont*/
 	pcrom_getfontinfo,
 	pcrom_gettextsize,
 	pcrom_gettextbits,
 	pcrom_unloadfont,
-	corefont_drawtext,
+	pcrom_drawtext,
 	NULL,			/* setfontsize*/
 	NULL,			/* setfontrotation*/
 	NULL,			/* setfontattr*/
+	NULL            /* duplicate*/
+
 };
 
 /* first font is default font*/
@@ -124,18 +128,18 @@ pcrom_unloadfont(PMWFONT pfont)
 	/* rom fonts can't be unloaded*/
 }
 
-#if NOTUSED
+#if 1
 /* 
  * Low level text draw routine, called only if no clipping
  * is required.  This routine draws ROM font characters only.
  */
 void
-pcrom_drawtext(PMWFONT pfont, PSD psd, COORD x, COORD y,
-	const void *text, int n, PIXELVAL fg)
+pcrom_drawtext(PMWFONT pfont, PSD psd, MWCOORD x, MWCOORD y,
+	const void *text, int n, MWPIXELVAL fg)
 {
 	const unsigned char *	str = text;
-	COORD 			width;		/* width of character */
-	COORD 			height;		/* height of character */
+	MWCOORD 			width;		/* width of character */
+	MWCOORD 			height;		/* height of character */
 	const MWIMAGEBITS *	bitmap;
 
  	/* x,y is bottom left corner*/
@@ -153,12 +157,12 @@ pcrom_drawtext(PMWFONT pfont, PSD psd, COORD x, COORD y,
  * in the bitmap are drawn, in the foreground color.
  */
 void
-gen_drawbitmap(PSD psd,COORD x, COORD y, COORD width, COORD height,
-	const IMAGEBITS *table, PIXELVAL fgcolor)
+gen_drawbitmap(PSD psd,MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height,
+	const IMAGEBITS *table, MWPIXELVAL fgcolor)
 {
-  COORD minx;
-  COORD maxx;
-  IMAGEBITS bitvalue;	/* bitmap word value */
+  MWCOORD minx;
+  MWCOORD maxx;
+  MWIMAGEBITS bitvalue;	/* bitmap word value */
   int bitcount;			/* number of bits left in bitmap word */
 
   minx = x;
@@ -166,12 +170,12 @@ gen_drawbitmap(PSD psd,COORD x, COORD y, COORD width, COORD height,
   bitcount = 0;
   while (height > 0) {
 	if (bitcount <= 0) {
-		bitcount = IMAGE_BITSPERIMAGE;
+		bitcount = MWIMAGE_BITSPERIMAGE;
 		bitvalue = *table++;
 	}
 	if (IMAGE_TESTBIT(bitvalue))
 		psd->DrawPixel(psd, x, y, fgcolor);
-	bitvalue = IMAGE_SHIFTBIT(bitvalue);
+	bitvalue = MWIMAGE_SHIFTBIT(bitvalue);
 	--bitcount;
 	if (x++ == maxx) {
 		x = minx;

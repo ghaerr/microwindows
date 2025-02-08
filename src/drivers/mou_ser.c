@@ -11,9 +11,9 @@
  * The following environment variables control the mouse type expected
  * and the serial port to open.
  *
- * Environment Var	Default		Allowed
- * MOUSE_TYPE		pc		ms, pc, logi, ps2
- * MOUSE_PORT		/dev/ttyS1	any serial port or /dev/psaux
+ * Environment Var      Default	        Allowed
+ * MOUSE_TYPE           pc              ms, pc, logi, ps2
+ * MOUSE_PORT           see below       any serial port or /dev/psaux
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +25,7 @@
 
 #define TERMIOS		1	/* set to use termios serial port control*/
 #define SGTTY		0	/* set to use sgtty serial port control*/
+#define SLOW_CPU        0       /* =1 discard already-read mouse input on slow systems */
 
 #define	SCALE		3	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
@@ -41,8 +42,9 @@
 #define	MOUSE_PORT	"/dev/mouse"
 #define	MOUSE_TYPE	"ms"
 #elif ELKS
-#define	MOUSE_PORT	"/dev/ttys0"
-#define MOUSE_TYPE	"ps2"
+#define	MOUSE_PORT	"/dev/ttyS0"	/* com1 tried first */
+#define	MOUSE_PORT2	"/dev/ttyS1"	/* then com 2 if QEMU -serial stdio */
+#define MOUSE_TYPE	"ms"
 #elif __fiwix__
 #define MOUSE_PORT	"/dev/ttyS0"
 #define MOUSE_TYPE	"ms"
@@ -108,10 +110,12 @@ static void 	MOU_Close(void);
 static int  	MOU_GetButtonInfo(void);
 static void	MOU_GetDefaultAccel(int *pscale,int *pthresh);
 static int  	MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr);
-static int	MOU_Poll(void);
 static int  	ParsePC(int);		/* routine to interpret PC mouse */
 static int  	ParseMS(int);		/* routine to interpret MS mouse */
 static int  	ParsePS2(int);		/* routine to interpret PS/2 mouse */
+#if _MINIX
+static int	MOU_Poll(void) { return 1; }
+#endif
 
 MOUSEDEVICE mousedev = {
 	MOU_Open,
@@ -167,39 +171,52 @@ MOU_Open(MOUSEDEVICE *pmd)
 	} else
 		return DRIVER_FAIL;
 
+	if (!strcmp(port, "none")) {
+		mouse_fd = -2;
+		return -2;		/* no mouse */
+	}
+
 	/* open mouse port*/
-	mouse_fd = open(port, O_NONBLOCK);
+#if ELKS
+    EPRINTF("Trying %s\n", port);
+	mouse_fd = open(port, O_EXCL | O_NOCTTY | O_NONBLOCK);
 	if (mouse_fd < 0) {
-		EPRINTF("Error %d opening serial mouse type %s on port %s.\n", errno, type, port);
+		EPRINTF("Mouse not found on first port %s, trying %s.\n",
+			port, MOUSE_PORT2);
+		mouse_fd = open(port=MOUSE_PORT2, O_EXCL | O_NOCTTY | O_NONBLOCK);
+	}
+#else
+	mouse_fd = open(port, O_NONBLOCK);
+#endif
+	if (mouse_fd < 0) {
+		EPRINTF(
+			"No %s mouse found on port %s (error %d).\n"
+			"Mouse not detected, use export MOUSE_PORT=none.\n",
+			type, port, errno);
  		return DRIVER_FAIL;
 	}
 
-#if SGTTY
-	/* set rawmode serial port using sgtty*/
-	struct sgttyb sgttyb;
-
-	if (ioctl(fd, TIOCGETP, &sgttyb) == -1)
-		goto err;
-	sgttyb.sg_flags |= RAW;
-	sgttyb.sg_flags &= ~(EVENP | ODDP | ECHO | XTABS | CRMOD);
-
-	if (ioctl(fd, TIOCSETP, &sgttyb) == -1)
-		goto err;
-	if (ioctl(fd, TIOCFLUSH, 0) < 0)
-		goto err;
-#endif
-
-#if TERMIOS
 	/*
 	 * Note we don't check success for the tcget/setattr calls,
 	 * some kernels don't support them for certain devices
 	 * (like /dev/psaux).
 	 */
 
+#if SGTTY
+	/* set rawmode serial port using sgtty*/
+	struct sgttyb sgttyb;
+
+	ioctl(fd, TIOCGETP, &sgttyb);
+	sgttyb.sg_flags |= RAW;
+	sgttyb.sg_flags &= ~(EVENP | ODDP | ECHO | XTABS | CRMOD);
+
+	ioctl(fd, TIOCSETP, &sgttyb);
+	ioctl(fd, TIOCFLUSH, 0);
+#endif
+#if TERMIOS
 	/* set rawmode serial port using termios*/
 	tcgetattr(mouse_fd, &termios);
 
-	/* These functions appear to be broken in ELKS Dev86 */
 	if(cfgetispeed(&termios) != B1200)
 		cfsetispeed(&termios, B1200);
 #if _MINIX
@@ -214,6 +231,7 @@ MOU_Open(MOUSEDEVICE *pmd)
 	termios.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
 	termios.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT | IGNBRK);
 	termios.c_cflag &= ~(CSIZE | PARENB);
+	termios.c_cflag |= CREAD;
 	/* MS and logi mice use 7 bits*/
 	if (!strcmp(type, "ps2") || !strcmp(type, "pc"))
 		termios.c_cflag |= CS8;
@@ -233,10 +251,6 @@ MOU_Open(MOUSEDEVICE *pmd)
 	xd = 0;
 	yd = 0;
 	return mouse_fd;
-err:
-	close(mouse_fd);
-	mouse_fd = 0;
-	return DRIVER_FAIL;
 }
 
 /*
@@ -318,6 +332,16 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr)
 			if(buttons & middle)
 				b |= MWBUTTON_M;
 			*bptr = b;
+#if SLOW_CPU
+{
+			/* discard already-read mouse input on slow systems*/
+			int drop_bytes = (parse == ParseMS)? 3: 5;
+			while (nbytes >= drop_bytes) {
+				nbytes -= drop_bytes;
+				bp += drop_bytes;
+			}
+}
+#endif
 			return MOUSE_RELPOS;
 		}
 	}
@@ -450,12 +474,6 @@ ParsePS2(int byte)
 			return 1;
 	}
 	return 0;
-}
-
-static int
-MOU_Poll(void)
-{
-	return 1;	/* used by _MINIX only*/
 }
 
 /*  #define TEST 1  */

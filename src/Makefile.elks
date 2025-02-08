@@ -1,0 +1,92 @@
+# Nano-X Makefile for ELKS
+# originally from v0.86 10/29/99 g haerr
+
+ifndef $(TOPDIR)
+TOPDIR = /Users/greg/net/elks-gh
+endif
+BASEDIR = $(TOPDIR)/elkscmd
+include $(BASEDIR)/Makefile-rules
+
+# Uncomment the following line to link nano-X applications with the server.
+#LINK_APP_INTO_SERVER=1
+
+# remove any -mregparmcall as ASM files need cdecl calling convention
+CFLAGS := $(filter-out -mregparmcall, $(CFLAGS))
+CFLAGS += -DELKS=1 -DUNIX=1 -DNANOWM=1 -DNDEBUG=1
+CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
+CFLAGS += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
+CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
+CFLAGS += -Wno-missing-field-initializers
+AR = ia16-elf-ar
+
+# mouse and kbd drivers
+ifeq ($(CONFIG_ARCH_PC98), y)
+DRIVERS += drivers/mou_pc98.o drivers/kbd_tty.o
+DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o
+DRIVERS += drivers/ramfont.o drivers/X6x13.o
+DRIVERS += drivers/memplan4.o drivers/elksutilasm.o
+endif
+
+#ifeq ($(CONFIG_ARCH_IBMPC), y)
+DRIVERS += drivers/memplan4.o drivers/elksutilasm.o
+DRIVERS += drivers/mou_ser.o drivers/kbd_tty.o
+
+#ifeq ($(CONFIG_HW_VGA), y)
+DRIVERS += drivers/scr_vga.o drivers/vgaplan4.o
+#DRIVERS += elksdrivers/romfont.o
+#else
+#DRIVERS += drivers/scr_cga.o drivers/vgaplan4_cga.o
+#DRIVERS += drivers/ramfont.o
+#endif
+#endif
+
+# C/ASM VGA driver (BCC)
+#DRIVERS += drivers/elkplan4.o drivers/elksutil.o
+
+# ASM VGA driver (MASM)
+#DRIVERS += drivers/asmplan4.o
+
+# hercules driver
+#DRIVERS += drivers/scr_herc.o
+
+# Nano-X client and server build
+DRIVERS += drivers/genfont.o drivers/genmem.o drivers/fb.o
+DRIVERS += fonts/compiled/winFreeSansSerif11x13.o
+DRIVERS += fonts/compiled/X6x13.o
+NANOX = nanox/srvmain.o nanox/srvfunc.o nanox/srvutil.o nanox/srvevent.o \
+    nanox/nxutil.o nanox/nxdraw.o nanox/srvclip1.o
+NANOX += nanox/wmaction.o nanox/wmclients.o nanox/wmevents.o nanox/wmutil.o
+ENGINE = engine/devdraw.o engine/devmouse.o engine/devkbd.o engine/devclip1.o \
+	engine/devopen.o engine/devfont.o engine/devlist.o engine/devblit.o \
+    engine/devtimer.o \
+    engine/devpal1.o engine/devpal2.o engine/devpal4.o engine/devpal8.o
+
+ALL = lib/libnano-X.a nxdemos
+
+ifdef LINK_APP_INTO_SERVER
+CFLAGS += -DNONETWORK=1
+CLIENT = $(NANOX) $(ENGINE) $(DRIVERS) nanox/srvnonet.o drivers/osdep.o
+else
+CFLAGS += -DNONETWORK=0
+CLIENT = nanox/client.o nanox/nxproto.o drivers/osdep.o nanox/nxutil.o
+SERVER = $(NANOX) $(ENGINE) $(DRIVERS) nanox/srvnet.o drivers/osdep.o
+ALL += bin/nano-X
+endif
+
+all: $(ALL)
+
+lib/libnano-X.a: $(CLIENT)
+	$(AR) rc lib/libnano-X.a $(CLIENT)
+
+bin/nano-X: $(SERVER)
+	$(LD) $(LDFLAGS) -maout-heap=0x2000 -o $@ $^ $(LDLIBS)
+	cp $@ /Users/greg/net/elks-gh/elkscmd/rootfs_template/root
+
+nxdemos: lib/libnano-X.a
+	$(MAKE) -C demos/nanox -f Makefile.elks all
+
+clean:
+	$(RM) *.o lib/*.a bin/nano-X nanox/*.o engine/*.o drivers/*.o
+	$(RM) demos/nanox/*.o
+	$(RM) fonts/compiled/*.o
+	$(MAKE) -C demos/nanox -f Makefile.elks clean

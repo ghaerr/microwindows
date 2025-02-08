@@ -79,49 +79,48 @@
 /* Image data formats, used by GdConversionBlit*/
 
 /* bits per pixel*/
-#define MWIF_1BPP			0x00000001L
-#define MWIF_8BPP			0x00000008L
-#define MWIF_15BPP			0x0000000FL
-#define MWIF_16BPP			0x00000010L
-#define MWIF_24BPP			0x00000018L
-#define MWIF_32BPP			0x00000020L
-#define MWIF_BPPMASK		0x0000003FL
+#define MWIF_1BPP			0x00000001
+#define MWIF_8BPP			0x00000002
+#define MWIF_15BPP			0x00000003
+#define MWIF_16BPP			0x00000004
+#define MWIF_24BPP			0x00000005
+#define MWIF_32BPP			0x00000006
 
 /* monochrome bitmap formats*/
-#define MWIF_MONO			0x00000040L
-#define MWIF_HASALPHA		0x00000080L
-#define MWIF_BYTEDATA		0x00000100L
-#define MWIF_LEWORDDATA		0x00000200L		/* 16-bit little endian format (retrofit format)*/
-//#define MWIF_BEQUADDATA	0x00000400L		/* 32-bit big endian format*/
-#define MWIF_MSBFIRST		0x00000800L		/* highest bit displayed leftmost*/
-#define MWIF_LSBFIRST		0x00001000L		/* lowest bit displayed leftmost*/
+#define MWIF_MONO			0x00000008
+#define MWIF_HASALPHA		0x00000010
+#define MWIF_BYTEDATA		0x00000020
+#define MWIF_LEWORDDATA		0x00000040 		/* 16-bit little endian format (retrofit)*/
+#define MWIF_MSBFIRST		0x00000080 		/* highest bit displayed leftmost*/
+#define MWIF_LSBFIRST		0x00000100 		/* lowest bit displayed leftmost*/
 #define MWIF_MONOBYTEMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_MSBFIRST)
 #define MWIF_MONOBYTELSB	(MWIF_1BPP | MWIF_MONO | MWIF_BYTEDATA | MWIF_LSBFIRST)
 #define MWIF_MONOWORDMSB	(MWIF_1BPP | MWIF_MONO | MWIF_LEWORDDATA | MWIF_MSBFIRST)
-//#define MWIF_MONOQUADMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BEQUADDATA | MWIF_MSBFIRST)
 #define MWIF_ALPHABYTE		(MWIF_8BPP | MWIF_HASALPHA| MWIF_BYTEDATA)
+//#define MWIF_BEQUADDATA	0x00000000 		/* 32-bit big endian format*/
+//#define MWIF_MONOQUADMSB	(MWIF_1BPP | MWIF_MONO | MWIF_BEQUADDATA | MWIF_MSBFIRST)
 
 /* framebuffer and image data formats - yet unsupported formats commented out*/
-#define MWIF_BGRA8888	(0x00010000L|MWIF_HASALPHA) /* 32bpp BGRA image byte order (old TRUECOLORARGB)*/
-#define MWIF_RGBA8888	(0x00020000L|MWIF_HASALPHA)	/* 32bpp RGBA image byte order (old TRUECOLORABGR)*/
-//#define MWIF_ARGB8888	(0x00030000L|MWIF_HASALPHA)	/* 32bpp ARGB image byte order (new)*/
-//#define MWIF_ABGR8888	(0x00040000L|MWIF_HASALPHA)	/* 32bpp ABGR image byte order (new)*/
-//#define MWIF_BGRX8888	(0x00050000L|MWIF_HASALPHA)	/* 32bpp BGRX image order no alpha (new)*/
-#define MWIF_BGR888		 0x00060000L		/* 24bpp BGR image byte order  (old TRUECOLOR888)*/
-#define MWIF_RGB888		 0x00070000L		/* 24bpp RGB image byte order  (png no alpha)*/
-#define MWIF_RGB565		 0x00080000L		/* 16bpp 5/6/5 RGB packed l.endian (old TRUECOLOR565)*/
-//#define MWIF_RGB565_BE 0x00090000L		/* 16bpp 5/6/5 RGB packed b.endian (new)*/
-#define MWIF_RGB555		 0x000A0000L		/* 16bpp 5/5/5 RGB packed l.endian (old TRUECOLOR555)*/
-//#define MWIF_RGB555_BE 0x000B0000L		/* 16bpp 5/5/5 RGB packed b.endian (new)*/
-#define MWIF_RGB1555	 0x000C0000L		        /* 16bpp 1/5/5/5 NDS color format */
-//#define MWIF_BGR555_BE 0x000D0000L		/* 16bpp 5/5/5 BGR packed b.endian (new)*/
-#define MWIF_RGB332		 0x000E0000L		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
-#define MWIF_BGR233		 0x000F0000L		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
+#define MWIF_BGRA8888	(0x00001000 | MWIF_HASALPHA) /* 32bpp BGRA (old TRUECOLORARGB)*/
+#define MWIF_RGBA8888	(0x00002000 | MWIF_HASALPHA) /* 32bpp RGBA (old TRUECOLORABGR)*/
+#define MWIF_BGR888		 0x00003000 		/* 24bpp BGR byte order  (old TRUECOLOR888)*/
+#define MWIF_RGB888		 0x00004000 		/* 24bpp RGB byte order  (png no alpha)*/
+#define MWIF_RGB565		 0x00005000 		/* 16bpp 5/6/5 RGB LE (old TRUECOLOR565)*/
+#define MWIF_RGB555		 0x00006000 		/* 16bpp 5/5/5 RGB LE (old TRUECOLOR555)*/
+#define MWIF_RGB1555	 0x00007000 		/* 16bpp 1/5/5/5 NDS color format */
+#define MWIF_RGB332		 0x00008000 		/*  8bpp 3/3/2 RGB packed (old TRUECOLOR332)*/
+#define MWIF_BGR233		 0x00009000 		/*  8bpp 2/3/3 BGR packed (old TRUECOLOR233)*/
 #define MWIF_PAL1		 MWIF_MONOBYTEMSB	/*  1bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL2		 0x00200000L		/*  2bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL4		 0x00400000L		/*  4bpp palette (old MWPF_PALETTE)*/
-#define MWIF_PAL8		 0x00800000L		/*  8bpp palette (old MWPF_PALETTE)*/
-//#define MWIF_PALETTE	 0x00F00000L		/* requires palette*/
+#define MWIF_PAL2		 0x0000A000 		/*  2bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL4		 0x0000B000 		/*  4bpp palette (old MWPF_PALETTE)*/
+#define MWIF_PAL8		 0x0000C000 		/*  8bpp palette (old MWPF_PALETTE)*/
+//#define MWIF_ARGB8888	(0x00000000 | MWIF_HASALPHA)	/* 32bpp ARGB (new)*/
+//#define MWIF_ABGR8888	(0x00000000 | MWIF_HASALPHA)	/* 32bpp ABGR (new)*/
+//#define MWIF_BGRX8888	(0x00000000 | MWIF_HASALPHA)	/* 32bpp BGRX no alpha (new)*/
+//#define MWIF_RGB565_BE 0x00000000 		/* 16bpp 5/6/5 RGB packed BE (new)*/
+//#define MWIF_RGB555_BE 0x00000000 		/* 16bpp 5/5/5 RGB packed BE (new)*/
+//#define MWIF_BGR555_BE 0x00000000 		/* 16bpp 5/5/5 BGR packed BE (new)*/
+//#define MWIF_PALETTE	 0x00000000 		/* requires palette*/
 
 /* Line modes */
 #define MWLINE_SOLID      0
@@ -226,7 +225,7 @@
 #define MWPIXEL_FORMAT	MWPF_TRUECOLORARGB
 #endif
 
-#if defined(__AS386_16__)
+#if defined(__AS386_16__) || defined(ELKS)
 /* Force 8 bit palettized display for ELKS*/
 #undef MWPIXEL_FORMAT
 #define MWPIXEL_FORMAT	MWPF_PALETTE
@@ -260,9 +259,11 @@ typedef int				MWBOOL;		/* boolean value*/
 typedef unsigned char	MWUCHAR;	/* unsigned char*/
 typedef uint32_t		MWCOLORVAL;	/* device-independent color value (0xAABBGGRR)*/
 typedef uint32_t		MWPIXELVAL;	/* pixel value parameter type, not for packing*/
+//typedef uint16_t		MWPIXELVAL;	/* pixel value parameter type, not for packing*/
 typedef unsigned short	MWIMAGEBITS;/* bitmap image unit size*/
-typedef uint32_t		MWTIMEOUT;	/* timeout value */
+typedef unsigned int    MWIMGDATFMT;/* MWIF_ image data format */
 typedef uint32_t		MWTEXTFLAGS;/* MWTF_ text flag*/
+typedef uint32_t		MWTIMEOUT;	/* timeout value */
 
 /* max char height/width must be >= 16 and a multiple of sizeof(MWIMAGEBITS)*/
 #define MAX_CHAR_HEIGHT	128			/* maximum text bitmap height*/
@@ -320,7 +321,7 @@ typedef struct {
 	int 	ydpcm;		/* dots/centimeter in y direction */
 	int	 	planes;		/* hw # planes*/
 	int	 	bpp;		/* hw bpp*/
-	int		data_format;/* MWIF_ image data format*/
+	MWIMGDATFMT data_format;/* MWIF_ image data format*/
 	int32_t	ncolors;	/* hw number of colors supported*/
 	int 	fonts;		/* number of built-in fonts */
 	int 	buttons;	/* buttons which are implemented */
@@ -416,7 +417,7 @@ typedef struct {
 /* GdConversionBlit parameter structure*/
 typedef struct {
 	int			op;				/* MWROP operation requested*/
-	int			data_format;	/* MWIF_ image data format*/
+	MWIMGDATFMT data_format;	/* MWIF_ image data format*/
 	MWCOORD		width, height;	/* width and height for src and dest*/
 	MWCOORD		dstx, dsty;		/* dest x, y*/
 	MWCOORD		srcx, srcy;		/* source x, y*/
@@ -777,7 +778,7 @@ typedef struct {
 	int		height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel*/
-	int		data_format;/* MWIF_ image data format*/
+	MWIMGDATFMT data_format;/* MWIF_ image data format*/
 	unsigned int pitch;	/* bytes per line*/
 	MWUCHAR *imagebits;	/* image bits (dword padded)*/
 	int		palsize;	/* palette size*/
@@ -793,7 +794,7 @@ typedef struct {
 	int 	height;		/* image height in pixels*/
 	int		planes;		/* # image planes*/
 	int		bpp;		/* bits per pixel (1, 4 or 8)*/
-	int		data_format;/* MWIF image data format*/
+	MWIMGDATFMT data_format;/* MWIF image data format*/
 	unsigned int pitch;	/* bytes per line*/
 	uint32_t transcolor;/* transparent color or MWNOCOLOR if none*/
 	int		palsize;	/* palette size*/
@@ -841,7 +842,7 @@ typedef struct {
 /* no color, used for transparency, should not be 0, -1 or any MWRGB color*/
 #define MWNOCOLOR	0x01000000L			/* MWRGBA(1, 0, 0, 0)*/
 
-#ifdef MWINCLUDECOLORS
+#if 1	/* MWINCLUDECOLORS */
 /*
  * Alpha blending evolution
  *
@@ -897,7 +898,7 @@ typedef struct {
 
 /* return palette entry as MWCOLORVAL (0xAABBGGRR)*/
 #define GETPALENTRY(pal,index) ((MWCOLORVAL)(pal[index].r | (pal[index].g << 8) |\
-									    (pal[index].b << 16) | (255 << 24)))
+                        ((MWCOLORVAL)pal[index].b << 16L) | (255L << 24L)))
 
 /* extract MWCOLORVAL (0xAABBGGRR) values*/
 #define REDVALUE(rgb)	((rgb) & 0xff)

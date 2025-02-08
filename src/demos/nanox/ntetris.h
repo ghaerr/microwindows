@@ -39,7 +39,7 @@
  */
 
 #ifndef __ECOS
-#define USE_HISCORE_FILE
+//#define USE_HISCORE_FILE
 #define HISCORE_FILE "/usr/games/nanotetris.hiscore"
 #endif
 #define BLOCK_SIZE 10
@@ -54,8 +54,13 @@
 #define TEXT_Y_POSITION 15
 #define TEXT2_Y_POSITION 30
 #define WELL_WIDTH 12
+#if defined(CONFIG_HW_VGA) || defined(CONFIG_ARCH_PC98)
 #define WELL_HEIGHT 28
 #define WELL_VISIBLE_HEIGHT 24
+#else
+#define WELL_HEIGHT 18
+#define WELL_VISIBLE_HEIGHT 16
+#endif
 #define WELL_NOTVISIBLE (WELL_HEIGHT - WELL_VISIBLE_HEIGHT)
 #define LEVEL_DIVISOR 500
 #ifdef __ECOS

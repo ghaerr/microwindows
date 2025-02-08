@@ -56,10 +56,12 @@ struct app_info {
 	char		app_path[64];
 } Apps[] = {
 #if ELKS
-	{"clock", "/root/nclock"},
-	{"term", "/root/nterm"},
-	{"demo", "/root/demo"},
-	{"demo2", "/root/demo2"},
+	{"clock", "./nxclock"},
+	{"term", "./nxterm"},
+	{"tetris", "./nxtetris"},
+	{"world", "./nxworld"},
+	{"landmine", "./nxlandmine"},
+	{"panel", "./nxpanel"},
 #else
 	{"clock", "bin/nxclock"},
 	{"term", "bin/nterm"},
@@ -330,6 +332,7 @@ static void
 do_buttondown(GR_EVENT_BUTTON *ep)
 {
 	mwin *	mwp;
+	char * nargv[2];
 	static int app_no;
 
 	if (ep->wid == w1) {
@@ -337,12 +340,12 @@ do_buttondown(GR_EVENT_BUTTON *ep)
 		if (app_no >= num_apps) {
 			app_no = num_apps - 1;
 		}
-		
+		nargv[0] = Apps[app_no].app_path;
+		nargv[1] = 0;
+#if ELKS
+		waitpid(-1, NULL, WNOHANG);
+#endif
 		if (!vfork()) {
-			char * nargv[2];
-
-			nargv[0] = Apps[app_no].app_path;
-			nargv[1] = 0;
 			execve(nargv[0], nargv, environ);
 			/* write(1, "\7", 1); */
 			exit(1);

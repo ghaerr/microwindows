@@ -23,7 +23,7 @@
 #define	MINEPERCENT	15		/* default percentage of mines */
 #define	SAVEFILE	"landmine.save"	/* default save file name */
 #define MAGIC		649351261	/* magic number in save files */
-#define	MAXPARAMS	1000		/* maximum different game parameters */
+#define	MAXPARAMS	200		/* maximum different game parameters */
 
 #define FULLSIZE	(MAXSIZE + 2)	/* board size including borders */
 
@@ -429,7 +429,7 @@ main(int argc,char **argv)
  
 	/* set title */
 	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_APPFRAME | GR_WM_PROPS_CAPTION;
+	props.props = GR_WM_PROPS_APPFRAME | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX;
 	props.title = "Land Mine";
 	GrSetWMProperties(mainwid, &props);
 
@@ -801,6 +801,7 @@ setcursor(void)
 {
 	GR_BITMAP	*fgbits;	/* bitmap for foreground */
 	GR_BITMAP	*bgbits;	/* bitmap for background */
+	GR_CURSOR_ID cid;
 
 	switch (legs) {
 		case 0:
@@ -816,7 +817,8 @@ setcursor(void)
 			bgbits = twolegs_bg;
 			break;
 	}
-	GrSetCursor(boardwid, 9, 12, 4, 6, WHITE, BLACK, fgbits, bgbits);
+	cid = GrNewCursor(9, 12, 4, 6, WHITE, BLACK, fgbits, bgbits);
+	if (cid) GrSetWindowCursor(boardwid, cid);
 }
 
 
@@ -830,11 +832,18 @@ delay(void)
 {
 	GR_COUNT	i;
 
+#if ELKS
+	i = 32000;
+	do {
+		GrFlush();
+	} while (--i);
+#else
 	for (i = 0; i < 1; i++) {
 		GrFillRect(boardwid, delaygc, 0, 0, xp * size - 1,
 			yp * size - 1);
 		GrFlush();
 	}
+#endif
 }
 
 

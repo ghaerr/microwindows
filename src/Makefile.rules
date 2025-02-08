@@ -593,6 +593,17 @@ $(MW_DIR_OBJ)/%.o: $(MW_DIR_OBJ)/%.cpp $(CONFIG)
 endif
 
 #
+# Compilation target for ASM files
+#
+$(MW_DIR_OBJ)/%.o: $(MW_DIR_SRC)/%.s $(CONFIG)
+	@echo "Assembling $(patsubst $(MW_DIR_SRC)/%,%,$<) ..."
+ifneq ($(MW_DIR_OBJ),$(MW_DIR_SRC))
+	@$(MW_RULE_MAKE_TARGET_DIR)
+endif
+	$(AS) $(ASFLAGS) -o $@ $<
+	$(MW_RULE_DEPEND_C)
+
+#
 # Compilation target for bmp file conversion
 #
 $(MW_DIR_OBJ)/%.c: $(MW_DIR_SRC)/%.bmp $(MW_DIR_BIN)/convbmp $(MW_DIR_BIN)/convbdf

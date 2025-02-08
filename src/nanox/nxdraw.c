@@ -12,7 +12,7 @@
 /*
  * GrGetSystemColor color scheme definitions
  */ 
-#if NUKLEARUI
+#if SCHEME_NUKLEAR
 const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
 	/* desktop background*/
 	GR_RGB(  0, 128, 128),  /* GR_COLOR_DESKTOP             */
@@ -50,6 +50,49 @@ const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
 
 	/* window border and interior line under caption*/
 	GR_RGB( 65,  65,  65),	/* GR_COLOR_WINDOWFRAME         */
+	GR_RGB( 65,  65,  65)   /* GR_COLOR_WINDOWFRAMELT       */
+};
+#endif
+
+#if SCHEME_NUK16
+const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
+	/* desktop background*/
+	//GR_RGB(  0,   0,   0),  /* GR_COLOR_DESKTOP             */
+	GR_RGB(  0, 127, 127),  /* GR_COLOR_DESKTOP             */
+
+	/* caption colors*/
+	GR_RGB(127, 127, 127),	/* GR_COLOR_ACTIVECAPTION       */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_ACTIVECAPTIONTEXT   */
+	GR_RGB( 35,  35,  35),	/* GR_COLOR_INACTIVECAPTION     */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_INACTIVECAPTIONTEXT */
+
+	/* 3d border shades (UNUSED in Nuklear)*/
+	GR_RGB(  0,   0,   0),  /* GR_COLOR_3DFRAME             */
+	GR_RGB(162, 141, 104),	/* GR_COLOR_BTNSHADOW           */
+	GR_RGB(213, 204, 187),	/* GR_COLOR_3DLIGHT             */
+	GR_RGB(234, 230, 221), 	/* GR_COLOR_BTNHIGHLIGHT        */
+
+	/* top level application window backgrounds/text (FIXME REMOVE?)*/
+	GR_RGB( 45,  45,  45),	/* GR_COLOR_APPWINDOW           */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_APPTEXT             */
+
+	/* button control backgrounds/text (usually same as app window colors)*/
+	GR_RGB( 50,  50,  50),	/* GR_COLOR_BTNFACE             */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_BTNTEXT             */
+
+	/* edit/listbox control backgrounds/text, selected highlights*/
+	GR_RGB( 45,  45,  45),  /* GR_COLOR_WINDOW              */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_WINDOWTEXT          */
+	GR_RGB(128,   0,   0),  /* GR_COLOR_HIGHLIGHT           */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_HIGHLIGHTTEXT       */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_GRAYTEXT            */
+
+	/* menu backgrounds/text*/
+	GR_RGB( 40,  40,  40),	/* GR_COLOR_MENU                */
+	GR_RGB(175, 175, 175),  /* GR_COLOR_MENUTEXT            */
+
+	/* window border and interior line under caption*/
+	GR_RGB( 32,  32,  32),	/* GR_COLOR_WINDOWFRAME         */
 	GR_RGB( 65,  65,  65)   /* GR_COLOR_WINDOWFRAMELT       */
 };
 #endif

@@ -33,7 +33,13 @@
  * NOTE: MAXREQUESTSZ must be an _aligned_ multiple of 4, meaning
  * that MAXREQUESTSZ = (MAXREQUESTSZ + 3) & ~3.
  */
-#define MAXREQUESTSZ	30000		/* max request size (65532)*/
+#if ELKS
+#define MAXREQUESTSZ	512             /* max request size FIXME */
+#define SZREQBUF        512	        /* initial request buffer size*/
+#else
+#define MAXREQUESTSZ	30000           /* max request size (65532)*/
+#define SZREQBUF        2048	        /* initial request buffer size*/
+#endif
 
 typedef unsigned char	BYTE8;		/* 1 byte*/
 typedef unsigned short	UINT16;		/* 2 bytes*/
@@ -68,7 +74,11 @@ typedef struct {
 
 /* FIXME fails when sizeof(int) == 2*/
 /* get request total valid data length, including header*/
+#if ELKS
+#define GetReqLen(req)		((req)->length)     /* FIXME check hilength */
+#else
 #define GetReqLen(req)		(((req)->hilength << 16) | (req)->length)
+#endif
 
 /* get request variable data length, not including fixed size structure*/
 #define GetReqVarLen(req)	(GetReqLen(req) - sizeof(* (req)))
@@ -76,9 +86,9 @@ typedef struct {
 /* get request total aligned length*/
 #define GetReqAlignedLen(req)	((GetReqLen(req) + (ALIGNSZ-1)) & ~(ALIGNSZ-1))
 
-void * 	nxAllocReq(int type, long size, long extra);
-void	nxFlushReq(long newsize, int reply_needed);
-void 	nxAssignReqbuffer(char *buffer, long size);
+void * 	nxAllocReq(int type, unsigned long size, long extra);
+void	nxFlushReq(unsigned long newsize, int reply_needed);
+void 	nxAssignReqbuffer(char *buffer, unsigned long size);
 void 	nxWriteSocket(char *buf, int todo);
 int	nxCalcStringBytes(void *str, int count, GR_TEXTFLAGS flags);
 

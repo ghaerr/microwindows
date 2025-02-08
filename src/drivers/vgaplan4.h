@@ -6,45 +6,25 @@
  *
  */
 #define SLOWVGA		0	/* =1 for outb rather than outw instructions*/
-
-#ifdef __PACIFIC__
-#define HAVEBLIT	0
-#else
 #define HAVEBLIT	1	/* =0 to exclude blitting in vgaplan4 drivers*/
-#endif
 
-#if UNIX & !ELKS
+#if ELKS
+#define HAVEFARPTR	1       /* =1 compiler has __far extension */
+#define INLINE_FP       1       /* =1 to inline xxx_FP functions */
+#define FAR         __far
+#elif _MINIX
 #define HAVEFARPTR	1
+#define INLINE_FP       0
 #define FAR
-#endif
-
-#if LINUX
-#if !(defined(LINUX_POWERPPC) || defined(LINUX_SPARC))
-#ifdef __GLIBC__
-#include <sys/io.h>		/* for outb def's, requires -O */
-#else
-#include <asm/io.h>		/* for outb def's on 2.3.x*/
-#endif
-#endif
-#include <unistd.h>
+#include <ibm/portio.h>
+#elif MSDOS
 #define HAVEFARPTR	1
-#define FAR
-#define HAVEIOPERM	1	/* has ioperm() system call*/
-#endif
-
-#if MSDOS
-#define HAVEFARPTR	1	/* compiler has _far extension*/
-#ifdef __PACIFIC__
-#include <dos.h>
-#define FAR		far
-#else
-#define FAR		_far
-#endif
-#endif
-
-#if RTEMS
+#define INLINE_FP       1
+#define FAR         _far
+#elif RTEMS
   #define FAR
-  #define HAVEFARPTR	1
+  #define HAVEFARPTR    1
+  #define INLINE_FP     1
   #if defined(__i386__)
     #include <i386_io.h>
   #else
@@ -54,72 +34,41 @@
 #endif
 
 #if MSDOS | ELKS
-/* make far ptr*/
-#define MK_FP(seg,ofs)	((FARADDR)(((unsigned long)(seg) << 16) | (unsigned)(ofs)))
+#define MK_FP(seg,ofs)	((FARADDR)(((unsigned long)(seg) << 16L) | (unsigned)(ofs)))
 #define EGA_BASE 	MK_FP(0xa000, 0)
 #else
 #define EGA_BASE 	((unsigned char *)0xa0000)
 #endif
 
-#if HAVEFARPTR
 /* far ptr access to screen*/
+#if HAVEFARPTR
 typedef volatile unsigned char FAR * FARADDR;
-
-#if _MINIX
-/* get byte at address*/
-extern unsigned char GETBYTE_FP(FARADDR);
-
-/* put byte at address*/
-extern void PUTBYTE_FP(FARADDR,unsigned char);
-
-/* read-modify-write at address*/
-extern void RMW_FP(FARADDR);
 #else
-/* get byte at address*/
-#define GETBYTE_FP(addr)	(*(FARADDR)(addr))
-
-/* put byte at address*/
-#define PUTBYTE_FP(addr,val)	((*(FARADDR)(addr)) = (val))
-
-/* read-modify-write at address*/
-#define RMW_FP(addr)		((*(FARADDR)(addr)) |= 1)
-
-/* or byte at address*/
-#define ORBYTE_FP(addr,val)	((*(FARADDR)(addr)) |= (val))
-
-/* and byte at address*/
-#define ANDBYTE_FP(addr,val)	((*(FARADDR)(addr)) &= (val))
-#endif
-#else
-
-/* for bcc with no _far extension*/
 typedef unsigned long	FARADDR;
-
-/* get byte at address*/
-extern unsigned char GETBYTE_FP(FARADDR);
-
-/* put byte at address*/
-extern void PUTBYTE_FP(FARADDR,unsigned char);
-
-/* read-modify-write at address*/
-extern void RMW_FP(FARADDR);
-
-/* or byte at address*/
-extern void ORBYTE_FP(FARADDR,unsigned char);
-
-/* and byte at address*/
-extern void ANDBYTE_FP(FARADDR,unsigned char);
 #endif
 
-
-#if MSDOS
-#define outb(val,port)	outp(port,val)
+#if INLINE_FP
+#define GETBYTE_FP(addr)	(*(FARADDR)(addr))              /* get byte at address*/
+#define PUTBYTE_FP(addr,val)	((*(FARADDR)(addr)) = (val))    /* put byte at address*/
+#define RMW_FP(addr)		((*(FARADDR)(addr)) |= 1)       /* read-modify-write */
+#define ORBYTE_FP(addr,val)	((*(FARADDR)(addr)) |= (val))   /* or byte at address*/
+#define ANDBYTE_FP(addr,val)	((*(FARADDR)(addr)) &= (val))   /* and byte at address*/
+#else   /* for compilers with no FAR extension*/
+extern unsigned char GETBYTE_FP(FARADDR);                       /* get byte at address*/
+extern void PUTBYTE_FP(FARADDR,unsigned char);                  /* put byte at address*/
+extern void RMW_FP(FARADDR);                                    /* read-modify-write */
+extern void ORBYTE_FP(FARADDR,unsigned char);                   /* or byte at address*/
+extern void ANDBYTE_FP(FARADDR,unsigned char);                  /* and byte at address*/
 #endif
 
 #if ELKS
+#include <arch/io.h>
+#elif _MINIX | MSDOS
+#define	outb(v, p)	outb(p, v)
+#define	outw(v, p)	outw(p, v)
+#else
 #define outb(val,port)	outportb(port,val)
 #define outw(val,port)	outport(port,val)
-
 extern int  inportb(int port);
 extern void outportb(int port,unsigned char data);
 extern void outport(int port,int data);
@@ -128,30 +77,19 @@ extern void outport(int port,int data);
 /* external routines*/
 FARADDR		int10(int ax,int bx);
 
-/* external routines implementing planar ega/vga access*/
-
-/* vgaplan4.c portable C, asmplan4.s asm, or ELKS asm elkplan4.c driver*/
+/* portable C EGA/VGA planar-4 driver in vgaplan4.c/memplan4.c*/
 int		ega_init(PSD psd);
-void 		ega_drawpixel(PSD psd,unsigned int x,unsigned int y,
-			MWPIXELVAL c);
-MWPIXELVAL 	ega_readpixel(PSD psd,unsigned int x,unsigned int y);
-void		ega_drawhorzline(PSD psd,unsigned int x1,unsigned int x2,
-			unsigned int y,MWPIXELVAL c);
-void		ega_drawvertline(PSD psd,unsigned int x,unsigned int y1,
-			unsigned int y2, MWPIXELVAL c);
+void 		ega_drawpixel(PSD psd,MWCOORD x,MWCOORD y, MWPIXELVAL c);
+MWPIXELVAL 	ega_readpixel(PSD psd,MWCOORD x,MWCOORD y);
+void		ega_drawhorzline(PSD psd,MWCOORD x1,MWCOORD x2, MWCOORD y,MWPIXELVAL c);
+void		ega_drawvertline(PSD psd,MWCOORD x,MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
 #if HAVEBLIT
-/* memplan4.c*/
 void	 	ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w,
-			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,long op);
+			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
 #endif
-
-/* vgainit.c - direct hw init*/
-void		ega_hwinit(void);
+#if HWINIT
+void		ega_hwinit(void);       /* HWINIT direct hw init in vgainit.c*/
 void		ega_hwterm(void);
-
-#if _MINIX
-#define	outb(v, p)	outb(p, v)
-#define	outw(v, p)	outw(p, v)
 #endif
 
 #if SLOWVGA
@@ -162,7 +100,7 @@ void		ega_hwterm(void);
 #define set_color(c)		{ outb (0, 0x3ce); outb (c, 0x3cf); }
 
 /* Set the Enable Set/Reset Register. */
-#define set_enable_sr(mask) { outb (1, 0x3ce); outb (mask, 0x3cf); }
+#define set_enable_sr(mask)     { outb (1, 0x3ce); outb (mask, 0x3cf); }
 
 /* Select the Bit Mask Register on the Graphics Controller. */
 #define select_mask() 		{ outb (8, 0x3ce); }
@@ -179,7 +117,7 @@ void		ega_hwterm(void);
 #define set_op(op) 		{ outb (3, 0x3ce); outb (op, 0x3cf); }
 
 /* Set the Memory Plane Write Enable register. */
-#define set_write_planes(mask) { outb (2, 0x3c4); outb (mask, 0x3c5); }
+#define set_write_planes(mask)  { outb (2, 0x3c4); outb (mask, 0x3c5); }
 
 /* Set the Read Map Select register. */
 #define set_read_plane(plane)	{ outb (4, 0x3ce); outb (plane, 0x3cf); }
@@ -213,7 +151,7 @@ void		ega_hwterm(void);
 #define set_op(op) 		{ outw (3|((op)<<8), 0x3ce); }
 
 /* Set the Memory Plane Write Enable register. */
-#define set_write_planes(mask) { outw (2|((mask)<<8), 0x3c4); }
+#define set_write_planes(mask)  { outw (2|((mask)<<8), 0x3c4); }
 
 /* Set the Read Map Select register. */
 #define set_read_plane(plane)	{ outw (4|((plane)<<8), 0x3ce); }

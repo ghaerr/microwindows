@@ -4,7 +4,7 @@
  *
  * /dev/tty TTY Keyboard Driver
  * 
- * if TRANSLATE_ESCAPE_SEQUENCES is set in device.h, then we
+ * if TRANSLATE_ESCAPE_SEQUENCES is set in mwconfig.h, then we
  * hard-decode function keys for Linux console and KDE konsole.
  */
 #include <stdlib.h>
@@ -33,7 +33,9 @@ static int  TTY_Open(KBDDEVICE *pkd);
 static void TTY_Close(void);
 static void TTY_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 static int  TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
-static int  TTY_Poll(void);
+#if _MINIX
+static int  TTY_Poll(void) { return 1; }
+#endif
 
 KBDDEVICE kbddev = {
 	TTY_Open,
@@ -81,11 +83,12 @@ TTY_Open(KBDDEVICE *pkd)
 	new = old;
 	/* If you uncomment ISIG and BRKINT below, then ^C will be ignored.*/
 #if __fiwix__
-	new.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
 	new.c_lflag &= ~(ECHO | ICANON | IEXTEN /*| ISIG*/);
-#else
-#endif
 	new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON /*| BRKINT*/);
+#else
+	new.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+	new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT);
+#endif
 	new.c_cflag &= ~(CSIZE | PARENB);
 	new.c_cflag |= CS8;
 	new.c_cc[VMIN] = 0;
@@ -153,7 +156,10 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	}
 	
 	mwkey = buf[0];
-#if __fiwix__
+#if ELKS
+	if(mwkey == '\033')
+		return -2;	/* special case ESC*/
+#elif __fiwix__
     if (mwkey == 03)
         mwkey = MWKEY_QUIT;
 #endif
@@ -352,10 +358,4 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	*modifiers = 0;		/* no modifiers*/
 	*scancode = 0;		/* no scancode*/
 	return KBD_KEYPRESS;/* keypress*/
-}
-
-static int
-TTY_Poll(void)
-{
-	return 1;	/* used by _MINIX only*/
 }

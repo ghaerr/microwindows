@@ -57,7 +57,7 @@ typedef int		GR_ERROR;	/* error types */
 typedef int		GR_EVENT_TYPE;	/* event types */
 typedef int		GR_UPDATE_TYPE;	/* window update types */
 typedef uint32_t	GR_EVENT_MASK;	/* event masks */
-typedef char		GR_FUNC_NAME[25];/* function name */
+typedef char		GR_FUNC_NAME[26];/* function name */
 typedef uint32_t	GR_WM_PROPS;	/* window property flags */
 typedef uint32_t	GR_SERIALNO;	/* Selection request ID number */
 typedef unsigned short	GR_MIMETYPE;	/* Index into mime type list */
@@ -1026,9 +1026,12 @@ typedef struct {
  * NXDISPLAY will override GR_NAMED_SOCKET for the AF_UNIX case, or
  * specify the nano-X server address in the AF_INET case (default 127.0.0.1)
  */
+#if ELKS
+#define GR_NAMED_SOCKET	"/tmp/nxsock"		/* ELKS socket name*/
+#else
 #define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
+#endif
 #define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
-#define GR_ELKS_SOCKET	79			/* AF_NANO socket number*/
 
 #if RTEMS
   /* RTEMS requires rtems_main()*/

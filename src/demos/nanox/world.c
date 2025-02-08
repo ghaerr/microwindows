@@ -6,24 +6,22 @@
  * ported to 16 bit systems by Greg Haerr
  */
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
-#include "uni_std.h"
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#define MWINCLUDECOLORS
+#include <string.h>
 #include "nano-X.h"
 
+#define MAPW    400
+#define MAPH    240
+#if ELKS
+#define	MAPFILE	"/lib/nxworld.map"
+#else
 #define	MAPFILE	"images/demos/nanox/world.map"
-
-#ifndef O_BINARY
-#define O_BINARY 	0
 #endif
 
 #define	SELECTBUTTON	GR_BUTTON_L
 #define	COORDBUTTON	GR_BUTTON_R
-
 
 /*
  * Definitions to use fixed point in place of true floating point.
@@ -63,8 +61,9 @@ typedef struct {
 #define DBPOINT_CONVERT(p)	((void)p)
 #endif
 
+
 #define POINTSize	sizeof(DBPOINT)
-#define PCount		128		/* number of points to read at once */
+#define PCount		1024		/* number of points to read at once */
 
 
 /*
@@ -114,7 +113,7 @@ static	GR_WINDOW_ID	mainwid;	/* main window id */
 static	GR_WINDOW_ID	mapwid;		/* window id for map */
 static	GR_GC_ID	mapgc;		/* GC used for drawing map */
 static	GR_GC_ID	xorgc;		/* GC used for rubber banding */
-static	GR_SIZE		COLS, ROWS;
+
 
 
 /*
@@ -139,6 +138,7 @@ static	GR_COLOR	code_colors[] = {
 	BLACK, GREEN, RED, BLACK, BROWN, GREEN, BLUE, BLUE
 };
 
+
 static void checkevent(void);
 static void doexposure(GR_EVENT_EXPOSURE *ep);
 static void dobuttondown(GR_EVENT_BUTTON *bp);
@@ -154,43 +154,42 @@ static void load(char *fn);
 int
 main(int argc, char **argv)
 {
+	GR_WM_PROPERTIES wmprops;
 	GR_SCREEN_INFO	si;
-	GR_WM_PROPERTIES props;
 
-	if (GrOpen() < 0) {
-		GrError("Cannot open graphics\n");
-		exit(1);
+#if 0   // FIXME this breaks GrOpen/connect below for unknown reasons!
+	if (access(MAPFILE, F_OK) < 0) {
+		GsError("Missing map file: %s\n", MAPFILE);
+		return 1;
 	}
+#endif
 
-        GrReqShmCmds(65536); /* Test by Morten Rolland for shm support */
+	if (GrOpen() < 0)
+		return 1;
 
 	GrGetScreenInfo(&si);
-	COLS = si.cols - 40;
-	ROWS = si.rows - 80;
 
 #if __ECOS	/* 240x320 screen*/
 	COLS = si.cols - 10;
 	ROWS = si.rows - 40;
 #endif
-	mainwid = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0, COLS, ROWS,
-		0, BLACK, BLACK);
+	mainwid = GrNewWindow(GR_ROOT_WINDOW_ID, -1, -1, MAPW, MAPH, 0, BLACK, BLACK);
 
-	/* set title */
-	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX;
-	props.title = "Nano-X World Map";
-	GrSetWMProperties(mainwid, &props);
-
-	mapwidth = COLS - 2;
-	mapheight = ROWS - 2;
+	mapwidth = MAPW - 2;
+	mapheight = MAPH - 2;
 	mapxorig = mapwidth / 2;
 	mapyorig = mapheight / 2;
 	selectxscale = 4;
 	selectyscale = 3;
 	coordx = 0;
-	coordy = ROWS - 1;
-	mapwid = GrNewWindow(mainwid, 1, 1, mapwidth, mapheight, 1, LTGRAY, BLACK);
-	GrSelectEvents(mainwid, GR_EVENT_MASK_CLOSE_REQ);
+	coordy = MAPW - 1;
+	mapwid = GrNewWindow(mainwid, 1, 1, mapwidth, mapheight, 1, BLACK, WHITE);
+	wmprops.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
+	wmprops.props = GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX | GR_WM_PROPS_BORDER;
+	wmprops.title = "nxworld";
+	GrSetWMProperties(mainwid, &wmprops);
+
+	GrSelectEvents(mainwid, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
 	GrSelectEvents(mapwid, GR_EVENT_MASK_EXPOSURE |
 		GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_BUTTON_UP |
 		GR_EVENT_MASK_MOUSE_POSITION | GR_EVENT_MASK_KEY_DOWN);
@@ -371,6 +370,7 @@ dokeydown(GR_EVENT_KEYSTROKE *kp)
 				break;
 
 			case '\033':	/* cancel selection */
+			case 'c':
 				showselection(GR_FALSE);
 				selectmode = SELECT_NONE;
 				break;
@@ -384,7 +384,10 @@ dokeydown(GR_EVENT_KEYSTROKE *kp)
 			GrClose();
 			exit(0);
 
-		case 't':		/* redraw total map */
+		case 'r':		/* redraw total map */
+		case 't':
+		case ' ':
+		case '\n':
 			Longitude = ITOF(0);
 			Latitude = ITOF(0);
 			setzoom(ITOF(1));
@@ -460,7 +463,7 @@ mintostr(char *buf, long minutes)
 		minutes = -minutes;
 		*buf++ = '-';
 	}
-	sprintf(buf, "%ld'%02ld", (long)(minutes / 60), (long)(minutes % 60));
+	sprintf(buf, "%d'%02d", (int)minutes / 60, (int)minutes % 60);
 }
 
 
@@ -515,17 +518,17 @@ load(char *fn)
 	register DBPOINT	*pp;
 	DBPOINT		*pend;
 	FLOAT		x, y, LonPrv, LatPrv;
-	long		oldlong = 0L;
+	long		oldlong = 0;
 	GR_COORD	xnew, ynew;
 	GR_COORD	xold = 0, yold = 0;
 	GR_BOOL		is_out;
 	GR_BOOL		was_out;
-	GR_BOOL		newseg = GR_FALSE;
+	GR_BOOL		newseg;
 	GR_COLOR	oldcolor;
 	GR_COLOR	newcolor;
 	int		n;
 	int		fh;
-	DBPOINT		p[PCount];
+	static DBPOINT		p[PCount];	/* static to avoid large stack usage*/
 
 	LonPrv = ITOF(0);
 	LatPrv = ITOF(0);
@@ -533,7 +536,7 @@ load(char *fn)
 	is_out = GR_FALSE;
 	was_out = GR_FALSE;
 
-	fh = open(fn, O_BINARY | O_RDONLY);
+	fh = open(fn, O_RDONLY);
 	if (fh < 0) {
 		GrClose();
 		GrError("Cannot open %s\n", fn);

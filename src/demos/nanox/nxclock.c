@@ -10,13 +10,12 @@
 #include "uni_std.h"
 #include "sys_time.h"
 #include <time.h>
-#define MWINCLUDECOLORS
 #include "nano-X.h"
 
 /* If you need a clock bigger than 200x200 you will need to re-write the trig *
  * to use longs. (Only applies under ELKS I think. */
-#define CWIDTH		256
-#define CHEIGHT		256
+#define CWIDTH		200
+#define CHEIGHT		200
 
 /*
  * Definitions to make it easy to define cursors
@@ -67,7 +66,7 @@ main(int ac, char **av)
 	w1 = GrNewWindowEx(
 		GR_WM_PROPS_NOAUTOMOVE|GR_WM_PROPS_BORDER|GR_WM_PROPS_CAPTION|
 		GR_WM_PROPS_CLOSEBOX, "nxclock", GR_ROOT_WINDOW_ID, 
-		10, 10, CWIDTH, CHEIGHT, GrGetSysColor(GR_COLOR_WINDOW));
+		-1, -1, CWIDTH, CHEIGHT, GrGetSysColor(GR_COLOR_WINDOW));
 		
 	GrSelectEvents(w1, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
 
@@ -79,23 +78,24 @@ main(int ac, char **av)
 	GrSetGCForeground(gc2, GrGetSysColor(GR_COLOR_WINDOWTEXT));
 	GrSetGCBackground(gc2, GrGetSysColor(GR_COLOR_WINDOW));
 
-	bitmap1bg[0] = MASK(_,_,X,X,X,_,_);
-	bitmap1bg[1] = MASK(_,X,X,X,X,X,_);
-	bitmap1bg[2] = MASK(X,X,X,X,X,X,X);
-	bitmap1bg[3] = MASK(X,X,X,X,X,X,X);
-	bitmap1bg[4] = MASK(X,X,X,X,X,X,X);
-	bitmap1bg[5] = MASK(_,X,X,X,X,X,_);
-	bitmap1bg[6] = MASK(_,_,X,X,X,_,_);
+	bitmap1fg[0] = MASK(_,X,X,X,X,X,_);
+	bitmap1fg[1] = MASK(X,_,X,X,X,_,X);
+	bitmap1fg[2] = MASK(X,X,_,X,_,X,X);
+	bitmap1fg[3] = MASK(X,X,X,_,X,X,X);
+	bitmap1fg[4] = MASK(X,X,_,X,_,X,X);
+	bitmap1fg[5] = MASK(X,_,X,X,X,_,X);
+	bitmap1fg[6] = MASK(_,X,X,X,X,X,_);
 
-	bitmap1fg[0] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[1] = MASK(_,X,_,X,_,X,_);
-	bitmap1fg[2] = MASK(_,_,_,X,_,_,_);
-	bitmap1fg[3] = MASK(X,_,_,X,X,_,X);
-	bitmap1fg[4] = MASK(_,_,_,_,_,_,_);
-	bitmap1fg[5] = MASK(_,X,_,_,_,X,_);
-	bitmap1fg[6] = MASK(_,_,_,X,_,_,_);
+	bitmap1bg[0] = MASK(X,_,_,_,_,_,X);
+	bitmap1bg[1] = MASK(_,X,_,_,_,X,_);
+	bitmap1bg[2] = MASK(_,_,X,_,X,_,_);
+	bitmap1bg[3] = MASK(_,_,_,X,_,_,_);
+	bitmap1bg[4] = MASK(_,_,X,_,X,_,_);
+	bitmap1bg[5] = MASK(_,X,_,_,_,X,_);
+	bitmap1bg[6] = MASK(X,_,_,_,_,_,X);
 
-	GrSetCursor(w1, 7, 7, 3, 3, WHITE, BLACK, bitmap1fg, bitmap1bg);
+	GR_CURSOR_ID cid = GrNewCursor(7, 7, 3, 3, WHITE, BLACK, bitmap1fg, bitmap1bg);
+	GrSetWindowCursor(w1, cid);
 	GrMapWindow(w1);
 
 	while (1) {
@@ -159,7 +159,7 @@ do_exposure(GR_EVENT_EXPOSURE *ep)
 
 /*	GrFillRect(w1, gc2, 0, 0, CWIDTH, CHEIGHT); */
 /*	GrFillEllipse(w1, gc1, midx, midy, midx, midy); */
-	GrEllipse(w1, gc2, midx, midy, midx - 1, midy - 1);
+/*	GrEllipse(w1, gc2, midx, midy, midx - 1, midy - 1); */
 	for(i = 0; i < 60; i++) {
 		if (i%5 == 0) {
 			l = 5;
@@ -238,7 +238,7 @@ do_clock(void)
 		return;
 	}
 	then = now;
-	tp = gmtime(&now);
+	tp = localtime(&now);
 	minutes = tp->tm_min * 6;
 	sec = tp->tm_sec * 6;
 	hour = tp->tm_hour;

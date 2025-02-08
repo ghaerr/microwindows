@@ -34,7 +34,7 @@ void GsError(GR_ERROR code, GR_ID id)
 
 	EPRINTF("nano-X: GsError ");
 	if(curfunc)
-		EPRINTF("(%s) ", curfunc);
+		EPRINTF("in %s: ", curfunc);
 	EPRINTF(nxErrorStrings[code], id);
 
 	/* if no clients, nothing to report*/
@@ -52,10 +52,8 @@ void GsError(GR_ERROR code, GR_ID id)
 	ep = (GR_EVENT_ERROR *)GsAllocEvent(curclient);
 	ep->type = GR_EVENT_TYPE_ERROR;
 	ep->name[0] = 0;
-	if(curfunc) {
-		strncpy(ep->name, curfunc, sizeof(GR_FUNC_NAME));
-		ep->name[sizeof(GR_FUNC_NAME)-1] = '\0';
-	}
+	if(curfunc)
+		strcpy(ep->name, curfunc);
 	ep->code = code;
 	ep->id = id;
 }

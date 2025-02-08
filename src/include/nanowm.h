@@ -13,8 +13,10 @@
 #ifndef OUTLINE_MOVE
 #define OUTLINE_MOVE		0		/* draw outline only during window move*/
 #endif
-#define NO_CORNER_RESIZE	0		/* don't resize windows on corner drag*/
+#ifndef NO_AUTO_MOVE
 #define NO_AUTO_MOVE		0		/* don't auto position window on new windows*/
+#endif
+#define NO_CORNER_RESIZE	0		/* don't resize windows on corner drag*/
 #define WINDOW_STEP			20	 	/* x,y step between new window placements*/
 #define MAXSYSCOLORS		22		/* # of GR_COLOR_* system colors*/
 
@@ -23,7 +25,11 @@
 
 /* nxPaintNCArea window drawing and color scheme*/
 #if NUKLEARUI						/* draw window frames/colors to match Nuklear style*/
-#define SCHEME_NUKLEAR				/* nuklear color scheme*/
+#if ELKS
+#define SCHEME_NUK16 1              /* 16 color nuklear! */
+#else
+#define SCHEME_NUKLEAR 1			/* nuklear color scheme*/
+#endif
 #define CXBORDER	1				/* 3d border width*/
 #define CYBORDER	1				/* 3d border height*/
 #define CYCAPTION	29				/* height of caption*/
@@ -32,7 +38,7 @@
 #define CXFRAME		(CXBORDER*2)	/* width of frame*/
 #define CYFRAME		(CYBORDER*2)	/* height of frame*/
 #else
-#define SCHEME_TAN					/* tan color scheme*/
+#define SCHEME_TAN  1				/* tan color scheme*/
 #define CXBORDER	3				/* 3d border width*/
 #define CYBORDER	3				/* 3d border height*/
 #define CYCAPTION	12				/* height of caption*/

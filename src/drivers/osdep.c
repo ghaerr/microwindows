@@ -45,7 +45,7 @@ int
 GdError(const char *format, ...)
 {
 	va_list args;
-	char 	buf[1024];
+	char 	buf[128];
 
 	va_start(args, format);
 #if __ECOS
@@ -78,6 +78,9 @@ GdError(const char *format, ...)
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);
+#elif ELKS
+	vsprintf(buf, format, args);
+	__dprintf("%s", buf);       /* write to /dev/console */
 #elif SWIEROS
 	vsprintf(buf, format, args);
 	write(2, buf, strlen(buf));

@@ -22,15 +22,10 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #endif
-#if ELKS
-#include <linuxmt/na.h>
-#elif __ECOS
+#if __ECOS
 #include <netinet/in.h>
-
 #else
-#ifndef TRIMEDIA
 #include <sys/un.h>
-#endif
 #endif
 #include "serv.h"
 #include "nxproto.h"
@@ -182,74 +177,91 @@ GrDestroyGCWrapper(void *r)
 static void
 GrNewRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	GR_REGION_ID region = GrNewRegion();
 
 	GsWriteType(current_fd, GrNumNewRegion);
 	GsWrite(current_fd, &region, sizeof(region));
+#endif
 }
 
 static void
 GrDestroyRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxDestroyRegionReq *req = r;
 
 	GrDestroyRegion(req->regionid);
+#endif
 }
 
 static void
 GrIntersectRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxIntersectRegionReq *req = r;
 
 	GrIntersectRegion(req->regionid, req->srcregionid1,
 		req->srcregionid2);
+#endif
 }
 
 static void
 GrUnionRectWithRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxUnionRectWithRegionReq *req = r;
 
 	GrUnionRectWithRegion(req->regionid, &(req->rect));
+#endif
 }
 
 static void
 GrUnionRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxUnionRegionReq *req = r;
 
 	GrUnionRegion(req->regionid, req->srcregionid1, req->srcregionid2);
+#endif
 }
 
 static void
 GrSubtractRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxSubtractRegionReq *req = r;
 
 	GrSubtractRegion(req->regionid, req->srcregionid1, req->srcregionid2);
+#endif
 }
 
 static void
 GrXorRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxXorRegionReq *req = r;
 
 	GrXorRegion(req->regionid, req->srcregionid1, req->srcregionid2);
+#endif
 }
 
 static void
 GrPointInRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxPointInRegionReq *req = r;
 	GR_BOOL ret_value = GrPointInRegion(req->regionid, req->x, req->y);
 		
 	GsWriteType(current_fd, GrNumPointInRegion);
 	GsWrite(current_fd, &ret_value, sizeof(ret_value));
+#endif
 }
 
 static void
 GrRectInRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxRectInRegionReq *req = r;
 	unsigned short ret_value;
 	
@@ -258,51 +270,62 @@ GrRectInRegionWrapper(void *r)
 		
 	GsWriteType(current_fd, GrNumRectInRegion);
 	GsWrite(current_fd, &ret_value, sizeof(ret_value));
+#endif
 }
 
 static void
 GrEmptyRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxEmptyRegionReq *req = r;
 	GR_BOOL		  ret_value;
 	
 	ret_value = GrEmptyRegion(req->regionid);
 	GsWriteType(current_fd, GrNumEmptyRegion);
 	GsWrite(current_fd, &ret_value, sizeof(ret_value));
+#endif
 }
 
 static void
 GrEqualRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxEqualRegionReq *req = r;
 	GR_BOOL		  ret_value;
 	
 	ret_value = GrEqualRegion(req->region1, req->region2);
 	GsWriteType(current_fd, GrNumEqualRegion);
 	GsWrite(current_fd, &ret_value, sizeof(ret_value));
+#endif
 }
 
 static void
 GrOffsetRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxOffsetRegionReq *req = r;
 	
 	GrOffsetRegion(req->region, req->dx, req->dy);
+#endif
 }
 
 static void
 GrSetGCRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxSetGCRegionReq *req = r;
 
 	GrSetGCRegion(req->gcid, req->regionid);
+#endif
 }
 
 static void
 GrSetGCClipOriginWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxSetGCClipOriginReq *req = r;
 	GrSetGCClipOrigin(req->gcid, req->xoff, req->yoff);
+#endif
 }
 
 static void
@@ -315,6 +338,7 @@ GrSetGCGraphicsExposureWrapper(void *r)
 static void
 GrGetRegionBoxWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxRectInRegionReq *req = r;
 	GR_BOOL		   ret_value;
 	GR_RECT		   ret_rect;
@@ -325,11 +349,13 @@ GrGetRegionBoxWrapper(void *r)
 	GsWrite(current_fd, &ret_rect, sizeof(ret_rect));
 	GsWriteType(current_fd, GrNumGetRegionBox);
 	GsWrite(current_fd, &ret_value, sizeof(ret_value));
+#endif
 }
 
 static void
 GrNewPolygonRegionWrapper(void *r)
 {
+#if POLYREGIONS
 	GR_REGION_ID region;
 	nxNewPolygonRegionReq *req = r;
 	int count;
@@ -341,6 +367,7 @@ GrNewPolygonRegionWrapper(void *r)
 	
 	GsWriteType(current_fd, GrNumNewPolygonRegion);
 	GsWrite(current_fd, &region, sizeof(region));
+#endif
 }
 
 static void
@@ -605,22 +632,26 @@ GrFillRectWrapper(void *r)
 static void
 GrPolyWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxPolyReq *req = r;
 	int        count;
 
 	count = GetReqVarLen(req) / sizeof(GR_POINT);
 	GrPoly(req->drawid, req->gcid, count, (GR_POINT *)GetReqData(req));
+#endif
 }
 
 /* FIXME: fails with pointtable size > 64k if sizeof(int) == 2*/
 static void
 GrFillPolyWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxPolyReq *req = r;
 	int        count;
 
 	count = GetReqVarLen(req) / sizeof(GR_POINT);
 	GrFillPoly(req->drawid, req->gcid, count, (GR_POINT *)GetReqData(req));
+#endif
 }
 
 static void
@@ -642,19 +673,23 @@ GrFillEllipseWrapper(void *r)
 static void
 GrArcWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxArcReq *req = r;
 
 	GrArc(req->drawid, req->gcid, req->x, req->y, req->rx, req->ry,
 		req->ax, req->ay, req->bx, req->by, req->type);
+#endif
 }
 
 static void
 GrArcAngleWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxArcAngleReq *req = r;
 
 	GrArcAngle(req->drawid, req->gcid, req->x, req->y, req->rx, req->ry,
 		req->angle1, req->angle2, req->type);
+#endif
 }
 
 static void
@@ -728,14 +763,17 @@ GrSetGCDashWrapper(void *r)
 static void
 GrSetGCFillModeWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxSetGCFillModeReq *req = r;
 
 	GrSetGCFillMode(req->gcid, req->fillmode);
+#endif
 }
 
 static void
 GrSetGCStippleWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxSetGCStippleReq *req = r;
 	GR_BITMAP *buffer;
 	
@@ -747,22 +785,27 @@ GrSetGCStippleWrapper(void *r)
 
 	GrSetGCStipple(req->gcid, (GR_BITMAP *)buffer, req->width, req->height);
 	FREEA(buffer);
+#endif
 }
 
 static void
 GrSetGCTileWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxSetGCTileReq *req = r;
 
 	GrSetGCTile(req->gcid, req->pixmap, req->width, req->height);
+#endif
 }
 
 static void
 GrSetGCTSOffsetWrapper(void *r)
 {
+#if MW_FEATURE_SHAPES
 	nxSetGCTSOffsetReq *req = r;
 
 	GrSetGCTSOffset(req->gcid, req->xoffset, req->yoffset);
+#endif
 }
 
 static void
@@ -848,6 +891,7 @@ GrGetGCTextSizeWrapper(void *r)
 static void
 GrReadAreaWrapper(void *r)
 {
+#if MW_FEATURE_AREAS
 	nxReadAreaReq *req = r;
 	int            size;
 	GR_PIXELVAL *   area;
@@ -864,31 +908,37 @@ GrReadAreaWrapper(void *r)
 	GsWriteType(current_fd,GrNumReadArea);
 	GsWrite(current_fd, area, size);
 	free(area);
+#endif
 }
 
 /* FIXME: fails with size > 64k if sizeof(int) == 2*/
 static void
 GrAreaWrapper(void *r)
 {
+#if MW_FEATURE_AREAS
 	nxAreaReq *req = r;
 
 	GrArea(req->drawid, req->gcid, req->x, req->y, req->width, req->height,
 		GetReqData(req), req->pixtype);
+#endif
 }
 
 /* FIXME: fails with bitmapsize > 64k if sizeof(int) == 2*/
 static void
 GrBitmapWrapper(void *r)
 {
+#if MW_FEATURE_IMAGES
 	nxBitmapReq *req = r;
 
 	GrBitmap(req->drawid, req->gcid, req->x, req->y, req->width,
 		req->height, GetReqData(req));
+#endif
 }
 
 static void
 GrDrawImageBitsWrapper(void *r)
 {
+#if MW_FEATURE_IMAGES
 	nxDrawImageBitsReq *req = r;
 	char *		    addr;
 	int		    imagesize;
@@ -908,6 +958,7 @@ GrDrawImageBitsWrapper(void *r)
 	imagesize = hdr.pitch * hdr.height;
 	hdr.palette = (MWPALENTRY *)(addr + imagesize);
 	GrDrawImageBits(req->drawid, req->gcid, req->x, req->y, &hdr);
+#endif
 }
 
 static void
@@ -990,6 +1041,7 @@ GrFindColorWrapper(void *r)
 static void
 GrInjectEventWrapper(void *r)
 {
+#if !MW_FEATURE_TINY
 	nxInjectEventReq *req = r;
 
 	switch(req->event_type) {
@@ -1008,6 +1060,7 @@ GrInjectEventWrapper(void *r)
 				      req->event.keyboard.pressed);
 		break;
 	}
+#endif
 }
 
 static void
@@ -1131,14 +1184,17 @@ GrSetScreenSaverTimeoutWrapper(void *r)
 static void
 GrSetSelectionOwnerWrapper(void *r)
 {
+#if MW_FEATURE_CLIENTDATA
 	nxSetSelectionOwnerReq *req = r;
 
 	GrSetSelectionOwner(req->wid, GetReqData(req));
+#endif
 }
 
 static void
 GrGetSelectionOwnerWrapper(void *r)
 {
+#if MW_FEATURE_CLIENTDATA
 	char *typelist;
 	GR_WINDOW_ID wid;
 	unsigned short len;
@@ -1152,23 +1208,28 @@ GrGetSelectionOwnerWrapper(void *r)
 		GsWrite(current_fd, &len, sizeof(len));
 		GsWrite(current_fd, typelist, len);
 	}
+#endif
 }
 
 static void
 GrRequestClientDataWrapper(void *r)
 {
+#if MW_FEATURE_CLIENTDATA
 	nxRequestClientDataReq *req = r;
 
 	GrRequestClientData(req->wid, req->rid, req->serial, req->mimetype);
+#endif
 }
 
 static void
 GrSendClientDataWrapper(void *r)
 {
+#if MW_FEATURE_CLIENTDATA
 	nxSendClientDataReq *req = r;
 
 	GrSendClientData(req->wid, req->did, req->serial, req->len,
 		GetReqVarLen(req), GetReqData(req));
+#endif
 }
 
 static void
@@ -1180,9 +1241,11 @@ GrBellWrapper(void *r)
 static void
 GrSetBackgroundPixmapWrapper(void *r)
 {
+#if !MW_FEATURE_TINY
 	nxSetBackgroundPixmapReq *req = r;
 
 	GrSetBackgroundPixmap(req->wid, req->pixmap, req->flags);
+#endif
 }
 
 static void
@@ -1252,6 +1315,7 @@ static imagelist_t *findImageBuffer(int buffer_id)
 	return buffer;
 }
 
+#if MW_FEATURE_IMAGES
 static void freeImageBuffer(imagelist_t *buffer)
 {
  imagelist_t *prev = 0;
@@ -1275,6 +1339,7 @@ static void freeImageBuffer(imagelist_t *buffer)
    ptr = ptr->next;
  }  
 }
+#endif
 
 static void
 GrImageBufferAllocWrapper(void *r)
@@ -1457,6 +1522,7 @@ GrReqShmCmdsWrapper(void *r)
 static void 
 GrGetFontListWrapper(void *r)
 {
+#if MW_FEATURE_CLIENTDATA
 	MWFONTLIST **list;
 	int num;
 	int i, ttlen, mwlen;
@@ -1482,11 +1548,13 @@ GrGetFontListWrapper(void *r)
 		
 		GrFreeFontList(&list, num);
 	}
+#endif
 }
 
 static void
 GrNewBitmapRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	GR_REGION_ID region;
 	nxNewBitmapRegionReq *req = r;
 
@@ -1494,19 +1562,23 @@ GrNewBitmapRegionWrapper(void *r)
 
 	GsWriteType(current_fd, GrNumNewBitmapRegion);
 	GsWrite(current_fd, &region, sizeof(region));
+#endif
 }
 
 static void
 GrSetWindowRegionWrapper(void *r)
 {
+#if DYNAMICREGIONS
 	nxSetWindowRegionReq *req = r;
 
 	GrSetWindowRegion(req->wid, req->rid, req->type);
+#endif
 }
  
 static void
 GrStretchAreaWrapper(void *r)
 {
+#if MW_FEATURE_AREAS
 	nxStretchAreaReq *req = r;
 
 	GrStretchArea(req->drawid, req->gcid,
@@ -1516,6 +1588,7 @@ GrStretchAreaWrapper(void *r)
 		      req->sx1, req->sy1,
 		      req->sx2, req->sy2,
 		      req->op);
+#endif
 }
 
 /* handle both GrGrabKey and GrUngrabKey*/
@@ -1779,9 +1852,7 @@ GrShmCmdsFlushWrapper(void *r)
 int 
 GsOpenSocket(void)
 {
-#if ELKS
-	struct sockaddr_na sckt;
-#elif __ECOS
+#if __ECOS
 	struct sockaddr_in sckt;
 #else
 	struct sockaddr_un sckt;
@@ -1790,13 +1861,7 @@ GsOpenSocket(void)
 #define SUN_LEN(ptr)	(sizeof(sckt))
 #endif
 
-#if ELKS
-	if((un_sock = socket(AF_NANO, SOCK_STREAM, 0)) == -1)
-		return -1;
-
-	sckt.sun_family = AF_NANO;
-	sckt.sun_no = GR_NUMB_SOCKET;
-#elif __ECOS
+#if __ECOS
 	/* Create the socket */
 	if((un_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
 	    return -1;
@@ -1808,11 +1873,8 @@ GsOpenSocket(void)
 	sckt.sin_port = htons(6600);
 	sckt.sin_addr.s_addr = INADDR_ANY;
 #else
-	if (access(GR_NAMED_SOCKET, F_OK) == 0) {
-		/* FIXME: should try connecting to see if server is active */
-		if(unlink(GR_NAMED_SOCKET))
-			return -1;
-	}
+	/* remove named pipe if exists */
+	unlink(GR_NAMED_SOCKET);
 
 	/* Create the socket: */
 	if((un_sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
@@ -1820,8 +1882,8 @@ GsOpenSocket(void)
 
 	/* Bind a name to the socket: */
 	sckt.sun_family = AF_UNIX;
-	strncpy(sckt.sun_path, GR_NAMED_SOCKET, sizeof(sckt.sun_path));
-#endif /* ELKS */
+	strcpy(sckt.sun_path, GR_NAMED_SOCKET);
+#endif
 	if(bind(un_sock, (struct sockaddr *) &sckt, SUN_LEN(&sckt)) < 0)
 		return -1;
 
@@ -1847,9 +1909,7 @@ void
 GsAcceptClient(void)
 {
 	int i;
-#if ELKS
-	struct sockaddr_na sckt;
-#elif __ECOS
+#if __ECOS
 	struct sockaddr_in sckt;
 #else
 	struct sockaddr_un sckt;
@@ -1963,6 +2023,7 @@ DPRINTF("  Destroy font %d\n", fp->id);
 		}
 	}
 
+#if DYNAMICREGIONS
 	/* free regions owned by client*/
 	for(rp=listregionp; rp; rp=nrp) {
 		nrp = rp->next;
@@ -1971,6 +2032,7 @@ DPRINTF("  Destroy region %d\n", rp->id);
 			GrDestroyRegion(rp->id);
 		}
 	}
+#endif
 
 #if MW_FEATURE_TIMERS
 	/* free timers owned by client*/
@@ -2177,6 +2239,7 @@ GsHandleClient(int fd)
 	if(GsRead(fd, buf, sizeof(nxReq)))
 		return;
 
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 	len = GetReqAlignedLen((nxReq *)&buf[0]);
 	if(len > sizeof(nxReq)) {
 		if(len > MAXREQUESTSZ) {

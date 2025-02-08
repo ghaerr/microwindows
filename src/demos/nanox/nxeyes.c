@@ -197,6 +197,34 @@ void timer_event(GR_EVENT_TIMER *ev, nxeyes_state *state)
 	draw_eyes(state, 1);
 }
 
+/*
+ * sqrt(a^2 + b^2)
+ *  (but carefully)
+ */
+double
+hypot(double a, double b)
+{
+    double t;
+
+    if (a < 0)
+                a = -a;
+    if (b < 0)
+                b = -b;
+    if (a > b) {
+        t = a;
+        a = b;
+        b = t;
+    }
+    if (b==0)
+                return(0.);
+    a /= b;
+    /*
+     * pathological overflow possible
+     * in the next line.
+     */
+    return(b*sqrt(1. + a*a));
+}
+
 void calculate_pupil_position(GR_COORD window_x, GR_COORD window_y,
 		GR_COORD eyecentre_x, GR_COORD eyecentre_y,
 		GR_COORD mousex, GR_COORD mousey,

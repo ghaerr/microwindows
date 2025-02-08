@@ -588,7 +588,7 @@ GsInitWindowBuffer(GR_WINDOW *wp, GR_SIZE width, GR_SIZE height)
 {
 	/* create same size RGBA pixmap for buffer*/
 	GR_WINDOW_ID id;
-	int data_format;
+	MWIMGDATFMT data_format;
 	
 	/* check if buffer size changed*/
 	if (wp->buffer) {

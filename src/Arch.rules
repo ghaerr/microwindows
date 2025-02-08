@@ -293,10 +293,18 @@ NANOXCLIENTLIBS += -lutil
 endif
 
 ifeq ($(ARCH), ELKS)
-COMPILER = bcc
-INCLUDEDIRS += -I/usr/bcc/include -I/home/greg/net/elks/include
-DEFINES += -DELKS=1 -DUNIX=1 -Dconst= -Dvolatile=
-CFLAGS += -0 -ansi -O
+COMPILER = ia16-elf-gcc
+AS = ia16-elf-as
+ASFLAGS = -mtune=i8086 --32-segelf
+INCLUDEDIRS += -I/Users/greg/net/elks-gh/libc/include -I/Users/greg/net/elks-gh/elks/include
+DEFINES += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
+CFLAGS += -mcmodel=small -melks-libc -mtune=i8086 -Wall -Os
+CFLAGS += -mno-segment-relocation-stuff
+CFLAGS += -fno-inline -fno-builtin-printf -fno-builtin-fprintf
+DEFINES += -DELKS=1 -DUNIX=1 -DNANOWM=1 -DNDEBUG=1
+DEFINES += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
+DEFINES += -Wno-unused-variable -Wno-unused-but-set-variable
+DEFINES += -Wno-missing-field-initializers
 endif
 
 ifeq ($(ARCH), ANDROID)

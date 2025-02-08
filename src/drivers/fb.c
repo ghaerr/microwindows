@@ -69,7 +69,7 @@ gen_initpsd(PSD psd, int pixtype, MWCOORD xres, MWCOORD yres, int flags)
 	/* Calculate the correct size and pitch from xres, yres and bpp*/
 	GdCalcMemGCAlloc(psd, psd->xres, psd->yres, psd->planes, psd->bpp, &psd->size, &psd->pitch);
 
-	psd->ncolors = psd->bpp >= 24 ? (1 << 24) : (1 << psd->bpp);
+	psd->ncolors = psd->bpp >= 24 ? (1L << 24) : (1 << psd->bpp);
 	psd->portrait = MWPORTRAIT_NONE;
 
 	/* select an fb subdriver matching our planes and bpp for backing store*/
@@ -105,8 +105,11 @@ select_fb_subdriver(PSD psd)
 	extern PSUBDRIVER fblinear24[4];
 	extern PSUBDRIVER fblinear32bgra[4];
 	extern PSUBDRIVER fblinear32rgba[4];
+	extern PSUBDRIVER memplan4[4];
 
-#if SWIEROS
+#if ELKS
+	pdriver = memplan4;
+#elif SWIEROS
 	pdriver = fblinear32rgba;
 #else
 	/* FB_TYPE_PACKED_PIXELS*/
@@ -155,10 +158,10 @@ select_fb_subdriver(PSD psd)
 }
 
 /* set standard data_format from bpp and pixtype*/
-int
+MWIMGDATFMT
 set_data_formatex(int pixtype, int bpp)
 {
-	int data_format = 0;
+	MWIMGDATFMT data_format = 0;
 
 	switch(pixtype) {
 	case MWPF_TRUECOLOR8888:
@@ -206,7 +209,7 @@ set_data_formatex(int pixtype, int bpp)
 	return data_format;
 }
 
-int
+MWIMGDATFMT
 set_data_format(PSD psd)
 {
 	return set_data_formatex(psd->pixtype, psd->bpp);
@@ -227,6 +230,7 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 	psi->size = psd->size;
 	psi->pixtype = psd->pixtype;
 
+#if MW_FEATURE_IMAGES
 	switch (psd->data_format) {
 	case MWIF_BGRA8888:
 		psi->rmask = RMASKBGRA;
@@ -278,6 +282,7 @@ gen_getscreeninfo(PSD psd, PMWSCREENINFO psi)
 		psi->bmask	= 0xff;
 		break;
 	}
+#endif
 
 	//eCos
     //psi->ydpcm = 42; 		/* 320 / (3 * 2.54)*/

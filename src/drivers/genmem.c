@@ -15,10 +15,11 @@
 
 /* alloc and initialize a new memory drawing surface (memgc)*/
 PSD
-GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, int format, void *pixels, int palsize)
+GdCreatePixmap(PSD rootpsd, MWCOORD width, MWCOORD height, MWIMGDATFMT format, void *pixels, int palsize)
 {
 	PSD		pmd;
-	int 	bpp, planes, data_format, pixtype;
+	int 	bpp, planes, pixtype;
+    MWIMGDATFMT data_format;
 	unsigned int size, pitch;
    
 	if (width <= 0 || height <= 0)
@@ -124,7 +125,7 @@ err:
  
 	pmd->MapMemGC(pmd, width, height, planes, bpp, data_format, pitch, size, pixels);
 	pmd->pixtype = pixtype;		/* save pixtype for proper colorval creation*/
-	pmd->ncolors = (pmd->bpp >= 24)? (1 << 24): (1 << pmd->bpp);
+	pmd->ncolors = (pmd->bpp >= 24)? (1L << 24): (1 << pmd->bpp);
 
 	return pmd;
 }
@@ -171,8 +172,8 @@ gen_allocatememgc(PSD psd)
  * in non-portrait mode.
  */
 MWBOOL
-gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp, int data_format,
-	unsigned int pitch, int size, void *addr)
+gen_mapmemgc(PSD mempsd, MWCOORD w, MWCOORD h, int planes, int bpp,
+	MWIMGDATFMT data_format, unsigned int pitch, int size, void *addr)
 {
 	PSUBDRIVER subdriver;
 
@@ -336,7 +337,7 @@ set_portrait_subdriver(PSD psd)
 	}
 	set_subdriver(psd, subdriver);
 #else
-	set_subdriver(psd, psd->orgsubdriver);
+	set_subdriver(psd, psd->orgsubdriver);  //FIXME NULL w/gen_portrait
 #endif
 }
 
@@ -355,7 +356,6 @@ gen_fillrect(PSD psd,MWCOORD x1, MWCOORD y1, MWCOORD x2, MWCOORD y2, MWPIXELVAL 
 	else
 		while(y1 <= y2)
 			psd->DrawHorzLine(psd, x1, x2, y1++, c);
-
 	/* now redraw once if external update required*/
 	if (Update) {
 		Update(psd, X1, Y1, x2-X1+1, y2-Y1+1);

@@ -28,6 +28,8 @@
 #include <time.h>
 #include <assert.h>
 #include <sys/socket.h>
+#include <sys/select.h>
+#include <sys/un.h>
 
 #if HAVE_SHAREDMEM_SUPPORT
 #include <sys/types.h>
@@ -36,22 +38,14 @@
 #endif
 
 #if ELKS
-#include <linuxmt/na.h>
-#include <linuxmt/time.h>
-#define ADDR_FAM AF_NANO
+#define ADDR_FAM AF_UNIX
 #elif __ECOS
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/select.h>
 #include <cyg/kernel/kapi.h>
 #define ADDR_FAM AF_INET
 #define _NO_SVR_MAPPING
 #define getpid()	((int)cyg_thread_self())
-#else
-#include <sys/un.h>
-#ifdef __GLIBC__
-#include <sys/select.h>
-#endif
 #endif
 
 #include "nano-X.h"
@@ -117,7 +111,6 @@ int ecos_nanox_client_data_index = CYGNUM_KERNEL_THREADS_DATA_MAX;
 static void QueueEvent(GR_EVENT *ep);
 static void GetNextQueuedEvent(GR_EVENT *ep);
 static void _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout);
-static int  _GrPeekEvent(GR_EVENT * ep);
 
 /**
  * Read n bytes of data from the server into block *b.  Make sure the data
@@ -147,8 +140,7 @@ ReadBlock(void *b, int n)
 				/* We should maybe produce an event here,
 				 * if possible.
 				 */
-				EPRINTF("nxclient: lost connection to Nano-X "
-					"server\n");
+				EPRINTF("nxclient: lost connection to Nano-X server\n");
 				exit(1);
 			}
 			if ( errno == EINTR || errno == EAGAIN )
@@ -163,6 +155,7 @@ ReadBlock(void *b, int n)
 	return 0;
 }
 
+#if !MW_FEATURE_TINY
 /**
  * Read a byte of data from the server.
  *
@@ -179,6 +172,7 @@ ReadByte(void)
 		return -1;
 	else return (int) c;
 }
+#endif
 
 /**
  * Check if this is a CLIENT_DATA event, in which case we need to read the
@@ -236,8 +230,8 @@ CheckBlockType(short packettype)
 			CheckForClientData(&event);
 			QueueEvent(&event);
 		} else {
-			EPRINTF("nxclient %d: Wrong packet type %d "
-				"(expected %d)\n", getpid(),b, packettype);
+			EPRINTF("nxclient %d: Wrong packet type %d (expected %d)\n",
+				getpid(),b, packettype);
 		}
 	}
 	EPRINTF("nxclient %d: Corrupted packet\n", getpid());
@@ -308,23 +302,19 @@ GrOpen(void)
 	nxOpenReq	req;
 	int		tries;
 	int		ret = 0;
-#if ADDR_FAM == AF_NANO
-	struct sockaddr_na name;
-#elif ADDR_FAM == AF_INET
+#if ADDR_FAM == AF_INET
 	struct sockaddr_in name;
 	struct hostent *he;
 	/* allow specification of remote nano-X server address*/
 	char *sockaddr = getenv("NXDISPLAY");
 	if (!sockaddr)
 		sockaddr = "127.0.0.1";		/* loopback address*/
-#elif ADDR_FAM == AF_UNIX
+#else /* AF_UNIX */
 	struct sockaddr_un name;
 	/* allow override of named UNIX socket (default /tmp/.nano-X)*/
 	char *sockname = getenv("NXDISPLAY");
 	if (!sockname)
 		sockname = GR_NAMED_SOCKET;
-#else
-#error "ADDR_FAM not defined to AF_NANO, AF_INET or AF_UNIX"
 #endif
 	ACCESS_PER_THREAD_DATA()
 	
@@ -339,11 +329,7 @@ GrOpen(void)
 	/* initialize global critical section lock*/
 	LOCK_INIT(&nxGlobalLock);
 
-#if ADDR_FAM == AF_NANO
-	name.sun_family = AF_NANO;
-	name.sun_no = GR_ELKS_SOCKET;		/* AF_NANO socket 79*/
-	size = sizeof(struct sockaddr_na);
-#elif ADDR_FAM == AF_INET
+#if ADDR_FAM == AF_INET
 	name.sin_family = AF_INET;
 	name.sin_port = htons(GR_NUM_SOCKET);	/* AF_INET socket 6600*/
 	if (!(he = gethostbyname(sockaddr))) {
@@ -354,11 +340,11 @@ GrOpen(void)
 	}
 	name.sin_addr = *(struct in_addr *)he->h_addr_list[0];
 	size = sizeof(struct sockaddr_in);
-#elif ADDR_FAM == AF_UNIX
+#else /* AF_UNIX */
+	memset(&name, 0, sizeof(name));
 	name.sun_family = AF_UNIX;
-	strcpy(name.sun_path, sockname);
-	size = (offsetof(struct sockaddr_un, sun_path) +
-		strlen(name.sun_path) + 1);
+	strncpy(name.sun_path, sockname, sizeof(name.sun_path)-1);
+	size = (offsetof(struct sockaddr_un, sun_path) + strlen(name.sun_path) + 1);
 #endif
 
 	/*
@@ -366,21 +352,12 @@ GrOpen(void)
 	 * waiting 0.1 seconds between attempts.
 	 */
 	for (tries=1; tries<=10; ++tries) {
-		struct timespec req;
-
 		ret = connect(nxSocket, (struct sockaddr *) &name, size);
 		if (ret >= 0)
 			break;
-#if ADDR_FAM == AF_INET
-		req.tv_sec = 0;
-		req.tv_nsec = 100000000L;
-#else
-		req.tv_sec = 0;
-		req.tv_nsec = 100000000L;
-#endif
-		nanosleep(&req, NULL);
-		if (tries > 1)
-			EPRINTF("nxclient: retry connect attempt %d\n", tries);
+		GrDelay(200);
+		/*if (tries > 1)
+			EPRINTF("nxclient: retry connect attempt %d\n", tries);*/
 	}
 	if (ret == -1) {
 		close(nxSocket);
@@ -1036,6 +1013,9 @@ _GrGetNextEventTimeout(GR_EVENT *ep, GR_TIMEOUT timeout)
 	}
 }
 
+#if !MW_FEATURE_TINY
+static int  _GrPeekEvent(GR_EVENT * ep);
+
 /**
  * Gets a copy of the next event on the queue, without actually
  * removing it from the queue.  Does not block - an event type of
@@ -1262,6 +1242,7 @@ getevent:
 	UNLOCK(&nxGlobalLock);
 	return GR_EVENT_TYPE_NONE;
 } 
+#endif
 
 /**
  * Select the event types which should be returned for the specified window.
@@ -1491,6 +1472,7 @@ GrDestroyGC(GR_GC_ID gc)
 	UNLOCK(&nxGlobalLock);
 }
 
+#if DYNAMICREGIONS
 /**
  * Creates a new region structure.
  * The structure is initialised with a set of default parameters.
@@ -1926,6 +1908,7 @@ GrNewPolygonRegion(int mode, GR_COUNT count, GR_POINT *points)
 	UNLOCK(&nxGlobalLock);
 	return region;
 }
+#endif /* DYNAMICREGIONS */
 
 /**
  * Recursively maps (makes visible) the specified window and all of the
@@ -2393,6 +2376,7 @@ GrSetGCDash(GR_GC_ID gc, char *dashes, int count)
 	UNLOCK(&nxGlobalLock);
 }
 
+#if MW_FEATURE_SHAPES
 /**
  * FIXME
  *
@@ -2492,6 +2476,7 @@ GrSetGCTSOffset(GR_GC_ID gc, int xoff, int yoff)
 	req->yoffset = yoff;
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Sets the flag which chooses whether or not the background colour is used
@@ -2568,6 +2553,7 @@ GrCreateFontEx(const char *name, GR_COORD height, GR_COORD width, GR_LOGFONT *pl
 	return fontid;
 }
 
+#if MW_FEATURE_CLIENTDATA
 /**
  * Returns an array of strings containing the names of available fonts and an
  * integer that specifies the number of strings returned. 
@@ -2647,6 +2633,7 @@ GrFreeFontList(GR_FONTLIST ***fonts, int numfonts)
 	*fonts = 0;
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Changes the size of the specified font to the specified size.
@@ -2904,6 +2891,7 @@ GrFillEllipse(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	UNLOCK(&nxGlobalLock);
 }
 
+#if MW_FEATURE_SHAPES
 /**
  * Draws an arc with the specified dimensions at the specified position
  * on the specified drawable using the specified graphics context.
@@ -2985,7 +2973,9 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 	req->type = type;
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
+#if MW_FEATURE_IMAGES
 /**
  * Draws the monochrome bitmap data provided in the imagebits argument
  * at the specified position on the specified drawable using the specified
@@ -3105,6 +3095,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 		bits += blocksize;
 	}
 }
+#endif
 
 #if MW_FEATURE_IMAGES && HAVE_FILEIO
 /**
@@ -3286,6 +3277,7 @@ GrGetImageInfo(GR_IMAGE_ID id, GR_IMAGE_INFO *iip)
 }
 #endif /* MW_FEATURE_IMAGES */
 
+#if MW_FEATURE_IMAGES | HAVE_FREETYPE_2_SUPPORT
 /**
  * Send a large buffer (typically an image) from the client to the server.
  *
@@ -3327,6 +3319,7 @@ sendImageBuffer(const void *buffer, int size)
 
 	return bufid;
 }
+#endif
 
 #if MW_FEATURE_IMAGES
 /**
@@ -3420,7 +3413,47 @@ GrDrawImageFromBuffer(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 #endif /* MW_FEATURE_IMAGES */
 
+/**
+ * Copies the specified area of the specified size between the specified
+ * drawables at the specified positions using the specified graphics context
+ * and ROP codes. 0 is a sensible default ROP code in most cases.
+ *
+ * @param id  the ID of the drawable to copy the area to
+ * @param gc  the ID of the graphics context to use when copying the area
+ * @param x  the X coordinate to copy the area to within the destination drawable
+ * @param y  the Y coordinate to copy the area to within the destination drawable
+ * @param width  the width of the area to copy
+ * @param height  the height of the area to copy
+ * @param srcid  the ID of the drawable to copy the area from
+ * @param srcx  the X coordinate to copy the area from within the source drawable
+ * @param srcy  the Y coordinate to copy the area from within the source drawable
+ * @param op  the ROP codes to pass to the blitter when performing the copy
+ *
+ * @ingroup nanox_draw
+ */
+void
+GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
+	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
+	GR_COORD srcx, GR_COORD srcy, int op)
+{
+	nxCopyAreaReq *req;
 
+	LOCK(&nxGlobalLock);
+        req = AllocReq(CopyArea);
+        req->drawid = id;
+        req->gcid = gc;
+        req->x = x;
+        req->y = y;
+        req->width = width;
+        req->height = height;
+        req->srcid = srcid;
+        req->srcx = srcx;
+        req->srcy = srcy;
+        req->op = op;
+	UNLOCK(&nxGlobalLock);
+}
+   
+#if MW_FEATURE_AREAS
 /**
  * Draw a rectangular area in the specified drawable using the specified
  * graphics context.  This differs from rectangle drawing in that the
@@ -3537,46 +3570,6 @@ GrArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 }
 
 /**
- * Copies the specified area of the specified size between the specified
- * drawables at the specified positions using the specified graphics context
- * and ROP codes. 0 is a sensible default ROP code in most cases.
- *
- * @param id  the ID of the drawable to copy the area to
- * @param gc  the ID of the graphics context to use when copying the area
- * @param x  the X coordinate to copy the area to within the destination drawable
- * @param y  the Y coordinate to copy the area to within the destination drawable
- * @param width  the width of the area to copy
- * @param height  the height of the area to copy
- * @param srcid  the ID of the drawable to copy the area from
- * @param srcx  the X coordinate to copy the area from within the source drawable
- * @param srcy  the Y coordinate to copy the area from within the source drawable
- * @param op  the ROP codes to pass to the blitter when performing the copy
- *
- * @ingroup nanox_draw
- */
-void
-GrCopyArea(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
-	GR_SIZE width, GR_SIZE height, GR_DRAW_ID srcid,
-	GR_COORD srcx, GR_COORD srcy, int op)
-{
-	nxCopyAreaReq *req;
-
-	LOCK(&nxGlobalLock);
-        req = AllocReq(CopyArea);
-        req->drawid = id;
-        req->gcid = gc;
-        req->x = x;
-        req->y = y;
-        req->width = width;
-        req->height = height;
-        req->srcid = srcid;
-        req->srcx = srcx;
-        req->srcy = srcy;
-        req->op = op;
-	UNLOCK(&nxGlobalLock);
-}
-   
-/**
  * Reads the pixel data of the specified size from the specified position on
  * the specified drawable into the specified pixel array. If the drawable is
  * a window, the data returned will be the pixel values from the relevant
@@ -3611,6 +3604,7 @@ GrReadArea(GR_DRAW_ID id,GR_COORD x,GR_COORD y,GR_SIZE width,
 	TypedReadBlock(pixels, size, GrNumReadArea);
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Draws a point using the specified graphics context at the specified position
@@ -3663,6 +3657,7 @@ GrPoints(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count, GR_POINT *pointtable)
 	UNLOCK(&nxGlobalLock);
 }
 
+#if MW_FEATURE_SHAPES
 /**
  * Draws an unfilled polygon on the specified drawable using the specified
  * graphics context. The polygon is specified by an array of point structures.
@@ -3718,6 +3713,7 @@ GrFillPoly(GR_DRAW_ID id, GR_GC_ID gc, GR_COUNT count,GR_POINT *pointtable)
 	memcpy(GetReqData(req), pointtable, size);
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Draws the specified text string at the specified position on the specified
@@ -3886,6 +3882,7 @@ GrReqShmCmds(long shmsize)
 #endif /* HAVE_SHAREDMEM_SUPPORT*/
 }
 
+#if !MW_FEATURE_TINY
 /**
  * Sets the pointer invisible if the visible parameter is GR_FALSE, or visible
  * if it is GR_TRUE, then moves the pointer to the specified position and
@@ -3948,6 +3945,7 @@ GrInjectKeyboardEvent(GR_WINDOW_ID wid, GR_KEY keyvalue,
 	GrFlush();	/* FIXME?*/
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Copies the provided GR_WM_PROPERTIES structure into the the GR_WM_PROPERTIES
@@ -4081,6 +4079,7 @@ GrSetScreenSaverTimeout(GR_TIMEOUT timeout)
 	UNLOCK(&nxGlobalLock);
 }
 
+#if MW_FEATURE_CLIENTDATA
 /**
  * Sets the current selection (otherwise known as the clipboard) ownership
  * to the specified window. Specifying an owner of 0 disowns the selection.
@@ -4241,6 +4240,7 @@ GrSendClientData(GR_WINDOW_ID wid, GR_WINDOW_ID did, GR_SERIALNO serial,
 	}
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Asks the server to ring the console bell on behalf of the client (intended
@@ -4257,6 +4257,7 @@ GrBell(void)
 	UNLOCK(&nxGlobalLock);
 }
 
+#if !MW_FEATURE_TINY
 /**
  * Sets the background of the specified window to the specified pixmap.
  * The flags which specify how to draw the pixmap (in the top left of the
@@ -4282,6 +4283,7 @@ GrSetBackgroundPixmap(GR_WINDOW_ID wid, GR_WINDOW_ID pixmap, int flags)
 	req->flags = flags;
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Destroys the specified server-based cursor and
@@ -4401,9 +4403,7 @@ GrCreateTimer (GR_WINDOW_ID wid, GR_TIMEOUT period)
 	UNLOCK(&nxGlobalLock);
 	return timerid;
 }
-#endif /* MW_FEATURE_TIMERS */
 
-#if MW_FEATURE_TIMERS
 /**
  * FIXME
  *
@@ -4425,6 +4425,7 @@ GrDestroyTimer (GR_TIMER_ID tid)
 }
 #endif /* MW_FEATURE_TIMERS */
 
+#if !MW_FEATURE_TINY
 /**
  * Set server portrait mode.
  *
@@ -4466,6 +4467,7 @@ GrQueryPointer(GR_WINDOW_ID *mwin, GR_COORD *x, GR_COORD *y, GR_BUTTON *bmask)
 	ReadBlock(bmask, sizeof(*bmask));
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Returns the current length of the client side queue.
@@ -4489,6 +4491,7 @@ GrQueueLength(void)
 	return count;
 }
 
+#if DYNAMICREGIONS
 /**
  * Creates a new region structure, fills it with the region described by the
  * specified polygon, and returns the ID used to refer to it. 1 bits in the
@@ -4569,7 +4572,9 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 	req->type = type;
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
+#if MW_FEATURE_AREAS
 /**
  * Copies a region from one drawable to another.  Can stretch and/or flip
  * the image.  The stretch/flip maps (sx1,sy1) in the source to (dx1,dy1)
@@ -4624,6 +4629,7 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 	req->op = op;
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 /**
  * Grab a key for a specific window.
@@ -4699,6 +4705,7 @@ GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 	UNLOCK(&nxGlobalLock);
 }
 
+#if !MW_FEATURE_TINY
 /**
  * This passes transform data to the mouse input engine. 
  *
@@ -4729,6 +4736,7 @@ GrSetTransform(GR_TRANSFORM *trans)
 
 	UNLOCK(&nxGlobalLock);
 }
+#endif
 
 #if HAVE_FREETYPE_2_SUPPORT
 /**
@@ -4832,6 +4840,3 @@ GrCopyFont(GR_FONT_ID fontid, GR_COORD height, GR_COORD width)
 	return result;
 }
 #endif /*HAVE_FREETYPE_2_SUPPORT*/
-
-
-

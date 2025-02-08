@@ -396,6 +396,12 @@ GsSelect(GR_TIMEOUT timeout)
 #endif 
 #endif
 
+#if CONFIG_ARCH_PC98
+	if (mousedev.Poll()) {
+		GsCheckMouseEvent();
+		return;
+	}
+#endif
 	/* X11/SDL perform single update of aggregate screen update region*/
 	if (scrdev.PreSelect)
 	{
@@ -499,6 +505,10 @@ GsSelect(GR_TIMEOUT timeout)
 #endif /* HAVE_VNCSERVER*/
 
 
+#if CONFIG_ARCH_PC98
+    if (timeout == GR_TIMEOUT_BLOCK)
+        timeout = 10;
+#endif
 	/* setup timeval struct for block or poll in select()*/
 	tout.tv_sec = tout.tv_usec = 0;					/* setup for assumed poll*/
 	to = &tout;

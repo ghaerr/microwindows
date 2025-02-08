@@ -12,7 +12,7 @@ include $(BASEDIR)/Makefile-rules
 
 # Modify the following lines to build IBM/VGA, IBM/CGA or PC98 drivers
 CONFIG_ARCH_IBMPC=y
-CONFIG_HW_VGA=n
+CONFIG_HW_VGA=y
 CONFIG_ARCH_PC98=n
 
 # remove any -mregparmcall as ASM files need cdecl calling convention

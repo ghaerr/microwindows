@@ -79,10 +79,9 @@ FARADDR		int10(int ax,int bx);
 
 /* portable C EGA/VGA planar-4 driver in vgaplan4.c/memplan4.c*/
 int		ega_init(PSD psd);
-void 		ega_drawpixel(PSD psd,MWCOORD x,MWCOORD y, MWPIXELVAL c);
-MWPIXELVAL 	ega_readpixel(PSD psd,MWCOORD x,MWCOORD y);
-void		ega_drawhorzline(PSD psd,MWCOORD x1,MWCOORD x2, MWCOORD y,MWPIXELVAL c);
-void		ega_drawvertline(PSD psd,MWCOORD x,MWCOORD y1, MWCOORD y2, MWPIXELVAL c);
+int		cga_init(PSD psd);
+int		pc98_init(PSD psd);
+void		pc98_drawhorzline(PSD psd,MWCOORD x1,MWCOORD x2, MWCOORD y,MWPIXELVAL c);
 #if HAVEBLIT
 void	 	ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);

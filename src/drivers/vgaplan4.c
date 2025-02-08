@@ -12,8 +12,8 @@
  *
  * This file is meant to compile under Linux, ELKS, and MSDOS
  * without changes.  Please try to keep it that way.
- * 
  */
+
 /*#define NDEBUG*/
 #include <stdio.h>
 #include <stdlib.h>

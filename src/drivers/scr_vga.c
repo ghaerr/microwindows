@@ -22,9 +22,8 @@
  * 	the portable VGA 4 planes 16 color driver, or asmplan4.s, which
  * 	is 8086 assembly language for speed.  This file itself
  * 	doesn't know about any planar or packed arrangement, relying soley
- * 	on the following external routines for all graphics drawing:
- * 		ega_init, ega_drawpixel, ega_readpixel,
- * 		ega_drawhorzline, ega_drawvertline
+ * 	on routines in vgaplan4.c for drawing:
+ * 		ega_init, ega_drawpixel, ega_readpixel, ega_drawhorzline, ega_drawvertline.
  *
  * 	All text/font drawing code is based on the above routines and
  * 	the included entry points for getting the ROM bitmap data.
@@ -63,13 +62,13 @@
 
 #include "device.h"
 #include "vgaplan4.h"
+#include "genmem.h"
+#include "fb.h"
 #if ROMFONT
 #include "romfont.h"
 #else
 #include "genfont.h"
 #endif
-#include "genmem.h"
-#include "fb.h"
 
 /* VGA driver entry points*/
 static PSD  VGA_open(PSD psd);
@@ -134,7 +133,7 @@ VGA_open(PSD psd)
 	psd->pixtype = MWPF_PALETTE;
 	psd->flags = PSF_SCREEN;
 	set_subdriver(psd, &vgaplan4_none);
-	ega_init(psd);		/* init planes driver (sets psd->addr and psd->pitch)*/
+	ega_init(psd);		/* init planes driver (sets psd->pitch)*/
 
 #if ROMFONT
 	pcrom_init(psd);	/* init pc rom font routines*/
@@ -142,7 +141,6 @@ VGA_open(PSD psd)
 #if 0
 	ROM_CHAR_HEIGHT = VGAMODE? 16: 14;
 #endif
-	/* FIXME: add palette code*/
 	return psd;
 }
 

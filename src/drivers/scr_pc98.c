@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
- *
- * PC-98 16 color 4 planes Screen Driver
- * This driver is created and modifed, based on EGA/VGA driver.
- * T. Yamada 2022
- *
+ * PC-98 16 color 4 planes Screen Driver for ELKS
  * 	For PC-98, 640x400 resolution
  * 	This driver uses LIO for graphical setting.
  *
- * 	This file itself doesn't know about any planar or packed arrangement, relying soley
+ *      This driver is created and modifed, based on EGA/VGA driver.
+ * 	This file itself doesn't know about any planar or packed arrangement, relying
  * 	on routines in vgaplan4_pc98.c for drawing.
+ *
+ *      Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ *
+ * T. Yamada 2022
  */
 
 #include <linuxmt/ntty.h>
@@ -147,7 +147,7 @@ PC98_open(PSD psd)
 
 	unsigned int __far *tvram;
 
-	extern SUBDRIVER vgaplan4_none;
+	extern PSUBDRIVER pc98plan4[4];
 
 	// Clear 80*25 words text vram starting from segment 0xA000
 	tvram = (unsigned int __far *) _MK_FP(0xA000,0);
@@ -164,7 +164,7 @@ PC98_open(PSD psd)
 	psd->ncolors = 16;
 	psd->pixtype = MWPF_PALETTE;
 	psd->flags = PSF_SCREEN;
-    set_subdriver(psd, &vgaplan4_none);
+    set_subdriver(psd, pc98plan4[0]);
 
 	pc98_init(psd);             /* init planes driver (sets psd->addr and psd->linelen)*/
 

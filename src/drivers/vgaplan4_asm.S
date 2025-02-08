@@ -1,9 +1,38 @@
-// ELKS utility Microwindows routines for ia16-elf-gcc compiler
+// int10 and INLINE_FP routines for ia16-elf-gcc compiler
 // Copyright (c) 1999, 2019, 2025 Greg Haerr <greg@censoft.com>
+
+.set INLINE_FP,1       // =1 to inline xxx_FP functions (no ASM calls)
 
 	.code16
 	.text
+//
+// es:bp = int10(int ax,int bx)
+//  Call video bios using interrupt 10h
+//
+//FARADDR int10(int ax,int bx)
+	.global	int10
+int10:
+	push	%bp
+	mov		%sp,%bp
+	push	%es
+	push	%ds
+	push	%si
+	push	%di
 
+	mov		4(%bp),%ax	// get first arg
+	mov		6(%bp),%bx	// get second arg
+	int		$0x10
+	mov		%es,%dx		// return es:bp
+	mov		%bp,%ax
+
+	pop		%di
+	pop		%si
+	pop		%ds
+	pop		%es
+	pop		%bp
+	ret
+
+.if !INLINE_FP
 //
 // Return the byte at far address
 //
@@ -142,60 +171,4 @@ outport:
 
 	pop		%bp
 	ret
-
-//
-// es:bp = int10(int ax,int bx)
-//  Call video bios using interrupt 10h
-//
-//FARADDR int10(int ax,int bx)
-	.global	int10
-int10:
-	push	%bp
-	mov		%sp,%bp
-	push	%es
-	push	%ds
-	push	%si
-	push	%di
-
-	mov		4(%bp),%ax	// get first arg
-	mov		6(%bp),%bx	// get second arg
-	int		$0x10
-	mov		%es,%dx		// return es:bp
-	mov		%bp,%ax
-
-	pop		%di
-	pop		%si
-	pop		%ds
-	pop		%es
-	pop		%bp
-	ret
-
-// poll the keyboard*/
-//int kbpoll(void)
-	.global	kbpoll
-kbpoll:
-	mov		$1,%ah		// read, no remove
-	int		$0x16
-	jz		nordy		// no chars ready
-	mov		$1,%ax		// chars ready
-	ret
-nordy:
-	xor		%ax,%ax		// no chars ready
-	ret
-
-// wait and read a kbd char when ready*/
-//int kbread(void)
-	.global	kbread
-kbread:
-	xor		%ah,%ah		// read and remove
-	int		$0x16			// return ax
-	ret
-
-// return kbd shift status*/
-//int kbflags(void)
-	.global	kbflags
-kbflags:
-	mov		$2,%ah		// get shift status
-	int		$0x16
-	mov		$0,%ah		// low bits only for now...
-	ret
+.endif

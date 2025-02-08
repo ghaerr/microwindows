@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
- *
- * CGA Screen Driver
- * This driver is created and modifed, based on EGA/VGA driver.
- * T. Yamada 2024
- *
+ * CGA Screen Driver for ELKS
  * 	For CGA, 2 color, 640x200 resolution
  * 	This driver uses bios for graphical setting.
  *
- * 	This file itself doesn't know about any planar or packed arrangement, relying soley
+ *      This driver is created and modifed, based on EGA/VGA driver.
+ * 	This file itself doesn't know about any planar or packed arrangement, relying
  * 	on routines in vgaplan4_cga.c for drawing.
+ *
+ *      Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ *
+ * T. Yamada 2024
  */
 
 #include <linuxmt/ntty.h>
@@ -60,7 +60,7 @@ static MWBOOL MONOMODE = FALSE;	/* monochrome mode*/
 static PSD
 CGA_open(PSD psd)
 {
-	extern SUBDRIVER vgaplan4_none;
+	extern PSUBDRIVER cgaplan4[4];
 
 	/* setup operating mode from environment variable*/
 	if(getenv("MONOMODE"))
@@ -82,7 +82,7 @@ CGA_open(PSD psd)
 		psd->bpp = 4;           /* color applications */
 		psd->ncolors = 16;
 	}
-    set_subdriver(psd, &vgaplan4_none);
+    set_subdriver(psd, cgaplan4[0]);
 
 	cga_init(psd);              /* init planes driver (sets psd->linelen)*/
 

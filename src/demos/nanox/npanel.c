@@ -52,24 +52,21 @@ static void do_buttonup(GR_EVENT_BUTTON *ep);
 static void do_update(GR_EVENT_UPDATE *ep);
 static void do_mouse(GR_EVENT_MOUSE *ep);
 
+#if ELKS
+#define PATH    "./"
+#else
+#define PATH    "bin/"
+#endif
+
 struct app_info {
 	char		app_id[10];
 	char		app_path[64];
 } Apps[] = {
-#if ELKS
-	{"clock", "./nxclock"},
-	{"term", "./nxterm"},
-	{"tetris", "./nxtetris"},
-	{"world", "./nxworld"},
-	{"landmine", "./nxlandmine"},
-	{"panel", "./nxpanel"},
-#else
-	{"clock", "bin/nxclock"},
-	{"term", "bin/nterm"},
-	{"demo", "bin/demo"},
-	{"demo2", "bin/demo2"},
-	{"ntest", "bin/ntest"},
-#endif
+	{"clock",   PATH "nxclock"},
+	{"term",    PATH "nxterm"},
+	{"tetris",  PATH "nxtetris"},
+	{"world",   PATH "nxworld"},
+	{"landmine",PATH "nxlandmine"},
 	{"", ""}
 };
 

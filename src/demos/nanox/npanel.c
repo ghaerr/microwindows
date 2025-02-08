@@ -9,7 +9,8 @@
    Unfortunately since outline moves are not supported yet, the only
    alternative is "invisible" moving.
 */ 
-#define SHOW_WINDOW_MOTION
+#define WINDOW_MANAGER      0
+#define SHOW_WINDOW_MOTION  1
 
 /*
    Define this if you want the mouse pointer to become bell shaped when over
@@ -130,10 +131,9 @@ main(int argc,char **argv)
 
 	GrGetGCTextSize(gc, "A", 1, GR_TFASCII, &fwidth, &fheight, &fbase);
 	width = fwidth * 8 + 4;
-	height = (fheight) * num_apps + 4;
+	height = fheight * num_apps + 4;
 
-	w1 = GrNewWindow(GR_ROOT_WINDOW_ID, 5, 5, width,
-		height, 1, WHITE, BLACK);
+	w1 = GrNewWindow(GR_ROOT_WINDOW_ID, si.cols-width-10, 5, width, height, 1, WHITE, BLACK);
 
 	GrSelectEvents(w1, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_BUTTON_DOWN
 			| GR_EVENT_MASK_CLOSE_REQ);
@@ -203,7 +203,8 @@ static mwin * IsDecoration(GR_WINDOW_ID wid)
 	}
 	return NULL;
 }
-	
+
+#if WINDOW_MANAGER
 static mwin * FindWindow(GR_WINDOW_ID wid)
 {
 	mwin * mwp;
@@ -226,10 +227,12 @@ static mwin * NewWindow(GR_WINDOW_ID wid)
 	}
 	return mwp;
 }
+#endif
 
 static void
 do_update(GR_EVENT_UPDATE *ep)
 {
+#if WINDOW_MANAGER
 	mwin *	mwp;
 	mwin *	tmwp;
 	GR_WINDOW_INFO winfo;
@@ -248,11 +251,9 @@ do_update(GR_EVENT_UPDATE *ep)
 		mwp->y = ep->y - winfo.bordersize;
 		mwp->width = ep->width + 2 * winfo.bordersize;
 		GrMoveWindow(mwp->wid, mwp->x + winfo.bordersize,
-					mwp->y + DEC_HEIGHT +
-						2 * winfo.bordersize);
+			mwp->y + DEC_HEIGHT + 2 * winfo.bordersize);
 		mwp->fid = GrNewWindow(GR_ROOT_WINDOW_ID, mwp->x + 1,
-				mwp->y + 1, mwp->width - 2,
-				DEC_HEIGHT - 2, 1, BLUE, BLACK);
+			mwp->y + 1, mwp->width - 2, DEC_HEIGHT - 2, 1, BLUE, BLACK);
 		GrSelectEvents(mwp->fid, GR_EVENT_MASK_BUTTON_DOWN |
 			GR_EVENT_MASK_BUTTON_UP | GR_EVENT_MASK_MOUSE_POSITION);
 		GrMapWindow(mwp->fid);
@@ -273,8 +274,7 @@ do_update(GR_EVENT_UPDATE *ep)
 			case GR_UPDATE_MOVE:
 				GrGetWindowInfo(ep->wid, &winfo);
 				if ((ep->x == (mwp->x + winfo.bordersize)) &&
-					(ep->y == (mwp->y + winfo.bordersize
-							+ DEC_HEIGHT))) {
+					(ep->y == (mwp->y + winfo.bordersize + DEC_HEIGHT))) {
 					return;
 				}
 				mwp->x = ep->x - winfo.bordersize;
@@ -284,6 +284,7 @@ do_update(GR_EVENT_UPDATE *ep)
 				break;
 		}
 	}
+#endif
 }
 
 /*

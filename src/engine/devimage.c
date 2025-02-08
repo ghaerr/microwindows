@@ -156,7 +156,7 @@ GdDrawImageFromBuffer(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width,
 	}
 }
 
-#if HAVE_FILEIO
+#if (HAVE_FILEIO && MW_FEATURE_IMAGES)
 /**
  * Draw an image from a file.
  *
@@ -239,7 +239,7 @@ GdLoadImageFromFile(char *path, int flags)
 	close(fd);
 	return pmd;
 }
-#endif /* HAVE_FILEIO*/
+#endif /* (HAVE_FILEIO && MW_FEATURE_IMAGES)*/
 
 /*
  * Convert 8bpp palettized image to RGBA

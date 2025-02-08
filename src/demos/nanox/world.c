@@ -157,12 +157,10 @@ main(int argc, char **argv)
 	GR_WM_PROPERTIES wmprops;
 	GR_SCREEN_INFO	si;
 
-#if 0   // FIXME this breaks GrOpen/connect below for unknown reasons!
 	if (access(MAPFILE, F_OK) < 0) {
-		GsError("Missing map file: %s\n", MAPFILE);
+		GrError("Missing map file: %s\n", MAPFILE);
 		return 1;
 	}
-#endif
 
 	if (GrOpen() < 0)
 		return 1;

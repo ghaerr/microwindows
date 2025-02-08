@@ -322,7 +322,7 @@ typedef struct {
 	int	 	planes;		/* hw # planes*/
 	int	 	bpp;		/* hw bpp*/
 	MWIMGDATFMT data_format;/* MWIF_ image data format*/
-	int32_t	ncolors;	/* hw number of colors supported*/
+	uint32_t	ncolors;/* hw number of colors supported*/
 	int 	fonts;		/* number of built-in fonts */
 	int 	buttons;	/* buttons which are implemented */
 	MWKEYMOD modifiers;	/* modifiers which are implemented */
@@ -1335,7 +1335,6 @@ typedef struct {
 #if MWPIXEL_FORMAT == MWPF_PALETTE
 //only required for compiling in palette pixel size, not supported in convblits
 //extern MWPALENTRY	gr_palette[256];
-//extern int32_t	gr_ncolors;
 //#define RGB2PIXEL(r,g,b)	GdFindNearestColor(gr_palette, gr_ncolors, MWRGB(r,g,b))
 #define RGB2PIXEL(r,g,b)	0
 #endif

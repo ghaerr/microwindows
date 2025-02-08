@@ -1741,6 +1741,7 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
 {
 	GR_WINDOW	*wp;	/* new window*/
 	static int nextx = 10, nexty = 10;
+	static int firstx = 10, firsty = 10;
 
 	if (width <= 0 || height <= 0 || bordersize < 0) {
 		GsError(GR_ERROR_BAD_WINDOW_SIZE, 0);
@@ -1752,13 +1753,19 @@ NewWindow(GR_WINDOW *pwp, GR_COORD x, GR_COORD y, GR_SIZE width, GR_SIZE height,
 		GsError(GR_ERROR_MALLOC_FAILED, 0);
 		return NULL;
 	}
-	if (x < 0)
-		x = nextx, nextx += 100;
-	if (y < 0)
-		y = nexty, nexty += 100;
+	wp->psd = rootwp->psd;
+	if (x < 0 || y < 0) {
+		x = nextx;
+        if (x + width > wp->psd->xvirtres)
+            x = nextx = firstx += 10;
+		y = nexty;
+        if (y + height > wp->psd->yvirtres)
+            y = nexty = firsty += 10;
+        nextx += wp->psd->xvirtres / 8;
+        nexty += wp->psd->yvirtres / 8;
+    }
 
 	wp->id = nextid++;
-	wp->psd = rootwp->psd;
 	wp->parent = pwp;
 	wp->children = NULL;
 	wp->siblings = pwp->children;
@@ -4104,6 +4111,7 @@ GrSetWindowRegion(GR_WINDOW_ID wid, GR_REGION_ID rid, int type)
 #endif
 }
 
+#if !MW_FEATURE_TINY
 /**
  * This passes transform data to the mouse input engine.
  *
@@ -4233,6 +4241,7 @@ GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 
 	SERVER_UNLOCK();
 }
+#endif
 
 /**
  * Ring Bell

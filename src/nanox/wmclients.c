@@ -98,8 +98,8 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 	}
 
 #if NO_AUTO_MOVE
-	x = winfo.x - xoffset;
-	y = winfo.y - yoffset;
+	x = MWABS(winfo.x - xoffset);
+	y = MWABS(winfo.y - yoffset);
 #else
 	/* determine x,y window location*/
 	if (style & GR_WM_PROPS_NOAUTOMOVE) {

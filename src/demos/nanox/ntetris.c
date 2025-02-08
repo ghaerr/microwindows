@@ -91,7 +91,9 @@
 #define random      rand
 #endif
 
-static int delay = 100;
+int WELL_HEIGHT = 28;		/* VGA */
+int WELL_VISIBLE_HEIGHT = 24;
+int delay = 100;
 
 void *my_malloc(size_t size)
 {
@@ -744,6 +746,10 @@ void init_game(nstate *state)
 		exit(1);
 	}
 	GrGetScreenInfo(&si);
+	if (si.rows <= 200) {		/* CGA */
+		WELL_HEIGHT = 18;
+		WELL_VISIBLE_HEIGHT = 16;
+	}
 
 	state->main_window = GrNewWindowEx(
 					GR_WM_PROPS_BORDER|GR_WM_PROPS_CAPTION|GR_WM_PROPS_CLOSEBOX,

@@ -31,13 +31,10 @@
 #endif
 
 #if ELKS
-#define SCREEN_WIDTH	640
-#define SCREEN_HEIGHT	480
-#define SCREEN_DEPTH    4
 #define USE_ALLOCA		0		/* =1 if alloca() is available*/
 #define HAVE_MMAP       0       /* =1 has mmap system call*/
 #define HAVE_SIGNAL		0		/* =1 has signal system call*/
-#define HAVE_FILEIO		1		/* =1 to include libc stdio and image reading routines*/
+#define HAVE_FILEIO		0		/* =1 to include libc stdio and image reading routines*/
 #define HAVE_BMP_SUPPORT 0		/* BMP image support*/
 #define HAVE_FNT_SUPPORT 0		/* Microwindows FNT font support*/
 #define HAVE_PCF_SUPPORT 0		/* PCF font support*/
@@ -49,6 +46,7 @@
 #define MW_FEATURE_INTL	0		/* =1 for dbcs and TEXTIP_EXTENDED font/encoding support*/
 #define MW_FEATURE_PORTRAIT 0	/* =1 for portrait support */
 #define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
+#define SCREEN_DEPTH    4
 #define MW_FEATURE_AREAS 0	    /* =1 for GrArea, GrReadArea, GrStretchArea */
 #define MW_FEATURE_TINY 1	    /* =1 to drop various less-used features */
 #define MW_FEATURE_CLIENTDATA 0 /* =1 for copy/paste support */

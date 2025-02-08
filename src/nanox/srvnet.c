@@ -1595,7 +1595,8 @@ GrStretchAreaWrapper(void *r)
 static void
 GrGrabKeyWrapper(void *r)
 {
-        nxGrabKeyReq *req = r;
+#if !MW_FEATURE_TINY
+	nxGrabKeyReq *req = r;
 
 	if (req->type != GR_GRAB_MAX + 1) {   /* GrGrabKey */
 		int ret = GrGrabKey(req->wid, req->key, req->type);
@@ -1603,11 +1604,13 @@ GrGrabKeyWrapper(void *r)
 		GsWrite(current_fd, &ret, sizeof(ret));
 	} else
 		GrUngrabKey(req->wid, req->key);
+#endif
 }
 
 static void
 GrSetTransformWrapper(void *r) 
 {
+#if !MW_FEATURE_TINY
 	nxSetTransformReq *req = r;
 	GR_TRANSFORM trans;
 
@@ -1622,6 +1625,7 @@ GrSetTransformWrapper(void *r)
 		GrSetTransform(&trans);
 	} else
 		GrSetTransform(NULL);
+#endif
 }
 
 static void
@@ -1966,7 +1970,7 @@ GsDestroyClientResources(GR_CLIENT * client)
 	GR_TIMER      * tp, *ntp;
 #endif
 
-DPRINTF("Destroy client %d resources\n", client->id);
+	DPRINTF("Destroy client %d resources\n", client->id);
 	/* search window list, destroy windows owned by client*/
 again:
 	for(wp=listwp; wp; wp=nwp) {
@@ -1978,7 +1982,8 @@ again:
 		while (ecp) {
 			necp = ecp->next;
 			if (ecp->client == client) {
-DPRINTF( "  Destroy window %d eventclient mask %08x\n", wp->id, ecp->eventmask);
+				DPRINTF("  Destroy window %d eventclient mask %08x\n",
+					wp->id, ecp->eventmask);
 				if (ecp == wp->eventclients)
 					wp->eventclients = ecp->next;
 				else
@@ -1989,9 +1994,11 @@ DPRINTF( "  Destroy window %d eventclient mask %08x\n", wp->id, ecp->eventmask);
 			ecp = necp;
 		}
 		if (wp->owner == client) {
-DPRINTF("  Destroy window %d (client %d)\n", wp->id, wp->owner->id);
+			DPRINTF("  Destroy window %d (client %d)\n",
+				wp->id, wp->owner->id);
 			GrDestroyWindow(wp->id);
-			/* GsDestroyWindow frees client structs and changes the listwp window list, so start over*/
+			/* GsDestroyWindow frees client structs and changes the
+			   listwp window list, so start over*/
 			goto again;
 		}
 	}
@@ -2000,7 +2007,7 @@ DPRINTF("  Destroy window %d (client %d)\n", wp->id, wp->owner->id);
 	for(pp=listpp; pp; pp=npp) {
 		npp = pp->next;
 		if (pp->owner == client) {
-DPRINTF("  Destroy pixmap %d\n", pp->id);
+			DPRINTF("  Destroy pixmap %d\n", pp->id);
 			GrDestroyWindow(pp->id);
 		}
 	}
@@ -2009,7 +2016,7 @@ DPRINTF("  Destroy pixmap %d\n", pp->id);
 	for(gp=listgcp; gp; gp=ngp) {
 		ngp = gp->next;
 		if (gp->owner == client) {
-DPRINTF("  Destroy gc %d\n", gp->id);
+			DPRINTF("  Destroy gc %d\n", gp->id);
 			GrDestroyGC(gp->id);
 		}
 	}
@@ -2018,7 +2025,7 @@ DPRINTF("  Destroy gc %d\n", gp->id);
 	for(fp=listfontp; fp; fp=nfp) {
 		nfp = fp->next;
 		if (fp->owner == client) {
-DPRINTF("  Destroy font %d\n", fp->id);
+			DPRINTF("  Destroy font %d\n", fp->id);
 			GrDestroyFont(fp->id);
 		}
 	}
@@ -2028,7 +2035,7 @@ DPRINTF("  Destroy font %d\n", fp->id);
 	for(rp=listregionp; rp; rp=nrp) {
 		nrp = rp->next;
 		if (rp->owner == client) {
-DPRINTF("  Destroy region %d\n", rp->id);
+			DPRINTF("  Destroy region %d\n", rp->id);
 			GrDestroyRegion(rp->id);
 		}
 	}
@@ -2039,7 +2046,7 @@ DPRINTF("  Destroy region %d\n", rp->id);
 	for(tp=list_timer; tp; tp=ntp) {
 		ntp = tp->next;
 		if (tp->owner == client) {
-DPRINTF("  Destroy timer %d\n", tp->id);
+			DPRINTF("  Destroy timer %d\n", tp->id);
 			GrDestroyTimer(tp->id);
 		}
 	}
@@ -2049,24 +2056,26 @@ DPRINTF("  Destroy timer %d\n", tp->id);
 	for(cp=listcursorp; cp; cp=ncp) {
 		ncp = cp->next;
 		if (cp->owner == client) {
-DPRINTF("  Destroy cursor %d\n", cp->id);
+			DPRINTF("  Destroy cursor %d\n", cp->id);
 			GrDestroyCursor(cp->id);
 		}
 	}
 
+#if !MW_FEATURE_TINY
 	/* Free key grabs associated with client*/
 	for (kp=list_grabbed_keys; kp; kp = nkp) {
 		nkp = kp->next;
 		if (kp->owner == curclient) {
-DPRINTF("  Destroy grabkey %d,%d\n", kp->wid, kp->key);
+			DPRINTF("  Destroy grabkey %d,%d\n", kp->wid, kp->key);
 			GrUngrabKey(kp->wid, kp->key);
 		}
 	}
+#endif
 
 	/* Free events associated with client*/
 	evp = client->eventhead;
 	while (evp) {
-DPRINTF("  Destroy event %d\n", evp->event.type);
+		DPRINTF("  Destroy event %d\n", evp->event.type);
 		client->eventhead = evp->next;
 		evp->next = eventfree;
 		eventfree = evp;

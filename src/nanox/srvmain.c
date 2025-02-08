@@ -506,8 +506,8 @@ GsSelect(GR_TIMEOUT timeout)
 
 
 #if CONFIG_ARCH_PC98
-    if (timeout == GR_TIMEOUT_BLOCK)
-        timeout = 10;
+	if (timeout == GR_TIMEOUT_BLOCK)
+		timeout = 10;
 #endif
 	/* setup timeval struct for block or poll in select()*/
 	tout.tv_sec = tout.tv_usec = 0;					/* setup for assumed poll*/

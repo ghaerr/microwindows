@@ -147,7 +147,7 @@ PC98_open(PSD psd)
 
 	unsigned int __far *tvram;
 
-	extern SUBDRIVER vgaplan4_none;
+	extern PSUBDRIVER pc98plan4[4];
 
 	// Clear 80*25 words text vram starting from segment 0xA000
 	tvram = (unsigned int __far *) _MK_FP(0xA000,0);
@@ -164,7 +164,7 @@ PC98_open(PSD psd)
 	psd->ncolors = 16;
 	psd->pixtype = MWPF_PALETTE;
 	psd->flags = PSF_SCREEN;
-    set_subdriver(psd, &vgaplan4_none);
+    set_subdriver(psd, pc98plan4[0]);
 
 	pc98_init(psd);             /* init planes driver (sets psd->addr and psd->linelen)*/
 

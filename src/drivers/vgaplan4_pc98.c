@@ -1,19 +1,15 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
- *
- * 16 color 4 planes EGA/VGA Planar Video Driver for MicroWindows
- * Portable C version
- * Blitting enabled with #define HAVEBLIT in vgaplan4.h
+ * 16 color 4 planes PC-98 Planar Video Driver for Microwindows
  *
  * Based on BOGL - Ben's Own Graphics Library.
  *   Written by Ben Pfaff <pfaffben@debian.org>.
  *	 BOGL is licensed under the terms of the GNU General Public License
  *
+ * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ *
  * In this driver, psd->pitch is line byte length, not line pixel length
  *
- */
-
-/* Modified for PC-98
+ * Modified for PC-98
  * T. Yamada 2022
  */
 
@@ -45,7 +41,7 @@ int
 pc98_init(PSD psd)
 {
 	psd->pitch = BYTESPERLINE;
-	psd->addr = 0;		/* long ptr -> short on 16bit sys*/
+	psd->addr = 0;		/* addr, size unused in driver */
 	psd->size = 0;
 
 	return 1;
@@ -60,7 +56,7 @@ pc98_drawpixel(PSD psd, MWCOORD x,  MWCOORD y, MWPIXELVAL c)
 
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
-	assert (c >= 0 && c < psd->ncolors);
+	assert (c < psd->ncolors);
 
 	DRAWON;
 	if(gr_mode == MWROP_XOR) {
@@ -117,7 +113,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 	assert (x2 >= 0 && x2 < psd->xres);
 	assert (x2 >= x1);
 	assert (y >= 0 && y < psd->yres);
-	assert (c >= 0 && c < psd->ncolors);
+	assert (c < psd->ncolors);
 
 	DRAWON;
 	/* OR/AND mode is not supported for PC-98 for now */
@@ -126,7 +122,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 			x1 = x1_ini;
 			dst = screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE;
 			if (x1 / 8 == x2 / 8) {
-				while(x1 < x2) {
+				while(x1 <= x2) {
 					if  (c & (1 << plane)) {
 						ORBYTE_FP (dst,mask[x1&7]);
 					}
@@ -160,7 +156,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 				}
 
 				x1 = ((x2 >> 3) << 3);
-				while (x1 < x2) {
+				while (x1 <= x2) {
 					if  (c & (1 << plane)) {
 						ORBYTE_FP (dst,mask[x1&7]);
 					}
@@ -176,7 +172,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 			x1 = x1_ini;
 			dst = screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE;
 			if (x1 / 8 == x2 / 8) {
-				while(x1 < x2) {
+				while(x1 <= x2) {
 					if  (c & (1 << plane)) {
 						PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					}
@@ -202,7 +198,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 				}
 
 				x1 = ((x2 >> 3) << 3);
-				while (x1 < x2) {
+				while (x1 <= x2) {
 					if  (c & (1 << plane)) {
 						PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					}
@@ -212,7 +208,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 		}
 	} else {
 		/* slower method, draw pixel by pixel*/
-		while(x1 < x2) {
+		while(x1 <= x2) {
 			for(plane=0; plane<4; ++plane) {
 				if  (c & (1 << plane)) {
 					ORBYTE_FP (screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE,mask[x1&7]);
@@ -238,14 +234,14 @@ pc98_drawvertline(PSD psd, MWCOORD x,  MWCOORD y1,  MWCOORD y2, MWPIXELVAL c)
 	assert (y1 >= 0 && y1 < psd->yres);
 	assert (y2 >= 0 && y2 < psd->yres);
 	assert (y2 >= y1);
-	assert (c >= 0 && c < psd->ncolors);
+	assert (c < psd->ncolors);
 
 	DRAWON;
 	if(gr_mode == MWROP_XOR) {
 		for(plane=0; plane<4; ++plane) {
 			dst = screenbase_table[plane] + x / 8 + y1 * BYTESPERLINE;
 			last = screenbase_table[plane] + x / 8 + y2 * BYTESPERLINE;
-			while (dst < last) {
+			while (dst <= last) {
 				if  (c & (1 << plane)) {
 					PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
 				}
@@ -256,7 +252,7 @@ pc98_drawvertline(PSD psd, MWCOORD x,  MWCOORD y1,  MWCOORD y2, MWPIXELVAL c)
 		for(plane=0; plane<4; ++plane) {
 			dst = screenbase_table[plane] + x / 8 + y1 * BYTESPERLINE;
 			last = screenbase_table[plane] + x / 8 + y2 * BYTESPERLINE;
-			while (dst < last) {
+			while (dst <= last) {
 				if  (c & (1 << plane)) {
 					ORBYTE_FP (dst,mask[x&7]);
 				}
@@ -270,7 +266,7 @@ pc98_drawvertline(PSD psd, MWCOORD x,  MWCOORD y1,  MWCOORD y2, MWPIXELVAL c)
 	DRAWOFF;
 }
 
-SUBDRIVER vgaplan4_none = {
+static SUBDRIVER pc98plan4_none = {
         pc98_drawpixel,
         pc98_readpixel,
         pc98_drawhorzline,
@@ -289,9 +285,9 @@ SUBDRIVER vgaplan4_none = {
 
 };
 
-PSUBDRIVER vgaplan4[4] = {
-        &vgaplan4_none,
+PSUBDRIVER pc98plan4[4] = {
+        &pc98plan4_none,
 #if MW_FEATURE_PORTRAIT
-        NULL, NULL, NULL
+        &fbportrait_left, &fbportrait_right, &fbportrait_down
 #endif
 };

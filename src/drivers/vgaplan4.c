@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
- *
  * 16 color 4 planes EGA/VGA Planar Video Driver for Microwindows
  * Portable C version
  *
@@ -8,10 +6,9 @@
  *   Written by Ben Pfaff <pfaffben@debian.org>.
  *	 BOGL is licensed under the terms of the GNU General Public License
  *
- * In this driver, psd->pitch is line byte length, not line pixel length
+ * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
  *
- * This file is meant to compile under Linux, ELKS, and MSDOS
- * without changes.  Please try to keep it that way.
+ * In this driver, psd->pitch is line byte length, not line pixel length
  */
 
 /*#define NDEBUG*/
@@ -178,7 +175,7 @@ ega_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	DRAWOFF;
 }
 
-SUBDRIVER vgaplan4_none = {
+static SUBDRIVER vgaplan4_none = {
 	ega_drawpixel,
 	ega_readpixel,
 	ega_drawhorzline,
@@ -200,6 +197,6 @@ SUBDRIVER vgaplan4_none = {
 PSUBDRIVER vgaplan4[4] = {
 	&vgaplan4_none,
 #if MW_FEATURE_PORTRAIT
-	NULL, NULL, NULL
+	&fbportrait_left, &fbportrait_right, &fbportrait_down
 #endif
 };

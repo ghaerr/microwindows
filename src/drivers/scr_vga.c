@@ -105,7 +105,7 @@ static MWBOOL VGAMODE = TRUE;	/* ega or vga screen rows*/
 static PSD
 VGA_open(PSD psd)
 {
-	extern SUBDRIVER vgaplan4_none;
+	extern PSUBDRIVER vgaplan4[4];
 
 	/* setup operating mode from environment variable*/
 	if(getenv("EGAMODE"))
@@ -132,7 +132,7 @@ VGA_open(PSD psd)
 	psd->ncolors = 16;
 	psd->pixtype = MWPF_PALETTE;
 	psd->flags = PSF_SCREEN;
-	set_subdriver(psd, &vgaplan4_none);
+	set_subdriver(psd, vgaplan4[0]);
 	ega_init(psd);		/* init planes driver (sets psd->pitch)*/
 
 #if ROMFONT

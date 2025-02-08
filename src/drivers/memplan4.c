@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
- * Copyright (c) 2002 Alex Holden <alex@alexholden.net>
- *
  * 4 planes EGA/VGA Memory (blitting) Video Driver for Microwindows
  * Included with #define HAVEBLIT in vgaplan4.h
  * 
+ * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 2002 Alex Holden <alex@alexholden.net>
+ *
  * 4bpp colors are stored in linear 4pp format in memory dc's
  *
  * 	In this driver, psd->pitch is line byte length, not line pixel length
  */
+
 /*#define NDEBUG*/
 #include <assert.h>
 #include <stdio.h>
@@ -17,8 +18,6 @@
 #include "genmem.h"
 #include "vgaplan4.h"
 #include "fb.h"
-
-#if HAVEBLIT
 
 #if MSDOS | ELKS | RTEMS
 /* assumptions for speed: NOTE: psd is ignored in these routines*/
@@ -29,9 +28,6 @@
 #define SCREENBASE(psd) 	((char *)((psd)->addr))
 #define BYTESPERLINE(psd)	((psd)->pitch)
 #endif
-
-/* extern data*/
-extern int gr_mode;	/* temp kluge*/
 
 static unsigned char notmask[2] = { 0x0f, 0xf0};
 static unsigned char mask[8] = {
@@ -360,18 +356,14 @@ ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 	if(srcvga) {
 		if(dstvga)
-			vga_to_vga_blit(dstpsd, dstx, dsty, w, h,
-				srcpsd, srcx, srcy, op);
+			vga_to_vga_blit(dstpsd, dstx, dsty, w, h, srcpsd, srcx, srcy, op);
 		else
-			vga_to_mempl4_blit(dstpsd, dstx, dsty, w, h,
-				srcpsd, srcx, srcy, op);
+			vga_to_mempl4_blit(dstpsd, dstx, dsty, w, h, srcpsd, srcx, srcy, op);
 	} else {
 		if(dstvga)
-			mempl4_to_vga_blit(dstpsd, dstx, dsty, w, h,
-				srcpsd, srcx, srcy, op);
+			mempl4_to_vga_blit(dstpsd, dstx, dsty, w, h, srcpsd, srcx, srcy, op);
 		else
-			mempl4_to_mempl4_blit(dstpsd, dstx, dsty, w, h,
-				srcpsd, srcx, srcy, op);
+			mempl4_to_mempl4_blit(dstpsd, dstx, dsty, w, h, srcpsd, srcx, srcy, op);
 	}
 }
 
@@ -396,8 +388,6 @@ static SUBDRIVER memplan4_none = {
 PSUBDRIVER memplan4[4] = {
 	&memplan4_none,
 #if MW_FEATURE_PORTRAIT
-	NULL, NULL, NULL
+	&fbportrait_left, &fbportrait_right, &fbportrait_down
 #endif
 };
-
-#endif /* HAVEBLIT*/

@@ -60,7 +60,7 @@ static MWBOOL MONOMODE = FALSE;	/* monochrome mode*/
 static PSD
 CGA_open(PSD psd)
 {
-	extern SUBDRIVER vgaplan4_none;
+	extern PSUBDRIVER cgaplan4[4];
 
 	/* setup operating mode from environment variable*/
 	if(getenv("MONOMODE"))
@@ -82,7 +82,7 @@ CGA_open(PSD psd)
 		psd->bpp = 4;           /* color applications */
 		psd->ncolors = 16;
 	}
-    set_subdriver(psd, &vgaplan4_none);
+    set_subdriver(psd, cgaplan4[0]);
 
 	cga_init(psd);              /* init planes driver (sets psd->linelen)*/
 

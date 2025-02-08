@@ -148,11 +148,12 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 				last = screenbase_table[plane] + x2 / 8 + y * BYTESPERLINE;
 				while (dst < last) {
 					if  (c & (1 << plane)) {
-						PUTBYTE_FP(dst++, 255);
+						PUTBYTE_FP(dst, 255);
 					}
 					else {
-						PUTBYTE_FP(dst++, 0);
+						PUTBYTE_FP(dst, 0);
 					}
+					dst++;
 				}
 
 				x1 = ((x2 >> 3) << 3);
@@ -272,7 +273,7 @@ static SUBDRIVER pc98plan4_none = {
         pc98_drawhorzline,
         pc98_drawvertline,
         gen_fillrect,
-        ega_blit,
+        vga_blit,
         NULL,       /* FrameBlit*/
         NULL,       /* FrameStretchBlit*/
         0, //linear4_convblit_copy_mask_mono_byte_msb,

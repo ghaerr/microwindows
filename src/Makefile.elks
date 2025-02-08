@@ -1,9 +1,6 @@
 # Nano-X Makefile for ELKS
 # originally from v0.86 10/29/99 g haerr
 
-ifndef $(TOPDIR)
-TOPDIR = /Users/greg/net/elks-gh
-endif
 BASEDIR = $(TOPDIR)/elkscmd
 include $(BASEDIR)/Makefile-rules
 
@@ -26,21 +23,20 @@ AR = ia16-elf-ar
 
 # screen, mouse and kbd drivers
 ifeq ($(CONFIG_ARCH_PC98), y)
-DRIVERS += drivers/memplan4.o drivers/elksutilasm.o
+DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o drivers/vgaplan4_mem.o
 DRIVERS += drivers/mou_pc98.o drivers/kbd_tty.o
-DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o
 #DRIVERS += drivers/ramfont.o
 endif
 
 ifeq ($(CONFIG_ARCH_IBMPC), y)
-DRIVERS += drivers/memplan4.o drivers/elksutilasm.o
 DRIVERS += drivers/mou_ser.o drivers/kbd_tty.o
+DRIVERS += drivers/elksutilasm.o
 
 ifeq ($(CONFIG_HW_VGA), y)
-DRIVERS += drivers/scr_vga.o drivers/vgaplan4.o
+DRIVERS += drivers/scr_vga.o drivers/vgaplan4_vga.o drivers/vgaplan4_mem.o
 #DRIVERS += elksdrivers/romfont.o
 else
-DRIVERS += drivers/scr_cga.o drivers/vgaplan4_cga.o
+DRIVERS += drivers/scr_cga.o drivers/vgaplan4_cga.o drivers/vgaplan4_mem.o
 #DRIVERS += drivers/ramfont.o
 endif
 endif
@@ -85,7 +81,7 @@ lib/libnano-X.a: $(CLIENT)
 
 bin/nano-X: $(SERVER)
 	$(LD) $(LDFLAGS) -maout-heap=0x2000 -o $@ $^ $(LDLIBS)
-	cp $@ /Users/greg/net/elks-gh/elkscmd/rootfs_template/root
+	cp $@ $(TOPDIR)/elkscmd/rootfs_template/root
 
 nxdemos: lib/libnano-X.a
 	$(MAKE) -C demos/nanox -f Makefile.elks all

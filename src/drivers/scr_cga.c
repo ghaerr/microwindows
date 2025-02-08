@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
- *
- * CGA Screen Driver
- * This driver is created and modifed, based on EGA/VGA driver.
- * T. Yamada 2024
- *
+ * CGA Screen Driver for ELKS
  * 	For CGA, 2 color, 640x200 resolution
  * 	This driver uses bios for graphical setting.
  *
- * 	This file itself doesn't know about any planar or packed arrangement, relying soley
+ *      This driver is created and modifed, based on EGA/VGA driver.
+ * 	This file itself doesn't know about any planar or packed arrangement, relying
  * 	on routines in vgaplan4_cga.c for drawing.
+ *
+ *      Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ *
+ * T. Yamada 2024
  */
 
 #include <linuxmt/ntty.h>

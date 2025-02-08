@@ -1,5 +1,5 @@
 /*
- * 16 color 4 planes EGA/VGA Planar Video Driver for Microwindows
+ * 16 color 4 planes EGA/VGA Planar Video Driver for ELKS
  * Portable C version
  *
  * Based on BOGL - Ben's Own Graphics Library.
@@ -45,7 +45,7 @@ static unsigned char mask[8] = {
 
 /* Init VGA controller, calc linelen and mmap size, return 0 on fail*/
 int
-ega_init(PSD psd)
+vga_init(PSD psd)
 {
 	psd->pitch = BYTESPERLINE;
 #if ELKS | MSDOS | RTEMS | _MINIX
@@ -66,7 +66,7 @@ ega_init(PSD psd)
 
 /* draw a pixel at x,y of color c*/
 void
-ega_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
+vga_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
@@ -82,7 +82,7 @@ ega_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 
 /* Return 4-bit pixel value at x,y*/
 MWPIXELVAL
-ega_readpixel(PSD psd, MWCOORD x, MWCOORD y)
+vga_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
 	FARADDR		src;
 	int		plane;
@@ -104,7 +104,7 @@ ega_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
 void
-ega_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
+vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	FARADDR dst, last;
 
@@ -152,7 +152,7 @@ ega_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 
 /* Draw a vertical line from x,y1 to x,y2 including final point*/
 void
-ega_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
+vga_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	FARADDR dst, last;
 
@@ -176,12 +176,12 @@ ega_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 }
 
 static SUBDRIVER vgaplan4_none = {
-	ega_drawpixel,
-	ega_readpixel,
-	ega_drawhorzline,
-	ega_drawvertline,
+	vga_drawpixel,
+	vga_readpixel,
+	vga_drawhorzline,
+	vga_drawvertline,
 	gen_fillrect,
-	ega_blit,
+	vga_blit,
 	NULL,       /* FrameBlit*/
 	NULL,       /* FrameStretchBlit*/
 	0, //linear4_convblit_copy_mask_mono_byte_msb,

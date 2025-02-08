@@ -210,7 +210,7 @@ static SUBDRIVER cgaplan4_none = {
     cga_drawhorzline,
     cga_drawvertline,
     gen_fillrect,
-    ega_blit,
+    vga_blit,
     NULL,       /* FrameBlit*/
     NULL,       /* FrameStretchBlit*/
     0, //linear4_convblit_copy_mask_mono_byte_msb,

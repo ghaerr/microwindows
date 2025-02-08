@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
- *
  * EGA/VGA 16 color 4 planes Screen Driver, direct hardware or bios
  * 	If HWINIT 1 is #defined, the file vgainit.c is
  * 	used to provide non-bios direct hw initialization of the VGA
@@ -16,14 +14,10 @@
  *
  * 	All other access to the hardware is controlled through this driver.
  *
- * 	Blitting enabled with #define HAVEBLIT in vgaplan4.h
- *
- * 	This driver links with one of two other files, vgaplan4.c,
- * 	the portable VGA 4 planes 16 color driver, or asmplan4.s, which
- * 	is 8086 assembly language for speed.  This file itself
- * 	doesn't know about any planar or packed arrangement, relying soley
- * 	on routines in vgaplan4.c for drawing:
- * 		ega_init, ega_drawpixel, ega_readpixel, ega_drawhorzline, ega_drawvertline.
+ * 	This driver links with another file, vgaplan4_vga.c,
+ * 	the portable VGA 4 planes 16 color driver. This file itself
+ * 	doesn't know about any planar or packed arrangement, relying
+ * 	on routines in vgaplan4_vga.c for drawing.
  *
  * 	All text/font drawing code is based on the above routines and
  * 	the included entry points for getting the ROM bitmap data.
@@ -34,6 +28,8 @@
  *
  *	The environment variable CHARHEIGHT if set will set the assumed rom
  *	font character height, which defaults to 14.
+ *
+ * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
  *
  * 6 Feb 2025 Greg Haerr Revived from the dead for ELKS!
  */
@@ -133,7 +129,7 @@ VGA_open(PSD psd)
 	psd->pixtype = MWPF_PALETTE;
 	psd->flags = PSF_SCREEN;
 	set_subdriver(psd, vgaplan4[0]);
-	ega_init(psd);		/* init planes driver (sets psd->pitch)*/
+	vga_init(psd);		/* init planes driver (sets psd->pitch)*/
 
 #if ROMFONT
 	pcrom_init(psd);	/* init pc rom font routines*/

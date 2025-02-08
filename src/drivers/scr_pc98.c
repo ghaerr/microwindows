@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
- *
- * PC-98 16 color 4 planes Screen Driver
- * This driver is created and modifed, based on EGA/VGA driver.
- * T. Yamada 2022
- *
+ * PC-98 16 color 4 planes Screen Driver for ELKS
  * 	For PC-98, 640x400 resolution
  * 	This driver uses LIO for graphical setting.
  *
- * 	This file itself doesn't know about any planar or packed arrangement, relying soley
+ *      This driver is created and modifed, based on EGA/VGA driver.
+ * 	This file itself doesn't know about any planar or packed arrangement, relying
  * 	on routines in vgaplan4_pc98.c for drawing.
+ *
+ *      Copyright (c) 1999 Greg Haerr <greg@censoft.com>
+ *
+ * T. Yamada 2022
  */
 
 #include <linuxmt/ntty.h>

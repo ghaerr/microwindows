@@ -1,13 +1,11 @@
 /*
  * 4 planes EGA/VGA Memory (blitting) Video Driver for Microwindows
- * Included with #define HAVEBLIT in vgaplan4.h
  * 
  * Copyright (c) 1999, 2000, 2002 Greg Haerr <greg@censoft.com>
  * Copyright (c) 2002 Alex Holden <alex@alexholden.net>
  *
- * 4bpp colors are stored in linear 4pp format in memory dc's
- *
- * 	In this driver, psd->pitch is line byte length, not line pixel length
+ * 4bpp colors are stored in linear 4pp format in memory
+ * In this driver, psd->pitch is line byte length, not line pixel length
  */
 
 /*#define NDEBUG*/
@@ -345,7 +343,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 }
 
 void
-ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
+vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
 	MWBOOL	srcvga, dstvga;
@@ -373,7 +371,7 @@ static SUBDRIVER memplan4_none = {
 	mempl4_drawhorzline,
 	mempl4_drawvertline,
 	gen_fillrect,
-	ega_blit,
+	vga_blit,
 	NULL,       /* FrameBlit*/
 	NULL,       /* FrameStretchBlit*/
 	0, //linear4_convblit_copy_mask_mono_byte_msb,

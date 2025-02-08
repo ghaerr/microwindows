@@ -1,28 +1,23 @@
 /*
+ * PC-98 Polling Bus Mouse Driver for ELKS
+ * This driver is created and modified based on mou_ser.c
+ *
  * Copyright (c) 1999 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 1991 David I. Bell
  * Permission is granted to use, distribute, or modify this source,
  * provided that this copyright notice remains intact.
  *
- * PC-98 Bus Mouse Driver
- * This driver is created and modified, based on mou_ser.c
  * T. Yamada 2023
- * 
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <arch/io.h>
 #include <string.h>
 #include "device.h"
 
-extern int  inportb(int port);
-extern void outportb(int port,unsigned char data);
-
-#define SCALE       3   /* default scaling factor for acceleration */
-#define THRESH      5   /* default threshhold for acceleration */
-
-/* default settings*/
-#define MOUSE_PORT  "use"   /* default */
+#define inportb(p)      inb(p)
+#define outportb(p,v)   outb(v,p)
 
 /* values in the bytes returned by the mouse for the buttons*/
 #define PC98_LEFT_BUTTON    0x80
@@ -41,20 +36,20 @@ extern void outportb(int port,unsigned char data);
 #define PC98_O_Y_M  0x60 /* Y MSB 4bits are selected */
 #define PC98_O_C    0x93 /* countrol register value */
 
-/* local data*/
-static int       buttons;        /* current mouse buttons pressed */
-static int       buttons_before; /* previous mouse buttons pressed */
-static int       availbuttons;   /* which buttons are available */
-static MWCOORD   x_now;          /* current x counter value */
-static MWCOORD   y_now;          /* current y counter value */
+#define SCALE       3   /* default scaling factor for acceleration */
+#define THRESH      5   /* default threshhold for acceleration */
 
-static int      left;       /* because the button values change */
-static int      right;      /* between mice, the buttons are redefined */
+static int      buttons;        /* current mouse buttons pressed */
+static int      buttons_before; /* previous mouse buttons pressed */
+static int      availbuttons;   /* which buttons are available */
+static MWCOORD  x_now;          /* current x counter value */
+static MWCOORD  y_now;          /* current y counter value */
+static int      left;           /* because the button values change */
+static int      right;          /* between mice, the buttons are redefined */
 
-/* local routines*/
 static int      MOU_Open(MOUSEDEVICE *pmd);
 static void     MOU_Close(void);
-static int   MOU_GetButtonInfo(void);
+static int      MOU_GetButtonInfo(void);
 static void     MOU_GetDefaultAccel(int *pscale,int *pthresh);
 static int      MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr);
 static int      MOU_Poll(void);
@@ -76,15 +71,15 @@ MOU_Open(MOUSEDEVICE *pmd)
 {
     char    *port;
 
-    /* Control Register for 8255A */
-    /* Port A input, Port B input, Port C MSB output, Port C LSB input */
-    outportb(PC98_MOUSE_CONTROL_ADDR, PC98_O_C);
-
     if (!(port = getenv("MOUSE_PORT")))
-        port = MOUSE_PORT;
+        port = "pc98";
 
     if (!strcmp(port, "none"))
         return -2;      /* no mouse */
+
+    /* Control Register for 8255A */
+    /* Port A input, Port B input, Port C MSB output, Port C LSB input */
+    outportb(PC98_MOUSE_CONTROL_ADDR, PC98_O_C);
 
     /* set button bits and parse procedure*/
     left = PC98_LEFT_BUTTON;
@@ -193,7 +188,5 @@ MOU_Poll(void)
         buttons_before = buttons;
         return 1;
     }
-    else {
-        return 0;
-    }
+    return 0;
 }

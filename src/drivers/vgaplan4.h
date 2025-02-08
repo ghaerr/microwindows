@@ -6,7 +6,6 @@
  *
  */
 #define SLOWVGA		0	/* =1 for outb rather than outw instructions*/
-#define HAVEBLIT	1	/* =0 to exclude blitting in vgaplan4 drivers*/
 
 #if ELKS
 #define HAVEFARPTR	1       /* =1 compiler has __far extension */
@@ -77,59 +76,33 @@ extern void outport(int port,int data);
 /* external routines*/
 FARADDR		int10(int ax,int bx);
 
-/* portable C EGA/VGA planar-4 driver in vgaplan4.c/memplan4.c*/
-int		ega_init(PSD psd);
+/* EGA/VGA planar-4 drivers in vgaplan4_*.c */
+int		vga_init(PSD psd);
 int		cga_init(PSD psd);
 int		pc98_init(PSD psd);
 void		pc98_drawhorzline(PSD psd,MWCOORD x1,MWCOORD x2, MWCOORD y,MWPIXELVAL c);
-#if HAVEBLIT
-void	 	ega_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w,
+void	 	vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w,
 			MWCOORD h,PSD srcpsd,MWCOORD srcx,MWCOORD srcy,int op);
-#endif
 #if HWINIT
 void		ega_hwinit(void);       /* HWINIT direct hw init in vgainit.c*/
 void		ega_hwterm(void);
 #endif
 
-#if SLOWVGA
-/* use outb rather than outw instructions for older, slower VGA's*/
-
-/* Program the Set/Reset Register for drawing in color COLOR for write
-   mode 0. */
+#if SLOWVGA     /* use outb rather than outw instructions for older, slower VGA's*/
 #define set_color(c)		{ outb (0, 0x3ce); outb (c, 0x3cf); }
-
-/* Set the Enable Set/Reset Register. */
 #define set_enable_sr(mask)     { outb (1, 0x3ce); outb (mask, 0x3cf); }
-
-/* Select the Bit Mask Register on the Graphics Controller. */
 #define select_mask() 		{ outb (8, 0x3ce); }
-
-/* Program the Bit Mask Register to affect only the pixels selected in
-   MASK.  The Bit Mask Register must already have been selected with
-   select_mask (). */
 #define set_mask(mask)		{ outb (mask, 0x3cf); }
-
 #define select_and_set_mask(mask) { outb (8, 0x3ce); outb (mask, 0x3cf); }
-
-/* Set the Data Rotate Register.  Bits 0-2 are rotate count, bits 3-4
-   are logical operation (0=NOP, 1=AND, 2=OR, 3=XOR). */
 #define set_op(op) 		{ outb (3, 0x3ce); outb (op, 0x3cf); }
-
-/* Set the Memory Plane Write Enable register. */
 #define set_write_planes(mask)  { outb (2, 0x3c4); outb (mask, 0x3c5); }
-
-/* Set the Read Map Select register. */
 #define set_read_plane(plane)	{ outb (4, 0x3ce); outb (plane, 0x3cf); }
-
-/* Set the Graphics Mode Register.  The write mode is in bits 0-1, the
-   read mode is in bit 3. */
 #define set_mode(mode) 		{ outb (5, 0x3ce); outb (mode, 0x3cf); }
+#else
 
-#else /* !SLOWVGA*/
 /* use outw rather than outb instructions for new VGAs*/
 
-/* Program the Set/Reset Register for drawing in color COLOR for write
-   mode 0. */
+/* Program the Set/Reset Register for drawing in color COLOR for write mode 0. */
 #define set_color(c)		{ outw ((c)<<8, 0x3ce); }
 
 /* Set the Enable Set/Reset Register. */
@@ -139,10 +112,8 @@ void		ega_hwterm(void);
 #define select_mask() 		{ outb (8, 0x3ce); }
 
 /* Program the Bit Mask Register to affect only the pixels selected in
-   MASK.  The Bit Mask Register must already have been selected with
-   select_mask (). */
+   MASK.  The Bit Mask Register must already have been selected with select_mask (). */
 #define set_mask(mask)		{ outb (mask, 0x3cf); }
-
 #define select_and_set_mask(mask) { outw (8|((mask)<<8), 0x3ce); }
 
 /* Set the Data Rotate Register.  Bits 0-2 are rotate count, bits 3-4

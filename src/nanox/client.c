@@ -4631,6 +4631,7 @@ GrStretchArea(GR_DRAW_ID dstid, GR_GC_ID gc,
 }
 #endif
 
+#if !MW_FEATURE_TINY
 /**
  * Grab a key for a specific window.
  *
@@ -4705,7 +4706,6 @@ GrUngrabKey(GR_WINDOW_ID id, GR_KEY key)
 	UNLOCK(&nxGlobalLock);
 }
 
-#if !MW_FEATURE_TINY
 /**
  * This passes transform data to the mouse input engine. 
  *

@@ -54,13 +54,8 @@
 #define TEXT_Y_POSITION 15
 #define TEXT2_Y_POSITION 30
 #define WELL_WIDTH 12
-#if defined(CONFIG_HW_VGA) || defined(CONFIG_ARCH_PC98)
-#define WELL_HEIGHT 28
-#define WELL_VISIBLE_HEIGHT 24
-#else
-#define WELL_HEIGHT 18
-#define WELL_VISIBLE_HEIGHT 16
-#endif
+#define MAX_WELL_HEIGHT 28
+extern int WELL_HEIGHT, WELL_VISIBLE_HEIGHT;
 #define WELL_NOTVISIBLE (WELL_HEIGHT - WELL_VISIBLE_HEIGHT)
 #define LEVEL_DIVISOR 500
 #ifdef __ECOS
@@ -162,7 +157,6 @@ struct ntetris_shape {
 typedef struct ntetris_shape shape;
 
 struct ntetris_state {
-	block blocks[2][WELL_HEIGHT][WELL_WIDTH];
 	int score;
 	int hiscore;
 	int fhiscore;
@@ -190,6 +184,7 @@ struct ntetris_state {
 	GR_GC_ID buttongcb;
 	GR_GC_ID wellgc;
 	GR_EVENT event;
+	block blocks[2][MAX_WELL_HEIGHT][WELL_WIDTH];
 	struct timeval timeout;
 };
 typedef struct ntetris_state nstate;

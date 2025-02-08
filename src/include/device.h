@@ -80,7 +80,7 @@ typedef struct _mwscreendevice {
 	MWCOORD	xres;		/* X screen res (real) */
 	MWCOORD	yres;		/* Y screen res (real) */
 	unsigned int size;	/* size of memory allocated*/
-	int32_t	ncolors;	/* # screen colors*/
+	uint32_t	ncolors;/* # screen colors*/
 	int	pixtype;		/* format of pixel value*/
 
 	/* driver entry points*/

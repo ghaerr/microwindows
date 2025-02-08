@@ -30,7 +30,7 @@ endif
 
 ifeq ($(CONFIG_ARCH_IBMPC), y)
 DRIVERS += drivers/mou_ser.o drivers/kbd_tty.o
-DRIVERS += drivers/elksutilasm.o
+DRIVERS += drivers/vgaplan4_asm.o
 
 ifeq ($(CONFIG_HW_VGA), y)
 DRIVERS += drivers/scr_vga.o drivers/vgaplan4_vga.o drivers/vgaplan4_mem.o

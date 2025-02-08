@@ -65,7 +65,7 @@ vga_init(PSD psd)
 }
 
 /* draw a pixel at x,y of color c*/
-void
+static void
 vga_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
 	assert (x >= 0 && x < psd->xres);
@@ -81,7 +81,7 @@ vga_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 }
 
 /* Return 4-bit pixel value at x,y*/
-MWPIXELVAL
+static MWPIXELVAL
 vga_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
 	FARADDR		src;
@@ -103,7 +103,7 @@ vga_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point*/
-void
+static void
 vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
 	FARADDR dst, last;
@@ -151,7 +151,7 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 }
 
 /* Draw a vertical line from x,y1 to x,y2 including final point*/
-void
+static void
 vga_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
 	FARADDR dst, last;

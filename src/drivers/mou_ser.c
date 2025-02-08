@@ -42,8 +42,8 @@
 #define	MOUSE_PORT	"/dev/mouse"
 #define	MOUSE_TYPE	"ms"
 #elif ELKS
-#define	MOUSE_PORT	"/dev/ttyS0"	/* com1 tried first */
-#define	MOUSE_PORT2	"/dev/ttyS1"	/* then com 2 if QEMU -serial stdio */
+#define	MOUSE_PORT	"/dev/ttyS0"	/* com1 then com2 tried on real hardware */
+#define	MOUSE_PORT2	"/dev/ttyS1"	/* but always com2 on QEMU */
 #define MOUSE_TYPE	"ms"
 #elif __fiwix__
 #define MOUSE_PORT	"/dev/ttyS0"
@@ -140,14 +140,17 @@ MOU_Open(MOUSEDEVICE *pmd)
 {
 	char	*type;
 	char	*port;
+	int	mouse_specified = 1;
 	struct termios termios;
 
 	/* get mouse type and port*/
 	if( !(type = getenv("MOUSE_TYPE")))
 		type = MOUSE_TYPE;
 
-	if( !(port = getenv("MOUSE_PORT")))
+	if( !(port = getenv("MOUSE_PORT"))) {
 		port = MOUSE_PORT;
+		mouse_specified = 0;
+	}
 
 	/* set button bits and parse procedure*/
 	if(!strcmp(type, "pc") || !strcmp(type, "logi")) {
@@ -178,11 +181,14 @@ MOU_Open(MOUSEDEVICE *pmd)
 
 	/* open mouse port*/
 #if ELKS
-    EPRINTF("Trying %s\n", port);
+	if (!mouse_specified && getenv("QEMU")) {
+		port = MOUSE_PORT2;
+		mouse_specified = 1;
+	}
 	mouse_fd = open(port, O_EXCL | O_NOCTTY | O_NONBLOCK);
-	if (mouse_fd < 0) {
-		EPRINTF("Mouse not found on first port %s, trying %s.\n",
-			port, MOUSE_PORT2);
+	if (mouse_fd < 0 && !mouse_specified) {
+		EPRINTF("Mouse not found on first port %s (%d), trying %s.\n",
+			port, errno, MOUSE_PORT2);
 		mouse_fd = open(port=MOUSE_PORT2, O_EXCL | O_NOCTTY | O_NONBLOCK);
 	}
 #else

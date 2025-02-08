@@ -68,7 +68,7 @@ CFLAGS += -DNONETWORK=1
 CLIENT = $(NANOX) $(ENGINE) $(DRIVERS) nanox/srvnonet.o drivers/osdep.o
 else
 CFLAGS += -DNONETWORK=0
-CLIENT = nanox/client.o nanox/nxproto.o drivers/osdep.o nanox/nxutil.o
+CLIENT = nanox/client.o nanox/nxproto.o nanox/nxutil.o drivers/osdep.o
 SERVER = $(NANOX) $(ENGINE) $(DRIVERS) nanox/srvnet.o drivers/osdep.o
 ALL += bin/nano-X
 endif

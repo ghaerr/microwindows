@@ -115,7 +115,7 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	assert (c < psd->ncolors);
 
 	DRAWON;
-	set_color (c);
+	set_color ((int)c);
 	set_op(mode_table[gr_mode]);
 	/*
 	* The following fast drawhline code is buggy for XOR drawing,

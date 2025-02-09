@@ -57,9 +57,9 @@ mempl4_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 
 	addr += (x>>1) + y * psd->pitch;
 	if(gr_mode == MWROP_XOR)
-		*addr ^= c << ((1-(x&1))<<2);
+		*addr ^= (unsigned int)c << ((1-(x&1))<<2);
 	else
-		*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
+		*addr = (*addr & notmask[x&1]) | ((unsigned int)c << ((1-(x&1))<<2));
 }
 
 /* Read pixel at x, y*/
@@ -91,13 +91,13 @@ mempl4_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	addr += (x1>>1) + y * psd->pitch;
 	if(gr_mode == MWROP_XOR) {
 		while(x1 <= x2) {
-			*addr ^= c << ((1-(x1&1))<<2);
+			*addr ^= (unsigned int)c << ((1-(x1&1))<<2);
 			if((++x1 & 1) == 0)
 				++addr;
 		}
 	} else {
 		while(x1 <= x2) {
-			*addr = (*addr & notmask[x1&1]) | (c << ((1-(x1&1))<<2));
+			*addr = (*addr & notmask[x1&1]) | ((unsigned int)c << ((1-(x1&1))<<2));
 			if((++x1 & 1) == 0)
 				++addr;
 		}
@@ -121,12 +121,12 @@ mempl4_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	addr += (x>>1) + y1 * pitch;
 	if(gr_mode == MWROP_XOR)
 		while(y1++ <= y2) {
-			*addr ^= c << ((1-(x&1))<<2);
+			*addr ^= (unsigned int)c << ((1-(x&1))<<2);
 			addr += pitch;
 		}
 	else
 		while(y1++ <= y2) {
-			*addr = (*addr & notmask[x&1]) | (c << ((1-(x&1))<<2));
+			*addr = (*addr & notmask[x&1]) | ((unsigned int)c << ((1-(x&1))<<2));
 			addr += pitch;
 		}
 }
@@ -327,8 +327,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			for(plane = 0; plane < 4; ++plane) {
 				set_read_plane(plane);
 				if(GETBYTE_FP(s) & mask[sx & 7])
-					color |= 1 <<
-						(plane + ((dx & 1) ? 0 : 4));
+					color |= 1 << (plane + ((dx & 1) ? 0 : 4));
 			}
 			if((++sx & 7) == 0) ++s;
 			if((++dx & 1) == 0) {

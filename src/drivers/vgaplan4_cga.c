@@ -57,10 +57,10 @@ cga_drawpixel(PSD psd, MWCOORD x,  MWCOORD y, MWPIXELVAL c)
 	/*if (y < psd->yres) {*/
 		dst = screenbase_table[y&1] + x / 8 + y / 2 * BYTESPERLINE;
 		if(gr_mode == MWROP_XOR) {
-			if (c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
+			if ((unsigned int)c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
 		} else {
-			if (c) ORBYTE_FP (dst,mask[x&7]);
-			else  ANDBYTE_FP (dst,~mask[x&7]);
+			if ((unsigned int)c) ORBYTE_FP (dst,mask[x&7]);
+			else				ANDBYTE_FP (dst,~mask[x&7]);
 		}
 	/*}*/
 	DRAWOFF;
@@ -106,15 +106,15 @@ cga_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y,
 			dst = screenbase_table[y&1] + x1 / 8 + y / 2 * BYTESPERLINE;
 			if (x1 / 8 == x2 / 8) {
 				while (x1 <= x2) {
-					if (c) ORBYTE_FP (dst,mask[x1&7]);
-					else  ANDBYTE_FP (dst,~mask[x1&7]);
+					if ((unsigned int)c) ORBYTE_FP (dst,mask[x1&7]);
+					else				ANDBYTE_FP (dst,~mask[x1&7]);
 					x1++;
 				}
 			} else {
 
 				while (x1 % 8) {
-					if (c) ORBYTE_FP (dst,mask[x1&7]);
-					else  ANDBYTE_FP (dst,~mask[x1&7]);
+					if ((unsigned int)c) ORBYTE_FP (dst,mask[x1&7]);
+					else				ANDBYTE_FP (dst,~mask[x1&7]);
 					x1++;
 				}
 				if (x1_ini % 8)
@@ -122,14 +122,14 @@ cga_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y,
 
 				last = screenbase_table[y&1] + x2 / 8 + y / 2 * BYTESPERLINE;
 				while (dst < last) {
-					if (c) PUTBYTE_FP (dst++, 255);
-					else   PUTBYTE_FP (dst++, 0);
+					if ((unsigned int)c) PUTBYTE_FP (dst++, 255);
+					else				 PUTBYTE_FP (dst++, 0);
 				}
 
 				x1 = ((x2 >> 3) << 3);
 				while (x1 <= x2) {
-					if (c) ORBYTE_FP (dst,mask[x1&7]);
-					else  ANDBYTE_FP (dst,~mask[x1&7]);
+					if ((unsigned int)c) ORBYTE_FP (dst,mask[x1&7]);
+					else				ANDBYTE_FP (dst,~mask[x1&7]);
 					x1++;
 				}
 			}
@@ -138,12 +138,12 @@ cga_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y,
 			dst = screenbase_table[y&1] + x1 / 8 + y / 2 * BYTESPERLINE;
 			if (x1 / 8 == x2 / 8) {
 				while(x1 <= x2) {
-					if (c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
+					if ((unsigned int)c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					x1++;
 				}
 			} else {
 				while (x1 % 8) {
-					if (c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
+					if ((unsigned int)c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					x1++;
 				}
 				if (x1_ini % 8)
@@ -151,21 +151,21 @@ cga_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y,
 
 				last = screenbase_table[y&1] + x2 / 8 + y / 2 * BYTESPERLINE;
 				while (dst < last) {
-					if (c) PUTBYTE_FP(dst,~GETBYTE_FP(dst));
+					if ((unsigned int)c) PUTBYTE_FP(dst,~GETBYTE_FP(dst));
 					dst++;
 				}
 
 				x1 = ((x2 >> 3) << 3);
 				while (x1 <= x2) {
-					if (c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
+					if ((unsigned int)c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					x1++;
 				}
 			}
 		} else {
 			/* slower method, draw pixel by pixel*/
 			while(x1 <= x2) {
-				if (c) ORBYTE_FP (screenbase_table[y&1] + x1 / 8 + y / 2 * BYTESPERLINE,mask[x1&7]);
-				else  ANDBYTE_FP (screenbase_table[y&1] + x1 / 8 + y / 2 * BYTESPERLINE,~mask[x1&7]);
+				if ((unsigned int)c) ORBYTE_FP (screenbase_table[y&1] + x1 / 8 + y / 2 * BYTESPERLINE,mask[x1&7]);
+				else			 	ANDBYTE_FP (screenbase_table[y&1] + x1 / 8 + y / 2 * BYTESPERLINE,~mask[x1&7]);
 				x1++;
 			}
 		}
@@ -190,14 +190,14 @@ cga_drawvertline(PSD psd, MWCOORD x,  MWCOORD y1,  MWCOORD y2, MWPIXELVAL c)
 	if(gr_mode == MWROP_XOR) {
 		while (y <= y2 /*&& y < psd->yres*/) {
 			dst = screenbase_table[y&1] + x / 8 + y / 2 * BYTESPERLINE;
-			if (c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
+			if ((unsigned int)c) PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
 			y++;
 		}
 	} else {
 		while (y <= y2 /*&& y < psd->yres*/) {
 			dst = screenbase_table[y&1] + x / 8 + y / 2 * BYTESPERLINE;
-			if (c) ORBYTE_FP (dst,mask[x&7]);
-			else  ANDBYTE_FP (dst,~mask[x&7]);
+			if ((unsigned int)c) ORBYTE_FP (dst,mask[x&7]);
+			else			 	ANDBYTE_FP (dst,~mask[x&7]);
 			y++;
 		}
 	}

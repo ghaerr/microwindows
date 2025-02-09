@@ -72,9 +72,6 @@ GR_TIMER_ID     cache_timer_id;         /* cached timer ID */
 GR_TIMER        *cache_timer;           /* cached timer */
 GR_TIMER        *list_timer;            /* list of all timers */
 #endif
-#if MW_FEATURE_TWO_KEYBOARDS
-static int	keyb2_fd;		/* the keyboard file descriptor */
-#endif
 
 static int	persistent_mode = FALSE;
 static int	portraitmode = MWPORTRAIT_NONE;
@@ -422,14 +419,6 @@ GsSelect(GR_TIMEOUT timeout)
 		if (keyb_fd > setsize)
 			setsize = keyb_fd;
 	}
-#if MW_FEATURE_TWO_KEYBOARDS
-	if(keyb2_fd >= 0)
-	{
-		FD_SET(keyb2_fd, &rfds);
-		if (keyb2_fd > setsize)
-			setsize = keyb2_fd;
-	}
-#endif
 #if NONETWORK
 	/* handle registered input file descriptors*/
 	for (fd = 0; fd < regfdmax; fd++)
@@ -516,11 +505,7 @@ again:
 				continue;
 
 		/* service keyboard file descriptor*/
-		if( (keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
-#if MW_FEATURE_TWO_KEYBOARDS
-		    || (keyb2_fd >= 0 && FD_ISSET(keyb2_fd, &rfds))
-#endif
-		  )
+		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
 			while(GsCheckKeyboardEvent())
 				continue;
 
@@ -795,13 +780,6 @@ GrPrepareSelect(int *maxfd, void *rfdset)
 		if (keyb_fd > *maxfd)
 			*maxfd = keyb_fd;
 	}
-#if MW_FEATURE_TWO_KEYBOARDS
-	if(keyb2_fd >= 0) {
-		FD_SET(keyb2_fd, rfds);
-		if (keyb2_fd > *maxfd)
-			*maxfd = keyb2_fd;
-	}
-#endif
 
 	/* handle registered input file descriptors*/
 	for (fd = 0; fd < regfdmax; fd++) {
@@ -844,11 +822,7 @@ GrServiceSelect(void *rfdset, GR_FNCALLBACKEVENT fncb)
 			continue;
 
 	/* If data is present on the keyboard fd, service it: */
-	if( (keyb_fd >= 0 && FD_ISSET(keyb_fd, rfds))
-#if MW_FEATURE_TWO_KEYBOARDS
-	 || (keyb2_fd >= 0 && FD_ISSET(keyb2_fd, rfds))
-#endif
-	  )
+	if(keyb_fd >= 0 && FD_ISSET(keyb_fd, rfds))
 		while(GsCheckKeyboardEvent())
 			continue;
 
@@ -957,15 +931,6 @@ GsInitialize(void)
 		free(wp);
 		return -1;
 	}
-
-#if MW_FEATURE_TWO_KEYBOARDS
-	if ((keyb2_fd = GdOpenKeyboard2()) == -1) {
-		EPRINTF("Cannot initialise second keyboard\n");
-		/*GsCloseSocket();*/
-		free(wp);
-		return -1;
-	}
-#endif
 
 	if ((psd = GdOpenScreen()) == NULL) {
 		EPRINTF("Cannot initialise screen\n");

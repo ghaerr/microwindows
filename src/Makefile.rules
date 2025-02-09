@@ -283,20 +283,6 @@ ifeq ($(MICROWINMULTIAPP), Y)
 DEFINES += -DMULTIAPP=1
 endif
 
-ifeq ($(HAVE_VNCSERVER_SUPPORT), Y)
-DEFINES += -DHAVE_VNCSERVER=1
-ifneq ($(INCNVC),)
-INCLUDEDIRS += -I$(INCVNC)
-endif
-ifneq ($(INCZ),)
-INCLUDEDIRS += -I$(INCZ)
-endif
-ifeq ($(VNCSERVER_PTHREADED), Y)
-DEFINES += -DVNCSERVER_PTHREADED=1
-LDFLAGS += -lpthread 
-endif
-endif
-
 ##############################################################################
 # Handle screen, keyboard and mouse config options
 ##############################################################################
@@ -326,10 +312,6 @@ endif
 
 ifeq ($(FBREVERSE), Y)
 DEFINES += -DINVERT4BPP=1 -DINVERT2BPP=1
-endif
-
-ifeq ($(KEYBOARD), 2NDKBD)
-DEFINES += -DMW_FEATURE_TWO_KEYBOARDS=1
 endif
 
 ##############################################################################

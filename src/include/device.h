@@ -354,11 +354,6 @@ void 	GdGetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 int  	GdReadKeyboard(MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
 extern KBDDEVICE kbddev;
 
-#if MW_FEATURE_TWO_KEYBOARDS
-int  	GdOpenKeyboard2(void);
-extern KBDDEVICE kbddev2;
-#endif
-
 /* devimage.c */
 #if MW_FEATURE_IMAGES
 PSD		GdLoadImageFromFile(char *path, int flags);

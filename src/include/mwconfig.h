@@ -334,10 +334,6 @@
 #define INVERT2BPP		0		/* =1 for inverted pixels in 2bpp screen driver*/
 #endif
 
-#ifndef MW_FEATURE_TWO_KEYBOARDS
-#define MW_FEATURE_TWO_KEYBOARDS 0	/* =1 to include multiple keyboard support */
-#endif
-
 #ifndef NOMAIN
 #define NOMAIN			0		/* =1 for library without main() entry point*/
 #endif

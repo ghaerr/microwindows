@@ -3,7 +3,7 @@
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (c) 1991 David I. Bell
  *
- * Main module of graphics server.
+ * Main module of Nano-X graphics server.
  */
 #include <stdlib.h>
 #include <signal.h>
@@ -95,11 +95,7 @@ int		un_sock;		/* the server socket descriptor */
 static void
 usage(void)
 {
-	EPRINTF("Usage: %s [-p] [-A] [-NLRD] [-x #] [-y #]"
-#if FONTMAPPER
-		" [-c <fontconfig-file>"
-#endif
-		" ...]\n", progname);
+	EPRINTF("Usage: %s [-p] [-A] [-NLRD] [-x #] [-y #] ...]\n", progname);
 	exit(1);
 }
 
@@ -241,7 +237,6 @@ GrOpen(void)
 
 #if NONETWORK
 	SERVER_LOCK();
-
 	/* Client calls this routine once.  We init everything here*/
 	if (connectcount <= 0) {
 		if(GsInitialize() < 0) {
@@ -319,7 +314,6 @@ GrUnregisterInput(int fd)
 	int i, max;
 
 	SERVER_LOCK();
-
 	/* unregister all inputs if the FD is -1 */
 	if (fd == -1) {
 		FD_ZERO(&regfdset);
@@ -380,7 +374,8 @@ GsSelect(GR_TIMEOUT timeout)
 #endif
 
 #if CONFIG_ARCH_PC98
-	if (mousedev.Poll()) {
+	if (mousedev.Poll())
+        {
 		GsCheckMouseEvent();
 		return;
 	}
@@ -452,16 +447,16 @@ GsSelect(GR_TIMEOUT timeout)
 		timeout = 10;
 #endif
 	/* setup timeval struct for block or poll in select()*/
-	tout.tv_sec = tout.tv_usec = 0;					/* setup for assumed poll*/
+	tout.tv_sec = tout.tv_usec = 0;			/* setup for assumed poll*/
 	to = &tout;
 	int poll = (timeout == GR_TIMEOUT_POLL);
 	if (!poll)
 	{
 #if MW_FEATURE_TIMERS
 		/* get next timer or use passed timeout and convert to timeval struct*/
-		if (!GdGetNextTimeout(&tout, timeout))		/* no app timers or VTSWITCH?*/
+		if (!GdGetNextTimeout(&tout, timeout))	/* no app timers or VTSWITCH?*/
 #else
-		if (timeout)								/* setup mwin poll timer*/
+		if (timeout)				/* setup mwin poll timer*/
 		{
 			/* convert wait timeout to timeval struct*/
 			tout.tv_sec = timeout / 1000;
@@ -470,7 +465,7 @@ GsSelect(GR_TIMEOUT timeout)
 		else
 #endif
 		{
-			to = NULL;								/* no timers, block*/
+			to = NULL;			/* no timers, block*/
 		}
 	}
 
@@ -491,7 +486,7 @@ GsSelect(GR_TIMEOUT timeout)
 	/* Wait for some input on any of the fds in the set or a timeout*/
 #if NONETWORK
 again:
-	SERVER_UNLOCK();	/* allow other threads to run*/
+	SERVER_UNLOCK();	        /* allow other threads to run*/
 #endif
 	e = select(setsize+1, &rfds, NULL, NULL, to);
 #if NONETWORK
@@ -519,7 +514,8 @@ again:
 				continue;
 
 			gp = (GR_EVENT_FDINPUT *)GsAllocEvent(curclient);
-			if(gp) {
+			if(gp)
+			{
 				gp->type = GR_EVENT_TYPE_FDINPUT;
 				gp->fd = fd;
 			}
@@ -562,11 +558,12 @@ again:
 		}
 		else
 #endif
-		if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK)) {
+		if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK))
+		{
 			if (!GsPumpEvents())    /* process mouse/kbd events */
-				goto again;		/* retry until passed timeout */
+				goto again;	/* retry until passed timeout */
 		}
-#else /* !NONETWORK */
+#else
 #if MW_FEATURE_TIMERS
 		/* check for timer timeouts and service if found*/
 		GdTimeout();

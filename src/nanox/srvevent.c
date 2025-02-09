@@ -9,10 +9,10 @@
 #include "serv.h"
 #include "osdep.h"
 
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-#include "lock.h"
-LOCK_DECLARE(eventMutex);
-#endif
+/* these were required for VNC event mutex */
+#define EVENT_LOCK_DECLARE(m)
+#define EVENT_LOCK(m)
+#define EVENT_UNLOCK(m)
 
 /* readable error strings*/
 const char *nxErrorStrings[] = {
@@ -73,9 +73,7 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	 * Get a new event structure from the free list, or else
 	 * allocate it using malloc.
 	 */
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        UNLOCK(&eventMutex);
-#endif
+	EVENT_UNLOCK(&eventMutex);
 	elp = eventfree;
 	if (elp)
 		eventfree = elp->next;
@@ -86,9 +84,7 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 			curclient = client;
 			GsError(GR_ERROR_MALLOC_FAILED, 0);
 			curclient = oldcurclient;
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-			UNLOCK(&eventMutex);
-#endif
+			EVENT_UNLOCK(&eventMutex);
 			return NULL;
 		}
 	}
@@ -105,9 +101,7 @@ GR_EVENT *GsAllocEvent(GR_CLIENT *client)
 	elp->next = NULL;
 	elp->event.type = GR_EVENT_TYPE_NONE;
 
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        UNLOCK(&eventMutex);
-#endif
+	EVENT_UNLOCK(&eventMutex);
 	return &elp->event;
 }
 
@@ -194,8 +188,9 @@ GR_BOOL GsCheckKeyboardEvent(void)
 	}
 
 	/* Deliver events as appropriate*/
-	GsDeliverKeyboardEvent(0, (keystatus == KBD_KEYPRESS?  GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
-			mwkey, modifiers, scancode);
+	GsDeliverKeyboardEvent(0, (keystatus == KBD_KEYPRESS?
+		GR_EVENT_TYPE_KEY_DOWN: GR_EVENT_TYPE_KEY_UP),
+		mwkey, modifiers, scancode);
 	return TRUE;
 }
 
@@ -239,7 +234,8 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	if (changebuttons) {
 
 	  GsResetScreenSaver();
-	  GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP, newbuttons, changebuttons, modifiers);
+	  GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP, newbuttons,
+		changebuttons, modifiers);
 	}
 
 	/*
@@ -248,7 +244,8 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	changebuttons = (~curbuttons & newbuttons);
 	if (changebuttons) {
 		GsResetScreenSaver();
-		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN, newbuttons, changebuttons, modifiers);
+		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN, newbuttons,
+			changebuttons, modifiers);
 	}
 
 	/*
@@ -256,7 +253,8 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	 */
 	if (newbuttons & (GR_BUTTON_SCROLLUP|GR_BUTTON_SCROLLDN)) {
 		if (!changebuttons)
-			GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN, newbuttons, 0, modifiers);
+			GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN, newbuttons,
+				0, modifiers);
 	}
 
 	curbuttons = newbuttons;
@@ -324,12 +322,12 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 			 * button down and button up events, then implicitly
 			 * grab the window for him.
 			 */
-			if ((type == GR_EVENT_TYPE_BUTTON_DOWN)
-				&& (grabbuttonwp == NULL))
-			{
+			if ((type == GR_EVENT_TYPE_BUTTON_DOWN) &&
+			    (grabbuttonwp == NULL)) {
 				tempmask = GR_EVENT_MASK_BUTTON_UP;
 				if (ecp->eventmask & tempmask) {
-					//DPRINTF("nano-X: implicit grab on window %d\n", wp->id);
+					/*DPRINTF("nano-X: implicit grab on window %d\n",
+						wp->id);*/
 					grabbuttonwp = wp;
 				}
 			}
@@ -443,7 +441,7 @@ void GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers)
 		}
 
 		if (wp == rootwp || grabbuttonwp || (wp->nopropmask & eventmask))
-				return;
+			return;
 
 		wp = wp->parent;
 	}
@@ -492,7 +490,8 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 	 */
 	for (keygrab = list_grabbed_keys; keygrab != NULL; keygrab = keygrab->next) {
 		if (keygrab->key == keyvalue) {
-			if ((keygrab->type == GR_GRAB_HOTKEY) || (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)) {
+			if ((keygrab->type == GR_GRAB_HOTKEY) ||
+			    (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)) {
 				ep = (GR_EVENT_KEYSTROKE *) GsAllocEvent(keygrab->owner);
 				if (ep == NULL)
 					continue;
@@ -541,9 +540,10 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 		/* Want to send event if:
 		 * GR_GRAB_EXCLUSIVE: grabbing window is an ancestor of focussed window
 		 * GR_GRAB_EXCLUSIVE_MOUSE: same as GR_GRAB_EXCLUSIVE OR
-		 *                    the mouse is in the grabbing window.
+		 * the mouse is in the grabbing window.
 		 */
-		if (kwp != wp && (keygrab->type != GR_GRAB_EXCLUSIVE_MOUSE || wp != mousewp))
+		if (kwp != wp && (keygrab->type != GR_GRAB_EXCLUSIVE_MOUSE ||
+		    wp != mousewp))
 			return;
 
 		subwid = wp->id;
@@ -711,9 +711,11 @@ update_again:
 #if NANOWM
 		/* Ensure we're processing root child update map event for window owner*/
 		if (lcount && wp->id == GR_ROOT_WINDOW_ID && utype == GR_UPDATE_MAP) {
-			/*DPRINTF("wid %d subwid %d  %d,%d\n", wp->id, id, orgwp->owner->id, ecp->client->id);*/
+			/*DPRINTF("wid %d subwid %d  %d,%d\n", wp->id, id,
+				orgwp->owner->id, ecp->client->id);*/
 			if (orgwp->owner->id != ecp->client->id) {
-				/*DPRINTF("SKIP CHLD MAP %d: %d %d\n", id, orgwp->owner->id, ecp->client->id);*/
+				/*DPRINTF("SKIP CHLD MAP %d: %d %d\n", id,
+					orgwp->owner->id, ecp->client->id);*/
 				continue;
 			}
 		}
@@ -920,9 +922,7 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
 	GR_EVENT_LIST	*elp;		/* current element list */
 	GR_EVENT_LIST	*prevelp;	/* previous element list */
 
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        LOCK(&eventMutex);
-#endif
+	EVENT_LOCK(&eventMutex);
 	prevelp = NULL;
 	for (elp = client->eventhead; elp; prevelp = elp, elp = elp->next) {
 		if (elp->event.type != GR_EVENT_TYPE_MOUSE_POSITION)
@@ -946,9 +946,7 @@ GsFreePositionEvent(GR_CLIENT *client, GR_WINDOW_ID wid, GR_WINDOW_ID subwid)
 		eventfree = elp;
 		break;
 	}
-#if HAVE_VNCSERVER && VNCSERVER_PTHREADED
-        UNLOCK(&eventMutex);
-#endif
+	EVENT_UNLOCK(&eventMutex);
 }
 
 /*
@@ -1035,7 +1033,8 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 	for (i = 0; i < 2; i++) {
 		GR_EVENT_BUTTON *gp;
 		GR_BUTTON cbuttons = 0;
-		GR_EVENT_TYPE etype = (i == 0)? GR_EVENT_TYPE_BUTTON_DOWN : GR_EVENT_TYPE_BUTTON_UP;
+		GR_EVENT_TYPE etype = (i == 0)?
+			GR_EVENT_TYPE_BUTTON_DOWN : GR_EVENT_TYPE_BUTTON_UP;
 
 		if (i == 0)
 			cbuttons = (curbuttons & ~buttons);

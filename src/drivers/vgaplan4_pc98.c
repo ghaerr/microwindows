@@ -62,14 +62,14 @@ pc98_drawpixel(PSD psd, MWCOORD x,  MWCOORD y, MWPIXELVAL c)
 	if(gr_mode == MWROP_XOR) {
 		for(plane=0; plane<4; ++plane) {
 			dst = screenbase_table[plane] + x / 8 + y * BYTESPERLINE;
-			if  (c & (1 << plane)) {
+			if  ((unsigned int)c & (1 << plane)) {
 				PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
 			}
 		}
 	} else {
 		for(plane=0; plane<4; ++plane) {
 			dst = screenbase_table[plane] + x / 8 + y * BYTESPERLINE;
-			if  (c & (1 << plane)) {
+			if  ((unsigned int)c & (1 << plane)) {
 				ORBYTE_FP (dst,mask[x&7]);
 			}
 			else {
@@ -86,7 +86,7 @@ pc98_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
 	FARADDR		src;
 	int		    plane;
-	MWPIXELVAL	c = 0;
+	unsigned int c = 0;
 
 	assert (x >= 0 && x < psd->xres);
 	assert (y >= 0 && y < psd->yres);
@@ -123,10 +123,9 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 			dst = screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE;
 			if (x1 / 8 == x2 / 8) {
 				while(x1 <= x2) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						ORBYTE_FP (dst,mask[x1&7]);
-					}
-					else {
+					} else {
 						ANDBYTE_FP (dst,~mask[x1&7]);
 					}
 					x1++;
@@ -134,10 +133,9 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 			} else {
 
 				while (x1 % 8) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						ORBYTE_FP (dst,mask[x1&7]);
-					}
-					else {
+					} else {
 						ANDBYTE_FP (dst,~mask[x1&7]);
 					}
 					x1++;
@@ -147,10 +145,9 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 
 				last = screenbase_table[plane] + x2 / 8 + y * BYTESPERLINE;
 				while (dst < last) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						PUTBYTE_FP(dst, 255);
-					}
-					else {
+					} else {
 						PUTBYTE_FP(dst, 0);
 					}
 					dst++;
@@ -158,10 +155,9 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 
 				x1 = ((x2 >> 3) << 3);
 				while (x1 <= x2) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						ORBYTE_FP (dst,mask[x1&7]);
-					}
-					else {
+					} else {
 						ANDBYTE_FP (dst,~mask[x1&7]);
 					}
 					x1++;
@@ -174,7 +170,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 			dst = screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE;
 			if (x1 / 8 == x2 / 8) {
 				while(x1 <= x2) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					}
 					x1++;
@@ -182,7 +178,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 			} else {
 
 				while (x1 % 8) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					}
 					x1++;
@@ -192,7 +188,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 
 				last = screenbase_table[plane] + x2 / 8 + y * BYTESPERLINE;
 				while (dst < last) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						PUTBYTE_FP(dst,~GETBYTE_FP(dst));
 						dst++;
 					}
@@ -200,7 +196,7 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 
 				x1 = ((x2 >> 3) << 3);
 				while (x1 <= x2) {
-					if  (c & (1 << plane)) {
+					if  ((unsigned int)c & (1 << plane)) {
 						PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x1&7]));
 					}
 					x1++;
@@ -211,10 +207,9 @@ pc98_drawhorzline(PSD psd,  MWCOORD x1,  MWCOORD x2,  MWCOORD y, MWPIXELVAL c)
 		/* slower method, draw pixel by pixel*/
 		while(x1 <= x2) {
 			for(plane=0; plane<4; ++plane) {
-				if  (c & (1 << plane)) {
+				if  ((unsigned int)c & (1 << plane)) {
 					ORBYTE_FP (screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE,mask[x1&7]);
-				}
-				else {
+				} else {
 					ANDBYTE_FP (screenbase_table[plane] + x1 / 8 + y * BYTESPERLINE,~mask[x1&7]);
 				}
 			}
@@ -243,7 +238,7 @@ pc98_drawvertline(PSD psd, MWCOORD x,  MWCOORD y1,  MWCOORD y2, MWPIXELVAL c)
 			dst = screenbase_table[plane] + x / 8 + y1 * BYTESPERLINE;
 			last = screenbase_table[plane] + x / 8 + y2 * BYTESPERLINE;
 			while (dst <= last) {
-				if  (c & (1 << plane)) {
+				if  ((unsigned int)c & (1 << plane)) {
 					PUTBYTE_FP(dst,(GETBYTE_FP(dst) ^ mask[x&7]));
 				}
 				dst += BYTESPERLINE;
@@ -254,10 +249,9 @@ pc98_drawvertline(PSD psd, MWCOORD x,  MWCOORD y1,  MWCOORD y2, MWPIXELVAL c)
 			dst = screenbase_table[plane] + x / 8 + y1 * BYTESPERLINE;
 			last = screenbase_table[plane] + x / 8 + y2 * BYTESPERLINE;
 			while (dst <= last) {
-				if  (c & (1 << plane)) {
+				if  ((unsigned int)c & (1 << plane)) {
 					ORBYTE_FP (dst,mask[x&7]);
-				}
-				else {
+				} else {
 					ANDBYTE_FP (dst,~mask[x&7]);
 				}
 				dst += BYTESPERLINE;

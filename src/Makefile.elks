@@ -59,8 +59,7 @@ NANOX = nanox/srvmain.o nanox/srvfunc.o nanox/srvutil.o nanox/srvevent.o \
 NANOX += nanox/wmaction.o nanox/wmclients.o nanox/wmevents.o nanox/wmutil.o
 ENGINE = engine/devdraw.o engine/devmouse.o engine/devkbd.o engine/devclip1.o \
 	engine/devopen.o engine/devfont.o engine/devlist.o engine/devblit.o \
-    engine/devtimer.o \
-    engine/devpal1.o engine/devpal2.o engine/devpal4.o engine/devpal8.o
+    engine/devtimer.o engine/devpal1.o engine/devpal4.o
 
 ALL = lib/libnano-X.a nxdemos
 

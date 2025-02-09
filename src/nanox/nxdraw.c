@@ -263,19 +263,19 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PR
 		goto out;
 
 	/* fill caption*/
-	GrSetGCForeground(gc, 
-		GrGetSysColor(active? GR_COLOR_ACTIVECAPTION: GR_COLOR_INACTIVECAPTION));
+	GrSetGCForeground(gc, GrGetSysColor(active?
+		GR_COLOR_ACTIVECAPTION: GR_COLOR_INACTIVECAPTION));
 	GrFillRect(id, gc, x, y, w, CYCAPTION);
 
 	/* draw caption text*/
 	if (title) {
-		GrSetGCForeground(gc,
-			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
+		GrSetGCForeground(gc, GrGetSysColor(active?
+			GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
 		GrSetGCUseBackground(gc, GR_FALSE);
 #if NUKLEARUI
 		/* X = 2 times padding (4)*/
 		/* Y = 2 times padding (4) + font ascent+descent (11)*/
-		GrText(id, gc, x+2*4, y+2*4+11, title, -1, GR_TFASCII|GR_TFBASELINE);
+		GrText(id, gc, x+2*4, y+2*4+CYTEXTBASE, title, -1, GR_TFASCII|GR_TFBASELINE);
 #else
 		GrText(id, gc, x+4, y-1, title, -1, GR_TFASCII|GR_TFTOP);
 #endif
@@ -290,12 +290,13 @@ nxPaintNCArea(GR_DRAW_ID id, int w, int h, char *title, GR_BOOL active, GR_WM_PR
 
 	if (props & GR_WM_PROPS_CLOSEBOX) {
 #if NUKLEARUI
-		GrSetGCForeground(gc,
-			GrGetSysColor(active? GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
+		GrSetGCForeground(gc, GrGetSysColor(active?
+				GR_COLOR_ACTIVECAPTIONTEXT: GR_COLOR_INACTIVECAPTIONTEXT));
 		GrSetGCUseBackground(gc, GR_FALSE);
 		/* X = width - 3 - "x" width (5) - 2 times padding (4)*/
 		/* Y = 2 times padding (4) + font ascent+descent (11)*/
-		GrText(id, gc, x+w-3-5-8, y-CYCAPTION+8+11, "x", 1, GR_TFASCII|GR_TFBASELINE);
+		GrText(id, gc, x+w-3-5-8, y-CYCAPTION+8+CYTEXTBASE, "x", 1,
+			GR_TFASCII|GR_TFBASELINE);
 #else
 		GR_RECT		r;
 		/* draw close box*/

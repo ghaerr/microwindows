@@ -16,6 +16,7 @@
 
 #if MSDOS | ELKS
 #define NOSTDPAL8
+#define NOSTDPAL2
 #endif
 
 /*

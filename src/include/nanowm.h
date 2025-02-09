@@ -27,12 +27,15 @@
 #if NUKLEARUI						/* draw window frames/colors to match Nuklear style*/
 #if ELKS
 #define SCHEME_NUK16 1              /* 16 color nuklear! */
+#define CYCAPTION	25				/* height of caption*/
+#define CYTEXTBASE  8               /* baseline for font */
 #else
 #define SCHEME_NUKLEAR 1			/* nuklear color scheme*/
+#define CYCAPTION	29				/* height of caption*/
+#define CYTEXTBASE  11              /* baseline for font */
 #endif
 #define CXBORDER	1				/* 3d border width*/
 #define CYBORDER	1				/* 3d border height*/
-#define CYCAPTION	29				/* height of caption*/
 #define CXCLOSEBOX	20				/* width of closebox*/
 #define CYCLOSEBOX	20				/* height of closebox*/
 #define CXFRAME		(CXBORDER*2)	/* width of frame*/

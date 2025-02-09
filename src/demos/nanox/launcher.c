@@ -495,7 +495,7 @@ void activate_screensaver(lstate *state)
 
 void deactivate_screensaver(lstate *state)
 {
-	if(sspid >= 0) kill(sspid, SIGINT);
+	if(sspid != -1) kill(sspid, SIGINT);
 }
 
 void handle_screensaver_event(lstate *state)

@@ -18,11 +18,12 @@ PROGS   = \
     $(BIN)nxclock   \
     $(BIN)nxtetris  \
     $(BIN)nxworld   \
-    $(BIN)npanel    \
+    $(BIN)nxpanel    \
     $(BIN)nxlandmine\
 
 notyet = \
     $(BIN)nxterm    \
+    $(BIN)nxlaunch\
 
 all: $(PROGS)
 	cp -p $(PROGS) $(TOPDIR)/elkscmd/rootfs_template/root
@@ -46,7 +47,10 @@ $(BIN)nxlandmine: landmine.o $(NXLIB)
 $(BIN)nxdemo: nxdemo.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(BIN)npanel: npanel.o $(NXLIB)
+$(BIN)nxpanel: npanel.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxlaunch: launcher.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:

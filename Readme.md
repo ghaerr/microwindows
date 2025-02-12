@@ -97,7 +97,5 @@ An HTML based FAQ and Architecture document are available from the web site.
 
 The chief maintainer of the project is Greg Haerr <greg@censoft.com>
 
-Microwindows and Nano-X are discussed on the NanoGUI mailing list. 
-Mailing list archives are available at: 
-<http://www.linuxhacker.org/ezmlm-browse/index.cgi?list=nanogui>
-
+Microwindows and Nano-X issues can be discussed in Discussions or by opening
+an Issue.

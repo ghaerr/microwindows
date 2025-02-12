@@ -62,7 +62,6 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <signal.h>
-//#include <utmp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -71,16 +70,23 @@
 #define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
 #endif
 
-#define stdforeground BLACK
-//#define stdbackground GR_COLOR_GAINSBORO //LTGRAY
-//#define stdbackground BLUE //LTGRAY
-#define stdbackground LTGRAY
-#define stdcol 80
-#define stdrow 50 //25
+#define TITLE           "nxterm"
+#define stdforeground   BLACK
+#define stdbackground   LTGRAY
+//#define stdbackground GR_COLOR_GAINSBORO
+//#define stdbackground BLUE
 
-#define TITLE		"nxterm"
-#define	SMALLBUFFER stdcol //80
-#define	LARGEBUFFER 10240 //keyboard
+#if ELKS
+#define stdcol          80
+#define stdrow          25
+#define	KBDBUF          1024
+#else
+#define stdcol          80
+#define stdrow          50
+#define	KBDBUF          10240
+#endif
+
+#define	LINEBUF         stdcol
 
 #define debug_screen 0
 #define debug_kbd 0
@@ -102,15 +108,14 @@ GR_WINDOW_INFO  wi;
 GR_GC_INFO  gi;
 GR_BOOL		havefocus = GR_FALSE;
 pid_t 		pid;
-short 		winw, winh, console;
-int 		pipeh;
-short 		cblink = 0, visualbell = 0, debug = 0;
+short 		winw, winh;
+int 		termfd;
+int 		visualbell;
 int 		fgcolor[12] = { 0,1,2,3,4,5,6,7,8,9,11 };
 int 		bgcolor[12] = { 0,1,2,3,4,5,6,7,8,9,11 };
 int 		scrolledFlag; 	/* set when screen has been scrolled up */
 int 		isMaximized = 0;
 
-char prog_to_start[128];
 int scrolltop;
 int scrollbottom;
 int ReverseMode=0;
@@ -119,15 +124,18 @@ int nobracket = 0;
 int roundbracket = 0;
 int savex;
 int savey;
+char *startprogram;
 
-/* the wterm terminal code, almost like VT52 */
-short	termtype = 0; // 0=ANSI
-short	bgmode, escstate, curx, cury, curon, curvis;
-short	savx, savy, wrap, style;
-short	col, row, colmask = 0x7f, rowmask = 0x7f;
-short	sbufcnt = 0;
-short	sbufx, sbufy;
-char    lineBuffer[SMALLBUFFER+1];
+/* the terminal code, almost like VT52 */
+#define ANSI    0
+#define VT52    1
+int	termtype = ANSI;
+int	bgmode, escstate, curx, cury, curon, curvis;
+int	savx, savy, wrap, style;
+int	col, row, colmask = 0x7f, rowmask = 0x7f;
+int	sbufcnt = 0;
+int	sbufx, sbufy;
+char    lineBuffer[LINEBUF+1];
 char	*sbuf = lineBuffer;
 
 void sigchild(int signo);
@@ -150,7 +158,7 @@ void esc100(unsigned char c); //ANSI codes
 void printc(unsigned char c);
 void init(void);
 void term(void);
-void usage(char *s);
+void usage(void);
 int do_special_key(unsigned char *buffer, int key, int modifiers);
 int do_special_key_ansi(unsigned char *buffer, int key, int modifiers);
 void pos_xaxis(int c);	/* cursor position x axis for ansi */
@@ -181,7 +189,7 @@ void lineRedraw(void)
 
 void sadd(char c)
 {
-    if (sbufcnt == SMALLBUFFER)
+    if (sbufcnt == LINEBUF)
 		sflush ();
 
     if (!sbufcnt) { 
@@ -207,7 +215,7 @@ void draw_cursor (void)
 		if(!curvis) {
 			curvis = 1;
 			show_cursor();
-			}
+		}
 }
 void hide_cursor (void)
 {
@@ -218,10 +226,14 @@ void hide_cursor (void)
 }
 
 
+//VVV
 void vscrollup(int lines)
 {
     hide_cursor();
-    GrCopyArea(w1,gc1, 0, (scrolltop-1)*fonh, winw, (scrollbottom-(scrolltop-1)-lines)*fonh, w1, 0, (scrolltop-1+lines)*fonh, MWROP_COPY);
+    GrCopyArea(w1, gc1,
+        0, scrolltop*fonh,
+        winw, (scrollbottom-(scrolltop-1)-lines-1)*fonh,
+        w1, 0, (scrolltop+lines)*fonh, MWROP_COPY);
     GrSetGCForeground(gc1,gi.background);    
     GrFillRect(w1, gc1, 0, (scrollbottom-lines)*fonh, winw, lines*fonh);
     GrSetGCForeground(gc1,gi.foreground);    
@@ -231,7 +243,11 @@ void vscrollup(int lines)
 void vscrolldown(int lines)
 {
     hide_cursor();
-    GrCopyArea(w1,gc1, 0, (scrolltop+lines)*fonh, winw, (scrollbottom-scrolltop-lines)*fonh, w1, 0, scrolltop*fonh, MWROP_COPY);
+    //FIXME add for loop
+    GrCopyArea(w1,gc1,
+        0, (scrolltop+lines)*fonh,
+        winw, (scrollbottom-scrolltop-lines)*fonh,
+        w1, 0, scrolltop*fonh, MWROP_COPY);
     GrSetGCForeground(gc1,gi.background);    
     GrFillRect(w1, gc1, 0, scrolltop*fonh, winw, lines*fonh);
     GrSetGCForeground(gc1,gi.foreground);    
@@ -288,7 +304,7 @@ void esc1(unsigned char c)	/* various control codes */
 	  roundbracket=1;
           return; 
     }
-    if (termtype==0){
+    if (termtype == ANSI){
 	//no bracket code - just ESC+letter
 	//so read no further char just do esc100 and terminate
 	//ESC state to read new sequence or unescaped chars.
@@ -361,10 +377,8 @@ void esc1(unsigned char c)	/* various control codes */
 		break;
 
     case 'L':/* insert line */
- 		if (cury < row-1) 
-		{
+		if (cury < row-1)
 	    	vscrollup(1);
-		}
  		curx = 0;
 		break;
 
@@ -603,12 +617,12 @@ void rendition(int escvalue) {
     			GrSetGCBackground(gc1, stdbackground); //default color
     			break;
     		}
-		} //if escvalue
-
-} //rendition
+		}
+}
 
 void esc100(unsigned char c)	/* various ANSI control codes */
 {
+    int y, yy;
 //leave escstate=10 till done. This states gets this function called.
 
 static int escvalue1,escvalue2,escvalue3;
@@ -820,16 +834,23 @@ scrolltop, scrollbottom = upper and lower scroll region limit in lines/rows
 
 
     case 'L':/* insert lines */
-		if (escvalue1==0) escvalue1=1;
-
-    		hide_cursor();
-    		//copy from cursor the number of lines down
-		GrCopyArea(w1,gc1, 0, (cury+escvalue1)*fonh, winw, (scrollbottom-cury-escvalue1)*fonh, w1, 0, cury*fonh, MWROP_COPY);
-                //clear number of lines starting at cursor position
-    		GrSetGCForeground(gc1,gi.background);
-    		GrFillRect(w1, gc1, 0, cury*fonh, winw, escvalue1*fonh);
-    		GrSetGCForeground(gc1,gi.foreground);
-		break;
+        if (escvalue1==0) escvalue1=1;
+        y = cury;
+        yy = stdrow - 1;
+        //XXX
+        hide_cursor();
+        //copy from cursor the number of lines down
+        while (--yy >= y) {
+            GrCopyArea(w1,gc1,
+                0, (yy+escvalue1)*fonh,
+                winw-0, fonh,
+                w1, 0, yy*fonh, MWROP_COPY);
+            }
+        //clear number of lines starting at cursor position
+        GrSetGCForeground(gc1,gi.background);
+        GrFillRect(w1, gc1, 0, cury*fonh, winw, escvalue1*fonh);
+        GrSetGCForeground(gc1,gi.foreground);
+        break;
 
     case 'M':/* delete lines */
 
@@ -971,7 +992,6 @@ void esc0 (unsigned char c)
 			/* w_pbox(win, 0, 0, winw, winh); */
 			/* w_test(win, 0, 0); */
 			/* w_pbox(win, 0, 0, winw, winh); */
-	    	;
 		} else 
  	    	GrBell();
 		break;
@@ -1002,7 +1022,6 @@ void esc0 (unsigned char c)
 		break;
 
     case 10: /* line feed */
-//GrError("\nLF\n");
 		sflush();
 		if (++cury >= scrollbottom) {
 		//have to scroll before moving cursor, so reduce and add again
@@ -1113,16 +1132,15 @@ void
 term(void)
 {
 	long 		in, l;
-	GR_EVENT 	wevent;
 	GR_EVENT_KEYSTROKE *kp;
-	unsigned char 	buf[LARGEBUFFER];
-	int			bufflen;
+	int		bufflen;
+	int		gotexpose = 0;
+	GR_EVENT 	wevent;
+	unsigned char 	buf[KBDBUF];
 
-
-	if (prog_to_start[0]) {
-		//enter program name from command line plus newline to call it now
-		//GrError("prog_to_start:%s,len:%d\n",prog_to_start,strlen(prog_to_start));
-		(void)write(pipeh,prog_to_start,strlen(prog_to_start));
+	if (startprogram) {
+		write(termfd, startprogram, strlen(startprogram));
+                write(termfd, "\n", 1);
 	}
 
 	while (42) {
@@ -1133,18 +1151,15 @@ term(void)
 
 		switch(wevent.type) {
 		case GR_EVENT_TYPE_CLOSE_REQ:
-		  GrClose();
+			GrClose();
 			exit(0);
 			break;
 
 		case GR_EVENT_TYPE_KEY_DOWN:
 		  /* deal with special keys*/
 			kp = (GR_EVENT_KEYSTROKE *)&wevent;
-#if debug_kbd
-	GrError("key-in:%X\n",kp->ch);
-#endif
 			if (kp->ch & MWKEY_NONASCII_MASK)
-				if (termtype==0){
+				if (termtype == ANSI){
 				bufflen = do_special_key_ansi(buf,kp->ch,kp->modifiers);
 				} else {
 				bufflen = do_special_key(buf,kp->ch,kp->modifiers);
@@ -1154,19 +1169,14 @@ term(void)
 				bufflen = 1;
 			}
 			if( bufflen > 0)
-				(void)write(pipeh, buf, bufflen);
-#if debug_kbd
-	GrError("key-out:%X,%X,bufflen:%d\n",buf[0],buf[1],bufflen);
-#endif
+				write(termfd, buf, bufflen);
 			break;
 
 		case GR_EVENT_TYPE_FOCUS_IN:
-
 			havefocus = GR_TRUE;
 			break;
 
 		case GR_EVENT_TYPE_FOCUS_OUT:
-
 			havefocus = GR_FALSE;
 			hide_cursor();
 			break;
@@ -1177,25 +1187,32 @@ term(void)
 			 * set cursor state off.
 			 */
 			if (wevent.update.utype == GR_UPDATE_UNMAPTEMP)
-				curvis = 0;
+				hide_cursor();
 			break;
 
 		case GR_EVENT_TYPE_EXPOSURE:
-			//screen is empty otherwise - so this workaround
-		    (void)write(pipeh,"clear\n",strlen("clear\n"));
+			if (!gotexpose) {
+				GrRegisterInput(termfd);
+				gotexpose = GR_TRUE;
+			}
 			break;
 
 		case GR_EVENT_TYPE_FDINPUT:
+			if (!gotexpose) break;	/* wait until mapped before reading */
 			hide_cursor();
-			while ((in = read(pipeh, buf, sizeof(buf))) > 0) {
+			while ((in = read(termfd, buf, sizeof(buf))) > 0) {
 				for (l=0; l<in; l++) {
 					printc(buf[l]); 
-				//	if (buf[l] == '\n')
-				//		printc('\r');
 				}
 				sflush();
 			}
-	    	break;
+			break;
+		case GR_EVENT_TYPE_NONE:
+		case GR_EVENT_TYPE_TIMEOUT:
+			break;
+		default:
+			hide_cursor();	//FIXME?
+			break;
 		}
 	}
 }
@@ -1530,21 +1547,16 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 		len = 0;
 	}
 	if(len > 0)
-		sprintf((char *)buffer,"%s",str);
+                strcpy((char *)buffer, str);
 	else
 		buffer[0] = '\0';
 	return len;
 }
 
-void usage(char *s)
+void usage(void)
 {
-    if (s) GrError("error: %s\n", s);
-
-    GrError("usage: nxterm [-f <font family>] [-s <font size>]\n");
-    GrError("       [-5] [-c] [-h] [program {args}]\n");
-    GrError("       -f = select font, -s = font size -5 = vt52 mode\n");
-    GrError("       -c = catch console output (SunOS4) -h = this help\n");
-    exit(0);
+    GrError("usage: nxterm [-v5] [command]]\n");
+    exit(1);
 }
 
 #if UNIX
@@ -1560,7 +1572,7 @@ static void *mysignal(int signum, void *handler)
 	return so.sa_handler;
 }
 
-#if unused
+#if UNUSED
 void maximize(void)
 {
     static short x0, y0, w, h, w_max,h_max;
@@ -1604,25 +1616,23 @@ static void sigquit(int sig)
 
 int main(int argc, char **argv)
 {
-    short xp, yp, fsize;
-    short uid;
-    char *family, *shell = NULL, *cptr, *geometry = NULL;
-    struct passwd *pw;
-    char buf[stdcol];
+    char *shell = NULL, *cptr;
+    GR_CURSOR_ID c1;
     char thesh[128];
     GR_BITMAP	bitmap1fg[7];	/* mouse cursor */
     GR_BITMAP	bitmap1bg[7];
     GR_WM_PROPERTIES props;
 
-#if UNIX
 #ifdef SIGTTOU
     /* just in case we're started in the background */
     signal(SIGTTOU, SIG_IGN);
 #endif
 
+#if !ELKS
     /* who am I? */
-    if (!(pw = getpwuid((uid = getuid())))) {
-		GrError("error: wterm can't determine determine your login name\n");
+    struct passwd *pw;
+    if (!(pw = getpwuid((getuid())))) {
+		GrError("error: can't determine determine your login name\n");
 		exit(-1);
     }
 #endif
@@ -1633,59 +1643,13 @@ int main(int argc, char **argv)
     }
     GrGetScreenInfo(&si);
 
-    /*
-     * scan arguments...
-     */
-    console = 0;
     argv++;
     while (*argv && **argv=='-') 
-	switch (*(*argv+1)) 
-	{
-	case '5': //vt52 mode
-	    termtype = 1;
+	switch (*(*argv+1)) {
+	case '5':
+	    termtype = VT52;
 	    argv++;
 	    break;
-
-	case 'b':
-	    cblink = 1;
-	    argv++;
-	    break;
-
-	case 'c':
-	    console = 1;
-	    argv++;
-	    break;
-
-	case 'd':
-	    debug = 1;
-	    argv++;
-	    break;
-
-	case 'f':
-	    if (*++argv)
-			family = *argv++;
-	    else
-			usage("-f option requires an argument");
-	    break;
-
-	case 's':
-	    if (*++argv)
-			fsize = atoi(*argv++);
-	    else
-			usage("-s option requires an argument");
-	    break;
-
-	case 'g':
-	    if (*++argv)
-			geometry = *argv++;
-	    else
-			usage("-g option requires an argument");
-	    break;
-
-	case 'h':
-	    /* this will never return */
-	    usage("");
-		break;
 
 	case 'v':
 	    visualbell = 1;
@@ -1693,29 +1657,27 @@ int main(int argc, char **argv)
 	    break;
 
 	default:
-	    usage("unknown option");
+	    usage();
 	}
 
-#if UNIX
     /*
      * now *argv either points to a program to start or is zero
      */
 #ifdef __FreeBSD__ 
-	//now UNIX98 - shell is passed in FreeBSD only
+    /* now UNIX98 - shell is passed in FreeBSD only */
     if (*argv)
 		shell = *argv;
 #else
-    if (*argv) {
-		while (*argv)
-			sprintf(prog_to_start, "%s ", *argv++);
-		strcat(prog_to_start,"\n");
-	}
+    if (*argv)
+        startprogram = *argv++;
 #endif
 
     if (!shell)
 		shell = getenv("SHELL=");
+#if !ELKS
     if (!shell)
 		shell = pw->pw_shell;
+#endif
     if (!shell)
 		shell = "/bin/sh";
 
@@ -1723,41 +1685,25 @@ int main(int argc, char **argv)
 		/*
 		* the '-' makes the shell think it is a login shell,
 		* we leave argv[0] alone if it isn`t a shell (ie.
-		* the user specified the program to run as an argument
-		* to wterm.
+		* the user specified the program to run as an argument.
 		*/
 		cptr = strrchr(shell, '/');
 		sprintf (thesh, "-%s", cptr ? cptr + 1 : shell);
 		*--argv = thesh;
     }
-#endif
 
     col = stdcol;
     row = stdrow;
     scrolltop=0;
-    scrollbottom=row; //zero based
-    xp = 0;
-    yp = 0;
-/*
-    if (geometry) {
-		if (col < 1) 
-			col = stdcol;
-		if (row < 1) 
-			row = stdrow;
-		if (col > 0x7f)
-			colmask = 0xffff;
-		if (row > 0x7f)
-			rowmask = 0xffff;
-    }
-*/    
+    scrollbottom = row;
+
     regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
     /*regFont = GrCreateFontEx(GR_FONT_OEM_FIXED, 0, 0, NULL);*/
     /*boldFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);*/
     GrGetFontInfo(regFont, &fi);
     winw = col*fi.maxwidth;
-    winh = (row+1)*fi.height;
-    //w1 = GrNewWindow(GR_ROOT_WINDOW_ID, 10,10,winw, winh,0,BLACK,LTBLUE);
-    w1 = GrNewWindow(GR_ROOT_WINDOW_ID, 10,10,winw, winh,0,stdbackground,stdforeground);
+    winh = row*fi.height;
+    w1 = GrNewWindow(GR_ROOT_WINDOW_ID, -1,-1,winw,winh,0,stdbackground,stdforeground);
     props.flags = GR_WM_FLAGS_TITLE;
     props.title = TITLE;
     GrSetWMProperties(w1, &props);
@@ -1790,57 +1736,44 @@ int main(int argc, char **argv)
 	bitmap1bg[5] = MASK7(_,_,X,X,X,_,_);
 	bitmap1bg[6] = MASK7(_,X,X,X,X,X,_);
 
-    GrSetCursor(w1, 7, 7, 3, 3, stdforeground, stdbackground, bitmap1fg, bitmap1bg);
+    c1 = GrNewCursor(7, 7, 3, 3, stdforeground, stdbackground, bitmap1fg, bitmap1bg);
+    GrSetWindowCursor(w1, c1);
     GrSetGCForeground(gc1, stdforeground);
     GrSetGCBackground(gc1, stdbackground);
     GrGetWindowInfo(w1,&wi);
     GrGetGCInfo(gc1,&gi);
 
-#if UNIX
-	/*sprintf(buf, "wterm: %s", shell); */
+#if UNIX && !ELKS
+    /* set TERM and TERMCAP for vt52 only - default is ANSI or "linux" */
+    if (termtype == VT52) {
+        putenv(termtype_string);		/* TERM=ngterm for Linux*/
 
-if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "linux"
-
-    /*
-     * what kind of terminal do we want to emulate?
-     */
-    putenv(termtype_string);		/* TERM=ngterm for Linux*/
-
-    /*
-     * this one should enable us to get rid of an /etc/termcap entry for
-     * both curses and ncurses, hopefully...
-     */
-
-    if (termcap_string[0]) {		/* TERMCAP= string*/
-		sprintf(termcap_string + strlen (termcap_string), "li#%d:co#%d:", row, col);
-		putenv(termcap_string);
+       /*
+        * this one should enable us to get rid of an /etc/termcap entry for
+        * both curses and ncurses, hopefully...
+        */
+        if (termcap_string[0]) {		/* TERMCAP= string*/
+		    sprintf(termcap_string + strlen (termcap_string), "li#%d:co#%d:", row, col);
+		    putenv(termcap_string);
+        }
     }
-} //termtype
 
     /* in case program absolutely needs terminfo entry, these 'should'
      * transmit the screen size of correctly (at least xterm sets these
      * and everything seems to work correctly...). Unlike putenv(),
      * setenv() allocates also the given string not just a pointer.
      */
-    sprintf(buf, "%d", col);
-    setenv("COLUMNS", buf, 1);
-    sprintf(buf, "%d", row);
-    setenv("LINES", buf, 1);
+    sprintf(sbuf, "%d", col);
+    setenv("COLUMNS", sbuf, 1);
+    sprintf(sbuf, "%d", row);
+    setenv("LINES", sbuf, 1);
+#endif
 
-
+    termfd = term_init();       /* create pty */
     /*
-     * create a pty
+     * grantpt docs: "The behavior of grantpt() is unspecified if a signal handler
+     * is installed to catch SIGCHLD signals. "
      */
-    pipeh = term_init();
-	GrRegisterInput(pipeh);
-
-	/*_write_utmp(pty, pw->pw_name, "", time(0)); */
-
-	/*
-	 * grantpt docs: "The behavior of grantpt() is unspecified if a signal handler
-	 * is installed to catch SIGCHLD signals. "
-	 */
-    /* catch some signals */
     mysignal(SIGTERM, sigquit);
     mysignal(SIGHUP, sigquit);
     mysignal(SIGINT, SIG_IGN);
@@ -1848,14 +1781,7 @@ if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "li
     mysignal(SIGPIPE, sigpipe);
     mysignal(SIGCHLD, sigchld);
 
-    /* prepare to catch console output */
-    if (console) {
-		/* for any OS chr$(7) might cause endless loops if caught from console*/
-		visualbell = 1;
-		console = 0;       /* data will come to normal pipe handle */
-		ioctl(pipeh, TIOCCONS, 0);
-    }
-#endif /* UNIX*/
+	/*_write_utmp(pty, pw->pw_name, "", time(0)); */
 
     init();
     term();
@@ -1866,9 +1792,7 @@ if (termtype==1) { //set TERM and TERMCAP for vt52 only - default is ANSI or "li
 /* 
  * pty create/open routines
  */
-#if ELKS
-char * nargv[2] = {"/bin/sash", NULL};
-#elif DOS_DJGPP
+#if DOS_DJGPP
 char * nargv[2] = {"bash", NULL};
 #else
 char * nargv[2] = {"/bin/sh", NULL};
@@ -1880,7 +1804,7 @@ void sigchild(int signo)
 	exit(0);
 }
 
-#if UNIX98
+#if UNIX98 && !ELKS
 int term_init(void)
 {
 	int tfd;
@@ -1930,11 +1854,16 @@ int term_init(void)
 {
 	int tfd;
 	pid_t pid;
+	int n = 0;
 	char pty_name[12];
 
 again:
 	sprintf(pty_name, "/dev/ptyp%d", n);
 	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
+		if (errno == EBUSY && n < 3) {
+			n++;
+			goto again;
+		}
 		GrError("Can't create pty %s\n", pty_name);
 		return -1;
 	}
@@ -1968,7 +1897,7 @@ again:
 
 #elif defined(__FreeBSD)
 #include <libutil.h>
-static char pty[SMALLBUFFER];
+static char pty[LINEBUF];
 static struct winsize winsz;
 
 term_init(void)
@@ -1978,8 +1907,7 @@ term_init(void)
     winsz.ws_col = col;
     winsz.ws_row = row;
     if ((pid = forkpty(&pipeh, pty, NULL, &winsz)) < 0)  {
-		GrError("wterm: can't create pty\r\n");
-		perror("wterm");
+		GrError("Can't create pty\n");
 		sleep(2);
 		GrKillWindow(w1);
 		exit(-1);
@@ -2006,7 +1934,7 @@ term_init(void)
 		execvp(shell, argv);
 
 		/* oops? */
-		GrError("wterm: can't start shell\r\n");
+		GrError("Can't start shell\r\n");
 		sleep(3);
 		GrKillWindow(w1);
 		_exit(-1);

@@ -44,10 +44,10 @@ X11HDRLOCATION           = $(MW_DIR_SRC)/nx11/X11-local
 # Libraries to build: microwin, nano-X, nxlib, engine
 #
 ####################################################################
-MICROWIN                 = Y
+MICROWIN                 = N
 NANOX                    = Y
 NUKLEARUI                = Y
-NX11                     = Y
+NX11                     = N
 ENGINE                   = N
 TINYWIDGETS              = N
 
@@ -57,7 +57,7 @@ TINYWIDGETS              = N
 #
 ####################################################################
 FBEMULATOR               = N
-MICROWINDEMO             = Y
+MICROWINDEMO             = N
 MICROWINMULTIAPP         = N
 NANOXDEMO                = Y
 HAVE_VNCSERVER_SUPPORT   = N

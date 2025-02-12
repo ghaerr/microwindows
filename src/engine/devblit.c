@@ -17,6 +17,7 @@
 #include <assert.h>
 #include "device.h"
 #include "convblit.h"
+#define DEBUG_BLIT  0
 
 /* find a conversion blit based on data format and blit op*/
 /* used by GdBitmap, GdArea and GdDrawImage*/
@@ -234,6 +235,7 @@ GdBlit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD width, MWCOORD height,
 	GdConvBlitInternal(dstpsd, &parms, frameblit);
 }
 
+#if MW_FEATURE_AREAS
 /**
  * A proper stretch blit.  Supports flipping the image.
  * Parameters are co-ordinates of two points in the source, and
@@ -564,6 +566,7 @@ GdStretchBlit(PSD dstpsd, MWCOORD dx1, MWCOORD dy1, MWCOORD dx2,
 	if (srcpsd != dstpsd)
 		GdFixCursor(srcpsd);
 }
+#endif
 
 /* call conversion blit with clipping and cursor fix*/
 void

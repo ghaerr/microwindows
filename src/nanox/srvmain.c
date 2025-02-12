@@ -373,9 +373,18 @@ GsSelect(GR_TIMEOUT timeout)
 	int	fd;
 #endif
 
+#if ELKS
+    /*
+     * Process any mouse events queued after last select.
+     * This prevents hangin on select until next real event.
+	 * FIXME this may cause problems on GR_TIMEOUT_BLOCK
+     */
+	if (GsCheckMouseEvent())
+		return;
+#endif
 #if CONFIG_ARCH_PC98
 	if (mousedev.Poll())
-        {
+	{
 		GsCheckMouseEvent();
 		return;
 	}
@@ -495,15 +504,18 @@ again:
 	if(e > 0)			/* input ready*/
 	{
 		/* service mouse file descriptor*/
-		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
-			while(GsCheckMouseEvent())
-				continue;
-
+		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds)) {
+            GsCheckMouseEvent();
+			//while(GsCheckMouseEvent()) {
+				//continue;
+			//}
+		}
 		/* service keyboard file descriptor*/
-		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
-			while(GsCheckKeyboardEvent())
+		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds)) {
+			while(GsCheckKeyboardEvent()) {
 				continue;
-
+			}
+		}
 #if NONETWORK
 		/* check for input on registered file descriptors */
 		for (fd = 0; fd < regfdmax; fd++)
@@ -535,9 +547,9 @@ again:
 			curclient_next = curclient->next;
 			if(FD_ISSET(curclient->id, &rfds))
 				GsHandleClient(curclient->id);
+
 			curclient = curclient_next;
 		}
-
 #endif /* NONETWORK */
 	} 
 	else if (e == 0)		/* timeout*/
@@ -873,6 +885,41 @@ GsInitialize(void)
 	GR_WINDOW	*wp;		/* root window */
 	PSD		psd;
 	GR_CURSOR_ID	cid;
+
+#if USE_SMALL_CURSOR
+/* Small 8x8 cursor for machines to slow for 16x16 cursors */
+#define _       ((unsigned) 0)          /* off bits */
+#define X       ((unsigned) 1)          /* on bits */
+#define MASK(a,b,c,d,e,f,g) \
+        (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) \
+        + e) * 2) + f) * 2) + g) << 9)
+	static MWIMAGEBITS cursormask[8];
+	static MWIMAGEBITS cursorbits[8];
+
+#define HOTX    1
+#define HOTY    1
+#define CURSW   8
+#define CURSH   8
+    cursormask[0] = MASK(X,X,X,X,X,X,_);
+    cursormask[1] = MASK(X,X,X,X,X,_,_);
+    cursormask[2] = MASK(X,X,X,X,_,_,_);
+    cursormask[3] = MASK(X,X,X,X,X,_,_);
+    cursormask[4] = MASK(X,X,X,X,X,X,_);
+    cursormask[5] = MASK(X,_,_,X,X,X,X);
+    cursormask[6] = MASK(_,_,_,_,X,X,X);
+
+    cursorbits[0] = MASK(_,_,_,_,_,_,_);
+    cursorbits[1] = MASK(_,X,X,X,X,_,_);
+    cursorbits[2] = MASK(_,X,X,X,_,_,_);
+    cursorbits[3] = MASK(_,X,X,X,_,_,_);
+    cursorbits[4] = MASK(_,X,_,X,X,_,_);
+    cursorbits[5] = MASK(_,_,_,_,X,X,_);
+    cursorbits[6] = MASK(_,_,_,_,_,X,X);
+#else
+#define HOTX    0
+#define HOTY    0
+#define CURSW   16
+#define CURSH   16
 	static const MWIMAGEBITS cursorbits[16] = {
 	      0xe000, 0x9800, 0x8600, 0x4180,
 	      0x4060, 0x2018, 0x2004, 0x107c,
@@ -885,6 +932,7 @@ GsInitialize(void)
 	      0x1fe0, 0x0ff0, 0x0ff8, 0x077c,
 	      0x073e, 0x021f, 0x000e, 0x0004
 	};
+#endif
 
 	/* If needed, initialize the server mutex. */
 	SERVER_LOCK_INIT();
@@ -1002,8 +1050,7 @@ GsInitialize(void)
 	cursory = -1;
 	GdShowCursor(psd);
 	GrMoveCursor(psd->xvirtres / 2, psd->yvirtres / 2);
-	cid = GrNewCursor(16, 16, 0, 0, WHITE, BLACK, (MWIMAGEBITS *)cursorbits,
-				(MWIMAGEBITS *)cursormask);
+	cid = GrNewCursor(CURSW, CURSH, HOTX, HOTY, WHITE, BLACK, cursorbits, cursormask);
 	GrSetWindowCursor(GR_ROOT_WINDOW_ID, cid);
 	stdcursor = GsFindCursor(cid);
 

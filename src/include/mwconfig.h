@@ -31,6 +31,7 @@
 #endif
 
 #if ELKS
+#define NANOWM			1		/* =1 for builtin nano-X window manager*/
 #define USE_ALLOCA		0		/* =1 if alloca() is available*/
 #define HAVE_MMAP       0       /* =1 has mmap system call*/
 #define HAVE_SIGNAL		0		/* =1 has signal system call*/

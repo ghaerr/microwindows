@@ -15,11 +15,12 @@ NXLIB = ../../lib/libnano-X.a
 ###############################################################################
 
 PROGS   = \
-    $(BIN)nxclock   \
-    $(BIN)nxtetris  \
-    $(BIN)nxworld   \
+    $(BIN)nxclock    \
+    $(BIN)nxtetris   \
+    $(BIN)nxworld    \
     $(BIN)nxpanel    \
-    $(BIN)nxlandmine\
+    $(BIN)nxlandmine \
+    $(BIN)nxterm     \
 
 notyet = \
     $(BIN)nxterm    \

@@ -14,8 +14,9 @@ CONFIG_ARCH_PC98=n
 
 # remove any -mregparmcall as ASM files need cdecl calling convention
 CFLAGS := $(filter-out -mregparmcall, $(CFLAGS))
-CFLAGS += -DELKS=1 -DUNIX=1 -DNANOWM=1 -DNDEBUG=1
+CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1
 CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
+CFLAGS += -DUSE_SMALL_CURSOR=1
 CFLAGS += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
 CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 CFLAGS += -Wno-missing-field-initializers
@@ -23,6 +24,7 @@ AR = ia16-elf-ar
 
 # screen, mouse and kbd drivers
 ifeq ($(CONFIG_ARCH_PC98), y)
+CFLAGS += -DCONFIG_ARCH_PC98=1
 DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o drivers/vgaplan4_mem.o
 DRIVERS += drivers/mou_pc98.o drivers/kbd_tty.o
 #DRIVERS += drivers/ramfont.o

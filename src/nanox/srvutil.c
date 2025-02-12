@@ -382,6 +382,7 @@ GsDestroyPixmap(GR_PIXMAP *pp)
 	free(pp);
 }
 
+#if MW_FEATURE_AREAS
 /*
  * Draw a window's background pixmap.
  *
@@ -581,6 +582,7 @@ GsTileBackgroundPixmap(GR_WINDOW *wp, GR_PIXMAP *pm, GR_COORD x, GR_COORD y,
 		}
 	}
 }
+#endif
 
 /* init buffered windows by allocating pixmap buffer and clearing background*/
 void
@@ -794,8 +796,10 @@ usleep(500000);
 				if (!(wp->bgpixmapflags & GR_BACKGROUND_TRANS))
 					GdFillRect(wp->psd, wp->x + x, wp->y + y, width, height);
 
+#if MW_FEATURE_AREAS
 		if (wp->bgpixmap)
 			GsDrawBackgroundPixmap(wp, wp->bgpixmap, x, y, width, height);
+#endif
 	}
 
 	/*

@@ -78,6 +78,39 @@ main(int ac, char **av)
 	GrSetGCForeground(gc2, GrGetSysColor(GR_COLOR_WINDOWTEXT));
 	GrSetGCBackground(gc2, GrGetSysColor(GR_COLOR_WINDOW));
 
+#if 0
+	bitmap1fg[0] = 0; //MASK(X,X,X,X,X,X,X);
+	bitmap1fg[1] = 0; //MASK(X,X,X,X,X,X,X);
+	bitmap1fg[2] = 0; //MASK(X,X,X,X,X,X,X);
+	bitmap1fg[3] = 0; //MASK(X,X,X,X,X,X,X);
+	bitmap1fg[4] = 0; //MASK(X,X,X,X,X,X,X);
+	bitmap1fg[5] = 0; //MASK(X,X,X,X,X,X,X);
+	bitmap1fg[6] = 0; //MASK(X,X,X,X,X,X,X);
+
+	bitmap1bg[0] = MASK(X,X,X,X,X,_,_);
+	bitmap1bg[1] = MASK(X,X,X,X,_,_,_);
+	bitmap1bg[2] = MASK(X,X,X,_,_,_,_);
+	bitmap1bg[3] = MASK(X,X,X,X,_,_,_);
+	bitmap1bg[4] = MASK(X,_,_,X,X,_,_);
+	bitmap1bg[5] = MASK(_,_,_,_,X,X,_);
+	bitmap1bg[6] = MASK(_,_,_,_,_,X,X);
+#elif 0
+	bitmap1fg[0] = MASK(_,_,_,_,X,X,X);
+	bitmap1fg[1] = MASK(_,_,X,X,X,X,X);
+	bitmap1fg[2] = MASK(_,X,_,X,X,X,X);
+	bitmap1fg[3] = MASK(_,X,X,_,X,X,X);
+	bitmap1fg[4] = MASK(X,X,X,X,_,X,X);
+	bitmap1fg[5] = MASK(X,X,X,X,X,X,X);
+	bitmap1fg[6] = MASK(X,X,X,X,X,X,X);
+
+	bitmap1bg[0] = MASK(X,X,X,X,_,_,_);
+	bitmap1bg[1] = MASK(X,X,_,_,_,_,_);
+	bitmap1bg[2] = MASK(X,_,X,_,_,_,_);
+	bitmap1bg[3] = MASK(_,_,_,X,_,_,_);
+	bitmap1bg[4] = MASK(_,_,_,_,X,_,_);
+	bitmap1bg[5] = MASK(_,_,_,_,_,_,_);
+	bitmap1bg[6] = MASK(_,_,_,_,_,_,_);
+#else
 	bitmap1fg[0] = MASK(_,X,X,X,X,X,_);
 	bitmap1fg[1] = MASK(X,_,X,X,X,_,X);
 	bitmap1fg[2] = MASK(X,X,_,X,_,X,X);
@@ -93,6 +126,7 @@ main(int ac, char **av)
 	bitmap1bg[4] = MASK(_,_,X,_,X,_,_);
 	bitmap1bg[5] = MASK(_,X,_,_,_,X,_);
 	bitmap1bg[6] = MASK(X,_,_,_,_,_,X);
+#endif
 
 	GR_CURSOR_ID cid = GrNewCursor(7, 7, 3, 3, WHITE, BLACK, bitmap1fg, bitmap1bg);
 	GrSetWindowCursor(w1, cid);

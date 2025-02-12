@@ -505,16 +505,14 @@ again:
 	{
 		/* service mouse file descriptor*/
 		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds)) {
-            GsCheckMouseEvent();
-			//while(GsCheckMouseEvent()) {
-				//continue;
-			//}
+			while(GsCheckMouseEvent()) {
+				continue;
+			}
 		}
 		/* service keyboard file descriptor*/
 		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds)) {
-			while(GsCheckKeyboardEvent()) {
+			while(GsCheckKeyboardEvent())
 				continue;
-			}
 		}
 #if NONETWORK
 		/* check for input on registered file descriptors */

@@ -504,16 +504,15 @@ again:
 	if(e > 0)			/* input ready*/
 	{
 		/* service mouse file descriptor*/
-		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds)) {
-			while(GsCheckMouseEvent()) {
+		if(mouse_fd >= 0 && FD_ISSET(mouse_fd, &rfds))
+			while(GsCheckMouseEvent())
 				continue;
-			}
-		}
+
 		/* service keyboard file descriptor*/
-		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds)) {
+		if(keyb_fd >= 0 && FD_ISSET(keyb_fd, &rfds))
 			while(GsCheckKeyboardEvent())
 				continue;
-		}
+
 #if NONETWORK
 		/* check for input on registered file descriptors */
 		for (fd = 0; fd < regfdmax; fd++)
@@ -545,7 +544,6 @@ again:
 			curclient_next = curclient->next;
 			if(FD_ISSET(curclient->id, &rfds))
 				GsHandleClient(curclient->id);
-
 			curclient = curclient_next;
 		}
 #endif /* NONETWORK */

@@ -339,7 +339,7 @@ do_buttondown(GR_EVENT_BUTTON *ep)
 	static int app_no;
 
 	if (ep->wid == w1) {
-        int y = MWMAX(ep->y - 2, 0);        /* FIXME fudge */
+		int y = MWMAX(ep->y - 2, 0);        /* FIXME fudge */
 		app_no = y / fheight;
 		if (app_no >= num_apps) {
 			app_no = num_apps - 1;

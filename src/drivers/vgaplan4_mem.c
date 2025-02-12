@@ -182,10 +182,10 @@ static void
 vga_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	PSD srcpsd, MWCOORD srcx, MWCOORD srcy, int op)
 {
+	MWCOORD	i, x1, x2;
+	int	plane;
 	FARADDR	dst;
 	FARADDR	src;
-	int	i, plane;
-	int	x1, x2;
 
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -197,31 +197,43 @@ vga_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (dsty+h <= dstpsd->yres);
 	assert (srcx+w <= srcpsd->xres);
 	assert (srcy+h <= srcpsd->yres);
+	assert (srcx != dstx);			/* FIXME use EPRINTF */
 
 	DRAWON;
 	set_enable_sr(0);
-	dst = SCREENBASE(dstpsd) + (dstx>>3) + dsty * BYTESPERLINE(dstpsd);
+	set_op(0);		/* modetable[MWROP_COPY]*/
+	x2 = dstx + w - 1;
+	x1 = dstx;
+	dst = SCREENBASE(dstpsd) + (x1>>3) + dsty * BYTESPERLINE(dstpsd);
 	src = SCREENBASE(srcpsd) + (srcx>>3) + srcy * BYTESPERLINE(srcpsd);
-	x1 = dstx>>3;
-	x2 = (dstx + w - 1) >> 3;
 	while(--h >= 0) {
 		for(plane=0; plane<4; ++plane) {
 			FARADDR d = dst;
 			FARADDR s = src;
 
-	    		set_read_plane(plane);
+			set_read_plane(plane);
 			set_write_planes(1 << plane);
 
 			/* FIXME: only works if srcx and dstx are same modulo*/
-			if(x1 == x2) {
+			if(x1/8 == x2/8) {
 		  		select_and_set_mask((0xff >> (x1 & 7)) & (0xff << (7 - (x2 & 7))));
 				PUTBYTE_FP(d, GETBYTE_FP(s));
 			} else {
+#if 1
 				select_and_set_mask(0xff >> (x1 & 7));
 				PUTBYTE_FP(d++, GETBYTE_FP(s++));
-
+#else	/* FIXME nonworking test code to eliminate drawing outside left boundary */
+				unsigned int s1, d1, mask;
+				mask = x1 & 7;
+				select_and_set_mask(0xff);
+				d1 = GETBYTE_FP(d);
+				select_and_set_mask(0xff >> (x1 & 7));
+				s1 = GETBYTE_FP(s++);
+				select_and_set_mask(0xff);
+				PUTBYTE_FP(d++, (s1 & mask)|(d1 & ~mask));
+#endif
 				set_mask(0xff);
-		  		for(i=x1+1; i<x2; ++i)
+				for (i = (x2 - (x1&~7)) >> 3; i > 1; i--)   /* while x1+1 < x2 */
 					PUTBYTE_FP(d++, GETBYTE_FP(s++));
 
 		  		set_mask(0xff << (7 - (x2 & 7)));

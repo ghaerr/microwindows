@@ -157,8 +157,8 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	
 	mwkey = buf[0];
 #if ELKS
-	if(mwkey == '\033')
-		return -2;	/* special case ESC*/
+	if(mwkey == 01)         /* exit on ^A */
+		return KBD_QUIT;
 #elif __fiwix__
     if (mwkey == 03)
         mwkey = MWKEY_QUIT;

@@ -57,8 +57,8 @@ const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
 #if SCHEME_NUK16
 const GR_COLOR nxSysColors[MAXSYSCOLORS] = {
 	/* desktop background*/
-	//GR_RGB(  0,   0,   0),  /* GR_COLOR_DESKTOP             */
-	GR_RGB(  0, 127, 127),  /* GR_COLOR_DESKTOP             */
+	//GR_RGB(  0, 127, 127),  /* GR_COLOR_DESKTOP             */
+	GR_RGB(128, 128, 128),  /* GR_COLOR_DESKTOP             */
 
 	/* caption colors*/
 	GR_RGB(127, 127, 127),	/* GR_COLOR_ACTIVECAPTION       */

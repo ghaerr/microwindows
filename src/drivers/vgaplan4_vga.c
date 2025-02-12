@@ -106,7 +106,8 @@ vga_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 static void
 vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 {
-	FARADDR dst, last;
+	FARADDR dst;
+	MWCOORD i;
 
 	assert (x1 >= 0 && x1 < psd->xres);
 	assert (x2 >= 0 && x2 < psd->xres);
@@ -122,8 +123,8 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	* for some reason.  So, we use the equivalent slower drawpixel
 	* method when not drawing MWROP_COPY.
 	*/
+	dst = (unsigned char FAR *)(SCREENBASE + (x1>>3) + y*BYTESPERLINE);
 	if(gr_mode == MWROP_COPY) {
-		dst = (unsigned char FAR *)(SCREENBASE + (x1>>3) + y*BYTESPERLINE);
 		if ((x1>>3) == (x2>>3)) {
 			select_and_set_mask ((0xff >> (x1 & 7)) & (0xff << (7 - (x2 & 7))));
 			RMW_FP (dst);
@@ -132,9 +133,8 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 			RMW_FP (dst++);
 
 			set_mask (0xff);
-			last = (unsigned char FAR *)(SCREENBASE + (x2>>3) + y * BYTESPERLINE);
-			while (dst < last)
-				PUTBYTE_FP(dst++, 1);
+			for (i = (x2 - (x1&~7)) >> 3; i > 1; i--)   /* while x1+1 < x2 */
+				RMW_FP(dst++);
 
 			set_mask (0xff << (7 - (x2 & 7)));
 			RMW_FP (dst);
@@ -144,7 +144,9 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 		select_mask ();
 		while(x1 <= x2) {
 			set_mask (mask[x1&7]);
-			RMW_FP ((FARADDR)SCREENBASE + (x1++>>3) + y * BYTESPERLINE);
+			RMW_FP (dst);
+			if (!(++x1 & 7))
+				dst++;
 		}
 	}
 	DRAWOFF;
@@ -154,7 +156,7 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 static void
 vga_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 {
-	FARADDR dst, last;
+	FARADDR dst;
 
 	assert (x >= 0 && x < psd->xres);
 	assert (y1 >= 0 && y1 < psd->yres);
@@ -167,8 +169,7 @@ vga_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	set_color ((int)c);
 	select_and_set_mask (mask[x&7]);
 	dst = (unsigned char FAR *)(SCREENBASE + (x>>3) + y1 * BYTESPERLINE);
-	last = (unsigned char FAR *)(SCREENBASE + (x>>3) + y2 * BYTESPERLINE);
-	while (dst <= last) {
+	while (y1++ <= y2) {
 		RMW_FP (dst);
 		dst += BYTESPERLINE;
 	}

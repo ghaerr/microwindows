@@ -9,7 +9,8 @@
    Unfortunately since outline moves are not supported yet, the only
    alternative is "invisible" moving.
 */ 
-#define WINDOW_MANAGER      0
+#define WINDOW_MANAGER      0   /* = 1 for window manager code */
+#define ROOT_WIN_RECOLOR    0   /* =1 to recolor desktop to gray */
 #define SHOW_WINDOW_MOTION  1
 
 /*
@@ -40,11 +41,13 @@
 
 static	GR_WINDOW_ID	w1;		/* id for launcher window */
 static	GR_GC_ID	gc;		/* graphics context for rectangle */
-static	GR_GC_ID	bgc;		/* graphics context for rectangle */
 static	GR_SCREEN_INFO	si;		/* information about screen */
 static	int		fwidth, fheight;
 static	int		fbase;
 static	int		num_apps = 0;
+#if ROOT_WIN_RECOLOR
+static	GR_GC_ID	bgc;		/* graphics context for rectangle */
+#endif
 
 static void do_exposure(GR_EVENT_EXPOSURE *ep);
 static void do_buttondown(GR_EVENT_BUTTON *ep);
@@ -119,13 +122,12 @@ main(int argc,char **argv)
 	GrGetScreenInfo(&si);
 
 	signal(SIGCHLD, &reaper);
-
-	gc = GrNewGC();
+#if ROOT_WIN_RECOLOR
 	bgc = GrNewGC();
-
 	GrSetGCForeground(bgc, GRAY);
+#endif
+	gc = GrNewGC();
 	GrSetGCFont(gc, GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL));
-
 	GrGetGCTextSize(gc, "A", 1, GR_TFASCII, &fwidth, &fheight, &fbase);
 	width = fwidth * 8 + 4;
 	height = fheight * num_apps + 4;
@@ -159,8 +161,9 @@ main(int argc,char **argv)
 	GrSetCursor(w1, 7, 7, 3, 3, WHITE, BLACK, bitmap1fg, bitmap1bg);
 #endif
 
+#if ROOT_WIN_RECOLOR
 	GrFillRect(GR_ROOT_WINDOW_ID, bgc, 0, 0, si.cols, si.rows);
-
+#endif
 	GrSetGCForeground(gc, BLACK);
 	GrSetGCBackground(gc, WHITE);
 
@@ -318,10 +321,12 @@ do_exposure(GR_EVENT_EXPOSURE *ep)
 			GrText(w1, gc, 2, 2 + fheight * (app_no + 1),
 				act->app_id, -1, GR_TFBOTTOM);
 		}
-	} else if (ep->wid == GR_ROOT_WINDOW_ID) {
-		GrFillRect(GR_ROOT_WINDOW_ID, bgc, ep->x, ep->y,
-				ep->width, ep->height);
 	}
+#if ROOT_WIN_RECOLOR
+	else if (ep->wid == GR_ROOT_WINDOW_ID) {
+		GrFillRect(GR_ROOT_WINDOW_ID, bgc, ep->x, ep->y, ep->width, ep->height);
+	}
+#endif
 }
 
 extern char ** environ;
@@ -334,7 +339,8 @@ do_buttondown(GR_EVENT_BUTTON *ep)
 	static int app_no;
 
 	if (ep->wid == w1) {
-		app_no = ep->y / fheight;
+		int y = MWMAX(ep->y - 2, 0);        /* FIXME fudge */
+		app_no = y / fheight;
 		if (app_no >= num_apps) {
 			app_no = num_apps - 1;
 		}

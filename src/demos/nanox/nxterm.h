@@ -73,8 +73,4 @@ k1=\\EP:k2=\\EQ:k3=\\ER:k4=\\ES:k5=\\ET:k6=\\EU:k7=\\EV:k8=\\EW:k9=\\EX:\
 s0=\\Ey:s1=\\Ep:s2=\\Eq:s3=\\Er:s4=\\Es:s5=\\Et:s6=\\Eu:s7=\\Ev:s8=\\Ew:\
 s9=\\Ex:";
 
-#else
-
-#error no termtype/termcap string defined for nxterm.h
-
 #endif

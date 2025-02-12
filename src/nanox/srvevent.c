@@ -206,11 +206,13 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	
 	GdGetModifierInfo(NULL, &modifiers); /* Read kbd modifiers */
 
+#if !MW_FEATURE_TINY
 	/* If we are currently in raw mode, then just deliver the raw event */
 	if (mousedev.flags & MOUSE_RAW) { 
 		GsDeliverRawMouseEvent(newx, newy, newbuttons, modifiers);
 		return;
 	}
+#endif
 
 	/*
 	 * First, if the mouse has moved, then position the cursor to the
@@ -222,7 +224,6 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	if (newx != cursorx || newy != cursory) {
 		GsResetScreenSaver();
 		GrMoveCursor(newx, newy);
-
 		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_MOTION, newbuttons, modifiers);
 		GsDeliverMotionEvent(GR_EVENT_TYPE_MOUSE_POSITION, newbuttons, modifiers);
 	}
@@ -232,7 +233,6 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	 */
 	changebuttons = (curbuttons & ~newbuttons);
 	if (changebuttons) {
-
 	  GsResetScreenSaver();
 	  GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_UP, newbuttons,
 		changebuttons, modifiers);
@@ -244,6 +244,7 @@ void GsHandleMouseStatus(GR_COORD newx, GR_COORD newy, int newbuttons)
 	changebuttons = (~curbuttons & newbuttons);
 	if (changebuttons) {
 		GsResetScreenSaver();
+		GsCheckMouseWindow();	/* fixes occasional lost window move when mousewp=root*/
 		GsDeliverButtonEvent(GR_EVENT_TYPE_BUTTON_DOWN, newbuttons,
 			changebuttons, modifiers);
 	}
@@ -326,8 +327,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 			    (grabbuttonwp == NULL)) {
 				tempmask = GR_EVENT_MASK_BUTTON_UP;
 				if (ecp->eventmask & tempmask) {
-					/*DPRINTF("nano-X: implicit grab on window %d\n",
-						wp->id);*/
+					//EPRINTF("Implicit grab on window %d\n", wp->id);
 					grabbuttonwp = wp;
 				}
 			}
@@ -356,7 +356,7 @@ void GsDeliverButtonEvent(GR_EVENT_TYPE type, int buttons, int changebuttons,
 		 */
 		if (grabbuttonwp) {
 			if (buttons == 0) {
-				//DPRINTF("nano-X: implicit ungrab on window %d\n", grabbuttonwp->id);
+				//EPRINTF("Implicit ungrab on window %d\n", grabbuttonwp->id);
 				grabbuttonwp = NULL;
 				GrMoveCursor(cursorx, cursory);
 			}
@@ -422,7 +422,7 @@ void GsDeliverMotionEvent(GR_EVENT_TYPE type, int buttons, MWKEYMOD modifiers)
 			 * then search the event queue for an existing
 			 * event of this type (if any), and free it.
 			 */
-			if (type == GR_EVENT_TYPE_MOUSE_POSITION) 
+			if (type == GR_EVENT_TYPE_MOUSE_POSITION)
 				GsFreePositionEvent(client, wp->id, subwid);
 
 			ep = (GR_EVENT_MOUSE *) GsAllocEvent(client);
@@ -978,6 +978,7 @@ GsDeliverSelectionChangedEvent(GR_WINDOW_ID old_owner, GR_WINDOW_ID new_owner)
 	}
 }
 
+#if !MW_FEATURE_TINY
 /* This is a bit of a misnomer - this will deliver the normal events
    but it doesn't bother doing any sort of bounds checking or anything,
    we just start at the "focus" window and try to deliver events to the path
@@ -1078,6 +1079,7 @@ GsDeliverRawMouseEvent(GR_COORD rx, GR_COORD ry, int buttons, int modifiers)
 
 	curbuttons = buttons;
 }
+#endif
 
 void
 GsDeliverTimerEvent(GR_CLIENT * client, GR_WINDOW_ID wid, GR_TIMER_ID tid)

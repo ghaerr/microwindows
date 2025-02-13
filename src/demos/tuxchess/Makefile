@@ -41,7 +41,7 @@ OBJS := \
 	$(MW_DIR_OBJ)/demos/tuxchess/images.o
 
 # Requires: MW_FEATURE_IMAGES, HAVE_FILEIO
-TARGET = $(MW_DIR_BIN)/tuxchess
+TARGET = $(MW_DIR_BIN)/nxchess
 
 all: default $(TARGET)
 
@@ -54,6 +54,6 @@ include $(MW_DIR_SRC)/Makefile.rules
 
 ######################## Tools targets section ###############################
 
-$(MW_DIR_BIN)/tuxchess: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+$(MW_DIR_BIN)/nxchess: $(OBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(NANOXCLIENTLIBS) $(LDFLAGS)

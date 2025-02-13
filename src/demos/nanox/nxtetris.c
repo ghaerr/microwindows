@@ -84,7 +84,7 @@
 #include "nano-X.h"
 #include "osdep.h"
 #include "nxcolors.h"
-#include "ntetris.h"
+#include "nxtetris.h"
 
 #if ELKS
 #define srandom     srand
@@ -240,13 +240,13 @@ void draw_well(nstate *state, int forcedraw)
 {
 	int x, y;
 
+	if (state->state == STATE_STOPPED) return;
+
 	for(y = WELL_NOTVISIBLE; y < WELL_HEIGHT; y++) {
 		for(x = 0; x < WELL_WIDTH; x++) {
-			if(forcedraw || (state->blocks[0][y][x] !=
-						state->blocks[1][y][x])) {
+			if(forcedraw || (state->blocks[0][y][x] != state->blocks[1][y][x])) {
 				state->blocks[1][y][x] = state->blocks[0][y][x];
-				GrSetGCForeground(state->wellgc,
-							state->blocks[0][y][x]);
+				GrSetGCForeground(state->wellgc, state->blocks[0][y][x]);
 				GrFillRect(state->well_window, state->wellgc,
 					(BLOCK_SIZE * x),
 					(BLOCK_SIZE * (y - WELL_NOTVISIBLE)),
@@ -716,12 +716,10 @@ void choose_new_shape(nstate *state)
 	state->current_shape.colour = state->next_shape.colour;
 	state->current_shape.x = (WELL_WIDTH / 2) - 2;
 	state->current_shape.y = WELL_NOTVISIBLE -
-			shape_sizes[state->next_shape.type]
-				[state->next_shape.orientation][1] - 1;
+			shape_sizes[state->next_shape.type][state->next_shape.orientation][1] - 1;
 	state->next_shape.type = random() % MAXSHAPES;
 	state->next_shape.orientation = random() % MAXORIENTATIONS;
-	state->next_shape.colour = block_colours[random() %
-						(MAX_BLOCK_COLOUR + 1)];
+	state->next_shape.colour = block_colours[random() % (MAX_BLOCK_COLOUR + 1)];
 }
 
 void new_game(nstate *state)
@@ -751,24 +749,9 @@ void init_game(nstate *state)
 		WELL_VISIBLE_HEIGHT = 16;
 	}
 
-	state->main_window = GrNewWindowEx(
-					GR_WM_PROPS_BORDER|GR_WM_PROPS_CAPTION|GR_WM_PROPS_CLOSEBOX,
-					"nxtetris",
-					GR_ROOT_WINDOW_ID,
-					(si.cols - MAIN_WINDOW_WIDTH) / 2,
-					(si.rows - MAIN_WINDOW_HEIGHT) / 2,
-					MAIN_WINDOW_WIDTH,
-					MAIN_WINDOW_HEIGHT,
-					MAIN_WINDOW_BACKGROUND_COLOUR);
-#if 0
-	/* set title */
-	GR_WM_PROPERTIES props;
-	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_BORDER | GR_WM_PROPS_CAPTION |
-			GR_WM_PROPS_CLOSEBOX;
-	props.title = "Nano-Tetris";
-	GrSetWMProperties(state->main_window, &props);
-#endif
+	state->main_window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "nxtetris",
+					GR_ROOT_WINDOW_ID, -1, -1,
+					MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT, MAIN_WINDOW_BACKGROUND_COLOUR);
 	GrSelectEvents(state->main_window, GR_EVENT_MASK_EXPOSURE |
 					GR_EVENT_MASK_CLOSE_REQ |
 					GR_EVENT_MASK_KEY_DOWN |

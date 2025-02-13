@@ -63,9 +63,7 @@ main(int ac, char **av)
 	}
 	
 	/* create window*/
-	w1 = GrNewWindowEx(
-		GR_WM_PROPS_NOAUTOMOVE|GR_WM_PROPS_BORDER|GR_WM_PROPS_CAPTION|
-		GR_WM_PROPS_CLOSEBOX, "nxclock", GR_ROOT_WINDOW_ID, 
+	w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "nxclock", GR_ROOT_WINDOW_ID,
 		-1, -1, CWIDTH, CHEIGHT, GrGetSysColor(GR_COLOR_WINDOW));
 		
 	GrSelectEvents(w1, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);

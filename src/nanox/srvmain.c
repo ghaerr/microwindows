@@ -1046,7 +1046,8 @@ GsInitialize(void)
 	cursory = -1;
 	GdShowCursor(psd);
 	GrMoveCursor(psd->xvirtres / 2, psd->yvirtres / 2);
-	cid = GrNewCursor(CURSW, CURSH, HOTX, HOTY, WHITE, BLACK, cursorbits, cursormask);
+	cid = GrNewCursor(CURSW, CURSH, HOTX, HOTY, WHITE, BLACK,
+		(MWIMAGEBITS *)cursorbits, (MWIMAGEBITS *)cursormask);
 	GrSetWindowCursor(GR_ROOT_WINDOW_ID, cid);
 	stdcursor = GsFindCursor(cid);
 

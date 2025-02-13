@@ -46,7 +46,7 @@ $screensaver_rotate_time 300
 #$startup bin/nanowm
 
 # This is the file to use as the root window background image:
-$window_background_image bin/uponface.ppm
+$window_background_image bin/nxlaunch.ppm
 
 # This is the mode to use for the window background:
 # 0 = tile across screen
@@ -70,18 +70,18 @@ $window_background_mode 0
 # The item name must not contain any spaces.
 # The icon filename can be the letter '-' to specify no icon.
 
-Tetris bin/ntetris.ppm bin/ntetris
-NanoBreaker bin/nbreaker.ppm bin/nbreaker -d demos/nbreaker/gamedata
-Landmine bin/landmine.ppm bin/landmine
-Slider bin/slider.ppm bin/slider bin/slidebmp.bmp
+Tetris bin/nxtetris.ppm bin/nxtetris
+NanoBreaker bin/nxbreaker.ppm bin/nxbreaker -d demos/nbreaker/gamedata
+Landmine bin/nxlandmine.ppm bin/nxlandmine
+Slider bin/nxslider.ppm bin/nxslider bin/nxslider.bmp
 Terminal bin/nxterm.ppm bin/nxterm
 Clock bin/nxclock.pgm bin/nxclock
-# Map bin/world.ppm bin/world
-Magnifier bin/logo.ppm bin/nxmag
+Map bin/nxworld.ppm bin/nxworld
+Magnifier bin/nxmag.ppm bin/nxmag
 Scribble bin/nxscribble.ppm bin/nxscribble
 SoftKeyboard bin/nxkbd.pgm bin/nxkbd
 Roach bin/nxroach.pgm bin/nxroach -roaches 10
-Tux bin/tux.ppm bin/tux
+Tux bin/nxtux.ppm bin/nxtux
 NXEyes bin/nxeyes.pgm bin/nxeyes
 # Pressure - bin/pressure
 # Recalibrate bin/nanocal.ppm bin/nanocal -c

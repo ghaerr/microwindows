@@ -9,7 +9,7 @@
 #include <nano-X.h>
 #include <nxcolors.h>
 
-#include "tuxmask.h"
+#include "nxtux.h"
 
 #define WINDOW_WIDTH 190
 #define WINDOW_HEIGHT 305

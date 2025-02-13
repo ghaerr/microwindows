@@ -1621,7 +1621,6 @@ int main(int argc, char **argv)
     char thesh[128];
     GR_BITMAP	bitmap1fg[7];	/* mouse cursor */
     GR_BITMAP	bitmap1bg[7];
-    GR_WM_PROPERTIES props;
 
 #ifdef SIGTTOU
     /* just in case we're started in the background */
@@ -1703,10 +1702,8 @@ int main(int argc, char **argv)
     GrGetFontInfo(regFont, &fi);
     winw = col*fi.maxwidth;
     winh = row*fi.height;
-    w1 = GrNewWindow(GR_ROOT_WINDOW_ID, -1,-1,winw,winh,0,stdbackground,stdforeground);
-    props.flags = GR_WM_FLAGS_TITLE;
-    props.title = TITLE;
-    GrSetWMProperties(w1, &props);
+    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, TITLE, GR_ROOT_WINDOW_ID, -1,-1,winw,winh,
+		stdbackground);
 
     GrSelectEvents(w1, GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_EXPOSURE |
 		   GR_EVENT_MASK_KEY_DOWN | 

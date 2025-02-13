@@ -44,7 +44,7 @@ static	void	DrawTile(int xpos, int ypos);
 int
 main(int argc,char **argv)
 {
-	char *imagefile = "bin/slidebmp.bmp";
+	char *imagefile = "bin/nxslider.bmp";
 
 	if (GrOpen() < 0) {
 		GrError("cannot open graphics\n");

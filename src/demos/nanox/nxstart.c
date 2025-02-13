@@ -20,6 +20,7 @@
 #undef USE_WEIRD_POINTER
 
 #include <stdio.h>
+#include <string.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -62,14 +63,29 @@ static void do_mouse(GR_EVENT_MOUSE *ep);
 #endif
 
 struct app_info {
-	char		app_id[10];
-	char		app_path[64];
+	char		app_id[12];
+	char		app_path[32];
 } Apps[] = {
 	{"clock",   PATH "nxclock"},
 	{"term",    PATH "nxterm"},
 	{"tetris",  PATH "nxtetris"},
 	{"world",   PATH "nxworld"},
 	{"landmine",PATH "nxlandmine"},
+#if !ELKS
+	{"aafont",    PATH "demo-aafont"},
+	{"agg",       PATH "demo-agg"},
+	{"calculator",PATH "demo-nuklear-calculator"},
+	{"chess",     PATH "nxchess"},
+	{"composite", PATH "demo-composite"},
+	{"eyes",      PATH "nxeyes"},
+	{"keyboard",  PATH "nxkbd"},
+	{"magnifier", PATH "nxmag"},
+	{"nuklear",   PATH "demo-nuklear-node_editor"},
+	{"nuklear2",  PATH "demo-nuklear-overview"},
+	{"roaches",   PATH "nxroach"},
+	{"scribble",  PATH "nxscribble"},
+	{"slider",    PATH "nxslider"},
+#endif
 	{"", ""}
 };
 
@@ -105,14 +121,17 @@ main(int argc,char **argv)
 {
 	GR_EVENT	event;		/* current event */
 	struct app_info	* act;
-	int		width, height;
+	int		width = 8, height;
 
 #ifdef USE_WEIRD_POINTER
 	GR_BITMAP	bitmap1fg[7];	/* bitmaps for first cursor */
 	GR_BITMAP	bitmap1bg[7];
 #endif
 
-	for(act = Apps; act->app_id[0] != '\0'; act++, num_apps++);
+	for(act = Apps; act->app_id[0] != '\0'; act++) {
+		width = MWMAX(width, strlen(act->app_id));
+		num_apps++;
+	}
 
 	if (GrOpen() < 0) {
 		GrError("cannot open graphics\n");
@@ -129,15 +148,16 @@ main(int argc,char **argv)
 	gc = GrNewGC();
 	GrSetGCFont(gc, GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL));
 	GrGetGCTextSize(gc, "A", 1, GR_TFASCII, &fwidth, &fheight, &fbase);
-	width = fwidth * 8 + 4;
+	width = fwidth * width + 4;
 	height = fheight * num_apps + 4;
 
-	w1 = GrNewWindow(GR_ROOT_WINDOW_ID, si.cols-width-10, 5, width, height, 1, WHITE, BLACK);
+	w1 = GrNewWindowEx(GR_WM_PROPS_NOAUTOMOVE, NULL, GR_ROOT_WINDOW_ID,
+		si.cols-width-10, 5, width, height, WHITE);
 
-	GrSelectEvents(w1, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_BUTTON_DOWN
-			| GR_EVENT_MASK_CLOSE_REQ);
-	GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_EXPOSURE |
-					GR_EVENT_MASK_CHLD_UPDATE);
+	GrSelectEvents(w1, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_BUTTON_DOWN |
+			GR_EVENT_MASK_CLOSE_REQ);
+	GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_EXPOSURE|
+			GR_EVENT_MASK_CHLD_UPDATE);
 
 	GrMapWindow(w1);
 

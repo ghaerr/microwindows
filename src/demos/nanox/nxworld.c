@@ -17,7 +17,7 @@
 #if ELKS
 #define	MAPFILE	"/lib/nxworld.map"
 #else
-#define	MAPFILE	"images/demos/nanox/world.map"
+#define	MAPFILE	"images/demos/nanox/nxworld.map"
 #endif
 
 #define	SELECTBUTTON	GR_BUTTON_L

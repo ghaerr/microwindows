@@ -749,7 +749,7 @@ void init_game(nstate *state)
 		WELL_VISIBLE_HEIGHT = 16;
 	}
 
-	state->main_window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "nxtetris",
+	state->main_window = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "Tetris",
 					GR_ROOT_WINDOW_ID, -1, -1,
 					MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT, MAIN_WINDOW_BACKGROUND_COLOUR);
 	GrSelectEvents(state->main_window, GR_EVENT_MASK_EXPOSURE |

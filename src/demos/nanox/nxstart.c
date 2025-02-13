@@ -151,7 +151,7 @@ main(int argc,char **argv)
 	width = fwidth * width + 4;
 	height = fheight * num_apps + 4;
 
-	w1 = GrNewWindowEx(GR_WM_PROPS_NOAUTOMOVE, NULL, GR_ROOT_WINDOW_ID,
+	w1 = GrNewWindowEx(GR_WM_PROPS_NOAUTOMOVE, "Start", GR_ROOT_WINDOW_ID,
 		si.cols-width-10, 5, width, height, WHITE);
 
 	GrSelectEvents(w1, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_BUTTON_DOWN |

@@ -423,7 +423,7 @@ main(int argc,char **argv)
 	 */
 	COLS = si.cols - 50;
 	ROWS = si.rows - 120;
-	mainwid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "Land Mine", GR_ROOT_WINDOW_ID,
+	mainwid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "Landmine", GR_ROOT_WINDOW_ID,
 		0, 0, COLS, ROWS, BLACK);
  
 	/*

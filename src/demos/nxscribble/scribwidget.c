@@ -133,7 +133,7 @@ create_scribble(void)
     props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
     props.props = GR_WM_PROPS_NOFOCUS | GR_WM_PROPS_BORDER |
 	    GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX;
-    props.title = "nxScribble";
+    props.title = "Handwriting Recognizer";
     GrSetWMProperties(new->win, &props);
 
     GrSelectEvents(new->win, GR_EVENT_MASK_BUTTON_DOWN |

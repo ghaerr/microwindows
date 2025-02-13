@@ -18,7 +18,7 @@
 
 #define MWINCLUDECOLORS
 #include "nano-X.h"
-#define TITLE 		"TuxChess"
+#define TITLE 		"Chess"
 #define SCANCODES	64
 #define BM_WIDTH 	394
 #define BM_HEIGHT 	413

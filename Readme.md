@@ -89,7 +89,7 @@ An HTML based FAQ and Architecture document are available from the web site.
 
 ![AGG](/screenshots/AGG-Nano-X.png)
 ![Nuklear](/screenshots/Nuklear-Nano-X.png)
-![ELKS](/screenshots/NXELKS.png)
+![nxstart](/screenshots/nxstart.png)
 ![Emscripten](/screenshots/Emscripten-Microwindows.png)
 ![FLTK](/screenshots/FLTK1.3.4-NXlib.png)
 ![Doom](/screenshots/Doom3x.png)

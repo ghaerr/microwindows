@@ -1,11 +1,12 @@
 Microwindows Configuration Documentation
 May 21, 2019 g haerr <greg@censoft.com>
+Feb 13, 2025 Updated for ELKS and bin/nxstart.
 
 To build Microwindows for desktop demonstration:
 
 1. cd microwindows/src
 
-2. The default configuration is for MAC OSX running X11 (Configs/config.macosx).
+2. The default configuration is for MAC OSX using SDL2 (Configs/config.macosx).
    For Linux X11 type "cp Configs/config.linux-X11 config".
    For Linux hardware framebuffer type "cp Configs/config.linux-fb config".
    For Linux framebuffer emulation on X11 type "cp Configs/config.linux-fbe config".
@@ -17,9 +18,14 @@ To build Microwindows for desktop demonstration:
    of target systems, see Configs/README.
    See microwindows/doc/CONTENTS.txt and microwindows/src/Configs/README for more information.
 
-3. Type "make"
+3. Type "make" (or "make -f Makefile.elks" for ELKS).
 
-4.  Run the demonstration programs using "./runapp <appname>".
+4.  Run the demonstration program using "bin/nxstart". this will allow you to
+    select other demos from Nano-X itself. For looking at more complex
+    demo configurations, see the demo.sh shell script, or run "./demo.sh".
+
+5.  Older instructions for running Win32 demos or individual Nano-X applications:
+    Run individual demonstration programs using "./runapp <appname>".
 
 	Any application in microwindows/src/bin/ can be run using the application launch
 	script, runapp, which automatically starts the nano-X server if required.
@@ -61,17 +67,19 @@ To build Microwindows for desktop demonstration:
 	bin/mwapp mwdemo2			(to run a single app)
 	bin/mwapp mwdemo mwterm		(to run just specified apps)
 
-5. Documentation is available in the microwindows/doc directory.
+6. Documentation is available in the microwindows/doc directory.
 	Complete browser accessible API documentation is at doc/nano-X/index.html
 	Win32 API documentation is in doc/html/Win32API.html
 	NXLIB API documentation is in doc/html/NXlib programming and reference manual.html
 	PDF documentation is in doc/pdf
 
-6. More information below.
+7. More information below.
 
 Microwindows compiles and runs on Linux, MACOSX, UNIX, X11, EMSCRIPTEN, Android, PSP,
 RTEMS, MinGW and bare hardware.  There is support for the MIPS,
 ARM, and x86 cpu's using the cross compiler toolchains specified in config.
+
+Use "make -f Makefile.elks" to compile for ELKS.
 
 Use "make -f Makefile_nr ARCH=XXX" to compile for MinGW or DOS-DJGPP.
 

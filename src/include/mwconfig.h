@@ -55,6 +55,7 @@
 #define NUKLEARUI		1		/* =0 to use older tan windows-style 3d window frame drawing/colors*/
 #define OUTLINE_MOVE	1		/* =1 draw outline only during window move*/
 #define NO_AUTO_MOVE	1		/* =1 don't auto position window on new windows*/
+#define BIN_NANOX       "/root/nano-X"    /* location of Nano-X for AUTO_START_SERVER */
 #endif
 
 /* Changeable limits and options*/
@@ -62,6 +63,11 @@
 								/* (required for palette alpha blending)*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define MW_FEATURE_RESIZEFRAME		0	/* =1 to resize OS frame to app, requires LINK_APP_TO_SERVER for nx*/
+
+#define AUTO_START_SERVER   1   /* =1 to automatically start Nano-X on GrOpen */
+#ifndef BIN_NANOX
+#define BIN_NANOX       "bin/nano-X"    /* location of Nano-X for AUTO_START_SERVER */
+#endif
 
 #ifndef TRANSLATE_ESCAPE_SEQUENCES
 #define TRANSLATE_ESCAPE_SEQUENCES  1	/* =1 to parse fnkeys w/tty driver*/

@@ -321,7 +321,6 @@ main(int argc,char **argv)
 	GR_BOOL		setmines;	/* TRUE if number of mines is set */
 	GR_SIZE		newsize = 10;	/* desired size of board */
 	GR_COUNT	newmines = 25;	/* desired number of mines */
-	GR_WM_PROPERTIES props;
 
 	setmines = GR_FALSE;
 	setsize = GR_FALSE;
@@ -424,15 +423,9 @@ main(int argc,char **argv)
 	 */
 	COLS = si.cols - 50;
 	ROWS = si.rows - 120;
-	mainwid = GrNewWindow(GR_ROOT_WINDOW_ID, 0, 0, COLS, ROWS,
-		0, BLACK, WHITE);
+	mainwid = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, "Landmine", GR_ROOT_WINDOW_ID,
+		0, 0, COLS, ROWS, BLACK);
  
-	/* set title */
-	props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_APPFRAME | GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX;
-	props.title = "Land Mine";
-	GrSetWMProperties(mainwid, &props);
-
 	/*
 	 * Create the board window which lies at the left side.
 	 * Make the board square, and as large as possible while still

@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <nano-X.h>
 #include <nxcolors.h>
-#include "tuxmask.h"
+#include "nxtux.h"
 
 #define DEFAULT_TUX_FILE "images/demos/nanox/tux.gif"
 

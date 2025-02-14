@@ -17,7 +17,7 @@
 #if ELKS
 #define	MAPFILE	"/lib/nxworld.map"
 #else
-#define	MAPFILE	"images/demos/nanox/world.map"
+#define	MAPFILE	"images/demos/nanox/nxworld.map"
 #endif
 
 #define	SELECTBUTTON	GR_BUTTON_L
@@ -184,7 +184,7 @@ main(int argc, char **argv)
 	mapwid = GrNewWindow(mainwid, 1, 1, mapwidth, mapheight, 1, BLACK, WHITE);
 	wmprops.flags = GR_WM_FLAGS_PROPS | GR_WM_FLAGS_TITLE;
 	wmprops.props = GR_WM_PROPS_CAPTION | GR_WM_PROPS_CLOSEBOX | GR_WM_PROPS_BORDER;
-	wmprops.title = "nxworld";
+	wmprops.title = "World";
 	GrSetWMProperties(mainwid, &wmprops);
 
 	GrSelectEvents(mainwid, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);

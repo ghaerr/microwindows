@@ -41,7 +41,7 @@
 #include "nano-X.h"
 #include "osdep.h"
 #include "nxcolors.h"
-#include "nsaver.h"
+#include "nxsaver.h"
 
 void *my_malloc(size_t size)
 {

@@ -1,1 +1,0 @@
-../../nx11/fonts/rgb.txt

@@ -16,14 +16,13 @@ NXLIB = ../../lib/libnano-X.a
 
 PROGS   = \
     $(BIN)nxclock    \
+    $(BIN)nxlandmine \
+    $(BIN)nxstart    \
+    $(BIN)nxterm     \
     $(BIN)nxtetris   \
     $(BIN)nxworld    \
-    $(BIN)nxpanel    \
-    $(BIN)nxlandmine \
-    $(BIN)nxterm     \
 
 notyet = \
-    $(BIN)nxterm    \
     $(BIN)nxlaunch\
 
 all: $(PROGS)
@@ -32,26 +31,26 @@ all: $(PROGS)
 $(BIN)nxclock: nxclock.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(BIN)nxtetris: ntetris.o $(NXLIB)
+$(BIN)nxtetris: nxtetris.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxterm: nxterm.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(BIN)nxworld: world.o $(NXLIB)
+$(BIN)nxworld: nxworld.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-	cp -p ../../images/demos/nanox/world.map $(BIN)nxworld.map
+	cp -p ../../images/demos/nanox/nxworld.map $(BIN)
 
-$(BIN)nxlandmine: landmine.o $(NXLIB)
+$(BIN)nxlandmine: nxlandmine.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxdemo: nxdemo.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(BIN)nxpanel: npanel.o $(NXLIB)
+$(BIN)nxstart: nxstart.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-$(BIN)nxlaunch: launcher.o $(NXLIB)
+$(BIN)nxlaunch: nxlaunch.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:

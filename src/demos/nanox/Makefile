@@ -37,7 +37,7 @@ LDFLAGS +=
 ifeq ($(NANOX), Y)
 
 ifeq ($(LINK_APP_INTO_SERVER), N)
-TARGETS += $(MW_DIR_BIN)/nanowm
+#TARGETS += $(MW_DIR_BIN)/nanowm
 endif
 
 ifeq ($(NANOXDEMO), Y)
@@ -68,11 +68,11 @@ TARGETS += \
 TARGETS += \
 	$(MW_DIR_BIN)/nxeyes \
 	$(MW_DIR_BIN)/nxroach \
-	$(MW_DIR_BIN)/ntetris \
-	$(MW_DIR_BIN)/landmine \
-	$(MW_DIR_BIN)/slider \
-	$(MW_DIR_BIN)/world \
-	$(MW_DIR_BIN)/tux
+	$(MW_DIR_BIN)/nxtetris \
+	$(MW_DIR_BIN)/nxlandmine \
+	$(MW_DIR_BIN)/nxslider \
+	$(MW_DIR_BIN)/nxworld \
+	$(MW_DIR_BIN)/nxtux
 
 ifneq ($(ARCH), COSMO)
 
@@ -88,9 +88,9 @@ TARGETS += \
 	$(MW_DIR_BIN)/show-font \
 	$(MW_DIR_BIN)/show-ppm \
 	$(MW_DIR_BIN)/screenshot-ppm \
-	$(MW_DIR_BIN)/launcher \
-	$(MW_DIR_BIN)/nsaver \
-	$(MW_DIR_BIN)/npanel
+	$(MW_DIR_BIN)/nxlaunch \
+	$(MW_DIR_BIN)/nxsaver \
+	$(MW_DIR_BIN)/nxstart
 
 NXKBDOBJS += \
 	$(MW_DIR_OBJ)/demos/nanox/nxkbd.o \
@@ -137,7 +137,7 @@ TARGETS += $(MW_DIR_BIN)/demo-agg
 endif # COSMO
 
 else # ECOS
-TARGETS += $(MW_DIR_BIN)/landmine.o $(MW_DIR_BIN)/ntetris.o $(MW_DIR_BIN)/world.o
+TARGETS += $(MW_DIR_BIN)/nxlandmine.o $(MW_DIR_BIN)/nxtetris.o $(MW_DIR_BIN)/nxworld.o
 endif
 
 # needed to create android skel diroctories
@@ -150,11 +150,11 @@ endif
 all: default $(ANDROID_SKEL) $(TARGETS) $(CXXTARGETS) $(ANDROID_PACK)
 ifneq ($(ARCH), ANDROID)
 	$(CP) \
-		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
-		$(MW_DIR_SRC)/images/demos/nanox/world.map \
+		$(MW_DIR_SRC)/demos/nanox/nxlaunch.cnf \
+		$(MW_DIR_SRC)/images/demos/nanox/nxworld.map \
 		$(MW_DIR_SRC)/images/demos/nanox/tux.gif \
-		$(MW_DIR_SRC)/images/demos/nanox/slidebmp.bmp \
-		$(MW_DIR_SRC)/images/demos/nanox/uponface.ppm \
+		$(MW_DIR_SRC)/images/demos/nanox/nxslider.bmp \
+		$(MW_DIR_SRC)/images/demos/nanox/nxlaunch.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/mwlogo.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
@@ -181,7 +181,7 @@ NANOX_DEMOS_WITH_LIBM_LINK := \
 	$(MW_DIR_BIN)/demo-font \
 	$(MW_DIR_BIN)/demo-grabkey \
 	$(MW_DIR_BIN)/nxeyes \
-	$(MW_DIR_BIN)/nsaver
+	$(MW_DIR_BIN)/nxsaver
 endif
 
 # These demos use a hardcoded link line.
@@ -251,11 +251,11 @@ $(ANDROID_SKEL)/%:
 	$(CP) -r $(MW_DIR_SRC)/demos/nanox/android-skel/* $@/
 	test -d $@/assets || mkdir -p $@/assets
 	$(CP) \
-		$(MW_DIR_SRC)/demos/nanox/launcher.cnf \
-		$(MW_DIR_SRC)/images/demos/nanox/world.map \
+		$(MW_DIR_SRC)/demos/nanox/nxlaunch.cnf \
+		$(MW_DIR_SRC)/images/demos/nanox/nxworld.map \
 		$(MW_DIR_SRC)/images/demos/nanox/tux.gif \
-		$(MW_DIR_SRC)/images/demos/nanox/slidebmp.bmp \
-		$(MW_DIR_SRC)/images/demos/nanox/uponface.ppm \
+		$(MW_DIR_SRC)/images/demos/nanox/nxslider.bmp \
+		$(MW_DIR_SRC)/images/demos/nanox/nxlaunch.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/mwlogo.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.ppm \
 		$(MW_DIR_SRC)/images/demos/nanox/icons/*.pgm \
@@ -289,22 +289,22 @@ endif
 
 ifeq ($(ARCH), ECOS)
 # Special build rules for linked in applications
-$(MW_DIR_BIN)/landmine.o: $(MW_DIR_OBJ)/demos/nanox/landmine.o
+$(MW_DIR_BIN)/nxlandmine.o: $(MW_DIR_OBJ)/demos/nanox/nxlandmine.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-#	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--retain-symbols-file -Wl,landmine.syms -Wl,--defsym -Wl,landmine_main=main -o XX.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,landmine_main=main -o XX.o
+#	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--retain-symbols-file -Wl,nxlandmine.syms -Wl,--defsym -Wl,nxlandmine_main=main -o XX.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,nxlandmine_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 
-$(MW_DIR_BIN)/ntetris.o: $(MW_DIR_OBJ)/demos/nanox/ntetris.o
+$(MW_DIR_BIN)/nxtetris.o: $(MW_DIR_OBJ)/demos/nanox/nxtetris.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,ntetris_main=main -o XX.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,nxetris_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 
-$(MW_DIR_BIN)/world.o: $(MW_DIR_OBJ)/demos/nanox/world.o
+$(MW_DIR_BIN)/nxworld.o: $(MW_DIR_OBJ)/demos/nanox/nxworld.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,world_main=main -o XX.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,nxworld_main=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 

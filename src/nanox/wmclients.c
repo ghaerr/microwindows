@@ -10,9 +10,6 @@
 #include "nxdraw.h"
 #include "nanowm.h"
 
-static GR_COORD lastx = 0;
-static GR_COORD lasty = 0;
-
 /*
  * A new client window has been mapped, so we need to reparent and decorate it.
  * Returns 0 if window not handled by window manager, otherwise 1.
@@ -107,6 +104,8 @@ int wm_new_client_window(GR_WINDOW_ID wid)
 		y = winfo.y;
 	} else {
 		GR_SCREEN_INFO si;
+		static GR_COORD lastx = 0;
+		static GR_COORD lasty = 0;
 
 		/* We could proably use a more intelligent algorithm here */
 		GrGetScreenInfo(&si);

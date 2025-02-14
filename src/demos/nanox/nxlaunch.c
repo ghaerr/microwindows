@@ -66,7 +66,9 @@
 #include <nano-X.h>
 #include <nxcolors.h>
 
-#include "launcher.h"
+#include "nxlaunch.h"
+
+#define CONFIG	"bin/nxlaunch.cnf"	/* config file */
 
 /* This needs to be global so the signal handler can get to it. */
 pid_t sspid;
@@ -95,12 +97,6 @@ void *my_malloc(size_t size)
 	}
 
 	return ret;
-}
-
-void usage(void)
-{
-	GrError("Usage: launcher <config-file>\n");
-	exit(3);
 }
 
 void free_prog_item(prog_item *prog)
@@ -367,11 +363,10 @@ void read_config(lstate *state)
 {
 	int lineno = 1;
 	FILE *fp;
-	char *buf = my_malloc(256);
+	char buf[256];
 
 	if(!(fp = fopen(state->config_file, "r"))) {
-		GrError("Couldn't open config file \"%s\"\n",
-							state->config_file);
+		GrError("Couldn't open config file \"%s\"\n", state->config_file);
 		exit(2);
 	}
 
@@ -389,7 +384,6 @@ void read_config(lstate *state)
 	}
 
 	fclose(fp);
-	free(buf);
 
 	if(state->randomss) choose_random_screensaver(state);
 	else state->curssitem = state->ssitems;
@@ -656,10 +650,11 @@ void initialise(lstate *state)
 		GrSelectEvents(GR_ROOT_WINDOW_ID, GR_EVENT_MASK_SCREENSAVER);
 
 	state->main_window = GrNewWindow(GR_ROOT_WINDOW_ID, 0, y, width, height,
-						0, ITEM_BACKGROUND_COLOUR, 0);
+		0, ITEM_BACKGROUND_COLOUR, 0);
 	GrSelectEvents(state->main_window, GR_EVENT_MASK_CLOSE_REQ | GR_EVENT_MASK_TIMER);
 	props.flags = GR_WM_FLAGS_PROPS;
-	props.props = GR_WM_PROPS_NOMOVE | GR_WM_PROPS_NODECORATE | GR_WM_PROPS_NOAUTOMOVE | GR_WM_PROPS_NOAUTORESIZE;
+	props.props = GR_WM_PROPS_NOMOVE | GR_WM_PROPS_NODECORATE |
+		GR_WM_PROPS_NOAUTOMOVE | GR_WM_PROPS_NOAUTORESIZE;
 	GrSetWMProperties(state->main_window, &props);
 
 	i = state->lastlitem;
@@ -693,16 +688,16 @@ toomany:
 
 int main(int argc, char *argv[])
 {
-	lstate *state;
+	lstate state;
+	char *config = CONFIG;
 
-	if(argc != 2) usage();
+	if(argc > 1)
+		config = argv[1];
 
-	state = my_malloc(sizeof(lstate));
-	state->config_file = strdup(argv[1]);
+	state.config_file = config;
+	initialise(&state);
 
-	initialise(state);
-
-	do_event_loop(state);
+	do_event_loop(&state);
 
 	GrClose();
 

@@ -322,6 +322,19 @@ GrOpen(void)
 	if (nxSocket >= 0)
         	return nxSocket;
 
+#if UNIX && AUTO_START_SERVER
+	/* check if Nano-X server running, and start if not */
+	if (access(GR_NAMED_SOCKET, F_OK) < 0) {
+		EPRINTF("Starting %s\n", BIN_NANOX);
+		if (!access(BIN_NANOX, F_OK)) {
+			if (fork() == 0) {
+				execl(BIN_NANOX, BIN_NANOX, NULL);
+				exit(1);
+			}
+		}
+	}
+#endif
+
 	/* try to get socket*/
 	if ((nxSocket = socket(ADDR_FAM, SOCK_STREAM, 0)) == -1)
 		return -1;

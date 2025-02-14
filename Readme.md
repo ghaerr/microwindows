@@ -2,7 +2,7 @@
 
 Microwindows or Nano-X is a small graphical windowing system that implements
 both Win32 and Nano-X (X11-like) APIs for clipped graphics drawing in windows
-on Linux, Mac OS X, EMSCRIPTEN, Android and other platforms. It is
+on Linux, Mac OS X, ELKS, EMSCRIPTEN, Android and other platforms. It is
 Open Source and licenced under the the Mozilla Public License.
 For creating GUIs, the Nuklear immediate mode GUI, Win32 builtin controls,
 and TinyWidget's controls based on Nano-X are included.
@@ -25,6 +25,7 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 
 ## Areas where Microwindows can be used are:
 
+- NEW: Nano-X now runs on [ELKS](https://github.com/ghaerr/elks)
 - NEW: Microui immediate-mode UI library port to Nano-X
 - NEW: PDF viewer and MP4 media player support on Nano-X through FBPDF and FBFF projects
 - NEW: updated Nano-X window frame drawing code resembles Nuklear UI
@@ -45,11 +46,11 @@ and run without recompilation.  The FLTK GUI toolkit runs based on NX11.
 Microwindows is very portable, is written in C and can be used on a wide range 
 of platforms. 
 
-Currently supported platforms include **Linux, Mac OS X, Android, EMSCRIPTEN,
+Currently supported platforms include **Linux, Mac OS X, Android, ELKS, EMSCRIPTEN,
 Nuklear GUI, Windows, Raspberry Pi, DOS DJGPP, RTEMS, ECOS, Sony PSP, Atari Jaguar, Nintendo DS** and more. 
 
 Currently supported screen drivers include **Memory-mapped framebuffer, X11,
-SDL 2, Allegro 5, Windows and an X11 based framebuffer emulator.**
+SDL 2, Allegro 5, Windows, VGA and an X11 based framebuffer emulator.**
 
 Support for cross-compiler toolchains on **x86, x86_64, ARM, M68K, PowerPC and MIPS**,
 big- and little-endian, and other processors.
@@ -88,6 +89,7 @@ An HTML based FAQ and Architecture document are available from the web site.
 
 ![AGG](/screenshots/AGG-Nano-X.png)
 ![Nuklear](/screenshots/Nuklear-Nano-X.png)
+![ELKS](/screenshots/NXELKS.png)
 ![Emscripten](/screenshots/Emscripten-Microwindows.png)
 ![FLTK](/screenshots/FLTK1.3.4-NXlib.png)
 ![Doom](/screenshots/Doom3x.png)

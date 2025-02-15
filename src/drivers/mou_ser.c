@@ -185,6 +185,7 @@ MOU_Open(MOUSEDEVICE *pmd)
 		port = MOUSE_PORT2;
 		mouse_specified = 1;
 	}
+	EPRINTF("Opening mouse on %s\n", port);
 	mouse_fd = open(port, O_EXCL | O_NOCTTY | O_NONBLOCK);
 	if (mouse_fd < 0 && !mouse_specified) {
 		EPRINTF("Mouse not found on first port %s (%d), trying %s.\n",

@@ -40,17 +40,20 @@
 /* default settings*/
 #if _MINIX
 #define	MOUSE_PORT	"/dev/mouse"
+#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
 #define	MOUSE_TYPE	"ms"
 #elif ELKS
-#define	MOUSE_PORT	"/dev/ttyS0"	/* com1 then com2 tried on real hardware */
-#define	MOUSE_PORT2	"/dev/ttyS1"	/* but always com2 on QEMU */
+#define	MOUSE_PORT	"/dev/ttyS0"	/* default port unless MOUSE_PORT= env specified */
+#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
 #define MOUSE_TYPE	"ms"
 #elif __fiwix__
 #define MOUSE_PORT	"/dev/ttyS0"
+#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
 #define MOUSE_TYPE	"ms"
 #else
 /* default mouse tty port: /dev/psaux or /dev/ttyS1 */
 #define MOUSE_PORT	"/dev/ttyS1"
+#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
 //#define MOUSE_PORT	"/dev/psaux"
 //#define MOUSE_PORT	"/dev/mouse"
 /* default mouse type: ms, pc, logi, or ps2 */
@@ -140,17 +143,11 @@ MOU_Open(MOUSEDEVICE *pmd)
 {
 	char	*type;
 	char	*port;
-	int	mouse_specified = 1;
 	struct termios termios;
 
 	/* get mouse type and port*/
 	if( !(type = getenv("MOUSE_TYPE")))
 		type = MOUSE_TYPE;
-
-	if( !(port = getenv("MOUSE_PORT"))) {
-		port = MOUSE_PORT;
-		mouse_specified = 0;
-	}
 
 	/* set button bits and parse procedure*/
 	if(!strcmp(type, "pc") || !strcmp(type, "logi")) {
@@ -174,31 +171,25 @@ MOU_Open(MOUSEDEVICE *pmd)
 	} else
 		return DRIVER_FAIL;
 
+	/* open mouse port*/
+	if( !(port = getenv("MOUSE_PORT")))
+		port = getenv("QEMU")? MOUSE_QEMU: MOUSE_PORT;
+
 	if (!strcmp(port, "none")) {
 		mouse_fd = -2;
 		return -2;		/* no mouse */
 	}
 
-	/* open mouse port*/
 #if ELKS
-	if (!mouse_specified && getenv("QEMU")) {
-		port = MOUSE_PORT2;
-		mouse_specified = 1;
-	}
 	EPRINTF("Opening mouse on %s\n", port);
-	mouse_fd = open(port, O_EXCL | O_NOCTTY | O_NONBLOCK);
-	if (mouse_fd < 0 && !mouse_specified) {
-		EPRINTF("Mouse not found on first port %s (%d), trying %s.\n",
-			port, errno, MOUSE_PORT2);
-		mouse_fd = open(port=MOUSE_PORT2, O_EXCL | O_NOCTTY | O_NONBLOCK);
-	}
+	mouse_fd = open(port, O_NOCTTY | O_NONBLOCK);
 #else
 	mouse_fd = open(port, O_NONBLOCK);
 #endif
 	if (mouse_fd < 0) {
 		EPRINTF(
 			"No %s mouse found on port %s (error %d).\n"
-			"Mouse not detected, use export MOUSE_PORT=none.\n",
+			"Mouse not detected, use export MOUSE_PORT=/dev/ttyS1 or =none.\n",
 			type, port, errno);
  		return DRIVER_FAIL;
 	}

@@ -442,6 +442,9 @@ GrClose(void)
 	close(nxSocket);
 	nxSocket = -1;
 	LOCK_FREE(&nxGlobalLock);
+#if ELKS
+	GrDelay(200); /* partial raw terminal fix, allow nano-X to run to reset terminal */
+#endif
 }
 
 /**

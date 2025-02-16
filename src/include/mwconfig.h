@@ -55,7 +55,7 @@
 #define NUKLEARUI		1		/* =0 to use older tan windows-style 3d window frame drawing/colors*/
 #define OUTLINE_MOVE	1		/* =1 draw outline only during window move*/
 #define NO_AUTO_MOVE	1		/* =1 don't auto position window on new windows*/
-#define BIN_NANOX       "/root/nano-X"    /* location of Nano-X for AUTO_START_SERVER */
+#define BIN_NANOX       "/bin/nano-X"    /* location of Nano-X for AUTO_START_SERVER */
 #endif
 
 /* Changeable limits and options*/

@@ -2212,7 +2212,7 @@ int GsWrite(int fd, void *buf, int c)
 	while(n < c) {
 		e = write(fd, ((char *) buf + n), (c - n));
 		if(e <= 0) {
-			/*DPRINTF("nano-X: GsWrite failed %d\n", fd);*/
+			/*EPRINTF("nano-X: GsWrite failed %d\n", fd);*/
 			GsClose(fd);
 			return -1;
 		}

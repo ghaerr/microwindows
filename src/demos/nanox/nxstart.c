@@ -57,7 +57,7 @@ static void do_update(GR_EVENT_UPDATE *ep);
 static void do_mouse(GR_EVENT_MOUSE *ep);
 
 #if ELKS
-#define PATH    "./"
+#define PATH    "/bin/"
 #else
 #define PATH    "bin/"
 #endif

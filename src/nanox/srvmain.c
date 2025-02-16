@@ -577,8 +577,8 @@ again:
 		GdTimeout();
 #endif
 #endif /* NONETWORK */
-	} else if(errno != EINTR)
-		EPRINTF("Select() call in main failed: %d\n", errno);
+	} /*else if(errno != EINTR)
+		EPRINTF("Select() call in main failed: %d\n", errno);*/
 }
 
 /********************************************************************************/

@@ -379,7 +379,7 @@ GsSelect(GR_TIMEOUT timeout)
      * This prevents hangin on select until next real event.
 	 * FIXME this may cause problems on GR_TIMEOUT_BLOCK
      */
-	if (GsCheckMouseEvent())
+	if (mouse_fd >= 0 && GsCheckMouseEvent())
 		return;
 #endif
 #if CONFIG_ARCH_PC98

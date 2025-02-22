@@ -134,6 +134,18 @@ void int_A3(unsigned int l_seg)
                       "pop %ds;");
 }
 
+void cursor_on()
+{
+    __asm__ volatile ("mov $17,%ah;"
+                      "int $0x18;");
+}
+
+void cursor_off()
+{
+    __asm__ volatile ("mov $18,%ah;"
+                      "int $0x18;");
+}
+
 static PSD
 PC98_open(PSD psd)
 {
@@ -148,6 +160,8 @@ PC98_open(PSD psd)
 	unsigned int __far *tvram;
 
 	extern PSUBDRIVER pc98plan4[4];
+
+	cursor_off();
 
 	// Clear 80*25 words text vram starting from segment 0xA000
 	tvram = (unsigned int __far *) _MK_FP(0xA000,0);
@@ -232,6 +246,8 @@ PC98_close(PSD psd)
 {
 	outb(0x0C,0xA2);   // GDC Stop
 	outb(0x0A,0x68);   // Code Access for font
+
+	cursor_on();
 }
 
 static void

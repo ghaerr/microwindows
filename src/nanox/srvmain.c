@@ -373,7 +373,15 @@ GsSelect(GR_TIMEOUT timeout)
 	int	fd;
 #endif
 
-#if ELKS
+#if CONFIG_ARCH_PC98
+	if (GsCheckMouseEvent())
+		return;
+	if (mousedev.Poll())
+	{
+		GsCheckMouseEvent();
+		return;
+	}
+#elif ELKS
     /*
      * Process any mouse events queued after last select.
      * This prevents hangin on select until next real event.
@@ -381,13 +389,6 @@ GsSelect(GR_TIMEOUT timeout)
      */
 	if (mouse_fd >= 0 && GsCheckMouseEvent())
 		return;
-#endif
-#if CONFIG_ARCH_PC98
-	if (mousedev.Poll())
-	{
-		GsCheckMouseEvent();
-		return;
-	}
 #endif
 	/* X11/SDL perform single update of aggregate screen update region*/
 	if (scrdev.PreSelect)

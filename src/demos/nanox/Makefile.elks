@@ -27,6 +27,7 @@ notyet = \
 
 all: $(PROGS)
 	cp -p $(PROGS) $(TOPDIR)/elkscmd/rootfs_template/bin
+	mkdir -p $(TOPDIR)/elkscmd/rootfs_template/lib
 	cp -p ../../images/demos/nanox/nxworld.map $(TOPDIR)/elkscmd/rootfs_template/lib
 
 $(BIN)nxclock: nxclock.o $(NXLIB)

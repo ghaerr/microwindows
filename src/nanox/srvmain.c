@@ -961,7 +961,11 @@ GsInitialize(void)
 #endif
 
 	if (GsOpenSocket() < 0) {
-		EPRINTF("Cannot bind to named socket\n");
+		EPRINTF("nano-X: Cannot bind to named socket"
+#if ELKS
+			", check CONFIG_UNIX (UNIX sockets) enabled"
+#endif
+			"\n");
 		free(wp);
 		return -1;
 	}

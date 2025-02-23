@@ -10,7 +10,7 @@
 #if RTEMS
 #include <time.h>
 #else
-#include <sys/timeb.h>
+#include <sys/time.h>
 #endif
 #include "defs.h"
 #include "data.h"
@@ -145,15 +145,14 @@ int get_ms(void)
 	ftime_ok = TRUE;
 	return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000);
 #else
-	struct timeb timebuffer;
-	ftime(&timebuffer);
-	if (timebuffer.millitm != 0)
-		ftime_ok = TRUE;
-	return (timebuffer.time * 1000) + timebuffer.millitm;
+	struct timeval timebuffer;
+	gettimeofday(&timebuffer, NULL);
+	ftime_ok = TRUE;
+	return (timebuffer.tv_usec / 1000);
 #endif
 }
 
- 
+
 /* ***********************************************************/
 static void gprintf(char s[])
 {

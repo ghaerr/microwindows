@@ -473,6 +473,9 @@ nk_nxsurf_draw_text(NXSurface *surf, short x, short y, unsigned short w, unsigne
 
     tx = x;
     ty = y + font->ascent;
+
+    /* Set the font in GC before the text drawing */
+    GrSetGCFont(surf->gc, font->fontid);
     GrSetGCForeground(surf->gc, fg);
     GrText(surf->wid, surf->gc, tx, ty, (void*)text, len, GR_TFBASELINE);
 }

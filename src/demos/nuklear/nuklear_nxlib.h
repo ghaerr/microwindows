@@ -51,6 +51,11 @@ NK_API struct nk_image nk_nxsurf_load_image_from_file(char const *filename);
 NK_API struct nk_image nk_nxsurf_load_image_from_memory(const void *membuf, nk_uint membufSize);
 #endif
 
+#ifdef NK_NANOX_INCLUDE_IMAGE
+NK_API struct nk_image nk_nxsurf_load_image_from_file(char const *filename);
+NK_API struct nk_image nk_nxsurf_load_image_from_memory(const void *membuf, nk_uint membufSize);
+#endif
+
 /* Font */
 NK_API NXFont *             nk_nxfont_create(const char *name);
 NK_API void                 nk_nxfont_del(NXFont *font);
@@ -77,7 +82,7 @@ GR_TIMEOUT nk_nxlib_timeout;
 #endif
 
 #ifdef NK_NANOX_INCLUDE_STB_IMAGE
-#include "../../example/stb_image.h"
+#include "./stb_image.h"
 #endif
 
 #ifndef NK_NANOX_DOUBLE_CLICK_LO
@@ -477,11 +482,9 @@ nk_nxsurf_draw_text(NXSurface *surf, short x, short y, unsigned short w, unsigne
     /* Set the font in GC before the text drawing */
     GrSetGCFont(surf->gc, font->fontid);
     GrSetGCForeground(surf->gc, fg);
-    GrText(surf->wid, surf->gc, tx, ty, (void*)text, len, GR_TFBASELINE);
+    GrText(surf->wid, surf->gc, tx, ty, (void*)text, strlen(text), GR_TFUTF8 | GR_TFBASELINE);
 }
 
-
-#if 0000
 #ifdef NK_NANOX_INCLUDE_STB_IMAGE
 NK_INTERN struct nk_image
 nk_stbi_image_to_nxsurf(unsigned char *data, int width, int height, int channels) {
@@ -563,7 +566,6 @@ nk_nxsurf_load_image_from_file(char const *filename)
     data = stbi_load(filename, &x, &y, &n, 0);
     return nk_stbi_image_to_nxsurf(data, x, y, n);
 }
-#endif /* NK_NANOX_INCLUDE_STB_IMAGE */
 
 NK_INTERN void
 nk_nxsurf_draw_image(NXSurface *surf, short x, short y, unsigned short w, unsigned short h,
@@ -591,7 +593,90 @@ nk_nxsurf_image_free(struct nk_image* image)
     XFreeGC(surf->dpy, aimage->clipMaskGC);
     free(aimage);
 }
-#endif
+#endif /* NK_NANOX_INCLUDE_STB_IMAGE */
+
+#ifdef NK_NANOX_INCLUDE_IMAGE
+NK_API void nk_nxsurf_draw_image(NXSurface *surf,
+                                 short x, short y,
+                                 unsigned short w, unsigned short h,
+                                 struct nk_image img,
+                                 struct nk_color col)
+{
+    (void)col;  /* 'col' не используется в этой реализации */
+
+    printf("nk_nxsurf_draw_image: drawing image on window id %d at (%d, %d) size (%d x %d)\n",
+           surf->wid, x, y, w, h);
+
+    GR_IMAGE_ID image_id = (GR_IMAGE_ID)img.handle.id;
+    if (!image_id) {
+        printf("nk_nxsurf_draw_image: image_id is 0\n");
+        return;
+    }
+    GrDrawImageToFit(surf->wid, surf->gc, x, y, w, h, image_id);
+    printf("nk_nxsurf_draw_image: drawing image completed\n");
+}
+
+NK_API struct nk_image
+nk_nxsurf_load_image_from_file(const char *filename)
+{
+    GR_IMAGE_ID image_id = GrLoadImageFromFile(filename, 0);
+    if (!image_id)
+        return nk_image_id(0);
+
+    GR_IMAGE_INFO info;
+    GrGetImageInfo(image_id, &info);
+
+    struct nk_image img = nk_image_id((int)image_id);
+    /* Set the actual image dimensions */
+    img.w = info.width;
+    img.h = info.height;
+    /* Set subimage region to zero if not used */
+    img.region[0] = 0;
+    img.region[1] = 0;
+    img.region[2] = 0;
+    img.region[3] = 0;
+
+    return img;
+}
+
+NK_API struct nk_image
+nk_nxsurf_load_image_from_memory(const void *buf, nk_uint bufSize)
+{
+    GR_IMAGE_ID image_id = GrLoadImageFromBuffer((void *)buf, bufSize, 0);
+    if (!image_id)
+        return nk_image_id(0);
+
+    GR_IMAGE_INFO info;
+    GrGetImageInfo(image_id, &info);
+
+    struct nk_image img = nk_image_id((int)image_id);
+    img.w = info.width;
+    img.h = info.height;
+    img.region[0] = 0;
+    img.region[1] = 0;
+    img.region[2] = 0;
+    img.region[3] = 0;
+
+    return img;
+}
+
+NK_API void nk_nxsurf_image_free(struct nk_image* image)
+{
+    if (!image) {
+        printf("nk_nxsurf_image_free: NULL pointer provided\n");
+        return;
+    }
+    GR_IMAGE_ID image_id = (GR_IMAGE_ID)image->handle.id;
+    if (image_id) {
+        GrFreeImage(image_id);
+        image->handle.id = 0;
+        printf("nk_nxsurf_image_free: free image (id=%ld)\n", (long)image_id);
+    } else {
+        printf("nk_nxsurf_image_free: image already freed or invalid\n");
+    }
+}
+#endif  /* NK_NANOX_INCLUDE_IMAGE */
+
 
 NK_INTERN void
 nk_nxsurf_clear(NXSurface *surf, unsigned long color)
@@ -604,23 +689,23 @@ NK_API NXFont*
 nk_nxfont_create(const char *name)
 {
     NXFont *font;
-	GR_FONT_INFO finfo;
-	GR_FONT_ID fontid = GrCreateFontEx(name, 0, 0, NULL);
-	if (!fontid)
-		fontid = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
-	if (!fontid)
-		return 0;
+    GR_FONT_INFO finfo;
+    GR_FONT_ID fontid = GrCreateFontEx(name, 14, 14, NULL);
+    if (!fontid)
+        fontid = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
+    if (!fontid)
+        return 0;
 
     font = (NXFont*)calloc(1, sizeof(NXFont));
-	font->fontid = fontid;
-	font->gc = GrNewGC();
-	GrSetGCUseBackground(font->gc, GR_FALSE);
-	GrSetGCFont(font->gc, fontid);
+    font->fontid = fontid;
+    font->gc = GrNewGC();
+    GrSetGCUseBackground(font->gc, GR_FALSE);
+    GrSetGCFont(font->gc, fontid);
 
-	GrGetFontInfo(fontid, &finfo);
-	font->ascent = finfo.baseline;
-	font->descent = finfo.descent;
-	font->height = finfo.height;
+    GrGetFontInfo(fontid, &finfo);
+    font->ascent = finfo.baseline;
+    font->descent = finfo.descent;
+    font->height = finfo.height;
 
     return font;
 }
@@ -685,7 +770,7 @@ nk_nxlib_create_window(struct nk_context *ctx)
 	title = ctx->current->name_string;
 
 	/* window w/h decreased by 1 because Nuklear draws on surface one less than size given*/
-	wid = GrNewBufferedWindow(GR_WM_PROPS_APPWINDOW, title, GR_ROOT_WINDOW_ID,
+	wid = GrNewBufferedWindow(GR_WM_PROPS_NOAUTOMOVE, title, GR_ROOT_WINDOW_ID,
 		0, 0, w-1, h-1, 0);
 	if (!wid)
 		return;
@@ -971,7 +1056,7 @@ nk_nxlib_render(struct nk_color clear)
             nk_nxsurf_stroke_curve(surf, q->begin, q->ctrl[0], q->ctrl[1],
                 q->end, 22, q->line_thickness, q->color);
         } break;
-#if 0
+#ifdef NK_NANOX_INCLUDE_IMAGE
         case NK_COMMAND_IMAGE: {
             const struct nk_command_image *i = (const struct nk_command_image *)cmd;
             nk_nxsurf_draw_image(surf, i->x, i->y, i->w, i->h, i->img, i->col);

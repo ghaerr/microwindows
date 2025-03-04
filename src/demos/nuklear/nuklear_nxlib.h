@@ -602,18 +602,12 @@ NK_API void nk_nxsurf_draw_image(NXSurface *surf,
                                  struct nk_image img,
                                  struct nk_color col)
 {
-    (void)col;  /* 'col' не используется в этой реализации */
-
-    printf("nk_nxsurf_draw_image: drawing image on window id %d at (%d, %d) size (%d x %d)\n",
-           surf->wid, x, y, w, h);
+    (void)col;
 
     GR_IMAGE_ID image_id = (GR_IMAGE_ID)img.handle.id;
-    if (!image_id) {
-        printf("nk_nxsurf_draw_image: image_id is 0\n");
+    if (!image_id)
         return;
-    }
     GrDrawImageToFit(surf->wid, surf->gc, x, y, w, h, image_id);
-    printf("nk_nxsurf_draw_image: drawing image completed\n");
 }
 
 NK_API struct nk_image
@@ -662,17 +656,13 @@ nk_nxsurf_load_image_from_memory(const void *buf, nk_uint bufSize)
 
 NK_API void nk_nxsurf_image_free(struct nk_image* image)
 {
-    if (!image) {
-        printf("nk_nxsurf_image_free: NULL pointer provided\n");
+    if (!image)
         return;
-    }
+
     GR_IMAGE_ID image_id = (GR_IMAGE_ID)image->handle.id;
     if (image_id) {
         GrFreeImage(image_id);
         image->handle.id = 0;
-        printf("nk_nxsurf_image_free: free image (id=%ld)\n", (long)image_id);
-    } else {
-        printf("nk_nxsurf_image_free: image already freed or invalid\n");
     }
 }
 #endif  /* NK_NANOX_INCLUDE_IMAGE */

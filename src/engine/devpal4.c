@@ -5,6 +5,7 @@
  */
 #include "device.h"
 
+#if 1
 /*
  * Standard palette for 16 color systems.
  */
@@ -27,3 +28,31 @@ const MWPALENTRY mwstdpal4[16] = {
 	RGBDEF( 255, 255, 0   ),	/* yellow*/
 	RGBDEF( 255, 255, 255 ),	/* white*/
 };
+
+#else
+
+
+/*
+ * CGA palette for 16 color systems.
+ */
+const MWPALENTRY mwstdpal4[16] = {
+	/* 16 CGA colors, arranged in CGA standard palette order*/
+    /* NOTE: these RGB values don't match the BLACK/RED/BLUE etc colors in mwtypes.h */
+	RGBDEF( 0   , 0   , 0    ),	/* black*/
+	RGBDEF( 0   , 0   , 0xAA ),	/* blue*/
+	RGBDEF( 0   , 0xAA, 0    ),	/* green*/
+	RGBDEF( 0   , 0xAA, 0xAA ),	/* cyan*/
+	RGBDEF( 0xAA, 0   , 0    ),	/* red*/
+	RGBDEF( 0xAA, 0   , 0xAA ),	/* magenta*/
+	RGBDEF( 0xAA, 0x55, 0    ),	/* brown*/
+	RGBDEF( 0xAA, 0xAA, 0xAA ),	/* ltgray*/
+	RGBDEF( 0x55, 0x55, 0x55 ),	/* gray*/
+	RGBDEF( 0x55, 0x55, 0xFF ),	/* ltblue*/
+	RGBDEF( 0x55, 0xFF, 0x55 ),	/* ltgreen*/
+	RGBDEF( 0x55, 0xFF, 0xFF ),	/* ltcyan*/
+	RGBDEF( 0xFF, 0x55, 0x55 ),	/* ltred*/
+	RGBDEF( 0xFF, 0x55, 0xFF ),	/* ltmagenta*/
+	RGBDEF( 0xFF, 0xFF, 0x55 ),	/* yellow*/
+	RGBDEF( 0xFF, 0xFF, 0xFF ),	/* white*/
+};
+#endif

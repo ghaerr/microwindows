@@ -2748,7 +2748,7 @@ GrArcAngle(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y,
 }
 #endif /* MW_FEATURE_SHAPES*/
 
-#if MW_FEATURE_IMAGES
+#if MW_FEATURE_BITMAPS
 /*
  * Draw a rectangular area in the specified drawable using the specified
  * graphics, as determined by the specified bit map.  This differs from
@@ -2775,7 +2775,9 @@ GrBitmap(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_SIZE width,
 
 	SERVER_UNLOCK();
 }
+#endif
 
+#if MW_FEATURE_IMAGES
 /* draw a multicolor image at x, y*/
 void
 GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_IMAGE_HDR *pimage)
@@ -2793,7 +2795,7 @@ GrDrawImageBits(GR_DRAW_ID id, GR_GC_ID gc, GR_COORD x, GR_COORD y, GR_IMAGE_HDR
 
 	SERVER_UNLOCK();
 }
-#endif /* MW_FEATURE_IMAGES*/
+#endif
 
 #if MW_FEATURE_IMAGES && HAVE_FILEIO
 /* Draw an image from a file*/

@@ -42,6 +42,7 @@
 #define POLYREGIONS		0		/* =1 includes polygon regions*/
 #define DYNAMICREGIONS	0		/* =1 to use more complex MWCLIPREGION regions*/
 #define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
+#define MW_FEATURE_BITMAPS 1	/* =1 to enable GrBitmap */
 #define MW_FEATURE_IMAGES 0		/* =1 to enable GdLoadImage/GdDrawImage etc*/
 #define MW_FEATURE_SHAPES 0		/* =1 for arc, ellipse, polygons, tile/stipple*/
 #define MW_FEATURE_INTL	0		/* =1 for dbcs and TEXTIP_EXTENDED font/encoding support*/
@@ -138,6 +139,10 @@
 
 #ifndef MW_FEATURE_TIMERS
 #define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
+#endif
+
+#ifndef MW_FEATURE_BITMAPS
+#define MW_FEATURE_BITMAPS 1	/* =1 to enable GrBitmap */
 #endif
 
 #ifndef MW_FEATURE_IMAGES

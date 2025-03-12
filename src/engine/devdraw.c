@@ -848,7 +848,7 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 	}
 	extra = pimage->pitch - linesize;
 
-#if MW_FEATURE_IMAGES
+/*#if MW_FEATURE_ALPHA */
 	/* Image format in RGB rather than BGR byte order?*/
 	rgborder = (pimage->data_format == MWIF_RGB888 || pimage->data_format == MWIF_RGBA8888);
 
@@ -1088,7 +1088,9 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 			}
 		}
 	} /* end of alpha channel image handling*/
-	else if (bpp > 8) {
+	else
+/*#endif MW_FEATURE_ALPHA */
+    if (bpp > 8) {
 		/* handle non-alpha images of 16, 18, 24 or 32bpp*/
 		while (height > 0) {
 			/* get value in correct RGB or BGR byte order*/
@@ -1175,7 +1177,6 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 		}
 	} /* end of 16, 18, 24 or 32bpp non-alpha image handling*/
 	else
-#endif /* !MW_FEATURE_IMAGES */
 	{
 		/* handle palettized images of 8, 4 or 1bpp*/
 		bitcount = 0;
@@ -1236,7 +1237,9 @@ GdDrawImageByPoint(PSD psd, MWCOORD x, MWCOORD y, PMWIMAGEHDR pimage)
 
 	GdFixCursor(psd);
 }
+#endif /* MW_FEATURE_IMAGES*/
 
+#if MW_FEATURE_BITMAPS
 /**
  * Draw a rectangular area using the current clipping region and the
  * specified bit map.  This differs from rectangle drawing in that the
@@ -1290,7 +1293,7 @@ GdBitmap(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height, const MWI
 	parms.srcpsd = NULL;
 	GdConvBlitInternal(psd, &parms, convblit);
 }
-#endif /* MW_FEATURE_IMAGES*/
+#endif
 
 /* slow draw a mono word msb bitmap, use precalced clipresult if passed*/
 void

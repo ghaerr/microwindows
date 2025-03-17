@@ -60,8 +60,6 @@
 #define MOUSE_TYPE	"ms"
 #endif
 
-#define MAX_BYTES	128		/* number of bytes for buffer */
-
 /* states for the mouse*/
 #define	IDLE			0		/* start of byte sequence */
 #define	XSET			1		/* setting x delta */
@@ -104,8 +102,16 @@ static int		right;		/* redefined */
 
 static unsigned char	*bp;		/* buffer pointer */
 static int		nbytes;		/* number of bytes left */
-static unsigned char	buffer[MAX_BYTES];	/* data bytes read */
 static int		(*parse)();	/* parse routine */
+
+/*
+ * NOTE: max_bytes can't be larger than 1 mouse read packet or select() can fail,
+ * as mouse driver would be storing unprocessed data not seen by select.
+ */
+#define PC_MAX_BYTES   5            /* max read() w/o storing excess mouse data */
+#define MS_MAX_BYTES   3            /* max read() w/o storing excess mouse data */
+#define PS2_MAX_BYTES  4            /* max read() w/o storing excess mouse data */
+int max_bytes = MS_MAX_BYTES;
 
 /* local routines*/
 static int  	MOU_Open(MOUSEDEVICE *pmd);
@@ -156,18 +162,21 @@ MOU_Open(MOUSEDEVICE *pmd)
 		middle = PC_MIDDLE_BUTTON;
 		right = PC_RIGHT_BUTTON;
 		parse = ParsePC;
+		max_bytes = PC_MAX_BYTES;
 	} else if (strcmp(type, "ms") == 0) {
 		/* microsoft mouse*/
 		left = MS_LEFT_BUTTON;
 		right = MS_RIGHT_BUTTON;
 		middle = 0;
 		parse = ParseMS;
+		max_bytes = MS_MAX_BYTES;
 	} else if (strcmp(type, "ps2") == 0) {
 		/* PS/2 mouse*/
 		left = PS2_LEFT_BUTTON;
 		right = PS2_RIGHT_BUTTON;
 		middle = 0;
 		parse = ParsePS2;
+		max_bytes = PS2_MAX_BYTES;
 	} else
 		return DRIVER_FAIL;
 
@@ -292,6 +301,7 @@ static int
 MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr)
 {
 	int	b;
+	static unsigned char buffer[6];
 
 	/*
 	 * If there are no more bytes left, then read some more,
@@ -300,7 +310,7 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr)
 	 */
 	if (nbytes <= 0) {
 		bp = buffer;
-		nbytes = read(mouse_fd, bp, MAX_BYTES);
+		nbytes = read(mouse_fd, bp, max_bytes);
 		if (nbytes < 0) {
 			if (errno == EINTR || errno == EAGAIN)
 				return MOUSE_NODATA;

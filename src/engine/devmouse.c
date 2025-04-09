@@ -422,15 +422,14 @@ GdShowCursor(PSD psd)
 			curbit = MWIMAGE_FIRSTBIT;
 		}
 		for (x = curminx; x <= curmaxx; x++) {
-			if(x >= 0 && x < psd->xvirtres &&
-			   y >= 0 && y < psd->yvirtres) {
-				oldcolor = psd->ReadPixel(psd, x, y);
+			if(x >= 0 && x < psd->xvirtres && y >= 0 && y < psd->yvirtres) {
 				if (curbit & mbits) {
+				    oldcolor = psd->ReadPixel(psd, x, y);
 					newcolor = (curbit&cbits)? curbg: curfg;
 					if (oldcolor != newcolor)
 						psd->DrawPixel(psd, x, y, newcolor);
+				    *saveptr++ = oldcolor;
 				}
-				*saveptr++ = oldcolor;
 			}
 			curbit = MWIMAGE_NEXTBIT(curbit);
 			if (!curbit) {	/* check > one MWIMAGEBITS wide*/
@@ -458,6 +457,9 @@ GdHideCursor(PSD psd)
 	MWCOORD 		x, y;
 	int 		oldmode;
 	int		prevcursor = curvisible;
+	MWIMAGEBITS *   maskptr;
+	MWIMAGEBITS     curbit, mbits = 0;
+
 
 	if(curvisible-- <= 0)
 		return prevcursor;
@@ -465,11 +467,22 @@ GdHideCursor(PSD psd)
 	gr_mode = MWROP_COPY;
 
 	saveptr = cursavbits;
+	maskptr = cursormask;
+	curbit = 0;
 	for (y = cursavy; y <= cursavy2; y++) {
+		if (curbit != MWIMAGE_FIRSTBIT) {
+			mbits = *maskptr++;
+			curbit = MWIMAGE_FIRSTBIT;
+		}
 		for (x = cursavx; x <= cursavx2; x++) {
-			if(x >= 0 && x < psd->xvirtres &&
-			   y >= 0 && y < psd->yvirtres) {
-				psd->DrawPixel(psd, x, y, *saveptr++);
+			if(x >= 0 && x < psd->xvirtres && y >= 0 && y < psd->yvirtres) {
+				if (curbit & mbits)
+					psd->DrawPixel(psd, x, y, *saveptr++);
+			}
+			curbit = MWIMAGE_NEXTBIT(curbit);
+			if (!curbit) {  /* check > one MWIMAGEBITS wide*/
+				mbits = *maskptr++;
+				curbit = MWIMAGE_FIRSTBIT;
 			}
 		}
 	}

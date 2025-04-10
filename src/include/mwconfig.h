@@ -41,7 +41,7 @@
 #define HAVE_PCF_SUPPORT 0		/* PCF font support*/
 #define POLYREGIONS		0		/* =1 includes polygon regions*/
 #define DYNAMICREGIONS	0		/* =1 to use more complex MWCLIPREGION regions*/
-#define MW_FEATURE_TIMERS 1		/* =1 to include MWTIMER support */
+#define MW_FEATURE_TIMERS 0		/* =1 to include MWTIMER support */
 #define MW_FEATURE_BITMAPS 1	/* =1 to enable GrBitmap */
 #define MW_FEATURE_IMAGES 0		/* =1 to enable GdLoadImage/GdDrawImage etc*/
 #define MW_FEATURE_SHAPES 0		/* =1 for arc, ellipse, polygons, tile/stipple*/

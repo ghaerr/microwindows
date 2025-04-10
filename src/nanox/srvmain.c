@@ -460,9 +460,9 @@ GsSelect(GR_TIMEOUT timeout)
 #else
 		if (timeout)				/* setup mwin poll timer*/
 		{
-			/* convert wait timeout to timeval struct*/
-			tout.tv_sec = timeout / 1000;
-			tout.tv_usec = (timeout % 1000) * 1000;
+			/* convert wait timeout to timeval struct - approximation for speed for 8088*/
+			tout.tv_sec = timeout >> 10;
+			tout.tv_usec = (timeout & 0x3FF) << 10;
 		}
 		else
 #endif

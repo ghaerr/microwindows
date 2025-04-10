@@ -27,7 +27,7 @@
 #define SGTTY		0	/* set to use sgtty serial port control*/
 #define SLOW_CPU        0       /* =1 discard already-read mouse input on slow systems */
 
-#define	SCALE		3	/* default scaling factor for acceleration */
+#define	SCALE		2	/* default scaling factor for acceleration */
 #define	THRESH		5	/* default threshhold for acceleration */
 
 #if TERMIOS

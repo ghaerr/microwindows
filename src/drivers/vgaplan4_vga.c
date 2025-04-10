@@ -76,7 +76,7 @@ vga_drawpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 	set_op(mode_table[gr_mode]);
 	set_color ((int)c);
 	select_and_set_mask (mask[x&7]);
-	RMW_FP ((FARADDR)SCREENBASE + (x>>3) + y * BYTESPERLINE);
+	RMW_FP ((FARADDR)SCREENBASE + (y<<6) + (y<<4) + (x>>3)); /* y*80 + x / 8 */
 	DRAWOFF;
 }
 
@@ -92,7 +92,7 @@ vga_readpixel(PSD psd, MWCOORD x, MWCOORD y)
 	assert (y >= 0 && y < psd->yres);
   
 	DRAWON;
-	src = (unsigned char FAR *)(SCREENBASE + (x>>3) + y * BYTESPERLINE);
+	src = (unsigned char FAR *)(SCREENBASE + (y<<6) + (y<<4) + (x>>3));
 	for(plane=0; plane<4; ++plane) {
 		set_read_plane(plane);
 		if(GETBYTE_FP(src) & mask[x&7])
@@ -123,7 +123,7 @@ vga_drawhorzline(PSD psd, MWCOORD x1, MWCOORD x2, MWCOORD y, MWPIXELVAL c)
 	* for some reason.  So, we use the equivalent slower drawpixel
 	* method when not drawing MWROP_COPY.
 	*/
-	dst = (unsigned char FAR *)(SCREENBASE + (x1>>3) + y*BYTESPERLINE);
+	dst = (unsigned char FAR *)(SCREENBASE + (y<<6) + (y<<4) + (x1>>3));
 	if(gr_mode == MWROP_COPY) {
 		if ((x1>>3) == (x2>>3)) {
 			select_and_set_mask ((0xff >> (x1 & 7)) & (0xff << (7 - (x2 & 7))));
@@ -168,7 +168,7 @@ vga_drawvertline(PSD psd, MWCOORD x, MWCOORD y1, MWCOORD y2, MWPIXELVAL c)
 	set_op(mode_table[gr_mode]);
 	set_color ((int)c);
 	select_and_set_mask (mask[x&7]);
-	dst = (unsigned char FAR *)(SCREENBASE + (x>>3) + y1 * BYTESPERLINE);
+	dst = (unsigned char FAR *)(SCREENBASE + (y1<<6) + (y1<<4) + (x>>3));
 	while (y1++ <= y2) {
 		RMW_FP (dst);
 		dst += BYTESPERLINE;

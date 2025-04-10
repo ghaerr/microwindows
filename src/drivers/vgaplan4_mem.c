@@ -215,7 +215,7 @@ vga_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			set_write_planes(1 << plane);
 
 			/* FIXME: only works if srcx and dstx are same modulo*/
-			if(x1/8 == x2/8) {
+			if((x1>>3) == (x2>>3)) {
 		  		select_and_set_mask((0xff >> (x1 & 7)) & (0xff << (7 - (x2 & 7))));
 				PUTBYTE_FP(d, GETBYTE_FP(s));
 			} else {

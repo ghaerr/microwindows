@@ -369,9 +369,6 @@ GsSelect(GR_TIMEOUT timeout)
 	int	setsize = 0;
 	struct timeval tout;
 	struct timeval *to;
-#if NONETWORK
-	int	fd;
-#endif
 
 #if CONFIG_ARCH_PC98
 	if (GsCheckMouseEvent())
@@ -418,7 +415,7 @@ GsSelect(GR_TIMEOUT timeout)
 	}
 #if NONETWORK
 	/* handle registered input file descriptors*/
-	for (fd = 0; fd < regfdmax; fd++)
+	for (int fd = 0; fd < regfdmax; fd++)
 	{
 		if (!FD_ISSET(fd, &regfdset))
 			continue;
@@ -508,7 +505,7 @@ again:
 
 #if NONETWORK
 		/* check for input on registered file descriptors */
-		for (fd = 0; fd < regfdmax; fd++)
+		for (int fd = 0; fd < regfdmax; fd++)
 		{
 			GR_EVENT_FDINPUT *	gp;
 

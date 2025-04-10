@@ -14,6 +14,17 @@ CONFIG_ARCH_PC98=n
 
 # remove any -mregparmcall as ASM files need cdecl calling convention
 CFLAGS := $(filter-out -mregparmcall, $(CFLAGS))
+CFLAGS += -O2
+CFLAGS += -fno-align-jumps
+CFLAGS += -fno-align-functions
+CFLAGS += -fno-align-loops
+CFLAGS += -fno-align-labels
+CFLAGS += -fira-region=one
+CFLAGS += -fira-hoist-pressure
+CFLAGS += -freorder-blocks-algorithm=simple
+CFLAGS += -fno-reorder-blocks
+CFLAGS += -fno-prefetch-loop-arrays
+CFLAGS += -fno-tree-ch
 CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1
 CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
 CFLAGS += -DUSE_SMALL_CURSOR=1

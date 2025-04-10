@@ -882,28 +882,29 @@ GsInitialize(void)
 #define MASK(a,b,c,d,e,f,g) \
         (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) \
         + e) * 2) + f) * 2) + g) << 9)
-	static MWIMAGEBITS cursormask[8];
-	static MWIMAGEBITS cursorbits[8];
-
+/* Small 8x8 cursor for machines to slow for 16x16 cursors */
 #define HOTX    1
 #define HOTY    1
 #define CURSW   8
 #define CURSH   8
-    cursormask[0] = MASK(X,X,X,X,X,X,_);
-    cursormask[1] = MASK(X,X,X,X,X,_,_);
-    cursormask[2] = MASK(X,X,X,X,_,_,_);
-    cursormask[3] = MASK(X,X,X,X,X,_,_);
-    cursormask[4] = MASK(X,X,X,X,X,X,_);
-    cursormask[5] = MASK(X,_,_,X,X,X,X);
-    cursormask[6] = MASK(_,_,_,_,X,X,X);
-
-    cursorbits[0] = MASK(_,_,_,_,_,_,_);
-    cursorbits[1] = MASK(_,X,X,X,X,_,_);
-    cursorbits[2] = MASK(_,X,X,X,_,_,_);
-    cursorbits[3] = MASK(_,X,X,X,_,_,_);
-    cursorbits[4] = MASK(_,X,_,X,X,_,_);
-    cursorbits[5] = MASK(_,_,_,_,X,X,_);
-    cursorbits[6] = MASK(_,_,_,_,_,X,X);
+	static MWIMAGEBITS cursormask[8] = {
+	    MASK(X,X,X,X,X,X,_),
+	    MASK(X,X,X,X,X,_,_),
+	    MASK(X,X,X,X,_,_,_),
+	    MASK(X,X,X,X,X,_,_),
+	    MASK(X,X,X,X,X,X,_),
+	    MASK(X,_,_,X,X,X,X),
+	    MASK(_,_,_,_,X,X,X)
+	};
+	static MWIMAGEBITS cursorbits[8] = {
+	    MASK(_,_,_,_,_,_,_),
+	    MASK(_,X,X,X,X,_,_),
+	    MASK(_,X,X,X,_,_,_),
+	    MASK(_,X,X,X,_,_,_),
+	    MASK(_,X,_,X,X,_,_),
+	    MASK(_,_,_,_,X,X,_),
+	    MASK(_,_,_,_,_,X,X)
+	};
 #else
 #define HOTX    0
 #define HOTY    0

@@ -385,7 +385,7 @@ GsSelect(GR_TIMEOUT timeout)
 	{
 		int events;
 
-		/* returns # pending events*/
+		/* get # pending events*/
 		if (scrdev.PollEvents)
 			events = scrdev.PollEvents();
 		else
@@ -400,15 +400,15 @@ GsSelect(GR_TIMEOUT timeout)
 			while (GsCheckKeyboardEvent())
 				continue;
 
-			/* if events found, don't return unless polling, events handled below*/
-			if (timeout != GR_TIMEOUT_BLOCK)
-				return;
 		}
 		if (events || updatecount == 0)
 		{
 			scrdev.PreSelect(&scrdev);
-			updatecount = 10;
+			updatecount = 100;      /* increase this for faster throughput*/
 		}
+		/* if events found, return if not blocking; client events handled below*/
+		if (events && timeout != GR_TIMEOUT_BLOCK)
+			return;
 	}
 
 	/* Set up the FDs for use in the main select(): */
@@ -493,6 +493,7 @@ GsSelect(GR_TIMEOUT timeout)
 			tout.tv_usec = WAITTIME;
 		}
 	}
+	if (updatecount) --updatecount;
 
 	/* Wait for some input on any of the fds in the set or a timeout*/
 #if NONETWORK
@@ -552,7 +553,7 @@ again:
 	} 
 	else if (e == 0)		/* timeout*/
 	{
-		if (updatecount) --updatecount;
+		updatecount = 0;
 #if NONETWORK
 		/* 
 		 * Timeout has occured. Currently return a timeout event
@@ -572,7 +573,7 @@ again:
 		if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK))
 		{
 			if (!GsPumpEvents())    /* process mouse/kbd events */
-				goto again;	/* retry until passed timeout */
+				goto again;	        /* retry until passed timeout */
 		}
 #else
 #if MW_FEATURE_TIMERS

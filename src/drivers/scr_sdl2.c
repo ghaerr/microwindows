@@ -11,6 +11,9 @@
 #include "genfont.h"
 #include <SDL2/SDL.h>
 
+#define USE_SURFACE     0       /* =1 to use older surface update mechanism */
+#define USE_SW_RENDER	0		/* =1 eliminates nxtetris SDL 2.30+ display bug */
+
 static PSD  sdl_open(PSD psd);
 static void sdl_close(PSD psd);
 static void sdl_setpalette(PSD psd,int first,int count,MWPALENTRY *pal);
@@ -32,7 +35,10 @@ SCREENDEVICE	scrdev = {
 	gen_freememgc,
 	gen_setportrait,
 	sdl_update,
-	sdl_preselect
+	sdl_preselect,
+	0, NULL, NULL, NULL, NULL, NULL,  NULL,  NULL,  NULL,  NULL,  NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	sdl_pollevents
 };
 
 static MWCOORD upminX, upminY, upmaxX, upmaxY;	/* sdl_preselect and sdl_update*/
@@ -45,6 +51,10 @@ static SDL_Texture *sdlTexture;
 #endif
 float sdlZoom = SDL_ZOOM;
 
+#if USE_SURFACE
+static SDL_Surface *screen;
+#endif
+
 /*
  * init sdl subsystem, return < 0 on error
  */
@@ -52,6 +62,7 @@ static int
 sdl_setup(PSD psd)
 {
 	int	pixelformat;
+	int	renderflags = 0;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
 		EPRINTF("Can't initialize SDL\n");
@@ -70,12 +81,16 @@ sdl_setup(PSD psd)
 		EPRINTF("SDL: Can't create window\n");
 		return -1;
 	}
-#if 0
-	SDL_Surface *screen = SDL_GetWindowSurface(sdlWindow);
+#if USE_SURFACE
+	screen = SDL_GetWindowSurface(sdlWindow);
 	EPRINTF("SDL pixel format %0x, type %0x\n", screen->format->format,
 		SDL_PIXELTYPE(screen->format->format));
 #else
-	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
+
+#if USE_SW_RENDER
+	renderflags = SDL_RENDERER_SOFTWARE;	/* for testing SDL2 2.30+ bug */
+#endif
+	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, renderflags);
 	if (!sdlRenderer) {
 		EPRINTF("SDL: Can't create renderer\n");
 		return -1;
@@ -125,7 +140,7 @@ sdl_setup(PSD psd)
 	//SDL_StartTextInput();
   	SDL_ShowCursor(SDL_DISABLE);	/* hide SDL cursor*/
 
-	SDL_PumpEvents();			/* SDL bug: must call before output or black window overwrite*/
+	SDL_PumpEvents();	/* SDL bug: must call before output or black window overwrite*/
 
 	return 0;
 }
@@ -198,8 +213,8 @@ sdl_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 static void
 sdl_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
-//printf("update %d,%d %d,%d\n", x, y, width, height);
-#if 0
+//printf("draw %d,%d %d,%d\n", x, y, width, height);
+#if USE_SURFACE
 	/* tell SDL we're going to write to window surface*/
 	if (SDL_MUSTLOCK(screen))
 		SDL_LockSurface(screen);
@@ -223,8 +238,8 @@ sdl_draw(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 	SDL_UpdateTexture(sdlTexture, &r, pixels, psd->pitch);
 
 	/* copy texture to display*/
-	SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0x00);
-	SDL_RenderClear(sdlRenderer);
+	//SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0x00);
+	//SDL_RenderClear(sdlRenderer);
 	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 	SDL_RenderPresent(sdlRenderer);
 #endif
@@ -236,6 +251,7 @@ sdl_preselect(PSD psd)
 {
 	/* perform single blit update of aggregate update region to SDL server*/
 	if ((psd->flags & PSF_DELAYUPDATE) && (upmaxX >= 0 || upmaxY >= 0)) {
+//printf("preselect %d,%d,%d,%d\n", upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
 		sdl_draw(psd, upminX, upminY, upmaxX-upminX+1, upmaxY-upminY+1);
 
 		/* reset update region*/
@@ -252,6 +268,7 @@ sdl_update(PSD psd, MWCOORD x, MWCOORD y, MWCOORD width, MWCOORD height)
 {
 	/* window moves require delaying updates until preselect for speed*/
 	if ((psd->flags & PSF_DELAYUPDATE)) {
+//printf("update %d,%d %d,%d\n", x, y, width, height);
 			/* calc aggregate update rectangle*/
 			upminX = MWMIN(x, upminX);
 			upminY = MWMIN(y, upminY);

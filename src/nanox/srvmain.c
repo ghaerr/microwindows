@@ -369,6 +369,7 @@ GsSelect(GR_TIMEOUT timeout)
 	int	setsize = 0;
 	struct timeval tout;
 	struct timeval *to;
+	static int updatecount;
 
 #if CONFIG_ARCH_PC98
 	if (GsCheckMouseEvent())
@@ -382,8 +383,14 @@ GsSelect(GR_TIMEOUT timeout)
 	/* X11/SDL perform single update of aggregate screen update region*/
 	if (scrdev.PreSelect)
 	{
+		int events;
+
 		/* returns # pending events*/
-		if (scrdev.PreSelect(&scrdev))
+		if (scrdev.PollEvents)
+			events = scrdev.PollEvents();
+		else
+			events = scrdev.PreSelect(&scrdev);
+		if (events)
 		{
 			/* poll for mouse data and service if found*/
 			while (GsCheckMouseEvent())
@@ -396,6 +403,11 @@ GsSelect(GR_TIMEOUT timeout)
 			/* if events found, don't return unless polling, events handled below*/
 			if (timeout != GR_TIMEOUT_BLOCK)
 				return;
+		}
+		if (events || updatecount == 0)
+		{
+			scrdev.PreSelect(&scrdev);
+			updatecount = 10;
 		}
 	}
 
@@ -475,7 +487,7 @@ GsSelect(GR_TIMEOUT timeout)
 		/* check if would block permanently or timeout > WAITTIME*/
 		if (to == NULL || tout.tv_sec != 0 || tout.tv_usec > WAITTIME)
 		{
-			/* override timeouts and wait for max WAITTIME ms*/
+			/* override timeouts and wait for max WAITTIME us*/
 			to = &tout;
 			tout.tv_sec = 0;
 			tout.tv_usec = WAITTIME;
@@ -540,6 +552,7 @@ again:
 	} 
 	else if (e == 0)		/* timeout*/
 	{
+		if (updatecount) --updatecount;
 #if NONETWORK
 		/* 
 		 * Timeout has occured. Currently return a timeout event

@@ -62,6 +62,8 @@ MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/mou_sdl2.o \
 	$(MW_DIR_OBJ)/drivers/kbd_sdl2.o
 endif
+# add whe USE_SURFACE = 1 in scr_sdl2.c
+#MW_CORE_OBJS +=$(MW_DIR_OBJ)/drivers/copyframebuffer.o \
 
 # ALLEGRO
 ifeq ($(SCREEN), ALLEGRO)

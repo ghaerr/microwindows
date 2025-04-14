@@ -122,6 +122,7 @@ typedef struct _mwscreendevice {
 	MWBLITFUNC BlitSrcOverRGBA8888;					/* png RGBA image w/alpha*/
 	MWBLITFUNC BlitCopyRGB888;						/* png RGB image no alpha*/
 	MWBLITFUNC BlitStretchRGBA8888;					/* conversion stretch blit for RGBA src*/
+	int		(*PollEvents)(void);
 } SCREENDEVICE;
 
 /* PSD flags*/

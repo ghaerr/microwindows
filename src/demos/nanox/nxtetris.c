@@ -242,6 +242,27 @@ void draw_well(nstate *state, int forcedraw)
 
 	if (state->state == STATE_STOPPED) return;
 
+#if TESTING     /* used for testing SDL 2.30+ bug */
+    //if (forcedraw) {
+		GrSetGCForeground(state->wellgc, BLACK);
+		GrFillRect(state->well_window, state->wellgc, 0, 0,
+			WELL_WINDOW_WIDTH, WELL_WINDOW_HEIGHT);
+		for(y = WELL_NOTVISIBLE; y < WELL_HEIGHT; y++) {
+			for(x = 0; x < WELL_WIDTH; x++) {
+				if(state->blocks[0][y][x] != 0) {
+					state->blocks[1][y][x] = state->blocks[0][y][x];
+					GrSetGCForeground(state->wellgc, state->blocks[0][y][x]);
+					GrFillRect(state->well_window, state->wellgc,
+						(BLOCK_SIZE * x),
+						(BLOCK_SIZE * (y - WELL_NOTVISIBLE)),
+							BLOCK_SIZE, BLOCK_SIZE);
+				}
+			}
+		}
+        GrFlush();
+        return;
+    //}
+#endif
 	for(y = WELL_NOTVISIBLE; y < WELL_HEIGHT; y++) {
 		for(x = 0; x < WELL_WIDTH; x++) {
 			if(forcedraw || (state->blocks[0][y][x] != state->blocks[1][y][x])) {

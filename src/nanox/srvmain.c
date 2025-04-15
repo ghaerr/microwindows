@@ -369,6 +369,7 @@ GsSelect(GR_TIMEOUT timeout)
 	int	setsize = 0;
 	struct timeval tout;
 	struct timeval *to;
+	static int updatecount;
 
 #if CONFIG_ARCH_PC98
 	if (GsCheckMouseEvent())
@@ -382,8 +383,14 @@ GsSelect(GR_TIMEOUT timeout)
 	/* X11/SDL perform single update of aggregate screen update region*/
 	if (scrdev.PreSelect)
 	{
-		/* returns # pending events*/
-		if (scrdev.PreSelect(&scrdev))
+		int events;
+
+		/* get # pending events*/
+		if (scrdev.PollEvents)
+			events = scrdev.PollEvents();
+		else
+			events = scrdev.PreSelect(&scrdev);
+		if (events)
 		{
 			/* poll for mouse data and service if found*/
 			while (GsCheckMouseEvent())
@@ -393,10 +400,15 @@ GsSelect(GR_TIMEOUT timeout)
 			while (GsCheckKeyboardEvent())
 				continue;
 
-			/* if events found, don't return unless polling, events handled below*/
-			if (timeout != GR_TIMEOUT_BLOCK)
-				return;
 		}
+		if (events || updatecount == 0)
+		{
+			scrdev.PreSelect(&scrdev);
+			updatecount = 100;      /* increase this for faster throughput*/
+		}
+		/* if events found, return if not blocking; client events handled below*/
+		if (events && timeout != GR_TIMEOUT_BLOCK)
+			return;
 	}
 
 	/* Set up the FDs for use in the main select(): */
@@ -475,12 +487,13 @@ GsSelect(GR_TIMEOUT timeout)
 		/* check if would block permanently or timeout > WAITTIME*/
 		if (to == NULL || tout.tv_sec != 0 || tout.tv_usec > WAITTIME)
 		{
-			/* override timeouts and wait for max WAITTIME ms*/
+			/* override timeouts and wait for max WAITTIME us*/
 			to = &tout;
 			tout.tv_sec = 0;
 			tout.tv_usec = WAITTIME;
 		}
 	}
+	if (updatecount) --updatecount;
 
 	/* Wait for some input on any of the fds in the set or a timeout*/
 #if NONETWORK
@@ -540,6 +553,7 @@ again:
 	} 
 	else if (e == 0)		/* timeout*/
 	{
+		updatecount = 0;
 #if NONETWORK
 		/* 
 		 * Timeout has occured. Currently return a timeout event
@@ -559,7 +573,7 @@ again:
 		if(!poll && timeout && (scrdev.flags & PSF_CANTBLOCK))
 		{
 			if (!GsPumpEvents())    /* process mouse/kbd events */
-				goto again;	/* retry until passed timeout */
+				goto again;	        /* retry until passed timeout */
 		}
 #else
 #if MW_FEATURE_TIMERS

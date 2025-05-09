@@ -15,6 +15,7 @@
 
 /*#define NDEBUG*/
 #include <assert.h>
+#include <stdio.h>
 #include "device.h"
 #include "vgaplan4.h"
 #include "fb.h"

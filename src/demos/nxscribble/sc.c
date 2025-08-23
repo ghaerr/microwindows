@@ -241,6 +241,7 @@ Vector fv;
 sClassDope
 sClassifyAD(sc, fv, ap, dp)
 sClassifier sc;
+int fv;
 double *ap;
 double *dp;
 {

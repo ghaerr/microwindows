@@ -35,6 +35,7 @@ BitVector bv;
 
 char *
 BitVectorToString(max, bv)
+int max;
 BitVector bv;
 {
 	char *string = tempstring();

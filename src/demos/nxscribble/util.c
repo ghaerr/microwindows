@@ -66,6 +66,7 @@ char *s;
 void
 error(a, b, c, d, e, f, g, h, i, j)
 char *a;
+int  b, c, d, e, f, g, h, i, j;
 {
 	sprintf(err_msg, a, b, c, d, e, f, g, h, i, j);
 	li_err_msg = err_msg;
@@ -78,6 +79,7 @@ char *a;
 void
 exit_error(a, b, c, d, e, f, g, h, i, j)
 char *a;
+int  b, c, d, e, f, g, h, i, j;
 {
 	GrError( a, b, c, d, e, f, g, h, i, j);
 	exit(1);
@@ -93,6 +95,7 @@ int	DebugFlag = 1;
 void
 debug(a, b, c, d, e, f, g)
 char *a;
+int  b, c, d, e, f, g;
 {
 	if(DebugFlag)
 		GrError( a, b, c, d, e, f, g);

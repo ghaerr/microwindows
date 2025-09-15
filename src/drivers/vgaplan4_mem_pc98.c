@@ -327,7 +327,7 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	int plane;
 	ADDR8 d, dst;
 	FARADDR s[4], src[4];
-	MWCOORD sx, dx;
+	MWCOORD sx[4], dx;
 	unsigned char color;
 	int dpitch = dstpsd->pitch;
 
@@ -352,25 +352,29 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	for(y = 0; y < h; y++) {
 		for(plane = 0; plane < 4; ++plane) {
 			s[plane] = src[plane];
+			sx[plane] = srcx;
 		}
 		d = dst;
 		dx = dstx;
-		sx = srcx;
+		//sx = srcx;
 		color = 0;
 		for(x = 0; x < w; x++) {
 			for(plane = 0; plane < 4; ++plane) {
 				//set_read_plane(plane);
-				if(GETBYTE_FP(s[plane]) & mask[sx & 7])
+				if(GETBYTE_FP(s[plane]) & mask[sx[plane] & 7])
 					color |= 1 << (plane + ((dx & 1) ? 0 : 4));
 			}
-			if((++sx & 7) == 0) ++s[plane];
+			//if((++sx & 7) == 0) ++s[plane];
+			if((++sx[plane] & 7) == 0) ++s[plane];
 			if((++dx & 1) == 0) {
 				*d++ = color;
 				color = 0;
 			}
 		}
 		dst += dpitch;
-		src[plane] += BYTESPERLINE(srcpsd);
+		for(plane=0; plane<4; ++plane) {
+		  src[plane] += BYTESPERLINE(srcpsd);
+		}
 	}
 	DRAWOFF;
 }

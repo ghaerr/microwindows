@@ -91,9 +91,7 @@ endif
 ifeq ($(SCREEN), FBE)
 MW_CORE_OBJS += \
 	$(MW_DIR_OBJ)/drivers/scr_fbe.o \
-	$(MW_DIR_OBJ)/drivers/copyframebuffer.o \
-	$(MW_DIR_OBJ)/drivers/mou_fbe.o \
-	$(MW_DIR_OBJ)/drivers/kbd_fbe.o
+	$(MW_DIR_OBJ)/drivers/copyframebuffer.o
 endif
 
 #### The following platforms when defined include specific screen, keyboard and mouse drivers
@@ -191,6 +189,11 @@ ifeq ($(MOUSE), AQUILAMOUSE)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_aquila.o
 endif
 
+# FBE mouse driver
+ifeq ($(MOUSE), FBEMOUSE)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_fbe.o
+endif
+
 #
 # Keyboard driver set by KEYBOARD=
 #
@@ -204,6 +207,11 @@ endif
 
 ifeq ($(KEYBOARD), SCANKBD)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ttyscan.o
+endif
+
+# FBE keyboard driver
+ifeq ($(KEYBOARD), FBEKBD)
+MW_CORE_OBJS +=	$(MW_DIR_OBJ)/drivers/kbd_fbe.o
 endif
 
 #

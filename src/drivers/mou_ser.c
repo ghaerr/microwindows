@@ -13,7 +13,7 @@
  *
  * Environment Var      Default	        Allowed
  * MOUSE_TYPE           pc              ms, pc, logi, ps2
- * MOUSE_PORT           see below       any serial port or /dev/psaux
+ * MOUSE_PORT           see below       'none', any serial port or /dev/psaux, /dev/mouse
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,24 +38,23 @@
 #endif
 
 /* default settings*/
-#if _MINIX
+#if ELKS
+#define	MOUSE_PORT	"/dev/ttyS0"	/* default port unless MOUSE_PORT= environ var */
+#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
+#define MOUSE_TYPE	"ms"            /* microsoft mouse */
+#elif _MINIX
 #define	MOUSE_PORT	"/dev/mouse"
-#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
+#define	MOUSE_QEMU	"/dev/ttyS1"
 #define	MOUSE_TYPE	"ms"
-#elif ELKS
-#define	MOUSE_PORT	"/dev/ttyS0"	/* default port unless MOUSE_PORT= env specified */
-#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
-#define MOUSE_TYPE	"ms"
 #elif __fiwix__
 #define MOUSE_PORT	"/dev/ttyS0"
-#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
+#define	MOUSE_QEMU	"/dev/ttyS1"
 #define MOUSE_TYPE	"ms"
 #else
-/* default mouse tty port: /dev/psaux or /dev/ttyS1 */
-#define MOUSE_PORT	"/dev/ttyS1"
-#define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
-//#define MOUSE_PORT	"/dev/psaux"
-//#define MOUSE_PORT	"/dev/mouse"
+/* default mouse tty port on UNIX/Linux */
+#define	MOUSE_PORT	"/dev/ttyS1"
+#define	MOUSE_QEMU	"/dev/ttyS1"
+
 /* default mouse type: ms, pc, logi, or ps2 */
 #define MOUSE_TYPE	"ms"
 #endif
@@ -191,15 +190,16 @@ MOU_Open(MOUSEDEVICE *pmd)
 
 #if ELKS
 	EPRINTF("Opening mouse on %s\n", port);
-	mouse_fd = open(port, O_NOCTTY | O_NONBLOCK);
+	mouse_fd = open(port, O_RDONLY | O_EXCL | O_NOCTTY | O_NONBLOCK);
 #else
 	mouse_fd = open(port, O_NONBLOCK);
 #endif
 	if (mouse_fd < 0) {
-		EPRINTF(
-			"No %s mouse found on port %s (error %d).\n"
-			"Mouse not detected, use export MOUSE_PORT=/dev/ttyS1 or =none.\n",
-			type, port, errno);
+		if (errno == EBUSY)
+			EPRINTF("Mouse port %s already in use.\n", port);
+		else
+			EPRINTF("No %s mouse found on port %s (error %d).\n", type, port, errno);
+		EPRINTF("Mouse not detected, use export MOUSE_PORT=/dev/... or =none.\n");
  		return DRIVER_FAIL;
 	}
 

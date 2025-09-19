@@ -214,7 +214,6 @@ vga_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcx != dstx);			/* FIXME use EPRINTF */
 
 	DRAWON;
-	set_op(0);		/* modetable[MWROP_COPY]*/
 	x2 = dstx + w - 1;
 	x1 = dstx;
 	for(plane=0; plane<4; ++plane) {
@@ -266,7 +265,7 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	ADDR8	src;
 	int	i;
 	int	spitch = srcpsd->pitch;
-	int	color, lastcolor = -1;
+	int	color;
 
 	assert (dstx >= 0 && dstx < dstpsd->xres);
 	assert (dsty >= 0 && dsty < dstpsd->yres);
@@ -281,10 +280,9 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	set_op(0);		/* modetable[MWROP_COPY]*/
-	for(plane=0; plane<4; ++plane) {
+	for(plane=0; plane<4; ++plane)
 		dst[plane] = screenbase_table[plane] + (dstx>>3) + dsty * BYTESPERLINE(dstpsd);
-	}
+
 	src = srcpsd->addr + (srcx>>1) + srcy * spitch;
 	while(--h >= 0) {
 		for(plane=0; plane<4; ++plane) {
@@ -294,10 +292,6 @@ mempl4_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 			MWCOORD	sx = srcx;
 			for(i=0; i<w; ++i) {
 				color = *s >> ((1-(sx&1))<<2) & 0x0f;
-				//if(color != lastcolor)
-				//	set_color(lastcolor = color);
-				//select_and_set_mask (mask[dx&7]);
-				//RMW_FP(d);
 
 				if  (color & (1 << plane)) {
 					ORBYTE_FP (d,mask[dx&7]);
@@ -344,9 +338,9 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 	assert (srcy+h <= srcpsd->yres);
 
 	DRAWON;
-	for(plane=0; plane<4; ++plane) {
+	for(plane=0; plane<4; ++plane)
 		src[plane] = screenbase_table[plane] + (srcx >> 3) + srcy * BYTESPERLINE(srcpsd);
-	}
+
 	dst = dstpsd->addr + (dstx >> 1) + dsty * dpitch;
 
 	for(y = 0; y < h; y++) {
@@ -356,25 +350,21 @@ vga_to_mempl4_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 		}
 		d = dst;
 		dx = dstx;
-		//sx = srcx;
 		color = 0;
 		for(x = 0; x < w; x++) {
 			for(plane = 0; plane < 4; ++plane) {
-				//set_read_plane(plane);
 				if(GETBYTE_FP(s[plane]) & mask[sx[plane] & 7])
 					color |= 1 << (plane + ((dx & 1) ? 0 : 4));
+				if((++sx[plane] & 7) == 0) ++s[plane];
 			}
-			//if((++sx & 7) == 0) ++s[plane];
-			if((++sx[plane] & 7) == 0) ++s[plane];
 			if((++dx & 1) == 0) {
 				*d++ = color;
 				color = 0;
 			}
 		}
 		dst += dpitch;
-		for(plane=0; plane<4; ++plane) {
-		  src[plane] += BYTESPERLINE(srcpsd);
-		}
+		for(plane=0; plane<4; ++plane)
+			src[plane] += BYTESPERLINE(srcpsd);
 	}
 	DRAWOFF;
 }

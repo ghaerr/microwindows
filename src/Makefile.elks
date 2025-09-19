@@ -36,7 +36,7 @@ AR = ia16-elf-ar
 # screen, mouse and kbd drivers
 ifeq ($(CONFIG_ARCH_PC98), y)
 CFLAGS += -DCONFIG_ARCH_PC98=1
-DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o drivers/vgaplan4_mem.o
+DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o drivers/vgaplan4_mem_pc98.o
 DRIVERS += drivers/mou_pc98.o drivers/kbd_tty.o
 #DRIVERS += drivers/ramfont.o
 endif

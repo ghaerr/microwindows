@@ -225,13 +225,15 @@ PC98_open(PSD psd)
 	lio_m[9] = 0xFF;
 	int_A2(lio_m_seg);
 
-	lio_m[0] = 0xFF;
 	lio_m[1] = 0xFF;
 	lio_m[2] = 0xFF;
-	lio_m[3] = 0x02; // 16 Color mode
+	lio_m[3] = 0xFF;
+	lio_m[4] = 0x02; // 16 Color mode
 	int_A3(lio_m_seg);
 
 	free(lio_malloc);
+
+	outb(0x01,0x6A); // 16 Color mode
 
 #if ROMFONT
 	pcrom_init(psd);            /* init pc rom font routines*/

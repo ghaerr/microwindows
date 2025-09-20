@@ -227,12 +227,12 @@ vga_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 
 			/* FIXME: only works if srcx and dstx are same modulo*/
 			if((x1>>3) == (x2>>3)) {
-				mask_b = (0xff << (x1 & 7)) & (0xff >> (7 - (x2 & 7)));
+				mask_b = (0xff >> (x1 & 7)) & (0xff << (7 - (x2 & 7)));
 				src_b = GETBYTE_FP(s) & mask_b;
 				dst_b = GETBYTE_FP(d) & ~mask_b;
 				PUTBYTE_FP(d, src_b | dst_b);
 			} else {
-				mask_b = (0xff << (x1 & 7));
+				mask_b = (0xff >> (x1 & 7));
 				src_b = GETBYTE_FP(s) & mask_b;
 				dst_b = GETBYTE_FP(d) & ~mask_b;
 				PUTBYTE_FP(d, src_b | dst_b);
@@ -242,7 +242,7 @@ vga_to_vga_blit(PSD dstpsd, MWCOORD dstx, MWCOORD dsty, MWCOORD w, MWCOORD h,
 				for (i = (x2 - (x1&~7)) >> 3; i > 1; i--)   /* while x1+1 < x2 */
 					PUTBYTE_FP(d++, GETBYTE_FP(s++));
 
-				mask_b = (0xff >> (7 - (x2 & 7)));
+				mask_b = (0xff << (7 - (x2 & 7)));
 				src_b = GETBYTE_FP(s) & mask_b;
 				dst_b = GETBYTE_FP(d) & ~mask_b;
 				PUTBYTE_FP(d, src_b | dst_b);

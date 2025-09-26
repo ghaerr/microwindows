@@ -134,6 +134,26 @@ void int_A3(unsigned int l_seg)
                       "pop %ds;");
 }
 
+void int_A4(unsigned int l_seg)
+{
+    __asm__ volatile ("push %ds;"
+                      "push %es;"
+                      "push %bp;"
+                      "push %si;"
+                      "push %di;");
+    __asm__ volatile ("mov %0,%%ds;"
+                      "mov $0x0000,%%bx;"
+                      "int $0xA4;"
+                      :
+                      :"a" (l_seg)
+                      :"memory", "cc");
+    __asm__ volatile ("pop %di;"
+                      "pop %si;"
+                      "pop %bp;"
+                      "pop %es;"
+                      "pop %ds;");
+}
+
 void cursor_on()
 {
     __asm__ volatile ("mov $17,%ah;"
@@ -230,6 +250,87 @@ PC98_open(PSD psd)
 	lio_m[3] = 0xFF;
 	lio_m[4] = 0x02; // 16 Color mode
 	int_A3(lio_m_seg);
+
+	// Palette
+	lio_m[0] = 0x00; // Number
+	lio_m[1] = 0x00; // BLACK
+	lio_m[2] = 0x00;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x01; // Number
+	lio_m[1] = 0x0A; // BLUE
+	lio_m[2] = 0x00;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x02; // Number
+	lio_m[1] = 0xA0; // RED
+	lio_m[2] = 0x00;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x03; // Number
+	lio_m[1] = 0xAA; // MAGENTA
+	lio_m[2] = 0x00;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x04; // Number
+	lio_m[1] = 0x00; // GREEN
+	lio_m[2] = 0x0A;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x05; // Number
+	lio_m[1] = 0x0A; // CYAN
+	lio_m[2] = 0x0A;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x06; // Number
+	lio_m[1] = 0xA0; // BROWN
+	lio_m[2] = 0x05;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x07; // Number
+	lio_m[1] = 0xAA; // LTGRAY
+	lio_m[2] = 0x0A;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x08; // Number
+	lio_m[1] = 0x55; // GRAY
+	lio_m[2] = 0x05;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x09; // Number
+	lio_m[1] = 0x5F; // LTBLUE
+	lio_m[2] = 0x05;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x0A; // Number
+	lio_m[1] = 0xF5; // LTRED
+	lio_m[2] = 0x05;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x0B; // Number
+	lio_m[1] = 0xFF; // LTMAGENTA
+	lio_m[2] = 0x05;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x0C; // Number
+	lio_m[1] = 0x55; // LTGREEN
+	lio_m[2] = 0x0F;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x0D; // Number
+	lio_m[1] = 0x5F; // LTCYAN
+	lio_m[2] = 0x0F;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x0E; // Number
+	lio_m[1] = 0xF5; // YELLOW
+	lio_m[2] = 0x0F;
+	int_A4(lio_m_seg);
+
+	lio_m[0] = 0x0F; // Number
+	lio_m[1] = 0xFF; // WHITE
+	lio_m[2] = 0x0F;
+	int_A4(lio_m_seg);
 
 	free(lio_malloc);
 

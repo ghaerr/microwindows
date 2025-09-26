@@ -48,8 +48,10 @@ endif
 
 ifeq ($(ARCH), MACOS)
 SDL2 = Y
+#NOEXTLIBS = Y
 CFLAGS += -DUNIX=1 -DMACOSX=1
 INC += -I$(MW_DIR_SRC)/include $(INCLUDE_FLAGS)
+INC += -I/usr/local/include/freetype2
 endif
 
 ifeq ($(ARCH), LINUX)
@@ -142,26 +144,38 @@ ifndef NOEXTLIBS
 
 # set for JPEG image support
 CFLAGS += -DHAVE_JPEG_SUPPORT=1
+ifdef INSTALLED
 CLIBS += $(INSTALLED)/lib/libjpeg.a
-#CLIBS += -ljpeg
+else
+CLIBS += -ljpeg
+endif
 
 # set for PNG image support
 CFLAGS += -DHAVE_PNG_SUPPORT=1
+ifdef INSTALLED
 CLIBS += $(INSTALLED)/lib/libpng.a $(INSTALLED)/lib/libz.a
-#CLIBS += -lpng -lz
+else
+CLIBS += -lpng -lz
+endif
 
 # set for PCF or FNT font .gz format
 CFLAGS += -DHAVE_FNTGZ_SUPPORT=1
 CFLAGS += -DHAVE_PCFGZ_SUPPORT=1
+ifdef INSTALLED
 CLIBS += $(INSTALLED)/lib/libz.a
-#CLIBS += -lz
+else
+CLIBS += -lz
+endif
 
 # set for TTF font support
 HAVE_FREETYPE_2_SUPPORT = Y
 CFLAGS += -DHAVE_FREETYPE_2_SUPPORT=1
 CFLAGS += -DFREETYPE_FONT_DIR=\"$(MW_FONT_DIR)/truetype\"
+ifdef INSTALLED
 CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
-#CLIBS += -lfreetype -lz
+else
+CLIBS += -lfreetype -lz
+endif
 
 # set for TIFF image support
 #CFLAGS += -DHAVE_TIFF_SUPPORT=1
@@ -175,6 +189,10 @@ CLIBS += $(INSTALLED)/lib/libfreetype.a $(INSTALLED)/lib/libz.a
 #CLIBS += -lt1
 
 endif # NOEXTLIBS
+
+ifeq ($(SDL2), Y)
+CLIBS += -lSDL2
+endif
 
 # font support  ********************************
 

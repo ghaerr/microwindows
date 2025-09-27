@@ -55,6 +55,31 @@ SCREENDEVICE	scrdev = {
         NULL,                   /* PreSelect*/
 };
 
+typedef struct {
+	unsigned char NUM; // palette number
+	unsigned char RB;  // 4 bits for each color
+	unsigned char xG;
+} palette98_t;
+
+static palette98_t palette98[16] = {
+	{ 0, 0x00, 0x00}, // BLACK
+	{ 1, 0x0A, 0x00}, // BLUE
+	{ 2, 0xA0, 0x00}, // RED
+	{ 3, 0xAA, 0x00}, // MAGENTA
+	{ 4, 0x00, 0x0A}, // GREEN
+	{ 5, 0x0A, 0x0A}, // CYAN
+	{ 6, 0xA0, 0x05}, // BROWN
+	{ 7, 0xAA, 0x0A}, // LTGRAY
+	{ 8, 0x55, 0x05}, // GRAY
+	{ 9, 0x5F, 0x05}, // LTBLUE
+	{10, 0xF5, 0x05}, // LTRED
+	{11, 0xFF, 0x05}, // LTMAGENTA
+	{12, 0x55, 0x0F}, // LTGREEN
+	{13, 0x5F, 0x0F}, // LTCYAN
+	{14, 0xF5, 0x0F}, // YELLOW
+	{15, 0xFF, 0x0F}  // WHITE
+};
+
 void int_A0(unsigned int l_seg)
 {
     __asm__ volatile ("push %ds;"
@@ -124,6 +149,26 @@ void int_A3(unsigned int l_seg)
     __asm__ volatile ("mov %0,%%ds;"
                       "mov $0x0000,%%bx;"
                       "int $0xA3;"
+                      :
+                      :"a" (l_seg)
+                      :"memory", "cc");
+    __asm__ volatile ("pop %di;"
+                      "pop %si;"
+                      "pop %bp;"
+                      "pop %es;"
+                      "pop %ds;");
+}
+
+void int_A4(unsigned int l_seg)
+{
+    __asm__ volatile ("push %ds;"
+                      "push %es;"
+                      "push %bp;"
+                      "push %si;"
+                      "push %di;");
+    __asm__ volatile ("mov %0,%%ds;"
+                      "mov $0x0000,%%bx;"
+                      "int $0xA4;"
                       :
                       :"a" (l_seg)
                       :"memory", "cc");
@@ -230,6 +275,14 @@ PC98_open(PSD psd)
 	lio_m[3] = 0xFF;
 	lio_m[4] = 0x02; // 16 Color mode
 	int_A3(lio_m_seg);
+
+	// Palette
+	for (i = 0; i < 16; i++) {
+		lio_m[0] = palette98[i].NUM;
+		lio_m[1] = palette98[i].RB;
+		lio_m[2] = palette98[i].xG;
+		int_A4(lio_m_seg);
+	}
 
 	free(lio_malloc);
 

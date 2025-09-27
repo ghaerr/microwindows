@@ -55,6 +55,31 @@ SCREENDEVICE	scrdev = {
         NULL,                   /* PreSelect*/
 };
 
+typedef struct {
+	unsigned char NUM; // palette number
+	unsigned char RB;  // 4 bits for each color
+	unsigned char xG;
+} palette98_t;
+
+static palette98_t palette98[16] = {
+	{ 0, 0x00, 0x00}, // BLACK
+	{ 1, 0x0A, 0x00}, // BLUE
+	{ 2, 0xA0, 0x00}, // RED
+	{ 3, 0xAA, 0x00}, // MAGENTA
+	{ 4, 0x00, 0x0A}, // GREEN
+	{ 5, 0x0A, 0x0A}, // CYAN
+	{ 6, 0xA0, 0x05}, // BROWN
+	{ 7, 0xAA, 0x0A}, // LTGRAY
+	{ 8, 0x55, 0x05}, // GRAY
+	{ 9, 0x5F, 0x05}, // LTBLUE
+	{10, 0xF5, 0x05}, // LTRED
+	{11, 0xFF, 0x05}, // LTMAGENTA
+	{12, 0x55, 0x0F}, // LTGREEN
+	{13, 0x5F, 0x0F}, // LTCYAN
+	{14, 0xF5, 0x0F}, // YELLOW
+	{15, 0xFF, 0x0F}  // WHITE
+};
+
 void int_A0(unsigned int l_seg)
 {
     __asm__ volatile ("push %ds;"
@@ -252,85 +277,12 @@ PC98_open(PSD psd)
 	int_A3(lio_m_seg);
 
 	// Palette
-	lio_m[0] = 0x00; // Number
-	lio_m[1] = 0x00; // BLACK
-	lio_m[2] = 0x00;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x01; // Number
-	lio_m[1] = 0x0A; // BLUE
-	lio_m[2] = 0x00;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x02; // Number
-	lio_m[1] = 0xA0; // RED
-	lio_m[2] = 0x00;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x03; // Number
-	lio_m[1] = 0xAA; // MAGENTA
-	lio_m[2] = 0x00;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x04; // Number
-	lio_m[1] = 0x00; // GREEN
-	lio_m[2] = 0x0A;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x05; // Number
-	lio_m[1] = 0x0A; // CYAN
-	lio_m[2] = 0x0A;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x06; // Number
-	lio_m[1] = 0xA0; // BROWN
-	lio_m[2] = 0x05;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x07; // Number
-	lio_m[1] = 0xAA; // LTGRAY
-	lio_m[2] = 0x0A;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x08; // Number
-	lio_m[1] = 0x55; // GRAY
-	lio_m[2] = 0x05;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x09; // Number
-	lio_m[1] = 0x5F; // LTBLUE
-	lio_m[2] = 0x05;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x0A; // Number
-	lio_m[1] = 0xF5; // LTRED
-	lio_m[2] = 0x05;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x0B; // Number
-	lio_m[1] = 0xFF; // LTMAGENTA
-	lio_m[2] = 0x05;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x0C; // Number
-	lio_m[1] = 0x55; // LTGREEN
-	lio_m[2] = 0x0F;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x0D; // Number
-	lio_m[1] = 0x5F; // LTCYAN
-	lio_m[2] = 0x0F;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x0E; // Number
-	lio_m[1] = 0xF5; // YELLOW
-	lio_m[2] = 0x0F;
-	int_A4(lio_m_seg);
-
-	lio_m[0] = 0x0F; // Number
-	lio_m[1] = 0xFF; // WHITE
-	lio_m[2] = 0x0F;
-	int_A4(lio_m_seg);
+	for (i = 0; i < 16; i++) {
+		lio_m[0] = palette98[i].NUM;
+		lio_m[1] = palette98[i].RB;
+		lio_m[2] = palette98[i].xG;
+		int_A4(lio_m_seg);
+	}
 
 	free(lio_malloc);
 

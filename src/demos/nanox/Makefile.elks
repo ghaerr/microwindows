@@ -16,7 +16,7 @@ NXLIB = ../../lib/libnano-X.a
 
 PROGS   = \
     $(BIN)nxclock    \
-    $(BIN)nxlandmine \
+    $(BIN)nxmine \
     $(BIN)nxstart    \
     $(BIN)nxterm     \
     $(BIN)nxtetris   \
@@ -43,7 +43,7 @@ $(BIN)nxworld: nxworld.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 	cp -p ../../images/demos/nanox/nxworld.map $(BIN)
 
-$(BIN)nxlandmine: nxlandmine.o $(NXLIB)
+$(BIN)nxmine: nxmine.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxstart: nxstart.o $(NXLIB)

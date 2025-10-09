@@ -70,7 +70,7 @@ struct app_info {
 	{"term",    PATH "nxterm"},
 	{"tetris",  PATH "nxtetris"},
 	{"world",   PATH "nxworld"},
-	{"landmine",PATH "nxlandmine"},
+	{"landmine",PATH "nxmine"},
 #if !ELKS
 	{"aafont",    PATH "demo-aafont"},
 	{"agg",       PATH "demo-agg"},

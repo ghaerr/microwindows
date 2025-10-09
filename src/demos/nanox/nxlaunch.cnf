@@ -72,7 +72,7 @@ $window_background_mode 0
 
 Tetris bin/nxtetris.ppm bin/nxtetris
 NanoBreaker bin/nxbreaker.ppm bin/nxbreaker -d demos/nbreaker/gamedata
-Landmine bin/nxlandmine.ppm bin/nxlandmine
+Landmine bin/nxmine.ppm bin/nxmine
 Slider bin/nxslider.ppm bin/nxslider bin/nxslider.bmp
 Terminal bin/nxterm.ppm bin/nxterm
 Clock bin/nxclock.pgm bin/nxclock

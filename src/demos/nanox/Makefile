@@ -69,7 +69,7 @@ TARGETS += \
 	$(MW_DIR_BIN)/nxeyes \
 	$(MW_DIR_BIN)/nxroach \
 	$(MW_DIR_BIN)/nxtetris \
-	$(MW_DIR_BIN)/nxlandmine \
+	$(MW_DIR_BIN)/nxmine \
 	$(MW_DIR_BIN)/nxslider \
 	$(MW_DIR_BIN)/nxworld \
 	$(MW_DIR_BIN)/nxtux
@@ -137,7 +137,7 @@ TARGETS += $(MW_DIR_BIN)/demo-agg
 endif # COSMO
 
 else # ECOS
-TARGETS += $(MW_DIR_BIN)/nxlandmine.o $(MW_DIR_BIN)/nxtetris.o $(MW_DIR_BIN)/nxworld.o
+TARGETS += $(MW_DIR_BIN)/nxmine.o $(MW_DIR_BIN)/nxtetris.o $(MW_DIR_BIN)/nxworld.o
 endif
 
 # needed to create android skel diroctories
@@ -289,10 +289,10 @@ endif
 
 ifeq ($(ARCH), ECOS)
 # Special build rules for linked in applications
-$(MW_DIR_BIN)/nxlandmine.o: $(MW_DIR_OBJ)/demos/nanox/nxlandmine.o
+$(MW_DIR_BIN)/nxmine.o: $(MW_DIR_OBJ)/demos/nanox/nxmine.o
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-#	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--retain-symbols-file -Wl,nxlandmine.syms -Wl,--defsym -Wl,nxlandmine_main=main -o XX.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,nxlandmine_main=main -o XX.o
+#	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--retain-symbols-file -Wl,nxmine.syms -Wl,--defsym -Wl,nxmine=main -o XX.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -Wl,-r -Wl,--defsym -Wl,nxmine=main -o XX.o
 	$(NM) XX.o | grep -v _main | grep ' T' | awk -f $(MW_DIR_SRC)/ecos/retain.awk | xargs $(OBJCOPY) XX.o $@
 	rm -f XX.o
 

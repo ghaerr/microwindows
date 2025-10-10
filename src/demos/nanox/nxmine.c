@@ -21,7 +21,7 @@
 #define MAXSIZE		30		/* maximum size of board */
 #define SIZE		15		/* default size of playing board */
 #define	MINEPERCENT	15		/* default percentage of mines */
-#define	SAVEFILE	"landmine.save"	/* default save file name */
+#define	SAVEFILE	"nxmine.sav"	/* default save file name */
 #define MAGIC		649351261	/* magic number in save files */
 #define	MAXPARAMS	200		/* maximum different game parameters */
 

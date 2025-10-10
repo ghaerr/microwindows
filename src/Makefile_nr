@@ -293,7 +293,7 @@ MTARGETS := $(addsuffix .exe,$(MTARGETS2))
 NTARGETS1 += demo-blit demo-dash demo-hello demo-grabkey
 NTARGETS1 += demo-monobitmap demo-tilestipple demo-polygon
 NTARGETS1 += demo-arc demo-blit demo-ttfont demo-aafont show-font demo-font
-NTARGETS1 += nxview nxclock nxeyes landmine world slider tux ntetris show-ppm
+NTARGETS1 += nxview nxclock nxeyes nxmine nxworld nxslider nxtux nxtetris show-ppm
 NTARGETS1 += tuxchess
 
 NTARGETS2 := $(addprefix $(MW_DIR_BIN)/,$(NTARGETS1))

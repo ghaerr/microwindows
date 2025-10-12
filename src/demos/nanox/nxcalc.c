@@ -14,10 +14,13 @@
 #include <ctype.h>
 #include <math.h>
 #include "nano-X.h"
+#if ELKS
+#include <sys/linksym.h>
+#endif
 
-#define WIN_W  320
-#define WIN_H  400
-#define DISP_H 70
+#define WIN_W  160
+#define WIN_H  200
+#define DISP_H 35
 
 static GR_WINDOW_ID win;
 static GR_GC_ID gc_text, gc_button, gc_button_press, gc_border;
@@ -59,6 +62,7 @@ static void set_display_from_double(double v) {
 
     if (fabs(v) < 1e-12) v = 0.0;
 #if ELKS
+    __LINK_SYMBOL(dtostr);
     if (v == 0.0) {
 #else
     double iv;
@@ -216,7 +220,7 @@ static void redraw(void) {
     {
         int x = WIN_W - 12 - tw;
         if (x < 10) x = 10;
-        GrText(win, gc_text, x, 5 + (DISP_H / 2) - 8, display, strlen(display), 0);
+        GrText(win, gc_text, x, 5 + (DISP_H / 2) - 10, display, strlen(display), GR_TFTOP);
     }
 
     /* draw buttons */
@@ -235,7 +239,7 @@ static void redraw(void) {
 
             if (lbl) {
                 GrGetGCTextSize(gc_text, lbl, strlen(lbl), GR_TFTOP, &tw, &th, &tb);
-                GrText(win, gc_text, rc->x + rc->width/2 - tw/2, rc->y + rc->height/2 - 8, lbl, strlen(lbl), 0);
+                GrText(win, gc_text, rc->x + rc->width/2 - tw/2, rc->y + rc->height/2 - 2, lbl, strlen(lbl), GR_TFTOP);
             }
             idx++;
         }

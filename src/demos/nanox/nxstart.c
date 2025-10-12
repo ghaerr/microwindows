@@ -71,7 +71,9 @@ struct app_info {
 	{"tetris",  PATH "nxtetris"},
 	{"world",   PATH "nxworld"},
 	{"landmine",PATH "nxmine"},
-#if !ELKS
+#if ELKS
+	{"calculator",PATH "nxcalc"},
+#else
 	{"aafont",    PATH "demo-aafont"},
 	{"agg",       PATH "demo-agg"},
 	{"calculator",PATH "demo-nuklear-calculator"},

@@ -30,7 +30,7 @@ static int entering = 0;
 static int dot_entered = 0;
 
 /* button layout */
-static const char *btn_labels[] = {
+static char *btn_labels[] = {
     "C", "<-", "+/-", "/",
     "7", "8", "9", "*",
     "4", "5", "6", "-",
@@ -56,10 +56,14 @@ static double display_to_double(void) {
 
 static void set_display_from_double(double v) {
     char buf[128];
-    double iv;
 
     if (fabs(v) < 1e-12) v = 0.0;
+#if ELKS
+    if (v == 0.0) {
+#else
+    double iv;
     if (modf(v, &iv) == 0.0) {
+#endif
         snprintf(buf, sizeof(buf), "%.0f", v);
     } else {
         snprintf(buf, sizeof(buf), "%.10g", v);
@@ -125,8 +129,8 @@ int main(int argc, char **argv) {
                 int y = grid_y + r * cell_h;
                 btn_rects[r][c].x = x;
                 btn_rects[r][c].y = y;
-                btn_rects[r][c].w = cell_w - 6;
-                btn_rects[r][c].h = cell_h - 6;
+                btn_rects[r][c].width = cell_w - 6;
+                btn_rects[r][c].height = cell_h - 6;
                 idx++;
             }
         }
@@ -150,9 +154,9 @@ int main(int argc, char **argv) {
                 for (r = 0; r < ROWS && !found; r++) {
                     for (c = 0; c < COLS && !found; c++) {
                         GR_RECT *rc = &btn_rects[r][c];
-                        if (mx >= rc->x && mx <= rc->x + rc->w &&
-                            my >= rc->y && my <= rc->y + rc->h) {
-                            GrFillRect(win, gc_button_press, rc->x, rc->y, rc->w, rc->h);
+                        if (mx >= rc->x && mx <= rc->x + rc->width &&
+                            my >= rc->y && my <= rc->y + rc->height) {
+                            GrFillRect(win, gc_button_press, rc->x, rc->y, rc->width, rc->height);
                             found = 1;
                         }
                     }
@@ -167,8 +171,8 @@ int main(int argc, char **argv) {
                 for (r = 0; r < ROWS && !found; r++) {
                     for (c = 0; c < COLS && !found; c++) {
                         GR_RECT *rc = &btn_rects[r][c];
-                        if (mx >= rc->x && mx <= rc->x + rc->w &&
-                            my >= rc->y && my <= rc->y + rc->h) {
+                        if (mx >= rc->x && mx <= rc->x + rc->width &&
+                            my >= rc->y && my <= rc->y + rc->height) {
                             idx = r * COLS + c;
                             const char *lbl =
                                 (idx < (int)(sizeof(btn_labels)/sizeof(btn_labels[0]))
@@ -212,7 +216,7 @@ static void redraw(void) {
     {
         int x = WIN_W - 12 - tw;
         if (x < 10) x = 10;
-        GrText(win, gc_text, x, 5 + (DISP_H / 2) - 8, display, strlen(display));
+        GrText(win, gc_text, x, 5 + (DISP_H / 2) - 8, display, strlen(display), 0);
     }
 
     /* draw buttons */
@@ -221,17 +225,17 @@ static void redraw(void) {
     for (r = 0; r < ROWS; r++) {
         for (c = 0; c < COLS; c++) {
             GR_RECT *rc = &btn_rects[r][c];
-            const char *lbl =
+            char *lbl =
                 (idx < (int)(sizeof(btn_labels)/sizeof(btn_labels[0]))
                  ? btn_labels[idx] : NULL);
 
-            GrFillRect(win, gc_button, rc->x, rc->y, rc->w, rc->h);
+            GrFillRect(win, gc_button, rc->x, rc->y, rc->width, rc->height);
             GrSetGCForeground(gc_border, GrGetSysColor(GR_COLOR_BTNSHADOW));
-            GrRect(win, gc_border, rc->x, rc->y, rc->x + rc->w - 1, rc->y + rc->h - 1);
+            GrRect(win, gc_border, rc->x, rc->y, rc->x + rc->width - 1, rc->y + rc->height - 1);
 
             if (lbl) {
                 GrGetGCTextSize(gc_text, lbl, strlen(lbl), GR_TFTOP, &tw, &th, &tb);
-                GrText(win, gc_text, rc->x + rc->w/2 - tw/2, rc->y + rc->h/2 - 8, lbl, strlen(lbl));
+                GrText(win, gc_text, rc->x + rc->width/2 - tw/2, rc->y + rc->height/2 - 8, lbl, strlen(lbl), 0);
             }
             idx++;
         }

@@ -79,6 +79,7 @@ ifneq ($(ARCH), COSMO)
 # tools
 TARGETS += \
 	$(MW_DIR_BIN)/nxmag \
+	$(MW_DIR_BIN)/nxcalc \
 	$(MW_DIR_BIN)/nxclock \
 	$(MW_DIR_BIN)/nxview \
 	$(MW_DIR_BIN)/nxlsclients \

@@ -2,9 +2,6 @@
  *
  * Inspired by nxclock example (Greg Haerr).
  *
- * Build:
- *   gcc -O2 nxcalc.c -o nxcalc -lNano-X -lpthread -lm
- *
  * Run inside an environment where the Nano-X server is available.
  */
 
@@ -58,16 +55,14 @@ static double display_to_double(void) {
 }
 
 static void set_display_from_double(double v) {
-    char buf[128];
-
-    if (fabs(v) < 1e-12) v = 0.0;
 #if ELKS
     __LINK_SYMBOL(dtostr);
-    if (v == 0.0) {
-#else
-    double iv;
-    if (modf(v, &iv) == 0.0) {
 #endif
+    char buf[128];
+    double iv;
+
+    if (fabs(v) < 1e-12) v = 0.0;
+    if (modf(v, &iv) == 0.0) {
         snprintf(buf, sizeof(buf), "%.0f", v);
     } else {
         snprintf(buf, sizeof(buf), "%.10g", v);

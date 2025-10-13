@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
     /* layout buttons */
     {
-        int grid_x = 10, grid_y = DISP_H + 10;
+        int grid_x = 12, grid_y = DISP_H + 10;
         int grid_w = WIN_W - 20;
         int grid_h = WIN_H - DISP_H - 20;
         int cell_w = grid_w / COLS;
@@ -206,14 +206,11 @@ int main(int argc, char **argv) {
 static void redraw(void) {
     int r, c, idx, tw, th, tb;
 
-    /* clear */
-    GrFillRect(win, gc_button, 0, 0, WIN_W, WIN_H);
-
     /* display area */
     GrSetGCForeground(gc_button, GrGetSysColor(GR_COLOR_WINDOW));
     GrFillRect(win, gc_button, 5, 5, WIN_W - 10, DISP_H - 10);
     GrSetGCForeground(gc_border, GrGetSysColor(GR_COLOR_BTNSHADOW));
-    GrRect(win, gc_border, 5, 5, WIN_W - 6, DISP_H - 6);
+    GrRect(win, gc_border, 5, 5, WIN_W - 11, DISP_H - 10);
 
     /* display text (right aligned) */
     GrGetGCTextSize(gc_text, display, strlen(display), GR_TFTOP, &tw, &th, &tb);
@@ -233,13 +230,14 @@ static void redraw(void) {
                 (idx < (int)(sizeof(btn_labels)/sizeof(btn_labels[0]))
                  ? btn_labels[idx] : NULL);
 
+            GrSetGCForeground(gc_button, GrGetSysColor(GR_COLOR_WINDOW));
             GrFillRect(win, gc_button, rc->x, rc->y, rc->width, rc->height);
             GrSetGCForeground(gc_border, GrGetSysColor(GR_COLOR_BTNSHADOW));
-            GrRect(win, gc_border, rc->x, rc->y, rc->x + rc->width - 1, rc->y + rc->height - 1);
+            GrRect(win, gc_border, rc->x, rc->y, rc->width, rc->height);
 
             if (lbl) {
                 GrGetGCTextSize(gc_text, lbl, strlen(lbl), GR_TFTOP, &tw, &th, &tb);
-                GrText(win, gc_text, rc->x + rc->width/2 - tw/2, rc->y + rc->height/2 - 2, lbl, strlen(lbl), GR_TFTOP);
+                GrText(win, gc_text, rc->x + rc->width/2 - tw/2, rc->y + rc->height/2 - 6, lbl, strlen(lbl), GR_TFTOP);
             }
             idx++;
         }

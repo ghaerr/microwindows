@@ -99,7 +99,7 @@ nxdemos: lib/libnano-X.a
 	$(MAKE) -C demos/nanox -f Makefile.elks all
 
 clean:
-	$(RM) *.o lib/*.a bin/nano-x nanox/*.o engine/*.o drivers/*.o
+	$(RM) *.o lib/*.a lib/*.so bin/nano-x nanox/*.o engine/*.o drivers/*.o
 	$(RM) demos/nanox/*.o
 	$(RM) fonts/compiled/*.o
 	$(MAKE) -C demos/nanox -f Makefile.elks clean

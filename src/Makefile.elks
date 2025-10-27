@@ -9,7 +9,7 @@ include $(BASEDIR)/Makefile-rules
 
 # Modify the following lines to build IBM/VGA, IBM/CGA or PC98 drivers
 CONFIG_ARCH_IBMPC=y
-CONFIG_HW_VGA=y
+SCREEN_CGA=n
 CONFIG_ARCH_PC98=n
 
 # remove any -mregparmcall as ASM files need cdecl calling convention
@@ -45,12 +45,13 @@ ifeq ($(CONFIG_ARCH_IBMPC), y)
 DRIVERS += drivers/mou_ser.o drivers/kbd_tty.o
 DRIVERS += drivers/vgaplan4_asm.o
 
-ifeq ($(CONFIG_HW_VGA), y)
-DRIVERS += drivers/scr_vga.o drivers/vgaplan4_vga.o drivers/vgaplan4_mem.o
-#DRIVERS += elksdrivers/romfont.o
-else
+ifeq ($(SCREEN_CGA), y)
 DRIVERS += drivers/scr_cga.o drivers/vgaplan4_cga.o drivers/vgaplan4_mem.o
 #DRIVERS += drivers/ramfont.o
+else
+# EGA/VGA screen driver
+DRIVERS += drivers/scr_vga.o drivers/vgaplan4_vga.o drivers/vgaplan4_mem.o
+#DRIVERS += elksdrivers/romfont.o
 endif
 endif
 

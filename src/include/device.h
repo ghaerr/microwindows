@@ -347,6 +347,8 @@ void 	GdFixCursor(PSD psd);
 void    GdSetTransform(MWTRANSFORM *);
 
 extern MOUSEDEVICE mousedev;
+extern MWCURSOR cursor_lg;      /* 16x16 standard cursor */
+extern MWCURSOR cursor_sm;      /* 8x8 cursor for slow systems */
 
 /* devkbd.c*/
 int  	GdOpenKeyboard(void);

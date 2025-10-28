@@ -886,55 +886,6 @@ GsInitialize(void)
 	PSD		psd;
 	GR_CURSOR_ID	cid;
 
-#if USE_SMALL_CURSOR
-/* Small 8x8 cursor for machines to slow for 16x16 cursors */
-#define _       ((unsigned) 0)          /* off bits */
-#define X       ((unsigned) 1)          /* on bits */
-#define MASK(a,b,c,d,e,f,g) \
-        (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) \
-        + e) * 2) + f) * 2) + g) << 9)
-/* Small 8x8 cursor for machines to slow for 16x16 cursors */
-#define HOTX    1
-#define HOTY    1
-#define CURSW   8
-#define CURSH   8
-	static MWIMAGEBITS cursormask[8] = {
-	    MASK(X,X,X,X,X,X,_),
-	    MASK(X,X,X,X,X,_,_),
-	    MASK(X,X,X,X,_,_,_),
-	    MASK(X,X,X,X,X,_,_),
-	    MASK(X,X,X,X,X,X,_),
-	    MASK(X,_,_,X,X,X,X),
-	    MASK(_,_,_,_,X,X,X)
-	};
-	static MWIMAGEBITS cursorbits[8] = {
-	    MASK(_,_,_,_,_,_,_),
-	    MASK(_,X,X,X,X,_,_),
-	    MASK(_,X,X,X,_,_,_),
-	    MASK(_,X,X,X,_,_,_),
-	    MASK(_,X,_,X,X,_,_),
-	    MASK(_,_,_,_,X,X,_),
-	    MASK(_,_,_,_,_,X,X)
-	};
-#else
-#define HOTX    0
-#define HOTY    0
-#define CURSW   16
-#define CURSH   16
-	static const MWIMAGEBITS cursorbits[16] = {
-	      0xe000, 0x9800, 0x8600, 0x4180,
-	      0x4060, 0x2018, 0x2004, 0x107c,
-	      0x1020, 0x0910, 0x0988, 0x0544,
-	      0x0522, 0x0211, 0x000a, 0x0004
-	};
-	static const MWIMAGEBITS cursormask[16] = {
-	      0xe000, 0xf800, 0xfe00, 0x7f80,
-	      0x7fe0, 0x3ff8, 0x3ffc, 0x1ffc,
-	      0x1fe0, 0x0ff0, 0x0ff8, 0x077c,
-	      0x073e, 0x021f, 0x000e, 0x0004
-	};
-#endif
-
 	/* If needed, initialize the server mutex. */
 	SERVER_LOCK_INIT();
 
@@ -944,6 +895,11 @@ GsInitialize(void)
 		return -1;
 	}
 
+#if USE_SMALL_CURSOR
+	MWCURSOR *cp = &cursor_sm;
+#else
+	MWCURSOR *cp = &cursor_lg;
+#endif
 #if HAVE_SIGNAL
 	/* catch terminate signal to restore tty state*/
 	signal(SIGTERM, (void *)GsTerminate);
@@ -1055,8 +1011,8 @@ GsInitialize(void)
 	cursory = -1;
 	GdShowCursor(psd);
 	GrMoveCursor(psd->xvirtres / 2, psd->yvirtres / 2);
-	cid = GrNewCursor(CURSW, CURSH, HOTX, HOTY, WHITE, BLACK,
-		(MWIMAGEBITS *)cursorbits, (MWIMAGEBITS *)cursormask);
+	cid = GrNewCursor(cp->width, cp->height, cp->hotx, cp->hotx,
+		cp->fgcolor, cp->bgcolor, cp->image, cp->mask);
 	GrSetWindowCursor(GR_ROOT_WINDOW_ID, cid);
 	stdcursor = GsFindCursor(cid);
 

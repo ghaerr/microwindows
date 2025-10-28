@@ -201,3 +201,41 @@ PSUBDRIVER vgaplan4[4] = {
 	&fbportrait_left, &fbportrait_right, &fbportrait_down
 #endif
 };
+
+#if USE_VGA_XOR_CURSOR
+/*
+ * Special code for fast hardware VGA XOR cursor drawing only
+ */
+#define SCREENWIDTH     640
+
+/* draw 8 bits horizontally using XOR and one or two memory writes w/clipping */
+static void drawbits(int x, int y, unsigned char bits)
+{
+    FARADDR dst;
+    set_op(0x18);
+    set_color(15);
+	dst = (unsigned char FAR *)(SCREENBASE + (y<<6) + (y<<4) + (x>>3)); /* y*80 + x/8 */
+    if (x < SCREENWIDTH) {
+        select_and_set_mask(bits >> (x & 7));
+        RMW_FP(dst);
+    }
+    if (x < SCREENWIDTH-8) {
+        select_and_set_mask(bits << (8 - (x & 7)));
+        RMW_FP(dst+1);
+    }
+    set_op(0);
+}
+
+/* fast cursor draw for EGA/VGA hardware */
+void vga_drawcursor(int x, int y, int height, unsigned short *mask)
+{
+    for (int i=0; i<height; i++) {
+        unsigned int bits = *mask++;
+        if (bits >> 8)
+            drawbits(x, y, bits >> 8);
+        if (bits & 0xff)
+            drawbits(x+8, y, bits);
+        y++;
+    }
+}
+#endif

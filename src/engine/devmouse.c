@@ -16,8 +16,6 @@
 #include <string.h>
 #include "device.h"
 
-#define USE_XOR_CURSOR  0       /* draw cursor using XOR (ELKS 8x8 cursor only) */
-
 /*
  * The following define specifies whether returned mouse
  * driver coordinates are adjusted when running in portrait
@@ -65,6 +63,7 @@ static int filter_transform(int, int *, int *);
 static int filter_relrotate(int, int *xpos, int *ypos, int x, int y);
 static int filter_absrotate(int, int *xpos, int *ypos);
 #endif
+void vga_drawcursor(int x, int y, int height, unsigned short *mask);
 
 /* Ascii cursor definition helper macros */
 #define _       ((unsigned) 0)          /* off bits */
@@ -80,31 +79,8 @@ static int filter_absrotate(int, int *xpos, int *ypos);
 
 #if USE_SMALL_CURSOR
 
-/* Small 8x8 cursor for machines too slow for 16x16 cursors */
-#if 1
-MWCURSOR cursor_sm = {
-    6, 8, 1, 1, WHITE, BLACK,
-    {   // cursorbits
-        mask(_,_,_,_,_,_,_,_),
-        mask(_,X,X,X,X,_,_,_),
-        mask(_,X,X,X,_,_,_,_),
-        mask(_,X,X,X,_,_,_,_),
-        mask(_,X,_,X,X,_,_,_),
-        mask(_,_,_,_,X,X,_,_),
-        mask(_,_,_,_,_,X,X,_)
-    },
-    {
-        // cursormask
-        mask(X,X,X,X,X,X,_,_),
-        mask(X,X,X,X,X,_,_,_),
-        mask(X,X,X,X,_,_,_,_),
-        mask(X,X,X,X,X,_,_,_),
-        mask(X,X,X,X,X,X,_,_),
-        mask(X,_,_,X,X,X,X,_),
-        mask(_,_,_,_,X,X,X,_)
-    }
-};
-#elif USE_XOR_CURSOR
+/* Small 8x8 cursors for machines too slow for 16x16 cursors */
+#if USE_VGA_XOR_CURSOR
 MWCURSOR cursor_sm = {
     6, 8, 1, 1, WHITE, BLACK,
     {   // cursorbits
@@ -129,7 +105,30 @@ MWCURSOR cursor_sm = {
         mask(X,_,_,_,_,_,_,_)
     }
 };
-#else
+#elif 1 /* standard 8x8 Microwindows small cursor */
+MWCURSOR cursor_sm = {
+    6, 8, 1, 1, WHITE, BLACK,
+    {   // cursorbits
+        mask(_,_,_,_,_,_,_,_),
+        mask(_,X,X,X,X,_,_,_),
+        mask(_,X,X,X,_,_,_,_),
+        mask(_,X,X,X,_,_,_,_),
+        mask(_,X,_,X,X,_,_,_),
+        mask(_,_,_,_,X,X,_,_),
+        mask(_,_,_,_,_,X,X,_)
+    },
+    {
+        // cursormask
+        mask(X,X,X,X,X,X,_,_),
+        mask(X,X,X,X,X,_,_,_),
+        mask(X,X,X,X,_,_,_,_),
+        mask(X,X,X,X,X,_,_,_),
+        mask(X,X,X,X,X,X,_,_),
+        mask(X,_,_,X,X,X,X,_),
+        mask(_,_,_,_,X,X,X,_)
+    }
+};
+#else   /* experimental cursor */
 MWCURSOR cursor_sm = {
     7, 8, 1, 1, WHITE, BLACK,
     {   // cursorbits
@@ -157,50 +156,8 @@ MWCURSOR cursor_sm = {
 
 #else   /* !USE_SMALL_CURSOR */
 
-/* Full size 16x16 cursor */
-#if 1
-MWCURSOR cursor_lg = {
-    16, 16, 0, 0, WHITE, BLACK,
-    {   // lgcursorbits
-        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
-        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),  // E000
-        MASK(X,_,_,X,X,_,_,_,_,_,_,_,_,_,_,_),  // 9800
-        MASK(X,_,_,_,_,X,X,_,_,_,_,_,_,_,_,_),  // 8600
-        MASK(_,X,_,_,_,_,_,X,X,_,_,_,_,_,_,_),  // 4180
-        MASK(_,X,_,_,_,_,_,_,_,X,X,_,_,_,_,_),  // 4060
-        MASK(_,_,X,_,_,_,_,_,_,_,_,X,X,_,_,_),  // 2018
-        MASK(_,_,X,_,_,_,_,_,_,_,_,_,_,X,_,_),  // 2004
-        MASK(_,_,_,X,_,_,_,_,_,X,X,X,X,X,_,_),  // 107C
-        MASK(_,_,_,X,_,_,_,_,_,_,X,_,_,_,_,_),  // 1020
-        MASK(_,_,_,_,X,_,_,X,_,_,_,X,_,_,_,_),  // 0910
-        MASK(_,_,_,_,X,_,_,X,_,_,_,_,X,_,_,_),  // 0988
-        MASK(_,_,_,_,_,X,_,X,_,X,_,_,_,X,_,_),  // 0544
-        MASK(_,_,_,_,_,X,_,X,_,_,X,_,_,_,X,_),  // 0522
-        MASK(_,_,_,_,_,_,X,_,_,_,_,X,_,_,_,X),  // 0211
-        MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,_,X,_),  // 000A
-        MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,X,_,_)   // 0004
-        },
-    {   //  lgcursormask
-        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
-        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),  // E000
-        MASK(X,X,X,X,X,_,_,_,_,_,_,_,_,_,_,_),  // F800
-        MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_),  // FE00
-        MASK(_,X,X,X,X,X,X,X,X,_,_,_,_,_,_,_),  // 7F80
-        MASK(_,X,X,X,X,X,X,X,X,X,X,_,_,_,_,_),  // 7FE0
-        MASK(_,_,X,X,X,X,X,X,X,X,X,X,X,_,_,_),  // 3FF8
-        MASK(_,_,X,X,X,X,X,X,X,X,X,X,X,X,_,_),  // 3FFC
-        MASK(_,_,_,X,X,X,X,X,X,X,X,X,X,X,_,_),  // 1FFC
-        MASK(_,_,_,X,X,X,X,X,X,X,X,_,_,_,_,_),  // 1FE0
-        MASK(_,_,_,_,X,X,X,X,X,X,X,X,_,_,_,_),  // 0FF0
-        MASK(_,_,_,_,X,X,X,X,X,X,X,X,X,_,_,_),  // 0FF8
-        MASK(_,_,_,_,_,X,X,X,_,X,X,X,X,X,_,_),  // 077C
-        MASK(_,_,_,_,_,X,X,X,_,_,X,X,X,X,X,_),  // 073E
-        MASK(_,_,_,_,_,_,X,_,_,_,_,X,X,X,X,X),  // 021F
-        MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,X,X,_),  // 000E
-        MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,X,_,_)   // 0004
-    }
-};
-#else
+/* Full size 16x16 cursors */
+#if USE_VGA_XOR_CURSOR
 MWCURSOR cursor_lg = {
     11, 16, 0, 0, WHITE, BLACK,
     {
@@ -242,6 +199,48 @@ MWCURSOR cursor_lg = {
         MASK(X,X,X,_,X,X,X,X,_,_,_,_,_,_,_,_),
         MASK(X,X,_,_,X,X,X,X,_,_,_,_,_,_,_,_),
         MASK(X,_,_,_,_,X,X,X,_,_,_,_,_,_,_,_)
+    }
+};
+#else   /* standard Microwindows cursor */
+MWCURSOR cursor_lg = {
+    16, 16, 0, 0, WHITE, BLACK,
+    {   // lgcursorbits
+        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),  // E000
+        MASK(X,_,_,X,X,_,_,_,_,_,_,_,_,_,_,_),  // 9800
+        MASK(X,_,_,_,_,X,X,_,_,_,_,_,_,_,_,_),  // 8600
+        MASK(_,X,_,_,_,_,_,X,X,_,_,_,_,_,_,_),  // 4180
+        MASK(_,X,_,_,_,_,_,_,_,X,X,_,_,_,_,_),  // 4060
+        MASK(_,_,X,_,_,_,_,_,_,_,_,X,X,_,_,_),  // 2018
+        MASK(_,_,X,_,_,_,_,_,_,_,_,_,_,X,_,_),  // 2004
+        MASK(_,_,_,X,_,_,_,_,_,X,X,X,X,X,_,_),  // 107C
+        MASK(_,_,_,X,_,_,_,_,_,_,X,_,_,_,_,_),  // 1020
+        MASK(_,_,_,_,X,_,_,X,_,_,_,X,_,_,_,_),  // 0910
+        MASK(_,_,_,_,X,_,_,X,_,_,_,_,X,_,_,_),  // 0988
+        MASK(_,_,_,_,_,X,_,X,_,X,_,_,_,X,_,_),  // 0544
+        MASK(_,_,_,_,_,X,_,X,_,_,X,_,_,_,X,_),  // 0522
+        MASK(_,_,_,_,_,_,X,_,_,_,_,X,_,_,_,X),  // 0211
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,_,X,_),  // 000A
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,X,_,_)   // 0004
+        },
+    {   //  lgcursormask
+        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),  // E000
+        MASK(X,X,X,X,X,_,_,_,_,_,_,_,_,_,_,_),  // F800
+        MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_),  // FE00
+        MASK(_,X,X,X,X,X,X,X,X,_,_,_,_,_,_,_),  // 7F80
+        MASK(_,X,X,X,X,X,X,X,X,X,X,_,_,_,_,_),  // 7FE0
+        MASK(_,_,X,X,X,X,X,X,X,X,X,X,X,_,_,_),  // 3FF8
+        MASK(_,_,X,X,X,X,X,X,X,X,X,X,X,X,_,_),  // 3FFC
+        MASK(_,_,_,X,X,X,X,X,X,X,X,X,X,X,_,_),  // 1FFC
+        MASK(_,_,_,X,X,X,X,X,X,X,X,_,_,_,_,_),  // 1FE0
+        MASK(_,_,_,_,X,X,X,X,X,X,X,X,_,_,_,_),  // 0FF0
+        MASK(_,_,_,_,X,X,X,X,X,X,X,X,X,_,_,_),  // 0FF8
+        MASK(_,_,_,_,_,X,X,X,_,X,X,X,X,X,_,_),  // 077C
+        MASK(_,_,_,_,_,X,X,X,_,_,X,X,X,X,X,_),  // 073E
+        MASK(_,_,_,_,_,_,X,_,_,_,_,X,X,X,X,X),  // 021F
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,X,X,_),  // 000E
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,X,_,_)   // 0004
     }
 };
 #endif
@@ -571,6 +570,7 @@ GdSetCursor(PMWCURSOR pcursor)
 int
 GdShowCursor(PSD psd)
 {
+#if !USE_VGA_XOR_CURSOR
 	MWCOORD 		x;
 	MWCOORD 		y;
 	MWPIXELVALHW *	saveptr;
@@ -580,18 +580,22 @@ GdShowCursor(PSD psd)
 	MWPIXELVALHW 	oldcolor;
 	MWPIXELVALHW 	newcolor;
 	int 		oldmode;
+#endif
 	int		prevcursor = curvisible;
 
 	if(++curvisible != 1)
 		return prevcursor;
-	oldmode = gr_mode;
-	gr_mode = MWROP_COPY;
 
-	saveptr = cursavbits;
 	cursavx = curminx;
 	cursavy = curminy;
 	cursavx2 = curmaxx;
 	cursavy2 = curmaxy;
+#if USE_VGA_XOR_CURSOR
+	vga_drawcursor(curminx, curminy, curmaxy - curminy + 1, cursormask);
+#else
+	oldmode = gr_mode;
+	gr_mode = MWROP_COPY;
+	saveptr = cursavbits;
 	cursorptr = cursorcolor;
 	maskptr = cursormask;
 
@@ -625,6 +629,7 @@ GdShowCursor(PSD psd)
 	}
 
 	gr_mode = oldmode;
+#endif
 	return prevcursor;
 }
 
@@ -637,16 +642,20 @@ GdShowCursor(PSD psd)
 int
 GdHideCursor(PSD psd)
 {
+#if !USE_VGA_XOR_CURSOR
 	MWPIXELVALHW *	saveptr;
 	MWCOORD 		x, y;
 	int 		oldmode;
-	int		prevcursor = curvisible;
 	MWIMAGEBITS *   maskptr;
 	MWIMAGEBITS     curbit, mbits = 0;
-
+#endif
+	int		prevcursor = curvisible;
 
 	if(curvisible-- <= 0)
 		return prevcursor;
+#if USE_VGA_XOR_CURSOR
+	vga_drawcursor(cursavx, cursavy, cursavy2 - cursavy + 1, cursormask);
+#else
 	oldmode = gr_mode;
 	gr_mode = MWROP_COPY;
 
@@ -671,6 +680,7 @@ GdHideCursor(PSD psd)
 		}
 	}
  	gr_mode = oldmode;
+#endif
 	return prevcursor;
 }
 

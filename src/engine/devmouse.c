@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2000, 2002, 2010, 2011 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2002, 2010, 2011, 2025 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  * Copyright (C) 1999 Bradley D. LaRonde (brad@ltc.com)
  * Copyright (c) 1991 David I. Bell
@@ -15,6 +15,8 @@
  */
 #include <string.h>
 #include "device.h"
+
+#define USE_XOR_CURSOR  0       /* draw cursor using XOR (ELKS 8x8 cursor only) */
 
 /*
  * The following define specifies whether returned mouse
@@ -63,6 +65,188 @@ static int filter_transform(int, int *, int *);
 static int filter_relrotate(int, int *xpos, int *ypos, int x, int y);
 static int filter_absrotate(int, int *xpos, int *ypos);
 #endif
+
+/* Ascii cursor definition helper macros */
+#define _       ((unsigned) 0)          /* off bits */
+#define X       ((unsigned) 1)          /* on bits */
+#define mask(a,b,c,d,e,f,g,h)                                                           \
+   ((((((((((((((                                                                       \
+   (a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) * 2) + h) << 8)
+
+#define MASK(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)                                           \
+    (((((((((((((((((((((((((((((                                                       \
+    (a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) * 2) + h) * 2)       \
+            + i) * 2) + j) * 2) + k) * 2) + l) * 2) + m) * 2) + n) * 2) + o) * 2) + p)
+
+#if USE_SMALL_CURSOR
+
+/* Small 8x8 cursor for machines too slow for 16x16 cursors */
+#if 1
+MWCURSOR cursor_sm = {
+    6, 8, 1, 1, WHITE, BLACK,
+    {   // cursorbits
+        mask(_,_,_,_,_,_,_,_),
+        mask(_,X,X,X,X,_,_,_),
+        mask(_,X,X,X,_,_,_,_),
+        mask(_,X,X,X,_,_,_,_),
+        mask(_,X,_,X,X,_,_,_),
+        mask(_,_,_,_,X,X,_,_),
+        mask(_,_,_,_,_,X,X,_)
+    },
+    {
+        // cursormask
+        mask(X,X,X,X,X,X,_,_),
+        mask(X,X,X,X,X,_,_,_),
+        mask(X,X,X,X,_,_,_,_),
+        mask(X,X,X,X,X,_,_,_),
+        mask(X,X,X,X,X,X,_,_),
+        mask(X,_,_,X,X,X,X,_),
+        mask(_,_,_,_,X,X,X,_)
+    }
+};
+#elif USE_XOR_CURSOR
+MWCURSOR cursor_sm = {
+    6, 8, 1, 1, WHITE, BLACK,
+    {   // cursorbits
+        mask(X,_,_,_,_,_,_,_),
+        mask(X,X,_,_,_,_,_,_),
+        mask(X,_,X,_,_,_,_,_),
+        mask(X,_,_,X,_,_,_,_),
+        mask(X,_,_,_,X,_,_,_),
+        mask(X,_,X,X,X,X,_,_),
+        mask(X,X,_,_,_,_,_,_),
+        mask(X,_,_,_,_,_,_,_)
+    },
+    {
+        // cursormask
+        mask(X,_,_,_,_,_,_,_),
+        mask(X,X,_,_,_,_,_,_),
+        mask(X,X,X,_,_,_,_,_),
+        mask(X,X,X,X,_,_,_,_),
+        mask(X,X,X,X,X,_,_,_),
+        mask(X,X,X,X,X,X,_,_),
+        mask(X,X,_,_,_,_,_,_),
+        mask(X,_,_,_,_,_,_,_)
+    }
+};
+#else
+MWCURSOR cursor_sm = {
+    7, 8, 1, 1, WHITE, BLACK,
+    {   // cursorbits
+        mask(_,_,_,_,_,_,_,_),
+        mask(_,_,_,_,_,_,_,_),
+        mask(_,X,_,_,_,_,_,_),
+        mask(_,X,X,_,_,_,_,_),
+        mask(_,X,X,X,_,_,_,_),
+        mask(_,X,X,X,X,_,_,_),
+        mask(_,X,X,_,_,_,_,_),
+        mask(_,_,_,_,_,_,_,_)
+    },
+    {   // cursormask
+        mask(X,_,_,_,_,_,_,_),
+        mask(X,X,_,_,_,_,_,_),
+        mask(X,X,X,_,_,_,_,_),
+        mask(X,X,X,X,_,_,_,_),
+        mask(X,X,X,X,X,_,_,_),
+        mask(X,X,X,X,X,X,_,_),
+        mask(X,X,X,X,X,X,X,_),
+        mask(X,X,X,_,_,_,_,_)
+    }
+};
+#endif
+
+#else   /* !USE_SMALL_CURSOR */
+
+/* Full size 16x16 cursor */
+#if 1
+MWCURSOR cursor_lg = {
+    16, 16, 0, 0, WHITE, BLACK,
+    {   // lgcursorbits
+        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),  // E000
+        MASK(X,_,_,X,X,_,_,_,_,_,_,_,_,_,_,_),  // 9800
+        MASK(X,_,_,_,_,X,X,_,_,_,_,_,_,_,_,_),  // 8600
+        MASK(_,X,_,_,_,_,_,X,X,_,_,_,_,_,_,_),  // 4180
+        MASK(_,X,_,_,_,_,_,_,_,X,X,_,_,_,_,_),  // 4060
+        MASK(_,_,X,_,_,_,_,_,_,_,_,X,X,_,_,_),  // 2018
+        MASK(_,_,X,_,_,_,_,_,_,_,_,_,_,X,_,_),  // 2004
+        MASK(_,_,_,X,_,_,_,_,_,X,X,X,X,X,_,_),  // 107C
+        MASK(_,_,_,X,_,_,_,_,_,_,X,_,_,_,_,_),  // 1020
+        MASK(_,_,_,_,X,_,_,X,_,_,_,X,_,_,_,_),  // 0910
+        MASK(_,_,_,_,X,_,_,X,_,_,_,_,X,_,_,_),  // 0988
+        MASK(_,_,_,_,_,X,_,X,_,X,_,_,_,X,_,_),  // 0544
+        MASK(_,_,_,_,_,X,_,X,_,_,X,_,_,_,X,_),  // 0522
+        MASK(_,_,_,_,_,_,X,_,_,_,_,X,_,_,_,X),  // 0211
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,_,X,_),  // 000A
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,X,_,_)   // 0004
+        },
+    {   //  lgcursormask
+        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),  // E000
+        MASK(X,X,X,X,X,_,_,_,_,_,_,_,_,_,_,_),  // F800
+        MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_),  // FE00
+        MASK(_,X,X,X,X,X,X,X,X,_,_,_,_,_,_,_),  // 7F80
+        MASK(_,X,X,X,X,X,X,X,X,X,X,_,_,_,_,_),  // 7FE0
+        MASK(_,_,X,X,X,X,X,X,X,X,X,X,X,_,_,_),  // 3FF8
+        MASK(_,_,X,X,X,X,X,X,X,X,X,X,X,X,_,_),  // 3FFC
+        MASK(_,_,_,X,X,X,X,X,X,X,X,X,X,X,_,_),  // 1FFC
+        MASK(_,_,_,X,X,X,X,X,X,X,X,_,_,_,_,_),  // 1FE0
+        MASK(_,_,_,_,X,X,X,X,X,X,X,X,_,_,_,_),  // 0FF0
+        MASK(_,_,_,_,X,X,X,X,X,X,X,X,X,_,_,_),  // 0FF8
+        MASK(_,_,_,_,_,X,X,X,_,X,X,X,X,X,_,_),  // 077C
+        MASK(_,_,_,_,_,X,X,X,_,_,X,X,X,X,X,_),  // 073E
+        MASK(_,_,_,_,_,_,X,_,_,_,_,X,X,X,X,X),  // 021F
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,X,X,X,_),  // 000E
+        MASK(_,_,_,_,_,_,_,_,_,_,_,_,_,X,_,_)   // 0004
+    }
+};
+#else
+MWCURSOR cursor_lg = {
+    11, 16, 0, 0, WHITE, BLACK,
+    {
+        //  lgcursorbits
+        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+        MASK(X,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,_,_,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,X,_,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,X,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,X,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,X,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,_,X,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,_,_,X,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,_,_,_,X,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,_,_,_,_,X,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,_,X,X,X,X,X,_,_,_,_,_),
+        MASK(X,_,_,_,_,_,X,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,X,_,_,X,_,_,_,_,_,_,_,_,_),
+        MASK(X,_,X,_,X,_,_,X,_,_,_,_,_,_,_,_),
+        MASK(X,X,_,_,X,_,_,X,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,X,X,X,_,_,_,_,_,_,_,_)
+    },
+    {
+        //  lgcursormask
+        //   8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+        MASK(X,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,_,_,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,_,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,_,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,_,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,_,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,X,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,X,X,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,X,X,X,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,X,X,X,X,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,X,X,X,X,_,_,_,_,_,_,_,_,_),
+        MASK(X,X,X,_,X,X,X,X,_,_,_,_,_,_,_,_),
+        MASK(X,X,_,_,X,X,X,X,_,_,_,_,_,_,_,_),
+        MASK(X,_,_,_,_,X,X,X,_,_,_,_,_,_,_,_)
+    }
+};
+#endif
+
+#endif /* USE_SMALL_CURSOR */
 
 /**
  * Initialize the mouse.

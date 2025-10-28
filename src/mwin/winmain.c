@@ -472,20 +472,6 @@ MwInitialize(void)
 	PSD		psd;
 	WNDCLASS	wc;
 	int		fd;
-	static MWCURSOR arrow = {	/* default arrow cursor*/
-		16, 16,
-		0,  0,
-		RGB(255, 255, 255), RGB(0, 0, 0),
-		{ 0xe000, 0x9800, 0x8600, 0x4180,
-		  0x4060, 0x2018, 0x2004, 0x107c,
-		  0x1020, 0x0910, 0x0988, 0x0544,
-		  0x0522, 0x0211, 0x000a, 0x0004 },
-		{ 0xe000, 0xf800, 0xfe00, 0x7f80,
-		  0x7fe0, 0x3ff8, 0x3ffc, 0x1ffc,
-		  0x1fe0, 0x0ff0, 0x0ff8, 0x077c,
-		  0x073e, 0x021f, 0x000e, 0x0004 }
-	};
-
 	extern MWLISTHEAD mwClassHead;
 
 #if UNIX && HAVE_SELECT
@@ -603,7 +589,7 @@ MwInitialize(void)
 	cursory = -1;
 	GdShowCursor(psd);
 	MwMoveCursor(psd->xvirtres / 2, psd->yvirtres / 2);
-	MwSetCursor(rootwp, &arrow);
+	MwSetCursor(rootwp, &cursor_lg);
 
 	/*
 	 * Finally tell the mouse driver some things.

@@ -27,7 +27,6 @@ CFLAGS += -fno-prefetch-loop-arrays
 CFLAGS += -fno-tree-ch
 CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1
 CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
-CFLAGS += -DUSE_SMALL_CURSOR=1
 CFLAGS += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
 CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 CFLAGS += -Wno-missing-field-initializers
@@ -36,6 +35,7 @@ AR = ia16-elf-ar
 # screen, mouse and kbd drivers
 ifeq ($(CONFIG_ARCH_PC98), y)
 CFLAGS += -DCONFIG_ARCH_PC98=1
+CFLAGS += -DUSE_SMALL_CURSOR=1
 DRIVERS += drivers/scr_pc98.o drivers/vgaplan4_pc98.o drivers/vgaplan4_mem_pc98.o
 DRIVERS += drivers/mou_pc98.o drivers/kbd_tty.o
 #DRIVERS += drivers/ramfont.o
@@ -46,10 +46,12 @@ DRIVERS += drivers/mou_ser.o drivers/kbd_tty.o
 DRIVERS += drivers/vgaplan4_asm.o
 
 ifeq ($(SCREEN_CGA), y)
+CFLAGS += -DUSE_SMALL_CURSOR=1
 DRIVERS += drivers/scr_cga.o drivers/vgaplan4_cga.o drivers/vgaplan4_mem.o
 #DRIVERS += drivers/ramfont.o
 else
 # EGA/VGA screen driver
+CFLAGS += -DUSE_VGA_XOR_CURSOR=1
 DRIVERS += drivers/scr_vga.o drivers/vgaplan4_vga.o drivers/vgaplan4_mem.o
 #DRIVERS += elksdrivers/romfont.o
 endif

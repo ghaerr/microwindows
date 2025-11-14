@@ -4,7 +4,6 @@
  * 
  */
 
-/* nxvga_x.c - Minimal Nano-X VGA X Mode Driver (256-color planar) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

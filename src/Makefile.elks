@@ -53,6 +53,7 @@ else
 # EGA/VGA screen driver
 CFLAGS += -DUSE_VGA_XOR_CURSOR=1
 DRIVERS += drivers/scr_vga.o drivers/vgaplan4_vga.o drivers/vgaplan4_mem.o
+DRIVERS += drivers/vga_x.o
 #DRIVERS += elksdrivers/romfont.o
 endif
 endif

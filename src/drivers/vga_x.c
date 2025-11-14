@@ -80,7 +80,7 @@ static MWPIXELVAL nxvga_getpixel(PSD psd, MWCOORD x, MWCOORD y)
     return VGA[offset];
 }
 
-/* Fill rectangle (naive) */
+/* Fill rectangle (unoptimized) */
 static void nxvga_fillrect(PSD psd, MWCOORD x, MWCOORD y,
                            MWCOORD w, MWCOORD h, MWPIXELVAL c)
 {

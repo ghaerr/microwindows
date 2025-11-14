@@ -1,28 +1,31 @@
 /* nxvga_x.c - Nano-X Mode X VGA driver for ELKS
  *
- * 16-bit, ELKS compatible. Uses Mode X unchained 320x200x256, plane-aware VRAM writes.
+ * VGA Mode X unchained 320x200x256, plane-aware VRAM writes.
  * 
  */
 
+/* nxvga_x.c - Minimal Nano-X VGA X Mode Driver (256-color planar) */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "device.h"
 #include <arch/io.h>
-#include <nano-X.h>
-#include <device.h>
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 200
-#define SCREEN_PIXELS (SCREEN_WIDTH*SCREEN_HEIGHT)
+typedef unsigned char  byte;
+typedef unsigned short word;
 
-typedef unsigned char byte;
+/* VGA 256-color mode 13h */
+#define VGA_256_COLOR_MODE  0x13
+#define TEXT_MODE           0x03
+#define SCREEN_WIDTH        320
+#define SCREEN_HEIGHT       200
+#define NUM_COLORS          256
 
-static byte *VGA = (byte*)0xA0000L;   /* Mode X VRAM */
-static byte *backbuf = NULL;          /* Back buffer */
-static byte bg_color = 0;             /* Desktop background color */
+/* Far pointer to VGA memory */
+static byte __far *VGA = (byte __far *)0xA0000000L;
 
-/* ---------------- Hardware I/O ---------------- */
-
-static void set_mode(byte mode)
+/* Set video mode using BIOS, used for open and close */
+void set_mode(byte mode)
 {
     __asm__(
         "push %%si;"
@@ -44,147 +47,92 @@ static void set_mode(byte mode)
     );
 }
 
-/* ---------------- VGA Mode X ---------------- */
-
-static int vga_set_modeX(void)
+/* Configure VGA X (unchained planar 256-color) registers */
+static void vga_x_configure(void)
 {
-    set_mode(0x13); /* standard 320x200x256 */
+    /* Disable chain-4 (Graphics Controller Index 4 = 0x04) */
+    outb(0x04, 0x3CE); // Graphics Controller Index
+    outb(0x06, 0x3CF); // Disable chain-4
 
-    /* Unchain mode (disable chain4) */
-    outb(0x04, 0x03C4);       /* Memory Mode Index */
-    outb(0x06, 0x03C5);       /* Disable chain4 */
+    /* Enable all planes in Sequencer Map Mask */
+    outb(0x02, 0x3C4);
+    outb(0x0F, 0x3C5);
 
-    /* Clear all planes */
-    for (int plane = 0; plane < 4; plane++) {
-        outb(0x02, 0x03C4);   /* Map mask */
-        outb(1 << plane, 0x03C5);
-        memset(VGA, 0, 0x10000);
-    }
-
-    return 0;
+    /* Set Graphics Controller: write mode 0, read mode 0 */
+    outb(0x05, 0x3CE);
+    outb(0x00, 0x3CF);
 }
 
-static void vga_update_region(int x, int y, int w, int h)
+/* Plot pixel in Mode X */
+static void nxvga_setpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
 {
-    for (int plane = 0; plane < 4; plane++) {
-        outb(0x02, 0x03C4);       /* Map mask */
-        outb(1 << plane, 0x03C5);
-
-        for (int py = 0; py < h; py++) {
-            for (int px = 0; px < w; px++) {
-                int vx = x + px;
-                int vy = y + py;
-                if ((vx & 3) == plane) {
-                    VGA[(vy << 6) + (vy << 4) + (vx >> 2)] =
-                        backbuf[vy * SCREEN_WIDTH + vx];
-                }
-            }
-        }
-    }
+    int plane = x & 3;                        // select plane
+    int offset = (y * 80) + (x >> 2);        // each plane stores every 4th pixel
+    outb(1 << plane, 0x3C4 + 2);             // Sequencer map mask
+    VGA[offset] = c;
 }
 
-/* ---------------- Subdriver Function Prototypes ---------------- */
-
-static void nxvga_setpixel(int x,int y,byte color);
-static byte nxvga_getpixel(int x,int y);
-static void nxvga_drawhorzline(int x1,int x2,int y,byte color);
-static void nxvga_drawvertline(int x,int y1,int y2,byte color);
-static void nxvga_fillrect(int x,int y,int w,int h,byte color);
-static void nxvga_blit(int dx,int dy,int w,int h,const byte *src);
-
-/* ---------------- Subdriver Functions ---------------- */
-
-static void nxvga_setpixel(int x,int y,byte color)
+/* Read pixel in Mode X */
+static MWPIXELVAL nxvga_getpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
-    if (x<0 || x>=SCREEN_WIDTH || y<0 || y>=SCREEN_HEIGHT) return;
-    backbuf[y*SCREEN_WIDTH + x] = color;
-    vga_update_region(x,y,1,1);
+    int plane = x & 3;
+    int offset = (y * 80) + (x >> 2);
+    outb(1 << plane, 0x3C4 + 2);
+    return VGA[offset];
 }
 
-static byte nxvga_getpixel(int x,int y)
+/* Fill rectangle (naive) */
+static void nxvga_fillrect(PSD psd, MWCOORD x, MWCOORD y,
+                           MWCOORD w, MWCOORD h, MWPIXELVAL c)
 {
-    if (x<0 || x>=SCREEN_WIDTH || y<0 || y>=SCREEN_HEIGHT) return bg_color;
-    return backbuf[y*SCREEN_WIDTH + x];
+    for (int j = 0; j < h; j++)
+        for (int i = 0; i < w; i++)
+            nxvga_setpixel(psd, x + i, y + j, c);
 }
 
-static void nxvga_drawhorzline(int x1,int x2,int y,byte color)
+
+/* Set background color (fill entire screen) */
+static void nxvga_setbg(PSD psd, MWPIXELVAL c)
 {
-    if(y<0 || y>=SCREEN_HEIGHT) return;
-    if(x1<0) x1=0;
-    if(x2>=SCREEN_WIDTH) x2=SCREEN_WIDTH-1;
-    for(int x=x1;x<=x2;x++)
-        nxvga_setpixel(x,y,color);
+    nxvga_fillrect(psd, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, c);
 }
 
-static void nxvga_drawvertline(int x,int y1,int y2,byte color)
-{
-    if(x<0 || x>=SCREEN_WIDTH) return;
-    if(y1<0) y1=0;
-    if(y2>=SCREEN_HEIGHT) y2=SCREEN_HEIGHT-1;
-    for(int y=y1;y<=y2;y++)
-        nxvga_setpixel(x,y,color);
-}
-
-static void nxvga_fillrect(int x,int y,int w,int h,byte color)
-{
-    if(x<0){ w+=x; x=0; }
-    if(y<0){ h+=y; y=0; }
-    if(x+w>SCREEN_WIDTH) w=SCREEN_WIDTH-x;
-    if(y+h>SCREEN_HEIGHT) h=SCREEN_HEIGHT-y;
-    if(w<=0 || h<=0) return;
-    for(int py=0;py<h;py++)
-        for(int px=0;px<w;px++)
-            nxvga_setpixel(x+px,y+py,color);
-}
-
-static void nxvga_blit(int dx,int dy,int w,int h,const byte *src)
-{
-    for(int py=0;py<h;py++)
-        for(int px=0;px<w;px++)
-            nxvga_setpixel(dx+px,dy+py,src[py*w+px]);
-}
-
-/* ---------------- Subdriver Definition ---------------- */
-
+/* Subdriver struct */
 static SUBDRIVER nxvga_subdriver = {
     nxvga_setpixel,
     nxvga_getpixel,
-    nxvga_drawhorzline,
-    nxvga_drawvertline,
+    NULL,           /* drawhorzline optional */
+    NULL,           /* drawvertline optional */
     nxvga_fillrect,
-    nxvga_blit,
-    NULL,
-    NULL,
-    NULL
+    NULL,           /* blit optional */
+    NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL
 };
 
-/* ---------------- Subdriver Array ---------------- */
-
-SUBDRIVER *nxvga_drivers[] = {
+/* Expose subdriver array */
+PSUBDRIVER nxvga_drivers[] = {
     &nxvga_subdriver
 };
 
-/* ---------------- Open / Close ---------------- */
-
-static int nxvga_open(void)
+/* Open driver: set Mode X */
+int nxvga_open(PSD psd)
 {
-    if (vga_set_modeX() < 0) return 0;
+    psd->xres = SCREEN_WIDTH;
+    psd->yres = SCREEN_HEIGHT;
+    psd->planes = 1;
+    psd->bpp = 8;
+    psd->ncolors = NUM_COLORS;
+    psd->flags = PSF_SCREEN;
 
-    backbuf = malloc(SCREEN_PIXELS);
-    if (!backbuf) return 0;
+    set_mode(VGA_256_COLOR_MODE);   // BIOS mode 0x13
+    vga_x_configure();              // X mode register setup
 
-    bg_color = 0;
-    memset(backbuf,bg_color,SCREEN_PIXELS);
-
-    vga_update_region(0,0,SCREEN_WIDTH,SCREEN_HEIGHT);
     return 1;
 }
 
-static void nxvga_close(void)
+/* Close driver: reset to text mode */
+int nxvga_close(PSD psd)
 {
-    if(backbuf) free(backbuf);
-    backbuf=NULL;
-
-    /* restore 80x25 text mode */
-    set_mode(0x03);
+    set_mode(TEXT_MODE);
+    return 1;
 }
+

@@ -20,7 +20,9 @@ typedef unsigned short word;
 #define SCREEN_HEIGHT       200
 #define NUM_COLORS          256
 
-/* Far pointer to VGA memory */
+/* bytes per scanline seen by Mode X planar layout */
+#define BYTES_PER_LINE      80   /* 320 / 4 */
+
 static byte __far *VGA = (byte __far *)0xA0000000L;
 
 /* Set video mode using BIOS, used for open and close */
@@ -49,34 +51,53 @@ void set_mode(byte mode)
 /* Configure VGA X (unchained planar 256-color) registers */
 static void vga_x_configure(void)
 {
-    /* Disable chain-4 (Graphics Controller Index 4 = 0x04) */
-    outb(0x04, 0x3CE); // Graphics Controller Index
-    outb(0x06, 0x3CF); // Disable chain-4
+    /* =============== Disable Chain-4 (GC register 0x06) =============== */
+    outb(0x06, 0x3CE);     /* Graphics Controller: Mode register */
+    outb(0x05, 0x3CF);     /* Disable chain-4 (bit 3=0), odd/even off */
 
-    /* Enable all planes in Sequencer Map Mask */
-    outb(0x02, 0x3C4);
-    outb(0x0F, 0x3C5);
+    /* =============== Enable all planes in Sequencer =============== */
+    outb(0x02, 0x3C4);     
+    outb(0x0F, 0x3C5);     /* allow writes to all 4 planes */
 
-    /* Set Graphics Controller: write mode 0, read mode 0 */
-    outb(0x05, 0x3CE);
+    /* =============== GC write mode 0, read mode 0 =============== */
+    outb(0x05, 0x3CE);     
     outb(0x00, 0x3CF);
 }
 
-/* Plot pixel in Mode X */
-static void nxvga_setpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
+/* Helper: calculate planar byte offset */
+static inline int nxvga_offset(int x, int y)
 {
-    int plane = x & 3;                        // select plane
-    int offset = (y * 80) + (x >> 2);        // each plane stores every 4th pixel
-    outb(1 << plane, 0x3C4 + 2);             // Sequencer map mask
-    VGA[offset] = c;
+    return (y * BYTES_PER_LINE) + (x >> 2);  /* each byte holds 4 pixels */
 }
 
-/* Read pixel in Mode X */
+/* Helper: select the write plane by writing Sequencer index/data */
+static inline void nxvga_select_plane(int plane)
+{
+    /* Sequencer Map Mask:
+     * outb(index, port_index);
+     * outb(data,  port_data);
+     */
+    outb(0x02, 0x3C4);           /* index = Map Mask */
+    outb((byte)(1 << plane), 0x3C5); /* data = plane mask */
+}
+
+/* Plot pixel in Mode X (correct plane selection) */
+static void nxvga_setpixel(PSD psd, MWCOORD x, MWCOORD y, MWPIXELVAL c)
+{
+    if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return;
+    int plane = x & 3;                        /* which plane */
+    int offset = nxvga_offset(x, y);          /* byte offset in plane */
+    nxvga_select_plane(plane);                /* set map mask properly */
+    VGA[offset] = (byte)c;                    /* write color byte to that plane */
+}
+
+/* Read pixel in Mode X (correct plane selection) */
 static MWPIXELVAL nxvga_getpixel(PSD psd, MWCOORD x, MWCOORD y)
 {
+    if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return 0;
     int plane = x & 3;
-    int offset = (y * 80) + (x >> 2);
-    outb(1 << plane, 0x3C4 + 2);
+    int offset = nxvga_offset(x, y);
+    nxvga_select_plane(plane);
     return VGA[offset];
 }
 
@@ -84,26 +105,30 @@ static MWPIXELVAL nxvga_getpixel(PSD psd, MWCOORD x, MWCOORD y)
 static void nxvga_fillrect(PSD psd, MWCOORD x, MWCOORD y,
                            MWCOORD w, MWCOORD h, MWPIXELVAL c)
 {
-    for (int j = 0; j < h; j++)
-        for (int i = 0; i < w; i++)
+    if (w <= 0 || h <= 0) return;
+
+    /* clip to screen */
+    if (x < 0) { w += x; x = 0; }
+    if (y < 0) { h += y; y = 0; }
+    if (x + w > SCREEN_WIDTH)  w = SCREEN_WIDTH - x;
+    if (y + h > SCREEN_HEIGHT) h = SCREEN_HEIGHT - y;
+    if (w <= 0 || h <= 0) return;
+
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
             nxvga_setpixel(psd, x + i, y + j, c);
-}
-
-
-/* Set background color (fill entire screen) */
-static void nxvga_setbg(PSD psd, MWPIXELVAL c)
-{
-    nxvga_fillrect(psd, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, c);
+        }
+    }
 }
 
 /* Subdriver struct */
 static SUBDRIVER nxvga_subdriver = {
     nxvga_setpixel,
     nxvga_getpixel,
-    NULL,           /* drawhorzline optional */
-    NULL,           /* drawvertline optional */
+    NULL,           
+    NULL,          
     nxvga_fillrect,
-    NULL,           /* blit optional */
+    NULL,          
     NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL
 };
 
@@ -115,6 +140,7 @@ PSUBDRIVER nxvga_drivers[] = {
 /* Open driver: set Mode X */
 int nxvga_open(PSD psd)
 {
+    /* fill psd fields so higher layers can use them */
     psd->xres = SCREEN_WIDTH;
     psd->yres = SCREEN_HEIGHT;
     psd->planes = 1;
@@ -122,8 +148,10 @@ int nxvga_open(PSD psd)
     psd->ncolors = NUM_COLORS;
     psd->flags = PSF_SCREEN;
 
-    set_mode(VGA_256_COLOR_MODE);   // BIOS mode 0x13
-    vga_x_configure();              // X mode register setup
+    psd->pitch = 80; /* pitch in pixels = 80 bytes * 4 pixels/byte = 320 */
+
+    set_mode(VGA_256_COLOR_MODE);   /* BIOS mode 0x13 */
+    vga_x_configure();              /* X mode register setup */
 
     return 1;
 }

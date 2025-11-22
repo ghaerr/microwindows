@@ -16,6 +16,7 @@ NXLIB = ../../lib/libnano-X.a
 
 PROGS   = \
     $(BIN)nxcalc     \
+    $(BIN)nxstmenu   \
     $(BIN)nxclock    \
     $(BIN)nxmine     \
     $(BIN)nxstart    \
@@ -32,6 +33,9 @@ all: $(PROGS)
 	cp -p ../../images/demos/nanox/nxworld.map $(TOPDIR)/elkscmd/rootfs_template/lib
 
 $(BIN)nxcalc: nxcalc.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxstmenu: nxstmenu.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxclock: nxclock.o $(NXLIB)

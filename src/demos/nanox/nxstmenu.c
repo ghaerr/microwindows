@@ -129,16 +129,25 @@ int main(void) {
 
             case GR_EVENT_TYPE_BUTTON_DOWN:
             {
-                int start_btn = in_rect(ev.button.x, ev.button.y, 0, height-TASKBAR_HEIGHT, START_WIDTH, TASKBAR_HEIGHT);
                 int mx = 0;
                 int my = height-TASKBAR_HEIGHT-(APP_COUNT+1)*16-4;
+                int start_btn = in_rect(ev.button.x, ev.button.y, 0, height-TASKBAR_HEIGHT, START_WIDTH, TASKBAR_HEIGHT);
                 int clicked_in_menu = menu_open && in_rect(ev.button.x, ev.button.y, mx, my, 120, (APP_COUNT+1)*16+4);
 
-                // Toggle menu if Start button clicked
                 if(start_btn) {
                     menu_open = !menu_open;
+
+                    if(menu_open) {
+                        draw_menu();
+                    } else {
+                        int menu_h = (APP_COUNT+1)*16 + 4;
+                        GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+                        GrFillRect(win, gc_bar, mx, my, 120, menu_h);
+                    }
+
+                    draw_taskbar();
+                    draw_clock();
                 }
-                // Check if an app is clicked
                 else if(clicked_in_menu) {
                     for(int i=0;i<APP_COUNT;i++) {
                         if(in_rect(ev.button.x, ev.button.y, mx, my+i*16, 120,16)) {
@@ -148,25 +157,33 @@ int main(void) {
                                 execl(cmd, cmd, NULL);
                                 _exit(1);
                             }
-                            menu_open = 0; // close menu after launch
+                            // Close menu after launching app
+                            menu_open = 0;
+                            int menu_h = (APP_COUNT+1)*16 + 4;
+                            GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+                            GrFillRect(win, gc_bar, mx, my, 120, menu_h);
                             break;
                         }
                     }
-                    // Exit clicked
+                    // Check if Exit clicked
                     if(in_rect(ev.button.x, ev.button.y, mx, my+APP_COUNT*16+4, 120,16)) {
                         GrClose();
                         return 0;
                     }
+                    draw_taskbar();
+                    draw_clock();
                 }
-                // Clicked outside menu and Start button
                 else {
-                    menu_open = 0;
+                    // Click outside menu closes it
+                    if(menu_open) {
+                        menu_open = 0;
+                        int menu_h = (APP_COUNT+1)*16 + 4;
+                        GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+                        GrFillRect(win, gc_bar, mx, my, 120, menu_h);
+                        draw_taskbar();
+                        draw_clock();
+                    }
                 }
-
-                // Redraw taskbar and menu according to menu_open state
-                draw_taskbar();
-                if(menu_open) draw_menu();
-                draw_clock();
             }
             break;
 

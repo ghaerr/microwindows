@@ -9,6 +9,8 @@ TODO:
   - improve colors
   - add commands such as: Halt, Restart
   - add message bar or busy mouse pointer
+  - add About section with MessageBox
+  - rename to nxdsktop
 
 */
 

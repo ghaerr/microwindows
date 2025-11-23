@@ -15,9 +15,13 @@ A Windows 95 like start menu for ELKS and Nano-X
 #include "nxcolors.h"
 
 #define TASKBAR_HEIGHT 24
-#define START_WIDTH    60
-#define CLOCK_WIDTH    60
+#define START_WIDTH    40
+#define CLOCK_WIDTH    40
 #define APP_PATH "/bin/"
+
+// Menu sizing
+#define MENU_ITEM_HEIGHT 18
+#define MENU_WIDTH       100
 
 const char *apps[] = { "nxcalc", "nxclock", "nxstart", "nxmine" };
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
@@ -27,7 +31,7 @@ static GR_GC_ID gc_bar, gc_text;
 static int width, height;
 static int menu_open = 0;
 
-// Reap child processes so multiple apps can start
+// Reap zombie children
 static void reaper(int signum) { while(waitpid(-1,NULL,WNOHANG)>0); }
 
 static void draw3drect(int x,int y,int w,int h,int raised) {
@@ -56,23 +60,29 @@ static void draw_taskbar(void) {
 }
 
 static void draw_menu(void) {
-    int menu_w = 120;
-    int menu_h = (APP_COUNT+1)*16 + 4;
+    int menu_h = (APP_COUNT * MENU_ITEM_HEIGHT) + MENU_ITEM_HEIGHT + 4;
     int mx = 0;
-    int my = height-TASKBAR_HEIGHT-menu_h;
+    int my = height - TASKBAR_HEIGHT - menu_h;
 
+    // Background
     GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
-    GrFillRect(win,gc_bar,mx,my,menu_w,menu_h);
-    draw3drect(mx,my,menu_w,menu_h,1);
+    GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
+    draw3drect(mx,my,MENU_WIDTH,menu_h,1);
 
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
+
+    // App items
     int y = my + 4;
-    for(int i=0;i<APP_COUNT;i++) {
-        GrText(win,gc_text,4,y,(void *)apps[i],strlen(apps[i]),GR_TFASCII|GR_TFTOP);
-        y+=16;
+    for(int i = 0; i < APP_COUNT; i++) {
+        GrText(win,gc_text,4,y,(void*)apps[i],strlen(apps[i]),GR_TFASCII|GR_TFTOP);
+        y += MENU_ITEM_HEIGHT;
     }
-    GrLine(win,gc_text,mx+2,y,mx+menu_w-2,y);
-    y+=4;
+
+    // Separator
+    GrLine(win,gc_text,mx+2,y,mx+MENU_WIDTH-2,y);
+    y += 4;
+
+    // Exit item (same height as normal items)
     GrText(win,gc_text,4,y,"Exit",4,GR_TFASCII|GR_TFTOP);
 }
 
@@ -96,7 +106,7 @@ int main(void) {
 
     signal(SIGCHLD, reaper);
 
-    if (GrOpen() < 0) {
+    if(GrOpen() < 0) {
         fprintf(stderr,"Cannot open Nano-X\n");
         return 1;
     }
@@ -106,12 +116,17 @@ int main(void) {
     width = sinfo.cols;
     height = sinfo.rows;
 
-    win = GrNewWindowEx(GR_WM_PROPS_NODECORATE,"stmenu",GR_ROOT_WINDOW_ID,0,0,width,height,GR_COLOR_LIGHTSKYBLUE);
+    win = GrNewWindowEx(GR_WM_PROPS_NODECORATE,"stmenu",
+                        GR_ROOT_WINDOW_ID,0,0,width,height,
+                        GR_COLOR_LIGHTSKYBLUE);
 
     gc_bar = GrNewGC();
     gc_text = GrNewGC();
 
-    GrSelectEvents(win, GR_EVENT_MASK_EXPOSURE|GR_EVENT_MASK_BUTTON_DOWN|GR_EVENT_MASK_BUTTON_UP|GR_EVENT_MASK_CLOSE_REQ);
+    GrSelectEvents(win, GR_EVENT_MASK_EXPOSURE |
+                        GR_EVENT_MASK_BUTTON_DOWN |
+                        GR_EVENT_MASK_BUTTON_UP |
+                        GR_EVENT_MASK_CLOSE_REQ);
     GrMapWindow(win);
 
     draw_taskbar();
@@ -119,6 +134,10 @@ int main(void) {
 
     for(;;) {
         GrGetNextEvent(&ev);
+
+        int menu_h = (APP_COUNT * MENU_ITEM_HEIGHT) + MENU_ITEM_HEIGHT + 4;
+        int mx = 0;
+        int my = height - TASKBAR_HEIGHT - menu_h;
 
         switch(ev.type) {
             case GR_EVENT_TYPE_EXPOSURE:
@@ -129,57 +148,64 @@ int main(void) {
 
             case GR_EVENT_TYPE_BUTTON_DOWN:
             {
-                int mx = 0;
-                int my = height-TASKBAR_HEIGHT-(APP_COUNT+1)*16-4;
-                int start_btn = in_rect(ev.button.x, ev.button.y, 0, height-TASKBAR_HEIGHT, START_WIDTH, TASKBAR_HEIGHT);
-                int clicked_in_menu = menu_open && in_rect(ev.button.x, ev.button.y, mx, my, 120, (APP_COUNT+1)*16+4);
+                int start_btn = in_rect(ev.button.x, ev.button.y,
+                                        0, height-TASKBAR_HEIGHT,
+                                        START_WIDTH, TASKBAR_HEIGHT);
+
+                int clicked_menu = menu_open &&
+                    in_rect(ev.button.x, ev.button.y, mx, my, MENU_WIDTH, menu_h);
 
                 if(start_btn) {
                     menu_open = !menu_open;
 
-                    if(menu_open) {
+                    if(menu_open)
                         draw_menu();
-                    } else {
-                        int menu_h = (APP_COUNT+1)*16 + 4;
+                    else {
                         GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                        GrFillRect(win, gc_bar, mx, my, 120, menu_h);
+                        GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
                     }
 
                     draw_taskbar();
                     draw_clock();
                 }
-                else if(clicked_in_menu) {
+                else if(clicked_menu) {
+                    // Apps
                     for(int i=0;i<APP_COUNT;i++) {
-                        if(in_rect(ev.button.x, ev.button.y, mx, my+i*16, 120,16)) {
+                        if(in_rect(ev.button.x,ev.button.y,
+                                   mx, my + i*MENU_ITEM_HEIGHT,
+                                   MENU_WIDTH, MENU_ITEM_HEIGHT)) {
+
                             char cmd[64];
                             snprintf(cmd,sizeof(cmd),APP_PATH "%s",apps[i]);
-                            if(fork() == 0) {
-                                execl(cmd, cmd, NULL);
+                            if(fork()==0) {
+                                execl(cmd,cmd,NULL);
                                 _exit(1);
                             }
-                            // Close menu after launching app
+
                             menu_open = 0;
-                            int menu_h = (APP_COUNT+1)*16 + 4;
                             GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                            GrFillRect(win, gc_bar, mx, my, 120, menu_h);
+                            GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
+                            draw_taskbar();
+                            draw_clock();
                             break;
                         }
                     }
-                    // Check if Exit clicked
-                    if(in_rect(ev.button.x, ev.button.y, mx, my+APP_COUNT*16+4, 120,16)) {
+
+                    // Exit item
+                    if(in_rect(ev.button.x,ev.button.y,
+                               mx, my + APP_COUNT*MENU_ITEM_HEIGHT + 4,
+                               MENU_WIDTH, MENU_ITEM_HEIGHT)) {
+
                         GrClose();
                         return 0;
                     }
-                    draw_taskbar();
-                    draw_clock();
+
                 }
                 else {
-                    // Click outside menu closes it
                     if(menu_open) {
                         menu_open = 0;
-                        int menu_h = (APP_COUNT+1)*16 + 4;
                         GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                        GrFillRect(win, gc_bar, mx, my, 120, menu_h);
+                        GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
                         draw_taskbar();
                         draw_clock();
                     }
@@ -192,7 +218,7 @@ int main(void) {
                 return 0;
         }
 
-        // Update clock every minute
+        // Clock refresh each minute
         time_t now = time(NULL);
         if(now != last_clock) {
             draw_clock();

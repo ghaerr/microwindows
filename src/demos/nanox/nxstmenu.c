@@ -2,6 +2,14 @@
 
 A Windows 95 like start menu for ELKS and Nano-X 
 
+TODO:
+  - add more nxapps to start
+  - add proper exit
+  - add free/total conventional memory in taskbar
+  - improve colors
+  - add commands such as: Halt, Restart
+  - add message bar or busy mouse pointer
+
 */
 
 #include <stdio.h>
@@ -13,6 +21,7 @@ A Windows 95 like start menu for ELKS and Nano-X
 #include <sys/wait.h>
 #include "nano-X.h"
 #include "nxcolors.h"
+#include "tools.h"
 
 #define TASKBAR_HEIGHT        24
 #define START_WIDTH           40
@@ -24,7 +33,7 @@ A Windows 95 like start menu for ELKS and Nano-X
 
 #define APP_PATH "/bin/"
 
-const char *apps[] = { "nxcalc", "nxclock", "nxstart", "nxmine" };
+const char *apps[] = { "nxcalc", "nxclock", "nxmine", "nxterm", "nxtetris", "nxworld" };
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 
 static GR_WINDOW_ID win;

@@ -49,5 +49,55 @@ static int force_close(int pid)
     }
 }
 
+/*
+ * get_free_total_memory:
+ * Runs `meminfo -b` and parses the "Memory usage" line.
+ *
+ * Returns:
+ *   0 success
+ *  -1 failure
+ */
+static int get_free_total_memory(unsigned int *kb_free, unsigned int *kb_total)
+{
+    FILE *fp;
+    char line[160];
+
+    if (!kb_free || !kb_total)
+        return -1;
+
+    fp = popen("meminfo -b", "r");
+    if (!fp)
+        return -1;
+
+    /* Initialize outputs */
+    *kb_free = 0;
+    *kb_total = 0;
+
+    while (fgets(line, sizeof(line), fp)) {
+
+        /* Look specifically for the summary line */
+        if (strncmp(line, "Memory usage", 12) == 0) {
+            /*
+             * Format example:
+             * Memory usage  494KB total,  163KB used,  331KB free
+             */
+            unsigned int total = 0, used = 0, free = 0;
+
+            if (sscanf(line,
+                       "Memory usage %uKB total, %uKB used, %uKB free",
+                       &total, &used, &free) == 3)
+            {
+                *kb_total = total;
+                *kb_free = free;
+                pclose(fp);
+                return 0;
+            }
+        }
+    }
+
+    pclose(fp);
+    return -1;
+}
+
 #endif /* TOOLS_H */
 

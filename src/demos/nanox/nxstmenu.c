@@ -25,7 +25,7 @@ TODO:
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
-#include <sys/wait.h>
+#include <fcntl.h>
 #include "nano-X.h"
 #include "nxcolors.h"
 #include "tools.h"
@@ -34,21 +34,30 @@ TODO:
 #define START_WIDTH           40
 #define CLOCK_WIDTH           40
 #define MENU_WIDTH            100
+#define MEMORY_WIDTH          80   /* Width of memory field */
 
 #define MENU_ITEM_HEIGHT      18
 #define MENU_ITEM_EXIT_HEIGHT 20
 
+#define ENABLE_MEMORY_USAGE   1   /* Set 1 to enable memory display */
 #define APP_PATH "/bin/"
 
 const char *apps[] = { "nxcalc", "nxclock", "nxmine", "nxterm", "nxtetris", "nxworld" };
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
-
 static GR_WINDOW_ID win;
 static GR_GC_ID gc_bar, gc_text;
 static int width, height;
 static int menu_open = 0;
 
-// Reap child processes
+#if ENABLE_MEMORY_USAGE
+static FILE *mem_fp = NULL;
+static int mem_pipe_fd = -1;
+static unsigned int mem_free = 0;
+static unsigned int mem_total = 0;
+static int mem_valid = 0;  /* only draw memory field if valid data recovered */
+#endif
+
+/* Reap child processes */
 static void reaper(int signum) { while(waitpid(-1,NULL,WNOHANG)>0); }
 
 static void draw3drect(int x,int y,int w,int h,int raised) {
@@ -74,6 +83,10 @@ static void draw_taskbar(void) {
 
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
     GrText(win,gc_text,8,height-TASKBAR_HEIGHT+6,"Start",5,GR_TFASCII|GR_TFTOP);
+
+#if ENABLE_MEMORY_USAGE
+    draw_memory_field();
+#endif
 
     int cx = width - CLOCK_WIDTH;
     GrFillRect(win,gc_bar,cx,height-TASKBAR_HEIGHT,CLOCK_WIDTH,TASKBAR_HEIGHT);
@@ -122,9 +135,67 @@ static int in_rect(int x,int y,int rx,int ry,int rw,int rh) {
     return (x>=rx && x<rx+rw && y>=ry && y<ry+rh);
 }
 
+#if ENABLE_MEMORY_USAGE
+/* --- Memory field functions --- */
+static void update_memory_start(void)
+{
+    if(mem_fp) { pclose(mem_fp); mem_fp = NULL; }
+
+    mem_fp = popen("meminfo -b", "r");
+    if(!mem_fp) return;
+
+    mem_pipe_fd = fileno(mem_fp);
+    fcntl(mem_pipe_fd, F_SETFL, O_NONBLOCK);
+}
+
+static void update_memory_poll(void)
+{
+    if(!mem_fp) return;
+
+    char line[160];
+    while(fgets(line,sizeof(line),mem_fp)) {
+        if(strncmp(line,"Memory usage",12)==0) {
+            unsigned int total=0, used=0, free=0;
+            if(sscanf(line,"Memory usage %uKB total, %uKB used, %uKB free",
+                      &total, &used, &free) == 3) {
+                mem_free = free;
+                mem_total = total;
+                mem_valid = 1;  /* data is valid */
+                break;
+            }
+        }
+    }
+
+    if(feof(mem_fp)) {
+        pclose(mem_fp);
+        mem_fp = NULL;
+        mem_pipe_fd = -1;
+    }
+}
+
+static void draw_memory_field(void)
+{
+    if(!mem_valid) return;  /* draw only if valid data recovered */
+
+    int mx = width - CLOCK_WIDTH - MEMORY_WIDTH;
+    char buf[32];
+    snprintf(buf,sizeof(buf),"%u / %u KB", mem_free, mem_total);
+
+    GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
+    GrFillRect(win,gc_bar,mx,height-TASKBAR_HEIGHT,MEMORY_WIDTH,TASKBAR_HEIGHT);
+    draw3drect(mx,height-TASKBAR_HEIGHT,MEMORY_WIDTH,TASKBAR_HEIGHT,1);
+
+    GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
+    GrText(win,gc_text,mx+6,height-TASKBAR_HEIGHT+6,buf,strlen(buf),GR_TFASCII|GR_TFTOP);
+}
+#endif
+
 int main(void) {
     GR_EVENT ev;
     time_t last_clock = 0;
+#if ENABLE_MEMORY_USAGE
+    time_t last_mem = 0;
+#endif
 
     signal(SIGCHLD, reaper);
 
@@ -154,6 +225,9 @@ int main(void) {
 
     draw_taskbar();
     draw_clock();
+#if ENABLE_MEMORY_USAGE
+    update_memory_start();
+#endif
 
     for(;;) {
         GrGetNextEvent(&ev);
@@ -164,6 +238,9 @@ int main(void) {
             draw_taskbar();
             if(menu_open) draw_menu();
             draw_clock();
+#if ENABLE_MEMORY_USAGE
+            draw_memory_field();
+#endif
             break;
 
         case GR_EVENT_TYPE_BUTTON_DOWN: {
@@ -196,6 +273,9 @@ int main(void) {
 
                 draw_taskbar();
                 draw_clock();
+#if ENABLE_MEMORY_USAGE
+                draw_memory_field();
+#endif
             }
             else if(clicked_menu) {
 
@@ -234,6 +314,9 @@ int main(void) {
 
                 draw_taskbar();
                 draw_clock();
+#if ENABLE_MEMORY_USAGE
+                draw_memory_field();
+#endif
             }
             else {
                 if(menu_open) {
@@ -243,6 +326,9 @@ int main(void) {
 
                     draw_taskbar();
                     draw_clock();
+#if ENABLE_MEMORY_USAGE
+                    draw_memory_field();
+#endif
                 }
             }
         }
@@ -254,13 +340,25 @@ int main(void) {
         }
 
         time_t now = time(NULL);
+
+        /* Update clock every second */
         if(now != last_clock) {
             draw_clock();
             last_clock = now;
         }
+
+#if ENABLE_MEMORY_USAGE
+        /* Update memory every 12 seconds */
+        if(now - last_mem >= 12) {
+            update_memory_start();
+            last_mem = now;
+        }
+
+        update_memory_poll();
+        draw_memory_field();
+#endif
     }
 
     GrClose();
     return 0;
 }
-

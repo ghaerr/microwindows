@@ -40,7 +40,7 @@ TODO:
 #define MENU_ITEM_HEIGHT      18
 #define MENU_ITEM_EXIT_HEIGHT 20
 
-#define ENABLE_MEMORY_USAGE   1   /* Set 1 to enable memory display */
+#define ENABLE_MEMORY_USAGE   0   /* Set 1 to enable memory display */
 #define APP_PATH "/bin/"
 
 const char *apps[] = { "nxcalc", "nxclock", "nxmine", "nxterm", "nxtetris", "nxworld" };
@@ -56,6 +56,9 @@ static int mem_pipe_fd = -1;
 static unsigned int mem_free = 0;
 static unsigned int mem_total = 0;
 static int mem_valid = 0;  /* only draw memory field if valid data recovered */
+/* Only redraw memory if values changed */
+static unsigned int prev_mem_free = 0;
+static unsigned int prev_mem_total = 0;
 #endif
 
 /* Reap child processes */
@@ -357,10 +360,6 @@ if(now - last_mem >= 12) {
     update_memory_start();
     last_mem = now;
 }
-
-/* Only redraw memory if values changed */
-static unsigned int prev_mem_free = 0;
-static unsigned int prev_mem_total = 0;
 
 update_memory_poll();
 

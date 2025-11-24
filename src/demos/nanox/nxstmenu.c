@@ -89,10 +89,6 @@ static void draw_taskbar(void) {
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
     GrText(win,gc_text,8,height-TASKBAR_HEIGHT+6,"Start",5,GR_TFASCII|GR_TFTOP);
 
-#if ENABLE_MEMORY_USAGE
-    // draw_memory_field() will be called separately only when needed
-#endif
-
     int cx = width - CLOCK_WIDTH;
     GrFillRect(win,gc_bar,cx,height-TASKBAR_HEIGHT,CLOCK_WIDTH,TASKBAR_HEIGHT);
     draw3drect(cx,height-TASKBAR_HEIGHT,CLOCK_WIDTH,TASKBAR_HEIGHT,1);
@@ -184,7 +180,7 @@ static void update_memory_poll(void)
 
 static void draw_memory_field(void)
 {
-    if(!mem_valid) return;  /* draw only if valid data recovered */
+    //if(!mem_valid) return;  /* draw only if valid data recovered */
 
     int mx = width - CLOCK_WIDTH - MEMORY_WIDTH;
     char buf[32];
@@ -348,21 +344,32 @@ int main(void) {
             return 0;
         }
 
-        time_t now = time(NULL);
-        if(now != last_clock) {
-            draw_clock();
-            last_clock = now;
-        }
+time_t now = time(NULL);
+if(now - last_clock >= 10) {
+    draw_clock();
+    last_clock = now;
+}
 
 #if ENABLE_MEMORY_USAGE
-        /* Update memory usage every 12 seconds */
-        if(now - last_mem >= 12) {
-            update_memory_start();
-            last_mem = now;
-        }
 
-        update_memory_poll();
-        draw_memory_field();
+/* Update memory usage every 12 seconds */
+if(now - last_mem >= 12) {
+    update_memory_start();
+    last_mem = now;
+}
+
+/* Only redraw memory if values changed */
+static unsigned int prev_mem_free = 0;
+static unsigned int prev_mem_total = 0;
+
+update_memory_poll();
+
+if(mem_valid && (mem_free != prev_mem_free || mem_total != prev_mem_total)) {
+    draw_memory_field();
+    prev_mem_free = mem_free;
+    prev_mem_total = mem_total;
+}
+
 #endif
     }
 

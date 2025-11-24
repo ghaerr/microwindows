@@ -26,9 +26,10 @@ TODO:
 #include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 #include "nano-X.h"
 #include "nxcolors.h"
-#include "tools.h"
+//#include "tools.h"
 
 #define TASKBAR_HEIGHT        24
 #define START_WIDTH           40
@@ -55,10 +56,19 @@ static int mem_pipe_fd = -1;
 static unsigned int mem_free = 0;
 static unsigned int mem_total = 0;
 static int mem_valid = 0;  /* only draw memory field if valid data recovered */
+#if ENABLE_MEMORY_USAGE
+static void draw_memory_field(void);
+#endif
 #endif
 
 /* Reap child processes */
-static void reaper(int signum) { while(waitpid(-1,NULL,WNOHANG)>0); }
+static void reaper(int signum)
+{
+    (void)signum;
+    /* ELKS only supports wait(), no waitpid/WNOHANG */
+    while (wait(NULL) > 0)
+        ;
+}
 
 static void draw3drect(int x,int y,int w,int h,int raised) {
     GrSetGCForeground(gc_bar, raised ? GrGetSysColor(GR_COLOR_WINDOW) 

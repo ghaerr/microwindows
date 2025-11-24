@@ -4,13 +4,15 @@ A Windows 95 like start menu for ELKS and Nano-X
 
 TODO:
   V1:
-   - add proper exit
-   - add free/total conventional memory in taskbar
    - improve colors
    - rename to nxdsktop
    - add commands such as: Halt, Restart
    - add About section with MessageBox
   V2:
+   - add proper exit - this app, all other nxapp and the Nano-X server
+   - add free/total conventional memory in taskbar
+   - Improve 3D feel
+  V3:
    - add message bar or busy mouse pointer
    - add menu item hoover (blue background, white text)
    - add "themes" from a config file 

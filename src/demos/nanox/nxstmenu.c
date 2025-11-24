@@ -29,7 +29,7 @@ TODO:
 #include <sys/wait.h>
 #include "nano-X.h"
 #include "nxcolors.h"
-//#include "tools.h"
+
 
 #define TASKBAR_HEIGHT        24
 #define START_WIDTH           40
@@ -56,18 +56,14 @@ static int mem_pipe_fd = -1;
 static unsigned int mem_free = 0;
 static unsigned int mem_total = 0;
 static int mem_valid = 0;  /* only draw memory field if valid data recovered */
-#if ENABLE_MEMORY_USAGE
-static void draw_memory_field(void);
-#endif
 #endif
 
 /* Reap child processes */
 static void reaper(int signum)
 {
     (void)signum;
-    wait(NULL);   /* ELKS-safe: does NOT loop */
+    wait(NULL);  /* ELKS safe */
 }
-
 
 static void draw3drect(int x,int y,int w,int h,int raised) {
     GrSetGCForeground(gc_bar, raised ? GrGetSysColor(GR_COLOR_WINDOW) 
@@ -94,7 +90,7 @@ static void draw_taskbar(void) {
     GrText(win,gc_text,8,height-TASKBAR_HEIGHT+6,"Start",5,GR_TFASCII|GR_TFTOP);
 
 #if ENABLE_MEMORY_USAGE
-    draw_memory_field();
+    // draw_memory_field() will be called separately only when needed
 #endif
 
     int cx = width - CLOCK_WIDTH;
@@ -159,43 +155,31 @@ static void update_memory_start(void)
 
 static void update_memory_poll(void)
 {
-    FILE *fp;
+    if(!mem_fp) return;
+
     char line[160];
+    while(fgets(line,sizeof(line),mem_fp)) {
 
-    mem_valid = 0;
-    mem_total = 0;
-    mem_free  = 0;
-
-    fp = popen("/bin/meminfo -b", "r");
-    if (!fp)
-        return;
-
-    while (fgets(line, sizeof(line), fp)) {
-
-        /* Skip leading whitespace before checking for "Main" */
+        /* skip leading spaces */
         char *p = line;
-        while (*p == ' ' || *p == '\t')
-            p++;
+        while (*p == ' ' || *p == '\t') p++;
 
-        /* Now test line after removing leading spaces */
-        if (strncmp(p, "Main ", 5) == 0) {
-
-            unsigned int used = 0, total = 0, freec = 0;
-
-            if (sscanf(p,
-                       "Main %u/%uK used, %uK free",
-                       &used, &total, &freec) == 3)
-            {
-                mem_total = total;   /* 545 */
-                mem_free  = freec;   /* 442 */
-                mem_valid = 1;
+        if(strncmp(p,"Main ",5)==0) {
+            unsigned int used=0, total=0, freec=0;
+            if(sscanf(p,"Main %u/%uK used, %uK free",&used,&total,&freec)==3) {
+                mem_total = total;
+                mem_free  = freec;
+                mem_valid = 1;  /* data is valid */
             }
-
             break;
         }
     }
 
-    pclose(fp);
+    if(feof(mem_fp)) {
+        pclose(mem_fp);
+        mem_fp = NULL;
+        mem_pipe_fd = -1;
+    }
 }
 
 static void draw_memory_field(void)
@@ -222,10 +206,14 @@ int main(void) {
     time_t last_mem = 0;
 #endif
 
+    int redraw_taskbar_flag = 1;
+    int redraw_clock_flag = 1;
+    int redraw_mem_flag   = 1;
+
     signal(SIGCHLD, reaper);
 
-    if(GrOpen() < 0) {
-        fprintf(stderr,"Cannot open Nano-X\n");
+    if (GrOpen() < 0) {
+        fprintf(stderr, "Cannot open Nano-X\n");
         return 1;
     }
 
@@ -234,17 +222,17 @@ int main(void) {
     width = sinfo.cols;
     height = sinfo.rows;
 
-    win = GrNewWindowEx(GR_WM_PROPS_NODECORATE,"stmenu",
-                        GR_ROOT_WINDOW_ID,0,0,width,height,
+    win = GrNewWindowEx(GR_WM_PROPS_NODECORATE, "stmenu",
+                        GR_ROOT_WINDOW_ID, 0, 0, width, height,
                         GR_COLOR_LIGHTSKYBLUE);
 
     gc_bar  = GrNewGC();
     gc_text = GrNewGC();
 
     GrSelectEvents(win, GR_EVENT_MASK_EXPOSURE |
-                        GR_EVENT_MASK_BUTTON_DOWN |
-                        GR_EVENT_MASK_BUTTON_UP |
-                        GR_EVENT_MASK_CLOSE_REQ);
+                         GR_EVENT_MASK_BUTTON_DOWN |
+                         GR_EVENT_MASK_BUTTON_UP |
+                         GR_EVENT_MASK_CLOSE_REQ);
 
     GrMapWindow(win);
 
@@ -254,136 +242,129 @@ int main(void) {
     update_memory_start();
 #endif
 
-    for(;;) {
+    for (;;) {
+        // Wait for the next event (blocks)
         GrGetNextEvent(&ev);
-
-        switch(ev.type) {
-
-        case GR_EVENT_TYPE_EXPOSURE:
-            draw_taskbar();
-            if(menu_open) draw_menu();
-            draw_clock();
-#if ENABLE_MEMORY_USAGE
-            draw_memory_field();
-#endif
-            break;
-
-        case GR_EVENT_TYPE_BUTTON_DOWN: {
-            int mx = 0;
-            int menu_h =
-                (APP_COUNT * MENU_ITEM_HEIGHT) +
-                MENU_ITEM_EXIT_HEIGHT +
-                4;
-
-            int my = height - TASKBAR_HEIGHT - menu_h;
-
-            int start_btn = in_rect(ev.button.x, ev.button.y,
-                                    0, height-TASKBAR_HEIGHT,
-                                    START_WIDTH, TASKBAR_HEIGHT);
-
-            int clicked_menu =
-                menu_open &&
-                in_rect(ev.button.x, ev.button.y,
-                        mx, my, MENU_WIDTH, menu_h);
-
-            if(start_btn) {
-                menu_open = !menu_open;
-
-                if(menu_open) {
-                    draw_menu();
-                } else {
-                    GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                    GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-                }
-
-                draw_taskbar();
-                draw_clock();
-#if ENABLE_MEMORY_USAGE
-                draw_memory_field();
-#endif
-            }
-            else if(clicked_menu) {
-
-                for(int i=0;i<APP_COUNT;i++) {
-                    if(in_rect(ev.button.x, ev.button.y,
-                               mx,
-                               my + (i * MENU_ITEM_HEIGHT),
-                               MENU_WIDTH,
-                               MENU_ITEM_HEIGHT))
-                    {
-                        char cmd[64];
-                        snprintf(cmd,sizeof(cmd),APP_PATH "%s",apps[i]);
-
-                        if(fork()==0) {
-                            execl(cmd, cmd, NULL);
-                            _exit(1);
-                        }
-
-                        menu_open = 0;
-                        GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                        GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-                        break;
-                    }
-                }
-
-                /* EXIT item click */
-                if(in_rect(ev.button.x, ev.button.y,
-                           mx,
-                           my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
-                           MENU_WIDTH,
-                           MENU_ITEM_EXIT_HEIGHT))
-                {
-                    GrClose();
-                    return 0;
-                }
-
-                draw_taskbar();
-                draw_clock();
-#if ENABLE_MEMORY_USAGE
-                draw_memory_field();
-#endif
-            }
-            else {
-                if(menu_open) {
-                    menu_open = 0;
-                    GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                    GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-
-                    draw_taskbar();
-                    draw_clock();
-#if ENABLE_MEMORY_USAGE
-                    draw_memory_field();
-#endif
-                }
-            }
-        }
-        break;
-
-        case GR_EVENT_TYPE_CLOSE_REQ:
-            GrClose();
-            return 0;
-        }
 
         time_t now = time(NULL);
 
-        /* Update clock every second */
-        if(now != last_clock) {
-            draw_clock();
+        // Handle events
+        switch (ev.type) {
+            case GR_EVENT_TYPE_EXPOSURE:
+                redraw_taskbar_flag = 1;
+                break;
+
+            case GR_EVENT_TYPE_BUTTON_DOWN: {
+                int mx = 0;
+                int menu_h =
+                    (APP_COUNT * MENU_ITEM_HEIGHT) +
+                    MENU_ITEM_EXIT_HEIGHT +
+                    4;
+
+                int my = height - TASKBAR_HEIGHT - menu_h;
+
+                int start_btn = in_rect(ev.button.x, ev.button.y,
+                                        0, height-TASKBAR_HEIGHT,
+                                        START_WIDTH, TASKBAR_HEIGHT);
+
+                int clicked_menu =
+                    menu_open &&
+                    in_rect(ev.button.x, ev.button.y,
+                            mx, my, MENU_WIDTH, menu_h);
+
+                if (start_btn) {
+                    menu_open = !menu_open;
+                    redraw_taskbar_flag = 1;
+                }
+                else if (clicked_menu) {
+                    for (int i = 0; i < APP_COUNT; i++) {
+                        if (in_rect(ev.button.x, ev.button.y,
+                                    mx,
+                                    my + (i * MENU_ITEM_HEIGHT),
+                                    MENU_WIDTH,
+                                    MENU_ITEM_HEIGHT))
+                        {
+                            char cmd[64];
+                            snprintf(cmd, sizeof(cmd), APP_PATH "%s", apps[i]);
+
+                            if (fork() == 0) {
+                                execl(cmd, cmd, NULL);
+                                _exit(1);
+                            }
+
+                            menu_open = 0;
+                            redraw_taskbar_flag = 1;
+                            break;
+                        }
+                    }
+
+                    // EXIT item
+                    if (in_rect(ev.button.x, ev.button.y,
+                                mx,
+                                my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
+                                MENU_WIDTH,
+                                MENU_ITEM_EXIT_HEIGHT))
+                    {
+                        GrClose();
+                        return 0;
+                    }
+                }
+                else {
+                    if (menu_open) {
+                        menu_open = 0;
+                        redraw_taskbar_flag = 1;
+                    }
+                }
+            } break;
+
+            case GR_EVENT_TYPE_CLOSE_REQ:
+                GrClose();
+                return 0;
+        }
+
+        // Update clock every second
+        if (now != last_clock) {
             last_clock = now;
+            redraw_clock_flag = 1;
         }
 
 #if ENABLE_MEMORY_USAGE
-        /* Update memory every 12 seconds */
-        if(now - last_mem >= 12) {
+        // Update memory every 12 seconds
+        if (now - last_mem >= 12) {
             update_memory_start();
             last_mem = now;
         }
 
+        int prev_mem = mem_free;
         update_memory_poll();
-        draw_memory_field();
+        if (mem_valid && mem_free != prev_mem)
+            redraw_mem_flag = 1;
 #endif
+
+        // Redraw as needed
+        if (redraw_taskbar_flag) {
+            draw_taskbar();
+            redraw_taskbar_flag = 0;
+            if (menu_open) draw_menu();
+        }
+
+        if (redraw_clock_flag) {
+            draw_clock();
+            redraw_clock_flag = 0;
+        }
+
+#if ENABLE_MEMORY_USAGE
+        if (redraw_mem_flag) {
+            draw_memory_field();
+            redraw_mem_flag = 0;
+        }
+#endif
+
+        // Yield CPU briefly for slow machines
+        usleep(5000); // 5 ms
     }
 
     GrClose();
     return 0;
 }
+

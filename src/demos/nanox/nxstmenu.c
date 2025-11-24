@@ -65,10 +65,9 @@ static void draw_memory_field(void);
 static void reaper(int signum)
 {
     (void)signum;
-    /* ELKS only supports wait(), no waitpid/WNOHANG */
-    while (wait(NULL) > 0)
-        ;
+    wait(NULL);   /* ELKS-safe: does NOT loop */
 }
+
 
 static void draw3drect(int x,int y,int w,int h,int raised) {
     GrSetGCForeground(gc_bar, raised ? GrGetSysColor(GR_COLOR_WINDOW) 
@@ -160,27 +159,43 @@ static void update_memory_start(void)
 
 static void update_memory_poll(void)
 {
-    if(!mem_fp) return;
-
+    FILE *fp;
     char line[160];
-    while(fgets(line,sizeof(line),mem_fp)) {
-        if(strncmp(line,"Memory usage",12)==0) {
-            unsigned int total=0, used=0, free=0;
-            if(sscanf(line,"Memory usage %uKB total, %uKB used, %uKB free",
-                      &total, &used, &free) == 3) {
-                mem_free = free;
-                mem_total = total;
-                mem_valid = 1;  /* data is valid */
-                break;
+
+    mem_valid = 0;
+    mem_total = 0;
+    mem_free  = 0;
+
+    fp = popen("/bin/meminfo -b", "r");
+    if (!fp)
+        return;
+
+    while (fgets(line, sizeof(line), fp)) {
+
+        /* Skip leading whitespace before checking for "Main" */
+        char *p = line;
+        while (*p == ' ' || *p == '\t')
+            p++;
+
+        /* Now test line after removing leading spaces */
+        if (strncmp(p, "Main ", 5) == 0) {
+
+            unsigned int used = 0, total = 0, freec = 0;
+
+            if (sscanf(p,
+                       "Main %u/%uK used, %uK free",
+                       &used, &total, &freec) == 3)
+            {
+                mem_total = total;   /* 545 */
+                mem_free  = freec;   /* 442 */
+                mem_valid = 1;
             }
+
+            break;
         }
     }
 
-    if(feof(mem_fp)) {
-        pclose(mem_fp);
-        mem_fp = NULL;
-        mem_pipe_fd = -1;
-    }
+    pclose(fp);
 }
 
 static void draw_memory_field(void)

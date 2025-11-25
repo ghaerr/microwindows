@@ -31,75 +31,96 @@ TODO:
 #include "nxcolors.h"
 
 
+/* ===== TEXT BASELINE FIX ===== */
+/* Menu has 4 px padding → +10 is correct.
+   Taskbar has no padding → needs +15. */
+#define TEXT_Y_OFFSET_MENU     10
+#define TEXT_Y_OFFSET_TASKBAR  15
+
+
+/* ===== UI CONSTANTS ===== */
 #define TASKBAR_HEIGHT        24
 #define START_WIDTH           40
 #define CLOCK_WIDTH           40
-#define MENU_WIDTH            100
-#define MEMORY_WIDTH          80   /* Width of memory field */
+#define MEMORY_WIDTH          80
+#define STATUS_WIDTH          (CLOCK_WIDTH + MEMORY_WIDTH)
 
+#define MENU_WIDTH            100
 #define MENU_ITEM_HEIGHT      18
 #define MENU_ITEM_EXIT_HEIGHT 20
 
-#define ENABLE_MEMORY_USAGE   1   /* Set 1 to enable memory display */
+#define ENABLE_MEMORY_USAGE   1
 #define APP_PATH "/bin/"
 
-const char *apps[] = { "nxcalc", "nxclock", "nxmine", "nxterm", "nxtetris", "nxworld" };
+const char *apps[] =
+    { "nxcalc","nxclock","nxmine","nxterm","nxtetris","nxworld" };
+
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
+
+
+/* ===== GLOBALS ===== */
 static GR_WINDOW_ID win;
 static GR_GC_ID gc_bar, gc_text;
 static int width, height;
 static int menu_open = 0;
 
 #if ENABLE_MEMORY_USAGE
-static FILE *mem_fp = NULL;
-static int mem_pipe_fd = -1;
 static unsigned int mem_free = 0;
 static unsigned int mem_total = 0;
-static int mem_valid = 0;  /* only draw memory field if valid data recovered */
-/* Only redraw memory if values changed */
-static unsigned int prev_mem_free = 0;
-static unsigned int prev_mem_total = 0;
+static int mem_valid = 0;
 #endif
 
-/* Reap child processes */
-static void reaper(int signum)
-{
-    (void)signum;
-    wait(NULL);  /* ELKS safe */
-}
 
-static void draw3drect(int x,int y,int w,int h,int raised) {
-    GrSetGCForeground(gc_bar, raised ? GrGetSysColor(GR_COLOR_WINDOW) 
-                                     : GrGetSysColor(GR_COLOR_BTNSHADOW));
+/* ===== CHILD REAPER ===== */
+static void reaper(int s) { (void)s; wait(NULL); }
+
+
+/* ===== DRAWING HELPERS ===== */
+static void draw3drect(int x,int y,int w,int h,int raised)
+{
+    GrSetGCForeground(gc_bar,
+         raised ? GrGetSysColor(GR_COLOR_WINDOW)
+                : GrGetSysColor(GR_COLOR_BTNSHADOW));
     GrLine(win,gc_bar,x,y,x+w-1,y);
     GrLine(win,gc_bar,x,y,x,y+h-1);
 
-    GrSetGCForeground(gc_bar, raised ? GrGetSysColor(GR_COLOR_BTNSHADOW)
-                                     : GrGetSysColor(GR_COLOR_WINDOW));
+    GrSetGCForeground(gc_bar,
+         raised ? GrGetSysColor(GR_COLOR_BTNSHADOW)
+                : GrGetSysColor(GR_COLOR_WINDOW));
     GrLine(win,gc_bar,x,y+h-1,x+w-1,y+h-1);
     GrLine(win,gc_bar,x+w-1,y,x+w-1,y+h-1);
 }
 
-static void draw_taskbar(void) {
+
+/* ===== TASKBAR ===== */
+static void draw_taskbar(void)
+{
+    /* Background */
     GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
     GrFillRect(win,gc_bar,0,height-TASKBAR_HEIGHT,width,TASKBAR_HEIGHT);
 
     draw3drect(0,height-TASKBAR_HEIGHT,width,4,1);
 
+    /* Start button area */
     GrFillRect(win,gc_bar,0,height-TASKBAR_HEIGHT,START_WIDTH,TASKBAR_HEIGHT);
     draw3drect(0,height-TASKBAR_HEIGHT,START_WIDTH,TASKBAR_HEIGHT,1);
 
+    /* Start text */
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
-    GrText(win,gc_text,8,height-TASKBAR_HEIGHT+6,"Start",5,GR_TFASCII|GR_TFTOP);
-
-    int cx = width - CLOCK_WIDTH;
-    GrFillRect(win,gc_bar,cx,height-TASKBAR_HEIGHT,CLOCK_WIDTH,TASKBAR_HEIGHT);
-    draw3drect(cx,height-TASKBAR_HEIGHT,CLOCK_WIDTH,TASKBAR_HEIGHT,1);
+    GrText(win,gc_text,
+           8,
+           height - TASKBAR_HEIGHT + TEXT_Y_OFFSET_TASKBAR,
+           "Start",5,GR_TFASCII);
 }
 
-static void draw_menu(void) {
+
+/* ===== MENU ===== */
+static void draw_menu(void)
+{
     int mx = 0;
-    int menu_h = (APP_COUNT * MENU_ITEM_HEIGHT) + MENU_ITEM_EXIT_HEIGHT + 4;
+    int menu_h = (APP_COUNT * MENU_ITEM_HEIGHT) +
+                 MENU_ITEM_EXIT_HEIGHT + 4;
+
     int my = height - TASKBAR_HEIGHT - menu_h;
 
     GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
@@ -108,114 +129,98 @@ static void draw_menu(void) {
 
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
 
-    int y = my + 4;
+    int y = my + 4 + TEXT_Y_OFFSET_MENU;
 
     for(int i = 0; i < APP_COUNT; i++) {
-        GrText(win, gc_text, 4, y, (void*)apps[i], strlen(apps[i]),
-               GR_TFASCII | GR_TFTOP);
+        GrText(win,gc_text,4,y,apps[i],strlen(apps[i]),GR_TFASCII);
         y += MENU_ITEM_HEIGHT;
     }
 
-    GrLine(win,gc_text,mx+2,y,mx+MENU_WIDTH-2,y);
+    GrLine(win,gc_text,mx+2,y-TEXT_Y_OFFSET_MENU,mx+MENU_WIDTH-2,y-TEXT_Y_OFFSET_MENU);
     y += 4;
 
-    GrText(win,gc_text,4,y,"Exit",4,GR_TFASCII | GR_TFTOP);
+    GrText(win,gc_text,4,y,"Exit",4,GR_TFASCII);
 }
 
-static void draw_clock(void) {
-    int cx = width - CLOCK_WIDTH;
-    time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
-    char buf[16];
 
-    snprintf(buf,sizeof(buf),"%02d:%02d",tm->tm_hour,tm->tm_min);
-
-    GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
-    GrText(win,gc_text,cx+6,height-TASKBAR_HEIGHT+6,
-           buf,strlen(buf),GR_TFASCII|GR_TFTOP);
-}
-
-static int in_rect(int x,int y,int rx,int ry,int rw,int rh) {
+/* ===== RECT CHECK ===== */
+static int in_rect(int x,int y,int rx,int ry,int rw,int rh)
+{
     return (x>=rx && x<rx+rw && y>=ry && y<ry+rh);
 }
 
+
+/* ===== MEMORY UPDATE ===== */
 #if ENABLE_MEMORY_USAGE
-/* --- Memory field functions --- */
-static void update_memory_start(void)
-{
-    /* If a previous pipe was still open, close it */
-    if (mem_fp) {
-        pclose(mem_fp);
-        mem_fp = NULL;
-    }
-
-    /* Start meminfo -b (short-lived command) */
-    mem_fp = popen("meminfo -b", "r");
-    if (!mem_fp)
-        return;
-
-    /* Keep fd (not used for polling anymore) */
-    mem_pipe_fd = fileno(mem_fp);
-}
-
-static void update_memory_poll(void)
+static void update_memory_now(void)
 {
     char line[160];
+    FILE *fp = popen("meminfo -b","r");
+    if(!fp) return;
 
-    if (!mem_fp)
-        return;
+    while (fgets(line,sizeof(line),fp)) {
+        char *p=line;
+        while(*p==' '||*p=='\t') p++;
 
-    /* We only need a single line: the "Main ..." line */
-    while (fgets(line, sizeof(line), mem_fp)) {
-
-        /* Skip leading spaces */
-        char *p = line;
-        while (*p == ' ' || *p == '\t')
-            p++;
-
-        if (strncmp(p, "Main ", 5) == 0) {
-            unsigned int used = 0, total = 0, freec = 0;
-
-            if (sscanf(p, "Main %u/%uK used, %uK free",
-                       &used, &total, &freec) == 3)
+        if (strncmp(p,"Main ",5)==0) {
+            unsigned int used,total,freec;
+            if (sscanf(p,"Main %u/%uK used, %uK free",
+                       &used,&total,&freec)==3)
             {
                 mem_total = total;
                 mem_free  = freec;
                 mem_valid = 1;
             }
-            break;  /* Done */
+            break;
         }
     }
-
-    /* meminfo has already exited → EOF reached → close always */
-    pclose(mem_fp);
-    mem_fp = NULL;
-    mem_pipe_fd = -1;
+    pclose(fp);
 }
+#endif
 
-static void draw_memory_field(void)
+
+/* ===== CLOCK + MEMORY STATUS FIELD ===== */
+static void draw_status_field(void)
 {
-    //if(!mem_valid) return;  /* draw only if valid data recovered */
+    int x = width - STATUS_WIDTH;
+    int y = height - TASKBAR_HEIGHT;
 
-    int mx = width - CLOCK_WIDTH - MEMORY_WIDTH;
-    char buf[32];
-    snprintf(buf,sizeof(buf),"%u / %u KB", mem_free, mem_total);
-
+    /* Background SAME AS TASKBAR */
     GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
-    GrFillRect(win,gc_bar,mx,height-TASKBAR_HEIGHT,MEMORY_WIDTH,TASKBAR_HEIGHT);
-    draw3drect(mx,height-TASKBAR_HEIGHT,MEMORY_WIDTH,TASKBAR_HEIGHT,1);
+    GrFillRect(win,gc_bar,x,y,STATUS_WIDTH,TASKBAR_HEIGHT);
 
-    GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
-    GrText(win,gc_text,mx+6,height-TASKBAR_HEIGHT+6,buf,strlen(buf),GR_TFASCII|GR_TFTOP);
-}
-#endif
+    /* Build combined text */
+    char buf[64];
 
-int main(void) {
-    GR_EVENT ev;
-    time_t last_clock = 0;
 #if ENABLE_MEMORY_USAGE
-    time_t last_mem = 0;
+    if(mem_valid)
+        snprintf(buf,sizeof(buf),"%u / %u KB  ", mem_free, mem_total);
+    else
+        snprintf(buf,sizeof(buf),"-- / -- KB  ");
+#else
+    snprintf(buf,sizeof(buf),"");
 #endif
+
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char clk[16];
+    snprintf(clk,sizeof(clk),"%02d:%02d",tm->tm_hour,tm->tm_min);
+    strcat(buf,clk);
+
+    /* Draw transparent text aligned properly */
+    GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
+    GrText(win,gc_text,
+           x + 6,
+           y + TEXT_Y_OFFSET_TASKBAR,
+           buf,strlen(buf),GR_TFASCII);
+}
+
+
+/* ===== MAIN LOOP ===== */
+int main(void)
+{
+    GR_EVENT ev;
+    time_t last_update = 0;
 
     signal(SIGCHLD, reaper);
 
@@ -224,177 +229,152 @@ int main(void) {
         return 1;
     }
 
-    GR_SCREEN_INFO sinfo;
-    GrGetScreenInfo(&sinfo);
-    width = sinfo.cols;
-    height = sinfo.rows;
+    GR_SCREEN_INFO si;
+    GrGetScreenInfo(&si);
+    width = si.cols;
+    height = si.rows;
 
     win = GrNewWindowEx(GR_WM_PROPS_NODECORATE,"stmenu",
-                        GR_ROOT_WINDOW_ID,0,0,width,height,
-                        GR_COLOR_LIGHTSKYBLUE);
+            GR_ROOT_WINDOW_ID,0,0,width,height,GR_COLOR_LIGHTSKYBLUE);
 
     gc_bar  = GrNewGC();
     gc_text = GrNewGC();
 
-    GrSelectEvents(win, GR_EVENT_MASK_EXPOSURE |
-                        GR_EVENT_MASK_BUTTON_DOWN |
-                        GR_EVENT_MASK_BUTTON_UP |
-                        GR_EVENT_MASK_CLOSE_REQ);
+    /* ===== FIX: Transparent text ===== */
+    GrSetGCUseBackground(gc_text, GR_FALSE);
+
+    GrSelectEvents(win,
+        GR_EVENT_MASK_EXPOSURE |
+        GR_EVENT_MASK_BUTTON_DOWN |
+        GR_EVENT_MASK_BUTTON_UP |
+        GR_EVENT_MASK_CLOSE_REQ);
 
     GrMapWindow(win);
 
+    /* Initial draw */
     draw_taskbar();
-    draw_clock();
 #if ENABLE_MEMORY_USAGE
-    update_memory_start();
+    update_memory_now();
 #endif
+    draw_status_field();
 
-for(;;) {
-    GrGetNextEvent(&ev);
 
-    switch(ev.type) {
+    /* ===== EVENT LOOP ===== */
+    for(;;)
+    {
+        GrGetNextEvent(&ev);
 
-    case GR_EVENT_TYPE_EXPOSURE:
-        draw_taskbar();
-        if(menu_open) draw_menu();
-        draw_clock();
-#if ENABLE_MEMORY_USAGE
-        if(!menu_open) //&& mem_valid
-            draw_memory_field();
-#endif
-        break;
+        switch(ev.type) {
 
-    case GR_EVENT_TYPE_BUTTON_DOWN: {
-        int mx = 0;
-        int menu_h =
-            (APP_COUNT * MENU_ITEM_HEIGHT) +
-            MENU_ITEM_EXIT_HEIGHT +
-            4;
-
-        int my = height - TASKBAR_HEIGHT - menu_h;
-
-        int start_btn = in_rect(ev.button.x, ev.button.y,
-                                0, height-TASKBAR_HEIGHT,
-                                START_WIDTH, TASKBAR_HEIGHT);
-
-        int clicked_menu =
-            menu_open &&
-            in_rect(ev.button.x, ev.button.y,
-                    mx, my, MENU_WIDTH, menu_h);
-
-        if(start_btn) {
-            menu_open = !menu_open;
-
-            if(menu_open) {
-                draw_menu();
-            } else {
-                GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-            }
-
+        case GR_EVENT_TYPE_EXPOSURE:
             draw_taskbar();
-            draw_clock();
-#if ENABLE_MEMORY_USAGE
-            if(!menu_open) //&& mem_valid
-                draw_memory_field();
-#endif
-        }
-        else if(clicked_menu) {
+            if(menu_open) draw_menu();
+            draw_status_field();
+            break;
 
-            for(int i=0;i<APP_COUNT;i++) {
-                if(in_rect(ev.button.x, ev.button.y,
-                           mx,
-                           my + (i * MENU_ITEM_HEIGHT),
-                           MENU_WIDTH,
-                           MENU_ITEM_HEIGHT))
-                {
-                    char cmd[64];
-                    snprintf(cmd,sizeof(cmd),APP_PATH "%s",apps[i]);
 
-                    if(fork()==0) {
-                        execl(cmd, cmd, NULL);
-                        _exit(1);
-                    }
+        case GR_EVENT_TYPE_BUTTON_DOWN: {
+            int mx = 0;
+            int menu_h =
+                (APP_COUNT * MENU_ITEM_HEIGHT) +
+                MENU_ITEM_EXIT_HEIGHT + 4;
 
-                    menu_open = 0;
-                    GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+            int my = height - TASKBAR_HEIGHT - menu_h;
+
+            int start_btn =
+                in_rect(ev.button.x,ev.button.y,
+                        0,height-TASKBAR_HEIGHT,
+                        START_WIDTH,TASKBAR_HEIGHT);
+
+            int clicked_menu =
+                menu_open &&
+                in_rect(ev.button.x,ev.button.y,
+                        mx,my,MENU_WIDTH,menu_h);
+
+
+            if(start_btn) {
+                menu_open = !menu_open;
+
+                if(menu_open)
+                    draw_menu();
+                else {
+                    GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
                     GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-                    break;
                 }
-            }
-
-            /* EXIT item click */
-            if(in_rect(ev.button.x, ev.button.y,
-                       mx,
-                       my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
-                       MENU_WIDTH,
-                       MENU_ITEM_EXIT_HEIGHT))
-            {
-                GrClose();
-                return 0;
-            }
-
-            draw_taskbar();
-            draw_clock();
-#if ENABLE_MEMORY_USAGE
-            if(!menu_open) //&& memvalid
-                draw_memory_field();
-#endif
-        }
-        else {
-            if(menu_open) {
-                menu_open = 0;
-                GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
 
                 draw_taskbar();
-                draw_clock();
-#if ENABLE_MEMORY_USAGE
-                if(!menu_open) //&& mem_valid
-                    draw_memory_field();
-#endif
+                draw_status_field();
+            }
+            else if(clicked_menu) {
+
+                for(int i=0;i<APP_COUNT;i++) {
+                    if(in_rect(ev.button.x,ev.button.y,
+                               mx,my+(i*MENU_ITEM_HEIGHT),
+                               MENU_WIDTH,MENU_ITEM_HEIGHT))
+                    {
+                        char cmd[64];
+                        snprintf(cmd,sizeof(cmd),
+                                 APP_PATH "%s",apps[i]);
+
+                        if(fork()==0) {
+                            execl(cmd,cmd,NULL);
+                            _exit(1);
+                        }
+
+                        menu_open = 0;
+
+                        GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
+                        GrFillRect(win,gc_bar,
+                                   mx,my,MENU_WIDTH,menu_h);
+
+                        break;
+                    }
+                }
+
+                /* Exit */
+                if(in_rect(ev.button.x,ev.button.y,
+                       mx,my+(APP_COUNT*MENU_ITEM_HEIGHT)+4,
+                       MENU_WIDTH,MENU_ITEM_EXIT_HEIGHT))
+                {
+                    GrClose();
+                    return 0;
+                }
+
+                draw_taskbar();
+                draw_status_field();
+            }
+            else {
+                if(menu_open) {
+                    menu_open = 0;
+
+                    GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
+                    GrFillRect(win,gc_bar,
+                               mx,my,MENU_WIDTH,menu_h);
+
+                    draw_taskbar();
+                    draw_status_field();
+                }
             }
         }
-    }
-    break;
+        break;
 
-    case GR_EVENT_TYPE_CLOSE_REQ:
-        GrClose();
-        return 0;
-    }
 
-    /* --- PERIODIC UPDATES --- */
-    time_t now = time(NULL);
+        case GR_EVENT_TYPE_CLOSE_REQ:
+            GrClose();
+            return 0;
+        }
 
-    /* Clock update every 10 seconds */
-    if(now - last_clock >= 10) {
-        draw_clock();
-        last_clock = now;
-    }
-
+        /* 10-second update */
+        time_t now = time(NULL);
+        if(now - last_update >= 10)
+        {
 #if ENABLE_MEMORY_USAGE
-    /* Always poll first (non-blocking) */
-    update_memory_poll();
-
-    /* Start a new meminfo read only when last finished */
-    if(mem_fp == NULL && now - last_mem >= 12) {
-        update_memory_start();
-        last_mem = now;
-    }
-
-    /* Redraw only when changed, and when memory field is visible */
-    if(//mem_valid &&
-       (mem_free != prev_mem_free || mem_total != prev_mem_total))
-    {
-        if(!menu_open)
-            draw_memory_field();
-
-        prev_mem_free = mem_free;
-        prev_mem_total = mem_total;
-    }
+            update_memory_now();
 #endif
-}
-
+            draw_status_field();
+            last_update = now;
+        }
+    }
 
     GrClose();
     return 0;

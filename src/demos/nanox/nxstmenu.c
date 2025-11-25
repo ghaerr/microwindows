@@ -40,7 +40,7 @@ TODO:
 #define MENU_ITEM_HEIGHT      18
 #define MENU_ITEM_EXIT_HEIGHT 20
 
-#define ENABLE_MEMORY_USAGE   0   /* Set 1 to enable memory display */
+#define ENABLE_MEMORY_USAGE   1   /* Set 1 to enable memory display */
 #define APP_PATH "/bin/"
 
 const char *apps[] = { "nxcalc", "nxclock", "nxmine", "nxterm", "nxtetris", "nxworld" };
@@ -143,42 +143,54 @@ static int in_rect(int x,int y,int rx,int ry,int rw,int rh) {
 /* --- Memory field functions --- */
 static void update_memory_start(void)
 {
-    if(mem_fp) { pclose(mem_fp); mem_fp = NULL; }
+    /* If a previous pipe was still open, close it */
+    if (mem_fp) {
+        pclose(mem_fp);
+        mem_fp = NULL;
+    }
 
+    /* Start meminfo -b (short-lived command) */
     mem_fp = popen("meminfo -b", "r");
-    if(!mem_fp) return;
+    if (!mem_fp)
+        return;
 
+    /* Keep fd (not used for polling anymore) */
     mem_pipe_fd = fileno(mem_fp);
-    fcntl(mem_pipe_fd, F_SETFL, O_NONBLOCK);
 }
 
 static void update_memory_poll(void)
 {
-    if(!mem_fp) return;
-
     char line[160];
-    while(fgets(line,sizeof(line),mem_fp)) {
 
-        /* skip leading spaces */
+    if (!mem_fp)
+        return;
+
+    /* We only need a single line: the "Main ..." line */
+    while (fgets(line, sizeof(line), mem_fp)) {
+
+        /* Skip leading spaces */
         char *p = line;
-        while (*p == ' ' || *p == '\t') p++;
+        while (*p == ' ' || *p == '\t')
+            p++;
 
-        if(strncmp(p,"Main ",5)==0) {
-            unsigned int used=0, total=0, freec=0;
-            if(sscanf(p,"Main %u/%uK used, %uK free",&used,&total,&freec)==3) {
+        if (strncmp(p, "Main ", 5) == 0) {
+            unsigned int used = 0, total = 0, freec = 0;
+
+            if (sscanf(p, "Main %u/%uK used, %uK free",
+                       &used, &total, &freec) == 3)
+            {
                 mem_total = total;
                 mem_free  = freec;
-                mem_valid = 1;  /* data is valid */
+                mem_valid = 1;
             }
-            break;
+            break;  /* Done */
         }
     }
 
-    if(feof(mem_fp)) {
-        pclose(mem_fp);
-        mem_fp = NULL;
-        mem_pipe_fd = -1;
-    }
+    /* meminfo has already exited → EOF reached → close always */
+    pclose(mem_fp);
+    mem_fp = NULL;
+    mem_pipe_fd = -1;
 }
 
 static void draw_memory_field(void)
@@ -237,140 +249,152 @@ int main(void) {
     update_memory_start();
 #endif
 
-    for(;;) {
-        GrGetNextEvent(&ev);
+for(;;) {
+    GrGetNextEvent(&ev);
 
-        switch(ev.type) {
+    switch(ev.type) {
 
-        case GR_EVENT_TYPE_EXPOSURE:
-            draw_taskbar();
-            if(menu_open) draw_menu();
-            draw_clock();
+    case GR_EVENT_TYPE_EXPOSURE:
+        draw_taskbar();
+        if(menu_open) draw_menu();
+        draw_clock();
 #if ENABLE_MEMORY_USAGE
+        if(!menu_open) //&& mem_valid
             draw_memory_field();
 #endif
-            break;
+        break;
 
-        case GR_EVENT_TYPE_BUTTON_DOWN: {
-            int mx = 0;
-            int menu_h =
-                (APP_COUNT * MENU_ITEM_HEIGHT) +
-                MENU_ITEM_EXIT_HEIGHT +
-                4;
+    case GR_EVENT_TYPE_BUTTON_DOWN: {
+        int mx = 0;
+        int menu_h =
+            (APP_COUNT * MENU_ITEM_HEIGHT) +
+            MENU_ITEM_EXIT_HEIGHT +
+            4;
 
-            int my = height - TASKBAR_HEIGHT - menu_h;
+        int my = height - TASKBAR_HEIGHT - menu_h;
 
-            int start_btn = in_rect(ev.button.x, ev.button.y,
-                                    0, height-TASKBAR_HEIGHT,
-                                    START_WIDTH, TASKBAR_HEIGHT);
+        int start_btn = in_rect(ev.button.x, ev.button.y,
+                                0, height-TASKBAR_HEIGHT,
+                                START_WIDTH, TASKBAR_HEIGHT);
 
-            int clicked_menu =
-                menu_open &&
-                in_rect(ev.button.x, ev.button.y,
-                        mx, my, MENU_WIDTH, menu_h);
+        int clicked_menu =
+            menu_open &&
+            in_rect(ev.button.x, ev.button.y,
+                    mx, my, MENU_WIDTH, menu_h);
 
-            if(start_btn) {
-                menu_open = !menu_open;
+        if(start_btn) {
+            menu_open = !menu_open;
 
-                if(menu_open) {
-                    draw_menu();
-                } else {
-                    GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                    GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-                }
+            if(menu_open) {
+                draw_menu();
+            } else {
+                GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+                GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
+            }
 
-                draw_taskbar();
-                draw_clock();
+            draw_taskbar();
+            draw_clock();
 #if ENABLE_MEMORY_USAGE
+            if(!menu_open) //&& mem_valid
                 draw_memory_field();
 #endif
-            }
-            else if(clicked_menu) {
+        }
+        else if(clicked_menu) {
 
-                for(int i=0;i<APP_COUNT;i++) {
-                    if(in_rect(ev.button.x, ev.button.y,
-                               mx,
-                               my + (i * MENU_ITEM_HEIGHT),
-                               MENU_WIDTH,
-                               MENU_ITEM_HEIGHT))
-                    {
-                        char cmd[64];
-                        snprintf(cmd,sizeof(cmd),APP_PATH "%s",apps[i]);
-
-                        if(fork()==0) {
-                            execl(cmd, cmd, NULL);
-                            _exit(1);
-                        }
-
-                        menu_open = 0;
-                        GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
-                        GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-                        break;
-                    }
-                }
-
-                /* EXIT item click */
+            for(int i=0;i<APP_COUNT;i++) {
                 if(in_rect(ev.button.x, ev.button.y,
                            mx,
-                           my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
+                           my + (i * MENU_ITEM_HEIGHT),
                            MENU_WIDTH,
-                           MENU_ITEM_EXIT_HEIGHT))
+                           MENU_ITEM_HEIGHT))
                 {
-                    GrClose();
-                    return 0;
-                }
+                    char cmd[64];
+                    snprintf(cmd,sizeof(cmd),APP_PATH "%s",apps[i]);
 
-                draw_taskbar();
-                draw_clock();
-#if ENABLE_MEMORY_USAGE
-                draw_memory_field();
-#endif
-            }
-            else {
-                if(menu_open) {
+                    if(fork()==0) {
+                        execl(cmd, cmd, NULL);
+                        _exit(1);
+                    }
+
                     menu_open = 0;
                     GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
                     GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-
-                    draw_taskbar();
-                    draw_clock();
-#if ENABLE_MEMORY_USAGE
-                    draw_memory_field();
-#endif
+                    break;
                 }
             }
-        }
-        break;
 
-        case GR_EVENT_TYPE_CLOSE_REQ:
-            GrClose();
-            return 0;
-        }
+            /* EXIT item click */
+            if(in_rect(ev.button.x, ev.button.y,
+                       mx,
+                       my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
+                       MENU_WIDTH,
+                       MENU_ITEM_EXIT_HEIGHT))
+            {
+                GrClose();
+                return 0;
+            }
 
-time_t now = time(NULL);
-if(now - last_clock >= 10) {
-    draw_clock();
-    last_clock = now;
-}
+            draw_taskbar();
+            draw_clock();
+#if ENABLE_MEMORY_USAGE
+            if(!menu_open) //&& memvalid
+                draw_memory_field();
+#endif
+        }
+        else {
+            if(menu_open) {
+                menu_open = 0;
+                GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+                GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
+
+                draw_taskbar();
+                draw_clock();
+#if ENABLE_MEMORY_USAGE
+                if(!menu_open) //&& mem_valid
+                    draw_memory_field();
+#endif
+            }
+        }
+    }
+    break;
+
+    case GR_EVENT_TYPE_CLOSE_REQ:
+        GrClose();
+        return 0;
+    }
+
+    /* --- PERIODIC UPDATES --- */
+    time_t now = time(NULL);
+
+    /* Clock update every 10 seconds */
+    if(now - last_clock >= 10) {
+        draw_clock();
+        last_clock = now;
+    }
 
 #if ENABLE_MEMORY_USAGE
+    /* Always poll first (non-blocking) */
+    update_memory_poll();
 
-/* Update memory usage every 12 seconds */
-if(now - last_mem >= 12) {
-    update_memory_start();
-    last_mem = now;
-}
-
-update_memory_poll();
-
-if(mem_valid && (mem_free != prev_mem_free || mem_total != prev_mem_total)) {
-    draw_memory_field();
-    prev_mem_free = mem_free;
-    prev_mem_total = mem_total;
-}
-
-#endif
+    /* Start a new meminfo read only when last finished */
+    if(mem_fp == NULL && now - last_mem >= 12) {
+        update_memory_start();
+        last_mem = now;
     }
+
+    /* Redraw only when changed, and when memory field is visible */
+    if(//mem_valid &&
+       (mem_free != prev_mem_free || mem_total != prev_mem_total))
+    {
+        if(!menu_open)
+            draw_memory_field();
+
+        prev_mem_free = mem_free;
+        prev_mem_total = mem_total;
+    }
+#endif
+}
+
 
     GrClose();
     return 0;

@@ -22,7 +22,7 @@ TODO:
    - text in GrText must be (void*)
    - there should be no warnings during compilation otherwise there is no text at all
 */
-
+ 
 #include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
@@ -34,10 +34,6 @@ TODO:
 #include "nano-X.h"
 #include "nxcolors.h"
 
-
-/* ===== TEXT BASELINE FIX ===== */
-/* Menu has 4 px padding → +10 is correct.
-   Taskbar has no padding → needs +15. */
 #define TEXT_Y_OFFSET_MENU     10
 #define TEXT_Y_OFFSET_TASKBAR  15
 
@@ -103,7 +99,8 @@ static void draw_taskbar(void)
     GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
     GrFillRect(win,gc_bar,0,height-TASKBAR_HEIGHT,width,TASKBAR_HEIGHT);
 
-    draw3drect(0,height-TASKBAR_HEIGHT,width,4,1);
+    /* 3D border */
+    //draw3drect(0,height-TASKBAR_HEIGHT,width,4,1);
 
     /* Start button area */
     GrFillRect(win,gc_bar,0,height-TASKBAR_HEIGHT,START_WIDTH,TASKBAR_HEIGHT);
@@ -266,7 +263,8 @@ int main(void)
     /* ===== EVENT LOOP ===== */
     for(;;)
     {
-        GrGetNextEvent(&ev);
+        //GrGetNextEvent(&ev);
+        GrGetNextEventTimeout(&ev, 20);
 
         switch(ev.type) {
 

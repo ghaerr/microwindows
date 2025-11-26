@@ -17,9 +17,13 @@ TODO:
    - add menu item hoover (blue background, white text)
    - add "themes" from a config file 
    - add process list window or application that shows how much memory is used per process
+
+  Notes: 
+   - text in GrText must be (void*)
+   - there should be no warnings during compilation otherwise there is no text at all
 */
 
-#include <stdio.h>
+#include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -110,7 +114,7 @@ static void draw_taskbar(void)
     GrText(win,gc_text,
            8,
            height - TASKBAR_HEIGHT + TEXT_Y_OFFSET_TASKBAR,
-           "Start",5,GR_TFASCII);
+           (void *)"Start",5,GR_TFASCII);
 }
 
 
@@ -132,14 +136,14 @@ static void draw_menu(void)
     int y = my + 4 + TEXT_Y_OFFSET_MENU;
 
     for(int i = 0; i < APP_COUNT; i++) {
-        GrText(win,gc_text,4,y,apps[i],strlen(apps[i]),GR_TFASCII);
+        GrText(win,gc_text,4,y,(void *)apps[i],strlen(apps[i]),GR_TFASCII);
         y += MENU_ITEM_HEIGHT;
     }
 
     GrLine(win,gc_text,mx+2,y-TEXT_Y_OFFSET_MENU,mx+MENU_WIDTH-2,y-TEXT_Y_OFFSET_MENU);
     y += 4;
 
-    GrText(win,gc_text,4,y,"Exit",4,GR_TFASCII);
+    GrText(win,gc_text,4,y,(void *)"Exit",4,GR_TFASCII);
 }
 
 
@@ -198,7 +202,7 @@ static void draw_status_field(void)
     else
         snprintf(buf,sizeof(buf),"-- / -- KB  ");
 #else
-    snprintf(buf,sizeof(buf),"");
+    buf[0] = '\0';
 #endif
 
     time_t t = time(NULL);
@@ -212,7 +216,7 @@ static void draw_status_field(void)
     GrText(win,gc_text,
            x + 6,
            y + TEXT_Y_OFFSET_TASKBAR,
-           buf,strlen(buf),GR_TFASCII);
+           (void *)buf,strlen(buf),GR_TFASCII);
 }
 
 

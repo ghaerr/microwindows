@@ -217,15 +217,26 @@ static void draw_status_field(void)
 }
 
 
+/* ===== CENTRAL REDRAW ===== */
+static void redraw_all(void)
+{
+    draw_taskbar();
+    if(menu_open)
+        draw_menu();
+    draw_status_field();
+}
+
+
 /* ===== MAIN LOOP ===== */
 int main(void)
 {
     GR_EVENT ev;
-    time_t last_update = 0;
+    int ui_initialized = 0;
+    int need_redraw = 0;
 
     signal(SIGCHLD, reaper);
 
-    if(GrOpen() < 0) {
+    if (GrOpen() < 0) {
         fprintf(stderr,"Cannot open Nano-X\n");
         return 1;
     }
@@ -241,7 +252,6 @@ int main(void)
     gc_bar  = GrNewGC();
     gc_text = GrNewGC();
 
-    /* ===== FIX: Transparent text ===== */
     GrSetGCUseBackground(gc_text, GR_FALSE);
 
     GrSelectEvents(win,
@@ -252,129 +262,128 @@ int main(void)
 
     GrMapWindow(win);
 
-    /* Initial draw */
-    draw_taskbar();
-#if ENABLE_MEMORY_USAGE
-    update_memory_now();
-#endif
-    draw_status_field();
+    /* First memory update scheduled 18 seconds later */
+    time_t next_update = time(NULL) + 18;
 
+    /* ==== EVENT LOOP ==== */
+    for (;;) {
 
-    /* ===== EVENT LOOP ===== */
-    for(;;)
-    {
-        //GrGetNextEvent(&ev);
+        memset(&ev, 0, sizeof(ev));
         GrGetNextEventTimeout(&ev, 20);
 
-        switch(ev.type) {
+        if (ev.type != 0) {
+            switch (ev.type) {
 
-        case GR_EVENT_TYPE_EXPOSURE:
-            draw_taskbar();
-            if(menu_open) draw_menu();
-            draw_status_field();
-            break;
+            case GR_EVENT_TYPE_EXPOSURE:
+                ui_initialized = 1;
+                redraw_all();     /* draw immediately */
+                need_redraw = 0;  /* cancel scheduled redraw */
+                break;
 
+            case GR_EVENT_TYPE_BUTTON_DOWN: {
 
-        case GR_EVENT_TYPE_BUTTON_DOWN: {
-            int mx = 0;
-            int menu_h =
-                (APP_COUNT * MENU_ITEM_HEIGHT) +
-                MENU_ITEM_EXIT_HEIGHT + 4;
+                int mx = 0;
+                int menu_h =
+                    (APP_COUNT * MENU_ITEM_HEIGHT) +
+                    MENU_ITEM_EXIT_HEIGHT + 4;
 
-            int my = height - TASKBAR_HEIGHT - menu_h;
+                int my = height - TASKBAR_HEIGHT - menu_h;
 
-            int start_btn =
-                in_rect(ev.button.x,ev.button.y,
-                        0,height-TASKBAR_HEIGHT,
-                        START_WIDTH,TASKBAR_HEIGHT);
+                int start_btn =
+                    in_rect(ev.button.x,ev.button.y,
+                            0,height-TASKBAR_HEIGHT,
+                            START_WIDTH,TASKBAR_HEIGHT);
 
-            int clicked_menu =
-                menu_open &&
-                in_rect(ev.button.x,ev.button.y,
-                        mx,my,MENU_WIDTH,menu_h);
+                int clicked_menu =
+                    menu_open &&
+                    in_rect(ev.button.x,ev.button.y,
+                            mx,my,MENU_WIDTH,menu_h);
 
+                if (start_btn) {
 
-            if(start_btn) {
-                menu_open = !menu_open;
+                    menu_open = !menu_open;
 
-                if(menu_open)
-                    draw_menu();
-                else {
-                    GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
-                    GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
+                    if (!menu_open) {
+                        /* clear menu area when closing */
+                        GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
+                        GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
+                    }
+
+                    need_redraw = 1;
                 }
+                else if (clicked_menu) {
 
-                draw_taskbar();
-                draw_status_field();
-            }
-            else if(clicked_menu) {
+                    /* Launch program selected from menu */
+                    for (int i=0;i<APP_COUNT;i++) {
+                        if (in_rect(ev.button.x,ev.button.y,
+                                    mx,my+(i*MENU_ITEM_HEIGHT),
+                                    MENU_WIDTH,MENU_ITEM_HEIGHT))
+                        {
+                            char cmd[64];
+                            snprintf(cmd,sizeof(cmd),
+                                     APP_PATH "%s",apps[i]);
 
-                for(int i=0;i<APP_COUNT;i++) {
-                    if(in_rect(ev.button.x,ev.button.y,
-                               mx,my+(i*MENU_ITEM_HEIGHT),
-                               MENU_WIDTH,MENU_ITEM_HEIGHT))
-                    {
-                        char cmd[64];
-                        snprintf(cmd,sizeof(cmd),
-                                 APP_PATH "%s",apps[i]);
+                            if (fork()==0) {
+                                execl(cmd,cmd,NULL);
+                                _exit(1);
+                            }
 
-                        if(fork()==0) {
-                            execl(cmd,cmd,NULL);
-                            _exit(1);
+                            menu_open = 0;
+
+                            /* clear menu area */
+                            GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
+                            GrFillRect(win,gc_bar,
+                                       mx,my,MENU_WIDTH,menu_h);
+
+                            need_redraw = 1;
+                            break;
                         }
+                    }
 
+                    /* Exit from menu */
+                    if (in_rect(ev.button.x,ev.button.y,
+                           mx,my+(APP_COUNT*MENU_ITEM_HEIGHT)+4,
+                           MENU_WIDTH,MENU_ITEM_EXIT_HEIGHT))
+                    {
+                        GrClose();
+                        return 0;
+                    }
+                }
+                else {
+                    if (menu_open) {
                         menu_open = 0;
 
                         GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
                         GrFillRect(win,gc_bar,
                                    mx,my,MENU_WIDTH,menu_h);
 
-                        break;
+                        need_redraw = 1;
                     }
                 }
-
-                /* Exit */
-                if(in_rect(ev.button.x,ev.button.y,
-                       mx,my+(APP_COUNT*MENU_ITEM_HEIGHT)+4,
-                       MENU_WIDTH,MENU_ITEM_EXIT_HEIGHT))
-                {
-                    GrClose();
-                    return 0;
-                }
-
-                draw_taskbar();
-                draw_status_field();
             }
-            else {
-                if(menu_open) {
-                    menu_open = 0;
+            break;
 
-                    GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
-                    GrFillRect(win,gc_bar,
-                               mx,my,MENU_WIDTH,menu_h);
-
-                    draw_taskbar();
-                    draw_status_field();
-                }
+            case GR_EVENT_TYPE_CLOSE_REQ:
+                GrClose();
+                return 0;
             }
         }
-        break;
 
-
-        case GR_EVENT_TYPE_CLOSE_REQ:
-            GrClose();
-            return 0;
-        }
-
-        /* 10-second update */
+        /* ===== STATUS TIMER (18s first time, then 10s) ===== */
         time_t now = time(NULL);
-        if(now - last_update >= 10)
-        {
+
+        if (ui_initialized && now >= next_update) {
 #if ENABLE_MEMORY_USAGE
             update_memory_now();
 #endif
-            draw_status_field();
-            last_update = now;
+            need_redraw = 1;
+            next_update = now + 10; /* next every 10s */
+        }
+
+        /* ===== Deferred redraw ===== */
+        if (ui_initialized && need_redraw) {
+            redraw_all();
+            need_redraw = 0;
         }
     }
 

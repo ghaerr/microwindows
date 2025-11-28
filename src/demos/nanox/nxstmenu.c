@@ -8,9 +8,13 @@ TODO:
    - rename to nxdsktop
    - add commands such as: Halt, Restart
    - add About section with MessageBox
+   - add free/total conventional memory in taskbar
   V2:
    - add proper exit - this app, all other nxapp and the Nano-X server
-   - add free/total conventional memory in taskbar
+   - reduce redraw frequency and avoid heavy redraws triggered by button clicks
+        - only redraw what changed, not the whole UI
+        - avoid clearing big rectangles in event handlers
+        - avoid status redraw on EXPOSE for the entire window
    - Improve 3D feel
   V3:
    - add message bar or busy mouse pointer
@@ -272,7 +276,7 @@ int main(void)
     for (;;) {
 
         memset(&ev, 0, sizeof(ev));
-        GrGetNextEventTimeout(&ev, 20);
+        GrGetNextEventTimeout(&ev, 50);
 
         if (ev.type != 0) {
             switch (ev.type) {

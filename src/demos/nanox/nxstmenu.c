@@ -19,8 +19,11 @@ TODO:
    - add process list window or application that shows how much memory is used per process
 
   Notes: 
-   - text in GrText must be (void*)
-   - there should be no warnings during compilation otherwise there is no text at all
+     - Only draw in EXPOSE (or via a single scheduled redraw triggered by EXPOSE).
+     - Never draw directly in event handlers—change state and request a redraw instead.
+     - Keep drawing ordered and centralized so UI elements repaint consistently.
+     - Avoid rapid redraw loops—use timeouts only for scheduling, not rendering.
+     - Do not draw until the first EXPOSE arrives (after GrMapWindow).
 */
  
 #include <stdio.h> 

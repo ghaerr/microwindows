@@ -15,6 +15,7 @@ TODO:
         - only redraw what changed, not the whole UI
         - avoid clearing big rectangles in event handlers
         - avoid status redraw on EXPOSE for the entire window
+        - add throttling to redraws - never allow redraws more than once every 100ms.
    - Improve 3D feel
   V3:
    - add message bar or busy mouse pointer
@@ -23,6 +24,7 @@ TODO:
    - add process list window or application that shows how much memory is used per process
 
   Notes: 
+    Rules to fllow on slow 8086/8088 systems:
      - Only draw in EXPOSE (or via a single scheduled redraw triggered by EXPOSE).
      - Never draw directly in event handlers—change state and request a redraw instead.
      - Keep drawing ordered and centralized so UI elements repaint consistently.

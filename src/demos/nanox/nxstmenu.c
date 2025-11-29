@@ -43,6 +43,8 @@ TODO:
 #include <sys/wait.h>
 #include "nano-X.h"
 #include "nxcolors.h"
+#include <linuxmt/mem.h> 
+#include <sys/ioctl.h>
 
 #define TEXT_Y_OFFSET_MENU     10
 #define TEXT_Y_OFFSET_TASKBAR  15
@@ -167,27 +169,25 @@ static int in_rect(int x,int y,int rx,int ry,int rw,int rh)
 #if ENABLE_MEMORY_USAGE
 static void update_memory_now(void)
 {
-    char line[160];
-    FILE *fp = popen("meminfo -b","r");
-    if(!fp) return;
+    static int fd = -1;
+    struct mem_usage mu;
 
-    while (fgets(line,sizeof(line),fp)) {
-        char *p=line;
-        while(*p==' '||*p=='\t') p++;
-
-        if (strncmp(p,"Main ",5)==0) {
-            unsigned int used,total,freec;
-            if (sscanf(p,"Main %u/%uK used, %uK free",
-                       &used,&total,&freec)==3)
-            {
-                mem_total = total;
-                mem_free  = freec;
-                mem_valid = 1;
-            }
-            break;
+    if (fd < 0) {
+        fd = open("/dev/kmem", O_RDONLY);
+        if (fd < 0) {
+            mem_valid = 0;
+            return;
         }
     }
-    pclose(fp);
+
+    /* Directly query the kernel for memory stats */
+    if (ioctl(fd, MEM_GETUSAGE, &mu) == 0) {
+        mem_total = mu.main_used + mu.main_free;
+        mem_free  = mu.main_free;
+        mem_valid = 1;
+    } else {
+        mem_valid = 0;
+    }
 }
 #endif
 

@@ -59,7 +59,9 @@ TODO:
 #define MENU_ITEM_HEIGHT      18
 #define MENU_ITEM_EXIT_HEIGHT 20
 
+/* ===== CONFIG ===== */
 #define ENABLE_MEMORY_USAGE   1
+#define GR_EVENT_TIMEOUT      70
 #define APP_PATH "/bin/"
 
 const char *apps[] =
@@ -215,7 +217,7 @@ static void draw_status_field(void)
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
     char clk[16];
-    snprintf(clk,sizeof(clk),"%02d:%02d",tm->tm_hour,tm->tm_min);
+    snprintf(clk,sizeof(clk),"%02d : %02d",tm->tm_hour,tm->tm_min);
     strcat(buf,clk);
 
     /* Draw transparent text aligned properly */
@@ -279,7 +281,7 @@ int main(void)
     for (;;) {
 
         memset(&ev, 0, sizeof(ev));
-        GrGetNextEventTimeout(&ev, 50);
+        GrGetNextEventTimeout(&ev, GR_EVENT_TIMEOUT);
 
         if (ev.type != 0) {
             switch (ev.type) {

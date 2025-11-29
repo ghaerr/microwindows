@@ -1,6 +1,7 @@
 /* 
 
-A Windows 95 like start menu for ELKS and Nano-X 
+A Windows 95 like start menu for ELKS and Nano-X.
+It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz. 
 
 TODO:
   V1:
@@ -8,7 +9,7 @@ TODO:
    - rename to nxdsktop
    - add commands such as: Halt, Restart
    - add About section with MessageBox
-   - add free/total conventional memory in taskbar
+   - add free/total conventional memory in taskbar - DONE (slow version with meminfo -b)
   V2:
    - add proper exit - this app, all other nxapp and the Nano-X server
    - reduce redraw frequency and avoid heavy redraws triggered by button clicks

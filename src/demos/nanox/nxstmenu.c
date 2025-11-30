@@ -358,7 +358,7 @@ int main(void)
                            MENU_WIDTH,MENU_ITEM_EXIT_HEIGHT))
                     {
                         GrClose();
-                        return 0;
+                        exit(0);
                     }
                 }
                 else {
@@ -377,7 +377,7 @@ int main(void)
 
             case GR_EVENT_TYPE_CLOSE_REQ:
                 GrClose();
-                return 0;
+                exit(0);
             }
         }
 

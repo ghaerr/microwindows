@@ -12,6 +12,7 @@
  * - Batch up to 6 uniform MCUs into one rectangle draw.
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +75,7 @@ static inline unsigned char to_gray(unsigned char r,
     return (unsigned char)((r*30 + g*59 + b*11) / 100);
 }
 
-/* 4-level mapping: 0, 8, 7, 15 */
+/* 4-level mapping */
 static inline unsigned char quantize_gray4(unsigned char g)
 {
     if (g < 64)   return 0;
@@ -111,7 +112,6 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
             }
         }
 
-        /* finish last run */
         GrSetGCForeground(gc, color_from_index[run_idx]);
         GrLine(wid, gc,
                x + run_start,  y + iy,
@@ -120,7 +120,7 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
 }
 
 /* ----------------------------------------------------------- */
-/* Stream JPEG with OR+AND MCU uniform detection               */
+/* Stream JPEG + OR+AND uniform MCU detection                  */
 /* ----------------------------------------------------------- */
 
 static int stream_jpeg_and_draw(const char *file,
@@ -147,22 +147,19 @@ static int stream_jpeg_and_draw(const char *file,
 
     unsigned mcu_w = info.m_MCUWidth;
     unsigned mcu_h = info.m_MCUHeight;
-    unsigned blocks_x = mcu_w / 8 ? mcu_w/8 : 1;
-    unsigned blocks_y = mcu_h / 8 ? mcu_h/8 : 1;
+    unsigned blocks_x = mcu_w/8 ? mcu_w/8 : 1;
+    unsigned blocks_y = mcu_h/8 ? mcu_h/8 : 1;
 
     LOG("JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
         imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow);
 
-    /* maximum MCU width safe buffer */
     #define MCU_MAX_WIDTH 32
     static unsigned char stripbuf[MCU_MAX_WIDTH];
-
-    /* full-MCU quantized buffer (max 256 samples) */
     static unsigned char qbuf[256];
 
     int mcu_index = 0;
 
-    /* batching state (up to 6 adjacent uniform MCUs) */
+    /* batching state: up to 6 MCUs */
     int batch_active = 0;
     unsigned batch_my = 0;
     unsigned batch_px_start = 0;
@@ -195,7 +192,7 @@ static int stream_jpeg_and_draw(const char *file,
         if (rc == PJPG_NO_MORE_BLOCKS)
             break;
         if (rc) {
-            LOG("decode_mcu rc=%d at MCU=%d", rc, mcu_index);
+            LOG("decode_mcu rc=%d at index=%d", rc, mcu_index);
             FLUSH_BATCH();
             fclose(fp);
             return -1;
@@ -208,7 +205,6 @@ static int stream_jpeg_and_draw(const char *file,
         unsigned px = mx * mcu_w;
         unsigned py = my * mcu_h;
 
-        /* skip MCUs outside cropping area (but flush batch if row changes) */
         if (py >= imgh) {
             if (batch_active && my != batch_my)
                 FLUSH_BATCH();
@@ -220,15 +216,15 @@ static int stream_jpeg_and_draw(const char *file,
             continue;
         }
 
-        /* --------------------------------------------------------- */
-        /*  FULL MCU quantization + OR+AND uniform detection         */
-        /* --------------------------------------------------------- */
+        /* ---------------------------------------- */
+        /* FULL MCU uniform detection (OR+AND)       */
+        /* ---------------------------------------- */
+
         int samples = blocks_x * blocks_y * 64;
         if (samples > 256) samples = 256;
 
         unsigned char first = quantize_gray4(
             to_gray(gMCUBufR[0], gMCUBufG[0], gMCUBufB[0]));
-
         qbuf[0] = first;
 
         unsigned char all_or  = first;
@@ -245,43 +241,39 @@ static int stream_jpeg_and_draw(const char *file,
         int mcu_uniform = (all_or == all_and);
         unsigned char uniform_color = all_or;
 
-        /* --------------------------------------------------------- */
-        /*  Uniform MCU batching                                     */
-        /* --------------------------------------------------------- */
-        if (mcu_uniform) {
+        /* ---------------------------------------- */
+        /* Uniform MCU batching                     */
+        /* ---------------------------------------- */
 
+        if (mcu_uniform) {
             if (!batch_active ||
                 my != batch_my ||
                 uniform_color != batch_color ||
                 px != batch_px_start + batch_mcu_count * mcu_w ||
                 batch_mcu_count >= max_batch)
             {
-                /* Start or restart batch */
                 FLUSH_BATCH();
                 batch_active    = 1;
                 batch_my        = my;
-                batch_py        = py;
                 batch_px_start  = px;
+                batch_py        = py;
                 batch_color     = uniform_color;
                 batch_mcu_count = 1;
             } else {
                 batch_mcu_count++;
             }
 
-            continue;  /* nothing more needed for this MCU */
+            continue;
         }
 
-        /* --------------------------------------------------------- */
-        /*  Non-uniform MCU - flush previous batch                   */
-        /* --------------------------------------------------------- */
-        if (batch_active && my != batch_my)
-            FLUSH_BATCH();
+        /* ---------------------------------------- */
+        /* Non-uniform MCU                          */
+        /* ---------------------------------------- */
+
         if (batch_active)
             FLUSH_BATCH();
 
-        /* --------------------------------------------------------- */
-        /*  Draw this MCU per scanline                               */
-        /* --------------------------------------------------------- */
+        /* draw per-scanline */
         for (unsigned ly = 0; ly < mcu_h; ly++) {
 
             unsigned gy = py + ly;
@@ -304,7 +296,6 @@ static int stream_jpeg_and_draw(const char *file,
 
                 unsigned bx = lx % 8;
                 unsigned by = ly % 8;
-
                 unsigned bindex = block_y * blocks_x + block_x;
                 unsigned sindex = bindex * 64 + by * 8 + bx;
                 if (sindex >= 256) sindex = 255;
@@ -322,7 +313,6 @@ static int stream_jpeg_and_draw(const char *file,
         }
     }
 
-    /* flush any remaining uniform batch */
     FLUSH_BATCH();
 
     #undef FLUSH_BATCH
@@ -341,7 +331,7 @@ int main(int argc, char **argv)
     const char *file = NULL;
 
     logfp = fopen("/tmp/nxjpeg.log", "w");
-    LOG("nxjpeg starting (OR+AND MCU batching)");
+    LOG("nxjpeg starting (EXPOSURE always redraw)");
 
     for (int i = 1; i < argc; i++)
         if (argv[i][0] != '-')
@@ -361,30 +351,29 @@ int main(int argc, char **argv)
     GrGetScreenInfo(&si);
     LOG("Screen %dx%d bpp=%d colors=%d", si.cols, si.rows, si.bpp, si.ncolors);
 
-    /* Load palette & expand immediately to GR_COLOR */
     pal.count = 256;
     GrGetSystemPalette(&pal);
     for (int i = 0; i < pal.count; i++)
         color_from_index[i] = GR_RGB(
             pal.palette[i].r, pal.palette[i].g, pal.palette[i].b);
 
-    /* quick log of first colors */
     for (int i = 0; i < 16; i++)
         LOG("PAL[%d] = %d %d %d",
             i, pal.palette[i].r, pal.palette[i].g, pal.palette[i].b);
 
-    /* Get size of JPEG (header only) */
+    /* read JPEG header for size */
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("Cannot open JPEG for size");
+        LOG("cannot open JPEG");
         return 1;
     }
     JPEG_FILE jf = { fp };
     pjpeg_image_info_t info;
     int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
     fclose(fp);
+
     if (rc) {
-        LOG("decode_init(rc=%d) for size", rc);
+        LOG("decode_init for size rc=%d", rc);
         return 1;
     }
 
@@ -400,28 +389,28 @@ int main(int argc, char **argv)
                       0, 0, w, h,
                       BLACK);
 
-    GrSelectEvents(wid, GR_EVENT_MASK_EXPOSURE | GR_EVENT_MASK_CLOSE_REQ);
+    GrSelectEvents(wid,
+        GR_EVENT_MASK_EXPOSURE |
+        GR_EVENT_MASK_CLOSE_REQ);
+
     GrMapWindow(wid);
 
     GR_GC_ID gc = GrNewGC();
-
-    int drawn = 0;
 
     while (1) {
         GR_EVENT ev;
         GrGetNextEvent(&ev);
 
         if (ev.type == GR_EVENT_TYPE_CLOSE_REQ) {
-            LOG("close request");
+            LOG("close");
             GrClose();
             fclose(logfp);
             return 0;
         }
 
-        if (ev.type == GR_EVENT_TYPE_EXPOSURE && !drawn) {
-            LOG("exposure -> decode+draw");
+        if (ev.type == GR_EVENT_TYPE_EXPOSURE) {
+            LOG("exposure -> redraw");
             stream_jpeg_and_draw(file, wid, gc);
-            drawn = 1;
         }
     }
 }

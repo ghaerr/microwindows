@@ -11,6 +11,19 @@
  * - Logs to /tmp/nxjpeg.log
  */
 
+/*
+ * nxjpeg.c - Full-frame grayscale JPEG viewer for ELKS Nano-X
+ *            using MCU streaming (NO full buffer).
+ *
+ * - Uses PicoJPEG to decode MCU blocks.
+ * - Converts per-pixel RGB → grayscale (0–255).
+ * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
+ * - Renders immediately using per-MCU strips + EmuGrArea (RLE -> GrLine).
+ * - NO malloc, no full image buffer. Only small strip buffer.
+ * - Max decoded size = 400 × 400 (cropped).
+ * - Logs to /tmp/nxjpeg.log
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,8 +32,8 @@
 #include "nano-X.h"
 #include "picojpeg.h"
 
-#define MAX_WIDTH   640
-#define MAX_HEIGHT  480
+#define MAX_WIDTH   400
+#define MAX_HEIGHT  400
 
 /* ----------------------------------------------------------- */
 /* Logging                                                     */
@@ -40,6 +53,8 @@ extern unsigned char gMCUBufB[256];
 
 /* System palette */
 static GR_PALETTE pal;
+/* Precomputed GR_COLOR for all palette indices (small speed win) */
+static GR_COLOR color_from_index[256];
 
 /* JPEG file wrapper */
 typedef struct {
@@ -79,6 +94,10 @@ static inline unsigned char quantize_gray4(unsigned char g)
     if (g < 128)  return 8;   /* dark gray */
     if (g < 192)  return 7;   /* light gray */
     return 15;                /* white */
+
+    /* For even more speed (fewer runs), you could reduce to 2 levels:
+       return (g < 128) ? 0 : 15;
+       but that will reduce tonal detail. */
 }
 
 /* ----------------------------------------------------------- */
@@ -102,10 +121,7 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
 
         for (int ix = 1; ix < (int)w; ix++) {
             if (row[ix] != run_idx) {
-                GrSetGCForeground(gc,
-                    GR_RGB(pal.palette[run_idx].r,
-                           pal.palette[run_idx].g,
-                           pal.palette[run_idx].b));
+                GrSetGCForeground(gc, color_from_index[run_idx]);
 
                 GrLine(wid, gc,
                        x + run_start, y + iy,
@@ -117,10 +133,7 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
         }
 
         /* finish last run */
-        GrSetGCForeground(gc,
-            GR_RGB(pal.palette[run_idx].r,
-                   pal.palette[run_idx].g,
-                   pal.palette[run_idx].b));
+        GrSetGCForeground(gc, color_from_index[run_idx]);
         GrLine(wid, gc,
                x + run_start,  y + iy,
                x + (int)w - 1, y + iy);
@@ -170,7 +183,7 @@ static int stream_jpeg_and_draw(const char *file,
     LOG("Streaming JPEG %ux%u, MCU=%ux%u (blocks %ux%u)",
          imgw, imgh, mcu_w, mcu_h, blocks_x, blocks_y);
 
-    /* Max MCU width for 4:2:0 is 16; 32 is very safe. */
+    /* Max MCU width for PicoJPEG is typically 16; 32 is safe. */
     #define MCU_MAX_WIDTH 32
     static unsigned char stripbuf[MCU_MAX_WIDTH];
 
@@ -197,17 +210,19 @@ static int stream_jpeg_and_draw(const char *file,
             unsigned gy = py + ly;
             if (gy >= imgh) break;
 
-            /* visible width of this MCU strip */
+            /* How many pixels of this MCU row are actually visible? */
             unsigned valid_w = mcu_w;
             if (px + valid_w > imgw)
                 valid_w = imgw - px;
             if (valid_w > MCU_MAX_WIDTH)
-                valid_w = MCU_MAX_WIDTH;
+                valid_w = MCU_MAX_WIDTH;   /* safety */
 
-            /* convert MCU-row → stripbuf */
+            /* Convert ONLY this MCU's horizontal strip into stripbuf[0..valid_w-1] */
             for (unsigned lx = 0; lx < valid_w; lx++) {
+                unsigned gx = px + lx;   /* global x */
+                if (gx >= imgw) break;   /* extra safety */
 
-                /* correct JPEG MCU indexing */
+                /* Correct JPEG MCU indexing (same as original non-streaming version) */
                 unsigned block_x = lx / 8;
                 unsigned block_y = ly / 8;
                 if (block_x >= blocks_x) block_x = blocks_x - 1;
@@ -228,7 +243,7 @@ static int stream_jpeg_and_draw(const char *file,
                 stripbuf[lx] = quantize_gray4(gray);
             }
 
-            /* draw only this MCU strip */
+            /* Draw this MCU's strip at (px, gy) */
             if (valid_w > 0) {
                 EmuGrArea(wid, gc,
                           px, gy,
@@ -253,7 +268,7 @@ int main(int argc, char **argv)
     const char *file = NULL;
 
     logfp = fopen("/tmp/nxjpeg.log", "w");
-    LOG("nxjpeg starting (MCU streaming, no buffer)");
+    LOG("nxjpeg starting (MCU streaming, per-strip draw, precomputed colors)");
 
     for (int i = 1; i < argc; i++)
         if (argv[i][0] != '-')
@@ -274,9 +289,15 @@ int main(int argc, char **argv)
     LOG("Screen %dx%d, bpp=%d, colors=%d",
         si.cols, si.rows, si.bpp, si.ncolors);
 
-    /* Load system palette */
+    /* Load system palette and precompute GR_COLOR values */
     pal.count = 256;
     GrGetSystemPalette(&pal);
+    for (int i = 0; i < pal.count; i++) {
+        color_from_index[i] = GR_RGB(pal.palette[i].r,
+                                     pal.palette[i].g,
+                                     pal.palette[i].b);
+    }
+
     for (int i = 0; i < 16; i++)
         LOG("PAL[%d] = %d %d %d",
             i, pal.palette[i].r, pal.palette[i].g, pal.palette[i].b);

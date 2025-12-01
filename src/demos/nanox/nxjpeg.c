@@ -4,11 +4,10 @@
  * Uses PicoJPEG (MCU-by-MCU) and draws directly to
  * a Nano-X VGA window.
  *
- * - Converts every pixel to 0..255 grayscale.
- * - No dithering of any kind.
- * - Maps grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
- * - Decodes whole image into buffer first to avoid MCU artifacts.
- * - Draws line-by-line using emulated GrArea.
+ * - Converts per-pixel RGB → grayscale (0–255).
+ * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
+ * - Renders immediately using EmuGrArea (RLE -> GrLine).
+ * - NO malloc, no full image buffer. Only MCU strip buffer.
  * - Logs to /tmp/nxjpeg.log
  */
 
@@ -32,7 +31,7 @@ static FILE *logfp = NULL;
     do { if (logfp) { fprintf(logfp, fmt "\n", ##__VA_ARGS__); fflush(logfp);} } while (0)
 
 /* ----------------------------------------------------------- */
-/* PicoJPEG externs (ELKS version)                             */
+/* PicoJPEG externs                                            */
 /* ----------------------------------------------------------- */
 
 extern unsigned char gMCUBufR[256];
@@ -63,7 +62,7 @@ pjpeg_need_bytes_callback(unsigned char *buf, unsigned char size,
 }
 
 /* ----------------------------------------------------------- */
-/* Grayscale conversion                                        */
+/* Grayscale + quantization                                    */
 /* ----------------------------------------------------------- */
 
 static inline unsigned char to_gray(unsigned char r,
@@ -83,7 +82,7 @@ static inline unsigned char quantize_gray4(unsigned char g)
 }
 
 /* ----------------------------------------------------------- */
-/* Emulated GrArea using RLE + GrLine                          */
+/* Emulated GrArea (RLE to GrLine)                             */
 /* ----------------------------------------------------------- */
 
 static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
@@ -92,6 +91,9 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
                       const unsigned char *buf,
                       GR_SIZE pitch)
 {
+    if (w == 0 || h == 0)
+        return;
+
     for (int iy = 0; iy < (int)h; iy++) {
         const unsigned char *row = buf + iy * pitch;
 
@@ -104,6 +106,7 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
                     GR_RGB(pal.palette[run_idx].r,
                            pal.palette[run_idx].g,
                            pal.palette[run_idx].b));
+
                 GrLine(wid, gc,
                        x + run_start, y + iy,
                        x + ix - 1,    y + iy);
@@ -125,29 +128,27 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
 }
 
 /* ----------------------------------------------------------- */
-/* Decode JPEG into full grayscale buffer                      */
+/* Stream JPEG (MCU → grayscale → quantize → draw per strip)   */
 /* ----------------------------------------------------------- */
 
-static int decode_to_gray(const char *file,
-                          unsigned char **out_buf,
-                          GR_SIZE *out_w,
-                          GR_SIZE *out_h)
+static int stream_jpeg_and_draw(const char *file,
+                                GR_WINDOW_ID wid,
+                                GR_GC_ID gc)
 {
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("decode_to_gray: cannot open %s", file);
+        LOG("stream_jpeg_and_draw: cannot open %s", file);
         return -1;
     }
 
     JPEG_FILE jf = { fp };
     pjpeg_image_info_t info;
-
     int rc = pjpeg_decode_init(&info,
                                pjpeg_need_bytes_callback,
                                &jf,
                                0 /* no reduce */);
     if (rc) {
-        LOG("decode_to_gray: pjpeg_decode_init rc=%d", rc);
+        LOG("stream_jpeg_and_draw: decode_init rc=%d", rc);
         fclose(fp);
         return -1;
     }
@@ -158,25 +159,20 @@ static int decode_to_gray(const char *file,
     if (imgw > MAX_WIDTH)  imgw = MAX_WIDTH;
     if (imgh > MAX_HEIGHT) imgh = MAX_HEIGHT;
 
-    LOG("JPEG size=%ux%u, MCU=%ux%u, MCUs=%ux%u",
-        info.m_width, info.m_height,
-        info.m_MCUWidth, info.m_MCUHeight,
-        info.m_MCUSPerRow, info.m_MCUSPerCol);
-
-    unsigned char *buf = malloc(imgw * imgh);
-    if (!buf) {
-        LOG("malloc(%u) failed", imgw * imgh);
-        fclose(fp);
-        return -1;
-    }
-    memset(buf, 0, imgw * imgh);
-
     unsigned mcu_w = info.m_MCUWidth;
     unsigned mcu_h = info.m_MCUHeight;
+
     unsigned blocks_x = mcu_w / 8;
     unsigned blocks_y = mcu_h / 8;
     if (!blocks_x) blocks_x = 1;
     if (!blocks_y) blocks_y = 1;
+
+    LOG("Streaming JPEG %ux%u, MCU=%ux%u (blocks %ux%u)",
+         imgw, imgh, mcu_w, mcu_h, blocks_x, blocks_y);
+
+    /* Max MCU width for 4:2:0 is 16; 32 is very safe. */
+    #define MCU_MAX_WIDTH 32
+    static unsigned char stripbuf[MCU_MAX_WIDTH];
 
     int mcu_index = 0;
 
@@ -185,8 +181,7 @@ static int decode_to_gray(const char *file,
         if (rc == PJPG_NO_MORE_BLOCKS)
             break;
         if (rc) {
-            LOG("decode_to_gray: pjpeg_decode_mcu rc=%d at idx=%d", rc, mcu_index);
-            free(buf);
+            LOG("stream: decode_mcu rc=%d at idx=%d", rc, mcu_index);
             fclose(fp);
             return -1;
         }
@@ -202,10 +197,17 @@ static int decode_to_gray(const char *file,
             unsigned gy = py + ly;
             if (gy >= imgh) break;
 
-            for (unsigned lx = 0; lx < mcu_w; lx++) {
-                unsigned gx = px + lx;
-                if (gx >= imgw) break;
+            /* visible width of this MCU strip */
+            unsigned valid_w = mcu_w;
+            if (px + valid_w > imgw)
+                valid_w = imgw - px;
+            if (valid_w > MCU_MAX_WIDTH)
+                valid_w = MCU_MAX_WIDTH;
 
+            /* convert MCU-row → stripbuf */
+            for (unsigned lx = 0; lx < valid_w; lx++) {
+
+                /* correct JPEG MCU indexing */
                 unsigned block_x = lx / 8;
                 unsigned block_y = ly / 8;
                 if (block_x >= blocks_x) block_x = blocks_x - 1;
@@ -222,42 +224,24 @@ static int decode_to_gray(const char *file,
                 unsigned char g = gMCUBufG[sindex];
                 unsigned char b = gMCUBufB[sindex];
 
-                buf[gy * imgw + gx] = to_gray(r, g, b);
+                unsigned char gray = to_gray(r, g, b);
+                stripbuf[lx] = quantize_gray4(gray);
+            }
+
+            /* draw only this MCU strip */
+            if (valid_w > 0) {
+                EmuGrArea(wid, gc,
+                          px, gy,
+                          valid_w, 1,
+                          stripbuf,
+                          valid_w);
             }
         }
     }
 
     fclose(fp);
-    *out_buf = buf;
-    *out_w = imgw;
-    *out_h = imgh;
-
-    LOG("decode_to_gray: done, width=%u height=%u", imgw, imgh);
+    LOG("stream_jpeg_and_draw: done");
     return 0;
-}
-
-/* ----------------------------------------------------------- */
-/* Convert grayscale to palette and draw                       */
-/* ----------------------------------------------------------- */
-
-static void draw_gray(const unsigned char *gray,
-                      GR_SIZE w, GR_SIZE h,
-                      GR_WINDOW_ID wid, GR_GC_ID gc)
-{
-    unsigned char scanline[MAX_WIDTH];
-
-    LOG("draw_gray: starting");
-
-    for (int y = 0; y < (int)h; y++) {
-        for (int x = 0; x < (int)w; x++) {
-            unsigned char g = gray[y * w + x];
-            scanline[x] = quantize_gray4(g);
-        }
-
-        EmuGrArea(wid, gc, 0, y, w, 1, scanline, w);
-    }
-
-    LOG("draw_gray: complete");
 }
 
 /* ----------------------------------------------------------- */
@@ -269,12 +253,11 @@ int main(int argc, char **argv)
     const char *file = NULL;
 
     logfp = fopen("/tmp/nxjpeg.log", "w");
-    LOG("nxjpeg starting (pure grayscale, no dithering)");
+    LOG("nxjpeg starting (MCU streaming, no buffer)");
 
-    for (int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++)
         if (argv[i][0] != '-')
             file = argv[i];
-    }
 
     if (!file) {
         LOG("No JPEG file supplied");
@@ -298,15 +281,31 @@ int main(int argc, char **argv)
         LOG("PAL[%d] = %d %d %d",
             i, pal.palette[i].r, pal.palette[i].g, pal.palette[i].b);
 
-    /* Decode JPEG */
-    unsigned char *gray = NULL;
-    GR_SIZE w = 0, h = 0;
-    if (decode_to_gray(file, &gray, &w, &h) != 0) {
-        LOG("decode_to_gray failed");
+    /* Get JPEG size (header only) */
+    FILE *fp = fopen(file, "rb");
+    if (!fp) {
+        LOG("cannot open for size");
+        return 1;
+    }
+    JPEG_FILE jf = { fp };
+    pjpeg_image_info_t info;
+    int rc = pjpeg_decode_init(&info,
+                               pjpeg_need_bytes_callback,
+                               &jf, 0);
+    fclose(fp);
+
+    if (rc) {
+        LOG("decode_init for size rc=%d", rc);
         return 1;
     }
 
-    LOG("Decoded image: %dx%d", w, h);
+    GR_SIZE w = info.m_width;
+    GR_SIZE h = info.m_height;
+
+    if (w > MAX_WIDTH)  w = MAX_WIDTH;
+    if (h > MAX_HEIGHT) h = MAX_HEIGHT;
+
+    LOG("Window size = %dx%d", w, h);
 
     GR_WINDOW_ID wid =
         GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
@@ -328,14 +327,13 @@ int main(int argc, char **argv)
         if (ev.type == GR_EVENT_TYPE_CLOSE_REQ) {
             LOG("close");
             GrClose();
-            free(gray);
             fclose(logfp);
             return 0;
         }
 
         if (ev.type == GR_EVENT_TYPE_EXPOSURE && !drawn) {
-            LOG("exposure -> drawing");
-            draw_gray(gray, w, h, wid, gc);
+            LOG("exposure -> streaming decode");
+            stream_jpeg_and_draw(file, wid, gc);
             drawn = 1;
         }
     }

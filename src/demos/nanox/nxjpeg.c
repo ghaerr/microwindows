@@ -5,14 +5,14 @@
  * Nano X on VGA supports only 16 colors. A grayscale output was 
  * preferred to a 16-color image match.
  * 
+ * - Converts per-pixel RGB → grayscale (0–255).
+ * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
+ * - Logs to /tmp/nxjpeg.log
+ *
  * Input JPEG image must be:
  * - baseline (SOF0), non-progressive, Huffman-coded, 8×8 DCT blocks, no arithmetic coding, no restart markers
  * - image size should be less than VGA 640×480 to fit to screen in Nano X 
  * - on Linux use: convert input.png -resize 400x400\> -colorspace RGB -strip -sampling-factor 1x1 -define jpeg:dct-method=integer -quality 85 -interlace none -depth 8 -type truecolor -compress JPEG output.jpg
- *
- * - Converts per-pixel RGB → grayscale (0–255).
- * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
- * - Logs to /tmp/nxjpeg.log
  *
  * Modes:
  *   ROW_BUFFER = 0  -> per-MCU streaming renderer
@@ -26,7 +26,14 @@
  *                       "band" of MCUs: width × MCU height (up to 400x16)
  *                     - decodes a whole MCU row into a band buffer
  *                     - draws entire band row-by-row using own EmuGrArea
- *                     - should be faster than ROW_BUFFER = 0
+ * Which mode is faster depends on the image.
+ *
+ * This program uses code or is inspired by:
+ *   - https://github.com/rafael2k/elks-viewer
+ *   - https://github.com/richgel999/picojpeg
+ * 
+ * History:
+ *   2/12/2025 version 1.0 
  */
 
 #include <stdio.h>
@@ -41,9 +48,7 @@
 #define MAX_HEIGHT  460
 
 /* Switch between strategies */
-#ifndef ROW_BUFFER
 #define ROW_BUFFER 1       /* set to 1 to enable row-buffer mode */
-#endif
 
 /* ----------------------------------------------------------- */
 /* Logging                                                     */

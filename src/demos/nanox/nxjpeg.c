@@ -1,8 +1,14 @@
 /*
- * nxjpeg - Nano-X JPEG viewer for ELKS VGA
+ * nxjpeg - Nano-X JPEG viewer for VGA (optimized for low memory and ELKS)
  *
- * Uses PicoJPEG (MCU-by-MCU) and draws directly to
- * a Nano-X VGA window.
+ * Uses PicoJPEG (MCU-by-MCU) and draws to a Nano-X VGA window. 
+ * Nano X on VGA supports only 16 colors. A grayscale output was 
+ * preferred to a 16-color image match.
+ * 
+ * Input JPEG image must be:
+ * - baseline (SOF0), non-progressive, Huffman-coded, 8×8 DCT blocks, no arithmetic coding, no restart markers
+ * - image size should be less than VGA 640×480 to fit to screen in Nano X 
+ * - on Linux use: convert input.png -resize 400x400\> -colorspace RGB -strip -sampling-factor 1x1 -define jpeg:dct-method=integer -quality 85 -interlace none -depth 8 -type truecolor -compress JPEG output.jpg
  *
  * - Converts per-pixel RGB → grayscale (0–255).
  * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
@@ -12,14 +18,15 @@
  *   ROW_BUFFER = 0  -> per-MCU streaming renderer
  *                     - 4-level grayscale (0, 8, 7, 15)
  *                     - OR+AND uniform MCU detection
- *                     - batch up to 6 uniform MCUs into one filled rect
+ *                     - batch up to 6 uniform MCUs into one filled rect (speed optimization)
  *                     - non-uniform MCUs drawn per scanline via EmuGrArea
  *
  *   ROW_BUFFER = 1  -> row-buffer renderer
  *                     - reserves buffer large enough to hold one full
  *                       "band" of MCUs: width × MCU height (up to 400x16)
  *                     - decodes a whole MCU row into a band buffer
- *                     - draws entire band row-by-row using EmuGrArea
+ *                     - draws entire band row-by-row using own EmuGrArea
+ *                     - should be faster than ROW_BUFFER = 0
  */
 
 #include <stdio.h>
@@ -30,8 +37,8 @@
 #include "nano-X.h"
 #include "picojpeg.h"
 
-#define MAX_WIDTH   400
-#define MAX_HEIGHT  400
+#define MAX_WIDTH   620
+#define MAX_HEIGHT  460
 
 /* Switch between strategies */
 #ifndef ROW_BUFFER
@@ -515,7 +522,7 @@ int main(int argc, char **argv)
             file = argv[i];
 
     if (!file) {
-        LOG("No JPEG file supplied");
+        LOG("No JPEG file supplied or invalid path");
         return 1;
     }
 
@@ -591,4 +598,3 @@ int main(int argc, char **argv)
         }
     }
 }
-

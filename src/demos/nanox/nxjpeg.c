@@ -6,12 +6,21 @@
  *
  * - Converts per-pixel RGB → grayscale (0–255).
  * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
- * - Renders immediately using EmuGrArea (RLE -> GrLine).
- * - NO malloc, no full image buffer. Only MCU strip buffer.
  * - Logs to /tmp/nxjpeg.log
- * - Batch up to 6 uniform MCUs into one rectangle draw.
+ *
+ * Modes:
+ *   ROW_BUFFER = 0  -> per-MCU streaming renderer
+ *                     - 4-level grayscale (0, 8, 7, 15)
+ *                     - OR+AND uniform MCU detection
+ *                     - batch up to 6 uniform MCUs into one filled rect
+ *                     - non-uniform MCUs drawn per scanline via EmuGrArea
+ *
+ *   ROW_BUFFER = 1  -> row-buffer renderer
+ *                     - reserves buffer large enough to hold one full
+ *                       "band" of MCUs: width × MCU height (up to 400x16)
+ *                     - decodes a whole MCU row into a band buffer
+ *                     - draws entire band row-by-row using EmuGrArea
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +32,11 @@
 
 #define MAX_WIDTH   400
 #define MAX_HEIGHT  400
+
+/* Switch between strategies */
+#ifndef ROW_BUFFER
+#define ROW_BUFFER 1       /* set to 1 to enable row-buffer mode */
+#endif
 
 /* ----------------------------------------------------------- */
 /* Logging                                                     */
@@ -85,7 +99,7 @@ static inline unsigned char quantize_gray4(unsigned char g)
 }
 
 /* ----------------------------------------------------------- */
-/* EmuGrArea for non-uniform strips                            */
+/* EmuGrArea for indexed strips                                */
 /* ----------------------------------------------------------- */
 
 static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
@@ -94,6 +108,9 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
                       const unsigned char *buf,
                       GR_SIZE pitch)
 {
+    if (w == 0 || h == 0)
+        return;
+
     for (int iy = 0; iy < (int)h; iy++) {
         const unsigned char *row = buf + iy * pitch;
 
@@ -120,12 +137,15 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
 }
 
 /* ----------------------------------------------------------- */
-/* Stream JPEG + OR+AND uniform MCU detection                  */
+/* Per-MCU streaming renderer (ROW_BUFFER == 0)                */
+/*  - OR+AND uniform detection + batching                      */
 /* ----------------------------------------------------------- */
 
-static int stream_jpeg_and_draw(const char *file,
-                                GR_WINDOW_ID wid,
-                                GR_GC_ID gc)
+#if !ROW_BUFFER
+
+static int stream_jpeg_and_draw_mcu(const char *file,
+                                    GR_WINDOW_ID wid,
+                                    GR_GC_ID gc)
 {
     FILE *fp = fopen(file, "rb");
     if (!fp) {
@@ -150,16 +170,19 @@ static int stream_jpeg_and_draw(const char *file,
     unsigned blocks_x = mcu_w/8 ? mcu_w/8 : 1;
     unsigned blocks_y = mcu_h/8 ? mcu_h/8 : 1;
 
-    LOG("JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
+    LOG("MCU-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
         imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow);
 
+    /* small strip buffer for one MCU row */
     #define MCU_MAX_WIDTH 32
     static unsigned char stripbuf[MCU_MAX_WIDTH];
+
+    /* full-MCU quantized buffer (max 256 samples) */
     static unsigned char qbuf[256];
 
     int mcu_index = 0;
 
-    /* batching state: up to 6 MCUs */
+    /* batching state: up to 6 uniform MCUs */
     int batch_active = 0;
     unsigned batch_my = 0;
     unsigned batch_px_start = 0;
@@ -205,6 +228,7 @@ static int stream_jpeg_and_draw(const char *file,
         unsigned px = mx * mcu_w;
         unsigned py = my * mcu_h;
 
+        /* Skip MCUs completely outside cropped image */
         if (py >= imgh) {
             if (batch_active && my != batch_my)
                 FLUSH_BATCH();
@@ -216,9 +240,7 @@ static int stream_jpeg_and_draw(const char *file,
             continue;
         }
 
-        /* ---------------------------------------- */
-        /* FULL MCU uniform detection (OR+AND)       */
-        /* ---------------------------------------- */
+        /* ---- FULL MCU uniform detection with OR+AND ---- */
 
         int samples = blocks_x * blocks_y * 64;
         if (samples > 256) samples = 256;
@@ -241,9 +263,7 @@ static int stream_jpeg_and_draw(const char *file,
         int mcu_uniform = (all_or == all_and);
         unsigned char uniform_color = all_or;
 
-        /* ---------------------------------------- */
-        /* Uniform MCU batching                     */
-        /* ---------------------------------------- */
+        /* ---- Uniform MCU batching ---- */
 
         if (mcu_uniform) {
             if (!batch_active ||
@@ -266,14 +286,11 @@ static int stream_jpeg_and_draw(const char *file,
             continue;
         }
 
-        /* ---------------------------------------- */
-        /* Non-uniform MCU                          */
-        /* ---------------------------------------- */
+        /* ---- Non-uniform MCU ---- */
 
         if (batch_active)
             FLUSH_BATCH();
 
-        /* draw per-scanline */
         for (unsigned ly = 0; ly < mcu_h; ly++) {
 
             unsigned gy = py + ly;
@@ -318,8 +335,168 @@ static int stream_jpeg_and_draw(const char *file,
     #undef FLUSH_BATCH
 
     fclose(fp);
-    LOG("stream_jpeg_and_draw: done");
+    LOG("stream_jpeg_and_draw_mcu: done");
     return 0;
+}
+
+#endif /* !ROW_BUFFER */
+
+/* ----------------------------------------------------------- */
+/* Row-buffer renderer (ROW_BUFFER == 1)                       */
+/*  - buffer holds one MCU row: width x MCUHeight              */
+/* ----------------------------------------------------------- */
+
+#if ROW_BUFFER
+
+static int stream_jpeg_and_draw_rowbuf(const char *file,
+                                       GR_WINDOW_ID wid,
+                                       GR_GC_ID gc)
+{
+    FILE *fp = fopen(file, "rb");
+    if (!fp) {
+        LOG("Cannot open: %s", file);
+        return -1;
+    }
+
+    JPEG_FILE jf = { fp };
+    pjpeg_image_info_t info;
+    int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
+    if (rc) {
+        LOG("pjpeg_decode_init rc=%d", rc);
+        fclose(fp);
+        return -1;
+    }
+
+    unsigned imgw = (info.m_width  > MAX_WIDTH)  ? MAX_WIDTH  : info.m_width;
+    unsigned imgh = (info.m_height > MAX_HEIGHT) ? MAX_HEIGHT : info.m_height;
+
+    unsigned mcu_w = info.m_MCUWidth;
+    unsigned mcu_h = info.m_MCUHeight;
+    unsigned blocks_x = mcu_w/8 ? mcu_w/8 : 1;
+    unsigned blocks_y = mcu_h/8 ? mcu_h/8 : 1;
+
+    LOG("ROWBUF-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
+        imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow);
+
+    /* row buffer: holds imgw x mcu_h pixels (max 400x16 = 6400 bytes) */
+    #define MAX_MCU_H 16
+    #define MAX_ROWBUF (MAX_WIDTH * MAX_MCU_H)
+    static unsigned char rowbuf[MAX_ROWBUF];
+
+    unsigned row_pitch = imgw;
+
+    int mcu_index = 0;
+    int current_my = -1;      /* current MCU row index in buffer */
+    unsigned band_py = 0;     /* y coordinate of band top */
+
+    /* helper to flush one full band to screen */
+    #define FLUSH_BAND() \
+        do { \
+            if (current_my >= 0) { \
+                for (unsigned ly = 0; ly < mcu_h; ly++) { \
+                    unsigned gy = band_py + ly; \
+                    if (gy >= imgh) break; \
+                    EmuGrArea(wid, gc, \
+                              0, gy, \
+                              imgw, 1, \
+                              &rowbuf[ly * row_pitch], \
+                              row_pitch); \
+                } \
+                current_my = -1; \
+            } \
+        } while (0)
+
+    while (1) {
+        rc = pjpeg_decode_mcu();
+        if (rc == PJPG_NO_MORE_BLOCKS)
+            break;
+        if (rc) {
+            LOG("decode_mcu rc=%d at index=%d", rc, mcu_index);
+            FLUSH_BAND();
+            fclose(fp);
+            return -1;
+        }
+
+        unsigned mx = mcu_index % info.m_MCUSPerRow;
+        unsigned my = mcu_index / info.m_MCUSPerRow;
+        mcu_index++;
+
+        unsigned px = mx * mcu_w;
+        unsigned py = my * mcu_h;
+
+        /* if we started a new MCU row, flush previous band */
+        if (current_my >= 0 && (int)my != current_my) {
+            FLUSH_BAND();
+        }
+
+        if (current_my < 0) {
+            /* starting a new band */
+            current_my = (int)my;
+            band_py = py;
+            /* clear band buffer (optional, but safe) */
+            memset(rowbuf, 0, row_pitch * mcu_h);
+        }
+
+        /* Skip MCUs completely below image */
+        if (py >= imgh)
+            continue;
+
+        /* fill band buffer for this MCU */
+        for (unsigned ly = 0; ly < mcu_h; ly++) {
+            unsigned gy = py + ly;
+            if (gy >= imgh) break;
+
+            for (unsigned lx = 0; lx < mcu_w; lx++) {
+                unsigned gx = px + lx;
+                if (gx >= imgw) break;
+
+                unsigned block_x = lx / 8;
+                unsigned block_y = ly / 8;
+                if (block_x >= blocks_x) block_x = blocks_x - 1;
+                if (block_y >= blocks_y) block_y = blocks_y - 1;
+
+                unsigned bx = lx % 8;
+                unsigned by = ly % 8;
+                unsigned bindex = block_y * blocks_x + block_x;
+                unsigned sindex = bindex * 64 + by * 8 + bx;
+                if (sindex >= 256) sindex = 255;
+
+                unsigned char gray = to_gray(
+                    gMCUBufR[sindex], gMCUBufG[sindex], gMCUBufB[sindex]);
+                unsigned char q = quantize_gray4(gray);
+
+                unsigned band_ly = ly;
+                unsigned band_x  = gx;          /* 0..imgw-1 */
+                rowbuf[band_ly * row_pitch + band_x] = q;
+            }
+        }
+    }
+
+    /* flush last band */
+    FLUSH_BAND();
+
+    #undef FLUSH_BAND
+
+    fclose(fp);
+    LOG("stream_jpeg_and_draw_rowbuf: done");
+    return 0;
+}
+
+#endif /* ROW_BUFFER */
+
+/* ----------------------------------------------------------- */
+/* Dispatcher: picks renderer based on ROW_BUFFER              */
+/* ----------------------------------------------------------- */
+
+static int stream_jpeg_and_draw(const char *file,
+                                GR_WINDOW_ID wid,
+                                GR_GC_ID gc)
+{
+#if ROW_BUFFER
+    return stream_jpeg_and_draw_rowbuf(file, wid, gc);
+#else
+    return stream_jpeg_and_draw_mcu(file, wid, gc);
+#endif
 }
 
 /* ----------------------------------------------------------- */
@@ -331,7 +508,7 @@ int main(int argc, char **argv)
     const char *file = NULL;
 
     logfp = fopen("/tmp/nxjpeg.log", "w");
-    LOG("nxjpeg starting (EXPOSURE always redraw)");
+    LOG("nxjpeg starting (ROW_BUFFER=%d)", ROW_BUFFER);
 
     for (int i = 1; i < argc; i++)
         if (argv[i][0] != '-')
@@ -364,7 +541,7 @@ int main(int argc, char **argv)
     /* read JPEG header for size */
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("cannot open JPEG");
+        LOG("Cannot open JPEG for size");
         return 1;
     }
     JPEG_FILE jf = { fp };

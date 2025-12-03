@@ -2,38 +2,62 @@
  * nxjpeg - Nano-X JPEG viewer for VGA (optimized for low memory and ELKS)
  *
  * Uses PicoJPEG (MCU-by-MCU) and draws to a Nano-X VGA window. 
- * Nano X on VGA supports only 16 colors. A grayscale output was 
- * preferred to a 16-color image match.
+ * Nano X on VGA supports only 16 colors.
  * 
- * - Converts per-pixel RGB → grayscale (0–255).
- * - Quantizes grayscale to 4 VGA gray entries: indices 0, 8, 7, 15.
+ * - Always decodes JPEG in "bands" (one MCU row at a time) for color.
+ * - For band-based mode, decodes to per-pixel palette indices (0–15),
+ *   then optionally smooths using neighboring bands to stabilize colors.
+ * - Uses a classical 16-color mapping by closest color in EGA 16 palette.
+ * - Optional 4-level grayscale mode (-g) using VGA gray entries:
+ *   indices 0, 8, 7, 15.
+ * - Optional MCU-based grayscale renderer with uniform-MCU
+ *   batching (-g -m), optimized to draw several identical MCUs together
  * - Logs to /tmp/nxjpeg.log
  *
  * Input JPEG image must be:
- * - baseline (SOF0), non-progressive, Huffman-coded, 8×8 DCT blocks, no arithmetic coding, no restart markers
+ * - baseline (SOF0), non-progressive, Huffman-coded, 8×8 DCT blocks,
+ *   no arithmetic coding, no restart markers
  * - image size should be less than VGA 640×480 to fit to screen in Nano X 
- * - on Linux use: convert input.png -resize 400x400\> -colorspace RGB -strip -sampling-factor 1x1 -define jpeg:dct-method=integer -quality 85 -interlace none -depth 8 -type truecolor -compress JPEG output.jpg
+ * - on Linux use:
+ *   convert input.png -resize 400x400\> -colorspace RGB -strip \
+ *           -sampling-factor 1x1 -define jpeg:dct-method=integer \
+ *           -quality 85 -interlace none -depth 8 -type truecolor \
+ *           -compress JPEG output.jpg
  *
  * Modes:
- *   ROW_BUFFER = 0  -> per-MCU streaming renderer
- *                     - 4-level grayscale (0, 8, 7, 15)
- *                     - OR+AND uniform MCU detection
- *                     - batch up to 6 uniform MCUs into one filled rect (speed optimization)
- *                     - non-uniform MCUs drawn per scanline via EmuGrArea
+ *   Color (default):
+ *     - Band-based renderer (2 bands, 1 is rendered)
+ *     - EGA 16-color mapping
+ *     - optional smoothing:
+ *         -s0: off
+ *         -s1: mild (default)
+ *         -s2: medium
+ *         -s3: strong
  *
- *   ROW_BUFFER = 1  -> row-buffer renderer
- *                     - reserves buffer large enough to hold one full
- *                       "band" of MCUs: width × MCU height (up to 400x16)
- *                     - decodes a whole MCU row into a band buffer
- *                     - draws entire band row-by-row using own EmuGrArea
- * Which mode is faster depends on the image.
+ *   Grayscale (-g):
+ *     - Band-based grayscale by default
+ *     - 4-level grayscale (0, 8, 7, 15)
+ *     - No smoothing (keeps original sharp look)
+ *
+ *   Grayscale + Per-MCU streaming renderer (-g -m):
+ *     - can speed up grayscale rendering
+ *     - OR+AND uniform detection + batching
+ *     - Non-uniform MCUs drawn per scanline
+ *
+ * For slow systems (rendering speed fast -> slow):
+ *    -g -m (grayscale optimized per MCU rendering)
+ *    -g (grayscale per band rendering)
+ *    -s0 (color, no smoothing)
+ *    -s1 (default for color, smoothing level 1)
  *
  * This program uses code or is inspired by:
  *   - https://github.com/rafael2k/elks-viewer
  *   - https://github.com/richgel999/picojpeg
  * 
+ * Author(s): Anton ANDREEV
+ * 
  * History:
- *   2/12/2025 version 1.0 
+ *   3/12/2025 version 1.0
  */
 
 #include <stdio.h>
@@ -47,21 +71,16 @@
 #define MAX_WIDTH   620
 #define MAX_HEIGHT  460
 
-/* Switch between strategies */
-#define ROW_BUFFER 1       /* set to 1 to enable row-buffer mode */
+/* Max MCU height from picojpeg is 16 (H2V2) */
+#define MAX_MCU_H   16
+#define MAX_ROWBUF  (MAX_WIDTH * MAX_MCU_H)
 
-/* ----------------------------------------------------------- */
 /* Logging                                                     */
-/* ----------------------------------------------------------- */
-
 static FILE *logfp = NULL;
 #define LOG(fmt, ...) \
     do { if (logfp) { fprintf(logfp, fmt "\n", ##__VA_ARGS__); fflush(logfp);} } while (0)
 
-/* ----------------------------------------------------------- */
 /* PicoJPEG externs                                            */
-/* ----------------------------------------------------------- */
-
 extern unsigned char gMCUBufR[256];
 extern unsigned char gMCUBufG[256];
 extern unsigned char gMCUBufB[256];
@@ -69,6 +88,35 @@ extern unsigned char gMCUBufB[256];
 /* System palette and precomputed RGB */
 static GR_PALETTE pal;
 static GR_COLOR color_from_index[256];
+
+/* Smoothing parameter: 0=off, 1=mild, 2=medium, 3=strong (default 1) */
+static int smoothing = 1;
+
+/* Grayscale flag: when set by -g, use 4-level grayscale instead of 16-color EGA */
+static int use_gray = 0;
+
+/* MCU-based grayscale renderer flag (-m with -g) */
+static int use_mcu_renderer = 0;
+
+/* EGA 16-color palette used for color matching */
+static const struct { unsigned char r, g, b; } ega16[16] = {
+    { 0,   0,   0   },  /* 0 black */
+    { 0,   0,   128 },  /* 1 blue */
+    { 0,   128, 0   },  /* 2 green */
+    { 0,   128, 128 },  /* 3 cyan */
+    { 128, 0,   0   },  /* 4 red */
+    { 128, 0,   128 },  /* 5 magenta */
+    { 128, 64,  0   },  /* 6 brown */
+    { 192, 192, 192 },  /* 7 light gray */
+    { 128, 128, 128 },  /* 8 gray */
+    { 0,   0,   255 },  /* 9 bright blue */
+    { 0,   255, 0   },  /* 10 bright green */
+    { 0,   255, 255 },  /* 11 bright cyan */
+    { 255, 0,   0   },  /* 12 bright red */
+    { 255, 0,   255 },  /* 13 bright magenta */
+    { 255, 255, 0   },  /* 14 yellow */
+    { 255, 255, 255 }   /* 15 white */
+};
 
 /* JPEG file wrapper */
 typedef struct {
@@ -91,29 +139,66 @@ pjpeg_need_bytes_callback(unsigned char *buf, unsigned char size,
 }
 
 /* ----------------------------------------------------------- */
-/* Grayscale + quantization                                    */
+/* Grayscale + quantization (for -g)                           */
 /* ----------------------------------------------------------- */
-
-static inline unsigned char to_gray(unsigned char r,
-                                    unsigned char g,
-                                    unsigned char b)
+static inline unsigned char to_gray(unsigned r, unsigned g, unsigned b)
 {
+    /* same formula as original code: 0.30R + 0.59G + 0.11B */
     return (unsigned char)((r*30 + g*59 + b*11) / 100);
 }
 
 /* 4-level mapping */
 static inline unsigned char quantize_gray4(unsigned char g)
 {
-    if (g < 64)   return 0;
-    if (g < 128)  return 8;
-    if (g < 192)  return 7;
-    return 15;
+    if (g < 64)   return 0;  /* black */
+    if (g < 128)  return 8;  /* gray */
+    if (g < 192)  return 7;  /* light gray */
+    return 15;               /* white */
+}
+
+/* ----------------------------------------------------------- */
+/* Classical 16-color mapping (no grayscale bias)              */
+/* ----------------------------------------------------------- */
+/*
+ * Map an RGB triple to the closest EGA palette index (0–15).
+ * If use_gray is set (-g), this becomes 4-level grayscale mapping
+ * with indices 0, 8, 7, 15 as in the original program.
+ */
+static inline unsigned char
+map_rgb_to_index(unsigned r, unsigned g, unsigned b)
+{
+    /* Grayscale mode: fast and predictable */
+    if (use_gray) {
+        unsigned char g8 = to_gray(r, g, b);
+        return quantize_gray4(g8);
+    }
+
+    /* EGA 16-color mode: closest palette entry by weighted RGB distance */
+    int best = 0;
+    long bestdist = 0x7fffffffL;
+
+    for (int i = 0; i < 16; i++) {
+        int dr = (int)r - (int)ega16[i].r;
+        int dg = (int)g - (int)ega16[i].g;
+        int db = (int)b - (int)ega16[i].b;
+
+        /* perceptual weighting: green most important, blue least */
+        long dist = (long)dr * dr * 3
+                  + (long)dg * dg * 6
+                  + (long)db * db * 1;
+
+        if (dist < bestdist) {
+            bestdist = dist;
+            best = i;
+        }
+    }
+
+    return (unsigned char)best;
 }
 
 /* ----------------------------------------------------------- */
 /* EmuGrArea for indexed strips                                */
 /* ----------------------------------------------------------- */
-
 static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
                       GR_COORD x, GR_COORD y,
                       GR_SIZE w, GR_SIZE h,
@@ -148,16 +233,193 @@ static void EmuGrArea(GR_WINDOW_ID wid, GR_GC_ID gc,
     }
 }
 
-/* ----------------------------------------------------------- */
-/* Per-MCU streaming renderer (ROW_BUFFER == 0)                */
-/*  - OR+AND uniform detection + batching                      */
-/* ----------------------------------------------------------- */
+static int stream_jpeg_and_draw_band(const char *file,
+                                     GR_WINDOW_ID wid,
+                                     GR_GC_ID gc);
+static int stream_jpeg_and_draw_mcu_gray(const char *file,
+                                                GR_WINDOW_ID wid,
+                                                GR_GC_ID gc);
 
-#if !ROW_BUFFER
+/* ----------------------------------------------------------- */
+/* Band decoding + neighborhood smoothing                      */
+/* ----------------------------------------------------------- */
+/*
+ * Decode one MCU-row ("band") into a raw band buffer.
+ * The buffer holds palette indices produced by map_rgb_to_index().
+ *
+ * info       - PicoJPEG image info (maintains decode state)
+ * imgw/imgh  - cropped image width/height
+ * mcu_w/h    - MCU dimensions in pixels
+ * blocks_x/y - number of 8x8 blocks in x/y per MCU
+ * band_index - which band (0..MCUsPerCol-1) we're decoding
+ * dst_band   - output buffer (size at least row_pitch * mcu_h)
+ * row_pitch  - number of pixels per row (imgw)
+ *
+ * Returns 0 on success, or a PicoJPEG error code.
+ */
+static int
+decode_band_row(pjpeg_image_info_t *info,
+                unsigned imgw, unsigned imgh,
+                unsigned mcu_w, unsigned mcu_h,
+                unsigned blocks_x, unsigned blocks_y,
+                unsigned band_index,
+                unsigned char *dst_band,
+                unsigned row_pitch)
+{
+    unsigned mcus_per_row = info->m_MCUSPerRow;
+    unsigned band_py = band_index * mcu_h;
+    int rc;
 
-static int stream_jpeg_and_draw_mcu(const char *file,
-                                    GR_WINDOW_ID wid,
-                                    GR_GC_ID gc)
+    /* clear band (optional but keeps borders consistent) */
+    memset(dst_band, 0, row_pitch * mcu_h);
+
+    for (unsigned mx = 0; mx < mcus_per_row; mx++) {
+        rc = pjpeg_decode_mcu();
+        if (rc == PJPG_NO_MORE_BLOCKS)
+            return 0;
+        if (rc)
+            return rc;
+
+        unsigned px = mx * mcu_w;
+
+        for (unsigned ly = 0; ly < mcu_h; ly++) {
+            unsigned gy = band_py + ly;
+            if (gy >= imgh)
+                break;
+
+            for (unsigned lx = 0; lx < mcu_w; lx++) {
+                unsigned gx = px + lx;
+                if (gx >= imgw)
+                    break;
+
+                unsigned block_x = lx / 8;
+                unsigned block_y = ly / 8;
+                if (block_x >= blocks_x) block_x = blocks_x - 1;
+                if (block_y >= blocks_y) block_y = blocks_y - 1;
+
+                unsigned bx = lx % 8;
+                unsigned by = ly % 8;
+                unsigned bindex = block_y * blocks_x + block_x;
+                unsigned sindex = bindex * 64 + by * 8 + bx;
+                if (sindex >= 256) sindex = 255;
+
+                unsigned char q = map_rgb_to_index(
+                    (unsigned)gMCUBufR[sindex],
+                    (unsigned)gMCUBufG[sindex],
+                    (unsigned)gMCUBufB[sindex]);
+
+                dst_band[ly * row_pitch + gx] = q;
+            }
+        }
+    }
+    return 0;
+}
+
+/*
+ * Postprocess one band using its neighbors:
+ *  - prev_sm  : previous band (already smoothed), or NULL for first band
+ *  - cur_raw  : raw current band (just decoded)
+ *  - next_raw : next band raw (already decoded), or NULL for last band
+ *  Output goes into out_band.
+ *
+ * Smoothing strength is controlled by "smoothing":
+ *   0 -> no smoothing (copy cur_raw to out_band)
+ *   1 -> mild smoothing
+ *   2 -> medium smoothing
+ *   3 -> strong smoothing
+ *
+ * When use_gray is set (-g), smoothing is disabled and cur_raw is copied.
+ */
+static void smooth_band(unsigned imgw, unsigned band_h,
+						unsigned row_pitch,
+						const unsigned char *prev_sm,
+						const unsigned char *cur_raw,
+						const unsigned char *next_raw,
+						unsigned char *out_band)
+{
+    if (smoothing <= 0 || use_gray) {
+        /* no smoothing for grayscale or smoothing=0 */
+        memcpy(out_band, cur_raw, row_pitch * band_h);
+        return;
+    }
+
+    int base_w, neigh_w, band_w, adv;
+
+    if (smoothing == 1) {
+        /* mild */
+        base_w  = 3;
+        neigh_w = 1;
+        band_w  = 1;
+        adv     = 2;
+    } else if (smoothing == 2) {
+        /* medium */
+        base_w  = 2;
+        neigh_w = 2;
+        band_w  = 2;
+        adv     = 1;
+    } else {
+        /* strong (smoothing >= 3) */
+        base_w  = 1;
+        neigh_w = 3;
+        band_w  = 3;
+        adv     = 0;
+    }
+
+    for (unsigned y = 0; y < band_h; y++) {
+        for (unsigned x = 0; x < imgw; x++) {
+            unsigned idx = y * row_pitch + x;
+            unsigned char center = cur_raw[idx];
+
+            int counts[16];
+            memset(counts, 0, sizeof(counts));
+
+            /* center pixel has base weight */
+            counts[center] += base_w;
+
+            /* same-band neighbors (4-neighborhood) */
+            if (x > 0)
+                counts[cur_raw[idx - 1]] += neigh_w;
+            if (x + 1 < imgw)
+                counts[cur_raw[idx + 1]] += neigh_w;
+            if (y > 0)
+                counts[cur_raw[idx - row_pitch]] += neigh_w;
+            if (y + 1 < band_h)
+                counts[cur_raw[idx + row_pitch]] += neigh_w;
+
+            /* previous smoothed band (above) */
+            if (prev_sm)
+                counts[prev_sm[idx]] += band_w;
+
+            /* next raw band (below) */
+            if (next_raw)
+                counts[next_raw[idx]] += band_w;
+
+            /* find best color */
+            int best_col = center;
+            int best_votes = counts[center];
+
+            for (int c = 0; c < 16; c++) {
+                if (counts[c] > best_votes) {
+                    best_votes = counts[c];
+                    best_col = c;
+                }
+            }
+
+            /* require advantage over center, otherwise keep center */
+            if (best_col != center && best_votes < counts[center] + adv)
+                best_col = center;
+
+            out_band[idx] = (unsigned char)best_col;
+        }
+    }
+}
+
+/* ----------------------------------------------------------- */
+/* Band-based renderer (color or grayscale)                    */
+/* ----------------------------------------------------------- */
+static int stream_jpeg_and_draw_band(const char *file,
+                                     GR_WINDOW_ID wid,
+                                     GR_GC_ID gc)
 {
     FILE *fp = fopen(file, "rb");
     if (!fp) {
@@ -182,7 +444,161 @@ static int stream_jpeg_and_draw_mcu(const char *file,
     unsigned blocks_x = mcu_w/8 ? mcu_w/8 : 1;
     unsigned blocks_y = mcu_h/8 ? mcu_h/8 : 1;
 
-    LOG("MCU-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
+    unsigned bands = info.m_MCUSPerCol;
+
+    LOG("BAND-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u MCUs/col=%u smoothing=%d use_gray=%d",
+        imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow, bands, smoothing, use_gray);
+
+    if (bands == 0) {
+        fclose(fp);
+        return -1;
+    }
+
+    static unsigned char band_prev_sm[MAX_ROWBUF];
+    static unsigned char band_raw0[MAX_ROWBUF];
+    static unsigned char band_raw1[MAX_ROWBUF];
+
+    unsigned row_pitch = imgw;
+
+    /* Decode first band into band_raw0 */
+    rc = decode_band_row(&info, imgw, imgh,
+                         mcu_w, mcu_h,
+                         blocks_x, blocks_y,
+                         0, band_raw0, row_pitch);
+    if (rc) {
+        LOG("decode_band_row(0) rc=%d", rc);
+        fclose(fp);
+        return -1;
+    }
+
+    if (bands == 1) {
+        /* Only one band: smooth (or just copy) using no neighbors. */
+        smooth_band(imgw, mcu_h, row_pitch,
+                    NULL, band_raw0, NULL, band_prev_sm);
+
+        for (unsigned ly = 0; ly < mcu_h; ly++) {
+            unsigned gy = ly;
+            if (gy >= imgh) break;
+            EmuGrArea(wid, gc,
+                      0, gy,
+                      imgw, 1,
+                      &band_prev_sm[ly * row_pitch],
+                      row_pitch);
+        }
+
+        fclose(fp);
+        LOG("stream_jpeg_and_draw_band: done (1 band)");
+        return 0;
+    }
+
+    /* Decode second band into band_raw1 */
+    rc = decode_band_row(&info, imgw, imgh,
+                         mcu_w, mcu_h,
+                         blocks_x, blocks_y,
+                         1, band_raw1, row_pitch);
+    if (rc) {
+        LOG("decode_band_row(1) rc=%d", rc);
+        fclose(fp);
+        return -1;
+    }
+
+    /* Process band 0: current = band_raw0, next = band_raw1 */
+    smooth_band(imgw, mcu_h, row_pitch,
+                NULL, band_raw0, band_raw1, band_prev_sm);
+
+    for (unsigned ly = 0; ly < mcu_h; ly++) {
+        unsigned gy = ly;
+        if (gy >= imgh) break;
+        EmuGrArea(wid, gc,
+                  0, gy,
+                  imgw, 1,
+                  &band_prev_sm[ly * row_pitch],
+                  row_pitch);
+    }
+
+    int cur_idx = 1;  /* band_raw1 currently holds band 1 */
+    int next_idx = 0; /* band_raw0 will be reused for band 2 */
+
+    /* Process remaining bands 1..bands-1 */
+    for (unsigned band = 1; band < bands; band++) {
+        unsigned char *cur_raw  = (cur_idx ? band_raw1 : band_raw0);
+        unsigned char *next_raw = NULL;
+
+        /* Decode next band (if any) into the other raw buffer */
+        if (band + 1 < bands) {
+            unsigned char *dst = (next_idx ? band_raw1 : band_raw0);
+            rc = decode_band_row(&info, imgw, imgh,
+                                 mcu_w, mcu_h,
+                                 blocks_x, blocks_y,
+                                 band + 1, dst, row_pitch);
+            if (rc) {
+                LOG("decode_band_row(%u) rc=%d", band + 1, rc);
+                fclose(fp);
+                return -1;
+            }
+            next_raw = dst;
+        }
+
+        unsigned band_py = band * mcu_h;
+
+        /* For the last band, next_raw is NULL. */
+        smooth_band(imgw, mcu_h, row_pitch,
+                    band_prev_sm, cur_raw, next_raw, band_prev_sm);
+
+        for (unsigned ly = 0; ly < mcu_h; ly++) {
+            unsigned gy = band_py + ly;
+            if (gy >= imgh) break;
+            EmuGrArea(wid, gc,
+                      0, gy,
+                      imgw, 1,
+                      &band_prev_sm[ly * row_pitch],
+                      row_pitch);
+        }
+
+        /* rotate raw buffers for next iteration */
+        int tmp = cur_idx;
+        cur_idx = next_idx;
+        next_idx = tmp;
+    }
+
+    fclose(fp);
+    LOG("stream_jpeg_and_draw_band: done (bands)");
+    return 0;
+}
+
+/* ----------------------------------------------------------- */
+/* Per-MCU grayscale renderer with batching (-g -m)     */
+/*  - OR+AND uniform detection + batching                      */
+/* ----------------------------------------------------------- */
+
+static int stream_jpeg_and_draw_mcu_gray(const char *file,
+										 GR_WINDOW_ID wid,
+										 GR_GC_ID gc)
+{
+    FILE *fp = fopen(file, "rb");
+    if (!fp) {
+        LOG("Cannot open: %s", file);
+        return -1;
+    }
+
+    JPEG_FILE jf = { fp };
+    pjpeg_image_info_t info;
+    int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
+    if (rc) {
+        LOG("pjpeg_decode_init rc=%d", rc);
+        fclose(fp);
+        return -1;
+    }
+
+    unsigned imgw = (info.m_width  > MAX_WIDTH)  ? MAX_WIDTH  : info.m_width;
+    unsigned imgh = (info.m_height > MAX_HEIGHT) ? MAX_HEIGHT : info.m_height;
+
+    unsigned mcu_w = info.m_MCUWidth;
+    unsigned mcu_h = info.m_MCUHeight;
+    unsigned blocks_x = mcu_w/8 ? mcu_w/8 : 1;
+    unsigned blocks_y = mcu_h/8 ? mcu_h/8 : 1;
+
+    LOG("MCU-gray-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
         imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow);
 
     /* small strip buffer for one MCU row */
@@ -233,8 +649,8 @@ static int stream_jpeg_and_draw_mcu(const char *file,
             return -1;
         }
 
-        unsigned mx = mcu_index % info.m_MCUSPerRow;
-        unsigned my = mcu_index / info.m_MCUSPerRow;
+        unsigned mx = (unsigned)mcu_index % info.m_MCUSPerRow;
+        unsigned my = (unsigned)mcu_index / info.m_MCUSPerRow;
         mcu_index++;
 
         unsigned px = mx * mcu_w;
@@ -254,19 +670,24 @@ static int stream_jpeg_and_draw_mcu(const char *file,
 
         /* ---- FULL MCU uniform detection with OR+AND ---- */
 
-        int samples = blocks_x * blocks_y * 64;
+        int samples = (int)(blocks_x * blocks_y * 64);
         if (samples > 256) samples = 256;
 
-        unsigned char first = quantize_gray4(
-            to_gray(gMCUBufR[0], gMCUBufG[0], gMCUBufB[0]));
+        /* use map_rgb_to_index, which in grayscale mode is quantize_gray4(to_gray) */
+        unsigned char first = map_rgb_to_index(
+            (unsigned)gMCUBufR[0],
+            (unsigned)gMCUBufG[0],
+            (unsigned)gMCUBufB[0]);
         qbuf[0] = first;
 
         unsigned char all_or  = first;
         unsigned char all_and = first;
 
         for (int si = 1; si < samples; si++) {
-            unsigned char q = quantize_gray4(
-                to_gray(gMCUBufR[si], gMCUBufG[si], gMCUBufB[si]));
+            unsigned char q = map_rgb_to_index(
+                (unsigned)gMCUBufR[si],
+                (unsigned)gMCUBufG[si],
+                (unsigned)gMCUBufB[si]);
             qbuf[si] = q;
             all_or  |= q;
             all_and &= q;
@@ -329,9 +750,7 @@ static int stream_jpeg_and_draw_mcu(const char *file,
                 unsigned sindex = bindex * 64 + by * 8 + bx;
                 if (sindex >= 256) sindex = 255;
 
-                unsigned char gray = to_gray(
-                    gMCUBufR[sindex], gMCUBufG[sindex], gMCUBufB[sindex]);
-                stripbuf[lx] = quantize_gray4(gray);
+                stripbuf[lx] = qbuf[sindex];
             }
 
             EmuGrArea(wid, gc,
@@ -345,194 +764,82 @@ static int stream_jpeg_and_draw_mcu(const char *file,
     FLUSH_BATCH();
 
     #undef FLUSH_BATCH
+    #undef MCU_MAX_WIDTH
 
     fclose(fp);
-    LOG("stream_jpeg_and_draw_mcu: done");
+    LOG("stream_jpeg_and_draw_mcu_gray: done");
     return 0;
 }
 
-#endif /* !ROW_BUFFER */
-
 /* ----------------------------------------------------------- */
-/* Row-buffer renderer (ROW_BUFFER == 1)                       */
-/*  - buffer holds one MCU row: width x MCUHeight              */
-/* ----------------------------------------------------------- */
-
-#if ROW_BUFFER
-
-static int stream_jpeg_and_draw_rowbuf(const char *file,
-                                       GR_WINDOW_ID wid,
-                                       GR_GC_ID gc)
-{
-    FILE *fp = fopen(file, "rb");
-    if (!fp) {
-        LOG("Cannot open: %s", file);
-        return -1;
-    }
-
-    JPEG_FILE jf = { fp };
-    pjpeg_image_info_t info;
-    int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
-    if (rc) {
-        LOG("pjpeg_decode_init rc=%d", rc);
-        fclose(fp);
-        return -1;
-    }
-
-    unsigned imgw = (info.m_width  > MAX_WIDTH)  ? MAX_WIDTH  : info.m_width;
-    unsigned imgh = (info.m_height > MAX_HEIGHT) ? MAX_HEIGHT : info.m_height;
-
-    unsigned mcu_w = info.m_MCUWidth;
-    unsigned mcu_h = info.m_MCUHeight;
-    unsigned blocks_x = mcu_w/8 ? mcu_w/8 : 1;
-    unsigned blocks_y = mcu_h/8 ? mcu_h/8 : 1;
-
-    LOG("ROWBUF-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
-        imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow);
-
-    /* row buffer: holds imgw x mcu_h pixels (max 400x16 = 6400 bytes) */
-    #define MAX_MCU_H 16
-    #define MAX_ROWBUF (MAX_WIDTH * MAX_MCU_H)
-    static unsigned char rowbuf[MAX_ROWBUF];
-
-    unsigned row_pitch = imgw;
-
-    int mcu_index = 0;
-    int current_my = -1;      /* current MCU row index in buffer */
-    unsigned band_py = 0;     /* y coordinate of band top */
-
-    /* helper to flush one full band to screen */
-    #define FLUSH_BAND() \
-        do { \
-            if (current_my >= 0) { \
-                for (unsigned ly = 0; ly < mcu_h; ly++) { \
-                    unsigned gy = band_py + ly; \
-                    if (gy >= imgh) break; \
-                    EmuGrArea(wid, gc, \
-                              0, gy, \
-                              imgw, 1, \
-                              &rowbuf[ly * row_pitch], \
-                              row_pitch); \
-                } \
-                current_my = -1; \
-            } \
-        } while (0)
-
-    while (1) {
-        rc = pjpeg_decode_mcu();
-        if (rc == PJPG_NO_MORE_BLOCKS)
-            break;
-        if (rc) {
-            LOG("decode_mcu rc=%d at index=%d", rc, mcu_index);
-            FLUSH_BAND();
-            fclose(fp);
-            return -1;
-        }
-
-        unsigned mx = mcu_index % info.m_MCUSPerRow;
-        unsigned my = mcu_index / info.m_MCUSPerRow;
-        mcu_index++;
-
-        unsigned px = mx * mcu_w;
-        unsigned py = my * mcu_h;
-
-        /* if we started a new MCU row, flush previous band */
-        if (current_my >= 0 && (int)my != current_my) {
-            FLUSH_BAND();
-        }
-
-        if (current_my < 0) {
-            /* starting a new band */
-            current_my = (int)my;
-            band_py = py;
-            /* clear band buffer (optional, but safe) */
-            memset(rowbuf, 0, row_pitch * mcu_h);
-        }
-
-        /* Skip MCUs completely below image */
-        if (py >= imgh)
-            continue;
-
-        /* fill band buffer for this MCU */
-        for (unsigned ly = 0; ly < mcu_h; ly++) {
-            unsigned gy = py + ly;
-            if (gy >= imgh) break;
-
-            for (unsigned lx = 0; lx < mcu_w; lx++) {
-                unsigned gx = px + lx;
-                if (gx >= imgw) break;
-
-                unsigned block_x = lx / 8;
-                unsigned block_y = ly / 8;
-                if (block_x >= blocks_x) block_x = blocks_x - 1;
-                if (block_y >= blocks_y) block_y = blocks_y - 1;
-
-                unsigned bx = lx % 8;
-                unsigned by = ly % 8;
-                unsigned bindex = block_y * blocks_x + block_x;
-                unsigned sindex = bindex * 64 + by * 8 + bx;
-                if (sindex >= 256) sindex = 255;
-
-                unsigned char gray = to_gray(
-                    gMCUBufR[sindex], gMCUBufG[sindex], gMCUBufB[sindex]);
-                unsigned char q = quantize_gray4(gray);
-
-                unsigned band_ly = ly;
-                unsigned band_x  = gx;          /* 0..imgw-1 */
-                rowbuf[band_ly * row_pitch + band_x] = q;
-            }
-        }
-    }
-
-    /* flush last band */
-    FLUSH_BAND();
-
-    #undef FLUSH_BAND
-
-    fclose(fp);
-    LOG("stream_jpeg_and_draw_rowbuf: done");
-    return 0;
-}
-
-#endif /* ROW_BUFFER */
-
-/* ----------------------------------------------------------- */
-/* Dispatcher: picks renderer based on ROW_BUFFER              */
+/* Dispatcher: picks renderer based on -g and -m               */
 /* ----------------------------------------------------------- */
 
 static int stream_jpeg_and_draw(const char *file,
                                 GR_WINDOW_ID wid,
                                 GR_GC_ID gc)
 {
-#if ROW_BUFFER
-    return stream_jpeg_and_draw_rowbuf(file, wid, gc);
-#else
-    return stream_jpeg_and_draw_mcu(file, wid, gc);
-#endif
+    /*
+     * Rules:
+     *   - Color (no -g): always band-based renderer (with smoothing).
+     *   - Grayscale (-g):
+     *       - if -m also set: per-MCU grayscale renderer.
+     *       - otherwise: band-based grayscale (no smoothing).
+     */
+    if (use_gray) {
+        if (use_mcu_renderer)
+            return stream_jpeg_and_draw_mcu_gray(file, wid, gc);
+        else
+            return stream_jpeg_and_draw_band(file, wid, gc);
+    }
+
+    /* color always uses band-based renderer */
+    return stream_jpeg_and_draw_band(file, wid, gc);
 }
 
-/* ----------------------------------------------------------- */
 /* MAIN                                                        */
-/* ----------------------------------------------------------- */
-
 int main(int argc, char **argv)
 {
     const char *file = NULL;
 
     logfp = fopen("/tmp/nxjpeg.log", "w");
-    LOG("nxjpeg starting (ROW_BUFFER=%d)", ROW_BUFFER);
+    LOG("nxjpeg starting");
 
-    for (int i = 1; i < argc; i++)
-        if (argv[i][0] != '-')
+    /* parse arguments:
+     * -sN  -> smoothing level (0..3) for band-based color
+     * -g   -> grayscale mode (4-level: 0,8,7,15)
+     * -m   -> use per-MCU grayscale when combined with -g
+     * other non-dash arg -> JPEG filename
+     */
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-' && argv[i][1] == 's') {
+            int v = argv[i][2] ? (argv[i][2] - '0') : 1;
+            if (v < 0) v = 0;
+            if (v > 3) v = 3;
+            smoothing = v;
+        } else if (strcmp(argv[i], "-g") == 0) {
+            use_gray = 1;
+            LOG("Grayscale mode requested");
+        } else if (strcmp(argv[i], "-m") == 0) {
+            use_mcu_renderer = 1;
+            LOG("Per MCU renderer requested (for grayscale)");
+        } else if (argv[i][0] != '-') {
             file = argv[i];
+        }
+    }
+
+    LOG("smoothing=%d use_gray=%d use_mcu_renderer=%d",
+        smoothing, use_gray, use_mcu_renderer);
 
     if (!file) {
         LOG("No JPEG file supplied or invalid path");
+        if (logfp) fclose(logfp);
         return 1;
     }
 
     if (GrOpen() < 0) {
         LOG("GrOpen failed");
+        if (logfp) fclose(logfp);
         return 1;
     }
 
@@ -554,6 +861,8 @@ int main(int argc, char **argv)
     FILE *fp = fopen(file, "rb");
     if (!fp) {
         LOG("Cannot open JPEG for size");
+        GrClose();
+        if (logfp) fclose(logfp);
         return 1;
     }
     JPEG_FILE jf = { fp };
@@ -563,6 +872,8 @@ int main(int argc, char **argv)
 
     if (rc) {
         LOG("decode_init for size rc=%d", rc);
+        GrClose();
+        if (logfp) fclose(logfp);
         return 1;
     }
 
@@ -593,7 +904,7 @@ int main(int argc, char **argv)
         if (ev.type == GR_EVENT_TYPE_CLOSE_REQ) {
             LOG("close");
             GrClose();
-            fclose(logfp);
+            if (logfp) fclose(logfp);
             return 0;
         }
 

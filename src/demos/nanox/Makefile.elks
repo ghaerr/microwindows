@@ -22,6 +22,7 @@ PROGS   = \
     $(BIN)nxterm     \
     $(BIN)nxtetris   \
     $(BIN)nxworld    \
+    $(BIN)nxjpeg    \
 
 notyet = \
     $(BIN)nxlaunch\
@@ -33,6 +34,18 @@ all: $(PROGS)
 
 $(BIN)nxcalc: nxcalc.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+# Compile picojpeg
+picojpeg.o: picojpeg.c picojpeg.h
+	$(CC) $(CFLAGS) -c picojpeg.c -o picojpeg.o
+
+# Compile nxjpeg
+nxjpeg.o: nxjpeg.c picojpeg.h
+	$(CC) $(CFLAGS) -c nxjpeg.c -o nxjpeg.o
+
+# Link everything
+$(BIN)nxjpeg: nxjpeg.o picojpeg.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ nxjpeg.o picojpeg.o $(NXLIB) $(LDLIBS)
 
 $(BIN)nxclock: nxclock.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)

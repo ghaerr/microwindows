@@ -178,17 +178,6 @@ VGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 static void
 VGA_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
-   int i;
-
-    /* Start writing at palette index 'first' */
-    outb(0x3C8, first);
-
-    for (i = 0; i < count; i++) {
-        /* VGA DAC uses 6-bit values (0–63), Nano-X uses 8-bit (0–255) */
-        outb(0x3C9, pal[i].r >> 2);
-        outb(0x3C9, pal[i].g >> 2);
-        outb(0x3C9, pal[i].b >> 2);
-    }
 }
 
 #if _MINIX

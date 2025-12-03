@@ -178,6 +178,7 @@ VGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 static void
 VGA_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 {
+	/* not yet implemented, std 16 color palette assumed*/
 }
 
 #if _MINIX

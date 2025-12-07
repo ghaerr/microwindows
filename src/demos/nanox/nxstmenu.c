@@ -45,6 +45,7 @@ TODO:
 #include "nxcolors.h"
 #include <linuxmt/mem.h> 
 #include <sys/ioctl.h>
+#include <sys/select.h>
 
 #define TEXT_Y_OFFSET_MENU     10
 #define TEXT_Y_OFFSET_TASKBAR  15
@@ -67,7 +68,7 @@ TODO:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "nxcalc","nxclock","nxmine","nxterm","nxtetris","nxworld" };
+    { "nxcalc","nxclock","nxmine","nxterm","nxtetris","nxworld", "nxjpeg" };
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 
@@ -238,6 +239,42 @@ static void redraw_all(void)
     draw_status_field();
 }
 
+static FILE *nx_fp = NULL;
+static int nx_fd = -1;
+static int nxselect_running = 0;
+char buf[80]; 
+static int path_received = 0;
+
+void poll_for_nxselect_result(void)
+{
+    fd_set set;
+    struct timeval tv;
+
+    FD_ZERO(&set);
+    FD_SET(nx_fd, &set);
+
+    tv.tv_sec = 0;   /* Non-blocking */
+    tv.tv_usec = 0;
+
+    int rv = select(nx_fd + 1, &set, NULL, NULL, &tv);
+
+    if (rv > 0 && FD_ISSET(nx_fd, &set)) {
+
+        /* Read entire line (non-blocking because select says ready) */
+        if (fgets(buf, sizeof(buf), nx_fp)) {
+            buf[strcspn(buf, "\r\n")] = '\0';
+            printf("path received: %s\n", buf);
+			path_received = 1;
+        } else {
+            printf("nxselect closed (no path)\n");
+        }
+
+        pclose(nx_fp);
+        nx_fp = NULL;
+        nx_fd = -1;
+        nxselect_running = 0;   /* stop polling */
+    }
+}
 
 /* ===== MAIN LOOP ===== */
 int main(void)
@@ -245,7 +282,7 @@ int main(void)
     GR_EVENT ev;
     int ui_initialized = 0;
     int need_redraw = 0;
-
+	
     signal(SIGCHLD, reaper);
 
     if (GrOpen() < 0) {
@@ -332,13 +369,40 @@ int main(void)
                                     MENU_WIDTH,MENU_ITEM_HEIGHT))
                         {
                             char cmd[64];
-                            snprintf(cmd,sizeof(cmd),
+                            /*snprintf(cmd,sizeof(cmd),
                                      APP_PATH "%s",apps[i]);
 
                             if (fork()==0) {
                                 execl(cmd,cmd,NULL);
                                 _exit(1);
-                            }
+                            }*/
+							/* If the selected app is nxjpeg → do NOT exec it directly.
+							   Instead launch nxselect asynchronously. */
+							if (!strcmp(apps[i], "nxjpeg")) {
+
+								/* Launch nxselect instead of nxjpeg */
+								if (!nxselect_running) {
+									nx_fp = popen("nxselect", "r");
+									if (!nx_fp) {
+										printf("Failed to start nxselect\n");
+									} else {
+										nx_fd = fileno(nx_fp);
+										nxselect_running = 1;
+										path_received = 0;
+										printf("nxselect launched\n");
+									}
+								}
+
+							} else {
+
+								/* Normal app launching */
+								snprintf(cmd, sizeof(cmd), APP_PATH "%s", apps[i]);
+
+								if (fork() == 0) {
+									execl(cmd, cmd, NULL);
+									_exit(1);
+								}
+							}
 
                             menu_open = 0;
 
@@ -380,6 +444,22 @@ int main(void)
                 exit(0);
             }
         }
+		
+		if (nxselect_running && nx_fd!=-1 && nx_fp != NULL)
+             poll_for_nxselect_result();
+		 
+		if (!nxselect_running && path_received == 1) {
+
+				/* Path successfully received in buf */
+				//printf("Launching nxjpeg with %s\n", buf);
+
+				path_received = 0;
+				pid_t pid = fork();
+				if (pid == 0) {
+					execl("/bin/nxjpeg", "nxjpeg", buf, NULL);
+					_exit(1);
+				}
+		}
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */
         time_t now = time(NULL);

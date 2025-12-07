@@ -63,15 +63,6 @@
  *   7/12/2025 version 1.1 added 8 color gray scaled mode
  */
 
-/*
- * nxjpeg - Nano-X JPEG viewer for VGA (optimized for low memory and ELKS)
- *
- * Uses PicoJPEG (MCU-by-MCU) and draws to a Nano-X VGA window. 
- * Nano X on VGA supports only 16 colors.
- *
- * --- (unchanged header omitted for brevity) ---
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

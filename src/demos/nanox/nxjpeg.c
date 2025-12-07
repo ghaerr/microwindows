@@ -60,6 +60,7 @@
  * 
  * History:
  *   3/12/2025 version 1.0
+ *   7/12/2025 version 1.1 added 8 color gray scaled mode
  */
 
 /*

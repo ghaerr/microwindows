@@ -10,6 +10,7 @@
  * - Uses a classical 16-color mapping by closest color in EGA 16 palette.
  * - Optional 4-level grayscale mode (-g) using VGA gray entries:
  *   indices 0, 8, 7, 15.
+ * - Optional 8-level grayscale mode (-g -8) using 8 VGA gray entries
  * - Optional MCU-based grayscale renderer with uniform-MCU
  *   batching (-g -m), optimized to draw several identical MCUs together
  * - Logs to /tmp/nxjpeg.log
@@ -35,8 +36,9 @@
  *         -s3: strong
  *
  *   Grayscale (-g):
- *     - Band-based grayscale by default
- *     - 4-level grayscale (0, 8, 7, 15)
+ *     - 4 or 8 gray colors
+ *     	   -default 4-level grayscale with colors (0, 8, 7, 15) 
+ *         -8 option sets 8 gray colors (-m -8) improving image quality
  *     - No smoothing (keeps original sharp look)
  *
  *   Grayscale + Per-MCU streaming renderer (-g -m):
@@ -60,6 +62,15 @@
  *   3/12/2025 version 1.0
  */
 
+/*
+ * nxjpeg - Nano-X JPEG viewer for VGA (optimized for low memory and ELKS)
+ *
+ * Uses PicoJPEG (MCU-by-MCU) and draws to a Nano-X VGA window. 
+ * Nano X on VGA supports only 16 colors.
+ *
+ * --- (unchanged header omitted for brevity) ---
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,6 +78,9 @@
 #define MWINCLUDECOLORS
 #include "nano-X.h"
 #include "picojpeg.h"
+#include <arch/io.h>   // for outb()
+#include <unistd.h>
+#include <sys/time.h>
 
 #define MAX_WIDTH   620
 #define MAX_HEIGHT  460
@@ -75,53 +89,42 @@
 #define MAX_MCU_H   16
 #define MAX_ROWBUF  (MAX_WIDTH * MAX_MCU_H)
 
-/* Logging                                                     */
+/* Logging */
 static FILE *logfp = NULL;
 #define LOG(fmt, ...) \
     do { if (logfp) { fprintf(logfp, fmt "\n", ##__VA_ARGS__); fflush(logfp);} } while (0)
 
-/* PicoJPEG externs                                            */
+/* PicoJPEG externs */
 extern unsigned char gMCUBufR[256];
 extern unsigned char gMCUBufG[256];
 extern unsigned char gMCUBufB[256];
 
-/* System palette and precomputed RGB */
+/* System palette */
 static GR_PALETTE pal;
 static GR_COLOR color_from_index[256];
 
-/* Smoothing parameter: 0=off, 1=mild, 2=medium, 3=strong (default 1) */
+/* Smoothing parameter */
 static int smoothing = 1;
 
-/* Grayscale flag: when set by -g, use 4-level grayscale instead of 16-color EGA */
+/* Grayscale flag (-g) */
 static int use_gray = 0;
 
-/* MCU-based grayscale renderer flag (-m with -g) */
+/* 8-gray-level flag (-8) */
+static int use_gray8 = 0;
+
+/* MCU-based grayscale renderer (-g -m) */
 static int use_mcu_renderer = 0;
 
-/* EGA 16-color palette used for color matching */
+/* EGA 16-color palette (unchanged) */
 static const struct { unsigned char r, g, b; } ega16[16] = {
-    { 0,   0,   0   },  /* 0 black */
-    { 0,   0,   128 },  /* 1 blue */
-    { 0,   128, 0   },  /* 2 green */
-    { 0,   128, 128 },  /* 3 cyan */
-    { 128, 0,   0   },  /* 4 red */
-    { 128, 0,   128 },  /* 5 magenta */
-    { 128, 64,  0   },  /* 6 brown */
-    { 192, 192, 192 },  /* 7 light gray */
-    { 128, 128, 128 },  /* 8 gray */
-    { 0,   0,   255 },  /* 9 bright blue */
-    { 0,   255, 0   },  /* 10 bright green */
-    { 0,   255, 255 },  /* 11 bright cyan */
-    { 255, 0,   0   },  /* 12 bright red */
-    { 255, 0,   255 },  /* 13 bright magenta */
-    { 255, 255, 0   },  /* 14 yellow */
-    { 255, 255, 255 }   /* 15 white */
+    { 0,   0,   0 }, { 0,   0,   128 }, { 0,   128, 0 },   { 0,   128, 128 },
+    { 128, 0,   0 }, { 128, 0,   128 }, { 128, 64,  0 },   { 192, 192, 192 },
+    { 128, 128, 128 }, { 0, 0, 255 },  { 0, 255, 0 },      { 0, 255, 255 },
+    { 255, 0, 0 },  { 255, 0, 255 },  { 255, 255, 0 },     { 255, 255, 255 }
 };
 
-/* JPEG file wrapper */
-typedef struct {
-    FILE *fp;
-} JPEG_FILE;
+/* JPEG wrapper */
+typedef struct { FILE *fp; } JPEG_FILE;
 
 /* Callback for PicoJPEG */
 static unsigned char
@@ -143,37 +146,65 @@ pjpeg_need_bytes_callback(unsigned char *buf, unsigned char size,
 /* ----------------------------------------------------------- */
 static inline unsigned char to_gray(unsigned r, unsigned g, unsigned b)
 {
-    /* same formula as original code: 0.30R + 0.59G + 0.11B */
     return (unsigned char)((r*30 + g*59 + b*11) / 100);
 }
 
 /* 4-level mapping */
 static inline unsigned char quantize_gray4(unsigned char g)
 {
-    if (g < 64)   return 0;  /* black */
-    if (g < 128)  return 8;  /* gray */
-    if (g < 192)  return 7;  /* light gray */
-    return 15;               /* white */
+    if (g < 64)   return 0;
+    if (g < 128)  return 8;
+    if (g < 192)  return 7;
+    return 15;
 }
 
-/* ----------------------------------------------------------- */
-/* Classical 16-color mapping (no grayscale bias)              */
-/* ----------------------------------------------------------- */
-/*
- * Map an RGB triple to the closest EGA palette index (0–15).
- * If use_gray is set (-g), this becomes 4-level grayscale mapping
- * with indices 0, 8, 7, 15 as in the original program.
- */
+/* 8-level grayscale quantizer */
+static inline unsigned char quantize_gray8(unsigned char g)
+{
+    if (g < 32)   return 0;    /* black */
+    if (g < 80)   return 1;    /* 64 */
+    if (g < 112)  return 2;    /* 96 */
+    if (g < 144)  return 8;    /* 128 (existing medium gray) */
+    if (g < 176)  return 3;    /* 160 */
+    if (g < 208)  return 7;    /* 192 (existing light gray) */
+    if (g < 240)  return 4;    /* 224 */
+    return 15;                 /* white */
+}
+
+/* ----------------------------------*/
+/* VGA DAC grayscale palette loader  */
+/* ----------------------------------*/
+static void vga_set_palette(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
+{
+    r >>= 2; g >>= 2; b >>= 2;
+    outb(index, 0x3C8);
+    outb(r,     0x3C9);
+    outb(g,     0x3C9);
+    outb(b,     0x3C9);
+}
+
+static void load_gray8_palette(void)
+{
+    vga_set_palette(1, 64,  64,  64);
+    vga_set_palette(2, 96,  96,  96);
+    vga_set_palette(3, 160, 160, 160);
+    vga_set_palette(4, 224, 224, 224);
+}
+
+/* --------------------------------------------------------------------- */
+/* map_rgb_to_index(): supports 3 modes 4 and 16 color gray, 16 color    */
+/* --------------------------------------------------------------------- */
+
 static inline unsigned char
 map_rgb_to_index(unsigned r, unsigned g, unsigned b)
 {
-    /* Grayscale mode: fast and predictable */
     if (use_gray) {
         unsigned char g8 = to_gray(r, g, b);
+        if (use_gray8)
+            return quantize_gray8(g8);
         return quantize_gray4(g8);
     }
 
-    /* EGA 16-color mode: closest palette entry by weighted RGB distance */
     int best = 0;
     long bestdist = 0x7fffffffL;
 
@@ -181,18 +212,9 @@ map_rgb_to_index(unsigned r, unsigned g, unsigned b)
         int dr = (int)r - (int)ega16[i].r;
         int dg = (int)g - (int)ega16[i].g;
         int db = (int)b - (int)ega16[i].b;
-
-        /* perceptual weighting: green most important, blue least */
-        long dist = (long)dr * dr * 3
-                  + (long)dg * dg * 6
-                  + (long)db * db * 1;
-
-        if (dist < bestdist) {
-            bestdist = dist;
-            best = i;
-        }
+        long dist = (long)dr*dr*3 + (long)dg*dg*6 + (long)db*db*1;
+        if (dist < bestdist) { bestdist = dist; best = i; }
     }
-
     return (unsigned char)best;
 }
 
@@ -270,7 +292,6 @@ decode_band_row(pjpeg_image_info_t *info,
     unsigned band_py = band_index * mcu_h;
     int rc;
 
-    /* clear band (optional but keeps borders consistent) */
     memset(dst_band, 0, row_pitch * mcu_h);
 
     for (unsigned mx = 0; mx < mcus_per_row; mx++) {
@@ -338,7 +359,6 @@ static void smooth_band(unsigned imgw, unsigned band_h,
 						unsigned char *out_band)
 {
     if (smoothing <= 0 || use_gray) {
-        /* no smoothing for grayscale or smoothing=0 */
         memcpy(out_band, cur_raw, row_pitch * band_h);
         return;
     }
@@ -346,23 +366,11 @@ static void smooth_band(unsigned imgw, unsigned band_h,
     int base_w, neigh_w, band_w, adv;
 
     if (smoothing == 1) {
-        /* mild */
-        base_w  = 3;
-        neigh_w = 1;
-        band_w  = 1;
-        adv     = 2;
+        base_w  = 3; neigh_w = 1; band_w = 1; adv = 2;
     } else if (smoothing == 2) {
-        /* medium */
-        base_w  = 2;
-        neigh_w = 2;
-        band_w  = 2;
-        adv     = 1;
+        base_w  = 2; neigh_w = 2; band_w = 2; adv = 1;
     } else {
-        /* strong (smoothing >= 3) */
-        base_w  = 1;
-        neigh_w = 3;
-        band_w  = 3;
-        adv     = 0;
+        base_w  = 1; neigh_w = 3; band_w = 3; adv = 0;
     }
 
     for (unsigned y = 0; y < band_h; y++) {
@@ -373,10 +381,8 @@ static void smooth_band(unsigned imgw, unsigned band_h,
             int counts[16];
             memset(counts, 0, sizeof(counts));
 
-            /* center pixel has base weight */
             counts[center] += base_w;
 
-            /* same-band neighbors (4-neighborhood) */
             if (x > 0)
                 counts[cur_raw[idx - 1]] += neigh_w;
             if (x + 1 < imgw)
@@ -386,15 +392,12 @@ static void smooth_band(unsigned imgw, unsigned band_h,
             if (y + 1 < band_h)
                 counts[cur_raw[idx + row_pitch]] += neigh_w;
 
-            /* previous smoothed band (above) */
             if (prev_sm)
                 counts[prev_sm[idx]] += band_w;
 
-            /* next raw band (below) */
             if (next_raw)
                 counts[next_raw[idx]] += band_w;
 
-            /* find best color */
             int best_col = center;
             int best_votes = counts[center];
 
@@ -405,7 +408,6 @@ static void smooth_band(unsigned imgw, unsigned band_h,
                 }
             }
 
-            /* require advantage over center, otherwise keep center */
             if (best_col != center && best_votes < counts[center] + adv)
                 best_col = center;
 
@@ -430,6 +432,7 @@ static int stream_jpeg_and_draw_band(const char *file,
     JPEG_FILE jf = { fp };
     pjpeg_image_info_t info;
     int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
+
     if (rc) {
         LOG("pjpeg_decode_init rc=%d", rc);
         fclose(fp);
@@ -446,8 +449,8 @@ static int stream_jpeg_and_draw_band(const char *file,
 
     unsigned bands = info.m_MCUSPerCol;
 
-    LOG("BAND-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u MCUs/col=%u smoothing=%d use_gray=%d",
-        imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow, bands, smoothing, use_gray);
+    LOG("BAND-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u MCUs/col=%u smoothing=%d use_gray=%d use_gray8=%d",
+        imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow, bands, smoothing, use_gray, use_gray8);
 
     if (bands == 0) {
         fclose(fp);
@@ -460,7 +463,7 @@ static int stream_jpeg_and_draw_band(const char *file,
 
     unsigned row_pitch = imgw;
 
-    /* Decode first band into band_raw0 */
+	/* Decode first band into band_raw0 */
     rc = decode_band_row(&info, imgw, imgh,
                          mcu_w, mcu_h,
                          blocks_x, blocks_y,
@@ -472,7 +475,8 @@ static int stream_jpeg_and_draw_band(const char *file,
     }
 
     if (bands == 1) {
-        /* Only one band: smooth (or just copy) using no neighbors. */
+
+		/* Only one band: smooth (or just copy) using no neighbors. */
         smooth_band(imgw, mcu_h, row_pitch,
                     NULL, band_raw0, NULL, band_prev_sm);
 
@@ -491,7 +495,7 @@ static int stream_jpeg_and_draw_band(const char *file,
         return 0;
     }
 
-    /* Decode second band into band_raw1 */
+	/* Decode second band into band_raw1 */
     rc = decode_band_row(&info, imgw, imgh,
                          mcu_w, mcu_h,
                          blocks_x, blocks_y,
@@ -502,10 +506,9 @@ static int stream_jpeg_and_draw_band(const char *file,
         return -1;
     }
 
-    /* Process band 0: current = band_raw0, next = band_raw1 */
+	/* Process band 0: current = band_raw0, next = band_raw1 */
     smooth_band(imgw, mcu_h, row_pitch,
                 NULL, band_raw0, band_raw1, band_prev_sm);
-
     for (unsigned ly = 0; ly < mcu_h; ly++) {
         unsigned gy = ly;
         if (gy >= imgh) break;
@@ -519,12 +522,13 @@ static int stream_jpeg_and_draw_band(const char *file,
     int cur_idx = 1;  /* band_raw1 currently holds band 1 */
     int next_idx = 0; /* band_raw0 will be reused for band 2 */
 
-    /* Process remaining bands 1..bands-1 */
+	/* Process remaining bands 1..bands-1 */
     for (unsigned band = 1; band < bands; band++) {
+
         unsigned char *cur_raw  = (cur_idx ? band_raw1 : band_raw0);
         unsigned char *next_raw = NULL;
 
-        /* Decode next band (if any) into the other raw buffer */
+		/* Decode next band (if any) into the other raw buffer */
         if (band + 1 < bands) {
             unsigned char *dst = (next_idx ? band_raw1 : band_raw0);
             rc = decode_band_row(&info, imgw, imgh,
@@ -541,7 +545,7 @@ static int stream_jpeg_and_draw_band(const char *file,
 
         unsigned band_py = band * mcu_h;
 
-        /* For the last band, next_raw is NULL. */
+		/* For the last band, next_raw is NULL. */
         smooth_band(imgw, mcu_h, row_pitch,
                     band_prev_sm, cur_raw, next_raw, band_prev_sm);
 
@@ -555,7 +559,7 @@ static int stream_jpeg_and_draw_band(const char *file,
                       row_pitch);
         }
 
-        /* rotate raw buffers for next iteration */
+		/* rotate raw buffers for next iteration */
         int tmp = cur_idx;
         cur_idx = next_idx;
         next_idx = tmp;
@@ -567,10 +571,9 @@ static int stream_jpeg_and_draw_band(const char *file,
 }
 
 /* ----------------------------------------------------------- */
-/* Per-MCU grayscale renderer with batching (-g -m)     */
+/* Per-MCU grayscale renderer with batching (-g -m)            */
 /*  - OR+AND uniform detection + batching                      */
 /* ----------------------------------------------------------- */
-
 static int stream_jpeg_and_draw_mcu_gray(const char *file,
 										 GR_WINDOW_ID wid,
 										 GR_GC_ID gc)
@@ -601,16 +604,16 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
     LOG("MCU-gray-mode: JPEG %ux%u  MCU %ux%u  MCUs/row=%u",
         imgw, imgh, mcu_w, mcu_h, info.m_MCUSPerRow);
 
-    /* small strip buffer for one MCU row */
+	/* small strip buffer for one MCU row */
     #define MCU_MAX_WIDTH 32
     static unsigned char stripbuf[MCU_MAX_WIDTH];
-
-    /* full-MCU quantized buffer (max 256 samples) */
+	
+	/* full-MCU quantized buffer (max 256 samples) */
     static unsigned char qbuf[256];
 
     int mcu_index = 0;
 
-    /* batching state: up to 6 uniform MCUs */
+	/* batching state: up to 6 uniform MCUs */
     int batch_active = 0;
     unsigned batch_my = 0;
     unsigned batch_px_start = 0;
@@ -656,7 +659,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
         unsigned px = mx * mcu_w;
         unsigned py = my * mcu_h;
 
-        /* Skip MCUs completely outside cropped image */
+		/* Skip MCUs completely outside cropped image */
         if (py >= imgh) {
             if (batch_active && my != batch_my)
                 FLUSH_BATCH();
@@ -668,12 +671,12 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
             continue;
         }
 
-        /* ---- FULL MCU uniform detection with OR+AND ---- */
-
+		/* ---- FULL MCU uniform detection with OR+AND ---- */
+		
         int samples = (int)(blocks_x * blocks_y * 64);
         if (samples > 256) samples = 256;
 
-        /* use map_rgb_to_index, which in grayscale mode is quantize_gray4(to_gray) */
+		/* use map_rgb_to_index, which in grayscale mode is quantize_gray4(to_gray) */
         unsigned char first = map_rgb_to_index(
             (unsigned)gMCUBufR[0],
             (unsigned)gMCUBufG[0],
@@ -696,8 +699,8 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
         int mcu_uniform = (all_or == all_and);
         unsigned char uniform_color = all_or;
 
-        /* ---- Uniform MCU batching ---- */
-
+		/* ---- Uniform MCU batching ---- */
+		
         if (mcu_uniform) {
             if (!batch_active ||
                 my != batch_my ||
@@ -719,8 +722,8 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
             continue;
         }
 
-        /* ---- Non-uniform MCU ---- */
-
+		/* ---- Non-uniform MCU ---- */
+		
         if (batch_active)
             FLUSH_BATCH();
 
@@ -779,13 +782,7 @@ static int stream_jpeg_and_draw(const char *file,
                                 GR_WINDOW_ID wid,
                                 GR_GC_ID gc)
 {
-    /*
-     * Rules:
-     *   - Color (no -g): always band-based renderer (with smoothing).
-     *   - Grayscale (-g):
-     *       - if -m also set: per-MCU grayscale renderer.
-     *       - otherwise: band-based grayscale (no smoothing).
-     */
+	/* grayscaled has 2 modes */
     if (use_gray) {
         if (use_mcu_renderer)
             return stream_jpeg_and_draw_mcu_gray(file, wid, gc);
@@ -793,11 +790,72 @@ static int stream_jpeg_and_draw(const char *file,
             return stream_jpeg_and_draw_band(file, wid, gc);
     }
 
-    /* color always uses band-based renderer */
+	/* color always uses band-based renderer */
     return stream_jpeg_and_draw_band(file, wid, gc);
 }
 
-/* MAIN                                                        */
+static int use_alt = 0;
+static int fixed_colors[5] = { 0, 7, 8, 15, 14 };
+
+/* Timer */
+static unsigned long get_ms(void)
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (unsigned long)(tv.tv_sec * 1000UL + tv.tv_usec / 1000UL);
+}
+
+/* Palette helpers */
+static inline int to_ega(int r, int g, int b)
+{
+    int rr = (r >> 6) & 3;
+    int gg = (g >> 6) & 3;
+    int bb = (b >> 6) & 3;
+    return (rr << 4) | (gg << 2) | bb;
+}
+
+static void VGA_WriteEGAColorRaw(int index, int ega)
+{
+    inb(0x3DA);
+    outb(0x3C0, index & 0x1F);
+    outb(0x3C0, ega & 0x3F);
+}
+
+static void VGA_WriteEGAColor(int index, int r, int g, int b)
+{
+    int rr = (r >> 6) & 3;
+    int gg = (g >> 6) & 3;
+    int bb = (b >> 6) & 3;
+
+    int ega = (rr << 4) | (gg << 2) | bb;
+
+    inb(0x3DA);
+    outb(0x3C0, index & 0x1F);
+    outb(0x3C0, ega);
+    inb(0x3DA);
+    outb(0x3C0, 0x20);
+}
+
+void CustomGrSetSystemPalette(const GR_PALETTE *pal_in)
+{
+    if (!pal_in || pal_in->count < 16)
+        return;
+
+    for (int i = 0; i < 16; i++) {
+        int ega = to_ega(
+            pal_in->palette[i].r,
+            pal_in->palette[i].g,
+            pal_in->palette[i].b
+        );
+        VGA_WriteEGAColorRaw(i, ega);
+    }
+
+    inb(0x3DA);
+    outb(0x3C0, 0x20);
+}
+
+/* ---------------------------- MAIN ---------------------------- */
+
 int main(int argc, char **argv)
 {
     const char *file = NULL;
@@ -805,10 +863,11 @@ int main(int argc, char **argv)
     logfp = fopen("/tmp/nxjpeg.log", "w");
     LOG("nxjpeg starting");
 
-    /* parse arguments:
+	/* parse arguments:
      * -sN  -> smoothing level (0..3) for band-based color
      * -g   -> grayscale mode (4-level: 0,8,7,15)
      * -m   -> use per-MCU grayscale when combined with -g
+	 * -8   -> switch from 4 gray colors to 8 gray colors
      * other non-dash arg -> JPEG filename
      */
     for (int i = 1; i < argc; i++) {
@@ -817,22 +876,28 @@ int main(int argc, char **argv)
             if (v < 0) v = 0;
             if (v > 3) v = 3;
             smoothing = v;
-        } else if (strcmp(argv[i], "-g") == 0) {
+        } else if (!strcmp(argv[i], "-g")) {
             use_gray = 1;
-            LOG("Grayscale mode requested");
-        } else if (strcmp(argv[i], "-m") == 0) {
+            LOG("Grayscale mode");
+        } else if (!strcmp(argv[i], "-m")) {
             use_mcu_renderer = 1;
-            LOG("Per MCU renderer requested (for grayscale)");
+            LOG("MCU renderer for grayscale");
+        } else if (!strcmp(argv[i], "-e")) {
+            use_alt = 1;
+            LOG("Palette alternate mode (-e)");
+        } else if (!strcmp(argv[i], "-8")) {
+            use_gray8 = 1;
+            LOG("8-gray mode (-8) enabled");
         } else if (argv[i][0] != '-') {
             file = argv[i];
         }
     }
 
-    LOG("smoothing=%d use_gray=%d use_mcu_renderer=%d",
-        smoothing, use_gray, use_mcu_renderer);
+    LOG("smoothing=%d use_gray=%d use_mcu_renderer=%d use_alt=%d use_gray8=%d",
+        smoothing, use_gray, use_mcu_renderer, use_alt, use_gray8);
 
     if (!file) {
-        LOG("No JPEG file supplied or invalid path");
+        LOG("No JPEG file supplied.");
         if (logfp) fclose(logfp);
         return 1;
     }
@@ -843,21 +908,26 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    LOG("Writing VGA palette test");
+    VGA_WriteEGAColorRaw(1, 0x3F);
+    inb(0x3DA);
+    outb(0x3C0, 0x20);
+
     GR_SCREEN_INFO si;
     GrGetScreenInfo(&si);
-    LOG("Screen %dx%d bpp=%d colors=%d", si.cols, si.rows, si.bpp, si.ncolors);
+    LOG("Screen %dx%d bpp=%d colors=%d",
+        si.cols, si.rows, si.bpp, si.ncolors);
 
     pal.count = 256;
     GrGetSystemPalette(&pal);
-    for (int i = 0; i < pal.count; i++)
+
+    for (int i = 0; i < pal.count; i++) {
         color_from_index[i] = GR_RGB(
-            pal.palette[i].r, pal.palette[i].g, pal.palette[i].b);
+            pal.palette[i].r,
+            pal.palette[i].g,
+            pal.palette[i].b);
+    }
 
-    for (int i = 0; i < 16; i++)
-        LOG("PAL[%d] = %d %d %d",
-            i, pal.palette[i].r, pal.palette[i].g, pal.palette[i].b);
-
-    /* read JPEG header for size */
     FILE *fp = fopen(file, "rb");
     if (!fp) {
         LOG("Cannot open JPEG for size");
@@ -865,13 +935,14 @@ int main(int argc, char **argv)
         if (logfp) fclose(logfp);
         return 1;
     }
+
     JPEG_FILE jf = { fp };
     pjpeg_image_info_t info;
     int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
     fclose(fp);
 
     if (rc) {
-        LOG("decode_init for size rc=%d", rc);
+        LOG("decode_init rc=%d", rc);
         GrClose();
         if (logfp) fclose(logfp);
         return 1;
@@ -879,7 +950,6 @@ int main(int argc, char **argv)
 
     GR_SIZE w = (info.m_width  > MAX_WIDTH)  ? MAX_WIDTH  : info.m_width;
     GR_SIZE h = (info.m_height > MAX_HEIGHT) ? MAX_HEIGHT : info.m_height;
-
     LOG("Window %dx%d", w, h);
 
     GR_WINDOW_ID wid =
@@ -897,9 +967,44 @@ int main(int argc, char **argv)
 
     GR_GC_ID gc = GrNewGC();
 
+    GR_PALETTE pal_base = pal;
+    GR_PALETTE pal_alt  = pal;
+
+    if (use_alt && !use_gray) {
+
+        for (int i = 0; i < 16; i++) {
+            int is_fixed = 0;
+            for (int k = 0; k < 5; k++) {
+                if (i == fixed_colors[k]) {
+                    is_fixed = 1;
+                    break;
+                }
+            }
+
+            int ega = to_ega(
+                pal_base.palette[i].r,
+                pal_base.palette[i].g,
+                pal_base.palette[i].b
+            );
+
+            if (!is_fixed)
+                ega ^= 0x3F;
+
+            pal_alt.palette[i].r = ((ega >> 4) & 3) * 85;
+            pal_alt.palette[i].g = ((ega >> 2) & 3) * 85;
+            pal_alt.palette[i].b = ( ega        & 3) * 85;
+        }
+
+        CustomGrSetSystemPalette(&pal_base);
+    }
+
+    int pal_state = 0;
+    unsigned long last_toggle = get_ms();
+
     while (1) {
+
         GR_EVENT ev;
-        GrGetNextEvent(&ev);
+        GrGetNextEventTimeout(&ev, 50);
 
         if (ev.type == GR_EVENT_TYPE_CLOSE_REQ) {
             LOG("close");
@@ -910,7 +1015,33 @@ int main(int argc, char **argv)
 
         if (ev.type == GR_EVENT_TYPE_EXPOSURE) {
             LOG("exposure -> redraw");
+
+            /* update 8-gray VGA DAC palette at start of exposure */
+            if (use_gray && use_gray8) {
+                load_gray8_palette();
+            }
+
             stream_jpeg_and_draw(file, wid, gc);
+
+            if (use_alt && !use_gray)
+                CustomGrSetSystemPalette(pal_state ? &pal_alt : &pal_base);
+        }
+
+        if (use_alt && !use_gray) {
+
+            unsigned long now = get_ms();
+
+            if (now - last_toggle >= 100) {
+                last_toggle = now;
+                pal_state ^= 1;
+
+                if (pal_state)
+                    LOG("Switching to ALT palette");
+                else
+                    LOG("Switching to BASE palette");
+
+                CustomGrSetSystemPalette(pal_state ? &pal_alt : &pal_base);
+            }
         }
     }
 }

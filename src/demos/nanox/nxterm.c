@@ -1139,8 +1139,9 @@ term(void)
 	unsigned char 	buf[KBDBUF];
 
 	if (startprogram) {
+		usleep(1000);
 		write(termfd, startprogram, strlen(startprogram));
-                write(termfd, "\n", 1);
+		write(termfd, "\n", 1);
 	}
 
 	while (42) {

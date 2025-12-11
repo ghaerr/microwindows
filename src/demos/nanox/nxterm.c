@@ -1141,7 +1141,7 @@ term(void)
 	if (startprogram) {
 		usleep(1000);
 		write(termfd, startprogram, strlen(startprogram));
-		write(termfd, "\n", 1);
+		write(termfd, "\r", 1);
 	}
 
 	while (42) {

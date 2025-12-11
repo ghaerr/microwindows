@@ -34,7 +34,7 @@
 #define NANOWM			1		/* =1 for builtin nano-X window manager*/
 #define USE_ALLOCA		0		/* =1 if alloca() is available*/
 #define HAVE_MMAP       0       /* =1 has mmap system call*/
-#define HAVE_SIGNAL		0		/* =1 has signal system call*/
+#define HAVE_SIGNAL		1		/* =1 has signal system call*/
 #define HAVE_FILEIO		0		/* =1 to include libc stdio and image reading routines*/
 #define HAVE_BMP_SUPPORT 0		/* BMP image support*/
 #define HAVE_FNT_SUPPORT 0		/* Microwindows FNT font support*/

@@ -1064,5 +1064,8 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
+#if ELKS
+	write(1, "\033[25;1H", 7);
+#endif
 	_exit(0);
 }

@@ -68,7 +68,7 @@ TODO:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "nxcalc","nxclock","nxmine","nxterm","nxtetris","nxworld", "nxjpeg" };
+    { "nxcalc","nxclock","nxmine","nxterm","nxtetris","nxworld", "View image", "Edit file"};
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 
@@ -244,6 +244,8 @@ static int nx_fd = -1;
 static int nxselect_running = 0;
 char buf[80]; 
 static int path_received = 0;
+static int image_view_requested = 0;
+static int edit_file_requested =0;
 
 void poll_for_nxselect_result(void)
 {
@@ -376,11 +378,10 @@ int main(void)
                                 execl(cmd,cmd,NULL);
                                 _exit(1);
                             }*/
-							/* If the selected app is nxjpeg → do NOT exec it directly.
-							   Instead launch nxselect asynchronously. */
-							if (!strcmp(apps[i], "nxjpeg")) {
 
-								/* Launch nxselect instead of nxjpeg */
+							if (!strcmp(apps[i], "View image")) {
+
+								/* Launch nxselect */
 								if (!nxselect_running) {
 									nx_fp = popen("nxselect", "r");
 									if (!nx_fp) {
@@ -389,11 +390,30 @@ int main(void)
 										nx_fd = fileno(nx_fp);
 										nxselect_running = 1;
 										path_received = 0;
-										printf("nxselect launched\n");
+										image_view_requested = 1;
+										//printf("nxselect launched\n");
 									}
 								}
 
-							} else {
+							} else
+							if (!strcmp(apps[i], "Edit file")) {
+
+								/* Launch nxselect */
+								if (!nxselect_running) {
+									nx_fp = popen("nxselect", "r");
+									if (!nx_fp) {
+										printf("Failed to start nxselect\n");
+									} else {
+										nx_fd = fileno(nx_fp);
+										nxselect_running = 1;
+										path_received = 0;
+										edit_file_requested = 1;
+										//printf("nxselect launched\n");
+									}
+								}
+
+							} else 
+							{
 
 								/* Normal app launching */
 								snprintf(cmd, sizeof(cmd), APP_PATH "%s", apps[i]);
@@ -448,17 +468,40 @@ int main(void)
 		if (nxselect_running && nx_fd!=-1 && nx_fp != NULL)
              poll_for_nxselect_result();
 		 
-		if (!nxselect_running && path_received == 1) {
+		if (!nxselect_running && path_received == 1 && image_view_requested == 1) {
 
 				/* Path successfully received in buf */
 				//printf("Launching nxjpeg with %s\n", buf);
 
 				path_received = 0;
 				pid_t pid = fork();
+				image_view_requested = 0;
 				if (pid == 0) {
 					execl("/bin/nxjpeg", "nxjpeg", buf, NULL);
 					_exit(1);
 				}
+		}
+		
+		if (!nxselect_running && path_received == 1 && edit_file_requested == 1) {
+
+			path_received = 0;
+			edit_file_requested = 0;
+
+			pid_t pid = fork();
+			if (pid == 0) {
+
+				char cmd[70];
+
+				/* Build: "/bin/edit <path> && exit" including the double quotes */
+				snprintf(cmd, sizeof(cmd),
+						 "/bin/vi %s && exit",
+						 buf);
+
+				/* Pass whole quoted command as one argument to nxterm */
+				execl("/bin/nxterm", "nxterm", cmd, NULL);
+
+				_exit(1);
+			}
 		}
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */

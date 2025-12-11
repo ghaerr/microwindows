@@ -73,7 +73,7 @@
 static GR_WINDOW_ID win;
 static GR_GC_ID gc;
 
-static GR_COORD win_width  = 320;
+static GR_COORD win_width  = 200;
 static GR_COORD win_height = 200;
 
 static char cwd[MAX_PATH_LEN];

@@ -374,21 +374,21 @@ static int16 getExtendOffset(uint8 i)
    switch (i)
    {
       case 0: return 0;
-      case 1: return ((-1)<<1) + 1; 
-      case 2: return ((-1)<<2) + 1; 
-      case 3: return ((-1)<<3) + 1; 
-      case 4: return ((-1)<<4) + 1; 
-      case 5: return ((-1)<<5) + 1; 
-      case 6: return ((-1)<<6) + 1; 
-      case 7: return ((-1)<<7) + 1; 
-      case 8: return ((-1)<<8) + 1; 
-      case 9: return ((-1)<<9) + 1;
-      case 10: return ((-1)<<10) + 1; 
-      case 11: return ((-1)<<11) + 1; 
-      case 12: return ((-1)<<12) + 1; 
-      case 13: return ((-1)<<13) + 1; 
-      case 14: return ((-1)<<14) + 1; 
-      case 15: return ((-1)<<15) + 1;
+      case 1: return ((-1U)<<1) + 1;
+      case 2: return ((-1U)<<2) + 1;
+      case 3: return ((-1U)<<3) + 1;
+      case 4: return ((-1U)<<4) + 1;
+      case 5: return ((-1U)<<5) + 1;
+      case 6: return ((-1U)<<6) + 1;
+      case 7: return ((-1U)<<7) + 1;
+      case 8: return ((-1U)<<8) + 1;
+      case 9: return ((-1U)<<9) + 1;
+      case 10: return ((-1U)<<10) + 1;
+      case 11: return ((-1U)<<11) + 1;
+      case 12: return ((-1U)<<12) + 1;
+      case 13: return ((-1U)<<13) + 1;
+      case 14: return ((-1U)<<14) + 1;
+      case 15: return ((-1U)<<15) + 1;
       default: return 0;
    };
 }
@@ -684,7 +684,7 @@ static uint8 readSOSMarker(void)
 {
    uint8 i;
    uint16 left = getBits1(16);
-   uint8 spectral_start, spectral_end, successive_high, successive_low;
+   //uint8 spectral_start, spectral_end, successive_high, successive_low;
 
    gCompsInScan = (uint8)getBits1(8);
 
@@ -713,10 +713,10 @@ static uint8 readSOSMarker(void)
       gCompACTab[ci] = (c & 15);
    }
 
-   spectral_start  = (uint8)getBits1(8);
-   spectral_end    = (uint8)getBits1(8);
-   successive_high = (uint8)getBits1(4);
-   successive_low  = (uint8)getBits1(4);
+   //spectral_start  = (uint8)getBits1(8);
+   //spectral_end    = (uint8)getBits1(8);
+   //successive_high = (uint8)getBits1(4);
+   //successive_low  = (uint8)getBits1(4);
 
    left -= 3;
 
@@ -1027,6 +1027,7 @@ static uint8 processRestart(void)
 //------------------------------------------------------------------------------
 // FIXME: findEOI() is not actually called at the end of the image 
 // (it's optional, and probably not needed on embedded devices)
+#if UNUSED
 static uint8 findEOI(void)
 {
    uint8 c;
@@ -1050,6 +1051,7 @@ static uint8 findEOI(void)
    
    return 0;
 }
+#endif
 //------------------------------------------------------------------------------
 static uint8 checkHuffTables(void)
 {

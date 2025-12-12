@@ -1139,8 +1139,9 @@ term(void)
 	unsigned char 	buf[KBDBUF];
 
 	if (startprogram) {
+		usleep(1000);
 		write(termfd, startprogram, strlen(startprogram));
-                write(termfd, "\n", 1);
+		write(termfd, "\r", 1);
 	}
 
 	while (42) {
@@ -1596,6 +1597,7 @@ static void sigpipe(int sig)
 	/* this one musn't close the window */
 	/*_write_utmp(pty, "", "", 0);  */
 	kill(-pid, SIGHUP);
+	GrClose();
 	_exit(sig);
 }
 
@@ -1603,6 +1605,7 @@ static void sigpipe(int sig)
 static void sigchld(int sig)
 {
 	/*  _write_utmp(pty, "", "", 0);  */
+	GrClose();
 	_exit(sig);
 }
 
@@ -1610,15 +1613,14 @@ static void sigchld(int sig)
 static void sigquit(int sig)
 {
 	signal(sig, SIG_IGN);
+	GrClose();
 	kill(-pid, SIGHUP);
 }
 #endif /* UNIX*/
 
 int main(int argc, char **argv)
 {
-    char *shell = NULL, *cptr;
     GR_CURSOR_ID c1;
-    char thesh[128];
     GR_BITMAP	bitmap1fg[7];	/* mouse cursor */
     GR_BITMAP	bitmap1bg[7];
 
@@ -1662,21 +1664,16 @@ int main(int argc, char **argv)
     /*
      * now *argv either points to a program to start or is zero
      */
-#ifdef __FreeBSD__ 
-    /* now UNIX98 - shell is passed in FreeBSD only */
-    if (*argv)
-		shell = *argv;
-#else
     if (*argv)
         startprogram = *argv++;
-#endif
 
+#if UNUSED
+    char *shell = NULL, *cptr;
+    char thesh[128];
     if (!shell)
 		shell = getenv("SHELL=");
-#if !ELKS
     if (!shell)
 		shell = pw->pw_shell;
-#endif
     if (!shell)
 		shell = "/bin/sh";
 
@@ -1690,6 +1687,7 @@ int main(int argc, char **argv)
 		sprintf (thesh, "-%s", cptr ? cptr + 1 : shell);
 		*--argv = thesh;
     }
+#endif
 
     col = stdcol;
     row = stdrow;

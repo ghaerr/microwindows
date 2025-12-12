@@ -124,7 +124,6 @@ main(int argc,char **argv)
 	GR_EVENT	event;		/* current event */
 	struct app_info	* act;
 	int		width = 8, height;
-
 #ifdef USE_WEIRD_POINTER
 	GR_BITMAP	bitmap1fg[7];	/* bitmaps for first cursor */
 	GR_BITMAP	bitmap1bg[7];
@@ -209,7 +208,16 @@ main(int argc,char **argv)
 				do_mouse(&event.mouse);
 				break;
 			case GR_EVENT_TYPE_CLOSE_REQ:
+				signal(SIGCHLD, SIG_IGN);
 				GrClose();
+				/*
+				 * Wait for all children to exit before we do.
+				 * This prevents the shell we return to from reading
+				 * simultaneously with nxterm or another NX app and
+				 * causing bad behaviour.
+				 */
+				while (waitpid(-1, NULL, 0) != -1)
+					continue;
 				return 0;
 		}
 	}

@@ -70,9 +70,12 @@ TODO:
 
 const char *apps[] =
     { "About", "Calculator","Clock","Mine","Tetris","World demo","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
+	
+const char *sys[] =
+    { "Exit", "Restart","Sync & Halt"};
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
-
+#define SYS_COUNT (sizeof(sys)/sizeof(sys[0]))
 
 /* ===== GLOBALS ===== */
 static GR_WINDOW_ID win;
@@ -137,29 +140,47 @@ static void draw_menu(void)
 {
     int mx = 0;
     int menu_h = (APP_COUNT * MENU_ITEM_HEIGHT) +
-                 MENU_ITEM_EXIT_HEIGHT + 4;
+             (SYS_COUNT * MENU_ITEM_EXIT_HEIGHT) + 4;
 
     int my = height - TASKBAR_HEIGHT - menu_h;
 
     GrSetGCForeground(gc_bar, GrGetSysColor(GR_COLOR_BTNFACE));
-    GrFillRect(win,gc_bar,mx,my,MENU_WIDTH,menu_h);
-    draw3drect(mx,my,MENU_WIDTH,menu_h,1);
+    GrFillRect(win, gc_bar, mx, my, MENU_WIDTH, menu_h);
+    draw3drect(mx, my, MENU_WIDTH, menu_h, 1);
 
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
 
     int y = my + 4 + TEXT_Y_OFFSET_MENU;
 
-    for(int i = 0; i < APP_COUNT; i++) {
-        GrText(win,gc_text,4,y,(void *)apps[i],strlen(apps[i]),GR_TFASCII);
+    /* Applications */
+    for (int i = 0; i < APP_COUNT; i++) {
+        GrText(win, gc_text,
+               4, y,
+               (void *)apps[i],
+               strlen(apps[i]),
+               GR_TFASCII);
         y += MENU_ITEM_HEIGHT;
     }
 
-    GrLine(win,gc_text,mx+2,y-TEXT_Y_OFFSET_MENU,mx+MENU_WIDTH-2,y-TEXT_Y_OFFSET_MENU);
+    /* Separator line */
+    GrLine(win, gc_text,
+           mx + 2,
+           y - TEXT_Y_OFFSET_MENU,
+           mx + MENU_WIDTH - 2,
+           y - TEXT_Y_OFFSET_MENU);
+
     y += 4;
 
-    GrText(win,gc_text,4,y,(void *)"Exit",4,GR_TFASCII);
+    /* System commands (Exit, Restart, Sync & Halt) */
+    for (int i = 0; i < SYS_COUNT; i++) {
+        GrText(win, gc_text,
+               4, y,
+               (void *)sys[i],
+               strlen(sys[i]),
+               GR_TFASCII);
+        y += MENU_ITEM_EXIT_HEIGHT;
+    }
 }
-
 
 /* ===== RECT CHECK ===== */
 static int in_rect(int x,int y,int rx,int ry,int rw,int rh)
@@ -285,13 +306,12 @@ static void handle_menu_click(int x, int y,
                               int *need_redraw)
 {
     int mx = 0;
-    int menu_h =
-        (APP_COUNT * MENU_ITEM_HEIGHT) +
-        MENU_ITEM_EXIT_HEIGHT + 4;
+    int menu_h = (APP_COUNT * MENU_ITEM_HEIGHT) +
+                 (SYS_COUNT * MENU_ITEM_EXIT_HEIGHT) + 4;
 
     int my = height - TASKBAR_HEIGHT - menu_h;
 
-    /* Launch program selected from menu */
+    /* ---------- Applications ---------- */
     for (int i = 0; i < APP_COUNT; i++) {
 
         if (in_rect(x, y,
@@ -303,15 +323,14 @@ static void handle_menu_click(int x, int y,
             char cmd[64];
 
             if (strncmp(apps[i], "View jpg", 8) == 0) {
-				
-				size_t len = strlen(apps[i]);
 
-				if (strcmp(apps[i] + len - 2, "8c") == 0)
-					image_view_color_mode = 8;
-				else 
-				if (strcmp(apps[i] + len - 2, "4c") == 0)
-					image_view_color_mode = 4;
-				
+                size_t len = strlen(apps[i]);
+
+                if (len >= 2 && strcmp(apps[i] + len - 2, "8c") == 0)
+                    image_view_color_mode = 8;
+                else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
+                    image_view_color_mode = 4;
+
                 if (!nxselect_running) {
                     nx_fp = popen("nxselect", "r");
                     if (nx_fp) {
@@ -335,46 +354,34 @@ static void handle_menu_click(int x, int y,
                 }
 
             } else if (!strcmp(apps[i], "About")) {
-				
-				//about_box = UI_MessageBoxCreate(win, "About", "nxDsktop 1.0 created by Anton Andreev");
-				
-			} else {
 
-				const char *exe;
+                /* Modeless About box (optional) */
+                /* about_box = UI_MessageBoxCreate(win,
+                        "About",
+                        "nxDesktop 1.0\n(c) Anton Andreev"); */
 
-				/* select correct executable */
-				if (strcmp(apps[i], "Calculator") == 0) {
-					exe = "nxcalc";
-				} else 
-				if (strcmp(apps[i], "Clock") == 0) {
-					exe = "nxclock";
-				} else 
-				if (strcmp(apps[i], "Mine") == 0) {
-					exe = "nxmine";
-				} else 
-				if (strcmp(apps[i], "Terminal") == 0) {
-					exe = "nxterm";
-				} else
-				if (strcmp(apps[i], "Tetris") == 0) {
-					exe = "nxtetris";
-				} else	
-				if (strcmp(apps[i], "World demo") == 0) {
-					exe = "nxworld";
-				} else	
-				{
-					exe = apps[i];
-				}
+            } else {
 
-				snprintf(cmd, sizeof(cmd),
-						 APP_PATH "%s", exe);
+                const char *exe;
 
-				if (fork() == 0) {
-					execl(cmd, exe, NULL);
-					_exit(1);
-				}
+                if (!strcmp(apps[i], "Calculator"))      exe = "nxcalc";
+                else if (!strcmp(apps[i], "Clock"))      exe = "nxclock";
+                else if (!strcmp(apps[i], "Mine"))       exe = "nxmine";
+                else if (!strcmp(apps[i], "Terminal"))   exe = "nxterm";
+                else if (!strcmp(apps[i], "Tetris"))     exe = "nxtetris";
+                else if (!strcmp(apps[i], "World demo")) exe = "nxworld";
+                else                                     exe = apps[i];
+
+                snprintf(cmd, sizeof(cmd),
+                         APP_PATH "%s", exe);
+
+                if (fork() == 0) {
+                    execl(cmd, exe, NULL);
+                    _exit(1);
+                }
             }
 
-            /* Close menu after selection */
+            /* Close menu */
             menu_open = 0;
 
             GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
@@ -387,15 +394,53 @@ static void handle_menu_click(int x, int y,
         }
     }
 
-    /* Exit item */
-    if (in_rect(x, y,
-                mx,
-                my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
-                MENU_WIDTH,
-                MENU_ITEM_EXIT_HEIGHT))
-    {
-        GrClose();
-        exit(0);
+    /* ---------- System items ---------- */
+    int sys_y = my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4;
+
+    for (int i = 0; i < SYS_COUNT; i++) {
+
+        if (in_rect(x, y,
+                    mx,
+                    sys_y + (i * MENU_ITEM_EXIT_HEIGHT),
+                    MENU_WIDTH,
+                    MENU_ITEM_EXIT_HEIGHT))
+        {
+            if (!strcmp(sys[i], "Exit")) {
+                GrClose();
+                exit(0);  //TODO: use new code for exit ?
+            }
+            else if (!strcmp(sys[i], "Restart")) {
+                
+				if (fork() == 0) {
+                    execl("/bin/shutdown",
+                          "shutdown",
+                          "-r",
+                          NULL);
+                    _exit(1);
+                }
+            }
+            else if (!strcmp(sys[i], "Sync & Halt")) {
+				
+				/* TODO: not really halted visually */
+                if (fork() == 0) {
+                    execl("/bin/shutdown",
+                          "shutdown",
+                          "-h",
+                          NULL);
+                    _exit(1);
+                }
+            }
+
+            menu_open = 0;
+
+			GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+			GrFillRect(win, gc_bar,
+					   mx, my,
+					   MENU_WIDTH, menu_h);
+
+			*need_redraw = 1;
+			return;
+        }
     }
 }
 
@@ -455,9 +500,9 @@ int main(void)
             case GR_EVENT_TYPE_BUTTON_DOWN: {
 
                 int mx = 0;
-                int menu_h =
-                    (APP_COUNT * MENU_ITEM_HEIGHT) +
-                    MENU_ITEM_EXIT_HEIGHT + 4;
+				int menu_h =
+					(APP_COUNT * MENU_ITEM_HEIGHT) +
+					(SYS_COUNT * MENU_ITEM_EXIT_HEIGHT) + 4;
 
                 int my = height - TASKBAR_HEIGHT - menu_h;
 

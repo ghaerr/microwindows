@@ -115,6 +115,7 @@ static void reapchild(int sig)
 		continue;
 }
 
+/* Wait for all children to exit, then exit ourselves */
 static void exitwait(void)
 {
 	signal(SIGCHLD, SIG_IGN);
@@ -130,6 +131,7 @@ static void exitwait(void)
 	exit(0);
 }
 
+/* Handle SIGTERM by sending SIGTERM to all children, then exit */
 static void sigterm(int sig)
 {
 	signal(SIGTERM, SIG_IGN);
@@ -378,14 +380,14 @@ do_buttondown(GR_EVENT_BUTTON *ep)
 	static int app_no;
 
 	if (ep->wid == w1) {
-		int y = MWMAX(ep->y - 2, 0);	/* FIXME fudge */
+		int y = MWMAX(ep->y - 2, 0);    /* FIXME fudge */
 		app_no = y / fheight;
 		if (app_no >= num_apps)
 			app_no = num_apps - 1;
 		nargv[0] = Apps[app_no].app_path;
 		nargv[1] = NULL;
 		if (!strcmp(nargv[0], "quit"))
-			sigterm(SIGTERM);	/* send SIGTERM and exit */
+			sigterm(SIGTERM);           /* send SIGTERM and exit */
 		if (!vfork()) {
 			execv(nargv[0], nargv);
 			/* write(1, "\7", 1); */

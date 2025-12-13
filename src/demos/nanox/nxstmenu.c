@@ -9,7 +9,7 @@ TODO:
    - rename to nxdsktop
    - add commands such as: Halt, Restart
    - add About section with MessageBox
-   - add free/total conventional memory in taskbar - DONE (slow version with meminfo -b)
+   - add free/total conventional memory in taskbar - DONE
   V2:
    - add proper exit - this app, all other nxapp and the Nano-X server
    - reduce redraw frequency and avoid heavy redraws triggered by button clicks
@@ -46,6 +46,7 @@ TODO:
 #include <linuxmt/mem.h> 
 #include <sys/ioctl.h>
 #include <sys/select.h>
+//#include "uihelper.h"
 
 #define TEXT_Y_OFFSET_MENU     10
 #define TEXT_Y_OFFSET_TASKBAR  15
@@ -68,7 +69,7 @@ TODO:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "nxcalc","nxclock","nxmine","nxterm","nxtetris","nxworld", "View image", "Edit file"};
+    { "About", "Calculator","Clock","Mine","Tetris","World demo","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 
@@ -78,6 +79,7 @@ static GR_WINDOW_ID win;
 static GR_GC_ID gc_bar, gc_text;
 static int width, height;
 static int menu_open = 0;
+//static UIMessageBox *about_box = NULL;
 
 #if ENABLE_MEMORY_USAGE
 static unsigned int mem_free = 0;
@@ -246,6 +248,7 @@ char buf[80];
 static int path_received = 0;
 static int image_view_requested = 0;
 static int edit_file_requested =0;
+static int image_view_color_mode = 16;
 
 void poll_for_nxselect_result(void)
 {
@@ -275,6 +278,124 @@ void poll_for_nxselect_result(void)
         nx_fp = NULL;
         nx_fd = -1;
         nxselect_running = 0;   /* stop polling */
+    }
+}
+
+static void handle_menu_click(int x, int y,
+                              int *need_redraw)
+{
+    int mx = 0;
+    int menu_h =
+        (APP_COUNT * MENU_ITEM_HEIGHT) +
+        MENU_ITEM_EXIT_HEIGHT + 4;
+
+    int my = height - TASKBAR_HEIGHT - menu_h;
+
+    /* Launch program selected from menu */
+    for (int i = 0; i < APP_COUNT; i++) {
+
+        if (in_rect(x, y,
+                    mx,
+                    my + (i * MENU_ITEM_HEIGHT),
+                    MENU_WIDTH,
+                    MENU_ITEM_HEIGHT))
+        {
+            char cmd[64];
+
+            if (strncmp(apps[i], "View jpg", 8) == 0) {
+				
+				size_t len = strlen(apps[i]);
+
+				if (strcmp(apps[i] + len - 2, "8c") == 0)
+					image_view_color_mode = 8;
+				else 
+				if (strcmp(apps[i] + len - 2, "4c") == 0)
+					image_view_color_mode = 4;
+				
+                if (!nxselect_running) {
+                    nx_fp = popen("nxselect", "r");
+                    if (nx_fp) {
+                        nx_fd = fileno(nx_fp);
+                        nxselect_running = 1;
+                        path_received = 0;
+                        image_view_requested = 1;
+                    }
+                }
+
+            } else if (!strcmp(apps[i], "Edit file")) {
+
+                if (!nxselect_running) {
+                    nx_fp = popen("nxselect", "r");
+                    if (nx_fp) {
+                        nx_fd = fileno(nx_fp);
+                        nxselect_running = 1;
+                        path_received = 0;
+                        edit_file_requested = 1;
+                    }
+                }
+
+            } else if (!strcmp(apps[i], "About")) {
+				
+				//about_box = UI_MessageBoxCreate(win, "About", "nxDsktop 1.0 created by Anton Andreev");
+				
+			} else {
+
+				const char *exe;
+
+				/* select correct executable */
+				if (strcmp(apps[i], "Calculator") == 0) {
+					exe = "nxcalc";
+				} else 
+				if (strcmp(apps[i], "Clock") == 0) {
+					exe = "nxclock";
+				} else 
+				if (strcmp(apps[i], "Mine") == 0) {
+					exe = "nxmine";
+				} else 
+				if (strcmp(apps[i], "Terminal") == 0) {
+					exe = "nxterm";
+				} else
+				if (strcmp(apps[i], "Tetris") == 0) {
+					exe = "nxtetris";
+				} else	
+				if (strcmp(apps[i], "World demo") == 0) {
+					exe = "nxworld";
+				} else	
+				{
+					exe = apps[i];
+				}
+
+				snprintf(cmd, sizeof(cmd),
+						 APP_PATH "%s", exe);
+
+				if (fork() == 0) {
+					execl(cmd, exe, NULL);
+					_exit(1);
+				}
+            }
+
+            /* Close menu after selection */
+            menu_open = 0;
+
+            GrSetGCForeground(gc_bar, GR_COLOR_LIGHTSKYBLUE);
+            GrFillRect(win, gc_bar,
+                       mx, my,
+                       MENU_WIDTH, menu_h);
+
+            *need_redraw = 1;
+            return;
+        }
+    }
+
+    /* Exit item */
+    if (in_rect(x, y,
+                mx,
+                my + (APP_COUNT * MENU_ITEM_HEIGHT) + 4,
+                MENU_WIDTH,
+                MENU_ITEM_EXIT_HEIGHT))
+    {
+        GrClose();
+        exit(0);
     }
 }
 
@@ -364,86 +485,9 @@ int main(void)
                 }
                 else if (clicked_menu) {
 
-                    /* Launch program selected from menu */
-                    for (int i=0;i<APP_COUNT;i++) {
-                        if (in_rect(ev.button.x,ev.button.y,
-                                    mx,my+(i*MENU_ITEM_HEIGHT),
-                                    MENU_WIDTH,MENU_ITEM_HEIGHT))
-                        {
-                            char cmd[64];
-                            /*snprintf(cmd,sizeof(cmd),
-                                     APP_PATH "%s",apps[i]);
-
-                            if (fork()==0) {
-                                execl(cmd,cmd,NULL);
-                                _exit(1);
-                            }*/
-
-							if (!strcmp(apps[i], "View image")) {
-
-								/* Launch nxselect */
-								if (!nxselect_running) {
-									nx_fp = popen("nxselect", "r");
-									if (!nx_fp) {
-										printf("Failed to start nxselect\n");
-									} else {
-										nx_fd = fileno(nx_fp);
-										nxselect_running = 1;
-										path_received = 0;
-										image_view_requested = 1;
-										//printf("nxselect launched\n");
-									}
-								}
-
-							} else
-							if (!strcmp(apps[i], "Edit file")) {
-
-								/* Launch nxselect */
-								if (!nxselect_running) {
-									nx_fp = popen("nxselect", "r");
-									if (!nx_fp) {
-										printf("Failed to start nxselect\n");
-									} else {
-										nx_fd = fileno(nx_fp);
-										nxselect_running = 1;
-										path_received = 0;
-										edit_file_requested = 1;
-										//printf("nxselect launched\n");
-									}
-								}
-
-							} else 
-							{
-
-								/* Normal app launching */
-								snprintf(cmd, sizeof(cmd), APP_PATH "%s", apps[i]);
-
-								if (fork() == 0) {
-									execl(cmd, cmd, NULL);
-									_exit(1);
-								}
-							}
-
-                            menu_open = 0;
-
-                            /* clear menu area */
-                            GrSetGCForeground(gc_bar,GR_COLOR_LIGHTSKYBLUE);
-                            GrFillRect(win,gc_bar,
-                                       mx,my,MENU_WIDTH,menu_h);
-
-                            need_redraw = 1;
-                            break;
-                        }
-                    }
-
-                    /* Exit from menu */
-                    if (in_rect(ev.button.x,ev.button.y,
-                           mx,my+(APP_COUNT*MENU_ITEM_HEIGHT)+4,
-                           MENU_WIDTH,MENU_ITEM_EXIT_HEIGHT))
-                    {
-                        GrClose();
-                        exit(0);
-                    }
+                    handle_menu_click(ev.button.x,
+                          ev.button.y,
+                          &need_redraw);
                 }
                 else {
                     if (menu_open) {
@@ -467,21 +511,42 @@ int main(void)
 		
 		if (nxselect_running && nx_fd!=-1 && nx_fp != NULL)
              poll_for_nxselect_result();
-		 
-		if (!nxselect_running && path_received == 1 && image_view_requested == 1) {
 
-				/* Path successfully received in buf */
-				//printf("Launching nxjpeg with %s\n", buf);
+		if (!nxselect_running && path_received == 1 && image_view_requested == 1)
+		{
+			path_received = 0;
+			image_view_requested = 0;
+			pid_t pid = fork();
 
-				path_received = 0;
-				pid_t pid = fork();
-				image_view_requested = 0;
-				if (pid == 0) {
-					execl("/bin/nxjpeg", "nxjpeg", buf, NULL);
-					_exit(1);
+			if (pid == 0) {
+				if (image_view_color_mode == 4) {
+					execl("/bin/nxjpeg",
+						  "nxjpeg",
+						  "-m",
+						  "-g",
+						  buf,
+						  NULL);
 				}
+				else if (image_view_color_mode == 8) {
+					execl("/bin/nxjpeg",
+						  "nxjpeg",
+						  "-g",
+						  "-8",
+						  buf,
+						  NULL);
+				}
+				else {
+					/* Default mode 16 colors ega */
+					execl("/bin/nxjpeg",
+						  "nxjpeg",
+						  buf,
+						  NULL);
+				}
+				/* Only reached if execl() fails */
+				_exit(1);
+			}
 		}
-		
+
 		if (!nxselect_running && path_received == 1 && edit_file_requested == 1) {
 
 			path_received = 0;
@@ -494,7 +559,7 @@ int main(void)
 
 				/* Build: "/bin/edit <path> && exit" including the double quotes */
 				snprintf(cmd, sizeof(cmd),
-						 "/bin/vi %s && exit",
+						 "/bin/edit %s && exit",
 						 buf);
 
 				/* Pass whole quoted command as one argument to nxterm */
@@ -503,6 +568,12 @@ int main(void)
 				_exit(1);
 			}
 		}
+		
+		/*if (about_box) {
+			if (UI_MessageBoxHandleEvent(about_box, &ev)) {
+				about_box = NULL;
+			}
+		}*/
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */
         time_t now = time(NULL);

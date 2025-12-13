@@ -1596,8 +1596,8 @@ static void sigpipe(int sig)
 {
 	/* this one musn't close the window */
 	/*_write_utmp(pty, "", "", 0);  */
-	kill(-pid, SIGHUP);
 	GrClose();
+	kill(-pid, SIGHUP);
 	_exit(sig);
 }
 
@@ -1769,9 +1769,9 @@ int main(int argc, char **argv)
      * grantpt docs: "The behavior of grantpt() is unspecified if a signal handler
      * is installed to catch SIGCHLD signals. "
      */
-    mysignal(SIGTERM, sigquit);
-    mysignal(SIGHUP, sigquit);
     mysignal(SIGINT, SIG_IGN);
+    mysignal(SIGTERM, sigquit);
+    mysignal(SIGHUP,  sigquit);
     mysignal(SIGQUIT, sigquit);
     mysignal(SIGPIPE, sigpipe);
     mysignal(SIGCHLD, sigchld);

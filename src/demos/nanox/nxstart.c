@@ -88,6 +88,7 @@ struct app_info {
 	{"scribble",  PATH "nxscribble"},
 	{"slider",    PATH "nxslider"},
 #endif
+	{"quit",      "quit"},
 	{"", ""}
 };
 
@@ -107,11 +108,35 @@ GR_COORD	move_xoff;
 GR_COORD	move_yoff;
 
 /* Removes task entries after child exit and discards exit status */
-static void reapchild(int signum)
+static void reapchild(int sig)
 {
 	signal(SIGCHLD, reapchild);
 	while(waitpid(-1, NULL, WNOHANG) > 0)
 		continue;
+}
+
+/* Wait for all children to exit, then exit ourselves */
+static void exitwait(void)
+{
+	signal(SIGCHLD, SIG_IGN);
+	GrClose();
+	/*
+	 * Wait for all children to exit before we do.
+	 * This prevents the shell we return to from reading
+	 * simultaneously with nxterm or another NX app and
+	 * causing bad behaviour.
+	 */
+	while (waitpid(-1, NULL, 0) != -1)
+		continue;
+	exit(0);
+}
+
+/* Handle SIGTERM by sending SIGTERM to all children, then exit */
+static void sigterm(int sig)
+{
+	signal(SIGTERM, SIG_IGN);
+	kill(-getpid(), SIGTERM);
+	exitwait();
 }
 
 int
@@ -126,6 +151,9 @@ main(int argc,char **argv)
 #endif
 
 	signal(SIGCHLD, reapchild);
+	signal(SIGTERM, sigterm);
+	signal(SIGHUP, SIG_IGN);
+	setsid();
 
 	if (GrOpen() < 0) {
 		GrError("cannot open graphics\n");
@@ -203,17 +231,7 @@ main(int argc,char **argv)
 				do_mouse(&event.mouse);
 				break;
 			case GR_EVENT_TYPE_CLOSE_REQ:
-				signal(SIGCHLD, SIG_IGN);
-				GrClose();
-				/*
-				 * Wait for all children to exit before we do.
-				 * This prevents the shell we return to from reading
-				 * simultaneously with nxterm or another NX app and
-				 * causing bad behaviour.
-				 */
-				while (waitpid(-1, NULL, 0) != -1)
-					continue;
-				return 0;
+				exitwait();	/* wait for children then exit */
 		}
 	}
 }
@@ -362,12 +380,14 @@ do_buttondown(GR_EVENT_BUTTON *ep)
 	static int app_no;
 
 	if (ep->wid == w1) {
-		int y = MWMAX(ep->y - 2, 0);        /* FIXME fudge */
+		int y = MWMAX(ep->y - 2, 0);    /* FIXME fudge */
 		app_no = y / fheight;
 		if (app_no >= num_apps)
 			app_no = num_apps - 1;
 		nargv[0] = Apps[app_no].app_path;
-		nargv[1] = 0;
+		nargv[1] = NULL;
+		if (!strcmp(nargv[0], "quit"))
+			sigterm(SIGTERM);           /* send SIGTERM and exit */
 		if (!vfork()) {
 			execv(nargv[0], nargv);
 			/* write(1, "\7", 1); */

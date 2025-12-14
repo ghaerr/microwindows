@@ -1208,7 +1208,7 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 //handle vt52 keys here
 {
 	int len;
-	char *str, locbuff[256];
+	char *str, locbuff[32];
 
 	switch (key) {
 	case  MWKEY_LEFT:
@@ -1291,6 +1291,7 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='c';
 			locbuff[2]=(char)bgcolor[key - MWKEY_F1];
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else if ( modifier & MWKMOD_RMETA ) {
@@ -1298,6 +1299,7 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='b';
 			locbuff[2]=(char)fgcolor[key - MWKEY_F1];				
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else {
@@ -1347,20 +1349,18 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 		/* fall thru*/
 
 	default:
-		str = "";
 		len = 0;
 	}
+	buffer[0] = '\0';
 	if(len > 0)
-		sprintf((char *)buffer,"%s",str);
-	else
-		buffer[0] = '\0';
+		strcpy((char *)buffer, str);
 	return len;
 }
 
 int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 {
 	int len;
-	char *str, locbuff[256];
+	char *str, locbuff[32];
 
 	switch (key) {
 	case  MWKEY_LEFT:
@@ -1466,6 +1466,7 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='c';
 			locbuff[2]=(char)bgcolor[key - MWKEY_F1];
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else if ( modifier & MWKMOD_RMETA ) {
@@ -1473,6 +1474,7 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='b';
 			locbuff[2]=(char)fgcolor[key - MWKEY_F1];				
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else {
@@ -1530,13 +1532,11 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 		/* fall thru*/
 
 	default:
-		str = "";
 		len = 0;
 	}
+	buffer[0] = '\0';
 	if(len > 0)
                 strcpy((char *)buffer, str);
-	else
-		buffer[0] = '\0';
 	return len;
 }
 
@@ -1770,11 +1770,12 @@ int term_init(void)
 	char pty_name[12];
 
 again:
-	sprintf(pty_name, "/dev/ptyp%d", n);
+	strcpy(pty_name, "/dev/ptyp");      /* master side (PTY) /dev/ptyp0 = 2,8 */
+	strcat(pty_name, itoa(n));
 	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
 		if (errno == EBUSY && n++ < 3)
 			goto again;
-		GrError("Can't create pty %s\n", pty_name);
+		GrError("Can't create %s\n", pty_name);
 		return -1;
 	}
 
@@ -1787,9 +1788,9 @@ again:
 		close(tfd);
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
-		pty_name[5] = 't';
+		pty_name[5] = 't';              /* slave side (TTY) /dev/ttyp0 = 4,8 */
 		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			GrError("Can't open pty %s\n", pty_name);
+			GrError("Can't open %s\n", pty_name);
 			return -1;
 		}
 		close(STDERR_FILENO);
@@ -1872,7 +1873,7 @@ int term_init(void)
 
 		setsid();
 		if ((tfd = open(ptyname, O_RDWR)) < 0) {
-			GrError("Can't open pty %s\n", ptyname);
+			GrError("Can't open %s\n", ptyname);
 			exit(1);
 		}
 

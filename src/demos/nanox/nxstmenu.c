@@ -7,9 +7,11 @@ TODO:
   V1:
    - improve colors
    - rename to nxdsktop
-   - add commands such as: Halt, Restart
-   - add About section with MessageBox
+   - add commands such as: Halt, Restart - DONE
+   - add About section with MessageBox - needs another nxapp to display nicely
    - add free/total conventional memory in taskbar - DONE
+   - support for nxjpeg, nxselect, nxterm and edit - DONE
+   
   V2:
    - add proper exit - this app, all other nxapp and the Nano-X server
    - reduce redraw frequency and avoid heavy redraws triggered by button clicks
@@ -18,6 +20,7 @@ TODO:
         - avoid status redraw on EXPOSE for the entire window
         - add throttling to redraws - never allow redraws more than once every 100ms.
    - Improve 3D feel
+   
   V3:
    - add message bar or busy mouse pointer
    - add menu item hoover (blue background, white text)
@@ -69,10 +72,10 @@ TODO:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "About", "Calculator","Clock","Mine","Tetris","World demo","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
+    { "About", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 	
 const char *sys[] =
-    { "Exit", "Restart","Sync & Halt"};
+    { "Exit", "Restart","Sync disk"}; /* TODO: Implement 'Shutdown' item with a message, shutdown does both sync and umount */ 
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 #define SYS_COUNT (sizeof(sys)/sizeof(sys[0]))
@@ -369,7 +372,7 @@ static void handle_menu_click(int x, int y,
                 else if (!strcmp(apps[i], "Mine"))       exe = "nxmine";
                 else if (!strcmp(apps[i], "Terminal"))   exe = "nxterm";
                 else if (!strcmp(apps[i], "Tetris"))     exe = "nxtetris";
-                else if (!strcmp(apps[i], "World demo")) exe = "nxworld";
+                else if (!strcmp(apps[i], "World map zoom")) exe = "nxworld";
                 else                                     exe = apps[i];
 
                 snprintf(cmd, sizeof(cmd),
@@ -419,13 +422,12 @@ static void handle_menu_click(int x, int y,
                     _exit(1);
                 }
             }
-            else if (!strcmp(sys[i], "Sync & Halt")) {
+            else if (!strcmp(sys[i], "Sync disk")) {
 				
-				/* TODO: not really halted visually */
+				/* TODO: replace with shutdown and visual message */
                 if (fork() == 0) {
-                    execl("/bin/shutdown",
-                          "shutdown",
-                          "-h",
+                    execl("/bin/sync",
+                          "sync",
                           NULL);
                     _exit(1);
                 }

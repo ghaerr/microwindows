@@ -3,32 +3,18 @@
 A Windows 95 like start menu for ELKS and Nano-X.
 It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz. 
 
-TODO:
-  V1:
-   - improve colors
-   - rename to nxdsktop
-   - add commands such as: Halt, Restart - DONE
-   - add About section with MessageBox - needs another nxapp to display nicely
-   - add free/total conventional memory in taskbar - DONE
-   - support for nxjpeg, nxselect, nxterm and edit - DONE
-   
-  V2:
-   - add proper exit - this app, all other nxapp and the Nano-X server
-   - reduce redraw frequency and avoid heavy redraws triggered by button clicks
-        - only redraw what changed, not the whole UI
-        - avoid clearing big rectangles in event handlers
-        - avoid status redraw on EXPOSE for the entire window
-        - add throttling to redraws - never allow redraws more than once every 100ms.
-   - Improve 3D feel
-   
-  V3:
-   - add message bar or busy mouse pointer
-   - add menu item hoover (blue background, white text)
-   - add "themes" from a config file 
-   - add process list window or application that shows how much memory is used per process
+Created by Anton Andreev
 
-  Notes: 
-    Rules to fllow on slow 8086/8088 systems:
+Version 1.0:
+   - event handling of windows 95 startup menu with both commands and applications
+   - auto updates for free/total conventional memory in taskbar and clock display
+   - support for viewing images in 3 modes with nxjpeg (subprject)
+   - support for file selection with nxselect (subproject)
+   - support for editing files using: nxselect -> nxterm -> edit
+   - commands: Restart, Exit, Disk sync
+
+Notes: 
+    Rules to follow on slow 8086/8088 systems:
      - Only draw in EXPOSE (or via a single scheduled redraw triggered by EXPOSE).
      - Never draw directly in event handlers—change state and request a redraw instead.
      - Keep drawing ordered and centralized so UI elements repaint consistently.
@@ -72,10 +58,10 @@ TODO:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "About", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
+    { "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 	
 const char *sys[] =
-    { "Exit", "Restart","Sync disk"}; /* TODO: Implement 'Shutdown' item with a message, shutdown does both sync and umount */ 
+    { "Exit", "Restart","Sync disk"};
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 #define SYS_COUNT (sizeof(sys)/sizeof(sys[0]))
@@ -85,7 +71,14 @@ static GR_WINDOW_ID win;
 static GR_GC_ID gc_bar, gc_text;
 static int width, height;
 static int menu_open = 0;
-//static UIMessageBox *about_box = NULL;
+static FILE *nx_fp = NULL;
+static int nx_fd = -1;
+static int nxselect_running = 0;
+char buf[80]; 
+static int path_received = 0;
+static int image_view_requested = 0;
+static int edit_file_requested =0;
+static int image_view_color_mode = 16;
 
 #if ENABLE_MEMORY_USAGE
 static unsigned int mem_free = 0;
@@ -93,10 +86,37 @@ static unsigned int mem_total = 0;
 static int mem_valid = 0;
 #endif
 
+/* ===== EXIT HELPERS =====*/
+static void exitwait(void)
+{
+    signal(SIGCHLD, SIG_IGN);
+    GrClose();
+    /*      
+     * Wait for all children to exit before we do.
+     * This prevents the shell we return to from reading
+     * simultaneously with nxterm or another NX app and
+     * causing bad behaviour.
+     */
+    while (waitpid(-1, NULL, 0) != -1)
+        continue;
+    exit(0);
+}
+
+/* handle SIGTERM by sending SIGTERM to all children, then wait for them to exit, then exit */
+static void sigterm(int sig)
+{
+    signal(SIGTERM, SIG_IGN);
+    kill(-getpid(), SIGTERM);
+    exitwait();
+}  
 
 /* ===== CHILD REAPER ===== */
-static void reaper(int s) { (void)s; wait(NULL); }
-
+static void reaper(int s) 
+{
+    signal(SIGCHLD, reaper);
+    while(waitpid(-1, NULL, WNOHANG) > 0)
+        continue;
+}
 
 /* ===== DRAWING HELPERS ===== */
 static void draw3drect(int x,int y,int w,int h,int raised)
@@ -113,7 +133,6 @@ static void draw3drect(int x,int y,int w,int h,int raised)
     GrLine(win,gc_bar,x,y+h-1,x+w-1,y+h-1);
     GrLine(win,gc_bar,x+w-1,y,x+w-1,y+h-1);
 }
-
 
 /* ===== TASKBAR ===== */
 static void draw_taskbar(void)
@@ -191,7 +210,6 @@ static int in_rect(int x,int y,int rx,int ry,int rw,int rh)
     return (x>=rx && x<rx+rw && y>=ry && y<ry+rh);
 }
 
-
 /* ===== MEMORY UPDATE ===== */
 #if ENABLE_MEMORY_USAGE
 static void update_memory_now(void)
@@ -217,7 +235,6 @@ static void update_memory_now(void)
     }
 }
 #endif
-
 
 /* ===== CLOCK + MEMORY STATUS FIELD ===== */
 static void draw_status_field(void)
@@ -255,7 +272,6 @@ static void draw_status_field(void)
            (void *)buf,strlen(buf),GR_TFASCII);
 }
 
-
 /* ===== CENTRAL REDRAW ===== */
 static void redraw_all(void)
 {
@@ -264,15 +280,6 @@ static void redraw_all(void)
         draw_menu();
     draw_status_field();
 }
-
-static FILE *nx_fp = NULL;
-static int nx_fd = -1;
-static int nxselect_running = 0;
-char buf[80]; 
-static int path_received = 0;
-static int image_view_requested = 0;
-static int edit_file_requested =0;
-static int image_view_color_mode = 16;
 
 void poll_for_nxselect_result(void)
 {
@@ -358,10 +365,7 @@ static void handle_menu_click(int x, int y,
 
             } else if (!strcmp(apps[i], "About")) {
 
-                /* Modeless About box (optional) */
-                /* about_box = UI_MessageBoxCreate(win,
-                        "About",
-                        "nxDesktop 1.0\n(c) Anton Andreev"); */
+               /* reserved for the About box */
 
             } else {
 
@@ -409,8 +413,7 @@ static void handle_menu_click(int x, int y,
                     MENU_ITEM_EXIT_HEIGHT))
         {
             if (!strcmp(sys[i], "Exit")) {
-                GrClose();
-                exit(0);  //TODO: use new code for exit ?
+                sigterm(SIGTERM);
             }
             else if (!strcmp(sys[i], "Restart")) {
                 
@@ -454,6 +457,9 @@ int main(void)
     int need_redraw = 0;
 	
     signal(SIGCHLD, reaper);
+    signal(SIGTERM, sigterm);
+    signal(SIGHUP, SIG_IGN);
+    setsid(); 
 
     if (GrOpen() < 0) {
         fprintf(stderr,"Cannot open Nano-X\n");
@@ -551,8 +557,7 @@ int main(void)
             break;
 
             case GR_EVENT_TYPE_CLOSE_REQ:
-                GrClose();
-                exit(0);
+				exitwait(); /* wait for all children to exit, then exit ourselves */
             }
         }
 		
@@ -604,7 +609,7 @@ int main(void)
 
 				char cmd[70];
 
-				/* Build: "/bin/edit <path> && exit" including the double quotes */
+				/* construct "/bin/edit <path> && exit" including the double quotes */
 				snprintf(cmd, sizeof(cmd),
 						 "/bin/edit %s && exit",
 						 buf);
@@ -615,12 +620,6 @@ int main(void)
 				_exit(1);
 			}
 		}
-		
-		/*if (about_box) {
-			if (UI_MessageBoxHandleEvent(about_box, &ev)) {
-				about_box = NULL;
-			}
-		}*/
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */
         time_t now = time(NULL);

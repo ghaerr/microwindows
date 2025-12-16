@@ -1187,7 +1187,7 @@ term(void)
 		case GR_EVENT_TYPE_FDINPUT:
 			if (!gotexpose) break;	/* wait until mapped before reading */
 			hide_cursor();
-			while ((in = read(termfd, buf, sizeof(buf))) > 0) {
+			if ((in = read(termfd, buf, sizeof(buf))) > 0) {
 				for (l=0; l<in; l++) {
 					printc(buf[l]); 
 				}

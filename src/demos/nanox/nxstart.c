@@ -88,6 +88,7 @@ struct app_info {
 	{"scribble",  PATH "nxscribble"},
 	{"slider",    PATH "nxslider"},
 #endif
+	{"quit",      "quit"},
 	{"", ""}
 };
 
@@ -106,17 +107,37 @@ mwin * in_motion = NULL;
 GR_COORD	move_xoff;
 GR_COORD	move_yoff;
 
-#ifndef WAIT_ANY
-/* For Cygwin.  See:
- * http://www.opengroup.org/onlinepubs/007908799/xsh/wait.html
- */
-#define WAIT_ANY (pid_t)-1
-#endif
+/* Removes task entries after child exit and discards exit status */
+static void reapchild(int sig)
+{
+	signal(SIGCHLD, reapchild);
+	while(waitpid(-1, NULL, WNOHANG) > 0)
+		continue;
+}
 
-/*
- * Reap the dead children whenever we get a SIGCHLD.
- */
-static void reaper(int signum) { while(waitpid(WAIT_ANY, NULL, WNOHANG) > 0); }
+/* Wait for all children to exit, then exit ourselves */
+static void exitwait(void)
+{
+	signal(SIGCHLD, SIG_IGN);
+	GrClose();
+	/*
+	 * Wait for all children to exit before we do.
+	 * This prevents the shell we return to from reading
+	 * simultaneously with nxterm or another NX app and
+	 * causing bad behaviour.
+	 */
+	while (waitpid(-1, NULL, 0) != -1)
+		continue;
+	exit(0);
+}
+
+/* Handle SIGTERM by sending SIGTERM to all children, then exit */
+static void sigterm(int sig)
+{
+	signal(SIGTERM, SIG_IGN);
+	kill(-getpid(), SIGTERM);
+	exitwait();
+}
 
 int
 main(int argc,char **argv)
@@ -124,25 +145,26 @@ main(int argc,char **argv)
 	GR_EVENT	event;		/* current event */
 	struct app_info	* act;
 	int		width = 8, height;
-
 #ifdef USE_WEIRD_POINTER
 	GR_BITMAP	bitmap1fg[7];	/* bitmaps for first cursor */
 	GR_BITMAP	bitmap1bg[7];
 #endif
 
-	for(act = Apps; act->app_id[0] != '\0'; act++) {
-		width = MWMAX(width, strlen(act->app_id));
-		num_apps++;
-	}
+	signal(SIGCHLD, reapchild);
+	signal(SIGTERM, sigterm);
+	signal(SIGHUP, SIG_IGN);
+	setsid();
 
 	if (GrOpen() < 0) {
 		GrError("cannot open graphics\n");
 		return 1;
 	}
-	
-	GrGetScreenInfo(&si);
 
-	signal(SIGCHLD, &reaper);
+	for(act = Apps; act->app_id[0] != '\0'; act++) {
+		width = MWMAX(width, strlen(act->app_id));
+		num_apps++;
+	}
+	GrGetScreenInfo(&si);
 #if ROOT_WIN_RECOLOR
 	bgc = GrNewGC();
 	GrSetGCForeground(bgc, GRAY);
@@ -209,8 +231,7 @@ main(int argc,char **argv)
 				do_mouse(&event.mouse);
 				break;
 			case GR_EVENT_TYPE_CLOSE_REQ:
-				GrClose();
-				return 0;
+				exitwait();	/* wait for children then exit */
 		}
 	}
 }
@@ -351,8 +372,6 @@ do_exposure(GR_EVENT_EXPOSURE *ep)
 #endif
 }
 
-extern char ** environ;
-
 static void
 do_buttondown(GR_EVENT_BUTTON *ep)
 {
@@ -361,18 +380,16 @@ do_buttondown(GR_EVENT_BUTTON *ep)
 	static int app_no;
 
 	if (ep->wid == w1) {
-		int y = MWMAX(ep->y - 2, 0);        /* FIXME fudge */
+		int y = MWMAX(ep->y - 2, 0);    /* FIXME fudge */
 		app_no = y / fheight;
-		if (app_no >= num_apps) {
+		if (app_no >= num_apps)
 			app_no = num_apps - 1;
-		}
 		nargv[0] = Apps[app_no].app_path;
-		nargv[1] = 0;
-#if ELKS
-		waitpid(-1, NULL, WNOHANG);
-#endif
+		nargv[1] = NULL;
+		if (!strcmp(nargv[0], "quit"))
+			sigterm(SIGTERM);           /* send SIGTERM and exit */
 		if (!vfork()) {
-			execve(nargv[0], nargv, environ);
+			execv(nargv[0], nargv);
 			/* write(1, "\7", 1); */
 			exit(1);
 		}

@@ -66,15 +66,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <termios.h>
-#define NSIG 	_NSIG
-#define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
 #endif
-
-#define TITLE           "nxterm"
-#define stdforeground   BLACK
-#define stdbackground   LTGRAY
-//#define stdbackground GR_COLOR_GAINSBORO
-//#define stdbackground BLUE
 
 #if ELKS
 #define stdcol          80
@@ -86,10 +78,12 @@
 #define	KBDBUF          10240
 #endif
 
+#define TITLE           "nxterm"
+#define stdforeground   BLACK
+#define stdbackground   LTGRAY
+//#define stdbackground GR_COLOR_GAINSBORO
+//#define stdbackground BLUE
 #define	LINEBUF         stdcol
-
-#define debug_screen 0
-#define debug_kbd 0
 
 /*
  * globals
@@ -138,7 +132,6 @@ int	sbufx, sbufy;
 char    lineBuffer[LINEBUF+1];
 char	*sbuf = lineBuffer;
 
-void sigchild(int signo);
 int term_init(void);
 void sflush(void);
 void lineRedraw(void);
@@ -505,10 +498,6 @@ void esc1(unsigned char c)	/* various control codes */
 		break;
 
     default: /* unknown escape sequence */
-#if debug_screen
-	GrError("default:>%c<,",c);
-#endif
-
 		break;
     }
 }
@@ -1069,9 +1058,6 @@ void esc0 (unsigned char c)
 
 void printc(unsigned char c)
 {
-#if debug_screen
-	GrError("%c,",c);
-#endif
     switch(escstate) {
     case 0:
 		esc0(c);
@@ -1201,7 +1187,7 @@ term(void)
 		case GR_EVENT_TYPE_FDINPUT:
 			if (!gotexpose) break;	/* wait until mapped before reading */
 			hide_cursor();
-			while ((in = read(termfd, buf, sizeof(buf))) > 0) {
+			if ((in = read(termfd, buf, sizeof(buf))) > 0) {
 				for (l=0; l<in; l++) {
 					printc(buf[l]); 
 				}
@@ -1222,7 +1208,7 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 //handle vt52 keys here
 {
 	int len;
-	char *str, locbuff[256];
+	char *str, locbuff[32];
 
 	switch (key) {
 	case  MWKEY_LEFT:
@@ -1305,6 +1291,7 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='c';
 			locbuff[2]=(char)bgcolor[key - MWKEY_F1];
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else if ( modifier & MWKMOD_RMETA ) {
@@ -1312,6 +1299,7 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='b';
 			locbuff[2]=(char)fgcolor[key - MWKEY_F1];				
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else {
@@ -1361,20 +1349,18 @@ int do_special_key(unsigned char *buffer, int key, int modifier)
 		/* fall thru*/
 
 	default:
-		str = "";
 		len = 0;
 	}
+	buffer[0] = '\0';
 	if(len > 0)
-		sprintf((char *)buffer,"%s",str);
-	else
-		buffer[0] = '\0';
+		strcpy((char *)buffer, str);
 	return len;
 }
 
 int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 {
 	int len;
-	char *str, locbuff[256];
+	char *str, locbuff[32];
 
 	switch (key) {
 	case  MWKEY_LEFT:
@@ -1480,6 +1466,7 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='c';
 			locbuff[2]=(char)bgcolor[key - MWKEY_F1];
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else if ( modifier & MWKMOD_RMETA ) {
@@ -1487,6 +1474,7 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 			locbuff[0]=033;
 			locbuff[1]='b';
 			locbuff[2]=(char)fgcolor[key - MWKEY_F1];				
+			locbuff[3] = '\0';
 			str = locbuff;
 			len=3;
 		} else {
@@ -1544,13 +1532,11 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 		/* fall thru*/
 
 	default:
-		str = "";
 		len = 0;
 	}
+	buffer[0] = '\0';
 	if(len > 0)
                 strcpy((char *)buffer, str);
-	else
-		buffer[0] = '\0';
 	return len;
 }
 
@@ -1560,7 +1546,6 @@ void usage(void)
     exit(1);
 }
 
-#if UNIX
 static void *mysignal(int signum, void *handler)
 {
 	struct sigaction sa, so;
@@ -1594,21 +1579,16 @@ void maximize(void)
 
 static void sigpipe(int sig)
 {
-	/* this one musn't close the window */
-	/*_write_utmp(pty, "", "", 0);  */
+	GrClose();
 	kill(-pid, SIGHUP);
-	GrClose();
 	_exit(sig);
 }
 
-
-static void sigchld(int sig)
+static void sigchild(int sig)
 {
-	/*  _write_utmp(pty, "", "", 0);  */
 	GrClose();
 	_exit(sig);
 }
-
 
 static void sigquit(int sig)
 {
@@ -1616,33 +1596,12 @@ static void sigquit(int sig)
 	GrClose();
 	kill(-pid, SIGHUP);
 }
-#endif /* UNIX*/
 
 int main(int argc, char **argv)
 {
     GR_CURSOR_ID c1;
     GR_BITMAP	bitmap1fg[7];	/* mouse cursor */
     GR_BITMAP	bitmap1bg[7];
-
-#ifdef SIGTTOU
-    /* just in case we're started in the background */
-    signal(SIGTTOU, SIG_IGN);
-#endif
-
-#if !ELKS
-    /* who am I? */
-    struct passwd *pw;
-    if (!(pw = getpwuid((getuid())))) {
-		GrError("error: can't determine determine your login name\n");
-		exit(-1);
-    }
-#endif
-
-    if (GrOpen() < 0) {
-		GrError("cannot open graphics\n");
-		exit(1);
-    }
-    GrGetScreenInfo(&si);
 
     argv++;
     while (*argv && **argv=='-') 
@@ -1669,10 +1628,12 @@ int main(int argc, char **argv)
 
 #if UNUSED
     char *shell = NULL, *cptr;
+    struct passwd *pw;
     char thesh[128];
+    pw = getpwuid(getuid());
     if (!shell)
 		shell = getenv("SHELL=");
-    if (!shell)
+    if (!shell && pw)
 		shell = pw->pw_shell;
     if (!shell)
 		shell = "/bin/sh";
@@ -1688,6 +1649,12 @@ int main(int argc, char **argv)
 		*--argv = thesh;
     }
 #endif
+
+    if (GrOpen() < 0) {
+		GrError("cannot open graphics\n");
+		exit(1);
+    }
+    GrGetScreenInfo(&si);
 
     col = stdcol;
     row = stdrow;
@@ -1764,26 +1731,27 @@ int main(int argc, char **argv)
     setenv("LINES", sbuf, 1);
 #endif
 
+    /* create pty, SIGCHLD handler set afterwards in case of grantpt() called */
     termfd = term_init();       /* create pty */
-    /*
-     * grantpt docs: "The behavior of grantpt() is unspecified if a signal handler
-     * is installed to catch SIGCHLD signals. "
-     */
+    if (termfd < 0) {
+        GrClose();
+        exit(1);
+    }
     mysignal(SIGTERM, sigquit);
-    mysignal(SIGHUP, sigquit);
-    mysignal(SIGINT, SIG_IGN);
+    mysignal(SIGHUP,  sigquit);
     mysignal(SIGQUIT, sigquit);
     mysignal(SIGPIPE, sigpipe);
-    mysignal(SIGCHLD, sigchld);
-
-	/*_write_utmp(pty, pw->pw_name, "", time(0)); */
+    mysignal(SIGCHLD, sigchild);
+    mysignal(SIGINT,  SIG_IGN);
+#ifdef SIGTTOU
+    signal(SIGTTOU, SIG_IGN);   /* just in case we're started in the background */
+#endif
 
     init();
     term();
     return 0;
 }
 
-#if UNIX
 /* 
  * pty create/open routines
  */
@@ -1793,28 +1761,106 @@ char * nargv[2] = {"bash", NULL};
 char * nargv[2] = {"/bin/sh", NULL};
 #endif
 
-void sigchild(int signo)
+#if ELKS
+int term_init(void)
 {
-	GrClose();
-	exit(0);
+	int tfd;
+	pid_t pid;
+	int n = 0;
+	char pty_name[12];
+
+again:
+	strcpy(pty_name, "/dev/ptyp");      /* master side (PTY) /dev/ptyp0 = 2,8 */
+	strcat(pty_name, itoa(n));
+	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
+		if (errno == EBUSY && n++ < 3)
+			goto again;
+		GrError("Can't create %s\n", pty_name);
+		return -1;
+	}
+
+	if ((pid = fork()) == -1) {
+		GrError("No processes\n");
+		return -1;
+	}
+	if (!pid) {
+		setsid();
+		close(tfd);
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		pty_name[5] = 't';              /* slave side (TTY) /dev/ttyp0 = 4,8 */
+		if ((tfd = open(pty_name, O_RDWR)) < 0) {
+			GrError("Can't open %s\n", pty_name);
+			return -1;
+		}
+		close(STDERR_FILENO);
+		dup2(tfd, STDIN_FILENO);
+		dup2(tfd, STDOUT_FILENO);
+		dup2(tfd, STDERR_FILENO);
+		execv(nargv[0], nargv);
+		exit(1);
+	}
+	return tfd;
 }
 
-#if UNIX98 && !ELKS
+#elif defined(__FreeBSD) /* || defined(__APPLE__) */
+
+#include <util.h>
+int term_init(void)
+{
+    int master, slave;
+    struct winsize winsz;
+
+    winsz.ws_col = col;
+    winsz.ws_row = row;
+    if (openpty(&master, &slave, NULL, NULL, &winsz) < 0)  {
+		GrError("Can't create pty\n");
+		return -1;
+    }
+    fcntl(master, F_SETFL, fcntl(master, F_GETFL) | O_NONBLOCK);
+    if (!fork()) {
+#if UNUSED
+		for (i = _NSIG; --i >= 0; )    /* SIG_IGN are not reset on exec() */
+			signal(i, SIG_DFL);
+		for (i = getdtablesize(); --i >= 3; )
+	    	close (i);
+#endif
+        setsid();
+		close(master);
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+		dup2(slave, STDIN_FILENO);
+		dup2(slave, STDOUT_FILENO);
+		dup2(slave, STDERR_FILENO);
+        if (slave > STDERR_FILENO)
+            close(slave);
+		execv(nargv[0], nargv);
+		exit(1);
+    }
+    close(slave);
+    return master;
+}
+
+#else   /* Linux / UNIX98 */
+
+/* new-style /dev/ptmx, /dev/pts/0*/
 int term_init(void)
 {
 	int tfd;
 	pid_t pid;
 	char ptyname[50];
-	
-	tfd = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (tfd < 0) goto err;
-      
-	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
-	if (grantpt(tfd) || unlockpt(tfd)) goto err; 
-	signal(SIGCHLD, sigchild);
-	signal(SIGINT, sigchild);
 
-	sprintf(ptyname,"%s",ptsname(tfd));
+	tfd = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (tfd < 0) {
+		GrError("Can't create pty /dev/ptmx\n");
+		return -1;
+	}
+	strcpy(ptyname, ptsname(tfd));
+
+	signal(SIGCHLD, SIG_DFL);	/* required before grantpt()*/
+	grantpt(tfd);
+	unlockpt(tfd);
 
 	if ((pid = fork()) == -1) {
 		GrError("No processes\n");
@@ -1827,10 +1873,10 @@ int term_init(void)
 
 		setsid();
 		if ((tfd = open(ptyname, O_RDWR)) < 0) {
-			GrError("Child: Can't open pty %s\n", ptyname);
+			GrError("Can't open %s\n", ptyname);
 			exit(1);
 		}
-		
+
 		close(STDERR_FILENO);
 		dup2(tfd, STDIN_FILENO);
 		dup2(tfd, STDOUT_FILENO);
@@ -1839,148 +1885,5 @@ int term_init(void)
 		exit(1);
 	}
 	return tfd;
-err:
-	GrError("Can't create pty /dev/ptmx\n");
-	return -1;	
-}
-
-#elif !defined(__FreeBSD)	/* !UNIX98*/
-int term_init(void)
-{
-	int tfd;
-	pid_t pid;
-	int n = 0;
-	char pty_name[12];
-
-again:
-	sprintf(pty_name, "/dev/ptyp%d", n);
-	if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
-		if (errno == EBUSY && n < 3) {
-			n++;
-			goto again;
-		}
-		GrError("Can't create pty %s\n", pty_name);
-		return -1;
-	}
-
-	signal(SIGCHLD, sigchild);
-	signal(SIGINT, sigchild);
-	if ((pid = fork()) == -1) {
-		GrError("No processes\n");
-		return -1;
-	}
-	if (!pid) {
-		close(STDIN_FILENO);
-		close(STDOUT_FILENO);
-		close(tfd);
-
-		setsid();
-		pty_name[5] = 't';
-		if ((tfd = open(pty_name, O_RDWR)) < 0) {
-			GrError("Child: Can't open pty %s\n", pty_name);
-			exit(1);
-		}
-		close(STDERR_FILENO);
-		dup2(tfd, STDIN_FILENO);
-		dup2(tfd, STDOUT_FILENO);
-		dup2(tfd, STDERR_FILENO);
-		execv(nargv[0], nargv);
-		exit(1);
-	}
-	return tfd;
-}
-
-#elif defined(__FreeBSD)
-#include <libutil.h>
-static char pty[LINEBUF];
-static struct winsize winsz;
-
-term_init(void)
-{
-	char *ptr;
-
-    winsz.ws_col = col;
-    winsz.ws_row = row;
-    if ((pid = forkpty(&pipeh, pty, NULL, &winsz)) < 0)  {
-		GrError("Can't create pty\n");
-		sleep(2);
-		GrKillWindow(w1);
-		exit(-1);
-    }
-
-    if ((ptr = rindex(pty, '/'))) 
-		strcpy(pty, ptr + 1);
-  
-    if (!pid) {
-		int i;
-		for (i = getdtablesize(); --i >= 3; )
-	    	close (i);
-		/*
-		 * SIG_IGN are not reset on exec()
-	 	 */
-		for (i = NSIG; --i >= 0; )
-	    	signal (i, SIG_DFL);
- 
-		/* caution: start shell with correct user id! */
-		seteuid(getuid());
-		setegid(getgid());
-
-		/* this shall not return */
-		execvp(shell, argv);
-
-		/* oops? */
-		GrError("Can't start shell\r\n");
-		sleep(3);
-		GrKillWindow(w1);
-		_exit(-1);
-    }
-}
-#endif /* __FreeBSD__*/
-#endif /* UNIX*/
-
-#if 0
-void _write_utmp(char *line, char *user, char *host, int time)
-{
-    int fh, offset, isEmpty, isLine;
-    struct utmp ut;
-
-    if ((fh = open("/etc/utmp", O_RDWR)) < 0)
-		return;
-
-    /* first of all try to find an entry with the same line */
-    offset = 0;
-    isEmpty = -1;
-    isLine = -1;
-
-    while ((isLine < 0) && (read(fh, &ut, sizeof(ut)) == sizeof(ut))) {
-		if (!ut.ut_line[0]) {
-	    	if (isEmpty < 0) 
-				isEmpty = offset;
-		} else {
-	    	if (!strncmp(ut.ut_line, line, sizeof(ut.ut_line)))
-				isLine = offset;
-		}
-		offset += sizeof(ut);
-   	}
-
-    if (isLine != -1) {
-		/* we've found a match */
-		lseek(fh, isLine, SEEK_SET);
-    } else if (isEmpty != -1) {
-		/* no match found, but at least an empty entry */
-		lseek(fh, isLine, SEEK_SET);
-    } else {
-		/* not even an empty entry found, assume we can append to the file */
-    }
-
-    if (time) {
-		strncpy(ut.ut_line, line, sizeof(ut.ut_line));
-		strncpy(ut.ut_name, user, sizeof(ut.ut_name));
-		strncpy(ut.ut_host, host, sizeof(ut.ut_host));
-		ut.ut_time = time;
-    } else 
-		memset(&ut, 0, sizeof(ut));
-    write(fh, &ut, sizeof(ut));
-    close(fh);
 }
 #endif

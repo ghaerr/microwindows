@@ -813,6 +813,7 @@ static void VGA_WriteEGAColorRaw(int index, int ega)
     outb(0x3C0, ega & 0x3F);
 }
 
+#if UNUSED
 static void VGA_WriteEGAColor(int index, int r, int g, int b)
 {
     int rr = (r >> 6) & 3;
@@ -827,6 +828,7 @@ static void VGA_WriteEGAColor(int index, int r, int g, int b)
     inb(0x3DA);
     outb(0x3C0, 0x20);
 }
+#endif
 
 void CustomGrSetSystemPalette(const GR_PALETTE *pal_in)
 {

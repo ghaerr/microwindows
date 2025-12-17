@@ -1,13 +1,17 @@
 /*
- * nxselect - simple Nano-X "Open File" selector for ELKS / 16-bit
+ * nxselect - simple Nano-X "Open File" selector (for ELKS currently)
  *
- * - Displays files and directories in the current working directory
- * - Special entry "." means "go to parent directory"
- * - Click on a directory entry displays its contents
- * - Click on a file entry to select it (highlighted)
- * - OK button bottom-right prints full path to selected file and exits
- * 
- * Status: problem with colors in list.
+ * Created by: Anton Andreev
+ *	
+ *  History 
+ *   Version 1.0:
+ * 		- Displays files and directories in the current working directory
+ * 		- Special entry "." means "go to parent directory"
+ * 		- Click on a directory entry displays its contents
+ * 		- Click on a file entry to select it (highlighted)
+ * 		- Scroll arrows scroll by PAGES (not single items)
+ * 		- Page indicator near OK button shows "Page n/k"
+ * 		- OK button prints full path to selected file and exits
  */
 
 #include <stdio.h>
@@ -20,18 +24,25 @@
 
 /* ---------- Constants ---------- */
 
-#define MAX_FILES        64
+#define MAX_FILES        70 /* might not be enough */
 #define MAX_NAME_LEN     40
 #define MAX_PATH_LEN     128
 
 #define ITEM_HEIGHT      18
+#define ITEM_SPACING     3
 #define MARGIN           4
 
 #define OK_BUTTON_WIDTH  60
 #define OK_BUTTON_HEIGHT 22
 
+/* Right-side scroll "gutter" width */
+#define SCROLL_WIDTH     16
+
+/* Window placement (offset from centered position) */
+#define WIN_CENTER_X_OFFSET   (-40)   /* left from center */
+#define WIN_CENTER_Y_OFFSET   (0)
+
 /* ---------- Valid RGB colors from real EGA16 palette ---------- */
-/* These values are guaranteed to work in ELKS Nano-X 16-color mode */
 
 #define EGA_BLACK        GR_RGB(0,0,0)
 #define EGA_BLUE         GR_RGB(0,0,128)
@@ -74,16 +85,32 @@ static GR_WINDOW_ID win;
 static GR_GC_ID gc;
 
 static GR_COORD win_width  = 200;
-static GR_COORD win_height = 200;
+static GR_COORD win_height = 220;
 
 static char cwd[MAX_PATH_LEN];
 static char file_list[MAX_FILES][MAX_NAME_LEN];
 static unsigned char file_is_dir[MAX_FILES];
 static int file_count = 0;
+
 static int selected_index = -1;
 
+/*
+ * scroll_offset counts how many entries AFTER index 0 are skipped.
+ * Index 0 ("." up) is always shown and never scrolled away.
+ * So the first visible "real" entry is at index (1 + scroll_offset).
+ */
+static int scroll_offset = 0;
+
+/* OK button geometry */
 static GR_COORD ok_x, ok_y;
 static GR_SIZE  ok_w, ok_h;
+
+/* Cached layout for hit-testing + paging */
+static int g_list_top = 0;
+static int g_list_height = 0;
+static int g_visible_rows = 0;     /* total rows drawn including "." row */
+static int g_page_size = 0;        /* rows per page excluding "." row */
+static int g_list_width = 0;
 
 /* ---------- Helpers ---------- */
 
@@ -147,11 +174,12 @@ static void load_directory(const char *path)
 
     file_count = 0;
     selected_index = -1;
+    scroll_offset = 0;
 
-    /* Parent entry */
-    safe_strcpy(file_list[file_count], ".", MAX_NAME_LEN);
-    file_is_dir[file_count] = 1;
-    file_count++;
+    /* Parent entry at index 0 */
+    safe_strcpy(file_list[0], ".", MAX_NAME_LEN);
+    file_is_dir[0] = 1;
+    file_count = 1;
 
     d = opendir(path);
     if (!d)
@@ -164,7 +192,7 @@ static void load_directory(const char *path)
         safe_strcpy(file_list[file_count], de->d_name, MAX_NAME_LEN);
         path_join(path, de->d_name, full, sizeof(full));
 
-        if (stat(full, &st) == 0 && (st.st_mode & S_IFDIR))
+        if (stat(full, &st) == 0 && S_ISDIR(st.st_mode))
             file_is_dir[file_count] = 1;
         else
             file_is_dir[file_count] = 0;
@@ -175,66 +203,27 @@ static void load_directory(const char *path)
     closedir(d);
 }
 
-/* ---------- Drawing ---------- */
+/* ---------- 3D button + triangle arrows (ELKS-safe: no GrFillPoly) ---------- */
 
-static void draw_window(void)
+static void draw_3d_box(GR_COORD x, GR_COORD y, GR_SIZE w, GR_SIZE h, GR_COLOR fill)
 {
-    int i, y;
-    GR_COLOR bg, fg;
-    char title[200];
+    GrSetGCForeground(gc, fill);
+    GrFillRect(win, gc, x, y, w, h);
 
-    /* Clear window */
-    GrSetGCForeground(gc, WIN_BG_COLOR);
-    GrFillRect(win, gc, 0, 0, win_width, win_height);
+    /* light top/left */
+    GrSetGCForeground(gc, EGA_WHITE);
+    GrLine(win, gc, x, y, x+w-1, y);
+    GrLine(win, gc, x, y, x, y+h-1);
 
-    /* Title text */
-    safe_strcpy(title, "Dir: ", sizeof(title));
-    strncat(title, cwd, sizeof(title)-strlen(title)-1);
+    /* dark bottom/right */
+    GrSetGCForeground(gc, EGA_DGRAY);
+    GrLine(win, gc, x, y+h-1, x+w-1, y+h-1);
+    GrLine(win, gc, x+w-1, y, x+w-1, y+h-1);
+}
 
-    GrSetGCForeground(gc, TITLE_FG_COLOR);
-    GrText(win, gc,
-           MARGIN, MARGIN + 10,
-           (void *)title, strlen(title), GR_TFASCII);
-
-    /* File list */
-    y = MARGIN + 20;
-
-    for (i = 0; i < file_count; i++) {
-
-        if (i == selected_index) {
-            bg = SEL_BG_COLOR;
-            fg = SEL_FG_COLOR;
-        }
-        else if (file_is_dir[i]) {
-            bg = DIR_BG_COLOR;
-            fg = DIR_FG_COLOR;
-        }
-        else {
-            bg = FILE_BG_COLOR;
-            fg = FILE_FG_COLOR;
-        }
-
-        GrSetGCForeground(gc, bg);
-        GrFillRect(win, gc,
-                   MARGIN, y,
-                   win_width - 2*MARGIN, ITEM_HEIGHT);
-
-        GrSetGCForeground(gc, fg);
-        GrText(win, gc,
-               MARGIN + 2, y + ITEM_HEIGHT - 4,
-               (void *)file_list[i], strlen(file_list[i]), GR_TFASCII);
-
-        y += ITEM_HEIGHT + 3;
-    }
-
-    /* OK button */
-    ok_w = OK_BUTTON_WIDTH;
-    ok_h = OK_BUTTON_HEIGHT;
-    ok_x = win_width - ok_w - MARGIN;
-    ok_y = win_height - ok_h - MARGIN;
-
-    GrSetGCForeground(gc, OK_BG_COLOR);
-    GrFillRect(win, gc, ok_x, ok_y, ok_w, ok_h);
+static void draw_ok_button(void)
+{
+    draw_3d_box(ok_x, ok_y, ok_w, ok_h, OK_BG_COLOR);
 
     GrSetGCForeground(gc, OK_FG_COLOR);
     GrText(win, gc,
@@ -243,35 +232,235 @@ static void draw_window(void)
            (void *)"OK", 2, GR_TFASCII);
 }
 
+/* Outline-only triangles (grey) */
+static void draw_triangle_up(GR_COORD x, GR_COORD y)
+{
+    GR_COORD cx = x + SCROLL_WIDTH/2;
+    GR_COORD left = x + 2;
+    GR_COORD right = x + SCROLL_WIDTH - 3;
+    GR_COORD top = y + 3;
+    GR_COORD base = y + SCROLL_WIDTH - 3;
+
+    GrSetGCForeground(gc, EGA_DGRAY);
+    GrLine(win, gc, cx, top, left, base);
+    GrLine(win, gc, cx, top, right, base);
+    GrLine(win, gc, left, base, right, base);
+}
+
+static void draw_triangle_down(GR_COORD x, GR_COORD y)
+{
+    GR_COORD cx = x + SCROLL_WIDTH/2;
+    GR_COORD left = x + 2;
+    GR_COORD right = x + SCROLL_WIDTH - 3;
+    GR_COORD base = y + 3;
+    GR_COORD tip = y + SCROLL_WIDTH - 3;
+
+    GrSetGCForeground(gc, EGA_DGRAY);
+    GrLine(win, gc, left, base, right, base);
+    GrLine(win, gc, left, base, cx, tip);
+    GrLine(win, gc, right, base, cx, tip);
+}
+
+/* ---------- Layout computation ---------- */
+
+static void compute_layout(void)
+{
+    /* OK button */
+    ok_w = OK_BUTTON_WIDTH;
+    ok_h = OK_BUTTON_HEIGHT;
+    ok_x = win_width - ok_w - MARGIN;
+    ok_y = win_height - ok_h - MARGIN;
+
+    /* List geometry */
+    g_list_top = MARGIN + 20;
+    g_list_width = win_width - SCROLL_WIDTH - 2*MARGIN;
+
+    g_list_height = ok_y - g_list_top - MARGIN;
+    if (g_list_height < (ITEM_HEIGHT + ITEM_SPACING) * 2)
+        g_list_height = (ITEM_HEIGHT + ITEM_SPACING) * 2;
+
+    g_visible_rows = g_list_height / (ITEM_HEIGHT + ITEM_SPACING);
+    if (g_visible_rows < 2) g_visible_rows = 2;  /* includes "." row */
+
+    g_page_size = g_visible_rows - 1;            /* excluding "." row */
+    if (g_page_size < 1) g_page_size = 1;
+}
+
+/* ---------- Drawing ---------- */
+
+static void draw_window(void)
+{
+    int i, y;
+    GR_COLOR bg, fg;
+    char title[200];
+    int total_items, pages, page;
+    char pagebuf[32];
+
+    compute_layout();
+
+    /* Clear window */
+    GrSetGCForeground(gc, WIN_BG_COLOR);
+    GrFillRect(win, gc, 0, 0, win_width, win_height);
+
+    /* Title */
+    safe_strcpy(title, "Dir: ", sizeof(title));
+    strncat(title, cwd, sizeof(title)-strlen(title)-1);
+
+    GrSetGCForeground(gc, TITLE_FG_COLOR);
+    GrText(win, gc,
+           MARGIN, MARGIN + 10,
+           (void *)title, strlen(title), GR_TFASCII);
+
+    /* Always draw "." row at top (never scrolled away) */
+    y = g_list_top;
+
+    if (selected_index == 0) { bg = SEL_BG_COLOR; fg = SEL_FG_COLOR; }
+    else                     { bg = DIR_BG_COLOR; fg = DIR_FG_COLOR; }
+
+    GrSetGCForeground(gc, bg);
+    GrFillRect(win, gc, MARGIN, y, g_list_width, ITEM_HEIGHT);
+
+    GrSetGCForeground(gc, fg);
+    GrText(win, gc,
+           MARGIN + 2, y + ITEM_HEIGHT - 4,
+           (void *)file_list[0], strlen(file_list[0]), GR_TFASCII);
+
+    y += ITEM_HEIGHT + ITEM_SPACING;
+
+    /* Draw page of items (indices 1..file_count-1) */
+    for (i = 0; i < g_page_size; i++) {
+        int idx = 1 + scroll_offset + i;
+        if (idx >= file_count) break;
+
+        if (idx == selected_index) { bg = SEL_BG_COLOR; fg = SEL_FG_COLOR; }
+        else if (file_is_dir[idx]) { bg = DIR_BG_COLOR; fg = DIR_FG_COLOR; }
+        else                       { bg = FILE_BG_COLOR; fg = FILE_FG_COLOR; }
+
+        GrSetGCForeground(gc, bg);
+        GrFillRect(win, gc, MARGIN, y, g_list_width, ITEM_HEIGHT);
+
+        GrSetGCForeground(gc, fg);
+        GrText(win, gc,
+               MARGIN + 2, y + ITEM_HEIGHT - 4,
+               (void *)file_list[idx], strlen(file_list[idx]), GR_TFASCII);
+
+        y += ITEM_HEIGHT + ITEM_SPACING;
+    }
+
+    /* Right-side arrows (grey triangles) */
+    draw_triangle_up(win_width - SCROLL_WIDTH - MARGIN, g_list_top);
+    draw_triangle_down(win_width - SCROLL_WIDTH - MARGIN,
+                       g_list_top + g_list_height - SCROLL_WIDTH);
+
+    /* Page indicator (same color as button text) */
+    total_items = (file_count > 1) ? (file_count - 1) : 0;
+    pages = (total_items + g_page_size - 1) / g_page_size;
+    if (pages < 1) pages = 1;
+    page = (scroll_offset / g_page_size) + 1;
+    if (page < 1) page = 1;
+    if (page > pages) page = pages;
+
+    snprintf(pagebuf, sizeof(pagebuf), "Page %d/%d", page, pages);
+
+    GrSetGCForeground(gc, OK_FG_COLOR);
+    GrText(win, gc,
+           ok_x - 80,
+           ok_y + ok_h/2 + 4,
+           (void *)pagebuf, strlen(pagebuf), GR_TFASCII);
+
+    /* OK button (3D) */
+    draw_ok_button();
+}
+
 /* ---------- Input handling ---------- */
+
+static void open_dir_index(int idx)
+{
+    if (idx == 0) {
+        go_parent();
+        load_directory(cwd);
+        return;
+    }
+
+    /* idx is a directory entry */
+    {
+        char tmp[MAX_PATH_LEN];
+        path_join(cwd, file_list[idx], tmp, sizeof(tmp));
+        safe_strcpy(cwd, tmp, MAX_PATH_LEN);
+    }
+    load_directory(cwd);
+}
 
 static void handle_list_click(int x, int y)
 {
-    int top = MARGIN + 20;
-    int i;
+    int idx = -1;
+    int row;
 
-    for (i = 0; i < file_count; i++) {
-        int item_y = top + i*(ITEM_HEIGHT + 3);
+    compute_layout();
 
-        if (x >= MARGIN && x <= win_width-MARGIN &&
-            y >= item_y && y <= item_y+ITEM_HEIGHT)
-        {
-            if (file_is_dir[i]) {
-                if (!strcmp(file_list[i], "."))
-                    go_parent();
-                else {
-                    char tmp[MAX_PATH_LEN];
-                    path_join(cwd, file_list[i], tmp, sizeof(tmp));
-                    safe_strcpy(cwd, tmp, MAX_PATH_LEN);
-                }
-                load_directory(cwd);
-            }
-            else {
-                selected_index = i;
-            }
-            return;
-        }
+    /* Click inside list area only (exclude right gutter) */
+    if (x < MARGIN || x > (MARGIN + g_list_width))
+        return;
+
+    /* Determine which row was clicked */
+    if (y < g_list_top) return;
+    row = (y - g_list_top) / (ITEM_HEIGHT + ITEM_SPACING);
+
+    if (row == 0) {
+        idx = 0; /* "." */
+    } else {
+        idx = 1 + scroll_offset + (row - 1);
+        if (idx >= file_count) return;
     }
+
+    if (file_is_dir[idx]) {
+        open_dir_index(idx);
+    } else {
+        selected_index = idx;
+    }
+}
+
+static int hit_scroll_up(int x, int y)
+{
+    int ax = win_width - SCROLL_WIDTH - MARGIN;
+    int ay = g_list_top;
+    return (x >= ax && x <= ax + SCROLL_WIDTH &&
+            y >= ay && y <= ay + SCROLL_WIDTH);
+}
+
+static int hit_scroll_down(int x, int y)
+{
+    int ax = win_width - SCROLL_WIDTH - MARGIN;
+    int ay = g_list_top + g_list_height - SCROLL_WIDTH;
+    return (x >= ax && x <= ax + SCROLL_WIDTH &&
+            y >= ay && y <= ay + SCROLL_WIDTH);
+}
+
+static void scroll_page_up(void)
+{
+    if (scroll_offset <= 0) {
+        scroll_offset = 0;
+        return;
+    }
+    scroll_offset -= g_page_size;
+    if (scroll_offset < 0) scroll_offset = 0;
+}
+
+static void scroll_page_down(void)
+{
+    int total_items = (file_count > 1) ? (file_count - 1) : 0;
+    int max_offset;
+
+    if (total_items <= g_page_size) {
+        scroll_offset = 0;
+        return;
+    }
+
+    max_offset = total_items - g_page_size;
+    if (max_offset < 0) max_offset = 0;
+
+    scroll_offset += g_page_size;
+    if (scroll_offset > max_offset) scroll_offset = max_offset;
 }
 
 static void handle_ok_click(void)
@@ -291,16 +480,24 @@ static void handle_ok_click(void)
 int main(void)
 {
     GR_EVENT ev;
+    GR_SCREEN_INFO si;
     int running = 1;
+    GR_COORD start_x = 10, start_y = 10;
 
     if (!getcwd(cwd, sizeof(cwd)))
         safe_strcpy(cwd, "/", sizeof(cwd));
 
     GrOpen();
+    GrGetScreenInfo(&si);
 
-    /* Tiny border window */
+    /* centered + offsets */
+    start_x = (si.cols - win_width)/2 + WIN_CENTER_X_OFFSET;
+    start_y = (si.rows - win_height)/2 + WIN_CENTER_Y_OFFSET;
+    if (start_x < 0) start_x = 0;
+    if (start_y < 0) start_y = 0;
+
     win = GrNewWindow(GR_ROOT_WINDOW_ID,
-                      10, 10,
+                      start_x, start_y,
                       win_width, win_height,
                       1,
                       EGA_DGRAY,  /* border */
@@ -327,11 +524,23 @@ int main(void)
             break;
 
         case GR_EVENT_TYPE_BUTTON_DOWN:
+            compute_layout();
+
+            /* OK button hit */
             if (ev.button.x >= ok_x && ev.button.x <= ok_x+ok_w &&
                 ev.button.y >= ok_y && ev.button.y <= ok_y+ok_h)
             {
                 handle_ok_click();
                 running = 0;
+            }
+            /* Scroll arrows: PAGE scrolling */
+            else if (hit_scroll_up(ev.button.x, ev.button.y)) {
+                scroll_page_up();
+                draw_window();
+            }
+            else if (hit_scroll_down(ev.button.x, ev.button.y)) {
+                scroll_page_down();
+                draw_window();
             }
             else {
                 handle_list_click(ev.button.x, ev.button.y);

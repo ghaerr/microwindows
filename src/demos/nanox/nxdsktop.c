@@ -11,6 +11,7 @@ History
    - support for viewing images in 3 modes with nxjpeg (subproject)
    - support for file selection with nxselect (subproject)
    - support for editing files using: nxselect -> nxterm -> edit
+   - a list of nx apps to launch: Calculator, Clock ...
    - commands: Restart, Exit, Disk sync
 
 Notes: 

@@ -1,14 +1,14 @@
 /* 
-
-A Windows 95 like start menu for ELKS and Nano-X.
+A desktop environment with a Windows 95 like start-up menu. 
 It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz. 
 
 Created by Anton Andreev
 
-Version 1.0:
-   - event handling of windows 95 startup menu with both commands and applications
-   - auto updates for free/total conventional memory in taskbar and clock display
-   - support for viewing images in 3 modes with nxjpeg (subprject)
+History
+   Version 1.0:
+   - event handling of a startup menu with both commands and applications
+   - auto updates for free/total conventional memory in task-bar and clock display
+   - support for viewing images in 3 modes with nxjpeg (subproject)
    - support for file selection with nxselect (subproject)
    - support for editing files using: nxselect -> nxterm -> edit
    - commands: Restart, Exit, Disk sync
@@ -35,7 +35,6 @@ Notes:
 #include <linuxmt/mem.h> 
 #include <sys/ioctl.h>
 #include <sys/select.h>
-//#include "uihelper.h"
 
 #define TEXT_Y_OFFSET_MENU     10
 #define TEXT_Y_OFFSET_TASKBAR  15
@@ -299,10 +298,9 @@ void poll_for_nxselect_result(void)
         /* Read entire line (non-blocking because select says ready) */
         if (fgets(buf, sizeof(buf), nx_fp)) {
             buf[strcspn(buf, "\r\n")] = '\0';
-            printf("path received: %s\n", buf);
 			path_received = 1;
         } else {
-            printf("nxselect closed (no path)\n");
+            //printf("nxselect closed (no path)\n");
         }
 
         pclose(nx_fp);
@@ -564,6 +562,14 @@ int main(void)
 		if (nxselect_running && nx_fd!=-1 && nx_fp != NULL)
              poll_for_nxselect_result();
 
+		/* cancel operation if nxselect returned "[]" */
+		if (path_received == 1 && buf[0] == '[' &&  buf[1] == ']')
+		{
+			path_received = 0;
+		    image_view_requested = 0;
+			edit_file_requested = 0;
+		}
+		
 		if (!nxselect_running && path_received == 1 && image_view_requested == 1)
 		{
 			path_received = 0;

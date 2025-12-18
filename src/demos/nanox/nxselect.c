@@ -12,7 +12,7 @@
  * 		- Scroll arrows scroll by PAGES (not single items)
  * 		- Page indicator shows "Page n/k"
  * 		- OK button prints full path to selected file and exits
- *      - If not file is selected then "[]" is printed/returned
+ *      - If no file is selected then "[]" is printed/returned
  */
 
 #include <stdio.h>

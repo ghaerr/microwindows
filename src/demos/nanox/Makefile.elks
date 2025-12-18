@@ -24,6 +24,8 @@ PROGS   = \
     $(BIN)nxworld    \
     $(BIN)nxjpeg     \
     $(BIN)nxselect   \
+    $(BIN)nxdsktop   \
+
 
 notyet = \
     $(BIN)nxlaunch\
@@ -45,6 +47,9 @@ nxjpeg.o: nxjpeg.c picojpeg.h
 	$(CC) $(CFLAGS) -c nxjpeg.c -o nxjpeg.o
 
 # Link everything
+$(BIN)nxdsktop: nxdsktop.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
 $(BIN)nxselect: nxselect.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 

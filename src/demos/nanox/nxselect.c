@@ -323,6 +323,18 @@ static void scroll_page_down(void)
         scroll_offset = max_offset;
 }
 
+static void set_title(GR_WINDOW_ID win, const char *title)
+{
+    GR_WM_PROPERTIES props;
+
+    memset(&props, 0, sizeof(props));
+    props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
+    props.title = title;
+    props.props = GR_WM_PROPS_APPWINDOW;
+
+    GrSetWMProperties(win, &props);
+}
+
 /* ---------- Main ---------- */
 
 int main(void)
@@ -342,6 +354,7 @@ int main(void)
         win_width, win_height,
         1, EGA_DGRAY, EGA_BLACK);
 
+	set_title(win, "Select File");
     gc = GrNewGC();
 
     GrSelectEvents(win,

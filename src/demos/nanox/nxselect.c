@@ -329,7 +329,7 @@ static void set_title(GR_WINDOW_ID win, const char *title)
 
     memset(&props, 0, sizeof(props));
     props.flags = GR_WM_FLAGS_TITLE | GR_WM_FLAGS_PROPS;
-    props.title = title;
+    props.title = (char *)title;
     props.props = GR_WM_PROPS_APPWINDOW;
 
     GrSetWMProperties(win, &props);

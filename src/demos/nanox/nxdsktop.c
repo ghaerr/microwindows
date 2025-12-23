@@ -61,7 +61,7 @@ const char *apps[] =
     { "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 	
 const char *sys[] =
-    { "Exit", "Restart","Sync disk"};
+    { "Exit to terminal", "Restart computer","Sync disk"};
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 #define SYS_COUNT (sizeof(sys)/sizeof(sys[0]))
@@ -411,11 +411,11 @@ static void handle_menu_click(int x, int y,
                     MENU_WIDTH,
                     MENU_ITEM_EXIT_HEIGHT))
         {
-            if (!strcmp(sys[i], "Exit")) {
+            if (!strcmp(sys[i], "Exit to terminal")) {
                 sigterm(SIGTERM);
             }
-            else if (!strcmp(sys[i], "Restart")) {
-                
+            else if (!strcmp(sys[i], "Restart computer")) {
+                unlink(GR_NAMED_SOCKET); /* ensures Nano X will start after PC restart */
 				if (fork() == 0) {
                     execl("/bin/shutdown",
                           "shutdown",

@@ -612,6 +612,7 @@ void rendition(int escvalue) {
 void esc100(unsigned char c)	/* various ANSI control codes */
 {
     int y, yy;
+    char buf[32];
 //leave escstate=10 till done. This states gets this function called.
 
 static int escvalue1,escvalue2,escvalue3;
@@ -948,6 +949,10 @@ scrolltop, scrollbottom = upper and lower scroll region limit in lines/rows
 		if (escvalue1==25) hide_cursor();
 		break;
 
+    case 'n':/* DSR device status report */
+		sprintf(buf, "\033[%d;%dR", cury + 1, curx + 1);
+		write(termfd, buf, strlen(buf));
+		break;
     default: /* unknown escape sequence */
 		break;
     }

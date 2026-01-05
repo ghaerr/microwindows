@@ -25,6 +25,7 @@ PROGS   = \
     $(BIN)nxjpeg     \
     $(BIN)nxselect   \
     $(BIN)nxdsktop   \
+    $(BIN)nxmsg      \
 
 
 notyet = \
@@ -51,6 +52,9 @@ $(BIN)nxdsktop: nxdsktop.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxselect: nxselect.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxmsg: nxmsg.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxjpeg: nxjpeg.o picojpeg.o $(NXLIB)

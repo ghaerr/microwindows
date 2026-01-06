@@ -698,6 +698,9 @@ int main(void)
 		{
 			response_received = 0;
 			message_box_requested = 0;
+
+			if (nxmsg_cb)
+            	nxmsg_cb(buf);
 		}
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */

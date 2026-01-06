@@ -349,10 +349,10 @@ void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
 
 int message_box(const char *title, const char *text, nx_modal_cb_t cb)
 {
-    char cmd[256];
-
     if (nxmsg_running)
         return -1;
+	
+	char cmd[256];
 
     snprintf(cmd, sizeof(cmd),
              "nxmsg \"%s\" \"%s\"",
@@ -494,7 +494,8 @@ static void handle_menu_click(int x, int y,
             } else if (!strcmp(apps[i], "About")) {
 
 				message_box_requested = 1;
-				message_box("About", "nxdesktop\nVersion 1.0",NULL);
+				
+				message_box("About", "NXDSKTOP\nNano-X based graphical desktop environment\nDeveloped by: Anton Andreev\nVersion 1.0",NULL);
 				
             } else {
 
@@ -715,28 +716,12 @@ int main(void)
 			nxselect_cb = NULL;
 		}
 		
-		/*if (!nxselect_running && response_received == 1 && image_view_requested == 1)
-		{
-			response_received = 0;
-			image_view_requested = 0;
-			if (nxselect_cb)
-				nxselect_cb(buf);
-			nxselect_cb = NULL;
-		}
-
-		if (!nxselect_running && response_received == 1 && edit_file_requested == 1) {
-
-			response_received = 0;
-			edit_file_requested = 0;
-			if (nxselect_cb)
-				nxselect_cb(buf);
-			nxselect_cb = NULL;
-		}*/
-		
 		if (!nxmsg_running && response_received == 1 && message_box_requested == 1)
 		{
 			response_received = 0;
 			message_box_requested = 0;
+			
+			need_redraw = 1;
 
 			if (nxmsg_cb)
             	nxmsg_cb(buf);

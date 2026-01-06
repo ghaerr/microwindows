@@ -82,6 +82,9 @@ static int edit_file_requested = 0;
 static int message_box_requested = 0;
 static int image_view_color_mode = 16;
 
+typedef void (*message_box_cb_t)(const char *result);
+static message_box_cb_t nxmsg_cb = NULL; /* pointer to a function that handles user's response */
+
 #if ENABLE_MEMORY_USAGE
 static unsigned int mem_free = 0;
 static unsigned int mem_total = 0;
@@ -343,6 +346,33 @@ void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
     }
 }
 
+int message_box(const char *title, const char *text, message_box_cb_t cb)
+{
+    char cmd[256];
+
+    if (nxmsg_running)
+        return -1;
+
+    snprintf(cmd, sizeof(cmd),
+             "nxmsg \"%s\" \"%s\"",
+             title,
+             text);
+
+    nx_fp = popen(cmd, "r");
+    if (!nx_fp)
+        return -1;
+
+    nx_fd = fileno(nx_fp);
+    nxmsg_cb = cb;
+    nxmsg_running = 1;
+
+    return 0;
+}
+
+void about_closed(const char *result)
+{
+}
+
 static void handle_menu_click(int x, int y,
                               int *need_redraw)
 {
@@ -396,23 +426,8 @@ static void handle_menu_click(int x, int y,
 
             } else if (!strcmp(apps[i], "About")) {
 				
-				if (!nxmsg_running)
-				{
-					char cmd[256]; //TODO: can be less
-
-					snprintf(cmd, sizeof(cmd),
-							 "nxmsg \"%s\" \"%s\"",
-							 "About",
-							 "nxdesktop\nVersion 1.0");
-
-					nx_fp = popen(cmd, "r");
-					if (nx_fp) {
-						nx_fd = fileno(nx_fp);
-						nxmsg_running = 1;
-						message_box_requested = 1;
-					}
-				}
-
+				message_box("About", "nxdesktop\nVersion 1.0",about_closed);
+				
             } else {
 
                 const char *exe;

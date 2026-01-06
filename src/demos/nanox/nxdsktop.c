@@ -349,9 +349,9 @@ void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
 
 int message_box(const char *title, const char *text, nx_modal_cb_t cb)
 {
-    if (nxmsg_running)
+    if (nxmsg_running) {
         return -1;
-	
+	}
 	char cmd[256];
 
     snprintf(cmd, sizeof(cmd),
@@ -720,8 +720,6 @@ int main(void)
 		{
 			response_received = 0;
 			message_box_requested = 0;
-			
-			need_redraw = 1;
 
 			if (nxmsg_cb)
             	nxmsg_cb(buf);

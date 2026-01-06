@@ -394,9 +394,11 @@ int main(void)
             running = 0;
     }
 
-    if (!accepted)
-        printf("[]\n");
-
+    if (accepted)
+		write(1,"OK\n",3);
+	else
+        write(1,"[]\n",3);
+	
     GrClose();
     return 0;
 }

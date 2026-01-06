@@ -395,19 +395,22 @@ static void handle_menu_click(int x, int y,
                 }
 
             } else if (!strcmp(apps[i], "About")) {
+				
+				if (!nxmsg_running)
+				{
+					char cmd[256]; //TODO: can be less
 
-                char cmd[256]; //TODO: can be less
+					snprintf(cmd, sizeof(cmd),
+							 "nxmsg \"%s\" \"%s\"",
+							 "About",
+							 "nxdesktop\nVersion 1.0");
 
-				snprintf(cmd, sizeof(cmd),
-						 "nxmsg \"%s\" \"%s\"",
-						 "About",
-						 "nxdesktop\nVersion 1.0");
-
-				nx_fp = popen(cmd, "r");
-				if (nx_fp) {
-					nx_fd = fileno(nx_fp);
-					nxmsg_running = 1;
-					message_box_requested = 1;
+					nx_fp = popen(cmd, "r");
+					if (nx_fp) {
+						nx_fd = fileno(nx_fp);
+						nxmsg_running = 1;
+						message_box_requested = 1;
+					}
 				}
 
             } else {

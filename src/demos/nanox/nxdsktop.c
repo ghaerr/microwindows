@@ -386,10 +386,6 @@ int file_select(nx_modal_cb_t cb)
     return 0;
 }
 
-void about_closed(const char *result)
-{
-}
-
 void image_select_cb(const char *path)
 {
     pid_t pid;
@@ -481,20 +477,24 @@ static void handle_menu_click(int x, int y,
                 else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
                     image_view_color_mode = 4;
 
+				image_view_requested = 1;
+				
                 if (!nxselect_running) {
                     file_select(image_select_cb);
                     }
-                }
 
             } else if (!strcmp(apps[i], "Edit file")) {
 
+				edit_file_requested = 1;
+				
                 if (!nxselect_running) {
                     file_select(edit_file_cb);
                 }
 
             } else if (!strcmp(apps[i], "About")) {
-				
-				message_box("About", "nxdesktop\nVersion 1.0",about_closed);
+
+				message_box_requested = 1;
+				message_box("About", "nxdesktop\nVersion 1.0",NULL);
 				
             } else {
 
@@ -711,7 +711,7 @@ int main(void)
 			edit_file_requested = 0;
 			response_received = 0;
 			if (nxselect_cb)
-				nxselect_cb(path);
+				nxselect_cb(buf);
 			nxselect_cb = NULL;
 		}
 		
@@ -720,7 +720,7 @@ int main(void)
 			response_received = 0;
 			image_view_requested = 0;
 			if (nxselect_cb)
-				nxselect_cb(path);
+				nxselect_cb(buf);
 			nxselect_cb = NULL;
 		}
 
@@ -729,7 +729,7 @@ int main(void)
 			response_received = 0;
 			edit_file_requested = 0;
 			if (nxselect_cb)
-				nxselect_cb(path);
+				nxselect_cb(buf);
 			nxselect_cb = NULL;
 		}*/
 		
@@ -740,6 +740,7 @@ int main(void)
 
 			if (nxmsg_cb)
             	nxmsg_cb(buf);
+			nxmsg_cb = NULL;
 		}
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */

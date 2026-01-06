@@ -82,8 +82,9 @@ static int edit_file_requested = 0;
 static int message_box_requested = 0;
 static int image_view_color_mode = 16;
 
-typedef void (*message_box_cb_t)(const char *result);
-static message_box_cb_t nxmsg_cb = NULL; /* pointer to a function that handles user's response */
+typedef void (*nx_modal_cb_t)(const char *result);
+static nx_modal_cb_t nxmsg_cb = NULL; /* pointer to a function that handles user's response */
+static nx_modal_cb_t nxselect_cb = NULL;
 
 #if ENABLE_MEMORY_USAGE
 static unsigned int mem_free = 0;
@@ -346,7 +347,7 @@ void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
     }
 }
 
-int message_box(const char *title, const char *text, message_box_cb_t cb)
+int message_box(const char *title, const char *text, nx_modal_cb_t cb)
 {
     char cmd[256];
 
@@ -369,8 +370,86 @@ int message_box(const char *title, const char *text, message_box_cb_t cb)
     return 0;
 }
 
+int file_select(nx_modal_cb_t cb)
+{
+    if (nxselect_running)
+        return -1;
+
+    nx_fp = popen("nxselect", "r");
+    if (!nx_fp)
+        return -1;
+
+    nx_fd = fileno(nx_fp);
+    nxselect_cb = cb;
+    nxselect_running = 1;
+
+    return 0;
+}
+
 void about_closed(const char *result)
 {
+}
+
+void image_select_cb(const char *path)
+{
+    pid_t pid;
+
+    if (!path || strcmp(path, "[]") == 0)
+        return;
+
+    pid = fork();
+    if (pid != 0)
+        return;
+
+    if (image_view_color_mode == 4) {
+        execl("/bin/nxjpeg",
+              "nxjpeg",
+              "-m",
+              "-g",
+              path,
+              (char *)NULL);
+    }
+    else if (image_view_color_mode == 8) {
+        execl("/bin/nxjpeg",
+              "nxjpeg",
+              "-g",
+              "-8",
+              path,
+              (char *)NULL);
+    }
+    else {
+        execl("/bin/nxjpeg",
+              "nxjpeg",
+              path,
+              (char *)NULL);
+    }
+
+    _exit(1);
+}
+
+void edit_file_cb(const char *path)
+{
+    pid_t pid;
+    char cmd[70];
+
+    if (!path || strcmp(path, "[]") == 0)
+        return;
+
+    pid = fork();
+    if (pid != 0)
+        return;
+
+    /* construct "/bin/edit <path> && exit" */
+    snprintf(cmd, sizeof(cmd),
+             "/bin/edit %s && exit",
+             path);
+
+    execl("/bin/nxterm",
+          "nxterm",
+          cmd,
+          (char *)NULL);
+
+    _exit(1);
 }
 
 static void handle_menu_click(int x, int y,
@@ -403,25 +482,14 @@ static void handle_menu_click(int x, int y,
                     image_view_color_mode = 4;
 
                 if (!nxselect_running) {
-                    nx_fp = popen("nxselect", "r");
-                    if (nx_fp) {
-                        nx_fd = fileno(nx_fp);
-                        nxselect_running = 1;
-                        response_received = 0;
-                        image_view_requested = 1;
+                    file_select(image_select_cb);
                     }
                 }
 
             } else if (!strcmp(apps[i], "Edit file")) {
 
                 if (!nxselect_running) {
-                    nx_fp = popen("nxselect", "r");
-                    if (nx_fp) {
-                        nx_fd = fileno(nx_fp);
-                        nxselect_running = 1;
-                        response_received = 0;
-                        edit_file_requested = 1;
-                    }
+                    file_select(edit_file_cb);
                 }
 
             } else if (!strcmp(apps[i], "About")) {
@@ -636,63 +704,34 @@ int main(void)
 			edit_file_requested = 0;
 			message_box_requested = 0;
 		}
+
+		if (!nxselect_running && response_received == 1 && (image_view_requested == 1 || edit_file_requested == 1))
+		{
+			image_view_requested = 0;
+			edit_file_requested = 0;
+			response_received = 0;
+			if (nxselect_cb)
+				nxselect_cb(path);
+			nxselect_cb = NULL;
+		}
 		
-		if (!nxselect_running && response_received == 1 && image_view_requested == 1)
+		/*if (!nxselect_running && response_received == 1 && image_view_requested == 1)
 		{
 			response_received = 0;
 			image_view_requested = 0;
-			pid_t pid = fork();
-
-			if (pid == 0) {
-				if (image_view_color_mode == 4) {
-					execl("/bin/nxjpeg",
-						  "nxjpeg",
-						  "-m",
-						  "-g",
-						  buf,
-						  NULL);
-				}
-				else if (image_view_color_mode == 8) {
-					execl("/bin/nxjpeg",
-						  "nxjpeg",
-						  "-g",
-						  "-8",
-						  buf,
-						  NULL);
-				}
-				else {
-					/* Default mode 16 colors ega */
-					execl("/bin/nxjpeg",
-						  "nxjpeg",
-						  buf,
-						  NULL);
-				}
-				/* Only reached if execl() fails */
-				_exit(1);
-			}
+			if (nxselect_cb)
+				nxselect_cb(path);
+			nxselect_cb = NULL;
 		}
 
 		if (!nxselect_running && response_received == 1 && edit_file_requested == 1) {
 
 			response_received = 0;
 			edit_file_requested = 0;
-
-			pid_t pid = fork();
-			if (pid == 0) {
-
-				char cmd[70];
-
-				/* construct "/bin/edit <path> && exit" including the double quotes */
-				snprintf(cmd, sizeof(cmd),
-						 "/bin/edit %s && exit",
-						 buf);
-
-				/* Pass whole quoted command as one argument to nxterm */
-				execl("/bin/nxterm", "nxterm", cmd, NULL);
-
-				_exit(1);
-			}
-		}
+			if (nxselect_cb)
+				nxselect_cb(path);
+			nxselect_cb = NULL;
+		}*/
 		
 		if (!nxmsg_running && response_received == 1 && message_box_requested == 1)
 		{

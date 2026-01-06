@@ -76,7 +76,7 @@ static int nx_fd = -1;
 static int nxselect_running = 0;
 static int nxmsg_running = 0;
 char buf[80];
-static int path_received = 0; //TODO: rename to response_received
+static int response_received = 0;
 static int image_view_requested = 0;
 static int edit_file_requested = 0;
 static int message_box_requested = 0;
@@ -304,7 +304,7 @@ void poll_for_nxselect_result(void)
         /* Read entire line (non-blocking because select says ready) */
         if (fgets(buf, sizeof(buf), nx_fp)) {
             buf[strcspn(buf, "\r\n")] = '\0';
-			path_received = 1;
+			response_received = 1;
         } else {
             //printf("app closed (no path)\n");
         }
@@ -334,7 +334,7 @@ void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
         /* Read entire line (non-blocking because select says ready) */
         if (fgets(buf, sizeof(buf), nx_fp)) {
             buf[strcspn(buf, "\r\n")] = '\0';
-			path_received = 1;
+			response_received = 1;
         } else {
             //printf("app closed (no path)\n");
         }
@@ -407,7 +407,7 @@ static void handle_menu_click(int x, int y,
                     if (nx_fp) {
                         nx_fd = fileno(nx_fp);
                         nxselect_running = 1;
-                        path_received = 0;
+                        response_received = 0;
                         image_view_requested = 1;
                     }
                 }
@@ -419,7 +419,7 @@ static void handle_menu_click(int x, int y,
                     if (nx_fp) {
                         nx_fd = fileno(nx_fp);
                         nxselect_running = 1;
-                        path_received = 0;
+                        response_received = 0;
                         edit_file_requested = 1;
                     }
                 }
@@ -628,18 +628,18 @@ int main(void)
 		if (nxmsg_running && nx_fd!=-1 && nx_fp != NULL)
              poll_for_nxmsg_result();
 
-		/* cancel operation if nxselect returned "[]" */
-		if (path_received == 1 && buf[0] == '[' &&  buf[1] == ']')
+		/* cancel operation if nxselect or nxmsg returned "[]" */
+		if (response_received == 1 && buf[0] == '[' &&  buf[1] == ']')
 		{
-			path_received = 0;
+			response_received = 0;
 		    image_view_requested = 0;
 			edit_file_requested = 0;
 			message_box_requested = 0;
 		}
 		
-		if (!nxselect_running && path_received == 1 && image_view_requested == 1)
+		if (!nxselect_running && response_received == 1 && image_view_requested == 1)
 		{
-			path_received = 0;
+			response_received = 0;
 			image_view_requested = 0;
 			pid_t pid = fork();
 
@@ -672,9 +672,9 @@ int main(void)
 			}
 		}
 
-		if (!nxselect_running && path_received == 1 && edit_file_requested == 1) {
+		if (!nxselect_running && response_received == 1 && edit_file_requested == 1) {
 
-			path_received = 0;
+			response_received = 0;
 			edit_file_requested = 0;
 
 			pid_t pid = fork();
@@ -694,9 +694,9 @@ int main(void)
 			}
 		}
 		
-		if (!nxmsg_running && path_received == 1 && message_box_requested == 1)
+		if (!nxmsg_running && response_received == 1 && message_box_requested == 1)
 		{
-			path_received = 0;
+			response_received = 0;
 			message_box_requested = 0;
 		}
 

@@ -65,6 +65,8 @@ static int line_count;
 static GR_COORD win_w, win_h;
 static GR_COORD btn_x, btn_y;
 
+static int accepted = 0;
+
 /* ---------- Split text into lines ---------- */
 
 static void split_lines(const char *text)
@@ -189,7 +191,10 @@ static int handle_button(GR_EVENT_BUTTON *b)
     if (ui_mode == UI_OK) {
         if (b->x >= btn_x && b->x <= btn_x + BUTTON_WIDTH &&
             b->y >= btn_y && b->y <= btn_y + BUTTON_HEIGHT)
-            return 1;
+			{
+			  accepted = 1;
+              return 1;
+			}
     }
     return 0;
 }
@@ -277,6 +282,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (!accepted)
+        printf("[]\n");
+	
     GrClose();
     return 0;
 }

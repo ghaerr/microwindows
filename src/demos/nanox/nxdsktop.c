@@ -58,7 +58,7 @@ Notes:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
+    { "About", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 	
 const char *sys[] =
     { "Exit to terminal", "Restart computer","Sync disk"};
@@ -74,10 +74,12 @@ static int menu_open = 0;
 static FILE *nx_fp = NULL;
 static int nx_fd = -1;
 static int nxselect_running = 0;
-char buf[80]; 
-static int path_received = 0;
+static int nxmsg_running = 0;
+char buf[80];
+static int path_received = 0; //TODO: rename to response_received
 static int image_view_requested = 0;
-static int edit_file_requested =0;
+static int edit_file_requested = 0;
+static int message_box_requested = 0;
 static int image_view_color_mode = 16;
 
 #if ENABLE_MEMORY_USAGE
@@ -301,13 +303,43 @@ void poll_for_nxselect_result(void)
             buf[strcspn(buf, "\r\n")] = '\0';
 			path_received = 1;
         } else {
-            //printf("nxselect closed (no path)\n");
+            //printf("app closed (no path)\n");
         }
 
         pclose(nx_fp);
         nx_fp = NULL;
         nx_fd = -1;
         nxselect_running = 0;   /* stop polling */
+    }
+}
+
+void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
+{
+    fd_set set;
+    struct timeval tv;
+
+    FD_ZERO(&set);
+    FD_SET(nx_fd, &set);
+
+    tv.tv_sec = 0;   /* Non-blocking */
+    tv.tv_usec = 0;
+
+    int rv = select(nx_fd + 1, &set, NULL, NULL, &tv);
+
+    if (rv > 0 && FD_ISSET(nx_fd, &set)) {
+
+        /* Read entire line (non-blocking because select says ready) */
+        if (fgets(buf, sizeof(buf), nx_fp)) {
+            buf[strcspn(buf, "\r\n")] = '\0';
+			path_received = 1;
+        } else {
+            //printf("app closed (no path)\n");
+        }
+
+        pclose(nx_fp);
+        nx_fp = NULL;
+        nx_fd = -1;
+        nxmsg_running = 0;   /* stop polling */
     }
 }
 
@@ -364,7 +396,19 @@ static void handle_menu_click(int x, int y,
 
             } else if (!strcmp(apps[i], "About")) {
 
-               /* reserved for the About box */
+                char cmd[256]; //TODO: can be less
+
+				snprintf(cmd, sizeof(cmd),
+						 "nxmsg \"%s\" \"%s\"",
+						 "About",
+						 "nxdesktop\nVersion 1.0");
+
+				nx_fp = popen(cmd, "r");
+				if (nx_fp) {
+					nx_fd = fileno(nx_fp);
+					nxmsg_running = 1;
+					message_box_requested = 1;
+				}
 
             } else {
 
@@ -562,6 +606,9 @@ int main(void)
 		
 		if (nxselect_running && nx_fd!=-1 && nx_fp != NULL)
              poll_for_nxselect_result();
+		 
+		if (nxmsg_running && nx_fd!=-1 && nx_fp != NULL)
+             poll_for_nxmsg_result();
 
 		/* cancel operation if nxselect returned "[]" */
 		if (path_received == 1 && buf[0] == '[' &&  buf[1] == ']')
@@ -569,6 +616,7 @@ int main(void)
 			path_received = 0;
 		    image_view_requested = 0;
 			edit_file_requested = 0;
+			message_box_requested = 0;
 		}
 		
 		if (!nxselect_running && path_received == 1 && image_view_requested == 1)
@@ -626,6 +674,12 @@ int main(void)
 
 				_exit(1);
 			}
+		}
+		
+		if (!nxmsg_running && path_received == 1 && message_box_requested == 1)
+		{
+			path_received = 0;
+			message_box_requested = 0;
 		}
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */

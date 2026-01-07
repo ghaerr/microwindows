@@ -58,7 +58,7 @@ Notes:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "About", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
+    { "About", "Help", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 	
 const char *sys[] =
     { "Exit to terminal", "Restart computer","Sync disk"};
@@ -317,7 +317,7 @@ void poll_for_nxselect_result(void)
     }
 }
 
-void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
+void poll_for_nxmsg_result(void) /* TODO: merge with above function? nx_fp and nx_fd are shared*/
 {
     fd_set set;
     struct timeval tv;
@@ -347,15 +347,18 @@ void poll_for_nxmsg_result(void) /* TODO: merge with above function? */
     }
 }
 
-int message_box(const char *title, const char *text, nx_modal_cb_t cb)
+/* text text_align: 0 is center, 1 is left, 2 is right */ 
+int message_box(const char *title, const char *text, int text_align, nx_modal_cb_t cb)
 {
     if (nxmsg_running) {
         return -1;
-	}
-	char cmd[256];
+    }
+
+    char cmd[340];
 
     snprintf(cmd, sizeof(cmd),
-             "nxmsg \"%s\" \"%s\"",
+             "nxmsg -ta %d \"%s\" \"%s\"",
+             text_align,
              title,
              text);
 
@@ -494,8 +497,12 @@ static void handle_menu_click(int x, int y,
             } else if (!strcmp(apps[i], "About")) {
 
 				message_box_requested = 1;
+				message_box("About", "NXDSKTOP\nNano-X based graphical desktop environment\nDeveloped by: Anton Andreev\nVersion 1.0",0,NULL);
 				
-				message_box("About", "NXDSKTOP\nNano-X based graphical desktop environment\nDeveloped by: Anton Andreev\nVersion 1.0",NULL);
+            } else if (!strcmp(apps[i], "Help")) {
+
+				message_box_requested = 1;
+				message_box("Help", "1) CTRL+A - force closes nxdsktop and Nano X\n2) Default editor: edit (mined editor from minix)\n3) CTRL+X - closes an opened file in edit\n4) Use 'Sync to disk' before powering off",1,NULL);
 				
             } else {
 

@@ -1,15 +1,19 @@
 /*
  * nxmsg - Nano-X Message Box for ELKS
  *
+ * Developed by: Anton Andreev
+ *
  * Features:
  *  - Title and text from command line
  *  - Multiline text using '\n'
  *  - Text alignment: left, center, right
+ *  - OK button prints "OK", otherwise "[]"
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <nano-X.h>
 
 /* ---------- UI Modes ---------- */
@@ -22,11 +26,11 @@
 #define ALIGN_RIGHT  2
 
 /* ---------- Layout ---------- */
-#define MARGIN_TOP      10
+#define MARGIN_TOP      18
 #define MARGIN_BOTTOM   12
 #define MARGIN_LEFT     10
 #define MARGIN_RIGHT    10
-#define LINE_SPACING     4
+#define LINE_SPACING     6
 #define TEXT_TOP_PAD     6 
 
 #define BUTTON_WIDTH    60
@@ -34,18 +38,30 @@
 #define BUTTON_MARGIN    8
 
 /* ---------- Colors ---------- */
-#define EGA_BLACK   GR_RGB(0,0,0)
+/*#define EGA_BLACK   GR_RGB(0,0,0)
 #define EGA_WHITE   GR_RGB(255,255,255)
 #define EGA_LGRAY   GR_RGB(192,192,192)
 #define EGA_DGRAY   GR_RGB(128,128,128)
-#define EGA_BROWN   GR_RGB(128,64,0)
+#define EGA_BROWN   GR_RGB(128,64,0)*/
 
 /* ---------- Theme ---------- */
-#define WIN_BG_COLOR   EGA_LGRAY
+/*#define WIN_BG_COLOR   EGA_LGRAY
 #define TEXT_COLOR     EGA_WHITE
 #define BTN_BG_COLOR   EGA_BROWN
 #define BTN_FG_COLOR   EGA_WHITE
-#define FRAME_COLOR    EGA_DGRAY
+#define FRAME_COLOR    EGA_DGRAY*/
+
+/* ---------- Colors ---------- */
+#define COLOR_BLACK   GR_RGB(0,0,0)
+#define COLOR_WHITE   GR_RGB(255,255,255)
+#define COLOR_GRAY    GR_RGB(192,192,192)
+
+/* ---------- Theme ---------- */
+#define WIN_BG_COLOR   COLOR_WHITE     /* window background */
+#define TEXT_COLOR     COLOR_BLACK     /* text color */
+#define BTN_BG_COLOR   COLOR_GRAY
+#define BTN_FG_COLOR   COLOR_BLACK
+#define FRAME_COLOR    COLOR_BLACK
 
 /* ---------- Limits ---------- */
 #define MAX_LINES      32
@@ -213,34 +229,63 @@ static int handle_key(GR_EVENT_KEYSTROKE *k)
 }
 
 /* ---------- Main ---------- */
-
 int main(int argc, char *argv[])
 {
     GR_EVENT ev;
     int running = 1;
+    int argi = 1;
 
-    if (argc < 3) {
-        fprintf(stderr, "Usage: nxmsg \"Title\" \"Text\"\n");
+    /* defaults */
+    text_align = ALIGN_CENTER;
+
+    if (argc >= 3 && strcmp(argv[argi], "-ta") == 0) {
+        if (argc < 5) {
+            fprintf(stderr,
+                "Usage: nxmsg [-ta 0|1|2] \"Title\" \"Text\"\n");
+            return 1;
+        }
+
+        int ta = atoi(argv[argi + 1]);
+        if (ta == 1)
+            text_align = ALIGN_LEFT;
+        else if (ta == 2)
+            text_align = ALIGN_RIGHT;
+        else
+            text_align = ALIGN_CENTER; /* 0 or fallback */
+
+        argi += 2;
+    }
+
+    if (argc - argi < 2) {
+        fprintf(stderr,
+            "Usage: nxmsg [-ta 0|1|2] \"Title\" \"Text\"\n");
         return 1;
     }
 
-    strncpy(title, argv[1], sizeof(title) - 1);
+    strncpy(title, argv[argi], sizeof(title) - 1);
     title[sizeof(title) - 1] = 0;
 
-    split_lines(argv[2]);
+    split_lines(argv[argi + 1]);
 
     GrOpen();
     GrGetScreenInfo(&si);
 
     gc = GrNewGC();
+	
+	GrSetGCUseBackground(gc, GR_FALSE);
 
     compute_window_size();
 
-    win = GrNewWindow(GR_ROOT_WINDOW_ID,
+    win = GrNewWindow(
+        GR_ROOT_WINDOW_ID,
         (si.cols - win_w) / 2,
         (si.rows - win_h) / 2,
-        win_w, win_h,
-        1, FRAME_COLOR, WIN_BG_COLOR);
+        win_w,
+        win_h,
+        1,
+        FRAME_COLOR,
+        WIN_BG_COLOR
+    );
 
     {
         GR_WM_PROPERTIES props;
@@ -250,44 +295,45 @@ int main(int argc, char *argv[])
         GrSetWMProperties(win, &props);
     }
 
-    GrSelectEvents(win,
+    GrSelectEvents(
+        win,
         GR_EVENT_MASK_EXPOSURE |
         GR_EVENT_MASK_BUTTON_DOWN |
         GR_EVENT_MASK_KEY_DOWN |
-        GR_EVENT_MASK_CLOSE_REQ);
+        GR_EVENT_MASK_CLOSE_REQ
+    );
 
     GrMapWindow(win);
 
-	while (running) {
-		GrGetNextEvent(&ev);
+    while (running) {
+        GrGetNextEvent(&ev);
 
-		switch (ev.type) {
+        switch (ev.type) {
+        case GR_EVENT_TYPE_EXPOSURE:
+            draw_window();
+            break;
 
-		case GR_EVENT_TYPE_EXPOSURE:
-				draw_window();
-			break;
+        case GR_EVENT_TYPE_BUTTON_DOWN:
+            if (handle_button(&ev.button))
+                running = 0;
+            break;
 
-		case GR_EVENT_TYPE_BUTTON_DOWN:
-			if (handle_button(&ev.button))
-				running = 0;
-			break;
+        case GR_EVENT_TYPE_KEY_DOWN:
+            if (handle_key(&ev.keystroke))
+                running = 0;
+            break;
 
-		case GR_EVENT_TYPE_KEY_DOWN:
-			if (handle_key(&ev.keystroke))
-				running = 0;
-			break;
+        case GR_EVENT_TYPE_CLOSE_REQ:
+            running = 0;
+            break;
+        }
+    }
 
-		case GR_EVENT_TYPE_CLOSE_REQ:
-			running = 0;
-			break;
-		}
-	}
+    if (accepted)
+        write(1, "OK\n", 3);
+    else
+        write(1, "[]\n", 3);
 
-	if (accepted)
-		write(1,"OK\n",3);
-	else
-        write(1,"[]\n",3);
-	
     GrClose();
     return 0;
 }

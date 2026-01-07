@@ -476,9 +476,11 @@ static void handle_menu_click(int x, int y,
                 size_t len = strlen(apps[i]);
 
                 if (len >= 2 && strcmp(apps[i] + len - 2, "8c") == 0)
-                    image_view_color_mode = 8;
-                else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
-                    image_view_color_mode = 4;
+					image_view_color_mode = 8;
+				else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
+					image_view_color_mode = 4;
+				else
+					image_view_color_mode = 16;   /* <-- THIS WAS MISSING */
 
 				image_view_requested = 1;
 				

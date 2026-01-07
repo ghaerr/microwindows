@@ -840,6 +840,37 @@ void CustomGrSetSystemPalette(const GR_PALETTE *pal_in)
     outb(0x3C0, 0x20);
 }
 
+static void reset_palette(void)
+{
+	LOG("reset_palette");
+    GR_PALETTE p;
+
+    /* 1) Restore VGA DAC entries 0..15 to canonical EGA colors */
+    for (int i = 0; i < 16; i++) {
+        vga_set_palette(i,
+                        ega16[i].r,
+                        ega16[i].g,
+                        ega16[i].b);
+    }
+
+    /* 2) Restore EGA Attribute Controller mapping */
+    p.count = 16;
+    for (int i = 0; i < 16; i++) {
+        p.palette[i].r = ega16[i].r;
+        p.palette[i].g = ega16[i].g;
+        p.palette[i].b = ega16[i].b;
+    }
+    CustomGrSetSystemPalette(&p);
+
+    /* 3) FIX: rebuild local color table to true EGA RGB values */
+    for (int i = 0; i < 16; i++) {
+        color_from_index[i] = GR_RGB(
+            ega16[i].r,
+            ega16[i].g,
+            ega16[i].b);
+    }
+}
+
 /* ---------------------------- MAIN ---------------------------- */
 int main(int argc, char **argv)
 {
@@ -959,6 +990,8 @@ int main(int argc, char **argv)
 
         if (ev.type == GR_EVENT_TYPE_CLOSE_REQ) {
             LOG("close request received");
+			if (use_gray && use_gray8)
+				reset_palette();
             GrClose();
             if (logfp) fclose(logfp);
             return 0;

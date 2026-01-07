@@ -118,6 +118,8 @@ static const struct { unsigned char r, g, b; } ega16[16] = {
 /* JPEG wrapper */
 typedef struct { FILE *fp; } JPEG_FILE;
 
+//static int fixed_colors[5] = { 0, 7, 8, 15, 14 };
+
 /* Callback for PicoJPEG */
 static unsigned char
 pjpeg_need_bytes_callback(unsigned char *buf, unsigned char size,
@@ -287,6 +289,7 @@ decode_band_row(pjpeg_image_info_t *info,
     memset(dst_band, 0, row_pitch * mcu_h);
 
     for (unsigned mx = 0; mx < mcus_per_row; mx++) {
+	
         rc = pjpeg_decode_mcu();
         if (rc == PJPG_NO_MORE_BLOCKS)
             return 0;
@@ -473,6 +476,7 @@ static int stream_jpeg_and_draw_band(const char *file,
                     NULL, band_raw0, NULL, band_prev_sm);
 
         for (unsigned ly = 0; ly < mcu_h; ly++) {
+	
             unsigned gy = ly;
             if (gy >= imgh) break;
             EmuGrArea(wid, gc,
@@ -516,7 +520,7 @@ static int stream_jpeg_and_draw_band(const char *file,
 
 	/* Process remaining bands 1..bands-1 */
     for (unsigned band = 1; band < bands; band++) {
-
+		
         unsigned char *cur_raw  = (cur_idx ? band_raw1 : band_raw0);
         unsigned char *next_raw = NULL;
 
@@ -634,6 +638,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
         } while (0)
 
     while (1) {
+	
         rc = pjpeg_decode_mcu();
         if (rc == PJPG_NO_MORE_BLOCKS)
             break;
@@ -786,17 +791,6 @@ static int stream_jpeg_and_draw(const char *file,
     return stream_jpeg_and_draw_band(file, wid, gc);
 }
 
-static int use_alt = 0;
-static int fixed_colors[5] = { 0, 7, 8, 15, 14 };
-
-/* Timer */
-static unsigned long get_ms(void)
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (unsigned long)(tv.tv_sec * 1000UL + tv.tv_usec / 1000UL);
-}
-
 /* Palette helpers */
 static inline int to_ega(int r, int g, int b)
 {
@@ -813,8 +807,7 @@ static void VGA_WriteEGAColorRaw(int index, int ega)
     outb(0x3C0, ega & 0x3F);
 }
 
-#if UNUSED
-static void VGA_WriteEGAColor(int index, int r, int g, int b)
+/*static void VGA_WriteEGAColor(int index, int r, int g, int b)
 {
     int rr = (r >> 6) & 3;
     int gg = (g >> 6) & 3;
@@ -827,8 +820,7 @@ static void VGA_WriteEGAColor(int index, int r, int g, int b)
     outb(0x3C0, ega);
     inb(0x3DA);
     outb(0x3C0, 0x20);
-}
-#endif
+}*/
 
 void CustomGrSetSystemPalette(const GR_PALETTE *pal_in)
 {
@@ -849,7 +841,6 @@ void CustomGrSetSystemPalette(const GR_PALETTE *pal_in)
 }
 
 /* ---------------------------- MAIN ---------------------------- */
-
 int main(int argc, char **argv)
 {
     const char *file = NULL;
@@ -857,12 +848,13 @@ int main(int argc, char **argv)
     logfp = fopen("/tmp/nxjpeg.log", "w");
     LOG("nxjpeg starting");
 
-	/* parse arguments:
-     * -sN  -> smoothing level (0..3) for band-based color
-     * -g   -> grayscale mode (4-level: 0,8,7,15)
-     * -m   -> use per-MCU grayscale when combined with -g
-	 * -8   -> switch from 4 gray colors to 8 gray colors
-     * other non-dash arg -> JPEG filename
+    /*
+     * Arguments:
+     *  -sN  smoothing level (0..3)
+     *  -g   grayscale mode
+     *  -m   MCU-based grayscale renderer (only with -g)
+     *  -8   8-level grayscale palette (only with -g)
+     *  filename.jpg
      */
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-' && argv[i][1] == 's') {
@@ -876,22 +868,19 @@ int main(int argc, char **argv)
         } else if (!strcmp(argv[i], "-m")) {
             use_mcu_renderer = 1;
             LOG("MCU renderer for grayscale");
-        } else if (!strcmp(argv[i], "-e")) {
-            use_alt = 1;
-            LOG("Palette alternate mode (-e)");
         } else if (!strcmp(argv[i], "-8")) {
             use_gray8 = 1;
-            LOG("8-gray mode (-8) enabled");
+            LOG("8-gray mode enabled");
         } else if (argv[i][0] != '-') {
             file = argv[i];
         }
     }
 
-    LOG("smoothing=%d use_gray=%d use_mcu_renderer=%d use_alt=%d use_gray8=%d",
-        smoothing, use_gray, use_mcu_renderer, use_alt, use_gray8);
+    LOG("smoothing=%d use_gray=%d use_mcu_renderer=%d use_gray8=%d",
+        smoothing, use_gray, use_mcu_renderer, use_gray8);
 
     if (!file) {
-        LOG("No JPEG file supplied.");
+        LOG("No JPEG file supplied");
         if (logfp) fclose(logfp);
         return 1;
     }
@@ -902,19 +891,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    LOG("Writing VGA palette test");
-    VGA_WriteEGAColorRaw(1, 0x3F);
-    inb(0x3DA);
-    outb(0x3C0, 0x20);
-
     GR_SCREEN_INFO si;
     GrGetScreenInfo(&si);
     LOG("Screen %dx%d bpp=%d colors=%d",
         si.cols, si.rows, si.bpp, si.ncolors);
 
+    /* Build color_from_index lookup */
     pal.count = 256;
     GrGetSystemPalette(&pal);
-
     for (int i = 0; i < pal.count; i++) {
         color_from_index[i] = GR_RGB(
             pal.palette[i].r,
@@ -922,9 +906,10 @@ int main(int argc, char **argv)
             pal.palette[i].b);
     }
 
+    /* Read JPEG size */
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("Cannot open JPEG for size");
+        LOG("Cannot open JPEG");
         GrClose();
         if (logfp) fclose(logfp);
         return 1;
@@ -961,47 +946,19 @@ int main(int argc, char **argv)
 
     GR_GC_ID gc = GrNewGC();
 
-    GR_PALETTE pal_base = pal;
-    GR_PALETTE pal_alt  = pal;
-
-    if (use_alt && !use_gray) {
-
-        for (int i = 0; i < 16; i++) {
-            int is_fixed = 0;
-            for (int k = 0; k < 5; k++) {
-                if (i == fixed_colors[k]) {
-                    is_fixed = 1;
-                    break;
-                }
-            }
-
-            int ega = to_ega(
-                pal_base.palette[i].r,
-                pal_base.palette[i].g,
-                pal_base.palette[i].b
-            );
-
-            if (!is_fixed)
-                ega ^= 0x3F;
-
-            pal_alt.palette[i].r = ((ega >> 4) & 3) * 85;
-            pal_alt.palette[i].g = ((ega >> 2) & 3) * 85;
-            pal_alt.palette[i].b = ( ega        & 3) * 85;
-        }
-
-        CustomGrSetSystemPalette(&pal_base);
+    /* Apply 8-gray VGA DAC palette ONCE if requested */
+    if (use_gray && use_gray8) {
+        LOG("Loading 8-gray VGA DAC palette");
+        load_gray8_palette();
     }
 
-    int pal_state = 0;
-    unsigned long last_toggle = get_ms();
-
+    /* ---------------- Event loop ---------------- */
     while (1) {
-
         GR_EVENT ev;
         GrGetNextEventTimeout(&ev, 50);
 
         if (ev.type == GR_EVENT_TYPE_CLOSE_REQ) {
-            LOG("close");
+            LOG("close request received");
             GrClose();
             if (logfp) fclose(logfp);
             return 0;
@@ -1009,33 +966,7 @@ int main(int argc, char **argv)
 
         if (ev.type == GR_EVENT_TYPE_EXPOSURE) {
             LOG("exposure -> redraw");
-
-            /* update 8-gray VGA DAC palette at start of exposure */
-            if (use_gray && use_gray8) {
-                load_gray8_palette();
-            }
-
             stream_jpeg_and_draw(file, wid, gc);
-
-            if (use_alt && !use_gray)
-                CustomGrSetSystemPalette(pal_state ? &pal_alt : &pal_base);
-        }
-
-        if (use_alt && !use_gray) {
-
-            unsigned long now = get_ms();
-
-            if (now - last_toggle >= 100) {
-                last_toggle = now;
-                pal_state ^= 1;
-
-                if (pal_state)
-                    LOG("Switching to ALT palette");
-                else
-                    LOG("Switching to BASE palette");
-
-                CustomGrSetSystemPalette(pal_state ? &pal_alt : &pal_base);
-            }
         }
     }
 }

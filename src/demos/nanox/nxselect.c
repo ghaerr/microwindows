@@ -394,9 +394,7 @@ int main(void)
             running = 0;
     }
 
-    if (accepted)
-		write(1,"OK\n",3);
-	else
+    if (!accepted)
         write(1,"[]\n",3);
 	
     GrClose();

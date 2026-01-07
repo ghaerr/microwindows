@@ -497,7 +497,7 @@ static void handle_menu_click(int x, int y,
             } else if (!strcmp(apps[i], "About")) {
 
 				message_box_requested = 1;
-				message_box("About", "NXDSKTOP\nNano-X based graphical desktop environment\nDeveloped by: Anton Andreev\nVersion 1.0",0,NULL);
+				message_box("About", "NXDSKTOP\nNano-X based graphical desktop environment\nDeveloped by: Anton Andreev\nVersion 1.1",0,NULL);
 				
             } else if (!strcmp(apps[i], "Help")) {
 

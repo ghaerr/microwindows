@@ -76,6 +76,7 @@
 
 #define MAX_WIDTH   620
 #define MAX_HEIGHT  460
+#define LEFT_WINDOW_MARGIN 110
 
 /* Max MCU height from picojpeg is 16 (H2V2) */
 #define MAX_MCU_H   16
@@ -966,7 +967,7 @@ int main(int argc, char **argv)
         GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
                       "nxjpeg",
                       GR_ROOT_WINDOW_ID,
-                      0, 0, w, h,
+                      LEFT_WINDOW_MARGIN, 0, w, h,
                       BLACK);
 
     GrSelectEvents(wid,

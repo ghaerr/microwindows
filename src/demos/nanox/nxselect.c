@@ -395,8 +395,8 @@ int main(void)
     }
 
     if (!accepted)
-        printf("[]\n");
-
+        write(1,"[]\n",3);
+	
     GrClose();
     return 0;
 }

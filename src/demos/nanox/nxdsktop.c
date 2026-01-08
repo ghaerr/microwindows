@@ -2,9 +2,11 @@
 A desktop environment with a Windows 95 like start-up menu. 
 It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz. 
 
-Created by Anton Andreev
+Created by: Anton Andreev
 
 History
+   Version 1.1:
+   - added nxmsg, Help and About menu entries, code improvements, fixes
    Version 1.0:
    - event handling of a startup menu with both commands and applications
    - auto updates for free/total conventional memory in task-bar and clock display
@@ -58,10 +60,10 @@ Notes:
 #define APP_PATH "/bin/"
 
 const char *apps[] =
-    { "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
+    { "About", "Help", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
 	
 const char *sys[] =
-    { "Exit", "Restart","Sync disk"};
+    { "Exit to terminal", "Restart computer","Sync disk"};
 
 #define APP_COUNT (sizeof(apps)/sizeof(apps[0]))
 #define SYS_COUNT (sizeof(sys)/sizeof(sys[0]))
@@ -74,11 +76,17 @@ static int menu_open = 0;
 static FILE *nx_fp = NULL;
 static int nx_fd = -1;
 static int nxselect_running = 0;
-char buf[80]; 
-static int path_received = 0;
+static int nxmsg_running = 0;
+char buf[80];
+static int response_received = 0;
 static int image_view_requested = 0;
-static int edit_file_requested =0;
+static int edit_file_requested = 0;
+static int message_box_requested = 0;
 static int image_view_color_mode = 16;
+
+typedef void (*nx_modal_cb_t)(const char *result);
+static nx_modal_cb_t nxmsg_cb = NULL; /* pointer to a function that handles user's response */
+static nx_modal_cb_t nxselect_cb = NULL;
 
 #if ENABLE_MEMORY_USAGE
 static unsigned int mem_free = 0;
@@ -299,9 +307,9 @@ void poll_for_nxselect_result(void)
         /* Read entire line (non-blocking because select says ready) */
         if (fgets(buf, sizeof(buf), nx_fp)) {
             buf[strcspn(buf, "\r\n")] = '\0';
-			path_received = 1;
+			response_received = 1;
         } else {
-            //printf("nxselect closed (no path)\n");
+            //printf("app closed (no path)\n");
         }
 
         pclose(nx_fp);
@@ -309,6 +317,140 @@ void poll_for_nxselect_result(void)
         nx_fd = -1;
         nxselect_running = 0;   /* stop polling */
     }
+}
+
+void poll_for_nxmsg_result(void) /* TODO: merge with above function? nx_fp and nx_fd are shared*/
+{
+    fd_set set;
+    struct timeval tv;
+
+    FD_ZERO(&set);
+    FD_SET(nx_fd, &set);
+
+    tv.tv_sec = 0;   /* Non-blocking */
+    tv.tv_usec = 0;
+
+    int rv = select(nx_fd + 1, &set, NULL, NULL, &tv);
+
+    if (rv > 0 && FD_ISSET(nx_fd, &set)) {
+
+        /* Read entire line (non-blocking because select says ready) */
+        if (fgets(buf, sizeof(buf), nx_fp)) {
+            buf[strcspn(buf, "\r\n")] = '\0';
+			response_received = 1;
+        } else {
+            //printf("app closed (no path)\n");
+        }
+
+        pclose(nx_fp);
+        nx_fp = NULL;
+        nx_fd = -1;
+        nxmsg_running = 0;   /* stop polling */
+    }
+}
+
+/* text text_align: 0 is center, 1 is left, 2 is right */ 
+int message_box(const char *title, const char *text, int text_align, nx_modal_cb_t cb)
+{
+    if (nxmsg_running) {
+        return -1;
+    }
+
+    char cmd[340];
+
+    snprintf(cmd, sizeof(cmd),
+             "nxmsg -ta %d \"%s\" \"%s\"",
+             text_align,
+             title,
+             text);
+
+    nx_fp = popen(cmd, "r");
+    if (!nx_fp)
+        return -1;
+
+    nx_fd = fileno(nx_fp);
+    nxmsg_cb = cb;
+    nxmsg_running = 1;
+
+    return 0;
+}
+
+int file_select(nx_modal_cb_t cb)
+{
+    if (nxselect_running)
+        return -1;
+
+    nx_fp = popen("nxselect", "r");
+    if (!nx_fp)
+        return -1;
+
+    nx_fd = fileno(nx_fp);
+    nxselect_cb = cb;
+    nxselect_running = 1;
+
+    return 0;
+}
+
+void image_select_cb(const char *path)
+{
+    pid_t pid;
+
+    if (!path || strcmp(path, "[]") == 0)
+        return;
+
+    pid = fork();
+    if (pid != 0)
+        return;
+
+    if (image_view_color_mode == 4) {
+        execl("/bin/nxjpeg",
+              "nxjpeg",
+              "-m",
+              "-g",
+              path,
+              (char *)NULL);
+    }
+    else if (image_view_color_mode == 8) {
+        execl("/bin/nxjpeg",
+              "nxjpeg",
+              "-g",
+              "-8",
+              path,
+              (char *)NULL);
+    }
+    else {
+        execl("/bin/nxjpeg",
+              "nxjpeg",
+              path,
+              (char *)NULL);
+    }
+
+    _exit(1);
+}
+
+void edit_file_cb(const char *path)
+{
+    pid_t pid;
+    char cmd[70];
+
+    if (!path || strcmp(path, "[]") == 0)
+        return;
+
+    pid = fork();
+    if (pid != 0)
+        return;
+
+    /* construct "/bin/edit <path> && exit" */
+    snprintf(cmd, sizeof(cmd),
+             "/bin/edit %s && exit",
+             path);
+
+    execl("/bin/nxterm",
+          "nxterm",
+          cmd,
+          (char *)NULL);
+
+    _exit(1);
 }
 
 static void handle_menu_click(int x, int y,
@@ -336,36 +478,36 @@ static void handle_menu_click(int x, int y,
                 size_t len = strlen(apps[i]);
 
                 if (len >= 2 && strcmp(apps[i] + len - 2, "8c") == 0)
-                    image_view_color_mode = 8;
-                else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
-                    image_view_color_mode = 4;
+					image_view_color_mode = 8;
+				else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
+					image_view_color_mode = 4;
+				else
+					image_view_color_mode = 16;
 
+				image_view_requested = 1;
+				
                 if (!nxselect_running) {
-                    nx_fp = popen("nxselect", "r");
-                    if (nx_fp) {
-                        nx_fd = fileno(nx_fp);
-                        nxselect_running = 1;
-                        path_received = 0;
-                        image_view_requested = 1;
+                    file_select(image_select_cb);
                     }
-                }
 
             } else if (!strcmp(apps[i], "Edit file")) {
 
+				edit_file_requested = 1;
+				
                 if (!nxselect_running) {
-                    nx_fp = popen("nxselect", "r");
-                    if (nx_fp) {
-                        nx_fd = fileno(nx_fp);
-                        nxselect_running = 1;
-                        path_received = 0;
-                        edit_file_requested = 1;
-                    }
+                    file_select(edit_file_cb);
                 }
 
             } else if (!strcmp(apps[i], "About")) {
 
-               /* reserved for the About box */
+				message_box_requested = 1;
+				message_box("About", "NXDSKTOP\nNano-X based graphical desktop environment\nDeveloped by: Anton Andreev\nVersion 1.1",0,NULL);
+				
+            } else if (!strcmp(apps[i], "Help")) {
 
+				message_box_requested = 1;
+				message_box("Help", "1) CTRL+A - force closes nxdsktop and Nano X\n2) Default editor: edit (mined editor from minix)\n3) CTRL+X - closes an opened file in edit\n4) Use 'Sync to disk' before powering off",1,NULL);
+				
             } else {
 
                 const char *exe;
@@ -411,11 +553,11 @@ static void handle_menu_click(int x, int y,
                     MENU_WIDTH,
                     MENU_ITEM_EXIT_HEIGHT))
         {
-            if (!strcmp(sys[i], "Exit")) {
+            if (!strcmp(sys[i], "Exit to terminal")) {
                 sigterm(SIGTERM);
             }
-            else if (!strcmp(sys[i], "Restart")) {
-                
+            else if (!strcmp(sys[i], "Restart computer")) {
+                unlink(GR_NAMED_SOCKET); /* ensures Nano X will start after PC restart */
 				if (fork() == 0) {
                     execl("/bin/shutdown",
                           "shutdown",
@@ -461,7 +603,7 @@ int main(void)
     setsid(); 
 
     if (GrOpen() < 0) {
-        fprintf(stderr,"Cannot open Nano-X\n");
+        fprintf(stderr,"nxdsktop: cannot open Nano-X\n");
         return 1;
     }
 
@@ -562,70 +704,37 @@ int main(void)
 		
 		if (nxselect_running && nx_fd!=-1 && nx_fp != NULL)
              poll_for_nxselect_result();
+		 
+		if (nxmsg_running && nx_fd!=-1 && nx_fp != NULL)
+             poll_for_nxmsg_result();
 
-		/* cancel operation if nxselect returned "[]" */
-		if (path_received == 1 && buf[0] == '[' &&  buf[1] == ']')
+		/* cancel operation if nxselect or nxmsg returned "[]" */
+		if (response_received == 1 && buf[0] == '[' &&  buf[1] == ']')
 		{
-			path_received = 0;
+			response_received = 0;
 		    image_view_requested = 0;
 			edit_file_requested = 0;
+			message_box_requested = 0;
+		}
+
+		if (!nxselect_running && response_received == 1 && (image_view_requested == 1 || edit_file_requested == 1))
+		{
+			image_view_requested = 0;
+			edit_file_requested = 0;
+			response_received = 0;
+			if (nxselect_cb)
+				nxselect_cb(buf);
+			nxselect_cb = NULL;
 		}
 		
-		if (!nxselect_running && path_received == 1 && image_view_requested == 1)
+		if (!nxmsg_running && response_received == 1 && message_box_requested == 1)
 		{
-			path_received = 0;
-			image_view_requested = 0;
-			pid_t pid = fork();
+			response_received = 0;
+			message_box_requested = 0;
 
-			if (pid == 0) {
-				if (image_view_color_mode == 4) {
-					execl("/bin/nxjpeg",
-						  "nxjpeg",
-						  "-m",
-						  "-g",
-						  buf,
-						  NULL);
-				}
-				else if (image_view_color_mode == 8) {
-					execl("/bin/nxjpeg",
-						  "nxjpeg",
-						  "-g",
-						  "-8",
-						  buf,
-						  NULL);
-				}
-				else {
-					/* Default mode 16 colors ega */
-					execl("/bin/nxjpeg",
-						  "nxjpeg",
-						  buf,
-						  NULL);
-				}
-				/* Only reached if execl() fails */
-				_exit(1);
-			}
-		}
-
-		if (!nxselect_running && path_received == 1 && edit_file_requested == 1) {
-
-			path_received = 0;
-			edit_file_requested = 0;
-
-			pid_t pid = fork();
-			if (pid == 0) {
-
-				char cmd[70];
-
-				/* construct "/bin/edit <path> && exit" including the double quotes */
-				snprintf(cmd, sizeof(cmd),
-						 "/bin/edit %s && exit",
-						 buf);
-
-				/* Pass whole quoted command as one argument to nxterm */
-				execl("/bin/nxterm", "nxterm", cmd, NULL);
-
-				_exit(1);
-			}
+			if (nxmsg_cb)
+            	nxmsg_cb(buf);
+			nxmsg_cb = NULL;
 		}
 
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */

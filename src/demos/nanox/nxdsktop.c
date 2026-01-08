@@ -2,9 +2,11 @@
 A desktop environment with a Windows 95 like start-up menu. 
 It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz. 
 
-Created by Anton Andreev
+Created by: Anton Andreev
 
 History
+   Version 1.1:
+   - added nxmsg, Help and About menu entries, code improvements, fixes
    Version 1.0:
    - event handling of a startup menu with both commands and applications
    - auto updates for free/total conventional memory in task-bar and clock display
@@ -480,7 +482,7 @@ static void handle_menu_click(int x, int y,
 				else if (len >= 2 && strcmp(apps[i] + len - 2, "4c") == 0)
 					image_view_color_mode = 4;
 				else
-					image_view_color_mode = 16;   /* <-- THIS WAS MISSING */
+					image_view_color_mode = 16;
 
 				image_view_requested = 1;
 				
@@ -601,7 +603,7 @@ int main(void)
     setsid(); 
 
     if (GrOpen() < 0) {
-        fprintf(stderr,"Cannot open Nano-X\n");
+        fprintf(stderr,"nxdsktop: cannot open Nano-X\n");
         return 1;
     }
 

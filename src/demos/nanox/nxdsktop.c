@@ -4,10 +4,13 @@ It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz.
 
 Created by: Anton Andreev
 
+Online help: https://github.com/toncho11/microwindows/wiki
+
 History
-   Version 1.1:
+   Version 1.1, A. Andreev:
    - added nxmsg, Help and About menu entries, code improvements, fixes
-   Version 1.0:
+   - added -s option for slow systems 
+   Version 1.0, A. Andreev:
    - event handling of a startup menu with both commands and applications
    - auto updates for free/total conventional memory in task-bar and clock display
    - support for viewing images in 3 modes with nxjpeg (subproject)
@@ -505,7 +508,7 @@ static void handle_menu_click(int x, int y,
             } else if (!strcmp(apps[i], "Help")) {
 
 				message_box_requested = 1;
-				message_box("Help", "1) CTRL+A - force closes nxdsktop and Nano X\n2) Default editor: edit (mined editor from minix)\n3) CTRL+X - closes an opened file in edit\n4) Use 'Sync to disk' before powering off",1,NULL);
+				message_box("Help", "1) CTRL+A - force closes nxdsktop and Nano X\n2) Default editor: edit (mined editor from minix)\n3) CTRL+X - closes an opened file in edit\n4) Use 'Sync to disk' before powering off\n5) https://github.com/toncho11/microwindows/wiki",1,NULL);
 				
             } else {
 

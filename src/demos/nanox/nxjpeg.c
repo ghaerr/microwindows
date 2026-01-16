@@ -575,7 +575,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
 {
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("Cannot open: %s", file);
+        LOG("ERROR: open: %s", file);
         return -1;
     }
 
@@ -583,7 +583,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
     pjpeg_image_info_t info;
     int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
     if (rc) {
-        LOG("pjpeg_decode_init rc=%d", rc);
+        LOG("ERROR: pjpeg_decode_init rc=%d", rc);
         fclose(fp);
         return -1;
     }
@@ -642,7 +642,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
         if (rc == PJPG_NO_MORE_BLOCKS)
             break;
         if (rc) {
-            LOG("decode_mcu rc=%d at index=%d", rc, mcu_index);
+            LOG("ERROR: decode_mcu rc=%d at index=%d", rc, mcu_index);
             FLUSH_BATCH();
             fclose(fp);
             return -1;

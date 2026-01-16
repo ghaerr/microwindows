@@ -921,6 +921,7 @@ int main(int argc, char **argv)
             pal.palette[i].b);
     }
 
+    /* Read JPEG size */
     FILE *fp = fopen(file, "rb");
     if (!fp) {
         LOG("ERROR: Cannot open provided JPG file.");

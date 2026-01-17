@@ -35,6 +35,8 @@ all: $(PROGS)
 	cp -p $(PROGS) $(TOPDIR)/elkscmd/rootfs_template/bin
 	mkdir -p $(TOPDIR)/elkscmd/rootfs_template/lib
 	cp -p ../../images/demos/nanox/nxworld.map $(TOPDIR)/elkscmd/rootfs_template/lib
+	cp -p ../../demos/nanox/images/girl1.jpg $(TOPDIR)/elkscmd/rootfs_template/root
+	cp -p ../../demos/nanox/images/earth.jpg $(TOPDIR)/elkscmd/rootfs_template/root
 
 $(BIN)nxcalc: nxcalc.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)

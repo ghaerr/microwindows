@@ -4,10 +4,13 @@ It specifically targets slow 8086/8088 such as Amstrad 1640 at 8Mhz.
 
 Created by: Anton Andreev
 
+Online help: https://github.com/toncho11/microwindows/wiki
+
 History
-   Version 1.1:
+   Version 1.1, A. Andreev:
    - added nxmsg, Help and About menu entries, code improvements, fixes
-   Version 1.0:
+   - added -s option for slow systems 
+   Version 1.0, A. Andreev:
    - event handling of a startup menu with both commands and applications
    - auto updates for free/total conventional memory in task-bar and clock display
    - support for viewing images in 3 modes with nxjpeg (subproject)
@@ -55,9 +58,9 @@ Notes:
 #define MENU_ITEM_EXIT_HEIGHT 20
 
 /* ===== CONFIG ===== */
-#define ENABLE_MEMORY_USAGE   1
 #define GR_EVENT_TIMEOUT      70
 #define APP_PATH "/bin/"
+static int is_slow_system = 0;
 
 const char *apps[] =
     { "About", "Help", "Calculator","Clock","Mine","Tetris","World map zoom","Terminal","View jpg as 16c", "View jpg as 8c", "View jpg as 4c", "Edit file"};
@@ -88,11 +91,9 @@ typedef void (*nx_modal_cb_t)(const char *result);
 static nx_modal_cb_t nxmsg_cb = NULL; /* pointer to a function that handles user's response */
 static nx_modal_cb_t nxselect_cb = NULL;
 
-#if ENABLE_MEMORY_USAGE
 static unsigned int mem_free = 0;
 static unsigned int mem_total = 0;
 static int mem_valid = 0;
-#endif
 
 /* ===== EXIT HELPERS =====*/
 static void exitwait(void)
@@ -219,7 +220,6 @@ static int in_rect(int x,int y,int rx,int ry,int rw,int rh)
 }
 
 /* ===== MEMORY UPDATE ===== */
-#if ENABLE_MEMORY_USAGE
 static void update_memory_now(void)
 {
     static int fd = -1;
@@ -242,7 +242,6 @@ static void update_memory_now(void)
         mem_valid = 0;
     }
 }
-#endif
 
 /* ===== CLOCK + MEMORY STATUS FIELD ===== */
 static void draw_status_field(void)
@@ -257,14 +256,13 @@ static void draw_status_field(void)
     /* Build combined text */
     char buf[64];
 
-#if ENABLE_MEMORY_USAGE
-    if(mem_valid)
-        snprintf(buf,sizeof(buf),"%u / %u KB  ", mem_free, mem_total);
-    else
-        snprintf(buf,sizeof(buf),"-- / -- KB  ");
-#else
-    buf[0] = '\0';
-#endif
+	if (!is_slow_system)
+		if(mem_valid)
+			snprintf(buf,sizeof(buf),"%u / %u KB  ", mem_free, mem_total);
+		else
+			snprintf(buf,sizeof(buf),"-- / -- KB  ");
+	else
+		buf[0] = '\0';
 
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
@@ -273,9 +271,13 @@ static void draw_status_field(void)
     strcat(buf,clk);
 
     /* Draw transparent text aligned properly */
+	int text_x = x + 6;
+	if (is_slow_system) {
+		text_x += 70;   
+	}
     GrSetGCForeground(gc_text, GrGetSysColor(GR_COLOR_WINDOWTEXT));
     GrText(win,gc_text,
-           x + 6,
+           text_x,
            y + TEXT_Y_OFFSET_TASKBAR,
            (void *)buf,strlen(buf),GR_TFASCII);
 }
@@ -506,7 +508,7 @@ static void handle_menu_click(int x, int y,
             } else if (!strcmp(apps[i], "Help")) {
 
 				message_box_requested = 1;
-				message_box("Help", "1) CTRL+A - force closes nxdsktop and Nano X\n2) Default editor: edit (mined editor from minix)\n3) CTRL+X - closes an opened file in edit\n4) Use 'Sync to disk' before powering off",1,NULL);
+				message_box("Help", "1) CTRL+A - force closes nxdsktop and Nano X\n2) Default editor: edit (mined editor from minix)\n3) CTRL+X - closes an opened file in edit\n4) Use 'Sync to disk' before powering off\n5) https://github.com/toncho11/microwindows/wiki",1,NULL);
 				
             } else {
 
@@ -591,8 +593,15 @@ static void handle_menu_click(int x, int y,
 }
 
 /* ===== MAIN LOOP ===== */
-int main(void)
+int main(int argc, char *argv[])
 {
+	for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-s") == 0) {
+            is_slow_system = 1;
+            break;
+        }
+    }
+	
     GR_EVENT ev;
     int ui_initialized = 0;
     int need_redraw = 0;
@@ -740,10 +749,10 @@ int main(void)
         /* ===== STATUS TIMER (18s first time, then 10s) ===== */
         time_t now = time(NULL);
 
-        if (ui_initialized && now >= next_update) {
-#if ENABLE_MEMORY_USAGE
+        if (ui_initialized && now >= next_update && !is_slow_system) {
+
             update_memory_now();
-#endif
+			
             need_redraw = 1;
             next_update = now + 10; /* next every 10s */
         }

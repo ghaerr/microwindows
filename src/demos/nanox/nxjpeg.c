@@ -189,9 +189,7 @@ static void load_gray8_palette(void)
 /* --------------------------------------------------------------------- */
 /* map_rgb_to_index(): supports 3 modes 4 and 16 color gray, 16 color    */
 /* --------------------------------------------------------------------- */
-
-static inline unsigned char
-map_rgb_to_index(unsigned r, unsigned g, unsigned b)
+static inline unsigned char map_rgb_to_index(unsigned r, unsigned g, unsigned b)
 {
     if (use_gray) {
         unsigned char g8 = to_gray(r, g, b);
@@ -577,7 +575,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
 {
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("Cannot open: %s", file);
+        LOG("ERROR: open: %s", file);
         return -1;
     }
 
@@ -585,7 +583,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
     pjpeg_image_info_t info;
     int rc = pjpeg_decode_init(&info, pjpeg_need_bytes_callback, &jf, 0);
     if (rc) {
-        LOG("pjpeg_decode_init rc=%d", rc);
+        LOG("ERROR: pjpeg_decode_init rc=%d", rc);
         fclose(fp);
         return -1;
     }
@@ -644,7 +642,7 @@ static int stream_jpeg_and_draw_mcu_gray(const char *file,
         if (rc == PJPG_NO_MORE_BLOCKS)
             break;
         if (rc) {
-            LOG("decode_mcu rc=%d at index=%d", rc, mcu_index);
+            LOG("ERROR: decode_mcu rc=%d at index=%d", rc, mcu_index);
             FLUSH_BATCH();
             fclose(fp);
             return -1;
@@ -808,21 +806,6 @@ static void VGA_WriteEGAColorRaw(int index, int ega)
     outb(0x3C0, ega & 0x3F);
 }
 
-/*static void VGA_WriteEGAColor(int index, int r, int g, int b)
-{
-    int rr = (r >> 6) & 3;
-    int gg = (g >> 6) & 3;
-    int bb = (b >> 6) & 3;
-
-    int ega = (rr << 4) | (gg << 2) | bb;
-
-    inb(0x3DA);
-    outb(0x3C0, index & 0x1F);
-    outb(0x3C0, ega);
-    inb(0x3DA);
-    outb(0x3C0, 0x20);
-}*/
-
 void CustomGrSetSystemPalette(const GR_PALETTE *pal_in)
 {
     if (!pal_in || pal_in->count < 16)
@@ -863,7 +846,7 @@ static void reset_palette(void)
     }
     CustomGrSetSystemPalette(&p);
 
-    /* 3) FIX: rebuild local color table to true EGA RGB values */
+    /* 3) Rebuild local color table to true EGA RGB values */
     for (int i = 0; i < 16; i++) {
         color_from_index[i] = GR_RGB(
             ega16[i].r,
@@ -872,7 +855,14 @@ static void reset_palette(void)
     }
 }
 
-/* ---------------------------- MAIN ---------------------------- */
+/* ---------------------------- MAIN ----------------------------
+* Arguments:
+*  -sN  smoothing level (0..3)
+*  -g   grayscale mode
+*  -m   MCU-based grayscale renderer (only with -g)
+*  -8   8-level grayscale palette (only with -g)
+*  filename.jpg
+*/
 int main(int argc, char **argv)
 {
     const char *file = NULL;
@@ -880,14 +870,7 @@ int main(int argc, char **argv)
     logfp = fopen("/tmp/nxjpeg.log", "w");
     LOG("nxjpeg starting");
 
-    /*
-     * Arguments:
-     *  -sN  smoothing level (0..3)
-     *  -g   grayscale mode
-     *  -m   MCU-based grayscale renderer (only with -g)
-     *  -8   8-level grayscale palette (only with -g)
-     *  filename.jpg
-     */
+    
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-' && argv[i][1] == 's') {
             int v = argv[i][2] ? (argv[i][2] - '0') : 1;
@@ -912,13 +895,13 @@ int main(int argc, char **argv)
         smoothing, use_gray, use_mcu_renderer, use_gray8);
 
     if (!file) {
-        LOG("No JPEG file supplied");
+        LOG("ERROR: No JPEG file supplied");
         if (logfp) fclose(logfp);
         return 1;
     }
 
     if (GrOpen() < 0) {
-        LOG("GrOpen failed");
+        LOG("ERROR: Nano X GrOpen failed");
         if (logfp) fclose(logfp);
         return 1;
     }
@@ -941,7 +924,7 @@ int main(int argc, char **argv)
     /* Read JPEG size */
     FILE *fp = fopen(file, "rb");
     if (!fp) {
-        LOG("Cannot open JPEG");
+        LOG("ERROR: Cannot open provided JPG file.");
         GrClose();
         if (logfp) fclose(logfp);
         return 1;
@@ -963,9 +946,15 @@ int main(int argc, char **argv)
     GR_SIZE h = (info.m_height > MAX_HEIGHT) ? MAX_HEIGHT : info.m_height;
     LOG("Window %dx%d", w, h);
 
+	/* set title */
+	char title[40];
+	const char *base = strrchr(file, '/');
+	base = base ? base + 1 : file;
+	snprintf(title, sizeof(title),"NXJPEG - viewing %.20s", base);
+	
     GR_WINDOW_ID wid =
         GrNewWindowEx(GR_WM_PROPS_APPWINDOW,
-                      "nxjpeg",
+                      title,
                       GR_ROOT_WINDOW_ID,
                       LEFT_WINDOW_MARGIN, 0, w, h,
                       BLACK);
@@ -978,7 +967,7 @@ int main(int argc, char **argv)
 
     GR_GC_ID gc = GrNewGC();
 
-    /* Apply 8-gray VGA DAC palette ONCE if requested */
+    /* Apply 8-gray VGA DAC palette */
     if (use_gray && use_gray8) {
         LOG("Loading 8-gray VGA DAC palette");
         load_gray8_palette();

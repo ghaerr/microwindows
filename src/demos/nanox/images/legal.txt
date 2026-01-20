@@ -1,7 +1,0 @@
-Images in this folder are only for technical demonstration.
-Usually they are stored in low resolution and low number of colors.
-
-girl1.jpg - was marked as "free to use" and downloaded from Pexels.com
-earth.jpg - NASA / Apollo 17 (AS17-148-22727)
-
-Copyrighted images will be removed.

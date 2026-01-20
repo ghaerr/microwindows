@@ -1,0 +1,9 @@
+Images in this folder are usually for technical demonstration.
+In most cases they are stored in low resolution and low number of colors.
+
+girl1.jpg - marked as "free to use", downloaded from Pexels.com, licensed under Pexels license
+earth.jpg - NASA / Apollo 17 (AS17-148-22727)
+
+Copyrighted images will be removed.
+Pexels license is available at: https://www.pexels.com/license. It states that images are
+free to use and attribution is not required. The license covers all photos on Pexels.com.

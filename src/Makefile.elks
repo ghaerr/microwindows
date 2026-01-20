@@ -96,7 +96,7 @@ lib/libnano-X.a: $(CLIENT)
 
 bin/nano-x: $(SERVER)
 	$(LD) $(LDFLAGS) -maout-heap=0x2000 -o $@ $^ $(LDLIBS)
-	cp $@ $(TOPDIR)/elkscmd/rootfs_template/bin
+	#cp $@ $(TOPDIR)/elkscmd/rootfs_template/bin
 
 nxdemos: lib/libnano-X.a
 	$(MAKE) -C demos/nanox -f Makefile.elks all

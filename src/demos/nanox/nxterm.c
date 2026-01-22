@@ -950,7 +950,15 @@ scrolltop, scrollbottom = upper and lower scroll region limit in lines/rows
 		break;
 
     case 'n':/* DSR device status report */
+#if ELKS
+		strcpy(buf, "\033[");
+		strcat(buf, itoa(cury+1));
+		strcat(buf, ";");
+		strcat(buf, itoa(curx+1));
+		strcat(buf, "R");
+#else
 		sprintf(buf, "\033[%d;%dR", cury + 1, curx + 1);
+#endif
 		write(termfd, buf, strlen(buf));
 		break;
     default: /* unknown escape sequence */

@@ -30,6 +30,10 @@ CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
 CFLAGS += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
 CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 CFLAGS += -Wno-missing-field-initializers
+# remove unused function sections to decrease binary size, primarily useful in client.c
+CFLAGS += -ffunction-sections
+LDFLAGS += -Wl,--gc-sections
+
 AR = ia16-elf-ar
 
 # screen, mouse and kbd drivers

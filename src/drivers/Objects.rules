@@ -111,12 +111,6 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/deprecated/mou_touchscreen.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/deprecated/kbd_ipaq.o
 endif
 
-ifeq ($(ARCH), FREEBSD-X86)
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_fbsd.o
-#MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_fbsd.o
-MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_tty.o
-endif
-
 # Nintendo DS
 ifeq ($(ARCH), NDS)
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nds.o

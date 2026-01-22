@@ -1816,9 +1816,9 @@ again:
 	return tfd;
 }
 
-#elif defined(__FreeBSD) /* || defined(__APPLE__) */
+#elif defined(__FreeBSD__)
 
-#include <util.h>
+#include <libutil.h>
 int term_init(void)
 {
     int master, slave;

@@ -25,9 +25,9 @@
 #if __fiwix__
 #   define MW_CPU_BIG_ENDIAN	1
 #   define MW_CPU_LITTLE_ENDIAN 0
-#elif LINUX && !__ECOS && !__MINGW32__
+#elif LINUX && !__ECOS && !__MINGW32__ || defined(__FreeBSD__)
 #include <endian.h>
-#elif RTEMS | MACOS | defined(__FreeBSD__)
+#elif RTEMS | MACOS
 #include <machine/endian.h>
 #else
 #include <sys/types.h>

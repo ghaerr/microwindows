@@ -32,7 +32,7 @@ CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 CFLAGS += -Wno-missing-field-initializers
 # remove unused function sections to decrease binary size, primarily useful in client.c
 CFLAGS += -ffunction-sections
-#LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--gc-sections
 
 AR = ia16-elf-ar
 

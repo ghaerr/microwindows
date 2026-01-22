@@ -6,7 +6,7 @@ include $(BASEDIR)/Makefile-rules
 
 CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1 -I../../include
 CFLAGS += -DCONFIG_HW_VGA=1
-#LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -L../../lib
 #LDFLAGS += -maout-heap=0x2000  #FIXME for LINK_APP_INTO_SERVER =y only
 LDLIBS += -lnano-X

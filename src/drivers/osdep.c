@@ -38,6 +38,7 @@ extern	uint32_t ajag_mstimer;
 #endif
 
 
+#if !ELKS
 /**
  * Output error message
  */
@@ -94,6 +95,7 @@ GdError(const char *format, ...)
 	va_end(args);
 	return -1;
 }
+#endif
 
 /*
  * Return # milliseconds elapsed since start of Microwindows

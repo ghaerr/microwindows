@@ -11,6 +11,7 @@
 # MACOSX
 # ANDROID
 # EMSCRIPTEN
+# FREEBSD
 #
 # Recently untested platforms follow (please let us know if changes required)
 # LINUX-LINARO (RPI cross compile)
@@ -283,11 +284,16 @@ DEFINES += -DDOS_DJGPP=1 -D_NAIVE_DOS_REGS=1 -DMSDOS=1
 LDFLAGS += -lgrx20
 endif
 
-ifeq ($(ARCH), FREEBSD-X86)
+ifeq ($(ARCH), FREEBSD)
+COMPILER = clang
+CXX_COMPILER = clang++
+HOSTCC = clang
 # __FreeBSD__ is automatically defined
 DEFINES += -DUNIX=1
-CFLAGS += -Wall
-LDFLAGS += -lvgl
+INCLUDEDIRS += -I/usr/local/include
+LDFLAGS += -L/usr/local/lib
+HOSTCFLAGS += -I/usr/local/include
+HOSTLDFLAGS += -L/usr/local/lib
 # For forkpty in nxterm.
 NANOXCLIENTLIBS += -lutil
 endif

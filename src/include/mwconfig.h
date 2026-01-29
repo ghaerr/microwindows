@@ -366,14 +366,16 @@
 
 #define REALLOC(addr,oldsize,newsize) realloc((addr),(newsize))
 
-/* error.c*/
-#ifndef GdError_defined
-int	GdError(const char *format, ...);
+
+#if ELKS
+#define EPRINTF			__dprintf
+#else
+int     GdError(const char *format, ...);
+#define EPRINTF			GdError		/* debug output*/
 #endif
 
-#define EPRINTF			GdError		/* error output*/
 #if DEBUG
-#define DPRINTF			GdError		/* debug output*/
+#define DPRINTF			EPRINTF		/* debug output*/
 #else
 #define DPRINTF(str, ...)			/* no debug output*/
 #endif

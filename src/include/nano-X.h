@@ -923,9 +923,6 @@ void		GrUnregisterInput(int fd);
 void		GrMainLoop(GR_FNCALLBACKEVENT fncb);
 GR_FNCALLBACKEVENT GrSetErrorHandler(GR_FNCALLBACKEVENT fncb);
 void		GrDefaultErrorHandler(GR_EVENT *ep);
-int			GdError(const char *format, ...);
-#define GdError_defined
-#define GrError	GdError		/* calls client-side error output routine in osdep.c*/
 
 /* passive library entry points - available with client/server only*/
 void		GrPrepareSelect(int *maxfd,void *rfdset);
@@ -1032,6 +1029,13 @@ typedef struct {
 #define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
 #endif
 #define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
+
+#if ELKS
+#define GrError         __dprintf
+#else
+int     GdError(const char *format, ...);
+#define GrError         GdError
+#endif
 
 #if RTEMS
   /* RTEMS requires rtems_main()*/

@@ -54,10 +54,11 @@
 /* default mouse tty port on UNIX/Linux */
 #define	MOUSE_PORT	"/dev/ttyS1"
 #define	MOUSE_QEMU	"/dev/ttyS1"
-
 /* default mouse type: ms, pc, logi, or ps2 */
 #define MOUSE_TYPE	"ms"
 #endif
+
+#define MOUSE_PS2   "/dev/psaux"    /* default port for PS/2 mouse */
 
 /* states for the mouse*/
 #define	IDLE			0		/* start of byte sequence */
@@ -180,7 +181,9 @@ MOU_Open(MOUSEDEVICE *pmd)
 		return DRIVER_FAIL;
 
 	/* open mouse port*/
-	if( !(port = getenv("MOUSE_PORT")))
+	if (parse == ParsePS2)
+		port = MOUSE_PS2;
+	else if( !(port = getenv("MOUSE_PORT")))
 		port = getenv("QEMU")? MOUSE_QEMU: MOUSE_PORT;
 
 	if (!strcmp(port, "none")) {

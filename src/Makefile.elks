@@ -4,13 +4,16 @@
 BASEDIR = $(TOPDIR)/elkscmd
 include $(BASEDIR)/Makefile-rules
 
+# use 'CONFIG_ARCH_PC98=y make -f Makefile.elks' to build PC-98 Nano-X
+ifdef CONFIG_ARCH_PC98
+  CONFIG_ARCH_IBMPC=n
+else
+  CONFIG_ARCH_IBMPC=y
+  SCREEN_CGA=n
+endif
+
 # Uncomment the following line to link nano-X applications with the server.
 #LINK_APP_INTO_SERVER=1
-
-# Modify the following lines to build IBM/VGA, IBM/CGA or PC98 drivers
-CONFIG_ARCH_IBMPC=y
-SCREEN_CGA=n
-CONFIG_ARCH_PC98=n
 
 # remove any -mregparmcall as ASM files need cdecl calling convention
 CFLAGS := $(filter-out -mregparmcall, $(CFLAGS))

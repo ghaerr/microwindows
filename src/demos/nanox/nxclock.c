@@ -259,7 +259,7 @@ void
 do_clock(void)
 {
 	struct timeval tv;
-	struct timezone tz;
+	struct timezone tz = {0};
 	struct tm * tp;
 	time_t now;
 	int minutes, hour, sec;

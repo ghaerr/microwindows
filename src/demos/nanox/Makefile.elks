@@ -18,6 +18,7 @@ NXLIB = ../../lib/libnano-X.a
 PROGS   = \
     $(BIN)nxcalc     \
     $(BIN)nxclock    \
+    $(BIN)nxedit     \
     $(BIN)nxmine     \
     $(BIN)nxstart    \
     $(BIN)nxterm     \
@@ -64,6 +65,9 @@ $(BIN)nxjpeg: nxjpeg.o picojpeg.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ nxjpeg.o picojpeg.o $(NXLIB) $(LDLIBS)
 
 $(BIN)nxclock: nxclock.o $(NXLIB)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(BIN)nxedit: nxedit.o $(NXLIB)
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BIN)nxtetris: nxtetris.o $(NXLIB)

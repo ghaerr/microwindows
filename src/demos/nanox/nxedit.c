@@ -76,13 +76,14 @@
 #define CACHE_LINES     8
 #define TAB_WIDTH       5
 
-#define WIN_W           640
-#define WIN_H           480
+#define TITLE           "nxedit"
+#define COLS            80
+#define LINES           25
+#define FGCOLOR         BLACK
+#define BGCOLOR         LTGRAY
+
 #define LEFT_MARGIN     6
 #define TOP_MARGIN      14
-
-#define CHAR_WIDTH      8
-#define LINE_HEIGHT     12
 
 #define BLOCK_MAGIC     0xBA57U
 #define BLOCK_VALID     0x0001U
@@ -158,6 +159,9 @@ typedef struct {
 } LineCache;
 
 /* ---------- globals kept deliberately small ---------- */
+
+static int WIN_W, WIN_H;
+static int CHAR_WIDTH, LINE_HEIGHT;
 
 static LineRef line_table[MAX_LINES];
 static LineCache cache[CACHE_LINES];
@@ -892,7 +896,7 @@ static KeyInfo translate_key(GR_EVENT_KEYSTROKE *ks)
     k.ch = 0;
     k.ctrl = 0;
 
-    key = (int)ks->key;
+    key = (int)ks->ch;
     ch = (int)ks->ch;
     mods = (int)ks->modifiers;
 
@@ -967,8 +971,9 @@ static int handle_key(GR_EVENT_KEYSTROKE *ks)
         save_file();
         break;
 
-    case K_ESC:
-        return 1;
+    //FIXME arrow keys not working, currently returning ESC [ A etc
+    //case K_ESC:
+        //return 1;
 
     case K_LEFT:
         move_left();
@@ -1034,16 +1039,21 @@ static int handle_key(GR_EVENT_KEYSTROKE *ks)
 
 static int nx_init(void)
 {
+    GR_FONT_INFO    fi;
+
     if (GrOpen() < 0) {
         return -1;
     }
 
-    win = GrNewWindow(GR_ROOT_WINDOW_ID,
-                      20, 20,
-                      WIN_W, WIN_H,
-                      1,
-                      GR_COLOR_WHITE,
-                      GR_COLOR_BLACK);
+    GR_FONT_ID regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
+    GrGetFontInfo(regFont, &fi);
+    CHAR_WIDTH = fi.maxwidth;
+    LINE_HEIGHT = fi.height;
+    WIN_W = COLS * CHAR_WIDTH;
+    WIN_H = LINES * LINE_HEIGHT;
+
+    win = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, TITLE, GR_ROOT_WINDOW_ID,
+        -1, -1, WIN_W, WIN_H, BGCOLOR);
 
     if (win == 0) {
         GrClose();
@@ -1056,8 +1066,9 @@ static int nx_init(void)
         return -1;
     }
 
-    GrSetGCForeground(gc, GR_COLOR_BLACK);
-    GrSetGCBackground(gc, GR_COLOR_WHITE);
+    GrSetGCFont(gc, regFont);
+    GrSetGCForeground(gc, FGCOLOR);
+    GrSetGCBackground(gc, BGCOLOR);
 
     GrSelectEvents(win,
                    GR_EVENT_MASK_EXPOSURE |

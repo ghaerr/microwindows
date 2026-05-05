@@ -3,7 +3,7 @@
  *
  * This version is designed for ELKS-class 16-bit systems using Nano-X.
  *
- * Swap is NOT written on every edit operation.
+ * Contributors: Anton Andreev (@toncho11), Greg Haerr (@ghaerr)
  *
  * The editor keeps a small editable RAM cache. Dirty lines remain in RAM.
  * A dirty line is appended to the swap file only when:
@@ -33,7 +33,8 @@
  * When flushed, it is appended to /tmp/nxedit and line_table[] is updated.
  *
  * Old swap blocks are never deleted, overwritten, compressed, or compacted.
- * They simply become unreachable.
+ * They simply become unreachable. This is done to gain speed as we often
+ * have enough disk space, but not enough RAM and CPU.
  *
  * BASIC CONTROLS
  * --------------
@@ -48,12 +49,6 @@
  *   Ctrl-S          save
  *   Escape          quit
  *
- * BUILD SHAPE
- * -----------
- *   ia16-elf-gcc -melks -Os -fno-builtin nxedit.c -lnano-X -o nxedit
- *
- * Nano-X key names vary between trees. If arrows/page keys do not compile,
- * adjust translate_key() only.
  */
 
 #include <stdio.h>

@@ -52,7 +52,7 @@
 #define MW_FEATURE_AREAS 0	    /* =1 for GrArea, GrReadArea, GrStretchArea */
 #define MW_FEATURE_TINY 1	    /* =1 to drop various less-used features */
 #define MW_FEATURE_CLIENTDATA 0 /* =1 for copy/paste support */
-#define TRANSLATE_ESCAPE_SEQUENCES 0	/* =1 to parse fnkeys w/tty driver*/
+#define TRANSLATE_ESCAPE_SEQUENCES 1	/* =1 to parse fnkeys w/tty driver*/
 #define NUKLEARUI		1		/* =0 to use older tan windows-style 3d window frame drawing/colors*/
 #define OUTLINE_MOVE	1		/* =1 draw outline only during window move*/
 #define NO_AUTO_MOVE	1		/* =1 don't auto position window on new windows*/

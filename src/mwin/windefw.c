@@ -340,12 +340,11 @@ DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		 * knowledge of the internal window structure.
 		 * Note that setting text doesn't invalidate the window.
 		 */
-		LPTSTR newTit = (LPTSTR) malloc ( 1+strlen((LPCSTR)lParam) );
+		LPTSTR newTit = strdup((LPCSTR)lParam);
 		if (newTit == NULL)
 			return FALSE;
-		free (hwnd->szTitle);
+		free(hwnd->szTitle);
 		hwnd->szTitle = newTit;
-		strcpy(hwnd->szTitle, (LPSTR)lParam);
 		return TRUE;
 		}
 

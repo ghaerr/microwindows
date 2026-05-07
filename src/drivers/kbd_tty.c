@@ -171,6 +171,13 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			/* Need more characters - escape sequences are 3+ chars */
 			do {
 				cc = read(fd, buf + buflen, 3 - buflen);
+#if ELKS
+				if (cc == 0 && buflen == 1) {   /* allow lone ESC -> ESC */
+					buflen = 0;
+					mwkey = 27;
+					goto out;
+				}
+#endif
 			} while ((cc < 0) && ((errno == EINTR) || (errno == EAGAIN)));
 			if (cc < 0) {
 				return KBD_FAIL;
@@ -183,6 +190,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		}
 
 		switch (buf[1]) {
+#if !ELKS
 		case 'O': /* Letter O */
 			switch (buf[2]) {
 			case 'P': mwkey = MWKEY_F1; break;
@@ -223,8 +231,10 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 				  break;
 			}
 			break;
+#endif
 		case '[':
 			switch (buf[2]) {
+#if !ELKS
 			case '1':
 				if (buflen < 4)
 					return 0;
@@ -276,12 +286,14 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			case '6': if (buflen < 4) return 0;
 				  if (buf[3] == '~') mwkey = MWKEY_PAGEDOWN; 
 				  break;
+#endif
 			case 'A': mwkey = MWKEY_UP;    break;
 			case 'B': mwkey = MWKEY_DOWN;  break;
 			case 'C': mwkey = MWKEY_RIGHT; break;
 			case 'D': mwkey = MWKEY_LEFT;  break;
 			case 'F': mwkey = MWKEY_END;   break;
 			case 'H': mwkey = MWKEY_HOME;  break;
+#if !ELKS
 			case '[':
 				if (buflen < 4)
 					return 0;
@@ -302,6 +314,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 				case 'E': mwkey = MWKEY_F5; break;
 				}
 				break;
+#endif
 			}
 			break;
 		case 27:
@@ -309,6 +322,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			break;
 		}
 		if (mwkey == 0) {
+#if !ELKS
 			if (buflen >= 5) {
 				EPRINTF("WARNING: Unknown escape sequence ESC '%c' '%c' '%c' '%c'.\n"
 					"(If you're trying to type a real escape, you have to press it 3 times.)\n",
@@ -322,6 +336,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 					"(If you're trying to type a real escape, you have to press it 3 times.)\n",
 					buf[1], buf[2]);
 			}
+#endif
 			buflen = 0;
 			return 0;
 		}
@@ -353,7 +368,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	}
 	EPRINTF("Got key: %d\n", mwkey);
 #endif
-
+out:
 	*kbuf = mwkey;		/* no translation*/
 	*modifiers = 0;		/* no modifiers*/
 	*scancode = 0;		/* no scancode*/

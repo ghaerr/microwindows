@@ -30,6 +30,7 @@ CFLAGS += -fno-prefetch-loop-arrays
 CFLAGS += -fno-tree-ch
 CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1
 CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
+CFLAGS += -DTRANSLATE_ESCAPE_SEQUENCES=1
 CFLAGS += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
 CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 CFLAGS += -Wno-missing-field-initializers

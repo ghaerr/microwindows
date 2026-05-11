@@ -1377,11 +1377,11 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 
 	switch (key) {
 	case  MWKEY_LEFT:
-		str="\033OD";
+		str="\033[D";
 		len = 3;
 		break;
 	case MWKEY_RIGHT:
-		str="\033OC";
+		str="\033[C";
 		len=3;
 		break;
 	case MWKEY_UP:
@@ -1390,17 +1390,17 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 			len = 0;
 			scrolledFlag=0;
 		} else {
-			str="\033OA";
+			str="\033[A";
 			len=3;
 		}
 		break;
 	case MWKEY_DOWN:
-		str="\033OB";
+		str="\033[B";
 		len=3;
 		break;
 	case MWKEY_HOME:
-		str="\033[1~";
-		len=4;
+		str="\033[H";
+		len=3;
 		break;
 	case MWKEY_INSERT:
 		str="\033[2~";
@@ -1411,8 +1411,8 @@ int do_special_key_ansi(unsigned char *buffer, int key, int modifier)
 		len=3;
 		break;
 	case MWKEY_END:
-		str="\033[4~";
-		len=4;
+		str="\033[F";
+		len=3;
 		break;
 	case MWKEY_KP1:
 		str="\033Oq";

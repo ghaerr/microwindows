@@ -1,5 +1,4 @@
-/*
- * NXEDIT - ELKS/Nano-X swap-backed text editor
+ /* NXEDIT - ELKS/Nano-X swap-backed text editor
  *
  * This version is designed for ELKS-class 16-bit systems using Nano-X.
  *
@@ -128,6 +127,21 @@
 #define K_TAB       14
 #define K_SAVE      15
 
+/* ---------- repaint actions ---------- */
+
+#define PAINT_NONE       0
+#define PAINT_CURSOR     1
+#define PAINT_LINE_TAIL  2
+#define PAINT_FROM_LINE  3
+#define PAINT_FULL       4
+#define PAINT_STATUS     5
+
+typedef struct {
+    int mode;
+    unsigned short line;
+    unsigned short col;
+} PaintAction;
+
 /* ---------- swap structures ---------- */
 
 typedef unsigned long disk_off_t;
@@ -179,6 +193,8 @@ static int swap_fd = -1;
 static GR_WINDOW_ID win;
 static GR_GC_ID gc;
 
+static PaintAction paint_action;
+
 /* ---------- small utilities ---------- */
 
 static unsigned short c_strlen_u(const char *s)
@@ -207,6 +223,13 @@ static void line_set_empty(unsigned short n)
     line_table[n].len = 0;
     line_table[n].gen = 0;
     line_table[n].valid = 1;
+}
+
+static void paint_set(int mode, unsigned short line, unsigned short col)
+{
+    paint_action.mode = mode;
+    paint_action.line = line;
+    paint_action.col = col;
 }
 
 /* ---------- append-only swap file ---------- */
@@ -777,6 +800,219 @@ static void move_down(void)
 
 /* ---------- Nano-X drawing ---------- */
 
+static int visible_rows_count(void)
+{
+    int visible_rows;
+
+    visible_rows = (WIN_H - TOP_MARGIN - LINE_HEIGHT - 4) / LINE_HEIGHT;
+    if (visible_rows < 1) {
+        visible_rows = 1;
+    }
+
+    return visible_rows;
+}
+
+static int first_visible_line(void)
+{
+    int first_line;
+
+    first_line = scroll_y / LINE_HEIGHT;
+    if (first_line < 0) {
+        first_line = 0;
+    }
+
+    return first_line;
+}
+
+static int line_is_visible(unsigned short line_no)
+{
+    int first_line;
+    int visible_rows;
+
+    first_line = first_visible_line();
+    visible_rows = visible_rows_count();
+
+    return ((int)line_no >= first_line &&
+            (int)line_no < first_line + visible_rows);
+}
+
+static int line_baseline_y(unsigned short line_no)
+{
+    int first_line;
+
+    first_line = first_visible_line();
+    return TOP_MARGIN + ((int)line_no - first_line) * LINE_HEIGHT;
+}
+
+static void set_fg(int color)
+{
+    GrSetGCForeground(gc, color);
+}
+
+static void clear_rect(int x, int y, int w, int h)
+{
+    if (x < 0) {
+        w += x;
+        x = 0;
+    }
+    if (y < 0) {
+        h += y;
+        y = 0;
+    }
+    if (x >= WIN_W || y >= WIN_H) {
+        return;
+    }
+    if (x + w > WIN_W) {
+        w = WIN_W - x;
+    }
+    if (y + h > WIN_H) {
+        h = WIN_H - y;
+    }
+    if (w <= 0 || h <= 0) {
+        return;
+    }
+
+    set_fg(BGCOLOR);
+    GrFillRect(win, gc, x, y, w, h);
+    set_fg(FGCOLOR);
+}
+
+static void clear_text_row_y(int y)
+{
+    clear_rect(0, y - LINE_HEIGHT + 1, WIN_W, LINE_HEIGHT + 3);
+}
+
+static void draw_text_line_no_clear(unsigned short line_no)
+{
+    char *s;
+    unsigned short len;
+    int y;
+
+    if (!line_is_visible(line_no)) {
+        return;
+    }
+
+    y = line_baseline_y(line_no);
+    s = cache_get_line(line_no);
+    len = c_strlen_u(s);
+
+    if (len > 0) {
+        GrText(win, gc, LEFT_MARGIN, y, s, len, GR_TFASCII);
+    }
+}
+
+static void draw_line_tail(unsigned short line_no, unsigned short col)
+{
+    char *s;
+    unsigned short len;
+    int x;
+    int y;
+
+    if (!line_is_visible(line_no)) {
+        return;
+    }
+
+    x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+    y = line_baseline_y(line_no);
+
+    clear_rect(x, y - LINE_HEIGHT + 1, WIN_W - x, LINE_HEIGHT + 3);
+
+    s = cache_get_line(line_no);
+    len = c_strlen_u(s);
+
+    if (col < len) {
+        GrText(win, gc, x, y, s + col, len - col, GR_TFASCII);
+    }
+}
+
+static void draw_from_line(unsigned short start_line)
+{
+    int first_line;
+    int visible_rows;
+    int end_line;
+    int i;
+    int y;
+
+    first_line = first_visible_line();
+    visible_rows = visible_rows_count();
+    end_line = first_line + visible_rows;
+
+    if ((int)start_line < first_line) {
+        start_line = (unsigned short)first_line;
+    }
+
+    for (i = (int)start_line; i < end_line; i++) {
+        y = TOP_MARGIN + (i - first_line) * LINE_HEIGHT;
+        clear_text_row_y(y);
+        if (i >= 0 && i < (int)line_count) {
+            draw_text_line_no_clear((unsigned short)i);
+        }
+    }
+}
+
+static void draw_cursor_at(unsigned short line_no, unsigned short col, int color)
+{
+    int cursor_x;
+    int cursor_y;
+
+    if (!line_is_visible(line_no)) {
+        return;
+    }
+
+    cursor_x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+    cursor_y = line_baseline_y(line_no);
+
+    set_fg(color);
+    GrLine(win, gc,
+           cursor_x, cursor_y - LINE_HEIGHT + 2,
+           cursor_x, cursor_y + 2);
+    set_fg(FGCOLOR);
+}
+
+static void redraw_cursor_area(unsigned short line_no, unsigned short col)
+{
+    char *s;
+    unsigned short len;
+    unsigned short start_col;
+    unsigned short max_count;
+    int x;
+    int y;
+
+    if (!line_is_visible(line_no)) {
+        return;
+    }
+
+    if (col > 0) {
+        start_col = (unsigned short)(col - 1);
+    } else {
+        start_col = 0;
+    }
+
+    max_count = 3;      /* one before, cursor cell, one after */
+
+    x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
+    y = line_baseline_y(line_no);
+
+    clear_rect(x, y - LINE_HEIGHT + 1,
+               (int)max_count * CHAR_WIDTH + 2, LINE_HEIGHT + 3);
+
+    s = cache_get_line(line_no);
+    len = c_strlen_u(s);
+
+    if (start_col < len) {
+        if ((unsigned short)(start_col + max_count) > len) {
+            max_count = (unsigned short)(len - start_col);
+        }
+        GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
+    }
+}
+
+static void draw_cursor(void)
+{
+    ensure_edit_current();
+    draw_cursor_at(cy, cx, FGCOLOR);
+}
+
 static void draw_status(void)
 {
     char status[96];
@@ -846,6 +1082,44 @@ static void redraw(void)
     }
 
     draw_status();
+    GrFlush();
+}
+
+static void repaint_after_key(unsigned short old_cx, unsigned short old_cy,
+                              int old_scroll_y)
+{
+    if (scroll_y != old_scroll_y || paint_action.mode == PAINT_FULL) {
+        redraw();
+        return;
+    }
+
+    switch (paint_action.mode) {
+    case PAINT_CURSOR:
+        redraw_cursor_area(old_cy, old_cx);
+        redraw_cursor_area(cy, cx);
+        draw_cursor();
+        break;
+
+    case PAINT_LINE_TAIL:
+        draw_line_tail(paint_action.line, paint_action.col);
+        draw_cursor();
+        break;
+
+    case PAINT_FROM_LINE:
+        draw_from_line(paint_action.line);
+        draw_cursor();
+        break;
+
+    case PAINT_STATUS:
+        draw_status();
+        draw_cursor();
+        break;
+
+    case PAINT_NONE:
+    default:
+        break;
+    }
+
     GrFlush();
 }
 
@@ -954,16 +1228,31 @@ static KeyInfo translate_key(GR_EVENT_KEYSTROKE *ks)
 static int handle_key(GR_EVENT_KEYSTROKE *ks)
 {
     KeyInfo k;
+    unsigned short old_cx;
+    unsigned short old_cy;
+    unsigned short old_len;
+    unsigned short old_line_count;
+
+    old_cx = cx;
+    old_cy = cy;
+    old_len = edit_len;
+    old_line_count = line_count;
+
+    paint_set(PAINT_NONE, cy, cx);
 
     k = translate_key(ks);
 
     switch (k.code) {
     case K_TEXT:
         insert_char(k.ch);
+        if (cx != old_cx || edit_len != old_len) {
+            paint_set(PAINT_LINE_TAIL, old_cy, old_cx);
+        }
         break;
 
     case K_SAVE:
         save_file();
+        paint_set(PAINT_STATUS, cy, cx);
         break;
 
     //FIXME arrow keys not working, currently returning ESC [ A etc
@@ -972,27 +1261,45 @@ static int handle_key(GR_EVENT_KEYSTROKE *ks)
 
     case K_LEFT:
         move_left();
+        if (cx != old_cx || cy != old_cy) {
+            paint_set(PAINT_CURSOR, cy, cx);
+        }
         break;
 
     case K_RIGHT:
         move_right();
+        if (cx != old_cx || cy != old_cy) {
+            paint_set(PAINT_CURSOR, cy, cx);
+        }
         break;
 
     case K_UP:
         move_up();
+        if (cx != old_cx || cy != old_cy) {
+            paint_set(PAINT_CURSOR, cy, cx);
+        }
         break;
 
     case K_DOWN:
         move_down();
+        if (cx != old_cx || cy != old_cy) {
+            paint_set(PAINT_CURSOR, cy, cx);
+        }
         break;
 
     case K_HOME:
         cx = 0;
+        if (cx != old_cx) {
+            paint_set(PAINT_CURSOR, cy, cx);
+        }
         break;
 
     case K_END:
         ensure_edit_current();
         cx = edit_len;
+        if (cx != old_cx) {
+            paint_set(PAINT_CURSOR, cy, cx);
+        }
         break;
 
     case K_PGUP:
@@ -1000,26 +1307,60 @@ static int handle_key(GR_EVENT_KEYSTROKE *ks)
         if (scroll_y < 0) {
             scroll_y = 0;
         }
+        paint_set(PAINT_FULL, cy, cx);
         break;
 
     case K_PGDN:
         scroll_y += LINE_HEIGHT * 8;
+        paint_set(PAINT_FULL, cy, cx);
         break;
 
     case K_BS:
-        backspace_key();
+        if (cx > 0) {
+            backspace_key();
+            if (cx != old_cx || edit_len != old_len) {
+                paint_set(PAINT_LINE_TAIL, old_cy,
+                          (unsigned short)(old_cx - 1));
+            }
+        } else if (cy > 0) {
+            backspace_key();
+            if (line_count != old_line_count || cy != old_cy) {
+                paint_set(PAINT_FROM_LINE,
+                          (unsigned short)(old_cy - 1), 0);
+            }
+        }
         break;
 
     case K_DEL:
-        delete_key();
+        ensure_edit_current();
+        old_len = edit_len;
+        if (cx < edit_len) {
+            delete_key();
+            if (edit_len != old_len) {
+                paint_set(PAINT_LINE_TAIL, old_cy, old_cx);
+            }
+        } else if (cy + 1 < line_count) {
+            delete_key();
+            if (line_count != old_line_count) {
+                paint_set(PAINT_FROM_LINE, old_cy, 0);
+            }
+        }
         break;
 
     case K_ENTER:
-        enter_key();
+        if (line_count < MAX_LINES) {
+            enter_key();
+            if (line_count != old_line_count || cy != old_cy) {
+                paint_set(PAINT_FROM_LINE, old_cy, 0);
+            }
+        }
         break;
 
     case K_TAB:
         insert_tab();
+        if (cx != old_cx || edit_len != old_len) {
+            paint_set(PAINT_LINE_TAIL, old_cy, old_cx);
+        }
         break;
 
     default:
@@ -1078,6 +1419,9 @@ int main(int argc, char **argv)
 {
     GR_EVENT ev;
     int quit;
+    unsigned short old_cx;
+    unsigned short old_cy;
+    int old_scroll_y;
 
     current_file[0] = '\0';
 
@@ -1122,8 +1466,11 @@ int main(int argc, char **argv)
             break;
 
         case GR_EVENT_TYPE_KEY_DOWN:
+            old_cx = cx;
+            old_cy = cy;
+            old_scroll_y = scroll_y;
             quit = handle_key(&ev.keystroke);
-            redraw();
+            repaint_after_key(old_cx, old_cy, old_scroll_y);
             break;
 
         case GR_EVENT_TYPE_CLOSE_REQ:

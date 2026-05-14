@@ -74,8 +74,13 @@
 #define TITLE           "nxedit"
 #define COLS            80
 #define LINES           25
-#define FGCOLOR         BLACK
-#define BGCOLOR         LTGRAY
+/*
+ * Do not define these as BLACK/LTGRAY directly: on some ELKS/Nano-X builds
+ * those macros expand to large ARGB constants and cause -Woverflow warnings
+ * when MWCOLORVAL is smaller. The real values are initialized at runtime.
+ */
+#define FGCOLOR         fg_color
+#define BGCOLOR         bg_color
 
 #define LEFT_MARGIN     6
 #define TOP_MARGIN      14
@@ -258,7 +263,19 @@ static int swap_fd = -1;
 static GR_WINDOW_ID win;
 static GR_GC_ID gc;
 
+static MWCOLORVAL fg_color;
+static MWCOLORVAL bg_color;
+
 static PaintAction paint_action;
+
+static MWCOLORVAL make_color(int r, int g, int b)
+{
+    /*
+     * Use MWRGB with runtime arguments to avoid compile-time overflow warnings
+     * from BLACK/LTGRAY on small MWCOLORVAL builds.
+     */
+    return MWRGB(r, g, b);
+}
 
 /* ---------- small utilities ---------- */
 
@@ -1068,109 +1085,99 @@ static void retype_cursor_char_no_rect(unsigned short line_no, unsigned short co
     }
 }
 
+#if CURSOR_REPAINT_MODE != CURSOR_REPAINT_CURSOR_ONLY && \
+    CURSOR_REPAINT_MODE != CURSOR_REPAINT_RETYPE1
 static void redraw_cursor_area(unsigned short line_no, unsigned short col)
 {
-    char *s;
-    unsigned short len;
-    unsigned short start_col;
-    unsigned short max_count;
-    int x;
-    int y;
-
     if (!line_is_visible(line_no)) {
         return;
     }
 
-#if CURSOR_REPAINT_MODE == CURSOR_REPAINT_CURSOR_ONLY
-    erase_cursor_only(line_no, col);
-    return;
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_RETYPE1
-    retype_cursor_char_no_rect(line_no, col);
-    return;
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER1
-    /*
-     * Repaint only the character immediately after the old cursor: s[col].
-     * Keep the clear rectangle exactly one character wide to avoid eating
-     * into the beginning of s[col + 1].
-     */
-    start_col = col;
-    max_count = 1;
+#if CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER1
+    {
+        char *s;
+        unsigned short len;
+        int x;
+        int y;
 
-    x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
-    y = line_baseline_y(line_no);
+        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
 
-    clear_rect(x, y - LINE_HEIGHT + 1,
-               CHAR_WIDTH,
-               LINE_HEIGHT);
+        clear_rect(x, y - LINE_HEIGHT + 1, CHAR_WIDTH, LINE_HEIGHT);
 
-    s = cache_get_line(line_no);
-    len = c_strlen_u(s);
+        s = cache_get_line(line_no);
+        len = c_strlen_u(s);
 
-    if (start_col < len) {
-        GrText(win, gc, x, y, s + start_col, 1, GR_TFASCII);
-    }
-    return;
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER2
-    /*
-     * Repaint two characters starting at the old cursor column: s[col]
-     * and s[col + 1]. Use only if AFTER1 is not enough.
-     */
-    start_col = col;
-    max_count = 2;
-
-    x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
-    y = line_baseline_y(line_no);
-
-    clear_rect(x - CURSOR_REPAINT_XPAD, y - LINE_HEIGHT + 1,
-               (int)max_count * CHAR_WIDTH + 2 * CURSOR_REPAINT_XPAD + 2,
-               LINE_HEIGHT);
-
-    s = cache_get_line(line_no);
-    len = c_strlen_u(s);
-
-    if (start_col < len) {
-        if ((unsigned short)(start_col + max_count) > len) {
-            max_count = (unsigned short)(len - start_col);
+        if (col < len) {
+            GrText(win, gc, x, y, s + col, 1, GR_TFASCII);
         }
-        GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
     }
-    return;
+#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER2
+    {
+        char *s;
+        unsigned short len;
+        unsigned short max_count;
+        int x;
+        int y;
+
+        max_count = 2;
+        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
+
+        clear_rect(x, y - LINE_HEIGHT + 1,
+                   (int)max_count * CHAR_WIDTH, LINE_HEIGHT);
+
+        s = cache_get_line(line_no);
+        len = c_strlen_u(s);
+
+        if (col < len) {
+            if ((unsigned short)(col + max_count) > len) {
+                max_count = (unsigned short)(len - col);
+            }
+            GrText(win, gc, x, y, s + col, max_count, GR_TFASCII);
+        }
+    }
+#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_3CHARS
+    {
+        char *s;
+        unsigned short len;
+        unsigned short start_col;
+        unsigned short max_count;
+        int x;
+        int y;
+
+        if (col > 0) {
+            start_col = (unsigned short)(col - 1);
+        } else {
+            start_col = 0;
+        }
+
+        max_count = 3;
+        x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
+
+        clear_rect(x - CURSOR_REPAINT_XPAD, y - LINE_HEIGHT + 1,
+                   (int)max_count * CHAR_WIDTH + 2 * CURSOR_REPAINT_XPAD,
+                   LINE_HEIGHT);
+
+        s = cache_get_line(line_no);
+        len = c_strlen_u(s);
+
+        if (start_col < len) {
+            if ((unsigned short)(start_col + max_count) > len) {
+                max_count = (unsigned short)(len - start_col);
+            }
+            GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
+        }
+    }
 #elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_LINE
     clear_text_row_y(line_baseline_y(line_no));
     draw_text_line_no_clear(line_no);
-    return;
-#else
-    if (col > 0) {
-        start_col = (unsigned short)(col - 1);
-    } else {
-        start_col = 0;
-    }
-
-    max_count = 3;      /* one before, cursor cell, one after */
-
-    x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
-    y = line_baseline_y(line_no);
-
-    /*
-     * Clear only inside the current text row. Add a tiny horizontal pad for
-     * the vertical cursor stroke, but avoid vertical overdraw into neighbours.
-     */
-    clear_rect(x - CURSOR_REPAINT_XPAD, y - LINE_HEIGHT + 1,
-               (int)max_count * CHAR_WIDTH + 2 * CURSOR_REPAINT_XPAD + 2,
-               LINE_HEIGHT);
-
-    s = cache_get_line(line_no);
-    len = c_strlen_u(s);
-
-    if (start_col < len) {
-        if ((unsigned short)(start_col + max_count) > len) {
-            max_count = (unsigned short)(len - start_col);
-        }
-        GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
-    }
 #endif
 }
+#endif
 
+#if CURSOR_DEST_REPAIR_ENABLE
 static void redraw_destination_side(unsigned short line_no, unsigned short col)
 {
     char *s;
@@ -1179,10 +1186,6 @@ static void redraw_destination_side(unsigned short line_no, unsigned short col)
     unsigned short count;
     int x;
     int y;
-
-#if CURSOR_DEST_REPAIR_ENABLE == 0
-    return;
-#endif
 
     if (!line_is_visible(line_no)) {
         return;
@@ -1217,6 +1220,7 @@ static void redraw_destination_side(unsigned short line_no, unsigned short col)
         GrText(win, gc, x, y, s + start_col, count, GR_TFASCII);
     }
 }
+#endif
 
 static void draw_cursor(void)
 {
@@ -1608,12 +1612,16 @@ static int handle_key(GR_EVENT_KEYSTROKE *ks)
 static int nx_init(void)
 {
     GR_FONT_INFO    fi;
+    GR_FONT_ID      regFont;
 
     if (GrOpen() < 0) {
         return -1;
     }
 
-    GR_FONT_ID regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
+    fg_color = make_color(0, 0, 0);
+    bg_color = make_color(192, 192, 192);
+
+    regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
     GrGetFontInfo(regFont, &fi);
     CHAR_WIDTH = fi.maxwidth;
     LINE_HEIGHT = fi.height;

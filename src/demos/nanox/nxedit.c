@@ -844,7 +844,7 @@ static int line_baseline_y(unsigned short line_no)
     return TOP_MARGIN + ((int)line_no - first_line) * LINE_HEIGHT;
 }
 
-static void set_fg(int color)
+static void set_fg(MWCOLORVAL color)
 {
     GrSetGCForeground(gc, color);
 }
@@ -950,7 +950,7 @@ static void draw_from_line(unsigned short start_line)
     }
 }
 
-static void draw_cursor_at(unsigned short line_no, unsigned short col, int color)
+static void draw_cursor_at(unsigned short line_no, unsigned short col, MWCOLORVAL color)
 {
     int cursor_x;
     int cursor_y;

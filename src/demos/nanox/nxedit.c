@@ -74,11 +74,7 @@
 #define TITLE           "nxedit"
 #define COLS            80
 #define LINES           25
-/*
- * Do not define these as BLACK/LTGRAY directly: on some ELKS/Nano-X builds
- * those macros expand to large ARGB constants and cause -Woverflow warnings
- * when MWCOLORVAL is smaller. The real values are initialized at runtime.
- */
+
 #define FGCOLOR         fg_color
 #define BGCOLOR         bg_color
 
@@ -90,10 +86,6 @@
 
 /* ---------- compatibility fallbacks ---------- */
 
-/*
- * Some Nano-X trees use MWKEY_* and MWKMOD_* names. If your ELKS headers
- * differ, fix these aliases here rather than throughout the editor.
- */
 #ifndef MWKEY_ESCAPE
 #define MWKEY_ESCAPE    27
 #endif
@@ -192,13 +184,6 @@
  * It is useful when drawing the new vertical cursor damages pixels in the
  * character(s) to the right of the destination cursor.
  *
- * Best current guess:
- *   - do not repaint characters at the destination on normal cursor moves,
- *   - repair only the place the cursor left,
- *   - then draw the cursor at the new position.
- *
- * Enable this only if drawing the destination cursor causes permanent
- * damage to neighbouring characters after the cursor moves away.
  */
 #define CURSOR_DEST_REPAIR_ENABLE       0
 #define CURSOR_DEST_REPAIR_AFTER_DRAW   1

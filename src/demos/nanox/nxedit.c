@@ -1,4 +1,5 @@
- /* NXEDIT - ELKS/Nano-X swap-backed text editor
+/*
+ * NXEDIT - ELKS/Nano-X swap-backed text editor
  *
  * This version is designed for ELKS-class 16-bit systems using Nano-X.
  *
@@ -73,8 +74,9 @@
 #define TITLE           "nxedit"
 #define COLS            80
 #define LINES           25
-#define FGCOLOR         BLACK
-#define BGCOLOR         LTGRAY
+
+#define FGCOLOR         fg_color
+#define BGCOLOR         bg_color
 
 #define LEFT_MARGIN     6
 #define TOP_MARGIN      14
@@ -84,10 +86,6 @@
 
 /* ---------- compatibility fallbacks ---------- */
 
-/*
- * Some Nano-X trees use MWKEY_* and MWKMOD_* names. If your ELKS headers
- * differ, fix these aliases here rather than throughout the editor.
- */
 #ifndef MWKEY_ESCAPE
 #define MWKEY_ESCAPE    27
 #endif
@@ -135,6 +133,63 @@
 #define PAINT_FROM_LINE  3
 #define PAINT_FULL       4
 #define PAINT_STATUS     5
+
+/* ---------- cursor repaint tuning ---------- */
+
+/*
+ * Cursor repaint modes:
+ *
+ *   0 = fastest: erase only the old vertical cursor line with BGCOLOR.
+ *       This is the smallest repaint, but it can leave small glyph scratches
+ *       on some Nano-X/font combinations.
+ *
+ *   1 = retype one character at the old cursor column without clearing a
+ *       rectangle. It first erases only the old vertical cursor line with
+ *       BGCOLOR, then redraws s[col]. This is the preferred mode for arrow
+ *       movement because it avoids rectangle-clear damage.
+ *
+ *   2 = repaint one character at the old cursor column using a rectangle:
+ *       s[col]. This is more aggressive than RETYPE1 and may damage the
+ *       next character if the rectangle/font metrics do not align perfectly.
+ *
+ *   3 = repaint two characters starting at the old cursor column:
+ *       s[col] and s[col + 1]. Use this only if the cursor damages the next
+ *       character too.
+ *
+ *   4 = repaint three characters around the old cursor position:
+ *       s[col - 1], s[col], and s[col + 1]. This is useful if the cursor
+ *       cleanup needs one character of context on both sides. It depends on
+ *       CHAR_WIDTH matching the real fixed-font advance well.
+ *
+ *   5 = safest: repaint the whole old cursor line. This is still much cheaper
+ *       than full-window redraw, and useful if small partial cursor repainting
+ *       causes character corruption.
+ */
+#define CURSOR_REPAINT_CURSOR_ONLY 0
+#define CURSOR_REPAINT_RETYPE1     1
+#define CURSOR_REPAINT_AFTER1      2
+#define CURSOR_REPAINT_AFTER2      3
+#define CURSOR_REPAINT_3CHARS      4
+#define CURSOR_REPAINT_LINE        5
+
+#define CURSOR_REPAINT_MODE        CURSOR_REPAINT_RETYPE1
+
+/* Extra horizontal safety pixels around the tiny cursor repaint rectangle. */
+#define CURSOR_REPAINT_XPAD        1
+
+/*
+ * Destination-side cursor repair.
+ *
+ * This is separate from repairing the place the cursor left.
+ * It is useful when drawing the new vertical cursor damages pixels in the
+ * character(s) to the right of the destination cursor.
+ *
+ */
+#define CURSOR_DEST_REPAIR_ENABLE       0
+#define CURSOR_DEST_REPAIR_AFTER_DRAW   1
+#define CURSOR_DEST_REPAIR_START_OFF    1
+#define CURSOR_DEST_REPAIR_CHARS        2
+#define CURSOR_DEST_REPAIR_XPAD         0
 
 typedef struct {
     int mode;
@@ -193,7 +248,19 @@ static int swap_fd = -1;
 static GR_WINDOW_ID win;
 static GR_GC_ID gc;
 
+static MWCOLORVAL fg_color;
+static MWCOLORVAL bg_color;
+
 static PaintAction paint_action;
+
+static MWCOLORVAL make_color(int r, int g, int b)
+{
+    /*
+     * Use MWRGB with runtime arguments to avoid compile-time overflow warnings
+     * from BLACK/LTGRAY on small MWCOLORVAL builds.
+     */
+    return MWRGB(r, g, b);
+}
 
 /* ---------- small utilities ---------- */
 
@@ -844,7 +911,7 @@ static int line_baseline_y(unsigned short line_no)
     return TOP_MARGIN + ((int)line_no - first_line) * LINE_HEIGHT;
 }
 
-static void set_fg(MWCOLORVAL color)
+static void set_fg(int color)
 {
     GrSetGCForeground(gc, color);
 }
@@ -879,7 +946,8 @@ static void clear_rect(int x, int y, int w, int h)
 
 static void clear_text_row_y(int y)
 {
-    clear_rect(0, y - LINE_HEIGHT + 1, WIN_W, LINE_HEIGHT + 3);
+    /* Stay inside one text row. Using LINE_HEIGHT + 3 can touch the next row. */
+    clear_rect(0, y - LINE_HEIGHT + 1, WIN_W, LINE_HEIGHT);
 }
 
 static void draw_text_line_no_clear(unsigned short line_no)
@@ -915,7 +983,7 @@ static void draw_line_tail(unsigned short line_no, unsigned short col)
     x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
     y = line_baseline_y(line_no);
 
-    clear_rect(x, y - LINE_HEIGHT + 1, WIN_W - x, LINE_HEIGHT + 3);
+    clear_rect(x, y - LINE_HEIGHT + 1, WIN_W - x, LINE_HEIGHT);
 
     s = cache_get_line(line_no);
     len = c_strlen_u(s);
@@ -950,7 +1018,7 @@ static void draw_from_line(unsigned short start_line)
     }
 }
 
-static void draw_cursor_at(unsigned short line_no, unsigned short col, MWCOLORVAL color)
+static void draw_cursor_at(unsigned short line_no, unsigned short col, int color)
 {
     int cursor_x;
     int cursor_y;
@@ -965,16 +1033,19 @@ static void draw_cursor_at(unsigned short line_no, unsigned short col, MWCOLORVA
     set_fg(color);
     GrLine(win, gc,
            cursor_x, cursor_y - LINE_HEIGHT + 2,
-           cursor_x, cursor_y + 2);
+           cursor_x, cursor_y);
     set_fg(FGCOLOR);
 }
 
-static void redraw_cursor_area(unsigned short line_no, unsigned short col)
+static void erase_cursor_only(unsigned short line_no, unsigned short col)
+{
+    draw_cursor_at(line_no, col, BGCOLOR);
+}
+
+static void retype_cursor_char_no_rect(unsigned short line_no, unsigned short col)
 {
     char *s;
     unsigned short len;
-    unsigned short start_col;
-    unsigned short max_count;
     int x;
     int y;
 
@@ -982,30 +1053,159 @@ static void redraw_cursor_area(unsigned short line_no, unsigned short col)
         return;
     }
 
-    if (col > 0) {
-        start_col = (unsigned short)(col - 1);
-    } else {
-        start_col = 0;
+    /*
+     * No rectangle clear here. This mode is for cursor movement only:
+     * erase the old vertical cursor line, then redraw the character that
+     * may have been crossed by that cursor line.
+     */
+    erase_cursor_only(line_no, col);
+
+    s = cache_get_line(line_no);
+    len = c_strlen_u(s);
+
+    if (col < len) {
+        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
+        GrText(win, gc, x, y, s + col, 1, GR_TFASCII);
+    }
+}
+
+#if CURSOR_REPAINT_MODE != CURSOR_REPAINT_CURSOR_ONLY && \
+    CURSOR_REPAINT_MODE != CURSOR_REPAINT_RETYPE1
+static void redraw_cursor_area(unsigned short line_no, unsigned short col)
+{
+    if (!line_is_visible(line_no)) {
+        return;
     }
 
-    max_count = 3;      /* one before, cursor cell, one after */
+#if CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER1
+    {
+        char *s;
+        unsigned short len;
+        int x;
+        int y;
+
+        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
+
+        clear_rect(x, y - LINE_HEIGHT + 1, CHAR_WIDTH, LINE_HEIGHT);
+
+        s = cache_get_line(line_no);
+        len = c_strlen_u(s);
+
+        if (col < len) {
+            GrText(win, gc, x, y, s + col, 1, GR_TFASCII);
+        }
+    }
+#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER2
+    {
+        char *s;
+        unsigned short len;
+        unsigned short max_count;
+        int x;
+        int y;
+
+        max_count = 2;
+        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
+
+        clear_rect(x, y - LINE_HEIGHT + 1,
+                   (int)max_count * CHAR_WIDTH, LINE_HEIGHT);
+
+        s = cache_get_line(line_no);
+        len = c_strlen_u(s);
+
+        if (col < len) {
+            if ((unsigned short)(col + max_count) > len) {
+                max_count = (unsigned short)(len - col);
+            }
+            GrText(win, gc, x, y, s + col, max_count, GR_TFASCII);
+        }
+    }
+#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_3CHARS
+    {
+        char *s;
+        unsigned short len;
+        unsigned short start_col;
+        unsigned short max_count;
+        int x;
+        int y;
+
+        if (col > 0) {
+            start_col = (unsigned short)(col - 1);
+        } else {
+            start_col = 0;
+        }
+
+        max_count = 3;
+        x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
+        y = line_baseline_y(line_no);
+
+        clear_rect(x - CURSOR_REPAINT_XPAD, y - LINE_HEIGHT + 1,
+                   (int)max_count * CHAR_WIDTH + 2 * CURSOR_REPAINT_XPAD,
+                   LINE_HEIGHT);
+
+        s = cache_get_line(line_no);
+        len = c_strlen_u(s);
+
+        if (start_col < len) {
+            if ((unsigned short)(start_col + max_count) > len) {
+                max_count = (unsigned short)(len - start_col);
+            }
+            GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
+        }
+    }
+#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_LINE
+    clear_text_row_y(line_baseline_y(line_no));
+    draw_text_line_no_clear(line_no);
+#endif
+}
+#endif
+
+#if CURSOR_DEST_REPAIR_ENABLE
+static void redraw_destination_side(unsigned short line_no, unsigned short col)
+{
+    char *s;
+    unsigned short len;
+    unsigned short start_col;
+    unsigned short count;
+    int x;
+    int y;
+
+    if (!line_is_visible(line_no)) {
+        return;
+    }
+
+    /*
+     * Repair relative to the destination cursor position.
+     * With START_OFF = 1, this starts at s[col + 1], not s[col], so it
+     * avoids erasing or weakening the visible cursor itself.
+     */
+    start_col = (unsigned short)(col + CURSOR_DEST_REPAIR_START_OFF);
+    count = CURSOR_DEST_REPAIR_CHARS;
+
+    if (start_col >= MAX_LINE_LEN || count == 0) {
+        return;
+    }
 
     x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
     y = line_baseline_y(line_no);
 
-    clear_rect(x, y - LINE_HEIGHT + 1,
-               (int)max_count * CHAR_WIDTH + 2, LINE_HEIGHT + 3);
+    clear_rect(x - CURSOR_DEST_REPAIR_XPAD, y - LINE_HEIGHT + 1,
+               (int)count * CHAR_WIDTH + 2 * CURSOR_DEST_REPAIR_XPAD,
+               LINE_HEIGHT);
 
     s = cache_get_line(line_no);
     len = c_strlen_u(s);
 
     if (start_col < len) {
-        if ((unsigned short)(start_col + max_count) > len) {
-            max_count = (unsigned short)(len - start_col);
+        if ((unsigned short)(start_col + count) > len) {
+            count = (unsigned short)(len - start_col);
         }
-        GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
+        GrText(win, gc, x, y, s + start_col, count, GR_TFASCII);
     }
 }
+#endif
 
 static void draw_cursor(void)
 {
@@ -1095,24 +1295,45 @@ static void repaint_after_key(unsigned short old_cx, unsigned short old_cy,
 
     switch (paint_action.mode) {
     case PAINT_CURSOR:
-        redraw_cursor_area(old_cy, old_cx);
-        redraw_cursor_area(cy, cx);
+#if CURSOR_REPAINT_MODE == CURSOR_REPAINT_CURSOR_ONLY
+        erase_cursor_only(old_cy, old_cx);
         draw_cursor();
+#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_RETYPE1
+        /*
+         * Cursor movement path without rectangle clearing:
+         * repair only the old cursor position, then draw the new cursor.
+         */
+        retype_cursor_char_no_rect(old_cy, old_cx);
+        draw_cursor();
+#else
+        /* Other cursor modes may use rectangle clearing if explicitly selected. */
+        redraw_cursor_area(old_cy, old_cx);
+        draw_cursor();
+#endif
         break;
 
     case PAINT_LINE_TAIL:
         draw_line_tail(paint_action.line, paint_action.col);
         draw_cursor();
+#if CURSOR_DEST_REPAIR_ENABLE && CURSOR_DEST_REPAIR_AFTER_DRAW
+        redraw_destination_side(cy, cx);
+#endif
         break;
 
     case PAINT_FROM_LINE:
         draw_from_line(paint_action.line);
         draw_cursor();
+#if CURSOR_DEST_REPAIR_ENABLE && CURSOR_DEST_REPAIR_AFTER_DRAW
+        redraw_destination_side(cy, cx);
+#endif
         break;
 
     case PAINT_STATUS:
         draw_status();
         draw_cursor();
+#if CURSOR_DEST_REPAIR_ENABLE && CURSOR_DEST_REPAIR_AFTER_DRAW
+        redraw_destination_side(cy, cx);
+#endif
         break;
 
     case PAINT_NONE:
@@ -1376,12 +1597,16 @@ static int handle_key(GR_EVENT_KEYSTROKE *ks)
 static int nx_init(void)
 {
     GR_FONT_INFO    fi;
+    GR_FONT_ID      regFont;
 
     if (GrOpen() < 0) {
         return -1;
     }
 
-    GR_FONT_ID regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
+    fg_color = make_color(0, 0, 0);
+    bg_color = make_color(192, 192, 192);
+
+    regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
     GrGetFontInfo(regFont, &fi);
     CHAR_WIDTH = fi.maxwidth;
     LINE_HEIGHT = fi.height;

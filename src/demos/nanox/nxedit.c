@@ -75,8 +75,8 @@
 #define COLS            80
 #define LINES           25
 
-#define FGCOLOR         fg_color
-#define BGCOLOR         bg_color
+#define FGCOLOR         BLACK
+#define BGCOLOR         LTGRAY
 
 #define LEFT_MARGIN     6
 #define TOP_MARGIN      14
@@ -248,19 +248,7 @@ static int swap_fd = -1;
 static GR_WINDOW_ID win;
 static GR_GC_ID gc;
 
-static MWCOLORVAL fg_color;
-static MWCOLORVAL bg_color;
-
 static PaintAction paint_action;
-
-static MWCOLORVAL make_color(int r, int g, int b)
-{
-    /*
-     * Use MWRGB with runtime arguments to avoid compile-time overflow warnings
-     * from BLACK/LTGRAY on small MWCOLORVAL builds.
-     */
-    return MWRGB(r, g, b);
-}
 
 /* ---------- small utilities ---------- */
 
@@ -911,7 +899,7 @@ static int line_baseline_y(unsigned short line_no)
     return TOP_MARGIN + ((int)line_no - first_line) * LINE_HEIGHT;
 }
 
-static void set_fg(int color)
+static void set_fg(MWCOLORVAL color)
 {
     GrSetGCForeground(gc, color);
 }
@@ -1018,7 +1006,7 @@ static void draw_from_line(unsigned short start_line)
     }
 }
 
-static void draw_cursor_at(unsigned short line_no, unsigned short col, int color)
+static void draw_cursor_at(unsigned short line_no, unsigned short col, MWCOLORVAL color)
 {
     int cursor_x;
     int cursor_y;
@@ -1602,9 +1590,6 @@ static int nx_init(void)
     if (GrOpen() < 0) {
         return -1;
     }
-
-    fg_color = make_color(0, 0, 0);
-    bg_color = make_color(192, 192, 192);
 
     regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
     GrGetFontInfo(regFont, &fi);

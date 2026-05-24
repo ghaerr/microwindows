@@ -15,7 +15,7 @@ This is a slightly outdated overview of the system:
 Some of the supported platforms are listed at the bottom on the left side. Next to
 that there are available screen drivers, mouse drivers and keyboard
 drivers. The Nano-X / Microwindows engine is the core code that implements
-all drawing and clipping, with the Win32 and Nano-X graphical windowing APIs implemented in seperately
+all drawing and clipping, with the Win32 and Nano-X graphical windowing APIs implemented in separately
 configurable layers on top of that. The engine is configured to use various
 OS platforms and associated screen, mouse and keyboard drivers, or bare hardware.
 The Nano-X API and the Win32 APIs are used to write applications.

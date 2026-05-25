@@ -18,7 +18,7 @@
  *
  * CONTROL VARIABLES / TUNING
  * --------------------------
- *   SWAP_PATH       Default append-only swap file.
+ *   SWAP_COUNTER_TRIES  Retry count for FAT-safe per-instance swap file.
  *   MAX_LINES       Maximum logical lines.
  *   MAX_LINE_LEN    Maximum bytes in one logical line.
  *   CACHE_LINES     Editable RAM line cache. Increase this to reduce writes.
@@ -30,7 +30,7 @@
  * cache[] stores recently used lines and may contain dirty newer versions.
  *
  * If a cache line is dirty, it is newer than line_table[] and is authoritative.
- * When flushed, it is appended to /tmp/nxedit and line_table[] is updated.
+ * When flushed, it is appended to a per-instance swap file and line_table[] is updated.
  *
  * Old swap blocks are never deleted, overwritten, compressed, or compacted.
  * They simply become unreachable. This is done to gain speed as we often
@@ -65,7 +65,7 @@
 
 /* ---------- user-tunable limits ---------- */
 
-#define SWAP_PATH       "/tmp/nxedit"
+#define SWAP_COUNTER_TRIES 10
 #define MAX_LINES       512
 #define MAX_LINE_LEN    240
 #define CACHE_LINES     8
@@ -195,6 +195,7 @@ static unsigned short cy = 0;
 static int scroll_y = 0;
 
 static int swap_fd = -1;
+static char swap_path[32];
 
 static GR_WINDOW_ID win;
 static GR_GC_ID gc;
@@ -240,13 +241,28 @@ static void paint_set(int mode, unsigned short line, unsigned short col)
 
 /* ---------- append-only swap file ---------- */
 
-static int swap_open_file(const char *path)
+static int swap_open_file(void)
 {
-    swap_fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0666);
-    if (swap_fd < 0) {
-        return -1;
+    unsigned short attempt;
+    unsigned int pid_part;
+
+    swap_path[0] = '\0';
+    pid_part = (unsigned int)(getpid() % 100000);
+
+    for (attempt = 0; attempt < SWAP_COUNTER_TRIES; attempt++) {
+        sprintf(swap_path, "/tmp/NX%05u%c.SWP",
+                pid_part, (char)('0' + attempt));
+
+        swap_fd = open(swap_path,
+                       O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
+                       0600);
+        if (swap_fd >= 0) {
+            return 0;
+        }
     }
-    return 0;
+
+    swap_path[0] = '\0';
+    return -1;
 }
 
 static void swap_close_file(void)
@@ -254,6 +270,11 @@ static void swap_close_file(void)
     if (swap_fd >= 0) {
         close(swap_fd);
         swap_fd = -1;
+    }
+
+    if (swap_path[0] != '\0') {
+        unlink(swap_path);
+        swap_path[0] = '\0';
     }
 }
 
@@ -1443,8 +1464,8 @@ int main(int argc, char **argv)
         current_file[sizeof(current_file) - 1] = '\0';
     }
 
-    if (swap_open_file(SWAP_PATH) < 0) {
-        fprintf(stderr, "nxedit: cannot open swap file %s\n", SWAP_PATH);
+    if (swap_open_file() < 0) {
+        fprintf(stderr, "nxedit: cannot open unique swap file\n");
         return 1;
     }
 

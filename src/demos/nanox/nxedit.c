@@ -134,62 +134,13 @@
 #define PAINT_FULL       4
 #define PAINT_STATUS     5
 
-/* ---------- cursor repaint tuning ---------- */
+/* ---------- cursor repaint policy ---------- */
 
 /*
- * Cursor repaint modes:
- *
- *   0 = fastest: erase only the old vertical cursor line with BGCOLOR.
- *       This is the smallest repaint, but it can leave small glyph scratches
- *       on some Nano-X/font combinations.
- *
- *   1 = retype one character at the old cursor column without clearing a
- *       rectangle. It first erases only the old vertical cursor line with
- *       BGCOLOR, then redraws s[col]. This is the preferred mode for arrow
- *       movement because it avoids rectangle-clear damage.
- *
- *   2 = repaint one character at the old cursor column using a rectangle:
- *       s[col]. This is more aggressive than RETYPE1 and may damage the
- *       next character if the rectangle/font metrics do not align perfectly.
- *
- *   3 = repaint two characters starting at the old cursor column:
- *       s[col] and s[col + 1]. Use this only if the cursor damages the next
- *       character too.
- *
- *   4 = repaint three characters around the old cursor position:
- *       s[col - 1], s[col], and s[col + 1]. This is useful if the cursor
- *       cleanup needs one character of context on both sides. It depends on
- *       CHAR_WIDTH matching the real fixed-font advance well.
- *
- *   5 = safest: repaint the whole old cursor line. This is still much cheaper
- *       than full-window redraw, and useful if small partial cursor repainting
- *       causes character corruption.
+ * Cursor movement uses the default small repair path only:
+ * erase the old vertical cursor line with BGCOLOR, then retype the
+ * single character at the old cursor column, without clearing a rectangle.
  */
-#define CURSOR_REPAINT_CURSOR_ONLY 0
-#define CURSOR_REPAINT_RETYPE1     1
-#define CURSOR_REPAINT_AFTER1      2
-#define CURSOR_REPAINT_AFTER2      3
-#define CURSOR_REPAINT_3CHARS      4
-#define CURSOR_REPAINT_LINE        5
-
-#define CURSOR_REPAINT_MODE        CURSOR_REPAINT_RETYPE1
-
-/* Extra horizontal safety pixels around the tiny cursor repaint rectangle. */
-#define CURSOR_REPAINT_XPAD        1
-
-/*
- * Destination-side cursor repair.
- *
- * This is separate from repairing the place the cursor left.
- * It is useful when drawing the new vertical cursor damages pixels in the
- * character(s) to the right of the destination cursor.
- *
- */
-#define CURSOR_DEST_REPAIR_ENABLE       0
-#define CURSOR_DEST_REPAIR_AFTER_DRAW   1
-#define CURSOR_DEST_REPAIR_START_OFF    1
-#define CURSOR_DEST_REPAIR_CHARS        2
-#define CURSOR_DEST_REPAIR_XPAD         0
 
 typedef struct {
     int mode;
@@ -1058,143 +1009,6 @@ static void retype_cursor_char_no_rect(unsigned short line_no, unsigned short co
     }
 }
 
-#if CURSOR_REPAINT_MODE != CURSOR_REPAINT_CURSOR_ONLY && \
-    CURSOR_REPAINT_MODE != CURSOR_REPAINT_RETYPE1
-static void redraw_cursor_area(unsigned short line_no, unsigned short col)
-{
-    if (!line_is_visible(line_no)) {
-        return;
-    }
-
-#if CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER1
-    {
-        char *s;
-        unsigned short len;
-        int x;
-        int y;
-
-        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
-        y = line_baseline_y(line_no);
-
-        clear_rect(x, y - LINE_HEIGHT + 1, CHAR_WIDTH, LINE_HEIGHT);
-
-        s = cache_get_line(line_no);
-        len = c_strlen_u(s);
-
-        if (col < len) {
-            GrText(win, gc, x, y, s + col, 1, GR_TFASCII);
-        }
-    }
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_AFTER2
-    {
-        char *s;
-        unsigned short len;
-        unsigned short max_count;
-        int x;
-        int y;
-
-        max_count = 2;
-        x = LEFT_MARGIN + (int)col * CHAR_WIDTH;
-        y = line_baseline_y(line_no);
-
-        clear_rect(x, y - LINE_HEIGHT + 1,
-                   (int)max_count * CHAR_WIDTH, LINE_HEIGHT);
-
-        s = cache_get_line(line_no);
-        len = c_strlen_u(s);
-
-        if (col < len) {
-            if ((unsigned short)(col + max_count) > len) {
-                max_count = (unsigned short)(len - col);
-            }
-            GrText(win, gc, x, y, s + col, max_count, GR_TFASCII);
-        }
-    }
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_3CHARS
-    {
-        char *s;
-        unsigned short len;
-        unsigned short start_col;
-        unsigned short max_count;
-        int x;
-        int y;
-
-        if (col > 0) {
-            start_col = (unsigned short)(col - 1);
-        } else {
-            start_col = 0;
-        }
-
-        max_count = 3;
-        x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
-        y = line_baseline_y(line_no);
-
-        clear_rect(x - CURSOR_REPAINT_XPAD, y - LINE_HEIGHT + 1,
-                   (int)max_count * CHAR_WIDTH + 2 * CURSOR_REPAINT_XPAD,
-                   LINE_HEIGHT);
-
-        s = cache_get_line(line_no);
-        len = c_strlen_u(s);
-
-        if (start_col < len) {
-            if ((unsigned short)(start_col + max_count) > len) {
-                max_count = (unsigned short)(len - start_col);
-            }
-            GrText(win, gc, x, y, s + start_col, max_count, GR_TFASCII);
-        }
-    }
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_LINE
-    clear_text_row_y(line_baseline_y(line_no));
-    draw_text_line_no_clear(line_no);
-#endif
-}
-#endif
-
-#if CURSOR_DEST_REPAIR_ENABLE
-static void redraw_destination_side(unsigned short line_no, unsigned short col)
-{
-    char *s;
-    unsigned short len;
-    unsigned short start_col;
-    unsigned short count;
-    int x;
-    int y;
-
-    if (!line_is_visible(line_no)) {
-        return;
-    }
-
-    /*
-     * Repair relative to the destination cursor position.
-     * With START_OFF = 1, this starts at s[col + 1], not s[col], so it
-     * avoids erasing or weakening the visible cursor itself.
-     */
-    start_col = (unsigned short)(col + CURSOR_DEST_REPAIR_START_OFF);
-    count = CURSOR_DEST_REPAIR_CHARS;
-
-    if (start_col >= MAX_LINE_LEN || count == 0) {
-        return;
-    }
-
-    x = LEFT_MARGIN + (int)start_col * CHAR_WIDTH;
-    y = line_baseline_y(line_no);
-
-    clear_rect(x - CURSOR_DEST_REPAIR_XPAD, y - LINE_HEIGHT + 1,
-               (int)count * CHAR_WIDTH + 2 * CURSOR_DEST_REPAIR_XPAD,
-               LINE_HEIGHT);
-
-    s = cache_get_line(line_no);
-    len = c_strlen_u(s);
-
-    if (start_col < len) {
-        if ((unsigned short)(start_col + count) > len) {
-            count = (unsigned short)(len - start_col);
-        }
-        GrText(win, gc, x, y, s + start_col, count, GR_TFASCII);
-    }
-}
-#endif
-
 static void draw_cursor(void)
 {
     ensure_edit_current();
@@ -1283,45 +1097,27 @@ static void repaint_after_key(unsigned short old_cx, unsigned short old_cy,
 
     switch (paint_action.mode) {
     case PAINT_CURSOR:
-#if CURSOR_REPAINT_MODE == CURSOR_REPAINT_CURSOR_ONLY
-        erase_cursor_only(old_cy, old_cx);
-        draw_cursor();
-#elif CURSOR_REPAINT_MODE == CURSOR_REPAINT_RETYPE1
         /*
-         * Cursor movement path without rectangle clearing:
-         * repair only the old cursor position, then draw the new cursor.
+         * Default cursor movement repair:
+         * erase/retype only the old cursor character, then draw new cursor.
          */
         retype_cursor_char_no_rect(old_cy, old_cx);
         draw_cursor();
-#else
-        /* Other cursor modes may use rectangle clearing if explicitly selected. */
-        redraw_cursor_area(old_cy, old_cx);
-        draw_cursor();
-#endif
         break;
 
     case PAINT_LINE_TAIL:
         draw_line_tail(paint_action.line, paint_action.col);
         draw_cursor();
-#if CURSOR_DEST_REPAIR_ENABLE && CURSOR_DEST_REPAIR_AFTER_DRAW
-        redraw_destination_side(cy, cx);
-#endif
         break;
 
     case PAINT_FROM_LINE:
         draw_from_line(paint_action.line);
         draw_cursor();
-#if CURSOR_DEST_REPAIR_ENABLE && CURSOR_DEST_REPAIR_AFTER_DRAW
-        redraw_destination_side(cy, cx);
-#endif
         break;
 
     case PAINT_STATUS:
         draw_status();
         draw_cursor();
-#if CURSOR_DEST_REPAIR_ENABLE && CURSOR_DEST_REPAIR_AFTER_DRAW
-        redraw_destination_side(cy, cx);
-#endif
         break;
 
     case PAINT_NONE:

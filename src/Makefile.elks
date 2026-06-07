@@ -29,6 +29,7 @@ CFLAGS += -fno-reorder-blocks
 CFLAGS += -fno-prefetch-loop-arrays
 CFLAGS += -fno-tree-ch
 CFLAGS += -DELKS=1 -DUNIX=1 -DNDEBUG=1
+CFLAGS += -DMWCONFIG_FILE='"mwconfig.elks"'
 CFLAGS += -DMWPIXEL_FORMAT=MWPF_PALETTE -DSCREEN_PIXTYPE=MWPF_PALETTE
 CFLAGS += -Iinclude -Ielksdrivers -I$(TOPDIR)/cross/lib/gcc/ia16-elf/6.3.0/include
 CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable

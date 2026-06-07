@@ -4,11 +4,18 @@
  * Microwindows configurable options header file
  *
  * These options are normally set through config file/Arch.rules/Makefile.rules
+ * or a port-specific mwconfig.xxx configuration file,
  * but can be set through a visual make environment instead.
  * If an option isn't defined, this file controls the default behaviour.
  *
  * Copyright (c) 2019 Greg Haerr <greg@censoft.com>
  */
+
+/* port-specific internal configuration file */
+#ifdef MWCONFIG_FILE
+#define INCFILE(name)   name
+#include INCFILE(MWCONFIG_FILE)
+#endif
 
 /* temp settings for Visual Studio 2008 MSC Windows compile*/
 #if _MSC_VER == 1500
@@ -30,42 +37,15 @@
 #define HAVE_PCF_SUPPORT 1		/* PCF font support*/
 #endif
 
-#if ELKS
-#define NANOWM			1		/* =1 for builtin nano-X window manager*/
-#define USE_ALLOCA		0		/* =1 if alloca() is available*/
-#define HAVE_MMAP       0       /* =1 has mmap system call*/
-#define HAVE_SIGNAL		1		/* =1 has signal system call*/
-#define HAVE_FILEIO		0		/* =1 to include libc stdio and image reading routines*/
-#define HAVE_BMP_SUPPORT 0		/* BMP image support*/
-#define HAVE_FNT_SUPPORT 0		/* Microwindows FNT font support*/
-#define HAVE_PCF_SUPPORT 0		/* PCF font support*/
-#define POLYREGIONS		0		/* =1 includes polygon regions*/
-#define DYNAMICREGIONS	0		/* =1 to use more complex MWCLIPREGION regions*/
-#define MW_FEATURE_TIMERS 0		/* =1 to include MWTIMER support */
-#define MW_FEATURE_BITMAPS 1	/* =1 to enable GrBitmap */
-#define MW_FEATURE_IMAGES 0		/* =1 to enable GdLoadImage/GdDrawImage etc*/
-#define MW_FEATURE_SHAPES 0		/* =1 for arc, ellipse, polygons, tile/stipple*/
-#define MW_FEATURE_INTL	0		/* =1 for dbcs and TEXTIP_EXTENDED font/encoding support*/
-#define MW_FEATURE_PORTRAIT 0	/* =1 for portrait support */
-#define MW_FEATURE_PALETTE 1	/* =1 for palette support*/
-#define SCREEN_DEPTH    4
-#define MW_FEATURE_AREAS 0	    /* =1 for GrArea, GrReadArea, GrStretchArea */
-#define MW_FEATURE_TINY 1	    /* =1 to drop various less-used features */
-#define MW_FEATURE_CLIENTDATA 0 /* =1 for copy/paste support */
-#define TRANSLATE_ESCAPE_SEQUENCES 1	/* =1 to parse fnkeys w/tty driver*/
-#define NUKLEARUI		1		/* =0 to use older tan windows-style 3d window frame drawing/colors*/
-#define OUTLINE_MOVE	1		/* =1 draw outline only during window move*/
-#define NO_AUTO_MOVE	1		/* =1 don't auto position window on new windows*/
-#define BIN_NANOX       "/bin/nano-x"    /* location of Nano-X for AUTO_START_SERVER */
-#endif
-
 /* Changeable limits and options*/
 #define UNIFORMPALETTE	1		/* =1 for 256 entry uniform palette,*/
 								/* (required for palette alpha blending)*/
 #define FT_MINAA_HEIGHT	0		/* min height for FT antialias with win32 plogfont*/
 #define MW_FEATURE_RESIZEFRAME		0	/* =1 to resize OS frame to app, requires LINK_APP_TO_SERVER for nx*/
 
+#ifndef AUTO_START_SERVER
 #define AUTO_START_SERVER   1   /* =1 to automatically start Nano-X on GrOpen */
+#endif
 #ifndef BIN_NANOX
 #define BIN_NANOX       "bin/nano-X"    /* location of Nano-X for AUTO_START_SERVER */
 #endif

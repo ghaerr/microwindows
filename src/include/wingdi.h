@@ -401,11 +401,10 @@ int WINAPI	GetDeviceCaps(HDC hdc, int nIndex);
 #define NULLREGION		MWREGION_NULL
 #define SIMPLEREGION		MWREGION_SIMPLE
 #define COMPLEXREGION		MWREGION_COMPLEX
-/* kluge for VxWorks*/
-#ifdef ERROR
-#undef ERROR
-#endif
+
+#ifndef NOGDI
 #define ERROR			ERRORREGION
+#endif
 #define RGN_ERROR		ERRORREGION
 
 /* CombineRgn() Styles */

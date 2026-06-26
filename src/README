@@ -114,12 +114,12 @@ for different platforms, the various XXXTOOLSPREFIX values
 must be set accordingly.
 
 The Nano-X server can be built as a compiled-in application,
-or use UNIX sockets to allow seperately compiled applications
+or use UNIX sockets to allow separately compiled applications
 to connect to the server.  Setting the line
 	LINK_APP_INTO_SERVER=Y
 will create libnanoX and all demos with the server files necessary to create
 a standalone nano-X application, which is useful for debugging,
-or for not having to run a seperate client/server connection
+or for not having to run a separate client/server connection
 to the nano-X server. The downside is that multiple applications
 cannot be run simultaneously.
 

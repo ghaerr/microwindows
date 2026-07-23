@@ -132,6 +132,23 @@ MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_ajaguar.o
 MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_ajaguar.o
 endif
 
+# NuttX RTOS
+ifeq ($(ARCH), NUTTX)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/scr_nuttx.o
+ifeq ($(KEYBOARD), NUTTXKBD)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_nuttx_event.o
+endif
+ifeq ($(KEYBOARD), NUTTXRAWKBD)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/kbd_nuttx_raw.o
+endif
+ifeq ($(MOUSE), NUTTXMOUSE)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nuttx_mouse.o
+endif
+ifeq ($(MOUSE), NUTTXTOUCH)
+MW_CORE_OBJS += $(MW_DIR_OBJ)/drivers/mou_nuttx_ts.o
+endif
+endif # NUTTX architecture
+
 #### end platforms
 
 ### The following are screen, keyboard and mouse drivers used on non-specific platforms

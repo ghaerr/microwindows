@@ -1,0 +1,30 @@
+/* mwconfig.nuttx - NuttX port-specific Microwindows configuration file
+ * Included by mwconfig.h via -DMWCONFIG_FILE='"mwconfig.nuttx"'
+ */
+
+#define NANOWM              1
+#define USE_ALLOCA          1
+#define UNIX                1
+#define HAVE_MMAP           1
+#define HAVE_SIGNAL         1
+#define HAVE_SELECT         1
+#define HAVE_FILEIO         1
+#define HAVE_FNT_SUPPORT    1
+#define MW_FEATURE_TIMERS   1
+#define MW_FEATURE_BITMAPS  1
+#define MW_FEATURE_IMAGES   1
+#define MW_FEATURE_SHAPES   1
+#define MW_FEATURE_PORTRAIT 1
+#define MW_FEATURE_PALETTE  1
+#define MW_FEATURE_TINY     0
+#define NUKLEARUI           1
+#define SCREEN_PIXTYPE      MWPF_TRUECOLORARGB
+#define SCREEN_DEPTH        8
+#define OUTLINE_MOVE        1
+#define NO_AUTO_MOVE        1
+#define TRANSLATE_ESCAPE_SEQUENCES 0
+#define UPDATEREGIONS       1
+#define ERASEMOVE           1
+#define NOCLIPPING          0
+#define POLYREGIONS         1
+#define DYNAMICREGIONS      1

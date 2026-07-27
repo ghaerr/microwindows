@@ -11,7 +11,7 @@
 #include "nxproto.h"
 #include "lock.h"
 
-#if !__ECOS
+#if !defined(__ECOS) || !__ECOS
 static REQBUF	reqbuf;		/* request buffer*/
 extern int 	nxSocket;
 extern char *	nxSharedMem;

@@ -347,7 +347,7 @@
 #define REALLOC(addr,oldsize,newsize) realloc((addr),(newsize))
 
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define EPRINTF			__dprintf
 #else
 int     GdError(const char *format, ...);
@@ -366,12 +366,15 @@ int     GdError(const char *format, ...);
 #endif
 
 /* no assert() in MSDOS or PSP */
-#if MSDOS | PSP
+#if defined(MSDOS) && MSDOS
+#undef assert
+#define assert(x)
+#elif defined(PSP) && PSP
 #undef assert
 #define assert(x)
 #endif
 
-#if RTEMS
+#if defined(RTEMS) && RTEMS
   /* RTEMS requires rtems_main()*/
   int rtems_main(int, char **);
   #define main	rtems_main

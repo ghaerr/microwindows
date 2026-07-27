@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 #include <time.h>
 #else
 #include <sys/time.h>
@@ -138,7 +138,7 @@ BOOL ftime_ok = FALSE;  /* does ftime return milliseconds? */
 */
 int get_ms(void)
 {
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 	struct timespec tp;
 
 	clock_gettime( CLOCK_REALTIME, &tp );

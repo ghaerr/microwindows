@@ -14,7 +14,10 @@
 #include <stdlib.h>
 #include "device.h"
 
-#if MSDOS | ELKS
+#if defined(MSDOS) && MSDOS
+#define NOSTDPAL8
+#define NOSTDPAL2
+#elif defined(ELKS) && ELKS
 #define NOSTDPAL8
 #define NOSTDPAL2
 #endif

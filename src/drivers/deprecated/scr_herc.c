@@ -14,7 +14,7 @@
  *	The environment variable CHARHEIGHT if set will set the assumed rom
  *	font character height, which defaults to 14.
  */
-#if ELKS
+#if defined(ELKS) && ELKS
 #include <linuxmt/ntty.h>
 #endif
 #include <stdio.h>
@@ -71,7 +71,7 @@ HERC_open(PSD psd)
 	if(ioperm(0x3b4, 0x0d, 1))
 		return NULL;
 #endif
-#if ELKS
+#if defined(ELKS) && ELKS
 	/* disallow console switching while in graphics mode*/
 	if(ioctl(0, DCGET_GRAPH) != 0)
 		return NULL;
@@ -117,7 +117,7 @@ HERC_close(PSD psd)
 		0x61,0x50,0x52,0x0f,0x19,6,0x19,0x19,2,0x0d,0x0b,0x0c
 	};
 
-#if ELKS
+#if defined(ELKS) && ELKS
 	/* allow console switching again*/
 	ioctl(0, DCREL_GRAPH);
 #endif

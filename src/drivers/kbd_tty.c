@@ -17,9 +17,9 @@
 
 #define DEBUG_ESCAPE_SEQUENCES	0
 
-#if LINUX_POWERPPC
+#if defined(LINUX_POWERPPC) && LINUX_POWERPPC
 #   define KEYBOARD	"/dev/tty0"	/* keyboard associated with screen Foedrowitz 2006mar15 */
-#elif ELKS
+#elif defined(ELKS) && ELKS
 #   define KEYBOARD	"/dev/tty1"	/* keyboard associated with screen*/
 #else
 #   define KEYBOARD	"/dev/tty"	/* keyboard associated with screen*/
@@ -33,7 +33,7 @@ static int  TTY_Open(KBDDEVICE *pkd);
 static void TTY_Close(void);
 static void TTY_GetModifierInfo(MWKEYMOD *modifiers, MWKEYMOD *curmodifiers);
 static int  TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode);
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 static int  TTY_Poll(void) { return 1; }
 #endif
 
@@ -42,7 +42,7 @@ KBDDEVICE kbddev = {
 	TTY_Close,
 	TTY_GetModifierInfo,
 	TTY_Read,
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 	TTY_Poll
 #else
 	NULL
@@ -156,7 +156,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 	}
 	
 	mwkey = buf[0];
-#if ELKS
+#if defined(ELKS) && ELKS
 	if(mwkey == 01)         /* exit on ^A */
 		return KBD_QUIT;
 #elif __fiwix__
@@ -171,7 +171,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			/* Need more characters - escape sequences are 3+ chars */
 			do {
 				cc = read(fd, buf + buflen, 3 - buflen);
-#if ELKS
+#if defined(ELKS) && ELKS
 				if (cc == 0 && buflen == 1) {   /* allow lone ESC -> ESC */
 					buflen = 0;
 					mwkey = 27;
@@ -190,7 +190,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		}
 
 		switch (buf[1]) {
-#if !ELKS
+#if !defined(ELKS) || !ELKS
 		case 'O': /* Letter O */
 			switch (buf[2]) {
 			case 'P': mwkey = MWKEY_F1; break;
@@ -234,7 +234,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 #endif
 		case '[':
 			switch (buf[2]) {
-#if !ELKS
+#if !defined(ELKS) || !ELKS
 			case '1':
 				if (buflen < 4)
 					return 0;
@@ -293,7 +293,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			case 'D': mwkey = MWKEY_LEFT;  break;
 			case 'F': mwkey = MWKEY_END;   break;
 			case 'H': mwkey = MWKEY_HOME;  break;
-#if !ELKS
+#if !defined(ELKS) || !ELKS
 			case '[':
 				if (buflen < 4)
 					return 0;
@@ -322,7 +322,7 @@ TTY_Read(MWKEY *kbuf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 			break;
 		}
 		if (mwkey == 0) {
-#if !ELKS
+#if !defined(ELKS) || !ELKS
 			if (buflen >= 5) {
 				EPRINTF("WARNING: Unknown escape sequence ESC '%c' '%c' '%c' '%c'.\n"
 					"(If you're trying to type a real escape, you have to press it 3 times.)\n",

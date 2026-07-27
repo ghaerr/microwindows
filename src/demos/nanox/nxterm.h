@@ -7,7 +7,15 @@
  *	++eero
  */
 
-#if LINUX | MACOSX
+#if defined(LINUX) && LINUX
+#define USE_NGTERM 1
+#elif defined(MACOSX) && MACOSX
+#define USE_NGTERM 1
+#else
+#define USE_NGTERM 0
+#endif
+
+#if USE_NGTERM
 static char termtype_string[] = "TERM=ngterm";
 static char termcap_string[1024] =
 "TERMCAP=ngterm|nano-X vt52 terminal:\

@@ -988,7 +988,7 @@ LRESULT TestMyWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         bom[ran1][ran2].flag = 1;
 			i++;
                      } 
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 		      else i++;		/* bad rtems random function*/
 #endif
                 }

@@ -7,10 +7,10 @@
  */
 
 
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 #include <sys/times.h>
 
-#elif MSDOS
+#elif defined(MSDOS) && MSDOS
 #include <time.h>
 
 #elif defined(_MSC_VER)

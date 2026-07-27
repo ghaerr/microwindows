@@ -22,7 +22,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #endif
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 #include <netinet/in.h>
 #else
 #include <sys/un.h>
@@ -1856,7 +1856,7 @@ GrShmCmdsFlushWrapper(void *r)
 int 
 GsOpenSocket(void)
 {
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 	struct sockaddr_in sckt;
 #else
 	struct sockaddr_un sckt;
@@ -1865,7 +1865,7 @@ GsOpenSocket(void)
 #define SUN_LEN(ptr)	(sizeof(sckt))
 #endif
 
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 	/* Create the socket */
 	if((un_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
 	    return -1;
@@ -1913,7 +1913,7 @@ void
 GsAcceptClient(void)
 {
 	int i;
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 	struct sockaddr_in sckt;
 #else
 	struct sockaddr_un sckt;

@@ -80,7 +80,7 @@
 /* Now, some platform-specific optimized macros.                         */
 /* ********************************************************************* */
 
-#if LINUX_POWERPPC
+#if defined(LINUX_POWERPPC) && LINUX_POWERPPC
 # if !MW_CPU_BIG_ENDIAN
 #  error POWERPC works in BIG ENDIAN only !!!
 # endif
@@ -104,7 +104,7 @@
 /* ********************************************************************* */
 /* MAC OSX                                                               */
 /* ********************************************************************* */
-#elif MACOSX
+#elif defined(MACOSX) && MACOSX
 
 /* ********************************************************************* */
 /* FreeBSD                                                               */
@@ -127,7 +127,7 @@
 /* ********************************************************************* */
 /* ECOS                                                                  */
 /* ********************************************************************* */
-#elif __ECOS
+#elif defined(__ECOS) && __ECOS
 
 /* although machine/endian.h might provide optimized versions,           */
 /* endian.h is only available if ecos is configured with networking      */
@@ -152,12 +152,12 @@
 /* *********************************************************************
  * RTEMS
  * ********************************************************************* */
-#elif RTEMS
+#elif defined(RTEMS) && RTEMS
 
 /* ********************************************************************* */
 /* TriMedia/pSOS                                                         */
 /* ********************************************************************* */
-#elif TRIMEDIA
+#elif defined(TRIMEDIA) && TRIMEDIA
 
 /* ********************************************************************* */
 /* Other                                                                 */

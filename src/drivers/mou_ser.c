@@ -38,11 +38,11 @@
 #endif
 
 /* default settings*/
-#if ELKS
+#if defined(ELKS) && ELKS
 #define	MOUSE_PORT	"/dev/ttyS0"	/* default port unless MOUSE_PORT= environ var */
 #define	MOUSE_QEMU	"/dev/ttyS1"	/* default port on QEMU */
 #define MOUSE_TYPE	"ms"            /* microsoft mouse */
-#elif _MINIX
+#elif defined(_MINIX) && _MINIX
 #define	MOUSE_PORT	"/dev/mouse"
 #define	MOUSE_QEMU	"/dev/ttyS1"
 #define	MOUSE_TYPE	"ms"
@@ -122,7 +122,7 @@ static int  	MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr);
 static int  	ParsePC(int);		/* routine to interpret PC mouse */
 static int  	ParseMS(int);		/* routine to interpret MS mouse */
 static int  	ParsePS2(int);		/* routine to interpret PS/2 mouse */
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 static int	MOU_Poll(void) { return 1; }
 #endif
 
@@ -132,7 +132,7 @@ MOUSEDEVICE mousedev = {
 	MOU_GetButtonInfo,
 	MOU_GetDefaultAccel,
 	MOU_Read,
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 	MOU_Poll,
 #else
 	NULL,
@@ -191,7 +191,7 @@ MOU_Open(MOUSEDEVICE *pmd)
 		return -2;		/* no mouse */
 	}
 
-#if ELKS
+#if defined(ELKS) && ELKS
 	EPRINTF("Opening mouse on %s\n", port);
 	mouse_fd = open(port, O_RDONLY | O_EXCL | O_NOCTTY | O_NONBLOCK);
 #else
@@ -229,12 +229,12 @@ MOU_Open(MOUSEDEVICE *pmd)
 
 	if(cfgetispeed(&termios) != B1200)
 		cfsetispeed(&termios, B1200);
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 	if(cfgetospeed(&termios) != B1200)
 		cfsetospeed(&termios, B1200);
 #endif
 
-#if !_MINIX
+#if !defined(_MINIX) || !_MINIX
 	termios.c_cflag &= ~CBAUD;
 	termios.c_cflag |= B1200;
 #endif
@@ -317,7 +317,7 @@ MOU_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bptr)
 		if (nbytes < 0) {
 			if (errno == EINTR || errno == EAGAIN)
 				return MOUSE_NODATA;
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 			return MOUSE_NODATA;
 #else
 			return MOUSE_FAIL;

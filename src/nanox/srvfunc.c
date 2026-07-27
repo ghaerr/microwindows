@@ -576,7 +576,7 @@ GrMoveWindow(GR_WINDOW_ID wid, GR_COORD x, GR_COORD y)
 		return;
 	}
 #endif
-#if ELKS
+#if defined(ELKS) && ELKS
 	/* perform quick move and expose if topmost and mapped - no blit*/
 	if (wp->mapped && wp == wp->parent->children) {
 		int	oldx = wp->x;

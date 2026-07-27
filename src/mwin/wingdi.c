@@ -1342,7 +1342,7 @@ DrawDIB(HDC hdc,int x,int y,PMWIMAGEHDR pimage)
 #endif /* MW_FEATURE_IMAGES*/
 
 /* define color scheme: A (tan), B (winstd) or C (old)*/
-#if ELKS
+#if defined(ELKS) && ELKS
 #define B
 #else
 #define A

@@ -25,7 +25,7 @@
 
 /* nxPaintNCArea window drawing and color scheme*/
 #if NUKLEARUI						/* draw window frames/colors to match Nuklear style*/
-#if ELKS
+#if defined(ELKS) && ELKS
 #define SCHEME_NUK16 1              /* 16 color nuklear! */
 #define CYCAPTION	25				/* height of caption*/
 #define CYTEXTBASE  8               /* baseline for font */

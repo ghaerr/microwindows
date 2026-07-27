@@ -5,8 +5,12 @@
  * Greg Haerr
  */
 
-#if LINUX | MACOSX
+#if defined(LINUX) && LINUX
 #define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
+#elif defined(MACOSX) && MACOSX
+#define UNIX98	1		/* use new-style /dev/ptmx, /dev/pts/0*/
+#elif !defined(UNIX98)
+#define UNIX98  0
 #endif
 #define _XOPEN_SOURCE 600
 #include <stdio.h>
@@ -160,7 +164,7 @@ HandleEvent(GR_EVENT *ep)
 	}
 }
 
-#if ELKS
+#if defined(ELKS) && ELKS
 char * nargv[2] = {"/bin/sash", NULL};
 #else
 #if DOS_DJGPP

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "uni_std.h"
 #include <fcntl.h>
-#if !__MINGW32__
+#if !defined(__MINGW32__) || !__MINGW32__
 #include <sys/ioctl.h>
 #endif
 

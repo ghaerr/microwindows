@@ -16,7 +16,7 @@
 #include <sys/ioctl.h>
 #include "device.h"
 
-#ifdef __ECOS
+#if defined(__ECOS) && __ECOS
 #define TOUCHDEVICE	"/dev/ts"			/* iPAQ*/
 #else
 #define TOUCHDEVICE	"/dev/h3600_tsraw"		/* iPAQ*/

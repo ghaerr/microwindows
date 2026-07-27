@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #endif
-#if ELKS
+#if defined(ELKS) && ELKS
 #include <linuxmt/posix_types.h>
 #include <linuxmt/time.h>
 #endif
@@ -53,7 +53,7 @@ GsTerminate(void)
 	exit(0);
 }
 
-#if MSDOS
+#if defined(MSDOS) && MSDOS
 void
 GsSelect(void)
 {

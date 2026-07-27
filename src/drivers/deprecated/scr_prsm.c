@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "device.h"
-#ifdef _MINIX
+#if defined(_MINIX) && _MINIX
 #include <sys/types.h>
 #endif
 #include "genfont.h"

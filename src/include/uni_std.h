@@ -11,11 +11,20 @@
 #if !defined(_MSC_VER)
 #include <unistd.h>
 
-#if __MINGW32__
+#if defined(__MINGW32__) && __MINGW32__
 #include <malloc.h> 		/* for alloca */
 #endif
 
-#if RTEMS | PSP | __ECOS | __MINGW32__
+#if defined(RTEMS) && RTEMS
+#define  srandom  srand		/* Probably no more required for RTEMS */
+#define  random   rand
+#elif defined(PSP) && PSP
+#define  srandom  srand
+#define  random   rand
+#elif defined(__ECOS) && __ECOS
+#define  srandom  srand
+#define  random   rand
+#elif defined(__MINGW32__) && __MINGW32__
 #define  srandom  srand
 #define  random   rand
 #endif

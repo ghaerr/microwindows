@@ -476,7 +476,7 @@ BOOL WINAPI	IsRectEmpty(CONST RECT *lprc);
 BOOL WINAPI	InflateRect(LPRECT lprc, int dx, int dy);
 BOOL WINAPI	OffsetRect(LPRECT lprc, int dx, int dy);
 /* The bcc compiler doesn't work passing structs by value, so we have this*/
-#if ELKS
+#if defined(ELKS) && ELKS
 #define		PtInRect(lprc,pt)	MwPTINRECT(lprc, *(long *)&(pt))
 #else
 #define		PtInRect(lprc,pt)	MwPTINRECT(lprc, pt)

@@ -13,7 +13,7 @@
 #include "uni_std.h"
 #include "sys_time.h"
 
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 #include <rtems/mw_uid.h>
 #endif
 
@@ -248,7 +248,7 @@ GrOpen(void)
 	}
 	SERVER_UNLOCK();
 
-#if MSDOS
+#if defined(MSDOS) && MSDOS
 	atexit(GsTerminate);
 #endif
 #endif /* NONETWORK*/
@@ -586,7 +586,7 @@ again:
 }
 
 /********************************************************************************/
-#elif RTEMS
+#elif defined(RTEMS) && RTEMS
 extern struct MW_UID_MESSAGE m_kbd;
 extern struct MW_UID_MESSAGE m_mou;
 
@@ -922,7 +922,7 @@ GsInitialize(void)
 
 	if (GsOpenSocket() < 0) {
 		EPRINTF("nano-X: Cannot bind to named socket"
-#if ELKS
+#if defined(ELKS) && ELKS
 			", check CONFIG_UNIX (UNIX sockets) enabled"
 #endif
 			"\n");
@@ -1064,7 +1064,7 @@ GsTerminate(void)
 #if VTSWITCH
 	MwRedrawVt(mwvterm);
 #endif
-#if ELKS
+#if defined(ELKS) && ELKS
 	write(1, "\033[25;1H", 7);
 #endif
 	_exit(0);

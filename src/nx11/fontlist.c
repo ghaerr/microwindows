@@ -28,13 +28,13 @@ char *FONT_DIR_LIST[] = {
     XLOCALFONTPATH,                             /* path to mwin fonts directory*/
     XLOCALFONTPATH "/pcf",                      /* mwin pcf fonts w/fonts.dir*/
     XLOCALFONTPATH "/truetype",                 /* mwin .ttf/.otf fonts w/fonts.dir*/
-#if MACOSX && HAVE_SYSTEM_FONT_PATHS
+#if defined(MACOSX) && MACOSX && HAVE_SYSTEM_FONT_PATHS
     MACOSX_SYSTEM_PATH "TTF",
     MACOSX_SYSTEM_PATH "truetype",
     MACOSX_SYSTEM_PATH "100dpi",
     MACOSX_SYSTEM_PATH "misc",
 #endif
-#if LINUX && HAVE_SYSTEM_FONT_PATHS
+#if defined(LINUX) && LINUX && HAVE_SYSTEM_FONT_PATHS
     LINUX_SYSTEM_PATH "X11/misc",               /* pcf fonts w/fonts.dir*/
     LINUX_SYSTEM_PATH "X11/100dpi",
     LINUX_SYSTEM_PATH "truetype",               /* truetype fonts, Suse 64bit distro*/
@@ -43,13 +43,13 @@ char *FONT_DIR_LIST[] = {
     LINUX_SYSTEM_PATH "truetype/openoffice",
     LINUX_SYSTEM_PATH "X11/Type1",              /* t1lib type1 .pfb fonts, w/fonts.dir*/
 #endif
-#if MSDOS && HAVE_SYSTEM_FONT_PATHS
+#if defined(MSDOS) && MSDOS && HAVE_SYSTEM_FONT_PATHS
     MSDOS_SYSTEM_PATH,
 #endif
-#if ANDROID && HAVE_SYSTEM_FONT_PATHS
+#if defined(ANDROID) && ANDROID && HAVE_SYSTEM_FONT_PATHS
     ANDROID_SYSTEM_PATH,
 #endif
-#if OTHER
+#if defined(OTHER) && OTHER
     "/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType",
 #endif
     0

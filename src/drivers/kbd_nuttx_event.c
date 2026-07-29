@@ -79,7 +79,9 @@ static void nuttxkbd_GetModifierInfo(MWKEYMOD *mods, MWKEYMOD *curmods)
 static int nuttxkbd_Read(MWKEY *kbuf, MWKEYMOD *mods, MWSCANCODE *scancode)
 {
   struct keyboard_event_s event;
+  MWKEY key;
   int n;
+  int press;
 
   n = read(kbd_fd, &event, sizeof(event));
   if (n < (int)sizeof(event))
@@ -87,8 +89,12 @@ static int nuttxkbd_Read(MWKEY *kbuf, MWKEYMOD *mods, MWSCANCODE *scancode)
       return KBD_NODATA;
     }
 
-  MWKEY key = translate_keycode(event.code);
-  int press = (event.type == KEYBOARD_PRESS);
+  key = event.type == KBD_SPECPRESS ||
+        event.type == KBD_SPECREL ?
+        translate_keycode(event.code) :
+        event.code;
+  press = (event.type == KBD_PRESS) ||
+        event.type == KBD_SPECPRESS;
 
   update_modifiers(&modifiers, key, press);
 

@@ -86,7 +86,7 @@
 #include "nxcolors.h"
 #include "nxtetris.h"
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define srandom     srand
 #define random      rand
 #endif

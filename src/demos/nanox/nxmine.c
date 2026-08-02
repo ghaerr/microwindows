@@ -27,7 +27,7 @@
 
 #define FULLSIZE	(MAXSIZE + 2)	/* board size including borders */
 
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 /* 240x320 screen values*/
 #define	BOARDGAP	2		/* millimeter gap around board */
 #define	RIGHTGAP	2		/* mm gap between board, right side */
@@ -825,7 +825,7 @@ delay(void)
 {
 	GR_COUNT	i;
 
-#if ELKS
+#if defined(ELKS) && ELKS
 	i = 32000;
 	do {
 		GrFlush();

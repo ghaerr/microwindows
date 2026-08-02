@@ -105,7 +105,7 @@ allegro_open(PSD psd)
     set_close_button_callback(close_button_proc);
 	set_color_depth(avbpp);
 	
-#if __MINGW32__ 
+#if defined(__MINGW32__) && __MINGW32__
     set_gfx_mode(GFX_GDI,1024,768,0,0); //GDI for Windows
 #else
 	set_gfx_mode(GFX_XWINDOWS,640,480,0,0);

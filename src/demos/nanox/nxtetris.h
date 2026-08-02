@@ -38,7 +38,7 @@
  * array of shape descriptions (you can add your own new shapes quite easily).
  */
 
-#ifndef __ECOS
+#if !defined(__ECOS) || !__ECOS
 //#define USE_HISCORE_FILE
 #define HISCORE_FILE "/usr/games/nanotetris.hiscore"
 #endif
@@ -58,7 +58,7 @@
 extern int WELL_HEIGHT, WELL_VISIBLE_HEIGHT;
 #define WELL_NOTVISIBLE (WELL_HEIGHT - WELL_VISIBLE_HEIGHT)
 #define LEVEL_DIVISOR 500
-#ifdef __ECOS
+#if defined(__ECOS) && __ECOS
 #define DROP_BLOCK_DELAY 10
 #else
 #define DROP_BLOCK_DELAY 25

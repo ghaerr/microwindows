@@ -12,7 +12,7 @@
 #define _GNU_SOURCE 1
 #include <fcntl.h>
 #include <limits.h>
-#if LINUX
+#if defined(LINUX) && LINUX
 #include <linux/fb.h>
 #include <linux/kd.h>
 #include <linux/vt.h>
@@ -44,7 +44,7 @@ static void	set_directcolor_palette(PSD psd);
 
 /* static variables*/
 static int fb = -1;				/* framebuffer file handle*/
-#if LINUX
+#if defined(LINUX) && LINUX
 static short saved_red[16];		/* original hw palette*/
 static short saved_green[16];
 static short saved_blue[16];
@@ -122,7 +122,7 @@ fail:
 static PSD
 open_linuxfb(PSD psd)
 {
-#if LINUX
+#if defined(LINUX) && LINUX
 	int	type, visual;
 	int extra = getpagesize() - 1;
 	PSUBDRIVER subdriver;
@@ -139,7 +139,7 @@ open_linuxfb(PSD psd)
 	visual = fb_fix.visual;
 
 	psd->portrait = MWPORTRAIT_NONE;
-#if LINUX_SPARC
+#if defined(LINUX_SPARC) && LINUX_SPARC
 	psd->xres = psd->xvirtres = fb_var.xres_virtual;
 	psd->yres = psd->yvirtres = fb_var.yres_virtual;
 #else
@@ -226,7 +226,7 @@ open_linuxfb(PSD psd)
 	/* mmap framebuffer into this address space*/
 	psd->size = (psd->size + extra) & ~extra;		/* extend to page boundary*/
 
-#if LINUX_SPARC
+#if defined(LINUX_SPARC) && LINUX_SPARC
 #define CG3_MMAP_OFFSET 0x4000000
 #define CG6_RAM    		0x70016000
 #define TCX_RAM8BIT		0x00000000
@@ -280,7 +280,7 @@ fb_close(PSD psd)
 	/* if not opened, return*/
 	if (fb < 0)
 		return;
-#if LINUX
+#if defined(LINUX) && LINUX
   	/* reset hw palette*/
 	ioctl_setpalette(0, 16, saved_red, saved_green, saved_blue);
   

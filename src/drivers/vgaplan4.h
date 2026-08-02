@@ -7,20 +7,20 @@
  */
 #define SLOWVGA		0	/* =1 for outb rather than outw instructions*/
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define HAVEFARPTR	1       /* =1 compiler has __far extension */
 #define INLINE_FP       1       /* =1 to inline xxx_FP functions */
 #define FAR         __far
-#elif _MINIX
+#elif defined(_MINIX) && _MINIX
 #define HAVEFARPTR	1
 #define INLINE_FP       0
 #define FAR
 #include <ibm/portio.h>
-#elif MSDOS
+#elif defined(MSDOS) && MSDOS
 #define HAVEFARPTR	1
 #define INLINE_FP       1
 #define FAR         _far
-#elif RTEMS
+#elif defined(RTEMS) && RTEMS
   #define FAR
   #define HAVEFARPTR    1
   #define INLINE_FP     1
@@ -60,7 +60,7 @@ extern void ORBYTE_FP(FARADDR,unsigned char);                   /* or byte at ad
 extern void ANDBYTE_FP(FARADDR,unsigned char);                  /* and byte at address*/
 #endif
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #include <arch/io.h>
 #elif _MINIX | MSDOS
 #define	outb(v, p)	outb(p, v)

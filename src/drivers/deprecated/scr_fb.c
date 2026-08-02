@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <limits.h>
-#if LINUX
+#if defined(LINUX) && LINUX
 #include <linux/fb.h>
 #include <linux/kd.h>
 #include <linux/vt.h>
@@ -62,7 +62,7 @@ SCREENDEVICE	scrdev = {
 	NULL				/* PreSelect*/
 };
 
-#if !LINUX
+#if !defined(LINUX) || !LINUX
 /* Allow compilation on non-linux systems. For bin/fbe use, set FRAMEBUFFER=/tmp/fb0 in environment*/
 /* Defines linux structures to set framebuffer defaults without ioctl*/
 /* FIXME nanox/clientfb.c direct framebuffer needs access to this*/
@@ -206,7 +206,7 @@ fb_open(PSD psd)
 	visual = fb_fix.visual;
 
 	psd->portrait = MWPORTRAIT_NONE;
-#if LINUX_SPARC
+#if defined(LINUX_SPARC) && LINUX_SPARC
 	psd->xres = psd->xvirtres = fb_var.xres_virtual;
 	psd->yres = psd->yvirtres = fb_var.yres_virtual;
 #else
@@ -297,7 +297,7 @@ fb_open(PSD psd)
 	/* mmap framebuffer into this address space*/
 	psd->size = (psd->size + getpagesize() - 1) / getpagesize() * getpagesize();
 
-#if LINUX_SPARC
+#if defined(LINUX_SPARC) && LINUX_SPARC
 #define CG3_MMAP_OFFSET 0x4000000
 #define CG6_RAM    		0x70016000
 #define TCX_RAM8BIT		0x00000000

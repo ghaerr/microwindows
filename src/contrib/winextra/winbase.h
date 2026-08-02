@@ -90,7 +90,7 @@ typedef struct {
 } BITMAPV5HEADER, *LPBITMAPV5HEADER, *PBITMAPV5HEADER;
 
 
-#if _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER
 typedef __int64 LONGLONG;
 typedef unsigned __int64 ULONGLONG;
 #else

@@ -45,7 +45,7 @@ typedef unsigned char byte;
 
 
 // Predefined with some OS.
-#ifdef LINUX
+#if defined(LINUX) && LINUX
 #include <values.h>
 #else
 #ifndef MAXCHAR

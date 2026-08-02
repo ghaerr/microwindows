@@ -33,7 +33,7 @@
  * NOTE: MAXREQUESTSZ must be an _aligned_ multiple of 4, meaning
  * that MAXREQUESTSZ = (MAXREQUESTSZ + 3) & ~3.
  */
-#if ELKS
+#if defined(ELKS) && ELKS
 #define MAXREQUESTSZ	512             /* max request size FIXME */
 #define SZREQBUF        512	        /* initial request buffer size*/
 #else
@@ -46,7 +46,7 @@ typedef unsigned short	UINT16;		/* 2 bytes*/
 typedef short		INT16;		/* 2 bytes*/
 typedef unsigned long	UINT32;		/* 4 bytes*/
 
-#if ELKS
+#if defined(ELKS) && ELKS
 typedef UINT16		IDTYPE;
 #define ALIGNSZ		2	/* 2 byte packet alignment*/
 #else
@@ -74,7 +74,7 @@ typedef struct {
 
 /* FIXME fails when sizeof(int) == 2*/
 /* get request total valid data length, including header*/
-#if ELKS
+#if defined(ELKS) && ELKS
 #define GetReqLen(req)		((req)->length)     /* FIXME check hilength */
 #else
 #define GetReqLen(req)		(((req)->hilength << 16) | (req)->length)

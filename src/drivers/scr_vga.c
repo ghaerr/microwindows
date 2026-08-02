@@ -37,18 +37,18 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #include <linuxmt/ntty.h>	/* DCGET_GRAPH ioctl */
 #define HWINIT		0	/* =1 for non-bios direct hardware init*/
 #define ROMFONT		0	/* =1 uses PC rom fonts */
-#elif _MINIX
+#elif defined(_MINIX) && _MINIX
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <ibm/int86.h>
 #define HWINIT		0
 #define ROMFONT		0
-#elif RTEMS
+#elif defined(RTEMS) && RTEMS
 #define HWINIT		1
 #define ROMFONT		0
 #else
@@ -108,7 +108,7 @@ VGA_open(PSD psd)
 		VGAMODE = FALSE;
 	else VGAMODE = TRUE;
 
-#if ELKS
+#if defined(ELKS) && ELKS
 	/* disallow console switching while in graphics mode*/
 	//ioctl(2, DCGET_GRAPH);
 #endif
@@ -143,7 +143,7 @@ VGA_open(PSD psd)
 static void
 VGA_close(PSD psd)
 {
-#if ELKS
+#if defined(ELKS) && ELKS
 	//ioctl(2, DCREL_GRAPH); /* allow console switching again*/
 #endif
 #if HWINIT
@@ -181,7 +181,7 @@ VGA_setpalette(PSD psd,int first,int count,MWPALENTRY *pal)
 	/* not yet implemented, std 16 color palette assumed*/
 }
 
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 FARADDR int10(int mode, int z)
 {
    int fd;

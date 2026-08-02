@@ -9,17 +9,17 @@
 #include <string.h>
 #include <fcntl.h>
 
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 #include <cyg/infra/diag.h>
 #elif ANDROID
 #include <android/log.h>
 #elif EMSCRIPTEN
 #include <emscripten.h>
-#elif PSP
+#elif defined(PSP) && PSP
 #include <pspkernel.h>
 #include <psputils.h>
 #include <pspdebug.h>
-#elif _MSC_VER
+#elif defined(_MSC_VER) && _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>		/* pull in REAL windows.h for _MSC_VER, no -Isrc/include*/
 #endif
@@ -38,7 +38,7 @@ extern	uint32_t ajag_mstimer;
 #endif
 
 
-#if !ELKS
+#if !defined(ELKS) || !ELKS
 /**
  * Output error message
  */
@@ -49,22 +49,22 @@ GdError(const char *format, ...)
 	char 	buf[128];
 
 	va_start(args, format);
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 	/* diag_printf() has much less dependencies than write() */
 	diag_printf(format, args);
 #elif AJAGUAR
 #pragma message("GdError - not fully implemented for Atari Jaguar platform")
 	vsprintf(buf, format, args);
-#elif PSP
+#elif defined(PSP) && PSP
 	vsprintf(buf, format, args);
 	pspDebugScreenPrintf("%s\n", buf);
 #elif ANDROID
 	vsprintf(buf, format, args);
 	__android_log_print(ANDROID_LOG_INFO, "Microwindows", buf);
-#elif _MSC_VER
+#elif defined(_MSC_VER) && _MSC_VER
 	vsprintf(buf, format, args);
 	OutputDebugStringA(buf);
-#elif MSDOS
+#elif defined(MSDOS) && MSDOS
     {
 	static int fd = -1;
 	vsprintf(buf, format, args);
@@ -79,7 +79,7 @@ GdError(const char *format, ...)
 #elif EMSCRIPTEN
 	vsprintf(buf, format, args);
 	fprintf(stderr, "%s\n", buf);
-#elif ELKS
+#elif defined(ELKS) && ELKS
 	vsprintf(buf, format, args);
 	__dprintf("%s", buf);       /* write to /dev/console */
 #elif SWIEROS
@@ -122,15 +122,15 @@ GdGetTickCount(void)
 	gettimeofday(&t, NULL);
 	return ((t.tv_sec * 1000) + (t.tv_usec / 25000) * 25) - startTicks;
 	}
-#elif MSDOS
+#elif defined(MSDOS) && MSDOS
 	return (uint32_t)(clock() * 1000 / CLOCKS_PER_SEC);
-#elif _MINIX
+#elif defined(_MINIX) && _MINIX
 	{
 	struct tms	t;
 	
 	return (uint32_t)times(&t) * 16;
 	}
-#elif __ECOS
+#elif defined(__ECOS) && __ECOS
   /* CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR gives the length of one tick in nanoseconds */
    return (cyg_current_time()*(CYGNUM_HAL_RTC_NUMERATOR/CYGNUM_HAL_RTC_DENOMINATOR))/(1000*1000);
 #else
@@ -155,11 +155,11 @@ GdDelay(MWTIMEOUT msecs)
 #pragma message("GdDelay - not implemented for Atari Jaguar platform")
 #elif EMSCRIPTEN
 	emscripten_sleep(msecs);
-#elif PSP
+#elif defined(PSP) && PSP
 	sceKernelDelayThread(1000 * msecs);
-#elif MSDOS
+#elif defined(MSDOS) && MSDOS
 	/* no delay required*/
-#elif _MSC_VER
+#elif defined(_MSC_VER) && _MSC_VER
 	Sleep(msecs);
 #else
 	/* no delay implemented*/
@@ -176,7 +176,7 @@ GdBell(void)
 #endif
 }
 
-#if PSP
+#if defined(PSP) && PSP
 static int
 exit_callback(void)
 {
@@ -205,7 +205,7 @@ GdPlatformInit(void)
 #if AJAGUAR
 #pragma message("GdPlatformInit - not implemented for Atari Jaguar platform")
 #endif
-#if PSP
+#if defined(PSP) && PSP
 	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
 	if (thid >= 0)
 		sceKernelStartThread(thid, 0, 0);
@@ -215,7 +215,7 @@ GdPlatformInit(void)
 #endif
 }
 
-#if _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER
 /* gettimeofday() for Windows*/
 
 int
@@ -242,7 +242,7 @@ gettimeofday(struct timeval *tv, struct timezone *tz)
 	}
 	if (tz)
 	{
-#if _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER
 		tz->tz_minuteswest = 7 * 60;	// FIXME
 		tz->tz_dsttime = 0;
 #else

@@ -13,7 +13,7 @@
 #include "uni_std.h"
 #include "sys_time.h"
 
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 #include <rtems/mw_uid.h>
 #endif
 
@@ -262,7 +262,7 @@ GrOpen(void)
 	}
 	SERVER_UNLOCK();
 
-#if MSDOS
+#if defined(MSDOS) && MSDOS
 	atexit(GsTerminate);
 #endif
 #endif /* NONETWORK*/
@@ -650,7 +650,7 @@ again:
 }
 
 /********************************************************************************/
-#elif RTEMS
+#elif defined(RTEMS) && RTEMS
 extern struct MW_UID_MESSAGE m_kbd;
 extern struct MW_UID_MESSAGE m_mou;
 

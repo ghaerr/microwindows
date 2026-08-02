@@ -61,7 +61,7 @@ int			GdError(const char *format, ...);
 
 /* various BSD to lattice C name changes */
 
-#ifdef __ECOS
+#if defined(__ECOS) && __ECOS
 extern char *strdup(char *);
 #endif
 #define index	strchr

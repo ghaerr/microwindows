@@ -67,7 +67,7 @@ MWKbd_Open (KBDDEVICE *pkd)
 {
         int rc;
 	m_kbd.type = MV_UID_INVALID;
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 	kbd_fd = fileno (stdin);
 #endif
 	rc = uid_open_queue (Q_NAME, O_CREAT | O_RDWR, Q_MAX_MSGS);
@@ -83,7 +83,7 @@ MWKbd_Close (void)
 {
         uid_unregister_device (kbd_fd);
 	uid_close_queue ();
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 	close (kbd_fd);
 #endif
 }
@@ -116,7 +116,7 @@ MWKbd_Read (MWKEY *buf, MWKEYMOD *modifiers, MWSCANCODE *scancode)
 		*modifiers = 0;
 		/* consume event */
 		m_kbd.type = MV_UID_INVALID;
-#if __ECOS
+#if defined(__ECOS) && __ECOS
                 if (m_kbd.m.kbd.mode==2)
                    return 2;
                 else

@@ -53,7 +53,7 @@ static char *lialg_recognize_stroke(rClassifier *, point_list *);
 char* li_err_msg = NULL;
 char _zdebug_flag[128];
 
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 #define BCOPY		bcopy
 #else
 /* This is standard - defined in <stdlib.h> */

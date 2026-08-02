@@ -18,7 +18,7 @@
 #include <stdint.h> 		/* for uint32_t, int32_t*/
 #endif
 
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 #include <ecosmwconfig.h>	/*include the eCos configuration "translation" header */
 #endif
 
@@ -225,7 +225,7 @@
 #define MWPIXEL_FORMAT	MWPF_TRUECOLORARGB
 #endif
 
-#if ELKS
+#if defined(ELKS) && ELKS
 /* Force 8 bit palettized display for ELKS*/
 #undef MWPIXEL_FORMAT
 #define MWPIXEL_FORMAT	MWPF_PALETTE

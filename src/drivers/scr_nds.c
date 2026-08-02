@@ -57,7 +57,7 @@ static MWBOOL VGAMODE = TRUE;	/* ega or vga screen rows*/
 #define FNGR640x350	0x0010	/* function for graphics mode 640x350x16*/
 #define FNTEXT		0x0003	/* function for 80x25 text mode*/
 
-#if _MINIX
+#if defined(_MINIX) && _MINIX
 FARADDR int10(int mode, int z)
 {
 int fd;

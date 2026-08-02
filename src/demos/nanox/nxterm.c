@@ -68,7 +68,7 @@
 #include <termios.h>
 #endif
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define stdcol          80
 #define stdrow          25
 #define	KBDBUF          1024
@@ -950,7 +950,7 @@ scrolltop, scrollbottom = upper and lower scroll region limit in lines/rows
 		break;
 
     case 'n':/* DSR device status report */
-#if ELKS
+#if defined(ELKS) && ELKS
 		strcpy(buf, "\033[");
 		strcat(buf, itoa(cury+1));
 		strcat(buf, ";");
@@ -1774,7 +1774,7 @@ char * nargv[2] = {"bash", NULL};
 char * nargv[2] = {"/bin/sh", NULL};
 #endif
 
-#if ELKS
+#if defined(ELKS) && ELKS
 int term_init(void)
 {
 	int tfd;

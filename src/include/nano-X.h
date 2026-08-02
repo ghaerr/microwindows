@@ -1023,27 +1023,27 @@ typedef struct {
  * NXDISPLAY will override GR_NAMED_SOCKET for the AF_UNIX case, or
  * specify the nano-X server address in the AF_INET case (default 127.0.0.1)
  */
-#if ELKS
+#if defined(ELKS) && ELKS
 #define GR_NAMED_SOCKET	"/tmp/nxsock"		/* ELKS socket name*/
 #else
 #define GR_NAMED_SOCKET	"/tmp/.nano-X"		/* AF_UNIX socket name*/
 #endif
 #define GR_NUM_SOCKET	6600			/* AF_INET socket number*/
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define GrError         __dprintf
 #else
 int     GdError(const char *format, ...);
 #define GrError         GdError
 #endif
 
-#if RTEMS
+#if defined(RTEMS) && RTEMS
   /* RTEMS requires rtems_main()*/
   int rtems_main(int, char **);
   #define main	rtems_main
 #endif
 
-#if __ECOS
+#if defined(__ECOS) && __ECOS
 #include <sys/select.h>
 #include <cyg/kernel/kapi.h>
 /*

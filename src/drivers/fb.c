@@ -107,7 +107,7 @@ select_fb_subdriver(PSD psd)
 	extern PSUBDRIVER fblinear32rgba[4];
 	extern PSUBDRIVER memplan4[4];
 
-#if ELKS
+#if defined(ELKS) && ELKS
 	pdriver = memplan4;
 #elif SWIEROS
 	pdriver = fblinear32rgba;

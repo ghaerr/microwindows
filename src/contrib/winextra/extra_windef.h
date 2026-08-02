@@ -19,7 +19,7 @@ typedef unsigned int UINT32, *PUINT32;
 //typedef uint32_t DWORD_PTR, UINT_PTR, *PUINT_PTR;
 #endif
 
-#if _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER
 typedef __int64 LONG64, *PLONG64;
 typedef __int64 INT64, *PINT64;
 typedef unsigned __int64 ULONG64, *PULONG64;
@@ -33,7 +33,7 @@ typedef unsigned long long DWORD64, *PDWORD64;
 typedef unsigned long long UINT64, *PUINT64;
 #endif
 
-#if _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER
 typedef __int64 LONGLONG;
 typedef unsigned __int64 ULONGLONG;
 #else

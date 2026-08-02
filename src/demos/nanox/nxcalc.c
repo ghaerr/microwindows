@@ -11,7 +11,7 @@
 #include <ctype.h>
 #include <math.h>
 #include "nano-X.h"
-#if ELKS
+#if defined(ELKS) && ELKS
 #include <sys/linksym.h>
 #endif
 
@@ -55,7 +55,7 @@ static double display_to_double(void) {
 }
 
 static void set_display_from_double(double v) {
-#if ELKS
+#if defined(ELKS) && ELKS
     __LINK_SYMBOL(dtostr);
 #endif
     char buf[128];

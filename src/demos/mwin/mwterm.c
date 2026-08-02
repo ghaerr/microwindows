@@ -29,7 +29,7 @@
 /*#define FONTNAME	OEM_FIXED_FONT*/
 #define APPCLASS	"mterm"
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define SHELL	"/bin/sash"
 #elif DOS_DJGPP
 #define SHELL	"bash"
@@ -252,7 +252,7 @@ ptysignaled(int signo)
 {
 	switch(signo) {
 	case SIGINT:	/* interrupt*/
-#if !ELKS
+#if !defined(ELKS) || !ELKS
 		/* this doesn't work, can anyone fix it?*/
 		killpg(pid, SIGINT);
 #endif

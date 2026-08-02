@@ -14,7 +14,7 @@
 
 #define MAPW    400
 #define MAPH    240
-#if ELKS
+#if defined(ELKS) && ELKS
 #define	MAPFILE	"/lib/nxworld.map"
 #else
 #define	MAPFILE	"images/demos/nanox/nxworld.map"
@@ -167,7 +167,7 @@ main(int argc, char **argv)
 
 	GrGetScreenInfo(&si);
 
-#if __ECOS	/* 240x320 screen*/
+#if defined(__ECOS) && __ECOS	/* 240x320 screen*/
 	COLS = si.cols - 10;
 	ROWS = si.rows - 40;
 #endif

@@ -36,7 +36,7 @@ unsigned _stklen = 4096;
 /* not used*/
 #define CLIENT3D	0	/* old client draw test*/
 
-#if RTEMS
+#if defined(RTEMS) && RTEMS
 #undef GRAPH3D
 #undef CONTROLS
 #define CONTROLS	1	/* win32 controls demo*/
@@ -59,7 +59,9 @@ extern MWIMAGEHDR image_cs1;
 extern MWIMAGEHDR image_rle8;
 
 #if CONTROLS
-#if ELKS | MSDOS
+#if defined(ELKS) && ELKS
+PMWIMAGEHDR image = &image_cs1;		/* 2 color bitmap for 16 color systems*/
+#elif defined(MSDOS) && MSDOS
 PMWIMAGEHDR image = &image_cs1;		/* 2 color bitmap for 16 color systems*/
 #else
 PMWIMAGEHDR image = &image_penguin;

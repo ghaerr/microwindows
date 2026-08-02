@@ -37,9 +37,9 @@
 #include <sys/shm.h>
 #endif
 
-#if ELKS
+#if defined(ELKS) && ELKS
 #define ADDR_FAM AF_UNIX
-#elif __ECOS
+#elif defined(__ECOS) && __ECOS
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <cyg/kernel/kapi.h>
@@ -71,7 +71,7 @@
  */
 #define SHM_BLOCK_SIZE	4096
 
-#if !__ECOS
+#if !defined(__ECOS) || !__ECOS
 /* exported global data */
 int 	   nxSocket = -1;	/* The network socket descriptor */
 LOCK_DECLARE(nxGlobalLock);	/* global lock for threads safety*/
@@ -443,7 +443,7 @@ GrClose(void)
 	close(nxSocket);
 	nxSocket = -1;
 	LOCK_FREE(&nxGlobalLock);
-#if ELKS
+#if defined(ELKS) && ELKS
 	GrDelay(500); /* partial raw terminal fix, allow nano-X to run to reset terminal */
 #endif
 }

@@ -996,6 +996,13 @@ CreateDialog(HINSTANCE hInstance, LPCSTR lpTemplate, HWND hWndParent,
 	return CreateDialogParam(hInstance, lpTemplate, hWndParent, lpDialogFunc, 0);
 }
 
+/* Inhibit GCC error on pointer conversion below to packed structure
+ * LPCDLGTEMPLATE/PMWDLGTEMPLATE differences. See apache/nuttx #19912.
+ * Further problems may exist on systems without native unaligned support
+ * when combined with non-compliant resource files.
+ */
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
+
 HWND WINAPI
 CreateDialogIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate,
 		  HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)

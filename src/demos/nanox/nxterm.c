@@ -793,6 +793,8 @@ esc100(unsigned char c)
             GrSetGCForeground(gc1, gi.foreground);
             break;
         }
+        break;
+
     case 'K':                  /* erase to end of line */
         if (escvalue1 == 0) {
             //erase from current cursor to end of line
@@ -813,6 +815,8 @@ esc100(unsigned char c)
             GrSetGCForeground(gc1, gi.foreground);
             break;
         }
+        break;
+
     case 'P':                  /* erase after and including the cursor */
         if (escvalue1 == 0)
             escvalue1 = 1;
@@ -826,6 +830,7 @@ esc100(unsigned char c)
                     fonh);
         GrSetGCForeground(gc1, gi.foreground);
         break;
+
     case 'L':                  /* insert lines */
         if (escvalue1 == 0)
             escvalue1 = 1;
@@ -841,6 +846,7 @@ esc100(unsigned char c)
         GrSetGCForeground(gc1,gi.background);
         GrFillRect(w1, gc1, 0, cury*fonh, winw, escvalue1*fonh);
         GrSetGCForeground(gc1,gi.foreground);
+        break;
 
     case 'M':                   /* delete lines */
         if (escvalue1 == 0)

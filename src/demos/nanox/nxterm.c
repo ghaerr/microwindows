@@ -132,6 +132,67 @@ int     sbufx, sbufy;
 char    lineBuffer[LINEBUF + 1];
 char   *sbuf = lineBuffer;
 
+#define MAX_SCREEN_ROWS 100
+#define MAX_SCREEN_COLS 200
+static char screenBuffer[MAX_SCREEN_ROWS][MAX_SCREEN_COLS];
+
+void
+screen_clear(void)
+{
+    int r, c;
+    for (r = 0; r < MAX_SCREEN_ROWS; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = ' ';
+}
+
+void
+screen_set_char(int x, int y, char ch)
+{
+    if (x >= 0 && x < MAX_SCREEN_COLS && y >= 0 && y < MAX_SCREEN_ROWS)
+        screenBuffer[y][x] = ch;
+}
+
+void
+screen_scroll_up(int lines)
+{
+    int r, c;
+    for (r = 0; r < MAX_SCREEN_ROWS - lines; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = screenBuffer[r + lines][c];
+    for (r = MAX_SCREEN_ROWS - lines; r < MAX_SCREEN_ROWS; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = ' ';
+}
+
+void
+screen_scroll_down(int lines)
+{
+    int r, c;
+    for (r = MAX_SCREEN_ROWS - 1; r >= lines; r--)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = screenBuffer[r - lines][c];
+    for (r = 0; r < lines && r < MAX_SCREEN_ROWS; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = ' ';
+}
+
+void
+screen_redraw(void)
+{
+    int r, c;
+    char line[MAX_SCREEN_COLS + 1];
+    
+    GrSetGCForeground(gc1, gi.foreground);
+    GrSetGCBackground(gc1, gi.background);
+    
+    for (r = 0; r < row; r++) {
+        for (c = 0; c < col; c++)
+            line[c] = screenBuffer[r][c];
+        line[col] = '\0';
+        GrText(w1, gc1, 0, r * fonh, line, col, GR_TFTOP);
+    }
+}
+
 int     term_init(void);
 void    sflush(void);
 void    lineRedraw(void);
@@ -158,6 +219,11 @@ int     do_special_key_ansi(unsigned char *buffer, int key, int modifiers);
 void    pos_xaxis(int c);       /* cursor position x axis for ansi */
 void    pos_yaxis(int c);       /* cursor position x axis for ansi */
 void    rendition(int escvalue);
+void    screen_clear(void);
+void    screen_set_char(int x, int y, char ch);
+void    screen_scroll_up(int lines);
+void    screen_scroll_down(int lines);
+void    screen_redraw(void);
 
 /* ************************************************************************* */
 
@@ -165,8 +231,10 @@ void
 sflush(void)
 {
     if (sbufcnt) {
+        int i;
+        for (i = 0; i < sbufcnt; i++)
+            screen_set_char(sbufx + i, sbufy, sbuf[i]);
         GrText(w1, gc1, sbufx * fonw, sbufy * fonh, sbuf, sbufcnt, GR_TFTOP);
-        GrFlushWindow(w1);
         sbufcnt = 0;
     }
 }
@@ -182,7 +250,6 @@ lineRedraw(void)
         sbuf[sbufcnt] = 0;
         GrText(w1, gc1, sbufx * fonw, sbufy * fonh, sbuf, sbufcnt, GR_TFTOP);
     }
-    GrFlushWindow(w1);
 }
 
 void
@@ -206,7 +273,6 @@ show_cursor(void)
     GrFillRect(w1, gc1, curx * fonw, cury * fonh + 1, fonw, fonh - 1);
     GrSetGCForeground(gc1, gi.foreground);
     GrSetGCMode(gc1, GR_MODE_COPY);
-    GrFlushWindow(w1);
 }
 
 void
@@ -230,6 +296,7 @@ hide_cursor(void)
 void
 vscrollup(int lines)
 {
+    int r, c, from, to;
     hide_cursor();
     GrCopyArea(w1, gc1, 0, scrolltop * fonh, winw,
                (scrollbottom - (scrolltop - 1) - lines - 1) * fonh, w1, 0,
@@ -237,12 +304,19 @@ vscrollup(int lines)
     GrSetGCForeground(gc1, gi.background);
     GrFillRect(w1, gc1, 0, (scrollbottom - lines) * fonh, winw, lines * fonh);
     GrSetGCForeground(gc1, gi.foreground);
-    GrFlushWindow(w1);
+    
+    for (r = scrolltop; r < scrollbottom - lines; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = screenBuffer[r + lines][c];
+    for (r = scrollbottom - lines; r < scrollbottom; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = ' ';
 }
 
 void
 vscrolldown(int lines)
 {
+    int r, c;
     hide_cursor();
     //FIXME add for loop
     GrCopyArea(w1, gc1, 0, (scrolltop + lines) * fonh, winw,
@@ -250,7 +324,13 @@ vscrolldown(int lines)
     GrSetGCForeground(gc1, gi.background);
     GrFillRect(w1, gc1, 0, scrolltop * fonh, winw, lines * fonh);
     GrSetGCForeground(gc1, gi.foreground);
-    GrFlushWindow(w1);
+    
+    for (r = scrollbottom - 1; r >= scrolltop + lines; r--)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = screenBuffer[r - lines][c];
+    for (r = scrolltop; r < scrolltop + lines && r < MAX_SCREEN_ROWS; r++)
+        for (c = 0; c < MAX_SCREEN_COLS; c++)
+            screenBuffer[r][c] = ' ';
 }
 
 void
@@ -365,19 +445,33 @@ esc1(unsigned char c)
 
     case 'J':                  /* erase to end of page */
         if (cury < row - 1) {
+            int r, c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, (cury + 1) * fonh, winw, (row - 1 - cury) * fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (r = cury + 1; r < row; r++)
+                for (c = 0; c < col; c++)
+                    screenBuffer[r][c] = ' ';
         }
-        GrSetGCForeground(gc1, gi.background);
-        GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-        GrSetGCForeground(gc1, gi.foreground);
+        {
+            int c;
+            GrSetGCForeground(gc1, gi.background);
+            GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
+            GrSetGCForeground(gc1, gi.foreground);
+            for (c = curx; c < col; c++)
+                screenBuffer[cury][c] = ' ';
+        }
         break;
 
     case 'K':                  /* erase to end of line */
-        GrSetGCForeground(gc1, gi.background);
-        GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-        GrSetGCForeground(gc1, gi.foreground);
+        {
+            int c;
+            GrSetGCForeground(gc1, gi.background);
+            GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
+            GrSetGCForeground(gc1, gi.foreground);
+            for (c = curx; c < col; c++)
+                screenBuffer[cury][c] = ' ';
+        }
         break;
 
     case 'L':                  /* insert line */
@@ -407,14 +501,21 @@ esc1(unsigned char c)
     case 'd':                  /* erase beginning of display */
         /* w_setmode(win, bgmode); */
         if (cury > 0) {
+            int r, c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, 0, winw, cury * fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (r = 0; r < cury; r++)
+                for (c = 0; c < col; c++)
+                    screenBuffer[r][c] = ' ';
         }
         if (curx > 0) {
+            int c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (c = 0; c < curx; c++)
+                screenBuffer[cury][c] = ' ';
         }
         break;
 
@@ -437,9 +538,14 @@ esc1(unsigned char c)
         break;
 
     case 'l':                  /* erase entire line */
-        GrSetGCForeground(gc1, gi.background);
-        GrFillRect(w1, gc1, 0, cury * fonh, winw, fonh);
-        GrSetGCForeground(gc1, gi.foreground);
+        {
+            int c;
+            GrSetGCForeground(gc1, gi.background);
+            GrFillRect(w1, gc1, 0, cury * fonh, winw, fonh);
+            GrSetGCForeground(gc1, gi.foreground);
+            for (c = 0; c < col; c++)
+                screenBuffer[cury][c] = ' ';
+        }
         curx = 0;
         break;
 
@@ -764,38 +870,52 @@ esc100(unsigned char c)
     case 'J':
         if (escvalue1 == 0) {
             //erase from current cursor to end of page / scrollbottom
+            int r, c;
             if (cury < scrollbottom - 1) {
                 //erase area below current line
                 GrSetGCForeground(gc1, gi.background);
                 GrFillRect(w1, gc1, 0, (cury + 1) * fonh, winw,
                            (scrollbottom - 1 - cury) * fonh);
                 GrSetGCForeground(gc1, gi.foreground);
+                for (r = cury + 1; r < scrollbottom; r++)
+                    for (c = 0; c < col; c++)
+                        screenBuffer[r][c] = ' ';
             }
             //erase from cursor to end of line
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (c = curx; c < col; c++)
+                screenBuffer[cury][c] = ' ';
             break;
         } else if (escvalue1 == 1) {
             //erase from home / scrolltop to cursor
-            if (cury < scrollbottom - 1) {
+            int r, c;
+            if (cury > scrolltop) {
                 //erase area from top to line above current line
                 GrSetGCForeground(gc1, gi.background);
                 GrFillRect(w1, gc1, 0, scrolltop, winw, (cury + 1) * fonh);
                 GrSetGCForeground(gc1, gi.foreground);
+                for (r = scrolltop; r < cury; r++)
+                    for (c = 0; c < col; c++)
+                        screenBuffer[r][c] = ' ';
             }
             //erase from beginning of line to cursor position
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (c = 0; c <= curx; c++)
+                screenBuffer[cury][c] = ' ';
             break;
         } else if (escvalue1 == 2) {
             //erase entire page - leave cursor untouched
-            //GrClearWindow(w1, 0);
-            //erase just the scrolling area
+            int r, c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, scrolltop, winw, (scrollbottom) * fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (r = scrolltop; r < scrollbottom; r++)
+                for (c = 0; c < col; c++)
+                    screenBuffer[r][c] = ' ';
             break;
         }
         break;
@@ -803,21 +923,30 @@ esc100(unsigned char c)
     case 'K':                  /* erase to end of line */
         if (escvalue1 == 0) {
             //erase from current cursor to end of line
+            int c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (c = curx; c < col; c++)
+                screenBuffer[cury][c] = ' ';
             break;
         } else if (escvalue1 == 1) {
             //erase from beginning of line to cursor
+            int c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (c = 0; c <= curx; c++)
+                screenBuffer[cury][c] = ' ';
             break;
         } else if (escvalue1 == 2) {
             //erase entire line - leave cursor untouched
+            int c;
             GrSetGCForeground(gc1, gi.background);
             GrFillRect(w1, gc1, 0, cury * fonh, winw, fonh);
             GrSetGCForeground(gc1, gi.foreground);
+            for (c = 0; c < col; c++)
+                screenBuffer[cury][c] = ' ';
             break;
         }
         break;
@@ -1146,6 +1275,7 @@ init(void)
     curon = 1;
     curvis = 0;
     escstate = 0;
+    screen_clear();
 }
 
 /*
@@ -1216,6 +1346,11 @@ term(void)
             if (!gotexpose) {
                 GrRegisterInput(termfd);
                 gotexpose = GR_TRUE;
+            } else {
+                hide_cursor();
+                screen_redraw();
+                if (havefocus)
+                    draw_cursor();
             }
             break;
 
@@ -1228,7 +1363,6 @@ term(void)
                     printc(buf[l]);
                 }
                 sflush();
-                GrFlushWindow(w1);
             }
             break;
         case GR_EVENT_TYPE_NONE:
@@ -1710,9 +1844,8 @@ main(int argc, char **argv)
     GrGetFontInfo(regFont, &fi);
     winw = col * fi.maxwidth;
     winh = row * fi.height;
-    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW | GR_WM_PROPS_BUFFERED,
-                       TITLE, GR_ROOT_WINDOW_ID, -1, -1, winw, winh,
-                       stdbackground);
+    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, TITLE, GR_ROOT_WINDOW_ID, -1, -1,
+                       winw, winh, stdbackground);
 
     GrSelectEvents(w1, GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_EXPOSURE |
                    GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_FOCUS_IN |

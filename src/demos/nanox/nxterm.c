@@ -1,63 +1,16 @@
-/*   
- * nxterm - terminal emulator for Nano-X
+/*
+ * nxterm - terminal emulator for Nano-X using tmt
  *
- * (C) 1994,95,96 by Torsten Scherer (TeSche)
- * itschere@techfak.uni-bielefeld.de
+ * Terminal emulation handled by tmt (Tiny Main Terminal) library.
+ * PTY and Nano-X integration by Microwindows team.
  *
- * - quite some changes for W1R1
- * - yet more changes for W1R2
- *
- * TeSche 01/96:
- * - supports W_ICON & W_CLOSE
- * - supports /etc/utmp logging for SunOS4 and Linux
- * - supports catching of console output for SunOS4
- * Phx 02-06/96:
- * - supports NetBSD-Amiga
- * Eero 11/97:
- * - unsetenv(DISPLAY), setenv(LINES, COLUMNS).
- * - Add new text modes (you need to use terminfo...).
- * Eero 2/98:
- * - Implemented fg/bgcolor setting.  With monochrome server it changes
- *   bgmode variable, which tells in which mode to draw to screen
- *   (M_CLEAR/M_DRAW) and affects F_REVERSE settings.
- * - Added a couple of checks.
- * 1/23/10 ghaerr
- *  added support for UNIX98 ptys (Linux default)
- *  added ngterm terminal type and environment variable
- *
- * TODO:
- * - Allocate and set sensible window palette for fg/bg color setting.
- * - add scroll-region ('cs') command. Fairly many programs
- *   can take advantage of that.
- * - Add xterm like mouse event to terminfo key event conversion... :)
- *
- * Georg 16th Nov 2013:
- * - Added ANSI emulation with color support and scrolling region support
- *   tested the emulation with the Nano editor.
- *   made ANSI the default, select vt52 with -5 command line switch
- * - 8th Dec 2013: improved ANSI emulation and Nano support 
- * - 15th Dec 2013: added reading program from command line for Linux
- *   use double quotes when calling from a script e.g.:
- *   bin/nano-X & bin/nxterm "ls -l *.sh >test.log" & sleep 10000
+ * Copyright (c) 2024 Microwindows Team
  */
-
-#define GR_COLOR_WHITESMOKE MWRGB(245, 245, 245)
-#define GR_COLOR_GAINSBORO MWRGB(220, 220, 220)
-#define GR_COLOR_ANTIQUEWHITE MWRGB(250, 235, 215)
-#define GR_COLOR_BLANCHEDALMOND MWRGB(255, 235, 205)
-#define GR_COLOR_LAVENDER MWRGB(230, 230, 250)
-#define GR_COLOR_WHITE MWRGB(255, 255, 255)
 
 #define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MWINCLUDECOLORS
-#include "nano-X.h"
-#include "nxterm.h"
-#include "uni_std.h"
-
-#if UNIX
 #include <errno.h>
 #include <fcntl.h>
 #include <pwd.h>
@@ -66,1228 +19,318 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
-#endif
+#include <unistd.h>
 
-#if ELKS
-#define stdcol 80
-#define stdrow 25
-#define KBDBUF 1024
-#else
-#define stdcol 80
-#define stdrow 50
+#define MWINCLUDECOLORS
+#include "nano-X.h"
+#include "tmt.h"
+
+/* Default terminal size */
+#define STDCOL 80
+#define STDROW 50
 #define KBDBUF 10240
-#endif
-
 #define TITLE "nxterm"
-#define stdforeground BLACK
-#define stdbackground LTGRAY
-//#define stdbackground GR_COLOR_GAINSBORO
-//#define stdbackground BLUE
-#define LINEBUF stdcol
 
-/*
- * globals
- */
-GR_WINDOW_ID w1;                /* id for window */
-GR_GC_ID gc1;                   /* graphics context */
-GR_FONT_ID regFont;
-/* GR_FONT_ID boldFont; */
-GR_SCREEN_INFO si;              /* screen info */
-GR_FONT_INFO fi;                /* Font Info */
+/* Color definitions */
+#define GR_COLOR_WHITESMOKE MWRGB(245, 245, 245)
+#define GR_COLOR_GAINSBORO  MWRGB(220, 220, 220)
+
+/* Standard colors */
+#define stdforeground WHITE
+#define stdbackground BLACK
+
+/* Globals */
+static GR_WINDOW_ID w1;
+static GR_GC_ID gc1;
+static GR_FONT_ID regFont;
+static GR_SCREEN_INFO si;
+static GR_FONT_INFO fi;
 
 #define fonh fi.height
 #define fonw fi.maxwidth
 
-GR_WINDOW_INFO wi;
-GR_GC_INFO gi;
-GR_BOOL havefocus = GR_FALSE;
-pid_t   pid;
-short   winw, winh;
-int     termfd;
-int     visualbell;
-int     fgcolor[12] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11};
-int     bgcolor[12] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11};
-int     scrolledFlag;           /* set when screen has been scrolled up */
-int     isMaximized = 0;
+static GR_GC_INFO gi;
+static GR_BOOL havefocus = GR_FALSE;
+static GR_BOOL cursor_visible = GR_FALSE;
+static pid_t pid;
+static int termfd;
+static int visualbell = 0;
+static char *startprogram = NULL;
+static TMT *vt = NULL;
 
-int     scrolltop;
-int     scrollbottom;
-int     ReverseMode = 0;
-int     semicolonflag = 0;
-int     nobracket = 0;
-int     roundbracket = 0;
-int     savex;
-int     savey;
-char   *startprogram;
+/* Color tables for tmt color mapping */
+static GR_COLOR tmt_colors[18] = {
+    MWRGB(0, 0, 0),         /* BLACK */
+    MWRGB(0, 0, 170),       /* BLUE */
+    MWRGB(0, 170, 0),       /* GREEN */
+    MWRGB(0, 170, 170),     /* CYAN */
+    MWRGB(170, 0, 0),       /* RED */
+    MWRGB(170, 0, 170),     /* MAGENTA */
+    MWRGB(170, 85, 0),      /* BROWN */
+    MWRGB(170, 170, 170),   /* LTGRAY */
+    MWRGB(85, 85, 85),      /* GRAY */
+    MWRGB(85, 85, 255),     /* LTBLUE */
+    MWRGB(85, 255, 85),     /* LTGREEN */
+    MWRGB(85, 255, 255),    /* LTCYAN */
+    MWRGB(255, 85, 85),     /* LTRED */
+    MWRGB(255, 85, 255),    /* LTMAGENTA */
+    MWRGB(255, 255, 85),    /* YELLOW */
+    MWRGB(255, 255, 255),   /* WHITE */
+    0                       /* DEFAULT - filled in at init */
+};
 
-/* the terminal code, almost like VT52 */
-#define ANSI 0
-#define VT52 1
-int     termtype = ANSI;
-int     bgmode, escstate, curx, cury, curon, curvis;
-int     savx, savy, wrap, style;
-int     col, row, colmask = 0x7f, rowmask = 0x7f;
-int     sbufcnt = 0;
-int     sbufx, sbufy;
-char    lineBuffer[LINEBUF + 1];
-char   *sbuf = lineBuffer;
+/* Forward declarations */
+static void tmt_callback(tmt_msg_t m, TMT *v, const void *a, void *p);
+static void draw_screen(void);
+static void draw_cursor(void);
+static void hide_cursor(void);
+static int do_special_key(unsigned char *buffer, int key, int modifiers);
 
-#define MAX_SCREEN_ROWS 100
-#define MAX_SCREEN_COLS 200
-static char screenBuffer[MAX_SCREEN_ROWS][MAX_SCREEN_COLS];
+/* PTY creation */
+static int term_init(void);
 
-void
-screen_clear(void)
+/* Signal handlers */
+static void *mysignal(int signum, void *handler);
+static void sigpipe(int sig);
+static void sigchild(int sig);
+static void sigquit(int sig);
+
+/* Convert tmt color to Nano-X GR_COLOR */
+static GR_COLOR
+color_from_tmt(tmt_color_t c, int bold)
 {
-    int r, c;
-    for (r = 0; r < MAX_SCREEN_ROWS; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = ' ';
+    if (c == TMT_COLOR_DEFAULT)
+        return tmt_colors[16];
+    if (c > 7 && c < TMT_COLOR_DEFAULT && bold)
+        return tmt_colors[c];  /* bright variant */
+    return tmt_colors[c & 7];
 }
 
-void
-screen_set_char(int x, int y, char ch)
+/* Draw a single character cell */
+static void
+draw_cell(int x, int y, wchar_t ch, TMTATTRS attrs)
 {
-    if (x >= 0 && x < MAX_SCREEN_COLS && y >= 0 && y < MAX_SCREEN_ROWS)
-        screenBuffer[y][x] = ch;
-}
+    GR_COLOR fg, bg;
+    int fg_idx, bg_idx;
+    int bold = attrs.bold;
+    int reverse = attrs.reverse;
 
-void
-screen_scroll_up(int lines)
-{
-    int r, c;
-    for (r = 0; r < MAX_SCREEN_ROWS - lines; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = screenBuffer[r + lines][c];
-    for (r = MAX_SCREEN_ROWS - lines; r < MAX_SCREEN_ROWS; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = ' ';
-}
+    /* Handle default colors */
+    fg_idx = (attrs.fg == TMT_COLOR_DEFAULT) ? 16 : (attrs.fg & 15);
+    bg_idx = (attrs.bg == TMT_COLOR_DEFAULT) ? 17 : (attrs.bg & 15);
 
-void
-screen_scroll_down(int lines)
-{
-    int r, c;
-    for (r = MAX_SCREEN_ROWS - 1; r >= lines; r--)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = screenBuffer[r - lines][c];
-    for (r = 0; r < lines && r < MAX_SCREEN_ROWS; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = ' ';
-}
+    fg = tmt_colors[fg_idx];
+    bg = tmt_colors[bg_idx];
 
-void
-screen_redraw(void)
-{
-    int r, c;
-    char line[MAX_SCREEN_COLS + 1];
-    
-    GrSetGCForeground(gc1, gi.foreground);
-    GrSetGCBackground(gc1, gi.background);
-    
-    for (r = 0; r < row; r++) {
-        for (c = 0; c < col; c++)
-            line[c] = screenBuffer[r][c];
-        line[col] = '\0';
-        GrText(w1, gc1, 0, r * fonh, line, col, GR_TFTOP);
+    /* Handle dim */
+    if (attrs.dim && fg_idx < 8)
+        fg_idx += 8;
+
+    /* Handle reverse */
+    if (reverse) {
+        GR_COLOR tmp = fg;
+        fg = bg;
+        bg = tmp;
+    }
+
+    /* Handle invisible */
+    if (attrs.invisible)
+        fg = bg;
+
+    /* Draw background */
+    GrSetGCForeground(gc1, bg);
+    GrFillRect(w1, gc1, x * fonw, y * fonh, fonw, fonh);
+
+    /* Draw character if visible */
+    if (ch != L' ' && ch != TMT_INVALID_CHAR) {
+        GrSetGCForeground(gc1, fg);
+
+        /* Convert wchar_t to UTF-8 for GrText */
+        char buf[8];
+        int len = 0;
+
+        if (ch < 0x80) {
+            buf[len++] = ch;
+        } else if (ch < 0x800) {
+            buf[len++] = 0xC0 | (ch >> 6);
+            buf[len++] = 0x80 | (ch & 0x3F);
+        } else if (ch < 0x10000) {
+            buf[len++] = 0xE0 | (ch >> 12);
+            buf[len++] = 0x80 | ((ch >> 6) & 0x3F);
+            buf[len++] = 0x80 | (ch & 0x3F);
+        } else {
+            buf[len++] = 0xF0 | (ch >> 18);
+            buf[len++] = 0x80 | ((ch >> 12) & 0x3F);
+            buf[len++] = 0x80 | ((ch >> 6) & 0x3F);
+            buf[len++] = 0x80 | (ch & 0x3F);
+        }
+        buf[len] = '\0';
+
+        GrText(w1, gc1, x * fonw, y * fonh, buf, len, GR_TFTOP);
+    }
+
+    /* Handle underline */
+    if (attrs.underline) {
+        GrSetGCForeground(gc1, fg);
+        GrLine(w1, gc1, x * fonw, (y + 1) * fonh - 1,
+               (x + 1) * fonw - 1, (y + 1) * fonh - 1);
     }
 }
 
-int     term_init(void);
-void    sflush(void);
-void    lineRedraw(void);
-void    sadd(char c);
-void    show_cursor(void);
-void    draw_cursor(void);
-void    hide_cursor(void);
-void    vscrollup(int lines);
-void    vscrolldown(int lines);
-void    esc5(unsigned char c);
-void    esc4(unsigned char c);
-void    esc3(unsigned char c);
-void    esc2(unsigned char c);
-void    esc1(unsigned char c);
-void    esc0(unsigned char c);
-void    esc100(unsigned char c);
-//ANSI codes
-void    printc(unsigned char c);
-void    init(void);
-void    term(void);
-void    usage(void);
-int     do_special_key(unsigned char *buffer, int key, int modifiers);
-int     do_special_key_ansi(unsigned char *buffer, int key, int modifiers);
-void    pos_xaxis(int c);       /* cursor position x axis for ansi */
-void    pos_yaxis(int c);       /* cursor position x axis for ansi */
-void    rendition(int escvalue);
-void    screen_clear(void);
-void    screen_set_char(int x, int y, char ch);
-void    screen_scroll_up(int lines);
-void    screen_scroll_down(int lines);
-void    screen_redraw(void);
-
-/* ************************************************************************* */
-
-void
-sflush(void)
+/* Draw dirty region of screen */
+static void
+draw_screen(void)
 {
-    if (sbufcnt) {
-        int i;
-        for (i = 0; i < sbufcnt; i++)
-            screen_set_char(sbufx + i, sbufy, sbuf[i]);
-        GrText(w1, gc1, sbufx * fonw, sbufy * fonh, sbuf, sbufcnt, GR_TFTOP);
-        sbufcnt = 0;
+    const TMTSCREEN *screen = tmt_screen(vt);
+    const TMTUPDATE *update = &screen->update;
+    const TMTCURSOR *cursor = tmt_cursor(vt);
+
+    if (!update->dirty)
+        return;
+
+    /* Draw dirty region */
+    for (size_t y = update->y; y < update->h && y < screen->nline; y++) {
+        for (size_t x = update->x; x < update->w && x < screen->ncol; x++) {
+            TMTCHAR *ch = &screen->lines[y]->chars[x];
+            draw_cell(x, y, ch->c, ch->a);
+            /* If we redrew the cursor cell, reset cursor state */
+            if (cursor_visible && x == cursor->c && y == cursor->r) {
+                cursor_visible = GR_FALSE;
+            }
+        }
     }
+
+    tmt_clean(vt);
 }
 
-void
-lineRedraw(void)
-{
-    GrSetGCForeground(gc1, gi.background);
-    GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-    GrSetGCForeground(gc1, gi.foreground);
-
-    if (sbufcnt) {
-        sbuf[sbufcnt] = 0;
-        GrText(w1, gc1, sbufx * fonw, sbufy * fonh, sbuf, sbufcnt, GR_TFTOP);
-    }
-}
-
-void
-sadd(char c)
-{
-    if (sbufcnt == LINEBUF)
-        sflush();
-
-    if (!sbufcnt) {
-        sbufx = curx;
-        sbufy = cury;
-    }
-    sbuf[sbufcnt++] = c;
-}
-
-void
-show_cursor(void)
-{
-    GrSetGCMode(gc1, GR_MODE_XOR);
-    GrSetGCForeground(gc1, WHITE);
-    GrFillRect(w1, gc1, curx * fonw, cury * fonh + 1, fonw, fonh - 1);
-    GrSetGCForeground(gc1, gi.foreground);
-    GrSetGCMode(gc1, GR_MODE_COPY);
-}
-
-void
+/* Draw cursor */
+static void
 draw_cursor(void)
 {
-    if (curon)
-        if (!curvis) {
-            curvis = 1;
-            show_cursor();
-        }
+    const TMTCURSOR *cursor = tmt_cursor(vt);
+
+    if (!cursor->hidden && havefocus && !cursor_visible) {
+        GrSetGCMode(gc1, GR_MODE_XOR);
+        GrSetGCForeground(gc1, WHITE);
+        GrFillRect(w1, gc1, cursor->c * fonw, cursor->r * fonh + 1,
+                   fonw, fonh - 1);
+        GrSetGCForeground(gc1, gi.foreground);
+        GrSetGCMode(gc1, GR_MODE_COPY);
+        cursor_visible = GR_TRUE;
+    }
 }
-void
+
+/* Hide cursor */
+static void
 hide_cursor(void)
 {
-    if (curvis) {
-        curvis = 0;
-        show_cursor();
-    }
-}
+    const TMTCURSOR *cursor = tmt_cursor(vt);
 
-void
-vscrollup(int lines)
-{
-    int r, c, from, to;
-    hide_cursor();
-    GrCopyArea(w1, gc1, 0, scrolltop * fonh, winw,
-               (scrollbottom - (scrolltop - 1) - lines - 1) * fonh, w1, 0,
-               (scrolltop + lines) * fonh, MWROP_COPY);
-    GrSetGCForeground(gc1, gi.background);
-    GrFillRect(w1, gc1, 0, (scrollbottom - lines) * fonh, winw, lines * fonh);
-    GrSetGCForeground(gc1, gi.foreground);
-    
-    for (r = scrolltop; r < scrollbottom - lines; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = screenBuffer[r + lines][c];
-    for (r = scrollbottom - lines; r < scrollbottom; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = ' ';
-}
-
-void
-vscrolldown(int lines)
-{
-    int r, c;
-    hide_cursor();
-    //FIXME add for loop
-    GrCopyArea(w1, gc1, 0, (scrolltop + lines) * fonh, winw,
-         (scrollbottom - scrolltop - lines) * fonh, w1, 0, scrolltop * fonh, MWROP_COPY);
-    GrSetGCForeground(gc1, gi.background);
-    GrFillRect(w1, gc1, 0, scrolltop * fonh, winw, lines * fonh);
-    GrSetGCForeground(gc1, gi.foreground);
-    
-    for (r = scrollbottom - 1; r >= scrolltop + lines; r--)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = screenBuffer[r - lines][c];
-    for (r = scrolltop; r < scrolltop + lines && r < MAX_SCREEN_ROWS; r++)
-        for (c = 0; c < MAX_SCREEN_COLS; c++)
-            screenBuffer[r][c] = ' ';
-}
-
-void
-esc5(unsigned char c)
-{                               /* setting background color */
-    GrSetGCBackground(gc1, c);
-    GrGetGCInfo(gc1, &gi);
-    escstate = 0;
-}
-
-void
-esc4(unsigned char c)
-{                               /* setting foreground color */
-    GrSetGCForeground(gc1, c);
-    GrGetGCInfo(gc1, &gi);
-    escstate = 0;
-}
-
-void
-esc3(unsigned char c)
-{                               /* cursor position x axis */
-    curx = (c - 32) & colmask;
-    if (curx >= col)
-        curx = col - 1;
-    else if (curx < 0)
-        curx = 0;
-    escstate = 0;
-}
-
-void
-esc2(unsigned char c)
-{                               /* cursor position y axis */
-    cury = (c - 32) & rowmask;
-    if (cury >= row)
-        cury = row - 1;
-    else if (cury < 0)
-        cury = 0;
-    escstate = 3;
-}
-
-/* various control codes */
-void
-esc1(unsigned char c)
-{
-    escstate = 0;
-
-    /* detect ANSI / VT100 codes */
-    if (c == '[') {
-        escstate = 10;
-        return;
-    }
-    if (c == '(') {
-        escstate = 10;
-        roundbracket = 1;
-        return;
-    }
-    if (termtype == ANSI) {
-        /*
-         * no bracket code - just ESC+letter so read no further char just do
-         * esc100 and terminate ESC state to read new sequence or unescaped
-         * chars.
-         */
-        nobracket = 1;
-        esc100(c);
-        escstate = 0;
-        return;
-    }
-    //now vt52 codes
-    switch (c) {
-    case 'A':                  /* cursor up */
-        hide_cursor();
-        if ((cury -= 1) < 0)
-            cury = 0;
-        break;
-
-    case 'B':                  /* cursor down */
-        hide_cursor();
-        if ((cury += 1) >= row)
-            cury = row - 1;
-        break;
-
-    case 'C':                  /* cursor right */
-        hide_cursor();
-        if ((curx += 1) >= col)
-            curx = col - 1;
-        break;
-
-    case 'D':                  /* cursor left */
-        hide_cursor();
-        if ((curx -= 1) < 0)
-            curx = 0;
-        break;
-
-    case 'E':                  /* clear screen & home */
-        GrClearWindow(w1, 0);
-        curx = 0;
-        cury = 0;
-        break;
-
-    case 'H':                  /* cursor home */
-        curx = 0;
-        cury = 0;
-        break;
-
-    case 'I':                  /* reverse index */
-        scrolledFlag = 1;
-        if ((cury -= 1) < 0) {
-            cury = 0;
-            vscrollup(1);
-        }
-        break;
-
-    case 'J':                  /* erase to end of page */
-        if (cury < row - 1) {
-            int r, c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, (cury + 1) * fonh, winw, (row - 1 - cury) * fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (r = cury + 1; r < row; r++)
-                for (c = 0; c < col; c++)
-                    screenBuffer[r][c] = ' ';
-        }
-        {
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = curx; c < col; c++)
-                screenBuffer[cury][c] = ' ';
-        }
-        break;
-
-    case 'K':                  /* erase to end of line */
-        {
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = curx; c < col; c++)
-                screenBuffer[cury][c] = ' ';
-        }
-        break;
-
-    case 'L':                  /* insert line */
-        if (cury < row - 1)
-            vscrollup(1);
-        curx = 0;
-        break;
-
-    case 'M':                  /* delete line */
-        if (cury < row - 1)
-            vscrollup(1);
-        curx = 0;
-        break;
-
-    case 'Y':                  /* position cursor */
-        escstate = 2;
-        break;
-
-    case 'b':                  /* set foreground color */
-        escstate = 4;
-        break;
-
-    case 'c':                  /* set background color */
-        escstate = 5;
-        break;
-
-    case 'd':                  /* erase beginning of display */
-        /* w_setmode(win, bgmode); */
-        if (cury > 0) {
-            int r, c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, 0, winw, cury * fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (r = 0; r < cury; r++)
-                for (c = 0; c < col; c++)
-                    screenBuffer[r][c] = ' ';
-        }
-        if (curx > 0) {
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = 0; c < curx; c++)
-                screenBuffer[cury][c] = ' ';
-        }
-        break;
-
-    case 'e':                  /* enable cursor */
-        curon = 1;
-        break;
-
-    case 'f':                  /* disable cursor */
-        curon = 0;
-        break;
-
-    case 'j':                  /* save cursor position */
-        savx = curx;
-        savy = cury;
-        break;
-
-    case 'k':                  /* restore cursor position */
-        curx = savx;
-        cury = savy;
-        break;
-
-    case 'l':                  /* erase entire line */
-        {
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, cury * fonh, winw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = 0; c < col; c++)
-                screenBuffer[cury][c] = ' ';
-        }
-        curx = 0;
-        break;
-
-    case 'o':                  /* erase beginning of line */
-        if (curx > 0) {
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-        }
-        break;
-
-    case 'p':                  /* enter reverse video mode */
-        if (!ReverseMode) {
-            GrSetGCForeground(gc1, gi.background);
-            GrSetGCBackground(gc1, gi.foreground);
-            ReverseMode = 1;
-        }
-        break;
-
-    case 'q':                  /* exit reverse video mode */
-        if (ReverseMode) {
-            GrSetGCForeground(gc1, gi.foreground);
-            GrSetGCBackground(gc1, gi.background);
-            ReverseMode = 0;
-        }
-        break;
-
-    case 'v':                  /* enable wrap at end of line */
-        wrap = 1;
-        break;
-
-    case 'w':                  /* disable wrap at end of line */
-        wrap = 0;
-        break;
-
-#if UNUSED
-        /* and these are the extentions not in VT52 */
-    case 'G':                  /* clear all attributes */
-        break;
-
-    case 'g':                  /* enter bold mode */
-        /* GrSetGCFont(gc1, boldFont); */
-        break;
-
-    case 'h':                  /* exit bold mode */
-        /* GrSetGCFont(gc1, regFont); */
-        break;
-
-    case 'i':                  /* enter underline mode */
-        break;
-
-    case 'm':                  /* exit underline mode */
-        break;
-
-    case 'n':                  /* enter italic mode */
-        break;
-
-    case 'r':                  /* exit italic mode */
-        break;
-
-    case 's':                  /* enter light mode */
-        break;
-
-    case 't':                  /* exit ligth mode */
-        break;
-#endif
-
-    default:                   /* unknown escape sequence */
-        break;
-    }
-}
-
-void
-pos_xaxis(int c)
-{
-    curx = c & colmask;
-    if (curx >= col)
-        curx = col - 1;
-    else if (curx < 0)
-        curx = 0;
-}
-
-void
-pos_yaxis(int c)
-{
-    cury = c & rowmask;
-    if (cury >= scrollbottom)
-        cury = scrollbottom - 1;
-    else if (cury < scrolltop)
-        cury = scrolltop - 1;
-}
-
-void
-rendition(int escvalue)
-{
-    if (escvalue == 0) {                //reset to default
-        GrSetGCForeground(gc1, stdforeground);
-        GrSetGCBackground(gc1, stdbackground);
-        ReverseMode = 0;
-    } else if (escvalue == 7) {         //inverse
-        if (!ReverseMode) {
-            GrSetGCForeground(gc1, gi.background);
-            GrSetGCBackground(gc1, gi.foreground);
-            ReverseMode = 1;
-        }
-    } else if (escvalue == 27) {        //inverse off
-        if (ReverseMode) {
-            GrSetGCForeground(gc1, gi.foreground);
-            GrSetGCBackground(gc1, gi.background);
-            ReverseMode = 0;
-        }
-    } else if ((escvalue > 29) && (escvalue < 38)) {
-        switch (escvalue) {
-        case 30:
-            GrSetGCForeground(gc1, BLACK);
-            break;
-        case 31:
-            GrSetGCForeground(gc1, RED);
-            break;
-        case 32:
-            GrSetGCForeground(gc1, GREEN);
-            break;
-        case 33:
-            GrSetGCForeground(gc1, BROWN);
-            break;
-        case 34:
-            GrSetGCForeground(gc1, BLUE);
-            break;
-        case 35:
-            GrSetGCForeground(gc1, MAGENTA);
-            break;
-        case 36:
-            GrSetGCForeground(gc1, CYAN);
-            break;
-        case 37:
-            GrSetGCForeground(gc1, WHITE);
-            break;
-        case 39:
-            GrSetGCForeground(gc1, stdforeground);
-            break;
-        }
-    } else if ((escvalue > 39) && (escvalue < 49)) {
-        switch (escvalue) {
-        case 40:
-            GrSetGCBackground(gc1, BLACK);
-            break;
-        case 41:
-            GrSetGCBackground(gc1, RED);
-            break;
-        case 42:
-            GrSetGCBackground(gc1, GREEN);
-            break;
-        case 43:
-            GrSetGCBackground(gc1, BROWN);
-            break;
-        case 44:
-            GrSetGCBackground(gc1, BLUE);
-            break;
-        case 45:
-            GrSetGCBackground(gc1, MAGENTA);
-            break;
-        case 46:
-            GrSetGCBackground(gc1, CYAN);
-            break;
-        case 47:
-            GrSetGCBackground(gc1, WHITE);
-            break;
-        case 49:
-            GrSetGCBackground(gc1, stdbackground);
-            break;
-        }
-    }
-}
-
-/* various ANSI control codes */
-void
-esc100(unsigned char c)
-{
-    int     y, yy;
-    char    buf[32];
-    //leave escstate = 10 till done.This states gets this function called.
-    static int escvalue1, escvalue2, escvalue3;
-    static char valuebuffer[3];
-    valuebuffer[2] = '\0';
-
-    if (c == '?')
-        return;
-
-    if (nobracket == 1) {
-    } else if (roundbracket == 1) {         // just remove ESC(B for set US ASCII
-    } else if ((c > 0x2F) && (c < ':')) {   //is it a number ?
-        if (valuebuffer[0] != '\0') {
-            valuebuffer[1] = c;
-        } else {
-            valuebuffer[0] = c;
-        }
-        return;
-    } else if (c == ';') {
-        if (semicolonflag == 0) {
-            escvalue1 = atoi(valuebuffer);
-            semicolonflag++;
-            valuebuffer[0] = '\0';
-            valuebuffer[1] = '\0';
-            return;
-        } else if (semicolonflag == 1) {
-            escvalue2 = atoi(valuebuffer);
-            semicolonflag++;
-            valuebuffer[0] = '\0';
-            valuebuffer[1] = '\0';
-            return;
-        }
-    } else if (((c > '@') && (c < '[')) ||
-               ((c > 0x60) && (c < '{'))) { //is it a letter ?
-        if (semicolonflag == 0) {
-            escvalue1 = atoi(valuebuffer);
-            escvalue2 = 0;
-            escvalue3 = 0;
-        } else if (semicolonflag == 1) {
-            escvalue2 = atoi(valuebuffer);
-            escvalue3 = 0;
-        } else if (semicolonflag == 2) {
-            escvalue3 = atoi(valuebuffer);
-        }
-        escstate = 0;
-        valuebuffer[0] = '\0';
-        valuebuffer[1] = '\0';
-    } else
-        return;
-    // letter received, now interpret the ESC sequence
-    /*
-     * the cursor positions: cury,curx are zero based, so 0,0 is home
-     * position also if command asks to position to 5 this has to be 4 y
-     * is the row/line position, x is the column position fonh =
-     * fi.height = height of character or line in pixel fonw =
-     * fi.maxwidth = width of character in pixel winw = width of line in
-     * pixel winh = height of screen in pixel col = number of columns for
-     * current screen width row = number of lines for current screen
-     * height scrolltop, scrollbottom = upper and lower scroll region
-     * limit in lines/rows
-     */
-    // GrError("\n\nC:%c,val1:%d,val2:%d,val3:%d,scflag:%d,curx:%d,cury:%d,nobracket:%d\n", c, escvalue1, escvalue2, escvalue3, semicolonflag, curx, cury, nobracket);
-
-    if (nobracket == 1) {
-        if (c == '8') {
-            //Restore cursor
-            // HOME will reduce by one below, so add here !
-            escvalue1 = savey + 1;
-            escvalue2 = savex + 1;
-            c = 'H';                    //position cursor
-        } else if (c == '7') {          //save cursor
-            savex = curx;
-            savey = cury;
-            c = '!';                    //done, so invalid code
-        } else if (c == 'M') {
-            // reverse index, same as cursor up but scroll display at top
-            if (cury <= scrolltop) {
-                escvalue1 = 1;
-                c = 'L';
-                //insert line
-                //cury--;
-                //vscrolldown(1);
-                //c = '!';
-            } else {
-                cury--;
-                pos_yaxis(cury);
-                c = '!';                //invalid code
-            }
-
-        } else if (c == 'D') {
-            //index, same as cursor down but scroll display at bottom
-            if ((cury + 1) > scrollbottom) {
-                escvalue1 = 1;
-                c = 'M';
-                //delete line
-                //vscrollup(1);
-                //c = '!';
-            } else {
-                cury++;
-                pos_yaxis(cury);
-                c = '!';                //invalid code
-            }
-        }
-    }
-    nobracket = 0;
-    if (roundbracket == 1) {    /* remove ESC(B for set to US ASCII */
-        c = 0;
-        roundbracket = 0;
-    }
-    switch (c) {
-    case 'A':                  /* cursor up */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        hide_cursor();
-        if ((cury -= escvalue1) < 0)
-            cury = scrolltop - 1;
-        break;
-
-    case 'B':                  /* cursor down */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        hide_cursor();
-        if ((cury += escvalue1) >= row)
-            cury = scrollbottom - 1;
-        break;
-
-    case 'C':                  /* cursor right */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        hide_cursor();
-        if ((curx += escvalue1) >= col)
-            curx = col - 1;
-        break;
-
-    case 'D':                  /* cursor left */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        hide_cursor();
-        if ((curx -= escvalue1) < 0)
-            curx = 0;
-        break;
-
-    case 'J':
-        if (escvalue1 == 0) {
-            //erase from current cursor to end of page / scrollbottom
-            int r, c;
-            if (cury < scrollbottom - 1) {
-                //erase area below current line
-                GrSetGCForeground(gc1, gi.background);
-                GrFillRect(w1, gc1, 0, (cury + 1) * fonh, winw,
-                           (scrollbottom - 1 - cury) * fonh);
-                GrSetGCForeground(gc1, gi.foreground);
-                for (r = cury + 1; r < scrollbottom; r++)
-                    for (c = 0; c < col; c++)
-                        screenBuffer[r][c] = ' ';
-            }
-            //erase from cursor to end of line
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = curx; c < col; c++)
-                screenBuffer[cury][c] = ' ';
-            break;
-        } else if (escvalue1 == 1) {
-            //erase from home / scrolltop to cursor
-            int r, c;
-            if (cury > scrolltop) {
-                //erase area from top to line above current line
-                GrSetGCForeground(gc1, gi.background);
-                GrFillRect(w1, gc1, 0, scrolltop, winw, (cury + 1) * fonh);
-                GrSetGCForeground(gc1, gi.foreground);
-                for (r = scrolltop; r < cury; r++)
-                    for (c = 0; c < col; c++)
-                        screenBuffer[r][c] = ' ';
-            }
-            //erase from beginning of line to cursor position
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = 0; c <= curx; c++)
-                screenBuffer[cury][c] = ' ';
-            break;
-        } else if (escvalue1 == 2) {
-            //erase entire page - leave cursor untouched
-            int r, c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, scrolltop, winw, (scrollbottom) * fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (r = scrolltop; r < scrollbottom; r++)
-                for (c = 0; c < col; c++)
-                    screenBuffer[r][c] = ' ';
-            break;
-        }
-        break;
-
-    case 'K':                  /* erase to end of line */
-        if (escvalue1 == 0) {
-            //erase from current cursor to end of line
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, curx * fonw, cury * fonh, (col - curx) * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = curx; c < col; c++)
-                screenBuffer[cury][c] = ' ';
-            break;
-        } else if (escvalue1 == 1) {
-            //erase from beginning of line to cursor
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, cury * fonh, curx * fonw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = 0; c <= curx; c++)
-                screenBuffer[cury][c] = ' ';
-            break;
-        } else if (escvalue1 == 2) {
-            //erase entire line - leave cursor untouched
-            int c;
-            GrSetGCForeground(gc1, gi.background);
-            GrFillRect(w1, gc1, 0, cury * fonh, winw, fonh);
-            GrSetGCForeground(gc1, gi.foreground);
-            for (c = 0; c < col; c++)
-                screenBuffer[cury][c] = ' ';
-            break;
-        }
-        break;
-
-    case 'P':                  /* erase after and including the cursor */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        GrSetGCForeground(gc1, gi.background);
-        //copy remaining chars on line to cursor position
-        GrCopyArea(w1, gc1, curx * fonw, cury * fonh,
-                   (col - curx - escvalue1) * fonw, fonh, w1,
-                   (curx + escvalue1) * fonw, cury * fonh, MWROP_COPY);
-        //clear space at end of line
-        GrFillRect(w1, gc1, (col - escvalue1) * fonw, cury * fonh, (escvalue1) * fonw,
-                    fonh);
+    if (cursor_visible) {
+        GrSetGCMode(gc1, GR_MODE_XOR);
+        GrSetGCForeground(gc1, WHITE);
+        GrFillRect(w1, gc1, cursor->c * fonw, cursor->r * fonh + 1,
+                   fonw, fonh - 1);
         GrSetGCForeground(gc1, gi.foreground);
-        break;
-
-    case 'L':                  /* insert lines */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        y = cury;
-        yy = stdrow - 1;
-        hide_cursor();
-        //copy from cursor the number of lines down
-        while (--yy >= y) {
-            GrCopyArea(w1, gc1, 0, (yy+escvalue1)*fonh, winw-0, fonh,
-                w1, 0, yy*fonh, MWROP_COPY);
-        }
-        //clear number of lines starting at cursor position
-        GrSetGCForeground(gc1,gi.background);
-        GrFillRect(w1, gc1, 0, cury*fonh, winw, escvalue1*fonh);
-        GrSetGCForeground(gc1,gi.foreground);
-        break;
-
-    case 'M':                   /* delete lines */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        GrCopyArea(w1, gc1, 0, cury * fonh, winw,
-                   (scrollbottom - cury - escvalue1) * fonh, w1, 0,
-                   (cury + escvalue1) * fonh, MWROP_COPY);
-
-        //clear number of lines starting from scrollbottom up
-        GrSetGCForeground(gc1, gi.background);
-        GrFillRect(w1, gc1, 0, (scrollbottom - escvalue1) * fonh, winw, escvalue1 * fonh);
-        GrSetGCForeground(gc1, gi.foreground);
-        break;
-
-    case 'S':                  /* scroll page up number of lines */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        vscrollup(escvalue1);
-        break;
-
-    case 'T':                  /* scroll page down number of lines */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        vscrolldown(escvalue1);
-        break;
-
-    case 'H':                  /* position cursor */
-    case 'f':                  /* position cursor */
-        if (escvalue1 > 0)
-            escvalue1--;
-        if (escvalue2 > 0)
-            escvalue2--;
-        pos_yaxis(escvalue1);
-        pos_xaxis(escvalue2);
-        break;
-
-    case 'E':                  /* lines down, col=1 */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        hide_cursor();
-        if ((cury += escvalue1) >= scrollbottom)
-            cury = scrollbottom - 1;
-        curx = 0;
-        break;
-
-    case 'F':                  /* lines up, col=1 */
-        if (escvalue1 == 0)
-            escvalue1 = 1;
-        hide_cursor();
-        if ((cury -= escvalue1) < 0)
-            cury = 0;
-        curx = 0;
-        break;
-
-    case 'd':                  /* position cursor to row */
-        if (escvalue1 > 0)
-            escvalue1--;
-        pos_yaxis(escvalue1);
-        break;
-
-    case '`':                  /* position cursor to col */
-    case 'G':                  /* position cursor to col */
-        if (escvalue1 > 0)
-            escvalue1--;
-        pos_xaxis(escvalue1);
-        break;
-
-    case 'e':                  /* move cursor down rows */
-        if (escvalue1 > 0)
-            escvalue1--;
-        pos_yaxis(escvalue1 + cury);
-        break;
-
-    case 'a':                  /* move cursor right columns */
-        if (escvalue1 > 0)
-            escvalue1--;
-        pos_xaxis(escvalue1 + curx);
-        break;
-
-    case 'm':                  /* Set graphics rendition */
-        /*
-         * may be more values, do just up to three here foreground colors run
-         * from 30 to 37, background from 40 to 47
-         */
-        rendition(escvalue1);
-        if (escvalue2 != 0)
-            rendition(escvalue2);
-        if (escvalue3 != 0)
-            rendition(escvalue3);
-        escvalue1 = 0;
-        escvalue2 = 0;
-        escvalue3 = 0;
-        GrGetGCInfo(gc1, &gi);
-        break;
-
-    case 's':                  /* save cursor position */
-        savx = curx;
-        savy = cury;
-        break;
-
-    case 'u':                  /* restore cursor position */
-        curx = savx;
-        cury = savy;
-        break;
-
-    case 'r':                  /* set scrolling region */
-        if ((escvalue1 > -1) && (escvalue2 <= (winh - 1))) {
-            scrolltop = escvalue1;
-            scrollbottom = escvalue2;
-        }
-        break;
-
-    case 'h':                  /* enable private modes - e.g. wrap at end of line */
-        if (escvalue1 == 7)
-            wrap = 1;
-        if (escvalue1 == 25)
-            show_cursor();
-        break;
-
-    case 'l':                  /* disable private modes - e.g. wrap at end of line */
-        if (escvalue1 == 7)
-            wrap = 0;
-        if (escvalue1 == 25)
-            hide_cursor();
-        break;
-
-    case 'n':                  /* DSR device status report */
-#if ELKS
-        strcpy(buf, "\033[");
-        strcat(buf, itoa(cury + 1));
-        strcat(buf, ";");
-        strcat(buf, itoa(curx + 1));
-        strcat(buf, "R");
-#else
-        sprintf(buf, "\033[%d;%dR", cury + 1, curx + 1);
-#endif
-        write(termfd, buf, strlen(buf));
-        break;
-    default:                   /* unknown escape sequence */
-        break;
+        GrSetGCMode(gc1, GR_MODE_COPY);
+        cursor_visible = GR_FALSE;
     }
-    //GrError("end-C:%c,val1:%d,val2:%d,val3:%d,scflag:%d,curx:%d,cury:%d\n", c,escvalue1,escvalue2,escvalue3,semicolonflag,curx,cury);
 }
 
-/*
- * un-escaped character print routine
- */
-
-void
-esc0(unsigned char c)
+/* TMT callback */
+static void
+tmt_callback(tmt_msg_t m, TMT *v, const void *a, void *p)
 {
-    switch (c) {
-    case 0:
-        /*
-         * printing \000 on a terminal means "do nothing". But since we use
-         * \000 as string terminator none of the characters that follow were
-         * printed.
-         * 
-         * perl -e 'printf("a%ca", 0);'
-         * 
-         * said 'a' in a wterm, but should say 'aa'. This bug screwed up most
-         * ncurses programs.
-         */
+    /* Skip drawing if vt not yet initialized (during tmt_open) */
+    if (!vt) return;
+    
+    switch (m) {
+    case TMT_MSG_UPDATE:
+        draw_screen();
         break;
 
-    case 7:                    /* bell */
-        if (visualbell) {
-            /* w_setmode(win, M_INVERS); */
-            /* w_pbox(win, 0, 0, winw, winh); */
-            /* w_test(win, 0, 0); */
-            /* w_pbox(win, 0, 0, winw, winh); */
-        } else
+    case TMT_MSG_MOVED:
+        /* Cursor moved - redraw old and new positions */
+        draw_screen();
+        break;
+
+    case TMT_MSG_ANSWER:
+        /* Send response to terminal */
+        if (a)
+            write(termfd, a, strlen((const char *)a));
+        break;
+
+    case TMT_MSG_BELL:
+        if (!visualbell)
             GrBell();
         break;
 
-    case 8:                    /* backspace */
-        hide_cursor();
-        if (--curx < 0)
-            curx = 0;
-        pos_xaxis(curx);
+    case TMT_MSG_TITLE:
+        /* Could update window title here */
         break;
 
-    case 9:                    /* tab */
-        {
-            int     borg, i;
-
-            borg = (((curx >> 3) + 1) << 3);
-            if (borg >= col)
-                borg = col - 1;
-            borg = borg - curx;
-            for (i = 0; i < borg; ++i)
-                sadd(' ');
-            if ((curx = ((curx >> 3) + 1) << 3) >= col)
-                curx = col - 1;
-            pos_xaxis(curx);
-        }
-        break;
-
-    case 10:                   /* line feed */
-        sflush();
-        //have to scroll before moving cursor, so reduce and add again
-        if (++cury >= scrollbottom) {
-            cury--;
-            vscrollup(1);
-            cury++;
-            cury = scrollbottom - 1;
-        }
-        pos_yaxis(cury);
-        break;
-
-    case 13:                   /* carriage return */
-        sflush();
-        curx = 0;
-        pos_xaxis(curx);
-        break;
-
-    case 27:                   /* escape */
-        sflush();
-        semicolonflag = 0;
-        escstate = 1;
-        break;
-
-    case 127:                  /* delete */
-        break;
-
-    default:                   /* any printable char */
-        sadd(c);
-        if (++curx >= col) {
-            sflush();
-            if (!wrap)
-                curx = col - 1;
-            else {
-                curx = 0;
-                if (++cury >= scrollbottom)
-                    vscrollup(1);
-            }
-        }
-        break;
-    }
-}
-
-void
-printc(unsigned char c)
-{
-    switch (escstate) {
-    case 0:
-        esc0(c);
-        break;
-
-    case 1:
-        sflush();
-        esc1(c);
-        break;
-
-    case 2:
-        sflush();
-        esc2(c);
-        break;
-
-    case 3:
-        sflush();
-        esc3(c);
-        break;
-
-    case 4:
-        sflush();
-        esc4(c);
-        break;
-
-    case 5:
-        sflush();
-        esc5(c);
-        break;
-
-    case 10:
-        sflush();
-        esc100(c);
+    case TMT_MSG_CURSOR:
+        /* Cursor visibility change */
         break;
 
     default:
-        escstate = 0;
         break;
     }
 }
 
-void
-init(void)
+/* Map Nano-X key to ANSI escape sequence */
+static int
+do_special_key(unsigned char *buffer, int key, int modifiers)
 {
-    curx = savx = 0;
-    cury = savy = 0;
-    wrap = 1;
-    curon = 1;
-    curvis = 0;
-    escstate = 0;
-    screen_clear();
+    const char *str = NULL;
+    int len = 0;
+
+    switch (key) {
+    case MWKEY_UP:      str = TMT_KEY_UP; len = strlen(str); break;
+    case MWKEY_DOWN:    str = TMT_KEY_DOWN; len = strlen(str); break;
+    case MWKEY_LEFT:    str = TMT_KEY_LEFT; len = strlen(str); break;
+    case MWKEY_RIGHT:   str = TMT_KEY_RIGHT; len = strlen(str); break;
+    case MWKEY_HOME:    str = TMT_KEY_HOME; len = strlen(str); break;
+    case MWKEY_END:     str = TMT_KEY_END; len = strlen(str); break;
+    case MWKEY_INSERT:  str = TMT_KEY_INSERT; len = strlen(str); break;
+    case MWKEY_DELETE:  str = TMT_KEY_DELETE; len = strlen(str); break;
+    case MWKEY_PAGEUP:  str = TMT_KEY_PAGE_UP; len = strlen(str); break;
+    case MWKEY_PAGEDOWN: str = TMT_KEY_PAGE_DOWN; len = strlen(str); break;
+    case MWKEY_BACKSPACE: str = TMT_KEY_BACKSPACE; len = strlen(str); break;
+    case MWKEY_ESCAPE:  str = TMT_KEY_ESCAPE; len = strlen(str); break;
+
+    case MWKEY_F1:  str = TMT_KEY_F1; len = strlen(str); break;
+    case MWKEY_F2:  str = TMT_KEY_F2; len = strlen(str); break;
+    case MWKEY_F3:  str = TMT_KEY_F3; len = strlen(str); break;
+    case MWKEY_F4:  str = TMT_KEY_F4; len = strlen(str); break;
+    case MWKEY_F5:  str = TMT_KEY_F5; len = strlen(str); break;
+    case MWKEY_F6:  str = TMT_KEY_F6; len = strlen(str); break;
+    case MWKEY_F7:  str = TMT_KEY_F7; len = strlen(str); break;
+    case MWKEY_F8:  str = TMT_KEY_F8; len = strlen(str); break;
+    case MWKEY_F9:  str = TMT_KEY_F9; len = strlen(str); break;
+    case MWKEY_F10: str = TMT_KEY_F10; len = strlen(str); break;
+    case MWKEY_F11: str = TMT_KEY_F11; len = strlen(str); break;
+    case MWKEY_F12: str = TMT_KEY_F12; len = strlen(str); break;
+
+    default:
+        return 0;
+    }
+
+    if (str && len > 0) {
+        memcpy(buffer, str, len);
+        return len;
+    }
+    return 0;
 }
 
-/*
- * general code...
- */
-void
+/* Main event loop */
+static void
 term(void)
 {
-    long    in, l;
+    long in, l;
     GR_EVENT_KEYSTROKE *kp;
-    int     bufflen;
-    int     gotexpose = 0;
+    int bufflen;
+    int gotexpose = 0;
     GR_EVENT wevent;
     unsigned char buf[KBDBUF];
 
@@ -1296,10 +339,8 @@ term(void)
         write(termfd, startprogram, strlen(startprogram));
         write(termfd, "\r", 1);
     }
-    while (42) {
-        if (havefocus)
-            draw_cursor();
 
+    while (42) {
         GrGetNextEvent(&wevent);
 
         switch (wevent.type) {
@@ -1309,16 +350,11 @@ term(void)
             break;
 
         case GR_EVENT_TYPE_KEY_DOWN:
-            /* deal with special keys */
-            kp = (GR_EVENT_KEYSTROKE *) & wevent;
-            if (kp->ch & MWKEY_NONASCII_MASK)
-                if (termtype == ANSI) {
-                    bufflen = do_special_key_ansi(buf, kp->ch, kp->modifiers);
-                } else {
-                    bufflen = do_special_key(buf, kp->ch, kp->modifiers);
-                }
-            else {
-                *buf = kp->ch & 0xff;
+            kp = (GR_EVENT_KEYSTROKE *)&wevent;
+            if (kp->ch & MWKEY_NONASCII_MASK) {
+                bufflen = do_special_key(buf, kp->ch, kp->modifiers);
+            } else {
+                buf[0] = kp->ch & 0xff;
                 bufflen = 1;
             }
             if (bufflen > 0)
@@ -1327,6 +363,7 @@ term(void)
 
         case GR_EVENT_TYPE_FOCUS_IN:
             havefocus = GR_TRUE;
+            draw_cursor();
             break;
 
         case GR_EVENT_TYPE_FOCUS_OUT:
@@ -1335,9 +372,6 @@ term(void)
             break;
 
         case GR_EVENT_TYPE_UPDATE:
-            /*
-             * if we get temporarily unmapped (moved), set cursor state off.
-             */
             if (wevent.update.utype == GR_UPDATE_UNMAPTEMP)
                 hide_cursor();
             break;
@@ -1347,8 +381,9 @@ term(void)
                 GrRegisterInput(termfd);
                 gotexpose = GR_TRUE;
             } else {
-                hide_cursor();
-                screen_redraw();
+                /* Redraw entire screen from tmt buffer */
+                tmt_dirty(vt, 0, 0, STDCOL, STDROW);
+                draw_screen();
                 if (havefocus)
                     draw_cursor();
             }
@@ -1356,399 +391,36 @@ term(void)
 
         case GR_EVENT_TYPE_FDINPUT:
             if (!gotexpose)
-                break;          /* wait until mapped before reading */
-            hide_cursor();
+                break;
             if ((in = read(termfd, buf, sizeof(buf))) > 0) {
-                for (l = 0; l < in; l++) {
-                    printc(buf[l]);
-                }
-                sflush();
+                hide_cursor();
+                tmt_write(vt, (char *)buf, in);
+                if (havefocus)
+                    draw_cursor();
             }
             break;
+
         case GR_EVENT_TYPE_NONE:
         case GR_EVENT_TYPE_TIMEOUT:
             break;
+
         default:
-            hide_cursor();
             break;
         }
     }
 }
 
-//handle vt52 keys here
-int 
-do_special_key(unsigned char *buffer, int key, int modifier)
-{
-    int     len;
-    char   *str, locbuff[32];
-
-    switch (key) {
-    case MWKEY_LEFT:
-        str = "\033D";
-        len = 2;
-        break;
-    case MWKEY_RIGHT:
-        str = "\033C";
-        len = 2;
-        break;
-    case MWKEY_UP:
-        if (scrolledFlag) {
-            str = "";
-            len = 0;
-            scrolledFlag = 0;
-        } else {
-            str = "\033A";
-            len = 2;
-        }
-        break;
-    case MWKEY_DOWN:
-        str = "\033B";
-        len = 2;
-        break;
-    case MWKEY_KP0:
-        str = "\033\077\160";
-        len = 3;
-        break;
-    case MWKEY_KP1:
-        str = "\033\077\161";
-        len = 3;
-        break;
-    case MWKEY_KP2:
-        str = "\033\077\162";
-        len = 3;
-        break;
-    case MWKEY_KP3:
-        str = "\033\077\163";
-        len = 3;
-        break;
-    case MWKEY_KP4:
-        str = "\033\077\164";
-        len = 3;
-        break;
-    case MWKEY_KP5:
-        str = "\033\077\165";
-        len = 3;
-        break;
-    case MWKEY_KP6:
-        str = "\033\077\166";
-        len = 3;
-        break;
-    case MWKEY_KP7:
-        str = "\033\077\167";
-        len = 3;
-        break;
-    case MWKEY_KP8:
-        str = "\033\077\170";
-        len = 3;
-        break;
-    case MWKEY_KP9:
-        str = "\033\077\161";
-        len = 3;
-        break;
-    case MWKEY_KP_PERIOD:
-        str = "\033\077\156";
-        len = 3;
-        break;
-    case MWKEY_KP_ENTER:
-        str = "\033\077\115";
-        len = 3;
-        break;
-    case MWKEY_DELETE:
-        str = "\033C\177";
-        len = 3;
-        break;
-    case MWKEY_F1...MWKEY_F12:
-        if (modifier & MWKMOD_LMETA) {
-            /* we set background color */
-            locbuff[0] = 033;
-            locbuff[1] = 'c';
-            locbuff[2] = (char)bgcolor[key - MWKEY_F1];
-            locbuff[3] = '\0';
-            str = locbuff;
-            len = 3;
-        } else if (modifier & MWKMOD_RMETA) {
-            /* we set foreground color */
-            locbuff[0] = 033;
-            locbuff[1] = 'b';
-            locbuff[2] = (char)fgcolor[key - MWKEY_F1];
-            locbuff[3] = '\0';
-            str = locbuff;
-            len = 3;
-        } else {
-            switch (key) {
-            case MWKEY_F1:
-                str = "\033Y";
-                len = 2;
-                break;
-            case MWKEY_F2:
-                str = "\033P";
-                len = 2;
-                break;
-            case MWKEY_F3:
-                str = "\033Q";
-                len = 2;
-                break;
-            case MWKEY_F4:
-                str = "\033R";
-                len = 2;
-                break;
-            case MWKEY_F5:
-                str = "\033S";
-                len = 2;
-                break;
-            case MWKEY_F6:
-                str = "\033T";
-                len = 2;
-                break;
-            case MWKEY_F7:
-                str = "\033U";
-                len = 2;
-                break;
-            case MWKEY_F8:
-                str = "\033V";
-                len = 2;
-                break;
-            case MWKEY_F9:
-                str = "\033W";
-                len = 2;
-                break;
-            case MWKEY_F10:
-                str = "\033X";
-                len = 2;
-                break;
-            }
-        }
-        /* fall thru */
-    default:
-        len = 0;
-    }
-    buffer[0] = '\0';
-    if (len > 0)
-        strcpy((char *)buffer, str);
-    return len;
-}
-
-int 
-do_special_key_ansi(unsigned char *buffer, int key, int modifier)
-{
-    int     len;
-    char   *str, locbuff[32];
-
-    switch (key) {
-    case MWKEY_LEFT:
-        str = "\033[D";
-        len = 3;
-        break;
-    case MWKEY_RIGHT:
-        str = "\033[C";
-        len = 3;
-        break;
-    case MWKEY_UP:
-        if (scrolledFlag) {
-            str = "";
-            len = 0;
-            scrolledFlag = 0;
-        } else {
-            str = "\033[A";
-            len = 3;
-        }
-        break;
-    case MWKEY_DOWN:
-        str = "\033[B";
-        len = 3;
-        break;
-    case MWKEY_HOME:
-        str = "\033[H";
-        len = 3;
-        break;
-    case MWKEY_INSERT:
-        str = "\033[2~";
-        len = 4;
-        break;
-    case MWKEY_KP0:
-        str = "\033Op";
-        len = 3;
-        break;
-    case MWKEY_END:
-        str = "\033[F";
-        len = 3;
-        break;
-    case MWKEY_KP1:
-        str = "\033Oq";
-        len = 3;
-        break;
-    case MWKEY_KP2:
-        str = "\033Or";
-        len = 3;
-        break;
-    case MWKEY_PAGEDOWN:
-        str = "\033[6~";
-        len = 4;
-        break;
-    case MWKEY_KP3:
-        str = "\033Os";
-        len = 3;
-        break;
-    case MWKEY_KP4:
-        str = "\033Ot";
-        len = 3;
-        break;
-    case MWKEY_KP5:
-        str = "\033Ou";
-        len = 3;
-        break;
-    case MWKEY_KP6:
-        str = "\033Ov";
-        len = 3;
-        break;
-    case MWKEY_KP7:
-        str = "\033Ow";
-        len = 3;
-        break;
-    case MWKEY_KP8:
-        str = "\033Ox";
-        len = 3;
-        break;
-    case MWKEY_PAGEUP:
-        str = "\033[5~";
-        len = 4;
-        break;
-    case MWKEY_KP9:
-        str = "\033Oy";
-        len = 3;
-        break;
-        /*
-         * case MWKEY_KP_PERIOD: str="\033On"; len=3; break;
-         */
-    case MWKEY_KP_ENTER:
-        str = "\033OM";
-        len = 3;
-        break;
-    case MWKEY_KP_PERIOD:
-    case MWKEY_DELETE:
-        str = "\033[3~";
-        len = 4;
-        break;
-    case MWKEY_F1...MWKEY_F12:
-        if (modifier & MWKMOD_LMETA) {
-            /* we set background color */
-            locbuff[0] = 033;
-            locbuff[1] = 'c';
-            locbuff[2] = (char)bgcolor[key - MWKEY_F1];
-            locbuff[3] = '\0';
-            str = locbuff;
-            len = 3;
-        } else if (modifier & MWKMOD_RMETA) {
-            /* we set foreground color */
-            locbuff[0] = 033;
-            locbuff[1] = 'b';
-            locbuff[2] = (char)fgcolor[key - MWKEY_F1];
-            locbuff[3] = '\0';
-            str = locbuff;
-            len = 3;
-        } else {
-            switch (key) {
-            case MWKEY_F1:
-                str = "\033OP";
-                len = 3;
-                break;
-            case MWKEY_F2:
-                str = "\033OQ";
-                len = 3;
-                break;
-            case MWKEY_F3:
-                str = "\033OR";
-                len = 3;
-                break;
-            case MWKEY_F4:
-                str = "\033OS";
-                len = 3;
-                break;
-            case MWKEY_F5:
-                str = "\033[15~";
-                len = 5;
-                break;
-            case MWKEY_F6:
-                str = "\033[17~";
-                //this is correct
-                    len = 5;
-                break;
-            case MWKEY_F7:
-                str = "\033[18~";
-                len = 5;
-                break;
-            case MWKEY_F8:
-                str = "\033[19~";
-                len = 5;
-                break;
-            case MWKEY_F9:
-                str = "\033[20~";
-                len = 5;
-                break;
-            case MWKEY_F10:
-                str = "\033[21~";
-                len = 5;
-                break;
-            case MWKEY_F11:
-                str = "\033[22~";
-                len = 5;
-                break;
-            case MWKEY_F12:
-                str = "\033[23~";
-                len = 5;
-                break;
-            }
-        }
-        /* fall thru */
-    default:
-        len = 0;
-    }
-    buffer[0] = '\0';
-    if (len > 0)
-        strcpy((char *)buffer, str);
-    return len;
-}
-
-void
-usage(void)
-{
-    GrError("usage: nxterm [-v5] [command]]\n");
-    exit(1);
-}
-
+/* Signal handlers */
 static void *
 mysignal(int signum, void *handler)
 {
     struct sigaction sa, so;
-
     sa.sa_handler = handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     sigaction(signum, &sa, &so);
-
     return so.sa_handler;
 }
-
-#if UNUSED
-void
-maximize(void)
-{
-    static short x0, y0, w, h, w_max, h_max;
-
-    if (!isMaximized) {
-        w_max = si.cols - wi.bordersize;
-        h_max = si.rows - wi.bordersize;
-        GrMoveWindow(w1, 0, 0);
-        GrResizeWindow(w1, w_max, h_max);
-        isMaximized = 1;
-    } else {
-        GrResizeWindow(w1, w, h);
-        GrMoveWindow(w1, x0, y0);
-        isMaximized = 0;
-    }
-}
-
-#endif
 
 static void
 sigpipe(int sig)
@@ -1773,59 +445,30 @@ sigquit(int sig)
     kill(-pid, SIGHUP);
 }
 
-int 
+int
 main(int argc, char **argv)
 {
     GR_CURSOR_ID c1;
-    GR_BITMAP bitmap1fg[7];     /* mouse cursor */
+    GR_BITMAP bitmap1fg[7];
     GR_BITMAP bitmap1bg[7];
+    int col = STDCOL;
+    int row = STDROW;
 
     argv++;
-    while (*argv && **argv == '-')
+    while (*argv && **argv == '-') {
         switch (*(*argv + 1)) {
-        case '5':
-            termtype = VT52;
-            argv++;
-            break;
-
         case 'v':
             visualbell = 1;
             argv++;
             break;
-
         default:
-            usage();
+            fprintf(stderr, "usage: nxterm [-v] [command]\n");
+            exit(1);
         }
+    }
 
-    /*
-     * now *argv either points to a program to start or is zero
-     */
     if (*argv)
         startprogram = *argv++;
-
-#if UNUSED
-    char   *shell = NULL, *cptr;
-    struct passwd *pw;
-    char    thesh[128];
-    pw = getpwuid(getuid());
-    if (!shell)
-        shell = getenv("SHELL=");
-    if (!shell && pw)
-        shell = pw->pw_shell;
-    if (!shell)
-        shell = "/bin/sh";
-
-    if (!*argv) {
-        /*
-         * the '-' makes the shell think it is a login shell, we leave
-         * argv[0] alone if it isn`t a shell (ie. the user specified the
-         * program to run as an argument.
-         */
-        cptr = strrchr(shell, '/');
-        sprintf(thesh, "-%s", cptr ? cptr + 1 : shell);
-        *--argv = thesh;
-    }
-#endif
 
     if (GrOpen() < 0) {
         GrError("cannot open graphics\n");
@@ -1833,33 +476,36 @@ main(int argc, char **argv)
     }
     GrGetScreenInfo(&si);
 
-    col = stdcol;
-    row = stdrow;
-    scrolltop = 0;
-    scrollbottom = row;
-
+    /* Create font and get metrics */
     regFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL);
-    /* regFont = GrCreateFontEx(GR_FONT_OEM_FIXED, 0, 0, NULL); */
-    /* boldFont = GrCreateFontEx(GR_FONT_SYSTEM_FIXED, 0, 0, NULL); */
     GrGetFontInfo(regFont, &fi);
-    winw = col * fi.maxwidth;
-    winh = row * fi.height;
-    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, TITLE, GR_ROOT_WINDOW_ID, -1, -1,
-                       winw, winh, stdbackground);
+
+    int winw = col * fi.maxwidth;
+    int winh = row * fi.height;
+
+    /* Create window */
+    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, TITLE, GR_ROOT_WINDOW_ID,
+                       -1, -1, winw, winh, stdbackground);
 
     GrSelectEvents(w1, GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_EXPOSURE |
-                   GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_FOCUS_IN |
-                   GR_EVENT_MASK_FOCUS_OUT | GR_EVENT_MASK_UPDATE |
-                   GR_EVENT_MASK_CLOSE_REQ);
+                       GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_FOCUS_IN |
+                       GR_EVENT_MASK_FOCUS_OUT | GR_EVENT_MASK_UPDATE |
+                       GR_EVENT_MASK_CLOSE_REQ);
     GrMapWindow(w1);
 
+    /* Setup GC */
     gc1 = GrNewGC();
     GrSetGCFont(gc1, regFont);
+    GrSetGCForeground(gc1, stdforeground);
+    GrSetGCBackground(gc1, stdbackground);
+    GrGetGCInfo(gc1, &gi);
 
-#define _ ((unsigned)0)         /* off bits */
-#define X ((unsigned)1)         /* on bits */
-#define MASK7(a, b, c, d, e, f, g)                                             \
-  (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) << 9)
+    /* Setup cursor */
+#define _ ((unsigned)0)
+#define X ((unsigned)1)
+#define MASK7(a, b, c, d, e, f, g) \
+    (((((((((((((a * 2) + b) * 2) + c) * 2) + d) * 2) + e) * 2) + f) * 2) + g) << 9)
+
     bitmap1fg[0] = MASK7(_, _, X, _, X, _, _);
     bitmap1fg[1] = MASK7(_, _, _, X, _, _, _);
     bitmap1fg[2] = MASK7(_, _, _, X, _, _, _);
@@ -1876,45 +522,46 @@ main(int argc, char **argv)
     bitmap1bg[5] = MASK7(_, _, X, X, X, _, _);
     bitmap1bg[6] = MASK7(_, X, X, X, X, X, _);
 
-    c1 = GrNewCursor(7, 7, 3, 3, stdforeground, stdbackground, bitmap1fg, bitmap1bg);
+    c1 = GrNewCursor(7, 7, 3, 3, stdforeground, stdbackground,
+                     bitmap1fg, bitmap1bg);
     GrSetWindowCursor(w1, c1);
-    GrSetGCForeground(gc1, stdforeground);
-    GrSetGCBackground(gc1, stdbackground);
-    GrGetWindowInfo(w1, &wi);
-    GrGetGCInfo(gc1, &gi);
 
-#if UNIX && !ELKS
-    /* set TERM and TERMCAP for vt52 only - default is ANSI or "linux" */
-    if (termtype == VT52) {
-        putenv(termtype_string);/* TERM=ngterm for Linux */
+    /* Setup terminal colors - 16 standard terminal colors */
+    tmt_colors[0] = MWRGB(0, 0, 0);         /* black */
+    tmt_colors[1] = MWRGB(170, 0, 0);       /* red */
+    tmt_colors[2] = MWRGB(0, 170, 0);       /* green */
+    tmt_colors[3] = MWRGB(170, 85, 0);      /* brown/orange */
+    tmt_colors[4] = MWRGB(0, 0, 170);       /* blue */
+    tmt_colors[5] = MWRGB(170, 0, 170);     /* magenta */
+    tmt_colors[6] = MWRGB(0, 170, 170);     /* cyan */
+    tmt_colors[7] = MWRGB(170, 170, 170);   /* light gray */
+    tmt_colors[8] = MWRGB(85, 85, 85);      /* dark gray */
+    tmt_colors[9] = MWRGB(255, 0, 0);       /* bright red */
+    tmt_colors[10] = MWRGB(0, 255, 0);      /* bright green */
+    tmt_colors[11] = MWRGB(255, 255, 0);    /* yellow */
+    tmt_colors[12] = MWRGB(0, 0, 255);      /* bright blue */
+    tmt_colors[13] = MWRGB(255, 0, 255);    /* bright magenta */
+    tmt_colors[14] = MWRGB(0, 255, 255);    /* bright cyan */
+    tmt_colors[15] = MWRGB(255, 255, 255);  /* white */
+    tmt_colors[16] = stdforeground;         /* default foreground */
+    tmt_colors[17] = stdbackground;         /* default background */
 
-        /*
-         * this one should enable us to get rid of an /etc/termcap entry for
-         * both curses and ncurses, hopefully...
-         */
-        if (termcap_string[0]) {/* TERMCAP= string */
-            sprintf(termcap_string + strlen(termcap_string), "li#%d:co#%d:", row, col);
-            putenv(termcap_string);
-        }
-    }
-    /*
-     * in case program absolutely needs terminfo entry, these 'should'
-     * transmit the screen size of correctly (at least xterm sets these and
-     * everything seems to work correctly...). Unlike putenv(), setenv()
-     * allocates also the given string not just a pointer.
-     */
+    /* Set environment for child process */
+    char sbuf[32];
     sprintf(sbuf, "%d", col);
     setenv("COLUMNS", sbuf, 1);
     sprintf(sbuf, "%d", row);
     setenv("LINES", sbuf, 1);
-#endif
+    setenv("TERM", "xterm", 1);
 
-    /* create pty, SIGCHLD handler set afterwards in case of grantpt() called */
-    termfd = term_init();       /* create pty */
+    /* Create PTY */
+    termfd = term_init();
     if (termfd < 0) {
         GrClose();
         exit(1);
     }
+
+    /* Setup signal handlers */
     mysignal(SIGTERM, sigquit);
     mysignal(SIGHUP, sigquit);
     mysignal(SIGQUIT, sigquit);
@@ -1922,37 +569,40 @@ main(int argc, char **argv)
     mysignal(SIGCHLD, sigchild);
     mysignal(SIGINT, SIG_IGN);
 #ifdef SIGTTOU
-    signal(SIGTTOU, SIG_IGN);   /* just in case we're started in the
-                                 * background */
+    signal(SIGTTOU, SIG_IGN);
 #endif
 
-    init();
+    /* Initialize tmt */
+    vt = tmt_open(row, col, tmt_callback, NULL, NULL);
+    if (!vt) {
+        fprintf(stderr, "tmt_open failed\n");
+        GrClose();
+        exit(1);
+    }
+
+    /* Register PTY for input */
+    GrRegisterInput(termfd);
+
+    /* Run terminal */
     term();
+
     return 0;
 }
 
-/*
- * pty create/open routines
- */
-#if DOS_DJGPP
-char   *nargv[2] = {"bash", NULL};
-
-#else
-char   *nargv[2] = {"/bin/sh", NULL};
-
-#endif
-
+/* PTY creation for different platforms */
 #if ELKS
-int 
+static char *nargv[2] = {"/bin/sh", NULL};
+
+static int
 term_init(void)
 {
-    int     tfd;
-    pid_t   pid;
-    int     n = 0;
-    char    pty_name[12];
+    int tfd;
+    pid_t pid;
+    int n = 0;
+    char pty_name[12];
 
 again:
-    strcpy(pty_name, "/dev/ptyp");      /* master side (PTY) /dev/ptyp0 = 2,8 */
+    strcpy(pty_name, "/dev/ptyp");
     strcat(pty_name, itoa(n));
     if ((tfd = open(pty_name, O_RDWR | O_NONBLOCK)) < 0) {
         if (errno == EBUSY && n++ < 3)
@@ -1969,7 +619,7 @@ again:
         close(tfd);
         close(STDIN_FILENO);
         close(STDOUT_FILENO);
-        pty_name[5] = 't';      /* slave side (TTY) /dev/ttyp0 = 4,8 */
+        pty_name[5] = 't';
         if ((tfd = open(pty_name, O_RDWR)) < 0) {
             GrError("Can't open %s\n", pty_name);
             return -1;
@@ -1984,29 +634,31 @@ again:
     return tfd;
 }
 
-#elif defined(__FreeBSD__)
-
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+#ifdef __APPLE__
+#include <util.h>
+#else
 #include <libutil.h>
-int 
+#endif
+
+static char *nargv[2] = {"/bin/sh", NULL};
+
+static int
 term_init(void)
 {
-    int     master, slave;
+    int master, slave;
     struct winsize winsz;
 
-    winsz.ws_col = col;
-    winsz.ws_row = row;
+    winsz.ws_col = STDCOL;
+    winsz.ws_row = STDROW;
+    winsz.ws_xpixel = 0;
+    winsz.ws_ypixel = 0;
     if (openpty(&master, &slave, NULL, NULL, &winsz) < 0) {
         GrError("Can't create pty\n");
         return -1;
     }
     fcntl(master, F_SETFL, fcntl(master, F_GETFL) | O_NONBLOCK);
     if (!fork()) {
-#if UNUSED
-        for (i = _NSIG; --i >= 0;)      /* SIG_IGN are not reset on exec() */
-            signal(i, SIG_DFL);
-        for (i = getdtablesize(); --i >= 3;)
-            close(i);
-#endif
         setsid();
         close(master);
         close(STDIN_FILENO);
@@ -2024,15 +676,22 @@ term_init(void)
     return master;
 }
 
-#else                           /* Linux / UNIX98 */
+#else
+/* Linux / UNIX98 - new style PTY */
+static char *nargv[2] = {"/bin/sh", NULL};
 
-/* new-style /dev/ptmx, /dev/pts/0 */
-int 
+static int
 term_init(void)
 {
-    int     tfd;
-    pid_t   pid;
-    char    ptyname[50];
+    int tfd;
+    pid_t pid;
+    char ptyname[50];
+    struct winsize winsz;
+
+    winsz.ws_col = STDCOL;
+    winsz.ws_row = STDROW;
+    winsz.ws_xpixel = 0;
+    winsz.ws_ypixel = 0;
 
     tfd = posix_openpt(O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (tfd < 0) {
@@ -2041,7 +700,7 @@ term_init(void)
     }
     strcpy(ptyname, ptsname(tfd));
 
-    signal(SIGCHLD, SIG_DFL);   /* required before grantpt() */
+    signal(SIGCHLD, SIG_DFL);
     grantpt(tfd);
     unlockpt(tfd);
 
@@ -2059,6 +718,9 @@ term_init(void)
             GrError("Can't open %s\n", ptyname);
             exit(1);
         }
+
+        ioctl(tfd, TIOCSWINSZ, &winsz);
+
         close(STDERR_FILENO);
         dup2(tfd, STDIN_FILENO);
         dup2(tfd, STDOUT_FILENO);
@@ -2068,5 +730,4 @@ term_init(void)
     }
     return tfd;
 }
-
 #endif

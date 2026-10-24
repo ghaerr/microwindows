@@ -166,6 +166,7 @@ sflush(void)
 {
     if (sbufcnt) {
         GrText(w1, gc1, sbufx * fonw, sbufy * fonh, sbuf, sbufcnt, GR_TFTOP);
+        GrFlushWindow(w1);
         sbufcnt = 0;
     }
 }
@@ -181,6 +182,7 @@ lineRedraw(void)
         sbuf[sbufcnt] = 0;
         GrText(w1, gc1, sbufx * fonw, sbufy * fonh, sbuf, sbufcnt, GR_TFTOP);
     }
+    GrFlushWindow(w1);
 }
 
 void
@@ -204,6 +206,7 @@ show_cursor(void)
     GrFillRect(w1, gc1, curx * fonw, cury * fonh + 1, fonw, fonh - 1);
     GrSetGCForeground(gc1, gi.foreground);
     GrSetGCMode(gc1, GR_MODE_COPY);
+    GrFlushWindow(w1);
 }
 
 void
@@ -234,6 +237,7 @@ vscrollup(int lines)
     GrSetGCForeground(gc1, gi.background);
     GrFillRect(w1, gc1, 0, (scrollbottom - lines) * fonh, winw, lines * fonh);
     GrSetGCForeground(gc1, gi.foreground);
+    GrFlushWindow(w1);
 }
 
 void
@@ -246,6 +250,7 @@ vscrolldown(int lines)
     GrSetGCForeground(gc1, gi.background);
     GrFillRect(w1, gc1, 0, scrolltop * fonh, winw, lines * fonh);
     GrSetGCForeground(gc1, gi.foreground);
+    GrFlushWindow(w1);
 }
 
 void
@@ -1223,6 +1228,7 @@ term(void)
                     printc(buf[l]);
                 }
                 sflush();
+                GrFlushWindow(w1);
             }
             break;
         case GR_EVENT_TYPE_NONE:
@@ -1704,8 +1710,9 @@ main(int argc, char **argv)
     GrGetFontInfo(regFont, &fi);
     winw = col * fi.maxwidth;
     winh = row * fi.height;
-    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW, TITLE, GR_ROOT_WINDOW_ID, -1, -1,
-                       winw, winh, stdbackground);
+    w1 = GrNewWindowEx(GR_WM_PROPS_APPWINDOW | GR_WM_PROPS_BUFFERED,
+                       TITLE, GR_ROOT_WINDOW_ID, -1, -1, winw, winh,
+                       stdbackground);
 
     GrSelectEvents(w1, GR_EVENT_MASK_BUTTON_DOWN | GR_EVENT_MASK_EXPOSURE |
                    GR_EVENT_MASK_KEY_DOWN | GR_EVENT_MASK_FOCUS_IN |

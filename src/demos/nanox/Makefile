@@ -109,6 +109,7 @@ ifneq ($(ARCH),CYGWIN)
     ifneq ($(ARCH),ANDROID)
       ifneq ($(ARCH),AQUILA)
         TARGETS += $(MW_DIR_BIN)/nxterm
+        TARGETS += $(MW_DIR_BIN)/tmterm
       endif
     endif
   endif
@@ -190,11 +191,11 @@ NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
 	$(NANOX_DEMOS_WITH_LIBM_LINK) \
 	$(MW_DIR_BIN)/nxkbd \
 	$(MW_DIR_BIN)/demo-convimage \
-	$(MW_DIR_BIN)/demo-agg \
-	$(MW_DIR_BIN)/nxterm
+	$(MW_DIR_BIN)/demo-agg
 
 # All other demos use a standard link line, that just
 # links against the Nano-X client libraries.
+
 NANOX_DEMOS_WITH_STANDARD_LINK := \
 	$(filter-out $(NANOX_DEMOS_WITH_NONSTANDARD_LINK),$(TARGETS))
 
@@ -228,15 +229,15 @@ else
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NXKBDOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
 endif
 
-# nxterm needs tmt.o and mb.o for terminal emulation
-NXTMTOBJS = \
-	$(MW_DIR_OBJ)/demos/nanox/nxterm.o \
+
+TMTTERMOBJS = \
+	$(MW_DIR_OBJ)/demos/nanox/tmterm.o \
 	$(MW_DIR_OBJ)/demos/nanox/tmt.o \
 	$(MW_DIR_OBJ)/demos/nanox/mb.o
 
-$(MW_DIR_BIN)/nxterm: $(NXTMTOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
+$(MW_DIR_BIN)/tmterm: $(TMTTERMOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(NXTMTOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TMTTERMOBJS) $(NANOXCLIENTLIBS) $(LDFLAGS)
 
 $(MW_DIR_BIN)/demo-convimage: $(CANNYOBJS) $(NANOXCLIENTLIBS) $(CONFIG)
 	@echo "Linking $(patsubst $(MW_DIR_BIN)/%,%,$@) ..."

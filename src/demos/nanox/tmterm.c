@@ -374,16 +374,6 @@ term(void)
         case GR_EVENT_TYPE_UPDATE:
             if (wevent.update.utype == GR_UPDATE_UNMAPTEMP)
                 hide_cursor();
-            else if (wevent.update.utype == GR_UPDATE_MOVE ||
-                     wevent.update.utype == GR_UPDATE_SIZE) {
-                /* Redraw on move/resize to keep content in sync */
-                if (gotexpose) {
-                    tmt_dirty(vt, 0, 0, tmt_screen(vt)->ncol, tmt_screen(vt)->nline);
-                    draw_screen();
-                    if (havefocus)
-                        draw_cursor();
-                }
-            }
             break;
 
         case GR_EVENT_TYPE_EXPOSURE:

@@ -190,6 +190,7 @@ endif
 NANOX_DEMOS_WITH_NONSTANDARD_LINK := \
 	$(NANOX_DEMOS_WITH_LIBM_LINK) \
 	$(MW_DIR_BIN)/nxkbd \
+	$(MW_DIR_BIN)/tmterm \
 	$(MW_DIR_BIN)/demo-convimage \
 	$(MW_DIR_BIN)/demo-agg
 

@@ -95,6 +95,7 @@ static void sigpipe(int sig);
 static void sigchild(int sig);
 static void sigquit(int sig);
 
+#if UNUSED
 /* Convert tmt color to Nano-X GR_COLOR */
 static GR_COLOR
 color_from_tmt(tmt_color_t c, int bold)
@@ -105,6 +106,7 @@ color_from_tmt(tmt_color_t c, int bold)
         return tmt_colors[c];  /* bright variant */
     return tmt_colors[c & 7];
 }
+#endif
 
 /* Draw a single character cell */
 static void
@@ -112,7 +114,6 @@ draw_cell(int x, int y, wchar_t ch, TMTATTRS attrs)
 {
     GR_COLOR fg, bg;
     int fg_idx, bg_idx;
-    int bold = attrs.bold;
     int reverse = attrs.reverse;
 
     /* Handle default colors */
@@ -154,16 +155,21 @@ draw_cell(int x, int y, wchar_t ch, TMTATTRS attrs)
         } else if (ch < 0x800) {
             buf[len++] = 0xC0 | (ch >> 6);
             buf[len++] = 0x80 | (ch & 0x3F);
-        } else if (ch < 0x10000) {
+        }
+#if !ELKS
+        else if (ch < 0x10000) {
+#endif
             buf[len++] = 0xE0 | (ch >> 12);
             buf[len++] = 0x80 | ((ch >> 6) & 0x3F);
             buf[len++] = 0x80 | (ch & 0x3F);
+#if !ELKS
         } else {
             buf[len++] = 0xF0 | (ch >> 18);
             buf[len++] = 0x80 | ((ch >> 12) & 0x3F);
             buf[len++] = 0x80 | ((ch >> 6) & 0x3F);
             buf[len++] = 0x80 | (ch & 0x3F);
         }
+#endif
         buf[len] = '\0';
 
         GrText(w1, gc1, x * fonw, y * fonh, buf, len, GR_TFTOP);
@@ -327,7 +333,7 @@ do_special_key(unsigned char *buffer, int key, int modifiers)
 static void
 term(void)
 {
-    long in, l;
+    long in;
     GR_EVENT_KEYSTROKE *kp;
     int bufflen;
     int gotexpose = 0;
@@ -546,6 +552,7 @@ main(int argc, char **argv)
     tmt_colors[16] = stdforeground;         /* default foreground */
     tmt_colors[17] = stdbackground;         /* default background */
 
+#if !ELKS
     /* Set environment for child process */
     char sbuf[32];
     sprintf(sbuf, "%d", col);
@@ -553,6 +560,7 @@ main(int argc, char **argv)
     sprintf(sbuf, "%d", row);
     setenv("LINES", sbuf, 1);
     setenv("TERM", "xterm", 1);
+#endif
 
     /* Create PTY */
     termfd = term_init();

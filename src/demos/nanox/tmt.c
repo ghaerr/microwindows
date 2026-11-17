@@ -46,11 +46,11 @@
 #define P1(x) (vt->pars[x]? vt->pars[x] : 1)
 #define CB(vt, m, a) ((vt)->cb? (vt)->cb(m, vt, a, (vt)->p) : (void)0)
 
-#define COMMON_VARS             \
-    TMTSCREEN *s = &vt->screen; \
-    TMTCURSOR *c = &vt->curs;    \
-    TMTLINE *l = CLINE(vt);     \
-    TMTCHAR *t = vt->tabs->chars
+#define COMMON_VARS                        \
+    TMTSCREEN *s = &vt->screen;   (void)s; \
+    TMTCURSOR *c = &vt->curs;     (void)c; \
+    TMTLINE *l = CLINE(vt);       (void)l; \
+    TMTCHAR *t = vt->tabs->chars; (void)t; \
 
 #define HANDLER(name) static void name (TMT *vt) { COMMON_VARS;
 

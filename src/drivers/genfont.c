@@ -192,11 +192,13 @@ gen_gettextbits(PMWFONT pfont, int ch, const MWIMAGEBITS **retmap,
 	ch -= pf->firstchar;
 
 	/* get font bitmap depending on fixed pitch or not*/
-	/* automatically detect if offset is 16 or 32 bit */
 	if( pf->offset ) {
-		if( ((uint32_t *)pf->offset)[0] >= 0x00010000 )
+#if ELKS 
+		/* automatically detect if offset is 16 or 32 bit */
+        if (((uint16_t *)pf->offset)[0] == 0 && ((uint16_t *)pf->offset)[1] != 0)
 			bits = pf->bits + ((unsigned short *)pf->offset)[ch];
 		else
+#endif
 			bits = pf->bits + ((uint32_t *)pf->offset)[ch];
 	} else
 		bits = pf->bits + (pf->height * ch);

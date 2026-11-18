@@ -358,6 +358,12 @@ typedef struct {
 	int32_t			bits_size;	/* # words of MWIMAGEBITS bits*/
 } MWCFONT, *PMWCFONT;
 
+#if ELKS  
+typedef uint16_t mwcfont_small_offset_t;
+#else
+typedef uint32_t mwcfont_small_offset_t;
+#endif
+
 /* draw procs associated with fonts.  Strings are [re]packed using defencoding*/
 typedef struct _mwscreendevice *PSD;
 typedef struct _mwfont *		PMWFONT;

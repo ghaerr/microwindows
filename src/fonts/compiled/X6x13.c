@@ -6963,9 +6963,8 @@ static MWIMAGEBITS _X6x13_bits[] = {
 0x7000,
 };
 
-#if 0000
 /* Character->glyph mapping. */
-static unsigned long _X6x13_offset[] = {
+static mwcfont_small_offset_t _X6x13_offset[] = {
   0,	/* (0x00) */
   13,	/* (0x01) */
   26,	/* (0x02) */
@@ -7223,7 +7222,6 @@ static unsigned long _X6x13_offset[] = {
   2886,	/* (0xfe) */
   2899,	/* (0xff) */
 };
-#endif
 
 /* Exported structure definition. */
 MWCFONT font_X6x13 = {
@@ -7234,7 +7232,7 @@ MWCFONT font_X6x13 = {
   0,
   256,
   _X6x13_bits,
-  0, /* _X6x13_offset, */
+  (uint32_t *)_X6x13_offset,
   0,  /* fixed width*/
   0,
   sizeof(_X6x13_bits)/sizeof(MWIMAGEBITS),

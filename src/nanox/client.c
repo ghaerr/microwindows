@@ -1123,10 +1123,8 @@ GrPeekWaitEvent(GR_EVENT *ep)
 	if (elp) {
 		elp->event = *ep;
 		elp->next = evlist;
+		evlist = elp;
 	}
-
-	/* peek at it*/
-	GrPeekEvent(ep);
 
 	UNLOCK(&nxGlobalLock);
 }

@@ -34,7 +34,7 @@
 #define STDROW 50
 #define KBDBUF 10240
 #endif
-#define TITLE "nxterm"
+#define TITLE "tmterm"
 
 /* Color definitions */
 #define GR_COLOR_WHITESMOKE MWRGB(245, 245, 245)

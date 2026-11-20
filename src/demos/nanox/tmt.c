@@ -59,6 +59,7 @@ struct TMT{
 
     bool acs, ignored, XN, q;
     bool unicode_to_acs;
+    size_t pending_scroll;
 
     TMTSCREEN screen;
     TMTCURSOR curs, oldcurs;
@@ -152,10 +153,14 @@ scrup(TMT *vt, size_t r, ssize_t n)
 
     if (n>0){
         TMTLINE *buf[n];
-        if (r == 0) {
+        bool scrolled = false;
+#ifdef TMT_HAS_MSG_SCROLL
+        if (r == 0 && vt->cb) {
             for (int i = 0; i < n; ++i)
                 CB(vt, TMT_MSG_SCROLL, &vt->screen.lines[i]->chars);
+            scrolled = true;
         }
+#endif
 
         memcpy(buf, vt->screen.lines + r, n * sizeof(TMTLINE *));
         memmove(vt->screen.lines + r, vt->screen.lines + r + n,
@@ -164,7 +169,10 @@ scrup(TMT *vt, size_t r, ssize_t n)
                buf, n * sizeof(TMTLINE *));
 
         clearlines(vt, vt->maxline - n + 1, n);
-        dirtylines(vt, r, vt->maxline+1);
+        if (scrolled)
+            dirtylines(vt, vt->maxline - n + 1, vt->maxline+1);
+        else
+            dirtylines(vt, r, vt->maxline+1);
     }
 }
 
@@ -376,9 +384,10 @@ nl(TMT *vt)
     COMMON_VARS;
 
     vt->XN = false;
-    if (c->r == vt->maxline)
-        scrup(vt, SCR_DEF, 1);
-    else if (c->r < (s->nline-1))
+    c->c = 0;
+    if (c->r >= vt->maxline)
+        vt->pending_scroll++;
+    else
         c->r++;
 }
 
@@ -531,6 +540,7 @@ bool
 tmt_resize(TMT *vt, size_t nline, size_t ncol)
 {
     if (nline < 2 || ncol < 2) return false;
+    vt->pending_scroll = 0;
     if (nline < vt->screen.nline)
         freelines(vt, nline, vt->screen.nline - nline, false);
 
@@ -609,6 +619,11 @@ static void
 writecharatcurs(TMT *vt, wchar_t w)
 {
     COMMON_VARS;
+
+    if (vt->pending_scroll) {
+        scrup(vt, SCR_DEF, vt->pending_scroll);
+        vt->pending_scroll = 0;
+    }
 
     if (vt->XN) {
         vt->XN = false;
@@ -748,6 +763,7 @@ tmt_reset(TMT *vt)
     vt->curs.r = vt->curs.c = vt->curs.hidden = 0;
     vt->oldcurs.r = vt->oldcurs.c = vt->oldcurs.hidden = 0;
     vt->acs = vt->XN = 0;
+    vt->pending_scroll = 0;
     vt->minline = 0;
     vt->maxline = vt->screen.nline-1;
     vt->attrs = vt->oldattrs = defattrs;

@@ -68,6 +68,7 @@ struct app_info {
 } Apps[] = {
 	{"clock",   PATH "nxclock"},
 	{"term",    PATH "nxterm"},
+	{"tmterm",  PATH "tmterm"},
 	{"tetris",  PATH "nxtetris"},
 	{"world",   PATH "nxworld"},
 	{"landmine",PATH "nxmine"},

@@ -351,7 +351,7 @@ GrNewRegionFromPixmap(GR_WINDOW_ID src, GR_COORD x, GR_COORD y, GR_SIZE width, G
 		}
 
 		if (state != 0) {
-			local.width = ((winfo.width - 1) - local.x);
+			local.width = mw - local.x;
 			GrUnionRectWithRegion(r, &local);
 		}
 	}

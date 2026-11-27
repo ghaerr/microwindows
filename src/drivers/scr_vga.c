@@ -1,6 +1,6 @@
 /*
  * EGA/VGA 16 color 4 planes Screen Driver, direct hardware or bios
- * 	If HWINIT 1 is #defined, the file vgainit.c is
+ * 	For ELKS, the file vga-hwinit.c is
  * 	used to provide non-bios direct hw initialization of the VGA
  * 	chipset.  Otherwise, this driver uses int10 bios to 
  * 	set/reset graphics/text modes.
@@ -29,37 +29,31 @@
  *	The environment variable CHARHEIGHT if set will set the assumed rom
  *	font character height, which defaults to 14.
  *
- * Copyright (c) 1999, 2000 Greg Haerr <greg@censoft.com>
+ * Copyright (c) 1999, 2000, 2026 Greg Haerr <greg@censoft.com>
  *
  * 6 Feb 2025 Greg Haerr Revived from the dead for ELKS!
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 
+#define ROMFONT     0       /* =1 uses PC rom fonts */
+
 #if ELKS
-#include <linuxmt/ntty.h>	/* DCGET_GRAPH ioctl */
-#define HWINIT		0	/* =1 for non-bios direct hardware init*/
-#define ROMFONT		0	/* =1 uses PC rom fonts */
+#include <linuxmt/ntty.h>   /* DCGET_GRAPH ioctl */
 #elif _MINIX
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <ibm/int86.h>
-#define HWINIT		0
-#define ROMFONT		0
-#elif RTEMS
-#define HWINIT		1
-#define ROMFONT		0
-#else
-#define HWINIT		0
-#define ROMFONT		0
 #endif
 
 #include "device.h"
 #include "vgaplan4.h"
 #include "genmem.h"
 #include "fb.h"
+
 #if ROMFONT
 #include "romfont.h"
 #else
@@ -90,39 +84,48 @@ SCREENDEVICE	scrdev = {
 	NULL,			/* PreSelect*/
 };
 
-/* operating mode*/
-static MWBOOL VGAMODE = TRUE;	/* ega or vga screen rows*/
+int vga_hwinit(void);
+int vga_hwterm(void);
 
 /* int10 functions*/
-#define FNGR640x480	0x0012	/* function for graphics mode 640x480x16*/
-#define FNGR640x350	0x0010	/* function for graphics mode 640x350x16*/
-#define FNTEXT		0x0003	/* function for 80x25 text mode*/
+#define VGA_640x350x16      0x10        /* 640x350 16 color/4bpp */
+#define VGA_640x480x16      0x12        /* 640x480 16 color/4bpp */
+#define TEXT_MODE           0x03        /* 80x25 text mode */
+
+static int hwinit;
 
 static PSD
 VGA_open(PSD psd)
 {
+	char *modestr;
+	int mode;
 	extern PSUBDRIVER vgaplan4[4];
 
-	/* setup operating mode from environment variable*/
-	if(getenv("EGAMODE"))
-		VGAMODE = FALSE;
-	else VGAMODE = TRUE;
+	/* setup operating mode from environment MODE=HWVGA (default), VGA or EGA */
+	modestr = getenv("MODE");
+	if (!modestr)
+	    modestr = "HWVGA";
+	if (!strcmp(modestr, "HWVGA")) {
+	    hwinit = 1;
+	    mode = VGA_640x480x16;
+	} else if (!strcmp(modestr, "EGA"))
+	    mode = VGA_640x350x16;
+	else
+	    mode = VGA_640x480x16;
 
 #if ELKS
 	/* disallow console switching while in graphics mode*/
 	//ioctl(2, DCGET_GRAPH);
-#endif
 
-#if HWINIT
-	ega_hwinit();		/* enter graphics mode*/
-#else
-	/* init bios graphics mode*/
-	int10(VGAMODE? FNGR640x480: FNGR640x350, 0);
+	if (hwinit)
+	    vga_hwinit();	/* init VGA graphics hardware w/o BIOS */
+	else
 #endif
+	    int10(mode, 0);	/* init graphics mode via BIOS */
 
 	/* init driver variables depending on ega/vga mode*/
 	psd->xres = psd->xvirtres = 640;
-	psd->yres = psd->yvirtres = VGAMODE? 480: 350;
+	psd->yres = psd->yvirtres = (mode == VGA_640x480x16)? 480: 350;
 	psd->planes = 4;
 	psd->bpp = 4;
 	psd->ncolors = 16;
@@ -133,9 +136,7 @@ VGA_open(PSD psd)
 
 #if ROMFONT
 	pcrom_init(psd);	/* init pc rom font routines*/
-#endif
-#if 0
-	ROM_CHAR_HEIGHT = VGAMODE? 16: 14;
+	//ROM_CHAR_HEIGHT = (mode == VGA_640x480x16)?? 16: 14;
 #endif
 	return psd;
 }
@@ -144,13 +145,12 @@ static void
 VGA_close(PSD psd)
 {
 #if ELKS
-	//ioctl(2, DCREL_GRAPH); /* allow console switching again*/
+	//ioctl(2, DCREL_GRAPH);    /* allow console switching again*/
+	if (hwinit)
+	    vga_hwterm();
+	else
 #endif
-#if HWINIT
-	ega_hwterm();
-#else
-	int10(FNTEXT, 0);       /* init bios 80x25 text mode*/
-#endif
+	    int10(TEXT_MODE, 0);	/* init bios 80x25 text mode*/
 }
 
 static void
@@ -164,8 +164,8 @@ VGA_getscreeninfo(PSD psd,PMWSCREENINFO psi)
 	psi->ncolors = psd->ncolors;
 	psi->pixtype = psd->pixtype;
 	psi->fonts = NUMBER_FONTS;
-	if(VGAMODE) {
-		/* VGA 640x480*/
+	if(psd->yvirtres == 480) {
+		/* VGA 640x480 */
 		psi->xdpcm = 27;	/* assumes screen width of 24 cm*/
 		psi->ydpcm = 27;	/* assumes screen height of 18 cm*/
 	} else {

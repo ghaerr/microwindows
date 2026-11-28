@@ -27,9 +27,14 @@
 
 /* Default terminal size */
 #define STDCOL 80
+#if ELKS
+#define STDROW 25
+#define KBDBUF 1024
+#else
 #define STDROW 50
 #define KBDBUF 10240
-#define TITLE "nxterm"
+#endif
+#define TITLE "tmterm"
 
 /* Color definitions */
 #define GR_COLOR_WHITESMOKE MWRGB(245, 245, 245)
@@ -155,14 +160,17 @@ draw_cell(int x, int y, wchar_t ch, TMTATTRS attrs)
         } else if (ch < 0x800) {
             buf[len++] = 0xC0 | (ch >> 6);
             buf[len++] = 0x80 | (ch & 0x3F);
-        }
-#if !ELKS
-        else if (ch < 0x10000) {
-#endif
+#if ELKS
+        } else {
             buf[len++] = 0xE0 | (ch >> 12);
             buf[len++] = 0x80 | ((ch >> 6) & 0x3F);
             buf[len++] = 0x80 | (ch & 0x3F);
-#if !ELKS
+        }
+#else
+        } else if (ch < 0x10000) {
+            buf[len++] = 0xE0 | (ch >> 12);
+            buf[len++] = 0x80 | ((ch >> 6) & 0x3F);
+            buf[len++] = 0x80 | (ch & 0x3F);
         } else {
             buf[len++] = 0xF0 | (ch >> 18);
             buf[len++] = 0x80 | ((ch >> 12) & 0x3F);
@@ -251,6 +259,21 @@ tmt_callback(tmt_msg_t m, TMT *v, const void *a, void *p)
     if (!vt) return;
     
     switch (m) {
+#ifdef TMT_HAS_MSG_SCROLL
+    case TMT_MSG_SCROLL:
+        if (tmt_screen(vt)->update.dirty)
+            draw_screen();
+        tmt_dirty(vt, 0, STDROW - 1, STDCOL, 1);
+        hide_cursor();
+        GrCopyArea(w1, gc1, 0, 0, STDCOL * fonw, (STDROW - 1) * fonh,
+                   w1, 0, fonh, MWROP_COPY);
+        GrSetGCForeground(gc1, stdbackground);
+        GrFillRect(w1, gc1, 0, (STDROW - 1) * fonh,
+                   STDCOL * fonw, fonh);
+        GrSetGCForeground(gc1, gi.foreground);
+        break;
+#endif
+
     case TMT_MSG_UPDATE:
         draw_screen();
         break;
@@ -476,6 +499,14 @@ main(int argc, char **argv)
     if (*argv)
         startprogram = *argv++;
 
+#if ELKS
+    vt = tmt_open(row, col, tmt_callback, NULL, NULL);
+    if (!vt) {
+        fprintf(stderr, "tmt_open failed\n");
+        exit(1);
+    }
+#endif
+
     if (GrOpen() < 0) {
         GrError("cannot open graphics\n");
         exit(1);
@@ -580,16 +611,14 @@ main(int argc, char **argv)
     signal(SIGTTOU, SIG_IGN);
 #endif
 
-    /* Initialize tmt */
+#if !ELKS
     vt = tmt_open(row, col, tmt_callback, NULL, NULL);
     if (!vt) {
         fprintf(stderr, "tmt_open failed\n");
         GrClose();
         exit(1);
     }
-
-    /* Register PTY for input */
-    GrRegisterInput(termfd);
+#endif
 
     /* Run terminal */
     term();

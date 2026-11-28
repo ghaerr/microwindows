@@ -73,6 +73,7 @@ struct app_info {
 	{"landmine",PATH "nxmine"},
 #if ELKS
 	{"calculator",PATH "nxcalc"},
+	{"browser",   PATH "webnx"},
 #else
 	{"aafont",    PATH "demo-aafont"},
 	{"agg",       PATH "demo-agg"},

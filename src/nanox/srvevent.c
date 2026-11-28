@@ -508,6 +508,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 				ep->ch = keyvalue;
 				ep->scancode = scancode;
 				ep->hotkey = GR_TRUE;
+				ep->time = GdGetTickCount();
 				if (keygrab->type == GR_GRAB_HOTKEY_EXCLUSIVE)
 					return;	/* only one client gets it */
 			} else {
@@ -600,6 +601,7 @@ void GsDeliverKeyboardEvent(GR_WINDOW_ID wid, GR_EVENT_TYPE type,
 			ep->ch = keyvalue;
 			ep->scancode = scancode;
 			ep->hotkey = GR_FALSE;
+			ep->time = GdGetTickCount();
 			return;			/* only one client gets it */
 		}
 

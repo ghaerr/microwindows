@@ -229,7 +229,7 @@ translateNXEvent(Display *dpy, GR_EVENT * ev, XEvent * event)
 			event->xkey.window = pev->wid;
 			event->xkey.root = GR_ROOT_WINDOW_ID;
 			event->xkey.subwindow = pev->subwid;
-			event->xkey.time = lasttime; /* FIXME*/
+			event->xkey.time = lasttime = pev->time;
 			event->xkey.x = pev->x;
 			event->xkey.y = pev->y;;
 			event->xkey.x_root = pev->rootx;
